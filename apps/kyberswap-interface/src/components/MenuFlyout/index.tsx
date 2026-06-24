@@ -20,7 +20,7 @@ const MenuFlyoutLocal = (props: {
   isOpen: boolean
   toggle: () => void
   children: ReactNode
-  node: React.RefObject<HTMLDivElement>
+  node: React.RefObject<HTMLDivElement | null>
   title?: string
   hasArrow?: boolean
   modalWhenMobile?: boolean

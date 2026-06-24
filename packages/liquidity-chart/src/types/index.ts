@@ -1,3 +1,5 @@
+import type { JSX } from 'react';
+
 import type { ScaleLinear, ZoomTransform } from 'd3';
 
 import { POOL_CATEGORY } from '@kyber/schema';

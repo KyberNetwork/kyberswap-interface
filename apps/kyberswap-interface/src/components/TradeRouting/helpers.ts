@@ -75,9 +75,9 @@ export const onScroll = (element: HTMLDivElement | null) => {
 }
 
 export const useShadow = (
-  scrollRef: React.RefObject<HTMLDivElement>,
-  shadowRef: React.RefObject<HTMLDivElement>,
-  contentRef: React.RefObject<HTMLDivElement>,
+  scrollRef: React.RefObject<HTMLDivElement | null>,
+  shadowRef: React.RefObject<HTMLDivElement | null>,
+  contentRef: React.RefObject<HTMLDivElement | null>,
 ) => {
   const handleShadow = useThrottle(() => {
     const element: any = scrollRef.current

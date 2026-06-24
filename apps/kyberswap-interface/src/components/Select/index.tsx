@@ -101,7 +101,7 @@ export default function Select({
   }, [selectedValue, options, hasPlaceholder])
 
   const ref = useRef<HTMLDivElement>(null)
-  const popperRef = useRef<HTMLDivElement>()
+  const popperRef = useRef<HTMLDivElement | null>(null)
   const outsideRefs = useMemo(() => [ref, popperRef], [])
 
   useOnClickOutside(
@@ -160,7 +160,7 @@ export default function Select({
 
   const [popperElement, setPopperElement] = useState<HTMLDivElement | null>(null)
   const setPopperRef = (node: HTMLDivElement | null) => {
-    popperRef.current = node || undefined
+    popperRef.current = node
     setPopperElement(node)
   }
 

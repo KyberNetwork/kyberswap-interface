@@ -87,10 +87,14 @@ export const BitcoinWalletProvider = ({ children }: { children: ReactNode }) => 
       providers.push(ledgerProvider)
 
       if (window.location.pathname === APP_PATHS.CROSS_CHAIN) {
+        // Re-hydrate the previously connected wallet via its SILENT restore() only — never connect(), which
+        // pops the wallet's approval dialog. This effect re-runs whenever the route mounts, so calling
+        // connect() here made wallets without a silent path (OKX, Xverse) prompt on every cross-chain visit.
+        // Wallets that don't implement restore() are simply skipped.
         const lastConnectedWallet = localStorage.getItem('bitcoinWallet')
         providers
           .find(wallet => wallet.type === lastConnectedWallet)
-          ?.connect()
+          ?.restore?.()
           .catch(() => {
             localStorage.removeItem('bitcoinWallet')
             setConnectingWallet(null)

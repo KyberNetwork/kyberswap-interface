@@ -27,6 +27,7 @@ export default function useInitWidget(widgetProps: ZapMigrationProps) {
     signTypedData,
     txStatus,
     txHashMapping,
+    onOpenPoolDetail,
   } = widgetProps;
 
   const [hasReseted, setHasReseted] = useState(false);
@@ -94,6 +95,7 @@ export default function useInitWidget(widgetProps: ZapMigrationProps) {
       signTypedData,
       txStatus,
       txHashMapping,
+      onOpenPoolDetail,
     });
   }, [
     themeProps,
@@ -114,6 +116,7 @@ export default function useInitWidget(widgetProps: ZapMigrationProps) {
     signTypedData,
     txStatus,
     txHashMapping,
+    onOpenPoolDetail,
   ]);
 
   useEffect(() => {

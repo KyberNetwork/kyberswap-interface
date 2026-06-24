@@ -20,7 +20,7 @@ export default function Estimated() {
   const { earnedFee0, earnedFee1, feeValue0, feeValue1 } = earnedFee;
 
   const debounceLiquidityOut = useDebounce(liquidityOut, 500);
-  const abortControllerRef = useRef<AbortController>();
+  const abortControllerRef = useRef<AbortController | undefined>(undefined);
 
   useEffect(() => {
     if (buildData) return;

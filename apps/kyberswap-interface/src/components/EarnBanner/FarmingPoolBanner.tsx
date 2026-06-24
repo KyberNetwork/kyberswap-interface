@@ -22,6 +22,7 @@ import { useActiveWeb3React } from 'hooks'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { FilterTag } from 'pages/Earns/PoolExplorer/Filter'
 import { type EarnPool } from 'pages/Earns/types/pool'
+import { getPoolDetailUrl } from 'pages/Earns/utils/url'
 import { MEDIA_WIDTHS } from 'theme'
 
 let indexInterval: NodeJS.Timeout
@@ -67,11 +68,7 @@ export default function FarmingPoolBanner() {
     const poolChainId = pool.chain?.id ?? pool.chainId
     if (!poolChainId) return `${APP_PATHS.EARN_POOLS}?tag=${FilterTag.FARMING_POOL}`
 
-    return `${APP_PATHS.ADD_LIQUIDITY}?${new URLSearchParams({
-      exchange: pool.exchange,
-      poolAddress: pool.address,
-      poolChainId: String(poolChainId),
-    }).toString()}`
+    return getPoolDetailUrl(poolChainId, pool.exchange, pool.address)
   }
 
   const handlePoolClickTracking = (pool: EarnPool) => {

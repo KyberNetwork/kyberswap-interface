@@ -18,6 +18,9 @@ export const shortString = (str: string | undefined, n: number) => {
 }
 
 export const escapeScriptHtml = (str: string) => {
+  // DOMPurify needs a real DOM; under SSR/prerender it has no `sanitize`. Skip there — the
+  // client re-renders (and re-sanitizes) this content on hydration.
+  if (typeof DOMPurify.sanitize !== 'function') return str
   return DOMPurify.sanitize(str)
 }
 

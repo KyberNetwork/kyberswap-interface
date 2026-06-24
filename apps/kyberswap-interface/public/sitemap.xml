@@ -1,4 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Fallback sitemap for builds that skip the prerender step (dev/stg). Production (`pnpm build`)
+  regenerates build/sitemap.xml from `sitemapRoutes` in src/entry-server.tsx — keep this file in
+  sync with that derived list (home + about + earn + KyberDAO + per-network /swap landings).
+-->
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://kyberswap.com</loc>
@@ -7,28 +12,16 @@
     <loc>https://kyberswap.com/swap</loc>
   </url>
   <url>
-    <loc>https://kyberswap.com/limit</loc>
+    <loc>https://kyberswap.com/about/kyberswap</loc>
   </url>
   <url>
-    <loc>https://kyberswap.com/cross-chain</loc>
+    <loc>https://kyberswap.com/about/knc</loc>
   </url>
   <url>
     <loc>https://kyberswap.com/earn</loc>
   </url>
   <url>
     <loc>https://kyberswap.com/earn/pools</loc>
-  </url>
-  <url>
-    <loc>https://kyberswap.com/earn/positions</loc>
-  </url>
-  <url>
-    <loc>https://kyberswap.com/earn/smart-exit</loc>
-  </url>
-  <url>
-    <loc>https://kyberswap.com/market-overview</loc>
-  </url>
-  <url>
-    <loc>https://kyberswap.com/campaigns</loc>
   </url>
   <url>
     <loc>https://kyberswap.com/kyberdao/stake-knc</loc>
@@ -40,9 +33,69 @@
     <loc>https://kyberswap.com/kyberdao/knc-utility</loc>
   </url>
   <url>
-    <loc>https://kyberswap.com/about/kyberswap</loc>
+    <loc>https://kyberswap.com/swap/ethereum</loc>
   </url>
   <url>
-    <loc>https://kyberswap.com/about/knc</loc>
+    <loc>https://kyberswap.com/swap/arbitrum</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/swap/optimism</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/swap/linea</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/swap/polygon</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/swap/zksync</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/swap/base</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/swap/scroll</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/swap/bnb</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/swap/avalanche</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/swap/fantom</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/swap/blast</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/swap/mantle</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/swap/sonic</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/swap/berachain</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/swap/ronin</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/swap/unichain</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/swap/hyperevm</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/swap/etherlink</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/swap/plasma</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/swap/monad</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/swap/megaeth</loc>
   </url>
 </urlset>

@@ -2,7 +2,7 @@ import { TOKEN_PROGRAM_ID } from '@solana/spl-token'
 import { ConnectionProvider, WalletProvider, useConnection, useWallet } from '@solana/wallet-adapter-react'
 // import { WalletAdapterNetwork } from '@solana/wallet-adapter-base'
 // import { clusterApiUrl } from '@solana/web3.js'
-import { FC, ReactNode, createContext, useContext, useEffect, useState } from 'react'
+import { ComponentProps, FC, ReactNode, createContext, useContext, useEffect, useState } from 'react'
 
 import { SOLANA_RPC } from 'constants/env'
 import { SOLANA_NATIVE } from 'constants/index'
@@ -12,6 +12,18 @@ interface SolanaProviderProps {
   children: ReactNode
 }
 
+// ConnectionProvider memoizes `new Connection(endpoint, config)` keyed on `config` identity; the library's
+// default `config`/`wallets` are fresh objects each render. Stable module-level references keep `connection`
+// (and the wallet adapters) referentially stable so consumers don't refetch on every re-render.
+const SOLANA_CONNECTION_CONFIG: ComponentProps<typeof ConnectionProvider>['config'] = { commitment: 'confirmed' }
+const SOLANA_WALLETS: ComponentProps<typeof WalletProvider>['wallets'] = []
+
+// OKX's Solana Standard wallet ignores the adapter's `silent` flag and pops an approval dialog on
+// auto-reconnect, which fires on every mount of this route-level provider. Returning false skips
+// autoConnect for it (no prompt; the user connects manually); every other wallet keeps the silent
+// adapter.autoConnect() path. WalletProvider short-circuits before any connect() call on a falsy return.
+const SOLANA_AUTO_CONNECT = (adapter: { name: string }): Promise<boolean> => Promise.resolve(!/okx/i.test(adapter.name))
+
 export const SolanaProvider: FC<SolanaProviderProps> = ({ children }) => {
   // const network = WalletAdapterNetwork.Mainnet
 
@@ -19,8 +31,8 @@ export const SolanaProvider: FC<SolanaProviderProps> = ({ children }) => {
   // const endpoint = useMemo(() => clusterApiUrl(network), [network])
 
   return (
-    <ConnectionProvider endpoint={SOLANA_RPC}>
-      <WalletProvider wallets={[]} autoConnect>
+    <ConnectionProvider endpoint={SOLANA_RPC} config={SOLANA_CONNECTION_CONFIG}>
+      <WalletProvider wallets={SOLANA_WALLETS} autoConnect={SOLANA_AUTO_CONNECT}>
         <SolanaConnectModalProvider>
           <SolanaTokenBalances>{children}</SolanaTokenBalances>
         </SolanaConnectModalProvider>

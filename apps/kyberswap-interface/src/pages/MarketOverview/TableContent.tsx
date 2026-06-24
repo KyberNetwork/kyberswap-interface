@@ -16,6 +16,7 @@ import Divider from 'components/Divider'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import DetailModal, { Price, PriceChange } from 'pages/MarketOverview/DetailModal'
+import MarketOverviewSkeleton from 'pages/MarketOverview/MarketOverviewSkeleton'
 import SortIcon, { Direction } from 'pages/MarketOverview/SortIcon'
 import { TabItem, TableRow } from 'pages/MarketOverview/styles'
 import useFilter from 'pages/MarketOverview/useFilter'
@@ -330,6 +331,8 @@ export default function TableContent({
       )}
       {upToMedium && mobileHeader}
 
+      {isLoading && !tokens.length && <MarketOverviewSkeleton upToMedium={upToMedium} />}
+
       {tokens.map((item, idx) => {
         const token = item.tokens.find(t => +t.chainId === filters.chainId)
         const priceBuy = token
@@ -419,7 +422,13 @@ export default function TableContent({
             : priceSellChange7d
 
         return (
-          <TableRow key={item.id + '-' + idx} role="button" onClick={() => setShowTokenId(item.id)}>
+          <TableRow
+            key={item.id + '-' + idx}
+            role="button"
+            onClick={() => setShowTokenId(item.id)}
+            className="animate-[fadeInUp_0.3s_ease-out_both] motion-reduce:animate-none"
+            style={{ animationDelay: `${Math.min(idx * 50, 300)}ms` }}
+          >
             <div className={cn('flex items-start gap-2', upToMedium ? 'py-3' : 'p-3')}>
               <img
                 src={item.logoURL || 'https://i.imgur.com/b3I8QRs.jpeg'}

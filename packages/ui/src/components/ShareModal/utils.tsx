@@ -99,12 +99,14 @@ export const formatTimeDurationFromTimestamp = (timestamp: number): string => {
   return `${months} ${monthText} ${remainingDays} ${dayText}`;
 };
 
-export const getSharePath = (type: ShareType, pool: Pool): string => {
+export const getSharePath = (type: ShareType, pool: Pool, url?: string): string => {
   const origin = window?.location?.origin || 'kyberswap.com';
 
   if (type === ShareType.REWARD_INFO) {
     return `${origin}/earn/pools?tag=farming_pool`;
   }
+
+  if (url) return url;
 
   const searchParams = new URLSearchParams({
     exchange: pool.exchange || '',
@@ -199,7 +201,7 @@ const STAGGERED_EFFECTS = [
 
 const SPECIAL_CHARS = ['$', '%'] as const;
 
-export const renderStaggeredNumber = (numberString: string): JSX.Element => {
+export const renderStaggeredNumber = (numberString: string): React.JSX.Element => {
   const chars = numberString.split('');
 
   return (

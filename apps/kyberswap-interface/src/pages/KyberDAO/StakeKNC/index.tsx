@@ -56,7 +56,7 @@ export default function StakeKNC() {
 
   return (
     <div
-      className="z-[1] w-full bg-transparent"
+      className="z-[1] w-full animate-[fadeInUp_0.5s_ease-out_both] bg-transparent motion-reduce:animate-none"
       style={{
         backgroundImage: `url(${bgimg}), url(${bgimg})`,
         backgroundSize: '100% auto',

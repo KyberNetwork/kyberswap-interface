@@ -39,7 +39,7 @@ const RangePresetSelector = ({
   const theme = useTheme()
   const [lastSelected, setLastSelected] = useState<number | string>('')
   const previousRevertPrice = useRef(revertPrice)
-  const previousRangeSelected = useRef<number | string | undefined>()
+  const previousRangeSelected = useRef<number | string | undefined>(undefined)
 
   const priceRanges = useMemo(() => {
     return getRangePresetOptions({
