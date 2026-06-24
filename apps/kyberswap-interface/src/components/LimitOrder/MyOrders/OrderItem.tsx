@@ -1,5 +1,4 @@
 import { Token } from '@kyberswap/ks-sdk-core'
-import { Trans } from '@lingui/macro'
 import { useMemo, useState } from 'react'
 import { ExternalLink as LinkIcon, Trash } from 'react-feather'
 import { useNavigate } from 'react-router-dom'
@@ -9,6 +8,7 @@ import CopyHelper from 'components/Copy'
 import IconButton from 'components/IconButton'
 import { RowWrapper } from 'components/LimitOrder/MyOrders/TableHeader'
 import { formatStatus } from 'components/LimitOrder/MyOrders/utils'
+import { AmountWithSymbol, ClippedText, SizeInfo } from 'components/LimitOrder/components'
 import { LimitOrder, LimitOrderStatus, LimitOrderTab } from 'components/LimitOrder/types'
 import { calcPercentFilledOrder, getMarketPriceDiff, isActiveStatus } from 'components/LimitOrder/utils'
 import { APP_PATHS } from 'constants/index'
@@ -21,8 +21,6 @@ import { cn } from 'utils/cn'
 import { toCurrencyAmount } from 'utils/currencyAmount'
 import { getEtherscanLink } from 'utils/index'
 import { formatDisplayNumber, uint256ToFraction } from 'utils/numbers'
-
-const formatAmountWithSymbol = (amount: string, symbol?: string) => `${amount} ${symbol ?? ''}`.trim()
 
 const formatOrderDisplayAmount = (amount: string, decimals: number) =>
   formatDisplayNumber(uint256ToFraction(amount, decimals).toFixed(18), { significantDigits: 6 })
@@ -42,34 +40,8 @@ const getNeededMakingAmount = (order: LimitOrder) => {
   return makingAmount.subtract(filledMakingAmount)
 }
 
-const SizeInfo = ({ amount, symbol, filled }: { amount: string; symbol: string; filled: string }) => {
-  const progress = filled.startsWith('<') ? 0.01 : Number(filled.replace(/,/g, '')) || 0
-
-  return (
-    <div className="flex w-full min-w-0 flex-col text-right">
-      <div className="truncate text-sm font-medium text-text" title={formatAmountWithSymbol(amount, symbol)}>
-        {formatAmountWithSymbol(amount, symbol)}
-      </div>
-      <div className="flex items-center justify-end gap-2 text-xs text-subText">
-        <span className="h-1 w-12 shrink-0 overflow-hidden rounded-full bg-subText-40">
-          <span className="block h-full rounded-full bg-primary" style={{ width: `${Math.min(progress, 100)}%` }} />
-        </span>
-        <span className="min-w-16 whitespace-nowrap text-right">
-          <Trans>Fill</Trans> {filled}%
-        </span>
-      </div>
-    </div>
-  )
-}
-
-const AmountText = ({ amount, symbol, muted }: { amount?: string; symbol?: string; muted?: boolean }) => (
-  <div
-    className={cn('w-full min-w-0 truncate text-right text-sm font-medium', muted ? 'text-subText' : 'text-text')}
-    title={amount ? formatAmountWithSymbol(amount, symbol) : undefined}
-  >
-    {amount ? formatAmountWithSymbol(amount, symbol) : '--'}
-  </div>
-)
+const getFilledProgressPercent = (filledPercent: string) =>
+  filledPercent.startsWith('<') ? 0.01 : Number(filledPercent.replace(/,/g, '')) || 0
 
 const RateText = ({ rate, marketRate }: { rate: string; marketRate?: number }) => {
   const marketDiff = getMarketPriceDiff(rate, marketRate)
@@ -77,9 +49,9 @@ const RateText = ({ rate, marketRate }: { rate: string; marketRate?: number }) =
 
   return (
     <div className="flex w-full min-w-0 flex-col items-end text-right">
-      <div className="w-full truncate text-sm font-medium text-primary" title={displayRate}>
+      <ClippedText className="text-sm font-medium text-primary" title={displayRate}>
         {displayRate}
-      </div>
+      </ClippedText>
       {marketDiff.displayPercent && <div className="text-xs text-subText">{marketDiff.displayPercent}</div>}
     </div>
   )
@@ -183,9 +155,10 @@ const OrderItem = ({ order, onCancelOrder, isOrderCancelling }: OrderItemProps) 
         <SizeInfo
           amount={formatOrderDisplayAmount(order.makingAmount, order.makerAssetDecimals)}
           symbol={order.makerAssetSymbol}
-          filled={filledPercent}
+          filledPercentText={filledPercent}
+          filledProgressPercent={getFilledProgressPercent(filledPercent)}
         />
-        <AmountText
+        <AmountWithSymbol
           amount={
             isOrderActive
               ? formatOrderDisplayAmount(availableAmount.quotient.toString(), order.makerAssetDecimals)
@@ -195,7 +168,7 @@ const OrderItem = ({ order, onCancelOrder, isOrderCancelling }: OrderItemProps) 
           muted={!isOrderActive}
         />
         <RateText rate={rawRate} marketRate={tradeInfo?.marketRate} />
-        <AmountText
+        <AmountWithSymbol
           amount={formatOrderDisplayAmount(order.takingAmount, order.takerAssetDecimals)}
           symbol={takerSymbol}
         />
@@ -249,7 +222,7 @@ const OrderItem = ({ order, onCancelOrder, isOrderCancelling }: OrderItemProps) 
                     {txFilledPercent}%
                   </span>
                   <div className="col-start-5">
-                    <AmountText
+                    <AmountWithSymbol
                       amount={formatOrderDisplayAmount(tx.takingAmount, order.takerAssetDecimals)}
                       symbol={takerSymbol}
                       muted

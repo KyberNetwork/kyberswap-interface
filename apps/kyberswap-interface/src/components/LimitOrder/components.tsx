@@ -153,3 +153,71 @@ export const OrderSummary = ({
     </Stack>
   )
 }
+
+const formatAmountWithSymbol = (amount: string, symbol?: string) => `${amount} ${symbol ?? ''}`.trim()
+
+type ClippedTextProps = {
+  children: ReactNode
+  className?: string
+  title?: string
+}
+
+export const ClippedText = ({ children, className, title }: ClippedTextProps) => (
+  <div className="flex w-full min-w-0 justify-end">
+    <span
+      className={cn('block min-w-0 max-w-full overflow-hidden whitespace-nowrap text-left', className)}
+      title={title}
+    >
+      {children}
+    </span>
+  </div>
+)
+
+type AmountWithSymbolProps = {
+  amount?: string
+  symbol?: string
+  muted?: boolean
+}
+
+export const AmountWithSymbol = ({ amount, symbol, muted }: AmountWithSymbolProps) => (
+  <div
+    className={cn(
+      'flex w-full min-w-0 items-center justify-end gap-1 text-right text-sm font-medium',
+      muted ? 'text-subText' : 'text-text',
+    )}
+    title={amount ? formatAmountWithSymbol(amount, symbol) : undefined}
+  >
+    {amount ? (
+      <>
+        <span className="min-w-0 overflow-hidden whitespace-nowrap text-left">{amount}</span>
+        {symbol && <span className="shrink-0 whitespace-nowrap">{symbol}</span>}
+      </>
+    ) : (
+      '--'
+    )}
+  </div>
+)
+
+type SizeInfoProps = {
+  amount: string
+  symbol?: string
+  filledPercentText: string
+  filledProgressPercent: number
+}
+
+export const SizeInfo = ({ amount, symbol, filledPercentText, filledProgressPercent }: SizeInfoProps) => (
+  <div className="flex w-full min-w-0 flex-col text-right">
+    <AmountWithSymbol amount={amount} symbol={symbol} />
+    <div className="flex items-center justify-end gap-2 text-xs text-subText">
+      <span className="h-1 w-12 shrink-0 overflow-hidden rounded-full bg-subText-40">
+        <span
+          className="block h-full rounded-full bg-primary"
+          style={{ width: `${Math.min(filledProgressPercent, 100)}%` }}
+        />
+      </span>
+      <span className="min-w-12 whitespace-nowrap text-right">
+        <Trans>Fill</Trans> {filledPercentText}%
+      </span>
+    </div>
+  </div>
+)
