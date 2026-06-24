@@ -10,7 +10,7 @@ import CurrencyLogo from 'components/CurrencyLogo'
 import WalletIcon from 'components/Icons/Wallet'
 import ProcessingOrderModal from 'components/LimitOrder/ProcessingOrder/ProcessingOrderModal'
 import { DEFAULT_PROCESSING_ORDER, useProcessingOrder } from 'components/LimitOrder/ProcessingOrder/useProcessingOrder'
-import RateComparison from 'components/LimitOrder/TakeOrder/RateComparison'
+import RateComparison, { MARKET_DIFF_WARNING_THRESHOLD } from 'components/LimitOrder/TakeOrder/RateComparison'
 import { useTakeLimitOrder } from 'components/LimitOrder/TakeOrder/useTakeLimitOrder'
 import {
   LimitOrderFromTokenPairFormatted,
@@ -94,7 +94,6 @@ const getPercentFillAmount = (amount: CurrencyAmount<Currency> | undefined, perc
 const normalizeActionAmount = (nextAmount: string) => (parseFloat(nextAmount || '0') > 0 ? nextAmount : '')
 
 const QUICK_FILL_PERCENTS = [25, 50, 75, 100]
-const MARKET_DIFF_WARNING_THRESHOLD = 50
 const FEE_BPS_BASE = JSBI.BigInt(10_000)
 
 const getSwapCurrencyId = (currency: Currency | undefined) =>

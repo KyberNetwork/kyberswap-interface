@@ -199,8 +199,9 @@ Expected processing pattern:
 ### 26. Hard cancel refresh
 - Example: cancel order `#123` with hard cancel.
 - Expected result: cancel tx is submitted.
-- Expected result: cancelling-order insert API completes.
-- Expected result: My Orders list refreshes after insert.
+- Expected result: cancel tx is added to the transaction store with the cancelled order id.
+- Expected result: My Orders shows the order as cancelling while the tx is pending.
+- Expected result: My Orders list refreshes after tx/Firebase/order polling updates.
 - Expected result: insufficient-orders badge refreshes.
 
 ## URL / Tab Behavior

@@ -10,7 +10,7 @@ import useGetRoute from 'components/SwapForm/hooks/useGetRoute'
 import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
 
-const MARKET_DIFF_WARNING_THRESHOLD = 50
+export const MARKET_DIFF_WARNING_THRESHOLD = 100
 
 const formatPriceRate = (price: Price<Currency, Currency> | undefined) =>
   price
@@ -77,7 +77,9 @@ const RateComparison = ({
 
   const isSwapRouteBetter =
     !!swapRouteSummary?.parsedAmountOut && !!outputAmount && swapRouteSummary.parsedAmountOut.greaterThan(outputAmount)
-  const shouldHighlightOrderRate = marketDiffPercent > MARKET_DIFF_WARNING_THRESHOLD
+
+  const shouldWarningOrderRate = marketDiffPercent > MARKET_DIFF_WARNING_THRESHOLD
+  const shouldSuccessOrderRate = marketDiffPercent < 0
   const showSwapOfferNotice = swapRouteLoading ? marketDiffPercent > 0 : isSwapRouteBetter
 
   useEffect(() => {
@@ -98,7 +100,9 @@ const RateComparison = ({
             </Trans>
           }
         >
-          <span className={cn(shouldHighlightOrderRate && 'text-red')}>{formatPriceRate(orderExecutionPrice)}</span>
+          <span className={cn(shouldWarningOrderRate && 'text-red', shouldSuccessOrderRate && 'text-primary')}>
+            {formatPriceRate(orderExecutionPrice)}
+          </span>
         </DetailRow>
         <DetailRow label={<Trans>Swap best route</Trans>}>
           <HStack className="flex-wrap justify-end gap-1 gap-y-0 max-sm:justify-start">
@@ -122,7 +126,7 @@ const RateComparison = ({
           </HStack>
         </DetailRow>
         {showSwapOfferNotice && (
-          <span className="text-sm italic text-blue">
+          <span className="text-sm italic text-warning">
             💡 <Trans>Swap offers a better rate. You can still fill this order directly if you prefer.</Trans>
           </span>
         )}
