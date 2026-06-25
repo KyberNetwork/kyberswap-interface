@@ -52,9 +52,9 @@ const SegmentedControl = <T extends string>({
       role="tablist"
     >
       <div
-        className="pointer-events-none absolute inset-y-px left-px rounded-full bg-tabActive [transition:transform_200ms_ease,background_200ms_ease]"
+        className="pointer-events-none absolute inset-y-0 left-0 rounded-full bg-tabActive [transition:transform_200ms_ease,background_200ms_ease]"
         style={{
-          width: `calc((100% - 2px) / ${optionCount})`,
+          width: `calc((100% - 0px) / ${optionCount})`,
           transform: `translateX(calc(100% * ${Math.max(activeIndex, 0)}))`,
         }}
       />

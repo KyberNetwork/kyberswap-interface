@@ -3,7 +3,6 @@
   <head>
     <!-- Basic document metadata -->
     <meta charset="utf-8" />
-    <title>KyberSwap - Limitless Access To DeFi</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
     <meta name="theme-color" content="#31CB9E" />
 
@@ -11,6 +10,9 @@
     <link rel="shortcut icon" href="/favicon.ico?version=v" />
     <link rel="apple-touch-icon" type="image/png" href="/favicon.png?version=v1" />
     <link rel="icon" type="image/png" href="/favicon.png?version=v1" />
+
+    <!-- ssr-seo:start — title + per-route metadata; replaced at prerender time by scripts/prerender.mjs -->
+    <title>KyberSwap - Limitless Access To DeFi</title>
 
     <!-- Default SEO metadata -->
     <meta
@@ -40,8 +42,9 @@
     <meta name="twitter:image" content="https://kyberswap.com/kyberswap-og-image.png?version=2023" />
     <meta name="twitter:image:alt" content="KyberSwap - Limitless Access To DeFi" />
 
-    <!-- Structured data -->
-    <script type="application/ld+json">
+    <!-- Structured data — id lets the client <RouteSeo> update THIS block in place on the (non-prerendered)
+         home route instead of appending a duplicate. Prerendered routes replace it via the ssr-seo markers. -->
+    <script type="application/ld+json" id="kyberswap-structured-data">
       {
         "@context": "https://schema.org",
         "@graph": [
@@ -64,6 +67,7 @@
         ]
       }
     </script>
+    <!-- ssr-seo:end -->
 
     <!-- Platform verification -->
     <meta name="fortmatic-site-verification" content="j93LgcVZk79qcgyo" />
@@ -77,6 +81,16 @@
     <!-- App manifest and assets -->
     <link rel="manifest" href="/manifest.json" />
     <link rel="preload" as="image" href="/logo-dark.svg" />
+
+    <!-- Data APIs: warm DNS + TLS for the origins hit on initial load. JSON APIs are CORS fetches, so
+         they reuse a `crossorigin` connection; the image CDN is loaded without CORS, so no crossorigin. -->
+    <link rel="preconnect" href="https://ks-setting.kyberswap.com" crossorigin />
+    <link rel="preconnect" href="https://token-api.kyberswap.com" crossorigin />
+    <link rel="preconnect" href="https://aggregator-api.kyberswap.com" crossorigin />
+    <link rel="preconnect" href="https://storage.googleapis.com" />
+    <link rel="dns-prefetch" href="https://ethereum-rpc.kyberswap.com" />
+    <link rel="dns-prefetch" href="https://earn-service.kyberswap.com" />
+    <link rel="dns-prefetch" href="https://common-service.kyberswap.com" />
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -135,7 +149,7 @@
       .preloadhtml-logo {
         .kyber-logo {
           width: 140px;
-          margin-top: 1px;
+          margin-top: -2px;
 
           @media screen and (max-width: 768px) {
             width: 100px;
@@ -246,6 +260,8 @@
           </div>
         </div>
       </div>
+      <!-- ssr-skeleton:start — generic logo loader (SPA fallback / home); scripts/prerender.mjs replaces this
+           per-route with that route's page-shell skeleton (the same <RouteFallback> shown post-hydrate). -->
       <div style="height: 180px; display: flex">
         <img
           style="animation: pulse 800ms linear infinite; margin: auto"
@@ -254,6 +270,7 @@
           alt="DmmLogo"
         />
       </div>
+      <!-- ssr-skeleton:end -->
     </div>
     <!--
       This HTML file is a template.

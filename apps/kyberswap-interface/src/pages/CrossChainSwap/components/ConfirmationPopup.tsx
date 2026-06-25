@@ -1,7 +1,6 @@
 import { ChainId, CurrencyAmount, Currency as EvmCurrency } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { useWalletSelector } from '@near-wallet-selector/react-hook'
-import { adaptSolanaWallet } from '@reservoir0x/relay-solana-wallet-adapter'
 import { useConnection, useWallet } from '@solana/wallet-adapter-react'
 import { Transaction, VersionedTransaction } from '@solana/web3.js'
 import { useEffect, useState } from 'react'
@@ -13,6 +12,7 @@ import { formatUnits } from 'viem'
 import { ButtonEmpty, ButtonPrimary } from 'components/Button'
 import CopyHelper from 'components/Copy'
 import CurrencyLogo from 'components/CurrencyLogo'
+import { getTipLinkAttribution } from 'components/TipLinkGeneratorModal/shared'
 import TransactionConfirmationModal, { TransactionErrorContent } from 'components/TransactionConfirmationModal'
 import { useBitcoinWallet } from 'components/Web3Provider/BitcoinProvider'
 import { ETHER_ADDRESS } from 'constants/index'
@@ -20,6 +20,7 @@ import { NETWORKS_INFO } from 'constants/networks'
 import { useGatedWalletClient } from 'hooks/useGatedWalletClient'
 import useTracking, { CROSS_CHAIN_MIXPANEL_TYPE, TRACKING_EVENT_TYPE, useCrossChainMixpanel } from 'hooks/useTracking'
 import { Chain, Currency, NonEvmChain, NonEvmChainInfo } from 'pages/CrossChainSwap/adapters'
+import { adaptRelaySolanaWallet } from 'pages/CrossChainSwap/adapters/RelayAdapter/relaySolanaWallet'
 import { PiWarning } from 'pages/CrossChainSwap/components/PiWarning'
 import { QuoteProviderName } from 'pages/CrossChainSwap/components/QuoteProviderName'
 import { Summary } from 'pages/CrossChainSwap/components/Summary'
@@ -156,7 +157,7 @@ export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDi
 
   const handleSwap = async () => {
     if (isEvmChain(fromChainId) && !walletClient) return
-    const adaptedWallet = adaptSolanaWallet(
+    const adaptedWallet = adaptRelaySolanaWallet(
       solanaAddress?.toString() || '1nc1nerator11111111111111111111111111111111',
       792703809, //chain id that Relay uses to identify solana
       connection,
@@ -178,11 +179,13 @@ export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDi
 
     setSubmittingTx(true)
 
-    const blackjackRes = await checkBlackjack(sender)
-    if (blackjackRes?.data?.blacklisted) {
-      setSubmittingTx(false)
-      setTxError('There was an error with your transaction.')
-      return
+    if (isEvmChain(fromChainId)) {
+      const blackjackRes = await checkBlackjack(sender)
+      if (blackjackRes?.data?.blacklisted) {
+        setSubmittingTx(false)
+        setTxError('There was an error with your transaction.')
+        return
+      }
     }
 
     const res = await selectedQuote.adapter
@@ -293,6 +296,26 @@ export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDi
       }
       crossChainMixpanelHandler(CROSS_CHAIN_MIXPANEL_TYPE.CROSS_CHAIN_SWAP_INIT, swapDetails)
       trackingHandler(TRACKING_EVENT_TYPE.CC_SWAP_INITIATED, swapDetails)
+
+      // Tip is not charged on cross-chain swaps — attribute referral volume at initiation
+      // (completion fires from an off-page poller that has lost the tip-link URL context).
+      const tipLink = getTipLinkAttribution(searchParams)
+      if (tipLink) {
+        trackingHandler(TRACKING_EVENT_TYPE.TIP_LINK_TRADE, {
+          trade_type: 'cross_chain',
+          trade_status: 'initiated',
+          tip_charged: false,
+          ...tipLink,
+          input_token: currencyIn?.symbol,
+          output_token: currencyOut?.symbol,
+          pair: currencyIn?.symbol && currencyOut?.symbol ? `${currencyIn.symbol}/${currencyOut.symbol}` : undefined,
+          chain: getChainName(fromChainId),
+          from_chain: getChainName(fromChainId),
+          to_chain: getChainName(toChainId),
+          volume: selectedQuote.quote.inputUsd,
+          tx_hash: res.sourceTxHash,
+        })
+      }
     }
     setTxHash(res?.sourceTxHash || '')
     setSubmittingTx(false)

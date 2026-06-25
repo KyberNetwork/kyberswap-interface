@@ -2,6 +2,7 @@ import { Trans } from '@lingui/macro'
 import { useEffect, useRef, useState } from 'react'
 
 import CheckBox from 'components/CheckBox'
+import { HStack, Stack } from 'components/Stack'
 import { BackIconWrapper, LiquiditySourceHeader, SourceList } from 'components/swapv2/LiquiditySourcesPanel'
 import SearchBar from 'components/swapv2/LiquiditySourcesPanel/SearchBar'
 import { ImageWrapper, Source, SourceName } from 'components/swapv2/LiquiditySourcesPanel/styles'
@@ -18,39 +19,56 @@ export const CrossChainSwapSources: React.FC<{ onBack: () => void }> = ({ onBack
 
   const sources = CrossChainSwapFactory.getAllAdapters()
   const excludedSources = useAppSelector(state => state.crossChainSwap.excludedSources || [])
+  const selectedSources = sources?.filter(item => !excludedSources.includes(item.getName())) || []
   const dispatch = useAppDispatch()
 
+  const handleToggleSource = (sourceName: string) => {
+    const isExclude = excludedSources.find(i => i === sourceName)
+    const enabled = !!isExclude
+    if (isExclude) {
+      dispatch(updateExcludedSources(excludedSources.filter(ex => ex !== sourceName)))
+    } else {
+      dispatch(updateExcludedSources([...excludedSources, sourceName]))
+    }
+    trackingHandler(TRACKING_EVENT_TYPE.CC_ROUTING_SOURCE_TOGGLED, {
+      source_name: sourceName,
+      enabled,
+      total_enabled: enabled
+        ? sources.length - excludedSources.length + 1
+        : sources.length - excludedSources.length - 1,
+      total_available: sources.length,
+    })
+  }
   useEffect(() => {
-    const selected = sources?.filter(item => !excludedSources.includes(item.getName())) || []
-
     if (!checkAllRef.current) return
-    if (selected.length === sources.length) {
+    if (selectedSources.length === sources.length) {
       checkAllRef.current.checked = true
       checkAllRef.current.indeterminate = false
-    } else if (!selected.length) {
+    } else if (!selectedSources.length) {
       checkAllRef.current.checked = false
       checkAllRef.current.indeterminate = false
-    } else if (selected.length < sources.length) {
+    } else if (selectedSources.length < sources.length) {
       checkAllRef.current.checked = false
       checkAllRef.current.indeterminate = true
     }
-  }, [excludedSources, sources])
+  }, [selectedSources.length, sources.length])
 
   return (
-    <div className="w-full">
-      <div className="flex w-full flex-col gap-y-5">
-        <div className="mt-[5px] flex items-center">
-          <BackIconWrapper onClick={onBack}></BackIconWrapper>
-          <span className="text-lg font-medium text-text">
-            <Trans>Liquidity Sources</Trans>
-          </span>
-        </div>
+    <Stack className="w-full gap-5">
+      <HStack className="items-center gap-1">
+        <BackIconWrapper onClick={onBack} />
+        <span className="text-lg font-medium text-text">
+          <Trans>Liquidity Sources</Trans>
+        </span>
+      </HStack>
 
-        <SearchBar text={searchText} setText={setSearchText} />
+      <SearchBar text={searchText} setText={setSearchText} />
 
-        <LiquiditySourceHeader>
+      <LiquiditySourceHeader>
+        <HStack className="items-center gap-3">
           <CheckBox
             ref={checkAllRef}
+            className="cursor-pointer"
             onChange={e => {
               if (!e.currentTarget.checked) {
                 dispatch(updateExcludedSources(sources.map(item => item.getName())))
@@ -62,43 +80,31 @@ export const CrossChainSwapSources: React.FC<{ onBack: () => void }> = ({ onBack
           <span>
             <Trans>Liquidity Sources</Trans>
           </span>
-        </LiquiditySourceHeader>
+        </HStack>
+        <span className="text-subText">
+          {selectedSources.length}/{sources.length}
+        </span>
+      </LiquiditySourceHeader>
 
-        <SourceList>
-          {sources
-            ?.filter(item => item.getName().toLowerCase().includes(searchText.toLowerCase().trim()))
-            .map(item => (
-              <Source key={item.getName()}>
-                <CheckBox
-                  checked={!excludedSources.includes(item.getName())}
-                  onChange={() => {
-                    const isExclude = excludedSources.find(i => i === item.getName())
-                    const enabled = !!isExclude
-                    if (isExclude) {
-                      dispatch(updateExcludedSources(excludedSources.filter(ex => ex !== item.getName())))
-                    } else {
-                      dispatch(updateExcludedSources([...excludedSources, item.getName()]))
-                    }
-                    trackingHandler(TRACKING_EVENT_TYPE.CC_ROUTING_SOURCE_TOGGLED, {
-                      source_name: item.getName(),
-                      enabled,
-                      total_enabled: enabled
-                        ? sources.length - excludedSources.length + 1
-                        : sources.length - excludedSources.length - 1,
-                      total_available: sources.length,
-                    })
-                  }}
-                />
+      <SourceList>
+        {sources
+          ?.filter(item => item.getName().toLowerCase().includes(searchText.toLowerCase().trim()))
+          .map(item => (
+            <Source key={item.getName()} onClick={() => handleToggleSource(item.getName())}>
+              <CheckBox
+                checked={!excludedSources.includes(item.getName())}
+                onChange={() => handleToggleSource(item.getName())}
+                onClick={e => e.stopPropagation()}
+              />
 
-                <ImageWrapper>
-                  <img src={item.getIcon()} alt="" />
-                </ImageWrapper>
+              <ImageWrapper>
+                <img src={item.getIcon()} alt="" />
+              </ImageWrapper>
 
-                <SourceName>{item.getName()}</SourceName>
-              </Source>
-            ))}
-        </SourceList>
-      </div>
-    </div>
+              <SourceName>{item.getName()}</SourceName>
+            </Source>
+          ))}
+      </SourceList>
+    </Stack>
   )
 }

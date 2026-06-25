@@ -30,10 +30,10 @@ const Header = ({
   icon: ReactNode
 }) => {
   return (
-    <div className="flex flex-1 justify-between py-3 pl-4">
+    <div className="flex min-h-10 flex-1 items-center justify-between gap-3 py-2 pl-4">
       <div className="flex items-center gap-1.5">
         {icon}
-        <span className="text-sm font-normal text-subText">{title}</span>
+        <span className="text-sm font-medium text-subText">{title}</span>
       </div>
       <BadgeWarning warning={warning} danger={danger} />
     </div>

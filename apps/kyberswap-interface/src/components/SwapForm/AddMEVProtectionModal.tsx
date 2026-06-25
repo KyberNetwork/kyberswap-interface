@@ -1,7 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { useCallback, useMemo } from 'react'
-import { X } from 'react-feather'
 
 import { NotificationType } from 'components/Announcement/type'
 import { ButtonOutlined, ButtonPrimary } from 'components/Button'
@@ -15,7 +14,7 @@ import { useActiveWeb3React } from 'hooks'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { useNotify } from 'state/application/hooks'
-import { ExternalLink } from 'theme'
+import { CloseIcon, ExternalLink } from 'theme'
 import { friendlyError } from 'utils/errorMessage'
 
 export const KYBER_SWAP_RPC: Partial<Record<ChainId, string>> = {
@@ -81,7 +80,7 @@ export default function AddMEVProtectionModal({ isOpen, onClose }: { isOpen: boo
           <span className="text-2xl font-medium text-text">
             <Trans>Add Custom RPC Endpoint</Trans>
           </span>
-          <X className="cursor-pointer text-text" onClick={onClose} />
+          <CloseIcon className="cursor-pointer text-text" onClick={onClose} />
         </RowBetween>
         <div className="text-xs leading-4">
           <div className="flex flex-col gap-2">

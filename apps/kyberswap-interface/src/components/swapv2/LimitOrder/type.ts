@@ -119,7 +119,7 @@ export type EditOrderInfo = {
   cancelType?: CancelOrderType
   gasFee?: string
   isEdit?: boolean
-  renderCancelButtons: () => JSX.Element
+  renderCancelButtons: () => React.JSX.Element
 }
 
 export type CancelOrderResponse = {

@@ -9,7 +9,6 @@ import { AnnouncementTemplateLimitOrder } from 'components/Announcement/type'
 import Logo from 'components/Logo'
 import { LimitOrderStatus } from 'components/swapv2/LimitOrder/type'
 import { APP_PATHS } from 'constants/index'
-import { NETWORKS_INFO } from 'constants/networks'
 import { formatTime } from 'utils/time'
 
 export default function AnnouncementItem({
@@ -55,7 +54,7 @@ export default function AnnouncementItem({
 
   const navigate = useNavigate()
   return (
-    <Wrapper onClick={() => navigate(`${APP_PATHS.LIMIT}/${NETWORKS_INFO[chainId || ChainId.MAINNET].route}`)}>
+    <Wrapper onClick={() => navigate(APP_PATHS.LIMIT)}>
       <div className="flex w-full justify-between">
         <Title>
           <InboxIcon type={templateType} chainId={chainId} />

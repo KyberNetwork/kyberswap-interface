@@ -1,7 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { useWalletSelector } from '@near-wallet-selector/react-hook'
-import { adaptSolanaWallet } from '@reservoir0x/relay-solana-wallet-adapter'
 import { useConnection, useWallet } from '@solana/wallet-adapter-react'
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
@@ -32,10 +31,12 @@ import {
   QuoteParams,
   SwapProvider,
 } from 'pages/CrossChainSwap/adapters'
+import { adaptRelaySolanaWallet } from 'pages/CrossChainSwap/adapters/RelayAdapter/relaySolanaWallet'
 import { CrossChainSwapFactory } from 'pages/CrossChainSwap/factory'
+import { type NearToken, useNearTokens } from 'pages/CrossChainSwap/hooks/useNearTokens'
+import { useSolanaTokens } from 'pages/CrossChainSwap/hooks/useSolanaTokens'
 import { CrossChainSwapAdapterRegistry, Quote } from 'pages/CrossChainSwap/registry'
 import { NEAR_STABLE_COINS, SOLANA_STABLE_COINS, isCanonicalPair } from 'pages/CrossChainSwap/utils'
-import { NearToken, useNearTokens, useSolanaTokens } from 'state/crossChainSwap'
 import { useAppSelector } from 'state/hooks'
 import { useUserSlippageTolerance } from 'state/user/hooks'
 import { isEvmChain, isNonEvmChain } from 'utils'
@@ -51,6 +52,13 @@ const SSE_EVENT = {
 
 // Timeout constants
 const SOFT_TIMEOUT_MS = 4000 // 4 seconds - enable swap button if at least 1 quote exists
+
+const getDefaultTokenForChain = (chain: string | null | undefined) => {
+  if (chain === NonEvmChain.Near) return 'near'
+  if (chain === NonEvmChain.Solana) return SOLANA_NATIVE
+  if (chain && isEvmChain(+chain)) return NativeCurrencies[+chain as ChainId]?.symbol?.toLowerCase() || ''
+  return ''
+}
 
 export const registry = new CrossChainSwapAdapterRegistry()
 CrossChainSwapFactory.getAllAdapters().forEach(adapter => {
@@ -140,15 +148,25 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
   const [solanaReceiver, setSolanaReceiver] = useState('')
 
   const [searchParams, setSearchParams] = useSearchParams()
-  const from = searchParams.get('from')
-  const to = searchParams.get('to')
-  const tokenIn = searchParams.get('tokenIn')
-  const tokenOut = searchParams.get('tokenOut')
+  const rawFrom = searchParams.get('from')
+  const rawTo = searchParams.get('to')
+  const rawTokenIn = searchParams.get('tokenIn')
+  const rawTokenOut = searchParams.get('tokenOut')
   const [amount, setAmount] = useState('1')
   const amountDebounce = useDebounce(amount, 500)
   const { nearTokens } = useNearTokens()
 
   const { chainId, account } = useActiveWeb3React()
+  const defaultFrom = !account ? NonEvmChain.Bitcoin : chainId?.toString() || ''
+  const from = rawFrom || defaultFrom
+  const defaultTo = useMemo(() => {
+    const lastChainId = localStorage.getItem('crossChainSwapLastChainOut')
+    if (lastChainId && lastChainId !== from) return lastChainId
+    return !account || from === NonEvmChain.Bitcoin ? ChainId.MAINNET.toString() : NonEvmChain.Bitcoin
+  }, [account, from])
+  const to = rawTo || defaultTo
+  const tokenIn = rawTokenIn || getDefaultTokenForChain(from)
+  const tokenOut = rawTokenOut || getDefaultTokenForChain(to)
 
   useEffect(() => {
     setLoading(true)
@@ -156,63 +174,30 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
 
   useEffect(() => {
     let hasUpdate = false
-    let newFrom = from
-    if (!from) {
-      const defaultFrom = !account ? NonEvmChain.Bitcoin : chainId?.toString() || ''
-      searchParams.set('from', defaultFrom)
-      newFrom = defaultFrom
+    if (!rawFrom) {
+      searchParams.set('from', from)
       hasUpdate = true
     }
 
-    let newTo = to
-    if (!to) {
-      const lastChainId = localStorage.getItem('crossChainSwapLastChainOut')
-      if (lastChainId && lastChainId !== newFrom) {
-        searchParams.set('to', lastChainId)
-        newTo = lastChainId
-        hasUpdate = true
-      } else {
-        const defaultTo = !account || newFrom === NonEvmChain.Bitcoin ? ChainId.MAINNET.toString() : NonEvmChain.Bitcoin
-        searchParams.set('to', defaultTo)
-        newTo = defaultTo
-        hasUpdate = true
-      }
+    if (!rawTo) {
+      searchParams.set('to', to)
+      hasUpdate = true
     }
 
-    if (!tokenIn) {
-      if (from === NonEvmChain.Near) {
-        searchParams.set('tokenIn', 'near')
-        hasUpdate = true
-      }
-      if (from === NonEvmChain.Solana) {
-        searchParams.set('tokenIn', SOLANA_NATIVE)
-        hasUpdate = true
-      }
-      if (isEvmChain(from ? +from : chainId)) {
-        searchParams.set('tokenIn', NativeCurrencies[(from ? +from : chainId) as ChainId]?.symbol?.toLowerCase() || '')
-        hasUpdate = true
-      }
+    if (!rawTokenIn && tokenIn) {
+      searchParams.set('tokenIn', tokenIn)
+      hasUpdate = true
     }
 
-    if (!tokenOut) {
-      if (to === NonEvmChain.Near) {
-        searchParams.set('tokenOut', 'near')
-        hasUpdate = true
-      }
-      if (to === NonEvmChain.Solana) {
-        searchParams.set('tokenOut', SOLANA_NATIVE)
-        hasUpdate = true
-      }
-      if (newTo && isEvmChain(+newTo)) {
-        searchParams.set('tokenOut', NativeCurrencies[+newTo as ChainId]?.symbol?.toLowerCase() || '')
-        hasUpdate = true
-      }
+    if (!rawTokenOut && tokenOut) {
+      searchParams.set('tokenOut', tokenOut)
+      hasUpdate = true
     }
 
     if (hasUpdate) {
       setSearchParams(searchParams)
     }
-  }, [from, to, tokenIn, chainId, searchParams, setSearchParams, tokenOut, account])
+  }, [from, rawFrom, rawTo, rawTokenIn, rawTokenOut, searchParams, setSearchParams, to, tokenIn, tokenOut])
 
   const isFromSolana = from === 'solana'
   const isFromNear = from === 'near'
@@ -331,7 +316,7 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
     [currencyIn, amountDebounce, isFromEvm],
   )
 
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(true)
   const [allLoading, setAllLoading] = useState(false)
 
   const [quotes, setQuotes] = useState<Quote[]>([])
@@ -422,7 +407,7 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
     ? btcAddress || BTC_DEFAULT_RECEIVER
     : isFromNear
     ? signedAccountId || ZERO_ADDRESS
-    : walletClient?.data?.account.address || CROSS_CHAIN_FEE_RECEIVER
+    : walletClient?.data?.account?.address || CROSS_CHAIN_FEE_RECEIVER
 
   const receiver = isToSolana
     ? recipient || solanaAddress?.toString() || CROSS_CHAIN_FEE_RECEIVER_SOLANA
@@ -430,13 +415,15 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
     ? recipient || BTC_DEFAULT_RECEIVER
     : isToNear
     ? recipient || signedAccountId || ZERO_ADDRESS
-    : recipient || walletClient?.data?.account.address || CROSS_CHAIN_FEE_RECEIVER
+    : recipient || walletClient?.data?.account?.address || CROSS_CHAIN_FEE_RECEIVER
 
   const getQuote = useCallback(async () => {
     if (showPreview) return
     if (disable) {
       setQuotes([])
       setSelectedAdapter(null)
+      setLoading(false)
+      setAllLoading(false)
       abortControllerRef.current.abort()
       return
     }
@@ -947,11 +934,13 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
       }
     }
 
-    const adaptedWallet = adaptSolanaWallet(
+    const adaptedWallet = adaptRelaySolanaWallet(
       solanaAddress?.toString() || CROSS_CHAIN_FEE_RECEIVER_SOLANA,
       792703809, //chain id that Relay uses to identify solana
       connection,
-      connection.sendTransaction as any,
+      async (transaction, options) => ({
+        signature: await (connection.sendTransaction as any)(transaction, options),
+      }),
     )
 
     try {

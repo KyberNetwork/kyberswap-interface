@@ -3,7 +3,8 @@ import { Trans } from '@lingui/macro'
 import { CSSProperties, ReactNode, useState } from 'react'
 import { Repeat } from 'react-feather'
 
-import { Dots, StyledBalanceMaxMini } from 'components/swapv2/styleds'
+import Dots from 'components/Dots'
+import { StyledBalanceMaxMini } from 'components/swapv2/styleds'
 import { cn } from 'utils/cn'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
 import { formatDisplayNumber } from 'utils/numbers'
@@ -39,14 +40,20 @@ export default function TradePrice({ price, label, icon, style = {}, color, clas
 
   return (
     <span
-      className={cn('flex h-[22px] cursor-pointer items-center text-xs font-medium text-subText', className)}
+      className={cn(
+        'group flex items-center text-xs font-medium text-subText',
+        show ? 'cursor-pointer hover:brightness-[0.85]' : 'cursor-default',
+        className,
+      )}
       style={color ? { color, ...style } : style}
-      onClick={() => setShowInverted(!showInverted)}
+      onClick={() => show && setShowInverted(!showInverted)}
     >
       {show ? (
         <>
-          {label && <>{label}&nbsp;</>} <span style={color ? { color } : undefined}>{value}</span>
-          <StyledBalanceMaxMini>{icon || <Repeat size={12} color={color} />}</StyledBalanceMaxMini>
+          {label && <>{label}&nbsp;</>} <span>{value}</span>
+          <StyledBalanceMaxMini className="group-hover:brightness-[0.85]">
+            {icon || <Repeat size={12} />}
+          </StyledBalanceMaxMini>
         </>
       ) : (
         <Dots>

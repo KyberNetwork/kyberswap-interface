@@ -6,7 +6,7 @@ import { SafePalCampaignWeekStats, useGetSafePalCampaignWeeklyStatsQuery } from 
 
 import { ButtonPrimary } from 'components/Button'
 import Divider from 'components/Divider'
-import LocalLoader from 'components/LocalLoader'
+import Skeleton from 'components/Skeleton'
 import { ZERO_ADDRESS } from 'constants/index'
 import { useWeb3React } from 'hooks'
 import SafePalClaimModal from 'pages/Campaign/components/SafePalClaimModal'
@@ -55,6 +55,82 @@ const formatWeekLabel = (item: SafePalCampaignWeekStats) => {
   return `Week ${week} ${start.format('MMM DD')} - ${end.format('MMM DD')}`
 }
 
+// Mirrors the loaded dashboard: the stats header + the weekly table (desktop grid / mobile cards).
+const SafePalDashboardSkeleton = ({ rows = 5, upToSmall }: { rows?: number; upToSmall: boolean }) => (
+  <>
+    <div className={cn('mb-5 flex gap-4', upToSmall ? 'flex-col items-start' : 'flex-row items-center')}>
+      <div className={cn('flex flex-1 flex-wrap gap-6', upToSmall ? 'items-start' : 'items-center')}>
+        <div className="min-w-[140px]">
+          <Skeleton width={72} height={14} />
+          <div className="mt-2">
+            <Skeleton width={88} height={22} />
+          </div>
+        </div>
+        <div className="w-px self-stretch bg-border max-sm:hidden" />
+        <div className="min-w-[260px] flex-1">
+          <Skeleton width={upToSmall ? 200 : 320} height={18} />
+          <div className="mt-1.5">
+            <Skeleton width={180} height={14} />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <Divider />
+
+    {!upToSmall && (
+      <>
+        <div className={cn(TABLE_GRID_CLASS, 'py-4')}>
+          <Skeleton width={40} height={14} />
+          <div className="flex justify-end">
+            <Skeleton width={120} height={14} />
+          </div>
+          <div className="flex justify-end">
+            <Skeleton width={50} height={14} />
+          </div>
+          <div className="flex justify-center">
+            <Skeleton width={60} height={14} />
+          </div>
+        </div>
+        <Divider />
+      </>
+    )}
+
+    {upToSmall
+      ? Array.from({ length: rows }, (_, i) => (
+          <div key={i} className="border-b border-border py-4">
+            <Skeleton width={180} height={20} />
+            <div className="mt-4 flex items-center justify-between">
+              <Skeleton width={140} height={14} />
+              <Skeleton width={50} height={14} />
+            </div>
+            <div className="mt-3 flex items-center justify-between">
+              <Skeleton width={60} height={14} />
+              <Skeleton width={48} height={14} />
+            </div>
+            <div className="mt-3 flex items-center justify-between">
+              <Skeleton width={56} height={14} />
+              <Skeleton width={88} height={24} borderRadius={999} />
+            </div>
+          </div>
+        ))
+      : Array.from({ length: rows }, (_, i) => (
+          <div key={i} className={cn(TABLE_GRID_CLASS, 'items-center py-3')}>
+            <Skeleton width={200} height={16} />
+            <div className="flex justify-end">
+              <Skeleton width={48} height={16} />
+            </div>
+            <div className="flex justify-end">
+              <Skeleton width={48} height={16} />
+            </div>
+            <div className="flex justify-center">
+              <Skeleton width={88} height={24} borderRadius={999} />
+            </div>
+          </div>
+        ))}
+  </>
+)
+
 export default function SafePalDashboard() {
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const { account } = useWeb3React()
@@ -98,7 +174,7 @@ export default function SafePalDashboard() {
           <Trans>Please connect wallet to view your Dashboard</Trans>
         </div>
       ) : isLoading ? (
-        <LocalLoader />
+        <SafePalDashboardSkeleton upToSmall={upToSmall} />
       ) : (
         <>
           <div

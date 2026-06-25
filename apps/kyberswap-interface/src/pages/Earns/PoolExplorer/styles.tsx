@@ -1,6 +1,8 @@
 import { ButtonHTMLAttributes, CSSProperties, HTMLAttributes, forwardRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 
+import usePrefetchOnIntent from 'hooks/usePrefetchOnIntent'
+import usePrefetchRoute from 'hooks/usePrefetchRoute'
 import { cn } from 'utils/cn'
 
 export const PoolPageWrapper = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
@@ -56,7 +58,7 @@ export const StyledNavigateButton = forwardRef<HTMLDivElement, StyledNavigateBut
     <div
       ref={ref}
       className={cn(
-        'flex w-max cursor-pointer items-center justify-center gap-2.5 rounded-xl bg-primary-20 px-4 py-2 text-sm text-text hover:brightness-110',
+        'flex w-max cursor-pointer items-center justify-center gap-2.5 rounded-xl bg-primary-20 px-4 py-2 text-sm font-medium text-text hover:brightness-125',
         mobileFullWidth && 'max-sm:w-full',
         className,
       )}
@@ -75,9 +77,12 @@ interface NavigateButtonProps {
 
 export const NavigateButton: React.FC<NavigateButtonProps> = ({ icon, text, to, mobileFullWidth }) => {
   const navigate = useNavigate()
+  // Warm the destination route's chunk + data on hover/focus, since clicking navigates there.
+  const prefetchRoute = usePrefetchRoute()
+  const intent = usePrefetchOnIntent(() => prefetchRoute(to))
 
   return (
-    <StyledNavigateButton mobileFullWidth={mobileFullWidth} onClick={() => navigate({ pathname: to })}>
+    <StyledNavigateButton mobileFullWidth={mobileFullWidth} onClick={() => navigate({ pathname: to })} {...intent}>
       {icon}
       <span className="w-max">{text}</span>
     </StyledNavigateButton>

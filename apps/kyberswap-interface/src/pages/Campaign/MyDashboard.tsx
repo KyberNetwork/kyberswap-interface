@@ -14,6 +14,7 @@ import { TokenLogoWithChain } from 'components/Logo'
 import { NewLabel } from 'components/Menu'
 import MenuFlyout from 'components/MenuFlyout'
 import { ButtonIcon } from 'components/PageWrappers'
+import NonEvmProviders from 'components/Web3Provider/NonEvmProviders'
 import { ZERO_ADDRESS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
@@ -184,7 +185,7 @@ const MyDashboard = () => {
   )
 
   return (
-    <Wrapper>
+    <Wrapper className="animate-[fadeInUp_0.5s_ease-out_both] motion-reduce:animate-none">
       <img src={banner} width="100%" alt="banner" className="rounded-xl" />
       <div className="my-6 flex gap-2.5">
         <div className="text-2xl font-medium">
@@ -525,4 +526,13 @@ const MyDashboard = () => {
   )
 }
 
-export default MyDashboard
+// The /my-dashboard route renders NearIntentDashboard + useNearIntentCampaignReward, which consume the
+// NEAR/Solana/Bitcoin wallet contexts. Those providers are mounted at route level (not app root) for
+// bundle-splitting, so this separate lazy route must wrap itself too (mirrors CampaignPage).
+export default function MyDashboardPage() {
+  return (
+    <NonEvmProviders>
+      <MyDashboard />
+    </NonEvmProviders>
+  )
+}

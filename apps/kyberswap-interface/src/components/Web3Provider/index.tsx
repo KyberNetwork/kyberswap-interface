@@ -38,6 +38,7 @@ import SAFEPAL_ICON from 'assets/wallets-connect/safepal.svg'
 import WALLET_CONNECT_ICON from 'assets/wallets-connect/wallet-connect.svg'
 import INJECTED_DARK_ICON from 'assets/wallets/browser-wallet-dark.svg'
 import { WALLETCONNECT_PROJECT_ID } from 'constants/env'
+import { KYBERSWAP_URL } from 'constants/index'
 import { NETWORKS_INFO, isSupportedChainId } from 'constants/networks'
 import { useAppDispatch } from 'state/hooks'
 import { updateChainId } from 'state/user/actions'
@@ -347,9 +348,9 @@ const WC_PARAMS = {
   projectId: WALLETCONNECT_PROJECT_ID,
   metadata: {
     name: 'KyberSwap',
-    description: document.title,
-    url: window.location.origin,
-    icons: ['https://kyberswap.com/favicon.svg'],
+    description: typeof document !== 'undefined' ? document.title : 'KyberSwap',
+    url: typeof window !== 'undefined' ? window.location.origin : KYBERSWAP_URL,
+    icons: [`${KYBERSWAP_URL}/favicon.svg`],
   },
   qrModalOptions: {
     chainImages: undefined,
@@ -457,8 +458,8 @@ export const wagmiConfig = createConfig({
     metaMask({
       dapp: {
         name: 'KyberSwap',
-        url: window.location.origin,
-        iconUrl: 'https://kyberswap.com/favicon.svg',
+        url: typeof window !== 'undefined' ? window.location.origin : KYBERSWAP_URL,
+        iconUrl: `${KYBERSWAP_URL}/favicon.svg`,
       },
       // SDK default is `metamask://connect/mwp?id=<session>` via `window.location.href`,
       // which iOS Safari rejects with "Safari cannot open the page because the address is
@@ -479,10 +480,11 @@ export const wagmiConfig = createConfig({
     walletConnect(WC_PARAMS),
     coinbaseWallet({
       appName: 'KyberSwap',
-      appLogoUrl: 'https://kyberswap.com/favicon.png',
+      appLogoUrl: `${KYBERSWAP_URL}/favicon.png`,
     }),
     safepalConnector(),
-    porto(),
+    // porto sets up an iframe Dialog at connector setup, which cannot run during SSR/prerender.
+    ...(import.meta.env.SSR ? [] : [porto()]),
     safe(),
     ...HardCodedConnectors.map(connector => createPriorityConnector(connector)),
   ],

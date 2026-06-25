@@ -131,7 +131,7 @@ const TokenAmountInput = ({
           onChange={handleAmountChange}
           placeholder="0.0"
           value={amount}
-          className="min-w-0 flex-1 border-none bg-transparent p-0 text-[28px] text-text outline-none placeholder:text-subText"
+          className="min-w-0 flex-1 border-none bg-transparent p-0 text-[28px] leading-none text-text outline-none placeholder:text-subText"
         />
         {!!usdAmount && (
           <span className="px-0 py-1 text-xs text-subText">
@@ -174,7 +174,7 @@ export const TokenAmountInputSkeleton = () => (
     <div className="flex items-center justify-between gap-3">
       <div className="flex flex-wrap items-center gap-2">
         {[0, 1, 2, 3].map(item => (
-          <Skeleton key={item} width={40 + item} height={22.5} />
+          <Skeleton key={item} width={40 + item} height={24} />
         ))}
       </div>
       <Skeleton width={80} height={14} />
@@ -182,7 +182,7 @@ export const TokenAmountInputSkeleton = () => (
 
     <div className="flex items-end gap-3">
       <div className="flex min-w-0 flex-1 flex-col gap-2">
-        <Skeleton width="40%" height={34} />
+        <Skeleton width="50%" height={32} />
       </div>
       <Skeleton width={96} height={36} />
     </div>

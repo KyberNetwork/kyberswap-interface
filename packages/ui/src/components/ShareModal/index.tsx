@@ -3,7 +3,7 @@ import { useRef, useState } from 'react';
 import { useLingui } from '@lingui/react';
 
 import KyberLogo from '@/assets/icons/kyber_logo.svg?react';
-import ShareBanner from '@/assets/images/share-banner.png';
+import ShareBanner from '@/assets/images/share-banner.jpg';
 import Actions from '@/components/ShareModal/Actions';
 import Options from '@/components/ShareModal/Options';
 import { DEFAULT_SHARE_OPTION, shareOptions } from '@/components/ShareModal/constants';
@@ -25,6 +25,7 @@ export default function ShareModal({
   position,
   reward,
   type,
+  url,
   isFarming,
   hasActiveApr,
   defaultOptions,
@@ -41,7 +42,7 @@ export default function ShareModal({
 
   const shareBannerRef = useRef<HTMLDivElement>(null);
 
-  const banner = (bannerRef?: React.RefObject<HTMLDivElement>, forDownload = false) => {
+  const banner = (bannerRef?: React.RefObject<HTMLDivElement | null>, forDownload = false) => {
     const options = shareOptions[type].filter(option => selectedOptions.has(option));
     const option1 = options[0];
     const option2 = options[1];
@@ -206,7 +207,7 @@ export default function ShareModal({
         </div>
 
         <DialogFooter className="block">
-          <Actions type={type} pool={pool} shareBannerRef={shareBannerRef} />
+          <Actions type={type} pool={pool} url={url} shareBannerRef={shareBannerRef} />
         </DialogFooter>
       </DialogContent>
     </Dialog>

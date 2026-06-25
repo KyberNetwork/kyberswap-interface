@@ -276,6 +276,8 @@ export interface PositionQueryParams {
   statuses?: string
   sortBy?: string
   orderBy?: string
+  // Combined `${sortBy}:${orderBy}` param actually sent to the API (sortBy/orderBy above are unused).
+  sorts?: string
   page?: number
   pageSize?: number
   useOnFly?: boolean

@@ -3,8 +3,8 @@ import { ChevronDown } from 'react-feather'
 
 import { cn } from 'utils/cn'
 
-type Props = {
-  header: string | JSX.Element
+export type CollapseItemProps = {
+  header: string | React.JSX.Element
   expandedOnMount?: boolean
   style?: CSSProperties
   activeStyle?: CSSProperties
@@ -13,14 +13,13 @@ type Props = {
   className?: string
   arrowComponent?: ReactNode
   headerStyle?: CSSProperties
-  headerBorderRadius?: string
-  arrowStyle?: CSSProperties
+  headerClassName?: string
   arrowClassName?: string
   animation?: boolean
   maxHeight?: string
 }
 
-export const CollapseItem: React.FC<Props> = ({
+export const CollapseItem: React.FC<CollapseItemProps> = ({
   header,
   arrowComponent,
   children,
@@ -30,8 +29,7 @@ export const CollapseItem: React.FC<Props> = ({
   className,
   onExpand,
   headerStyle,
-  headerBorderRadius,
-  arrowStyle,
+  headerClassName,
   arrowClassName,
   animation = false,
   maxHeight,
@@ -41,16 +39,11 @@ export const CollapseItem: React.FC<Props> = ({
   return (
     <div
       style={{ ...style, ...(isExpanded ? activeStyle : null) }}
-      className={cn('relative w-full bg-background px-6 py-4', className)}
+      className={cn('relative w-full overflow-hidden bg-background px-6 py-4', className)}
     >
       <div
-        className="flex w-full cursor-pointer select-none items-center justify-between"
-        style={{
-          ...headerStyle,
-          ...(headerBorderRadius !== undefined
-            ? { borderRadius: isExpanded ? `${headerBorderRadius} ${headerBorderRadius} 0 0` : headerBorderRadius }
-            : {}),
-        }}
+        className={cn('flex w-full cursor-pointer select-none items-center justify-between', headerClassName)}
+        style={headerStyle}
         onClick={() => {
           setExpanded(e => !e)
           onExpand?.()
@@ -59,9 +52,8 @@ export const CollapseItem: React.FC<Props> = ({
         {header}
         <div
           data-expanded={isExpanded}
-          style={arrowStyle}
           className={cn(
-            'flex size-8 items-center justify-center text-text [&_svg]:transition-all [&_svg]:duration-150 [&_svg]:ease-in-out data-[expanded=true]:[&_svg]:rotate-180',
+            'flex size-8 items-center justify-center text-text transition-transform duration-150 ease-in-out data-[expanded=true]:rotate-180',
             arrowClassName,
           )}
         >
@@ -70,7 +62,11 @@ export const CollapseItem: React.FC<Props> = ({
       </div>
       <div
         data-expanded={isExpanded}
-        className={cn('w-full overflow-hidden', animation && '[transition:max-height_500ms_ease]')}
+        className={cn(
+          'w-full overflow-hidden',
+          animation &&
+            '[transition:max-height_300ms_ease,opacity_200ms_ease,transform_300ms_ease] data-[expanded=false]:translate-y-[-4px] data-[expanded=true]:translate-y-0 data-[expanded=false]:opacity-0 data-[expanded=true]:opacity-100',
+        )}
         style={animation ? { maxHeight: isExpanded ? maxHeight : 0 } : undefined}
       >
         {children}

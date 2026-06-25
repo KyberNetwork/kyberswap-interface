@@ -7,7 +7,7 @@ import NetworkModal from 'components/Header/web3/NetworkModal'
 import { NetworkLogo } from 'components/Logo'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
-import { Chain, NonEvmChain, NonEvmChainInfo } from 'pages/CrossChainSwap/adapters'
+import { Chain, NonEvmChain, NonEvmChainInfo } from 'pages/CrossChainSwap/adapters/types'
 import { isEvmChain } from 'utils'
 import { cn } from 'utils/cn'
 
@@ -45,7 +45,7 @@ const SelectNetwork = forwardRef<
       <div
         data-testid="network-button"
         onClick={() => chainIds.length && toggleNetworkModal()}
-        className="flex h-fit items-center justify-between rounded-3xl p-0 text-text hover:cursor-pointer"
+        className="flex h-fit items-center justify-between rounded-3xl p-0 text-text hover:cursor-pointer hover:brightness-75"
       >
         {selectedChainId && (
           <NetworkLogo

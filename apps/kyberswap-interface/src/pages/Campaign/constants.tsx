@@ -59,7 +59,7 @@ type CampaignConfig = {
     logo: string
   }
   type: CampaignType
-  ctaText: JSX.Element
+  ctaText: React.JSX.Element
   weeks: CampaignWeek[]
   program?: 'stip' | 'grind/base'
   campaign?: 'trading-incentive' | 'limit-order-farming' | 'referral-program'
@@ -67,7 +67,7 @@ type CampaignConfig = {
 
   banner: string
   ctaLink: string
-  title: JSX.Element
+  title: React.JSX.Element
   apiKey?: string
 }
 

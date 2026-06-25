@@ -3,7 +3,7 @@ import { Trans } from '@lingui/macro'
 import { memo } from 'react'
 
 import Loader from 'components/Loader'
-import { CurrencyRow } from 'components/SearchModal/CurrencyList'
+import { TokenRow } from 'components/TokenSelectorModal/TokenList'
 import { useNativeBalance } from 'state/wallet/hooks'
 
 function CurrencyList({
@@ -46,7 +46,7 @@ function CurrencyList({
         currencies.map(currency => {
           const balance = currency.isNative ? ethBalance : currencyBalances[currency.wrapped.address]
           return (
-            <CurrencyRow
+            <TokenRow
               showFavoriteIcon={false}
               currency={currency}
               key={currency.wrapped.address + currency.symbol}

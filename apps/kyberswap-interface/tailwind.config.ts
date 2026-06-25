@@ -98,7 +98,10 @@ const config: Config = {
         },
 
         // border
-        border: 'rgb(var(--ks-border-rgb) / <alpha-value>)',
+        border: {
+          DEFAULT: 'rgb(var(--ks-border-rgb) / <alpha-value>)',
+          primary: 'rgb(var(--ks-border-primary) / <alpha-value>)',
+        },
         darkBorder: 'var(--ks-darkBorder)',
 
         // semantic

@@ -1,6 +1,6 @@
 import { t } from '@lingui/macro'
 import React, { useState } from 'react'
-import { Clock, X } from 'react-feather'
+import { Clock } from 'react-feather'
 import { useMedia } from 'react-use'
 
 import { ReactComponent as RouteIcon } from 'assets/svg/route_icon.svg'
@@ -8,7 +8,7 @@ import MenuFlyout from 'components/MenuFlyout'
 import Modal from 'components/Modal'
 import ScrollableWithSignal from 'components/ScrollableWithSignal'
 import Skeleton from 'components/Skeleton'
-import { Stack } from 'components/Stack'
+import { HStack, Stack } from 'components/Stack'
 import { MouseoverTooltip } from 'components/Tooltip'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { CampaignType, campaignConfig } from 'pages/Campaign/constants'
@@ -16,9 +16,9 @@ import { Currency } from 'pages/CrossChainSwap/adapters'
 import { QuoteProviderName } from 'pages/CrossChainSwap/components/QuoteProviderName'
 import { formatTime } from 'pages/CrossChainSwap/components/Summary'
 import { TokenLogoWithChain } from 'pages/CrossChainSwap/components/TokenLogoWithChain'
-import { registry, useCrossChainSwap } from 'pages/CrossChainSwap/hooks/useCrossChainSwap'
+import { useCrossChainSwap } from 'pages/CrossChainSwap/hooks/useCrossChainSwap'
 import { Quote } from 'pages/CrossChainSwap/registry'
-import { MEDIA_WIDTHS } from 'theme'
+import { CloseIcon, MEDIA_WIDTHS } from 'theme'
 import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
 
@@ -57,24 +57,13 @@ export const QuoteSelector = ({
   const nearIntentCampaignOnGoing = year === currentYear && weeks.some(week => week.start <= now && week.end > now)
 
   const content = (
-    <div className="flex size-full flex-col gap-4 text-text">
-      <div className="flex justify-between">
-        <span className="text-base font-medium">{t`Choose your Route`}</span>
-        {upToLarge && <X onClick={() => setShow(false)} />}
-      </div>
-      <div className="flex-1 overflow-y-scroll">
-        <ScrollableWithSignal
-          data-open="true"
-          showArrow
-          className="ks-scrollbar flex max-h-full flex-col gap-3 overflow-y-auto pb-2 pr-2"
-          style={
-            {
-              '--ks-scrollbar-width': '6px',
-              '--ks-scrollbar-thumb': 'rgba(169, 169, 169, 0.4)',
-              '--ks-scrollbar-radius': '999px',
-            } as React.CSSProperties
-          }
-        >
+    <Stack className="size-full gap-3 text-text">
+      <HStack className="justify-between">
+        <span className="font-medium">{t`Choose your Route`}</span>
+        {upToLarge && <CloseIcon onClick={() => setShow(false)} />}
+      </HStack>
+      <Stack className="flex-1 overflow-y-scroll">
+        <ScrollableWithSignal data-open="true" showArrow className="flex max-h-full flex-col gap-3 overflow-y-auto">
           {quotes.map((quote, index) => {
             const ongoingTag = nearIntentCampaignOnGoing && quote.adapter.getName() === 'Near Intents'
             return (
@@ -97,92 +86,96 @@ export const QuoteSelector = ({
                   }
                 }}
               >
-                <div className="flex items-center">
-                  <TokenLogoWithChain
-                    currency={tokenOut}
-                    chainId={quote.quote.quoteParams.toChain}
-                    size={20}
-                    chainLogoStyle={{
-                      bottom: 0,
-                      top: 'auto',
-                    }}
-                  />
-                  <span className="ml-1 text-xl font-medium">
-                    {formatDisplayNumber(quote.quote.formattedOutputAmount, { significantDigits: 5 })}
-                  </span>
-                  <span className="ml-1 text-lg font-medium text-subText">{tokenOut?.symbol}</span>
-                  <span className="ml-1 text-sm text-subText">
-                    ~
-                    {formatDisplayNumber(quote.quote.outputUsd, {
-                      style: 'currency',
-                      significantDigits: 3,
-                      fractionDigits: 2,
-                    })}
-                  </span>
+                <Stack className="gap-2">
+                  <HStack className="items-center justify-between gap-2">
+                    <HStack className="min-w-0 items-center gap-1">
+                      <TokenLogoWithChain
+                        currency={tokenOut}
+                        chainId={quote.quote.quoteParams.toChain}
+                        size={20}
+                        chainLogoStyle={{
+                          bottom: 0,
+                          top: 'auto',
+                        }}
+                      />
+                      <span className="text-xl font-medium">
+                        {formatDisplayNumber(quote.quote.formattedOutputAmount, { significantDigits: 5 })}
+                      </span>
+                      <span className="text-lg font-medium text-subText">{tokenOut?.symbol}</span>
+                      <span className="text-sm text-subText">
+                        ~
+                        {formatDisplayNumber(quote.quote.outputUsd, {
+                          style: 'currency',
+                          significantDigits: 3,
+                          fractionDigits: 2,
+                        })}
+                      </span>
+                    </HStack>
 
-                  {ongoingTag && (
-                    <div className="ml-auto rounded-full bg-primary-20 px-1.5 py-0.5 text-[10px] font-medium text-primary">
-                      {t`On-Going Campaign`}
-                    </div>
-                  )}
+                    {ongoingTag && (
+                      <div className="shrink-0 rounded-full bg-darkBlue px-2 py-1 text-xs font-medium text-white">
+                        {t`On-Going Campaign`}
+                      </div>
+                    )}
 
-                  {index === 0 && !ongoingTag && (
-                    <div className="ml-auto rounded-full bg-darkGreen px-1.5 py-0.5 text-[10px] font-medium text-white">
-                      {t`Best Return`}
-                    </div>
-                  )}
-                </div>
-                <div className="mt-2 flex items-center text-sm text-subText">
-                  <QuoteProviderName quote={quote} />
-                  <span className="mx-2">|</span>
-                  <Clock size={14} />
-                  <span className="ml-1 mr-2">{formatTime(quote.quote.timeEstimate)}</span>
-                  {quote.quote.protocolFee > 0 ? (
-                    <span className="ml-1 mr-2">
-                      {t`Protocol fee:`}{' '}
-                      {formatDisplayNumber(quote.quote.protocolFee, {
-                        style: 'currency',
-                        significantDigits: 3,
-                      })}
-                    </span>
-                  ) : quote.quote.protocolFeeString ? (
-                    <span className="ml-1 mr-2">
-                      {t`Protocol fee:`} {quote.quote.protocolFeeString}
-                    </span>
-                  ) : null}
-                </div>
+                    {index === 0 && !ongoingTag && (
+                      <div className="shrink-0 rounded-full bg-darkGreen px-2 py-1 text-xs font-medium text-white">
+                        {t`Best Return`}
+                      </div>
+                    )}
+                  </HStack>
+                  <HStack className="items-center gap-2 text-sm text-subText">
+                    <QuoteProviderName quote={quote} />
+                    <span>|</span>
+                    <HStack className="items-center gap-1">
+                      <Clock size={14} />
+                      <span>{formatTime(quote.quote.timeEstimate)}</span>
+                    </HStack>
+                    {quote.quote.protocolFee > 0 ? (
+                      <span>
+                        {t`Protocol fee:`}{' '}
+                        {formatDisplayNumber(quote.quote.protocolFee, {
+                          style: 'currency',
+                          significantDigits: 3,
+                        })}
+                      </span>
+                    ) : quote.quote.protocolFeeString ? (
+                      <span>
+                        {t`Protocol fee:`} {quote.quote.protocolFeeString}
+                      </span>
+                    ) : null}
+                  </HStack>
+                </Stack>
               </QuoteRow>
             )
           })}
           {allLoading &&
-            Array(registry.getAllAdapters().length - quotes.length)
-              .fill(0)
-              .map((_, index) => {
-                return (
-                  <QuoteRow key={index}>
-                    <Stack className="gap-3">
-                      <Skeleton height="20px" width="200px" />
-                      <Skeleton height="17px" width="160px" />
-                    </Stack>
-                  </QuoteRow>
-                )
-              })}
+            Array.from({ length: Math.max(1, 6 - quotes.length) }).map((_, index) => {
+              return (
+                <QuoteRow key={index}>
+                  <Stack className="gap-3">
+                    <Skeleton height="24px" width="200px" />
+                    <Skeleton height="20px" width="160px" />
+                  </Stack>
+                </QuoteRow>
+              )
+            })}
         </ScrollableWithSignal>
-      </div>
-    </div>
+      </Stack>
+    </Stack>
   )
 
   const trigger = (
-    <div
+    <HStack
       onClick={() => {
         if (upToLarge) setShow(prev => !prev)
       }}
       role="button"
-      className="flex cursor-pointer items-center justify-center gap-1 rounded-full bg-subText/[0.08] px-2 py-1 text-sm font-medium text-subText hover:bg-subText/[0.12]"
+      className="cursor-pointer items-center justify-center gap-1 rounded-full bg-subText/[0.08] px-2 py-1 text-sm font-medium text-subText hover:bg-subText/[0.12]"
     >
       <RouteIcon />
       {t`Route Options`}
-    </div>
+    </HStack>
   )
 
   if (upToLarge) {
@@ -194,17 +187,19 @@ export const QuoteSelector = ({
           onDismiss={() => {
             setShow(false)
           }}
+          className="outline-none"
         >
-          <div className="flex w-full p-5 pr-3">{content}</div>
+          <HStack className="relative w-full p-5">{content}</HStack>
         </Modal>
       </>
     )
   }
+
   return (
     <MenuFlyout
       isOpen={show}
       trigger={
-        <MouseoverTooltip text={t`More options`} width="fit-content">
+        <MouseoverTooltip text={t`More options`} width="fit-content" placement="top">
           {trigger}
         </MouseoverTooltip>
       }
@@ -217,7 +212,6 @@ export const QuoteSelector = ({
         top: 0,
         zIndex: 9999,
         height: '100%',
-        paddingRight: '12px',
       }}
     >
       {content}

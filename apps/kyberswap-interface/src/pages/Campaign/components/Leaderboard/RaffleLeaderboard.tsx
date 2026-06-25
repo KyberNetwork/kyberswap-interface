@@ -4,8 +4,8 @@ import { useMedia } from 'react-use'
 import { useGetRaffleCampaignTransactionsQuery } from 'services/campaignRaffle'
 
 import Divider from 'components/Divider'
-import LocalLoader from 'components/LocalLoader'
 import Pagination from 'components/Pagination'
+import Skeleton from 'components/Skeleton'
 import { NETWORKS_INFO, isSupportedChainId } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { MEDIA_WIDTHS } from 'theme'
@@ -19,6 +19,31 @@ type Props = {
   type?: 'leaderboard' | 'owner'
   selectedWeek: number
 }
+
+// Mirrors the raffle row layout (wallet/network · tx hash · difference · rewards).
+const RaffleRowsSkeleton = ({ rows = 8, upToSmall }: { rows?: number; upToSmall: boolean }) => (
+  <>
+    {Array.from({ length: rows }, (_, i) => (
+      <div
+        key={i}
+        className={cn('text-sm', upToSmall ? 'grid grid-cols-2 gap-2 py-4' : 'flex flex-row gap-5 px-5 py-4')}
+      >
+        <div className={cn('flex flex-col', upToSmall ? 'w-full' : 'w-40')}>
+          <Skeleton width={100} height={16} />
+        </div>
+        <div className="flex flex-1 flex-col">
+          <Skeleton width={120} height={16} />
+        </div>
+        <div className={cn('flex flex-col', upToSmall ? 'w-full items-start' : 'w-40 items-end')}>
+          <Skeleton width={56} height={16} />
+        </div>
+        <div className={cn('flex flex-col', upToSmall ? 'w-full items-start' : 'w-40 items-end')}>
+          <Skeleton width={70} height={16} />
+        </div>
+      </div>
+    ))}
+  </>
+)
 
 export default function RaffleLeaderboard({ type, selectedWeek }: Props) {
   const { account } = useActiveWeb3React()
@@ -84,7 +109,7 @@ export default function RaffleLeaderboard({ type, selectedWeek }: Props) {
       )}
 
       {isLoading ? (
-        <LocalLoader />
+        <RaffleRowsSkeleton upToSmall={upToSmall} />
       ) : transactions.length ? (
         transactions.map(tx => {
           const networkName = isSupportedChainId(tx.chain) ? NETWORKS_INFO[tx.chain].name : '-'

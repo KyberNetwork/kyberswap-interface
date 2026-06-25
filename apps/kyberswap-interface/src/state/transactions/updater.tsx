@@ -247,6 +247,25 @@ export default function Updater(): null {
               tx_hash: receipt.transactionHash,
               feeInfo: arbitrary.feeInfo,
             })
+            if (arbitrary.tipLink) {
+              trackingHandler(TRACKING_EVENT_TYPE.TIP_LINK_TRADE, {
+                trade_type: 'swap',
+                trade_status: 'completed',
+                tip_charged: true,
+                ...arbitrary.tipLink,
+                input_token: arbitrary.inputSymbol,
+                output_token: arbitrary.outputSymbol,
+                input_token_address: arbitrary.inputAddress,
+                output_token_address: arbitrary.outputAddress,
+                pair:
+                  arbitrary.inputSymbol && arbitrary.outputSymbol
+                    ? `${arbitrary.inputSymbol}/${arbitrary.outputSymbol}`
+                    : undefined,
+                chain: arbitrary.chain,
+                volume: arbitrary.volume,
+                tx_hash: receipt.transactionHash,
+              })
+            }
             break
           }
           case TRANSACTION_TYPE.APPROVE: {

@@ -35,3 +35,6 @@ i18n-extract
 *.tsbuildinfo
 
 .claude/scheduled_tasks.lock
+
+# Playwright MCP scratch artifacts (snapshots, console logs, screenshots)
+.playwright-mcp/

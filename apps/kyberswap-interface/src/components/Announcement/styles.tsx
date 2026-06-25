@@ -8,7 +8,7 @@ export const StyledMenuButton = ({
 }: React.ButtonHTMLAttributes<HTMLButtonElement> & { active?: boolean }) => (
   <button
     className={cn(
-      'relative m-0 flex size-10 items-center justify-center rounded-full border border-solid border-transparent bg-transparent p-0 outline-none hover:cursor-pointer',
+      'relative m-0 flex size-10 cursor-pointer items-center justify-center rounded-full border-none bg-transparent p-0 outline-none hover:text-text',
       active ? 'text-text' : 'text-subText',
       className,
     )}

@@ -15,7 +15,7 @@ import { ChainState } from 'hooks/useChainsConfig'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import useTheme from 'hooks/useTheme'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
-import { Chain, NonEvmChain } from 'pages/CrossChainSwap/adapters'
+import { Chain, NonEvmChain } from 'pages/CrossChainSwap/adapters/types'
 import { cn } from 'utils/cn'
 
 const NewLabel = ({
@@ -71,7 +71,7 @@ const DraggableNetworkButton = ({
   disabledMsg?: string
   isEdittingMobile?: boolean
   isAddButton?: boolean
-  dragConstraints?: RefObject<Element>
+  dragConstraints?: RefObject<Element | null>
   customToggleModal?: () => void
   customOnSelectNetwork?: (chainId: Chain) => void
   onChangedNetwork?: () => void
@@ -122,12 +122,16 @@ const DraggableNetworkButton = ({
       }
 
       changeNetwork(chainId, () => {
-        navigate(
-          {
-            search: new URLSearchParams(filteredParams).toString(),
-          },
-          { replace: true },
-        )
+        const nextSearch = new URLSearchParams(filteredParams).toString()
+
+        if (nextSearch !== window.location.search.replace(/^\?/, '')) {
+          navigate(
+            {
+              search: nextSearch,
+            },
+            { replace: true },
+          )
+        }
         onChangedNetwork?.()
       })
     }
@@ -203,7 +207,6 @@ const DraggableNetworkButton = ({
             border: '1px solid ' + theme.primary,
             scale: 1.05,
           }}
-          whileHover={selected ? undefined : { backgroundColor: theme.tableHeader }}
           animate={animationControls}
           variants={variants}
           style={{ boxShadow: '0 0px 0px #00000060', zIndex: 1 }}
@@ -216,9 +219,10 @@ const DraggableNetworkButton = ({
             'max-sm:h-[54px] max-sm:p-2 max-sm:text-xs',
             selected && '!bg-buttonBlack [&>div]:text-text',
             disabled && '!cursor-not-allowed text-subText/40',
+            !selected && !disabled && 'hover:bg-tableHeader',
           )}
         >
-          <img src={icon} alt="Switch Network" style={{ height: '20px', width: '20px', borderRadius: '4px' }} />
+          <img src={icon} alt="Switch Network" className="size-5 min-w-5 rounded" />
           <Row className="grow gap-1.5">
             <span className="relative text-left">
               {name}

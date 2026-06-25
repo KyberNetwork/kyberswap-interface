@@ -17,7 +17,7 @@ import { useSuccessSound } from 'hooks/useSuccessSound'
 import useTheme from 'hooks/useTheme'
 import { useRemovePopup } from 'state/application/hooks'
 
-const delta = window.innerWidth + 'px'
+const delta = typeof window !== 'undefined' ? window.innerWidth + 'px' : '0px'
 
 const getBackgroundColor = (theme: ReturnType<typeof useTheme>, type: NotificationType = NotificationType.ERROR) => {
   const mapColor = {

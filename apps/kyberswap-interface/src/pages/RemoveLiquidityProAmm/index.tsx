@@ -24,7 +24,8 @@ import ProAmmPooledTokens from 'components/ProAmm/ProAmmPooledTokens'
 import { RowBetween } from 'components/Row'
 import Slider from 'components/Slider'
 import { SLIPPAGE_EXPLANATION_URL } from 'components/SlippageWarningNote'
-import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
+import { TextDashed } from 'components/Text'
+import { MouseoverTooltip } from 'components/Tooltip'
 import TransactionConfirmationModal, {
   ConfirmationModalContent,
   TransactionErrorContent,
@@ -674,8 +675,6 @@ function Remove({ tokenId }: { tokenId: bigint }) {
                         <CurrencyInputPanel
                           value={formattedAmounts[Field.CURRENCY_A]}
                           onUserInput={onCurrencyAInput}
-                          onMax={null}
-                          onHalf={null}
                           currency={liquidityValue0?.currency}
                           onCurrencySelect={() => null}
                           id="remove-liquidity-tokena"
@@ -690,8 +689,6 @@ function Remove({ tokenId }: { tokenId: bigint }) {
                         <CurrencyInputPanel
                           value={formattedAmounts[Field.CURRENCY_B]}
                           onUserInput={onCurrencyBInput}
-                          onMax={null}
-                          onHalf={null}
                           currency={liquidityValue1?.currency}
                           onCurrencySelect={() => null}
                           id="remove-liquidity-tokenb"

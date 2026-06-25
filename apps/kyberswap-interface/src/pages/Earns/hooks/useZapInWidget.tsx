@@ -15,6 +15,7 @@ import Modal from 'components/Modal'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useActiveLocale } from 'hooks/useActiveLocale'
+import { useIsSmartAccount } from 'hooks/useIsSmartAccount'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { EARN_CHAINS, EARN_DEXES, EarnChain, Exchange } from 'pages/Earns/constants'
@@ -28,7 +29,7 @@ import { DEFAULT_PARSED_POSITION, ParsedPosition } from 'pages/Earns/types'
 import { getNftManagerContractAddress, getTokenId, submitTransaction } from 'pages/Earns/utils'
 import { getDexVersion } from 'pages/Earns/utils/position'
 import { updateUnfinalizedPosition } from 'pages/Earns/utils/unfinalizedPosition'
-import { navigateToPositionAfterZap } from 'pages/Earns/utils/zap'
+import { navigateToPoolDetail, navigateToPositionAfterZap } from 'pages/Earns/utils/zap'
 import { useKyberSwapConfig, useNotify, useWalletModalToggle } from 'state/application/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
@@ -58,6 +59,7 @@ interface AddLiquidityParams extends AddLiquidityPureParams {
   onConnectWallet: () => void
   onSwitchChain: () => void
   onOpenZapMigration?: (position: { exchange: string; poolId: string; positionId: string | number }) => void
+  onOpenPoolDetail?: (pool: { chainId: number; poolAddress: string; dexId?: string }) => void
   onSubmitTx: (txData: { from: string; to: string; value: string; data: string; gasLimit: string }) => Promise<string>
 }
 
@@ -93,6 +95,7 @@ const useZapInWidget = ({
   const refCode = getCookieValue('refCode')
   const { isSmartConnector } = useWeb3React()
   const { account, chainId } = useActiveWeb3React()
+  const isSmartAccount = useIsSmartAccount()
   const { changeNetwork } = useChangeNetwork()
   const [searchParams, setSearchParams] = useSearchParams()
 
@@ -188,19 +191,21 @@ const useZapInWidget = ({
             ...addLiquidityPureParams,
             source: 'kyberswap-earn',
             rpcUrl: zapInRpcUrl,
-            // See useZapOutWidget for the smart-connector permit rationale —
-            // permit signatures from Porto/Safe don't verify via ecrecover on
-            // the NFT contract, so we let the widget fall back to approve.
-            signTypedData: isSmartConnector
-              ? undefined
-              : async (account: string, typedDataJson: string) => {
-                  const parsedTypedData = JSON.parse(typedDataJson)
-                  return signTypedDataRaw({
-                    chainId: chainId,
-                    account: account.toLowerCase() as Address,
-                    typedData: parsedTypedData,
-                  })
-                },
+            // See useZapOutWidget for the smart-wallet permit rationale — EIP-1271
+            // signatures from smart wallets (Porto, Safe, Coinbase Smart Wallet,
+            // EIP-7702 EOAs, ...) don't verify on the NFT contract, so we let the
+            // widget fall back to approve.
+            signTypedData:
+              isSmartConnector || isSmartAccount
+                ? undefined
+                : async (account: string, typedDataJson: string) => {
+                    const parsedTypedData = JSON.parse(typedDataJson)
+                    return signTypedDataRaw({
+                      chainId: chainId,
+                      account: account.toLowerCase() as Address,
+                      typedData: parsedTypedData,
+                    })
+                  },
             referral: refCode,
             txStatus,
             txHashMapping: originalToCurrentHash,
@@ -237,6 +242,11 @@ const useZapInWidget = ({
             },
             onConnectWallet: toggleWalletModal,
             onSwitchChain: () => changeNetwork(addLiquidityPureParams.chainId as number),
+            onOpenPoolDetail: (pool: { chainId: number; poolAddress: string; dexId?: string }) => {
+              if (!pool.dexId) return
+              handleCloseZapInWidget()
+              navigateToPoolDetail(pool, navigate)
+            },
             onEvent: (eventName: string, data?: Record<string, any>) => {
               const eventMap: Record<string, TRACKING_EVENT_TYPE> = {
                 PRICE_RANGE_PRESET_SELECTED: TRACKING_EVENT_TYPE.LIQ_PRICE_RANGE_PRESET_SELECTED,
@@ -431,8 +441,10 @@ const useZapInWidget = ({
       handleNavigateToPosition,
       handleOpenZapMigration,
       isSmartConnector,
+      isSmartAccount,
       isSmartExitSupported,
       locale,
+      navigate,
       onOpenSmartExit,
       onRefreshPosition,
       originalToCurrentHash,

@@ -8,7 +8,7 @@ import { AutoRow } from 'components/Row'
 import { removeAllReduxPersist } from 'state'
 import { ExternalLink } from 'theme'
 
-const parser = new UAParser(window.navigator.userAgent)
+const parser = new UAParser(typeof navigator !== 'undefined' ? navigator.userAgent : '')
 const userAgent = parser.getResult()
 
 const predefinedErrors = () => [
@@ -26,7 +26,7 @@ function issueBody(error: Error): string {
   const deviceData = userAgent
   return `## URL
 
-${window.location.href}
+${typeof window !== 'undefined' ? window.location.href : ''}
 
 ${
   error.name &&

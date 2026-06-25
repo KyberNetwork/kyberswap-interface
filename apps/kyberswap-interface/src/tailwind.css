@@ -15,35 +15,6 @@
   @apply disabled:!cursor-not-allowed disabled:!bg-buttonGray disabled:!text-border;
 }
 
-@keyframes ks-loading-dots {
-  0% {
-    content: '.';
-  }
-  33% {
-    content: '..';
-  }
-  66%,
-  100% {
-    content: '...';
-  }
-}
-
-.ks-loading-dots {
-  position: relative;
-  display: inline-block;
-}
-
-.ks-loading-dots::after {
-  content: '.';
-  position: absolute;
-  left: 100%;
-  top: 50%;
-  width: 1rem;
-  transform: translateY(-50%);
-  text-align: left;
-  animation: ks-loading-dots 1.2s steps(1, end) infinite;
-}
-
 @layer components {
   /* Native browser checkbox tinted with theme primary; pseudo-elements handle the indeterminate state. */
   .ks-checkbox-native {
@@ -189,6 +160,21 @@
     align-items: center;
     justify-content: center;
     background-color: var(--ks-bgModal);
+    /* Entrance fade in CSS (not framer-motion, which is unreliable on the wrapped overlay under React
+       19). Opacity is multiplicative, so fading the overlay fades the content too. */
+    animation: ks-dialog-fade-in 0.2s ease;
+  }
+  /* transition={false} opts out of the fade. */
+  .ks-dialog-overlay[data-reach-dialog-overlay][data-no-transition='true'] {
+    animation: none;
+  }
+  @keyframes ks-dialog-fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
   }
 
   /* <Modal> content. Dynamic width/height/maxWidth/etc. are applied via inline style;
@@ -221,7 +207,9 @@
     }
   }
   @media (max-width: 768px) {
-    .ks-dialog-content[data-reach-dialog-content]:not([data-has-explicit-width='true']):not([data-mobile-full-width='true']) {
+    .ks-dialog-content[data-reach-dialog-content]:not([data-has-explicit-width='true']):not(
+        [data-mobile-full-width='true']
+      ) {
       width: 85vw;
     }
     .ks-dialog-content[data-reach-dialog-content][data-mobile='true']:not([data-has-explicit-width='true']) {
@@ -612,10 +600,7 @@
   }
   .ks-slider::-webkit-slider-thumb:hover,
   .ks-slider::-webkit-slider-thumb:focus {
-    box-shadow:
-      0 0 1px rgba(0, 0, 0, 0.1),
-      0 4px 8px rgba(0, 0, 0, 0.08),
-      0 16px 24px rgba(0, 0, 0, 0.06),
+    box-shadow: 0 0 1px rgba(0, 0, 0, 0.1), 0 4px 8px rgba(0, 0, 0, 0.08), 0 16px 24px rgba(0, 0, 0, 0.06),
       0 24px 32px rgba(0, 0, 0, 0.04);
   }
   .ks-slider::-moz-range-thumb {
@@ -628,10 +613,7 @@
   }
   .ks-slider::-moz-range-thumb:hover,
   .ks-slider::-moz-range-thumb:focus {
-    box-shadow:
-      0 0 1px rgba(0, 0, 0, 0.1),
-      0 4px 8px rgba(0, 0, 0, 0.08),
-      0 16px 24px rgba(0, 0, 0, 0.06),
+    box-shadow: 0 0 1px rgba(0, 0, 0, 0.1), 0 4px 8px rgba(0, 0, 0, 0.08), 0 16px 24px rgba(0, 0, 0, 0.06),
       0 24px 32px rgba(0, 0, 0, 0.04);
   }
   .ks-slider::-ms-thumb {
@@ -643,10 +625,7 @@
   }
   .ks-slider::-ms-thumb:hover,
   .ks-slider::-ms-thumb:focus {
-    box-shadow:
-      0 0 1px rgba(0, 0, 0, 0.1),
-      0 4px 8px rgba(0, 0, 0, 0.08),
-      0 16px 24px rgba(0, 0, 0, 0.06),
+    box-shadow: 0 0 1px rgba(0, 0, 0, 0.1), 0 4px 8px rgba(0, 0, 0, 0.08), 0 16px 24px rgba(0, 0, 0, 0.06),
       0 24px 32px rgba(0, 0, 0, 0.04);
   }
   .ks-slider::-webkit-slider-runnable-track {
@@ -694,27 +673,53 @@
 
   /* PositionDetail enter animations (rendered with arbitrary `animate-[ks-pd-*]` values). */
   @keyframes ks-pd-fade-in {
-    from { opacity: 0; transform: translateY(4px); }
-    to   { opacity: 1; transform: translateY(0); }
+    from {
+      opacity: 0;
+      transform: translateY(4px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
   @keyframes ks-pd-slide-down {
-    from { opacity: 0; transform: translateY(-8px); }
-    to   { opacity: 1; transform: translateY(0); }
+    from {
+      opacity: 0;
+      transform: translateY(-8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 
   /* TopBanner marquee — slide distance set via --ks-marquee-shift on the consumer. */
   @keyframes ks-top-banner-marquee {
-    from { transform: translateX(0); }
-    to   { transform: translateX(calc(-1 * var(--ks-marquee-shift, 0px))); }
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(calc(-1 * var(--ks-marquee-shift, 0px)));
+    }
   }
 
   /* Used by <Dots> — animates an ellipsis after some text (e.g. "Loading..."). */
   .animate-ellipsis::after {
     display: inline-block;
-    animation: ellipsis 1.25s infinite;
+    animation: ellipsis 1.25s steps(1, end) infinite;
     content: '.';
     width: 1em;
     text-align: left;
+  }
+  .animate-ellipsis-absolute {
+    position: relative;
+    display: inline-block;
+  }
+  .animate-ellipsis-absolute::after {
+    position: absolute;
+    left: 100%;
+    top: 50%;
+    transform: translateY(-50%);
   }
   @keyframes ellipsis {
     0% {
@@ -723,7 +728,8 @@
     33% {
       content: '..';
     }
-    66% {
+    66%,
+    100% {
       content: '...';
     }
   }
@@ -991,23 +997,13 @@
   .ks-transactions-tab[data-scrollable='true'][data-scroll-left='true']::before {
     left: 0;
     transform: translateX(-1px);
-    background: linear-gradient(
-      -90deg,
-      rgba(0, 0, 0, 0) 0%,
-      var(--ks-background) 90%,
-      var(--ks-background) 100%
-    );
+    background: linear-gradient(-90deg, rgba(0, 0, 0, 0) 0%, var(--ks-background) 90%, var(--ks-background) 100%);
   }
   .ks-transactions-tab[data-scrollable='true'][data-scroll-right='true']::after {
     right: 0;
     transform: translateX(1px);
     justify-content: flex-end;
-    background: linear-gradient(
-      90deg,
-      rgba(0, 0, 0, 0) 0%,
-      var(--ks-background) 90%,
-      var(--ks-background) 100%
-    );
+    background: linear-gradient(90deg, rgba(0, 0, 0, 0) 0%, var(--ks-background) 90%, var(--ks-background) 100%);
   }
 }
 
@@ -1289,6 +1285,7 @@
     --ks-bg6-rgb: 29 122 95;
     --ks-primary-rgb: 49 203 158;
     --ks-border-rgb: 80 80 80;
+    --ks-border-primary: 48 144 116;
     --ks-red-rgb: 255 83 123;
     --ks-warning-rgb: 255 153 1;
     --ks-apr-rgb: 15 170 162;

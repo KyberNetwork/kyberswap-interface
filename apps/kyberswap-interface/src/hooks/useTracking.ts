@@ -1,9 +1,11 @@
-import { useFormo } from '@formo/analytics'
 import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import mixpanel, { crossChainMixpanel } from 'libs/mixpanel'
 import { useCallback, useEffect } from 'react'
 import { usePrevious } from 'react-use'
 
+// `useFormo` comes from the local Formo context so the heavy `@formo/analytics` SDK stays out of this
+// eager module's chunk and is only loaded by the deferred provider.
+import { useFormo } from 'components/Analytics/formoContext'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { sanitizeFormoPayload } from 'hooks/sanitizeFormoPayload'
@@ -332,6 +334,10 @@ export enum TRACKING_EVENT_TYPE {
   MENU_LINK_CLICKED,
   NOTIFICATION_CENTER_OPENED,
   LANGUAGE_CHANGED,
+
+  // Tip Link Generator
+  TIP_LINK_GENERATE_LINK_CLICK,
+  TIP_LINK_TRADE,
 }
 
 export const NEED_CHECK_SUBGRAPH_TRANSACTION_TYPES: readonly TRANSACTION_TYPE[] = [
@@ -412,6 +418,16 @@ export default function useTracking(currencies?: { [field in Field]?: Currency }
         }
         case TRACKING_EVENT_TYPE.WALLET_CONNECT_WALLET_CLICK: {
           formoTrack('Wallet Connect - Wallet click', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.TIP_LINK_GENERATE_LINK_CLICK: {
+          formoTrack('Tip Link - Generate Link Click', payload)
+          break
+        }
+        // Tip-link attributed trade (swap / limit order / cross-chain). The trade type is
+        // carried in `payload.trade_type` so all three flows roll up into one event.
+        case TRACKING_EVENT_TYPE.TIP_LINK_TRADE: {
+          formoTrack('Tip Link Trade', payload)
           break
         }
       }
@@ -1790,9 +1806,19 @@ export const useGlobalTrackingEvents = () => {
   const analytics = useFormo()
   const oldNetwork = usePrevious(chainId)
 
+  // Formo identify. `analytics` loads lazily on browser idle, so the effect depends on it to re-run once
+  // the SDK is ready. Kept separate from the mixpanel effect so a late Formo load doesn't reset the live
+  // mixpanel session.
+  useEffect(() => {
+    if (!analytics || !account || !isAddress(account, { strict: false })) return
+    analytics.identify({ address: account })
+    return () => {
+      analytics.reset()
+    }
+  }, [account, analytics])
+
   useEffect(() => {
     if (account && isAddress(account, { strict: false })) {
-      analytics?.identify({ address: account })
       crossChainMixpanel?.identify(account)
 
       const getQueryParam = (url: string, param: string) => {
@@ -1831,7 +1857,6 @@ export const useGlobalTrackingEvents = () => {
     }
     return () => {
       if (account) {
-        analytics?.reset()
         crossChainMixpanel?.reset()
       }
     }

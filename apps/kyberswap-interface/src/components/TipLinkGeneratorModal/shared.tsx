@@ -24,10 +24,50 @@ export const TIP_LINK_CHAINS: ChainId[] = SUPPORTED_NETWORKS.filter(
 export const SOLID_COLORS: string[] = ['#235F52', '#244666', '#6D3345', '#715825', '#412762', '#6D3F70', '#3E653F']
 export const MAX_IMAGE_SIZE = 1024 * 1024
 export const LINK_PLACEHOLDER = `https://kyberswap.com${APP_PATHS.USER_SWAP}/...`
-export const TIP_LINK_CLIENT_ID = 'community'
+export const TIP_LINK_CLIENT_ID = 'kyberswap'
+export const DEFAULT_TIP = 10
+
+export const isCreatorNameValid = (value: string) => {
+  const normalized = value.toLowerCase().replace(/[^a-z0-9]/g, '')
+  const words = value
+    .toLowerCase()
+    .split(/[^a-z0-9]+/)
+    .filter(Boolean)
+  const hasReservedKS = words.includes('ks') || words.some((word, index) => word === 'k' && words[index + 1] === 's')
+
+  return (
+    !normalized ||
+    (!normalized.includes('kyber') && !normalized.includes('kswap') && normalized !== 'ks' && !hasReservedKS)
+  )
+}
 
 export type BackgroundMode = 'default' | 'solid' | 'image'
 export type TokenSelectorTarget = 'input' | 'output'
+
+export type TipLinkTradeType = 'swap' | 'limit_order' | 'cross_chain'
+
+export type TipLinkAttribution = {
+  tip_receiver: string
+  tip_client_id: string
+  tip_creator_name?: string
+}
+
+/**
+ * Derive tip-link attribution from the current swap URL params. Returns null for any
+ * trade that did not originate from a community tip link (a regular swap, or a partner
+ * swap with a different clientId), so callers can simply skip tracking on null.
+ */
+export const getTipLinkAttribution = (searchParams: URLSearchParams): TipLinkAttribution | null => {
+  const clientId = searchParams.get('clientId')
+  const feeReceiver = searchParams.get('feeReceiver')
+  if (clientId !== TIP_LINK_CLIENT_ID || !feeReceiver) return null
+  const creatorName = searchParams.get('creatorName')?.trim()
+  return {
+    tip_receiver: feeReceiver,
+    tip_client_id: clientId,
+    tip_creator_name: creatorName || undefined,
+  }
+}
 
 export const getChainLabel = (chainId: ChainId) => {
   return NETWORKS_INFO[chainId].name

@@ -152,56 +152,46 @@ export function useToken(tokenAddress?: string): Token | NativeCurrency | undefi
 }
 
 // This function is intended to use for EVM chains only
-export function useFetchERC20TokenFromRPC(customChainId?: ChainId) {
-  const { chainId: activeChainId } = useActiveWeb3React()
-  const chainId = customChainId || activeChainId
+export const fetchTokenInfoFromRpc = async (tokenAddress: string, chainId: ChainId, options?: { silent?: boolean }) => {
+  try {
+    const address = isAddress(chainId, tokenAddress)
 
-  const fetcher = useCallback(
-    async (tokenAddress: string) => {
-      try {
-        const address = isAddress(chainId, tokenAddress)
+    if (!NETWORKS_INFO[chainId]?.multicall) {
+      if (!options?.silent) console.error('No multicall contract found')
+      return undefined
+    }
 
-        if (!NETWORKS_INFO[chainId]?.multicall) {
-          console.error('No multicall contract found')
-          return undefined
-        }
+    if (!address) {
+      if (!options?.silent) console.error('Invalid token address')
+      return undefined
+    }
 
-        if (!address) {
-          console.error('Invalid token address')
-          return undefined
-        }
+    const results = await multicall(wagmiConfig, {
+      allowFailure: true,
+      chainId: chainId as number,
+      contracts: [
+        { address: address as Address, abi: ERC20_ABI, functionName: 'name' },
+        { address: address as Address, abi: ERC20_ABI, functionName: 'symbol' },
+        { address: address as Address, abi: ERC20_ABI, functionName: 'decimals' },
+      ],
+    })
 
-        const results = await multicall(wagmiConfig, {
-          allowFailure: true,
-          chainId: chainId as number,
-          contracts: [
-            { address: address as Address, abi: ERC20_ABI, functionName: 'name' },
-            { address: address as Address, abi: ERC20_ABI, functionName: 'symbol' },
-            { address: address as Address, abi: ERC20_ABI, functionName: 'decimals' },
-          ],
-        })
+    // Decimals is the only field required to construct a valid Token; tolerate
+    // legacy ERC20s missing name()/symbol() (e.g. MKR returns bytes32) and
+    // fall back to empty strings to preserve pre-migration behavior.
+    if (results[2].status !== 'success') {
+      if (!options?.silent) console.error('ERC20 metadata multicall: decimals read failed', results)
+      return undefined
+    }
+    const name = results[0].status === 'success' ? (results[0].result as string) : ''
+    const symbol = results[1].status === 'success' ? (results[1].result as string) : ''
+    const decimals = results[2].result as number
 
-        // Decimals is the only field required to construct a valid Token; tolerate
-        // legacy ERC20s missing name()/symbol() (e.g. MKR returns bytes32) and
-        // fall back to empty strings to preserve pre-migration behavior.
-        if (results[2].status !== 'success') {
-          console.error('ERC20 metadata multicall: decimals read failed', results)
-          return undefined
-        }
-        const name = results[0].status === 'success' ? (results[0].result as string) : ''
-        const symbol = results[1].status === 'success' ? (results[1].result as string) : ''
-        const decimals = results[2].result as number
-
-        return new Token(chainId, address, decimals, symbol, name)
-      } catch (e) {
-        console.error(e)
-        return undefined
-      }
-    },
-    [chainId],
-  )
-
-  return fetcher
+    return new Token(chainId, address, decimals, symbol, name)
+  } catch (e) {
+    if (!options?.silent) console.error(e)
+    return undefined
+  }
 }
 
 const cacheTokens: TokenMap = {}

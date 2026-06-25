@@ -159,7 +159,7 @@ export default function Vote() {
 
   return (
     <div
-      className="z-[1] w-full bg-transparent bg-[length:100%_auto] bg-top bg-repeat-y"
+      className="z-[1] w-full animate-[fadeInUp_0.5s_ease-out_both] bg-transparent bg-[length:100%_auto] bg-top bg-repeat-y motion-reduce:animate-none"
       style={{ backgroundImage: `url(${bgimg})` }}
     >
       <div className="mx-auto flex min-h-[1200px] w-[1224px] flex-col gap-3 py-12 max-lg:w-full max-lg:px-4 max-lg:py-12">

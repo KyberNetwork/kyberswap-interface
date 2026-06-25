@@ -5,6 +5,7 @@ import Loader from 'components/Loader'
 import { HStack } from 'components/Stack'
 import TokenLogo from 'components/TokenLogo'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
+import usePrefetchOnIntent from 'hooks/usePrefetchOnIntent'
 import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import SparklineChart from 'pages/Earns/PoolExplorer/SparklineChart'
@@ -15,11 +16,13 @@ import PoolRewardsInfo from 'pages/Earns/components/PoolRewardsInfo'
 import { ZapInInfo } from 'pages/Earns/hooks/useZapInWidget'
 import { ParsedEarnPool } from 'pages/Earns/types'
 import { formatDisplayNumber } from 'utils/numbers'
+import { prefetchPoolDetail } from 'utils/prefetch'
 
 const DesktopTableRow = ({
   pool,
   showRewards = true,
   showPoolPrice = true,
+  rowIndex,
   onOpenZapInWidget,
   handleFavorite,
   favoriteLoading,
@@ -27,12 +30,24 @@ const DesktopTableRow = ({
   pool: ParsedEarnPool
   showRewards?: boolean
   showPoolPrice?: boolean
+  /** 0-based position within the current page — drives the staggered fade-in delay. */
+  rowIndex: number
   onOpenZapInWidget: ({ pool, initialTick }: ZapInInfo) => void
   handleFavorite: (e: React.MouseEvent<SVGElement, MouseEvent>, pool: ParsedEarnPool) => Promise<void>
   favoriteLoading: string[]
 }) => {
   const theme = useTheme()
   const { trackingHandler } = useTracking()
+
+  // Stagger each row's fade-in by 50ms (capped at 300ms), matching the My Positions list.
+  const animationDelay = `${Math.min(rowIndex * 50, 300)}ms`
+
+  // The parent wires this row's onClick (onOpenZapInWidget) to open the pool's detail page, so warm
+  // that page's chunk + its poolDetail query on hover.
+  const prefetchDetail = usePrefetchOnIntent(
+    () => prefetchPoolDetail((pool.chain?.id || pool.chainId) as number, pool.address),
+    { delay: 120 },
+  )
 
   const handleOpenZapInWidget = (e: React.MouseEvent<HTMLDivElement>) => {
     e.stopPropagation()
@@ -55,7 +70,14 @@ const DesktopTableRow = ({
   }
 
   return (
-    <TableRow showRewards={showRewards} showPoolPrice={showPoolPrice} onClick={e => handleOpenZapInWidget(e)}>
+    <TableRow
+      showRewards={showRewards}
+      showPoolPrice={showPoolPrice}
+      onClick={e => handleOpenZapInWidget(e)}
+      className="animate-[fadeInUp_0.3s_ease-out_both] motion-reduce:animate-none"
+      style={{ animationDelay }}
+      {...prefetchDetail}
+    >
       <TableCell>
         <HStack className="items-center gap-2">
           <HStack className="relative items-end gap-0">

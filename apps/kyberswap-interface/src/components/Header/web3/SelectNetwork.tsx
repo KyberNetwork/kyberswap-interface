@@ -11,14 +11,14 @@ import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import useChainsConfig from 'hooks/useChainsConfig'
 import { useWalletSupportedChains } from 'hooks/web3/useWalletSupportedChains'
-import { NonEvmChain } from 'pages/CrossChainSwap/adapters'
+import { NonEvmChain } from 'pages/CrossChainSwap/adapters/types'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useNetworkModalToggle } from 'state/application/hooks'
 import { useNativeBalance } from 'state/wallet/hooks'
 import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
 
-function SelectNetwork(): JSX.Element | null {
+function SelectNetwork(): React.JSX.Element | null {
   const { chainId, networkInfo } = useActiveWeb3React()
   const networkModalOpen = useModalOpen(ApplicationModal.NETWORK)
   const toggleNetworkModal = useNetworkModalToggle()
@@ -41,7 +41,7 @@ function SelectNetwork(): JSX.Element | null {
       data-testid="select-network"
       className={cn(
         'relative w-fit rounded-full border border-transparent bg-background px-3 py-2 text-text',
-        'hover:cursor-pointer hover:border-primary hover:bg-background hover:no-underline hover:brightness-105',
+        'hover:cursor-pointer hover:border-border-primary hover:bg-background hover:no-underline hover:brightness-105',
         'max-sm:m-0 max-sm:w-auto max-sm:min-w-0 max-sm:flex-shrink max-sm:[text-overflow:ellipsis]',
       )}
     >

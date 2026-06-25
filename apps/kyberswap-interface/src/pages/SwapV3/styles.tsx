@@ -11,7 +11,7 @@ export const AppBodyWrapped = ({ children, className, ...rest }: React.HTMLAttri
 )
 
 export const SwitchLocaleLinkWrapper = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
-  <div className={cn('mb-[30px] max-md:mb-0', className)} {...rest}>
+  <div className={cn('pb-8 max-md:pb-0', className)} {...rest}>
     {children}
   </div>
 )

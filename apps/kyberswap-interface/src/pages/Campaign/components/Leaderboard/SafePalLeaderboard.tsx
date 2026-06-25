@@ -5,9 +5,9 @@ import { useGetSafePalCampaignStatsQuery, useGetSafePalCampaignTransactionsQuery
 
 import { ButtonPrimary } from 'components/Button'
 import Divider from 'components/Divider'
-import LocalLoader from 'components/LocalLoader'
 import Pagination from 'components/Pagination'
 import SearchInput from 'components/SearchInput'
+import Skeleton from 'components/Skeleton'
 import { ZERO_ADDRESS } from 'constants/index'
 import { isSupportedChainId } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
@@ -45,6 +45,55 @@ const getTransactionExplorerLink = (chainId: number, txHash: string) => {
   if (!txHash || !isSupportedChainId(chainId)) return undefined
   return getEtherscanLink(chainId, txHash, 'transaction')
 }
+
+// Mirrors the row layout for both views: owner (network · tx hash · points) and leaderboard (rank ·
+// wallet · points · status).
+const SafePalRowsSkeleton = ({
+  rows = 8,
+  isOwner,
+  upToSmall,
+  rowClass,
+}: {
+  rows?: number
+  isOwner: boolean
+  upToSmall: boolean
+  rowClass: string
+}) => (
+  <>
+    {Array.from({ length: rows }, (_, i) => (
+      <div key={i} className={cn(rowClass, 'text-sm')}>
+        {isOwner ? (
+          <>
+            <div className={cn('flex flex-col', upToSmall ? 'w-full' : 'w-[160px]')}>
+              <Skeleton width={90} height={16} />
+            </div>
+            <div className="flex flex-1 flex-col">
+              <Skeleton width={120} height={16} />
+            </div>
+            <div className={cn('flex flex-col', upToSmall ? 'w-full items-start' : 'w-[120px] items-end')}>
+              <Skeleton width={56} height={16} />
+            </div>
+          </>
+        ) : (
+          <>
+            <div className={cn('flex flex-col justify-center', upToSmall ? 'w-full' : 'w-[50px] items-center')}>
+              <Skeleton width={16} height={16} />
+            </div>
+            <div className="flex flex-1 flex-col justify-center">
+              <Skeleton width={140} height={16} />
+            </div>
+            <div className={cn('flex flex-col justify-center', upToSmall ? 'w-full items-start' : 'w-20 items-end')}>
+              <Skeleton width={48} height={16} />
+            </div>
+            <div className={cn('flex flex-col', upToSmall ? 'w-full items-start' : 'w-[120px] items-end')}>
+              <Skeleton width={88} height={24} borderRadius={999} />
+            </div>
+          </>
+        )}
+      </div>
+    ))}
+  </>
+)
 
 export default function SafePalLeaderboard({ type, selectedWeek, onRequestJoin }: Props) {
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
@@ -171,7 +220,7 @@ export default function SafePalLeaderboard({ type, selectedWeek, onRequestJoin }
       )}
 
       {isLoading ? (
-        <LocalLoader />
+        <SafePalRowsSkeleton isOwner={isOwner} upToSmall={upToSmall} rowClass={rowClass} />
       ) : !isOwner && hasLeaderboardEntries ? (
         leaderboardData.entries.map((entry, index) => {
           const rank = entry.rank || index + 1 + (currentPage - 1) * 10

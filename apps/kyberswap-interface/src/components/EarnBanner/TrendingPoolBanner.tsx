@@ -18,6 +18,7 @@ import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { type EarnPool } from 'pages/Earns/types/pool'
+import { getPoolDetailUrl } from 'pages/Earns/utils/url'
 
 let indexInterval: NodeJS.Timeout
 
@@ -40,16 +41,8 @@ export default function TrendingPoolBanner() {
     })
   }
 
-  const getPoolDetailHref = (pool: EarnPool) => {
-    const poolChainId = pool.chain?.id ?? pool.chainId
-    if (!poolChainId) return APP_PATHS.EARN_POOLS
-
-    return `${APP_PATHS.ADD_LIQUIDITY}?${new URLSearchParams({
-      exchange: pool.exchange,
-      poolAddress: pool.address,
-      poolChainId: String(poolChainId),
-    }).toString()}`
-  }
+  const getPoolDetailHref = (pool: EarnPool) =>
+    getPoolDetailUrl(pool.chain?.id ?? pool.chainId, pool.exchange, pool.address)
 
   const handlePoolClickTracking = (pool: EarnPool) => {
     const destinationUrl = getPoolDetailHref(pool)

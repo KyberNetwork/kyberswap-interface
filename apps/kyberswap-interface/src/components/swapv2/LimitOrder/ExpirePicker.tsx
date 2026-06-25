@@ -66,7 +66,11 @@ export default function DateTimePicker({
   }
 
   const onSelectDefaultOption = useCallback((value: number) => {
-    const isTimestamp = value > 1000000000
+    // `value` is either a preset duration in seconds (up to ~3.15e9 for the 100-year "Forever"
+    // option) or an absolute millisecond timestamp from a custom-picked date (always ≥ ~1.7e12).
+    // Only a real ms timestamp is treated as an absolute date; everything else is a duration offset
+    // from now — otherwise the large "Forever" duration would be misread as a 1970 timestamp.
+    const isTimestamp = value >= 1e12
     if (!isTimestamp) setDefaultExpire(value)
     const date = isTimestamp ? new Date(value) : new Date(Date.now() + value * 1000)
     setDate(date)

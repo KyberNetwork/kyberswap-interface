@@ -32,7 +32,7 @@ export default function KNCUtility() {
 
   return (
     <div
-      className="z-[1] flex w-full flex-col items-center bg-transparent bg-[length:100%_auto] bg-top bg-repeat-y px-12 py-6 max-md:p-4"
+      className="z-[1] flex w-full animate-[fadeInUp_0.5s_ease-out_both] flex-col items-center bg-transparent bg-[length:100%_auto] bg-top bg-repeat-y px-12 py-6 motion-reduce:animate-none max-md:p-4"
       style={{ backgroundImage: `url(${bgimg})` }}
     >
       <div className="max-w-[1224px]">

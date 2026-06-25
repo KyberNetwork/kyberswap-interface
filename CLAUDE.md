@@ -36,12 +36,21 @@ pnpm build
 - Redux Toolkit + RTK Query (app state), zustand (widget state)
 - wagmi, viem
 
+> **Note — OG social-preview cards + per-route `<head>` injection** are handled by the separate
+> **kyberswap-og-service** repo (a standalone Node/Hono service), not part of this monorepo.
+
 ## Code Conventions
 
 - Functional components with hooks only
 - TypeScript strict mode, no unjustified `any`
 - Components: `PascalCase.tsx`, Hooks: `useCamelCase.ts`, Utils: `camelCase.ts`
 - Import order: external libs → `@kyberswap/*` → local imports → types → styles
+
+## Comments
+
+- Comments describe what the code **currently does and why** — never narrate change history. Avoid "now does X", "was Y", "no longer needed", "changed from…", "previously…", "instead of…", and similar.
+- **Never reference a value or approach that was tried and removed in the same branch** (e.g. "a full core is no longer needed"). It won't appear in git history, so a future reader who sees only the final code can't make sense of it. Write in the present tense, focused on the code being annotated — git history is the changelog.
+- Keep load-bearing "why" comments; drop comments that just restate the obvious.
 
 ## Code Quality Rules (MUST follow)
 

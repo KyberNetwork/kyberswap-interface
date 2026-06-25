@@ -21,6 +21,7 @@ type Props = {
   chainId: ChainId
   creatorName: string
   inputToken: TokenSchema
+  isCreatorNameValid: boolean
   isReceiverValid: boolean
   isUsingConnectedAddress: boolean
   onChainSelect: (chainId: ChainId) => void
@@ -41,6 +42,7 @@ export default function TipConfigForm({
   chainId,
   creatorName,
   inputToken,
+  isCreatorNameValid,
   isReceiverValid,
   isUsingConnectedAddress,
   onChainSelect,
@@ -152,14 +154,16 @@ export default function TipConfigForm({
 
       <Stack className="gap-2">
         <SectionLabel optional>Display Name</SectionLabel>
-        <FieldShell>
-          <input
-            value={creatorName}
-            onChange={event => onCreatorNameChange(event.target.value)}
-            placeholder="e.g. DefiAlpha"
-            className="w-full bg-transparent text-sm outline-none placeholder:text-subText/60"
-          />
-        </FieldShell>
+        <Tooltip text="Use another name" show={!isCreatorNameValid} placement="bottom" width="fit-content">
+          <FieldShell className={cn('border', isCreatorNameValid ? 'border-transparent' : 'border-warning/50')}>
+            <input
+              value={creatorName}
+              onChange={event => onCreatorNameChange(event.target.value)}
+              placeholder="e.g. DefiAlpha"
+              className="w-full bg-transparent text-sm outline-none placeholder:text-subText/60"
+            />
+          </FieldShell>
+        </Tooltip>
       </Stack>
     </Stack>
   )

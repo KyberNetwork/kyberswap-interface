@@ -22,7 +22,7 @@ export type PrivateAnnouncementProp<T extends AnnouncementTemplate = Announcemen
 }
 
 type PrivateAnnouncementMap = Partial<{
-  [type in PrivateAnnouncementType]: (data: PrivateAnnouncementProp) => JSX.Element
+  [type in PrivateAnnouncementType]: (data: PrivateAnnouncementProp) => React.JSX.Element
 }>
 const ANNOUNCEMENT_MAP: () => PrivateAnnouncementMap = () =>
   ({

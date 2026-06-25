@@ -9,17 +9,17 @@ import { ButtonDropdownLight } from 'components/Button'
 import { LightCard } from 'components/Card'
 import { AutoColumn, ColumnCenter } from 'components/Column'
 import CurrencyLogo from 'components/CurrencyLogo'
+import Dots from 'components/Dots'
 import { FindPoolTabs } from 'components/NavigationTabs'
 import { NarrowPositionCard } from 'components/PositionCard'
 import Row from 'components/Row'
-import CurrencySearchModal from 'components/SearchModal/CurrencySearchModal'
+import TokenSelectorModal from 'components/TokenSelectorModal'
 import { APP_PATHS } from 'constants/index'
 import { NativeCurrencies } from 'constants/tokens'
 import { PairState, usePair } from 'data/Reserves'
 import { useActiveWeb3React } from 'hooks'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import AppBody from 'pages/AppBody'
-import { Dots } from 'pages/MyPool/styleds'
 import { usePairAdderByTokens } from 'state/user/hooks'
 import { useTokenBalances } from 'state/wallet/hooks'
 import { StyledInternalLink } from 'theme'
@@ -184,11 +184,11 @@ export default function PoolFinder() {
           : prerequisiteMessage}
       </AutoColumn>
 
-      <CurrencySearchModal
+      <TokenSelectorModal
         isOpen={showSearch}
         onCurrencySelect={handleCurrencySelect}
         onDismiss={handleSearchDismiss}
-        showCommonBases
+        showPinnedTokens
         selectedCurrency={(activeField === Fields.TOKEN0 ? currency1 : currency0) ?? undefined}
       />
     </AppBody>

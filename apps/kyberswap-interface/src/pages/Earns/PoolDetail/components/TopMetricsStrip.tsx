@@ -27,7 +27,7 @@ const TopMetricsStrip = ({ items, split = false }: { items: TopMetricItem[]; spl
       style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}
     >
       {items.map(metric => (
-        <Stack key={metric.label} className={cn('min-w-0 gap-1', split && 'rounded-2xl bg-buttonGray/80 p-4')}>
+        <Stack key={metric.label} className={cn('min-w-0 gap-1', split && 'rounded-2xl bg-buttonGray/80 px-4 py-3')}>
           <span className="overflow-hidden truncate whitespace-nowrap text-sm text-subText">{metric.label}</span>
           <MetricValue value={metric.value} />
         </Stack>
