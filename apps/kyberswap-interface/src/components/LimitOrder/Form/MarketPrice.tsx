@@ -1,3 +1,4 @@
+import { Trans } from '@lingui/macro'
 import { useState } from 'react'
 import { Repeat } from 'react-feather'
 
@@ -27,7 +28,19 @@ const MarketPrice = ({ price, loading, symbolIn, symbolOut }: MarketPriceProps) 
 
   const ready = Boolean(price?.marketRate && price?.invertRate && formattedPrice && !loading)
 
-  return ready ? (
+  if (loading) {
+    return <Skeleton height={18} width={160} />
+  }
+
+  if (!ready) {
+    return (
+      <span className="text-sm font-medium text-warning">
+        <Trans>Unable to get the market price</Trans>
+      </span>
+    )
+  }
+
+  return (
     <HStack
       as="button"
       type="button"
@@ -41,8 +54,6 @@ const MarketPrice = ({ price, loading, symbolIn, symbolOut }: MarketPriceProps) 
       </span>
       <Repeat size={14} className="text-subText" />
     </HStack>
-  ) : (
-    <Skeleton height={18} width={160} />
   )
 }
 

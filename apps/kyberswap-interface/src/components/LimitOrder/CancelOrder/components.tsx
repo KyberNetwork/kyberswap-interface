@@ -40,7 +40,12 @@ export const SingleOrderSummary = ({ order }: { order?: LimitOrder }) => {
   const chainId = useLimitOrderChainId(order?.chainId)
   const currencyIn = useCurrencyV2(order?.makerAsset, chainId) || undefined
   const currencyOut = useCurrencyV2(order?.takerAsset, chainId) || undefined
-  const { tradeInfo: marketPrice } = useBaseTradeInfoLimitOrder(currencyIn, currencyOut, chainId)
+
+  const { loading: loadingMarketPrice, tradeInfo: marketPrice } = useBaseTradeInfoLimitOrder(
+    currencyIn,
+    currencyOut,
+    chainId,
+  )
 
   if (!order) return null
 
@@ -74,7 +79,14 @@ export const SingleOrderSummary = ({ order }: { order?: LimitOrder }) => {
         <OrderAmount logo={takerLogo} amount={takingAmount} decimals={takerAssetDecimals} symbol={takerSymbol} />
       }
       order={order}
-      marketRate={<MarketPrice price={marketPrice} symbolIn={makerAssetSymbol} symbolOut={takerAssetSymbol} />}
+      marketRate={
+        <MarketPrice
+          price={marketPrice}
+          loading={loadingMarketPrice}
+          symbolIn={makerAssetSymbol}
+          symbolOut={takerAssetSymbol}
+        />
+      }
     />
   )
 }

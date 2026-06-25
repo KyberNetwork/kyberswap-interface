@@ -1,5 +1,6 @@
 import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
+import { useEffect, useRef } from 'react'
 import { AlertCircle, RotateCw } from 'react-feather'
 
 import { ButtonLight, ButtonOutlined, ButtonPrimary } from 'components/Button'
@@ -9,6 +10,7 @@ import Loader from 'components/Loader'
 import Modal from 'components/Modal'
 import { Center, HStack, Stack } from 'components/Stack'
 import { NativeCurrencies } from 'constants/tokens'
+import { useActiveWeb3React } from 'hooks'
 import { CloseIcon } from 'theme/components'
 import { cn } from 'utils/cn'
 
@@ -143,12 +145,25 @@ const ProcessingOrderModal = <Step extends ProcessingOrderStep>({
   onViewOrder,
 }: ProcessingOrderModalProps<Step>) => {
   const { state, dismiss, retryStep } = processing
+  const { account } = useActiveWeb3React()
+  const previousAccount = useRef(account)
 
   const orderComplete =
     state.show &&
     !!state.steps.length &&
     state.steps.every(step => state.completedSteps.includes(step)) &&
     !state.errorStep
+
+  useEffect(() => {
+    const previous = previousAccount.current?.toLowerCase()
+    const current = account?.toLowerCase()
+
+    if (state.show && previous && previous !== current) {
+      dismiss()
+    }
+
+    previousAccount.current = account
+  }, [account, dismiss, state.show])
 
   const handleDismiss = () => {
     dismiss()
