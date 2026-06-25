@@ -11,16 +11,20 @@ import { BaseTradeInfo } from 'hooks/useBaseTradeInfo'
 import useTheme from 'hooks/useTheme'
 import { cn } from 'utils/cn'
 
+const DEFAULT_RATE_INFO: RateInfo = { rate: '', invertRate: '' }
+const RATE_DELTA_OPTIONS = [10, 20, 50]
+const MIN_CUSTOM_PERCENT = -100
+
 export const useGetDeltaRateLimitOrder = ({
   marketPrice,
   rateInfo,
 }: {
-  marketPrice: BaseTradeInfo | undefined
+  marketPrice?: BaseTradeInfo
   rateInfo: RateInfo
 }): DeltaRateLimitOrder => {
   const { deltaText, percent } = useMemo(() => {
     try {
-      if (marketPrice && rateInfo.rate && rateInfo.invertRate) {
+      if (marketPrice && rateInfo.rate !== '') {
         const ourRate = Number(rateInfo.rate)
         const marketRate = Number(marketPrice.marketRate)
         const percent = ((ourRate - marketRate) / marketRate) * 100
@@ -43,12 +47,6 @@ export const useGetDeltaRateLimitOrder = ({
   }
 }
 
-const RateLabel = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
-  <div className={cn('text-xs font-medium text-subText', className)} {...rest}>
-    {children}
-  </div>
-)
-
 const DeltaRate = ({ symbol, deltaRate }: { symbol: string; deltaRate: DeltaRateLimitOrder }) => {
   const theme = useTheme()
   const { percent, profit } = deltaRate
@@ -57,7 +55,7 @@ const DeltaRate = ({ symbol, deltaRate }: { symbol: string; deltaRate: DeltaRate
   const styledPercent = <span className={cn('font-medium', colorClass)}>{percent}</span>
 
   return (
-    <RateLabel className="flex items-center whitespace-nowrap">
+    <div className="flex items-center whitespace-nowrap text-xs font-medium text-subText">
       <Trans>Sell {symbol} at rate</Trans>
       {percent ? (
         <InfoHelper
@@ -71,44 +69,19 @@ const DeltaRate = ({ symbol, deltaRate }: { symbol: string; deltaRate: DeltaRate
           }
         />
       ) : null}
-    </RateLabel>
+    </div>
   )
 }
 
-const RateChip = ({
-  children,
-  className,
-  isActive,
-  ...rest
-}: React.ButtonHTMLAttributes<HTMLButtonElement> & { isActive?: boolean }) => (
-  <button
-    type="button"
-    className={cn(
-      'h-6 rounded-lg border px-2 text-xs font-medium transition-colors',
-      isActive
-        ? 'border-primary-50 bg-tabActive text-text hover:bg-buttonGray'
-        : 'border-border/60 text-subText hover:border-border-primary hover:text-primary',
-      className,
-    )}
-    {...rest}
-  >
-    {children}
-  </button>
-)
-
-const PercentInputChip = ({
-  value,
-  isActive,
-  onActiveChange,
-  onFocusChange,
-  onUserInput,
-}: {
+type PercentInputChipProps = {
   value: string
   isActive: boolean
   onActiveChange: (value: boolean) => void
   onFocusChange: (value: boolean) => void
   onUserInput: (value: string) => void
-}) => {
+}
+
+const PercentInputChip = ({ value, isActive, onActiveChange, onFocusChange, onUserInput }: PercentInputChipProps) => {
   const [isEditing, setIsEditing] = useState(false)
   const [draftValue, setDraftValue] = useState(value)
   const displayValue = isEditing ? draftValue : isActive ? value : ''
@@ -122,15 +95,20 @@ const PercentInputChip = ({
   }, [isEditing, value])
 
   const onChange = (nextValue: string) => {
-    setDraftValue(nextValue)
-    if (!nextValue || nextValue === '-' || nextValue === '+') {
+    const normalizedValue =
+      Number.isFinite(Number(nextValue)) && Number(nextValue) < MIN_CUSTOM_PERCENT
+        ? String(MIN_CUSTOM_PERCENT)
+        : nextValue
+
+    setDraftValue(normalizedValue)
+    if (!normalizedValue || normalizedValue === '-' || normalizedValue === '+') {
       onActiveChange(false)
       onUserInput('')
       return
     }
-    if (nextValue.endsWith('.')) return
+    if (normalizedValue.endsWith('.')) return
     onActiveChange(true)
-    onUserInput(nextValue)
+    onUserInput(normalizedValue)
   }
 
   return (
@@ -167,12 +145,6 @@ const PercentInputChip = ({
   )
 }
 
-type Props = {
-  tokens?: RateSectionTokens
-  rate?: RateSectionState
-  events?: RateSectionEvents
-}
-
 type RateSectionTokens = {
   currencyIn?: Currency
   currencyOut?: Currency
@@ -191,8 +163,11 @@ type RateSectionEvents = {
   onRateInputBlur?: () => void
 }
 
-const DEFAULT_RATE_INFO: RateInfo = { rate: '', invertRate: '' }
-const RATE_DELTA_OPTIONS = [10, 20, 50]
+type Props = {
+  tokens?: RateSectionTokens
+  rate?: RateSectionState
+  events?: RateSectionEvents
+}
 
 const LimitOrderRateSection = ({ tokens = {}, rate = {}, events = {} }: Props) => {
   const { currencyIn, currencyOut } = tokens
@@ -268,13 +243,19 @@ const LimitOrderRateSection = ({ tokens = {}, rate = {}, events = {} }: Props) =
             onUserInput={onChangePercent}
           />
           {RATE_DELTA_OPTIONS.map(percent => (
-            <RateChip
+            <button
               key={percent}
-              isActive={percentInputValue !== '' && percentNumberValue === percent && !isCustomPercentActive}
+              type="button"
+              className={cn(
+                'h-6 rounded-lg border px-2 text-xs font-medium transition-colors',
+                percentInputValue !== '' && percentNumberValue === percent && !isCustomPercentActive
+                  ? 'border-primary-50 bg-tabActive text-text hover:bg-buttonGray'
+                  : 'border-border/60 text-subText hover:border-border-primary hover:text-primary',
+              )}
               onClick={() => setRateByDelta(percent, 'preset')}
             >
               +{percent}%
-            </RateChip>
+            </button>
           ))}
         </div>
         {tradeInfo ? (

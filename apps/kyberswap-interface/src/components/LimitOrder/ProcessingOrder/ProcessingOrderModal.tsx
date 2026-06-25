@@ -150,12 +150,8 @@ const ProcessingOrderModal = <Step extends ProcessingOrderStep>({
     state.steps.every(step => state.completedSteps.includes(step)) &&
     !state.errorStep
 
-  const isProcessing = state.show && !!state.currentStep && !state.errorStep && !orderComplete
-
   const handleDismiss = () => {
-    if (!isProcessing) {
-      dismiss()
-    }
+    dismiss()
   }
 
   const handleViewOrder = () => {
