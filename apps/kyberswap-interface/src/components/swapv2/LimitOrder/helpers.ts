@@ -1,15 +1,13 @@
 import { Currency, Fraction } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
-import { ethers } from 'ethers'
 import JSBI from 'jsbi'
 
+import { CreateOrderParam, LimitOrder, LimitOrderStatus } from 'components/swapv2/LimitOrder/type'
 import { RESERVE_USD_DECIMALS } from 'constants/index'
 import { tryParseAmount } from 'state/swap/hooks'
-import { formatNumberWithPrecisionRange, formattedNum } from 'utils'
 import { friendlyError } from 'utils/errorMessage'
-import { uint256ToFraction } from 'utils/numbers'
-
-import { CreateOrderParam, LimitOrder, LimitOrderStatus } from './type'
+import { formatDisplayNumber, uint256ToFraction } from 'utils/numbers'
+import { parseUnits } from 'utils/viem'
 
 export const isActiveStatus = (status: LimitOrderStatus) =>
   [LimitOrderStatus.ACTIVE, LimitOrderStatus.OPEN, LimitOrderStatus.PARTIALLY_FILLED].includes(status)
@@ -18,7 +16,7 @@ export const isActiveStatus = (status: LimitOrderStatus) =>
 export function parseFraction(value: string, decimals = RESERVE_USD_DECIMALS) {
   try {
     return new Fraction(
-      ethers.utils.parseUnits(value, decimals).toString(),
+      parseUnits(value, decimals).toString(),
       JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(decimals)),
     )
   } catch (error) {
@@ -86,8 +84,8 @@ export const calcUsdPrices = ({
     const input = +parseFraction(inputAmount, currencyIn.decimals).toSignificant(18) * priceUsdIn
     const output = +parseFraction(outputAmount, currencyOut.decimals).toSignificant(18) * priceUsdOut
     return {
-      input: input ? `${formattedNum(input.toFixed(16), true)}` : undefined,
-      output: output ? `${formattedNum(output.toFixed(16), true)}` : undefined,
+      input: input ? formatDisplayNumber(input.toFixed(16), { style: 'currency', significantDigits: 4 }) : undefined,
+      output: output ? formatDisplayNumber(output.toFixed(16), { style: 'currency', significantDigits: 4 }) : undefined,
       rawInput: parseFloat(input.toFixed(2)),
     }
   } catch (error) {
@@ -97,11 +95,9 @@ export const calcUsdPrices = ({
 
 export const formatAmountOrder = (value: string, decimals?: number) => {
   const isUint256 = decimals !== undefined
-  return formatNumberWithPrecisionRange(
-    parseFloat(isUint256 ? uint256ToFraction(value, decimals).toFixed(16) : value),
-    0,
-    10,
-  )
+  return formatDisplayNumber(parseFloat(isUint256 ? uint256ToFraction(value, decimals).toFixed(16) : value), {
+    fractionDigits: 10,
+  })
 }
 
 export const formatRateLimitOrder = (order: LimitOrder, invert: boolean) => {
@@ -115,7 +111,7 @@ export const formatRateLimitOrder = (order: LimitOrder, invert: boolean) => {
     console.log(error)
   }
   const float = parseFloat(rateValue.toFixed(16))
-  return formatNumberWithPrecisionRange(float, 0, float < 1e-8 ? 16 : 8)
+  return formatDisplayNumber(float, { fractionDigits: float < 1e-8 ? 16 : 8 })
 }
 
 export const calcPercentFilledOrder = (value: string, total: string, decimals: number) => {
@@ -124,7 +120,7 @@ export const calcPercentFilledOrder = (value: string, total: string, decimals: n
       uint256ToFraction(value, decimals).divide(uint256ToFraction(total, decimals)).multiply(100).toFixed(16),
     )
     if (float && float > 99.99) return '99.99'
-    return float && float < 0.01 ? '< 0.01' : formatNumberWithPrecisionRange(float, 0, 2)
+    return float && float < 0.01 ? '< 0.01' : formatDisplayNumber(float, { fractionDigits: 2 })
   } catch (error) {
     return '0'
   }

@@ -1,35 +1,14 @@
-import { rgba } from 'polished'
-import styled, { CSSProperties } from 'styled-components'
+import { CSSProperties } from 'react'
 
 import Profile from 'components/Icons/Profile'
 import Loader from 'components/Loader'
+import { cn } from 'utils/cn'
 
-const StyledAvatar = styled.img<{ $size: number }>`
-  height: ${({ $size }) => $size}px;
-  width: ${({ $size }) => $size}px;
-  object-fit: cover;
-  border-radius: 100%;
-`
-const Wrapper = styled.div<{ $size: number }>`
-  position: relative;
-  width: ${({ $size }) => $size}px;
-  height: ${({ $size }) => $size}px;
-`
-
-const LoadingWrapper = styled.div`
-  position: absolute;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  top: 0;
-  left: 0;
-  background-color: ${({ theme }) => rgba(theme.buttonBlack, 0.6)};
-  border-radius: 100%;
-`
 export default function Avatar({
   url,
   size,
   color,
+  className,
   onClick,
   style,
   loading,
@@ -37,22 +16,37 @@ export default function Avatar({
   url: string | undefined
   size: number
   color?: string
+  className?: string
   onClick?: () => void
   style?: CSSProperties
   loading?: boolean
 }) {
   return (
-    <Wrapper $size={size}>
+    <div className="relative" style={{ width: size, height: size }}>
       {url ? (
-        <StyledAvatar $size={size} src={url} onClick={onClick} style={style} />
+        <img
+          src={url}
+          onClick={onClick}
+          className={cn('rounded-full object-cover', className)}
+          style={{ width: size, height: size, ...style }}
+        />
       ) : (
-        <Profile size={size} color={color} style={{ ...style, minHeight: size, minWidth: size }} onClick={onClick} />
+        <Profile
+          size={size}
+          color={color}
+          className={className}
+          style={{ ...style, minHeight: size, minWidth: size }}
+          onClick={onClick}
+        />
       )}
       {loading && (
-        <LoadingWrapper style={{ width: size, height: size }}>
+        <div
+          className="absolute left-0 top-0 flex items-center justify-center rounded-full bg-buttonBlack-60"
+          style={{ width: size, height: size }}
+        >
           <Loader />
-        </LoadingWrapper>
+        </div>
       )}
-    </Wrapper>
+    </div>
   )
 }

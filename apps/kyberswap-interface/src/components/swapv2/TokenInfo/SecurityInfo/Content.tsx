@@ -1,11 +1,10 @@
 import { Trans, t } from '@lingui/macro'
 import { AlertOctagon } from 'react-feather'
-import { Flex } from 'rebass'
-import styled from 'styled-components'
 
 import Loader from 'components/Loader'
 import { RISKY_THRESHOLD, isItemRisky } from 'components/swapv2/TokenInfo/utils'
 import useTheme from 'hooks/useTheme'
+import { cn } from 'utils/cn'
 
 export enum WarningType {
   RISKY,
@@ -20,30 +19,27 @@ export type ItemData = {
   riskyReverse?: boolean
 }
 
-const Label = styled.span<{ color?: string }>`
-  color: ${({ theme, color }) => color || theme.subText};
-  font-size: 12px;
-  font-weight: 400;
-`
+const Label = ({
+  children,
+  color,
+  className,
+  fontWeight,
+}: {
+  children: React.ReactNode
+  color?: string
+  className?: string
+  fontWeight?: string
+}) => (
+  <span className={cn('text-xs font-normal text-subText', className)} style={{ color, fontWeight }}>
+    {children}
+  </span>
+)
 
-const ItemWrapper = styled.div`
-  display: flex;
-  gap: 6px;
-  justify-content: space-between;
-  align-items: center;
-  flex-basis: 45%;
-`
-
-const ContentWrapper = styled.div`
-  display: flex;
-  gap: 12px;
-  padding: 16px 20px;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-   flex-direction: column;
-  `};
-`
+const ItemWrapper = ({ children }: { children: React.ReactNode }) => (
+  <div className="flex min-h-7 basis-[48%] items-center justify-between gap-1.5 rounded px-2 py-1 hover:bg-tabActive">
+    {children}
+  </div>
+)
 
 const NO_DATA = '--'
 const InfoItem = ({ data, loading }: { data: ItemData; loading: boolean }) => {
@@ -77,7 +73,7 @@ const InfoItem = ({ data, loading }: { data: ItemData; loading: boolean }) => {
             ? theme.subText
             : theme.primary
         }
-        style={{ fontWeight: '500' }}
+        fontWeight="500"
       >
         {displayValue}
       </Label>
@@ -85,36 +81,32 @@ const InfoItem = ({ data, loading }: { data: ItemData; loading: boolean }) => {
   )
 }
 
-const Content = ({
-  data,
-  totalRisk,
-  totalWarning,
-  loading,
-}: {
+export type ContentProps = {
   data: ItemData[]
   totalRisk: number
   totalWarning: number
   loading: boolean
-}) => {
-  const theme = useTheme()
+}
+
+const Content = ({ data, totalRisk, totalWarning, loading }: ContentProps) => {
   return (
-    <ContentWrapper>
+    <div className="flex flex-wrap justify-between gap-y-2 px-4 py-3 max-md:flex-col">
       <ItemWrapper>
-        <Flex sx={{ gap: '6px', alignItems: 'center' }}>
-          <AlertOctagon size={16} color={theme.red} />
+        <div className="flex items-center gap-1.5">
+          <AlertOctagon size={16} className="text-red" />
           <Label>{totalRisk <= 1 ? <Trans>Risky Item</Trans> : <Trans>Risky Item(s)</Trans>}</Label>
-        </Flex>
-        <Label color={theme.red} style={{ fontWeight: '500' }}>
+        </div>
+        <Label className="text-red" fontWeight="500">
           {totalRisk}
         </Label>
       </ItemWrapper>
 
       <ItemWrapper>
-        <Flex sx={{ gap: '6px', alignItems: 'center' }}>
-          <AlertOctagon size={16} color={theme.warning} />
+        <div className="flex items-center gap-1.5">
+          <AlertOctagon size={16} className="text-warning" />
           <Label>{totalWarning <= 1 ? <Trans>Attention Item</Trans> : <Trans>Attention Item(s)</Trans>}</Label>
-        </Flex>
-        <Label color={theme.warning} style={{ fontWeight: '500' }}>
+        </div>
+        <Label className="text-warning" fontWeight="500">
           {totalWarning}
         </Label>
       </ItemWrapper>
@@ -122,7 +114,7 @@ const Content = ({
       {data.map(item => (
         <InfoItem key={item.label} data={item} loading={loading} />
       ))}
-    </ContentWrapper>
+    </div>
   )
 }
 export default Content

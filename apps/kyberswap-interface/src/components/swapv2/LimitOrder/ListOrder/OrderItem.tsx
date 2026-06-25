@@ -1,97 +1,109 @@
 import { Token } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import dayjs from 'dayjs'
-import { rgba } from 'polished'
-import { useEffect, useMemo, useState } from 'react'
+import { CSSProperties, useEffect, useMemo, useState } from 'react'
 import { Repeat } from 'react-feather'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
-import { Flex, Text } from 'rebass'
-import styled, { CSSProperties, DefaultTheme } from 'styled-components'
 
 import InfoHelper from 'components/InfoHelper'
 import Logo from 'components/Logo'
 import ProgressBar from 'components/ProgressBar'
-import { highlight } from 'components/swapv2/styleds'
+import ActionButtons from 'components/swapv2/LimitOrder/ListOrder/ActionButtons'
+import {
+  calcPercentFilledOrder,
+  formatAmountOrder,
+  formatRateLimitOrder,
+  isActiveStatus,
+} from 'components/swapv2/LimitOrder/helpers'
+import { LimitOrder, LimitOrderStatus } from 'components/swapv2/LimitOrder/type'
 import { NETWORKS_INFO } from 'constants/networks'
 import { NativeCurrencies } from 'constants/tokens'
 import useTheme from 'hooks/useTheme'
 import { useTokenBalance } from 'state/wallet/hooks'
 import { MEDIA_WIDTHS } from 'theme'
+import { cn } from 'utils/cn'
 import { toCurrencyAmount } from 'utils/currencyAmount'
 
-import { calcPercentFilledOrder, formatAmountOrder, formatRateLimitOrder, isActiveStatus } from '../helpers'
-import { LimitOrder, LimitOrderStatus } from '../type'
-import ActionButtons from './ActionButtons'
+type Theme = ReturnType<typeof useTheme>
 
-export const ItemWrapper = styled.div<{ hasBorder?: boolean; active?: boolean }>`
-  border-bottom: 1px solid ${({ theme, hasBorder }) => (hasBorder ? theme.border : 'transparent')};
-  font-size: 12px;
-  padding: 10px;
-  grid-template-columns: 1.5fr 1fr 1.5fr 2fr ${({ active }) => (active ? '110px' : '80px')};
-  display: grid;
-  gap: 10px;
-  align-items: center;
-  cursor: pointer;
-  :hover {
-    background-color: ${({ theme }) => rgba(theme.primary, 0.2)};
-  }
-  ${({ theme, active }) => theme.mediaWidth.upToLarge`
-    grid-template-columns: 1.5fr 1.5fr 1.5fr ${active ? '110px' : '80px'};
-    .rate {
-      display:none;
-    }
-  `}
+interface ItemWrapperProps extends React.HTMLAttributes<HTMLDivElement> {
+  hasBorder?: boolean
+  active?: boolean
+  highlight?: boolean
+}
 
-  &[data-highlight='true'] {
-    animation: ${({ theme }) => highlight(theme)} 2s 2 alternate ease-in-out;
-  }
-`
+export const ItemWrapper = ({
+  hasBorder,
+  active,
+  highlight,
+  className,
+  children,
+  style,
+  ...rest
+}: ItemWrapperProps) => (
+  <div
+    data-highlight={highlight}
+    style={{
+      gridTemplateColumns: active ? '1.5fr 1fr 1.5fr 2fr 110px' : '1.5fr 1fr 1.5fr 2fr 80px',
+      ...style,
+    }}
+    className={cn(
+      'grid cursor-pointer items-center gap-[10px] p-[10px] text-xs hover:bg-primary-20',
+      hasBorder ? 'border-b border-border' : 'border-b border-transparent',
+      active ? 'max-lg:!grid-cols-[1.5fr_1.5fr_1.5fr_110px]' : 'max-lg:!grid-cols-[1.5fr_1.5fr_1.5fr_80px]',
+      '[&_.rate]:max-lg:hidden',
+      'data-[highlight=true]:animate-[ks-order-highlight_2s_2_alternate_ease-in-out]',
+      className,
+    )}
+    {...rest}
+  >
+    {children}
+  </div>
+)
 
-const ItemWrapperMobile = styled.div`
-  display: flex;
-  font-size: 12px;
-  flex-direction: column;
-  justify-content: space-between;
-  gap: 14px;
-  padding: 20px 10px;
-  border-bottom: 1px solid ${({ theme }) => theme.border};
-`
-const DeltaAmount = styled.div<{ color: string }>`
-  font-weight: 500;
-  color: ${({ color }) => color};
-`
-const Colum = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 10px 12px;
-  justify-content: center;
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-      gap: 5px 12px;
-  `}
-`
+const ItemWrapperMobile = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
+  <div
+    className={cn('flex flex-col justify-between gap-[14px] border-b border-border px-[10px] py-5 text-xs', className)}
+    {...rest}
+  >
+    {children}
+  </div>
+)
+
+const DeltaAmount = ({
+  color,
+  className,
+  style,
+  children,
+  ...rest
+}: React.HTMLAttributes<HTMLDivElement> & { color?: string }) => (
+  <div className={cn('font-medium', className)} style={color ? { color, ...style } : style} {...rest}>
+    {children}
+  </div>
+)
+
+const Colum = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('flex flex-col justify-center gap-x-3 gap-y-[10px] max-sm:gap-y-[5px]', className)} {...rest}>
+    {children}
+  </div>
+)
 
 const TimeText = ({ time, style = {} }: { time: number; style?: CSSProperties }) => {
-  const theme = useTheme()
   return (
-    <Flex fontWeight={'500'} color={theme.text} style={style}>
-      <Text>{dayjs(time * 1000).format('DD/MM/YYYY')}</Text>
-      &nbsp; <Text>{dayjs(time * 1000).format('HH:mm')}</Text>
-    </Flex>
+    <div className="flex font-medium text-text" style={style}>
+      <span>{dayjs(time * 1000).format('DD/MM/YYYY')}</span>
+      &nbsp; <span>{dayjs(time * 1000).format('HH:mm')}</span>
+    </div>
   )
 }
 
-const LOGO_SIZE = '17px'
-const TokenLogo = styled(Logo)`
-  width: ${LOGO_SIZE};
-  height: ${LOGO_SIZE};
-  border-radius: 100%;
-  margin-right: 8px;
-`
+const TokenLogo = ({ srcs }: { srcs: string[] }) => <Logo srcs={srcs} className="mr-2 h-[17px] w-[17px] rounded-full" />
 
 const SingleAmountInfo = ({
   amount,
   color,
+  className,
   logoUrl,
   symbol,
   plus = true,
@@ -99,19 +111,20 @@ const SingleAmountInfo = ({
   decimals,
 }: {
   amount: string
-  color: string
+  color?: string
+  className?: string
   symbol: string
   logoUrl: string
   plus?: boolean
   hideLogo?: boolean
   decimals: number
 }) => (
-  <Flex alignItems={'center'}>
+  <div className="flex items-center">
     {!hideLogo && <TokenLogo srcs={[logoUrl]} />}
-    <DeltaAmount color={color}>
+    <DeltaAmount color={color} className={className}>
       {plus ? '+' : '-'} {formatAmountOrder(amount, decimals)} {symbol || '???'}
     </DeltaAmount>
-  </Flex>
+  </div>
 )
 const AmountInfo = ({ order, takerSymbol }: { order: LimitOrder; takerSymbol: string }) => {
   const {
@@ -126,14 +139,13 @@ const AmountInfo = ({ order, takerSymbol }: { order: LimitOrder; takerSymbol: st
     nativeOutput,
     chainId,
   } = order
-  const theme = useTheme()
   const native = NativeCurrencies[chainId]
   const isNative = nativeOutput && takerAssetSymbol.toLowerCase() === native?.wrapped.symbol?.toLowerCase()
   return (
     <Colum>
       <SingleAmountInfo
         decimals={takerAssetDecimals}
-        color={theme.primary}
+        className="text-primary"
         logoUrl={isNative ? NETWORKS_INFO[order.chainId]?.nativeToken.logo || takerAssetLogoURL : takerAssetLogoURL}
         amount={takingAmount}
         symbol={takerSymbol}
@@ -141,7 +153,7 @@ const AmountInfo = ({ order, takerSymbol }: { order: LimitOrder; takerSymbol: st
       <SingleAmountInfo
         decimals={makerAssetDecimals}
         plus={false}
-        color={theme.subText}
+        className="text-subText"
         logoUrl={makerAssetLogoURL}
         amount={makingAmount}
         symbol={makerAssetSymbol}
@@ -160,7 +172,6 @@ const TradeRateOrder = ({
   style?: CSSProperties
 }) => {
   const [invert, setInvert] = useState(false)
-  const theme = useTheme()
   const symbolIn = order.makerAssetSymbol || '???'
 
   const onInvert = (event: React.MouseEvent<HTMLDivElement>) => {
@@ -170,11 +181,11 @@ const TradeRateOrder = ({
 
   return (
     <Colum style={style} onClick={event => event.stopPropagation()}>
-      <Flex style={{ gap: 6, cursor: 'pointer', alignItems: 'center' }} onClick={onInvert}>
-        <Text color={theme.text}>{!invert ? `${symbolOut}/${symbolIn}` : `${symbolIn}/${symbolOut}`}</Text>
-        <Repeat color={theme.text} size={12} />
-      </Flex>
-      <Text color={theme.text}>{formatRateLimitOrder(order, invert)}</Text>
+      <div className="flex cursor-pointer items-center gap-[6px]" onClick={onInvert}>
+        <span className="text-text">{!invert ? `${symbolOut}/${symbolIn}` : `${symbolIn}/${symbolOut}`}</span>
+        <Repeat className="text-text" size={12} />
+      </div>
+      <span className="text-text">{formatRateLimitOrder(order, invert)}</span>
     </Colum>
   )
 }
@@ -207,7 +218,7 @@ function formatStatusLimitOrder(order: LimitOrder, isCancelling = false, isNotSu
   return `${partiallyFilled ? t`Partially Filled` : t`Filled`} ${filledPercent}%${expandTitle}`
 }
 
-const getColorStatus = (status: LimitOrderStatus, theme: DefaultTheme, isNotSufficientFund = false) => {
+const getColorStatus = (status: LimitOrderStatus, theme: Theme, isNotSufficientFund = false) => {
   const MapStatusColor: { [key: string]: string } = {
     [LimitOrderStatus.FILLED]: theme.primary,
     [LimitOrderStatus.CANCELLED]: theme.red,
@@ -227,16 +238,12 @@ const getColorStatus = (status: LimitOrderStatus, theme: DefaultTheme, isNotSuff
 
   return undefined
 }
-const IndexText = styled.div`
-  width: 18px;
-  text-align: centẻ;
-  font-weight: 500;
-  color: ${({ theme }) => theme.subText};
-`
 
-const WarningText = styled.span`
-  color: ${({ theme }) => theme.warning};
-`
+const IndexText = ({ children }: { children?: React.ReactNode }) => (
+  <div className="w-[18px] text-center font-medium text-subText">{children}</div>
+)
+
+const WarningText = ({ children }: { children: React.ReactNode }) => <span className="text-warning">{children}</span>
 
 export default function OrderItem({
   order,
@@ -260,6 +267,7 @@ export default function OrderItem({
   const [expand, setExpand] = useState(false)
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const isCancelling = isOrderCancelling(order)
+  const theme = useTheme()
 
   const {
     createdAt = Date.now(),
@@ -281,7 +289,6 @@ export default function OrderItem({
   const status = isCancelling ? LimitOrderStatus.CANCELLING : order.status
   const isOrderActive = isActiveStatus(order.status)
   const filledPercent = calcPercentFilledOrder(filledTakingAmount, takingAmount, takerAssetDecimals)
-  const theme = useTheme()
 
   const makingToken = useMemo(() => {
     return new Token(order.chainId, order.makerAsset, order.makerAssetDecimals, order.makerAssetSymbol, '')
@@ -338,13 +345,7 @@ export default function OrderItem({
 
     return (
       <Colum>
-        <Flex
-          alignItems="center"
-          color={colorStatus}
-          sx={{
-            gap: '4px',
-          }}
-        >
+        <div className="flex items-center gap-1" style={{ color: colorStatus }}>
           {isOrderActive && isNotSufficientFund && (
             <InfoHelper
               style={{
@@ -356,7 +357,7 @@ export default function OrderItem({
             />
           )}{' '}
           {formatStatusLimitOrder(order, isCancelling, isNotSufficientFund)}
-        </Flex>
+        </div>
         <ProgressBar
           width={upToSmall ? '160px' : 'unset'}
           backgroundColor={theme.subText}
@@ -371,7 +372,7 @@ export default function OrderItem({
   if (upToSmall) {
     return (
       <ItemWrapperMobile onClick={onClickOrder}>
-        <Flex justifyContent={'space-between'}>
+        <div className="flex justify-between">
           <AmountInfo order={order} takerSymbol={takerSymbol} />
           <ActionButtons
             order={order}
@@ -382,47 +383,47 @@ export default function OrderItem({
             onEditOrder={onEditOrder}
             isCancelling={isCancelling}
           />
-        </Flex>
-        <Flex justifyContent={'space-between'}>
+        </div>
+        <div className="flex justify-between">
           {renderProgressComponent()}
           <TradeRateOrder order={order} style={{ textAlign: 'right', cursor: 'default' }} symbolOut={takerSymbol} />
-        </Flex>
+        </div>
         {expand && (
           <div>
             {transactions.map(txs => {
               return (
-                <Flex key={txs.txHash} style={{ justifyContent: 'space-between' }}>
+                <div key={txs.txHash} className="flex justify-between">
                   <SingleAmountInfo
                     decimals={takerAssetDecimals}
-                    color={theme.subText}
+                    className="text-subText"
                     logoUrl={order.takerAssetLogoURL}
                     amount={txs.takingAmount}
                     symbol={takerSymbol}
                     hideLogo
                   />
-                  <Flex alignItems={'center'}>
+                  <div className="flex items-center">
                     <TimeText time={txs.txTime} style={{ marginRight: '7px' }} />
                     <ActionButtons itemStyle={{ margin: 0 }} order={order} txHash={txHash} isChildren />
-                  </Flex>
-                </Flex>
+                  </div>
+                </div>
               )
             })}
           </div>
         )}
-        <Flex justifyContent={'space-between'}>
+        <div className="flex justify-between">
           <Colum>
-            <Text>
+            <span>
               <Trans>Created</Trans>
-            </Text>
+            </span>
             <TimeText time={createdAt} />
           </Colum>
           <Colum>
-            <Text textAlign={'right'}>
+            <span className="text-right">
               <Trans>Expiry</Trans>
-            </Text>
+            </span>
             <TimeText time={order.expiredAt} />
           </Colum>
-        </Flex>
+        </div>
       </ItemWrapperMobile>
     )
   }
@@ -435,15 +436,15 @@ export default function OrderItem({
   return (
     <>
       <ItemWrapper
-        data-highlight={highlight}
+        highlight={highlight}
         hasBorder={isLast ? false : !transactions.length || !expand}
         active={hasOrderCancelling}
         onClick={onClickOrder}
       >
-        <Flex alignItems={'center'} style={{ gap: 10 }}>
+        <div className="flex items-center gap-[10px]">
           <IndexText>{index + 1}</IndexText>
           <AmountInfo order={order} takerSymbol={takerSymbol} />
-        </Flex>
+        </div>
         <Colum className="rate">
           <TradeRateOrder order={order} style={{ cursor: 'default' }} symbolOut={takerSymbol} />
         </Colum>
@@ -463,32 +464,32 @@ export default function OrderItem({
         />
       </ItemWrapper>
       {expand && (
-        <Flex flexDirection="column" style={{ paddingBottom: 10, borderBottom: `1px solid ${theme.border}` }}>
+        <div className="flex flex-col border-b border-border pb-[10px]">
           {transactions.map(txs => {
             const filledPercent = calcPercentFilledOrder(txs.takingAmount, takingAmount, takerAssetDecimals)
             return (
-              <ItemWrapper key={txs.txHash} hasBorder={false} style={{ paddingTop: 0, paddingBottom: 0 }}>
-                <Flex alignItems={'center'} style={{ gap: 10 }}>
+              <ItemWrapper key={txs.txHash} hasBorder={false} className="!py-0">
+                <div className="flex items-center gap-[10px]">
                   <IndexText />
-                  <Flex>
-                    <div style={{ width: LOGO_SIZE, marginRight: 8 }} />
-                    <DeltaAmount color={theme.subText}>
+                  <div className="flex">
+                    <div className="mr-2 w-[17px]" />
+                    <DeltaAmount className="text-subText">
                       + {formatAmountOrder(txs.takingAmount, takerAssetDecimals)} {takerSymbol}
                     </DeltaAmount>
-                  </Flex>
-                </Flex>
+                  </div>
+                </div>
                 <Colum className="rate"></Colum>
                 <Colum>
                   <TimeText time={txs.txTime} />
                 </Colum>
                 <Colum>
-                  <Text color={colorStatus}>{filledPercent}%</Text>
+                  <span style={{ color: colorStatus }}>{filledPercent}%</span>
                 </Colum>
                 <ActionButtons order={order} txHash={txs.txHash} isChildren />
               </ItemWrapper>
             )
           })}
-        </Flex>
+        </div>
       )}
     </>
   )

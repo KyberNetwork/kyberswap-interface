@@ -1,177 +1,71 @@
 import { t } from '@lingui/macro'
 import React, { useEffect, useRef, useState } from 'react'
 import { useLocation } from 'react-router-dom'
-import { Flex, Text } from 'rebass'
-import styled, { css, keyframes } from 'styled-components'
 
 import Tooltip from 'components/Tooltip'
 import { APP_PATHS, MAX_DEGEN_SLIPPAGE_IN_BIPS, MAX_NORMAL_SLIPPAGE_IN_BIPS } from 'constants/index'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
-import { useDefaultSlippageByPair } from 'state/swap/hooks'
 import { useDegenModeManager } from 'state/user/hooks'
+import { cn } from 'utils/cn'
 import { formatSlippage } from 'utils/slippage'
 
 const parseSlippageInput = (str: string): number => Math.round(Number.parseFloat(str) * 100)
-const getSlippageText = (rawSlippage: number, options: number[]) => {
-  const isCustom = !options.includes(rawSlippage)
+const getSlippageText = (value: number, options: number[], forceVisible = false) => {
+  const isCustom = forceVisible || !options.includes(value)
   if (!isCustom) {
     return ''
   }
 
-  return formatSlippage(rawSlippage, false)
+  return formatSlippage(value, false)
 }
 
-const EmojiContainer = styled.span`
-  flex: 0 0 12px;
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-        display: none;
-  `}
-`
-
-const slippageOptionCSS = css`
-  height: 100%;
-  padding: 0;
-  border-radius: 20px;
-  border: 1px solid transparent;
-
-  background-color: ${({ theme }) => theme.tabBackground};
-  color: ${({ theme }) => theme.subText};
-  text-align: center;
-
-  font-size: 12px;
-  font-weight: 400;
-  line-height: 16px;
-
-  outline: none;
-  cursor: pointer;
-
-  :hover {
-    border-color: ${({ theme }) => theme.bg4};
-  }
-  :focus {
-    border-color: ${({ theme }) => theme.bg4};
-  }
-
-  &[data-active='true'] {
-    background-color: ${({ theme }) => theme.tabActive};
-    color: ${({ theme }) => theme.text};
-    border-color: ${({ theme }) => theme.primary};
-
-    font-weight: 500;
-  }
-
-  &[data-warning='true'] {
-    border-color: ${({ theme }) => theme.warning};
-  }
-`
-
-const highlight = keyframes`
-  0% {
-    box-shadow: 0 0 0 0 rgba(255, 153, 1, 0);
-  }
-
-  70% {
-    box-shadow: 0 0 0 1px rgba(255, 153, 1, 1);
-  }
-
-  100% {
-    box-shadow: 0 0 0 0 rgba(255, 153, 1, 0);
-  }
-`
-
-const CustomSlippageOption = styled.div`
-  ${slippageOptionCSS};
-
-  display: inline-flex;
-  align-items: center;
-  padding: 0 4px;
-  column-gap: 2px;
-  flex: 1;
-
-  transition: all 150ms linear;
-
-  &[data-active='true'] {
-    color: ${({ theme }) => theme.text};
-    font-weight: 500;
-  }
-
-  &[data-warning='true'] {
-    border-color: ${({ theme }) => theme.warning};
-
-    ${EmojiContainer} {
-      color: ${({ theme }) => theme.warning};
-    }
-  }
-
-  &[data-highlight='true'] {
-    animation: ${highlight} 2s infinite alternate ease-in-out;
-  }
-`
-
-const CustomInput = styled.input`
-  width: 100%;
-  height: 100%;
-  border: 0px;
-  border-radius: inherit;
-
-  color: inherit;
-  background: transparent;
-  outline: none;
-  text-align: right;
-
-  &::-webkit-outer-spin-button,
-  &::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-  }
-  &::placeholder {
-    font-size: 12px;
-  }
-  @media only screen and (max-width: 375px) {
-    font-size: 10px;
-  }
-`
-
 export type Props = {
-  rawSlippage: number
-  setRawSlippage: (value: number) => void
-  isWarning: boolean
+  value: number
+  isActive: boolean
+  onActiveChange: (value: boolean) => void
+  onFocusChange?: (value: boolean) => void
+  onChange: (value: number) => void
+  isWarning?: boolean
   isHighlight?: boolean
   options: number[]
 }
-const CustomSlippageInput: React.FC<Props> = ({ options, rawSlippage, setRawSlippage, isWarning, isHighlight }) => {
+
+const CustomSlippageInput: React.FC<Props> = ({
+  value,
+  isActive,
+  onActiveChange,
+  onFocusChange,
+  onChange,
+  isWarning = false,
+  isHighlight,
+  options,
+}) => {
   const [tooltip, setTooltip] = useState('')
   const inputRef = useRef<HTMLInputElement>(null)
-  const previousSlippageRef = useRef(rawSlippage)
+  const previousSlippageRef = useRef(value)
   const { trackingHandler } = useTracking()
   const { pathname } = useLocation()
   const isCrossChain = pathname.startsWith(APP_PATHS.CROSS_CHAIN)
   const [isDegenMode] = useDegenModeManager()
-
-  const defaultRawSlippage = useDefaultSlippageByPair()
-
-  // rawSlippage = 10
-  // slippage shown to user: = 10 / 10_000 = 0.001 = 0.1%
-  const [rawText, setRawText] = useState(getSlippageText(rawSlippage, options))
-
-  const isCustomOptionActive = !options.includes(rawSlippage)
+  const [rawText, setRawText] = useState(getSlippageText(value, options))
 
   const handleChangeInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     setTooltip('')
-    const value = e.target.value
+    const inputValue = e.target.value
 
-    if (value === '') {
-      setRawText(value)
-      setRawSlippage(defaultRawSlippage)
+    if (inputValue === '') {
+      setRawText(inputValue)
+      onActiveChange(false)
       return
     }
 
     const numberRegex = /^(\d+)\.?(\d{1,2})?$/
-    if (!value.match(numberRegex)) {
+    if (!inputValue.match(numberRegex)) {
       e.preventDefault()
       return
     }
 
-    const parsedValue = parseSlippageInput(value)
+    const parsedValue = parseSlippageInput(inputValue)
     if (Number.isNaN(parsedValue)) {
       e.preventDefault()
       return
@@ -185,68 +79,76 @@ const CustomSlippageInput: React.FC<Props> = ({ options, rawSlippage, setRawSlip
       return
     }
 
-    setRawText(value)
-    setRawSlippage(parsedValue)
+    setRawText(inputValue)
+    onActiveChange(true)
+    onChange(parsedValue)
   }
 
   const handleCommitChange = () => {
     setTooltip('')
-    setRawText(getSlippageText(rawSlippage, options))
+    onFocusChange?.(false)
+    const hasCustomText = rawText !== ''
+    onActiveChange(hasCustomText || !options.includes(value))
+    setRawText(getSlippageText(value, options, hasCustomText))
     trackingHandler(TRACKING_EVENT_TYPE.SLIPPAGE_CHANGED, {
-      new_slippage: Number(formatSlippage(rawSlippage, false)),
+      new_slippage: Number(formatSlippage(value, false)),
       previous_value: previousSlippageRef.current / 100,
       input_method: 'custom',
     })
     if (isCrossChain) {
       trackingHandler(TRACKING_EVENT_TYPE.CC_SLIPPAGE_CHANGED, {
-        new_slippage: Number(formatSlippage(rawSlippage, false)),
+        new_slippage: Number(formatSlippage(value, false)),
         previous_value: previousSlippageRef.current / 100,
         input_method: 'custom',
       })
     }
-    previousSlippageRef.current = rawSlippage
+    previousSlippageRef.current = value
   }
 
   useEffect(() => {
     if (inputRef.current !== document.activeElement) {
-      setRawText(getSlippageText(rawSlippage, options))
+      setRawText(getSlippageText(value, options))
       setTooltip('')
     }
-  }, [rawSlippage, options])
+  }, [value, options])
+
+  const shouldShowWarning = isWarning && rawText !== ''
 
   return (
-    <Flex sx={{ flex: 1 }}>
-      <Tooltip text={tooltip} show={!!tooltip} placement="bottom" width="fit-content">
-        <CustomSlippageOption
-          data-active={isCustomOptionActive}
-          data-warning={isCustomOptionActive && isWarning}
-          data-highlight={isHighlight}
-        >
-          {isCustomOptionActive && isWarning && (
-            <EmojiContainer>
-              <span role="img" aria-label="warning">
-                ⚠️
-              </span>
-            </EmojiContainer>
-          )}
-          <CustomInput
-            ref={inputRef}
-            placeholder={t`Custom`}
-            value={rawText}
-            onChange={handleChangeInput}
-            onBlur={handleCommitChange}
-          />
-          <Text
-            as="span"
-            sx={{
-              flex: '0 0 12px',
-            }}
-          >
-            %
-          </Text>
-        </CustomSlippageOption>
-      </Tooltip>
-    </Flex>
+    <Tooltip text={tooltip} show={!!tooltip} placement="bottom" width="fit-content">
+      <div
+        className={cn(
+          'relative flex h-7 min-w-0 flex-1 items-center justify-center gap-1 rounded-full border px-2 text-sm',
+          isHighlight && 'animate-highlight-warning',
+          isActive
+            ? cn(
+                'bg-tabActive hover:bg-buttonGray',
+                shouldShowWarning ? 'border-warning/50' : 'border-primary-50',
+                rawText ? 'text-text' : 'text-subText',
+              )
+            : 'border-transparent bg-transparent text-subText hover:border-border hover:bg-buttonGray',
+        )}
+      >
+        {isActive && shouldShowWarning && (
+          <span role="img" aria-label="warning" className="absolute left-1.5 top-1 text-xs text-warning max-sm:hidden">
+            ⚠️
+          </span>
+        )}
+        <input
+          ref={inputRef}
+          placeholder={t`Custom`}
+          value={rawText}
+          onChange={handleChangeInput}
+          onBlur={handleCommitChange}
+          onFocus={() => {
+            onFocusChange?.(true)
+            onActiveChange(true)
+          }}
+          className="w-14 min-w-0 border-0 bg-transparent p-0 text-right text-[13px] font-medium text-inherit outline-none placeholder:text-inherit [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+        />
+        <span className={cn('text-sm', isActive && 'text-text')}>%</span>
+      </div>
+    </Tooltip>
   )
 }
 

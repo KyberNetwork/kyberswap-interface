@@ -1,35 +1,9 @@
 import { ReactNode } from 'react'
-import styled, { css, keyframes } from 'styled-components'
 
 import { useGuidedHighlight } from 'pages/Earns/components/SmartExit/GuidedHighlight'
+import { cn } from 'utils/cn'
 
-const highlight = keyframes`
-  0% {
-    box-shadow: 0 0 0 0 var(--highlight-color);
-  }
-  70% {
-    box-shadow: 0 0 0 2px var(--highlight-color);
-  }
-  100% {
-    box-shadow: 0 0 0 0 var(--highlight-color);
-  }
-`
-
-const highlightStyles = css`
-  --highlight-color: ${({ theme }) => theme.primary};
-  border-radius: 12px;
-  animation: ${highlight} 2s 2 alternate ease-in-out;
-
-  @media (prefers-reduced-motion: reduce) {
-    animation: none;
-  }
-`
-
-// Using key={animationKey} to force re-render and re-trigger animation
-const HighlightContainer = styled.div<{ $isHighlighted: boolean }>`
-  flex: 1;
-  ${({ $isHighlighted }) => $isHighlighted && highlightStyles}
-`
+const HIGHLIGHT_CLASS = 'animate-highlight rounded-xl motion-reduce:animate-none'
 
 interface HighlightWrapperProps {
   children: ReactNode
@@ -39,27 +13,18 @@ interface HighlightWrapperProps {
 
 export const HighlightWrapper = ({ children, isHighlighted, className }: HighlightWrapperProps) => {
   const { animationKey } = useGuidedHighlight()
-
   return (
-    <HighlightContainer $isHighlighted={isHighlighted} className={className} key={animationKey}>
+    <div key={animationKey} className={cn('flex-1', isHighlighted && HIGHLIGHT_CLASS, className)}>
       {children}
-    </HighlightContainer>
+    </div>
   )
 }
 
-// For inline elements like inputs
-const InlineHighlightContainer = styled.span<{ $isHighlighted: boolean }>`
-  display: inline-flex;
-  flex: 1;
-  ${({ $isHighlighted }) => $isHighlighted && highlightStyles}
-`
-
 export const InlineHighlightWrapper = ({ children, isHighlighted, className }: HighlightWrapperProps) => {
   const { animationKey } = useGuidedHighlight()
-
   return (
-    <InlineHighlightContainer $isHighlighted={isHighlighted} className={className} key={animationKey}>
+    <span key={animationKey} className={cn('inline-flex flex-1', isHighlighted && HIGHLIGHT_CLASS, className)}>
       {children}
-    </InlineHighlightContainer>
+    </span>
   )
 }

@@ -1,13 +1,12 @@
 import { formatAprNumber } from '@kyber/utils/dist/number'
 import { t } from '@lingui/macro'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
-import { Flex, Text } from 'rebass'
 import { useExplorerLandingQuery } from 'services/zapEarn'
 
 import { ReactComponent as FarmingIcon } from 'assets/svg/kyber/kem.svg'
 import {
+  BannerHeaderLink,
   FarmingAprBadge,
   FarmingPool,
   FarmingPoolContainer,
@@ -17,17 +16,18 @@ import {
   MoveForwardIcon,
   PoolPairText,
 } from 'components/EarnBanner/styles'
+import Skeleton from 'components/Skeleton'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
-import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
+import { FilterTag } from 'pages/Earns/PoolExplorer/Filter'
+import { type EarnPool } from 'pages/Earns/types/pool'
+import { getPoolDetailUrl } from 'pages/Earns/utils/url'
 import { MEDIA_WIDTHS } from 'theme'
 
 let indexInterval: NodeJS.Timeout
 
 export default function FarmingPoolBanner() {
-  const theme = useTheme()
-  const navigate = useNavigate()
   const { trackingHandler } = useTracking()
   const { account } = useActiveWeb3React()
   const { data } = useExplorerLandingQuery({ userAddress: account })
@@ -35,6 +35,7 @@ export default function FarmingPoolBanner() {
   const [index, setIndex] = useState(0)
   const [animateMoveForward, setAnimateMoveForward] = useState(false)
   const [animateMoveBack, setAnimateMoveBack] = useState(false)
+  const [isSlideHovered, setIsSlideHovered] = useState(false)
 
   const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
 
@@ -63,16 +64,20 @@ export default function FarmingPoolBanner() {
     return result
   }, [totalPools, index, upToExtraSmall])
 
-  const handleClickBannerPool = (e: React.MouseEvent<HTMLDivElement>, pool: (typeof totalPools)[number]) => {
-    if (!index && index !== 0) return
-    e.stopPropagation()
+  const getPoolDetailHref = (pool: EarnPool) => {
+    const poolChainId = pool.chain?.id ?? pool.chainId
+    if (!poolChainId) return `${APP_PATHS.EARN_POOLS}?tag=${FilterTag.FARMING_POOL}`
+
+    return getPoolDetailUrl(poolChainId, pool.exchange, pool.address)
+  }
+
+  const handlePoolClickTracking = (pool: EarnPool) => {
     trackingHandler(TRACKING_EVENT_TYPE.FARMING_POOL_CLICKED, {
       pool_pair: `${pool.tokens[0].symbol}/${pool.tokens[1].symbol}`,
       pool_apr: pool.allApr,
       pool_type: 'farming',
       chain: pool.chain?.name || '',
     })
-    navigate({ pathname: APP_PATHS.EARN, search: `?openPool=${index}&type=farming` })
   }
 
   const handleMoveBack = () => {
@@ -84,13 +89,13 @@ export default function FarmingPoolBanner() {
   }
 
   const handleMoveForward = useCallback(() => {
-    if (animateMoveForward || animateMoveBack) return
+    if (animateMoveForward || animateMoveBack || isSlideHovered) return
     setAnimateMoveForward(true)
     setTimeout(() => {
       setIndex(prev => (prev === totalPools.length - 1 ? 0 : prev + 1))
       setAnimateMoveForward(false)
     }, 700)
-  }, [animateMoveBack, animateMoveForward, totalPools.length])
+  }, [animateMoveBack, animateMoveForward, isSlideHovered, totalPools.length])
 
   useEffect(() => {
     indexInterval = setInterval(handleMoveForward, 4_000)
@@ -100,46 +105,62 @@ export default function FarmingPoolBanner() {
 
   return (
     <FarmingWrapper>
-      <Flex alignItems="center" sx={{ gap: '6px' }}>
-        <FarmingIcon width={26} height={26} color={theme.primary} />
-        <Text color={'#FCD884'}>{t`FARMING POOLS`}</Text>
-      </Flex>
+      <BannerHeaderLink to={`${APP_PATHS.EARN_POOLS}?tag=${FilterTag.FARMING_POOL}`}>
+        <FarmingIcon width={24} height={24} className="text-primary" />
+        <span className="font-medium" style={{ color: '#FCD884' }}>{t`FARMING POOLS`}</span>
+      </BannerHeaderLink>
       {pools.length > 0 ? (
-        <Flex
-          justifyContent="center"
-          alignItems="center"
-          sx={{ gap: '8px', width: '102%', position: 'relative', left: '-1%' }}
+        <div
+          className="relative flex items-center justify-center gap-2"
+          style={{ width: 'calc(100% + 8px)', left: '-4px' }}
           ref={WrapperRef}
         >
-          {containerWidth > 0 && (
-            <>
-              <MoveBackIcon onClick={handleMoveBack} />
-              <FarmingPoolContainer>
-                <FarmingPoolWrapper
-                  animateMoveForward={animateMoveForward}
-                  animateMoveBack={animateMoveBack}
-                  style={{ width: containerWidth * (!upToExtraSmall ? 2 : 3) }}
-                >
-                  {pools.map((pool, index) => (
-                    <FarmingPool
-                      key={`${pool.address}-${index}`}
-                      className="farming-pool"
-                      style={{ width: !upToExtraSmall ? containerWidth / 2 : containerWidth }}
-                      onClick={e => handleClickBannerPool(e, pool)}
-                    >
-                      <PoolPairText>
-                        {pool.tokens[0].symbol}/{pool.tokens[1].symbol}
-                      </PoolPairText>
-                      <FarmingAprBadge>{formatAprNumber(pool.allApr)}%</FarmingAprBadge>
-                    </FarmingPool>
-                  ))}
-                </FarmingPoolWrapper>
-              </FarmingPoolContainer>
-              <MoveForwardIcon onClick={handleMoveForward} />
-            </>
-          )}
-        </Flex>
-      ) : null}
+          <MoveBackIcon onClick={handleMoveBack} />
+          <FarmingPoolContainer
+            onMouseEnter={() => setIsSlideHovered(true)}
+            onMouseLeave={() => setIsSlideHovered(false)}
+          >
+            <FarmingPoolWrapper
+              animateMoveForward={animateMoveForward}
+              animateMoveBack={animateMoveBack}
+              style={{ width: containerWidth * (!upToExtraSmall ? 2 : 3) }}
+            >
+              {pools.map((pool, index) => {
+                const poolSymbol = `${pool.tokens[0].symbol}/${pool.tokens[1].symbol}`
+                return (
+                  <FarmingPool
+                    key={`${pool.address}-${index}`}
+                    className="farming-pool"
+                    onClick={() => handlePoolClickTracking(pool)}
+                    to={getPoolDetailHref(pool)}
+                    style={{ width: !upToExtraSmall ? containerWidth / 2 : containerWidth }}
+                  >
+                    <PoolPairText title={poolSymbol}>{poolSymbol}</PoolPairText>
+                    <FarmingAprBadge>{formatAprNumber(pool.allApr)}%</FarmingAprBadge>
+                  </FarmingPool>
+                )
+              })}
+            </FarmingPoolWrapper>
+          </FarmingPoolContainer>
+          <MoveForwardIcon onClick={handleMoveForward} />
+        </div>
+      ) : (
+        <div
+          className="relative flex items-center justify-center gap-2"
+          style={{ width: 'calc(100% + 8px)', left: '-4px' }}
+        >
+          <Skeleton circle height={20} variant="darkSubtle" width={20} />
+          <div className="flex flex-1 items-center justify-around">
+            {[0, 1].map(index => (
+              <div key={index} className="flex min-w-0 flex-1 items-center justify-center gap-2">
+                <Skeleton height={18} variant="darkSubtle" width={88} />
+                <Skeleton height={28} borderRadius={16} variant="darkSubtle" width={80} />
+              </div>
+            ))}
+          </div>
+          <Skeleton circle height={20} variant="darkSubtle" width={20} />
+        </div>
+      )}
     </FarmingWrapper>
   )
 }

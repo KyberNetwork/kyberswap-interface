@@ -1,164 +1,136 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { rgba } from 'polished'
 import { useEffect, useState } from 'react'
 import { ChevronLeft } from 'react-feather'
-import { Flex, Text } from 'rebass'
-import styled from 'styled-components'
 
 import { ReactComponent as Coingecko } from 'assets/svg/coingecko_color.svg'
 import { ReactComponent as GoplusLogo } from 'assets/svg/logo_goplus.svg'
 import { ReactComponent as SecurityInfoIcon } from 'assets/svg/security_info.svg'
 import { ReactComponent as ZiczacIcon } from 'assets/svg/ziczac.svg'
 import { ButtonEmpty } from 'components/Button'
+import IconButton from 'components/Button/IconButton'
 import CurrencyLogo from 'components/CurrencyLogo'
-import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
+import { HStack } from 'components/Stack'
+import { TextDashed } from 'components/Text'
+import { MouseoverTooltip } from 'components/Tooltip'
 import MarketInfo from 'components/swapv2/TokenInfo/MarketInfo'
 import SecurityInfo from 'components/swapv2/TokenInfo/SecurityInfo'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { Field } from 'state/swap/actions'
+import { cn } from 'utils/cn'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
 
-const TabContainer = styled.div`
-  display: flex;
-  border-radius: 999px;
-  background-color: ${({ theme }) => theme.tabBackground};
-  padding: 2px;
-  min-width: 160px;
-`
+export const Container = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('flex flex-col px-4', className)} {...rest}>
+    {children}
+  </div>
+)
 
-const Tab = styled(ButtonEmpty)<{ isActive?: boolean; isLeft?: boolean }>`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-width: 80px;
-  width: fit-content;
-  background-color: ${({ theme, isActive }) => (isActive ? theme.tabActive : theme.tabBackground)};
-  padding: 6px 8px;
-  gap: 4px;
-  font-size: 12px;
-  font-weight: 500;
-  border-radius: 999px;
+const HeaderPanel = ({ children, className }: { children: React.ReactNode; className?: string }) => (
+  <div className={cn('flex h-10 items-center justify-between bg-subText-20 px-4', className)}>{children}</div>
+)
 
-  &:hover {
-    text-decoration: none;
-  }
-`
-
-const TabText = styled.div<{ isActive: boolean }>`
-  color: ${({ theme, isActive }) => (isActive ? theme.text : theme.subText)};
-  white-space: nowrap;
-`
-
-const PoweredByWrapper = styled.div`
-  display: flex;
-  gap: 4px;
-  justify-content: flex-end;
-  align-items: center;
-`
-
-const PoweredByText = styled.span`
-  font-size: 10px;
-  font-weight: 400;
-  color: ${({ theme }) => theme.subText};
-`
-
-const BackText = styled.span`
-  font-size: 20px;
-  font-weight: 500;
-  line-height: 22px;
-  color: ${({ theme }) => theme.text};
-`
-
-const HeaderPanel = styled.div`
-  background-color: ${({ theme }) => rgba(theme.subText, 0.2)};
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  height: 40px;
-  padding: 0 16px;
-`
-
-const LabelHeaderPanel = styled.div`
-  display: flex;
-  gap: 8px;
-  align-items: center;
-`
-
-export const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  padding: 0 14px;
-`
+const PoweredBy = ({ children }: { children: React.ReactNode }) => (
+  <div className="flex items-center justify-end gap-1">
+    <span className="text-[10px] font-normal text-subText">
+      <Trans>Powered by</Trans>
+    </span>
+    {children}
+  </div>
+)
 
 enum TAB {
   TOKEN_IN,
   TOKEN_OUT,
 }
+
+type TokenTabButtonProps = {
+  currency?: Currency
+  isActive: boolean
+  onClick: () => void
+}
+
+const tabBaseClass =
+  'relative z-[1] flex w-full min-w-[80px] items-center justify-center gap-1 rounded-full bg-transparent px-2 py-1.5 text-xs font-medium hover:no-underline'
+
+const TokenTabButton = ({ currency, isActive, onClick }: TokenTabButtonProps) => (
+  <ButtonEmpty padding="0" onClick={onClick} className={cn(tabBaseClass, !isActive && 'hover:bg-tabActive/40')}>
+    <CurrencyLogo currency={currency} size="16px" />
+    <span className={cn('whitespace-nowrap', isActive ? 'text-text' : 'text-subText')}>{currency?.symbol}</span>
+  </ButtonEmpty>
+)
+
 const TokenInfoTab = ({ currencies, onBack }: { currencies: { [field in Field]?: Currency }; onBack?: () => void }) => {
   const { chainId } = useActiveWeb3React()
+  const theme = useTheme()
   const inputNativeCurrency = useCurrencyConvertedToNative(currencies[Field.INPUT])
   const outputNativeCurrency = useCurrencyConvertedToNative(currencies[Field.OUTPUT])
   const inputToken = inputNativeCurrency?.wrapped
   const outputToken = outputNativeCurrency?.wrapped
+
   const [activeTab, setActiveTab] = useState(TAB.TOKEN_IN)
+
   const selectedToken = activeTab === TAB.TOKEN_OUT ? outputToken : inputToken
-  const isOneToken = inputToken?.address === outputToken?.address
-
-  // Handle switch network case
-  useEffect(() => {
-    inputToken?.address && setActiveTab(TAB.TOKEN_IN)
-  }, [chainId, inputToken])
-
+  const isOneToken = !!inputToken?.address && inputToken.address === outputToken?.address
   const isActiveTokenIn = activeTab === TAB.TOKEN_IN
   const isActiveTokenOut = activeTab === TAB.TOKEN_OUT
-  const theme = useTheme()
+
+  useEffect(() => {
+    inputToken?.address && setActiveTab(TAB.TOKEN_IN)
+  }, [chainId, inputToken?.address])
 
   return (
-    <Flex flexDirection={'column'} sx={{ gap: '14px', padding: '16px 0' }}>
-      <Flex padding={'0 16px'} justifyContent="space-between" alignItems="center">
+    <div className="flex flex-col">
+      <div className="flex items-center justify-between p-4">
         {onBack && (
-          <Flex alignItems="center" sx={{ gap: '4px' }}>
-            <ChevronLeft onClick={onBack} color={theme.subText} cursor={'pointer'} size={26} />
-            {isOneToken ? <Text fontWeight="500">{inputToken?.symbol}</Text> : <BackText>{t`Token Info`}</BackText>}
-            {isOneToken && (
-              <Text fontSize={12} color={theme.subText} marginTop="4px">
-                {inputToken?.name}
-              </Text>
-            )}
-          </Flex>
+          <HStack className="items-center gap-1">
+            <IconButton aria-label={t`Back`} className="hover:brightness-125" onClick={onBack}>
+              <ChevronLeft size={26} />
+            </IconButton>
+            <HStack className="items-baseline gap-2">
+              {isOneToken ? (
+                <span className="font-medium">{inputToken?.symbol}</span>
+              ) : (
+                <span className="text-xl font-medium text-text">{t`Token Info`}</span>
+              )}
+              {isOneToken && <span className="text-sm font-medium text-subText">{inputToken?.name}</span>}
+            </HStack>
+          </HStack>
         )}
         {!isOneToken && (
-          <TabContainer>
-            <Tab isActive={isActiveTokenIn} padding="0" onClick={() => setActiveTab(TAB.TOKEN_IN)}>
-              <CurrencyLogo currency={inputNativeCurrency} size="16px" />
-              <TabText isActive={isActiveTokenIn}>{inputNativeCurrency?.symbol}</TabText>
-            </Tab>
-            <Tab isActive={isActiveTokenOut} padding="0" onClick={() => setActiveTab(TAB.TOKEN_OUT)}>
-              <CurrencyLogo currency={outputNativeCurrency} size="16px" />
-              <TabText isActive={isActiveTokenOut}>{outputNativeCurrency?.symbol}</TabText>
-            </Tab>
-          </TabContainer>
+          <div className="relative grid min-w-[160px] grid-cols-2 rounded-full bg-tabBackground p-0.5">
+            <div
+              className={cn(
+                'pointer-events-none absolute inset-y-0.5 left-0.5 w-[calc(50%-2px)] rounded-full bg-tabActive transition-transform duration-200 ease-out',
+                isActiveTokenOut && 'translate-x-full',
+              )}
+            />
+            <TokenTabButton
+              currency={inputNativeCurrency}
+              isActive={isActiveTokenIn}
+              onClick={() => setActiveTab(TAB.TOKEN_IN)}
+            />
+            <TokenTabButton
+              currency={outputNativeCurrency}
+              isActive={isActiveTokenOut}
+              onClick={() => setActiveTab(TAB.TOKEN_OUT)}
+            />
+          </div>
         )}
-      </Flex>
+      </div>
       <HeaderPanel>
-        <LabelHeaderPanel>
+        <div className="flex items-center gap-2">
           <ZiczacIcon />
           <Trans>Market Info</Trans>
-        </LabelHeaderPanel>
-        <PoweredByWrapper>
-          <PoweredByText>
-            <Trans>
-              Powered by <Coingecko style={{ width: 56 }} />
-            </Trans>
-          </PoweredByText>
-        </PoweredByWrapper>
+        </div>
+        <PoweredBy>
+          <Coingecko style={{ height: 16, width: 'fit-content' }} />
+        </PoweredBy>
       </HeaderPanel>
       <MarketInfo token={selectedToken} />
       <HeaderPanel>
-        <LabelHeaderPanel>
+        <div className="flex items-center gap-2">
           <SecurityInfoIcon />
 
           <TextDashed underlineColor={theme.text}>
@@ -168,17 +140,13 @@ const TokenInfoTab = ({ currencies, onBack }: { currencies: { [field in Field]?:
               <Trans>Security Info</Trans>
             </MouseoverTooltip>
           </TextDashed>
-        </LabelHeaderPanel>
-        <PoweredByWrapper>
-          <PoweredByText>
-            <Trans>
-              Powered by <GoplusLogo style={{ width: 56 }} />
-            </Trans>
-          </PoweredByText>
-        </PoweredByWrapper>
+        </div>
+        <PoweredBy>
+          <GoplusLogo style={{ height: 16, width: 'fit-content' }} />
+        </PoweredBy>
       </HeaderPanel>
       <SecurityInfo token={selectedToken} />
-    </Flex>
+    </div>
   )
 }
 

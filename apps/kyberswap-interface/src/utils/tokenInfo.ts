@@ -19,25 +19,6 @@ export const isTokenNative = (currency: Currency | WrappedTokenInfo | undefined)
 export const getTokenAddress = (currency: Currency) =>
   currency.isNative ? ETHER_ADDRESS : currency?.wrapped.address ?? ''
 
-const MAP_TOKEN_SYMBOL: Partial<{ [key in ChainId]: { [address: string]: string } }> = {
-  [ChainId.ARBITRUM]: {
-    '0x316772cFEc9A3E976FDE42C3Ba21F5A13aAaFf12': 'mKNC',
-    '0xff970a61a04b1ca14834a43f5de4533ebddb5cc8': 'USDC.e',
-    '0x9cfb13e6c11054ac9fcb92ba89644f30775436e4': 'axl.wstETH',
-  },
-  [ChainId.OPTIMISM]: { '0x4518231a8fdf6ac553b9bbd51bbb86825b583263': 'mKNC' },
-  [ChainId.AVAXMAINNET]: { '0x39fC9e94Caeacb435842FADeDeCB783589F50f5f': 'mKNC' },
-}
-export const getTokenSymbolWithHardcode = (
-  chainId: ChainId | undefined,
-  address: string | undefined,
-  defaultSymbol: string | undefined,
-) => {
-  const chainInfo = chainId ? MAP_TOKEN_SYMBOL[chainId] || {} : {}
-  const symbolHardCode = chainInfo[address?.toLowerCase() ?? ''] || chainInfo[address ?? '']
-  return symbolHardCode || defaultSymbol || ''
-}
-
 export const getProxyTokenLogo = (logoUrl: string | undefined): string =>
   logoUrl ? (logoUrl.startsWith('data:') ? logoUrl : `https://proxy.kyberswap.com/token-logo?url=${logoUrl}`) : ''
 

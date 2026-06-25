@@ -3,7 +3,6 @@ import debounce from 'lodash.debounce'
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Repeat } from 'react-feather'
 import { useDispatch } from 'react-redux'
-import { Flex } from 'rebass'
 
 import { CheckCircle } from 'components/Icons'
 import IconFailure from 'components/Icons/Failed'
@@ -12,7 +11,6 @@ import Loader from 'components/Loader'
 import { PrimaryText } from 'components/WalletPopup/Transactions/TransactionItem'
 import { isTxsPendingTooLong as isShowPendingWarning } from 'components/WalletPopup/Transactions/helper'
 import { CancellingOrderInfo } from 'components/swapv2/LimitOrder/useCancellingOrders'
-import useTheme from 'hooks/useTheme'
 import { AppDispatch } from 'state'
 import { modifyTransaction } from 'state/transactions/actions'
 import { TRANSACTION_TYPE, TransactionDetails } from 'state/transactions/type'
@@ -46,7 +44,7 @@ function StatusIcon({
   const dispatch = useDispatch<AppDispatch>()
   const { loading, isOrderCancelling } = cancellingOrderInfo
 
-  const interval = useRef<NodeJS.Timeout>()
+  const interval = useRef<NodeJS.Timeout | undefined>(undefined)
 
   const checkStatus = useCallback(async () => {
     try {
@@ -93,18 +91,17 @@ function StatusIcon({
     return () => interval.current && clearInterval(interval.current)
   }, [needCheckActuallyPending, pendingRpc, checkStatusDebounced, type])
 
-  const theme = useTheme()
   const checkingStatus = isPendingState === null
 
   const pendingText = isPendingTooLong ? t`Pending` : t`Processing`
   const pendingIcon = isPendingTooLong ? (
-    <WarningIcon size={12} color={theme.red} solid />
+    <WarningIcon size={12} className="text-red" solid />
   ) : (
-    <Repeat size={14} color={theme.warning} />
+    <Repeat size={14} className="text-warning" />
   )
   return (
-    <Flex style={{ gap: '4px', minWidth: 'unset' }} alignItems={'center'}>
-      <PrimaryText color={theme.text}>
+    <span className="flex min-w-[unset] items-center gap-1">
+      <PrimaryText className="text-text">
         {checkingStatus ? t`Checking` : isPendingState ? pendingText : success ? t`Completed` : t`Failed`}
       </PrimaryText>
       {checkingStatus ? (
@@ -112,11 +109,11 @@ function StatusIcon({
       ) : isPendingState ? (
         pendingIcon
       ) : success ? (
-        <CheckCircle size="12px" color={theme.primary} />
+        <CheckCircle size="12px" className="text-primary" />
       ) : (
-        <IconFailure size={15} color={theme.red} />
+        <IconFailure size={15} className="text-red" />
       )}
-    </Flex>
+    </span>
   )
 }
 export default memo(StatusIcon)

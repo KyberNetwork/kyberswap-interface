@@ -1,8 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
+import { readContract } from '@wagmi/core'
 import axios from 'axios'
-import { BigNumber } from 'ethers'
-import { formatUnits } from 'ethers/lib/utils'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useLocalStorage } from 'react-use'
 import kyberDAOApi, {
@@ -14,16 +13,15 @@ import kyberDAOApi, {
 } from 'services/kyberDAO'
 
 import { NotificationType } from 'components/Announcement/type'
-import DaoABI from 'constants/abis/kyberdao/dao.json'
-import MigrateABI from 'constants/abis/kyberdao/migrate.json'
-import RewardDistributorABI from 'constants/abis/kyberdao/reward_distributor.json'
-import StakingABI from 'constants/abis/kyberdao/staking.json'
+import { wagmiConfig } from 'components/Web3Provider'
+import { DaoABI, ERC20_ABI, MigrateABI, RewardDistributorABI, StakingABI } from 'constants/abis'
 import { REWARD_SERVICE_API } from 'constants/env'
 import { CONTRACT_NOT_FOUND_MSG } from 'constants/messages'
 import { NETWORKS_INFO, SUPPORTED_NETWORKS } from 'constants/networks'
 import ethereumInfo from 'constants/networks/ethereum'
 import { KNC } from 'constants/tokens'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
+import { DaoInfo, EligibleTxsInfo } from 'hooks/kyberdao/types'
 import { useReadingContract, useSigningContract, useTokenReadingContract } from 'hooks/useContract'
 import useTokenBalance from 'hooks/useTokenBalance'
 import { KNCUtilityTabs } from 'pages/KyberDAO/KNCUtility/type'
@@ -31,14 +29,12 @@ import { useNotify } from 'state/application/hooks'
 import { useSingleCallResult } from 'state/multicall/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
-import { calculateGasMargin } from 'utils'
 import { aggregateValue } from 'utils/array'
 import { friendlyError } from 'utils/errorMessage'
 import { formatUnitsToFixed } from 'utils/formatBalance'
 import { sendEVMTransaction } from 'utils/sendTransaction'
-import { ErrorName } from 'utils/sentry'
-
-import { DaoInfo, EligibleTxsInfo } from './types'
+import { ErrorName } from 'utils/transactionError'
+import { Address, encodeFunctionData, formatUnits } from 'utils/viem'
 
 export function isSupportKyberDao(chainId: ChainId) {
   return SUPPORTED_NETWORKS.includes(chainId) && NETWORKS_INFO[chainId].kyberDAO
@@ -51,117 +47,167 @@ export function useKyberDAOInfo() {
 }
 
 export function useKyberDaoStakeActions() {
+  const { account, chainId, walletKey } = useActiveWeb3React()
+  const { isSmartConnector } = useWeb3React()
   const addTransactionWithType = useTransactionAdder()
   const kyberDaoInfo = useKyberDAOInfo()
   const stakingContract = useSigningContract(kyberDaoInfo?.staking, StakingABI)
   const migrateContract = useSigningContract(kyberDaoInfo?.KNCAddress, MigrateABI)
 
   const stake = useCallback(
-    async (amount: BigNumber, votingPower: string) => {
+    async (amount: bigint, votingPower: string) => {
       if (!stakingContract) {
         throw new Error(CONTRACT_NOT_FOUND_MSG)
       }
+      if (!account) throw new Error(CONTRACT_NOT_FOUND_MSG)
       try {
-        const estimateGas = await stakingContract.estimateGas.deposit(amount)
-        const tx = await stakingContract.deposit(amount, {
-          gasLimit: calculateGasMargin(estimateGas),
+        const tx = await sendEVMTransaction({
+          account,
+          contractAddress: stakingContract.address,
+          encodedData: encodeFunctionData({
+            abi: StakingABI,
+            functionName: 'deposit',
+            args: [amount],
+          }),
+          value: 0n,
+          errorInfo: { name: ErrorName.SwapError, wallet: walletKey },
+          isSmartConnector,
+          chainId,
         })
-        addTransactionWithType({
-          hash: tx.hash,
-          type: TRANSACTION_TYPE.KYBERDAO_STAKE,
-          extraInfo: {
-            tokenSymbol: 'KNC',
-            tokenAddress: kyberDaoInfo?.KNCAddress ?? '',
-            tokenAmount: formatUnits(amount),
-            arbitrary: { amount: formatUnits(amount), votingPower },
-          },
-        })
-        return tx.hash
+        if (tx?.hash) {
+          addTransactionWithType({
+            hash: tx.hash,
+            type: TRANSACTION_TYPE.KYBERDAO_STAKE,
+            extraInfo: {
+              tokenSymbol: 'KNC',
+              tokenAddress: kyberDaoInfo?.KNCAddress ?? '',
+              tokenAmount: formatUnits(amount, 18),
+              arbitrary: { amount: formatUnits(amount, 18), votingPower },
+            },
+          })
+        }
+        return tx?.hash
       } catch (error) {
         throw error
       }
     },
-    [addTransactionWithType, stakingContract, kyberDaoInfo],
+    [account, isSmartConnector, chainId, walletKey, addTransactionWithType, stakingContract, kyberDaoInfo],
   )
   const unstake = useCallback(
-    async (amount: BigNumber) => {
+    async (amount: bigint) => {
       if (!stakingContract) {
         throw new Error(CONTRACT_NOT_FOUND_MSG)
       }
+      if (!account) throw new Error(CONTRACT_NOT_FOUND_MSG)
       try {
-        const estimateGas = await stakingContract.estimateGas.withdraw(amount)
-        const tx = await stakingContract.withdraw(amount, {
-          gasLimit: calculateGasMargin(estimateGas),
+        const tx = await sendEVMTransaction({
+          account,
+          contractAddress: stakingContract.address,
+          encodedData: encodeFunctionData({
+            abi: StakingABI,
+            functionName: 'withdraw',
+            args: [amount],
+          }),
+          value: 0n,
+          errorInfo: { name: ErrorName.SwapError, wallet: walletKey },
+          isSmartConnector,
+          chainId,
         })
-        addTransactionWithType({
-          hash: tx.hash,
-          type: TRANSACTION_TYPE.KYBERDAO_UNSTAKE,
-          extraInfo: {
-            tokenSymbol: 'KNC',
-            tokenAddress: kyberDaoInfo?.KNCAddress ?? '',
-            tokenAmount: formatUnits(amount),
-            arbitrary: { amount: formatUnits(amount) },
-          },
-        })
-        return tx.hash
+        if (tx?.hash) {
+          addTransactionWithType({
+            hash: tx.hash,
+            type: TRANSACTION_TYPE.KYBERDAO_UNSTAKE,
+            extraInfo: {
+              tokenSymbol: 'KNC',
+              tokenAddress: kyberDaoInfo?.KNCAddress ?? '',
+              tokenAmount: formatUnits(amount, 18),
+              arbitrary: { amount: formatUnits(amount, 18) },
+            },
+          })
+        }
+        return tx?.hash
       } catch (error) {
         throw error
       }
     },
-    [addTransactionWithType, stakingContract, kyberDaoInfo?.KNCAddress],
+    [account, isSmartConnector, chainId, walletKey, addTransactionWithType, stakingContract, kyberDaoInfo?.KNCAddress],
   )
   const migrate = useCallback(
-    async (amount: BigNumber, rawAmount: string) => {
+    async (amount: bigint, rawAmount: string) => {
       if (!migrateContract) {
         throw new Error(CONTRACT_NOT_FOUND_MSG)
       }
+      if (!account) throw new Error(CONTRACT_NOT_FOUND_MSG)
       try {
-        const estimateGas = await migrateContract.estimateGas.mintWithOldKnc(amount)
-        const tx = await migrateContract.mintWithOldKnc(amount, {
-          gasLimit: calculateGasMargin(estimateGas),
+        const tx = await sendEVMTransaction({
+          account,
+          contractAddress: migrateContract.address,
+          encodedData: encodeFunctionData({
+            abi: MigrateABI,
+            functionName: 'mintWithOldKnc',
+            args: [amount],
+          }),
+          value: 0n,
+          errorInfo: { name: ErrorName.SwapError, wallet: walletKey },
+          isSmartConnector,
+          chainId,
         })
-        addTransactionWithType({
-          hash: tx.hash,
-          type: TRANSACTION_TYPE.KYBERDAO_MIGRATE,
-          extraInfo: kyberDaoInfo
-            ? {
-                tokenAddressIn: kyberDaoInfo.KNCLAddress,
-                tokenAddressOut: kyberDaoInfo.KNCAddress,
-                tokenAmountIn: rawAmount,
-                tokenAmountOut: rawAmount,
-                tokenSymbolIn: 'KNCL',
-                tokenSymbolOut: 'KNC',
-              }
-            : undefined,
-        })
-        return tx.hash
+        if (tx?.hash) {
+          addTransactionWithType({
+            hash: tx.hash,
+            type: TRANSACTION_TYPE.KYBERDAO_MIGRATE,
+            extraInfo: kyberDaoInfo
+              ? {
+                  tokenAddressIn: kyberDaoInfo.KNCLAddress,
+                  tokenAddressOut: kyberDaoInfo.KNCAddress,
+                  tokenAmountIn: rawAmount,
+                  tokenAmountOut: rawAmount,
+                  tokenSymbolIn: 'KNCL',
+                  tokenSymbolOut: 'KNC',
+                }
+              : undefined,
+          })
+        }
+        return tx?.hash
       } catch (error) {
         throw error
       }
     },
-    [addTransactionWithType, migrateContract, kyberDaoInfo],
+    [account, isSmartConnector, chainId, walletKey, addTransactionWithType, migrateContract, kyberDaoInfo],
   )
   const delegate = useCallback(
     async (address: string) => {
       if (!stakingContract) {
         throw new Error(CONTRACT_NOT_FOUND_MSG)
       }
+      if (!account) throw new Error(CONTRACT_NOT_FOUND_MSG)
       try {
-        const estimateGas = await stakingContract.estimateGas.delegate(address)
-        const tx = await stakingContract.delegate(address, {
-          gasLimit: calculateGasMargin(estimateGas),
+        const tx = await sendEVMTransaction({
+          account,
+          contractAddress: stakingContract.address,
+          encodedData: encodeFunctionData({
+            abi: StakingABI,
+            functionName: 'delegate',
+            args: [address],
+          }),
+          value: 0n,
+          errorInfo: { name: ErrorName.SwapError, wallet: walletKey },
+          isSmartConnector,
+          chainId,
         })
-        addTransactionWithType({
-          hash: tx.hash,
-          type: TRANSACTION_TYPE.KYBERDAO_DELEGATE,
-          extraInfo: { contract: address },
-        })
-        return tx.hash
+        if (tx?.hash) {
+          addTransactionWithType({
+            hash: tx.hash,
+            type: TRANSACTION_TYPE.KYBERDAO_DELEGATE,
+            extraInfo: { contract: address },
+          })
+        }
+        return tx?.hash
       } catch (error) {
         throw error
       }
     },
-    [addTransactionWithType, stakingContract],
+    [account, isSmartConnector, chainId, walletKey, addTransactionWithType, stakingContract],
   )
   const undelegate = useCallback(
     // address here alway should be user's address
@@ -169,29 +215,42 @@ export function useKyberDaoStakeActions() {
       if (!stakingContract) {
         throw new Error(CONTRACT_NOT_FOUND_MSG)
       }
+      if (!account) throw new Error(CONTRACT_NOT_FOUND_MSG)
       try {
-        const estimateGas = await stakingContract.estimateGas.delegate(address)
-        const tx = await stakingContract.delegate(address, {
-          gasLimit: calculateGasMargin(estimateGas),
+        const tx = await sendEVMTransaction({
+          account,
+          contractAddress: stakingContract.address,
+          encodedData: encodeFunctionData({
+            abi: StakingABI,
+            functionName: 'delegate',
+            args: [address],
+          }),
+          value: 0n,
+          errorInfo: { name: ErrorName.SwapError, wallet: walletKey },
+          isSmartConnector,
+          chainId,
         })
-        addTransactionWithType({
-          hash: tx.hash,
-          type: TRANSACTION_TYPE.KYBERDAO_UNDELEGATE,
-          extraInfo: { contract: address },
-        })
-        return tx.hash
+        if (tx?.hash) {
+          addTransactionWithType({
+            hash: tx.hash,
+            type: TRANSACTION_TYPE.KYBERDAO_UNDELEGATE,
+            extraInfo: { contract: address },
+          })
+        }
+        return tx?.hash
       } catch (error) {
         throw error
       }
     },
-    [addTransactionWithType, stakingContract],
+    [account, isSmartConnector, chainId, walletKey, addTransactionWithType, stakingContract],
   )
 
   return { stake, unstake, migrate, delegate, undelegate }
 }
 
 export function useClaimVotingRewards() {
-  const { account } = useActiveWeb3React()
+  const { account, chainId, walletKey } = useActiveWeb3React()
+  const { isSmartConnector } = useWeb3React()
   const { userRewards, remainingCumulativeAmount } = useVotingInfo()
   const kyberDaoInfo = useKyberDAOInfo()
   const rewardDistributorSigningContract = useSigningContract(kyberDaoInfo?.rewardsDistributor, RewardDistributorABI)
@@ -210,51 +269,67 @@ export function useClaimVotingRewards() {
       throw new Error(CONTRACT_NOT_FOUND_MSG)
     }
     try {
-      const isValidClaim = await rewardDistributorReadingContract.isValidClaim(
-        cycle,
-        index,
-        address,
-        tokens,
-        cumulativeAmounts,
-        merkleProof,
-      )
+      const isValidClaim = (await readContract(wagmiConfig, {
+        address: rewardDistributorReadingContract.address as Address,
+        abi: RewardDistributorABI,
+        functionName: 'isValidClaim',
+        args: [
+          BigInt(cycle.toString()),
+          BigInt(index.toString()),
+          address,
+          tokens,
+          (cumulativeAmounts as Array<string | number | bigint>).map((v: string | number | bigint) =>
+            BigInt(v.toString()),
+          ),
+          merkleProof,
+        ],
+        chainId: chainId as number,
+      })) as boolean
       if (!isValidClaim) throw new Error(t`Invalid claim`)
-      const estimateGas = await rewardDistributorSigningContract.estimateGas.claim(
-        cycle,
-        index,
-        address,
-        tokens,
-        cumulativeAmounts,
-        merkleProof,
-      )
-      const tx = await rewardDistributorSigningContract.claim(
-        cycle,
-        index,
-        address,
-        tokens,
-        cumulativeAmounts,
-        merkleProof,
-        {
-          gasLimit: calculateGasMargin(estimateGas),
-        },
-      )
-      addTransactionWithType({
-        hash: tx.hash,
-        type: TRANSACTION_TYPE.KYBERDAO_CLAIM,
-        extraInfo: {
-          contract: kyberDaoInfo?.rewardsDistributor,
-          tokenAmount: formatAmount,
-          tokenSymbol: 'KNC',
-          tokenAddress: kyberDaoInfo?.KNCAddress,
-        },
+      const tx = await sendEVMTransaction({
+        account,
+        contractAddress: rewardDistributorSigningContract.address,
+        encodedData: encodeFunctionData({
+          abi: RewardDistributorABI,
+          functionName: 'claim',
+          args: [
+            BigInt(cycle.toString()),
+            BigInt(index.toString()),
+            address,
+            tokens,
+            (cumulativeAmounts as Array<string | number | bigint>).map((v: string | number | bigint) =>
+              BigInt(v.toString()),
+            ),
+            merkleProof,
+          ],
+        }),
+        value: 0n,
+        errorInfo: { name: ErrorName.GasRefundClaimError, wallet: walletKey },
+        isSmartConnector,
+        chainId,
       })
-      return tx.hash as string
+      if (tx?.hash) {
+        addTransactionWithType({
+          hash: tx.hash,
+          type: TRANSACTION_TYPE.KYBERDAO_CLAIM,
+          extraInfo: {
+            contract: kyberDaoInfo?.rewardsDistributor,
+            tokenAmount: formatAmount,
+            tokenSymbol: 'KNC',
+            tokenAddress: kyberDaoInfo?.KNCAddress,
+          },
+        })
+      }
+      return tx?.hash
     } catch (error) {
       throw error
     }
   }, [
     userRewards,
     account,
+    isSmartConnector,
+    chainId,
+    walletKey,
     remainingCumulativeAmount,
     rewardDistributorSigningContract,
     rewardDistributorReadingContract,
@@ -266,6 +341,8 @@ export function useClaimVotingRewards() {
 }
 
 export const useVotingActions = () => {
+  const { account, chainId, walletKey } = useActiveWeb3React()
+  const { isSmartConnector } = useWeb3React()
   const kyberDaoInfo = useKyberDAOInfo()
   const daoContract = useSigningContract(kyberDaoInfo?.dao, DaoABI)
   const addTransactionWithType = useTransactionAdder()
@@ -275,22 +352,34 @@ export const useVotingActions = () => {
       if (!daoContract) {
         throw new Error(CONTRACT_NOT_FOUND_MSG)
       }
+      if (!account) throw new Error(CONTRACT_NOT_FOUND_MSG)
       try {
-        const estimateGas = await daoContract.estimateGas.submitVote(campId, option)
-        const tx = await daoContract.submitVote(campId, option, {
-          gasLimit: calculateGasMargin(estimateGas),
+        const tx = await sendEVMTransaction({
+          account,
+          contractAddress: daoContract.address,
+          encodedData: encodeFunctionData({
+            abi: DaoABI,
+            functionName: 'submitVote',
+            args: [BigInt(campId), BigInt(option)],
+          }),
+          value: 0n,
+          errorInfo: { name: ErrorName.SwapError, wallet: walletKey },
+          isSmartConnector,
+          chainId,
         })
-        addTransactionWithType({
-          hash: tx.hash,
-          type: TRANSACTION_TYPE.KYBERDAO_VOTE,
-          extraInfo: { contract: kyberDaoInfo?.dao },
-        })
-        return tx.hash
+        if (tx?.hash) {
+          addTransactionWithType({
+            hash: tx.hash,
+            type: TRANSACTION_TYPE.KYBERDAO_VOTE,
+            extraInfo: { contract: kyberDaoInfo?.dao },
+          })
+        }
+        return tx?.hash
       } catch (error) {
         throw error
       }
     },
-    [daoContract, addTransactionWithType, kyberDaoInfo?.dao],
+    [account, isSmartConnector, chainId, walletKey, daoContract, addTransactionWithType, kyberDaoInfo?.dao],
   )
   return { vote }
 }
@@ -309,11 +398,16 @@ export function useStakingInfo() {
 
   const { data: stakerActions } = kyberDAOApi.useGetStakerActionsQuery({ account }, { skip: !account })
 
-  const [totalSupply, setTotalSupply] = useState()
+  const [totalSupply, setTotalSupply] = useState<bigint | undefined>()
   useEffect(() => {
-    kncContract
-      ?.totalSupply()
-      .then((res: any) => setTotalSupply(res))
+    if (!kncContract) return
+    readContract(wagmiConfig, {
+      address: kncContract.address as Address,
+      abi: ERC20_ABI,
+      functionName: 'totalSupply',
+      chainId: ChainId.MAINNET,
+    })
+      .then(res => setTotalSupply(res as bigint))
       .catch((error: any) => console.error('Get KNC totalSupply error:', { error }))
   }, [kncContract])
 
@@ -340,8 +434,13 @@ export function useVotingInfo() {
 
   const [merkleData, setMerkleData] = useState<any>()
   useEffect(() => {
-    rewardsDistributorContract
-      ?.getMerkleData?.()
+    if (!rewardsDistributorContract) return
+    readContract(wagmiConfig, {
+      address: rewardsDistributorContract.address as Address,
+      abi: RewardDistributorABI,
+      functionName: 'getMerkleData',
+      chainId: ChainId.MAINNET,
+    })
       .then((res: any) => {
         setMerkleData(res)
       })
@@ -373,20 +472,25 @@ export function useVotingInfo() {
   useEffect(() => {
     if (!rewardsDistributorContract || !account || !userRewards?.userReward?.tokens) return
 
-    rewardsDistributorContract
-      ?.getClaimedAmounts?.(account, userRewards?.userReward?.tokens)
+    readContract(wagmiConfig, {
+      address: rewardsDistributorContract.address as Address,
+      abi: RewardDistributorABI,
+      functionName: 'getClaimedAmounts',
+      args: [account, userRewards?.userReward?.tokens],
+      chainId: ChainId.MAINNET,
+    })
       .then((res: any) => setClaimedRewardAmounts(res))
       .catch((err: any) => console.log(err))
   }, [rewardsDistributorContract, account, userRewards?.userReward?.tokens])
 
-  const remainingCumulativeAmount: BigNumber = useMemo(() => {
-    if (!userRewards?.userReward?.tokens || !claimedRewardAmounts?.[0]) return BigNumber.from(0)
+  const remainingCumulativeAmount: bigint = useMemo(() => {
+    if (!userRewards?.userReward?.tokens || !claimedRewardAmounts?.[0]) return 0n
     return (
       userRewards?.userReward?.tokens?.map((_: string, index: number) => {
         const cummulativeAmount = userRewards.userReward?.cumulativeAmounts?.[index]
-        if (!cummulativeAmount) return BigNumber.from(0)
-        return BigNumber.from(cummulativeAmount).sub(BigNumber.from(claimedRewardAmounts[0]))
-      })[0] || BigNumber.from(0)
+        if (!cummulativeAmount) return 0n
+        return BigInt(cummulativeAmount.toString()) - BigInt(claimedRewardAmounts[0].toString())
+      })[0] || 0n
     )
   }, [claimedRewardAmounts, userRewards?.userReward])
 
@@ -434,7 +538,7 @@ export function useVotingInfo() {
     proposals,
     userReward: userRewards?.userReward,
     remainingCumulativeAmount,
-    claimedRewardAmount: claimedRewardAmounts?.[0] ? BigNumber.from(claimedRewardAmounts[0]) : BigNumber.from(0),
+    claimedRewardAmount: claimedRewardAmounts?.[0] ? BigInt(claimedRewardAmounts[0].toString()) : 0n,
     stakerInfo,
     stakerInfoNextEpoch,
     votesInfo,
@@ -539,14 +643,14 @@ export function useGasRefundInfo({ rewardStatus = KNCUtilityTabs.Available }: { 
 
 export function useClaimGasRefundRewards() {
   const { account, chainId, walletKey } = useActiveWeb3React()
-  const { library, isSmartConnector } = useWeb3React()
+  const { isSmartConnector } = useWeb3React()
   const addTransactionWithType = useTransactionAdder()
   const { claimableReward } = useGasRefundInfo({})
   const refetch = useRefetchGasRefundInfo()
   const notify = useNotify()
 
   const claimGasRefundRewards = useCallback(async (): Promise<string> => {
-    if (!account || !library || !claimableReward || claimableReward.knc <= 0) throw new Error(t`Invalid claim`)
+    if (!account || !claimableReward || claimableReward.knc <= 0) throw new Error(t`Invalid claim`)
     refetch()
 
     const url = REWARD_SERVICE_API + '/rewards/claim'
@@ -575,15 +679,15 @@ export function useClaimGasRefundRewards() {
     try {
       const tx = await sendEVMTransaction({
         account,
-        library,
         contractAddress: rewardContractAddress,
         isSmartConnector,
         encodedData,
-        value: BigNumber.from(0),
-        sentryInfo: {
+        value: 0n,
+        errorInfo: {
           name: ErrorName.GasRefundClaimError,
           wallet: walletKey,
         },
+        chainId,
       })
       if (!tx) throw new Error()
       addTransactionWithType({
@@ -608,7 +712,7 @@ export function useClaimGasRefundRewards() {
       })
       throw error
     }
-  }, [account, addTransactionWithType, chainId, claimableReward, library, notify, refetch, walletKey, isSmartConnector])
+  }, [account, addTransactionWithType, chainId, claimableReward, notify, refetch, walletKey, isSmartConnector])
   return claimGasRefundRewards
 }
 

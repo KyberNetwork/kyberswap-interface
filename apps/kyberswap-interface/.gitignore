@@ -12,6 +12,7 @@
 
 # production
 /build
+/build-ssr
 
 # misc
 .DS_Store
@@ -43,4 +44,3 @@ cypress/fixtures/example.json
 target/
 
 *.tsbuildinfo
-storybook-static

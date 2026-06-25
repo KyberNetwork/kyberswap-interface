@@ -1,206 +1,143 @@
-import { Text } from 'rebass'
-import styled, { css, keyframes } from 'styled-components'
+import { ComponentProps, forwardRef } from 'react'
+import { Link, LinkProps } from 'react-router-dom'
 
 import { ReactComponent as MoveBackSvg } from 'assets/svg/ic_move_back.svg'
 import { ReactComponent as MoveForwardSvg } from 'assets/svg/ic_move_forward.svg'
+import { cn } from 'utils/cn'
 
-// TrendingBanner
-export const TrendingWrapper = styled.div`
-  width: 100%;
-  padding: 12px 16px;
-  gap: 8px;
-  border-radius: 16px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: flex-start;
-  flex-shrink: 0;
-  position: relative;
-  cursor: pointer;
+export const TrendingWrapper = forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
+  ({ className, children, ...rest }, ref) => (
+    <div
+      ref={ref}
+      {...rest}
+      className={cn(
+        'relative flex w-full shrink-0 flex-col items-stretch justify-around gap-2 rounded-2xl border border-solid border-transparent px-4 py-2 backdrop-blur-[2px]',
+        '[background:linear-gradient(#1d5b49,#1d5b49)_padding-box,linear-gradient(135deg,#4ec7a2_0%,#1d5b49_40%,#1d5b49_60%,#4ec7a2_100%)_border-box]',
+        className,
+      )}
+    >
+      {children}
+    </div>
+  ),
+)
+TrendingWrapper.displayName = 'TrendingWrapper'
 
-  border: 1px solid transparent;
-  background: linear-gradient(#1d5b49, #1d5b49) padding-box,
-    linear-gradient(135deg, #4ec7a2 0%, #1d5b49 40%, #1d5b49 60%, #4ec7a2 100%) border-box;
-  backdrop-filter: blur(2px);
-`
+export const BannerHeaderLink = ({ className, ...rest }: LinkProps) => (
+  <Link {...rest} className={cn('inline-flex items-center gap-2 text-inherit no-underline', className)} />
+)
 
-export const pulse = keyframes`
-  0% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0;
-  }
-  100% {
-    opacity: 1;
-  }
-`
+type PoolWrapperProps = LinkProps & { animate: boolean }
+export const PoolWrapper = ({ animate, className, ...rest }: PoolWrapperProps) => (
+  <Link
+    {...rest}
+    className={cn(
+      'flex w-full items-center justify-between text-inherit no-underline',
+      animate && '[animation:ks-earn-pulse_0.6s]',
+      className,
+    )}
+  />
+)
 
-export const PoolWrapper = styled.div<{ animate: boolean }>`
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  cursor: pointer;
+export const PoolAprWrapper: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({ className, ...rest }) => (
+  <div
+    {...rest}
+    className={cn(
+      'rounded-2xl shadow-[0_8px_8px_0_rgba(0,0,0,0.3)] [background-image:linear-gradient(to_right,#66666600,#66666600,#a2e9d4,#66666600,#66666600)]',
+      className,
+    )}
+  />
+)
 
-  ${({ animate }) =>
-    animate &&
-    css`
-      animation: ${pulse} 0.6s;
-    `}
-`
+export const AprText: React.FC<React.HTMLAttributes<HTMLSpanElement>> = ({ className, ...rest }) => (
+  <span {...rest} className={cn('ml-1.5 max-xxs:hidden', className)} />
+)
 
-export const PoolAprWrapper = styled.div`
-  border-radius: 20px;
-  box-shadow: 0 8px 8px 0 rgba(0, 0, 0, 0.3);
-  padding-bottom: 1px;
-  width: auto;
-  overflow: hidden;
-  background-image: linear-gradient(to right, #66666600, #66666600, #a2e9d4, #66666600, #66666600);
-`
+export const PoolApr: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({ className, ...rest }) => (
+  <div
+    {...rest}
+    className={cn(
+      'mb-px flex h-[27px] w-max items-center rounded-2xl bg-black px-4 py-1 font-semibold text-primary',
+      className,
+    )}
+  />
+)
 
-export const AprText = styled.span`
-  margin-left: 6px;
+export const FarmingWrapper = forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
+  ({ className, children, ...rest }, ref) => (
+    <div
+      ref={ref}
+      {...rest}
+      className={cn(
+        'relative flex w-full shrink-0 flex-col items-stretch justify-around gap-2 rounded-2xl border border-solid border-transparent px-4 py-2 backdrop-blur-[2px]',
+        '[background:linear-gradient(#272e62,#272e62)_padding-box,linear-gradient(135deg,#5a7fff_0%,#272e62_70%,#272e62_30%,#5a7fff_100%)_border-box]',
+        className,
+      )}
+    >
+      {children}
+    </div>
+  ),
+)
+FarmingWrapper.displayName = 'FarmingWrapper'
 
-  ${({ theme }) => theme.mediaWidth.upToXXSmall`
-    display: none;
-  `}
-`
+export const FarmingPoolContainer: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({ className, ...rest }) => (
+  <div {...rest} className={cn('mx-auto w-[calc(100%-72px)] overflow-hidden', className)} />
+)
 
-export const PoolApr = styled.div`
-  display: flex;
-  font-weight: 600;
-  background-color: #000;
-  color: ${({ theme }) => theme.primary};
-  padding: 4px 16px;
-  width: max-content;
-`
+type FarmingPoolWrapperProps = React.HTMLAttributes<HTMLDivElement> & {
+  animateMoveForward: boolean
+  animateMoveBack: boolean
+}
+export const FarmingPoolWrapper: React.FC<FarmingPoolWrapperProps> = ({
+  animateMoveForward,
+  animateMoveBack,
+  className,
+  ...rest
+}) => (
+  <div
+    {...rest}
+    className={cn(
+      'relative -left-1/2 flex items-center max-[500px]:-left-full',
+      animateMoveForward &&
+        '[animation:ks-earn-move-forward_0.8s] max-[500px]:[animation:ks-earn-move-forward-xs_0.8s]',
+      animateMoveBack && '[animation:ks-earn-move-back_0.8s] max-[500px]:[animation:ks-earn-move-back-xs_0.8s]',
+      className,
+    )}
+  />
+)
 
-// FarmingBanner
-export const FarmingWrapper = styled.div`
-  width: 100%;
-  padding: 10px 16px;
-  gap: 11px;
-  border-radius: 16px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: flex-start;
-  flex-shrink: 0;
-  position: relative;
+export const FarmingPool = ({ className, ...rest }: LinkProps) => (
+  <Link
+    {...rest}
+    className={cn('flex items-center justify-center gap-1 px-1.5 text-inherit no-underline', className)}
+  />
+)
 
-  border: 1px solid transparent;
-  background: linear-gradient(#272e62, #272e62) padding-box,
-    linear-gradient(135deg, #5a7fff 0%, #272e62 70%, #272e62 30%, #5a7fff 100%) border-box;
-  backdrop-filter: blur(2px);
-`
+export const FarmingAprBadge: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({ className, ...rest }) => (
+  <div {...rest} className={cn('rounded-[20px] bg-[#221749] px-3 py-0.5 font-semibold text-primary', className)} />
+)
 
-export const FarmingPoolContainer = styled.div`
-  width: calc(100% - (36px * 2));
-  overflow: hidden;
-  margin: 0 auto;
-`
+export const MoveBackIcon: React.FC<ComponentProps<typeof MoveBackSvg>> = ({ className, ...rest }) => (
+  <MoveBackSvg
+    {...rest}
+    className={cn(
+      'cursor-pointer transition-[filter] duration-150 ease-in-out',
+      '[filter:drop-shadow(0_4px_8px_black)] hover:[filter:drop-shadow(0_4px_8px_black)_brightness(1.15)]',
+      className,
+    )}
+  />
+)
 
-export const moveForward = keyframes`
-  0% {
-    left: -50%;
-  }
-  100% {
-    left: -100%;
-  }
-`
+export const MoveForwardIcon: React.FC<ComponentProps<typeof MoveForwardSvg>> = ({ className, ...rest }) => (
+  <MoveForwardSvg
+    {...rest}
+    className={cn(
+      'cursor-pointer transition-[filter] duration-150 ease-in-out',
+      '[filter:drop-shadow(0_4px_8px_black)] hover:[filter:drop-shadow(0_4px_8px_black)_brightness(1.15)]',
+      className,
+    )}
+  />
+)
 
-export const moveBack = keyframes`
-  0% {
-    left: -50%;
-  }
-  100% {
-    left: 0;
-  }
-`
-
-export const moveForwardExtraSmall = keyframes`
-  0% {
-    left: -100%;
-  }
-  100% {
-    left: -200%;
-  }
-`
-
-export const moveBackExtraSmall = keyframes`
-  0% {
-    left: -100%;
-  }
-  100% {
-    left: 0;
-  }
-`
-
-export const FarmingPoolWrapper = styled.div<{ animateMoveForward: boolean; animateMoveBack: boolean }>`
-  display: flex;
-  align-items: center;
-  position: relative;
-  left: -50%;
-
-  ${({ animateMoveForward }) =>
-    animateMoveForward &&
-    css`
-      animation: ${moveForward} 0.8s;
-
-      ${({ theme }) => theme.mediaWidth.upToExtraSmall`
-        animation: ${moveForwardExtraSmall} 0.8s;
-      `}
-    `}
-
-  ${({ animateMoveBack }) =>
-    animateMoveBack &&
-    css`
-      animation: ${moveBack} 0.8s;
-
-      ${({ theme }) => theme.mediaWidth.upToExtraSmall`
-        animation: ${moveBackExtraSmall} 0.8s;
-      `}
-    `}
-
-  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
-    left: -100%;
-  `}
-`
-
-export const FarmingPool = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  cursor: pointer;
-`
-
-export const FarmingAprBadge = styled.div`
-  padding: 4px 12px;
-  border-radius: 20px;
-  background: #221749;
-  color: ${({ theme }) => theme.primary};
-`
-
-export const MoveBackIcon = styled(MoveBackSvg)`
-  position: absolute;
-  top: 3px;
-  left: 0;
-  cursor: pointer;
-`
-
-export const MoveForwardIcon = styled(MoveForwardSvg)`
-  position: absolute;
-  top: 3px;
-  right: 0;
-  cursor: pointer;
-`
-
-export const PoolPairText = styled(Text)`
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  text-align: left;
-  max-width: 120px;
-`
+export const PoolPairText: React.FC<React.HTMLAttributes<HTMLSpanElement>> = ({ className, ...rest }) => (
+  <span {...rest} className={cn('max-w-[120px] truncate text-left', className)} />
+)

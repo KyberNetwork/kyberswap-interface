@@ -2,14 +2,16 @@ import { useCallback, useEffect, useState } from 'react'
 import { useAddFavoriteMutation, useRemoveFavoriteMutation } from 'services/zapEarn'
 
 import { NotificationType } from 'components/Announcement/type'
-import { useActiveWeb3React, useWeb3React } from 'hooks'
+import { useActiveWeb3React } from 'hooks'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { EarnPool, ParsedEarnPool } from 'pages/Earns/types'
 import { useNotify, useWalletModalToggle } from 'state/application/hooks'
+import { Address } from 'utils/viem'
+import { getGatedWalletClient } from 'utils/walletClient'
 
 const FAVORITE_DELAY_MS = 500
 const FAVORITE_EXPIRE_DAYS = 7
-const LOCAL_STORAGE_KEY_PREFIX = 'poolExplorer_'
+const SESSION_STORAGE_KEY_PREFIX = 'poolExplorer_'
 const SESSION_STORAGE_FAVORITE_KEY_PREFIX = 'poolExplorer_favorite_'
 const FAVORITE_MESSAGE_TEMPLATE = `Click sign to add favorite pools at Kyberswap.com without logging in.\nThis request won’t trigger any blockchain transaction or cost any gas fee. Expires in ${FAVORITE_EXPIRE_DAYS} days. \n\nIssued at: {issuedAt}`
 
@@ -21,8 +23,7 @@ const getPoolKey = (pool: EarnPool) => {
 const getSessionStorageKey = (account: string) => `${SESSION_STORAGE_FAVORITE_KEY_PREFIX}${account.toLowerCase()}`
 
 const useFavoritePool = ({ refetch }: { refetch?: () => void }) => {
-  const { account } = useActiveWeb3React()
-  const { library } = useWeb3React()
+  const { account, chainId } = useActiveWeb3React()
   const [addFavorite] = useAddFavoriteMutation()
   const [removeFavorite] = useRemoveFavoriteMutation()
   const toggleWalletModal = useWalletModalToggle()
@@ -56,6 +57,28 @@ const useFavoritePool = ({ refetch }: { refetch?: () => void }) => {
     [account],
   )
 
+  const clearSessionFavorite = useCallback(
+    (pool: ParsedEarnPool) => {
+      if (!account) return
+      const poolKey = getPoolKey(pool)
+      setSessionFavorites(prev => {
+        if (!Object.prototype.hasOwnProperty.call(prev, poolKey)) return prev
+
+        const next = { ...prev }
+        delete next[poolKey]
+
+        try {
+          sessionStorage.setItem(getSessionStorageKey(account), JSON.stringify(next))
+        } catch {
+          // Ignore storage errors and keep in-memory state.
+        }
+
+        return next
+      })
+    },
+    [account],
+  )
+
   const getFavoriteStatus = useCallback(
     (pool: EarnPool) => {
       const poolKey = getPoolKey(pool)
@@ -72,6 +95,7 @@ const useFavoritePool = ({ refetch }: { refetch?: () => void }) => {
     if (favoriteLoading.includes(pool.address) || delayFavorite) return
 
     const isPoolFavorite = !!pool.favorite?.isFavorite
+    let isSuccess = false
     try {
       handleAddFavoriteLoading(pool.address)
 
@@ -80,7 +104,7 @@ const useFavoritePool = ({ refetch }: { refetch?: () => void }) => {
         return
       }
 
-      const { signature, msg } = await getOrCreateSignature(account, library)
+      const { signature, msg } = await getOrCreateSignature(account, chainId)
 
       setDelayFavorite(true)
 
@@ -96,6 +120,8 @@ const useFavoritePool = ({ refetch }: { refetch?: () => void }) => {
         throw new Error((result as any).error.data.message || 'Something went wrong')
       }
 
+      isSuccess = true
+
       trackingHandler(TRACKING_EVENT_TYPE.POOL_FAVORITED, {
         action: isPoolFavorite ? 'remove' : 'add',
         pool_pair: `${pool.tokens?.[0]?.symbol}/${pool.tokens?.[1]?.symbol}`,
@@ -108,18 +134,22 @@ const useFavoritePool = ({ refetch }: { refetch?: () => void }) => {
 
       refetch?.()
     } catch (error) {
-      const action = pool.favorite?.isFavorite ? 'Remove' : 'Add'
-      notify(
-        {
-          title: `${action} failed`,
-          summary: error?.message || 'Something went wrong',
-          type: NotificationType.WARNING,
-        },
-        8000,
-      )
-    } finally {
-      updateSessionFavorite(pool, !isPoolFavorite)
+      clearSessionFavorite(pool)
 
+      const action = pool.favorite?.isFavorite ? 'Remove' : 'Add'
+      const summary =
+        error && typeof error === 'object' && 'message' in error && error.message
+          ? String(error.message)
+          : 'Something went wrong'
+      notify({
+        title: `${action} failed`,
+        summary,
+        type: NotificationType.ERROR,
+      })
+    } finally {
+      if (isSuccess) {
+        updateSessionFavorite(pool, !isPoolFavorite)
+      }
       handleRemoveFavoriteLoading(pool.address)
     }
   }
@@ -162,11 +192,11 @@ const useFavoritePool = ({ refetch }: { refetch?: () => void }) => {
 
 export default useFavoritePool
 
-const getOrCreateSignature = async (account: string, library: any) => {
-  const key = `${LOCAL_STORAGE_KEY_PREFIX}${account}`
+const getOrCreateSignature = async (account: string, chainId: number) => {
+  const key = `${SESSION_STORAGE_KEY_PREFIX}${account}`
 
   try {
-    const data = JSON.parse(localStorage.getItem(key) || '')
+    const data = JSON.parse(sessionStorage.getItem(key) || '')
     if (data.issuedAt) {
       const expire = new Date(data.issuedAt)
       expire.setDate(expire.getDate() + FAVORITE_EXPIRE_DAYS)
@@ -181,8 +211,13 @@ const getOrCreateSignature = async (account: string, library: any) => {
 
   const issuedAt = new Date().toISOString()
   const msg = FAVORITE_MESSAGE_TEMPLATE.replace('{issuedAt}', issuedAt)
-  const signature = await library?.send('personal_sign', [`0x${Buffer.from(msg, 'utf8').toString('hex')}`, account])
+  const walletClient = await getGatedWalletClient({ chainId })
+  if (!walletClient) throw new Error('Wallet client unavailable')
+  const signature = await walletClient.signMessage({
+    account: account as Address,
+    message: msg,
+  })
 
-  localStorage.setItem(key, JSON.stringify({ signature, msg, issuedAt }))
+  sessionStorage.setItem(key, JSON.stringify({ signature, msg, issuedAt }))
   return { signature, msg }
 }

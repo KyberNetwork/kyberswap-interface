@@ -14,20 +14,36 @@ import {
   PopupType,
 } from 'components/Announcement/type'
 import { NETWORKS_INFO } from 'constants/networks'
-import { AppJsonRpcProvider } from 'constants/providers'
 import { KNC_ADDRESS } from 'constants/tokens'
-import { useActiveWeb3React } from 'hooks/index'
+import { useActiveWeb3React } from 'hooks'
+import { AppDispatch, AppState } from 'state'
+import {
+  ApplicationModal,
+  addPopup,
+  closeModal,
+  removePopup,
+  setAnnouncementDetail,
+  setOpenModal,
+} from 'state/application/actions'
+import { ModalParams } from 'state/application/types'
 import { useAppSelector } from 'state/hooks'
-import { AppDispatch, AppState } from 'state/index'
 import { useTokenPricesWithLoading } from 'state/tokenPrices/hooks'
-
-import { ApplicationModal, addPopup, closeModal, removePopup, setAnnouncementDetail, setOpenModal } from './actions'
-import { ModalParams } from './types'
 
 export function useBlockNumber(): number | undefined {
   const { chainId } = useActiveWeb3React()
 
   return useSelector((state: AppState) => state.application.blockNumber[chainId])
+}
+
+/**
+ * Same as `useBlockNumber` but reads the block height for a specific chain
+ * instead of the active one. Returns `undefined` if no block has been observed
+ * for `chainId` yet (e.g. the chain is not the one we currently poll).
+ */
+export function useBlockNumberFor(chainId: ChainId | undefined): number | undefined {
+  const { chainId: activeChainId } = useActiveWeb3React()
+  const lookupChainId = chainId ?? activeChainId
+  return useSelector((state: AppState) => state.application.blockNumber[lookupChainId])
 }
 
 export const useCloseModal = (modal: ApplicationModal): (() => void) => {
@@ -102,10 +118,6 @@ export function useWalletModalToggle(): () => void {
 
 export function useToggleTransactionSettingsMenu(): () => void {
   return useToggleModal(ApplicationModal.TRANSACTION_SETTINGS)
-}
-
-export function usePoolDetailModalToggle(): () => void {
-  return useToggleModal(ApplicationModal.POOL_DETAIL)
 }
 
 export function useRecapModalToggle(): () => void {
@@ -256,27 +268,6 @@ export const useDetailAnnouncement = (): [DetailAnnouncementParam, (v: DetailAnn
   return [announcementDetail, setDetail]
 }
 
-const cacheConfig: {
-  rpc: { [rpc: string]: AppJsonRpcProvider }
-} = {
-  rpc: {},
-}
-
-export const cacheCalc: <T extends keyof typeof cacheConfig, U extends (typeof cacheConfig)[T][string]>(
-  type: T,
-  value: string,
-  fallback: (value: string) => U,
-) => U = <T extends keyof typeof cacheConfig, U extends (typeof cacheConfig)[T][string]>(
-  type: T,
-  value: string,
-  fallback: (value: string) => U,
-) => {
-  if (!cacheConfig['rpc'][value]) {
-    cacheConfig['rpc'][value] = fallback(value)
-  }
-  return cacheConfig[type][value] as U
-}
-
 export function getDefaultConfig(chainId: ChainId): KyberSwapConfigResponse {
   return {
     rpc: NETWORKS_INFO[chainId].defaultRpcUrl,
@@ -292,17 +283,12 @@ export const useKyberSwapConfig = (customChainId?: ChainId): KyberSwapConfig => 
 
   const config = useAppSelector(state => state.application.config[chainId] || getDefaultConfig(chainId))
 
-  const readProvider = useMemo(() => {
-    return cacheCalc('rpc', config.rpc, rpc => new AppJsonRpcProvider(rpc, chainId))
-  }, [config.rpc, chainId])
-
   return useMemo(() => {
     return {
       rpc: config.rpc,
       isEnableBlockService: config.isEnableBlockService,
       isEnableKNProtocol: config.isEnableKNProtocol,
-      readProvider,
       commonTokens: config.commonTokens,
     }
-  }, [config.rpc, config.isEnableBlockService, config.isEnableKNProtocol, config.commonTokens, readProvider])
+  }, [config.rpc, config.isEnableBlockService, config.isEnableKNProtocol, config.commonTokens])
 }

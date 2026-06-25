@@ -22,7 +22,7 @@ export function RedirectPathToSwapV3Network() {
     <Navigate
       to={{
         ...location,
-        pathname: `${redirectTo}/` + networkInfo.route,
+        pathname: `${redirectTo}/${networkInfo.route}`,
       }}
       replace
     />

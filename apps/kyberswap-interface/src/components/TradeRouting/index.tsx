@@ -1,45 +1,43 @@
 import { ChainId, Currency, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
 import React, { memo, useCallback, useEffect, useRef } from 'react'
 import ScrollContainer from 'react-indiana-drag-scroll'
-import { Box } from 'rebass'
 
 import CurrencyLogo from 'components/CurrencyLogo'
 import TradeRouteV3 from 'components/TradeRouting/TradeRouteV3'
 import { getDexInfoByPool, getSwapPercent, onScroll, useShadow } from 'components/TradeRouting/helpers'
 import {
-  Shadow,
-  StyledContainer,
-  StyledDot,
-  StyledExchange,
-  StyledExchangeStatic,
-  StyledHop,
-  StyledHopChevronRight,
-  StyledHopChevronWrapper,
-  StyledHops,
-  StyledPair,
-  StyledPairLine,
-  StyledPercent,
-  StyledRoute,
-  StyledRouteLine,
-  StyledRoutes,
-  StyledToken,
-  StyledWrap,
-  StyledWrapToken,
+  ArrowHead,
+  HopCard,
+  HopList,
+  PairRow,
+  PairTokenSlot,
+  PoolLabel,
+  PoolLink,
+  PoolList,
+  RouteArrow,
+  RouteBadge,
+  RouteConnector,
+  RouteDot,
+  RouteList,
+  RouteRow,
+  RoutingFadeX,
+  RoutingFadeY,
+  RoutingViewport,
+  TokenLink,
 } from 'components/TradeRouting/styled'
 import { useActiveWeb3React } from 'hooks'
 import { useCurrencyV2 } from 'hooks/Tokens'
-import useTheme from 'hooks/useTheme'
 import { useAllDexes } from 'state/customizeDexes/hooks'
 import { getEtherscanLink, isAddress } from 'utils'
 import { SwapRouteV2, SwapRouteV3 } from 'utils/aggregationRouting'
 
-interface RouteRowProps {
+interface HopRowProps {
   route: SwapRouteV2
   chainId: ChainId
   backgroundColor?: string
 }
 
-const RouteRow = ({ route, chainId, backgroundColor }: RouteRowProps) => {
+const HopRow = ({ route, chainId, backgroundColor }: HopRowProps) => {
   const scrollRef = useRef<HTMLDivElement>(null)
   const contentRef = useRef<HTMLDivElement>(null)
   const shadowRef = useRef<HTMLDivElement>(null)
@@ -56,12 +54,11 @@ const RouteRow = ({ route, chainId, backgroundColor }: RouteRowProps) => {
     handleShadow()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [route])
-  const theme = useTheme()
 
   return (
-    <StyledWrap ref={shadowRef} backgroundColor={backgroundColor}>
+    <RoutingFadeX ref={shadowRef} backgroundColor={backgroundColor}>
       <ScrollContainer innerRef={scrollRef} vertical={false} onScroll={handleShadow}>
-        <StyledHops length={route?.subRoutes?.length} ref={contentRef}>
+        <HopList ref={contentRef}>
           {route.subRoutes.map((subRoute, index, arr) => {
             const token = route.path[index + 1]
             const id = subRoute
@@ -71,18 +68,9 @@ const RouteRow = ({ route, chainId, backgroundColor }: RouteRowProps) => {
 
             return (
               <React.Fragment key={id}>
-                <StyledHop>
-                  <TokenRoute token={token} />
-                  <Box
-                    sx={{
-                      background: theme.background,
-                      padding: '8px',
-                      borderRadius: '12px',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: '4px',
-                    }}
-                  >
+                <HopCard>
+                  <HopTokenLink token={token} />
+                  <PoolList>
                     {Array.isArray(subRoute)
                       ? subRoute.map(pool => {
                           const dex = getDexInfoByPool(pool.exchange, allDexes)
@@ -91,15 +79,15 @@ const RouteRow = ({ route, chainId, backgroundColor }: RouteRowProps) => {
                             // TODO: Dungz remove condition
                             return isAddress(chainId, poolId) &&
                               !['1inch', 'paraswap', '0x'].includes(pool.exchange) ? (
-                              <StyledExchange
+                              <PoolLink
                                 key={`${i}-${pool.id}`}
                                 href={getEtherscanLink(chainId, poolId, 'address')}
                                 target="_blank"
                               >
                                 {i}
-                              </StyledExchange>
+                              </PoolLink>
                             ) : (
-                              <StyledExchangeStatic key={`${i}-${pool.id}`}>{i}</StyledExchangeStatic>
+                              <PoolLabel key={`${i}-${pool.id}`}>{i}</PoolLabel>
                             )
                           })(
                             <>
@@ -110,19 +98,19 @@ const RouteRow = ({ route, chainId, backgroundColor }: RouteRowProps) => {
                           return link
                         })
                       : null}
-                  </Box>
-                </StyledHop>
+                  </PoolList>
+                </HopCard>
                 {index !== arr.length - 1 && (
-                  <StyledHopChevronWrapper>
-                    <StyledHopChevronRight />
-                  </StyledHopChevronWrapper>
+                  <RouteArrow>
+                    <ArrowHead />
+                  </RouteArrow>
                 )}
               </React.Fragment>
             )
           })}
-        </StyledHops>
+        </HopList>
       </ScrollContainer>
-    </StyledWrap>
+    </RoutingFadeX>
   )
 }
 
@@ -159,17 +147,17 @@ const Routing = ({
   ) => {
     if (chainId && currency) {
       return (
-        <StyledToken as="div" reverse={reverseOrder} style={{ border: 'none' }}>
+        <TokenLink as="div" reverse={reverseOrder} className="border-none">
           <CurrencyLogo currency={currency} size="20px" />
           <span>{`${amount ? amount.toSignificant(8) : ''} ${currency.symbol}`}</span>
-        </StyledToken>
+        </TokenLink>
       )
     }
 
     return null
   }
 
-  const hasRoutes = chainId && tradeComposition && tradeComposition.length > 0
+  const availabeRoute = chainId && tradeComposition && tradeComposition.length > 0
 
   const handleScroll = useCallback(() => {
     return onScroll(shadowRef.current)
@@ -184,25 +172,27 @@ const Routing = ({
     handleScroll()
   }, [tradeComposition, maxHeight, handleScroll])
 
-  const isSwapRouteV3 = tradeComposition?.every(item => 'pool' in item)
+  const isSwapRouteV3 =
+    (tradeComposition as Array<SwapRouteV2 | SwapRouteV3> | undefined)?.every(
+      (item): item is SwapRouteV3 => 'pool' in item,
+    ) ?? false
 
   return (
-    <Shadow ref={shadowRef}>
-      <StyledContainer ref={wrapperRef} onScroll={handleScroll} style={{ maxHeight: maxHeight || '100%' }}>
+    <RoutingFadeY ref={shadowRef}>
+      <RoutingViewport ref={wrapperRef} onScroll={handleScroll} style={{ maxHeight: maxHeight || '100%' }}>
         <div ref={contentRef}>
-          <StyledPair>
-            <StyledWrapToken>{renderTokenInfo(currencyIn, inputAmount)}</StyledWrapToken>
-            {!hasRoutes && <StyledPairLine />}
-            <StyledWrapToken>{renderTokenInfo(currencyOut, outputAmount, true)}</StyledWrapToken>
-          </StyledPair>
+          <PairRow>
+            <PairTokenSlot>{renderTokenInfo(currencyIn, inputAmount)}</PairTokenSlot>
+            <PairTokenSlot>{renderTokenInfo(currencyOut, outputAmount, true)}</PairTokenSlot>
+          </PairRow>
 
-          {hasRoutes ? (
-            <div>
-              <StyledRoutes>
+          {!!availabeRoute && (
+            <>
+              <RouteList>
                 {!isSwapRouteV3 && (
                   <>
-                    <StyledDot />
-                    <StyledDot out />
+                    <RouteDot />
+                    <RouteDot out />
                   </>
                 )}
                 {isSwapRouteV3 ? (
@@ -215,37 +205,37 @@ const Routing = ({
                 ) : (
                   (tradeComposition as SwapRouteV2[]).map(route => {
                     return (
-                      <StyledRoute key={route.id}>
-                        <StyledPercent>{getSwapPercent(route.swapPercentage, tradeComposition.length)}</StyledPercent>
-                        <StyledRouteLine />
-                        <RouteRow route={route} chainId={chainId} />
-                        <StyledHopChevronWrapper style={{ marginRight: '2px' }}>
-                          <StyledHopChevronRight />
-                        </StyledHopChevronWrapper>
-                      </StyledRoute>
+                      <RouteRow key={route.id}>
+                        <RouteBadge>{getSwapPercent(route.swapPercentage, tradeComposition.length)}</RouteBadge>
+                        <RouteConnector />
+                        <HopRow route={route} chainId={chainId} />
+                        <RouteArrow className="mr-0.5">
+                          <ArrowHead />
+                        </RouteArrow>
+                      </RouteRow>
                     )
                   })
-                )}{' '}
-              </StyledRoutes>
-            </div>
-          ) : null}
+                )}
+              </RouteList>
+            </>
+          )}
         </div>
-      </StyledContainer>
-    </Shadow>
+      </RoutingViewport>
+    </RoutingFadeY>
   )
 }
 
-const TokenRoute = ({ token }: { token: Token }) => {
+const HopTokenLink = ({ token }: { token: Token }) => {
   const currency = useCurrencyV2(token.wrapped.address, token.chainId)
   return (
-    <StyledToken
-      style={{ marginRight: 0, fontSize: '12px' }}
+    <TokenLink
+      className="mr-0 w-fit text-xs"
       href={getEtherscanLink(token.chainId, token?.wrapped.address, 'token')}
       target="_blank"
     >
       <CurrencyLogo currency={currency} size="16px" />
       <span>{currency?.symbol}</span>
-    </StyledToken>
+    </TokenLink>
   )
 }
 

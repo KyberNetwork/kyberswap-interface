@@ -9,6 +9,10 @@ import { ChargeFeeBy } from 'types/route'
 import { isAddressString } from 'utils'
 import { convertStringToBoolean } from 'utils/string'
 
+const ClientNameMapping: { [key: string]: string } = {
+  dexscreener: 'DEX Screener',
+}
+
 const useGetFeeConfig = () => {
   const [searchParams] = useSearchParams()
 
@@ -18,7 +22,7 @@ const useGetFeeConfig = () => {
   }
 
   const clientId = searchParams.get('clientId') || ''
-  const chargeFeeByFromParam = (searchParams.get('chargeFeeBy') as ChargeFeeBy) || ChargeFeeBy.NONE
+  const chargeFeeByFromParam = (searchParams.get('chargeFeeBy') as ChargeFeeBy) || ChargeFeeBy.CURRENCY_OUT
   const preferredFeeTokensParam = searchParams.get('preferredFeeTokens') || ''
   const preferredFeeTokens = preferredFeeTokensParam
     .split(',')
@@ -53,6 +57,7 @@ const useGetFeeConfig = () => {
   const enableTip = convertStringToBoolean(searchParams.get('enableTip') || '')
   const isInBps = searchParams.get('isInBps') || ''
   const feeReceiver = searchParams.get('feeReceiver') || ''
+  const creatorName = searchParams.get('creatorName') || ClientNameMapping[clientId] || ''
 
   const feeConfigFromUrl = useMemo(() => {
     if (feeAmount && chargeFeeBy && (enableTip || isInBps) && feeReceiver)
@@ -63,9 +68,10 @@ const useGetFeeConfig = () => {
         isInBps: enableTip ? '1' : isInBps,
         feeReceiver,
         clientId,
+        creatorName,
       }
     return null
-  }, [feeAmount, chargeFeeBy, enableTip, isInBps, feeReceiver, clientId])
+  }, [feeAmount, chargeFeeBy, enableTip, isInBps, feeReceiver, clientId, creatorName])
 
   return feeConfigFromUrl
 }

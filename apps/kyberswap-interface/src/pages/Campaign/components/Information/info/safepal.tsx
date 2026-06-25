@@ -1,22 +1,17 @@
 import { Trans } from '@lingui/macro'
 import { Link } from 'react-router-dom'
-import { Text } from 'rebass'
 
+import { KYBERSWAP_URL } from 'constants/index'
 import safePalPoints from 'pages/Campaign/assets/safepal_points.png'
+import CampaignFaqSection from 'pages/Campaign/components/Information/info/CampaignFaqSection'
+import { CampaignContent, CampaignSectionComponent, FaqItem } from 'pages/Campaign/components/Information/info/types'
 import { ExternalLink } from 'theme'
-
-import CampaignFaqSection from './CampaignFaqSection'
-import { CampaignContent, CampaignSectionComponent, FaqItem } from './types'
 
 const SafePalHardwareWallet = ({ link }: { link?: boolean }) => {
   if (link) {
     return <ExternalLink href="https://www.safepal.com/en/store/x1">SafePal X1 Hardware Wallets</ExternalLink>
   }
-  return (
-    <Text as="span" color="#fff">
-      SafePal X1 Hardware Wallets
-    </Text>
-  )
+  return <span className="text-white">SafePal X1 Hardware Wallets</span>
 }
 
 const SafePalHowToSection = (): CampaignSectionComponent => {
@@ -42,7 +37,7 @@ const SafePalHowToSection = (): CampaignSectionComponent => {
       <li>
         <Trans>
           Participants receive points from activities with Swap, Zap, Cross-Chain, Limit Order and Smart Exit Orders on{' '}
-          <ExternalLink href="https://kyberswap.com">kyberswap.com</ExternalLink>.
+          <ExternalLink href={KYBERSWAP_URL}>kyberswap.com</ExternalLink>.
         </Trans>
       </li>
       <li>
@@ -80,9 +75,9 @@ const SafePalHowToSection = (): CampaignSectionComponent => {
         </ul>
       </li>
 
-      <Text fontWeight={600} style={{ textDecoration: 'underline' }} mt={2}>
+      <p className="mt-2 font-semibold underline">
         <Trans>Note</Trans>
-      </Text>
+      </p>
       <ul style={{ margin: 0 }}>
         <li>
           <Trans>Data on the campaign site may take up to 10 minutes to update after a transaction is made.</Trans>
@@ -104,9 +99,9 @@ const SafePalHowToSection = (): CampaignSectionComponent => {
         </li>
       </ul>
 
-      <Text fontWeight={600} style={{ textDecoration: 'underline' }} mt={2}>
+      <p className="mt-2 font-semibold underline">
         <Trans>Important Rules Per Product</Trans>
-      </Text>
+      </p>
       <ul style={{ margin: 0 }}>
         <li>
           <Trans>Swap</Trans>
@@ -154,22 +149,18 @@ const SafePalRewardsSection = (): CampaignSectionComponent => (
     <li>
       <Trans>
         Total rewards:{' '}
-        <Text as="span" color="#fff">
+        <span className="text-white">
           4,000 <SafePalHardwareWallet link />
-        </Text>
-        , valued at{' '}
-        <Text as="span" color="#fff">
-          $280,000
-        </Text>{' '}
-        ($70 per wallet).
+        </span>
+        , valued at <span className="text-white">$280,000</span> ($70 per wallet).
       </Trans>
     </li>
     <ul style={{ margin: 0 }}>
       <li>
         <Trans>
-          <Text as="span" color="#fff">
+          <span className="text-white">
             667 x <SafePalHardwareWallet />
-          </Text>{' '}
+          </span>{' '}
           are reserved for the Top 667 participants on the weekly leaderboard. Any rewards that remain unclaimed after
           the leaderboard claim period will move to a First-Come, First-Served (FCFS) round in the following week.
         </Trans>

@@ -6,6 +6,7 @@ import { useCopy } from '@kyber/hooks';
 import { DEXES_INFO, NATIVE_TOKEN_ADDRESS, NETWORKS_INFO, defaultToken, getDexName, univ3Types } from '@kyber/schema';
 import { InfoHelper, LoadingCounter, MouseoverTooltip, Skeleton, TokenLogo, TokenSymbol } from '@kyber/ui';
 import { shortenAddress } from '@kyber/utils/crypto';
+import { cn } from '@kyber/utils/tailwind-helpers';
 
 import IconBack from '@/assets/svg/arrow-left.svg';
 import SettingIcon from '@/assets/svg/setting.svg';
@@ -16,15 +17,9 @@ import { usePositionStore } from '@/stores/usePositionStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
 
 const Header = () => {
-  const { theme, chainId, onClose, poolType, positionId, fromCreatePoolFlow, dexId } = useWidgetStore([
-    'theme',
-    'chainId',
-    'onClose',
-    'poolType',
-    'positionId',
-    'fromCreatePoolFlow',
-    'dexId',
-  ]);
+  const { theme, chainId, onClose, poolType, positionId, fromCreatePoolFlow, dexId, onOpenPoolDetail } = useWidgetStore(
+    ['theme', 'chainId', 'onClose', 'poolType', 'positionId', 'fromCreatePoolFlow', 'dexId', 'onOpenPoolDetail'],
+  );
   const { pool, poolPrice } = usePoolStore(['pool', 'poolPrice']);
   const { position } = usePositionStore(['position']);
 
@@ -62,7 +57,10 @@ const Header = () => {
 
   const isOutOfRange = useMemo(() => {
     if (!positionId || !isUniV3 || !poolPrice || minPrice === null || maxPrice === null) return false;
-    return poolPrice < +minPrice || poolPrice > +maxPrice;
+
+    const min = parseFloat(minPrice.replace(/,/g, ''));
+    const max = parseFloat(maxPrice.replace(/,/g, ''));
+    return poolPrice < min || poolPrice > max;
   }, [isUniV3, maxPrice, minPrice, poolPrice, positionId]);
 
   const isClosed = position !== null && position.liquidity.toString() === '0';
@@ -133,20 +131,25 @@ const Header = () => {
           </>
         ) : (
           <div className="flex items-center flex-wrap gap-1 text-sm max-sm:gap-y-2">
-            <div className="flex items-end">
-              <TokenLogo src={token0.logo} size={26} className="border-[2px] border-layer1" />
-              <TokenLogo src={token1.logo} size={26} className="border-[2px] border-layer1 -ml-[6px]" />
-              <TokenLogo
-                src={NETWORKS_INFO[chainId].logo}
-                size={14}
-                className="border-[2px] border-layer1 max-sm:w-[18px] max-sm:h-[18px] max-sm:-ml-2 -ml-1"
-              />
-            </div>
+            <div
+              className={cn('flex items-center gap-1', onOpenPoolDetail && 'cursor-pointer')}
+              onClick={onOpenPoolDetail ? () => onOpenPoolDetail({ chainId, poolAddress, dexId }) : undefined}
+            >
+              <div className="flex items-end">
+                <TokenLogo src={token0.logo} size={26} className="border-[2px] border-layer1" />
+                <TokenLogo src={token1.logo} size={26} className="border-[2px] border-layer1 -ml-[6px]" />
+                <TokenLogo
+                  src={NETWORKS_INFO[chainId].logo}
+                  size={14}
+                  className="border-[2px] border-layer1 max-sm:w-[18px] max-sm:h-[18px] max-sm:-ml-2 -ml-1"
+                />
+              </div>
 
-            <div className="text-xl flex items-center gap-1">
-              <TokenSymbol symbol={token0.symbol} />
-              <span>/</span>
-              <TokenSymbol symbol={token1.symbol} />
+              <div className="text-xl flex items-center gap-1">
+                <TokenSymbol symbol={token0.symbol} />
+                <span>/</span>
+                <TokenSymbol symbol={token1.symbol} />
+              </div>
             </div>
 
             <div className="flex flex-wrap ml-[2px] gap-[6px] text-subText items-center">

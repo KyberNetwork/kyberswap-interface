@@ -1,8 +1,6 @@
 import { Trans } from '@lingui/macro'
-import { Flex, Text } from 'rebass'
 
 import TokenLogo from 'components/TokenLogo'
-import useTheme from 'hooks/useTheme'
 import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
 import { CustomBox } from 'pages/Earns/components/SmartExit/styles'
 import { ParsedPosition } from 'pages/Earns/types'
@@ -14,80 +12,78 @@ interface PositionLiquidityProps {
 }
 
 export default function PositionLiquidity({ position, isLoading = false }: PositionLiquidityProps) {
-  const theme = useTheme()
-
   if (isLoading || !position) {
     return (
       <CustomBox>
-        <Flex alignItems="center" justifyContent="space-between">
-          <Text color={theme.subText} fontSize={14}>
+        <div className="flex items-center justify-between">
+          <span className="text-sm text-subText">
             <Trans>Your Position Liquidity</Trans>
-          </Text>
+          </span>
           <PositionSkeleton width={80} height={20} />
-        </Flex>
-        <Flex justifyContent="space-between" alignItems="flex-start">
-          <Flex alignItems="center" sx={{ gap: '4px' }}>
+        </div>
+        <div className="flex items-start justify-between">
+          <div className="flex items-center gap-1">
             <PositionSkeleton width={16} height={16} style={{ borderRadius: '50%' }} />
             <PositionSkeleton width={40} height={16} />
-          </Flex>
-          <Flex flexDirection="column" sx={{ gap: '4px' }} alignItems="flex-end">
+          </div>
+          <div className="flex flex-col items-end gap-1">
             <PositionSkeleton width={60} height={16} />
             <PositionSkeleton width={50} height={12} />
-          </Flex>
-        </Flex>
-        <Flex justifyContent="space-between" alignItems="flex-start">
-          <Flex alignItems="center" sx={{ gap: '4px' }}>
+          </div>
+        </div>
+        <div className="flex items-start justify-between">
+          <div className="flex items-center gap-1">
             <PositionSkeleton width={16} height={16} style={{ borderRadius: '50%' }} />
             <PositionSkeleton width={40} height={16} />
-          </Flex>
-          <Flex flexDirection="column" sx={{ gap: '4px' }} alignItems="flex-end">
+          </div>
+          <div className="flex flex-col items-end gap-1">
             <PositionSkeleton width={60} height={16} />
             <PositionSkeleton width={50} height={12} />
-          </Flex>
-        </Flex>
+          </div>
+        </div>
       </CustomBox>
     )
   }
 
   return (
     <CustomBox>
-      <Flex alignItems="center" justifyContent="space-between">
-        <Text color={theme.subText} fontSize={14}>
+      <div className="flex items-center justify-between">
+        <span className="text-sm text-subText">
           <Trans>Your Position Liquidity</Trans>
-        </Text>
-        <Text>{formatDisplayNumber(position.totalValue, { style: 'currency', significantDigits: 4 })}</Text>
-      </Flex>
-      <Flex justifyContent="space-between" alignItems="flex-start">
-        <Flex alignItems="center" sx={{ gap: '4px' }}>
+        </span>
+        <span>{formatDisplayNumber(position.totalValue, { style: 'currency', significantDigits: 4 })}</span>
+      </div>
+      <div className="flex items-start justify-between">
+        <div className="flex items-center gap-1">
           <TokenLogo src={position.token0.logo} size={16} />
           {position.token0.symbol}
-        </Flex>
-        <Flex flexDirection="column" sx={{ gap: '4px' }} alignItems="flex-end">
-          <Text>{formatDisplayNumber(position.token0.currentAmount, { significantDigits: 6 })}</Text>
-          <Text fontSize={12} color={theme.subText}>
+        </div>
+        <div className="flex flex-col items-end gap-1">
+          <span>{formatDisplayNumber(position.token0.currentAmount, { significantDigits: 6 })}</span>
+          <span className="text-xs text-subText">
             {formatDisplayNumber(position.token0.price * position.token0.currentAmount, {
               style: 'currency',
               significantDigits: 6,
             })}
-          </Text>
-        </Flex>
-      </Flex>
-      <Flex justifyContent="space-between" alignItems="flex-start">
-        <Flex alignItems="center" sx={{ gap: '4px' }}>
+          </span>
+        </div>
+      </div>
+      <div className="flex items-start justify-between">
+        <div className="flex items-center gap-1">
           <TokenLogo src={position.token1.logo} size={16} />
           {position.token1.symbol}
-        </Flex>
+        </div>
 
-        <Flex flexDirection="column" sx={{ gap: '4px' }} alignItems="flex-end">
-          <Text>{formatDisplayNumber(position.token1.currentAmount, { significantDigits: 6 })}</Text>
-          <Text fontSize={12} color={theme.subText}>
+        <div className="flex flex-col items-end gap-1">
+          <span>{formatDisplayNumber(position.token1.currentAmount, { significantDigits: 6 })}</span>
+          <span className="text-xs text-subText">
             {formatDisplayNumber(position.token1.price * position.token1.currentAmount, {
               style: 'currency',
               significantDigits: 6,
             })}
-          </Text>
-        </Flex>
-      </Flex>
+          </span>
+        </div>
+      </div>
     </CustomBox>
   )
 }

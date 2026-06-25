@@ -1,174 +1,159 @@
-import { rgba } from 'polished'
-import styled, { css } from 'styled-components'
+import { cn } from 'utils/cn'
 
-export const ItemActionWrapper = styled.div`
-  position: absolute;
-  top: 4px;
-  right: 4px;
-  display: flex;
-  align-items: center;
-  z-index: 2;
-  gap: 12px;
-  padding: 4px 4px;
-  background: ${({ theme }) => rgba(theme.tableHeader, 0.9)};
-  border-radius: 8px;
-  opacity: 0;
-  transform: translateY(-4px);
-  transition: opacity 150ms ease-in-out, transform 150ms ease-in-out;
-`
+export const ItemActionWrapper = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
+  <div
+    data-ann-actions
+    className={cn(
+      'pointer-events-none absolute right-1 top-1 z-[2] flex -translate-y-1 items-center gap-3 rounded-lg bg-tableHeader/90 p-1 opacity-0 transition-[opacity,transform] duration-150 ease-in-out',
+      className,
+    )}
+    {...rest}
+  >
+    {children}
+  </div>
+)
 
-export const ItemActionButton = styled.button<{ $active?: boolean }>`
-  width: 16px;
-  height: 16px;
-  border: none;
-  background: transparent;
-  color: ${({ theme, $active }) => ($active ? theme.primary : theme.subText)};
-  padding: 0;
-  cursor: pointer;
-  &:hover {
-    color: ${({ theme, $active }) => ($active ? theme.primary : theme.text)};
-  }
-  svg {
-    width: 16px;
-    height: 16px;
-  }
-`
+export const ItemActionButton = ({
+  children,
+  className,
+  $active,
+  ...rest
+}: React.ButtonHTMLAttributes<HTMLButtonElement> & { $active?: boolean }) => (
+  <button
+    className={cn(
+      'size-4 cursor-pointer border-0 bg-transparent p-0 [&_svg]:size-4',
+      $active ? 'text-primary hover:text-primary' : 'text-subText hover:text-text',
+      className,
+    )}
+    {...rest}
+  >
+    {children}
+  </button>
+)
 
-export const PinnedBadge = styled.div`
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  color: ${({ theme }) => theme.primary};
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1;
-  svg {
-    width: 16px;
-    height: 16px;
-  }
-`
+export const PinnedBadge = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
+  <div
+    data-ann-pinned-badge
+    className={cn(
+      'absolute right-2 top-2 z-[1] flex items-center justify-center text-primary [&_svg]:size-4',
+      className,
+    )}
+    {...rest}
+  >
+    {children}
+  </div>
+)
 
-export const InboxItemWrapper = styled.div<{ isRead: boolean }>`
-  border-bottom: 1px solid ${({ theme }) => theme.border};
-  background-color: ${({ theme }) => theme.background};
-  font-size: 12px;
-  padding: 20px 16px;
-  gap: 8px;
-  display: flex;
-  flex-direction: column;
-  cursor: pointer;
-  position: relative;
-  ${({ isRead }) =>
-    !isRead
-      ? css`
-          background-color: ${({ theme }) => rgba(theme.primary, 0.1)};
-          :hover {
-            background-color: ${({ theme }) => rgba(theme.primary, 0.12)};
-          }
-        `
-      : css`
-          :hover {
-            background-color: ${({ theme }) => theme.buttonBlack};
-          }
-        `};
+export const InboxItemWrapper = ({
+  children,
+  className,
+  isRead,
+  ...rest
+}: React.HTMLAttributes<HTMLDivElement> & { isRead: boolean }) => (
+  <div
+    className={cn(
+      'relative flex cursor-pointer flex-col gap-2 border-b border-solid border-border bg-background px-4 py-5 text-xs',
+      isRead ? 'hover:bg-buttonBlack' : 'bg-primary-10 hover:bg-primary-12',
+      'hover:[&_[data-ann-actions]]:pointer-events-auto hover:[&_[data-ann-actions]]:translate-y-0 hover:[&_[data-ann-actions]]:opacity-100 hover:[&_[data-ann-pinned-badge]]:opacity-0',
+      className,
+    )}
+    {...rest}
+  >
+    {children}
+  </div>
+)
 
-  &:hover ${ItemActionWrapper} {
-    opacity: 1;
-    pointer-events: auto;
-    transform: translateY(0);
-  }
-  &:hover ${PinnedBadge} {
-    opacity: 0;
-  }
-`
+export const Title = ({
+  children,
+  className,
+  ...rest
+}: React.HTMLAttributes<HTMLDivElement> & { isRead?: boolean }) => (
+  <div className={cn('text-sm font-medium text-primary', className)} {...rest}>
+    {children}
+  </div>
+)
 
-export const Title = styled.div<{ isRead?: boolean }>`
-  font-size: 14px;
-  font-weight: 500;
-  color: ${({ theme }) => theme.primary};
-`
+export const StatusTitle = ({
+  children,
+  className,
+  isRead,
+  ...rest
+}: React.HTMLAttributes<HTMLDivElement> & { isRead?: boolean }) => (
+  <Title className={cn('flex items-center gap-1.5', isRead ? 'text-text' : 'text-primary', className)} {...rest}>
+    {children}
+  </Title>
+)
 
-export const StatusTitle = styled(Title)<{ $color?: string }>`
-  color: ${({ theme, isRead, $color }) => $color ?? (isRead ? theme.text : theme.primary)};
-  display: flex;
-  align-items: center;
-  gap: 6px;
-`
+export const PrimaryText = ({
+  children,
+  className,
+  color,
+  ...rest
+}: React.HTMLAttributes<HTMLDivElement> & { color?: string }) => (
+  <div className={cn('text-xs text-text', className)} style={color ? { color } : undefined} {...rest}>
+    {children}
+  </div>
+)
 
-export const PrimaryText = styled.div<{ color?: string }>`
-  font-size: 12px;
-  color: ${({ theme, color }) => color ?? theme.text};
-`
-export const InboxItemTime = styled.span<{ color?: string }>`
-  color: ${({ theme, color }) => color ?? theme.subText};
-`
-export const Dot = styled.span`
-  background-color: ${({ theme }) => theme.primary};
-  border-radius: 100%;
-  height: 8px;
-  width: 8px;
-`
+export const InboxItemTime = ({
+  children,
+  className,
+  color,
+  ...rest
+}: React.HTMLAttributes<HTMLSpanElement> & { color?: string }) => (
+  <span className={cn('text-subText', className)} style={color ? { color } : undefined} {...rest}>
+    {children}
+  </span>
+)
 
-export const InboxItemRow = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-`
-export const RowItem = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 6px;
-`
+export const Dot = ({ className, ...rest }: React.HTMLAttributes<HTMLSpanElement>) => (
+  <span className={cn('size-2 rounded-full bg-primary', className)} {...rest} />
+)
 
-export const StatusBadge = styled.div<{ color: string }>`
-  background-color: ${({ color }) => rgba(color, 0.1)};
-  color: ${({ color }) => color};
-  font-size: 12px;
-  font-weight: 500;
-  padding: 4px 8px;
-  border-radius: 12px;
-`
+export const InboxItemRow = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('flex items-end justify-between', className)} {...rest}>
+    {children}
+  </div>
+)
 
-export const AmountRow = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-  color: ${({ theme }) => theme.text};
-  font-size: 13px;
-  font-weight: 600;
-`
+export const RowItem = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('flex items-center gap-1.5', className)} {...rest}>
+    {children}
+  </div>
+)
 
-export const AmountItem = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 6px;
-`
+export const AmountRow = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('flex flex-wrap items-center gap-2 text-[13px] font-semibold text-text', className)} {...rest}>
+    {children}
+  </div>
+)
 
-export const DetailList = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-`
+export const AmountItem = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('flex items-center gap-1.5', className)} {...rest}>
+    {children}
+  </div>
+)
 
-export const DetailItem = styled.div`
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 6px;
-  font-size: 12px;
-  color: ${({ theme }) => theme.subText};
-`
+export const DetailList = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('flex flex-col gap-2', className)} {...rest}>
+    {children}
+  </div>
+)
 
-export const DetailValue = styled.span`
-  color: ${({ theme }) => rgba(theme.text, 0.8)};
-  font-weight: 500;
-`
+export const DetailItem = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('flex flex-wrap items-center gap-1.5 text-xs text-subText', className)} {...rest}>
+    {children}
+  </div>
+)
 
-export const MetaRow = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-`
+export const DetailValue = ({ children, className, ...rest }: React.HTMLAttributes<HTMLSpanElement>) => (
+  <span className={cn('font-medium text-text/80', className)} {...rest}>
+    {children}
+  </span>
+)
+
+export const MetaRow = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('flex items-center justify-between gap-2', className)} {...rest}>
+    {children}
+  </div>
+)

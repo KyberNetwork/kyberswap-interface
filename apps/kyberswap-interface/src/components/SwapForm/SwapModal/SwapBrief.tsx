@@ -2,19 +2,15 @@ import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import React from 'react'
 import { ArrowDown } from 'react-feather'
-import Skeleton from 'react-loading-skeleton'
-import { Flex, Text } from 'rebass'
-import styled from 'styled-components'
 
-import { AutoColumn } from 'components/Column'
 import CurrencyLogo from 'components/CurrencyLogo'
-import { RowBetween } from 'components/Row'
+import Skeleton from 'components/Skeleton'
+import { Stack } from 'components/Stack'
 import { useSwapFormContext } from 'components/SwapForm/SwapFormContext'
 import UpdatedBadge, { Props as UpdatedBadgeProps } from 'components/SwapForm/SwapModal/SwapDetails/UpdatedBadge'
 import { CHAINS_SUPPORT_FEE_CONFIGS, RESERVE_USD_DECIMALS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
-import useTheme from 'hooks/useTheme'
-import { formattedNum } from 'utils'
+import { formatDisplayNumber } from 'utils/numbers'
 
 type Props = {
   inputAmount: CurrencyAmount<Currency>
@@ -26,36 +22,6 @@ type Props = {
   currencyOut: Currency
 } & UpdatedBadgeProps
 
-const TruncatedText = styled(Text)`
-  text-overflow: ellipsis;
-  overflow: hidden;
-  font-size: 24px;
-  font-weight: 500;
-`
-
-export const CurrencyInputAmountWrapper = styled(Flex)`
-  flex-direction: column;
-  gap: 8px;
-  border-radius: 16px;
-  border: 1px solid ${({ theme }) => theme.border};
-  padding: 12px 16px;
-`
-
-export const ArrowDownWrapper = styled.div`
-  border: 1px solid ${({ theme }) => theme.border};
-  background: ${({ theme }) => theme.buttonGray};
-  border-radius: 50%;
-  width: 20px;
-  height: 20px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  position: absolute;
-  top: calc(76px - 6px);
-  left: 50%;
-  transform: translateX(-50%);
-`
-
 export default function SwapBrief({
   inputAmount,
   amountInUsd,
@@ -66,106 +32,83 @@ export default function SwapBrief({
   isLoading,
   currencyOut,
 }: Props) {
-  const theme = useTheme()
   const { chainId } = useActiveWeb3React()
   const { typedValue } = useSwapFormContext()
 
   const renderOutputAmount = () => {
     if (isLoading) {
-      return (
-        <Skeleton
-          width="108px"
-          // there's border of 1px
-          height="26.5px"
-          baseColor={theme.border}
-          highlightColor={theme.buttonGray}
-          borderRadius="80px"
-        />
-      )
+      return <Skeleton width="160px" height="32px" variant="darkSubtle" />
     }
 
     if (!outputAmountFromBuild) {
-      return <TruncatedText>--</TruncatedText>
+      return <span className="min-w-0 flex-1 truncate text-2xl font-medium">--</span>
     }
 
-    return <TruncatedText>{outputAmountFromBuild.toSignificant(RESERVE_USD_DECIMALS)}</TruncatedText>
+    return (
+      <span className="min-w-0 flex-1 truncate text-2xl font-medium">
+        {outputAmountFromBuild.toSignificant(RESERVE_USD_DECIMALS)}
+      </span>
+    )
   }
 
   const renderAmountOutUsd = () => {
     if (isLoading) {
-      return (
-        <Skeleton
-          width="64px"
-          // there's border of 1px
-          height="15px"
-          baseColor={theme.border}
-          highlightColor={theme.buttonGray}
-          borderRadius="80px"
-        />
-      )
+      return <Skeleton width="60px" height="20px" variant="darkSubtle" />
     }
 
     if (!amountOutUsdFromBuild) {
-      return (
-        <Text fontSize={14} fontWeight={500} color={theme.subText}>
-          --
-        </Text>
-      )
+      return <span className="text-sm font-medium text-subText">--</span>
     }
 
     return (
-      <Text fontSize={14} fontWeight={500} color={theme.subText}>
-        ~{formattedNum(amountOutUsdFromBuild, true)}
-      </Text>
+      <span className="text-sm font-medium text-subText">
+        ~{formatDisplayNumber(amountOutUsdFromBuild, { style: 'currency', significantDigits: 4 })}
+      </span>
     )
   }
 
   return (
-    <AutoColumn gap="sm" style={{ marginTop: '4px', position: 'relative' }}>
-      <CurrencyInputAmountWrapper>
-        <Text fontSize={12} fontWeight={500} color={theme.subText}>
+    <Stack className="min-w-0">
+      <div className="flex min-w-0 flex-col gap-2 rounded-2xl border border-solid border-border px-4 py-3">
+        <span className="text-xs font-medium text-subText">
           <Trans>Input Amount</Trans>
-        </Text>
-        <RowBetween>
-          <TruncatedText>{typedValue}</TruncatedText>
-          <Flex alignItems="center" sx={{ gap: '8px' }} minWidth="fit-content">
-            <Text fontSize={14} fontWeight={500} color={theme.subText}>
-              ~{formattedNum(amountInUsd, true)}
-            </Text>
+        </span>
+        <div className="flex w-full items-center justify-between gap-2">
+          <span className="min-w-0 flex-1 truncate text-2xl font-medium">{typedValue}</span>
+          <div className="flex min-w-fit items-center gap-2">
+            <span className="text-sm font-medium text-subText">
+              ~{formatDisplayNumber(amountInUsd, { style: 'currency', significantDigits: 4 })}
+            </span>
             <CurrencyLogo currency={inputAmount.currency} size="24px" />
-            <Text fontSize={20} fontWeight={500} color={theme.subText}>
-              {inputAmount.currency.symbol}
-            </Text>
-          </Flex>
-        </RowBetween>
-      </CurrencyInputAmountWrapper>
+            <span className="text-xl font-medium text-subText">{inputAmount.currency.symbol}</span>
+          </div>
+        </div>
+      </div>
 
-      <ArrowDownWrapper>
-        <ArrowDown size="12" color={theme.subText} />
-      </ArrowDownWrapper>
+      <div className="z-[1] my-[-6px] flex size-5 items-center justify-center self-center rounded-full border border-solid border-border bg-buttonGray">
+        <ArrowDown size="12" className="text-subText" />
+      </div>
 
-      <CurrencyInputAmountWrapper>
-        <Flex alignItems="center" style={{ gap: '4px' }}>
-          <Text fontSize={12} fontWeight={500} color={theme.subText}>
+      <div className="flex min-w-0 flex-col gap-2 rounded-2xl border border-solid border-border px-4 py-3">
+        <div className="flex items-center gap-1">
+          <span className="text-xs font-medium text-subText">
             {CHAINS_SUPPORT_FEE_CONFIGS.includes(chainId) ? (
               <Trans>Output Amount (incl. fee)</Trans>
             ) : (
               <Trans>Output Amount</Trans>
             )}
-          </Text>
+          </span>
           <UpdatedBadge $level={$level} outputAmount={outputAmount} />
-        </Flex>
-        <RowBetween>
+        </div>
+        <div className="flex w-full items-center justify-between gap-2">
           {renderOutputAmount()}
-          <Flex alignItems="center" sx={{ gap: '8px' }} minWidth="fit-content">
+          <div className="flex min-w-fit items-center gap-2">
             {renderAmountOutUsd()}
             <CurrencyLogo currency={currencyOut} size="24px" />
-            <Text fontSize={20} fontWeight={500} color={theme.subText}>
-              {currencyOut.symbol}
-            </Text>
-          </Flex>
-        </RowBetween>
-      </CurrencyInputAmountWrapper>
-    </AutoColumn>
+            <span className="text-xl font-medium text-subText">{currencyOut.symbol}</span>
+          </div>
+        </div>
+      </div>
+    </Stack>
   )
 }

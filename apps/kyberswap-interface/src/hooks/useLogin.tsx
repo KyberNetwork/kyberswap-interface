@@ -1,6 +1,5 @@
 import KyberOauth2, { AnonymousAccount, LoginMethod } from '@kyberswap/oauth2'
 import { t } from '@lingui/macro'
-import { captureException } from '@sentry/react'
 import { useCallback, useEffect, useRef } from 'react'
 import { usePrevious } from 'react-use'
 import { useGetOrCreateProfileMutation } from 'services/identity'
@@ -37,7 +36,9 @@ export const initializeOauthKyberSwap = () => {
   })
 }
 
-initializeOauthKyberSwap()
+if (typeof window !== 'undefined') {
+  initializeOauthKyberSwap()
+}
 
 const useLogin = (autoLogin = false) => {
   const { account } = useActiveWeb3React()
@@ -54,24 +55,13 @@ const useLogin = (autoLogin = false) => {
   const setProfile = useSaveUserProfile()
 
   const getProfile = useCallback(
-    async ({
-      walletAddress,
-      loginMethod,
-      account,
-    }: {
-      walletAddress: string | undefined
-      loginMethod: LoginMethod
-      account: string
-    }) => {
+    async ({ loginMethod, account }: { loginMethod: LoginMethod; account: string }) => {
       const isAnonymous = loginMethod === LoginMethod.ANONYMOUS
       try {
         const profile = await createProfile().unwrap()
         const formatProfile = { ...profile }
         setProfile({ profile: formatProfile, isAnonymous, account })
-      } catch (error) {
-        const e = new Error('createProfile Error', { cause: error })
-        e.name = 'createProfile Error'
-        captureException(e, { extra: { walletAddress, account }, level: 'warning' })
+      } catch {
         setProfile({ profile: undefined, isAnonymous, account })
       }
     },
@@ -114,14 +104,13 @@ const useLogin = (autoLogin = false) => {
       } finally {
         setLoading(false)
         await getProfile({
-          walletAddress: account,
           account: guestAccount,
           loginMethod: LoginMethod.ANONYMOUS,
         })
         !hasError && showSuccessMsg && showSignInSuccess(guestAccount, LoginMethod.ANONYMOUS)
       }
     },
-    [getProfile, setLoading, account, saveSignedAccount, showSignInSuccess],
+    [getProfile, setLoading, saveSignedAccount, showSignInSuccess],
   )
 
   // check session when sign in eth/email
@@ -137,7 +126,6 @@ const useLogin = (autoLogin = false) => {
         const respAccount = userInfo.email || userInfo.wallet_address || desireAccount
         saveSignedAccount({ account: respAccount, method: loginMethod })
         await getProfile({
-          walletAddress: respAccount,
           loginMethod,
           account: respAccount,
         })

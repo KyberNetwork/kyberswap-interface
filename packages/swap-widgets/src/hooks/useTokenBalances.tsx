@@ -1,9 +1,10 @@
-import { getFunctionSelector } from '@kyber/utils/crypto'
 import { useCallback, useEffect, useState } from 'react'
+import { directRpcFetch, ethCall, getBalance } from '@kyber/rpc-client'
+import { getFunctionSelector } from '@kyber/utils/crypto'
 import { MULTICALL_ADDRESS, NATIVE_TOKEN_ADDRESS } from '../constants'
 import { useActiveWeb3 } from './useWeb3Provider'
 
-const ERC20_BALANCE_OF_SELECTOR = getFunctionSelector('balanceOf(address)') // "70a08231"; // Function selector for "";
+const ERC20_BALANCE_OF_SELECTOR = getFunctionSelector('balanceOf(address)') // "70a08231"
 
 function encodeBytes(data: string) {
   const length = data.length / 2 // Hex string length divided by 2 for bytes
@@ -109,7 +110,7 @@ function encodeMulticallInput(requireSuccess: boolean, calls: { target: string; 
 }
 
 const useTokenBalances = (tokenAddresses: string[]) => {
-  const { chainId, connectedAccount, rpcUrl } = useActiveWeb3()
+  const { chainId, connectedAccount, rpcUrl, hasIntegratorRpcUrl } = useActiveWeb3()
   const [balances, setBalances] = useState<{ [address: string]: bigint }>({})
   const [loading, setLoading] = useState(false)
 
@@ -121,81 +122,59 @@ const useTokenBalances = (tokenAddresses: string[]) => {
     try {
       setLoading(true)
       const account = connectedAccount.address
-      const nativeBalance = await fetch(rpcUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          jsonrpc: '2.0',
-          method: 'eth_getBalance',
-          params: [
-            account, // Address
-            'latest', // Block number or state
-          ],
-          id: 1,
-        }),
-      })
-        .then(res => res.json())
-        .then(res => BigInt(res.result || '0'))
+      const multicallAddress = MULTICALL_ADDRESS[chainId]
 
-      // Prepare calls for the Multicall contract
-      const calls = tokenAddresses.map(token => {
+      // When the integrator provided an rpcUrl, dial it directly (no rotation,
+      // matches the documented contract). Otherwise rely on @kyber/rpc-client
+      // rotation seeded with DefaultRpcUrl[chainId] by Web3Provider.
+      const fetchNativeBalance = () =>
+        hasIntegratorRpcUrl
+          ? directRpcFetch<string>(rpcUrl, 'eth_getBalance', [account, 'latest']).then(r => BigInt(r))
+          : getBalance(chainId, account)
+
+      const fetchMulticall = (): Promise<string> | undefined => {
+        if (!multicallAddress || !tokenAddresses.length) return undefined
         const paddedAccount = account.replace('0x', '').padStart(64, '0')
-        const callData = `0x${ERC20_BALANCE_OF_SELECTOR}${paddedAccount}`
-        return {
-          target: token,
-          callData,
-        }
-      })
-
-      const encodedData = encodeMulticallInput(false, calls)
-
-      // Encode multicall transaction
-      const data = {
-        jsonrpc: '2.0',
-        id: 1,
-        method: 'eth_call',
-        params: [
-          {
-            to: MULTICALL_ADDRESS[chainId],
-            data: encodedData,
-          },
-          'latest',
-        ],
+        const multicallData = encodeMulticallInput(
+          false,
+          tokenAddresses.map(token => ({
+            target: token,
+            callData: `0x${ERC20_BALANCE_OF_SELECTOR}${paddedAccount}`,
+          })),
+        )
+        return hasIntegratorRpcUrl
+          ? directRpcFetch<string>(rpcUrl, 'eth_call', [{ to: multicallAddress, data: multicallData }, 'latest'])
+          : ethCall(chainId, multicallAddress, multicallData)
       }
 
-      // Send request to the RPC endpoint
-      const response = await fetch(rpcUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      })
+      // Use allSettled so a multicall failure does not discard the native balance.
+      const [nativeResult, multicallResult] = await Promise.allSettled([fetchNativeBalance(), fetchMulticall()])
 
-      const result = await response.json()
+      const balancesMap: Record<string, bigint> = {}
 
-      // Decode balances from the multicall output
-      const decodedBalances = decodeMulticallOutput(result.result)
+      if (multicallResult.status === 'fulfilled' && multicallResult.value) {
+        const decodedBalances = decodeMulticallOutput(multicallResult.value)
+        tokenAddresses.forEach((token, index) => {
+          balancesMap[token] = decodedBalances[index]
+        })
+      } else if (multicallResult.status === 'rejected') {
+        console.error('[swap-widgets] Failed to fetch ERC20 balances:', multicallResult.reason)
+      }
 
-      // Map balances to token addresses
-      const balancesMap = tokenAddresses.reduce(
-        (acc, token, index) => ({
-          ...acc,
-          [token]: decodedBalances[index],
-        }),
-        {} as Record<string, bigint>,
-      )
-      balancesMap[NATIVE_TOKEN_ADDRESS] = nativeBalance
+      if (nativeResult.status === 'fulfilled') {
+        balancesMap[NATIVE_TOKEN_ADDRESS] = nativeResult.value
+      } else {
+        console.error('[swap-widgets] Failed to fetch native balance:', nativeResult.reason)
+      }
 
       setBalances(balancesMap)
-      setLoading(false)
     } catch (e) {
+      console.error('[swap-widgets] Failed to fetch token balances:', e)
+    } finally {
       setLoading(false)
     }
     //eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [rpcUrl, connectedAccount.address, chainId, JSON.stringify(tokenAddresses)])
+  }, [rpcUrl, hasIntegratorRpcUrl, connectedAccount.address, chainId, JSON.stringify(tokenAddresses)])
 
   useEffect(() => {
     fetchBalances()

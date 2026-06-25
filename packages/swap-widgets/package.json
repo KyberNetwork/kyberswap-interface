@@ -1,7 +1,7 @@
 {
   "name": "@kyberswap/widgets",
   "license": "MIT",
-  "version": "2.3.0",
+  "version": "2.4.0",
   "type": "module",
   "scripts": {
     "dev": "tsup --watch",
@@ -20,6 +20,7 @@
   },
   "devDependencies": {
     "@kyber/hooks": "workspace:*",
+    "@kyber/rpc-client": "workspace:*",
     "@kyber/svgr-esbuild-plugin": "workspace:*",
     "@kyber/typescript-config": "workspace:*",
     "@kyber/ui": "workspace:*",
@@ -27,8 +28,8 @@
     "@types/lodash": "^4.14.196",
     "@types/lodash.throttle": "^4.1.9",
     "@types/node": "^22.10.7",
-    "@types/react": "^18.0.17",
-    "@types/react-dom": "^18.0.6",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
     "@types/styled-components": "5.1.26",
     "eslint": "^8.37.0",
     "eslint-config-prettier": "^8.8.0",

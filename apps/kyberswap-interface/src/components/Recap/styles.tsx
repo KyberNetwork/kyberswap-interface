@@ -1,138 +1,87 @@
-import { rgba } from 'polished'
-import { Flex, Text } from 'rebass'
-import styled from 'styled-components'
-
 import kyberBanner from 'assets/banners/kyber-banner.png'
 import { ButtonPrimary } from 'components/Button'
 import Input from 'components/Input'
 import { ButtonText } from 'theme'
+import { cn } from 'utils/cn'
 
-export const ModalContent = styled(Flex)`
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: center;
-  gap: 24px;
-  width: 100%;
-  min-height: 100%;
-  padding: 24px;
-  position: relative;
-  overflow: hidden;
-  z-index: 1;
-  background: url(${kyberBanner});
-  background-size: cover;
-  background-repeat: no-repeat;
+export const ModalContent = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
+  <div
+    className={cn(
+      'relative z-[1] flex min-h-full w-full flex-col items-start justify-center gap-6 overflow-hidden bg-cover bg-no-repeat p-6 max-[640px]:p-4 max-[480px]:p-3.5',
+      className,
+    )}
+    style={{ backgroundImage: `url(${kyberBanner})` }}
+    {...rest}
+  >
+    {children}
+  </div>
+)
 
-  @media screen and (max-width: 640px) {
-    padding: 16px;
-  }
+export const BackgroundOverlay = ({ className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('pointer-events-none absolute inset-0 z-[1] bg-black/60', className)} {...rest} />
+)
 
-  @media screen and (max-width: 480px) {
-    padding: 14px;
-  }
-`
+export const TitleWrapper = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('z-[2] flex w-full flex-col gap-2', className)} {...rest}>
+    {children}
+  </div>
+)
 
-export const BackgroundOverlay = styled.div`
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: ${({ theme }) => rgba(theme.black, 0.6)};
-  z-index: 1;
-  pointer-events: none;
-`
+export const Title = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('text-left text-lg font-medium leading-6 text-primary', className)} {...rest}>
+    {children}
+  </div>
+)
 
-export const TitleWrapper = styled(Flex)`
-  flex-direction: column;
-  gap: 8px;
-  width: 100%;
-  z-index: 2;
-`
+export const Description = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('self-stretch text-left text-sm font-normal italic text-white/[0.48]', className)} {...rest}>
+    {children}
+  </div>
+)
 
-export const Title = styled(Text)`
-  font-size: 18px;
-  font-weight: 500;
-  line-height: 24px;
-  text-align: left;
-  color: ${({ theme }) => theme.primary};
-`
+export const InputWrapper = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('z-[2] flex w-full flex-col gap-1', className)} {...rest}>
+    {children}
+  </div>
+)
 
-export const Description = styled(Text)`
-  font-size: 14px;
-  font-weight: 400;
-  color: ${({ theme }) => rgba(theme.white, 0.48)};
-  text-align: left;
-  font-style: italic;
-  align-self: stretch;
-`
+export const InputLabel = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('w-full self-stretch text-base font-normal leading-6 text-text', className)} {...rest}>
+    {children}
+  </div>
+)
 
-export const InputWrapper = styled.div`
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  z-index: 2;
-`
+export const StyledInput = ({ className, ...rest }: React.ComponentProps<typeof Input>) => (
+  <Input
+    className={cn(
+      'w-full self-stretch rounded-2xl border-0 bg-black/[0.64] px-4 py-3 text-base leading-6 text-text [font-feature-settings:"liga"_off,"clig"_off] placeholder:text-base placeholder:text-border',
+      className,
+    )}
+    {...rest}
+  />
+)
 
-export const InputLabel = styled(Text)`
-  font-size: 16px;
-  font-weight: 400;
-  line-height: 24px;
-  color: ${({ theme }) => theme.text};
-  width: 100%;
-  align-self: stretch;
-`
+export const ViewButton = ({ children, className, ...rest }: React.ComponentProps<typeof ButtonPrimary>) => (
+  <ButtonPrimary
+    className={cn(
+      'z-[2] mx-auto -mt-1 flex w-fit items-center justify-center gap-1 px-[18px] py-2.5 text-sm font-medium leading-5 transition-all duration-200 ease-out',
+      className,
+    )}
+    style={{ color: '#0f0f0f' }}
+    {...rest}
+  >
+    {children}
+  </ButtonPrimary>
+)
 
-export const StyledInput = styled(Input)`
-  width: 100%;
-  padding: 12px 16px;
-  align-self: stretch;
-  border-radius: 16px;
-  background: ${({ theme }) => rgba(theme.black, 0.64)};
-  font-feature-settings: 'liga' off, 'clig' off;
-  font-size: 16px;
-  line-height: 24px;
-  color: ${({ theme }) => theme.text};
-  border: none;
-
-  ::placeholder {
-    color: ${({ theme }) => theme.border};
-    font-size: 16px;
-  }
-`
-
-export const ViewButton = styled(ButtonPrimary)`
-  width: fit-content;
-  padding: 10px 18px;
-  margin: -4px auto 0;
-  font-size: 14px;
-  font-weight: 500;
-  line-height: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #0f0f0f;
-  gap: 4px;
-  z-index: 2;
-  transition: all 0.2s ease-out;
-`
-
-export const CloseButton = styled(ButtonText)`
-  line-height: 0;
-  padding: 0;
-  position: absolute;
-  top: 24px;
-  right: 24px;
-  z-index: 3;
-  color: ${({ theme }) => theme.subText};
-
-  @media screen and (max-width: 640px) {
-    top: 16px;
-    right: 16px;
-  }
-
-  @media screen and (max-width: 480px) {
-    top: 12px;
-    right: 12px;
-  }
-`
+export const CloseButton = ({ children, className, ...rest }: React.ComponentProps<typeof ButtonText>) => (
+  <ButtonText
+    className={cn(
+      'absolute right-6 top-6 z-[3] p-0 leading-none text-subText max-[640px]:right-4 max-[640px]:top-4 max-[480px]:right-3 max-[480px]:top-3',
+      className,
+    )}
+    {...rest}
+  >
+    {children}
+  </ButtonText>
+)

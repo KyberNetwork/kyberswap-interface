@@ -1,23 +1,10 @@
 import { useMemo } from 'react'
 import { useLocation } from 'react-router'
-import styled from 'styled-components'
 
 import { DEFAULT_LOCALE, SupportedLocale, getLocaleLabel } from 'constants/locales'
 import { navigatorLocale, useActiveLocale } from 'hooks/useActiveLocale'
 import useParsedQueryString from 'hooks/useParsedQueryString'
-import { StyledInternalLink, TYPE } from 'theme'
-
-const Container = styled(TYPE.small)`
-  opacity: 0.6;
-  :hover {
-    opacity: 1;
-  }
-  margin-top: 1rem !important;
-
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    display: none;
-  `};
-`
+import { StyledInternalLink } from 'theme'
 
 export function SwitchLocaleLink() {
   const activeLocale = useActiveLocale()
@@ -39,9 +26,9 @@ export function SwitchLocaleLink() {
     }
 
     return (
-      <Container>
+      <p className="m-0 mt-4 text-[11px] font-medium leading-[normal] opacity-60 hover:opacity-100 max-md:hidden">
         KyberSwap available in: {<StyledInternalLink to={target}>{getLocaleLabel(targetLocale)}</StyledInternalLink>}
-      </Container>
+      </p>
     )
   }
 

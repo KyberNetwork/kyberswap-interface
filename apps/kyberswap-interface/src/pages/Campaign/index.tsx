@@ -2,30 +2,31 @@ import { Trans, t } from '@lingui/macro'
 import { useEffect, useMemo, useState } from 'react'
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
-import { Flex, Text } from 'rebass'
 
 import { ButtonPrimary } from 'components/Button'
+import { HiddenH1, HiddenH2 } from 'components/Seo/HiddenSeoHeadings'
+import NonEvmProviders from 'components/Web3Provider/NonEvmProviders'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
+import CampaignStats from 'pages/Campaign/components/CampaignStats'
+import RaffleCampaignStats from 'pages/Campaign/components/CampaignStats/RaffleCampaignStats'
+import SafePalCampaignStats, { SafePalClaim } from 'pages/Campaign/components/CampaignStats/SafePalCampaignStats'
+import Information from 'pages/Campaign/components/Information'
+import JoinCampaignModal from 'pages/Campaign/components/JoinCampaignModal'
+import JoinReferral from 'pages/Campaign/components/JoinReferral'
+import Leaderboard from 'pages/Campaign/components/Leaderboard'
+import RaffleLeaderboard from 'pages/Campaign/components/Leaderboard/RaffleLeaderboard'
+import SafePalLeaderboard from 'pages/Campaign/components/Leaderboard/SafePalLeaderboard'
+import RaffleRewardModal from 'pages/Campaign/components/RaffleRewardModal'
+import WeekSelect from 'pages/Campaign/components/WeekSelect'
+import { CampaignType, campaignConfig } from 'pages/Campaign/constants'
+import { useNearIntentSelectedWallet } from 'pages/Campaign/hooks/useNearIntentSelectedWallet'
+import { useRaffleCampaignJoin } from 'pages/Campaign/hooks/useRaffleCampaignJoin'
+import { useSafePalCampaignJoin } from 'pages/Campaign/hooks/useSafePalCampaignJoin'
+import { StatCard, Tab, Tabs, Wrapper } from 'pages/Campaign/styles'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { MEDIA_WIDTHS, StyledInternalLink } from 'theme'
-
-import CampaignStats from './components/CampaignStats'
-import RaffleCampaignStats from './components/CampaignStats/RaffleCampaignStats'
-import SafePalCampaignStats, { SafePalClaim } from './components/CampaignStats/SafePalCampaignStats'
-import Information from './components/Information'
-import JoinCampaignModal from './components/JoinCampaignModal'
-import JoinReferral from './components/JoinReferral'
-import Leaderboard from './components/Leaderboard'
-import RaffleLeaderboard from './components/Leaderboard/RaffleLeaderboard'
-import SafePalLeaderboard from './components/Leaderboard/SafePalLeaderboard'
-import RaffleRewardModal from './components/RaffleRewardModal'
-import WeekSelect from './components/WeekSelect'
-import { CampaignType, campaignConfig } from './constants'
-import { useNearIntentSelectedWallet } from './hooks/useNearIntentSelectedWallet'
-import { useRaffleCampaignJoin } from './hooks/useRaffleCampaignJoin'
-import { useSafePalCampaignJoin } from './hooks/useSafePalCampaignJoin'
-import { StatCard, Tab, Tabs, Wrapper } from './styles'
+import { cn } from 'utils/cn'
 
 enum TabKey {
   Information = 'information',
@@ -43,7 +44,7 @@ const CAMPAIGN_TYPE_BY_PATHNAME: Record<string, CampaignType> = {
   [APP_PATHS.REFFERAL_CAMPAIGN]: CampaignType.Referrals,
 }
 
-export default function CampaignPage() {
+function CampaignPageContent() {
   const navigate = useNavigate()
   const { pathname } = useLocation()
   const [searchParams, setSearchParams] = useSearchParams()
@@ -124,37 +125,27 @@ export default function CampaignPage() {
   }
 
   return (
-    <Wrapper>
-      <img src={banner} width="100%" alt="banner" style={{ borderRadius: '12px' }} />
-      <Flex justifyContent="space-between" alignItems="center" marginTop="1.5rem">
-        <Text fontSize={24} fontWeight="500">
-          {title}
-        </Text>
+    <Wrapper className="animate-[fadeInUp_0.5s_ease-out_both] motion-reduce:animate-none">
+      <HiddenH1>Earn bonus rewards and incentives while you swap, provide liquidity, or trade.</HiddenH1>
+      <HiddenH2>Join active campaigns across supported chains - no lock-up required.</HiddenH2>
+      <img src={banner} width="100%" alt="banner" className="rounded-xl" />
+      <div className="mt-6 flex items-center justify-between">
+        <span className="text-2xl font-medium">{title}</span>
 
         {isReferralCampaign && <JoinReferral />}
         {isRaffleNotEligible && (
-          <StatCard style={{ padding: '8px 16px' }}>
-            <Text fontSize={14} color="error" textAlign="right">
+          <StatCard className="px-4 py-2">
+            <span className="block text-right text-sm text-red">
               <Trans>
-                You are{' '}
-                <Text as="span" fontWeight="500" color="white">
-                  not eligible
-                </Text>{' '}
-                for this campaign
+                You are <span className="font-medium text-white">not eligible</span> for this campaign
               </Trans>
-            </Text>
+            </span>
           </StatCard>
         )}
-      </Flex>
+      </div>
 
       {!isReferralCampaign && (
-        <Flex
-          justifyContent="space-between"
-          marginTop="1rem"
-          alignItems="center"
-          flexDirection={upToExtraSmall ? 'column' : 'row'}
-          sx={{ gap: '1rem' }}
-        >
+        <div className={cn('mt-4 flex items-center justify-between gap-4', upToExtraSmall ? 'flex-col' : 'flex-row')}>
           <WeekSelect type={type} selectedWeek={selectedWeek} setSelectedWeek={setSelectedWeek} />
 
           {isSafePalCampaign && isSafePalJoined ? (
@@ -185,7 +176,7 @@ export default function CampaignPage() {
               {isRaffleJoinedByWeek || isSafePalJoined ? t`Joined` : ctaText}
             </ButtonPrimary>
           )}
-        </Flex>
+        </div>
       )}
 
       {isRaffleCampaign ? (
@@ -197,7 +188,7 @@ export default function CampaignPage() {
       )}
       {isSafePalCampaign && <SafePalClaim selectedWeek={selectedWeek} />}
 
-      <Flex justifyContent="space-between" alignItems="center" marginTop="1rem" flexWrap="wrap" sx={{ gap: '1rem' }}>
+      <div className="mt-4 flex flex-wrap items-center justify-between gap-4">
         <Tabs>
           <Tab
             role="button"
@@ -236,7 +227,7 @@ export default function CampaignPage() {
         <StyledInternalLink to={`${APP_PATHS.MY_DASHBOARD}?tab=${type}`}>
           <Trans>[ My Dashboard ]</Trans>
         </StyledInternalLink>
-      </Flex>
+      </div>
 
       {tab === TabKey.Information && <Information type={type} selectedWeek={selectedWeek} />}
 
@@ -293,5 +284,13 @@ export default function CampaignPage() {
         />
       )}
     </Wrapper>
+  )
+}
+
+export default function CampaignPage() {
+  return (
+    <NonEvmProviders>
+      <CampaignPageContent />
+    </NonEvmProviders>
   )
 }

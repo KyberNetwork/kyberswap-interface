@@ -1,12 +1,10 @@
 import { Trans } from '@lingui/macro'
 import { X } from 'react-feather'
 import { useNavigate } from 'react-router'
-import { Flex, Text } from 'rebass'
 
 import { ButtonOutlined, ButtonPrimary } from 'components/Button'
 import { CheckCircle } from 'components/Icons'
 import { APP_PATHS } from 'constants/index'
-import useTheme from 'hooks/useTheme'
 
 export default function Success({
   onDismiss,
@@ -15,29 +13,28 @@ export default function Success({
   onDismiss: () => void
   onCloseSmartExit: () => void
 }) {
-  const theme = useTheme()
   const navigate = useNavigate()
 
   return (
     <>
-      <Flex justifyContent="space-between" alignItems="center">
+      <div className="flex items-center justify-between">
         <div />
         <X onClick={onCloseSmartExit} />
-      </Flex>
+      </div>
 
-      <Flex justifyContent="center" alignItems="center" sx={{ gap: '8px' }} fontSize={20} fontWeight={500}>
-        <CheckCircle color={theme.primary} size="20px" />
+      <div className="flex items-center justify-center gap-2 text-xl font-medium">
+        <CheckCircle className="text-primary" size="20px" />
 
-        <Text>
+        <span>
           <Trans>Condition saved</Trans>
-        </Text>
-      </Flex>
+        </span>
+      </div>
 
-      <Text mt="24px" color={theme.subText} fontSize={14}>
+      <p className="mt-6 text-sm text-subText">
         <Trans>Your Smart Exit condition has been created successfully.</Trans>
-      </Text>
+      </p>
 
-      <Flex sx={{ gap: '12px' }} mt="24px">
+      <div className="mt-6 flex gap-3">
         <ButtonOutlined onClick={onDismiss} flex={1}>
           <Trans>Cancel</Trans>
         </ButtonOutlined>
@@ -50,7 +47,7 @@ export default function Success({
         >
           <Trans>View All Condition(s)</Trans>
         </ButtonPrimary>
-      </Flex>
+      </div>
     </>
   )
 }

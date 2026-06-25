@@ -1,9 +1,6 @@
 import { Trans, t } from '@lingui/macro'
-import { rgba } from 'polished'
 import { useCallback, useEffect, useState } from 'react'
 import { Check } from 'react-feather'
-import { Flex, Text } from 'rebass'
-import styled from 'styled-components'
 
 import { ReactComponent as TimerIcon } from 'assets/svg/clock_timer.svg'
 import Column from 'components/Column'
@@ -13,46 +10,15 @@ import Loader from 'components/Loader'
 import { CancelStatus } from 'components/swapv2/LimitOrder/Modals/CancelOrderModal'
 import { DOCS_LINKS } from 'components/swapv2/LimitOrder/const'
 import useInterval from 'hooks/useInterval'
-import useTheme from 'hooks/useTheme'
 import { ExternalLink } from 'theme'
 import { TransactionFlowState } from 'types/TransactionFlowState'
+import { cn } from 'utils/cn'
 import { friendlyError } from 'utils/errorMessage'
 import { formatRemainTime } from 'utils/time'
 
-const SuccessIcon = styled.div`
-  background: ${({ theme }) => rgba(theme.primary, 0.3)};
-  border-radius: 50%;
-  width: 20px;
-  height: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-`
-
-const CountDownWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  background: ${({ theme }) => rgba(theme.buttonBlack, 0.3)};
-  border-radius: 16px;
-  padding: 12px;
-  align-items: center;
-`
-
-const Timer = styled.div`
-  color: ${({ theme }) => theme.red};
-  font-size: 18px;
-  font-weight: 500;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-`
-
-const ErrorWrapper = styled(CountDownWrapper)`
-  flex-direction: row;
-  justify-content: center;
-  min-height: 50px;
-`
+const CountDownWrapper = ({ children, className }: { children: React.ReactNode; className?: string }) => (
+  <div className={cn('flex flex-col items-center gap-2 rounded-2xl bg-buttonBlack/30 p-3', className)}>{children}</div>
+)
 
 export default function CancelStatusCountDown({
   expiredTime,
@@ -67,8 +33,6 @@ export default function CancelStatusCountDown({
 }) {
   const { errorMessage, attemptingTxn } = flowState
   const pendingText = flowState.pendingText || t`Canceling order`
-
-  const theme = useTheme()
 
   const [remain, setRemain] = useState(0)
   const isCountDown = cancelStatus === CancelStatus.COUNTDOWN
@@ -91,39 +55,37 @@ export default function CancelStatusCountDown({
 
   const contentCountDown = isCountDown ? (
     <CountDownWrapper>
-      <Text fontSize={'14px'} fontWeight={'400'} color={theme.text}>
+      <span className="text-sm font-normal text-text">
         <Trans>Order will be automatically cancelled in</Trans>
-      </Text>
-      <Timer>
-        <Clock color={theme.red} size={16} /> <Text lineHeight={'20px'}>{formatRemainTime(remain)}</Text>
-      </Timer>
-      <Text fontSize={'10px'} fontWeight={'400'} color={theme.subText}>
+      </span>
+      <div className="flex items-center gap-1.5 text-lg font-medium text-red">
+        <Clock className="text-red" size={16} /> <span className="leading-5">{formatRemainTime(remain)}</span>
+      </div>
+      <span className="text-[10px] font-normal text-subText">
         <Trans>*There is a possibility that the order might be filled before cancellation.</Trans>{' '}
         <ExternalLink href={DOCS_LINKS.CANCEL_GUIDE}>
           <Trans>Learn more ↗︎</Trans>
         </ExternalLink>
-      </Text>
+      </span>
     </CountDownWrapper>
   ) : null
 
   if (errorMessage || attemptingTxn)
     return (
-      <Column gap="14px">
+      <Column className="gap-[14px]">
         {contentCountDown}
-        <ErrorWrapper>
+        <CountDownWrapper className="min-h-[50px] flex-row justify-center">
           {errorMessage ? (
             <>
-              <WarningIcon color={theme.red} />
-              <Text fontSize={'14px'} color={theme.red}>
-                {friendlyError(errorMessage)}
-              </Text>
+              <WarningIcon className="text-red" />
+              <span className="text-sm text-red">{friendlyError(errorMessage)}</span>
             </>
           ) : (
             <>
-              <Loader /> <Text fontSize={'14px'}>{pendingText}</Text>
+              <Loader /> <span className="text-sm">{pendingText}</span>
             </>
           )}
-        </ErrorWrapper>
+        </CountDownWrapper>
       </Column>
     )
 
@@ -134,24 +96,24 @@ export default function CancelStatusCountDown({
   return (
     <CountDownWrapper>
       {cancelStatus === CancelStatus.TIMEOUT ? (
-        <Flex fontSize={'14px'} fontWeight={'400'} color={theme.red} alignItems={'center'} sx={{ gap: '4px' }}>
+        <div className="flex items-center gap-1 text-sm font-normal text-red">
           <TimerIcon />{' '}
-          <Flex sx={{ gap: '4px' }}>
+          <div className="flex gap-1">
             <Trans>Your request has timed out.</Trans>{' '}
-            <Text fontSize={'10px'} fontWeight={'400'} alignSelf={'flex-end'}>
+            <span className="self-end text-[10px] font-normal">
               <ExternalLink href={DOCS_LINKS.CANCEL_GUIDE}>
                 <Trans>Learn more ↗︎</Trans>
               </ExternalLink>
-            </Text>
-          </Flex>
-        </Flex>
+            </span>
+          </div>
+        </div>
       ) : cancelStatus === CancelStatus.CANCEL_DONE ? (
-        <Flex fontSize={'14px'} fontWeight={'400'} color={theme.primary} alignItems={'center'} sx={{ gap: '6px' }}>
-          <SuccessIcon>
+        <div className="flex items-center gap-1.5 text-sm font-normal text-primary">
+          <div className="flex size-5 items-center justify-center rounded-full bg-primary-30">
             <Check size={14} />
-          </SuccessIcon>{' '}
+          </div>{' '}
           <Trans>Order has been successfully cancelled.</Trans>
-        </Flex>
+        </div>
       ) : null}
     </CountDownWrapper>
   )

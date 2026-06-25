@@ -1,17 +1,12 @@
-import { BigNumber } from '@ethersproject/bignumber'
-import { TransactionResponse } from '@ethersproject/providers'
 import { ZERO } from '@kyberswap/ks-sdk-classic'
 import { Currency, CurrencyAmount, Percent, WETH } from '@kyberswap/ks-sdk-core'
 import { FeeAmount, NonfungiblePositionManager } from '@kyberswap/ks-sdk-elastic'
 import { Trans, t } from '@lingui/macro'
-import { captureException } from '@sentry/react'
 import JSBI from 'jsbi'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { AlertTriangle } from 'react-feather'
 import { Navigate, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { useMedia, usePrevious } from 'react-use'
-import { Flex, Text } from 'rebass'
-import styled from 'styled-components'
 
 import RangeBadge from 'components/Badge/RangeBadge'
 import { ButtonConfirmed, ButtonPrimary } from 'components/Button'
@@ -29,15 +24,14 @@ import ProAmmPooledTokens from 'components/ProAmm/ProAmmPooledTokens'
 import { RowBetween } from 'components/Row'
 import Slider from 'components/Slider'
 import { SLIPPAGE_EXPLANATION_URL } from 'components/SlippageWarningNote'
-import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
+import { TextDashed } from 'components/Text'
+import { MouseoverTooltip } from 'components/Tooltip'
 import TransactionConfirmationModal, {
   ConfirmationModalContent,
   TransactionErrorContent,
 } from 'components/TransactionConfirmationModal'
 import { TutorialType } from 'components/Tutorial'
-import FarmV21ABI from 'constants/abis/v2/farmv2.1.json'
-import FarmV2ABI from 'constants/abis/v2/farmv2.json'
-import { didUserReject } from 'constants/connectors/utils'
+import { FarmV2ABI, FarmV21ABI, farmV1ABI } from 'constants/abis'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import {
   useProAmmNFTPositionManagerReadingContract,
@@ -49,21 +43,6 @@ import { useProAmmPositionsFromTokenId } from 'hooks/useProAmmPositions'
 import useTheme from 'hooks/useTheme'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
 import { MaxButton as MaxBtn } from 'pages/RemoveLiquidity/styled'
-import { useWalletModalToggle } from 'state/application/hooks'
-import { Field } from 'state/burn/proamm/actions'
-import { useBurnProAmmActionHandlers, useBurnProAmmState, useDerivedProAmmBurnInfo } from 'state/burn/proamm/hooks'
-import { useSingleCallResult } from 'state/multicall/hooks'
-import { useTokenPrices } from 'state/tokenPrices/hooks'
-import { useTransactionAdder } from 'state/transactions/hooks'
-import { TRANSACTION_TYPE } from 'state/transactions/type'
-import { useUserSlippageTolerance } from 'state/user/hooks'
-import { ExternalLink, MEDIA_WIDTHS, TYPE } from 'theme'
-import { basisPointsToPercent, buildFlagsForFarmV21, calculateGasMargin, formattedNum, isAddressString } from 'utils'
-import { formatDollarAmount } from 'utils/numbers'
-import { ErrorName } from 'utils/sentry'
-import { SLIPPAGE_STATUS, checkRangeSlippage, checkWarningSlippage, formatSlippage } from 'utils/slippage'
-import useDebouncedChangeHandler from 'utils/useDebouncedChangeHandler'
-
 import {
   AmoutToRemoveContent,
   Container,
@@ -73,83 +52,76 @@ import {
   SecondColumn,
   TokenId,
   TokenInputWrapper,
-} from './styled'
+} from 'pages/RemoveLiquidityProAmm/styled'
+import { useWalletModalToggle } from 'state/application/hooks'
+import { Field } from 'state/burn/proamm/actions'
+import { useBurnProAmmActionHandlers, useBurnProAmmState, useDerivedProAmmBurnInfo } from 'state/burn/proamm/hooks'
+import { useSingleCallResult } from 'state/multicall/hooks'
+import { useTokenPrices } from 'state/tokenPrices/hooks'
+import { useTransactionAdder } from 'state/transactions/hooks'
+import { TRANSACTION_TYPE } from 'state/transactions/type'
+import { useUserSlippageTolerance } from 'state/user/hooks'
+import { ExternalLink, MEDIA_WIDTHS } from 'theme'
+import { basisPointsToPercent, buildFlagsForFarmV21, formattedNum, isAddressString } from 'utils'
+import { cn } from 'utils/cn'
+import { formatDollarAmount } from 'utils/numbers'
+import { sendEVMTransaction } from 'utils/sendTransaction'
+import { SLIPPAGE_STATUS, checkRangeSlippage, checkWarningSlippage, formatSlippage } from 'utils/slippage'
+import { ErrorName } from 'utils/transactionError'
+import useDebouncedChangeHandler from 'utils/useDebouncedChangeHandler'
+import { encodeFunctionData } from 'utils/viem'
 
-const TextUnderlineColor = styled(Text)`
-  border-bottom: 1px solid ${({ theme }) => theme.text};
-  width: fit-content;
-  display: inline;
-  cursor: pointer;
-  color: ${({ theme }) => theme.text};
-  font-weight: 500;
-`
+const TextUnderlineColor = ({
+  children,
+  className,
+  ...rest
+}: React.AnchorHTMLAttributes<HTMLAnchorElement> & { as?: 'a' }) => (
+  <a
+    className={cn('inline w-fit cursor-pointer border-b border-solid border-text font-medium text-text', className)}
+    {...rest}
+  >
+    {children}
+  </a>
+)
 
-const TextUnderlineTransparent = styled(Text)`
-  border-bottom: 1px solid transparent;
-  width: fit-content;
-  display: inline;
-`
+const TextUnderlineTransparent = ({ children, className, ...rest }: React.HTMLAttributes<HTMLSpanElement>) => (
+  <span className={cn('ml-[0.5ch] inline w-fit border-b border-solid border-transparent', className)} {...rest}>
+    {children}
+  </span>
+)
 
-const MaxButton = styled(MaxBtn)`
-  margin: 0;
-  flex: unset;
-  padding: 0.375rem 0.75rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  height: max-content;
-  width: max-content;
-  background: transparent;
-  border-color: ${({ theme }) => theme.border};
-  color: ${({ theme }) => theme.subText};
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    padding: 0.375rem 0.75rem;
-    font-size: 0.875rem;
-  `}
-
-  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
-    padding: 0.25rem 0.5rem;
-    font-size: 0.75rem;
-    flex: 1;
-  `}
-`
-
-const MaxButtonGroup = styled(Flex)`
-  gap: 0.5rem;
-  justify-content: flex-end;
-  flex: 1;
-
-  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
-    gap: 0.25rem
-  `}
-`
-
-const PercentText = styled(Text)`
-  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
-    font-size: 28px !important;
-    min-width: 72px !important;
-  `}
-`
+const MaxButton = ({ children, className, ...rest }: React.ButtonHTMLAttributes<HTMLButtonElement>) => (
+  <MaxBtn
+    className={cn(
+      'm-0 size-max flex-none border-border bg-transparent px-3 py-1.5 text-sm font-medium text-subText max-sm:flex-1 max-sm:px-2 max-sm:py-1 max-sm:text-xs',
+      className,
+    )}
+    {...rest}
+  >
+    {children}
+  </MaxBtn>
+)
 
 export default function RemoveLiquidityProAmm() {
   const { tokenId } = useParams()
 
   const location = useLocation()
   const parsedTokenId = useMemo(() => {
+    if (!tokenId) return null
     try {
-      return BigNumber.from(tokenId)
+      return BigInt(tokenId)
     } catch {
       return null
     }
   }, [tokenId])
 
-  if (parsedTokenId === null || parsedTokenId.eq(0)) {
+  if (parsedTokenId === null || parsedTokenId === 0n) {
     return <Navigate to={{ ...location, pathname: '/myPools' }} />
   }
   return <Remove tokenId={parsedTokenId} />
 }
 
-function Remove({ tokenId }: { tokenId: BigNumber }) {
+function Remove({ tokenId }: { tokenId: bigint }) {
   const { position } = useProAmmPositionsFromTokenId(tokenId)
   const positionManager = useProAmmNFTPositionManagerReadingContract()
   const theme = useTheme()
@@ -157,11 +129,11 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
 
   const { networkInfo, account, chainId } = useActiveWeb3React()
 
-  const { library } = useWeb3React()
+  const { isSmartConnector } = useWeb3React()
   const toggleWalletModal = useWalletModalToggle()
   const [removeLiquidityError, setRemoveLiquidityError] = useState<string>('')
 
-  const owner = useSingleCallResult(!!tokenId ? positionManager : null, 'ownerOf', [tokenId.toNumber()]).result?.[0]
+  const owner = useSingleCallResult(!!tokenId ? positionManager : null, 'ownerOf', [tokenId]).result?.[0]
   const isFarmV2 = networkInfo.elastic.farmV2S?.map(item => item.toLowerCase()).includes(owner?.toLowerCase())
   const isFarmV21 = networkInfo.elastic['farmV2.1S']?.map(item => item.toLowerCase()).includes(owner?.toLowerCase())
   const isDynamicFarm = networkInfo.elastic.farms.flat().includes(isAddressString(owner))
@@ -203,7 +175,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
   const currency1IsETHER = !!(chainId && liquidityValue1?.currency.isNative)
   const currency1IsWETH = !!(chainId && liquidityValue1?.currency.equals(WETH[chainId]))
   const { onUserInput } = useBurnProAmmActionHandlers()
-  const removed = position?.liquidity?.eq(0)
+  const removed = position?.liquidity === 0n
 
   const poolAddress = useProAmmPoolInfo(
     positionSDK?.pool?.token0,
@@ -270,7 +242,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
   const farmV2Contract = useSigningContract(farmV2Address, FarmV2ABI)
   const farmV21Contract = useSigningContract(isFarmV21 ? owner : undefined, FarmV21ABI)
 
-  const handleBroadcastRemoveSuccess = (response: TransactionResponse) => {
+  const handleBroadcastRemoveSuccess = (response: { hash: string }) => {
     setAttemptingTxn(false)
     const tokenAmountIn = liquidityValue0?.toSignificant(6)
     const tokenAmountOut = liquidityValue1?.toSignificant(6)
@@ -295,8 +267,17 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
 
   const burnFromFarm = async () => {
     const contract = isFarmV21 ? farmV21Contract : isFarmV2 ? farmV2Contract : farmV1Contract
+    const abi = isFarmV21 ? FarmV21ABI : isFarmV2 ? FarmV2ABI : farmV1ABI
 
-    if (!contract || !liquidityValue0 || !liquidityValue1 || !deadline || !positionSDK || !liquidityPercentage) {
+    if (
+      !contract ||
+      !liquidityValue0 ||
+      !liquidityValue1 ||
+      !deadline ||
+      !positionSDK ||
+      !liquidityPercentage ||
+      !account
+    ) {
       return
     }
 
@@ -304,47 +285,57 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
       const amount0Min = liquidityValue0?.subtract(liquidityValue0.multiply(basisPointsToPercent(allowedSlippage)))
       const amount1Min = liquidityValue1?.subtract(liquidityValue1.multiply(basisPointsToPercent(allowedSlippage)))
 
-      const params = isFarmV21
+      const tokenIdArg = tokenId
+      const liquidityArg = BigInt(liquidityPercentage.multiply(positionSDK.liquidity).quotient.toString())
+      const amount0MinArg = BigInt(amount0Min.quotient.toString())
+      const amount1MinArg = BigInt(amount1Min.quotient.toString())
+      const deadlineArg = BigInt(deadline.toString())
+
+      const args: unknown[] = isFarmV21
         ? [
-            tokenId.toString(),
-            liquidityPercentage.multiply(positionSDK.liquidity).quotient.toString(),
-            amount0Min.quotient.toString(),
-            amount1Min.quotient.toString(),
-            deadline.toString(),
-            buildFlagsForFarmV21({
-              isClaimFee: false,
-              isSyncFee: false,
-              isClaimReward: false,
-              isReceiveNative: !receiveWETH,
-            }),
+            tokenIdArg,
+            liquidityArg,
+            amount0MinArg,
+            amount1MinArg,
+            deadlineArg,
+            BigInt(
+              buildFlagsForFarmV21({
+                isClaimFee: false,
+                isSyncFee: false,
+                isClaimReward: false,
+                isReceiveNative: !receiveWETH,
+              }),
+            ),
           ]
         : isFarmV2
         ? [
-            tokenId.toString(),
-            liquidityPercentage.multiply(positionSDK.liquidity).quotient.toString(),
-            amount0Min.quotient.toString(),
-            amount1Min.quotient.toString(),
-            deadline.toString(),
+            tokenIdArg,
+            liquidityArg,
+            amount0MinArg,
+            amount1MinArg,
+            deadlineArg,
             false, // isClaimFee
             !receiveWETH,
           ]
-        : [
-            tokenId.toString(),
-            liquidityPercentage.multiply(positionSDK.liquidity).quotient.toString(),
-            amount0Min.quotient.toString(),
-            amount1Min.quotient.toString(),
-            deadline.toString(),
-            !receiveWETH,
-            [false, false],
-          ]
+        : [tokenIdArg, liquidityArg, amount0MinArg, amount1MinArg, deadlineArg, !receiveWETH, [false, false]]
 
-      const gasEstimation = await contract.estimateGas.removeLiquidity(...params)
-
-      const tx = await contract.removeLiquidity(...params, {
-        gasLimit: calculateGasMargin(gasEstimation),
+      const tx = await sendEVMTransaction({
+        account,
+        contractAddress: contract.address,
+        encodedData: encodeFunctionData({
+          abi,
+          functionName: 'removeLiquidity',
+          args,
+        }),
+        value: 0n,
+        errorInfo: { name: ErrorName.SwapError, wallet: undefined },
+        isSmartConnector,
+        chainId,
       })
 
-      handleBroadcastRemoveSuccess(tx)
+      if (tx?.hash) {
+        handleBroadcastRemoveSuccess(tx)
+      }
     } catch (e) {
       setAttemptingTxn(false)
       setRemoveLiquidityError(e?.message || JSON.stringify(e))
@@ -363,29 +354,10 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
       !feeValue0 ||
       !feeValue1 ||
       !positionSDK ||
-      !liquidityPercentage ||
-      !library
+      !liquidityPercentage
     ) {
       setAttemptingTxn(false)
       setRemoveLiquidityError('Some things went wrong')
-
-      const e = new Error('Remove Elastic Liquidity Error')
-      e.name = ErrorName.RemoveElasticLiquidityError
-      captureException(e, {
-        extra: {
-          positionManager,
-          liquidityValue0,
-          liquidityValue1,
-          deadline,
-          account,
-          chainId,
-          feeValue0,
-          feeValue1,
-          positionSDK,
-          liquidityPercentage,
-        },
-      })
-
       return
     }
 
@@ -407,43 +379,21 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
         havingFee: claimFee && !(feeValue0.equalTo(JSBI.BigInt('0')) && feeValue1.equalTo(JSBI.BigInt('0'))),
       },
     })
-    const txn = {
-      to: positionManager.address,
-      data: calldata,
-      value,
-    }
-
-    library
-      .getSigner()
-      .estimateGas(txn)
-      .then(async (estimate: BigNumber) => {
-        const newTxn = {
-          ...txn,
-          gasLimit: calculateGasMargin(estimate),
-        }
-        return library
-          .getSigner()
-          .sendTransaction(newTxn)
-          .then((response: TransactionResponse) => {
-            handleBroadcastRemoveSuccess(response)
-          })
+    sendEVMTransaction({
+      account,
+      contractAddress: positionManager.address,
+      encodedData: calldata as `0x${string}`,
+      value: BigInt(value),
+      errorInfo: { name: ErrorName.SwapError, wallet: undefined },
+      isSmartConnector,
+      chainId,
+    })
+      .then(response => {
+        if (response) handleBroadcastRemoveSuccess(response)
       })
       .catch((error: any) => {
         console.log('error', error)
         setAttemptingTxn(false)
-
-        if (!didUserReject(error)) {
-          const e = new Error('Remove Elastic Liquidity Error', { cause: error })
-          e.name = ErrorName.RemoveElasticLiquidityError
-          captureException(e, {
-            extra: {
-              calldata,
-              value,
-              to: positionManager.address,
-            },
-          })
-        }
-
         setRemoveLiquidityError(error?.message || JSON.stringify(error))
       })
   }
@@ -474,7 +424,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
 
   function modalFooter() {
     return (
-      <ButtonPrimary mt="16px" onClick={burn}>
+      <ButtonPrimary className="mt-4" onClick={burn}>
         <Trans>Remove</Trans>
       </ButtonPrimary>
     )
@@ -509,7 +459,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
               onDismiss={handleDismissConfirmation}
               topContent={() => (
                 <>
-                  <Flex marginTop="1.5rem" />
+                  <div className="mt-6" />
                   {positionSDK && <ProAmmPoolInfo position={positionSDK} tokenId={tokenId.toString()} />}
                   <ProAmmPooledTokens
                     liquidityValue0={liquidityValue0}
@@ -530,18 +480,18 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
                     <Loader />
                   )}
 
-                  <OutlineCard marginTop="1rem" padding="1rem">
-                    <AutoColumn gap="md">
-                      <Text fontSize={12} fontWeight={500}>
+                  <OutlineCard className="mt-4 p-4">
+                    <AutoColumn className="gap-3">
+                      <div className="text-xs font-medium">
                         <Trans>More Information</Trans>
-                      </Text>
+                      </div>
                       <Divider />
                       <RowBetween>
-                        <TextDashed fontSize={12} fontWeight={500} color={theme.subText} minWidth="max-content">
+                        <TextDashed fontSize={12} fontWeight={500} className="text-subText" minWidth="max-content">
                           <MouseoverTooltip
                             width="200px"
                             text={
-                              <Text>
+                              <div>
                                 <Trans>
                                   During your swap if the price changes by more than this %, your transaction will
                                   revert. Read more{' '}
@@ -549,41 +499,40 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
                                     here ↗
                                   </ExternalLink>
                                 </Trans>
-                              </Text>
+                              </div>
                             }
                             placement="auto"
                           >
                             <Trans>Max Slippage</Trans>
                           </MouseoverTooltip>
                         </TextDashed>
-                        <TYPE.black fontSize={12} color={isWarningSlippage ? theme.warning : undefined}>
+                        <div className={cn('text-xs text-text', isWarningSlippage && 'text-warning')}>
                           {formatSlippage(allowedSlippage)}
-                        </TYPE.black>
+                        </div>
                       </RowBetween>
                     </AutoColumn>
                   </OutlineCard>
 
                   {slippageStatus === SLIPPAGE_STATUS.HIGH && (
-                    <WarningCard padding="10px 16px" m="20px 0 0">
-                      <Flex alignItems="center">
-                        <AlertTriangle stroke={theme.warning} size="16px" />
-                        <TYPE.black ml="12px" fontSize="12px" flex={1}>
+                    <WarningCard className="mt-5 px-4 py-2.5">
+                      <div className="flex items-center">
+                        <AlertTriangle size="16px" className="text-warning" />
+                        <div className="ml-3 flex-1 text-xs text-text">
                           <Trans>
                             <TextUnderlineColor
-                              style={{ minWidth: 'max-content' }}
-                              as="a"
+                              className="min-w-max"
                               href={SLIPPAGE_EXPLANATION_URL}
                               target="_blank"
                               rel="noreferrer"
                             >
                               Slippage
                             </TextUnderlineColor>
-                            <TextUnderlineTransparent sx={{ ml: '0.5ch' }}>
+                            <TextUnderlineTransparent>
                               is high. Your transaction may be front-run
                             </TextUnderlineTransparent>
                           </Trans>
-                        </TYPE.black>
-                      </Flex>
+                        </div>
+                      </div>
                     </WarningCard>
                   )}
                 </>
@@ -608,7 +557,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
 
         <Content>
           {position ? (
-            <AutoColumn gap="md" style={{ textAlign: 'left' }}>
+            <AutoColumn className="gap-3 text-left">
               <GridColumn>
                 <FirstColumn>
                   {positionSDK ? (
@@ -617,103 +566,87 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
                     <Loader />
                   )}
 
-                  <BlackCard style={{ borderRadius: '1rem', padding: '1rem' }}>
-                    <Flex alignItems="center" sx={{ gap: '4px' }}>
+                  <BlackCard className="rounded-2xl p-4">
+                    <div className="flex items-center gap-1">
                       <TokenId color={removed ? theme.red : outOfRange ? theme.warning : theme.primary}>
                         #{tokenId.toString()}
                       </TokenId>
                       <RangeBadge removed={removed} inRange={!outOfRange} hideText size={14} />
-                    </Flex>
+                    </div>
 
-                    <Flex
-                      justifyContent="space-between"
-                      fontSize="12px"
-                      fontWeight="500"
-                      marginTop="1rem"
-                      marginBottom="0.75rem"
-                    >
-                      <Text>
+                    <div className="mb-3 mt-4 flex justify-between text-xs font-medium">
+                      <span>
                         <Trans>My Liquidity</Trans>
-                      </Text>
-                      <Text>{formatDollarAmount(totalPooledUSD)}</Text>
-                    </Flex>
+                      </span>
+                      <span>{formatDollarAmount(totalPooledUSD)}</span>
+                    </div>
 
                     <Divider />
 
-                    <Flex justifyContent="space-between" fontSize="12px" marginTop="0.75rem">
-                      <Text color={theme.subText}>Pooled {pooledAmount0?.currency.symbol}</Text>
-                      <Flex alignItems="center">
+                    <div className="mt-3 flex justify-between text-xs">
+                      <span className="text-subText">Pooled {pooledAmount0?.currency.symbol}</span>
+                      <div className="flex items-center">
                         <CurrencyLogo currency={pooledAmount0?.currency} size="16px" />
-                        <Text fontWeight="500" marginLeft="4px">
+                        <span className="ml-1 font-medium">
                           {pooledAmount0 && <FormattedCurrencyAmount currencyAmount={pooledAmount0} />}{' '}
                           {pooledAmount0?.currency?.symbol}
-                        </Text>
-                      </Flex>
-                    </Flex>
+                        </span>
+                      </div>
+                    </div>
 
-                    <Flex justifyContent="space-between" fontSize="12px" marginTop="0.75rem">
-                      <Text color={theme.subText}>Pooled {pooledAmount1?.currency.symbol}</Text>
-                      <Flex alignItems="center">
+                    <div className="mt-3 flex justify-between text-xs">
+                      <span className="text-subText">Pooled {pooledAmount1?.currency.symbol}</span>
+                      <div className="flex items-center">
                         <CurrencyLogo currency={pooledAmount1?.currency} size="16px" />
-                        <Text fontWeight="500" marginLeft="4px">
+                        <span className="ml-1 font-medium">
                           {pooledAmount1?.toSignificant(10)} {pooledAmount1?.currency.symbol}
-                        </Text>
-                      </Flex>
-                    </Flex>
+                        </span>
+                      </div>
+                    </div>
 
-                    <Flex
-                      justifyContent="space-between"
-                      fontSize="12px"
-                      fontWeight="500"
-                      marginTop="1.25rem"
-                      marginBottom="0.75rem"
-                    >
-                      <Text>My Fee Earnings</Text>
-                      {loadingFee && !feeValue0 ? <Loader /> : <Text>{formatDollarAmount(totalFeeRewardUSD)}</Text>}
-                    </Flex>
+                    <div className="mb-3 mt-5 flex justify-between text-xs font-medium">
+                      <span>My Fee Earnings</span>
+                      {loadingFee && !feeValue0 ? <Loader /> : <span>{formatDollarAmount(totalFeeRewardUSD)}</span>}
+                    </div>
 
                     <Divider />
 
-                    <Flex justifyContent="space-between" fontSize="12px" marginTop="0.75rem">
-                      <Text color={theme.subText}>{feeValue0?.currency.symbol} Fee Earned</Text>
-                      <Flex alignItems="center">
+                    <div className="mt-3 flex justify-between text-xs">
+                      <span className="text-subText">{feeValue0?.currency.symbol} Fee Earned</span>
+                      <div className="flex items-center">
                         <CurrencyLogo currency={feeValue0?.currency} size="16px" />
-                        <Text fontWeight="500" marginLeft="4px">
+                        <span className="ml-1 font-medium">
                           {feeValue0 && <FormattedCurrencyAmount currencyAmount={feeValue0} />}{' '}
                           {feeValue0?.currency?.symbol}
-                        </Text>
-                      </Flex>
-                    </Flex>
+                        </span>
+                      </div>
+                    </div>
 
-                    <Flex justifyContent="space-between" fontSize="12px" marginTop="0.75rem">
-                      <Text color={theme.subText}>{feeValue1?.currency.symbol} Fee Earned</Text>
-                      <Flex alignItems="center">
+                    <div className="mt-3 flex justify-between text-xs">
+                      <span className="text-subText">{feeValue1?.currency.symbol} Fee Earned</span>
+                      <div className="flex items-center">
                         <CurrencyLogo currency={feeValue1?.currency} size="16px" />
-                        <Text fontWeight="500" marginLeft="4px">
+                        <span className="ml-1 font-medium">
                           {feeValue1?.toSignificant(10)} {feeValue1?.currency.symbol}
-                        </Text>
-                      </Flex>
-                    </Flex>
+                        </span>
+                      </div>
+                    </div>
                   </BlackCard>
                 </FirstColumn>
 
                 <SecondColumn>
                   <AmoutToRemoveContent>
-                    <Text fontSize={12} color={theme.subText} fontWeight="500">
+                    <div className="text-xs font-medium text-subText">
                       <Trans>Amount to remove</Trans>
-                    </Text>
+                    </div>
 
-                    <BlackCard
-                      padding="1rem"
-                      marginTop="1rem"
-                      style={{ borderRadius: '1rem', border: `1px solid ${theme.border}` }}
-                    >
-                      <Flex sx={{ gap: '1rem' }} alignItems="center">
-                        <PercentText fontSize={36} fontWeight="500">
+                    <BlackCard className="mt-4 rounded-2xl border border-border p-4">
+                      <div className="flex items-center gap-4">
+                        <span className="text-4xl font-medium max-sm:!min-w-[72px] max-sm:!text-[28px]">
                           {percentForSlider}%
-                        </PercentText>
+                        </span>
 
-                        <MaxButtonGroup>
+                        <div className="flex flex-1 justify-end gap-2 max-sm:gap-1">
                           <MaxButton onClick={() => onUserInput(Field.LIQUIDITY_PERCENT, '25')}>
                             <Trans>25%</Trans>
                           </MaxButton>
@@ -726,30 +659,22 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
                           <MaxButton onClick={() => onUserInput(Field.LIQUIDITY_PERCENT, '100')}>
                             <Trans>Max</Trans>
                           </MaxButton>
-                        </MaxButtonGroup>
-                      </Flex>
+                        </div>
+                      </div>
 
                       <Slider
                         value={percentForSlider}
                         onChange={onPercentSelectForSlider}
                         size={16}
-                        style={{ width: '100%', margin: '1rem 0 0', padding: '0.75rem 0' }}
+                        className="my-0 mt-4 w-full px-0 py-3"
                       />
                     </BlackCard>
 
                     <TokenInputWrapper>
-                      <div
-                        style={{
-                          flex: 1,
-                          border: `1px solid ${theme.border}`,
-                          borderRadius: '1rem',
-                        }}
-                      >
+                      <div className="flex-1 rounded-2xl border border-solid border-border">
                         <CurrencyInputPanel
                           value={formattedAmounts[Field.CURRENCY_A]}
                           onUserInput={onCurrencyAInput}
-                          onMax={null}
-                          onHalf={null}
                           currency={liquidityValue0?.currency}
                           onCurrencySelect={() => null}
                           id="remove-liquidity-tokena"
@@ -760,12 +685,10 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
                         />
                       </div>
 
-                      <div style={{ flex: 1, border: `1px solid ${theme.border}`, borderRadius: '1rem' }}>
+                      <div className="flex-1 rounded-2xl border border-solid border-border">
                         <CurrencyInputPanel
                           value={formattedAmounts[Field.CURRENCY_B]}
                           onUserInput={onCurrencyBInput}
-                          onMax={null}
-                          onHalf={null}
                           currency={liquidityValue1?.currency}
                           onCurrencySelect={() => null}
                           id="remove-liquidity-tokenb"
@@ -779,32 +702,32 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
                   </AmoutToRemoveContent>
 
                   {slippageStatus === SLIPPAGE_STATUS.HIGH && (
-                    <WarningCard padding="10px 16px" m="24px 0 0">
-                      <Flex alignItems="center">
-                        <AlertTriangle stroke={theme.warning} size="16px" />
-                        <TYPE.black ml="12px" fontSize="12px" flex={1}>
+                    <WarningCard className="mt-6 px-4 py-2.5">
+                      <div className="flex items-center">
+                        <AlertTriangle size="16px" className="text-warning" />
+                        <div className="ml-3 flex-1 text-xs text-text">
                           <Trans>
                             <TextUnderlineColor
-                              style={{ minWidth: 'max-content' }}
-                              as="a"
+                              className="min-w-max"
                               href={SLIPPAGE_EXPLANATION_URL}
                               target="_blank"
                               rel="noreferrer"
                             >
                               Slippage
                             </TextUnderlineColor>
-                            <TextUnderlineTransparent sx={{ ml: '0.5ch' }}>
+                            <TextUnderlineTransparent>
                               is high. Your transaction may be front-run
                             </TextUnderlineTransparent>
                           </Trans>
-                        </TYPE.black>
-                      </Flex>
+                        </div>
+                      </div>
                     </WarningCard>
                   )}
 
-                  <Flex justifyContent="flex-end">
+                  <div className="flex justify-end">
                     <ButtonConfirmed
-                      style={{ marginTop: '16px', width: upToMedium ? '100%' : 'fit-content', minWidth: '164px' }}
+                      className="mt-4 min-w-[164px]"
+                      style={{ width: upToMedium ? '100%' : 'fit-content' }}
                       confirmed={false}
                       disabled={
                         removed ||
@@ -821,7 +744,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
                     >
                       {removed ? <Trans>Closed</Trans> : error ?? <Trans>Preview</Trans>}
                     </ButtonConfirmed>
-                  </Flex>
+                  </div>
                 </SecondColumn>
               </GridColumn>
             </AutoColumn>

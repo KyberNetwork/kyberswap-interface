@@ -1,9 +1,7 @@
 import { Trans, t } from '@lingui/macro'
 import dayjs from 'dayjs'
-import { rgba } from 'polished'
 import { useMemo, useState } from 'react'
 import { Calendar } from 'react-feather'
-import { Flex, Text } from 'rebass'
 
 import DateTimePicker from 'components/swapv2/LimitOrder/ExpirePicker'
 import useTheme from 'hooks/useTheme'
@@ -47,10 +45,10 @@ export default function TimeInput({
 
   return (
     <>
-      <Flex alignItems="center" sx={{ gap: '1rem' }} justifyContent="space-between">
-        <Text>
+      <div className="flex items-center justify-between gap-4">
+        <span>
           <Trans>Exit this position</Trans>
-        </Text>
+        </span>
         <CustomSelect
           options={timeOptions}
           onChange={value => {
@@ -62,28 +60,21 @@ export default function TimeInput({
           arrowSize={16}
           arrowColor={theme.border}
         />
-      </Flex>
-      <Text>
+      </div>
+      <span>
         <Trans>Set Schedule</Trans>
-      </Text>
+      </span>
       <HighlightWrapper isHighlighted={isHighlighted}>
-        <Flex
-          sx={{
-            borderRadius: '12px',
-            background: rgba(theme.text, 0.04),
-            padding: '8px 12px',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            cursor: 'pointer',
-          }}
+        <div
+          className="flex cursor-pointer items-center justify-between rounded-xl bg-text-04 px-3 py-2"
           role="button"
           onClick={() => setOpenDatePicker(true)}
         >
-          <Text color={timeCondition.time === null ? theme.border : theme.text}>
+          <span className={timeCondition.time === null ? 'text-border' : 'text-text'}>
             {timeCondition.time === null ? t`Pickup time` : dayjs(timeCondition.time).format('DD/MM/YYYY HH:mm:ss')}
-          </Text>
-          <Calendar color={theme.primary} size={20} />
-        </Flex>
+          </span>
+          <Calendar className="text-primary" size={20} />
+        </div>
       </HighlightWrapper>
 
       <DateTimePicker
@@ -96,9 +87,7 @@ export default function TimeInput({
             condition: { ...timeCondition, time: typeof val === 'number' ? val : val.getTime() },
           })
         }}
-        expire={
-          timeCondition.time || 5 * 60 // 5min
-        }
+        expire={timeCondition.time || 5 * 60}
         defaultOptions={DEFAULT_TIME_OPTIONS}
       />
     </>

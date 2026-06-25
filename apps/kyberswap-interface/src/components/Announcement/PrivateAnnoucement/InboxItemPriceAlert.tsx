@@ -1,7 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { ArrowDown, ArrowUp, Repeat } from 'react-feather'
-import { Flex, Text } from 'rebass'
 
 import { PrivateAnnouncementProp } from 'components/Announcement/PrivateAnnoucement'
 import InboxIcon from 'components/Announcement/PrivateAnnoucement/Icon'
@@ -10,8 +9,8 @@ import { Dot, InboxItemRow, InboxItemWrapper, RowItem, Title } from 'components/
 import { AnnouncementTemplatePriceAlert } from 'components/Announcement/type'
 import { ButtonLight } from 'components/Button'
 import DeltaTokenAmount from 'components/WalletPopup/Transactions/DeltaTokenAmount'
-import useTheme from 'hooks/useTheme'
 import { HistoricalPriceAlert, PriceAlertType } from 'pages/NotificationCenter/const'
+import { cn } from 'utils/cn'
 import { useNavigateToUrl } from 'utils/redirect'
 
 export const getSwapUrlPriceAlert = (alert: HistoricalPriceAlert) => {
@@ -34,7 +33,6 @@ function InboxItemBridge({
   onDelete,
 }: PrivateAnnouncementProp<AnnouncementTemplatePriceAlert>) {
   const { templateBody, isRead, templateType } = announcement
-  const theme = useTheme()
 
   const {
     tokenInLogoURL,
@@ -68,33 +66,34 @@ function InboxItemBridge({
           {!isRead && <Dot />}
         </RowItem>
         <RowItem>
-          <ButtonLight height={'24px'} style={{ display: 'flex', gap: '6px', padding: '12px 10px' }}>
+          <ButtonLight height={'24px'} className="gap-1.5 px-2.5 py-3">
             <Repeat size={16} /> <Trans>Swap</Trans>
           </ButtonLight>
         </RowItem>
       </InboxItemRow>
 
       <InboxItemRow>
-        <Flex alignItems={'center'} style={{ gap: '4px' }}>
-          <DeltaTokenAmount color={theme.text} amount={tokenInAmount} symbol={tokenInSymbol} logoURL={tokenInLogoURL} />
-          <Text color={theme.subText}>
+        <div className="flex items-center gap-1">
+          <DeltaTokenAmount
+            className="text-text"
+            amount={tokenInAmount}
+            symbol={tokenInSymbol}
+            logoURL={tokenInLogoURL}
+          />
+          <span className="text-subText">
             <Trans>to</Trans>
-          </Text>
-          <DeltaTokenAmount color={theme.text} amount={<div />} symbol={tokenOutSymbol} logoURL={tokenOutLogoURL} />
-        </Flex>
+          </span>
+          <DeltaTokenAmount className="text-text" amount={<div />} symbol={tokenOutSymbol} logoURL={tokenOutLogoURL} />
+        </div>
       </InboxItemRow>
 
       <InboxItemRow>
-        <Flex alignItems={'center'} style={{ gap: '4px' }}>
-          <Flex
-            style={{ gap: '4px' }}
-            alignItems={'center'}
-            color={type === PriceAlertType.ABOVE ? theme.primary : theme.red}
-          >
+        <div className="flex items-center gap-1">
+          <div className={cn('flex items-center gap-1', type === PriceAlertType.ABOVE ? 'text-primary' : 'text-red')}>
             {type === PriceAlertType.ABOVE ? <ArrowUp size={16} /> : <ArrowDown size={16} />} {type}
-          </Flex>
+          </div>
           {threshold} {tokenOutSymbol}
-        </Flex>
+        </div>
         {time}
       </InboxItemRow>
     </InboxItemWrapper>

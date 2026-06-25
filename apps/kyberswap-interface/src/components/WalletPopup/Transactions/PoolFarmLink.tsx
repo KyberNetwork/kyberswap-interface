@@ -1,5 +1,3 @@
-import { Flex, Text } from 'rebass'
-
 import { DoubleCurrencyLogoV2 } from 'components/DoubleLogo'
 import SendIcon from 'components/Icons/SendIcon'
 import { getTokenLogo } from 'components/WalletPopup/Transactions/helper'
@@ -33,13 +31,13 @@ const PoolFarmLink = ({ transaction }: { transaction: TransactionDetails }) => {
         isElastic ? 'elastic' : 'classic'
       }`}
     >
-      <Flex alignItems="center" style={{ gap: 4 }}>
+      <span className="flex items-center gap-1">
         <DoubleCurrencyLogoV2 style={{ marginRight: 12 }} logoUrl1={logoUrlIn} logoUrl2={logoUrlOut} size={16} />
-        <Text fontSize={12}>
+        <span className="text-xs">
           {tokenSymbolIn}/{tokenSymbolOut}
-        </Text>
+        </span>
         <SendIcon size={10} />
-      </Flex>
+      </span>
     </ExternalLink>
   )
 }

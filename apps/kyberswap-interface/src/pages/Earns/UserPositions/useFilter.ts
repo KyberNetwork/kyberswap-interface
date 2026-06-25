@@ -1,29 +1,25 @@
 import { useCallback, useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
-import { PositionFilter, PositionStatus } from 'pages/Earns/types'
+import { DEFAULT_POSITION_FILTERS, POSITIONS_PAGE_SIZE, SortBy } from 'pages/Earns/UserPositions/positionsQuery'
+import { PositionFilter } from 'pages/Earns/types'
 import { Direction } from 'pages/MarketOverview/SortIcon'
 
-export enum SortBy {
-  VALUE = 'valueUsd',
-  APR = 'apr24h',
-  UNCLAIMED_FEE = 'unclaimedFeeUsd',
-  UNCLAIMED_REWARDS = 'unclaimedRewardUsd',
-}
+export { SortBy }
 
 export default function useFilter() {
   const [searchParams, setSearchParams] = useSearchParams()
 
   const filters: PositionFilter = useMemo(
     () => ({
-      chainIds: searchParams.get('chainIds') || '',
-      protocols: searchParams.get('protocols') || '',
-      statuses: (searchParams.get('statuses') as string) || `${PositionStatus.IN_RANGE},${PositionStatus.OUT_RANGE}`,
-      keyword: searchParams.get('keyword') || '',
-      sortBy: searchParams.get('sortBy') || SortBy.VALUE,
-      orderBy: searchParams.get('orderBy') || Direction.DESC,
-      page: +(searchParams.get('page') || 1),
-      pageSize: +(searchParams.get('pageSize') || 10),
+      chainIds: searchParams.get('chainIds') || DEFAULT_POSITION_FILTERS.chainIds,
+      protocols: searchParams.get('protocols') || DEFAULT_POSITION_FILTERS.protocols,
+      statuses: (searchParams.get('statuses') as string) || DEFAULT_POSITION_FILTERS.statuses,
+      keyword: searchParams.get('keyword') || DEFAULT_POSITION_FILTERS.keyword,
+      sortBy: searchParams.get('sortBy') || DEFAULT_POSITION_FILTERS.sortBy,
+      orderBy: searchParams.get('orderBy') || DEFAULT_POSITION_FILTERS.orderBy,
+      page: +(searchParams.get('page') || DEFAULT_POSITION_FILTERS.page),
+      pageSize: +(searchParams.get('pageSize') || POSITIONS_PAGE_SIZE),
     }),
     [searchParams],
   )

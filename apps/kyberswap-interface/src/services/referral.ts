@@ -1,6 +1,7 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 
 import { REFERRAL_URL } from 'constants/env'
+import { KYBERSWAP_URL } from 'constants/index'
 
 const referralApi = createApi({
   reducerPath: 'referralApi',
@@ -63,7 +64,7 @@ const referralApi = createApi({
         method: 'POST',
         body: {
           type: 'ARB_STIP',
-          redirectURL: `https://kyberswap.com/campaigns/referrals?code=${code}`,
+          redirectURL: `${KYBERSWAP_URL}/campaigns/referrals?code=${code}`,
           metaImageURL: 'https://i.imgur.com/KRrAZWc.png',
           referredByCode: code,
           createdBy: account,
@@ -79,7 +80,6 @@ export const {
   useJoinCampaignMutation,
   useGetDashboardQuery,
   useCreateShareMutation,
-  useGetShareQuery,
 } = referralApi
 
 export default referralApi

@@ -1,47 +1,44 @@
 import { formatAprNumber } from '@kyber/utils/dist/number'
 import { t } from '@lingui/macro'
 import { PropsWithChildren } from 'react'
-import { Flex, Text } from 'rebass'
 
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
-import { getMerklBonusMeta } from 'pages/Earns/utils/reward'
 
 type Props = PropsWithChildren<{
-  chainId?: number
   feeApr?: number
   egApr?: number
   lmApr?: number
-  uniApr?: number
+  merklApr?: number
 }>
 
-export default function AprDetailTooltip({ chainId, feeApr, egApr, lmApr, uniApr, children }: Props) {
+export default function AprDetailTooltip({ feeApr, egApr, lmApr, merklApr, children }: Props) {
   return (
     <MouseoverTooltipDesktopOnly
       placement="top"
       width="fit-content"
       text={
-        <Flex sx={{ flexDirection: 'column', gap: '2px' }}>
+        <div className="flex flex-col gap-[2px]">
           {feeApr !== undefined && (
-            <Text>
-              {t`LP Fees`}: {formatAprNumber(feeApr)}%
-            </Text>
+            <span>
+              {t`LP Fee APR`}: {formatAprNumber(feeApr)}%
+            </span>
           )}
           {egApr !== undefined && (
-            <Text>
-              {t`EG Sharing Reward`}: {formatAprNumber(egApr)}%
-            </Text>
+            <span>
+              {t`FairFlow EG Rewards`}: {formatAprNumber(egApr)}%
+            </span>
           )}
           {!!lmApr && (
-            <Text>
-              {t`LM Reward`}: {formatAprNumber(lmApr)}%
-            </Text>
+            <span>
+              {t`LM Rewards`}: {formatAprNumber(lmApr)}%
+            </span>
           )}
-          {!!uniApr && (
-            <Text>
-              {getMerklBonusMeta(chainId).name}: {formatAprNumber(uniApr)}%
-            </Text>
+          {!!merklApr && (
+            <span>
+              {t`Merkl Bonus`}: {formatAprNumber(merklApr)}%
+            </span>
           )}
-        </Flex>
+        </div>
       }
     >
       {children}

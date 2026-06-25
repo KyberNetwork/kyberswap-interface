@@ -1,10 +1,9 @@
 import { MAX_TICK, MIN_TICK, nearestUsableTick, priceToClosestTick } from '@kyber/utils/dist/uniswapv3'
 import { Bound, LiquidityChartRangeInput } from '@kyberswap/liquidity-chart'
 import '@kyberswap/liquidity-chart/style.css'
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 import { useMedia } from 'react-use'
 import { usePoolDetailQuery } from 'services/zapEarn'
-import styled, { keyframes } from 'styled-components'
 
 import { ChartWrapper } from 'pages/Earns/PositionDetail/styles'
 import { MEDIA_WIDTHS } from 'theme'
@@ -17,6 +16,7 @@ export default function LiquidityChart({
   minPrice,
   maxPrice,
   revertPrice,
+  onReady,
 }: {
   chainId: number
   poolAddress: string
@@ -24,6 +24,7 @@ export default function LiquidityChart({
   minPrice: number
   maxPrice: number
   revertPrice: boolean
+  onReady?: () => void
 }) {
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
@@ -79,6 +80,14 @@ export default function LiquidityChart({
     }
   }, [maxPrice, minPrice, revertPrice, tickSpacing, token0, token1])
 
+  const isReady = !!ticksAtLimit
+
+  useEffect(() => {
+    if (isReady) {
+      onReady?.()
+    }
+  }, [isReady, onReady])
+
   if (!ticksAtLimit) return null
 
   return (
@@ -119,73 +128,21 @@ export const LiquidityChartSkeleton = () => {
   const barHeights = [5, 10, 15, 30, 45, 55, 60, 70, 85, 90, 100, 100, 80, 75, 55, 60, 30, 30, 25, 15, 10, 5]
 
   return (
-    <SkeletonWrapper>
-      <BarsContainer>
+    <div className="relative mt-4 flex h-[300px] w-full flex-col justify-end overflow-hidden rounded-lg pt-2 max-sm:h-[210px]">
+      <div className="z-[2] flex size-full items-end justify-center gap-0.5 px-2 pb-1">
         {Array.from({ length: BAR_COUNT }).map((_, i) => (
-          <Bar key={i} height={barHeights[i]}>
-            <Shimmer />
-          </Bar>
+          <div
+            key={i}
+            className="relative flex min-w-[2px] max-w-[8px] flex-1 items-end overflow-hidden rounded-t bg-background"
+            style={{ height: `${barHeights[i]}%` }}
+          >
+            <div
+              className="absolute inset-0 z-[2] opacity-60 [animation:ks-shimmer-x_1.8s_linear_infinite]"
+              style={{ background: 'linear-gradient(90deg, transparent 0%, #292929 50%, transparent 100%)' }}
+            />
+          </div>
         ))}
-      </BarsContainer>
-    </SkeletonWrapper>
+      </div>
+    </div>
   )
 }
-
-const shimmer = keyframes`
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
-`
-
-const SkeletonWrapper = styled.div`
-  width: 100%;
-  height: 300px;
-  padding-top: 8px;
-  margin-top: 16px;
-  position: relative;
-  border-radius: 8px;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  overflow: hidden;
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    height: 210px;
-  `}
-`
-
-const BarsContainer = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: flex-end;
-  gap: 2px;
-  height: 100%;
-  width: 100%;
-  padding: 0 8px 4px 8px;
-  z-index: 2;
-`
-
-const Bar = styled.div<{ height: number }>`
-  flex: 1 1 0;
-  min-width: 2px;
-  max-width: 8px;
-  background: ${({ theme }) => theme.background};
-  border-top-left-radius: 4px;
-  border-top-right-radius: 4px;
-  position: relative;
-  overflow: hidden;
-  display: flex;
-  align-items: flex-end;
-  height: ${({ height }) => height}%;
-`
-
-const Shimmer = styled.div`
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  opacity: 0.6;
-  background: linear-gradient(90deg, transparent 0%, #292929 50%, transparent 100%);
-  z-index: 2;
-  animation: ${shimmer} 1.8s linear infinite;
-`

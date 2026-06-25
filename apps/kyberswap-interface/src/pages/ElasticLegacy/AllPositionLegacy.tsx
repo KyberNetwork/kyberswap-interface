@@ -3,8 +3,6 @@ import memoizeOne from 'memoize-one'
 import { CSSProperties, memo, useState } from 'react'
 import { useMedia } from 'react-use'
 import { FixedSizeGrid, areEqual } from 'react-window'
-import { Flex, Text } from 'rebass'
-import styled from 'styled-components'
 
 import RangeBadge from 'components/Badge/RangeBadge'
 import { ButtonOutlined, ButtonPrimary } from 'components/Button'
@@ -23,7 +21,7 @@ import {
   useRemoveLiquidityLegacy,
 } from 'hooks/useElasticLegacy'
 import useIsTickAtLimit from 'hooks/useIsTickAtLimit'
-import useTheme from 'hooks/useTheme'
+import { FeeTag } from 'pages/ElasticLegacy/PositionLegacy'
 import { outerElementType } from 'pages/ProAmmPool/PositionGrid'
 import { Tab, TabContainer } from 'pages/ProAmmPool/PositionListItem'
 import { Bound } from 'state/mint/proamm/type'
@@ -33,14 +31,6 @@ import { shortenAddress } from 'utils'
 import { formatTickPrice } from 'utils/formatTickPrice'
 import { formatDollarAmount } from 'utils/numbers'
 import { unwrappedToken } from 'utils/wrappedCurrency'
-
-import { FeeTag } from './PositionLegacy'
-
-const Item = styled.div`
-  border-radius: 20px;
-  background: ${({ theme }) => theme.background};
-  padding: 20px;
-`
 
 export default function AllPositionLegacy({ positions }: { positions: SubgraphPosition[] }) {
   const feeRewards = usePositionFees(positions)
@@ -57,7 +47,7 @@ export default function AllPositionLegacy({ positions }: { positions: SubgraphPo
 
   return (
     <>
-      <Flex marginTop="1.25rem" />
+      <div className="mt-5" />
       <FixedSizeGrid
         width={1176}
         columnCount={columnCount}
@@ -98,7 +88,6 @@ const Row = memo(
 
     const { positions, feeRewards, tokenPrices } = data
 
-    const theme = useTheme()
     const [tab, setTab] = useState<'liquidity' | 'price_range'>('liquidity')
 
     const { chainId } = useActiveWeb3React()
@@ -139,37 +128,34 @@ const Row = memo(
 
     return (
       <div style={styles}>
-        <Item>
-          <Flex justifyContent="space-between" alignItems="center">
-            <Flex alignItems="center">
+        <div className="rounded-[20px] bg-background p-5">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
               <DoubleCurrencyLogo currency0={unwrappedToken(token0)} currency1={unwrappedToken(token1)} size={20} />
-              <Text fontWeight="500">
+              <span className="font-medium">
                 {unwrappedToken(token0).symbol} - {unwrappedToken(token1).symbol}
-              </Text>
+              </span>
               <FeeTag>
                 <Trans>Fee {((Number(p.pool?.feeTier) || 0) * 100) / ELASTIC_BASE_FEE_UNIT}%</Trans>
               </FeeTag>
-            </Flex>
+            </div>
 
             <RangeBadge hideText removed={p.liquidity === '0'} inRange={!outOfRange} />
-          </Flex>
+          </div>
 
-          <Flex marginTop="8px" color={theme.subText} fontSize="12px" justifyContent="space-between">
-            <Flex alignItems="center">
+          <div className="mt-2 flex justify-between text-xs text-subText">
+            <div className="flex items-center">
               {shortenAddress(chainId, p.pool.id)}
               <CopyHelper toCopy={p.pool.id} />
-            </Flex>
-            <Text>
+            </div>
+            <span>
               <Trans>
-                ID:{' '}
-                <Text as="span" color={theme.text}>
-                  {p.id}
-                </Text>
+                ID: <span className="text-text">{p.id}</span>
               </Trans>
-            </Text>
-          </Flex>
+            </span>
+          </div>
 
-          <TabContainer style={{ marginTop: '1rem' }}>
+          <TabContainer className="mt-4">
             <Tab isActive={tab === 'liquidity'} onClick={() => setTab('liquidity')}>
               <Trans>My Liquidity</Trans>
             </Tab>
@@ -179,112 +165,106 @@ const Row = memo(
           </TabContainer>
 
           {tab === 'liquidity' && (
-            <OutlineCard padding="12px" marginTop="1rem" borderRadius="1rem">
-              <Flex justifyContent="space-between" fontSize="12px" color={theme.subText}>
-                <Text>
+            <OutlineCard className="mt-4 rounded-2xl p-3">
+              <div className="flex justify-between text-xs text-subText">
+                <span>
                   <Trans>My Liquidity Balance</Trans>
-                </Text>
-                <Text color={theme.text} fontWeight="500">
-                  {formatDollarAmount(usd)}
-                </Text>
-              </Flex>
-              <Flex justifyContent="space-between" fontSize="12px" color={theme.subText} marginTop="12px">
-                <Text>
+                </span>
+                <span className="font-medium text-text">{formatDollarAmount(usd)}</span>
+              </div>
+              <div className="mt-3 flex justify-between text-xs text-subText">
+                <span>
                   <Trans>My Pooled {unwrappedToken(token0).symbol}</Trans>
-                </Text>
-                <Flex color={theme.text} fontWeight="500" alignItems="center" sx={{ gap: '4px' }}>
+                </span>
+                <div className="flex items-center gap-1 font-medium text-text">
                   <CurrencyLogo currency={unwrappedToken(token0)} size="12px" />
                   {position.amount0.toSignificant(6)}
-                </Flex>
-              </Flex>
-              <Flex justifyContent="space-between" fontSize="12px" color={theme.subText} marginY="12px">
-                <Text>
+                </div>
+              </div>
+              <div className="my-3 flex justify-between text-xs text-subText">
+                <span>
                   <Trans>My Pooled {unwrappedToken(token1).symbol}</Trans>
-                </Text>
-                <Flex color={theme.text} fontWeight="500" alignItems="center" sx={{ gap: '4px' }}>
+                </span>
+                <div className="flex items-center gap-1 font-medium text-text">
                   <CurrencyLogo currency={unwrappedToken(token1)} size="12px" />
                   {position.amount1.toSignificant(6)}
-                </Flex>
-              </Flex>
+                </div>
+              </div>
               <Divider />
-              <Flex justifyContent="space-between" fontSize="12px" color={theme.subText} marginTop="12px">
-                <Text>
+              <div className="mt-3 flex justify-between text-xs text-subText">
+                <span>
                   <Trans>{unwrappedToken(token0).symbol} Fees Earned</Trans>
-                </Text>
-                <Flex color={theme.text} fontWeight="500" alignItems="center" sx={{ gap: '4px' }}>
+                </span>
+                <div className="flex items-center gap-1 font-medium text-text">
                   <CurrencyLogo currency={unwrappedToken(token0)} size="12px" />
                   {feeValue0.toSignificant(6)}
-                </Flex>
-              </Flex>
-              <Flex justifyContent="space-between" fontSize="12px" color={theme.subText} marginTop="12px">
-                <Text>
+                </div>
+              </div>
+              <div className="mt-3 flex justify-between text-xs text-subText">
+                <span>
                   <Trans>{unwrappedToken(token1).symbol} Fees Earned</Trans>
-                </Text>
-                <Flex color={theme.text} fontWeight="500" alignItems="center" sx={{ gap: '4px' }}>
+                </span>
+                <div className="flex items-center gap-1 font-medium text-text">
                   <CurrencyLogo currency={unwrappedToken(token1)} size="12px" />
                   {feeValue1.toSignificant(6)}
-                </Flex>
-              </Flex>
+                </div>
+              </div>
             </OutlineCard>
           )}
 
           {tab === 'price_range' && (
             <>
-              <OutlineCard padding="12px" marginTop="1rem" borderRadius="1rem">
-                <Text fontSize="12px" color={theme.subText}>
+              <OutlineCard className="mt-4 rounded-2xl p-3">
+                <span className="text-xs text-subText">
                   <Trans>Selected Price Range</Trans>:
-                </Text>
+                </span>
 
-                <Flex justifyContent="space-between" fontSize="12px" color={theme.subText} marginTop="12px">
-                  <Text>
+                <div className="mt-3 flex justify-between text-xs text-subText">
+                  <span>
                     <Trans>Current Price</Trans>
-                  </Text>
-                  <Flex color={theme.text} fontWeight="500" alignItems="center" sx={{ gap: '4px' }}>
+                  </span>
+                  <div className="flex items-center gap-1 font-medium text-text">
                     <Trans>
                       {price.toSignificant(6)} {unwrappedToken(token1).symbol} per {unwrappedToken(token0).symbol}
                     </Trans>
-                  </Flex>
-                </Flex>
+                  </div>
+                </div>
 
-                <Flex justifyContent="space-between" fontSize="12px" color={theme.subText} marginTop="12px">
-                  <Text>
+                <div className="mt-3 flex justify-between text-xs text-subText">
+                  <span>
                     <Trans>Min Price</Trans>
-                  </Text>
-                  <Flex color={theme.text} fontWeight="500" alignItems="center" sx={{ gap: '4px' }}>
+                  </span>
+                  <div className="flex items-center gap-1 font-medium text-text">
                     <Trans>
                       {formatTickPrice(priceLower, tickAtLimit, Bound.LOWER)} {unwrappedToken(token1).symbol} per{' '}
                       {unwrappedToken(token0).symbol}
                     </Trans>
-                  </Flex>
-                </Flex>
+                  </div>
+                </div>
 
-                <Flex justifyContent="space-between" fontSize="12px" color={theme.subText} marginTop="12px">
-                  <Text>
+                <div className="mt-3 flex justify-between text-xs text-subText">
+                  <span>
                     <Trans>Max Price</Trans>
-                  </Text>
-                  <Flex color={theme.text} fontWeight="500" alignItems="center" sx={{ gap: '4px' }}>
+                  </span>
+                  <div className="flex items-center gap-1 font-medium text-text">
                     <Trans>
                       {formatTickPrice(priceUpper, tickAtLimit, Bound.UPPER)} {unwrappedToken(token1).symbol} per{' '}
                       {unwrappedToken(token0).symbol}
                     </Trans>
-                  </Flex>
-                </Flex>
+                  </div>
+                </div>
               </OutlineCard>
 
-              <Flex height="38px" />
+              <div className="h-[38px]" />
             </>
           )}
 
-          <Flex marginTop="1rem" sx={{ gap: '12px' }}>
-            <ButtonPrimary
-              style={{ height: '36px' }}
-              disabled={p.liquidity === '0'}
-              onClick={() => removeLiquidity(true)}
-            >
+          <div className="mt-4 flex gap-3">
+            <ButtonPrimary className="h-9" disabled={p.liquidity === '0'} onClick={() => removeLiquidity(true)}>
               <Trans>Remove Liquidity</Trans>
             </ButtonPrimary>
             <ButtonOutlined
-              style={{ height: '36px' }}
+              className="h-9"
               disabled={feeValue0.equalTo('0') && feeValue1.equalTo('0')}
               onClick={() => {
                 collectFee()
@@ -292,8 +272,8 @@ const Row = memo(
             >
               <Trans>Collect Fees</Trans>
             </ButtonOutlined>
-          </Flex>
-        </Item>
+          </div>
+        </div>
 
         <TransactionConfirmationModal
           isOpen={!!showPendingModal}
@@ -302,7 +282,7 @@ const Row = memo(
           attemptingTxn={attemptingTxn}
           pendingText={showPendingModal === 'collectFee' ? t`Collecting Fees` : t`Removing liquidity`}
           content={() => (
-            <Flex flexDirection={'column'} width="100%">
+            <div className="flex w-full flex-col">
               {removeLiquidityError ? (
                 <TransactionErrorContent
                   onDismiss={handleDismiss}
@@ -317,7 +297,7 @@ const Row = memo(
                   }}
                 />
               ) : null}
-            </Flex>
+            </div>
           )}
         />
       </div>

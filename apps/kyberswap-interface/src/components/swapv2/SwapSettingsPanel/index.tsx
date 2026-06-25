@@ -1,161 +1,145 @@
 import { Trans, t } from '@lingui/macro'
-import { rgba } from 'polished'
-import React, { useState } from 'react'
+import React, { ReactNode, useState } from 'react'
 import { ChevronLeft } from 'react-feather'
-import { Box, Flex, Text } from 'rebass'
-import styled from 'styled-components'
 
-import { AutoColumn } from 'components/Column'
-import { RowBetween, RowFixed } from 'components/Row'
-import Toggle from 'components/Toggle'
-import { MouseoverTooltip, TextDashed } from 'components/Tooltip'
+import IconButton from 'components/Button/IconButton'
+import { HStack, Stack } from 'components/Stack'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
-import useTheme from 'hooks/useTheme'
+import { CrossChainSourceSetting } from 'components/swapv2/SwapSettingsPanel/CrossChainSourceSetting'
+import DegenModeSetting from 'components/swapv2/SwapSettingsPanel/DegenModeSetting'
+import LiquiditySourcesSetting from 'components/swapv2/SwapSettingsPanel/LiquiditySourcesSetting'
+import SlippageSetting from 'components/swapv2/SwapSettingsPanel/SlippageSetting'
+import TransactionTimeLimitSetting from 'components/swapv2/SwapSettingsPanel/TransactionTimeLimitSetting'
+import {
+  SettingsDivider,
+  SettingsLabel,
+  SettingsRow,
+  SettingsSection,
+  SettingsToggle,
+} from 'components/swapv2/SwapSettingsPanel/components'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import {
+  useShowPricingChart,
   useShowTradeRoutes,
   useSuccessSoundEnabled,
+  useTogglePricingChart,
   useToggleSuccessSound,
   useToggleTradeRoutes,
   useUserSlippageTolerance,
 } from 'state/user/hooks'
 
-import { CrossChainSourceSetting } from './CrossChainSourceSetting'
-import DegenModeSetting from './DegenModeSetting'
-import LiquiditySourcesSetting from './LiquiditySourcesSetting'
-import SlippageSetting from './SlippageSetting'
-import TransactionTimeLimitSetting from './TransactionTimeLimitSetting'
-
 type Props = {
-  className?: string
   onBack: () => void
   onClickLiquiditySources: () => void
   onClickCrossChainSources: () => void
   isSwapPage?: boolean
   isCrossChainPage?: boolean
+  displaySettings?: {
+    isShowPricingChart?: boolean
+    isShowTradeRoutes?: boolean
+    togglePricingChart?: () => void
+    toggleTradeRoutes?: () => void
+  }
 }
 
-const BackText = styled.span`
-  font-size: 20px;
-  font-weight: 500;
-  color: ${({ theme }) => theme.text};
-`
+const DisplaySettingRow = ({
+  label,
+  tooltip,
+  isActive,
+  toggle,
+}: {
+  label: ReactNode
+  tooltip: ReactNode
+  isActive: boolean
+  toggle: () => void
+}) => (
+  <SettingsRow>
+    <SettingsLabel tooltip={tooltip}>{label}</SettingsLabel>
+    <SettingsToggle isActive={isActive} toggle={toggle} />
+  </SettingsRow>
+)
 
 const SettingsPanel: React.FC<Props> = ({
   isSwapPage,
   isCrossChainPage,
-  className,
   onBack,
   onClickLiquiditySources,
   onClickCrossChainSources,
+  displaySettings,
 }) => {
-  const theme = useTheme()
   const { trackingHandler } = useTracking()
   const [slippage] = useUserSlippageTolerance()
 
   const [showConfirmation, setShowConfirmation] = useState(false)
-  const isShowTradeRoutes = useShowTradeRoutes()
+  const globalShowPricingChart = useShowPricingChart()
+  const globalShowTradeRoutes = useShowTradeRoutes()
   const isSuccessSoundEnabled = useSuccessSoundEnabled()
-  const toggleTradeRoutes = useToggleTradeRoutes()
+  const globalTogglePricingChart = useTogglePricingChart()
+  const globalToggleTradeRoutes = useToggleTradeRoutes()
   const toggleSuccessSound = useToggleSuccessSound()
+  const isShowPricingChart = displaySettings?.isShowPricingChart ?? globalShowPricingChart
+  const isShowTradeRoutes = displaySettings?.isShowTradeRoutes ?? globalShowTradeRoutes
+  const togglePricingChart = displaySettings?.togglePricingChart ?? globalTogglePricingChart
+  const toggleTradeRoutes = displaySettings?.toggleTradeRoutes ?? globalToggleTradeRoutes
 
   return (
-    <Box width="100%" className={className} id={TutorialIds.TRADING_SETTING_CONTENT}>
-      <Flex width={'100%'} flexDirection={'column'} marginBottom="4px">
-        <Flex alignItems="center" sx={{ gap: '4px' }}>
-          <ChevronLeft
-            onClick={() => {
-              if (isCrossChainPage) {
-                trackingHandler(TRACKING_EVENT_TYPE.CC_SETTINGS_SAVED, {
-                  current_max_slippage: slippage / 100,
-                })
-              }
-              onBack()
-            }}
-            color={theme.subText}
-            cursor={'pointer'}
-            size={26}
-          />
-          <BackText>{t`Settings`}</BackText>
-        </Flex>
-
-        <Flex
-          sx={{
-            marginTop: '22px',
-            flexDirection: 'column',
-            rowGap: '12px',
-            width: '100%',
+    <Stack className="w-full gap-4" id={TutorialIds.TRADING_SETTING_CONTENT}>
+      <HStack className="items-center gap-1">
+        <IconButton
+          aria-label={t`Back`}
+          onClick={() => {
+            if (isCrossChainPage) {
+              trackingHandler(TRACKING_EVENT_TYPE.CC_SETTINGS_SAVED, {
+                current_max_slippage: slippage / 100,
+              })
+            }
+            onBack()
           }}
         >
-          {(isSwapPage || isCrossChainPage) && (
-            <>
-              <span className="settingTitle">
-                <Trans>Advanced Settings</Trans>
-              </span>
+          <ChevronLeft size={26} className="text-subText" />
+        </IconButton>
+        <span className="text-xl font-medium text-text">{t`Settings`}</span>
+      </HStack>
 
-              <SlippageSetting />
-              {isSwapPage && <TransactionTimeLimitSetting />}
-              <DegenModeSetting showConfirmation={showConfirmation} setShowConfirmation={setShowConfirmation} />
-              {isSwapPage && <LiquiditySourcesSetting onClick={onClickLiquiditySources} />}
-              {isCrossChainPage && <CrossChainSourceSetting onClick={onClickCrossChainSources} />}
-            </>
-          )}
+      <Stack className="w-full gap-4">
+        {(isSwapPage || isCrossChainPage) && (
+          <SettingsSection title={<Trans>Advanced Settings</Trans>}>
+            <SlippageSetting />
+            {isSwapPage && <TransactionTimeLimitSetting />}
+            <DegenModeSetting showConfirmation={showConfirmation} setShowConfirmation={setShowConfirmation} />
+            {isSwapPage && <LiquiditySourcesSetting onClick={onClickLiquiditySources} />}
+            {isCrossChainPage && <CrossChainSourceSetting onClick={onClickCrossChainSources} />}
+          </SettingsSection>
+        )}
 
-          {isSwapPage && (
-            <Flex
-              sx={{
-                flexDirection: 'column',
-                rowGap: '12px',
-                paddingTop: '16px',
-                borderTop: `1px solid ${theme.border}`,
-              }}
-            >
-              <Text
-                as="span"
-                sx={{
-                  fontSize: '16px',
-                  fontWeight: 500,
-                }}
-              >
-                <Trans>Display Settings</Trans>
-              </Text>
-              <AutoColumn gap="md">
-                {(isSwapPage || isCrossChainPage) && (
-                  <RowBetween>
-                    <RowFixed>
-                      <TextDashed fontSize={12} fontWeight={400} color={theme.subText} underlineColor={theme.border}>
-                        <MouseoverTooltip text={<Trans>Turn on to display trade route.</Trans>} placement="right">
-                          <Trans>Trade Route</Trans>
-                        </MouseoverTooltip>
-                      </TextDashed>
-                    </RowFixed>
-                    <Toggle isActive={isShowTradeRoutes} toggle={toggleTradeRoutes} />
-                  </RowBetween>
-                )}
-                <RowBetween>
-                  <RowFixed>
-                    <TextDashed fontSize={12} fontWeight={400} color={theme.subText} underlineColor={theme.border}>
-                      <MouseoverTooltip text={<Trans>Turn on to play success sound.</Trans>} placement="right">
-                        <Trans>Sound</Trans>
-                      </MouseoverTooltip>
-                    </TextDashed>
-                  </RowFixed>
-                  <Toggle isActive={isSuccessSoundEnabled} toggle={toggleSuccessSound} />
-                </RowBetween>
-              </AutoColumn>
-            </Flex>
-          )}
-        </Flex>
-      </Flex>
-    </Box>
+        {isSwapPage && (
+          <>
+            <SettingsDivider />
+            <SettingsSection title={<Trans>Display Settings</Trans>}>
+              <DisplaySettingRow
+                label={<Trans>Pricing Chart</Trans>}
+                tooltip={<Trans>Turn on to display pricing chart.</Trans>}
+                isActive={isShowPricingChart}
+                toggle={togglePricingChart}
+              />
+              <DisplaySettingRow
+                label={<Trans>Trade Route</Trans>}
+                tooltip={<Trans>Turn on to display trade route.</Trans>}
+                isActive={isShowTradeRoutes}
+                toggle={toggleTradeRoutes}
+              />
+              <DisplaySettingRow
+                label={<Trans>Sound</Trans>}
+                tooltip={<Trans>Turn on to play success sound.</Trans>}
+                isActive={isSuccessSoundEnabled}
+                toggle={toggleSuccessSound}
+              />
+            </SettingsSection>
+          </>
+        )}
+      </Stack>
+    </Stack>
   )
 }
 
-export default styled(SettingsPanel)`
-  ${Toggle} {
-    background: ${({ theme }) => theme.buttonBlack};
-    &[data-active='true'] {
-      background: ${({ theme }) => rgba(theme.primary, 0.2)};
-    }
-  }
-`
+export default SettingsPanel

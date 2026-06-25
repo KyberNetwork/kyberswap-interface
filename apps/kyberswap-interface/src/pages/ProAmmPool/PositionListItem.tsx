@@ -1,14 +1,10 @@
 import { Currency, CurrencyAmount, Price, Token } from '@kyberswap/ks-sdk-core'
 import { Position } from '@kyberswap/ks-sdk-elastic'
 import { Trans, t } from '@lingui/macro'
-import { BigNumber } from 'ethers'
-import React, { useMemo, useState } from 'react'
+import React, { ComponentProps, HTMLAttributes, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Flex, Text } from 'rebass'
-import styled from 'styled-components'
 
 import { ButtonEmpty, ButtonOutlined, ButtonPrimary } from 'components/Button'
-import { LightCard } from 'components/Card'
 import Divider from 'components/Divider'
 import ProAmmFee from 'components/ProAmm/ProAmmFee'
 import ProAmmPoolInfo from 'components/ProAmm/ProAmmPoolInfo'
@@ -21,81 +17,31 @@ import { useActiveWeb3React } from 'hooks'
 import { useToken } from 'hooks/Tokens'
 import useIsTickAtLimit from 'hooks/useIsTickAtLimit'
 import { usePool } from 'hooks/usePools'
-import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
+import ContentLoader from 'pages/ProAmmPool/ContentLoader'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { ExternalLink, StyledInternalLink } from 'theme'
 import { PositionDetails } from 'types/position'
+import { cn } from 'utils/cn'
 import { currencyId } from 'utils/currencyId'
 import { formatDollarAmount } from 'utils/numbers'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 
-import ContentLoader from './ContentLoader'
+export const TabContainer = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('flex rounded-full bg-tabBackground p-0.5', className)} {...rest} />
+)
 
-const StyledPositionCard = styled(LightCard)`
-  border: none;
-  background: ${({ theme }) => theme.background};
-  position: relative;
-  overflow: hidden;
-  border-radius: 20px;
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    padding: 16px;
-  `}
-`
-
-export const TabContainer = styled.div`
-  display: flex;
-  border-radius: 999px;
-  background-color: ${({ theme }) => theme.tabBackground};
-  padding: 2px;
-`
-
-export const Tab = styled(ButtonEmpty)<{ isActive?: boolean; isLeft?: boolean }>`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex: 1;
-  background-color: ${({ theme, isActive }) => (isActive ? theme.tabActive : theme.tabBackground)};
-  color: ${({ theme, isActive }) => (isActive ? theme.text : theme.subText)};
-  padding: 4px;
-  font-size: 12px;
-  font-weight: 500;
-  border-radius: 20px;
-  transition: all 0.2s;
-
-  &:hover {
-    text-decoration: none;
-  }
-`
-
-const StakedInfo = styled.div`
-  border-radius: 4px;
-  border: 1px solid ${({ theme }) => theme.border};
-  padding: 12px;
-  margin-top: 16px;
-`
-
-const StakedRow = styled.div`
-  line-height: 24px;
-  display: flex;
-  justify-content: space-between;
-  font-size: 12px;
-`
-
-const ButtonGroup = styled.div`
-  display: flex;
-  gap: 1rem;
-  margin-bottom: 20px;
-
-  > * {
-    /* to make sure all immediate buttons take equal width */
-    flex: 1 1 50%;
-  }
-`
+type TabProps = ComponentProps<typeof ButtonEmpty> & { isActive?: boolean; isLeft?: boolean }
+export const Tab = ({ isActive, isLeft: _isLeft, className, ...rest }: TabProps) => (
+  <ButtonEmpty
+    className={cn(
+      'flex flex-1 items-center justify-center rounded-[20px] p-1 text-xs font-medium transition-all duration-200 hover:no-underline',
+      isActive ? 'bg-tabActive text-text' : 'bg-tabBackground text-subText',
+      className,
+    )}
+    {...rest}
+  />
+)
 
 enum TAB {
   MY_LIQUIDITY = 'my-liquidity',
@@ -159,7 +105,7 @@ function PositionListItem({
   const hasActiveFarm = false
   const hasActiveFarmV2 = false
 
-  const [farmReward, _setFarmReward] = useState<BigNumber[] | null>(null)
+  const [farmReward, _setFarmReward] = useState<bigint[] | null>(null)
 
   const token0 = useToken(token0Address)
   const token1 = useToken(token1Address)
@@ -207,7 +153,7 @@ function PositionListItem({
     const temp = farmReward?.[index]
     return (
       usdValue +
-      +CurrencyAmount.fromRawAmount(currency, temp?.gt('0') ? temp?.toString() : '0').toExact() *
+      +CurrencyAmount.fromRawAmount(currency, temp && temp > 0n ? temp.toString() : '0').toExact() *
         prices[currency.wrapped.address]
     )
   }, 0)
@@ -222,8 +168,7 @@ function PositionListItem({
   // prices
   const { priceLower, priceUpper } = getPriceOrderingFromPositionForUI(position)
 
-  const removed = liquidity?.eq(0)
-  const theme = useTheme()
+  const removed = liquidity === 0n
 
   const { trackingHandler } = useTracking()
 
@@ -240,197 +185,176 @@ function PositionListItem({
   if (!position || !priceLower || !priceUpper) return <ContentLoader />
 
   return (
-    <StyledPositionCard>
-      <>
-        <ProAmmPoolInfo
-          position={position}
-          tokenId={positionDetails.tokenId.toString()}
-          isFarmActive={hasActiveFarm}
-          isFarmV2Active={hasActiveFarmV2}
-        />
-        <TabContainer style={{ marginTop: '1rem' }}>
-          <Tab isActive={activeTab === TAB.MY_LIQUIDITY} padding="0" onClick={() => setActiveTab(TAB.MY_LIQUIDITY)}>
-            <Trans>My Liquidity</Trans>
-          </Tab>
-          <Tab isActive={activeTab === TAB.PRICE_RANGE} padding="0" onClick={() => setActiveTab(TAB.PRICE_RANGE)}>
-            <Trans>Price Range</Trans>
-          </Tab>
-        </TabContainer>
-        {activeTab === TAB.MY_LIQUIDITY && (
-          <>
-            {!stakedLayout ? (
-              <ProAmmPooledTokens
-                positionAPR={positionAPR}
-                createdAt={createdAt}
-                farmAPR={farmAPR || farmV2APR}
-                valueUSD={usd}
-                stakedUsd={stakedUsd}
-                liquidityValue0={CurrencyAmount.fromRawAmount(
-                  unwrappedToken(position.pool.token0),
-                  position.amount0.quotient,
-                )}
-                liquidityValue1={CurrencyAmount.fromRawAmount(
-                  unwrappedToken(position.pool.token1),
-                  position.amount1.quotient,
-                )}
-                layout={1}
-              />
-            ) : (
-              <StakedInfo>
-                <StakedRow>
-                  <Text color={theme.subText}>
-                    <Trans>My Staked Balance</Trans>
-                  </Text>
-                  <Text>{formatDollarAmount(stakedUsd)}</Text>
-                </StakedRow>
-
-                <StakedRow>
-                  <Text color={theme.subText}>
-                    <Trans>My Staked {position.amount0.currency.symbol}</Trans>
-                  </Text>
-                  <Text>{0}</Text>
-                </StakedRow>
-
-                <StakedRow>
-                  <Text color={theme.subText}>
-                    <Trans>My Staked {position.amount1.currency.symbol}</Trans>
-                  </Text>
-                  <Text>0</Text>
-                </StakedRow>
-
-                <StakedRow>
-                  <Text color={theme.subText}>
-                    <Trans>My Farm APR</Trans>
-                  </Text>
-                  <Text color={theme.apr}>{farmAPR || farmV2APR ? (farmAPR || farmV2APR).toFixed(2) + '%' : '--'}</Text>
-                </StakedRow>
-              </StakedInfo>
-            )}
-            {!stakedLayout && (
-              <ProAmmFee
-                totalFeeRewardUSD={currentFeeValue}
-                feeValue0={feeValue0}
-                feeValue1={feeValue1}
-                position={position}
-                tokenId={positionDetails.tokenId}
-                layout={1}
-              />
-            )}
-          </>
-        )}
-        {activeTab === TAB.PRICE_RANGE && <ProAmmPriceRange position={position} ticksAtLimit={tickAtLimit} />}
-        <div style={{ marginTop: '20px' }} />
-        <Flex flexDirection={'column'} marginTop="auto">
-          {stakedLayout ? (
-            <ButtonPrimary
-              style={{ marginBottom: '20px', textDecoration: 'none', color: theme.textReverse, fontSize: '14px' }}
-              padding="8px"
-              as={StyledInternalLink}
-              to={`${APP_PATHS.FARMS}/${networkInfo.route}?${new URLSearchParams({
-                tab: 'elastic',
-                type: positionDetails.endTime ? (positionDetails.endTime > now ? 'active' : 'ended') : 'active',
-                search: positionDetails.poolId,
-              }).toString()}`}
-            >
-              <Trans>Go to Farm</Trans>
-            </ButtonPrimary>
-          ) : (
-            <ButtonGroup>
-              {reasonToDisableRemoveLiquidity ? (
-                <MouseoverTooltip text={reasonToDisableRemoveLiquidity} placement="top">
-                  <Flex
-                    // this flex looks like redundant
-                    // but without this, the cursor will be default
-                    // as we put pointerEvents=none on the button
-                    sx={{
-                      cursor: 'not-allowed',
-                      width: '100%',
-                    }}
-                  >
-                    <ButtonOutlined
-                      style={{
-                        padding: '8px',
-                        width: '100%',
-                        pointerEvents: 'none',
-                      }}
-                      disabled
-                    >
-                      <Text width="max-content" fontSize="14px">
-                        <Trans>Remove Liquidity</Trans>
-                      </Text>
-                    </ButtonOutlined>
-                  </Flex>
-                </MouseoverTooltip>
-              ) : (
-                <ButtonOutlined
-                  padding="8px"
-                  as={Link}
-                  to={`/${networkInfo.route}${APP_PATHS.ELASTIC_REMOVE_POOL}/${positionDetails.tokenId}`}
-                  onClick={() => {
-                    trackingHandler(TRACKING_EVENT_TYPE.ELASTIC_REMOVE_LIQUIDITY_INITIATED, {
-                      token_1: token0?.symbol || '',
-                      token_2: token1?.symbol || '',
-                      fee_tier: (pool?.fee as number) / 10000,
-                    })
-                  }}
-                >
-                  <Text width="max-content" fontSize="14px">
-                    <Trans>Remove Liquidity</Trans>
-                  </Text>
-                </ButtonOutlined>
+    <div className="relative flex flex-col overflow-hidden rounded-[20px] bg-background p-5 max-md:p-4">
+      <ProAmmPoolInfo
+        position={position}
+        tokenId={positionDetails.tokenId.toString()}
+        isFarmActive={hasActiveFarm}
+        isFarmV2Active={hasActiveFarmV2}
+      />
+      <TabContainer className="mt-4">
+        <Tab isActive={activeTab === TAB.MY_LIQUIDITY} padding="0" onClick={() => setActiveTab(TAB.MY_LIQUIDITY)}>
+          <Trans>My Liquidity</Trans>
+        </Tab>
+        <Tab isActive={activeTab === TAB.PRICE_RANGE} padding="0" onClick={() => setActiveTab(TAB.PRICE_RANGE)}>
+          <Trans>Price Range</Trans>
+        </Tab>
+      </TabContainer>
+      {activeTab === TAB.MY_LIQUIDITY && (
+        <>
+          {!stakedLayout ? (
+            <ProAmmPooledTokens
+              positionAPR={positionAPR}
+              createdAt={createdAt}
+              farmAPR={farmAPR || farmV2APR}
+              valueUSD={usd}
+              stakedUsd={stakedUsd}
+              liquidityValue0={CurrencyAmount.fromRawAmount(
+                unwrappedToken(position.pool.token0),
+                position.amount0.quotient,
               )}
+              liquidityValue1={CurrencyAmount.fromRawAmount(
+                unwrappedToken(position.pool.token1),
+                position.amount1.quotient,
+              )}
+              layout={1}
+            />
+          ) : (
+            <div className="mt-4 rounded border border-border p-3">
+              <div className="flex justify-between text-xs leading-6">
+                <span className="text-subText">
+                  <Trans>My Staked Balance</Trans>
+                </span>
+                <span>{formatDollarAmount(stakedUsd)}</span>
+              </div>
 
-              <ButtonPrimary
-                id="increase-liquidity-button"
+              <div className="flex justify-between text-xs leading-6">
+                <span className="text-subText">
+                  <Trans>My Staked {position.amount0.currency.symbol}</Trans>
+                </span>
+                <span>{0}</span>
+              </div>
+
+              <div className="flex justify-between text-xs leading-6">
+                <span className="text-subText">
+                  <Trans>My Staked {position.amount1.currency.symbol}</Trans>
+                </span>
+                <span>0</span>
+              </div>
+
+              <div className="flex justify-between text-xs leading-6">
+                <span className="text-subText">
+                  <Trans>My Farm APR</Trans>
+                </span>
+                <span className="text-apr">
+                  {farmAPR || farmV2APR ? (farmAPR || farmV2APR).toFixed(2) + '%' : '--'}
+                </span>
+              </div>
+            </div>
+          )}
+          {!stakedLayout && (
+            <ProAmmFee
+              totalFeeRewardUSD={currentFeeValue}
+              feeValue0={feeValue0}
+              feeValue1={feeValue1}
+              position={position}
+              tokenId={positionDetails.tokenId}
+              layout={1}
+            />
+          )}
+        </>
+      )}
+      {activeTab === TAB.PRICE_RANGE && <ProAmmPriceRange position={position} ticksAtLimit={tickAtLimit} />}
+      <div className="mt-5" />
+      <div className="mt-auto flex flex-col">
+        {stakedLayout ? (
+          <ButtonPrimary
+            className="mb-5 text-sm !text-textReverse no-underline"
+            padding="8px"
+            as={StyledInternalLink}
+            to={`${APP_PATHS.FARMS}/${networkInfo.route}?${new URLSearchParams({
+              tab: 'elastic',
+              type: positionDetails.endTime ? (positionDetails.endTime > now ? 'active' : 'ended') : 'active',
+              search: positionDetails.poolId,
+            }).toString()}`}
+          >
+            <Trans>Go to Farm</Trans>
+          </ButtonPrimary>
+        ) : (
+          <div className="mb-5 flex gap-4 [&>*]:flex-1 [&>*]:basis-1/2">
+            {reasonToDisableRemoveLiquidity ? (
+              <MouseoverTooltip text={reasonToDisableRemoveLiquidity} placement="top">
+                <div className="flex w-full cursor-not-allowed">
+                  <ButtonOutlined className="pointer-events-none w-full p-2" disabled>
+                    <span className="w-max text-sm">
+                      <Trans>Remove Liquidity</Trans>
+                    </span>
+                  </ButtonOutlined>
+                </div>
+              </MouseoverTooltip>
+            ) : (
+              <ButtonOutlined
                 padding="8px"
-                style={{
-                  borderRadius: '18px',
-                  fontSize: '14px',
-                }}
                 as={Link}
-                to={`/${networkInfo.route}${APP_PATHS.ELASTIC_INCREASE_LIQ}/${currencyId(
-                  currency0,
-                  chainId,
-                )}/${currencyId(currency1, chainId)}/${feeAmount}/${positionDetails.tokenId}`}
+                to={`/${networkInfo.route}${APP_PATHS.ELASTIC_REMOVE_POOL}/${positionDetails.tokenId}`}
                 onClick={() => {
-                  trackingHandler(TRACKING_EVENT_TYPE.ELASTIC_INCREASE_LIQUIDITY_INITIATED, {
+                  trackingHandler(TRACKING_EVENT_TYPE.ELASTIC_REMOVE_LIQUIDITY_INITIATED, {
                     token_1: token0?.symbol || '',
                     token_2: token1?.symbol || '',
                     fee_tier: (pool?.fee as number) / 10000,
                   })
                 }}
               >
-                <Text width="max-content" fontSize="14px">
-                  <Trans>Increase Liquidity</Trans>
-                </Text>
-              </ButtonPrimary>
-            </ButtonGroup>
-          )}
-          <Divider sx={{ marginBottom: '20px' }} />
-          <RowBetween>
-            <ButtonEmpty width="max-content" style={{ fontSize: '14px' }} padding="0">
-              <ExternalLink
-                style={{ width: '100%', textAlign: 'center' }}
-                href={`${PROMM_ANALYTICS_URL[chainId]}/pool/${positionDetails.poolId.toLowerCase()}`}
-              >
-                <Trans>Pool Analytics ↗</Trans>
-              </ExternalLink>
-            </ButtonEmpty>
-
-            {(hasUserDepositedInFarm || hasActiveFarm || hasActiveFarmV2) && (
-              <ButtonEmpty width="max-content" style={{ fontSize: '14px' }} padding="0">
-                <StyledInternalLink
-                  style={{ width: '100%', textAlign: 'center' }}
-                  to={`${APP_PATHS.FARMS}/${networkInfo.route}`}
-                >
-                  <Trans>Go to Farms ↗</Trans>
-                </StyledInternalLink>
-              </ButtonEmpty>
+                <span className="w-max text-sm">
+                  <Trans>Remove Liquidity</Trans>
+                </span>
+              </ButtonOutlined>
             )}
-          </RowBetween>
-        </Flex>
-      </>
-    </StyledPositionCard>
+
+            <ButtonPrimary
+              id="increase-liquidity-button"
+              padding="8px"
+              className="rounded-[18px] text-sm"
+              as={Link}
+              to={`/${networkInfo.route}${APP_PATHS.ELASTIC_INCREASE_LIQ}/${currencyId(
+                currency0,
+                chainId,
+              )}/${currencyId(currency1, chainId)}/${feeAmount}/${positionDetails.tokenId}`}
+              onClick={() => {
+                trackingHandler(TRACKING_EVENT_TYPE.ELASTIC_INCREASE_LIQUIDITY_INITIATED, {
+                  token_1: token0?.symbol || '',
+                  token_2: token1?.symbol || '',
+                  fee_tier: (pool?.fee as number) / 10000,
+                })
+              }}
+            >
+              <span className="w-max text-sm">
+                <Trans>Increase Liquidity</Trans>
+              </span>
+            </ButtonPrimary>
+          </div>
+        )}
+        <Divider className="mb-5" />
+        <RowBetween>
+          <ButtonEmpty width="max-content" className="text-sm" padding="0">
+            <ExternalLink
+              className="w-full text-center"
+              href={`${PROMM_ANALYTICS_URL[chainId]}/pool/${positionDetails.poolId.toLowerCase()}`}
+            >
+              <Trans>Pool Analytics ↗</Trans>
+            </ExternalLink>
+          </ButtonEmpty>
+
+          {(hasUserDepositedInFarm || hasActiveFarm || hasActiveFarmV2) && (
+            <ButtonEmpty width="max-content" className="text-sm" padding="0">
+              <StyledInternalLink className="w-full text-center" to={`${APP_PATHS.FARMS}/${networkInfo.route}`}>
+                <Trans>Go to Farms ↗</Trans>
+              </StyledInternalLink>
+            </ButtonEmpty>
+          )}
+        </RowBetween>
+      </div>
+    </div>
   )
 }
 

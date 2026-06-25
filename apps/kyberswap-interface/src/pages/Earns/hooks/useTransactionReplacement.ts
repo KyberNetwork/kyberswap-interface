@@ -14,7 +14,7 @@ export default function useTransactionReplacement() {
   const [trackedTxHash, setTrackedTxHash] = useState<string[]>([])
   const [originalToCurrentHash, setOriginalToCurrentHash] = useState<Record<string, string>>({})
   const [cancelledTxHashes, setCancelledTxHashes] = useState<Set<string>>(new Set())
-  const prevAllTransactionsRef = useRef<typeof allTransactions>()
+  const prevAllTransactionsRef = useRef<typeof allTransactions | undefined>(undefined)
 
   // Handle transaction replacement (speed up, cancel)
   useEffect(() => {

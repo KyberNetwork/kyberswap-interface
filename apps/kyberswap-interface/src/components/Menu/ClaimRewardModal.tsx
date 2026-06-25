@@ -1,6 +1,4 @@
 import { Trans, t } from '@lingui/macro'
-import { Flex, Text } from 'rebass'
-import styled from 'styled-components'
 
 import { ButtonPrimary } from 'components/Button'
 import CurrencyLogo from 'components/CurrencyLogo'
@@ -9,30 +7,15 @@ import TransactionConfirmationModal, { TransactionErrorContent } from 'component
 import { KNC } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import useClaimReward from 'hooks/useClaimReward'
-import useTheme from 'hooks/useTheme'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useToggleModal } from 'state/application/hooks'
 import { CloseIcon } from 'theme'
 import { shortenAddress } from 'utils'
 
-const AddressWrapper = styled.div`
-  background: ${({ theme }) => theme.buttonBlack};
-  border-radius: 8px;
-  padding: 12px;
-  overflow: hidden;
-  p {
-    margin: 12px 0 0 0;
-    font-size: 24px;
-    line-height: 28px;
-    font-weight: 500;
-    color: ${({ theme }) => theme.disableText};
-  }
-`
 function ClaimRewardModal() {
   const { chainId, account } = useActiveWeb3React()
   const open = useModalOpen(ApplicationModal.CLAIM_POPUP)
   const toggle = useToggleModal(ApplicationModal.CLAIM_POPUP)
-  const theme = useTheme()
   const {
     isUserHasReward,
     rewardAmounts,
@@ -55,30 +38,30 @@ function ClaimRewardModal() {
         message={claimRewardError}
       />
     ) : (
-      <Flex flexDirection={'column'} padding="26px 24px" style={{ gap: '25px' }}>
+      <div className="flex flex-col gap-[25px] px-6 py-[26px]">
         <RowBetween>
-          <Text fontSize={20} fontWeight={500} color={theme.text}>
+          <span className="text-xl font-medium text-text">
             <Trans>Claim your rewards</Trans>
-          </Text>
+          </span>
           <CloseIcon onClick={toggle} />
         </RowBetween>
 
-        <AddressWrapper>
-          <Text color={theme.subText} fontSize={12}>
+        <div className="overflow-hidden rounded-lg bg-buttonBlack p-3 [&>p]:m-0 [&>p]:mt-3 [&>p]:text-2xl [&>p]:font-medium [&>p]:leading-7 [&>p]:text-disableText">
+          <span className="text-xs text-subText">
             <Trans>Your wallet address</Trans>
-          </Text>
+          </span>
           <p>{account && shortenAddress(chainId, account, 9)}</p>
-        </AddressWrapper>
-        <Text fontSize={16} lineHeight="24px" color={theme.text}>
+        </div>
+        <span className="text-base leading-6 text-text">
           <Trans>If your wallet is eligible, you will be able to claim your reward below. You can claim:</Trans>
-        </Text>
-        <Text fontSize={32} lineHeight="38px" fontWeight={500}>
+        </span>
+        <span className="text-[32px] font-medium leading-[38px]">
           <CurrencyLogo currency={KNC[chainId]} /> {rewardAmounts} KNC
-        </Text>
+        </span>
         <ButtonPrimary disabled={!isCanClaim} onClick={claimRewardsCallback}>
           <Trans>Claim</Trans>
         </ButtonPrimary>
-      </Flex>
+      </div>
     )
 
   return (

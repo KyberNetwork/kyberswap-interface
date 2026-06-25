@@ -1,12 +1,11 @@
 import { Trans } from '@lingui/macro'
 import { useState } from 'react'
 import { X } from 'react-feather'
-import { Flex, Text } from 'rebass'
 
 import { ButtonEmpty, ButtonOutlined, ButtonPrimary } from 'components/Button'
 import CheckBox from 'components/CheckBox'
 import Modal from 'components/Modal'
-import useTheme from 'hooks/useTheme'
+import { TERM_FILES_PATH } from 'constants/index'
 import { ExternalLink } from 'theme'
 
 export default function TermAndPolicyModal({
@@ -18,26 +17,12 @@ export default function TermAndPolicyModal({
   onDismiss: () => void
   onOk: () => void
 }) {
-  const theme = useTheme()
   const [accept1, setAccept1] = useState(false)
   const [accept2, setAccept2] = useState(false)
   const [accept3, setAccept3] = useState(false)
   return (
     <Modal isOpen={isOpen} onDismiss={onDismiss} maxWidth="800px" width="100%">
-      <Flex
-        flexDirection="column"
-        padding="20px"
-        bg={theme.background}
-        width="100%"
-        lineHeight={1.5}
-        sx={{
-          position: 'relative',
-          fontSize: '14px',
-          gap: '24px',
-          lineHeight: 1.5,
-          textAlign: 'justify',
-        }}
-      >
+      <div className="relative flex w-full flex-col gap-6 bg-background p-5 text-justify text-sm leading-normal">
         <ButtonEmpty
           onClick={() => {
             onDismiss()
@@ -45,63 +30,44 @@ export default function TermAndPolicyModal({
           width="36px"
           height="36px"
           padding="0"
-          style={{ position: 'absolute', right: '1rem', top: '1rem' }}
+          className="absolute right-4 top-4"
         >
-          <X color={theme.text} />
+          <X className="text-text" />
         </ButtonEmpty>
 
-        <Text color={theme.text} fontSize="20px" fontWeight="500" textAlign="center">
-          Terms and Conditions
-        </Text>
+        <p className="text-center text-xl font-medium text-text">Terms and Conditions</p>
 
-        <Flex
-          alignItems="flex-start"
-          sx={{ gap: '8px', cursor: 'pointer' }}
-          onClick={() => setAccept1(prev => !prev)}
-          role="button"
-        >
+        <div className="flex cursor-pointer items-start gap-2" onClick={() => setAccept1(prev => !prev)} role="button">
           <CheckBox checked={accept1} />
-          <Text marginTop="-4px">
+          <p className="-mt-1">
             I understand that my participation in the [KyberSwap Elastic Exploit Grant Program] (“Grant Program”) will
             be subject to my completion of KYC screening to the satisfaction of KyberSwap and further subject to terms
             (“Terms of Grant”) to be published by KyberSwap, which Terms of Grant will include terms that require return
             of all or part of any grant to me pursuant to the Grant Program in the event of my full or partial recovery
             of assets taken from me in the KyberSwap Elastic Exploit.
-          </Text>
-        </Flex>
+          </p>
+        </div>
 
-        <Flex
-          alignItems="flex-start"
-          sx={{ gap: '8px', cursor: 'pointer' }}
-          onClick={() => setAccept2(prev => !prev)}
-          role="button"
-        >
+        <div className="flex cursor-pointer items-start gap-2" onClick={() => setAccept2(prev => !prev)} role="button">
           <CheckBox checked={accept2} />
-          <Text marginTop="-4px">
+          <p className="-mt-1">
             I further understand that I will have to read and agree to the Terms of Grant as and when published before I
             will be eligible to be considered for or to receive any grant as KyberSwap may decide to extend to me
             pursuant to the Terms of Grant.
-          </Text>
-        </Flex>
+          </p>
+        </div>
 
-        <Flex
-          alignItems="flex-start"
-          sx={{ gap: '8px', cursor: 'pointer' }}
-          onClick={() => setAccept3(prev => !prev)}
-          role="button"
-        >
+        <div className="flex cursor-pointer items-start gap-2" onClick={() => setAccept3(prev => !prev)} role="button">
           <CheckBox checked={accept3} />
-          <Text marginTop="-4px">
+          <p className="-mt-1">
             I acknowledge I have read and agree to the{' '}
-            <ExternalLink href="https://kyberswap.com/files/Kyber%20-%20Privacy%20Policy%20-%2020%20November%202023.pdf">
-              KyberSwap Privacy Policy
-            </ExternalLink>{' '}
-            which I agree will apply to any personal data provided by me in connection with the above mentioned KYC
-            screening and my participation in the Grant Program.
-          </Text>
-        </Flex>
+            <ExternalLink href={TERM_FILES_PATH.PRIVACY_POLICY}>KyberSwap Privacy Policy</ExternalLink> which I agree
+            will apply to any personal data provided by me in connection with the above mentioned KYC screening and my
+            participation in the Grant Program.
+          </p>
+        </div>
 
-        <Flex marginTop="16px" sx={{ gap: '1rem' }}>
+        <div className="mt-4 flex gap-4">
           <ButtonOutlined onClick={onDismiss}>
             <Trans>Cancel</Trans>
           </ButtonOutlined>
@@ -113,8 +79,8 @@ export default function TermAndPolicyModal({
           >
             Proceed with KYC
           </ButtonPrimary>
-        </Flex>
-      </Flex>
+        </div>
+      </div>
     </Modal>
   )
 }

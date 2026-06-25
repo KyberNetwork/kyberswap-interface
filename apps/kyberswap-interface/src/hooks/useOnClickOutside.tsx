@@ -2,7 +2,7 @@ import { RefObject, useEffect, useRef } from 'react'
 import { isMobile } from 'react-device-detect'
 
 export function useOnClickOutside<T extends HTMLElement>(
-  node: RefObject<T | undefined> | RefObject<T | undefined>[],
+  node: RefObject<T | null> | RefObject<T | null>[],
   handler: undefined | (() => void),
 ) {
   const handlerRef = useRef<undefined | (() => void)>(handler)
@@ -10,7 +10,7 @@ export function useOnClickOutside<T extends HTMLElement>(
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent | TouchEvent) => {
-      let nodes: RefObject<T | undefined>[]
+      let nodes: RefObject<T | null>[]
       if ([...document.getElementsByTagName('reach-portal')].some((el: Element) => el.contains(e.target as Node))) {
         return
       }

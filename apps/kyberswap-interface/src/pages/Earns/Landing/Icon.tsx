@@ -1,5 +1,3 @@
-import { Flex } from 'rebass'
-
 const Icon = ({
   icon,
   size = 'medium',
@@ -9,26 +7,17 @@ const Icon = ({
   size: 'small' | 'medium'
   customSize?: number
 }) => {
+  const dimension = customSize ? `${customSize}px` : size === 'small' ? '40px' : '80px'
+  const padding = size === 'medium' ? '8px' : '4px'
   return (
-    <Flex
-      width={customSize ? `${customSize}px` : size === 'small' ? '40px' : '80px'}
-      height={customSize ? `${customSize}px` : size === 'small' ? '40px' : '80px'}
-      padding={size === 'medium' ? '8px' : '4px'}
-      sx={{ border: `1px solid #258166`, borderRadius: '50%' }}
+    <div
+      className="flex rounded-full border border-solid"
+      style={{ width: dimension, height: dimension, padding, borderColor: '#258166' }}
     >
-      <Flex
-        width="100%"
-        height="100%"
-        backgroundColor="#23312E"
-        alignItems="center"
-        justifyContent="center"
-        sx={{
-          borderRadius: '50%',
-        }}
-      >
+      <div className="flex size-full items-center justify-center rounded-full" style={{ backgroundColor: '#23312E' }}>
         {typeof icon === 'string' ? <img src={icon} alt="icon" width={size === 'small' ? '24px' : '40px'} /> : icon}
-      </Flex>
-    </Flex>
+      </div>
+    </div>
   )
 }
 

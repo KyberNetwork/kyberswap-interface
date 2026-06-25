@@ -1,5 +1,4 @@
 import { memo } from 'react'
-import { Flex } from 'rebass'
 
 import {
   EmptyItem,
@@ -28,10 +27,7 @@ function TopTokensScene({ nickname, topTokens }: TopTokensSceneProps) {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.8, ease: 'easeInOut' }}
-      style={{
-        gap: '16px',
-        marginTop: '48px',
-      }}
+      className="mt-12 gap-4"
     >
       <NicknameHeader>{nickname}</NicknameHeader>
       <TopListTitle
@@ -48,18 +44,16 @@ function TopTokensScene({ nickname, topTokens }: TopTokensSceneProps) {
             initial={{ opacity: 0, x: -30 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.3 + index * 0.15, duration: 0.6, ease: 'easeOut' }}
-            style={{
-              paddingLeft: '20%',
-            }}
+            className="pl-[20%]"
           >
             <TopListRank>{index + 1}</TopListRank>
-            <Flex alignItems="center" sx={{ gap: '8px' }}>
+            <div className="flex items-center gap-2">
               <TopListIconWrapper>
                 <TopListIcon src={token.logo} alt={token.symbol} />
                 {token.chainLogo && <TopListChainIcon src={token.chainLogo} alt="chain" />}
               </TopListIconWrapper>
               <TopListName>{token.symbol}</TopListName>
-            </Flex>
+            </div>
           </TopListItem>
         ))}
         {topTokens.length === 0 && (

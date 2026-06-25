@@ -1,15 +1,13 @@
 import { Currency, Price } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import React, { ReactNode, useState } from 'react'
+import { CSSProperties, ReactNode, useState } from 'react'
 import { Repeat } from 'react-feather'
-import { Text } from 'rebass'
-import { CSSProperties } from 'styled-components'
 
-import useTheme from 'hooks/useTheme'
+import Dots from 'components/Dots'
+import { StyledBalanceMaxMini } from 'components/swapv2/styleds'
+import { cn } from 'utils/cn'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
 import { formatDisplayNumber } from 'utils/numbers'
-
-import { Dots, StyledBalanceMaxMini } from './styleds'
 
 interface TradePriceProps {
   price: Price<Currency, Currency> | undefined
@@ -17,10 +15,10 @@ interface TradePriceProps {
   icon?: ReactNode
   style?: CSSProperties
   color?: string
+  className?: string
 }
 
-export default function TradePrice({ price, label, icon, style = {}, color }: TradePriceProps) {
-  const theme = useTheme()
+export default function TradePrice({ price, label, icon, style = {}, color, className }: TradePriceProps) {
   const [showInverted, setShowInverted] = useState<boolean>(false)
   let formattedPrice
   try {
@@ -41,24 +39,27 @@ export default function TradePrice({ price, label, icon, style = {}, color }: Tr
     : `1 ${nativeBase?.symbol} = ${displayPrice} ${nativeQuote?.symbol}`
 
   return (
-    <Text
-      fontWeight={500}
-      fontSize={12}
-      color={color || theme.subText}
-      style={{ alignItems: 'center', display: 'flex', cursor: 'pointer', ...style }}
-      onClick={() => setShowInverted(!showInverted)}
-      height="22px"
+    <span
+      className={cn(
+        'group flex items-center text-xs font-medium text-subText',
+        show ? 'cursor-pointer hover:brightness-[0.85]' : 'cursor-default',
+        className,
+      )}
+      style={color ? { color, ...style } : style}
+      onClick={() => show && setShowInverted(!showInverted)}
     >
       {show ? (
         <>
-          {label && <>{label}&nbsp;</>} <Text color={color}>{value}</Text>
-          <StyledBalanceMaxMini>{icon || <Repeat size={12} color={color} />}</StyledBalanceMaxMini>
+          {label && <>{label}&nbsp;</>} <span>{value}</span>
+          <StyledBalanceMaxMini className="group-hover:brightness-[0.85]">
+            {icon || <Repeat size={12} />}
+          </StyledBalanceMaxMini>
         </>
       ) : (
         <Dots>
           <Trans>Calculating</Trans>
         </Dots>
       )}
-    </Text>
+    </span>
   )
 }

@@ -1,11 +1,9 @@
-import { readableColor } from 'polished'
-import { PropsWithChildren } from 'react'
-import styled, { DefaultTheme } from 'styled-components'
+import { type VariantProps, cva } from 'class-variance-authority'
+import { HTMLAttributes, forwardRef } from 'react'
 
-import { Color } from 'theme/styled'
+import { cn } from 'utils/cn'
 
 export enum BadgeVariant {
-  DEFAULT = 'DEFAULT',
   NEGATIVE = 'NEGATIVE',
   POSITIVE = 'POSITIVE',
   PRIMARY = 'PRIMARY',
@@ -14,63 +12,28 @@ export enum BadgeVariant {
   WARNING_OUTLINE = 'WARNING_OUTLINE',
 }
 
-interface BadgeProps {
-  variant?: BadgeVariant
-}
+const badge = cva('inline-flex items-center justify-center rounded-full px-2 py-1 font-medium', {
+  variants: {
+    variant: {
+      [BadgeVariant.NEGATIVE]: 'bg-red-20 text-red',
+      [BadgeVariant.POSITIVE]: 'bg-green1 text-white',
+      [BadgeVariant.PRIMARY]: 'bg-primary-20 text-primary',
+      [BadgeVariant.WARNING]: 'bg-warning-20 text-warning',
+      [BadgeVariant.WARNING_OUTLINE]: 'border border-warning bg-transparent text-warning',
+    },
+  },
+  defaultVariants: {
+    // No variant prop -> the historical default (full-background, light text).
+    variant: undefined,
+  },
+})
 
-function pickBackgroundColor(variant: BadgeVariant | undefined, theme: DefaultTheme): Color {
-  switch (variant) {
-    case BadgeVariant.NEGATIVE:
-      return theme.red + '33'
-    case BadgeVariant.POSITIVE:
-      return theme.green1
-    case BadgeVariant.PRIMARY:
-      return theme.primary + '33'
-    case BadgeVariant.WARNING:
-      return theme.warning + '33'
-    case BadgeVariant.WARNING_OUTLINE:
-      return 'transparent'
-    default:
-      return theme.background
-  }
-}
+const defaultClasses = 'bg-background text-white'
 
-function pickBorder(variant: BadgeVariant | undefined, theme: DefaultTheme): string {
-  switch (variant) {
-    case BadgeVariant.WARNING_OUTLINE:
-      return `1px solid ${theme.warning}`
-    default:
-      return 'unset'
-  }
-}
+type BadgeProps = HTMLAttributes<HTMLDivElement> & VariantProps<typeof badge>
 
-function pickFontColor(variant: BadgeVariant | undefined, theme: DefaultTheme): string {
-  switch (variant) {
-    case BadgeVariant.NEGATIVE:
-      return theme.red
-    case BadgeVariant.POSITIVE:
-      return readableColor(theme.green1)
-    case BadgeVariant.WARNING:
-      return theme.warning
-    case BadgeVariant.PRIMARY:
-      return theme.primary
-    case BadgeVariant.WARNING_OUTLINE:
-      return theme.warning
-    default:
-      return readableColor(theme.bg2)
-  }
-}
-
-const Badge = styled.div<PropsWithChildren<BadgeProps>>`
-  align-items: center;
-  background-color: ${({ theme, variant }) => pickBackgroundColor(variant, theme)};
-  border: ${({ theme, variant }) => pickBorder(variant, theme)};
-  border-radius: 999px;
-  color: ${({ theme, variant }) => pickFontColor(variant, theme)};
-  display: inline-flex;
-  padding: 4px 8px;
-  justify-content: center;
-  font-weight: 500;
-`
-
+const Badge = forwardRef<HTMLDivElement, BadgeProps>(({ variant, className, ...rest }, ref) => (
+  <div ref={ref} className={cn(badge({ variant }), !variant && defaultClasses, className)} {...rest} />
+))
+Badge.displayName = 'Badge'
 export default Badge

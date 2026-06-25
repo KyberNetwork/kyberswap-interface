@@ -1,13 +1,12 @@
 import { Trans } from '@lingui/macro'
 import { useMemo } from 'react'
-import { Text } from 'rebass'
 
 import InfoHelper from 'components/InfoHelper'
 import { Label } from 'components/swapv2/LimitOrder/LimitOrderForm'
+import { RateInfo } from 'components/swapv2/LimitOrder/type'
 import { BaseTradeInfo } from 'hooks/useBaseTradeInfo'
 import useTheme from 'hooks/useTheme'
-
-import { RateInfo } from './type'
+import { cn } from 'utils/cn'
 
 export type DeltaRateLimitOrder = { rawPercent: number | undefined; percent: string; profit: boolean }
 
@@ -60,19 +59,14 @@ const DeltaRate = ({
 
   const { percent, profit } = useGetDeltaRateLimitOrder({ marketPrice, rateInfo })
   const color = profit ? theme.apr : theme.warning
-  const styledPercent = (
-    <Text as="span" color={color} fontWeight="500">
-      {percent}
-    </Text>
-  )
+  const colorClass = profit ? 'text-apr' : 'text-warning'
+  const styledPercent = <span className={cn('font-medium', colorClass)}>{percent}</span>
   return (
-    <Label style={{ display: 'flex', alignItems: 'center', whiteSpace: 'nowrap' }}>
+    <Label className="flex items-center whitespace-nowrap">
       {invert ? <Trans>Buy {symbol} at rate</Trans> : <Trans>Sell {symbol} at rate</Trans>}
       {percent ? (
         <>
-          <Text as="span" color={color}>
-            &nbsp;{percent}
-          </Text>
+          <span className={colorClass}>&nbsp;{percent}</span>
           <InfoHelper
             color={color}
             text={

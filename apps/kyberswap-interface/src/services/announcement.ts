@@ -214,7 +214,6 @@ export const {
 } = publicAnnouncementApi
 
 export const {
-  useLazyGetPrivateAnnouncementsQuery,
   useGetPrivateAnnouncementsQuery,
   useAckPrivateAnnouncementsMutation,
   useGetPrivateAnnouncementsByIdsQuery,

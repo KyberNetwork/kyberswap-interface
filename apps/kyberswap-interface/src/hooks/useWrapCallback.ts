@@ -1,32 +1,26 @@
 import { ChainId, Currency, WETH } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
-import { BigNumber } from 'ethers'
-import { Interface } from 'ethers/lib/utils'
 import { useMemo } from 'react'
 
 import { NotificationType } from 'components/Announcement/type'
-import WETH_ABI from 'constants/abis/weth.json'
+import { WETH_ABI } from 'constants/abis'
 import { NativeCurrencies } from 'constants/tokens'
+import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useNotify } from 'state/application/hooks'
 import { tryParseAmount } from 'state/swap/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
-import { usePaymentToken } from 'state/user/hooks'
 import { useCurrencyBalance } from 'state/wallet/hooks'
-import { calculateGasMargin } from 'utils'
 import { friendlyError } from 'utils/errorMessage'
-import { paymasterExecute } from 'utils/sendTransaction'
-
-import { useActiveWeb3React } from './index'
-import { useWETHContract } from './useContract'
+import { sendEVMTransaction } from 'utils/sendTransaction'
+import { ErrorName } from 'utils/transactionError'
+import { encodeFunctionData } from 'utils/viem'
 
 export enum WrapType {
   NOT_APPLICABLE,
   WRAP,
   UNWRAP,
 }
-
-const WETHInterface = new Interface(WETH_ABI)
 
 const NOT_APPLICABLE = { wrapType: WrapType.NOT_APPLICABLE }
 /**
@@ -48,9 +42,9 @@ export default function useWrapCallback(
   allowUnwrap?: boolean
 } {
   const { chainId: walletChainId, account } = useActiveWeb3React()
-  const [paymentToken] = usePaymentToken()
+  const { isSmartConnector } = useWeb3React()
   const chainId = customChainId || walletChainId
-  const wethContract = useWETHContract(chainId)
+  const wethAddress = WETH[chainId]?.address
   const balance = useCurrencyBalance(inputCurrency ?? undefined, chainId)
   // we can always parse the amount typed as the input currency, since wrapping is 1:1
   const inputAmount = useMemo(() => tryParseAmount(typedValue, inputCurrency ?? undefined), [inputCurrency, typedValue])
@@ -58,7 +52,7 @@ export default function useWrapCallback(
   const notify = useNotify()
 
   return useMemo(() => {
-    if (!wethContract || !inputCurrency || !outputCurrency) return NOT_APPLICABLE
+    if (!wethAddress || !inputCurrency || !outputCurrency || !account) return NOT_APPLICABLE
 
     const sufficientBalance = inputAmount && balance && !balance.lessThan(inputAmount)
 
@@ -71,28 +65,19 @@ export default function useWrapCallback(
           sufficientBalance && inputAmount
             ? async () => {
                 try {
-                  let hash: string | undefined
-                  if (wethContract) {
-                    const estimateGas = await wethContract.estimateGas.deposit({
-                      value: `0x${inputAmount.quotient.toString(16)}`,
-                    })
-                    const txReceipt = await (paymentToken?.address
-                      ? paymasterExecute(
-                          paymentToken.address,
-                          {
-                            from: account,
-                            to: WETH[chainId].address,
-                            value: BigNumber.from(inputAmount.quotient.toString()),
-                            data: WETHInterface.encodeFunctionData('deposit'),
-                          },
-                          calculateGasMargin(estimateGas).toNumber(),
-                        )
-                      : wethContract.deposit({
-                          value: `0x${inputAmount.quotient.toString(16)}`,
-                          gasLimit: calculateGasMargin(estimateGas),
-                        }))
-                    hash = txReceipt?.hash
-                  }
+                  const txReceipt = await sendEVMTransaction({
+                    account,
+                    contractAddress: wethAddress,
+                    encodedData: encodeFunctionData({
+                      abi: WETH_ABI,
+                      functionName: 'deposit',
+                    }),
+                    value: BigInt(inputAmount.quotient.toString()),
+                    errorInfo: { name: ErrorName.SwapError, wallet: undefined },
+                    isSmartConnector,
+                    chainId,
+                  })
+                  const hash = txReceipt?.hash
                   if (hash) {
                     const tokenAmount = inputAmount.toSignificant(6)
                     addTransactionWithType({
@@ -139,28 +124,20 @@ export default function useWrapCallback(
           sufficientBalance && inputAmount
             ? async () => {
                 try {
-                  let hash: string | undefined
-                  if (wethContract) {
-                    const estimateGas = await wethContract.estimateGas.withdraw(
-                      `0x${inputAmount.quotient.toString(16)}`,
-                    )
-                    const txReceipt = await (paymentToken?.address
-                      ? paymasterExecute(
-                          paymentToken.address,
-                          {
-                            from: account,
-                            to: WETH[chainId].address,
-                            data: WETHInterface.encodeFunctionData('withdraw', [
-                              BigNumber.from(inputAmount.quotient.toString()),
-                            ]),
-                          },
-                          calculateGasMargin(estimateGas).toNumber(),
-                        )
-                      : wethContract.withdraw(`0x${inputAmount.quotient.toString(16)}`, {
-                          gasLimit: calculateGasMargin(estimateGas),
-                        }))
-                    hash = txReceipt.hash
-                  }
+                  const txReceipt = await sendEVMTransaction({
+                    account,
+                    contractAddress: wethAddress,
+                    encodedData: encodeFunctionData({
+                      abi: WETH_ABI,
+                      functionName: 'withdraw',
+                      args: [BigInt(inputAmount.quotient.toString())],
+                    }),
+                    value: 0n,
+                    errorInfo: { name: ErrorName.SwapError, wallet: undefined },
+                    isSmartConnector,
+                    chainId,
+                  })
+                  const hash = txReceipt?.hash
                   if (hash) {
                     const tokenAmount = inputAmount.toSignificant(6)
                     addTransactionWithType({
@@ -202,7 +179,7 @@ export default function useWrapCallback(
     }
     return NOT_APPLICABLE
   }, [
-    wethContract,
+    wethAddress,
     chainId,
     inputCurrency,
     outputCurrency,
@@ -213,6 +190,6 @@ export default function useWrapCallback(
     forceWrap,
     notify,
     account,
-    paymentToken?.address,
+    isSmartConnector,
   ])
 }

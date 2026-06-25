@@ -1,10 +1,9 @@
 import { t } from '@lingui/macro'
 import { MouseEventHandler } from 'react'
-import styled from 'styled-components'
 
 import { AnnouncementCTA } from 'components/Announcement/type'
 import { ButtonEmpty, ButtonOutlined, ButtonPrimary } from 'components/Button'
-import useTheme from 'hooks/useTheme'
+import { cn } from 'utils/cn'
 
 function CtaButton({
   data,
@@ -17,7 +16,6 @@ function CtaButton({
   color: 'primary' | 'gray' | 'outline' | 'link'
   onClick?: MouseEventHandler<HTMLButtonElement>
 }) {
-  const theme = useTheme()
   if (!data) return null
   const { name } = data
   const props = { className, onClick }
@@ -29,22 +27,20 @@ function CtaButton({
       return <ButtonOutlined {...props}>{displayName}</ButtonOutlined>
     case 'link':
       return (
-        <span style={{ color: theme.primary, fontWeight: '500', cursor: 'pointer' }} {...props}>
+        <span
+          {...props}
+          className={cn('cursor-pointer font-medium text-primary', className)}
+          onClick={onClick as React.MouseEventHandler<HTMLSpanElement> | undefined}
+        >
           {displayName}
         </span>
       )
     default:
       return (
-        <ButtonEmpty
-          {...props}
-          style={{
-            background: theme.border,
-            color: theme.text,
-          }}
-        >
+        <ButtonEmpty {...props} className={cn('bg-border text-text', className)}>
           {displayName}
         </ButtonEmpty>
       )
   }
 }
-export default styled(CtaButton)``
+export default CtaButton

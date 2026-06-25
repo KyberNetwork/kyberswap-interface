@@ -1,4 +1,3 @@
-import { TransactionResponse } from '@ethersproject/abstract-provider'
 import { ChainId, Currency, CurrencyAmount, Percent, Token as TokenSDK } from '@kyberswap/ks-sdk-core'
 import {
   FeeAmount,
@@ -7,29 +6,27 @@ import {
   Position as PositionSDK,
   computePoolAddress,
 } from '@kyberswap/ks-sdk-elastic'
-import { captureException } from '@sentry/react'
-import { BigNumber } from 'ethers'
-import { Interface } from 'ethers/lib/utils'
+import { readContract } from '@wagmi/core'
 import JSBI from 'jsbi'
 import { useEffect, useMemo, useState } from 'react'
 import { useGetTokenByAddressesQuery } from 'services/ksSetting'
 
-import TickReaderABI from 'constants/abis/v2/ProAmmTickReader.json'
-import { didUserReject } from 'constants/connectors/utils'
+import { wagmiConfig } from 'components/Web3Provider'
+import { TickReaderABI } from 'constants/abis'
+import { MULTICALL_ABI } from 'constants/multicall'
+import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
+import { PoolState, usePools } from 'hooks/usePools'
+import { useProAmmPositions } from 'hooks/useProAmmPositions'
+import useTransactionDeadline from 'hooks/useTransactionDeadline'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { useUserSlippageTolerance } from 'state/user/hooks'
-import { basisPointsToPercent, calculateGasMargin } from 'utils'
-import { ErrorName } from 'utils/sentry'
+import { basisPointsToPercent } from 'utils'
+import { sendEVMTransaction } from 'utils/sendTransaction'
+import { ErrorName } from 'utils/transactionError'
+import { Address, decodeFunctionResult, encodeFunctionData } from 'utils/viem'
 import { unwrappedToken } from 'utils/wrappedCurrency'
-
-import { useMulticallContract } from './useContract'
-import { PoolState, usePools } from './usePools'
-import { useProAmmPositions } from './useProAmmPositions'
-import useTransactionDeadline from './useTransactionDeadline'
-
-const tickReaderInterface = new Interface(TickReaderABI.abi)
 
 export const config: {
   [chainId: number]: {
@@ -130,7 +127,7 @@ export default function useElasticLegacy(_interval = true) {
   )
 
   const activePositions = useMemo(
-    () => positionsFromContract?.filter(item => item.liquidity.gt('0')) || [],
+    () => positionsFromContract?.filter(item => item.liquidity > 0n) || [],
     [positionsFromContract],
   )
 
@@ -247,55 +244,59 @@ export function usePositionFees(positions: Position[]) {
     [tokenId: string]: [string, string]
   }>(() => positions.reduce((acc, item) => ({ ...acc, [item.id]: ['0', '0'] }), {}))
 
-  const multicallContract = useMulticallContract()
-
   const { chainId, networkInfo } = useActiveWeb3React()
+  const multicallAddress = NETWORKS_INFO[chainId]?.multicall
 
   useEffect(() => {
     const getData = async () => {
-      if (!multicallContract) return
-      const fragment = tickReaderInterface.getFunction('getTotalFeesOwedToPosition')
+      if (!multicallAddress) return
       const callParams = positions.map(item => {
         return {
           target: networkInfo.elastic.tickReader,
-          callData: tickReaderInterface.encodeFunctionData(fragment, [
-            config[chainId].positionManagerContract,
-            item.pool.id,
-            item.id,
-          ]),
+          callData: encodeFunctionData({
+            abi: TickReaderABI.abi,
+            functionName: 'getTotalFeesOwedToPosition',
+            args: [config[chainId].positionManagerContract, item.pool.id, item.id],
+          }),
         }
       })
 
-      const { returnData } = await multicallContract?.callStatic.tryBlockAndAggregate(false, callParams)
+      const tryResult = (await readContract(wagmiConfig, {
+        address: multicallAddress as Address,
+        abi: MULTICALL_ABI,
+        functionName: 'tryBlockAndAggregate',
+        args: [false, callParams],
+        chainId: chainId as number,
+      })) as readonly [bigint, `0x${string}`, ReadonlyArray<{ success: boolean; returnData: `0x${string}` }>]
+
+      const returnData = tryResult[2]
       setFeeRewards(
-        returnData.reduce(
-          (
-            acc: { [tokenId: string]: [string, string] },
-            item: { success: boolean; returnData: string },
-            index: number,
-          ) => {
-            if (item.success) {
-              const tmp = tickReaderInterface.decodeFunctionResult(fragment, item.returnData)
-              return {
-                ...acc,
-                [positions[index].id]: [tmp.token0Owed.toString(), tmp.token1Owed.toString()],
-              }
+        returnData.reduce<{ [tokenId: string]: [string, string] }>((acc, item, index) => {
+          if (item.success) {
+            // viem returns a positional array for multi-output functions, not named keys
+            const tmp = decodeFunctionResult({
+              abi: TickReaderABI.abi,
+              functionName: 'getTotalFeesOwedToPosition',
+              data: item.returnData,
+            }) as readonly [bigint, bigint]
+            return {
+              ...acc,
+              [positions[index].id]: [tmp[0].toString(), tmp[1].toString()],
             }
-            return { ...acc, [positions[index].id]: ['0', '0'] }
-          },
-          {} as { [tokenId: string]: [string, string] },
-        ),
+          }
+          return { ...acc, [positions[index].id]: ['0', '0'] }
+        }, {} as { [tokenId: string]: [string, string] }),
       )
     }
 
-    getData()
+    getData().catch(e => console.error('useElasticLegacy: failed to load position fees', e))
     const i = setInterval(() => {
-      getData()
+      getData().catch(e => console.error('useElasticLegacy: failed to load position fees', e))
     }, 10_000)
 
     return () => clearInterval(i)
     // eslint-disable-next-line
-  }, [chainId, multicallContract, networkInfo, positions.length])
+  }, [chainId, multicallAddress, networkInfo, positions.length])
 
   return feeRewards
 }
@@ -338,7 +339,7 @@ export const useRemoveLiquidityLegacy = (
   feeRewards: Record<string, [string, string]>,
 ) => {
   const { chainId, account } = useActiveWeb3React()
-  const { library } = useWeb3React()
+  const { isSmartConnector } = useWeb3React()
 
   const { token0, token1, position, usd } = parsePosition(item, chainId, tokenPrices)
   const feeValue0 = CurrencyAmount.fromRawAmount(unwrappedToken(token0), feeRewards[item.id]?.[0] || '0')
@@ -363,7 +364,7 @@ export const useRemoveLiquidityLegacy = (
   const removeLiquidity = (collectFee: boolean) => {
     setShowPendingModal('removeLiquidity')
     setAttemptingTxn(true)
-    if (!deadline || !account || !library) {
+    if (!deadline || !account) {
       setRemoveLiquidityError('Something went wrong!')
       return
     }
@@ -386,62 +387,41 @@ export const useRemoveLiquidityLegacy = (
       },
     })
 
-    const txn = {
-      to: config[chainId].positionManagerContract,
-      data: calldata,
-      value,
-    }
-
-    library
-      .getSigner()
-      .estimateGas(txn)
-      .then(async (estimate: BigNumber) => {
-        const newTxn = {
-          ...txn,
-          gasLimit: calculateGasMargin(estimate),
-        }
-        return library
-          .getSigner()
-          .sendTransaction(newTxn)
-          .then((response: TransactionResponse) => {
-            const tokenAmountIn = position.amount0.toSignificant(6)
-            const tokenAmountOut = position.amount1.toSignificant(6)
-            const tokenSymbolIn = token0.symbol
-            const tokenSymbolOut = token1.symbol
-            addTransactionWithType({
-              hash: response.hash,
-              type: TRANSACTION_TYPE.ELASTIC_REMOVE_LIQUIDITY,
-              extraInfo: {
-                tokenAmountIn,
-                tokenAmountOut,
-                tokenSymbolIn,
-                tokenSymbolOut,
-                tokenAddressIn: token0.wrapped.address,
-                tokenAddressOut: token1.wrapped.address,
-                contract: item.pool.id,
-                nftId: item.id,
-              },
-            })
-            setAttemptingTxn(false)
-            setTxnHash(response.hash)
-          })
+    sendEVMTransaction({
+      account,
+      contractAddress: config[chainId].positionManagerContract,
+      encodedData: calldata as `0x${string}`,
+      value: BigInt(value),
+      errorInfo: { name: ErrorName.SwapError, wallet: undefined },
+      isSmartConnector,
+      chainId,
+    })
+      .then(response => {
+        if (!response?.hash) throw new Error('Transaction failed')
+        const tokenAmountIn = position.amount0.toSignificant(6)
+        const tokenAmountOut = position.amount1.toSignificant(6)
+        const tokenSymbolIn = token0.symbol
+        const tokenSymbolOut = token1.symbol
+        addTransactionWithType({
+          hash: response.hash,
+          type: TRANSACTION_TYPE.ELASTIC_REMOVE_LIQUIDITY,
+          extraInfo: {
+            tokenAmountIn,
+            tokenAmountOut,
+            tokenSymbolIn,
+            tokenSymbolOut,
+            tokenAddressIn: token0.wrapped.address,
+            tokenAddressOut: token1.wrapped.address,
+            contract: item.pool.id,
+            nftId: item.id,
+          },
+        })
+        setAttemptingTxn(false)
+        setTxnHash(response.hash)
       })
       .catch((error: any) => {
         setShowPendingModal('removeLiquidity')
         setAttemptingTxn(false)
-
-        if (!didUserReject(error)) {
-          const e = new Error('Remove Legacy Elastic Liquidity Error', { cause: error })
-          e.name = ErrorName.RemoveElasticLiquidityError
-          captureException(e, {
-            extra: {
-              calldata,
-              value,
-              to: config[chainId].positionManagerContract,
-            },
-          })
-        }
-
         setRemoveLiquidityError(error?.message || JSON.stringify(error))
       })
   }
@@ -450,7 +430,7 @@ export const useRemoveLiquidityLegacy = (
     setShowPendingModal('collectFee')
     setAttemptingTxn(true)
 
-    if (!feeValue0 || !feeValue1 || !account || !library || !deadline) {
+    if (!feeValue0 || !feeValue1 || !account || !deadline) {
       setAttemptingTxn(false)
       setRemoveLiquidityError('Something went wrong!')
       return
@@ -467,49 +447,41 @@ export const useRemoveLiquidityLegacy = (
       legacyMode: true,
     })
 
-    const txn = {
-      to: config[chainId].positionManagerContract,
-      data: calldata,
-      value,
-    }
-
-    library
-      .getSigner()
-      .estimateGas(txn)
-      .then((estimate: BigNumber) => {
-        const newTxn = {
-          ...txn,
-          gasLimit: calculateGasMargin(estimate),
-        }
-        return library
-          .getSigner()
-          .sendTransaction(newTxn)
-          .then((response: TransactionResponse) => {
-            const tokenAmountIn = feeValue0?.toSignificant(6)
-            const tokenAmountOut = feeValue1?.toSignificant(6)
-            const tokenSymbolIn = feeValue0?.currency.symbol ?? ''
-            const tokenSymbolOut = feeValue1?.currency.symbol ?? ''
-            addTransactionWithType({
-              hash: response.hash,
-              type: TRANSACTION_TYPE.COLLECT_FEE,
-              extraInfo: {
-                tokenAmountIn,
-                tokenAmountOut,
-                tokenAddressIn: feeValue0?.currency.wrapped.address,
-                tokenAddressOut: feeValue1?.currency.wrapped.address,
-                tokenSymbolIn,
-                tokenSymbolOut,
-                arbitrary: {
-                  token_1: tokenSymbolIn,
-                  token_2: tokenSymbolOut,
-                  token_1_amount: tokenAmountIn,
-                  token_2_amount: tokenAmountOut,
-                },
-              },
-            })
-            setAttemptingTxn(false)
-            setTxnHash(response.hash)
-          })
+    sendEVMTransaction({
+      account,
+      contractAddress: config[chainId].positionManagerContract,
+      encodedData: calldata as `0x${string}`,
+      value: BigInt(value),
+      errorInfo: { name: ErrorName.SwapError, wallet: undefined },
+      isSmartConnector,
+      chainId,
+    })
+      .then(response => {
+        if (!response?.hash) throw new Error('Transaction failed')
+        const tokenAmountIn = feeValue0?.toSignificant(6)
+        const tokenAmountOut = feeValue1?.toSignificant(6)
+        const tokenSymbolIn = feeValue0?.currency.symbol ?? ''
+        const tokenSymbolOut = feeValue1?.currency.symbol ?? ''
+        addTransactionWithType({
+          hash: response.hash,
+          type: TRANSACTION_TYPE.COLLECT_FEE,
+          extraInfo: {
+            tokenAmountIn,
+            tokenAmountOut,
+            tokenAddressIn: feeValue0?.currency.wrapped.address,
+            tokenAddressOut: feeValue1?.currency.wrapped.address,
+            tokenSymbolIn,
+            tokenSymbolOut,
+            arbitrary: {
+              token_1: tokenSymbolIn,
+              token_2: tokenSymbolOut,
+              token_1_amount: tokenAmountIn,
+              token_2_amount: tokenAmountOut,
+            },
+          },
+        })
+        setAttemptingTxn(false)
+        setTxnHash(response.hash)
       })
       .catch((error: any) => {
         setShowPendingModal('collectFee')

@@ -2,10 +2,10 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { Archive, Repeat } from 'react-feather'
 import { Link } from 'react-router-dom'
-import { useMedia } from 'react-use'
-import { Flex, Text } from 'rebass'
 import { Pagination } from 'swiper'
 import { Swiper, SwiperSlide } from 'swiper/react'
+import 'swiper/swiper-bundle.min.css'
+import 'swiper/swiper.min.css'
 
 import GeckoterminalIcon from 'assets/images/geckoterminal_dark.png'
 import KNCGraphic from 'assets/images/knc-graphic.png'
@@ -48,8 +48,8 @@ import {
   Upbit,
 } from 'components/ExchangeIcons'
 import { FooterSocialLink } from 'components/Footer/Footer'
+import RevealOnScroll from 'components/RevealOnScroll'
 import { APP_PATHS } from 'constants/index'
-import { useActiveWeb3React } from 'hooks/index'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
@@ -111,239 +111,173 @@ const LIST_WALLETS = [
 ]
 
 function AboutKNC() {
-  const { networkInfo } = useActiveWeb3React()
   const theme = useTheme()
-  const above768 = useMedia('(min-width: 768px)')
-  const above500 = useMedia('(min-width: 500px)')
-
   const { trackingHandler } = useTracking()
 
   const DynamicTokenModel = ({ width }: { width?: string }) => (
-    <ForLiquidityProviderItem
-      flexDirection="column"
-      flex={1}
-      alignItems={above768 ? 'flex-start' : 'center'}
-      width={width}
-      minHeight="360px"
-    >
+    <ForLiquidityProviderItem className="min-h-[360px] flex-1 flex-col items-center sm:items-start" style={{ width }}>
       <img width="64px" src={RocketIcon} alt="rocket_icon" />
-      <Text
-        marginTop="28px"
-        fontWeight="500"
-        fontSize="16"
-        color={theme.primary}
-        style={{ textTransform: 'uppercase' }}
-      >
+      <p className="mt-7 text-[16px] font-medium uppercase text-primary">
         <Trans>Dynamic Token Model</Trans>
-      </Text>
+      </p>
 
-      <Text color={theme.text} marginTop="24px" textAlign={above500 ? 'start' : 'center'} lineHeight={1.5}>
+      <p className="mt-6 text-center leading-normal text-text min-[500px]:text-start">
         <Trans>
           KNC enables KyberDAO to shape token behaviour and upgrades, making KNC much more adaptable and providing
           better support for innovation and growth.
         </Trans>
-      </Text>
+      </p>
     </ForLiquidityProviderItem>
   )
 
   const ParticipationRewards = ({ width }: { width?: string }) => (
-    <ForLiquidityProviderItem
-      flexDirection="column"
-      flex={1}
-      alignItems={above768 ? 'flex-start' : 'center'}
-      width={width}
-      minHeight="360px"
-    >
+    <ForLiquidityProviderItem className="min-h-[360px] flex-1 flex-col items-center sm:items-start" style={{ width }}>
       <img width="64px" src={TrophyIcon} alt="trophy_icon" />
-      <Text
-        marginTop="28px"
-        fontWeight="500"
-        fontSize="16"
-        color={theme.primary}
-        style={{ textTransform: 'uppercase' }}
-      >
+      <p className="mt-7 text-[16px] font-medium uppercase text-primary">
         <Trans>Participation Rewards</Trans>
-      </Text>
+      </p>
 
-      <Text color={theme.text} marginTop="24px" textAlign={above500 ? 'start' : 'center'} lineHeight={1.5}>
+      <p className="mt-6 text-center leading-normal text-text min-[500px]:text-start">
         <Trans>
           KNC holders can stake KNC in KyberDAO and vote on important decisions. Voters receive trading fees generated
           on KyberSwap and other benefits from ecosystem collaborations on Kyber.
         </Trans>
-      </Text>
+      </p>
     </ForLiquidityProviderItem>
   )
 
   return (
-    <div
-      style={{
-        position: 'relative',
-        background: theme.buttonBlack,
-        width: '100vw',
-        overflow: 'hidden',
-      }}
-    >
+    <div className="relative w-screen overflow-hidden bg-buttonBlack">
       <AboutPage>
         <Wrapper>
-          <Text as="h1" fontSize={['28px', '48px']} textAlign="center" lineHeight={['32px', '60px']} fontWeight="300">
-            <Trans>
-              Kyber Network Crystal{' '}
-              <Text fontWeight="500" color={theme.primary} as="span">
-                (KNC)
-              </Text>
-            </Trans>
-          </Text>
+          <RevealOnScroll>
+            <h1 className="text-center text-[28px] font-light leading-[32px] sm:text-[48px] sm:leading-[60px]">
+              <Trans>
+                Kyber Network Crystal <span className="font-medium text-primary">(KNC)</span>
+              </Trans>
+            </h1>
 
-          <Text
-            color={theme.text}
-            fontSize={['1rem', '1.25rem']}
-            marginTop={['40px', '48px']}
-            textAlign="center"
-            lineHeight={1.5}
-          >
-            <Trans>
-              KNC is a utility and governance token and an integral part of Kyber Network and its product KyberSwap -
-              the multi-chain decentralized exchange (DEX) that provides superior rates for traders.{' '}
-            </Trans>
-          </Text>
+            <p className="mt-10 text-center text-[1rem] leading-normal text-text sm:mt-12 sm:text-[1.25rem]">
+              <Trans>
+                KNC is a utility and governance token and an integral part of Kyber Network and its product KyberSwap -
+                the multi-chain decentralized exchange (DEX) that provides superior rates for traders.{' '}
+              </Trans>
+            </p>
 
-          <SupportedChain>
-            {[
-              ChainId.MAINNET,
-              ChainId.BASE,
-              ChainId.MATIC,
-              ChainId.BSCMAINNET,
-              ChainId.AVAXMAINNET,
-              ChainId.ARBITRUM,
-              ChainId.OPTIMISM,
-              ChainId.LINEA,
-            ].map(item => (
-              <img
-                src={NETWORKS_INFO[item].icon}
-                width="36px"
-                alt={NETWORKS_INFO[item].name}
-                key={NETWORKS_INFO[item].name}
-              />
-            ))}
-          </SupportedChain>
+            <SupportedChain>
+              {[
+                ChainId.MAINNET,
+                ChainId.BASE,
+                ChainId.MATIC,
+                ChainId.BSCMAINNET,
+                ChainId.AVAXMAINNET,
+                ChainId.ARBITRUM,
+                ChainId.OPTIMISM,
+                ChainId.LINEA,
+              ].map(item => (
+                <img
+                  src={NETWORKS_INFO[item].icon}
+                  width="36px"
+                  alt={NETWORKS_INFO[item].name}
+                  key={NETWORKS_INFO[item].name}
+                />
+              ))}
+            </SupportedChain>
+          </RevealOnScroll>
 
-          <Text
-            color={theme.primary}
-            marginTop={['100px', '160px']}
-            fontWeight="500"
-            fontSize={'20px'}
-            textAlign="center"
-          >
-            <Trans>TOKEN UTILITY</Trans>
-          </Text>
-          <Text as="h2" marginTop="12px" fontWeight="500" fontSize={['28px', '36px']} textAlign="center">
-            <Trans>What is KNC used for?</Trans>
-          </Text>
-          <Text color={theme.text} marginTop={['40px', '48px']} fontSize="1rem" textAlign="center" lineHeight={1.5}>
-            <Trans>
-              KNC token holders can benefit from our flagship product KyberSwap. Holders can stake their KNC & vote on
-              initiatives to receive trading fees generated on KyberSwap! More trades on KyberSwap can generate more
-              rewards for KNC holders!
-              <br />
-              <br />
-              KNC token is dynamic - it can be upgraded, minted or burned by KyberDAO to better support liquidity and
-              growth.
-            </Trans>
-          </Text>
+          <RevealOnScroll>
+            <p className="mt-[100px] text-center text-[20px] font-medium text-primary sm:mt-[160px]">
+              <Trans>TOKEN UTILITY</Trans>
+            </p>
+            <h2 className="mt-3 text-center text-[28px] font-medium sm:text-[36px]">
+              <Trans>What is KNC used for?</Trans>
+            </h2>
+            <p className="mt-10 text-center text-[1rem] leading-normal text-text sm:mt-12">
+              <Trans>
+                KNC token holders can benefit from our flagship product KyberSwap. Holders can stake their KNC & vote on
+                initiatives to receive trading fees generated on KyberSwap! More trades on KyberSwap can generate more
+                rewards for KNC holders!
+                <br />
+                <br />
+                KNC token is dynamic - it can be upgraded, minted or burned by KyberDAO to better support liquidity and
+                growth.
+              </Trans>
+            </p>
 
-          {above768 ? (
-            <Flex sx={{ gap: '24px' }} marginTop={['40px', '48px']} flexDirection="row">
+            {/* ≥768: side-by-side fixed-width cards; <768: horizontally-scrollable grid. Both rendered,
+                toggled via CSS so server + client first render match (hydration-safe). */}
+            <div className="mt-10 hidden flex-row gap-6 sm:mt-12 sm:flex">
               <ParticipationRewards width="392px" />
               <DynamicTokenModel width="392px" />
-            </Flex>
-          ) : (
-            <GridWrapper>
+            </div>
+            <GridWrapper className="sm:hidden">
               <ParticipationRewards />
               <DynamicTokenModel />
             </GridWrapper>
-          )}
 
-          <Flex
-            justifyContent="center"
-            width={above768 ? '236px' : '100%'}
-            margin="auto"
-            marginTop={['40px', '48px']}
-            sx={{ gap: above768 ? '24px' : '16px' }}
-          >
-            <BtnPrimary
-              width="216px"
-              as={Link}
-              to={APP_PATHS.SWAP + '/' + networkInfo.route}
-              onClick={() => trackingHandler(TRACKING_EVENT_TYPE.ABOUT_SWAP_CLICKED)}
-            >
-              <Repeat />
-              <Text fontSize="16px" marginLeft="8px">
-                <Trans>Swap Now</Trans>
-              </Text>
-            </BtnPrimary>
-          </Flex>
-
-          <Flex
-            sx={{ gap: '24px' }}
-            marginTop={['100px', '160px']}
-            alignItems="center"
-            flexDirection={above768 ? 'row' : 'column'}
-          >
-            <img width="85%" src={KyberDao} alt="KyberDao" style={{ display: above768 ? 'block' : 'none' }} />
-            <Flex width="100%" flexDirection="column" height="max-content">
-              <Text fontSize={['20px', '24px']} fontWeight={500} color={theme.primary}>
-                <Trans>KYBER DAO</Trans>
-              </Text>
-              <Text as="h2" marginTop="12px" fontWeight="500" fontSize={['28px', '36px']}>
-                <Trans>Stake KNC, Vote, Earn Rewards.</Trans>
-              </Text>
-              <Text fontSize="16px" marginTop={['40px', '48px']} color={theme.text} lineHeight="24px" textAlign="left">
-                <Trans>
-                  KyberDAO is a community platform that allows KNC token holders to participate in governance. KNC
-                  holders can stake KNC to vote on proposals. In return, they receive rewards from fees generated on
-                  KyberSwap through trading activities in Kyber Network.
-                </Trans>
-              </Text>
-              <img
-                width="100%"
-                src={KyberDao}
-                alt="KyberDao"
-                style={{ display: above768 ? 'none' : 'block', marginTop: '40px' }}
-              />
-
+            <div className="m-auto mt-10 flex w-full justify-center gap-4 sm:mt-12 sm:w-[236px] sm:gap-6">
               <BtnPrimary
-                width={above768 ? '236px' : '100%'}
-                margin="40px 0 0"
-                as={Link}
-                to={APP_PATHS.KYBERDAO_STAKE}
-                onClick={() => trackingHandler(TRACKING_EVENT_TYPE.ABOUT_STAKE_KNC_CLICKED)}
+                width="216px"
+                as={Link as any}
+                to={APP_PATHS.SWAP}
+                onClick={() => trackingHandler(TRACKING_EVENT_TYPE.ABOUT_SWAP_CLICKED)}
               >
-                <Archive />
-                <Text fontSize="16px" marginLeft="8px">
-                  <Trans>Stake KNC</Trans>
-                </Text>
+                <Repeat />
+                <span className="ml-2 text-[16px]">
+                  <Trans>Swap Now</Trans>
+                </span>
               </BtnPrimary>
-            </Flex>
-          </Flex>
-          <Text
-            as="h2"
-            fontWeight="500"
-            marginTop={above768 ? '160px' : '100px'}
-            fontSize={['28px', '36px']}
-            textAlign="center"
-          >
-            <Trans>Where you can buy KNC</Trans>
-          </Text>
+            </div>
+          </RevealOnScroll>
 
-          {above768 ? (
-            <Exchange>
+          <RevealOnScroll>
+            <div className="mt-[100px] flex flex-col items-center gap-6 sm:mt-[160px] sm:flex-row">
+              <img width="85%" src={KyberDao} alt="KyberDao" className="hidden sm:block" />
+              <div className="flex h-max w-full flex-col">
+                <p className="text-[20px] font-medium text-primary sm:text-[24px]">
+                  <Trans>KYBER DAO</Trans>
+                </p>
+                <h2 className="mt-3 text-[28px] font-medium sm:text-[36px]">
+                  <Trans>Stake KNC, Vote, Earn Rewards.</Trans>
+                </h2>
+                <p className="mt-10 text-left text-[16px] leading-6 text-text sm:mt-12">
+                  <Trans>
+                    KyberDAO is a community platform that allows KNC token holders to participate in governance. KNC
+                    holders can stake KNC to vote on proposals. In return, they receive rewards from fees generated on
+                    KyberSwap through trading activities in Kyber Network.
+                  </Trans>
+                </p>
+                <img width="100%" src={KyberDao} alt="KyberDao" className="mt-10 block sm:hidden" />
+
+                <BtnPrimary
+                  className="w-full sm:w-[236px]"
+                  margin="40px 0 0"
+                  as={Link as any}
+                  to={APP_PATHS.KYBERDAO_STAKE}
+                  onClick={() => trackingHandler(TRACKING_EVENT_TYPE.ABOUT_STAKE_KNC_CLICKED)}
+                >
+                  <Archive />
+                  <span className="ml-2 text-[16px]">
+                    <Trans>Stake KNC</Trans>
+                  </span>
+                </BtnPrimary>
+              </div>
+            </div>
+          </RevealOnScroll>
+
+          <RevealOnScroll>
+            <h2 className="mt-[100px] text-center text-[28px] font-medium sm:mt-[160px] sm:text-[36px]">
+              <Trans>Where you can buy KNC</Trans>
+            </h2>
+
+            {/* ≥768: static grid; <768: carousel. Both rendered, toggled via CSS (hydration-safe). */}
+            <Exchange className="hidden sm:grid">
               {LIST_EXCHANGES.map(exchange => (
-                <Flex key={exchange.name} margin="auto">
+                <div key={exchange.name} className="m-auto flex">
                   {exchange.logo}
-                </Flex>
+                </div>
               ))}
             </Exchange>
-          ) : (
             <Swiper
               slidesPerView={1}
               spaceBetween={30}
@@ -352,39 +286,30 @@ function AboutKNC() {
               pagination={{
                 clickable: true,
               }}
-              style={{ marginTop: '24px' }}
+              className="mt-6 sm:hidden"
             >
               {LIST_EXCHANGES.map(exchange => (
                 <SwiperSlide key={exchange.name}>
                   <ExchangeWrapper>
-                    <Flex margin="auto">{exchange.logo}</Flex>
+                    <div className="m-auto flex">{exchange.logo}</div>
                   </ExchangeWrapper>
                 </SwiperSlide>
               ))}
             </Swiper>
-          )}
-          <Text
-            as="h2"
-            fontWeight="500"
-            marginTop={above768 ? '160px' : '100px'}
-            fontSize={['28px', '36px']}
-            textAlign="center"
-          >
-            <Trans>Where you can store KNC</Trans>
-          </Text>
-          <Text fontSize="16px" marginTop={['40px', '48px']} color={theme.text} lineHeight="24px" textAlign="center">
-            <Trans>
-              KNC is an ERC-20 token, so it can be stored in many Web3 wallets you control. Below are some examples.
-            </Trans>
-          </Text>
+            <h2 className="mt-[100px] text-center text-[28px] font-medium sm:mt-[160px] sm:text-[36px]">
+              <Trans>Where you can store KNC</Trans>
+            </h2>
+            <p className="mt-10 text-center text-[16px] leading-6 text-text sm:mt-12">
+              <Trans>
+                KNC is an ERC-20 token, so it can be stored in many Web3 wallets you control. Below are some examples.
+              </Trans>
+            </p>
 
-          {above768 ? (
-            <Exchange>
+            <Exchange className="hidden sm:grid">
               {LIST_WALLETS.map(wallet => (
-                <img key={wallet.logo} src={wallet.logo} alt={wallet.logo} style={{ margin: 'auto' }} width="100%" />
+                <img key={wallet.logo} src={wallet.logo} alt={wallet.logo} className="m-auto" width="100%" />
               ))}
             </Exchange>
-          ) : (
             <Swiper
               slidesPerView={1}
               spaceBetween={30}
@@ -393,50 +318,42 @@ function AboutKNC() {
               pagination={{
                 clickable: true,
               }}
-              style={{ marginTop: '24px' }}
+              className="mt-6 sm:hidden"
             >
               {LIST_WALLETS.map(wallet => (
                 <SwiperSlide key={wallet.logo}>
                   <ExchangeWrapper>
-                    <img src={wallet.logo} alt={wallet.logo} width="160px" style={{ margin: 'auto' }} />
+                    <img src={wallet.logo} alt={wallet.logo} width="160px" className="m-auto" />
                   </ExchangeWrapper>
                 </SwiperSlide>
               ))}
             </Swiper>
-          )}
 
-          <MoreInfoWrapper>
-            <Flex
-              marginRight={above768 ? '180px' : '0px'}
-              alignItems={!above768 ? 'center' : 'flex-start'}
-              flexDirection={'column'}
-            >
-              <Text as="h2" fontWeight="500" fontSize={['28px', '36px']}>
-                <Trans>More information about KNC is available on:</Trans>
-              </Text>
-              <Flex
-                flexDirection={above768 ? 'row' : 'column'}
-                marginTop="48px"
-                style={{ gap: '48px', alignItems: 'center' }}
-              >
-                <ExternalLink href={`https://www.coingecko.com/en/coins/kyber-network-crystal`}>
-                  <img src={CoinGecko} alt="CoinGecko" width="165px" />
-                </ExternalLink>
-                <ExternalLink href={`https://coinmarketcap.com/currencies/kyber-network-crystal-v2/`}>
-                  <img src={CoinMarketCap} alt="CoinMarketCap" width="227px" />
-                </ExternalLink>
-                <ExternalLink href="https://www.geckoterminal.com/eth/pools/0xa38a0165e82b7a5e8650109e9e54087a34c93020">
-                  <img src={GeckoterminalIcon} alt="Geckoterminal" width="235px" />
-                </ExternalLink>
-              </Flex>
-            </Flex>
-            <img width={above768 ? '218px' : '287px'} src={KNCGraphic} alt="KNCGraphic" />
-          </MoreInfoWrapper>
+            <MoreInfoWrapper>
+              <div className="mr-0 flex flex-col items-center sm:mr-[180px] sm:items-start">
+                <h2 className="text-[28px] font-medium sm:text-[36px]">
+                  <Trans>More information about KNC is available on:</Trans>
+                </h2>
+                <div className="mt-12 flex flex-col items-center gap-12 sm:flex-row">
+                  <ExternalLink href={`https://www.coingecko.com/en/coins/kyber-network-crystal`}>
+                    <img src={CoinGecko} alt="CoinGecko" width="165px" />
+                  </ExternalLink>
+                  <ExternalLink href={`https://coinmarketcap.com/currencies/kyber-network-crystal-v2/`}>
+                    <img src={CoinMarketCap} alt="CoinMarketCap" width="227px" />
+                  </ExternalLink>
+                  <ExternalLink href="https://www.geckoterminal.com/eth/pools/0xa38a0165e82b7a5e8650109e9e54087a34c93020">
+                    <img src={GeckoterminalIcon} alt="Geckoterminal" width="235px" />
+                  </ExternalLink>
+                </div>
+              </div>
+              <img src={KNCGraphic} alt="KNCGraphic" className="w-[287px] sm:w-[218px]" />
+            </MoreInfoWrapper>
+          </RevealOnScroll>
         </Wrapper>
       </AboutPage>
       <Footer background={theme.background}>
         <FooterContainer>
-          <Flex flexWrap="wrap" sx={{ gap: '12px' }} justifyContent="center">
+          <div className="flex flex-wrap justify-center gap-3">
             <ExternalLink href={`https://docs.kyberswap.com`}>
               <Trans>Docs</Trans>
             </ExternalLink>
@@ -450,11 +367,12 @@ function AboutKNC() {
             <ExternalLink href={`https://gov.kyber.org`}>
               <Trans>Forum</Trans>
             </ExternalLink>
-            {!above500 ? <div /> : <VerticalDivider />}
+            <div className="min-[500px]:hidden" />
+            <VerticalDivider className="hidden min-[500px]:block" />
             <ExternalLink href={`https://kyber.network`}>Kyber Network</ExternalLink>
             <VerticalDivider />
             <StyledInternalLink to={`/about/knc`}>KNC</StyledInternalLink>
-          </Flex>
+          </div>
           <FooterSocialLink />
         </FooterContainer>
       </Footer>

@@ -1,9 +1,8 @@
-import { ChainId, Token } from '@kyberswap/ks-sdk-core'
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { createAction } from '@reduxjs/toolkit'
 
 import { SupportedLocale } from 'constants/locales'
-
-import { CrossChainSetting, VIEW_MODE } from './reducer'
+import { CrossChainSetting, VIEW_MODE } from 'state/user/reducer'
 
 export interface SerializedToken {
   chainId: number
@@ -26,6 +25,7 @@ export const updatePoolDegenMode = createAction<{ poolDegenMode: boolean; isStab
   'user/updatePoolDegenMode',
 )
 export const toggleUseAggregatorForZap = createAction('user/toggleUseAggregatorForZap')
+export const togglePricingChart = createAction('user/togglePricingChart')
 export const toggleTradeRoutes = createAction('user/toggleTradeRoutes')
 export const toggleSuccessSound = createAction('user/toggleSuccessSound')
 export const updateUserLocale = createAction<{ userLocale: SupportedLocale }>('user/updateUserLocale')
@@ -43,8 +43,6 @@ export const addSerializedPair = createAction<{ serializedPair: SerializedPair }
 export const removeSerializedPair = createAction<{ chainId: number; tokenAAddress: string; tokenBAddress: string }>(
   'user/removeSerializedPair',
 )
-export const toggleTopTrendingTokens = createAction<void>('user/toggleTopTrendingTokens')
-
 export type ToggleFavoriteTokenPayload = {
   chainId: ChainId
   address: string
@@ -52,7 +50,6 @@ export type ToggleFavoriteTokenPayload = {
 }
 export const toggleFavoriteToken = createAction<ToggleFavoriteTokenPayload>('user/toggleFavoriteToken')
 export const updateChainId = createAction<ChainId>('user/updateChainId')
-export const updateTokenAnalysisSettings = createAction<string>('user/updateTokenAnalysisSettings')
 export const updateAcceptedTermVersion = createAction<number | null>('user/updateAcceptedTermVersion')
 export const updateSafeAppAcceptedTermOfUse = createAction<boolean>('user/updateSafeAppAcceptedTermOfUse')
 export const changeViewMode = createAction<VIEW_MODE>('user/changeViewMode')
@@ -61,5 +58,4 @@ export const pinSlippageControl = createAction<boolean>('user/pinSlippageControl
 export const toggleMyEarningChart = createAction<void>('user/toggleMyEarningChart')
 
 export const setCrossChainSetting = createAction<CrossChainSetting>('user/setCrossChainSetting')
-export const setPaymentToken = createAction<Token | null>('user/setPaymentToken')
 export const updateFavoriteChains = createAction<string[]>('user/updateFavoriteChains ')
