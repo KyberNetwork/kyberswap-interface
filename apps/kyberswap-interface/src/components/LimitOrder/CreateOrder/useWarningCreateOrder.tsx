@@ -1,9 +1,10 @@
-import { Currency } from '@kyberswap/ks-sdk-core'
+import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { PropsWithChildren, useMemo } from 'react'
 
 import { ReservedOrderNotice } from 'components/LimitOrder/components'
 import { DeltaRateLimitOrder, LimitOrderStatus, LimitOrderTab } from 'components/LimitOrder/types'
+import { formatDisplayNumber } from 'utils/numbers'
 
 const AprHighlight = ({ children }: PropsWithChildren) => <span className="font-medium text-apr">{children}</span>
 
@@ -19,6 +20,7 @@ type UseWarningCreateOrderProps = {
   displayRate: string
   deltaRate: DeltaRateLimitOrder
   showReservedOrderNotice?: boolean
+  wrapAmount?: CurrencyAmount<Currency>
 }
 
 export const useWarningCreateOrder = ({
@@ -26,12 +28,16 @@ export const useWarningCreateOrder = ({
   displayRate,
   deltaRate,
   showReservedOrderNotice,
+  wrapAmount,
 }: UseWarningCreateOrderProps) => {
   const warningMessage = useMemo(() => {
     const messages = []
     const rawPercent = Number(deltaRate.rawPercent)
     const hasPercent = Number.isFinite(rawPercent)
     const displayPercent = deltaRate.percent.replace(/^[+-]/, '')
+    const formattedWrapAmount = wrapAmount
+      ? formatDisplayNumber(wrapAmount.toExact(), { significantDigits: 6 })
+      : undefined
 
     if (hasPercent && rawPercent >= BETTER_PRICE_DIFF_THRESHOLD)
       messages.push(
@@ -64,7 +70,21 @@ export const useWarningCreateOrder = ({
       messages.push(<ReservedOrderNotice symbol={currencyIn?.symbol} to={`?${search}`} />)
     }
 
+    if (wrapAmount && formattedWrapAmount) {
+      messages.push(
+        <div className="text-xs font-medium text-subText">
+          <Trans>
+            You need to wrap{' '}
+            <WarningHighlight>
+              {formattedWrapAmount} {wrapAmount.currency.symbol}
+            </WarningHighlight>{' '}
+            before creating this order
+          </Trans>
+        </div>,
+      )
+    }
+
     return messages
-  }, [currencyIn, deltaRate.percent, deltaRate.rawPercent, displayRate, showReservedOrderNotice])
+  }, [currencyIn, deltaRate.percent, deltaRate.rawPercent, displayRate, showReservedOrderNotice, wrapAmount])
   return warningMessage
 }

@@ -395,7 +395,7 @@ const TakeOrderConfirmModal = ({ isOpen, order, onDismiss }: Props) => {
                   />
                 </HStack>
               </Stack>
-              <span className={cn('min-h-4 text-xs font-medium', fillAmountError ? 'text-red' : 'text-subText')}>
+              <span className={cn('min-h-4 text-xs font-medium', fillAmountError ? 'text-red' : 'text-warning')}>
                 {fillAmountErrorMessage || fillAmountHelperMessage}
               </span>
             </Stack>
@@ -443,7 +443,7 @@ const TakeOrderConfirmModal = ({ isOpen, order, onDismiss }: Props) => {
                     <Trans>Use Swap Instead</Trans>
                   </ButtonOutlined>
                   <ButtonPrimary onClick={handleSubmit} disabled={!canSubmit} className="flex-1">
-                    <Trans>Fill this order</Trans>
+                    {wrapAmount ? <Trans>Wrap & Fill this order</Trans> : <Trans>Fill this order</Trans>}
                   </ButtonPrimary>
                 </>
               )}

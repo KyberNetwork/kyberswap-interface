@@ -165,6 +165,7 @@ export const useCreateLimitOrder = ({
     displayRate,
     deltaRate,
     showReservedOrderNotice,
+    wrapAmount,
   })
 
   // Keep active making amount fresh after order state updates.

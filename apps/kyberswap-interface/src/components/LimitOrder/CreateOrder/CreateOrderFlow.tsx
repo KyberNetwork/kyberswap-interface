@@ -47,6 +47,7 @@ const CreateOrderFlow = ({ order, isOpen, onDismiss, createOrder }: CreateOrderF
       <CreateOrderConfirmModal
         order={order}
         isOpen={isOpen}
+        needsWrap={createOrder.processing.steps.includes('wrap')}
         onDismiss={onDismiss}
         onSubmit={processing.start}
         warningMessage={createOrder.validation.warningMessage}

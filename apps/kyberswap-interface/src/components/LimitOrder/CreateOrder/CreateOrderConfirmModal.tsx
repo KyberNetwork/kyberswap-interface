@@ -70,12 +70,13 @@ const MarketRateValue = ({
 type Props = {
   order: LimitOrderCreateContext
   isOpen: boolean
+  needsWrap?: boolean
   onDismiss?: () => void
   onSubmit?: () => void
   warningMessage: ReactNode[]
 }
 
-const CreateOrderConfirmModal = ({ order, isOpen, onDismiss, onSubmit, warningMessage }: Props) => {
+const CreateOrderConfirmModal = ({ order, isOpen, needsWrap, onDismiss, onSubmit, warningMessage }: Props) => {
   const { currencyIn, currencyOut, inputAmount, outputAmount, expiredAt, rateInfo, tradeInfo, deltaRate } = order
   const [confirmed, setConfirmed] = useState(false)
   const shouldShowConfirmFlow = Number(deltaRate.rawPercent) < WORSE_PRICE_DIFF_THRESHOLD
@@ -145,7 +146,7 @@ const CreateOrderConfirmModal = ({ order, isOpen, onDismiss, onSubmit, warningMe
               </ButtonWarning>
             )}
             <ButtonPrimary className="flex-1" disabled={shouldDisablePlaceOrder} onClick={handleSubmit}>
-              <Trans>Place Order</Trans>
+              {needsWrap ? <Trans>Wrap & Place Order</Trans> : <Trans>Place Order</Trans>}
             </ButtonPrimary>
           </HStack>
         </Stack>
