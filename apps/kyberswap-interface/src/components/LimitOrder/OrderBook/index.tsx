@@ -27,7 +27,7 @@ const refetchSafely = (refetch: () => { catch?: (onRejected: () => void) => unkn
 }
 
 const NoDataPanel = () => (
-  <div className="flex h-full min-h-0 flex-col items-center justify-center gap-2 text-sm font-medium text-subText">
+  <div className="flex min-h-[120px] flex-col items-center justify-center gap-2 text-sm font-medium text-subText">
     <NoDataIcon />
     <Trans>No orders</Trans>
   </div>
@@ -53,7 +53,7 @@ const OrderSide = ({
         reverse && 'flex flex-col-reverse',
         className,
       )}
-      style={{ height: 336, ...style }}
+      style={{ maxHeight: 56 * 6, ...style }}
       {...rest}
     >
       {children}
