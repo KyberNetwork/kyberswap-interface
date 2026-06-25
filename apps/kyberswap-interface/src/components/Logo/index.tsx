@@ -3,7 +3,7 @@ import { CSSProperties, ImgHTMLAttributes, useState } from 'react'
 
 import UnknownToken from 'assets/svg/kyber/unknown-token.svg'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
-import { Chain, NonEvmChain, NonEvmChainInfo } from 'pages/CrossChainSwap/adapters'
+import { Chain, NonEvmChain, NonEvmChainInfo } from 'pages/CrossChainSwap/adapters/types'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { getNativeTokenLogo, isEvmChain } from 'utils'
 import { cn } from 'utils/cn'
@@ -43,8 +43,15 @@ export function NetworkLogo({ chainId, style = {} }: { chainId: Chain; style?: C
   return <img src={chainInfo.icon} alt="Switch Network" style={style} />
 }
 
-export function TokenLogoWithChain(data: { tokenLogo: string; chainId: ChainId; size: number | string }): JSX.Element
-export function TokenLogoWithChain(data: { size: number | string; currency: Currency | WrappedTokenInfo }): JSX.Element
+export function TokenLogoWithChain(data: {
+  tokenLogo: string
+  chainId: ChainId
+  size: number | string
+}): React.JSX.Element
+export function TokenLogoWithChain(data: {
+  size: number | string
+  currency: Currency | WrappedTokenInfo
+}): React.JSX.Element
 export function TokenLogoWithChain(data: any) {
   const { tokenLogo: tokenLogoParam, chainId: chainParam, size, currency } = data
 

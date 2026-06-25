@@ -7,7 +7,7 @@ import { ENV_KEY } from 'constants/env'
 import { DEFAULT_GAS_LIMIT_MARGIN, ETHER_ADDRESS, ZERO_ADDRESS } from 'constants/index'
 import { NETWORKS_INFO, SUPPORTED_NETWORKS } from 'constants/networks'
 import { KNCL_ADDRESS, KNC_ADDRESS } from 'constants/tokens'
-import { Chain, NonEvmChain } from 'pages/CrossChainSwap/adapters'
+import { type Chain, NonEvmChain } from 'pages/CrossChainSwap/adapters/types'
 import store from 'state'
 import { GroupedTxsByHash, TransactionDetails } from 'state/transactions/type'
 import { isAddress, isAddressString } from 'utils/address'
@@ -287,14 +287,14 @@ export function buildFlagsForFarmV21({
 }
 
 export const getCookieValue = (name: string) =>
-  document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)')?.pop() || ''
+  typeof document === 'undefined' ? '' : document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)')?.pop() || ''
 
 export const enumToArrayOfValues = (enumObject: { [x: string]: unknown }, valueType?: string) =>
   Object.keys(enumObject)
     .map(key => enumObject[key])
     .filter(value => !valueType || typeof value === valueType)
 
-const ancestorOrigins = window.location.ancestorOrigins
+const ancestorOrigins = typeof window !== 'undefined' ? window.location.ancestorOrigins : undefined
 export const isInSafeApp = !!ancestorOrigins?.[ancestorOrigins.length - 1]?.includes('app.safe.global')
 
 export const isEvmChain = (chain: Chain) => {

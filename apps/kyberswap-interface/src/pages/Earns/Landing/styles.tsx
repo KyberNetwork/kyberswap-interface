@@ -23,7 +23,9 @@ export const BorderWrapper: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({ 
   <div
     {...rest}
     className={cn(
-      'relative overflow-hidden rounded-[20px] bg-clip-padding p-px',
+      // sm:h-full lets the card fill its (equal-height) grid cell so the bottom-pinned action button
+      // lines up across all three cards; on mobile the layout is a stacked flex column, so no h-full.
+      'relative overflow-hidden rounded-[20px] bg-clip-padding p-px sm:h-full',
       "before:absolute before:inset-0 before:z-[-1] before:p-px before:content-['']",
       'before:[background:linear-gradient(306.9deg,#262525_38.35%,rgba(49,203,158,0.06)_104.02%),radial-gradient(58.61%_54.58%_at_30.56%_0%,rgba(49,203,158,0.6)_0%,rgba(0,0,0,0)_100%)]',
       'before:[-webkit-mask:linear-gradient(#fff_0_0)_padding-box,linear-gradient(#fff_0_0)] before:[mask:linear-gradient(#fff_0_0)_padding-box,linear-gradient(#fff_0_0)]',

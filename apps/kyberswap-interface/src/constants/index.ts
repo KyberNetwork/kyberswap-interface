@@ -7,6 +7,8 @@ import { TransactionFlowState } from 'types/TransactionFlowState'
 import { MAINNET_NETWORKS, NETWORKS_INFO, SUPPORTED_NETWORKS } from './networks'
 
 export const KYBERSWAP_DOMAIN = 'kyberswap.com'
+/** Canonical production base URL (no trailing slash). Use this instead of hardcoding the domain. */
+export const KYBERSWAP_URL = `https://${KYBERSWAP_DOMAIN}`
 
 export const EMPTY_OBJECT: any = {}
 export const EMPTY_ARRAY: any[] = []
@@ -123,6 +125,9 @@ export const APP_PATHS = {
   FIND_POOL: '/find',
   POOLS: '/pools',
   ADD_LIQUIDITY: '/pools/add-liquidity',
+  // Path-based pool-detail: /pools/<chain-slug>/<protocol>/<address>. The ADD_LIQUIDITY
+  // query-param form 301-redirects here. Build via getPoolDetailUrl (Earns/utils/url).
+  POOL_DETAIL: '/pools/:chain/:protocol/:address',
   CLASSIC_CREATE_POOL: '/create',
   CLASSIC_ADD_LIQ: '/add',
   CLASSIC_REMOVE_POOL: '/remove',

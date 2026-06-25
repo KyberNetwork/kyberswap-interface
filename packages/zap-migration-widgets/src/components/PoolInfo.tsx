@@ -14,6 +14,7 @@ import {
 } from '@kyber/schema';
 import { InfoHelper, Skeleton, TokenLogo, TokenSymbol } from '@kyber/ui';
 import { shortenAddress } from '@kyber/utils/crypto';
+import { cn } from '@kyber/utils/tailwind-helpers';
 import { sqrtToPrice, tickToPrice } from '@kyber/utils/uniswapv3';
 
 import { usePoolStore } from '@/stores/usePoolStore';
@@ -26,11 +27,12 @@ export enum PoolInfoType {
 }
 
 export function PoolInfo({ type }: { type: PoolInfoType }) {
-  const { theme, chainId, sourceDexId, targetDexId } = useWidgetStore([
+  const { theme, chainId, sourceDexId, targetDexId, onOpenPoolDetail } = useWidgetStore([
     'theme',
     'chainId',
     'sourceDexId',
     'targetDexId',
+    'onOpenPoolDetail',
   ]);
   const { sourcePool, targetPool } = usePoolStore(['sourcePool', 'targetPool']);
   const { sourcePosition, targetPosition, sourcePositionId, targetPositionId } = usePositionStore([
@@ -87,19 +89,24 @@ export function PoolInfo({ type }: { type: PoolInfoType }) {
   return (
     <div className="flex flex-col gap-2 rounded-md bg-[#ffffff0a] px-4 py-3 w-full">
       <div className="flex gap-1.5 items-center flex-wrap">
-        <div className="flex items-end">
-          <TokenLogo src={token0.logo} size={24} alt={token0.symbol} className="z-0" />
-          <TokenLogo src={token1.logo} size={24} alt={token1.symbol} className="-ml-2 z-10" />
-          <TokenLogo
-            src={NETWORKS_INFO[chainId].logo}
-            alt={NETWORKS_INFO[chainId].name}
-            size={12}
-            className="-ml-1.5 z-20"
-          />
-        </div>
-        <div className="flex items-center gap-1">
-          <TokenSymbol symbol={token0.symbol} className="text-xl" maxWidth={90} />/
-          <TokenSymbol symbol={token1.symbol} className="text-xl" maxWidth={90} />
+        <div
+          className={cn('flex items-center gap-1.5', onOpenPoolDetail && 'cursor-pointer')}
+          onClick={onOpenPoolDetail ? () => onOpenPoolDetail({ chainId, poolAddress: pool.address, dexId }) : undefined}
+        >
+          <div className="flex items-end">
+            <TokenLogo src={token0.logo} size={24} alt={token0.symbol} className="z-0" />
+            <TokenLogo src={token1.logo} size={24} alt={token1.symbol} className="-ml-2 z-10" />
+            <TokenLogo
+              src={NETWORKS_INFO[chainId].logo}
+              alt={NETWORKS_INFO[chainId].name}
+              size={12}
+              className="-ml-1.5 z-20"
+            />
+          </div>
+          <div className="flex items-center gap-1">
+            <TokenSymbol symbol={token0.symbol} className="text-xl" maxWidth={90} />/
+            <TokenSymbol symbol={token1.symbol} className="text-xl" maxWidth={90} />
+          </div>
         </div>
         <div className="flex items-center justify-center px-1.5 py-1 bg-layer2 rounded-full">
           <InfoHelper

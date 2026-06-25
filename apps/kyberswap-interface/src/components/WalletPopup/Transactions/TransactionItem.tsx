@@ -238,7 +238,7 @@ const DescriptionStakeFarm = (transaction: TransactionDetails) => {
 const DESCRIPTION_MAP: {
   [type in TRANSACTION_TYPE]: (
     txs: TransactionDetails,
-  ) => null | JSX.Element | { leftComponent: ReactNode; rightComponent: ReactNode }
+  ) => null | React.JSX.Element | { leftComponent: ReactNode; rightComponent: ReactNode }
 } = {
   [TRANSACTION_TYPE.ELASTIC_FORCE_WITHDRAW_LIQUIDITY]: DescriptionBasic,
   [TRANSACTION_TYPE.KYBERDAO_VOTE]: DescriptionBasic,

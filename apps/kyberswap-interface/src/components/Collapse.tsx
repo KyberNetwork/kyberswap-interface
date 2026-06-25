@@ -4,7 +4,7 @@ import { ChevronDown } from 'react-feather'
 import { cn } from 'utils/cn'
 
 export type CollapseItemProps = {
-  header: string | JSX.Element
+  header: string | React.JSX.Element
   expandedOnMount?: boolean
   style?: CSSProperties
   activeStyle?: CSSProperties

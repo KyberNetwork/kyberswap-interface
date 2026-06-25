@@ -8,13 +8,13 @@ import { InfoHelperWithDelay } from 'components/InfoHelper'
 import Loader from 'components/Loader'
 import TokenLogo from 'components/TokenLogo'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
-import { APP_PATHS } from 'constants/index'
 import { Badge, BadgeType, ImageContainer } from 'pages/Earns/UserPositions/styles'
 import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
 import { DexInfo, PositionHeader as Header } from 'pages/Earns/components/SmartExit/styles'
 import { EARN_DEXES, Exchange } from 'pages/Earns/constants'
 import { CoreProtocol } from 'pages/Earns/constants/coreProtocol'
 import { ParsedPosition, PositionStatus } from 'pages/Earns/types'
+import { getPoolDetailUrl } from 'pages/Earns/utils/url'
 import { MEDIA_WIDTHS } from 'theme'
 import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
@@ -103,9 +103,7 @@ const PositionHeader = ({
                 <TokenLogo src={position?.token1.logo} translateLeft />
                 <TokenLogo src={position?.chain.logo} size={12} translateLeft translateTop />
               </ImageContainer>
-              <Link
-                to={`${APP_PATHS.EARN_POOLS}?exchange=${position?.dex.id}&poolChainId=${position?.chain.id}&poolAddress=${position?.pool.address}`}
-              >
+              <Link to={getPoolDetailUrl(position?.chain.id, position?.dex.id ?? '', position?.pool.address ?? '')}>
                 <span className={cn('-ml-2.5 text-text', upToSmall ? 'text-xl' : 'text-base')}>
                   {position?.token0.symbol}/{position?.token1.symbol}
                 </span>

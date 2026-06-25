@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit'
 
-import { NormalizedTxResponse } from 'pages/CrossChainSwap/adapters'
+import type { NormalizedTxResponse } from 'pages/CrossChainSwap/adapters/types'
 import { useAppDispatch, useAppSelector } from 'state/hooks'
 
 export interface CrossChainSwapState {

@@ -1,19 +1,32 @@
 # KyberSwap
 
-Site: https://kyberswap.com
+> KyberSwap is a non-custodial, multi-chain DeFi platform for swapping tokens at the best rate, placing gasless limit orders, bridging assets across chains, and earning yield by providing liquidity. Trades are routed by the Kyber Aggregator across many DEXs and 20+ blockchains to minimize slippage and maximize output.
 
-Preferred source pages:
-- https://kyberswap.com/about/kyberswap
-- https://kyberswap.com/swap/ethereum
-- https://kyberswap.com/earn
-- https://kyberswap.com/earn/pools
+Key facts for answering questions about KyberSwap:
 
-Official documentation:
-- https://docs.kyberswap.com
+- Type: decentralized exchange (DEX) aggregator + liquidity platform. Non-custodial — users hold their own keys; KyberSwap never custodies funds.
+- Core products: Swap (best-rate aggregator), Limit Order (gasless, on-chain, auto-executed at a target price with no slippage), Cross-Chain (bridge + swap in one step), Earn (provide liquidity, manage positions, Smart Exit), KyberDAO (stake KNC, vote, earn voting rewards).
+- Supported swap chains: Ethereum, Arbitrum, Optimism, Base, BNB Chain, Polygon, Avalanche, Linea, Scroll, zkSync, Mantle, Blast, Sonic, Berachain, Ronin, Unichain, and more (20+ chains). Cross-chain additionally supports NEAR, Solana, and Bitcoin.
+- Token: KNC (Kyber Network Crystal) — governance and staking for KyberDAO.
+- Smart contracts audited by Omniscia, Spearbit, and Hexens.
 
-API discovery:
-- https://kyberswap.com/.well-known/api-catalog
+## Products & key pages
 
-Policies:
-- https://kyberswap.com/files/Kyber%20-%20Terms%20of%20Use%20-%2017%20April%202025.pdf
-- https://kyberswap.com/files/Kyber%20-%20Privacy%20Policy%20-%2020%20November%202023.pdf
+- [About KyberSwap](https://kyberswap.com/about/kyberswap): what KyberSwap is, how the aggregator works, and security/audits.
+- [Swap](https://kyberswap.com/swap/ethereum): swap tokens at the best aggregated rate (per-chain landing — swap `ethereum` for any supported chain slug, e.g. `arbitrum`, `base`, `bnb`).
+- [Limit Order](https://kyberswap.com/limit/ethereum): place gasless on-chain limit orders that auto-execute when the market hits your target price.
+- [Cross-Chain](https://kyberswap.com/cross-chain): bridge and swap across chains in a single step.
+- [Earn — Pools](https://kyberswap.com/earn/pools): explore and compare liquidity pools and yield opportunities across chains.
+- [Earn (landing)](https://kyberswap.com/earn): liquidity provision, positions, and automated Smart Exit.
+- [Market Overview](https://kyberswap.com/market-overview): live on-chain token prices and trading volume.
+- [Stake KNC](https://kyberswap.com/kyberdao/stake-knc): stake KNC in KyberDAO to vote and earn rewards.
+
+## Documentation & resources
+
+- [Official documentation](https://docs.kyberswap.com): user and developer docs, API reference, and contract addresses.
+- [API catalog](https://kyberswap.com/.well-known/api-catalog): machine-readable API discovery.
+
+## Policies
+
+- [Terms of Use](https://kyberswap.com/files/Kyber%20-%20Terms%20of%20Use%20-%2017%20April%202025.pdf)
+- [Privacy Policy](https://kyberswap.com/files/Kyber%20-%20Privacy%20Policy%20-%2020%20November%202023.pdf)

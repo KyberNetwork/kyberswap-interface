@@ -13,7 +13,7 @@ import useZapMigrationWidget from 'pages/Earns/hooks/useZapMigrationWidget'
 import { EarnPool, ProgramType } from 'pages/Earns/types'
 import { formatDisplayNumber } from 'utils/numbers'
 
-const PoolItem = ({ pool }: { pool: EarnPool }) => {
+const PoolItem = ({ pool, rowIndex = 0 }: { pool: EarnPool; rowIndex?: number }) => {
   const { widget: zapMigrationWidget, handleOpenZapMigration, triggerClose, setTriggerClose } = useZapMigrationWidget()
   const { onOpenSmartExit, smartExitWidget } = useSmartExitWidget()
   const { widget: zapInWidget, handleOpenZapIn } = useZapInWidget({
@@ -28,9 +28,10 @@ const PoolItem = ({ pool }: { pool: EarnPool }) => {
 
   return (
     <PoolRow
-      className="justify-between"
+      className="animate-[fadeInUp_0.3s_ease-out_both] justify-between motion-reduce:animate-none"
       key={pool.address}
       role="button"
+      style={{ animationDelay: `${Math.min(rowIndex * 50, 300)}ms` }}
       onClick={e => {
         e.stopPropagation()
         handleOpenZapIn({

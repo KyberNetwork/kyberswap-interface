@@ -15,7 +15,7 @@ import { ChainState } from 'hooks/useChainsConfig'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import useTheme from 'hooks/useTheme'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
-import { Chain, NonEvmChain } from 'pages/CrossChainSwap/adapters'
+import { Chain, NonEvmChain } from 'pages/CrossChainSwap/adapters/types'
 import { cn } from 'utils/cn'
 
 const NewLabel = ({
@@ -71,7 +71,7 @@ const DraggableNetworkButton = ({
   disabledMsg?: string
   isEdittingMobile?: boolean
   isAddButton?: boolean
-  dragConstraints?: RefObject<Element>
+  dragConstraints?: RefObject<Element | null>
   customToggleModal?: () => void
   customOnSelectNetwork?: (chainId: Chain) => void
   onChangedNetwork?: () => void

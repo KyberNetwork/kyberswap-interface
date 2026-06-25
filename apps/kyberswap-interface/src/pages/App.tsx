@@ -1,10 +1,9 @@
 import '@kyber/token-selector/styles.css'
 import '@kyber/ui/styles.css'
 import { Suspense, lazy, useEffect } from 'react'
-import { Navigate, Route, Routes, useLocation, useParams } from 'react-router-dom'
+import { Navigate, Route, Routes, useLocation, useParams, useSearchParams } from 'react-router-dom'
 import { useNetwork, usePrevious } from 'react-use'
 
-import snow from 'assets/images/snow.png'
 import Popups from 'components/Announcement/Popups'
 import TopBanner from 'components/Announcement/Popups/TopBanner'
 import AppHaveUpdate from 'components/AppHaveUpdate'
@@ -12,10 +11,10 @@ import { ButtonPrimary } from 'components/Button'
 import ErrorBoundary from 'components/ErrorBoundary'
 import Footer from 'components/Footer/Footer'
 import Header from 'components/Header'
-import Loader from 'components/LocalLoader'
 import Modal from 'components/Modal'
 import ModalsGlobal from 'components/ModalsGlobal'
 import ProtectedRoute from 'components/ProtectedRoute'
+import RouteFallback from 'components/RouteFallback'
 import RouteSeo from 'components/Seo/RouteSeo'
 import SingaporeWarningPopup from 'components/SingaporeWarningPopup'
 import SupportButton from 'components/SupportButton'
@@ -26,8 +25,8 @@ import { useAutoLogin } from 'hooks/useLogin'
 import usePageLocation from 'hooks/usePageLocation'
 import useSessionExpiredGlobal from 'hooks/useSessionExpire'
 import { useGlobalTrackingEvents } from 'hooks/useTracking'
-import { useWebVitals } from 'hooks/useWebVitals'
 import { useSyncNetworkParamWithStore } from 'hooks/web3/useSyncNetworkParamWithStore'
+import { getPoolDetailUrl } from 'pages/Earns/utils/url'
 import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
 import { RedirectPathToSwapV3Network } from 'pages/SwapV3/redirects'
 import VerifyAuth from 'pages/Verify/VerifyAuth'
@@ -55,7 +54,7 @@ const RemoveLiquidity = lazy(() => import('pages/RemoveLiquidity'))
 const KyberDAOStakeKNC = lazy(() => import('pages/KyberDAO/StakeKNC'))
 const KyberDAOVote = lazy(() => import('pages/KyberDAO/Vote'))
 const KNCUtility = lazy(() => import('pages/KyberDAO/KNCUtility'))
-const AboutKyberSwap = lazy(() => import('pages//About/AboutKyberSwap'))
+const AboutKyberSwap = lazy(() => import('pages/About/AboutKyberSwap'))
 const AboutKNC = lazy(() => import('pages/About/AboutKNC'))
 
 const NotificationCenter = lazy(() => import('pages/NotificationCenter'))
@@ -146,6 +145,21 @@ const RedirectWithNetworkSuffix = () => {
   )
 }
 
+// Legacy pool-detail URL (`/pools/add-liquidity?exchange=&poolChainId=&poolAddress=`) ->
+// the canonical path form (`/pools/<chain>/<protocol>/<address>`). The og-service also
+// 301s this for crawlers; this client-side redirect covers in-SPA navigation + direct hits.
+const RedirectAddLiquidityToPoolPath = () => {
+  const [searchParams] = useSearchParams()
+  const exchange = searchParams.get('exchange') || ''
+  const poolAddress = searchParams.get('poolAddress') || ''
+  const poolChainId = parseInt(searchParams.get('poolChainId') || '0', 10) || 0
+
+  if (!exchange || !poolAddress || !poolChainId) {
+    return <Navigate to={APP_PATHS.EARN_POOLS} replace />
+  }
+  return <Navigate to={getPoolDetailUrl(poolChainId, exchange, poolAddress)} replace />
+}
+
 const RoutesWithNetworkPrefix = () => {
   const { network } = useParams()
   const { networkInfo, chainId } = useActiveWeb3React()
@@ -203,12 +217,8 @@ export default function App() {
   }, [])
 
   useGlobalTrackingEvents()
-  useWebVitals()
   const showFooter = !pathname.includes(APP_PATHS.ABOUT) && !isEmbeddedSwap
   // const [holidayMode] = useHolidayMode()
-
-  const snowflake = new Image()
-  snowflake.src = snow
 
   const safeAppAcceptedTermOfUse = useAppSelector(state => state.user.safeAppAcceptedTermOfUse)
   const dispatch = useAppDispatch()
@@ -224,7 +234,7 @@ export default function App() {
           <SupportButton />
           <Header />
         </HeaderWrapper>
-        <Suspense fallback={<Loader />}>
+        <Suspense fallback={<RouteFallback />}>
           <Popups />
           <BodyWrapper>
             <SingaporeWarningPopup />
@@ -339,7 +349,8 @@ export default function App() {
               <Route path={APP_PATHS.EARN_POSITIONS} element={<EarnUserPositions />} />
               <Route path={APP_PATHS.EARN_POSITION_DETAIL} element={<EarnPositionDetail />} />
               <Route path={APP_PATHS.EARN_SMART_EXIT} element={<SmartExit />} />
-              <Route path={APP_PATHS.ADD_LIQUIDITY} element={<PoolDetail />} />
+              <Route path={APP_PATHS.POOL_DETAIL} element={<PoolDetail />} />
+              <Route path={APP_PATHS.ADD_LIQUIDITY} element={<RedirectAddLiquidityToPoolPath />} />
 
               <Route path={APP_PATHS.EARNS} element={<Navigate to={APP_PATHS.EARN} replace />} />
               <Route path={APP_PATHS.EARNS_POOLS} element={<Navigate to={APP_PATHS.EARN_POOLS} replace />} />

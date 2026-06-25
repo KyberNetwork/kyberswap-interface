@@ -89,7 +89,7 @@ export const TokenPanel = ({
   const disconnectWallet = useDisconnectWallet()
 
   const ref = useRef<{ toggleNetworkModal: () => void }>(null)
-  const node = useRef<HTMLDivElement>()
+  const node = useRef<HTMLDivElement | null>(null)
   const [autoToggleTokenSelector, setAutoToggleTokenSelector] = useState(false)
   const [showMenu, toggleShowMenu] = useToggle(false)
 

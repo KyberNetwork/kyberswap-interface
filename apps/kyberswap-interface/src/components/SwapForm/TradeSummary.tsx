@@ -176,7 +176,7 @@ const SwapFee: React.FC<{ isFeeTampered?: boolean }> = ({ isFeeTampered }) => {
 }
 
 type Props = {
-  routeSummary: DetailedRouteSummary | undefined
+  routeSummary?: DetailedRouteSummary
   slippage: number
   disableRefresh: boolean
   routeLoading: boolean
@@ -195,6 +195,13 @@ const TradeSummary: React.FC<Props> = ({
   const { parsedAmountOut, priceImpact } = routeSummary || {}
   const hasTrade = !!routeSummary?.route
 
+  useEffect(() => {
+    if (hasTrade) {
+      setAlreadyVisible(true)
+    }
+  }, [hasTrade])
+
+  const hidden = !alreadyVisible
   const priceImpactResult = checkPriceImpact(priceImpact)
 
   const minimumAmountOut = parsedAmountOut ? minimumAmountAfterSlippage(parsedAmountOut, slippage) : undefined
@@ -208,21 +215,11 @@ const TradeSummary: React.FC<Props> = ({
       ''
     )
 
-  useEffect(() => {
-    if (hasTrade) {
-      setAlreadyVisible(true)
-    }
-  }, [hasTrade])
-
   return (
     <div
-      data-visible={alreadyVisible}
-      data-disabled={!hasTrade}
       className={cn(
-        'hidden w-full max-w-[425px] overflow-hidden rounded-2xl border border-solid border-border p-0 transition-[height,transform] duration-300 ease-in-out',
-        'max-h-0',
-        'data-[visible=true]:block data-[visible=true]:max-h-max data-[visible=true]:p-3 data-[visible=true]:text-text',
-        'data-[disabled=true]:text-subText',
+        'w-full max-w-[425px] overflow-hidden rounded-2xl border border-border/60 p-3 text-text',
+        hidden && 'hidden',
       )}
     >
       <Stack className="gap-3">

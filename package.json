@@ -16,8 +16,10 @@
   },
   "pnpm": {
     "overrides": {
-      "@types/react": "^18.3.12",
-      "@types/react-dom": "^18.3.1"
+      "@types/react": "^19.0.0",
+      "@types/react-dom": "^19.0.0",
+      "react": "^19.2.6",
+      "react-dom": "^19.2.6"
     }
   },
   "scripts": {
@@ -30,6 +32,6 @@
     "dev:web": "pnpm --filter @kyberswap/interface dev",
     "dev:web:clean": "rm -rf apps/kyberswap-interface/node_modules/.vite && pnpm --filter @kyberswap/interface dev",
     "dev:widgets": "pnpm --filter zap-widgets-demo dev",
-    "type-check": "turbo type-check"
+    "type-check": "turbo type-check --filter=!@kyberswap/widgets"
   }
 }

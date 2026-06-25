@@ -1,7 +1,6 @@
 import { ChainId, CurrencyAmount, Currency as EvmCurrency } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { useWalletSelector } from '@near-wallet-selector/react-hook'
-import { adaptSolanaWallet } from '@reservoir0x/relay-solana-wallet-adapter'
 import { useConnection, useWallet } from '@solana/wallet-adapter-react'
 import { Transaction, VersionedTransaction } from '@solana/web3.js'
 import { useEffect, useState } from 'react'
@@ -21,6 +20,7 @@ import { NETWORKS_INFO } from 'constants/networks'
 import { useGatedWalletClient } from 'hooks/useGatedWalletClient'
 import useTracking, { CROSS_CHAIN_MIXPANEL_TYPE, TRACKING_EVENT_TYPE, useCrossChainMixpanel } from 'hooks/useTracking'
 import { Chain, Currency, NonEvmChain, NonEvmChainInfo } from 'pages/CrossChainSwap/adapters'
+import { adaptRelaySolanaWallet } from 'pages/CrossChainSwap/adapters/RelayAdapter/relaySolanaWallet'
 import { PiWarning } from 'pages/CrossChainSwap/components/PiWarning'
 import { QuoteProviderName } from 'pages/CrossChainSwap/components/QuoteProviderName'
 import { Summary } from 'pages/CrossChainSwap/components/Summary'
@@ -157,7 +157,7 @@ export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDi
 
   const handleSwap = async () => {
     if (isEvmChain(fromChainId) && !walletClient) return
-    const adaptedWallet = adaptSolanaWallet(
+    const adaptedWallet = adaptRelaySolanaWallet(
       solanaAddress?.toString() || '1nc1nerator11111111111111111111111111111111',
       792703809, //chain id that Relay uses to identify solana
       connection,
@@ -179,11 +179,13 @@ export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDi
 
     setSubmittingTx(true)
 
-    const blackjackRes = await checkBlackjack(sender)
-    if (blackjackRes?.data?.blacklisted) {
-      setSubmittingTx(false)
-      setTxError('There was an error with your transaction.')
-      return
+    if (isEvmChain(fromChainId)) {
+      const blackjackRes = await checkBlackjack(sender)
+      if (blackjackRes?.data?.blacklisted) {
+        setSubmittingTx(false)
+        setTxError('There was an error with your transaction.')
+        return
+      }
     }
 
     const res = await selectedQuote.adapter

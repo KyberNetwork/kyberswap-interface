@@ -1,6 +1,7 @@
 import { Trans } from '@lingui/macro'
 import { Link } from 'react-router-dom'
 
+import { KYBERSWAP_URL } from 'constants/index'
 import safePalPoints from 'pages/Campaign/assets/safepal_points.png'
 import CampaignFaqSection from 'pages/Campaign/components/Information/info/CampaignFaqSection'
 import { CampaignContent, CampaignSectionComponent, FaqItem } from 'pages/Campaign/components/Information/info/types'
@@ -36,7 +37,7 @@ const SafePalHowToSection = (): CampaignSectionComponent => {
       <li>
         <Trans>
           Participants receive points from activities with Swap, Zap, Cross-Chain, Limit Order and Smart Exit Orders on{' '}
-          <ExternalLink href="https://kyberswap.com">kyberswap.com</ExternalLink>.
+          <ExternalLink href={KYBERSWAP_URL}>kyberswap.com</ExternalLink>.
         </Trans>
       </li>
       <li>

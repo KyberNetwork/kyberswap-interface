@@ -39,6 +39,7 @@ import { getNftManagerContractAddress } from 'pages/Earns/utils'
 import { getUnclaimedFeesInfo } from 'pages/Earns/utils/fees'
 import { checkEarlyPosition, parsePosition } from 'pages/Earns/utils/position'
 import { getUnfinalizedPositions } from 'pages/Earns/utils/unfinalizedPosition'
+import { getPoolDetailUrl } from 'pages/Earns/utils/url'
 import { toString } from 'utils/numbers'
 import { type Address } from 'utils/viem'
 
@@ -318,6 +319,11 @@ const PositionDetail = () => {
             isFarming: position.pool.isFarming,
             defaultOptions,
             type: ShareType.POSITION_INFO,
+            url: `${window.location.origin}${getPoolDetailUrl(
+              position.chain.id,
+              position.dex.id,
+              position.pool.address,
+            )}`,
             onClose: () => setShareInfo(undefined),
             pool: {
               feeTier: position.pool.fee,

@@ -1,11 +1,11 @@
 import { useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
 
-import LocalLoader from 'components/LocalLoader'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
 import Icon from 'pages/Earns/Landing/Icon'
 import PoolItem from 'pages/Earns/Landing/PoolItem'
+import PoolItemSkeleton from 'pages/Earns/Landing/PoolItemSkeleton'
 import { ListPoolWrapper, PoolWrapper } from 'pages/Earns/Landing/styles'
 import { MEDIA_WIDTHS } from 'theme'
 
@@ -35,6 +35,9 @@ const PoolSection = ({
   const poolItemContainerStyle: React.CSSProperties =
     size === 'large' ? { gridTemplateColumns: upToSmall ? '1fr' : 'repeat(3, 1fr)' } : {}
 
+  // Match the real slice counts (Landing index): large = 9 / 5 (mobile), small = 5.
+  const skeletonCount = size === 'large' ? (upToSmall ? 5 : 9) : 5
+
   return (
     <PoolWrapper style={styles}>
       <ListPoolWrapper
@@ -57,11 +60,15 @@ const PoolSection = ({
           style={{ background: 'linear-gradient(90deg, #161A1C 0%, #49287F 29%, #111413 100%)' }}
         />
         {isLoading ? (
-          <LocalLoader />
+          <div className={poolItemContainerClass} style={poolItemContainerStyle}>
+            {Array.from({ length: skeletonCount }, (_, i) => (
+              <PoolItemSkeleton key={i} />
+            ))}
+          </div>
         ) : (
           <div className={poolItemContainerClass} style={poolItemContainerStyle}>
-            {listPools.map(pool => (
-              <PoolItem pool={pool} key={pool.address} />
+            {listPools.map((pool, index) => (
+              <PoolItem pool={pool} key={pool.address} rowIndex={index} />
             ))}
           </div>
         )}

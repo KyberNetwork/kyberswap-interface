@@ -194,7 +194,9 @@ const OTPInput = ({
           {renderInput(
             {
               value: getOTPValue()[index] ?? '',
-              ref: element => (inputRefs.current[index] = element),
+              ref: element => {
+                inputRefs.current[index] = element
+              },
               onChange: handleChange,
               onFocus: () => handleFocus()(index),
               onBlur: handleBlur,

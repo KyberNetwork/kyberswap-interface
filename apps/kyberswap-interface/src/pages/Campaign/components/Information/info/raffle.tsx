@@ -2,6 +2,7 @@ import { Trans } from '@lingui/macro'
 import { PropsWithChildren } from 'react'
 import { Link } from 'react-router-dom'
 
+import { KYBERSWAP_URL } from 'constants/index'
 import CampaignFaqSection from 'pages/Campaign/components/Information/info/CampaignFaqSection'
 import { StyledTable, TableWrapper, Td, Th, Tr } from 'pages/Campaign/components/Information/info/styles'
 import { CampaignContent, CampaignSectionComponent, FaqItem } from 'pages/Campaign/components/Information/info/types'
@@ -14,7 +15,7 @@ const Quote = ({ children }: PropsWithChildren) => (
 )
 
 const KyberswapLink = ({ children }: PropsWithChildren) => (
-  <ExternalLink href="https://kyberswap.com">{children || 'kyberswap.com'}</ExternalLink>
+  <ExternalLink href={KYBERSWAP_URL}>{children || 'kyberswap.com'}</ExternalLink>
 )
 
 const RaffleHowToSection = (): CampaignSectionComponent => (

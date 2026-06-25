@@ -18,7 +18,7 @@ import { EARN_DEXES, Exchange } from 'pages/Earns/constants'
 import useAccountChanged from 'pages/Earns/hooks/useAccountChanged'
 import useTransactionReplacement from 'pages/Earns/hooks/useTransactionReplacement'
 import { submitTransaction } from 'pages/Earns/utils'
-import { navigateToPositionAfterZap } from 'pages/Earns/utils/zap'
+import { navigateToPoolDetail, navigateToPositionAfterZap } from 'pages/Earns/utils/zap'
 import { useKyberSwapConfig, useNotify, useWalletModalToggle } from 'state/application/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
@@ -46,6 +46,7 @@ interface CompoundingParams extends CompoundingPureParams {
   onSwitchChain: () => void
   onSubmitTx: (txData: { from: string; to: string; value: string; data: string; gasLimit: string }) => Promise<string>
   onViewPosition?: (txHash: string) => void
+  onOpenPoolDetail?: (pool: { chainId: number; poolAddress: string; dexId?: string }) => void
 }
 
 export interface CompoundingInfo {
@@ -165,6 +166,11 @@ const useCompounding = ({
             txStatus,
             txHashMapping: originalToCurrentHash,
             onSwitchChain: () => changeNetwork(compoundingPureParams.chainId as number),
+            onOpenPoolDetail: (pool: { chainId: number; poolAddress: string; dexId?: string }) => {
+              if (!pool.dexId) return
+              handleCloseCompounding()
+              navigateToPoolDetail(pool, navigate)
+            },
             onViewPosition: (txHash: string) => {
               const { chainId, poolType, poolAddress, positionId } = compoundingPureParams
               handleCloseCompounding()
@@ -260,6 +266,7 @@ const useCompounding = ({
       handleCloseCompounding,
       handleNavigateToPosition,
       locale,
+      navigate,
       isSmartConnector,
       onRefreshPosition,
       toggleWalletModal,

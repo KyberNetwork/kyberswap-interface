@@ -14,7 +14,7 @@ export default function AnimatedNumber({
   const prevValueRef = useRef(value)
   const [displayValue, setDisplayValue] = useState(value)
   const [prevValue, setPrevValue] = useState<string | null>(null)
-  const timeoutRef = useRef<ReturnType<typeof setTimeout>>()
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
 
   useEffect(() => {
     if (value === prevValueRef.current) return

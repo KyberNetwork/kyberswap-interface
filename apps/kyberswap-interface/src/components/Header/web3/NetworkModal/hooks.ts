@@ -5,7 +5,7 @@ import { MEDIA_WIDTHS } from 'theme'
 
 export const useDragAndDrop = (
   items: string[],
-  dropRef: RefObject<HTMLDivElement>,
+  dropRef: RefObject<HTMLDivElement | null>,
   onDrop: (newOrders: string[], droppedItem: string) => void,
 ) => {
   const above768 = useMedia(`(min-width: ${MEDIA_WIDTHS.upToMedium}px)`)

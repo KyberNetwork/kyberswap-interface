@@ -72,7 +72,7 @@ export default function VerifyCodeModal({
   const canShowResend =
     !isSendMailError && !isRateLimitError && expiredDuration < (timeExpire - 1) * TIMES_IN_SECS.ONE_MIN
 
-  const interval = useRef<NodeJS.Timeout>()
+  const interval = useRef<NodeJS.Timeout | undefined>(undefined)
   useEffect(() => {
     interval.current = setInterval(() => {
       setExpireDuration(expiredDuration - 1)

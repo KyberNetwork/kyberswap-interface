@@ -20,7 +20,7 @@ import useTheme from 'hooks/useTheme'
 import {
   CHART_WINDOW_OPTIONS,
   formatAxisTimeLabel,
-  formatPrice,
+  formatRate,
   formatSignedPercent,
 } from 'pages/Earns/PoolDetail/Information/utils'
 import PoolChartState, { PoolChartWrapper } from 'pages/Earns/PoolDetail/components/PoolChartState'
@@ -221,16 +221,16 @@ const PriceChartTooltip = ({ tooltip, window }: { tooltip: TooltipState; window:
 
       <div className="grid grid-cols-[auto_auto] gap-x-4 gap-y-2">
         <span className="text-xs text-subText">Open</span>
-        <span className="text-right text-xs font-medium text-text">{formatPrice(candle.open)}</span>
+        <span className="text-right text-xs font-medium text-text">{formatRate(candle.open)}</span>
 
         <span className="text-xs text-subText">High</span>
-        <span className="text-right text-xs font-medium text-text">{formatPrice(candle.high)}</span>
+        <span className="text-right text-xs font-medium text-text">{formatRate(candle.high)}</span>
 
         <span className="text-xs text-subText">Low</span>
-        <span className="text-right text-xs font-medium text-text">{formatPrice(candle.low)}</span>
+        <span className="text-right text-xs font-medium text-text">{formatRate(candle.low)}</span>
 
         <span className="text-xs text-subText">Close</span>
-        <span className="text-right text-xs font-medium text-text">{formatPrice(candle.close)}</span>
+        <span className="text-right text-xs font-medium text-text">{formatRate(candle.close)}</span>
 
         <span className="text-xs text-subText">%Change</span>
         <span className={cn('text-right text-xs font-medium', priceChange >= 0 ? 'text-primary' : 'text-red')}>
@@ -509,7 +509,7 @@ const PoolPriceChart = ({ chainId, poolAddress }: PoolPriceChartProps) => {
           {lastCandle && priceChange !== undefined ? (
             <HStack className="flex-wrap items-baseline gap-2.5">
               <>
-                <span className="text-2xl font-medium text-text">{formatPrice(lastCandle.close)}</span>
+                <span className="text-2xl font-medium text-text">{formatRate(lastCandle.close)}</span>
 
                 <HStack className="items-center gap-1.5">
                   <span className="text-base font-medium" style={{ color: priceChangeColor }}>
