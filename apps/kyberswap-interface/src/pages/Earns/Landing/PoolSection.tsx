@@ -1,12 +1,11 @@
 import { useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
-import { Box, Flex, Text } from 'rebass'
 
-import LocalLoader from 'components/LocalLoader'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
 import Icon from 'pages/Earns/Landing/Icon'
 import PoolItem from 'pages/Earns/Landing/PoolItem'
+import PoolItemSkeleton from 'pages/Earns/Landing/PoolItemSkeleton'
 import { ListPoolWrapper, PoolWrapper } from 'pages/Earns/Landing/styles'
 import { MEDIA_WIDTHS } from 'theme'
 
@@ -32,19 +31,12 @@ const PoolSection = ({
   const navigate = useNavigate()
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
-  const poolItemContainerStyles = {
-    ...(size === 'small'
-      ? {
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '1rem',
-        }
-      : {
-          display: 'grid',
-          gridTemplateColumns: upToSmall ? '1fr' : 'repeat(3, 1fr)',
-          gap: '1rem',
-        }),
-  }
+  const poolItemContainerClass = size === 'small' ? 'flex flex-col gap-4' : 'grid gap-4'
+  const poolItemContainerStyle: React.CSSProperties =
+    size === 'large' ? { gridTemplateColumns: upToSmall ? '1fr' : 'repeat(3, 1fr)' } : {}
+
+  // Match the real slice counts (Landing index): large = 9 / 5 (mobile), small = 5.
+  const skeletonCount = size === 'large' ? (upToSmall ? 5 : 9) : 5
 
   return (
     <PoolWrapper style={styles}>
@@ -57,30 +49,28 @@ const PoolSection = ({
           })
         }}
       >
-        <Flex alignItems="center" sx={{ gap: '12px' }}>
+        <div className="flex items-center gap-3">
           <Icon icon={icon} size="small" />
           <MouseoverTooltipDesktopOnly text={tooltip} placement="top">
-            <Text as="h2" fontSize={20}>
-              {title}
-            </Text>
+            <h2 className="text-xl">{title}</h2>
           </MouseoverTooltipDesktopOnly>
-        </Flex>
-        <Box
-          sx={{
-            height: '1px',
-            margin: '16px',
-            width: '100%',
-            background: 'linear-gradient(90deg, #161A1C 0%, #49287F 29%, #111413 100%)',
-          }}
+        </div>
+        <div
+          className="m-4 h-px w-full"
+          style={{ background: 'linear-gradient(90deg, #161A1C 0%, #49287F 29%, #111413 100%)' }}
         />
         {isLoading ? (
-          <LocalLoader />
-        ) : (
-          <Box sx={poolItemContainerStyles}>
-            {listPools.map(pool => (
-              <PoolItem pool={pool} key={pool.address} />
+          <div className={poolItemContainerClass} style={poolItemContainerStyle}>
+            {Array.from({ length: skeletonCount }, (_, i) => (
+              <PoolItemSkeleton key={i} />
             ))}
-          </Box>
+          </div>
+        ) : (
+          <div className={poolItemContainerClass} style={poolItemContainerStyle}>
+            {listPools.map((pool, index) => (
+              <PoolItem pool={pool} key={pool.address} rowIndex={index} />
+            ))}
+          </div>
         )}
       </ListPoolWrapper>
     </PoolWrapper>

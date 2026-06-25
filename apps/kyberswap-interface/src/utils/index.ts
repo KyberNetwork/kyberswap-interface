@@ -1,4 +1,3 @@
-import { BigNumber } from '@ethersproject/bignumber'
 import { ChainId, Currency, CurrencyAmount, Percent, WETH } from '@kyberswap/ks-sdk-core'
 import dayjs from 'dayjs'
 import JSBI from 'jsbi'
@@ -8,11 +7,10 @@ import { ENV_KEY } from 'constants/env'
 import { DEFAULT_GAS_LIMIT_MARGIN, ETHER_ADDRESS, ZERO_ADDRESS } from 'constants/index'
 import { NETWORKS_INFO, SUPPORTED_NETWORKS } from 'constants/networks'
 import { KNCL_ADDRESS, KNC_ADDRESS } from 'constants/tokens'
-import { Chain, NonEvmChain } from 'pages/CrossChainSwap/adapters'
+import { type Chain, NonEvmChain } from 'pages/CrossChainSwap/adapters/types'
 import store from 'state'
 import { GroupedTxsByHash, TransactionDetails } from 'state/transactions/type'
-
-import { isAddress, isAddressString } from './address'
+import { isAddress, isAddressString } from 'utils/address'
 
 export { isAddress, isAddressString }
 
@@ -63,17 +61,13 @@ export const shortenHash = (hash: string, chars = 3): string => {
 
 /**
  * Add a margin amount equal to max of 20000 or 20% of estimatedGas
- * total = estimate + max(20k, 20% * estimate)
- *
- * @param value BigNumber
- * @returns BigNumber
+ * total = estimate + max(20k, 20% * estimate) (50% on Polygon and Optimism).
  */
-export function calculateGasMargin(value: BigNumber, chainId?: ChainId): BigNumber {
-  const defaultGasLimitMargin = BigNumber.from(DEFAULT_GAS_LIMIT_MARGIN)
+export function calculateGasMarginBigInt(value: bigint, chainId?: ChainId): bigint {
+  const defaultGasLimitMargin = BigInt(DEFAULT_GAS_LIMIT_MARGIN)
   const needHigherGas = [ChainId.MATIC, ChainId.OPTIMISM].includes(chainId as ChainId)
-  const gasMargin = value.mul(BigNumber.from(needHigherGas ? 5000 : 2000)).div(BigNumber.from(10000))
-
-  return gasMargin.gte(defaultGasLimitMargin) ? value.add(gasMargin) : value.add(defaultGasLimitMargin)
+  const gasMargin = (value * (needHigherGas ? 5000n : 2000n)) / 10000n
+  return gasMargin >= defaultGasLimitMargin ? value + gasMargin : value + defaultGasLimitMargin
 }
 
 // converts a basis points value to a sdk percent
@@ -293,14 +287,14 @@ export function buildFlagsForFarmV21({
 }
 
 export const getCookieValue = (name: string) =>
-  document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)')?.pop() || ''
+  typeof document === 'undefined' ? '' : document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)')?.pop() || ''
 
 export const enumToArrayOfValues = (enumObject: { [x: string]: unknown }, valueType?: string) =>
   Object.keys(enumObject)
     .map(key => enumObject[key])
     .filter(value => !valueType || typeof value === valueType)
 
-const ancestorOrigins = window.location.ancestorOrigins
+const ancestorOrigins = typeof window !== 'undefined' ? window.location.ancestorOrigins : undefined
 export const isInSafeApp = !!ancestorOrigins?.[ancestorOrigins.length - 1]?.includes('app.safe.global')
 
 export const isEvmChain = (chain: Chain) => {

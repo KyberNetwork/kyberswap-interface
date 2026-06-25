@@ -1,7 +1,6 @@
 import { formatAprNumber } from '@kyber/utils/dist/number'
 import { t } from '@lingui/macro'
 import { PropsWithChildren } from 'react'
-import { Flex, Text } from 'rebass'
 
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 
@@ -18,28 +17,28 @@ export default function AprDetailTooltip({ feeApr, egApr, lmApr, merklApr, child
       placement="top"
       width="fit-content"
       text={
-        <Flex sx={{ flexDirection: 'column', gap: '2px' }}>
+        <div className="flex flex-col gap-[2px]">
           {feeApr !== undefined && (
-            <Text>
+            <span>
               {t`LP Fee APR`}: {formatAprNumber(feeApr)}%
-            </Text>
+            </span>
           )}
           {egApr !== undefined && (
-            <Text>
-              {t`FairFlow EG Reward`}: {formatAprNumber(egApr)}%
-            </Text>
+            <span>
+              {t`FairFlow EG Rewards`}: {formatAprNumber(egApr)}%
+            </span>
           )}
           {!!lmApr && (
-            <Text>
-              {t`LM Reward`}: {formatAprNumber(lmApr)}%
-            </Text>
+            <span>
+              {t`LM Rewards`}: {formatAprNumber(lmApr)}%
+            </span>
           )}
           {!!merklApr && (
-            <Text>
+            <span>
               {t`Merkl Bonus`}: {formatAprNumber(merklApr)}%
-            </Text>
+            </span>
           )}
-        </Flex>
+        </div>
       }
     >
       {children}

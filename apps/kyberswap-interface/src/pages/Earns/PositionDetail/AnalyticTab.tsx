@@ -1,14 +1,12 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { useMemo } from 'react'
-import { Flex, Text } from 'rebass'
 import { PositionHistory, usePositionHistoryQuery } from 'services/zapEarn'
 
 import CopyHelper from 'components/Copy'
 import TokenLogo from 'components/TokenLogo'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
-import useTheme from 'hooks/useTheme'
 import { usePositionDetailContext } from 'pages/Earns/PositionDetail/PositionDetailContext'
 import { HistoryCard, HistorySectionHeader, PastActionsList } from 'pages/Earns/PositionDetail/styles'
 import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
@@ -50,7 +48,6 @@ const shortenTxHash = (hash: string) => (hash ? `${hash.substring(0, 6)}...${has
 
 const AnalyticTab = () => {
   const { position, initialLoading } = usePositionDetailContext()
-  const theme = useTheme()
   const { account } = useActiveWeb3React()
 
   const { rewardInfo } = useKemRewards({})
@@ -104,237 +101,203 @@ const AnalyticTab = () => {
   const explorerUrl = position?.chain.id ? NETWORKS_INFO[position.chain.id as ChainId]?.etherscanUrl : ''
 
   return (
-    <Flex flexDirection="column" sx={{ gap: '32px' }}>
-      {/* Earn History Section */}
-      <Flex flexDirection="column" sx={{ gap: '12px' }}>
+    <div className="flex flex-col gap-8">
+      <div className="flex flex-col gap-3">
         <HistorySectionHeader>
-          <Text fontSize={16} fontWeight={500} color={theme.text}>
-            {t`Earn History`}
-          </Text>
+          <span className="text-base font-medium text-text">{t`Earn History`}</span>
         </HistorySectionHeader>
 
-        {/* Total Earned */}
-        <Flex alignItems="flex-start" justifyContent="space-between">
-          <Text fontSize={14} color={theme.subText}>
-            {t`Total Earned`}
-          </Text>
+        <div className="flex items-start justify-between">
+          <span className="text-sm text-subText">{t`Total Earned`}</span>
           {loading ? (
             <PositionSkeleton width={80} height={20} />
           ) : (
-            <Text fontSize={14} color={theme.text} textAlign="right">
+            <span className="text-right text-sm text-text">
               {formatDisplayNumber(totalEarned, { style: 'currency', significantDigits: 4 })}
-            </Text>
+            </span>
           )}
-        </Flex>
+        </div>
 
-        {/* Fees Earned + Rewards Earned side by side */}
-        <Flex sx={{ gap: '12px' }} flexWrap="wrap">
-          {/* Fees Earned Card */}
+        <div className="flex flex-wrap gap-3">
           <HistoryCard>
-            <Flex alignItems="center" justifyContent="space-between">
-              <Text fontSize={14} color={theme.subText}>
-                {t`Fees Earned`}
-              </Text>
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-subText">{t`Fees Earned`}</span>
               {loading ? (
                 <PositionSkeleton width={60} height={20} />
               ) : (
-                <Text fontSize={14} color={theme.text}>
+                <span className="text-sm text-text">
                   {formatDisplayNumber(totalFeeEarned, { style: 'currency', significantDigits: 4 })}
-                </Text>
+                </span>
               )}
-            </Flex>
+            </div>
             {loading ? (
-              <Flex flexDirection="column" alignItems="flex-end" sx={{ gap: '4px' }}>
+              <div className="flex flex-col items-end gap-1">
                 <PositionSkeleton width={100} height={16} />
                 <PositionSkeleton width={100} height={16} />
-              </Flex>
+              </div>
             ) : position ? (
-              <Flex flexDirection="column" alignItems="flex-end" sx={{ gap: '4px' }}>
-                <Flex alignItems="center" sx={{ gap: '4px' }}>
+              <div className="flex flex-col items-end gap-1">
+                <div className="flex items-center gap-1">
                   <TokenLogo src={position.token0.logo} size={16} />
-                  <Text fontSize={14} color={theme.text}>
+                  <span className="text-sm text-text">
                     {formatDisplayNumber(position.token0.unclaimedAmount || 0, { significantDigits: 4 })}{' '}
                     {position.token0.symbol}
-                  </Text>
-                </Flex>
-                <Flex alignItems="center" sx={{ gap: '4px' }}>
+                  </span>
+                </div>
+                <div className="flex items-center gap-1">
                   <TokenLogo src={position.token1.logo} size={16} />
-                  <Text fontSize={14} color={theme.text}>
+                  <span className="text-sm text-text">
                     {formatDisplayNumber(position.token1.unclaimedAmount || 0, { significantDigits: 4 })}{' '}
                     {position.token1.symbol}
-                  </Text>
-                </Flex>
-              </Flex>
+                  </span>
+                </div>
+              </div>
             ) : null}
           </HistoryCard>
 
-          {/* Rewards Earned Card */}
           <HistoryCard>
-            <Flex alignItems="center" justifyContent="space-between">
-              <Text fontSize={14} color={theme.subText}>
-                {t`Rewards Earned`}
-              </Text>
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-subText">{t`Rewards Earned`}</span>
               {loading ? (
                 <PositionSkeleton width={60} height={20} />
               ) : (
-                <Text fontSize={14} color={theme.text}>
+                <span className="text-sm text-text">
                   {formatDisplayNumber(totalRewardsEarned, { style: 'currency', significantDigits: 4 })}
-                </Text>
+                </span>
               )}
-            </Flex>
-            <Flex flexDirection="column" sx={{ gap: '4px' }}>
-              {/* KyberSwap Rewards (EG + LM) */}
+            </div>
+            <div className="flex flex-col gap-1">
               {((rewardInfoThisPosition?.egTokens || []).length > 0 ||
                 (rewardInfoThisPosition?.lmTokens || []).length > 0) && (
-                <Flex alignItems="flex-start" justifyContent="space-between" flexWrap="wrap">
-                  <Text fontSize={14} color="#737373">
+                <div className="flex flex-wrap items-start justify-between">
+                  <span className="text-sm" style={{ color: '#737373' }}>
                     {t`KyberSwap Rewards`}
-                  </Text>
-                  <Flex flexDirection="column" alignItems="flex-end" sx={{ gap: '4px' }}>
+                  </span>
+                  <div className="flex flex-col items-end gap-1">
                     {[...(rewardInfoThisPosition?.egTokens || []), ...(rewardInfoThisPosition?.lmTokens || [])].map(
                       token => (
-                        <Flex key={token.symbol} alignItems="center" sx={{ gap: '4px' }}>
+                        <div key={token.symbol} className="flex items-center gap-1">
                           <TokenLogo src={token.logo} size={16} />
-                          <Text fontSize={14} color={theme.text}>
+                          <span className="text-sm text-text">
                             {formatDisplayNumber(token.totalAmount, { significantDigits: 4 })} {token.symbol}
-                          </Text>
-                        </Flex>
+                          </span>
+                        </div>
                       ),
                     )}
-                  </Flex>
-                </Flex>
+                  </div>
+                </div>
               )}
-              {/* Merkl/Bonus rewards */}
               {merklRewards.length > 0 && (
-                <Flex alignItems="flex-start" justifyContent="space-between" flexWrap="wrap">
-                  <Text fontSize={14} color="#737373">
+                <div className="flex flex-wrap items-start justify-between">
+                  <span className="text-sm" style={{ color: '#737373' }}>
                     {t`Bonus Rewards`}
-                  </Text>
-                  <Flex sx={{ gap: '12px' }} flexWrap="wrap">
+                  </span>
+                  <div className="flex flex-wrap gap-3">
                     {merklRewards.map(token => (
-                      <Flex key={token.symbol} alignItems="center" sx={{ gap: '4px' }}>
+                      <div key={token.symbol} className="flex items-center gap-1">
                         <TokenLogo src={token.logo} size={16} />
-                        <Text fontSize={14} color={theme.text}>
+                        <span className="text-sm text-text">
                           {formatDisplayNumber(token.totalAmount, { significantDigits: 4 })} {token.symbol}
-                        </Text>
-                      </Flex>
+                        </span>
+                      </div>
                     ))}
-                  </Flex>
-                </Flex>
+                  </div>
+                </div>
               )}
-              {/* No rewards */}
               {!(rewardInfoThisPosition?.egTokens || []).length &&
                 !(rewardInfoThisPosition?.lmTokens || []).length &&
                 !merklRewards.length && (
-                  <Text fontSize={14} color="#737373">
+                  <span className="text-sm" style={{ color: '#737373' }}>
                     --
-                  </Text>
+                  </span>
                 )}
-            </Flex>
+            </div>
           </HistoryCard>
-        </Flex>
-      </Flex>
+        </div>
+      </div>
 
-      {/* Position History Section */}
-      <Flex flexDirection="column" sx={{ gap: '24px' }}>
+      <div className="flex flex-col gap-6">
         <HistorySectionHeader>
-          <Text fontSize={16} fontWeight={500} color={theme.text}>
-            {t`Position History`}
-          </Text>
+          <span className="text-base font-medium text-text">{t`Position History`}</span>
         </HistorySectionHeader>
 
-        {/* Created Time */}
-        <Flex alignItems="center" justifyContent="space-between">
-          <Text fontSize={14} color={theme.subText}>
-            {t`Created Time`}
-          </Text>
+        <div className="flex items-center justify-between">
+          <span className="text-sm text-subText">{t`Created Time`}</span>
           {loading ? (
             <PositionSkeleton width={140} height={20} />
           ) : (
-            <Text fontSize={14} color={theme.text}>
-              {createdTime}
-            </Text>
+            <span className="text-sm text-text">{createdTime}</span>
           )}
-        </Flex>
+        </div>
 
-        {/* Liquidity Source - from first DEPOSIT */}
         {position && liquiditySourceEntry && (
-          <Flex alignItems="flex-start" justifyContent="space-between">
-            <Text fontSize={14} color={theme.subText}>
-              {t`Liquidity Source`}
-            </Text>
-            <Flex flexDirection="column" alignItems="flex-end" sx={{ gap: '4px' }}>
-              <Flex alignItems="center" sx={{ gap: '8px' }}>
-                <Text fontSize={14} color="#737373">
+          <div className="flex items-start justify-between">
+            <span className="text-sm text-subText">{t`Liquidity Source`}</span>
+            <div className="flex flex-col items-end gap-1">
+              <div className="flex items-center gap-2">
+                <span className="text-sm" style={{ color: '#737373' }}>
                   {t`Value`}
-                </Text>
-                <Text fontSize={14} color={theme.text}>
+                </span>
+                <span className="text-sm text-text">
                   {formatDisplayNumber(getActionTotalValue(liquiditySourceEntry), {
                     style: 'currency',
                     significantDigits: 4,
                   })}
-                </Text>
-              </Flex>
-              <Text fontSize={14} color={theme.text}>
+                </span>
+              </div>
+              <span className="text-sm text-text">
                 {getActionTokensSummary(liquiditySourceEntry)
                   .map(t => `${formatDisplayNumber(t.amount, { significantDigits: 4 })} ${t.symbol}`)
                   .join(' + ')}
-              </Text>
+              </span>
               {liquiditySourceEntry.txHash && (
-                <Flex alignItems="center" sx={{ gap: '6px' }}>
-                  <Text fontSize={14} color="#737373">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-sm" style={{ color: '#737373' }}>
                     {t`Tnx Hash`}
-                  </Text>
-                  <Text
-                    fontSize={14}
-                    fontFamily="'Courier Prime', monospace"
-                    color={theme.blue2}
-                    sx={{ cursor: 'pointer' }}
+                  </span>
+                  <span
+                    className="cursor-pointer text-sm text-blue2"
+                    style={{ fontFamily: "'Courier Prime', monospace" }}
                     onClick={() => window.open(explorerUrl + '/tx/' + liquiditySourceEntry.txHash, '_blank')}
                   >
                     {shortenTxHash(liquiditySourceEntry.txHash)}
-                  </Text>
-                  <CopyHelper color={theme.blue2} size={14} toCopy={liquiditySourceEntry.txHash} />
-                </Flex>
+                  </span>
+                  <CopyHelper className="text-blue2" size={14} toCopy={liquiditySourceEntry.txHash} />
+                </div>
               )}
-            </Flex>
-          </Flex>
+            </div>
+          </div>
         )}
 
-        {/* Past Actions */}
         {pastActions.length > 0 && (
-          <Flex alignItems="flex-start" justifyContent="space-between">
-            <Text fontSize={14} color={theme.subText}>
-              {t`Past Actions`}
-            </Text>
+          <div className="flex items-start justify-between">
+            <span className="text-sm text-subText">{t`Past Actions`}</span>
             <PastActionsList>
               {pastActions.map((entry, i) => {
                 const totalValue = getActionTotalValue(entry)
                 const label = getActionLabel(entry.type)
 
                 return (
-                  <Flex key={i} flexDirection="column" alignItems="flex-end" sx={{ gap: '4px' }}>
-                    <Text fontSize={14} color={theme.text}>
-                      {label}
-                    </Text>
+                  <div key={i} className="flex flex-col items-end gap-1">
+                    <span className="text-sm text-text">{label}</span>
                     {totalValue > 0 && (
-                      <Flex alignItems="center" sx={{ gap: '8px' }}>
-                        <Text fontSize={14} color="#737373">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm" style={{ color: '#737373' }}>
                           {t`Value`}
-                        </Text>
-                        <Text fontSize={14} color={theme.text}>
+                        </span>
+                        <span className="text-sm text-text">
                           {formatDisplayNumber(totalValue, { style: 'currency', significantDigits: 4 })}
-                        </Text>
-                      </Flex>
+                        </span>
+                      </div>
                     )}
-                  </Flex>
+                  </div>
                 )
               })}
             </PastActionsList>
-          </Flex>
+          </div>
         )}
-      </Flex>
-    </Flex>
+      </div>
+    </div>
   )
 }
 

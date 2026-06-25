@@ -18,7 +18,7 @@ import { EARN_DEXES, Exchange } from 'pages/Earns/constants'
 import useAccountChanged from 'pages/Earns/hooks/useAccountChanged'
 import useTransactionReplacement from 'pages/Earns/hooks/useTransactionReplacement'
 import { submitTransaction } from 'pages/Earns/utils'
-import { navigateToPositionAfterZap } from 'pages/Earns/utils/zap'
+import { navigateToPoolDetail, navigateToPositionAfterZap } from 'pages/Earns/utils/zap'
 import { useKyberSwapConfig, useNotify, useWalletModalToggle } from 'state/application/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
@@ -46,6 +46,7 @@ interface CompoundingParams extends CompoundingPureParams {
   onSwitchChain: () => void
   onSubmitTx: (txData: { from: string; to: string; value: string; data: string; gasLimit: string }) => Promise<string>
   onViewPosition?: (txHash: string) => void
+  onOpenPoolDetail?: (pool: { chainId: number; poolAddress: string; dexId?: string }) => void
 }
 
 export interface CompoundingInfo {
@@ -94,7 +95,7 @@ const useCompounding = ({
   const toggleWalletModal = useWalletModalToggle()
   const notify = useNotify()
   const navigate = useNavigate()
-  const { library } = useWeb3React()
+  const { isSmartConnector } = useWeb3React()
   const { account, chainId } = useActiveWeb3React()
   const { changeNetwork } = useChangeNetwork()
 
@@ -109,8 +110,6 @@ const useCompounding = ({
 
   const handleNavigateToPosition = useCallback(
     async (txHash: string, chainId: number, poolType: CompoundingPoolType, poolId: string, tokenId: number) => {
-      if (!library) return
-
       const dexIndex = Object.values(compoundingDexMapping).findIndex(
         (item, index) => item === poolType && EARN_DEXES[Object.keys(compoundingDexMapping)[index] as Exchange],
       )
@@ -120,9 +119,9 @@ const useCompounding = ({
       }
       const dex = Object.keys(compoundingDexMapping)[dexIndex]
 
-      navigateToPositionAfterZap(library, txHash, chainId, dex, poolId, navigate, tokenId)
+      navigateToPositionAfterZap(txHash, chainId, dex, poolId, navigate, tokenId)
     },
-    [library, navigate],
+    [navigate],
   )
 
   const handleOpenCompounding = useCallback(
@@ -167,6 +166,11 @@ const useCompounding = ({
             txStatus,
             txHashMapping: originalToCurrentHash,
             onSwitchChain: () => changeNetwork(compoundingPureParams.chainId as number),
+            onOpenPoolDetail: (pool: { chainId: number; poolAddress: string; dexId?: string }) => {
+              if (!pool.dexId) return
+              handleCloseCompounding()
+              navigateToPoolDetail(pool, navigate)
+            },
             onViewPosition: (txHash: string) => {
               const { chainId, poolType, poolAddress, positionId } = compoundingPureParams
               handleCloseCompounding()
@@ -193,7 +197,12 @@ const useCompounding = ({
                     dexName?: string
                   },
             ) => {
-              const res = await submitTransaction({ library, txData })
+              const res = await submitTransaction({
+                account,
+                chainId: compoundingPureParams.chainId,
+                txData,
+                isSmartConnector,
+              })
               const { txHash, error } = res
               if (!txHash || error) throw new Error(error?.message || 'Transaction failed')
 
@@ -257,7 +266,8 @@ const useCompounding = ({
       handleCloseCompounding,
       handleNavigateToPosition,
       locale,
-      library,
+      navigate,
+      isSmartConnector,
       onRefreshPosition,
       toggleWalletModal,
       onCloseClaimModal,

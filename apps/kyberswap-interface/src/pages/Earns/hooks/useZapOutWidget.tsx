@@ -10,6 +10,7 @@ import { APP_PATHS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useActiveLocale } from 'hooks/useActiveLocale'
+import { useIsSmartAccount } from 'hooks/useIsSmartAccount'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { EARN_DEXES, Exchange } from 'pages/Earns/constants'
@@ -17,10 +18,14 @@ import useAccountChanged from 'pages/Earns/hooks/useAccountChanged'
 import { CheckClosedPositionParams } from 'pages/Earns/hooks/useClosedPositions'
 import useTransactionReplacement from 'pages/Earns/hooks/useTransactionReplacement'
 import { submitTransaction } from 'pages/Earns/utils'
+import { navigateToPoolDetail } from 'pages/Earns/utils/zap'
 import { useKyberSwapConfig, useNotify, useWalletModalToggle } from 'state/application/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { getCookieValue } from 'utils'
+import { friendlyError } from 'utils/errorMessage'
+import { Address } from 'utils/viem'
+import { signTypedDataRaw } from 'utils/walletClient'
 
 export interface ZapOutInfo {
   position: {
@@ -63,8 +68,9 @@ const useZapOutWidget = (
   const notify = useNotify()
   const navigate = useNavigate()
   const refCode = getCookieValue('refCode')
-  const { library } = useWeb3React()
+  const { isSmartConnector } = useWeb3React()
   const { account, chainId } = useActiveWeb3React()
+  const isSmartAccount = useIsSmartAccount()
   const { changeNetwork } = useChangeNetwork()
 
   const [zapOutPureParams, setZapOutPureParams] = useState<{
@@ -115,10 +121,23 @@ const useZapOutWidget = (
             ...zapOutPureParams,
             source: 'kyberswap-earn',
             rpcUrl: zapOutRpcUrl,
-            signTypedData: library
-              ? (account: string, typedDataJson: string) =>
-                  library.send('eth_signTypedData_v4', [account.toLowerCase(), typedDataJson])
-              : undefined,
+            // Skip the permit path for smart wallets — both connector-level
+            // (Porto, Safe) and account-level ones detected via bytecode /
+            // EIP-5792 (Coinbase Smart Wallet, Argent, Ambire, EIP-7702 EOAs).
+            // Their EIP-1271 contract signatures don't verify on the NFT
+            // `permit()`, so estimateGas reverts. Omitting `signTypedData` makes
+            // the widget fall back to the approve flow, which works for them.
+            signTypedData:
+              isSmartConnector || isSmartAccount
+                ? undefined
+                : async (account: string, typedDataJson: string) => {
+                    const parsedTypedData = JSON.parse(typedDataJson)
+                    return signTypedDataRaw({
+                      chainId: chainId,
+                      account: account.toLowerCase() as Address,
+                      typedData: parsedTypedData,
+                    })
+                  },
             referral: refCode,
             connectedAccount: {
               address: account,
@@ -148,6 +167,12 @@ const useZapOutWidget = (
             },
             onConnectWallet: toggleWalletModal,
             onSwitchChain: () => changeNetwork(zapOutPureParams.chainId as number),
+            onOpenPoolDetail: (pool: { chainId: number; poolAddress: string; dexId?: string }) => {
+              if (!pool.dexId) return
+              setZapOutPureParams(null)
+              clearTracking()
+              navigateToPoolDetail(pool, navigate)
+            },
             onSubmitTx: async (
               txData: { from: string; to: string; value: string; data: string },
               additionalInfo?:
@@ -165,7 +190,7 @@ const useZapOutWidget = (
                   },
             ) => {
               const isManualRemove = zapOutPureParams.mode === 'withdrawOnly'
-              const res = await submitTransaction({ library, txData })
+              const res = await submitTransaction({ account, chainId, txData, isSmartConnector })
               const { txHash, error } = res
               if (!txHash || error) {
                 trackingHandler(
@@ -180,7 +205,7 @@ const useZapOutWidget = (
                     completion_time_ms: Date.now(),
                   },
                 )
-                throw new Error(error?.message || 'Transaction failed')
+                throw new Error(error ? friendlyError(error) : 'Transaction failed')
               }
 
               const dex = zapOutPureParams.dexId
@@ -252,7 +277,8 @@ const useZapOutWidget = (
     [
       zapOutPureParams,
       zapOutRpcUrl,
-      library,
+      isSmartConnector,
+      isSmartAccount,
       refCode,
       account,
       chainId,

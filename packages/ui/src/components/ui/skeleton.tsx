@@ -1,6 +1,6 @@
 import { cn } from '@kyber/utils/tailwind-helpers';
 
-function Skeleton({ className, ...props }: React.HTMLAttributes<HTMLDivElement>): JSX.Element {
+function Skeleton({ className, ...props }: React.HTMLAttributes<HTMLDivElement>): React.JSX.Element {
   return (
     <div className="ks-ui-style">
       <div

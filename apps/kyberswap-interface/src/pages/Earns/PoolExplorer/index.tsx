@@ -2,7 +2,6 @@ import { t } from '@lingui/macro'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
-import { Text } from 'rebass'
 import { usePoolsExplorerQuery } from 'services/zapEarn'
 
 import { ReactComponent as IconUserEarnPosition } from 'assets/svg/earn/ic_user_earn_position.svg'
@@ -14,7 +13,6 @@ import CreatePoolModal from 'components/ZapCreatePool/CreatePoolModal'
 import { BFF_API } from 'constants/env'
 import { APP_PATHS } from 'constants/index'
 import useDebounce from 'hooks/useDebounce'
-import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import Filter from 'pages/Earns/PoolExplorer/Filter'
 import TableContent, { dexKeyMapping } from 'pages/Earns/PoolExplorer/TableContent'
@@ -34,6 +32,7 @@ import useSmartExitWidget from 'pages/Earns/hooks/useSmartExitWidget'
 import useZapCreatePoolWidget from 'pages/Earns/hooks/useZapCreatePoolWidget'
 import useZapInWidget, { ZapInInfo } from 'pages/Earns/hooks/useZapInWidget'
 import useZapMigrationWidget from 'pages/Earns/hooks/useZapMigrationWidget'
+import { getPoolDetailUrl } from 'pages/Earns/utils/url'
 import { Direction } from 'pages/MarketOverview/SortIcon'
 import { useNotify } from 'state/application/hooks'
 import { MEDIA_WIDTHS } from 'theme'
@@ -53,7 +52,6 @@ const PoolExplorer = () => {
   const deboundedSearch = useDebounce(search, DEBOUNCE_DELAY)
   const [searchParams, setSearchParams] = useSearchParams()
   const navigate = useNavigate()
-  const theme = useTheme()
   const notify = useNotify()
   const { trackingHandler } = useTracking()
   const { filters, updateFilters } = useFilter(setSearch)
@@ -76,7 +74,11 @@ const PoolExplorer = () => {
     const pools = poolData?.data?.pools || []
     if (!pools.length) return true
 
-    return pools.some(pool => (pool.egUsd || 0) + (pool.merklOpportunity?.rewardsRecord?.total || 0) > 0)
+    return pools.some(pool => {
+      if (pool.egUsd || pool.merklOpportunity?.rewardsRecord?.total) return true
+      if (pool.kemReward?.rewardCfg) return true
+      return false
+    })
   }, [poolData?.data?.pools])
 
   const showPoolPrice = useMemo(() => {
@@ -118,29 +120,17 @@ const PoolExplorer = () => {
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const handleOpenZapInWithParams = useCallback(
-    ({ pool, initialTick }: ZapInInfo) => {
-      const { dex, chainId, address } = pool
-      searchParams.set('exchange', dex)
-      searchParams.set('poolChainId', chainId.toString())
-      searchParams.set('poolAddress', address)
-      setSearchParams(searchParams)
-      handleOpenZapIn({ pool, initialTick })
-    },
-    [handleOpenZapIn, searchParams, setSearchParams],
-  )
-
   const handleNavigateToAddLiquidity = useCallback(
     ({ pool, initialTick }: ZapInInfo) => {
+      const pathname = getPoolDetailUrl(pool.chainId, pool.dex, pool.address)
+      // tickLower/tickUpper are passed as optional query params: currently unread by the detail page,
+      // but preserved so a future zap-migration reader can still pick them up.
       const params = new URLSearchParams()
-      params.set('exchange', pool.dex)
-      params.set('poolChainId', pool.chainId.toString())
-      params.set('poolAddress', pool.address)
       if (initialTick?.tickLower !== undefined) params.set('tickLower', initialTick.tickLower.toString())
       if (initialTick?.tickUpper !== undefined) params.set('tickUpper', initialTick.tickUpper.toString())
+      const search = params.toString()
 
-      navigate({ pathname: APP_PATHS.ADD_LIQUIDITY, search: `?${params.toString()}` })
+      navigate(search ? { pathname, search: `?${search}` } : pathname)
     },
     [navigate],
   )
@@ -235,18 +225,16 @@ const PoolExplorer = () => {
       <HiddenH2>
         Trading volume, TVL, and pool performance across networks - all from one interface without switching apps.
       </HiddenH2>
-      <Stack gap={8}>
-        <HStack align="center" gap={16}>
+      <Stack className="gap-2">
+        <HStack className="items-center gap-4">
           <BackButton aria-label="Go back" onClick={() => navigate(-1)} type="button">
             <IconArrowLeft />
           </BackButton>
-          <Text fontSize={24} fontWeight="500">
-            {t`Earning with Smart Liquidity Providing`}
-          </Text>
+          <span className="text-2xl font-medium">{t`Earning with Smart Liquidity Providing`}</span>
         </HStack>
-        <Text color={theme.subText} fontStyle={'italic'}>
+        <span className="italic text-subText">
           {t`KyberSwap Zap: Instantly and easily add liquidity to high-APY pools using any token or a combination of tokens.`}
-        </Text>
+        </span>
       </Stack>
 
       <Filter

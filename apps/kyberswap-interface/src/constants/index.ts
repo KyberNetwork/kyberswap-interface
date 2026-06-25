@@ -7,6 +7,8 @@ import { TransactionFlowState } from 'types/TransactionFlowState'
 import { MAINNET_NETWORKS, NETWORKS_INFO, SUPPORTED_NETWORKS } from './networks'
 
 export const KYBERSWAP_DOMAIN = 'kyberswap.com'
+/** Canonical production base URL (no trailing slash). Use this instead of hardcoding the domain. */
+export const KYBERSWAP_URL = `https://${KYBERSWAP_DOMAIN}`
 
 export const EMPTY_OBJECT: any = {}
 export const EMPTY_ARRAY: any[] = []
@@ -103,13 +105,13 @@ export enum PAIR_CATEGORY {
 }
 
 // https://www.nasdaq.com/glossary/b/bip
-export const MAX_NORMAL_SLIPPAGE_IN_BIPS = 1999
+export const MAX_NORMAL_SLIPPAGE_IN_BIPS = 2000
 export const MAX_DEGEN_SLIPPAGE_IN_BIPS = 5000
 
 export const DEFAULT_SLIPPAGES = [5, 10, 50, 100]
 export const DEFAULT_SLIPPAGES_HIGH_VOTALITY = [50, 150, 300, 500]
-export const DEFAULT_TIPS = [0, 10, 50, 100]
-export const MAX_FEE_IN_BIPS = 1500
+export const DEFAULT_TIPS = [0, 10, 30, 50]
+export const MAX_FEE_IN_BIPS = 2000
 
 export const DEFAULT_SLIPPAGE = 50
 export const DEFAULT_SLIPPAGE_STABLE_PAIR_SWAP = 1
@@ -118,9 +120,14 @@ export const APP_PATHS = {
   ABOUT: '/about',
   SWAP: '/swap',
   PARTNER_SWAP: '/partner-swap',
+  USER_SWAP: '/user-swap',
+  USER_SWAP_CREATE_TIPS: '/user-swap/create-tips',
   FIND_POOL: '/find',
   POOLS: '/pools',
   ADD_LIQUIDITY: '/pools/add-liquidity',
+  // Path-based pool-detail: /pools/<chain-slug>/<protocol>/<address>. The ADD_LIQUIDITY
+  // query-param form 301-redirects here. Build via getPoolDetailUrl (Earns/utils/url).
+  POOL_DETAIL: '/pools/:chain/:protocol/:address',
   CLASSIC_CREATE_POOL: '/create',
   CLASSIC_ADD_LIQ: '/add',
   CLASSIC_REMOVE_POOL: '/remove',
@@ -292,10 +299,6 @@ export const ICON_IDS = [
   'trash',
 ] as const
 export type ICON_ID = (typeof ICON_IDS)[number]
-
-export const ClientNameMapping: { [key: string]: string } = {
-  dexscreener: 'DEX Screener',
-}
 
 export const SAFE_APP_FEE_RECEIVER_ADDRESS = '0x55602F3057be52BFB6F98fFE799CFDec58Af5130'
 export const SAFE_APP_CLIENT_ID = 'app.safe.global'

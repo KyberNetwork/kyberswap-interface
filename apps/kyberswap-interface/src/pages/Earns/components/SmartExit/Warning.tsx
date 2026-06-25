@@ -1,36 +1,4 @@
 import { Trans } from '@lingui/macro'
-import { rgba } from 'polished'
-import styled from 'styled-components'
-
-const WarningMessage = styled.div`
-  background-color: ${({ theme }) => rgba(theme.warning, 0.1)};
-  color: ${({ theme }) => theme.subText};
-  font-size: 12px;
-  text-align: left;
-  padding: 8px 12px;
-  border-radius: 16px;
-  width: fit-content;
-  max-width: 100%;
-`
-
-const OrTimeWarning = styled.div`
-  background-color: ${({ theme }) => rgba(theme.warning, 0.1)};
-  font-size: 14px;
-  text-align: left;
-  padding: 8px 12px;
-  border-radius: 16px;
-  line-height: 20px;
-  width: fit-content;
-  max-width: 100%;
-`
-
-const WarningText = styled.span`
-  color: ${({ theme }) => theme.warning};
-`
-
-const NormalText = styled.span`
-  color: ${({ theme }) => theme.subText};
-`
 
 export default function Warning({
   deadlineBeforeConditionTime,
@@ -41,22 +9,23 @@ export default function Warning({
   timeBeforeNow: boolean
   isGasTooHigh: boolean
 }) {
+  const warningClass = 'w-fit max-w-full rounded-2xl bg-warning-10 px-3 py-2 text-left text-xs text-subText'
   return (
     <>
       {timeBeforeNow && (
-        <WarningMessage>
+        <div className={warningClass}>
           <Trans>Trigger time must be in the future. Adjust the time settings accordingly.</Trans>
-        </WarningMessage>
+        </div>
       )}
       {deadlineBeforeConditionTime && (
-        <WarningMessage>
+        <div className={warningClass}>
           <Trans>Trigger time must be before the order expires. Adjust the time settings accordingly.</Trans>
-        </WarningMessage>
+        </div>
       )}
       {isGasTooHigh && (
-        <WarningMessage>
+        <div className={warningClass}>
           <Trans>Max fee is capped at 100% for safety.</Trans>
-        </WarningMessage>
+        </div>
       )}
     </>
   )
@@ -64,18 +33,18 @@ export default function Warning({
 
 export function OrTimeAlreadyMetWarning({ conditionTime }: { conditionTime: string }) {
   return (
-    <OrTimeWarning>
-      <WarningText>
+    <div className="w-fit max-w-full rounded-2xl bg-warning-10 px-3 py-2 text-left text-sm leading-5">
+      <span className="text-warning">
         <Trans>This will likely execute immediately.</Trans>
-      </WarningText>
+      </span>
       <br />
-      <NormalText>
+      <span className="text-subText">
         <Trans>{conditionTime} is already met.</Trans>
-      </NormalText>
+      </span>
       <br />
-      <NormalText>
+      <span className="text-subText">
         <Trans>If you want both conditions to be required, switch to AND.</Trans>
-      </NormalText>
-    </OrTimeWarning>
+      </span>
+    </div>
   )
 }

@@ -4,6 +4,7 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import { Exchange } from 'pages/Earns/constants'
 import {
   EarnPool,
+  KemReward,
   MerklOpportunity,
   PositionHistoryType,
   UserPosition,
@@ -146,6 +147,8 @@ export interface PoolDetail {
   reserves: Array<string>
   tokens: Array<PoolDetailToken>
   poolStats?: PoolDetailStats
+  egUsd?: number
+  kemReward?: KemReward
   merklOpportunity?: MerklOpportunity
   positionInfo: PoolDetailPositionInfo
 
@@ -246,7 +249,7 @@ export interface PoolEarningsBucket {
   lpFeeUsd: number
   lmUsd: number
   egUsd: number
-  bonusUsd: number
+  bonusUsd?: number
   totalUsd: number
 }
 
@@ -273,6 +276,8 @@ export interface PositionQueryParams {
   statuses?: string
   sortBy?: string
   orderBy?: string
+  // Combined `${sortBy}:${orderBy}` param actually sent to the API (sortBy/orderBy above are unused).
+  sorts?: string
   page?: number
   pageSize?: number
   useOnFly?: boolean

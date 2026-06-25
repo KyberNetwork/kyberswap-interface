@@ -1,8 +1,5 @@
 import { Trans } from '@lingui/macro'
-import { rgba } from 'polished'
 import { useEffect, useRef, useState } from 'react'
-import { Text } from 'rebass'
-import styled from 'styled-components'
 
 import { ReactComponent as SettingIcon } from 'assets/svg/earn/ic_add_liquidity_setting.svg'
 import { HStack, Stack } from 'components/Stack'
@@ -11,68 +8,7 @@ import AdvanceModeModal from 'components/TransactionSettings/AdvanceModeModal'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
 import { useDegenModeManager } from 'state/user/hooks'
-
-const TriggerButton = styled.button`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  border: 1px solid ${({ theme }) => theme.border};
-  border-radius: 8px;
-  background: ${({ theme }) => theme.buttonGray};
-  cursor: pointer;
-
-  &[data-active='true'] {
-    background: ${({ theme }) => theme.tabActive};
-  }
-
-  :hover {
-    background: ${({ theme }) => theme.tabActive};
-  }
-`
-
-const TooltipPanel = styled(Stack)`
-  position: absolute;
-  z-index: 20;
-  top: calc(100% + 12px);
-  right: -8px;
-  width: 320px;
-  padding: 16px;
-  border: 1px solid ${({ theme }) => theme.border};
-  border-radius: 12px;
-  background: ${({ theme }) => theme.tableHeader};
-
-  :before {
-    content: '';
-    position: absolute;
-    top: -8px;
-    right: 16px;
-    width: 12px;
-    height: 12px;
-    transform: rotate(45deg);
-    background: ${({ theme }) => theme.tableHeader};
-    border-top: 1px solid ${({ theme }) => theme.border};
-    border-left: 1px solid ${({ theme }) => theme.border};
-  }
-
-  ${Toggle} {
-    background: ${({ theme }) => theme.buttonBlack};
-
-    &[data-active='true'] {
-      background: ${({ theme }) => rgba(theme.primary, 0.12)};
-    }
-  }
-`
-
-const DegenModeRow = styled(HStack)<{ $highlight?: boolean }>`
-  margin: 0 -6px;
-  padding: 4px 4px 4px 6px;
-  border-radius: 999px;
-  border: 1px solid ${({ theme, $highlight }) => ($highlight ? rgba(theme.warning, 0.24) : 'transparent')};
-  background: ${({ theme, $highlight }) => ($highlight ? rgba(theme.warning, 0.12) : 'transparent')};
-  transition: background 0.2s ease, padding 0.2s ease, margin 0.2s ease;
-`
+import { cn } from 'utils/cn'
 
 type AddLiquiditySettingsProps = {
   isOpen?: boolean
@@ -114,38 +50,53 @@ const AddLiquiditySettings = ({
 
   return (
     <>
-      <Stack ref={wrapperRef} flex="0 0 auto" position="relative">
-        <TriggerButton
+      <Stack ref={wrapperRef} className="relative flex-[0_0_auto]">
+        <button
           id="earn-add-liquidity-setting"
           type="button"
           aria-label="Advanced settings"
           aria-expanded={isOpen}
           data-active={isOpen}
           onClick={() => setIsOpen(prev => !prev)}
+          className="flex size-8 cursor-pointer items-center justify-center rounded-lg border border-solid border-border bg-buttonGray hover:bg-tabActive data-[active=true]:bg-tabActive"
         >
           <SettingIcon width={18} height={18} color={isDegenMode ? theme.warning : theme.subText} />
-        </TriggerButton>
+        </button>
 
         {isOpen && (
-          <TooltipPanel gap={8}>
-            <Text color={theme.text} fontWeight={500}>
-              Advanced Settings
-            </Text>
-            <Stack gap={4}>
-              <DegenModeRow align="center" justify="space-between" $highlight={highlightDegenMode}>
-                <Text color={theme.warning} fontSize={14} fontWeight={500}>
+          <Stack
+            className={cn(
+              'gap-2',
+              'absolute right-[-8px] top-[calc(100%+12px)] z-20 w-[320px] rounded-xl border border-solid border-border bg-tableHeader p-4',
+              "before:absolute before:right-4 before:top-[-8px] before:size-3 before:rotate-45 before:border-l before:border-t before:border-solid before:border-border before:bg-tableHeader before:content-['']",
+            )}
+          >
+            <span className="font-medium text-text">Advanced Settings</span>
+            <Stack className="gap-1">
+              <HStack
+                className={cn(
+                  'items-center justify-between',
+                  '-mx-1.5 rounded-full border border-solid p-1 pl-1.5 transition-[background,padding,margin] duration-200 ease-linear',
+                  highlightDegenMode ? 'border-warning/[0.24] bg-warning-10' : 'border-transparent bg-transparent',
+                )}
+              >
+                <span className="text-sm font-medium text-warning">
                   <Trans>Degen Mode</Trans>
-                </Text>
-                <Toggle isActive={isDegenMode} toggle={handleToggleDegenMode} />
-              </DegenModeRow>
-              <Text color={theme.subText} fontSize={12} fontStyle="italic">
+                </span>
+                <Toggle
+                  isActive={isDegenMode}
+                  toggle={handleToggleDegenMode}
+                  className="bg-buttonBlack data-[active=true]:bg-primary-12"
+                />
+              </HStack>
+              <span className="text-xs italic text-subText">
                 <Trans>
                   Turn this on to make trades with very high price impact or to set very high slippage tolerance. This
                   can result in bad rates and loss of funds. Be cautious.
                 </Trans>
-              </Text>
+              </span>
             </Stack>
-          </TooltipPanel>
+          </Stack>
         )}
       </Stack>
 

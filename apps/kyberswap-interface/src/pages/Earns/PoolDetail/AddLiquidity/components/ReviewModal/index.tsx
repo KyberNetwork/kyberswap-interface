@@ -1,14 +1,18 @@
 import { NETWORKS_INFO, Pool, ZapRouteDetail } from '@kyber/schema'
 import { Button, StatusDialog, StatusDialogType, translateZapMessage } from '@kyber/ui'
 import { useEffect, useRef } from 'react'
-import { Text } from 'rebass'
 import { BuildZapInData } from 'services/zap'
-import styled from 'styled-components'
 
 import { ButtonErrorStyle, ButtonPrimary } from 'components/Button'
 import Modal from 'components/Modal'
 import { HStack, Stack } from 'components/Stack'
-import useTheme from 'hooks/useTheme'
+import EstimateInfo from 'pages/Earns/PoolDetail/AddLiquidity/components/ReviewModal/EstimateInfo'
+import PriceInfo from 'pages/Earns/PoolDetail/AddLiquidity/components/ReviewModal/PriceInfo'
+import ZapInfo from 'pages/Earns/PoolDetail/AddLiquidity/components/ReviewModal/ZapInfo'
+import {
+  ReviewTransactionStatusPhase,
+  useReviewTransaction,
+} from 'pages/Earns/PoolDetail/AddLiquidity/components/ReviewModal/useReviewTransaction'
 import type { ZapState } from 'pages/Earns/PoolDetail/AddLiquidity/hooks/useZapState'
 import { getStatusErrorMessage } from 'pages/Earns/PoolDetail/AddLiquidity/utils'
 import PoolHeader from 'pages/Earns/PoolDetail/components/PoolHeader'
@@ -16,27 +20,11 @@ import { NoteCard } from 'pages/Earns/PoolDetail/styled'
 import { TransactionHistory } from 'state/transactions/type'
 import { CloseIcon } from 'theme/components'
 
-import EstimateInfo from './EstimateInfo'
-import PriceInfo from './PriceInfo'
-import ZapInfo from './ZapInfo'
-import { ReviewTransactionStatusPhase, useReviewTransaction } from './useReviewTransaction'
-
 type ReviewWarningItem = {
   kind: 'remaining' | 'zap_impact' | 'out_of_range' | 'price_deviation'
   tone: 'info' | 'warning' | 'error'
   message: string
 }
-
-const ModalContent = styled(Stack)`
-  align-self: flex-start;
-  font-size: 14px;
-  padding: 24px;
-  width: 100%;
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    padding: 16px;
-  `}
-`
 
 type AddLiquidityReviewModalProps = {
   pool: Pool
@@ -49,6 +37,7 @@ type AddLiquidityReviewModalProps = {
   tokenInput: ZapState['tokenInput']
   warnings: ReviewWarningItem[]
   onDismiss?: () => void
+  onRefreshRoute?: () => void
   onTrackEvent?: (eventName: string, data?: Record<string, unknown>) => void
   onAddTrackedTxHash?: (hash: string) => void
   onAddTransactionWithType?: (transaction: TransactionHistory) => void
@@ -70,6 +59,11 @@ const getStatusDialogType = (statusPhase: ReviewTransactionStatusPhase) => {
   }
 }
 
+const isUserRejectedError = (message?: string | null) => {
+  const normalizedMessage = message?.toLowerCase() || ''
+  return normalizedMessage.includes('reject') || normalizedMessage.includes('denied')
+}
+
 const StatusContent = ({
   statusPhase,
   txError,
@@ -86,17 +80,18 @@ const StatusContent = ({
   const translatedErrorMessage = getStatusErrorMessage(txError)
   const canDismiss = statusPhase !== 'waiting_wallet'
   const canViewPosition = statusPhase === 'success' && Boolean(onViewPosition)
+  const showRefreshLabel = statusPhase === 'failed' && !isUserRejectedError(txError)
 
   const statusAction =
     canDismiss || canViewPosition ? (
       <>
         {canDismiss && (
-          <Button className="flex-1 h-10 border-subText" variant="outline" onClick={onDismiss}>
-            Close
+          <Button className="h-10 flex-1 border-subText" variant="outline" onClick={onDismiss}>
+            {showRefreshLabel ? 'Close & Refresh' : 'Close'}
           </Button>
         )}
         {canViewPosition && (
-          <Button className="flex-1 h-10" variant="default" onClick={onViewPosition}>
+          <Button className="h-10 flex-1" variant="default" onClick={onViewPosition}>
             View Position
           </Button>
         )}
@@ -126,11 +121,11 @@ const AddLiquidityReviewModal = ({
   tokenInput,
   warnings,
   onDismiss,
+  onRefreshRoute,
   onTrackEvent,
   onAddTrackedTxHash,
   onAddTransactionWithType,
 }: AddLiquidityReviewModalProps) => {
-  const theme = useTheme()
   const hasTrackedSummaryView = useRef(false)
   const hasSubmitAttemptRef = useRef(false)
 
@@ -187,6 +182,12 @@ const AddLiquidityReviewModal = ({
 
     transaction.resetTransactionState()
 
+    if (transaction.statusPhase === 'failed') {
+      onDismiss?.()
+      onRefreshRoute?.()
+      return
+    }
+
     if (shouldDismiss) {
       onDismiss?.()
     }
@@ -206,12 +207,10 @@ const AddLiquidityReviewModal = ({
 
   return (
     <Modal isOpen borderRadius="20px" maxWidth={480} mobileFullWidth onDismiss={handleDismiss}>
-      <ModalContent gap={16}>
-        <HStack align="center" justify="space-between" width="100%">
-          <Text fontSize={24} fontWeight={500}>
-            Add Liquidity via Zap
-          </Text>
-          <CloseIcon color={theme.subText} onClick={handleDismiss} size={28} />
+      <Stack className="w-full gap-4 self-start p-6 text-sm max-sm:p-4">
+        <HStack className="w-full items-center justify-between">
+          <span className="text-2xl font-medium">Add Liquidity via Zap</span>
+          <CloseIcon className="text-subText" onClick={handleDismiss} size={28} />
         </HStack>
 
         <PoolHeader isReview />
@@ -225,7 +224,7 @@ const AddLiquidityReviewModal = ({
         {error ? <NoteCard $tone="error">{translateZapMessage(error)}</NoteCard> : null}
 
         {warnings.length ? (
-          <Stack gap={12}>
+          <Stack className="gap-3">
             {warnings.map((warning, index) => (
               <NoteCard key={`${warning.tone}-${index}`} $tone={warning.tone}>
                 {translateZapMessage(warning.message)}
@@ -234,21 +233,21 @@ const AddLiquidityReviewModal = ({
           </Stack>
         ) : null}
 
-        <Text color={theme.subText} fontSize={14} fontStyle="italic">
+        <span className="text-sm italic text-subText">
           The information is intended solely for your reference at the time you are viewing. It is your responsibility
           to verify all information before making decisions.
-        </Text>
+        </span>
 
         <ConfirmButton
           altDisabledStyle
-          color={theme.buttonBlack}
+          className="text-buttonBlack"
           disabled={transaction.confirmDisabled || Boolean(error)}
           onClick={() => void transaction.handleSubmit()}
           type="button"
         >
           {transaction.confirmLoading ? 'Adding Liquidity...' : isHighZapImpact ? 'Zap Anyway' : 'Add Liquidity'}
         </ConfirmButton>
-      </ModalContent>
+      </Stack>
     </Modal>
   )
 }

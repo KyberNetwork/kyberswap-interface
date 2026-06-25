@@ -26,7 +26,7 @@ export default function Zoom({
   zoomOutIcon,
   setZoom,
 }: ZoomProps) {
-  const zoomBehavior = useRef<ZoomBehavior<Element, unknown>>();
+  const zoomBehavior = useRef<ZoomBehavior<Element, unknown> | undefined>(undefined);
 
   const [zoomIn, zoomOut, zoomInitial, zoomReset] = useMemo(
     () => [

@@ -1,7 +1,5 @@
-import { rgba } from 'polished'
 import { useMemo, useState } from 'react'
 import { useMedia } from 'react-use'
-import { Text } from 'rebass'
 import {
   Bar,
   CartesianGrid,
@@ -14,10 +12,8 @@ import {
   YAxis,
 } from 'recharts'
 import { type PoolAnalyticsWindow, usePoolLiquidityFlowsQuery } from 'services/zapEarn'
-import styled from 'styled-components'
 
 import SegmentedControl from 'components/SegmentedControl'
-import { HStack, Stack } from 'components/Stack'
 import useTheme from 'hooks/useTheme'
 import {
   CHART_WINDOW_OPTIONS,
@@ -28,36 +24,6 @@ import {
 } from 'pages/Earns/PoolDetail/Information/utils'
 import PoolChartState, { PoolChartWrapper } from 'pages/Earns/PoolDetail/components/PoolChartState'
 import { MEDIA_WIDTHS } from 'theme'
-
-const TooltipCard = styled(Stack)`
-  gap: 12px;
-  min-width: 220px;
-  padding: 12px 16px;
-  border: 1px solid ${({ theme }) => theme.border};
-  background: ${({ theme }) => theme.tableHeader};
-  border-radius: 12px;
-  box-shadow: 0 12px 32px ${({ theme }) => theme.shadow};
-`
-
-const TooltipGrid = styled.div`
-  display: grid;
-  gap: 8px 16px;
-  grid-template-columns: auto auto;
-`
-
-const LegendBar = styled.span<{ $color: string }>`
-  width: 14px;
-  height: 14px;
-  border-radius: 999px;
-  background: ${({ $color }) => $color};
-`
-
-const LegendLine = styled.span<{ $color: string }>`
-  width: 16px;
-  height: 4px;
-  border-radius: 999px;
-  background: ${({ $color }) => $color};
-`
 
 type LiquidityFlowPoint = {
   addUsd: number
@@ -91,37 +57,26 @@ const LiquidityFlowsTooltip = ({
   if (!active || !point) return null
 
   return (
-    <TooltipCard>
-      <Text color={theme.subText} fontSize={12}>
-        {formatTooltipTimeLabel(point.ts, window)}
-      </Text>
-      <TooltipGrid>
-        <Text color={theme.subText} fontSize={12}>
-          Add Liquidity
-        </Text>
-        <Text color={theme.text} fontSize={12} fontWeight={500} textAlign="right">
-          {formatUsd(Math.abs(point.addUsd))}
-        </Text>
-        <Text color={theme.subText} fontSize={12}>
-          Remove Liquidity
-        </Text>
-        <Text color={theme.text} fontSize={12} fontWeight={500} textAlign="right">
-          {formatUsd(Math.abs(point.removeUsd))}
-        </Text>
-        <Text color={theme.subText} fontSize={12}>
-          Net Flow
-        </Text>
-        <Text color={theme.text} fontSize={12} fontWeight={500} textAlign="right">
+    <div
+      className="flex min-w-[220px] flex-col gap-3 rounded-xl border border-border bg-tableHeader/80 px-4 py-3"
+      style={{ boxShadow: `0 12px 32px ${theme.shadow}` }}
+    >
+      <span className="text-xs text-subText">{formatTooltipTimeLabel(point.ts, window)}</span>
+      <div className="grid grid-cols-[auto_auto] gap-x-4 gap-y-2">
+        <span className="text-xs text-subText">Add Liquidity</span>
+        <span className="text-right text-xs font-medium text-text">{formatUsd(Math.abs(point.addUsd))}</span>
+        <span className="text-xs text-subText">Remove Liquidity</span>
+        <span className="text-right text-xs font-medium text-text">{formatUsd(Math.abs(point.removeUsd))}</span>
+        <span className="text-xs text-subText">Net Flow</span>
+        <span className="text-right text-xs font-medium text-text">
           {formatUsd(point.lpVolumeUsd, { allowDisplayNegative: true })}
-        </Text>
-        <Text color={theme.subText} fontSize={12}>
-          TVL
-        </Text>
-        <Text color={theme.text} fontSize={12} fontWeight={500} textAlign="right">
+        </span>
+        <span className="text-xs text-subText">TVL</span>
+        <span className="text-right text-xs font-medium text-text">
           {formatUsd(point.tvlUsd, { allowDisplayNegative: true })}
-        </Text>
-      </TooltipGrid>
-    </TooltipCard>
+        </span>
+      </div>
+    </div>
   )
 }
 
@@ -134,12 +89,12 @@ const LiquidityFlowsChart = ({ chainId, poolAddress }: LiquidityFlowsChartProps)
   const chartHeight = upToSmall ? 280 : 360
 
   const activeDotStroke = theme.buttonBlack
-  const addLiquidityColor = rgba(theme.darkGreen, 0.8)
-  const cursorColor = rgba(theme.text, 0.12)
-  const gridColor = rgba(theme.text, 0.06)
+  const addLiquidityColor = `${theme.darkGreen}cc`
+  const cursorColor = `${theme.text}1f`
+  const gridColor = `${theme.text}0f`
   const lpVolumeLineColor = theme.primary
-  const referenceLineColor = rgba(theme.text, 0.12)
-  const removeLiquidityColor = rgba(theme.red, 0.5)
+  const referenceLineColor = `${theme.text}1f`
+  const removeLiquidityColor = `${theme.red}80`
 
   const {
     data: liquidityFlowData,
@@ -166,14 +121,12 @@ const LiquidityFlowsChart = ({ chainId, poolAddress }: LiquidityFlowsChartProps)
   }
 
   return (
-    <Stack gap={16}>
-      <HStack align="flex-start" gap={16} justify="space-between" wrap="wrap">
-        <Text color={theme.text} fontSize={18} fontWeight={500}>
-          Liquidity Flows
-        </Text>
+    <div className="flex flex-col gap-4">
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <span className="text-lg font-medium text-text">Liquidity Flows</span>
 
         <SegmentedControl onChange={handleSelectWindow} options={CHART_WINDOW_OPTIONS} value={window} />
-      </HStack>
+      </div>
 
       <PoolChartState
         emptyMessage="No liquidity flow data available for this pool."
@@ -184,7 +137,7 @@ const LiquidityFlowsChart = ({ chainId, poolAddress }: LiquidityFlowsChartProps)
         isError={isError}
         isLoading={isLoading}
       >
-        <Stack gap={12}>
+        <div className="flex flex-col gap-3">
           <PoolChartWrapper $height={chartHeight}>
             <ResponsiveContainer width="100%" height="100%">
               <ComposedChart
@@ -274,35 +227,27 @@ const LiquidityFlowsChart = ({ chainId, poolAddress }: LiquidityFlowsChartProps)
             </ResponsiveContainer>
           </PoolChartWrapper>
 
-          <HStack gap={16} justify="center" wrap="wrap">
-            <HStack align="center" gap={8}>
-              <LegendBar $color={addLiquidityColor} />
-              <Text color={theme.subText} fontSize={12}>
-                Add Liquidity
-              </Text>
-            </HStack>
-            <HStack align="center" gap={8}>
-              <LegendBar $color={removeLiquidityColor} />
-              <Text color={theme.subText} fontSize={12}>
-                Remove Liquidity
-              </Text>
-            </HStack>
-            <HStack align="center" gap={8}>
-              <LegendLine $color={theme.primary} />
-              <Text color={theme.subText} fontSize={12}>
-                Net Flow
-              </Text>
-            </HStack>
-            <HStack align="center" gap={8}>
-              <LegendLine $color={theme.text} />
-              <Text color={theme.subText} fontSize={12}>
-                TVL
-              </Text>
-            </HStack>
-          </HStack>
-        </Stack>
+          <div className="flex flex-wrap items-center justify-center gap-4">
+            <div className="flex items-center gap-2">
+              <span className="size-3.5 rounded-full" style={{ background: addLiquidityColor }} />
+              <span className="text-xs text-subText">Add Liquidity</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="size-3.5 rounded-full" style={{ background: removeLiquidityColor }} />
+              <span className="text-xs text-subText">Remove Liquidity</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="h-1 w-4 rounded-full bg-primary" />
+              <span className="text-xs text-subText">Net Flow</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="h-1 w-4 rounded-full bg-text" />
+              <span className="text-xs text-subText">TVL</span>
+            </div>
+          </div>
+        </div>
       </PoolChartState>
-    </Stack>
+    </div>
   )
 }
 

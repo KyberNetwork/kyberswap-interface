@@ -2,7 +2,6 @@ import { t } from '@lingui/macro'
 import { ReactNode, useCallback, useMemo, useState } from 'react'
 import { AlignJustify, List as ListIcon } from 'react-feather'
 import { useMedia } from 'react-use'
-import { Flex } from 'rebass'
 import { useGetTotalUnreadAnnouncementsQuery } from 'services/announcement'
 
 import { ReactComponent as AllIcon } from 'assets/svg/all_icon.svg'
@@ -16,7 +15,6 @@ import ProfileIcon from 'components/Icons/Profile'
 import Withdraw from 'components/Icons/Withdraw'
 import Drawer from 'components/Modal/Drawer'
 import { getAnnouncementsTemplateIds } from 'constants/env'
-import useTheme from 'hooks/useTheme'
 import MenuItem from 'pages/NotificationCenter/Menu/MenuItem'
 import ImportAccountModal from 'pages/NotificationCenter/Profile/ImportAccountModal'
 import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
@@ -25,6 +23,7 @@ import { useModalOpen, useToggleModal } from 'state/application/hooks'
 import { useSessionInfo } from 'state/authen/hooks'
 import { useProfileInfo, useSignedAccountInfo } from 'state/profile/hooks'
 import { MEDIA_WIDTHS } from 'theme'
+import { cn } from 'utils/cn'
 import getShortenAddress from 'utils/getShortenAddress'
 import { shortString } from 'utils/string'
 
@@ -64,7 +63,7 @@ const getMenuItems: () => MenuItemType[] = () =>
         },
         {
           route: PROFILE_MANAGE_ROUTES.ALL_NOTIFICATION,
-          icon: <AllIcon style={{ width: 16 }} />,
+          icon: <AllIcon className="w-4" />,
           title: t`All Notifications`,
           type: 'ALL',
         },
@@ -141,7 +140,7 @@ const MenuForDesktop = ({ unread, onChildrenClick, toggleImportProfile }: PropsM
   }, [signedAccount, isSigInGuest, profile, toggleImportProfile, isSignInGuestDefault, menuItems])
 
   return (
-    <Flex sx={{ flexDirection: 'column', padding: upToMedium ? '0px' : '24px' }}>
+    <div className={cn('flex flex-col', upToMedium ? 'p-0' : 'p-6')}>
       {menuItemDeskTop.map((data, index) => (
         <MenuItem
           key={index}
@@ -152,19 +151,17 @@ const MenuForDesktop = ({ unread, onChildrenClick, toggleImportProfile }: PropsM
           onChildrenClick={onChildrenClick}
         />
       ))}
-    </Flex>
+    </div>
   )
 }
 
 const MenuForMobile = (props: PropsMenu) => {
   const isOpen = useModalOpen(ApplicationModal.MENU_NOTI_CENTER)
   const toggleModal = useToggleModal(ApplicationModal.MENU_NOTI_CENTER)
-  const theme = useTheme()
-
   return (
     <Drawer
       title={t`Your Profile`}
-      trigger={<AlignJustify color={theme.subText} onClick={toggleModal} />}
+      trigger={<AlignJustify className="text-subText" onClick={toggleModal} />}
       isOpen={isOpen}
       onDismiss={toggleModal}
     >

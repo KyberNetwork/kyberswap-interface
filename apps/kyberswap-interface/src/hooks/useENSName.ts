@@ -1,13 +1,12 @@
-import { namehash } from 'ethers/lib/utils'
 import { useMemo } from 'react'
 
 import { useActiveWeb3React } from 'hooks'
-import { useSingleCallResult } from 'state/multicall/hooks'
+import { useENSRegistrarContract, useENSResolverContract } from 'hooks/useContract'
+import useDebounce from 'hooks/useDebounce'
+import { NEVER_RELOAD, useSingleCallResult } from 'state/multicall/hooks'
 import { isAddress } from 'utils'
 import isZero from 'utils/isZero'
-
-import { useENSRegistrarContract, useENSResolverContract } from './useContract'
-import useDebounce from './useDebounce'
+import { namehash } from 'utils/viem'
 
 /**
  * Does a reverse lookup for an address to find its ENS name.
@@ -25,12 +24,14 @@ export default function useENSName(address?: string): { ENSName: string | null; 
     }
   }, [chainId, debouncedAddress])
   const registrarContract = useENSRegistrarContract()
-  const resolverAddress = useSingleCallResult(registrarContract, 'resolver', ensNodeArgument)
+  // ENS resolution doesn't change per block — opt out of the per-block
+  // refetch the global readContract invalidation otherwise triggers.
+  const resolverAddress = useSingleCallResult(registrarContract, 'resolver', ensNodeArgument, NEVER_RELOAD)
   const resolverAddressResult = resolverAddress.result?.[0]
   const resolverContract = useENSResolverContract(
     resolverAddressResult && !isZero(resolverAddressResult) ? resolverAddressResult : undefined,
   )
-  const name = useSingleCallResult(resolverContract, 'name', ensNodeArgument)
+  const name = useSingleCallResult(resolverContract, 'name', ensNodeArgument, NEVER_RELOAD)
 
   const changed = debouncedAddress !== address
   return {

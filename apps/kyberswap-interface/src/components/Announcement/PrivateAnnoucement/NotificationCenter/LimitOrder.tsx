@@ -1,26 +1,16 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { useNavigate } from 'react-router-dom'
-import { Flex, Text } from 'rebass'
-import styled from 'styled-components'
 
 import InboxIcon from 'components/Announcement/PrivateAnnoucement/Icon'
 import { PrivateAnnouncementPropCenter } from 'components/Announcement/PrivateAnnoucement/NotificationCenter'
+import { Desc, Time, Title, Wrapper } from 'components/Announcement/PrivateAnnoucement/NotificationCenter/styled'
 import { AnnouncementTemplateLimitOrder } from 'components/Announcement/type'
 import Logo from 'components/Logo'
 import { LimitOrderStatus } from 'components/swapv2/LimitOrder/type'
 import { APP_PATHS } from 'constants/index'
-import { NETWORKS_INFO } from 'constants/networks'
-import useTheme from 'hooks/useTheme'
 import { formatTime } from 'utils/time'
 
-import { Desc, Time, Title, Wrapper } from './styled'
-
-const StyledLogo = styled(Logo)`
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-`
 export default function AnnouncementItem({
   announcement,
   title,
@@ -43,43 +33,42 @@ export default function AnnouncementItem({
   const isFilled = status === LimitOrderStatus.FILLED
   const isPartialFilled = status === LimitOrderStatus.PARTIALLY_FILLED
   const chainId = rawChainId && rawChainId !== '{{.chainId}}' ? (Number(rawChainId) as ChainId) : undefined
-  const theme = useTheme()
 
   const statusMessage = isReorg ? (
-    <Text as="span" color={theme.red}>
+    <span className="text-red">
       <Trans>reverted {increasedFilledPercent}</Trans>
-    </Text>
+    </span>
   ) : isFilled ? (
-    <Text as="span" color={theme.primary}>
+    <span className="text-primary">
       <Trans>successfully filled</Trans>
-    </Text>
+    </span>
   ) : isPartialFilled ? (
-    <Text as="span" color={theme.warning}>
+    <span className="text-warning">
       <Trans>partially filled ({filledPercent})</Trans>
-    </Text>
+    </span>
   ) : (
-    <Text as="span" color={theme.warning}>
+    <span className="text-warning">
       <Trans>expired ({filledPercent}% filled)</Trans>
-    </Text>
+    </span>
   )
 
   const navigate = useNavigate()
   return (
-    <Wrapper onClick={() => navigate(`${APP_PATHS.LIMIT}/${NETWORKS_INFO[chainId || ChainId.MAINNET].route}`)}>
-      <Flex justifyContent="space-between" width="100%">
+    <Wrapper onClick={() => navigate(APP_PATHS.LIMIT)}>
+      <div className="flex w-full justify-between">
         <Title>
           <InboxIcon type={templateType} chainId={chainId} />
           {title}
         </Title>
-        <Flex alignItems={'center'}>
+        <div className="flex items-center">
           <Time>{formatTime(sentAt)} </Time>
-        </Flex>
-      </Flex>
+        </div>
+      </div>
       <Desc>
         <Trans>
-          Your order to pay <StyledLogo srcs={[makerAssetLogoURL]} /> {makingAmount} {makerAssetSymbol} and receive{' '}
-          <StyledLogo srcs={[takerAssetLogoURL]} /> {takingAmount} {takerAssetSymbol} when{' '}
-          <span>1 {makerAssetSymbol} is equal to </span>
+          Your order to pay <Logo srcs={[makerAssetLogoURL]} className="size-4 rounded-full" /> {makingAmount}{' '}
+          {makerAssetSymbol} and receive <Logo srcs={[takerAssetLogoURL]} className="size-4 rounded-full" />{' '}
+          {takingAmount} {takerAssetSymbol} when <span>1 {makerAssetSymbol} is equal to </span>
           <span>
             {takingAmountRate} {takerAssetSymbol}
           </span>{' '}

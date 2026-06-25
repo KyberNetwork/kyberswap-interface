@@ -1,16 +1,17 @@
 import { t } from '@lingui/macro'
-import { ethers } from 'ethers'
 import { useCallback } from 'react'
 import { MerklRewardsResponse, useFetchMerklChainRewardsMutation } from 'services/rewardMerkl'
 
 import { NotificationType } from 'components/Announcement/type'
-import MERKL_DISTRIBUTOR_ABI from 'constants/abis/merkl-distributor.json'
+import { MERKL_DISTRIBUTOR_ABI } from 'constants/abis'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { submitTransaction } from 'pages/Earns/utils'
 import { useNotify } from 'state/application/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
+import { friendlyError } from 'utils/errorMessage'
 import { formatDisplayNumber } from 'utils/numbers'
+import { encodeFunctionData } from 'utils/viem'
 
 // Merkl distributor contract address - same across all EVM chains
 const MERKL_DISTRIBUTOR_ADDRESS = '0x3Ef3D8bA38EBe18DB133cEc108f4D14CE00Dd9Ae'
@@ -19,12 +20,12 @@ const useClaimMerklRewards = () => {
   const notify = useNotify()
   const addTransactionWithType = useTransactionAdder()
   const { account } = useActiveWeb3React()
-  const { library } = useWeb3React()
+  const { isSmartConnector } = useWeb3React()
   const [fetchMerklChainRewards] = useFetchMerklChainRewardsMutation()
 
   const claimMerklRewards = useCallback(
     async (targetChainId: number, cachedChainRewards: MerklRewardsResponse | undefined) => {
-      if (!library || !account) return
+      if (!account) return
 
       // Pre-claim freshness fetch: hit Merkl one time for this specific chain to make sure the
       // amount + merkle proof we sign over is the latest available. The cached payload from the
@@ -71,17 +72,21 @@ const useClaimMerklRewards = () => {
         return
       }
 
-      const iface = new ethers.utils.Interface(MERKL_DISTRIBUTOR_ABI)
-
       const users = claimableRewards.map(() => account)
       const tokens = claimableRewards.map(r => r.token.address)
       const amounts = claimableRewards.map(r => r.amount)
       const proofs = claimableRewards.map(r => r.proofs)
 
-      const calldata = iface.encodeFunctionData('claim', [users, tokens, amounts, proofs])
+      const calldata = encodeFunctionData({
+        abi: MERKL_DISTRIBUTOR_ABI,
+        functionName: 'claim',
+        args: [users, tokens, amounts, proofs],
+      })
 
       const res = await submitTransaction({
-        library,
+        account,
+        chainId: targetChainId,
+        isSmartConnector,
         txData: {
           to: MERKL_DISTRIBUTOR_ADDRESS,
           data: calldata,
@@ -90,7 +95,7 @@ const useClaimMerklRewards = () => {
           notify({
             title: t`Error`,
             type: NotificationType.ERROR,
-            summary: error.message,
+            summary: friendlyError(error),
           })
         },
       })
@@ -122,7 +127,7 @@ const useClaimMerklRewards = () => {
 
       return txHash
     },
-    [account, addTransactionWithType, fetchMerklChainRewards, library, notify],
+    [account, addTransactionWithType, fetchMerklChainRewards, isSmartConnector, notify],
   )
 
   return { claimMerklRewards }

@@ -1,9 +1,7 @@
 import { Trans, t } from '@lingui/macro'
-import { rgba } from 'polished'
 import { useEffect, useState } from 'react'
 import { Star } from 'react-feather'
 import { useMedia } from 'react-use'
-import { Box, Flex, Text } from 'rebass'
 import { useMarketOverviewQuery } from 'services/marketOverview'
 
 import { ButtonEmpty } from 'components/Button'
@@ -11,19 +9,28 @@ import Divider from 'components/Divider'
 import InfoHelper from 'components/InfoHelper'
 import { PoolsPageWrapper } from 'components/PageWrappers'
 import Pagination from 'components/Pagination'
+import RefetchIndicator from 'components/RefetchIndicator'
 import Search from 'components/Search'
 import { HiddenH1, HiddenH2 } from 'components/Seo/HiddenSeoHeadings'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { MAINNET_NETWORKS } from 'constants/networks'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import useDebounce from 'hooks/useDebounce'
-import useTheme from 'hooks/useTheme'
+import SortIcon, { Direction } from 'pages/MarketOverview/SortIcon'
+import TableContent from 'pages/MarketOverview/TableContent'
+import {
+  ContentWrapper,
+  PriceSelectionField,
+  SubHeaderRow,
+  Tab,
+  TableHeader,
+  TableWrapper,
+  Tabs,
+  Tag,
+} from 'pages/MarketOverview/styles'
+import useFilter from 'pages/MarketOverview/useFilter'
 import { MEDIA_WIDTHS } from 'theme'
-
-import SortIcon, { Direction } from './SortIcon'
-import TableContent from './TableContent'
-import { ContentWrapper, PriceSelectionField, SubHeaderRow, Tab, TableHeader, TableWrapper, Tabs, Tag } from './styles'
-import useFilter from './useFilter'
+import { cn } from 'utils/cn'
 
 const filterTags = [
   { label: 'Defi', value: 'defi' },
@@ -34,11 +41,9 @@ const filterTags = [
 ]
 
 export default function MarketOverview() {
-  const theme = useTheme()
-
   const [showMarketInfo, setShowMarketInfo] = useState(false)
   const { filters, updateFilters } = useFilter()
-  const { data } = useMarketOverviewQuery(filters)
+  const { data, isFetching, isLoading } = useMarketOverviewQuery(filters)
 
   const [sortCol, sortDirection] = (filters.sort || '').split(' ')
 
@@ -72,9 +77,11 @@ export default function MarketOverview() {
     <>
       {MAINNET_NETWORKS.map(item => (
         <MouseoverTooltip text={NETWORKS_INFO[item].name} key={item} placement="top" width="fit-content">
-          <Flex
-            alignItems="center"
-            padding="4px"
+          <div
+            className={cn(
+              'flex items-center rounded p-1',
+              filters.chainId === item ? 'border border-solid border-primary bg-primary-20' : 'border-none',
+            )}
             role="button"
             onClick={() => {
               updateFilters('chainId', item.toString())
@@ -82,14 +89,9 @@ export default function MarketOverview() {
                 updateFilters('sort', sortCol.split('-')[0] + '-' + item + ' ' + sortDirection)
               }
             }}
-            sx={{
-              background: filters.chainId === item ? rgba(theme.primary, 0.2) : undefined,
-              border: filters.chainId === item ? `1px solid ${theme.primary}` : 'none',
-              borderRadius: '4px',
-            }}
           >
             <img src={NETWORKS_INFO[item].icon} width="16px" height="16px" alt="" />
-          </Flex>
+          </div>
         </MouseoverTooltip>
       ))}
     </>
@@ -103,19 +105,19 @@ export default function MarketOverview() {
       <HiddenH1>Live token on-chain prices, trading volume, and market trends across multiple chains.</HiddenH1>
       <HiddenH2>Spot opportunities and jump straight into a trade from one dashboard.</HiddenH2>
       <div>
-        <Text fontSize={24} fontWeight="500">
+        <p className="text-[24px] font-medium">
           <Trans>Market Overview</Trans>
-        </Text>
-        <Text color={theme.subText} marginTop="8px">
+        </p>
+        <p className="mt-2 text-subText">
           <Trans>
             The first-ever aggregated on-chain price platform, offering the most real-time, trade-able, and reliable
             price data.
           </Trans>
-        </Text>
+        </p>
       </div>
 
-      <Flex justifyContent="space-between" flexDirection={upToSmall ? 'column' : 'row'} sx={{ gap: '1rem' }}>
-        <Flex sx={{ gap: '1rem' }} flexWrap="wrap">
+      <div className={cn('flex justify-between gap-4', upToSmall ? 'flex-col' : 'flex-row')}>
+        <div className="flex flex-wrap gap-4">
           <Tag active={!tags.length} onClick={() => updateFilters('tags', '')} role="button">
             <Trans>All</Trans>
           </Tag>
@@ -156,7 +158,7 @@ export default function MarketOverview() {
               {item.label}
             </Tag>
           ))}
-        </Flex>
+        </div>
         <Search
           placeholder={t`Search by token name, symbol or address`}
           searchValue={input}
@@ -164,36 +166,27 @@ export default function MarketOverview() {
           onSearch={val => setInput(val)}
           style={{ height: '36px' }}
         />
-      </Flex>
+      </div>
 
-      <TableWrapper>
+      <TableWrapper className="relative">
+        <RefetchIndicator visible={isFetching && !isLoading} />
         <ContentWrapper>
           {!upToMedium ? (
             <TableHeader>
-              <Text color={theme.text} fontSize={14} height="100%" paddingX="12px" display="flex" alignItems="center">
+              <p className="flex h-full items-center px-3 text-[14px] text-text">
                 <Trans>Name</Trans>
-              </Text>
-              <Flex
-                padding="8px 16px"
-                sx={{
-                  fontSize: '14px',
-                  gap: '6px',
-                }}
-                alignItems="flex-start"
-                justifyContent="flex-end"
-              >
-                <Text sx={{ lineHeight: '24px', whiteSpace: 'nowrap', minWidth: 'max-content' }}>
+              </p>
+              <div className="flex items-start justify-end gap-1.5 px-4 py-2 text-[14px]">
+                <span className="min-w-max whitespace-nowrap leading-6">
                   <Trans>On-chain Price</Trans>
-                </Text>
-                <Flex flexWrap="wrap" alignItems="center" justifyContent="flex-end">
-                  {chainSelector}
-                </Flex>
-              </Flex>
+                </span>
+                <div className="flex flex-wrap items-center justify-end">{chainSelector}</div>
+              </div>
 
-              <Text textAlign="right" fontSize="14px" padding="8px 0px 8px 16px">
+              <p className="px-4 py-2 text-right text-[14px]">
                 <Trans>Market Overview</Trans>{' '}
                 <InfoHelper text={t`Market cap & 24h volume data sourced from Coingecko`} />
-              </Text>
+              </p>
             </TableHeader>
           ) : (
             <>
@@ -208,9 +201,7 @@ export default function MarketOverview() {
                 </Tab>
               </Tabs>
 
-              <Flex flexWrap="wrap" alignItems="center" padding="0 0 1rem">
-                {chainSelector}
-              </Flex>
+              <div className="flex flex-wrap items-center pb-4">{chainSelector}</div>
               <Divider />
             </>
           )}
@@ -218,23 +209,18 @@ export default function MarketOverview() {
             <>
               <SubHeaderRow>
                 <div />
-                <Flex
-                  justifyContent="flex-end"
-                  sx={{ gap: '4px', alignItems: 'center', cursor: 'pointer' }}
+                <div
+                  className="flex cursor-pointer items-center justify-end gap-1"
                   role="button"
                   onClick={() => updateSort('price_buy')}
                 >
                   <Trans>Buy Price</Trans>
                   <SortIcon sorted={sortCol.startsWith('price_buy-') ? (sortDirection as Direction) : undefined} />
-                </Flex>
-                <Flex
-                  justifyContent="flex-end"
-                  sx={{ gap: '4px', alignItems: 'center', cursor: 'pointer', padding: '8px 16px' }}
-                  role="button"
-                >
+                </div>
+                <div className="flex cursor-pointer items-center justify-end gap-1 px-4 py-2" role="button">
                   <MouseoverTooltip
                     text={
-                      <Flex flexDirection="column" margin="-8px -12px">
+                      <div className="-mx-3 -my-2 flex flex-col">
                         <PriceSelectionField
                           active={buyPriceSelectedField === '1h'}
                           onClick={() => {
@@ -268,25 +254,15 @@ export default function MarketOverview() {
                         >
                           <Trans>7D</Trans>
                         </PriceSelectionField>
-                      </Flex>
+                      </div>
                     }
                     noArrow
                     width="fit-content"
                     placement="bottom"
                   >
-                    <Box
-                      width="48px"
-                      textAlign="center"
-                      sx={{
-                        borderRadius: '8px',
-                        border: `1px solid ${theme.border}`,
-                        // background: `${theme.primary}33`,
-                        color: theme.text,
-                      }}
-                      padding="4px 12px"
-                    >
+                    <div className="w-12 rounded-lg border border-solid border-border px-3 py-1 text-center text-text">
                       {buyPriceSelectedField.toUpperCase()}
-                    </Box>
+                    </div>
                   </MouseoverTooltip>
                   <ButtonEmpty
                     padding="6px"
@@ -297,27 +273,21 @@ export default function MarketOverview() {
                       sorted={sortCol.startsWith('price_buy_change') ? (sortDirection as Direction) : undefined}
                     />
                   </ButtonEmpty>
-                </Flex>
+                </div>
 
-                <Flex
-                  justifyContent="flex-end"
-                  sx={{ gap: '4px', alignItems: 'center', cursor: 'pointer' }}
+                <div
+                  className="flex cursor-pointer items-center justify-end gap-1"
                   role="button"
                   onClick={() => updateSort('price_sell')}
                 >
                   <Trans>Sell Price</Trans>
                   <SortIcon sorted={sortCol.startsWith('price_sell-') ? (sortDirection as Direction) : undefined} />
-                </Flex>
+                </div>
 
-                <Flex
-                  justifyContent="flex-end"
-                  sx={{ gap: '4px', alignItems: 'center', cursor: 'pointer' }}
-                  role="button"
-                  padding="0.5rem 1rem"
-                >
+                <div className="flex cursor-pointer items-center justify-end gap-1 px-4 py-2" role="button">
                   <MouseoverTooltip
                     text={
-                      <Flex flexDirection="column" margin="-8px -12px">
+                      <div className="-mx-3 -my-2 flex flex-col">
                         <PriceSelectionField
                           active={sellPriceSelectedField === '1h'}
                           onClick={() => {
@@ -351,25 +321,15 @@ export default function MarketOverview() {
                         >
                           <Trans>7D</Trans>
                         </PriceSelectionField>
-                      </Flex>
+                      </div>
                     }
                     noArrow
                     width="fit-content"
                     placement="bottom"
                   >
-                    <Box
-                      width="48px"
-                      textAlign="center"
-                      sx={{
-                        borderRadius: '8px',
-                        border: `1px solid ${theme.border}`,
-                        // background: `${theme.primary}33`,
-                        color: theme.text,
-                      }}
-                      padding="4px 12px"
-                    >
+                    <div className="w-12 rounded-lg border border-solid border-border px-3 py-1 text-center text-text">
                       {sellPriceSelectedField.toUpperCase()}
-                    </Box>
+                    </div>
                   </MouseoverTooltip>
                   <ButtonEmpty
                     padding="6px"
@@ -380,27 +340,25 @@ export default function MarketOverview() {
                       sorted={sortCol.startsWith('price_sell_change') ? (sortDirection as Direction) : undefined}
                     />
                   </ButtonEmpty>
-                </Flex>
+                </div>
 
-                <Flex
-                  justifyContent="flex-end"
-                  sx={{ gap: '4px', alignItems: 'center', cursor: 'pointer' }}
+                <div
+                  className="flex cursor-pointer items-center justify-end gap-1"
                   role="button"
                   onClick={() => updateSort('volume_24h', false)}
                 >
                   <Trans>24h Volume</Trans>
                   <SortIcon sorted={sortCol === 'volume_24h' ? (sortDirection as Direction) : undefined} />
-                </Flex>
+                </div>
 
-                <Flex
-                  justifyContent="flex-end"
-                  sx={{ gap: '4px', alignItems: 'center', cursor: 'pointer' }}
+                <div
+                  className="flex cursor-pointer items-center justify-end gap-1"
                   role="button"
                   onClick={() => updateSort('market_cap', false)}
                 >
                   <Trans>Market cap</Trans>
                   <SortIcon sorted={sortCol === 'market_cap' ? (sortDirection as Direction) : undefined} />
-                </Flex>
+                </div>
               </SubHeaderRow>
               <Divider />
             </>
@@ -421,12 +379,12 @@ export default function MarketOverview() {
         />
       </TableWrapper>
 
-      <Text color={theme.subText} textAlign="center" fontStyle="italic" fontSize={14}>
+      <p className="text-center text-[14px] italic text-subText">
         <Trans>
           Data and information on KyberSwap.com is for informational purposes only, neither recommendation nor
           investment advice is provided.
         </Trans>
-      </Text>
+      </p>
     </PoolsPageWrapper>
   )
 }

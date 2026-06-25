@@ -1,7 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useMedia } from 'react-use'
-import { Flex } from 'rebass'
 
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import DropdownMenu from 'pages/Earns/components/DropdownMenu'
@@ -9,6 +8,7 @@ import { EARN_CHAINS, EARN_DEXES } from 'pages/Earns/constants'
 import { AllChainsOption, AllProtocolsOption } from 'pages/Earns/hooks/useSupportedDexesAndChains'
 import { OrderStatus, SmartExitFilter } from 'pages/Earns/types'
 import { MEDIA_WIDTHS } from 'theme'
+import { cn } from 'utils/cn'
 
 const ORDER_STATUS = [
   { label: 'All Status', value: '' },
@@ -89,13 +89,8 @@ export default function Filter({
   }, [filters.dexTypes, updateFilters])
 
   return (
-    <Flex
-      flexDirection={upToSmall ? 'column' : 'row'}
-      alignItems={'center'}
-      justifyContent={'space-between'}
-      sx={{ gap: 2 }}
-    >
-      <Flex sx={{ gap: 2, width: upToSmall ? '100%' : 'auto' }} flexWrap={'wrap'}>
+    <div className={cn('flex items-center justify-between gap-2', upToSmall ? 'flex-col' : 'flex-row')}>
+      <div className={cn('flex flex-wrap gap-2', upToSmall ? 'w-full' : 'w-auto')}>
         <DropdownMenu
           mobileHalfWidth
           value={filters.chainIds || ''}
@@ -109,7 +104,7 @@ export default function Filter({
           value={filters.status || ''}
           onChange={handleStatusChange}
         />
-      </Flex>
-    </Flex>
+      </div>
+    </div>
   )
 }

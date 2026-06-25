@@ -1,5 +1,4 @@
 import { Token } from '@kyberswap/ks-sdk-core'
-import styled from 'styled-components'
 import { useWatchAsset } from 'wagmi'
 
 import { ButtonEmpty } from 'components/Button'
@@ -7,11 +6,6 @@ import { RowFixed } from 'components/Row'
 import { CONNECTION, CONNECTOR_ICON_OVERRIDE_MAP } from 'components/Web3Provider'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { getTokenLogoURL } from 'utils'
-
-const StyledLogo = styled.img`
-  height: 16px;
-  width: 16px;
-`
 
 export default function AddTokenToMetaMask({ token }: { token: Token }) {
   const { chainId, walletKey } = useActiveWeb3React()
@@ -46,9 +40,9 @@ export default function AddTokenToMetaMask({ token }: { token: Token }) {
   if (walletKey === CONNECTION.WALLET_CONNECT_CONNECTOR_ID) return null
   if (walletKey === CONNECTION.COINBASE_SDK_CONNECTOR_ID) return null
   return (
-    <ButtonEmpty mt="12px" padding="0" width="fit-content" onClick={addToMetaMask}>
+    <ButtonEmpty padding="0" width="fit-content" onClick={addToMetaMask}>
       <RowFixed>
-        <StyledLogo src={icon} />
+        <img src={icon} className="size-4" alt="" />
       </RowFixed>
     </ButtonEmpty>
   )

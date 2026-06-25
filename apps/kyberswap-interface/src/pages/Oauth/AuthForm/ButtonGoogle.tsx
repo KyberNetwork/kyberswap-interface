@@ -32,6 +32,7 @@ const ButtonGoogle: React.FC<Props> = ({ primary, flowStatus }) => {
     children: <Trans>Sign-In with Google</Trans>,
     style: isAutoLogin ? { opacity: 0 } : undefined,
   }
-  return React.createElement(primary ? ButtonPrimary : ButtonOutlined, props)
+  const Component = primary ? ButtonPrimary : ButtonOutlined
+  return <Component {...(props as any)} />
 }
 export default ButtonGoogle

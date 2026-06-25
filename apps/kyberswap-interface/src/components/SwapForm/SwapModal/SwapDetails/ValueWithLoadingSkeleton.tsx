@@ -1,7 +1,6 @@
 import { CSSProperties } from 'react'
-import Skeleton from 'react-loading-skeleton'
 
-import useTheme from 'hooks/useTheme'
+import Skeleton from 'components/Skeleton'
 
 type Props = {
   content: React.ReactNode
@@ -10,20 +9,13 @@ type Props = {
 }
 
 const ValueWithLoadingSkeleton: React.FC<Props> = ({ content, isShowingSkeleton, skeletonStyle }) => {
-  const theme = useTheme()
   if (isShowingSkeleton) {
-    return (
-      <Skeleton
-        style={skeletonStyle}
-        height="16px"
-        baseColor={theme.border}
-        highlightColor={theme.buttonGray}
-        borderRadius="5rem"
-      />
-    )
+    const { height = '20px', ...style } = skeletonStyle || {}
+
+    return <Skeleton style={style} height={height} variant="darkSubtle" />
   }
 
-  return <>{content}</>
+  return content
 }
 
 export default ValueWithLoadingSkeleton

@@ -1,15 +1,13 @@
 import { t } from '@lingui/macro'
 import { useMemo } from 'react'
 import { useMedia } from 'react-use'
-import { Text } from 'rebass'
 import { PoolQueryParams, usePoolsExplorerQuery } from 'services/zapEarn'
 
-import LocalLoader from 'components/LocalLoader'
+import RefetchIndicator from 'components/RefetchIndicator'
 import { Stack } from 'components/Stack'
-import useTheme from 'hooks/useTheme'
 import DesktopTableRow from 'pages/Earns/PoolExplorer/DesktopTableRow'
 import MobileTableRow from 'pages/Earns/PoolExplorer/MobileTableRow'
-import RefetchIndicator from 'pages/Earns/PoolExplorer/RefetchIndicator'
+import PoolListSkeleton from 'pages/Earns/PoolExplorer/PoolListSkeleton'
 import useFavoritePool from 'pages/Earns/PoolExplorer/useFavoritePool'
 import { EARN_DEXES } from 'pages/Earns/constants'
 import { ZapInInfo } from 'pages/Earns/hooks/useZapInWidget'
@@ -32,8 +30,6 @@ type Props = {
 }
 
 const TableContent = ({ onOpenZapInWidget, filters, showRewards = true, showPoolPrice = true }: Props) => {
-  const theme = useTheme()
-
   const allDexes = useAppSelector(state => state.customizeDexes.allDexes)
   const {
     data: poolData,
@@ -84,6 +80,7 @@ const TableContent = ({ onOpenZapInWidget, filters, showRewards = true, showPool
 
       return {
         ...pool,
+        chainId: poolChainId,
         dexLogo: dexInfo?.logoURL || '',
         dexName: dexInfo?.name || pool.exchange,
         favorite: { chainId: poolChainId, isFavorite: getFavoriteStatus(pool) },
@@ -92,15 +89,11 @@ const TableContent = ({ onOpenZapInWidget, filters, showRewards = true, showPool
   }, [poolData?.data?.pools, dexLookupMap, getFavoriteStatus])
 
   if (isLoading) {
-    return <LocalLoader />
+    return <PoolListSkeleton showRewards={showRewards} showPoolPrice={showPoolPrice} />
   }
 
   if (poolData?.data?.pools.length === 0 || isError) {
-    return (
-      <Text color={theme.subText} margin="3rem" marginTop="4rem" textAlign="center">
-        {t`No data found`}
-      </Text>
-    )
+    return <p className="m-12 mt-16 text-center text-subText">{t`No data found`}</p>
   }
 
   return (
@@ -108,12 +101,12 @@ const TableContent = ({ onOpenZapInWidget, filters, showRewards = true, showPool
       <RefetchIndicator visible={isFetching} />
 
       {upToMedium ? (
-        <Stack gap={16}>
-          {tablePoolData.map(pool => (
+        <Stack className="gap-4">
+          {tablePoolData.map((pool, index) => (
             <MobileTableRow
               key={pool.address}
               pool={pool}
-              filters={filters}
+              rowIndex={index}
               showRewards={showRewards}
               onOpenZapInWidget={onOpenZapInWidget}
               handleFavorite={handleFavorite}
@@ -121,11 +114,11 @@ const TableContent = ({ onOpenZapInWidget, filters, showRewards = true, showPool
           ))}
         </Stack>
       ) : (
-        tablePoolData.map(pool => (
+        tablePoolData.map((pool, index) => (
           <DesktopTableRow
             key={pool.address}
             pool={pool}
-            filters={filters}
+            rowIndex={index}
             showRewards={showRewards}
             showPoolPrice={showPoolPrice}
             onOpenZapInWidget={onOpenZapInWidget}

@@ -91,7 +91,7 @@ function StatsScene({ totalVolume, totalUsers }: StatsSceneProps) {
                   duration: duration,
                   ease: easing,
                 }}
-                style={{ transformOrigin: 'bottom' }}
+                className="origin-bottom"
               />
             )
           })}

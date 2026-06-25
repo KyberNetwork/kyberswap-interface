@@ -1,6 +1,5 @@
 import { t } from '@lingui/macro'
-import React, { ReactNode } from 'react'
-import { CSSProperties } from 'styled-components'
+import React, { CSSProperties, ReactNode } from 'react'
 
 import InboxItemEarnPosition from 'components/Announcement/PrivateAnnoucement/InboxItemEarnPosition'
 import InboxItemLimitOrder from 'components/Announcement/PrivateAnnoucement/InboxItemLimitOrder'
@@ -23,7 +22,7 @@ export type PrivateAnnouncementProp<T extends AnnouncementTemplate = Announcemen
 }
 
 type PrivateAnnouncementMap = Partial<{
-  [type in PrivateAnnouncementType]: (data: PrivateAnnouncementProp) => JSX.Element
+  [type in PrivateAnnouncementType]: (data: PrivateAnnouncementProp) => React.JSX.Element
 }>
 const ANNOUNCEMENT_MAP: () => PrivateAnnouncementMap = () =>
   ({

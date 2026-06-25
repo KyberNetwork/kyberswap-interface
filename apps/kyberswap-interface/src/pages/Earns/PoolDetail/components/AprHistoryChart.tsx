@@ -1,8 +1,6 @@
 import { formatAprNumber } from '@kyber/utils'
-import { rgba } from 'polished'
 import { useMemo, useState } from 'react'
 import { useMedia } from 'react-use'
-import { Text } from 'rebass'
 import { Bar, CartesianGrid, Cell, ComposedChart, Line, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import {
   type PoolAnalyticsWindow,
@@ -10,10 +8,10 @@ import {
   usePoolAprHistoryQuery,
   usePositionAprHistoryQuery,
 } from 'services/zapEarn'
-import styled from 'styled-components'
 
+import { ReactComponent as FarmingIcon } from 'assets/svg/kyber/kem.svg'
+import { ReactComponent as FarmingLmIcon } from 'assets/svg/kyber/kemLm.svg'
 import SegmentedControl from 'components/SegmentedControl'
-import { HStack, Stack } from 'components/Stack'
 import useTheme from 'hooks/useTheme'
 import {
   CHART_WINDOW_OPTIONS,
@@ -21,49 +19,30 @@ import {
   formatTooltipTimeLabel,
 } from 'pages/Earns/PoolDetail/Information/utils'
 import PoolChartState, { PoolChartWrapper } from 'pages/Earns/PoolDetail/components/PoolChartState'
+import { ProgramType } from 'pages/Earns/types'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
 
-const TooltipCard = styled(Stack)`
-  gap: 12px;
-  min-width: 220px;
-  padding: 12px 16px;
-  border: 1px solid ${({ theme }) => theme.border};
-  background: ${({ theme }) => theme.tableHeader};
-  border-radius: 12px;
-  box-shadow: 0 12px 32px ${({ theme }) => theme.shadow};
-`
-
-const TooltipGrid = styled.div`
-  display: grid;
-  gap: 8px 16px;
-  grid-template-columns: auto auto;
-`
-
-const BaselineRow = styled(HStack)`
-  align-items: baseline;
-`
-
 export const formatAprValue = (value?: number) => (value || value === 0 ? `${formatAprNumber(value)}%` : '--')
 
-export const getLatestAprValues = (points?: PoolAprHistoryPoint[]) => {
-  const latestTotalApr = [...(points ?? [])].reverse().find(point => point.totalApr !== undefined)?.totalApr
-  const latestActiveApr = [...(points ?? [])].reverse().find(point => point.activeApr !== undefined)?.activeApr
+const FarmingMarker = ({ programs = [] }: { programs?: Array<ProgramType> }) => {
+  const isFarming = programs.includes(ProgramType.EG) || programs.includes(ProgramType.LM)
+  const isFarmingLm = programs.includes(ProgramType.LM)
 
-  return {
-    hasActiveApr: latestActiveApr !== undefined,
-    latestActiveApr,
-    latestTotalApr,
-  }
+  if (!isFarming) return null
+
+  return isFarmingLm ? <FarmingLmIcon width={20} height={20} /> : <FarmingIcon width={20} height={20} />
 }
 
 const AprHistoryTooltip = ({
   active,
   point,
+  showActiveApr,
   window,
 }: {
   active?: boolean
   point?: PoolAprHistoryPoint
+  showActiveApr: boolean
   window: PoolAnalyticsWindow
 }) => {
   const theme = useTheme()
@@ -71,39 +50,30 @@ const AprHistoryTooltip = ({
   if (!active || !point) return null
 
   return (
-    <TooltipCard>
-      <Text color={theme.subText} fontSize={12}>
-        {formatTooltipTimeLabel(point.ts, window)}
-      </Text>
-      <TooltipGrid>
-        {point.activeApr ? (
+    <div
+      className="flex min-w-[220px] flex-col gap-3 rounded-xl border border-border bg-tableHeader/80 px-4 py-3"
+      style={{ boxShadow: `0 12px 32px ${theme.shadow}` }}
+    >
+      <span className="text-xs text-subText">{formatTooltipTimeLabel(point.ts, window)}</span>
+      <div className="grid grid-cols-[auto_auto] gap-x-4 gap-y-2">
+        {showActiveApr && point.activeApr !== undefined ? (
           <>
-            <Text color={theme.subText} fontSize={12}>
-              Active APR
-            </Text>
-            <Text color={theme.blue} fontSize={12} fontWeight={500} textAlign="right">
-              {formatAprNumber(point.activeApr)}%
-            </Text>
+            <span className="text-xs text-subText">Active APR</span>
+            <span className="text-right text-xs font-medium text-primary">{formatAprNumber(point.activeApr)}%</span>
           </>
         ) : null}
-        <Text color={theme.subText} fontSize={12}>
-          APR
-        </Text>
-        <Text color={theme.primary} fontSize={12} fontWeight={500} textAlign="right">
-          {formatAprNumber(point.totalApr)}%
-        </Text>
+        <span className="text-xs text-subText">APR</span>
+        <span className="text-right text-xs font-medium text-blue">{formatAprNumber(point.totalApr)}%</span>
         {point.volumeUsd || point.volumeUsd === 0 ? (
           <>
-            <Text color={theme.subText} fontSize={12}>
-              Vol
-            </Text>
-            <Text color={theme.text} fontSize={12} fontWeight={500} textAlign="right">
+            <span className="text-xs text-subText">Vol</span>
+            <span className="text-right text-xs font-medium text-text">
               {formatDisplayNumber(point.volumeUsd, { style: 'currency', significantDigits: 6 })}
-            </Text>
+            </span>
           </>
         ) : null}
-      </TooltipGrid>
-    </TooltipCard>
+      </div>
+    </div>
   )
 }
 
@@ -111,9 +81,14 @@ type AprHistoryChartProps = {
   chainId: number
   poolAddress?: string
   positionId?: string
+  programs?: Array<ProgramType>
+  currentApr?: {
+    totalApr?: number
+    activeApr?: number
+  }
 }
 
-const AprHistoryChart = ({ chainId, poolAddress, positionId }: AprHistoryChartProps) => {
+const AprHistoryChart = ({ chainId, poolAddress, positionId, programs, currentApr }: AprHistoryChartProps) => {
   const theme = useTheme()
 
   const [window, setWindow] = useState<PoolAnalyticsWindow>('7d')
@@ -122,12 +97,12 @@ const AprHistoryChart = ({ chainId, poolAddress, positionId }: AprHistoryChartPr
   const chartHeight = upToSmall ? 280 : 360
 
   const activeDotStroke = theme.buttonBlack
-  const aprLineColor = theme.primary
-  const activeAprLineColor = theme.blue
-  const volumeUpColor = rgba(theme.darkGreen, 0.8)
-  const volumeDownColor = rgba(theme.red, 0.5)
-  const cursorColor = rgba(theme.text, 0.12)
-  const gridColor = rgba(theme.text, 0.06)
+  const aprLineColor = theme.blue
+  const activeAprLineColor = theme.primary
+  const volumeUpColor = `${theme.darkGreen}cc`
+  const volumeDownColor = `${theme.red}80`
+  const cursorColor = `${theme.text}1f`
+  const gridColor = `${theme.text}0f`
 
   const poolAprHistoryQuery = usePoolAprHistoryQuery(
     { chainId, address: poolAddress || '', window },
@@ -154,69 +129,48 @@ const AprHistoryChart = ({ chainId, poolAddress, positionId }: AprHistoryChartPr
     [aprHistoryData?.points, volumeDownColor, volumeUpColor],
   )
 
-  const intervalMaxApr = useMemo(() => {
-    const values = chartData
-      .map(point => point.totalApr)
-      .filter((value): value is number => value !== undefined && !Number.isNaN(value))
-    return values.length ? Math.max(...values) : undefined
-  }, [chartData])
-
-  const { hasActiveApr, latestActiveApr, latestTotalApr } = useMemo(() => getLatestAprValues(chartData), [chartData])
+  const latestAprPoint = chartData[chartData.length - 1]
+  const activeApr = currentApr?.activeApr ?? latestAprPoint?.activeApr
+  const totalApr = currentApr?.totalApr ?? latestAprPoint?.totalApr
+  const hasActiveApr = activeApr !== undefined
+  const showActiveApr = !isPositionChart && hasActiveApr
 
   return (
-    <Stack gap={16}>
-      <HStack align="flex-start" gap={16} justify="space-between" wrap="wrap">
-        <Stack gap={12}>
-          <HStack align="center" gap="12px 24px" wrap="wrap">
-            {hasActiveApr && latestTotalApr !== undefined ? (
-              <BaselineRow gap={4}>
-                <Text color={theme.subText} fontSize={14}>
-                  APR
-                </Text>
-                <Text color={theme.text} fontSize={14} fontWeight={500}>
-                  {formatAprValue(latestTotalApr)}
-                </Text>
-              </BaselineRow>
-            ) : null}
-            <BaselineRow gap={4}>
-              <Text color={theme.subText} fontSize={14}>
-                Max APR
-              </Text>
-              <Text color={theme.text} fontSize={14} fontWeight={500}>
-                {formatAprValue(intervalMaxApr)}
-              </Text>
-            </BaselineRow>
-          </HStack>
-
-          {hasActiveApr ? (
-            <BaselineRow gap={8} wrap="wrap">
-              <Text color={theme.text} fontSize={16} fontWeight={500}>
-                {positionId ? 'Position Active APR' : 'Active APR'}
-              </Text>
-              <Text color={theme.blue} fontSize={20} fontWeight={500} lineHeight={1}>
-                {formatAprValue(latestActiveApr)}
-              </Text>
-              <Text color={theme.subText} fontSize={14}>
-                (Earning Per Active TVL)
-              </Text>
-            </BaselineRow>
-          ) : (
-            <BaselineRow gap={8} wrap="wrap">
-              <Text color={theme.text} fontSize={16} fontWeight={500}>
-                APR
-              </Text>
-              <Text color={theme.primary} fontSize={20} fontWeight={500} lineHeight={1}>
-                {formatAprValue(latestTotalApr)}
-              </Text>
-              <Text color={theme.subText} fontSize={14}>
-                (Earning Per Total TVL)
-              </Text>
-            </BaselineRow>
+    <div className="flex flex-col gap-4">
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div className="flex min-h-12 flex-col gap-1">
+          {showActiveApr && totalApr !== undefined && (
+            <div className="flex items-baseline gap-1">
+              <span className="text-sm text-subText">APR</span>
+              <span className="text-sm font-medium text-blue">{formatAprValue(totalApr)}</span>
+            </div>
           )}
-        </Stack>
+
+          {showActiveApr ? (
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-base font-medium text-text">Active APR</span>
+              <div className="flex items-center gap-1">
+                <FarmingMarker programs={programs} />
+                <span className="text-xl font-medium leading-none text-primary">{formatAprValue(activeApr)}</span>
+              </div>
+              <span className="text-sm text-subText">(Earning Per Active TVL)</span>
+            </div>
+          ) : (
+            <div className="flex flex-wrap items-baseline gap-2">
+              <span className="text-base font-medium text-text">APR</span>
+              <div className="flex items-center gap-1">
+                <FarmingMarker programs={programs} />
+                <span className="text-xl font-medium leading-none text-blue">{formatAprValue(totalApr)}</span>
+              </div>
+              <span className="text-sm text-subText">
+                {isPositionChart ? '(Earning Per Position Liquidity)' : '(Earning Per Total TVL)'}
+              </span>
+            </div>
+          )}
+        </div>
 
         <SegmentedControl onChange={setWindow} options={CHART_WINDOW_OPTIONS} value={window} />
-      </HStack>
+      </div>
 
       <PoolChartState
         emptyMessage="Historical APR data is not available yet."
@@ -257,7 +211,12 @@ const AprHistoryChart = ({ chainId, poolAddress, positionId }: AprHistoryChartPr
               />
               <Tooltip
                 content={({ active, payload }) => (
-                  <AprHistoryTooltip active={active} point={payload?.[0]?.payload} window={window} />
+                  <AprHistoryTooltip
+                    active={active}
+                    point={payload?.[0]?.payload}
+                    showActiveApr={showActiveApr}
+                    window={window}
+                  />
                 )}
                 cursor={{ stroke: cursorColor, strokeDasharray: '4 4' }}
               />
@@ -266,7 +225,7 @@ const AprHistoryChart = ({ chainId, poolAddress, positionId }: AprHistoryChartPr
                   <Cell key={`${point.ts}-volumeUsd`} fill={point.volumeBarColor} />
                 ))}
               </Bar>
-              {hasActiveApr && (
+              {showActiveApr && (
                 <Line
                   activeDot={{ fill: activeAprLineColor, r: 4, stroke: activeDotStroke, strokeWidth: 2 }}
                   dataKey="activeApr"
@@ -292,7 +251,7 @@ const AprHistoryChart = ({ chainId, poolAddress, positionId }: AprHistoryChartPr
           </ResponsiveContainer>
         </PoolChartWrapper>
       </PoolChartState>
-    </Stack>
+    </div>
   )
 }
 

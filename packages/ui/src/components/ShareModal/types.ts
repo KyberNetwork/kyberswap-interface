@@ -17,6 +17,8 @@ export enum ShareOption {
 
 export interface ShareModalProps {
   type: ShareType;
+  /** Pre-built absolute share URL. When provided, used as-is instead of letting getSharePath build the legacy query-param form. */
+  url?: string;
   isFarming?: boolean;
   hasActiveApr?: boolean;
   defaultOptions?: ShareOption[];

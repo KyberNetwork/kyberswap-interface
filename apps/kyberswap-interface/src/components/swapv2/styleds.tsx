@@ -1,219 +1,134 @@
-import { transparentize } from 'polished'
 import { useState } from 'react'
-import { Text } from 'rebass'
-import styled, { CSSProperties, DefaultTheme, css, keyframes } from 'styled-components'
 
 import { ReactComponent as Alert } from 'assets/images/alert.svg'
-import { AutoColumn } from 'components/Column'
-import { Stack } from 'components/Stack'
-import useTheme from 'hooks/useTheme'
+import { cn } from 'utils/cn'
 import { friendlyError } from 'utils/errorMessage'
 
-export const PageWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  padding: 24px 36px 0;
-  gap: 24px;
-  width: 100%;
-  max-width: 1464px;
+export const PageWrapper = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
+  <div
+    className={cn(
+      'flex w-full max-w-[1464px] flex-col items-stretch gap-6 px-9 pt-6 max-lg:h-auto max-sm:gap-4 max-sm:px-4 max-sm:py-5',
+      className,
+    )}
+    {...rest}
+  >
+    {children}
+  </div>
+)
 
-  ${({ theme }) => theme.mediaWidth.upToLarge`
-    height: unset;
-`}
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    gap: 16px;
-    padding: 20px 16px;
-`};
-`
+export const Container = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
+  <div
+    className={cn(
+      'flex w-full max-w-[1392px] items-start justify-center gap-12 max-lg:flex-col max-lg:items-center max-lg:gap-6 max-sm:gap-4',
+      className,
+    )}
+    {...rest}
+  >
+    {children}
+  </div>
+)
 
-export const Container = styled.div`
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  width: 100%;
-  max-width: 1392px;
-  gap: 48px;
-  ${({ theme }) => theme.mediaWidth.upToLarge`
-    gap: 24px;
-    flex-direction: column;
-    align-items: center;
-  `}
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    gap: 16px;
-  `}
-`
+export const Wrapper = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('relative z-[1] bg-background', className)} {...rest}>
+    {children}
+  </div>
+)
 
-export const Wrapper = styled.div`
-  position: relative;
-  z-index: 1;
-  background: ${({ theme }) => theme.background};
-`
+interface StyledBalanceMaxMiniProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  hover?: boolean
+}
 
-export const StyledBalanceMaxMini = styled.button<{ hover?: boolean }>`
-  height: 22px;
-  width: 22px;
-  background-color: transparent;
-  border: none;
-  border-radius: 50%;
-  padding: 0.2rem;
-  font-size: 0.875rem;
-  font-weight: 400;
-  cursor: pointer;
-  color: ${({ theme }) => theme.text2};
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  float: right;
-  ${({ hover }) =>
-    hover &&
-    css`
-      :hover {
-        background-color: ${({ theme }) => theme.bg3};
-      }
-      :focus {
-        background-color: ${({ theme }) => theme.bg3};
-        outline: none;
-      }
-    `}
-`
+export const StyledBalanceMaxMini = ({ hover, className, children, ...rest }: StyledBalanceMaxMiniProps) => (
+  <button
+    className={cn(
+      'float-right flex h-[22px] w-[22px] cursor-pointer items-center justify-center rounded-full border-none bg-transparent p-[0.2rem] text-sm font-normal text-text2',
+      hover && 'hover:bg-bg3 focus:bg-bg3 focus:outline-none',
+      className,
+    )}
+    {...rest}
+  >
+    {children}
+  </button>
+)
 
-// styles
-export const Dots = styled.span`
-  &::after {
-    display: inline-block;
-    animation: ellipsis 1.25s infinite;
-    content: '.';
-    width: 1em;
-    text-align: left;
-  }
-  @keyframes ellipsis {
-    0% {
-      content: '.';
-    }
-    33% {
-      content: '..';
-    }
-    66% {
-      content: '...';
-    }
-  }
-`
-
-const SwapCallbackErrorInner = styled.div`
-  background-color: ${({ theme }) => transparentize(0.9, theme.red1)};
-  border-radius: 1rem;
-  display: flex;
-  align-items: center;
-  font-size: 0.825rem;
-  width: 100%;
-  margin-top: 36px;
-  padding: 8px 20px 8px 8px;
-  background-color: ${({ theme }) => `${theme.buttonBlack}66`};
-  z-index: -1;
-  p {
-    padding: 0;
-    margin: 0;
-    font-weight: 500;
-  }
-`
-
-export function SwapCallbackError({ error, style = {} }: { error: string; style?: CSSProperties }) {
-  const theme = useTheme()
+export function SwapCallbackError({ error, style = {} }: { error: string; style?: React.CSSProperties }) {
   const [showDetail, setShowDetail] = useState<boolean>(false)
   return (
-    <SwapCallbackErrorInner style={style}>
-      <Alert style={{ marginBottom: 'auto' }} />
-      <AutoColumn style={{ flexBasis: '100%', margin: '10px 0 auto 8px' }}>
-        <Text fontSize="16px" fontWeight="500" color={theme.red} lineHeight={'24px'}>
-          {friendlyError(error)}
-        </Text>
+    <div
+      className="z-[-1] mt-9 flex w-full items-center rounded-2xl bg-buttonBlack-40 py-2 pl-2 pr-5 text-[0.825rem]"
+      style={style}
+    >
+      <Alert className="mb-auto" />
+      <div className="my-[10px] ml-2 mr-0 flex basis-full flex-col">
+        <span className="text-base font-medium leading-6 text-red">{friendlyError(error)}</span>
         {error !== friendlyError(error) && (
-          <Text
-            color={theme.primary}
-            fontSize="12px"
-            sx={{ cursor: `pointer` }}
-            onClick={() => setShowDetail(!showDetail)}
-          >
+          <span className="cursor-pointer text-xs text-primary" onClick={() => setShowDetail(!showDetail)}>
             Show more details
-          </Text>
+          </span>
         )}
         {showDetail && (
-          <Text
-            color={theme.text}
-            fontSize="10px"
-            margin="10px 0 4px 0"
-            lineHeight="16px"
-            sx={{ wordBreak: 'break-word' }}
-          >
+          <span className="my-[10px] mb-1 break-words text-[10px] leading-4 text-text">
             {typeof error === 'string' ? error : JSON.stringify(error)}
-          </Text>
+          </span>
         )}
-      </AutoColumn>
-    </SwapCallbackErrorInner>
+      </div>
+    </div>
   )
 }
 
-export const SwapFormWrapper = styled.div`
-  z-index: 1;
-  width: 425px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  gap: 16px;
+export const SwapFormWrapper = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
+  <div
+    className={cn(
+      'z-[1] flex w-[425px] flex-shrink-0 flex-col items-center justify-center gap-4 max-sm:w-full lg:sticky lg:top-4',
+      className,
+    )}
+    {...rest}
+  >
+    {children}
+  </div>
+)
 
-  @media only screen and (min-width: 1200px) {
-    position: sticky;
-    top: 16px;
+export const InfoComponentsWrapper = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('flex w-[calc(100%-472px)] flex-grow flex-col gap-5 max-md:w-full', className)} {...rest}>
+    {children}
+  </div>
+)
+
+interface StyledActionButtonSwapFormProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  active?: boolean
+  hoverBg?: string
+}
+
+export const StyledActionButtonSwapForm = ({
+  active,
+  hoverBg,
+  className,
+  children,
+  onMouseEnter,
+  onMouseLeave,
+  ...rest
+}: StyledActionButtonSwapFormProps) => {
+  const handleMouseEnter = (e: React.MouseEvent<HTMLButtonElement>) => {
+    if (hoverBg) e.currentTarget.style.backgroundColor = hoverBg
+    onMouseEnter?.(e)
   }
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    width: 100%;
-  `}
-`
-
-export const InfoComponentsWrapper = styled(Stack)`
-  flex-grow: 1;
-  width: calc(100% - 472px);
-  gap: 20px;
-
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    width: 100%;
-  `};
-`
-
-export const StyledActionButtonSwapForm = styled.button<{ active?: boolean; hoverBg?: string }>`
-  position: relative;
-  border: none;
-  cursor: pointer;
-  background-color: ${({ theme, active }) => (active ? theme.buttonGray : 'transparent')};
-  margin: 0;
-  padding: 0;
-  height: 36px;
-  width: 36px;
-  border-radius: 999px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  outline: none;
-
-  :hover {
-    background-color: ${({ theme, hoverBg }) => hoverBg || theme.background};
+  const handleMouseLeave = (e: React.MouseEvent<HTMLButtonElement>) => {
+    if (hoverBg) e.currentTarget.style.backgroundColor = ''
+    onMouseLeave?.(e)
   }
-`
-
-export const highlight = (theme: DefaultTheme) => keyframes`
-  0% {
-    box-shadow: 0 0 0 0 ${theme.primary};
-  }
-
-  70% {
-    box-shadow: 0 0 0 2px ${theme.primary};
-  }
-
-  100% {
-    box-shadow: 0 0 0 0 ${theme.primary};
-  }
-`
+  return (
+    <button
+      className={cn(
+        'relative m-0 flex size-9 cursor-pointer items-center justify-center rounded-full border-none p-0 outline-none',
+        active ? 'bg-buttonGray' : 'bg-transparent',
+        !hoverBg && 'hover:bg-background',
+        className,
+      )}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      {...rest}
+    >
+      {children}
+    </button>
+  )
+}

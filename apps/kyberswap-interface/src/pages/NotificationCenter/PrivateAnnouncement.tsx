@@ -7,7 +7,6 @@ import {
   useGetPrivateAnnouncementsByIdsQuery,
   useGetPrivateAnnouncementsQuery,
 } from 'services/announcement'
-import styled from 'styled-components'
 
 import { PRIVATE_ANN_TITLE } from 'components/Announcement/PrivateAnnoucement'
 import InboxItemNotificationCenter from 'components/Announcement/PrivateAnnoucement/NotificationCenter'
@@ -20,16 +19,6 @@ import NoData from 'pages/NotificationCenter/NoData'
 import CommonPagination from 'pages/NotificationCenter/PriceAlerts/CommonPagination'
 import { ITEMS_PER_PAGE } from 'pages/NotificationCenter/const'
 import { ShareContentWrapper, ShareWrapper } from 'pages/NotificationCenter/styled'
-
-const HeaderWrapper = styled.div`
-  display: flex;
-  justify-content: flex-end;
-  border-bottom: 1px solid ${({ theme }) => theme.border};
-  padding-bottom: 20px;
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    padding: 12px 0px;
-  `}
-`
 
 export default function GeneralAnnouncement({ type }: { type?: PrivateAnnouncementType }) {
   const [page, setPage] = useState(1)
@@ -58,7 +47,6 @@ export default function GeneralAnnouncement({ type }: { type?: PrivateAnnounceme
   const loadingRef = useRef(false)
   useEffect(() => {
     if (!account || numberOfUnread === 0 || loadingRef.current) return
-    // mark all as read
     loadingRef.current = true
     ackAnnouncement({ templateIds: templateIds || undefined })
       .then(() => {
@@ -93,13 +81,13 @@ export default function GeneralAnnouncement({ type }: { type?: PrivateAnnounceme
   return (
     <ShareWrapper>
       <ShareContentWrapper>
-        <HeaderWrapper>
+        <div className="flex justify-end border-b border-solid border-border pb-5 max-md:px-0 max-md:py-3">
           <DeleteAllAlertsButton
             disabled={totalAnnouncement === 0 || loading}
             onClear={clearAll}
             notificationName={type ? PRIVATE_ANN_TITLE()[type] : t`Notifications`}
           />
-        </HeaderWrapper>
+        </div>
         {data?.notifications?.length ? (
           data?.notifications?.map(item => (
             <InboxItemNotificationCenter key={item.id} announcement={item as PrivateAnnouncement} />

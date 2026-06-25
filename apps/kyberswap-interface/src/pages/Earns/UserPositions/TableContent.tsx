@@ -5,13 +5,11 @@ import { t } from '@lingui/macro'
 import { useCallback, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useMedia } from 'react-use'
-import { Flex, Text } from 'rebass'
 import { useGetSmartExitOrdersQuery } from 'services/smartExit'
 
 import { ReactComponent as IconEarnNotFound } from 'assets/svg/earn/ic_earn_not_found.svg'
 import { APP_PATHS, ETHER_ADDRESS, PAIR_CATEGORY } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
-import useTheme from 'hooks/useTheme'
 import { PositionAction as PositionActionBtn } from 'pages/Earns/PositionDetail/styles'
 import MigrationModal from 'pages/Earns/UserPositions/MigrationModal'
 import PositionRowItem from 'pages/Earns/UserPositions/PositionRowItem'
@@ -29,6 +27,7 @@ import { FeeInfo, OrderStatus, ParsedPosition, PositionStatus, SuggestedPool } f
 import { getUnclaimedFeesInfo } from 'pages/Earns/utils/fees'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { MEDIA_WIDTHS } from 'theme'
+import { cn } from 'utils/cn'
 
 export interface FeeInfoFromRpc extends FeeInfo {
   id: string
@@ -55,7 +54,6 @@ export default function TableContent({
 }) {
   const { account } = useActiveWeb3React()
   const toggleWalletModal = useWalletModalToggle()
-  const theme = useTheme()
   const upToCustomLarge = useMedia(`(max-width: ${1300}px)`)
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
@@ -280,10 +278,10 @@ export default function TableContent({
   const emptyPosition = (
     <EmptyPositionText>
       <IconEarnNotFound />
-      <Flex flexDirection={upToSmall ? 'column' : 'row'} sx={{ gap: 1 }} marginBottom={12}>
-        <Text color={theme.subText}>{t`You don't have any liquidity positions yet`}.</Text>
+      <div className={cn('mb-3 flex gap-1', upToSmall ? 'flex-col' : 'flex-row')}>
+        <span className="text-subText">{t`You don't have any liquidity positions yet`}.</span>
         <Link to={APP_PATHS.EARN_POOLS}>{t`Explore Liquidity Pools to get started`}!</Link>
-      </Flex>
+      </div>
       {!account && <PositionActionBtn onClick={toggleWalletModal}>{t`Connect Wallet`}</PositionActionBtn>}
     </EmptyPositionText>
   )

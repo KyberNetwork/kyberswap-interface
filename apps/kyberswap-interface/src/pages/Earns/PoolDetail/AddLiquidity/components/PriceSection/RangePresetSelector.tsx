@@ -1,30 +1,15 @@
 import { DEXES_INFO, NETWORKS_INFO, Pool, PoolType } from '@kyber/schema'
-import { rgba } from 'polished'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import styled from 'styled-components'
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 
 import InfoHelper from 'components/InfoHelper'
 import { HStack } from 'components/Stack'
 import useTheme from 'hooks/useTheme'
-
-import { FULL_PRICE_RANGE, getDefaultRangePreset, getRangePresetOptions } from './utils'
-
-const RangeButton = styled.button<{ $active: boolean }>`
-  flex: 1 1 0;
-  min-width: 0;
-  padding: 8px 8px 8px 12px;
-  border: none;
-  border-radius: 20px;
-  background: ${({ theme, $active }) => ($active ? theme.tabActive : 'transparent')};
-  color: ${({ theme, $active }) => ($active ? theme.text : theme.subText)};
-  font-size: 14px;
-  font-weight: ${({ $active }) => ($active ? 500 : 400)};
-  cursor: pointer;
-
-  :hover {
-    background: ${({ theme, $active }) => ($active ? rgba(theme.tabActive, 0.8) : theme.buttonGray)};
-  }
-`
+import {
+  FULL_PRICE_RANGE,
+  getDefaultRangePreset,
+  getRangePresetOptions,
+} from 'pages/Earns/PoolDetail/AddLiquidity/components/PriceSection/utils'
+import { cn } from 'utils/cn'
 
 interface RangePresetSelectorProps {
   chainId: number
@@ -54,7 +39,7 @@ const RangePresetSelector = ({
   const theme = useTheme()
   const [lastSelected, setLastSelected] = useState<number | string>('')
   const previousRevertPrice = useRef(revertPrice)
-  const previousRangeSelected = useRef<number | string | undefined>()
+  const previousRangeSelected = useRef<number | string | undefined>(undefined)
 
   const priceRanges = useMemo(() => {
     return getRangePresetOptions({
@@ -106,7 +91,7 @@ const RangePresetSelector = ({
     ],
   )
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (
       revertPrice !== previousRevertPrice.current &&
       rangeSelected !== previousRangeSelected.current &&
@@ -135,18 +120,23 @@ const RangePresetSelector = ({
   if (!priceRanges.length) return null
 
   return (
-    <HStack border={`1px solid ${theme.border}`} borderRadius={20} gap={0}>
+    <HStack className="gap-0 rounded-[20px] border border-solid border-border">
       {priceRanges.map(item => {
         const isActive = rangeSelected === item.range
 
         return (
-          <RangeButton
-            $active={isActive}
+          <button
             key={`${item.range}`}
             onClick={() => handleSelectPriceRange(item.range, true)}
+            className={cn(
+              'min-w-0 flex-1 cursor-pointer rounded-[20px] border-0 py-2 pl-3 pr-2 text-sm',
+              isActive
+                ? 'bg-tabActive font-medium text-text hover:bg-tabActive-80'
+                : 'bg-transparent font-normal text-subText hover:bg-buttonGray',
+            )}
           >
             {item.range === FULL_PRICE_RANGE ? (
-              <HStack as="span" align="center" justify="center" gap={4}>
+              <HStack as="span" className="items-center justify-center gap-1">
                 Full Range
                 <InfoHelper
                   color={isActive ? theme.blue : theme.subText}
@@ -159,7 +149,7 @@ const RangePresetSelector = ({
             ) : (
               `${Number(item.range) * 100}%`
             )}
-          </RangeButton>
+          </button>
         )
       })}
     </HStack>

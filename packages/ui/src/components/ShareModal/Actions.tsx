@@ -1,7 +1,6 @@
 import { useState } from 'react';
 
 import { useLingui } from '@lingui/react';
-import html2canvas from 'html2canvas';
 
 import { cn } from '@kyber/utils/tailwind-helpers';
 
@@ -16,10 +15,11 @@ import Loading from '@/components/loading';
 interface ActionsProps {
   type: ShareType;
   pool?: Pool;
-  shareBannerRef: React.RefObject<HTMLDivElement>;
+  url?: string;
+  shareBannerRef: React.RefObject<HTMLDivElement | null>;
 }
 
-const SuccessIcon = () => <CircleCheckIcon className="w-4 h-4 relative top-[1px] text-primary" />;
+const SuccessIcon = () => <CircleCheckIcon className="w-4 h-4 text-primary" />;
 
 // Helper function to convert oklch/modern colors to hex/rgb
 const convertModernColorsToLegacy = (element: HTMLElement) => {
@@ -82,7 +82,7 @@ const convertModernColorsToLegacy = (element: HTMLElement) => {
   };
 };
 
-export default function Actions({ type, pool, shareBannerRef }: ActionsProps) {
+export default function Actions({ type, pool, url, shareBannerRef }: ActionsProps) {
   const { i18n } = useLingui();
   const [isCopied, setIsCopied] = useState(false);
   const [isDownloaded, setIsDownloaded] = useState(false);
@@ -90,7 +90,7 @@ export default function Actions({ type, pool, shareBannerRef }: ActionsProps) {
   const [isImageCopied, setIsImageCopied] = useState(false);
   const [isCopyingImage, setIsCopyingImage] = useState(false);
 
-  const path = pool ? getSharePath(type, pool) : null;
+  const path = pool ? getSharePath(type, pool, url) : null;
 
   const handleCopyPath = () => {
     if (!path) return;
@@ -107,6 +107,9 @@ export default function Actions({ type, pool, shareBannerRef }: ActionsProps) {
     const restoreStyles = convertModernColorsToLegacy(element);
 
     try {
+      // Loaded on demand (only when the user shares/downloads) so html2canvas (~360KB) stays out of the
+      // eager bundle — it splits into a lazy chunk through each consuming bundler.
+      const html2canvas = (await import('html2canvas')).default;
       const canvas = await html2canvas(element, {
         allowTaint: true,
         useCORS: true,
@@ -200,7 +203,7 @@ export default function Actions({ type, pool, shareBannerRef }: ActionsProps) {
       {path ? (
         <button
           className={cn(
-            'flex items-center justify-center py-[6px] px-4 gap-1 rounded-[30px] bg-[#ffffff14] hover:brightness-120 outline-none text-subText transition-all duration-200',
+            'flex items-center justify-center py-[6px] px-4 gap-1 rounded-[30px] bg-[#ffffff14] hover:brightness-120 outline-none text-subText leading-tight',
             isCopied && 'text-primary bg-primary-200',
           )}
           onClick={handleCopyPath}
@@ -212,7 +215,7 @@ export default function Actions({ type, pool, shareBannerRef }: ActionsProps) {
       {!isSafari() && (
         <button
           className={cn(
-            'flex items-center justify-center py-[6px] px-4 gap-1 rounded-[30px] bg-[#ffffff14] hover:brightness-120 outline-none text-subText transition-all duration-200',
+            'flex items-center justify-center py-[6px] px-4 gap-1 rounded-[30px] bg-[#ffffff14] hover:brightness-120 outline-none text-subText leading-tight',
             isImageCopied && 'text-primary bg-primary-200',
           )}
           onClick={handleCopyImage}
@@ -223,7 +226,7 @@ export default function Actions({ type, pool, shareBannerRef }: ActionsProps) {
       )}
       <button
         className={cn(
-          'flex items-center justify-center py-[6px] px-4 gap-1 rounded-[30px] text-subText bg-[#ffffff14] hover:brightness-120 outline-none transition-all duration-200',
+          'flex items-center justify-center py-[6px] px-4 gap-1 rounded-[30px] text-subText bg-[#ffffff14] hover:brightness-120 outline-none leading-tight',
           isDownloaded && 'text-primary bg-primary-200',
         )}
         onClick={handleDownloadImage}

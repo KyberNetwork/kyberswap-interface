@@ -1,30 +1,20 @@
 import { Info } from 'react-feather'
-import { Flex, Text } from 'rebass'
 
 import Loader from 'components/Loader'
-import useTheme from 'hooks/useTheme'
 
 export default function NoData({ msg, isLoading }: { msg: string; isLoading: boolean }) {
-  const theme = useTheme()
   return (
-    <Flex flex="1 1 0" justifyContent="center" width="100%" alignItems="center">
-      <Flex
-        sx={{
-          flexDirection: 'column',
-          alignItems: 'center',
-          color: theme.subText,
-          gap: '0.75rem',
-        }}
-      >
+    <div className="flex w-full flex-1 items-center justify-center">
+      <div className="flex flex-col items-center gap-3 text-subText">
         {isLoading ? (
           <Loader size="36px" />
         ) : (
           <>
             <Info size={'24px'} />
-            <Text as="span">{msg}</Text>
+            <span>{msg}</span>
           </>
         )}
-      </Flex>
-    </Flex>
+      </div>
+    </div>
   )
 }

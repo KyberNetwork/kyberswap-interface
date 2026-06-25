@@ -1,6 +1,6 @@
 import { ChainId, NativeCurrency } from '@kyberswap/ks-sdk-core'
 import { ReactNode, createContext, useContext, useMemo } from 'react'
-import { Navigate, useSearchParams } from 'react-router-dom'
+import { Navigate, useParams } from 'react-router-dom'
 import { useGetTokenByAddressesQuery } from 'services/ksSetting'
 import { PoolDetail, PoolDetailToken, usePoolDetailQuery, usePoolsExplorerQuery } from 'services/zapEarn'
 
@@ -12,6 +12,7 @@ import { NoteCard, PoolDetailWrapper } from 'pages/Earns/PoolDetail/styled'
 import { EARN_DEXES, EarnDexInfo, Exchange } from 'pages/Earns/constants'
 import { EarnPool } from 'pages/Earns/types'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
+import { getChainIdFromSlug } from 'utils/string'
 
 interface PoolDetailContextValue {
   pool: PoolDetail
@@ -52,11 +53,12 @@ const mergePoolTokens = (
 }
 
 export const PoolDetailProvider = ({ children }: { children: ReactNode }) => {
-  const [searchParams] = useSearchParams()
+  // Pool identity comes from the path params: /pools/<chain-slug>/<protocol>/<address>.
+  const { chain, protocol, address } = useParams()
 
-  const exchange = searchParams.get('exchange') || ''
-  const poolAddress = searchParams.get('poolAddress') || ''
-  const poolChainId = Number(searchParams.get('poolChainId') || 0)
+  const exchange = protocol || ''
+  const poolAddress = address || ''
+  const poolChainId = getChainIdFromSlug(chain) ?? 0
 
   const { data: poolDetail, isLoading: isPoolLoading } = usePoolDetailQuery(
     {
@@ -85,9 +87,12 @@ export const PoolDetailProvider = ({ children }: { children: ReactNode }) => {
 
   const pool = useMemo<PoolDetail | undefined>(() => {
     if (!poolDetail) return undefined
+    const poolExplorer = explorerData?.data.pools[0]
+
     return {
+      ...poolExplorer,
       ...poolDetail,
-      tokens: mergePoolTokens(poolDetail, explorerData?.data.pools[0], tokenMetadata),
+      tokens: mergePoolTokens(poolDetail, poolExplorer, tokenMetadata),
     }
   }, [poolDetail, explorerData, tokenMetadata])
 
@@ -114,7 +119,7 @@ export const PoolDetailProvider = ({ children }: { children: ReactNode }) => {
 
   const value = {
     pool,
-    poolAddress: pool.address,
+    poolAddress: pool.address.toLowerCase(),
     chainId,
     exchange: exchangeValue,
     dexInfo: EARN_DEXES[exchangeValue],

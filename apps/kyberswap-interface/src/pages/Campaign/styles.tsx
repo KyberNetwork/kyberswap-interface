@@ -1,33 +1,36 @@
-import styled from 'styled-components'
+import { cn } from 'utils/cn'
 
-export const Wrapper = styled.div`
-  max-width: 992px;
-  margin-x: auto;
-  padding: 1rem;
-`
+export const Wrapper = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('mx-auto max-w-screen-md p-4', className)} {...rest}>
+    {children}
+  </div>
+)
 
-export const StatCard = styled.div`
-  border-radius: 20px;
-  background: ${({ theme }) => theme.background};
-  padding: 1rem 1rem;
-`
+export const StatCard = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('rounded-[20px] bg-background p-4', className)} {...rest}>
+    {children}
+  </div>
+)
 
-export const Tabs = styled.div`
-  display: flex;
-  gap: 1.5rem;
-  font-size: 20px;
-  font-weight: 500;
+export const Tabs = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
+  <div
+    className={cn('flex gap-6 text-xl font-medium max-[500px]:justify-between max-[500px]:text-base', className)}
+    {...rest}
+  >
+    {children}
+  </div>
+)
 
-  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
-    font-size: 16px;
-    justify-content: space-between;
-  `}
-`
-
-export const Tab = styled.div<{ active: boolean }>`
-  color: ${({ theme, active }) => (active ? theme.primary : theme.subText)};
-  cursor: pointer;
-  :hover {
-    color: ${({ theme }) => theme.primary};
-  }
-`
+export const Tab = ({
+  children,
+  className,
+  active,
+  ...rest
+}: React.HTMLAttributes<HTMLDivElement> & { active: boolean }) => (
+  <div
+    {...rest}
+    className={cn('cursor-pointer hover:text-primary', active ? 'text-primary' : 'text-subText', className)}
+  >
+    {children}
+  </div>
+)

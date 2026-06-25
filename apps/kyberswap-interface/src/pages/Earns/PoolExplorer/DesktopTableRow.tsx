@@ -1,50 +1,55 @@
-import { formatAprNumber } from '@kyber/utils/dist/number'
-import { MAX_TICK } from '@kyber/utils/dist/uniswapv3'
 import { t } from '@lingui/macro'
 import { Star } from 'react-feather'
-import { Text } from 'rebass'
-import { PoolQueryParams } from 'services/zapEarn'
 
 import Loader from 'components/Loader'
 import { HStack } from 'components/Stack'
 import TokenLogo from 'components/TokenLogo'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
+import usePrefetchOnIntent from 'hooks/usePrefetchOnIntent'
 import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
-import { FilterTag } from 'pages/Earns/PoolExplorer/Filter'
 import SparklineChart from 'pages/Earns/PoolExplorer/SparklineChart'
 import { FeeTier, SymbolText, TableCell, TableRow } from 'pages/Earns/PoolExplorer/styles'
-import MerklRewardsRecord from 'pages/Earns/components/MerklRewardsRecord'
 import PoolAprBadges from 'pages/Earns/components/PoolAprBadges'
 import PoolAprInfo from 'pages/Earns/components/PoolAprInfo'
+import PoolRewardsInfo from 'pages/Earns/components/PoolRewardsInfo'
 import { ZapInInfo } from 'pages/Earns/hooks/useZapInWidget'
 import { ParsedEarnPool } from 'pages/Earns/types'
 import { formatDisplayNumber } from 'utils/numbers'
+import { prefetchPoolDetail } from 'utils/prefetch'
 
 const DesktopTableRow = ({
   pool,
-  filters,
   showRewards = true,
   showPoolPrice = true,
+  rowIndex,
   onOpenZapInWidget,
   handleFavorite,
   favoriteLoading,
 }: {
   pool: ParsedEarnPool
-  filters: PoolQueryParams
   showRewards?: boolean
   showPoolPrice?: boolean
+  /** 0-based position within the current page — drives the staggered fade-in delay. */
+  rowIndex: number
   onOpenZapInWidget: ({ pool, initialTick }: ZapInInfo) => void
   handleFavorite: (e: React.MouseEvent<SVGElement, MouseEvent>, pool: ParsedEarnPool) => Promise<void>
   favoriteLoading: string[]
 }) => {
   const theme = useTheme()
   const { trackingHandler } = useTracking()
-  const showMaxAprColumn = filters.tag === FilterTag.FARMING_POOL
-  const showEgSharingColumn = showMaxAprColumn
-  const rewardsTotalUsd = pool.merklOpportunity?.rewardsRecord?.total || 0
 
-  const handleOpenZapInWidget = (e: React.MouseEvent<HTMLDivElement>, withPriceRange?: boolean) => {
+  // Stagger each row's fade-in by 50ms (capped at 300ms), matching the My Positions list.
+  const animationDelay = `${Math.min(rowIndex * 50, 300)}ms`
+
+  // The parent wires this row's onClick (onOpenZapInWidget) to open the pool's detail page, so warm
+  // that page's chunk + its poolDetail query on hover.
+  const prefetchDetail = usePrefetchOnIntent(
+    () => prefetchPoolDetail((pool.chain?.id || pool.chainId) as number, pool.address),
+    { delay: 120 },
+  )
+
+  const handleOpenZapInWidget = (e: React.MouseEvent<HTMLDivElement>) => {
     e.stopPropagation()
     trackingHandler(TRACKING_EVENT_TYPE.LIQ_POOL_SELECTED, {
       pool_pair: `${pool.tokens?.[0]?.symbol}/${pool.tokens?.[1]?.symbol}`,
@@ -61,29 +66,21 @@ const DesktopTableRow = ({
         chainId: (pool.chain?.id || pool.chainId) as number,
         address: pool.address,
       },
-      initialTick:
-        withPriceRange &&
-        pool.maxAprInfo &&
-        pool.maxAprInfo.tickLower !== undefined &&
-        pool.maxAprInfo.tickUpper !== undefined
-          ? {
-              tickLower: pool.maxAprInfo.tickLower,
-              tickUpper: pool.maxAprInfo.tickUpper,
-            }
-          : undefined,
     })
   }
 
   return (
     <TableRow
-      showMaxAprColumn={showMaxAprColumn}
       showRewards={showRewards}
       showPoolPrice={showPoolPrice}
       onClick={e => handleOpenZapInWidget(e)}
+      className="animate-[fadeInUp_0.3s_ease-out_both] motion-reduce:animate-none"
+      style={{ animationDelay }}
+      {...prefetchDetail}
     >
       <TableCell>
-        <HStack align="center" gap={8}>
-          <HStack align="flex-end" position="relative" gap={0}>
+        <HStack className="items-center gap-2">
+          <HStack className="relative items-end gap-0">
             <TokenLogo src={pool.tokens?.[0]?.logoURI} />
             <TokenLogo src={pool.tokens?.[1]?.logoURI} translateLeft />
             {pool.chain?.logoUrl && <TokenLogo src={pool.chain.logoUrl} size={12} translateLeft translateTop />}
@@ -103,75 +100,32 @@ const DesktopTableRow = ({
             <FeeTier>{formatDisplayNumber(pool.feeTier, { significantDigits: 4 })}%</FeeTier>
           </MouseoverTooltipDesktopOnly>
         </HStack>
-        <HStack align="center" gap={4}>
+        <HStack className="items-center gap-1">
           <TokenLogo src={pool.dexLogo} size={18} />
-          <Text color={theme.subText} fontSize={14}>
-            {pool.dexName}
-          </Text>
+          <span className="text-sm text-subText">{pool.dexName}</span>
         </HStack>
       </TableCell>
       <TableCell>
         <PoolAprInfo pool={pool} />
         <PoolAprBadges pool={pool} />
       </TableCell>
-      {showMaxAprColumn && (
-        <TableCell onClick={e => handleOpenZapInWidget(e, true)}>
-          {!!pool.maxAprInfo ? (
-            <MouseoverTooltipDesktopOnly
-              text={
-                t`Add liquidity with price range:` +
-                ` ${
-                  pool.maxAprInfo.minPrice
-                    ? formatDisplayNumber(pool.maxAprInfo.minPrice, { significantDigits: 6 })
-                    : '--'
-                }` +
-                ` - ${
-                  pool.maxAprInfo.tickUpper === MAX_TICK
-                    ? '∞'
-                    : pool.maxAprInfo.maxPrice
-                    ? formatDisplayNumber(pool.maxAprInfo.maxPrice, { significantDigits: 6 })
-                    : '--'
-                }`
-              }
-              width="fit-content"
-              placement="bottom"
-            >
-              <Text>
-                {formatAprNumber(
-                  Number(pool.maxAprInfo.apr) +
-                    Number(pool.maxAprInfo.kemEGApr) +
-                    Number(pool.maxAprInfo.kemLMApr) +
-                    Number(pool.bonusApr || 0),
-                ) + '%'}
-              </Text>
-            </MouseoverTooltipDesktopOnly>
-          ) : (
-            <MouseoverTooltipDesktopOnly text={t`Not available for this pool`} width="fit-content" placement="bottom">
-              <Text>-</Text>
-            </MouseoverTooltipDesktopOnly>
-          )}
-        </TableCell>
-      )}
       <TableCell>
-        <Text>
-          {formatDisplayNumber(showEgSharingColumn ? pool.egUsd : pool.earnFee, {
+        <span>
+          {formatDisplayNumber(pool.earnFee, {
             style: 'currency',
             significantDigits: 6,
           })}
-        </Text>
+        </span>
       </TableCell>
       <TableCell>
-        <Text>{formatDisplayNumber(pool.tvl, { style: 'currency', significantDigits: 6 })}</Text>
+        <span>{formatDisplayNumber(pool.tvl, { style: 'currency', significantDigits: 6 })}</span>
       </TableCell>
       <TableCell>
-        <Text>{formatDisplayNumber(pool.volume, { style: 'currency', significantDigits: 6 })}</Text>
+        <span>{formatDisplayNumber(pool.volume, { style: 'currency', significantDigits: 6 })}</span>
       </TableCell>
       {showRewards && (
         <TableCell>
-          <Text>
-            {formatDisplayNumber((pool.egUsd || 0) + rewardsTotalUsd, { style: 'currency', significantDigits: 4 })}
-          </Text>
-          <MerklRewardsRecord pool={pool} />
+          <PoolRewardsInfo pool={pool} />
         </TableCell>
       )}
       {showPoolPrice && (

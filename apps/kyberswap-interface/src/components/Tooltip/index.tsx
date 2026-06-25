@@ -1,25 +1,33 @@
-import { type MouseEvent, ReactNode, useCallback, useRef, useState } from 'react'
+import { type MouseEvent, ReactNode, forwardRef, useCallback, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
-import { Text } from 'rebass'
-import styled from 'styled-components'
 
 import Popover, { PopoverProps } from 'components/Popover'
 import Row from 'components/Row'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
+import { cn } from 'utils/cn'
 
-const TooltipContainer = styled.div<{ width?: string; maxWidth?: string; size?: number }>`
-  width: ${({ width }) => width || '228px'};
-  max-width: ${({ maxWidth }) => maxWidth || ''};
-  padding: 0.5rem 0.75rem;
-  line-height: 150%;
-  font-weight: 400;
-  font-size: ${({ size }) => size || 12}px;
-`
+type TooltipContainerProps = React.HTMLAttributes<HTMLDivElement> & {
+  width?: string
+  maxWidth?: string
+  size?: number
+}
 
-export const TextDashed = styled(Text)<{ color?: string; underlineColor?: string }>`
-  width: fit-content;
-  border-bottom: 1px dotted ${({ theme, underlineColor }) => underlineColor || theme.border};
-`
+const TooltipContainer = forwardRef<HTMLDivElement, TooltipContainerProps>(
+  ({ width, maxWidth, size, className, style, ...rest }, ref) => (
+    <div
+      ref={ref}
+      style={{
+        width: width || '228px',
+        maxWidth: maxWidth || undefined,
+        fontSize: `${size || 12}px`,
+        ...style,
+      }}
+      className={cn('px-3 py-2 font-normal leading-[150%]', className)}
+      {...rest}
+    />
+  ),
+)
+TooltipContainer.displayName = 'TooltipContainer'
 
 interface TooltipProps extends Omit<PopoverProps, 'content'> {
   text: string | ReactNode

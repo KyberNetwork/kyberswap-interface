@@ -1,14 +1,12 @@
 import { API_URLS, Pool, RefundAction, ZapAction, ZapRouteDetail } from '@kyber/schema'
 import { getZapImpact } from '@kyber/utils'
 import { useMemo } from 'react'
-import { Text } from 'rebass'
-import styled from 'styled-components'
 
 import InfoHelper from 'components/InfoHelper'
 import { HStack, Stack } from 'components/Stack'
+import { TextHelper } from 'components/Text'
 import TokenLogo from 'components/TokenLogo'
 import useTheme from 'hooks/useTheme'
-import TooltipText from 'pages/Earns/PoolDetail/AddLiquidity/components/TooltipText'
 import {
   formatBpsLabel,
   formatPercent,
@@ -16,29 +14,8 @@ import {
   getSlippageNotice,
   getZapFeePercent,
 } from 'pages/Earns/PoolDetail/AddLiquidity/utils'
+import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
-
-const Card = styled(Stack)`
-  background: ${({ theme }) => theme.buttonGray};
-  border-radius: 12px;
-  padding: 12px 16px;
-`
-
-const Divider = styled.div`
-  background: ${({ theme }) => theme.tabActive};
-  height: 1px;
-  width: 100%;
-`
-
-const MetricCard = styled(Stack)`
-  align-items: flex-start;
-  background: ${({ theme }) => theme.tabActive};
-  border-radius: 12px;
-  flex: 1 1 0;
-  gap: 4px;
-  min-width: 0;
-  padding: 8px 12px;
-`
 
 type EstimateInfoProps = {
   pool: Pool
@@ -91,6 +68,10 @@ const buildEstimate = ({
   }
 }
 
+const MetricCard = ({ children }: { children: React.ReactNode }) => (
+  <Stack className="min-w-0 flex-1 items-start gap-1 rounded-xl bg-tabActive px-3 py-2">{children}</Stack>
+)
+
 const EstimateInfo = ({ pool, route, slippage }: EstimateInfoProps) => {
   const theme = useTheme()
   const estimate = useMemo(() => buildEstimate({ pool, route, slippage }), [pool, route, slippage])
@@ -100,89 +81,90 @@ const EstimateInfo = ({ pool, route, slippage }: EstimateInfoProps) => {
   )
 
   return (
-    <Card gap={12}>
-      <Stack gap={12}>
-        <HStack align="center" justify="space-between">
-          <Text color={theme.subText}>Est. Liquidity Value</Text>
-          <Text color={theme.text} fontWeight={500}>
+    <Stack className="gap-3 rounded-xl bg-buttonGray px-4 py-3">
+      <Stack className="gap-3">
+        <HStack className="items-center justify-between">
+          <span className="text-subText">Est. Liquidity Value</span>
+          <span className="font-medium text-text">
             {formatDisplayNumber(estimate.totalUsd, { style: 'currency', significantDigits: 6 })}
-          </Text>
+          </span>
         </HStack>
 
-        <HStack align="flex-start" gap={12} wrap="wrap">
+        <HStack className="flex-wrap items-start gap-3">
           {estimate.items.map((item, index) => (
-            <Stack key={item.token.address} flex="1 1 0" gap={4} minWidth={0} align={index ? 'flex-end' : 'flex-start'}>
-              <HStack align="center" gap={4} minWidth={0} wrap="wrap">
+            <Stack
+              key={item.token.address}
+              className={cn('min-w-0 flex-[1_1_0] gap-1', index ? 'items-end' : 'items-start')}
+            >
+              <HStack className="min-w-0 flex-wrap items-center gap-1">
                 <TokenLogo src={item.token.logo} size={16} />
-                <Text color={theme.text}>
+                <span className="text-text">
                   {formatDisplayNumber(item.amount, { significantDigits: 6 })} {item.token.symbol}
-                </Text>
+                </span>
               </HStack>
 
-              <Text color={theme.subText}>
+              <span className="text-subText">
                 ~{formatDisplayNumber(item.usdValue, { style: 'currency', significantDigits: 6 })}
-              </Text>
+              </span>
             </Stack>
           ))}
         </HStack>
       </Stack>
 
-      <Divider />
+      <div className="h-px w-full bg-tabActive" />
 
-      <Stack gap={12}>
-        <HStack align="center" justify="space-between">
-          <TooltipText
+      <Stack className="gap-3">
+        <HStack className="items-center justify-between">
+          <TextHelper
             tooltip="Applied to each zap step. Setting a high slippage tolerance can help transactions succeed, but you may not get such a good price. Please use with caution!"
-            color={theme.subText}
+            className="text-subText"
             fontSize={14}
           >
             Max Slippage
-          </TooltipText>
-          <HStack align="center" gap={4}>
-            <Text color={slippageNotice ? theme.warning : theme.text} fontWeight={500}>
+          </TextHelper>
+          <HStack className="items-center gap-1">
+            <span className="font-medium" style={{ color: slippageNotice ? theme.warning : theme.text }}>
               {formatBpsLabel(estimate.slippage)}
-            </Text>
+            </span>
             {slippageNotice ? (
               <InfoHelper
                 margin={false}
                 placement="top"
                 size={12}
                 text={slippageNotice.message}
-                color={theme.warning}
+                className="text-warning"
               />
             ) : null}
           </HStack>
         </HStack>
 
-        <HStack align="stretch" gap={8} wrap="wrap">
+        <HStack className="flex-wrap items-stretch gap-2">
           <MetricCard>
-            <TooltipText
+            <TextHelper
               tooltip="Based on your price range settings, a portion of your liquidity will be automatically zapped into the pool, while the remaining amount will stay in your wallet."
-              color={theme.subText}
+              className="text-subText"
               fontSize={14}
             >
               Est. Remaining
-            </TooltipText>
-            <Text color={theme.text} fontWeight={500}>
+            </TextHelper>
+            <span className="font-medium text-text">
               {formatDisplayNumber(estimate.remainingUsd, { style: 'currency', significantDigits: 6 })}
-            </Text>
+            </span>
           </MetricCard>
           <MetricCard>
-            <TooltipText
+            <TextHelper
               tooltip="The difference between input and estimated liquidity received (including remaining amount). Be careful with high value!"
-              color={theme.subText}
+              className="text-subText"
               fontSize={14}
             >
               Zap Impact
-            </TooltipText>
-            <Text color={theme.text} fontWeight={500}>
-              {estimate.zapImpact?.display}
-            </Text>
+            </TextHelper>
+            <span className="font-medium text-text">{estimate.zapImpact?.display}</span>
           </MetricCard>
           <MetricCard>
-            <TooltipText
+            <TextHelper
               tooltip={
-                <Stack gap={4} align="flex-start" sx={{ a: { color: 'primary', textDecoration: 'none' } }}>
+                <Stack className="items-start gap-1 [&_a:hover]:opacity-80 [&_a]:text-primary [&_a]:no-underline">
                   Fees charged for automatically zapping into a liquidity pool. You still have to pay the standard gas
                   fees.{' '}
                   <a href={API_URLS.DOCUMENT.ZAP_FEE_MODEL} target="_blank" rel="noopener norefferer noreferrer">
@@ -190,18 +172,16 @@ const EstimateInfo = ({ pool, route, slippage }: EstimateInfoProps) => {
                   </a>
                 </Stack>
               }
-              color={theme.subText}
+              className="text-subText"
               fontSize={14}
             >
               Zap Fee
-            </TooltipText>
-            <Text color={theme.text} fontWeight={500}>
-              {formatPercent(estimate.zapFeePercent)}
-            </Text>
+            </TextHelper>
+            <span className="font-medium text-text">{formatPercent(estimate.zapFeePercent)}</span>
           </MetricCard>
         </HStack>
       </Stack>
-    </Card>
+    </Stack>
   )
 }
 

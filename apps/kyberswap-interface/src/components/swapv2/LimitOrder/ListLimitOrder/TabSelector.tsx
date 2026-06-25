@@ -1,48 +1,12 @@
 import { Trans, t } from '@lingui/macro'
-import { rgba } from 'polished'
 import { useGetNumberOfInsufficientFundOrdersQuery } from 'services/limitOrder'
-import styled from 'styled-components'
 
 import TabButton from 'components/TabButton'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { LimitOrderTab } from 'components/swapv2/LimitOrder/type'
 import { useActiveWeb3React } from 'hooks'
 
-const TabSelectorWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  overflow: hidden;
-  width: fit-content;
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    width: 100%;
-  `};
-`
-
-const StyledTabButton = styled(TabButton)`
-  padding: 12px 16px;
-  flex: unset;
-  font-size: 14px;
-  font-weight: 500;
-  width: fit-content;
-  height: fit-content;
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    width: 50%;
-  `};
-`
-
-const WarningBadge = styled.span`
-  display: inline-block;
-  min-width: 20px;
-  padding: 2px 6px;
-  color: ${({ theme }) => theme.warning};
-  background-color: ${({ theme }) => rgba(theme.warning, 0.3)};
-  border-radius: 20px;
-  font-weight: 500;
-  font-size: 14px;
-  margin-left: 8px;
-`
+const TAB_BUTTON_CLASS = 'h-fit w-fit !flex-none px-4 py-3 text-sm font-medium max-sm:w-1/2'
 
 export default function TabSelector({
   activeTab,
@@ -58,13 +22,15 @@ export default function TabSelector({
   )
 
   return (
-    <TabSelectorWrapper>
-      <StyledTabButton
+    <div className="flex w-fit items-center overflow-hidden max-sm:w-full">
+      <TabButton
+        className={TAB_BUTTON_CLASS}
         active={activeTab === LimitOrderTab.ORDER_BOOK}
         onClick={() => setActiveTab(LimitOrderTab.ORDER_BOOK)}
         text={t`Open Limit Orders`}
       />
-      <StyledTabButton
+      <TabButton
+        className={TAB_BUTTON_CLASS}
         active={activeTab === LimitOrderTab.MY_ORDER}
         text={
           <>
@@ -78,13 +44,15 @@ export default function TabSelector({
                   </Trans>
                 }
               >
-                <WarningBadge>{numberOfInsufficientFundOrders}</WarningBadge>
+                <span className="ml-2 inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-warning-30 px-1.5 align-middle text-xs font-medium leading-none text-warning">
+                  {numberOfInsufficientFundOrders}
+                </span>
               </MouseoverTooltip>
             )}
           </>
         }
         onClick={() => setActiveTab(LimitOrderTab.MY_ORDER)}
       />
-    </TabSelectorWrapper>
+    </div>
   )
 }

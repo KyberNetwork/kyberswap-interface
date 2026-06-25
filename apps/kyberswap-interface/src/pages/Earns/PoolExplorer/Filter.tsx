@@ -16,7 +16,6 @@ import Search from 'components/Search'
 import { HStack, Stack } from 'components/Stack'
 import { MouseoverTooltip, MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
-import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { HeadSection, NavigateButton, Tag, TagContainer } from 'pages/Earns/PoolExplorer/styles'
 import DropdownMenu, { MenuOption } from 'pages/Earns/components/DropdownMenu'
@@ -76,7 +75,6 @@ const Filter = ({
   totalItems?: number
   isFetching?: boolean
 }) => {
-  const theme = useTheme()
   const { trackingHandler } = useTracking()
   const { i18n } = useLingui()
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
@@ -105,8 +103,8 @@ const Filter = ({
     const selectedChains = supportedChains.filter(option => arrValue?.includes(option.value))
     if (selectedChains.length >= 1) {
       return (
-        <HStack align="center" gap={6}>
-          <HStack gap={0}>
+        <HStack className="items-center gap-1.5">
+          <HStack className="gap-0">
             {selectedChains.map((chain, index) => (
               <ItemIcon key={chain.value} src={chain.icon} alt={chain.label} style={{ marginLeft: index ? -8 : 0 }} />
             ))}
@@ -307,8 +305,8 @@ const Filter = ({
           <NavigateButton icon={<IconUserEarnPosition />} text={t`My Positions`} to={APP_PATHS.EARN_POSITIONS} />
         )}
       </HeadSection>
-      <Stack direction={upToMedium ? 'column' : 'row'} justify="space-between" gap="1rem">
-        <HStack gap="1rem" wrap="wrap">
+      <Stack className="flex-row justify-between gap-4 max-md:flex-col">
+        <HStack className="flex-wrap gap-4">
           <MultiSelectDropdownMenu
             highlightOnSelect
             label={selectedChainsLabel}
@@ -328,7 +326,7 @@ const Filter = ({
           )}
           <DropdownMenu width={30} options={timings} value={filters.interval || '24h'} onChange={onIntervalChange} />
         </HStack>
-        <HStack align={upToMedium ? 'stretch' : 'center'} gap={12} wrap="wrap">
+        <HStack className="flex-wrap items-center gap-3 max-md:items-stretch">
           <Search
             placeholder={t`Search by token symbol or pool/token address`}
             searchValue={search}
@@ -337,7 +335,8 @@ const Filter = ({
             style={{ height: '36px', width: upToMedium ? '100%' : '280px' }}
           />
           <ButtonOutlined
-            color={theme.primary}
+            color="var(--ks-primary)"
+            className="gap-1 px-4 py-0"
             borderRadius="16px"
             height="32px"
             onClick={() => {
@@ -349,8 +348,6 @@ const Filter = ({
             }}
             style={{
               width: upToMedium ? '100%' : 'fit-content',
-              gap: '4px',
-              padding: '0 16px',
             }}
           >
             <Plus size={16} />

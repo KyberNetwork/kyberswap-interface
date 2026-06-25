@@ -1,117 +1,76 @@
 import { Trans } from '@lingui/macro'
+import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { Flex, Text } from 'rebass'
-import styled, { css } from 'styled-components'
 
+import CustomFeeInput from 'components/FeeControlGroup/CustomFeeInput'
+import { HStack, Stack } from 'components/Stack'
 import useGetFeeConfig from 'components/SwapForm/hooks/useGetFeeConfig'
-import { ClientNameMapping, DEFAULT_TIPS } from 'constants/index'
-import useTheme from 'hooks/useTheme'
-
-import CustomFeeInput from './CustomFeeInput'
-
-const feeOptionCSS = css`
-  height: 100%;
-  padding: 0;
-  border-radius: 20px;
-  border: 1px solid transparent;
-
-  background-color: ${({ theme }) => theme.tabBackground};
-  color: ${({ theme }) => theme.subText};
-  text-align: center;
-
-  font-size: 12px;
-  font-weight: 400;
-  line-height: 16px;
-
-  outline: none;
-  cursor: pointer;
-
-  :hover {
-    border-color: ${({ theme }) => theme.bg4};
-  }
-  :focus {
-    border-color: ${({ theme }) => theme.bg4};
-  }
-
-  &[data-active='true'] {
-    background-color: ${({ theme }) => theme.tabActive};
-    color: ${({ theme }) => theme.text};
-    border-color: ${({ theme }) => theme.primary};
-
-    font-weight: 500;
-  }
-`
-
-const DefaultFeeOption = styled.button`
-  ${feeOptionCSS};
-  flex: 0 0 18%;
-
-  @media only screen and (max-width: 375px) {
-    font-size: 10px;
-    flex: 0 0 15%;
-  }
-`
+import { DEFAULT_TIPS } from 'constants/index'
+import { cn } from 'utils/cn'
 
 const FeeControlGroup = () => {
-  const theme = useTheme()
-  const { feeAmount, enableTip, clientId } = useGetFeeConfig() ?? {}
+  const { feeAmount, enableTip, creatorName } = useGetFeeConfig() ?? {}
   const [searchParams, setSearchParams] = useSearchParams()
   const feeValue = Number.parseFloat(feeAmount ?? '0')
+  const [isCustomActive, setIsCustomActive] = useState(!DEFAULT_TIPS.includes(feeValue))
 
-  const handleFeeChange = (feeValue: number) => {
+  const handleFeeChange = (next: number) => {
     if (enableTip) {
-      searchParams.set('feeAmount', feeValue.toString())
+      searchParams.set('feeAmount', next.toString())
       setSearchParams(searchParams)
     }
   }
+
+  useEffect(() => {
+    if (!DEFAULT_TIPS.includes(feeValue)) {
+      setIsCustomActive(true)
+    }
+  }, [feeValue])
 
   if (!enableTip) {
     return null
   }
 
-  const clientName = ClientNameMapping[clientId || ''] || clientId
-
   return (
-    <Flex
-      sx={{
-        flexDirection: 'column',
-        width: '100%',
-        padding: '0 8px',
-      }}
-    >
-      <Text color={theme.subText} fontSize={12} fontWeight={500}>
-        <Trans>Tip</Trans>:
-      </Text>
-      <Text color={theme.subText} fontSize={12} fontWeight={500}>
-        <Trans>No hidden fees - Your optional tips support {clientName}!</Trans>
-      </Text>
+    <Stack className="w-full gap-2 rounded-lg bg-white-04 p-3">
+      <HStack as="p" className="min-w-0 items-center text-xs font-medium text-subText">
+        <span className="shrink-0">
+          <Trans>
+            No hidden fees! Your <span className="text-text">optional tips</span> support
+          </Trans>
+          &nbsp;
+        </span>
+        <span className={cn('min-w-0 truncate', !!creatorName && 'text-text')}>{creatorName || 'the link sharer'}</span>
+      </HStack>
 
-      <Flex
-        sx={{
-          justifyContent: 'space-between',
-          width: '100%',
-          maxWidth: '100%',
-          height: '28px',
-          borderRadius: '20px',
-          background: theme.tabBackground,
-          padding: '2px',
-          marginTop: '8px',
-        }}
-      >
-        {DEFAULT_TIPS.map(tip => (
-          <DefaultFeeOption
-            key={tip}
-            onClick={() => {
-              handleFeeChange(tip)
-            }}
-            data-active={tip === feeValue}
-          >
-            {tip ? `${tip / 100}%` : <Trans>No tip</Trans>}
-          </DefaultFeeOption>
-        ))}
-        <CustomFeeInput fee={feeValue} onFeeChange={handleFeeChange} />
-      </Flex>
-    </Flex>
+      <HStack className="items-stretch rounded-[20px] border border-border bg-background">
+        {DEFAULT_TIPS.map(tip => {
+          const isActive = tip === feeValue && !isCustomActive
+          return (
+            <button
+              type="button"
+              key={tip}
+              onClick={() => {
+                setIsCustomActive(false)
+                handleFeeChange(tip)
+              }}
+              className={cn(
+                'h-7 min-w-0 flex-1 cursor-pointer rounded-full px-2 text-sm hover:bg-buttonGray',
+                isActive ? 'bg-tabActive text-text' : 'bg-transparent text-subText',
+              )}
+            >
+              {tip ? `${tip / 100}%` : <Trans>No tip</Trans>}
+            </button>
+          )
+        })}
+        <CustomFeeInput
+          value={feeValue}
+          isActive={isCustomActive}
+          onActiveChange={setIsCustomActive}
+          onChange={handleFeeChange}
+        />
+      </HStack>
+    </Stack>
   )
 }
 

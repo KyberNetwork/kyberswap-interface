@@ -1,19 +1,15 @@
 import { Trans } from '@lingui/macro'
-import { useEffect, useRef } from 'react'
+import { CSSProperties, useEffect, useRef } from 'react'
 import { Info } from 'react-feather'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeList } from 'react-window'
 import InfiniteLoader from 'react-window-infinite-loader'
-import { Flex, Text } from 'rebass'
-import { CSSProperties } from 'styled-components'
 
 import AnnouncementItem from 'components/Announcement/AnnoucementItem'
 import InboxItem from 'components/Announcement/PrivateAnnoucement'
+import { ListAnnouncement } from 'components/Announcement/styles'
 import { Announcement, PrivateAnnouncement } from 'components/Announcement/type'
 import { useActiveWeb3React } from 'hooks'
-import useTheme from 'hooks/useTheme'
-
-import { ListAnnouncement } from './styles'
 
 export enum Tab {
   CATEGORY,
@@ -61,8 +57,6 @@ export default function AnnoucementList({
 }: Props) {
   const { account } = useActiveWeb3React()
   const scrollRef = useRef<HTMLDivElement>(null)
-  const theme = useTheme()
-
   const handleLoadMore = loadMoreAnnouncements ?? (() => null)
   const handleToggle = toggleNotificationCenter ?? (() => null)
   const handleShowDetail = showDetailAnnouncement ?? (() => null)
@@ -95,14 +89,14 @@ export default function AnnoucementList({
   }, [node])
 
   return (
-    <Flex flexDirection="column" flex={1}>
+    <div className="flex flex-1 flex-col">
       {visibleList.length === 0 && (
-        <Flex flexDirection="column" justifyContent="center" alignItems="center" height="100%" style={{ gap: 8 }}>
-          <Info color={theme.subText} size={27} />
-          <Text color={theme.subText} textAlign="center">
+        <div className="flex h-full flex-col items-center justify-center gap-2">
+          <Info className="text-subText" size={27} />
+          <span className="text-center text-subText">
             <Trans>No notifications found</Trans>
-          </Text>
-        </Flex>
+          </span>
+        </div>
       )}
       <ListAnnouncement>
         <AutoSizer>
@@ -147,6 +141,6 @@ export default function AnnoucementList({
           )}
         </AutoSizer>
       </ListAnnouncement>
-    </Flex>
+    </div>
   )
 }

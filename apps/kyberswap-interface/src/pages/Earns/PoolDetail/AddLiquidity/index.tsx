@@ -2,9 +2,8 @@ import { type ApprovalAdditionalInfo } from '@kyber/hooks'
 import { NETWORKS_INFO, PoolType, Pool as ZapPool, ZapRouteDetail } from '@kyber/schema'
 import { ReactNode, useCallback, useEffect, useMemo, useState } from 'react'
 import { BuildZapInData, prepareBuildZapInRouteRequest, useBuildZapInRouteMutation } from 'services/zap'
-import styled from 'styled-components'
 
-import { HStack, Stack } from 'components/Stack'
+import { HStack } from 'components/Stack'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
@@ -51,11 +50,13 @@ type AddLiquidityBodyProps = AddLiquidityProps & {
   onOpenZapMigration?: (
     position: { exchange: string; poolId: string; positionId: string | number },
     initialTick?: { tickUpper: number; tickLower: number },
+    initialRevertPrice?: boolean,
     initialSlippage?: number,
   ) => void
   onTrackEvent?: (eventName: string, data?: Record<string, unknown>) => void
   onDismissReview: () => void
   onPreview: () => Promise<void>
+  onRefreshRoute?: () => void
   previewError?: string | null
   reviewState: ReviewState | null
   tracking: AddLiquidityTracking
@@ -68,32 +69,19 @@ type AddLiquidityTracking = {
   addTransactionWithType: (transaction: TransactionHistory) => void
 }
 
-const PoolInformationColumn = styled(Stack)`
-  flex: 1 1 480px;
-  min-width: 0;
-  gap: 24px;
-  order: 1;
+const PoolInformationColumn = ({ children }: { children: React.ReactNode }) => (
+  <div className="order-1 flex min-w-0 flex-1 basis-[480px] flex-col gap-6 max-sm:order-2">{children}</div>
+)
 
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    order: 2;
-  `}
-`
-
-const AddLiquidityColumn = styled(Stack)`
-  flex: 1 1 480px;
-  max-width: 480px;
-  min-width: 0;
-  gap: 16px;
-  order: 2;
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    order: 1;
-    max-width: none;
-  `}
-`
+const AddLiquidityColumn = ({ children }: { children: React.ReactNode }) => (
+  <div className="order-2 flex min-w-0 max-w-[480px] flex-1 basis-[480px] flex-col gap-4 max-sm:order-1 max-sm:max-w-none">
+    {children}
+  </div>
+)
 
 const TRACKING_EVENT_MAP: Record<string, TRACKING_EVENT_TYPE> = {
   LIQ_TOKEN_SELECTED: TRACKING_EVENT_TYPE.LIQ_TOKEN_SELECTED,
+  TOKEN_SEARCHED: TRACKING_EVENT_TYPE.TOKEN_SEARCHED,
   LIQ_EXISTING_POSITION_SELECTED: TRACKING_EVENT_TYPE.LIQ_EXISTING_POSITION_SELECTED,
   LIQ_MAX_CLICKED: TRACKING_EVENT_TYPE.LIQ_MAX_CLICKED,
   LIQ_HALF_CLICKED: TRACKING_EVENT_TYPE.LIQ_HALF_CLICKED,
@@ -116,6 +104,7 @@ const AddLiquidityBody = ({
   onTrackEvent,
   onDismissReview,
   onPreview,
+  onRefreshRoute,
   previewError,
   reviewState,
   normalizedPool,
@@ -126,7 +115,7 @@ const AddLiquidityBody = ({
 
   return (
     <>
-      <HStack align="flex-start" gap={24} wrap="wrap" width="100%">
+      <HStack className="w-full flex-wrap items-start gap-6">
         <PoolInformationColumn>
           {children}
           <AddLiquidityRoutePreview
@@ -171,6 +160,7 @@ const AddLiquidityBody = ({
           tokenInput={state.tokenInput}
           warnings={reviewState.warnings}
           onDismiss={onDismissReview}
+          onRefreshRoute={onRefreshRoute}
           onTrackEvent={onTrackEvent}
           onAddTrackedTxHash={tracking.addTrackedTxHash}
           onAddTransactionWithType={tracking.addTransactionWithType}
@@ -183,7 +173,7 @@ const AddLiquidityBody = ({
 const AddLiquidity = ({ children }: AddLiquidityProps) => {
   const { pool, chainId, exchange, poolAddress } = usePoolDetailContext()
   const { account } = useActiveWeb3React()
-  const { library } = useWeb3React()
+  const { isSmartConnector } = useWeb3React()
   const deadline = useTransactionDeadline()
   const deadlineValue = deadline ? Number(deadline.toString()) : undefined
 
@@ -269,9 +259,9 @@ const AddLiquidity = ({ children }: AddLiquidityProps) => {
 
   const submitApprovalTx = useCallback(
     async (txData: AddLiquiditySubmitTxData, additionalInfo?: ApprovalAdditionalInfo) => {
-      if (!library) throw new Error('Wallet is not connected')
+      if (!account) throw new Error('Wallet is not connected')
 
-      const { txHash, error } = await submitTransaction({ library, txData })
+      const { txHash, error } = await submitTransaction({ account, chainId, txData, isSmartConnector })
       if (!txHash || error) throw new Error(error?.message || 'Transaction failed')
 
       addTrackedTxHash(txHash)
@@ -289,7 +279,7 @@ const AddLiquidity = ({ children }: AddLiquidityProps) => {
 
       return txHash
     },
-    [addTrackedTxHash, addTransactionWithType, exchange, library],
+    [account, addTrackedTxHash, addTransactionWithType, chainId, exchange, isSmartConnector],
   )
 
   const runtimeValue = useMemo<AddLiquidityRuntimeContextValue>(
@@ -313,7 +303,17 @@ const AddLiquidity = ({ children }: AddLiquidityProps) => {
   const handleTrackEvent = useCallback(
     (eventName: string, data?: Record<string, unknown>) => {
       const trackingType = TRACKING_EVENT_MAP[eventName]
-      if (trackingType !== undefined) trackingHandler(trackingType, data)
+      if (trackingType === undefined) return
+      if (eventName === 'TOKEN_SEARCHED') {
+        const { chain_id, ...rest } = (data ?? {}) as { chain_id?: number } & Record<string, unknown>
+        trackingHandler(trackingType, {
+          source: 'earn_add_liquidity',
+          ...rest,
+          chain: typeof chain_id === 'number' ? NETWORKS_INFO[chain_id as keyof typeof NETWORKS_INFO]?.name : undefined,
+        })
+        return
+      }
+      trackingHandler(trackingType, data)
     },
     [trackingHandler],
   )
@@ -356,6 +356,7 @@ const AddLiquidity = ({ children }: AddLiquidityProps) => {
     (
       position: { exchange: string; poolId: string; positionId: string | number },
       initialTick?: { tickUpper: number; tickLower: number },
+      initialRevertPrice?: boolean,
       initialSlippage?: number,
     ) => {
       openZapMigrationWidget({
@@ -372,6 +373,7 @@ const AddLiquidity = ({ children }: AddLiquidityProps) => {
         },
         chainId,
         initialTick,
+        initialRevertPrice,
         initialSlippage,
       })
     },
@@ -381,7 +383,7 @@ const AddLiquidity = ({ children }: AddLiquidityProps) => {
   return (
     <AddLiquidityRuntimeProvider value={runtimeValue}>
       {!normalizedPool.data || normalizedPool.loading ? (
-        <HStack align="flex-start" gap={24} wrap="wrap" width="100%">
+        <HStack className="w-full flex-wrap items-start gap-6">
           <PoolInformationColumn>
             {children}
             <AddLiquidityRoutePreview
@@ -405,6 +407,7 @@ const AddLiquidity = ({ children }: AddLiquidityProps) => {
           onTrackEvent={handleTrackEvent}
           onDismissReview={handleDismissReview}
           onPreview={handlePreview}
+          onRefreshRoute={state.route.refetch}
           previewError={previewError}
           reviewState={reviewState}
           normalizedPool={normalizedPool.data}

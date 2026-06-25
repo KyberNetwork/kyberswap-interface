@@ -4,7 +4,6 @@ import { useDispatch, useSelector } from 'react-redux'
 
 import { TERM_FILES_PATH } from 'constants/index'
 import { LOCALE_INFO, SupportedLocale } from 'constants/locales'
-import { GAS_TOKENS } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import {
   useDynamicFeeFactoryContract,
@@ -26,7 +25,6 @@ import {
   changeViewMode,
   pinSlippageControl,
   removeSerializedToken,
-  setPaymentToken,
   toggleFavoriteToken as toggleFavoriteTokenAction,
   toggleHolidayMode,
   togglePricingChart,
@@ -43,6 +41,7 @@ import {
 } from 'state/user/actions'
 import { VIEW_MODE } from 'state/user/reducer'
 import { isChristmasTime } from 'utils'
+import { setLocaleCookie } from 'utils/localeCookie'
 
 const MAX_FAVORITE_LIMIT = 12
 
@@ -89,6 +88,8 @@ export function useUserLocaleManager(): [SupportedLocale | null, (newLocale: Sup
   const setLocale = useCallback(
     (newLocale: SupportedLocale) => {
       dispatch(updateUserLocale({ userLocale: newLocale }))
+      // Keep the ks_locale cookie in sync so SSR/edge can read the active locale.
+      setLocaleCookie(newLocale)
     },
     [dispatch],
   )
@@ -367,21 +368,6 @@ export const useViewMode: () => [VIEW_MODE, (mode: VIEW_MODE) => void] = () => {
   const setViewMode = useCallback((mode: VIEW_MODE) => dispatch(changeViewMode(mode)), [dispatch])
 
   return [viewMode, setViewMode]
-}
-
-export const usePaymentToken: () => [Token | null, (paymentToken: Token | null) => void] = () => {
-  const dispatch = useAppDispatch()
-  const { chainId } = useActiveWeb3React()
-  const paymentToken = useAppSelector(state => state.user.paymentToken)
-  const p = useMemo(() => {
-    if (chainId !== ChainId.ZKSYNC) return null
-    if (!GAS_TOKENS.map(item => item.address.toLowerCase()).includes(paymentToken?.address.toLowerCase())) return null
-    return paymentToken
-  }, [paymentToken, chainId])
-
-  const updatePaymentToken = useCallback((pt: Token | null) => dispatch(setPaymentToken(pt)), [dispatch])
-
-  return [p, updatePaymentToken]
 }
 
 export const useHolidayMode: () => [boolean, () => void] = () => {

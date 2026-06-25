@@ -1,28 +1,26 @@
 import { ChainId, CurrencyAmount, Currency as EvmCurrency } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { useWalletSelector } from '@near-wallet-selector/react-hook'
-import { adaptSolanaWallet } from '@reservoir0x/relay-solana-wallet-adapter'
 import { useConnection, useWallet } from '@solana/wallet-adapter-react'
 import { Transaction, VersionedTransaction } from '@solana/web3.js'
 import { useEffect, useState } from 'react'
 import { ArrowDown, X } from 'react-feather'
 import { useSearchParams } from 'react-router-dom'
-import { Box, Flex, Text } from 'rebass'
 import { useLazyCheckBlackjackQuery } from 'services/blackjack'
-import styled from 'styled-components'
 import { formatUnits } from 'viem'
-import { useWalletClient } from 'wagmi'
 
 import { ButtonEmpty, ButtonPrimary } from 'components/Button'
 import CopyHelper from 'components/Copy'
 import CurrencyLogo from 'components/CurrencyLogo'
+import { getTipLinkAttribution } from 'components/TipLinkGeneratorModal/shared'
 import TransactionConfirmationModal, { TransactionErrorContent } from 'components/TransactionConfirmationModal'
 import { useBitcoinWallet } from 'components/Web3Provider/BitcoinProvider'
 import { ETHER_ADDRESS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
-import useTheme from 'hooks/useTheme'
+import { useGatedWalletClient } from 'hooks/useGatedWalletClient'
 import useTracking, { CROSS_CHAIN_MIXPANEL_TYPE, TRACKING_EVENT_TYPE, useCrossChainMixpanel } from 'hooks/useTracking'
 import { Chain, Currency, NonEvmChain, NonEvmChainInfo } from 'pages/CrossChainSwap/adapters'
+import { adaptRelaySolanaWallet } from 'pages/CrossChainSwap/adapters/RelayAdapter/relaySolanaWallet'
 import { PiWarning } from 'pages/CrossChainSwap/components/PiWarning'
 import { QuoteProviderName } from 'pages/CrossChainSwap/components/QuoteProviderName'
 import { Summary } from 'pages/CrossChainSwap/components/Summary'
@@ -32,19 +30,6 @@ import { useCrossChainTransactions } from 'state/crossChainSwap'
 import { ExternalLink } from 'theme'
 import { getEtherscanLink, isEvmChain, shortenHash } from 'utils'
 import { formatDisplayNumber } from 'utils/numbers'
-
-const Wrapper = styled.div`
-  padding: 1rem;
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-`
-
-const TokenBox = styled.div`
-  border-radius: 1rem;
-  padding: 0.75rem;
-  border: 1px solid ${({ theme }) => theme.border};
-`
 
 const TokenBoxInfo = ({
   chainId,
@@ -59,39 +44,37 @@ const TokenBoxInfo = ({
   usdValue: number
   title: string
 }) => {
-  const theme = useTheme()
   const { name, icon } = isEvmChain(chainId)
     ? NETWORKS_INFO[chainId as ChainId]
     : NonEvmChainInfo[chainId as NonEvmChain]
   return (
-    <TokenBox>
-      <Flex justifyContent="space-between" fontSize={12} fontWeight={500} mb="0.5rem" color={theme.subText}>
-        <Text>{title}</Text>
-        <Flex sx={{ gap: '4px' }} alignItems="center">
+    <div className="rounded-2xl border border-border p-3">
+      <div className="mb-2 flex justify-between text-xs font-medium text-subText">
+        <span>{title}</span>
+        <div className="flex items-center gap-1">
           <img src={icon} alt={chainId.toString()} width={16} height={16} style={{ borderRadius: '50%' }} />
-          <Text>{name}</Text>
-        </Flex>
-      </Flex>
-      <Flex justifyContent="space-between" fontSize={20} fontWeight={500} mb="0.5rem">
-        <Text fontSize={24}>{formatDisplayNumber(amount, { significantDigits: 8 })}</Text>
-        <Flex alignItems="center" sx={{ gap: '4px' }} color={theme.subText}>
-          <Text fontSize={14}>~{formatDisplayNumber(usdValue, { style: 'currency', significantDigits: 4 })}</Text>
+          <span>{name}</span>
+        </div>
+      </div>
+      <div className="mb-2 flex justify-between text-xl font-medium">
+        <span className="text-2xl">{formatDisplayNumber(amount, { significantDigits: 8 })}</span>
+        <div className="flex items-center gap-1 text-subText">
+          <span className="text-sm">~{formatDisplayNumber(usdValue, { style: 'currency', significantDigits: 4 })}</span>
           {isEvmChain(chainId) ? (
             <CurrencyLogo currency={currency as EvmCurrency} size="24px" />
           ) : (
             <img src={(currency as any).logo} width={24} height={24} alt="" />
           )}
-          <Text>{currency?.symbol}</Text>
-        </Flex>
-      </Flex>
-    </TokenBox>
+          <span>{currency?.symbol}</span>
+        </div>
+      </div>
+    </div>
   )
 }
 
 export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDismiss: () => void }) => {
   const { crossChainMixpanelHandler } = useCrossChainMixpanel()
   const { trackingHandler } = useTracking()
-  const theme = useTheme()
   const {
     selectedQuote,
     currencyIn,
@@ -104,7 +87,7 @@ export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDi
     sender,
     receiver,
   } = useCrossChainSwap()
-  const { data: walletClient } = useWalletClient()
+  const { data: walletClient } = useGatedWalletClient()
   const [submittingTx, setSubmittingTx] = useState(false)
   const [txHash, setTxHash] = useState('')
   const [txError, setTxError] = useState('')
@@ -174,7 +157,7 @@ export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDi
 
   const handleSwap = async () => {
     if (isEvmChain(fromChainId) && !walletClient) return
-    const adaptedWallet = adaptSolanaWallet(
+    const adaptedWallet = adaptRelaySolanaWallet(
       solanaAddress?.toString() || '1nc1nerator11111111111111111111111111111111',
       792703809, //chain id that Relay uses to identify solana
       connection,
@@ -196,11 +179,13 @@ export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDi
 
     setSubmittingTx(true)
 
-    const blackjackRes = await checkBlackjack(sender)
-    if (blackjackRes?.data?.blacklisted) {
-      setSubmittingTx(false)
-      setTxError('There was an error with your transaction.')
-      return
+    if (isEvmChain(fromChainId)) {
+      const blackjackRes = await checkBlackjack(sender)
+      if (blackjackRes?.data?.blacklisted) {
+        setSubmittingTx(false)
+        setTxError('There was an error with your transaction.')
+        return
+      }
     }
 
     const res = await selectedQuote.adapter
@@ -311,6 +296,26 @@ export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDi
       }
       crossChainMixpanelHandler(CROSS_CHAIN_MIXPANEL_TYPE.CROSS_CHAIN_SWAP_INIT, swapDetails)
       trackingHandler(TRACKING_EVENT_TYPE.CC_SWAP_INITIATED, swapDetails)
+
+      // Tip is not charged on cross-chain swaps — attribute referral volume at initiation
+      // (completion fires from an off-page poller that has lost the tip-link URL context).
+      const tipLink = getTipLinkAttribution(searchParams)
+      if (tipLink) {
+        trackingHandler(TRACKING_EVENT_TYPE.TIP_LINK_TRADE, {
+          trade_type: 'cross_chain',
+          trade_status: 'initiated',
+          tip_charged: false,
+          ...tipLink,
+          input_token: currencyIn?.symbol,
+          output_token: currencyOut?.symbol,
+          pair: currencyIn?.symbol && currencyOut?.symbol ? `${currencyIn.symbol}/${currencyOut.symbol}` : undefined,
+          chain: getChainName(fromChainId),
+          from_chain: getChainName(fromChainId),
+          to_chain: getChainName(toChainId),
+          volume: selectedQuote.quote.inputUsd,
+          tx_hash: res.sourceTxHash,
+        })
+      }
     }
     setTxHash(res?.sourceTxHash || '')
     setSubmittingTx(false)
@@ -349,18 +354,14 @@ export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDi
           return <TransactionErrorContent message={txError} onDismiss={dismiss} />
         }
         return (
-          <Wrapper>
-            <Flex justifyContent="space-between" alignItems="center" mb="0.75rem">
-              <Text fontSize={20} fontWeight="500">
-                {t`Confirm Swap Details`}
-              </Text>
+          <div className="flex w-full flex-col p-4">
+            <div className="mb-3 flex items-center justify-between">
+              <span className="text-xl font-medium">{t`Confirm Swap Details`}</span>
               <ButtonEmpty width="fit-content" padding="0" onClick={onDismiss}>
-                <X size={20} color={theme.text} />
+                <X size={20} className="text-text" />
               </ButtonEmpty>
-            </Flex>
-            <Text color={theme.subText} fontSize={12} marginBottom="1rem">
-              {t`Please review the details of your swap`}
-            </Text>
+            </div>
+            <span className="mb-4 text-xs text-subText">{t`Please review the details of your swap`}</span>
             <TokenBoxInfo
               title={t`Input Amount`}
               chainId={fromChainId}
@@ -368,26 +369,9 @@ export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDi
               amount={amount || ''}
               usdValue={selectedQuote?.quote.inputUsd || 0}
             />
-            <Box
-              sx={{
-                color: theme.subText,
-                width: '20px',
-                height: '20px',
-                borderRadius: '50%',
-                border: `1px solid ${theme.border}`,
-                marginTop: '-4px',
-                marginBottom: '-4px',
-                backgroundColor: theme.tabActive,
-                zIndex: 1,
-                marginX: 'auto',
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                padding: '2px',
-              }}
-            >
+            <div className="z-[1] -my-1 mx-auto flex size-5 items-center justify-center rounded-full border border-border bg-tabActive p-0.5 text-subText">
               <ArrowDown />
-            </Box>
+            </div>
             <TokenBoxInfo
               title={t`Output Amount`}
               chainId={toChainId}
@@ -395,22 +379,12 @@ export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDi
               amount={selectedQuote?.quote.formattedOutputAmount || ''}
               usdValue={selectedQuote?.quote.outputUsd || 0}
             />
-            <Box
-              sx={{
-                marginTop: '1rem',
-                padding: '12px',
-                borderRadius: '16px',
-                border: `1px solid ${theme.border}`,
-                display: 'flex',
-                justifyContent: 'space-between',
-              }}
-            >
-              <Text fontSize={12} fontWeight={500} color={theme.subText}>
-                {t`Recipient`}
-              </Text>
-              <Flex fontSize={14} alignItems="center" color={theme.subText}>
+            <div className="mt-4 flex justify-between rounded-2xl border border-border p-3">
+              <span className="text-xs font-medium text-subText">{t`Recipient`}</span>
+              <div className="flex items-center text-sm text-subText">
                 <ExternalLink
-                  style={{ textDecoration: 'none', color: theme.text }}
+                  className="text-text"
+                  style={{ textDecoration: 'none' }}
                   href={
                     toChainId === NonEvmChain.Solana
                       ? `https://solscan.io/account/${recipient}`
@@ -424,23 +398,23 @@ export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDi
                   {recipient.includes('.near') ? recipient : shortenHash(recipient)} ↗
                 </ExternalLink>
                 <CopyHelper toCopy={recipient} />
-              </Flex>
-            </Box>
-            <Flex marginTop="1rem"></Flex>
+              </div>
+            </div>
+            <div className="mt-4" />
             <Summary quote={selectedQuote} tokenOut={currencyOut} full />
 
-            {warning?.priceImpaceInfo?.message && <Flex marginTop="1rem"></Flex>}
+            {warning?.priceImpaceInfo?.message && <div className="mt-4" />}
             <PiWarning />
 
-            <Text marginY="1rem" fontStyle="italic" color={'#737373'} fontSize={12} display="flex" alignItems="center">
-              <Text as="span" mr="4px">
+            <span className="my-4 flex items-center text-xs italic text-gray">
+              <span className="mr-1">
                 <Trans>Routed via</Trans>
-              </Text>
+              </span>
               <QuoteProviderName quote={selectedQuote} />
-            </Text>
+            </span>
 
             <ButtonPrimary onClick={handleSwap}>{t`Confirm Swap`}</ButtonPrimary>
-          </Wrapper>
+          </div>
         )
       }}
     />

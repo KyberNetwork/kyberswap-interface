@@ -1,7 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 
 import sushiswapLogo from 'assets/dexes/sushiswap.svg'
-import Univ3NftManagerABI from 'constants/abis/earn/uniswapv3NftManagerContract.json'
+import { Univ3NftManagerABI } from 'constants/abis'
 import { SmartExitDexType } from 'pages/Earns/components/SmartExit/constants'
 import { CoreProtocol } from 'pages/Earns/constants/coreProtocol'
 

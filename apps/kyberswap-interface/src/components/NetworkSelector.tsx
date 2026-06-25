@@ -2,71 +2,60 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { Flex, Text } from 'rebass'
-import styled from 'styled-components'
 
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
+import NetworkModal from 'components/Header/web3/NetworkModal'
 import { DEFAULT_OUTPUT_TOKEN_BY_CHAIN, NativeCurrencies } from 'constants/tokens'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
-import useTheme from 'hooks/useTheme'
+import { type Chain } from 'pages/CrossChainSwap/adapters'
 import { isNonEvmChain } from 'utils'
-
-import NetworkModal from './Header/web3/NetworkModal'
-
-const SelectNetwork = styled.div`
-  border: 999px;
-  font-size: 14px;
-  font-weight: 500;
-  padding: 6px 12px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: ${({ theme }) => theme.subText};
-  background: ${({ theme }) => theme.buttonBlack};
-  border-radius: 999px;
-  cursor: pointer;
-`
 
 export const NetworkSelector = ({
   chainId,
   customOnSelectNetwork,
 }: {
   chainId: ChainId
-  customOnSelectNetwork?: (chain: ChainId) => void
+  customOnSelectNetwork?: (chain: Chain) => void
 }) => {
-  const theme = useTheme()
   const [isOpenNetworkModal, setIsOpenNetworkModal] = useState(false)
-  const [searchParams, setSearchParams] = useSearchParams()
+  const [, setSearchParams] = useSearchParams()
+  const selectedNetwork = NETWORKS_INFO[chainId]
 
   return (
     <>
       <NetworkModal
         selectedId={chainId}
         customOnSelectNetwork={
-          // TODO: resolve type here
-          (customOnSelectNetwork as any) ||
+          customOnSelectNetwork ||
           (chain => {
             if (isNonEvmChain(chain)) return
-            searchParams.set('chainId', chain.toString())
-            searchParams.set('inputCurrency', NativeCurrencies[chain as ChainId].symbol || 'eth')
-            searchParams.set('outputCurrency', DEFAULT_OUTPUT_TOKEN_BY_CHAIN[chain as ChainId]?.address || '')
-            setSearchParams(searchParams)
+            setSearchParams(prev => {
+              const nextSearchParams = new URLSearchParams(prev)
+              nextSearchParams.set('chainId', chain.toString())
+              nextSearchParams.set('inputCurrency', NativeCurrencies[chain].symbol || 'eth')
+              nextSearchParams.set('outputCurrency', DEFAULT_OUTPUT_TOKEN_BY_CHAIN[chain]?.address || '')
+              return nextSearchParams
+            })
           })
         }
         isOpen={isOpenNetworkModal}
         customToggleModal={() => setIsOpenNetworkModal(prev => !prev)}
       />
-      <Flex justifyContent="space-between" alignItems="center">
-        <Text fontSize={12} fontWeight="500" color={theme.subText}>
+      <div className="flex items-center justify-between">
+        <span className="text-sm font-medium text-subText">
           <Trans>Choose a chain</Trans>
-        </Text>
+        </span>
 
-        <SelectNetwork role="button" onClick={() => setIsOpenNetworkModal(true)}>
-          <img src={NETWORKS_INFO[chainId].icon} alt="Network" style={{ height: '20px', width: '20px' }} />
-          <Text>{NETWORKS_INFO[chainId].name}</Text>
-          <DropdownSVG />
-        </SelectNetwork>
-      </Flex>
+        <button
+          type="button"
+          onClick={() => setIsOpenNetworkModal(true)}
+          className="flex cursor-pointer items-center gap-2 rounded-full border-none bg-buttonBlack px-3 py-1.5 text-sm font-medium text-subText outline-none hover:text-text focus-visible:text-text"
+        >
+          <img src={selectedNetwork.icon} alt="Network" className="size-5" />
+          <span>{selectedNetwork.name}</span>
+          <DropdownSVG className="text-inherit" />
+        </button>
+      </div>
     </>
   )
 }

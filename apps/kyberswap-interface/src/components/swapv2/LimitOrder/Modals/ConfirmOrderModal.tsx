@@ -2,23 +2,20 @@ import { Currency } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import dayjs from 'dayjs'
 import { ReactNode, memo, useMemo, useState } from 'react'
-import { Flex, Text } from 'rebass'
 
 import { ButtonPrimary, ButtonWarning } from 'components/Button'
 import Column from 'components/Column'
 import CurrencyLogo from 'components/CurrencyLogo'
 import TransactionConfirmationModal, { TransactionErrorContent } from 'components/TransactionConfirmationModal'
+import { Container, Header, ListInfo, Note, Rate, Value } from 'components/swapv2/LimitOrder/Modals/styled'
 import { WORSE_PRICE_DIFF_THRESHOLD } from 'components/swapv2/LimitOrder/const'
+import { formatAmountOrder } from 'components/swapv2/LimitOrder/helpers'
+import { CancelOrderType, EditOrderInfo, RateInfo } from 'components/swapv2/LimitOrder/type'
 import { useActiveWeb3React } from 'hooks'
 import { BaseTradeInfo } from 'hooks/useBaseTradeInfo'
-import useTheme from 'hooks/useTheme'
 import ErrorWarningPanel from 'pages/Bridge/ErrorWarning'
 import { TransactionFlowState } from 'types/TransactionFlowState'
 import { formatDisplayNumber } from 'utils/numbers'
-
-import { formatAmountOrder } from '../helpers'
-import { CancelOrderType, EditOrderInfo, RateInfo } from '../type'
-import { Container, Header, ListInfo, Note, Rate, Value } from './styled'
 
 const styleLogo = { width: 20, height: 20 }
 
@@ -58,7 +55,6 @@ export default memo(function ConfirmOrderModal({
   const { account } = useActiveWeb3React()
   const [confirmed, setConfirmed] = useState(false)
   const shouldShowConfirmFlow = percentDiff < WORSE_PRICE_DIFF_THRESHOLD
-  const theme = useTheme()
   const { cancelType, gasFee, isEdit } = editOrderInfo || {}
 
   const listData = useMemo(() => {
@@ -68,9 +64,9 @@ export default memo(function ConfirmOrderModal({
         content: currencyIn && inputAmount && (
           <Value>
             <CurrencyLogo currency={currencyIn} style={styleLogo} />
-            <Text>
+            <span>
               {formatAmountOrder(inputAmount)} {currencyIn?.symbol}
-            </Text>
+            </span>
           </Value>
         ),
       },
@@ -79,9 +75,9 @@ export default memo(function ConfirmOrderModal({
         content: outputAmount && (
           <Value>
             <CurrencyLogo currency={currencyOut} style={styleLogo} size={'20px'} />
-            <Text>
+            <span>
               {formatAmountOrder(outputAmount)} {currencyOut?.symbol}
-            </Text>
+            </span>
           </Value>
         ),
       },
@@ -93,7 +89,7 @@ export default memo(function ConfirmOrderModal({
         label: t`before the order expires on`,
         content: account && (
           <Value>
-            <Text>{dayjs(expiredAt).format('DD/MM/YYYY HH:mm')}</Text>
+            <span>{dayjs(expiredAt).format('DD/MM/YYYY HH:mm')}</span>
           </Value>
         ),
       },
@@ -103,36 +99,24 @@ export default memo(function ConfirmOrderModal({
         label: t`Edit Type`,
         content: (
           <Value>
-            <Text>
+            <span>
               {cancelType === CancelOrderType.GAS_LESS_CANCEL ? (
                 <Trans>Gasless Edit</Trans>
               ) : (
                 <Trans>
                   Hard Edit (
-                  <Text as="span" color={theme.red}>
+                  <span className="text-red">
                     ~{formatDisplayNumber(gasFee, { style: 'currency', fractionDigits: 4 })}
-                  </Text>{' '}
+                  </span>{' '}
                   gas fees)
                 </Trans>
               )}
-            </Text>
+            </span>
           </Value>
         ),
       })
     return nodes
-  }, [
-    account,
-    currencyIn,
-    currencyOut,
-    inputAmount,
-    rateInfo,
-    outputAmount,
-    expiredAt,
-    isEdit,
-    gasFee,
-    cancelType,
-    theme,
-  ])
+  }, [account, currencyIn, currencyOut, inputAmount, rateInfo, outputAmount, expiredAt, isEdit, gasFee, cancelType])
 
   const handleDismiss = () => {
     onDismiss()
@@ -200,7 +184,7 @@ export default memo(function ConfirmOrderModal({
       <Note note={note} />
 
       {warningMessage?.length > 0 && (
-        <Column gap="16px">
+        <Column className="gap-4">
           {warningMessage?.map((mess, i) => (
             <ErrorWarningPanel key={i} type="warn" title={mess} />
           ))}
@@ -208,14 +192,10 @@ export default memo(function ConfirmOrderModal({
       )}
 
       {isEdit ? null : (
-        <Flex
-          sx={{
-            gap: '12px',
-          }}
-        >
+        <div className="flex gap-3">
           {renderConfirmPriceButton()}
           {renderPlaceOrderButton()}
-        </Flex>
+        </div>
       )}
     </>
   )
@@ -224,7 +204,7 @@ export default memo(function ConfirmOrderModal({
 
   const renderConfirmationContent = (): ReactNode => {
     return (
-      <Flex flexDirection={'column'} width="100%">
+      <div className="flex w-full flex-col">
         <div>
           {flowState.errorMessage && !isEdit ? (
             <TransactionErrorContent onDismiss={onDismiss} message={flowState.errorMessage} />
@@ -235,7 +215,7 @@ export default memo(function ConfirmOrderModal({
             </Container>
           )}
         </div>
-      </Flex>
+      </div>
     )
   }
 

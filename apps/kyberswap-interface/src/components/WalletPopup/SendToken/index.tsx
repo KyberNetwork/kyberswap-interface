@@ -1,10 +1,8 @@
 import { Currency, TokenAmount, WETH } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { CSSProperties, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Clipboard } from 'react-feather'
-import { Flex } from 'rebass'
-import styled from 'styled-components'
 
 import { AddressInput } from 'components/AddressInputPanel'
 import { ButtonPrimary } from 'components/Button'
@@ -20,44 +18,28 @@ import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import useENS from 'hooks/useENS'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
-import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { tryParseAmount } from 'state/swap/hooks'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { useCurrencyBalance } from 'state/wallet/hooks'
 import { TransactionFlowState } from 'types/TransactionFlowState'
 import { formattedNum, shortenAddress } from 'utils'
+import { cn } from 'utils/cn'
 import { friendlyError } from 'utils/errorMessage'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
 
-const Label = styled.label<{ color?: string }>`
-  font-weight: 500;
-  font-size: 12px;
-  line-height: 16px;
-  color: ${({ theme, color }) => color ?? theme.subText};
-`
-
-const Wrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  flex: 1 1 100%;
-  gap: 14px;
-  justify-content: space-between;
-  overflow-y: scroll;
-  &::-webkit-scrollbar {
-    display: block;
-    width: 4px;
-  }
-  &::-webkit-scrollbar-thumb {
-    background: ${({ theme }) => theme.disableText};
-  }
-`
-
-const InputWrapper = styled.div`
-  position: relative;
-  display: flex;
-  flex-direction: column;
-`
+const Label = ({
+  className,
+  color,
+  style,
+  ...rest
+}: React.LabelHTMLAttributes<HTMLLabelElement> & { color?: string }) => (
+  <label
+    {...rest}
+    className={cn('text-xs font-medium leading-4 text-subText', className)}
+    style={color ? { color, ...style } : style}
+  />
+)
 
 export default function SendToken({
   loadingTokens,
@@ -77,7 +59,6 @@ export default function SendToken({
   const { account, chainId } = useActiveWeb3React()
   const [flowState, setFlowState] = useState<TransactionFlowState>(TRANSACTION_STATE_DEFAULT)
 
-  const theme = useTheme()
   const { trackingHandler } = useTracking()
   const balance = useCurrencyBalance(currencyIn)
   const maxAmountInput = maxAmountSpend(balance)
@@ -176,13 +157,13 @@ export default function SendToken({
 
   const confirmationContent = () => {
     return (
-      <Flex flexDirection={'column'} width="100%">
+      <div className="flex w-full flex-col">
         <div>
           {flowState.errorMessage ? (
             <TransactionErrorContent onDismiss={hideModalConfirm} message={flowState.errorMessage} />
           ) : null}
         </div>
-      </Flex>
+      </div>
     )
   }
 
@@ -220,15 +201,18 @@ export default function SendToken({
   }
 
   return (
-    <Wrapper>
-      <Flex flexDirection={'column'} style={{ gap: 18 }}>
+    <div
+      className="ks-scrollbar flex flex-1 basis-full flex-col justify-between gap-3.5 overflow-y-scroll"
+      style={{ '--ks-scrollbar-thumb': 'var(--ks-disableText)' } as CSSProperties}
+    >
+      <div className="flex flex-col gap-[18px]">
         <Label>
           <Trans>Recipient</Trans>
         </Label>
 
         <div>
           <AddressInput
-            style={{ color: theme.subText, textOverflow: 'unset' }}
+            inputClassName="!text-subText [text-overflow:unset]"
             error={!!recipientError}
             onChange={e => onChangeRecipient(e.currentTarget.value)}
             onFocus={onFocus}
@@ -237,16 +221,16 @@ export default function SendToken({
             placeholder="0x..."
             icon={
               <MouseoverTooltip text={t`Paste from clipboard`} width="150px">
-                <Clipboard size={20} cursor="pointer" color={theme.subText} onClick={onPaste} />
+                <Clipboard size={20} cursor="pointer" className="text-subText" onClick={onPaste} />
               </MouseoverTooltip>
             }
           />
-          <Label color={theme.red} style={{ opacity: recipientError ? 1 : 0, transition: '0.3s' }}>
+          <Label className="text-red" style={{ opacity: recipientError ? 1 : 0, transition: '0.3s' }}>
             {recipientError}
           </Label>
         </div>
 
-        <InputWrapper ref={ref}>
+        <div ref={ref} className="relative flex flex-col">
           <CurrencyInputPanel
             id="send-token-wallet-ui"
             error={!!inputError}
@@ -274,7 +258,7 @@ export default function SendToken({
               }}
             />
           )}
-        </InputWrapper>
+        </div>
 
         <WarningBrave token={currencyIn} />
 
@@ -282,13 +266,13 @@ export default function SendToken({
           <Label>
             <Trans>Gas Fee</Trans>
           </Label>
-          <Label color={theme.text}>
+          <Label className="text-text">
             {estimateGas && usdPriceNative
               ? `~ ${formattedNum((estimateGas * usdPriceNative).toString(), true)} `
               : '-'}
           </Label>
         </RowBetween>
-      </Flex>
+      </div>
       <ButtonPrimary height="44px" onClick={onSendToken} disabled={disableButtonSend}>
         {inputError ? inputError : isSending ? <Trans>Sending token</Trans> : <Trans>Send</Trans>}
       </ButtonPrimary>
@@ -301,6 +285,6 @@ export default function SendToken({
         content={confirmationContent}
         pendingText={flowState.pendingText}
       />
-    </Wrapper>
+    </div>
   )
 }

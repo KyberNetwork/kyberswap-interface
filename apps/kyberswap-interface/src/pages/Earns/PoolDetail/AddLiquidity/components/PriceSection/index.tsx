@@ -35,7 +35,7 @@ const PriceSection = ({
   onTickUpperChange,
 }: PriceSectionProps) => {
   return (
-    <Stack gap={16}>
+    <Stack className="gap-4">
       <PriceInfo
         pool={context.pool}
         poolPrice={value.poolPrice}
@@ -43,7 +43,7 @@ const PriceSection = ({
         onRevertPriceToggle={onRevertPriceToggle}
       />
 
-      <Stack gap={20}>
+      <Stack className="gap-5">
         <LiquidityChart
           pool={context.pool}
           poolPrice={value.poolPrice}
@@ -70,7 +70,7 @@ const PriceSection = ({
         />
       </Stack>
 
-      <HStack gap={12}>
+      <HStack className="gap-3">
         <PriceInput
           type={PriceInputType.MinPrice}
           chainId={context.chainId}

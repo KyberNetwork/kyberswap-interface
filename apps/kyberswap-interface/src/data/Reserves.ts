@@ -2,7 +2,7 @@ import { JSBI, Pair } from '@kyberswap/ks-sdk-classic'
 import { Currency, Token, TokenAmount } from '@kyberswap/ks-sdk-core'
 import { useMemo } from 'react'
 
-import DMM_POOL_INTERFACE from 'constants/abis/dmmPool'
+import { DMM_POOL_ABI } from 'constants/abis'
 import { useActiveWeb3React } from 'hooks'
 import {
   useDynamicFeeFactoryContract,
@@ -72,8 +72,8 @@ export function usePairs(currencies: [Currency | undefined, Currency | undefined
     [result],
   )
 
-  const results = useMultipleContractSingleData(pairAddresses, DMM_POOL_INTERFACE, 'getTradeInfo')
-  const ampResults = useMultipleContractSingleData(pairAddresses, DMM_POOL_INTERFACE, 'ampBps')
+  const results = useMultipleContractSingleData(pairAddresses, DMM_POOL_ABI, 'getTradeInfo')
+  const ampResults = useMultipleContractSingleData(pairAddresses, DMM_POOL_ABI, 'ampBps')
 
   return useMemo(() => {
     let start = 0
@@ -107,8 +107,8 @@ export function usePairs(currencies: [Currency | undefined, Currency | undefined
                   TokenAmount.fromRawAmount(token1, _reserve1.toString()),
                   TokenAmount.fromRawAmount(token0, _vReserve0.toString()),
                   TokenAmount.fromRawAmount(token1, _vReserve1.toString()),
-                  JSBI.BigInt(feeInPrecision),
-                  JSBI.BigInt(amp[0]),
+                  JSBI.BigInt(feeInPrecision.toString()),
+                  JSBI.BigInt(amp[0].toString()),
                 ),
               ])
             } catch {}
@@ -129,9 +129,9 @@ export function usePairsByAddress(
 
   const addresses = useMemo(() => pairInfo.map(info => info.address), [pairInfo])
 
-  const results = useMultipleContractSingleData(addresses, DMM_POOL_INTERFACE, 'getTradeInfo')
-  const ampResults = useMultipleContractSingleData(addresses, DMM_POOL_INTERFACE, 'ampBps')
-  const factories = useMultipleContractSingleData(addresses, DMM_POOL_INTERFACE, 'factory')
+  const results = useMultipleContractSingleData(addresses, DMM_POOL_ABI, 'getTradeInfo')
+  const ampResults = useMultipleContractSingleData(addresses, DMM_POOL_ABI, 'ampBps')
+  const factories = useMultipleContractSingleData(addresses, DMM_POOL_ABI, 'factory')
 
   return useMemo(() => {
     return results.map((result, i) => {
@@ -157,8 +157,8 @@ export function usePairsByAddress(
           TokenAmount.fromRawAmount(token1, _reserve1.toString()),
           TokenAmount.fromRawAmount(token0, _vReserve0.toString()),
           TokenAmount.fromRawAmount(token1, _vReserve1.toString()),
-          JSBI.BigInt(feeInPrecision),
-          JSBI.BigInt(amp[0]),
+          JSBI.BigInt(feeInPrecision.toString()),
+          JSBI.BigInt(amp[0].toString()),
         ),
         isStaticFeePair || isOldStaticFeeContract,
         isOldStaticFeeContract,

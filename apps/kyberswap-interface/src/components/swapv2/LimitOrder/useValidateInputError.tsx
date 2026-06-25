@@ -2,10 +2,8 @@ import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import JSBI from 'jsbi'
 import { useMemo } from 'react'
-import { Text } from 'rebass'
 
 import { useActiveWeb3React } from 'hooks'
-import useTheme from 'hooks/useTheme'
 import { useLimitActionHandlers } from 'state/limit/hooks'
 import { tryParseAmount } from 'state/swap/hooks'
 import { formatDisplayNumber } from 'utils/numbers'
@@ -32,7 +30,6 @@ const useValidateInputError = ({
   balance: CurrencyAmount<Currency> | undefined
 }) => {
   const { account } = useActiveWeb3React()
-  const theme = useTheme()
   const parseInputAmount = tryParseAmount(inputAmount, currencyIn ?? undefined)
   const { setInputValue } = useLimitActionHandlers()
   const inputError = useMemo(() => {
@@ -54,17 +51,17 @@ const useValidateInputError = ({
           allowDisplayNegative: true,
         })
         return (
-          <Text sx={{ cursor: 'pointer' }}>
+          <span className="cursor-pointer">
             <Trans>
               Insufficient {currencyIn?.symbol} balance.
               <br />
-              <Text as="b" color={theme.primary} onClick={() => setInputValue(remainBalance.toExact())}>
+              <b className="text-primary" onClick={() => setInputValue(remainBalance.toExact())}>
                 {!remainBalance.equalTo(JSBI.BigInt(0)) ? '~' : ''}
                 {formatNum} {currencyIn?.symbol}
-              </Text>{' '}
+              </b>{' '}
               remaining after deducting Active and Open orders.
             </Trans>
-          </Text>
+          </span>
         )
       }
 
@@ -87,7 +84,6 @@ const useValidateInputError = ({
     parseInputAmount,
     showWrap,
     wrapInputError,
-    theme,
     setInputValue,
     account,
   ])

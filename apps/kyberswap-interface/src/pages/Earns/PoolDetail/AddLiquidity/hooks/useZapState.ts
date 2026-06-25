@@ -22,7 +22,8 @@ import {
   isUniV3PoolType,
   validateAddLiquidityInput,
 } from 'pages/Earns/PoolDetail/AddLiquidity/utils'
-import { useTokenPrices } from 'state/tokenPrices/hooks'
+import { getDefaultRevertPrice } from 'pages/Earns/utils'
+import { useTokenPrices, useTokenPricesWithLoading } from 'state/tokenPrices/hooks'
 import { useNativeBalance, useTokenBalances } from 'state/wallet/hooks'
 
 const getTokenBalanceKey = (address: string) =>
@@ -56,17 +57,6 @@ const getDefaultNativeToken = (chainId: number): Token => {
     symbol: wrappedToken.symbol.slice(1) || wrappedToken.symbol,
     name: network.name,
   }
-}
-
-const getDefaultRevertPrice = (pool: ZapPool | null, chainId: number) => {
-  if (!pool) return false
-
-  const wrappedNativeTokenAddress = getNetworkInfo(chainId)?.wrappedToken?.address?.toLowerCase()
-  const isToken0Native = pool.token0.address.toLowerCase() === wrappedNativeTokenAddress
-  const isToken0Stable = pool.token0.isStable
-  const isToken1Stable = pool.token1.isStable
-
-  return Boolean(isToken0Stable || (isToken0Native && !isToken1Stable))
 }
 
 const getErrorMessage = (error?: FetchBaseQueryError | { error?: string }) => {
@@ -103,11 +93,25 @@ export const useZapState = ({
     setRevertPrice(defaultRevertPrice)
   }, [defaultRevertPrice, pool?.address])
 
+  const initialTokenPriceAddresses = useMemo(
+    () =>
+      pool
+        ? [pool.token0.address.toLowerCase(), pool.token1.address.toLowerCase(), nativeToken.address.toLowerCase()]
+        : [nativeToken.address.toLowerCase()],
+    [nativeToken.address, pool],
+  )
+  const { data: initialTokenPrices, loading: initialTokenPricesLoading } = useTokenPricesWithLoading(
+    initialTokenPriceAddresses,
+    chainId as AppChainId,
+  )
+
   const tokenInputState = useInitialTokensIn({
     pool,
     chainId,
     account,
     nativeToken,
+    tokenPrices: initialTokenPrices,
+    tokenPricesLoading: initialTokenPricesLoading,
   })
 
   const nativeBalance = useNativeBalance(chainId as AppChainId)

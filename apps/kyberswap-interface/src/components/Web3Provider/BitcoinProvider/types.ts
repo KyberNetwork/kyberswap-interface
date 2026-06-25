@@ -1,4 +1,4 @@
-export type WalletType = 'xverse' | 'okx' | 'unisat' | 'bitget' | 'ledger'
+export type WalletType = 'xverse' | 'okx' | 'unisat' | 'fordefi' | 'bitget' | 'ledger'
 
 export interface SendBitcoinParams {
   sender?: string // required for ledger
@@ -15,6 +15,10 @@ export interface BitcoinWalletBase {
   disconnect?: () => Promise<void>
   sendBitcoin: ({ recipient, amount }: SendBitcoinParams) => Promise<string>
   isInstalled: () => boolean
+  // Silent session re-hydration on mount: reads already-authorized accounts WITHOUT prompting. Only
+  // implemented for wallets that expose a non-prompting get-accounts API; wallets whose only entry is a
+  // prompting connect() (OKX, Xverse) omit it so auto-restore never pops an approval dialog.
+  restore?: () => Promise<void>
 }
 
 export interface AddressResponse {

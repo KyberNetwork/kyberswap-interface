@@ -1,128 +1,64 @@
-import { rgba } from 'polished'
-import { Link } from 'react-router-dom'
-import { Flex } from 'rebass'
-import styled, { css, keyframes } from 'styled-components'
+import { HTMLAttributes, forwardRef } from 'react'
+import { Link, LinkProps } from 'react-router-dom'
 
 import { ReactComponent as IconCurrentPrice } from 'assets/svg/earn/ic_position_current_price.svg'
 import { PoolPageWrapper, TableHeader, TableWrapper } from 'pages/Earns/PoolExplorer/styles'
+import { cn } from 'utils/cn'
 
-const fadeIn = keyframes`
-  from {
-    opacity: 0;
-    transform: translateY(4px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-`
+export const POSITION_GRID = 'grid'
+// Inline gridTemplateColumns because Tailwind's arbitrary-value parser silently
+// drops the bare `24px` spacer column when it sits between `minmax(...)` entries,
+// resulting in 8 rendered columns instead of 9 and pushing the Actions cell
+// onto a second row.
+export const POSITION_GRID_TEMPLATE_COLUMNS =
+  'minmax(260px, 2.6fr) minmax(80px, 0.8fr) minmax(90px, 0.8fr) minmax(100px, 1fr) minmax(120px, 1fr) 24px minmax(150px, 0.4fr) minmax(160px, 1.8fr) minmax(75px, auto)'
 
-export const PositionPageWrapper = styled(PoolPageWrapper)`
-  padding: 24px 6rem 62px;
+type PositionPageWrapperProps = React.ComponentProps<typeof PoolPageWrapper>
+export const PositionPageWrapper = forwardRef<HTMLDivElement, PositionPageWrapperProps>(
+  ({ className, ...rest }, ref) => (
+    <PoolPageWrapper ref={ref} className={cn('sm:px-12 min-[1921px]:px-6', className)} {...rest} />
+  ),
+)
+PositionPageWrapper.displayName = 'PositionPageWrapper'
 
-  @media (max-width: 1300px) {
-    padding: 24px 6rem 60px;
-  }
+type PositionRowProps = LinkProps & {
+  $isUnfinalized?: boolean
+  $index?: number
+}
+export const PositionRow = forwardRef<HTMLAnchorElement, PositionRowProps>(
+  ({ $isUnfinalized, $index, className, style, ...rest }, ref) => {
+    const delay = Math.min(($index || 0) * 50, 300)
+    return (
+      <Link
+        ref={ref}
+        className={cn(
+          POSITION_GRID,
+          'relative animate-[fadeInUp_0.3s_ease-out_both] grid-rows-[1fr] gap-y-2 px-7 py-4 !text-inherit no-underline',
+          'after:absolute after:inset-x-7 after:bottom-0 after:h-px after:bg-tableHeader after:content-[""]',
+          'last:mb-0 last:after:hidden',
+          'hover:cursor-pointer hover:bg-primary-10',
+          $isUnfinalized ? 'bg-tableHeader/40' : 'bg-background',
+          'max-[1300px]:mb-4 max-[1300px]:!grid-cols-3 max-[1300px]:grid-rows-[1fr_1fr] max-[1300px]:justify-start max-[1300px]:rounded-[20px] max-[1300px]:after:hidden',
+          $isUnfinalized ? 'max-[1300px]:bg-tableHeader/70' : 'max-[1300px]:bg-background/80',
+          'motion-reduce:animate-none max-sm:relative max-sm:!flex max-sm:flex-col max-sm:gap-y-4 max-sm:rounded-none max-sm:p-4 max-sm:after:inset-x-4 max-sm:after:block',
+          $isUnfinalized ? 'max-sm:!bg-tableHeader/70' : 'max-sm:!bg-background/80',
+          className,
+        )}
+        style={{ gridTemplateColumns: POSITION_GRID_TEMPLATE_COLUMNS, animationDelay: `${delay}ms`, ...style }}
+        {...rest}
+      />
+    )
+  },
+)
+PositionRow.displayName = 'PositionRow'
 
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    padding: 24px 16px 100px;
-  `}
-`
+export const PositionOverview = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('flex flex-col gap-2 max-[1300px]:col-span-2', className)} {...rest} />
+)
 
-export const PositionRow = styled(Link)<{ $isUnfinalized?: boolean; $index?: number }>`
-  display: grid;
-  grid-template-columns:
-    minmax(260px, 2.6fr) /* Position */
-    minmax(80px, 0.8fr) /* Value */
-    minmax(90px, 0.8fr) /* est. APR */
-    minmax(100px, 1fr) /* Unclaimed fees */
-    minmax(120px, 1fr) /* Unclaimed rewards */
-    24px /* Spacer column for better visual separation */
-    minmax(150px, 0.4fr) /* Balance */
-    minmax(160px, 1.8fr) /* Price range */
-    minmax(75px, auto); /* Actions */
-  grid-template-rows: 1fr;
-  padding: 16px 28px;
-  row-gap: 8px;
-  text-decoration: none;
-  color: inherit !important;
-  background: ${({ $isUnfinalized, theme }) => ($isUnfinalized ? rgba(theme.tableHeader, 0.4) : theme.background)};
-  position: relative;
-  animation: ${fadeIn} 0.3s ease-out both;
-  animation-delay: ${({ $index }) => Math.min(($index || 0) * 50, 300)}ms;
-
-  @media (prefers-reduced-motion: reduce) {
-    animation: none;
-  }
-
-  &::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 28px;
-    right: 28px;
-    height: 1px;
-    background: ${({ theme }) => theme.tableHeader};
-  }
-
-  @media (max-width: 1300px) {
-    justify-content: flex-start;
-    grid-template-columns: repeat(3, 1fr);
-    grid-template-rows: 1fr 1fr;
-    border-radius: 20px;
-    background: ${({ theme, $isUnfinalized }) =>
-      $isUnfinalized ? rgba(theme.tableHeader, 0.7) : rgba(theme.background, 0.8)};
-    margin-bottom: 16px;
-
-    &::after {
-      display: none;
-    }
-  }
-
-  ${({ $isUnfinalized, theme }) => theme.mediaWidth.upToSmall`
-    display: flex;
-    flex-direction: column;
-    row-gap: 16px;
-    padding: 16px;
-    background: ${$isUnfinalized ? rgba(theme.tableHeader, 0.7) : rgba(theme.background, 0.8)} !important;
-    position: relative;
-    border-radius: 0;
-
-    &::after {
-      left: 16px;
-      right: 16px;
-      display: block;
-    }
-  `}
-
-  &:last-child {
-    margin-bottom: 0;
-
-    &::after {
-      display: none;
-    }
-  }
-
-  &:hover {
-    cursor: pointer;
-    background: ${({ theme }) => rgba(theme.primary, 0.1)};
-  }
-`
-
-export const PositionOverview = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-
-  @media (max-width: 1300px) {
-    grid-column: span 2;
-  }
-`
-
-export const ImageContainer = styled.div`
-  position: relative;
-  top: 2px;
-`
+export const ImageContainer = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('relative top-0.5 flex items-end', className)} {...rest} />
+)
 
 export enum BadgeType {
   PRIMARY = 'primary',
@@ -132,369 +68,277 @@ export enum BadgeType {
   DISABLED = 'disabled',
 }
 
-export const Badge = styled.div<{ type?: BadgeType }>`
-  border-radius: 30px;
-  padding: 4px 12px;
-  background-color: ${({ theme }) => rgba(theme.white, 0.04)};
-  color: ${({ theme }) => theme.subText};
-  font-size: 12px;
-  display: flex;
-  align-items: center;
+export const Badge = ({ type, className, ...rest }: HTMLAttributes<HTMLDivElement> & { type?: BadgeType }) => (
+  <div
+    className={cn(
+      'flex items-center rounded-[30px] bg-white/[0.04] px-3 py-1 text-xs text-subText max-xxs:px-[9px]',
+      type === BadgeType.PRIMARY && 'bg-primary/20 text-primary',
+      type === BadgeType.WARNING && 'bg-warning/20 text-warning',
+      type === BadgeType.SECONDARY && 'bg-primary-10 text-subText',
+      type === BadgeType.ROUNDED && 'p-2',
+      className,
+    )}
+    {...rest}
+  />
+)
 
-  ${({ type, theme }) => {
-    switch (type) {
-      case BadgeType.PRIMARY:
-        return `
-            background-color: ${rgba(theme.primary, 0.2)};
-            color: ${theme.primary};
-            `
-      case BadgeType.WARNING:
-        return `
-            background-color: ${rgba(theme.warning, 0.2)};
-            color: ${theme.warning};
-            `
-      case BadgeType.SECONDARY:
-        return `
-            background-color: ${rgba(theme.primary, 0.1)};
-            color: ${theme.subText};
-            `
-      case BadgeType.DISABLED:
-        return ''
-      case BadgeType.ROUNDED:
-        return `
-            padding: 8px;
-            `
-      default:
-        return ''
-    }
-  }}
+export const PositionValueWrapper = ({
+  align,
+  className,
+  style,
+  ...rest
+}: HTMLAttributes<HTMLDivElement> & { align?: string }) => (
+  <div
+    className={cn('flex min-w-0 items-start justify-start gap-2 pt-2 max-sm:justify-between max-sm:pt-0', className)}
+    style={{ ...(align ? { justifyContent: align } : {}), ...style }}
+    {...rest}
+  />
+)
 
-  ${({ theme }) => theme.mediaWidth.upToXXSmall`
-    padding: 4px 9px;
-  `}
-`
+export const PositionActionWrapper = ({
+  align,
+  className,
+  style,
+  ...rest
+}: HTMLAttributes<HTMLDivElement> & { align?: string }) => (
+  <div
+    className={cn(
+      'flex min-w-0 items-start justify-end gap-2 pt-2 max-sm:!absolute max-sm:right-4 max-sm:top-2.5',
+      className,
+    )}
+    style={{ ...(align ? { justifyContent: align } : {}), ...style }}
+    {...rest}
+  />
+)
 
-export const PositionValueWrapper = styled.div<{ align?: string }>`
-  display: flex;
-  align-items: flex-start;
-  justify-content: flex-start;
-  gap: 8px;
-  padding-top: 8px;
-  min-width: 0;
+export const PositionValueLabel = ({ className, ...rest }: HTMLAttributes<HTMLParagraphElement>) => (
+  <p
+    className={cn(
+      'relative top-px m-0 hidden text-sm text-subText max-[1300px]:block max-sm:top-0 max-sm:text-base',
+      className,
+    )}
+    {...rest}
+  />
+)
 
-  ${({ align }) => (align ? `justify-content: ${align};` : '')}
+export const Divider = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('relative top-px mx-3.5 h-4 w-px bg-tabActive', className)} {...rest} />
+)
 
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    justify-content: space-between;
-    padding-top: 0;
-  `}
-`
+export const EmptyPositionText = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
+  <div
+    className={cn(
+      'my-5 flex h-[400px] flex-col items-center justify-center gap-2 rounded-[20px] text-subText',
+      className,
+    )}
+    {...rest}
+  />
+)
 
-export const PositionActionWrapper = styled(PositionValueWrapper)`
-  justify-content: flex-end;
+export const BannerContainer = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
+  <div
+    className={cn(
+      'relative h-auto w-full overflow-hidden rounded-xl bg-clip-padding p-px',
+      'before:absolute before:inset-0 before:p-px before:content-[""]',
+      'before:[background:linear-gradient(90deg,rgba(162,89,255,0.6)_0%,rgba(162,89,255,0)_50%,rgba(162,89,255,0.6)_100%),radial-gradient(58.61%_54.58%_at_30.56%_0%,rgba(162,89,255,0.3)_0%,rgba(0,0,0,0)_100%)]',
+      'before:[-webkit-mask:linear-gradient(#fff_0_0)_padding-box,linear-gradient(#fff_0_0)] before:[mask:linear-gradient(#fff_0_0)_padding-box,linear-gradient(#fff_0_0)]',
+      className,
+    )}
+    {...rest}
+  />
+)
 
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    position: absolute !important;
-    right: 16px;
-    top: 10px;
-  `}
-`
+export const BannerWrapper = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
+  <div
+    className={cn(
+      'relative flex flex-wrap items-center justify-start gap-[26px] rounded-xl px-8 py-[32.5px] [background:linear-gradient(119.08deg,rgba(20,29,27,1)_-0.89%,rgba(14,14,14,1)_132.3%)]',
+      'max-sm:flex-col max-sm:items-start max-sm:gap-4 max-sm:p-4 min-[1200px]:max-[1330px]:gap-[18px]',
+      className,
+    )}
+    {...rest}
+  />
+)
 
-export const PositionValueLabel = styled.p`
-  font-size: 14px;
-  margin: 0;
-  color: ${({ theme }) => theme.subText};
-  position: relative;
-  top: 1px;
-  display: none;
+export const RewardBannerWrapper = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
+  <BannerWrapper className={cn('flex-col items-start gap-2 px-8 py-3.5', className)} {...rest} />
+)
 
-  @media (max-width: 1300px) {
-    display: block;
-  }
+export const RewardBannerDetailWrapper = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
+  <div
+    className={cn(
+      'flex flex-wrap items-center justify-start gap-x-8 gap-y-2 min-[1200px]:max-[1330px]:gap-[18px]',
+      className,
+    )}
+    {...rest}
+  />
+)
 
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    font-size: 16px;
-    top: 0;
-  `}
-`
+export const BannerDivider = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('h-[60px] w-px bg-tabActive max-sm:hidden', className)} {...rest} />
+)
 
-export const Divider = styled.div`
-  height: 16px;
-  width: 1px;
-  background: ${({ theme }) => theme.tabActive};
-  margin: 0 14px;
-  position: relative;
-  top: 1px;
-`
+export const BannerDataItem = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
+  <div
+    className={cn(
+      'z-[1] flex flex-col gap-2 max-sm:w-full max-sm:flex-row max-sm:items-center max-sm:justify-between',
+      className,
+    )}
+    {...rest}
+  />
+)
 
-export const EmptyPositionText = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-  gap: 8px;
-  color: ${({ theme }) => theme.subText};
-  border-radius: 20px;
-  height: 400px;
-  margin: 20px 0;
-`
+type PositionTableHeaderProps = React.ComponentProps<typeof TableHeader>
+export const PositionTableHeader = forwardRef<HTMLDivElement, PositionTableHeaderProps>(
+  ({ className, style, ...rest }, ref) => (
+    <TableHeader
+      ref={ref}
+      className={cn(
+        POSITION_GRID,
+        'relative overflow-visible rounded-t-[20px] border-b-0 bg-background px-7 py-4 text-xs font-medium uppercase text-subText',
+        'after:absolute after:inset-x-7 after:bottom-0 after:h-px after:bg-tableHeader after:content-[""]',
+        className,
+      )}
+      style={{ gridTemplateColumns: POSITION_GRID_TEMPLATE_COLUMNS, ...style }}
+      {...rest}
+    />
+  ),
+)
+PositionTableHeader.displayName = 'PositionTableHeader'
 
-export const BannerContainer = styled.div`
-  padding: 1px;
-  background-clip: padding-box;
-  overflow: hidden;
-  border-radius: 12px;
-  width: 100%;
-  height: auto;
-  position: relative;
-  overflow: hidden;
+export const PositionTableHeaderItem = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('h-full', className)} {...rest} />
+)
 
-  ::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    padding: 1px;
-    background: linear-gradient(
-        90deg,
-        rgba(162, 89, 255, 0.6) 0%,
-        rgba(162, 89, 255, 0) 50%,
-        rgba(162, 89, 255, 0.6) 100%
-      ),
-      radial-gradient(58.61% 54.58% at 30.56% 0%, rgba(162, 89, 255, 0.3) 0%, rgba(0, 0, 0, 0) 100%);
-    mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
-    -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
-  }
-`
+export const PositionTableHeaderFlexItem = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
+  <div
+    className={cn('flex w-fit flex-wrap items-center gap-1 self-start hover:[&_svg_path]:stroke-text', className)}
+    {...rest}
+  />
+)
 
-export const BannerWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  flex-wrap: wrap;
-  gap: 26px;
-  padding: 32.5px 32px;
-  border-radius: 12px;
-  position: relative;
-  background: linear-gradient(119.08deg, rgba(20, 29, 27, 1) -0.89%, rgba(14, 14, 14, 1) 132.3%);
+type PositionTableWrapperProps = React.ComponentProps<typeof TableWrapper>
+export const PositionTableWrapper = forwardRef<HTMLDivElement, PositionTableWrapperProps>(
+  ({ className, ...rest }, ref) => (
+    <TableWrapper
+      ref={ref}
+      className={cn(
+        'relative overflow-hidden rounded-[20px] bg-background max-[1300px]:rounded-none max-[1300px]:bg-transparent max-sm:-mx-4',
+        className,
+      )}
+      {...rest}
+    />
+  ),
+)
+PositionTableWrapper.displayName = 'PositionTableWrapper'
 
-  @media (min-width: 1200px) and (max-width: 1330px) {
-    gap: 18px;
-  }
+export const PriceRangeWrapper = ({
+  outOfRange,
+  className,
+  ...rest
+}: HTMLAttributes<HTMLDivElement> & { outOfRange: boolean }) => (
+  <div
+    className={cn(
+      'relative top-[46%] h-1 w-[90%] rounded',
+      outOfRange ? 'bg-warning/30' : 'bg-border',
+      'max-sm:my-[30px] max-sm:mb-5 max-sm:w-full',
+      className,
+    )}
+    {...rest}
+  />
+)
 
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    flex-direction: column;
-    padding: 16px;
-    align-items: flex-start;
-    gap: 16px;
-  `}
-`
+export const PriceRangeEl = ({
+  outOfRange,
+  className,
+  ...rest
+}: HTMLAttributes<HTMLDivElement> & { outOfRange: boolean }) => (
+  <div
+    className={cn(
+      'absolute flex h-full items-center justify-between rounded',
+      outOfRange ? 'bg-gray' : '[background:linear-gradient(90deg,#09ae7d_0%,#6368f1_100%)]',
+      className,
+    )}
+    {...rest}
+  />
+)
 
-export const RewardBannerWrapper = styled(BannerWrapper)`
-  gap: 8px;
-  flex-direction: column;
-  align-items: flex-start;
-  padding: 14px 32px;
-`
+const indicatorBase = 'relative h-4 w-1 rounded'
 
-export const RewardBannerDetailWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  flex-wrap: wrap;
-  gap: 32px;
-  row-gap: 8px;
+export const PriceIndicator = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn(indicatorBase, className)} {...rest} />
+)
 
-  @media (min-width: 1200px) and (max-width: 1330px) {
-    gap: 18px;
-  }
-`
+export const LowerPriceIndicator = ({
+  outOfRange,
+  className,
+  ...rest
+}: HTMLAttributes<HTMLDivElement> & { outOfRange: boolean }) => (
+  <div className={cn(indicatorBase, outOfRange ? 'bg-gray' : 'bg-[#09ae7d]', className)} {...rest} />
+)
 
-export const BannerDivider = styled.div`
-  background-color: ${({ theme }) => theme.tabActive};
-  height: 60px;
-  width: 1px;
+export const UpperPriceIndicator = ({
+  outOfRange,
+  className,
+  ...rest
+}: HTMLAttributes<HTMLDivElement> & { outOfRange: boolean }) => (
+  <div className={cn(indicatorBase, outOfRange ? 'bg-gray' : 'bg-[#6368f1]', className)} {...rest} />
+)
 
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    display: none;
-  `}
-`
+export const IndicatorLabel = ({
+  align,
+  className,
+  ...rest
+}: HTMLAttributes<HTMLDivElement> & { align?: 'left' | 'right' }) => (
+  <div
+    className={cn(
+      'absolute -top-5 whitespace-nowrap text-xs text-white2',
+      align === 'left' && 'left-0 translate-x-[-60%]',
+      align === 'right' && 'left-0 translate-x-[-40%]',
+      !align && 'translate-x-[-42%]',
+      className,
+    )}
+    {...rest}
+  />
+)
 
-export const BannerDataItem = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  z-index: 1;
+export const CurrentPriceWrapper = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement> & { lower?: boolean }>(
+  ({ lower, className, style, ...rest }, ref) => (
+    <div
+      ref={ref}
+      className={cn('absolute top-[-5px]', className)}
+      style={{ left: lower ? '6%' : '86%', ...style }}
+      {...rest}
+    />
+  ),
+)
+CurrentPriceWrapper.displayName = 'CurrentPriceWrapper'
 
-  ${({ theme }) =>
-    theme.mediaWidth.upToSmall`
-      width: 100%;
-      flex-direction: row;
-      justify-content: space-between;
-      align-items: center;
-    `}
-`
+export const CustomIconCurrentPrice = ({
+  lower: _lower,
+  className,
+  ...rest
+}: React.SVGProps<SVGSVGElement> & { lower?: boolean }) => (
+  <IconCurrentPrice
+    className={cn('transition-transform duration-200 ease-in-out hover:scale-110', className)}
+    {...rest}
+  />
+)
 
-const HeaderGridTemplate = css`
-  grid-template-columns:
-    minmax(260px, 2.6fr) /* Position */
-    minmax(80px, 0.8fr) /* Value */
-    minmax(90px, 0.8fr) /* est. APR */
-    minmax(100px, 1fr) /* Unclaimed fees */
-    minmax(120px, 1fr) /* Unclaimed rewards */
-    24px /* Spacer column for better visual separation */
-    minmax(150px, 0.4fr) /* Balance */
-    minmax(160px, 1.8fr) /* Price range */
-    minmax(75px, auto); /* Actions */
-  overflow: visible;
-  background: ${({ theme }) => theme.background};
-  border-radius: 20px 20px 0 0;
-  padding: 16px 28px;
-  font-size: 12px;
-  font-weight: 500;
-  text-transform: uppercase;
-  color: ${({ theme }) => theme.subText};
-  border-bottom: none;
-  position: relative;
+export const CurrentPriceTooltip = ({
+  show,
+  className,
+  ...rest
+}: HTMLAttributes<HTMLDivElement> & { show?: boolean }) => (
+  <div
+    className={cn(
+      'relative -left-1/2 w-max text-xs text-subText opacity-0 transition-opacity duration-200 ease-in-out',
+      show && 'opacity-100',
+      className,
+    )}
+    {...rest}
+  />
+)
 
-  &::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 28px;
-    right: 28px;
-    height: 1px;
-    background: ${({ theme }) => theme.tableHeader};
-  }
-`
-
-export const PositionTableHeader = styled(TableHeader)`
-  ${HeaderGridTemplate}
-`
-
-export const PositionTableHeaderItem = styled.div`
-  height: 100%;
-`
-
-export const PositionTableHeaderFlexItem = styled(Flex)`
-  flex-wrap: wrap;
-  align-items: center;
-  align-self: flex-start;
-  gap: 4px;
-  width: fit-content;
-
-  &:hover svg path {
-    stroke: ${({ theme }) => theme.text};
-  }
-`
-
-export const PositionTableWrapper = styled(TableWrapper)`
-  overflow: hidden;
-  background: ${({ theme }) => theme.background};
-  border-radius: 20px;
-  position: relative;
-
-  @media (max-width: 1300px) {
-    background: transparent;
-    border-radius: 0;
-  }
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    margin: 0 -16px;
-    border-radius: 0;
-  `}
-`
-
-export const PriceRangeWrapper = styled.div<{ outOfRange: boolean }>`
-  height: 4px;
-  width: 90%;
-  background: ${({ theme, outOfRange }) => (outOfRange ? rgba(theme.warning, 0.3) : theme.border)};
-  border-radius: 4px;
-  position: relative;
-  top: 46%;
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    margin: 30px 0 20px;
-    width: 100%;
-  `}
-`
-
-export const PriceRangeEl = styled.div<{ outOfRange: boolean }>`
-  display: flex;
-  position: absolute;
-  justify-content: space-between;
-  align-items: center;
-  height: 100%;
-  border-radius: 4px;
-  background: linear-gradient(90deg, #09ae7d 0%, #6368f1 100%);
-
-  ${({ outOfRange }) =>
-    outOfRange &&
-    `
-      background: #737373;
-    `}
-`
-
-export const PriceIndicator = styled.div`
-  height: 16px;
-  width: 4px;
-  border-radius: 4px;
-  position: relative;
-`
-
-export const LowerPriceIndicator = styled(PriceIndicator)<{ outOfRange: boolean }>`
-  background: ${({ outOfRange }) => (outOfRange ? '#737373' : '#09ae7d')};
-`
-
-export const UpperPriceIndicator = styled(PriceIndicator)<{ outOfRange: boolean }>`
-  background: ${({ outOfRange }) => (outOfRange ? '#737373' : '#6368f1')};
-`
-
-export const IndicatorLabel = styled.div<{ align?: 'left' | 'right' }>`
-  position: absolute;
-  top: -20px;
-  font-size: 12px;
-  color: #fafafa;
-  white-space: nowrap;
-  ${({ align }) =>
-    align === 'left'
-      ? 'left: 0; transform: translateX(-60%);'
-      : align === 'right'
-      ? 'left: 0; transform: translateX(-40%);'
-      : 'transform: translateX(-42%);'}
-`
-
-export const CurrentPriceWrapper = styled.div<{ lower?: boolean }>`
-  position: absolute;
-  top: -5px;
-  left: ${({ lower }) => (lower ? '6%' : '86%')};
-`
-
-export const CustomIconCurrentPrice = styled(IconCurrentPrice)<{ lower?: boolean }>`
-  transition: 0.2s ease-in-out;
-
-  :hover {
-    transform: scale(1.1);
-  }
-`
-
-export const CurrentPriceTooltip = styled.div<{ show?: boolean }>`
-  font-size: 12px;
-  color: ${({ theme }) => theme.subText};
-  position: relative;
-  left: -50%;
-  transition: 0.2s ease-in-out;
-  opacity: 0;
-  width: max-content;
-
-  ${({ show }) => show && 'opacity: 1;'}
-`
-
-export const HorizontalDivider = styled.div`
-  margin: 4px 0;
-  height: 1px;
-  width: 100%;
-  background: ${({ theme }) => rgba(theme.white, 0.08)};
-`
+export const HorizontalDivider = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('my-1 h-px w-full bg-white/[0.08]', className)} {...rest} />
+)

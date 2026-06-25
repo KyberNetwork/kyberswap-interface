@@ -2,23 +2,23 @@ import { Trans, t } from '@lingui/macro'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
-import { Flex, Text } from 'rebass'
 import { useUserPositionsQuery } from 'services/zapEarn'
 
 import { ReactComponent as FarmingIcon } from 'assets/svg/kyber/kem.svg'
 import { ReactComponent as RocketIcon } from 'assets/svg/rocket.svg'
 import InfoHelper from 'components/InfoHelper'
-import LocalLoader from 'components/LocalLoader'
 import Pagination from 'components/Pagination'
+import RefetchIndicator from 'components/RefetchIndicator'
 import { HiddenH1, HiddenH2 } from 'components/Seo/HiddenSeoHeadings'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
-import useTheme from 'hooks/useTheme'
 import { ContentWrapper, Disclaimer, NavigateButton } from 'pages/Earns/PoolExplorer/styles'
 import { IconArrowLeft } from 'pages/Earns/PositionDetail/styles'
 import Filter from 'pages/Earns/UserPositions/Filter'
 import PositionBanner from 'pages/Earns/UserPositions/PositionBanner'
+import PositionListSkeleton from 'pages/Earns/UserPositions/PositionListSkeleton'
 import TableContent, { FeeInfoFromRpc } from 'pages/Earns/UserPositions/TableContent'
+import { toPositionQueryParams } from 'pages/Earns/UserPositions/positionsQuery'
 import {
   PositionPageWrapper,
   PositionTableHeader,
@@ -29,7 +29,6 @@ import {
 import useFilter, { SortBy } from 'pages/Earns/UserPositions/useFilter'
 import { default as MultiSelectDropdownMenu } from 'pages/Earns/components/DropdownMenu/MultiSelect'
 import { ItemIcon } from 'pages/Earns/components/DropdownMenu/styles'
-import RefetchIndicator from 'pages/Earns/components/RefetchIndicator'
 import useAccountChanged from 'pages/Earns/hooks/useAccountChanged'
 import useClosedPositions from 'pages/Earns/hooks/useClosedPositions'
 import useKemRewards from 'pages/Earns/hooks/useKemRewards'
@@ -42,9 +41,9 @@ import { parsePosition } from 'pages/Earns/utils/position'
 import { getUnfinalizedPositions } from 'pages/Earns/utils/unfinalizedPosition'
 import SortIcon, { Direction } from 'pages/MarketOverview/SortIcon'
 import { MEDIA_WIDTHS } from 'theme'
+import { cn } from 'utils/cn'
 
 const UserPositions = () => {
-  const theme = useTheme()
   const navigate = useNavigate()
   const upToCustomLarge = useMedia(`(max-width: ${1300}px)`)
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
@@ -59,17 +58,7 @@ const UserPositions = () => {
   const { closedPositionsFromRpc, checkClosedPosition } = useClosedPositions()
 
   const positionQueryParams = useMemo(() => {
-    return {
-      wallet: account || '',
-      chainIds: filters.chainIds,
-      protocols: filters.protocols,
-      statuses: filters.statuses,
-      keyword: filters.keyword,
-      positionIds: filters.positionId,
-      sorts: [filters.sortBy, filters.orderBy].filter(Boolean).join(':'),
-      page: filters.page,
-      pageSize: filters.pageSize,
-    }
+    return toPositionQueryParams(filters, account)
   }, [account, filters])
 
   const {
@@ -122,14 +111,14 @@ const UserPositions = () => {
     const selectedChains = supportedChains.filter(option => arrValue?.includes(option.value))
     if (selectedChains.length >= 1) {
       return (
-        <Flex alignItems="center" sx={{ gap: '6px' }}>
-          <Flex>
+        <div className="flex items-center gap-1.5">
+          <div className="flex">
             {selectedChains.map((chain, index) => (
               <ItemIcon key={chain.value} src={chain.icon} alt={chain.label} style={{ marginLeft: index ? -8 : 0 }} />
             ))}
-          </Flex>
+          </div>
           {selectedChains.length > 1 ? `Selected: ${selectedChains.length} chains` : selectedChains[0].label}
-        </Flex>
+        </div>
       )
     }
     return AllChainsOption.label
@@ -239,45 +228,33 @@ const UserPositions = () => {
   const actionsInfoHelper = (
     <InfoHelper
       text={
-        <Flex flexDirection="column" sx={{ gap: 1 }}>
-          <Text fontSize={14}>
-            <Text as="u" color={theme.primary}>
-              {t`Increase liquidity`}
-            </Text>
-            : {t`Add more liquidity to this position using any token(s).`}
-          </Text>
-          <Text fontSize={14}>
-            <Text as="u" color={theme.primary}>
-              {t`Smart Exit`}
-            </Text>
-            :{' '}
+        <div className="flex flex-col gap-1">
+          <p className="text-[14px]">
+            <u className="text-primary">{t`Increase liquidity`}</u>:{' '}
+            {t`Add more liquidity to this position using any token(s).`}
+          </p>
+          <p className="text-[14px]">
+            <u className="text-primary">{t`Smart Exit`}</u>:{' '}
             {t`Automatically remove liquidity from this position when your pre-set rice, time, or fee yield condition(s).`}
-          </Text>
-          <Text fontSize={14}>
-            <Text as="u" color={theme.primary}>
-              {t`Claim fees`}
-            </Text>
-            : {t`Claim your unclaimed fees from this position.`}
-          </Text>
-          <Text fontSize={14}>
-            <Text as="u" color={theme.primary}>
-              {t`Claim rewards`}
-            </Text>
-            : {t`Claim your claimable farming rewards from a position.`}
-          </Text>
-          <Text fontSize={14}>
-            <Text as="u" color={theme.primary}>
-              {t`Remove liquidity`}
-            </Text>
-            : {t`Remove liquidity from this position by zapping out to any token(s).`}
-          </Text>
-        </Flex>
+          </p>
+          <p className="text-[14px]">
+            <u className="text-primary">{t`Claim fees`}</u>: {t`Claim your unclaimed fees from this position.`}
+          </p>
+          <p className="text-[14px]">
+            <u className="text-primary">{t`Claim rewards`}</u>:{' '}
+            {t`Claim your claimable farming rewards from a position.`}
+          </p>
+          <p className="text-[14px]">
+            <u className="text-primary">{t`Remove liquidity`}</u>:{' '}
+            {t`Remove liquidity from this position by zapping out to any token(s).`}
+          </p>
+        </div>
       }
       noArrow
       placement="top-end"
       width="280px"
       size={14}
-      style={{ position: 'relative', top: '1px', height: 12 }}
+      className="relative top-px h-3"
     />
   )
 
@@ -296,19 +273,12 @@ const UserPositions = () => {
         <HiddenH2>
           Monitor APR, rewards, and performance across protocols — no need to check each one separately.
         </HiddenH2>
-        <Flex alignItems="center" sx={{ gap: 3 }}>
+        <div className="flex items-center gap-4">
           <IconArrowLeft onClick={() => navigate(-1)} />
-          <Text fontSize={24} fontWeight="500">
-            {t`My Liquidity Positions`}
-          </Text>
-        </Flex>
+          <p className="text-[24px] font-medium">{t`My Liquidity Positions`}</p>
+        </div>
 
-        <Flex
-          flexDirection={upToSmall ? 'column' : 'row'}
-          alignItems={upToSmall ? 'flex-start' : 'center'}
-          justifyContent={'space-between'}
-          sx={{ gap: 2 }}
-        >
+        <div className={cn('flex justify-between gap-2', upToSmall ? 'flex-col items-start' : 'flex-row items-center')}>
           <MultiSelectDropdownMenu
             highlightOnSelect
             label={selectedChainsLabel || t`Select chains`}
@@ -323,7 +293,7 @@ const UserPositions = () => {
             text={t`Explore Pools`}
             to={APP_PATHS.EARN_POOLS}
           />
-        </Flex>
+        </div>
 
         {account && (
           <PositionBanner
@@ -360,31 +330,30 @@ const UserPositions = () => {
                 </PositionTableHeaderFlexItem>
 
                 <PositionTableHeaderFlexItem
-                  flexDirection="column"
-                  alignItems="flex-start"
+                  className="flex-col items-start"
                   role="button"
                   onClick={() => onSortChange(SortBy.UNCLAIMED_FEE)}
                 >
                   <Trans>
-                    <Text>Unclaimed</Text>
-                    <Flex alignItems={'center'} sx={{ gap: '4px' }}>
-                      <Text>fees</Text>
+                    <span>Unclaimed</span>
+                    <div className="flex items-center gap-1">
+                      <span>fees</span>
                       <SortIcon
                         sorted={filters.sortBy === SortBy.UNCLAIMED_FEE ? (filters.orderBy as Direction) : undefined}
                       />
-                    </Flex>
+                    </div>
                   </Trans>
                 </PositionTableHeaderFlexItem>
 
-                <Flex sx={{ gap: '4px' }}>
+                <div className="flex gap-1">
                   <FarmingIcon width={24} height={24} />
-                  <PositionTableHeaderFlexItem flexDirection="column">
+                  <PositionTableHeaderFlexItem className="flex-col">
                     <Trans>
-                      <Text>Unclaimed</Text>
-                      <Text>rewards</Text>
+                      <span>Unclaimed</span>
+                      <span>rewards</span>
                     </Trans>
                   </PositionTableHeaderFlexItem>
-                </Flex>
+                </div>
 
                 {!upToCustomLarge && <div />}
 
@@ -392,14 +361,14 @@ const UserPositions = () => {
 
                 <PositionTableHeaderItem>{t`Price range`}</PositionTableHeaderItem>
 
-                <Flex alignContent="flex-start" justifyContent="flex-end" height="100%">
+                <div className="flex h-full items-center justify-end whitespace-nowrap">
                   {t`Actions`}
                   {actionsInfoHelper}
-                </Flex>
+                </div>
               </PositionTableHeader>
             )}
             {isFetching && loading ? (
-              <LocalLoader />
+              <PositionListSkeleton />
             ) : (
               <TableContent
                 positions={filteredPositions}

@@ -1,10 +1,7 @@
 import { Trans } from '@lingui/macro'
 import { Repeat } from 'react-feather'
 import { Link } from 'react-router-dom'
-import { useMedia } from 'react-use'
-import { Box, Flex, Text } from 'rebass'
 import aggregatorStatsApi from 'services/aggregatorStats'
-import styled from 'styled-components'
 
 import ArbitrumDark from 'assets/images/Arbitrum_HorizontalLogo-dark.svg'
 import KNCGraphic from 'assets/images/knc-graphic.png'
@@ -20,8 +17,8 @@ import Banner from 'components/Banner'
 import { FooterSocialLink } from 'components/Footer/Footer'
 import { BestPrice, Clock, LineaFull, LowestSlippage, OptimismLogoFull, PolygonLogoFull } from 'components/Icons'
 import Loader from 'components/Loader'
+import RevealOnScroll from 'components/RevealOnScroll'
 import { APP_PATHS } from 'constants/index'
-import { useActiveWeb3React } from 'hooks'
 import useChainsConfig from 'hooks/useChainsConfig'
 import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
@@ -43,104 +40,69 @@ import {
   VerticalDivider,
   Wrapper,
 } from 'pages/About/styleds'
-import { ExternalLink, MEDIA_WIDTHS, StyledInternalLink } from 'theme'
+import { ExternalLink, StyledInternalLink } from 'theme'
 import { formatBigLiquidity } from 'utils/formatBalance'
 
-// import MeetTheTeam from './MeetTheTeam'
+const KNCBlack = () => <KNCSVG className="[&_path]:fill-textReverse" />
 
-const KNCBlack = styled(KNCSVG)`
-  path {
-    fill: ${({ theme }) => theme.textReverse};
-  }
-`
+const ForTraderInfoRow = ({ children }: { children: React.ReactNode }) => (
+  <div className="flex flex-1 basis-full max-lg:size-full max-lg:flex-1 max-lg:gap-6">{children}</div>
+)
 
-const ForTraderInfoRow = styled.div`
-  flex: 1 1 100%;
-  display: flex;
-  ${({ theme }) => theme.mediaWidth.upToLarge`
-    flex: 1;
-    gap: 24px;
-    width: 100%;
-    height: 100%;
-  `}
-`
-
-const ForTraderInfoCell = styled.div`
-  flex: 1 1 100%;
-
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-
-  ${({ theme }) => theme.mediaWidth.upToLarge`
-    flex: 1;
-  `}
-`
+const ForTraderInfoCell = ({ children }: { children: React.ReactNode }) => (
+  <div className="flex flex-1 basis-full flex-col items-center max-lg:flex-1">{children}</div>
+)
 
 export const KSStatistic = () => {
-  const theme = useTheme()
-  const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
   const { supportedChains } = useChainsConfig()
 
   return (
-    <Box sx={{ position: 'relative', marginTop: '20px' }}>
+    <div className="relative mt-5">
       <ForTraderInfoShadow />
       <ForTraderInfo>
         <ForTraderInfoRow>
           <ForTraderInfoCell>
-            <Text fontWeight="600" fontSize="24px">
-              $24B
-            </Text>
-            <Text color={theme.subText} marginTop="4px" fontSize="14px">
+            <span className="text-2xl font-semibold">$24B</span>
+            <span className="mt-1 text-sm text-subText">
               <Trans>TVL From DEXs</Trans>
-            </Text>
+            </span>
           </ForTraderInfoCell>
 
           <ForTraderDivider />
 
           <ForTraderInfoCell>
-            <Text fontWeight="600" fontSize="24px">
-              70+
-            </Text>
-            <Text color={theme.subText} marginTop="4px" fontSize="14px">
+            <span className="text-2xl font-semibold">70+</span>
+            <span className="mt-1 text-sm text-subText">
               <Trans>DEXs</Trans>
-            </Text>
+            </span>
           </ForTraderInfoCell>
         </ForTraderInfoRow>
 
-        <ForTraderDivider horizontal={upToLarge} />
+        {/* Between-rows divider: horizontal when the two rows stack (≤1200), vertical side-by-side (>1200). */}
+        <div className="h-px w-full bg-border lg:h-[50px] lg:w-px" />
 
         <ForTraderInfoRow>
           <ForTraderInfoCell>
-            <Text fontWeight="600" fontSize="24px">
-              {supportedChains.length}+
-            </Text>
-            <Text color={theme.subText} marginTop="4px" fontSize="14px">
+            <span className="text-2xl font-semibold">{supportedChains.length}+</span>
+            <span className="mt-1 text-sm text-subText">
               <Trans>Chains</Trans>
-            </Text>
+            </span>
           </ForTraderInfoCell>
           <ForTraderDivider />
           <ForTraderInfoCell>
-            <Text fontWeight="600" fontSize="24px">
-              20,000+
-            </Text>
-            <Text color={theme.subText} marginTop="4px" fontSize="14px">
+            <span className="text-2xl font-semibold">20,000+</span>
+            <span className="mt-1 text-sm text-subText">
               <Trans>Tokens</Trans>
-            </Text>
+            </span>
           </ForTraderInfoCell>
         </ForTraderInfoRow>
       </ForTraderInfo>
-    </Box>
+    </div>
   )
 }
 
 function AboutKyberSwap() {
-  const { networkInfo } = useActiveWeb3React()
   const theme = useTheme()
-  const above992 = useMedia('(min-width: 992px)')
-  const above768 = useMedia('(min-width: 768px)')
-  const above500 = useMedia('(min-width: 500px)')
-
   const { data: aggregatorData } = aggregatorStatsApi.useGetAggregatorVolumeQuery({})
 
   const { trackingHandler } = useTracking()
@@ -153,235 +115,216 @@ function AboutKyberSwap() {
   const { supportedChains } = useChainsConfig()
 
   return (
-    <div style={{ position: 'relative', background: theme.buttonBlack, width: '100%' }}>
+    <div className="relative w-full bg-buttonBlack">
       <AboutPage>
         <Banner margin="32px auto 0" padding="0 16px" maxWidth="1224px" />
 
         <Wrapper>
-          <Text as="h1" fontSize={['28px', '48px']} textAlign="center" lineHeight={['32px', '60px']} fontWeight="300">
-            <Trans>
-              <Text color={theme.primary} as="span" fontWeight="500">
-                Swap
-              </Text>{' '}
-              Tokens at Superior Rates
-            </Trans>
-          </Text>
+          <RevealOnScroll>
+            <h1 className="text-center text-[28px] font-light leading-8 sm:text-[48px] sm:leading-[60px]">
+              <Trans>
+                <span className="font-medium text-primary">Swap</span> Tokens at Superior Rates
+              </Trans>
+            </h1>
 
-          <SupportedChain>
-            {supportedChains.map(({ chainId: chain, icon, name }) => (
-              <img src={icon} alt={name} key={chain} width="36px" height="36px" />
-            ))}
-          </SupportedChain>
+            <SupportedChain>
+              {supportedChains.map(({ chainId: chain, icon, name }) => (
+                <img className="size-9 object-contain" src={icon} alt={name} key={chain} />
+              ))}
+            </SupportedChain>
 
-          <KyberSwapGeneralIntro />
+            <KyberSwapGeneralIntro />
 
-          <StatisticWrapper>
-            <StatisticItem>
-              <Text fontSize={['24px', '28px']} fontWeight={600}>
-                {dataToShow.totalTradingVolume ? (
-                  formatBigLiquidity(dataToShow.totalTradingVolume, 2, true)
-                ) : (
-                  <Loader />
-                )}
-              </Text>
-              <Text color={theme.subText} marginTop="8px">
-                <Trans>Total Trading Volume</Trans>*
-              </Text>
-            </StatisticItem>
-            <StatisticItem>
-              <Text fontSize={['24px', '28px']} fontWeight={600}>
-                {dataToShow['24hTradingVolume'] ? (
-                  formatBigLiquidity(dataToShow['24hTradingVolume'], 2, true)
-                ) : (
-                  <Loader />
-                )}
-              </Text>
-              <Text color={theme.subText} marginTop="8px">
-                <Trans>24H Trading Volume</Trans>*
-              </Text>
-            </StatisticItem>
-          </StatisticWrapper>
+            <StatisticWrapper>
+              <StatisticItem>
+                <span className="flex min-h-[1.2em] items-center justify-center text-2xl font-semibold sm:text-[28px]">
+                  {dataToShow.totalTradingVolume ? (
+                    formatBigLiquidity(dataToShow.totalTradingVolume, 2, true)
+                  ) : (
+                    <Loader />
+                  )}
+                </span>
+                <span className="mt-2 text-subText">
+                  <Trans>Total Trading Volume</Trans>*
+                </span>
+              </StatisticItem>
+              <StatisticItem>
+                <span className="flex min-h-[1.2em] items-center justify-center text-2xl font-semibold sm:text-[28px]">
+                  {dataToShow['24hTradingVolume'] ? (
+                    formatBigLiquidity(dataToShow['24hTradingVolume'], 2, true)
+                  ) : (
+                    <Loader />
+                  )}
+                </span>
+                <span className="mt-2 text-subText">
+                  <Trans>24H Trading Volume</Trans>*
+                </span>
+              </StatisticItem>
+            </StatisticWrapper>
+          </RevealOnScroll>
 
-          <ForTrader>
-            <Flex flex={1} flexDirection="column" height="max-content">
-              <Text fontSize={['16px', '20px']} fontWeight={500} color={theme.primary}>
-                <Trans>FOR TRADERS</Trans>
-              </Text>
-              <Text as="h2" marginTop="12px" fontSize={['28px', '36px']} fontWeight="500">
-                <Trans>Swap your tokens at superior rates. No limits</Trans>
-              </Text>
-              <Text
-                fontSize="16px"
-                marginTop={['40px', '48px']}
-                color={theme.text}
-                lineHeight="24px"
-                textAlign="justify"
-              >
-                <Trans>
-                  With our Dynamic Trade Routing technology, we aggregate liquidity from multiple DEXs and identify
-                  superior trade routes for you.
-                </Trans>
-              </Text>
+          <RevealOnScroll>
+            <ForTrader>
+              <div className="flex h-max flex-1 flex-col">
+                <span className="text-base font-medium text-primary sm:text-xl">
+                  <Trans>FOR TRADERS</Trans>
+                </span>
+                <h2 className="mt-3 text-[28px] font-medium sm:text-4xl">
+                  <Trans>Swap your tokens at superior rates. No limits</Trans>
+                </h2>
+                <span className="mt-10 text-justify text-base leading-6 text-text sm:mt-12">
+                  <Trans>
+                    With our Dynamic Trade Routing technology, we aggregate liquidity from multiple DEXs and identify
+                    superior trade routes for you.
+                  </Trans>
+                </span>
 
-              <Flex marginTop="20px" alignItems="center">
-                <BestPrice />
-                <Text marginLeft="12px">
-                  <Trans>Superior price guaranteed</Trans>
-                </Text>
-              </Flex>
-              <Flex marginTop="20px" alignItems="center">
-                <LowestSlippage />
-                <Text marginLeft="12px">
-                  <Trans>Lowest possible slippage</Trans>
-                </Text>
-              </Flex>
+                <div className="mt-5 flex items-center">
+                  <BestPrice />
+                  <span className="ml-3">
+                    <Trans>Superior price guaranteed</Trans>
+                  </span>
+                </div>
+                <div className="mt-5 flex items-center">
+                  <LowestSlippage />
+                  <span className="ml-3">
+                    <Trans>Lowest possible slippage</Trans>
+                  </span>
+                </div>
 
-              <Flex marginTop="20px" alignItems="center">
-                <Clock />
-                <Text marginLeft="12px">
-                  <Trans>Save time & effort</Trans>
-                </Text>
-              </Flex>
+                <div className="mt-5 flex items-center">
+                  <Clock className="text-primary" />
+                  <span className="ml-3">
+                    <Trans>Save time & effort</Trans>
+                  </span>
+                </div>
 
-              {above500 && (
+                {/* ≥500: button sits in the text column. Rendered always; hidden <500 via CSS. */}
                 <BtnPrimary
+                  className="hidden min-[500px]:flex"
                   margin="48px 0"
                   width="216px"
-                  as={Link}
-                  to={APP_PATHS.SWAP + '/' + networkInfo.route}
+                  as={Link as never}
+                  to={APP_PATHS.SWAP}
                   onClick={() => trackingHandler(TRACKING_EVENT_TYPE.ABOUT_SWAP_CLICKED)}
                 >
                   <Repeat size={20} />
-                  <Text fontSize="16px" marginLeft="8px">
+                  <span className="ml-2 text-base">
                     <Trans>Swap Now</Trans>
-                  </Text>
+                  </span>
                 </BtnPrimary>
-              )}
-            </Flex>
-            <Flex flex={1} flexDirection="column">
-              <img
-                width="100%"
-                src={ForTraderImage}
-                alt="ForTrader"
-                style={{ marginTop: above992 ? '0.25rem' : '40px' }}
-              />
-              <KSStatistic />
-            </Flex>
-            {!above500 && (
+              </div>
+              <div className="flex flex-1 flex-col">
+                <img width="100%" src={ForTraderImage} alt="ForTrader" className="mt-10 md:mt-1" />
+                <KSStatistic />
+              </div>
+              {/* <500: button moves below the image. Rendered always; hidden ≥500 via CSS. */}
               <BtnPrimary
+                className="min-[500px]:hidden"
                 margin="40px 0"
-                as={Link}
-                to={APP_PATHS.SWAP + '/' + networkInfo.route}
+                as={Link as never}
+                to={APP_PATHS.SWAP}
                 onClick={() => trackingHandler(TRACKING_EVENT_TYPE.ABOUT_SWAP_CLICKED)}
               >
                 <Repeat />
-                <Text fontSize={['16px', '20px']} marginLeft="8px">
+                <span className="ml-2 text-base sm:text-xl">
                   <Trans>Swap Now</Trans>
-                </Text>
+                </span>
               </BtnPrimary>
-            )}
-          </ForTrader>
+            </ForTrader>
+          </RevealOnScroll>
 
-          <AboutKNC>
-            <img height="400px" src={KNCGraphic} alt="KNCGraphic" style={{ display: above768 ? 'block' : 'none' }} />
-            <Flex width="100%" alignSelf="center" flexDirection="column" height="max-content">
-              <Text fontSize={['16px', '20px']} fontWeight={500} color={theme.primary}>
-                <Trans>ABOUT KNC</Trans>
-              </Text>
-              <Text as="h2" marginTop="12px" fontSize={['28px', '36px']} fontWeight="500">
-                <Trans>Kyber Network Crystal (KNC)</Trans>
-              </Text>
-              <Text
-                fontSize="16px"
-                marginTop={['40px', '48px']}
-                color={theme.subText}
-                lineHeight="24px"
-                textAlign="justify"
-              >
-                <Trans>
-                  KNC is a utility and governance token, and an integral part of Kyber Network and its flagship product
-                  KyberSwap. It is the glue that connects different stakeholders in Kyber&apos;s ecosystem.
-                </Trans>
-              </Text>
-              <img
-                width="75%"
-                src={KNCGraphic}
-                alt="KNCGraphic"
-                style={{ display: above768 ? 'none' : 'block', margin: 'auto', marginTop: '40px' }}
-              />
-              <BtnPrimary as={Link} to="/about/knc" margin="48px 0">
-                <KNCBlack />
-                <Text fontSize={['14px', '16px']} marginLeft="8px">
-                  <Trans>Find out more</Trans>
-                </Text>
-              </BtnPrimary>
-            </Flex>
-          </AboutKNC>
+          <RevealOnScroll>
+            <AboutKNC>
+              <img src={KNCGraphic} alt="KNCGraphic" className="hidden h-[400px] w-auto sm:block" />
+              <div className="flex h-max w-full flex-col self-center">
+                <span className="text-base font-medium text-primary sm:text-xl">
+                  <Trans>ABOUT KNC</Trans>
+                </span>
+                <h2 className="mt-3 text-[28px] font-medium sm:text-4xl">
+                  <Trans>Kyber Network Crystal (KNC)</Trans>
+                </h2>
+                <span className="mt-10 text-justify text-base leading-6 text-subText sm:mt-12">
+                  <Trans>
+                    KNC is a utility and governance token, and an integral part of Kyber Network and its flagship
+                    product KyberSwap. It is the glue that connects different stakeholders in Kyber&apos;s ecosystem.
+                  </Trans>
+                </span>
+                <img src={KNCGraphic} alt="KNCGraphic" width="75%" className="m-auto mt-10 block sm:hidden" />
+                <BtnPrimary as={Link as never} to="/about/knc" margin="48px 0">
+                  <KNCBlack />
+                  <span className="ml-2 text-sm sm:text-base">
+                    <Trans>Find out more</Trans>
+                  </span>
+                </BtnPrimary>
+              </div>
+            </AboutKNC>
+          </RevealOnScroll>
 
-          {/* <MeetTheTeam /> */}
+          <RevealOnScroll>
+            <h2 className="mt-[100px] text-center text-[28px] font-medium sm:mt-40 sm:text-4xl">
+              <Trans>Powered by</Trans>
 
-          <Text as="h2" marginTop={['100px', '160px']} fontSize={['28px', '36px']} fontWeight="500" textAlign="center">
-            <Trans>Powered by</Trans>
-
-            <Powered>
-              <img src={KyberDark} alt="kyber_icon" width="100%" />
-              <img src="https://i.imgur.com/1l1KyxF.png" alt="ethereum_icon" width="100%" />
-              <img src={BSC} alt="bsc_icon" width="100%" />
-              <PolygonLogoFull />
-              <img src={AboutAvalanche} alt="avalanche_icon" width="100%" />
-              <img src={ArbitrumDark} alt="" width="100%" />
-              <OptimismLogoFull />
-              <LineaFull />
-              <img
-                src="https://raw.githubusercontent.com/base-org/brand-kit/001c0e9b40a67799ebe0418671ac4e02a0c683ce/logo/wordmark/Base_Wordmark_Blue.svg"
-                alt="Base"
-                width="100%"
-              />
-
-              <img src="https://www.mantle.xyz/logo-lockup.svg" alt="mantle" width="100%" />
-
-              <img src="https://www.soniclabs.com/sonic-logo.svg" alt="Sonic" width="100%" />
-
-              <Flex sx={{ gap: '12px', width: 'auto' }} alignItems="center">
+              <Powered>
+                <img src={KyberDark} alt="kyber_icon" width="100%" />
+                <img src="https://i.imgur.com/1l1KyxF.png" alt="ethereum_icon" width="100%" />
+                <img src={BSC} alt="bsc_icon" width="100%" />
+                <PolygonLogoFull />
+                <img src={AboutAvalanche} alt="avalanche_icon" width="100%" />
+                <img src={ArbitrumDark} alt="" width="100%" />
+                <OptimismLogoFull />
+                <LineaFull />
                 <img
-                  src="https://storage.googleapis.com/ks-setting-1d682dca/68e11813-067b-42d7-8d7a-c1b7bf80714e1739239376230.png"
-                  alt="Bera"
-                  width="80px"
+                  src="https://raw.githubusercontent.com/base-org/brand-kit/001c0e9b40a67799ebe0418671ac4e02a0c683ce/logo/wordmark/Base_Wordmark_Blue.svg"
+                  alt="Base"
+                  width="100%"
                 />
-                <Text>Berachain</Text>
-              </Flex>
 
-              <Flex sx={{ gap: '12px', width: 'auto' }} alignItems="center">
-                <img src="https://docs.roninchain.com/img/logo.svg" alt="Ronin" height="80px" />
-                <Text>Roninchain</Text>
-              </Flex>
-              <img src="https://www.etherlink.com/logo-desktop.svg" alt="Etherlink" width="100%" />
-              <Flex sx={{ gap: '12px', width: 'auto' }} alignItems="center">
-                <img
-                  src="https://storage.googleapis.com/ks-setting-1d682dca/9cdb1542-1d9a-4cf0-b67b-b68b1a29b09d1758725874771.png"
-                  alt="Plasma"
-                  width="80px"
-                />
-                <Text>Plasma</Text>
-              </Flex>
-              <Flex sx={{ gap: '12px', width: 'auto' }} alignItems="center">
-                <img src={monadIcon} alt="Monad" width="80px" />
-                <Text>Monad</Text>
-              </Flex>
-              <Flex sx={{ gap: '12px', width: 'auto' }} alignItems="center">
-                <img src={megaEthIcon} alt="MegaETH" width="80px" />
-                <Text>MegaETH</Text>
-              </Flex>
-              <Flex sx={{ gap: '12px', width: 'auto' }} alignItems="center">
-                <img src={riseIcon} alt="RISE" width="140px" />
-              </Flex>
-            </Powered>
-          </Text>
+                <img src="https://www.mantle.xyz/logo-lockup.svg" alt="mantle" width="100%" />
+
+                <img src="https://www.soniclabs.com/sonic-logo.svg" alt="Sonic" width="100%" />
+
+                <div className="flex !w-auto items-center gap-3">
+                  <img
+                    src="https://storage.googleapis.com/ks-setting-1d682dca/68e11813-067b-42d7-8d7a-c1b7bf80714e1739239376230.png"
+                    alt="Bera"
+                    width="80px"
+                  />
+                  <span>Berachain</span>
+                </div>
+
+                <div className="flex !w-auto items-center gap-3">
+                  <img src="https://docs.roninchain.com/img/logo.svg" alt="Ronin" className="h-20 w-auto" />
+                  <span>Roninchain</span>
+                </div>
+                <img src="https://www.etherlink.com/logo-desktop.svg" alt="Etherlink" width="100%" />
+                <div className="flex !w-auto items-center gap-3">
+                  <img
+                    src="https://storage.googleapis.com/ks-setting-1d682dca/9cdb1542-1d9a-4cf0-b67b-b68b1a29b09d1758725874771.png"
+                    alt="Plasma"
+                    width="80px"
+                  />
+                  <span>Plasma</span>
+                </div>
+                <div className="flex !w-auto items-center gap-3">
+                  <img src={monadIcon} alt="Monad" width="80px" />
+                  <span>Monad</span>
+                </div>
+                <div className="flex !w-auto items-center gap-3">
+                  <img src={megaEthIcon} alt="MegaETH" width="80px" />
+                  <span>MegaETH</span>
+                </div>
+                <div className="flex !w-auto items-center gap-3">
+                  <img src={riseIcon} alt="RISE" width="140px" />
+                </div>
+              </Powered>
+            </h2>
+          </RevealOnScroll>
         </Wrapper>
       </AboutPage>
       <Footer background={theme.background}>
         <FooterContainer>
-          <Flex flexWrap="wrap" sx={{ gap: '12px' }} justifyContent="center">
+          <div className="flex flex-wrap justify-center gap-3">
             <ExternalLink href={`https://docs.kyberswap.com`}>
               <Trans>Docs</Trans>
             </ExternalLink>
@@ -395,11 +338,12 @@ function AboutKyberSwap() {
             <ExternalLink href={`https://gov.kyber.org`}>
               <Trans>Forum</Trans>
             </ExternalLink>
-            {!above500 ? <div /> : <VerticalDivider />}
+            <div className="min-[500px]:hidden" />
+            <VerticalDivider className="hidden min-[500px]:block" />
             <ExternalLink href={`https://kyber.network`}>Kyber Network</ExternalLink>
             <VerticalDivider />
             <StyledInternalLink to={`/about/knc`}>KNC</StyledInternalLink>
-          </Flex>
+          </div>
           <FooterSocialLink />
         </FooterContainer>
       </Footer>

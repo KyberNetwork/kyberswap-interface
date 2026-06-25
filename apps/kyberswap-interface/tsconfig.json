@@ -20,11 +20,10 @@
     "noImplicitAny": true,
     "noImplicitThis": true,
     "noImplicitReturns": true,
-    "moduleResolution": "node",
+    "moduleResolution": "node10",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "react-jsx",
-    "downlevelIteration": true,
     "allowSyntheticDefaultImports": true,
     "typeRoots": [
       "./types"

@@ -10,7 +10,7 @@ import BackIcon from '../../assets/back1.svg'
 import KyberSwapLogo from '../../assets/kyberswap.svg'
 import AlertIcon from '../../assets/alert.svg'
 import Expand from '../../assets/expand.svg'
-import questionImg from '../../assets/question.svg?url'
+import unknownTokenImg from '../../assets/unknown-token.svg?url'
 
 import useTheme from '../../hooks/useTheme'
 
@@ -295,8 +295,8 @@ const Widget = ({
   const amountOut =
     isWrap || isUnwrap
       ? inputAmout
-      : trade?.routeSummary?.amountOut
-      ? formatUnits(trade.routeSummary.amountOut, tokenOutInfo?.decimals).toString()
+      : trade?.routeSummary?.amountOut && tokenOutInfo
+      ? formatUnits(trade.routeSummary.amountOut, tokenOutInfo.decimals).toString()
       : ''
 
   let minAmountOut = ''
@@ -319,7 +319,9 @@ const Widget = ({
       ? 1
       : trade?.routeSummary?.amountIn &&
         trade?.routeSummary?.amountOut &&
-        parseFloat(formatUnits(trade.routeSummary.amountOut, tokenOutInfo?.decimals || 18)) / parseFloat(inputAmout)
+        tokenInInfo &&
+        tokenOutInfo &&
+        parseFloat(formatUnits(trade.routeSummary.amountOut, tokenOutInfo.decimals)) / parseFloat(inputAmout)
 
   const formattedTokenInBalance = parseFloat(parseFloat(tokenInWithUnit).toPrecision(10))
 
@@ -559,7 +561,7 @@ const Widget = ({
                   style={{ borderRadius: '50%' }}
                   onError={({ currentTarget }) => {
                     currentTarget.onerror = null // prevents looping
-                    currentTarget.src = questionImg
+                    currentTarget.src = unknownTokenImg
                   }}
                 />
                 <div style={{ marginLeft: '0.375rem' }}>{tokenInInfo?.symbol}</div>
@@ -584,10 +586,10 @@ const Widget = ({
             />
             <Rate>
               {(() => {
-                if (!rate) return '--'
+                if (!rate || !tokenInInfo || !tokenOutInfo) return '--'
                 return !inverseRate
-                  ? `1 ${tokenInInfo?.symbol} = ${+rate.toPrecision(10)} ${tokenOutInfo?.symbol}`
-                  : `1 ${tokenOutInfo?.symbol} = ${+(1 / rate).toPrecision(10)} ${tokenInInfo?.symbol}`
+                  ? `1 ${tokenInInfo.symbol} = ${+rate.toPrecision(10)} ${tokenOutInfo.symbol}`
+                  : `1 ${tokenOutInfo.symbol} = ${+(1 / rate).toPrecision(10)} ${tokenInInfo.symbol}`
               })()}
             </Rate>
 
@@ -648,7 +650,7 @@ const Widget = ({
                   style={{ borderRadius: '50%' }}
                   onError={({ currentTarget }) => {
                     currentTarget.onerror = null // prevents looping
-                    currentTarget.src = questionImg
+                    currentTarget.src = unknownTokenImg
                   }}
                 />
                 <div style={{ marginLeft: '0.375rem' }}>{tokenOutInfo?.symbol}</div>

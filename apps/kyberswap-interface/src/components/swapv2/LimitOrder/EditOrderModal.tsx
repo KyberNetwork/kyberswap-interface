@@ -1,40 +1,31 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import { ethers } from 'ethers'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { ChevronLeft, X } from 'react-feather'
-import { Flex, Text } from 'rebass'
 import { useGetTotalActiveMakingAmountQuery } from 'services/limitOrder'
-import styled from 'styled-components'
 
 import Column from 'components/Column'
 import Modal from 'components/Modal'
+import LimitOrderForm, { Label, LimitOrderFormHandle } from 'components/swapv2/LimitOrder/LimitOrderForm'
 import { useEstimateFee, useProcessCancelOrder } from 'components/swapv2/LimitOrder/ListOrder/useRequestCancelOrder'
 import CancelButtons from 'components/swapv2/LimitOrder/Modals/CancelButtons'
 import { CancelStatus } from 'components/swapv2/LimitOrder/Modals/CancelOrderModal'
 import CancelStatusCountDown from 'components/swapv2/LimitOrder/Modals/CancelStatusCountDown'
+import { calcInvert, calcPercentFilledOrder, calcRate, removeTrailingZero } from 'components/swapv2/LimitOrder/helpers'
+import {
+  CancelOrderFunction,
+  CancelOrderType,
+  EditOrderInfo,
+  LimitOrder,
+  LimitOrderStatus,
+  RateInfo,
+} from 'components/swapv2/LimitOrder/type'
 import { useIsSupportSoftCancelOrder } from 'components/swapv2/LimitOrder/useFetchActiveAllOrders'
 import { Z_INDEXS } from 'constants/styles'
 import { useActiveWeb3React } from 'hooks'
 import { useCurrencyV2 } from 'hooks/Tokens'
-import useTheme from 'hooks/useTheme'
 import { TransactionFlowState } from 'types/TransactionFlowState'
-
-import LimitOrderForm, { Label, LimitOrderFormHandle } from './LimitOrderForm'
-import { calcInvert, calcPercentFilledOrder, calcRate, removeTrailingZero } from './helpers'
-import { CancelOrderFunction, CancelOrderType, EditOrderInfo, LimitOrder, LimitOrderStatus, RateInfo } from './type'
-
-const Wrapper = styled.div`
-  width: 100%;
-  padding: 20px 22px;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-`
-
-const StyledLabel = styled(Label)`
-  margin-bottom: 0;
-`
+import { formatUnits } from 'utils/viem'
 
 enum Steps {
   EDIT_ORDER,
@@ -65,8 +56,8 @@ export default function EditOrderModal({
   const { status, makingAmount, takingAmount, makerAsset, takerAsset, filledTakingAmount, expiredAt } = order
   const currencyIn = useCurrencyV2(makerAsset, customChainId) ?? undefined
   const currencyOut = useCurrencyV2(takerAsset, customChainId) ?? undefined
-  const inputAmount = currencyIn ? ethers.utils.formatUnits(makingAmount, currencyIn.decimals) : ''
-  const outputAmount = currencyOut ? ethers.utils.formatUnits(takingAmount, currencyOut.decimals) : ''
+  const inputAmount = currencyIn ? formatUnits(BigInt(makingAmount), currencyIn.decimals) : ''
+  const outputAmount = currencyOut ? formatUnits(BigInt(takingAmount), currencyOut.decimals) : ''
 
   const formatIn = inputAmount ? removeTrailingZero(inputAmount) : inputAmount
   const formatOut = outputAmount ? removeTrailingZero(outputAmount) : outputAmount
@@ -101,7 +92,6 @@ export default function EditOrderModal({
 
   const estimateGas = useEstimateFee({ orders })
 
-  const theme = useTheme()
   const isReviewOrder = step === Steps.REVIEW_ORDER
   const onBack = () => {
     setStep(Steps.EDIT_ORDER)
@@ -160,23 +150,23 @@ export default function EditOrderModal({
   const editOrderInfo: EditOrderInfo = { isEdit: true, gasFee: estimateGas, cancelType, renderCancelButtons }
   return (
     <Modal isOpen={isOpen && !!currencyIn && !!currencyOut && !!defaultActiveMakingAmount} onDismiss={onDismiss}>
-      <Wrapper>
-        <Flex justifyContent={'space-between'} alignItems="center">
-          {showReview ? <ChevronLeft style={{ cursor: 'pointer', color: theme.subText }} onClick={onBack} /> : <div />}
-          <Text>{showReview ? <Trans>Review your order</Trans> : <Trans>Edit Order</Trans>}</Text>
-          <X style={{ cursor: 'pointer', color: theme.subText }} onClick={onDismiss} />
-        </Flex>
+      <div className="flex w-full flex-col gap-4 px-[22px] py-5">
+        <div className="flex items-center justify-between">
+          {showReview ? <ChevronLeft className="cursor-pointer text-subText" onClick={onBack} /> : <div />}
+          <span>{showReview ? <Trans>Review your order</Trans> : <Trans>Edit Order</Trans>}</span>
+          <X className="cursor-pointer text-subText" onClick={onDismiss} />
+        </div>
 
-        <Column gap="10px">
-          <StyledLabel>
+        <Column className="gap-2.5">
+          <Label className="mb-0">
             <Trans>
               Editing this order will automatically cancel your existing order and a new order will be created.
             </Trans>
-          </StyledLabel>
+          </Label>
           {status === LimitOrderStatus.PARTIALLY_FILLED && (
-            <StyledLabel>
+            <Label className="mb-0">
               <Trans>Your currently existing order is {filled}% filled.</Trans>
-            </StyledLabel>
+            </Label>
           )}
         </Column>
 
@@ -198,7 +188,7 @@ export default function EditOrderModal({
             defaultExpire={defaultExpire}
           />
         )}
-      </Wrapper>
+      </div>
     </Modal>
   )
 }

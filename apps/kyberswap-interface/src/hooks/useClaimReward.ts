@@ -1,18 +1,20 @@
-import { TransactionResponse } from '@ethersproject/providers'
 import { CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
-import { BigNumber } from 'ethers'
+import { readContract } from '@wagmi/core'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import externalApi from 'services/externalApi'
 
-import CLAIM_REWARD_ABI from 'constants/abis/claim-reward.json'
+import { wagmiConfig } from 'components/Web3Provider'
+import { CLAIM_REWARD_ABI } from 'constants/abis'
 import { CLAIM_REWARDS_DATA_URL, NETWORKS_INFO } from 'constants/networks'
 import { KNC } from 'constants/tokens'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
+import { useReadingContract, useSigningContract } from 'hooks/useContract'
 import { useAllTransactions, useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
-
-import { useReadingContract, useSigningContract } from './useContract'
+import { sendEVMTransaction } from 'utils/sendTransaction'
+import { ErrorName } from 'utils/transactionError'
+import { Address, encodeFunctionData } from 'utils/viem'
 
 interface IReward {
   index: number
@@ -32,8 +34,8 @@ interface IUserReward {
 }
 
 export default function useClaimReward() {
-  const { chainId, account } = useActiveWeb3React()
-  const { library } = useWeb3React()
+  const { chainId, account, walletKey } = useActiveWeb3React()
+  const { isSmartConnector } = useWeb3React()
 
   const rewardReadingContract = useReadingContract(
     NETWORKS_INFO[chainId].classic.claimReward ?? undefined,
@@ -43,7 +45,7 @@ export default function useClaimReward() {
     NETWORKS_INFO[chainId].classic.claimReward ?? undefined,
     CLAIM_REWARD_ABI,
   )
-  const isValid = !!chainId && !!account && !!library
+  const isValid = !!chainId && !!account
   const [isUserHasReward, setIsUserHasReward] = useState(false)
   const [rewardAmounts, setRewardAmounts] = useState('0')
   const [error, setError] = useState<string | null>(null)
@@ -71,13 +73,19 @@ export default function useClaimReward() {
       for (let i = 0; i < userRewards.length; i++) {
         const phase = userRewards[i]
         if (phase.reward) {
-          const res = await rewardReadingContract.getClaimedAmounts(
-            phase.phaseId || 0,
-            account || '',
-            phase.tokens || [],
-          )
+          const res = (await readContract(wagmiConfig, {
+            address: rewardReadingContract.address as Address,
+            abi: CLAIM_REWARD_ABI,
+            functionName: 'getClaimedAmounts',
+            args: [BigInt(phase.phaseId || 0), account || '', phase.tokens || []],
+            chainId: chainId as number,
+          })) as readonly bigint[]
           if (res) {
-            const remainAmounts = BigNumber.from(phase.reward.amounts[0]).sub(BigNumber.from(res[0])).toString()
+            // Clamp at 0 — on-chain `claimed` can briefly exceed `reward` after a
+            // re-org or off-chain data drift, and `CurrencyAmount.fromRawAmount`
+            // rejects negative values.
+            const diff = BigInt(phase.reward.amounts[0]) - BigInt(res[0].toString())
+            const remainAmounts = (diff < 0n ? 0n : diff).toString()
             setRewardAmounts(CurrencyAmount.fromRawAmount(KNC[chainId], remainAmounts).toSignificant(6))
             if (remainAmounts !== '0') {
               setPhaseId(i)
@@ -91,10 +99,10 @@ export default function useClaimReward() {
 
   useEffect(() => {
     setRewardAmounts('0')
-    if (data && chainId && account && library && userRewards) {
+    if (data && chainId && account && userRewards) {
       updateRewardAmounts().catch(error => console.log(error))
     }
-  }, [data, chainId, account, library, rewardReadingContract, userRewards, updateRewardAmounts])
+  }, [data, chainId, account, rewardReadingContract, userRewards, updateRewardAmounts])
 
   const addTransactionWithType = useTransactionAdder()
   const [attemptingTxn, setAttemptingTxn] = useState(false)
@@ -124,55 +132,63 @@ export default function useClaimReward() {
     }
   }, [hasPendingTx, resetTxn])
 
-  const claimRewardsCallback = useCallback(() => {
-    if (rewardSigningContract && chainId && account && library && data && userRewards[phaseId]) {
+  const claimRewardsCallback = useCallback(async () => {
+    if (rewardSigningContract && chainId && account && data && userRewards[phaseId]) {
       setAttemptingTxn(true)
       //execute isValidClaim method to pre-check
       const userReward = userRewards[phaseId]
-      rewardSigningContract
-        .isValidClaim(
-          userReward.phaseId,
-          userReward.reward?.index,
-          account,
-          userReward.tokens,
-          userReward.reward?.amounts,
-          userReward.reward?.proof,
-        )
-        .then((res: boolean) => {
-          if (res) {
-            return rewardSigningContract.getClaimedAmounts(
-              userReward.phaseId || 0,
-              account || '',
-              userReward.tokens || [],
-            )
-          } else {
-            throw new Error()
-          }
-        })
-        .then((res: number[]) => {
-          if (res) {
-            if (
-              res.length === 0 ||
-              !BigNumber.from(userReward.reward?.amounts[0]).sub(BigNumber.from(res[0])).isZero()
-            ) {
-              //if amount available for claim, execute claim method
-              return rewardSigningContract.claim(
-                userReward.phaseId,
-                userReward.reward?.index,
+      try {
+        const isValid = (await readContract(wagmiConfig, {
+          address: rewardSigningContract.address as Address,
+          abi: CLAIM_REWARD_ABI,
+          functionName: 'isValidClaim',
+          args: [
+            BigInt(userReward.phaseId),
+            BigInt(userReward.reward?.index ?? 0),
+            account,
+            userReward.tokens,
+            (userReward.reward?.amounts ?? []).map((v: string) => BigInt(v)),
+            userReward.reward?.proof ?? [],
+          ],
+          chainId: chainId as number,
+        })) as boolean
+        if (!isValid) throw new Error()
+
+        const claimed = (await readContract(wagmiConfig, {
+          address: rewardSigningContract.address as Address,
+          abi: CLAIM_REWARD_ABI,
+          functionName: 'getClaimedAmounts',
+          args: [BigInt(userReward.phaseId || 0), account || '', userReward.tokens || []],
+          chainId: chainId as number,
+        })) as readonly bigint[]
+        if (!claimed) throw new Error()
+
+        if (
+          claimed.length === 0 ||
+          BigInt(userReward.reward?.amounts[0] ?? '0') - BigInt(claimed[0].toString()) !== 0n
+        ) {
+          //if amount available for claim, execute claim method
+          const tx = await sendEVMTransaction({
+            account,
+            isSmartConnector,
+            chainId,
+            contractAddress: rewardSigningContract.address,
+            encodedData: encodeFunctionData({
+              abi: CLAIM_REWARD_ABI,
+              functionName: 'claim',
+              args: [
+                BigInt(userReward.phaseId),
+                BigInt(userReward.reward?.index ?? 0),
                 account,
                 userReward.tokens,
-                userReward.reward?.amounts,
-                userReward.reward?.proof,
-              )
-            } else {
-              setRewardAmounts('0')
-              throw new Error(t`Insufficient reward amount available for claim!`)
-            }
-          } else {
-            throw new Error()
-          }
-        })
-        .then((tx: TransactionResponse) => {
+                (userReward.reward?.amounts ?? []).map((v: string) => BigInt(v)),
+                userReward.reward?.proof ?? [],
+              ],
+            }),
+            value: 0n,
+            errorInfo: { name: ErrorName.GasRefundClaimError, wallet: walletKey },
+          })
+          if (!tx?.hash) throw new Error()
           setAttemptingTxn(false)
           setTxHash(tx.hash)
           addTransactionWithType({
@@ -184,18 +200,22 @@ export default function useClaimReward() {
               tokenSymbol: 'KNC',
             },
           })
-        })
-        .catch((err: any) => {
-          //on invalid claim reward
-          setAttemptingTxn(false)
-          setError(err.message || t`Something is wrong. Please try again later!`)
-        })
+        } else {
+          setRewardAmounts('0')
+          throw new Error(t`Insufficient reward amount available for claim!`)
+        }
+      } catch (err: any) {
+        //on invalid claim reward
+        setAttemptingTxn(false)
+        setError(err?.message || t`Something is wrong. Please try again later!`)
+      }
     }
   }, [
     rewardSigningContract,
     chainId,
     account,
-    library,
+    isSmartConnector,
+    walletKey,
     data,
     rewardAmounts,
     phaseId,

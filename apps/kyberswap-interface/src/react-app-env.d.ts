@@ -44,11 +44,13 @@ interface Window {
   rabby?: any
   coinbaseWalletExtension?: any
   safepalProvider?: any
+  __safepalEthereumBootstrap__?: { activeProvider?: { isSafePal?: boolean } }
   dataLayer?: any[]
   chrome?: any
   opr?: any
   zESettings?: any
 
   XverseProviders?: { BitcoinProvider: any }
+  FordefiProviders?: { UtxoProvider?: { unisatProvider?: any } }
   bitkeep?: any
 }

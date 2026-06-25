@@ -75,13 +75,13 @@ export const useZapActions = ({
       return `Switch to ${NETWORKS_INFO[poolChainId as keyof typeof NETWORKS_INFO]?.name || poolChainId}`
     }
 
-    if (tokenApprovalPending) return 'Approving...'
-    if (previewLoading) return 'Building...'
+    if (tokenApprovalPending) return 'Approving'
+    if (previewLoading) return 'Building'
     if (validationError) return validationError
 
     if (nextTokenToApprove) return `Approve ${nextTokenToApprove.symbol}`
     if (isZapImpactBlocked) return 'Zap Anyway'
-    if (routeLoading && !route) return 'Fetching Route...'
+    if (routeLoading && !route) return 'Fetching Route'
     if (routeError) return 'No route found'
     if (!route && hasPositiveInput && !validationError && !routeLoading) return 'No route found'
     if (isHighZapImpact) return 'Zap Anyway'

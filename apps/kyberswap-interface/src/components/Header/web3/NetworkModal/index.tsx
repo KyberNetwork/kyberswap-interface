@@ -3,7 +3,6 @@ import { Trans, t } from '@lingui/macro'
 import { LayoutGroup } from 'framer-motion'
 import { useEffect, useRef, useState } from 'react'
 import { X } from 'react-feather'
-import { Flex, Text } from 'rebass'
 import { useUpdateProfileMutation } from 'services/identity'
 
 import { ButtonAction } from 'components/Button'
@@ -19,14 +18,12 @@ import { NetworkInfo } from 'constants/networks/type'
 import { Z_INDEXS } from 'constants/styles'
 import { useActiveWeb3React } from 'hooks'
 import useChainsConfig, { ChainState } from 'hooks/useChainsConfig'
-import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
-import { Chain, NonEvmChain, NonEvmChainInfo } from 'pages/CrossChainSwap/adapters'
+import { Chain, NonEvmChain, NonEvmChainInfo } from 'pages/CrossChainSwap/adapters/types'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useNetworkModalToggle } from 'state/application/hooks'
 import { useSessionInfo } from 'state/authen/hooks'
 import { useFavoriteChains } from 'state/user/hooks'
-import { TYPE } from 'theme'
 
 const FAVORITE_DROPZONE_ID = 'favorite-dropzone'
 
@@ -78,13 +75,11 @@ export default function NetworkModal({
   customOnSelectNetwork?: (chain: Chain) => void
   customToggleModal?: () => void
   disabledMsg?: string
-}): JSX.Element | null {
-  const theme = useTheme()
+}): React.JSX.Element | null {
   const { isWrongNetwork } = useActiveWeb3React()
   const { userInfo } = useSessionInfo()
   const { trackingHandler } = useTracking()
   const [requestSaveProfile] = useUpdateProfileMutation()
-  // const [favoriteChains, setFavoriteChains] = useState<string[]>(userInfo?.data?.favouriteChainIds || [])
   const [favoriteChains, setFavoriteChains] = useFavoriteChains()
 
   const wrapperRef = useRef<HTMLDivElement>(null)
@@ -189,38 +184,27 @@ export default function NetworkModal({
 
     return (
       <>
-        <Row gap="12px">
-          <Text fontSize="10px" lineHeight="24px" color={theme.subText} flexShrink={0}>
-            {title}
-          </Text>
-          <hr style={{ borderWidth: '0 0 1px 0', borderColor: theme.border, width: '100%' }} />
+        <Row className="gap-3">
+          <span className="flex-shrink-0 text-[10px] leading-6 text-subText">{title}</span>
+          <hr className="w-full border-0 border-b border-solid border-border" />
         </Row>
-        <div style={{ position: 'relative', marginBottom: '12px', flexGrow: 1 }}>
+        <div className="relative mb-3 flex-grow">
           <DropzoneOverlay show={isDraggingRemoveFavorite} text={t`Remove from favorite`} />
           {displayChains.length === 0 ? (
-            <Row
-              border={'1px dashed ' + theme.text + '32'}
-              borderRadius="16px"
-              padding="16px 12px"
-              justify="center"
-              minHeight="60px"
-            >
-              <Text fontSize="10px" lineHeight="14px" color={theme.subText}>
+            <Row className="min-h-[60px] justify-center rounded-2xl border border-dashed border-text/20 px-3 py-4">
+              <span className="text-[10px] leading-[14px] text-subText">
                 <Trans>Drag here to unfavorite chain(s).</Trans>
-              </Text>
+              </span>
             </Row>
           ) : (
             <NetworkList data-testid="network-list">
-              <>
-                {/*Hardedcode for Ethereum and BTC render first*/}
-                {displayChains.map(renderNetworkButton)}
-              </>
+              <>{displayChains.map(renderNetworkButton)}</>
             </NetworkList>
           )}
           {isWrongNetwork && (
-            <TYPE.main fontSize={16} marginTop={14}>
+            <p className="m-0 mt-[14px] text-[16px] font-medium text-subText">
               <Trans>Please connect to the appropriate chain.</Trans>
-            </TYPE.main>
+            </p>
           )}
         </div>
       </>
@@ -237,63 +221,50 @@ export default function NetworkModal({
       zindex={Z_INDEXS.MODAL}
       minHeight="550px"
       maxWidth="800px"
-      bgColor={theme.background}
+      bgColor="var(--ks-background)"
     >
       <Wrapper ref={wrapperRef}>
-        <RowBetween alignItems="center">
-          <Text fontWeight="500" fontSize={20}>
+        <RowBetween className="items-center">
+          <span className="text-xl font-medium">
             {isWrongNetwork ? <Trans>Wrong Chain</Trans> : <Trans>Select a Chain</Trans>}
-          </Text>
-          <Flex alignItems="center" sx={{ gap: '8px' }}>
+          </span>
+          <div className="flex items-center gap-2">
             <SearchInput
               value={searchText}
               placeholder={t`Search by chain name`}
               onChange={val => {
                 setSearchText(val)
               }}
-              style={{
-                backgroundColor: theme.buttonBlack,
-              }}
+              className="bg-buttonBlack"
             />
             <ButtonAction onClick={toggleNetworkModal}>
               <X />
             </ButtonAction>
-          </Flex>
+          </div>
         </RowBetween>
 
-        <Column marginTop="16px" gap="8px" flexGrow={1}>
-          <Row gap="12px">
-            <Text fontSize="10px" lineHeight="24px" color={theme.subText} flexShrink={0}>
+        <Column className="mt-4 grow gap-2">
+          <Row className="gap-3">
+            <span className="flex-shrink-0 text-[10px] leading-6 text-subText">
               <Trans>Favorite Chain(s)</Trans>
-            </Text>
-            <hr style={{ borderWidth: '0 0 1px 0', borderColor: theme.border, width: '100%' }} />
+            </span>
+            <hr className="w-full border-0 border-b border-solid border-border" />
           </Row>
-          <div ref={favoriteDropRef} id={FAVORITE_DROPZONE_ID} style={{ position: 'relative' }}>
+          <div ref={favoriteDropRef} id={FAVORITE_DROPZONE_ID} className="relative">
             <DropzoneOverlay show={isDraggingAddToFavorite} text={t`Add to favorite`} />
             {favoriteChains.filter(item => activeChainIds.map(i => i.toString()).includes(item)).length === 0 &&
             !isDraggingAddToFavorite ? (
-              <Row
-                border={'1px dashed ' + theme.text + '32'}
-                borderRadius="16px"
-                padding="16px 12px"
-                justify="center"
-                minHeight="60px"
-              >
-                <Text fontSize="10px" lineHeight="14px" color={theme.subText}>
+              <Row className="min-h-[60px] justify-center rounded-2xl border border-dashed border-text/20 px-3 py-4">
+                <span className="text-[10px] leading-[14px] text-subText">
                   <Trans>Drag your favourite chain(s) here</Trans>
-                </Text>
+                </span>
               </Row>
             ) : (
               <NetworkList>
                 <LayoutGroup>
                   {orders.map(chainId => {
                     if (chainId === 'ghost') {
-                      return (
-                        <div
-                          key="ghost"
-                          style={{ height: '60px', backgroundColor: theme.tableHeader + '80', borderRadius: '16px' }}
-                        />
-                      )
+                      return <div key="ghost" className="h-[60px] rounded-2xl bg-tableHeader/50" />
                     }
                     const chainInfo = allChains.find(item => item.chainId.toString() === chainId)
 

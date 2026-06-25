@@ -1,114 +1,11 @@
 import { Placement } from '@popperjs/core'
 import Portal from '@reach/portal'
-import React, { useCallback, useState } from 'react'
+import React, { CSSProperties, useCallback, useState } from 'react'
 import { usePopper } from 'react-popper'
-import styled from 'styled-components'
 
 import { Z_INDEXS } from 'constants/styles'
 import useInterval from 'hooks/useInterval'
-
-const PopoverContainer = styled.div<{ show: boolean; opacity?: number }>`
-  z-index: ${Z_INDEXS.POPOVER_CONTAINER};
-
-  visibility: ${props => (props.show ? 'visible' : 'hidden')};
-  opacity: ${props => (props.show ? props.opacity || 0.95 : 0)};
-  transition: visibility 150ms linear, opacity 150ms linear;
-
-  background: ${({ theme }) => theme.tableHeader};
-  border: 1px solid transparent;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.32);
-  color: ${({ theme }) => theme.text2};
-  border-radius: 8px;
-
-  &::after {
-    content: '';
-    position: absolute;
-    background: transparent;
-  }
-
-  &[data-popper-placement^='bottom']::after {
-    top: -12px;
-    right: 0;
-    left: 0;
-    height: 12px;
-  }
-
-  &[data-popper-placement^='top']::after {
-    right: 0;
-    bottom: -12px;
-    left: 0;
-    height: 12px;
-  }
-
-  &[data-popper-placement^='left']::after {
-    top: 0;
-    right: -12px;
-    bottom: 0;
-    width: 12px;
-  }
-
-  &[data-popper-placement^='right']::after {
-    top: 0;
-    bottom: 0;
-    left: -12px;
-    width: 12px;
-  }
-`
-
-const ReferenceElement = styled.div`
-  display: block;
-`
-
-const Arrow = styled.div`
-  width: 10px;
-  height: 10px;
-  z-index: ${Z_INDEXS.POPOVER_CONTAINER - 1};
-
-  ::before {
-    position: absolute;
-    width: 10px;
-    height: 10px;
-    z-index: ${Z_INDEXS.POPOVER_CONTAINER - 1};
-
-    content: '';
-    border: 1px solid transparent;
-    transform: rotate(45deg);
-    background: ${({ theme }) => theme.tableHeader};
-  }
-
-  &.arrow-top {
-    bottom: -5px;
-    ::before {
-      border-top: none;
-      border-left: none;
-    }
-  }
-
-  &.arrow-bottom {
-    top: -5px;
-    ::before {
-      border-bottom: none;
-      border-right: none;
-    }
-  }
-
-  &.arrow-left {
-    right: -5px;
-
-    ::before {
-      border-bottom: none;
-      border-left: none;
-    }
-  }
-
-  &.arrow-right {
-    left: -5px;
-    ::before {
-      border-right: none;
-      border-top: none;
-    }
-  }
-`
+import { cn } from 'utils/cn'
 
 export interface PopoverProps {
   content: React.ReactNode
@@ -156,32 +53,42 @@ export default function Popover({
   }, [update])
   useInterval(updateCallback, show ? 100 : null)
 
+  const popoverInline: CSSProperties = {
+    zIndex: Z_INDEXS.POPOVER_CONTAINER,
+    opacity: show ? opacity ?? 0.95 : 0,
+    visibility: show ? 'visible' : 'hidden',
+    ...styles.popper,
+    ...style,
+  }
+
   return (
     <>
-      <ReferenceElement ref={setReferenceElement as any} style={containerStyle}>
+      <div ref={setReferenceElement as any} style={containerStyle} className="block">
         {children}
-      </ReferenceElement>
+      </div>
       {show && (
         <Portal>
-          <PopoverContainer
-            show={show}
+          <div
             ref={setPopperElement as any}
-            opacity={opacity}
-            style={{ ...styles.popper, ...style }}
+            style={popoverInline}
             onMouseEnter={onMouseEnter}
             onMouseLeave={onMouseLeave}
             {...attributes.popper}
+            className={cn(
+              'ks-popover-container rounded-lg border border-transparent bg-tableHeader text-text2 shadow-[0_4px_24px_rgba(0,0,0,0.6)]',
+              '[transition:visibility_150ms_linear,opacity_150ms_linear]',
+            )}
           >
             {content}
             {noArrow || (
-              <Arrow
-                className={`arrow-${attributes.popper?.['data-popper-placement'] ?? ''}`}
+              <div
                 ref={setArrowElement as any}
-                style={styles.arrow}
+                style={{ ...styles.arrow, zIndex: Z_INDEXS.POPOVER_CONTAINER - 1 }}
                 {...attributes.arrow}
+                className={cn('ks-popover-arrow', `arrow-${attributes.popper?.['data-popper-placement'] ?? ''}`)}
               />
             )}
-          </PopoverContainer>
+          </div>
         </Portal>
       )}
     </>

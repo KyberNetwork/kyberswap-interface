@@ -8,7 +8,7 @@ export default defineConfig({
   target: 'esnext',
   clean: true,
   dts: true, // This generates type declaration files
-  minify: false, // Set to true if you want to minify the output
+  minify: true,
   external: ['react', 'react-dom'], // Externals
   noExternal: ['styled-components', '@kyber/ui', '@kyber/hooks', 'lodash.throttle'],
 

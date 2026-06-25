@@ -48,7 +48,7 @@ export const useReviewTransaction = ({
   onTrackEvent,
 }: UseReviewTransactionProps) => {
   const { account } = useActiveWeb3React()
-  const { library } = useWeb3React()
+  const { isSmartConnector } = useWeb3React()
   const navigate = useNavigate()
   const { chainId, chainInfo, exchange, poolAddress } = usePoolDetailContext()
   const { txStatusMap, txHashMapping } = useAddLiquidityRuntimeContext()
@@ -114,7 +114,7 @@ export const useReviewTransaction = ({
   }, [chainId, currentTxHash, exchange, onTrackEvent, outputTokenItems, pool, poolAddress, route, statusPhase])
 
   const handleSubmit = useCallback(async () => {
-    if (!account || !library) return
+    if (!account) return
 
     setSubmitError(null)
 
@@ -129,7 +129,9 @@ export const useReviewTransaction = ({
 
     try {
       const { txHash, error } = await submitTransaction({
-        library,
+        account,
+        chainId,
+        isSmartConnector,
         txData: {
           from: account,
           to: buildData.routerAddress,
@@ -190,7 +192,7 @@ export const useReviewTransaction = ({
     buildData,
     chainId,
     exchange,
-    library,
+    isSmartConnector,
     onAddTrackedTxHash,
     onAddTransactionWithType,
     onTrackEvent,
@@ -200,11 +202,11 @@ export const useReviewTransaction = ({
   ])
 
   const handleViewPosition = useCallback(async () => {
-    if (!library || !currentTxHash) return
+    if (!currentTxHash) return
 
-    await navigateToPositionAfterZap(library, currentTxHash, chainId, exchange, poolAddress, navigate)
+    await navigateToPositionAfterZap(currentTxHash, chainId, exchange, poolAddress, navigate)
     onDismiss?.()
-  }, [chainId, currentTxHash, exchange, library, navigate, onDismiss, poolAddress])
+  }, [chainId, currentTxHash, exchange, navigate, onDismiss, poolAddress])
 
   return {
     confirmDisabled: isSubmitting || !buildData,

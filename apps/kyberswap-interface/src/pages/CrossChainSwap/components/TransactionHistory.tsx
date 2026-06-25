@@ -1,12 +1,9 @@
 import { t } from '@lingui/macro'
 import { format } from 'date-fns'
-import { rgba } from 'polished'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { ChevronRight } from 'react-feather'
 import Skeleton from 'react-loading-skeleton'
 import { useMedia } from 'react-use'
-import { Flex, Text } from 'rebass'
-import styled from 'styled-components'
 import { formatUnits } from 'viem'
 
 import { ReactComponent as NoTransactionIcon } from 'assets/svg/no_transaction.svg'
@@ -20,36 +17,17 @@ import useTracking, { CROSS_CHAIN_MIXPANEL_TYPE, TRACKING_EVENT_TYPE, useCrossCh
 import { NonEvmChain, NonEvmChainInfo } from 'pages/CrossChainSwap/adapters'
 import { TokenLogoWithChain } from 'pages/CrossChainSwap/components/TokenLogoWithChain'
 import { registry } from 'pages/CrossChainSwap/hooks/useCrossChainSwap'
+import { getChainName } from 'pages/CrossChainSwap/utils'
 import { useCrossChainTransactions } from 'state/crossChainSwap'
 import { ExternalLinkIcon, MEDIA_WIDTHS } from 'theme'
 import { getEtherscanLink, shortenHash } from 'utils'
+import { cn } from 'utils/cn'
+import { hexAlpha } from 'utils/colorAlpha'
 import { formatDisplayNumber } from 'utils/numbers'
-
-import { getChainName } from '../utils'
 
 const PAGE_SIZE = 5
 
-const TableHeader = styled.div`
-  display: grid;
-  grid-template-columns: 2fr 1fr 1fr 1fr 2fr;
-  border-top-left-radius: 1rem;
-  border-top-right-radius: 1rem;
-  background: ${({ theme }) => theme.background};
-  gap: 0.75rem;
-  color: ${({ theme }) => theme.subText};
-  font-size: 12px;
-  font-weight: 500;
-  padding: 0.75rem 1rem;
-`
-
-const TableRow = styled(TableHeader)`
-  margin-top: 0;
-  background: transparent;
-  border-bottom: 1px solid ${({ theme }) => theme.border};
-  font-size: 14px;
-  align-items: center;
-  color: ${({ theme }) => theme.text};
-`
+const TABLE_GRID = 'grid grid-cols-[2fr_1fr_1fr_1fr_2fr] gap-3 px-4 py-3 text-xs font-medium'
 
 export const TransactionHistory = () => {
   const { crossChainMixpanelHandler } = useCrossChainMixpanel()
@@ -259,25 +237,21 @@ export const TransactionHistory = () => {
   return (
     <>
       {upToSmall ? (
-        <Text fontWeight={500} fontSize={14} color={theme.subText}>
-          {t`HISTORY`}
-        </Text>
+        <span className="text-sm font-medium text-subText">{t`HISTORY`}</span>
       ) : (
-        <TableHeader>
-          <Text>{t`CREATED`}</Text>
-          <Text>{t`STATUS`}</Text>
-          <Text>{t`ROUTE`}</Text>
-          <Text>{t`AMOUNT`}</Text>
-          <Text textAlign="right">{t`ACTIONS`}</Text>
-        </TableHeader>
+        <div className={cn(TABLE_GRID, 'rounded-t-2xl bg-background text-subText')}>
+          <span>{t`CREATED`}</span>
+          <span>{t`STATUS`}</span>
+          <span>{t`ROUTE`}</span>
+          <span>{t`AMOUNT`}</span>
+          <span className="text-right">{t`ACTIONS`}</span>
+        </div>
       )}
       {transactions.length === 0 && (
-        <Flex flexDirection="column" alignItems="center">
+        <div className="flex flex-col items-center">
           <NoTransactionIcon width="120px" />
-          <Text color={theme.subText} padding="36px" textAlign="center" fontStyle="italic">
-            {t`No historical data available.`}
-          </Text>
-        </Flex>
+          <span className="p-9 text-center italic text-subText">{t`No historical data available.`}</span>
+        </div>
       )}
       {transactions.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE).map(tx => {
         const sourceChainLogo = [NonEvmChain.Near, NonEvmChain.Bitcoin, NonEvmChain.Solana].includes(tx.sourceChain)
@@ -289,7 +263,7 @@ export const TransactionHistory = () => {
 
         const time = (
           <div>
-            <Flex sx={{ gap: '4px' }} alignItems="center">
+            <div className="flex items-center gap-1">
               <img
                 src={registry.getAdapter(tx.adapter)?.getIcon()}
                 style={{ borderRadius: '50%' }}
@@ -297,15 +271,15 @@ export const TransactionHistory = () => {
                 height={16}
                 alt=""
               />
-              <Text>{format(new Date(tx.timestamp), 'dd/MM/yyyy')}</Text>
-              <Text color={theme.subText}>{format(new Date(tx.timestamp), 'HH:mm:ss')}</Text>
-            </Flex>
+              <span>{format(new Date(tx.timestamp), 'dd/MM/yyyy')}</span>
+              <span className="text-subText">{format(new Date(tx.timestamp), 'HH:mm:ss')}</span>
+            </div>
             {tx.sender && (
-              <Flex mt="8px" color={theme.blue} fontSize="14px" sx={{ gap: '4px' }} alignItems="center">
-                <Text color={theme.subText}>{t`Sender:`}</Text>{' '}
+              <div className="mt-2 flex items-center gap-1 text-sm text-blue">
+                <span className="text-subText">{t`Sender:`}</span>{' '}
                 {tx.sender.includes('.near') ? tx.sender : shortenHash(tx.sender)}
                 <CopyHelper toCopy={tx.sender} />
-              </Flex>
+              </div>
             )}
           </div>
         )
@@ -317,56 +291,50 @@ export const TransactionHistory = () => {
             : tx.status === 'Refunded'
             ? t`Refunded`
             : t`Processing`
+        const statusColor = tx.status === 'Success' ? theme.primary : tx.status === 'Failed' ? theme.red : theme.warning
         const status = (
-          <Flex
-            sx={{
-              borderRadius: '999px',
-              padding: '2px 8px',
-              width: 'fit-content',
-              height: 'fit-content',
-              background: rgba(
-                tx.status === 'Success' ? theme.primary : tx.status === 'Failed' ? theme.red : theme.warning,
-                0.2,
-              ),
-              color: tx.status === 'Success' ? theme.primary : tx.status === 'Failed' ? theme.red : theme.warning,
-              fontSize: '12px',
+          <div
+            className="flex size-fit items-center rounded-full px-2 py-0.5 text-xs"
+            style={{
+              backgroundColor: hexAlpha(statusColor, 0.2),
+              color: statusColor,
             }}
           >
             {tx.status ? statusLabel : t`Processing`}
-          </Flex>
+          </div>
         )
         const fromto = (
-          <Flex alignItems="center" color={theme.subText} sx={{ gap: '4px' }}>
+          <div className="flex items-center gap-1 text-subText">
             <img src={sourceChainLogo} alt="" width={16} height={16} />
             <ChevronRight size={14} />
             <img src={targetChainLogo} alt="" width={16} height={16} />
-          </Flex>
+          </div>
         )
 
         const amount = (
           <div style={{ zIndex: -1 }}>
-            <Flex sx={{ gap: '4px' }} alignItems="center" color={theme.subText} fontSize="12px">
+            <div className="flex items-center gap-1 text-xs text-subText">
               <TokenLogoWithChain chainId={tx.sourceChain as any} currency={tx.sourceToken} />-
               {formatDisplayNumber(formatUnits(BigInt(tx.inputAmount), tx.sourceToken.decimals), {
                 significantDigits: 6,
               })}{' '}
               {tx.sourceToken.symbol}
-            </Flex>
-            <Flex sx={{ gap: '4px' }} alignItems="center" color={theme.subText} mt="8px" fontSize="12px">
+            </div>
+            <div className="mt-2 flex items-center gap-1 text-xs text-subText">
               <TokenLogoWithChain chainId={tx.targetChain as any} currency={tx.targetToken} />+
               {formatDisplayNumber(formatUnits(BigInt(tx.outputAmount), tx.targetToken.decimals), {
                 significantDigits: 6,
               })}{' '}
               {tx.targetToken.symbol}
-            </Flex>
+            </div>
           </div>
         )
 
         const sourceTx = (
-          <Flex alignItems="center" sx={{ gap: '8px' }}>
+          <div className="flex items-center gap-2">
             {shortenHash(tx.sourceTxHash)}
             <ExternalLinkIcon
-              color={theme.subText}
+              className="text-subText"
               size={14}
               href={
                 tx.sourceChain === NonEvmChain.Near
@@ -378,13 +346,13 @@ export const TransactionHistory = () => {
                   : getEtherscanLink(tx.sourceChain as any, tx.sourceTxHash, 'transaction')
               }
             />
-          </Flex>
+          </div>
         )
         const fill = tx.targetTxHash ? (
-          <Flex alignItems="center" sx={{ gap: '8px' }}>
+          <div className="flex items-center gap-2">
             {shortenHash(tx.targetTxHash)}
             <ExternalLinkIcon
-              color={theme.subText}
+              className="text-subText"
               size={14}
               href={
                 tx.adapter.toLowerCase() === 'debridge'
@@ -398,7 +366,7 @@ export const TransactionHistory = () => {
                   : getEtherscanLink(tx.targetChain as any, tx.targetTxHash, 'transaction')
               }
             />
-          </Flex>
+          </div>
         ) : tx.status === 'Processing' ? (
           <Skeleton
             height="18px"
@@ -413,42 +381,30 @@ export const TransactionHistory = () => {
 
         if (upToSmall) {
           return (
-            <Flex key={tx.id} flexDirection="column" sx={{ gap: '12px' }} mt="24px">
-              <Flex justifyContent="space-between" alignItems="center" paddingX="12px">
+            <div key={tx.id} className="mt-6 flex flex-col gap-3">
+              <div className="flex items-center justify-between px-3">
                 {time} {status}
-              </Flex>
+              </div>
 
-              <Flex justifyContent="space-between" alignItems="center" paddingX="12px">
+              <div className="flex items-center justify-between px-3">
                 {fromto} {amount}
-              </Flex>
+              </div>
 
-              <Flex
-                fontSize={14}
-                justifyContent="space-between"
-                alignItems="center"
-                paddingX="12px"
-                color={theme.subText}
-              >
-                <Text color={theme.text}>{t`Deposit:`}</Text>
+              <div className="flex items-center justify-between px-3 text-sm text-subText">
+                <span className="text-text">{t`Deposit:`}</span>
                 {sourceTx}
-              </Flex>
-              <Flex
-                fontSize={14}
-                justifyContent="space-between"
-                alignItems="center"
-                paddingX="12px"
-                color={theme.subText}
-              >
-                <Text color={theme.text}>{t`Fill:`}</Text>
+              </div>
+              <div className="flex items-center justify-between px-3 text-sm text-subText">
+                <span className="text-text">{t`Fill:`}</span>
                 {fill}
-              </Flex>
+              </div>
               <Divider></Divider>
-            </Flex>
+            </div>
           )
         }
 
         return (
-          <TableRow key={tx.id}>
+          <div key={tx.id} className={cn(TABLE_GRID, 'items-center border-b border-border text-sm text-text')}>
             {time}
 
             {status}
@@ -458,16 +414,16 @@ export const TransactionHistory = () => {
             {amount}
 
             <div>
-              <Flex justifyContent="flex-end" sx={{ gap: '4px' }} color={theme.subText}>
-                <Text color={theme.text}>{t`Deposit:`}</Text>
+              <div className="flex justify-end gap-1 text-subText">
+                <span className="text-text">{t`Deposit:`}</span>
                 {sourceTx}
-              </Flex>
+              </div>
 
-              <Flex justifyContent="flex-end" sx={{ gap: '4px' }} color={theme.subText} mt="8px">
-                <Text color={theme.text}>{t`Fill:`}</Text> {fill}
-              </Flex>
+              <div className="mt-2 flex justify-end gap-1 text-subText">
+                <span className="text-text">{t`Fill:`}</span> {fill}
+              </div>
             </div>
-          </TableRow>
+          </div>
         )
       })}
       <Pagination

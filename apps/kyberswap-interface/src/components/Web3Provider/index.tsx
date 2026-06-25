@@ -1,7 +1,7 @@
 import { PUBLIC_RPC_ENDPOINTS } from '@kyber/rpc-client'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { watchChainId } from '@wagmi/core'
+import { reconnect, watchChainId } from '@wagmi/core'
 import { porto } from 'porto/wagmi'
 import { ReactNode, useEffect } from 'react'
 import { defineChain, fallback, http } from 'viem'
@@ -38,6 +38,7 @@ import SAFEPAL_ICON from 'assets/wallets-connect/safepal.svg'
 import WALLET_CONNECT_ICON from 'assets/wallets-connect/wallet-connect.svg'
 import INJECTED_DARK_ICON from 'assets/wallets/browser-wallet-dark.svg'
 import { WALLETCONNECT_PROJECT_ID } from 'constants/env'
+import { KYBERSWAP_URL } from 'constants/index'
 import { NETWORKS_INFO, isSupportedChainId } from 'constants/networks'
 import { useAppDispatch } from 'state/hooks'
 import { updateChainId } from 'state/user/actions'
@@ -185,6 +186,8 @@ export const CONNECTION = {
   BINANCE: 'com.binance.wallet',
   BITGET: 'com.bitget.web3',
   SAFEPAL: 'io.safepal',
+  // SafePal's EIP-6963 announce uses its download URL as rdns (non-standard).
+  SAFEPAL_RDNS: 'https://www.safepal.com/download',
 } as const
 
 export const CONNECTION_ORDER = [
@@ -288,16 +291,38 @@ const createPriorityConnector = ({ id, name, logo, url }: (typeof HardCodedConne
   })
 }
 
+// Resolve SafePal's EVM provider across both injection shapes the extension
+// uses: legacy `window.safepalProvider` (older builds) and the current
+// `window.__safepalEthereumBootstrap__.activeProvider` (newer builds, where
+// SafePal lazy-attaches the EVM provider behind a bootstrap object that also
+// holds Aptos/Tron providers + a setProvider switch). The active provider
+// carries an `isSafePal: true` flag even when it shims MetaMask via
+// `isMetaMask: true` / `__isMetaMaskShim__`, so use that to discriminate from
+// other wallets that may be active under the same bootstrap.
+export function getSafepalProvider(): typeof window.safepalProvider {
+  if (typeof window === 'undefined') return undefined
+  const active = window.__safepalEthereumBootstrap__?.activeProvider
+  if (active?.isSafePal) return active as typeof window.safepalProvider
+  return window.safepalProvider
+}
+
 function safepalConnector() {
   return createConnector(config => {
     const injectedConnector = injected({
-      target: () => ({ id: CONNECTION.SAFEPAL, name: 'SafePal', provider: window.safepalProvider }),
+      target: () => ({ id: CONNECTION.SAFEPAL, name: 'SafePal', provider: getSafepalProvider() }),
+      // SafePal's content script can inject `window.safepalProvider` after wagmi's
+      // mount-time reconnect already runs `isAuthorized()`. Without this shim the
+      // connector would return `false` synchronously and stay disconnected until a
+      // manual reconnect. The shim makes `isAuthorized()` wait up to 5s for
+      // `ethereum#initialized` (or re-check the target on timeout) so a slow
+      // content-script injection no longer drops the session on refresh.
+      unstable_shimAsyncInject: 5_000,
     })(config)
 
     const connect: typeof injectedConnector.connect = (...params) => {
-      if (!window.safepalProvider) {
+      if (!getSafepalProvider()) {
         window.open('https://www.safepal.com/download', '_blank')
-        return Promise.reject()
+        return Promise.reject(new Error('SafePal extension not installed'))
       }
       return injectedConnector.connect(...params)
     }
@@ -313,6 +338,12 @@ function safepalConnector() {
       get name() {
         return 'SafePal'
       },
+      // Pin the rdns SafePal advertises via EIP-6963 so wagmi's mipd dedup
+      // collapses the announced provider onto this custom connector instead of
+      // appending a second `id = <URL>` connector after first render. That keeps
+      // `recentConnectorId` stable as `io.safepal` and lets the reconnect path
+      // always find the same connector entry on refresh.
+      rdns: CONNECTION.SAFEPAL_RDNS,
       connect,
     }
   })
@@ -342,9 +373,9 @@ const WC_PARAMS = {
   projectId: WALLETCONNECT_PROJECT_ID,
   metadata: {
     name: 'KyberSwap',
-    description: document.title,
-    url: window.location.origin,
-    icons: ['https://kyberswap.com/favicon.svg'],
+    description: typeof document !== 'undefined' ? document.title : 'KyberSwap',
+    url: typeof window !== 'undefined' ? window.location.origin : KYBERSWAP_URL,
+    icons: [`${KYBERSWAP_URL}/favicon.svg`],
   },
   qrModalOptions: {
     chainImages: undefined,
@@ -453,8 +484,8 @@ export const wagmiConfig = createConfig({
     metaMask({
       dapp: {
         name: 'KyberSwap',
-        url: window.location.origin,
-        iconUrl: 'https://kyberswap.com/favicon.svg',
+        url: typeof window !== 'undefined' ? window.location.origin : KYBERSWAP_URL,
+        iconUrl: `${KYBERSWAP_URL}/favicon.svg`,
       },
       // SDK default is `metamask://connect/mwp?id=<session>` via `window.location.href`,
       // which iOS Safari rejects with "Safari cannot open the page because the address is
@@ -475,10 +506,11 @@ export const wagmiConfig = createConfig({
     walletConnect(WC_PARAMS),
     coinbaseWallet({
       appName: 'KyberSwap',
-      appLogoUrl: 'https://kyberswap.com/favicon.png',
+      appLogoUrl: `${KYBERSWAP_URL}/favicon.png`,
     }),
     safepalConnector(),
-    porto(),
+    // porto sets up an iframe Dialog at connector setup, which cannot run during SSR/prerender.
+    ...(import.meta.env.SSR ? [] : [porto()]),
     safe(),
     ...HardCodedConnectors.map(connector => createPriorityConnector(connector)),
   ],
@@ -498,6 +530,49 @@ export default function Web3Provider({ children }: { children: ReactNode }) {
       unwatch()
     }
   }, [dispatch])
+
+  // SafePal reconnect recovery. The extension lazy-attaches its EVM provider
+  // (window.__safepalEthereumBootstrap__.activeProvider — see getSafepalProvider)
+  // some time after the page loads and does NOT fire an EIP-6963 announce, so
+  // wagmi's mount-time reconnect runs before the provider exists, finds nothing
+  // via `connector.getProvider()`, and gives up without ever reaching
+  // `isAuthorized()` (where the shim lives). Poll for the bootstrap object and,
+  // once it lands, re-trigger reconnect so the custom safepalConnector finds it.
+  // Guarded so it only runs while no other connector is current.
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+
+    let triggered = false
+    let pollHandle: ReturnType<typeof setInterval> | null = null
+
+    const tryReconnect = () => {
+      if (triggered) return
+      if (!getSafepalProvider()) return
+      if (wagmiConfig.state.current) return
+      // Status `reconnecting`/`connecting` means wagmi is still iterating
+      // connectors; calling reconnect() now hits its `isReconnecting` re-entry
+      // guard and no-ops. Defer to the next poll tick.
+      const status = wagmiConfig.state.status
+      if (status === 'reconnecting' || status === 'connecting') return
+      triggered = true
+      if (pollHandle) clearInterval(pollHandle)
+      reconnect(wagmiConfig).catch(() => {})
+    }
+
+    let pollCount = 0
+    pollHandle = setInterval(() => {
+      pollCount += 1
+      if (pollCount > 50 || triggered) {
+        if (pollHandle) clearInterval(pollHandle)
+        return
+      }
+      tryReconnect()
+    }, 100)
+
+    return () => {
+      if (pollHandle) clearInterval(pollHandle)
+    }
+  }, [])
 
   return (
     <WagmiProvider config={wagmiConfig}>

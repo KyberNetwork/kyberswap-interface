@@ -4,23 +4,22 @@ import { Trans, t } from '@lingui/macro'
 import JSBI from 'jsbi'
 import { useCallback, useEffect, useState } from 'react'
 import { Plus } from 'react-feather'
-import { Text } from 'rebass'
 
 import { ButtonDropdownLight } from 'components/Button'
 import { LightCard } from 'components/Card'
 import { AutoColumn, ColumnCenter } from 'components/Column'
 import CurrencyLogo from 'components/CurrencyLogo'
+import Dots from 'components/Dots'
 import { FindPoolTabs } from 'components/NavigationTabs'
 import { NarrowPositionCard } from 'components/PositionCard'
 import Row from 'components/Row'
-import CurrencySearchModal from 'components/SearchModal/CurrencySearchModal'
+import TokenSelectorModal from 'components/TokenSelectorModal'
 import { APP_PATHS } from 'constants/index'
 import { NativeCurrencies } from 'constants/tokens'
 import { PairState, usePair } from 'data/Reserves'
 import { useActiveWeb3React } from 'hooks'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import AppBody from 'pages/AppBody'
-import { Dots } from 'pages/MyPool/styleds'
 import { usePairAdderByTokens } from 'state/user/hooks'
 import { useTokenBalances } from 'state/wallet/hooks'
 import { StyledInternalLink } from 'theme'
@@ -96,10 +95,10 @@ export default function PoolFinder() {
   }, [setShowSearch])
 
   const prerequisiteMessage = (
-    <LightCard padding="45px 10px">
-      <Text textAlign="center">
+    <LightCard className="px-2.5 py-[45px]">
+      <p className="text-center">
         {!account ? t`Connect to a wallet to find pools` : t`Select a token to find your liquidity.`}
-      </Text>
+      </p>
     </LightCard>
   )
 
@@ -115,7 +114,7 @@ export default function PoolFinder() {
   return (
     <AppBody>
       <FindPoolTabs />
-      <AutoColumn gap="md">
+      <AutoColumn className="gap-3">
         <ButtonDropdownLight
           onClick={() => {
             setShowSearch(true)
@@ -125,14 +124,12 @@ export default function PoolFinder() {
           {native0 ? (
             <Row>
               <CurrencyLogo currency={currency0 || undefined} />
-              <Text fontWeight={500} fontSize={20} marginLeft={'12px'}>
-                {native0?.symbol}
-              </Text>
+              <span className="ml-3 text-xl font-medium">{native0?.symbol}</span>
             </Row>
           ) : (
-            <Text fontWeight={500} fontSize={20} marginLeft={'12px'}>
+            <span className="ml-3 text-xl font-medium">
               <Trans>Select a token</Trans>
-            </Text>
+            </span>
           )}
         </ButtonDropdownLight>
 
@@ -149,23 +146,21 @@ export default function PoolFinder() {
           {native1 ? (
             <Row>
               <CurrencyLogo currency={currency1 || undefined} />
-              <Text fontWeight={500} fontSize={20} marginLeft={'12px'}>
-                {native1?.symbol}
-              </Text>
+              <span className="ml-3 text-xl font-medium">{native1?.symbol}</span>
             </Row>
           ) : (
-            <Text fontWeight={500} fontSize={20} marginLeft={'12px'}>
+            <span className="ml-3 text-xl font-medium">
               <Trans>Select a token</Trans>
-            </Text>
+            </span>
           )}
         </ButtonDropdownLight>
         {pairs.filter(([pairState]) => pairState === PairState.LOADING).length > 0 && (
-          <LightCard padding="45px 10px">
-            <AutoColumn gap="sm" justify="center">
-              <Text textAlign="center">
+          <LightCard className="px-2.5 py-[45px]">
+            <AutoColumn className="justify-center gap-2">
+              <p className="text-center">
                 <Trans>Loading</Trans>
                 <Dots />
-              </Text>
+              </p>
             </AutoColumn>
           </LightCard>
         )}
@@ -173,16 +168,14 @@ export default function PoolFinder() {
         {currency0 && currency1
           ? myPairs.length > 0 && (
               <>
-                <ColumnCenter
-                  style={{ justifyItems: 'center', backgroundColor: '', padding: '12px 0px', borderRadius: '12px' }}
-                >
-                  <Text textAlign="center" fontWeight={500}>
+                <ColumnCenter className="justify-items-center rounded-xl px-0 py-3">
+                  <p className="text-center font-medium">
                     <Trans>Pool Found!</Trans>
-                  </Text>
+                  </p>
                   <StyledInternalLink to={`${APP_PATHS.MY_POOLS}/${networkInfo.route}?tab=classic`}>
-                    <Text textAlign="center">
+                    <p className="text-center">
                       <Trans>Manage your pools.</Trans>
-                    </Text>
+                    </p>
                   </StyledInternalLink>
                 </ColumnCenter>
                 {myPairs}
@@ -191,11 +184,11 @@ export default function PoolFinder() {
           : prerequisiteMessage}
       </AutoColumn>
 
-      <CurrencySearchModal
+      <TokenSelectorModal
         isOpen={showSearch}
         onCurrencySelect={handleCurrencySelect}
         onDismiss={handleSearchDismiss}
-        showCommonBases
+        showPinnedTokens
         selectedCurrency={(activeField === Fields.TOKEN0 ? currency1 : currency0) ?? undefined}
       />
     </AppBody>
