@@ -23,6 +23,9 @@ const PoolAprBadges = ({ pool }: Props) => {
   if (!showEgReward && !showLmReward && !merklOpportunity) return null
 
   const tokenReward = merklOpportunity?.rewardsRecord.breakdowns[0]?.token
+  const lmRewardLogos = (pool.kemReward?.rewardCfg ?? [])
+    .map(reward => reward.tokenInfo?.logoURL)
+    .filter((logo): logo is string => !!logo)
 
   return (
     <HStack className="flex-nowrap items-center gap-1">
@@ -45,7 +48,15 @@ const PoolAprBadges = ({ pool }: Props) => {
           text={`${t`LM Rewards`}: ${formatAprNumber(lmApr)}%`}
         >
           <Badge>
-            <KyberBonusIcon width={16} height={16} />
+            {lmRewardLogos.length > 0 ? (
+              <HStack className="flex-nowrap items-center gap-0.5">
+                {lmRewardLogos.map((logo, index) => (
+                  <TokenLogo key={`${logo}-${index}`} src={logo} size={16} className="shrink-0" />
+                ))}
+              </HStack>
+            ) : (
+              <KyberBonusIcon width={16} height={16} />
+            )}
             <span>+{formatAprNumber(lmApr)}%</span>
           </Badge>
         </MouseoverTooltipDesktopOnly>
