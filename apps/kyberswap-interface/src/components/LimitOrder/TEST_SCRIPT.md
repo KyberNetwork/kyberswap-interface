@@ -9,6 +9,7 @@ Expected processing pattern:
 - Native and wrapped native balances are checked separately. Do not treat `ETH + WETH` as one available balance.
 - Native input wraps the full input amount. Existing WETH balance must not reduce the wrap amount.
 - Reserved active orders for native input are checked against existing WETH balance. The new native wrap and new order amount net out, so do not combine ETH and WETH.
+- Allowance active making amount is queried by `makerAsset` only because allowance is token-level, not pair-level.
 - Reserved active making amount is queried with both `makerAsset` and `takerAsset`. Active orders with the same input token but a different output token must not trigger the reserved order notice.
 - `Approve token` always appears. If allowance is already enough, it should auto-pass without wallet popup.
 
@@ -34,7 +35,7 @@ Expected processing pattern:
 - Example: create order `100 USDT -> 0.04 ETH`.
 - Wallet balance: `500 USDT`.
 - Existing allowance: `120 USDT`.
-- Reserved active making amount for the same pair: `50 USDT`.
+- Reserved active making amount for the same input token: `50 USDT`.
 - Required allowance check: `100 + 50 = 150 USDT`.
 - Expected processing steps: `Approve USDT`, `Sign order`.
 - Expected tx/signature: approve tx is requested because available allowance after reserved amount is only `70 USDT`.

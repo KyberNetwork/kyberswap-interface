@@ -1,9 +1,14 @@
-import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
+import { ChainId, Currency, CurrencyAmount, TokenAmount, WETH } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import { PropsWithChildren, ReactNode, useMemo } from 'react'
+import JSBI from 'jsbi'
+import { PropsWithChildren, ReactNode, useEffect, useMemo } from 'react'
 import { Link } from 'react-router-dom'
+import { useGetTotalActiveMakingAmountQuery } from 'services/limitOrder'
 
 import { DeltaRateLimitOrder, LimitOrderStatus, LimitOrderTab } from 'components/LimitOrder/types'
+import { useActiveWeb3React } from 'hooks'
+import { useCurrencyBalance } from 'state/wallet/hooks'
+import { subscribeNotificationOrderExpired } from 'utils/firebase'
 import { formatDisplayNumber } from 'utils/numbers'
 
 const AprHighlight = ({ children }: PropsWithChildren) => <span className="font-medium text-apr">{children}</span>
@@ -25,25 +30,84 @@ export const WORSE_PRICE_DIFF_THRESHOLD = -5
 export const BETTER_PRICE_DIFF_THRESHOLD = 30
 
 type UseWarningCreateOrderProps = {
+  chainId: ChainId
   currencyIn?: Currency
   currencyOut?: Currency
   deltaRate: DeltaRateLimitOrder
-  showReservedOrderNotice?: boolean
+  parsedInputAmount?: CurrencyAmount<Currency>
   wrapAmount?: CurrencyAmount<Currency>
 }
 
 export const useWarningCreateOrder = ({
+  chainId,
   currencyIn,
   currencyOut,
   deltaRate,
-  showReservedOrderNotice,
+  parsedInputAmount,
   wrapAmount,
 }: UseWarningCreateOrderProps) => {
+  const { account } = useActiveWeb3React()
+  const makerAsset = currencyIn?.wrapped.address
+  const takerAsset = currencyOut?.wrapped.address
+
+  const makingCurrency = useMemo(() => {
+    if (!currencyIn) return undefined
+    return currencyIn.isNative ? WETH[chainId] : currencyIn.wrapped
+  }, [chainId, currencyIn])
+
+  const inputBalance = useCurrencyBalance(currencyIn?.isNative ? undefined : currencyIn, chainId)
+  const wrappedNativeBalance = useCurrencyBalance(currencyIn?.isNative ? makingCurrency : undefined, chainId)
+
+  const { data: pairActiveOrderMakingAmount = '', refetch: getPairActiveMakingAmount } =
+    useGetTotalActiveMakingAmountQuery(
+      {
+        chainId,
+        makerAsset,
+        takerAsset,
+        account,
+      },
+      { skip: !makerAsset || !takerAsset || !account },
+    )
+
+  const parsedPairActiveOrderMakingAmount = useMemo(() => {
+    try {
+      if (makingCurrency && pairActiveOrderMakingAmount) {
+        return TokenAmount.fromRawAmount(makingCurrency, JSBI.BigInt(pairActiveOrderMakingAmount))
+      }
+    } catch (error) {}
+    return undefined
+  }, [makingCurrency, pairActiveOrderMakingAmount])
+
+  const showReservedOrderNotice = useMemo(() => {
+    if (!currencyIn || !parsedInputAmount || !parsedPairActiveOrderMakingAmount) return false
+    const reservedBalance = currencyIn.isNative ? wrappedNativeBalance : inputBalance
+    if (!reservedBalance?.currency.equals(parsedPairActiveOrderMakingAmount.currency)) return false
+    if (JSBI.equal(parsedPairActiveOrderMakingAmount.quotient, JSBI.BigInt(0))) return false
+
+    const remainingBalance = currencyIn.isNative
+      ? reservedBalance.quotient
+      : JSBI.subtract(reservedBalance.quotient, parsedInputAmount.quotient)
+    return JSBI.lessThan(remainingBalance, parsedPairActiveOrderMakingAmount.quotient)
+  }, [currencyIn, inputBalance, parsedInputAmount, parsedPairActiveOrderMakingAmount, wrappedNativeBalance])
+
+  useEffect(() => {
+    if (!account || !makerAsset || !takerAsset) return
+    const unsubscribeExpired = subscribeNotificationOrderExpired(account, chainId, () => {
+      try {
+        getPairActiveMakingAmount()
+      } catch (error) {}
+    })
+    return () => {
+      unsubscribeExpired?.()
+    }
+  }, [account, chainId, getPairActiveMakingAmount, makerAsset, takerAsset])
+
   const warning = useMemo(() => {
     const formWarnings: ReactNode[] = []
     const confirmWarnings: ReactNode[] = []
     let shouldWarnReview = false
     let shouldDisableReview = false
+
     const rawPercent = Number(deltaRate.rawPercent)
     const hasPercent = Number.isFinite(rawPercent)
     const displayPercent = deltaRate.percent.replace(/^[+-]/, '')

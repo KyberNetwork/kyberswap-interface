@@ -39,47 +39,18 @@ export const useCreateLimitOrder = ({
   const { currencyIn, currencyOut, chainId, inputAmount, outputAmount, displayRate, tradeInfo, deltaRate } = order
   const { account } = useActiveWeb3React()
 
-  const { data: activeOrderMakingAmount = '', refetch: getActiveMakingAmount } = useGetTotalActiveMakingAmountQuery(
-    {
-      chainId,
-      makerAsset: currencyIn?.wrapped.address,
-      takerAsset: currencyOut?.wrapped.address,
-      account,
-    },
-    { skip: !currencyIn || !currencyOut || !account },
-  )
-
   const parsedInputAmount = useMemo(
     () => tryParseAmount(inputAmount, currencyIn ?? undefined),
     [currencyIn, inputAmount],
   )
 
-  const { currentData } = useGetLOConfigQuery(chainId)
-  const limitOrderContract = currentData?.contract
-  const approvalCurrency = useMemo(() => {
-    if (!currencyIn) return undefined
-    return currencyIn.isNative ? WETH[chainId] : currencyIn.wrapped
-  }, [chainId, currencyIn])
-  const parsedApprovalAmount = useMemo(() => {
-    if (!approvalCurrency || !parsedInputAmount) return undefined
-    return TokenAmount.fromRawAmount(approvalCurrency, parsedInputAmount.quotient)
-  }, [approvalCurrency, parsedInputAmount])
-
-  const parsedActiveOrderMakingAmount = useMemo(() => {
-    try {
-      if (approvalCurrency && activeOrderMakingAmount) {
-        return TokenAmount.fromRawAmount(approvalCurrency, JSBI.BigInt(activeOrderMakingAmount))
-      }
-    } catch (error) {}
-    return undefined
-  }, [approvalCurrency, activeOrderMakingAmount])
-
   const balance = useCurrencyBalance(currencyIn, chainId)
-  const wrappedNativeBalance = useCurrencyBalance(currencyIn?.isNative ? approvalCurrency : undefined, chainId)
+
   const nativeWrapAmount = useMemo(() => {
     if (!currencyIn?.isNative || !parsedInputAmount || !balance?.currency.equals(currencyIn)) return undefined
     return balance.lessThan(parsedInputAmount) ? undefined : parsedInputAmount
   }, [balance, currencyIn, parsedInputAmount])
+
   const { insufficientBalance, onWrap, wrapAmount } = useLimitOrderWrapStep({
     chainId,
     amount: parsedInputAmount,
@@ -92,24 +63,36 @@ export const useCreateLimitOrder = ({
   const inputCurrencySymbol = currencyIn?.symbol
   const insufficientBalanceText = insufficientBalance ? t`Insufficient ${inputCurrencySymbol} balance` : undefined
 
-  const showReservedOrderNotice = (() => {
-    if (!currencyIn || !parsedInputAmount || !parsedActiveOrderMakingAmount) return false
-    const reservedBalance = currencyIn.isNative ? wrappedNativeBalance : balance
-    if (!reservedBalance?.currency.equals(parsedActiveOrderMakingAmount.currency)) return false
-    if (JSBI.equal(parsedActiveOrderMakingAmount.quotient, JSBI.BigInt(0))) return false
+  const { currentData } = useGetLOConfigQuery(chainId)
+  const limitOrderContract = currentData?.contract
 
-    const remainingBalance = currencyIn.isNative
-      ? reservedBalance.quotient
-      : JSBI.subtract(reservedBalance.quotient, parsedInputAmount.quotient)
-    return JSBI.lessThan(remainingBalance, parsedActiveOrderMakingAmount.quotient)
-  })()
+  const approvalCurrency = useMemo(() => {
+    if (!currencyIn) return undefined
+    return currencyIn.isNative ? WETH[chainId] : currencyIn.wrapped
+  }, [chainId, currencyIn])
 
-  const handleMaxInput = () => {
-    if (!maxAmountInput) return
+  const parsedApprovalAmount = useMemo(() => {
+    if (!approvalCurrency || !parsedInputAmount) return undefined
+    return TokenAmount.fromRawAmount(approvalCurrency, parsedInputAmount.quotient)
+  }, [approvalCurrency, parsedInputAmount])
+
+  const { data: activeOrderMakingAmount = '', refetch: getActiveMakingAmount } = useGetTotalActiveMakingAmountQuery(
+    {
+      chainId,
+      makerAsset: currencyIn?.wrapped.address,
+      account,
+    },
+    { skip: !currencyIn || !account },
+  )
+
+  const parsedActiveOrderMakingAmount = useMemo(() => {
     try {
-      onSetInput?.(maxAmountInput.toExact())
+      if (approvalCurrency && activeOrderMakingAmount) {
+        return TokenAmount.fromRawAmount(approvalCurrency, JSBI.BigInt(activeOrderMakingAmount))
+      }
     } catch (error) {}
-  }
+    return undefined
+  }, [approvalCurrency, activeOrderMakingAmount])
 
   // Allowance is checked inside the processing approve step so the modal can show the step even when it passes.
   const [approval, approveCallback] = useApproveCallback({
@@ -171,12 +154,20 @@ export const useCreateLimitOrder = ({
   }, [inputAmount, outputAmount, tradeInfo, currencyIn, currencyOut])
 
   const { shouldWarnReview, shouldDisableReview, formWarnings, confirmWarnings } = useWarningCreateOrder({
+    chainId,
     currencyIn,
     currencyOut,
     deltaRate,
-    showReservedOrderNotice,
+    parsedInputAmount,
     wrapAmount,
   })
+
+  const handleMaxInput = () => {
+    if (!maxAmountInput) return
+    try {
+      onSetInput?.(maxAmountInput.toExact())
+    } catch (error) {}
+  }
 
   const resetForm = () => {
     onResetForm?.()
@@ -201,7 +192,7 @@ export const useCreateLimitOrder = ({
   }
 
   useEffect(() => {
-    if (!account) return
+    if (!account || !currencyIn) return
     const unsubscribeExpired = subscribeNotificationOrderExpired(account, chainId, () => {
       try {
         getActiveMakingAmount()
@@ -210,7 +201,7 @@ export const useCreateLimitOrder = ({
     return () => {
       unsubscribeExpired?.()
     }
-  }, [account, chainId, getActiveMakingAmount])
+  }, [account, chainId, currencyIn, getActiveMakingAmount])
 
   return {
     estimateUSD,
