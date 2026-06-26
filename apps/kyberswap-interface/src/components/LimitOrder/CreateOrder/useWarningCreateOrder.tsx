@@ -47,8 +47,6 @@ export const useWarningCreateOrder = ({
   wrapAmount,
 }: UseWarningCreateOrderProps) => {
   const { account } = useActiveWeb3React()
-  const makerAsset = currencyIn?.wrapped.address
-  const takerAsset = currencyOut?.wrapped.address
 
   const makingCurrency = useMemo(() => {
     if (!currencyIn) return undefined
@@ -62,11 +60,11 @@ export const useWarningCreateOrder = ({
     useGetTotalActiveMakingAmountQuery(
       {
         chainId,
-        makerAsset,
-        takerAsset,
+        makerAsset: currencyIn?.wrapped.address,
+        takerAsset: currencyOut?.wrapped.address,
         account,
       },
-      { skip: !makerAsset || !takerAsset || !account },
+      { skip: !currencyIn || !currencyOut || !account },
     )
 
   const parsedPairActiveOrderMakingAmount = useMemo(() => {
@@ -91,7 +89,7 @@ export const useWarningCreateOrder = ({
   }, [currencyIn, inputBalance, parsedInputAmount, parsedPairActiveOrderMakingAmount, wrappedNativeBalance])
 
   useEffect(() => {
-    if (!account || !makerAsset || !takerAsset) return
+    if (!account || !currencyIn || !currencyOut) return
     const unsubscribeExpired = subscribeNotificationOrderExpired(account, chainId, () => {
       try {
         getPairActiveMakingAmount()
@@ -100,7 +98,7 @@ export const useWarningCreateOrder = ({
     return () => {
       unsubscribeExpired?.()
     }
-  }, [account, chainId, getPairActiveMakingAmount, makerAsset, takerAsset])
+  }, [account, chainId, currencyIn, currencyOut, getPairActiveMakingAmount])
 
   const warning = useMemo(() => {
     const formWarnings: ReactNode[] = []
