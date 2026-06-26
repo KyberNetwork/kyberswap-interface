@@ -1,8 +1,8 @@
 import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { PropsWithChildren, ReactNode, useMemo } from 'react'
+import { Link } from 'react-router-dom'
 
-import { ReservedOrderNotice } from 'components/LimitOrder/components'
 import { DeltaRateLimitOrder, LimitOrderStatus, LimitOrderTab } from 'components/LimitOrder/types'
 import { formatDisplayNumber } from 'utils/numbers'
 
@@ -12,11 +12,21 @@ const WarningHighlight = ({ children }: PropsWithChildren) => (
   <span className="font-medium text-warning">{children}</span>
 )
 
+const ReservedBalanceWarning = ({ tokenIn, tokenOut, to }: { tokenIn?: string; tokenOut?: string; to: string }) => (
+  <span className="text-xs font-medium italic text-subText">
+    <Trans>
+      Your {tokenIn} balance is fully used by existing {tokenIn}/{tokenOut} orders. Cancel or reduce an order to free up
+      balance. <Link to={to}>Review orders</Link>
+    </Trans>
+  </span>
+)
+
 export const WORSE_PRICE_DIFF_THRESHOLD = -5
 export const BETTER_PRICE_DIFF_THRESHOLD = 30
 
 type UseWarningCreateOrderProps = {
-  currencyIn: Currency | undefined
+  currencyIn?: Currency
+  currencyOut?: Currency
   deltaRate: DeltaRateLimitOrder
   showReservedOrderNotice?: boolean
   wrapAmount?: CurrencyAmount<Currency>
@@ -24,6 +34,7 @@ type UseWarningCreateOrderProps = {
 
 export const useWarningCreateOrder = ({
   currencyIn,
+  currencyOut,
   deltaRate,
   showReservedOrderNotice,
   wrapAmount,
@@ -32,6 +43,7 @@ export const useWarningCreateOrder = ({
     const formWarnings: ReactNode[] = []
     const confirmWarnings: ReactNode[] = []
     let shouldWarnReview = false
+    let shouldDisableReview = false
     const rawPercent = Number(deltaRate.rawPercent)
     const hasPercent = Number.isFinite(rawPercent)
     const displayPercent = deltaRate.percent.replace(/^[+-]/, '')
@@ -65,13 +77,20 @@ export const useWarningCreateOrder = ({
     }
 
     if (showReservedOrderNotice) {
+      shouldDisableReview = true
       const search = new URLSearchParams({
         tab: LimitOrderTab.MY_ORDER,
         orderTab: LimitOrderStatus.ACTIVE,
-        search: currencyIn?.wrapped.address ?? '',
+        search: currencyIn?.wrapped.symbol ?? '',
       }).toString()
 
-      addWarning(<ReservedOrderNotice symbol={currencyIn?.wrapped.symbol} to={`?${search}`} />, { hideOnForm: true })
+      formWarnings.push(
+        <ReservedBalanceWarning
+          tokenIn={currencyIn?.wrapped.symbol}
+          tokenOut={currencyOut?.wrapped.symbol}
+          to={`?${search}`}
+        />,
+      )
     }
 
     if (wrapAmount) {
@@ -92,9 +111,10 @@ export const useWarningCreateOrder = ({
 
     return {
       shouldWarnReview,
+      shouldDisableReview,
       formWarnings,
       confirmWarnings,
     }
-  }, [currencyIn, deltaRate.percent, deltaRate.rawPercent, showReservedOrderNotice, wrapAmount])
+  }, [currencyIn, currencyOut, deltaRate.percent, deltaRate.rawPercent, showReservedOrderNotice, wrapAmount])
   return warning
 }

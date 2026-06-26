@@ -258,12 +258,16 @@ const limitOrderApi = createApi({
       }),
       transformResponse,
     }),
-    getTotalActiveMakingAmount: builder.query<string, { chainId: ChainId; tokenAddress: string; account: string }>({
-      query: ({ chainId, tokenAddress, account }) => ({
+    getTotalActiveMakingAmount: builder.query<
+      string,
+      { chainId: ChainId; makerAsset?: string; takerAsset?: string; account?: string }
+    >({
+      query: ({ chainId, makerAsset, takerAsset, account }) => ({
         url: `${LIMIT_ORDER_API_READ}/v1/orders/active-making-amount`,
         params: {
           chainId: chainId + '',
-          makerAsset: tokenAddress,
+          makerAsset,
+          takerAsset,
           maker: account,
         },
       }),

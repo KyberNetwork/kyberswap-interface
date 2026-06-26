@@ -9,6 +9,7 @@ Expected processing pattern:
 - Native and wrapped native balances are checked separately. Do not treat `ETH + WETH` as one available balance.
 - Native input wraps the full input amount. Existing WETH balance must not reduce the wrap amount.
 - Reserved active orders for native input are checked against existing WETH balance. The new native wrap and new order amount net out, so do not combine ETH and WETH.
+- Reserved active making amount is queried with both `makerAsset` and `takerAsset`. Active orders with the same input token but a different output token must not trigger the reserved order notice.
 - `Approve token` always appears. If allowance is already enough, it should auto-pass without wallet popup.
 
 ## Create Order - ERC20 Input
@@ -33,7 +34,7 @@ Expected processing pattern:
 - Example: create order `100 USDT -> 0.04 ETH`.
 - Wallet balance: `500 USDT`.
 - Existing allowance: `120 USDT`.
-- Reserved active making amount: `50 USDT`.
+- Reserved active making amount for the same pair: `50 USDT`.
 - Required allowance check: `100 + 50 = 150 USDT`.
 - Expected processing steps: `Approve USDT`, `Sign order`.
 - Expected tx/signature: approve tx is requested because available allowance after reserved amount is only `70 USDT`.
@@ -93,23 +94,39 @@ Expected processing pattern:
 - Expected processing steps: `Approve WETH`, `Sign order`.
 - Expected tx/signature: no wrap tx; approve step auto-passes; order signing/API create runs.
 
+### 11. Reserved notice blocks review for same pair
+- Example: create order `1 WETH -> 3,500 USDT`.
+- Wallet balance: `1.2 WETH`, `0 ETH`.
+- Active orders: `1.2 WETH -> USDT`, `0.5 WETH -> DAI`.
+- Expected API query: `active-making-amount` is called with WETH as `makerAsset` and USDT as `takerAsset`.
+- Expected form warning: `Your WETH balance is fully used by existing WETH/USDT orders. Cancel or reduce an order to free up balance. Review orders`.
+- Expected result: review button is disabled and review modal cannot open.
+
+### 12. Reserved notice only counts same pair
+- Example: create order `1 WETH -> 3,500 USDT`.
+- Wallet balance: `1.2 WETH`, `0 ETH`.
+- Active orders: `0.5 WETH -> DAI`; no active `WETH -> USDT` order.
+- Expected API query: `active-making-amount` is called with WETH as `makerAsset` and USDT as `takerAsset`.
+- Expected API result: active making amount for `WETH -> USDT` is `0 WETH`.
+- Expected result: reserved order notice is not shown because the active WETH amount belongs to a different output token.
+
 ## Take / Fill Order - ERC20 Pay Token
 
-### 11. ERC20 pay token, allowance already enough
+### 13. ERC20 pay token, allowance already enough
 - Example: fill order requiring taker to pay `100 USDT` and receive `0.04 ETH`.
 - Wallet balance: `500 USDT`.
 - Existing USDT allowance: `200 USDT`.
 - Expected processing steps: `Approve token`, `Fill order`.
 - Expected tx: approve step auto-passes; no approve tx; fill tx is submitted.
 
-### 12. ERC20 pay token, allowance missing
+### 14. ERC20 pay token, allowance missing
 - Example: fill order requiring taker to pay `100 USDT`.
 - Wallet balance: `500 USDT`.
 - Existing USDT allowance: `20 USDT`.
 - Expected processing steps: `Approve token`, `Fill order`.
 - Expected tx: approve USDT tx is requested; fill tx starts after approval is detected.
 
-### 13. Fill amount exceeds available amount
+### 15. Fill amount exceeds available amount
 - Example: order has available amount `60 HYPE`.
 - User enters fill amount `100 HYPE`.
 - Expected helper text: `Max fill: 60 HYPE at this rate`.
@@ -118,21 +135,21 @@ Expected processing pattern:
 
 ## Take / Fill Order - WETH Pay Token
 
-### 14. WETH pay token, WETH balance and allowance already enough
+### 16. WETH pay token, WETH balance and allowance already enough
 - Example: fill order requiring taker to pay `1 WETH`.
 - Wallet balance: `2 WETH`, `0 ETH`.
 - Existing WETH allowance: `2 WETH`.
 - Expected processing steps: `Approve token`, `Fill order`.
 - Expected tx: no wrap tx; approve step auto-passes; fill tx is submitted.
 
-### 15. WETH pay token, WETH balance enough but allowance missing
+### 17. WETH pay token, WETH balance enough but allowance missing
 - Example: fill order requiring taker to pay `1 WETH`.
 - Wallet balance: `1.5 WETH`, `0 ETH`.
 - Existing WETH allowance: `0 WETH`.
 - Expected processing steps: `Approve token`, `Fill order`.
 - Expected tx: no wrap tx; approve WETH tx is requested; fill tx starts after approval is detected.
 
-### 16. WETH pay token, WETH balance insufficient even when ETH exists
+### 18. WETH pay token, WETH balance insufficient even when ETH exists
 - Example: fill order requiring taker to pay `1 WETH`.
 - Wallet balance: `0.4 WETH`, `2 ETH`.
 - Existing WETH allowance: `5 WETH`.
@@ -140,7 +157,7 @@ Expected processing pattern:
 - Expected result: processing modal cannot start.
 - Expected result: no wrap tx is requested; ETH balance is ignored for WETH pay token.
 
-### 17. WETH pay token, WETH balance insufficient and allowance missing
+### 19. WETH pay token, WETH balance insufficient and allowance missing
 - Example: fill order requiring taker to pay `1 WETH`.
 - Wallet balance: `0.4 WETH`, `2 ETH`.
 - Existing WETH allowance: `0 WETH`.
@@ -148,7 +165,7 @@ Expected processing pattern:
 - Expected result: processing modal cannot start.
 - Expected result: no wrap or approve tx is requested while WETH balance is insufficient.
 
-### 18. WETH pay token, max/default fill uses WETH balance only
+### 20. WETH pay token, max/default fill uses WETH balance only
 - Example: fill order requiring taker to pay `1 WETH`.
 - Wallet balance: `0.4 WETH`, `2 ETH`.
 - Existing WETH allowance: any value.
@@ -158,7 +175,7 @@ Expected processing pattern:
 
 ## Take / Fill Order - Fee and Encode Payload
 
-### 19. Fill threshold and taker fee display
+### 21. Fill threshold and taker fee display
 - Example: fill order requiring taker to pay `100 HYPE`, order rate `1 HYPE = 35 USDT`, taker fee `0.4%`.
 - Gross receive amount: `3,500 USDT`.
 - UI `You Receive`: `3,486 USDT`.
@@ -166,42 +183,42 @@ Expected processing pattern:
 
 ## Processing Modal Behavior
 
-### 20. Approve step auto-pass
+### 22. Approve step auto-pass
 - Example: allowance is already enough before opening processing modal.
 - Expected result: `Approve token` row is visible, then quickly changes to success without wallet popup.
 - Applies to: create order and take order.
 
-### 21. Processing cannot be dismissed mid-step
+### 23. Processing cannot be dismissed mid-step
 - Example: start `Wrap ETH`, `Approve token`, `Sign order`, or `Fill order`.
 - Expected result: clicking outside does not close modal.
 - Expected result: close icon is disabled while the active step is running.
 - Expected result: close works after success or error.
 
-### 22. Retry failed step
+### 24. Retry failed step
 - Example: reject approve in wallet.
 - Expected result: approve row becomes error.
 - Expected result: `Retry` appears on the same row without layout jump.
 - Expected result: retry reruns only approve step, not previous successful wrap step.
 
-### 23. Create success actions
+### 25. Create success actions
 - Example: create order finishes successfully.
 - Expected result: modal shows `Close` and `View Order`.
 - Expected result: `View Order` opens Limit page with `tab=my_order`.
 
-### 24. Take success actions
+### 26. Take success actions
 - Example: fill order tx is submitted successfully.
 - Expected result: modal shows `Close`.
 - Expected result: closing modal also closes the fill modal flow.
 
 ## Cancel Order
 
-### 25. Gasless cancel refresh
+### 27. Gasless cancel refresh
 - Example: cancel order `#123` with gasless cancel.
 - Expected result: cancel request succeeds.
 - Expected result: My Orders list refreshes.
 - Expected result: insufficient-orders badge refreshes.
 
-### 26. Hard cancel refresh
+### 28. Hard cancel refresh
 - Example: cancel order `#123` with hard cancel.
 - Expected result: cancel tx is submitted.
 - Expected result: cancel tx is added to the transaction store with the cancelled order id.
@@ -211,17 +228,17 @@ Expected processing pattern:
 
 ## URL / Tab Behavior
 
-### 27. Reserved order notice link
-- Example: notice says `Some of your USDT is already reserved... here`.
-- Native-input example: notice says the wrapped native symbol, e.g. `Some of your WETH is already reserved... here`.
-- Action: click `here`.
+### 29. Reserved order notice link
+- Example: notice says `Your USDT balance is fully used by existing USDT/ETH orders. Cancel or reduce an order to free up balance. Review orders`.
+- Native-input example: notice uses the wrapped native symbol, e.g. `Your WETH balance is fully used by existing WETH/USDT orders...`.
+- Action: click `Review orders`.
 - Expected result: confirm modal closes if it was open.
 - Expected URL params:
   - `tab=my_order`
   - `orderTab=active`
-  - `search=<input token address>`
+  - `search=<input token symbol>`
 
-### 28. View created order
+### 30. View created order
 - Example: create order on Ethereum pair `USDT -> ETH`.
 - Action: click `View Order` after success.
 - Expected result: opens Limit route for the current network/pair.

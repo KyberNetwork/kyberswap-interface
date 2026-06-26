@@ -2,16 +2,14 @@ import { Currency, CurrencyAmount, Price } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { useEffect, useMemo, useState } from 'react'
 import { Check, Info, Repeat } from 'react-feather'
-import { useParams, useSearchParams } from 'react-router-dom'
-import { useGetListOrdersQuery, useGetTotalActiveMakingAmountQuery } from 'services/limitOrder'
+import { Link, useParams, useSearchParams } from 'react-router-dom'
+import { useGetTotalActiveMakingAmountQuery } from 'services/limitOrder'
 import { calculatePriceImpact } from 'services/route/utils'
 
 import { ButtonOutlined, ButtonPrimary } from 'components/Button'
 import Dots from 'components/Dots'
 import InfoHelper from 'components/InfoHelper'
-import { ReservedOrderNotice } from 'components/LimitOrder/components'
 import { LimitOrderStatus, LimitOrderTab } from 'components/LimitOrder/types'
-import { calcPercentFilledOrder } from 'components/LimitOrder/utils'
 import Loader from 'components/Loader'
 import SlippageWarningNote from 'components/SlippageWarningNote'
 import { HStack, Stack } from 'components/Stack'
@@ -45,6 +43,15 @@ import { checkPriceImpact } from 'utils/prices'
 const SHOW_ACCEPT_NEW_AMOUNT_THRESHOLD = -1
 const AMOUNT_OUT_FROM_BUILD_ERROR_THRESHOLD = -5
 const SHOW_CONFIRM_MODAL_AFTER_CLICK_SWAP_THRESHOLD = -10
+
+const ReservedOrderNotice = ({ symbol, to }: { symbol: string | undefined; to: string }) => (
+  <span className="text-xs font-medium italic text-subText">
+    <Trans>
+      <span className="text-text">Notice</span>: Some of your {symbol} is already reserved by an open Limit Order -
+      review it <Link to={to}>here</Link>.
+    </Trans>
+  </span>
+)
 
 function ExecutionPrice({
   executionPrice,
@@ -124,7 +131,7 @@ export default function ConfirmSwapModalContent({
   const shouldDisableConfirmButton = isBuildingRoute || !!errorWhileBuildRoute
 
   const { currency: currencyParam } = useParams()
-  const { currencyIn } = useCurrenciesByPage()
+  const { currencyIn, currencyOut } = useCurrenciesByPage()
   const { chainId, account, networkInfo } = useActiveWeb3React()
   const [honeypot, setHoneypot] = useState<{ isHoneypot: boolean; isFOT: boolean; tax: number } | null>(null)
   useEffect(() => {
@@ -326,37 +333,15 @@ export default function ConfirmSwapModalContent({
 
   const [searchParams, setSearchParams] = useSearchParams()
   const { data: loActiveMakingAmount } = useGetTotalActiveMakingAmountQuery(
-    { chainId, tokenAddress: currencyIn?.wrapped.address ?? '', account: account ?? '' },
-    { skip: !currencyIn || !account || currencyIn.isNative },
-  )
-  const { data: { orders = [] } = {} } = useGetListOrdersQuery(
     {
       chainId,
-      maker: account,
-      status: LimitOrderStatus.ACTIVE,
-      query: currencyIn?.wrapped.address,
-      page: 1,
-      pageSize: 20,
+      makerAsset: currencyIn?.wrapped.address,
+      takerAsset: currencyOut?.wrapped.address,
+      account,
     },
-    { skip: !account || currencyIn?.isNative, refetchOnFocus: true },
+    { skip: !currencyIn || !currencyOut || !account || currencyIn.isNative },
   )
-
-  const ignoredOrders = useMemo(() => {
-    return orders.filter(order => {
-      const filledPercent = calcPercentFilledOrder(
-        order.filledTakingAmount,
-        order.takingAmount,
-        order.takerAssetDecimals,
-      )
-      return filledPercent === '99.99'
-    })
-  }, [orders])
-
-  const activeMakingAmount =
-    BigInt(loActiveMakingAmount || 0) -
-    ignoredOrders.reduce((acc, order) => {
-      return acc + BigInt(order.makingAmount) - BigInt(order.filledMakingAmount)
-    }, 0n)
+  const activeMakingAmount = BigInt(loActiveMakingAmount || 0)
 
   const balance = useTokenBalance(currencyIn?.wrapped)
 
@@ -516,7 +501,7 @@ export default function ConfirmSwapModalContent({
           {showLOWwarning && (
             <ReservedOrderNotice
               symbol={currencyIn?.symbol}
-              to={`${APP_PATHS.LIMIT}/${networkInfo.route}/${currencyParam}?tab=${LimitOrderTab.MY_ORDER}&orderTab=${LimitOrderStatus.ACTIVE}&search=${currencyIn?.wrapped.address}`}
+              to={`${APP_PATHS.LIMIT}/${networkInfo.route}/${currencyParam}?tab=${LimitOrderTab.MY_ORDER}&orderTab=${LimitOrderStatus.ACTIVE}&search=${currencyIn?.wrapped.symbol}`}
             />
           )}
 

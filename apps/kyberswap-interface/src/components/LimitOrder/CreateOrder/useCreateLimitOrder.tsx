@@ -40,8 +40,13 @@ export const useCreateLimitOrder = ({
   const { account } = useActiveWeb3React()
 
   const { data: activeOrderMakingAmount = '', refetch: getActiveMakingAmount } = useGetTotalActiveMakingAmountQuery(
-    { chainId, tokenAddress: currencyIn?.wrapped.address ?? '', account: account ?? '' },
-    { skip: !currencyIn || !account },
+    {
+      chainId,
+      makerAsset: currencyIn?.wrapped.address,
+      takerAsset: currencyOut?.wrapped.address,
+      account,
+    },
+    { skip: !currencyIn || !currencyOut || !account },
   )
 
   const parsedInputAmount = useMemo(
@@ -165,23 +170,16 @@ export const useCreateLimitOrder = ({
     })
   }, [inputAmount, outputAmount, tradeInfo, currencyIn, currencyOut])
 
-  const { shouldWarnReview, formWarnings, confirmWarnings } = useWarningCreateOrder({
+  const { shouldWarnReview, shouldDisableReview, formWarnings, confirmWarnings } = useWarningCreateOrder({
     currencyIn,
+    currencyOut,
     deltaRate,
     showReservedOrderNotice,
     wrapAmount,
   })
 
-  // Keep active making amount fresh after order state updates.
-  const refreshActiveMakingAmount = () => {
-    try {
-      getActiveMakingAmount()
-    } catch (error) {}
-  }
-
   const resetForm = () => {
     onResetForm?.()
-    refreshActiveMakingAmount()
   }
 
   const limitOrderTracking = useLimitOrderTracking({
@@ -204,12 +202,11 @@ export const useCreateLimitOrder = ({
 
   useEffect(() => {
     if (!account) return
-    const refreshActiveMakingAmount = () => {
+    const unsubscribeExpired = subscribeNotificationOrderExpired(account, chainId, () => {
       try {
         getActiveMakingAmount()
       } catch (error) {}
-    }
-    const unsubscribeExpired = subscribeNotificationOrderExpired(account, chainId, refreshActiveMakingAmount)
+    })
     return () => {
       unsubscribeExpired?.()
     }
@@ -247,6 +244,7 @@ export const useCreateLimitOrder = ({
       inputError,
       isNotFillAllInput,
       outputError,
+      shouldDisableReview,
       shouldWarnReview,
       formWarnings,
       confirmWarnings,

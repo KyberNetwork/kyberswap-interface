@@ -2,7 +2,6 @@ import { Currency } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { ReactNode, useState } from 'react'
 import { Repeat } from 'react-feather'
-import { Link } from 'react-router-dom'
 
 import { LimitOrder, RateInfo } from 'components/LimitOrder/types'
 import { formatRateLimitOrder, removeTrailingZero } from 'components/LimitOrder/utils'
@@ -14,15 +13,6 @@ const Label = ({ children, className, style, ...rest }: React.HTMLAttributes<HTM
   <div style={style} className={cn('text-sm font-medium text-subText', className)} {...rest}>
     {children}
   </div>
-)
-
-export const ReservedOrderNotice = ({ symbol, to }: { symbol: string | undefined; to: string }) => (
-  <span className="text-xs font-medium italic text-subText">
-    <Trans>
-      <span className="text-text">Notice</span>: Some of your {symbol} is already reserved by an open Limit Order -
-      review it <Link to={to}>here</Link>.
-    </Trans>
-  </span>
 )
 
 type SummaryRowType = { label: ReactNode; content: ReactNode }

@@ -104,7 +104,9 @@ const LimitOrderForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPr
   const { balance, estimateUSD, review, tracking, validation } = createOrder
 
   const validationError = validation.inputError || validation.outputError
-  const disableReviewButton = validation.isNotFillAllInput || !!validationError || balance.insufficientBalance
+  const disableReviewButton =
+    validation.isNotFillAllInput || !!validationError || balance.insufficientBalance || validation.shouldDisableReview
+
   const reviewButtonContent = (
     <span className="font-medium">
       {validationError ? (
