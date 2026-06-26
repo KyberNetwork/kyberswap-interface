@@ -108,7 +108,7 @@ const CreateOrderConfirmModal = ({ order, isOpen, needsWrap, onDismiss, onSubmit
   }, [isOpen])
 
   return (
-    <Modal maxWidth={480} isOpen={isOpen} onDismiss={() => onDismiss?.()} borderRadius={14}>
+    <Modal isOpen={isOpen} onDismiss={onDismiss} maxWidth={480} borderRadius={16}>
       <Stack className="w-full gap-5 p-5 max-sm:p-4">
         <HStack className="items-center justify-between gap-4">
           <span className="text-xl font-medium leading-tight text-text">

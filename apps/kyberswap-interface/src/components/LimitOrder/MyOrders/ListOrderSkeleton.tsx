@@ -28,11 +28,11 @@ const RowSkeleton = ({ isLast }: { isLast?: boolean }) => (
       <Skeleton width={90} height={12} />
     </Stack>
     <span className="justify-self-end max-[640px]:hidden">
-      <Skeleton width={104} height={26} borderRadius={13} />
+      <Skeleton width={104} height={26} />
     </span>
     <div className="flex items-center justify-end gap-1 max-[640px]:hidden">
-      <Skeleton width={28} height={28} borderRadius={14} />
-      <Skeleton width={28} height={28} borderRadius={14} />
+      <Skeleton width={28} height={28} />
+      <Skeleton width={28} height={28} />
     </div>
   </RowWrapper>
 )

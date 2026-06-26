@@ -160,9 +160,8 @@ export const useCreateLimitOrder = ({
     })
   }, [inputAmount, outputAmount, tradeInfo, currencyIn, currencyOut])
 
-  const warningMessage = useWarningCreateOrder({
+  const { shouldWarnReview, warningMessage } = useWarningCreateOrder({
     currencyIn,
-    displayRate,
     deltaRate,
     showReservedOrderNotice,
     wrapAmount,
@@ -244,6 +243,7 @@ export const useCreateLimitOrder = ({
       inputError,
       isNotFillAllInput,
       outputError,
+      shouldWarnReview,
       warningMessage,
     },
   }

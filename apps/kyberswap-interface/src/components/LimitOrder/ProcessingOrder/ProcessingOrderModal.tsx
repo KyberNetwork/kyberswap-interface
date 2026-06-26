@@ -175,7 +175,7 @@ const ProcessingOrderModal = <Step extends ProcessingOrderStep>({
   }
 
   return (
-    <Modal isOpen={state.show} onDismiss={handleDismiss} maxWidth={425} borderRadius={14}>
+    <Modal isOpen={state.show} onDismiss={handleDismiss} maxWidth={420} borderRadius={16}>
       <Stack className="w-full gap-5 p-5">
         <HStack className="items-center justify-between gap-4">
           <div className="text-xl font-medium text-text">{t`Processing Order`}</div>

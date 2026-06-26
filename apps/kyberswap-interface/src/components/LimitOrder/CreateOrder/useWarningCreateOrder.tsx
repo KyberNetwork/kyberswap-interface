@@ -1,6 +1,6 @@
 import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import { PropsWithChildren, useMemo } from 'react'
+import { PropsWithChildren, ReactNode, useMemo } from 'react'
 
 import { ReservedOrderNotice } from 'components/LimitOrder/components'
 import { DeltaRateLimitOrder, LimitOrderStatus, LimitOrderTab } from 'components/LimitOrder/types'
@@ -17,7 +17,6 @@ export const BETTER_PRICE_DIFF_THRESHOLD = 30
 
 type UseWarningCreateOrderProps = {
   currencyIn: Currency | undefined
-  displayRate: string
   deltaRate: DeltaRateLimitOrder
   showReservedOrderNotice?: boolean
   wrapAmount?: CurrencyAmount<Currency>
@@ -25,21 +24,18 @@ type UseWarningCreateOrderProps = {
 
 export const useWarningCreateOrder = ({
   currencyIn,
-  displayRate,
   deltaRate,
   showReservedOrderNotice,
   wrapAmount,
 }: UseWarningCreateOrderProps) => {
-  const warningMessage = useMemo(() => {
-    const messages = []
+  const warning = useMemo(() => {
+    const messages: ReactNode[] = []
+    let shouldWarnReview = false
     const rawPercent = Number(deltaRate.rawPercent)
     const hasPercent = Number.isFinite(rawPercent)
     const displayPercent = deltaRate.percent.replace(/^[+-]/, '')
-    const formattedWrapAmount = wrapAmount
-      ? formatDisplayNumber(wrapAmount.toExact(), { significantDigits: 6 })
-      : undefined
 
-    if (hasPercent && rawPercent >= BETTER_PRICE_DIFF_THRESHOLD)
+    if (hasPercent && rawPercent >= BETTER_PRICE_DIFF_THRESHOLD) {
       messages.push(
         <div className="text-xs font-medium italic text-subText">
           <Trans>
@@ -48,19 +44,22 @@ export const useWarningCreateOrder = ({
           </Trans>
         </div>,
       )
+    }
 
-    if (currencyIn && displayRate && hasPercent && rawPercent <= WORSE_PRICE_DIFF_THRESHOLD) {
+    if (hasPercent && rawPercent <= WORSE_PRICE_DIFF_THRESHOLD && rawPercent > -100) {
+      shouldWarnReview = true
       messages.push(
         <div className="text-xs font-medium italic text-subText">
           <Trans>
             Limit order price is <WarningHighlight>{displayPercent}</WarningHighlight> lower than the market. You will
-            be selling your {currencyIn.symbol} exceedingly cheap.
+            be selling your {currencyIn?.symbol} exceedingly cheap.
           </Trans>
         </div>,
       )
     }
 
     if (showReservedOrderNotice) {
+      shouldWarnReview = true
       const search = new URLSearchParams({
         tab: LimitOrderTab.MY_ORDER,
         orderTab: LimitOrderStatus.ACTIVE,
@@ -70,21 +69,25 @@ export const useWarningCreateOrder = ({
       messages.push(<ReservedOrderNotice symbol={currencyIn?.symbol} to={`?${search}`} />)
     }
 
-    if (wrapAmount && formattedWrapAmount) {
+    if (wrapAmount) {
+      const formattedWrapAmount = formatDisplayNumber(wrapAmount.toExact(), { significantDigits: 6 })
       messages.push(
-        <div className="text-xs font-medium text-subText">
+        <div className="text-xs font-medium italic text-subText">
           <Trans>
             You need to wrap{' '}
-            <WarningHighlight>
+            <AprHighlight>
               {formattedWrapAmount} {wrapAmount.currency.symbol}
-            </WarningHighlight>{' '}
+            </AprHighlight>{' '}
             before creating this order
           </Trans>
         </div>,
       )
     }
 
-    return messages
-  }, [currencyIn, deltaRate.percent, deltaRate.rawPercent, displayRate, showReservedOrderNotice, wrapAmount])
-  return warningMessage
+    return {
+      shouldWarnReview,
+      warningMessage: messages,
+    }
+  }, [currencyIn, deltaRate.percent, deltaRate.rawPercent, showReservedOrderNotice, wrapAmount])
+  return warning
 }

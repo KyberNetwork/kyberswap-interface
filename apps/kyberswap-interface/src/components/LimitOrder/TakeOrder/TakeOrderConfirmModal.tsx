@@ -288,7 +288,7 @@ const TakeOrderConfirmModal = ({ isOpen, order, onDismiss }: Props) => {
 
   return (
     <>
-      <Modal isOpen={isConfirmOpen} onDismiss={handleDismiss} maxWidth={460} borderRadius={14}>
+      <Modal isOpen={isConfirmOpen} onDismiss={handleDismiss} maxWidth={480} borderRadius={16}>
         <Stack className="w-full gap-5 p-5 max-sm:p-4">
           <HStack className="items-center justify-between gap-4">
             <span className="text-xl font-medium leading-tight text-text">

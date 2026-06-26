@@ -106,7 +106,6 @@ const LimitOrderForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPr
 
   const validationError = validation.inputError || validation.outputError
   const disableReviewButton = validation.isNotFillAllInput || !!validationError || balance.insufficientBalance
-  const shouldWarnReview = validation.warningMessage.length > 0
   const reviewButtonContent = (
     <span className="font-medium">
       {validationError ? (
@@ -205,7 +204,11 @@ const LimitOrderForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPr
               <Trans>Connect</Trans>
             </ButtonLight>
           ) : (
-            <ReviewButton disabled={disableReviewButton} hasWarning={shouldWarnReview} onClick={review.openReview}>
+            <ReviewButton
+              disabled={disableReviewButton}
+              hasWarning={validation.shouldWarnReview}
+              onClick={review.openReview}
+            >
               {reviewButtonContent}
             </ReviewButton>
           )}
