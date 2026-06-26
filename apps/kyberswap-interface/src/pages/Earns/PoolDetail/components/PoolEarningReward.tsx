@@ -19,20 +19,21 @@ import { type WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 
 const BLOCKS_PER_CYCLE = 2016
 
+type RewardCardTokenInfo = {
+  dailyAmount?: number
+  price?: number
+  symbol?: string
+  totalAmount?: number
+}
+
 type RewardCardItemProps = {
-  apr?: number
   chainIcon: string
   chainName: string
   from?: number
   icon?: string
   name: string
   to?: number
-  token: {
-    dailyAmount?: number
-    price?: number
-    symbol?: string
-    totalAmount?: number
-  }
+  tokens: RewardCardTokenInfo[]
 }
 
 type RewardCardData = RewardCardItemProps & {
@@ -43,7 +44,6 @@ type RewardTokenMetadata = WrappedTokenInfo | NativeCurrency
 type RewardTokenMap = Record<string, RewardTokenMetadata>
 type BuildLmRewardCardsParams = {
   cycleConfig?: CycleConfigResponse
-  lmApr: number
   poolDexIcon: string
   poolDexName: string
   rewardTokensByAddress: RewardTokenMap
@@ -51,34 +51,44 @@ type BuildLmRewardCardsParams = {
 
 const buildLmRewardCards = ({
   cycleConfig,
-  lmApr,
   poolDexIcon,
   poolDexName,
   rewardTokensByAddress,
 }: BuildLmRewardCardsParams): RewardCardData[] => {
   if (!cycleConfig?.rewardCfg.length) return []
 
-  return cycleConfig.rewardCfg.map((reward, index) => {
+  // A FairFlow LM cycle shares one distribution window across all its reward tokens, so group every
+  // reward token of the same reward chain into a single card with one row per token.
+  const cardsByChain = new Map<string, RewardCardData>()
+
+  cycleConfig.rewardCfg.forEach(reward => {
     const token = rewardTokensByAddress[reward.tokenAddress.toLowerCase()]
     const amountReward = getParsedRewardAmount(reward.amountReward, token?.decimals)
     const totalAmount = amountReward * BLOCKS_PER_CYCLE
-    const chainInfo = NETWORKS_INFO[token?.chainId as ChainId]
+    const chainId = token?.chainId as ChainId
+    const chainInfo = NETWORKS_INFO[chainId]
+    const tokenInfo: RewardCardTokenInfo = { symbol: token?.symbol, totalAmount }
 
-    return {
-      id: `lm-${reward.tokenAddress}-${index}`,
+    const chainKey = String(chainId ?? 'unknown')
+    const existing = cardsByChain.get(chainKey)
+    if (existing) {
+      existing.tokens.push(tokenInfo)
+      return
+    }
+
+    cardsByChain.set(chainKey, {
+      id: `lm-${chainKey}`,
       name: poolDexName,
       icon: poolDexIcon,
-      apr: lmApr / (cycleConfig.rewardCfg.length || 1),
       chainName: chainInfo?.name,
       chainIcon: chainInfo?.icon,
       from: cycleConfig.startTime,
       to: cycleConfig.endTime,
-      token: {
-        symbol: token?.symbol,
-        totalAmount,
-      },
-    }
+      tokens: [tokenInfo],
+    })
   })
+
+  return Array.from(cardsByChain.values())
 }
 
 const buildMerklRewardCards = ({ merklOpportunity }: { merklOpportunity?: MerklOpportunity }): RewardCardData[] => {
@@ -93,16 +103,17 @@ const buildMerklRewardCards = ({ merklOpportunity }: { merklOpportunity?: MerklO
       id: campaign.id,
       name: merklOpportunity.protocol.name,
       icon: merklOpportunity.protocol.icon,
-      apr: campaign.apr,
       chainName: chainInfo?.name,
       chainIcon: chainInfo?.icon,
       from: campaign.startTimestamp,
       to: campaign.endTimestamp,
-      token: {
-        dailyAmount,
-        price: reward?.token.price,
-        symbol: reward?.token.symbol,
-      },
+      tokens: [
+        {
+          dailyAmount,
+          price: reward?.token.price,
+          symbol: reward?.token.symbol,
+        },
+      ],
     }
   })
 }
@@ -142,7 +153,6 @@ const PoolEarningReward = () => {
   const rewardCards = useMemo(() => {
     const lmRewardCards = buildLmRewardCards({
       cycleConfig,
-      lmApr: pool?.poolStats?.kemLMApr ?? 0,
       poolDexIcon: dexInfo.logo,
       poolDexName: dexInfo.name,
       rewardTokensByAddress,
@@ -152,14 +162,7 @@ const PoolEarningReward = () => {
     })
 
     return [...lmRewardCards, ...merklRewardCards]
-  }, [
-    cycleConfig,
-    dexInfo.logo,
-    dexInfo.name,
-    pool?.merklOpportunity,
-    pool?.poolStats?.kemLMApr,
-    rewardTokensByAddress,
-  ])
+  }, [cycleConfig, dexInfo.logo, dexInfo.name, pool?.merklOpportunity, rewardTokensByAddress])
 
   if (!rewardCards.length) return null
 
@@ -172,9 +175,8 @@ const PoolEarningReward = () => {
   )
 }
 
-const RewardCardItem = ({ chainIcon, chainName, from, icon, name, to, token }: RewardCardItemProps) => {
+const RewardCardItem = ({ chainIcon, chainName, from, icon, name, to, tokens }: RewardCardItemProps) => {
   const progressPercent = getProgressPercent(from, to)
-  const distributedAmount = token.totalAmount ? (token.totalAmount * progressPercent) / 100 : 0
 
   return (
     <div className="flex min-w-[320px] flex-1 basis-[calc(50%-8px)] flex-col gap-3 rounded-xl bg-buttonGray p-4">
@@ -187,26 +189,32 @@ const RewardCardItem = ({ chainIcon, chainName, from, icon, name, to, token }: R
         <span className="text-xl font-medium text-text">{name}</span>
       </div>
 
-      {token.dailyAmount !== undefined ? (
-        <div className="flex flex-wrap items-baseline gap-1">
-          <span className="text-sm text-subText">Daily Rewards:</span>
-          <span className="font-medium text-text">
-            {formatAmount(token.dailyAmount)} {token.symbol}
-          </span>
-          {token.price !== undefined ? (
-            <span className="text-sm font-medium text-subText">~{formatUsdValue(token.dailyAmount * token.price)}</span>
-          ) : null}
-        </div>
-      ) : (
-        <div className="flex flex-wrap items-baseline gap-1">
-          <span className="font-medium text-text">
-            {formatAmount(distributedAmount)} {token.symbol}
-          </span>
-          <span className="text-sm font-medium text-subText">
-            / {formatAmount(token.totalAmount)} {token.symbol}
-          </span>
-        </div>
-      )}
+      <div className="flex flex-col gap-1">
+        {tokens.map((token, index) =>
+          token.dailyAmount !== undefined ? (
+            <div className="flex flex-wrap items-baseline gap-1" key={`${token.symbol}-${index}`}>
+              <span className="text-sm text-subText">Daily Rewards:</span>
+              <span className="font-medium text-text">
+                {formatAmount(token.dailyAmount)} {token.symbol}
+              </span>
+              {token.price !== undefined ? (
+                <span className="text-sm font-medium text-subText">
+                  ~{formatUsdValue(token.dailyAmount * token.price)}
+                </span>
+              ) : null}
+            </div>
+          ) : (
+            <div className="flex flex-wrap items-baseline gap-1" key={`${token.symbol}-${index}`}>
+              <span className="font-medium text-text">
+                {formatAmount(token.totalAmount ? (token.totalAmount * progressPercent) / 100 : 0)} {token.symbol}
+              </span>
+              <span className="text-sm font-medium text-subText">
+                / {formatAmount(token.totalAmount)} {token.symbol}
+              </span>
+            </div>
+          ),
+        )}
+      </div>
 
       <div className="relative flex flex-col">
         <ProgressBar backgroundColor="#ffffff14" color="#05966B" height="16px" percent={progressPercent} width="100%" />

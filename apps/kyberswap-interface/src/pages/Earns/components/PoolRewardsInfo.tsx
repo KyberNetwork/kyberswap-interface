@@ -132,6 +132,15 @@ const PoolRewardsInfo = ({ pool, showEstimate = true }: Props) => {
     }, 0)
   }, [kemRewardTokenPrices, kemRewardTokens, lmRewardDays])
 
+  const kemWeeklyTotalUsd = useMemo(
+    () =>
+      kemRewardTokens.reduce(
+        (sum, token) => sum + token.weeklyTotalAmount * (kemRewardTokenPrices[token.address] || 0),
+        0,
+      ),
+    [kemRewardTokenPrices, kemRewardTokens],
+  )
+
   const bonusRewards = (pool.merklOpportunity?.campaigns ?? []).reduce((sum, campaign) => {
     const rewardDays = getEffectiveRewardDays({
       endTime: campaign.endTimestamp,
@@ -198,30 +207,25 @@ const PoolRewardsInfo = ({ pool, showEstimate = true }: Props) => {
           )}
 
           {kemRewardTokens.length > 0 && (
-            <MouseoverTooltipDesktopOnly
-              text={
-                <Stack className="gap-1">
-                  {kemRewardTokens.map(token => (
-                    <Stack className="gap-0.5" key={token.address}>
-                      <HStack className="items-center gap-1">
-                        {token.logoURI ? <TokenLogo src={token.logoURI} size={16} /> : null}
-                        <span>
-                          {formatDisplayNumber(token.totalAmount, { significantDigits: 6 })} {token.symbol}
-                        </span>
-                      </HStack>
-                    </Stack>
-                  ))}
-                </Stack>
-              }
-              width="fit-content"
-              placement="bottom"
-            >
-              <HStack className="flex-wrap items-center justify-end gap-1">
-                {kemRewardTokens.map(token => (
-                  <TokenLogo key={token.address} src={token.logoURI} size={16} />
-                ))}
-              </HStack>
-            </MouseoverTooltipDesktopOnly>
+            <HStack className="flex-wrap items-center justify-end gap-1">
+              {kemRewardTokens.map(token => (
+                <MouseoverTooltipDesktopOnly
+                  key={token.address}
+                  text={
+                    <HStack className="items-center gap-1">
+                      {token.logoURI ? <TokenLogo src={token.logoURI} size={16} /> : null}
+                      <span>
+                        {formatDisplayNumber(token.totalAmount, { significantDigits: 6 })} {token.symbol}
+                      </span>
+                    </HStack>
+                  }
+                  width="fit-content"
+                  placement="bottom"
+                >
+                  <TokenLogo src={token.logoURI} size={16} />
+                </MouseoverTooltipDesktopOnly>
+              ))}
+            </HStack>
           )}
 
           {showEstimate && merklWeeklyRewards > 0 && (
@@ -246,34 +250,33 @@ const PoolRewardsInfo = ({ pool, showEstimate = true }: Props) => {
             </MouseoverTooltipDesktopOnly>
           )}
 
-          {showEstimate &&
-            kemRewardTokens.map(token => {
-              const tokenPrice = kemRewardTokenPrices[token.address] || 0
-              const weeklyTotalUsd = token.weeklyTotalAmount * tokenPrice
-
-              return (
-                <MouseoverTooltipDesktopOnly
-                  key={token.address}
-                  text={
-                    <p>
+          {showEstimate && kemRewardTokens.length > 0 && (
+            <MouseoverTooltipDesktopOnly
+              text={
+                <p>
+                  {kemRewardTokens.map((token, index) => (
+                    <span key={token.address}>
+                      {index > 0 ? ' and ' : ''}
                       <span className="font-medium text-blue3">
-                        {formatDisplayNumber(token.estWeeklyAmount, { significantDigits: 6 })} {token.symbol}/week
-                      </span>{' '}
-                      {`when adding $${depositAmount} liquidity (est)`}
-                    </p>
-                  }
-                  width="fit-content"
-                  placement="bottom"
-                >
-                  <Badge className="px-1.5 py-1">
-                    <RewardIcon width={16} height={16} />
-                    <span className="whitespace-nowrap">
-                      {formatDisplayNumber(weeklyTotalUsd, { style: 'currency', significantDigits: 4 })}/week
+                        {formatDisplayNumber(token.estWeeklyAmount, { significantDigits: 6 })} {token.symbol}
+                        {index === kemRewardTokens.length - 1 ? '/week' : ''}
+                      </span>
                     </span>
-                  </Badge>
-                </MouseoverTooltipDesktopOnly>
-              )
-            })}
+                  ))}{' '}
+                  {`when adding $${depositAmount} liquidity (est)`}
+                </p>
+              }
+              width="fit-content"
+              placement="bottom"
+            >
+              <Badge className="px-1.5 py-1">
+                <RewardIcon width={16} height={16} />
+                <span className="whitespace-nowrap">
+                  {formatDisplayNumber(kemWeeklyTotalUsd, { style: 'currency', significantDigits: 4 })}/week
+                </span>
+              </Badge>
+            </MouseoverTooltipDesktopOnly>
+          )}
         </HStack>
       )}
     </Stack>
