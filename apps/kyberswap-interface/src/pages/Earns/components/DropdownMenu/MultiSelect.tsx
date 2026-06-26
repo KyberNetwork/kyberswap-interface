@@ -117,7 +117,7 @@ const MultiSelect = ({
                     {option.value !== AllOptionValue && (
                       <button
                         type="button"
-                        className="pointer-events-none rounded-full bg-primary-20 px-2 py-0.5 text-xs font-medium leading-none text-primary opacity-0 transition-opacity hover:bg-primary-30 group-hover:pointer-events-auto group-hover:opacity-100"
+                        className="pointer-events-none rounded-full bg-primary-20 px-2 py-1.5 text-xs font-medium leading-none text-primary opacity-0 transition-opacity hover:bg-primary-30 group-hover:pointer-events-auto group-hover:opacity-100"
                         onClick={event => handleSelectOnly(event, option.value)}
                       >
                         {t`Only`}
