@@ -185,6 +185,7 @@
     overflow-y: scroll;
     overflow-x: hidden;
     display: flex;
+    flex-direction: column;
     align-self: center;
     margin: 0 0 2rem 0;
   }

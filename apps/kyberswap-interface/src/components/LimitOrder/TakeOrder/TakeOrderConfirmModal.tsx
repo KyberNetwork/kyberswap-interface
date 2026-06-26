@@ -1,5 +1,5 @@
 import { Currency, CurrencyAmount, Price, Token } from '@kyberswap/ks-sdk-core'
-import { Trans, t } from '@lingui/macro'
+import { Trans } from '@lingui/macro'
 import JSBI from 'jsbi'
 import { useEffect, useMemo, useState } from 'react'
 import { Repeat } from 'react-feather'
@@ -159,10 +159,16 @@ const TakeOrderConfirmModal = ({ isOpen, order, onDismiss }: Props) => {
     context,
     fillAmount,
   })
+  const processing = useProcessingOrder({
+    processingOrder: processingState,
+    setProcessingOrder: setProcessingState,
+    ...takeOrder.processing,
+  })
 
+  const { estimateTxGas } = takeOrder
   const {
-    maxPayAmount,
     maxBalancePayAmount,
+    maxPayAmount,
     parsedPayAmount,
     requiredPayAmount,
     receiveAmount,
@@ -174,42 +180,20 @@ const TakeOrderConfirmModal = ({ isOpen, order, onDismiss }: Props) => {
     insufficientBalance,
     canSubmit,
   } = takeOrder.amount
-  const { estimateTxGas } = takeOrder
-  const processing = useProcessingOrder({
-    processingOrder: processingState,
-    setProcessingOrder: setProcessingState,
-    ...takeOrder.processing,
-  })
 
   const payTokenAddress = context.payCurrency.wrapped.address
   const tokenPrices = useTokenPrices([payTokenAddress], context.order.chainId, PriceType.Average)
 
   const isConfirmOpen = isOpen && !processing.state.show
-  const fillAmountUsd = parsedPayAmount ? Number(parsedPayAmount.toExact()) * tokenPrices[payTokenAddress] : 0
-  const receiveAmountForComparison = receiveAmountAfterFee || receiveAmount
-  const orderRate = useMemo(() => formatRate(context), [context])
-  const invertedRate = useMemo(() => formatInvertedRate(context), [context])
-  const orderPriceAfterFee = useMemo(() => getOrderPriceAfterFee(context, feeBps), [context, feeBps])
-  const shouldWarnMarketDiff = order.marketDiffPercent > MARKET_DIFF_WARNING_THRESHOLD
-
-  const rate = (() => {
-    if (!showInvertedRate) return orderRate
-
-    return invertedRate
-  })()
-
-  const fillAmountError = insufficientBalance || exceedsAvailableAmount
-  const fillAmountErrorMessage = insufficientBalance
-    ? t`Insufficient Balance`
-    : exceedsAvailableAmount
-    ? t`Exceeds order available`
-    : ''
-
-  const fillAmountHelperMessage = wrapAmount && (
-    <Trans>
-      You need to wrap {formatExact(wrapAmount)} {wrapAmount.currency.symbol} before filling this order
-    </Trans>
+  const orderRate = useMemo(
+    () => (showInvertedRate ? formatInvertedRate(context) : formatRate(context)),
+    [context, showInvertedRate],
   )
+  const orderAvailableAmount = useMemo(
+    () => CurrencyAmount.fromRawAmount(context.receiveCurrency, context.order.availableMakingAmount),
+    [context],
+  )
+  const orderPriceAfterFee = useMemo(() => getOrderPriceAfterFee(context, feeBps), [context, feeBps])
 
   const walletBalance = balance?.currency.equals(context.payCurrency) ? balance : undefined
   const defaultPayAmount = useMemo(() => {
@@ -219,6 +203,50 @@ const TakeOrderConfirmModal = ({ isOpen, order, onDismiss }: Props) => {
 
     return maxBalancePayAmount.lessThan(maxPayAmount) ? maxBalancePayAmount : maxPayAmount
   }, [maxBalancePayAmount, maxPayAmount])
+
+  const fillAmountUsd = parsedPayAmount ? Number(parsedPayAmount.toExact()) * tokenPrices[payTokenAddress] : 0
+  const receiveAmountForComparison = receiveAmountAfterFee || receiveAmount
+  const shouldWarnMarketDiff = order.marketDiffPercent > MARKET_DIFF_WARNING_THRESHOLD
+  const isFillAmountEmpty = fillAmount.trim() === ''
+
+  const primaryActionMessage = (() => {
+    if (isFillAmountEmpty) return <Trans>Enter an amount</Trans>
+    if (insufficientBalance) return <Trans>Insufficient {context.payCurrency.symbol} balance</Trans>
+    return null
+  })()
+
+  const fillAmountMessage = (() => {
+    if (primaryActionMessage) {
+      return primaryActionMessage
+    }
+    if (exceedsAvailableAmount) {
+      return (
+        <Trans>
+          Only{' '}
+          <button
+            type="button"
+            className="border-none bg-transparent p-0 italic text-text hover:brightness-[0.85]"
+            onClick={() => setFillAmount(normalizeActionAmount(maxPayAmount?.toExact() || ''))}
+          >
+            {formatExact(maxPayAmount)} {context.payCurrency.symbol}
+          </button>{' '}
+          available to fill
+        </Trans>
+      )
+    }
+    if (wrapAmount) {
+      return (
+        <Trans>
+          You need to wrap{' '}
+          <span className="text-text">
+            {formatExact(wrapAmount)} {wrapAmount.currency.symbol}
+          </span>{' '}
+          before filling this order
+        </Trans>
+      )
+    }
+    return null
+  })()
 
   useEffect(() => {
     setFillAmount(normalizeActionAmount(defaultPayAmount?.toExact() || ''))
@@ -242,10 +270,6 @@ const TakeOrderConfirmModal = ({ isOpen, order, onDismiss }: Props) => {
     fetchGas()
     return () => controller.abort()
   }, [canSubmit, estimateTxGas, isConfirmOpen])
-
-  const handleDismiss = () => {
-    onDismiss?.()
-  }
 
   const handleSubmit = () => {
     if (!canSubmit) return
@@ -288,13 +312,13 @@ const TakeOrderConfirmModal = ({ isOpen, order, onDismiss }: Props) => {
 
   return (
     <>
-      <Modal isOpen={isConfirmOpen} onDismiss={handleDismiss} maxWidth={480} borderRadius={16}>
+      <Modal isOpen={isConfirmOpen} onDismiss={onDismiss} maxWidth={480} borderRadius={16}>
         <Stack className="w-full gap-5 p-5 max-sm:p-4">
           <HStack className="items-center justify-between gap-4">
             <span className="text-xl font-medium leading-tight text-text">
               <Trans>Fill Order</Trans>
             </span>
-            <CloseIcon onClick={handleDismiss} />
+            <CloseIcon onClick={onDismiss} />
           </HStack>
 
           <Stack className="gap-4">
@@ -316,22 +340,20 @@ const TakeOrderConfirmModal = ({ isOpen, order, onDismiss }: Props) => {
                   className="items-center justify-end gap-2 text-right text-lg font-medium leading-6 text-text transition hover:brightness-75"
                   onClick={() => setShowInvertedRate(value => !value)}
                 >
-                  <span>{rate}</span>
+                  <span>{orderRate}</span>
                   <Repeat size={14} className="shrink-0 text-subText" />
                 </HStack>
               </HStack>
-              <HStack className="items-center justify-end">
+              <HStack className="items-center justify-end gap-1">
+                <span className="text-xs text-subText">
+                  <Trans>Available</Trans>
+                </span>
                 <button
                   type="button"
-                  className="inline-flex items-center gap-1 border-none bg-transparent p-0 text-xs transition hover:brightness-75"
+                  className="rounded-xl border border-white-08 bg-white-04 px-2 py-1 text-xs font-medium text-subText transition hover:border-border hover:bg-white-08"
                   onClick={() => setFillAmount(normalizeActionAmount(maxPayAmount?.toExact() || ''))}
                 >
-                  <span className="text-subText">
-                    <Trans>Available</Trans>
-                  </span>
-                  <span className="font-medium text-text">
-                    {formatExact(maxPayAmount)} {context.payCurrency.symbol}
-                  </span>
+                  {formatExact(orderAvailableAmount)} {context.receiveCurrency.symbol}
                 </button>
               </HStack>
             </Stack>
@@ -341,12 +363,7 @@ const TakeOrderConfirmModal = ({ isOpen, order, onDismiss }: Props) => {
                 <Trans>Fill Amount</Trans>
               </span>
 
-              <Stack
-                className={cn(
-                  'relative gap-3 rounded-xl border border-transparent bg-buttonGray px-4 py-3',
-                  fillAmountError && 'border-red-30',
-                )}
-              >
+              <Stack className="relative gap-3 rounded-xl border border-transparent bg-buttonGray px-4 py-3">
                 <HStack className="items-center justify-between gap-3">
                   <HStack className="flex-wrap gap-1">
                     {QUICK_FILL_PERCENTS.map(percent => {
@@ -378,10 +395,7 @@ const TakeOrderConfirmModal = ({ isOpen, order, onDismiss }: Props) => {
                     value={fillAmount}
                     onUserInput={setFillAmount}
                     placeholder="0.0"
-                    className={cn(
-                      'min-w-0 flex-1 bg-transparent text-[28px] leading-none placeholder:text-subText',
-                      fillAmountError && 'text-red',
-                    )}
+                    className="min-w-0 flex-1 bg-transparent text-[28px] leading-none placeholder:text-subText"
                   />
                   {!!fillAmountUsd && (
                     <span className="shrink-0 px-0 py-2 text-xs text-subText">
@@ -395,9 +409,7 @@ const TakeOrderConfirmModal = ({ isOpen, order, onDismiss }: Props) => {
                   />
                 </HStack>
               </Stack>
-              <span className={cn('min-h-4 text-xs font-medium', fillAmountError ? 'text-red' : 'text-warning')}>
-                {fillAmountErrorMessage || fillAmountHelperMessage}
-              </span>
+              <span className="min-h-4 text-xs font-medium italic text-subText">{fillAmountMessage}</span>
             </Stack>
 
             <Stack className="gap-2 rounded-xl bg-buttonGray px-4 py-3">
@@ -424,7 +436,11 @@ const TakeOrderConfirmModal = ({ isOpen, order, onDismiss }: Props) => {
             />
 
             <HStack className="gap-3 max-sm:flex-col">
-              {shouldWarnMarketDiff ? (
+              {primaryActionMessage ? (
+                <ButtonPrimary altDisabledStyle disabled className="flex-1">
+                  {primaryActionMessage}
+                </ButtonPrimary>
+              ) : shouldWarnMarketDiff ? (
                 <>
                   <ButtonPrimary onClick={handleUseSwapInstead} className="flex-1">
                     <Trans>Use Swap Instead</Trans>
@@ -442,7 +458,7 @@ const TakeOrderConfirmModal = ({ isOpen, order, onDismiss }: Props) => {
                   <ButtonOutlined onClick={handleUseSwapInstead} className="flex-1 !border-border-primary">
                     <Trans>Use Swap Instead</Trans>
                   </ButtonOutlined>
-                  <ButtonPrimary onClick={handleSubmit} disabled={!canSubmit} className="flex-1">
+                  <ButtonPrimary altDisabledStyle onClick={handleSubmit} disabled={!canSubmit} className="flex-1">
                     {wrapAmount ? <Trans>Wrap & Fill this order</Trans> : <Trans>Fill this order</Trans>}
                   </ButtonPrimary>
                 </>

@@ -6,7 +6,7 @@ import { useSearchParams } from 'react-router-dom'
 import { useGetListOrdersQuery } from 'services/limitOrder'
 
 import { ReactComponent as NoDataIcon } from 'assets/svg/no_data.svg'
-import { ButtonLight } from 'components/Button'
+import { ButtonOutlined } from 'components/Button'
 import DropdownMenu, { MenuOption } from 'components/DropdownMenu'
 import CancelOrderModal from 'components/LimitOrder/CancelOrder/CancelOrderModal'
 import { useCancellingOrders } from 'components/LimitOrder/CancelOrder/useCancellingOrders'
@@ -312,15 +312,14 @@ const MyOrders = () => {
   }, [onReset, orderTab])
 
   const cancelAllButton = showCancelAll && (
-    <ButtonLight
-      color="var(--ks-red)"
+    <ButtonOutlined
       onClick={onCancelAllOrder}
       disabled={disabledCancelAll}
-      className="w-fit gap-1.5 px-3 py-1 text-sm"
+      className={cn('w-fit gap-1.5 px-3 py-1 text-sm', !disabledCancelAll && '!border-red-35 !text-red')}
     >
       {isLoadingCancelAllOrders ? <Loader size="14px" /> : <Trash size={14} />}
       <Trans>Cancel All</Trans>
-    </ButtonLight>
+    </ButtonOutlined>
   )
 
   return (
