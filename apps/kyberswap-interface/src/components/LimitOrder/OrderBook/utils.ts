@@ -22,8 +22,8 @@ export const getSchemaToken = (currency: Currency | undefined, isStable: boolean
 
   return {
     address: currency.wrapped.address,
-    symbol: currency.symbol || '',
-    name: currency.name || '',
+    symbol: currency.wrapped.symbol || '',
+    name: currency.wrapped.name || '',
     decimals: currency.decimals,
     isStable,
   }
@@ -46,13 +46,13 @@ export const formatOrders = (
         order.chainId,
         order.makerAsset,
         order.makerAssetDecimals,
-        order.makerAssetSymbol || makerCurrency.symbol,
+        makerCurrency.wrapped.symbol,
       )
       const newTakerCurrency = new Token(
         order.chainId,
         order.takerAsset,
         order.takerAssetDecimals,
-        order.takerAssetSymbol || takerCurrency.symbol,
+        takerCurrency.wrapped.symbol,
       )
 
       const makerCurrencyAmount = CurrencyAmount.fromRawAmount(newMakerCurrency, order.makingAmount)

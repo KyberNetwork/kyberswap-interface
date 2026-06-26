@@ -60,13 +60,13 @@ const OrderItem = ({ reverse, order, onTake, showInvertedRate }: OrderItemProps)
       </span>
       <SizeInfo
         amount={sizeAmount}
-        symbol={sizeCurrency?.symbol}
+        symbol={sizeCurrency?.wrapped.symbol}
         filledPercentText={filledPercent.toString()}
         filledProgressPercent={filledPercent}
       />
-      {!upToExtraSmall && <AmountWithSymbol amount={availableAmount} symbol={sizeCurrency?.symbol} />}
+      {!upToExtraSmall && <AmountWithSymbol amount={availableAmount} symbol={sizeCurrency?.wrapped.symbol} />}
       <RateText order={order} className={rateClassName} showInvertedRate={showInvertedRate} />
-      <AmountWithSymbol amount={totalAmount} symbol={totalCurrency?.symbol} />
+      <AmountWithSymbol amount={totalAmount} symbol={totalCurrency?.wrapped.symbol} />
       {!upToExtraSmall && (
         <CopyHelper toCopy={String(order.id)} margin="0" size={16} className="justify-self-end text-subText" />
       )}

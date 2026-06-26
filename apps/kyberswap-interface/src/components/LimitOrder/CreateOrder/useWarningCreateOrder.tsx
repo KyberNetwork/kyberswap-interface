@@ -65,14 +65,13 @@ export const useWarningCreateOrder = ({
     }
 
     if (showReservedOrderNotice) {
-      shouldWarnReview = true
       const search = new URLSearchParams({
         tab: LimitOrderTab.MY_ORDER,
         orderTab: LimitOrderStatus.ACTIVE,
         search: currencyIn?.wrapped.address ?? '',
       }).toString()
 
-      addWarning(<ReservedOrderNotice symbol={currencyIn?.symbol} to={`?${search}`} />)
+      addWarning(<ReservedOrderNotice symbol={currencyIn?.wrapped.symbol} to={`?${search}`} />, { hideOnForm: true })
     }
 
     if (wrapAmount) {

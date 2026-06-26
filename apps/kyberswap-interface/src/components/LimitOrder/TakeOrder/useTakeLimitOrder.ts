@@ -1,5 +1,4 @@
 import { t } from '@lingui/macro'
-import JSBI from 'jsbi'
 import { useCallback, useMemo } from 'react'
 import {
   FillOrderBody,
@@ -21,7 +20,6 @@ import {
   subtractFee,
 } from 'components/LimitOrder/TakeOrder/utils'
 import { useLimitOrderApproval } from 'components/LimitOrder/hooks/useLimitOrderApproval'
-import { useLimitOrderWrapStep } from 'components/LimitOrder/hooks/useLimitOrderWrapStep'
 import { LimitOrderTakeContext } from 'components/LimitOrder/types'
 import { getErrorMessage } from 'components/LimitOrder/utils'
 import { RTK_QUERY_TAGS } from 'constants/index'
@@ -41,6 +39,8 @@ type UseTakeLimitOrderProps = {
   context: LimitOrderTakeContext
   fillAmount: string
 }
+
+const TAKE_ORDER_PROCESSING_STEPS: ProcessingOrderStep[] = ['approve', 'fill']
 
 export const useTakeLimitOrder = ({ context, fillAmount }: UseTakeLimitOrderProps) => {
   const { account, walletKey } = useActiveWeb3React()
@@ -85,22 +85,16 @@ export const useTakeLimitOrder = ({ context, fillAmount }: UseTakeLimitOrderProp
   )
   const defaultPayAmount = useMemo(() => {
     if (!maxPayAmount) return undefined
-    if (!maxBalancePayAmount) return maxPayAmount
-    if (JSBI.equal(maxBalancePayAmount.quotient, JSBI.BigInt(0))) return maxPayAmount
+    if (!maxBalancePayAmount) return undefined
 
     return maxBalancePayAmount.lessThan(maxPayAmount) ? maxBalancePayAmount : maxPayAmount
   }, [maxBalancePayAmount, maxPayAmount])
 
-  const {
-    insufficientBalance,
-    onWrap,
-    wrapAmount: wrapAmountForOrder,
-  } = useLimitOrderWrapStep({
-    chainId,
-    currency: payCurrency,
-    amount: requiredPayAmount,
-    balance,
-  })
+  const insufficientBalance = useMemo(() => {
+    if (!requiredPayAmount) return false
+    if (!balance?.currency.equals(requiredPayAmount.currency)) return false
+    return balance.lessThan(requiredPayAmount)
+  }, [balance, requiredPayAmount])
 
   const canSubmit =
     !!account &&
@@ -212,14 +206,6 @@ export const useTakeLimitOrder = ({ context, fillAmount }: UseTakeLimitOrderProp
     walletKey,
   ])
 
-  const processingSteps = useMemo<ProcessingOrderStep[]>(() => {
-    const steps: ProcessingOrderStep[] = []
-    if (wrapAmountForOrder) steps.push('wrap')
-    steps.push('approve')
-    steps.push('fill')
-    return steps
-  }, [wrapAmountForOrder])
-
   return {
     amount: {
       maxPayAmount,
@@ -231,7 +217,6 @@ export const useTakeLimitOrder = ({ context, fillAmount }: UseTakeLimitOrderProp
       receiveAmountAfterFee,
       feeBps,
       balance,
-      wrapAmount: wrapAmountForOrder,
       insufficientBalance,
       canSubmit,
     },
@@ -240,12 +225,11 @@ export const useTakeLimitOrder = ({ context, fillAmount }: UseTakeLimitOrderProp
       approval,
       approveCallback: () => approveCallback(requiredPayAmount),
       checkApprovalManually,
-      steps: processingSteps,
-      onWrap,
+      steps: TAKE_ORDER_PROCESSING_STEPS,
       finalStep: 'fill' as const,
       onFinalStep: submitFillOrder,
       onError: (error: unknown, step: ProcessingOrderStep) => {
-        const title = step === 'wrap' ? t`Wrap Error` : step === 'approve' ? t`Approve Error` : t`Fill Order Error`
+        const title = step === 'approve' ? t`Approve Error` : t`Fill Order Error`
         notify({ type: NotificationType.ERROR, title, summary: getErrorMessage(error) })
       },
     },

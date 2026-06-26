@@ -91,17 +91,17 @@ const TakeOrderConfirmModal = ({ isOpen, order, onDismiss }: Props) => {
 
   const context = useMemo<LimitOrderTakeContext>(() => {
     const rawOrder = order.rawOrder
-    const getOrderCurrencySymbol = (asset: string, fallback?: string) => {
+    const getOrderCurrencySymbol = (asset: string) => {
       const assetAddress = asset.toLowerCase()
       if (makerCurrency && assetAddress === makerCurrency.wrapped.address.toLowerCase())
         return makerCurrency.wrapped.symbol
       if (takerCurrency && assetAddress === takerCurrency.wrapped.address.toLowerCase())
         return takerCurrency.wrapped.symbol
-      return fallback
+      return undefined
     }
 
-    const paySymbol = getOrderCurrencySymbol(rawOrder.takerAsset, rawOrder.takerAssetSymbol)
-    const receiveSymbol = getOrderCurrencySymbol(rawOrder.makerAsset, rawOrder.makerAssetSymbol)
+    const paySymbol = getOrderCurrencySymbol(rawOrder.takerAsset)
+    const receiveSymbol = getOrderCurrencySymbol(rawOrder.makerAsset)
     const payCurrency = new Token(rawOrder.chainId, rawOrder.takerAsset, rawOrder.takerAssetDecimals, paySymbol)
     const receiveCurrency = new Token(rawOrder.chainId, rawOrder.makerAsset, rawOrder.makerAssetDecimals, receiveSymbol)
 
@@ -130,7 +130,6 @@ const TakeOrderConfirmModal = ({ isOpen, order, onDismiss }: Props) => {
     receiveAmountAfterFee,
     feeBps,
     balance,
-    wrapAmount,
     insufficientBalance,
     canSubmit,
   } = takeOrder.amount
@@ -159,7 +158,6 @@ const TakeOrderConfirmModal = ({ isOpen, order, onDismiss }: Props) => {
     maxPayAmount,
     payCurrency: context.payCurrency,
     parsedPayAmount,
-    wrapAmount,
     onFillAmountChange: setFillAmount,
   })
 
@@ -353,7 +351,6 @@ const TakeOrderConfirmModal = ({ isOpen, order, onDismiss }: Props) => {
             <TakeOrderActionButtons
               canSubmit={canSubmit}
               primaryActionMessage={primaryActionMessage}
-              requiresWrap={!!wrapAmount}
               shouldWarnMarketDiff={shouldWarnMarketDiff}
               onSubmit={handleSubmit}
               onUseSwapInstead={handleUseSwapInstead}

@@ -26,7 +26,6 @@ type UseCreateLimitOrderProps = {
   onOpenReview?: () => void
   onSetInput?: (input: string) => void
   onResetForm?: () => void
-  switchToWeth?: () => void
 }
 
 export const useCreateLimitOrder = ({
@@ -36,12 +35,10 @@ export const useCreateLimitOrder = ({
   onOpenReview,
   onSetInput,
   onResetForm,
-  switchToWeth,
 }: UseCreateLimitOrderProps) => {
   const { currencyIn, currencyOut, chainId, inputAmount, outputAmount, displayRate, tradeInfo, deltaRate } = order
   const { account } = useActiveWeb3React()
 
-  // Base order data from API and typed input.
   const { data: activeOrderMakingAmount = '', refetch: getActiveMakingAmount } = useGetTotalActiveMakingAmountQuery(
     { chainId, tokenAddress: currencyIn?.wrapped.address ?? '', account: account ?? '' },
     { skip: !currencyIn || !account },
@@ -73,24 +70,32 @@ export const useCreateLimitOrder = ({
   }, [approvalCurrency, activeOrderMakingAmount])
 
   const balance = useCurrencyBalance(currencyIn, chainId)
-  const approvalBalance = useCurrencyBalance(approvalCurrency, chainId)
+  const wrappedNativeBalance = useCurrencyBalance(currencyIn?.isNative ? approvalCurrency : undefined, chainId)
+  const nativeWrapAmount = useMemo(() => {
+    if (!currencyIn?.isNative || !parsedInputAmount || !balance?.currency.equals(currencyIn)) return undefined
+    return balance.lessThan(parsedInputAmount) ? undefined : parsedInputAmount
+  }, [balance, currencyIn, parsedInputAmount])
   const { insufficientBalance, onWrap, wrapAmount } = useLimitOrderWrapStep({
     chainId,
-    currency: approvalCurrency,
-    amount: parsedApprovalAmount,
-    balance: approvalBalance,
+    amount: parsedInputAmount,
+    balance,
+    wrapAmount: nativeWrapAmount,
   })
 
   const maxAmountInput = maxAmountSpend(balance)
 
-  const insufficientBalanceText = insufficientBalance ? t`Insufficient Balance` : undefined
+  const inputCurrencySymbol = currencyIn?.symbol
+  const insufficientBalanceText = insufficientBalance ? t`Insufficient ${inputCurrencySymbol} balance` : undefined
 
   const showReservedOrderNotice = (() => {
-    if (!currencyIn || currencyIn.isNative || !parsedInputAmount || !parsedActiveOrderMakingAmount) return false
-    if (!balance?.currency.equals(currencyIn)) return false
+    if (!currencyIn || !parsedInputAmount || !parsedActiveOrderMakingAmount) return false
+    const reservedBalance = currencyIn.isNative ? wrappedNativeBalance : balance
+    if (!reservedBalance?.currency.equals(parsedActiveOrderMakingAmount.currency)) return false
     if (JSBI.equal(parsedActiveOrderMakingAmount.quotient, JSBI.BigInt(0))) return false
 
-    const remainingBalance = JSBI.subtract(balance.quotient, parsedInputAmount.quotient)
+    const remainingBalance = currencyIn.isNative
+      ? reservedBalance.quotient
+      : JSBI.subtract(reservedBalance.quotient, parsedInputAmount.quotient)
     return JSBI.lessThan(remainingBalance, parsedActiveOrderMakingAmount.quotient)
   })()
 
@@ -228,7 +233,6 @@ export const useCreateLimitOrder = ({
       approveCallback,
       checkApprovalManually,
       onWrap,
-      onWrapSuccess: switchToWeth,
       finalStep: 'create' as const,
       onFinalStep: async () => !!(await limitOrderTracking.submitCreateOrderWithTracking()),
       onError: limitOrderTracking.trackOrderFailed,

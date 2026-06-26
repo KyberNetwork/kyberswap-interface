@@ -10,7 +10,6 @@ import { cn } from 'utils/cn'
 type Props = {
   canSubmit: boolean
   primaryActionMessage: ReactNode
-  requiresWrap: boolean
   shouldWarnMarketDiff: boolean
   onSubmit: () => void
   onUseSwapInstead: () => void
@@ -23,7 +22,6 @@ const ActionWrapper = ({ children }: { children: ReactNode }) => (
 const TakeOrderActionButtons = ({
   canSubmit,
   primaryActionMessage,
-  requiresWrap,
   shouldWarnMarketDiff,
   onSubmit,
   onUseSwapInstead,
@@ -81,7 +79,7 @@ const TakeOrderActionButtons = ({
         <Trans>Use Swap Instead</Trans>
       </ButtonOutlined>
       <ButtonPrimary altDisabledStyle onClick={onSubmit} disabled={!canSubmit} className="flex-1">
-        {requiresWrap ? <Trans>Wrap & Fill this order</Trans> : <Trans>Fill this order</Trans>}
+        <Trans>Fill this order</Trans>
       </ButtonPrimary>
     </ActionWrapper>
   )

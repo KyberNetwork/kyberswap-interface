@@ -99,7 +99,6 @@ const LimitOrderForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPr
     onOpenReview: () => setShowReview(true),
     onSetInput: form.onSetInput,
     onResetForm: form.onResetForm,
-    switchToWeth: form.switchToWeth,
   })
 
   const { balance, estimateUSD, review, tracking, validation } = createOrder

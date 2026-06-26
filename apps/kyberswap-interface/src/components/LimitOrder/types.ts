@@ -90,8 +90,6 @@ export type LimitOrderFromTokenPair = {
   makerBalanceAllowance: string
   makerAssetDecimals: number
   takerAssetDecimals: number
-  makerAssetSymbol?: string
-  takerAssetSymbol?: string
   makerAssetLogoURL?: string
   takerAssetLogoURL?: string
 }

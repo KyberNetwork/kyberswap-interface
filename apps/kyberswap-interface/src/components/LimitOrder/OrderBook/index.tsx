@@ -132,8 +132,8 @@ const OrderBook = () => {
   const displayedMarketRate = showInvertedRate ? invertRateValue(marketRate) : marketRate
 
   const displayedRatePair = showInvertedRate
-    ? `${takerCurrency?.symbol}/${makerCurrency?.symbol}`
-    : `${makerCurrency?.symbol}/${takerCurrency?.symbol}`
+    ? `${takerCurrency?.wrapped.symbol}/${makerCurrency?.wrapped.symbol}`
+    : `${makerCurrency?.wrapped.symbol}/${takerCurrency?.wrapped.symbol}`
 
   const onRefreshOrders = useCallback(() => {
     refetchSafely(refetchMarketRate)
@@ -170,7 +170,7 @@ const OrderBook = () => {
       <div className="relative h-0">
         <RefetchIndicator visible={refetchLoading} />
       </div>
-      <SectionLabel color="var(--ks-red)" label={<Trans>SELLING</Trans>} symbol={makerCurrency?.symbol} />
+      <SectionLabel color="var(--ks-red)" label={<Trans>SELLING</Trans>} symbol={makerCurrency?.wrapped.symbol} />
 
       <OrderSide reverse>
         {visibleSellOrders.length > 0
@@ -203,7 +203,7 @@ const OrderBook = () => {
         </div>
       </RowWrapper>
 
-      <SectionLabel color="var(--ks-primary)" label={<Trans>BUYING</Trans>} symbol={makerCurrency?.symbol} />
+      <SectionLabel color="var(--ks-primary)" label={<Trans>BUYING</Trans>} symbol={makerCurrency?.wrapped.symbol} />
 
       <OrderSide>
         {visibleBuyOrders.length > 0

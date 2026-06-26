@@ -30,7 +30,7 @@ type UseProcessingOrderProps = {
   approveCallback: () => Promise<ApprovalStatus>
   checkApprovalManually: () => Promise<boolean>
   steps: ProcessingOrderStep[]
-  onWrap: (() => Promise<string | undefined>) | undefined
+  onWrap?: () => Promise<string | undefined>
   onWrapSuccess?: () => void
   finalStep: Extract<ProcessingOrderStep, 'create' | 'fill'>
   onFinalStep: () => Promise<boolean>

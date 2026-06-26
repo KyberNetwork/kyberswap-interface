@@ -185,11 +185,6 @@ export const useLimitOrderFormState = ({ currencyIn, currencyOut, useUrlParams }
     resetRate && clearRate()
   }
 
-  const switchToWeth = () => {
-    if (!currencyIn) return
-    handleInputSelect(currencyIn.wrapped, false)
-  }
-
   const handleOutputSelect = (currency: Currency) => {
     if (currencyIn && currency?.equals(currencyIn)) {
       switchCurrency()
@@ -284,7 +279,6 @@ export const useLimitOrderFormState = ({ currencyIn, currencyOut, useUrlParams }
     onSetOutput,
     onChangeRate,
     handleInputSelect,
-    switchToWeth,
     handleOutputSelect,
     handleRotateClick,
     toggleDatePicker,

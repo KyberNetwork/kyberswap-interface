@@ -3,9 +3,12 @@
 Use the examples below as concrete scenarios. Token names are examples; any pair with the same balance/allowance setup is fine.
 
 Expected processing pattern:
-- Create order: `Wrap native? -> Approve token -> Sign order`
-- Take/fill order: `Wrap native? -> Approve token -> Fill order`
-- `Wrap native` appears only when the required wrapped token balance is missing and native balance can cover the deficit.
+- Create order with native input: `Wrap native -> Approve wrapped native -> Sign order`.
+- Create order with ERC20 or wrapped native input: `Approve token -> Sign order`.
+- Take/fill order: `Approve token -> Fill order`.
+- Native and wrapped native balances are checked separately. Do not treat `ETH + WETH` as one available balance.
+- Native input wraps the full input amount. Existing WETH balance must not reduce the wrap amount.
+- Reserved active orders for native input are checked against existing WETH balance. The new native wrap and new order amount net out, so do not combine ETH and WETH.
 - `Approve token` always appears. If allowance is already enough, it should auto-pass without wallet popup.
 
 ## Create Order - ERC20 Input
@@ -43,28 +46,30 @@ Expected processing pattern:
 
 ## Create Order - Native / WETH Input
 
-### 5. Native ETH input, WETH balance and allowance already enough
+### 5. Native ETH input, ETH balance enough and WETH already exists
 - Example: create order `1 ETH -> 3,500 USDT`.
-- Wallet balance: `2 ETH`, `1 WETH`.
+- Wallet balance: `1 ETH`, `1 WETH`.
 - Existing WETH allowance: `2 WETH`.
 - Reserved active making amount: `0 WETH`.
-- Expected processing steps: `Approve WETH`, `Sign order`.
-- Expected tx/signature: no wrap tx; approve step auto-passes; order signing/API create runs.
+- Expected wrap amount: `1 ETH`.
+- Expected processing steps: `Wrap ETH`, `Approve WETH`, `Sign order`.
+- Expected tx/signature: wrap the full `1 ETH`; existing `1 WETH` is not used to reduce the wrap amount; approve step auto-passes; order signing/API create runs.
 
-### 6. Native ETH input, WETH balance enough but allowance missing
+### 6. Native ETH input, ETH balance enough but WETH allowance missing
 - Example: create order `1 ETH -> 3,500 USDT`.
-- Wallet balance: `2 ETH`, `1 WETH`.
-- Existing WETH allowance: `0 WETH`.
-- Expected processing steps: `Approve WETH`, `Sign order`.
-- Expected tx/signature: no wrap tx; approve WETH tx is requested; order signing starts after approval is detected.
-
-### 7. Native ETH input, WETH balance missing but ETH enough
-- Example: create order `1 ETH -> 3,500 USDT`.
-- Wallet balance: `2 ETH`, `0 WETH`.
+- Wallet balance: `1 ETH`, `1 WETH`.
 - Existing WETH allowance: `0 WETH`.
 - Expected wrap amount: `1 ETH`.
 - Expected processing steps: `Wrap ETH`, `Approve WETH`, `Sign order`.
-- Expected tx/signature: wrap `1 ETH`; approve WETH tx is requested; order signing starts after approval is detected.
+- Expected tx/signature: wrap the full `1 ETH`; approve WETH tx is requested; order signing starts after approval is detected.
+
+### 7. Native ETH input, ETH balance insufficient even when WETH exists
+- Example: create order `2 ETH -> 4,000 USDT`.
+- Wallet balance: `1 ETH`, `1 WETH`.
+- Existing WETH allowance: any value.
+- Expected result: bottom button shows `Insufficient ETH balance`.
+- Expected result: review/processing cannot start.
+- Expected result: no wrap tx is requested; user must wrap manually or reduce the native input amount.
 
 ### 8. WETH input, WETH balance enough but allowance missing
 - Example: create order `1 WETH -> 3,500 USDT`.
@@ -73,21 +78,20 @@ Expected processing pattern:
 - Expected processing steps: `Approve WETH`, `Sign order`.
 - Expected tx/signature: no wrap tx; approve WETH tx is requested; order signing starts after approval is detected.
 
-### 9. WETH input, WETH balance partially missing but ETH enough
+### 9. WETH input, WETH balance insufficient even when ETH exists
 - Example: create order `1 WETH -> 3,500 USDT`.
 - Wallet balance: `0.4 WETH`, `2 ETH`.
 - Existing WETH allowance: `5 WETH`.
-- Expected wrap amount: `0.6 ETH`.
-- Expected processing steps: `Wrap ETH`, `Approve WETH`, `Sign order`.
-- Expected tx/signature: wrap `0.6 ETH`; approve step auto-passes; order signing/API create runs.
-
-### 10. WETH input, WETH plus ETH insufficient
-- Example: create order `1 WETH -> 3,500 USDT`.
-- Wallet balance: `0.4 WETH`, `0.3 ETH`.
-- Existing WETH allowance: any value.
-- Required available amount: `0.4 + 0.3 = 0.7 WETH equivalent`.
-- Expected result: bottom button shows `Insufficient Balance`.
+- Expected result: bottom button shows `Insufficient WETH balance`.
 - Expected result: review/processing cannot start.
+- Expected result: no wrap tx is requested; ETH balance is ignored for WETH input.
+
+### 10. WETH input, WETH balance enough and allowance already enough
+- Example: create order `1 WETH -> 3,500 USDT`.
+- Wallet balance: `1 WETH`, `0 ETH`.
+- Existing WETH allowance: `2 WETH`.
+- Expected processing steps: `Approve WETH`, `Sign order`.
+- Expected tx/signature: no wrap tx; approve step auto-passes; order signing/API create runs.
 
 ## Take / Fill Order - ERC20 Pay Token
 
@@ -128,29 +132,29 @@ Expected processing pattern:
 - Expected processing steps: `Approve token`, `Fill order`.
 - Expected tx: no wrap tx; approve WETH tx is requested; fill tx starts after approval is detected.
 
-### 16. WETH pay token, WETH balance missing but ETH enough
+### 16. WETH pay token, WETH balance insufficient even when ETH exists
 - Example: fill order requiring taker to pay `1 WETH`.
 - Wallet balance: `0.4 WETH`, `2 ETH`.
 - Existing WETH allowance: `5 WETH`.
-- Expected wrap amount: `0.6 ETH`.
-- Expected processing steps: `Wrap ETH`, `Approve token`, `Fill order`.
-- Expected tx: wrap `0.6 ETH`; approve step auto-passes; fill tx is submitted.
+- Expected result: submit button shows `Insufficient WETH balance`.
+- Expected result: processing modal cannot start.
+- Expected result: no wrap tx is requested; ETH balance is ignored for WETH pay token.
 
-### 17. WETH pay token, WETH balance missing and allowance missing
+### 17. WETH pay token, WETH balance insufficient and allowance missing
 - Example: fill order requiring taker to pay `1 WETH`.
 - Wallet balance: `0.4 WETH`, `2 ETH`.
 - Existing WETH allowance: `0 WETH`.
-- Expected wrap amount: `0.6 ETH`.
-- Expected processing steps: `Wrap ETH`, `Approve token`, `Fill order`.
-- Expected tx: wrap `0.6 ETH`; approve WETH tx is requested; fill tx starts after approval is detected.
-
-### 18. WETH pay token, WETH plus ETH insufficient
-- Example: fill order requiring taker to pay `1 WETH`.
-- Wallet balance: `0.4 WETH`, `0.3 ETH`.
-- Existing WETH allowance: any value.
-- Required available amount: `0.7 WETH equivalent`, below `1 WETH`.
-- Expected result: submit button shows `Insufficient Balance`.
+- Expected result: submit button shows `Insufficient WETH balance`.
 - Expected result: processing modal cannot start.
+- Expected result: no wrap or approve tx is requested while WETH balance is insufficient.
+
+### 18. WETH pay token, max/default fill uses WETH balance only
+- Example: fill order requiring taker to pay `1 WETH`.
+- Wallet balance: `0.4 WETH`, `2 ETH`.
+- Existing WETH allowance: any value.
+- Required wallet limit: `0.4 WETH`; ETH balance is not included.
+- Expected result: default fill and wallet quick-fill use at most `0.4 WETH` before any taker fee adjustment.
+- Expected result: entering `1 WETH` still shows `Insufficient WETH balance`.
 
 ## Take / Fill Order - Fee and Encode Payload
 
@@ -209,6 +213,7 @@ Expected processing pattern:
 
 ### 27. Reserved order notice link
 - Example: notice says `Some of your USDT is already reserved... here`.
+- Native-input example: notice says the wrapped native symbol, e.g. `Some of your WETH is already reserved... here`.
 - Action: click `here`.
 - Expected result: confirm modal closes if it was open.
 - Expected URL params:

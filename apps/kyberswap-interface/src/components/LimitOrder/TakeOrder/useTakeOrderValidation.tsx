@@ -10,7 +10,6 @@ type Props = {
   maxPayAmount?: CurrencyAmount<Currency>
   payCurrency: Currency
   parsedPayAmount?: CurrencyAmount<Currency>
-  wrapAmount?: CurrencyAmount<Currency>
   onFillAmountChange: (amount: string) => void
 }
 
@@ -25,7 +24,6 @@ export const useTakeOrderValidation = ({
   maxPayAmount,
   payCurrency,
   parsedPayAmount,
-  wrapAmount,
   onFillAmountChange,
 }: Props): TakeOrderValidation => {
   const isFillAmountEmpty = fillAmount.trim() === ''
@@ -54,17 +52,6 @@ export const useTakeOrderValidation = ({
             {formatExact(maxPayAmount)} {payCurrency.symbol}
           </button>{' '}
           at this rate
-        </Trans>
-      )
-    }
-    if (wrapAmount) {
-      return (
-        <Trans>
-          You need to wrap{' '}
-          <span className="text-text">
-            {formatExact(wrapAmount)} {wrapAmount.currency.symbol}
-          </span>{' '}
-          before filling this order
         </Trans>
       )
     }
