@@ -15,7 +15,6 @@ import { useActiveWeb3React } from 'hooks'
 import { useStableCoins } from 'hooks/Tokens'
 import { useBaseTradeInfoLimitOrder } from 'hooks/useBaseTradeInfo'
 import { getDefaultRevertPrice as getDefaultInvertPrice } from 'pages/Earns/utils'
-import { useWalletModalToggle } from 'state/application/hooks'
 import { useLimitState } from 'state/limit/hooks'
 import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
@@ -62,8 +61,7 @@ const OrderSide = ({
 }
 
 const OrderBook = () => {
-  const { account, chainId, networkInfo } = useActiveWeb3React()
-  const toggleWalletModal = useWalletModalToggle()
+  const { chainId, networkInfo } = useActiveWeb3React()
   const { currencyIn: makerCurrency, currencyOut: takerCurrency } = useLimitState()
   const { isStableCoin } = useStableCoins(chainId)
 
@@ -157,10 +155,6 @@ const OrderBook = () => {
   }, [defaultShowInvertedRate, ratePairKey])
 
   const handleTakeOrder = (order: LimitOrderFromTokenPairFormatted) => {
-    if (!account) {
-      toggleWalletModal()
-      return
-    }
     setSelectedOrderToTake(order)
     setIsTakeOrderModalOpen(true)
   }

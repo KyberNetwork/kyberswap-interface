@@ -23,7 +23,9 @@ import Modal from 'components/Modal'
 import NumericalInput from 'components/NumericalInput'
 import { HStack, Stack } from 'components/Stack'
 import { APP_PATHS } from 'constants/index'
+import { useActiveWeb3React } from 'hooks'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
+import { useWalletModalToggle } from 'state/application/hooks'
 import { useLimitState } from 'state/limit/hooks'
 import { PriceType, useTokenPrices } from 'state/tokenPrices/hooks'
 import { CloseIcon } from 'theme/components'
@@ -130,10 +132,13 @@ type Props = {
 const TakeOrderConfirmModal = ({ isOpen, order, onDismiss }: Props) => {
   const navigate = useNavigate()
   const { currencyIn: makerCurrency, currencyOut: takerCurrency } = useLimitState()
+  const { account } = useActiveWeb3React()
+  const toggleWalletModal = useWalletModalToggle()
+  const shouldConnectWallet = !account
 
   const [fillAmount, setFillAmount] = useState('')
   const [showInvertedRate, setShowInvertedRate] = useState(false)
-  const [estimatedGasUsd, setEstimatedGasUsd] = useState<string>('')
+  const [estimatedGasUsd, setEstimatedGasUsd] = useState('')
   const [processingState, setProcessingState] = useState(DEFAULT_PROCESSING_ORDER)
 
   const context = useMemo<LimitOrderTakeContext>(() => {
@@ -272,6 +277,10 @@ const TakeOrderConfirmModal = ({ isOpen, order, onDismiss }: Props) => {
   }, [canSubmit, estimateTxGas, isConfirmOpen])
 
   const handleSubmit = () => {
+    if (shouldConnectWallet) {
+      toggleWalletModal()
+      return
+    }
     if (!canSubmit) return
     processing.start()
   }
@@ -436,7 +445,11 @@ const TakeOrderConfirmModal = ({ isOpen, order, onDismiss }: Props) => {
             />
 
             <HStack className="gap-3 max-sm:flex-col">
-              {primaryActionMessage ? (
+              {shouldConnectWallet ? (
+                <ButtonPrimary onClick={toggleWalletModal} className="flex-1">
+                  <Trans>Connect wallet</Trans>
+                </ButtonPrimary>
+              ) : primaryActionMessage ? (
                 <ButtonPrimary altDisabledStyle disabled className="flex-1">
                   {primaryActionMessage}
                 </ButtonPrimary>
