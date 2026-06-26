@@ -281,6 +281,7 @@ const UserPositions = () => {
         <div className={cn('flex justify-between gap-2', upToSmall ? 'flex-col items-start' : 'flex-row items-center')}>
           <MultiSelectDropdownMenu
             highlightOnSelect
+            showOnlyButton
             label={selectedChainsLabel || t`Select chains`}
             options={supportedChains.length ? supportedChains : [AllChainsOption]}
             value={filters.chainIds || ''}

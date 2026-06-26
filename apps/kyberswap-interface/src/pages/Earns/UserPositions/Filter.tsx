@@ -70,6 +70,7 @@ export default function Filter({
         />
         <MultiSelectDropdownMenu
           mobileFullWidth
+          showOnlyButton
           label={t`Position status`}
           options={POSITION_STATUS as unknown as MenuOption[]}
           value={filters.statuses || ''}

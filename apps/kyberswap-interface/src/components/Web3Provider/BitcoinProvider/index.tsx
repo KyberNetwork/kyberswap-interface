@@ -2,6 +2,7 @@ import { ReactNode, createContext, useCallback, useContext, useEffect, useState 
 
 import { APP_PATHS } from 'constants/index'
 
+import { createFordefiProvider } from './providers/fordefi'
 import { createLedgerProvider } from './providers/ledger'
 import { createOkxProvider } from './providers/okx'
 import { createUnisatProvider } from './providers/unisat'
@@ -77,6 +78,7 @@ export const BitcoinWalletProvider = ({ children }: { children: ReactNode }) => 
       const xverseProvider = enhanceProvider(createXverseProvider(createProviderPrams))
       const okxProvider = enhanceProvider(createOkxProvider(createProviderPrams))
       const unisatProvider = enhanceProvider(createUnisatProvider(createProviderPrams))
+      const fordefiProvider = enhanceProvider(createFordefiProvider(createProviderPrams))
       // const bitgetProvider = enhanceProvider(createBitgetProvider(createProviderPrams))
       const ledgerProvider = enhanceProvider(createLedgerProvider(createProviderPrams))
 
@@ -84,6 +86,7 @@ export const BitcoinWalletProvider = ({ children }: { children: ReactNode }) => 
       // providers.push(bitgetProvider)
       providers.push(okxProvider)
       providers.push(unisatProvider)
+      providers.push(fordefiProvider)
       providers.push(ledgerProvider)
 
       if (window.location.pathname === APP_PATHS.CROSS_CHAIN) {
