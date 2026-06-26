@@ -4,6 +4,7 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import { CancelOrderResponse, LimitOrder, LimitOrderFromTokenPair, LimitOrderStatus } from 'components/LimitOrder/types'
 import { LIMIT_ORDER_API } from 'constants/env'
 import { RTK_QUERY_TAGS } from 'constants/index'
+import { isSupportedChainId } from 'constants/networks'
 
 const LIMIT_ORDER_API_READ = `${LIMIT_ORDER_API}/read-ks/api`
 const LIMIT_ORDER_API_WRITE = `${LIMIT_ORDER_API}/write/api`
@@ -111,6 +112,15 @@ export type FillOrderBody = {
 
 const transformResponse = <T>(data: ApiEnvelope<T>) => data.data
 
+const normalizeSupportedLimitOrders = (orders: LimitOrder[] = []) =>
+  orders.reduce<LimitOrder[]>((accumulator, order) => {
+    const chainId = Number(order.chainId)
+    if (!isSupportedChainId(chainId)) return accumulator
+
+    accumulator.push({ ...order, chainId })
+    return accumulator
+  }, [])
+
 const limitOrderApi = createApi({
   reducerPath: 'limitOrderApi',
   baseQuery: fetchBaseQuery({ baseUrl: '' }),
@@ -153,10 +163,14 @@ const limitOrderApi = createApi({
         params,
       }),
       transformResponse: ({ data }: ApiEnvelope<ListOrdersResponse>) => {
-        data.orders?.forEach(order => {
-          order.chainId = Number(order.chainId) as ChainId
-        })
-        return { orders: data?.orders || [], totalOrder: data?.pagination?.totalItems || 0 }
+        const rawOrders = data.orders || []
+        const orders = normalizeSupportedLimitOrders(rawOrders)
+        const totalOrder = Math.max(
+          (data.pagination?.totalItems || 0) - (rawOrders.length - orders.length),
+          orders.length,
+        )
+
+        return { orders, totalOrder }
       },
       providesTags: [RTK_QUERY_TAGS.GET_LIMIT_ORDER_LIST],
     }),
