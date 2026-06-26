@@ -29,15 +29,19 @@ enum CancelStatus {
 }
 
 const useIsSupportSoftCancelOrder = (chainId: ChainId) => {
-  const { currentData: config } = useGetLOConfigQuery(chainId)
+  const { currentData: config, isFetching } = useGetLOConfigQuery(chainId)
   return useCallback(
     (order: LimitOrder | undefined) => {
+      if (!config && isFetching) {
+        return { orderSupportGasless: true, chainSupportGasless: true }
+      }
+
       const features = config?.features || {}
       const orderSupportGasless = !!features?.[order?.contractAddress?.toLowerCase?.() ?? '']?.supportDoubleSignature
       const chainSupportGasless = Object.values(features).some(e => e.supportDoubleSignature)
       return { orderSupportGasless, chainSupportGasless }
     },
-    [config],
+    [config, isFetching],
   )
 }
 
