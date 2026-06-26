@@ -1,53 +1,44 @@
-import { Currency, CurrencyAmount, Price, Token } from '@kyberswap/ks-sdk-core'
+import { Currency, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import JSBI from 'jsbi'
 import { useEffect, useMemo, useState } from 'react'
 import { Repeat } from 'react-feather'
 import { useNavigate } from 'react-router-dom'
 
-import { ButtonOutlined, ButtonPrimary } from 'components/Button'
 import CurrencyLogo from 'components/CurrencyLogo'
 import WalletIcon from 'components/Icons/Wallet'
 import ProcessingOrderModal from 'components/LimitOrder/ProcessingOrder/ProcessingOrderModal'
 import { DEFAULT_PROCESSING_ORDER, useProcessingOrder } from 'components/LimitOrder/ProcessingOrder/useProcessingOrder'
 import RateComparison, { MARKET_DIFF_WARNING_THRESHOLD } from 'components/LimitOrder/TakeOrder/RateComparison'
+import TakeOrderActionButtons from 'components/LimitOrder/TakeOrder/TakeOrderActionButtons'
 import { useTakeLimitOrder } from 'components/LimitOrder/TakeOrder/useTakeLimitOrder'
+import { useTakeOrderValidation } from 'components/LimitOrder/TakeOrder/useTakeOrderValidation'
+import {
+  formatExact,
+  formatInvertedRate,
+  formatRate,
+  getOrderPriceAfterFee,
+  getPercentFillAmount,
+  getSwapCurrencyId,
+  normalizeActionAmount,
+} from 'components/LimitOrder/TakeOrder/utils'
 import {
   LimitOrderFromTokenPairFormatted,
   LimitOrderStatus,
   LimitOrderTab,
   LimitOrderTakeContext,
 } from 'components/LimitOrder/types'
-import { removeTrailingZero } from 'components/LimitOrder/utils'
 import Modal from 'components/Modal'
 import NumericalInput from 'components/NumericalInput'
 import { HStack, Stack } from 'components/Stack'
 import { APP_PATHS } from 'constants/index'
-import { useActiveWeb3React } from 'hooks'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
-import { useWalletModalToggle } from 'state/application/hooks'
 import { useLimitState } from 'state/limit/hooks'
 import { PriceType, useTokenPrices } from 'state/tokenPrices/hooks'
 import { CloseIcon } from 'theme/components'
 import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
 
-const formatExact = (amount: CurrencyAmount<Currency> | undefined, significantDigits = 6) =>
-  amount ? formatDisplayNumber(amount.toExact(), { significantDigits }) : '--'
-
-const formatRate = (context: LimitOrderTakeContext) => {
-  const receiveAmount = CurrencyAmount.fromRawAmount(context.receiveCurrency, context.order.makingAmount)
-  const payAmount = CurrencyAmount.fromRawAmount(context.payCurrency, context.order.takingAmount)
-  const rate = receiveAmount.divide(payAmount).multiply(payAmount.decimalScale).toSignificant(8)
-  return `1 ${context.payCurrency.symbol} = ${removeTrailingZero(rate)} ${context.receiveCurrency.symbol}`
-}
-
-const formatInvertedRate = (context: LimitOrderTakeContext) => {
-  const receiveAmount = CurrencyAmount.fromRawAmount(context.receiveCurrency, context.order.makingAmount)
-  const payAmount = CurrencyAmount.fromRawAmount(context.payCurrency, context.order.takingAmount)
-  const rate = payAmount.divide(receiveAmount).multiply(receiveAmount.decimalScale).toSignificant(8)
-  return `1 ${context.receiveCurrency.symbol} = ${removeTrailingZero(rate)} ${context.payCurrency.symbol}`
-}
+const QUICK_FILL_PERCENTS = [25, 50, 75, 100]
 
 const DetailRow = ({ label, children }: { label: React.ReactNode; children: React.ReactNode }) => (
   <HStack className="min-h-6 items-center justify-between gap-3 text-sm max-sm:flex-col max-sm:items-start">
@@ -56,17 +47,14 @@ const DetailRow = ({ label, children }: { label: React.ReactNode; children: Reac
   </HStack>
 )
 
-const TokenBadge = ({
-  amount,
-  currency,
-  symbol,
-}: {
+type TokenBadgeProps = {
   amount?: CurrencyAmount<Currency>
   currency?: Currency
   symbol?: string
-}) => {
-  const badgeCurrency = currency || amount?.currency
+}
 
+const TokenBadge = ({ amount, currency, symbol }: TokenBadgeProps) => {
+  const badgeCurrency = currency || amount?.currency
   return (
     <HStack className="items-center gap-2 rounded-full bg-white-08 px-2.5 py-1.5 font-medium text-subText">
       {badgeCurrency && <CurrencyLogo currency={badgeCurrency} style={{ width: 20, height: 20, boxShadow: 'none' }} />}
@@ -86,43 +74,6 @@ const PairLogos = ({ payCurrency, receiveCurrency }: { payCurrency: Currency; re
   </span>
 )
 
-const getPercentFillAmount = (amount: CurrencyAmount<Currency> | undefined, percent: number) => {
-  if (!amount) return ''
-
-  const rawAmount = JSBI.divide(JSBI.multiply(amount.quotient, JSBI.BigInt(percent)), JSBI.BigInt(100))
-  return CurrencyAmount.fromRawAmount(amount.currency, rawAmount).toExact()
-}
-
-const normalizeActionAmount = (nextAmount: string) => (parseFloat(nextAmount || '0') > 0 ? nextAmount : '')
-
-const QUICK_FILL_PERCENTS = [25, 50, 75, 100]
-const FEE_BPS_BASE = JSBI.BigInt(10_000)
-
-const getSwapCurrencyId = (currency: Currency | undefined) =>
-  currency ? (currency.isNative ? currency.symbol?.toLowerCase() || '' : currency.wrapped.address.toLowerCase()) : ''
-
-const ceilDivide = (numerator: JSBI, denominator: JSBI) => {
-  if (JSBI.equal(denominator, JSBI.BigInt(0))) return JSBI.BigInt(0)
-  return JSBI.divide(JSBI.add(numerator, JSBI.subtract(denominator, JSBI.BigInt(1))), denominator)
-}
-
-const getOrderPriceAfterFee = (context: LimitOrderTakeContext, feeBps: number) => {
-  const payRaw = JSBI.BigInt(context.order.takingAmount)
-  const receiveRaw = JSBI.BigInt(context.order.makingAmount)
-  const adjustedPayRaw =
-    context.order.isTakerAssetFee && feeBps > 0
-      ? ceilDivide(JSBI.multiply(payRaw, JSBI.BigInt(10_000 + feeBps)), FEE_BPS_BASE)
-      : payRaw
-  const adjustedReceiveRaw =
-    !context.order.isTakerAssetFee && feeBps > 0
-      ? JSBI.divide(JSBI.multiply(receiveRaw, JSBI.BigInt(10_000 - feeBps)), FEE_BPS_BASE)
-      : receiveRaw
-
-  if (JSBI.equal(adjustedPayRaw, JSBI.BigInt(0)) || JSBI.equal(adjustedReceiveRaw, JSBI.BigInt(0))) return undefined
-
-  return new Price(context.payCurrency, context.receiveCurrency, adjustedPayRaw, adjustedReceiveRaw)
-}
-
 type Props = {
   isOpen: boolean
   order: LimitOrderFromTokenPairFormatted
@@ -132,9 +83,6 @@ type Props = {
 const TakeOrderConfirmModal = ({ isOpen, order, onDismiss }: Props) => {
   const navigate = useNavigate()
   const { currencyIn: makerCurrency, currencyOut: takerCurrency } = useLimitState()
-  const { account } = useActiveWeb3React()
-  const toggleWalletModal = useWalletModalToggle()
-  const shouldConnectWallet = !account
 
   const [fillAmount, setFillAmount] = useState('')
   const [showInvertedRate, setShowInvertedRate] = useState(false)
@@ -169,11 +117,13 @@ const TakeOrderConfirmModal = ({ isOpen, order, onDismiss }: Props) => {
     setProcessingOrder: setProcessingState,
     ...takeOrder.processing,
   })
+  const isConfirmOpen = isOpen && !processing.state.show
 
   const { estimateTxGas } = takeOrder
   const {
     maxBalancePayAmount,
     maxPayAmount,
+    defaultPayAmount,
     parsedPayAmount,
     requiredPayAmount,
     receiveAmount,
@@ -181,15 +131,14 @@ const TakeOrderConfirmModal = ({ isOpen, order, onDismiss }: Props) => {
     feeBps,
     balance,
     wrapAmount,
-    exceedsAvailableAmount,
     insufficientBalance,
     canSubmit,
   } = takeOrder.amount
 
+  const walletBalance = balance?.currency.equals(context.payCurrency) ? balance : undefined
   const payTokenAddress = context.payCurrency.wrapped.address
   const tokenPrices = useTokenPrices([payTokenAddress], context.order.chainId, PriceType.Average)
 
-  const isConfirmOpen = isOpen && !processing.state.show
   const orderRate = useMemo(
     () => (showInvertedRate ? formatInvertedRate(context) : formatRate(context)),
     [context, showInvertedRate],
@@ -200,58 +149,19 @@ const TakeOrderConfirmModal = ({ isOpen, order, onDismiss }: Props) => {
   )
   const orderPriceAfterFee = useMemo(() => getOrderPriceAfterFee(context, feeBps), [context, feeBps])
 
-  const walletBalance = balance?.currency.equals(context.payCurrency) ? balance : undefined
-  const defaultPayAmount = useMemo(() => {
-    if (!maxPayAmount) return undefined
-    if (!maxBalancePayAmount) return maxPayAmount
-    if (JSBI.equal(maxBalancePayAmount.quotient, JSBI.BigInt(0))) return maxPayAmount
-
-    return maxBalancePayAmount.lessThan(maxPayAmount) ? maxBalancePayAmount : maxPayAmount
-  }, [maxBalancePayAmount, maxPayAmount])
-
   const fillAmountUsd = parsedPayAmount ? Number(parsedPayAmount.toExact()) * tokenPrices[payTokenAddress] : 0
   const receiveAmountForComparison = receiveAmountAfterFee || receiveAmount
   const shouldWarnMarketDiff = order.marketDiffPercent > MARKET_DIFF_WARNING_THRESHOLD
-  const isFillAmountEmpty = fillAmount.trim() === ''
 
-  const primaryActionMessage = (() => {
-    if (isFillAmountEmpty) return <Trans>Enter an amount</Trans>
-    if (insufficientBalance) return <Trans>Insufficient {context.payCurrency.symbol} balance</Trans>
-    return null
-  })()
-
-  const fillAmountMessage = (() => {
-    if (primaryActionMessage) {
-      return primaryActionMessage
-    }
-    if (exceedsAvailableAmount) {
-      return (
-        <Trans>
-          Only{' '}
-          <button
-            type="button"
-            className="border-none bg-transparent p-0 italic text-text hover:brightness-[0.85]"
-            onClick={() => setFillAmount(normalizeActionAmount(maxPayAmount?.toExact() || ''))}
-          >
-            {formatExact(maxPayAmount)} {context.payCurrency.symbol}
-          </button>{' '}
-          available to fill
-        </Trans>
-      )
-    }
-    if (wrapAmount) {
-      return (
-        <Trans>
-          You need to wrap{' '}
-          <span className="text-text">
-            {formatExact(wrapAmount)} {wrapAmount.currency.symbol}
-          </span>{' '}
-          before filling this order
-        </Trans>
-      )
-    }
-    return null
-  })()
+  const { fillAmountMessage, primaryActionMessage } = useTakeOrderValidation({
+    fillAmount,
+    insufficientBalance,
+    maxPayAmount,
+    payCurrency: context.payCurrency,
+    parsedPayAmount,
+    wrapAmount,
+    onFillAmountChange: setFillAmount,
+  })
 
   useEffect(() => {
     setFillAmount(normalizeActionAmount(defaultPayAmount?.toExact() || ''))
@@ -277,10 +187,6 @@ const TakeOrderConfirmModal = ({ isOpen, order, onDismiss }: Props) => {
   }, [canSubmit, estimateTxGas, isConfirmOpen])
 
   const handleSubmit = () => {
-    if (shouldConnectWallet) {
-      toggleWalletModal()
-      return
-    }
     if (!canSubmit) return
     processing.start()
   }
@@ -444,39 +350,14 @@ const TakeOrderConfirmModal = ({ isOpen, order, onDismiss }: Props) => {
               fallbackOrderPrice={orderPriceAfterFee}
             />
 
-            <HStack className="gap-3 max-sm:flex-col">
-              {shouldConnectWallet ? (
-                <ButtonPrimary onClick={toggleWalletModal} className="flex-1">
-                  <Trans>Connect wallet</Trans>
-                </ButtonPrimary>
-              ) : primaryActionMessage ? (
-                <ButtonPrimary disabled className="flex-1">
-                  {primaryActionMessage}
-                </ButtonPrimary>
-              ) : shouldWarnMarketDiff ? (
-                <>
-                  <ButtonPrimary onClick={handleUseSwapInstead} className="flex-1">
-                    <Trans>Use Swap Instead</Trans>
-                  </ButtonPrimary>
-                  <ButtonOutlined
-                    className={cn('flex-1', canSubmit && '!border-red hover:!bg-red-10')}
-                    onClick={handleSubmit}
-                    disabled={!canSubmit}
-                  >
-                    <Trans>Fill order anyway</Trans>
-                  </ButtonOutlined>
-                </>
-              ) : (
-                <>
-                  <ButtonOutlined onClick={handleUseSwapInstead} className="flex-1 !border-border-primary">
-                    <Trans>Use Swap Instead</Trans>
-                  </ButtonOutlined>
-                  <ButtonPrimary altDisabledStyle onClick={handleSubmit} disabled={!canSubmit} className="flex-1">
-                    {wrapAmount ? <Trans>Wrap & Fill this order</Trans> : <Trans>Fill this order</Trans>}
-                  </ButtonPrimary>
-                </>
-              )}
-            </HStack>
+            <TakeOrderActionButtons
+              canSubmit={canSubmit}
+              primaryActionMessage={primaryActionMessage}
+              requiresWrap={!!wrapAmount}
+              shouldWarnMarketDiff={shouldWarnMarketDiff}
+              onSubmit={handleSubmit}
+              onUseSwapInstead={handleUseSwapInstead}
+            />
           </Stack>
         </Stack>
       </Modal>

@@ -108,7 +108,8 @@ Expected processing pattern:
 ### 13. Fill amount exceeds available amount
 - Example: order has available amount `60 HYPE`.
 - User enters fill amount `100 HYPE`.
-- Expected result: submit button shows `Exceeds order available`.
+- Expected helper text: `Max fill: 60 HYPE at this rate`.
+- Expected result: submit button shows `Exceeds available`.
 - Expected result: processing modal cannot start.
 
 ## Take / Fill Order - WETH Pay Token

@@ -1,4 +1,3 @@
-import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import JSBI from 'jsbi'
 import { useCallback, useMemo } from 'react'
@@ -11,6 +10,16 @@ import {
 
 import { NotificationType } from 'components/Announcement/type'
 import { ProcessingOrderStep } from 'components/LimitOrder/ProcessingOrder/useProcessingOrder'
+import {
+  addFee,
+  getAvailablePayAmount,
+  getFeeBps,
+  getMaxAmountBeforeTakerFee,
+  getReceiveAmount,
+  hasPositiveAmount,
+  isExceedsAvailableAmount,
+  subtractFee,
+} from 'components/LimitOrder/TakeOrder/utils'
 import { useLimitOrderApproval } from 'components/LimitOrder/hooks/useLimitOrderApproval'
 import { useLimitOrderWrapStep } from 'components/LimitOrder/hooks/useLimitOrderWrapStep'
 import { LimitOrderTakeContext } from 'components/LimitOrder/types'
@@ -27,65 +36,6 @@ import { useCurrencyBalance } from 'state/wallet/hooks'
 import { sendEVMTransaction } from 'utils/sendTransaction'
 import { ErrorName } from 'utils/transactionError'
 import useEstimateGasTxs from 'utils/useEstimateGasTxs'
-
-const safeDivide = (numerator: JSBI, denominator: JSBI) => {
-  if (JSBI.equal(denominator, JSBI.BigInt(0))) return JSBI.BigInt(0)
-  return JSBI.divide(numerator, denominator)
-}
-
-const BPS_BASE = JSBI.BigInt(10_000)
-
-const ceilDivide = (numerator: JSBI, denominator: JSBI) => {
-  if (JSBI.equal(denominator, JSBI.BigInt(0))) return JSBI.BigInt(0)
-  return JSBI.divide(JSBI.add(numerator, JSBI.subtract(denominator, JSBI.BigInt(1))), denominator)
-}
-
-const getAvailablePayAmount = ({ order, payCurrency }: LimitOrderTakeContext) => {
-  const totalPayRaw = JSBI.BigInt(order.takingAmount)
-  const totalReceiveRaw = JSBI.BigInt(order.makingAmount)
-  const availableReceiveRaw = JSBI.BigInt(order.availableMakingAmount)
-  const availablePayRaw = safeDivide(JSBI.multiply(totalPayRaw, availableReceiveRaw), totalReceiveRaw)
-  return CurrencyAmount.fromRawAmount(payCurrency, availablePayRaw)
-}
-
-type GetReceiveAmountProps = {
-  payAmount: CurrencyAmount<Currency> | undefined
-  context: LimitOrderTakeContext
-}
-
-const getReceiveAmount = ({ payAmount, context }: GetReceiveAmountProps) => {
-  if (!payAmount) return undefined
-  const { order, receiveCurrency } = context
-  const receiveRaw = safeDivide(
-    JSBI.multiply(payAmount.quotient, JSBI.BigInt(order.makingAmount)),
-    JSBI.BigInt(order.takingAmount),
-  )
-  return CurrencyAmount.fromRawAmount(receiveCurrency, receiveRaw)
-}
-
-const getFeeBps = (feePercent?: string) => {
-  const fee = Number(feePercent || 0)
-  if (!Number.isFinite(fee) || fee <= 0) return 0
-  return Math.min(Math.round(fee > 1 ? fee : fee * 100), 10_000)
-}
-
-const subtractFee = (amount: CurrencyAmount<Currency> | undefined, feeBps: number) => {
-  if (!amount || feeBps <= 0) return amount
-  const raw = JSBI.divide(JSBI.multiply(amount.quotient, JSBI.BigInt(10_000 - feeBps)), BPS_BASE)
-  return CurrencyAmount.fromRawAmount(amount.currency, raw)
-}
-
-const addFee = (amount: CurrencyAmount<Currency> | undefined, feeBps: number) => {
-  if (!amount || feeBps <= 0) return amount
-  const raw = ceilDivide(JSBI.multiply(amount.quotient, JSBI.BigInt(10_000 + feeBps)), BPS_BASE)
-  return CurrencyAmount.fromRawAmount(amount.currency, raw)
-}
-
-const getMaxAmountBeforeTakerFee = (amount: CurrencyAmount<Currency> | undefined, feeBps: number) => {
-  if (!amount || feeBps <= 0) return amount
-  const raw = safeDivide(JSBI.multiply(amount.quotient, BPS_BASE), JSBI.BigInt(10_000 + feeBps))
-  return CurrencyAmount.fromRawAmount(amount.currency, raw)
-}
 
 type UseTakeLimitOrderProps = {
   context: LimitOrderTakeContext
@@ -112,26 +62,35 @@ export const useTakeLimitOrder = ({ context, fillAmount }: UseTakeLimitOrderProp
 
   const maxPayAmount = useMemo(() => getAvailablePayAmount(context), [context])
   const parsedPayAmount = useMemo(() => tryParseAmount(fillAmount, payCurrency), [fillAmount, payCurrency])
+  const feeBps = getFeeBps(order.makerTokenFeePercent)
+
   const receiveAmount = useMemo(
     () => getReceiveAmount({ payAmount: parsedPayAmount, context }),
     [context, parsedPayAmount],
   )
-  const feeBps = getFeeBps(order.makerTokenFeePercent)
   const receiveAmountAfterFee = useMemo(
     () => (order.isTakerAssetFee ? receiveAmount : subtractFee(receiveAmount, feeBps)),
     [feeBps, order.isTakerAssetFee, receiveAmount],
   )
-  const thresholdAmount = receiveAmount?.quotient.toString() || '0'
-
-  const balance = useCurrencyBalance(payCurrency, chainId)
   const requiredPayAmount = useMemo(
     () => (order.isTakerAssetFee ? addFee(parsedPayAmount, feeBps) : parsedPayAmount),
     [feeBps, order.isTakerAssetFee, parsedPayAmount],
   )
+  const thresholdAmount = receiveAmount?.quotient.toString() || '0'
+
+  const balance = useCurrencyBalance(payCurrency, chainId)
   const maxBalancePayAmount = useMemo(
     () => (order.isTakerAssetFee ? getMaxAmountBeforeTakerFee(balance, feeBps) : balance),
     [balance, feeBps, order.isTakerAssetFee],
   )
+  const defaultPayAmount = useMemo(() => {
+    if (!maxPayAmount) return undefined
+    if (!maxBalancePayAmount) return maxPayAmount
+    if (JSBI.equal(maxBalancePayAmount.quotient, JSBI.BigInt(0))) return maxPayAmount
+
+    return maxBalancePayAmount.lessThan(maxPayAmount) ? maxBalancePayAmount : maxPayAmount
+  }, [maxBalancePayAmount, maxPayAmount])
+
   const {
     insufficientBalance,
     onWrap,
@@ -142,16 +101,12 @@ export const useTakeLimitOrder = ({ context, fillAmount }: UseTakeLimitOrderProp
     amount: requiredPayAmount,
     balance,
   })
-  const exceedsAvailableAmount = (() => {
-    if (!parsedPayAmount || !maxPayAmount) return false
-    return parsedPayAmount.greaterThan(maxPayAmount)
-  })()
 
   const canSubmit =
+    !!account &&
     !!contractAddress &&
-    !!parsedPayAmount &&
-    JSBI.greaterThan(parsedPayAmount.quotient, JSBI.BigInt(0)) &&
-    !exceedsAvailableAmount &&
+    hasPositiveAmount(parsedPayAmount) &&
+    !isExceedsAvailableAmount(parsedPayAmount, maxPayAmount) &&
     !insufficientBalance
 
   const [approval, approveCallback] = useApproveCallback({
@@ -184,6 +139,13 @@ export const useTakeLimitOrder = ({ context, fillAmount }: UseTakeLimitOrderProp
       operatorSignature: operatorSignature.operatorSignature,
     }
   }, [account, getOperatorSignature, order, chainId, parsedPayAmount, thresholdAmount])
+
+  const estimateTxGas = useCallback(async () => {
+    if (!account || !order || !parsedPayAmount || !contractAddress) return null
+    const fillBody = await buildFillOrderBody()
+    const { encodedData } = await encodeFillOrder(fillBody).unwrap()
+    return estimateGas({ contractAddress, encodedData })
+  }, [account, buildFillOrderBody, contractAddress, encodeFillOrder, estimateGas, order, parsedPayAmount])
 
   const submitFillOrder = useCallback(async () => {
     if (!account || !parsedPayAmount || !contractAddress) {
@@ -258,17 +220,11 @@ export const useTakeLimitOrder = ({ context, fillAmount }: UseTakeLimitOrderProp
     return steps
   }, [wrapAmountForOrder])
 
-  const estimateTxGas = useCallback(async () => {
-    if (!account || !order || !parsedPayAmount || !contractAddress) return null
-    const fillBody = await buildFillOrderBody()
-    const { encodedData } = await encodeFillOrder(fillBody).unwrap()
-    return estimateGas({ contractAddress, encodedData })
-  }, [account, buildFillOrderBody, contractAddress, encodeFillOrder, estimateGas, order, parsedPayAmount])
-
   return {
     amount: {
       maxPayAmount,
       maxBalancePayAmount,
+      defaultPayAmount,
       parsedPayAmount,
       requiredPayAmount,
       receiveAmount,
@@ -276,7 +232,6 @@ export const useTakeLimitOrder = ({ context, fillAmount }: UseTakeLimitOrderProp
       feeBps,
       balance,
       wrapAmount: wrapAmountForOrder,
-      exceedsAvailableAmount,
       insufficientBalance,
       canSubmit,
     },
