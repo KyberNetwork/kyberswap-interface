@@ -1,3 +1,4 @@
+import { t } from '@lingui/macro'
 import { CSSProperties, ReactNode, useEffect, useMemo, useRef, useState } from 'react'
 import { Check } from 'react-feather'
 
@@ -23,6 +24,7 @@ const MultiSelect = ({
   mobileFullWidth = false,
   mobileHalfWidth = false,
   highlightOnSelect = false,
+  showOnlyButton = false,
   emptyValueOnClear,
   onChange,
 }: {
@@ -34,6 +36,7 @@ const MultiSelect = ({
   mobileFullWidth?: boolean
   mobileHalfWidth?: boolean
   highlightOnSelect?: boolean
+  showOnlyButton?: boolean
   emptyValueOnClear?: string
   onChange: (value: string | number) => void
 }) => {
@@ -43,6 +46,12 @@ const MultiSelect = ({
   const parsedValue = useMemo(() => value.split(','), [value])
 
   const handleOpenChange = () => setOpen(!open)
+
+  const handleSelectOnly = (event: React.MouseEvent, newValue: string) => {
+    event.stopPropagation()
+    onChange(newValue)
+    setOpen(false)
+  }
 
   const handleSelectItem = (newValue: string) => {
     if (value === AllOptionValue) {
@@ -93,10 +102,39 @@ const MultiSelect = ({
       {open && (
         <DropdownContent alignItems={alignItems} standalone>
           {options.map((option: MenuOption) => (
-            <MultiSelectDropdownContentItem key={option.value} onClick={() => handleSelectItem(option.value)}>
-              {option.icon && <ItemIcon src={option.icon} alt={option.label} />}
-              {option.label}
-              {parsedValue.includes(option.value) && <Check size={14} />}
+            <MultiSelectDropdownContentItem
+              key={option.value}
+              className={showOnlyButton ? 'group w-full' : undefined}
+              onClick={() => handleSelectItem(option.value)}
+            >
+              {showOnlyButton ? (
+                <>
+                  <div className="flex items-center gap-2">
+                    {option.icon && <ItemIcon src={option.icon} alt={option.label} />}
+                    {option.label}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {option.value !== AllOptionValue && (
+                      <button
+                        type="button"
+                        className="pointer-events-none rounded-full bg-primary-20 px-2 py-1.5 text-xs font-medium leading-none text-primary opacity-0 transition-opacity hover:bg-primary-30 group-hover:pointer-events-auto group-hover:opacity-100"
+                        onClick={event => handleSelectOnly(event, option.value)}
+                      >
+                        {t`Only`}
+                      </button>
+                    )}
+                    <div className="flex w-3.5 shrink-0 justify-center">
+                      {parsedValue.includes(option.value) && <Check size={14} />}
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <>
+                  {option.icon && <ItemIcon src={option.icon} alt={option.label} />}
+                  {option.label}
+                  {parsedValue.includes(option.value) && <Check size={14} />}
+                </>
+              )}
             </MultiSelectDropdownContentItem>
           ))}
         </DropdownContent>
