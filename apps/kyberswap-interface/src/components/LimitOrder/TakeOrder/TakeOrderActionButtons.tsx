@@ -35,6 +35,9 @@ const TakeOrderActionButtons = ({
   if (shouldConnectWallet) {
     return (
       <ActionWrapper>
+        <ButtonOutlined onClick={onUseSwapInstead} className="flex-1 !border-border-primary">
+          <Trans>Use Swap Instead</Trans>
+        </ButtonOutlined>
         <ButtonPrimary onClick={toggleWalletModal} className="flex-1">
           <Trans>Connect wallet</Trans>
         </ButtonPrimary>
@@ -45,6 +48,9 @@ const TakeOrderActionButtons = ({
   if (primaryActionMessage) {
     return (
       <ActionWrapper>
+        <ButtonOutlined onClick={onUseSwapInstead} className="flex-1 !border-border-primary">
+          <Trans>Use Swap Instead</Trans>
+        </ButtonOutlined>
         <ButtonPrimary disabled className="flex-1">
           {primaryActionMessage}
         </ButtonPrimary>
