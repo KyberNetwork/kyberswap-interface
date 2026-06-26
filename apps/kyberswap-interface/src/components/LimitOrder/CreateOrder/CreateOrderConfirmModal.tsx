@@ -73,10 +73,10 @@ type Props = {
   needsWrap?: boolean
   onDismiss?: () => void
   onSubmit?: () => void
-  warningMessage: ReactNode[]
+  confirmWarnings: ReactNode[]
 }
 
-const CreateOrderConfirmModal = ({ order, isOpen, needsWrap, onDismiss, onSubmit, warningMessage }: Props) => {
+const CreateOrderConfirmModal = ({ order, isOpen, needsWrap, onDismiss, onSubmit, confirmWarnings }: Props) => {
   const { currencyIn, currencyOut, inputAmount, outputAmount, expiredAt, rateInfo, tradeInfo, deltaRate } = order
   const [confirmed, setConfirmed] = useState(false)
   const shouldShowConfirmFlow = Number(deltaRate.rawPercent) < WORSE_PRICE_DIFF_THRESHOLD
@@ -128,13 +128,13 @@ const CreateOrderConfirmModal = ({ order, isOpen, needsWrap, onDismiss, onSubmit
             marketRate={<MarketRateValue marketPrice={tradeInfo} currencyIn={currencyIn} currencyOut={currencyOut} />}
           />
 
-          {warningMessage?.length > 0 && (
+          {confirmWarnings?.length > 0 && (
             <Stack
               className="gap-2 rounded-xl border border-warning-30 bg-warning-20 px-3 py-2.5 text-xs leading-4 text-warning [&_a]:text-primary [&_a]:no-underline hover:[&_a]:underline"
               onClick={handleWarningClick}
             >
-              {warningMessage.map((message, index) => (
-                <div key={index}>{message}</div>
+              {confirmWarnings.map((warning, index) => (
+                <div key={index}>{warning}</div>
               ))}
             </Stack>
           )}

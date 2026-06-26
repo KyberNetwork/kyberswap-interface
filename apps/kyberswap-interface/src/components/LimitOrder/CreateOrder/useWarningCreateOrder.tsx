@@ -29,14 +29,20 @@ export const useWarningCreateOrder = ({
   wrapAmount,
 }: UseWarningCreateOrderProps) => {
   const warning = useMemo(() => {
-    const messages: ReactNode[] = []
+    const formWarnings: ReactNode[] = []
+    const confirmWarnings: ReactNode[] = []
     let shouldWarnReview = false
     const rawPercent = Number(deltaRate.rawPercent)
     const hasPercent = Number.isFinite(rawPercent)
     const displayPercent = deltaRate.percent.replace(/^[+-]/, '')
 
+    const addWarning = (warning: ReactNode, options?: { hideOnForm?: boolean }) => {
+      confirmWarnings.push(warning)
+      if (!options?.hideOnForm) formWarnings.push(warning)
+    }
+
     if (hasPercent && rawPercent >= BETTER_PRICE_DIFF_THRESHOLD) {
-      messages.push(
+      addWarning(
         <div className="text-xs font-medium italic text-subText">
           <Trans>
             Limit order price is <AprHighlight>{displayPercent}</AprHighlight> higher than the market. We just want to
@@ -48,7 +54,7 @@ export const useWarningCreateOrder = ({
 
     if (hasPercent && rawPercent <= WORSE_PRICE_DIFF_THRESHOLD && rawPercent > -100) {
       shouldWarnReview = true
-      messages.push(
+      addWarning(
         <div className="text-xs font-medium italic text-subText">
           <Trans>
             Limit order price is <WarningHighlight>{displayPercent}</WarningHighlight> lower than the market. You will
@@ -66,12 +72,12 @@ export const useWarningCreateOrder = ({
         search: currencyIn?.wrapped.address ?? '',
       }).toString()
 
-      messages.push(<ReservedOrderNotice symbol={currencyIn?.symbol} to={`?${search}`} />)
+      addWarning(<ReservedOrderNotice symbol={currencyIn?.symbol} to={`?${search}`} />)
     }
 
     if (wrapAmount) {
       const formattedWrapAmount = formatDisplayNumber(wrapAmount.toExact(), { significantDigits: 6 })
-      messages.push(
+      addWarning(
         <div className="text-xs font-medium italic text-subText">
           <Trans>
             You need to wrap{' '}
@@ -81,12 +87,14 @@ export const useWarningCreateOrder = ({
             before creating this order
           </Trans>
         </div>,
+        { hideOnForm: true },
       )
     }
 
     return {
       shouldWarnReview,
-      warningMessage: messages,
+      formWarnings,
+      confirmWarnings,
     }
   }, [currencyIn, deltaRate.percent, deltaRate.rawPercent, showReservedOrderNotice, wrapAmount])
   return warning

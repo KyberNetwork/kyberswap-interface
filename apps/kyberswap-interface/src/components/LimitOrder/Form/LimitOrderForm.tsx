@@ -186,10 +186,10 @@ const LimitOrderForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPr
               />
             </HStack>
 
-            {validation.warningMessage.length > 0 && (
+            {validation.formWarnings.length > 0 && (
               <Stack className="gap-3">
-                {validation.warningMessage.map((mess, i) => (
-                  <ErrorWarningPanel type="warn" key={i} title={mess} />
+                {validation.formWarnings.map((warning, i) => (
+                  <ErrorWarningPanel type="warn" key={i} title={warning} />
                 ))}
               </Stack>
             )}
