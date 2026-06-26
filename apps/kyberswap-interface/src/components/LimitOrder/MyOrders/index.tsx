@@ -41,6 +41,7 @@ import {
   subscribeNotificationOrderExpired,
   subscribeNotificationOrderFilled,
 } from 'utils/firebase'
+import { isSupportLimitOrder } from 'utils/index'
 
 type NotificationOrderCallback = Parameters<typeof subscribeNotificationOrderExpired>[2]
 
@@ -129,7 +130,7 @@ const MyOrders = () => {
   const chainOptions = useMemo<MenuOption[]>(
     () => [
       { label: t`All Chains`, value: '' },
-      ...MAINNET_NETWORKS.filter(chainId => Boolean(NETWORKS_INFO[chainId].limitOrder)).map(chainId => ({
+      ...MAINNET_NETWORKS.filter(isSupportLimitOrder).map(chainId => ({
         label: NETWORKS_INFO[chainId].name,
         value: chainId.toString(),
         icon: NETWORKS_INFO[chainId].icon,

@@ -450,7 +450,7 @@ const TakeOrderConfirmModal = ({ isOpen, order, onDismiss }: Props) => {
                   <Trans>Connect wallet</Trans>
                 </ButtonPrimary>
               ) : primaryActionMessage ? (
-                <ButtonPrimary altDisabledStyle disabled className="flex-1">
+                <ButtonPrimary disabled className="flex-1">
                   {primaryActionMessage}
                 </ButtonPrimary>
               ) : shouldWarnMarketDiff ? (
