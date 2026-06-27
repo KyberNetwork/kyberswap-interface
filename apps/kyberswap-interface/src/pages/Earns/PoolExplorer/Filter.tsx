@@ -309,6 +309,7 @@ const Filter = ({
         <HStack className="flex-wrap gap-4">
           <MultiSelectDropdownMenu
             highlightOnSelect
+            showOnlyButton
             label={selectedChainsLabel}
             options={supportedChains.length ? supportedChains : [AllChainsOption]}
             value={filters.chainIds || ''}
@@ -316,6 +317,7 @@ const Filter = ({
           />
           <MultiSelectDropdownMenu
             highlightOnSelect
+            showOnlyButton
             label={selectedProtocolsLabel}
             options={supportedDexes}
             value={filters.protocol}

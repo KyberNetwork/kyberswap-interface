@@ -65,7 +65,7 @@ interface MerklRewardsParams {
   chainId: string
 }
 
-const MERKL_API_BASE = 'https://api.merkl.xyz/v4'
+const MERKL_API_BASE = 'https://proxy.kyberswap.com/merkl/v4'
 
 // Tracks whether Merkl's batched (multi-chain) endpoint is usable in this session.
 // Only flipped to 'unsupported' when Merkl returns a permanent error (4xx other than 429),
@@ -165,8 +165,8 @@ const rewardMerklApi = createApi({
     // 60s `refetchOnMountOrArgChange` from createApi is overridden at the hook call site to
     // match the longer keepUnusedDataFor.
     //
-    // Uses raw `fetch` (not `fetchBaseQuery`) so the request stays a CORS-simple GET — Merkl's
-    // server doesn't accept the preflight that `fetchBaseQuery`'s default headers trigger.
+    // Uses raw `fetch` (not `fetchBaseQuery`) so the request stays a CORS-simple GET with no
+    // custom headers — avoids a CORS preflight the proxy doesn't answer.
     getMerklChains: builder.query<MerklChainSummary[], void>({
       async queryFn() {
         const controller = new AbortController()
