@@ -9,6 +9,7 @@ const RONIN = 2020;
 const MONAD = 143;
 const ETHERLINK = 42793;
 const MEGAETH = 4326;
+const UNICHAIN = 130;
 
 export const PUBLIC_RPC_ENDPOINTS: Record<number, string[]> = {
   [ChainId.Ethereum]: [
@@ -182,6 +183,13 @@ export const PUBLIC_RPC_ENDPOINTS: Record<number, string[]> = {
     'https://mainnet.megaeth.com/rpc',
     'https://megaeth.gateway.tenderly.co',
     'https://4326.rpc.thirdweb.com',
+  ],
+  [UNICHAIN]: [
+    'https://unichain.drpc.org',
+    'https://unichain-rpc.publicnode.com',
+    'https://unichain.api.onfinality.io/public',
+    'https://unichain.gateway.tenderly.co',
+    'https://mainnet.unichain.org',
   ],
 };
 
