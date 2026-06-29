@@ -34,6 +34,7 @@ type Props = {
   onClickCrossChainSources: () => void
   isSwapPage?: boolean
   isCrossChainPage?: boolean
+  highlightDegenMode?: boolean
   displaySettings?: {
     isShowPricingChart?: boolean
     isShowTradeRoutes?: boolean
@@ -62,6 +63,7 @@ const DisplaySettingRow = ({
 const SettingsPanel: React.FC<Props> = ({
   isSwapPage,
   isCrossChainPage,
+  highlightDegenMode,
   onBack,
   onClickLiquiditySources,
   onClickCrossChainSources,
@@ -106,7 +108,11 @@ const SettingsPanel: React.FC<Props> = ({
           <SettingsSection title={<Trans>Advanced Settings</Trans>}>
             <SlippageSetting />
             {isSwapPage && <TransactionTimeLimitSetting />}
-            <DegenModeSetting showConfirmation={showConfirmation} setShowConfirmation={setShowConfirmation} />
+            <DegenModeSetting
+              showConfirmation={showConfirmation}
+              setShowConfirmation={setShowConfirmation}
+              highlight={highlightDegenMode}
+            />
             {isSwapPage && <LiquiditySourcesSetting onClick={onClickLiquiditySources} />}
             {isCrossChainPage && <CrossChainSourceSetting onClick={onClickCrossChainSources} />}
           </SettingsSection>
