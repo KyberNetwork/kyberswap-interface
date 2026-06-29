@@ -5,13 +5,13 @@ import { useMedia } from 'react-use'
 
 import { ReactComponent as CrossChainIcon } from 'assets/svg/cross_chain_icon.svg'
 import { ReactComponent as LimitOrderIcon } from 'assets/svg/limit_order.svg'
-import NavGroup from 'components/Header/groups/NavGroup'
-import { DropdownTextAnchor, StyledNavLink } from 'components/Header/styleds'
-import { NewLabel } from 'components/Menu'
+import NavGroup, { type DropdownAlign } from 'components/Header/groups/NavGroup'
+import { DropdownTextAnchor, NewLabel, StyledNavLink } from 'components/Header/styleds'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import { APP_PATHS, CHAINS_SUPPORT_CROSS_CHAIN } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useTutorialSwapGuide } from 'state/tutorial/hooks'
+import { MEDIA_WIDTHS } from 'theme'
 import { isInSafeApp, isSupportLimitOrder } from 'utils'
 import { cn } from 'utils/cn'
 
@@ -19,18 +19,22 @@ const IconWrapper = ({ children }: { children: React.ReactNode }) => (
   <div className="flex size-4 flex-[0_0_16px] items-center">{children}</div>
 )
 
-const SwapNavGroup = () => {
+type Props = {
+  dropdownAlign?: DropdownAlign
+}
+
+const SwapNavGroup = ({ dropdownAlign }: Props) => {
   const { networkInfo, chainId } = useActiveWeb3React()
   const { pathname } = useLocation()
-  const upTo430 = useMedia('(max-width: 430px)')
+  const isActive = [APP_PATHS.SWAP, APP_PATHS.LIMIT, APP_PATHS.CROSS_CHAIN].some(path => pathname.startsWith(path))
+
+  const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
   const [{ show: isShowTutorial = false, stepInfo }] = useTutorialSwapGuide()
 
-  const isActive = [APP_PATHS.SWAP, APP_PATHS.LIMIT, APP_PATHS.CROSS_CHAIN].some(path => pathname.startsWith(path))
-
   return (
     <NavGroup
-      dropdownAlign={upTo430 ? 'center' : 'left'}
+      dropdownAlign={dropdownAlign}
       isActive={isActive}
       forceOpen={isShowTutorial && stepInfo?.selector === `#${TutorialIds.BRIDGE_LINKS}`}
       anchor={
@@ -39,7 +43,10 @@ const SwapNavGroup = () => {
         </DropdownTextAnchor>
       }
       dropdownContent={
-        <div id={TutorialIds.BRIDGE_LINKS} className={cn('flex flex-col', upTo430 ? 'min-w-[160px]' : 'min-w-[250px]')}>
+        <div
+          id={TutorialIds.BRIDGE_LINKS}
+          className={cn('flex flex-col', upToSmall ? 'min-w-[180px]' : 'min-w-[240px]')}
+        >
           <StyledNavLink
             id={`swapv2-nav-link`}
             to={`${APP_PATHS.SWAP}/${networkInfo.route}`}
