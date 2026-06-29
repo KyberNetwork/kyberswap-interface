@@ -1,6 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { HTMLAttributes, ReactNode, useCallback, useEffect, useMemo, useState } from 'react'
+import { HTMLAttributes, ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Trash } from 'react-feather'
 import { useSearchParams } from 'react-router-dom'
 import { useGetListOrdersQuery } from 'services/limitOrder'
@@ -30,12 +30,13 @@ import Pagination from 'components/Pagination'
 import RefetchIndicator from 'components/RefetchIndicator'
 import SearchInput from 'components/SearchInput'
 import { RTK_QUERY_TAGS } from 'constants/index'
-import { MAINNET_NETWORKS, NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
+import useChainsConfig from 'hooks/useChainsConfig'
 import { useInvalidateTagLimitOrder } from 'hooks/useInvalidateTags'
 import usePageLocation from 'hooks/usePageLocation'
 import useTab from 'hooks/useTab'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
+import { sortChainOptionsByPriority } from 'pages/Earns/hooks/useSupportedDexesAndChains'
 import { cn } from 'utils/cn'
 import {
   subscribeNotificationOrderCancelled,
@@ -47,8 +48,7 @@ import { isSupportLimitOrder } from 'utils/index'
 type NotificationOrderCallback = Parameters<typeof subscribeNotificationOrderExpired>[2]
 
 const ALL_CHAINS_VALUE = 'all'
-
-const SUPPORTED_LIMIT_ORDER_CHAINS = MAINNET_NETWORKS.filter(isSupportLimitOrder)
+const EMPTY_LIMIT_ORDERS: LimitOrder[] = []
 
 const NoResultWrapper = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
   <div
@@ -103,6 +103,8 @@ const MyOrders = () => {
   const { trackingHandler } = useTracking()
   const { isEmbeddedSwap } = usePageLocation()
   const { chainId, networkName } = useLimitOrderContext()
+  const { supportedChains } = useChainsConfig()
+
   const [searchParams, setSearchParams] = useSearchParams()
   const invalidateTag = useInvalidateTagLimitOrder()
 
@@ -119,40 +121,51 @@ const MyOrders = () => {
   const [currentOrder, setCurrentOrder] = useState<LimitOrder>()
   const [isOpenCancel, setIsOpenCancel] = useState(false)
   const [isCancelAll, setIsCancelAll] = useState(false)
+  const chainFilterRef = useRef({ chainId, selectedChainValue })
 
   const keyword = searchParams.get('search') || ''
+
   const isTabActive = isActiveStatus(orderType)
   const activeTab = getActiveTabByOrderType(orderType)
   const orderTypeOptions = getOrderTypeOptions(orderType)
-
-  const isAllChainsSelected = selectedChainValue === ALL_CHAINS_VALUE
-  const selectedOrderChainIds = isAllChainsSelected
-    ? SUPPORTED_LIMIT_ORDER_CHAINS
-    : [Number(selectedChainValue) as ChainId]
-  const cancellingChainId = isAllChainsSelected ? chainId : selectedOrderChainIds[0]
-  const ordersApiSearchKeyword = getOrdersApiSearchKeyword(keyword, selectedOrderChainIds)
-
-  const { isOrderCancelling, setCancellingOrders } = useCancellingOrders({ chainId: cancellingChainId })
-
   const orderTypeDropdownOptions = useMemo<MenuOption[]>(
     () => orderTypeOptions.map(option => ({ label: option.label, value: option.value })),
     [orderTypeOptions],
   )
 
+  const supportedLimitOrderChainOptions = useMemo<MenuOption[]>(
+    () =>
+      supportedChains
+        .filter(chain => isSupportLimitOrder(chain.chainId))
+        .map(chain => ({
+          label: chain.name,
+          value: chain.chainId.toString(),
+          icon: chain.icon,
+        }))
+        .sort(sortChainOptionsByPriority),
+    [supportedChains],
+  )
   const chainOptions = useMemo<MenuOption[]>(
-    () => [
-      { label: t`All Chains`, value: ALL_CHAINS_VALUE },
-      ...SUPPORTED_LIMIT_ORDER_CHAINS.map(chainId => ({
-        label: NETWORKS_INFO[chainId].name,
-        value: chainId.toString(),
-        icon: NETWORKS_INFO[chainId].icon,
-      })),
-    ],
-    [],
+    () => [{ label: t`All Chains`, value: ALL_CHAINS_VALUE }, ...supportedLimitOrderChainOptions],
+    [supportedLimitOrderChainOptions],
+  )
+  const supportedLimitOrderChains = useMemo(
+    () => supportedLimitOrderChainOptions.map(option => Number(option.value) as ChainId),
+    [supportedLimitOrderChainOptions],
   )
 
+  const selectedChainId = Number(selectedChainValue) as ChainId
+  const isSelectedChainSupported = supportedLimitOrderChains.includes(selectedChainId)
+  const isAllChainsSelected = selectedChainValue === ALL_CHAINS_VALUE || !isSelectedChainSupported
+  const selectedOrderChainIds = isAllChainsSelected ? supportedLimitOrderChains : [selectedChainId]
+
+  const cancellingChainId = isAllChainsSelected ? chainId : selectedOrderChainIds[0]
+  const ordersApiSearchKeyword = getOrdersApiSearchKeyword(keyword, selectedOrderChainIds)
+
+  const { isOrderCancelling, setCancellingOrders } = useCancellingOrders({ chainId: cancellingChainId })
+
   const {
-    data: { orders = [], totalOrder = 0 } = {},
+    data: listOrdersData,
     isFetching,
     isError: isOrdersError,
     isSuccess: isOrdersLoaded,
@@ -168,13 +181,15 @@ const MyOrders = () => {
     { skip: !account, pollingInterval: 10_000, refetchOnFocus: true },
   )
 
+  const orders = listOrdersData?.orders ?? EMPTY_LIMIT_ORDERS
+  const totalOrder = listOrdersData?.totalOrder ?? 0
   const hasOrders = orders.length > 0
   const showPagination = hasOrders && totalOrder > PAGE_SIZE
   const showCancelAll = hasOrders && isTabActive
   const showNoOrders = !hasOrders && (isOrdersLoaded || isOrdersError || !account)
 
   const {
-    data: { orders: cancelAllOrders = [] } = {},
+    data: cancelAllOrdersData,
     isError: isCancelAllOrdersError,
     isFetching: isFetchingCancelAllOrders,
     isSuccess: isCancelAllOrdersLoaded,
@@ -188,6 +203,7 @@ const MyOrders = () => {
     { skip: !account || !showCancelAll },
   )
 
+  const cancelAllOrders = cancelAllOrdersData?.orders ?? EMPTY_LIMIT_ORDERS
   const isLoadingCancelAllOrders =
     showCancelAll && !isCancelAllOrdersError && (!isCancelAllOrdersLoaded || isFetchingCancelAllOrders)
 
@@ -238,7 +254,9 @@ const MyOrders = () => {
   }
 
   const onSelectChain = (value: string | number) => {
-    setSelectedChainValue(value.toString())
+    const nextSelectedChainValue = value.toString()
+    chainFilterRef.current.selectedChainValue = nextSelectedChainValue
+    setSelectedChainValue(nextSelectedChainValue)
     onReset()
   }
 
@@ -320,9 +338,15 @@ const MyOrders = () => {
   }, [account, chainId, refreshListOrder, trackCancelledOrder, trackFilledOrder])
 
   useEffect(() => {
-    setSelectedChainValue(chainId.toString())
+    if (chainFilterRef.current.chainId === chainId) return
+    chainFilterRef.current.chainId = chainId
+    if (chainFilterRef.current.selectedChainValue === ALL_CHAINS_VALUE) return
+
+    const nextSelectedChainValue = supportedLimitOrderChains.includes(chainId) ? chainId.toString() : ALL_CHAINS_VALUE
+    chainFilterRef.current.selectedChainValue = nextSelectedChainValue
+    setSelectedChainValue(nextSelectedChainValue)
     onReset()
-  }, [chainId, onReset])
+  }, [chainId, onReset, supportedLimitOrderChains])
 
   useEffect(() => {
     onReset()

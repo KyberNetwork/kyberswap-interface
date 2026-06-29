@@ -58,6 +58,18 @@ export const useWarningCreateOrder = ({
   const inputBalance = useCurrencyBalance(currencyIn?.isNative ? undefined : currencyIn, chainId)
   const wrappedNativeBalance = useCurrencyBalance(currencyIn?.isNative ? makingCurrency : undefined, chainId)
 
+  const isSameTokenPair = useMemo(() => {
+    if (!currencyIn || !currencyOut) return false
+    if (currencyIn.equals(currencyOut)) return true
+
+    const inputToken = currencyIn.wrapped
+    const outputToken = currencyOut.wrapped
+    return (
+      inputToken.chainId === outputToken.chainId &&
+      inputToken.address.toLowerCase() === outputToken.address.toLowerCase()
+    )
+  }, [currencyIn, currencyOut])
+
   const { data: pairActiveOrderMakingAmount = '', refetch: getPairActiveMakingAmount } =
     useGetTotalActiveMakingAmountQuery(
       {
@@ -115,6 +127,16 @@ export const useWarningCreateOrder = ({
       warnings.push({ type: options?.type || 'warn', message })
     }
 
+    if (isSameTokenPair) {
+      shouldDisableAction = true
+      addWarning(
+        <div className="text-xs font-medium italic text-subText">
+          <Trans>Token in and token out must be different.</Trans>
+        </div>,
+        { type: 'warn' },
+      )
+    }
+
     if (hasPercent && rawPercent >= BETTER_PRICE_DIFF_THRESHOLD) {
       addWarning(
         <div className="text-xs font-medium italic text-subText">
@@ -160,6 +182,6 @@ export const useWarningCreateOrder = ({
       shouldDisableAction,
       warnings,
     }
-  }, [currencyIn, currencyOut, deltaRate.percent, deltaRate.rawPercent, showReservedOrderNotice])
+  }, [currencyIn, currencyOut, deltaRate.percent, deltaRate.rawPercent, isSameTokenPair, showReservedOrderNotice])
   return warning
 }

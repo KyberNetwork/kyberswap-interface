@@ -17,6 +17,7 @@ import { HStack, Stack } from 'components/Stack'
 import { useActiveWeb3React } from 'hooks'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
+import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { CloseIcon } from 'theme/components'
 import { formatDisplayNumber } from 'utils/numbers'
 
@@ -87,7 +88,8 @@ const CancelOrderModal = ({
   const [errorMessage, setErrorMessage] = useState('')
   const requestController = useRef(new AbortController())
 
-  const { networkInfo } = useActiveWeb3React()
+  const { chainId: walletChainId, networkInfo } = useActiveWeb3React()
+  const { changeNetwork } = useChangeNetwork()
   const { trackingHandler } = useTracking()
 
   const getGaslessSupport = useIsSupportSoftCancelOrder(chainId)
@@ -162,6 +164,7 @@ const CancelOrderModal = ({
 
   const handleHardCancel = useCallback(() => handleCancel(CancelOrderType.HARD_CANCEL), [handleCancel])
   const handleConfirm = useCallback(() => handleCancel(cancelType), [cancelType, handleCancel])
+  const handleSwitchNetwork = useCallback(() => changeNetwork(chainId), [changeNetwork, chainId])
   const handleCountdownEnd = useCallback(() => setCancelStatus(CancelStatus.CANCEL_DONE), [])
   const handleChangeCancelAllChain = useCallback(
     (chainId: ChainId) => {
@@ -230,11 +233,13 @@ const CancelOrderModal = ({
 
   const isCountDown = cancelStatus === CancelStatus.COUNTDOWN
   const isCancelDone = cancelStatus === CancelStatus.CANCEL_DONE
+  const shouldSwitchNetwork = walletChainId !== chainId
 
   const disabledBecauseNoOrders = isCancelAll && !selectedOrders.length
   const disabledGasLessCancel = !supportsGaslessCancel || attemptingTxn || disabledBecauseNoOrders
   const disabledHardCancel = attemptingTxn || disabledBecauseNoOrders
   const disabledConfirm = attemptingTxn || disabledBecauseNoOrders || (disabledGasLessCancel && disabledHardCancel)
+  const disabledSwitchNetwork = attemptingTxn || disabledBecauseNoOrders
 
   const cancelGaslessText = isCancelAll ? (
     gaslessCancelableOrders.length === selectedOrders.length || !supportsGaslessCancel ? (
@@ -253,6 +258,7 @@ const CancelOrderModal = ({
     : ''
 
   const errorLine = <div className="min-h-4 text-xs leading-4 text-red">{errorMessage}</div>
+  const switchNetworkText = <Trans>Switch to {NETWORKS_INFO[chainId]?.name}</Trans>
 
   return (
     <Modal isOpen={isOpen} onDismiss={onDismiss} maxWidth={480} borderRadius={16}>
@@ -315,9 +321,12 @@ const CancelOrderModal = ({
                   <Trans>Close</Trans>
                 </ButtonOutlined>
                 <Stack className="flex-1 gap-1">
-                  <ButtonPrimary disabled={disabledHardCancel} onClick={handleHardCancel}>
+                  <ButtonPrimary
+                    disabled={shouldSwitchNetwork ? disabledSwitchNetwork : disabledHardCancel}
+                    onClick={shouldSwitchNetwork ? handleSwitchNetwork : handleHardCancel}
+                  >
                     <Dots absolute loading={attemptingTxn}>
-                      <Trans>Hard Cancel</Trans>
+                      {shouldSwitchNetwork ? switchNetworkText : <Trans>Hard Cancel</Trans>}
                     </Dots>
                   </ButtonPrimary>
                 </Stack>
@@ -342,9 +351,18 @@ const CancelOrderModal = ({
               />
 
               {errorLine}
-              <ButtonPrimary disabled={disabledConfirm} onClick={handleConfirm}>
+              <ButtonPrimary
+                disabled={shouldSwitchNetwork ? disabledSwitchNetwork : disabledConfirm}
+                onClick={shouldSwitchNetwork ? handleSwitchNetwork : handleConfirm}
+              >
                 <Dots absolute loading={attemptingTxn}>
-                  {isCancelAll ? <Trans>Cancel All Orders</Trans> : <Trans>Cancel Order</Trans>}
+                  {shouldSwitchNetwork ? (
+                    switchNetworkText
+                  ) : isCancelAll ? (
+                    <Trans>Cancel All Orders</Trans>
+                  ) : (
+                    <Trans>Cancel Order</Trans>
+                  )}
                 </Dots>
               </ButtonPrimary>
             </Stack>
