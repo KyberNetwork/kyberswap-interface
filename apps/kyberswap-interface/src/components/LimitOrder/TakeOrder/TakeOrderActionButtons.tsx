@@ -37,7 +37,7 @@ const TakeOrderActionButtons = ({
           <Trans>Use Swap Instead</Trans>
         </ButtonOutlined>
         <ButtonPrimary onClick={toggleWalletModal} className="flex-1">
-          <Trans>Connect wallet</Trans>
+          <Trans>Connect Wallet</Trans>
         </ButtonPrimary>
       </ActionWrapper>
     )

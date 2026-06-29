@@ -1,6 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { HTMLAttributes, ReactNode, useCallback, useEffect, useMemo, useState } from 'react'
+import { HTMLAttributes, ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Trash } from 'react-feather'
 import { useSearchParams } from 'react-router-dom'
 import { useGetListOrdersQuery } from 'services/limitOrder'
@@ -121,6 +121,7 @@ const MyOrders = () => {
   const [currentOrder, setCurrentOrder] = useState<LimitOrder>()
   const [isOpenCancel, setIsOpenCancel] = useState(false)
   const [isCancelAll, setIsCancelAll] = useState(false)
+  const chainFilterRef = useRef({ chainId, selectedChainValue })
 
   const keyword = searchParams.get('search') || ''
 
@@ -253,7 +254,9 @@ const MyOrders = () => {
   }
 
   const onSelectChain = (value: string | number) => {
-    setSelectedChainValue(value.toString())
+    const nextSelectedChainValue = value.toString()
+    chainFilterRef.current.selectedChainValue = nextSelectedChainValue
+    setSelectedChainValue(nextSelectedChainValue)
     onReset()
   }
 
@@ -335,7 +338,13 @@ const MyOrders = () => {
   }, [account, chainId, refreshListOrder, trackCancelledOrder, trackFilledOrder])
 
   useEffect(() => {
-    setSelectedChainValue(supportedLimitOrderChains.includes(chainId) ? chainId.toString() : ALL_CHAINS_VALUE)
+    if (chainFilterRef.current.chainId === chainId) return
+    chainFilterRef.current.chainId = chainId
+    if (chainFilterRef.current.selectedChainValue === ALL_CHAINS_VALUE) return
+
+    const nextSelectedChainValue = supportedLimitOrderChains.includes(chainId) ? chainId.toString() : ALL_CHAINS_VALUE
+    chainFilterRef.current.selectedChainValue = nextSelectedChainValue
+    setSelectedChainValue(nextSelectedChainValue)
     onReset()
   }, [chainId, onReset, supportedLimitOrderChains])
 
