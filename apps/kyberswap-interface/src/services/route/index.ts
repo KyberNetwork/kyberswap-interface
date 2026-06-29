@@ -30,7 +30,7 @@ const routeApi = createApi({
         const { chainId, tokenInDecimals, tokenOutDecimals, ...rest } = params
         return {
           url,
-          params: rest,
+          params: { ...rest, enableAlphaFee: true },
           authentication,
           headers: {
             'x-client-id': clientId || 'kyberswap',
@@ -91,6 +91,19 @@ const routeApi = createApi({
 
             const tokenInBalance = CurrencyAmount.fromRawAmount(currencyIn, amountIn).toExact()
             const tokenOutBalance = CurrencyAmount.fromRawAmount(currencyOut, amountOut).toExact()
+
+            if (!tokenInMidPrice || !tokenOutMidPrice) {
+              console.warn('[getRoute] Mid-price missing', {
+                tokenIn,
+                tokenOut,
+                wrappedTokenIn,
+                wrappedTokenOut,
+                tokenInPrices,
+                tokenOutPrices,
+                rawAmountInUsd: routeSummary.amountInUsd,
+                rawAmountOutUsd: routeSummary.amountOutUsd,
+              })
+            }
 
             return {
               ...baseResponse,
