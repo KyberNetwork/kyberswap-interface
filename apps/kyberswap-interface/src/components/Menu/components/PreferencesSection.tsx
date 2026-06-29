@@ -1,5 +1,5 @@
 import { Trans } from '@lingui/macro'
-import { useRef, useState } from 'react'
+import { useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
@@ -7,7 +7,7 @@ import { ReactComponent as LightIcon } from 'assets/svg/light.svg'
 import MailIcon from 'components/Icons/MailIcon'
 import LanguageSelector from 'components/LanguageSelector'
 import { MenuSection, NavLinkBetween, Title } from 'components/Menu/MenuItems'
-import { HStack, Stack } from 'components/Stack'
+import { HStack } from 'components/Stack'
 import Toggle from 'components/Toggle'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import { APP_PATHS } from 'constants/index'
@@ -33,7 +33,6 @@ export const PreferencesSection = ({ toggle }: PreferencesSectionProps) => {
   const selectedLocaleInfo = LOCALE_INFO[selectedLocale] || LOCALE_INFO[DEFAULT_LOCALE]
   const location = useLocation()
   const navigate = useNavigate()
-  const languageRef = useRef<HTMLElement>(null)
   const { trackingHandler } = useTracking()
   const setShowTutorialSwapGuide = useTutorialSwapGuide()[1]
 
@@ -101,23 +100,26 @@ export const PreferencesSection = ({ toggle }: PreferencesSectionProps) => {
         }}
       >
         <Trans>Language</Trans>
-        <HStack className="items-center gap-2 whitespace-nowrap text-sm text-text">
+        <HStack className="items-center gap-1 whitespace-nowrap text-sm text-text">
           <HStack className="items-center gap-1.5">
             <img src={selectedLocaleInfo.flag} alt="" className="w-5 shrink-0" />
             <span>{selectedLocale.split('-')[0].toUpperCase()}</span>
           </HStack>
-          <DropdownSVG className={cn('!h-4 !w-4 transition-transform duration-300', isLanguageOpen && 'rotate-180')} />
+          <DropdownSVG
+            className={cn('-mx-1 size-4 transition-transform duration-300', isLanguageOpen && 'rotate-180')}
+          />
         </HStack>
       </NavLinkBetween>
-      <Stack
-        ref={languageRef}
-        style={{ height: isLanguageOpen ? `${languageRef.current?.scrollHeight || 0}px` : '0px' }}
-        className="overflow-hidden transition-all duration-300 ease-in-out"
+      <div
+        className={cn(
+          'grid transition-[grid-template-rows] duration-300 ease-in-out',
+          isLanguageOpen ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]',
+        )}
       >
-        <Stack className="pb-2 pt-1">
+        <div className="min-h-0 overflow-hidden">
           <LanguageSelector
-            isInline
-            onClose={() => setIsLanguageOpen(false)}
+            variant="menu"
+            onDismiss={() => setIsLanguageOpen(false)}
             onLanguageChange={(prevLang, newLang) => {
               trackingHandler(TRACKING_EVENT_TYPE.LANGUAGE_CHANGED, {
                 previous_language: prevLang,
@@ -126,8 +128,8 @@ export const PreferencesSection = ({ toggle }: PreferencesSectionProps) => {
               })
             }}
           />
-        </Stack>
-      </Stack>
+        </div>
+      </div>
     </MenuSection>
   )
 }

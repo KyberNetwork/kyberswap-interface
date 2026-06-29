@@ -2,76 +2,83 @@ import { isMobile } from 'react-device-detect'
 import { ArrowLeft, Check } from 'react-feather'
 import { useLocation, useNavigate } from 'react-router-dom'
 
-import { ButtonEmpty } from 'components/Button'
 import { HStack, Stack } from 'components/Stack'
-import { LOCALE_INFO, SupportedLocale } from 'constants/locales'
-import useParsedQueryString from 'hooks/useParsedQueryString'
+import { DEFAULT_LOCALE, LOCALE_INFO, SupportedLocale } from 'constants/locales'
 import { useUserLocale } from 'state/user/hooks'
 import { cn } from 'utils/cn'
 
+const LOCALES = Object.keys(LOCALE_INFO) as SupportedLocale[]
+
 type LanguageSelectorProps = {
-  onClose: () => void
+  onDismiss?: () => void
   onLanguageChange?: (previousLanguage: string, newLanguage: string) => void
-  isInline?: boolean
+  variant?: 'standalone' | 'menu'
 }
 
-const LanguageSelector = ({ onClose, onLanguageChange, isInline }: LanguageSelectorProps) => {
+const LanguageSelector = ({ onDismiss, onLanguageChange, variant = 'standalone' }: LanguageSelectorProps) => {
   const navigate = useNavigate()
   const location = useLocation()
-  const qs = useParsedQueryString()
   const userLocale = useUserLocale()
+  const selectedLocale = userLocale || DEFAULT_LOCALE
+  const isMenu = variant === 'menu'
 
   const handleSelectLanguage = (locale: SupportedLocale) => {
-    const target = {
-      ...location,
-      search: new URLSearchParams({ ...qs, lng: locale }).toString(),
+    if (locale !== selectedLocale) {
+      const searchParams = new URLSearchParams(location.search)
+      searchParams.set('lng', locale)
+
+      onLanguageChange?.(selectedLocale, locale)
+      navigate({
+        ...location,
+        search: searchParams.toString(),
+      })
     }
 
-    onLanguageChange?.(userLocale ?? '', locale)
-    navigate(target)
-    onClose()
+    onDismiss?.()
   }
 
   return (
-    <Stack className={cn('items-start justify-center', !isInline && 'gap-6')}>
-      {!isInline && (
-        <ButtonEmpty width="fit-content" padding="0" onClick={onClose} className="text-text no-underline">
+    <Stack className={cn(isMenu ? 'pl-4' : 'items-start justify-center gap-6')}>
+      {!isMenu && onDismiss && (
+        <button type="button" onClick={onDismiss} className="cursor-pointer border-0 bg-transparent p-0 text-text">
           <ArrowLeft />
-        </ButtonEmpty>
+        </button>
       )}
       <div
         className={cn(
           'grid w-full',
-          isInline ? 'gap-2' : 'gap-x-12 gap-y-6',
-          isMobile && !isInline ? 'grid-cols-[1fr_1fr]' : 'grid-cols-[1fr]',
+          !isMenu && 'gap-x-12 gap-y-6',
+          isMobile && !isMenu ? 'grid-cols-[1fr_1fr]' : 'grid-cols-[1fr]',
         )}
       >
-        {Object.keys(LOCALE_INFO).map(element => {
-          const locale = element as SupportedLocale
+        {LOCALES.map(locale => {
           const localeInfo = LOCALE_INFO[locale]
-          const isSelected = locale === userLocale
+          const isSelected = locale === selectedLocale
+
           return (
-            <ButtonEmpty
+            <button
+              type="button"
               key={locale}
-              padding={isInline ? '6px 0' : '0'}
               onClick={() => handleSelectLanguage(locale)}
               className={cn(
-                'flex items-center justify-between gap-2 no-underline',
-                isInline && 'group text-subText hover:text-text',
+                'group flex w-full cursor-pointer items-center justify-between gap-2 border-0 bg-transparent text-left outline-none transition-colors',
+                isMenu
+                  ? 'px-0 py-2.5 text-sm text-subText hover:text-text focus:text-text'
+                  : 'p-0 text-sm text-subText',
+                isSelected && '!text-primary',
               )}
             >
               <HStack
                 className={cn(
-                  'items-center gap-2 whitespace-nowrap text-sm',
-                  isSelected ? 'text-primary' : 'text-subText',
-                  isInline && !isSelected && 'group-hover:text-text',
+                  'items-center gap-2 whitespace-nowrap',
+                  isSelected ? 'text-primary' : 'text-subText group-hover:text-text group-focus:text-text',
                 )}
               >
                 <img src={localeInfo.flag} alt="" className="w-5 shrink-0" />
                 <span>{localeInfo.name}</span>
               </HStack>
-              {isSelected && <Check className="shrink-0 text-primary" />}
-            </ButtonEmpty>
+              {isSelected && <Check className="size-4 shrink-0 text-primary" />}
+            </button>
           )
         })}
       </div>

@@ -778,10 +778,10 @@
   /* Menu scroll-hint chevron bounce. */
   @keyframes floating {
     from {
-      bottom: 10px;
+      bottom: 0.25rem;
     }
     to {
-      bottom: -10px;
+      bottom: -0.25rem;
     }
   }
 

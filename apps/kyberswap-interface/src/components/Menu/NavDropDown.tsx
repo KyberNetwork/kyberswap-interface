@@ -1,7 +1,8 @@
-import { type MouseEvent, type ReactNode, useRef, useState } from 'react'
+import { type ReactNode, useState } from 'react'
 import { NavLink } from 'react-router-dom'
 
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
+import { MenuItem, MenuItemContent, MenuItemLink } from 'components/Menu/MenuItems'
 import { HStack, Stack } from 'components/Stack'
 import { ApplicationModal } from 'state/application/actions'
 import { useToggleModal } from 'state/application/hooks'
@@ -16,53 +17,61 @@ type NavDropDownOption = {
 
 type NavDropDownProps = {
   icon?: ReactNode
-  link?: string
   options?: NavDropDownOption[]
   title?: ReactNode
 }
 
-const NavDropDown = ({ title, link = '', icon, options = [] }: NavDropDownProps) => {
+const NavDropDown = ({ title, icon, options = [] }: NavDropDownProps) => {
   const [isShowOptions, setIsShowOptions] = useState(false)
   const toggle = useToggleModal(ApplicationModal.MENU)
-  const ref = useRef<HTMLDivElement>(null)
 
-  const handleClick = (e: MouseEvent<HTMLAnchorElement>) => {
-    e.preventDefault()
+  const toggleOptions = () => {
     setIsShowOptions(prev => !prev)
   }
 
   return (
-    <Stack className="flex-1 overflow-hidden transition-all duration-200 ease-in-out">
-      <NavLink to={link} onClick={handleClick} className="block">
-        <HStack className="items-center justify-between gap-2">
+    <Stack className="flex-1 overflow-hidden">
+      <MenuItemContent onClick={toggleOptions} fullWidth className="justify-between">
+        <HStack className="min-w-0 items-center gap-2 [&_svg]:size-4">
           {icon}
-          <span className="flex-1">{title}</span>
-          <DropdownSVG
-            className={cn('!h-6 !w-6 transition-all duration-200 ease-in-out', isShowOptions && 'rotate-180')}
-          />
+          {title}
         </HStack>
-      </NavLink>
-      <Stack
-        ref={ref}
-        style={{ height: isShowOptions ? `${ref.current?.scrollHeight || 0}px` : '0px' }}
-        className="overflow-hidden transition-all duration-300 ease-in-out"
+        <DropdownSVG
+          className={cn('!size-6 shrink-0 transition-all duration-200 ease-in-out', isShowOptions && 'rotate-180')}
+        />
+      </MenuItemContent>
+      <div
+        className={cn(
+          'grid transition-[grid-template-rows] duration-300 ease-in-out',
+          isShowOptions ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]',
+        )}
       >
-        <Stack className="gap-2 pl-6 pt-2.5">
-          {options.map(item => {
-            const optionLink = item.link ?? ''
+        <Stack className="min-h-0 overflow-hidden">
+          <Stack as="ul" className="m-0 list-none pl-6 pt-2.5">
+            {options.map(item => {
+              const optionLink = item.link ?? ''
 
-            return item.external ? (
-              <ExternalLink key={optionLink} href={optionLink} onClick={toggle}>
-                {item.label}
-              </ExternalLink>
-            ) : (
-              <NavLink to={optionLink} key={optionLink} onClick={toggle}>
-                {item.label}
-              </NavLink>
-            )
-          })}
+              return (
+                <MenuItem key={optionLink}>
+                  {item.external ? (
+                    <MenuItemLink>
+                      <ExternalLink href={optionLink} onClick={toggle}>
+                        {item.label}
+                      </ExternalLink>
+                    </MenuItemLink>
+                  ) : (
+                    <MenuItemLink>
+                      <NavLink to={optionLink} onClick={toggle}>
+                        {item.label}
+                      </NavLink>
+                    </MenuItemLink>
+                  )}
+                </MenuItem>
+              )
+            })}
+          </Stack>
         </Stack>
-      </Stack>
+      </div>
     </Stack>
   )
 }

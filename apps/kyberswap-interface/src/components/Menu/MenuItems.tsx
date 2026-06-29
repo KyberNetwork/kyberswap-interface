@@ -1,82 +1,108 @@
-import type { CSSProperties, ReactNode } from 'react'
+import { type CSSProperties, type KeyboardEvent, type PropsWithChildren, cloneElement, isValidElement } from 'react'
 
 import { HStack, Stack } from 'components/Stack'
 import { cn } from 'utils/cn'
 
-type MenuItemProps = {
-  children?: ReactNode
-  onClick?: () => void
+type MenuItemProps = PropsWithChildren<{
   id?: string
   style?: CSSProperties
   className?: string
-}
+}>
 
-type MenuSectionProps = {
-  children?: ReactNode
-  className?: string
-}
-
-type NavLinkBetweenProps = {
-  children?: ReactNode
-  onClick?: () => void
-  id?: string
-}
-
-type NewLabelProps = {
-  children?: ReactNode
-  isNew?: boolean
-}
-
-type TitleProps = {
-  children?: ReactNode
-  style?: CSSProperties
-  className?: string
-}
-
-export const MenuItem = ({ children, onClick, id, style, className }: MenuItemProps) => (
-  <HStack
-    as="li"
-    id={id}
-    onClick={onClick}
-    style={style}
-    className={cn(
-      'flex-1 items-center gap-2 whitespace-nowrap py-2.5 text-[15px] font-medium text-subText no-underline',
-      '[&_svg]:size-4',
-      '[&_a]:flex [&_a]:items-center [&_a]:gap-2 [&_a]:text-subText hover:[&_a]:text-text hover:[&_a]:no-underline',
-      className,
-    )}
-  >
+export const MenuItem = ({ children, id, style, className }: MenuItemProps) => (
+  <HStack as="li" id={id} style={style} className={cn('flex-1 items-center py-2.5', className)}>
     {children}
   </HStack>
 )
 
+type MenuItemContentProps = PropsWithChildren<{
+  className?: string
+  fullWidth?: boolean
+  id?: string
+  onClick?: () => void
+  style?: CSSProperties
+}>
+
+export const MenuItemContent = ({ children, className, fullWidth, id, onClick, style }: MenuItemContentProps) => {
+  const handleKeyDown = (event: KeyboardEvent<HTMLSpanElement>) => {
+    if (!onClick || (event.key !== 'Enter' && event.key !== ' ')) return
+
+    event.preventDefault()
+    onClick()
+  }
+
+  return (
+    <span
+      id={id}
+      onClick={onClick}
+      onKeyDown={handleKeyDown}
+      role={onClick ? 'button' : undefined}
+      style={style}
+      tabIndex={onClick ? 0 : undefined}
+      className={cn(
+        fullWidth ? 'flex w-full' : 'inline-flex w-fit',
+        'items-center gap-2 whitespace-nowrap text-base font-medium text-subText !no-underline transition-colors hover:text-text focus:text-text',
+        !fullWidth && '[&_svg]:size-4',
+        onClick && 'cursor-pointer',
+        className,
+      )}
+    >
+      {children}
+    </span>
+  )
+}
+
+type MenuItemLinkProps = PropsWithChildren<{
+  className?: string
+  fullWidth?: boolean
+}>
+
+export const MenuItemLink = ({ children, className, fullWidth }: MenuItemLinkProps) => {
+  if (!isValidElement<{ className?: string }>(children)) return null
+
+  return cloneElement(children, {
+    className: cn(
+      fullWidth ? 'flex w-full' : 'inline-flex w-fit',
+      'items-center gap-2 whitespace-nowrap text-base font-medium text-subText !no-underline transition-colors hover:text-text focus:text-text',
+      !fullWidth && '[&_svg]:size-4',
+      children.props.className,
+      className,
+    ),
+  })
+}
+
+type MenuSectionProps = PropsWithChildren<{
+  className?: string
+}>
+
 export const MenuSection = ({ children, className }: MenuSectionProps) => (
-  <Stack as="ul" className={cn('list-none px-5 py-2', className)}>
+  <Stack as="ul" className={cn('m-0 list-none px-5 py-2', className)}>
     {children}
   </Stack>
 )
 
-export const NavLinkBetween = ({ children, onClick, id }: NavLinkBetweenProps) => (
-  <MenuItem
-    id={id}
-    onClick={onClick}
-    className={cn(
-      '!static max-h-10 cursor-pointer justify-between transition-colors hover:text-text',
-      '[&_svg]:!h-auto [&_svg]:!w-auto',
-    )}
-  >
-    {children}
-  </MenuItem>
-)
+type NavLinkBetweenProps = PropsWithChildren<{
+  onClick?: () => void
+  id?: string
+}>
 
-export const NewLabel = ({ isNew, children }: NewLabelProps) => (
-  <span className={cn('text-[10px]', isNew ? 'text-red' : 'text-subText')}>{children}</span>
+export const NavLinkBetween = ({ children, onClick, id }: NavLinkBetweenProps) => (
+  <MenuItem>
+    <MenuItemContent id={id} onClick={onClick} fullWidth className="justify-between">
+      {children}
+    </MenuItemContent>
+  </MenuItem>
 )
 
 export const Divider = () => <div className="border-t border-border" />
 
+type TitleProps = PropsWithChildren<{
+  style?: CSSProperties
+  className?: string
+}>
+
 export const Title = ({ children, style, className }: TitleProps) => (
-  <MenuItem style={style} className={cn('text-base !text-text', '[&_svg]:size-4', className)}>
-    {children}
+  <MenuItem style={style} className={className}>
+    <MenuItemContent className="text-base !text-text [&_svg]:size-4">{children}</MenuItemContent>
   </MenuItem>
 )

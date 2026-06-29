@@ -3,7 +3,7 @@ import { AlertOctagon } from 'react-feather'
 import { NavLink } from 'react-router-dom'
 
 import Icon from 'components/Icons/Icon'
-import { MenuItem, MenuSection, Title } from 'components/Menu/MenuItems'
+import { MenuItem, MenuItemLink, MenuSection, Title } from 'components/Menu/MenuItems'
 import { APP_PATHS } from 'constants/index'
 
 type LegacySectionProps = {
@@ -16,18 +16,22 @@ export const LegacySection = ({ toggle }: LegacySectionProps) => (
       <Trans>Legacy</Trans>
     </Title>
 
-    <MenuItem onClick={toggle}>
-      <NavLink to={APP_PATHS.ELASTIC_SNAPSHOT}>
-        <AlertOctagon size={14} />
-        <Trans>Treasury Grant 2023</Trans>
-      </NavLink>
+    <MenuItem>
+      <MenuItemLink>
+        <NavLink to={APP_PATHS.ELASTIC_SNAPSHOT} onClick={toggle}>
+          <AlertOctagon size={14} />
+          <Trans>Treasury Grant 2023</Trans>
+        </NavLink>
+      </MenuItemLink>
     </MenuItem>
 
-    <MenuItem onClick={toggle}>
-      <NavLink to={APP_PATHS.MY_POOLS}>
-        <Icon id="liquid-outline" size={16} />
-        <Trans>My Pools</Trans>
-      </NavLink>
+    <MenuItem>
+      <MenuItemLink>
+        <NavLink to={APP_PATHS.MY_POOLS} onClick={toggle}>
+          <Icon id="liquid-outline" size={16} />
+          <Trans>My Pools</Trans>
+        </NavLink>
+      </MenuItemLink>
     </MenuItem>
   </MenuSection>
 )

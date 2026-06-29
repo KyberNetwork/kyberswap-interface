@@ -1,6 +1,6 @@
 import { Trans, t } from '@lingui/macro'
 import { BookOpen, FileText, Info, MessageCircle, PieChart } from 'react-feather'
-import { NavLink, useNavigate } from 'react-router-dom'
+import { NavLink } from 'react-router-dom'
 import { useMedia } from 'react-use'
 
 import { ReactComponent as MenuIcon } from 'assets/svg/all_icon.svg'
@@ -11,7 +11,7 @@ import { ReactComponent as RoadMapIcon } from 'assets/svg/roadmap.svg'
 import CampaignIcon from 'components/Icons/CampaignIcon'
 import Faucet from 'components/Icons/Faucet'
 import VoteIcon from 'components/Icons/Vote'
-import { MenuItem, MenuSection, Title } from 'components/Menu/MenuItems'
+import { MenuItem, MenuItemContent, MenuItemLink, MenuSection, Title } from 'components/Menu/MenuItems'
 import NavDropDown from 'components/Menu/NavDropDown'
 import { ENV_LEVEL } from 'constants/env'
 import { AGGREGATOR_ANALYTICS_URL, APP_PATHS, TERM_FILES_PATH } from 'constants/index'
@@ -30,7 +30,6 @@ type MainMenuSectionProps = {
 
 export const MainMenuSection = ({ openTipLinkGenerator, toggle }: MainMenuSectionProps) => {
   const { chainId, networkInfo } = useActiveWeb3React()
-  const navigate = useNavigate()
   const { trackingHandler } = useTracking()
   const toggleFaucetPopup = useToggleModal(ApplicationModal.FAUCET_POPUP)
   const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
@@ -47,55 +46,54 @@ export const MainMenuSection = ({ openTipLinkGenerator, toggle }: MainMenuSectio
       <Title>
         <Trans>Menu</Trans>
       </Title>
-      <MenuItem
-        onClick={() => {
-          openTipLinkGenerator?.()
-          handleMenuClickMixpanel('Tip Link Generator')
-          toggle?.()
-        }}
-        className="cursor-pointer hover:text-text"
-      >
-        <TipLinkIcon />
-        <span>
-          <Trans>Tip Link Generator</Trans>
-        </span>
+      <MenuItem>
+        <MenuItemContent
+          onClick={() => {
+            openTipLinkGenerator?.()
+            handleMenuClickMixpanel('Tip Link Generator')
+            toggle?.()
+          }}
+        >
+          <TipLinkIcon />
+          <span>
+            <Trans>Tip Link Generator</Trans>
+          </span>
+        </MenuItemContent>
       </MenuItem>
       {FAUCET_NETWORKS.includes(chainId) && (
-        <MenuItem
-          onClick={() => {
-            toggleFaucetPopup()
-            trackingHandler(TRACKING_EVENT_TYPE.FAUCET_MENU_CLICKED)
-            handleMenuClickMixpanel('Faucet')
-          }}
-          className="cursor-pointer hover:text-text"
-        >
-          <Faucet />
-          <span className="w-max">
-            <Trans>Faucet</Trans>
-          </span>
+        <MenuItem>
+          <MenuItemContent
+            onClick={() => {
+              toggleFaucetPopup()
+              trackingHandler(TRACKING_EVENT_TYPE.FAUCET_MENU_CLICKED)
+              handleMenuClickMixpanel('Faucet')
+            }}
+          >
+            <Faucet />
+            <span className="w-max">
+              <Trans>Faucet</Trans>
+            </span>
+          </MenuItemContent>
         </MenuItem>
       )}
       {upToExtraSmall && (
-        <NavLink to={APP_PATHS.MARKET_OVERVIEW}>
-          <MenuItem onClick={() => navigate(APP_PATHS.MARKET_OVERVIEW)}>
-            <PieChart />
-            <span>
-              <Trans>Market</Trans>
-            </span>
-          </MenuItem>
-        </NavLink>
+        <MenuItem>
+          <MenuItemLink>
+            <NavLink to={APP_PATHS.MARKET_OVERVIEW}>
+              <PieChart />
+              <span>
+                <Trans>Market</Trans>
+              </span>
+            </NavLink>
+          </MenuItemLink>
+        </MenuItem>
       )}
 
       {upToMedium && (
         <MenuItem>
           <NavDropDown
             icon={<VoteIcon />}
-            title={
-              <span className="relative w-max">
-                <Trans>KyberDAO</Trans>
-              </span>
-            }
-            link={'/campaigns'}
+            title={<Trans>KyberDAO</Trans>}
             options={[
               { link: APP_PATHS.KYBERDAO_STAKE, label: t`Stake KNC` },
               { link: APP_PATHS.KYBERDAO_VOTE, label: t`Vote` },
@@ -109,12 +107,7 @@ export const MainMenuSection = ({ openTipLinkGenerator, toggle }: MainMenuSectio
         <MenuItem>
           <NavDropDown
             icon={<CampaignIcon />}
-            title={
-              <span className="relative w-max">
-                <Trans>Campaigns</Trans>
-              </span>
-            }
-            link="/campaigns"
+            title={<Trans>Campaigns</Trans>}
             options={[
               { link: APP_PATHS.SAFEPAL_CAMPAIGN, label: t`SafePal Campaign` },
               { link: APP_PATHS.RAFFLE_CAMPAIGN, label: t`Weekly Rewards` },
@@ -131,27 +124,30 @@ export const MainMenuSection = ({ openTipLinkGenerator, toggle }: MainMenuSectio
 
       {bridgeLink && (
         <MenuItem>
-          <ExternalLink href={bridgeLink}>
-            <BridgeIcon />
-            <Trans>Bridge Assets</Trans>
-          </ExternalLink>
+          <MenuItemLink>
+            <ExternalLink href={bridgeLink}>
+              <BridgeIcon />
+              <Trans>Bridge Assets</Trans>
+            </ExternalLink>
+          </MenuItemLink>
         </MenuItem>
       )}
 
       {upToMedium && (
         <>
           <MenuItem>
-            <ExternalLink href={AGGREGATOR_ANALYTICS_URL}>
-              <PieChart />
-              <Trans>Analytics</Trans>
-            </ExternalLink>
+            <MenuItemLink>
+              <ExternalLink href={AGGREGATOR_ANALYTICS_URL}>
+                <PieChart />
+                <Trans>Analytics</Trans>
+              </ExternalLink>
+            </MenuItemLink>
           </MenuItem>
 
           <MenuItem>
             <NavDropDown
               icon={<Info />}
               title={t`About`}
-              link={'/about'}
               options={[
                 { link: '/about/kyberswap', label: 'KyberSwap' },
                 { link: '/about/knc', label: 'KNC' },
@@ -162,107 +158,121 @@ export const MainMenuSection = ({ openTipLinkGenerator, toggle }: MainMenuSectio
       )}
 
       <MenuItem>
-        <ExternalLink
-          href="https://docs.kyberswap.com"
-          onClick={() => {
-            handleMenuClickMixpanel('Docs')
-            trackingHandler(TRACKING_EVENT_TYPE.MENU_LINK_CLICKED, {
-              item_label: 'Docs',
-              item_url: 'https://docs.kyberswap.com',
-              is_external: true,
-            })
-          }}
-        >
-          <BookOpen />
-          <Trans>Docs</Trans>
-        </ExternalLink>
+        <MenuItemLink>
+          <ExternalLink
+            href="https://docs.kyberswap.com"
+            onClick={() => {
+              handleMenuClickMixpanel('Docs')
+              trackingHandler(TRACKING_EVENT_TYPE.MENU_LINK_CLICKED, {
+                item_label: 'Docs',
+                item_url: 'https://docs.kyberswap.com',
+                is_external: true,
+              })
+            }}
+          >
+            <BookOpen />
+            <Trans>Docs</Trans>
+          </ExternalLink>
+        </MenuItemLink>
       </MenuItem>
 
       <MenuItem>
-        <ExternalLink
-          href="https://kyberswap.canny.io/"
-          onClick={() => {
-            toggle?.()
-            handleMenuClickMixpanel('Roadmap')
-            trackingHandler(TRACKING_EVENT_TYPE.MENU_LINK_CLICKED, {
-              item_label: 'Roadmap',
-              item_url: 'https://kyberswap.canny.io/',
-              is_external: true,
-            })
-          }}
-        >
-          <RoadMapIcon />
-          <Trans>Roadmap</Trans>
-        </ExternalLink>
+        <MenuItemLink>
+          <ExternalLink
+            href="https://kyberswap.canny.io/"
+            onClick={() => {
+              toggle?.()
+              handleMenuClickMixpanel('Roadmap')
+              trackingHandler(TRACKING_EVENT_TYPE.MENU_LINK_CLICKED, {
+                item_label: 'Roadmap',
+                item_url: 'https://kyberswap.canny.io/',
+                is_external: true,
+              })
+            }}
+          >
+            <RoadMapIcon />
+            <Trans>Roadmap</Trans>
+          </ExternalLink>
+        </MenuItemLink>
       </MenuItem>
 
       <MenuItem>
-        <ExternalLink
-          href="https://gov.kyber.org"
-          onClick={() => {
-            toggle?.()
-            handleMenuClickMixpanel('Forum')
-            trackingHandler(TRACKING_EVENT_TYPE.MENU_LINK_CLICKED, {
-              item_label: 'Forum',
-              item_url: 'https://gov.kyber.org',
-              is_external: true,
-            })
-          }}
-        >
-          <MessageCircle />
-          <Trans>Forum</Trans>
-        </ExternalLink>
+        <MenuItemLink>
+          <ExternalLink
+            href="https://gov.kyber.org"
+            onClick={() => {
+              toggle?.()
+              handleMenuClickMixpanel('Forum')
+              trackingHandler(TRACKING_EVENT_TYPE.MENU_LINK_CLICKED, {
+                item_label: 'Forum',
+                item_url: 'https://gov.kyber.org',
+                is_external: true,
+              })
+            }}
+          >
+            <MessageCircle />
+            <Trans>Forum</Trans>
+          </ExternalLink>
+        </MenuItemLink>
       </MenuItem>
 
       {upToExtraSmall && (
         <MenuItem>
-          <ExternalLink href="https://blog.kyberswap.com">
-            <BlogIcon />
-            <Trans>Blog</Trans>
-          </ExternalLink>
+          <MenuItemLink>
+            <ExternalLink href="https://blog.kyberswap.com">
+              <BlogIcon />
+              <Trans>Blog</Trans>
+            </ExternalLink>
+          </MenuItemLink>
         </MenuItem>
       )}
 
       <MenuItem>
-        <ExternalLink
-          href={TERM_FILES_PATH.KYBERSWAP_TERMS}
-          onClick={() => {
-            toggle?.()
-            handleMenuClickMixpanel('Terms')
-            trackingHandler(TRACKING_EVENT_TYPE.MENU_LINK_CLICKED, {
-              item_label: 'Terms',
-              item_url: TERM_FILES_PATH.KYBERSWAP_TERMS,
-              is_external: true,
-            })
-          }}
-        >
-          <FileText />
-          <Trans>Terms</Trans>
-        </ExternalLink>
+        <MenuItemLink>
+          <ExternalLink
+            href={TERM_FILES_PATH.KYBERSWAP_TERMS}
+            onClick={() => {
+              toggle?.()
+              handleMenuClickMixpanel('Terms')
+              trackingHandler(TRACKING_EVENT_TYPE.MENU_LINK_CLICKED, {
+                item_label: 'Terms',
+                item_url: TERM_FILES_PATH.KYBERSWAP_TERMS,
+                is_external: true,
+              })
+            }}
+          >
+            <FileText />
+            <Trans>Terms</Trans>
+          </ExternalLink>
+        </MenuItemLink>
       </MenuItem>
       <MenuItem>
-        <ExternalLink
-          href={TERM_FILES_PATH.PRIVACY_POLICY}
-          onClick={() => {
-            toggle?.()
-            handleMenuClickMixpanel('Privacy Policy')
-            trackingHandler(TRACKING_EVENT_TYPE.MENU_LINK_CLICKED, {
-              item_label: 'Privacy Policy',
-              item_url: TERM_FILES_PATH.PRIVACY_POLICY,
-              is_external: true,
-            })
-          }}
-        >
-          <FileText />
-          <Trans>Privacy Policy</Trans>
-        </ExternalLink>
+        <MenuItemLink>
+          <ExternalLink
+            href={TERM_FILES_PATH.PRIVACY_POLICY}
+            onClick={() => {
+              toggle?.()
+              handleMenuClickMixpanel('Privacy Policy')
+              trackingHandler(TRACKING_EVENT_TYPE.MENU_LINK_CLICKED, {
+                item_label: 'Privacy Policy',
+                item_url: TERM_FILES_PATH.PRIVACY_POLICY,
+                is_external: true,
+              })
+            }}
+          >
+            <FileText />
+            <Trans>Privacy Policy</Trans>
+          </ExternalLink>
+        </MenuItemLink>
       </MenuItem>
       {ENV_LEVEL === ENV_TYPE.LOCAL && (
         <MenuItem>
-          <NavLink to="/icons">
-            <MenuIcon />
-            <Trans>Icons</Trans>
-          </NavLink>
+          <MenuItemLink>
+            <NavLink to="/icons">
+              <MenuIcon />
+              <Trans>Icons</Trans>
+            </NavLink>
+          </MenuItemLink>
         </MenuItem>
       )}
     </MenuSection>
