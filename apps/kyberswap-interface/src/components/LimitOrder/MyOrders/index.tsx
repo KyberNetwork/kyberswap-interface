@@ -20,6 +20,7 @@ import {
   getCancelledOrderTrackingPayload,
   getFilledOrderTrackingPayload,
   getOrderTypeOptions,
+  getOrdersApiSearchKeyword,
   getSearchParamsWithKeyword,
 } from 'components/LimitOrder/MyOrders/utils'
 import { LimitOrder, LimitOrderStatus } from 'components/LimitOrder/types'
@@ -129,6 +130,7 @@ const MyOrders = () => {
     ? SUPPORTED_LIMIT_ORDER_CHAINS
     : [Number(selectedChainValue) as ChainId]
   const cancellingChainId = isAllChainsSelected ? chainId : selectedOrderChainIds[0]
+  const ordersApiSearchKeyword = getOrdersApiSearchKeyword(keyword, selectedOrderChainIds)
 
   const { isOrderCancelling, setCancellingOrders } = useCancellingOrders({ chainId: cancellingChainId })
 
@@ -159,7 +161,7 @@ const MyOrders = () => {
       chainIds: selectedOrderChainIds,
       maker: account,
       status: orderType,
-      query: keyword,
+      query: ordersApiSearchKeyword,
       page: curPage,
       pageSize: PAGE_SIZE,
     },

@@ -1,7 +1,9 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 
 import { LimitOrder, LimitOrderStatus } from 'components/LimitOrder/types'
 import { formatAmountOrder, formatRateLimitOrder, isActiveStatus } from 'components/LimitOrder/utils'
+import { NativeCurrencies } from 'constants/tokens'
 
 export const PAGE_SIZE = 10
 
@@ -82,6 +84,14 @@ export const getSearchParamsWithKeyword = (searchParams: URLSearchParams, keywor
   }
 
   return nextSearchParams
+}
+
+export const getOrdersApiSearchKeyword = (keyword: string, chainIds: ChainId[]): string => {
+  const normalizedKeyword = keyword.trim().toLowerCase()
+  if (!normalizedKeyword) return keyword
+
+  const matchedChainId = chainIds.find(chainId => NativeCurrencies[chainId].symbol?.toLowerCase() === normalizedKeyword)
+  return matchedChainId ? NativeCurrencies[matchedChainId].wrapped.symbol || keyword : keyword
 }
 
 export const getCancelledOrderTrackingPayload = (order: LimitOrder, chainName: string) => ({
