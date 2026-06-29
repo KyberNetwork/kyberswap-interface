@@ -2,10 +2,10 @@ import { Trans } from '@lingui/macro'
 import { useState } from 'react'
 import { Repeat } from 'react-feather'
 
-import { removeTrailingZero } from 'components/LimitOrder/utils'
 import Skeleton from 'components/Skeleton'
 import { HStack } from 'components/Stack'
 import { BaseTradeInfo } from 'hooks/useBaseTradeInfo'
+import { formatDisplayNumber } from 'utils/numbers'
 
 type MarketPriceProps = {
   price?: BaseTradeInfo
@@ -16,15 +16,9 @@ type MarketPriceProps = {
 
 const MarketPrice = ({ price, loading, symbolIn, symbolOut }: MarketPriceProps) => {
   const [showInverted, setShowInverted] = useState(false)
-  let formattedPrice
-
-  try {
-    if (price) {
-      formattedPrice = showInverted
-        ? removeTrailingZero(price.invertRate.toPrecision(6))
-        : removeTrailingZero(price.marketRate.toPrecision(6))
-    }
-  } catch (error) {}
+  const formattedPrice = price
+    ? formatDisplayNumber(showInverted ? price.invertRate : price.marketRate, { significantDigits: 6 })
+    : undefined
 
   const ready = Boolean(price?.marketRate && price?.invertRate && formattedPrice && !loading)
 

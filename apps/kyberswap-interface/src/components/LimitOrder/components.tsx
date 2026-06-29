@@ -15,22 +15,7 @@ const Label = ({ children, className, style, ...rest }: React.HTMLAttributes<HTM
   </div>
 )
 
-type SummaryRowType = { label: ReactNode; content: ReactNode }
-
-type OrderSummaryProps = {
-  title?: ReactNode
-  inputCurrency: ReactNode
-  outputCurrency: ReactNode
-  currencyIn?: Currency
-  currencyOut?: Currency
-  rateInfo?: RateInfo
-  order?: LimitOrder
-  expires?: ReactNode
-  marketRate?: ReactNode
-  className?: string
-}
-
-const SummaryRow = ({ label, content }: SummaryRowType) => (
+const SummaryRow = ({ label, content }: { label: ReactNode; content: ReactNode }) => (
   <HStack className="min-h-6 w-full items-center justify-between gap-3 max-sm:flex-col max-sm:items-start">
     <div className="text-sm text-subText">{label}</div>
     <HStack className="min-w-0 flex-1 justify-end text-right text-sm font-medium max-sm:justify-start max-sm:text-left">
@@ -46,17 +31,14 @@ const formatRateValue = (value?: string | number) => {
   return removeTrailingZero(numberValue.toPrecision(6))
 }
 
-const RateValue = ({
-  currencyIn,
-  currencyOut,
-  rateInfo,
-  order,
-}: {
+type RateValueProps = {
   currencyIn?: Currency
   currencyOut?: Currency
   rateInfo?: RateInfo
   order?: LimitOrder
-}) => {
+}
+
+const RateValue = ({ currencyIn, currencyOut, rateInfo, order }: RateValueProps) => {
   const [showInverted, setShowInverted] = useState(false)
 
   let baseSymbol: string | undefined
@@ -103,6 +85,19 @@ const RateValue = ({
       <Repeat size={14} className="shrink-0 text-subText" />
     </HStack>
   )
+}
+
+type OrderSummaryProps = {
+  title?: ReactNode
+  inputCurrency: ReactNode
+  outputCurrency: ReactNode
+  currencyIn?: Currency
+  currencyOut?: Currency
+  rateInfo?: RateInfo
+  order?: LimitOrder
+  expires?: ReactNode
+  marketRate?: ReactNode
+  className?: string
 }
 
 export const OrderSummary = ({
