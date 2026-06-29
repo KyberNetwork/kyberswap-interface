@@ -310,6 +310,7 @@ export default function Menu() {
                   trackingHandler(TRACKING_EVENT_TYPE.FAUCET_MENU_CLICKED)
                   handleMenuClickMixpanel('Faucet')
                 }}
+                className="cursor-pointer hover:text-text"
               >
                 <Faucet />
                 <span className="w-max">

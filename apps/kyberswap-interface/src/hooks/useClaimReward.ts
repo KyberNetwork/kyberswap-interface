@@ -2,7 +2,7 @@ import { ChainId, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { skipToken } from '@reduxjs/toolkit/query'
 import { readContract } from '@wagmi/core'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import externalApi, { type ClaimReward, type ClaimRewardPhaseData } from 'services/externalApi'
 
 import { wagmiConfig } from 'components/Web3Provider'
@@ -21,6 +21,10 @@ type UserReward = {
   phaseId: number
   tokens: string[]
   reward: ClaimReward | undefined
+}
+
+type UseClaimRewardParams = {
+  enabled?: boolean
 }
 
 const getRewardAmounts = (reward?: ClaimReward) => (reward?.amounts ?? []).map((v: string) => BigInt(v))
@@ -59,11 +63,11 @@ export const usePendingClaimRewardTx = () => {
   }, [allTransactions])
 }
 
-export const useClaimReward = () => {
+export const useClaimReward = ({ enabled = true }: UseClaimRewardParams = {}) => {
   const { chainId, account, walletKey } = useActiveWeb3React()
   const { isSmartConnector } = useWeb3React()
-  const rewardContractAddress = NETWORKS_INFO[chainId].classic.claimReward ?? undefined
-  const claimRewardsQueryArg = account && rewardContractAddress ? chainId : skipToken
+  const rewardContractAddress = enabled ? NETWORKS_INFO[chainId].classic.claimReward ?? undefined : undefined
+  const claimRewardsQueryArg = enabled && account && rewardContractAddress ? chainId : skipToken
 
   const rewardReadingContract = useReadingContract(rewardContractAddress, CLAIM_REWARD_ABI)
   const rewardSigningContract = useSigningContract(rewardContractAddress, CLAIM_REWARD_ABI)
@@ -83,19 +87,20 @@ export const useClaimReward = () => {
   const [isUserHasReward, setIsUserHasReward] = useState(false)
   const [rewardAmounts, setRewardAmounts] = useState('0')
   const [error, setError] = useState<string | null>(null)
-  const [phaseId, setPhaseId] = useState(0)
+  const [selectedRewardIndex, setSelectedRewardIndex] = useState(0)
   const [attemptingTxn, setAttemptingTxn] = useState(false)
   const [txHash, setTxHash] = useState<string | undefined>(undefined)
-  const selectedUserReward = userRewards[phaseId]
+  const selectedUserReward = userRewards[selectedRewardIndex]
 
   const addTransactionWithType = useTransactionAdder()
   const pendingTx = usePendingClaimRewardTx()
+  const previousPendingTxRef = useRef(pendingTx)
 
   const updateRewardAmounts = useCallback(async () => {
     setRewardAmounts('0')
-    setIsUserHasReward(hasRewardData)
+    setIsUserHasReward(enabled && hasRewardData)
 
-    if (!rewardReadingContract || !chainId || !account || !hasRewardData) return
+    if (!enabled || !rewardReadingContract || !chainId || !account || !hasRewardData) return
 
     for (const [index, userReward] of userRewards.entries()) {
       if (!userReward.reward) continue
@@ -111,18 +116,24 @@ export const useClaimReward = () => {
       const remainingAmount = getRemainingRewardAmount(userReward.reward, claimedAmounts)
       setRewardAmounts(formatRewardAmount(chainId, remainingAmount))
       if (remainingAmount > 0n) {
-        setPhaseId(index)
+        setSelectedRewardIndex(index)
         break
       }
     }
-  }, [rewardReadingContract, chainId, account, hasRewardData, userRewards])
+  }, [enabled, rewardReadingContract, chainId, account, hasRewardData, userRewards])
 
   useEffect(() => {
     setRewardAmounts('0')
+    if (!enabled) {
+      setIsUserHasReward(false)
+      setSelectedRewardIndex(0)
+      return
+    }
+
     if (data && chainId && account) {
       updateRewardAmounts().catch(error => console.log(error))
     }
-  }, [data, chainId, account, updateRewardAmounts])
+  }, [enabled, data, chainId, account, updateRewardAmounts])
 
   const resetTxn = useCallback(() => {
     setAttemptingTxn(false)
@@ -132,10 +143,13 @@ export const useClaimReward = () => {
   }, [updateRewardAmounts])
 
   useEffect(() => {
-    if (!pendingTx) {
+    const wasPendingTx = previousPendingTxRef.current
+    previousPendingTxRef.current = pendingTx
+
+    if (enabled && wasPendingTx && !pendingTx) {
       resetTxn()
     }
-  }, [pendingTx, resetTxn])
+  }, [enabled, pendingTx, resetTxn])
 
   const claimRewardsCallback = useCallback(async () => {
     if (!rewardSigningContract || !chainId || !account || !selectedUserReward?.reward) return

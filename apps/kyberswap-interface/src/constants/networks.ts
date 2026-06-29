@@ -67,7 +67,7 @@ export const NETWORKS_INFO = new Proxy(NETWORKS_INFO_CONFIG, {
 
 export const SUPPORTED_NETWORKS: ChainId[] = Object.keys(NETWORKS_INFO).map(Number)
 
-export const MAINNET_NETWORKS = [
+export const MAINNET_NETWORKS: ChainId[] = [
   ChainId.MAINNET,
   ChainId.ARBITRUM,
   ChainId.OPTIMISM,
@@ -90,14 +90,16 @@ export const MAINNET_NETWORKS = [
   ChainId.PLASMA,
   ChainId.MONAD,
   ChainId.MEGAETH,
-] as const
+]
 
 export function isSupportedChainId(chainId?: number): chainId is ChainId {
   if (!chainId) return false
   return !!(NETWORKS_INFO_CONFIG as any)[chainId]
 }
 
-export const FAUCET_NETWORKS = []
+export const FAUCET_NETWORKS: ChainId[] = [
+  //
+]
 
 export const ELASTIC_NOT_SUPPORTED: () => { [key: string]: string } = () => ({
   [ChainId.ZKSYNC]: t`Elastic will be available soon`,

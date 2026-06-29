@@ -7,7 +7,7 @@ import { NotificationType } from 'components/Announcement/type'
 import { ButtonPrimary } from 'components/Button'
 import Logo from 'components/Logo'
 import Modal from 'components/Modal'
-import { RowBetween } from 'components/Row'
+import { HStack, Stack } from 'components/Stack'
 import { REWARD_SERVICE_API } from 'constants/env'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
@@ -28,7 +28,7 @@ const getFullDisplayBalance = (balance: bigint, decimals = 18, significant = 6):
   return amount.toFixed(0)
 }
 
-function FaucetModal() {
+const FaucetModal = () => {
   const { chainId, account } = useActiveWeb3React()
   const open = useModalOpen(ApplicationModal.FAUCET_POPUP)
   const toggle = useToggleModal(ApplicationModal.FAUCET_POPUP)
@@ -58,6 +58,7 @@ function FaucetModal() {
     if (token?.isNative && chainId) return WETH[chainId].name
     return token?.symbol
   }, [token, chainId])
+  const walletAddress = account ? shortenAddress(chainId, account, 9) : '--'
   const claimRewardCallBack = useCallback(async () => {
     if (!rewardData) return
     try {
@@ -108,33 +109,36 @@ function FaucetModal() {
   }, [chainId, account])
   const modalContent = useMemo(() => {
     return (
-      <div className="flex flex-col gap-[25px] px-6 py-[26px]">
-        <RowBetween>
+      <Stack className="gap-6 p-5">
+        <HStack className="items-center justify-between">
           <span className="text-xl font-medium text-text">
             <Trans>Faucet</Trans>
           </span>
           <CloseIcon onClick={toggle} />
-        </RowBetween>
+        </HStack>
 
-        <div className="overflow-hidden rounded-lg bg-buttonBlack p-3 [&>p]:m-0 [&>p]:mt-3 [&>p]:text-2xl [&>p]:font-medium [&>p]:leading-7 [&>p]:text-disableText">
-          <span className="text-xs text-subText">
-            <Trans>Your wallet address</Trans>
+        <Stack className="gap-4">
+          <Stack className="gap-3 overflow-hidden rounded-lg bg-buttonBlack p-3">
+            <span className="text-sm text-subText">
+              <Trans>Your wallet address</Trans>
+            </span>
+            <span className="truncate text-2xl font-medium text-subText">{walletAddress}</span>
+          </Stack>
+
+          <span className="text-sm italic text-subText">
+            <Trans>
+              If your wallet is eligible, you will be able to request for some {tokenSymbol} tokens for free below. Each
+              wallet can only request for the tokens once. You can claim:
+            </Trans>
           </span>
-          <p>{account && shortenAddress(chainId, account, 9)}</p>
-        </div>
-        <span className="text-base leading-6 text-text">
-          <Trans>
-            If your wallet is eligible, you will be able to request for some {tokenSymbol} tokens for free below. Each
-            wallet can only request for the tokens once. You can claim:
-          </Trans>
-        </span>
 
-        {token && (
-          <div className="flex items-center gap-1.5 text-[28px] font-medium leading-[38px]">
-            {tokenLogo && <Logo srcs={[tokenLogo]} alt={`${tokenSymbol ?? 'token'} logo`} className="w-7" />}{' '}
-            {rewardData?.amount ? getFullDisplayBalance(rewardData?.amount, token?.decimals) : 0} {tokenSymbol}
-          </div>
-        )}
+          {token && (
+            <HStack className="items-center gap-2 text-3xl font-medium leading-none text-text">
+              {tokenLogo && <Logo srcs={[tokenLogo]} alt={`${tokenSymbol ?? 'token'} logo`} className="size-8" />}
+              {rewardData?.amount ? getFullDisplayBalance(rewardData?.amount, token?.decimals) : 0} {tokenSymbol}
+            </HStack>
+          )}
+        </Stack>
 
         {account ? (
           <ButtonPrimary
@@ -144,7 +148,6 @@ function FaucetModal() {
               trackingHandler(TRACKING_EVENT_TYPE.FAUCET_REQUEST_INITIATED)
               toggle()
             }}
-            className="h-11 rounded-3xl"
           >
             <Trans>Request</Trans>
           </ButtonPrimary>
@@ -153,15 +156,13 @@ function FaucetModal() {
             onClick={() => {
               toggleWalletModal()
             }}
-            className="h-11 rounded-3xl"
           >
             <Trans>Connect</Trans>
           </ButtonPrimary>
         )}
-      </div>
+      </Stack>
     )
   }, [
-    chainId,
     account,
     claimRewardCallBack,
     trackingHandler,
@@ -171,6 +172,7 @@ function FaucetModal() {
     token,
     tokenLogo,
     tokenSymbol,
+    walletAddress,
   ])
 
   return (
