@@ -1,30 +1,30 @@
 import { Trans, t } from '@lingui/macro'
 import { useState } from 'react'
 import { useLocation } from 'react-router-dom'
-import { useMedia } from 'react-use'
 
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import Column from 'components/Column'
-import NavGroup from 'components/Header/groups/NavGroup'
+import NavGroup, { type DropdownAlign } from 'components/Header/groups/NavGroup'
 import { DropdownTextAnchor, NewLabel, StyledNavLink } from 'components/Header/styleds'
 import { APP_PATHS } from 'constants/index'
 import { cn } from 'utils/cn'
 
 const showCampaignNew = new Date() < new Date('2026-05-04T23:59:59Z')
 
-const CampaignNavGroup = () => {
+type Props = {
+  dropdownAlign?: DropdownAlign
+}
+
+const CampaignNavGroup = ({ dropdownAlign }: Props) => {
   const { pathname } = useLocation()
   const isActiveMayTrading = pathname.includes('/campaigns/may-trading')
   const isActive = pathname.includes('/campaigns') && !isActiveMayTrading
-  const upTo500 = useMedia('(max-width: 500px)')
 
   const [showStip, setShowStip] = useState(false)
 
-  if (upTo500) return null
-
   return (
     <NavGroup
-      dropdownAlign={upTo500 ? 'right' : 'left'}
+      dropdownAlign={dropdownAlign}
       isActive={isActive}
       anchor={
         <DropdownTextAnchor className="relative flex w-max">

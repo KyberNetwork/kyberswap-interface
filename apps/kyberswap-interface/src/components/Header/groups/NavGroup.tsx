@@ -4,7 +4,7 @@ import { isMobile } from 'react-device-detect'
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import { cn } from 'utils/cn'
 
-type DropdownAlign = 'left' | 'right' | 'center'
+export type DropdownAlign = 'left' | 'right' | 'center'
 
 type Props = {
   id?: string
