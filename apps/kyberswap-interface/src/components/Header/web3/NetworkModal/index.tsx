@@ -86,10 +86,17 @@ export default function NetworkModal({
   const networkModalOpen = useModalOpen(ApplicationModal.NETWORK)
   const toggleNetworkModalGlobal = useNetworkModalToggle()
   const [searchText, setSearchText] = useState('')
+  const modalIsOpen = isOpen !== undefined ? isOpen : networkModalOpen
   const toggleNetworkModal = () => {
     setSearchText('')
     ;(customToggleModal || toggleNetworkModalGlobal)()
   }
+
+  // Reset the search whenever the modal closes — selecting a chain closes via customToggleModal,
+  // which bypasses the search reset above, so the next open would otherwise show the stale query.
+  useEffect(() => {
+    if (!modalIsOpen) setSearchText('')
+  }, [modalIsOpen])
 
   const favoriteDropRef = useRef<HTMLDivElement>(null)
   const { allChains, supportedChains } = useChainsConfig()
@@ -215,7 +222,7 @@ export default function NetworkModal({
   }, [userInfo, setFavoriteChains])
   return (
     <Modal
-      isOpen={isOpen !== undefined ? isOpen : networkModalOpen}
+      isOpen={modalIsOpen}
       onDismiss={toggleNetworkModal}
       zindex={Z_INDEXS.MODAL}
       minHeight="550px"
