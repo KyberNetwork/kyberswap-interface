@@ -28,7 +28,7 @@ const MarketPrice = ({ price, loading, symbolIn, symbolOut }: MarketPriceProps) 
 
   if (!ready) {
     return (
-      <span className="text-sm font-medium text-warning">
+      <span className="block min-w-0 truncate text-sm italic text-warning">
         <Trans>Unable to get the market price</Trans>
       </span>
     )
@@ -38,10 +38,10 @@ const MarketPrice = ({ price, loading, symbolIn, symbolOut }: MarketPriceProps) 
     <HStack
       as="button"
       type="button"
-      className="items-center gap-2 hover:brightness-75"
+      className="min-w-0 max-w-full items-center gap-2 hover:brightness-75"
       onClick={() => setShowInverted(showInverted => !showInverted)}
     >
-      <span className="text-sm font-medium">
+      <span className="min-w-0 truncate text-sm font-medium text-text">
         {showInverted
           ? `1 ${symbolOut} = ${formattedPrice} ${symbolIn}`
           : `1 ${symbolIn} = ${formattedPrice} ${symbolOut}`}

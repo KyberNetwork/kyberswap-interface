@@ -1,5 +1,5 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
-import { Trans, t } from '@lingui/macro'
+import { Trans } from '@lingui/macro'
 import { ReactNode, memo, useState } from 'react'
 
 import { ButtonLight, ButtonPrimary, ButtonWarning } from 'components/Button'
@@ -8,16 +8,21 @@ import CreateOrderFlow from 'components/LimitOrder/CreateOrder/CreateOrderFlow'
 import { useCreateLimitOrder } from 'components/LimitOrder/CreateOrder/useCreateLimitOrder'
 import LimitOrderExpirySection from 'components/LimitOrder/Form/LimitOrderExpirySection'
 import LimitOrderRateSection, { useGetDeltaRateLimitOrder } from 'components/LimitOrder/Form/LimitOrderRateSection'
-import LimitOrderTokenSection from 'components/LimitOrder/Form/LimitOrderTokenSection'
+import {
+  LimitOrderInputTokenPanel,
+  LimitOrderOutputTokenPanel,
+  type LimitOrderTokenPanelProps,
+} from 'components/LimitOrder/Form/LimitOrderTokenSection'
 import MarketPrice from 'components/LimitOrder/Form/MarketPrice'
 import { useLimitOrderFormState } from 'components/LimitOrder/Form/useLimitOrderFormState'
 import { NetworkSelector } from 'components/NetworkSelector'
 import { HStack, Stack } from 'components/Stack'
+import ReverseTokenSelectionButton from 'components/SwapForm/ReverseTokenSelectionButton'
 import { useActiveWeb3React } from 'hooks'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import usePageLocation from 'hooks/usePageLocation'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
-import ErrorWarningPanel from 'pages/Bridge/ErrorWarning'
+import ErrorWarning from 'pages/Bridge/ErrorWarning'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { useLimitState } from 'state/limit/hooks'
 
@@ -105,7 +110,7 @@ const LimitOrderForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPr
 
   const validationError = validation.inputError || validation.outputError
   const disableReviewButton =
-    validation.isNotFillAllInput || !!validationError || balance.insufficientBalance || validation.shouldDisableReview
+    validation.isNotFillAllInput || !!validationError || balance.insufficientBalance || validation.shouldDisableAction
 
   const reviewButtonContent = (
     <span className="font-medium">
@@ -119,31 +124,32 @@ const LimitOrderForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPr
     </span>
   )
 
+  const tokenSectionProps: LimitOrderTokenPanelProps = {
+    chainId: form.chainId,
+    tokens: {
+      currencyIn,
+      currencyOut,
+      inputAmount: form.inputAmount,
+      outputAmount: form.outputAmount,
+    },
+    estimateUsd: estimateUSD,
+    events: {
+      onInputAmountChange: form.onSetInput,
+      onOutputAmountChange: form.onSetOutput,
+      onMaxInput: balance.handleMaxInput,
+      onInputTokenSelect: form.handleInputSelect,
+      onOutputTokenSelect: form.handleOutputSelect,
+      onInputFocus: tracking.trackingTouchInput,
+      onTokenSelectorOpen: tracking.trackingTouchSelectToken,
+    },
+  }
+
   return (
     <>
       <Stack className="gap-4">
         {isEmbeddedSwap && <NetworkSelector chainId={form.chainId} />}
         <Stack className="gap-3">
-          <LimitOrderTokenSection
-            chainId={form.chainId}
-            tokens={{
-              currencyIn,
-              currencyOut,
-              inputAmount: form.inputAmount,
-              outputAmount: form.outputAmount,
-            }}
-            estimateUsd={estimateUSD}
-            events={{
-              onInputAmountChange: form.onSetInput,
-              onOutputAmountChange: form.onSetOutput,
-              onMaxInput: balance.handleMaxInput,
-              onInputTokenSelect: form.handleInputSelect,
-              onOutputTokenSelect: form.handleOutputSelect,
-              onRotate: form.handleRotateClick,
-              onInputFocus: tracking.trackingTouchInput,
-              onTokenSelectorOpen: tracking.trackingTouchSelectToken,
-            }}
-          />
+          <LimitOrderInputTokenPanel {...tokenSectionProps} />
 
           <LimitOrderRateSection
             tokens={{ currencyIn, currencyOut }}
@@ -159,6 +165,28 @@ const LimitOrderForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPr
               onRateInputBlur: tracking.trackingPriceSetOnBlur,
             }}
           />
+
+          <HStack className="items-center justify-between gap-3 px-0.5">
+            <HStack className="min-w-0 items-center gap-2 text-sm text-subText">
+              <span className="shrink-0">
+                <Trans>Market Price</Trans>
+              </span>
+              <div className="min-w-0">
+                <MarketPrice
+                  price={form.tradeInfo}
+                  loading={form.loadingTrade}
+                  symbolIn={currencyIn?.symbol}
+                  symbolOut={currencyOut?.symbol}
+                />
+              </div>
+            </HStack>
+            <ReverseTokenSelectionButton
+              className="mx-0 size-6 shrink-0 bg-buttonGray p-1"
+              onClick={form.handleRotateClick}
+            />
+          </HStack>
+
+          <LimitOrderOutputTokenPanel {...tokenSectionProps} />
         </Stack>
 
         <Stack className="gap-6">
@@ -177,20 +205,10 @@ const LimitOrderForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPr
               }}
             />
 
-            <HStack className="items-center gap-2">
-              <span className="text-sm text-subText">{t`Market Price`}:</span>
-              <MarketPrice
-                price={form.tradeInfo}
-                loading={form.loadingTrade}
-                symbolIn={currencyIn?.symbol}
-                symbolOut={currencyOut?.symbol}
-              />
-            </HStack>
-
-            {validation.formWarnings.length > 0 && (
+            {validation.warnings.length > 0 && (
               <Stack className="gap-3">
-                {validation.formWarnings.map((warning, i) => (
-                  <ErrorWarningPanel type="warn" key={i} title={warning} />
+                {validation.warnings.map((warning, i) => (
+                  <ErrorWarning type={warning.type} key={i} title={warning.message} />
                 ))}
               </Stack>
             )}
@@ -207,7 +225,7 @@ const LimitOrderForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPr
           ) : (
             <ReviewButton
               disabled={disableReviewButton}
-              hasWarning={validation.shouldWarnReview}
+              hasWarning={validation.shouldWarningAction}
               onClick={review.openReview}
             >
               {reviewButtonContent}

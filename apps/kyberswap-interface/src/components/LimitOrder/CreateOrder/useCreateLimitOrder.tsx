@@ -153,13 +153,12 @@ export const useCreateLimitOrder = ({
     })
   }, [inputAmount, outputAmount, tradeInfo, currencyIn, currencyOut])
 
-  const { shouldWarnReview, shouldDisableReview, formWarnings, confirmWarnings } = useWarningCreateOrder({
+  const { shouldWarningAction, shouldDisableAction, warnings } = useWarningCreateOrder({
     chainId,
     currencyIn,
     currencyOut,
     deltaRate,
     parsedInputAmount,
-    wrapAmount,
   })
 
   const handleMaxInput = () => {
@@ -235,10 +234,9 @@ export const useCreateLimitOrder = ({
       inputError,
       isNotFillAllInput,
       outputError,
-      shouldDisableReview,
-      shouldWarnReview,
-      formWarnings,
-      confirmWarnings,
+      shouldDisableAction,
+      shouldWarningAction,
+      warnings,
     },
   }
 }

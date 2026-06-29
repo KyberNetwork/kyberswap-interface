@@ -1,18 +1,22 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import dayjs from 'dayjs'
-import { MouseEvent, ReactNode, useEffect, useState } from 'react'
+import { MouseEvent, useEffect, useState } from 'react'
 import { Repeat } from 'react-feather'
 
 import { ButtonPrimary, ButtonWarning } from 'components/Button'
 import CurrencyLogo from 'components/CurrencyLogo'
-import { WORSE_PRICE_DIFF_THRESHOLD } from 'components/LimitOrder/CreateOrder/useWarningCreateOrder'
+import {
+  type CreateOrderWarning,
+  WORSE_PRICE_DIFF_THRESHOLD,
+} from 'components/LimitOrder/CreateOrder/useWarningCreateOrder'
 import { OrderSummary } from 'components/LimitOrder/components'
 import { LimitOrderCreateContext } from 'components/LimitOrder/types'
 import { formatAmountOrder, removeTrailingZero } from 'components/LimitOrder/utils'
 import Modal from 'components/Modal'
 import { HStack, Stack } from 'components/Stack'
 import { BaseTradeInfo } from 'hooks/useBaseTradeInfo'
+import ErrorWarning from 'pages/Bridge/ErrorWarning'
 import { CloseIcon } from 'theme/components'
 import { formatDisplayNumber } from 'utils/numbers'
 
@@ -73,10 +77,10 @@ type Props = {
   needsWrap?: boolean
   onDismiss?: () => void
   onSubmit?: () => void
-  confirmWarnings: ReactNode[]
+  warnings: CreateOrderWarning[]
 }
 
-const CreateOrderConfirmModal = ({ order, isOpen, needsWrap, onDismiss, onSubmit, confirmWarnings }: Props) => {
+const CreateOrderConfirmModal = ({ order, isOpen, needsWrap, onDismiss, onSubmit, warnings }: Props) => {
   const { currencyIn, currencyOut, inputAmount, outputAmount, expiredAt, rateInfo, tradeInfo, deltaRate } = order
   const [confirmed, setConfirmed] = useState(false)
   const shouldShowConfirmFlow = Number(deltaRate.rawPercent) < WORSE_PRICE_DIFF_THRESHOLD
@@ -87,7 +91,7 @@ const CreateOrderConfirmModal = ({ order, isOpen, needsWrap, onDismiss, onSubmit
     onSubmit?.()
   }
 
-  const handleWarningClick = (event: MouseEvent<HTMLElement>) => {
+  const handleNoticeClick = (event: MouseEvent<HTMLElement>) => {
     const target = event.target
     if (target instanceof HTMLElement && target.closest('a')) {
       onDismiss?.()
@@ -128,13 +132,13 @@ const CreateOrderConfirmModal = ({ order, isOpen, needsWrap, onDismiss, onSubmit
             marketRate={<MarketRateValue marketPrice={tradeInfo} currencyIn={currencyIn} currencyOut={currencyOut} />}
           />
 
-          {confirmWarnings?.length > 0 && (
+          {warnings.length > 0 && (
             <Stack
-              className="gap-2 rounded-xl border border-warning-30 bg-warning-20 px-3 py-2.5 text-xs leading-4 text-warning [&_a]:text-primary [&_a]:no-underline hover:[&_a]:underline"
-              onClick={handleWarningClick}
+              className="gap-2 [&_a]:text-primary [&_a]:no-underline hover:[&_a]:underline"
+              onClick={handleNoticeClick}
             >
-              {confirmWarnings.map((warning, index) => (
-                <div key={index}>{warning}</div>
+              {warnings.map((warning, index) => (
+                <ErrorWarning key={index} type={warning.type} title={warning.message} />
               ))}
             </Stack>
           )}

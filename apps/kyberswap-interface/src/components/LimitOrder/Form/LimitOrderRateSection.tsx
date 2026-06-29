@@ -6,7 +6,7 @@ import InfoHelper from 'components/InfoHelper'
 import { DeltaRateLimitOrder, RateInfo } from 'components/LimitOrder/types'
 import { removeTrailingZero } from 'components/LimitOrder/utils'
 import NumericalInput from 'components/NumericalInput'
-import { Stack } from 'components/Stack'
+import { HStack, Stack } from 'components/Stack'
 import { BaseTradeInfo } from 'hooks/useBaseTradeInfo'
 import useTheme from 'hooks/useTheme'
 import { cn } from 'utils/cn'
@@ -55,7 +55,7 @@ const DeltaRate = ({ symbol, deltaRate }: { symbol: string; deltaRate: DeltaRate
   const styledPercent = <span className={cn('font-medium', colorClass)}>{percent}</span>
 
   return (
-    <div className="flex items-center whitespace-nowrap text-xs font-medium text-subText">
+    <div className="flex items-center whitespace-nowrap text-sm font-medium text-subText">
       <Trans>Sell {symbol} at rate</Trans>
       {percent ? (
         <InfoHelper
@@ -209,12 +209,21 @@ const LimitOrderRateSection = ({ tokens = {}, rate = {}, events = {} }: Props) =
   }
 
   return (
-    <Stack className="gap-3 rounded-2xl bg-buttonBlack p-4">
-      <div className="flex items-center justify-between gap-3">
+    <Stack className="gap-2 rounded-2xl bg-buttonBlack p-4">
+      <HStack className="items-center justify-between gap-3">
         <DeltaRate symbol={currencyIn?.symbol ?? ''} deltaRate={deltaRate} />
-      </div>
+        {tradeInfo ? (
+          <button
+            type="button"
+            className="shrink-0 text-sm font-medium text-primary transition hover:brightness-90"
+            onClick={events.onSetMarketRate}
+          >
+            <Trans>Market</Trans>
+          </button>
+        ) : null}
+      </HStack>
 
-      <div className="flex min-h-8 items-center gap-3">
+      <HStack className="min-h-8 items-center gap-3">
         <div className="flex min-w-0 flex-1 items-center">
           <NumericalInput
             maxLength={50}
@@ -227,46 +236,33 @@ const LimitOrderRateSection = ({ tokens = {}, rate = {}, events = {} }: Props) =
           />
         </div>
         {unitCurrency && (
-          <div className="flex shrink-0 items-center rounded-full bg-buttonGray px-3 py-1 text-base font-medium text-subText">
-            {unitCurrency.symbol}
-          </div>
+          <div className="flex shrink-0 items-center text-lg font-medium text-subText">{unitCurrency.symbol}</div>
         )}
-      </div>
+      </HStack>
 
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <div className="flex flex-wrap gap-1">
-          <PercentInputChip
-            value={percentInputValue}
-            isActive={isCustomPercentActive}
-            onActiveChange={setIsCustomPercentActive}
-            onFocusChange={setIsCustomPercentFocused}
-            onUserInput={onChangePercent}
-          />
-          {RATE_DELTA_OPTIONS.map(percent => (
-            <button
-              key={percent}
-              type="button"
-              className={cn(
-                'h-6 rounded-lg border px-2 text-xs font-medium transition-colors',
-                percentInputValue !== '' && percentNumberValue === percent && !isCustomPercentActive
-                  ? 'border-primary-50 bg-tabActive text-text hover:bg-buttonGray'
-                  : 'border-border/60 text-subText hover:border-border-primary hover:text-primary',
-              )}
-              onClick={() => setRateByDelta(percent, 'preset')}
-            >
-              +{percent}%
-            </button>
-          ))}
-        </div>
-        {tradeInfo ? (
+      <div className="flex flex-wrap gap-1">
+        <PercentInputChip
+          value={percentInputValue}
+          isActive={isCustomPercentActive}
+          onActiveChange={setIsCustomPercentActive}
+          onFocusChange={setIsCustomPercentFocused}
+          onUserInput={onChangePercent}
+        />
+        {RATE_DELTA_OPTIONS.map(percent => (
           <button
+            key={percent}
             type="button"
-            className="h-6 rounded-full bg-primary-20 px-2.5 text-xs font-medium text-primary transition-colors hover:bg-primary-30"
-            onClick={events.onSetMarketRate}
+            className={cn(
+              'h-6 rounded-lg border px-2 text-xs font-medium transition-colors',
+              percentInputValue !== '' && percentNumberValue === percent && !isCustomPercentActive
+                ? 'border-primary-50 bg-tabActive text-text hover:bg-buttonGray'
+                : 'border-border/60 text-subText hover:border-border-primary hover:text-primary',
+            )}
+            onClick={() => setRateByDelta(percent, 'preset')}
           >
-            <Trans>Market</Trans>
+            +{percent}%
           </button>
-        ) : null}
+        ))}
       </div>
     </Stack>
   )

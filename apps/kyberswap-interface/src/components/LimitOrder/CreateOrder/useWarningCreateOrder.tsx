@@ -9,7 +9,6 @@ import { DeltaRateLimitOrder, LimitOrderStatus, LimitOrderTab } from 'components
 import { useActiveWeb3React } from 'hooks'
 import { useCurrencyBalance } from 'state/wallet/hooks'
 import { subscribeNotificationOrderExpired } from 'utils/firebase'
-import { formatDisplayNumber } from 'utils/numbers'
 
 const AprHighlight = ({ children }: PropsWithChildren) => <span className="font-medium text-apr">{children}</span>
 
@@ -17,7 +16,7 @@ const WarningHighlight = ({ children }: PropsWithChildren) => (
   <span className="font-medium text-warning">{children}</span>
 )
 
-const ReservedBalanceWarning = ({ tokenIn, tokenOut, to }: { tokenIn?: string; tokenOut?: string; to: string }) => (
+const ReservedBalanceNotice = ({ tokenIn, tokenOut, to }: { tokenIn?: string; tokenOut?: string; to: string }) => (
   <span className="text-xs font-medium italic text-subText">
     <Trans>
       Your {tokenIn} balance is fully used by existing {tokenIn}/{tokenOut} orders. Cancel or reduce an order to free up
@@ -35,7 +34,11 @@ type UseWarningCreateOrderProps = {
   currencyOut?: Currency
   deltaRate: DeltaRateLimitOrder
   parsedInputAmount?: CurrencyAmount<Currency>
-  wrapAmount?: CurrencyAmount<Currency>
+}
+
+export type CreateOrderWarning = {
+  type: 'info' | 'warn'
+  message: ReactNode
 }
 
 export const useWarningCreateOrder = ({
@@ -44,7 +47,6 @@ export const useWarningCreateOrder = ({
   currencyOut,
   deltaRate,
   parsedInputAmount,
-  wrapAmount,
 }: UseWarningCreateOrderProps) => {
   const { account } = useActiveWeb3React()
 
@@ -101,18 +103,16 @@ export const useWarningCreateOrder = ({
   }, [account, chainId, currencyIn, currencyOut, getPairActiveMakingAmount])
 
   const warning = useMemo(() => {
-    const formWarnings: ReactNode[] = []
-    const confirmWarnings: ReactNode[] = []
-    let shouldWarnReview = false
-    let shouldDisableReview = false
+    const warnings: CreateOrderWarning[] = []
+    let shouldWarningAction = false
+    let shouldDisableAction = false
 
     const rawPercent = Number(deltaRate.rawPercent)
     const hasPercent = Number.isFinite(rawPercent)
     const displayPercent = deltaRate.percent.replace(/^[+-]/, '')
 
-    const addWarning = (warning: ReactNode, options?: { hideOnForm?: boolean }) => {
-      confirmWarnings.push(warning)
-      if (!options?.hideOnForm) formWarnings.push(warning)
+    const addWarning = (message: ReactNode, options?: { type?: CreateOrderWarning['type'] }) => {
+      warnings.push({ type: options?.type || 'warn', message })
     }
 
     if (hasPercent && rawPercent >= BETTER_PRICE_DIFF_THRESHOLD) {
@@ -123,11 +123,12 @@ export const useWarningCreateOrder = ({
             make sure this is correct.
           </Trans>
         </div>,
+        { type: 'info' },
       )
     }
 
     if (hasPercent && rawPercent <= WORSE_PRICE_DIFF_THRESHOLD && rawPercent > -100) {
-      shouldWarnReview = true
+      shouldWarningAction = true
       addWarning(
         <div className="text-xs font-medium italic text-subText">
           <Trans>
@@ -135,11 +136,12 @@ export const useWarningCreateOrder = ({
             be selling your {currencyIn?.symbol} exceedingly cheap.
           </Trans>
         </div>,
+        { type: 'warn' },
       )
     }
 
     if (showReservedOrderNotice) {
-      shouldDisableReview = true
+      shouldDisableAction = true
       const makerAssetSymbol = currencyIn?.wrapped.symbol
       const takerAssetSymbol = currencyOut?.wrapped.symbol
       const search = new URLSearchParams({
@@ -148,33 +150,16 @@ export const useWarningCreateOrder = ({
         search: `${makerAssetSymbol}/${takerAssetSymbol}`,
       }).toString()
 
-      formWarnings.push(
-        <ReservedBalanceWarning tokenIn={makerAssetSymbol} tokenOut={takerAssetSymbol} to={`?${search}`} />,
-      )
-    }
-
-    if (wrapAmount) {
-      const formattedWrapAmount = formatDisplayNumber(wrapAmount.toExact(), { significantDigits: 6 })
-      addWarning(
-        <div className="text-xs font-medium italic text-subText">
-          <Trans>
-            You need to wrap{' '}
-            <AprHighlight>
-              {formattedWrapAmount} {wrapAmount.currency.symbol}
-            </AprHighlight>{' '}
-            before creating this order
-          </Trans>
-        </div>,
-        { hideOnForm: true },
-      )
+      addWarning(<ReservedBalanceNotice tokenIn={makerAssetSymbol} tokenOut={takerAssetSymbol} to={`?${search}`} />, {
+        type: 'warn',
+      })
     }
 
     return {
-      shouldWarnReview,
-      shouldDisableReview,
-      formWarnings,
-      confirmWarnings,
+      shouldWarningAction,
+      shouldDisableAction,
+      warnings,
     }
-  }, [currencyIn, currencyOut, deltaRate.percent, deltaRate.rawPercent, showReservedOrderNotice, wrapAmount])
+  }, [currencyIn, currencyOut, deltaRate.percent, deltaRate.rawPercent, showReservedOrderNotice])
   return warning
 }
