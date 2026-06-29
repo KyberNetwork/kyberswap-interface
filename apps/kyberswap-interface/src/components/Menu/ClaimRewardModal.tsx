@@ -2,11 +2,11 @@ import { Trans, t } from '@lingui/macro'
 
 import { ButtonPrimary } from 'components/Button'
 import CurrencyLogo from 'components/CurrencyLogo'
+import { useClaimReward } from 'components/Menu/hooks/useClaimReward'
 import { HStack, Stack } from 'components/Stack'
 import TransactionConfirmationModal, { TransactionErrorContent } from 'components/TransactionConfirmationModal'
 import { KNC } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
-import { useClaimReward } from 'hooks/useClaimReward'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useToggleModal } from 'state/application/hooks'
 import { CloseIcon } from 'theme'
@@ -14,8 +14,10 @@ import { shortenAddress } from 'utils'
 
 const ClaimRewardModal = () => {
   const { chainId, account } = useActiveWeb3React()
+
   const open = useModalOpen(ApplicationModal.CLAIM_POPUP)
   const toggle = useToggleModal(ApplicationModal.CLAIM_POPUP)
+
   const {
     isUserHasReward,
     rewardAmounts,
@@ -28,8 +30,8 @@ const ClaimRewardModal = () => {
   } = useClaimReward({ enabled: open })
 
   const canClaim = isUserHasReward && rewardAmounts !== '0' && !pendingTx
-  const walletAddress = account ? shortenAddress(chainId, account, 9) : '--'
   const rewardToken = KNC[chainId]
+  const walletAddress = account ? shortenAddress(chainId, account, 9) : '--'
 
   const modalContent = () =>
     claimRewardError ? (

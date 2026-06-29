@@ -3,18 +3,19 @@ import { ArrowLeft, Check } from 'react-feather'
 import { useLocation, useNavigate } from 'react-router-dom'
 
 import { ButtonEmpty } from 'components/Button'
-import { LOCALE_INFO, SupportedLocale, getLocaleLabel } from 'constants/locales'
+import { HStack, Stack } from 'components/Stack'
+import { LOCALE_INFO, SupportedLocale } from 'constants/locales'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import { useUserLocale } from 'state/user/hooks'
 import { cn } from 'utils/cn'
 
-export default function LanguageSelector({
-  setIsSelectingLanguage,
-  onLanguageChange,
-}: {
-  setIsSelectingLanguage: (isSelectingLanguage: boolean) => void
+type LanguageSelectorProps = {
+  onClose: () => void
   onLanguageChange?: (previousLanguage: string, newLanguage: string) => void
-}) {
+  isInline?: boolean
+}
+
+const LanguageSelector = ({ onClose, onLanguageChange, isInline }: LanguageSelectorProps) => {
   const navigate = useNavigate()
   const location = useLocation()
   const qs = useParsedQueryString()
@@ -28,38 +29,54 @@ export default function LanguageSelector({
 
     onLanguageChange?.(userLocale ?? '', locale)
     navigate(target)
-    setIsSelectingLanguage(false)
+    onClose()
   }
 
   return (
-    <div className="flex flex-col items-start justify-center">
-      <ButtonEmpty
-        width="fit-content"
-        padding="0"
-        onClick={() => setIsSelectingLanguage(false)}
-        className="mb-6 text-text no-underline"
+    <Stack className={cn('items-start justify-center', !isInline && 'gap-6')}>
+      {!isInline && (
+        <ButtonEmpty width="fit-content" padding="0" onClick={onClose} className="text-text no-underline">
+          <ArrowLeft />
+        </ButtonEmpty>
+      )}
+      <div
+        className={cn(
+          'grid w-full',
+          isInline ? 'gap-2' : 'gap-x-12 gap-y-6',
+          isMobile && !isInline ? 'grid-cols-[1fr_1fr]' : 'grid-cols-[1fr]',
+        )}
       >
-        <ArrowLeft />
-      </ButtonEmpty>
-      <div className={cn('grid w-full gap-x-12 gap-y-6', isMobile ? 'grid-cols-[1fr_1fr]' : 'grid-cols-[1fr]')}>
         {Object.keys(LOCALE_INFO).map(element => {
           const locale = element as SupportedLocale
+          const localeInfo = LOCALE_INFO[locale]
           const isSelected = locale === userLocale
           return (
             <ButtonEmpty
               key={locale}
-              padding="0"
+              padding={isInline ? '6px 0' : '0'}
               onClick={() => handleSelectLanguage(locale)}
-              className="flex justify-between no-underline"
+              className={cn(
+                'flex items-center justify-between gap-2 no-underline',
+                isInline && 'group text-subText hover:text-text',
+              )}
             >
-              <div className={cn('text-sm', isSelected ? 'text-primary' : 'text-subText')}>
-                {getLocaleLabel(locale)}
-              </div>
-              {isSelected && <Check className="text-primary" />}
+              <HStack
+                className={cn(
+                  'items-center gap-2 whitespace-nowrap text-sm',
+                  isSelected ? 'text-primary' : 'text-subText',
+                  isInline && !isSelected && 'group-hover:text-text',
+                )}
+              >
+                <img src={localeInfo.flag} alt="" className="w-5 shrink-0" />
+                <span>{localeInfo.name}</span>
+              </HStack>
+              {isSelected && <Check className="shrink-0 text-primary" />}
             </ButtonEmpty>
           )
         })}
       </div>
-    </div>
+    </Stack>
   )
 }
+
+export default LanguageSelector

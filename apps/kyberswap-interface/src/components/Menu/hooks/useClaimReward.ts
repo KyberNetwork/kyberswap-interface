@@ -53,6 +53,17 @@ const getRemainingRewardAmount = (reward?: ClaimReward, claimedAmounts?: readonl
 const formatRewardAmount = (chainId: ChainId, amount: bigint) =>
   CurrencyAmount.fromRawAmount(KNC[chainId], amount.toString()).toSignificant(6)
 
+const getErrorMessage = (error: unknown) => {
+  if (error instanceof Error) return error.message
+
+  if (typeof error === 'object' && error !== null && 'message' in error) {
+    const message = (error as { message?: unknown }).message
+    return typeof message === 'string' ? message : undefined
+  }
+
+  return undefined
+}
+
 export const usePendingClaimRewardTx = () => {
   const allTransactions = useAllTransactions()
 
@@ -207,9 +218,9 @@ export const useClaimReward = ({ enabled = true }: UseClaimRewardParams = {}) =>
           tokenSymbol: 'KNC',
         },
       })
-    } catch (err: any) {
+    } catch (err: unknown) {
       setAttemptingTxn(false)
-      setError(err?.message || t`Something is wrong. Please try again later!`)
+      setError(getErrorMessage(err) || t`Something is wrong. Please try again later!`)
     }
   }, [
     rewardSigningContract,
