@@ -11,12 +11,11 @@ type TokenInfoIconProps = {
   currencies: { [field in Field]?: Currency }
   onClick?: () => void
   size?: number
-  className?: string
 }
 
-const TokenInfoIcon = ({ onClick, size, className }: TokenInfoIconProps) => {
+const TokenInfoIcon = ({ onClick, size }: TokenInfoIconProps) => {
   return (
-    <StyledActionButtonSwapForm onClick={onClick} className={className}>
+    <StyledActionButtonSwapForm onClick={onClick}>
       <MouseoverTooltip text={t`Token Info`} placement="top" width="fit-content" disableTooltip={isMobile}>
         <Info className="text-subText" size={size || 20} />
       </MouseoverTooltip>

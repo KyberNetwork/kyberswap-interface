@@ -119,7 +119,7 @@ export const StyledActionButtonSwapForm = ({
   return (
     <button
       className={cn(
-        'relative m-0 flex size-9 cursor-pointer items-center justify-center rounded-full border-none p-0 outline-none',
+        'relative m-0 flex size-8 cursor-pointer items-center justify-center rounded-full border-none p-0 outline-none',
         active ? 'bg-buttonGray' : 'bg-transparent',
         !hoverBg && 'hover:bg-background',
         className,

@@ -48,11 +48,10 @@ const HeaderRightMenu = ({ activeTab, setActiveTab, activeMainTab }: HeaderRight
   const upToXXSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToXXSmall}px)`)
 
   return (
-    <div className="flex items-center">
+    <div className="flex items-center gap-1">
       {!isCrossChainPage && (
         <TokenInfoIcon
           currencies={currencies}
-          className="max-sm:size-8"
           size={upToXXSmall ? 16 : 20}
           onClick={() => {
             trackingHandler(TRACKING_EVENT_TYPE.SWAP_TOKEN_INFO_CLICK)
@@ -63,7 +62,6 @@ const HeaderRightMenu = ({ activeTab, setActiveTab, activeMainTab }: HeaderRight
       {!isLimitPage && (
         <StyledActionButtonSwapForm
           active={activeTab === TAB.SETTINGS}
-          className="max-sm:size-8"
           onClick={() => {
             onToggleActionTab(TAB.SETTINGS)
             if (isCrossChainPage) {
