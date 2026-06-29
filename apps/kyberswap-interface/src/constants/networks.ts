@@ -99,13 +99,6 @@ export function isSupportedChainId(chainId?: number): chainId is ChainId {
 
 export const FAUCET_NETWORKS = []
 
-export const CLAIM_REWARDS_DATA_URL: { [chainId: number]: string } = {
-  [ChainId.AVAXMAINNET]:
-    'https://raw.githubusercontent.com/KyberNetwork/avax-trading-contest-reward-distribution/develop/results/reward_proof.json',
-  [ChainId.MATIC]:
-    'https://raw.githubusercontent.com/KyberNetwork/zkyber-reward-distribution/main/results/latest_merkle_data.json',
-}
-
 export const ELASTIC_NOT_SUPPORTED: () => { [key: string]: string } = () => ({
   [ChainId.ZKSYNC]: t`Elastic will be available soon`,
   [ChainId.BLAST]: t`Elastic is not supported on Blast. Please switch to other chains`,

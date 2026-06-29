@@ -34,7 +34,7 @@ import { getLocaleLabel } from 'constants/locales'
 import { FAUCET_NETWORKS } from 'constants/networks'
 import { ENV_TYPE } from 'constants/type'
 import { useActiveWeb3React } from 'hooks'
-import useClaimReward from 'hooks/useClaimReward'
+import { usePendingClaimRewardTx } from 'hooks/useClaimReward'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
 import { ApplicationModal } from 'state/application/actions'
@@ -157,7 +157,7 @@ export default function Menu() {
   const bridgeLink = networkInfo.bridgeURL
   const toggleClaimPopup = useToggleModal(ApplicationModal.CLAIM_POPUP)
   const toggleFaucetPopup = useToggleModal(ApplicationModal.FAUCET_POPUP)
-  const { pendingTx } = useClaimReward()
+  const pendingTx = usePendingClaimRewardTx()
 
   const openTipLinkGenerator = () => {
     const nextSearchParams = new URLSearchParams(searchParams)
