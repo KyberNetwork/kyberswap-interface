@@ -26,7 +26,7 @@ export default function LimitTab({ onClick, active, customChainId }: Props) {
 
   const { data: { totalOrder = 0 } = {} } = useGetListOrdersQuery(
     {
-      chainId,
+      chainIds: [chainId],
       maker: account,
       status: 'active',
       query: '',

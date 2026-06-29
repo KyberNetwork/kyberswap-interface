@@ -348,6 +348,11 @@ export default function ConfirmSwapModalContent({
   const remainAmount = BigInt(balance?.quotient.toString() || 0) - BigInt(buildResult?.data?.amountIn || 0)
 
   const showLOWwarning = currencyIn?.isNative ? false : !!loActiveMakingAmount && remainAmount < activeMakingAmount
+  const limitOrderSearch = new URLSearchParams({
+    tab: LimitOrderTab.MY_ORDER,
+    orderTab: LimitOrderStatus.ACTIVE,
+    search: `${currencyIn?.wrapped.symbol}/${currencyOut?.wrapped.symbol}`,
+  })
 
   const [showInverted, setShowInverted] = useState<boolean>(false)
   const [retry, setRetry] = useState(0)
@@ -501,7 +506,7 @@ export default function ConfirmSwapModalContent({
           {showLOWwarning && (
             <ReservedOrderNotice
               symbol={currencyIn?.symbol}
-              to={`${APP_PATHS.LIMIT}/${networkInfo.route}/${currencyParam}?tab=${LimitOrderTab.MY_ORDER}&orderTab=${LimitOrderStatus.ACTIVE}&search=${currencyIn?.wrapped.symbol}`}
+              to={`${APP_PATHS.LIMIT}/${networkInfo.route}/${currencyParam}?${limitOrderSearch}`}
             />
           )}
 

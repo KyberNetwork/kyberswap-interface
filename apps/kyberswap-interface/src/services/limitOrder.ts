@@ -39,6 +39,15 @@ type ListOrdersResponse = {
   }
 }
 
+export type ListOrdersParams = {
+  chainIds: ChainId[]
+  maker: string | undefined
+  status: string
+  query?: string
+  page?: number
+  pageSize: number
+}
+
 type TokenPairOrdersResponse = {
   orders?: LimitOrderFromTokenPair[]
 }
@@ -147,21 +156,18 @@ const limitOrderApi = createApi({
         return { contract: data.latest?.toLowerCase() ?? '', features }
       },
     }),
-    getListOrders: builder.query<
-      { orders: LimitOrder[]; totalOrder: number },
-      {
-        chainId?: ChainId
-        maker: string | undefined
-        status: string
-        query?: string
-        page?: number
-        pageSize: number
-      }
-    >({
-      query: params => ({
-        url: `${LIMIT_ORDER_API_READ}/v1/orders`,
-        params,
-      }),
+    getListOrders: builder.query<{ orders: LimitOrder[]; totalOrder: number }, ListOrdersParams>({
+      query: ({ chainIds, ...params }) => {
+        const searchParams = new URLSearchParams()
+        Object.entries(params).forEach(([key, value]) => {
+          if (value === undefined) return
+          searchParams.append(key, value.toString())
+        })
+        chainIds.forEach(chainId => {
+          searchParams.append('chainIds', chainId.toString())
+        })
+        return { url: `${LIMIT_ORDER_API_READ}/v1/orders?${searchParams.toString()}` }
+      },
       transformResponse: ({ data }: ApiEnvelope<ListOrdersResponse>) => {
         const rawOrders = data.orders || []
         const orders = normalizeSupportedLimitOrders(rawOrders)

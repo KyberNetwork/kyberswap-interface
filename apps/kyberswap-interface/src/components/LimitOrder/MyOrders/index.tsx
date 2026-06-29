@@ -45,6 +45,10 @@ import { isSupportLimitOrder } from 'utils/index'
 
 type NotificationOrderCallback = Parameters<typeof subscribeNotificationOrderExpired>[2]
 
+const ALL_CHAINS_VALUE = 'all'
+
+const SUPPORTED_LIMIT_ORDER_CHAINS = MAINNET_NETWORKS.filter(isSupportLimitOrder)
+
 const NoResultWrapper = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
   <div
     className={cn(
@@ -119,8 +123,14 @@ const MyOrders = () => {
   const isTabActive = isActiveStatus(orderType)
   const activeTab = getActiveTabByOrderType(orderType)
   const orderTypeOptions = getOrderTypeOptions(orderType)
-  const selectedOrderChainId = selectedChainValue ? (Number(selectedChainValue) as ChainId) : undefined
-  const { isOrderCancelling, setCancellingOrders } = useCancellingOrders({ chainId: selectedOrderChainId ?? chainId })
+
+  const isAllChainsSelected = selectedChainValue === ALL_CHAINS_VALUE
+  const selectedOrderChainIds = isAllChainsSelected
+    ? SUPPORTED_LIMIT_ORDER_CHAINS
+    : [Number(selectedChainValue) as ChainId]
+  const cancellingChainId = isAllChainsSelected ? chainId : selectedOrderChainIds[0]
+
+  const { isOrderCancelling, setCancellingOrders } = useCancellingOrders({ chainId: cancellingChainId })
 
   const orderTypeDropdownOptions = useMemo<MenuOption[]>(
     () => orderTypeOptions.map(option => ({ label: option.label, value: option.value })),
@@ -129,8 +139,8 @@ const MyOrders = () => {
 
   const chainOptions = useMemo<MenuOption[]>(
     () => [
-      { label: t`All Chains`, value: '' },
-      ...MAINNET_NETWORKS.filter(isSupportLimitOrder).map(chainId => ({
+      { label: t`All Chains`, value: ALL_CHAINS_VALUE },
+      ...SUPPORTED_LIMIT_ORDER_CHAINS.map(chainId => ({
         label: NETWORKS_INFO[chainId].name,
         value: chainId.toString(),
         icon: NETWORKS_INFO[chainId].icon,
@@ -146,7 +156,7 @@ const MyOrders = () => {
     isSuccess: isOrdersLoaded,
   } = useGetListOrdersQuery(
     {
-      chainId: selectedOrderChainId,
+      chainIds: selectedOrderChainIds,
       maker: account,
       status: orderType,
       query: keyword,
@@ -167,7 +177,12 @@ const MyOrders = () => {
     isFetching: isFetchingCancelAllOrders,
     isSuccess: isCancelAllOrdersLoaded,
   } = useGetListOrdersQuery(
-    { chainId: selectedOrderChainId, maker: account, status: LimitOrderStatus.ACTIVE, pageSize: 100 },
+    {
+      chainIds: selectedOrderChainIds,
+      maker: account,
+      status: LimitOrderStatus.ACTIVE,
+      pageSize: 100,
+    },
     { skip: !account || !showCancelAll },
   )
 
@@ -303,14 +318,24 @@ const MyOrders = () => {
   }, [account, chainId, refreshListOrder, trackCancelledOrder, trackFilledOrder])
 
   useEffect(() => {
+    setSelectedChainValue(chainId.toString())
     onReset()
-  }, [chainId, onReset, orderType])
+  }, [chainId, onReset])
+
+  useEffect(() => {
+    onReset()
+  }, [orderType, onReset])
 
   useEffect(() => {
     if (!orderTab) return
-    setOrderType(orderType => (isActiveStatus(orderType) === isActiveStatus(orderTab) ? orderType : orderTab))
+    setOrderType(orderType => {
+      if (isActiveStatus(orderType) === isActiveStatus(orderTab)) {
+        return orderType
+      }
+      return orderTab
+    })
     onReset()
-  }, [onReset, orderTab])
+  }, [orderTab, onReset])
 
   const cancelAllButton = showCancelAll && (
     <ButtonOutlined

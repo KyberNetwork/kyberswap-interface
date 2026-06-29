@@ -140,18 +140,16 @@ export const useWarningCreateOrder = ({
 
     if (showReservedOrderNotice) {
       shouldDisableReview = true
+      const makerAssetSymbol = currencyIn?.wrapped.symbol
+      const takerAssetSymbol = currencyOut?.wrapped.symbol
       const search = new URLSearchParams({
         tab: LimitOrderTab.MY_ORDER,
         orderTab: LimitOrderStatus.ACTIVE,
-        search: currencyIn?.wrapped.symbol ?? '',
+        search: `${makerAssetSymbol}/${takerAssetSymbol}`,
       }).toString()
 
       formWarnings.push(
-        <ReservedBalanceWarning
-          tokenIn={currencyIn?.wrapped.symbol}
-          tokenOut={currencyOut?.wrapped.symbol}
-          to={`?${search}`}
-        />,
+        <ReservedBalanceWarning tokenIn={makerAssetSymbol} tokenOut={takerAssetSymbol} to={`?${search}`} />,
       )
     }
 

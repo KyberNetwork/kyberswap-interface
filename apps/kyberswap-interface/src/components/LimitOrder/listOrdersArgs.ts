@@ -1,4 +1,5 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
+import type { ListOrdersParams } from 'services/limitOrder'
 
 import { LimitOrderStatus } from 'components/LimitOrder/types'
 
@@ -12,8 +13,8 @@ export const LIMIT_ORDERS_PAGE_SIZE = 10
  *
  * Keep this the single source of truth: if the page's initial query args change, change them here.
  */
-export const getInitialListOrdersArgs = (chainId: ChainId, account: string | undefined) => ({
-  chainId,
+export const getInitialListOrdersArgs = (chainId: ChainId, account: string | undefined): ListOrdersParams => ({
+  chainIds: [chainId],
   maker: account,
   status: LimitOrderStatus.ACTIVE,
   query: '',
