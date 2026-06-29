@@ -68,6 +68,31 @@ export const megaeth = defineChain({
   },
 })
 
+export const rise = defineChain({
+  id: ChainId.RISE,
+  name: 'RISE',
+  nativeCurrency: {
+    decimals: 18,
+    name: 'Ethereum',
+    symbol: 'ETH',
+  },
+  rpcUrls: {
+    default: {
+      http: ['https://rpc.risechain.com'],
+      webSocket: ['wss://rpc.risechain.com/ws'],
+    },
+  },
+  blockExplorers: {
+    default: { name: 'Explorer', url: 'https://explorer.risechain.com/' },
+  },
+  contracts: {
+    multicall3: {
+      address: '0xcA11bde05977b3631167028862bE2a173976CA11',
+      blockCreated: 1,
+    },
+  },
+})
+
 export const monad = defineChain({
   id: ChainId.MONAD,
   name: 'Monad',
@@ -417,6 +442,7 @@ const wagmiChains = [
   withKyberRpc(plasma),
   withKyberRpc(monad),
   withKyberRpc(megaeth),
+  withKyberRpc(rise),
 ] as const
 
 // viem `fallback()` rotates through URLs on transport errors (network, 429, 5xx),
