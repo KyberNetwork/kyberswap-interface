@@ -233,7 +233,7 @@ export default function PartnerSwap({ mode = 'partner' }: Props) {
   const isLimitPage = activeMainTab === TAB.LIMIT
   const isCrossChainPage = activeMainTab === TAB.CROSS_CHAIN
 
-  useRequiredDegenMode({ activeTab, setActiveTab })
+  const highlightDegenMode = useRequiredDegenMode({ setActiveTab })
 
   const onBackToSwapTab = () => setActiveTab(activeMainTab)
 
@@ -313,6 +313,7 @@ export default function PartnerSwap({ mode = 'partner' }: Props) {
                   }}
                   isCrossChainPage={isCrossChainPage}
                   isSwapPage={isSwapPage}
+                  highlightDegenMode={highlightDegenMode}
                   onBack={onBackToSwapTab}
                   onClickLiquiditySources={() => setActiveTab(TAB.LIQUIDITY_SOURCES)}
                   onClickCrossChainSources={() => setActiveTab(TAB.CROSS_CHAIN_SOURCES)}

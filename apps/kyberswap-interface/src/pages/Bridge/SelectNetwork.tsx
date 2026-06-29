@@ -26,7 +26,7 @@ const SelectNetwork = forwardRef<
 
   const [isOpen, setIsOpen] = useState(false)
   const toggleNetworkModal = () => {
-    setIsOpen(!isOpen)
+    setIsOpen(prev => !prev)
   }
 
   useImperativeHandle(ref, () => ({

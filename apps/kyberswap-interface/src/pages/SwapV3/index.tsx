@@ -91,7 +91,7 @@ export default function Swap() {
   const [activeTab, setActiveTab] = useState<TAB>(getDefaultTab())
   const [selectedQuote, setSelectedQuote] = useState<Quote | null>(null)
 
-  useRequiredDegenMode({ activeTab, setActiveTab })
+  const highlightDegenMode = useRequiredDegenMode({ setActiveTab })
 
   useEffect(() => {
     setActiveTab(getDefaultTab())
@@ -146,6 +146,7 @@ export default function Swap() {
               <SettingsPanel
                 isCrossChainPage={isCrossChainPage}
                 isSwapPage={isSwapPage}
+                highlightDegenMode={highlightDegenMode}
                 onBack={onBackToSwapTab}
                 onClickLiquiditySources={() => setActiveTab(TAB.LIQUIDITY_SOURCES)}
                 onClickCrossChainSources={() => setActiveTab(TAB.CROSS_CHAIN_SOURCES)}

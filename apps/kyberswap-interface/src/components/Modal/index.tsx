@@ -1,14 +1,15 @@
 import { DialogContent, DialogOverlay } from '@reach/dialog'
 import '@reach/dialog/styles.css'
-import { AnimatePresence, motion } from 'framer-motion'
+import { motion } from 'framer-motion'
 import React, { CSSProperties, useCallback } from 'react'
 import { isMobile } from 'react-device-detect'
 
 import { cn } from 'utils/cn'
 
-// motion.create wraps @reach/dialog only for the mobile swipe-drag below. The entrance fade is CSS
-// (.ks-dialog-overlay), since animating the wrapped overlay via framer-motion is unreliable under React 19.
-const AnimatedDialogOverlay = motion.create(DialogOverlay)
+// motion.create wraps @reach/dialog content only for the mobile swipe-drag below. The entrance fade is
+// CSS (.ks-dialog-overlay). The overlay is rendered/unmounted with a plain conditional (no AnimatePresence):
+// AnimatePresence leaves the @reach/dialog portal orphaned in the DOM when the modal closes during a
+// concurrent re-render under React 19, freezing the dialog (clicks dead). Plain unmount is reliable.
 const AnimatedDialogContent = motion.create(DialogContent)
 
 export interface ModalProps {
@@ -96,37 +97,35 @@ export default function Modal({
     ...(hasExplicitBorderRadius && { borderRadius: borderRadius as string }),
   }
 
+  if (!isOpen) return null
+
   return (
-    <AnimatePresence>
-      {isOpen && (
-        <AnimatedDialogOverlay
-          onDismiss={onDismiss}
-          dangerouslyBypassScrollLock={bypassScrollLock}
-          dangerouslyBypassFocusLock={bypassFocusLock}
-          className="ks-dialog-overlay"
-          style={overlayStyle}
-          data-no-transition={transition ? 'false' : 'true'}
-        >
-          <AnimatedDialogContent
-            drag={isMobile && enableSwipeGesture && 'y'}
-            dragConstraints={{ top: 0, bottom: 0 }}
-            dragElastic={{ top: 0, bottom: 0.5 }}
-            onDrag={handleDrag as any}
-            aria-label="dialog content"
-            className={cn('ks-dialog-content', className)}
-            style={contentStyle}
-            data-has-explicit-width={hasExplicitWidth ? 'true' : 'false'}
-            data-has-explicit-radius={hasExplicitBorderRadius ? 'true' : 'false'}
-            data-mobile={isMobile ? 'true' : 'false'}
-            data-mobile-full-width={mobileFullWidth ? 'true' : 'false'}
-          >
-            {/* prevents the automatic focusing of inputs on mobile by the reach dialog */}
-            {!enableInitialFocusInput && isMobile ? <div tabIndex={1} /> : null}
-            {children}
-          </AnimatedDialogContent>
-        </AnimatedDialogOverlay>
-      )}
-    </AnimatePresence>
+    <DialogOverlay
+      onDismiss={onDismiss}
+      dangerouslyBypassScrollLock={bypassScrollLock}
+      dangerouslyBypassFocusLock={bypassFocusLock}
+      className="ks-dialog-overlay"
+      style={overlayStyle}
+      data-no-transition={transition ? 'false' : 'true'}
+    >
+      <AnimatedDialogContent
+        drag={isMobile && enableSwipeGesture && 'y'}
+        dragConstraints={{ top: 0, bottom: 0 }}
+        dragElastic={{ top: 0, bottom: 0.5 }}
+        onDrag={handleDrag as any}
+        aria-label="dialog content"
+        className={cn('ks-dialog-content', className)}
+        style={contentStyle}
+        data-has-explicit-width={hasExplicitWidth ? 'true' : 'false'}
+        data-has-explicit-radius={hasExplicitBorderRadius ? 'true' : 'false'}
+        data-mobile={isMobile ? 'true' : 'false'}
+        data-mobile-full-width={mobileFullWidth ? 'true' : 'false'}
+      >
+        {/* prevents the automatic focusing of inputs on mobile by the reach dialog */}
+        {!enableInitialFocusInput && isMobile ? <div tabIndex={1} /> : null}
+        {children}
+      </AnimatedDialogContent>
+    </DialogOverlay>
   )
 }
 
