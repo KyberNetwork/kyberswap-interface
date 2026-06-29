@@ -184,8 +184,8 @@ const limitOrderApi = createApi({
       { orders: LimitOrderFromTokenPair[] },
       {
         chainId: ChainId
-        makerAsset?: string
-        takerAsset?: string
+        makerAsset: string
+        takerAsset: string
       }
     >({
       query: params => ({

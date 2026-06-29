@@ -1,4 +1,5 @@
 import { Trans } from '@lingui/macro'
+import { skipToken } from '@reduxjs/toolkit/query'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Repeat } from 'react-feather'
 import { useGetOrdersByTokenPairQuery } from 'services/limitOrder'
@@ -75,27 +76,24 @@ const OrderBook = () => {
     refetch: refetchMarketRate,
   } = useBaseTradeInfoLimitOrder(makerCurrency, takerCurrency, chainId)
 
+  const makerAsset = makerCurrency?.wrapped.address
+  const takerAsset = takerCurrency?.wrapped.address
+
   const {
     data: { orders = [] } = {},
     isFetching: isFetchingOrders,
     isSuccess: isOrdersLoaded,
     refetch: refetchOrders,
-  } = useGetOrdersByTokenPairQuery({
-    chainId,
-    makerAsset: makerCurrency?.wrapped?.address,
-    takerAsset: takerCurrency?.wrapped?.address,
-  })
+  } = useGetOrdersByTokenPairQuery(makerAsset && takerAsset ? { chainId, makerAsset, takerAsset } : skipToken)
 
   const {
     data: { orders: reversedOrders = [] } = {},
     isFetching: isFetchingReversedOrder,
     isSuccess: isReversedOrdersLoaded,
     refetch: refetchReversedOrders,
-  } = useGetOrdersByTokenPairQuery({
-    chainId,
-    makerAsset: takerCurrency?.wrapped?.address,
-    takerAsset: makerCurrency?.wrapped?.address,
-  })
+  } = useGetOrdersByTokenPairQuery(
+    makerAsset && takerAsset ? { chainId, makerAsset: takerAsset, takerAsset: makerAsset } : skipToken,
+  )
 
   const refetchLoading = loadingMarketRate || isFetchingOrders || isFetchingReversedOrder
 
