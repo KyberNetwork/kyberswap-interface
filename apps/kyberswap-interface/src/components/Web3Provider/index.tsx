@@ -37,6 +37,7 @@ import SAFE_ICON from 'assets/wallets-connect/safe.svg'
 import SAFEPAL_ICON from 'assets/wallets-connect/safepal.svg'
 import WALLET_CONNECT_ICON from 'assets/wallets-connect/wallet-connect.svg'
 import INJECTED_DARK_ICON from 'assets/wallets/browser-wallet-dark.svg'
+import { setMetaMaskMobileLink } from 'components/Web3Provider/metamaskMobileLink'
 import { WALLETCONNECT_PROJECT_ID } from 'constants/env'
 import { KYBERSWAP_URL } from 'constants/index'
 import { NETWORKS_INFO, isSupportedChainId } from 'constants/networks'
@@ -461,18 +462,18 @@ export const wagmiConfig = createConfig({
         url: typeof window !== 'undefined' ? window.location.origin : KYBERSWAP_URL,
         iconUrl: `${KYBERSWAP_URL}/favicon.svg`,
       },
-      // SDK default is `metamask://connect/mwp?id=<session>` via `window.location.href`,
-      // which iOS Safari rejects with "Safari cannot open the page because the address is
-      // invalid" when no app is registered for the custom scheme (and intermittently even
-      // when MetaMask is installed). The bundled `useDeeplink: false` path falls back to
-      // `https://metamask.app.link/connect` but strips the session ID — pairing then fails.
-      // Override the opener to rewrite the scheme to MetaMask's universal-link domain while
-      // preserving the path + query so iOS Universal Links resolve to the installed app and
-      // fall back gracefully to the install page when it isn't.
+      // The SDK calls this on a native mobile browser with the `metamask://connect/mwp?...`
+      // deep link, asynchronously after the relay handshake. We deliberately do NOT open it
+      // here: iOS won't resolve a Universal Link to the installed app when it's triggered from
+      // JS without a live user gesture (it lands on metamask.app.link → App Store, even when
+      // installed), and the `metamask://` scheme errors when the app isn't installed.
+      //
+      // Instead we surface the link to the wallet modal, which renders a real anchor the user
+      // taps. A genuine tap lets iOS open the installed MetaMask via the Universal Link, and
+      // fall back to the store when it isn't installed — handling both cases cleanly.
       mobile: {
-        preferredOpenLink: url => {
-          const universalUrl = url.replace(/^metamask:\/\//, 'https://metamask.app.link/')
-          window.location.href = universalUrl
+        preferredOpenLink: deeplink => {
+          setMetaMaskMobileLink(deeplink.replace(/^metamask:\/\//, 'https://metamask.app.link/'))
         },
       },
     }),
