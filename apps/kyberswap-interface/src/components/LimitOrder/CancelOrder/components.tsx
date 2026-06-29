@@ -9,10 +9,14 @@ import MarketPrice from 'components/LimitOrder/Form/MarketPrice'
 import { useLimitOrderChainId } from 'components/LimitOrder/LimitOrderContext'
 import { OrderSummary } from 'components/LimitOrder/components'
 import { LimitOrder } from 'components/LimitOrder/types'
-import { DOCS_LINKS, formatAmountOrder } from 'components/LimitOrder/utils'
+import {
+  DOCS_LINKS,
+  formatAmountOrder,
+  getLimitOrderDisplayTakerSymbol,
+  isLimitOrderNativeOutput,
+} from 'components/LimitOrder/utils'
 import Logo from 'components/Logo'
 import { HStack, Stack } from 'components/Stack'
-import { NativeCurrencies } from 'constants/tokens'
 import { useCurrencyV2 } from 'hooks/Tokens'
 import { useBaseTradeInfoLimitOrder } from 'hooks/useBaseTradeInfo'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
@@ -52,7 +56,6 @@ export const SingleOrderSummary = ({ order }: { order?: LimitOrder }) => {
   const {
     takerAssetLogoURL,
     makerAssetSymbol,
-    takerAssetSymbol,
     makerAssetLogoURL,
     makingAmount,
     takingAmount,
@@ -60,9 +63,8 @@ export const SingleOrderSummary = ({ order }: { order?: LimitOrder }) => {
     takerAssetDecimals,
   } = order
 
-  const native = NativeCurrencies[Number(order.chainId) as ChainId]
-  const isNative = order.nativeOutput && takerAssetSymbol.toLowerCase() === native?.wrapped.symbol?.toLowerCase()
-  const takerSymbol = isNative ? native?.symbol || takerAssetSymbol : takerAssetSymbol
+  const isNative = isLimitOrderNativeOutput(order)
+  const takerSymbol = getLimitOrderDisplayTakerSymbol(order)
   const takerLogo = isNative ? NETWORKS_INFO[order.chainId]?.nativeToken.logo || takerAssetLogoURL : takerAssetLogoURL
 
   return (
@@ -84,7 +86,7 @@ export const SingleOrderSummary = ({ order }: { order?: LimitOrder }) => {
           price={marketPrice}
           loading={loadingMarketPrice}
           symbolIn={makerAssetSymbol}
-          symbolOut={takerAssetSymbol}
+          symbolOut={takerSymbol}
         />
       }
     />

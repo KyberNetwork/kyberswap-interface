@@ -92,6 +92,7 @@ export type LimitOrderFromTokenPair = {
   takerAssetDecimals: number
   makerAssetLogoURL?: string
   takerAssetLogoURL?: string
+  nativeOutput?: boolean
 }
 
 export type LimitOrderFromTokenPairFormatted = {

@@ -5,6 +5,7 @@ import { CreateOrderBody } from 'services/limitOrder'
 
 import { CreateOrderParams, LimitOrder, LimitOrderStatus } from 'components/LimitOrder/types'
 import { RESERVE_USD_DECIMALS } from 'constants/index'
+import { NativeCurrencies } from 'constants/tokens'
 import { tryParseAmount } from 'state/swap/hooks'
 import { friendlyError } from 'utils/errorMessage'
 import { formatDisplayNumber, uint256ToFraction } from 'utils/numbers'
@@ -139,6 +140,17 @@ export const formatRateLimitOrder = (order: LimitOrder, invert: boolean) => {
   }
   const float = parseFloat(rateValue.toFixed(16))
   return formatDisplayNumber(float, { fractionDigits: float < 1e-8 ? 16 : 8 })
+}
+
+type LimitOrderOutputAsset = Pick<LimitOrder, 'chainId' | 'nativeOutput' | 'takerAssetSymbol'>
+
+export const isLimitOrderNativeOutput = (order: Pick<LimitOrder, 'nativeOutput'>) => !!order.nativeOutput
+
+export const getLimitOrderDisplayTakerSymbol = (order: LimitOrderOutputAsset) => {
+  if (!isLimitOrderNativeOutput(order)) return order.takerAssetSymbol
+
+  const native = NativeCurrencies[order.chainId]
+  return native?.symbol || order.takerAssetSymbol
 }
 
 export const calcPercentFilledOrder = (value: string, total: string, decimals: number) => {

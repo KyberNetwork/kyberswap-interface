@@ -10,10 +10,14 @@ import { RowWrapper } from 'components/LimitOrder/MyOrders/TableHeader'
 import { formatStatus } from 'components/LimitOrder/MyOrders/utils'
 import { AmountWithSymbol, ClippedText, SizeInfo } from 'components/LimitOrder/components'
 import { LimitOrder, LimitOrderStatus, LimitOrderTab } from 'components/LimitOrder/types'
-import { calcPercentFilledOrder, getMarketPriceDiff, isActiveStatus } from 'components/LimitOrder/utils'
+import {
+  calcPercentFilledOrder,
+  getLimitOrderDisplayTakerSymbol,
+  getMarketPriceDiff,
+  isActiveStatus,
+} from 'components/LimitOrder/utils'
 import { APP_PATHS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
-import { NativeCurrencies } from 'constants/tokens'
 import { useBaseTradeInfoLimitOrder } from 'hooks/useBaseTradeInfo'
 import { useTokenBalance } from 'state/wallet/hooks'
 import { ExternalLink } from 'theme'
@@ -124,9 +128,7 @@ const OrderItem = ({ order, onCancelOrder, isOrderCancelling }: OrderItemProps) 
   const status = isCancelling ? LimitOrderStatus.CANCELLING : order.status
   const isFilledOrder = order.status === LimitOrderStatus.FILLED || order.takingAmount === order.filledTakingAmount
 
-  const native = NativeCurrencies[order.chainId]
-  const isNative = order.nativeOutput && order.takerAssetSymbol.toLowerCase() === native?.wrapped.symbol?.toLowerCase()
-  const takerSymbol = isNative ? native?.symbol || order.takerAssetSymbol : order.takerAssetSymbol
+  const takerSymbol = getLimitOrderDisplayTakerSymbol(order)
 
   const filledPercent = calcPercentFilledOrder(order.filledTakingAmount, order.takingAmount, order.takerAssetDecimals)
   const rawRate = getOrderRate(order)

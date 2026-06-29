@@ -4,9 +4,8 @@ import { ReactNode, useState } from 'react'
 import { Repeat } from 'react-feather'
 
 import { LimitOrder, RateInfo } from 'components/LimitOrder/types'
-import { formatRateLimitOrder, removeTrailingZero } from 'components/LimitOrder/utils'
+import { formatRateLimitOrder, getLimitOrderDisplayTakerSymbol, removeTrailingZero } from 'components/LimitOrder/utils'
 import { HStack, Stack } from 'components/Stack'
-import { NativeCurrencies } from 'constants/tokens'
 import { cn } from 'utils/cn'
 
 const Label = ({ children, className, style, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
@@ -47,10 +46,7 @@ const RateValue = ({ currencyIn, currencyOut, rateInfo, order }: RateValueProps)
   let referenceRate: string | undefined
 
   if (order) {
-    const native = NativeCurrencies[order.chainId]
-    const isNative =
-      order.nativeOutput && order.takerAssetSymbol.toLowerCase() === native?.wrapped.symbol?.toLowerCase()
-    const takerSymbol = isNative ? native?.symbol || order.takerAssetSymbol : order.takerAssetSymbol
+    const takerSymbol = getLimitOrderDisplayTakerSymbol(order)
 
     baseSymbol = showInverted ? order.makerAssetSymbol : takerSymbol
     quoteSymbol = showInverted ? takerSymbol : order.makerAssetSymbol
