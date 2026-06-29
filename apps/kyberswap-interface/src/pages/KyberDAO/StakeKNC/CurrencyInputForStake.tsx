@@ -3,7 +3,7 @@ import { useMemo } from 'react'
 
 import KNC from 'assets/images/KNC.svg'
 import Wallet from 'components/Icons/Wallet'
-import Input from 'components/NumericalInput'
+import NumericalInput from 'components/NumericalInput'
 import { AutoRow, RowBetween } from 'components/Row'
 import useTokenBalance from 'hooks/useTokenBalance'
 import { KNCLogoWrapper, SmallButton } from 'pages/KyberDAO/StakeKNC/StakeKNCComponent'
@@ -61,7 +61,7 @@ export default function CurrencyInputForStake({
         </AutoRow>
       </RowBetween>
       <RowBetween>
-        <Input value={value} onUserInput={setValue} disabled={disabled} />
+        <NumericalInput value={value} onUserInput={setValue} disabled={disabled} />
         <span className="mr-1.5 text-sm text-border">~${kncValueInUsd}</span>
         <KNCLogoWrapper>
           {getTokenLogoURL(tokenAddress, ChainId.MAINNET) !== '' ? (

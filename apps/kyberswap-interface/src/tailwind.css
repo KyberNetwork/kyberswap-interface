@@ -185,6 +185,7 @@
     overflow-y: scroll;
     overflow-x: hidden;
     display: flex;
+    flex-direction: column;
     align-self: center;
     margin: 0 0 2rem 0;
   }
@@ -417,13 +418,42 @@
     color: var(--ks-primary);
     font-weight: bold;
   }
-  .ks-date-picker .custom-calendar .react-calendar__decade-view button,
-  .ks-date-picker .custom-calendar .react-calendar__century-view button,
-  .ks-date-picker .custom-calendar .react-calendar__year-view button {
-    padding: 14px 0.5em;
+  .ks-date-picker .custom-calendar .react-calendar__decade-view button:not(:disabled):hover,
+  .ks-date-picker .custom-calendar .react-calendar__century-view button:not(:disabled):hover,
+  .ks-date-picker .custom-calendar .react-calendar__year-view button:not(:disabled):hover {
+    background-color: var(--ks-buttonGray);
+  }
+  .ks-date-picker
+    .custom-calendar
+    :is(
+      .react-calendar__year-view__months,
+      .react-calendar__decade-view__years,
+      .react-calendar__century-view__decades
+    ) {
+    gap: 4px;
+  }
+  .ks-date-picker
+    .custom-calendar
+    :is(.react-calendar__decade-view, .react-calendar__century-view, .react-calendar__year-view)
+    button {
+    border-radius: 8px;
+    padding: 10px 0.5em;
+    font-weight: bold;
+  }
+  .ks-date-picker .custom-calendar .react-calendar__year-view__months__month {
+    flex-basis: calc((100% - 8px) / 3) !important;
+    max-width: calc((100% - 8px) / 3);
+  }
+  .ks-date-picker
+    .custom-calendar
+    :is(.react-calendar__decade-view__years__year, .react-calendar__century-view__decades__decade) {
+    flex-basis: calc((100% - 16px) / 3) !important;
+    max-width: calc((100% - 16px) / 3);
   }
   .ks-date-picker .custom-calendar .react-calendar__navigation {
-    margin: 0;
+    display: flex;
+    gap: 2px;
+    margin-bottom: 8px;
     font-weight: 500;
     height: auto;
   }
@@ -432,9 +462,12 @@
     font-size: 14px;
     color: var(--ks-text);
     background-color: transparent;
+    margin-inline: 8px;
+    border-radius: 8px;
   }
-  .ks-date-picker .custom-calendar .react-calendar__navigation__label:hover {
-    background-color: transparent;
+  .ks-date-picker .custom-calendar .react-calendar__navigation__label:enabled:hover,
+  .ks-date-picker .custom-calendar .react-calendar__navigation__label:enabled:focus {
+    background-color: var(--ks-buttonBlack);
   }
   .ks-date-picker .custom-calendar .react-calendar__navigation__arrow {
     font-size: 20px;
@@ -447,8 +480,15 @@
     line-height: 1;
     min-width: unset;
   }
+  .ks-date-picker .custom-calendar .react-calendar__navigation__arrow:enabled:hover,
+  .ks-date-picker .custom-calendar .react-calendar__navigation__arrow:enabled:focus {
+    background-color: var(--ks-buttonBlack);
+  }
   .ks-date-picker .custom-calendar .react-calendar__navigation__arrow:disabled {
     background-color: rgba(28, 28, 28, 0.4);
+  }
+  .ks-date-picker .custom-calendar .react-calendar__viewContainer {
+    min-height: 232px;
   }
   .ks-date-picker .custom-calendar .react-calendar__month-view__days button {
     height: 34px;
@@ -477,6 +517,7 @@
     .react-calendar__month-view__days
     button.react-calendar__month-view__days__day--neighboringMonth {
     font-style: italic;
+    color: var(--ks-subText);
   }
   @media (max-width: 992px) {
     .ks-date-picker .custom-date-picker .custom-calendar .react-calendar__month-view__days button {
@@ -806,19 +847,6 @@
     100% {
       box-shadow: 0 0 0 2px rgb(var(--ks-primary-rgb) / 0);
       opacity: 0.25;
-    }
-  }
-
-  /* LimitOrder ListOrder — primary box-shadow pulse on highlighted row. */
-  @keyframes ks-order-highlight {
-    0% {
-      box-shadow: 0 0 0 0 var(--ks-primary);
-    }
-    70% {
-      box-shadow: 0 0 0 2px var(--ks-primary);
-    }
-    100% {
-      box-shadow: 0 0 0 0 var(--ks-primary);
     }
   }
 

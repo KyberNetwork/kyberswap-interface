@@ -4,12 +4,12 @@ import { useWalletSelector } from '@near-wallet-selector/react-hook'
 import { useConnection, useWallet } from '@solana/wallet-adapter-react'
 import { Transaction, VersionedTransaction } from '@solana/web3.js'
 import { useEffect, useState } from 'react'
-import { ArrowDown, X } from 'react-feather'
+import { ArrowDown } from 'react-feather'
 import { useSearchParams } from 'react-router-dom'
 import { useLazyCheckBlackjackQuery } from 'services/blackjack'
 import { formatUnits } from 'viem'
 
-import { ButtonEmpty, ButtonPrimary } from 'components/Button'
+import { ButtonPrimary } from 'components/Button'
 import CopyHelper from 'components/Copy'
 import CurrencyLogo from 'components/CurrencyLogo'
 import { getTipLinkAttribution } from 'components/TipLinkGeneratorModal/shared'
@@ -27,7 +27,7 @@ import { Summary } from 'pages/CrossChainSwap/components/Summary'
 import { useCrossChainSwap } from 'pages/CrossChainSwap/hooks/useCrossChainSwap'
 import { getChainName } from 'pages/CrossChainSwap/utils'
 import { useCrossChainTransactions } from 'state/crossChainSwap'
-import { ExternalLink } from 'theme'
+import { CloseIcon, ExternalLink } from 'theme'
 import { getEtherscanLink, isEvmChain, shortenHash } from 'utils'
 import { formatDisplayNumber } from 'utils/numbers'
 
@@ -357,9 +357,7 @@ export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDi
           <div className="flex w-full flex-col p-4">
             <div className="mb-3 flex items-center justify-between">
               <span className="text-xl font-medium">{t`Confirm Swap Details`}</span>
-              <ButtonEmpty width="fit-content" padding="0" onClick={onDismiss}>
-                <X size={20} className="text-text" />
-              </ButtonEmpty>
+              <CloseIcon onClick={onDismiss} />
             </div>
             <span className="mb-4 text-xs text-subText">{t`Please review the details of your swap`}</span>
             <TokenBoxInfo

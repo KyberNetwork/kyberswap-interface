@@ -63,7 +63,10 @@ export const SwapAction = ({ setShowBtcModal }: { setShowBtcModal: (val: boolean
       ? CurrencyAmount.fromRawAmount(currencyIn as Currency, amountInWei || '0')
       : undefined
 
-  const [approvalState, approve] = useApproveCallback(inputAmount, selectedQuote?.quote.contractAddress)
+  const [approvalState, approve] = useApproveCallback({
+    amount: inputAmount,
+    spender: selectedQuote?.quote.contractAddress,
+  })
   const [clickedApprove, setClickedApprove] = useState(false)
   const { publicKey: solanaAddress } = useWallet()
 

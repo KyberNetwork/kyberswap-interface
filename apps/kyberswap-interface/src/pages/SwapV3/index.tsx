@@ -3,11 +3,11 @@ import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 
 import Banner from 'components/Banner'
 import { FarmingPoolBanner, TrendingPoolBanner } from 'components/EarnBanner'
+import LimitOrderForm from 'components/LimitOrder/Form/LimitOrderForm'
+import OrderList from 'components/LimitOrder/OrderList'
 import { HStack, Stack } from 'components/Stack'
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
-import LimitOrder from 'components/swapv2/LimitOrder'
-import ListLimitOrder from 'components/swapv2/LimitOrder/ListLimitOrder'
 import LiquiditySourcesPanel from 'components/swapv2/LiquiditySourcesPanel'
 import SettingsPanel from 'components/swapv2/SwapSettingsPanel'
 import useRequiredDegenMode from 'components/swapv2/SwapSettingsPanel/useRequiredDegenMode'
@@ -132,7 +132,7 @@ export default function Swap() {
           <AppBodyWrapped
             data-highlight={shouldHighlightSwapBox}
             id={TutorialIds.SWAP_FORM}
-            style={[TAB.INFO, TAB.LIMIT].includes(activeTab) ? { padding: 0 } : undefined}
+            style={activeTab === TAB.INFO ? { padding: 0 } : undefined}
           >
             {isSwapPage && (
               <PopulatedSwapForm
@@ -153,7 +153,7 @@ export default function Swap() {
               />
             )}
             {activeTab === TAB.LIQUIDITY_SOURCES && <LiquiditySourcesPanel onBack={() => setActiveTab(TAB.SETTINGS)} />}
-            {activeTab === TAB.LIMIT && <LimitOrder />}
+            {activeTab === TAB.LIMIT && <LimitOrderForm />}
             {activeTab === TAB.CROSS_CHAIN && <CrossChainSwap onQuoteChange={setSelectedQuote} />}
             {activeTab === TAB.CROSS_CHAIN_SOURCES && (
               <CrossChainSwapSources onBack={() => setActiveTab(TAB.SETTINGS)} />
@@ -181,7 +181,7 @@ export default function Swap() {
             />
           )}
 
-          {isLimitPage && <ListLimitOrder />}
+          {isLimitPage && <OrderList />}
           {isCrossChainPage && (
             <Stack className="gap-4">
               <QuoteSteps quote={selectedQuote} />

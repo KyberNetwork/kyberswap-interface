@@ -12,15 +12,15 @@ import { ReactComponent as IconSolidEarningPool } from 'assets/svg/earn/ic_pool_
 import { ReactComponent as IconUserEarnPosition } from 'assets/svg/earn/ic_user_earn_position.svg'
 import { ReactComponent as IconFarmingPool } from 'assets/svg/kyber/kem.svg'
 import { ButtonOutlined } from 'components/Button'
+import DropdownMenu, { MenuOption } from 'components/DropdownMenu'
+import { default as MultiSelectDropdownMenu } from 'components/DropdownMenu/MultiSelect'
+import { ItemIcon } from 'components/DropdownMenu/styles'
 import Search from 'components/Search'
 import { HStack, Stack } from 'components/Stack'
 import { MouseoverTooltip, MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { HeadSection, NavigateButton, Tag, TagContainer } from 'pages/Earns/PoolExplorer/styles'
-import DropdownMenu, { MenuOption } from 'pages/Earns/components/DropdownMenu'
-import { default as MultiSelectDropdownMenu } from 'pages/Earns/components/DropdownMenu/MultiSelect'
-import { ItemIcon } from 'pages/Earns/components/DropdownMenu/styles'
 import useSupportedDexesAndChains, {
   AllChainsOption,
   AllProtocolsOption,

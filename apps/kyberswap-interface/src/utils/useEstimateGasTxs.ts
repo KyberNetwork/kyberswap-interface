@@ -8,7 +8,12 @@ import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { createAccessListIfEnabled } from 'utils/accessList'
 import { Address, Hex, PublicClient, formatEther } from 'utils/viem'
 
-type EstimateParams = { contractAddress: string; encodedData: string; value?: bigint }
+type EstimateParams = {
+  contractAddress: string
+  encodedData: string
+  value?: bigint
+}
+
 function useEstimateGasTxs(): (v: EstimateParams) => Promise<{ gas: bigint | null; gasInUsd: number | null }> {
   const { account, chainId } = useActiveWeb3React()
 
@@ -56,4 +61,5 @@ function useEstimateGasTxs(): (v: EstimateParams) => Promise<{ gas: bigint | nul
     [account, chainId, usdPriceNative],
   )
 }
+
 export default useEstimateGasTxs

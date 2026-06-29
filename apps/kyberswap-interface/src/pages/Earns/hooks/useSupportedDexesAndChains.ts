@@ -1,8 +1,8 @@
 import { useMemo } from 'react'
 import { PoolQueryParams, useSupportedProtocolsQuery } from 'services/zapEarn'
 
+import { MenuOption } from 'components/DropdownMenu'
 import useChainsConfig from 'hooks/useChainsConfig'
-import { MenuOption } from 'pages/Earns/components/DropdownMenu'
 import { EARN_CHAINS, EARN_DEXES, EarnChain, Exchange } from 'pages/Earns/constants'
 import { PositionFilter } from 'pages/Earns/types'
 

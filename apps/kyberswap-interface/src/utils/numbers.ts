@@ -188,7 +188,7 @@ export const formatDisplayNumber = (
   if (absShownFraction.lessThan(BIG_INT_ONE) && !shownFraction.equalTo(BIG_INT_ZERO)) {
     const decimal = shownFraction.toFixed(100).split('.')[1]
     const negative = shownFraction.lessThan(BIG_INT_ZERO) ? '-' : ''
-    const numberOfLeadingZeros = -Math.floor(log10(absShownFraction) + 1)
+    const numberOfLeadingZeros = Math.max(0, -Math.floor(log10(absShownFraction) + 1))
     const slicedDecimal = decimal
       .replace(/^0+/, '')
       .slice(0, fractionDigits ? fractionDigits : 30)
