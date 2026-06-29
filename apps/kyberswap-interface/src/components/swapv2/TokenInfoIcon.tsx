@@ -7,16 +7,16 @@ import { MouseoverTooltip } from 'components/Tooltip'
 import { StyledActionButtonSwapForm } from 'components/swapv2/styleds'
 import { Field } from 'state/swap/actions'
 
-function TokenInfoIcon({
-  onClick,
-  size,
-}: {
+type TokenInfoIconProps = {
   currencies: { [field in Field]?: Currency }
   onClick?: () => void
   size?: number
-}) {
+  className?: string
+}
+
+const TokenInfoIcon = ({ onClick, size, className }: TokenInfoIconProps) => {
   return (
-    <StyledActionButtonSwapForm onClick={onClick}>
+    <StyledActionButtonSwapForm onClick={onClick} className={className}>
       <MouseoverTooltip text={t`Token Info`} placement="top" width="fit-content" disableTooltip={isMobile}>
         <Info className="text-subText" size={size || 20} />
       </MouseoverTooltip>

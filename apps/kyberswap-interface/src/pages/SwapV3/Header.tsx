@@ -12,17 +12,14 @@ import Tabs from 'pages/SwapV3/Tabs'
 import { useDegenModeManager } from 'state/user/hooks'
 import { CloseIcon } from 'theme'
 
-export default function Header({
-  activeTab,
-  setActiveTab,
-  customChainId,
-  activeMainTab,
-}: {
+type HeaderProps = {
   activeTab: TAB
   setActiveTab: (tab: TAB) => void
   customChainId?: ChainId
   activeMainTab?: TAB
-}) {
+}
+
+const Header = ({ activeTab, setActiveTab, customChainId, activeMainTab }: HeaderProps) => {
   const [isDegenMode] = useDegenModeManager()
   const [isShowDegenBanner, setShowDegenBanner] = useState(true)
   const { pathname } = useLocation()
@@ -35,7 +32,7 @@ export default function Header({
   return (
     <>
       <Stack className="w-full items-center gap-2">
-        <HStack className="min-h-9 w-full items-center justify-between gap-3">
+        <HStack className="min-h-9 w-full items-center justify-between gap-0">
           <Tabs activeTab={selectedTab} setActiveTab={setActiveTab} customChainId={customChainId} />
           <HeaderRightMenu activeTab={activeTab} setActiveTab={setActiveTab} activeMainTab={activeMainTab} />
         </HStack>
@@ -82,3 +79,5 @@ export default function Header({
     </>
   )
 }
+
+export default Header

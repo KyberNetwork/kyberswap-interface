@@ -17,15 +17,13 @@ import { useDegenModeManager, useUserSlippageTolerance, useUserTransactionTTL } 
 import { MEDIA_WIDTHS } from 'theme'
 import { formatSlippage } from 'utils/slippage'
 
-export default function HeaderRightMenu({
-  activeTab,
-  setActiveTab,
-  activeMainTab,
-}: {
+type HeaderRightMenuProps = {
   activeTab: TAB
   setActiveTab: (tab: TAB) => void
   activeMainTab?: TAB
-}) {
+}
+
+const HeaderRightMenu = ({ activeTab, setActiveTab, activeMainTab }: HeaderRightMenuProps) => {
   const { pathname } = useLocation()
   const isLimitPage = pathname.startsWith(APP_PATHS.LIMIT) || activeMainTab === TAB.LIMIT
   const isSwapPage = pathname.startsWith(APP_PATHS.SWAP) || activeMainTab === TAB.SWAP
@@ -50,10 +48,11 @@ export default function HeaderRightMenu({
   const upToXXSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToXXSmall}px)`)
 
   return (
-    <div className="flex items-center rounded-[18px]">
+    <div className="flex items-center">
       {!isCrossChainPage && (
         <TokenInfoIcon
           currencies={currencies}
+          className="max-sm:size-8"
           size={upToXXSmall ? 16 : 20}
           onClick={() => {
             trackingHandler(TRACKING_EVENT_TYPE.SWAP_TOKEN_INFO_CLICK)
@@ -64,6 +63,7 @@ export default function HeaderRightMenu({
       {!isLimitPage && (
         <StyledActionButtonSwapForm
           active={activeTab === TAB.SETTINGS}
+          className="max-sm:size-8"
           onClick={() => {
             onToggleActionTab(TAB.SETTINGS)
             if (isCrossChainPage) {
@@ -95,3 +95,5 @@ export default function HeaderRightMenu({
     </div>
   )
 }
+
+export default HeaderRightMenu
