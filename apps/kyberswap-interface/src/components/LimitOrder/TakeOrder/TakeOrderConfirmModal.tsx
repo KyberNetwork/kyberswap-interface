@@ -38,8 +38,6 @@ import { CloseIcon } from 'theme/components'
 import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
 
-const QUICK_FILL_PERCENTS = [25, 50, 75, 100]
-
 const DetailRow = ({ label, children }: { label: React.ReactNode; children: React.ReactNode }) => (
   <HStack className="min-h-6 items-center justify-between gap-3 text-sm max-sm:flex-col max-sm:items-start">
     <span className="text-subText">{label}</span>
@@ -62,6 +60,16 @@ const TokenBadge = ({ amount, currency, symbol }: TokenBadgeProps) => {
     </HStack>
   )
 }
+
+const PresetButton = ({ className, ...props }: React.ButtonHTMLAttributes<HTMLButtonElement>) => (
+  <button
+    {...props}
+    className={cn(
+      'cursor-pointer rounded-full border-none bg-subText-20 px-2 py-0.5 text-xs font-medium text-subText hover:text-text focus-visible:text-text-60 focus-visible:outline-none',
+      className,
+    )}
+  />
+)
 
 const PairLogos = ({ payCurrency, receiveCurrency }: { payCurrency: Currency; receiveCurrency: Currency }) => (
   <span className="relative h-6 w-9 shrink-0">
@@ -189,6 +197,10 @@ const TakeOrderConfirmModal = ({ isOpen, order, onDismiss }: Props) => {
     processing.start()
   }
 
+  const handleFillAmountPreset = (percent: number) => {
+    setFillAmount(normalizeActionAmount(getPercentFillAmount(maxBalancePayAmount, percent)))
+  }
+
   const handleUseSwapInstead = () => {
     const route = NETWORKS_INFO[context.order.chainId]?.route
     const inputCurrency = getSwapCurrencyId(context.payCurrency)
@@ -279,24 +291,17 @@ const TakeOrderConfirmModal = ({ isOpen, order, onDismiss }: Props) => {
               <Stack className="relative gap-3 rounded-xl border border-transparent bg-buttonGray px-4 py-3">
                 <HStack className="items-center justify-between gap-3">
                   <HStack className="flex-wrap gap-1">
-                    {QUICK_FILL_PERCENTS.map(percent => {
-                      const percentAmount = getPercentFillAmount(maxBalancePayAmount, percent)
-                      return (
-                        <button
-                          key={percent}
-                          type="button"
-                          className="rounded-full border border-white-08 bg-buttonGray px-2 py-1 text-xs text-subText transition hover:border-border hover:bg-buttonBlack-40"
-                          onClick={() => setFillAmount(normalizeActionAmount(percentAmount))}
-                        >
-                          {percent}%
-                        </button>
-                      )
-                    })}
+                    <PresetButton type="button" onClick={() => handleFillAmountPreset(50)}>
+                      <Trans>Half</Trans>
+                    </PresetButton>
+                    <PresetButton type="button" onClick={() => handleFillAmountPreset(100)}>
+                      <Trans>Max</Trans>
+                    </PresetButton>
                   </HStack>
                   <button
                     type="button"
                     className="flex cursor-pointer items-center gap-1 border-none bg-transparent p-0 text-xs text-subText hover:brightness-125"
-                    onClick={() => setFillAmount(normalizeActionAmount(maxBalancePayAmount?.toExact() || ''))}
+                    onClick={() => handleFillAmountPreset(100)}
                   >
                     <WalletIcon size={14} className="shrink-0" />
                     <span className="font-medium">{formatExact(walletBalance)}</span>
