@@ -5,7 +5,7 @@ import { Trans, t } from '@lingui/macro'
 import Portal from '@reach/portal'
 import { useQuery } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { useCheckPairQuery } from 'services/marketOverview'
+import { useCheckPairQuery } from 'services/tokenCatalog'
 import { useLazyPoolDetailQuery, useSupportedProtocolsQuery } from 'services/zapEarn'
 
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'

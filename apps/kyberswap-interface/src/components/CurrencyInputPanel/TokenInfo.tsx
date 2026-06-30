@@ -1,23 +1,19 @@
 import { shortenAddress } from '@kyber/utils/dist/crypto'
 import { Token } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { Info } from 'react-feather'
 import { useMedia } from 'react-use'
+import { useGetPricesQuery, useGetTokenCategoryQuery } from 'services/tokenCatalog'
 
 import CopyHelper from 'components/Copy'
 import Tooltip from 'components/Tooltip'
-import { TOKEN_API_URL } from 'constants/env'
 import { PAIR_CATEGORY } from 'constants/index'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
 import { MEDIA_WIDTHS } from 'theme'
 import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
-
-interface PriceResponse {
-  data: { [chainId: string]: { [address: string]: { PriceBuy: number; PriceSell: number } } }
-}
 
 enum TOKEN_CATEGORY {
   STABLE = 'stablePair',
@@ -36,8 +32,28 @@ const SPREAD_THRESHOLD = {
 export default function TokenInfo({ token, isNativeToken = false }: { token: Token; isNativeToken?: boolean }) {
   const theme = useTheme()
 
-  const [tokenCategory, setTokenCategory] = useState<TOKEN_CATEGORY | null>(null)
-  const [priceInfo, setPriceInfo] = useState<{ buyPrice?: number; sellPrice?: number; spread?: number } | null>(null)
+  const { data: priceData } = useGetPricesQuery({ [token.chainId]: [token.address] }, { pollingInterval: 15_000 })
+  const priceInfo = useMemo(() => {
+    if (!priceData) return null
+    const entry = priceData.data?.[token.chainId]?.[token.address]
+    const buyPrice = entry?.PriceBuy
+    const sellPrice = entry?.PriceSell
+    const spread =
+      buyPrice === undefined || sellPrice === undefined
+        ? undefined
+        : (Math.abs(buyPrice - sellPrice) / ((buyPrice + sellPrice) / 2)) * 100
+    return { buyPrice, sellPrice, spread }
+  }, [priceData, token.chainId, token.address])
+
+  const { data: categoryData } = useGetTokenCategoryQuery({ chainId: token.chainId, tokens: token.address })
+  const tokenCategory = useMemo(
+    () =>
+      (categoryData?.find(item => item.token.toLowerCase() === token.address.toLowerCase())?.category as
+        | TOKEN_CATEGORY
+        | undefined) ?? null,
+    [categoryData, token.address],
+  )
+
   const [showTooltip, setShowTooltip] = useState(false)
   const infoRef = useRef<HTMLDivElement>(null)
   useOnClickOutside(infoRef, () => setShowTooltip(false))
@@ -62,49 +78,6 @@ export default function TokenInfo({ token, isNativeToken = false }: { token: Tok
     }),
     [priceInfo?.buyPrice, priceInfo?.sellPrice, priceInfo?.spread, spreadThreshold],
   )
-
-  useEffect(() => {
-    const getOnChainPrice = async () => {
-      const r: PriceResponse = await fetch(`${TOKEN_API_URL}/v1/public/tokens/prices`, {
-        method: 'POST',
-        body: JSON.stringify({
-          [token.chainId]: [token.address],
-        }),
-      }).then(res => res.json())
-
-      const buyPrice = r.data[token.chainId][token.address]?.PriceBuy
-      const sellPrice = r.data[token.chainId][token.address]?.PriceSell
-
-      const spread =
-        buyPrice === undefined || sellPrice === undefined
-          ? undefined
-          : (Math.abs(buyPrice - sellPrice) / ((buyPrice + sellPrice) / 2)) * 100
-
-      setPriceInfo({ buyPrice, sellPrice, spread })
-    }
-
-    getOnChainPrice()
-    const fetchPriceInterval = setInterval(getOnChainPrice, 15_000)
-
-    return () => clearInterval(fetchPriceInterval)
-  }, [token.address, token.chainId])
-
-  useEffect(() => {
-    if (!token) return
-
-    const getTokenCategory = async () => {
-      const r = await fetch(
-        `${TOKEN_API_URL}/v1/public/category/token?tokens=${token.address}&chainId=${token.chainId}`,
-      ).then(res => res.json())
-
-      const cat = r.data.find((item: any) => item.token.toLowerCase() === token.address.toLowerCase())?.category
-
-      if (cat) setTokenCategory(cat as TOKEN_CATEGORY)
-    }
-
-    getTokenCategory()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [token.address])
 
   const tooltipContent = (
     <div className="flex flex-col gap-0.5">

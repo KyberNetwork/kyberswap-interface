@@ -4,10 +4,11 @@ import { useWalletSelector } from '@near-wallet-selector/react-hook'
 import { useConnection, useWallet } from '@solana/wallet-adapter-react'
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
+import { fetchTokenCategories, fetchTokenPrices } from 'services/tokenCatalog'
 import { parseUnits } from 'viem'
 
 import { useBitcoinWallet } from 'components/Web3Provider/BitcoinProvider'
-import { CROSSCHAIN_AGGREGATOR_API, TOKEN_API_URL } from 'constants/env'
+import { CROSSCHAIN_AGGREGATOR_API } from 'constants/env'
 import {
   BTC_DEFAULT_RECEIVER,
   CROSS_CHAIN_FEE_RECEIVER,
@@ -443,17 +444,7 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
       body[toChainId].push((currencyOut as any)?.wrapped?.address)
     }
 
-    const r: {
-      data: {
-        [chainId: string]: {
-          [address: string]: { PriceBuy: number; PriceSell: number }
-        }
-      }
-    } = await fetch(`${TOKEN_API_URL}/v1/public/tokens/prices`, {
-      method: 'POST',
-      body: JSON.stringify(body),
-      signal,
-    }).then(r => r.json())
+    const r = await fetchTokenPrices(body, { signal })
     // Check if this request has been aborted
     if (signal.aborted) return
 
@@ -476,32 +467,15 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
         setCategory('stablePair')
         feeBps = 5
       } else {
+        const tokenInAddress = (currencyIn as any).wrapped.address.toLowerCase()
+        const tokenOutAddress = (currencyOut as any).wrapped.address.toLowerCase()
         const [token0Cat, token1Cat] = await Promise.all([
-          await fetch(
-            `${TOKEN_API_URL}/v1/public/category/token?tokens=${(
-              currencyIn as any
-            ).wrapped.address.toLowerCase()}&chainId=${fromChainId}`,
-          )
-            .then(res => res.json())
-            .then(res => {
-              const cat = res?.data?.find(
-                (item: any) => item.token.toLowerCase() === (currencyIn as any).wrapped.address.toLowerCase(),
-              )
-              return cat?.category || 'exoticPair'
-            }),
-
-          await fetch(
-            `${TOKEN_API_URL}/v1/public/category/token?tokens=${(
-              currencyOut as any
-            ).wrapped.address.toLowerCase()}&chainId=${toChainId}`,
-          )
-            .then(res => res.json())
-            .then(res => {
-              const cat = res?.data?.find(
-                (item: any) => item.token.toLowerCase() === (currencyOut as any).wrapped.address.toLowerCase(),
-              )
-              return cat?.category || 'exoticPair'
-            }),
+          fetchTokenCategories({ chainId: fromChainId, tokens: tokenInAddress }).then(
+            items => items.find(item => item.token.toLowerCase() === tokenInAddress)?.category || 'exoticPair',
+          ),
+          fetchTokenCategories({ chainId: toChainId, tokens: tokenOutAddress }).then(
+            items => items.find(item => item.token.toLowerCase() === tokenOutAddress)?.category || 'exoticPair',
+          ),
         ])
         // Determine swap pair category based on token categories matrix:
         // Priority: High-volatility > Exotic > Stable (both) > Common (stable/correlated/common combinations)

@@ -17,7 +17,6 @@ import ksSettingApi from 'services/ksSetting'
 import kyberDAO from 'services/kyberDAO'
 import kyberdataServiceApi from 'services/kyberdata'
 import limitOrderApi from 'services/limitOrder'
-import marketOverviewApi from 'services/marketOverview'
 import notificationApi from 'services/notification'
 import priceAlertApi from 'services/priceAlert'
 import referralApi from 'services/referral'
@@ -28,6 +27,7 @@ import smartExitApi from 'services/smartExit'
 import socialApi from 'services/social'
 import tipLinkApi from 'services/tipLink'
 import tokenApi from 'services/token'
+import tokenCatalogApi from 'services/tokenCatalog'
 import tokenChartApi from 'services/tokenChart'
 import zapApi from 'services/zap'
 import zapEarnServiceApi from 'services/zapEarn'
@@ -126,9 +126,9 @@ const rootReducer = combineReducers({
   [campaignApi.reducerPath]: campaignApi.reducer,
   [commonServiceApi.reducerPath]: commonServiceApi.reducer,
   [blackjackApi.reducerPath]: blackjackApi.reducer,
-  [marketOverviewApi.reducerPath]: marketOverviewApi.reducer,
   [smartExitApi.reducerPath]: smartExitApi.reducer,
   [tipLinkApi.reducerPath]: tipLinkApi.reducer,
+  [tokenCatalogApi.reducerPath]: tokenCatalogApi.reducer,
   [tokenChartApi.reducerPath]: tokenChartApi.reducer,
 })
 
@@ -163,9 +163,9 @@ const apiMiddlewares: Middleware[] = [
   campaignApi,
   commonServiceApi,
   blackjackApi,
-  marketOverviewApi,
   smartExitApi,
   tipLinkApi,
+  tokenCatalogApi,
   tokenChartApi,
 ].map(api => api.middleware as Middleware)
 

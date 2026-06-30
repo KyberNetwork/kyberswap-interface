@@ -2,7 +2,7 @@ import { Trans, t } from '@lingui/macro'
 import { useEffect, useState } from 'react'
 import { Star } from 'react-feather'
 import { useMedia } from 'react-use'
-import { useMarketOverviewQuery } from 'services/marketOverview'
+import { useMarketOverviewQuery } from 'services/tokenCatalog'
 
 import { ButtonEmpty } from 'components/Button'
 import Divider from 'components/Divider'
