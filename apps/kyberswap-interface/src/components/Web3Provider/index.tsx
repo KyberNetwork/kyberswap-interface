@@ -463,17 +463,18 @@ export const wagmiConfig = createConfig({
         iconUrl: `${KYBERSWAP_URL}/favicon.svg`,
       },
       // The SDK calls this on a native mobile browser with the `metamask://connect/mwp?...`
-      // deep link, asynchronously after the relay handshake. We deliberately do NOT open it
-      // here: iOS won't resolve a Universal Link to the installed app when it's triggered from
-      // JS without a live user gesture (it lands on metamask.app.link → App Store, even when
-      // installed), and the `metamask://` scheme errors when the app isn't installed.
+      // deep link, asynchronously after the relay handshake. We surface it to the wallet modal
+      // rather than opening it here, so the user launches MetaMask with a real tap — a genuine
+      // gesture is the reliable way to open the app, and tapping a custom-scheme link keeps this
+      // page (and its open relay connection) alive so the pairing can complete on return.
       //
-      // Instead we surface the link to the wallet modal, which renders a real anchor the user
-      // taps. A genuine tap lets iOS open the installed MetaMask via the Universal Link, and
-      // fall back to the store when it isn't installed — handling both cases cleanly.
+      // Keep the `metamask://` custom scheme as-is: it carries the connection payload straight
+      // into the app, so MetaMask lands on the approval screen. Do NOT rewrite it to the
+      // `metamask.app.link` Universal Link — that domain is a Branch link that drops the query
+      // params, so the app opens to its home screen with no pairing request.
       mobile: {
         preferredOpenLink: deeplink => {
-          setMetaMaskMobileLink(deeplink.replace(/^metamask:\/\//, 'https://metamask.app.link/'))
+          setMetaMaskMobileLink(deeplink)
         },
       },
     }),
