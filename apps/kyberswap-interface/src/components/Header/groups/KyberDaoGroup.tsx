@@ -1,10 +1,9 @@
 import { Trans } from '@lingui/macro'
 import { useLocation } from 'react-router-dom'
-import { useMedia } from 'react-use'
 
 import { ReactComponent as KyberLogo } from 'assets/svg/kyber/knc_black.svg'
 import Column from 'components/Column'
-import NavGroup from 'components/Header/groups/NavGroup'
+import NavGroup, { type DropdownAlign } from 'components/Header/groups/NavGroup'
 import { DropdownTextAnchor, StyledNavLink } from 'components/Header/styleds'
 import StakeIcon from 'components/Icons/Stake'
 import VoteIcon from 'components/Icons/Vote'
@@ -12,17 +11,20 @@ import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import { APP_PATHS } from 'constants/index'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 
-const KyberDAONavGroup = () => {
+type Props = {
+  dropdownAlign?: DropdownAlign
+}
+
+const KyberDAONavGroup = ({ dropdownAlign }: Props) => {
   const { pathname } = useLocation()
   const isActive = pathname.includes(APP_PATHS.KYBERDAO_STAKE)
+
   const { trackingHandler } = useTracking()
-  const upToMedium = useMedia('(max-width: 992px)')
-  if (upToMedium) return null
 
   return (
     <span id={TutorialIds.KYBER_DAO_LINK} className="inline-flex">
       <NavGroup
-        dropdownAlign={upToMedium ? 'right' : 'left'}
+        dropdownAlign={dropdownAlign}
         isActive={isActive}
         anchor={
           <DropdownTextAnchor>

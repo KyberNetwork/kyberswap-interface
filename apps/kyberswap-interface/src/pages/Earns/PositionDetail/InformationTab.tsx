@@ -12,6 +12,7 @@ import { ReactComponent as IconReposition } from 'assets/svg/earn/ic_reposition.
 import { ReactComponent as RevertPriceIcon } from 'assets/svg/earn/ic_revert_price.svg'
 import { ReactComponent as FarmingIcon } from 'assets/svg/kyber/kem.svg'
 import { ReactComponent as FarmingLmIcon } from 'assets/svg/kyber/kemLm.svg'
+import DropdownMenuComponent from 'components/DropdownMenu'
 import { Loader2 } from 'components/Loader'
 import TokenLogo from 'components/TokenLogo'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
@@ -44,7 +45,6 @@ import {
   VerticalDivider,
 } from 'pages/Earns/PositionDetail/styles'
 import AnimatedNumber from 'pages/Earns/components/AnimatedNumber'
-import DropdownMenuComponent from 'pages/Earns/components/DropdownMenu'
 import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
 import RewardSyncing from 'pages/Earns/components/RewardSyncing'
 import { SmartExit } from 'pages/Earns/components/SmartExit'

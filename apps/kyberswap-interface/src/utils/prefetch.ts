@@ -2,7 +2,7 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import limitOrderApi from 'services/limitOrder'
 import zapEarnServiceApi from 'services/zapEarn'
 
-import { getInitialListOrdersArgs } from 'components/swapv2/LimitOrder/listOrdersArgs'
+import { getInitialListOrdersArgs } from 'components/LimitOrder/listOrdersArgs'
 import { APP_PATHS } from 'constants/index'
 import { isSupportedChainId } from 'constants/networks'
 import { getInitialPositionQueryParams } from 'pages/Earns/UserPositions/positionsQuery'

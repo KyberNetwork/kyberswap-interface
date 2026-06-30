@@ -46,7 +46,10 @@ export default function MigrateModal({
     value,
   )
 
-  const [approval, approveCallback] = useApproveCallback(parsedAmount, kyberDAOInfo?.KNCAddress)
+  const [approval, approveCallback] = useApproveCallback({
+    amount: parsedAmount,
+    spender: kyberDAOInfo?.KNCAddress,
+  })
 
   const oldKNCBalance = useTokenBalance(kyberDAOInfo?.KNCLAddress || '')
   useEffect(() => {

@@ -5,11 +5,13 @@ import { ChevronLeft } from 'react-feather'
 import { useConnect } from 'wagmi'
 
 import { ReactComponent as Close } from 'assets/images/x.svg'
+import METAMASK_ICON from 'assets/wallets-connect/metamask.svg'
 import Option from 'components/Header/web3/WalletModal/Option'
 import { useOrderedConnections } from 'components/Header/web3/WalletModal/useConnections'
 import Modal from 'components/Modal'
 import { RowBetween } from 'components/Row'
 import WalletPopup from 'components/WalletPopup'
+import { setMetaMaskMobileLink, useMetaMaskMobileLink } from 'components/Web3Provider/metamaskMobileLink'
 import { TERM_FILES_PATH } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
@@ -100,10 +102,26 @@ export default function WalletModal() {
   const openNetworkModal = useOpenNetworkModal()
 
   const { isPending: isSomeOptionPending, isIdle, isError, reset } = useConnect()
-  const onDismiss = () => {
+
+  // On a native mobile browser the MetaMask SDK surfaces its connection deep link here (see
+  // metamaskMobileLink). We render it as a tappable anchor instead of opening it automatically.
+  const metaMaskLink = useMetaMaskMobileLink()
+  const resetConnect = () => {
+    setMetaMaskMobileLink(null)
     reset()
+  }
+  const onDismiss = () => {
+    resetConnect()
     closeWalletModal()
   }
+
+  // Drop a stale deep link once the attempt settles (success/error) or the modal closes, so the
+  // "Open MetaMask" view never lingers into the next time the modal opens.
+  useEffect(() => {
+    if (!walletModalOpen || !isSomeOptionPending) {
+      setMetaMaskMobileLink(null)
+    }
+  }, [walletModalOpen, isSomeOptionPending])
 
   const [isAcceptedTerm, setIsAcceptedTerm] = useIsAcceptedTerm()
 
@@ -124,7 +142,7 @@ export default function WalletModal() {
       <UpperSection>
         <RowBetween className="mb-[26px] gap-5">
           {(isSomeOptionPending || isError) && (
-            <HoverText onClick={() => reset()} className="mr-4 flex-1">
+            <HoverText onClick={resetConnect} className="mr-4 flex-1">
               <ChevronLeft className="text-primary" />
             </HoverText>
           )}
@@ -133,52 +151,69 @@ export default function WalletModal() {
           </HoverText>
           <CloseIcon
             onClick={() => {
-              reset()
+              resetConnect()
               toggleWalletModal()
             }}
           >
             <Close />
           </CloseIcon>
         </RowBetween>
-        {isIdle && (
-          <TermAndCondition
-            onClick={() => {
-              if (!isAcceptedTerm) {
-                trackingHandler(TRACKING_EVENT_TYPE.WALLET_CONNECT_ACCEPT_TERM_CLICK)
-              }
-              setIsAcceptedTerm(!isAcceptedTerm)
-            }}
-          >
-            <input
-              type="checkbox"
-              checked={isAcceptedTerm}
-              onChange={() => {}}
-              data-testid="accept-term"
-              className="mr-3 size-3.5 min-w-3.5 cursor-pointer"
-            />
-            <span className="text-subText">
-              <Trans>Accept </Trans>{' '}
-              <ExternalLink href={TERM_FILES_PATH.KYBERSWAP_TERMS} onClick={e => e.stopPropagation()}>
-                <Trans>KyberSwap&lsquo;s Terms of Use</Trans>
-              </ExternalLink>{' '}
-              <Trans>and</Trans>{' '}
-              <ExternalLink href={TERM_FILES_PATH.PRIVACY_POLICY} onClick={e => e.stopPropagation()}>
-                <Trans>Privacy Policy</Trans>
-              </ExternalLink>
-              {'. '}
-              <span className="text-[10px]">
-                <Trans>Last updated: {dayjs(TERM_FILES_PATH.VERSION).format('DD MMM YYYY')}</Trans>
-              </span>
+        {metaMaskLink ? (
+          <ContentWrapper className="flex flex-col items-center gap-4 pb-1 pt-2 text-center">
+            <img src={METAMASK_ICON} alt="MetaMask" className="size-12 rounded-lg" />
+            <span className="text-sm text-subText">
+              <Trans>Tap the button below to open the MetaMask app and approve the connection.</Trans>
             </span>
-          </TermAndCondition>
+            <a
+              href={metaMaskLink}
+              className="w-full rounded-full bg-primary px-6 py-3 text-center text-base font-medium text-darkText hover:brightness-90"
+            >
+              <Trans>Open MetaMask</Trans>
+            </a>
+          </ContentWrapper>
+        ) : (
+          <>
+            {isIdle && (
+              <TermAndCondition
+                onClick={() => {
+                  if (!isAcceptedTerm) {
+                    trackingHandler(TRACKING_EVENT_TYPE.WALLET_CONNECT_ACCEPT_TERM_CLICK)
+                  }
+                  setIsAcceptedTerm(!isAcceptedTerm)
+                }}
+              >
+                <input
+                  type="checkbox"
+                  checked={isAcceptedTerm}
+                  onChange={() => {}}
+                  data-testid="accept-term"
+                  className="mr-3 size-3.5 min-w-3.5 cursor-pointer"
+                />
+                <span className="text-subText">
+                  <Trans>Accept </Trans>{' '}
+                  <ExternalLink href={TERM_FILES_PATH.KYBERSWAP_TERMS} onClick={e => e.stopPropagation()}>
+                    <Trans>KyberSwap&lsquo;s Terms of Use</Trans>
+                  </ExternalLink>{' '}
+                  <Trans>and</Trans>{' '}
+                  <ExternalLink href={TERM_FILES_PATH.PRIVACY_POLICY} onClick={e => e.stopPropagation()}>
+                    <Trans>Privacy Policy</Trans>
+                  </ExternalLink>
+                  {'. '}
+                  <span className="text-[10px]">
+                    <Trans>Last updated: {dayjs(TERM_FILES_PATH.VERSION).format('DD MMM YYYY')}</Trans>
+                  </span>
+                </span>
+              </TermAndCondition>
+            )}
+            <ContentWrapper>
+              <OptionGrid>
+                {connectors.map(c => (
+                  <Option connector={c} key={c.uid} />
+                ))}
+              </OptionGrid>
+            </ContentWrapper>
+          </>
         )}
-        <ContentWrapper>
-          <OptionGrid>
-            {connectors.map(c => (
-              <Option connector={c} key={c.uid} />
-            ))}
-          </OptionGrid>
-        </ContentWrapper>
       </UpperSection>
     )
   }

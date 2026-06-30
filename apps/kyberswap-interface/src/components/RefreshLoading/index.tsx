@@ -15,12 +15,14 @@ export default function RefreshLoading({
   refetchLoading,
   clickable = false,
   refreshTime = INTERVAL_REFETCH_TIME,
+  refreshOnMount = true,
   disableRefresh = false,
   onRefresh,
 }: {
   refetchLoading: boolean
   clickable?: boolean
   refreshTime?: number
+  refreshOnMount?: boolean
   disableRefresh?: boolean
   onRefresh: () => void
 }) {
@@ -63,16 +65,13 @@ export default function RefreshLoading({
   }, [countdown, onRefresh, disableRefresh])
 
   useEffect(() => {
+    if (!refreshOnMount) return
     onRefresh()
-  }, [onRefresh])
+  }, [onRefresh, refreshOnMount])
 
   return (
     <SpinWrapper role="button" onClick={handleManualRefresh} clickable={clickable}>
-      <MouseoverTooltipDesktopOnly
-        text={clickable ? t`Click to refresh, occur once per second.` : null}
-        placement="top"
-        width="auto"
-      >
+      <MouseoverTooltipDesktopOnly text={clickable ? t`Click to refresh` : null} placement="top" width="auto">
         <>
           <Spin countdown={countdown} refreshTime={refreshTime} disableRefresh={disableRefresh} />
 

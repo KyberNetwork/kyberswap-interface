@@ -41,7 +41,6 @@ import crossChainSwap from 'state/crossChainSwap'
 import customizeDexes from 'state/customizeDexes'
 import dustLiquidation from 'state/dustLiquidation/reducer'
 import { updateVersion } from 'state/global/actions'
-import limit from 'state/limit/reducer'
 import lists from 'state/lists/reducer'
 import mintV2 from 'state/mint/proamm/reducer'
 import mint from 'state/mint/reducer'
@@ -90,7 +89,6 @@ const rootReducer = combineReducers({
   crossChainSwap,
   swap,
   dustLiquidation,
-  limit,
   mint,
   mintV2,
   burn,

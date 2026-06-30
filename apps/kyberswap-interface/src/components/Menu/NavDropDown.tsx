@@ -1,61 +1,79 @@
-import { ReactNode, useRef, useState } from 'react'
+import { type ReactNode, useState } from 'react'
 import { NavLink } from 'react-router-dom'
 
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
+import { MenuItem, MenuItemContent, MenuItemLink } from 'components/Menu/MenuItems'
+import { HStack, Stack } from 'components/Stack'
 import { ApplicationModal } from 'state/application/actions'
 import { useToggleModal } from 'state/application/hooks'
 import { ExternalLink } from 'theme'
 import { cn } from 'utils/cn'
 
-export default function NavDropDown({
-  title,
-  link,
-  icon,
-  options,
-}: {
-  title: ReactNode
-  icon: ReactNode
-  link: string
-  options: { link: string; label: ReactNode; external?: boolean }[]
-}) {
+type NavDropDownOption = {
+  external?: boolean
+  label?: ReactNode
+  link?: string
+}
+
+type NavDropDownProps = {
+  icon?: ReactNode
+  options?: NavDropDownOption[]
+  title?: ReactNode
+}
+
+const NavDropDown = ({ title, icon, options = [] }: NavDropDownProps) => {
   const [isShowOptions, setIsShowOptions] = useState(false)
   const toggle = useToggleModal(ApplicationModal.MENU)
-  const ref = useRef<HTMLDivElement>(null)
 
-  const handleClick = (e: any) => {
-    e.preventDefault()
+  const toggleOptions = () => {
     setIsShowOptions(prev => !prev)
   }
 
   return (
-    <div className="flex-1 overflow-hidden transition-all duration-200 ease-in-out">
-      <NavLink to={link} onClick={handleClick} className="flex justify-between">
-        {icon}
-        <span className="flex-1">{title}</span>
+    <Stack className="flex-1 overflow-hidden">
+      <MenuItemContent onClick={toggleOptions} fullWidth className="justify-between">
+        <HStack className="min-w-0 items-center gap-2 [&_svg]:size-4">
+          {icon}
+          {title}
+        </HStack>
         <DropdownSVG
-          className={cn('!h-6 !w-6 transition-all duration-200 ease-in-out', isShowOptions && 'rotate-180')}
+          className={cn('!size-6 shrink-0 transition-all duration-200 ease-in-out', isShowOptions && 'rotate-180')}
         />
-      </NavLink>
+      </MenuItemContent>
       <div
-        ref={ref}
-        style={{ height: isShowOptions ? `${ref.current?.scrollHeight || 0}px` : '0px' }}
         className={cn(
-          'pl-6 transition-all duration-300 ease-in-out',
-          '[&>*:first-child]:pt-6 [&>*:last-child]:pb-0 [&>*]:py-3',
+          'grid transition-[grid-template-rows] duration-300 ease-in-out',
+          isShowOptions ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]',
         )}
       >
-        {options.map(item =>
-          item.external ? (
-            <ExternalLink key={item.link} href={item.link} onClick={toggle}>
-              {item.label}
-            </ExternalLink>
-          ) : (
-            <NavLink to={item.link} key={item.link} onClick={toggle}>
-              {item.label}
-            </NavLink>
-          ),
-        )}
+        <Stack className="min-h-0 overflow-hidden">
+          <Stack as="ul" className="m-0 list-none pl-6 pt-2.5">
+            {options.map(item => {
+              const optionLink = item.link ?? ''
+
+              return (
+                <MenuItem key={optionLink}>
+                  {item.external ? (
+                    <MenuItemLink>
+                      <ExternalLink href={optionLink} onClick={toggle}>
+                        {item.label}
+                      </ExternalLink>
+                    </MenuItemLink>
+                  ) : (
+                    <MenuItemLink>
+                      <NavLink to={optionLink} onClick={toggle}>
+                        {item.label}
+                      </NavLink>
+                    </MenuItemLink>
+                  )}
+                </MenuItem>
+              )
+            })}
+          </Stack>
+        </Stack>
       </div>
-    </div>
+    </Stack>
   )
 }
+
+export default NavDropDown

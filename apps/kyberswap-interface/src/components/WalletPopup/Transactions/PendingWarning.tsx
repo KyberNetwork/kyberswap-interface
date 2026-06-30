@@ -2,13 +2,13 @@ import { Trans, t } from '@lingui/macro'
 
 import { MouseoverTooltip } from 'components/Tooltip'
 import { NUMBERS } from 'components/WalletPopup/Transactions/helper'
-import ErrorWarningPanel from 'pages/Bridge/ErrorWarning'
+import ErrorWarning from 'pages/Bridge/ErrorWarning'
 import { ExternalLink } from 'theme'
 
 export default function PendingWarning() {
   const min = NUMBERS.STALLED_MINS
   return (
-    <ErrorWarningPanel
+    <ErrorWarning
       style={{ borderRadius: 20, padding: '10px 14px', height: NUMBERS.STALL_WARNING_HEIGHT }}
       type="error"
       title={

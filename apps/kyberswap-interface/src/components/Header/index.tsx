@@ -39,9 +39,12 @@ export default function Header() {
   const upToXXSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToXXSmall}px)`)
   const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
+  const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
+  const upTo500 = useMedia('(max-width: 500px)')
 
   const hide = isEmbeddedSwap && upToLarge
+  const navGroupDropdownAlign = upToMedium ? 'right' : 'left'
 
   const menu = (
     <div className="flex items-center gap-2 rounded-[36px] border border-background bg-background px-1.5 text-subText hover:border-border-primary hover:brightness-105">
@@ -85,23 +88,23 @@ export default function Header() {
           </Link>
         )}
         {!isEmbeddedSwap && (
-          <div className="flex w-full flex-row flex-nowrap items-center justify-center gap-1 max-lg:justify-end max-xxs:gap-0">
-            <SwapNavGroup />
-            <EarnNavGroup />
+          <div className="flex w-full flex-row flex-nowrap items-center justify-center gap-1 max-lg:justify-end">
+            <SwapNavGroup dropdownAlign={navGroupDropdownAlign} />
+            <EarnNavGroup dropdownAlign={navGroupDropdownAlign} />
 
             {!upToExtraSmall && (
               <StyledNavLink to={`${APP_PATHS.MARKET_OVERVIEW}`}>
                 <Trans>Market</Trans>
               </StyledNavLink>
             )}
-            <CampaignNavGroup />
-            <KyberDAONavGroup />
+            {!upTo500 && <CampaignNavGroup dropdownAlign={navGroupDropdownAlign} />}
+            {!upToMedium && <KyberDAONavGroup dropdownAlign={navGroupDropdownAlign} />}
             {!upToMedium && (
               <StyledNavExternalLink target="_blank" href={AGGREGATOR_ANALYTICS_URL}>
                 <Trans>Analytics</Trans>
               </StyledNavExternalLink>
             )}
-            <AboutNavGroup />
+            {!upToSmall && <AboutNavGroup dropdownAlign={navGroupDropdownAlign} />}
             <RecapButton />
           </div>
         )}

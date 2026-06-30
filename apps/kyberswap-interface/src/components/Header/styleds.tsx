@@ -1,4 +1,4 @@
-import { CSSProperties, forwardRef } from 'react'
+import { type CSSProperties, type PropsWithChildren, forwardRef } from 'react'
 import { NavLink as BaseNavLink, NavLinkProps } from 'react-router-dom'
 
 import usePrefetchOnIntent from 'hooks/usePrefetchOnIntent'
@@ -94,4 +94,8 @@ export const DropdownTextAnchor = ({ className, ...props }: React.HTMLAttributes
     className={cn('inline-block w-fit cursor-pointer px-1.5 py-2 pr-0 text-base font-medium', className)}
     {...props}
   />
+)
+
+export const NewLabel = ({ isNew, children }: PropsWithChildren<{ isNew?: boolean }>) => (
+  <span className={cn('ml-1 text-[10px]', isNew ? 'text-red' : 'text-subText')}>{children}</span>
 )

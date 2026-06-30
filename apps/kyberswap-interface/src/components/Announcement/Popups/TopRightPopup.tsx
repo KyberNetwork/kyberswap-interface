@@ -1,6 +1,5 @@
 import { motion } from 'framer-motion'
 import { CSSProperties, useCallback, useEffect, useState } from 'react'
-import { X } from 'react-feather'
 
 import getPopupTopRightDescriptionByType from 'components/Announcement/Popups/PopupTopRightDescriptions'
 import SimplePopup from 'components/Announcement/Popups/SimplePopup'
@@ -16,6 +15,7 @@ import {
 import { useSuccessSound } from 'hooks/useSuccessSound'
 import useTheme from 'hooks/useTheme'
 import { useRemovePopup } from 'state/application/hooks'
+import { CloseIcon } from 'theme'
 
 const delta = typeof window !== 'undefined' ? window.innerWidth + 'px' : '0px'
 
@@ -105,17 +105,17 @@ export default function PopupItem({ popup, hasOverlay }: { popup: PopupItemType;
     <div />
   ) : (
     <div
-      className="relative w-[min(calc(100vw-32px),425px)] overflow-hidden rounded-[10px] [isolation:isolate] max-md:m-auto [&:not(:first-of-type)]:mt-[15px]"
+      className="relative w-[min(calc(100vw-32px),425px)] overflow-hidden rounded-[10px] [isolation:isolate] max-md:m-auto"
       style={wrapperStyle}
     >
       <div className="absolute left-0 top-0 size-full bg-bg2" />
       <div
-        className="relative inline-block w-full py-5 pl-5 pr-3"
+        className="relative inline-block w-full p-4 pr-3"
         style={{ background: getBackgroundColor(theme, notiType) }}
       >
-        <div className="flex justify-between">
+        <div className="flex justify-between gap-2">
           {popupContent}
-          <X onClick={removeThisPopup} className="ml-[10px] min-w-[24px] text-text2 hover:cursor-pointer" />
+          <CloseIcon onClick={removeThisPopup} />
         </div>
         {removeAfterMs && <WrappedAnimatedFader removeAfterMs={removeAfterMs} />}
       </div>

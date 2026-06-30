@@ -341,21 +341,19 @@ export const TokenSelectorContent = ({
     <ContentWrapper>
       <PaddedColumn>
         <HStack className="items-center justify-between">
-          <HStack as="span" className="text-xl font-medium">
+          <HStack className="gap-1 text-xl font-medium">
             {title || <Trans>Select a token</Trans>}
             <InfoHelper
               zIndexTooltip={Z_INDEXS.MODAL}
               size={16}
-              fontSize={14}
+              fontSize={12}
               text={
                 tooltip || (
-                  <span>
-                    <Trans>
-                      Find a token by searching for its name or symbol or by pasting its address below.
-                      <br />
-                      You can select and trade any token on KyberSwap.
-                    </Trans>
-                  </span>
+                  <Trans>
+                    Find a token by searching for its name or symbol or by pasting its address below.
+                    <br />
+                    You can select and trade any token on KyberSwap.
+                  </Trans>
                 )
               }
             />

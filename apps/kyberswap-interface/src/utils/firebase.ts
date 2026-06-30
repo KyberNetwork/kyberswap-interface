@@ -2,7 +2,7 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import type { Firestore, collection, doc, onSnapshot, query } from 'firebase/firestore'
 
 import { PopupContentAnnouncement } from 'components/Announcement/type'
-import { LimitOrder } from 'components/swapv2/LimitOrder/type'
+import { LimitOrder } from 'components/LimitOrder/types'
 import { ENV_KEY, ENV_LEVEL, FIREBASE } from 'constants/env'
 import { ENV_TYPE } from 'constants/type'
 

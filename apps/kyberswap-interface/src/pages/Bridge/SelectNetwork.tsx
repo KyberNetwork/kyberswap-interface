@@ -55,7 +55,7 @@ const SelectNetwork = forwardRef<
         )}
         <span className="whitespace-nowrap text-sm font-medium">{name}</span>
         <DropdownSvg
-          className={cn('text-text transition-transform duration-300', isOpen ? 'rotate-180' : 'rotate-0')}
+          className={cn('size-5 text-text transition-transform duration-300', isOpen ? 'rotate-180' : 'rotate-0')}
         />
       </div>
       <NetworkModal
