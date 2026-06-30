@@ -106,7 +106,10 @@ export const PreferencesSection = ({ toggle }: PreferencesSectionProps) => {
             <span>{selectedLocale.split('-')[0].toUpperCase()}</span>
           </HStack>
           <DropdownSVG
-            className={cn('-mx-1 size-4 transition-transform duration-300', isLanguageOpen && 'rotate-180')}
+            className={cn(
+              '-mx-1 size-6 text-subText transition-transform duration-300',
+              isLanguageOpen && 'rotate-180',
+            )}
           />
         </HStack>
       </NavLinkBetween>
@@ -118,7 +121,6 @@ export const PreferencesSection = ({ toggle }: PreferencesSectionProps) => {
       >
         <div className="min-h-0 overflow-hidden">
           <LanguageSelector
-            variant="menu"
             onDismiss={() => setIsLanguageOpen(false)}
             onLanguageChange={(prevLang, newLang) => {
               trackingHandler(TRACKING_EVENT_TYPE.LANGUAGE_CHANGED, {
