@@ -29,7 +29,7 @@ export default function ArrowRotate({
         className,
       )}
     >
-      <SwapIcon size={24} className="text-subText" />
+      <SwapIcon size={20} className="text-subText" />
     </div>
   )
 }
@@ -49,7 +49,7 @@ export const DropdownArrowIcon = ({
 }) => (
   <div
     style={{ width: size, height: size, color }}
-    className={cn('transition-transform duration-300 [&_path]:fill-current', rotate && '-rotate-180', className)}
+    className={cn('transition-transform duration-300 [&_path]:fill-current', rotate && 'rotate-180', className)}
   >
     {arrow === 'chevron' ? <ChevronDown width={size} height={size} color={color} /> : <DropdownSVG width={size} />}
   </div>
