@@ -1,6 +1,7 @@
 import { Trans } from '@lingui/macro'
 import dayjs from 'dayjs'
 import { useEffect, useState } from 'react'
+import { isAndroid, isIOS } from 'react-device-detect'
 import { ChevronLeft } from 'react-feather'
 import { useConnect } from 'wagmi'
 
@@ -26,6 +27,13 @@ import {
 import { useIsAcceptedTerm } from 'state/user/hooks'
 import { ExternalLink } from 'theme'
 import { cn } from 'utils/cn'
+
+// Store page shown alongside the mobile "Open MetaMask" deep link, for users without the app.
+const METAMASK_STORE_URL = isAndroid
+  ? 'https://play.google.com/store/apps/details?id=io.metamask'
+  : isIOS
+  ? 'https://apps.apple.com/app/metamask/id1438144202'
+  : 'https://metamask.io/download/'
 
 export const CloseIcon = ({
   children,
@@ -169,6 +177,14 @@ export default function WalletModal() {
               className="w-full rounded-full bg-primary px-6 py-3 text-center text-base font-medium text-darkText hover:brightness-90"
             >
               <Trans>Open MetaMask</Trans>
+            </a>
+            <a
+              href={METAMASK_STORE_URL}
+              target="_blank"
+              rel="noreferrer"
+              className="text-xs text-subText underline hover:text-text"
+            >
+              <Trans>No MetaMask app yet? Install it</Trans>
             </a>
           </ContentWrapper>
         ) : (
