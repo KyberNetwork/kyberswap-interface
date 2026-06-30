@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react'
 
 import InfoHelper from 'components/InfoHelper'
 import { DeltaRateLimitOrder, RateInfo } from 'components/LimitOrder/types'
-import { removeTrailingZero } from 'components/LimitOrder/utils'
+import { formatPriceInputValue, removeTrailingZero } from 'components/LimitOrder/utils'
 import NumericalInput from 'components/NumericalInput'
 import { HStack, Stack } from 'components/Stack'
 import { BaseTradeInfo } from 'hooks/useBaseTradeInfo'
@@ -197,7 +197,7 @@ const LimitOrderRateSection = ({ tokens = {}, rate = {}, events = {} }: Props) =
       setIsCustomPercentActive(false)
     }
     const nextRate = tradeInfo.marketRate * (1 + percent / 100)
-    events.onRateChange?.(removeTrailingZero(nextRate.toFixed(16)) ?? '')
+    events.onRateChange?.(formatPriceInputValue(nextRate))
   }
 
   const onChangePercent = (value: string) => {

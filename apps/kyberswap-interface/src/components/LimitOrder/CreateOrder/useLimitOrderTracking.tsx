@@ -6,7 +6,12 @@ import { NotificationType } from 'components/Announcement/type'
 import { useSignOrder } from 'components/LimitOrder/CreateOrder/useSignOrder'
 import { SummaryNotifyOrderPlaced } from 'components/LimitOrder/MyOrders/SummaryNotify'
 import { CreateOrderParams, LimitOrderCreateContext } from 'components/LimitOrder/types'
-import { calcUsdPrices, getErrorMessage, getPayloadCreateOrder, removeTrailingZero } from 'components/LimitOrder/utils'
+import {
+  calcUsdPrices,
+  formatPriceInputValue,
+  getErrorMessage,
+  getPayloadCreateOrder,
+} from 'components/LimitOrder/utils'
 import { getTipLinkAttribution } from 'components/TipLinkGeneratorModal/shared'
 import { useActiveWeb3React } from 'hooks'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
@@ -66,7 +71,7 @@ export const useLimitOrderTracking = ({ order, searchParams, estimateUSD, onSucc
     trackingHandler(TRACKING_EVENT_TYPE.LO_PRICE_SET, {
       side: 'sell',
       limit_price: displayRate,
-      market_price: tradeInfo ? removeTrailingZero(tradeInfo.marketRate.toFixed(16)) : undefined,
+      market_price: tradeInfo ? formatPriceInputValue(tradeInfo.marketRate) : undefined,
       price_difference_pct: deltaRate.rawPercent ? Number(deltaRate.rawPercent) : undefined,
       from_token: currencyIn.symbol,
       to_token: currencyOut.symbol,
@@ -96,7 +101,7 @@ export const useLimitOrderTracking = ({ order, searchParams, estimateUSD, onSucc
       amount_in_usd: estimateUSD.rawInput || undefined,
       amount_out_estimated: outputAmount,
       expiry: displayTime,
-      market_price: tradeInfo ? removeTrailingZero(tradeInfo.marketRate.toFixed(16)) : undefined,
+      market_price: tradeInfo ? formatPriceInputValue(tradeInfo.marketRate) : undefined,
       price_difference_pct: deltaRate.rawPercent ? Number(deltaRate.rawPercent) : undefined,
       chain: networkName,
     })
@@ -178,7 +183,7 @@ export const useLimitOrderTracking = ({ order, searchParams, estimateUSD, onSucc
       to_token_address: getTokenAddress(currencyOut),
       pair: currencyIn && currencyOut ? `${currencyIn.symbol}/${currencyOut.symbol}` : undefined,
       limit_price: displayRate,
-      market_price: tradeInfo ? removeTrailingZero(tradeInfo.marketRate.toFixed(16)) : undefined,
+      market_price: tradeInfo ? formatPriceInputValue(tradeInfo.marketRate) : undefined,
       price_difference_pct: deltaRate.rawPercent ? Number(deltaRate.rawPercent) : undefined,
       amount_in: inputAmount,
       amount_in_usd: estimateUSD.rawInput || undefined,

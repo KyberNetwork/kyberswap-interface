@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom'
 import { DropdownArrowIcon } from 'components/ArrowRotate'
 import CopyHelper from 'components/Copy'
 import IconButton from 'components/IconButton'
+import { useLimitOrderContext } from 'components/LimitOrder/LimitOrderContext'
 import { RowWrapper } from 'components/LimitOrder/MyOrders/TableHeader'
 import { formatStatus } from 'components/LimitOrder/MyOrders/utils'
 import { AmountWithSymbol, ClippedText, SizeInfo } from 'components/LimitOrder/components'
@@ -103,10 +104,12 @@ type OrderItemProps = {
 
 const OrderItem = ({ order, onCancelOrder, isOrderCancelling }: OrderItemProps) => {
   const navigate = useNavigate()
+  const { chainId } = useLimitOrderContext()
   const [expand, setExpand] = useState(false)
 
   const isOrderActive = isActiveStatus(order.status)
   const txs = order.transactions || []
+  const canOpenOrder = order.chainId === chainId
 
   const availableAmount = useMemo(() => getNeededMakingAmount(order), [order])
   const makerCurrency = useMemo(() => {
@@ -141,6 +144,8 @@ const OrderItem = ({ order, onCancelOrder, isOrderCancelling }: OrderItemProps) 
   const showCancelAction = (isOrderActive && !isCancelling) || canHardCancelInstead
 
   const onClickOrder = () => {
+    if (!canOpenOrder) return
+
     const search = new URLSearchParams({ tab: LimitOrderTab.ORDER_BOOK }).toString()
 
     navigate(
@@ -150,7 +155,10 @@ const OrderItem = ({ order, onCancelOrder, isOrderCancelling }: OrderItemProps) 
 
   return (
     <>
-      <RowWrapper className="min-h-16 cursor-pointer px-4 py-2 hover:bg-primary-20" onClick={onClickOrder}>
+      <RowWrapper
+        className={cn('min-h-16 px-4 py-2', canOpenOrder && 'cursor-pointer hover:bg-primary-20')}
+        onClick={onClickOrder}
+      >
         <span className="flex items-center justify-center">
           <img className="size-5" src={NETWORKS_INFO[order.chainId]?.icon} alt="Network" />
         </span>

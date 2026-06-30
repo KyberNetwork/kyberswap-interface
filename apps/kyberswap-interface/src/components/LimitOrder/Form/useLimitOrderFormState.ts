@@ -3,8 +3,9 @@ import dayjs from 'dayjs'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
+import { useLimitOrderContext } from 'components/LimitOrder/LimitOrderContext'
 import { RateInfo } from 'components/LimitOrder/types'
-import { calcInvert, calcOutput, calcRate, parseFraction, removeTrailingZero } from 'components/LimitOrder/utils'
+import { calcInvert, calcOutput, calcRate, formatPriceInputValue, parseFraction } from 'components/LimitOrder/utils'
 import { TIMES_IN_SECS } from 'constants/index'
 import { SUPPORTED_NETWORKS } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
@@ -24,6 +25,7 @@ const DEFAULT_RATE_INFO: RateInfo = { rate: '', invertRate: '' }
 
 export const useLimitOrderFormState = ({ currencyIn, currencyOut, useUrlParams }: UseLimitOrderFormStateProps) => {
   const { chainId: walletChainId, networkInfo } = useActiveWeb3React()
+  const { priceInputRequest } = useLimitOrderContext()
   const { trackingHandler } = useTracking()
   const [searchParams, setSearchParams] = useSearchParams()
   const urlChainId = searchParams.get('chainId')
@@ -40,6 +42,7 @@ export const useLimitOrderFormState = ({ currencyIn, currencyOut, useUrlParams }
   const { inputAmount } = useLimitState()
 
   const autoFillMarketPrice = useRef(false)
+  const appliedPriceInputRequestId = useRef<number | undefined>(undefined)
 
   const [outputAmount, setOutputAmount] = useState('')
   const [rateInfo, setRateInfo] = useState<RateInfo>(DEFAULT_RATE_INFO)
@@ -140,13 +143,20 @@ export const useLimitOrderFormState = ({ currencyIn, currencyOut, useUrlParams }
     }
   }
 
+  useEffect(() => {
+    if (!priceInputRequest || appliedPriceInputRequestId.current === priceInputRequest.id) return
+
+    appliedPriceInputRequestId.current = priceInputRequest.id
+    onSetRate(priceInputRequest.rate, priceInputRequest.invertRate)
+  }, [onSetRate, priceInputRequest])
+
   const setPriceRateMarket = useCallback(
     (autoFillInput = false) => {
       try {
         !autoFillInput && trackingHandler(TRACKING_EVENT_TYPE.LO_ENTER_DETAIL, 'set price')
         if ((loadingTrade && !autoFillInput) || !tradeInfo) return
-        const marketRate = removeTrailingZero(tradeInfo.marketRate.toFixed(16)) ?? ''
-        onSetRate(marketRate, removeTrailingZero(tradeInfo.invertRate.toFixed(16)) ?? '')
+        const marketRate = formatPriceInputValue(tradeInfo.marketRate)
+        onSetRate(marketRate, formatPriceInputValue(tradeInfo.invertRate))
         if (!autoFillInput) {
           trackingHandler(TRACKING_EVENT_TYPE.LO_PRICE_SET, {
             side: 'sell',

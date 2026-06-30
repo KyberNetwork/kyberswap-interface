@@ -8,7 +8,7 @@ import { RESERVE_USD_DECIMALS } from 'constants/index'
 import { NativeCurrencies } from 'constants/tokens'
 import { tryParseAmount } from 'state/swap/hooks'
 import { friendlyError } from 'utils/errorMessage'
-import { formatDisplayNumber, uint256ToFraction } from 'utils/numbers'
+import { formatDisplayNumber, toString as numberToPlainString, uint256ToFraction } from 'utils/numbers'
 import { parseUnits } from 'utils/viem'
 
 const baseUrl = 'https://docs.kyberswap.com/kyberswap-solutions/limit-order'
@@ -38,6 +38,32 @@ export const removeTrailingZero = (num: string) => {
   if (num === undefined || num === null) return ''
   num = String(num)
   return num.replace(/^([\d,]+)$|^([\d,]+)\.0*$|^([\d,]+\.[0-9]*?)0*$/, '$1$2$3')
+}
+
+const TINY_PRICE_SIGNIFICANT_DIGITS = 5
+
+const getPriceInputFractionDigits = (value: number) => {
+  if (value >= 1) return 4
+  if (value >= 0.01) return 6
+  if (value >= 0.0001) return 8
+
+  const leadingFractionZeros = Math.max(0, -Math.floor(Math.log10(value)) - 1)
+  return Math.min(RESERVE_USD_DECIMALS, leadingFractionZeros + TINY_PRICE_SIGNIFICANT_DIGITS)
+}
+
+const toFixedPlain = (value: number, fractionDigits: number) => {
+  const fixedValue = value.toFixed(fractionDigits)
+  if (!fixedValue.includes('e')) return fixedValue
+
+  const [integer, decimal = ''] = numberToPlainString(value).split('.')
+  return fractionDigits ? `${integer}.${decimal.padEnd(fractionDigits, '0').slice(0, fractionDigits)}` : integer
+}
+
+export const formatPriceInputValue = (value: number | undefined) => {
+  if (value === undefined || value === null || !Number.isFinite(value) || value < 0) return ''
+  if (value === 0) return '0'
+
+  return toFixedPlain(value, getPriceInputFractionDigits(value))
 }
 
 export const calcOutput = (input: string, rate: string | Fraction, decimalsOut: number) => {

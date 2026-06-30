@@ -6,6 +6,7 @@ import { useGetTipLinkQuery } from 'services/tipLink'
 
 import Banner from 'components/Banner'
 import LimitOrderForm from 'components/LimitOrder/Form/LimitOrderForm'
+import { LimitOrderProvider } from 'components/LimitOrder/LimitOrderContext'
 import OrderList from 'components/LimitOrder/OrderList'
 import SwapForm, { SwapFormProps } from 'components/SwapForm'
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
@@ -292,60 +293,62 @@ export default function PartnerSwap({ mode = 'partner' }: Props) {
       <PageWrapper>
         <Banner />
         <Container>
-          <SwapFormWrapper>
-            <Header
-              activeTab={activeTab}
-              setActiveTab={setActiveTab}
-              customChainId={swapChainId}
-              activeMainTab={activeMainTab}
-            />
+          <LimitOrderProvider customChainId={swapChainId}>
+            <SwapFormWrapper>
+              <Header
+                activeTab={activeTab}
+                setActiveTab={setActiveTab}
+                customChainId={swapChainId}
+                activeMainTab={activeMainTab}
+              />
 
-            <AppBodyWrapped style={activeTab === TAB.INFO ? { padding: 0 } : undefined}>
-              {isSwapPage && <SwapForm {...props} />}
-              {activeTab === TAB.INFO && <TokenInfoTab currencies={currencies} onBack={onBackToSwapTab} />}
-              {activeTab === TAB.SETTINGS && (
-                <SettingsPanel
-                  displaySettings={{
-                    isShowPricingChart,
-                    isShowTradeRoutes,
-                    togglePricingChart,
-                    toggleTradeRoutes,
-                  }}
-                  isCrossChainPage={isCrossChainPage}
-                  isSwapPage={isSwapPage}
-                  highlightDegenMode={highlightDegenMode}
-                  onBack={onBackToSwapTab}
-                  onClickLiquiditySources={() => setActiveTab(TAB.LIQUIDITY_SOURCES)}
-                  onClickCrossChainSources={() => setActiveTab(TAB.CROSS_CHAIN_SOURCES)}
+              <AppBodyWrapped style={activeTab === TAB.INFO ? { padding: 0 } : undefined}>
+                {isSwapPage && <SwapForm {...props} />}
+                {activeTab === TAB.INFO && <TokenInfoTab currencies={currencies} onBack={onBackToSwapTab} />}
+                {activeTab === TAB.SETTINGS && (
+                  <SettingsPanel
+                    displaySettings={{
+                      isShowPricingChart,
+                      isShowTradeRoutes,
+                      togglePricingChart,
+                      toggleTradeRoutes,
+                    }}
+                    isCrossChainPage={isCrossChainPage}
+                    isSwapPage={isSwapPage}
+                    highlightDegenMode={highlightDegenMode}
+                    onBack={onBackToSwapTab}
+                    onClickLiquiditySources={() => setActiveTab(TAB.LIQUIDITY_SOURCES)}
+                    onClickCrossChainSources={() => setActiveTab(TAB.CROSS_CHAIN_SOURCES)}
+                  />
+                )}
+                {activeTab === TAB.LIQUIDITY_SOURCES && (
+                  <LiquiditySourcesPanel onBack={() => setActiveTab(TAB.SETTINGS)} chainId={swapChainId} />
+                )}
+                {activeTab === TAB.LIMIT && <LimitOrderForm currencyIn={currencyIn} currencyOut={currencyOut} />}
+                {activeTab === TAB.CROSS_CHAIN && <CrossChainSwap />}
+                {activeTab === TAB.CROSS_CHAIN_SOURCES && (
+                  <CrossChainSwapSources onBack={() => setActiveTab(TAB.SETTINGS)} />
+                )}
+              </AppBodyWrapped>
+            </SwapFormWrapper>
+
+            <InfoComponents>
+              {isSwapPage && isShowPricingChart && <TokenPriceChart tokens={[currencyIn, currencyOut]} />}
+              {isSwapPage && isShowTradeRoutes && (
+                <SwapTradeRoute
+                  tradeComposition={tradeRouteComposition}
+                  currencyIn={currencyIn}
+                  currencyOut={currencyOut}
+                  defaultCollapsed={hasSupportedTokenPriceChart && isShowPricingChart}
+                  inputAmount={routeSummary?.parsedAmountIn}
+                  outputAmount={routeSummary?.parsedAmountOut}
+                  isSmartSettlementActive={isSmartSettlementActive}
                 />
               )}
-              {activeTab === TAB.LIQUIDITY_SOURCES && (
-                <LiquiditySourcesPanel onBack={() => setActiveTab(TAB.SETTINGS)} chainId={swapChainId} />
-              )}
-              {activeTab === TAB.LIMIT && <LimitOrderForm currencyIn={currencyIn} currencyOut={currencyOut} />}
-              {activeTab === TAB.CROSS_CHAIN && <CrossChainSwap />}
-              {activeTab === TAB.CROSS_CHAIN_SOURCES && (
-                <CrossChainSwapSources onBack={() => setActiveTab(TAB.SETTINGS)} />
-              )}
-            </AppBodyWrapped>
-          </SwapFormWrapper>
-
-          <InfoComponents>
-            {isSwapPage && isShowPricingChart && <TokenPriceChart tokens={[currencyIn, currencyOut]} />}
-            {isSwapPage && isShowTradeRoutes && (
-              <SwapTradeRoute
-                tradeComposition={tradeRouteComposition}
-                currencyIn={currencyIn}
-                currencyOut={currencyOut}
-                defaultCollapsed={hasSupportedTokenPriceChart && isShowPricingChart}
-                inputAmount={routeSummary?.parsedAmountIn}
-                outputAmount={routeSummary?.parsedAmountOut}
-                isSmartSettlementActive={isSmartSettlementActive}
-              />
-            )}
-            {isLimitPage && <OrderList customChainId={swapChainId} />}
-            {isCrossChainPage && <TransactionHistory />}
-          </InfoComponents>
+              {isLimitPage && <OrderList />}
+              {isCrossChainPage && <TransactionHistory />}
+            </InfoComponents>
+          </LimitOrderProvider>
         </Container>
         <div className="flex justify-center">
           <SwitchLocaleLinkWrapper>

@@ -1,8 +1,7 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { useGetNumberOfInsufficientFundOrdersQuery } from 'services/limitOrder'
 
-import { LimitOrderProvider, useLimitOrderContext } from 'components/LimitOrder/LimitOrderContext'
+import { useLimitOrderContext } from 'components/LimitOrder/LimitOrderContext'
 import MyOrders from 'components/LimitOrder/MyOrders'
 import OrderBook from 'components/LimitOrder/OrderBook'
 import { LimitOrderTab } from 'components/LimitOrder/types'
@@ -80,7 +79,7 @@ const TabSelector = ({ activeTab, setActiveTab }: TabSelectorProps) => {
   )
 }
 
-const OrderListContent = () => {
+const OrderList = () => {
   const { syncOrderListTabWithQuery } = useLimitOrderContext()
   const { currencyIn, currencyOut } = useLimitState()
   const { activeTab, setActiveTab } = useTab<LimitOrderTab>({
@@ -102,11 +101,5 @@ const OrderListContent = () => {
     </Stack>
   )
 }
-
-const OrderList = ({ customChainId }: { customChainId?: ChainId }) => (
-  <LimitOrderProvider customChainId={customChainId}>
-    <OrderListContent />
-  </LimitOrderProvider>
-)
 
 export default OrderList
