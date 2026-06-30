@@ -3,6 +3,7 @@ import dayjs from 'dayjs'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
+import { useLimitOrderContext } from 'components/LimitOrder/LimitOrderContext'
 import { RateInfo } from 'components/LimitOrder/types'
 import { calcInvert, calcOutput, calcRate, formatPriceInputValue, parseFraction } from 'components/LimitOrder/utils'
 import { TIMES_IN_SECS } from 'constants/index'
@@ -24,6 +25,7 @@ const DEFAULT_RATE_INFO: RateInfo = { rate: '', invertRate: '' }
 
 export const useLimitOrderFormState = ({ currencyIn, currencyOut, useUrlParams }: UseLimitOrderFormStateProps) => {
   const { chainId: walletChainId, networkInfo } = useActiveWeb3React()
+  const { priceInputRequest } = useLimitOrderContext()
   const { trackingHandler } = useTracking()
   const [searchParams, setSearchParams] = useSearchParams()
   const urlChainId = searchParams.get('chainId')
@@ -40,6 +42,7 @@ export const useLimitOrderFormState = ({ currencyIn, currencyOut, useUrlParams }
   const { inputAmount } = useLimitState()
 
   const autoFillMarketPrice = useRef(false)
+  const appliedPriceInputRequestId = useRef<number | undefined>(undefined)
 
   const [outputAmount, setOutputAmount] = useState('')
   const [rateInfo, setRateInfo] = useState<RateInfo>(DEFAULT_RATE_INFO)
@@ -139,6 +142,13 @@ export const useLimitOrderFormState = ({ currencyIn, currencyOut, useUrlParams }
       onSetRate(val, '')
     }
   }
+
+  useEffect(() => {
+    if (!priceInputRequest || appliedPriceInputRequestId.current === priceInputRequest.id) return
+
+    appliedPriceInputRequestId.current = priceInputRequest.id
+    onSetRate(priceInputRequest.rate, priceInputRequest.invertRate)
+  }, [onSetRate, priceInputRequest])
 
   const setPriceRateMarket = useCallback(
     (autoFillInput = false) => {

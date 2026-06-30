@@ -4,11 +4,13 @@ import { Repeat } from 'react-feather'
 import { useGetOrdersByTokenPairQuery } from 'services/limitOrder'
 
 import { ReactComponent as NoDataIcon } from 'assets/svg/no_data.svg'
+import { useLimitOrderContext } from 'components/LimitOrder/LimitOrderContext'
 import OrderItem from 'components/LimitOrder/OrderBook/OrderItem'
 import TableHeader, { RowWrapper } from 'components/LimitOrder/OrderBook/TableHeader'
 import { formatOrders, getSchemaToken, invertRateValue } from 'components/LimitOrder/OrderBook/utils'
 import TakeOrderConfirmModal from 'components/LimitOrder/TakeOrder/TakeOrderConfirmModal'
 import { LimitOrderFromTokenPairFormatted } from 'components/LimitOrder/types'
+import { formatPriceInputValue } from 'components/LimitOrder/utils'
 import RefetchIndicator from 'components/RefetchIndicator'
 import RefreshLoading from 'components/RefreshLoading'
 import { useActiveWeb3React } from 'hooks'
@@ -62,6 +64,7 @@ const OrderSide = ({
 
 const OrderBook = () => {
   const { chainId, networkInfo } = useActiveWeb3React()
+  const { setPriceInputRequest } = useLimitOrderContext()
   const { currencyIn: makerCurrency, currencyOut: takerCurrency } = useLimitState()
   const { isStableCoin } = useStableCoins(chainId)
 
@@ -71,7 +74,7 @@ const OrderBook = () => {
 
   const {
     loading: loadingMarketRate,
-    tradeInfo: { marketRate = 0, priceUsdIn = 0, priceUsdOut = 0 } = {},
+    tradeInfo: { marketRate = 0, invertRate = 0, priceUsdIn = 0, priceUsdOut = 0 } = {},
     refetch: refetchMarketRate,
   } = useBaseTradeInfoLimitOrder(makerCurrency, takerCurrency, chainId)
 
@@ -154,6 +157,15 @@ const OrderBook = () => {
     }))
   }, [defaultShowInvertedRate, ratePairKey])
 
+  const handleSetMarketRate = useCallback(() => {
+    if (!marketRate || !invertRate) return
+
+    setPriceInputRequest({
+      rate: formatPriceInputValue(marketRate),
+      invertRate: formatPriceInputValue(invertRate),
+    })
+  }, [invertRate, marketRate, setPriceInputRequest])
+
   const handleTakeOrder = (order: LimitOrderFromTokenPairFormatted) => {
     setSelectedOrderToTake(order)
     setIsTakeOrderModalOpen(true)
@@ -184,9 +196,15 @@ const OrderBook = () => {
         <span className="flex items-center justify-center">
           <img className="size-5" src={networkInfo?.icon} alt="Network" />
         </span>
-        <span className="col-start-4 justify-self-end text-right max-[640px]:col-start-3">
+        <button
+          type="button"
+          className="col-start-4 justify-self-end border-none bg-transparent p-0 text-right text-inherit hover:brightness-75 max-[640px]:col-start-3"
+          onClick={handleSetMarketRate}
+          disabled={!marketRate || !invertRate}
+          aria-label="Set market rate"
+        >
           {displayedMarketRate ? formatDisplayNumber(displayedMarketRate, { significantDigits: 6 }) : '--'}
-        </span>
+        </button>
         <span className="col-start-5 justify-self-start max-[640px]:col-start-4">
           <button
             type="button"
