@@ -7,6 +7,18 @@ import { NativeCurrencies } from 'constants/tokens'
 
 export const PAGE_SIZE = 10
 
+const txTimeFormatter = new Intl.DateTimeFormat('en-US', {
+  year: 'numeric',
+  month: 'numeric',
+  day: 'numeric',
+  hour: 'numeric',
+  minute: '2-digit',
+  second: '2-digit',
+  hourCycle: 'h23',
+})
+
+export const formatTxTime = (timestamp: number) => txTimeFormatter.format(new Date(timestamp * 1000))
+
 export const LIST_ORDER_TABS = [LimitOrderStatus.ACTIVE, LimitOrderStatus.CLOSED] as const
 
 type ListOrderTab = (typeof LIST_ORDER_TABS)[number]
