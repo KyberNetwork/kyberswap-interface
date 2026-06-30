@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
 import { RateInfo } from 'components/LimitOrder/types'
-import { calcInvert, calcOutput, calcRate, parseFraction, removeTrailingZero } from 'components/LimitOrder/utils'
+import { calcInvert, calcOutput, calcRate, formatPriceInputValue, parseFraction } from 'components/LimitOrder/utils'
 import { TIMES_IN_SECS } from 'constants/index'
 import { SUPPORTED_NETWORKS } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
@@ -145,8 +145,8 @@ export const useLimitOrderFormState = ({ currencyIn, currencyOut, useUrlParams }
       try {
         !autoFillInput && trackingHandler(TRACKING_EVENT_TYPE.LO_ENTER_DETAIL, 'set price')
         if ((loadingTrade && !autoFillInput) || !tradeInfo) return
-        const marketRate = removeTrailingZero(tradeInfo.marketRate.toFixed(16)) ?? ''
-        onSetRate(marketRate, removeTrailingZero(tradeInfo.invertRate.toFixed(16)) ?? '')
+        const marketRate = formatPriceInputValue(tradeInfo.marketRate)
+        onSetRate(marketRate, formatPriceInputValue(tradeInfo.invertRate))
         if (!autoFillInput) {
           trackingHandler(TRACKING_EVENT_TYPE.LO_PRICE_SET, {
             side: 'sell',
