@@ -19,7 +19,7 @@ const ReverseTokenSelectionButton: React.FC<Props> = ({ className, onClick }) =>
     <ArrowRotate
       rotate={rotated}
       onClick={handleClick}
-      className={cn('mx-auto size-7 bg-background p-1 hover:bg-buttonGray', className)}
+      className={cn('size-7 bg-background p-1 hover:bg-buttonGray', className)}
     />
   )
 }

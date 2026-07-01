@@ -21,10 +21,7 @@ export const TextUnderlineColor = ({
   className,
   ...rest
 }: TextUnderlineColorProps) => (
-  <Component
-    {...rest}
-    className={cn('w-fit cursor-pointer border-b border-solid border-text font-medium text-text', className)}
-  >
+  <Component {...rest} className={cn('w-fit cursor-pointer border-b border-text-60 font-medium text-text', className)}>
     {children}
   </Component>
 )
@@ -52,15 +49,15 @@ const PriceImpactNote: FC<Props> = ({ isDegenMode, priceImpact, showLimitOrderLi
     return null
   }
   const limitOrderLink = (
-    <u
-      className="cursor-pointer text-primary"
+    <span
+      className="cursor-pointer border-b border-border-primary text-primary hover:brightness-125"
       onClick={() => {
         trackingHandler(TRACKING_EVENT_TYPE.LO_CLICK_WARNING_IN_SWAP)
         switchToLimitOrder()
       }}
     >
       <Trans>Limit Order</Trans>
-    </u>
+    </span>
   )
 
   if (priceImpactResult.isInvalid) {
@@ -74,12 +71,11 @@ const PriceImpactNote: FC<Props> = ({ isDegenMode, priceImpact, showLimitOrderLi
               <TextUnderlineColor as="a" href={PRICE_IMPACT_EXPLANATION_URL} target="_blank" rel="noreferrer noopener">
                 Price Impact
               </TextUnderlineColor>
-              {'. '}
-            </Trans>
+              .
+            </Trans>{' '}
             {!isDegenMode ? (
               <span>
                 <Trans>
-                  {' '}
                   Consider requesting a {limitOrderLink} instead, or click &apos;Swap Anyway&apos; if you wish to
                   continue by enabling Degen Mode.
                 </Trans>

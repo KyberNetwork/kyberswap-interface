@@ -1,14 +1,18 @@
 import { Trans } from '@lingui/macro'
+import { skipToken } from '@reduxjs/toolkit/query'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Repeat } from 'react-feather'
 import { useGetOrdersByTokenPairQuery } from 'services/limitOrder'
 
 import { ReactComponent as NoDataIcon } from 'assets/svg/no_data.svg'
+import { useLimitOrderContext } from 'components/LimitOrder/LimitOrderContext'
 import OrderItem from 'components/LimitOrder/OrderBook/OrderItem'
 import TableHeader, { RowWrapper } from 'components/LimitOrder/OrderBook/TableHeader'
 import { formatOrders, getSchemaToken, invertRateValue } from 'components/LimitOrder/OrderBook/utils'
 import TakeOrderConfirmModal from 'components/LimitOrder/TakeOrder/TakeOrderConfirmModal'
+import { useLimitOrderTracking } from 'components/LimitOrder/hooks/useLimitOrderTracking'
 import { LimitOrderFromTokenPairFormatted } from 'components/LimitOrder/types'
+import { formatPriceInputValue } from 'components/LimitOrder/utils'
 import RefetchIndicator from 'components/RefetchIndicator'
 import RefreshLoading from 'components/RefreshLoading'
 import { useActiveWeb3React } from 'hooks'
@@ -62,8 +66,10 @@ const OrderSide = ({
 
 const OrderBook = () => {
   const { chainId, networkInfo } = useActiveWeb3React()
+  const { setPriceInputRequest } = useLimitOrderContext()
   const { currencyIn: makerCurrency, currencyOut: takerCurrency } = useLimitState()
   const { isStableCoin } = useStableCoins(chainId)
+  const limitOrderTracking = useLimitOrderTracking()
 
   const [selectedOrderToTake, setSelectedOrderToTake] = useState<LimitOrderFromTokenPairFormatted>()
   const [isTakeOrderModalOpen, setIsTakeOrderModalOpen] = useState(false)
@@ -71,31 +77,28 @@ const OrderBook = () => {
 
   const {
     loading: loadingMarketRate,
-    tradeInfo: { marketRate = 0, priceUsdIn = 0, priceUsdOut = 0 } = {},
+    tradeInfo: { marketRate = 0, invertRate = 0, priceUsdIn = 0, priceUsdOut = 0 } = {},
     refetch: refetchMarketRate,
   } = useBaseTradeInfoLimitOrder(makerCurrency, takerCurrency, chainId)
+
+  const makerAsset = makerCurrency?.wrapped.address
+  const takerAsset = takerCurrency?.wrapped.address
 
   const {
     data: { orders = [] } = {},
     isFetching: isFetchingOrders,
     isSuccess: isOrdersLoaded,
     refetch: refetchOrders,
-  } = useGetOrdersByTokenPairQuery({
-    chainId,
-    makerAsset: makerCurrency?.wrapped?.address,
-    takerAsset: takerCurrency?.wrapped?.address,
-  })
+  } = useGetOrdersByTokenPairQuery(makerAsset && takerAsset ? { chainId, makerAsset, takerAsset } : skipToken)
 
   const {
     data: { orders: reversedOrders = [] } = {},
     isFetching: isFetchingReversedOrder,
     isSuccess: isReversedOrdersLoaded,
     refetch: refetchReversedOrders,
-  } = useGetOrdersByTokenPairQuery({
-    chainId,
-    makerAsset: takerCurrency?.wrapped?.address,
-    takerAsset: makerCurrency?.wrapped?.address,
-  })
+  } = useGetOrdersByTokenPairQuery(
+    makerAsset && takerAsset ? { chainId, makerAsset: takerAsset, takerAsset: makerAsset } : skipToken,
+  )
 
   const refetchLoading = loadingMarketRate || isFetchingOrders || isFetchingReversedOrder
 
@@ -147,17 +150,42 @@ const OrderBook = () => {
 
   const handleInvertRate = useCallback(() => {
     if (!ratePairKey) return
+    const nextShowInvertedRate = !showInvertedRate
 
-    setInvertedRateOverride(current => ({
+    limitOrderTracking.trackOrderBookClickPairInvert({
+      makerCurrency,
+      takerCurrency,
+      direction: nextShowInvertedRate ? 'inverted' : 'native',
+    })
+
+    setInvertedRateOverride({
       pairKey: ratePairKey,
-      value: !(current?.pairKey === ratePairKey ? current.value : defaultShowInvertedRate),
-    }))
-  }, [defaultShowInvertedRate, ratePairKey])
+      value: nextShowInvertedRate,
+    })
+  }, [limitOrderTracking, makerCurrency, ratePairKey, showInvertedRate, takerCurrency])
 
-  const handleTakeOrder = (order: LimitOrderFromTokenPairFormatted) => {
-    setSelectedOrderToTake(order)
-    setIsTakeOrderModalOpen(true)
-  }
+  const handleSetMarketRate = useCallback(() => {
+    if (!marketRate || !invertRate) return
+
+    setPriceInputRequest({
+      rate: formatPriceInputValue(marketRate),
+      invertRate: formatPriceInputValue(invertRate),
+    })
+  }, [invertRate, marketRate, setPriceInputRequest])
+
+  const handleTakeOrder = useCallback(
+    (order: LimitOrderFromTokenPairFormatted) => {
+      limitOrderTracking.trackOrderBookClickTake({
+        order,
+        makerCurrency,
+        takerCurrency,
+      })
+
+      setSelectedOrderToTake(order)
+      setIsTakeOrderModalOpen(true)
+    },
+    [limitOrderTracking, makerCurrency, takerCurrency],
+  )
 
   const handleDismissTakeOrderModal = () => {
     setIsTakeOrderModalOpen(false)
@@ -184,9 +212,15 @@ const OrderBook = () => {
         <span className="flex items-center justify-center">
           <img className="size-5" src={networkInfo?.icon} alt="Network" />
         </span>
-        <span className="col-start-4 justify-self-end text-right max-[640px]:col-start-3">
+        <button
+          type="button"
+          className="col-start-4 justify-self-end border-none bg-transparent p-0 text-right text-inherit hover:brightness-75 max-[640px]:col-start-3"
+          onClick={handleSetMarketRate}
+          disabled={!marketRate || !invertRate}
+          aria-label="Set market rate"
+        >
           {displayedMarketRate ? formatDisplayNumber(displayedMarketRate, { significantDigits: 6 }) : '--'}
-        </span>
+        </button>
         <span className="col-start-5 justify-self-start max-[640px]:col-start-4">
           <button
             type="button"

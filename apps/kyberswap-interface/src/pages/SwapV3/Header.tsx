@@ -73,7 +73,7 @@ const Header = ({ activeTab, setActiveTab, customChainId, activeMainTab }: Heade
           <span className="text-xs font-normal text-text">
             <Trans>You have turned on Degen Mode. Be cautious</Trans>
           </span>
-          <CloseIcon size={14} onClick={() => setShowDegenBanner(false)} />
+          <CloseIcon className="size-4" onClick={() => setShowDegenBanner(false)} />
         </HStack>
       )}
     </>

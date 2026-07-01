@@ -15,7 +15,7 @@ import {
 import { isMobile } from 'react-device-detect'
 import { Trash } from 'react-feather'
 
-import { ButtonEmpty } from 'components/Button'
+import { ButtonOutlined } from 'components/Button'
 import InfoHelper from 'components/InfoHelper'
 import Loader from 'components/Loader'
 import { Center, HStack, Stack } from 'components/Stack'
@@ -428,15 +428,15 @@ export const TokenSelectorContent = ({
           <div className="text-sm font-medium text-subText">
             <Trans>{visibleCurrencies.length} Custom Tokens</Trans>
           </div>
-          <ButtonEmpty
+          <ButtonOutlined
             type="button"
-            className="w-fit gap-[5px] rounded-3xl bg-subText-20 px-2.5 py-[5px] text-xs text-subText"
+            className="w-fit gap-1 !border-red-35 px-2 py-1 text-xs !text-red"
             onClick={removeAllImportToken}
             data-testid="button-clear-all-import-token"
           >
             <Trash size={13} />
             <Trans>Clear All</Trans>
-          </ButtonEmpty>
+          </ButtonOutlined>
         </HStack>
       )}
 

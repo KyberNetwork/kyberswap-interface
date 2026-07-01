@@ -295,9 +295,10 @@ export default function Updater(): null {
             break
           }
           case TRANSACTION_TYPE.CANCEL_LIMIT_ORDER: {
-            if (arbitrary) {
+            const trackingPayload = transaction.extraInfo?.trackingPayload
+            if (trackingPayload) {
               trackingHandler(TRACKING_EVENT_TYPE.LO_CANCEL_ORDER_SUBMITTED, {
-                ...arbitrary,
+                ...trackingPayload,
                 tx_hash: receipt.transactionHash,
               })
             }

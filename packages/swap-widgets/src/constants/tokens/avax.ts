@@ -6,7 +6,7 @@ const avaxTokens = [
     symbol: 'KNC',
     name: 'Kyber Network Crystal',
     decimals: 18,
-    logoURI: 'https://raw.githubusercontent.com/KyberNetwork/dmm-interface/main/src/assets/images/KNC.svg',
+    logoURI: 'https://raw.githubusercontent.com/KyberNetwork/kyberswap-interface/develop/src/assets/images/KNC.svg',
   },
   {
     chainId: 43114,

@@ -22,7 +22,7 @@ export const CrossChainSourceSetting: React.FC<{ onClick: () => void }> = ({ onC
             {selectedSources.length || sources.length} out of {sources.length} selected
           </Trans>
         </span>
-        <ChevronRight size={18} />
+        <ChevronRight size={14} />
       </SettingsAction>
     </SettingsRow>
   )
