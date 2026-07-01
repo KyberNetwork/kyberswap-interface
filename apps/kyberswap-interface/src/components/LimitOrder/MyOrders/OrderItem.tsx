@@ -8,7 +8,7 @@ import CopyHelper from 'components/Copy'
 import IconButton from 'components/IconButton'
 import { useLimitOrderContext } from 'components/LimitOrder/LimitOrderContext'
 import { RowWrapper } from 'components/LimitOrder/MyOrders/TableHeader'
-import { formatStatus } from 'components/LimitOrder/MyOrders/utils'
+import { formatStatus, formatTxTime } from 'components/LimitOrder/MyOrders/utils'
 import { AmountWithSymbol, ClippedText, SizeInfo } from 'components/LimitOrder/components'
 import { LimitOrder, LimitOrderStatus, LimitOrderTab } from 'components/LimitOrder/types'
 import {
@@ -239,9 +239,9 @@ const OrderItem = ({ order, onCancelOrder, isOrderCancelling }: OrderItemProps) 
                     />
                   </div>
                   <span className="col-start-6 justify-self-end text-xs font-medium text-subText">
-                    {new Date(tx.txTime * 1000).toLocaleString()}
+                    {formatTxTime(tx.txTime)}
                   </span>
-                  <span className="col-start-7 flex justify-end gap-1">
+                  <span className="col-start-7 flex w-[60px] justify-end gap-1">
                     <span className="flex size-7 items-center justify-center rounded-full text-subText transition-colors hover:bg-white/10 hover:text-primary">
                       <CopyHelper toCopy={tx.txHash} margin="0" size={15} />
                     </span>

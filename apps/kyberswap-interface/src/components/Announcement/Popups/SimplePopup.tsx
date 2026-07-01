@@ -55,7 +55,10 @@ export default function SimplePopup({
         <span className={cn('text-base font-medium', colorClass)}>{title}</span>
         {summary && <span className="text-sm font-normal text-text">{summary}</span>}
         {link && (
-          <span className={cn('cursor-pointer text-sm font-medium', colorClass)} onClick={onClickLink}>
+          <span
+            className={cn('w-fit cursor-pointer text-sm font-medium hover:brightness-110', colorClass)}
+            onClick={onClickLink}
+          >
             <Trans>See here</Trans>
           </span>
         )}

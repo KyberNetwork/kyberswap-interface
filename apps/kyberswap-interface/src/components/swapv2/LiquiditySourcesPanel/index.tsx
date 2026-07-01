@@ -113,7 +113,7 @@ const LiquiditySourcesPanel: React.FC<Props> = ({ onBack, chainId }) => {
       </HStack>
 
       <Stack className="gap-3">
-        <SearchBar text={searchText} setText={setSearchText} />
+        <SearchBar value={searchText} onChange={setSearchText} />
 
         <Stack>
           <LiquiditySourceHeader>

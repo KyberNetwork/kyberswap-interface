@@ -42,7 +42,7 @@ const NavGroup: React.FC<Props> = ({
       <div className="flex cursor-pointer items-center gap-0.5 hover:brightness-90">
         {anchor}
         {dropdownContent && (
-          <DropdownSVG className={cn('transition-transform duration-300', showDropdown && '-rotate-180')} />
+          <DropdownSVG className={cn('transition-transform duration-300', showDropdown && 'rotate-180')} />
         )}
       </div>
       {dropdownContent && (

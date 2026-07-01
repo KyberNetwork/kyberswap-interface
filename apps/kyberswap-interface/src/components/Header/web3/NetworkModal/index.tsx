@@ -2,10 +2,8 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { LayoutGroup } from 'framer-motion'
 import { useEffect, useRef, useState } from 'react'
-import { X } from 'react-feather'
 import { useUpdateProfileMutation } from 'services/identity'
 
-import { ButtonAction } from 'components/Button'
 import Column from 'components/Column'
 import DraggableNetworkButton from 'components/Header/web3/NetworkModal/components/DraggableNetworkButton'
 import DropzoneOverlay from 'components/Header/web3/NetworkModal/components/DropzoneOverlay'
@@ -24,6 +22,7 @@ import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useNetworkModalToggle } from 'state/application/hooks'
 import { useSessionInfo } from 'state/authen/hooks'
 import { useFavoriteChains } from 'state/user/hooks'
+import { CloseIcon } from 'theme'
 
 const FAVORITE_DROPZONE_ID = 'favorite-dropzone'
 
@@ -243,9 +242,7 @@ export default function NetworkModal({
               }}
               className="bg-buttonBlack"
             />
-            <ButtonAction onClick={toggleNetworkModal}>
-              <X />
-            </ButtonAction>
+            <CloseIcon onClick={toggleNetworkModal} />
           </div>
         </RowBetween>
 

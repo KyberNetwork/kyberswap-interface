@@ -32,7 +32,7 @@ const LiquiditySourcesSetting: React.FC<Props> = ({ onClick }) => {
             {selectedDexes.length || numberOfDEXes} out of {numberOfDEXes} selected
           </Trans>
         </span>
-        <ChevronRight size={18} />
+        <ChevronRight size={14} />
       </SettingsAction>
     </SettingsRow>
   )

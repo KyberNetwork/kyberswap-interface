@@ -111,7 +111,7 @@ export default function Preview({
         pool?.token1,
         NetworkInfo[chainId].wrappedToken,
       ] as PancakeToken[],
-    [chainId, pool?.token0, pool?.token1, tokensIn]
+    [chainId, pool?.token0, pool?.token1, tokensIn],
   );
 
   useEffect(() => {
@@ -131,15 +131,15 @@ export default function Preview({
   }, [publicClient, txHash]);
 
   const addedLiqInfo = zapInfo.zapDetails.actions.find(
-    (item) => item.type === ZapAction.ADD_LIQUIDITY
+    (item) => item.type === ZapAction.ADD_LIQUIDITY,
   ) as AddLiquidityAction;
   const addedAmount0 = formatUnits(
     BigInt(addedLiqInfo?.addLiquidity.token0.amount),
-    pool.token0.decimals
+    pool.token0.decimals,
   );
   const addedAmount1 = formatUnits(
     BigInt(addedLiqInfo?.addLiquidity.token1.amount),
-    pool.token1.decimals
+    pool.token1.decimals,
   );
 
   const positionAmount0Usd =
@@ -153,29 +153,31 @@ export default function Preview({
       +addedAmount1 || 0;
 
   const refundInfo = zapInfo.zapDetails.actions.find(
-    (item) => item.type === ZapAction.REFUND
+    (item) => item.type === ZapAction.REFUND,
   ) as RefundAction | null;
   const refundToken0 =
     refundInfo?.refund.tokens.filter(
-      (item) => item.address.toLowerCase() === pool.token0.address.toLowerCase()
+      (item) =>
+        item.address.toLowerCase() === pool.token0.address.toLowerCase(),
     ) || [];
   const refundToken1 =
     refundInfo?.refund.tokens.filter(
-      (item) => item.address.toLowerCase() === pool.token1.address.toLowerCase()
+      (item) =>
+        item.address.toLowerCase() === pool.token1.address.toLowerCase(),
     ) || [];
 
   const refundAmount0 = formatWei(
     refundToken0
       .reduce((acc, cur) => acc + BigInt(cur.amount), BigInt(0))
       .toString(),
-    pool.token0.decimals
+    pool.token0.decimals,
   );
 
   const refundAmount1 = formatWei(
     refundToken1
       .reduce((acc, cur) => acc + BigInt(cur.amount), BigInt(0))
       .toString(),
-    pool.token1.decimals
+    pool.token1.decimals,
   );
 
   const refundUsd =
@@ -187,7 +189,7 @@ export default function Preview({
         BigInt(pool.sqrtRatioX96 || 0),
         pool.token0.decimals,
         pool.token1.decimals,
-        revert
+        revert,
       )
     : "--";
 
@@ -200,23 +202,23 @@ export default function Preview({
   );
 
   const feeInfo = zapInfo?.zapDetails.actions.find(
-    (item) => item.type === ZapAction.PROTOCOL_FEE
+    (item) => item.type === ZapAction.PROTOCOL_FEE,
   ) as ProtocolFeeAction | undefined;
 
   const partnerFeeInfo = zapInfo?.zapDetails.actions.find(
-    (item) => item.type === ZapAction.PARTNET_FEE
+    (item) => item.type === ZapAction.PARTNET_FEE,
   ) as PartnerFeeAction | undefined;
 
   const protocolFee = ((feeInfo?.protocolFee.pcm || 0) / 100_000) * 100;
   const partnerFee = ((partnerFeeInfo?.partnerFee.pcm || 0) / 100_000) * 100;
 
   const aggregatorSwapInfo = zapInfo.zapDetails.actions.find(
-    (item) => item.type === ZapAction.AGGREGATOR_SWAP
+    (item) => item.type === ZapAction.AGGREGATOR_SWAP,
   ) as AggregatorSwapAction | undefined;
   const piRes = getPriceImpact(
     zapInfo?.zapDetails.priceImpact,
     ImpactType.ZAP,
-    feeInfo
+    feeInfo,
   );
 
   const [gasUsd, setGasUsd] = useState<number | null>(null);
@@ -328,22 +330,22 @@ export default function Preview({
 
   const swapPi = useMemo(() => {
     const aggregatorSwapInfo = zapInfo?.zapDetails.actions.find(
-      (item) => item.type === ZapAction.AGGREGATOR_SWAP
+      (item) => item.type === ZapAction.AGGREGATOR_SWAP,
     ) as AggregatorSwapAction | null;
 
     const poolSwapInfo = zapInfo?.zapDetails.actions.find(
-      (item) => item.type === ZapAction.POOL_SWAP
+      (item) => item.type === ZapAction.POOL_SWAP,
     ) as PoolSwapAction | null;
 
     const parsedAggregatorSwapInfo =
       aggregatorSwapInfo?.aggregatorSwap?.swaps?.map((item) => {
         const tokenIn = tokens.find(
           (token: PancakeToken) =>
-            token.address.toLowerCase() === item.tokenIn.address.toLowerCase()
+            token.address.toLowerCase() === item.tokenIn.address.toLowerCase(),
         );
         const tokenOut = tokens.find(
           (token: PancakeToken) =>
-            token.address.toLowerCase() === item.tokenOut.address.toLowerCase()
+            token.address.toLowerCase() === item.tokenOut.address.toLowerCase(),
         );
         const amountIn = formatWei(item.tokenIn.amount, tokenIn?.decimals);
         const amountOut = formatWei(item.tokenOut.amount, tokenOut?.decimals);
@@ -368,11 +370,11 @@ export default function Preview({
       poolSwapInfo?.poolSwap?.swaps?.map((item) => {
         const tokenIn = tokens.find(
           (token: PancakeToken) =>
-            token.address.toLowerCase() === item.tokenIn.address.toLowerCase()
+            token.address.toLowerCase() === item.tokenIn.address.toLowerCase(),
         );
         const tokenOut = tokens.find(
           (token: PancakeToken) =>
-            token.address.toLowerCase() === item.tokenOut.address.toLowerCase()
+            token.address.toLowerCase() === item.tokenOut.address.toLowerCase(),
         );
         const amountIn = formatWei(item.tokenIn.amount, tokenIn?.decimals);
         const amountOut = formatWei(item.tokenOut.amount, tokenOut?.decimals);
@@ -398,7 +400,7 @@ export default function Preview({
 
   const swapPiRes = useMemo(() => {
     const invalidRes = swapPi.find(
-      (item) => item.piRes.level === PI_LEVEL.INVALID
+      (item) => item.piRes.level === PI_LEVEL.INVALID,
     );
     if (invalidRes) return invalidRes;
 
@@ -406,7 +408,7 @@ export default function Preview({
     if (highRes) return highRes;
 
     const veryHighRes = swapPi.find(
-      (item) => item.piRes.level === PI_LEVEL.VERY_HIGH
+      (item) => item.piRes.level === PI_LEVEL.VERY_HIGH,
     );
     if (veryHighRes) return veryHighRes;
 
@@ -519,7 +521,7 @@ export default function Preview({
             </div>
             <DropdownIcon
               className={`transition-all duration-200 ease-in-out ${
-                !showErrorDetail ? "rotate-0" : "-rotate-180"
+                !showErrorDetail ? "rotate-0" : "rotate-180"
               }`}
             />
           </div>
@@ -644,7 +646,7 @@ export default function Preview({
                 {formatNumber(+listAmountsIn[index])} {token.symbol}
                 <span className="text-textSecondary font-normal text-sm ml-2">
                   {formatCurrency(
-                    (token.price || 0) * parseFloat(listAmountsIn[index])
+                    (token.price || 0) * parseFloat(listAmountsIn[index]),
                   )}
                 </span>
               </div>
@@ -728,7 +730,7 @@ export default function Preview({
               ~
               {formatCurrency(
                 +(addedLiqInfo?.addLiquidity.token0.amountUsd || 0) +
-                  positionAmount0Usd
+                  positionAmount0Usd,
               )}
             </div>
           </div>
@@ -768,7 +770,7 @@ export default function Preview({
               ~
               {formatCurrency(
                 +(addedLiqInfo?.addLiquidity.token1.amountUsd || 0) +
-                  positionAmount1Usd
+                  positionAmount1Usd,
               )}
             </div>
           </div>
@@ -945,9 +947,9 @@ export default function Preview({
             text={
               partnerFee
                 ? `${parseFloat(
-                    protocolFee.toFixed(3)
+                    protocolFee.toFixed(3),
                   )}% Protocol Fee + ${parseFloat(
-                    partnerFee.toFixed(3)
+                    partnerFee.toFixed(3),
                   )}% Fee for ${source}`
                 : ""
             }
