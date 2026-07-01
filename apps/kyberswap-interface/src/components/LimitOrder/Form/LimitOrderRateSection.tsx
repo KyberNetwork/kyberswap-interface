@@ -77,11 +77,19 @@ type PercentInputChipProps = {
   value: string
   isActive: boolean
   onActiveChange: (value: boolean) => void
+  onBlur?: () => void
   onFocusChange: (value: boolean) => void
   onUserInput: (value: string) => void
 }
 
-const PercentInputChip = ({ value, isActive, onActiveChange, onFocusChange, onUserInput }: PercentInputChipProps) => {
+const PercentInputChip = ({
+  value,
+  isActive,
+  onActiveChange,
+  onBlur,
+  onFocusChange,
+  onUserInput,
+}: PercentInputChipProps) => {
   const [isEditing, setIsEditing] = useState(false)
   const [draftValue, setDraftValue] = useState(value)
   const displayValue = isEditing ? draftValue : isActive ? value : ''
@@ -136,6 +144,7 @@ const PercentInputChip = ({ value, isActive, onActiveChange, onFocusChange, onUs
         onBlur={() => {
           setIsEditing(false)
           onFocusChange(false)
+          onBlur?.()
         }}
         maxLength={8}
         allowNegative
@@ -158,6 +167,7 @@ type RateSectionState = {
 
 type RateSectionEvents = {
   onRateChange?: (value: string) => void
+  onRatePresetClick?: (preset: string) => void
   onSetMarketRate?: () => void
   onRateInputFocus?: () => void
   onRateInputBlur?: () => void
@@ -208,6 +218,11 @@ const LimitOrderRateSection = ({ tokens = {}, rate = {}, events = {} }: Props) =
     setRateByDelta(Number(value))
   }
 
+  const onClickPreset = (percent: number) => {
+    events.onRatePresetClick?.(`+${percent}%`)
+    setRateByDelta(percent, 'preset')
+  }
+
   return (
     <Stack className="gap-2 rounded-2xl bg-buttonBlack p-4">
       <HStack className="items-center justify-between gap-3">
@@ -245,6 +260,7 @@ const LimitOrderRateSection = ({ tokens = {}, rate = {}, events = {} }: Props) =
           value={percentInputValue}
           isActive={isCustomPercentActive}
           onActiveChange={setIsCustomPercentActive}
+          onBlur={() => events.onRatePresetClick?.('custom')}
           onFocusChange={setIsCustomPercentFocused}
           onUserInput={onChangePercent}
         />
@@ -258,7 +274,7 @@ const LimitOrderRateSection = ({ tokens = {}, rate = {}, events = {} }: Props) =
                 ? 'border-primary-50 bg-tabActive text-text hover:bg-buttonGray'
                 : 'border-border/60 text-subText hover:border-border-primary hover:text-primary',
             )}
-            onClick={() => setRateByDelta(percent, 'preset')}
+            onClick={() => onClickPreset(percent)}
           >
             +{percent}%
           </button>

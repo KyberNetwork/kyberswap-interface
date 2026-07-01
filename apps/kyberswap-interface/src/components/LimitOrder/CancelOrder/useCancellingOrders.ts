@@ -21,7 +21,7 @@ const mergeOrderIds = (...orderIdsList: number[][]) => Array.from(new Set(orderI
 const getCancelOrderIdsFromTransaction = (transaction: TransactionDetails) => {
   const arbitrary = transaction.extraInfo?.arbitrary
   const orderIds = Array.isArray(arbitrary?.orderIds) ? arbitrary.orderIds : []
-  return arbitrary?.order_id ? [arbitrary.order_id] : orderIds
+  return arbitrary?.orderId ? [arbitrary.orderId] : orderIds
 }
 
 const isTransactionPendingOrSuccessful = (transaction: TransactionDetails) =>

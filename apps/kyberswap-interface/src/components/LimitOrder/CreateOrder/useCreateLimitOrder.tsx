@@ -2,20 +2,25 @@ import { TokenAmount, WETH } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import JSBI from 'jsbi'
 import { useEffect, useMemo } from 'react'
-import { useGetLOConfigQuery, useGetTotalActiveMakingAmountQuery } from 'services/limitOrder'
+import { useCreateOrderMutation, useGetLOConfigQuery, useGetTotalActiveMakingAmountQuery } from 'services/limitOrder'
 
-import { useLimitOrderTracking } from 'components/LimitOrder/CreateOrder/useLimitOrderTracking'
+import { NotificationType } from 'components/Announcement/type'
+import { useSignOrder } from 'components/LimitOrder/CreateOrder/useSignOrder'
 import { useWarningCreateOrder } from 'components/LimitOrder/CreateOrder/useWarningCreateOrder'
 import { useValidateInputError } from 'components/LimitOrder/Form/useValidateInputError'
+import { SummaryNotifyOrderPlaced } from 'components/LimitOrder/MyOrders/SummaryNotify'
 import { ProcessingOrderStep } from 'components/LimitOrder/ProcessingOrder/useProcessingOrder'
 import { useLimitOrderApproval } from 'components/LimitOrder/hooks/useLimitOrderApproval'
+import { useLimitOrderTracking } from 'components/LimitOrder/hooks/useLimitOrderTracking'
 import { useLimitOrderWrapStep } from 'components/LimitOrder/hooks/useLimitOrderWrapStep'
-import { LimitOrderCreateContext } from 'components/LimitOrder/types'
-import { calcUsdPrices } from 'components/LimitOrder/utils'
+import { CreateOrderParams, LimitOrderCreateContext } from 'components/LimitOrder/types'
+import { calcUsdPrices, getPayloadCreateOrder } from 'components/LimitOrder/utils'
 import { useActiveWeb3React } from 'hooks'
 import { useApproveCallback } from 'hooks/useApproveCallback'
+import { useNotify } from 'state/application/hooks'
 import { tryParseAmount } from 'state/swap/hooks'
 import { useCurrencyBalance } from 'state/wallet/hooks'
+import { getCookieValue } from 'utils'
 import { subscribeNotificationOrderExpired } from 'utils/firebase'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
 
@@ -36,8 +41,13 @@ export const useCreateLimitOrder = ({
   onSetInput,
   onResetForm,
 }: UseCreateLimitOrderProps) => {
-  const { currencyIn, currencyOut, chainId, inputAmount, outputAmount, displayRate, tradeInfo, deltaRate } = order
+  const { currencyIn, currencyOut, chainId, inputAmount, outputAmount, displayRate, expiredAt, tradeInfo, deltaRate } =
+    order
   const { account } = useActiveWeb3React()
+  const notify = useNotify()
+  const signOrder = useSignOrder()
+  const limitOrderTracking = useLimitOrderTracking()
+  const [submitOrder] = useCreateOrderMutation()
 
   const parsedInputAmount = useMemo(
     () => tryParseAmount(inputAmount, currencyIn ?? undefined),
@@ -158,6 +168,7 @@ export const useCreateLimitOrder = ({
     currencyIn,
     currencyOut,
     deltaRate,
+    onSharedBalanceReview: () => limitOrderTracking.trackCreateSharedBalanceReview(order),
     parsedInputAmount,
   })
 
@@ -168,26 +179,70 @@ export const useCreateLimitOrder = ({
     } catch (error) {}
   }
 
-  const resetForm = () => {
-    onResetForm?.()
-  }
-
-  const limitOrderTracking = useLimitOrderTracking({
-    order,
-    searchParams,
-    estimateUSD,
-    onSuccess: resetForm,
-  })
-
   const openReview = () => {
     if (!currencyIn || !currencyOut || !outputAmount || !inputAmount || !displayRate) return
 
     onOpenReview?.()
-    limitOrderTracking.trackReviewOpened()
+    limitOrderTracking.trackCreateReviewOpened({ order, estimateUSD })
   }
 
   const closeReview = () => {
     onCloseReview?.()
+  }
+
+  const trackOrderFailed = (error: unknown) => limitOrderTracking.trackCreateOrderFailed(order, error)
+
+  const submitCreateOrder = async (params: CreateOrderParams) => {
+    try {
+      const { currencyIn, currencyOut, account, inputAmount, outputAmount, expiredAt } = params
+      if (!currencyIn || !currencyOut || !account || !inputAmount || !outputAmount || !expiredAt) {
+        throw new Error('wrong input')
+      }
+
+      const refCode = getCookieValue('refCode')
+      const clientId = searchParams.get('clientId')
+      const { signature, salt } = await signOrder({ ...params, referral: refCode })
+      const payload = getPayloadCreateOrder(params)
+      const response = await submitOrder({
+        ...payload,
+        salt: salt || '',
+        signature,
+        referral: refCode,
+        clientId,
+      }).unwrap()
+
+      notify(
+        {
+          type: NotificationType.SUCCESS,
+          title: t`Order Placed`,
+          summary: <SummaryNotifyOrderPlaced {...{ currencyIn, currencyOut, inputAmount, outputAmount }} />,
+        },
+        10000,
+      )
+      onResetForm?.()
+      return response?.id
+    } catch (error) {
+      trackOrderFailed(error)
+      return
+    }
+  }
+
+  const submitCreateOrderWithTracking = async () => {
+    const orderId = await submitCreateOrder({
+      currencyIn,
+      currencyOut,
+      chainId,
+      account,
+      inputAmount,
+      outputAmount,
+      expiredAt,
+    })
+    if (!orderId) return
+
+    limitOrderTracking.trackCreatePlaceOrderSubmitSuccess(order, orderId)
+    limitOrderTracking.trackCreateOrderPlaced({ order, estimateUSD, orderId })
+    limitOrderTracking.trackCreateTipLinkTrade({ order, estimateUSD, orderId, searchParams })
+    return orderId
   }
 
   useEffect(() => {
@@ -204,7 +259,6 @@ export const useCreateLimitOrder = ({
 
   return {
     estimateUSD,
-    resetForm,
     balance: {
       handleMaxInput,
       insufficientBalance,
@@ -221,14 +275,17 @@ export const useCreateLimitOrder = ({
       checkApprovalManually,
       onWrap,
       finalStep: 'create' as const,
-      onFinalStep: async () => !!(await limitOrderTracking.submitCreateOrderWithTracking()),
-      onError: limitOrderTracking.trackOrderFailed,
+      onFinalStep: async () => !!(await submitCreateOrderWithTracking()),
+      onError: trackOrderFailed,
+      onStart: () => limitOrderTracking.trackCreatePlaceOrderClick(order),
       steps: processingSteps,
     },
     tracking: {
-      trackingPriceSetOnBlur: limitOrderTracking.trackPriceSetOnBlur,
-      trackingTouchInput: limitOrderTracking.trackTouchInput,
-      trackingTouchSelectToken: limitOrderTracking.trackTouchSelectToken,
+      trackingMarketRateClick: () => limitOrderTracking.trackCreateMarketRateClick(order),
+      trackingPriceSetOnBlur: () => limitOrderTracking.trackCreatePriceSetOnBlur(order),
+      trackingRatePresetClick: (preset: string) => limitOrderTracking.trackCreateRatePresetClick(order, preset),
+      trackingTouchInput: limitOrderTracking.trackCreateTouchInput,
+      trackingTouchSelectToken: limitOrderTracking.trackCreateTouchSelectToken,
     },
     validation: {
       inputError,
