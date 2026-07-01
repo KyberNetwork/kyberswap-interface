@@ -160,7 +160,11 @@ const LimitOrderForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPr
             }}
             events={{
               onRateChange: form.onChangeRate,
-              onSetMarketRate: form.setPriceRateMarket,
+              onRatePresetClick: tracking.trackingRatePresetClick,
+              onSetMarketRate: () => {
+                tracking.trackingMarketRateClick()
+                form.setPriceRateMarket()
+              },
               onRateInputFocus: tracking.trackingTouchInput,
               onRateInputBlur: tracking.trackingPriceSetOnBlur,
             }}

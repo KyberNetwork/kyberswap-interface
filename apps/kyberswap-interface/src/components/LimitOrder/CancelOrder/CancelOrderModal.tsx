@@ -10,13 +10,13 @@ import CancelButtons from 'components/LimitOrder/CancelOrder/CancelButtons'
 import { CancelStatusCountDown, ChainFilter, SingleOrderSummary } from 'components/LimitOrder/CancelOrder/components'
 import { useCancelOrder } from 'components/LimitOrder/CancelOrder/useCancelOrder'
 import { useLimitOrderChainId } from 'components/LimitOrder/LimitOrderContext'
+import { useLimitOrderTracking } from 'components/LimitOrder/hooks/useLimitOrderTracking'
 import { CancelOrderType, LimitOrder, LimitOrderStatus } from 'components/LimitOrder/types'
-import { getErrorMessage, getPayloadTracking } from 'components/LimitOrder/utils'
+import { getErrorMessage } from 'components/LimitOrder/utils'
 import Modal from 'components/Modal'
 import { HStack, Stack } from 'components/Stack'
 import { useActiveWeb3React } from 'hooks'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
-import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { CloseIcon } from 'theme/components'
 import { formatDisplayNumber } from 'utils/numbers'
@@ -90,7 +90,7 @@ const CancelOrderModal = ({
 
   const { chainId: walletChainId, networkInfo } = useActiveWeb3React()
   const { changeNetwork } = useChangeNetwork()
-  const { trackingHandler } = useTracking()
+  const limitOrderTracking = useLimitOrderTracking()
 
   const getGaslessSupport = useIsSupportSoftCancelOrder(chainId)
   const { orderSupportGasless, chainSupportGasless } = getGaslessSupport(order)
@@ -180,12 +180,13 @@ const CancelOrderModal = ({
       setErrorMessage('')
       if (!order || isCancelAll) return
 
-      trackingHandler(TRACKING_EVENT_TYPE.LO_CLICK_CANCEL_TYPE, {
-        ...getPayloadTracking(order, NETWORKS_INFO[order.chainId]?.name || networkInfo.name),
-        cancel_type: type === CancelOrderType.GAS_LESS_CANCEL ? 'Gasless' : 'Hard',
+      limitOrderTracking.trackCancelTypeClick({
+        order,
+        networkName: NETWORKS_INFO[order.chainId]?.name || networkInfo.name,
+        cancelType: type,
       })
     },
-    [isCancelAll, networkInfo.name, order, trackingHandler],
+    [isCancelAll, limitOrderTracking, networkInfo.name, order],
   )
 
   useEffect(() => {

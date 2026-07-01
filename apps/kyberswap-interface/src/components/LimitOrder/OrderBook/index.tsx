@@ -10,6 +10,7 @@ import OrderItem from 'components/LimitOrder/OrderBook/OrderItem'
 import TableHeader, { RowWrapper } from 'components/LimitOrder/OrderBook/TableHeader'
 import { formatOrders, getSchemaToken, invertRateValue } from 'components/LimitOrder/OrderBook/utils'
 import TakeOrderConfirmModal from 'components/LimitOrder/TakeOrder/TakeOrderConfirmModal'
+import { useLimitOrderTracking } from 'components/LimitOrder/hooks/useLimitOrderTracking'
 import { LimitOrderFromTokenPairFormatted } from 'components/LimitOrder/types'
 import { formatPriceInputValue } from 'components/LimitOrder/utils'
 import RefetchIndicator from 'components/RefetchIndicator'
@@ -68,6 +69,7 @@ const OrderBook = () => {
   const { setPriceInputRequest } = useLimitOrderContext()
   const { currencyIn: makerCurrency, currencyOut: takerCurrency } = useLimitState()
   const { isStableCoin } = useStableCoins(chainId)
+  const limitOrderTracking = useLimitOrderTracking()
 
   const [selectedOrderToTake, setSelectedOrderToTake] = useState<LimitOrderFromTokenPairFormatted>()
   const [isTakeOrderModalOpen, setIsTakeOrderModalOpen] = useState(false)
@@ -148,12 +150,19 @@ const OrderBook = () => {
 
   const handleInvertRate = useCallback(() => {
     if (!ratePairKey) return
+    const nextShowInvertedRate = !showInvertedRate
 
-    setInvertedRateOverride(current => ({
+    limitOrderTracking.trackOrderBookClickPairInvert({
+      makerCurrency,
+      takerCurrency,
+      direction: nextShowInvertedRate ? 'inverted' : 'native',
+    })
+
+    setInvertedRateOverride({
       pairKey: ratePairKey,
-      value: !(current?.pairKey === ratePairKey ? current.value : defaultShowInvertedRate),
-    }))
-  }, [defaultShowInvertedRate, ratePairKey])
+      value: nextShowInvertedRate,
+    })
+  }, [limitOrderTracking, makerCurrency, ratePairKey, showInvertedRate, takerCurrency])
 
   const handleSetMarketRate = useCallback(() => {
     if (!marketRate || !invertRate) return
@@ -164,10 +173,19 @@ const OrderBook = () => {
     })
   }, [invertRate, marketRate, setPriceInputRequest])
 
-  const handleTakeOrder = (order: LimitOrderFromTokenPairFormatted) => {
-    setSelectedOrderToTake(order)
-    setIsTakeOrderModalOpen(true)
-  }
+  const handleTakeOrder = useCallback(
+    (order: LimitOrderFromTokenPairFormatted) => {
+      limitOrderTracking.trackOrderBookClickTake({
+        order,
+        makerCurrency,
+        takerCurrency,
+      })
+
+      setSelectedOrderToTake(order)
+      setIsTakeOrderModalOpen(true)
+    },
+    [limitOrderTracking, makerCurrency, takerCurrency],
+  )
 
   const handleDismissTakeOrderModal = () => {
     setIsTakeOrderModalOpen(false)

@@ -17,14 +17,13 @@ import {
   LIST_ORDER_TABS,
   PAGE_SIZE,
   getActiveTabByOrderType,
-  getCancelledOrderTrackingPayload,
-  getFilledOrderTrackingPayload,
   getOrderTypeOptions,
   getOrdersApiSearchKeyword,
   getSearchParamsWithKeyword,
 } from 'components/LimitOrder/MyOrders/utils'
+import { useLimitOrderTracking } from 'components/LimitOrder/hooks/useLimitOrderTracking'
 import { LimitOrder, LimitOrderStatus } from 'components/LimitOrder/types'
-import { getPayloadTracking, isActiveStatus } from 'components/LimitOrder/utils'
+import { isActiveStatus } from 'components/LimitOrder/utils'
 import Loader from 'components/Loader'
 import Pagination from 'components/Pagination'
 import RefetchIndicator from 'components/RefetchIndicator'
@@ -35,7 +34,6 @@ import useChainsConfig from 'hooks/useChainsConfig'
 import { useInvalidateTagLimitOrder } from 'hooks/useInvalidateTags'
 import usePageLocation from 'hooks/usePageLocation'
 import useTab from 'hooks/useTab'
-import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { sortChainOptionsByPriority } from 'pages/Earns/hooks/useSupportedDexesAndChains'
 import { cn } from 'utils/cn'
 import {
@@ -100,7 +98,7 @@ const TabSelector = ({ activeTab, rightContent, setActiveTab }: TabSelectorProps
 
 const MyOrders = () => {
   const { account } = useActiveWeb3React()
-  const { trackingHandler } = useTracking()
+  const limitOrderTracking = useLimitOrderTracking()
   const { isEmbeddedSwap } = usePageLocation()
   const { chainId, networkName } = useLimitOrderContext()
   const { supportedChains } = useChainsConfig()
@@ -283,10 +281,10 @@ const MyOrders = () => {
       setIsOpenCancel(true)
       setIsCancelAll(false)
       if (order) {
-        trackingHandler(TRACKING_EVENT_TYPE.LO_CLICK_CANCEL_ORDER, getPayloadTracking(order, networkName))
+        limitOrderTracking.trackMyOrderCancelClick(order, networkName)
       }
     },
-    [trackingHandler, networkName],
+    [limitOrderTracking, networkName],
   )
 
   const onCancelAllOrder = () => {
@@ -298,16 +296,16 @@ const MyOrders = () => {
 
   const trackCancelledOrder = useCallback(
     (order: LimitOrder) => {
-      trackingHandler(TRACKING_EVENT_TYPE.LO_ORDER_CANCELLED, getCancelledOrderTrackingPayload(order, networkName))
+      limitOrderTracking.trackMyOrderCancelled(order, networkName)
     },
-    [networkName, trackingHandler],
+    [limitOrderTracking, networkName],
   )
 
   const trackFilledOrder = useCallback(
     (order: LimitOrder) => {
-      trackingHandler(TRACKING_EVENT_TYPE.LO_ORDER_FILLED, getFilledOrderTrackingPayload(order, networkName))
+      limitOrderTracking.trackMyOrderFilled(order, networkName)
     },
-    [networkName, trackingHandler],
+    [limitOrderTracking, networkName],
   )
 
   useEffect(() => {

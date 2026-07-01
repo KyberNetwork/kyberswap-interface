@@ -232,30 +232,6 @@ export const getPayloadCreateOrder = (params: CreateOrderParams): CreateOrderSig
   }
 }
 
-type LimitOrderTrackingPayload = {
-  from_token: string
-  to_token: string
-  from_network: string
-  trade_qty: string
-  order_id: number
-} & Record<string, unknown>
-
-export const getPayloadTracking = (
-  order: LimitOrder,
-  networkName: string,
-  payload: Record<string, unknown> = {},
-): LimitOrderTrackingPayload => {
-  const { makerAssetSymbol, takerAssetSymbol, makingAmount, makerAssetDecimals, id } = order
-  return {
-    ...payload,
-    from_token: makerAssetSymbol,
-    to_token: takerAssetSymbol,
-    from_network: networkName,
-    trade_qty: formatAmountOrder(makingAmount, makerAssetDecimals),
-    order_id: id,
-  }
-}
-
 export const groupToMap = <K, T>(items: Iterable<T>, keySelector: (item: T, index?: number) => K): Map<K, T[]> => {
   return [...items].reduce((accumulator: Map<K, T[]>, currentValue: T) => {
     const newValue = accumulator.get(keySelector(currentValue)) || []

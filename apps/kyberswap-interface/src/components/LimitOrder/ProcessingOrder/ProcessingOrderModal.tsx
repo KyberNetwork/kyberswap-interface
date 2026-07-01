@@ -34,6 +34,7 @@ type ProcessingOrderModalProps<Step extends ProcessingOrderStep> = {
   processing: ProcessingController<Step>
   chainId?: ChainId
   currencyIn?: Currency
+  onUserDismiss?: () => void
   onViewOrder?: () => void
 }
 
@@ -142,6 +143,7 @@ const ProcessingOrderModal = <Step extends ProcessingOrderStep>({
   processing,
   chainId,
   currencyIn,
+  onUserDismiss,
   onViewOrder,
 }: ProcessingOrderModalProps<Step>) => {
   const { state, dismiss, retryStep } = processing
@@ -167,6 +169,7 @@ const ProcessingOrderModal = <Step extends ProcessingOrderStep>({
 
   const handleDismiss = () => {
     dismiss()
+    onUserDismiss?.()
   }
 
   const handleViewOrder = () => {

@@ -16,11 +16,21 @@ const WarningHighlight = ({ children }: PropsWithChildren) => (
   <span className="font-medium text-warning">{children}</span>
 )
 
-const ReservedBalanceNotice = ({ tokenIn, tokenOut, to }: { tokenIn?: string; tokenOut?: string; to: string }) => (
+type ReservedBalanceNoticeProps = {
+  tokenIn?: string
+  tokenOut?: string
+  to: string
+  onReviewClick?: () => void
+}
+
+const ReservedBalanceNotice = ({ tokenIn, tokenOut, to, onReviewClick }: ReservedBalanceNoticeProps) => (
   <span className="text-xs font-medium italic text-subText">
     <Trans>
       Your {tokenIn} balance is fully used by existing {tokenIn}/{tokenOut} orders. Cancel or reduce an order to free up
-      balance. <Link to={to}>Review orders</Link>
+      balance.{' '}
+      <Link to={to} onClick={onReviewClick}>
+        Review orders
+      </Link>
     </Trans>
   </span>
 )
@@ -33,6 +43,7 @@ type UseWarningCreateOrderProps = {
   currencyIn?: Currency
   currencyOut?: Currency
   deltaRate: DeltaRateLimitOrder
+  onSharedBalanceReview?: () => void
   parsedInputAmount?: CurrencyAmount<Currency>
 }
 
@@ -46,6 +57,7 @@ export const useWarningCreateOrder = ({
   currencyIn,
   currencyOut,
   deltaRate,
+  onSharedBalanceReview,
   parsedInputAmount,
 }: UseWarningCreateOrderProps) => {
   const { account } = useActiveWeb3React()
@@ -172,9 +184,17 @@ export const useWarningCreateOrder = ({
         search: `${makerAssetSymbol}/${takerAssetSymbol}`,
       }).toString()
 
-      addWarning(<ReservedBalanceNotice tokenIn={makerAssetSymbol} tokenOut={takerAssetSymbol} to={`?${search}`} />, {
-        type: 'warn',
-      })
+      addWarning(
+        <ReservedBalanceNotice
+          tokenIn={makerAssetSymbol}
+          tokenOut={takerAssetSymbol}
+          to={`?${search}`}
+          onReviewClick={onSharedBalanceReview}
+        />,
+        {
+          type: 'warn',
+        },
+      )
     }
 
     return {
@@ -182,6 +202,14 @@ export const useWarningCreateOrder = ({
       shouldDisableAction,
       warnings,
     }
-  }, [currencyIn, currencyOut, deltaRate.percent, deltaRate.rawPercent, isSameTokenPair, showReservedOrderNotice])
+  }, [
+    currencyIn,
+    currencyOut,
+    deltaRate.percent,
+    deltaRate.rawPercent,
+    isSameTokenPair,
+    onSharedBalanceReview,
+    showReservedOrderNotice,
+  ])
   return warning
 }
