@@ -33,11 +33,15 @@ const LeftSection = () => {
   const isFeesClaiming = claimKey ? pendingFeeClaimKeys.includes(claimKey) : false
 
   const isFarmingPossible = EARN_DEXES[exchange as Exchange]?.farmingSupported || false
-  const showRewards =
+  // KEM farming rewards drive the in-progress / cycle / claim UI. Merkl bonus alone (no farming)
+  // still surfaces a reward card, but only its total + claimed/claimable, not the farming controls.
+  const hasFarmingReward = !!(
     position?.pool.isFarming ||
     (initialLoading && isFarmingPossible) ||
     Number(position?.rewards.inProgressUsdValue || 0) > 0 ||
     Number(position?.rewards.claimableUsdValue || 0) > 0
+  )
+  const showRewards = hasFarmingReward || (position?.bonusApr || 0) > 0
 
   return (
     <>
@@ -154,7 +158,7 @@ const LeftSection = () => {
           </DarkCard>
         )}
 
-        {showRewards && <RewardSection />}
+        {showRewards && <RewardSection hasFarmingReward={hasFarmingReward} />}
       </LeftColumn>
     </>
   )
