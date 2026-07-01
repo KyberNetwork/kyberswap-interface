@@ -43,7 +43,7 @@ export const SettingsLabel = ({ children, tooltip, placement = 'right' }: Settin
 export const SettingsAction = ({ className, children, ...props }: ButtonHTMLAttributes<HTMLButtonElement>) => (
   <button
     className={cn(
-      'flex cursor-pointer items-center gap-0 border-0 bg-transparent p-0 text-left text-xs font-medium text-text transition-[filter] hover:brightness-75 focus-visible:outline-none',
+      'flex cursor-pointer items-end gap-0 border-0 bg-transparent p-0 text-left text-xs font-medium text-text transition-[filter] hover:brightness-75 focus-visible:outline-none',
       className,
     )}
     type="button"

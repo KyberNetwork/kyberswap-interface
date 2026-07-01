@@ -220,7 +220,7 @@ export const TokenPanel = ({
             <div className="relative text-xs font-medium text-subText">
               <div
                 role="button"
-                className="flex cursor-pointer items-center gap-1 hover:brightness-125"
+                className="flex cursor-pointer items-end gap-1 hover:brightness-125"
                 onClick={handleWalletClick}
               >
                 {walletDisplayAddress}
