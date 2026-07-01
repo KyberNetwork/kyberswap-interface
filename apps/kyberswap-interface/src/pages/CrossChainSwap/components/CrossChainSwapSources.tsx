@@ -54,7 +54,7 @@ export const CrossChainSwapSources: React.FC<{ onBack: () => void }> = ({ onBack
   }, [selectedSources.length, sources.length])
 
   return (
-    <Stack className="w-full gap-5">
+    <Stack className="w-full gap-4">
       <HStack className="items-center gap-1">
         <BackIconWrapper onClick={onBack} />
         <span className="text-lg font-medium text-text">
@@ -62,49 +62,53 @@ export const CrossChainSwapSources: React.FC<{ onBack: () => void }> = ({ onBack
         </span>
       </HStack>
 
-      <SearchBar text={searchText} setText={setSearchText} />
+      <Stack className="gap-3">
+        <SearchBar value={searchText} onChange={setSearchText} />
 
-      <LiquiditySourceHeader>
-        <HStack className="items-center gap-3">
-          <CheckBox
-            ref={checkAllRef}
-            className="cursor-pointer"
-            onChange={e => {
-              if (!e.currentTarget.checked) {
-                dispatch(updateExcludedSources(sources.map(item => item.getName())))
-              } else {
-                dispatch(updateExcludedSources([]))
-              }
-            }}
-          />
-          <span>
-            <Trans>Liquidity Sources</Trans>
-          </span>
-        </HStack>
-        <span className="text-subText">
-          {selectedSources.length}/{sources.length}
-        </span>
-      </LiquiditySourceHeader>
-
-      <SourceList>
-        {sources
-          ?.filter(item => item.getName().toLowerCase().includes(searchText.toLowerCase().trim()))
-          .map(item => (
-            <Source key={item.getName()} onClick={() => handleToggleSource(item.getName())}>
+        <Stack>
+          <LiquiditySourceHeader>
+            <HStack className="items-center gap-3">
               <CheckBox
-                checked={!excludedSources.includes(item.getName())}
-                onChange={() => handleToggleSource(item.getName())}
-                onClick={e => e.stopPropagation()}
+                ref={checkAllRef}
+                className="cursor-pointer"
+                onChange={e => {
+                  if (!e.currentTarget.checked) {
+                    dispatch(updateExcludedSources(sources.map(item => item.getName())))
+                  } else {
+                    dispatch(updateExcludedSources([]))
+                  }
+                }}
               />
+              <span>
+                <Trans>Liquidity Sources</Trans>
+              </span>
+            </HStack>
+            <span className="text-subText">
+              {selectedSources.length}/{sources.length}
+            </span>
+          </LiquiditySourceHeader>
 
-              <ImageWrapper>
-                <img src={item.getIcon()} alt="" />
-              </ImageWrapper>
+          <SourceList>
+            {sources
+              ?.filter(item => item.getName().toLowerCase().includes(searchText.toLowerCase().trim()))
+              .map(item => (
+                <Source key={item.getName()} onClick={() => handleToggleSource(item.getName())}>
+                  <CheckBox
+                    checked={!excludedSources.includes(item.getName())}
+                    onChange={() => handleToggleSource(item.getName())}
+                    onClick={e => e.stopPropagation()}
+                  />
 
-              <SourceName>{item.getName()}</SourceName>
-            </Source>
-          ))}
-      </SourceList>
+                  <ImageWrapper>
+                    <img src={item.getIcon()} alt="" />
+                  </ImageWrapper>
+
+                  <SourceName>{item.getName()}</SourceName>
+                </Source>
+              ))}
+          </SourceList>
+        </Stack>
+      </Stack>
     </Stack>
   )
 }

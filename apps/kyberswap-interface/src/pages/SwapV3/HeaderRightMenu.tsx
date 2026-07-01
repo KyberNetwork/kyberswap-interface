@@ -4,6 +4,7 @@ import { useLocation } from 'react-router-dom'
 import { useMedia } from 'react-use'
 
 import TransactionSettingsIcon from 'components/Icons/TransactionSettingsIcon'
+import NotificationTester from 'components/LimitOrder/NotificationTester'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import TokenInfoIcon from 'components/swapv2/TokenInfoIcon'
@@ -90,6 +91,8 @@ const HeaderRightMenu = ({ activeTab, setActiveTab, activeMainTab }: HeaderRight
           </MouseoverTooltip>
         </StyledActionButtonSwapForm>
       )}
+
+      <NotificationTester visible={false} />
     </div>
   )
 }
