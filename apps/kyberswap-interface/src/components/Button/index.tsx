@@ -1,4 +1,4 @@
-import React, { ButtonHTMLAttributes, CSSProperties, ReactNode, forwardRef, useRef } from 'react'
+import React, { ButtonHTMLAttributes, CSSProperties, forwardRef } from 'react'
 import { ChevronDown } from 'react-feather'
 
 import { RowBetween } from 'components/Row'
