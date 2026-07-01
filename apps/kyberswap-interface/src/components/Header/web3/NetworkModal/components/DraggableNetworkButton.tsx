@@ -213,7 +213,7 @@ const DraggableNetworkButton = ({
           onClick={() => !selected && !dragging && handleChainSelect()}
           onMouseUp={e => e.preventDefault()}
           className={cn(
-            'group flex h-[54px] w-full cursor-pointer select-none items-center justify-center gap-1.5',
+            'group flex h-[54px] w-full cursor-pointer select-none items-center justify-center gap-1.5 outline-none',
             'overflow-hidden whitespace-nowrap rounded-2xl bg-background p-3 text-sm text-subText',
             'transition-[background-color] duration-200 ease-in-out',
             'max-sm:p-2 max-sm:text-xs',
