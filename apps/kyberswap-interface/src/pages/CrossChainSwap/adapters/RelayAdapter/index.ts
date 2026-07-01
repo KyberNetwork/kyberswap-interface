@@ -16,6 +16,7 @@ import {
   blast,
   bsc,
   fantom,
+  hyperEvm,
   linea,
   mainnet,
   mantle,
@@ -30,7 +31,7 @@ import {
   zksync,
 } from 'viem/chains'
 
-import { hyperevm, wagmiConfig } from 'components/Web3Provider'
+import { wagmiConfig } from 'components/Web3Provider'
 import { CROSS_CHAIN_FEE_RECEIVER, ZERO_ADDRESS } from 'constants/index'
 import {
   BaseSwapAdapter,
@@ -78,7 +79,7 @@ export class RelayAdapter extends BaseSwapAdapter {
         zksync,
         ronin,
         unichain,
-        hyperevm,
+        hyperEvm,
         plasma,
         monad,
       ]
