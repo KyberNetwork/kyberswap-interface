@@ -54,7 +54,7 @@ const plasmaInfo: NetworkInfo = {
     farmv2Quoter: '0x6AFeb9EDd6Cf44fA8E89b1eee28284e6dD7705C8',
     farmV2S: ['0x3d6afe2fb73ffed2e3dd00c501a174554e147a43'],
   },
-  limitOrder: null,
+  limitOrder: '*',
   averageBlockTimeInSeconds: 2, // TODO: check these info
   coingeckoNetworkId: NOT_SUPPORT,
   coingeckoNativeTokenId: NOT_SUPPORT,
