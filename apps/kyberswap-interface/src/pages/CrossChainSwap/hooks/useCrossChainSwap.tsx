@@ -17,9 +17,9 @@ import {
 } from 'constants/index'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
-import { useCurrencyV2 } from 'hooks/Tokens'
 import useDebounce from 'hooks/useDebounce'
 import { useGatedWalletClient } from 'hooks/useGatedWalletClient'
+import { useCurrencyV2 } from 'hooks/useTokens'
 import {
   BitcoinToken,
   Chain,

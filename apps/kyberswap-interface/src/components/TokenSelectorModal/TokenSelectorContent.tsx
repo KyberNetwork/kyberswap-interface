@@ -16,6 +16,7 @@ import { isMobile } from 'react-device-detect'
 import { Trash } from 'react-feather'
 
 import { ButtonOutlined } from 'components/Button'
+import Dots from 'components/Dots'
 import InfoHelper from 'components/InfoHelper'
 import Loader from 'components/Loader'
 import { Center, HStack, Stack } from 'components/Stack'
@@ -40,9 +41,9 @@ import { NETWORKS_INFO } from 'constants/networks'
 import { Z_INDEXS } from 'constants/styles'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
-import { fetchListTokenByAddresses, useAllTokens } from 'hooks/Tokens'
 import useChainsConfig from 'hooks/useChainsConfig'
 import useDebounce from 'hooks/useDebounce'
+import { fetchListTokenByAddresses, useAllTokens } from 'hooks/useTokens'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { useRemoveUserAddedToken, useUserAddedTokens, useUserFavoriteTokens } from 'state/user/hooks'
 import { ButtonText, CloseIcon } from 'theme'
@@ -391,7 +392,7 @@ export const TokenSelectorContent = ({
         )}
         {loadingPinnedTokens && (
           <Center>
-            <span className="text-xs text-subText">Loading ...</span>
+            <Dots className="text-sm font-medium text-subText">Loading</Dots>
           </Center>
         )}
         <HStack className="justify-between">
