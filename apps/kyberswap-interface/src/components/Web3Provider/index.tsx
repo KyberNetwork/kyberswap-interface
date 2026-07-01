@@ -489,7 +489,7 @@ export const wagmiConfig = createConfig({
     // Porto's default iframe renderer sets iframe.src during connector setup,
     // which hits id.porto.sh on app mount. The official popup renderer opens
     // the remote dialog only when a Porto request needs user confirmation.
-    porto({ mode: Mode.dialog({ renderer: Dialog.popup() }) }),
+    ...(import.meta.env.SSR ? [] : [porto({ mode: Mode.dialog({ renderer: Dialog.popup() }) })]),
     safe(),
     ...HardCodedConnectors.map(connector => createPriorityConnector(connector)),
   ],
