@@ -3,7 +3,6 @@ import { BookOpen, FileText, Info, MessageCircle, PieChart } from 'react-feather
 import { NavLink } from 'react-router-dom'
 import { useMedia } from 'react-use'
 
-import { ReactComponent as MenuIcon } from 'assets/svg/all_icon.svg'
 import { ReactComponent as BlogIcon } from 'assets/svg/blog.svg'
 import { ReactComponent as BridgeIcon } from 'assets/svg/bridge_icon.svg'
 import { ReactComponent as TipLinkIcon } from 'assets/svg/earn/ic_tip_link.svg'
@@ -13,10 +12,8 @@ import Faucet from 'components/Icons/Faucet'
 import VoteIcon from 'components/Icons/Vote'
 import { MenuItem, MenuItemContent, MenuItemLink, MenuSection, Title } from 'components/Menu/MenuItems'
 import NavDropDown from 'components/Menu/NavDropDown'
-import { ENV_LEVEL } from 'constants/env'
 import { AGGREGATOR_ANALYTICS_URL, APP_PATHS, TERM_FILES_PATH } from 'constants/index'
 import { FAUCET_NETWORKS } from 'constants/networks'
-import { ENV_TYPE } from 'constants/type'
 import { useActiveWeb3React } from 'hooks'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { ApplicationModal } from 'state/application/actions'
@@ -265,16 +262,6 @@ export const MainMenuSection = ({ openTipLinkGenerator, toggle }: MainMenuSectio
           </ExternalLink>
         </MenuItemLink>
       </MenuItem>
-      {ENV_LEVEL === ENV_TYPE.LOCAL && (
-        <MenuItem>
-          <MenuItemLink>
-            <NavLink to="/icons">
-              <MenuIcon />
-              <Trans>Icons</Trans>
-            </NavLink>
-          </MenuItemLink>
-        </MenuItem>
-      )}
     </MenuSection>
   )
 }
