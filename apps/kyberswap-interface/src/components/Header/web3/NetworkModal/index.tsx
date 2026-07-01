@@ -116,8 +116,7 @@ export default function NetworkModal({
 
   const orders = allOrders.filter(item => activeChainIds.map(i => i.toString()).includes(item))
 
-  const isDraggingAddToFavorite =
-    draggingItem !== undefined && !favoriteChains.includes(draggingItem) && order === undefined
+  const isDraggingAddToFavorite = draggingItem !== undefined && !favoriteChains.includes(draggingItem)
   const isDraggingRemoveFavorite = favoriteChains.includes(draggingItem) && order === undefined
 
   const saveFavoriteChains = (chains: string[], updatedChain: string) => {
@@ -190,15 +189,15 @@ export default function NetworkModal({
     return (
       <>
         <Row className="gap-3">
-          <span className="flex-shrink-0 text-[10px] leading-6 text-subText">{title}</span>
+          <span className="flex-shrink-0 text-xs text-subText">{title}</span>
           <hr className="w-full border-0 border-b border-solid border-border" />
         </Row>
         <div className="relative mb-3 flex-grow">
           <DropzoneOverlay show={isDraggingRemoveFavorite} text={t`Remove from favorite`} />
           {displayChains.length === 0 ? (
             <Row className="min-h-[60px] justify-center rounded-2xl border border-dashed border-text/20 px-3 py-4">
-              <span className="text-[10px] leading-[14px] text-subText">
-                <Trans>Drag here to unfavorite chain(s).</Trans>
+              <span className="text-xs font-medium text-subText">
+                <Trans>Drag here to unfavorite chain(s)</Trans>
               </span>
             </Row>
           ) : (
@@ -248,7 +247,7 @@ export default function NetworkModal({
 
         <Column className="mt-4 grow gap-2">
           <Row className="gap-3">
-            <span className="flex-shrink-0 text-[10px] leading-6 text-subText">
+            <span className="flex-shrink-0 text-xs text-subText">
               <Trans>Favorite Chain(s)</Trans>
             </span>
             <hr className="w-full border-0 border-b border-solid border-border" />
@@ -258,7 +257,7 @@ export default function NetworkModal({
             {favoriteChains.filter(item => activeChainIds.map(i => i.toString()).includes(item)).length === 0 &&
             !isDraggingAddToFavorite ? (
               <Row className="min-h-[60px] justify-center rounded-2xl border border-dashed border-text/20 px-3 py-4">
-                <span className="text-[10px] leading-[14px] text-subText">
+                <span className="text-xs font-medium text-subText">
                   <Trans>Drag your favourite chain(s) here</Trans>
                 </span>
               </Row>
