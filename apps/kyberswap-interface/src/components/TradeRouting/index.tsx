@@ -26,7 +26,7 @@ import {
   TokenLink,
 } from 'components/TradeRouting/styled'
 import { useActiveWeb3React } from 'hooks'
-import { useCurrencyV2 } from 'hooks/Tokens'
+import { useCurrencyV2 } from 'hooks/useTokens'
 import { useAllDexes } from 'state/customizeDexes/hooks'
 import { getEtherscanLink, isAddress } from 'utils'
 import { SwapRouteV2, SwapRouteV3 } from 'utils/aggregationRouting'
