@@ -443,22 +443,29 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
       body[toChainId].push((currencyOut as any)?.wrapped?.address)
     }
 
-    const r: {
+    let pricesResponse: {
       data: {
         [chainId: string]: {
           [address: string]: { PriceBuy: number; PriceSell: number }
         }
       }
-    } = await fetch(`${TOKEN_API_URL}/v1/public/tokens/prices`, {
-      method: 'POST',
-      body: JSON.stringify(body),
-      signal,
-    }).then(r => r.json())
+    } | null = null
+
+    try {
+      pricesResponse = await fetch(`${TOKEN_API_URL}/v1/public/tokens/prices`, {
+        method: 'POST',
+        body: JSON.stringify(body),
+      }).then(r => r.json())
+    } catch (error) {
+      if (signal.aborted) return
+      console.error('Failed to fetch token prices:', error)
+    }
+
     // Check if this request has been aborted
     if (signal.aborted) return
 
-    const tokenInUsd = r?.data?.[fromChainId]?.[(currencyIn as any).wrapped.address]?.PriceBuy || 0
-    const tokenOutUsd = r?.data?.[toChainId as any]?.[(currencyOut as any).wrapped.address]?.PriceBuy || 0
+    const tokenInUsd = pricesResponse?.data?.[fromChainId]?.[(currencyIn as any).wrapped.address]?.PriceBuy || 0
+    const tokenOutUsd = pricesResponse?.data?.[toChainId as any]?.[(currencyOut as any).wrapped.address]?.PriceBuy || 0
     const isToNear = toChainId === 'near'
 
     let feeBps = 25
