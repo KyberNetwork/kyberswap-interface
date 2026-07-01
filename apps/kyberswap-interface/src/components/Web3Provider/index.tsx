@@ -2,6 +2,7 @@ import { PUBLIC_RPC_ENDPOINTS } from '@kyber/rpc-client'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { reconnect, watchChainId } from '@wagmi/core'
+import { Dialog, Mode } from 'porto'
 import { porto } from 'porto/wagmi'
 import { ReactNode, useEffect } from 'react'
 import { defineChain, fallback, http } from 'viem'
@@ -485,8 +486,10 @@ export const wagmiConfig = createConfig({
       appLogoUrl: `${KYBERSWAP_URL}/favicon.png`,
     }),
     safepalConnector(),
-    // porto sets up an iframe Dialog at connector setup, which cannot run during SSR/prerender.
-    ...(import.meta.env.SSR ? [] : [porto()]),
+    // Porto's default iframe renderer sets iframe.src during connector setup,
+    // which hits id.porto.sh on app mount. The official popup renderer opens
+    // the remote dialog only when a Porto request needs user confirmation.
+    porto({ mode: Mode.dialog({ renderer: Dialog.popup() }) }),
     safe(),
     ...HardCodedConnectors.map(connector => createPriorityConnector(connector)),
   ],
