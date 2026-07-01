@@ -3,13 +3,14 @@ import dayjs from 'dayjs'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
+import { useLimitOrderContext } from 'components/LimitOrder/LimitOrderContext'
+import { useLimitOrderTracking } from 'components/LimitOrder/hooks/useLimitOrderTracking'
 import { RateInfo } from 'components/LimitOrder/types'
-import { calcInvert, calcOutput, calcRate, parseFraction, removeTrailingZero } from 'components/LimitOrder/utils'
+import { calcInvert, calcOutput, calcRate, formatPriceInputValue, parseFraction } from 'components/LimitOrder/utils'
 import { TIMES_IN_SECS } from 'constants/index'
 import { SUPPORTED_NETWORKS } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { useBaseTradeInfoLimitOrder } from 'hooks/useBaseTradeInfo'
-import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { useLimitActionHandlers, useLimitState } from 'state/limit/hooks'
 import { formatTimeDuration } from 'utils/time'
 
@@ -24,7 +25,8 @@ const DEFAULT_RATE_INFO: RateInfo = { rate: '', invertRate: '' }
 
 export const useLimitOrderFormState = ({ currencyIn, currencyOut, useUrlParams }: UseLimitOrderFormStateProps) => {
   const { chainId: walletChainId, networkInfo } = useActiveWeb3React()
-  const { trackingHandler } = useTracking()
+  const { priceInputRequest } = useLimitOrderContext()
+  const limitOrderTracking = useLimitOrderTracking()
   const [searchParams, setSearchParams] = useSearchParams()
   const urlChainId = searchParams.get('chainId')
   const urlChainIdNumber = urlChainId ? +urlChainId : undefined
@@ -40,6 +42,7 @@ export const useLimitOrderFormState = ({ currencyIn, currencyOut, useUrlParams }
   const { inputAmount } = useLimitState()
 
   const autoFillMarketPrice = useRef(false)
+  const appliedPriceInputRequestId = useRef<number | undefined>(undefined)
 
   const [outputAmount, setOutputAmount] = useState('')
   const [rateInfo, setRateInfo] = useState<RateInfo>(DEFAULT_RATE_INFO)
@@ -140,27 +143,31 @@ export const useLimitOrderFormState = ({ currencyIn, currencyOut, useUrlParams }
     }
   }
 
+  useEffect(() => {
+    if (!priceInputRequest || appliedPriceInputRequestId.current === priceInputRequest.id) return
+
+    appliedPriceInputRequestId.current = priceInputRequest.id
+    onSetRate(priceInputRequest.rate, priceInputRequest.invertRate)
+  }, [onSetRate, priceInputRequest])
+
   const setPriceRateMarket = useCallback(
     (autoFillInput = false) => {
       try {
-        !autoFillInput && trackingHandler(TRACKING_EVENT_TYPE.LO_ENTER_DETAIL, 'set price')
+        !autoFillInput && limitOrderTracking.trackFormSetPriceClick()
         if ((loadingTrade && !autoFillInput) || !tradeInfo) return
-        const marketRate = removeTrailingZero(tradeInfo.marketRate.toFixed(16)) ?? ''
-        onSetRate(marketRate, removeTrailingZero(tradeInfo.invertRate.toFixed(16)) ?? '')
+        const marketRate = formatPriceInputValue(tradeInfo.marketRate)
+        onSetRate(marketRate, formatPriceInputValue(tradeInfo.invertRate))
         if (!autoFillInput) {
-          trackingHandler(TRACKING_EVENT_TYPE.LO_PRICE_SET, {
-            side: 'sell',
-            limit_price: marketRate,
-            market_price: marketRate,
-            price_difference_pct: 0,
-            from_token: currencyIn?.symbol,
-            to_token: currencyOut?.symbol,
+          limitOrderTracking.trackFormMarketPriceSet({
+            currencyIn,
+            currencyOut,
+            limitPrice: marketRate,
             chain: networkInfo.name,
           })
         }
       } catch (error) {}
     },
-    [loadingTrade, trackingHandler, onSetRate, tradeInfo, currencyIn, currencyOut, networkInfo.name],
+    [currencyIn, currencyOut, limitOrderTracking, loadingTrade, networkInfo.name, onSetRate, tradeInfo],
   )
 
   const onSetOutput = (output: string) => {
@@ -195,12 +202,7 @@ export const useLimitOrderFormState = ({ currencyIn, currencyOut, useUrlParams }
   }
 
   const handleRotateClick = () => {
-    trackingHandler(TRACKING_EVENT_TYPE.LO_SIDE_SELECTED, {
-      side: 'buy',
-      from_token: currencyOut?.symbol,
-      to_token: currencyIn?.symbol,
-      chain: networkInfo.name,
-    })
+    limitOrderTracking.trackFormSideSelected({ currencyIn, currencyOut, chain: networkInfo.name })
     switchCurrency()
     setInputAmount(outputAmount)
     setOutputAmount(inputAmount)
@@ -224,19 +226,19 @@ export const useLimitOrderFormState = ({ currencyIn, currencyOut, useUrlParams }
     if (typeof val === 'number') {
       setExpire(val)
       setCustomDateExpire(undefined)
-      trackingHandler(TRACKING_EVENT_TYPE.LO_ENTER_DETAIL, 'choose date')
-      trackingHandler(TRACKING_EVENT_TYPE.LO_EXPIRY_CHANGED, {
-        previous_expiry: previousExpiry,
-        new_expiry: formatTimeDuration(val),
-        custom_expiry_minutes: null,
+      limitOrderTracking.trackFormChooseDate()
+      limitOrderTracking.trackFormExpiryChanged({
+        previousExpiry,
+        newExpiry: formatTimeDuration(val),
+        customExpiryMinutes: null,
         chain: networkInfo.name,
       })
     } else {
       setCustomDateExpire(val)
-      trackingHandler(TRACKING_EVENT_TYPE.LO_EXPIRY_CHANGED, {
-        previous_expiry: previousExpiry,
-        new_expiry: 'custom',
-        custom_expiry_minutes: Math.round((val.getTime() - Date.now()) / 60000),
+      limitOrderTracking.trackFormExpiryChanged({
+        previousExpiry,
+        newExpiry: 'custom',
+        customExpiryMinutes: Math.round((val.getTime() - Date.now()) / 60000),
         chain: networkInfo.name,
       })
     }

@@ -43,7 +43,7 @@ export const SummaryNotify = ({ type, message, orders = [] }: SummaryNotifyProps
   let msg: ReactNode
   const listOrderName = (
     <ul className="m-0 pb-0 pl-[15px] pr-0 pt-[5px]">
-      {orders.map(order => (
+      {orders.slice(0, 4).map(order => (
         <li key={order.id}>
           {formatAmountOrder(order.makingAmount, order.makerAssetDecimals)} {order.makerAssetSymbol} <Trans>to</Trans>{' '}
           {formatAmountOrder(order.takingAmount, order.takerAssetDecimals)} {order.takerAssetSymbol}

@@ -6,8 +6,12 @@ import {
   useGetEncodeDataMutation,
 } from 'services/limitOrder'
 
+import {
+  getCancelAllOrdersSubmittedTrackingPayload,
+  getOrderTrackingPayload,
+} from 'components/LimitOrder/hooks/useLimitOrderTracking'
 import { CancelOrderFunction, CancelOrderType, LimitOrder } from 'components/LimitOrder/types'
-import { formatAmountOrder, getPayloadTracking } from 'components/LimitOrder/utils'
+import { formatAmountOrder } from 'components/LimitOrder/utils'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
@@ -117,6 +121,9 @@ const useCancelOrderRequest = ({ chainId, getEncodeData }: UseCancelOrderRequest
 
           const amountIn = order ? formatAmountOrder(makingAmount, makerAssetDecimals) : ''
           const amountOut = order ? formatAmountOrder(takingAmount, takerAssetDecimals) : ''
+          const cancelAllOrderIds = orders
+            .filter(order => order.contractAddress.toLowerCase() === contract.toLowerCase())
+            .map(order => order.id)
 
           addTransactionWithType({
             hash: response.hash,
@@ -130,15 +137,17 @@ const useCancelOrderRequest = ({ chainId, getEncodeData }: UseCancelOrderRequest
                   tokenSymbolOut: takerAssetSymbol,
                   tokenAmountIn: amountIn,
                   tokenAmountOut: amountOut,
-                  arbitrary: getPayloadTracking(order, networkName),
+                  arbitrary: {
+                    orderId: order.id,
+                  },
+                  trackingPayload: getOrderTrackingPayload(order, networkName),
                 }
               : {
                   arbitrary: {
+                    orderIds: cancelAllOrderIds,
                     totalOrder: orders.length,
-                    orderIds: orders
-                      .filter(order => order.contractAddress.toLowerCase() === contract.toLowerCase())
-                      .map(order => order.id),
                   },
+                  trackingPayload: getCancelAllOrdersSubmittedTrackingPayload(orders, contract),
                 },
           })
         }

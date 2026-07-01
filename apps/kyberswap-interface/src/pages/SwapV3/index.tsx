@@ -4,6 +4,7 @@ import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import Banner from 'components/Banner'
 import { FarmingPoolBanner, TrendingPoolBanner } from 'components/EarnBanner'
 import LimitOrderForm from 'components/LimitOrder/Form/LimitOrderForm'
+import { LimitOrderProvider } from 'components/LimitOrder/LimitOrderContext'
 import OrderList from 'components/LimitOrder/OrderList'
 import { HStack, Stack } from 'components/Stack'
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
@@ -16,9 +17,9 @@ import { Container, InfoComponentsWrapper, PageWrapper, SwapFormWrapper } from '
 import { APP_PATHS } from 'constants/index'
 import { PRICE_CHART_QUOTE_TOKEN_BY_CHAIN } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
-import { useAllTokens } from 'hooks/Tokens'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import useParsedQueryString from 'hooks/useParsedQueryString'
+import { useAllTokens } from 'hooks/useTokens'
 import CrossChainSwap from 'pages/CrossChainSwap'
 import { CrossChainSwapSources } from 'pages/CrossChainSwap/components/CrossChainSwapSources'
 import QuoteSteps from 'pages/CrossChainSwap/components/QuoteSteps'
@@ -126,69 +127,73 @@ export default function Swap() {
     <PageWrapper>
       <Banner />
       <Container>
-        <SwapFormWrapper>
-          <Header activeTab={activeTab} setActiveTab={setActiveTab} activeMainTab={activeMainTab} />
+        <LimitOrderProvider>
+          <SwapFormWrapper>
+            <Header activeTab={activeTab} setActiveTab={setActiveTab} activeMainTab={activeMainTab} />
 
-          <AppBodyWrapped
-            data-highlight={shouldHighlightSwapBox}
-            id={TutorialIds.SWAP_FORM}
-            style={activeTab === TAB.INFO ? { padding: 0 } : undefined}
-          >
-            {isSwapPage && (
-              <PopulatedSwapForm
-                routeSummary={routeSummary}
-                setRouteSummary={setRouteSummary}
-                hidden={activeTab !== TAB.SWAP}
+            <AppBodyWrapped
+              data-highlight={shouldHighlightSwapBox}
+              id={TutorialIds.SWAP_FORM}
+              style={activeTab === TAB.INFO ? { padding: 0 } : undefined}
+            >
+              {isSwapPage && (
+                <PopulatedSwapForm
+                  routeSummary={routeSummary}
+                  setRouteSummary={setRouteSummary}
+                  hidden={activeTab !== TAB.SWAP}
+                />
+              )}
+              {activeTab === TAB.INFO && <TokenInfoTab currencies={currencies} onBack={onBackToSwapTab} />}
+              {activeTab === TAB.SETTINGS && (
+                <SettingsPanel
+                  isCrossChainPage={isCrossChainPage}
+                  isSwapPage={isSwapPage}
+                  highlightDegenMode={highlightDegenMode}
+                  onBack={onBackToSwapTab}
+                  onClickLiquiditySources={() => setActiveTab(TAB.LIQUIDITY_SOURCES)}
+                  onClickCrossChainSources={() => setActiveTab(TAB.CROSS_CHAIN_SOURCES)}
+                />
+              )}
+              {activeTab === TAB.LIQUIDITY_SOURCES && (
+                <LiquiditySourcesPanel onBack={() => setActiveTab(TAB.SETTINGS)} />
+              )}
+              {activeTab === TAB.LIMIT && <LimitOrderForm />}
+              {activeTab === TAB.CROSS_CHAIN && <CrossChainSwap onQuoteChange={setSelectedQuote} />}
+              {activeTab === TAB.CROSS_CHAIN_SOURCES && (
+                <CrossChainSwapSources onBack={() => setActiveTab(TAB.SETTINGS)} />
+              )}
+            </AppBodyWrapped>
+          </SwapFormWrapper>
+
+          <InfoComponents>
+            {(isSwapPage || isLimitPage || isCrossChainPage) && !isPartnerSwap && (
+              <BannerWrapper>
+                <TrendingPoolBanner />
+                <FarmingPoolBanner />
+              </BannerWrapper>
+            )}
+            {isSwapPage && isShowPricingChart && <TokenPriceChart tokens={[currencyIn, currencyOut]} />}
+            {isShowTradeRoutes && isSwapPage && (
+              <SwapTradeRoute
+                tradeComposition={tradeRouteComposition}
+                currencyIn={currencyIn}
+                currencyOut={currencyOut}
+                defaultCollapsed={hasSupportedTokenPriceChart && isShowPricingChart}
+                inputAmount={routeSummary?.parsedAmountIn}
+                outputAmount={routeSummary?.parsedAmountOut}
+                isSmartSettlementActive={isSmartSettlementActive}
               />
             )}
-            {activeTab === TAB.INFO && <TokenInfoTab currencies={currencies} onBack={onBackToSwapTab} />}
-            {activeTab === TAB.SETTINGS && (
-              <SettingsPanel
-                isCrossChainPage={isCrossChainPage}
-                isSwapPage={isSwapPage}
-                highlightDegenMode={highlightDegenMode}
-                onBack={onBackToSwapTab}
-                onClickLiquiditySources={() => setActiveTab(TAB.LIQUIDITY_SOURCES)}
-                onClickCrossChainSources={() => setActiveTab(TAB.CROSS_CHAIN_SOURCES)}
-              />
-            )}
-            {activeTab === TAB.LIQUIDITY_SOURCES && <LiquiditySourcesPanel onBack={() => setActiveTab(TAB.SETTINGS)} />}
-            {activeTab === TAB.LIMIT && <LimitOrderForm />}
-            {activeTab === TAB.CROSS_CHAIN && <CrossChainSwap onQuoteChange={setSelectedQuote} />}
-            {activeTab === TAB.CROSS_CHAIN_SOURCES && (
-              <CrossChainSwapSources onBack={() => setActiveTab(TAB.SETTINGS)} />
-            )}
-          </AppBodyWrapped>
-        </SwapFormWrapper>
 
-        <InfoComponents>
-          {(isSwapPage || isLimitPage || isCrossChainPage) && !isPartnerSwap && (
-            <BannerWrapper>
-              <TrendingPoolBanner />
-              <FarmingPoolBanner />
-            </BannerWrapper>
-          )}
-          {isSwapPage && isShowPricingChart && <TokenPriceChart tokens={[currencyIn, currencyOut]} />}
-          {isShowTradeRoutes && isSwapPage && (
-            <SwapTradeRoute
-              tradeComposition={tradeRouteComposition}
-              currencyIn={currencyIn}
-              currencyOut={currencyOut}
-              defaultCollapsed={hasSupportedTokenPriceChart && isShowPricingChart}
-              inputAmount={routeSummary?.parsedAmountIn}
-              outputAmount={routeSummary?.parsedAmountOut}
-              isSmartSettlementActive={isSmartSettlementActive}
-            />
-          )}
-
-          {isLimitPage && <OrderList />}
-          {isCrossChainPage && (
-            <Stack className="gap-4">
-              <QuoteSteps quote={selectedQuote} />
-              <TransactionHistory />
-            </Stack>
-          )}
-        </InfoComponents>
+            {isLimitPage && <OrderList />}
+            {isCrossChainPage && (
+              <Stack className="gap-4">
+                <QuoteSteps quote={selectedQuote} />
+                <TransactionHistory />
+              </Stack>
+            )}
+          </InfoComponents>
+        </LimitOrderProvider>
       </Container>
       <HStack className="justify-center">
         <SwitchLocaleLinkWrapper>

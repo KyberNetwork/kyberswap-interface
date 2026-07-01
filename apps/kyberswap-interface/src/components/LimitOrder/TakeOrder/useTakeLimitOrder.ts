@@ -175,8 +175,8 @@ export const useTakeLimitOrder = ({ context, fillAmount }: UseTakeLimitOrderProp
         tokenAmountIn: requiredPayAmount?.toExact() || parsedPayAmount.toExact(),
         tokenAmountOut: receiveAmountAfterFee?.toExact() || receiveAmount?.toExact() || '',
         arbitrary: {
-          order_id: order.id,
-          type: 'fill_limit_order',
+          orderId: order.id,
+          type: 'fillLimitOrder',
         },
       },
     })

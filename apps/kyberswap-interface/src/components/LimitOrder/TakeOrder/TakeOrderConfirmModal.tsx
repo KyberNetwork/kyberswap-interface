@@ -21,6 +21,7 @@ import {
   getSwapCurrencyId,
   normalizeActionAmount,
 } from 'components/LimitOrder/TakeOrder/utils'
+import { useLimitOrderTracking } from 'components/LimitOrder/hooks/useLimitOrderTracking'
 import {
   LimitOrderFromTokenPairFormatted,
   LimitOrderStatus,
@@ -91,6 +92,7 @@ type Props = {
 const TakeOrderConfirmModal = ({ isOpen, order, onDismiss }: Props) => {
   const navigate = useNavigate()
   const { currencyIn: makerCurrency, currencyOut: takerCurrency } = useLimitState()
+  const limitOrderTracking = useLimitOrderTracking()
 
   const [fillAmount, setFillAmount] = useState('')
   const [showInvertedRate, setShowInvertedRate] = useState(false)
@@ -159,6 +161,18 @@ const TakeOrderConfirmModal = ({ isOpen, order, onDismiss }: Props) => {
   const fillAmountUsd = parsedPayAmount ? Number(parsedPayAmount.toExact()) * tokenPrices[payTokenAddress] : 0
   const receiveAmountForComparison = receiveAmountAfterFee || receiveAmount
   const shouldWarnMarketDiff = order.marketDiffPercent > MARKET_DIFF_WARNING_THRESHOLD
+  const isProcessingComplete =
+    processing.state.show &&
+    !!processing.state.steps.length &&
+    processing.state.steps.every(step => processing.state.completedSteps.includes(step)) &&
+    !processing.state.errorStep
+
+  const trackClosePanel = (stage: 'browsing' | 'processing' | 'success') => {
+    limitOrderTracking.trackTakeClosePanel({
+      context,
+      stage,
+    })
+  }
 
   const { fillAmountMessage, primaryActionMessage } = useTakeOrderValidation({
     fillAmount,
@@ -194,6 +208,10 @@ const TakeOrderConfirmModal = ({ isOpen, order, onDismiss }: Props) => {
 
   const handleSubmit = () => {
     if (!canSubmit) return
+    limitOrderTracking.trackTakeClickFill({
+      context,
+      fillAmount,
+    })
     processing.start()
   }
 
@@ -201,7 +219,27 @@ const TakeOrderConfirmModal = ({ isOpen, order, onDismiss }: Props) => {
     setFillAmount(normalizeActionAmount(getPercentFillAmount(maxBalancePayAmount, percent)))
   }
 
+  const handleHalfClick = () => {
+    limitOrderTracking.trackTakeClickHalf(context)
+    handleFillAmountPreset(50)
+  }
+
+  const handleMaxClick = () => {
+    limitOrderTracking.trackTakeClickMax(context)
+    handleFillAmountPreset(100)
+  }
+
+  const handleWalletMaxClick = () => {
+    limitOrderTracking.trackTakeClickWalletMax(context)
+    handleFillAmountPreset(100)
+  }
+
   const handleUseSwapInstead = () => {
+    limitOrderTracking.trackTakeClickUseSwap({
+      context,
+      marketDiffPercent: order.marketDiffPercent,
+    })
+
     const route = NETWORKS_INFO[context.order.chainId]?.route
     const inputCurrency = getSwapCurrencyId(context.payCurrency)
     const outputCurrency = getSwapCurrencyId(context.receiveCurrency)
@@ -218,9 +256,26 @@ const TakeOrderConfirmModal = ({ isOpen, order, onDismiss }: Props) => {
     )
   }
 
-  const handleProcessingDismiss = () => {
+  const handleConfirmDismiss = () => {
+    trackClosePanel('browsing')
+    onDismiss?.()
+  }
+
+  const dismissProcessingPanel = () => {
     processing.dismiss()
     onDismiss?.()
+  }
+
+  const trackProcessingPanelDismiss = () => {
+    trackClosePanel(isProcessingComplete ? 'success' : 'processing')
+  }
+
+  const handleRetryStep = (step: Parameters<typeof processing.retryStep>[0]) => {
+    limitOrderTracking.trackTakeClickRetry({
+      context,
+      step,
+    })
+    processing.retryStep(step)
   }
 
   const handleViewOrder = () => {
@@ -237,13 +292,13 @@ const TakeOrderConfirmModal = ({ isOpen, order, onDismiss }: Props) => {
 
   return (
     <>
-      <Modal isOpen={isConfirmOpen} onDismiss={onDismiss} maxWidth={480} borderRadius={16}>
+      <Modal isOpen={isConfirmOpen} onDismiss={handleConfirmDismiss} maxWidth={480} borderRadius={16}>
         <Stack className="w-full gap-5 p-5 max-sm:p-4">
           <HStack className="items-center justify-between gap-4">
             <span className="text-xl font-medium leading-tight text-text">
               <Trans>Fill Order</Trans>
             </span>
-            <CloseIcon onClick={onDismiss} />
+            <CloseIcon onClick={handleConfirmDismiss} />
           </HStack>
 
           <Stack className="gap-4">
@@ -291,17 +346,17 @@ const TakeOrderConfirmModal = ({ isOpen, order, onDismiss }: Props) => {
               <Stack className="relative gap-3 rounded-xl border border-transparent bg-buttonGray px-4 py-3">
                 <HStack className="items-center justify-between gap-3">
                   <HStack className="flex-wrap gap-1">
-                    <PresetButton type="button" onClick={() => handleFillAmountPreset(50)}>
+                    <PresetButton type="button" onClick={handleHalfClick}>
                       <Trans>Half</Trans>
                     </PresetButton>
-                    <PresetButton type="button" onClick={() => handleFillAmountPreset(100)}>
+                    <PresetButton type="button" onClick={handleMaxClick}>
                       <Trans>Max</Trans>
                     </PresetButton>
                   </HStack>
                   <button
                     type="button"
                     className="flex cursor-pointer items-center gap-1 border-none bg-transparent p-0 text-xs text-subText hover:brightness-125"
-                    onClick={() => handleFillAmountPreset(100)}
+                    onClick={handleWalletMaxClick}
                   >
                     <WalletIcon size={14} className="shrink-0" />
                     <span className="font-medium">{formatExact(walletBalance)}</span>
@@ -368,8 +423,10 @@ const TakeOrderConfirmModal = ({ isOpen, order, onDismiss }: Props) => {
         currencyIn={context.payCurrency}
         processing={{
           ...processing,
-          dismiss: handleProcessingDismiss,
+          dismiss: dismissProcessingPanel,
+          retryStep: handleRetryStep,
         }}
+        onUserDismiss={trackProcessingPanelDismiss}
         onViewOrder={handleViewOrder}
       />
     </>

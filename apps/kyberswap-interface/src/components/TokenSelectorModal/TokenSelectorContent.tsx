@@ -15,7 +15,8 @@ import {
 import { isMobile } from 'react-device-detect'
 import { Trash } from 'react-feather'
 
-import { ButtonEmpty } from 'components/Button'
+import { ButtonOutlined } from 'components/Button'
+import Dots from 'components/Dots'
 import InfoHelper from 'components/InfoHelper'
 import Loader from 'components/Loader'
 import { Center, HStack, Stack } from 'components/Stack'
@@ -40,9 +41,9 @@ import { NETWORKS_INFO } from 'constants/networks'
 import { Z_INDEXS } from 'constants/styles'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
-import { fetchListTokenByAddresses, useAllTokens } from 'hooks/Tokens'
 import useChainsConfig from 'hooks/useChainsConfig'
 import useDebounce from 'hooks/useDebounce'
+import { fetchListTokenByAddresses, useAllTokens } from 'hooks/useTokens'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { useRemoveUserAddedToken, useUserAddedTokens, useUserFavoriteTokens } from 'state/user/hooks'
 import { ButtonText, CloseIcon } from 'theme'
@@ -391,7 +392,7 @@ export const TokenSelectorContent = ({
         )}
         {loadingPinnedTokens && (
           <Center>
-            <span className="text-xs text-subText">Loading ...</span>
+            <Dots className="text-sm font-medium text-subText">Loading</Dots>
           </Center>
         )}
         <HStack className="justify-between">
@@ -428,15 +429,15 @@ export const TokenSelectorContent = ({
           <div className="text-sm font-medium text-subText">
             <Trans>{visibleCurrencies.length} Custom Tokens</Trans>
           </div>
-          <ButtonEmpty
+          <ButtonOutlined
             type="button"
-            className="w-fit gap-[5px] rounded-3xl bg-subText-20 px-2.5 py-[5px] text-xs text-subText"
+            className="w-fit gap-1 !border-red-35 px-2 py-1 text-xs !text-red"
             onClick={removeAllImportToken}
             data-testid="button-clear-all-import-token"
           >
             <Trash size={13} />
             <Trans>Clear All</Trans>
-          </ButtonEmpty>
+          </ButtonOutlined>
         </HStack>
       )}
 

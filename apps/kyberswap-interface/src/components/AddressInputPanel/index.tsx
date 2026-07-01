@@ -1,7 +1,7 @@
 import { Trans, t } from '@lingui/macro'
 import { CSSProperties, ChangeEvent, DOMAttributes, ReactNode, useCallback } from 'react'
+import { ChevronDown } from 'react-feather'
 
-import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import { AutoColumn } from 'components/Column'
 import Row from 'components/Row'
 import { useActiveWeb3React } from 'hooks'
@@ -82,9 +82,7 @@ export default function AddressInputPanel({
   onChange,
 }: {
   id?: string
-  // the typed string value
   value: string | null
-  // triggers whenever the typed value changes
   onChange: (value: string | null) => void
 }) {
   const { chainId, networkInfo } = useActiveWeb3React()
@@ -101,19 +99,19 @@ export default function AddressInputPanel({
 
   const error = Boolean((value || '').length > 0 && !loading && !address)
   return (
-    <AutoColumn className="gap-1">
+    <AutoColumn>
       <div
         role="button"
         onClick={() => onChange(value === null ? '' : null)}
-        className="mt-1 flex cursor-pointer items-center justify-between px-2 text-subText"
+        className="flex w-fit cursor-pointer items-end gap-1 text-subText"
       >
-        <span className="text-xs font-normal text-subText">
+        <span className="inline-flex items-center gap-1 text-xs font-normal text-subText hover:brightness-125">
           <Trans>Recipient (Optional)</Trans>
 
           {address && (
             <ExternalLink
               href={getEtherscanLink(chainId, name ?? address, 'address')}
-              className="ml-1 text-xs"
+              className="text-xs"
               onClick={e => {
                 e.stopPropagation()
               }}
@@ -122,17 +120,24 @@ export default function AddressInputPanel({
             </ExternalLink>
           )}
         </span>
-        <DropdownSVG
-          className={cn('cursor-pointer transition-transform duration-300', value !== null && '-rotate-180')}
+        <ChevronDown
+          size={14}
+          className={cn('cursor-pointer transition-transform duration-300', value !== null && 'rotate-180')}
         />
       </div>
 
       <div
         id={id}
-        className="relative z-10 flex w-full flex-col flex-nowrap overflow-hidden rounded-xl bg-buttonBlack transition-[max-height] duration-200 ease-in-out"
-        style={{ maxHeight: value === null ? 0 : '44px' }}
+        className={cn(
+          'relative z-10 grid w-full transition-[grid-template-rows,opacity] duration-200 ease-in-out',
+          value !== null ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0',
+        )}
       >
-        <AddressInput onChange={handleInput} value={value || ''} error={error} />
+        <div className="min-h-0 overflow-hidden">
+          <div className="pt-2">
+            <AddressInput onChange={handleInput} value={value || ''} error={error} />
+          </div>
+        </div>
       </div>
     </AutoColumn>
   )

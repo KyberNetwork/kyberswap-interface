@@ -145,7 +145,7 @@ export class CrossChainSwapFactory {
       CrossChainSwapFactory.getSymbiosisAdapter(),
       CrossChainSwapFactory.getDebridgeInstance(),
       CrossChainSwapFactory.getLifiInstance(),
-      CrossChainSwapFactory.getOptimexAdapter(),
+      // CrossChainSwapFactory.getOptimexAdapter(),
       CrossChainSwapFactory.getKsApdater(),
       // CrossChainSwapFactory.getOrbiterAdapter(),
       CrossChainSwapFactory.getBungeeAdapter(),

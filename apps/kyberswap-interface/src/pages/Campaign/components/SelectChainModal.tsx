@@ -1,9 +1,7 @@
 import { Trans } from '@lingui/macro'
 
-import { ReactComponent as Close } from 'assets/images/x.svg'
-import { CloseIcon } from 'components/Header/web3/WalletModal'
+import { Content, Header, Icon, OptionButton, Options, Section, Shell } from 'components/Header/web3/WalletModal'
 import Modal from 'components/Modal'
-import { RowBetween } from 'components/Row'
 
 export const SelectChainModal = ({
   showSelect,
@@ -16,46 +14,46 @@ export const SelectChainModal = ({
   setShowSelect: (show: boolean) => void
   logo: Record<string, string>
 }) => {
+  const closeModal = () => setShowSelect(false)
+  const chainOptions = Object.entries(logo)
+
   return (
     <Modal
       isOpen={showSelect}
-      onDismiss={() => setShowSelect(false)}
+      onDismiss={closeModal}
       maxHeight={90}
       maxWidth={600}
       bypassScrollLock={true}
       bypassFocusLock={true}
       zindex={99999}
-      width="240px"
+      width="min(430px, calc(100vw - 32px))"
     >
-      <div className="flex w-full flex-col p-6">
-        <RowBetween className="mb-6 gap-5">
-          <span className="text-xl font-medium">
-            <Trans>Select chain</Trans>
-          </span>
-          <CloseIcon
-            onClick={() => {
-              setShowSelect(false)
-            }}
-          >
-            <Close />
-          </CloseIcon>
-        </RowBetween>
+      <Shell>
+        <Section>
+          <Header title={<Trans>Select chain</Trans>} onClose={closeModal} />
 
-        {Object.keys(logo).map(walletType => (
-          <div
-            key={walletType}
-            role="button"
-            onClick={() => {
-              setShowSelect(false)
-              connect[walletType]()
-            }}
-            className="flex cursor-pointer items-center gap-2 rounded-[10px] p-3.5 font-medium hover:bg-buttonBlack"
-          >
-            <img src={logo[walletType]} width={20} height={20} alt="" style={{ borderRadius: '50%' }} />
-            <span>{walletType}</span>
-          </div>
-        ))}
-      </div>
+          <Content>
+            <Options>
+              {chainOptions.map(([walletType, icon]) => (
+                <OptionButton
+                  key={walletType}
+                  role="button"
+                  connected={false}
+                  onClick={() => {
+                    closeModal()
+                    connect[walletType]()
+                  }}
+                >
+                  <Icon>
+                    <img src={icon} alt={walletType} />
+                  </Icon>
+                  <span>{walletType}</span>
+                </OptionButton>
+              ))}
+            </Options>
+          </Content>
+        </Section>
+      </Shell>
     </Modal>
   )
 }

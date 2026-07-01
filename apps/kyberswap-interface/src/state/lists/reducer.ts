@@ -2,7 +2,7 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { createReducer } from '@reduxjs/toolkit'
 
 import { SUPPORTED_NETWORKS } from 'constants/networks'
-import { TokenMap } from 'hooks/Tokens'
+import { TokenMap } from 'hooks/useTokens'
 
 import { setTokenList } from './actions'
 import { WrappedTokenInfo } from './wrappedTokenInfo'

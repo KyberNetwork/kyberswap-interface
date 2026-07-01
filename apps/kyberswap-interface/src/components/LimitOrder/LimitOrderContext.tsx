@@ -1,5 +1,5 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { ReactNode, createContext, useContext, useMemo } from 'react'
+import { ReactNode, createContext, useCallback, useContext, useMemo, useState } from 'react'
 
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
@@ -9,6 +9,12 @@ type LimitOrderContextValue = {
   chainId: ChainId
   networkName: string
   syncOrderListTabWithQuery: boolean
+  priceInputRequest?: {
+    id: number
+    rate: string
+    invertRate: string
+  }
+  setPriceInputRequest: (request: { rate: string; invertRate: string }) => void
 }
 
 const LimitOrderContext = createContext<LimitOrderContextValue | undefined>(undefined)
@@ -16,6 +22,14 @@ const LimitOrderContext = createContext<LimitOrderContextValue | undefined>(unde
 export const LimitOrderProvider = ({ children, customChainId }: { children: ReactNode; customChainId?: ChainId }) => {
   const { chainId: walletChainId, networkInfo } = useActiveWeb3React()
   const chainId = customChainId ?? walletChainId
+  const [priceInputRequest, setLocalPriceInputRequest] = useState<LimitOrderContextValue['priceInputRequest']>()
+
+  const setPriceInputRequest = useCallback((request: { rate: string; invertRate: string }) => {
+    setLocalPriceInputRequest(current => ({
+      ...request,
+      id: (current?.id ?? 0) + 1,
+    }))
+  }, [])
 
   const value = useMemo(
     () => ({
@@ -23,8 +37,10 @@ export const LimitOrderProvider = ({ children, customChainId }: { children: Reac
       chainId,
       networkName: NETWORKS_INFO[chainId]?.name || networkInfo.name,
       syncOrderListTabWithQuery: !customChainId,
+      priceInputRequest,
+      setPriceInputRequest,
     }),
-    [chainId, customChainId, networkInfo.name],
+    [chainId, customChainId, networkInfo.name, priceInputRequest, setPriceInputRequest],
   )
 
   return <LimitOrderContext.Provider value={value}>{children}</LimitOrderContext.Provider>
@@ -39,6 +55,7 @@ export const useLimitOrderContext = () => {
       chainId,
       networkName: networkInfo.name,
       syncOrderListTabWithQuery: true,
+      setPriceInputRequest: () => {},
     }
   )
 }

@@ -37,7 +37,7 @@ const NavDropDown = ({ title, icon, options = [] }: NavDropDownProps) => {
           {title}
         </HStack>
         <DropdownSVG
-          className={cn('!size-6 shrink-0 transition-all duration-200 ease-in-out', isShowOptions && 'rotate-180')}
+          className={cn('-mx-1 size-6 shrink-0 transition-all duration-200 ease-in-out', isShowOptions && 'rotate-180')}
         />
       </MenuItemContent>
       <div

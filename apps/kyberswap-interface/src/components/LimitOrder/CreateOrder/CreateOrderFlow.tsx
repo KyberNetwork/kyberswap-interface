@@ -39,7 +39,10 @@ const CreateOrderFlow = ({ order, isOpen, onDismiss, createOrder }: CreateOrderF
     processingOrder,
     setProcessingOrder,
     ...createOrder.processing,
-    onStart: onDismiss,
+    onStart: () => {
+      createOrder.processing.onStart?.()
+      onDismiss?.()
+    },
   })
 
   return (

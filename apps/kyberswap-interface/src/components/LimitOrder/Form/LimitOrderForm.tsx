@@ -160,13 +160,17 @@ const LimitOrderForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPr
             }}
             events={{
               onRateChange: form.onChangeRate,
-              onSetMarketRate: form.setPriceRateMarket,
+              onRatePresetClick: tracking.trackingRatePresetClick,
+              onSetMarketRate: () => {
+                tracking.trackingMarketRateClick()
+                form.setPriceRateMarket()
+              },
               onRateInputFocus: tracking.trackingTouchInput,
               onRateInputBlur: tracking.trackingPriceSetOnBlur,
             }}
           />
 
-          <HStack className="items-center justify-between gap-3 px-0.5">
+          <HStack className="items-center justify-between gap-3">
             <HStack className="min-w-0 items-center gap-2 text-sm text-subText">
               <span className="shrink-0">
                 <Trans>Market Price</Trans>
@@ -180,10 +184,7 @@ const LimitOrderForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPr
                 />
               </div>
             </HStack>
-            <ReverseTokenSelectionButton
-              className="mx-0 size-6 shrink-0 bg-buttonGray p-1"
-              onClick={form.handleRotateClick}
-            />
+            <ReverseTokenSelectionButton className="size-6 bg-buttonGray p-0.5" onClick={form.handleRotateClick} />
           </HStack>
 
           <LimitOrderOutputTokenPanel {...tokenSectionProps} />

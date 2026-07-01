@@ -1,11 +1,23 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 
-import { LimitOrder, LimitOrderStatus } from 'components/LimitOrder/types'
-import { formatAmountOrder, formatRateLimitOrder, isActiveStatus } from 'components/LimitOrder/utils'
+import { LimitOrderStatus } from 'components/LimitOrder/types'
+import { isActiveStatus } from 'components/LimitOrder/utils'
 import { NativeCurrencies } from 'constants/tokens'
 
 export const PAGE_SIZE = 10
+
+const txTimeFormatter = new Intl.DateTimeFormat('en-US', {
+  year: 'numeric',
+  month: 'numeric',
+  day: 'numeric',
+  hour: 'numeric',
+  minute: '2-digit',
+  second: '2-digit',
+  hourCycle: 'h23',
+})
+
+export const formatTxTime = (timestamp: number) => txTimeFormatter.format(new Date(timestamp * 1000))
 
 export const LIST_ORDER_TABS = [LimitOrderStatus.ACTIVE, LimitOrderStatus.CLOSED] as const
 
@@ -92,34 +104,4 @@ export const getOrdersApiSearchKeyword = (keyword: string, chainIds: ChainId[]):
 
   const matchedChainId = chainIds.find(chainId => NativeCurrencies[chainId].symbol?.toLowerCase() === normalizedKeyword)
   return matchedChainId ? NativeCurrencies[matchedChainId].wrapped.symbol || keyword : keyword
-}
-
-export const getCancelledOrderTrackingPayload = (order: LimitOrder, chainName: string) => ({
-  order_id: order.id,
-  side: 'sell',
-  from_token: order.makerAssetSymbol,
-  to_token: order.takerAssetSymbol,
-  pair: `${order.makerAssetSymbol}/${order.takerAssetSymbol}`,
-  limit_price: formatRateLimitOrder(order, false),
-  amount_in: formatAmountOrder(order.makingAmount, order.makerAssetDecimals),
-  time_active_minutes: Math.round((Date.now() / 1000 - order.createdAt) / 60),
-  chain: chainName,
-})
-
-export const getFilledOrderTrackingPayload = (order: LimitOrder, chainName: string) => {
-  const lastTx = order.transactions?.[order.transactions.length - 1]
-
-  return {
-    order_id: order.id,
-    side: 'sell',
-    from_token: order.makerAssetSymbol,
-    to_token: order.takerAssetSymbol,
-    pair: `${order.makerAssetSymbol}/${order.takerAssetSymbol}`,
-    limit_price: formatRateLimitOrder(order, false),
-    fill_price: formatRateLimitOrder(order, false),
-    amount_in: formatAmountOrder(order.makingAmount, order.makerAssetDecimals),
-    amount_out_actual: formatAmountOrder(order.filledTakingAmount, order.takerAssetDecimals),
-    tx_hash: lastTx?.txHash,
-    chain: chainName,
-  }
 }

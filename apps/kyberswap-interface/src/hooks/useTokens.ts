@@ -1,8 +1,8 @@
 import { ChainId, Currency, NativeCurrency, Token } from '@kyberswap/ks-sdk-core'
 import { multicall } from '@wagmi/core'
 import axios from 'axios'
-import { useCallback, useMemo } from 'react'
-import { useSelector } from 'react-redux'
+import { useCallback, useEffect, useMemo } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import ksSettingApi from 'services/ksSetting'
 
 import { wagmiConfig } from 'components/Web3Provider'
@@ -14,13 +14,14 @@ import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { useBytes32TokenContract, useTokenReadingContract } from 'hooks/useContract'
 import useDebounce from 'hooks/useDebounce'
-import { AppState } from 'state'
+import { AppDispatch, AppState } from 'state'
+import { setTokenList } from 'state/lists/actions'
 import { TokenAddressMap } from 'state/lists/reducer'
 import { TokenInfo, WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { NEVER_RELOAD, useSingleCallResult } from 'state/multicall/hooks'
 import { useUserAddedTokens } from 'state/user/hooks'
 import { filterTruthy, isAddress } from 'utils'
-import { escapeQuoteString } from 'utils/tokenInfo'
+import { escapeQuoteString, getFormattedAddress } from 'utils/tokenInfo'
 import { Address, hexToString, toBytes } from 'utils/viem'
 
 // reduce token map into standard address <-> Token mapping
@@ -64,10 +65,99 @@ function useTokensFromMap(tokenMap: TokenAddressMap, lowercaseAddress?: boolean,
 
 export type TokenMap = { [address: string]: WrappedTokenInfo }
 
+const fetchedChainIds = new Set<ChainId>()
+const fetchingChainIds = new Set<ChainId>()
+
+function listToTokenMap(list: TokenInfo[], chainId: ChainId): TokenMap {
+  const map = list.reduce<TokenMap>((tokenMap, tokenInfo) => {
+    const formattedAddress = getFormattedAddress(chainId, tokenInfo.address)
+    if (!tokenInfo || tokenMap[formattedAddress] || !isAddress(chainId, tokenInfo.address)) {
+      return tokenMap
+    }
+    const token = formatAndCacheToken(tokenInfo)
+    if (token) tokenMap[formattedAddress] = token
+    return tokenMap
+  }, {})
+  return map
+}
+
+export function useEnsureTokenList(chainId?: ChainId) {
+  const dispatch = useDispatch<AppDispatch>()
+  const [fetchTokenList] = ksSettingApi.useLazyGetTokenListQuery()
+  const tokenListSize = useSelector((state: AppState) =>
+    chainId ? Object.keys(state.lists.mapWhitelistTokens[chainId] ?? {}).length : 0,
+  )
+
+  useEffect(() => {
+    if (!chainId || tokenListSize) return
+    if (fetchedChainIds.has(chainId) || fetchingChainIds.has(chainId)) return
+
+    const getTokens = async () => {
+      fetchingChainIds.add(chainId)
+      try {
+        let tokens: TokenInfo[] = []
+        const pageSize = 100
+        const maximumPage = 15
+        let page = 1
+
+        while (true) {
+          const { data, error } = await fetchTokenList({ chainId, page, pageSize, isWhitelisted: true }, true)
+          if (error) throw error
+          page++
+          const tokensResponse = data?.data.tokens ?? []
+          tokens = tokens.concat(tokensResponse)
+          if (tokensResponse.length < pageSize || page >= maximumPage) break // out of tokens, and prevent infinity loop
+        }
+
+        const tokenList = listToTokenMap(tokens, chainId)
+
+        if (chainId === ChainId.GÖRLI) {
+          dispatch(
+            setTokenList({
+              chainId,
+              tokenList: {
+                ...tokenList,
+                '0x1BBeeEdCF32dc2c1Ebc2F138e3FC7f3DeCD44D6A': new WrappedTokenInfo({
+                  address: '0x1BBeeEdCF32dc2c1Ebc2F138e3FC7f3DeCD44D6A',
+                  chainId: ChainId.GÖRLI,
+                  decimals: 18,
+                  name: 'DAI',
+                  symbol: 'DAI',
+                  logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/4943.png',
+                }),
+                '0x2Bf64aCf7eAd856209749D0D125e9Ade2D908E7f': new WrappedTokenInfo({
+                  address: '0x2Bf64aCf7eAd856209749D0D125e9Ade2D908E7f',
+                  chainId: ChainId.GÖRLI,
+                  decimals: 18,
+                  name: 'USDT',
+                  symbol: 'USDT',
+                  logoURI: 'https://cryptologos.cc/logos/tether-usdt-logo.png',
+                }),
+              },
+            }),
+          )
+        } else dispatch(setTokenList({ chainId, tokenList }))
+
+        fetchedChainIds.add(chainId)
+      } finally {
+        fetchingChainIds.delete(chainId)
+      }
+    }
+
+    getTokens().catch(error => {
+      console.error('Failed to fetch token list', { chainId, error })
+    })
+  }, [chainId, dispatch, fetchTokenList, tokenListSize])
+}
+
 export function useAllTokens(lowercaseAddress = false, chainId?: ChainId): TokenMap {
+  const { chainId: currentChainId } = useActiveWeb3React()
+  const selectedChainId = chainId || currentChainId
+  useEnsureTokenList(selectedChainId)
+
   const mapWhitelistTokens = useSelector((state: AppState) => state.lists.mapWhitelistTokens)
   const allTokens = useDebounce(mapWhitelistTokens, 300)
-  return useTokensFromMap(allTokens, lowercaseAddress, chainId)
+  return useTokensFromMap(allTokens, lowercaseAddress, selectedChainId)
 }
 
 export function useIsLoadedTokenDefault() {

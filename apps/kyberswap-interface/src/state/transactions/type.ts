@@ -125,6 +125,7 @@ export type TransactionExtraInfo = (
   actuallySuccess?: boolean
   needCheckSubgraph?: boolean
   arbitrary?: any // To store anything arbitrary, so it has any type
+  trackingPayload?: Record<string, unknown>
 }
 
 export interface TransactionDetails {

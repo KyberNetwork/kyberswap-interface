@@ -17,10 +17,10 @@ import {
 } from 'components/LimitOrder/utils'
 import Logo from 'components/Logo'
 import { HStack, Stack } from 'components/Stack'
-import { useCurrencyV2 } from 'hooks/Tokens'
 import { useBaseTradeInfoLimitOrder } from 'hooks/useBaseTradeInfo'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import useInterval from 'hooks/useInterval'
+import { useCurrencyV2 } from 'hooks/useTokens'
 import { ExternalLink } from 'theme'
 import { formatRemainTime } from 'utils/time'
 
