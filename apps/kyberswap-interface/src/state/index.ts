@@ -21,6 +21,7 @@ import marketOverviewApi from 'services/marketOverview'
 import notificationApi from 'services/notification'
 import priceAlertApi from 'services/priceAlert'
 import referralApi from 'services/referral'
+import restrictedTokensApi from 'services/restrictedTokens'
 import rewardServiceApi from 'services/reward'
 import rewardMerklApi from 'services/rewardMerkl'
 import routeApi from 'services/route'
@@ -130,6 +131,7 @@ const rootReducer = combineReducers({
   [smartExitApi.reducerPath]: smartExitApi.reducer,
   [tipLinkApi.reducerPath]: tipLinkApi.reducer,
   [tokenChartApi.reducerPath]: tokenChartApi.reducer,
+  [restrictedTokensApi.reducerPath]: restrictedTokensApi.reducer,
 })
 
 export type AppState = ReturnType<typeof rootReducer>
@@ -167,6 +169,7 @@ const apiMiddlewares: Middleware[] = [
   smartExitApi,
   tipLinkApi,
   tokenChartApi,
+  restrictedTokensApi,
 ].map(api => api.middleware as Middleware)
 
 export const makeStore = (preloadedState?: Partial<AppState>) =>

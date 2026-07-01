@@ -21,6 +21,7 @@ import ReverseTokenSelectionButton from 'components/SwapForm/ReverseTokenSelecti
 import { useActiveWeb3React } from 'hooks'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import usePageLocation from 'hooks/usePageLocation'
+import { restrictedTokenMessage, useIsTokenRestricted } from 'hooks/useRestrictedTokens'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import ErrorWarning from 'pages/Bridge/ErrorWarning'
 import { useWalletModalToggle } from 'state/application/hooks'
@@ -74,6 +75,13 @@ const LimitOrderForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPr
     currencyOut: currencyOutProp,
   })
 
+  const isTokenRestricted = useIsTokenRestricted()
+  const restrictedCurrency = isTokenRestricted(currencyIn)
+    ? currencyIn
+    : isTokenRestricted(currencyOut)
+    ? currencyOut
+    : undefined
+
   const form = useLimitOrderFormState({
     currencyIn,
     currencyOut,
@@ -110,11 +118,17 @@ const LimitOrderForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPr
 
   const validationError = validation.inputError || validation.outputError
   const disableReviewButton =
-    validation.isNotFillAllInput || !!validationError || balance.insufficientBalance || validation.shouldDisableAction
+    !!restrictedCurrency ||
+    validation.isNotFillAllInput ||
+    !!validationError ||
+    balance.insufficientBalance ||
+    validation.shouldDisableAction
 
   const reviewButtonContent = (
     <span className="font-medium">
-      {validationError ? (
+      {restrictedCurrency ? (
+        restrictedTokenMessage(restrictedCurrency.symbol)
+      ) : validationError ? (
         validationError
       ) : balance.insufficientBalance && balance.insufficientBalanceText ? (
         balance.insufficientBalanceText

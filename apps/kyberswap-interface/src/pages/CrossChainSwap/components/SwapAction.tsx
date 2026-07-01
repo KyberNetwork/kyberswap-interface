@@ -11,6 +11,7 @@ import { useSolanaTokenBalances } from 'components/Web3Provider/SolanaProvider'
 import { ZERO_ADDRESS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
+import { restrictedTokenMessage, useIsTokenAddressRestricted } from 'hooks/useRestrictedTokens'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { NonEvmChain } from 'pages/CrossChainSwap/adapters'
@@ -22,6 +23,7 @@ import { useSolanaConnectModal } from 'pages/CrossChainSwap/provider/SolanaConne
 import { useWalletModalToggle } from 'state/application/hooks'
 import { useCurrencyBalance } from 'state/wallet/hooks'
 import { isEvmChain } from 'utils'
+import { getTokenAddress } from 'utils/tokenInfo'
 
 export const SwapAction = ({ setShowBtcModal }: { setShowBtcModal: (val: boolean) => void }) => {
   const { account, chainId } = useActiveWeb3React()
@@ -74,6 +76,18 @@ export const SwapAction = ({ setShowBtcModal }: { setShowBtcModal: (val: boolean
   const { setIsOpen } = useSolanaConnectModal()
   const isFindingRoute = loading || (allLoading && !selectedQuote)
 
+  // Restricted-token check applies only to EVM sides (the restricted list is keyed by EVM chainId).
+  const isAddressRestricted = useIsTokenAddressRestricted()
+  const restrictedCurrency =
+    isFromEvm && currencyIn && isAddressRestricted(fromChainId as ChainId, getTokenAddress(currencyIn as Currency))
+      ? currencyIn
+      : toChainId &&
+        isEvmChain(toChainId) &&
+        currencyOut &&
+        isAddressRestricted(toChainId as ChainId, getTokenAddress(currencyOut as Currency))
+      ? currencyOut
+      : undefined
+
   const {
     label,
     disabled = false,
@@ -96,6 +110,14 @@ export const SwapAction = ({ setShowBtcModal }: { setShowBtcModal: (val: boolean
     if (!fromChainId || !toChainId || !currencyIn || !currencyOut) {
       return {
         label: t`Please select a token`,
+        disabled: true,
+        onClick: () => {},
+      }
+    }
+
+    if (restrictedCurrency) {
+      return {
+        label: restrictedTokenMessage(restrictedCurrency.symbol),
         disabled: true,
         onClick: () => {},
       }
