@@ -15,7 +15,7 @@ import { BungeeAdapter } from './adapters/BungeeAdapter'
 import { NearIntentsAdapter } from './adapters/NearIntentsAdapter'
 import { OptimexAdapter } from './adapters/OptimexAdapter'
 import { OrbiterAdapter } from './adapters/OrbiterAdapter'
-import { normalizeAdapterName } from './utils'
+import { ENABLE_CROSS_CHAIN_STREAM_API, normalizeAdapterName } from './utils'
 
 // Factory for creating swap provider instances
 export class CrossChainSwapFactory {
@@ -139,6 +139,10 @@ export class CrossChainSwapFactory {
 
   // Get all registered adapters
   static getAllAdapters(): SwapProvider[] {
+    if (!ENABLE_CROSS_CHAIN_STREAM_API) {
+      return [CrossChainSwapFactory.getKyberCrossAdapter()]
+    }
+
     return [
       CrossChainSwapFactory.getAcrossAdapter(),
       CrossChainSwapFactory.getRelayAdapter(),

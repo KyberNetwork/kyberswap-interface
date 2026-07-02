@@ -36,7 +36,12 @@ import { CrossChainSwapFactory } from 'pages/CrossChainSwap/factory'
 import { type NearToken, useNearTokens } from 'pages/CrossChainSwap/hooks/useNearTokens'
 import { type SolanaToken, useSolanaTokens } from 'pages/CrossChainSwap/hooks/useSolanaTokens'
 import { CrossChainSwapAdapterRegistry, Quote } from 'pages/CrossChainSwap/registry'
-import { NEAR_STABLE_COINS, SOLANA_STABLE_COINS, isCanonicalPair } from 'pages/CrossChainSwap/utils'
+import {
+  ENABLE_CROSS_CHAIN_STREAM_API,
+  NEAR_STABLE_COINS,
+  SOLANA_STABLE_COINS,
+  isCanonicalPair,
+} from 'pages/CrossChainSwap/utils'
 import { useAppSelector } from 'state/hooks'
 import { useUserSlippageTolerance } from 'state/user/hooks'
 import { isEvmChain, isNonEvmChain } from 'utils'
@@ -723,6 +728,10 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
       let streamingApiSucceeded = false
 
       try {
+        if (!ENABLE_CROSS_CHAIN_STREAM_API) {
+          throw new Error('Cross-chain streaming API is disabled')
+        }
+
         // Check for cancellation before starting
         if (signal.aborted) throw new Error('Cancelled')
 
