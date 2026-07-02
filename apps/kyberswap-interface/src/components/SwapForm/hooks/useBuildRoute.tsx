@@ -95,7 +95,7 @@ const useBuildRoute = (args: Args) => {
       recipient: to || account,
       source: clientId || 'kyberswap',
       skipSimulateTx: false,
-      enableGasEstimation: true,
+      enableGasEstimation: false,
       permit,
       referral: refCode,
       // for calculating price impact only

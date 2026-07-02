@@ -18,7 +18,7 @@ const SwapButtonWithPriceImpact = ({
   showLoading,
   onClick,
   priceImpact,
-  isApproved,
+  isApproved: _isApproved,
   route,
   disabled,
   showNoteGetRoute,
@@ -65,7 +65,7 @@ const SwapButtonWithPriceImpact = ({
   }
 
   const shouldDisableByPriceImpact = checkShouldDisableByPriceImpact(isDegenMode, priceImpact)
-  const shouldDisable = !route || !isApproved || disabled
+  const shouldDisable = !route || disabled
 
   if ((priceImpactResult.isVeryHigh || priceImpactResult.isInvalid) && isDegenMode) {
     return (

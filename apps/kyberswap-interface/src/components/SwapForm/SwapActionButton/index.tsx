@@ -128,10 +128,8 @@ const SwapActionButton: React.FC<Props> = ({
     }
   }, [currencyIn, typedValue, isProcessingSwap])
 
-  const showApproveFlow =
-    !swapInputError &&
-    (approval === ApprovalState.NOT_APPROVED || approval === ApprovalState.PENDING) &&
-    permitState !== PermitState.SIGNED
+  // build-route-bypass: force-disable the approve flow so the modal always reaches the build-route step
+  const showApproveFlow = false
 
   const [loading, setLoading] = useState(false)
 
