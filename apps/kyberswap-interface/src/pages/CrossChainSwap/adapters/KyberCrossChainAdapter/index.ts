@@ -26,6 +26,7 @@ import {
   KyberCrossRawQuote,
 } from 'pages/CrossChainSwap/adapters/KyberCrossChainAdapter/types'
 import {
+  NormalizedProvider,
   getKyberCrossTx,
   getKyberCrossTxData,
   getResponseData,
@@ -78,8 +79,10 @@ export class KyberCrossChainAdapter extends BaseSwapAdapter {
     const responseData = getResponseData(rawQuote)
     const routePlan = responseData?.route_plan
     const routeProvider = getRouteProvider(rawQuote, responseData)
+    const normalizedRouteProvider = normalizeProvider(routeProvider)
 
-    const { to, txData, value } = getKyberCrossTxData(getKyberCrossTx(rawQuote, responseData))
+    const kyberCrossTx = getKyberCrossTx(rawQuote, responseData)
+    const { to, txData, value } = getKyberCrossTxData(kyberCrossTx)
 
     const originChainId = quoteParams.fromChain as ChainId
     const originChain = chainIdToViemChain[originChainId]
@@ -95,6 +98,10 @@ export class KyberCrossChainAdapter extends BaseSwapAdapter {
     const isNativeToken = rawQuote.isNativeToken || fromToken.isNative
     const inputToken = (isNativeToken ? ZERO_ADDRESS : fromToken.wrapped.address) as Address
     const inputAmount = BigInt(quoteParams.amount)
+    const nearIntentsDepositAddress =
+      normalizedRouteProvider === NormalizedProvider.NearIntents
+        ? routePlan?.bridge?.metadata?.deposit_address
+        : undefined
 
     return new Promise<NormalizedTxResponse>((resolve, reject) => {
       this.execute({
@@ -115,7 +122,7 @@ export class KyberCrossChainAdapter extends BaseSwapAdapter {
               sender: quoteParams.sender,
               sourceTxHash: progress.txHash,
               adapter: this.getName(),
-              id: progress.txHash,
+              id: nearIntentsDepositAddress || progress.txHash,
               sourceChain: quoteParams.fromChain,
               targetChain: quoteParams.toChain,
               inputAmount: quoteParams.amount,
@@ -144,11 +151,20 @@ export class KyberCrossChainAdapter extends BaseSwapAdapter {
     const provider = normalizeProvider(params.bridgeProvider)
     const adapter = this.getAdapterByName?.(provider)
 
-    if (adapter && normalizeProvider(adapter.getName()) !== normalizeProvider(this.getName())) {
+    if (adapter && normalizeProvider(adapter.getName()) !== NormalizedProvider.KyberCross) {
+      const delegatedId = provider === NormalizedProvider.NearIntents ? params.id : params.routeId || params.id
+
+      if (!delegatedId) {
+        return {
+          txHash: '',
+          status: 'Processing',
+        }
+      }
+
       return adapter.getTransactionStatus({
         ...params,
         adapter: adapter.getName(),
-        id: params.routeId || params.id,
+        id: delegatedId,
       })
     }
 

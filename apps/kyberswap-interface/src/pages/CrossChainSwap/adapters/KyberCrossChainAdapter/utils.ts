@@ -9,10 +9,35 @@ import {
 export const getResponseData = (rawQuote: KyberCrossRawQuote): KyberCrossResponseData | undefined =>
   typeof rawQuote.data === 'object' ? rawQuote.data : undefined
 
-export const normalizeProvider = (provider?: string) => provider?.toLowerCase().replace(/\s+/g, '')
+export enum NormalizedProvider {
+  Across = 'across',
+  Relay = 'relay',
+  XyFinance = 'xyfinance',
+  NearIntents = 'nearintents',
+  Mayan = 'mayan',
+  Symbiosis = 'symbiosis',
+  Debridge = 'debridge',
+  Lifi = 'lifi',
+  Optimex = 'optimex',
+  KyberAcross = 'kyberacross',
+  KyberCross = 'kybercross',
+}
+
+const normalizedProviderMap: Record<string, NormalizedProvider> = Object.values(NormalizedProvider).reduce(
+  (acc, provider) => ({ ...acc, [provider]: provider }),
+  {},
+)
+
+export const normalizeProvider = (provider?: string): NormalizedProvider | undefined => {
+  const normalizedProvider = provider?.toLowerCase().replace(/[\s_-]+/g, '')
+
+  return normalizedProvider ? normalizedProviderMap[normalizedProvider] : undefined
+}
 
 export const getRouteProvider = (rawQuote: KyberCrossRawQuote, responseData?: KyberCrossResponseData) =>
-  responseData?.route_plan?.provider || rawQuote.steps?.find(step => step.provider)?.provider
+  responseData?.route_plan?.bridge?.provider ||
+  responseData?.route_plan?.provider ||
+  rawQuote.steps?.find(step => step.provider)?.provider
 
 export const getKyberCrossTx = (rawQuote: KyberCrossRawQuote, responseData?: KyberCrossResponseData): KyberCrossTx =>
   responseData?.build?.tx || rawQuote.build?.tx || rawQuote.tx || (rawQuote as KyberCrossTx)
