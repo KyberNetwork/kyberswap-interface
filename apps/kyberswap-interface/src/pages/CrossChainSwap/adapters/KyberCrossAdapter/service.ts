@@ -1,10 +1,56 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { createPublicClient, encodeFunctionData, http, maxUint256, parseAbi } from 'viem'
+import {
+  type Address,
+  type Hash,
+  type Hex,
+  type TransactionReceipt,
+  type Chain as ViemChain,
+  WalletClient,
+  createPublicClient,
+  encodeFunctionData,
+  http,
+  maxUint256,
+  parseAbi,
+} from 'viem'
 
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
-import { CrossChainExecuteResponse, ExecuteParams } from 'pages/CrossChainSwap/adapters/KyberCrossChainAdapter/types'
 
-export async function executeKyberCross(params: ExecuteParams): Promise<CrossChainExecuteResponse> {
+type ApproveMeta = {
+  approvalAmount: bigint
+  spender: Address
+}
+
+type CrossChainExecuteProgress =
+  | { step: 'approve'; status: 'checking' }
+  | { step: 'approve'; status: 'txPending'; txHash: Hash; meta: ApproveMeta }
+  | { step: 'approve'; status: 'txSuccess'; txReceipt: TransactionReceipt; meta: ApproveMeta }
+  | { step: 'ksExecute'; status: 'simulationPending' }
+  | { step: 'ksExecute'; status: 'simulationSuccess'; txRequest: unknown }
+  | { step: 'ksExecute'; status: 'txPending'; txHash: Hash }
+  | { step: 'ksExecute'; status: 'txSuccess'; txReceipt: TransactionReceipt }
+  | { step: 'approve' | 'ksExecute'; status: 'error'; error: Error }
+
+export interface CrossChainExecuteResponse {
+  txReceipt?: TransactionReceipt
+  error?: Error
+}
+
+export interface ExecuteParams {
+  walletClient: WalletClient
+  originChain: ViemChain
+  userAddress: Address
+  to: Address
+  txData: Hex
+  value: bigint
+  inputToken: Address
+  inputAmount: bigint
+  isNativeToken: boolean
+  infiniteApproval?: boolean
+  throwOnError?: boolean
+  onProgress?: (progress: CrossChainExecuteProgress) => void
+}
+
+export const executeKyberCross = async (params: ExecuteParams): Promise<CrossChainExecuteResponse> => {
   const {
     walletClient,
     originChain,
