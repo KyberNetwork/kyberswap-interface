@@ -70,6 +70,8 @@ const TokenModal = ({
     selectedTokenAddress,
     token0Address = "",
     token1Address = "",
+    isTokenRestricted,
+    onRestrictedToken,
   } = tokenOptions ?? {};
 
   const {
@@ -209,6 +211,8 @@ const TokenModal = ({
             filterChains={filterChains}
             variant={variant}
             onTokenSelect={onTokenSelect}
+            isTokenRestricted={isTokenRestricted}
+            onRestrictedToken={onRestrictedToken}
             onConnectWallet={onConnectWallet}
             onSelectLiquiditySource={onSelectLiquiditySource}
             selectedTokens={selectedTokens}
