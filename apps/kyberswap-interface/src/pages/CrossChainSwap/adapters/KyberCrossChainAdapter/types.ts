@@ -10,6 +10,14 @@ export type KyberCrossTx = {
 export type KyberCrossRoutePlan = {
   route_id?: string
   provider?: string
+  bridge?: {
+    provider?: string
+    provider_fee?: string
+    expected_fill_time_sec?: number
+    metadata?: {
+      deposit_address?: string
+    }
+  }
 }
 
 export type KyberCrossResponseData = {
