@@ -4,8 +4,6 @@ export const View = () =>
   ({
     ASSETS: t`Assets`,
     TRANSACTIONS: t`Transactions`,
-    SEND_TOKEN: t`Send`,
-    RECEIVE_TOKEN: t`Receive`,
     REWARD_CENTER: t`Reward Center`,
   } as const)
 

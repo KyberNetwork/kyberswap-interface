@@ -4,15 +4,12 @@ import { ChevronLeft, FileText, LogOut, StopCircle, X } from 'react-feather'
 
 import { ReactComponent as DragHandleIcon } from 'assets/svg/wallet_drag_handle.svg'
 import CopyHelper from 'components/Copy'
-import SendIcon from 'components/Icons/SendIcon'
 import Row from 'components/Row'
 import { MouseoverTooltip } from 'components/Tooltip'
 import AccountInfo from 'components/WalletPopup/AccountInfo'
 import MyAssets from 'components/WalletPopup/MyAssets'
 import PinButton from 'components/WalletPopup/PinButton'
-import ReceiveToken from 'components/WalletPopup/ReceiveToken'
 import RewardCenter from 'components/WalletPopup/RewardCenter'
-import SendToken from 'components/WalletPopup/SendToken'
 import ListTransaction from 'components/WalletPopup/Transactions'
 import { View as getView } from 'components/WalletPopup/type'
 import { CONNECTOR_ICON_OVERRIDE_MAP } from 'components/Web3Provider'
@@ -109,34 +106,12 @@ export default function WalletView({
   )
 
   const renderAccountInfo = () => {
-    const handleClickReceive = () => {
-      setView(View.RECEIVE_TOKEN)
-      trackingHandler(TRACKING_EVENT_TYPE.WUI_BUTTON_CLICK, { button_name: 'Receive' })
-      trackingHandler(TRACKING_EVENT_TYPE.WALLET_RECEIVE_CLICKED, {
-        total_balance_usd: totalBalanceInUsd,
-        wallet_address: account,
-        chain: NETWORKS_INFO[chainId]?.name,
-      })
-    }
-    const handleClickSend = () => {
-      setView(View.SEND_TOKEN)
-      trackingHandler(TRACKING_EVENT_TYPE.WUI_BUTTON_CLICK, { button_name: 'Send' })
-      trackingHandler(TRACKING_EVENT_TYPE.WALLET_SEND_CLICKED, {
-        total_balance_usd: totalBalanceInUsd,
-        wallet_address: account,
-        chain: NETWORKS_INFO[chainId]?.name,
-      })
-    }
-
     return (
       <AccountInfo
         toggleShowBalance={toggleShowBalance}
         showBalance={showBalance}
         totalBalanceInUsd={hasNetworkIssue ? '--' : totalBalanceInUsd}
-        onClickReceive={handleClickReceive}
-        onClickSend={handleClickSend}
         isMinimal={isMinimal}
-        disabledSend={!currencies.length}
         setView={setView}
       />
     )
@@ -167,19 +142,13 @@ export default function WalletView({
             />
           </div>
         )
-      case View.SEND_TOKEN:
-        return <SendToken loadingTokens={loadingTokens} currencies={currencies} currencyBalances={currencyBalances} />
-      case View.RECEIVE_TOKEN:
-        return <ReceiveToken />
       case View.REWARD_CENTER:
         return <RewardCenter />
     }
     return null
   }
 
-  const isSendTab = view === View.SEND_TOKEN
-  const isShowArrow = isSendTab || view === View.RECEIVE_TOKEN
-  const isShowBack = isShowArrow || view === View.REWARD_CENTER
+  const isShowBack = view === View.REWARD_CENTER
 
   useLayoutEffect(() => {
     // handle minimal mode when width & height become small
@@ -238,12 +207,7 @@ export default function WalletView({
             {isShowBack ? (
               <>
                 <ChevronLeft cursor="pointer" size={28} onClick={() => setView(View.ASSETS)} className="text-subText" />
-                <div className="flex items-center">
-                  {isShowArrow && (
-                    <SendIcon style={{ marginRight: 7, transform: isSendTab ? 'unset' : 'rotate(180deg)' }} />
-                  )}{' '}
-                  {view}
-                </div>
+                <div className="flex items-center">{view}</div>
               </>
             ) : (
               <div className="flex items-center gap-2 text-subText">

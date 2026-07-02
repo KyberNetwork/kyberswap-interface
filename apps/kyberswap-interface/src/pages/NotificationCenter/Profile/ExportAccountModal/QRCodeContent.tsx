@@ -1,17 +1,17 @@
 import { Trans } from '@lingui/macro'
-import { useMemo, useRef } from 'react'
-import { QRCode, IProps as QRCodeProps } from 'react-qrcode-logo'
+import { useRef } from 'react'
 
 import KncLogo from 'assets/images/kyber_logo_for_qr.png'
 import { AddressInput } from 'components/AddressInputPanel'
 import { ButtonEmpty, ButtonPrimary } from 'components/Button'
 import CopyHelper from 'components/Copy'
 import Deposit from 'components/Icons/Deposit'
+import QRCodeWithLogo from 'components/QRCodeWithLogo'
 import { Label } from 'pages/NotificationCenter/Profile/ExportAccountModal/styled'
 import { ButtonExport } from 'pages/NotificationCenter/Profile/buttons'
 
 const QR_SIZE = 200
-const QR_ID = 'react-qrcode-logo'
+const QR_ID = 'export-account-qr-code'
 
 type Props = {
   importToken: string
@@ -21,34 +21,6 @@ type Props = {
 
 export default function QRCodeContent({ dismissModal, importToken, forgotPasscode }: Props) {
   const copyButtonRef = useRef<HTMLDivElement>(null)
-
-  const qrCodeProps: QRCodeProps | undefined = useMemo(() => {
-    return {
-      logoImage: KncLogo,
-      logoWidth: 32,
-      logoHeight: 32,
-      size: QR_SIZE,
-      value: importToken,
-      eyeColor: { outer: '#000000', inner: '#000000' },
-      quietZone: 14,
-      removeQrCodeBehindLogo: true,
-    }
-  }, [importToken])
-
-  let qrElement = null
-  try {
-    qrElement = qrCodeProps ? <QRCode {...qrCodeProps} /> : <div className="h-[228px] w-[228px]" />
-  } catch (e) {
-    qrElement = (
-      <div className="flex h-[228px] w-[228px] items-center justify-center rounded-2xl border-2 border-solid border-border text-center text-sm text-subText">
-        <Trans>
-          Something went wrong,
-          <br />
-          please try again
-        </Trans>
-      </div>
-    )
-  }
 
   const downloadQR = () => {
     try {
@@ -66,7 +38,17 @@ export default function QRCodeContent({ dismissModal, importToken, forgotPasscod
 
   return (
     <div className="flex w-full flex-col gap-4">
-      <div className="my-2 flex items-center justify-center">{qrElement}</div>
+      <div className="my-2 flex items-center justify-center">
+        <QRCodeWithLogo
+          id={QR_ID}
+          value={importToken}
+          logoImage={KncLogo}
+          logoWidth={32}
+          logoHeight={32}
+          size={QR_SIZE}
+          quietZone={14}
+        />
+      </div>
 
       <div className="flex w-full flex-col gap-2">
         <Label>

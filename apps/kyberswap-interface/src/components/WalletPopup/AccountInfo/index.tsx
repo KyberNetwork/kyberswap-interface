@@ -3,9 +3,7 @@ import { ChevronRight, Eye, EyeOff, Star } from 'react-feather'
 
 import CoinbaseSubscribeBtn from 'components/CoinbaseSubscribeBtn'
 import Loader from 'components/Loader'
-import ActionButtonGroup from 'components/WalletPopup/AccountInfo/ActionButtonGroup'
 import CardBackground from 'components/WalletPopup/AccountInfo/CardBackground'
-import MinimalActionButtonGroup from 'components/WalletPopup/AccountInfo/MinimalActionButtonGroup'
 import { View } from 'components/WalletPopup/type'
 import { useActiveWeb3React } from 'hooks'
 import { useRewards } from 'hooks/useRewards'
@@ -19,24 +17,9 @@ type Props = {
   toggleShowBalance: () => void
   showBalance: boolean
   setView: React.Dispatch<React.SetStateAction<string>>
-} & ClickHandlerProps
-
-export type ClickHandlerProps = {
-  disabledSend: boolean
-  onClickReceive: () => void
-  onClickSend: () => void
 }
 
-export default function AccountInfo({
-  totalBalanceInUsd,
-  disabledSend,
-  onClickReceive,
-  onClickSend,
-  isMinimal,
-  showBalance,
-  toggleShowBalance,
-  setView,
-}: Props) {
+export default function AccountInfo({ totalBalanceInUsd, isMinimal, showBalance, toggleShowBalance, setView }: Props) {
   const { trackingHandler } = useTracking()
   const { account } = useActiveWeb3React()
   const {
@@ -44,15 +27,7 @@ export default function AccountInfo({
   } = useRewards()
 
   return (
-    <div
-      data-minimal={isMinimal}
-      className={cn(
-        'flex flex-col gap-[14px] transition-all duration-100',
-        '[&_[data-action=full]]:flex [&_[data-action=minimal]]:hidden',
-        'data-[minimal=true]:[&_[data-action=full]]:hidden',
-        'data-[minimal=true]:[&_[data-action=minimal]]:flex data-[minimal=true]:[&_[data-action=minimal]]:self-end',
-      )}
-    >
+    <div data-minimal={isMinimal} className="flex flex-col gap-[14px] transition-all duration-100">
       <div className="-mt-4 ml-7">
         <CoinbaseSubscribeBtn />
       </div>
@@ -98,12 +73,6 @@ export default function AccountInfo({
                 )}
               </span>
             </div>
-
-            <MinimalActionButtonGroup
-              disabledSend={disabledSend}
-              onClickReceive={onClickReceive}
-              onClickSend={onClickSend}
-            />
           </div>
         </div>
       </div>
@@ -137,7 +106,6 @@ export default function AccountInfo({
           </div>
         </div>
       </div>
-      <ActionButtonGroup disabledSend={disabledSend} onClickReceive={onClickReceive} onClickSend={onClickSend} />
     </div>
   )
 }

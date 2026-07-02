@@ -290,6 +290,9 @@ importers:
       process:
         specifier: ^0.11.10
         version: 0.11.10
+      qrcode-generator:
+        specifier: 1.4.4
+        version: 1.4.4
       react:
         specifier: ^19.2.6
         version: 19.2.7
@@ -317,9 +320,6 @@ importers:
       react-popper:
         specifier: ^2.2.3
         version: 2.3.0(@popperjs/core@2.11.8)(react-dom@19.2.7)(react@19.2.7)
-      react-qrcode-logo:
-        specifier: ^2.8.0
-        version: 2.10.0(react-dom@19.2.7)(react@19.2.7)
       react-redux:
         specifier: ^9.2.0
         version: 9.3.0(@types/react@19.2.16)(react@19.2.7)(redux@5.0.1)
@@ -28962,18 +28962,6 @@ packages:
       react-dom: 19.2.7(react@19.2.7)
       react-fast-compare: 3.1.1
       warning: 4.0.3
-    dev: false
-
-  /react-qrcode-logo@2.10.0(react-dom@19.2.7)(react@19.2.7):
-    resolution: {integrity: sha512-Q1+jLtcyDl5rLR29YdkXVLzYk62p3+541x00HxURVBQhs6SqFyEZZVhvkU/VQ082ytXa3GdCmGWMLK5z0Vhe7g==}
-    peerDependencies:
-      react: ^19.2.6
-      react-dom: ^19.2.6
-    dependencies:
-      lodash.isequal: 4.5.0
-      qrcode-generator: 1.4.4
-      react: 19.2.7
-      react-dom: 19.2.7(react@19.2.7)
     dev: false
 
   /react-redux@9.3.0(@types/react@19.2.16)(react@19.2.7)(redux@5.0.1):
