@@ -2,7 +2,7 @@ import {
   AcrossAdapter,
   DeBridgeAdapter,
   KyberAcrossAdapter,
-  KyberCrossChainAdapter,
+  KyberCrossAdapter,
   KyberSwapAdapter,
   LifiAdapter,
   MayanAdapter,
@@ -34,7 +34,7 @@ export class CrossChainSwapFactory {
   private static orbiterInstance: OrbiterAdapter
   private static bungeeInstance: BungeeAdapter
   private static kyberAcrossInstance: KyberAcrossAdapter
-  private static kyberCrossChainInstance: KyberCrossChainAdapter
+  private static kyberCrossInstance: KyberCrossAdapter
 
   // Get or create Across adapter
   static getAcrossAdapter(): AcrossAdapter {
@@ -129,13 +129,13 @@ export class CrossChainSwapFactory {
     return CrossChainSwapFactory.kyberAcrossInstance
   }
 
-  static getKyberCrossChainAdapter(): KyberCrossChainAdapter {
-    if (!CrossChainSwapFactory.kyberCrossChainInstance) {
-      CrossChainSwapFactory.kyberCrossChainInstance = new KyberCrossChainAdapter(name =>
+  static getKyberCrossAdapter(): KyberCrossAdapter {
+    if (!CrossChainSwapFactory.kyberCrossInstance) {
+      CrossChainSwapFactory.kyberCrossInstance = new KyberCrossAdapter(name =>
         name ? CrossChainSwapFactory.getAdapterByName(name) : undefined,
       )
     }
-    return CrossChainSwapFactory.kyberCrossChainInstance
+    return CrossChainSwapFactory.kyberCrossInstance
   }
 
   // Get all registered adapters
@@ -154,7 +154,7 @@ export class CrossChainSwapFactory {
       // CrossChainSwapFactory.getOrbiterAdapter(),
       CrossChainSwapFactory.getBungeeAdapter(),
       CrossChainSwapFactory.getKyberAcrossAdapter(),
-      CrossChainSwapFactory.getKyberCrossChainAdapter(),
+      CrossChainSwapFactory.getKyberCrossAdapter(),
     ]
   }
 
@@ -188,7 +188,7 @@ export class CrossChainSwapFactory {
       case 'kyberacross':
         return CrossChainSwapFactory.getKyberAcrossAdapter()
       case 'kybercross':
-        return CrossChainSwapFactory.getKyberCrossChainAdapter()
+        return CrossChainSwapFactory.getKyberCrossAdapter()
       default:
         return undefined
     }

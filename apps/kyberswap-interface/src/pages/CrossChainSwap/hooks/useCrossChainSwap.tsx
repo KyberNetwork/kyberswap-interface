@@ -931,8 +931,13 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
               return
             }
 
+            const isExcludedAllAdapters = excludedSources.length === registry.getAllAdapters().length
+            const quoteParams = isExcludedAllAdapters
+              ? params
+              : { ...params, includedSources: includedSourceNames, excludedSources: excludedSourceNames }
+
             // Race between the adapter quote and timeout
-            const quote = await Promise.race([adapter.getQuote(params), createTimeoutPromise(9_000)])
+            const quote = await Promise.race([adapter.getQuote(quoteParams), createTimeoutPromise(9_000)])
 
             // Check for cancellation after getting quote
             if (signal.aborted) throw new Error('Cancelled')
