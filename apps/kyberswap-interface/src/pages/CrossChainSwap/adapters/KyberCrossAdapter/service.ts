@@ -2,8 +2,6 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import {
   type Address,
   type Hash,
-  type Hex,
-  type TransactionReceipt,
   type Chain as ViemChain,
   WalletClient,
   createPublicClient,
@@ -14,57 +12,36 @@ import {
 } from 'viem'
 
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
-
-type ApproveMeta = {
-  approvalAmount: bigint
-  spender: Address
-}
-
-type CrossChainExecuteProgress =
-  | { step: 'approve'; status: 'checking' }
-  | { step: 'approve'; status: 'txPending'; txHash: Hash; meta: ApproveMeta }
-  | { step: 'approve'; status: 'txSuccess'; txReceipt: TransactionReceipt; meta: ApproveMeta }
-  | { step: 'ksExecute'; status: 'simulationPending' }
-  | { step: 'ksExecute'; status: 'simulationSuccess'; txRequest: unknown }
-  | { step: 'ksExecute'; status: 'txPending'; txHash: Hash }
-  | { step: 'ksExecute'; status: 'txSuccess'; txReceipt: TransactionReceipt }
-  | { step: 'approve' | 'ksExecute'; status: 'error'; error: Error }
-
-export interface CrossChainExecuteResponse {
-  txReceipt?: TransactionReceipt
-  error?: Error
-}
+import type { ExecutionTx } from 'pages/CrossChainSwap/adapters/KyberCrossAdapter/api'
 
 export interface ExecuteParams {
   walletClient: WalletClient
   originChain: ViemChain
   userAddress: Address
-  to: Address
-  txData: Hex
-  value: bigint
+  buildTx: ExecutionTx
   inputToken: Address
   inputAmount: bigint
   isNativeToken: boolean
   infiniteApproval?: boolean
-  throwOnError?: boolean
-  onProgress?: (progress: CrossChainExecuteProgress) => void
 }
 
-export const executeKyberCross = async (params: ExecuteParams): Promise<CrossChainExecuteResponse> => {
+export const executeKyberCross = async (params: ExecuteParams): Promise<Hash> => {
   const {
     walletClient,
     originChain,
     userAddress,
-    to,
-    txData,
-    value,
+    buildTx,
     inputToken,
     inputAmount,
     isNativeToken,
     infiniteApproval = false,
-    throwOnError = false,
-    onProgress,
   } = params
+  const value = BigInt(buildTx.value)
+  const account = walletClient.account
+
+  if (!account) {
+    throw new Error('Wallet account not connected')
+  }
 
   const rpcUrl = NETWORKS_INFO[originChain.id as ChainId]?.defaultRpcUrl
   if (!rpcUrl) {
@@ -76,124 +53,46 @@ export const executeKyberCross = async (params: ExecuteParams): Promise<CrossCha
     transport: http(rpcUrl),
   })
 
-  try {
-    if (!isNativeToken) {
-      onProgress?.({
-        step: 'approve',
-        status: 'checking',
+  if (!isNativeToken) {
+    const allowance = await originClient.readContract({
+      address: inputToken,
+      abi: parseAbi(['function allowance(address owner, address spender) public view returns (uint256)']),
+      functionName: 'allowance',
+      args: [userAddress, buildTx.to],
+    })
+
+    if (inputAmount > allowance) {
+      const approvalAmount = infiniteApproval ? maxUint256 : inputAmount
+      const approveCalldata = encodeFunctionData({
+        abi: parseAbi(['function approve(address spender, uint256 value)']),
+        args: [buildTx.to, approvalAmount],
       })
 
-      const allowance = await originClient.readContract({
-        address: inputToken,
-        abi: parseAbi(['function allowance(address owner, address spender) public view returns (uint256)']),
-        functionName: 'allowance',
-        args: [userAddress, to],
+      const approveTxHash = await walletClient.sendTransaction({
+        account,
+        chain: originChain,
+        to: inputToken,
+        data: approveCalldata,
       })
 
-      if (inputAmount > allowance) {
-        const approvalAmount = infiniteApproval ? maxUint256 : inputAmount
-
-        if (!walletClient.account) {
-          throw new Error('Wallet account not connected')
-        }
-
-        const approveCalldata = encodeFunctionData({
-          abi: parseAbi(['function approve(address spender, uint256 value)']),
-          args: [to, approvalAmount],
-        })
-
-        const approveTxHash = await walletClient.sendTransaction({
-          account: walletClient.account,
-          chain: originChain,
-          to: inputToken,
-          data: approveCalldata,
-        })
-
-        onProgress?.({
-          step: 'approve',
-          status: 'txPending',
-          txHash: approveTxHash,
-          meta: { approvalAmount, spender: to },
-        })
-
-        const approveTxReceipt = await originClient.waitForTransactionReceipt({
-          hash: approveTxHash,
-        })
-
-        onProgress?.({
-          step: 'approve',
-          status: 'txSuccess',
-          txReceipt: approveTxReceipt,
-          meta: { approvalAmount, spender: to },
-        })
-      }
-    }
-
-    onProgress?.({
-      step: 'ksExecute',
-      status: 'simulationPending',
-    })
-
-    await originClient.call({
-      to,
-      data: txData,
-      value,
-      account: walletClient.account,
-    })
-
-    onProgress?.({
-      step: 'ksExecute',
-      status: 'simulationSuccess',
-      txRequest: { to, data: txData, value },
-    })
-
-    if (!walletClient.account) {
-      throw new Error('Wallet account not connected')
-    }
-
-    const txHash = await walletClient.sendTransaction({
-      account: walletClient.account,
-      to,
-      data: txData,
-      value,
-      chain: originChain,
-    })
-
-    onProgress?.({
-      step: 'ksExecute',
-      status: 'txPending',
-      txHash,
-    })
-
-    const txReceipt = await originClient.waitForTransactionReceipt({
-      hash: txHash,
-    })
-
-    onProgress?.({
-      step: 'ksExecute',
-      status: 'txSuccess',
-      txReceipt,
-    })
-
-    return {
-      txReceipt,
-    }
-  } catch (error) {
-    const executeError = error instanceof Error ? error : new Error(String(error))
-
-    onProgress?.({
-      step: 'ksExecute',
-      status: 'error',
-      error: executeError,
-    })
-
-    if (throwOnError) {
-      throw error
-    }
-
-    return {
-      txReceipt: undefined,
-      error: executeError,
+      await originClient.waitForTransactionReceipt({
+        hash: approveTxHash,
+      })
     }
   }
+
+  await originClient.call({
+    to: buildTx.to,
+    data: buildTx.data,
+    value,
+    account,
+  })
+
+  return walletClient.sendTransaction({
+    account,
+    to: buildTx.to,
+    data: buildTx.data,
+    value,
+    chain: originChain,
+  })
 }

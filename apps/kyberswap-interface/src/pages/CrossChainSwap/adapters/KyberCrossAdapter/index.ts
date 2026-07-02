@@ -17,7 +17,6 @@ import {
 import {
   type NearIntentsBridgeMetadata,
   type QuoteRequest,
-  type RoutePlan,
   kyberCrossApi,
 } from 'pages/CrossChainSwap/adapters/KyberCrossAdapter/api'
 import { executeKyberCross } from 'pages/CrossChainSwap/adapters/KyberCrossAdapter/service'
@@ -30,10 +29,6 @@ import {
 import {
   NormalizedProvider,
   getKyberCrossBridgeProviders,
-  getKyberCrossTx,
-  getKyberCrossTxData,
-  getResponseData,
-  getRouteProvider,
   mapRouteStateToSwapStatus,
   normalizeProvider,
 } from 'pages/CrossChainSwap/adapters/KyberCrossAdapter/utils'
@@ -139,85 +134,59 @@ export class KyberCrossAdapter extends BaseSwapAdapter {
     const normalizedQuote = quote.quote
     const quoteParams = normalizedQuote.quoteParams
     const rawQuote = normalizedQuote.rawQuote as KyberCrossRawQuote
-    const responseData = getResponseData(rawQuote)
-    const routePlan = responseData?.route_plan
-    const routeProvider = getRouteProvider(rawQuote, responseData)
-    const normalizedRouteProvider = normalizeProvider(routeProvider)
+    const routePlan = rawQuote.data?.route_plan
 
-    let kyberCrossTx = getKyberCrossTx(rawQuote, responseData)
-    if (!kyberCrossTx.to || (!kyberCrossTx.data && !kyberCrossTx.txData)) {
-      if (!routePlan) {
-        throw new Error('Missing KyberCross route plan')
-      }
-
-      const buildResponse = await kyberCrossApi.build(routePlan as RoutePlan)
-      rawQuote.data = {
-        ...responseData,
-        build: buildResponse.data,
-      }
-      kyberCrossTx = buildResponse.data.tx
+    if (!routePlan) {
+      throw new Error('Missing KyberCross route plan')
     }
 
-    const { to, txData, value } = getKyberCrossTxData(kyberCrossTx)
+    const routeProvider = routePlan.bridge.provider || routePlan.provider
+    const normalizedRouteProvider = normalizeProvider(routeProvider)
+    const buildResponse = await kyberCrossApi.build(routePlan)
+    const buildTx = buildResponse.data.tx
 
     const originChainId = quoteParams.fromChain as ChainId
     const originChain = chainIdToViemChain[originChainId]
     if (!originChain) throw new Error(`Unsupported chain: ${originChainId}`)
 
-    const destinationChainId = quoteParams.toChain as ChainId
-    const destinationChain = chainIdToViemChain[destinationChainId]
-    if (!destinationChain) throw new Error(`Unsupported destination chain: ${destinationChainId}`)
-
-    const userAddress = quoteParams.sender as Address
-
     const fromToken = quoteParams.fromToken as Currency
     const isNativeToken = rawQuote.isNativeToken || fromToken.isNative
-    const inputToken = (isNativeToken ? ZERO_ADDRESS : fromToken.wrapped.address) as Address
-    const inputAmount = BigInt(quoteParams.amount)
-    const bridgeMetadata = routePlan?.bridge?.metadata
+    const bridgeMetadata = routePlan.bridge.metadata
     const nearIntentsDepositAddress =
       normalizedRouteProvider === NormalizedProvider.NearIntents
         ? (bridgeMetadata as NearIntentsBridgeMetadata)?.deposit_address
         : undefined
 
-    return new Promise<NormalizedTxResponse>((resolve, reject) => {
-      executeKyberCross({
-        walletClient,
-        originChain,
-        userAddress,
-        to,
-        txData,
-        value,
-        inputToken,
-        inputAmount,
-        isNativeToken,
-        infiniteApproval: false,
-        throwOnError: true,
-        onProgress: progress => {
-          if (progress.step === 'ksExecute' && 'txHash' in progress) {
-            resolve({
-              sender: quoteParams.sender,
-              sourceTxHash: progress.txHash,
-              adapter: this.getName(),
-              id: nearIntentsDepositAddress || progress.txHash,
-              sourceChain: quoteParams.fromChain,
-              targetChain: quoteParams.toChain,
-              inputAmount: quoteParams.amount,
-              outputAmount: normalizedQuote.outputAmount.toString(),
-              sourceToken: quoteParams.fromToken,
-              targetToken: quoteParams.toToken,
-              timestamp: new Date().getTime(),
-              amountInUsd: normalizedQuote.inputUsd,
-              amountOutUsd: normalizedQuote.outputUsd,
-              platformFeePercent: normalizedQuote.platformFeePercent,
-              recipient: quoteParams.recipient,
-              bridgeProvider: routeProvider,
-              routeId: routePlan?.route_id,
-            })
-          }
-        },
-      }).catch(reject)
+    const txHash = await executeKyberCross({
+      walletClient,
+      originChain,
+      userAddress: quoteParams.sender as Address,
+      buildTx,
+      inputToken: (isNativeToken ? ZERO_ADDRESS : fromToken.wrapped.address) as Address,
+      inputAmount: BigInt(quoteParams.amount),
+      isNativeToken,
+      infiniteApproval: false,
     })
+
+    return {
+      sender: quoteParams.sender,
+      sourceTxHash: txHash,
+      adapter: this.getName(),
+      id: nearIntentsDepositAddress || txHash,
+      sourceChain: quoteParams.fromChain,
+      targetChain: quoteParams.toChain,
+      inputAmount: quoteParams.amount,
+      outputAmount: normalizedQuote.outputAmount.toString(),
+      sourceToken: quoteParams.fromToken,
+      targetToken: quoteParams.toToken,
+      timestamp: new Date().getTime(),
+      amountInUsd: normalizedQuote.inputUsd,
+      amountOutUsd: normalizedQuote.outputUsd,
+      platformFeePercent: normalizedQuote.platformFeePercent,
+      recipient: quoteParams.recipient,
+      bridgeProvider: routeProvider,
+      routeId: routePlan.route_id,
+    }
   }
 
   async getTransactionStatus(params: NormalizedTxResponse): Promise<SwapStatus> {
