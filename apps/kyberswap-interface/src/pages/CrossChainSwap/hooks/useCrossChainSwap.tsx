@@ -1,4 +1,4 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
+import { ChainId, Currency as EvmCurrency } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { useWalletSelector } from '@near-wallet-selector/react-hook'
 import { useConnection, useWallet } from '@solana/wallet-adapter-react'
@@ -34,7 +34,7 @@ import {
 import { adaptRelaySolanaWallet } from 'pages/CrossChainSwap/adapters/RelayAdapter/relaySolanaWallet'
 import { CrossChainSwapFactory } from 'pages/CrossChainSwap/factory'
 import { type NearToken, useNearTokens } from 'pages/CrossChainSwap/hooks/useNearTokens'
-import { useSolanaTokens } from 'pages/CrossChainSwap/hooks/useSolanaTokens'
+import { type SolanaToken, useSolanaTokens } from 'pages/CrossChainSwap/hooks/useSolanaTokens'
 import { CrossChainSwapAdapterRegistry, Quote } from 'pages/CrossChainSwap/registry'
 import { NEAR_STABLE_COINS, SOLANA_STABLE_COINS, isCanonicalPair } from 'pages/CrossChainSwap/utils'
 import { useAppSelector } from 'state/hooks'
@@ -52,6 +52,78 @@ const SSE_EVENT = {
 
 // Timeout constants
 const SOFT_TIMEOUT_MS = 4000 // 4 seconds - enable swap button if at least 1 quote exists
+
+type PairCategory = 'stablePair' | 'commonPair' | 'highVolatilityPair' | 'exoticPair'
+
+type EvmCrossChainCurrency = EvmCurrency & {
+  chainId: ChainId
+  isNative?: boolean
+  wrapped: {
+    address: string
+    decimals: number
+    isStable?: boolean
+  }
+}
+
+type TokenPrice = {
+  PriceBuy?: number
+  PriceSell?: number
+}
+
+type TokenPricesResponse = {
+  data?: Record<string, Record<string, TokenPrice | undefined> | undefined>
+}
+
+type TokenCategoryResponse = {
+  data?: Array<{
+    token: string
+    category?: PairCategory
+  }>
+}
+
+const isObject = (value: unknown): value is Record<string, unknown> => typeof value === 'object' && value !== null
+
+const isEvmCurrency = (currency: Currency | undefined): currency is EvmCrossChainCurrency => {
+  const value: unknown = currency
+  if (!isObject(value)) return false
+
+  const wrapped = value.wrapped
+  if (!isObject(wrapped)) return false
+
+  return typeof wrapped.address === 'string' && typeof wrapped.decimals === 'number'
+}
+
+const isSolanaToken = (currency: Currency | undefined): currency is SolanaToken => {
+  const value: unknown = currency
+  return isObject(value) && typeof value.id === 'string'
+}
+
+const isNearToken = (currency: Currency | undefined): currency is NearToken => {
+  const value: unknown = currency
+  return isObject(value) && typeof value.assetId === 'string'
+}
+
+const getTokenMidPriceUsd = (price: TokenPrice | undefined) => {
+  const buy = price?.PriceBuy
+  const sell = price?.PriceSell
+
+  if (typeof buy === 'number' && typeof sell === 'number') return (buy + sell) / 2
+  return buy || sell || 0
+}
+
+const getCurrencyAddress = (currency: Currency) => {
+  if (isEvmCurrency(currency)) return currency.isNative ? ZERO_ADDRESS : currency.wrapped.address
+  if (isSolanaToken(currency)) return currency.id
+  if (isNearToken(currency)) return currency.assetId
+  return currency.symbol || ''
+}
+
+const isStableCurrency = (currency: Currency | undefined, chain: Chain | undefined) => {
+  if (isEvmCurrency(currency)) return !!currency.wrapped.isStable
+  if (chain === NonEvmChain.Solana && isSolanaToken(currency)) return SOLANA_STABLE_COINS.includes(currency.id)
+  if (chain === NonEvmChain.Near && isNearToken(currency)) return NEAR_STABLE_COINS.includes(currency.assetId)
+  return false
+}
 
 const getDefaultTokenForChain = (chain: string | null | undefined) => {
   if (chain === NonEvmChain.Near) return 'near'
@@ -310,7 +382,7 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
       currencyIn
         ? parseUnits(
             amountDebounce || '0',
-            isFromEvm ? (currencyIn as any).wrapped.decimals : currencyIn.decimals,
+            isFromEvm && isEvmCurrency(currencyIn) ? currencyIn.wrapped.decimals : currencyIn.decimals,
           ).toString()
         : undefined,
     [currencyIn, amountDebounce, isFromEvm],
@@ -334,9 +406,7 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
     setSelectedAdapter(null)
   }, [currencyIn, currencyOut, fromChainId, toChainId])
 
-  const [category, setCategory] = useState<'stablePair' | 'commonPair' | 'highVolatilityPair' | 'exoticPair'>(
-    'commonPair',
-  )
+  const [category, setCategory] = useState<PairCategory>('commonPair')
   const warning = useMemo(() => {
     const highSlippageMsg = t`Your slippage is set higher than usual, which may cause unexpected losses`
     const lowSlippageMsg = t`Your slippage is set lower than usual, which may cause transaction failure.`
@@ -434,27 +504,22 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
     const { signal } = abortControllerRef.current
 
     const body: Record<string, string[]> = {}
-    if ((currencyIn as any)?.wrapped?.address) {
+    if (isEvmCurrency(currencyIn)) {
       if (!body[fromChainId]) body[fromChainId] = []
-      body[fromChainId].push((currencyIn as any)?.wrapped?.address)
+      body[fromChainId].push(currencyIn.wrapped.address)
     }
-    if ((currencyOut as any)?.wrapped?.address) {
+    if (isEvmCurrency(currencyOut)) {
       if (!body[toChainId]) body[toChainId] = []
-      body[toChainId].push((currencyOut as any)?.wrapped?.address)
+      body[toChainId].push(currencyOut.wrapped.address)
     }
 
-    let pricesResponse: {
-      data: {
-        [chainId: string]: {
-          [address: string]: { PriceBuy: number; PriceSell: number }
-        }
-      }
-    } | null = null
+    let pricesResponse: TokenPricesResponse | null = null
 
     try {
       pricesResponse = await fetch(`${TOKEN_API_URL}/v1/public/tokens/prices`, {
         method: 'POST',
         body: JSON.stringify(body),
+        signal,
       }).then(r => r.json())
     } catch (error) {
       if (signal.aborted) return
@@ -464,8 +529,12 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
     // Check if this request has been aborted
     if (signal.aborted) return
 
-    const tokenInUsd = pricesResponse?.data?.[fromChainId]?.[(currencyIn as any).wrapped.address]?.PriceBuy || 0
-    const tokenOutUsd = pricesResponse?.data?.[toChainId as any]?.[(currencyOut as any).wrapped.address]?.PriceBuy || 0
+    const tokenInUsd = isEvmCurrency(currencyIn)
+      ? getTokenMidPriceUsd(pricesResponse?.data?.[fromChainId]?.[currencyIn.wrapped.address])
+      : 0
+    const tokenOutUsd = isEvmCurrency(currencyOut)
+      ? getTokenMidPriceUsd(pricesResponse?.data?.[toChainId]?.[currencyOut.wrapped.address])
+      : 0
     const isToNear = toChainId === 'near'
 
     let feeBps = 25
@@ -473,40 +542,36 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
       feeBps = 25
     } else if (isFromEvm && isToEvm) {
       if (
+        isEvmCurrency(currencyIn) &&
+        isEvmCurrency(currencyOut) &&
         isCanonicalPair(
-          (currencyIn as any).chainId,
-          (currencyIn as any).wrapped.address,
-          (currencyOut as any).chainId,
-          (currencyOut as any).wrapped.address,
+          currencyIn.chainId,
+          currencyIn.wrapped.address,
+          currencyOut.chainId,
+          currencyOut.wrapped.address,
         )
       ) {
         setCategory('stablePair')
         feeBps = 5
       } else {
+        const currencyInAddress = isEvmCurrency(currencyIn) ? currencyIn.wrapped.address : ''
+        const currencyOutAddress = isEvmCurrency(currencyOut) ? currencyOut.wrapped.address : ''
         const [token0Cat, token1Cat] = await Promise.all([
           await fetch(
-            `${TOKEN_API_URL}/v1/public/category/token?tokens=${(
-              currencyIn as any
-            ).wrapped.address.toLowerCase()}&chainId=${fromChainId}`,
+            `${TOKEN_API_URL}/v1/public/category/token?tokens=${currencyInAddress.toLowerCase()}&chainId=${fromChainId}`,
           )
             .then(res => res.json())
-            .then(res => {
-              const cat = res?.data?.find(
-                (item: any) => item.token.toLowerCase() === (currencyIn as any).wrapped.address.toLowerCase(),
-              )
+            .then((res: TokenCategoryResponse) => {
+              const cat = res?.data?.find(item => item.token.toLowerCase() === currencyInAddress.toLowerCase())
               return cat?.category || 'exoticPair'
             }),
 
           await fetch(
-            `${TOKEN_API_URL}/v1/public/category/token?tokens=${(
-              currencyOut as any
-            ).wrapped.address.toLowerCase()}&chainId=${toChainId}`,
+            `${TOKEN_API_URL}/v1/public/category/token?tokens=${currencyOutAddress.toLowerCase()}&chainId=${toChainId}`,
           )
             .then(res => res.json())
-            .then(res => {
-              const cat = res?.data?.find(
-                (item: any) => item.token.toLowerCase() === (currencyOut as any).wrapped.address.toLowerCase(),
-              )
+            .then((res: TokenCategoryResponse) => {
+              const cat = res?.data?.find(item => item.token.toLowerCase() === currencyOutAddress.toLowerCase())
               return cat?.category || 'exoticPair'
             }),
         ])
@@ -520,7 +585,7 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
           feeBps = 15
         } else if (
           (token0Cat === 'stablePair' && token1Cat === 'stablePair') ||
-          ((currencyIn as any)?.wrapped?.isStable && (currencyOut as any)?.wrapped?.isStable)
+          (isStableCurrency(currencyIn, fromChainId) && isStableCurrency(currencyOut, toChainId))
         ) {
           setCategory('stablePair')
           feeBps = 5
@@ -531,20 +596,8 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
         }
       }
     } else if (isFromNear || isToNear || isFromSolana || isToSolana) {
-      const isTokenInStable = isFromEvm
-        ? (currencyIn as any)?.wrapped?.isStable
-        : isFromSolana
-        ? SOLANA_STABLE_COINS.includes((currencyIn as any).id)
-        : isFromNear
-        ? NEAR_STABLE_COINS.includes((currencyIn as any).assetId)
-        : false
-      const isTokenOutStable = isToEvm
-        ? (currencyOut as any)?.wrapped?.isStable
-        : isToSolana
-        ? SOLANA_STABLE_COINS.includes((currencyOut as any).id)
-        : isToNear
-        ? NEAR_STABLE_COINS.includes((currencyOut as any).assetId)
-        : false
+      const isTokenInStable = isStableCurrency(currencyIn, fromChainId)
+      const isTokenOutStable = isStableCurrency(currencyOut, toChainId)
 
       if (!isFromEvm && !isToEvm) {
         feeBps = 25
@@ -613,18 +666,8 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
       // The streaming API handles provider selection on the backend
 
       // Construct the API URL with parameters
-      const fromToken = (params.fromToken as any).isNative
-        ? ZERO_ADDRESS
-        : (params.fromToken as any).wrapped?.address ||
-          (params.fromToken as any).address ||
-          (params.fromToken as any).id ||
-          (params.fromToken as any).assetId
-      const toToken = (params.toToken as any).isNative
-        ? ZERO_ADDRESS
-        : (params.toToken as any).wrapped?.address ||
-          (params.toToken as any).address ||
-          (params.toToken as any).id ||
-          (params.toToken as any).assetId
+      const fromToken = getCurrencyAddress(params.fromToken)
+      const toToken = getCurrencyAddress(params.toToken)
       const fromTokenDecimals = params.fromToken.decimals
       const toTokenDecimals = params.toToken.decimals
 
@@ -642,8 +685,8 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
         integrator: 'kyberswap',
         stream: 'true',
         slippage: params.slippage.toString(),
-        fromTokenUsd: (params as any).tokenInUsd?.toString() || '0',
-        toTokenUsd: (params as any).tokenOutUsd?.toString() || '0',
+        fromTokenUsd: params.tokenInUsd?.toString() || '0',
+        toTokenUsd: params.tokenOutUsd?.toString() || '0',
       })
 
       // Add includedSources and excludedSources parameters
@@ -961,7 +1004,7 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
         toToken: currencyOut,
         amount: inputAmount,
         slippage,
-        walletClient: (fromChainId === 'solana' ? adaptedWallet : walletClient?.data) as any,
+        walletClient: fromChainId === 'solana' ? adaptedWallet : walletClient?.data,
         sender,
         recipient: receiver,
         nearTokens,
