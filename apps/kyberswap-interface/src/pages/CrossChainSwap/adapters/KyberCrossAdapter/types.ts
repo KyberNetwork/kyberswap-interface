@@ -1,5 +1,5 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { type Address, type Hex, type Chain as ViemChain } from 'viem'
+import { type Chain as ViemChain } from 'viem'
 import {
   arbitrum,
   base,
@@ -16,14 +16,7 @@ import {
   zksync,
 } from 'viem/chains'
 
-import type {
-  BridgeMetadata,
-  BridgeProvider,
-  BuildResult,
-  ChainName,
-  ExecutionTx,
-  RoutePlan,
-} from 'pages/CrossChainSwap/adapters/KyberCrossAdapter/api'
+import type { ChainName, RoutePlan } from 'pages/CrossChainSwap/adapters/KyberCrossAdapter/api'
 
 export const kyberCrossSupportedChains = [
   ChainId.MAINNET,
@@ -64,42 +57,12 @@ export const chainIdToKyberCrossChainName: Partial<Record<ChainId, ChainName>> =
   [ChainId.BSCMAINNET]: 'bsc',
 }
 
-export type KyberCrossTx = Partial<Omit<ExecutionTx, 'value'>> & {
-  txData?: Hex
-  value?: ExecutionTx['value'] | number | bigint
-}
-
-type KyberCrossRawBuildResult = Partial<Omit<BuildResult, 'tx'>> & {
-  tx?: KyberCrossTx
-}
-
-type KyberCrossRawBridgePlan = Partial<Omit<RoutePlan['bridge'], 'provider' | 'metadata'>> & {
-  provider?: BridgeProvider | string
-  metadata?: BridgeMetadata
-}
-
-type KyberCrossRawRoutePlan = Partial<Omit<RoutePlan, 'bridge'>> & {
-  provider?: string
-  bridge?: KyberCrossRawBridgePlan
-}
-
 export type KyberCrossResponseData = {
-  route_plan?: KyberCrossRawRoutePlan
-  build?: KyberCrossRawBuildResult
+  route_plan?: RoutePlan
 }
 
 export type KyberCrossRawQuote = {
   request_id?: string
-  data?: KyberCrossResponseData | Hex
-  steps?: {
-    provider?: string
-  }[]
-  build?: {
-    tx?: KyberCrossTx
-  }
-  tx?: KyberCrossTx
-  to?: Address
-  txData?: Hex
-  value?: KyberCrossTx['value']
+  data?: KyberCrossResponseData
   isNativeToken?: boolean
 }
