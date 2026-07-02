@@ -15,8 +15,7 @@ import { BungeeAdapter } from './adapters/BungeeAdapter'
 import { NearIntentsAdapter } from './adapters/NearIntentsAdapter'
 import { OptimexAdapter } from './adapters/OptimexAdapter'
 import { OrbiterAdapter } from './adapters/OrbiterAdapter'
-
-const normalizeAdapterName = (name: string) => name.toLowerCase().replace(/\s+/g, '')
+import { normalizeAdapterName } from './utils'
 
 // Factory for creating swap provider instances
 export class CrossChainSwapFactory {

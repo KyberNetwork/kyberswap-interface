@@ -1,5 +1,6 @@
 import type { SwapStatus } from 'pages/CrossChainSwap/adapters/BaseSwapAdapter'
 import type { BridgeProvider, TrackingExecution } from 'pages/CrossChainSwap/adapters/KyberCrossAdapter/api'
+import { normalizeAdapterName } from 'pages/CrossChainSwap/utils'
 
 export enum NormalizedProvider {
   Across = 'across',
@@ -21,7 +22,7 @@ const normalizedProviderMap: Record<string, NormalizedProvider> = Object.values(
 )
 
 export const normalizeProvider = (provider?: string): NormalizedProvider | undefined => {
-  const normalizedProvider = provider?.toLowerCase().replace(/[\s_-]+/g, '')
+  const normalizedProvider = normalizeAdapterName(provider)
 
   return normalizedProvider ? normalizedProviderMap[normalizedProvider] : undefined
 }
