@@ -9,8 +9,24 @@ import useShowLoadingAtLeastTime from 'hooks/useShowLoadingAtLeastTime'
 const INTERVAL_REFETCH_TIME = 10 // seconds
 const MIN_REFRESH_TIME = 2 // seconds
 
-let interval: NodeJS.Timeout
+type Props = {
+  refetchLoading: boolean
+  clickable?: boolean
+  refreshTime?: number
+  refreshOnMount?: boolean
+  disableRefresh?: boolean
+  onRefresh: () => void
+}
 
+/**
+ * TODO: Refactor before adding more usages. This component currently owns the
+ * refresh UI, mount refresh, countdown scheduler, and manual-click throttling.
+ * The target shape should make the spinner mostly presentational and make
+ * refresh scheduling an explicit caller-owned choice, so callback identity
+ * changes cannot accidentally trigger extra fetches. Preserve the current
+ * countdown refresh, disableRefresh behavior, minimum loading display, and
+ * manual refresh throttle when splitting these responsibilities.
+ */
 export default function RefreshLoading({
   refetchLoading,
   clickable = false,
@@ -18,14 +34,7 @@ export default function RefreshLoading({
   refreshOnMount = true,
   disableRefresh = false,
   onRefresh,
-}: {
-  refetchLoading: boolean
-  clickable?: boolean
-  refreshTime?: number
-  refreshOnMount?: boolean
-  disableRefresh?: boolean
-  onRefresh: () => void
-}) {
+}: Props) {
   const [countdown, setCountdown] = useState(0)
   const disableManualRefresh = useRef(false)
 
@@ -48,16 +57,15 @@ export default function RefreshLoading({
   }, [refetchLoading, showLoadingAtLeastTime, refreshTime, disableRefresh])
 
   useEffect(() => {
-    if (countdown > 0) {
-      interval = setInterval(() => {
-        if (disableRefresh) return
-        const newCountdown = countdown - 10
-        setCountdown(newCountdown)
-        if (newCountdown === 10) {
-          onRefresh()
-        }
-      }, 10)
-    }
+    if (countdown <= 0 || disableRefresh) return
+
+    const interval = setInterval(() => {
+      const newCountdown = countdown - 10
+      setCountdown(newCountdown)
+      if (newCountdown === 10) {
+        onRefresh()
+      }
+    }, 10)
 
     return () => {
       clearInterval(interval)

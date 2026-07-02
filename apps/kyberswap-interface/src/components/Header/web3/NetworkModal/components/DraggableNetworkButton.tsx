@@ -213,18 +213,18 @@ const DraggableNetworkButton = ({
           onClick={() => !selected && !dragging && handleChainSelect()}
           onMouseUp={e => e.preventDefault()}
           className={cn(
-            'group flex h-[60px] w-full cursor-pointer select-none items-center justify-center gap-1.5',
+            'group flex h-[54px] w-full cursor-pointer select-none items-center justify-center gap-1.5 outline-none',
             'overflow-hidden whitespace-nowrap rounded-2xl bg-background p-3 text-sm text-subText',
             'transition-[background-color] duration-200 ease-in-out',
-            'max-sm:h-[54px] max-sm:p-2 max-sm:text-xs',
-            selected && '!bg-buttonBlack [&>div]:text-text',
+            'max-sm:p-2 max-sm:text-xs',
+            selected && '!bg-buttonBlack',
             disabled && '!cursor-not-allowed text-subText/40',
             !selected && !disabled && 'hover:bg-tableHeader',
           )}
         >
           <img src={icon} alt="Switch Network" className="size-5 min-w-5 rounded" />
-          <Row className="grow gap-1.5">
-            <span className="relative text-left">
+          <Row className={cn('grow gap-1.5', selected && 'text-text')}>
+            <span className="relative text-left font-medium">
               {name}
               {deprecatedSoon && (
                 <MaintainLabel style={{ position: 'absolute', top: '20%', right: '-90%' }}>Deprecating</MaintainLabel>
@@ -254,7 +254,7 @@ const DraggableNetworkButton = ({
             )}
           </Row>
           {!isMobile && (
-            <div className="hidden cursor-grab opacity-0 group-hover:block group-hover:opacity-100">
+            <div className="hidden cursor-grab text-border opacity-0 group-hover:flex group-hover:opacity-100">
               <Icon id="drag-indicator" className="text-border" />
             </div>
           )}
