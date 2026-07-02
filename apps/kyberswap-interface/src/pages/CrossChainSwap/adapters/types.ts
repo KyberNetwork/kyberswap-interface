@@ -66,6 +66,8 @@ export interface QuoteParams {
   sender: string
   recipient: string
   publicKey?: string
+  includedSources?: string[]
+  excludedSources?: string[]
 }
 
 export interface EvmQuoteParams extends QuoteParams {
@@ -115,6 +117,8 @@ export interface NormalizedTxResponse {
   targetTxHash?: string
   timestamp: number
   status?: 'Processing' | 'Success' | 'Failed' | 'Refunded'
+  bridgeProvider?: string
+  routeId?: string
   // Enriched fields for data analysis
   amountInUsd: number
   amountOutUsd: number
