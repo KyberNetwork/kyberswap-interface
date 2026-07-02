@@ -71,6 +71,8 @@ export interface QuoteParams {
   sender: string
   recipient: string
   publicKey?: string
+  includedSources?: string[]
+  excludedSources?: string[]
 }
 
 export interface EvmQuoteParams extends QuoteParams {
