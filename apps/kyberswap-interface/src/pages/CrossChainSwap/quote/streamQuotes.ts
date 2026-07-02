@@ -26,7 +26,7 @@ type StreamQuotesParams = {
   onSoftTimeout: () => void
 }
 
-const getSourceFilters = (
+export const getSourceFilters = (
   registry: CrossChainSwapAdapterRegistry,
   excludedSources: string[],
   category: PairCategory,
