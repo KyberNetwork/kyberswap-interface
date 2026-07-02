@@ -18,9 +18,9 @@ import {
 } from 'constants/index'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
-import { useCurrencyV2 } from 'hooks/Tokens'
 import useDebounce from 'hooks/useDebounce'
 import { useGatedWalletClient } from 'hooks/useGatedWalletClient'
+import { useCurrencyV2 } from 'hooks/useTokens'
 import {
   BitcoinToken,
   Chain,
@@ -444,12 +444,12 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
       body[toChainId].push((currencyOut as any)?.wrapped?.address)
     }
 
-    const r = await fetchTokenPrices(body, { signal })
+    const pricesResponse = await fetchTokenPrices(body, { signal })
     // Check if this request has been aborted
     if (signal.aborted) return
 
-    const tokenInUsd = r?.data?.[fromChainId]?.[(currencyIn as any).wrapped.address]?.PriceBuy || 0
-    const tokenOutUsd = r?.data?.[toChainId as any]?.[(currencyOut as any).wrapped.address]?.PriceBuy || 0
+    const tokenInUsd = pricesResponse?.data?.[fromChainId]?.[(currencyIn as any).wrapped.address]?.PriceBuy || 0
+    const tokenOutUsd = pricesResponse?.data?.[toChainId as any]?.[(currencyOut as any).wrapped.address]?.PriceBuy || 0
     const isToNear = toChainId === 'near'
 
     let feeBps = 25

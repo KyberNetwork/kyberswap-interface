@@ -66,6 +66,29 @@ export function CrossChainSwap({ onQuoteChange }: CrossChainSwapProps) {
   const [showBtcModal, setShowBtcConnect] = useState(false)
   const [showEvmRecipient, setShowEvmRecipient] = useState(false)
   const [revertPrice, setRevertPrice] = useState(false)
+  const getQuoteRef = useRef(getQuote)
+
+  useEffect(() => {
+    getQuoteRef.current = getQuote
+  }, [getQuote])
+
+  const handleRefresh = useCallback(() => {
+    getQuoteRef.current()
+  }, [])
+
+  useEffect(() => {
+    if (showPreview) return
+    if (disable) {
+      getQuote()
+      return
+    }
+
+    const timeout = setTimeout(() => {
+      getQuote()
+    }, 300)
+
+    return () => clearTimeout(timeout)
+  }, [disable, getQuote, showPreview])
 
   // Debounce recipient for tracking
   const debouncedRecipient = useDebounce(recipient, 1000)
@@ -175,7 +198,8 @@ export function CrossChainSwap({ onQuoteChange }: CrossChainSwapProps) {
             refetchLoading={allLoading}
             clickable
             disableRefresh={disable || showPreview}
-            onRefresh={getQuote}
+            refreshOnMount={false}
+            onRefresh={handleRefresh}
           />
 
           <div className="flex flex-1 flex-wrap items-center gap-2 text-sm font-medium text-text">

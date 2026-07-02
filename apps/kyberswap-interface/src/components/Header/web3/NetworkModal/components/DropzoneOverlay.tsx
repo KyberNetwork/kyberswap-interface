@@ -8,7 +8,7 @@ export default function DropzoneOverlay({ show, text }: { show: boolean; text: s
           initial={{ opacity: 0 }}
           animate={{ opacity: 0.8 }}
           exit={{ opacity: 0 }}
-          className="absolute inset-[-6px] z-[2] flex items-center justify-center rounded-lg bg-buttonBlack text-base font-medium"
+          className="absolute inset-[-6px] z-[2] flex items-center justify-center rounded-lg bg-buttonBlack text-sm font-medium"
           transition={{ duration: 0.15 }}
         >
           {text}

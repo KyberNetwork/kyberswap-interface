@@ -7,7 +7,7 @@ import { useMedia } from 'react-use'
 import { NotificationType } from 'components/Announcement/type'
 import { ButtonEmpty, ButtonOutlined, ButtonPrimary } from 'components/Button'
 import Dots from 'components/Dots'
-import { TermAndCondition } from 'components/Header/web3/WalletModal'
+import { Terms } from 'components/Header/web3/WalletModal'
 import Modal from 'components/Modal'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
@@ -182,7 +182,7 @@ export default function VestingClaimModal({
           to Sign a message to confirm that you have read and accepted before claiming your assets.
         </span>
 
-        <TermAndCondition onClick={() => setIsAcceptTerm(prev => !prev)} className="mt-6 !bg-transparent !p-0">
+        <Terms onClick={() => setIsAcceptTerm(prev => !prev)} className="mt-6 !bg-transparent !p-0">
           <input
             type="checkbox"
             checked={isAcceptTerm}
@@ -192,7 +192,7 @@ export default function VestingClaimModal({
           <span>
             Accept <ExternalLink href={tcLink}>KyberSwap’s Terms and Conditions</ExternalLink>
           </span>
-        </TermAndCondition>
+        </Terms>
         <div className="mt-6 flex gap-4">
           <ButtonOutlined
             onClick={() => {

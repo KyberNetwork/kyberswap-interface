@@ -15,9 +15,22 @@ import {
   maxUint256,
   parseAbi,
 } from 'viem'
-import { arbitrum, base, blast, bsc, linea, mainnet, optimism, polygon, scroll, unichain, zksync } from 'viem/chains'
+import {
+  arbitrum,
+  base,
+  blast,
+  bsc,
+  linea,
+  mainnet,
+  monad,
+  optimism,
+  plasma,
+  polygon,
+  scroll,
+  unichain,
+  zksync,
+} from 'viem/chains'
 
-import { monad, plasma } from 'components/Web3Provider'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 
 import { Quote } from '../registry'
