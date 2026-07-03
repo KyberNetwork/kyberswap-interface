@@ -230,27 +230,25 @@ const RewardSection = ({ hasFarmingReward }: { hasFarmingReward: boolean }) => {
               )}
             </div>
 
-            {hasFarmingReward && (
-              <ClaimButton
-                disabled={
-                  !position ||
-                  initialLoading ||
-                  isUnfinalized ||
-                  !rewardInfoThisPosition?.claimableUsdValue ||
-                  isRewardsClaiming
-                }
-                onClick={() => position && onOpenClaimRewards(position)}
-              >
-                {isRewardsClaiming ? (
-                  <div className="flex items-center gap-1">
-                    <Loader size="12px" />
-                    {t`Claiming`}
-                  </div>
-                ) : (
-                  t`Claim`
-                )}
-              </ClaimButton>
-            )}
+            <ClaimButton
+              disabled={
+                !position ||
+                initialLoading ||
+                isUnfinalized ||
+                (!rewardInfoThisPosition?.claimableUsdValue && !merklClaimableUsd) ||
+                isRewardsClaiming
+              }
+              onClick={() => position && onOpenClaimRewards(position)}
+            >
+              {isRewardsClaiming ? (
+                <div className="flex items-center gap-1">
+                  <Loader size="12px" />
+                  {t`Claiming`}
+                </div>
+              ) : (
+                t`Claim`
+              )}
+            </ClaimButton>
           </div>
         </div>
       </DarkCard>
