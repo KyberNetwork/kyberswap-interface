@@ -140,11 +140,7 @@ export const Footer = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement> 
   ({ className, background: _bg, ...rest }, ref) => (
     <div
       ref={ref}
-      className={cn(
-        'w-full bg-background [filter:drop-shadow(0px_-4px_16px_rgba(0,0,0,0.04))]',
-        'max-lg:mb-16',
-        className,
-      )}
+      className={cn('w-full shrink-0 bg-background [filter:drop-shadow(0px_-4px_16px_rgba(0,0,0,0.04))]', className)}
       {...rest}
     />
   ),

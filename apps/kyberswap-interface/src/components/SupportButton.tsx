@@ -89,14 +89,14 @@ export default function SupportButton() {
   if (isEmbeddedSwap) return null
 
   return (
-    <motion.div ref={supportButtonRef} className="fixed bottom-4 right-4 z-[1] max-lg:bottom-[75px]">
+    <motion.div ref={supportButtonRef} className="fixed bottom-4 right-4 z-[1] max-lg:bottom-[88px]">
       <button
         type="button"
         aria-expanded={isOpen}
         aria-label="Support"
         onClick={() => setIsOpen(open => !open)}
         className={cn(
-          'flex h-9 cursor-pointer items-center justify-center rounded-full border-0 bg-primary text-sm font-medium text-textReverse',
+          'flex h-9 cursor-pointer items-center justify-center rounded-full border-0 bg-primary text-sm font-medium text-textReverse hover:brightness-110',
           upToSmall ? 'w-9 p-0' : 'w-max px-3 py-0',
         )}
       >
