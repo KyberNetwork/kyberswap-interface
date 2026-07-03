@@ -685,8 +685,8 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
         integrator: 'kyberswap',
         stream: 'true',
         slippage: params.slippage.toString(),
-        fromTokenUsd: params.tokenInUsd?.toString() || '0',
-        toTokenUsd: params.tokenOutUsd?.toString() || '0',
+        ...(params.tokenInUsd > 0 ? { fromTokenUsd: params.tokenInUsd.toString() } : {}),
+        ...(params.tokenOutUsd > 0 ? { toTokenUsd: params.tokenOutUsd.toString() } : {}),
       })
 
       // Add includedSources and excludedSources parameters
