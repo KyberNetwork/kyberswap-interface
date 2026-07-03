@@ -92,7 +92,12 @@ export class KyberCrossAdapter extends BaseSwapAdapter {
     }
 
     const quoteResponse = await kyberCrossApi.getQuote(request)
-    const routePlan = quoteResponse.data
+    const routePlan = quoteResponse.data.route_plans[0]
+
+    if (!routePlan) {
+      throw new Error('No KyberCross route plans found')
+    }
+
     const outputAmount = BigInt(routePlan.expected_output_amount)
     const formattedOutputAmount = formatUnits(outputAmount, params.toToken.decimals)
     const formattedInputAmount = formatUnits(BigInt(params.amount), params.fromToken.decimals)
@@ -100,9 +105,7 @@ export class KyberCrossAdapter extends BaseSwapAdapter {
     const outputUsd = params.tokenOutUsd * +formattedOutputAmount
     const rawQuote: KyberCrossRawQuote = {
       request_id: quoteResponse.request_id,
-      data: {
-        route_plan: routePlan,
-      },
+      data: quoteResponse.data,
       isNativeToken: (params.fromToken as Currency).isNative,
     }
 
@@ -134,13 +137,13 @@ export class KyberCrossAdapter extends BaseSwapAdapter {
     const normalizedQuote = quote.quote
     const quoteParams = normalizedQuote.quoteParams
     const rawQuote = normalizedQuote.rawQuote as KyberCrossRawQuote
-    const routePlan = rawQuote.data?.route_plan
+    const routePlan = rawQuote.data?.route_plans?.[0]
 
     if (!routePlan) {
       throw new Error('Missing KyberCross route plan')
     }
 
-    const routeProvider = routePlan.bridge.provider || routePlan.provider
+    const routeProvider = routePlan.bridge.provider
     const normalizedRouteProvider = normalizeProvider(routeProvider)
     const buildResponse = await kyberCrossApi.build(routePlan)
     const buildTx = buildResponse.data.tx
