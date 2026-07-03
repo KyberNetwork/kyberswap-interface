@@ -16,7 +16,7 @@ import {
   zksync,
 } from 'viem/chains'
 
-import type { ChainName, RoutePlan } from 'pages/CrossChainSwap/adapters/KyberCrossAdapter/api'
+import type { ChainName, QuoteResponseData } from 'pages/CrossChainSwap/adapters/KyberCrossAdapter/api'
 
 export const kyberCrossSupportedChains = [
   ChainId.MAINNET,
@@ -57,12 +57,8 @@ export const chainIdToKyberCrossChainName: Partial<Record<ChainId, ChainName>> =
   [ChainId.BSCMAINNET]: 'bsc',
 }
 
-export type KyberCrossResponseData = {
-  route_plan?: RoutePlan
-}
-
 export type KyberCrossRawQuote = {
   request_id?: string
-  data?: KyberCrossResponseData
+  data?: QuoteResponseData
   isNativeToken?: boolean
 }
