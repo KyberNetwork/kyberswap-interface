@@ -38,6 +38,7 @@ export type QuoteRequest = {
   client_fee_bps?: number
   include_bridges?: BridgeProvider[]
   exclude_bridges?: BridgeProvider[]
+  all_route_plans?: boolean
 }
 
 type RoutePlanRequestSnapshot = {
@@ -151,7 +152,6 @@ export type RoutePlan = {
   min_output_amount: UIntString
   expires_at: string
   bridge: BridgePlan
-  provider?: string
   status?: RouteStatus
   updated_at?: string
   fees?: FeePlan[]
@@ -232,7 +232,11 @@ type ErrorResponse = {
 
 export type ApiResponse<TData> = SuccessResponse<TData> | ErrorResponse
 
-export type QuoteResponse = SuccessResponse<RoutePlan>
+export type QuoteResponseData = {
+  route_plans: RoutePlan[]
+}
+
+export type QuoteResponse = SuccessResponse<QuoteResponseData>
 export type BuildResponse = SuccessResponse<BuildResult>
 export type ScanTxStatusResponse = SuccessResponse<TrackingExecution>
 
@@ -261,7 +265,7 @@ const call = async <TData>(config: AxiosRequestConfig): Promise<SuccessResponse<
 }
 
 const getQuote = (data: QuoteRequest): Promise<QuoteResponse> =>
-  call<RoutePlan>({
+  call<QuoteResponseData>({
     method: 'POST',
     url: '/api/v1/quotes',
     data,

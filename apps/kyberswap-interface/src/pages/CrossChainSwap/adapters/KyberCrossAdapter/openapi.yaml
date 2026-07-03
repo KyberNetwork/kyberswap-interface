@@ -20,9 +20,11 @@ paths:
     post:
       tags: [quote]
       operationId: postQuote
-      summary: Quote best route
+      summary: Quote routes
       description: |
-        Returns the best current route and a public route plan that can be sent to `/api/v1/builds`.
+        Returns route plans (each a public route plan that can be sent to `/api/v1/builds`) in a
+        `route_plans` array. By default only the best plan is returned; set `all_route_plans` to
+        `true` to receive every built plan, sorted best-first.
 
         Notes:
         - `client_fee_recipient` is required when `client_fee_bps > 0`.
@@ -62,8 +64,8 @@ paths:
         Builds the execution transaction from a client-supplied route plan.
 
         Notes:
-        - The request body should be the exact `data` returned by `/api/v1/quotes`,
-          or the `route_plan` object returned by `/api/v1/quote-and-build`.
+        - The request body should be one of the route plans in the `route_plans` array returned by
+          `/api/v1/quotes`, or the `route_plan` object returned by `/api/v1/quote-and-build`.
         - Build revalidates expiry, flow shape, metadata, route continuity, and policy gates.
       requestBody:
         required: true
@@ -307,6 +309,12 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/BridgeProvider'
+        all_route_plans:
+          type: boolean
+          default: false
+          description: >-
+            When true, return every built route plan (sorted best-first) instead of only the best one.
+            Ignored by `/api/v1/quote-and-build`, which always builds the best plan.
 
     RoutePlanRequestSnapshot:
       type: object
@@ -435,7 +443,7 @@ components:
         - type
         - token_in
         - token_out
-      description: "`recipient` is used for `transfer`."
+      description: '`recipient` is used for `transfer`.'
       properties:
         type:
           $ref: '#/components/schemas/ActionType'
@@ -844,7 +852,19 @@ components:
           type: boolean
           example: true
         data:
-          $ref: '#/components/schemas/RoutePlan'
+          type: object
+          additionalProperties: false
+          required:
+            - route_plans
+          properties:
+            route_plans:
+              type: array
+              description: >-
+                Route plans sorted best-first. Holds exactly one item (the best plan) unless
+                `all_route_plans` was true in the request.
+              minItems: 1
+              items:
+                $ref: '#/components/schemas/RoutePlan'
 
     BuildSuccessResponse:
       type: object
