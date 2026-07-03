@@ -199,7 +199,7 @@ const TransactionAmount = ({ size = 'xs', tx }: { size?: TransactionAmountSize; 
 const TransactionHashLink = ({ hash, href }: { hash: string; href: string }) => (
   <div className="flex min-w-0 items-center gap-2">
     <span className="truncate text-sm font-medium text-subText">{shortenHash(hash)}</span>
-    <ExternalLinkIcon className="shrink-0 text-subText" size={14} href={href} />
+    <ExternalLinkIcon className="shrink-0 text-subText" href={href} />
   </div>
 )
 
@@ -212,7 +212,7 @@ const FillTransaction = ({ tx }: { tx: NormalizedTxResponse }) => {
     return <Skeleton height="16px" width="104px" />
   }
 
-  return <span className="text-sm font-medium text-subText">--</span>
+  return <span className="mr-6 text-sm font-medium text-subText">--</span>
 }
 
 const MobileDetailRow = ({ label, children }: { label: string; children: ReactNode }) => (
@@ -322,7 +322,7 @@ export const TransactionHistory = () => {
       </div>
 
       {showPagination && (
-        <div className="flex items-center justify-center px-4 py-2">
+        <div className="flex items-center justify-center bg-background px-4 py-2">
           <Pagination
             onPageChange={setCurrentPage}
             totalCount={transactions.length}
