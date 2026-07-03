@@ -147,7 +147,12 @@ export default function PositionClaimModal({
                     .filter(token => token.claimableUsdValue > 0)
                     .sort((a, b) => b.claimableUsdValue - a.claimableUsdValue)
                     .map(token => (
-                      <TokenRewardRow key={token.address} token={token} chainLogo={chainLogo} chainName={chainName} />
+                      <TokenRewardRow
+                        key={token.address}
+                        token={token}
+                        chainLogo={merklChainReward?.chainLogo || chainLogo}
+                        chainName={merklChainReward?.chainName || chainName}
+                      />
                     ))
                 : [...ksTokens]
                     .sort((a, b) => b.value - a.value)
@@ -183,7 +188,7 @@ export default function PositionClaimModal({
                 })}
               </span>
               <span>{t`on`}</span>
-              <span>{chainName}</span>
+              <span>{merklChainReward?.chainName || chainName}</span>
             </div>
           )}
         </ClaimInfoWrapper>
