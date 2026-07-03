@@ -109,7 +109,7 @@ const SwapPageSkeleton = () => (
 // (`w-full max-w-[425px]`); the column self-centers because the RouteFallback slot sits in an items-start
 // AppWrapper.
 const PartnerSwapSkeleton = () => (
-  <div className="mx-auto w-full max-w-[1464px] px-9 pt-6 max-sm:px-4 max-sm:py-5">
+  <div className="mx-auto w-full max-w-[1464px] px-9 py-6 max-sm:px-4 max-sm:py-5">
     <div className="flex justify-center">
       <div className="flex w-full max-w-[425px] shrink-0 flex-col gap-4">
         {/* Header: tabs (Swap | Limit Order | Cross-Chain) on the left, info + settings icons on the right,

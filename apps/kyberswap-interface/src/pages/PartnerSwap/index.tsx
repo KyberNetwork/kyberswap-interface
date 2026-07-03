@@ -53,12 +53,6 @@ export const AppBodyWrapped = ({ children, className, ...rest }: React.HTMLAttri
   </BodyWrapper>
 )
 
-export const SwitchLocaleLinkWrapper = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
-  <div className={cn('mb-[30px] max-md:mb-0', className)} {...rest}>
-    {children}
-  </div>
-)
-
 const getSupportedChainId = (chainId?: string | null) => {
   const parsed = Number(chainId)
   return SUPPORTED_NETWORKS.includes(parsed) ? parsed : undefined
@@ -350,11 +344,7 @@ export default function PartnerSwap({ mode = 'partner' }: Props) {
             </InfoComponents>
           </LimitOrderProvider>
         </Container>
-        <div className="flex justify-center">
-          <SwitchLocaleLinkWrapper>
-            <SwitchLocaleLink />
-          </SwitchLocaleLinkWrapper>
-        </div>
+        <SwitchLocaleLink centered />
       </PageWrapper>
 
       <Updater customChainId={swapChainId} />

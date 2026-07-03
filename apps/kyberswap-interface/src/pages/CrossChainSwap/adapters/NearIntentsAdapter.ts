@@ -14,6 +14,7 @@ import { Connection, PublicKey, SystemProgram, Transaction } from '@solana/web3.
 import { WalletClient, formatUnits } from 'viem'
 
 import { BTC_DEFAULT_RECEIVER, CROSS_CHAIN_FEE_RECEIVER, SOLANA_NATIVE, ZERO_ADDRESS } from 'constants/index'
+import { saveMyNearWalletPendingTransaction } from 'pages/CrossChainSwap/hooks/useRestoreMyNearWalletPendingTransaction'
 import type { SolanaToken } from 'pages/CrossChainSwap/hooks/useSolanaTokens'
 
 import { Quote } from '../registry'
@@ -458,15 +459,12 @@ export class NearIntentsAdapter extends BaseSwapAdapter {
           ],
         })
 
-        // My near wallet is redirect to wallet website -> need store to process later
-        if (nearWallet?.wallet?.id === 'my-near-wallet')
-          localStorage.setItem(
-            'cross-chain-swap-my-near-wallet-tx',
-            JSON.stringify({
-              ...params,
-              sourceTxHash: depositAddress,
-            }),
-          )
+        if (nearWallet?.wallet?.id === 'my-near-wallet') {
+          saveMyNearWalletPendingTransaction({
+            ...params,
+            sourceTxHash: depositAddress,
+          })
+        }
 
         await nearWallet
           .signAndSendTransactions({

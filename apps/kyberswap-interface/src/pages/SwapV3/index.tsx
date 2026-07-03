@@ -6,7 +6,7 @@ import { FarmingPoolBanner, TrendingPoolBanner } from 'components/EarnBanner'
 import LimitOrderForm from 'components/LimitOrder/Form/LimitOrderForm'
 import { LimitOrderProvider } from 'components/LimitOrder/LimitOrderContext'
 import OrderList from 'components/LimitOrder/OrderList'
-import { HStack, Stack } from 'components/Stack'
+import { Stack } from 'components/Stack'
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import LiquiditySourcesPanel from 'components/swapv2/LiquiditySourcesPanel'
@@ -28,7 +28,7 @@ import SwapTradeRoute from 'pages/SwapV3/Components/SwapTradeRoute'
 import TokenPriceChart from 'pages/SwapV3/Components/TokenPriceChart'
 import Header from 'pages/SwapV3/Header'
 import PopulatedSwapForm from 'pages/SwapV3/PopulatedSwapForm'
-import { AppBodyWrapped, BannerWrapper, SwitchLocaleLinkWrapper } from 'pages/SwapV3/styles'
+import { AppBodyWrapped, BannerWrapper } from 'pages/SwapV3/styles'
 import useCurrenciesByPage from 'pages/SwapV3/useCurrenciesByPage'
 import { useShowPricingChart, useShowTradeRoutes } from 'state/user/hooks'
 import { DetailedRouteSummary } from 'types/route'
@@ -188,18 +188,14 @@ export default function Swap() {
             {isLimitPage && <OrderList />}
             {isCrossChainPage && (
               <Stack className="gap-4">
-                <QuoteSteps quote={selectedQuote} />
+                <QuoteSteps visible={false} quote={selectedQuote} />
                 <TransactionHistory />
               </Stack>
             )}
           </InfoComponents>
         </LimitOrderProvider>
       </Container>
-      <HStack className="justify-center">
-        <SwitchLocaleLinkWrapper>
-          <SwitchLocaleLink />
-        </SwitchLocaleLinkWrapper>
-      </HStack>
+      <SwitchLocaleLink centered />
     </PageWrapper>
   )
 }
