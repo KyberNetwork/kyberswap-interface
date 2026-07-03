@@ -188,7 +188,7 @@ export default function Swap() {
             {isLimitPage && <OrderList />}
             {isCrossChainPage && (
               <Stack className="gap-4">
-                <QuoteSteps quote={selectedQuote} />
+                <QuoteSteps visible={false} quote={selectedQuote} />
                 <TransactionHistory />
               </Stack>
             )}
