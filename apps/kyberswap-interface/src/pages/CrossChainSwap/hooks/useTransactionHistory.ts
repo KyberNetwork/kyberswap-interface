@@ -14,10 +14,36 @@ import { getChainName } from 'pages/CrossChainSwap/utils'
 import { useCrossChainTransactions } from 'state/crossChainSwap'
 
 const STATUS_CHECK_INTERVAL = 10_000
+const PROCESSING_STATUS_CHECK_TTL = 24 * 60 * 60 * 1000
 
 export type TransactionStatus = NonNullable<NormalizedTxResponse['status']>
 
 export const isProcessingTransactionStatus = (status?: TransactionStatus) => !status || status === 'Processing'
+
+const shouldCheckTransactionStatus = (tx: NormalizedTxResponse) => isProcessingTransactionStatus(tx.status)
+
+const isExpiredProcessingTransaction = (tx: NormalizedTxResponse, now = Date.now()) =>
+  isProcessingTransactionStatus(tx.status) && now - tx.timestamp >= PROCESSING_STATUS_CHECK_TTL
+
+const getStatusCheckGroups = (transactions: NormalizedTxResponse[]) => {
+  const now = Date.now()
+  const pollingTxs: NormalizedTxResponse[] = []
+  const expiredProcessingTxs: NormalizedTxResponse[] = []
+
+  transactions.forEach(tx => {
+    if (!shouldCheckTransactionStatus(tx)) return
+
+    if (isExpiredProcessingTransaction(tx, now)) {
+      expiredProcessingTxs.push(tx)
+    } else {
+      pollingTxs.push(tx)
+    }
+  })
+
+  return { pollingTxs, expiredProcessingTxs }
+}
+
+const getTransactionIdsKey = (transactions: NormalizedTxResponse[]) => transactions.map(tx => tx.id).join('|')
 
 const hasTokenId = (token: Currency): token is Currency & { id: string } => 'id' in token
 
@@ -98,15 +124,9 @@ export const useTransactionHistory = () => {
   const transactionsRef = useRef(transactions)
   transactionsRef.current = transactions
 
-  const pendingTxs = useMemo(() => {
-    return transactions.filter(tx => {
-      return (
-        (!tx.targetTxHash || isProcessingTransactionStatus(tx.status)) &&
-        tx.status !== 'Refunded' &&
-        tx.status !== 'Failed'
-      )
-    })
-  }, [transactions])
+  const { pollingTxs, expiredProcessingTxs } = useMemo(() => getStatusCheckGroups(transactions), [transactions])
+  const pollingTxIdsKey = getTransactionIdsKey(pollingTxs)
+  const expiredProcessingTxIdsKey = getTransactionIdsKey(expiredProcessingTxs)
 
   const trackStatusChange = useCallback(
     (tx: NormalizedTxResponse, status: TransactionStatus, targetTxHash?: string) => {
@@ -135,75 +155,98 @@ export const useTransactionHistory = () => {
     [crossChainMixpanelHandler, trackingHandler],
   )
 
-  useEffect(() => {
-    const checkTransactions = async () => {
-      const txsToCheck = pendingTxs.filter(tx => !ongoingCallsRef.current.has(tx.id))
+  const checkTransactions = useCallback(
+    async (txs: NormalizedTxResponse[]) => {
+      const txsToCheck = txs.filter(tx => !ongoingCallsRef.current.has(tx.id))
 
       if (txsToCheck.length === 0) return
 
-      txsToCheck.forEach(tx => ongoingCallsRef.current.add(tx.id))
+      txsToCheck.forEach(tx => {
+        ongoingCallsRef.current.add(tx.id)
+      })
 
-      try {
-        const txUpdates: Array<{
-          tx: NormalizedTxResponse
-          update: Partial<NormalizedTxResponse>
-        }> = []
+      const checkedTxs = await Promise.allSettled(
+        txsToCheck.map(async tx => {
+          try {
+            const adapter = registry.getAdapter(tx.adapter)
+            if (!adapter) return null
 
-        await Promise.all(
-          txsToCheck.map(async tx => {
-            try {
-              const adapter = registry.getAdapter(tx.adapter)
-              if (!adapter) return
+            const result = await adapter.getTransactionStatus(tx)
+            const txUpdate = getTransactionUpdate(tx, result)
+            if (!txUpdate) return null
 
-              const result = await adapter.getTransactionStatus(tx)
-              const txUpdate = getTransactionUpdate(tx, result)
-              if (!txUpdate) return
+            return { tx, update: txUpdate }
+          } finally {
+            ongoingCallsRef.current.delete(tx.id)
+          }
+        }),
+      )
 
-              txUpdates.push({ tx, update: txUpdate })
-            } catch (error) {
-              console.error(`Failed to check status for transaction ${tx.id}:`, error)
-            } finally {
-              ongoingCallsRef.current.delete(tx.id)
-            }
-          }),
-        )
+      const txUpdates = checkedTxs.flatMap((result, index) => {
+        if (result.status === 'fulfilled') return result.value ? [result.value] : []
 
-        if (txUpdates.length > 0) {
-          let hasUpdates = false
-          const txUpdateMap = new Map(txUpdates.map(({ tx, update }) => [tx.id, update]))
-          const updatedTransactions = transactionsRef.current.map(tx => {
-            const txUpdate = txUpdateMap.get(tx.id)
-            if (!txUpdate) return tx
+        console.error(`Failed to check status for transaction ${txsToCheck[index].id}:`, result.reason)
+        return []
+      })
 
-            if (txUpdate.status && txUpdate.status !== tx.status) {
-              trackStatusChange(tx, txUpdate.status, txUpdate.targetTxHash)
-            }
+      if (txUpdates.length > 0) {
+        let hasUpdates = false
+        const txUpdateMap = new Map(txUpdates.map(({ tx, update }) => [tx.id, update]))
+        const updatedTransactions = transactionsRef.current.map(tx => {
+          const txUpdate = txUpdateMap.get(tx.id)
+          if (!txUpdate) return tx
 
-            hasUpdates = true
-            return {
-              ...tx,
-              ...txUpdate,
-            }
-          })
+          if (txUpdate.status && txUpdate.status !== tx.status) {
+            trackStatusChange(tx, txUpdate.status, txUpdate.targetTxHash)
+          }
 
-          if (!hasUpdates) return
+          hasUpdates = true
+          return {
+            ...tx,
+            ...txUpdate,
+          }
+        })
 
-          setTransactions(updatedTransactions)
-        }
-      } catch (error) {
-        console.error('Error in checkTransactions:', error)
-        txsToCheck.forEach(tx => ongoingCallsRef.current.delete(tx.id))
+        if (!hasUpdates) return
+
+        setTransactions(updatedTransactions)
       }
+    },
+    [setTransactions, trackStatusChange],
+  )
+
+  // Expired processing txs are checked once per page load/F5, but are kept out of the polling loop.
+  useEffect(() => {
+    if (expiredProcessingTxIdsKey) {
+      checkTransactions(getStatusCheckGroups(transactionsRef.current).expiredProcessingTxs)
     }
+  }, [checkTransactions, expiredProcessingTxIdsKey])
+
+  // Active processing txs are checked immediately, then polled every 10s from the latest transaction list.
+  useEffect(() => {
+    const getCurrentPollingTxs = () => getStatusCheckGroups(transactionsRef.current).pollingTxs
 
     if (intervalRef.current) {
       clearInterval(intervalRef.current)
       intervalRef.current = null
     }
 
-    if (pendingTxs.length > 0) {
-      checkTransactions()
-      intervalRef.current = setInterval(checkTransactions, STATUS_CHECK_INTERVAL)
+    if (pollingTxIdsKey) {
+      checkTransactions(getCurrentPollingTxs())
+
+      intervalRef.current = setInterval(() => {
+        const currentPollingTxs = getCurrentPollingTxs()
+
+        if (currentPollingTxs.length === 0) {
+          if (intervalRef.current) {
+            clearInterval(intervalRef.current)
+            intervalRef.current = null
+          }
+          return
+        }
+
+        checkTransactions(currentPollingTxs)
+      }, STATUS_CHECK_INTERVAL)
     }
 
     return () => {
@@ -212,7 +255,7 @@ export const useTransactionHistory = () => {
         intervalRef.current = null
       }
     }
-  }, [pendingTxs, setTransactions, trackStatusChange])
+  }, [checkTransactions, pollingTxIdsKey])
 
   return transactions
 }
