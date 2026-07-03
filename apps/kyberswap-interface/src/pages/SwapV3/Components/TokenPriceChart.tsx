@@ -233,7 +233,7 @@ const TokenPriceChart = ({ tokens, flatten }: TokenPriceChartProps) => {
         </div>
 
         {!upToSmall && (
-          <MouseoverTooltip placement="top" text={settlementPriceTooltip} width="360px">
+          <MouseoverTooltip placement="top-end" text={settlementPriceTooltip} width="360px">
             <span className="block min-w-0 shrink basis-auto truncate text-sm italic text-subText transition-colors duration-150 hover:text-text">
               {t`Powered by KyberSwap Settlement Prices`}
             </span>
@@ -331,11 +331,13 @@ const TokenPriceChart = ({ tokens, flatten }: TokenPriceChartProps) => {
             </div>
 
             {upToSmall && (
-              <MouseoverTooltip placement="top" text={settlementPriceTooltip} width="280px">
-                <span className="block min-w-0 shrink basis-auto truncate text-sm italic text-subText transition-colors duration-150 hover:text-text">
-                  {t`Settlement Prices`}
-                </span>
-              </MouseoverTooltip>
+              <div className="w-fit">
+                <MouseoverTooltip placement="top-start" text={settlementPriceTooltip} width="320px">
+                  <span className="block min-w-0 shrink basis-auto truncate text-sm italic text-subText transition-colors duration-150 hover:text-text">
+                    {t`Settlement Prices`}
+                  </span>
+                </MouseoverTooltip>
+              </div>
             )}
           </Stack>
         </Stack>
