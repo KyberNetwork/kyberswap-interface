@@ -29,7 +29,9 @@ const LogoImage = ({ isChristmas, src, alt }: { isChristmas?: boolean; src: stri
 )
 
 const LogoIcon = ({ children }: { children: React.ReactNode }) => (
-  <div className="transition-transform duration-300 hover:rotate-[-5deg] max-xs:hover:rotate-0">{children}</div>
+  <div className="flex min-h-12 items-center transition-transform duration-300 hover:rotate-[-5deg] max-sm:min-h-9 max-xs:hover:rotate-0">
+    {children}
+  </div>
 )
 
 export default function Header() {
@@ -58,12 +60,10 @@ export default function Header() {
     <div
       style={{ zIndex: Z_INDEXS.HEADER }}
       className={cn(
-        'relative top-0 grid w-full items-center justify-between border-b border-black/10',
+        'relative top-0 grid w-full items-center justify-between',
         'grid-cols-[1fr_120px] flex-row p-4',
         'max-lg:grid-cols-[1fr]',
-        'max-xs:px-4 max-xs:py-2',
         hide && '!h-0 !overflow-hidden !p-0',
-        hide ? 'max-xs:!h-0' : 'max-xs:h-[60px]',
       )}
     >
       <div className="flex w-fit flex-row flex-nowrap items-center gap-3 justify-self-start max-md:w-full">
@@ -115,8 +115,7 @@ export default function Header() {
           'flex flex-row items-center gap-2 justify-self-end',
           'max-lg:fixed max-lg:bottom-0 max-lg:left-0 max-lg:z-[98] max-lg:h-[72px] max-lg:w-full',
           'max-lg:justify-between max-lg:justify-self-center max-lg:bg-buttonBlack max-lg:p-4',
-          'max-sm:h-[60px]',
-          'max-[500px]:px-2 max-[500px]:py-4',
+          'max-sm:h-[60px] max-sm:p-2',
         )}
       >
         {isEmbeddedSwap ? (

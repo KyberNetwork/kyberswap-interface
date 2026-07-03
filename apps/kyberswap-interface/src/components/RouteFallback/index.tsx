@@ -41,13 +41,13 @@ const Cards = ({ count, height }: { count: number; height: number }) => (
 
 // Two-column swap page (max-w-1440, gap-12): the left column holds the tabs, subtitle and swap widget; the
 // right column holds the trending/farming pool cards, the price chart and the route bar. Below lg the right
-// column hides and the widget stays w-[425px] centered (full-width only on mobile) — mirroring the real
-// SwapFormWrapper (`w-[425px] max-sm:w-full`) + Container (`max-lg:items-center`). Fields use plain default
+// column hides and the widget stays capped at 425px centered — mirroring the real
+// SwapFormWrapper (`w-full max-w-[425px]`) + Container (`max-lg:items-center`). Fields use plain default
 // Skeletons on the page (no bg-background card wrapper) so the whole page's tone matches.
 const SwapPageSkeleton = () => (
   <div className="mx-auto w-full max-w-[1440px] px-6 pt-6 max-sm:px-4">
     <div className="flex gap-12 max-lg:flex-col max-lg:items-center max-lg:gap-6">
-      <div className="flex w-[425px] shrink-0 flex-col gap-4 max-sm:w-full">
+      <div className="flex w-full max-w-[425px] shrink-0 flex-col gap-4">
         {/* Tabs (Swap | Limit Order | Cross-Chain) on the left; info + settings icons aligned to the right. */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -106,12 +106,12 @@ const SwapPageSkeleton = () => (
 // PartnerSwap's InfoComponents render nothing until the price chart or trade-routes panel is toggled on,
 // which never happens on first paint. The form runs in omniView, so the card leads with the "Choose a chain"
 // network selector. Mirrors PartnerSwap's PageWrapper/Container (`justify-center`) + SwapFormWrapper
-// (`w-[425px] max-sm:w-full`); the column self-centers because the RouteFallback slot sits in an items-start
+// (`w-full max-w-[425px]`); the column self-centers because the RouteFallback slot sits in an items-start
 // AppWrapper.
 const PartnerSwapSkeleton = () => (
   <div className="mx-auto w-full max-w-[1464px] px-9 pt-6 max-sm:px-4 max-sm:py-5">
     <div className="flex justify-center">
-      <div className="flex w-[425px] shrink-0 flex-col gap-4 max-sm:w-full">
+      <div className="flex w-full max-w-[425px] shrink-0 flex-col gap-4">
         {/* Header: tabs (Swap | Limit Order | Cross-Chain) on the left, info + settings icons on the right,
             with the one-line subtitle below — grouped gap-2 to match the real Header's Stack. */}
         <div className="flex flex-col gap-2">
@@ -344,14 +344,9 @@ const pickSkeleton = (rawPathname: string) => {
 const RouteFallback = () => {
   const { pathname } = useLocation()
 
-  // The real pages render inside App's BodyWrapper (w-full, items-center). The Suspense fallback replaces
-  // those children, so it sits directly under AppWrapper (items-start) and would otherwise left-align.
-  // Mirror BodyWrapper here so every skeleton centers + reserves the same min-height as the loaded page.
-  return (
-    <div className="relative z-[1] flex min-h-[calc(100vh-148px)] w-full flex-1 flex-col items-center">
-      {pickSkeleton(pathname)}
-    </div>
-  )
+  // The real pages render inside App's BodyWrapper (w-full, flex-1, items-center). The Suspense fallback replaces
+  // those children, so it sits directly under AppWrapper (items-start) and would otherwise left-align/fail to fill.
+  return <div className="relative z-[1] flex w-full flex-1 flex-col items-center">{pickSkeleton(pathname)}</div>
 }
 
 export default RouteFallback

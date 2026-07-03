@@ -79,7 +79,7 @@ export function SwapCallbackError({ error, style = {} }: { error: string; style?
 export const SwapFormWrapper = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
   <div
     className={cn(
-      'z-[1] flex w-[425px] flex-shrink-0 flex-col items-center justify-center gap-4 max-sm:w-full lg:sticky lg:top-4',
+      'z-[1] flex w-full max-w-[425px] flex-shrink-0 flex-col items-center justify-center gap-4 lg:sticky lg:top-4',
       className,
     )}
     {...rest}
