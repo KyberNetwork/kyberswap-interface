@@ -538,6 +538,7 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
     const isToNear = toChainId === 'near'
 
     let feeBps = 25
+    let requestCategory: PairCategory = 'commonPair'
     if (isFromBitcoin || isToBitcoin) {
       feeBps = 25
     } else if (isFromEvm && isToEvm) {
@@ -551,7 +552,7 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
           currencyOut.wrapped.address,
         )
       ) {
-        setCategory('stablePair')
+        requestCategory = 'stablePair'
         feeBps = 5
       } else {
         const currencyInAddress = isEvmCurrency(currencyIn) ? currencyIn.wrapped.address : ''
@@ -578,20 +579,20 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
         // Determine swap pair category based on token categories matrix:
         // Priority: High-volatility > Exotic > Stable (both) > Common (stable/correlated/common combinations)
         if (token0Cat === 'highVolatilityPair' || token1Cat === 'highVolatilityPair') {
-          setCategory('highVolatilityPair')
+          requestCategory = 'highVolatilityPair'
           feeBps = 25
         } else if (token0Cat === 'exoticPair' || token1Cat === 'exoticPair') {
-          setCategory('exoticPair')
+          requestCategory = 'exoticPair'
           feeBps = 15
         } else if (
           (token0Cat === 'stablePair' && token1Cat === 'stablePair') ||
           (isStableCurrency(currencyIn, fromChainId) && isStableCurrency(currencyOut, toChainId))
         ) {
-          setCategory('stablePair')
+          requestCategory = 'stablePair'
           feeBps = 5
         } else {
           // All other combinations of stable/correlated/common tokens result in Common Pair
-          setCategory('commonPair')
+          requestCategory = 'commonPair'
           feeBps = 10
         }
       }
@@ -605,6 +606,9 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
       else feeBps = 20
     }
 
+    if (signal.aborted) return
+
+    setCategory(requestCategory)
     setLoading(true)
     setAllLoading(true)
 
@@ -626,7 +630,7 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
         const isKyberSwapExcluded =
           excludedSources.includes('KyberSwap') && excludedSources.length < registry.getAllAdapters().length
 
-        const isKyberSwapSupported = kyberswapAdapter?.canSupport(category, currencyIn, currencyOut) ?? true
+        const isKyberSwapSupported = kyberswapAdapter?.canSupport(requestCategory, currencyIn, currencyOut) ?? true
 
         if (kyberswapAdapter && !isKyberSwapExcluded && isKyberSwapSupported) {
           try {
@@ -693,7 +697,9 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
       const allAdapters = registry.getAllAdapters()
 
       // Filter adapters based on both excludedSources and canSupport check
-      const supportedAdapters = allAdapters.filter(adapter => adapter.canSupport(category, currencyIn, currencyOut))
+      const supportedAdapters = allAdapters.filter(adapter =>
+        adapter.canSupport(requestCategory, currencyIn, currencyOut),
+      )
       const includedSourceNames = supportedAdapters
         .filter(adapter => !excludedSources.includes(adapter.getName()))
         .map(adapter => adapter.getName())
@@ -701,7 +707,8 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
       const excludedSourceNames = allAdapters
         .filter(
           adapter =>
-            excludedSources.includes(adapter.getName()) || !adapter.canSupport(category, currencyIn, currencyOut),
+            excludedSources.includes(adapter.getName()) ||
+            !adapter.canSupport(requestCategory, currencyIn, currencyOut),
         )
         .map(adapter => adapter.getName())
 
@@ -833,8 +840,8 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
                 }
 
                 // Skip if this source doesn't support the current category
-                if (adapter && !adapter.canSupport(category, currencyIn, currencyOut)) {
-                  console.log('Skipping unsupported category for source:', adapter.getName(), 'category:', category)
+                if (adapter && !adapter.canSupport(requestCategory, currencyIn, currencyOut)) {
+                  console.log('Skipping unsupported category for source:', adapter.getName(), requestCategory)
                   continue
                 }
 
@@ -941,7 +948,7 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
             if (signal.aborted) throw new Error('Cancelled')
 
             // Skip adapter if it does not support the category
-            if (!adapter.canSupport(category, currencyIn, currencyOut)) {
+            if (!adapter.canSupport(requestCategory, currencyIn, currencyOut)) {
               // reason will be logged in adapter.canSupport for specific adapter
               return
             }
@@ -1043,7 +1050,6 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
     isToSolana,
     connection,
     excludedSources,
-    category,
   ])
 
   return (
