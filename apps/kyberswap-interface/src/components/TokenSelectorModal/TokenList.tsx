@@ -1,9 +1,9 @@
 import { ChainId, Currency, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import React, { CSSProperties, ReactNode, memo, useCallback, useMemo } from 'react'
+import React, { CSSProperties, ReactNode, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Info, Star, Trash } from 'react-feather'
 import AutoSizer from 'react-virtualized-auto-sizer'
-import { FixedSizeList } from 'react-window'
+import { VariableSizeList } from 'react-window'
 import InfiniteLoader from 'react-window-infinite-loader'
 
 import { ButtonPrimary } from 'components/Button'
@@ -15,6 +15,7 @@ import Skeleton from 'components/Skeleton'
 import { Center, HStack, Stack } from 'components/Stack'
 import { getDisplayTokenInfo } from 'components/TokenSelectorModal/PinnedTokens'
 import { useActiveWeb3React } from 'hooks'
+import { restrictedTokenKey, restrictedTokenMessage, useIsTokenRestricted } from 'hooks/useRestrictedTokens'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { useUserAddedTokens, useUserFavoriteTokens } from 'state/user/hooks'
@@ -22,7 +23,13 @@ import { useCurrencyBalances } from 'state/wallet/hooks'
 import { cn } from 'utils/cn'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
 import { formatDisplayNumber } from 'utils/numbers'
-import { isTokenNative } from 'utils/tokenInfo'
+import { getTokenAddress, isTokenNative } from 'utils/tokenInfo'
+
+// Virtualized row heights. Restricted rows are taller to fit the "not available in your jurisdiction" line.
+const ROW_CONTENT_HEIGHT = 14 * 4 // 56px
+const RESTRICTED_CONTENT_HEIGHT = ROW_CONTENT_HEIGHT + 28 // 84px
+const NORMAL_ITEM_SIZE = ROW_CONTENT_HEIGHT + 8 // 64px (content + row gap)
+const RESTRICTED_ITEM_SIZE = RESTRICTED_CONTENT_HEIGHT + 8 // 92px
 
 const Balance = ({ balance }: { balance: CurrencyAmount<Currency> }) => {
   return (
@@ -50,6 +57,9 @@ type TokenRowProps = {
   showLoading?: boolean
   isFavorite?: boolean
   onShowTokenInfo?: (token: Token) => void
+  restricted?: boolean
+  warned?: boolean
+  onRestrictedClick?: () => void
 }
 
 export const TokenRow = ({
@@ -70,6 +80,9 @@ export const TokenRow = ({
   showLoading,
   isFavorite,
   onShowTokenInfo,
+  restricted,
+  warned,
+  onRestrictedClick,
 }: TokenRowProps) => {
   const nativeCurrency = useCurrencyConvertedToNative(currency || undefined)
   const balanceSkeletonWidth = useMemo(() => Math.floor(Math.random() * 40) + 40, [])
@@ -88,30 +101,8 @@ export const TokenRow = ({
   }
   const { symbol } = getDisplayTokenInfo(currency)
 
-  return (
-    <HStack
-      data-testid="token-item"
-      data-selected={isSelected || otherSelected}
-      role="button"
-      style={style}
-      onClick={() => onSelect?.(currency)}
-      onMouseEnter={e => {
-        if (hoverColor && window.matchMedia('(hover: hover)').matches) {
-          e.currentTarget.style.background = hoverColor
-        }
-      }}
-      onMouseLeave={e => {
-        if (hoverColor) {
-          e.currentTarget.style.background = ''
-        }
-      }}
-      className={cn(
-        'flex h-14 w-full cursor-pointer items-center justify-between gap-4 rounded-lg px-3 py-1',
-        'data-[selected=true]:bg-primary-20',
-        !hoverColor &&
-          '[@media(hover:hover)]:hover:bg-primary-15 [@media(hover:hover)]:data-[selected=true]:hover:bg-primary-25',
-      )}
-    >
+  const rowInner = (
+    <>
       <HStack className="min-w-0 flex-1 items-center gap-3">
         {showFavoriteIcon && (
           <Star
@@ -160,6 +151,56 @@ export const TokenRow = ({
           />
         )}
       </HStack>
+    </>
+  )
+
+  if (warned) {
+    return (
+      <Stack
+        data-testid="token-item"
+        data-restricted="true"
+        style={style}
+        className="justify-center gap-0.5 rounded-xl bg-warning/[0.08] px-0.5"
+      >
+        <HStack className="pointer-events-none h-12 w-full items-center justify-between gap-4 px-3 opacity-50">
+          {rowInner}
+        </HStack>
+        <span className="px-3 pb-1 text-xs font-medium text-warning">{restrictedTokenMessage()}</span>
+      </Stack>
+    )
+  }
+
+  return (
+    <HStack
+      data-testid="token-item"
+      data-selected={isSelected || otherSelected}
+      role="button"
+      style={style}
+      onClick={() => {
+        if (restricted) {
+          onRestrictedClick?.()
+          return
+        }
+        onSelect?.(currency)
+      }}
+      onMouseEnter={e => {
+        if (hoverColor && window.matchMedia('(hover: hover)').matches) {
+          e.currentTarget.style.background = hoverColor
+        }
+      }}
+      onMouseLeave={e => {
+        if (hoverColor) {
+          e.currentTarget.style.background = ''
+        }
+      }}
+      className={cn(
+        'flex h-14 w-full cursor-pointer items-center justify-between gap-4 rounded-lg px-3 py-1',
+        'data-[selected=true]:bg-primary-20',
+        !hoverColor &&
+          '[@media(hover:hover)]:hover:bg-primary-15 [@media(hover:hover)]:data-[selected=true]:hover:bg-primary-25',
+      )}
+    >
+      {rowInner}
     </HStack>
   )
 }
@@ -169,19 +210,30 @@ type ImportTokenRowProps = {
   style?: CSSProperties
   dim?: boolean
   onImportToken?: (token: Token) => void
+  restricted?: boolean
+  warned?: boolean
+  onRestrictedClick?: () => void
 }
 
-const ImportTokenRow = ({ token, style, dim, onImportToken }: ImportTokenRowProps) => {
-  return (
+const ImportTokenRow = ({
+  token,
+  style,
+  dim,
+  onImportToken,
+  restricted,
+  warned,
+  onRestrictedClick,
+}: ImportTokenRowProps) => {
+  const importRow = (
     <div
-      style={style}
       className={cn(
-        'grid h-14 items-center gap-2 rounded-lg px-5 py-1 hover:bg-primary-15 active:bg-primary-20',
+        'grid items-center gap-2 px-5',
         '[grid-template-columns:auto_minmax(auto,1fr)_auto]',
+        warned ? 'h-12' : 'h-14 rounded-lg py-1 hover:bg-primary-15 active:bg-primary-20',
       )}
     >
-      <CurrencyLogo currency={token} size="24px" style={dim ? { opacity: 0.5 } : undefined} />
-      <AutoColumn className={cn('gap-1', dim && 'opacity-50')}>
+      <CurrencyLogo currency={token} size="24px" style={dim || warned ? { opacity: 0.5 } : undefined} />
+      <AutoColumn className={cn('gap-1', (dim || warned) && 'opacity-50')}>
         <AutoRow>
           <span className="text-base font-medium leading-[normal] text-text">{token.symbol}</span>
           <span className="ml-2 text-subText">
@@ -197,13 +249,31 @@ const ImportTokenRow = ({ token, style, dim, onImportToken }: ImportTokenRowProp
         padding="6px 12px"
         fontWeight={500}
         fontSize="14px"
-        className={cn(dim && 'opacity-50')}
-        onClick={() => onImportToken?.(token)}
+        disabled={warned}
+        className={cn((dim || warned) && 'opacity-50', warned && 'cursor-not-allowed')}
+        onClick={() => {
+          if (restricted) {
+            if (!warned) onRestrictedClick?.()
+            return
+          }
+          onImportToken?.(token)
+        }}
       >
         <Trans>Import</Trans>
       </ButtonPrimary>
     </div>
   )
+
+  if (warned) {
+    return (
+      <Stack style={style} className="justify-center gap-0.5 rounded-xl bg-warning/[0.08] px-0.5">
+        {importRow}
+        <span className="px-5 pb-1 text-xs font-medium text-warning">{restrictedTokenMessage()}</span>
+      </Stack>
+    )
+  }
+
+  return <div style={style}>{importRow}</div>
 }
 
 type VirtualTokenRowProps = {
@@ -256,6 +326,27 @@ const TokenList = ({
   )
   const currencyBalances = useCurrencyBalances(currencies, customChainId)
 
+  const isTokenRestricted = useIsTokenRestricted()
+  const listRef = useRef<VariableSizeList | null>(null)
+  // Restricted tokens the user has clicked; only these show the inline "not available" warning.
+  const [warnedKeys, setWarnedKeys] = useState<Set<string>>(() => new Set())
+
+  const getItemSize = useCallback(
+    (index: number) => {
+      const currency = currencies[index]
+      if (!currency) return NORMAL_ITEM_SIZE
+      return warnedKeys.has(restrictedTokenKey(currency.chainId, getTokenAddress(currency)))
+        ? RESTRICTED_ITEM_SIZE
+        : NORMAL_ITEM_SIZE
+    },
+    [currencies, warnedKeys],
+  )
+
+  // Row heights are variable (a warned row is taller); reset cached offsets when inputs change.
+  useEffect(() => {
+    listRef.current?.resetAfterIndex(0)
+  }, [currencies, warnedKeys])
+
   const Row = useCallback(
     ({ style, currency, currencyBalance }: VirtualTokenRowProps) => {
       if (!currency) return null
@@ -264,13 +355,32 @@ const TokenList = ({
       const token = currency.wrapped
       const isWhitelisted = !!extendCurrency?.isWhitelisted
 
+      const restricted = isTokenRestricted(currency)
+      const restrictedKey = restrictedTokenKey(currency.chainId, getTokenAddress(currency))
+      const warned = restricted && warnedKeys.has(restrictedKey)
+      const warnRestricted = () => setWarnedKeys(prev => new Set(prev).add(restrictedKey))
+      const rowStyle: CSSProperties = {
+        ...style,
+        height: warned ? RESTRICTED_CONTENT_HEIGHT : ROW_CONTENT_HEIGHT,
+      }
+
       const showImport =
         !isWhitelisted &&
         !tokenImports.find(importedToken => importedToken.address === token.address) &&
         !isTokenNative(currency)
 
       if (showImport && token && onImportToken) {
-        return <ImportTokenRow style={style} token={token} onImportToken={onImportToken} dim={true} />
+        return (
+          <ImportTokenRow
+            style={rowStyle}
+            token={token}
+            onImportToken={onImportToken}
+            dim={true}
+            restricted={restricted}
+            warned={warned}
+            onRestrictedClick={warnRestricted}
+          />
+        )
       }
 
       const isSelected = Boolean(selectedCurrency?.equals(currency))
@@ -291,7 +401,7 @@ const TokenList = ({
           showLoading={!!account}
           onToggleFavorite={onToggleFavorite}
           onRemoveImportedToken={onRemoveImportedToken}
-          style={{ ...style, ...itemStyle }}
+          style={{ ...rowStyle, ...itemStyle }}
           currency={currency}
           currencyBalance={currencyBalance}
           isSelected={isSelected}
@@ -300,6 +410,9 @@ const TokenList = ({
           otherSelected={otherSelected}
           onShowTokenInfo={onShowTokenInfo}
           usdBalance={usdBalance}
+          restricted={restricted}
+          warned={warned}
+          onRestrictedClick={warnRestricted}
         />
       )
     },
@@ -317,6 +430,8 @@ const TokenList = ({
       account,
       favoriteTokens,
       onShowTokenInfo,
+      isTokenRestricted,
+      warnedKeys,
     ],
   )
 
@@ -330,13 +445,17 @@ const TokenList = ({
         {({ height, width }) => (
           <InfiniteLoader isItemLoaded={isItemLoaded} itemCount={itemCount} loadMoreItems={loadMoreItems} threshold={3}>
             {({ onItemsRendered, ref }) => (
-              <FixedSizeList
+              <VariableSizeList
                 height={height}
                 width={width}
                 itemCount={itemCount}
-                itemSize={14 * 4 + 8}
+                itemSize={getItemSize}
+                estimatedItemSize={NORMAL_ITEM_SIZE}
                 onItemsRendered={onItemsRendered}
-                ref={ref}
+                ref={node => {
+                  ref(node)
+                  listRef.current = node
+                }}
                 outerRef={listTokenRef}
               >
                 {({ index, style }: { index: number; style: CSSProperties }) => {
@@ -361,7 +480,7 @@ const TokenList = ({
                     </div>
                   )
                 }}
-              </FixedSizeList>
+              </VariableSizeList>
             )}
           </InfiniteLoader>
         )}

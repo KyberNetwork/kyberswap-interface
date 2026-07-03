@@ -153,6 +153,10 @@ export default function TableContent({
         chainId: position.chain.id,
         id: isUniv2 ? account || '' : position.tokenId,
         poolAddress: position.pool.address,
+        tokens: [
+          { address: position.token0.address, symbol: position.token0.symbol },
+          { address: position.token1.address, symbol: position.token1.symbol },
+        ],
       },
     })
   }

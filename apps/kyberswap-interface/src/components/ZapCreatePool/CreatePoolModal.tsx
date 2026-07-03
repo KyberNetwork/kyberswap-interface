@@ -18,6 +18,7 @@ import Row from 'components/Row'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import useChainsConfig from 'hooks/useChainsConfig'
+import { useIsTokenAddressRestricted } from 'hooks/useRestrictedTokens'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { Exchange } from 'pages/Earns/constants'
 import { fetchExistingPoolAddress } from 'pages/Earns/utils/zap'
@@ -86,6 +87,8 @@ const CreatePoolModal = ({ isOpen, filterChainId, onDismiss, onSubmit }: Props) 
   const { account, chainId: activeChainId } = useActiveWeb3React()
   const toggleWalletModal = useWalletModalToggle()
   const { trackingHandler } = useTracking()
+
+  const isAddressRestricted = useIsTokenAddressRestricted()
 
   const handleTokenSelectorTrackEvent = useCallback(
     (eventName: string, data?: Record<string, unknown>) => {
@@ -370,6 +373,7 @@ const CreatePoolModal = ({ isOpen, filterChainId, onDismiss, onSubmit }: Props) 
               setTokensIn: () => undefined,
               setAmountsIn: () => undefined,
               onTokenSelect: handleSetTokenIn,
+              isTokenRestricted: (token: TokenSchema) => isAddressRestricted(selectedChainId, token.address),
             }}
             positionOptions={{
               poolAddress: '',

@@ -1,6 +1,6 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import { ReactNode, memo, useState } from 'react'
+import { ReactNode, memo, useEffect, useRef, useState } from 'react'
 
 import { ButtonLight, ButtonPrimary, ButtonWarning } from 'components/Button'
 import DateTimePicker from 'components/DateTimePicker'
@@ -21,6 +21,8 @@ import ReverseTokenSelectionButton from 'components/SwapForm/ReverseTokenSelecti
 import { useActiveWeb3React } from 'hooks'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import usePageLocation from 'hooks/usePageLocation'
+import { restrictedTokenMessage, useIsTokenRestricted } from 'hooks/useRestrictedTokens'
+import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import ErrorWarning from 'pages/Bridge/ErrorWarning'
 import { useWalletModalToggle } from 'state/application/hooks'
@@ -66,13 +68,29 @@ const LimitOrderForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPr
   const { changeNetwork } = useChangeNetwork()
   const { account } = useActiveWeb3React()
   const { isEmbeddedSwap } = usePageLocation()
+  const { trackingHandler, isTrackingReady } = useTracking()
 
   const [showReview, setShowReview] = useState(false)
+  const trackedPageViewed = useRef(false)
+
+  useEffect(() => {
+    if (!isTrackingReady || trackedPageViewed.current) return
+
+    trackedPageViewed.current = true
+    trackingHandler(TRACKING_EVENT_TYPE.LO_PAGE_VIEWED)
+  }, [isTrackingReady, trackingHandler])
 
   const { currencyIn, currencyOut } = useLimitOrderCurrencies({
     currencyIn: currencyInProp,
     currencyOut: currencyOutProp,
   })
+
+  const isTokenRestricted = useIsTokenRestricted()
+  const restrictedCurrency = isTokenRestricted(currencyIn)
+    ? currencyIn
+    : isTokenRestricted(currencyOut)
+    ? currencyOut
+    : undefined
 
   const form = useLimitOrderFormState({
     currencyIn,
@@ -110,11 +128,17 @@ const LimitOrderForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPr
 
   const validationError = validation.inputError || validation.outputError
   const disableReviewButton =
-    validation.isNotFillAllInput || !!validationError || balance.insufficientBalance || validation.shouldDisableAction
+    !!restrictedCurrency ||
+    validation.isNotFillAllInput ||
+    !!validationError ||
+    balance.insufficientBalance ||
+    validation.shouldDisableAction
 
   const reviewButtonContent = (
     <span className="font-medium">
-      {validationError ? (
+      {restrictedCurrency ? (
+        restrictedTokenMessage(restrictedCurrency.symbol)
+      ) : validationError ? (
         validationError
       ) : balance.insufficientBalance && balance.insufficientBalanceText ? (
         balance.insufficientBalanceText

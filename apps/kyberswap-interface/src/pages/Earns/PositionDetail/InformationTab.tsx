@@ -526,6 +526,10 @@ const InformationTab = () => {
                       chainId: position.chain.id,
                       poolAddress: position.pool.address,
                       id: isUniv2 ? account || '' : position.tokenId,
+                      tokens: [
+                        { address: position.token0.address, symbol: position.token0.symbol },
+                        { address: position.token1.address, symbol: position.token1.symbol },
+                      ],
                     },
                   })
                 }}

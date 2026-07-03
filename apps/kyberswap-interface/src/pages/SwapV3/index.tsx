@@ -19,7 +19,6 @@ import { PRICE_CHART_QUOTE_TOKEN_BY_CHAIN } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import useParsedQueryString from 'hooks/useParsedQueryString'
-import { useAllTokens } from 'hooks/useTokens'
 import CrossChainSwap from 'pages/CrossChainSwap'
 import { CrossChainSwapSources } from 'pages/CrossChainSwap/components/CrossChainSwapSources'
 import QuoteSteps from 'pages/CrossChainSwap/components/QuoteSteps'
@@ -33,7 +32,7 @@ import { AppBodyWrapped, BannerWrapper, SwitchLocaleLinkWrapper } from 'pages/Sw
 import useCurrenciesByPage from 'pages/SwapV3/useCurrenciesByPage'
 import { useShowPricingChart, useShowTradeRoutes } from 'state/user/hooks'
 import { DetailedRouteSummary } from 'types/route'
-import { getTradeComposition } from 'utils/aggregationRouting'
+import { useTradeComposition } from 'utils/aggregationRouting'
 
 const InfoComponents = ({ children }: { children: ReactNode[] }) => {
   return children.filter(Boolean).length ? <InfoComponentsWrapper>{children}</InfoComponentsWrapper> : null
@@ -56,7 +55,6 @@ export default function Swap() {
   const { chainId } = useActiveWeb3React()
   const isShowPricingChart = useShowPricingChart()
   const isShowTradeRoutes = useShowTradeRoutes()
-  const defaultTokens = useAllTokens()
   const { currencies, currencyIn, currencyOut } = useCurrenciesByPage()
   const qs = useParsedQueryString<{ highlightBox: string }>()
   const [routeSummary, setRouteSummary] = useState<DetailedRouteSummary>()
@@ -110,9 +108,11 @@ export default function Swap() {
     }
   }, [tabFromUrl, searchParams, setSearchParams])
 
-  const tradeRouteComposition = useMemo(() => {
-    return getTradeComposition(chainId, routeSummary?.parsedAmountIn, undefined, routeSummary?.route, defaultTokens)
-  }, [chainId, defaultTokens, routeSummary])
+  const tradeRouteComposition = useTradeComposition({
+    chainId,
+    inputAmount: routeSummary?.parsedAmountIn,
+    swaps: routeSummary?.route,
+  })
 
   const isSmartSettlementActive = useMemo(
     () => routeSummary?.route?.some(route => route.some(swap => swap.extra?._ce)),

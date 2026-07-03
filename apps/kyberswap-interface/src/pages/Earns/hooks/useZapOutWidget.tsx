@@ -11,6 +11,7 @@ import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useActiveLocale } from 'hooks/useActiveLocale'
 import { useIsSmartAccount } from 'hooks/useIsSmartAccount'
+import { restrictedTokenMessage, useIsTokenAddressRestricted } from 'hooks/useRestrictedTokens'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { EARN_DEXES, Exchange } from 'pages/Earns/constants'
@@ -33,6 +34,8 @@ export interface ZapOutInfo {
     chainId: number
     poolAddress: string
     id: string
+    // Pool tokens, used to block the zap-out (trade) path for geo-restricted tokens.
+    tokens?: { address: string; symbol?: string }[]
   }
 }
 
@@ -72,6 +75,7 @@ const useZapOutWidget = (
   const { account, chainId } = useActiveWeb3React()
   const isSmartAccount = useIsSmartAccount()
   const { changeNetwork } = useChangeNetwork()
+  const isAddressRestricted = useIsTokenAddressRestricted()
 
   const [zapOutPureParams, setZapOutPureParams] = useState<{
     positionId: string
@@ -309,6 +313,15 @@ const useZapOutWidget = (
         5_000,
       )
       return
+    }
+
+    // Block the zap-out (trade) path for geo-restricted tokens; withdraw-only exits stay allowed.
+    if (mode !== 'withdrawOnly') {
+      const restrictedToken = position.tokens?.find(token => isAddressRestricted(position.chainId, token.address))
+      if (restrictedToken) {
+        notify({ title: restrictedTokenMessage(restrictedToken.symbol), type: NotificationType.WARNING }, 4_000)
+        return
+      }
     }
 
     setZapOutPureParams({
