@@ -95,14 +95,17 @@ export const useTransactionHistory = () => {
 
   const ongoingCallsRef = useRef<Set<string>>(new Set())
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const transactionsRef = useRef(transactions)
+  transactionsRef.current = transactions
 
   const pendingTxs = useMemo(() => {
-    return transactions.filter(
-      tx =>
+    return transactions.filter(tx => {
+      return (
         (!tx.targetTxHash || isProcessingTransactionStatus(tx.status)) &&
         tx.status !== 'Refunded' &&
-        tx.status !== 'Failed',
-    )
+        tx.status !== 'Failed'
+      )
+    })
   }, [transactions])
 
   const trackStatusChange = useCallback(
@@ -141,8 +144,10 @@ export const useTransactionHistory = () => {
       txsToCheck.forEach(tx => ongoingCallsRef.current.add(tx.id))
 
       try {
-        const updatedTransactions = [...transactions]
-        let hasUpdates = false
+        const txUpdates: Array<{
+          tx: NormalizedTxResponse
+          update: Partial<NormalizedTxResponse>
+        }> = []
 
         await Promise.all(
           txsToCheck.map(async tx => {
@@ -154,20 +159,7 @@ export const useTransactionHistory = () => {
               const txUpdate = getTransactionUpdate(tx, result)
               if (!txUpdate) return
 
-              const txIndex = updatedTransactions.findIndex(t => t.id === tx.id)
-              if (txIndex === -1) return
-
-              const oldStatus = updatedTransactions[txIndex].status
-              updatedTransactions[txIndex] = {
-                ...updatedTransactions[txIndex],
-                ...txUpdate,
-              }
-
-              if (txUpdate.status && txUpdate.status !== oldStatus) {
-                trackStatusChange(tx, txUpdate.status, txUpdate.targetTxHash)
-              }
-
-              hasUpdates = true
+              txUpdates.push({ tx, update: txUpdate })
             } catch (error) {
               console.error(`Failed to check status for transaction ${tx.id}:`, error)
             } finally {
@@ -176,7 +168,26 @@ export const useTransactionHistory = () => {
           }),
         )
 
-        if (hasUpdates) {
+        if (txUpdates.length > 0) {
+          let hasUpdates = false
+          const txUpdateMap = new Map(txUpdates.map(({ tx, update }) => [tx.id, update]))
+          const updatedTransactions = transactionsRef.current.map(tx => {
+            const txUpdate = txUpdateMap.get(tx.id)
+            if (!txUpdate) return tx
+
+            if (txUpdate.status && txUpdate.status !== tx.status) {
+              trackStatusChange(tx, txUpdate.status, txUpdate.targetTxHash)
+            }
+
+            hasUpdates = true
+            return {
+              ...tx,
+              ...txUpdate,
+            }
+          })
+
+          if (!hasUpdates) return
+
           setTransactions(updatedTransactions)
         }
       } catch (error) {
@@ -201,7 +212,7 @@ export const useTransactionHistory = () => {
         intervalRef.current = null
       }
     }
-  }, [pendingTxs, setTransactions, trackStatusChange, transactions])
+  }, [pendingTxs, setTransactions, trackStatusChange])
 
   return transactions
 }
