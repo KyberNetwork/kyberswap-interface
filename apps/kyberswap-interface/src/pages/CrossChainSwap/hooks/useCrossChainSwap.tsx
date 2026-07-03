@@ -841,12 +841,7 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
 
                 // Skip if this source doesn't support the current category
                 if (adapter && !adapter.canSupport(requestCategory, currencyIn, currencyOut)) {
-                  console.log(
-                    'Skipping unsupported category for source:',
-                    adapter.getName(),
-                    'category:',
-                    requestCategory,
-                  )
+                  console.log('Skipping unsupported category for source:', adapter.getName(), requestCategory)
                   continue
                 }
 
