@@ -7,7 +7,7 @@ import { getMarketPriceDiff } from 'components/LimitOrder/utils'
 import { isSupportedChainId } from 'constants/networks'
 import { formatDisplayNumber } from 'utils/numbers'
 
-const MIN_AVAILABLE_USD = 0.01
+const MIN_AVAILABLE_USD = 0.0001
 
 const safeDivide = (numerator: JSBI, denominator: JSBI) =>
   JSBI.equal(denominator, JSBI.BigInt(0)) ? JSBI.BigInt(0) : JSBI.divide(numerator, denominator)
