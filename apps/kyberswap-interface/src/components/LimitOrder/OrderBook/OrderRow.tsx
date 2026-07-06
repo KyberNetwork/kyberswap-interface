@@ -102,7 +102,7 @@ const SizeCell = ({ amount, currency, reverse, filledPercentText, filledProgress
     >
       {currency && (
         <span className="row-span-2 flex size-4 self-center">
-          <CurrencyLogo currency={currency} size="16px" />
+          <CurrencyLogo currency={currency.wrapped} size="16px" />
         </span>
       )}
       <div
