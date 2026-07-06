@@ -1,4 +1,5 @@
 import { Trans } from '@lingui/macro'
+import { useMemo } from 'react'
 import { useGetNumberOfInsufficientFundOrdersQuery } from 'services/limitOrder'
 
 import { useLimitOrderContext } from 'components/LimitOrder/LimitOrderContext'
@@ -7,6 +8,7 @@ import OrderBook from 'components/LimitOrder/OrderBook'
 import { LimitOrderTab } from 'components/LimitOrder/types'
 import { HStack, Stack } from 'components/Stack'
 import { MouseoverTooltip } from 'components/Tooltip'
+import { PRICE_CHART_QUOTE_TOKEN_BY_CHAIN } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import useTab from 'hooks/useTab'
 import TokenPriceChart from 'pages/SwapV3/Components/TokenPriceChart'
@@ -31,12 +33,15 @@ const ORDER_LIST_TABS = [
   { id: LimitOrderTab.PRICE, label: <Trans>Price</Trans> },
 ] as const
 
+type OrderListTabItem = (typeof ORDER_LIST_TABS)[number]
+
 type TabSelectorProps = {
   activeTab: LimitOrderTab
-  setActiveTab: (n: LimitOrderTab) => void
+  setActiveTab: (activeTab: LimitOrderTab) => void
+  tabs: readonly OrderListTabItem[]
 }
 
-const TabSelector = ({ activeTab, setActiveTab }: TabSelectorProps) => {
+const TabSelector = ({ activeTab, setActiveTab, tabs }: TabSelectorProps) => {
   const { account } = useActiveWeb3React()
   const { chainId } = useLimitOrderContext()
 
@@ -48,9 +53,9 @@ const TabSelector = ({ activeTab, setActiveTab }: TabSelectorProps) => {
   return (
     <HStack className="items-center gap-3 bg-background pr-4">
       <div className="flex min-w-0 flex-1 items-stretch overflow-x-auto" role="tablist">
-        {ORDER_LIST_TABS.map((tab, index) => {
+        {tabs.map((tab, index) => {
           const active = tab.id === activeTab
-          const isLast = index === ORDER_LIST_TABS.length - 1
+          const isLast = index === tabs.length - 1
           return (
             <button
               key={tab.id}
@@ -92,10 +97,18 @@ const TabSelector = ({ activeTab, setActiveTab }: TabSelectorProps) => {
 }
 
 const OrderList = () => {
-  const { syncOrderListTabWithQuery } = useLimitOrderContext()
+  const { chainId, syncOrderListTabWithQuery } = useLimitOrderContext()
   const { currencyIn, currencyOut } = useLimitState()
+
+  const hasSupportedTokenPriceChart = Boolean(PRICE_CHART_QUOTE_TOKEN_BY_CHAIN[chainId])
+  const tabs = useMemo(
+    () => ORDER_LIST_TABS.filter(tab => hasSupportedTokenPriceChart || tab.id !== LimitOrderTab.PRICE),
+    [hasSupportedTokenPriceChart],
+  )
+  const tabIds = useMemo(() => tabs.map(tab => tab.id), [tabs])
+
   const { activeTab, setActiveTab } = useTab<LimitOrderTab>({
-    tabs: ORDER_LIST_TABS.map(tab => tab.id),
+    tabs: tabIds,
     defaultTab: LimitOrderTab.ORDER_BOOK,
     syncQuery: syncOrderListTabWithQuery,
   })
@@ -103,7 +116,7 @@ const OrderList = () => {
 
   return (
     <Stack className="w-full gap-0 overflow-hidden rounded-xl border border-darkBorder max-sm:-ml-4 max-sm:w-screen max-sm:rounded-none">
-      <TabSelector setActiveTab={setActiveTab} activeTab={currentTab} />
+      <TabSelector setActiveTab={setActiveTab} activeTab={currentTab} tabs={tabs} />
 
       <Stack className="border-t border-darkBorder">
         {currentTab === LimitOrderTab.ORDER_BOOK && <OrderBook />}
