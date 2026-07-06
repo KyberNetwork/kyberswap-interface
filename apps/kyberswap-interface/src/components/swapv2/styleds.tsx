@@ -58,7 +58,7 @@ export function SwapCallbackError({ error, style = {} }: { error: string; style?
       className="z-[-1] mt-9 flex w-full items-center rounded-2xl bg-buttonBlack-40 py-2 pl-2 pr-5 text-[0.825rem]"
       style={style}
     >
-      <Alert className="mb-auto" />
+      <Alert className="mb-auto size-10 shrink-0" />
       <div className="my-[10px] ml-2 mr-0 flex basis-full flex-col">
         <span className="text-base font-medium leading-6 text-red">{friendlyError(error)}</span>
         {error !== friendlyError(error) && (

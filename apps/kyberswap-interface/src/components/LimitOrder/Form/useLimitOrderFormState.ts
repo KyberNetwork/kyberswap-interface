@@ -143,6 +143,12 @@ export const useLimitOrderFormState = ({ currencyIn, currencyOut, useUrlParams }
     }
   }
 
+  const onChangeInvertedRate = (val: string) => {
+    if (currencyIn) {
+      onSetRate('', val)
+    }
+  }
+
   useEffect(() => {
     if (!priceInputRequest || appliedPriceInputRequestId.current === priceInputRequest.id) return
 
@@ -280,6 +286,7 @@ export const useLimitOrderFormState = ({ currencyIn, currencyOut, useUrlParams }
     onSetInput,
     onSetOutput,
     onChangeRate,
+    onChangeInvertedRate,
     handleInputSelect,
     handleOutputSelect,
     handleRotateClick,

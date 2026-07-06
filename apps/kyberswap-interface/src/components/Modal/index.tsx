@@ -47,7 +47,7 @@ export default function Modal({
     // when not pass prop onDismiss, we stop close Modal when click outside Modal
   },
   minHeight = false,
-  margin = '',
+  margin,
   padding = '',
   maxHeight = 90,
   maxWidth = 420,

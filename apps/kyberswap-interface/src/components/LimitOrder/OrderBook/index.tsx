@@ -6,7 +6,7 @@ import { useGetOrdersByTokenPairQuery } from 'services/limitOrder'
 
 import { ReactComponent as NoDataIcon } from 'assets/svg/no_data.svg'
 import { useLimitOrderContext } from 'components/LimitOrder/LimitOrderContext'
-import OrderItem from 'components/LimitOrder/OrderBook/OrderItem'
+import OrderRow from 'components/LimitOrder/OrderBook/OrderRow'
 import TableHeader, { RowWrapper } from 'components/LimitOrder/OrderBook/TableHeader'
 import { formatOrders, getSchemaToken, invertRateValue } from 'components/LimitOrder/OrderBook/utils'
 import TakeOrderConfirmModal from 'components/LimitOrder/TakeOrder/TakeOrderConfirmModal'
@@ -42,26 +42,8 @@ const SectionLabel = ({ color, label, symbol }: { color: string; label: React.Re
   </div>
 )
 
-const OrderSide = ({
-  children,
-  className,
-  reverse,
-  style,
-  ...rest
-}: React.HTMLAttributes<HTMLDivElement> & { reverse?: boolean }) => {
-  return (
-    <div
-      className={cn(
-        'overflow-y-auto [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-disableText [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar]:block [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar]:rounded-full',
-        reverse && 'flex flex-col-reverse',
-        className,
-      )}
-      style={{ maxHeight: 56 * 6, ...style }}
-      {...rest}
-    >
-      {children}
-    </div>
-  )
+const OrderSide = ({ children, reverse }: { children: React.ReactNode; reverse?: boolean }) => {
+  return <div className={cn('max-h-[336px] overflow-y-auto', reverse && 'flex flex-col-reverse')}>{children}</div>
 }
 
 const OrderBook = () => {
@@ -103,12 +85,12 @@ const OrderBook = () => {
   const refetchLoading = loadingMarketRate || isFetchingOrders || isFetchingReversedOrder
 
   const formattedOrders = useMemo(
-    () => formatOrders(orders, makerCurrency, takerCurrency, marketRate, priceUsdIn, priceUsdOut),
-    [orders, makerCurrency, takerCurrency, marketRate, priceUsdIn, priceUsdOut],
+    () => formatOrders(orders, makerCurrency, takerCurrency, marketRate, priceUsdIn),
+    [orders, makerCurrency, takerCurrency, marketRate, priceUsdIn],
   )
   const formattedReversedOrders = useMemo(
-    () => formatOrders(reversedOrders, takerCurrency, makerCurrency, marketRate, priceUsdOut, priceUsdIn, true),
-    [reversedOrders, takerCurrency, makerCurrency, marketRate, priceUsdOut, priceUsdIn],
+    () => formatOrders(reversedOrders, takerCurrency, makerCurrency, marketRate, priceUsdOut, true),
+    [reversedOrders, takerCurrency, makerCurrency, marketRate, priceUsdOut],
   )
 
   const visibleSellOrders = formattedOrders.slice(-10).reverse()
@@ -203,7 +185,7 @@ const OrderBook = () => {
       <OrderSide reverse>
         {visibleSellOrders.length > 0
           ? visibleSellOrders.map(order => (
-              <OrderItem key={order.id} order={order} showInvertedRate={showInvertedRate} onTake={handleTakeOrder} />
+              <OrderRow key={order.id} order={order} showInvertedRate={showInvertedRate} onTake={handleTakeOrder} />
             ))
           : isOrdersLoaded && <NoDataPanel />}
       </OrderSide>
@@ -214,17 +196,17 @@ const OrderBook = () => {
         </span>
         <button
           type="button"
-          className="col-start-4 justify-self-end border-none bg-transparent p-0 text-right text-inherit hover:brightness-75 max-[640px]:col-start-3"
+          className="col-start-4 justify-self-end border-none bg-transparent p-0 text-right text-inherit hover:brightness-75 max-sm:col-start-2"
           onClick={handleSetMarketRate}
           disabled={!marketRate || !invertRate}
           aria-label="Set market rate"
         >
           {displayedMarketRate ? formatDisplayNumber(displayedMarketRate, { significantDigits: 6 }) : '--'}
         </button>
-        <span className="col-start-5 justify-self-start max-[640px]:col-start-4">
+        <span className="col-start-5 justify-self-start max-sm:col-start-3">
           <button
             type="button"
-            className="flex items-center gap-1 border-none bg-transparent p-0 text-xs text-subText transition hover:brightness-125"
+            className="flex items-center gap-1 border-none bg-transparent p-0 text-sm transition hover:brightness-75"
             onClick={handleInvertRate}
             aria-label="Invert rate"
           >
@@ -232,7 +214,7 @@ const OrderBook = () => {
             <Repeat size={14} />
           </button>
         </span>
-        <div className="col-start-7 justify-self-end max-[640px]:hidden">
+        <div className="col-start-7 justify-self-end max-sm:hidden">
           <RefreshLoading clickable refetchLoading={refetchLoading} onRefresh={onRefreshOrders} />
         </div>
       </RowWrapper>
@@ -242,7 +224,7 @@ const OrderBook = () => {
       <OrderSide>
         {visibleBuyOrders.length > 0
           ? visibleBuyOrders.map(order => (
-              <OrderItem
+              <OrderRow
                 key={order.id}
                 reverse
                 order={order}

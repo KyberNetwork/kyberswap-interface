@@ -184,6 +184,7 @@ const LimitOrderForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPr
             }}
             events={{
               onRateChange: form.onChangeRate,
+              onInvertedRateChange: form.onChangeInvertedRate,
               onRatePresetClick: tracking.trackingRatePresetClick,
               onSetMarketRate: () => {
                 tracking.trackingMarketRateClick()
@@ -196,7 +197,7 @@ const LimitOrderForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPr
 
           <HStack className="items-center justify-between gap-3">
             <HStack className="min-w-0 items-center gap-2 text-sm text-subText">
-              <span className="shrink-0">
+              <span className="shrink-0 italic">
                 <Trans>Market Price</Trans>
               </span>
               <div className="min-w-0">
@@ -205,6 +206,7 @@ const LimitOrderForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPr
                   loading={form.loadingTrade}
                   symbolIn={currencyIn?.symbol}
                   symbolOut={currencyOut?.symbol}
+                  className="italic"
                 />
               </div>
             </HStack>
