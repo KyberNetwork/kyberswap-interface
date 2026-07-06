@@ -7,7 +7,7 @@ import { DropdownArrowIcon } from 'components/ArrowRotate'
 import CopyHelper from 'components/Copy'
 import IconButton from 'components/IconButton'
 import { useLimitOrderContext } from 'components/LimitOrder/LimitOrderContext'
-import { RowWrapper } from 'components/LimitOrder/MyOrders/TableHeader'
+import { RowWrapper, RowWrapperLayout } from 'components/LimitOrder/MyOrders/TableHeader'
 import {
   AvailableCell,
   MOBILE_STATUS_LAYOUT,
@@ -123,12 +123,11 @@ const OrderRow = ({ order, onCancelOrder, isOrderCancelling, isActiveTab }: Orde
   const showCancelAction =
     isSupportedLimitOrderChain && isActiveTab && ((isOrderActive && !isCancelling) || canHardCancelInstead)
   const mobileStatusLayout = isActiveTab ? MOBILE_STATUS_LAYOUT.ACTIVE : MOBILE_STATUS_LAYOUT.HISTORY
+  const rowLayout: RowWrapperLayout = isActiveTab ? RowWrapperLayout.ACTIVE : RowWrapperLayout.HISTORY
 
   const onClickOrder = () => {
     if (!canOpenOrder || !networkInfo) return
-
     const search = new URLSearchParams({ tab: LimitOrderTab.ORDER_BOOK }).toString()
-
     navigate(`${APP_PATHS.LIMIT}/${networkInfo.route}/${order.makerAsset}-to-${order.takerAsset}?${search}`)
   }
 
@@ -139,7 +138,7 @@ const OrderRow = ({ order, onCancelOrder, isOrderCancelling, isActiveTab }: Orde
 
   return (
     <>
-      <RowWrapper hasMobileActionColumn={isActiveTab} className="min-h-16 px-4 py-2">
+      <RowWrapper layout={rowLayout} className="min-h-16 px-4 py-2">
         <span className="flex items-center justify-center max-sm:row-span-2 max-sm:self-center">
           {networkInfo?.icon && <img className="size-5" src={networkInfo.icon} alt="Network" />}
         </span>
@@ -156,16 +155,11 @@ const OrderRow = ({ order, onCancelOrder, isOrderCancelling, isActiveTab }: Orde
         <div className="min-w-0 max-sm:col-start-3 max-sm:row-start-1">
           <RateCell rate={rawRate} makerSymbol={order.makerAssetSymbol} takerSymbol={takerSymbol} />
         </div>
-        <div
-          className={cn(
-            'min-w-0',
-            isActiveTab
-              ? 'max-sm:col-start-3 max-sm:row-start-2 [&>div]:max-sm:justify-end [&>div]:max-sm:text-right'
-              : 'max-sm:hidden',
-          )}
-        >
-          <AvailableCell amount={availableAmountText} symbol={order.makerAssetSymbol} muted={!isOrderActive} />
-        </div>
+        {isActiveTab && (
+          <div className="min-w-0 max-sm:col-start-3 max-sm:row-start-2 [&>div]:max-sm:justify-end [&>div]:max-sm:text-right">
+            <AvailableCell amount={availableAmountText} symbol={order.makerAssetSymbol} />
+          </div>
+        )}
         <div className="min-w-0 justify-self-end text-right max-sm:hidden">
           <div className="flex min-w-0 flex-col items-end gap-1 text-sm font-medium text-subText">
             <span className="whitespace-nowrap">{formatOrderTime(order.createdAt)}</span>
@@ -225,7 +219,7 @@ const OrderRow = ({ order, onCancelOrder, isOrderCancelling, isActiveTab }: Orde
               )
 
               return (
-                <RowWrapper key={tx.txHash} className="px-4 py-2">
+                <RowWrapper key={tx.txHash} layout={rowLayout} className="px-4 py-2">
                   <span />
                   <div className="col-start-2">
                     <TokenAmountLine
@@ -235,13 +229,23 @@ const OrderRow = ({ order, onCancelOrder, isOrderCancelling, isActiveTab }: Orde
                       prefix="+"
                     />
                   </div>
-                  <span className="col-start-5 justify-self-end whitespace-nowrap text-sm font-medium text-subText">
+                  <span
+                    className={cn(
+                      'justify-self-end whitespace-nowrap text-sm font-medium text-subText',
+                      isActiveTab ? 'col-start-5' : 'col-start-4',
+                    )}
+                  >
                     {formatOrderTime(tx.txTime)}
                   </span>
-                  <span className="col-start-6 justify-self-start text-sm font-medium text-subText">
+                  <span
+                    className={cn(
+                      'justify-self-start text-sm font-medium text-subText',
+                      isActiveTab ? 'col-start-6' : 'col-start-5',
+                    )}
+                  >
                     {txFilledPercent}%
                   </span>
-                  <span className="col-start-7 flex w-[60px] justify-end gap-1">
+                  <span className={cn('flex w-[60px] justify-end gap-1', isActiveTab ? 'col-start-7' : 'col-start-6')}>
                     <span className="flex size-7 items-center justify-center rounded-full text-subText transition-colors hover:bg-white/10 hover:text-primary">
                       <CopyHelper toCopy={tx.txHash} margin="0" size={15} />
                     </span>

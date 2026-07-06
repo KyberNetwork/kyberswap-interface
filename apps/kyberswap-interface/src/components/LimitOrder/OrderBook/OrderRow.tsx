@@ -48,13 +48,12 @@ const RateCell = ({ order, className, showInvertedRate }: RateCellProps) => {
 type AmountTextProps = {
   amount?: string
   currency?: Currency
+  amountPrefix?: AmountSign
   symbol?: string
-  reverse?: boolean
 }
 
-const AmountText = ({ amount, currency, symbol, reverse }: AmountTextProps) => {
+const AmountText = ({ amount, currency, amountPrefix, symbol }: AmountTextProps) => {
   const displaySymbol = symbol ?? currency?.wrapped.symbol
-  const amountPrefix = reverse === undefined ? undefined : reverse ? AmountSign.Minus : AmountSign.Plus
 
   return (
     <div
@@ -84,14 +83,12 @@ const AmountText = ({ amount, currency, symbol, reverse }: AmountTextProps) => {
 type SizeCellProps = {
   amount: string
   currency?: Currency
-  reverse?: boolean
   filledPercentText: string
   filledProgressPercent: number
 }
 
-const SizeCell = ({ amount, currency, reverse, filledPercentText, filledProgressPercent }: SizeCellProps) => {
+const SizeCell = ({ amount, currency, filledPercentText, filledProgressPercent }: SizeCellProps) => {
   const symbol = currency?.wrapped.symbol
-  const amountPrefix = reverse === undefined ? undefined : reverse ? AmountSign.Plus : AmountSign.Minus
 
   return (
     <div
@@ -107,10 +104,10 @@ const SizeCell = ({ amount, currency, reverse, filledPercentText, filledProgress
       )}
       <div
         className="flex min-w-0 items-center justify-start gap-1 text-left text-sm font-medium text-text"
-        title={formatAmountWithSymbol(amount, symbol, amountPrefix)}
+        title={formatAmountWithSymbol(amount, symbol, AmountSign.Minus)}
       >
         <span className="min-w-0 overflow-hidden whitespace-nowrap text-left">
-          {amountPrefix}
+          {AmountSign.Minus}
           {amount}
         </span>
         {symbol && <span className="shrink-0 whitespace-nowrap">{symbol}</span>}
@@ -136,9 +133,9 @@ const AvailableCell = ({ amount, symbol }: { amount?: string; symbol?: string })
   </div>
 )
 
-const TotalCell = ({ amount, currency, reverse }: { amount?: string; currency?: Currency; reverse?: boolean }) => (
+const TotalCell = ({ amount, currency }: { amount?: string; currency?: Currency }) => (
   <div className="min-w-0 max-sm:col-start-2 max-sm:row-start-2 [&>div]:max-sm:justify-start [&>div]:max-sm:text-left">
-    <AmountText amount={amount} currency={currency} reverse={reverse} />
+    <AmountText amount={amount} currency={currency} amountPrefix={AmountSign.Plus} />
   </div>
 )
 
@@ -168,7 +165,6 @@ const OrderRow = ({ reverse = false, order, onTake, showInvertedRate }: OrderRow
       <SizeCell
         amount={sizeAmount}
         currency={sizeCurrency}
-        reverse={reverse}
         filledPercentText={filledPercent.toString()}
         filledProgressPercent={filledPercent}
       />
@@ -176,7 +172,7 @@ const OrderRow = ({ reverse = false, order, onTake, showInvertedRate }: OrderRow
       <div className="min-w-0 max-sm:col-start-3 max-sm:row-start-1">
         <RateCell order={order} className={reverse ? 'text-primary' : 'text-red'} showInvertedRate={showInvertedRate} />
       </div>
-      <TotalCell amount={totalAmount} currency={totalCurrency} reverse={reverse} />
+      <TotalCell amount={totalAmount} currency={totalCurrency} />
       <span className="justify-self-end max-sm:hidden">
         <CopyHelper toCopy={String(order.id)} margin="0" size={16} className="justify-self-end text-subText" />
       </span>

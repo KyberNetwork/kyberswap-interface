@@ -219,15 +219,11 @@ export const SizeCell = ({
 type AvailableCellProps = {
   amount?: string
   symbol?: string
-  muted?: boolean
 }
 
-export const AvailableCell = ({ amount, symbol, muted }: AvailableCellProps) => (
+export const AvailableCell = ({ amount, symbol }: AvailableCellProps) => (
   <div
-    className={cn(
-      'flex w-full min-w-0 items-center justify-end gap-1 text-right text-sm font-medium',
-      muted ? 'text-subText' : 'text-text',
-    )}
+    className="flex w-full min-w-0 items-center justify-end gap-1 text-right text-sm font-medium text-text"
     title={amount ? `${amount} ${symbol ?? ''}`.trim() : undefined}
   >
     {amount ? (
