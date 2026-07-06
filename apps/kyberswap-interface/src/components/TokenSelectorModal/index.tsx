@@ -99,7 +99,7 @@ const TokenSelectorModal = ({
         setTokenToShowInfo(null)
         onDismiss?.()
       }}
-      margin="auto"
+      margin={isMobile ? undefined : 'auto'}
       maxHeight={isMobileHorizontal ? 100 : 80}
       minHeight={minHeight}
       height={isMobileHorizontal ? '95vh' : undefined}
