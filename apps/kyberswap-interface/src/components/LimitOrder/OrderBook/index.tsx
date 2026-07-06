@@ -6,7 +6,7 @@ import { useGetOrdersByTokenPairQuery } from 'services/limitOrder'
 
 import { ReactComponent as NoDataIcon } from 'assets/svg/no_data.svg'
 import { useLimitOrderContext } from 'components/LimitOrder/LimitOrderContext'
-import OrderItem from 'components/LimitOrder/OrderBook/OrderItem'
+import OrderRow from 'components/LimitOrder/OrderBook/OrderRow'
 import TableHeader, { RowWrapper } from 'components/LimitOrder/OrderBook/TableHeader'
 import { formatOrders, getSchemaToken, invertRateValue } from 'components/LimitOrder/OrderBook/utils'
 import TakeOrderConfirmModal from 'components/LimitOrder/TakeOrder/TakeOrderConfirmModal'
@@ -42,26 +42,8 @@ const SectionLabel = ({ color, label, symbol }: { color: string; label: React.Re
   </div>
 )
 
-const OrderSide = ({
-  children,
-  className,
-  reverse,
-  style,
-  ...rest
-}: React.HTMLAttributes<HTMLDivElement> & { reverse?: boolean }) => {
-  return (
-    <div
-      className={cn(
-        'overflow-y-auto [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-disableText [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar]:block [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar]:rounded-full',
-        reverse && 'flex flex-col-reverse',
-        className,
-      )}
-      style={{ maxHeight: 56 * 6, ...style }}
-      {...rest}
-    >
-      {children}
-    </div>
-  )
+const OrderSide = ({ children, reverse }: { children: React.ReactNode; reverse?: boolean }) => {
+  return <div className={cn('max-h-[336px] overflow-y-auto', reverse && 'flex flex-col-reverse')}>{children}</div>
 }
 
 const OrderBook = () => {
@@ -203,7 +185,7 @@ const OrderBook = () => {
       <OrderSide reverse>
         {visibleSellOrders.length > 0
           ? visibleSellOrders.map(order => (
-              <OrderItem key={order.id} order={order} showInvertedRate={showInvertedRate} onTake={handleTakeOrder} />
+              <OrderRow key={order.id} order={order} showInvertedRate={showInvertedRate} onTake={handleTakeOrder} />
             ))
           : isOrdersLoaded && <NoDataPanel />}
       </OrderSide>
@@ -242,7 +224,7 @@ const OrderBook = () => {
       <OrderSide>
         {visibleBuyOrders.length > 0
           ? visibleBuyOrders.map(order => (
-              <OrderItem
+              <OrderRow
                 key={order.id}
                 reverse
                 order={order}

@@ -52,10 +52,10 @@ export const useGetDeltaRateLimitOrder = ({
 type DeltaRateProps = {
   symbol?: string
   deltaRate: DeltaRateLimitOrder
-  isInvertedRate: boolean
+  showInvertedRate: boolean
 }
 
-const DeltaRate = ({ symbol, deltaRate, isInvertedRate }: DeltaRateProps) => {
+const DeltaRate = ({ symbol, deltaRate, showInvertedRate }: DeltaRateProps) => {
   const theme = useTheme()
   const { percent, profit } = deltaRate
   const color = profit ? theme.apr : theme.warning
@@ -64,7 +64,7 @@ const DeltaRate = ({ symbol, deltaRate, isInvertedRate }: DeltaRateProps) => {
 
   return (
     <div className="flex items-center whitespace-nowrap text-sm font-medium text-subText">
-      {isInvertedRate ? <Trans>Buy {symbol} at rate</Trans> : <Trans>Sell {symbol} at rate</Trans>}
+      {showInvertedRate ? <Trans>Buy {symbol} at rate</Trans> : <Trans>Sell {symbol} at rate</Trans>}
       {percent ? (
         <InfoHelper
           color={color}
@@ -191,13 +191,13 @@ type Props = {
 const LimitOrderRateSection = ({ tokens = {}, rate = {}, events = {} }: Props) => {
   const { currencyIn, currencyOut } = tokens
   const { displayRate = '', rateInfo = DEFAULT_RATE_INFO, tradeInfo } = rate
-  const [isInvertedRate, setIsInvertedRate] = useState(false)
+  const [showInvertedRate, setShowInvertedRate] = useState(false)
 
   const deltaRate = useGetDeltaRateLimitOrder({ marketPrice: tradeInfo, rateInfo })
-  const baseCurrency = isInvertedRate ? currencyOut : currencyIn
-  const quoteCurrency = isInvertedRate ? currencyIn : currencyOut
-  const rateValue = isInvertedRate ? rateInfo.invertRate : displayRate
-  const onRateValueChange = isInvertedRate ? events.onInvertedRateChange : events.onRateChange
+  const baseCurrency = showInvertedRate ? currencyOut : currencyIn
+  const quoteCurrency = showInvertedRate ? currencyIn : currencyOut
+  const rateValue = showInvertedRate ? rateInfo.invertRate : displayRate
+  const onRateValueChange = showInvertedRate ? events.onInvertedRateChange : events.onRateChange
 
   const percentInputValue =
     typeof deltaRate.rawPercent === 'number' && Number.isFinite(deltaRate.rawPercent)
@@ -240,7 +240,7 @@ const LimitOrderRateSection = ({ tokens = {}, rate = {}, events = {} }: Props) =
   return (
     <Stack className="gap-2 rounded-2xl bg-buttonBlack p-4">
       <HStack className="items-center justify-between gap-3">
-        <DeltaRate symbol={baseCurrency?.symbol} deltaRate={deltaRate} isInvertedRate={isInvertedRate} />
+        <DeltaRate symbol={baseCurrency?.symbol} deltaRate={deltaRate} showInvertedRate={showInvertedRate} />
         {tradeInfo ? (
           <button
             type="button"
@@ -280,7 +280,7 @@ const LimitOrderRateSection = ({ tokens = {}, rate = {}, events = {} }: Props) =
             <button
               type="button"
               className="flex shrink-0 items-center justify-center text-subText transition hover:brightness-75"
-              onClick={() => setIsInvertedRate(value => !value)}
+              onClick={() => setShowInvertedRate(value => !value)}
             >
               <Repeat size={14} />
             </button>

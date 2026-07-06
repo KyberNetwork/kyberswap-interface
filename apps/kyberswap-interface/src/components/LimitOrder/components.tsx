@@ -3,7 +3,6 @@ import { Trans } from '@lingui/macro'
 import { ReactNode, useState } from 'react'
 import { Repeat } from 'react-feather'
 
-import CurrencyLogo from 'components/CurrencyLogo'
 import { LimitOrder, RateInfo } from 'components/LimitOrder/types'
 import { formatRateLimitOrder, getLimitOrderDisplayTakerSymbol, removeTrailingZero } from 'components/LimitOrder/utils'
 import { HStack, Stack } from 'components/Stack'
@@ -136,14 +135,6 @@ export const OrderSummary = ({
   )
 }
 
-const formatAmountWithSymbol = (amount: string, symbol?: string, amountPrefix?: string) =>
-  `${amountPrefix ?? ''}${amount} ${symbol ?? ''}`.trim()
-
-enum AmountSign {
-  Plus = '+',
-  Minus = '-',
-}
-
 type ClippedTextProps = {
   children: ReactNode
   className?: string
@@ -160,92 +151,3 @@ export const ClippedText = ({ children, className, title }: ClippedTextProps) =>
     </span>
   </div>
 )
-
-type AmountWithSymbolProps = {
-  amount?: string
-  currency?: Currency
-  symbol?: string
-  reverse?: boolean
-  muted?: boolean
-}
-
-export const AmountWithSymbol = ({ amount, currency, symbol, reverse, muted }: AmountWithSymbolProps) => {
-  const displaySymbol = symbol ?? currency?.wrapped.symbol
-  const amountPrefix = reverse === undefined ? undefined : reverse ? AmountSign.Minus : AmountSign.Plus
-
-  return (
-    <div
-      className={cn(
-        'flex w-full min-w-0 items-center justify-end gap-1 text-right text-sm font-medium',
-        muted ? 'text-subText' : 'text-text',
-      )}
-      title={amount ? formatAmountWithSymbol(amount, displaySymbol, amountPrefix) : undefined}
-    >
-      {amount ? (
-        <>
-          {currency && (
-            <span className="hidden shrink-0 max-sm:flex">
-              <CurrencyLogo currency={currency} size="16px" />
-            </span>
-          )}
-          <span className="min-w-0 overflow-hidden whitespace-nowrap text-left">
-            {amountPrefix}
-            {amount}
-          </span>
-          {displaySymbol && <span className="shrink-0 whitespace-nowrap">{displaySymbol}</span>}
-        </>
-      ) : (
-        '--'
-      )}
-    </div>
-  )
-}
-
-type SizeInfoProps = {
-  amount: string
-  currency?: Currency
-  reverse?: boolean
-  filledPercentText: string
-  filledProgressPercent: number
-}
-
-export const SizeInfo = ({ amount, currency, reverse, filledPercentText, filledProgressPercent }: SizeInfoProps) => {
-  const symbol = currency?.wrapped.symbol
-  const amountPrefix = reverse === undefined ? undefined : reverse ? AmountSign.Plus : AmountSign.Minus
-
-  return (
-    <div
-      className={cn(
-        'grid w-full min-w-0 items-start gap-x-2 text-left',
-        currency ? 'grid-cols-[16px_minmax(0,1fr)]' : 'grid-cols-[minmax(0,1fr)]',
-      )}
-    >
-      {currency && (
-        <span className="row-span-2 flex size-4 self-center">
-          <CurrencyLogo currency={currency} size="16px" />
-        </span>
-      )}
-      <div
-        className="flex min-w-0 items-center justify-start gap-1.5 text-left text-sm font-medium text-text"
-        title={formatAmountWithSymbol(amount, symbol, amountPrefix)}
-      >
-        <span className="min-w-0 overflow-hidden whitespace-nowrap text-left">
-          {amountPrefix}
-          {amount}
-        </span>
-        {symbol && <span className="shrink-0 whitespace-nowrap">{symbol}</span>}
-      </div>
-      <div className="flex min-w-0 items-center justify-start gap-1.5 text-xs text-subText">
-        <span className="min-w-12 whitespace-nowrap text-left">
-          <Trans>Fill</Trans> {filledPercentText}%
-        </span>
-        <span className="h-1 w-12 shrink-0 overflow-hidden rounded-full bg-subText-40 max-sm:hidden">
-          <span
-            className="block h-full rounded-full bg-primary"
-            style={{ width: `${Math.min(filledProgressPercent, 100)}%` }}
-          />
-        </span>
-      </div>
-    </div>
-  )
-}
