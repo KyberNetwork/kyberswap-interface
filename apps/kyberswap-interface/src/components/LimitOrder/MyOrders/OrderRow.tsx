@@ -174,8 +174,8 @@ const SizeCell = ({
     )}
     onClick={onClick}
   >
-    <TokenAmountLine amount={makerAmount} currency={makerCurrency} prefix="+" />
-    <TokenAmountLine amount={takerAmount} currency={takerCurrency} symbol={takerSymbol} prefix="-" muted />
+    <TokenAmountLine amount={makerAmount} currency={makerCurrency} prefix="-" />
+    <TokenAmountLine amount={takerAmount} currency={takerCurrency} symbol={takerSymbol} prefix="+" muted />
   </button>
 )
 
