@@ -4,6 +4,7 @@ import JSBI from 'jsbi'
 
 import { LimitOrderFromTokenPair, LimitOrderFromTokenPairFormatted } from 'components/LimitOrder/types'
 import { getMarketPriceDiff } from 'components/LimitOrder/utils'
+import { isSupportedChainId } from 'constants/networks'
 import { formatDisplayNumber } from 'utils/numbers'
 
 const MIN_AVAILABLE_USD = 0.01
@@ -41,6 +42,12 @@ export const formatOrders = (
   if (!makerCurrency || !takerCurrency) return []
 
   return orders
+    .filter(
+      order =>
+        isSupportedChainId(order.chainId) &&
+        order.chainId === makerCurrency.wrapped.chainId &&
+        order.chainId === takerCurrency.wrapped.chainId,
+    )
     .map(order => {
       const newMakerCurrency = new Token(
         order.chainId,

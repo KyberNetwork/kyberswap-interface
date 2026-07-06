@@ -1,4 +1,4 @@
-import { Currency, Token } from '@kyberswap/ks-sdk-core'
+import { Token } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import dayjs from 'dayjs'
 import { MouseEventHandler, useMemo, useState } from 'react'
@@ -7,21 +7,26 @@ import { useNavigate } from 'react-router-dom'
 
 import { DropdownArrowIcon } from 'components/ArrowRotate'
 import CopyHelper from 'components/Copy'
-import CurrencyLogo from 'components/CurrencyLogo'
 import IconButton from 'components/IconButton'
 import { useLimitOrderContext } from 'components/LimitOrder/LimitOrderContext'
 import { RowWrapper } from 'components/LimitOrder/MyOrders/TableHeader'
 import { formatStatus } from 'components/LimitOrder/MyOrders/utils'
 import { ClippedText } from 'components/LimitOrder/components'
 import { LimitOrder, LimitOrderStatus, LimitOrderTab } from 'components/LimitOrder/types'
-import { calcPercentFilledOrder, getLimitOrderDisplayTakerSymbol, isActiveStatus } from 'components/LimitOrder/utils'
+import {
+  calcPercentFilledOrder,
+  getLimitOrderDisplayTakerSymbol,
+  isActiveStatus,
+  isLimitOrderNativeOutput,
+} from 'components/LimitOrder/utils'
+import Logo from 'components/Logo'
 import { APP_PATHS } from 'constants/index'
-import { NETWORKS_INFO } from 'constants/networks'
+import { NETWORKS_INFO, isSupportedChainId } from 'constants/networks'
 import { useTokenBalance } from 'state/wallet/hooks'
 import { ExternalLink } from 'theme'
 import { cn } from 'utils/cn'
 import { toCurrencyAmount } from 'utils/currencyAmount'
-import { getEtherscanLink } from 'utils/index'
+import { getEtherscanLink, isSupportLimitOrder } from 'utils/index'
 import { formatDisplayNumber, uint256ToFraction } from 'utils/numbers'
 
 const formatOrderDisplayAmount = (amount: string, decimals: number) =>
@@ -36,8 +41,7 @@ const getOrderRate = (order: LimitOrder) => {
   return rate.toFixed(18)
 }
 
-const getNeededMakingAmount = (order: LimitOrder) => {
-  const makingToken = new Token(order.chainId, order.makerAsset, order.makerAssetDecimals, order.makerAssetSymbol, '')
+const getNeededMakingAmount = (order: LimitOrder, makingToken: Token) => {
   const makingAmount = toCurrencyAmount(makingToken, order.makingAmount)
   const filledMakingAmount = toCurrencyAmount(makingToken, order.filledMakingAmount)
 
@@ -123,35 +127,36 @@ const StatusPill = ({
 
 const TokenAmountLine = ({
   amount,
-  currency,
+  logo,
   symbol,
   prefix,
   muted,
 }: {
   amount: string
-  currency: Currency
-  symbol?: string
+  logo: string
+  symbol: string
   prefix: '+' | '-'
   muted?: boolean
 }) => (
   <div
     className={cn('flex min-w-0 items-center gap-1 text-sm font-medium', muted ? 'text-subText' : 'text-text')}
-    title={`${prefix}${amount} ${symbol ?? currency.wrapped.symbol ?? ''}`.trim()}
+    title={`${prefix}${amount} ${symbol}`.trim()}
   >
-    <CurrencyLogo currency={currency} size="16px" />
+    <Logo srcs={[logo]} alt={`${symbol || 'token'} logo`} className="size-4 rounded" />
     <span className="min-w-0 overflow-hidden whitespace-nowrap text-left">
       {prefix}
       {amount}
     </span>
-    <span className="shrink-0 whitespace-nowrap">{symbol ?? currency.wrapped.symbol}</span>
+    <span className="shrink-0 whitespace-nowrap">{symbol}</span>
   </div>
 )
 
 type SizeCellProps = {
   makerAmount: string
-  makerCurrency: Currency
+  makerLogo: string
+  makerSymbol: string
   takerAmount: string
-  takerCurrency: Currency
+  takerLogo: string
   takerSymbol: string
   canOpenOrder: boolean
   onClick: () => void
@@ -159,9 +164,10 @@ type SizeCellProps = {
 
 const SizeCell = ({
   makerAmount,
-  makerCurrency,
+  makerLogo,
+  makerSymbol,
   takerAmount,
-  takerCurrency,
+  takerLogo,
   takerSymbol,
   canOpenOrder,
   onClick,
@@ -174,8 +180,8 @@ const SizeCell = ({
     )}
     onClick={onClick}
   >
-    <TokenAmountLine amount={makerAmount} currency={makerCurrency} prefix="-" />
-    <TokenAmountLine amount={takerAmount} currency={takerCurrency} symbol={takerSymbol} prefix="+" muted />
+    <TokenAmountLine amount={makerAmount} logo={makerLogo} symbol={makerSymbol} prefix="-" />
+    <TokenAmountLine amount={takerAmount} logo={takerLogo} symbol={takerSymbol} prefix="+" muted />
   </button>
 )
 
@@ -261,7 +267,7 @@ const CancelOrderButton = ({
 )
 
 const TxLink = ({ chainId, txHash }: { chainId: LimitOrder['chainId']; txHash?: string }) => {
-  if (!txHash) return null
+  if (!txHash || !isSupportedChainId(chainId)) return null
 
   return (
     <ExternalLink
@@ -286,17 +292,21 @@ const OrderRow = ({ order, onCancelOrder, isOrderCancelling, isActiveTab }: Orde
   const { chainId } = useLimitOrderContext()
   const [expand, setExpand] = useState(false)
 
+  const isSupportedOrderChain = isSupportedChainId(order.chainId)
+  const isSupportedLimitOrderChain = isSupportedOrderChain && isSupportLimitOrder(order.chainId)
+  const networkInfo = isSupportedOrderChain ? NETWORKS_INFO[order.chainId] : undefined
   const isOrderActive = isActiveStatus(order.status)
   const txs = order.transactions || []
-  const canOpenOrder = order.chainId === chainId
+  const canOpenOrder = isSupportedLimitOrderChain && order.chainId === chainId
 
-  const availableAmount = useMemo(() => getNeededMakingAmount(order), [order])
   const makerCurrency = useMemo(() => {
+    if (!isSupportedOrderChain) return undefined
     return new Token(order.chainId, order.makerAsset, order.makerAssetDecimals, order.makerAssetSymbol, '')
-  }, [order.chainId, order.makerAsset, order.makerAssetDecimals, order.makerAssetSymbol])
-  const takerCurrency = useMemo(() => {
-    return new Token(order.chainId, order.takerAsset, order.takerAssetDecimals, order.takerAssetSymbol, '')
-  }, [order.chainId, order.takerAsset, order.takerAssetDecimals, order.takerAssetSymbol])
+  }, [isSupportedOrderChain, order.chainId, order.makerAsset, order.makerAssetDecimals, order.makerAssetSymbol])
+  const availableAmount = useMemo(
+    () => (makerCurrency ? getNeededMakingAmount(order, makerCurrency) : undefined),
+    [makerCurrency, order],
+  )
 
   const makingTokenBalance = useTokenBalance(makerCurrency)
 
@@ -305,29 +315,33 @@ const OrderRow = ({ order, onCancelOrder, isOrderCancelling, isActiveTab }: Orde
   const isFilledOrder = order.status === LimitOrderStatus.FILLED || order.takingAmount === order.filledTakingAmount
 
   const takerSymbol = getLimitOrderDisplayTakerSymbol(order)
+  const takerLogo = isLimitOrderNativeOutput(order)
+    ? networkInfo?.nativeToken.logo || order.takerAssetLogoURL
+    : order.takerAssetLogoURL
 
   const filledPercent = calcPercentFilledOrder(order.filledTakingAmount, order.takingAmount, order.takerAssetDecimals)
   const rawRate = getOrderRate(order)
-  const insufficientFund = isOrderActive && makingTokenBalance ? makingTokenBalance.lessThan(availableAmount) : false
-  const availableAmountText = isOrderActive
-    ? formatOrderDisplayAmount(availableAmount.quotient.toString(), order.makerAssetDecimals)
-    : undefined
+  const insufficientFund =
+    isOrderActive && makingTokenBalance && availableAmount ? makingTokenBalance.lessThan(availableAmount) : false
+  const availableAmountText =
+    isOrderActive && availableAmount
+      ? formatOrderDisplayAmount(availableAmount.quotient.toString(), order.makerAssetDecimals)
+      : undefined
 
   const canExpandTxs = txs.length > 0
   const showFallbackTxLink = isFilledOrder && !txs.length && !!order.txHash
   const canHardCancelInstead =
     order.status === LimitOrderStatus.CANCELLING && !!order.operatorSignatureExpiredAt && isCancelling
-  const showCancelAction = isActiveTab && ((isOrderActive && !isCancelling) || canHardCancelInstead)
+  const showCancelAction =
+    isSupportedLimitOrderChain && isActiveTab && ((isOrderActive && !isCancelling) || canHardCancelInstead)
   const mobileStatusLayout = isActiveTab ? MOBILE_STATUS_LAYOUT.ACTIVE : MOBILE_STATUS_LAYOUT.HISTORY
 
   const onClickOrder = () => {
-    if (!canOpenOrder) return
+    if (!canOpenOrder || !networkInfo) return
 
     const search = new URLSearchParams({ tab: LimitOrderTab.ORDER_BOOK }).toString()
 
-    navigate(
-      `${APP_PATHS.LIMIT}/${NETWORKS_INFO[order.chainId].route}/${order.makerAsset}-to-${order.takerAsset}?${search}`,
-    )
+    navigate(`${APP_PATHS.LIMIT}/${networkInfo.route}/${order.makerAsset}-to-${order.takerAsset}?${search}`)
   }
 
   const onClickCancelOrder: MouseEventHandler<HTMLButtonElement> = event => {
@@ -339,13 +353,14 @@ const OrderRow = ({ order, onCancelOrder, isOrderCancelling, isActiveTab }: Orde
     <>
       <RowWrapper hasMobileActionColumn={isActiveTab} className="min-h-16 px-4 py-2">
         <span className="flex items-center justify-center max-sm:row-span-2 max-sm:self-center">
-          <img className="size-5" src={NETWORKS_INFO[order.chainId]?.icon} alt="Network" />
+          {networkInfo?.icon && <img className="size-5" src={networkInfo.icon} alt="Network" />}
         </span>
         <SizeCell
           makerAmount={formatOrderDisplayAmount(order.makingAmount, order.makerAssetDecimals)}
-          makerCurrency={makerCurrency}
+          makerLogo={order.makerAssetLogoURL}
+          makerSymbol={order.makerAssetSymbol}
           takerAmount={formatOrderDisplayAmount(order.takingAmount, order.takerAssetDecimals)}
-          takerCurrency={takerCurrency}
+          takerLogo={takerLogo}
           takerSymbol={takerSymbol}
           canOpenOrder={canOpenOrder}
           onClick={onClickOrder}
@@ -427,7 +442,7 @@ const OrderRow = ({ order, onCancelOrder, isOrderCancelling, isActiveTab }: Orde
                   <div className="col-start-2">
                     <TokenAmountLine
                       amount={formatOrderDisplayAmount(tx.takingAmount, order.takerAssetDecimals)}
-                      currency={takerCurrency}
+                      logo={takerLogo}
                       symbol={takerSymbol}
                       prefix="+"
                     />
