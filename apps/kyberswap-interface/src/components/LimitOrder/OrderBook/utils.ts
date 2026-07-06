@@ -36,7 +36,6 @@ export const formatOrders = (
   takerCurrency: Currency | undefined,
   marketRate: number,
   makerPriceUsd: number,
-  takerPriceUsd: number,
   reverse = false,
 ): LimitOrderFromTokenPairFormatted[] => {
   if (!makerCurrency || !takerCurrency) return []
@@ -84,13 +83,9 @@ export const formatOrders = (
           JSBI.BigInt(order.makingAmount),
         ),
       ).toExact()
-      const availableAmount = reverse ? availableTakerAmount : availableMakerAmount
-      const availablePriceUsd = reverse ? takerPriceUsd : makerPriceUsd
-      const availableAmountNumber = Number(availableAmount)
+      const availableAmountNumber = Number(availableMakerAmount)
       const availableUsd =
-        availablePriceUsd && Number.isFinite(availableAmountNumber)
-          ? availableAmountNumber * availablePriceUsd
-          : undefined
+        makerPriceUsd && Number.isFinite(availableAmountNumber) ? availableAmountNumber * makerPriceUsd : undefined
 
       if (availableAmountNumber <= 0 || (availableUsd !== undefined && availableUsd < MIN_AVAILABLE_USD)) {
         return undefined

@@ -85,12 +85,12 @@ const OrderBook = () => {
   const refetchLoading = loadingMarketRate || isFetchingOrders || isFetchingReversedOrder
 
   const formattedOrders = useMemo(
-    () => formatOrders(orders, makerCurrency, takerCurrency, marketRate, priceUsdIn, priceUsdOut),
-    [orders, makerCurrency, takerCurrency, marketRate, priceUsdIn, priceUsdOut],
+    () => formatOrders(orders, makerCurrency, takerCurrency, marketRate, priceUsdIn),
+    [orders, makerCurrency, takerCurrency, marketRate, priceUsdIn],
   )
   const formattedReversedOrders = useMemo(
-    () => formatOrders(reversedOrders, takerCurrency, makerCurrency, marketRate, priceUsdOut, priceUsdIn, true),
-    [reversedOrders, takerCurrency, makerCurrency, marketRate, priceUsdOut, priceUsdIn],
+    () => formatOrders(reversedOrders, takerCurrency, makerCurrency, marketRate, priceUsdOut, true),
+    [reversedOrders, takerCurrency, makerCurrency, marketRate, priceUsdOut],
   )
 
   const visibleSellOrders = formattedOrders.slice(-10).reverse()
