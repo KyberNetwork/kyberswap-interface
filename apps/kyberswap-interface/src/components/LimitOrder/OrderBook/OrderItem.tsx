@@ -1,13 +1,12 @@
 import { Trans } from '@lingui/macro'
-import { useMedia } from 'react-use'
 
 import CopyHelper from 'components/Copy'
 import { RowWrapper } from 'components/LimitOrder/OrderBook/TableHeader'
 import { AmountWithSymbol, ClippedText, SizeInfo } from 'components/LimitOrder/components'
 import { LimitOrderFromTokenPairFormatted } from 'components/LimitOrder/types'
+import { formatRatePercentText } from 'components/LimitOrder/utils'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import { useLimitState } from 'state/limit/hooks'
-import { MEDIA_WIDTHS } from 'theme'
 import { cn } from 'utils/cn'
 
 type RateTextProps = {
@@ -17,7 +16,6 @@ type RateTextProps = {
 }
 
 const RateText = ({ order, className, showInvertedRate }: RateTextProps) => {
-  const rate = showInvertedRate ? order.invertedRate : order.rate
   const formattedRate = showInvertedRate ? order.formattedInvertedRate : order.formattedRate
   const formattedMarketDiffPercent = showInvertedRate
     ? order.formattedInvertedMarketDiffPercent
@@ -25,10 +23,12 @@ const RateText = ({ order, className, showInvertedRate }: RateTextProps) => {
 
   return (
     <div className="flex w-full min-w-0 flex-col items-end text-right">
-      <ClippedText className={cn('text-sm font-medium', className)} title={rate}>
+      <ClippedText className={cn('text-sm font-medium', className)} title={formattedRate}>
         {formattedRate}
       </ClippedText>
-      {formattedMarketDiffPercent && <div className="text-xs text-subText">{formattedMarketDiffPercent}</div>}
+      {formattedMarketDiffPercent && (
+        <div className="text-xs text-subText">{formatRatePercentText(formattedMarketDiffPercent)}</div>
+      )}
     </div>
   )
 }
@@ -40,8 +40,7 @@ type OrderItemProps = {
   showInvertedRate?: boolean
 }
 
-const OrderItem = ({ reverse, order, onTake, showInvertedRate }: OrderItemProps) => {
-  const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
+const OrderItem = ({ reverse = false, order, onTake, showInvertedRate }: OrderItemProps) => {
   const { currencyIn: makerCurrency, currencyOut: takerCurrency } = useLimitState()
 
   const chain = NETWORKS_INFO[order.chainId]
@@ -51,38 +50,42 @@ const OrderItem = ({ reverse, order, onTake, showInvertedRate }: OrderItemProps)
   const totalAmount = order.formattedTakerAmount
   const sizeCurrency = !reverse ? makerCurrency : takerCurrency
   const totalCurrency = !reverse ? takerCurrency : makerCurrency
-  const rateClassName = reverse ? 'text-primary' : 'text-red'
 
   return (
     <RowWrapper className="min-h-14 px-4 py-2">
-      <span className="flex items-center justify-center">
+      <span className="flex items-center justify-center max-sm:row-start-1">
         <img className="size-5" src={chain?.icon} alt="Network" />
       </span>
       <SizeInfo
         amount={sizeAmount}
-        symbol={sizeCurrency?.wrapped.symbol}
+        currency={sizeCurrency}
+        reverse={reverse}
         filledPercentText={filledPercent.toString()}
         filledProgressPercent={filledPercent}
       />
-      {!upToExtraSmall && <AmountWithSymbol amount={availableAmount} symbol={sizeCurrency?.wrapped.symbol} />}
-      <RateText order={order} className={rateClassName} showInvertedRate={showInvertedRate} />
-      <AmountWithSymbol amount={totalAmount} symbol={totalCurrency?.wrapped.symbol} />
-      {!upToExtraSmall && (
+      <div className="min-w-0 max-sm:col-start-3 max-sm:row-start-2">
+        <AmountWithSymbol amount={availableAmount} symbol={sizeCurrency?.wrapped.symbol} />
+      </div>
+      <div className="min-w-0 max-sm:col-start-3 max-sm:row-start-1">
+        <RateText order={order} className={reverse ? 'text-primary' : 'text-red'} showInvertedRate={showInvertedRate} />
+      </div>
+      <div className="min-w-0 max-sm:col-start-2 max-sm:row-start-2 [&>div]:max-sm:justify-start [&>div]:max-sm:text-left">
+        <AmountWithSymbol amount={totalAmount} currency={totalCurrency} reverse={reverse} />
+      </div>
+      <span className="justify-self-end max-sm:hidden">
         <CopyHelper toCopy={String(order.id)} margin="0" size={16} className="justify-self-end text-subText" />
-      )}
-      {!upToExtraSmall && (
-        <div className="justify-self-end">
-          {order.hasAvailable && (
-            <button
-              type="button"
-              onClick={() => onTake?.(order)}
-              className="rounded-full bg-primary-20 px-4 py-1 text-sm font-medium text-primary transition-colors hover:bg-primary-30"
-            >
-              <Trans>Take</Trans>
-            </button>
-          )}
-        </div>
-      )}
+      </span>
+      <div className="justify-self-end max-sm:col-start-1 max-sm:row-start-2 max-sm:justify-self-center">
+        {order.hasAvailable && (
+          <button
+            type="button"
+            onClick={() => onTake?.(order)}
+            className="rounded-full bg-primary-20 px-4 py-1 text-sm font-medium text-primary transition-colors hover:bg-primary-30 max-sm:px-2 max-sm:py-0.5 max-sm:text-xs"
+          >
+            <Trans>Take</Trans>
+          </button>
+        )}
+      </div>
     </RowWrapper>
   )
 }

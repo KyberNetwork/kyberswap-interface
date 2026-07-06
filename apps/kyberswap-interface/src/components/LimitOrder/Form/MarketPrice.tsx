@@ -5,6 +5,7 @@ import { Repeat } from 'react-feather'
 import Skeleton from 'components/Skeleton'
 import { HStack } from 'components/Stack'
 import { BaseTradeInfo } from 'hooks/useBaseTradeInfo'
+import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
 
 type MarketPriceProps = {
@@ -12,9 +13,10 @@ type MarketPriceProps = {
   loading?: boolean
   symbolIn?: string
   symbolOut?: string
+  className?: string
 }
 
-const MarketPrice = ({ price, loading, symbolIn, symbolOut }: MarketPriceProps) => {
+const MarketPrice = ({ price, loading, symbolIn, symbolOut, className }: MarketPriceProps) => {
   const [showInverted, setShowInverted] = useState(false)
   const formattedPrice = price
     ? formatDisplayNumber(showInverted ? price.invertRate : price.marketRate, { significantDigits: 6 })
@@ -41,7 +43,7 @@ const MarketPrice = ({ price, loading, symbolIn, symbolOut }: MarketPriceProps) 
       className="min-w-0 max-w-full items-center gap-2 hover:brightness-75"
       onClick={() => setShowInverted(showInverted => !showInverted)}
     >
-      <span className="min-w-0 truncate text-sm font-medium text-text">
+      <span className={cn('min-w-0 truncate text-sm font-medium text-text', className)}>
         {showInverted
           ? `1 ${symbolOut} = ${formattedPrice} ${symbolIn}`
           : `1 ${symbolIn} = ${formattedPrice} ${symbolOut}`}

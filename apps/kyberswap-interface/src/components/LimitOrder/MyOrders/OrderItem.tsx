@@ -13,6 +13,7 @@ import { AmountWithSymbol, ClippedText, SizeInfo } from 'components/LimitOrder/c
 import { LimitOrder, LimitOrderStatus, LimitOrderTab } from 'components/LimitOrder/types'
 import {
   calcPercentFilledOrder,
+  formatRatePercentText,
   getLimitOrderDisplayTakerSymbol,
   getMarketPriceDiff,
   isActiveStatus,
@@ -57,7 +58,9 @@ const RateText = ({ rate, marketRate }: { rate: string; marketRate?: number }) =
       <ClippedText className="text-sm font-medium text-primary" title={displayRate}>
         {displayRate}
       </ClippedText>
-      {marketDiff.displayPercent && <div className="text-xs text-subText">{marketDiff.displayPercent}</div>}
+      {marketDiff.displayPercent && (
+        <div className="text-xs text-subText">{formatRatePercentText(marketDiff.displayPercent)}</div>
+      )}
     </div>
   )
 }
@@ -164,7 +167,8 @@ const OrderItem = ({ order, onCancelOrder, isOrderCancelling }: OrderItemProps) 
         </span>
         <SizeInfo
           amount={formatOrderDisplayAmount(order.makingAmount, order.makerAssetDecimals)}
-          symbol={order.makerAssetSymbol}
+          currency={makerCurrency}
+          reverse={false}
           filledPercentText={filledPercent}
           filledProgressPercent={getFilledProgressPercent(filledPercent)}
         />
@@ -181,6 +185,7 @@ const OrderItem = ({ order, onCancelOrder, isOrderCancelling }: OrderItemProps) 
         <AmountWithSymbol
           amount={formatOrderDisplayAmount(order.takingAmount, order.takerAssetDecimals)}
           symbol={takerSymbol}
+          reverse={false}
         />
         <span className="justify-self-end text-right max-[640px]:hidden">
           <StatusPill status={status} warning={insufficientFund} />
@@ -235,6 +240,7 @@ const OrderItem = ({ order, onCancelOrder, isOrderCancelling }: OrderItemProps) 
                     <AmountWithSymbol
                       amount={formatOrderDisplayAmount(tx.takingAmount, order.takerAssetDecimals)}
                       symbol={takerSymbol}
+                      reverse={false}
                       muted
                     />
                   </div>

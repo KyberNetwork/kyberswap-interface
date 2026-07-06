@@ -14,7 +14,19 @@ import { useLimitState } from 'state/limit/hooks'
 import { cn } from 'utils/cn'
 
 const ORDER_LIST_TABS = [
-  { id: LimitOrderTab.ORDER_BOOK, label: <Trans>Open Limit Orders</Trans> },
+  {
+    id: LimitOrderTab.ORDER_BOOK,
+    label: (
+      <>
+        <span className="max-sm:hidden">
+          <Trans>Open Limit Orders</Trans>
+        </span>
+        <span className="sm:hidden">
+          <Trans>Open Orders</Trans>
+        </span>
+      </>
+    ),
+  },
   { id: LimitOrderTab.MY_ORDER, label: <Trans>My Order(s)</Trans> },
   { id: LimitOrderTab.PRICE, label: <Trans>Price</Trans> },
 ] as const

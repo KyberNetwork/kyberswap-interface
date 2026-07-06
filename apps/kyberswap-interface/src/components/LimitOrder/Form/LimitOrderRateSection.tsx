@@ -1,7 +1,9 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { useEffect, useMemo, useState } from 'react'
+import { Repeat } from 'react-feather'
 
+import CurrencyLogo from 'components/CurrencyLogo'
 import InfoHelper from 'components/InfoHelper'
 import { DeltaRateLimitOrder, RateInfo } from 'components/LimitOrder/types'
 import { formatPriceInputValue, removeTrailingZero } from 'components/LimitOrder/utils'
@@ -47,7 +49,13 @@ export const useGetDeltaRateLimitOrder = ({
   }
 }
 
-const DeltaRate = ({ symbol, deltaRate }: { symbol: string; deltaRate: DeltaRateLimitOrder }) => {
+type DeltaRateProps = {
+  symbol?: string
+  deltaRate: DeltaRateLimitOrder
+  isInvertedRate: boolean
+}
+
+const DeltaRate = ({ symbol, deltaRate, isInvertedRate }: DeltaRateProps) => {
   const theme = useTheme()
   const { percent, profit } = deltaRate
   const color = profit ? theme.apr : theme.warning
@@ -56,7 +64,7 @@ const DeltaRate = ({ symbol, deltaRate }: { symbol: string; deltaRate: DeltaRate
 
   return (
     <div className="flex items-center whitespace-nowrap text-sm font-medium text-subText">
-      <Trans>Sell {symbol} at rate</Trans>
+      {isInvertedRate ? <Trans>Buy {symbol} at rate</Trans> : <Trans>Sell {symbol} at rate</Trans>}
       {percent ? (
         <InfoHelper
           color={color}
@@ -167,6 +175,7 @@ type RateSectionState = {
 
 type RateSectionEvents = {
   onRateChange?: (value: string) => void
+  onInvertedRateChange?: (value: string) => void
   onRatePresetClick?: (preset: string) => void
   onSetMarketRate?: () => void
   onRateInputFocus?: () => void
@@ -182,24 +191,29 @@ type Props = {
 const LimitOrderRateSection = ({ tokens = {}, rate = {}, events = {} }: Props) => {
   const { currencyIn, currencyOut } = tokens
   const { displayRate = '', rateInfo = DEFAULT_RATE_INFO, tradeInfo } = rate
+  const [isInvertedRate, setIsInvertedRate] = useState(false)
+
   const deltaRate = useGetDeltaRateLimitOrder({ marketPrice: tradeInfo, rateInfo })
-  const unitCurrency = currencyOut
+  const baseCurrency = isInvertedRate ? currencyOut : currencyIn
+  const quoteCurrency = isInvertedRate ? currencyIn : currencyOut
+  const rateValue = isInvertedRate ? rateInfo.invertRate : displayRate
+  const onRateValueChange = isInvertedRate ? events.onInvertedRateChange : events.onRateChange
+
   const percentInputValue =
-    deltaRate.rawPercent === undefined || !Number.isFinite(deltaRate.rawPercent)
-      ? ''
-      : removeTrailingZero(deltaRate.rawPercent.toFixed(2)) ?? ''
-  const percentNumberValue = Number(percentInputValue)
-  const isPercentOptionValue =
-    percentInputValue !== '' && Number.isFinite(percentNumberValue) && RATE_DELTA_OPTIONS.includes(percentNumberValue)
-  const [isCustomPercentActive, setIsCustomPercentActive] = useState(
-    () => percentInputValue !== '' && !isPercentOptionValue,
-  )
+    typeof deltaRate.rawPercent === 'number' && Number.isFinite(deltaRate.rawPercent)
+      ? removeTrailingZero(deltaRate.rawPercent.toFixed(2)) || ''
+      : ''
+  const percentValue = Number(percentInputValue)
+  const hasPercentValue = percentInputValue !== '' && Number.isFinite(percentValue)
+  const isPresetPercent = hasPercentValue && RATE_DELTA_OPTIONS.includes(percentValue)
+  const isCustomPercent = hasPercentValue && !isPresetPercent
+  const [isCustomPercentActive, setIsCustomPercentActive] = useState(() => isCustomPercent)
   const [isCustomPercentFocused, setIsCustomPercentFocused] = useState(false)
 
   useEffect(() => {
     if (isCustomPercentFocused) return
-    setIsCustomPercentActive(percentInputValue !== '' && !isPercentOptionValue)
-  }, [isCustomPercentFocused, isPercentOptionValue, percentInputValue])
+    setIsCustomPercentActive(isCustomPercent)
+  }, [isCustomPercentFocused, isCustomPercent])
 
   const setRateByDelta = (percent: number, inputMethod: 'custom' | 'preset' = 'custom') => {
     if (!tradeInfo) return
@@ -226,7 +240,7 @@ const LimitOrderRateSection = ({ tokens = {}, rate = {}, events = {} }: Props) =
   return (
     <Stack className="gap-2 rounded-2xl bg-buttonBlack p-4">
       <HStack className="items-center justify-between gap-3">
-        <DeltaRate symbol={currencyIn?.symbol ?? ''} deltaRate={deltaRate} />
+        <DeltaRate symbol={baseCurrency?.symbol} deltaRate={deltaRate} isInvertedRate={isInvertedRate} />
         {tradeInfo ? (
           <button
             type="button"
@@ -238,20 +252,39 @@ const LimitOrderRateSection = ({ tokens = {}, rate = {}, events = {} }: Props) =
         ) : null}
       </HStack>
 
-      <HStack className="min-h-8 items-center gap-3">
+      <HStack className="min-h-8 min-w-0 items-center gap-2">
+        {baseCurrency?.symbol && (
+          <div className="flex min-w-0 shrink-0 items-center gap-1 text-lg font-medium text-subText">
+            <span className="shrink-0">1</span>
+            <span className="max-w-[92px] truncate">{baseCurrency.symbol}</span>
+            <span className="shrink-0">=</span>
+          </div>
+        )}
         <div className="flex min-w-0 flex-1 items-center">
           <NumericalInput
             maxLength={50}
             className="bg-transparent text-xl font-medium text-primary"
             data-testid="input-selling-rate"
-            value={displayRate}
-            onUserInput={events.onRateChange}
+            value={rateValue}
+            onUserInput={onRateValueChange}
             onFocus={events.onRateInputFocus}
             onBlur={events.onRateInputBlur}
           />
         </div>
-        {unitCurrency && (
-          <div className="flex shrink-0 items-center text-lg font-medium text-subText">{unitCurrency.symbol}</div>
+        {quoteCurrency && (
+          <HStack className="min-w-0 shrink-0 items-center gap-1.5">
+            <CurrencyLogo currency={quoteCurrency} size="20px" />
+            <span className="max-w-[92px] shrink-0 truncate text-lg font-medium text-subText">
+              {quoteCurrency.symbol}
+            </span>
+            <button
+              type="button"
+              className="flex shrink-0 items-center justify-center text-subText transition hover:brightness-75"
+              onClick={() => setIsInvertedRate(value => !value)}
+            >
+              <Repeat size={14} />
+            </button>
+          </HStack>
         )}
       </HStack>
 
@@ -270,7 +303,7 @@ const LimitOrderRateSection = ({ tokens = {}, rate = {}, events = {} }: Props) =
             type="button"
             className={cn(
               'h-6 rounded-lg border px-2 text-xs font-medium transition-colors',
-              percentInputValue !== '' && percentNumberValue === percent && !isCustomPercentActive
+              hasPercentValue && percentValue === percent && !isCustomPercentActive
                 ? 'border-primary-50 bg-tabActive text-text hover:bg-buttonGray'
                 : 'border-border/60 text-subText hover:border-border-primary hover:text-primary',
             )}

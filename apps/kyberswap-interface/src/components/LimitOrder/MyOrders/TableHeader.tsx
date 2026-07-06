@@ -21,7 +21,7 @@ const TableHeader = () => (
     <span>
       <Trans>Chain</Trans>
     </span>
-    <span className="justify-self-end text-right">
+    <span className="justify-self-center text-center">
       <Trans>Size</Trans>
     </span>
     <span className="flex gap-1 justify-self-end text-right max-[640px]:hidden">

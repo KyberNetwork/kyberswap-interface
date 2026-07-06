@@ -214,17 +214,17 @@ const OrderBook = () => {
         </span>
         <button
           type="button"
-          className="col-start-4 justify-self-end border-none bg-transparent p-0 text-right text-inherit hover:brightness-75 max-[640px]:col-start-3"
+          className="col-start-4 justify-self-end border-none bg-transparent p-0 text-right text-inherit hover:brightness-75 max-sm:col-start-2"
           onClick={handleSetMarketRate}
           disabled={!marketRate || !invertRate}
           aria-label="Set market rate"
         >
           {displayedMarketRate ? formatDisplayNumber(displayedMarketRate, { significantDigits: 6 }) : '--'}
         </button>
-        <span className="col-start-5 justify-self-start max-[640px]:col-start-4">
+        <span className="col-start-5 justify-self-start max-sm:col-start-3">
           <button
             type="button"
-            className="flex items-center gap-1 border-none bg-transparent p-0 text-xs text-subText transition hover:brightness-125"
+            className="flex items-center gap-1 border-none bg-transparent p-0 text-sm transition hover:brightness-75"
             onClick={handleInvertRate}
             aria-label="Invert rate"
           >
@@ -232,7 +232,7 @@ const OrderBook = () => {
             <Repeat size={14} />
           </button>
         </span>
-        <div className="col-start-7 justify-self-end max-[640px]:hidden">
+        <div className="col-start-7 justify-self-end max-sm:hidden">
           <RefreshLoading clickable refetchLoading={refetchLoading} onRefresh={onRefreshOrders} />
         </div>
       </RowWrapper>
