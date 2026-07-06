@@ -1,8 +1,6 @@
 import { Token } from '@kyberswap/ks-sdk-core'
-import { Trans } from '@lingui/macro'
-import dayjs from 'dayjs'
 import { MouseEventHandler, useMemo, useState } from 'react'
-import { ExternalLink as LinkIcon, Repeat, Trash } from 'react-feather'
+import { ExternalLink as LinkIcon, Trash } from 'react-feather'
 import { useNavigate } from 'react-router-dom'
 
 import { DropdownArrowIcon } from 'components/ArrowRotate'
@@ -10,8 +8,21 @@ import CopyHelper from 'components/Copy'
 import IconButton from 'components/IconButton'
 import { useLimitOrderContext } from 'components/LimitOrder/LimitOrderContext'
 import { RowWrapper } from 'components/LimitOrder/MyOrders/TableHeader'
-import { formatStatus } from 'components/LimitOrder/MyOrders/utils'
-import { ClippedText } from 'components/LimitOrder/components'
+import {
+  AvailableCell,
+  MOBILE_STATUS_LAYOUT,
+  RateCell,
+  SizeCell,
+  StatusCell,
+  TokenAmountLine,
+} from 'components/LimitOrder/MyOrders/components'
+import {
+  formatOrderDisplayAmount,
+  formatOrderTime,
+  getFilledProgressPercent,
+  getNeededMakingAmount,
+  getOrderRate,
+} from 'components/LimitOrder/MyOrders/utils'
 import { LimitOrder, LimitOrderStatus, LimitOrderTab } from 'components/LimitOrder/types'
 import {
   calcPercentFilledOrder,
@@ -19,242 +30,19 @@ import {
   isActiveStatus,
   isLimitOrderNativeOutput,
 } from 'components/LimitOrder/utils'
-import Logo from 'components/Logo'
 import { APP_PATHS } from 'constants/index'
 import { NETWORKS_INFO, isSupportedChainId } from 'constants/networks'
 import { useTokenBalance } from 'state/wallet/hooks'
 import { ExternalLink } from 'theme'
 import { cn } from 'utils/cn'
-import { toCurrencyAmount } from 'utils/currencyAmount'
 import { getEtherscanLink, isSupportLimitOrder } from 'utils/index'
-import { formatDisplayNumber, uint256ToFraction } from 'utils/numbers'
 
-const formatOrderDisplayAmount = (amount: string, decimals: number) =>
-  formatDisplayNumber(uint256ToFraction(amount, decimals).toFixed(18), { significantDigits: 6 })
-
-const formatOrderTime = (timestamp: number) => dayjs(timestamp * 1000).format('DD/MM/YYYY HH:mm')
-
-const getOrderRate = (order: LimitOrder) => {
-  const rate = uint256ToFraction(order.takingAmount, order.takerAssetDecimals).divide(
-    uint256ToFraction(order.makingAmount, order.makerAssetDecimals),
-  )
-  return rate.toFixed(18)
-}
-
-const getNeededMakingAmount = (order: LimitOrder, makingToken: Token) => {
-  const makingAmount = toCurrencyAmount(makingToken, order.makingAmount)
-  const filledMakingAmount = toCurrencyAmount(makingToken, order.filledMakingAmount)
-
-  return makingAmount.subtract(filledMakingAmount)
-}
-
-const getFilledProgressPercent = (filledPercent: string) =>
-  filledPercent.startsWith('<') ? 0.01 : Number(filledPercent.replace(/,/g, '')) || 0
-
-const MOBILE_STATUS_LAYOUT = {
-  ACTIVE: 'active',
-  HISTORY: 'history',
-} as const
-
-type MobileStatusLayout = (typeof MOBILE_STATUS_LAYOUT)[keyof typeof MOBILE_STATUS_LAYOUT]
-
-type RateCellProps = {
-  rate: string
-  makerSymbol: string
-  takerSymbol: string
-}
-
-const RateCell = ({ rate, makerSymbol, takerSymbol }: RateCellProps) => {
-  const [showInverted, setShowInverted] = useState(false)
-  const displayRate = formatDisplayNumber(showInverted ? 1 / Number(rate) : rate, { significantDigits: 6 })
-  const baseSymbol = showInverted ? takerSymbol : makerSymbol
-  const quoteSymbol = showInverted ? makerSymbol : takerSymbol
-  const pairLabel = `${baseSymbol}/${quoteSymbol}`
-
-  return (
-    <div className="flex w-full min-w-0 flex-col items-end gap-1 text-right">
-      <div className="flex min-w-0 items-center justify-end gap-1 text-sm font-medium text-subText">
-        <span className="min-w-0 truncate" title={pairLabel}>
-          {pairLabel}
-        </span>
-        <button
-          type="button"
-          className="flex shrink-0 items-center text-subText transition hover:brightness-75"
-          onClick={event => {
-            event.stopPropagation()
-            setShowInverted(value => !value)
-          }}
-          aria-label="Invert rate"
-        >
-          <Repeat size={14} />
-        </button>
-      </div>
-      <ClippedText className="text-sm font-medium text-primary" title={displayRate}>
-        {displayRate}
-      </ClippedText>
-    </div>
-  )
-}
-
-const StatusPill = ({
-  status,
-  warning,
-  className,
-}: {
-  status: LimitOrderStatus
-  warning?: boolean
-  className?: string
-}) => {
-  const active = isActiveStatus(status)
-  const danger = [LimitOrderStatus.CANCELLED, LimitOrderStatus.CANCELLING].includes(status)
-  const caution = warning || [LimitOrderStatus.EXPIRED, LimitOrderStatus.INSUFFICIENT_FUNDS].includes(status)
-
-  return (
-    <span
-      className={cn(
-        'block text-sm font-medium opacity-90',
-        active && !warning && 'text-primary',
-        danger && 'text-red',
-        caution && 'text-warning',
-        status === LimitOrderStatus.FILLED && 'text-primary',
-        className,
-      )}
-    >
-      {warning ? formatStatus(LimitOrderStatus.INSUFFICIENT_FUNDS) : formatStatus(status)}
-    </span>
-  )
-}
-
-const TokenAmountLine = ({
-  amount,
-  logo,
-  symbol,
-  prefix,
-  muted,
-}: {
-  amount: string
-  logo: string
-  symbol: string
-  prefix: '+' | '-'
-  muted?: boolean
-}) => (
-  <div
-    className={cn('flex min-w-0 items-center gap-1 text-sm font-medium', muted ? 'text-subText' : 'text-text')}
-    title={`${prefix}${amount} ${symbol}`.trim()}
-  >
-    <Logo srcs={[logo]} alt={`${symbol || 'token'} logo`} className="size-4 rounded" />
-    <span className="min-w-0 overflow-hidden whitespace-nowrap text-left">
-      {prefix}
-      {amount}
-    </span>
-    <span className="shrink-0 whitespace-nowrap">{symbol}</span>
-  </div>
-)
-
-type SizeCellProps = {
-  makerAmount: string
-  makerLogo: string
-  makerSymbol: string
-  takerAmount: string
-  takerLogo: string
-  takerSymbol: string
-  canOpenOrder: boolean
-  onClick: () => void
-}
-
-const SizeCell = ({
-  makerAmount,
-  makerLogo,
-  makerSymbol,
-  takerAmount,
-  takerLogo,
-  takerSymbol,
-  canOpenOrder,
-  onClick,
-}: SizeCellProps) => (
-  <button
-    type="button"
-    className={cn(
-      'flex min-w-0 flex-col gap-1 border-0 bg-transparent p-0 text-left',
-      canOpenOrder && 'cursor-pointer hover:brightness-75',
-    )}
-    onClick={onClick}
-  >
-    <TokenAmountLine amount={makerAmount} logo={makerLogo} symbol={makerSymbol} prefix="-" />
-    <TokenAmountLine amount={takerAmount} logo={takerLogo} symbol={takerSymbol} prefix="+" muted />
-  </button>
-)
-
-const AvailableCell = ({ amount, symbol, muted }: { amount?: string; symbol?: string; muted?: boolean }) => (
-  <div
-    className={cn(
-      'flex w-full min-w-0 items-center justify-end gap-1 text-right text-sm font-medium',
-      muted ? 'text-subText' : 'text-text',
-    )}
-    title={amount ? `${amount} ${symbol ?? ''}`.trim() : undefined}
-  >
-    {amount ? (
-      <>
-        <span className="min-w-0 overflow-hidden whitespace-nowrap text-left">{amount}</span>
-        {symbol && <span className="shrink-0 whitespace-nowrap">{symbol}</span>}
-      </>
-    ) : (
-      '--'
-    )}
-  </div>
-)
-
-const StatusCell = ({
-  filledPercent,
-  filledProgressPercent,
-  status,
-  warning,
-  mobileLayout,
-}: {
-  filledPercent: string
-  filledProgressPercent: number
-  status: LimitOrderStatus
-  warning?: boolean
-  mobileLayout: MobileStatusLayout
-}) => {
-  const isActiveMobileLayout = mobileLayout === MOBILE_STATUS_LAYOUT.ACTIVE
-  const isHistoryMobileLayout = mobileLayout === MOBILE_STATUS_LAYOUT.HISTORY
-
-  return (
-    <div
-      className={cn(
-        'flex min-w-0 flex-col items-start gap-1 max-sm:items-end',
-        isActiveMobileLayout && 'max-sm:items-start',
-        isHistoryMobileLayout && 'max-sm:w-full max-sm:flex-row max-sm:items-center max-sm:justify-between',
-      )}
-    >
-      <div className="flex min-w-0 items-center gap-1 text-sm text-subText max-sm:justify-end max-sm:text-text">
-        <span className="whitespace-nowrap">
-          <Trans>Fill</Trans> {filledPercent}%
-        </span>
-        <span className="h-1 w-12 shrink-0 overflow-hidden rounded-full bg-subText-40">
-          <span
-            className="block h-full rounded-full bg-primary"
-            style={{ width: `${Math.min(filledProgressPercent, 100)}%` }}
-          />
-        </span>
-      </div>
-      <StatusPill
-        status={status}
-        warning={warning}
-        className={cn('text-left max-sm:text-right', isActiveMobileLayout && 'max-sm:hidden')}
-      />
-    </div>
-  )
-}
-
-const CancelOrderButton = ({
-  className,
-  onClick,
-}: {
+type CancelOrderButtonProps = {
   className?: string
   onClick: MouseEventHandler<HTMLButtonElement>
-}) => (
+}
+
+const CancelOrderButton = ({ className, onClick }: CancelOrderButtonProps) => (
   <IconButton
     className={cn(
       'p-0 text-subText hover:bg-white/10 hover:text-red disabled:text-subText-40 disabled:opacity-100',
