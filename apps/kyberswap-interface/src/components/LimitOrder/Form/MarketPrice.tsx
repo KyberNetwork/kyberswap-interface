@@ -25,7 +25,7 @@ const MarketPrice = ({ price, loading, symbolIn, symbolOut, className }: MarketP
   const ready = Boolean(price?.marketRate && price?.invertRate && formattedPrice && !loading)
 
   if (loading) {
-    return <Skeleton height={18} width={160} />
+    return <Skeleton height={20} width={160} />
   }
 
   if (!ready) {

@@ -294,10 +294,8 @@ const MyOrders = () => {
       </div>
 
       <TableHeader isActiveTab={isTabActive} />
-      <div className="relative h-0">
+      <div className="relative min-h-20">
         <RefetchIndicator visible={isFetching} />
-      </div>
-      <div>
         {orders.map(order => (
           <OrderRow
             isOrderCancelling={isOrderCancelling}
@@ -307,6 +305,7 @@ const MyOrders = () => {
             onCancelOrder={openCancelModal}
           />
         ))}
+        {showNoOrders && <EmptyOrders isActiveTab={isTabActive} keyword={keyword} />}
       </div>
       {showPagination && (
         <div className="flex items-center justify-center bg-background px-4 py-2">
@@ -320,7 +319,6 @@ const MyOrders = () => {
           />
         </div>
       )}
-      {showNoOrders && <EmptyOrders isActiveTab={isTabActive} keyword={keyword} />}
 
       <CancelOrderModal
         isOpen={isOpenCancel}

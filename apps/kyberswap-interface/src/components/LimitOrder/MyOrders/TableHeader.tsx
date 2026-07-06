@@ -52,7 +52,7 @@ const TableHeader = ({ isActiveTab }: { isActiveTab?: boolean }) => (
     {isActiveTab && (
       <span className="flex gap-1 justify-self-end text-right max-sm:col-start-3 max-sm:row-start-2 max-sm:justify-self-end max-sm:text-right">
         <Trans>Available</Trans>
-        <InfoHelper margin={false} placement="top" size={14} text={<Trans>Available amount to be filled.</Trans>} />
+        <InfoHelper margin={false} placement="top" size={14} text={<Trans>Amount available to be filled.</Trans>} />
       </span>
     )}
     <span className="justify-self-end text-right max-sm:hidden">

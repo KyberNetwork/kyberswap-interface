@@ -27,7 +27,7 @@ const TableHeader = () => {
       </span>
       <span className="flex gap-1 justify-self-end text-right max-sm:col-start-3 max-sm:row-start-2">
         <Trans>Available</Trans>
-        <InfoHelper margin={false} size={14} text={<Trans>Amount available to be taken from the order.</Trans>} />
+        <InfoHelper margin={false} size={14} text={<Trans>Amount available to be filled.</Trans>} />
       </span>
       <span className="justify-self-end text-right max-sm:col-start-3 max-sm:row-start-1">
         <Trans>Rate</Trans>
