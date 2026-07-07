@@ -3,6 +3,7 @@ import { useCallback, useState } from 'react'
 import { useMedia } from 'react-use'
 import { useGetGasRefundNextCycleInfoQuery } from 'services/kyberDAO'
 
+import { NotificationType } from 'components/Announcement/type'
 import { ButtonLight, ButtonPrimary } from 'components/Button'
 import Dots from 'components/Dots'
 import { RowBetween } from 'components/Row'
@@ -21,10 +22,11 @@ import EligibleTxModal from 'pages/KyberDAO/KNCUtility/EligibleTxModal'
 import { KNCUtilityTabs } from 'pages/KyberDAO/KNCUtility/type'
 import { useSwitchToEthereum } from 'pages/KyberDAO/StakeKNC/SwitchToEthereumModal'
 import TimerCountdown from 'pages/KyberDAO/TimerCountdown'
-import { useWalletModalToggle } from 'state/application/hooks'
+import { useNotify, useWalletModalToggle } from 'state/application/hooks'
 import { LinkStyledButton, MEDIA_WIDTHS } from 'theme'
 import { formattedNum } from 'utils'
 import { cn } from 'utils/cn'
+import { friendlyError } from 'utils/errorMessage'
 
 const Tab = ({ active, children, onClick }: { active?: boolean; children: React.ReactNode; onClick?: () => void }) => (
   <span
@@ -52,6 +54,7 @@ export default function GasRefundBox() {
   const nextCycleStartTime = nextCycleData?.data.startTime
   const { switchToEthereum } = useSwitchToEthereum()
   const claimReward = useClaimGasRefundRewards()
+  const notify = useNotify()
   const [claiming, setClaiming] = useState(false)
   const handleClaimReward = useCallback(async () => {
     try {
@@ -61,10 +64,16 @@ export default function GasRefundBox() {
         token_amount: claimableReward?.knc,
       })
       await claimReward()
+    } catch (error) {
+      notify({
+        title: t`Claim Error`,
+        summary: friendlyError(error),
+        type: NotificationType.ERROR,
+      })
     } finally {
       setClaiming(false)
     }
-  }, [claimReward, claimableReward?.knc, trackingHandler])
+  }, [claimReward, claimableReward?.knc, trackingHandler, notify])
 
   return (
     <div className="flex w-full flex-col gap-5 rounded-[20px] bg-tableHeader p-5">
