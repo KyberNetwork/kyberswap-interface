@@ -855,8 +855,11 @@ components:
           type: object
           additionalProperties: false
           required:
+            - ks_allowance_hub_address
             - route_plans
           properties:
+            ks_allowance_hub_address:
+              $ref: '#/components/schemas/HexAddress'
             route_plans:
               type: array
               description: >-
