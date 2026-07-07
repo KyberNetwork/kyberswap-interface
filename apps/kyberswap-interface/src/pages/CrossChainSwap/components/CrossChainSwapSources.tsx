@@ -1,5 +1,5 @@
 import { Trans } from '@lingui/macro'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 
 import CheckBox from 'components/CheckBox'
 import { HStack, Stack } from 'components/Stack'
@@ -27,25 +27,29 @@ const CrossChainSwapSources = ({ onBack }: Props) => {
 
   const checkAllRef = useRef<HTMLInputElement | null>(null)
 
-  const sources = CrossChainSwapFactory.getAllAdapters()
-  const excludedSources = useAppSelector(state => state.crossChainSwap.excludedSources || [])
+  const sources = useMemo(() => CrossChainSwapFactory.getSelectableSources(), [])
+  const sourceNames = useMemo(() => sources.map(item => item.getName()), [sources])
+  const storedExcludedSources = useAppSelector(state => state.crossChainSwap.excludedSources || [])
+  const excludedSources = useMemo(
+    () => storedExcludedSources.filter(source => sourceNames.includes(source)),
+    [sourceNames, storedExcludedSources],
+  )
   const selectedSources = sources?.filter(item => !excludedSources.includes(item.getName())) || []
   const dispatch = useAppDispatch()
 
   const handleToggleSource = (sourceName: string) => {
     const isExclude = excludedSources.find(i => i === sourceName)
     const enabled = !!isExclude
-    if (isExclude) {
-      dispatch(updateExcludedSources(excludedSources.filter(ex => ex !== sourceName)))
-    } else {
-      dispatch(updateExcludedSources([...excludedSources, sourceName]))
-    }
+    const nextExcludedSources = isExclude
+      ? excludedSources.filter(ex => ex !== sourceName)
+      : [...excludedSources, sourceName]
+
+    dispatch(updateExcludedSources(nextExcludedSources))
+
     trackingHandler(TRACKING_EVENT_TYPE.CC_ROUTING_SOURCE_TOGGLED, {
       source_name: sourceName,
       enabled,
-      total_enabled: enabled
-        ? sources.length - excludedSources.length + 1
-        : sources.length - excludedSources.length - 1,
+      total_enabled: sources.length - nextExcludedSources.length,
       total_available: sources.length,
     })
   }
