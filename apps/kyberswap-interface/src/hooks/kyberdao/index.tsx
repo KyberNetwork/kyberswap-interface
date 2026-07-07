@@ -12,7 +12,6 @@ import kyberDAOApi, {
   useGetGasRefundTierInfoQuery,
 } from 'services/kyberDAO'
 
-import { NotificationType } from 'components/Announcement/type'
 import { wagmiConfig } from 'components/Web3Provider'
 import { DaoABI, ERC20_ABI, MigrateABI, RewardDistributorABI, StakingABI } from 'constants/abis'
 import { REWARD_SERVICE_API } from 'constants/env'
@@ -25,7 +24,6 @@ import { DaoInfo, EligibleTxsInfo } from 'hooks/kyberdao/types'
 import { useReadingContract, useSigningContract, useTokenReadingContract } from 'hooks/useContract'
 import useTokenBalance from 'hooks/useTokenBalance'
 import { KNCUtilityTabs } from 'pages/KyberDAO/KNCUtility/type'
-import { useNotify } from 'state/application/hooks'
 import { useSingleCallResult } from 'state/multicall/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
@@ -647,7 +645,6 @@ export function useClaimGasRefundRewards() {
   const addTransactionWithType = useTransactionAdder()
   const { claimableReward } = useGasRefundInfo({})
   const refetch = useRefetchGasRefundInfo()
-  const notify = useNotify()
 
   const claimGasRefundRewards = useCallback(async (): Promise<string> => {
     if (!account || !claimableReward || claimableReward.knc <= 0) throw new Error(t`Invalid claim`)
@@ -666,11 +663,6 @@ export function useClaimGasRefundRewards() {
       if (response?.data?.code !== 200000) throw new Error(response?.data?.message)
     } catch (error) {
       console.error('Claim error:', { error })
-      notify({
-        title: t`Claim Error`,
-        summary: error?.response?.data?.message || error?.message || t`Unknown error`,
-        type: NotificationType.ERROR,
-      })
       throw error
     }
 
@@ -705,14 +697,9 @@ export function useClaimGasRefundRewards() {
       refetch()
       const message = friendlyError(error)
       console.error('Claim error:', { message, error })
-      notify({
-        title: t`Claim Error`,
-        summary: message,
-        type: NotificationType.ERROR,
-      })
       throw error
     }
-  }, [account, addTransactionWithType, chainId, claimableReward, notify, refetch, walletKey, isSmartConnector])
+  }, [account, addTransactionWithType, chainId, claimableReward, refetch, walletKey, isSmartConnector])
   return claimGasRefundRewards
 }
 
