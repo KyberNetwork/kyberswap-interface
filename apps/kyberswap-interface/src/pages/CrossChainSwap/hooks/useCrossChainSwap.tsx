@@ -37,7 +37,12 @@ import { CrossChainSwapFactory } from 'pages/CrossChainSwap/factory'
 import { type NearToken, useNearTokens } from 'pages/CrossChainSwap/hooks/useNearTokens'
 import { type SolanaToken, useSolanaTokens } from 'pages/CrossChainSwap/hooks/useSolanaTokens'
 import { CrossChainSwapAdapterRegistry, Quote } from 'pages/CrossChainSwap/registry'
-import { NEAR_STABLE_COINS, SOLANA_STABLE_COINS, isCanonicalPair } from 'pages/CrossChainSwap/utils'
+import {
+  ENABLE_CROSS_CHAIN_STREAM_API,
+  NEAR_STABLE_COINS,
+  SOLANA_STABLE_COINS,
+  isCanonicalPair,
+} from 'pages/CrossChainSwap/utils'
 import { useAppSelector } from 'state/hooks'
 import { useUserSlippageTolerance } from 'state/user/hooks'
 import { isEvmChain, isNonEvmChain } from 'utils'
@@ -672,26 +677,26 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
       })
 
       // Add includedSources and excludedSources parameters
-      const allAdapters = registry.getAllAdapters()
+      const selectableSources = CrossChainSwapFactory.getSelectableSources()
+      const filterSourcesBySupport = ENABLE_CROSS_CHAIN_STREAM_API
+      const supportedSources = filterSourcesBySupport
+        ? selectableSources.filter(adapter => adapter.canSupport(requestCategory, currencyIn, currencyOut))
+        : selectableSources
 
-      // Filter adapters based on both excludedSources and canSupport check
-      const supportedAdapters = allAdapters.filter(adapter =>
-        adapter.canSupport(requestCategory, currencyIn, currencyOut),
-      )
-      const includedSourceNames = supportedAdapters
+      const includedSourceNames = supportedSources
         .filter(adapter => !excludedSources.includes(adapter.getName()))
         .map(adapter => adapter.getName())
 
-      const excludedSourceNames = allAdapters
+      const excludedSourceNames = selectableSources
         .filter(
           adapter =>
             excludedSources.includes(adapter.getName()) ||
-            !adapter.canSupport(requestCategory, currencyIn, currencyOut),
+            (filterSourcesBySupport && !adapter.canSupport(requestCategory, currencyIn, currencyOut)),
         )
         .map(adapter => adapter.getName())
 
       // Only add parameters if there are filters to apply
-      if (includedSourceNames.length > 0 && includedSourceNames.length < allAdapters.length) {
+      if (includedSourceNames.length > 0 && includedSourceNames.length < selectableSources.length) {
         queryParams.append('includedSources', includedSourceNames.join(','))
       }
 
@@ -708,6 +713,10 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
       let streamingApiSucceeded = false
 
       try {
+        if (!ENABLE_CROSS_CHAIN_STREAM_API) {
+          throw new Error('Cross-chain streaming API is disabled')
+        }
+
         // Check for cancellation before starting
         if (signal.aborted) throw new Error('Cancelled')
 
@@ -904,11 +913,12 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
         // Use a fresh array for fallback quotes to avoid mixing with any partial streaming results
         const fallbackQuotes: Quote[] = []
 
-        let clientAdapters = registry.getAllAdapters().filter(a => !excludedSources.includes(a.getName()))
+        const clientQuoteAdapters = CrossChainSwapFactory.getClientQuoteAdapters()
+        let clientAdapters = clientQuoteAdapters.filter(a => !excludedSources.includes(a.getName()))
 
         if (clientAdapters.length === 0) {
           // If user unchecked all, use all adapters
-          clientAdapters = registry.getAllAdapters()
+          clientAdapters = clientQuoteAdapters
         }
 
         // Filter adapters for cross-chain swaps (exclude KyberSwap which is for same-chain)
@@ -931,8 +941,8 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
               return
             }
 
-            const isExcludedAllAdapters = excludedSources.length === registry.getAllAdapters().length
-            const quoteParams = isExcludedAllAdapters
+            const isExcludedAllSources = selectableSources.every(source => excludedSources.includes(source.getName()))
+            const quoteParams = isExcludedAllSources
               ? params
               : { ...params, includedSources: includedSourceNames, excludedSources: excludedSourceNames }
 

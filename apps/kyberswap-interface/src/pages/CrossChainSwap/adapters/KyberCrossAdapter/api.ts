@@ -233,6 +233,7 @@ type ErrorResponse = {
 export type ApiResponse<TData> = SuccessResponse<TData> | ErrorResponse
 
 export type QuoteResponseData = {
+  ks_allowance_hub_address: Address
   route_plans: RoutePlan[]
 }
 

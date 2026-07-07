@@ -15,181 +15,105 @@ import { BungeeAdapter } from './adapters/BungeeAdapter'
 import { NearIntentsAdapter } from './adapters/NearIntentsAdapter'
 import { OptimexAdapter } from './adapters/OptimexAdapter'
 import { OrbiterAdapter } from './adapters/OrbiterAdapter'
-import { normalizeAdapterName } from './utils'
+import { ENABLE_CROSS_CHAIN_STREAM_API, normalizeAdapterName } from './utils'
 
 // Factory for creating swap provider instances
 export class CrossChainSwapFactory {
-  // Singleton instances (lazy loaded)
-  private static acrossInstance: AcrossAdapter
-  private static relayInstance: RelayAdapter
-  private static xyFinanceInstance: XYFinanceAdapter
-  private static nearIntentsInstance: NearIntentsAdapter
-  private static mayanInstance: MayanAdapter
-  private static symbiosisInstance: SymbiosisAdapter
-  private static debridgeInstance: DeBridgeAdapter
-  private static lifiInstance: LifiAdapter
-  private static optimexInstance: OptimexAdapter
-  private static ksInstance: KyberSwapAdapter
-  private static orbiterInstance: OrbiterAdapter
-  private static bungeeInstance: BungeeAdapter
-  private static kyberAcrossInstance: KyberAcrossAdapter
-  private static kyberCrossInstance: KyberCrossAdapter
-
-  // Get or create Across adapter
-  static getAcrossAdapter(): AcrossAdapter {
-    if (!CrossChainSwapFactory.acrossInstance) {
-      CrossChainSwapFactory.acrossInstance = new AcrossAdapter()
-    }
-    return CrossChainSwapFactory.acrossInstance
+  private static adapterCreators = {
+    across: () => new AcrossAdapter(),
+    relay: () => new RelayAdapter(),
+    xyfinance: () => new XYFinanceAdapter(),
+    nearintents: () => new NearIntentsAdapter(),
+    mayan: () => new MayanAdapter(),
+    symbiosis: () => new SymbiosisAdapter(),
+    debridge: () => new DeBridgeAdapter(),
+    lifi: () => new LifiAdapter(),
+    optimex: () => new OptimexAdapter(),
+    kyberswap: () => new KyberSwapAdapter(),
+    orbiter: () => new OrbiterAdapter(),
+    bungee: () => new BungeeAdapter(),
+    kyberacross: () => new KyberAcrossAdapter(),
+    kybercross: () => new KyberCrossAdapter(CrossChainSwapFactory.getAdapterByName),
   }
 
-  // Get or create Relay adapter
-  static getRelayAdapter(): RelayAdapter {
-    if (!CrossChainSwapFactory.relayInstance) {
-      CrossChainSwapFactory.relayInstance = new RelayAdapter()
-    }
-    return CrossChainSwapFactory.relayInstance
+  private static adapters = new Map<string, SwapProvider>()
+
+  private static getAdapterCreator(name?: string): (() => SwapProvider) | undefined {
+    const key = normalizeAdapterName(name)
+
+    if (!Object.prototype.hasOwnProperty.call(CrossChainSwapFactory.adapterCreators, key)) return undefined
+
+    return CrossChainSwapFactory.adapterCreators[key as keyof typeof CrossChainSwapFactory.adapterCreators]
   }
 
-  static getXyFinanceAdapter(): XYFinanceAdapter {
-    if (!CrossChainSwapFactory.xyFinanceInstance) {
-      CrossChainSwapFactory.xyFinanceInstance = new XYFinanceAdapter()
+  private static getOrCreateAdapter(name: string): SwapProvider {
+    const key = normalizeAdapterName(name)
+    const createAdapter = CrossChainSwapFactory.getAdapterCreator(key)
+
+    if (!createAdapter) {
+      throw new Error(`Unsupported cross-chain adapter: ${name}`)
     }
-    return CrossChainSwapFactory.xyFinanceInstance
+
+    let adapter = CrossChainSwapFactory.adapters.get(key)
+
+    if (!adapter) {
+      adapter = createAdapter()
+      CrossChainSwapFactory.adapters.set(key, adapter)
+    }
+
+    return adapter
   }
 
-  static getNearIntentsAdapter(): NearIntentsAdapter {
-    if (!CrossChainSwapFactory.nearIntentsInstance) {
-      CrossChainSwapFactory.nearIntentsInstance = new NearIntentsAdapter()
-    }
-    return CrossChainSwapFactory.nearIntentsInstance
+  static getKyberCrossBridgeSources(): SwapProvider[] {
+    return [
+      CrossChainSwapFactory.getOrCreateAdapter('across'),
+      CrossChainSwapFactory.getOrCreateAdapter('relay'),
+      CrossChainSwapFactory.getOrCreateAdapter('nearintents'),
+      CrossChainSwapFactory.getOrCreateAdapter('mayan'),
+    ]
   }
 
-  static getMayanAdapter(): MayanAdapter {
-    if (!CrossChainSwapFactory.mayanInstance) {
-      CrossChainSwapFactory.mayanInstance = new MayanAdapter()
+  static getSelectableSources(): SwapProvider[] {
+    if (!ENABLE_CROSS_CHAIN_STREAM_API) {
+      return CrossChainSwapFactory.getKyberCrossBridgeSources()
     }
-    return CrossChainSwapFactory.mayanInstance
+
+    return CrossChainSwapFactory.getAllAdapters()
   }
 
-  static getSymbiosisAdapter(): SymbiosisAdapter {
-    if (!CrossChainSwapFactory.symbiosisInstance) {
-      CrossChainSwapFactory.symbiosisInstance = new SymbiosisAdapter()
+  // Direct client quote adapters. When stream is disabled, KyberCross owns quote routing.
+  static getClientQuoteAdapters(): SwapProvider[] {
+    if (!ENABLE_CROSS_CHAIN_STREAM_API) {
+      return [CrossChainSwapFactory.getOrCreateAdapter('kybercross')]
     }
-    return CrossChainSwapFactory.symbiosisInstance
+
+    return CrossChainSwapFactory.getAllAdapters()
   }
 
-  static getDebridgeInstance(): DeBridgeAdapter {
-    if (!CrossChainSwapFactory.debridgeInstance) {
-      CrossChainSwapFactory.debridgeInstance = new DeBridgeAdapter()
-    }
-    return CrossChainSwapFactory.debridgeInstance
-  }
-
-  static getLifiInstance(): LifiAdapter {
-    if (!CrossChainSwapFactory.lifiInstance) {
-      CrossChainSwapFactory.lifiInstance = new LifiAdapter()
-    }
-    return CrossChainSwapFactory.lifiInstance
-  }
-
-  static getOptimexAdapter(): OptimexAdapter {
-    if (!CrossChainSwapFactory.optimexInstance) {
-      CrossChainSwapFactory.optimexInstance = new OptimexAdapter()
-    }
-    return CrossChainSwapFactory.optimexInstance
-  }
-
-  static getKsApdater(): KyberSwapAdapter {
-    if (!CrossChainSwapFactory.ksInstance) {
-      CrossChainSwapFactory.ksInstance = new KyberSwapAdapter()
-    }
-    return CrossChainSwapFactory.ksInstance
-  }
-
-  static getOrbiterAdapter(): OrbiterAdapter {
-    if (!CrossChainSwapFactory.orbiterInstance) {
-      CrossChainSwapFactory.orbiterInstance = new OrbiterAdapter()
-    }
-    return CrossChainSwapFactory.orbiterInstance
-  }
-
-  static getBungeeAdapter(): BungeeAdapter {
-    if (!CrossChainSwapFactory.bungeeInstance) {
-      CrossChainSwapFactory.bungeeInstance = new BungeeAdapter()
-    }
-    return CrossChainSwapFactory.bungeeInstance
-  }
-
-  static getKyberAcrossAdapter(): KyberAcrossAdapter {
-    if (!CrossChainSwapFactory.kyberAcrossInstance) {
-      CrossChainSwapFactory.kyberAcrossInstance = new KyberAcrossAdapter()
-    }
-    return CrossChainSwapFactory.kyberAcrossInstance
-  }
-
-  static getKyberCrossAdapter(): KyberCrossAdapter {
-    if (!CrossChainSwapFactory.kyberCrossInstance) {
-      CrossChainSwapFactory.kyberCrossInstance = new KyberCrossAdapter(name =>
-        name ? CrossChainSwapFactory.getAdapterByName(name) : undefined,
-      )
-    }
-    return CrossChainSwapFactory.kyberCrossInstance
-  }
-
-  // Get all registered adapters
+  // Registry/status lookup needs every active adapter, even when quotes only use KyberCross.
   static getAllAdapters(): SwapProvider[] {
     return [
-      CrossChainSwapFactory.getAcrossAdapter(),
-      CrossChainSwapFactory.getRelayAdapter(),
-      // CrossChainSwapFactory.getXyFinanceAdapter(),
-      CrossChainSwapFactory.getNearIntentsAdapter(),
-      CrossChainSwapFactory.getMayanAdapter(),
-      CrossChainSwapFactory.getSymbiosisAdapter(),
-      CrossChainSwapFactory.getDebridgeInstance(),
-      CrossChainSwapFactory.getLifiInstance(),
-      // CrossChainSwapFactory.getOptimexAdapter(),
-      CrossChainSwapFactory.getKsApdater(),
-      // CrossChainSwapFactory.getOrbiterAdapter(),
-      CrossChainSwapFactory.getBungeeAdapter(),
-      CrossChainSwapFactory.getKyberAcrossAdapter(),
-      CrossChainSwapFactory.getKyberCrossAdapter(),
+      CrossChainSwapFactory.getOrCreateAdapter('across'),
+      CrossChainSwapFactory.getOrCreateAdapter('relay'),
+      // CrossChainSwapFactory.getOrCreateAdapter('xyfinance'),
+      CrossChainSwapFactory.getOrCreateAdapter('nearintents'),
+      CrossChainSwapFactory.getOrCreateAdapter('mayan'),
+      CrossChainSwapFactory.getOrCreateAdapter('symbiosis'),
+      CrossChainSwapFactory.getOrCreateAdapter('debridge'),
+      CrossChainSwapFactory.getOrCreateAdapter('lifi'),
+      // CrossChainSwapFactory.getOrCreateAdapter('optimex'),
+      CrossChainSwapFactory.getOrCreateAdapter('kyberswap'),
+      // CrossChainSwapFactory.getOrCreateAdapter('orbiter'),
+      CrossChainSwapFactory.getOrCreateAdapter('bungee'),
+      CrossChainSwapFactory.getOrCreateAdapter('kyberacross'),
+      CrossChainSwapFactory.getOrCreateAdapter('kybercross'),
     ]
   }
 
   // Get adapter by name
-  static getAdapterByName(name: string): SwapProvider | undefined {
-    switch (normalizeAdapterName(name)) {
-      case 'across':
-        return CrossChainSwapFactory.getAcrossAdapter()
-      case 'relay':
-        return CrossChainSwapFactory.getRelayAdapter()
-      case 'xyfinance':
-        return CrossChainSwapFactory.getXyFinanceAdapter()
-      case 'nearintents':
-        return CrossChainSwapFactory.getNearIntentsAdapter()
-      case 'mayan':
-        return CrossChainSwapFactory.getMayanAdapter()
-      case 'symbiosis':
-        return CrossChainSwapFactory.getSymbiosisAdapter()
-      case 'debridge':
-        return CrossChainSwapFactory.getDebridgeInstance()
-      case 'lifi':
-        return CrossChainSwapFactory.getLifiInstance()
-      case 'optimex':
-        return CrossChainSwapFactory.getOptimexAdapter()
-      case 'kyberswap':
-        return CrossChainSwapFactory.getKsApdater()
-      case 'orbiter':
-        return CrossChainSwapFactory.getOrbiterAdapter()
-      case 'bungee':
-        return CrossChainSwapFactory.getBungeeAdapter()
-      case 'kyberacross':
-        return CrossChainSwapFactory.getKyberAcrossAdapter()
-      case 'kybercross':
-        return CrossChainSwapFactory.getKyberCrossAdapter()
-      default:
-        return undefined
-    }
+  static getAdapterByName(name?: string): SwapProvider | undefined {
+    if (!name || !CrossChainSwapFactory.getAdapterCreator(name)) return undefined
+
+    return CrossChainSwapFactory.getOrCreateAdapter(name)
   }
 }

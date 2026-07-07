@@ -5,6 +5,8 @@ import { isEvmChain } from 'utils'
 
 import { Chain, Currency, NonEvmChain, NonEvmChainInfo } from '../adapters'
 
+export const ENABLE_CROSS_CHAIN_STREAM_API = false
+
 export const normalizeAdapterName = (name?: string): string => {
   return name?.toLowerCase().replace(/[\s_-]+/g, '') ?? ''
 }
