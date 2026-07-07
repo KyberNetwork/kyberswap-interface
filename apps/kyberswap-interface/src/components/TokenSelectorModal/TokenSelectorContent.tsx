@@ -52,6 +52,7 @@ import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import useChainsConfig from 'hooks/useChainsConfig'
 import useDebounce from 'hooks/useDebounce'
+import { useIsTokenRestricted, useNotifyRestrictedToken } from 'hooks/useRestrictedTokens'
 import { fetchListTokenByAddresses, useAllTokens } from 'hooks/useTokens'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
@@ -148,6 +149,8 @@ export const TokenSelectorContent = ({
   const { trackingHandler } = useTracking()
   const { changeNetwork } = useChangeNetwork()
   const removeToken = useRemoveUserAddedToken()
+  const isTokenRestricted = useIsTokenRestricted()
+  const notifyRestrictedToken = useNotifyRestrictedToken()
 
   const [selectedChainId, setSelectedChainId] = useState<ChainId>(anchorChainId)
   const primaryChainId = selectedChainId
@@ -360,6 +363,11 @@ export const TokenSelectorContent = ({
   const handleCurrencySelect = useCallback(
     (currency: Currency) => {
       const resolved = isTokenNative(currency) ? NativeCurrencies[currency.chainId] : currency
+      // Restricted in the user's jurisdiction — block selection and keep the modal open with a notice.
+      if (isTokenRestricted(resolved)) {
+        notifyRestrictedToken(resolved)
+        return
+      }
       // Picking a token on another chain asks the user to switch first.
       if (resolved.chainId !== anchorChainId) {
         setSwitchChainToken(resolved)
@@ -368,7 +376,7 @@ export const TokenSelectorContent = ({
       onCurrencySelect?.(resolved)
       onDismiss?.()
     },
-    [anchorChainId, onCurrencySelect, onDismiss],
+    [anchorChainId, onCurrencySelect, onDismiss, isTokenRestricted, notifyRestrictedToken],
   )
 
   const confirmSwitchChain = useCallback(() => {

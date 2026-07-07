@@ -4,9 +4,10 @@ import JSBI from 'jsbi'
 
 import { LimitOrderFromTokenPair, LimitOrderFromTokenPairFormatted } from 'components/LimitOrder/types'
 import { getMarketPriceDiff } from 'components/LimitOrder/utils'
+import { isSupportedChainId } from 'constants/networks'
 import { formatDisplayNumber } from 'utils/numbers'
 
-const MIN_AVAILABLE_USD = 0.01
+const MIN_AVAILABLE_USD = 0.0001
 
 const safeDivide = (numerator: JSBI, denominator: JSBI) =>
   JSBI.equal(denominator, JSBI.BigInt(0)) ? JSBI.BigInt(0) : JSBI.divide(numerator, denominator)
@@ -35,12 +36,17 @@ export const formatOrders = (
   takerCurrency: Currency | undefined,
   marketRate: number,
   makerPriceUsd: number,
-  takerPriceUsd: number,
   reverse = false,
 ): LimitOrderFromTokenPairFormatted[] => {
   if (!makerCurrency || !takerCurrency) return []
 
   return orders
+    .filter(
+      order =>
+        isSupportedChainId(order.chainId) &&
+        order.chainId === makerCurrency.wrapped.chainId &&
+        order.chainId === takerCurrency.wrapped.chainId,
+    )
     .map(order => {
       const newMakerCurrency = new Token(
         order.chainId,
@@ -77,13 +83,9 @@ export const formatOrders = (
           JSBI.BigInt(order.makingAmount),
         ),
       ).toExact()
-      const availableAmount = reverse ? availableTakerAmount : availableMakerAmount
-      const availablePriceUsd = reverse ? takerPriceUsd : makerPriceUsd
-      const availableAmountNumber = Number(availableAmount)
+      const availableAmountNumber = Number(availableMakerAmount)
       const availableUsd =
-        availablePriceUsd && Number.isFinite(availableAmountNumber)
-          ? availableAmountNumber * availablePriceUsd
-          : undefined
+        makerPriceUsd && Number.isFinite(availableAmountNumber) ? availableAmountNumber * makerPriceUsd : undefined
 
       if (availableAmountNumber <= 0 || (availableUsd !== undefined && availableUsd < MIN_AVAILABLE_USD)) {
         return undefined

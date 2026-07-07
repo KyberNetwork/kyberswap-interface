@@ -2,7 +2,6 @@ import '@kyber/token-selector/styles.css'
 import '@kyber/ui/styles.css'
 import { Suspense, lazy, useEffect } from 'react'
 import { Navigate, Route, Routes, useLocation, useParams, useSearchParams } from 'react-router-dom'
-import { useNetwork, usePrevious } from 'react-use'
 
 import Popups from 'components/Announcement/Popups'
 import TopBanner from 'components/Announcement/Popups/TopBanner'
@@ -21,7 +20,6 @@ import SupportButton from 'components/SupportButton'
 import { APP_PATHS, CHAINS_SUPPORT_CROSS_CHAIN, TERM_FILES_PATH } from 'constants/index'
 import { CLASSIC_NOT_SUPPORTED, ELASTIC_NOT_SUPPORTED, NETWORKS_INFO, SUPPORTED_NETWORKS } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
-import { useAutoLogin } from 'hooks/useLogin'
 import usePageLocation from 'hooks/usePageLocation'
 import useSessionExpiredGlobal from 'hooks/useSessionExpire'
 import { useGlobalTrackingEvents } from 'hooks/useTracking'
@@ -72,15 +70,15 @@ const PoolDetail = lazy(() => import('pages/Earns/PoolDetail'))
 const Recap2025Redirect = lazy(() => import('pages/Recap2025Redirect'))
 
 const AppWrapper = ({ children }: { children: React.ReactNode }) => (
-  <div className="flex flex-col items-start">{children}</div>
+  <div className="flex min-h-dvh w-full flex-col items-start max-lg:pb-[72px] max-sm:pb-[60px]">{children}</div>
 )
 
 const HeaderWrapper = ({ children }: { children: React.ReactNode }) => (
-  <div className="z-[3] flex w-full flex-row flex-nowrap justify-between">{children}</div>
+  <div className="z-[3] flex w-full shrink-0 flex-row flex-nowrap justify-between">{children}</div>
 )
 
 const BodyWrapper = ({ children }: { children: React.ReactNode }) => (
-  <div className="relative z-[1] flex min-h-[calc(100vh-148px)] w-full flex-1 flex-col items-center">{children}</div>
+  <div className="relative z-[1] flex w-full flex-1 flex-col items-center">{children}</div>
 )
 
 const preloadImages = () => {
@@ -196,31 +194,20 @@ const RoutesWithNetworkPrefix = () => {
 }
 
 export default function App() {
-  const { account, chainId } = useActiveWeb3React()
+  const { chainId } = useActiveWeb3React()
   const { pathname } = useLocation()
   const { isEmbeddedSwap } = usePageLocation()
-  useAutoLogin()
-  const { online } = useNetwork()
-  const prevOnline = usePrevious(online)
-  useSessionExpiredGlobal()
+  const dispatch = useAppDispatch()
+  const safeAppAcceptedTermOfUse = useAppSelector(state => state.user.safeAppAcceptedTermOfUse)
 
-  useEffect(() => {
-    if (prevOnline === false && online && account) {
-      // refresh page when network back to normal to prevent some issues: ex: stale data, ...
-      window.location.reload()
-    }
-  }, [online, prevOnline, account])
+  useSessionExpiredGlobal()
+  useGlobalTrackingEvents()
 
   useEffect(() => {
     preloadImages()
   }, [])
 
-  useGlobalTrackingEvents()
   const showFooter = !pathname.includes(APP_PATHS.ABOUT) && !isEmbeddedSwap
-  // const [holidayMode] = useHolidayMode()
-
-  const safeAppAcceptedTermOfUse = useAppSelector(state => state.user.safeAppAcceptedTermOfUse)
-  const dispatch = useAppDispatch()
 
   return (
     <ErrorBoundary>
@@ -360,7 +347,6 @@ export default function App() {
             </Routes>
           </BodyWrapper>
           {showFooter && <Footer />}
-          {!showFooter && <div className="mb-16" />}
         </Suspense>
       </AppWrapper>
     </ErrorBoundary>

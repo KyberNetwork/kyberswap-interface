@@ -12,7 +12,7 @@ export default function DatePicker({ onChange, value }: { value: Date; onChange:
         calendarIcon={null}
         clearIcon={null}
         autoFocus
-        calendarClassName="custom-calendar"
+        calendarProps={{ className: 'custom-calendar' }}
         className="custom-date-picker"
         value={value}
         closeCalendar={false}

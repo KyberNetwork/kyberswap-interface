@@ -3,7 +3,7 @@ import { Trans, t } from '@lingui/macro'
 import { useWalletSelector } from '@near-wallet-selector/react-hook'
 import { useConnection, useWallet } from '@solana/wallet-adapter-react'
 import { Transaction, VersionedTransaction } from '@solana/web3.js'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { ArrowDown } from 'react-feather'
 import { useSearchParams } from 'react-router-dom'
 import { useLazyCheckBlackjackQuery } from 'services/blackjack'
@@ -25,6 +25,7 @@ import { PiWarning } from 'pages/CrossChainSwap/components/PiWarning'
 import { QuoteProviderName } from 'pages/CrossChainSwap/components/QuoteProviderName'
 import { Summary } from 'pages/CrossChainSwap/components/Summary'
 import { useCrossChainSwap } from 'pages/CrossChainSwap/hooks/useCrossChainSwap'
+import { useRestoreMyNearWalletPendingTransaction } from 'pages/CrossChainSwap/hooks/useRestoreMyNearWalletPendingTransaction'
 import { getChainName } from 'pages/CrossChainSwap/utils'
 import { useCrossChainTransactions } from 'state/crossChainSwap'
 import { CloseIcon, ExternalLink } from 'theme'
@@ -75,6 +76,7 @@ const TokenBoxInfo = ({
 export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDismiss: () => void }) => {
   const { crossChainMixpanelHandler } = useCrossChainMixpanel()
   const { trackingHandler } = useTracking()
+  const { data: walletClient } = useGatedWalletClient()
   const {
     selectedQuote,
     currencyIn,
@@ -87,35 +89,21 @@ export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDi
     sender,
     receiver,
   } = useCrossChainSwap()
-  const { data: walletClient } = useGatedWalletClient()
+
+  const [searchParams] = useSearchParams()
   const [submittingTx, setSubmittingTx] = useState(false)
   const [txHash, setTxHash] = useState('')
   const [txError, setTxError] = useState('')
   const [transactions, setTransactions] = useCrossChainTransactions()
-  const [searchParams, setSearchParams] = useSearchParams()
-  const transactionHashes = searchParams.get('transactionHashes')
-  useEffect(() => {
-    try {
-      const tx = JSON.parse(localStorage.getItem('cross-chain-swap-my-near-wallet-tx') || '')
-      if (transactionHashes && tx) {
-        setTransactions([tx, ...transactions].slice(0, 30))
-        localStorage.removeItem('cross-chain-swap-my-near-wallet-tx')
-        searchParams.delete('transactionHashes')
-        setSearchParams(searchParams)
-      }
-    } catch {
-      // do nothing
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [transactionHashes])
+
+  useRestoreMyNearWalletPendingTransaction()
 
   const nearWallet = useWalletSelector()
-
+  const solanaWallet = useWallet()
   const { walletInfo, availableWallets } = useBitcoinWallet()
 
   const [checkBlackjack] = useLazyCheckBlackjackQuery()
 
-  const solanaWallet = useWallet()
   const { publicKey: solanaAddress, sendTransaction } = solanaWallet
   const { connection } = useConnection()
 
@@ -247,7 +235,7 @@ export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDi
         recipient: receiver,
       }
 
-      setTransactions([enriched, ...transactions].slice(0, 30))
+      setTransactions([enriched, ...transactions])
 
       const swapDetails = {
         amount_in: amount,

@@ -8,6 +8,7 @@ import { ImportTokenView } from 'components/TokenSelectorModal/ImportTokenView'
 import { TokenSelectorContent } from 'components/TokenSelectorModal/TokenSelectorContent'
 import TokenInfoTab from 'components/swapv2/TokenInfo'
 import useLast from 'hooks/useLast'
+import { useIsTokenRestricted, useNotifyRestrictedToken } from 'hooks/useRestrictedTokens'
 import { Field } from 'state/swap/actions'
 import { cn } from 'utils/cn'
 
@@ -48,6 +49,9 @@ const TokenSelectorModal = ({
   const [modalView, setModalView] = useState<TokenSelectorModalView>(TokenSelectorModalView.search)
   const lastOpen = useLast(isOpen)
 
+  const isTokenRestricted = useIsTokenRestricted()
+  const notifyRestrictedToken = useNotifyRestrictedToken()
+
   useEffect(() => {
     if (isOpen && !lastOpen) {
       setModalView(TokenSelectorModalView.search)
@@ -56,10 +60,15 @@ const TokenSelectorModal = ({
 
   const handleCurrencySelect = useCallback(
     (currency: Currency[] | Currency) => {
-      onCurrencySelect?.(Array.isArray(currency) ? currency[0] : currency)
+      const picked = Array.isArray(currency) ? currency[0] : currency
+      if (isTokenRestricted(picked)) {
+        notifyRestrictedToken(picked)
+        return
+      }
+      onCurrencySelect?.(picked)
       onDismiss?.()
     },
-    [onDismiss, onCurrencySelect],
+    [onDismiss, onCurrencySelect, isTokenRestricted, notifyRestrictedToken],
   )
 
   // for token import view
@@ -103,7 +112,7 @@ const TokenSelectorModal = ({
         setDetailClosing(false)
         onDismiss?.()
       }}
-      margin="auto"
+      margin={isMobile ? undefined : 'auto'}
       maxWidth="480px"
       maxHeight={isMobileHorizontal ? 100 : 80}
       minHeight={minHeight}

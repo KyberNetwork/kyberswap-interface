@@ -129,6 +129,18 @@ type MarketPriceDiff = {
   displayPercent: string
 }
 
+export const formatRatePercentText = (percentText: string) => {
+  const percent = Number(percentText.replace('%', ''))
+  if (!Number.isFinite(percent)) return percentText
+
+  const absolutePercent = Math.abs(percent)
+  const sign = percent > 0 ? '+' : percent < 0 ? '-' : ''
+  const fractionDigits = absolutePercent > 100 ? 0 : absolutePercent > 20 ? 1 : 2
+  const displayPercent = formatDisplayNumber(absolutePercent, { fractionDigits })
+
+  return `${sign}${displayPercent}%`
+}
+
 export const getMarketPriceDiff = (
   rate: string | number | undefined,
   marketRate: number | undefined,

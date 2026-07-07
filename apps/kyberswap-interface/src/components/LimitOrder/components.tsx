@@ -15,7 +15,7 @@ const Label = ({ children, className, style, ...rest }: React.HTMLAttributes<HTM
 )
 
 const SummaryRow = ({ label, content }: { label: ReactNode; content: ReactNode }) => (
-  <HStack className="min-h-6 w-full items-center justify-between gap-3 max-sm:flex-col max-sm:items-start">
+  <HStack className="min-h-6 w-full items-center justify-between gap-x-2 gap-y-1 max-sm:flex-col max-sm:items-start">
     <div className="text-sm text-subText">{label}</div>
     <HStack className="min-w-0 flex-1 justify-end text-right text-sm font-medium max-sm:justify-start max-sm:text-left">
       {content}
@@ -110,32 +110,30 @@ export const OrderSummary = ({
 }: OrderSummaryProps) => {
   const rows = [
     { label: <Trans>I pay</Trans>, content: inputCurrency },
-    { label: <Trans>and receive</Trans>, content: outputCurrency },
+    { label: <Trans>And receive</Trans>, content: outputCurrency },
     {
-      label: <Trans>when</Trans>,
+      label: <Trans>When</Trans>,
       content: <RateValue currencyIn={currencyIn} currencyOut={currencyOut} rateInfo={rateInfo} order={order} />,
     },
-    ...(expires ? [{ label: <Trans>before the order expires on</Trans>, content: expires }] : []),
+    ...(expires ? [{ label: <Trans>Before the order expires on</Trans>, content: expires }] : []),
   ]
 
   return (
     <Stack className={cn('gap-3', className)}>
       {title && <Label>{title}</Label>}
-      <Stack className="gap-3 rounded-xl bg-buttonGray px-4 py-3">
+      <Stack className="gap-3 rounded-xl bg-buttonGray px-4 py-2">
         {rows.map((item, index) => (
           <SummaryRow key={index} label={item.label} content={item.content} />
         ))}
       </Stack>
       {marketRate && (
-        <Stack className="gap-2 rounded-xl bg-buttonGray px-4 py-3">
+        <Stack className="gap-2 rounded-xl bg-buttonGray px-4 py-2">
           <SummaryRow label={<Trans>Market Price</Trans>} content={marketRate} />
         </Stack>
       )}
     </Stack>
   )
 }
-
-const formatAmountWithSymbol = (amount: string, symbol?: string) => `${amount} ${symbol ?? ''}`.trim()
 
 type ClippedTextProps = {
   children: ReactNode
@@ -151,54 +149,5 @@ export const ClippedText = ({ children, className, title }: ClippedTextProps) =>
     >
       {children}
     </span>
-  </div>
-)
-
-type AmountWithSymbolProps = {
-  amount?: string
-  symbol?: string
-  muted?: boolean
-}
-
-export const AmountWithSymbol = ({ amount, symbol, muted }: AmountWithSymbolProps) => (
-  <div
-    className={cn(
-      'flex w-full min-w-0 items-center justify-end gap-1 text-right text-sm font-medium',
-      muted ? 'text-subText' : 'text-text',
-    )}
-    title={amount ? formatAmountWithSymbol(amount, symbol) : undefined}
-  >
-    {amount ? (
-      <>
-        <span className="min-w-0 overflow-hidden whitespace-nowrap text-left">{amount}</span>
-        {symbol && <span className="shrink-0 whitespace-nowrap">{symbol}</span>}
-      </>
-    ) : (
-      '--'
-    )}
-  </div>
-)
-
-type SizeInfoProps = {
-  amount: string
-  symbol?: string
-  filledPercentText: string
-  filledProgressPercent: number
-}
-
-export const SizeInfo = ({ amount, symbol, filledPercentText, filledProgressPercent }: SizeInfoProps) => (
-  <div className="flex w-full min-w-0 flex-col text-right">
-    <AmountWithSymbol amount={amount} symbol={symbol} />
-    <div className="flex items-center justify-end gap-2 text-xs text-subText">
-      <span className="h-1 w-12 shrink-0 overflow-hidden rounded-full bg-subText-40">
-        <span
-          className="block h-full rounded-full bg-primary"
-          style={{ width: `${Math.min(filledProgressPercent, 100)}%` }}
-        />
-      </span>
-      <span className="min-w-12 whitespace-nowrap text-right">
-        <Trans>Fill</Trans> {filledPercentText}%
-      </span>
-    </div>
   </div>
 )

@@ -14,7 +14,6 @@ import Withdraw from 'components/Icons/Withdraw'
 import FullPositionCard from 'components/PositionCard'
 import { AutoRow } from 'components/Row'
 import Search from 'components/Search'
-import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
 import Tutorial, { TutorialType } from 'components/Tutorial'
 import { APP_PATHS } from 'constants/index'
 import { VERSION } from 'constants/v2'
@@ -134,19 +133,16 @@ export default function PoolCombination() {
   }>()
   useSyncNetworkParamWithStore()
   return (
-    <>
-      <PageWrapper className="pb-6">
-        <ClassicElasticTab />
-        {tab === VERSION.ELASTIC ? (
-          <ProAmmPool />
-        ) : tab === VERSION.ELASTIC_LEGACY ? (
-          <ElasticLegacy tab="my_positions" />
-        ) : (
-          <MyPoolClassic />
-        )}
-      </PageWrapper>
-      <SwitchLocaleLink />
-    </>
+    <PageWrapper className="pb-6">
+      <ClassicElasticTab />
+      {tab === VERSION.ELASTIC ? (
+        <ProAmmPool />
+      ) : tab === VERSION.ELASTIC_LEGACY ? (
+        <ElasticLegacy tab="my_positions" />
+      ) : (
+        <MyPoolClassic />
+      )}
+    </PageWrapper>
   )
 }
 
@@ -231,145 +227,142 @@ function MyPoolClassic() {
   const upToSmall = useMedia('(max-width: 768px)')
 
   return (
-    <>
-      <PageWrapper className="mt-6 p-0">
-        <AutoColumn className="justify-center gap-6">
-          <AutoColumn className="w-full gap-6">
-            <AutoRow>
-              <InstructionText>
-                <Trans>Here you can view all your liquidity and staked balances in the Classic Pools.</Trans>
-              </InstructionText>
-            </AutoRow>
-            <TitleRow>
-              <div className="flex w-full flex-1 items-center justify-between">
-                <div className="flex items-center gap-6">
-                  <Tab
-                    active={!showStaked}
-                    onClick={() => {
-                      if (showStaked) {
-                        trackingHandler(TRACKING_EVENT_TYPE.MYPOOLS_POOLS_VIEWED)
-                      }
-                      setShowStaked(false)
-                    }}
-                    role="button"
-                  >
-                    <Trans>My Pools</Trans>
-                  </Tab>
-                  <Tab
-                    active={showStaked}
-                    onClick={() => {
-                      if (!showStaked) {
-                        trackingHandler(TRACKING_EVENT_TYPE.MYPOOLS_STAKED_VIEWED)
-                      }
-                      setShowStaked(true)
-                    }}
-                    role="button"
-                  >
-                    <Trans>My Staked Pools</Trans>
-                  </Tab>
-                </div>
-
-                {upToSmall && (
-                  <div className="flex gap-3">
-                    <Tutorial type={TutorialType.CLASSIC_MY_POOLS} />
-                  </div>
-                )}
-              </div>
-
-              <div
-                className="flex flex-row items-center justify-end gap-3"
-                style={{ width: under768 ? '100%' : undefined }}
-              >
-                <Search
-                  style={{ width: 'unset', flex: under768 ? 1 : undefined }}
-                  minWidth={under768 ? '224px' : '254px'}
-                  searchValue={searchValue}
-                  onSearch={onSearch}
-                  placeholder={t`Search by token name or pool address`}
-                />
-
-                <ButtonPrimary
-                  as={StyledInternalLink}
-                  to={APP_PATHS.FIND_POOL}
-                  className="h-9 w-max px-3 py-2.5 text-sm !text-textReverse no-underline"
+    <PageWrapper className="mt-6 p-0">
+      <AutoColumn className="justify-center gap-6">
+        <AutoColumn className="w-full gap-6">
+          <AutoRow>
+            <InstructionText>
+              <Trans>Here you can view all your liquidity and staked balances in the Classic Pools.</Trans>
+            </InstructionText>
+          </AutoRow>
+          <TitleRow>
+            <div className="flex w-full flex-1 items-center justify-between">
+              <div className="flex items-center gap-6">
+                <Tab
+                  active={!showStaked}
+                  onClick={() => {
+                    if (showStaked) {
+                      trackingHandler(TRACKING_EVENT_TYPE.MYPOOLS_POOLS_VIEWED)
+                    }
+                    setShowStaked(false)
+                  }}
+                  role="button"
                 >
-                  <Withdraw />
-                  <span className="ml-1">
-                    <Trans>Import Pool</Trans>
-                  </span>
-                </ButtonPrimary>
-
-                {!upToSmall && <Tutorial type={TutorialType.CLASSIC_MY_POOLS} />}
+                  <Trans>My Pools</Trans>
+                </Tab>
+                <Tab
+                  active={showStaked}
+                  onClick={() => {
+                    if (!showStaked) {
+                      trackingHandler(TRACKING_EVENT_TYPE.MYPOOLS_STAKED_VIEWED)
+                    }
+                    setShowStaked(true)
+                  }}
+                  role="button"
+                >
+                  <Trans>My Staked Pools</Trans>
+                </Tab>
               </div>
-            </TitleRow>
 
-            {!account ? (
-              <Card className="p-10">
-                <p className="m-0 text-center text-base text-text3">
-                  <Trans>Connect to a wallet to view your liquidity.</Trans>
-                </p>
-              </Card>
-            ) : !showStaked ? (
-              loading && !v2PairsWithoutStakedAmount.length ? (
-                <PositionCardGrid>
-                  <PreloadCard></PreloadCard>
-                  <PreloadCard></PreloadCard>
-                  <PreloadCard></PreloadCard>
-                </PositionCardGrid>
-              ) : v2PairsWithoutStakedAmount?.length > 0 ? (
-                <>
-                  <PositionCardGrid>
-                    {v2PairsWithoutStakedAmount.map(v2Pair => {
-                      return (
-                        <FullPositionCard
-                          key={v2Pair.liquidityToken.address}
-                          pair={v2Pair}
-                          myLiquidity={transformedUserLiquidityPositions[v2Pair.address.toLowerCase()]}
-                          tab="ALL"
-                        />
-                      )
-                    })}
-                  </PositionCardGrid>
-                  <span className="mt-4 text-center text-base text-subText">
-                    {t`Don't see a pool you joined?`}{' '}
-                    <StyledInternalLink id="import-pool-link" to={APP_PATHS.FIND_POOL}>
-                      <Trans>Import it.</Trans>
-                    </StyledInternalLink>
-                  </span>
-                </>
-              ) : (
-                <div className="mt-[60px] flex flex-col items-center">
-                  <Info size={48} className="text-subText" />
-                  <span className="mt-4 text-center text-base leading-normal text-subText">
-                    <Trans>
-                      No liquidity found. Check out our{' '}
-                      <StyledInternalLink to={`${APP_PATHS.POOLS}/${networkInfo.route}?tab=classic`}>
-                        Pools.
-                      </StyledInternalLink>
-                    </Trans>
-                    <br />
-                    {t`Don't see a pool you joined?`}{' '}
-                    <StyledInternalLink id="import-pool-link" to={APP_PATHS.FIND_POOL}>
-                      <Trans>Import it.</Trans>
-                    </StyledInternalLink>
-                  </span>
+              {upToSmall && (
+                <div className="flex gap-3">
+                  <Tutorial type={TutorialType.CLASSIC_MY_POOLS} />
                 </div>
-              )
+              )}
+            </div>
+
+            <div
+              className="flex flex-row items-center justify-end gap-3"
+              style={{ width: under768 ? '100%' : undefined }}
+            >
+              <Search
+                style={{ width: 'unset', flex: under768 ? 1 : undefined }}
+                minWidth={under768 ? '224px' : '254px'}
+                searchValue={searchValue}
+                onSearch={onSearch}
+                placeholder={t`Search by token name or pool address`}
+              />
+
+              <ButtonPrimary
+                as={StyledInternalLink}
+                to={APP_PATHS.FIND_POOL}
+                className="h-9 w-max px-3 py-2.5 text-sm !text-textReverse no-underline"
+              >
+                <Withdraw />
+                <span className="ml-1">
+                  <Trans>Import Pool</Trans>
+                </span>
+              </ButtonPrimary>
+
+              {!upToSmall && <Tutorial type={TutorialType.CLASSIC_MY_POOLS} />}
+            </div>
+          </TitleRow>
+
+          {!account ? (
+            <Card className="p-10">
+              <p className="m-0 text-center text-base text-text3">
+                <Trans>Connect to a wallet to view your liquidity.</Trans>
+              </p>
+            </Card>
+          ) : !showStaked ? (
+            loading && !v2PairsWithoutStakedAmount.length ? (
+              <PositionCardGrid>
+                <PreloadCard></PreloadCard>
+                <PreloadCard></PreloadCard>
+                <PreloadCard></PreloadCard>
+              </PositionCardGrid>
+            ) : v2PairsWithoutStakedAmount?.length > 0 ? (
+              <>
+                <PositionCardGrid>
+                  {v2PairsWithoutStakedAmount.map(v2Pair => {
+                    return (
+                      <FullPositionCard
+                        key={v2Pair.liquidityToken.address}
+                        pair={v2Pair}
+                        myLiquidity={transformedUserLiquidityPositions[v2Pair.address.toLowerCase()]}
+                        tab="ALL"
+                      />
+                    )
+                  })}
+                </PositionCardGrid>
+                <span className="mt-4 text-center text-base text-subText">
+                  {t`Don't see a pool you joined?`}{' '}
+                  <StyledInternalLink id="import-pool-link" to={APP_PATHS.FIND_POOL}>
+                    <Trans>Import it.</Trans>
+                  </StyledInternalLink>
+                </span>
+              </>
             ) : (
               <div className="mt-[60px] flex flex-col items-center">
                 <Info size={48} className="text-subText" />
                 <span className="mt-4 text-center text-base leading-normal text-subText">
                   <Trans>
-                    No staked liquidity found. Check out our{' '}
-                    <StyledInternalLink to={`${APP_PATHS.FARMS}/${networkInfo.route}`}>Farms.</StyledInternalLink>
+                    No liquidity found. Check out our{' '}
+                    <StyledInternalLink to={`${APP_PATHS.POOLS}/${networkInfo.route}?tab=classic`}>
+                      Pools.
+                    </StyledInternalLink>
                   </Trans>
+                  <br />
+                  {t`Don't see a pool you joined?`}{' '}
+                  <StyledInternalLink id="import-pool-link" to={APP_PATHS.FIND_POOL}>
+                    <Trans>Import it.</Trans>
+                  </StyledInternalLink>
                 </span>
               </div>
-            )}
-          </AutoColumn>
+            )
+          ) : (
+            <div className="mt-[60px] flex flex-col items-center">
+              <Info size={48} className="text-subText" />
+              <span className="mt-4 text-center text-base leading-normal text-subText">
+                <Trans>
+                  No staked liquidity found. Check out our{' '}
+                  <StyledInternalLink to={`${APP_PATHS.FARMS}/${networkInfo.route}`}>Farms.</StyledInternalLink>
+                </Trans>
+              </span>
+            </div>
+          )}
         </AutoColumn>
-      </PageWrapper>
-      <SwitchLocaleLink />
-    </>
+      </AutoColumn>
+    </PageWrapper>
   )
 }

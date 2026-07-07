@@ -1,23 +1,14 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
+import { ChainId, Currency, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
+import dayjs from 'dayjs'
 
-import { LimitOrderStatus } from 'components/LimitOrder/types'
+import { LimitOrder, LimitOrderStatus } from 'components/LimitOrder/types'
 import { isActiveStatus } from 'components/LimitOrder/utils'
 import { NativeCurrencies } from 'constants/tokens'
+import { toCurrencyAmount } from 'utils/currencyAmount'
+import { formatDisplayNumber, uint256ToFraction } from 'utils/numbers'
 
 export const PAGE_SIZE = 10
-
-const txTimeFormatter = new Intl.DateTimeFormat('en-US', {
-  year: 'numeric',
-  month: 'numeric',
-  day: 'numeric',
-  hour: 'numeric',
-  minute: '2-digit',
-  second: '2-digit',
-  hourCycle: 'h23',
-})
-
-export const formatTxTime = (timestamp: number) => txTimeFormatter.format(new Date(timestamp * 1000))
 
 export const LIST_ORDER_TABS = [LimitOrderStatus.ACTIVE, LimitOrderStatus.CLOSED] as const
 
@@ -105,3 +96,25 @@ export const getOrdersApiSearchKeyword = (keyword: string, chainIds: ChainId[]):
   const matchedChainId = chainIds.find(chainId => NativeCurrencies[chainId].symbol?.toLowerCase() === normalizedKeyword)
   return matchedChainId ? NativeCurrencies[matchedChainId].wrapped.symbol || keyword : keyword
 }
+
+export const formatOrderDisplayAmount = (amount: string, decimals: number): string =>
+  formatDisplayNumber(uint256ToFraction(amount, decimals).toFixed(18), { significantDigits: 6 })
+
+export const formatOrderTime = (timestamp: number): string => dayjs(timestamp * 1000).format('DD/MM/YYYY HH:mm')
+
+export const getOrderRate = (order: LimitOrder): string => {
+  const rate = uint256ToFraction(order.takingAmount, order.takerAssetDecimals).divide(
+    uint256ToFraction(order.makingAmount, order.makerAssetDecimals),
+  )
+  return rate.toFixed(18)
+}
+
+export const getNeededMakingAmount = (order: LimitOrder, makingToken: Token): CurrencyAmount<Currency> => {
+  const makingAmount = toCurrencyAmount(makingToken, order.makingAmount)
+  const filledMakingAmount = toCurrencyAmount(makingToken, order.filledMakingAmount)
+
+  return makingAmount.subtract(filledMakingAmount)
+}
+
+export const getFilledProgressPercent = (filledPercent: string): number =>
+  filledPercent.startsWith('<') ? 0.01 : Number(filledPercent.replace(/,/g, '')) || 0

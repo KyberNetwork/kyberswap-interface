@@ -11,6 +11,7 @@ import AnimatedNumber from 'pages/Earns/components/AnimatedNumber'
 import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
 import { EARN_DEXES, Exchange } from 'pages/Earns/constants'
 import useCollectFees from 'pages/Earns/hooks/useCollectFees'
+import useMerklRewards from 'pages/Earns/hooks/useMerklRewards'
 import { formatDisplayNumber } from 'utils/numbers'
 
 const LeftSection = () => {
@@ -32,12 +33,21 @@ const LeftSection = () => {
   const claimKey = position ? `${position.chain.id}:${position.tokenId}` : ''
   const isFeesClaiming = claimKey ? pendingFeeClaimKeys.includes(claimKey) : false
 
+  const { rewardsByPosition } = useMerklRewards({ positions: position ? [position] : undefined })
+  const merklClaimableUsd = position ? rewardsByPosition[position.positionId]?.totalUsdValue || 0 : 0
+
   const isFarmingPossible = EARN_DEXES[exchange as Exchange]?.farmingSupported || false
-  const showRewards =
+  // KEM farming rewards drive the in-progress / cycle / claim UI. Merkl bonus alone (no farming)
+  // still surfaces a reward card, but only its total + claimed/claimable, not the farming controls.
+  const hasFarmingReward = !!(
     position?.pool.isFarming ||
     (initialLoading && isFarmingPossible) ||
     Number(position?.rewards.inProgressUsdValue || 0) > 0 ||
     Number(position?.rewards.claimableUsdValue || 0) > 0
+  )
+  // Also show the card for any claimable Merkl bonus — e.g. a closed / out-of-range position where
+  // `bonusApr` is 0 but Merkl rewards are still claimable — matching the My Positions list.
+  const showRewards = hasFarmingReward || (position?.bonusApr || 0) > 0 || merklClaimableUsd > 0
 
   return (
     <>
@@ -154,7 +164,7 @@ const LeftSection = () => {
           </DarkCard>
         )}
 
-        {showRewards && <RewardSection />}
+        {showRewards && <RewardSection hasFarmingReward={hasFarmingReward} />}
       </LeftColumn>
     </>
   )

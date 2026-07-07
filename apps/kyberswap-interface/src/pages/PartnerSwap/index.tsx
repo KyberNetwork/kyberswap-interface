@@ -20,7 +20,7 @@ import { MAX_FEE_IN_BIPS } from 'constants/index'
 import { SUPPORTED_NETWORKS } from 'constants/networks'
 import { DEFAULT_OUTPUT_TOKEN_BY_CHAIN, NativeCurrencies, PRICE_CHART_QUOTE_TOKEN_BY_CHAIN } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
-import { useAllTokens, useCurrencyV2 } from 'hooks/useTokens'
+import { useCurrencyV2 } from 'hooks/useTokens'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { BodyWrapper } from 'pages/AppBody'
 import CrossChainSwap from 'pages/CrossChainSwap'
@@ -37,7 +37,7 @@ import { useDegenModeManager, useUserSlippageTolerance, useUserTransactionTTL } 
 import { useCurrencyBalances } from 'state/wallet/hooks'
 import { ChargeFeeBy, DetailedRouteSummary } from 'types/route'
 import { isAddress } from 'utils'
-import { getTradeComposition } from 'utils/aggregationRouting'
+import { useTradeComposition } from 'utils/aggregationRouting'
 import { cn } from 'utils/cn'
 
 export const InfoComponents = ({ children }: { children: ReactNode[] }) => {
@@ -51,12 +51,6 @@ export const AppBodyWrapped = ({ children, className, ...rest }: React.HTMLAttri
   >
     {children}
   </BodyWrapper>
-)
-
-export const SwitchLocaleLinkWrapper = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
-  <div className={cn('mb-[30px] max-md:mb-0', className)} {...rest}>
-    {children}
-  </div>
 )
 
 const getSupportedChainId = (chainId?: string | null) => {
@@ -95,7 +89,6 @@ export default function PartnerSwap({ mode = 'partner' }: Props) {
   const { tipsId = '' } = useParams()
 
   const isUserSwap = mode === 'user'
-  const defaultTokens = useAllTokens()
 
   const { data: tipConfig } = useGetTipLinkQuery(tipsId, { skip: !isUserSwap || !tipsId })
   const appliedTipRef = useRef('')
@@ -206,10 +199,11 @@ export default function PartnerSwap({ mode = 'partner' }: Props) {
   const togglePricingChart = useCallback(() => setIsShowPricingChart(prev => !prev), [])
   const toggleTradeRoutes = useCallback(() => setIsShowTradeRoutes(prev => !prev), [])
 
-  const tradeRouteComposition = useMemo(
-    () => getTradeComposition(swapChainId, routeSummary?.parsedAmountIn, undefined, routeSummary?.route, defaultTokens),
-    [defaultTokens, routeSummary, swapChainId],
-  )
+  const tradeRouteComposition = useTradeComposition({
+    chainId: swapChainId,
+    inputAmount: routeSummary?.parsedAmountIn,
+    swaps: routeSummary?.route,
+  })
 
   const isSmartSettlementActive = useMemo(
     () => routeSummary?.route?.some(route => route.some(swap => swap.extra?._ce)),
@@ -350,11 +344,7 @@ export default function PartnerSwap({ mode = 'partner' }: Props) {
             </InfoComponents>
           </LimitOrderProvider>
         </Container>
-        <div className="flex justify-center">
-          <SwitchLocaleLinkWrapper>
-            <SwitchLocaleLink />
-          </SwitchLocaleLinkWrapper>
-        </div>
+        <SwitchLocaleLink centered />
       </PageWrapper>
 
       <Updater customChainId={swapChainId} />
