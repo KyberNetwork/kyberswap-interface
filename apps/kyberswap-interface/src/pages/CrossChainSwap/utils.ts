@@ -19,6 +19,8 @@ export const SOLANA_NATIVE = '11111111111111111111111111111111'
 
 export const normalizeAdapterName = (name: string) => name.toLowerCase().replace(/\s+/g, '')
 
+export const ENABLE_CROSS_CHAIN_STREAM_API = false
+
 export const normalizeAdapterName = (name?: string): string => {
   return name?.toLowerCase().replace(/[\s_-]+/g, '') ?? ''
 }

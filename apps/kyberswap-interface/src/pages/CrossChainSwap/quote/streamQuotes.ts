@@ -1,7 +1,9 @@
 import { CROSSCHAIN_AGGREGATOR_API } from 'constants/env'
 import { Currency, NearQuoteParams, QuoteParams } from 'pages/CrossChainSwap/adapters'
+import { CrossChainSwapFactory } from 'pages/CrossChainSwap/factory'
 import { PairCategory, getCurrencyAddress, sortQuotesByNetOutput } from 'pages/CrossChainSwap/quote/utils'
 import { CrossChainSwapAdapterRegistry, Quote } from 'pages/CrossChainSwap/registry'
+import { ENABLE_CROSS_CHAIN_STREAM_API } from 'pages/CrossChainSwap/utils'
 
 const SSE_EVENT = {
   INIT: 'init',
@@ -33,18 +35,23 @@ export const getSourceFilters = (
   currencyIn: Currency,
   currencyOut: Currency,
 ) => {
-  const allAdapters = registry.getAllAdapters()
-  const supportedAdapters = allAdapters.filter(adapter => adapter.canSupport(category, currencyIn, currencyOut))
-  const includedSourceNames = supportedAdapters
+  const selectableSources = CrossChainSwapFactory.getSelectableSources()
+  const filterSourcesBySupport = ENABLE_CROSS_CHAIN_STREAM_API
+  const supportedSources = filterSourcesBySupport
+    ? selectableSources.filter(adapter => adapter.canSupport(category, currencyIn, currencyOut))
+    : selectableSources
+  const includedSourceNames = supportedSources
     .filter(adapter => !excludedSources.includes(adapter.getName()))
     .map(adapter => adapter.getName())
-  const excludedSourceNames = allAdapters
+  const excludedSourceNames = selectableSources
     .filter(
-      adapter => excludedSources.includes(adapter.getName()) || !adapter.canSupport(category, currencyIn, currencyOut),
+      adapter =>
+        excludedSources.includes(adapter.getName()) ||
+        (filterSourcesBySupport && !adapter.canSupport(category, currencyIn, currencyOut)),
     )
     .map(adapter => adapter.getName())
 
-  return { allAdapters, includedSourceNames, excludedSourceNames }
+  return { selectableSources, includedSourceNames, excludedSourceNames }
 }
 
 const getStreamingUrl = ({
@@ -73,14 +80,14 @@ const getStreamingUrl = ({
     ...(params.tokenOutUsd > 0 ? { toTokenUsd: params.tokenOutUsd.toString() } : {}),
   })
 
-  const { allAdapters, includedSourceNames, excludedSourceNames } = getSourceFilters(
+  const { selectableSources, includedSourceNames, excludedSourceNames } = getSourceFilters(
     registry,
     excludedSources,
     category,
     currencyIn,
     currencyOut,
   )
-  if (includedSourceNames.length > 0 && includedSourceNames.length < allAdapters.length) {
+  if (includedSourceNames.length > 0 && includedSourceNames.length < selectableSources.length) {
     queryParams.append('includedSources', includedSourceNames.join(','))
   }
   if (excludedSourceNames.length > 0) {
@@ -102,6 +109,7 @@ export const streamQuotes = async ({
   onQuotes,
   onSoftTimeout,
 }: StreamQuotesParams) => {
+  if (!ENABLE_CROSS_CHAIN_STREAM_API) throw new Error('Cross-chain streaming API is disabled')
   if (signal.aborted) throw new Error('Cancelled')
 
   const quotes: Quote[] = []
