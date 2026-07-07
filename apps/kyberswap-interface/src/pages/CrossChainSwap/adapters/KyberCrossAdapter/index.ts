@@ -103,10 +103,11 @@ export class KyberCrossAdapter extends BaseSwapAdapter {
     const formattedInputAmount = formatUnits(BigInt(params.amount), params.fromToken.decimals)
     const inputUsd = params.tokenInUsd * +formattedInputAmount
     const outputUsd = params.tokenOutUsd * +formattedOutputAmount
+    const isNativeToken = (params.fromToken as Currency).isNative
     const rawQuote: KyberCrossRawQuote = {
       request_id: quoteResponse.request_id,
       data: quoteResponse.data,
-      isNativeToken: (params.fromToken as Currency).isNative,
+      isNativeToken,
     }
 
     return {
@@ -119,7 +120,7 @@ export class KyberCrossAdapter extends BaseSwapAdapter {
       timeEstimate: routePlan.bridge.expected_fill_time_sec || 0,
       priceImpact: !inputUsd || !outputUsd ? NaN : ((inputUsd - outputUsd) * 100) / inputUsd,
       gasFeeUsd: 0,
-      contractAddress: ZERO_ADDRESS,
+      contractAddress: isNativeToken ? ZERO_ADDRESS : quoteResponse.data.ks_allowance_hub_address,
       rawQuote,
       protocolFee: 0,
       platformFeePercent: (params.feeBps * 100) / 10_000,

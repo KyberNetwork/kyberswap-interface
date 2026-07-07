@@ -106,20 +106,26 @@ const TransactionTime = ({ tx }: { tx: NormalizedTxResponse }) => {
   const adapterAlias = adapter?.getAliases?.().find(alias => normalizeAdapterName(alias.name) === normalizedAdapterName)
   const adapterName = adapterAlias?.name || adapter?.getName() || tx.adapter
   const adapterIcon = adapterAlias?.icon || adapter?.getIcon()
+  const bridgeProvider = registry.getAdapter(tx.bridgeProvider)
   const txDate = new Date(tx.timestamp)
   const senderLabel = tx.sender?.includes('.near') ? tx.sender : shortenHash(tx.sender)
 
   return (
     <div className="flex min-w-0 flex-col gap-2">
       <div className="flex items-center gap-2 whitespace-nowrap">
-        <img
-          src={adapterIcon || UnknownToken}
-          className="size-4 rounded-full"
-          width={16}
-          height={16}
-          alt={adapterName}
-          title={adapterName}
-        />
+        <div className="flex items-center gap-1">
+          <img
+            src={adapterIcon || UnknownToken}
+            className="size-4 rounded-full"
+            width={16}
+            height={16}
+            alt={adapterName}
+            title={adapterName}
+          />
+          {bridgeProvider && (
+            <img src={bridgeProvider.getIcon()} className="size-4 rounded-full" alt={bridgeProvider.getName()} />
+          )}
+        </div>
         <span className="text-sm font-medium text-text">{format(txDate, 'dd/MM/yyyy')}</span>
         <span className="text-sm font-medium text-subText">{format(txDate, 'HH:mm:ss')}</span>
       </div>

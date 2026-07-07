@@ -6,6 +6,7 @@ import {
   SwapProvider,
 } from 'pages/CrossChainSwap/adapters'
 import { isEvmChain } from 'pages/CrossChainSwap/adapters/types'
+import { CrossChainSwapFactory } from 'pages/CrossChainSwap/factory'
 import { getSourceFilters, streamQuotes } from 'pages/CrossChainSwap/quote/streamQuotes'
 import { PairCategory, createTimeoutPromise, sortQuotesByNetOutput } from 'pages/CrossChainSwap/quote/utils'
 import { CrossChainSwapAdapterRegistry, Quote } from 'pages/CrossChainSwap/registry'
@@ -84,8 +85,9 @@ export const getFallbackQuotes = async ({
   console.log('Falling back to client-side adapter getQuote...')
 
   const fallbackQuotes: Quote[] = []
-  let clientAdapters = registry.getAllAdapters().filter(adapter => !excludedSources.includes(adapter.getName()))
-  if (clientAdapters.length === 0) clientAdapters = registry.getAllAdapters()
+  const clientQuoteAdapters = CrossChainSwapFactory.getClientQuoteAdapters()
+  let clientAdapters = clientQuoteAdapters.filter(adapter => !excludedSources.includes(adapter.getName()))
+  if (clientAdapters.length === 0) clientAdapters = clientQuoteAdapters
 
   const adapters = clientAdapters.filter(
     adapter =>
@@ -100,15 +102,15 @@ export const getFallbackQuotes = async ({
         if (signal.aborted) throw new Error('Cancelled')
         if (!adapter.canSupport(category, currencyIn, currencyOut)) return
 
-        const { includedSourceNames, excludedSourceNames } = getSourceFilters(
+        const { selectableSources, includedSourceNames, excludedSourceNames } = getSourceFilters(
           registry,
           excludedSources,
           category,
           currencyIn,
           currencyOut,
         )
-        const isExcludedAllAdapters = excludedSources.length === registry.getAllAdapters().length
-        const quoteParams = isExcludedAllAdapters
+        const isExcludedAllSources = selectableSources.every(source => excludedSources.includes(source.getName()))
+        const quoteParams = isExcludedAllSources
           ? params
           : { ...params, includedSources: includedSourceNames, excludedSources: excludedSourceNames }
 
