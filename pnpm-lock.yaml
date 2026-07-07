@@ -297,8 +297,8 @@ importers:
         specifier: ^19.2.6
         version: 19.2.7
       react-date-picker:
-        specifier: 9.1.0
-        version: 9.1.0(@types/react-dom@19.2.3)(@types/react@19.2.16)(react-dom@19.2.7)(react@19.2.7)
+        specifier: 12.0.2
+        version: 12.0.2(@types/react@19.2.16)(react-dom@19.2.7)(react@19.2.7)
       react-device-detect:
         specifier: ^1.17.0
         version: 1.17.0(react-dom@19.2.7)(react@19.2.7)
@@ -321,8 +321,8 @@ importers:
         specifier: ^2.2.3
         version: 2.3.0(@popperjs/core@2.11.8)(react-dom@19.2.7)(react@19.2.7)
       react-qrcode-logo:
-        specifier: ^2.8.0
-        version: 2.10.0(react-dom@19.2.7)(react@19.2.7)
+        specifier: ^4.1.0
+        version: 4.1.0(react-dom@19.2.7)(react@19.2.7)
       react-redux:
         specifier: ^9.2.0
         version: 9.3.0(@types/react@19.2.16)(react@19.2.7)(redux@5.0.1)
@@ -16972,12 +16972,6 @@ packages:
   /@types/parse-json@4.0.2:
     resolution: {integrity: sha512-dISoDXWWQwUquiKsyZ4Ng+HX2KsPL7LyHKHQwgGFEA3IaKac4Obd+h2a/a6waisAoepJlBcx9paWqjA8/HVjCw==}
 
-  /@types/react-calendar@3.9.0:
-    resolution: {integrity: sha512-KpAu1MKAGFw5hNwlDnWsHWqI9i/igAB+8jH97YV7QpC2v7rlwNEU5i6VMFb73lGRacuejM/Zd2LklnEzkFV3XA==}
-    dependencies:
-      '@types/react': 19.2.16
-    dev: false
-
   /@types/react-dom@19.2.3(@types/react@19.2.16):
     resolution: {integrity: sha512-jp2L/eY6fn+KgVVQAOqYItbF0VY/YApe5Mz2F0aykSO8gx31bYCZyvSeYxCHKvzHG5eZjc+zyaS5BrBWya2+kQ==}
     peerDependencies:
@@ -19906,8 +19900,8 @@ packages:
       - zod
     dev: false
 
-  /@wojtekmaj/date-utils@1.5.1:
-    resolution: {integrity: sha512-+i7+JmNiE/3c9FKxzWFi2IjRJ+KzZl1QPu6QNrsgaa2MuBgXvUy4gA1TVzf/JMdIIloB76xSKikTWuyYAIVLww==}
+  /@wojtekmaj/date-utils@2.0.2:
+    resolution: {integrity: sha512-Do66mSlSNifFFuo3l9gNKfRMSFi26CRuQMsDJuuKO/ekrDWuTTtE4ZQxoFCUOG+NgxnpSeBq/k5TY8ZseEzLpA==}
     dev: false
 
   /@xobotyi/scrollbar-width@1.9.5:
@@ -22361,8 +22355,8 @@ packages:
     resolution: {integrity: sha512-53rsFbGdwMwlF7qvCt0ypLM5V5/Mbl0szB7GPN8y9NCcbknYOeVVXdrXEq+90IwAfrrzt6Hd+u2E2ntakICU8w==}
     dev: false
 
-  /detect-element-overflow@1.4.2:
-    resolution: {integrity: sha512-4m6cVOtvm/GJLjo7WFkPfwXoEIIbM7GQwIh4WEa4g7IsNi1YzwUsGL5ApNLrrHL29bHeNeQ+/iZhw+YHqgE2Fw==}
+  /detect-element-overflow@2.0.0:
+    resolution: {integrity: sha512-DETEHRGdIdQowMR1Fb5hG4WXUJhlLId/IRQgAi5GVqCnHwnb0SKf9V/teyEVDX0+iClPeOPiNvlE6fSiECz65w==}
     dev: false
 
   /detect-indent@7.0.1:
@@ -24872,16 +24866,10 @@ packages:
     dependencies:
       resolve-pkg-maps: 1.0.0
 
-  /get-user-locale@1.5.1:
-    resolution: {integrity: sha512-WiNpoFRcHn1qxP9VabQljzGwkAQDrcpqUtaP0rNBEkFxJdh4f3tik6MfZsMYZc+UgQJdGCxWEjL9wnCUlRQXag==}
+  /get-user-locale@3.0.0:
+    resolution: {integrity: sha512-iJfHSmdYV39UUBw7Jq6GJzeJxUr4U+S03qdhVuDsR9gCEnfbqLy9gYDJFBJQL1riqolFUKQvx36mEkp2iGgJ3g==}
     dependencies:
-      lodash.memoize: 4.1.2
-    dev: false
-
-  /get-user-locale@2.3.2:
-    resolution: {integrity: sha512-O2GWvQkhnbDoWFUJfaBlDIKUEdND8ATpBXD6KXcbhxlfktyD/d8w6mkzM/IlQEqGZAMz/PW6j6Hv53BiigKLUQ==}
-    dependencies:
-      mem: 8.1.1
+      memoize: 10.2.0
     dev: false
 
   /git-hooks-list@3.1.0:
@@ -26336,10 +26324,6 @@ packages:
     deprecated: This package is deprecated. Use require('node:util').isDeepStrictEqual instead.
     dev: false
 
-  /lodash.memoize@4.1.2:
-    resolution: {integrity: sha512-t7j+NzmgnQzTAYXcsHYLgimltOV1MXHtlOWf6GjL9Kj8GK5FInw5JotxvbOs+IvV1/Dzo04/fCGfLVs7aXb4Ag==}
-    dev: false
-
   /lodash.merge@4.6.2:
     resolution: {integrity: sha512-0KpjqXRVvrYyCsX1swR/XTK0va6VQkQM6MNo7PqW77ByjAhoARA8EfrP1N4+KlKj8YS0ZUCtRT/YUuhyYDujIQ==}
 
@@ -26448,21 +26432,14 @@ packages:
     resolution: {integrity: sha512-s8UhlNe7vPKomQhC1qFelMokr/Sc3AgNbso3n74mVPA5LTZwkB9NlXf4XPamLxJE8h0gh73rM94xvwRT2CVInw==}
     dev: false
 
-  /make-event-props@1.6.2:
-    resolution: {integrity: sha512-iDwf7mA03WPiR8QxvcVHmVWEPfMY1RZXerDVNCRYW7dUr2ppH3J58Rwb39/WG39yTZdRSxr3x+2v22tvI0VEvA==}
+  /make-event-props@2.0.0:
+    resolution: {integrity: sha512-G/hncXrl4Qt7mauJEXSg3AcdYzmpkIITTNl5I+rH9sog5Yw0kK6vseJjCaPfOXqOqQuPUP89Rkhfz5kPS8ijtw==}
     dev: false
 
   /makeerror@1.0.12:
     resolution: {integrity: sha512-JmqCvUhmt43madlpFzG4BQzG2Z3m6tvQDNKdClZnO3VbIudJYmxsT0FNJMeiB2+JTSlTQTSbU8QdesVmwJcmLg==}
     dependencies:
       tmpl: 1.0.5
-    dev: false
-
-  /map-age-cleaner@0.1.3:
-    resolution: {integrity: sha512-bJzx6nMoP6PDLPBFmg7+xRKeFZvFboMrGlxmNj9ClvX53KrmvM5bXFXEWjbz4cz1AFn+jWJ9z/DJSz7hrs0w3w==}
-    engines: {node: '>=6'}
-    dependencies:
-      p-defer: 1.0.0
     dev: false
 
   /marky@1.3.0:
@@ -26509,20 +26486,19 @@ packages:
       '@babel/runtime': 7.28.4
     dev: false
 
-  /mem@8.1.1:
-    resolution: {integrity: sha512-qFCFUDs7U3b8mBDPyz5EToEKoAkgCzqquIgi9nkkR9bixxOVOre+09lbuH7+9Kn2NFpm56M3GUWVbU2hQgdACA==}
-    engines: {node: '>=10'}
-    dependencies:
-      map-age-cleaner: 0.1.3
-      mimic-fn: 3.1.0
-    dev: false
-
   /memoize-one@5.2.1:
     resolution: {integrity: sha512-zYiwtZUcYyXKo/np96AGZAckk+FWWsUdJ3cHGGmld7+AhvcWmQyGCYUh1hc4Q/pkOhb65dQR/pqCyK0cOaHz4Q==}
     dev: false
 
   /memoize-one@6.0.0:
     resolution: {integrity: sha512-rkpe71W0N0c0Xz6QD0eJETuWAJGnJ9afsl1srmwPrI+yBCkge5EycXXbYRyvL29zZVUWQCY7InPRCv3GDXuZNw==}
+    dev: false
+
+  /memoize@10.2.0:
+    resolution: {integrity: sha512-DeC6b7QBrZsRs3Y02A6A7lQyzFbsQbqgjI6UW0GigGWV+u1s25TycMr0XHZE4cJce7rY/vyw2ctMQqfDkIhUEA==}
+    engines: {node: '>=18'}
+    dependencies:
+      mimic-function: 5.0.1
     dev: false
 
   /memoizee@0.4.17:
@@ -26822,14 +26798,14 @@ packages:
     engines: {node: '>=6'}
     dev: true
 
-  /mimic-fn@3.1.0:
-    resolution: {integrity: sha512-Ysbi9uYW9hFyfrThdDEQuykN4Ey6BuwPD2kpI5ES/nFTDn/98yxYNLZJcgUAKPT/mcrLLKaGzJR9YVxJrIdASQ==}
-    engines: {node: '>=8'}
-    dev: false
-
   /mimic-fn@4.0.0:
     resolution: {integrity: sha512-vqiC06CuhBTUdZH+RYl8sFrL096vA45Ok5ISO6sE/Mr1jRbGH4Csnhi8f3wKVl7x8mO4Au7Ir9D3Oyv1VYMFJw==}
     engines: {node: '>=12'}
+
+  /mimic-function@5.0.1:
+    resolution: {integrity: sha512-VP79XUPxV2CigYP3jWwAUFSku2aKqBH7uTAapFWCBqutsbmDo96KY5o8uh6U+/YSIn5OxJnXp73beVkpqMIGhA==}
+    engines: {node: '>=18'}
+    dev: false
 
   /min-indent@1.0.1:
     resolution: {integrity: sha512-I9jwMn07Sy/IwOj3zVkVik2JTvgpaykDZEigL6Rx6N9LbMywwUSMtxET+7lVoDLLd3O3IXwJwvuuns8UB/HeAg==}
@@ -27785,11 +27761,6 @@ packages:
       - zod
     dev: false
 
-  /p-defer@1.0.0:
-    resolution: {integrity: sha512-wB3wfAxZpk2AzOfUMJNL+d36xothRSyj8EXOa4f6GMqYDN9BJaaSISbsk+wS9abmnebVw95C2Kb5t85UmpCxuw==}
-    engines: {node: '>=4'}
-    dev: false
-
   /p-limit@2.3.0:
     resolution: {integrity: sha512-//88mFWSJx8lxCzwdAABTJL2MyWB12+eIY7MDL2SqLmAkeKU9qxRvWuSyTjm3FUmpBEMuFfckAIqEaVGUDxb6w==}
     engines: {node: '>=6'}
@@ -28541,6 +28512,10 @@ packages:
     resolution: {integrity: sha512-HM7yY8O2ilqhmULxGMpcHSF1EhJJ9yBj8gvDEuZ6M+KGJ0YY2hKpnXvRD+hZPLrDVck3ExIGhmPtSdcjC+guuw==}
     dev: false
 
+  /qrcode-generator@2.0.4:
+    resolution: {integrity: sha512-mZSiP6RnbHl4xL2Ap5HfkjLnmxfKcPWpWe/c+5XxCuetEenqmNFf1FH/ftXPCtFG5/TDobjsjz6sSNL0Sr8Z9g==}
+    dev: false
+
   /qrcode-terminal-nooctal@0.12.1:
     resolution: {integrity: sha512-jy/kkD0iIMDjTucB+5T6KBsnirlhegDH47vHgrj5MejchSQmi/EAMM0xMFeePgV9CJkkAapNakpVUWYgHvtdKg==}
     hasBin: true
@@ -28628,8 +28603,8 @@ packages:
       react-dom: 19.2.7(react@19.2.7)
     dev: false
 
-  /react-calendar@4.8.0(@types/react@19.2.16)(react-dom@19.2.7)(react@19.2.7):
-    resolution: {integrity: sha512-qFgwo+p58sgv1QYMI1oGNaop90eJVKuHTZ3ZgBfrrpUb+9cAexxsKat0sAszgsizPMVo7vOXedV7Lqa0GQGMvA==}
+  /react-calendar@6.0.1(@types/react@19.2.16)(react-dom@19.2.7)(react@19.2.7):
+    resolution: {integrity: sha512-b8E61W7qk/He9XEbtbQBjnALPuGmxeglsotgZyAShqN1vHMzXWjl4g7WI5tRF93RE4Wbo0c0BKN3vTQhrBojpg==}
     peerDependencies:
       '@types/react': ^19.0.0
       react: ^19.2.6
@@ -28639,10 +28614,9 @@ packages:
         optional: true
     dependencies:
       '@types/react': 19.2.16
-      '@wojtekmaj/date-utils': 1.5.1
+      '@wojtekmaj/date-utils': 2.0.2
       clsx: 2.1.1
-      get-user-locale: 2.3.2
-      prop-types: 15.8.1
+      get-user-locale: 3.0.0
       react: 19.2.7
       react-dom: 19.2.7(react@19.2.7)
       warning: 4.0.3
@@ -28657,26 +28631,26 @@ packages:
       react: 19.2.7
     dev: false
 
-  /react-date-picker@9.1.0(@types/react-dom@19.2.3)(@types/react@19.2.16)(react-dom@19.2.7)(react@19.2.7):
-    resolution: {integrity: sha512-wj9SoOhEgQTzJsDRLePpNzUDNrcSiCpj1TFSwiAnLlOuJvvkk10I9rdvIyHmeJg/G17hyP5wSwTppCZHqOTHhA==}
+  /react-date-picker@12.0.2(@types/react@19.2.16)(react-dom@19.2.7)(react@19.2.7):
+    resolution: {integrity: sha512-jh6dGY2I/NZ+bDx/5bcTY3kRBkWQijtGkhy0AN+5qbcU34avsJR319GWHkDIJfEdcSCofGdCNnRry/UsjBypZg==}
     peerDependencies:
+      '@types/react': ^19.0.0
       react: ^19.2.6
       react-dom: ^19.2.6
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
     dependencies:
-      '@types/react-calendar': 3.9.0
-      '@wojtekmaj/date-utils': 1.5.1
-      clsx: 1.2.1
-      get-user-locale: 1.5.1
-      make-event-props: 1.6.2
-      prop-types: 15.8.1
+      '@types/react': 19.2.16
+      '@wojtekmaj/date-utils': 2.0.2
+      clsx: 2.1.1
+      get-user-locale: 3.0.0
+      make-event-props: 2.0.0
       react: 19.2.7
-      react-calendar: 4.8.0(@types/react@19.2.16)(react-dom@19.2.7)(react@19.2.7)
+      react-calendar: 6.0.1(@types/react@19.2.16)(react-dom@19.2.7)(react@19.2.7)
       react-dom: 19.2.7(react@19.2.7)
-      react-fit: 1.7.1(@types/react-dom@19.2.3)(@types/react@19.2.16)(react-dom@19.2.7)(react@19.2.7)
+      react-fit: 3.0.0(@types/react@19.2.16)(react-dom@19.2.7)(react@19.2.7)
       update-input-width: 1.4.2
-    transitivePeerDependencies:
-      - '@types/react'
-      - '@types/react-dom'
     dev: false
 
   /react-device-detect@1.17.0(react-dom@19.2.7)(react@19.2.7):
@@ -28734,26 +28708,21 @@ packages:
       react: 19.2.7
     dev: false
 
-  /react-fit@1.7.1(@types/react-dom@19.2.3)(@types/react@19.2.16)(react-dom@19.2.7)(react@19.2.7):
-    resolution: {integrity: sha512-y/TYovCCBzfIwRJsbLj0rH4Es40wPQhU5GPPq9GlbdF09b0OdzTdMSkBza0QixSlgFzTm6dkM7oTFzaVvaBx+w==}
+  /react-fit@3.0.0(@types/react@19.2.16)(react-dom@19.2.7)(react@19.2.7):
+    resolution: {integrity: sha512-3jrm0k4TZS7n6fZXgCu5k8ARx5w+YbrzpcFMop/iScOjnA22xQVjrVOOJD8YyqRM1j0focbRBrBEJXyydzF/Iw==}
     peerDependencies:
       '@types/react': ^19.0.0
-      '@types/react-dom': ^19.0.0
       react: ^19.2.6
       react-dom: ^19.2.6
     peerDependenciesMeta:
       '@types/react':
         optional: true
-      '@types/react-dom':
-        optional: true
     dependencies:
       '@types/react': 19.2.16
-      '@types/react-dom': 19.2.3(@types/react@19.2.16)
-      detect-element-overflow: 1.4.2
-      prop-types: 15.8.1
+      detect-element-overflow: 2.0.0
       react: 19.2.7
       react-dom: 19.2.7(react@19.2.7)
-      tiny-warning: 1.0.3
+      warning: 4.0.3
     dev: false
 
   /react-focus-lock@2.13.6(@types/react@19.2.16)(react@19.2.7):
@@ -28972,14 +28941,13 @@ packages:
       warning: 4.0.3
     dev: false
 
-  /react-qrcode-logo@2.10.0(react-dom@19.2.7)(react@19.2.7):
-    resolution: {integrity: sha512-Q1+jLtcyDl5rLR29YdkXVLzYk62p3+541x00HxURVBQhs6SqFyEZZVhvkU/VQ082ytXa3GdCmGWMLK5z0Vhe7g==}
+  /react-qrcode-logo@4.1.0(react-dom@19.2.7)(react@19.2.7):
+    resolution: {integrity: sha512-drcieitJFX3u66XpFn+4PxsCzrQo5nAMXsyOtiuTZCJPUQwGwysIlr14MjKbXDhBNz3iOqM8/yV5K1mllt/mTw==}
     peerDependencies:
       react: ^19.2.6
       react-dom: ^19.2.6
     dependencies:
-      lodash.isequal: 4.5.0
-      qrcode-generator: 1.4.4
+      qrcode-generator: 2.0.4
       react: 19.2.7
       react-dom: 19.2.7(react@19.2.7)
     dev: false
