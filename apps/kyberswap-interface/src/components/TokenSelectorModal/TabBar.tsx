@@ -7,9 +7,8 @@ import { ReactComponent as AllIcon } from 'assets/svg/ic_token_all.svg'
 import { ReactComponent as ImportedIcon } from 'assets/svg/ic_token_imported.svg'
 import { ReactComponent as NewIcon } from 'assets/svg/ic_token_new.svg'
 import { HStack } from 'components/Stack'
+import { TokenSelectorTab } from 'components/TokenSelectorModal/constants'
 import { cn } from 'utils/cn'
-
-import { TokenSelectorTab } from './constants'
 
 type TabMeta = {
   icon: ComponentType<{ className?: string }>

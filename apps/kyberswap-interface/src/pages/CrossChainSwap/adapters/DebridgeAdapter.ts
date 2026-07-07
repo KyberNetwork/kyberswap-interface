@@ -7,9 +7,6 @@ import { WalletClient, formatUnits } from 'viem'
 
 import { CROSS_CHAIN_FEE_RECEIVER, CROSS_CHAIN_FEE_RECEIVER_SOLANA, ZERO_ADDRESS } from 'constants/index'
 import { NativeCurrencies } from 'constants/tokens'
-import type { SolanaToken } from 'pages/CrossChainSwap/hooks/useSolanaTokens'
-
-import { Quote } from '../registry'
 import {
   BaseSwapAdapter,
   Chain,
@@ -19,7 +16,9 @@ import {
   NormalizedTxResponse,
   QuoteParams,
   SwapStatus,
-} from './BaseSwapAdapter'
+} from 'pages/CrossChainSwap/adapters/BaseSwapAdapter'
+import type { SolanaToken } from 'pages/CrossChainSwap/hooks/useSolanaTokens'
+import { Quote } from 'pages/CrossChainSwap/registry'
 
 const DEBRIDGE_API = 'https://dln.debridge.finance/v1.0/dln/order'
 const DEBRIDGE_STATS_API = 'https://stats-api.dln.trade/api'

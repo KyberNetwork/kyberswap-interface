@@ -3,8 +3,8 @@ import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import { fetchTokenCatalogTokens } from 'services/tokenCatalog'
 
-import { TokenRowExtraMap } from '../types'
-import { mapCatalogTokens } from './catalog'
+import { mapCatalogTokens } from 'components/TokenSelectorModal/hooks/catalog'
+import { TokenRowExtraMap } from 'components/TokenSelectorModal/types'
 
 // The token-api caps pageSize at 100, so requests are chunked at this size.
 const CHUNK_SIZE = 100

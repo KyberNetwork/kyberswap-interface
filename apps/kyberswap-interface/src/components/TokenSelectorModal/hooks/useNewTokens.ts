@@ -3,11 +3,10 @@ import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import { fetchTokenCatalogTokens } from 'services/tokenCatalog'
 
+import { NEW_TOKEN_MAX_DISPLAY } from 'components/TokenSelectorModal/constants'
+import { catalogMetricsToExtra, mapCatalogTokens } from 'components/TokenSelectorModal/hooks/catalog'
+import { TokenRowExtraMap } from 'components/TokenSelectorModal/types'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
-
-import { NEW_TOKEN_MAX_DISPLAY } from '../constants'
-import { TokenRowExtraMap } from '../types'
-import { catalogMetricsToExtra, mapCatalogTokens } from './catalog'
 
 /**
  * Recently whitelisted tokens for the selected chains, newest-first. Sourced directly from the

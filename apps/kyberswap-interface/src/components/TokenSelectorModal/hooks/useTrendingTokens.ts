@@ -3,11 +3,10 @@ import { useInfiniteQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import { fetchTokenCatalogTokens } from 'services/tokenCatalog'
 
+import { TRENDING_PAGE_SIZE, isTrendingSupportedChain } from 'components/TokenSelectorModal/constants'
+import { mapCatalogTokens } from 'components/TokenSelectorModal/hooks/catalog'
+import { TokenRowExtraMap, TokenSort } from 'components/TokenSelectorModal/types'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
-
-import { TRENDING_PAGE_SIZE, isTrendingSupportedChain } from '../constants'
-import { TokenRowExtraMap, TokenSort } from '../types'
-import { mapCatalogTokens } from './catalog'
 
 /** Server-side `sort` param: KyberScore by default, or the column the user picked. */
 const toSortParam = (sort: TokenSort | null): string => (sort ? `${sort.field}:${sort.dir}` : 'kyberScore:desc')

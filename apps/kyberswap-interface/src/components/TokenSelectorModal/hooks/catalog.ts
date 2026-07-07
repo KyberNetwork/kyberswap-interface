@@ -1,8 +1,7 @@
 import { TokenCatalogListToken } from 'services/tokenCatalog'
 
+import { TokenRowExtra, TokenRowExtraMap, tokenRowKey } from 'components/TokenSelectorModal/types'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
-
-import { TokenRowExtra, TokenRowExtraMap, tokenRowKey } from '../types'
 
 /** Adapt a raw token-catalog list token into the app's `WrappedTokenInfo`. */
 export const catalogTokenToWrapped = (t: TokenCatalogListToken): WrappedTokenInfo | undefined => {

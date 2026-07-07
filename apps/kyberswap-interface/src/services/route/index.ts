@@ -2,11 +2,10 @@ import { ChainId, CurrencyAmount, Token, WETH } from '@kyberswap/ks-sdk-core'
 import { createApi } from '@reduxjs/toolkit/query/react'
 import { baseQueryOauthDynamic } from 'services/baseQueryOauth'
 import { BuildRoutePayload, BuildRouteResponse } from 'services/route/types/buildRoute'
+import { GetRouteParams, GetRouteResponse } from 'services/route/types/getRoute'
 import { fetchTokenPrices, getMidPrice } from 'services/tokenCatalog'
 
 import { ETHER_ADDRESS } from 'constants/index'
-
-import { GetRouteParams, GetRouteResponse } from './types/getRoute'
 
 const getWrappedToken = (token: string, chainId: ChainId) =>
   token.toLowerCase() === ETHER_ADDRESS.toLowerCase() ? WETH[chainId].address : token
