@@ -1,9 +1,9 @@
 import { ChainId, Currency, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import React, { CSSProperties, ReactNode, memo, useCallback, useEffect, useRef, useState } from 'react'
+import React, { CSSProperties, ReactNode, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Info, Star, X } from 'react-feather'
 import AutoSizer from 'react-virtualized-auto-sizer'
-import { VariableSizeList } from 'react-window'
+import { ListChildComponentProps, VariableSizeList } from 'react-window'
 import InfiniteLoader from 'react-window-infinite-loader'
 
 import { ButtonPrimary } from 'components/Button'
@@ -32,6 +32,10 @@ const ROW_CONTENT_HEIGHT = 12 * 4 // 48px
 const NORMAL_ITEM_SIZE = ROW_CONTENT_HEIGHT + 8 // 56px (content + row gap)
 const RESTRICTED_CONTENT_HEIGHT = ROW_CONTENT_HEIGHT + 28 // 76px
 const RESTRICTED_ITEM_SIZE = RESTRICTED_CONTENT_HEIGHT + 8 // 84px
+
+// Stable default so an omitted `itemStyle` prop doesn't mint a new object each render (which would
+// churn the row data bag and re-render every row).
+const EMPTY_ITEM_STYLE: CSSProperties = {}
 
 const Balance = ({ balance }: { balance: CurrencyAmount<Currency> }) => {
   return (
@@ -340,12 +344,109 @@ export const TokenRow = ({
   )
 }
 
-type VirtualTokenRowProps = {
-  currency: Currency | undefined
-  currencyBalance?: CurrencyAmount<Currency>
-  index: number
-  style: CSSProperties
+// Data bag handed to every virtualized row through react-window's `itemData`. Delivering row data
+// as a prop (rather than closing over it in an inline render-prop) keeps the row's element type
+// stable, so background price/balance polls re-render rows cheaply instead of remounting them.
+type VirtualRowData = {
+  currencies: Currency[]
+  currencyBalances: (CurrencyAmount<Currency> | undefined)[]
+  selectedCurrency?: Currency | null
+  otherCurrency?: Currency | null
+  onCurrencySelect?: (currency: Currency) => void
+  onImportToken?: (token: Token) => void
+  onToggleFavorite?: (event: React.MouseEvent, currency: Currency) => void
+  onRemoveImportedToken?: (token: Token) => void
+  onShowTokenInfo?: (token: Token) => void
+  showFavoriteIcon?: boolean
+  itemStyle: CSSProperties
+  showAddress?: boolean
+  showPriceColumn?: boolean
+  showVolume?: boolean
+  tokenImports: Token[]
+  tokenPrices: { [address: string]: number }
+  account?: string | null
+  favoriteTokens?: string[]
+  extras?: TokenRowExtraMap
+  isTokenRestricted: (currency?: Currency | null) => boolean
+  warnedKeys: Set<string>
+  onWarnRestricted: (key: string) => void
 }
+
+const VirtualRow = memo(function VirtualRow({ index, style, data }: ListChildComponentProps<VirtualRowData>) {
+  const currency = data.currencies[index]
+  // The trailing slot (present while more pages can load) has no currency yet — show the loader.
+  if (!currency) {
+    return (
+      <div className="px-2 pt-2" style={style}>
+        <Center className="h-14">
+          <Loader size="20px" />
+        </Center>
+      </div>
+    )
+  }
+
+  const token = currency.wrapped
+  const isWhitelisted = !!(currency as WrappedTokenInfo)?.isWhitelisted
+
+  // Not whitelisted and not yet imported: keep the row's data but swap the right column for an Import button.
+  const needsImport =
+    !isWhitelisted &&
+    !data.tokenImports.find(importedToken => importedToken.address === token.address) &&
+    !isTokenNative(currency) &&
+    !!data.onImportToken
+  const rightColumn = needsImport ? 'import' : data.showVolume ? 'volume' : 'balance'
+
+  const isSelected = Boolean(data.selectedCurrency?.equals(currency))
+  const otherSelected = Boolean(data.otherCurrency?.equals(currency))
+
+  const favoriteTokenAddress = currency.isToken ? (currency as Token).address : undefined
+  const isFavorite = favoriteTokenAddress
+    ? !!data.favoriteTokens?.includes(favoriteTokenAddress) ||
+      !!data.favoriteTokens?.includes(favoriteTokenAddress.toLowerCase())
+    : false
+
+  const currencyBalance = data.currencyBalances[index]
+  const tokenPrice = data.tokenPrices[token.address] || 0
+  const usdBalance = tokenPrice * parseFloat(currencyBalance?.toExact() || '0')
+  const extra: TokenRowExtra | undefined = data.extras?.[tokenRowKey(currency.chainId, token.address)]
+
+  const restrictedKey = restrictedTokenKey(currency.chainId, getTokenAddress(currency))
+  const restricted = data.isTokenRestricted(currency)
+  const warned = restricted && data.warnedKeys.has(restrictedKey)
+  const rowStyle: CSSProperties = { height: warned ? RESTRICTED_CONTENT_HEIGHT : ROW_CONTENT_HEIGHT, ...data.itemStyle }
+
+  return (
+    <div className="px-2 pt-2" style={style}>
+      <TokenRow
+        isFavorite={isFavorite}
+        showLoading={!!data.account}
+        onToggleFavorite={data.onToggleFavorite}
+        onRemoveImportedToken={data.onRemoveImportedToken}
+        style={rowStyle}
+        currency={currency}
+        currencyBalance={currencyBalance}
+        isSelected={isSelected}
+        showFavoriteIcon={data.showFavoriteIcon}
+        onSelect={data.onCurrencySelect}
+        otherSelected={otherSelected}
+        onShowTokenInfo={data.onShowTokenInfo}
+        usdBalance={usdBalance}
+        usdValueClassName="text-primary"
+        priceUsd={extra?.price}
+        priceChange24h={extra?.priceChange24h}
+        volume24h={extra?.volume24h}
+        addedAt={extra?.addedAt}
+        showAddress={data.showAddress}
+        showPriceColumn={data.showPriceColumn}
+        rightColumn={rightColumn}
+        onImportToken={data.onImportToken}
+        restricted={restricted}
+        warned={warned}
+        onRestrictedClick={() => data.onWarnRestricted(restrictedKey)}
+      />
+    </div>
+  )
+})
 
 type TokenListProps = {
   showFavoriteIcon?: boolean
@@ -384,7 +485,7 @@ const TokenList = ({
   hasMore,
   listTokenRef,
   showFavoriteIcon,
-  itemStyle = {},
+  itemStyle = EMPTY_ITEM_STYLE,
   customChainId,
   onShowTokenInfo,
   extras,
@@ -418,96 +519,71 @@ const TokenList = ({
     [currencies, warnedKeys],
   )
 
-  // Recompute row offsets when the list re-sorts or a restricted row expands/collapses.
+  const onWarnRestricted = useCallback((key: string) => {
+    setWarnedKeys(prev => {
+      if (prev.has(key)) return prev
+      const next = new Set(prev)
+      next.add(key)
+      return next
+    })
+  }, [])
+
+  // Re-measure only when the row order/set changes or a restricted row expands/collapses — not on
+  // every background poll that hands us a new-but-equal `currencies` array, which would otherwise
+  // drop all cached offsets and re-layout the whole list (a visible flicker).
+  const rowsSignature = useMemo(() => currencies.map(currency => currency.wrapped.address).join(','), [currencies])
   useEffect(() => {
     listRef.current?.resetAfterIndex(0)
-  }, [currencies, warnedKeys])
+  }, [rowsSignature, warnedKeys])
 
-  const Row = useCallback(
-    ({ style, currency, currencyBalance }: VirtualTokenRowProps) => {
-      if (!currency) return null
-
-      const extendCurrency = currency as WrappedTokenInfo
-      const token = currency.wrapped
-      const isWhitelisted = !!extendCurrency?.isWhitelisted
-
-      // Not whitelisted and not yet imported: keep the row's data but swap the right column for an Import button.
-      const needsImport =
-        !isWhitelisted &&
-        !tokenImports.find(importedToken => importedToken.address === token.address) &&
-        !isTokenNative(currency) &&
-        !!onImportToken
-      const rightColumn = needsImport ? 'import' : showVolume ? 'volume' : 'balance'
-
-      const isSelected = Boolean(selectedCurrency?.equals(currency))
-      const otherSelected = Boolean(otherCurrency?.equals(currency))
-
-      const favoriteTokenAddress = currency.isToken ? (currency as Token).address : undefined
-      const isFavorite = favoriteTokenAddress
-        ? !!favoriteTokens?.includes(favoriteTokenAddress) ||
-          !!favoriteTokens?.includes(favoriteTokenAddress.toLowerCase())
-        : false
-
-      const tokenPrice = tokenPrices[token.address] || 0
-      const usdBalance = tokenPrice * parseFloat(currencyBalance?.toExact() || '0')
-      const extra: TokenRowExtra | undefined = extras?.[tokenRowKey(currency.chainId, token.address)]
-
-      const restrictedKey = restrictedTokenKey(currency.chainId, getTokenAddress(currency))
-      const restricted = isTokenRestricted(currency)
-      const warned = restricted && warnedKeys.has(restrictedKey)
-      const warnRestricted = () => setWarnedKeys(prev => new Set(prev).add(restrictedKey))
-      const rowStyle: CSSProperties = { ...style, height: warned ? RESTRICTED_CONTENT_HEIGHT : ROW_CONTENT_HEIGHT }
-
-      return (
-        <TokenRow
-          isFavorite={isFavorite}
-          showLoading={!!account}
-          onToggleFavorite={onToggleFavorite}
-          onRemoveImportedToken={onRemoveImportedToken}
-          style={{ ...rowStyle, ...itemStyle }}
-          currency={currency}
-          currencyBalance={currencyBalance}
-          isSelected={isSelected}
-          showFavoriteIcon={showFavoriteIcon}
-          onSelect={onCurrencySelect}
-          otherSelected={otherSelected}
-          onShowTokenInfo={onShowTokenInfo}
-          usdBalance={usdBalance}
-          usdValueClassName="text-primary"
-          priceUsd={extra?.price}
-          priceChange24h={extra?.priceChange24h}
-          volume24h={extra?.volume24h}
-          addedAt={extra?.addedAt}
-          showAddress={showAddress}
-          showPriceColumn={showPriceColumn}
-          rightColumn={rightColumn}
-          onImportToken={onImportToken}
-          restricted={restricted}
-          warned={warned}
-          onRestrictedClick={warnRestricted}
-        />
-      )
-    },
-    [
-      onCurrencySelect,
-      otherCurrency,
+  const itemData = useMemo<VirtualRowData>(
+    () => ({
+      currencies,
+      currencyBalances,
       selectedCurrency,
+      otherCurrency,
+      onCurrencySelect,
       onImportToken,
       onToggleFavorite,
       onRemoveImportedToken,
-      itemStyle,
+      onShowTokenInfo,
       showFavoriteIcon,
+      itemStyle,
+      showAddress,
+      showPriceColumn,
+      showVolume,
       tokenImports,
       tokenPrices,
       account,
       favoriteTokens,
-      onShowTokenInfo,
       extras,
+      isTokenRestricted,
+      warnedKeys,
+      onWarnRestricted,
+    }),
+    [
+      currencies,
+      currencyBalances,
+      selectedCurrency,
+      otherCurrency,
+      onCurrencySelect,
+      onImportToken,
+      onToggleFavorite,
+      onRemoveImportedToken,
+      onShowTokenInfo,
+      showFavoriteIcon,
+      itemStyle,
       showAddress,
       showPriceColumn,
       showVolume,
+      tokenImports,
+      tokenPrices,
+      account,
+      favoriteTokens,
+      extras,
       isTokenRestricted,
       warnedKeys,
+      onWarnRestricted,
     ],
   )
 
@@ -527,6 +603,7 @@ const TokenList = ({
                 itemCount={itemCount}
                 itemSize={getItemSize}
                 estimatedItemSize={NORMAL_ITEM_SIZE}
+                itemData={itemData}
                 onItemsRendered={onItemsRendered}
                 ref={node => {
                   ref(node)
@@ -534,28 +611,7 @@ const TokenList = ({
                 }}
                 outerRef={listTokenRef}
               >
-                {({ index, style }: { index: number; style: CSSProperties }) => {
-                  if (!isItemLoaded(index)) {
-                    return (
-                      <div className="px-2 pt-2" style={style}>
-                        <Center className="h-14">
-                          <Loader size="20px" />
-                        </Center>
-                      </div>
-                    )
-                  }
-                  return (
-                    <div className="px-2 pt-2" style={style}>
-                      <Row
-                        index={index}
-                        currency={currencies[index]}
-                        key={currencies[index]?.wrapped.address || index}
-                        currencyBalance={currencyBalances[index]}
-                        style={{ height: 12 * 4 }}
-                      />
-                    </div>
-                  )
-                }}
+                {VirtualRow}
               </VariableSizeList>
             )}
           </InfiniteLoader>

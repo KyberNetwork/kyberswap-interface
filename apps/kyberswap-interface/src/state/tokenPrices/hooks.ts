@@ -162,7 +162,15 @@ export const useTokenPricesWithLoading = (
     }, {})
   }, [tokenList, chainId, tokenPrices, wrappedNativeAddress])
 
-  return { data, loading, fetchPrices, refetch }
+  // `data` is rebuilt with a fresh identity whenever the Redux tokenPrices slice changes — which is
+  // on every price poll anywhere in the app, even for tokens this caller never asked about. Cache it
+  // by a value signature over the requested prices so the reference only changes when a requested
+  // token's resolved price actually changes (mirrors the balance path's balanceResultCached).
+  const dataSignature = tokenList.map(address => `${address}:${data[address] ?? 0}`).join('|')
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const dataCached = useMemo(() => data, [dataSignature])
+
+  return { data: dataCached, loading, fetchPrices, refetch }
 }
 
 export const useTokenPrices = (
