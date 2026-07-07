@@ -123,6 +123,57 @@ export const fetchTokenCategories = async ({
   return json?.data ?? []
 }
 
+/** Per-token market metrics embedded in the token-catalog `/tokens` list response. */
+export type TokenCatalogMetrics = {
+  price?: number
+  /** 24h price change in percent (e.g. 1.25 = +1.25%). Can be `null` when unknown. */
+  priceChange24h?: number | null
+  kyberScore?: number
+  liquidityUsd?: number
+  stats24h?: { volume24h?: number }
+}
+
+/** Raw token shape returned by the public token-catalog `/tokens` list endpoint. */
+export type TokenCatalogListToken = {
+  id: number
+  chainId: string
+  address: string
+  name: string
+  symbol: string
+  decimals: number
+  logoURL?: string
+  isWhitelisted?: boolean
+  isStable?: boolean
+  isStandardERC20?: boolean
+  cmcRank?: number
+  marketCap?: number
+  createdAt?: number
+  whitelistedAt?: number
+  metrics?: TokenCatalogMetrics
+}
+
+export type TokenCatalogListResponse = {
+  data: { tokens: TokenCatalogListToken[]; pagination?: { totalItems: number } }
+}
+
+const TOKENS_URL = `${TOKEN_API_URL}/v1/public/tokens`
+
+/**
+ * Fetch tokens straight from the public token-catalog list endpoint, bypassing ks-setting.
+ * Used where ks-setting does not expose the needed fields/sort (e.g. `createdAt` for the New tab).
+ */
+export const fetchTokenCatalogTokens = async (
+  params: Record<string, string | number | boolean | undefined>,
+): Promise<TokenCatalogListResponse> => {
+  const search = new URLSearchParams(
+    Object.entries(params)
+      .filter(([, v]) => v !== undefined)
+      .map(([k, v]) => [k, String(v)]),
+  ).toString()
+  const res = await fetch(`${TOKENS_URL}?${search}`)
+  return res.json()
+}
+
 const tokenCatalogApi = createApi({
   reducerPath: 'tokenCatalogApi',
   baseQuery: fetchBaseQuery({

@@ -198,6 +198,21 @@ const config: Config = {
           from: { opacity: '0', transform: 'translateY(4px)' },
           to: { opacity: '1', transform: 'translateY(0)' },
         },
+        // Dropdown/popover enter: fade + subtle drop-down + scale from the anchor corner.
+        dropdownIn: {
+          from: { opacity: '0', transform: 'translateY(-6px) scale(0.97)' },
+          to: { opacity: '1', transform: 'translateY(0) scale(1)' },
+        },
+        // Push-navigation enter: a detail panel slides in from the right edge (paired with a "←" back).
+        slideInRight: {
+          from: { transform: 'translateX(100%)' },
+          to: { transform: 'translateX(0)' },
+        },
+        // Push-navigation exit: the detail panel slides back out to the right on "←" back.
+        slideOutRight: {
+          from: { transform: 'translateX(0)' },
+          to: { transform: 'translateX(100%)' },
+        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
@@ -211,6 +226,9 @@ const config: Config = {
         'loading-shimmer': 'loading-shimmer 1.2s ease-in-out infinite',
         'highlight-warning': 'highlight-warning 2s infinite alternate ease-in-out',
         'token-info-glow': 'token-info-glow 1.5s ease-in-out infinite',
+        dropdownIn: 'dropdownIn 0.15s ease-out',
+        slideInRight: 'slideInRight 0.25s ease-out',
+        slideOutRight: 'slideOutRight 0.2s ease-in forwards',
       },
     },
   },

@@ -9,6 +9,7 @@ import { TokenSelectorContent } from 'components/TokenSelectorModal/TokenSelecto
 import TokenInfoTab from 'components/swapv2/TokenInfo'
 import useLast from 'hooks/useLast'
 import { Field } from 'state/swap/actions'
+import { cn } from 'utils/cn'
 
 interface TokenSelectorModalProps {
   isOpen: boolean
@@ -82,24 +83,49 @@ const TokenSelectorModal = ({
   )
 
   const [tokenToShowInfo, setTokenToShowInfo] = useState<Token | null>(null)
+  // Detail view keeps mounting through its slide-out so the "←" back has an exit animation; it
+  // unmounts only once slideOutRight finishes (onAnimationEnd below).
+  const [detailClosing, setDetailClosing] = useState(false)
+  const closeTokenInfo = useCallback(() => {
+    // With reduced motion the slide-out is suppressed and onAnimationEnd never fires, so unmount now.
+    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) {
+      setTokenToShowInfo(null)
+      return
+    }
+    setDetailClosing(true)
+  }, [])
 
   return (
     <Modal
       isOpen={isOpen}
       onDismiss={() => {
         setTokenToShowInfo(null)
+        setDetailClosing(false)
         onDismiss?.()
       }}
       margin="auto"
+      maxWidth="480px"
       maxHeight={isMobileHorizontal ? 100 : 80}
       minHeight={minHeight}
       height={isMobileHorizontal ? '95vh' : undefined}
     >
       {tokenToShowInfo ? (
-        <div className="w-full">
+        <div
+          className={cn(
+            'w-full motion-reduce:animate-none',
+            detailClosing ? 'animate-slideOutRight' : 'animate-slideInRight',
+          )}
+          onAnimationEnd={e => {
+            // Only react to the wrapper's own slide-out finishing (ignore bubbled child animations).
+            if (e.target === e.currentTarget && detailClosing) {
+              setTokenToShowInfo(null)
+              setDetailClosing(false)
+            }
+          }}
+        >
           <TokenInfoTab
             currencies={{ [Field.INPUT]: tokenToShowInfo, [Field.OUTPUT]: tokenToShowInfo }}
-            onBack={() => setTokenToShowInfo(null)}
+            onBack={closeTokenInfo}
           />
         </div>
       ) : modalView === TokenSelectorModalView.search ? (
@@ -115,8 +141,8 @@ const TokenSelectorModal = ({
           title={title}
           tooltip={tooltip}
           customChainId={customChainId}
-          onShowTokenInfo={setTokenToShowInfo}
           trackingSource={trackingSource}
+          onShowTokenInfo={setTokenToShowInfo}
         />
       ) : modalView === TokenSelectorModalView.importToken && importToken ? (
         <ImportTokenView

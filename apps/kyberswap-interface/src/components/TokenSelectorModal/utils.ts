@@ -62,11 +62,11 @@ const fetchTokenByAddress = async (address: string, chainId: ChainId): Promise<W
 const fetchTokenSearchPage = async (
   search: string | undefined,
   page: number,
-  chainId: ChainId,
+  chainIds: ChainId[],
 ): Promise<WrappedTokenInfo[]> => {
   const params: TokenSearchParams = {
     query: search ?? '',
-    chainIds: chainId.toString(),
+    chainIds: chainIds.join(','),
     page,
     pageSize: TOKEN_SEARCH_PAGE_SIZE,
     ...(!search && { isWhitelisted: true }),
@@ -80,14 +80,15 @@ const fetchTokenSearchPage = async (
 export const fetchTokens = async (
   search: string | undefined,
   page: number,
-  chainId: ChainId,
+  chainIds: ChainId[],
 ): Promise<WrappedTokenInfo[]> => {
   try {
-    if (search && chainId && isAddress(chainId, search)) {
-      return fetchTokenByAddress(search, chainId)
+    const primaryChainId = chainIds[0]
+    if (search && primaryChainId && isAddress(primaryChainId, search)) {
+      return fetchTokenByAddress(search, primaryChainId)
     }
 
-    return fetchTokenSearchPage(search, page, chainId)
+    return fetchTokenSearchPage(search, page, chainIds)
   } catch (error) {
     return []
   }
