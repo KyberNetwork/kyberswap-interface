@@ -1,6 +1,7 @@
 import { ChainId, Currency, Token, WETH } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { useInfiniteQuery } from '@tanstack/react-query'
+import { motion, useAnimationControls, useReducedMotion } from 'framer-motion'
 import {
   ChangeEvent,
   KeyboardEvent,
@@ -189,7 +190,14 @@ export const TokenSelectorContent = ({
   // Column sort. Trending resolves it server-side; New / Imported / Favorites sort in-memory by 24h
   // change. `null` = the tab's natural order. Cleared whenever the tab or chain changes.
   const [sort, setSort] = useState<TokenSort | null>(null)
+  const listAnimation = useAnimationControls()
+  const prefersReducedMotion = useReducedMotion()
+  // Flagged when the user clicks a sort header so the list can crossfade exactly when the re-sorted
+  // rows commit — which is the same tick for in-memory sorts and a later tick for Trending's async
+  // server re-fetch.
+  const pendingSortAnim = useRef(false)
   const cycleSort = useCallback((field: TokenSortField) => {
+    pendingSortAnim.current = true
     setSort(prev => {
       if (!prev || prev.field !== field) return { field, dir: 'desc' }
       if (prev.dir === 'desc') return { field, dir: 'asc' }
@@ -518,10 +526,23 @@ export const TokenSelectorContent = ({
     setSort(null)
   }, [activeTab, primaryChainId])
 
-  // Scroll the list back to the top when the sort changes (Trending restarts its pagination at page 1).
+  // Reset scroll to the top of the list on a deliberate context switch (tab or chain change).
+  // Sort-driven scroll resets happen in the crossfade effect below, timed to the re-sorted rows.
   useEffect(() => {
     if (listTokenRef.current) listTokenRef.current.scrollTop = 0
-  }, [sort])
+  }, [activeTab, primaryChainId])
+
+  // When a user-triggered sort actually reorders the rows, scroll back to the top and crossfade the
+  // list. Watching `visibleCurrencies` runs this on the tick the new order becomes visible, so both
+  // the scroll reset and the fade land with the sorted rows — never on the old rows before
+  // Trending's async re-fetch resolves (which would jump a scrolled list before the data updates).
+  useEffect(() => {
+    if (!pendingSortAnim.current) return
+    pendingSortAnim.current = false
+    if (listTokenRef.current) listTokenRef.current.scrollTop = 0
+    if (prefersReducedMotion) return
+    listAnimation.start({ opacity: [0.4, 1], transition: { duration: 0.25, ease: 'easeOut' } })
+  }, [visibleCurrencies, prefersReducedMotion, listAnimation])
 
   // Full server/RPC token search only runs on the All tab, so route any search there — otherwise a
   // search on Trending/New/etc. would only local-filter that tab's list and miss searchable tokens.
@@ -644,40 +665,42 @@ export const TokenSelectorContent = ({
           </HStack>
         )}
 
-        {isListLoading ? (
-          <TokenListSkeleton />
-        ) : visibleCurrencies?.length > 0 ? (
-          <TokenList
-            listTokenRef={listTokenRef}
-            onRemoveImportedToken={isImportedTab ? removeImportedToken : undefined}
-            currencies={visibleCurrencies}
-            onToggleFavorite={handleClickFavorite}
-            onCurrencySelect={handleCurrencySelect}
-            otherCurrency={otherSelectedCurrency}
-            selectedCurrency={selectedCurrency}
-            onImportToken={onImportToken}
-            loadMoreRows={handleLoadMore}
-            hasMore={listHasMore}
-            customChainId={primaryChainId}
-            extras={listExtras}
-            showAddress={isAllTab}
-            showPriceColumn={!isAllTab}
-            showVolume={isTrendingTab}
-            onShowTokenInfo={onShowTokenInfo}
-          />
-        ) : (
-          <Stack className="min-h-0 flex-1">
-            {isAllTab && (isCheckingOtherChains || otherChainTokens.length) ? (
-              <OtherChainTokens
-                tokens={otherChainTokens}
-                loading={isCheckingOtherChains}
-                loadingFallback={<SearchLoading />}
-              />
-            ) : (
-              <NoResult message={debouncedQuery ? undefined : emptyMessage} />
-            )}
-          </Stack>
-        )}
+        <motion.div initial={{ opacity: 1 }} animate={listAnimation} className="flex min-h-0 flex-1 flex-col">
+          {isListLoading ? (
+            <TokenListSkeleton />
+          ) : visibleCurrencies?.length > 0 ? (
+            <TokenList
+              listTokenRef={listTokenRef}
+              onRemoveImportedToken={isImportedTab ? removeImportedToken : undefined}
+              currencies={visibleCurrencies}
+              onToggleFavorite={handleClickFavorite}
+              onCurrencySelect={handleCurrencySelect}
+              otherCurrency={otherSelectedCurrency}
+              selectedCurrency={selectedCurrency}
+              onImportToken={onImportToken}
+              loadMoreRows={handleLoadMore}
+              hasMore={listHasMore}
+              customChainId={primaryChainId}
+              extras={listExtras}
+              showAddress={isAllTab}
+              showPriceColumn={!isAllTab}
+              showVolume={isTrendingTab}
+              onShowTokenInfo={onShowTokenInfo}
+            />
+          ) : (
+            <Stack className="min-h-0 flex-1">
+              {isAllTab && (isCheckingOtherChains || otherChainTokens.length) ? (
+                <OtherChainTokens
+                  tokens={otherChainTokens}
+                  loading={isCheckingOtherChains}
+                  loadingFallback={<SearchLoading />}
+                />
+              ) : (
+                <NoResult message={debouncedQuery ? undefined : emptyMessage} />
+              )}
+            </Stack>
+          )}
+        </motion.div>
       </div>
 
       <div className="px-5 py-3 text-left text-xs italic text-subText">

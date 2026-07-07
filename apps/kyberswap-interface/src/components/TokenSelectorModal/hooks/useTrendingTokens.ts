@@ -51,6 +51,10 @@ export const useTrendingTokens = (chainId: ChainId, sort: TokenSort | null, acti
       const total = lastPage?.data?.pagination?.totalItems ?? loaded
       return loaded < total ? allPages.length + 1 : undefined
     },
+    // Changing the sort starts a new query; keep the current sort's rows on screen while the new
+    // order loads (same chain only) so the list re-sorts in place instead of flashing the skeleton.
+    placeholderData: (previousData, previousQuery) =>
+      (previousQuery?.queryKey?.[1] as ChainId) === chainId ? previousData : undefined,
     staleTime: 60_000,
     retry: false,
   })
