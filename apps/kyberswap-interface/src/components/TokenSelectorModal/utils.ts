@@ -23,6 +23,7 @@ export const TOKEN_SEARCH_PAGE_SIZE = 20
 const UNKNOWN_TOKEN_NAME = 'Unknown Token'
 const UNKNOWN_TOKEN_SYMBOL = 'UNKNOWN'
 const EMPTY_BALANCE_MAP = {}
+const EMPTY_PRICE_ADDRESSES: string[] = []
 
 type TokenBalanceMap = {
   [tokenAddress: string]: TokenAmount | undefined
@@ -94,6 +95,21 @@ export const fetchTokens = async (
   }
 }
 
+/**
+ * Whether picking this token should open the import-warning screen rather than select it directly:
+ * a non-native, non-whitelisted token that the user hasn't imported yet (and import is available).
+ * Shared by the row click and the Enter-to-select shortcut so both honor the same gate.
+ */
+export const getNeedsImport = (
+  currency: Currency,
+  isImported: (address: string) => boolean,
+  canImport: boolean,
+): boolean =>
+  canImport &&
+  !isTokenNative(currency) &&
+  !(currency as WrappedTokenInfo)?.isWhitelisted &&
+  !isImported(currency.wrapped.address)
+
 const getRpcSearchChainIds = (chainId: ChainId, supportedChains: NetworkInfo[]) => {
   const otherChainIds = supportedChains
     .map(networkInfo => networkInfo.chainId)
@@ -149,6 +165,9 @@ export const useAddressRpcTokenSearch = ({
       queryKey: ['currency-search-rpc-token', rpcChainId, debouncedQuery],
       enabled: shouldFetchRpcTokens,
       queryFn: () => fetchRpcToken(debouncedQuery, rpcChainId, chainId),
+      // On-chain token metadata is immutable; don't re-run the ~15-chain fan-out on window refocus.
+      staleTime: 300_000,
+      refetchOnWindowFocus: false,
       retry: false,
     })),
   })
@@ -234,14 +253,20 @@ function getTokenComparator(
   }
 }
 
-export function useTokenComparator(inverted: boolean, customChain?: ChainId): (tokenA: Token, tokenB: Token) => number {
+export function useTokenComparator(
+  inverted: boolean,
+  customChain?: ChainId,
+  // Only the tabs that sort by wallet value need this; when disabled it registers no whole-whitelist
+  // balanceOf multicall and no /prices fetch, and just falls back to a symbol sort.
+  enabled = true,
+): (tokenA: Token, tokenB: Token) => number {
   const { chainId: currentChain } = useActiveWeb3React()
   const chainId = customChain || currentChain
-  const balances = useAllTokenBalances(chainId)
+  const balances = useAllTokenBalances(chainId, enabled)
   const ethBalance = useNativeBalance(chainId)
   const tokenPriceAddresses = useMemo(
-    () => [...Object.keys(balances ?? EMPTY_BALANCE_MAP), NATIVE_TOKEN_ADDRESS],
-    [balances],
+    () => (enabled ? [...Object.keys(balances ?? EMPTY_BALANCE_MAP), NATIVE_TOKEN_ADDRESS] : EMPTY_PRICE_ADDRESSES),
+    [balances, enabled],
   )
   const tokenPrices = useTokenPrices(tokenPriceAddresses, chainId)
 

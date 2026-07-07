@@ -13,10 +13,10 @@ import Skeleton from 'components/Skeleton'
 import { Center, HStack, Stack } from 'components/Stack'
 import { getDisplayTokenInfo } from 'components/TokenSelectorModal/PinnedTokens'
 import { TokenRowExtra, TokenRowExtraMap, tokenRowKey } from 'components/TokenSelectorModal/types'
+import { getNeedsImport } from 'components/TokenSelectorModal/utils'
 import { useActiveWeb3React } from 'hooks'
 import useCopyClipboard from 'hooks/useCopyClipboard'
 import { restrictedTokenKey, restrictedTokenMessage, useIsTokenRestricted } from 'hooks/useRestrictedTokens'
-import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { useUserAddedTokens, useUserFavoriteTokens } from 'state/user/hooks'
 import { useCurrencyBalances } from 'state/wallet/hooks'
@@ -36,6 +36,9 @@ const RESTRICTED_ITEM_SIZE = RESTRICTED_CONTENT_HEIGHT + 8 // 84px
 // Stable default so an omitted `itemStyle` prop doesn't mint a new object each render (which would
 // churn the row data bag and re-render every row).
 const EMPTY_ITEM_STYLE: CSSProperties = {}
+// Stable empties so gated balance/price subscriptions never allocate a fresh array to disable them.
+const EMPTY_CURRENCIES: Currency[] = []
+const EMPTY_ADDRESSES: string[] = []
 
 const Balance = ({ balance }: { balance: CurrencyAmount<Currency> }) => {
   return (
@@ -305,22 +308,32 @@ export const TokenRow = ({
     )
   }
 
+  const activate = () => {
+    if (restricted) {
+      onRestrictedClick?.()
+      return
+    }
+    if (isImport) {
+      onImportToken?.(currency.wrapped)
+      return
+    }
+    onSelect?.(currency)
+  }
+
   return (
     <HStack
       data-testid="token-item"
       data-selected={isSelected || otherSelected}
       role="button"
+      tabIndex={0}
+      aria-label={symbol}
       style={style}
-      onClick={() => {
-        if (restricted) {
-          onRestrictedClick?.()
-          return
+      onClick={activate}
+      onKeyDown={e => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault()
+          activate()
         }
-        if (isImport) {
-          onImportToken?.(currency.wrapped)
-          return
-        }
-        onSelect?.(currency)
       }}
       onMouseEnter={e => {
         if (hoverColor && window.matchMedia('(hover: hover)').matches) {
@@ -334,7 +347,7 @@ export const TokenRow = ({
       }}
       className={cn(
         'flex h-12 w-full cursor-pointer items-center justify-between gap-3 rounded-lg px-3 py-1',
-        'data-[selected=true]:bg-primary-20',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 data-[selected=true]:bg-primary-20',
         !hoverColor &&
           '[@media(hover:hover)]:hover:bg-primary-15 [@media(hover:hover)]:data-[selected=true]:hover:bg-primary-25',
       )}
@@ -362,10 +375,10 @@ type VirtualRowData = {
   showAddress?: boolean
   showPriceColumn?: boolean
   showVolume?: boolean
-  tokenImports: Token[]
+  importedAddressSet: Set<string>
   tokenPrices: { [address: string]: number }
   account?: string | null
-  favoriteTokens?: string[]
+  favoriteAddressSet: Set<string>
   extras?: TokenRowExtraMap
   isTokenRestricted: (currency?: Currency | null) => boolean
   warnedKeys: Set<string>
@@ -378,7 +391,7 @@ const VirtualRow = memo(function VirtualRow({ index, style, data }: ListChildCom
   if (!currency) {
     return (
       <div className="px-2 pt-2" style={style}>
-        <Center className="h-14">
+        <Center className="h-12">
           <Loader size="20px" />
         </Center>
       </div>
@@ -386,29 +399,22 @@ const VirtualRow = memo(function VirtualRow({ index, style, data }: ListChildCom
   }
 
   const token = currency.wrapped
-  const isWhitelisted = !!(currency as WrappedTokenInfo)?.isWhitelisted
 
   // Not whitelisted and not yet imported: keep the row's data but swap the right column for an Import button.
-  const needsImport =
-    !isWhitelisted &&
-    !data.tokenImports.find(importedToken => importedToken.address === token.address) &&
-    !isTokenNative(currency) &&
-    !!data.onImportToken
+  const needsImport = getNeedsImport(currency, address => data.importedAddressSet.has(address), !!data.onImportToken)
   const rightColumn = needsImport ? 'import' : data.showVolume ? 'volume' : 'balance'
 
   const isSelected = Boolean(data.selectedCurrency?.equals(currency))
   const otherSelected = Boolean(data.otherCurrency?.equals(currency))
 
   const favoriteTokenAddress = currency.isToken ? (currency as Token).address : undefined
-  const isFavorite = favoriteTokenAddress
-    ? !!data.favoriteTokens?.includes(favoriteTokenAddress) ||
-      !!data.favoriteTokens?.includes(favoriteTokenAddress.toLowerCase())
-    : false
+  const isFavorite = favoriteTokenAddress ? data.favoriteAddressSet.has(favoriteTokenAddress.toLowerCase()) : false
 
   const currencyBalance = data.currencyBalances[index]
-  const tokenPrice = data.tokenPrices[token.address] || 0
-  const usdBalance = tokenPrice * parseFloat(currencyBalance?.toExact() || '0')
   const extra: TokenRowExtra | undefined = data.extras?.[tokenRowKey(currency.chainId, token.address)]
+  // Non-All tabs already carry price in the catalog extras; only the All tab fetches Redux prices.
+  const priceForUsd = data.showPriceColumn ? extra?.price ?? 0 : data.tokenPrices[token.address] || 0
+  const usdBalance = priceForUsd * parseFloat(currencyBalance?.toExact() || '0')
 
   const restrictedKey = restrictedTokenKey(currency.chainId, getTokenAddress(currency))
   const restricted = data.isTokenRestricted(currency)
@@ -497,11 +503,24 @@ const TokenList = ({
   const { favoriteTokens } = useUserFavoriteTokens(customChainId)
   const tokenImports = useUserAddedTokens(customChainId)
 
-  const tokenPrices = useTokenPrices(
-    currencies.map(currency => currency.wrapped.address),
-    customChainId,
+  // Only the All tab derives USD sub-lines from Redux prices (the others read price from catalog
+  // extras), so skip the /prices fetch elsewhere. Trending shows volume, not balance, so skip its
+  // per-block balanceOf multicall entirely.
+  const priceAddresses = useMemo(
+    () => (showPriceColumn ? EMPTY_ADDRESSES : currencies.map(currency => currency.wrapped.address)),
+    [showPriceColumn, currencies],
   )
-  const currencyBalances = useCurrencyBalances(currencies, customChainId)
+  const tokenPrices = useTokenPrices(priceAddresses, customChainId)
+  const balanceCurrencies = showVolume ? EMPTY_CURRENCIES : currencies
+  const currencyBalances = useCurrencyBalances(balanceCurrencies, customChainId)
+
+  // O(1) row-level membership checks (exact-case for imports to match the address equality used
+  // elsewhere; lowercased for favorites, which can be stored in either case).
+  const importedAddressSet = useMemo(() => new Set(tokenImports.map(token => token.address)), [tokenImports])
+  const favoriteAddressSet = useMemo(
+    () => new Set((favoriteTokens ?? []).map(address => address.toLowerCase())),
+    [favoriteTokens],
+  )
 
   const isTokenRestricted = useIsTokenRestricted()
   const listRef = useRef<VariableSizeList | null>(null)
@@ -552,10 +571,10 @@ const TokenList = ({
       showAddress,
       showPriceColumn,
       showVolume,
-      tokenImports,
+      importedAddressSet,
       tokenPrices,
       account,
-      favoriteTokens,
+      favoriteAddressSet,
       extras,
       isTokenRestricted,
       warnedKeys,
@@ -576,10 +595,10 @@ const TokenList = ({
       showAddress,
       showPriceColumn,
       showVolume,
-      tokenImports,
+      importedAddressSet,
       tokenPrices,
       account,
-      favoriteTokens,
+      favoriteAddressSet,
       extras,
       isTokenRestricted,
       warnedKeys,

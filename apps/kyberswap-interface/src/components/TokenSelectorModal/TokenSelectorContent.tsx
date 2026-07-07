@@ -14,6 +14,7 @@ import {
   useState,
 } from 'react'
 import { isMobile } from 'react-device-detect'
+import { X } from 'react-feather'
 
 import InfoHelper from 'components/InfoHelper'
 import Loader from 'components/Loader'
@@ -44,6 +45,7 @@ import { TokenRowExtraMap, TokenSort, TokenSortField, tokenRowKey } from 'compon
 import {
   TOKEN_SEARCH_PAGE_SIZE,
   fetchTokens,
+  getNeedsImport,
   useAddressRpcTokenSearch,
   useTokenComparator,
 } from 'components/TokenSelectorModal/utils'
@@ -207,7 +209,10 @@ export const TokenSelectorContent = ({
 
   const defaultTokens = useAllTokens(false, primaryChainId)
   const tokenImports = useUserAddedTokens(primaryChainId)
-  const tokenComparator = useTokenComparator(false, primaryChainId)
+  // Only the All (default order) and Imported tabs sort by wallet value; gate the comparator so the
+  // rest never register its whole-whitelist balanceOf multicall + /prices fetch.
+  const needsComparator = (isAllTab && !debouncedQuery) || isImportedTab
+  const tokenComparator = useTokenComparator(false, primaryChainId, needsComparator)
 
   const {
     tokens: trendingTokens,
@@ -247,10 +252,24 @@ export const TokenSelectorContent = ({
       debouncedQuery && !isQueryValidEVMAddress && lastPage.length === TOKEN_SEARCH_PAGE_SIZE
         ? allPages.length + 1
         : undefined,
+    // Search results are stable on an alt-tab timescale; don't re-fire the /v1/tokens search on refocus.
+    staleTime: 30_000,
+    refetchOnWindowFocus: false,
     retry: false,
   })
 
-  const tokenSearchResults = useMemo(() => tokenSearchData?.pages.flatMap(page => page) ?? [], [tokenSearchData?.pages])
+  // De-duplicate by chain+address: a paginated search feed can repeat a token across pages when the
+  // server-side ranking shifts (mirrors mapCatalogTokens), which would otherwise render duplicate rows.
+  const tokenSearchResults = useMemo(() => {
+    const flat = tokenSearchData?.pages.flatMap(page => page) ?? []
+    const seen = new Set<string>()
+    return flat.filter(token => {
+      const key = tokenRowKey(token.chainId, token.wrapped.address)
+      if (seen.has(key)) return false
+      seen.add(key)
+      return true
+    })
+  }, [tokenSearchData?.pages])
 
   const { currentChainRpcToken, otherChainTokens, isCheckingOtherChains } = useAddressRpcTokenSearch({
     chainId: primaryChainId,
@@ -263,13 +282,24 @@ export const TokenSelectorContent = ({
     hasTokenSearchResults: !!tokenSearchResults.length,
   })
 
-  // All-tab dataset: API search results (with RPC fallback) when searching, else the sorted default tokens.
+  // All-tab dataset: API search results (with RPC fallback) when searching, else the sorted default
+  // tokens. Only computed for the All tab — the other tabs never read it, so skip the whole-whitelist
+  // sort there. Object.values already returns a fresh array, so sort it in place.
   const allTabTokens: Currency[] = useMemo(() => {
+    if (!isAllTab) return EMPTY_CURRENCIES
     if (debouncedQuery) {
       return tokenSearchResults.concat(filterTruthy([currentChainRpcToken])).filter(filterWrapFunc)
     }
-    return [...Object.values(defaultTokens)].sort(tokenComparator).filter(filterWrapFunc)
-  }, [debouncedQuery, tokenSearchResults, currentChainRpcToken, defaultTokens, tokenComparator, filterWrapFunc])
+    return Object.values(defaultTokens).sort(tokenComparator).filter(filterWrapFunc)
+  }, [
+    isAllTab,
+    debouncedQuery,
+    tokenSearchResults,
+    currentChainRpcToken,
+    defaultTokens,
+    tokenComparator,
+    filterWrapFunc,
+  ])
 
   // Client-side search filter for the non-All tabs (their datasets are already in memory).
   const localFilter = useCallback(
@@ -420,10 +450,19 @@ export const TokenSelectorContent = ({
       }
       const totalToken = visibleCurrencies.length
       if (totalToken && (visibleCurrencies[0].symbol?.toLowerCase() === s || totalToken === 1)) {
-        handleCurrencySelect(visibleCurrencies[0])
+        const candidate = visibleCurrencies[0]
+        // Honor the same import gate the row click enforces: a non-whitelisted result opens the
+        // import-warning screen instead of being selected directly.
+        if (
+          getNeedsImport(candidate, address => tokenImports.some(token => token.address === address), !!onImportToken)
+        ) {
+          onImportToken?.(candidate.wrapped)
+          return
+        }
+        handleCurrencySelect(candidate)
       }
     },
-    [visibleCurrencies, handleCurrencySelect, searchQuery, primaryChainId],
+    [visibleCurrencies, handleCurrencySelect, searchQuery, primaryChainId, tokenImports, onImportToken],
   )
 
   const handleClickFavorite = useCallback(
@@ -455,42 +494,42 @@ export const TokenSelectorContent = ({
   // out instead of overwriting pinnedTokens with the previous chain's (now filtered-out) tokens.
   const pinnedChainRef = useRef(primaryChainId)
   pinnedChainRef.current = primaryChainId
+  // Monotonic id so two concurrent same-chain fetches (rapid star/unstar) can't let a slow one
+  // overwrite the newest result — the chain guard alone can't distinguish them.
+  const pinnedReqIdRef = useRef(0)
 
   const fetchPinnedTokens = useCallback(async () => {
     const requestedChainId = primaryChainId
+    const reqId = ++pinnedReqIdRef.current
     try {
       if (!Object.keys(defaultTokens).length) return
-      let result: (Token | Currency)[] = []
-      const addressesToFetch: string[] = []
+      // Lowercased address → token, so each favorite is an O(1) lookup instead of scanning the whole map.
+      const byAddress = new Map<string, Token | Currency>()
+      Object.entries(defaultTokens).forEach(([address, token]) => byAddress.set(address.toLowerCase(), token))
 
+      const result: (Token | Currency)[] = []
+      const addressesToFetch: string[] = []
       favoriteTokens?.forEach(address => {
-        let token
-        Object.entries(defaultTokens).forEach(([add, t]) => {
-          if (add.toLowerCase() === address.toLowerCase()) {
-            token = t
-          }
-        })
-        if (token) {
-          result.push(token)
-          return
-        }
-        addressesToFetch.push(address)
+        const token = byAddress.get(address.toLowerCase())
+        if (token) result.push(token)
+        else addressesToFetch.push(address)
       })
 
+      let resolved = result
       if (addressesToFetch.length) {
         const tokens = await fetchListTokenByAddresses(addressesToFetch, primaryChainId)
-        // Sort the returned token list to match the order of the passed address list
-        result = result.concat(
-          tokens.sort((x, y) => {
-            return addressesToFetch.indexOf(x.wrapped.address) - addressesToFetch.indexOf(y.wrapped.address)
-          }),
+        // Sort the returned token list to match the order of the passed address list.
+        resolved = result.concat(
+          tokens.sort(
+            (x, y) => addressesToFetch.indexOf(x.wrapped.address) - addressesToFetch.indexOf(y.wrapped.address),
+          ),
         )
       }
-      // Drop the result if the chain changed while this request was in flight.
-      if (pinnedChainRef.current !== requestedChainId) return
-      setPinnedTokens(result)
-    } catch (error) {
-      console.log('err', error)
+      // Commit only if this is still the newest invocation and the chain hasn't changed.
+      if (reqId !== pinnedReqIdRef.current || pinnedChainRef.current !== requestedChainId) return
+      setPinnedTokens(resolved)
+    } catch {
+      // Pinned tokens are a convenience row; on failure keep the previous set rather than clearing it.
     }
   }, [primaryChainId, favoriteTokens, defaultTokens])
 
@@ -521,9 +560,11 @@ export const TokenSelectorContent = ({
     if (!visibleTabs.includes(activeTab)) setActiveTab(TokenSelectorTab.All)
   }, [visibleTabs, activeTab])
 
-  // Reset the column sort to a tab's natural order whenever the tab or chain changes.
+  // Reset the column sort to a tab's natural order whenever the tab or chain changes. Also drop any
+  // pending sort animation so a sort click that never committed can't leak a stray fade onto the next tab.
   useEffect(() => {
     setSort(null)
+    pendingSortAnim.current = false
   }, [activeTab, primaryChainId])
 
   // Reset scroll to the top of the list on a deliberate context switch (tab or chain change).
@@ -546,8 +587,18 @@ export const TokenSelectorContent = ({
 
   // Full server/RPC token search only runs on the All tab, so route any search there — otherwise a
   // search on Trending/New/etc. would only local-filter that tab's list and miss searchable tokens.
+  // Remember the tab we came from so clearing the search returns there instead of stranding on All.
+  const preSearchTabRef = useRef<TokenSelectorTab | null>(null)
   useEffect(() => {
-    if (debouncedQuery) setActiveTab(TokenSelectorTab.All)
+    if (debouncedQuery) {
+      if (preSearchTabRef.current === null) preSearchTabRef.current = activeTab
+      setActiveTab(TokenSelectorTab.All)
+    } else if (preSearchTabRef.current !== null) {
+      setActiveTab(preSearchTabRef.current)
+      preSearchTabRef.current = null
+    }
+    // Query-driven only; reads activeTab as a snapshot without re-running on tab changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedQuery])
 
   useEffect(() => {
@@ -570,6 +621,8 @@ export const TokenSelectorContent = ({
       <Trans>No trending tokens right now. Check back later.</Trans>
     ) : activeTab === TokenSelectorTab.New ? (
       <Trans>No newly listed tokens right now.</Trans>
+    ) : activeTab === TokenSelectorTab.Imported ? (
+      <Trans>You haven&apos;t imported any tokens yet. Search a token address in the All tab to import one.</Trans>
     ) : activeTab === TokenSelectorTab.Favorites ? (
       <Trans>You have no saved tokens yet.</Trans>
     ) : undefined
@@ -611,7 +664,22 @@ export const TokenSelectorContent = ({
               onKeyDown={handleEnter}
               autoComplete="off"
             />
-            <SearchIcon size={18} className="text-gray" />
+            {searchQuery ? (
+              <button
+                type="button"
+                aria-label={t`Clear search`}
+                data-testid="clear-search"
+                onClick={() => {
+                  setSearchQuery('')
+                  inputRef.current?.focus()
+                }}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray transition-colors hover:text-text focus-visible:text-text focus-visible:outline-none"
+              >
+                <X size={16} />
+              </button>
+            ) : (
+              <SearchIcon size={18} className="text-gray" />
+            )}
           </SearchWrapper>
           <ChainSelector chains={supportedChains} selectedChainId={selectedChainId} onChange={setSelectedChainId} />
         </HStack>
@@ -641,6 +709,8 @@ export const TokenSelectorContent = ({
 
       <div
         key={activeTab}
+        role="tabpanel"
+        id="token-selector-panel"
         className="flex min-h-0 flex-1 animate-[fadeInUp_0.3s_ease-out_both] flex-col motion-reduce:animate-none"
       >
         {subtitle && <div className="px-5 pb-1 pt-3 text-sm text-subText">{subtitle}</div>}

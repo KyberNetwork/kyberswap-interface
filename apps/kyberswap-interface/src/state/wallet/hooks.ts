@@ -179,9 +179,17 @@ export function useCurrencyBalance(currency?: Currency, chainId?: ChainId): Curr
 }
 
 // mimics useAllBalances
-export function useAllTokenBalances(chainId?: ChainId): { [tokenAddress: string]: TokenAmount | undefined } {
+// `enabled=false` skips registering the per-block balanceOf multicall over the whole token map (for
+// callers that only need it on some tabs) while keeping the return shape stable.
+export function useAllTokenBalances(
+  chainId?: ChainId,
+  enabled = true,
+): { [tokenAddress: string]: TokenAmount | undefined } {
   const allTokens = useAllTokens(false, chainId)
-  const allTokensArray = useMemo(() => Object.values(allTokens ?? {}), [allTokens])
+  const allTokensArray = useMemo(
+    () => (enabled ? Object.values(allTokens ?? {}) : (EMPTY_ARRAY as Token[])),
+    [allTokens, enabled],
+  )
   return useTokenBalances(allTokensArray, chainId) ?? EMPTY_OBJECT
 }
 

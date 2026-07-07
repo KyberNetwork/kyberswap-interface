@@ -1,5 +1,5 @@
 import { Trans } from '@lingui/macro'
-import { ComponentType, ReactNode } from 'react'
+import { ComponentType, ReactNode, memo } from 'react'
 import { Star } from 'react-feather'
 
 import { ReactComponent as TrendingIcon } from 'assets/svg/earn/ic_pool_highlighted.svg'
@@ -61,9 +61,13 @@ type TabBarProps = {
   onChange: (tab: TokenSelectorTab) => void
 }
 
-export const TabBar = ({ tabs, activeTab, onChange }: TabBarProps) => {
+export const TabBar = memo(({ tabs, activeTab, onChange }: TabBarProps) => {
   return (
-    <HStack className="ks-scrollbar mt-1 gap-x-4 overflow-x-auto border-b border-white-08">
+    <HStack
+      role="tablist"
+      aria-label="Token lists"
+      className="ks-scrollbar mt-1 gap-x-4 overflow-x-auto border-b border-white-08"
+    >
       {tabs.map(tab => {
         const { icon: Icon, iconColor, label } = TAB_META[tab]
         const isActive = tab === activeTab
@@ -71,11 +75,15 @@ export const TabBar = ({ tabs, activeTab, onChange }: TabBarProps) => {
           <button
             key={tab}
             type="button"
+            role="tab"
+            aria-selected={isActive}
+            aria-controls="token-selector-panel"
             data-active={isActive}
             data-testid={`tab-${tab}`}
             onClick={() => onChange(tab)}
             className={cn(
               '-mb-px flex shrink-0 items-center gap-1 border-b-2 pb-2 text-sm font-medium transition-colors',
+              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40',
               isActive ? 'border-primary text-primary' : 'border-transparent text-text',
             )}
           >
@@ -86,4 +94,5 @@ export const TabBar = ({ tabs, activeTab, onChange }: TabBarProps) => {
       })}
     </HStack>
   )
-}
+})
+TabBar.displayName = 'TabBar'
