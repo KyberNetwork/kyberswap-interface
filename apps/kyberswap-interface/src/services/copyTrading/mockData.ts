@@ -1,3 +1,4 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import type {
   ActivityRow,
   AgentCard,
@@ -23,6 +24,7 @@ import type {
   CotLogsQuery,
   CursorResponse,
   LeaderboardQuery,
+  LeaderboardSortBy,
   LeaderboardSummaryQuery,
   OwnerActivityQuery,
   OwnerCopyAccountsQuery,
@@ -40,6 +42,8 @@ import type {
   WalletBalanceRow,
 } from 'services/copyTrading/types'
 
+import { NETWORKS_INFO } from 'constants/networks'
+
 const MOCK_OWNER_ADDRESS = '0x1111111111111111111111111111111111111111'
 const COPY_ACCOUNTS = {
   beta: '0x2222222222222222222222222222222222222201',
@@ -50,6 +54,14 @@ const COPY_ACCOUNTS = {
   eta: '0x2222222222222222222222222222222222222206',
 } as const
 
+const copyTradingChainIds: ChainId[] = [
+  ChainId.MAINNET,
+  ChainId.BASE,
+  ChainId.ARBITRUM,
+  ChainId.BSCMAINNET,
+  ChainId.OPTIMISM,
+]
+
 const generatedAt = '2026-07-08T10:00:00Z'
 
 const meta: ResponseMeta = {
@@ -57,7 +69,7 @@ const meta: ResponseMeta = {
   generatedAt: generatedAt,
   dataAsOf: '2026-07-08T09:59:30Z',
   isStale: false,
-  asOfChains: [1, 8453, 42161, 56, 10],
+  asOfChains: copyTradingChainIds,
 }
 
 const singleResponse = <T>(data: T): SingleResponse<T> => ({
@@ -96,13 +108,17 @@ const pageResponse = <T>(data: T[], query?: PageQuery): PageResponse<T> => {
   }
 }
 
-const chains: Chain[] = [
-  { chainId: 1, slug: 'ethereum', name: 'Ethereum', iconUrl: '', isEnabled: true },
-  { chainId: 8453, slug: 'base', name: 'Base', iconUrl: '', isEnabled: true },
-  { chainId: 42161, slug: 'arbitrum', name: 'Arbitrum', iconUrl: '', isEnabled: true },
-  { chainId: 56, slug: 'bnb-chain', name: 'BNB Chain', iconUrl: '', isEnabled: true },
-  { chainId: 10, slug: 'optimism', name: 'Optimism', iconUrl: '', isEnabled: true },
-]
+const chains: Chain[] = copyTradingChainIds.map(chainId => {
+  const network = NETWORKS_INFO[chainId]
+
+  return {
+    chainId,
+    iconUrl: network.icon,
+    isEnabled: true,
+    name: network.name,
+    slug: network.route,
+  }
+})
 
 const tokens: Record<string, Token> = {
   ETH: {
@@ -1259,6 +1275,29 @@ const filterAgents = (data: AgentCard[], query?: LeaderboardSummaryQuery | Leade
     return true
   })
 
+const getLeaderboardSortValue = (agent: AgentCard, sortBy: LeaderboardSortBy) => {
+  switch (sortBy) {
+    case 'win_rate_pct':
+      return Number(agent.stats.winRatePct)
+    case 'volume_usd':
+      return Number(agent.stats.volumeUsd)
+    case 'aum_usd':
+      return Number(agent.stats.aumUsd)
+    case 'copiers':
+      return agent.stats.copiers
+    case 'apr_30d_pct':
+    default:
+      return Number(agent.stats.apr30dPct)
+  }
+}
+
+const sortLeaderboard = (data: AgentCard[], query?: LeaderboardQuery) => {
+  const sortBy = query?.sortBy || 'apr_30d_pct'
+  const direction = query?.sortOrder === 'asc' ? 1 : -1
+
+  return [...data].sort((a, b) => (getLeaderboardSortValue(a, sortBy) - getLeaderboardSortValue(b, sortBy)) * direction)
+}
+
 const filterPositions = (data: PositionSummary[], status?: 'all' | PositionStatus) =>
   !status || status === 'all' ? data : data.filter(position => position.status === status)
 
@@ -1286,7 +1325,8 @@ export const mockDataApi = {
       totalVolumeUsd: filteredAgents.reduce((sum, agent) => sum + Number(agent.stats.volumeUsd), 0).toString(),
     })
   },
-  getLeaderboard: (query?: LeaderboardQuery) => pageResponse(filterAgents(agents, query), query),
+  getLeaderboard: (query?: LeaderboardQuery) =>
+    pageResponse(sortLeaderboard(filterAgents(agents, query), query), query),
   getAgents: (query?: AgentsQuery) => pageResponse(filterAgents(agents, query), query),
   getAgent: (agentId: string) => singleResponse(agentProfiles[agentId] || agentProfiles[agents[0].agentId]),
   getAgentStats: (agentId: string) => singleResponse(agentProfiles[agentId]?.stats || agents[0].stats),

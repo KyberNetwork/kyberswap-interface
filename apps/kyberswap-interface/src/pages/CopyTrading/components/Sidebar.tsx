@@ -1,11 +1,13 @@
 import { type ReactNode, useState } from 'react'
 import { ChevronDown, ChevronUp } from 'react-feather'
 import { Link, useLocation } from 'react-router-dom'
-import type { AgentCard, CopyRunSummary } from 'services/copyTrading/types'
+import type { AgentCard, Chain, CopyRunSummary } from 'services/copyTrading/types'
 
+import { ButtonEmpty } from 'components/Button'
 import DropdownMenu from 'components/DropdownMenu'
-import { Center, Stack } from 'components/Stack'
+import { Center, HStack, Stack } from 'components/Stack'
 import { APP_PATHS } from 'constants/index'
+import { useCopyTradingContext } from 'pages/CopyTrading/context'
 import { getAgentInitials } from 'pages/CopyTrading/helpers'
 import { cn } from 'utils/cn'
 
@@ -36,20 +38,20 @@ const SidebarSection = ({
           to={to}
           onClick={onClick}
           className={cn(
-            'flex size-full items-center justify-between px-4 text-left text-xs font-semibold uppercase no-underline hover:text-primary',
+            'flex size-full items-center justify-between px-4 text-left text-xs font-medium uppercase no-underline hover:text-primary',
             active ? 'text-primary' : 'text-subText',
           )}
         >
           <span>{title}</span>
           {typeof count === 'number' && (
-            <Center className="size-5 rounded-full bg-primary-12 text-xs font-semibold text-primary">{count}</Center>
+            <Center className="size-5 rounded-full bg-primary-12 text-xs font-medium text-primary">{count}</Center>
           )}
         </Link>
       </div>
     ) : (
       <div
         className={cn(
-          'flex h-9 items-center rounded-lg px-4 text-xs font-semibold uppercase text-subText',
+          'flex h-9 items-center rounded-lg px-4 text-xs font-medium uppercase text-subText',
           active && 'bg-buttonBlack',
         )}
       >
@@ -64,24 +66,36 @@ const SidebarMenuItem = ({
   to,
   active,
   children,
-  className,
-  linkClassName,
   onClick,
-  activeClassName = 'border-l-2 border-primary bg-primary-12 text-primary',
+  activeStyle = 'surface',
+  layout = 'default',
+  colorByActive,
 }: {
   to: string
   active?: boolean
   children: ReactNode
-  className?: string
-  linkClassName?: string
   onClick?: () => void
-  activeClassName?: string
+  activeStyle?: 'surface' | 'text'
+  layout?: 'default' | 'between' | 'row'
+  colorByActive?: boolean
 }) => (
-  <div className={cn('h-9 rounded-lg transition-colors hover:bg-primary-10', active && activeClassName, className)}>
+  <div
+    className={cn(
+      'h-9 rounded-lg transition-colors hover:bg-primary-10',
+      active && activeStyle === 'surface' && 'border-l-2 border-primary bg-primary-12 text-primary',
+      active && activeStyle === 'text' && 'text-primary',
+    )}
+  >
     <Link
       to={to}
       onClick={onClick}
-      className={cn('flex size-full items-center px-2 text-left no-underline', linkClassName)}
+      className={cn(
+        'flex size-full items-center px-2 text-left no-underline',
+        layout === 'between' && 'justify-between',
+        layout === 'row' && 'gap-3',
+        colorByActive && 'text-sm hover:text-primary',
+        colorByActive && (active ? 'text-primary' : 'text-subText'),
+      )}
     >
       {children}
     </Link>
@@ -89,20 +103,20 @@ const SidebarMenuItem = ({
 )
 
 const DEFAULT_VISIBLE_AGENTS = 5
-const ALL_NETWORKS = 'All Networks'
+const ALL_NETWORKS = 'all'
 
 const Sidebar = ({
   agents,
   activeRuns,
-  setSelectedAgentId,
+  chains,
 }: {
   agents: AgentCard[]
   activeRuns: CopyRunSummary[]
-  setSelectedAgentId: (agentId: string) => void
+  chains: Chain[]
 }) => {
   const location = useLocation()
   const [expandedAgents, setExpandedAgents] = useState(false)
-  const [selectedNetwork, setSelectedNetwork] = useState(ALL_NETWORKS)
+  const { selectedChainId, setSelectedChainId } = useCopyTradingContext()
 
   const isLeaderboardPage = location.pathname === APP_PATHS.COPY_TRADING
   const isCopiesPage = location.pathname.startsWith(`${APP_PATHS.COPY_TRADING}/my-copies`)
@@ -115,16 +129,18 @@ const Sidebar = ({
   const isMyCopiesSectionActive = isCopiesPage || isHistoryPage || isHistoryDetailPage
   const activeCopyId = isCopyDetailPage ? location.pathname.split('/').at(-1) : ''
   const agentById = new Map(agents.map(agent => [agent.agentId, agent]))
-  const networks = Array.from(new Set(agents.flatMap(agent => agent.chains.map(chain => chain.name))))
-  const filteredAgents =
-    selectedNetwork === ALL_NETWORKS
-      ? agents
-      : agents.filter(agent => agent.chains.some(chain => chain.name === selectedNetwork))
-  const networkOptions = [ALL_NETWORKS, ...networks]
-  const networkDropdownOptions = networkOptions.map(network => ({
-    label: network,
-    value: network,
-  }))
+  const enabledChains = chains.filter(chain => chain.isEnabled)
+  const filteredAgents = !selectedChainId
+    ? agents
+    : agents.filter(agent => agent.chains.some(chain => chain.chainId === selectedChainId))
+  const networkDropdownOptions = [
+    { label: 'All Networks', value: ALL_NETWORKS },
+    ...enabledChains.map(chain => ({
+      icon: chain.iconUrl,
+      label: chain.name,
+      value: String(chain.chainId),
+    })),
+  ]
   const visibleAgents = expandedAgents ? filteredAgents : filteredAgents.slice(0, DEFAULT_VISIBLE_AGENTS)
   const hiddenAgentCount = filteredAgents.length - visibleAgents.length
 
@@ -132,13 +148,9 @@ const Sidebar = ({
     <aside className="sticky top-0 h-screen w-60 flex-none overflow-y-auto px-8 py-7 max-lg:hidden">
       <Stack className="gap-8">
         <SidebarSection title="My Copies" active={isMyCopiesSectionActive}>
-          <SidebarMenuItem
-            to={`${APP_PATHS.COPY_TRADING}/my-copies`}
-            active={isCopiesPage}
-            linkClassName="justify-between"
-          >
+          <SidebarMenuItem to={`${APP_PATHS.COPY_TRADING}/my-copies`} active={isCopiesPage} layout="between">
             <span className={cn('text-sm', isCopiesPage ? 'text-primary' : 'text-subText')}>Open Copies</span>
-            <Center className="size-6 rounded-full bg-primary-12 text-xs font-semibold text-primary">
+            <Center className="size-6 rounded-full bg-primary-12 text-xs font-medium text-primary">
               {activeRuns.length}
             </Center>
           </SidebarMenuItem>
@@ -151,8 +163,8 @@ const Sidebar = ({
                   key={run.copyRunId}
                   to={`${APP_PATHS.COPY_TRADING}/my-copies/${run.copyRunId}`}
                   active={activeCopyId === run.copyRunId}
-                  activeClassName="text-primary"
-                  linkClassName="gap-3"
+                  activeStyle="text"
+                  layout="row"
                 >
                   <span className="size-2 rounded-full bg-primary" />
                   <span className={cn('text-sm', activeCopyId === run.copyRunId ? 'text-primary' : 'text-subText')}>
@@ -165,10 +177,7 @@ const Sidebar = ({
           <SidebarMenuItem
             to={`${APP_PATHS.COPY_TRADING}/history`}
             active={isHistoryPage || isHistoryDetailPage}
-            linkClassName={cn(
-              'text-sm hover:text-primary',
-              isHistoryPage || isHistoryDetailPage ? 'text-primary' : 'text-subText',
-            )}
+            colorByActive
           >
             History
           </SidebarMenuItem>
@@ -179,21 +188,16 @@ const Sidebar = ({
             fullWidth
             background="var(--ks-buttonBlack)"
             options={networkDropdownOptions}
-            value={selectedNetwork}
+            value={selectedChainId ? String(selectedChainId) : ALL_NETWORKS}
             onChange={value => {
-              setSelectedNetwork(String(value))
+              const nextValue = String(value)
+              setSelectedChainId(nextValue === ALL_NETWORKS ? undefined : Number(nextValue))
               setExpandedAgents(false)
             }}
           />
         </SidebarSection>
 
-        <SidebarSection
-          title="Agents"
-          to={APP_PATHS.COPY_TRADING}
-          active={isAgentsPage}
-          count={filteredAgents.length}
-          onClick={() => setSelectedAgentId('')}
-        >
+        <SidebarSection title="Agents" to={APP_PATHS.COPY_TRADING} active={isAgentsPage} count={filteredAgents.length}>
           <Stack className="gap-1.5">
             {visibleAgents.map(agent => {
               const activeAgentName = activeProfileAgent?.displayName
@@ -202,9 +206,8 @@ const Sidebar = ({
                   key={agent.agentId}
                   to={`${APP_PATHS.COPY_TRADING}/${agent.agentId}`}
                   active={activeAgentName === agent.displayName}
-                  activeClassName="text-primary"
-                  onClick={() => setSelectedAgentId(agent.agentId)}
-                  linkClassName="gap-3"
+                  activeStyle="text"
+                  layout="row"
                 >
                   <Center className="size-5 rounded-full bg-subText-20 text-xs text-subText">
                     {getAgentInitials(agent.displayName)}
@@ -218,14 +221,12 @@ const Sidebar = ({
               )
             })}
             {filteredAgents.length > DEFAULT_VISIBLE_AGENTS && (
-              <button
-                type="button"
-                onClick={() => setExpandedAgents(value => !value)}
-                className="flex h-8 cursor-pointer items-center gap-2 rounded-lg border-0 bg-transparent px-2 text-sm text-subText hover:bg-primary-10 hover:text-primary"
-              >
-                {expandedAgents ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-                <span>{expandedAgents ? 'Show less' : `+ ${hiddenAgentCount} more`}</span>
-              </button>
+              <ButtonEmpty type="button" onClick={() => setExpandedAgents(value => !value)} padding="8px">
+                <HStack className="items-center gap-2">
+                  {expandedAgents ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                  <span>{expandedAgents ? 'Show less' : `+ ${hiddenAgentCount} more`}</span>
+                </HStack>
+              </ButtonEmpty>
             )}
           </Stack>
         </SidebarSection>
