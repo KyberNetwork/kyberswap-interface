@@ -1,14 +1,7 @@
 import { Clipboard, Database, DollarSign, Users } from 'react-feather'
 
-export type AgentTag = 'Active' | 'Diversified' | 'Focused'
 export type StatIcon = 'agent' | 'aum' | 'copiers' | 'volume'
 export type ProfileStatIcon = 'pnl' | 'copiers' | 'winRate' | 'aum'
-
-export const tagClassName: Record<AgentTag, string> = {
-  Active: 'bg-red-20 text-red',
-  Diversified: 'bg-blue/20 text-blue',
-  Focused: 'bg-primary-12 text-primary',
-}
 
 export const statIcons: Record<StatIcon, React.ReactNode> = {
   agent: 'AI',
