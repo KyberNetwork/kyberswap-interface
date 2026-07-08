@@ -131,8 +131,8 @@ const getChartOptions = ({
   },
   timeScale: {
     borderVisible: false,
-    tickMarkFormatter: (time: number) => formatAxisTimeLabel(time, window),
-    timeVisible: window !== '30d',
+    tickMarkFormatter: (time: number) => formatAxisTimeLabel(time, window, { dateOnly: window !== '24h' }),
+    timeVisible: window === '24h',
   },
   localization: {
     priceFormatter: (value: number) => formatDisplayNumber(value, { fractionDigits: 4, fallback: '' }),
