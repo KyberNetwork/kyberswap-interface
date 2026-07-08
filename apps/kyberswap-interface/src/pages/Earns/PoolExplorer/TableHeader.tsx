@@ -1,6 +1,6 @@
 import { t } from '@lingui/macro'
 import { useMedia } from 'react-use'
-import { PoolQueryParams } from 'services/earn'
+import type { PoolQueryParams } from 'services/earn/types'
 
 import { SortBy } from 'pages/Earns/PoolExplorer'
 import {

@@ -1,7 +1,8 @@
 import { ChainId, NativeCurrency } from '@kyberswap/ks-sdk-core'
 import { ReactNode, createContext, useContext, useMemo } from 'react'
 import { Navigate, useParams } from 'react-router-dom'
-import { PoolDetail, PoolDetailToken, usePoolDetailQuery, usePoolsExplorerQuery } from 'services/earn'
+import { usePoolDetailQuery, usePoolsExplorerQuery } from 'services/earn'
+import type { PoolDetail, PoolDetailToken } from 'services/earn/types'
 import { useGetTokenByAddressesQuery } from 'services/ksSetting'
 
 import { APP_PATHS } from 'constants/index'

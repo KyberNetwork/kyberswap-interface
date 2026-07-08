@@ -22,26 +22,6 @@ import { transformAprHistoryData, transformEarningsData } from 'services/earn/ut
 
 import type { UserPosition, UserPositionsApiResponse, UserPositionsStats } from 'pages/Earns/types'
 
-export type {
-  EstimatePositionAprParams,
-  EstimatePositionAprResponse,
-  PoolAnalyticsWindow,
-  PoolAprHistoryData,
-  PoolAprHistoryPoint,
-  PoolDetail,
-  PoolDetailToken,
-  PoolEarningsBucket,
-  PoolEarningsData,
-  PoolLiquidityFlowBucket,
-  PoolLiquidityFlowsData,
-  PoolPriceCandle,
-  PoolPriceData,
-  PoolQueryParams,
-  PositionHistory,
-  PositionHistoryTransaction,
-  PositionQueryParams,
-} from 'services/earn/types'
-
 const earnServiceApi = createApi({
   reducerPath: 'earnServiceApi',
   baseQuery: fetchBaseQuery({

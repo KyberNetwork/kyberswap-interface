@@ -13,12 +13,8 @@ import {
   XAxis,
   YAxis,
 } from 'recharts'
-import {
-  type PoolAnalyticsWindow,
-  type PoolEarningsBucket,
-  usePoolEarningsQuery,
-  usePositionEarningsQuery,
-} from 'services/earn'
+import { usePoolEarningsQuery, usePositionEarningsQuery } from 'services/earn'
+import type { PoolAnalyticsWindow, PoolEarningsBucket } from 'services/earn/types'
 
 import SegmentedControl from 'components/SegmentedControl'
 import { HStack, Stack } from 'components/Stack'

@@ -1,7 +1,8 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { useMemo } from 'react'
-import { PositionHistory, usePositionHistoryQuery } from 'services/earn'
+import { usePositionHistoryQuery } from 'services/earn'
+import type { PositionHistory } from 'services/earn/types'
 
 import CopyHelper from 'components/Copy'
 import TokenLogo from 'components/TokenLogo'

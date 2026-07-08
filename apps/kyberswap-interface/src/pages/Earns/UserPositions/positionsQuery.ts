@@ -1,4 +1,4 @@
-import { PositionQueryParams } from 'services/earn'
+import type { PositionQueryParams } from 'services/earn/types'
 
 import { PositionFilter, PositionStatus } from 'pages/Earns/types'
 import { Direction } from 'pages/MarketOverview/SortIcon'

@@ -2,12 +2,8 @@ import { formatAprNumber } from '@kyber/utils'
 import { useMemo, useState } from 'react'
 import { useMedia } from 'react-use'
 import { Bar, CartesianGrid, Cell, ComposedChart, Line, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
-import {
-  type PoolAnalyticsWindow,
-  type PoolAprHistoryPoint,
-  usePoolAprHistoryQuery,
-  usePositionAprHistoryQuery,
-} from 'services/earn'
+import { usePoolAprHistoryQuery, usePositionAprHistoryQuery } from 'services/earn'
+import type { PoolAnalyticsWindow, PoolAprHistoryPoint } from 'services/earn/types'
 
 import { ReactComponent as FarmingIcon } from 'assets/svg/kyber/kem.svg'
 import { ReactComponent as FarmingLmIcon } from 'assets/svg/kyber/kemLm.svg'
