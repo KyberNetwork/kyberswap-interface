@@ -8,7 +8,7 @@ import CampaignNavGroup from 'components/Header/groups/CampaignNavGroup'
 import EarnNavGroup from 'components/Header/groups/EarnNavGroup'
 import KyberDAONavGroup from 'components/Header/groups/KyberDaoGroup'
 import SwapNavGroup from 'components/Header/groups/SwapNavGroup'
-import { StyledNavExternalLink, StyledNavLink } from 'components/Header/styleds'
+import { NewLabel, StyledNavExternalLink, StyledNavLink } from 'components/Header/styleds'
 import SelectNetwork from 'components/Header/web3/SelectNetwork'
 import SelectWallet from 'components/Header/web3/SelectWallet'
 import Menu from 'components/Menu'
@@ -94,6 +94,14 @@ export default function Header() {
           >
             <SwapNavGroup dropdownAlign={navGroupDropdownAlign} />
             <EarnNavGroup dropdownAlign={navGroupDropdownAlign} />
+            {!upToExtraSmall && (
+              <StyledNavLink to={`${APP_PATHS.COPY_TRADING}`}>
+                <Trans>Copy Trading</Trans>
+                <NewLabel isNew>
+                  <Trans>New</Trans>
+                </NewLabel>
+              </StyledNavLink>
+            )}
 
             {!upToExtraSmall && (
               <StyledNavLink to={`${APP_PATHS.MARKET_OVERVIEW}`}>
