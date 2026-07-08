@@ -39,6 +39,7 @@ const Consent = lazy(() => import('./Oauth/Consent'))
 
 const ElasticSnapshot = lazy(() => import('./ElasticSnapshot'))
 const MarketOverview = lazy(() => import('./MarketOverview'))
+const CopyTrading = lazy(() => import('./CopyTrading'))
 
 const SwapV3 = lazy(() => import('./SwapV3'))
 const PartnerSwap = lazy(() => import('./PartnerSwap'))
@@ -208,6 +209,7 @@ export default function App() {
   }, [])
 
   const showFooter = !pathname.includes(APP_PATHS.ABOUT) && !isEmbeddedSwap
+  const isFullPage = pathname.includes(APP_PATHS.COPY_TRADING)
 
   return (
     <ErrorBoundary>
@@ -319,6 +321,7 @@ export default function App() {
 
               <Route path={APP_PATHS.ELASTIC_SNAPSHOT} element={<ElasticSnapshot />} />
               <Route path={APP_PATHS.MARKET_OVERVIEW} element={<MarketOverview />} />
+              <Route path={`${APP_PATHS.COPY_TRADING}/*`} element={<CopyTrading />} />
 
               <Route path={APP_PATHS.SAFEPAL_CAMPAIGN} element={<Campaign />} />
               <Route path={APP_PATHS.RAFFLE_CAMPAIGN} element={<Campaign />} />
@@ -346,7 +349,7 @@ export default function App() {
               <Route path="*" element={<RedirectPathToSwapV3Network />} />
             </Routes>
           </BodyWrapper>
-          {showFooter && <Footer />}
+          {!isFullPage && showFooter && <Footer />}
         </Suspense>
       </AppWrapper>
     </ErrorBoundary>

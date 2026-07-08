@@ -9,6 +9,7 @@ import safepalCampaignApi from 'services/campaignSafepal'
 import coingeckoApi from 'services/coingecko'
 import commonServiceApi from 'services/commonService'
 import contractQuery from 'services/contractQuery'
+import copyTradingApi from 'services/copyTrading'
 import crosschainApi from 'services/crossChain'
 import earnServiceApi from 'services/earn'
 import externalApi from 'services/externalApi'
@@ -126,6 +127,7 @@ const rootReducer = combineReducers({
   [safepalCampaignApi.reducerPath]: safepalCampaignApi.reducer,
   [campaignApi.reducerPath]: campaignApi.reducer,
   [commonServiceApi.reducerPath]: commonServiceApi.reducer,
+  [copyTradingApi.reducerPath]: copyTradingApi.reducer,
   [blackjackApi.reducerPath]: blackjackApi.reducer,
   [marketOverviewApi.reducerPath]: marketOverviewApi.reducer,
   [smartExitApi.reducerPath]: smartExitApi.reducer,
@@ -164,6 +166,7 @@ const apiMiddlewares: Middleware[] = [
   safepalCampaignApi,
   campaignApi,
   commonServiceApi,
+  copyTradingApi,
   blackjackApi,
   marketOverviewApi,
   smartExitApi,
