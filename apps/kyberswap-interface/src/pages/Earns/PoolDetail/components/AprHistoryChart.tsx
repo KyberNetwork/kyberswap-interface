@@ -91,6 +91,7 @@ const AprHistoryChart = ({ chainId, poolAddress, positionId, programs, currentAp
 
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const chartHeight = upToSmall ? 280 : 360
+  const volumeBarSize = window === '24h' ? (upToSmall ? 10 : 16) : 8
 
   const activeDotStroke = theme.buttonBlack
   const aprLineColor = theme.blue
@@ -216,7 +217,7 @@ const AprHistoryChart = ({ chainId, poolAddress, positionId, programs, currentAp
                 )}
                 cursor={{ stroke: cursorColor, strokeDasharray: '4 4' }}
               />
-              <Bar barSize={8} dataKey="volumeUsd" radius={[2, 2, 0, 0]} yAxisId="volumeUsd">
+              <Bar barSize={volumeBarSize} dataKey="volumeUsd" radius={[2, 2, 0, 0]} yAxisId="volumeUsd">
                 {chartData.map(point => (
                   <Cell key={`${point.ts}-volumeUsd`} fill={point.volumeBarColor} />
                 ))}
