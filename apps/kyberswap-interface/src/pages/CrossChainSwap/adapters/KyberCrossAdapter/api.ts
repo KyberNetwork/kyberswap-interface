@@ -10,7 +10,7 @@ type JsonObject = Record<string, unknown>
 
 export type ChainName = 'ethereum' | 'arbitrum' | 'base' | 'bsc'
 export type BridgeProvider = 'across' | 'relay' | 'mayan' | 'near_intents'
-type FlowType = 'bridge_only' | 'swap_then_bridge'
+type FlowType = 'bridge_only' | 'swap_then_bridge' | 'bridge_then_swap' | 'swap_bridge_swap'
 type RouteStatus =
   | 'built'
   | 'source_pending'
