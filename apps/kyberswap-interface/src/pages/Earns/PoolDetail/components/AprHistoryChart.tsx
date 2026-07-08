@@ -2,12 +2,8 @@ import { formatAprNumber } from '@kyber/utils'
 import { useMemo, useState } from 'react'
 import { useMedia } from 'react-use'
 import { Bar, CartesianGrid, Cell, ComposedChart, Line, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
-import {
-  type PoolAnalyticsWindow,
-  type PoolAprHistoryPoint,
-  usePoolAprHistoryQuery,
-  usePositionAprHistoryQuery,
-} from 'services/zapEarn'
+import { usePoolAprHistoryQuery, usePositionAprHistoryQuery } from 'services/earn'
+import type { PoolAnalyticsWindow, PoolAprHistoryPoint } from 'services/earn/types'
 
 import { ReactComponent as FarmingIcon } from 'assets/svg/kyber/kem.svg'
 import { ReactComponent as FarmingLmIcon } from 'assets/svg/kyber/kemLm.svg'
@@ -95,6 +91,7 @@ const AprHistoryChart = ({ chainId, poolAddress, positionId, programs, currentAp
 
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const chartHeight = upToSmall ? 280 : 360
+  const volumeBarSize = window === '24h' ? (upToSmall ? 10 : 16) : 8
 
   const activeDotStroke = theme.buttonBlack
   const aprLineColor = theme.blue
@@ -220,7 +217,7 @@ const AprHistoryChart = ({ chainId, poolAddress, positionId, programs, currentAp
                 )}
                 cursor={{ stroke: cursorColor, strokeDasharray: '4 4' }}
               />
-              <Bar barSize={8} dataKey="volumeUsd" radius={[2, 2, 0, 0]} yAxisId="volumeUsd">
+              <Bar barSize={volumeBarSize} dataKey="volumeUsd" radius={[2, 2, 0, 0]} yAxisId="volumeUsd">
                 {chartData.map(point => (
                   <Cell key={`${point.ts}-volumeUsd`} fill={point.volumeBarColor} />
                 ))}
