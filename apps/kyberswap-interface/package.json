@@ -6,10 +6,7 @@
   "license": "GPL-3.0-or-later",
   "scripts": {
     "preview": "vite preview",
-    "build": "pnpm run build-prod",
-    "build-dev": "pnpm run i18n && tsc && vite build --mode dev",
-    "build-stg": "pnpm run i18n && tsc && vite build --mode stg",
-    "build-prod": "pnpm run i18n && tsc && vite build && pnpm run prerender",
+    "build": "pnpm run i18n && tsc && vite build && pnpm run prerender",
     "prerender": "node scripts/prerender.mjs",
     "analyze": "NODE_OPTIONS=--max_old_space_size=8192 ANALYZE=1 vite build",
     "check-bundle-size": "node scripts/check-entry-size.mjs",
@@ -20,11 +17,7 @@
     "test": "vitest run --exclude '**/*.smoke.test.*'",
     "test:smoke": "vitest run --config vitest.smoke.config.ts --mode production",
     "format": "prettier --write .",
-    "dev": "pnpm run start-prod",
-    "start": "pnpm run start-prod",
-    "start-dev": "vite --mode dev --host",
-    "start-stg": "vite --mode stg --host",
-    "start-prod": "vite --mode production --host"
+    "dev": "vite --mode production --host"
   },
   "browserslist": [
     "chrome >= 52",
