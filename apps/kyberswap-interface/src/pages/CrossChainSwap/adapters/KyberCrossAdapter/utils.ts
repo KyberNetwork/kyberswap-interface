@@ -46,13 +46,26 @@ export const getKyberCrossBridgeProviders = (sources?: string[]): BridgeProvider
   return providers.length ? providers : undefined
 }
 
+const getFinalReceivedAmount = (trackingExecution: TrackingExecution): string | undefined => {
+  if (trackingExecution.route_state !== 'completed') return undefined
+
+  const { flow_type: flowType, route_state_details: details } = trackingExecution
+
+  if (flowType === 'bridge_then_swap' || flowType === 'swap_bridge_swap') {
+    return details.dest_swap?.amount_out
+  }
+
+  return details.bridge?.destination?.amount
+}
+
 export const mapRouteStateToSwapStatus = (trackingExecution: TrackingExecution): SwapStatus => {
   const txHash =
     trackingExecution.dest_tx_hash || trackingExecution.route_state_details.bridge?.destination?.tx_hash || ''
+  const amountOut = getFinalReceivedAmount(trackingExecution)
 
   switch (trackingExecution.route_state) {
     case 'completed':
-      return { txHash, status: 'Success' }
+      return { txHash, status: 'Success', amountOut }
     case 'refunded':
       return { txHash, status: 'Refunded' }
     case 'failed':
