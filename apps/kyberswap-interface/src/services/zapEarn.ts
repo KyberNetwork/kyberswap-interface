@@ -258,6 +258,44 @@ export interface PoolEarningsData {
   buckets: Array<PoolEarningsBucket>
 }
 
+const SEVEN_DAY_BUCKET_COUNT = 7
+const DAY_SECONDS = 24 * 60 * 60
+
+const normalizeSevenDayEarningsBuckets = (buckets: PoolEarningsBucket[]) => {
+  const bucketsByDay = new Map<number, PoolEarningsBucket[]>()
+
+  buckets
+    .slice()
+    .sort((a, b) => a.ts - b.ts)
+    .forEach(bucket => {
+      const bucketTimestamp = Math.floor(bucket.ts / DAY_SECONDS) * DAY_SECONDS
+      const bucketData = bucketsByDay.get(bucketTimestamp)
+
+      if (bucketData) {
+        bucketData.push(bucket)
+        return
+      }
+
+      bucketsByDay.set(bucketTimestamp, [bucket])
+    })
+
+  return Array.from(bucketsByDay.entries())
+    .sort(([a], [b]) => a - b)
+    .slice(-SEVEN_DAY_BUCKET_COUNT)
+    .map(([bucketTimestamp, bucketData]) => {
+      const hasBonusUsd = bucketData.some(bucket => bucket.bonusUsd !== undefined)
+
+      return {
+        ts: bucketTimestamp,
+        lpFeeUsd: bucketData.reduce((sum, bucket) => sum + bucket.lpFeeUsd, 0),
+        lmUsd: bucketData.reduce((sum, bucket) => sum + bucket.lmUsd, 0),
+        egUsd: bucketData.reduce((sum, bucket) => sum + bucket.egUsd, 0),
+        ...(hasBonusUsd ? { bonusUsd: bucketData.reduce((sum, bucket) => sum + (bucket.bonusUsd ?? 0), 0) } : {}),
+        totalUsd: bucketData.reduce((sum, bucket) => sum + bucket.totalUsd, 0),
+      }
+    })
+}
+
 const transformAprHistoryData = (data: PoolAprHistoryData): PoolAprHistoryData => ({
   ...data,
   points: data.points.map(point => ({
@@ -265,6 +303,11 @@ const transformAprHistoryData = (data: PoolAprHistoryData): PoolAprHistoryData =
     activeApr: point.activeApr !== undefined ? point.activeApr + point.bonusApr : undefined,
     volumeUsd: point.volumeUsd ?? 0,
   })),
+})
+
+const transformEarningsData = (data: PoolEarningsData, window: PoolAnalyticsWindow): PoolEarningsData => ({
+  ...data,
+  buckets: window === '7d' ? normalizeSevenDayEarningsBuckets(data.buckets) : data.buckets,
 })
 
 export interface PositionQueryParams {
@@ -404,14 +447,16 @@ const zapEarnServiceApi = createApi({
         url: `/v1/pools/earnings`,
         params,
       }),
-      transformResponse: (response: { data: PoolEarningsData }) => response.data,
+      transformResponse: (response: { data: PoolEarningsData }, _meta, arg) =>
+        transformEarningsData(response.data, arg.window),
     }),
     positionEarnings: builder.query<PoolEarningsData, PositionChartQueryParams>({
       query: ({ chainId, positionId, window }) => ({
         url: `/v1/positions/${chainId}/${positionId}/earnings`,
         params: { window },
       }),
-      transformResponse: (response: { data: PoolEarningsData }) => response.data,
+      transformResponse: (response: { data: PoolEarningsData }, _meta, arg) =>
+        transformEarningsData(response.data, arg.window),
     }),
     poolPrice: builder.query<PoolPriceData, PoolChartQueryParams>({
       query: params => ({
