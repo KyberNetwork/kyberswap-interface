@@ -88,14 +88,16 @@ const earnServiceApi = createApi({
         url: `/v1/pools/apr-history`,
         params,
       }),
-      transformResponse: (response: { data: PoolAprHistoryData }) => transformAprHistoryData(response.data),
+      transformResponse: (response: { data: PoolAprHistoryData }, _meta, arg) =>
+        transformAprHistoryData(response.data, arg.window),
     }),
     positionAprHistory: builder.query<PoolAprHistoryData, PositionChartQueryParams>({
       query: ({ chainId, positionId, window }) => ({
         url: `/v1/positions/${chainId}/${positionId}/apr-history`,
         params: { window },
       }),
-      transformResponse: (response: { data: PoolAprHistoryData }) => transformAprHistoryData(response.data),
+      transformResponse: (response: { data: PoolAprHistoryData }, _meta, arg) =>
+        transformAprHistoryData(response.data, arg.window),
     }),
     poolEarnings: builder.query<PoolEarningsData, PoolChartQueryParams>({
       query: params => ({
