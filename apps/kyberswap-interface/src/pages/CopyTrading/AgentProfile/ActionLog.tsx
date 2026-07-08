@@ -27,10 +27,11 @@ const ActionLog = ({ rows }: { rows: CotLog[] }) => {
             >
               <HStack className="min-w-0 items-center gap-3.5">
                 <span className="size-2 shrink-0 rounded-full bg-primary" />
-                <span className="min-w-0 break-words">
-                  {formatDate(row.occurredAt)} <span className="ml-2">Block #25,876,765</span>{' '}
-                  <span className="ml-2 text-blue">{txHash}</span>
-                </span>
+                <HStack className="min-w-0 flex-wrap items-center gap-2 break-words">
+                  <span>{formatDate(row.occurredAt)}</span>
+                  <span>Block #25,876,765</span>
+                  <span className="text-blue">{txHash}</span>
+                </HStack>
               </HStack>
               <span className="shrink-0">{expanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}</span>
             </HStack>
@@ -38,23 +39,23 @@ const ActionLog = ({ rows }: { rows: CotLog[] }) => {
               <span className="text-text">{row.action}</span>
               {expanded && (
                 <>
-                  <p className="m-0">
-                    <span className="font-semibold text-primary">TRIGGER:</span> {row.trigger}
+                  <p>
+                    <span className="font-medium text-primary">TRIGGER:</span> {row.trigger}
                   </p>
-                  <p className="m-0 whitespace-pre-line break-words">
-                    <span className="font-semibold text-primary">DATA:</span>
+                  <p className="whitespace-pre-line break-words">
+                    <span className="font-medium text-primary">DATA:</span>
                     <br />
                     {row.data}
                   </p>
                   {!!row.reasoning && (
-                    <p className="m-0">
-                      <span className="font-semibold text-primary">REASONING:</span>
+                    <p>
+                      <span className="font-medium text-primary">REASONING:</span>
                       <br />
                       {row.reasoning}
                     </p>
                   )}
-                  <p className="m-0">
-                    <span className="font-semibold text-primary">ACTION:</span>
+                  <p>
+                    <span className="font-medium text-primary">ACTION:</span>
                     <br />
                     {row.action}
                     <br />

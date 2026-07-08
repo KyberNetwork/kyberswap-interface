@@ -1,192 +1,191 @@
-import { useMemo, useState } from 'react'
-import { Search, Zap } from 'react-feather'
-import { useNavigate } from 'react-router-dom'
-import type { AgentCard, LeaderboardSummary } from 'services/copyTrading/types'
+import { useEffect, useMemo, useState } from 'react'
+import { Search } from 'react-feather'
+import copyTradingApi from 'services/copyTrading'
+import type { LeaderboardSortBy, SortOrder, StrategyKey } from 'services/copyTrading/types'
 
+import { ButtonEmpty } from 'components/Button'
+import Pagination from 'components/Pagination'
 import { HStack, Stack } from 'components/Stack'
-import { APP_PATHS } from 'constants/index'
 import useTab from 'hooks/useTab'
-import { AgentCell } from 'pages/CopyTrading/components/AgentIdentity'
-import { HeaderCell } from 'pages/CopyTrading/components/HeaderCell'
-import { StatCard, type StatItem } from 'pages/CopyTrading/components/Stats'
-import { TableCell, TableHeader, TableRow } from 'pages/CopyTrading/components/Table'
-import { compactUsd, percent, strategyLabel } from 'pages/CopyTrading/helpers'
+import AgentTable from 'pages/CopyTrading/AgentList/AgentTable'
+import LeaderboardSummary from 'pages/CopyTrading/AgentList/LeaderboardSummary'
+import { CopyTradingPage } from 'pages/CopyTrading/components/common'
+import { useCopyTradingContext } from 'pages/CopyTrading/context'
 import { cn } from 'utils/cn'
 
-const leaderboardColumns =
-  'minmax(0, 2.2fr) minmax(0, 0.9fr) minmax(0, 0.85fr) minmax(0, 0.85fr) minmax(0, 0.75fr) minmax(0, 0.85fr) minmax(0, 0.75fr) minmax(0, 0.8fr)'
+const strategyOptions = [
+  { label: 'All Strategies', value: 'all' },
+  { label: 'Focused', value: 'focused' },
+  { label: 'Diversified', value: 'diversified' },
+  { label: 'Active', value: 'active' },
+] as const
 
-const strategies = ['All Strategies', 'Focused', 'Diversified', 'Active'] as const
-type StrategyFilter = (typeof strategies)[number]
+type StrategyFilter = (typeof strategyOptions)[number]['value']
 
-const AgentListView = ({
-  leaderboardSummary,
-  agents,
-  selectedAgentId,
-  setSelectedAgentId,
+const strategyTabs = strategyOptions.map(option => option.value)
+
+const PAGE_SIZE = 5
+
+const toStrategyKey = (strategy: StrategyFilter): StrategyKey | undefined =>
+  strategy === 'all' ? undefined : (strategy as StrategyKey)
+
+const StrategyFilterControl = ({
+  activeStrategy,
+  onChange,
 }: {
-  leaderboardSummary?: LeaderboardSummary
-  agents: AgentCard[]
-  selectedAgentId: string
-  setSelectedAgentId: (agentId: string) => void
+  activeStrategy: StrategyFilter
+  onChange: (strategy: StrategyFilter) => void
 }) => {
-  const navigate = useNavigate()
-  const [copiedAgent, setCopiedAgent] = useState('')
+  const activeIndex = strategyOptions.findIndex(option => option.value === activeStrategy)
+  const optionCount = strategyOptions.length
+
+  return (
+    <Stack className="max-w-full overflow-x-auto">
+      <div
+        className="relative grid min-w-[420px] gap-1 rounded-xl bg-buttonBlack p-1"
+        role="tablist"
+        style={{ gridTemplateColumns: `repeat(${optionCount}, minmax(0, 1fr))` }}
+      >
+        <div
+          className="pointer-events-none absolute inset-y-1 left-1 rounded-lg bg-primary-20 [transition:transform_200ms_ease,background_200ms_ease]"
+          style={{
+            width: `calc((100% - 8px - ${4 * (optionCount - 1)}px) / ${optionCount})`,
+            transform: `translateX(calc((100% + 4px) * ${Math.max(activeIndex, 0)}))`,
+          }}
+        />
+        {strategyOptions.map(option => {
+          const active = activeStrategy === option.value
+
+          return (
+            <ButtonEmpty
+              key={option.value}
+              aria-selected={active}
+              className={cn('relative z-[1] rounded-lg', active ? 'text-primary' : 'text-subText hover:bg-primary-10')}
+              onClick={() => onChange(option.value)}
+              padding="8px 12px"
+              role="tab"
+              type="button"
+            >
+              {option.label}
+            </ButtonEmpty>
+          )
+        })}
+      </div>
+    </Stack>
+  )
+}
+
+const AgentListView = () => {
+  const [page, setPage] = useState(1)
+  const [search, setSearch] = useState('')
+  const [sortBy, setSortBy] = useState<LeaderboardSortBy>()
+  const [sortOrder, setSortOrder] = useState<SortOrder>()
+  const { selectedChainId } = useCopyTradingContext()
   const { activeTab, setActiveTab } = useTab<StrategyFilter>({
-    tabs: [...strategies],
-    defaultTab: 'All Strategies',
+    tabs: strategyTabs,
+    defaultTab: 'all',
     queryKey: 'strategy',
   })
 
-  const leaderboard = useMemo(() => {
-    if (!activeTab || activeTab === 'All Strategies') return agents
-    return agents.filter(agent => strategyLabel(agent.strategy) === activeTab)
-  }, [activeTab, agents])
+  const selectedStrategy = toStrategyKey(activeTab || 'all')
+  const normalizedSearch = search.trim() || undefined
+  const summaryQuery = useMemo(
+    () => ({
+      chainId: selectedChainId,
+      strategy: selectedStrategy,
+      search: normalizedSearch,
+    }),
+    [normalizedSearch, selectedChainId, selectedStrategy],
+  )
+  const leaderboardQuery = useMemo(
+    () => ({
+      ...summaryQuery,
+      sortBy,
+      sortOrder,
+      page,
+      pageSize: PAGE_SIZE,
+    }),
+    [page, sortBy, sortOrder, summaryQuery],
+  )
 
-  const stats: StatItem[] = [
-    {
-      icon: 'agent',
-      value: String(leaderboardSummary?.totalAgents || agents.length),
-      label: 'Total Agents',
-      color: 'bg-warning-20 text-warning',
-    },
-    {
-      icon: 'aum',
-      value: compactUsd(leaderboardSummary?.totalAumUsd),
-      label: 'Total AUM',
-      color: 'bg-blue/20 text-blue',
-    },
-    {
-      icon: 'copiers',
-      value: String(leaderboardSummary?.totalCopiers || 0),
-      label: 'Total Copiers',
-      color: 'bg-primary-20 text-primary',
-    },
-    {
-      icon: 'volume',
-      value: compactUsd(leaderboardSummary?.totalVolumeUsd),
-      label: 'Total Volume',
-      color: 'bg-primary-12 text-primary',
-    },
-  ]
+  const { data: leaderboardSummary } = copyTradingApi.useGetLeaderboardSummaryQuery(summaryQuery)
+  const { data: leaderboard } = copyTradingApi.useGetLeaderboardQuery(leaderboardQuery)
+
+  useEffect(() => {
+    setPage(1)
+  }, [selectedChainId])
+
+  const handleStrategyChange = (strategy: StrategyFilter) => {
+    setActiveTab(strategy)
+    setPage(1)
+  }
+
+  const handleSortChange = (nextSortBy: LeaderboardSortBy) => {
+    setPage(1)
+    if (sortBy !== nextSortBy) {
+      setSortBy(nextSortBy)
+      setSortOrder('desc')
+      return
+    }
+    if (sortOrder === 'desc') {
+      setSortOrder('asc')
+      return
+    }
+    setSortBy(undefined)
+    setSortOrder(undefined)
+  }
 
   return (
-    <main className="min-w-0 flex-1 px-10 py-14 max-md:px-4 max-md:py-8">
-      <Stack className="w-full gap-8">
-        <Stack className="gap-3.5">
-          <h1 className="m-0 text-4xl font-semibold leading-tight text-text max-md:text-3xl">
-            Agent <span className="font-normal text-primary">Leaderboard</span>
-          </h1>
-          <p className="m-0 text-lg text-subText">
-            Automatically delegate to top on-chain AI agents. Maintain full custody of your assets. Pay fees only on
-            realized profits.
-          </p>
-        </Stack>
-
-        <Stack className="gap-7">
-          <div className="grid grid-cols-4 gap-6 max-xl:grid-cols-2 max-md:grid-cols-1">
-            {stats.map(item => (
-              <StatCard key={item.label} item={item} />
-            ))}
-          </div>
-
-          <HStack className="flex-wrap items-center justify-between gap-4">
-            <HStack className="rounded-xl bg-buttonBlack p-1">
-              {strategies.map(strategy => (
-                <button
-                  key={strategy}
-                  type="button"
-                  onClick={() => setActiveTab(strategy)}
-                  className={cn(
-                    'h-10 cursor-pointer rounded-lg border-0 bg-transparent px-4 text-sm text-subText transition-colors hover:bg-primary-10 hover:text-primary',
-                    activeTab === strategy && 'bg-primary-12 text-primary ring-1 ring-primary-20',
-                  )}
-                >
-                  {strategy}
-                </button>
-              ))}
-            </HStack>
-
-            <HStack className="h-11 w-full max-w-md items-center gap-3 rounded-xl bg-buttonBlack px-4">
-              <input
-                className="min-w-0 flex-1 border-0 bg-transparent text-sm text-text outline-none placeholder:text-subText"
-                placeholder="Search agent, address, or strategy ..."
-              />
-              <Search size={18} className="shrink-0 text-subText" />
-            </HStack>
-          </HStack>
-        </Stack>
-
-        <Stack className="overflow-hidden rounded-xl bg-buttonBlack">
-          <Stack className="overflow-hidden">
-            <TableHeader columns={leaderboardColumns} className="normal-case">
-              <HeaderCell>Agent</HeaderCell>
-              <HeaderCell>
-                Agent APR <span className="rounded-md bg-background px-2 py-1">30D</span>
-              </HeaderCell>
-              <HeaderCell>Win Rates</HeaderCell>
-              <HeaderCell>Volume</HeaderCell>
-              <HeaderCell>Copiers</HeaderCell>
-              <HeaderCell>AUM</HeaderCell>
-              <HeaderCell>Position</HeaderCell>
-              <TableCell />
-            </TableHeader>
-            {leaderboard.map(agent => (
-              <TableRow
-                key={agent.agentId}
-                columns={leaderboardColumns}
-                onKeyDown={event => {
-                  if (event.key === 'Enter' || event.key === ' ') {
-                    setSelectedAgentId(agent.agentId)
-                    navigate(`${APP_PATHS.COPY_TRADING}/${agent.agentId}`)
-                  }
-                }}
-                role="button"
-                tabIndex={0}
-                className={cn(
-                  'cursor-pointer text-base',
-                  (selectedAgentId ? selectedAgentId === agent.agentId : leaderboard.indexOf(agent) === 1)
-                    ? 'border-l-2 border-primary bg-primary-20'
-                    : 'bg-buttonBlack',
-                )}
-                onClick={() => {
-                  setSelectedAgentId(agent.agentId)
-                  navigate(`${APP_PATHS.COPY_TRADING}/${agent.agentId}`)
-                }}
-              >
-                <AgentCell agent={agent} className="px-3 py-2" />
-                <HStack className="items-center gap-1.5 px-3 py-2 text-primary">
-                  <Zap size={14} className="fill-warning text-warning" />
-                  <span>{percent(agent.stats.apr30dPct)}</span>
-                </HStack>
-                <TableCell>{percent(agent.stats.winRatePct)}</TableCell>
-                <TableCell>{compactUsd(agent.stats.volumeUsd)}</TableCell>
-                <TableCell>{agent.stats.copiers.toLocaleString()}</TableCell>
-                <TableCell>{compactUsd(agent.stats.aumUsd)}</TableCell>
-                <TableCell>{agent.stats.openPositions}</TableCell>
-                <div className="px-3 py-2">
-                  <button
-                    type="button"
-                    onClick={event => {
-                      event.stopPropagation()
-                      setCopiedAgent(agent.agentId)
-                    }}
-                    className={cn(
-                      'h-9 w-full cursor-pointer rounded-xl border-0 text-sm font-semibold transition-colors',
-                      copiedAgent === agent.agentId
-                        ? 'bg-primary-20 text-primary'
-                        : 'bg-primary text-black hover:bg-primary-30',
-                    )}
-                  >
-                    {copiedAgent === agent.agentId ? 'Copied' : 'Copy'}
-                  </button>
-                </div>
-              </TableRow>
-            ))}
-          </Stack>
-        </Stack>
+    <CopyTradingPage>
+      <Stack className="gap-3.5">
+        <h1 className="text-4xl font-medium text-text max-md:text-3xl">
+          Agent <span className="text-primary">Leaderboard</span>
+        </h1>
+        <p className="text-lg text-subText">
+          Automatically delegate to top on-chain AI agents. Maintain full custody of your assets. Pay fees only on
+          realized profits.
+        </p>
       </Stack>
-    </main>
+
+      <Stack className="gap-7">
+        <LeaderboardSummary
+          summary={leaderboardSummary?.data}
+          fallbackAgentCount={leaderboard?.pagination.totalCount}
+        />
+
+        <HStack className="flex-wrap items-center justify-between gap-4">
+          <StrategyFilterControl activeStrategy={activeTab || 'all'} onChange={handleStrategyChange} />
+
+          <HStack className="h-11 w-full max-w-md items-center gap-3 rounded-xl bg-buttonBlack px-4">
+            <input
+              value={search}
+              onChange={event => {
+                setSearch(event.target.value)
+                setPage(1)
+              }}
+              className="min-w-0 flex-1 border-0 bg-transparent text-sm text-text outline-none placeholder:text-subText"
+              placeholder="Search agent, address, or strategy ..."
+            />
+            <Search size={18} className="shrink-0 text-subText" />
+          </HStack>
+        </HStack>
+      </Stack>
+
+      <Stack className="overflow-hidden rounded-2xl bg-background/80">
+        <AgentTable
+          agents={leaderboard?.data || []}
+          sortBy={sortBy}
+          sortOrder={sortOrder}
+          onSortChange={handleSortChange}
+        />
+        <Pagination
+          onPageChange={setPage}
+          totalCount={leaderboard?.pagination.totalCount || 0}
+          currentPage={leaderboard?.pagination.page || page}
+          pageSize={leaderboard?.pagination.pageSize || PAGE_SIZE}
+        />
+      </Stack>
+    </CopyTradingPage>
   )
 }
 
