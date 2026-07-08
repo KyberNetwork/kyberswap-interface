@@ -1,5 +1,5 @@
 import { Trans, t } from '@lingui/macro'
-import { BookOpen, FileText, Info, MessageCircle, PieChart } from 'react-feather'
+import { BookOpen, FileText, Info, MessageCircle, PieChart, Users } from 'react-feather'
 import { NavLink } from 'react-router-dom'
 import { useMedia } from 'react-use'
 
@@ -74,16 +74,28 @@ export const MainMenuSection = ({ openTipLinkGenerator, toggle }: MainMenuSectio
         </MenuItem>
       )}
       {upToExtraSmall && (
-        <MenuItem>
-          <MenuItemLink>
-            <NavLink to={APP_PATHS.MARKET_OVERVIEW}>
-              <PieChart />
-              <span>
-                <Trans>Market</Trans>
-              </span>
-            </NavLink>
-          </MenuItemLink>
-        </MenuItem>
+        <>
+          <MenuItem>
+            <MenuItemLink>
+              <NavLink to={APP_PATHS.COPY_TRADING} onClick={toggle}>
+                <Users />
+                <span className="w-max">
+                  <Trans>Copy Trading</Trans>
+                </span>
+              </NavLink>
+            </MenuItemLink>
+          </MenuItem>
+          <MenuItem>
+            <MenuItemLink>
+              <NavLink to={APP_PATHS.MARKET_OVERVIEW}>
+                <PieChart />
+                <span>
+                  <Trans>Market</Trans>
+                </span>
+              </NavLink>
+            </MenuItemLink>
+          </MenuItem>
+        </>
       )}
 
       {upToMedium && (
