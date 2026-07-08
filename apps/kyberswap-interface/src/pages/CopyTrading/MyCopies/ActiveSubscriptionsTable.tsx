@@ -1,12 +1,21 @@
+import type { HTMLAttributes } from 'react'
 import type { AgentCard, CopyRunSummary } from 'services/copyTrading/types'
 
+import { ButtonLight } from 'components/Button'
 import { Stack } from 'components/Stack'
-import { AgentCell } from 'pages/CopyTrading/components/AgentIdentity'
-import { TableCell, TableHeader, TableRow } from 'pages/CopyTrading/components/Table'
+import { AgentCell, TableCell, TableHeader, TableRow } from 'pages/CopyTrading/components/common'
 import { compactUsd, formatUsd, percent } from 'pages/CopyTrading/helpers'
 
-const activeSubscriptionsColumns =
-  'minmax(0, 2.4fr) minmax(0, 0.9fr) minmax(0, 1fr) minmax(0, 0.9fr) minmax(0, 1fr) minmax(0, 0.9fr) minmax(0, 1.1fr)'
+const ActiveSubscriptionsGrid = ({ header, ...props }: HTMLAttributes<HTMLDivElement> & { header?: boolean }) => {
+  const Grid = header ? TableHeader : TableRow
+
+  return (
+    <Grid
+      columns="minmax(0, 2.4fr) minmax(0, 0.9fr) minmax(0, 1fr) minmax(0, 0.9fr) minmax(0, 1fr) minmax(0, 0.9fr) minmax(0, 1.1fr)"
+      {...props}
+    />
+  )
+}
 
 const ActiveSubscriptionsTable = ({
   rows,
@@ -17,25 +26,28 @@ const ActiveSubscriptionsTable = ({
   agents: AgentCard[]
   onOpenSubscription: (subscription: CopyRunSummary) => void
 }) => (
-  <Stack className="overflow-hidden rounded-xl bg-buttonBlack">
+  <Stack className="overflow-hidden rounded-2xl bg-background/80">
     <Stack className="overflow-hidden">
-      <TableHeader columns={activeSubscriptionsColumns}>
+      <ActiveSubscriptionsGrid header>
         {['Agent', 'Agent APR', 'Win Rates', 'Volume', 'Capital In', 'Positions', ''].map(item => (
           <TableCell key={item}>{item}</TableCell>
         ))}
-      </TableHeader>
+      </ActiveSubscriptionsGrid>
       {rows.map(subscription => {
         const agent = agents.find(item => item.agentId === subscription.agentId)
         if (!agent) return null
 
         return (
-          <TableRow
+          <ActiveSubscriptionsGrid
             key={subscription.copyRunId}
-            columns={activeSubscriptionsColumns}
             role="button"
             tabIndex={0}
-            onClick={() => onOpenSubscription(subscription)}
+            onClick={event => {
+              if ((event.target as HTMLElement).closest('button')) return
+              onOpenSubscription(subscription)
+            }}
             onKeyDown={event => {
+              if ((event.target as HTMLElement).closest('button')) return
               if (event.key === 'Enter' || event.key === ' ') onOpenSubscription(subscription)
             }}
             className="cursor-pointer"
@@ -47,15 +59,11 @@ const ActiveSubscriptionsTable = ({
             <TableCell>{formatUsd(subscription.capitalInUsd)}</TableCell>
             <TableCell>{subscription.openPositionCount}</TableCell>
             <div className="px-3 py-2">
-              <button
-                type="button"
-                onClick={event => event.stopPropagation()}
-                className="h-9 w-full cursor-pointer rounded-xl border-0 bg-primary-12 text-sm font-semibold text-primary hover:bg-primary-20"
-              >
+              <ButtonLight type="button" padding="8px 12px">
                 Stop Copying
-              </button>
+              </ButtonLight>
             </div>
-          </TableRow>
+          </ActiveSubscriptionsGrid>
         )
       })}
     </Stack>

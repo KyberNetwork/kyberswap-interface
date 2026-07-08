@@ -1,0 +1,356 @@
+import { type HTMLAttributes, type ReactNode, useState } from 'react'
+import { Check, Copy, Shield, Zap } from 'react-feather'
+import type { AgentCard, AgentProfile, StrategyKey } from 'services/copyTrading/types'
+
+import { ButtonEmpty, ButtonLight, ButtonPrimary } from 'components/Button'
+import { Center, HStack, Stack } from 'components/Stack'
+import { type ProfileStatIcon, type StatIcon, profileStatIcons, statIcons } from 'pages/CopyTrading/constants'
+import {
+  formatDate,
+  getAgentDisplayName,
+  getAgentInitials,
+  shortAddress,
+  strategyLabel,
+} from 'pages/CopyTrading/helpers'
+import { cn } from 'utils/cn'
+
+type StatItem = {
+  icon: StatIcon
+  value: string
+  label: string
+  color: string
+}
+
+type ProfileStatItem = {
+  icon: ProfileStatIcon
+  value: string
+  label: string
+}
+
+type TableGridProps = HTMLAttributes<HTMLDivElement> & {
+  columns: string
+}
+
+const chartRanges = ['7D', '1M', '3M', 'All'] as const
+
+const getLeaderAddress = (agent: AgentCard | AgentProfile) =>
+  'leaderAddress' in agent ? agent.leaderAddress : agent.leaderAddresses[0]
+
+const isVerifiedAgent = (agent: AgentCard | AgentProfile) =>
+  'isVerified' in agent ? agent.isVerified : agent.badges.includes('Verified')
+
+const StrategyBadge = ({ strategy, className }: { strategy: StrategyKey; className?: string }) => {
+  const label = strategyLabel(strategy)
+
+  return (
+    <span
+      className={cn(
+        'rounded-full px-2 py-0.5 text-xs font-medium',
+        label === 'Active' && 'bg-red-20 text-red',
+        label === 'Diversified' && 'bg-blue/20 text-blue',
+        label === 'Focused' && 'bg-primary-12 text-primary',
+        className,
+      )}
+    >
+      {label}
+    </span>
+  )
+}
+
+export const CopyTradingPage = ({ children }: { children: ReactNode }) => (
+  <main className="min-w-0 flex-1 p-10 max-md:px-4 max-md:py-8">
+    <Stack className="w-full gap-8">{children}</Stack>
+  </main>
+)
+
+export const AgentCell = ({ agent, className }: { agent: AgentCard | AgentProfile; className?: string }) => {
+  const chain = 'chains' in agent ? agent.chains[0] : undefined
+
+  return (
+    <HStack className={cn('min-w-0 items-center gap-4', className)}>
+      <Center className="relative size-10 shrink-0 rounded-full bg-gray text-sm text-text">
+        {getAgentInitials(getAgentDisplayName(agent))}
+        <Center className="absolute -bottom-0.5 -right-0.5">
+          {chain?.iconUrl && <img src={chain.iconUrl} alt={chain.name} className="size-4 rounded-full" />}
+        </Center>
+      </Center>
+      <Stack className="min-w-0 gap-1.5">
+        <HStack className="min-w-0 items-center gap-1.5">
+          <span className="truncate text-base font-medium text-text">{agent.displayName}</span>
+          {isVerifiedAgent(agent) && (
+            <Center className="size-4 shrink-0 rounded-full bg-blue text-white">
+              <Check size={10} />
+            </Center>
+          )}
+          {agent.isTrending && <Zap size={14} className="shrink-0 fill-warning text-warning" />}
+        </HStack>
+        <HStack className="items-center gap-2">
+          <StrategyBadge strategy={agent.strategy} className="shrink-0" />
+          <span className="whitespace-nowrap rounded-full bg-subText-20 px-3 py-0.5 text-xs text-subText">
+            {agent.modelName}
+          </span>
+        </HStack>
+      </Stack>
+    </HStack>
+  )
+}
+
+export const AgentIdentity = ({ agent }: { agent: AgentCard | AgentProfile }) => (
+  <HStack className="min-w-0 items-center gap-5 max-md:items-start">
+    <Center className="relative size-14 shrink-0 rounded-full bg-gray text-2xl text-text">
+      {getAgentInitials(agent.displayName)}
+      <Center className="absolute -bottom-1 -right-1 size-4 rounded-full bg-white text-black">
+        <Shield size={10} />
+      </Center>
+    </Center>
+    <Stack className="min-w-0 gap-2">
+      <HStack className="min-w-0 items-center gap-2">
+        <h1 className="truncate text-3xl text-text">{agent.displayName}</h1>
+        {isVerifiedAgent(agent) && (
+          <Center className="size-5 shrink-0 rounded-full bg-blue text-white">
+            <Check size={12} />
+          </Center>
+        )}
+      </HStack>
+      <HStack className="flex-wrap items-center gap-2 text-sm text-subText">
+        <StrategyBadge strategy={agent.strategy} />
+        <span className="rounded-full bg-subText-20 px-3 py-0.5 text-xs text-subText">{agent.modelName}</span>
+        <span>•</span>
+        <span>{shortAddress(getLeaderAddress(agent))}</span>
+        <Copy size={13} />
+        {'performanceFeePct' in agent && (
+          <>
+            <span>•</span>
+            <span>Fee: {agent.performanceFeePct}% of profits</span>
+          </>
+        )}
+        {'liveSince' in agent && (
+          <>
+            <span>•</span>
+            <span className="text-primary">Live since</span>
+            <span>{formatDate(agent.liveSince).split(' ')[0]}</span>
+          </>
+        )}
+      </HStack>
+    </Stack>
+  </HStack>
+)
+
+export const StatCard = ({ item }: { item: StatItem }) => (
+  <HStack className="min-h-24 items-center gap-5 rounded-xl bg-buttonBlack px-6 py-5">
+    <Center className={cn('size-12 shrink-0 rounded-full text-sm font-medium', item.color)}>
+      {statIcons[item.icon]}
+    </Center>
+    <Stack className="gap-1.5">
+      <span className="text-2xl font-medium text-text">{item.value}</span>
+      <span className="text-sm text-subText">{item.label}</span>
+    </Stack>
+  </HStack>
+)
+
+export const ProfileStatCard = ({ item }: { item: ProfileStatItem }) => (
+  <HStack className="h-20 items-center gap-5 rounded-xl bg-buttonBlack px-6">
+    <Center className="size-11 rounded-full bg-primary-12 text-primary">{profileStatIcons[item.icon]}</Center>
+    <Stack className="gap-1">
+      <span className="text-lg font-medium text-primary">{item.value}</span>
+      <span className="text-sm text-subText">{item.label}</span>
+    </Stack>
+  </HStack>
+)
+
+export const TableHeader = ({ columns, className, style, ...rest }: TableGridProps) => (
+  <div
+    className={cn(
+      'grid w-full items-center border-b border-tableHeader p-3 text-xs font-medium uppercase text-subText',
+      className,
+    )}
+    style={{ gridTemplateColumns: columns, ...style }}
+    {...rest}
+  />
+)
+
+export const TableRow = ({ columns, className, style, ...rest }: TableGridProps) => (
+  <div
+    className={cn(
+      'grid w-full items-center p-3 text-sm text-text outline-none transition-colors hover:bg-primary-10 focus-visible:bg-primary-10',
+      className,
+    )}
+    style={{ gridTemplateColumns: columns, ...style }}
+    {...rest}
+  />
+)
+
+export const TableCell = ({ className, ...rest }: HTMLAttributes<HTMLSpanElement>) => (
+  <span className={cn('min-w-0 break-words px-3 py-2', className)} {...rest} />
+)
+
+export const LineChartMock = () => {
+  const [range, setRange] = useState<(typeof chartRanges)[number]>('1M')
+
+  return (
+    <Stack className="gap-9 rounded-xl bg-buttonBlack p-6">
+      <Stack className="gap-5">
+        <HStack className="flex-wrap items-center justify-between gap-4">
+          <h2 className="text-lg font-medium text-text">Cumulative Realised P&L</h2>
+          <HStack className="rounded-full bg-background p-1 text-xs text-subText">
+            {chartRanges.map(item => {
+              const RangeButton = range === item ? ButtonLight : ButtonEmpty
+
+              return (
+                <RangeButton key={item} type="button" onClick={() => setRange(item)} padding="4px 8px">
+                  {item}
+                </RangeButton>
+              )
+            })}
+          </HStack>
+        </HStack>
+        <div className="relative h-72 overflow-hidden">
+          <div className="absolute inset-0 grid grid-rows-6">
+            {Array.from({ length: 6 }).map((_, index) => (
+              <div key={index} className="border-b border-border" />
+            ))}
+          </div>
+          <svg className="absolute inset-0 size-full" preserveAspectRatio="none" viewBox="0 0 900 270">
+            <path
+              d="M40 132 C75 85 100 118 122 96 C144 72 144 62 166 91 C185 118 220 80 245 112 C270 144 270 142 300 145 C326 148 330 190 354 186 C380 182 370 224 400 215 C430 206 420 176 455 190 C485 202 500 154 532 128 C565 100 590 94 616 114 C640 134 650 72 675 88 C698 104 712 112 740 116 C770 120 770 152 804 150 C830 148 826 200 858 205"
+              fill="none"
+              stroke="var(--ks-primary)"
+              strokeWidth="4"
+            />
+            <path
+              d="M300 145 C326 148 330 190 354 186 C380 182 370 224 400 215 C430 206 420 176 455 190"
+              fill="none"
+              stroke="var(--ks-red)"
+              strokeWidth="4"
+            />
+            <path
+              d="M740 116 C770 120 770 152 804 150 C830 148 826 200 858 205"
+              fill="none"
+              stroke="var(--ks-red)"
+              strokeWidth="4"
+            />
+          </svg>
+          <div className="absolute left-2/3 top-8 h-56 border-l border-dashed border-subText max-md:hidden" />
+          <Stack className="absolute left-2/3 top-8 gap-2 rounded-lg bg-background px-4 py-3 text-xs shadow-lg max-md:hidden">
+            <span className="text-subText">Nov 23, 2026, 13:00</span>
+            <HStack className="gap-2">
+              <span className="text-subText">P&L</span>
+              <span className="font-medium text-primary">+ $1,256 (+26.5%)</span>
+            </HStack>
+          </Stack>
+        </div>
+      </Stack>
+
+      <Stack className="gap-5">
+        <h2 className="text-lg font-medium text-text">Capital Value</h2>
+        <div className="relative h-64">
+          <div className="absolute inset-0 grid grid-rows-6">
+            {Array.from({ length: 6 }).map((_, index) => (
+              <div key={index} className="border-b border-border" />
+            ))}
+          </div>
+          <HStack className="absolute inset-x-0 bottom-0 h-48 items-end justify-between px-3">
+            {[58, 90, 114, 99, 96, 116, 108].map((height, index) => (
+              <Stack key={index} className="w-10 items-center gap-2.5">
+                <div className={cn('w-full rounded-t bg-blue/40', index === 2 && 'bg-blue')} style={{ height }} />
+                <span className="text-xs text-subText">{['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'][index]}</span>
+              </Stack>
+            ))}
+          </HStack>
+        </div>
+      </Stack>
+    </Stack>
+  )
+}
+
+export const ProfileSidePanel = ({
+  copiedCapital,
+  isCopied,
+  wishlistTokens,
+}: {
+  copiedCapital: string
+  isCopied: boolean
+  wishlistTokens: string[]
+}) => (
+  <Stack className="gap-5">
+    <Stack className="gap-5 rounded-xl bg-buttonBlack p-5">
+      <h3 className="border-b border-border pb-3 text-base font-medium text-text">
+        {isCopied ? 'Your Current Copy' : 'Copy This Agent'}
+      </h3>
+      {isCopied ? (
+        <>
+          <HStack className="items-center justify-between">
+            <span className="text-sm text-subText">Capital In</span>
+            <span className="text-xl font-medium text-primary">{copiedCapital}</span>
+          </HStack>
+          <HStack className="gap-3.5 max-md:flex-col">
+            <div className="w-full flex-1">
+              <ButtonLight type="button" padding="10px 12px">
+                My Copy
+              </ButtonLight>
+            </div>
+            <div className="w-full flex-1">
+              <ButtonPrimary type="button" padding="10px 12px">
+                Add Capital
+              </ButtonPrimary>
+            </div>
+          </HStack>
+        </>
+      ) : (
+        <>
+          <p className="text-sm text-subText">
+            Your funds remain in your personal Smart Contract Wallet. Only proportional trades are executed.
+          </p>
+          <ButtonPrimary type="button" padding="10px 12px">
+            <HStack className="items-center gap-1">
+              <Zap size={14} className="fill-warning text-warning" />
+              Copy
+            </HStack>
+          </ButtonPrimary>
+        </>
+      )}
+    </Stack>
+    <Stack className="gap-3.5 rounded-xl bg-buttonBlack p-5">
+      <HStack className="items-center gap-4">
+        <span className="w-20 text-sm text-subText">Win Rate</span>
+        <div className="relative h-2 flex-1 rounded-full bg-subText-20">
+          <div className="h-full w-5/12 rounded-full bg-gradient-to-r from-blue to-primary" />
+          <Center className="left-5/12 absolute top-1/2 h-6 -translate-y-1/2 rounded-md bg-primary px-2 text-xs font-medium text-black">
+            45%
+          </Center>
+        </div>
+      </HStack>
+      <HStack className="items-center justify-between">
+        <span className="text-sm text-subText">Max Drawdown</span>
+        <span className="text-sm text-text">-12.5%</span>
+      </HStack>
+    </Stack>
+    <Stack className="gap-3.5 rounded-xl bg-buttonBlack p-5">
+      <h3 className="border-b border-border pb-3 text-base font-medium text-text">Strategy & Execution</h3>
+      <Stack as="ul" className="list-disc gap-2 pl-5 text-sm text-subText">
+        <li className="pl-0">
+          <span className="font-medium text-text">Momentum Tracking:</span> Aims to capture sustained price movements
+          across L2 networks.
+        </li>
+        <li className="pl-0">
+          <span className="font-medium text-text">Execution Model:</span> Sequential follower execution. Slight lag may
+          occur between agent and follower trades.
+        </li>
+        <li className="pl-0">
+          <span className="font-medium text-text">v1 Constraints:</span> Trades only vs Stablecoins (USDC). TP/SL limits
+          are manual.
+        </li>
+      </Stack>
+    </Stack>
+    <Stack className="gap-3.5 rounded-xl bg-buttonBlack p-5">
+      <h3 className="border-b border-border pb-3 text-base font-medium text-text">Wishlisted Tokens</h3>
+      <HStack className="flex-wrap gap-2.5">
+        {wishlistTokens.map(token => (
+          <span key={token} className="rounded-lg border border-border bg-background px-3 py-1 text-sm text-text">
+            {token}
+          </span>
+        ))}
+      </HStack>
+    </Stack>
+  </Stack>
+)

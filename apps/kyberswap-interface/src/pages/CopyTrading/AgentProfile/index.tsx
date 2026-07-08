@@ -2,16 +2,20 @@ import { ArrowLeft } from 'react-feather'
 import { Navigate, useNavigate, useParams } from 'react-router-dom'
 import copyTradingApi from 'services/copyTrading'
 
+import { ButtonEmpty } from 'components/Button'
 import { HStack, Stack } from 'components/Stack'
 import { APP_PATHS } from 'constants/index'
 import useTab from 'hooks/useTab'
+import ActionLog from 'pages/CopyTrading/AgentProfile/ActionLog'
+import ProfileTabButton from 'pages/CopyTrading/AgentProfile/ProfileTabButton'
 import { OpenPositionsTable, TradeHistoryTable } from 'pages/CopyTrading/AgentProfile/Tables'
-import ActionLog from 'pages/CopyTrading/components/ActionLog'
-import { AgentIdentity } from 'pages/CopyTrading/components/AgentIdentity'
-import LineChartMock from 'pages/CopyTrading/components/LineChartMock'
-import ProfileSidePanel from 'pages/CopyTrading/components/ProfileSidePanel'
-import ProfileTabButton from 'pages/CopyTrading/components/ProfileTabButton'
-import { ProfileStatCard, type ProfileStatItem } from 'pages/CopyTrading/components/Stats'
+import {
+  AgentIdentity,
+  CopyTradingPage,
+  LineChartMock,
+  ProfileSidePanel,
+  ProfileStatCard,
+} from 'pages/CopyTrading/components/common'
 import { type ProfileTab, profileTabLabel, profileTabs } from 'pages/CopyTrading/constants'
 import { compactUsd, formatUsd, percent, signedUsd } from 'pages/CopyTrading/helpers'
 
@@ -50,7 +54,7 @@ const AgentProfileView = () => {
   if (!profile && (isAgentFetching || isAgentLoading || isAgentUninitialized)) return null
   if (!profile) return <Navigate to={APP_PATHS.COPY_TRADING} replace />
 
-  const profileStats: ProfileStatItem[] = [
+  const profileStats = [
     {
       icon: 'pnl',
       value: signedUsd(stats?.totalRealizedPnlUsd),
@@ -71,56 +75,54 @@ const AgentProfileView = () => {
       value: compactUsd(stats?.aumUsd),
       label: 'AUM',
     },
-  ]
+  ] as const
 
   return (
-    <main className="min-w-0 flex-1 px-10 py-9 max-md:px-4">
-      <Stack className="w-full gap-7">
-        <button
-          type="button"
-          onClick={() => navigate(APP_PATHS.COPY_TRADING)}
-          className="flex h-8 w-fit cursor-pointer items-center gap-2 border-0 bg-transparent p-0 text-sm text-subText hover:text-text"
-        >
-          <ArrowLeft size={14} />
-          Back to Leaderboard
-        </button>
-
-        <AgentIdentity agent={profile} />
-
-        <div className="grid grid-cols-3 gap-6 max-xl:grid-cols-1">
-          <Stack className="col-span-2 min-w-0 gap-5">
-            <div className="grid grid-cols-4 gap-4 max-lg:grid-cols-2 max-md:grid-cols-1">
-              {profileStats.map(item => (
-                <ProfileStatCard key={item.label} item={item} />
-              ))}
-            </div>
-            <LineChartMock />
-          </Stack>
-
-          <ProfileSidePanel
-            copiedCapital={formatUsd(stats?.aumUsd)}
-            isCopied={false}
-            wishlistTokens={profile.whitelistedSymbols}
-          />
-        </div>
-
-        <Stack className="overflow-hidden rounded-xl bg-buttonBlack">
-          <HStack className="border-b border-border">
-            {profileTabs.map(tab => (
-              <ProfileTabButton key={tab} active={activeProfileTab === tab} onClick={() => setActiveProfileTab(tab)}>
-                {profileTabLabel[tab]}
-              </ProfileTabButton>
-            ))}
+    <CopyTradingPage>
+      <div className="w-fit">
+        <ButtonEmpty type="button" onClick={() => navigate(APP_PATHS.COPY_TRADING)} padding="0">
+          <HStack className="items-center gap-2">
+            <ArrowLeft size={14} />
+            Back to Leaderboard
           </HStack>
+        </ButtonEmpty>
+      </div>
 
-          <div className="overflow-hidden">
-            {activeProfileTab === 'open-position' && <OpenPositionsTable rows={openPositions?.data || []} />}
-            {activeProfileTab === 'trade-history' && <TradeHistoryTable rows={closedPositions?.data || []} />}
-            {activeProfileTab === 'action-log' && <ActionLog rows={cotLogs?.data || []} />}
+      <AgentIdentity agent={profile} />
+
+      <div className="grid grid-cols-3 gap-6 max-xl:grid-cols-1">
+        <Stack className="col-span-2 min-w-0 gap-5">
+          <div className="grid grid-cols-4 gap-4 max-lg:grid-cols-2 max-md:grid-cols-1">
+            {profileStats.map(item => (
+              <ProfileStatCard key={item.label} item={item} />
+            ))}
           </div>
+          <LineChartMock />
         </Stack>
+
+        <ProfileSidePanel
+          copiedCapital={formatUsd(stats?.aumUsd)}
+          isCopied={false}
+          wishlistTokens={profile.whitelistedSymbols}
+        />
+      </div>
+
+      <Stack className="overflow-hidden rounded-2xl bg-background/80">
+        <HStack className="border-b border-tableHeader">
+          {profileTabs.map(tab => (
+            <ProfileTabButton key={tab} active={activeProfileTab === tab} onClick={() => setActiveProfileTab(tab)}>
+              {profileTabLabel[tab]}
+            </ProfileTabButton>
+          ))}
+        </HStack>
+
+        <div className="overflow-hidden">
+          {activeProfileTab === 'open-position' && <OpenPositionsTable rows={openPositions?.data || []} />}
+          {activeProfileTab === 'trade-history' && <TradeHistoryTable rows={closedPositions?.data || []} />}
+          {activeProfileTab === 'action-log' && <ActionLog rows={cotLogs?.data || []} />}
+        </div>
       </Stack>
-    </main>
+    </CopyTradingPage>
   )
 }
 
