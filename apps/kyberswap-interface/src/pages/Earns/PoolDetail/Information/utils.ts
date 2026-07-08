@@ -1,6 +1,6 @@
 import { formatAprNumber } from '@kyber/utils/number'
 import dayjs from 'dayjs'
-import { type PoolAnalyticsWindow } from 'services/zapEarn'
+import { type PoolAnalyticsWindow } from 'services/earn'
 
 import { type SegmentedControlOption } from 'components/SegmentedControl'
 import { formatDisplayNumber } from 'utils/numbers'

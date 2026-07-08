@@ -3,7 +3,7 @@ import { useLingui } from '@lingui/react'
 import { useEffect, useMemo, useRef } from 'react'
 import { Plus, Star } from 'react-feather'
 import { useMedia } from 'react-use'
-import { PoolQueryParams } from 'services/zapEarn'
+import { PoolQueryParams } from 'services/earn'
 
 import { ReactComponent as IconHighAprPool } from 'assets/svg/earn/ic_pool_high_apr.svg'
 import { ReactComponent as IconHighlightedPool } from 'assets/svg/earn/ic_pool_highlighted.svg'

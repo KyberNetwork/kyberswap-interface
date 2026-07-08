@@ -1,7 +1,7 @@
 import { t } from '@lingui/macro'
 import { useMemo } from 'react'
 import { useMedia } from 'react-use'
-import { PoolQueryParams, usePoolsExplorerQuery } from 'services/zapEarn'
+import { PoolQueryParams, usePoolsExplorerQuery } from 'services/earn'
 
 import RefetchIndicator from 'components/RefetchIndicator'
 import { Stack } from 'components/Stack'

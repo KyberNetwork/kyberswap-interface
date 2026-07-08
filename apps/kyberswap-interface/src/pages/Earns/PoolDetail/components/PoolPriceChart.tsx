@@ -9,7 +9,7 @@ import {
 } from 'lightweight-charts'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useMedia } from 'react-use'
-import { type PoolAnalyticsWindow, usePoolPriceQuery } from 'services/zapEarn'
+import { type PoolAnalyticsWindow, usePoolPriceQuery } from 'services/earn'
 
 import { ReactComponent as RevertPriceIcon } from 'assets/svg/earn/ic_revert_price.svg'
 import SegmentedControl from 'components/SegmentedControl'

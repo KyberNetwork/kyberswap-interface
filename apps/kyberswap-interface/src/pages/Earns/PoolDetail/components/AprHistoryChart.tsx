@@ -7,7 +7,7 @@ import {
   type PoolAprHistoryPoint,
   usePoolAprHistoryQuery,
   usePositionAprHistoryQuery,
-} from 'services/zapEarn'
+} from 'services/earn'
 
 import { ReactComponent as FarmingIcon } from 'assets/svg/kyber/kem.svg'
 import { ReactComponent as FarmingLmIcon } from 'assets/svg/kyber/kemLm.svg'

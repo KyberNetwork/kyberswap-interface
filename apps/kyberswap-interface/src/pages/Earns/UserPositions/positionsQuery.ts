@@ -1,4 +1,4 @@
-import { PositionQueryParams } from 'services/zapEarn'
+import { PositionQueryParams } from 'services/earn'
 
 import { PositionFilter, PositionStatus } from 'pages/Earns/types'
 import { Direction } from 'pages/MarketOverview/SortIcon'

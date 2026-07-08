@@ -1,7 +1,7 @@
 import { formatAprNumber } from '@kyber/utils/dist/number'
 import { t } from '@lingui/macro'
 import { useEffect, useMemo, useState } from 'react'
-import { useExplorerLandingQuery } from 'services/zapEarn'
+import { useExplorerLandingQuery } from 'services/earn'
 
 import { ReactComponent as IconTrending } from 'assets/svg/earn/ic_pool_high_apr.svg'
 import {

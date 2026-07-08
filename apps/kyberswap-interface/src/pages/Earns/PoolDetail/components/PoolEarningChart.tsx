@@ -18,7 +18,7 @@ import {
   type PoolEarningsBucket,
   usePoolEarningsQuery,
   usePositionEarningsQuery,
-} from 'services/zapEarn'
+} from 'services/earn'
 
 import SegmentedControl from 'components/SegmentedControl'
 import { HStack, Stack } from 'components/Stack'

@@ -11,7 +11,7 @@ import {
   XAxis,
   YAxis,
 } from 'recharts'
-import { type PoolAnalyticsWindow, usePoolLiquidityFlowsQuery } from 'services/zapEarn'
+import { type PoolAnalyticsWindow, usePoolLiquidityFlowsQuery } from 'services/earn'
 
 import SegmentedControl from 'components/SegmentedControl'
 import useTheme from 'hooks/useTheme'
