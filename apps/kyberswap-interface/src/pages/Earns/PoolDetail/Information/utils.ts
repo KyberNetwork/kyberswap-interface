@@ -56,11 +56,10 @@ export const formatCompactUsd = (value?: number) => {
 
 export const formatAxisTimeLabel = (timestamp: number, window: PoolAnalyticsWindow) => {
   if (window === '24h') return dayjs.unix(timestamp).format('HH:mm')
-  if (window === '7d') return dayjs.unix(timestamp).format('MMM D')
+  if (window === '7d') return dayjs.unix(timestamp).format('MMM D, HH:mm')
   return dayjs.unix(timestamp).format('MMM D')
 }
 
-export const formatTooltipTimeLabel = (timestamp: number, window: PoolAnalyticsWindow) => {
-  if (window === '30d') return dayjs.unix(timestamp).format('MMM D, YYYY')
+export const formatTooltipTimeLabel = (timestamp: number, _window: PoolAnalyticsWindow) => {
   return dayjs.unix(timestamp).format('MMM D, HH:mm')
 }
