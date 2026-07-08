@@ -1,30 +1,76 @@
 import { ArrowLeft } from 'react-feather'
 import { Navigate, useNavigate, useParams } from 'react-router-dom'
-import { useGetCopyTradingSubscriptionDetailQuery } from 'services/copyTrading'
+import copyTradingApi from 'services/copyTrading'
 
 import { Center, HStack, Stack } from 'components/Stack'
 import { APP_PATHS } from 'constants/index'
+import { CopyPositionsTable, TradeHistoryTable } from 'pages/CopyTrading/CopyDetail/Tables'
+import { AgentIdentity } from 'pages/CopyTrading/components/AgentIdentity'
+import LineChartMock from 'pages/CopyTrading/components/LineChartMock'
+import ProfileSidePanel from 'pages/CopyTrading/components/ProfileSidePanel'
+import { ProfileStatCard, type ProfileStatItem } from 'pages/CopyTrading/components/Stats'
+import { OWNER_ADDRESS, formatDate, formatUsd, percent, signedPercent, signedUsd } from 'pages/CopyTrading/helpers'
 
-import { AgentIdentity } from '../components/AgentIdentity'
-import LineChartMock from '../components/LineChartMock'
-import ProfileSidePanel from '../components/ProfileSidePanel'
-import { ProfileStatCard } from '../components/Stats'
-import { CopyPositionsTable, TradeHistoryTable } from './Tables'
-
-const CopyDetailView = ({ backPath }: { backPath: 'copies' | 'history' }) => {
+const CopyDetailView = ({ backPath }: { backPath: 'my-copies' | 'history' }) => {
   const navigate = useNavigate()
   const { copyId } = useParams()
+  const copyRunQuery = { ownerAddress: OWNER_ADDRESS, copyRunId: copyId || '' }
   const {
-    data: subscriptionDetail,
+    data: copyRun,
     isFetching,
     isLoading,
     isUninitialized,
-  } = useGetCopyTradingSubscriptionDetailQuery(copyId || '', { skip: !copyId })
+  } = copyTradingApi.useGetCopyRunQuery(copyRunQuery, { skip: !copyId })
+  const { data: positions } = copyTradingApi.useGetCopyRunPositionsQuery(
+    { ...copyRunQuery, status: 'open' },
+    { skip: !copyId },
+  )
+  const { data: closedPositions } = copyTradingApi.useGetCopyRunPositionsQuery(
+    { ...copyRunQuery, status: 'closed' },
+    { skip: !copyId },
+  )
+  const {
+    data: agent,
+    isFetching: isAgentFetching,
+    isLoading: isAgentLoading,
+  } = copyTradingApi.useGetAgentQuery({ agentId: copyRun?.data.agentId || '' }, { skip: !copyRun?.data.agentId })
 
-  if (!subscriptionDetail && (isFetching || isLoading || isUninitialized)) return null
-  if (!subscriptionDetail) return <Navigate to={`${APP_PATHS.COPY_TRADING}/${backPath}`} replace />
+  const run = copyRun?.data
+  const profile = agent?.data
 
-  const isClosed = subscriptionDetail.subscription.status === 'closed'
+  if ((!run || !profile) && (isFetching || isLoading || isUninitialized || isAgentFetching || isAgentLoading)) {
+    return null
+  }
+  if (!run || !profile) return <Navigate to={`${APP_PATHS.COPY_TRADING}/${backPath}`} replace />
+
+  const isClosed = run.status === 'closed'
+  const activeStats: ProfileStatItem[] = [
+    {
+      icon: 'pnl',
+      value: signedUsd(run.realizedPnlUsd),
+      label: 'Total Realised P&L',
+    },
+    {
+      icon: 'aum',
+      value: isClosed ? 'Closed' : signedPercent(run.myAprSinceCopyPct),
+      label: isClosed ? 'Status' : 'APR Since Copy',
+    },
+    {
+      icon: 'winRate',
+      value: percent(run.agentStats.winRatePct),
+      label: 'Agent Win Rate',
+    },
+    {
+      icon: 'copiers',
+      value: formatUsd(run.feesPaidUsd),
+      label: 'Fees Paid',
+    },
+    {
+      icon: 'aum',
+      value: formatUsd(run.estimatedRebatePendingUsd),
+      label: 'Est. Rebate Pending',
+    },
+  ]
 
   return (
     <main className="min-w-0 flex-1 px-10 py-9 max-md:px-4">
@@ -37,7 +83,7 @@ const CopyDetailView = ({ backPath }: { backPath: 'copies' | 'history' }) => {
           <ArrowLeft size={14} />
           Back to {backPath === 'history' ? 'History' : 'My Copies'}
         </button>
-        <AgentIdentity agent={subscriptionDetail.subscription.agent} />
+        <AgentIdentity agent={profile} />
 
         {isClosed ? (
           <div className="grid grid-cols-3 gap-6 max-xl:grid-cols-1">
@@ -48,15 +94,15 @@ const CopyDetailView = ({ backPath }: { backPath: 'copies' | 'history' }) => {
                     Started Copy
                   </Center>
                   <Stack>
-                    <span className="text-sm text-subText">24/07/2025 09:14</span>
-                    <span className="text-lg font-semibold text-text">In: $5,000.00</span>
+                    <span className="text-sm text-subText">{formatDate(run.startedAt)}</span>
+                    <span className="text-lg font-semibold text-text">In: {formatUsd(run.capitalInUsd)}</span>
                   </Stack>
                 </HStack>
                 <div className="h-0.5 w-56 bg-gradient-to-r from-primary to-red max-2xl:hidden" />
                 <HStack className="items-center gap-5">
                   <Stack className="items-end max-2xl:items-start">
-                    <span className="text-sm text-subText">30/07/2025 09:00</span>
-                    <span className="text-lg font-semibold text-text">Out: $6,200.00</span>
+                    <span className="text-sm text-subText">{formatDate(run.stoppedAt)}</span>
+                    <span className="text-lg font-semibold text-text">Out: {formatUsd(run.capitalOutUsd)}</span>
                   </Stack>
                   <Center className="h-14 rounded-xl bg-red-20 px-6 text-lg font-semibold text-red">
                     Stopped Copy
@@ -67,12 +113,12 @@ const CopyDetailView = ({ backPath }: { backPath: 'copies' | 'history' }) => {
             </Stack>
             <Stack className="min-w-0 gap-5">
               <Center className="h-24 rounded-xl bg-buttonBlack px-6 text-right text-2xl font-semibold text-primary">
-                Total Realised P&L&nbsp;&nbsp; +$86,850
+                Total Realised P&L&nbsp;&nbsp; {signedUsd(run.realizedPnlUsd)}
               </Center>
               <ProfileSidePanel
-                copiedCapital={subscriptionDetail.profile.copiedCapital}
+                copiedCapital={formatUsd(run.capitalInUsd)}
                 isCopied={false}
-                wishlistTokens={subscriptionDetail.profile.wishlistTokens}
+                wishlistTokens={profile.whitelistedSymbols}
               />
             </Stack>
           </div>
@@ -80,7 +126,7 @@ const CopyDetailView = ({ backPath }: { backPath: 'copies' | 'history' }) => {
           <div className="grid grid-cols-3 gap-6 max-xl:grid-cols-1">
             <Stack className="col-span-2 min-w-0 gap-5 max-xl:col-span-1">
               <div className="grid grid-cols-5 gap-4 max-2xl:grid-cols-3 max-lg:grid-cols-2 max-md:grid-cols-1">
-                {subscriptionDetail.stats.map(item => (
+                {activeStats.map(item => (
                   <ProfileStatCard key={item.label} item={item} />
                 ))}
               </div>
@@ -88,25 +134,27 @@ const CopyDetailView = ({ backPath }: { backPath: 'copies' | 'history' }) => {
                 <HStack className="flex-wrap items-center justify-between gap-4 border-b border-border px-6 py-5">
                   <HStack className="items-center gap-2">
                     <h2 className="m-0 text-base font-semibold text-text">My Positions</h2>
-                    <Center className="size-5 rounded-full bg-primary-12 text-xs text-primary">13</Center>
+                    <Center className="size-5 rounded-full bg-primary-12 text-xs text-primary">
+                      {run.openPositionCount}
+                    </Center>
                   </HStack>
                   <HStack className="flex-wrap gap-5 text-sm">
                     <span className="text-subText">Realised P&L</span>
-                    <span className="font-semibold text-primary">+$286.6</span>
+                    <span className="font-semibold text-primary">{signedUsd(run.realizedPnlUsd)}</span>
                     <span className="text-subText">APR Since Copy</span>
-                    <span className="font-semibold text-primary">+124.6%</span>
+                    <span className="font-semibold text-primary">{signedPercent(run.myAprSinceCopyPct)}</span>
                   </HStack>
                 </HStack>
                 <div className="overflow-hidden">
-                  <CopyPositionsTable rows={subscriptionDetail.positions} />
+                  <CopyPositionsTable rows={positions?.data || []} />
                 </div>
               </Stack>
               <LineChartMock />
             </Stack>
             <ProfileSidePanel
-              copiedCapital={subscriptionDetail.profile.copiedCapital}
+              copiedCapital={formatUsd(run.capitalInUsd)}
               isCopied
-              wishlistTokens={subscriptionDetail.profile.wishlistTokens}
+              wishlistTokens={profile.whitelistedSymbols}
             />
           </div>
         )}
@@ -115,10 +163,10 @@ const CopyDetailView = ({ backPath }: { backPath: 'copies' | 'history' }) => {
           <Stack className="overflow-hidden rounded-xl bg-buttonBlack">
             <HStack className="items-center gap-2 border-b border-border px-8 py-5">
               <h2 className="m-0 text-lg font-semibold text-text">Full Closed Positions</h2>
-              <Center className="h-6 rounded-full bg-subText-20 px-3 text-xs text-text">145</Center>
+              <Center className="h-6 rounded-full bg-subText-20 px-3 text-xs text-text">{run.closedTradeCount}</Center>
             </HStack>
             <div className="overflow-hidden">
-              <TradeHistoryTable rows={subscriptionDetail.closedPositions} />
+              <TradeHistoryTable rows={closedPositions?.data || []} />
             </div>
           </Stack>
         )}

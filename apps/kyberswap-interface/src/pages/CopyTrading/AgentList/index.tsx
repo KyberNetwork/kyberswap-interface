@@ -1,42 +1,74 @@
 import { useMemo, useState } from 'react'
 import { Search, Zap } from 'react-feather'
 import { useNavigate } from 'react-router-dom'
-import { CopyTradingOverview, CopyTradingStrategy } from 'services/copyTrading'
+import type { AgentCard, LeaderboardSummary } from 'services/copyTrading/types'
 
 import { HStack, Stack } from 'components/Stack'
 import { APP_PATHS } from 'constants/index'
 import useTab from 'hooks/useTab'
+import { AgentCell } from 'pages/CopyTrading/components/AgentIdentity'
+import { HeaderCell } from 'pages/CopyTrading/components/HeaderCell'
+import { StatCard, type StatItem } from 'pages/CopyTrading/components/Stats'
+import { TableCell, TableHeader, TableRow } from 'pages/CopyTrading/components/Table'
+import { compactUsd, percent, strategyLabel } from 'pages/CopyTrading/helpers'
 import { cn } from 'utils/cn'
-
-import { AgentCell } from '../components/AgentIdentity'
-import { HeaderCell } from '../components/HeaderCell'
-import { StatCard } from '../components/Stats'
-import { TableCell, TableHeader, TableRow } from '../components/Table'
 
 const leaderboardColumns =
   'minmax(0, 2.2fr) minmax(0, 0.9fr) minmax(0, 0.85fr) minmax(0, 0.85fr) minmax(0, 0.75fr) minmax(0, 0.85fr) minmax(0, 0.75fr) minmax(0, 0.8fr)'
 
-const LeaderboardView = ({
-  data,
-  selectedAgent,
-  setSelectedAgent,
+const strategies = ['All Strategies', 'Focused', 'Diversified', 'Active'] as const
+type StrategyFilter = (typeof strategies)[number]
+
+const AgentListView = ({
+  leaderboardSummary,
+  agents,
+  selectedAgentId,
+  setSelectedAgentId,
 }: {
-  data: CopyTradingOverview
-  selectedAgent: string
-  setSelectedAgent: (agent: string) => void
+  leaderboardSummary?: LeaderboardSummary
+  agents: AgentCard[]
+  selectedAgentId: string
+  setSelectedAgentId: (agentId: string) => void
 }) => {
   const navigate = useNavigate()
   const [copiedAgent, setCopiedAgent] = useState('')
-  const { activeTab, setActiveTab } = useTab<CopyTradingStrategy>({
-    tabs: data.strategies,
+  const { activeTab, setActiveTab } = useTab<StrategyFilter>({
+    tabs: [...strategies],
     defaultTab: 'All Strategies',
     queryKey: 'strategy',
   })
 
   const leaderboard = useMemo(() => {
-    if (!activeTab || activeTab === 'All Strategies') return data.leaderboard
-    return data.leaderboard.filter(agent => agent.tag === activeTab)
-  }, [activeTab, data.leaderboard])
+    if (!activeTab || activeTab === 'All Strategies') return agents
+    return agents.filter(agent => strategyLabel(agent.strategy) === activeTab)
+  }, [activeTab, agents])
+
+  const stats: StatItem[] = [
+    {
+      icon: 'agent',
+      value: String(leaderboardSummary?.totalAgents || agents.length),
+      label: 'Total Agents',
+      color: 'bg-warning-20 text-warning',
+    },
+    {
+      icon: 'aum',
+      value: compactUsd(leaderboardSummary?.totalAumUsd),
+      label: 'Total AUM',
+      color: 'bg-blue/20 text-blue',
+    },
+    {
+      icon: 'copiers',
+      value: String(leaderboardSummary?.totalCopiers || 0),
+      label: 'Total Copiers',
+      color: 'bg-primary-20 text-primary',
+    },
+    {
+      icon: 'volume',
+      value: compactUsd(leaderboardSummary?.totalVolumeUsd),
+      label: 'Total Volume',
+      color: 'bg-primary-12 text-primary',
+    },
+  ]
 
   return (
     <main className="min-w-0 flex-1 px-10 py-14 max-md:px-4 max-md:py-8">
@@ -53,14 +85,14 @@ const LeaderboardView = ({
 
         <Stack className="gap-7">
           <div className="grid grid-cols-4 gap-6 max-xl:grid-cols-2 max-md:grid-cols-1">
-            {data.stats.map(item => (
+            {stats.map(item => (
               <StatCard key={item.label} item={item} />
             ))}
           </div>
 
           <HStack className="flex-wrap items-center justify-between gap-4">
             <HStack className="rounded-xl bg-buttonBlack p-1">
-              {data.strategies.map(strategy => (
+              {strategies.map(strategy => (
                 <button
                   key={strategy}
                   type="button"
@@ -101,52 +133,52 @@ const LeaderboardView = ({
             </TableHeader>
             {leaderboard.map(agent => (
               <TableRow
-                key={agent.name}
+                key={agent.agentId}
                 columns={leaderboardColumns}
                 onKeyDown={event => {
                   if (event.key === 'Enter' || event.key === ' ') {
-                    setSelectedAgent(agent.name)
-                    navigate(`${APP_PATHS.COPY_TRADING}/${agent.id}`)
+                    setSelectedAgentId(agent.agentId)
+                    navigate(`${APP_PATHS.COPY_TRADING}/${agent.agentId}`)
                   }
                 }}
                 role="button"
                 tabIndex={0}
                 className={cn(
                   'cursor-pointer text-base',
-                  (selectedAgent ? selectedAgent === agent.name : agent.selected)
+                  (selectedAgentId ? selectedAgentId === agent.agentId : leaderboard.indexOf(agent) === 1)
                     ? 'border-l-2 border-primary bg-primary-20'
                     : 'bg-buttonBlack',
                 )}
                 onClick={() => {
-                  setSelectedAgent(agent.name)
-                  navigate(`${APP_PATHS.COPY_TRADING}/${agent.id}`)
+                  setSelectedAgentId(agent.agentId)
+                  navigate(`${APP_PATHS.COPY_TRADING}/${agent.agentId}`)
                 }}
               >
                 <AgentCell agent={agent} className="px-3 py-2" />
                 <HStack className="items-center gap-1.5 px-3 py-2 text-primary">
                   <Zap size={14} className="fill-warning text-warning" />
-                  <span>{agent.apr}</span>
+                  <span>{percent(agent.stats.apr30dPct)}</span>
                 </HStack>
-                <TableCell>{agent.win}</TableCell>
-                <TableCell>{agent.volume}</TableCell>
-                <TableCell>{agent.copiers}</TableCell>
-                <TableCell>{agent.aum}</TableCell>
-                <TableCell>{agent.position}</TableCell>
+                <TableCell>{percent(agent.stats.winRatePct)}</TableCell>
+                <TableCell>{compactUsd(agent.stats.volumeUsd)}</TableCell>
+                <TableCell>{agent.stats.copiers.toLocaleString()}</TableCell>
+                <TableCell>{compactUsd(agent.stats.aumUsd)}</TableCell>
+                <TableCell>{agent.stats.openPositions}</TableCell>
                 <div className="px-3 py-2">
                   <button
                     type="button"
                     onClick={event => {
                       event.stopPropagation()
-                      setCopiedAgent(agent.name)
+                      setCopiedAgent(agent.agentId)
                     }}
                     className={cn(
                       'h-9 w-full cursor-pointer rounded-xl border-0 text-sm font-semibold transition-colors',
-                      copiedAgent === agent.name
+                      copiedAgent === agent.agentId
                         ? 'bg-primary-20 text-primary'
                         : 'bg-primary text-black hover:bg-primary-30',
                     )}
                   >
-                    {copiedAgent === agent.name ? 'Copied' : 'Copy'}
+                    {copiedAgent === agent.agentId ? 'Copied' : 'Copy'}
                   </button>
                 </div>
               </TableRow>
@@ -158,4 +190,4 @@ const LeaderboardView = ({
   )
 }
 
-export default LeaderboardView
+export default AgentListView

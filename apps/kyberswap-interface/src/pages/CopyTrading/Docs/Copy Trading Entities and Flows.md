@@ -187,7 +187,7 @@ This section maps the main flows against the current UI export files in `CopyTra
 
 UI files:
 
-- `Learderboard - Default.png`
+- `Agents List - Leaderboard.png`
 
 Sub-flows:
 
@@ -223,10 +223,10 @@ Current UI status:
 
 UI files:
 
-- `Agent_Profile - Open Positions.png`
-- `Agent_Profile - Trade History.png`
-- `Agent_Profile - Action Log.png`
-- `Agent_Profile - Copied.png`
+- `Agent Profile - General.png`
+- `Agent Profile - Trade History.png`
+- `Agent Profile - Action Log.png`
+- `Agent Profile - Have Copied.png`
 
 Sub-flows:
 
@@ -314,7 +314,7 @@ Current UI status:
 
 UI files:
 
-- `Open Copies.png`
+- `My Copies (Open).png`
 
 Sub-flows:
 
@@ -494,7 +494,7 @@ Current UI status:
 
 UI files:
 
-- `Closed Copies (History).png`
+- `My Copies (Closed) - History.png`
 - `Copy(Agent) Details - Closed.png`
 
 Sub-flows:

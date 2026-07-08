@@ -1,11 +1,12 @@
 import { type ReactNode, useState } from 'react'
 import { ChevronDown, ChevronUp } from 'react-feather'
 import { Link, useLocation } from 'react-router-dom'
-import { CopyTradingMyCopiesOverview, CopyTradingOverview } from 'services/copyTrading'
+import type { AgentCard, CopyRunSummary } from 'services/copyTrading/types'
 
 import DropdownMenu from 'components/DropdownMenu'
 import { Center, Stack } from 'components/Stack'
 import { APP_PATHS } from 'constants/index'
+import { getAgentInitials } from 'pages/CopyTrading/helpers'
 import { cn } from 'utils/cn'
 
 const SidebarSection = ({
@@ -91,33 +92,35 @@ const DEFAULT_VISIBLE_AGENTS = 5
 const ALL_NETWORKS = 'All Networks'
 
 const Sidebar = ({
-  data,
-  myCopiesOverview,
-  setSelectedAgent,
+  agents,
+  activeRuns,
+  setSelectedAgentId,
 }: {
-  data: CopyTradingOverview
-  myCopiesOverview: CopyTradingMyCopiesOverview
-  setSelectedAgent: (agent: string) => void
+  agents: AgentCard[]
+  activeRuns: CopyRunSummary[]
+  setSelectedAgentId: (agentId: string) => void
 }) => {
   const location = useLocation()
   const [expandedAgents, setExpandedAgents] = useState(false)
   const [selectedNetwork, setSelectedNetwork] = useState(ALL_NETWORKS)
 
   const isLeaderboardPage = location.pathname === APP_PATHS.COPY_TRADING
-  const isCopiesPage = location.pathname.startsWith(`${APP_PATHS.COPY_TRADING}/copies`)
-  const isCopyDetailPage = location.pathname.startsWith(`${APP_PATHS.COPY_TRADING}/copies/`)
+  const isCopiesPage = location.pathname.startsWith(`${APP_PATHS.COPY_TRADING}/my-copies`)
+  const isCopyDetailPage = location.pathname.startsWith(`${APP_PATHS.COPY_TRADING}/my-copies/`)
   const isHistoryPage = location.pathname === `${APP_PATHS.COPY_TRADING}/history`
   const isHistoryDetailPage = location.pathname.startsWith(`${APP_PATHS.COPY_TRADING}/history/`)
   const activeAgentCode = location.pathname.replace(`${APP_PATHS.COPY_TRADING}/`, '').split('/')[0]
-  const activeProfileAgent = data.leaderboard.find(agent => agent.id === activeAgentCode)
+  const activeProfileAgent = agents.find(agent => agent.agentId === activeAgentCode)
   const isAgentsPage = isLeaderboardPage || !!activeProfileAgent
   const isMyCopiesSectionActive = isCopiesPage || isHistoryPage || isHistoryDetailPage
   const activeCopyId = isCopyDetailPage ? location.pathname.split('/').at(-1) : ''
+  const agentById = new Map(agents.map(agent => [agent.agentId, agent]))
+  const networks = Array.from(new Set(agents.flatMap(agent => agent.chains.map(chain => chain.name))))
   const filteredAgents =
     selectedNetwork === ALL_NETWORKS
-      ? data.leaderboard
-      : data.leaderboard.filter(agent => agent.network === selectedNetwork)
-  const networkOptions = [ALL_NETWORKS, ...data.networks]
+      ? agents
+      : agents.filter(agent => agent.chains.some(chain => chain.name === selectedNetwork))
+  const networkOptions = [ALL_NETWORKS, ...networks]
   const networkDropdownOptions = networkOptions.map(network => ({
     label: network,
     value: network,
@@ -130,30 +133,34 @@ const Sidebar = ({
       <Stack className="gap-8">
         <SidebarSection title="My Copies" active={isMyCopiesSectionActive}>
           <SidebarMenuItem
-            to={`${APP_PATHS.COPY_TRADING}/copies`}
+            to={`${APP_PATHS.COPY_TRADING}/my-copies`}
             active={isCopiesPage}
             linkClassName="justify-between"
           >
             <span className={cn('text-sm', isCopiesPage ? 'text-primary' : 'text-subText')}>Open Copies</span>
             <Center className="size-6 rounded-full bg-primary-12 text-xs font-semibold text-primary">
-              {myCopiesOverview.activeSubscriptions.length}
+              {activeRuns.length}
             </Center>
           </SidebarMenuItem>
           <Stack className="gap-1.5">
-            {myCopiesOverview.activeSubscriptions.map(subscription => (
-              <SidebarMenuItem
-                key={subscription.id}
-                to={`${APP_PATHS.COPY_TRADING}/copies/${subscription.id}`}
-                active={activeCopyId === subscription.id}
-                activeClassName="text-primary"
-                linkClassName="gap-3"
-              >
-                <span className="size-2 rounded-full bg-primary" />
-                <span className={cn('text-sm', activeCopyId === subscription.id ? 'text-primary' : 'text-subText')}>
-                  {subscription.agent.name}
-                </span>
-              </SidebarMenuItem>
-            ))}
+            {activeRuns.map(run => {
+              const agent = agentById.get(run.agentId)
+
+              return (
+                <SidebarMenuItem
+                  key={run.copyRunId}
+                  to={`${APP_PATHS.COPY_TRADING}/my-copies/${run.copyRunId}`}
+                  active={activeCopyId === run.copyRunId}
+                  activeClassName="text-primary"
+                  linkClassName="gap-3"
+                >
+                  <span className="size-2 rounded-full bg-primary" />
+                  <span className={cn('text-sm', activeCopyId === run.copyRunId ? 'text-primary' : 'text-subText')}>
+                    {agent?.displayName || run.agentId}
+                  </span>
+                </SidebarMenuItem>
+              )
+            })}
           </Stack>
           <SidebarMenuItem
             to={`${APP_PATHS.COPY_TRADING}/history`}
@@ -185,23 +192,27 @@ const Sidebar = ({
           to={APP_PATHS.COPY_TRADING}
           active={isAgentsPage}
           count={filteredAgents.length}
-          onClick={() => setSelectedAgent('')}
+          onClick={() => setSelectedAgentId('')}
         >
           <Stack className="gap-1.5">
             {visibleAgents.map(agent => {
-              const activeAgentName = activeProfileAgent?.name
+              const activeAgentName = activeProfileAgent?.displayName
               return (
                 <SidebarMenuItem
-                  key={agent.name}
-                  to={`${APP_PATHS.COPY_TRADING}/${agent.id}`}
-                  active={activeAgentName === agent.name}
+                  key={agent.agentId}
+                  to={`${APP_PATHS.COPY_TRADING}/${agent.agentId}`}
+                  active={activeAgentName === agent.displayName}
                   activeClassName="text-primary"
-                  onClick={() => setSelectedAgent(agent.name)}
+                  onClick={() => setSelectedAgentId(agent.agentId)}
                   linkClassName="gap-3"
                 >
-                  <Center className="size-5 rounded-full bg-subText-20 text-xs text-subText">{agent.initials}</Center>
-                  <span className={cn('text-sm', activeAgentName === agent.name ? 'text-primary' : 'text-subText')}>
-                    {agent.name}
+                  <Center className="size-5 rounded-full bg-subText-20 text-xs text-subText">
+                    {getAgentInitials(agent.displayName)}
+                  </Center>
+                  <span
+                    className={cn('text-sm', activeAgentName === agent.displayName ? 'text-primary' : 'text-subText')}
+                  >
+                    {agent.displayName}
                   </span>
                 </SidebarMenuItem>
               )

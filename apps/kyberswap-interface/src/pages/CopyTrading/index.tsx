@@ -1,25 +1,27 @@
 import { useEffect, useState } from 'react'
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
-import {
-  copyTradingMockData,
-  useGetCopyTradingMyCopiesOverviewQuery,
-  useGetCopyTradingOverviewQuery,
-} from 'services/copyTrading'
+import copyTradingApi from 'services/copyTrading'
 
 import { APP_PATHS } from 'constants/index'
-
-import AgentProfileView from './AgentProfile'
-import CopiesView from './Copies'
-import CopyDetailView from './CopyDetail'
-import HistoryView from './History'
-import LeaderboardView from './Leaderboard'
-import Sidebar from './components/Sidebar'
+import AgentListView from 'pages/CopyTrading/AgentList'
+import AgentProfileView from 'pages/CopyTrading/AgentProfile'
+import CopyDetailView from 'pages/CopyTrading/CopyDetail'
+import CopyHistoryView from 'pages/CopyTrading/CopyHistory'
+import MyCopiesView from 'pages/CopyTrading/MyCopies'
+import Sidebar from 'pages/CopyTrading/components/Sidebar'
+import { OWNER_ADDRESS } from 'pages/CopyTrading/helpers'
 
 const CopyTrading = () => {
   const { pathname } = useLocation()
-  const { data = copyTradingMockData } = useGetCopyTradingOverviewQuery()
-  const { data: myCopiesOverview = copyTradingMockData.myCopiesOverview } = useGetCopyTradingMyCopiesOverviewQuery()
-  const [selectedAgent, setSelectedAgent] = useState(data.leaderboard.find(agent => agent.selected)?.name || '')
+  const { data: leaderboardSummary } = copyTradingApi.useGetLeaderboardSummaryQuery()
+  const { data: leaderboard } = copyTradingApi.useGetLeaderboardQuery()
+  const { data: activeRuns } = copyTradingApi.useGetCopyRunsQuery({
+    ownerAddress: OWNER_ADDRESS,
+    status: 'active',
+  })
+  const [selectedAgentId, setSelectedAgentId] = useState('')
+  const agents = leaderboard?.data || []
+  const activeCopyRuns = activeRuns?.data || []
 
   useEffect(() => {
     window.scrollTo({ top: 80, behavior: 'smooth' })
@@ -27,15 +29,22 @@ const CopyTrading = () => {
 
   return (
     <div className="flex min-h-screen w-full bg-black text-text max-lg:block">
-      <Sidebar data={data} myCopiesOverview={myCopiesOverview} setSelectedAgent={setSelectedAgent} />
+      <Sidebar agents={agents} activeRuns={activeCopyRuns} setSelectedAgentId={setSelectedAgentId} />
       <Routes>
         <Route
           index
-          element={<LeaderboardView data={data} selectedAgent={selectedAgent} setSelectedAgent={setSelectedAgent} />}
+          element={
+            <AgentListView
+              leaderboardSummary={leaderboardSummary?.data}
+              agents={agents}
+              selectedAgentId={selectedAgentId}
+              setSelectedAgentId={setSelectedAgentId}
+            />
+          }
         />
-        <Route path="copies" element={<CopiesView />} />
-        <Route path="copies/:copyId" element={<CopyDetailView backPath="copies" />} />
-        <Route path="history" element={<HistoryView />} />
+        <Route path="my-copies" element={<MyCopiesView />} />
+        <Route path="my-copies/:copyId" element={<CopyDetailView backPath="my-copies" />} />
+        <Route path="history" element={<CopyHistoryView />} />
         <Route path="history/:copyId" element={<CopyDetailView backPath="history" />} />
         <Route path=":agentCode" element={<AgentProfileView />} />
         <Route path="*" element={<Navigate to={APP_PATHS.COPY_TRADING} replace />} />
