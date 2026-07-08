@@ -1,4 +1,3 @@
-import dayjs from 'dayjs'
 import {
   CrosshairMode,
   LineStyle,
@@ -23,6 +22,7 @@ import {
   formatAxisTimeLabel,
   formatRate,
   formatSignedPercent,
+  formatTooltipTimeLabel,
 } from 'pages/Earns/PoolDetail/Information/utils'
 import PoolChartState, { PoolChartWrapper } from 'pages/Earns/PoolDetail/components/PoolChartState'
 import { usePoolDetailContext } from 'pages/Earns/PoolDetail/context'
@@ -49,9 +49,6 @@ type TooltipState = {
 }
 
 const invertPrice = (value: number) => (value === 0 ? 0 : 1 / value)
-
-const formatTooltipDate = (timestamp: number, window: PoolAnalyticsWindow) =>
-  dayjs.unix(timestamp).format(window === '30d' ? 'MMM D, YYYY' : 'MMM D, YYYY, HH:mm')
 
 const scheduleAfterNextPaint = (callback: () => void) => {
   let frameId = 0
@@ -135,7 +132,7 @@ const getChartOptions = ({
   timeScale: {
     borderVisible: false,
     tickMarkFormatter: (time: number) => formatAxisTimeLabel(time, window),
-    timeVisible: window === '24h',
+    timeVisible: window !== '30d',
   },
   localization: {
     priceFormatter: (value: number) => formatDisplayNumber(value, { fractionDigits: 4, fallback: '' }),
@@ -218,7 +215,7 @@ const PriceChartTooltip = ({ tooltip, window }: { tooltip: TooltipState; window:
       className="pointer-events-none absolute z-[2] min-w-[220px] gap-3 rounded-xl border border-border bg-tableHeader/80 px-4 py-3"
       style={{ left, top, boxShadow: `0 12px 32px ${theme.shadow}` }}
     >
-      <span className="text-xs text-subText">{formatTooltipDate(candle.time, window)}</span>
+      <span className="text-xs text-subText">{formatTooltipTimeLabel(candle.time, window)}</span>
 
       <div className="grid grid-cols-[auto_auto] gap-x-4 gap-y-2">
         <span className="text-xs text-subText">Open</span>

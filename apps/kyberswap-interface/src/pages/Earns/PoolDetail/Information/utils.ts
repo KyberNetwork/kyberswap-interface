@@ -54,12 +54,18 @@ export const formatCompactUsd = (value?: number) => {
   })
 }
 
-export const formatAxisTimeLabel = (timestamp: number, window: PoolAnalyticsWindow) => {
+type TimeLabelOptions = {
+  dateOnly?: boolean
+}
+
+export const formatAxisTimeLabel = (timestamp: number, window: PoolAnalyticsWindow, options?: TimeLabelOptions) => {
+  if (options?.dateOnly) return dayjs.unix(timestamp).format('MMM D')
   if (window === '24h') return dayjs.unix(timestamp).format('HH:mm')
   if (window === '7d') return dayjs.unix(timestamp).format('MMM D, HH:mm')
   return dayjs.unix(timestamp).format('MMM D')
 }
 
-export const formatTooltipTimeLabel = (timestamp: number, _window: PoolAnalyticsWindow) => {
+export const formatTooltipTimeLabel = (timestamp: number, _window: PoolAnalyticsWindow, options?: TimeLabelOptions) => {
+  if (options?.dateOnly) return dayjs.unix(timestamp).format('MMM D')
   return dayjs.unix(timestamp).format('MMM D, HH:mm')
 }

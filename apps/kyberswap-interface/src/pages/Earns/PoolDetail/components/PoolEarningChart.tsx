@@ -133,9 +133,13 @@ const EarningsTooltip = ({
 }) => {
   if (!active || !point) return null
 
+  const isDailyWindow = window === '7d' || window === '30d'
+
   return (
     <TooltipCard>
-      <span className="text-xs text-subText">{formatTooltipTimeLabel(point.ts, window)}</span>
+      <span className="text-xs text-subText">
+        {formatTooltipTimeLabel(point.ts, window, { dateOnly: isDailyWindow })}
+      </span>
       <TooltipGrid>
         <span className="text-xs text-subText">Total Earn</span>
         <span className="text-right text-xs font-medium text-text">{formatUsd(point.totalUsd)}</span>
@@ -208,6 +212,7 @@ const PoolEarningChart = ({ chainId, poolAddress, positionId }: PoolEarningChart
 
   const totalEarned = chartData.reduce((sum, point) => sum + point.totalUsd, 0)
   const hasChartData = chartData.length > 0
+  const isDailyWindow = window === '7d' || window === '30d'
 
   return (
     <Stack className="gap-4">
@@ -242,7 +247,7 @@ const PoolEarningChart = ({ chainId, poolAddress, positionId }: PoolEarningChart
                   stroke={theme.subText}
                   tick={{ fill: theme.subText, fontSize: 12 }}
                   tickLine={false}
-                  tickFormatter={(value: number) => formatAxisTimeLabel(value, window)}
+                  tickFormatter={(value: number) => formatAxisTimeLabel(value, window, { dateOnly: isDailyWindow })}
                 />
                 <YAxis
                   axisLine={false}
