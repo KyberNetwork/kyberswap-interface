@@ -1,28 +1,46 @@
+import type { HTMLAttributes } from 'react'
 import type { PositionSummary } from 'services/copyTrading/types'
 
-import { Stack } from 'components/Stack'
-import { TableCell, TableHeader, TableRow } from 'pages/CopyTrading/components/Table'
+import { HStack, Stack } from 'components/Stack'
+import { TableCell, TableHeader, TableRow } from 'pages/CopyTrading/components/common'
 import { formatDate, formatTokenAmount, formatUsd, signedPercent, signedUsd } from 'pages/CopyTrading/helpers'
 import { cn } from 'utils/cn'
 
-const openPositionsColumns =
-  'minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.15fr) minmax(0, 1.15fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr)'
-const tradeHistoryColumns =
-  'minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.15fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.2fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr)'
+const OpenPositionsGrid = ({ header, ...props }: HTMLAttributes<HTMLDivElement> & { header?: boolean }) => {
+  const Grid = header ? TableHeader : TableRow
+
+  return (
+    <Grid
+      columns="minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.15fr) minmax(0, 1.15fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr)"
+      {...props}
+    />
+  )
+}
+
+const TradeHistoryGrid = ({ header, ...props }: HTMLAttributes<HTMLDivElement> & { header?: boolean }) => {
+  const Grid = header ? TableHeader : TableRow
+
+  return (
+    <Grid
+      columns="minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.15fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.2fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr)"
+      {...props}
+    />
+  )
+}
 
 export const OpenPositionsTable = ({ rows }: { rows: PositionSummary[] }) => (
   <Stack>
-    <TableHeader columns={openPositionsColumns}>
+    <OpenPositionsGrid header>
       {['Trade ID', 'Token', 'Entry Price', 'Current Price', 'Amount', 'Value', 'P&L', 'Open Since'].map(item => (
         <TableCell key={item}>{item}</TableCell>
       ))}
-    </TableHeader>
+    </OpenPositionsGrid>
     {rows.map(row => {
       const pnl = row.unrealizedPnlUsd || row.realizedPnlUsd
       const isNegative = Number(pnl || 0) < 0
 
       return (
-        <TableRow key={row.positionId} columns={openPositionsColumns}>
+        <OpenPositionsGrid key={row.positionId}>
           <TableCell className="text-subText">{row.tradeId}</TableCell>
           <TableCell>{row.token.symbol}</TableCell>
           <TableCell>{formatUsd(row.entryPriceUsd)}</TableCell>
@@ -30,10 +48,13 @@ export const OpenPositionsTable = ({ rows }: { rows: PositionSummary[] }) => (
           <TableCell>{formatTokenAmount(row.amountDecimal)}</TableCell>
           <TableCell>{formatUsd(row.valueUsd)}</TableCell>
           <TableCell className={cn(isNegative ? 'text-red' : 'text-primary')}>
-            {signedUsd(pnl)} <span className="ml-2 text-xs">{signedPercent(row.unrealizedPnlPct)}</span>
+            <HStack className="items-center gap-2">
+              <span>{signedUsd(pnl)}</span>
+              <span className="text-xs">{signedPercent(row.unrealizedPnlPct)}</span>
+            </HStack>
           </TableCell>
           <TableCell className="text-subText">{formatDate(row.openedAt)}</TableCell>
-        </TableRow>
+        </OpenPositionsGrid>
       )
     })}
   </Stack>
@@ -41,18 +62,18 @@ export const OpenPositionsTable = ({ rows }: { rows: PositionSummary[] }) => (
 
 export const TradeHistoryTable = ({ rows }: { rows: PositionSummary[] }) => (
   <Stack>
-    <TableHeader columns={tradeHistoryColumns}>
+    <TradeHistoryGrid header>
       {['Trade ID', 'Token', 'Entry Price', 'Exit', 'Amount', 'Realised P&L', 'Fee', 'Cash Back', 'Closed'].map(
         item => (
           <TableCell key={item}>{item}</TableCell>
         ),
       )}
-    </TableHeader>
+    </TradeHistoryGrid>
     {rows.map(row => {
       const isNegative = Number(row.realizedPnlUsd || 0) < 0
 
       return (
-        <TableRow key={row.positionId} columns={tradeHistoryColumns}>
+        <TradeHistoryGrid key={row.positionId}>
           <TableCell className="text-subText">{row.tradeId}</TableCell>
           <TableCell>{row.token.symbol}</TableCell>
           <TableCell>{formatUsd(row.entryPriceUsd)}</TableCell>
@@ -64,7 +85,7 @@ export const TradeHistoryTable = ({ rows }: { rows: PositionSummary[] }) => (
           <TableCell>{formatUsd(row.feeUsd)}</TableCell>
           <TableCell>{formatUsd(row.rebateUsd)}</TableCell>
           <TableCell className="text-subText">{formatDate(row.closedAt)}</TableCell>
-        </TableRow>
+        </TradeHistoryGrid>
       )
     })}
   </Stack>

@@ -1,13 +1,22 @@
+import type { HTMLAttributes } from 'react'
 import type { AgentCard, CopyRunSummary } from 'services/copyTrading/types'
 
+import { ButtonEmpty, ButtonLight } from 'components/Button'
 import { HStack, Stack } from 'components/Stack'
-import { AgentCell } from 'pages/CopyTrading/components/AgentIdentity'
-import { TableCell, TableHeader, TableRow } from 'pages/CopyTrading/components/Table'
+import { AgentCell, TableCell, TableHeader, TableRow } from 'pages/CopyTrading/components/common'
 import { formatDate, formatUsd, signedUsd } from 'pages/CopyTrading/helpers'
 import { cn } from 'utils/cn'
 
-const closedSubscriptionsColumns =
-  'minmax(0, 2.4fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.15fr) minmax(0, 1.15fr) minmax(0, 1.2fr) minmax(0, 1fr) minmax(0, 1fr)'
+const ClosedSubscriptionsGrid = ({ header, ...props }: HTMLAttributes<HTMLDivElement> & { header?: boolean }) => {
+  const Grid = header ? TableHeader : TableRow
+
+  return (
+    <Grid
+      columns="minmax(0, 2.4fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.15fr) minmax(0, 1.15fr) minmax(0, 1.2fr) minmax(0, 1fr) minmax(0, 1fr)"
+      {...props}
+    />
+  )
+}
 
 const ClosedSubscriptionsTable = ({
   rows,
@@ -18,9 +27,9 @@ const ClosedSubscriptionsTable = ({
   agents: AgentCard[]
   onOpenSubscription: (subscription: CopyRunSummary) => void
 }) => (
-  <Stack className="overflow-hidden rounded-xl bg-buttonBlack">
+  <Stack className="overflow-hidden rounded-2xl bg-background/80">
     <Stack className="overflow-hidden">
-      <TableHeader columns={closedSubscriptionsColumns}>
+      <ClosedSubscriptionsGrid header>
         {[
           'Agent',
           'Closed Trades',
@@ -34,7 +43,7 @@ const ClosedSubscriptionsTable = ({
         ].map(item => (
           <TableCell key={item}>{item}</TableCell>
         ))}
-      </TableHeader>
+      </ClosedSubscriptionsGrid>
       {rows.map(subscription => {
         const agent = agents.find(item => item.agentId === subscription.agentId)
         if (!agent) return null
@@ -42,9 +51,8 @@ const ClosedSubscriptionsTable = ({
         const realizedPnl = signedUsd(subscription.realizedPnlUsd)
 
         return (
-          <TableRow
+          <ClosedSubscriptionsGrid
             key={subscription.copyRunId}
-            columns={closedSubscriptionsColumns}
             role="button"
             tabIndex={0}
             onClick={() => onOpenSubscription(subscription)}
@@ -64,23 +72,20 @@ const ClosedSubscriptionsTable = ({
             </TableCell>
             <TableCell>{formatUsd(subscription.feesPaidUsd)}</TableCell>
             <TableCell>{formatUsd(subscription.rebatesReceivedUsd)}</TableCell>
-          </TableRow>
+          </ClosedSubscriptionsGrid>
         )
       })}
     </Stack>
-    <HStack className="justify-center gap-2 border-t border-border p-4">
-      {['‹', '1', '2', '...', '99', '100', '›'].map(item => (
-        <button
-          key={item}
-          type="button"
-          className={cn(
-            'size-9 cursor-pointer rounded-full border-0 bg-background text-sm text-subText transition-colors hover:bg-primary-12 hover:text-primary',
-            item === '2' && 'bg-primary-20 text-primary',
-          )}
-        >
-          {item}
-        </button>
-      ))}
+    <HStack className="justify-center gap-2 bg-subText-04 p-3">
+      {['‹', '1', '2', '...', '99', '100', '›'].map(item => {
+        const PageButton = item === '2' ? ButtonLight : ButtonEmpty
+
+        return (
+          <PageButton key={item} type="button" padding="8px 12px">
+            {item}
+          </PageButton>
+        )
+      })}
     </HStack>
   </Stack>
 )
