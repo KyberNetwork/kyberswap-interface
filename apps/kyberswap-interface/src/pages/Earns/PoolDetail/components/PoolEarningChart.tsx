@@ -1,18 +1,6 @@
 import { Fragment, useMemo, useState } from 'react'
 import { useMedia } from 'react-use'
-import {
-  Bar,
-  CartesianGrid,
-  Cell,
-  ComposedChart,
-  LabelList,
-  Pie,
-  PieChart,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from 'recharts'
+import { Bar, CartesianGrid, ComposedChart, LabelList, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import { usePoolEarningsQuery, usePositionEarningsQuery } from 'services/earn'
 import type { PoolAnalyticsWindow, PoolEarningsBucket } from 'services/earn/types'
 
@@ -27,6 +15,7 @@ import {
   formatUsd,
 } from 'pages/Earns/PoolDetail/Information/utils'
 import PoolChartState, { PoolChartWrapper } from 'pages/Earns/PoolDetail/components/PoolChartState'
+import PoolEarningPieChart from 'pages/Earns/PoolDetail/components/PoolEarningPieChart'
 import { MEDIA_WIDTHS } from 'theme'
 
 type EarningsSegmentKey = 'lpFeeUsd' | 'lmUsd' | 'egUsd' | 'bonusUsd'
@@ -35,13 +24,6 @@ type EarningsBreakdownConfigItem = {
   color: string
   key: EarningsSegmentKey
   label: string
-}
-
-type EarningsBreakdownItem = {
-  color: string
-  key: EarningsSegmentKey
-  label: string
-  value: number
 }
 
 type EarningsChartPoint = PoolEarningsBucket & { showTotalLabel: boolean; topSegmentKey: EarningsSegmentKey | null }
@@ -60,10 +42,6 @@ const TooltipCard = ({ children }: { children: React.ReactNode }) => (
 
 const TooltipGrid = ({ children }: { children: React.ReactNode }) => (
   <div className="grid grid-cols-[auto_auto] gap-x-4 gap-y-2">{children}</div>
-)
-
-const LegendDot = ({ $color }: { $color: string }) => (
-  <span className="size-3 flex-shrink-0 rounded-full" style={{ background: $color }} />
 )
 
 const getVisibleLabelStep = (dataLength: number, upToSmall: boolean, window: PoolAnalyticsWindow) => {
@@ -122,12 +100,12 @@ type TotalBarLabelContentProps = {
 
 const EarningsTooltip = ({
   active,
-  breakdownItems,
+  breakdownConfig,
   point,
   window,
 }: {
   active?: boolean
-  breakdownItems: EarningsBreakdownItem[]
+  breakdownConfig: EarningsBreakdownConfigItem[]
   point?: EarningsChartPoint
   window: PoolAnalyticsWindow
 }) => {
@@ -143,7 +121,7 @@ const EarningsTooltip = ({
       <TooltipGrid>
         <span className="text-xs text-subText">Total Earn</span>
         <span className="text-right text-xs font-medium text-text">{formatUsd(point.totalUsd)}</span>
-        {breakdownItems.map(item => (
+        {breakdownConfig.map(item => (
           <Fragment key={item.key}>
             <span className="text-xs text-subText">{item.label}</span>
             <span className="text-right text-xs font-medium text-text">{formatUsd(point[item.key] ?? 0)}</span>
@@ -163,6 +141,7 @@ const PoolEarningChart = ({ chainId, poolAddress, positionId }: PoolEarningChart
   const breakdownChartSize = upToSmall ? 160 : 180
   const cursorColor = 'var(--ks-text-12)'
   const gridColor = 'rgba(255,255,255,0.06)'
+  const isPositionChart = !!positionId
 
   const poolEarningsQuery = usePoolEarningsQuery(
     { chainId, address: poolAddress || '', window },
@@ -173,12 +152,11 @@ const PoolEarningChart = ({ chainId, poolAddress, positionId }: PoolEarningChart
     { skip: !positionId },
   )
 
-  const isPositionChart = !!positionId
   const earningsData = isPositionChart ? positionEarningsQuery.data : poolEarningsQuery.data
-  const isError = isPositionChart ? positionEarningsQuery.isError : poolEarningsQuery.isError
-  const isLoading = isPositionChart ? positionEarningsQuery.isLoading : poolEarningsQuery.isLoading
+  const chartIsError = isPositionChart ? positionEarningsQuery.isError : poolEarningsQuery.isError
+  const chartIsLoading = isPositionChart ? positionEarningsQuery.isLoading : poolEarningsQuery.isLoading
   const buckets = useMemo(() => earningsData?.buckets ?? [], [earningsData?.buckets])
-  const hasBonusUsd = buckets.some(bucket => bucket.bonusUsd !== undefined)
+  const hasBonusUsd = useMemo(() => buckets.some(bucket => bucket.bonusUsd !== undefined), [buckets])
 
   const breakdownConfig = useMemo<EarningsBreakdownConfigItem[]>(() => {
     const items: EarningsBreakdownConfigItem[] = [
@@ -201,16 +179,6 @@ const PoolEarningChart = ({ chainId, poolAddress, positionId }: PoolEarningChart
     }))
   }, [breakdownConfig, buckets, upToSmall, window])
 
-  const breakdownItems = useMemo<EarningsBreakdownItem[]>(() => {
-    return breakdownConfig.map(item => ({
-      ...item,
-      value: chartData.reduce((sum, point) => sum + (point[item.key] ?? 0), 0),
-    }))
-  }, [breakdownConfig, chartData])
-
-  const pieData = useMemo(() => breakdownItems.filter(item => item.value > 0), [breakdownItems])
-
-  const totalEarned = chartData.reduce((sum, point) => sum + point.totalUsd, 0)
   const hasChartData = chartData.length > 0
   const isDailyWindow = window === '7d' || window === '30d'
 
@@ -225,133 +193,82 @@ const PoolEarningChart = ({ chainId, poolAddress, positionId }: PoolEarningChart
       <PoolChartState
         emptyMessage="No earnings data available."
         errorMessage="Unable to load earnings data."
-        exclusiveType="earning-chart"
         height={chartHeight}
         isEmpty={!hasChartData}
-        isError={isError}
-        isLoading={isLoading}
+        isError={chartIsError}
+        isLoading={chartIsLoading}
+        skeletonType="bar"
       >
-        <Stack className="gap-4">
-          <PoolChartWrapper $height={chartHeight}>
-            <ResponsiveContainer height="100%" width="100%">
-              <ComposedChart
-                barCategoryGap={upToSmall ? '24%' : '18%'}
-                data={chartData}
-                margin={{ top: 16, right: 0, bottom: 8, left: 0 }}
-              >
-                <CartesianGrid stroke={gridColor} vertical={false} />
-                <XAxis
-                  axisLine={false}
-                  dataKey="ts"
-                  minTickGap={24}
-                  stroke={theme.subText}
-                  tick={{ fill: theme.subText, fontSize: 12 }}
-                  tickLine={false}
-                  tickFormatter={(value: number) => formatAxisTimeLabel(value, window, { dateOnly: isDailyWindow })}
-                />
-                <YAxis
-                  axisLine={false}
-                  orientation="right"
-                  stroke={theme.subText}
-                  tick={{ fill: theme.subText, fontSize: 12 }}
-                  tickFormatter={(value: number) => formatCompactUsd(value)}
-                  tickLine={false}
-                  width={72}
-                />
-                <Tooltip
-                  content={({ active, payload }) => (
-                    <EarningsTooltip
-                      active={active}
-                      breakdownItems={breakdownItems}
-                      point={payload?.[0]?.payload as EarningsChartPoint | undefined}
-                      window={window}
-                    />
-                  )}
-                  cursor={{ stroke: cursorColor, strokeDasharray: '4 4' }}
-                />
-                {breakdownConfig.map(item => (
-                  <Bar
-                    animationBegin={0}
-                    dataKey={item.key}
-                    fill={item.color}
-                    isAnimationActive={true}
-                    key={item.key}
-                    radius={0}
-                    stackId="earnings"
-                  >
-                    <LabelList
-                      content={props => {
-                        const labelProps = props as TotalBarLabelContentProps
+        <PoolChartWrapper $height={chartHeight}>
+          <ResponsiveContainer height="100%" width="100%">
+            <ComposedChart
+              barCategoryGap={upToSmall ? '24%' : '18%'}
+              data={chartData}
+              margin={{ top: 16, right: 0, bottom: 8, left: 0 }}
+            >
+              <CartesianGrid stroke={gridColor} vertical={false} />
+              <XAxis
+                axisLine={false}
+                dataKey="ts"
+                minTickGap={24}
+                stroke={theme.subText}
+                tick={{ fill: theme.subText, fontSize: 12 }}
+                tickLine={false}
+                tickFormatter={(value: number) => formatAxisTimeLabel(value, window, { dateOnly: isDailyWindow })}
+              />
+              <YAxis
+                axisLine={false}
+                orientation="right"
+                stroke={theme.subText}
+                tick={{ fill: theme.subText, fontSize: 12 }}
+                tickFormatter={(value: number) => formatCompactUsd(value)}
+                tickLine={false}
+                width={72}
+              />
+              <Tooltip
+                content={({ active, payload }) => (
+                  <EarningsTooltip
+                    active={active}
+                    breakdownConfig={breakdownConfig}
+                    point={payload?.[0]?.payload as EarningsChartPoint | undefined}
+                    window={window}
+                  />
+                )}
+                cursor={{ stroke: cursorColor, strokeDasharray: '4 4' }}
+              />
+              {breakdownConfig.map(item => (
+                <Bar
+                  animationBegin={0}
+                  dataKey={item.key}
+                  fill={item.color}
+                  isAnimationActive={true}
+                  key={item.key}
+                  radius={0}
+                  stackId="earnings"
+                >
+                  <LabelList
+                    content={props => {
+                      const labelProps = props as TotalBarLabelContentProps
 
-                        return labelProps.payload?.topSegmentKey === item.key ? (
-                          <TotalBarLabel {...labelProps} fill={theme.subText} />
-                        ) : null
-                      }}
-                      dataKey="totalUsd"
-                    />
-                  </Bar>
-                ))}
-              </ComposedChart>
-            </ResponsiveContainer>
-          </PoolChartWrapper>
-
-          <Stack className="mx-auto flex-row items-center justify-center gap-5 max-sm:w-full max-sm:flex-col max-sm:gap-3 sm:w-fit">
-            <Stack className="relative shrink-0" style={{ height: breakdownChartSize, width: breakdownChartSize }}>
-              <ResponsiveContainer height="100%" width="100%">
-                <PieChart>
-                  <Pie
-                    cx="50%"
-                    cy="50%"
-                    data={[{ value: 1 }]}
-                    dataKey="value"
-                    innerRadius="60%"
-                    isAnimationActive={false}
-                    outerRadius="100%"
-                    stroke="transparent"
-                  >
-                    <Cell fill={theme.darkText} />
-                  </Pie>
-                  <Pie
-                    animationBegin={0}
-                    animationDuration={800}
-                    cornerRadius={4}
-                    cx="50%"
-                    cy="50%"
-                    data={pieData}
-                    dataKey="value"
-                    innerRadius="60%"
-                    isAnimationActive={true}
-                    outerRadius="100%"
-                    paddingAngle={3}
-                    stroke="transparent"
-                  >
-                    {pieData.map(item => (
-                      <Cell fill={item.color} key={item.key} />
-                    ))}
-                  </Pie>
-                </PieChart>
-              </ResponsiveContainer>
-
-              <Stack className="pointer-events-none absolute inset-0 items-center justify-center text-center">
-                <span className="text-sm text-subText">Total Earn</span>
-                <span className="text-lg font-medium text-text">{formatCompactUsd(totalEarned)}</span>
-              </Stack>
-            </Stack>
-
-            <Stack className="w-fit min-w-[180px] items-start gap-3 max-sm:items-center">
-              {breakdownItems.map(item => (
-                <HStack key={item.key} className="w-fit items-center justify-start gap-3">
-                  <LegendDot $color={item.color} />
-                  <HStack className="flex-wrap items-center justify-start gap-2">
-                    <span className="text-sm text-subText">{item.label}</span>
-                    <span className="text-sm font-medium text-text">{formatUsd(item.value)}</span>
-                  </HStack>
-                </HStack>
+                      return labelProps.payload?.topSegmentKey === item.key ? (
+                        <TotalBarLabel {...labelProps} fill={theme.subText} />
+                      ) : null
+                    }}
+                    dataKey="totalUsd"
+                  />
+                </Bar>
               ))}
-            </Stack>
-          </Stack>
-        </Stack>
+            </ComposedChart>
+          </ResponsiveContainer>
+        </PoolChartWrapper>
       </PoolChartState>
+
+      <PoolEarningPieChart
+        chainId={chainId}
+        poolAddress={poolAddress}
+        positionId={positionId}
+        size={breakdownChartSize}
+      />
     </Stack>
   )
 }
