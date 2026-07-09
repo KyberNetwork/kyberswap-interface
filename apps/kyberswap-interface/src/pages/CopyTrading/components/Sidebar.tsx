@@ -1,4 +1,4 @@
-import { type ReactNode, useState } from 'react'
+import { type PropsWithChildren, useState } from 'react'
 import { ChevronDown, ChevronUp } from 'react-feather'
 import { Link, useLocation } from 'react-router-dom'
 import type { AgentCard, Chain, CopyRunSummary } from 'services/copyTrading/types'
@@ -11,21 +11,15 @@ import { useCopyTradingContext } from 'pages/CopyTrading/context'
 import { getAgentInitials } from 'pages/CopyTrading/helpers'
 import { cn } from 'utils/cn'
 
-const SidebarSection = ({
-  title,
-  active,
-  count,
-  children,
-  onClick,
-  to,
-}: {
+type SidebarSectionProps = PropsWithChildren<{
   title: string
   active?: boolean
   count?: number
-  children: ReactNode
   onClick?: () => void
   to?: string
-}) => (
+}>
+
+const SidebarSection = ({ title, active, count, children, onClick, to }: SidebarSectionProps) => (
   <Stack className="gap-1.5">
     {to ? (
       <div
@@ -51,7 +45,7 @@ const SidebarSection = ({
     ) : (
       <div
         className={cn(
-          'flex h-9 items-center rounded-lg px-4 text-xs font-medium uppercase text-subText',
+          'flex h-8 items-center rounded-lg px-4 text-xs font-medium uppercase text-subText',
           active && 'bg-buttonBlack',
         )}
       >
@@ -62,6 +56,15 @@ const SidebarSection = ({
   </Stack>
 )
 
+type SidebarMenuItemProps = PropsWithChildren<{
+  to: string
+  active?: boolean
+  onClick?: () => void
+  activeStyle?: 'surface' | 'text'
+  layout?: 'default' | 'between' | 'row'
+  colorByActive?: boolean
+}>
+
 const SidebarMenuItem = ({
   to,
   active,
@@ -70,15 +73,7 @@ const SidebarMenuItem = ({
   activeStyle = 'surface',
   layout = 'default',
   colorByActive,
-}: {
-  to: string
-  active?: boolean
-  children: ReactNode
-  onClick?: () => void
-  activeStyle?: 'surface' | 'text'
-  layout?: 'default' | 'between' | 'row'
-  colorByActive?: boolean
-}) => (
+}: SidebarMenuItemProps) => (
   <div
     className={cn(
       'h-9 rounded-lg transition-colors hover:bg-primary-10',
@@ -105,15 +100,13 @@ const SidebarMenuItem = ({
 const DEFAULT_VISIBLE_AGENTS = 5
 const ALL_NETWORKS = 'all'
 
-const Sidebar = ({
-  agents,
-  activeRuns,
-  chains,
-}: {
+type SidebarProps = {
   agents: AgentCard[]
   activeRuns: CopyRunSummary[]
   chains: Chain[]
-}) => {
+}
+
+const Sidebar = ({ agents, activeRuns, chains }: SidebarProps) => {
   const location = useLocation()
   const [expandedAgents, setExpandedAgents] = useState(false)
   const { selectedChainId, setSelectedChainId } = useCopyTradingContext()
@@ -145,7 +138,7 @@ const Sidebar = ({
   const hiddenAgentCount = filteredAgents.length - visibleAgents.length
 
   return (
-    <aside className="sticky top-0 h-screen w-60 flex-none overflow-y-auto px-8 py-7 max-lg:hidden">
+    <aside className="sticky top-0 h-screen w-60 flex-none overflow-y-auto px-8 py-6 max-lg:hidden">
       <Stack className="gap-8">
         <SidebarSection title="My Copies" active={isMyCopiesSectionActive}>
           <SidebarMenuItem to={`${APP_PATHS.COPY_TRADING}/my-copies`} active={isCopiesPage} layout="between">
