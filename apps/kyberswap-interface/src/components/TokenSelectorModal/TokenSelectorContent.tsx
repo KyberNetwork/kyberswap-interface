@@ -773,7 +773,7 @@ export const TokenSelectorContent = ({
       </div>
 
       <div className="px-5 py-3 text-left text-xs italic text-subText">
-        <Trans>Data from on-chain trading activities. Not financial advice.</Trans>
+        <Trans>On-chain data for informational purposes only. Not financial advice.</Trans>
       </div>
 
       <SwitchChainModal
