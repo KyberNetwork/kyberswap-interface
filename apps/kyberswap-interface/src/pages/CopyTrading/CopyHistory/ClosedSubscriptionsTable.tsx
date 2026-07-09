@@ -1,10 +1,10 @@
-import type { HTMLAttributes } from 'react'
+import { type HTMLAttributes, useMemo } from 'react'
 import type { AgentCard, CopyRunSummary } from 'services/copyTrading/types'
 
-import { ButtonEmpty, ButtonLight } from 'components/Button'
-import { HStack, Stack } from 'components/Stack'
-import { TableCell, TableHeader, TableRow } from 'pages/CopyTrading/components/Table'
-import { AgentCell } from 'pages/CopyTrading/components/common'
+import { Stack } from 'components/Stack'
+import { TableBody, TableCell, TableHeader, TableRow } from 'pages/CopyTrading/components/Table'
+import { CopyRunAgentCell } from 'pages/CopyTrading/components/common'
+import { copyTradingStatIconMap } from 'pages/CopyTrading/constants'
 import { formatDate, formatUsd, signedUsd } from 'pages/CopyTrading/helpers'
 import { cn } from 'utils/cn'
 
@@ -27,73 +27,78 @@ const ClosedSubscriptionsGrid = ({ header, className, ...props }: ClosedSubscrip
 }
 
 type ClosedSubscriptionsTableProps = {
-  rows: CopyRunSummary[]
   agents: AgentCard[]
+  loading?: boolean
+  rows: CopyRunSummary[]
   onOpenSubscription: (subscription: CopyRunSummary) => void
 }
 
-const ClosedSubscriptionsTable = ({ rows, agents, onOpenSubscription }: ClosedSubscriptionsTableProps) => (
-  <Stack className="overflow-hidden rounded-2xl bg-background/80">
-    <Stack className="overflow-hidden">
+const ClosedSubscriptionsTable = ({ rows, agents, loading, onOpenSubscription }: ClosedSubscriptionsTableProps) => {
+  const agentsById = useMemo(
+    () =>
+      agents.reduce<Record<string, AgentCard>>((acc, agent) => {
+        acc[agent.agentId] = agent
+        return acc
+      }, {}),
+    [agents],
+  )
+
+  return (
+    <Stack className="overflow-hidden rounded-xl bg-buttonBlack-60">
       <ClosedSubscriptionsGrid header>
-        {[
-          'Agent',
-          'Closed Trades',
-          'Started',
-          'Stopped',
-          'Capital In',
-          'Capital Out',
-          'Realised P&L',
-          'Fees Paid',
-          'Rebates',
-        ].map(item => (
-          <TableCell key={item}>{item}</TableCell>
-        ))}
+        <TableCell>Agent</TableCell>
+        <TableCell className="text-right">Closed Trades</TableCell>
+        <TableCell className="text-right">Started</TableCell>
+        <TableCell className="text-right">Stopped</TableCell>
+        <TableCell className="text-right">Capital In</TableCell>
+        <TableCell className="text-right">Capital Out</TableCell>
+        <TableCell className="text-right">Realised P&L</TableCell>
+        <TableCell className="text-right">Fees Paid</TableCell>
+        <TableCell className="text-right">Rebates</TableCell>
       </ClosedSubscriptionsGrid>
-      {rows.map(subscription => {
-        const agent = agents.find(item => item.agentId === subscription.agentId)
-        if (!agent) return null
 
-        const realizedPnl = signedUsd(subscription.realizedPnlUsd)
+      <TableBody
+        empty={!rows.length}
+        emptyIconUrl={copyTradingStatIconMap.positionClose.iconUrl}
+        emptyMessage="No closed copies found"
+        loading={loading}
+      >
+        {rows.map(subscription => {
+          const realizedPnl = signedUsd(subscription.realizedPnlUsd)
 
-        return (
-          <ClosedSubscriptionsGrid
-            key={subscription.copyRunId}
-            role="button"
-            tabIndex={0}
-            onClick={() => onOpenSubscription(subscription)}
-            onKeyDown={event => {
-              if (event.key === 'Enter' || event.key === ' ') onOpenSubscription(subscription)
-            }}
-            className="cursor-pointer"
-          >
-            <AgentCell agent={agent} className="px-3 py-2" />
-            <TableCell>{subscription.closedTradeCount || subscription.openPositionCount}</TableCell>
-            <TableCell className="text-subText">{formatDate(subscription.startedAt)}</TableCell>
-            <TableCell className="text-subText">{formatDate(subscription.stoppedAt)}</TableCell>
-            <TableCell>{formatUsd(subscription.capitalInUsd)}</TableCell>
-            <TableCell>{formatUsd(subscription.capitalOutUsd)}</TableCell>
-            <TableCell className={cn(realizedPnl.startsWith('-') ? 'text-red' : 'text-primary')}>
-              {realizedPnl}
-            </TableCell>
-            <TableCell>{formatUsd(subscription.feesPaidUsd)}</TableCell>
-            <TableCell>{formatUsd(subscription.rebatesReceivedUsd)}</TableCell>
-          </ClosedSubscriptionsGrid>
-        )
-      })}
+          return (
+            <ClosedSubscriptionsGrid
+              key={subscription.copyRunId}
+              role="button"
+              tabIndex={0}
+              onClick={() => onOpenSubscription(subscription)}
+              onKeyDown={event => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                  event.preventDefault()
+                  onOpenSubscription(subscription)
+                }
+              }}
+              className="cursor-pointer"
+            >
+              <CopyRunAgentCell agent={agentsById[subscription.agentId]} run={subscription} className="px-3 py-2" />
+              <TableCell className="text-right">
+                {subscription.closedTradeCount || subscription.openPositionCount}
+              </TableCell>
+              <TableCell className="text-right text-subText">{formatDate(subscription.startedAt)}</TableCell>
+              <TableCell className="text-right text-subText">{formatDate(subscription.stoppedAt)}</TableCell>
+              <TableCell className="text-right">{formatUsd(subscription.capitalInUsd)}</TableCell>
+              <TableCell className="text-right">{formatUsd(subscription.capitalOutUsd)}</TableCell>
+              <TableCell className={cn('text-right', realizedPnl.startsWith('-') ? 'text-red' : 'text-primary')}>
+                {realizedPnl}
+              </TableCell>
+              <TableCell className="text-right">{formatUsd(subscription.feesPaidUsd)}</TableCell>
+              <TableCell className="text-right">{formatUsd(subscription.rebatesReceivedUsd)}</TableCell>
+            </ClosedSubscriptionsGrid>
+          )
+        })}
+      </TableBody>
     </Stack>
-    <HStack className="justify-center gap-2 bg-subText-04 p-3">
-      {['‹', '1', '2', '...', '99', '100', '›'].map(item => {
-        const PageButton = item === '2' ? ButtonLight : ButtonEmpty
-
-        return (
-          <PageButton key={item} type="button" padding="8px 12px">
-            {item}
-          </PageButton>
-        )
-      })}
-    </HStack>
-  </Stack>
-)
+  )
+}
 
 export default ClosedSubscriptionsTable
