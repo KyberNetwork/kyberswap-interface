@@ -2,7 +2,7 @@ import { ZapRouteDetail } from '@kyber/schema'
 import { formatAprNumber } from '@kyber/utils/number'
 import { Trans } from '@lingui/macro'
 import { skipToken } from '@reduxjs/toolkit/query'
-import { useEstimatePositionAprQuery } from 'services/zapEarn'
+import { useEstimatePositionAprQuery } from 'services/earn'
 
 import Skeleton from 'components/Skeleton'
 import { HStack, Stack } from 'components/Stack'

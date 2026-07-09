@@ -1,6 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { useMemo } from 'react'
-import { usePoolsExplorerQuery } from 'services/zapEarn'
+import { usePoolsExplorerQuery } from 'services/earn'
 
 import { PAIR_CATEGORY } from 'constants/index'
 import { FilterTag } from 'pages/Earns/PoolExplorer/Filter'

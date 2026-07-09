@@ -2,7 +2,7 @@ import { Trans, t } from '@lingui/macro'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
-import { useUserPositionsQuery } from 'services/zapEarn'
+import { useUserPositionsQuery } from 'services/earn'
 
 import { ReactComponent as FarmingIcon } from 'assets/svg/kyber/kem.svg'
 import { ReactComponent as RocketIcon } from 'assets/svg/rocket.svg'

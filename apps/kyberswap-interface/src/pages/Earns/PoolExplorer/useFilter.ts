@@ -1,7 +1,7 @@
 import { ChainId } from '@kyber/schema'
 import { useCallback, useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { PoolQueryParams } from 'services/zapEarn'
+import type { PoolQueryParams } from 'services/earn/types'
 
 import { useActiveWeb3React } from 'hooks'
 import { SortBy } from 'pages/Earns/PoolExplorer'

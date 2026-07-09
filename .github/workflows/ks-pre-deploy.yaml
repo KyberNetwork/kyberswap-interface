@@ -48,7 +48,7 @@ jobs:
           CI: false
           NODE_OPTIONS: "--max_old_space_size=4096"
         working-directory: apps/kyberswap-interface
-        run: pnpm build-prod
+        run: pnpm build
 
       # Fail the build if the eager entry chunk regresses past its gzip budget (see
       # apps/kyberswap-interface/scripts/check-entry-size.mjs). Runs on the build just produced above.

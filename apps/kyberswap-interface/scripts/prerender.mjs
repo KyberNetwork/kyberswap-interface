@@ -154,7 +154,8 @@ async function main() {
   const template = readFileSync(resolve(appRoot, 'build/index.html'), 'utf8')
   const manifest = JSON.parse(readFileSync(resolve(appRoot, 'build/manifest.json'), 'utf8'))
 
-  // production mode so .env.production is loaded (constants/env.ts hard-throws on missing VITE_*).
+  // production mode so the esbuild config branch matches the client build (constants/env.ts
+  // hard-throws on missing VITE_*, which the single committed .env supplies in every mode).
   const vite = await createServer({
     root: appRoot,
     mode: 'production',

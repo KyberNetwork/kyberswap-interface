@@ -3,7 +3,7 @@ import { Bound, LiquidityChartRangeInput } from '@kyberswap/liquidity-chart'
 import '@kyberswap/liquidity-chart/style.css'
 import { useEffect, useMemo } from 'react'
 import { useMedia } from 'react-use'
-import { usePoolDetailQuery } from 'services/zapEarn'
+import { usePoolDetailQuery } from 'services/earn'
 
 import { ChartWrapper } from 'pages/Earns/PositionDetail/styles'
 import { MEDIA_WIDTHS } from 'theme'

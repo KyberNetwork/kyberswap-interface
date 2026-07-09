@@ -10,6 +10,7 @@ import coingeckoApi from 'services/coingecko'
 import commonServiceApi from 'services/commonService'
 import contractQuery from 'services/contractQuery'
 import crosschainApi from 'services/crossChain'
+import earnServiceApi from 'services/earn'
 import externalApi from 'services/externalApi'
 import geckoTerminalApi from 'services/geckoTermial'
 import identifyApi from 'services/identity'
@@ -31,7 +32,6 @@ import tokenApi from 'services/token'
 import tokenCatalogApi from 'services/tokenCatalog'
 import tokenChartApi from 'services/tokenChart'
 import zapApi from 'services/zap'
-import zapEarnServiceApi from 'services/zapEarn'
 
 import application from 'state/application/reducer'
 import authen from 'state/authen/reducer'
@@ -117,7 +117,7 @@ const rootReducer = combineReducers({
   [zapApi.reducerPath]: zapApi.reducer,
   [routeApi.reducerPath]: routeApi.reducer,
   [tokenApi.reducerPath]: tokenApi.reducer,
-  [zapEarnServiceApi.reducerPath]: zapEarnServiceApi.reducer,
+  [earnServiceApi.reducerPath]: earnServiceApi.reducer,
   [rewardServiceApi.reducerPath]: rewardServiceApi.reducer,
   [rewardMerklApi.reducerPath]: rewardMerklApi.reducer,
   [kyberdataServiceApi.reducerPath]: kyberdataServiceApi.reducer,
@@ -155,7 +155,7 @@ const apiMiddlewares: Middleware[] = [
   socialApi,
   tokenApi,
   zapApi,
-  zapEarnServiceApi,
+  earnServiceApi,
   rewardServiceApi,
   rewardMerklApi,
   kyberdataServiceApi,

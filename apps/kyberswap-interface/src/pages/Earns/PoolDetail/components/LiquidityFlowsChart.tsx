@@ -11,7 +11,8 @@ import {
   XAxis,
   YAxis,
 } from 'recharts'
-import { type PoolAnalyticsWindow, usePoolLiquidityFlowsQuery } from 'services/zapEarn'
+import { usePoolLiquidityFlowsQuery } from 'services/earn'
+import type { PoolAnalyticsWindow } from 'services/earn/types'
 
 import SegmentedControl from 'components/SegmentedControl'
 import useTheme from 'hooks/useTheme'
@@ -56,12 +57,16 @@ const LiquidityFlowsTooltip = ({
 
   if (!active || !point) return null
 
+  const isDailyWindow = window === '30d'
+
   return (
     <div
       className="flex min-w-[220px] flex-col gap-3 rounded-xl border border-border bg-tableHeader/80 px-4 py-3"
       style={{ boxShadow: `0 12px 32px ${theme.shadow}` }}
     >
-      <span className="text-xs text-subText">{formatTooltipTimeLabel(point.ts, window)}</span>
+      <span className="text-xs text-subText">
+        {formatTooltipTimeLabel(point.ts, window, { dateOnly: isDailyWindow })}
+      </span>
       <div className="grid grid-cols-[auto_auto] gap-x-4 gap-y-2">
         <span className="text-xs text-subText">Add Liquidity</span>
         <span className="text-right text-xs font-medium text-text">{formatUsd(Math.abs(point.addUsd))}</span>
