@@ -65,11 +65,15 @@ export const formatOrders = (
       const takerCurrencyAmount = CurrencyAmount.fromRawAmount(newTakerCurrency, order.takingAmount)
       const availableMakerCurrencyAmount = CurrencyAmount.fromRawAmount(newMakerCurrency, order.availableMakingAmount)
 
+      // Cap the significant digits well below decimal.js-light's LN10 limit (~110): Fraction.toSignificant
+      // mutates the shared global Decimal.precision, and recharts reuses the same singleton for axis ticks —
+      // leaving precision high there makes every chart throw `LN10 precision limit exceeded`. 30 digits keep
+      // full double precision for the rate, which is only parseFloat'd and re-formatted to 6 figures downstream.
       const rate = (
         !reverse
           ? takerCurrencyAmount.divide(makerCurrencyAmount).multiply(makerCurrencyAmount.decimalScale)
           : makerCurrencyAmount.divide(takerCurrencyAmount).multiply(takerCurrencyAmount.decimalScale)
-      ).toSignificant(100)
+      ).toSignificant(30)
 
       const filledMakingAmount = CurrencyAmount.fromRawAmount(newMakerCurrency, order.filledMakingAmount)
       const filledPercent = (parseFloat(filledMakingAmount.toExact()) / parseFloat(makerCurrencyAmount.toExact())) * 100

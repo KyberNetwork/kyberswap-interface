@@ -2,7 +2,6 @@ import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 
 import InfoHelper from 'components/InfoHelper'
-import { RESERVE_USD_DECIMALS } from 'constants/index'
 import { cn } from 'utils/cn'
 
 export type Level = 'better' | 'worse' | 'worst' | undefined
@@ -19,7 +18,7 @@ const LEVEL_CLASS: Record<NonNullable<Level>, string> = {
 }
 
 export default function UpdatedBadge({ $level, outputAmount }: Props) {
-  const output = `${outputAmount.toSignificant(RESERVE_USD_DECIMALS)} ${outputAmount.currency.symbol}`
+  const output = `${outputAmount.toExact()} ${outputAmount.currency.symbol}`
 
   if (!$level) {
     return null
