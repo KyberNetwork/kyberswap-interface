@@ -1,10 +1,11 @@
-import type { HTMLAttributes } from 'react'
+import { type HTMLAttributes, useMemo } from 'react'
 import type { AgentCard, CopyRunSummary } from 'services/copyTrading/types'
 
 import { ButtonLight } from 'components/Button'
 import { Stack } from 'components/Stack'
-import { TableCell, TableHeader, TableRow } from 'pages/CopyTrading/components/Table'
-import { AgentCell } from 'pages/CopyTrading/components/common'
+import { TableBody, TableCell, TableHeader, TableRow } from 'pages/CopyTrading/components/Table'
+import { CopyRunAgentCell } from 'pages/CopyTrading/components/common'
+import { copyTradingStatIconMap } from 'pages/CopyTrading/constants'
 import { compactUsd, formatUsd, percent } from 'pages/CopyTrading/helpers'
 import { cn } from 'utils/cn'
 
@@ -27,24 +28,41 @@ const ActiveSubscriptionsGrid = ({ header, className, ...props }: ActiveSubscrip
 }
 
 type ActiveSubscriptionsTableProps = {
-  rows: CopyRunSummary[]
   agents: AgentCard[]
+  loading?: boolean
+  rows: CopyRunSummary[]
   onOpenSubscription: (subscription: CopyRunSummary) => void
 }
 
-const ActiveSubscriptionsTable = ({ rows, agents, onOpenSubscription }: ActiveSubscriptionsTableProps) => (
-  <Stack className="overflow-hidden rounded-2xl bg-background/80">
-    <Stack className="overflow-hidden">
-      <ActiveSubscriptionsGrid header>
-        {['Agent', 'Agent APR', 'Win Rates', 'Volume', 'Capital In', 'Positions', ''].map(item => (
-          <TableCell key={item}>{item}</TableCell>
-        ))}
-      </ActiveSubscriptionsGrid>
-      {rows.map(subscription => {
-        const agent = agents.find(item => item.agentId === subscription.agentId)
-        if (!agent) return null
+const ActiveSubscriptionsTable = ({ rows, agents, loading, onOpenSubscription }: ActiveSubscriptionsTableProps) => {
+  const agentsById = useMemo(
+    () =>
+      agents.reduce<Record<string, AgentCard>>((acc, agent) => {
+        acc[agent.agentId] = agent
+        return acc
+      }, {}),
+    [agents],
+  )
 
-        return (
+  return (
+    <Stack className="overflow-hidden rounded-xl bg-buttonBlack-60">
+      <ActiveSubscriptionsGrid header>
+        <TableCell>Agent</TableCell>
+        <TableCell className="text-right">Agent APR</TableCell>
+        <TableCell className="text-right">Win Rates</TableCell>
+        <TableCell className="text-right">Volume</TableCell>
+        <TableCell className="text-right">Capital In</TableCell>
+        <TableCell className="text-right">Positions</TableCell>
+        <TableCell />
+      </ActiveSubscriptionsGrid>
+
+      <TableBody
+        empty={!rows.length}
+        emptyIconUrl={copyTradingStatIconMap.agents.iconUrl}
+        emptyMessage="No active copies found"
+        loading={loading}
+      >
+        {rows.map(subscription => (
           <ActiveSubscriptionsGrid
             key={subscription.copyRunId}
             role="button"
@@ -55,26 +73,29 @@ const ActiveSubscriptionsTable = ({ rows, agents, onOpenSubscription }: ActiveSu
             }}
             onKeyDown={event => {
               if ((event.target as HTMLElement).closest('button')) return
-              if (event.key === 'Enter' || event.key === ' ') onOpenSubscription(subscription)
+              if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault()
+                onOpenSubscription(subscription)
+              }
             }}
             className="cursor-pointer"
           >
-            <AgentCell agent={agent} className="px-3 py-2" />
-            <TableCell className="text-primary">{percent(subscription.agentStats.apr30dPct)}</TableCell>
-            <TableCell>{percent(subscription.agentStats.winRatePct)}</TableCell>
-            <TableCell>{compactUsd(subscription.agentStats.volumeUsd)}</TableCell>
-            <TableCell>{formatUsd(subscription.capitalInUsd)}</TableCell>
-            <TableCell>{subscription.openPositionCount}</TableCell>
-            <div className="px-3 py-2">
+            <CopyRunAgentCell agent={agentsById[subscription.agentId]} run={subscription} className="px-3 py-2" />
+            <TableCell className="text-right text-primary">{percent(subscription.agentStats.apr30dPct)}</TableCell>
+            <TableCell className="text-right">{percent(subscription.agentStats.winRatePct)}</TableCell>
+            <TableCell className="text-right">{compactUsd(subscription.agentStats.volumeUsd)}</TableCell>
+            <TableCell className="text-right">{formatUsd(subscription.capitalInUsd)}</TableCell>
+            <TableCell className="text-right">{subscription.openPositionCount}</TableCell>
+            <TableCell className="flex justify-end">
               <ButtonLight type="button" padding="8px 12px">
                 Stop Copying
               </ButtonLight>
-            </div>
+            </TableCell>
           </ActiveSubscriptionsGrid>
-        )
-      })}
+        ))}
+      </TableBody>
     </Stack>
-  </Stack>
-)
+  )
+}
 
 export default ActiveSubscriptionsTable
