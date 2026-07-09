@@ -1,19 +1,17 @@
-import { type HTMLAttributes, type PropsWithChildren, useState } from 'react'
-import { ArrowLeft, Copy, Shield, Zap } from 'react-feather'
+import { type PropsWithChildren, type ReactNode, useState } from 'react'
+import { ArrowLeft, Zap } from 'react-feather'
 import { useNavigate } from 'react-router-dom'
 import type { AgentCard, AgentProfile } from 'services/copyTrading/types'
 
 import verifiedIcon from 'assets/images/copy-trading/verified.svg'
 import { ButtonEmpty, ButtonLight, ButtonPrimary } from 'components/Button'
+import CopyHelper from 'components/Copy'
 import { Center, HStack, Stack } from 'components/Stack'
-import { formatDate, getAgentDisplayName, getAgentInitials, shortAddress } from 'pages/CopyTrading/helpers'
+import { formatDate, getAgentDisplayName, getAgentInitials } from 'pages/CopyTrading/helpers'
+import { shortenAddress } from 'utils'
 import { cn } from 'utils/cn'
 
 import { Badge, StrategyBadge } from './Badge'
-
-type TableGridProps = HTMLAttributes<HTMLDivElement> & {
-  columns: string
-}
 
 type CopyTradingPageBackTo = {
   label: string
@@ -22,63 +20,87 @@ type CopyTradingPageBackTo = {
 
 type CopyTradingPageProps = PropsWithChildren<{
   backTo?: CopyTradingPageBackTo
+  className?: string
 }>
+
+type AgentCellSize = 'sm' | 'lg'
+
+type AgentCellProps = {
+  agent: AgentCard | AgentProfile
+  className?: string
+  size?: AgentCellSize
+  subLineExtension?: ReactNode
+}
 
 const chartRanges = ['7D', '1M', '3M', 'All'] as const
 
 const getLeaderAddress = (agent: AgentCard | AgentProfile) =>
   'leaderAddress' in agent ? agent.leaderAddress : agent.leaderAddresses[0]
 
+const getAgentPrimaryChain = (agent: AgentCard | AgentProfile) => agent.chains[0]
+
 const isVerifiedAgent = (agent: AgentCard | AgentProfile) =>
   'isVerified' in agent ? agent.isVerified : agent.badges.includes('Verified')
 
-export const CopyTradingPage = ({ children, backTo }: CopyTradingPageProps) => {
+export const CopyTradingPage = ({ children, backTo, className }: CopyTradingPageProps) => {
   const navigate = useNavigate()
 
   return (
-    <main className="min-w-0 flex-1 px-8 py-6 max-md:px-4 max-md:py-8">
-      <Stack className="w-full gap-4">
-        {backTo && (
-          <div className="w-fit">
-            <ButtonEmpty
-              type="button"
-              onClick={() => navigate(backTo.to)}
-              padding="0"
-              className="text-subText transition-colors hover:text-text focus-visible:text-text"
-            >
-              <HStack className="items-center gap-2">
-                <ArrowLeft size={16} />
-                Back to {backTo.label}
-              </HStack>
-            </ButtonEmpty>
-          </div>
-        )}
-        {children}
-      </Stack>
-    </main>
+    <Stack as="main" className={cn('w-full min-w-0 flex-1 gap-4 px-8 py-6 max-md:px-4 max-md:py-8', className)}>
+      {backTo && (
+        <div className="w-fit">
+          <ButtonEmpty
+            type="button"
+            onClick={() => navigate(backTo.to)}
+            padding="0"
+            className="text-subText transition-colors hover:text-text focus-visible:text-text"
+          >
+            <HStack className="items-center gap-2">
+              <ArrowLeft size={16} />
+              Back to {backTo.label}
+            </HStack>
+          </ButtonEmpty>
+        </div>
+      )}
+      {children}
+    </Stack>
   )
 }
 
-export const AgentCell = ({ agent, className }: { agent: AgentCard | AgentProfile; className?: string }) => {
-  const chain = 'chains' in agent ? agent.chains[0] : undefined
+export const AgentCell = ({ agent, className, size = 'sm', subLineExtension }: AgentCellProps) => {
+  const chain = getAgentPrimaryChain(agent)
+  const displayName = getAgentDisplayName(agent)
+  const isLarge = size === 'lg'
 
   return (
     <HStack className={cn('min-w-0 items-center gap-4', className)}>
-      <Center className="relative size-10 shrink-0 rounded-full bg-buttonGray text-sm font-medium text-subText">
-        {getAgentInitials(getAgentDisplayName(agent))}
-        <Center className="absolute -bottom-0.5 -right-0.5">
-          {chain?.iconUrl && <img src={chain.iconUrl} alt={chain.name} className="size-4 rounded-full" />}
-        </Center>
+      <Center
+        className={cn(
+          'relative shrink-0 rounded-full bg-buttonGray font-medium text-subText',
+          isLarge ? 'size-14 text-2xl' : 'size-10 text-sm',
+        )}
+      >
+        {getAgentInitials(displayName)}
+        {chain?.iconUrl && (
+          <Center className="absolute -bottom-0.5 -right-0.5">
+            <img src={chain.iconUrl} alt={chain.name} className={cn('rounded-full', isLarge ? 'size-5' : 'size-4')} />
+          </Center>
+        )}
       </Center>
-      <Stack className="min-w-0 gap-1">
+      <Stack className={cn('min-w-0', isLarge ? 'gap-2' : 'gap-1')}>
         <HStack className="min-w-0 items-center gap-2">
-          <span className="truncate text-base font-medium text-text">{agent.displayName}</span>
+          {isLarge ? (
+            <h1 className="truncate text-2xl font-medium text-text">{displayName}</h1>
+          ) : (
+            <span className="truncate text-base font-medium text-text">{displayName}</span>
+          )}
           {isVerifiedAgent(agent) && <img src={verifiedIcon} alt="Verified" className="size-5 shrink-0" />}
           {agent.isTrending && <span className="text-sm">🔥</span>}
         </HStack>
-        <HStack className="items-center gap-2">
+        <HStack className={cn('items-center gap-2', isLarge && 'flex-wrap')}>
           <StrategyBadge strategy={agent.strategy} />
           <Badge color="gray">{agent.modelName}</Badge>
+          {subLineExtension}
         </HStack>
       </Stack>
     </HStack>
@@ -86,66 +108,31 @@ export const AgentCell = ({ agent, className }: { agent: AgentCard | AgentProfil
 }
 
 export const AgentIdentity = ({ agent }: { agent: AgentCard | AgentProfile }) => (
-  <HStack className="min-w-0 items-center gap-5 max-md:items-start">
-    <Center className="relative size-14 shrink-0 rounded-full bg-gray text-2xl text-text">
-      {getAgentInitials(agent.displayName)}
-      <Center className="absolute -bottom-1 -right-1 size-4 rounded-full bg-white text-black">
-        <Shield size={10} />
-      </Center>
-    </Center>
-    <Stack className="min-w-0 gap-2">
-      <HStack className="min-w-0 items-center gap-2">
-        <h1 className="truncate text-3xl text-text">{agent.displayName}</h1>
-        {isVerifiedAgent(agent) && <img src={verifiedIcon} alt="Verified" className="size-5 shrink-0" />}
-      </HStack>
-      <HStack className="flex-wrap items-center gap-2 text-sm text-subText">
-        <StrategyBadge strategy={agent.strategy} />
-        <Badge color="gray">{agent.modelName}</Badge>
+  <AgentCell
+    agent={agent}
+    size="lg"
+    subLineExtension={
+      <HStack className="flex-wrap items-center gap-2 text-sm font-medium text-subText">
         <span>•</span>
-        <span>{shortAddress(getLeaderAddress(agent))}</span>
-        <Copy size={13} />
+        <span>{shortenAddress(getAgentPrimaryChain(agent).chainId, getLeaderAddress(agent))}</span>
+        <CopyHelper toCopy={getLeaderAddress(agent)} margin="0" size={13} className="text-subText" />
         {'performanceFeePct' in agent && (
           <>
             <span>•</span>
-            <span>Fee: {agent.performanceFeePct}% of profits</span>
+            <span>Fee:</span>
+            <span className="text-text">{agent.performanceFeePct}% of profits</span>
           </>
         )}
         {'liveSince' in agent && (
           <>
             <span>•</span>
             <span className="text-primary">Live since</span>
-            <span>{formatDate(agent.liveSince).split(' ')[0]}</span>
+            <span className="text-text">{formatDate(agent.liveSince).split(' ')[0]}</span>
           </>
         )}
       </HStack>
-    </Stack>
-  </HStack>
-)
-
-export const TableHeader = ({ columns, className, style, ...rest }: TableGridProps) => (
-  <div
-    className={cn(
-      'grid w-full items-center border-b border-tableHeader p-3 text-xs font-medium uppercase text-subText',
-      className,
-    )}
-    style={{ gridTemplateColumns: columns, ...style }}
-    {...rest}
+    }
   />
-)
-
-export const TableRow = ({ columns, className, style, ...rest }: TableGridProps) => (
-  <div
-    className={cn(
-      'grid w-full items-center p-3 text-sm text-text outline-none transition-colors hover:bg-primary-10 focus-visible:bg-primary-10',
-      className,
-    )}
-    style={{ gridTemplateColumns: columns, ...style }}
-    {...rest}
-  />
-)
-
-export const TableCell = ({ className, ...rest }: HTMLAttributes<HTMLSpanElement>) => (
-  <span className={cn('min-w-0 break-words px-3 py-2', className)} {...rest} />
 )
 
 export const LineChartMock = () => {

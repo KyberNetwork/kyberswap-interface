@@ -3,16 +3,24 @@ import type { AgentCard, CopyRunSummary } from 'services/copyTrading/types'
 
 import { ButtonEmpty, ButtonLight } from 'components/Button'
 import { HStack, Stack } from 'components/Stack'
-import { AgentCell, TableCell, TableHeader, TableRow } from 'pages/CopyTrading/components/common'
+import { TableCell, TableHeader, TableRow } from 'pages/CopyTrading/components/Table'
+import { AgentCell } from 'pages/CopyTrading/components/common'
 import { formatDate, formatUsd, signedUsd } from 'pages/CopyTrading/helpers'
 import { cn } from 'utils/cn'
 
-const ClosedSubscriptionsGrid = ({ header, ...props }: HTMLAttributes<HTMLDivElement> & { header?: boolean }) => {
+type ClosedSubscriptionsGridProps = HTMLAttributes<HTMLDivElement> & {
+  header?: boolean
+}
+
+const ClosedSubscriptionsGrid = ({ header, className, ...props }: ClosedSubscriptionsGridProps) => {
   const Grid = header ? TableHeader : TableRow
 
   return (
     <Grid
-      columns="minmax(0, 2.4fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.15fr) minmax(0, 1.15fr) minmax(0, 1.2fr) minmax(0, 1fr) minmax(0, 1fr)"
+      className={cn(
+        'grid-cols-[minmax(0,2.4fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1.15fr)_minmax(0,1.15fr)_minmax(0,1.2fr)_minmax(0,1fr)_minmax(0,1fr)]',
+        className,
+      )}
       {...props}
     />
   )

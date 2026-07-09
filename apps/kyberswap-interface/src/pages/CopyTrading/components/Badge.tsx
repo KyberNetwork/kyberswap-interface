@@ -17,7 +17,7 @@ export const Badge = ({ children, color }: BadgeProps) => (
       color === 'red' && 'bg-red-20 text-red',
       color === 'blue' && 'bg-blue/20 text-blue',
       color === 'primary' && 'bg-primary-12 text-primary',
-      color === 'gray' && 'bg-subText-20 px-3 font-normal text-subText',
+      color === 'gray' && 'bg-subText-20 px-3 text-subText',
     )}
   >
     {children}

@@ -416,6 +416,7 @@ const agentProfiles: Record<string, AgentProfile> = Object.fromEntries(
       modelName: agent.modelName,
       badges: agent.badges,
       isTrending: agent.isTrending,
+      chains: agent.chains,
       performanceFeePct: '10',
       liveSince: '2025-03-01T00:00:00Z',
       stats: agent.stats,
