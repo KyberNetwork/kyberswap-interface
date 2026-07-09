@@ -37,9 +37,12 @@ const NoDataPanel = () => (
 )
 
 const SectionLabel = ({ color, label, symbol }: { color: string; label: React.ReactNode; symbol?: string }) => (
-  <div className="border-b border-border/20 px-4 py-3 text-sm font-medium tracking-[0.08em]" style={{ color }}>
-    {label} <span className="text-text">{symbol}</span>
-  </div>
+  <>
+    <div className="px-4 py-3 text-sm font-medium tracking-[0.08em]" style={{ color }}>
+      {label} <span className="text-text">{symbol}</span>
+    </div>
+    <hr style={{ borderColor: color, opacity: 0.2 }} />
+  </>
 )
 
 const OrderSide = ({ children, reverse }: { children: React.ReactNode; reverse?: boolean }) => {
@@ -47,7 +50,7 @@ const OrderSide = ({ children, reverse }: { children: React.ReactNode; reverse?:
 }
 
 const OrderBook = () => {
-  const { chainId, networkInfo } = useActiveWeb3React()
+  const { chainId } = useActiveWeb3React()
   const { setPriceInputRequest } = useLimitOrderContext()
   const { currencyIn: makerCurrency, currencyOut: takerCurrency } = useLimitState()
   const { isStableCoin } = useStableCoins(chainId)
@@ -191,19 +194,16 @@ const OrderBook = () => {
       </OrderSide>
 
       <RowWrapper className="bg-background px-4 py-3 text-xl font-medium leading-6">
-        <span className="flex items-center justify-center">
-          <img className="size-5" src={networkInfo?.icon} alt="Network" />
-        </span>
-        <button
-          type="button"
-          className="col-start-4 justify-self-end border-none bg-transparent p-0 text-right text-inherit hover:brightness-75 max-sm:col-start-2"
-          onClick={handleSetMarketRate}
-          disabled={!marketRate || !invertRate}
-          aria-label="Set market rate"
-        >
-          {displayedMarketRate ? formatDisplayNumber(displayedMarketRate, { significantDigits: 6 }) : '--'}
-        </button>
-        <span className="col-start-5 justify-self-start max-sm:col-start-3">
+        <div className="col-span-2 col-start-3 flex min-w-0 items-center gap-4 max-sm:col-span-2 max-sm:col-start-2">
+          <button
+            type="button"
+            className="border-none bg-transparent p-0 text-left text-inherit hover:brightness-75"
+            onClick={handleSetMarketRate}
+            disabled={!marketRate || !invertRate}
+            aria-label="Set market rate"
+          >
+            {displayedMarketRate ? formatDisplayNumber(displayedMarketRate, { significantDigits: 6 }) : '--'}
+          </button>
           <button
             type="button"
             className="flex items-center gap-1 border-none bg-transparent p-0 text-sm transition hover:brightness-75"
@@ -213,8 +213,8 @@ const OrderBook = () => {
             <span>{displayedRatePair}</span>
             <Repeat size={14} />
           </button>
-        </span>
-        <div className="col-start-7 justify-self-end max-sm:hidden">
+        </div>
+        <div className="col-start-5 justify-self-center max-sm:hidden">
           <RefreshLoading clickable refetchLoading={refetchLoading} onRefresh={onRefreshOrders} />
         </div>
       </RowWrapper>
