@@ -2,27 +2,37 @@ import type { HTMLAttributes } from 'react'
 import type { PositionSummary } from 'services/copyTrading/types'
 
 import { Stack } from 'components/Stack'
-import { TableCell, TableHeader, TableRow } from 'pages/CopyTrading/components/common'
+import { TableCell, TableHeader, TableRow } from 'pages/CopyTrading/components/Table'
 import { formatDate, formatTokenAmount, formatUsd, signedPercent, signedUsd } from 'pages/CopyTrading/helpers'
 import { cn } from 'utils/cn'
 
-const TradeHistoryGrid = ({ header, ...props }: HTMLAttributes<HTMLDivElement> & { header?: boolean }) => {
+type TableGridWrapperProps = HTMLAttributes<HTMLDivElement> & {
+  header?: boolean
+}
+
+const TradeHistoryGrid = ({ header, className, ...props }: TableGridWrapperProps) => {
   const Grid = header ? TableHeader : TableRow
 
   return (
     <Grid
-      columns="minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.15fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.2fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr)"
+      className={cn(
+        'grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1.15fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1.2fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)]',
+        className,
+      )}
       {...props}
     />
   )
 }
 
-const CopyPositionsGrid = ({ header, ...props }: HTMLAttributes<HTMLDivElement> & { header?: boolean }) => {
+const CopyPositionsGrid = ({ header, className, ...props }: TableGridWrapperProps) => {
   const Grid = header ? TableHeader : TableRow
 
   return (
     <Grid
-      columns="minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.15fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.3fr) minmax(0, 1fr) minmax(0, 1fr)"
+      className={cn(
+        'grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1.15fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1.3fr)_minmax(0,1fr)_minmax(0,1fr)]',
+        className,
+      )}
       {...props}
     />
   )

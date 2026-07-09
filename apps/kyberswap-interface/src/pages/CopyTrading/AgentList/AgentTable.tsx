@@ -1,58 +1,31 @@
-import { type HTMLAttributes, type PropsWithChildren } from 'react'
-import { ChevronDown, ChevronUp } from 'react-feather'
+import { type HTMLAttributes, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import type { AgentCard, LeaderboardSortBy, SortOrder } from 'services/copyTrading/types'
+import copyTradingApi from 'services/copyTrading'
+import type { AgentCard, CopyRunSummary, LeaderboardSortBy, SortOrder } from 'services/copyTrading/types'
 
-import { ButtonEmpty, ButtonPrimary } from 'components/Button'
+import { ButtonPrimary } from 'components/Button'
 import Pagination from 'components/Pagination'
-import RefetchIndicator from 'components/RefetchIndicator'
-import { HStack, Stack } from 'components/Stack'
+import { Stack } from 'components/Stack'
 import { APP_PATHS } from 'constants/index'
-import { AgentCell, TableCell, TableHeader, TableRow } from 'pages/CopyTrading/components/common'
+import { HeaderCell, TableBody, TableCell, TableHeader, TableRow } from 'pages/CopyTrading/components/Table'
+import { AgentCell } from 'pages/CopyTrading/components/common'
 import { copyTradingStatIconMap } from 'pages/CopyTrading/constants'
-import { compactUsd, percent } from 'pages/CopyTrading/helpers'
+import { OWNER_ADDRESS, compactUsd, percent } from 'pages/CopyTrading/helpers'
 import { cn } from 'utils/cn'
 
-type HeaderCellProps = PropsWithChildren<{
-  className?: string
-  sortField?: LeaderboardSortBy
-  activeSortBy?: LeaderboardSortBy
-  sortOrder?: SortOrder
-  onSortChange?: (sortBy: LeaderboardSortBy) => void
-}>
-
-const HeaderCell = ({ children, className, sortField, activeSortBy, sortOrder, onSortChange }: HeaderCellProps) => {
-  const sortable = !!sortField
-  const active = sortable && activeSortBy === sortField
-  const SortIcon = active && sortOrder === 'asc' ? ChevronUp : ChevronDown
-  const content = (
-    <HStack
-      className={cn(
-        'w-full items-center gap-1 whitespace-nowrap px-3 py-2 text-xs font-medium uppercase text-subText',
-        className,
-        active && 'text-primary',
-      )}
-    >
-      {children}
-      {sortable && <SortIcon size={12} className="shrink-0" />}
-    </HStack>
-  )
-
-  if (!sortField) return content
-
-  return (
-    <ButtonEmpty type="button" onClick={() => onSortChange?.(sortField)} padding="0">
-      {content}
-    </ButtonEmpty>
-  )
+type LeaderboardGridProps = HTMLAttributes<HTMLDivElement> & {
+  header?: boolean
 }
 
-const LeaderboardGrid = ({ header, ...props }: HTMLAttributes<HTMLDivElement> & { header?: boolean }) => {
+const LeaderboardGrid = ({ header, className, ...props }: LeaderboardGridProps) => {
   const Grid = header ? TableHeader : TableRow
 
   return (
     <Grid
-      columns="minmax(0, 2.2fr) minmax(0, 0.9fr) minmax(0, 0.85fr) minmax(0, 0.85fr) minmax(0, 0.75fr) minmax(0, 0.85fr) minmax(0, 0.75fr) minmax(0, 0.8fr)"
+      className={cn(
+        'grid-cols-[minmax(0,2.2fr)_minmax(0,0.9fr)_minmax(0,0.85fr)_minmax(0,0.85fr)_minmax(0,0.75fr)_minmax(0,0.85fr)_minmax(0,0.75fr)_minmax(0,0.8fr)]',
+        className,
+      )}
       {...props}
     />
   )
@@ -75,13 +48,27 @@ type AgentTableProps = {
 const AgentTable = ({ agents, loading, sortBy, sortOrder, onSortChange, pagination }: AgentTableProps) => {
   const navigate = useNavigate()
 
+  const { data: activeCopyRuns } = copyTradingApi.useGetCopyRunsQuery({
+    ownerAddress: OWNER_ADDRESS,
+    status: 'active',
+  })
+
+  const copiedRunsByAgentId = useMemo(
+    () =>
+      (activeCopyRuns?.data || []).reduce<Record<string, CopyRunSummary>>((acc, run) => {
+        acc[run.agentId] = run
+        return acc
+      }, {}),
+    [activeCopyRuns?.data],
+  )
+
   const openAgent = (agentId: string) => {
     navigate(`${APP_PATHS.COPY_TRADING}/${agentId}`)
   }
 
   return (
     <Stack className="overflow-hidden rounded-xl bg-buttonBlack-60">
-      <LeaderboardGrid header className="bg-buttonBlack">
+      <LeaderboardGrid header>
         <HeaderCell>Agent</HeaderCell>
         <HeaderCell
           activeSortBy={sortBy}
@@ -139,45 +126,49 @@ const AgentTable = ({ agents, loading, sortBy, sortOrder, onSortChange, paginati
         <TableCell />
       </LeaderboardGrid>
 
-      <div className="relative h-0">
-        <RefetchIndicator visible={!!loading} />
-      </div>
+      <TableBody
+        empty={!agents.length}
+        emptyIconUrl={copyTradingStatIconMap.agents.iconUrl}
+        emptyMessage="No agents found"
+        loading={loading}
+      >
+        {agents.map(agent => {
+          const copiedRun = copiedRunsByAgentId?.[agent.agentId]
 
-      {agents.map(agent => (
-        <LeaderboardGrid
-          key={agent.agentId}
-          role="button"
-          onClick={event => {
-            if ((event.target as HTMLElement).closest('button')) return
-            openAgent(agent.agentId)
-          }}
-        >
-          <AgentCell agent={agent} className="px-3 py-2" />
-          <TableCell className="text-right text-primary">{percent(agent.stats.apr30dPct)}</TableCell>
-          <TableCell className="text-right">{percent(agent.stats.winRatePct)}</TableCell>
-          <TableCell className="text-right">{compactUsd(agent.stats.volumeUsd)}</TableCell>
-          <TableCell className="text-right">{agent.stats.copiers.toLocaleString()}</TableCell>
-          <TableCell className="text-right">{compactUsd(agent.stats.aumUsd)}</TableCell>
-          <TableCell className="text-right">{agent.stats.openPositions}</TableCell>
-          <TableCell className="flex justify-end">
-            <div>
-              <ButtonPrimary type="button" padding="6px 12px">
-                Copy
-              </ButtonPrimary>
-            </div>
-          </TableCell>
-        </LeaderboardGrid>
-      ))}
-
-      {!loading && !agents.length && (
-        <Stack className="items-center gap-3 px-6 py-8 text-center">
-          <img src={copyTradingStatIconMap.agents.iconUrl} alt="" className="size-8 opacity-80" />
-          <span className="text-sm font-medium text-subText">No agents found</span>
-        </Stack>
-      )}
+          return (
+            <LeaderboardGrid
+              key={agent.agentId}
+              role="button"
+              onClick={event => {
+                if ((event.target as HTMLElement).closest('button')) return
+                openAgent(agent.agentId)
+              }}
+            >
+              <AgentCell agent={agent} className="px-3 py-2" />
+              <TableCell className="text-right text-primary">{percent(agent.stats.apr30dPct)}</TableCell>
+              <TableCell className="text-right">{percent(agent.stats.winRatePct)}</TableCell>
+              <TableCell className="text-right">{compactUsd(agent.stats.volumeUsd)}</TableCell>
+              <TableCell className="text-right">{agent.stats.copiers.toLocaleString()}</TableCell>
+              <TableCell className="text-right">{compactUsd(agent.stats.aumUsd)}</TableCell>
+              <TableCell className="text-right">{agent.stats.openPositions}</TableCell>
+              <TableCell className="flex justify-center">
+                {copiedRun ? (
+                  <span className="text-sm font-medium text-primary">Copied</span>
+                ) : (
+                  <div>
+                    <ButtonPrimary type="button" padding="6px 12px">
+                      Copy
+                    </ButtonPrimary>
+                  </div>
+                )}
+              </TableCell>
+            </LeaderboardGrid>
+          )
+        })}
+      </TableBody>
 
       <Pagination
-        className="bg-buttonGray/60"
+        className="bg-buttonGray/40"
         currentPage={pagination.currentPage}
         onPageChange={pagination.onPageChange}
         pageSize={pagination.pageSize}

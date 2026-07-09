@@ -1,4 +1,4 @@
-import type { Address, AgentCard, AgentProfile, DecimalString, StrategyKey } from 'services/copyTrading/types'
+import type { AgentCard, AgentProfile, DecimalString, StrategyKey } from 'services/copyTrading/types'
 
 export const OWNER_ADDRESS = '0x1111111111111111111111111111111111111111'
 
@@ -18,7 +18,6 @@ export const formatTokenAmount = (value?: DecimalString) => Number(value || 0).t
 export const percent = (value?: DecimalString) => `${Number(value || 0).toFixed(1)}%`
 export const signedPercent = (value?: DecimalString) => `${Number(value || 0) >= 0 ? '+' : ''}${percent(value)}`
 export const formatDate = (value?: string) => (value ? value.replace('T', ' ').replace(':00Z', '') : '-')
-export const shortAddress = (address?: Address) => (address ? `${address.slice(0, 6)}...${address.slice(-4)}` : '-')
 
 export const getAgentInitials = (name: string) =>
   name
