@@ -125,6 +125,7 @@ export type AgentProfile = {
   modelName: string
   badges: string[]
   isTrending: boolean
+  chains: Chain[]
   performanceFeePct: DecimalString
   liveSince: Timestamp
   stats: AgentStats

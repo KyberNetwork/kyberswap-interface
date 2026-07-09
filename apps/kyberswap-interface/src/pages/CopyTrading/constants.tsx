@@ -38,7 +38,7 @@ export const profileTabs = ['open-position', 'trade-history', 'action-log'] as c
 export type ProfileTab = (typeof profileTabs)[number]
 
 export const profileTabLabel: Record<ProfileTab, string> = {
-  'open-position': 'OPEN POSITION',
+  'open-position': 'OPEN POSITIONS',
   'trade-history': 'TRADE HISTORY',
   'action-log': 'ACTION LOG',
 }

@@ -3,15 +3,24 @@ import type { AgentCard, CopyRunSummary } from 'services/copyTrading/types'
 
 import { ButtonLight } from 'components/Button'
 import { Stack } from 'components/Stack'
-import { AgentCell, TableCell, TableHeader, TableRow } from 'pages/CopyTrading/components/common'
+import { TableCell, TableHeader, TableRow } from 'pages/CopyTrading/components/Table'
+import { AgentCell } from 'pages/CopyTrading/components/common'
 import { compactUsd, formatUsd, percent } from 'pages/CopyTrading/helpers'
+import { cn } from 'utils/cn'
 
-const ActiveSubscriptionsGrid = ({ header, ...props }: HTMLAttributes<HTMLDivElement> & { header?: boolean }) => {
+type ActiveSubscriptionsGridProps = HTMLAttributes<HTMLDivElement> & {
+  header?: boolean
+}
+
+const ActiveSubscriptionsGrid = ({ header, className, ...props }: ActiveSubscriptionsGridProps) => {
   const Grid = header ? TableHeader : TableRow
 
   return (
     <Grid
-      columns="minmax(0, 2.4fr) minmax(0, 0.9fr) minmax(0, 1fr) minmax(0, 0.9fr) minmax(0, 1fr) minmax(0, 0.9fr) minmax(0, 1.1fr)"
+      className={cn(
+        'grid-cols-[minmax(0,2.4fr)_minmax(0,0.9fr)_minmax(0,1fr)_minmax(0,0.9fr)_minmax(0,1fr)_minmax(0,0.9fr)_minmax(0,1.1fr)]',
+        className,
+      )}
       {...props}
     />
   )
