@@ -43,7 +43,7 @@ export const calculateFeeFromBuildData = (
   const feeUsd = buildData.feeUsd
 
   return {
-    feeAmount: formatDisplayNumber(feeCurrencyAmount.toSignificant(RESERVE_USD_DECIMALS), { significantDigits: 10 }),
+    feeAmount: formatDisplayNumber(feeCurrencyAmount.toExact(), { significantDigits: 10 }),
     feeAmountUsd:
       feeUsd && feeUsd !== '0' ? formatDisplayNumber(feeUsd, { style: 'currency', significantDigits: 10 }) : '',
     currencyAmount: feeCurrencyAmount,
