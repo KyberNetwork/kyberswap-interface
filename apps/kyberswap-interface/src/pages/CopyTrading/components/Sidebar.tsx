@@ -1,3 +1,4 @@
+import { AnimatePresence, motion } from 'framer-motion'
 import { type PropsWithChildren, useState } from 'react'
 import { ChevronDown, ChevronUp } from 'react-feather'
 import { Link, useLocation } from 'react-router-dom'
@@ -20,7 +21,7 @@ type SidebarSectionProps = PropsWithChildren<{
 }>
 
 const SidebarSection = ({ title, active, count, children, onClick, to }: SidebarSectionProps) => (
-  <Stack className="gap-1.5">
+  <Stack className="gap-1">
     {to ? (
       <div
         className={cn(
@@ -32,7 +33,7 @@ const SidebarSection = ({ title, active, count, children, onClick, to }: Sidebar
           to={to}
           onClick={onClick}
           className={cn(
-            'flex size-full items-center justify-between px-4 text-left text-xs font-medium uppercase no-underline hover:text-primary',
+            'flex size-full items-center justify-between px-4 text-left text-xs font-semibold uppercase no-underline hover:text-primary',
             active ? 'text-primary' : 'text-subText',
           )}
         >
@@ -45,7 +46,7 @@ const SidebarSection = ({ title, active, count, children, onClick, to }: Sidebar
     ) : (
       <div
         className={cn(
-          'flex h-8 items-center rounded-lg px-4 text-xs font-medium uppercase text-subText',
+          'flex h-8 items-center rounded-lg px-4 text-xs font-semibold uppercase text-subText',
           active && 'bg-buttonBlack',
         )}
       >
@@ -85,7 +86,7 @@ const SidebarMenuItem = ({
       to={to}
       onClick={onClick}
       className={cn(
-        'flex size-full items-center px-2 text-left no-underline',
+        'flex size-full items-center px-2 text-left font-medium no-underline',
         layout === 'between' && 'justify-between',
         layout === 'row' && 'gap-3',
         colorByActive && 'text-sm hover:text-primary',
@@ -134,12 +135,13 @@ const Sidebar = ({ agents, activeRuns, chains }: SidebarProps) => {
       value: String(chain.chainId),
     })),
   ]
-  const visibleAgents = expandedAgents ? filteredAgents : filteredAgents.slice(0, DEFAULT_VISIBLE_AGENTS)
-  const hiddenAgentCount = filteredAgents.length - visibleAgents.length
+  const visibleAgents = filteredAgents.slice(0, DEFAULT_VISIBLE_AGENTS)
+  const hiddenAgents = filteredAgents.slice(DEFAULT_VISIBLE_AGENTS)
+  const hiddenAgentCount = hiddenAgents.length
 
   return (
     <aside className="sticky top-0 h-screen w-60 flex-none overflow-y-auto px-8 py-6 max-lg:hidden">
-      <Stack className="gap-8">
+      <Stack className="gap-6">
         <SidebarSection title="My Copies" active={isMyCopiesSectionActive}>
           <SidebarMenuItem to={`${APP_PATHS.COPY_TRADING}/my-copies`} active={isCopiesPage} layout="between">
             <span className={cn('text-sm', isCopiesPage ? 'text-primary' : 'text-subText')}>Open Copies</span>
@@ -147,7 +149,7 @@ const Sidebar = ({ agents, activeRuns, chains }: SidebarProps) => {
               {activeRuns.length}
             </Center>
           </SidebarMenuItem>
-          <Stack className="gap-1.5">
+          <Stack className="gap-1">
             {activeRuns.map(run => {
               const agent = agentById.get(run.agentId)
 
@@ -191,7 +193,7 @@ const Sidebar = ({ agents, activeRuns, chains }: SidebarProps) => {
         </SidebarSection>
 
         <SidebarSection title="Agents" to={APP_PATHS.COPY_TRADING} active={isAgentsPage} count={filteredAgents.length}>
-          <Stack className="gap-1.5">
+          <Stack className="gap-1">
             {visibleAgents.map(agent => {
               const activeAgentName = activeProfileAgent?.displayName
               return (
@@ -213,8 +215,51 @@ const Sidebar = ({ agents, activeRuns, chains }: SidebarProps) => {
                 </SidebarMenuItem>
               )
             })}
-            {filteredAgents.length > DEFAULT_VISIBLE_AGENTS && (
-              <ButtonEmpty type="button" onClick={() => setExpandedAgents(value => !value)} padding="8px">
+            <AnimatePresence initial={false}>
+              {expandedAgents && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: 'auto', opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.18, ease: 'easeInOut' }}
+                  className="overflow-hidden"
+                >
+                  <Stack className="gap-1">
+                    {hiddenAgents.map(agent => {
+                      const activeAgentName = activeProfileAgent?.displayName
+                      return (
+                        <SidebarMenuItem
+                          key={agent.agentId}
+                          to={`${APP_PATHS.COPY_TRADING}/${agent.agentId}`}
+                          active={activeAgentName === agent.displayName}
+                          activeStyle="text"
+                          layout="row"
+                        >
+                          <Center className="size-5 rounded-full bg-subText-20 text-xs text-subText">
+                            {getAgentInitials(agent.displayName)}
+                          </Center>
+                          <span
+                            className={cn(
+                              'text-sm',
+                              activeAgentName === agent.displayName ? 'text-primary' : 'text-subText',
+                            )}
+                          >
+                            {agent.displayName}
+                          </span>
+                        </SidebarMenuItem>
+                      )
+                    })}
+                  </Stack>
+                </motion.div>
+              )}
+            </AnimatePresence>
+            {!!hiddenAgentCount && (
+              <ButtonEmpty
+                type="button"
+                onClick={() => setExpandedAgents(value => !value)}
+                padding="4px 10px"
+                className="w-fit"
+              >
                 <HStack className="items-center gap-2">
                   {expandedAgents ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
                   <span>{expandedAgents ? 'Show less' : `+ ${hiddenAgentCount} more`}</span>
