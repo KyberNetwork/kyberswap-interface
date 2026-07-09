@@ -60,6 +60,8 @@ type MockFetchArgs<T = unknown> = RtkFetchArgs & {
   mockResponse: T
 }
 
+const wait = (time: number) => new Promise(resolve => setTimeout(resolve, time))
+
 const cleanParams = (params: QueryParams = {}) =>
   Object.fromEntries(Object.entries(params).filter(([, value]) => value !== undefined && value !== ''))
 
@@ -79,6 +81,8 @@ const mockBaseQuery: BaseQueryFn<string | MockFetchArgs, unknown, FetchBaseQuery
   extraOptions,
 ) => {
   if (typeof args === 'object' && 'mockResponse' in args) {
+    await wait(500) // Simulate network delay
+
     return {
       data: args.mockResponse,
     }
