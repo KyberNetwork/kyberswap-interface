@@ -417,17 +417,39 @@ export const TokenSelectorContent = ({
     [anchorChainId, onCurrencySelect, onDismiss, isTokenRestricted, notifyRestrictedToken],
   )
 
+  // A token picked on another chain can't be selected the instant the switch is requested: switching
+  // triggers a network-param sync that strips the pair back to the new chain's defaults. Stash it and
+  // apply it once the app is actually on that chain (the effect below).
+  const [pendingCrossChainToken, setPendingCrossChainToken] = useState<Currency | null>(null)
+  const onCurrencySelectRef = useRef(onCurrencySelect)
+  onCurrencySelectRef.current = onCurrencySelect
+  const onDismissRef = useRef(onDismiss)
+  onDismissRef.current = onDismiss
+
   const confirmSwitchChain = useCallback(() => {
     if (!switchChainToken) return
     const token = switchChainToken
     setSwitchChainToken(null)
-    // Select the token and close only once the wallet actually switches networks — otherwise a
-    // rejected/failed switch would leave the form holding a token on a chain we're not on.
-    changeNetwork(token.chainId, () => {
-      onCurrencySelect?.(token)
-      onDismiss?.()
-    })
-  }, [switchChainToken, changeNetwork, onCurrencySelect, onDismiss])
+    setPendingCrossChainToken(token)
+    // Drop the pending selection if the switch is rejected/fails, so we never select a token on a
+    // chain we didn't end up on.
+    changeNetwork(token.chainId, undefined, () => setPendingCrossChainToken(null))
+  }, [switchChainToken, changeNetwork])
+
+  // Select the pending cross-chain token once the app is on its chain. `web3ChainId` reflects the
+  // Redux chain (updated on switch whether or not a wallet is connected). The setTimeout defers the
+  // selection past the network-param sync that resets the pair to defaults, so our navigation lands
+  // last and the picked token sticks.
+  useEffect(() => {
+    if (!pendingCrossChainToken || pendingCrossChainToken.chainId !== web3ChainId) return
+    const token = pendingCrossChainToken
+    const timer = setTimeout(() => {
+      setPendingCrossChainToken(null)
+      onCurrencySelectRef.current?.(token)
+      onDismissRef.current?.()
+    }, 0)
+    return () => clearTimeout(timer)
+  }, [pendingCrossChainToken, web3ChainId])
 
   const handleInput = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
@@ -550,6 +572,7 @@ export const TokenSelectorContent = ({
       setSearchQuery('')
       setSelectedChainId(anchorChainId)
       setActiveTab(defaultTab)
+      setPendingCrossChainToken(null)
       if (!isMobile) inputRef.current?.focus()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
