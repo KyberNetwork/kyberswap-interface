@@ -32,7 +32,7 @@ const calculateFee = (
   return {
     currency: currencyAmountToTakeFee.currency,
     currencyAmount: feeCurrencyAmount,
-    formattedAmount: formattedNum(feeCurrencyAmount.toSignificant(RESERVE_USD_DECIMALS), false),
+    formattedAmount: formattedNum(feeCurrencyAmount.toExact(), false),
     formattedAmountUsd: feeAmountUsd && feeAmountUsd !== '0' ? formattedNum(feeAmountUsd, true, 4) : '',
   }
 }
