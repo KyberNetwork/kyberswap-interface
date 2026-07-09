@@ -123,6 +123,7 @@ const SortHeader = ({
 }) => (
   <button
     type="button"
+    data-testid={`sort-header-${field}`}
     onClick={() => onSort(field)}
     className="flex w-[104px] items-center justify-end gap-1 uppercase transition-colors hover:text-text"
   >
@@ -651,7 +652,7 @@ export const TokenSelectorContent = ({
     ) : undefined
 
   return (
-    <ContentWrapper>
+    <ContentWrapper data-testid="token-selector-modal">
       <PaddedColumn>
         <HStack className="items-center justify-between">
           <HStack className="gap-1 text-xl font-medium">

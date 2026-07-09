@@ -5,7 +5,7 @@ const SKELETON_ROWS = 9
 
 /** Placeholder rows shown while the token list loads (chain switch, tab data fetch). */
 export const TokenListSkeleton = () => (
-  <div className="flex flex-1 flex-col overflow-hidden px-2 pt-2">
+  <div className="flex flex-1 flex-col overflow-hidden px-2 pt-2" data-testid="token-list-skeleton">
     {Array.from({ length: SKELETON_ROWS }).map((_, index) => (
       <HStack key={index} className="h-12 items-center justify-between gap-3 px-3">
         <HStack className="min-w-0 flex-1 items-center gap-2">

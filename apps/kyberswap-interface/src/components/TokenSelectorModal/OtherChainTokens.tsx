@@ -26,7 +26,7 @@ export const OtherChainTokens = ({ tokens, loading, loadingFallback }: OtherChai
   if (!tokens.length) return null
 
   return (
-    <Stack className="h-full pb-2">
+    <Stack className="h-full pb-2" data-testid="other-chain-tokens">
       <div className="px-5 py-3 text-sm font-medium text-subText">
         <Trans>Available on other chains</Trans>
       </div>
@@ -38,6 +38,7 @@ export const OtherChainTokens = ({ tokens, loading, loadingFallback }: OtherChai
           return (
             <HStack
               key={`${token.chainId}-${token.address}`}
+              data-testid="other-chain-token-item"
               className="min-h-14 w-full items-center justify-between gap-4 rounded-lg px-3 py-1 hover:bg-subText-04"
             >
               <HStack className="min-w-0 items-center gap-2">
@@ -51,6 +52,7 @@ export const OtherChainTokens = ({ tokens, loading, loadingFallback }: OtherChai
                 </Stack>
               </HStack>
               <ButtonPrimary
+                data-testid="other-chain-switch-btn"
                 width="fit-content"
                 padding="6px 12px"
                 fontWeight={500}

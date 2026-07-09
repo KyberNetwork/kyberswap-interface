@@ -25,7 +25,17 @@ export const ChainSelector = memo(({ chains, selectedChainId, onChange }: ChainS
   }
 
   return (
-    <div ref={ref} className="relative shrink-0" onKeyDown={(e: KeyboardEvent) => e.key === 'Escape' && setOpen(false)}>
+    <div
+      ref={ref}
+      className="relative shrink-0"
+      onKeyDown={(e: KeyboardEvent) => {
+        // Escape closes only the open dropdown — stop it from bubbling up and closing the whole modal.
+        if (e.key === 'Escape' && open) {
+          e.stopPropagation()
+          setOpen(false)
+        }
+      }}
+    >
       <button
         type="button"
         data-testid="token-selector-chain-button"
@@ -47,6 +57,7 @@ export const ChainSelector = memo(({ chains, selectedChainId, onChange }: ChainS
         <div
           role="listbox"
           aria-label="Network"
+          data-testid="chain-selector-dropdown"
           className="ks-scrollbar absolute right-0 top-[calc(100%+4px)] z-30 flex max-h-80 w-max origin-top-right animate-dropdownIn flex-col overflow-y-auto rounded-xl bg-tableHeader px-3 py-2 shadow-[0px_4px_12px_rgba(0,0,0,0.32)] motion-reduce:animate-none"
         >
           {chains.map(chain => {
@@ -56,6 +67,7 @@ export const ChainSelector = memo(({ chains, selectedChainId, onChange }: ChainS
                 key={chain.chainId}
                 role="option"
                 aria-selected={selected}
+                data-testid={`chain-option-${chain.chainId}`}
                 tabIndex={0}
                 onClick={() => select(chain.chainId)}
                 onKeyDown={(e: KeyboardEvent) => {

@@ -44,7 +44,12 @@ export const PinnedTokens = ({ onSelect, selectedCurrency, tokens = [], onToggle
               className={BASE_WRAPPER_CLASS}
             >
               <CurrencyLogo currency={token} size="16px" />
-              <div className="text-sm font-normal uppercase leading-normal text-text">{symbol}</div>
+              <div
+                className="text-sm font-normal uppercase leading-normal text-text"
+                data-testid="favorite-token-symbol"
+              >
+                {symbol}
+              </div>
               <XCircle
                 className={cn(
                   'absolute right-[-5px] top-[-5px] z-10 hidden rounded-full bg-buttonGray text-subText',
@@ -60,6 +65,7 @@ export const PinnedTokens = ({ onSelect, selectedCurrency, tokens = [], onToggle
         })}
         {isMobile && (
           <HStack
+            data-testid="pinned-edit-btn"
             className={BASE_WRAPPER_CLASS}
             style={{ width: isHeightSmall ? 28 : 35, padding: isHeightSmall ? 5 : 8 }}
             onClick={() => {

@@ -21,12 +21,17 @@ export const SwitchChainModal = ({ token, onDismiss, onConfirm }: SwitchChainMod
   return (
     <Modal isOpen={!!token} onDismiss={onDismiss} width="100%" maxWidth="420px">
       {token && network && (
-        <div className="flex w-full flex-col gap-6 p-6">
+        <div className="flex w-full flex-col gap-6 p-6" data-testid="switch-chain-modal">
           <HStack className="items-center justify-between">
             <span className="text-lg font-medium">
               <Trans>Switch Chain</Trans>
             </span>
-            <X role="button" className="cursor-pointer text-text" onClick={onDismiss} />
+            <X
+              role="button"
+              data-testid="switch-chain-close"
+              className="cursor-pointer text-text"
+              onClick={onDismiss}
+            />
           </HStack>
 
           <div className="flex flex-wrap items-center gap-x-1.5 gap-y-2 text-base text-text">

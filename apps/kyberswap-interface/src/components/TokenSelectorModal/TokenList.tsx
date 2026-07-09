@@ -42,7 +42,7 @@ const EMPTY_ADDRESSES: string[] = []
 
 const Balance = ({ balance }: { balance: CurrencyAmount<Currency> }) => {
   return (
-    <span className="max-w-full truncate text-sm text-text" title={balance.toExact()}>
+    <span className="max-w-full truncate text-sm text-text" data-testid="token-balance" title={balance.toExact()}>
       {balance.toSignificant(10)}
     </span>
   )
@@ -168,7 +168,11 @@ export const TokenRow = ({
     if (currencyBalance) return <Balance balance={currencyBalance} />
     if (showLoading)
       return <Skeleton width={balanceSkeletonWidth} height={18} className="my-[3px]" variant="darkSubtle" />
-    return <span className="max-w-full truncate text-sm text-text">-</span>
+    return (
+      <span className="max-w-full truncate text-sm text-text" data-testid="token-balance">
+        -
+      </span>
+    )
   }
   const { symbol } = getDisplayTokenInfo(currency)
 
@@ -208,13 +212,16 @@ export const TokenRow = ({
               />
             )}
             {ageBadge && (
-              <span className="shrink-0 rounded bg-blue/20 px-1 text-[10px] font-medium leading-4 text-blue">
+              <span
+                className="shrink-0 rounded bg-blue/20 px-1 text-[10px] font-medium leading-4 text-blue"
+                data-testid="token-age-badge"
+              >
                 {ageBadge}
               </span>
             )}
           </HStack>
           <HStack className="min-w-0 items-center gap-1 text-xs text-gray">
-            <span title={nativeCurrency?.name} className="truncate">
+            <span title={nativeCurrency?.name} className="truncate" data-testid="token-name">
               {nativeCurrency?.name}
             </span>
             {showAddress && (
@@ -236,11 +243,14 @@ export const TokenRow = ({
       <HStack className="shrink-0 items-center gap-3 justify-self-end">
         {showPriceColumn && (
           <Stack className={cn('w-[104px] items-end gap-0.5 overflow-hidden', isImport && 'opacity-50')}>
-            <span className="max-w-full truncate text-sm text-text">
+            <span className="max-w-full truncate text-sm text-text" data-testid="token-price">
               {priceUsd ? formatDisplayNumber(priceUsd, { style: 'currency', significantDigits: 6 }) : '--'}
             </span>
             {priceChange24h !== undefined && (
-              <span className={cn('text-xs', priceChange24h >= 0 ? 'text-primary' : 'text-red')}>
+              <span
+                className={cn('text-xs', priceChange24h >= 0 ? 'text-primary' : 'text-red')}
+                data-testid="token-price-change"
+              >
                 {priceChange24h >= 0 ? '+' : '-'}
                 {formatDisplayNumber(Math.abs(priceChange24h) / 100, { style: 'percent', fractionDigits: 2 })}
               </span>
@@ -267,7 +277,7 @@ export const TokenRow = ({
           </Stack>
         ) : rightColumn === 'volume' ? (
           <Stack className="w-[104px] items-end overflow-hidden">
-            <span className="max-w-full truncate text-sm text-text">
+            <span className="max-w-full truncate text-sm text-text" data-testid="token-volume">
               {volume24h ? formatBigLiquidity(String(volume24h), 2, true) : '--'}
             </span>
           </Stack>
@@ -275,7 +285,7 @@ export const TokenRow = ({
           <Stack className="w-[104px] items-end gap-0.5 overflow-hidden">
             {customBalance !== undefined ? customBalance : renderBalance()}
             {!!usdBalance && !hideBalance && (
-              <span className={cn('text-xs', usdValueClassName)}>
+              <span className={cn('text-xs', usdValueClassName)} data-testid="token-usd-value">
                 {formatDisplayNumber(usdBalance, { style: 'currency', significantDigits: 4 })}
               </span>
             )}
@@ -303,7 +313,9 @@ export const TokenRow = ({
         <HStack className="pointer-events-none h-12 w-full items-center justify-between gap-3 px-3 opacity-50">
           {rowInner}
         </HStack>
-        <span className="px-3 pb-1 text-xs font-medium text-warning">{restrictedTokenMessage()}</span>
+        <span className="px-3 pb-1 text-xs font-medium text-warning" data-testid="restricted-token-notice">
+          {restrictedTokenMessage()}
+        </span>
       </Stack>
     )
   }
@@ -390,7 +402,7 @@ const VirtualRow = memo(function VirtualRow({ index, style, data }: ListChildCom
   // The trailing slot (present while more pages can load) has no currency yet — show the loader.
   if (!currency) {
     return (
-      <div className="px-2 pt-2" style={style}>
+      <div className="px-2 pt-2" style={style} data-testid="token-list-load-more">
         <Center className="h-12">
           <Loader size="20px" />
         </Center>
@@ -611,7 +623,7 @@ const TokenList = ({
   const isItemLoaded = (index: number) => !hasMore || index < currencies.length
 
   return (
-    <div className="flex-1 pb-2">
+    <div className="flex-1 pb-2" data-testid="token-list">
       <AutoSizer>
         {({ height, width }) => (
           <InfiniteLoader isItemLoaded={isItemLoaded} itemCount={itemCount} loadMoreItems={loadMoreItems} threshold={3}>
