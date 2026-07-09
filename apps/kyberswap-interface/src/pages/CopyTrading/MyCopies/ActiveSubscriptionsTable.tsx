@@ -17,15 +17,13 @@ const ActiveSubscriptionsGrid = ({ header, ...props }: HTMLAttributes<HTMLDivEle
   )
 }
 
-const ActiveSubscriptionsTable = ({
-  rows,
-  agents,
-  onOpenSubscription,
-}: {
+type ActiveSubscriptionsTableProps = {
   rows: CopyRunSummary[]
   agents: AgentCard[]
   onOpenSubscription: (subscription: CopyRunSummary) => void
-}) => (
+}
+
+const ActiveSubscriptionsTable = ({ rows, agents, onOpenSubscription }: ActiveSubscriptionsTableProps) => (
   <Stack className="overflow-hidden rounded-2xl bg-background/80">
     <Stack className="overflow-hidden">
       <ActiveSubscriptionsGrid header>

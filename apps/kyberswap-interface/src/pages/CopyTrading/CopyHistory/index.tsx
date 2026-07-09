@@ -3,7 +3,9 @@ import copyTradingApi from 'services/copyTrading'
 
 import { APP_PATHS } from 'constants/index'
 import ClosedSubscriptionsTable from 'pages/CopyTrading/CopyHistory/ClosedSubscriptionsTable'
-import { CopyTradingPage, StatCard } from 'pages/CopyTrading/components/common'
+import Leaderboard, { type LeaderboardStat } from 'pages/CopyTrading/components/Leaderboard'
+import { CopyTradingPage } from 'pages/CopyTrading/components/common'
+import { copyTradingStatIconMap } from 'pages/CopyTrading/constants'
 import { OWNER_ADDRESS, formatUsd, signedUsd } from 'pages/CopyTrading/helpers'
 
 const CopyHistoryView = () => {
@@ -20,35 +22,28 @@ const CopyHistoryView = () => {
     .reduce((total, run) => total + Number(run.capitalOutUsd || run.capitalInUsd || 0), 0)
     .toString()
 
-  const historyStats = [
+  const historyStats: LeaderboardStat[] = [
     {
-      icon: 'aum',
-      value: signedUsd(totalRealizedPnl),
       label: 'Realised P&L (All time)',
-      color: 'bg-blue/20 text-blue',
+      value: signedUsd(totalRealizedPnl),
+      icon: copyTradingStatIconMap.money,
     },
     {
-      icon: 'copiers',
-      value: String(totalClosedPositions),
       label: 'Closed Positions',
-      color: 'bg-primary-20 text-primary',
+      value: String(totalClosedPositions),
+      icon: copyTradingStatIconMap.positionClose,
     },
     {
-      icon: 'volume',
-      value: formatUsd(totalClosedCapital),
       label: 'Closed Capital (Returned)',
-      color: 'bg-primary-12 text-primary',
+      value: formatUsd(totalClosedCapital),
+      icon: copyTradingStatIconMap.volume,
     },
-  ] as const
+  ]
 
   return (
     <CopyTradingPage>
       <h1 className="text-4xl font-medium text-text">History</h1>
-      <div className="grid grid-cols-3 gap-6 max-xl:grid-cols-2 max-md:grid-cols-1">
-        {historyStats.map(item => (
-          <StatCard key={item.label} item={item} />
-        ))}
-      </div>
+      <Leaderboard items={historyStats} />
       <ClosedSubscriptionsTable
         agents={leaderboard?.data || []}
         rows={closedRuns?.data || []}

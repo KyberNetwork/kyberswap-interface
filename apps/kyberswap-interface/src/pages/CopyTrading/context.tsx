@@ -1,4 +1,4 @@
-import { type ReactNode, createContext, useContext, useMemo, useState } from 'react'
+import { type PropsWithChildren, createContext, useContext, useMemo, useState } from 'react'
 
 type CopyTradingContextValue = {
   selectedChainId?: number
@@ -7,7 +7,7 @@ type CopyTradingContextValue = {
 
 const CopyTradingContext = createContext<CopyTradingContextValue | undefined>(undefined)
 
-export const CopyTradingProvider = ({ children }: { children: ReactNode }) => {
+export const CopyTradingProvider = ({ children }: PropsWithChildren) => {
   const [selectedChainId, setSelectedChainId] = useState<number>()
   const value = useMemo(() => ({ selectedChainId, setSelectedChainId }), [selectedChainId])
 
