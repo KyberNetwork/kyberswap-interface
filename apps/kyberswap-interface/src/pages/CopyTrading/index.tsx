@@ -4,7 +4,7 @@ import copyTradingApi from 'services/copyTrading'
 
 import { APP_PATHS } from 'constants/index'
 import AgentList from 'pages/CopyTrading/AgentList'
-import AgentProfileView from 'pages/CopyTrading/AgentProfile'
+import AgentProfile from 'pages/CopyTrading/AgentProfile'
 import CopyDetailView from 'pages/CopyTrading/CopyDetail'
 import CopyHistoryView from 'pages/CopyTrading/CopyHistory'
 import MyCopiesView from 'pages/CopyTrading/MyCopies'
@@ -37,7 +37,7 @@ const CopyTrading = () => {
           <Route path="my-copies/:copyId" element={<CopyDetailView backPath="my-copies" />} />
           <Route path="history" element={<CopyHistoryView />} />
           <Route path="history/:copyId" element={<CopyDetailView backPath="history" />} />
-          <Route path=":agentCode" element={<AgentProfileView />} />
+          <Route path=":agentCode" element={<AgentProfile />} />
           <Route path="*" element={<Navigate to={APP_PATHS.COPY_TRADING} replace />} />
         </Routes>
       </div>

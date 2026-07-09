@@ -106,24 +106,23 @@ const AgentList = () => {
       <Stack className="gap-4">
         <HStack className="flex-wrap items-center justify-between gap-4">
           <StrategyFilterControl activeStrategy={activeTab || 'all'} onChange={handleStrategyChange} />
-
           <SearchInput value={search} onChange={handleSearchChange} />
         </HStack>
-      </Stack>
 
-      <AgentTable
-        agents={leaderboard?.data || []}
-        loading={isLeaderboardFetching}
-        sortBy={sortBy}
-        sortOrder={sortOrder}
-        onSortChange={handleSortChange}
-        pagination={{
-          totalCount: leaderboard?.pagination.totalCount || 0,
-          currentPage: leaderboard?.pagination.page || page,
-          pageSize: leaderboard?.pagination.pageSize || PAGE_SIZE,
-          onPageChange: setPage,
-        }}
-      />
+        <AgentTable
+          agents={leaderboard?.data || []}
+          loading={isLeaderboardFetching}
+          sortBy={sortBy}
+          sortOrder={sortOrder}
+          onSortChange={handleSortChange}
+          pagination={{
+            totalCount: leaderboard?.pagination.totalCount || 0,
+            currentPage: leaderboard?.pagination.page || page,
+            pageSize: leaderboard?.pagination.pageSize || PAGE_SIZE,
+            onPageChange: setPage,
+          }}
+        />
+      </Stack>
     </CopyTradingPage>
   )
 }
