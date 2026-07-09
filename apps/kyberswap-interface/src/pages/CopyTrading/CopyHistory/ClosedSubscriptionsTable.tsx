@@ -18,15 +18,13 @@ const ClosedSubscriptionsGrid = ({ header, ...props }: HTMLAttributes<HTMLDivEle
   )
 }
 
-const ClosedSubscriptionsTable = ({
-  rows,
-  agents,
-  onOpenSubscription,
-}: {
+type ClosedSubscriptionsTableProps = {
   rows: CopyRunSummary[]
   agents: AgentCard[]
   onOpenSubscription: (subscription: CopyRunSummary) => void
-}) => (
+}
+
+const ClosedSubscriptionsTable = ({ rows, agents, onOpenSubscription }: ClosedSubscriptionsTableProps) => (
   <Stack className="overflow-hidden rounded-2xl bg-background/80">
     <Stack className="overflow-hidden">
       <ClosedSubscriptionsGrid header>

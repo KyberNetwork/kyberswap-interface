@@ -1,30 +1,27 @@
-import { type HTMLAttributes, type ReactNode } from 'react'
-import { ChevronDown, ChevronUp, Zap } from 'react-feather'
+import { type HTMLAttributes, type PropsWithChildren } from 'react'
+import { ChevronDown, ChevronUp } from 'react-feather'
 import { useNavigate } from 'react-router-dom'
 import type { AgentCard, LeaderboardSortBy, SortOrder } from 'services/copyTrading/types'
 
 import { ButtonEmpty, ButtonPrimary } from 'components/Button'
+import Pagination from 'components/Pagination'
+import RefetchIndicator from 'components/RefetchIndicator'
 import { HStack, Stack } from 'components/Stack'
 import { APP_PATHS } from 'constants/index'
 import { AgentCell, TableCell, TableHeader, TableRow } from 'pages/CopyTrading/components/common'
+import { copyTradingStatIconMap } from 'pages/CopyTrading/constants'
 import { compactUsd, percent } from 'pages/CopyTrading/helpers'
 import { cn } from 'utils/cn'
 
-const HeaderCell = ({
-  children,
-  className,
-  sortField,
-  activeSortBy,
-  sortOrder,
-  onSortChange,
-}: {
-  children: ReactNode
+type HeaderCellProps = PropsWithChildren<{
   className?: string
   sortField?: LeaderboardSortBy
   activeSortBy?: LeaderboardSortBy
   sortOrder?: SortOrder
   onSortChange?: (sortBy: LeaderboardSortBy) => void
-}) => {
+}>
+
+const HeaderCell = ({ children, className, sortField, activeSortBy, sortOrder, onSortChange }: HeaderCellProps) => {
   const sortable = !!sortField
   const active = sortable && activeSortBy === sortField
   const SortIcon = active && sortOrder === 'asc' ? ChevronUp : ChevronDown
@@ -37,7 +34,7 @@ const HeaderCell = ({
       )}
     >
       {children}
-      {sortable && <SortIcon size={12} className={cn('shrink-0', !active && 'opacity-50')} />}
+      {sortable && <SortIcon size={12} className="shrink-0" />}
     </HStack>
   )
 
@@ -61,17 +58,21 @@ const LeaderboardGrid = ({ header, ...props }: HTMLAttributes<HTMLDivElement> & 
   )
 }
 
-const AgentTable = ({
-  agents,
-  sortBy,
-  sortOrder,
-  onSortChange,
-}: {
+type AgentTableProps = {
   agents: AgentCard[]
+  loading?: boolean
   sortBy?: LeaderboardSortBy
   sortOrder?: SortOrder
   onSortChange: (sortBy: LeaderboardSortBy) => void
-}) => {
+  pagination: {
+    totalCount: number
+    currentPage: number
+    pageSize: number
+    onPageChange: (page: number) => void
+  }
+}
+
+const AgentTable = ({ agents, loading, sortBy, sortOrder, onSortChange, pagination }: AgentTableProps) => {
   const navigate = useNavigate()
 
   const openAgent = (agentId: string) => {
@@ -79,8 +80,8 @@ const AgentTable = ({
   }
 
   return (
-    <Stack className="overflow-hidden">
-      <LeaderboardGrid header className="normal-case">
+    <Stack className="overflow-hidden rounded-xl bg-buttonBlack-60">
+      <LeaderboardGrid header className="bg-buttonBlack">
         <HeaderCell>Agent</HeaderCell>
         <HeaderCell
           activeSortBy={sortBy}
@@ -135,52 +136,53 @@ const AgentTable = ({
         >
           Position
         </HeaderCell>
-        <TableCell className="text-right" />
+        <TableCell />
       </LeaderboardGrid>
+
+      <div className="relative h-0">
+        <RefetchIndicator visible={!!loading} />
+      </div>
 
       {agents.map(agent => (
         <LeaderboardGrid
           key={agent.agentId}
-          onKeyDown={event => {
-            if ((event.target as HTMLElement).closest('button')) return
-            if (event.key === 'Enter' || event.key === ' ') {
-              openAgent(agent.agentId)
-            }
-          }}
           role="button"
-          tabIndex={0}
-          className="cursor-pointer text-base"
           onClick={event => {
             if ((event.target as HTMLElement).closest('button')) return
             openAgent(agent.agentId)
           }}
         >
           <AgentCell agent={agent} className="px-3 py-2" />
-          <HStack className="items-center justify-end gap-1.5 whitespace-nowrap px-3 py-2 text-right text-primary">
-            <Zap size={14} className="fill-warning text-warning" />
-            <span>{percent(agent.stats.apr30dPct)}</span>
-          </HStack>
-          <TableCell className="whitespace-nowrap text-right">{percent(agent.stats.winRatePct)}</TableCell>
-          <TableCell className="whitespace-nowrap text-right">{compactUsd(agent.stats.volumeUsd)}</TableCell>
-          <TableCell className="whitespace-nowrap text-right">{agent.stats.copiers.toLocaleString()}</TableCell>
-          <TableCell className="whitespace-nowrap text-right">{compactUsd(agent.stats.aumUsd)}</TableCell>
-          <TableCell className="whitespace-nowrap text-right">{agent.stats.openPositions}</TableCell>
-          <div className="flex justify-end px-3 py-2">
-            <div className="w-fit">
-              <ButtonPrimary type="button" padding="8px 12px">
+          <TableCell className="text-right text-primary">{percent(agent.stats.apr30dPct)}</TableCell>
+          <TableCell className="text-right">{percent(agent.stats.winRatePct)}</TableCell>
+          <TableCell className="text-right">{compactUsd(agent.stats.volumeUsd)}</TableCell>
+          <TableCell className="text-right">{agent.stats.copiers.toLocaleString()}</TableCell>
+          <TableCell className="text-right">{compactUsd(agent.stats.aumUsd)}</TableCell>
+          <TableCell className="text-right">{agent.stats.openPositions}</TableCell>
+          <TableCell className="flex justify-end">
+            <div>
+              <ButtonPrimary type="button" padding="6px 12px">
                 Copy
               </ButtonPrimary>
             </div>
-          </div>
+          </TableCell>
         </LeaderboardGrid>
       ))}
 
-      {!agents.length && (
-        <Stack className="items-center gap-2 px-6 py-10 text-center">
-          <span className="text-base font-medium text-text">No agents found</span>
-          <span className="text-sm text-subText">Try another strategy or search term.</span>
+      {!loading && !agents.length && (
+        <Stack className="items-center gap-3 px-6 py-8 text-center">
+          <img src={copyTradingStatIconMap.agents.iconUrl} alt="" className="size-8 opacity-80" />
+          <span className="text-sm font-medium text-subText">No agents found</span>
         </Stack>
       )}
+
+      <Pagination
+        className="bg-buttonGray/60"
+        currentPage={pagination.currentPage}
+        onPageChange={pagination.onPageChange}
+        pageSize={pagination.pageSize}
+        totalCount={pagination.totalCount}
+      />
     </Stack>
   )
 }

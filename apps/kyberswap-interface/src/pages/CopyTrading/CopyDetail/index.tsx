@@ -1,22 +1,15 @@
-import { ArrowLeft } from 'react-feather'
-import { Navigate, useNavigate, useParams } from 'react-router-dom'
+import { Navigate, useParams } from 'react-router-dom'
 import copyTradingApi from 'services/copyTrading'
 
-import { ButtonEmpty } from 'components/Button'
 import { Center, HStack, Stack } from 'components/Stack'
 import { APP_PATHS } from 'constants/index'
 import { CopyPositionsTable, TradeHistoryTable } from 'pages/CopyTrading/CopyDetail/Tables'
-import {
-  AgentIdentity,
-  CopyTradingPage,
-  LineChartMock,
-  ProfileSidePanel,
-  ProfileStatCard,
-} from 'pages/CopyTrading/components/common'
+import Leaderboard, { type LeaderboardStat } from 'pages/CopyTrading/components/Leaderboard'
+import { AgentIdentity, CopyTradingPage, LineChartMock, ProfileSidePanel } from 'pages/CopyTrading/components/common'
+import { copyTradingStatIconMap } from 'pages/CopyTrading/constants'
 import { OWNER_ADDRESS, formatDate, formatUsd, percent, signedPercent, signedUsd } from 'pages/CopyTrading/helpers'
 
 const CopyDetailView = ({ backPath }: { backPath: 'my-copies' | 'history' }) => {
-  const navigate = useNavigate()
   const { copyId } = useParams()
   const copyRunQuery = { ownerAddress: OWNER_ADDRESS, copyRunId: copyId || '' }
   const {
@@ -48,44 +41,37 @@ const CopyDetailView = ({ backPath }: { backPath: 'my-copies' | 'history' }) => 
   if (!run || !profile) return <Navigate to={`${APP_PATHS.COPY_TRADING}/${backPath}`} replace />
 
   const isClosed = run.status === 'closed'
-  const activeStats = [
+  const backLabel = backPath === 'history' ? 'History' : 'My Copies'
+  const activeStats: LeaderboardStat[] = [
     {
-      icon: 'pnl',
-      value: signedUsd(run.realizedPnlUsd),
       label: 'Total Realised P&L',
+      value: signedUsd(run.realizedPnlUsd),
+      icon: copyTradingStatIconMap.money,
     },
     {
-      icon: 'aum',
-      value: isClosed ? 'Closed' : signedPercent(run.myAprSinceCopyPct),
       label: isClosed ? 'Status' : 'APR Since Copy',
+      value: isClosed ? 'Closed' : signedPercent(run.myAprSinceCopyPct),
+      icon: isClosed ? copyTradingStatIconMap.positionClose : copyTradingStatIconMap.positionOpen,
     },
     {
-      icon: 'winRate',
-      value: percent(run.agentStats.winRatePct),
       label: 'Agent Win Rate',
+      value: percent(run.agentStats.winRatePct),
+      icon: copyTradingStatIconMap.users,
     },
     {
-      icon: 'copiers',
-      value: formatUsd(run.feesPaidUsd),
       label: 'Fees Paid',
+      value: formatUsd(run.feesPaidUsd),
+      icon: copyTradingStatIconMap.volume,
     },
     {
-      icon: 'aum',
-      value: formatUsd(run.estimatedRebatePendingUsd),
       label: 'Est. Rebate Pending',
+      value: formatUsd(run.estimatedRebatePendingUsd),
+      icon: copyTradingStatIconMap.money,
     },
-  ] as const
+  ]
 
   return (
-    <CopyTradingPage>
-      <div className="w-fit">
-        <ButtonEmpty type="button" onClick={() => navigate(`${APP_PATHS.COPY_TRADING}/${backPath}`)} padding="0">
-          <HStack className="items-center gap-2">
-            <ArrowLeft size={14} />
-            Back to {backPath === 'history' ? 'History' : 'My Copies'}
-          </HStack>
-        </ButtonEmpty>
-      </div>
+    <CopyTradingPage backTo={{ label: backLabel, to: `${APP_PATHS.COPY_TRADING}/${backPath}` }}>
       <AgentIdentity agent={profile} />
 
       {isClosed ? (
@@ -113,9 +99,7 @@ const CopyDetailView = ({ backPath }: { backPath: 'my-copies' | 'history' }) => 
             <LineChartMock />
           </Stack>
           <Stack className="min-w-0 gap-5">
-            <Center className="h-24 rounded-xl bg-buttonBlack px-6 text-right text-2xl font-medium text-primary">
-              Total Realised P&L&nbsp;&nbsp; {signedUsd(run.realizedPnlUsd)}
-            </Center>
+            <Leaderboard items={activeStats.slice(0, 1)} size="sm" />
             <ProfileSidePanel
               copiedCapital={formatUsd(run.capitalInUsd)}
               isCopied={false}
@@ -124,40 +108,38 @@ const CopyDetailView = ({ backPath }: { backPath: 'my-copies' | 'history' }) => 
           </Stack>
         </div>
       ) : (
-        <div className="grid grid-cols-3 gap-6 max-xl:grid-cols-1">
-          <Stack className="col-span-2 min-w-0 gap-5 max-xl:col-span-1">
-            <div className="grid grid-cols-5 gap-4 max-2xl:grid-cols-3 max-lg:grid-cols-2 max-md:grid-cols-1">
-              {activeStats.map(item => (
-                <ProfileStatCard key={item.label} item={item} />
-              ))}
-            </div>
-            <Stack className="overflow-hidden rounded-2xl bg-background/80">
-              <HStack className="flex-wrap items-center justify-between gap-4 border-b border-tableHeader px-6 py-5">
-                <HStack className="items-center gap-2">
-                  <h2 className="text-base font-medium text-text">My Positions</h2>
-                  <Center className="size-5 rounded-full bg-primary-12 text-xs text-primary">
-                    {run.openPositionCount}
-                  </Center>
+        <>
+          <Leaderboard items={activeStats} size="sm" />
+          <div className="grid grid-cols-3 gap-6 max-xl:grid-cols-1">
+            <Stack className="col-span-2 min-w-0 gap-5 max-xl:col-span-1">
+              <Stack className="overflow-hidden rounded-2xl bg-background/80">
+                <HStack className="flex-wrap items-center justify-between gap-4 border-b border-tableHeader px-6 py-5">
+                  <HStack className="items-center gap-2">
+                    <h2 className="text-base font-medium text-text">My Positions</h2>
+                    <Center className="size-5 rounded-full bg-primary-12 text-xs text-primary">
+                      {run.openPositionCount}
+                    </Center>
+                  </HStack>
+                  <HStack className="flex-wrap gap-5 text-sm">
+                    <span className="text-subText">Realised P&L</span>
+                    <span className="font-medium text-primary">{signedUsd(run.realizedPnlUsd)}</span>
+                    <span className="text-subText">APR Since Copy</span>
+                    <span className="font-medium text-primary">{signedPercent(run.myAprSinceCopyPct)}</span>
+                  </HStack>
                 </HStack>
-                <HStack className="flex-wrap gap-5 text-sm">
-                  <span className="text-subText">Realised P&L</span>
-                  <span className="font-medium text-primary">{signedUsd(run.realizedPnlUsd)}</span>
-                  <span className="text-subText">APR Since Copy</span>
-                  <span className="font-medium text-primary">{signedPercent(run.myAprSinceCopyPct)}</span>
-                </HStack>
-              </HStack>
-              <div className="overflow-hidden">
-                <CopyPositionsTable rows={positions?.data || []} />
-              </div>
+                <div className="overflow-hidden">
+                  <CopyPositionsTable rows={positions?.data || []} />
+                </div>
+              </Stack>
+              <LineChartMock />
             </Stack>
-            <LineChartMock />
-          </Stack>
-          <ProfileSidePanel
-            copiedCapital={formatUsd(run.capitalInUsd)}
-            isCopied
-            wishlistTokens={profile.whitelistedSymbols}
-          />
-        </div>
+            <ProfileSidePanel
+              copiedCapital={formatUsd(run.capitalInUsd)}
+              isCopied
+              wishlistTokens={profile.whitelistedSymbols}
+            />
+          </div>
+        </>
       )}
 
       {isClosed && (

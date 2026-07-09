@@ -4,7 +4,9 @@ import copyTradingApi from 'services/copyTrading'
 import { HStack, Stack } from 'components/Stack'
 import { APP_PATHS } from 'constants/index'
 import ActiveSubscriptionsTable from 'pages/CopyTrading/MyCopies/ActiveSubscriptionsTable'
-import { CopyTradingPage, StatCard } from 'pages/CopyTrading/components/common'
+import Leaderboard, { type LeaderboardStat } from 'pages/CopyTrading/components/Leaderboard'
+import { CopyTradingPage } from 'pages/CopyTrading/components/common'
+import { copyTradingStatIconMap } from 'pages/CopyTrading/constants'
 import { OWNER_ADDRESS, formatDate, formatUsd, signedUsd } from 'pages/CopyTrading/helpers'
 import { cn } from 'utils/cn'
 
@@ -22,32 +24,28 @@ const MyCopiesView = () => {
   })
   const { data: leaderboard } = copyTradingApi.useGetLeaderboardQuery()
   const summary = ownerSummary?.data
-  const stats = [
+  const stats: LeaderboardStat[] = [
     {
-      icon: 'volume',
-      value: formatUsd(summary?.totalAllocatedUsd),
       label: 'Total Allocated',
-      color: 'bg-primary-12 text-primary',
+      value: formatUsd(summary?.totalAllocatedUsd),
+      icon: copyTradingStatIconMap.volume,
     },
     {
-      icon: 'aum',
-      value: signedUsd(summary?.unrealizedPnlUsd),
       label: 'Unrealised P&L',
-      color: 'bg-blue/20 text-blue',
+      value: signedUsd(summary?.unrealizedPnlUsd),
+      icon: copyTradingStatIconMap.money,
     },
     {
-      icon: 'copiers',
-      value: String(summary?.openPositions || 0),
       label: 'Open Positions',
-      color: 'bg-primary-20 text-primary',
+      value: String(summary?.openPositions || 0),
+      icon: copyTradingStatIconMap.positionOpen,
     },
     {
-      icon: 'agent',
-      value: String(summary?.activeCopies || activeRuns?.data.length || 0),
       label: 'Active Copies',
-      color: 'bg-warning-20 text-warning',
+      value: String(summary?.activeCopies || activeRuns?.data.length || 0),
+      icon: copyTradingStatIconMap.agents,
     },
-  ] as const
+  ]
 
   return (
     <CopyTradingPage>
@@ -57,11 +55,7 @@ const MyCopiesView = () => {
         </h1>
         <p className="text-lg text-subText">Monitor and manage all your active copy positions.</p>
       </Stack>
-      <div className="grid grid-cols-4 gap-6 max-xl:grid-cols-2 max-md:grid-cols-1">
-        {stats.map(item => (
-          <StatCard key={item.label} item={item} />
-        ))}
-      </div>
+      <Leaderboard items={stats} />
       <ActiveSubscriptionsTable
         agents={leaderboard?.data || []}
         rows={activeRuns?.data || []}

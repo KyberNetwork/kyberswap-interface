@@ -1,14 +1,13 @@
+import { type PropsWithChildren } from 'react'
+
 import { ButtonEmpty, ButtonLight } from 'components/Button'
 
-const ProfileTabButton = ({
-  active,
-  children,
-  onClick,
-}: {
+type ProfileTabButtonProps = PropsWithChildren<{
   active: boolean
-  children: React.ReactNode
   onClick: () => void
-}) => {
+}>
+
+const ProfileTabButton = ({ active, children, onClick }: ProfileTabButtonProps) => {
   const TabButton = active ? ButtonLight : ButtonEmpty
 
   return (

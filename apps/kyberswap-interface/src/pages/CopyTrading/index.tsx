@@ -3,7 +3,7 @@ import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import copyTradingApi from 'services/copyTrading'
 
 import { APP_PATHS } from 'constants/index'
-import AgentListView from 'pages/CopyTrading/AgentList'
+import AgentList from 'pages/CopyTrading/AgentList'
 import AgentProfileView from 'pages/CopyTrading/AgentProfile'
 import CopyDetailView from 'pages/CopyTrading/CopyDetail'
 import CopyHistoryView from 'pages/CopyTrading/CopyHistory'
@@ -32,7 +32,7 @@ const CopyTrading = () => {
       <div className="flex min-h-screen w-full bg-black text-text max-lg:block">
         <Sidebar agents={agents} activeRuns={activeCopyRuns} chains={chains?.data || []} />
         <Routes>
-          <Route index element={<AgentListView />} />
+          <Route index element={<AgentList />} />
           <Route path="my-copies" element={<MyCopiesView />} />
           <Route path="my-copies/:copyId" element={<CopyDetailView backPath="my-copies" />} />
           <Route path="history" element={<CopyHistoryView />} />
