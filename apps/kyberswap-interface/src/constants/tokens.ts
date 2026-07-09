@@ -51,7 +51,7 @@ export const STABLE_COIN_ADDRESSES_TO_TAKE_FEE: Record<ChainId, string[]> = {
   [ChainId.PLASMA]: [],
   [ChainId.MONAD]: [],
   [ChainId.MEGAETH]: [],
-  [ChainId.ROBINHOOD]: ['0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168'],
+  [ChainId.ROBINHOOD]: [],
 }
 
 // This is basically the same as STABLE_COIN_ADDRESSES_TO_TAKE_FEE,
