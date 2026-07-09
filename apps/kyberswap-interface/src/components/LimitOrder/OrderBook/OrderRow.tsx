@@ -35,8 +35,8 @@ const AmountText = ({ amount, currency, amountPrefix, symbol }: AmountTextProps)
       {amount ? (
         <>
           {currency && (
-            <span className="flex shrink-0">
-              <CurrencyLogo currency={currency} size="16px" />
+            <span className="flex shrink-0 [--order-row-logo-size:18px] max-sm:[--order-row-logo-size:16px]">
+              <CurrencyLogo currency={currency} size="var(--order-row-logo-size)" />
             </span>
           )}
           <span className="min-w-0 overflow-hidden whitespace-nowrap">
@@ -66,8 +66,8 @@ const SizeCell = ({ amount, currency, amountPrefix, filledPercentText, filledPro
   return (
     <HStack className="w-full min-w-0 items-start gap-1">
       {currency && (
-        <HStack className="h-5 shrink-0 items-center">
-          <CurrencyLogo currency={currency.wrapped} size="16px" />
+        <HStack className="h-5 shrink-0 items-center [--order-row-logo-size:18px] max-sm:[--order-row-logo-size:16px]">
+          <CurrencyLogo currency={currency.wrapped} size="var(--order-row-logo-size)" />
         </HStack>
       )}
       <Stack className="min-w-0 gap-1 max-sm:gap-y-0">
