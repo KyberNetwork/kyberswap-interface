@@ -21,12 +21,12 @@ export const RowWrapper = ({ children, className, layout = RowWrapperLayout.HIST
   return (
     <div
       className={cn(
-        'grid items-center gap-x-4 gap-y-1 text-sm',
+        'grid items-center gap-x-4 gap-y-1 text-sm max-sm:gap-x-2 max-sm:px-3',
         isActiveLayout
           ? 'grid-cols-[44px_minmax(0,1.4fr)_minmax(0,1fr)_minmax(0,1.2fr)_minmax(0,1.4fr)_minmax(0,0.8fr)_60px]'
           : 'grid-cols-[44px_minmax(0,1.4fr)_minmax(0,1fr)_minmax(0,1.4fr)_minmax(0,0.8fr)_60px]',
-        'max-sm:grid-cols-[48px_minmax(0,1fr)_minmax(0,0.8fr)]',
-        isActiveLayout && 'max-sm:grid-cols-[48px_minmax(0,1fr)_minmax(0,0.8fr)_28px]',
+        'max-sm:grid-cols-[28px_minmax(0,1fr)_minmax(0,0.8fr)]',
+        isActiveLayout && 'max-sm:grid-cols-[28px_minmax(0,1fr)_minmax(0,0.8fr)_28px]',
         className,
       )}
     >
@@ -40,7 +40,7 @@ const TableHeader = ({ isActiveTab }: { isActiveTab?: boolean }) => (
     layout={isActiveTab ? RowWrapperLayout.ACTIVE : RowWrapperLayout.HISTORY}
     className="cursor-default bg-background px-4 py-3 text-xs font-medium uppercase tracking-[0.04em] text-subText"
   >
-    <span className="max-sm:row-span-2 max-sm:self-center">
+    <span className="max-sm:invisible max-sm:row-span-2 max-sm:self-center">
       <Trans>Chain</Trans>
     </span>
     <span className="justify-self-center text-center max-sm:justify-self-start max-sm:text-left">

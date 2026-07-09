@@ -58,7 +58,18 @@ export const TabSelector = ({ activeTab, setActiveTab }: TabSelectorProps) => (
           type="button"
         >
           <span className="text-base font-medium leading-[normal]" style={{ color: 'inherit' }}>
-            {tab === LimitOrderStatus.ACTIVE ? <Trans>Active Orders</Trans> : <Trans>Order History</Trans>}
+            {tab === LimitOrderStatus.ACTIVE ? (
+              <Trans>Active Orders</Trans>
+            ) : (
+              <>
+                <span className="max-sm:hidden">
+                  <Trans>Order History</Trans>
+                </span>
+                <span className="sm:hidden">
+                  <Trans>History</Trans>
+                </span>
+              </>
+            )}
           </span>
         </button>
       )
