@@ -6,7 +6,9 @@ import { usePrevious } from 'react-use'
 import Modal from 'components/Modal'
 import { ImportTokenView } from 'components/TokenSelectorModal/ImportTokenView'
 import { TokenSelectorContent } from 'components/TokenSelectorModal/TokenSelectorContent'
+import { usePendingCrossChainSelect } from 'components/TokenSelectorModal/hooks/usePendingCrossChainSelect'
 import TokenInfoTab from 'components/swapv2/TokenInfo'
+import { useActiveWeb3React } from 'hooks'
 import useLast from 'hooks/useLast'
 import { useIsTokenRestricted, useNotifyRestrictedToken } from 'hooks/useRestrictedTokens'
 import { Field } from 'state/swap/actions'
@@ -51,6 +53,9 @@ const TokenSelectorModal = ({
 
   const isTokenRestricted = useIsTokenRestricted()
   const notifyRestrictedToken = useNotifyRestrictedToken()
+  const { chainId: appChainId } = useActiveWeb3React()
+  const anchorChainId = customChainId || appChainId
+  const { switchChainAndSelect } = usePendingCrossChainSelect(onCurrencySelect, onDismiss)
 
   useEffect(() => {
     if (isOpen && !lastOpen) {
@@ -65,10 +70,17 @@ const TokenSelectorModal = ({
         notifyRestrictedToken(picked)
         return
       }
+      // A token imported on another chain reaches here (the import flow bypasses the row's Switch-Chain
+      // modal). Switch to its chain first, then select — otherwise it would be clobbered to a default.
+      // Row selections arrive already on the right chain, so this branch no-ops for them.
+      if (picked.chainId !== anchorChainId) {
+        switchChainAndSelect(picked)
+        return
+      }
       onCurrencySelect?.(picked)
       onDismiss?.()
     },
-    [onDismiss, onCurrencySelect, isTokenRestricted, notifyRestrictedToken],
+    [onDismiss, onCurrencySelect, isTokenRestricted, notifyRestrictedToken, anchorChainId, switchChainAndSelect],
   )
 
   // for token import view
