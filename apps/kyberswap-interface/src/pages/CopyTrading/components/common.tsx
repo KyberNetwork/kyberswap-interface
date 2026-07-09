@@ -1,35 +1,28 @@
-import { type HTMLAttributes, type ReactNode, useState } from 'react'
-import { Check, Copy, Shield, Zap } from 'react-feather'
-import type { AgentCard, AgentProfile, StrategyKey } from 'services/copyTrading/types'
+import { type HTMLAttributes, type PropsWithChildren, useState } from 'react'
+import { ArrowLeft, Copy, Shield, Zap } from 'react-feather'
+import { useNavigate } from 'react-router-dom'
+import type { AgentCard, AgentProfile } from 'services/copyTrading/types'
 
+import verifiedIcon from 'assets/images/copy-trading/verified.svg'
 import { ButtonEmpty, ButtonLight, ButtonPrimary } from 'components/Button'
 import { Center, HStack, Stack } from 'components/Stack'
-import { type ProfileStatIcon, type StatIcon, profileStatIcons, statIcons } from 'pages/CopyTrading/constants'
-import {
-  formatDate,
-  getAgentDisplayName,
-  getAgentInitials,
-  shortAddress,
-  strategyLabel,
-} from 'pages/CopyTrading/helpers'
+import { formatDate, getAgentDisplayName, getAgentInitials, shortAddress } from 'pages/CopyTrading/helpers'
 import { cn } from 'utils/cn'
 
-type StatItem = {
-  icon: StatIcon
-  value: string
-  label: string
-  color: string
-}
-
-type ProfileStatItem = {
-  icon: ProfileStatIcon
-  value: string
-  label: string
-}
+import { Badge, StrategyBadge } from './Badge'
 
 type TableGridProps = HTMLAttributes<HTMLDivElement> & {
   columns: string
 }
+
+type CopyTradingPageBackTo = {
+  label: string
+  to: string
+}
+
+type CopyTradingPageProps = PropsWithChildren<{
+  backTo?: CopyTradingPageBackTo
+}>
 
 const chartRanges = ['7D', '1M', '3M', 'All'] as const
 
@@ -39,56 +32,53 @@ const getLeaderAddress = (agent: AgentCard | AgentProfile) =>
 const isVerifiedAgent = (agent: AgentCard | AgentProfile) =>
   'isVerified' in agent ? agent.isVerified : agent.badges.includes('Verified')
 
-const StrategyBadge = ({ strategy, className }: { strategy: StrategyKey; className?: string }) => {
-  const label = strategyLabel(strategy)
+export const CopyTradingPage = ({ children, backTo }: CopyTradingPageProps) => {
+  const navigate = useNavigate()
 
   return (
-    <span
-      className={cn(
-        'rounded-full px-2 py-0.5 text-xs font-medium',
-        label === 'Active' && 'bg-red-20 text-red',
-        label === 'Diversified' && 'bg-blue/20 text-blue',
-        label === 'Focused' && 'bg-primary-12 text-primary',
-        className,
-      )}
-    >
-      {label}
-    </span>
+    <main className="min-w-0 flex-1 px-8 py-6 max-md:px-4 max-md:py-8">
+      <Stack className="w-full gap-4">
+        {backTo && (
+          <div className="w-fit">
+            <ButtonEmpty
+              type="button"
+              onClick={() => navigate(backTo.to)}
+              padding="0"
+              className="text-subText transition-colors hover:text-text focus-visible:text-text"
+            >
+              <HStack className="items-center gap-2">
+                <ArrowLeft size={16} />
+                Back to {backTo.label}
+              </HStack>
+            </ButtonEmpty>
+          </div>
+        )}
+        {children}
+      </Stack>
+    </main>
   )
 }
-
-export const CopyTradingPage = ({ children }: { children: ReactNode }) => (
-  <main className="min-w-0 flex-1 p-10 max-md:px-4 max-md:py-8">
-    <Stack className="w-full gap-8">{children}</Stack>
-  </main>
-)
 
 export const AgentCell = ({ agent, className }: { agent: AgentCard | AgentProfile; className?: string }) => {
   const chain = 'chains' in agent ? agent.chains[0] : undefined
 
   return (
     <HStack className={cn('min-w-0 items-center gap-4', className)}>
-      <Center className="relative size-10 shrink-0 rounded-full bg-gray text-sm text-text">
+      <Center className="relative size-10 shrink-0 rounded-full bg-buttonGray text-sm font-medium text-subText">
         {getAgentInitials(getAgentDisplayName(agent))}
         <Center className="absolute -bottom-0.5 -right-0.5">
           {chain?.iconUrl && <img src={chain.iconUrl} alt={chain.name} className="size-4 rounded-full" />}
         </Center>
       </Center>
-      <Stack className="min-w-0 gap-1.5">
-        <HStack className="min-w-0 items-center gap-1.5">
+      <Stack className="min-w-0 gap-1">
+        <HStack className="min-w-0 items-center gap-2">
           <span className="truncate text-base font-medium text-text">{agent.displayName}</span>
-          {isVerifiedAgent(agent) && (
-            <Center className="size-4 shrink-0 rounded-full bg-blue text-white">
-              <Check size={10} />
-            </Center>
-          )}
-          {agent.isTrending && <Zap size={14} className="shrink-0 fill-warning text-warning" />}
+          {isVerifiedAgent(agent) && <img src={verifiedIcon} alt="Verified" className="size-5 shrink-0" />}
+          {agent.isTrending && <span className="text-sm">🔥</span>}
         </HStack>
         <HStack className="items-center gap-2">
-          <StrategyBadge strategy={agent.strategy} className="shrink-0" />
-          <span className="whitespace-nowrap rounded-full bg-subText-20 px-3 py-0.5 text-xs text-subText">
-            {agent.modelName}
-          </span>
+          <StrategyBadge strategy={agent.strategy} />
+          <Badge color="gray">{agent.modelName}</Badge>
         </HStack>
       </Stack>
     </HStack>
@@ -106,15 +96,11 @@ export const AgentIdentity = ({ agent }: { agent: AgentCard | AgentProfile }) =>
     <Stack className="min-w-0 gap-2">
       <HStack className="min-w-0 items-center gap-2">
         <h1 className="truncate text-3xl text-text">{agent.displayName}</h1>
-        {isVerifiedAgent(agent) && (
-          <Center className="size-5 shrink-0 rounded-full bg-blue text-white">
-            <Check size={12} />
-          </Center>
-        )}
+        {isVerifiedAgent(agent) && <img src={verifiedIcon} alt="Verified" className="size-5 shrink-0" />}
       </HStack>
       <HStack className="flex-wrap items-center gap-2 text-sm text-subText">
         <StrategyBadge strategy={agent.strategy} />
-        <span className="rounded-full bg-subText-20 px-3 py-0.5 text-xs text-subText">{agent.modelName}</span>
+        <Badge color="gray">{agent.modelName}</Badge>
         <span>•</span>
         <span>{shortAddress(getLeaderAddress(agent))}</span>
         <Copy size={13} />
@@ -132,28 +118,6 @@ export const AgentIdentity = ({ agent }: { agent: AgentCard | AgentProfile }) =>
           </>
         )}
       </HStack>
-    </Stack>
-  </HStack>
-)
-
-export const StatCard = ({ item }: { item: StatItem }) => (
-  <HStack className="min-h-24 items-center gap-5 rounded-xl bg-buttonBlack px-6 py-5">
-    <Center className={cn('size-12 shrink-0 rounded-full text-sm font-medium', item.color)}>
-      {statIcons[item.icon]}
-    </Center>
-    <Stack className="gap-1.5">
-      <span className="text-2xl font-medium text-text">{item.value}</span>
-      <span className="text-sm text-subText">{item.label}</span>
-    </Stack>
-  </HStack>
-)
-
-export const ProfileStatCard = ({ item }: { item: ProfileStatItem }) => (
-  <HStack className="h-20 items-center gap-5 rounded-xl bg-buttonBlack px-6">
-    <Center className="size-11 rounded-full bg-primary-12 text-primary">{profileStatIcons[item.icon]}</Center>
-    <Stack className="gap-1">
-      <span className="text-lg font-medium text-primary">{item.value}</span>
-      <span className="text-sm text-subText">{item.label}</span>
     </Stack>
   </HStack>
 )
@@ -263,15 +227,13 @@ export const LineChartMock = () => {
   )
 }
 
-export const ProfileSidePanel = ({
-  copiedCapital,
-  isCopied,
-  wishlistTokens,
-}: {
+type ProfileSidePanelProps = {
   copiedCapital: string
   isCopied: boolean
   wishlistTokens: string[]
-}) => (
+}
+
+export const ProfileSidePanel = ({ copiedCapital, isCopied, wishlistTokens }: ProfileSidePanelProps) => (
   <Stack className="gap-5">
     <Stack className="gap-5 rounded-xl bg-buttonBlack p-5">
       <h3 className="border-b border-border pb-3 text-base font-medium text-text">

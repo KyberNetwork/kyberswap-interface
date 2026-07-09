@@ -1,26 +1,18 @@
-import { ArrowLeft } from 'react-feather'
-import { Navigate, useNavigate, useParams } from 'react-router-dom'
+import { Navigate, useParams } from 'react-router-dom'
 import copyTradingApi from 'services/copyTrading'
 
-import { ButtonEmpty } from 'components/Button'
 import { HStack, Stack } from 'components/Stack'
 import { APP_PATHS } from 'constants/index'
 import useTab from 'hooks/useTab'
 import ActionLog from 'pages/CopyTrading/AgentProfile/ActionLog'
 import ProfileTabButton from 'pages/CopyTrading/AgentProfile/ProfileTabButton'
 import { OpenPositionsTable, TradeHistoryTable } from 'pages/CopyTrading/AgentProfile/Tables'
-import {
-  AgentIdentity,
-  CopyTradingPage,
-  LineChartMock,
-  ProfileSidePanel,
-  ProfileStatCard,
-} from 'pages/CopyTrading/components/common'
-import { type ProfileTab, profileTabLabel, profileTabs } from 'pages/CopyTrading/constants'
+import Leaderboard, { type LeaderboardStat } from 'pages/CopyTrading/components/Leaderboard'
+import { AgentIdentity, CopyTradingPage, LineChartMock, ProfileSidePanel } from 'pages/CopyTrading/components/common'
+import { type ProfileTab, copyTradingStatIconMap, profileTabLabel, profileTabs } from 'pages/CopyTrading/constants'
 import { compactUsd, formatUsd, percent, signedUsd } from 'pages/CopyTrading/helpers'
 
 const AgentProfileView = () => {
-  const navigate = useNavigate()
   const { agentCode } = useParams()
   const agentQuery = { agentId: agentCode || '' }
   const {
@@ -54,49 +46,36 @@ const AgentProfileView = () => {
   if (!profile && (isAgentFetching || isAgentLoading || isAgentUninitialized)) return null
   if (!profile) return <Navigate to={APP_PATHS.COPY_TRADING} replace />
 
-  const profileStats = [
+  const profileStats: LeaderboardStat[] = [
     {
-      icon: 'pnl',
-      value: signedUsd(stats?.totalRealizedPnlUsd),
       label: 'Total Realised P&L',
+      value: signedUsd(stats?.totalRealizedPnlUsd),
+      icon: copyTradingStatIconMap.money,
     },
     {
-      icon: 'copiers',
-      value: String(stats?.copiers || 0),
       label: 'Copiers',
+      value: String(stats?.copiers || 0),
+      icon: copyTradingStatIconMap.users,
     },
     {
-      icon: 'winRate',
-      value: percent(stats?.winRatePct),
       label: 'Win Rate',
+      value: percent(stats?.winRatePct),
+      icon: copyTradingStatIconMap.positionOpen,
     },
     {
-      icon: 'aum',
-      value: compactUsd(stats?.aumUsd),
       label: 'AUM',
+      value: compactUsd(stats?.aumUsd),
+      icon: copyTradingStatIconMap.volume,
     },
-  ] as const
+  ]
 
   return (
-    <CopyTradingPage>
-      <div className="w-fit">
-        <ButtonEmpty type="button" onClick={() => navigate(APP_PATHS.COPY_TRADING)} padding="0">
-          <HStack className="items-center gap-2">
-            <ArrowLeft size={14} />
-            Back to Leaderboard
-          </HStack>
-        </ButtonEmpty>
-      </div>
-
+    <CopyTradingPage backTo={{ label: 'Leaderboard', to: APP_PATHS.COPY_TRADING }}>
       <AgentIdentity agent={profile} />
 
       <div className="grid grid-cols-3 gap-6 max-xl:grid-cols-1">
         <Stack className="col-span-2 min-w-0 gap-5">
-          <div className="grid grid-cols-4 gap-4 max-lg:grid-cols-2 max-md:grid-cols-1">
-            {profileStats.map(item => (
-              <ProfileStatCard key={item.label} item={item} />
-            ))}
-          </div>
+          <Leaderboard items={profileStats} size="sm" />
           <LineChartMock />
         </Stack>
 
