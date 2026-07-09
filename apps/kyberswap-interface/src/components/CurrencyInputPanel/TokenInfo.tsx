@@ -32,7 +32,10 @@ const SPREAD_THRESHOLD = {
 export default function TokenInfo({ token, isNativeToken = false }: { token: Token; isNativeToken?: boolean }) {
   const theme = useTheme()
 
-  const { data: priceData } = useGetPricesQuery({ [token.chainId]: [token.address] }, { pollingInterval: 15_000 })
+  const { data: priceData, isFetching: isFetchingPrice } = useGetPricesQuery(
+    { [token.chainId]: [token.address] },
+    { pollingInterval: 15_000 },
+  )
   const priceInfo = useMemo(() => {
     if (!priceData) return null
     const entry = priceData.data?.[token.chainId]?.[token.address]
@@ -121,7 +124,11 @@ export default function TokenInfo({ token, isNativeToken = false }: { token: Tok
     </div>
   )
 
-  const isWarning = !!spreadCheck.warning || (priceInfo ? !priceInfo.buyPrice || !priceInfo.sellPrice : false)
+  // Flag a genuinely high spread, or a missing price — but only once the price fetch has SETTLED.
+  // While the just-selected token's price is still loading, the icon must not glow warning (it
+  // briefly did, since the price hadn't arrived yet to compute the spread).
+  const isWarning =
+    !!spreadCheck.warning || (priceInfo && !isFetchingPrice ? !priceInfo.buyPrice || !priceInfo.sellPrice : false)
 
   return (
     <div
