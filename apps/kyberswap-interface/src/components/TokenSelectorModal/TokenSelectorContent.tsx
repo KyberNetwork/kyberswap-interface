@@ -347,23 +347,28 @@ export const TokenSelectorContent = ({
     return EMPTY_EXTRAS
   }, [isTrendingTab, isNewTab, isImportedTab, isFavoritesTab, trendingExtras, newExtras, metricsExtras])
 
-  // In-memory price sort for the "Price & 24h change" column on the local tabs (New / Imported /
-  // Favorites); Trending sorts by price server-side. Tokens with no price always sink to the very
-  // bottom regardless of direction.
-  const sortByPrice = useCallback(
+  // In-memory 24h-change sort for the "Price & 24h change" column on the local tabs (New / Imported /
+  // Favorites); Trending sorts by 24h change server-side. Rows are tiered so tokens with a 24h change
+  // sort first (by value), then priced-but-no-change, then rows with no price at all — the last group
+  // always sinks to the very bottom regardless of direction.
+  const sortByChange = useCallback(
     (list: Currency[]): Currency[] => {
-      if (!sort || sort.field !== 'price') return list
+      if (!sort || sort.field !== 'priceChange24h') return list
       const dir = sort.dir === 'asc' ? 1 : -1
-      const priceOf = (currency: Currency): number =>
-        listExtras[tokenRowKey(currency.chainId, currency.wrapped.address)]?.price ?? 0
+      const rankOf = (currency: Currency): number => {
+        const extra = listExtras[tokenRowKey(currency.chainId, currency.wrapped.address)]
+        if (extra?.priceChange24h !== undefined) return 0
+        if (extra?.price) return 1
+        return 2
+      }
       return [...list].sort((a, b) => {
-        const pa = priceOf(a)
-        const pb = priceOf(b)
-        const hasA = pa > 0
-        const hasB = pb > 0
-        if (hasA !== hasB) return hasA ? -1 : 1
-        if (!hasA) return 0
-        return (pa - pb) * dir
+        const ra = rankOf(a)
+        const rb = rankOf(b)
+        if (ra !== rb) return ra - rb
+        if (ra !== 0) return 0
+        const ca = listExtras[tokenRowKey(a.chainId, a.wrapped.address)]?.priceChange24h ?? 0
+        const cb = listExtras[tokenRowKey(b.chainId, b.wrapped.address)]?.priceChange24h ?? 0
+        return (ca - cb) * dir
       })
     },
     [sort, listExtras],
@@ -371,15 +376,15 @@ export const TokenSelectorContent = ({
 
   const visibleCurrencies: Currency[] = useMemo(() => {
     switch (activeTab) {
-      // Trending sorts server-side (price / volume via the catalog API's `sort` param).
+      // Trending sorts server-side (24h change / volume via the catalog API's `sort` param).
       case TokenSelectorTab.Trending:
         return trendingCurrencies
       case TokenSelectorTab.New:
-        return sortByPrice(newCurrenciesBase)
+        return sortByChange(newCurrenciesBase)
       case TokenSelectorTab.Imported:
-        return sortByPrice(importedCurrenciesBase)
+        return sortByChange(importedCurrenciesBase)
       case TokenSelectorTab.Favorites:
-        return sortByPrice(favoriteCurrenciesBase)
+        return sortByChange(favoriteCurrenciesBase)
       case TokenSelectorTab.All:
       default:
         return allTabTokens
@@ -391,7 +396,7 @@ export const TokenSelectorContent = ({
     importedCurrenciesBase,
     favoriteCurrenciesBase,
     allTabTokens,
-    sortByPrice,
+    sortByChange,
   ])
 
   // Show skeleton rows while a tab's whole list is loading from the API.
@@ -725,7 +730,7 @@ export const TokenSelectorContent = ({
               {!isAllTab && (
                 <SortHeader
                   label={<Trans>Price & 24h change</Trans>}
-                  field="price"
+                  field="priceChange24h"
                   sort={sort}
                   onSort={cycleSort}
                   className="w-[132px]"

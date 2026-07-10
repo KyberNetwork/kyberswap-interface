@@ -18,10 +18,10 @@ export type TokenRowExtraMap = Record<string, TokenRowExtra>
 export const tokenRowKey = (chainId: number | ChainId, address: string): string => `${chainId}-${address.toLowerCase()}`
 
 /**
- * Column the list is sorted by. `price` (the "Price & 24h change" column) applies to every discovery
- * tab; `volume24h` is Trending-only. Trending resolves both to a server-side `sort` param (the
- * catalog API must support `price:desc|asc`); New / Imported / Favorites sort in-memory. A `null`
- * sort means the tab's natural order (KyberScore / newest / balance).
+ * Column the list is sorted by. `priceChange24h` (the "Price & 24h change" column) applies to every
+ * discovery tab; `volume24h` is Trending-only. Trending resolves both to a server-side `sort` param;
+ * New / Imported / Favorites sort in-memory. A `null` sort means the tab's natural order (KyberScore
+ * / newest / balance).
  */
-export type TokenSortField = 'price' | 'volume24h'
+export type TokenSortField = 'priceChange24h' | 'volume24h'
 export type TokenSort = { field: TokenSortField; dir: 'asc' | 'desc' }
