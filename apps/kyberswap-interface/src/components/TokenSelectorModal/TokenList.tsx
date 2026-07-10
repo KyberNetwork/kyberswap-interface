@@ -242,7 +242,7 @@ export const TokenRow = ({
 
       <HStack className="shrink-0 items-center gap-3 justify-self-end">
         {showPriceColumn && (
-          <Stack className={cn('w-[104px] items-end gap-0.5 overflow-hidden', isImport && 'opacity-50')}>
+          <Stack className={cn('w-[132px] items-end gap-0.5 overflow-hidden', isImport && 'opacity-50')}>
             <span className="max-w-full truncate text-sm text-text" data-testid="token-price">
               {priceUsd ? formatDisplayNumber(priceUsd, { style: 'currency', significantDigits: 6 }) : '--'}
             </span>
@@ -292,11 +292,13 @@ export const TokenRow = ({
           </Stack>
         )}
         {onRemoveImportedToken && (
-          <X
-            onClick={onClickRemove}
-            data-testid="button-remove-import-token"
-            className="size-4 shrink-0 text-subText hover:text-text"
-          />
+          <div className="flex w-6 shrink-0 items-center justify-center">
+            <X
+              onClick={onClickRemove}
+              data-testid="button-remove-import-token"
+              className="size-4 shrink-0 cursor-pointer text-subText hover:text-text"
+            />
+          </div>
         )}
       </HStack>
     </>

@@ -109,23 +109,28 @@ const EMPTY_EXTRAS: TokenRowExtraMap = {}
 // Map the internal sort direction to the shared SortIcon's Direction enum.
 const toDirection = (dir: 'asc' | 'desc'): Direction => (dir === 'asc' ? Direction.ASC : Direction.DESC)
 
-// A clickable, sortable column header (Price/24h, Volume) with the shared pool-list sort arrows.
+// A clickable, sortable column header (Price & 24h change, Volume) with the shared pool-list sort arrows.
 const SortHeader = ({
   label,
   field,
   sort,
   onSort,
+  className,
 }: {
   label: ReactNode
   field: TokenSortField
   sort: TokenSort | null
   onSort: (field: TokenSortField) => void
+  className?: string
 }) => (
   <button
     type="button"
     data-testid={`sort-header-${field}`}
     onClick={() => onSort(field)}
-    className="flex w-[104px] items-center justify-end gap-1 uppercase transition-colors hover:text-text"
+    className={cn(
+      'flex shrink-0 items-center justify-end gap-1 whitespace-nowrap uppercase transition-colors hover:text-text',
+      className ?? 'w-[104px]',
+    )}
   >
     {label}
     <SortIcon sorted={sort?.field === field ? toDirection(sort.dir) : undefined} />
@@ -342,27 +347,23 @@ export const TokenSelectorContent = ({
     return EMPTY_EXTRAS
   }, [isTrendingTab, isNewTab, isImportedTab, isFavoritesTab, trendingExtras, newExtras, metricsExtras])
 
-  // In-memory 24h-change sort for New / Imported / Favorites (Trending sorts server-side). Rows are
-  // tiered so tokens with a 24h change sort first (by value), then priced-but-no-change, then rows
-  // with no price at all — the last group always sinks to the very bottom regardless of direction.
-  const sortByChange = useCallback(
+  // In-memory price sort for the "Price & 24h change" column on the local tabs (New / Imported /
+  // Favorites); Trending sorts by price server-side. Tokens with no price always sink to the very
+  // bottom regardless of direction.
+  const sortByPrice = useCallback(
     (list: Currency[]): Currency[] => {
-      if (!sort || sort.field !== 'priceChange24h') return list
+      if (!sort || sort.field !== 'price') return list
       const dir = sort.dir === 'asc' ? 1 : -1
-      const rankOf = (currency: Currency): number => {
-        const extra = listExtras[tokenRowKey(currency.chainId, currency.wrapped.address)]
-        if (extra?.priceChange24h !== undefined) return 0
-        if (extra?.price) return 1
-        return 2
-      }
+      const priceOf = (currency: Currency): number =>
+        listExtras[tokenRowKey(currency.chainId, currency.wrapped.address)]?.price ?? 0
       return [...list].sort((a, b) => {
-        const ra = rankOf(a)
-        const rb = rankOf(b)
-        if (ra !== rb) return ra - rb
-        if (ra !== 0) return 0
-        const ca = listExtras[tokenRowKey(a.chainId, a.wrapped.address)]?.priceChange24h ?? 0
-        const cb = listExtras[tokenRowKey(b.chainId, b.wrapped.address)]?.priceChange24h ?? 0
-        return (ca - cb) * dir
+        const pa = priceOf(a)
+        const pb = priceOf(b)
+        const hasA = pa > 0
+        const hasB = pb > 0
+        if (hasA !== hasB) return hasA ? -1 : 1
+        if (!hasA) return 0
+        return (pa - pb) * dir
       })
     },
     [sort, listExtras],
@@ -370,14 +371,15 @@ export const TokenSelectorContent = ({
 
   const visibleCurrencies: Currency[] = useMemo(() => {
     switch (activeTab) {
+      // Trending sorts server-side (price / volume via the catalog API's `sort` param).
       case TokenSelectorTab.Trending:
         return trendingCurrencies
       case TokenSelectorTab.New:
-        return sortByChange(newCurrenciesBase)
+        return sortByPrice(newCurrenciesBase)
       case TokenSelectorTab.Imported:
-        return sortByChange(importedCurrenciesBase)
+        return sortByPrice(importedCurrenciesBase)
       case TokenSelectorTab.Favorites:
-        return sortByChange(favoriteCurrenciesBase)
+        return sortByPrice(favoriteCurrenciesBase)
       case TokenSelectorTab.All:
       default:
         return allTabTokens
@@ -389,7 +391,7 @@ export const TokenSelectorContent = ({
     importedCurrenciesBase,
     favoriteCurrenciesBase,
     allTabTokens,
-    sortByChange,
+    sortByPrice,
   ])
 
   // Show skeleton rows while a tab's whole list is loading from the API.
@@ -721,7 +723,13 @@ export const TokenSelectorContent = ({
             </span>
             <HStack className="shrink-0 items-center gap-3">
               {!isAllTab && (
-                <SortHeader label={<Trans>Price/24h</Trans>} field="priceChange24h" sort={sort} onSort={cycleSort} />
+                <SortHeader
+                  label={<Trans>Price & 24h change</Trans>}
+                  field="price"
+                  sort={sort}
+                  onSort={cycleSort}
+                  className="w-[132px]"
+                />
               )}
               {isTrendingTab ? (
                 <SortHeader label={<Trans>Volume</Trans>} field="volume24h" sort={sort} onSort={cycleSort} />
@@ -730,6 +738,8 @@ export const TokenSelectorContent = ({
                   <Trans>Balance</Trans>
                 </span>
               )}
+              {/* Spacer aligning the header with the imported rows' remove-token column. */}
+              {isImportedTab && <span className="w-6 shrink-0" aria-hidden="true" />}
             </HStack>
           </HStack>
         )}
