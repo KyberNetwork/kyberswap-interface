@@ -15,7 +15,9 @@ type ChainSelectorProps = {
 export const ChainSelector = memo(({ chains, selectedChainId, onChange }: ChainSelectorProps) => {
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
-  useOnClickOutside(ref, () => setOpen(false))
+  // The whole selector modal lives inside a reach-portal, so keep portal clicks in scope: a click
+  // inside the modal but outside this dropdown must still close it.
+  useOnClickOutside(ref, () => setOpen(false), { ignoreReachPortal: false })
 
   const selectedChain = chains.find(chain => chain.chainId === selectedChainId)
 
