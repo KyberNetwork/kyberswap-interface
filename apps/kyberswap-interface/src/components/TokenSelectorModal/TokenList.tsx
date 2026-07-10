@@ -48,7 +48,7 @@ const Balance = ({ balance }: { balance: CurrencyAmount<Currency> }) => {
   )
 }
 
-// Compact "age since whitelisted" badge for the New tab, e.g. "NEW", "1D", "3D".
+// Compact age badge for the New tab, e.g. "NEW", "1D", "3D", counted from the token's creation.
 const formatAgeBadge = (addedAt?: number): string | null => {
   if (!addedAt) return null
   const days = Math.floor(Date.now() / 1000 / 86400 - addedAt / 86400)

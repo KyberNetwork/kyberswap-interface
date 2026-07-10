@@ -37,7 +37,7 @@ export const useNewTokens = (
   return useMemo(() => {
     const { tokens, extras } = mapCatalogTokens(data?.data?.tokens ?? [], raw => ({
       ...catalogMetricsToExtra(raw),
-      addedAt: raw.whitelistedAt ?? raw.createdAt,
+      addedAt: raw.createdAt ?? raw.whitelistedAt,
     }))
     return { tokens, extras, loading: isLoading }
   }, [data, isLoading])
