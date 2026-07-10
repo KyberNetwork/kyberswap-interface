@@ -129,6 +129,12 @@ const TradeRouteV3: React.FC<SwapRouteV3Props> = ({ tradeComposition, tokenIn })
   const maximumPathLengths: { [key: string]: number } = {}
   maximumPathLengths[tokenIn.address] = 0
   const queue = [tokenIn.address]
+  // The aggregator can return routes whose token graph contains a cycle (e.g. a same-token swap
+  // such as ETH→WETH routed WETH→X→WETH). A simple path across `nodes.length` distinct tokens spans
+  // at most `nodes.length - 1` edges, so relaxation must stop there: without this bound the
+  // "longer path" check below keeps re-enqueuing cycle nodes with an ever-increasing length and the
+  // loop never terminates, hard-freezing the whole tab.
+  const maxPathLength = nodes.length
   while (queue.length) {
     const currentNode = queue.shift() as string // Use shift() for BFS
     const currentLength = maximumPathLengths[currentNode] || 0
@@ -138,8 +144,11 @@ const TradeRouteV3: React.FC<SwapRouteV3Props> = ({ tradeComposition, tokenIn })
       const targetAddress = neighbor.target.address
       const newLength = currentLength + 1
 
-      // If we found a longer path to this node
-      if (maximumPathLengths[targetAddress] === undefined || newLength > maximumPathLengths[targetAddress]) {
+      // Relax to a longer path, but never beyond a simple path's length (cycle guard)
+      if (
+        newLength <= maxPathLength &&
+        (maximumPathLengths[targetAddress] === undefined || newLength > maximumPathLengths[targetAddress])
+      ) {
         maximumPathLengths[targetAddress] = newLength
         queue.push(targetAddress) // Add back to the queue to find potentially longer paths from it
       }
