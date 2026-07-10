@@ -194,8 +194,8 @@ export const TokenSelectorContent = ({
   const isNewTab = activeTab === TokenSelectorTab.New
   const isFavoritesTab = activeTab === TokenSelectorTab.Favorites
 
-  // Column sort. Trending resolves it server-side; New / Imported / Favorites sort in-memory by 24h
-  // change. `null` = the tab's natural order. Cleared whenever the tab or chain changes.
+  // Column sort. Trending resolves it server-side; New / Imported / Favorites sort in-memory (24h
+  // change, plus 24h volume on New). `null` = the tab's natural order. Cleared on tab / chain change.
   const [sort, setSort] = useState<TokenSort | null>(null)
   const listAnimation = useAnimationControls()
   const prefersReducedMotion = useReducedMotion()
@@ -347,16 +347,19 @@ export const TokenSelectorContent = ({
     return EMPTY_EXTRAS
   }, [isTrendingTab, isNewTab, isImportedTab, isFavoritesTab, trendingExtras, newExtras, metricsExtras])
 
-  // In-memory 24h-change sort for the "Price & 24h change" column on the local tabs (New / Imported /
-  // Favorites); Trending sorts by 24h change server-side. Rows are tiered so tokens with a 24h change
-  // sort first (by value), then priced-but-no-change, then rows with no price at all — the last group
-  // always sinks to the very bottom regardless of direction.
-  const sortByChange = useCallback(
+  // In-memory metric sort for the local tabs (New / Imported / Favorites): the "Price & 24h change"
+  // column sorts by 24h change, and the New tab's "Volume" column sorts by 24h volume. Trending sorts
+  // both server-side. Rows are tiered so those missing the sorted metric always sink to the very
+  // bottom regardless of direction; for 24h change, priced-but-no-change rows sit above no-price rows.
+  const sortByMetric = useCallback(
     (list: Currency[]): Currency[] => {
-      if (!sort || sort.field !== 'priceChange24h') return list
+      if (!sort) return list
+      const field = sort.field
       const dir = sort.dir === 'asc' ? 1 : -1
+      const extraOf = (currency: Currency) => listExtras[tokenRowKey(currency.chainId, currency.wrapped.address)]
       const rankOf = (currency: Currency): number => {
-        const extra = listExtras[tokenRowKey(currency.chainId, currency.wrapped.address)]
+        const extra = extraOf(currency)
+        if (field === 'volume24h') return extra?.volume24h !== undefined ? 0 : 1
         if (extra?.priceChange24h !== undefined) return 0
         if (extra?.price) return 1
         return 2
@@ -366,9 +369,9 @@ export const TokenSelectorContent = ({
         const rb = rankOf(b)
         if (ra !== rb) return ra - rb
         if (ra !== 0) return 0
-        const ca = listExtras[tokenRowKey(a.chainId, a.wrapped.address)]?.priceChange24h ?? 0
-        const cb = listExtras[tokenRowKey(b.chainId, b.wrapped.address)]?.priceChange24h ?? 0
-        return (ca - cb) * dir
+        const va = extraOf(a)?.[field] ?? 0
+        const vb = extraOf(b)?.[field] ?? 0
+        return (va - vb) * dir
       })
     },
     [sort, listExtras],
@@ -380,11 +383,11 @@ export const TokenSelectorContent = ({
       case TokenSelectorTab.Trending:
         return trendingCurrencies
       case TokenSelectorTab.New:
-        return sortByChange(newCurrenciesBase)
+        return sortByMetric(newCurrenciesBase)
       case TokenSelectorTab.Imported:
-        return sortByChange(importedCurrenciesBase)
+        return sortByMetric(importedCurrenciesBase)
       case TokenSelectorTab.Favorites:
-        return sortByChange(favoriteCurrenciesBase)
+        return sortByMetric(favoriteCurrenciesBase)
       case TokenSelectorTab.All:
       default:
         return allTabTokens
@@ -396,7 +399,7 @@ export const TokenSelectorContent = ({
     importedCurrenciesBase,
     favoriteCurrenciesBase,
     allTabTokens,
-    sortByChange,
+    sortByMetric,
   ])
 
   // Show skeleton rows while a tab's whole list is loading from the API.
@@ -736,7 +739,7 @@ export const TokenSelectorContent = ({
                   className="w-[132px]"
                 />
               )}
-              {isTrendingTab ? (
+              {isTrendingTab || isNewTab ? (
                 <SortHeader label={<Trans>Volume</Trans>} field="volume24h" sort={sort} onSort={cycleSort} />
               ) : (
                 <span className="flex w-[104px] items-center justify-end">
@@ -768,7 +771,7 @@ export const TokenSelectorContent = ({
               extras={listExtras}
               showAddress={isAllTab}
               showPriceColumn={!isAllTab}
-              showVolume={isTrendingTab}
+              showVolume={isTrendingTab || isNewTab}
               onShowTokenInfo={onShowTokenInfo}
             />
           ) : (
