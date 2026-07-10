@@ -107,7 +107,6 @@
     "framer-motion": "^11.18.2",
     "html2canvas": "^1.4.1",
     "html5-qrcode": "^2.3.8",
-    "inter-ui": "^3.19.3",
     "jsbi": "^3.2.5",
     "lightweight-charts": "^3.3.0",
     "lodash.debounce": "^4.0.8",

@@ -1,3 +1,7 @@
+/* Antonio is used only by this Recap journey stylesheet. Loading it here ships the font request with the
+   lazy Recap chunk's CSS, so it never blocks the app's first paint. */
+@import url('https://fonts.googleapis.com/css2?family=Antonio:wght@400;500;600;700&display=swap');
+
 .ks-rj-journey {
   position: relative;
   width: 640px;

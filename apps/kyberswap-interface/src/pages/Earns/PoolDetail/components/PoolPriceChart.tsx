@@ -100,7 +100,7 @@ const getChartOptions = ({
   height: chartHeight,
   layout: {
     background: { color: 'transparent' },
-    fontFamily: "'Work Sans', 'Inter', sans-serif",
+    fontFamily: "'Work Sans', sans-serif",
     textColor: subTextColor,
   },
   grid: {

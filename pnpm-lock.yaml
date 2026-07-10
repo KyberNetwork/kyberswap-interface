@@ -260,9 +260,6 @@ importers:
       html5-qrcode:
         specifier: ^2.3.8
         version: 2.3.8
-      inter-ui:
-        specifier: ^3.19.3
-        version: 3.19.3
       jsbi:
         specifier: ^3.2.5
         version: 3.2.5
@@ -25321,10 +25318,6 @@ packages:
       strip-ansi: 6.0.1
       through: 2.3.8
     dev: true
-
-  /inter-ui@3.19.3:
-    resolution: {integrity: sha512-5FG9fjuYOXocIfjzcCBhICL5cpvwEetseL3FU6tP3d6Bn7g8wODhB+I9RNGRTizCT7CUG4GOK54OPxqq3msQgg==}
-    dev: false
 
   /internal-slot@1.1.0:
     resolution: {integrity: sha512-4gd7VpWNQNB4UKKCFFVcp1AVv+FMOgs9NKzjHKusc8jTMhd5eL1NqQqOpE0KzMds804/yHlglp3uxgluOqAPLw==}
