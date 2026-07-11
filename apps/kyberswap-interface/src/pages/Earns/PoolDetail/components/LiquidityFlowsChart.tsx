@@ -18,10 +18,12 @@ import SegmentedControl from 'components/SegmentedControl'
 import useTheme from 'hooks/useTheme'
 import {
   CHART_WINDOW_OPTIONS,
+  TimeLabelFormat,
   formatAxisTimeLabel,
   formatCompactUsd,
   formatTooltipTimeLabel,
   formatUsd,
+  getUniqueDateAxisTicks,
 } from 'pages/Earns/PoolDetail/Information/utils'
 import PoolChartState, { PoolChartWrapper } from 'pages/Earns/PoolDetail/components/PoolChartState'
 import { MEDIA_WIDTHS } from 'theme'
@@ -65,7 +67,9 @@ const LiquidityFlowsTooltip = ({
       style={{ boxShadow: `0 12px 32px ${theme.shadow}` }}
     >
       <span className="text-xs text-subText">
-        {formatTooltipTimeLabel(point.ts, window, { dateOnly: isDailyWindow })}
+        {formatTooltipTimeLabel(point.ts, window, {
+          format: isDailyWindow ? TimeLabelFormat.Date : TimeLabelFormat.DateTime,
+        })}
       </span>
       <div className="grid grid-cols-[auto_auto] gap-x-4 gap-y-2">
         <span className="text-xs text-subText">Add Liquidity</span>
@@ -104,12 +108,14 @@ const LiquidityFlowsChart = ({ chainId, poolAddress }: LiquidityFlowsChartProps)
   const {
     data: liquidityFlowData,
     isError,
+    isFetching,
     isLoading,
   } = usePoolLiquidityFlowsQuery({
     chainId,
     address: poolAddress,
     window,
   })
+  const displayWindow = liquidityFlowData?.window ?? window
 
   const chartData = useMemo<LiquidityFlowPoint[]>(
     () =>
@@ -120,6 +126,7 @@ const LiquidityFlowsChart = ({ chainId, poolAddress }: LiquidityFlowsChartProps)
       })),
     [liquidityFlowData?.buckets],
   )
+  const dateAxisTicks = useMemo(() => getUniqueDateAxisTicks(chartData, displayWindow), [chartData, displayWindow])
 
   const handleSelectWindow = (value: PoolAnalyticsWindow) => {
     setWindow(value)
@@ -140,10 +147,11 @@ const LiquidityFlowsChart = ({ chainId, poolAddress }: LiquidityFlowsChartProps)
         height={chartHeight}
         isEmpty={!chartData.length}
         isError={isError}
+        isFetching={isFetching}
         isLoading={isLoading}
       >
         <div className="flex flex-col gap-3">
-          <PoolChartWrapper $height={chartHeight}>
+          <PoolChartWrapper height={chartHeight}>
             <ResponsiveContainer width="100%" height="100%">
               <ComposedChart
                 barCategoryGap={upToSmall ? '20%' : '16%'}
@@ -158,8 +166,9 @@ const LiquidityFlowsChart = ({ chainId, poolAddress }: LiquidityFlowsChartProps)
                   minTickGap={24}
                   stroke={theme.subText}
                   tick={{ fill: theme.subText, fontSize: 12 }}
-                  tickFormatter={(value: number) => formatAxisTimeLabel(value, window)}
+                  tickFormatter={(value: number) => formatAxisTimeLabel(value, displayWindow)}
                   tickLine={false}
+                  ticks={dateAxisTicks}
                 />
                 <YAxis
                   axisLine={false}
@@ -186,7 +195,7 @@ const LiquidityFlowsChart = ({ chainId, poolAddress }: LiquidityFlowsChartProps)
                     <LiquidityFlowsTooltip
                       active={props.active}
                       point={props.payload?.[0]?.payload as LiquidityFlowPoint | undefined}
-                      window={window}
+                      window={displayWindow}
                     />
                   )}
                   cursor={{ stroke: cursorColor, strokeDasharray: '4 4' }}

@@ -120,6 +120,7 @@ export const transformAprHistoryData = (data: PoolAprHistoryData, window: PoolAn
 
   return {
     ...data,
+    window,
     points: window === '30d' ? aggregateFourHourAprHistoryPoints(points) : points,
   }
 }
