@@ -203,6 +203,7 @@ export interface PoolAprHistoryPoint {
 export interface PoolAprHistoryData {
   chainId: number
   poolAddress: string
+  window?: PoolAnalyticsWindow
   points: Array<PoolAprHistoryPoint>
 }
 
