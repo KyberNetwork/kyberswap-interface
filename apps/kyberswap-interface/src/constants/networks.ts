@@ -20,6 +20,7 @@ import {
   monad,
   optimism,
   plasma,
+  robinhood,
   ronin,
   scroll,
   sonic,
@@ -54,6 +55,7 @@ const NETWORKS_INFO_CONFIG: NETWORKS_INFO_CONFIG_TYPE = {
   [ChainId.ETHERLINK]: etherlink,
   [ChainId.MONAD]: monad,
   [ChainId.MEGAETH]: megaeth,
+  [ChainId.ROBINHOOD]: robinhood,
 } as const
 
 //this Proxy helps fallback undefined ChainId by Ethereum info
@@ -90,6 +92,7 @@ export const MAINNET_NETWORKS: ChainId[] = [
   ChainId.PLASMA,
   ChainId.MONAD,
   ChainId.MEGAETH,
+  ChainId.ROBINHOOD,
 ]
 
 export function isSupportedChainId(chainId?: number): chainId is ChainId {

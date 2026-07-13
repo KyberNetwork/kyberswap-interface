@@ -11,8 +11,10 @@ import SegmentedControl from 'components/SegmentedControl'
 import useTheme from 'hooks/useTheme'
 import {
   CHART_WINDOW_OPTIONS,
+  TimeLabelFormat,
   formatAxisTimeLabel,
   formatTooltipTimeLabel,
+  getUniqueDateAxisTicks,
 } from 'pages/Earns/PoolDetail/Information/utils'
 import PoolChartState, { PoolChartWrapper } from 'pages/Earns/PoolDetail/components/PoolChartState'
 import { ProgramType } from 'pages/Earns/types'
@@ -50,7 +52,9 @@ const AprHistoryTooltip = ({
       className="flex min-w-[220px] flex-col gap-3 rounded-xl border border-border bg-tableHeader/80 px-4 py-3"
       style={{ boxShadow: `0 12px 32px ${theme.shadow}` }}
     >
-      <span className="text-xs text-subText">{formatTooltipTimeLabel(point.ts, window)}</span>
+      <span className="text-xs text-subText">
+        {formatTooltipTimeLabel(point.ts, window, { format: TimeLabelFormat.DateTime })}
+      </span>
       <div className="grid grid-cols-[auto_auto] gap-x-4 gap-y-2">
         {showActiveApr && point.activeApr !== undefined ? (
           <>
@@ -91,7 +95,6 @@ const AprHistoryChart = ({ chainId, poolAddress, positionId, programs, currentAp
 
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const chartHeight = upToSmall ? 280 : 360
-  const volumeBarSize = window === '24h' ? (upToSmall ? 10 : 16) : 8
 
   const activeDotStroke = theme.buttonBlack
   const aprLineColor = theme.blue
@@ -112,7 +115,10 @@ const AprHistoryChart = ({ chainId, poolAddress, positionId, programs, currentAp
 
   const isPositionChart = !!positionId
   const aprHistoryData = isPositionChart ? positionAprHistoryQuery.data : poolAprHistoryQuery.data
+  const displayWindow = aprHistoryData?.window ?? window
+
   const isError = isPositionChart ? positionAprHistoryQuery.isError : poolAprHistoryQuery.isError
+  const isFetching = isPositionChart ? positionAprHistoryQuery.isFetching : poolAprHistoryQuery.isFetching
   const isLoading = isPositionChart ? positionAprHistoryQuery.isLoading : poolAprHistoryQuery.isLoading
 
   const chartData = useMemo(
@@ -125,6 +131,8 @@ const AprHistoryChart = ({ chainId, poolAddress, positionId, programs, currentAp
       }),
     [aprHistoryData?.points, volumeDownColor, volumeUpColor],
   )
+
+  const dateAxisTicks = useMemo(() => getUniqueDateAxisTicks(chartData, displayWindow), [chartData, displayWindow])
 
   const latestAprPoint = chartData[chartData.length - 1]
   const activeApr = currentApr?.activeApr ?? latestAprPoint?.activeApr
@@ -175,10 +183,11 @@ const AprHistoryChart = ({ chainId, poolAddress, positionId, programs, currentAp
         height={chartHeight}
         isEmpty={!chartData.length}
         isError={isError}
+        isFetching={isFetching}
         isLoading={isLoading}
         skeletonType="line"
       >
-        <PoolChartWrapper $height={chartHeight}>
+        <PoolChartWrapper height={chartHeight}>
           <ResponsiveContainer width="100%" height="100%">
             <ComposedChart data={chartData} margin={{ top: 16, right: 0, bottom: 8, left: 0 }}>
               <CartesianGrid stroke={gridColor} strokeDasharray="3 3" vertical={false} />
@@ -188,8 +197,9 @@ const AprHistoryChart = ({ chainId, poolAddress, positionId, programs, currentAp
                 minTickGap={24}
                 stroke={theme.subText}
                 tick={{ fill: theme.subText, fontSize: 12 }}
-                tickFormatter={(value: number) => formatAxisTimeLabel(value, window)}
+                tickFormatter={(value: number) => formatAxisTimeLabel(value, displayWindow)}
                 tickLine={false}
+                ticks={dateAxisTicks}
               />
               <YAxis
                 axisLine={false}
@@ -212,12 +222,12 @@ const AprHistoryChart = ({ chainId, poolAddress, positionId, programs, currentAp
                     active={active}
                     point={payload?.[0]?.payload}
                     showActiveApr={showActiveApr}
-                    window={window}
+                    window={displayWindow}
                   />
                 )}
                 cursor={{ stroke: cursorColor, strokeDasharray: '4 4' }}
               />
-              <Bar barSize={volumeBarSize} dataKey="volumeUsd" radius={[2, 2, 0, 0]} yAxisId="volumeUsd">
+              <Bar dataKey="volumeUsd" radius={[2, 2, 0, 0]} yAxisId="volumeUsd">
                 {chartData.map(point => (
                   <Cell key={`${point.ts}-volumeUsd`} fill={point.volumeBarColor} />
                 ))}

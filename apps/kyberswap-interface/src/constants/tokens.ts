@@ -51,6 +51,7 @@ export const STABLE_COIN_ADDRESSES_TO_TAKE_FEE: Record<ChainId, string[]> = {
   [ChainId.PLASMA]: [],
   [ChainId.MONAD]: [],
   [ChainId.MEGAETH]: [],
+  [ChainId.ROBINHOOD]: [],
 }
 
 // This is basically the same as STABLE_COIN_ADDRESSES_TO_TAKE_FEE,
@@ -94,6 +95,7 @@ export const KNC: { [chainId in ChainId]: Token } = {
   [ChainId.PLASMA]: new Token(ChainId.RONIN, KNC_ADDRESS, 18, 'KNC', 'KNC'),
   [ChainId.MONAD]: new Token(ChainId.MONAD, KNC_ADDRESS, 18, 'KNC', 'KNC'),
   [ChainId.MEGAETH]: new Token(ChainId.MEGAETH, KNC_ADDRESS, 18, 'KNC', 'KNC'),
+  [ChainId.ROBINHOOD]: new Token(ChainId.ROBINHOOD, KNC_ADDRESS, 18, 'KNC', 'KNC'),
 }
 
 export const DEFAULT_OUTPUT_TOKEN_BY_CHAIN: Partial<Record<ChainId, Token>> = {
@@ -126,11 +128,18 @@ export const DEFAULT_OUTPUT_TOKEN_BY_CHAIN: Partial<Record<ChainId, Token>> = {
   [ChainId.PLASMA]: new Token(ChainId.PLASMA, '0xB8CE59FC3717ada4C02eaDF9682A9e934F625ebb', 6, 'USDT0', 'USDT0'),
   [ChainId.MONAD]: new Token(ChainId.MONAD, '0x754704Bc059F8C67012fEd69BC8A327a5aafb603', 6, 'USDC', 'USDC'),
   [ChainId.MEGAETH]: new Token(ChainId.MEGAETH, '0xFAfDdbb3FC7688494971a79cc65DCa3EF82079E7', 6, 'USDm', 'USDm'),
+  [ChainId.ROBINHOOD]: new Token(
+    ChainId.ROBINHOOD,
+    '0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168',
+    6,
+    'USDG',
+    'Global Dollar',
+  ),
 }
 
 export const PRICE_CHART_QUOTE_TOKEN_BY_CHAIN: Partial<Record<ChainId, Token>> = {
-  [ChainId.MAINNET]: new Token(ChainId.MAINNET, '0xdAC17F958D2ee523a2206206994597C13D831ec7', 6, 'USDT', 'Tether USD'),
-  [ChainId.BASE]: new Token(ChainId.BASE, '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913', 6, 'USDC', 'USD Coin'),
+  [ChainId.MAINNET]: DEFAULT_OUTPUT_TOKEN_BY_CHAIN[ChainId.MAINNET],
+  [ChainId.MATIC]: DEFAULT_OUTPUT_TOKEN_BY_CHAIN[ChainId.MATIC],
   [ChainId.BSCMAINNET]: new Token(
     ChainId.BSCMAINNET,
     '0x55d398326f99059fF775485246999027B3197955',
@@ -138,8 +147,24 @@ export const PRICE_CHART_QUOTE_TOKEN_BY_CHAIN: Partial<Record<ChainId, Token>> =
     'USDT',
     'Tether USD',
   ),
+  [ChainId.AVAXMAINNET]: new Token(
+    ChainId.AVAXMAINNET,
+    '0x9702230A8Ea53601f5cD2dc00fDBc13d4dF4A8c7',
+    6,
+    'USDt',
+    'TetherToken',
+  ),
   [ChainId.ARBITRUM]: new Token(ChainId.ARBITRUM, '0xaf88d065e77c8cc2239327c5edb3a432268e5831', 6, 'USDC', 'USD Coin'),
-  [ChainId.MONAD]: new Token(ChainId.MONAD, '0x754704Bc059F8C67012fEd69BC8A327a5aafb603', 6, 'USDC', 'USDC'),
+  [ChainId.OPTIMISM]: new Token(
+    ChainId.OPTIMISM,
+    '0x94b008aA00579c1307B0EF2c499aD98a8ce58e58',
+    6,
+    'USDT',
+    'Tether USD',
+  ),
+  [ChainId.BASE]: new Token(ChainId.BASE, '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913', 6, 'USDC', 'USD Coin'),
+  [ChainId.HYPEREVM]: new Token(ChainId.HYPEREVM, '0xb88339CB7199b77E23DB6E890353E22632Ba630f', 6, 'USDC', 'USDC'),
+  [ChainId.MONAD]: DEFAULT_OUTPUT_TOKEN_BY_CHAIN[ChainId.MONAD],
 }
 
 export const DEFAULT_SWAP_FEE_STABLE_PAIRS = 4

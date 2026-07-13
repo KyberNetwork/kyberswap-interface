@@ -1,5 +1,12 @@
 import useThrottle from 'hooks/useThrottle'
 import { Dex } from 'state/customizeDexes'
+import { formatDisplayNumber } from 'utils/numbers'
+
+// Split percentages can be very thin once chunk-splitting kicks in; render up to 2 decimals
+// (trailing zeros trimmed) so sub-1% legs don't collapse to "0%". Input is already in percent
+// units (0–100).
+export const formatRoutePercent = (percent: number): string =>
+  formatDisplayNumber(percent / 100, { style: 'percent', fractionDigits: 2 })
 
 const findDexById = (exchangeId: string, allDexes?: Dex[]): Dex | undefined => {
   if (!allDexes) return undefined
@@ -58,7 +65,7 @@ export const getSwapPercent = (percent?: number, routeNumber = 0): string | null
     return null
   }
   const val = routeNumber > 1 ? Math.min(99.99, Math.max(0.01, percent)) : percent
-  return `${val.toFixed(0)}%`
+  return formatRoutePercent(val)
 }
 
 export const onScroll = (element: HTMLDivElement | null) => {
