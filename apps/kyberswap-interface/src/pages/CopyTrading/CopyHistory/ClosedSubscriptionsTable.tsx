@@ -2,7 +2,7 @@ import { type HTMLAttributes, useMemo } from 'react'
 import type { AgentCard, CopyRunSummary } from 'services/copyTrading/types'
 
 import { Stack } from 'components/Stack'
-import { TableBody, TableCell, TableHeader, TableRow } from 'pages/CopyTrading/components/Table'
+import { HeaderCell, TableBody, TableCell, TableHeader, TableRow } from 'pages/CopyTrading/components/Table'
 import { CopyRunAgentCell } from 'pages/CopyTrading/components/common'
 import { copyTradingStatIconMap } from 'pages/CopyTrading/constants'
 import { formatDate, formatUsd, signedUsd } from 'pages/CopyTrading/helpers'
@@ -46,15 +46,15 @@ const ClosedSubscriptionsTable = ({ rows, agents, loading, onOpenSubscription }:
   return (
     <Stack className="overflow-hidden rounded-xl bg-buttonBlack-60">
       <ClosedSubscriptionsGrid header>
-        <TableCell>Agent</TableCell>
-        <TableCell className="text-right">Closed Trades</TableCell>
-        <TableCell className="text-right">Started</TableCell>
-        <TableCell className="text-right">Stopped</TableCell>
-        <TableCell className="text-right">Capital In</TableCell>
-        <TableCell className="text-right">Capital Out</TableCell>
-        <TableCell className="text-right">Realised P&L</TableCell>
-        <TableCell className="text-right">Fees Paid</TableCell>
-        <TableCell className="text-right">Rebates</TableCell>
+        <HeaderCell>Agent</HeaderCell>
+        <HeaderCell className="justify-end text-right">Closed Trades</HeaderCell>
+        <HeaderCell className="justify-end text-right">Started</HeaderCell>
+        <HeaderCell className="justify-end text-right">Stopped</HeaderCell>
+        <HeaderCell className="justify-end text-right">Capital In</HeaderCell>
+        <HeaderCell className="justify-end text-right">Capital Out</HeaderCell>
+        <HeaderCell className="justify-end text-right">Realised P&amp;L</HeaderCell>
+        <HeaderCell className="justify-end text-right">Fees Paid</HeaderCell>
+        <HeaderCell className="justify-end text-right">Rebates</HeaderCell>
       </ClosedSubscriptionsGrid>
 
       <TableBody

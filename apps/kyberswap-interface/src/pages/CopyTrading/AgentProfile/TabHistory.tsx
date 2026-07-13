@@ -2,7 +2,7 @@ import type { HTMLAttributes } from 'react'
 import copyTradingApi from 'services/copyTrading'
 
 import { Stack } from 'components/Stack'
-import { TableBody, TableCell, TableHeader, TableRow } from 'pages/CopyTrading/components/Table'
+import { HeaderCell, TableBody, TableCell, TableHeader, TableRow } from 'pages/CopyTrading/components/Table'
 import { formatDate, formatTokenAmount, formatUsd, signedUsd } from 'pages/CopyTrading/helpers'
 import { cn } from 'utils/cn'
 
@@ -32,11 +32,15 @@ const TabHistory = ({ agentId }: { agentId: string }) => {
   return (
     <Stack>
       <TabHistoryGrid header>
-        {['Trade ID', 'Token', 'Entry Price', 'Exit', 'Amount', 'Realised P&L', 'Fee', 'Cash Back', 'Closed'].map(
-          item => (
-            <TableCell key={item}>{item}</TableCell>
-          ),
-        )}
+        <HeaderCell>Trade ID</HeaderCell>
+        <HeaderCell>Token</HeaderCell>
+        <HeaderCell>Entry Price</HeaderCell>
+        <HeaderCell>Exit</HeaderCell>
+        <HeaderCell>Amount</HeaderCell>
+        <HeaderCell>Realised P&amp;L</HeaderCell>
+        <HeaderCell>Fee</HeaderCell>
+        <HeaderCell>Cash Back</HeaderCell>
+        <HeaderCell>Closed</HeaderCell>
       </TabHistoryGrid>
       <TableBody empty={!rows.length} emptyMessage="No trade history found" loading={isFetching}>
         {rows.map(row => {
