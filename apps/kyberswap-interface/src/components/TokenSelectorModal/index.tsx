@@ -5,6 +5,7 @@ import { usePrevious } from 'react-use'
 
 import Modal from 'components/Modal'
 import { ImportTokenView } from 'components/TokenSelectorModal/ImportTokenView'
+import { SwitchChainModal } from 'components/TokenSelectorModal/SwitchChainModal'
 import { TokenSelectorContent } from 'components/TokenSelectorModal/TokenSelectorContent'
 import { usePendingCrossChainSelect } from 'components/TokenSelectorModal/hooks/usePendingCrossChainSelect'
 import TokenInfoTab from 'components/swapv2/TokenInfo'
@@ -49,6 +50,8 @@ const TokenSelectorModal = ({
   trackingSource,
 }: TokenSelectorModalProps) => {
   const [modalView, setModalView] = useState<TokenSelectorModalView>(TokenSelectorModalView.search)
+  // A cross-chain token confirmed from the import flow, pending its Switch-Chain confirm.
+  const [switchChainToken, setSwitchChainToken] = useState<Currency | null>(null)
   const lastOpen = useLast(isOpen)
 
   const isTokenRestricted = useIsTokenRestricted()
@@ -70,17 +73,17 @@ const TokenSelectorModal = ({
         notifyRestrictedToken(picked)
         return
       }
-      // A token imported on another chain reaches here (the import flow bypasses the row's Switch-Chain
-      // modal). Switch to its chain first, then select — otherwise it would be clobbered to a default.
+      // A token imported on another chain reaches here (the row's import click opens the import view
+      // directly, so its Switch-Chain confirm is shown here, after the import, rather than before it).
       // Row selections arrive already on the right chain, so this branch no-ops for them.
       if (picked.chainId !== anchorChainId) {
-        switchChainAndSelect(picked)
+        setSwitchChainToken(picked)
         return
       }
       onCurrencySelect?.(picked)
       onDismiss?.()
     },
-    [onDismiss, onCurrencySelect, isTokenRestricted, notifyRestrictedToken, anchorChainId, switchChainAndSelect],
+    [onDismiss, onCurrencySelect, isTokenRestricted, notifyRestrictedToken, anchorChainId],
   )
 
   // for token import view
@@ -117,77 +120,88 @@ const TokenSelectorModal = ({
   }, [])
 
   return (
-    <Modal
-      isOpen={isOpen}
-      onDismiss={() => {
-        setTokenToShowInfo(null)
-        setDetailClosing(false)
-        onDismiss?.()
-      }}
-      bgColor="var(--ks-background)"
-      margin={isMobile ? undefined : 'auto'}
-      maxWidth="480px"
-      maxHeight={isMobileHorizontal ? 100 : 80}
-      minHeight={minHeight}
-      height={isMobileHorizontal ? '95vh' : undefined}
-    >
-      {tokenToShowInfo ? (
-        <div
-          className={cn(
-            'w-full motion-reduce:animate-none',
-            detailClosing ? 'animate-slideOutRight' : 'animate-slideInRight',
-          )}
-          onAnimationEnd={e => {
-            // Only react to the wrapper's own slide-out finishing (ignore bubbled child animations).
-            if (e.target === e.currentTarget && detailClosing) {
-              setTokenToShowInfo(null)
-              setDetailClosing(false)
-            }
-          }}
-        >
-          <TokenInfoTab
-            currencies={{ [Field.INPUT]: tokenToShowInfo, [Field.OUTPUT]: tokenToShowInfo }}
-            onBack={closeTokenInfo}
-          />
-        </div>
-      ) : (
-        <>
-          {/* Kept mounted (only hidden) while importing so the search view's tab and query survive the
-              import round-trip — unmounting it would reset the tab to the default. */}
-          <div className={cn(modalView === TokenSelectorModalView.importToken ? 'hidden' : 'contents')}>
-            <TokenSelectorContent
-              isOpen={isOpen}
-              onDismiss={onDismiss}
-              onCurrencySelect={handleCurrencySelect}
-              selectedCurrency={selectedCurrency}
-              otherSelectedCurrency={otherSelectedCurrency}
-              showPinnedTokens={showPinnedTokens}
-              onImportToken={onImportToken}
-              filterWrap={filterWrap}
-              title={title}
-              tooltip={tooltip}
-              customChainId={customChainId}
-              trackingSource={trackingSource}
-              onShowTokenInfo={setTokenToShowInfo}
+    <>
+      <Modal
+        isOpen={isOpen}
+        onDismiss={() => {
+          setTokenToShowInfo(null)
+          setDetailClosing(false)
+          onDismiss?.()
+        }}
+        bgColor="var(--ks-background)"
+        margin={isMobile ? undefined : 'auto'}
+        maxWidth="480px"
+        maxHeight={isMobileHorizontal ? 100 : 80}
+        minHeight={minHeight}
+        height={isMobileHorizontal ? '95vh' : undefined}
+      >
+        {tokenToShowInfo ? (
+          <div
+            className={cn(
+              'w-full motion-reduce:animate-none',
+              detailClosing ? 'animate-slideOutRight' : 'animate-slideInRight',
+            )}
+            onAnimationEnd={e => {
+              // Only react to the wrapper's own slide-out finishing (ignore bubbled child animations).
+              if (e.target === e.currentTarget && detailClosing) {
+                setTokenToShowInfo(null)
+                setDetailClosing(false)
+              }
+            }}
+          >
+            <TokenInfoTab
+              currencies={{ [Field.INPUT]: tokenToShowInfo, [Field.OUTPUT]: tokenToShowInfo }}
+              onBack={closeTokenInfo}
             />
           </div>
-          {modalView === TokenSelectorModalView.importToken && importToken ? (
-            <ImportTokenView
-              tokens={[importToken]}
-              onDismiss={onDismiss}
-              onBack={() =>
-                setModalView(
-                  prevView && prevView !== TokenSelectorModalView.importToken
-                    ? prevView
-                    : TokenSelectorModalView.search,
-                )
-              }
-              onCurrencySelect={handleCurrencySelect}
-            />
-          ) : null}
-        </>
-      )}
-    </Modal>
+        ) : (
+          <>
+            {/* Kept mounted (only hidden) while importing so the search view's tab and query survive the
+              import round-trip — unmounting it would reset the tab to the default. */}
+            <div className={cn(modalView === TokenSelectorModalView.importToken ? 'hidden' : 'contents')}>
+              <TokenSelectorContent
+                isOpen={isOpen}
+                onDismiss={onDismiss}
+                onCurrencySelect={handleCurrencySelect}
+                selectedCurrency={selectedCurrency}
+                otherSelectedCurrency={otherSelectedCurrency}
+                showPinnedTokens={showPinnedTokens}
+                onImportToken={onImportToken}
+                filterWrap={filterWrap}
+                title={title}
+                tooltip={tooltip}
+                customChainId={customChainId}
+                trackingSource={trackingSource}
+                onShowTokenInfo={setTokenToShowInfo}
+              />
+            </div>
+            {modalView === TokenSelectorModalView.importToken && importToken ? (
+              <ImportTokenView
+                tokens={[importToken]}
+                onDismiss={onDismiss}
+                onBack={() =>
+                  setModalView(
+                    prevView && prevView !== TokenSelectorModalView.importToken
+                      ? prevView
+                      : TokenSelectorModalView.search,
+                  )
+                }
+                onCurrencySelect={handleCurrencySelect}
+              />
+            ) : null}
+          </>
+        )}
+      </Modal>
+      <SwitchChainModal
+        token={switchChainToken}
+        onDismiss={() => setSwitchChainToken(null)}
+        onConfirm={() => {
+          const token = switchChainToken
+          setSwitchChainToken(null)
+          if (token) switchChainAndSelect(token)
+        }}
+      />
+    </>
   )
 }
 
