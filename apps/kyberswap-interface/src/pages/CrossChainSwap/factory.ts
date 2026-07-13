@@ -17,6 +17,20 @@ import { OptimexAdapter } from './adapters/OptimexAdapter'
 import { OrbiterAdapter } from './adapters/OrbiterAdapter'
 import { ENABLE_CROSS_CHAIN_STREAM_API, normalizeAdapterName } from './utils'
 
+export type CrossChainSource = Pick<SwapProvider, 'getName'> & Partial<Pick<SwapProvider, 'getIcon' | 'canSupport'>>
+
+const CCTP_ICON = 'https://cdn.prod.website-files.com/668c08d1b8a9330bd1d786ad/669a20df8ac2810a6dd50e67_favicon-256.svg'
+
+const cctpV2Source: CrossChainSource = {
+  getName: () => 'CCTP V2',
+  getIcon: () => CCTP_ICON,
+}
+
+const cctpV2FastSource: CrossChainSource = {
+  getName: () => 'CCTP V2 Fast',
+  getIcon: () => CCTP_ICON,
+}
+
 // Factory for creating swap provider instances
 export class CrossChainSwapFactory {
   private static adapterCreators = {
@@ -64,16 +78,18 @@ export class CrossChainSwapFactory {
     return adapter
   }
 
-  static getKyberCrossBridgeSources(): SwapProvider[] {
+  static getKyberCrossBridgeSources(): CrossChainSource[] {
     return [
       CrossChainSwapFactory.getOrCreateAdapter('across'),
       CrossChainSwapFactory.getOrCreateAdapter('relay'),
       CrossChainSwapFactory.getOrCreateAdapter('nearintents'),
       CrossChainSwapFactory.getOrCreateAdapter('mayan'),
+      cctpV2Source,
+      cctpV2FastSource,
     ]
   }
 
-  static getSelectableSources(): SwapProvider[] {
+  static getSelectableSources(): CrossChainSource[] {
     if (!ENABLE_CROSS_CHAIN_STREAM_API) {
       return CrossChainSwapFactory.getKyberCrossBridgeSources()
     }

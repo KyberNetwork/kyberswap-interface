@@ -680,7 +680,7 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
       const selectableSources = CrossChainSwapFactory.getSelectableSources()
       const filterSourcesBySupport = ENABLE_CROSS_CHAIN_STREAM_API
       const supportedSources = filterSourcesBySupport
-        ? selectableSources.filter(adapter => adapter.canSupport(requestCategory, currencyIn, currencyOut))
+        ? selectableSources.filter(source => source.canSupport?.(requestCategory, currencyIn, currencyOut) ?? true)
         : selectableSources
 
       const includedSourceNames = supportedSources
@@ -691,7 +691,7 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
         .filter(
           adapter =>
             excludedSources.includes(adapter.getName()) ||
-            (filterSourcesBySupport && !adapter.canSupport(requestCategory, currencyIn, currencyOut)),
+            (filterSourcesBySupport && !(adapter.canSupport?.(requestCategory, currencyIn, currencyOut) ?? true)),
         )
         .map(adapter => adapter.getName())
 
