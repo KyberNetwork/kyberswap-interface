@@ -38,7 +38,7 @@ export const getSourceFilters = (
   const selectableSources = CrossChainSwapFactory.getSelectableSources()
   const filterSourcesBySupport = ENABLE_CROSS_CHAIN_STREAM_API
   const supportedSources = filterSourcesBySupport
-    ? selectableSources.filter(adapter => adapter.canSupport(category, currencyIn, currencyOut))
+    ? selectableSources.filter(source => source.canSupport?.(category, currencyIn, currencyOut) ?? true)
     : selectableSources
   const includedSourceNames = supportedSources
     .filter(adapter => !excludedSources.includes(adapter.getName()))
@@ -47,7 +47,7 @@ export const getSourceFilters = (
     .filter(
       adapter =>
         excludedSources.includes(adapter.getName()) ||
-        (filterSourcesBySupport && !adapter.canSupport(category, currencyIn, currencyOut)),
+        (filterSourcesBySupport && !(adapter.canSupport?.(category, currencyIn, currencyOut) ?? true)),
     )
     .map(adapter => adapter.getName())
 

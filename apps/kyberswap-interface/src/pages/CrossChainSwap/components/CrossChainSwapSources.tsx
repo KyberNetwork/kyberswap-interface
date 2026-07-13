@@ -113,9 +113,11 @@ const CrossChainSwapSources = ({ onBack }: Props) => {
                     onClick={e => e.stopPropagation()}
                   />
 
-                  <ImageWrapper>
-                    <img src={item.getIcon()} alt="" />
-                  </ImageWrapper>
+                  {item.getIcon && (
+                    <ImageWrapper>
+                      <img src={item.getIcon()} alt="" />
+                    </ImageWrapper>
+                  )}
 
                   <SourceName>{item.getName()}</SourceName>
                 </Source>
