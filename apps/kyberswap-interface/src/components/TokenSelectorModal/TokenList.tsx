@@ -42,7 +42,11 @@ const EMPTY_ADDRESSES: string[] = []
 
 const Balance = ({ balance }: { balance: CurrencyAmount<Currency> }) => {
   return (
-    <span className="max-w-full truncate text-sm text-text" data-testid="token-balance" title={balance.toExact()}>
+    <span
+      className="max-w-full truncate text-xs text-text sm:text-sm"
+      data-testid="token-balance"
+      title={balance.toExact()}
+    >
       {balance.toSignificant(10)}
     </span>
   )
@@ -168,14 +172,14 @@ export const TokenRow = ({
   }
 
   const renderBalance = () => {
-    if (hideBalance) return <span className="max-w-full truncate text-sm text-text">******</span>
+    if (hideBalance) return <span className="max-w-full truncate text-xs text-text sm:text-sm">******</span>
     // Connected wallet: show the balance (a zero balance renders as "0"). With no wallet, currencyBalance
     // is undefined and showLoading is false, so it falls through to "-".
     if (currencyBalance) return <Balance balance={currencyBalance} />
     if (showLoading)
       return <Skeleton width={balanceSkeletonWidth} height={18} className="my-[3px]" variant="darkSubtle" />
     return (
-      <span className="max-w-full truncate text-sm text-text" data-testid="token-balance">
+      <span className="max-w-full truncate text-xs text-text sm:text-sm" data-testid="token-balance">
         -
       </span>
     )
@@ -202,7 +206,11 @@ export const TokenRow = ({
         </div>
         <Stack className="min-w-0 gap-0.5">
           <HStack className="min-w-0 items-center gap-1">
-            <span title={currency.name} className="truncate text-sm font-normal text-text" data-testid="token-symbol">
+            <span
+              title={currency.name}
+              className="truncate text-xs font-normal text-text sm:text-sm"
+              data-testid="token-symbol"
+            >
               {customName || symbol}
             </span>
             {onShowTokenInfo && (
@@ -246,10 +254,10 @@ export const TokenRow = ({
         </Stack>
       </HStack>
 
-      <HStack className="shrink-0 items-center gap-3 justify-self-end">
+      <HStack className="shrink-0 items-center gap-2 justify-self-end sm:gap-3">
         {showPriceColumn && (
-          <Stack className={cn('w-[132px] items-end gap-0.5 overflow-hidden', isImport && 'opacity-50')}>
-            <span className="max-w-full truncate text-sm text-text" data-testid="token-price">
+          <Stack className={cn('w-[72px] items-end gap-0.5 overflow-hidden sm:w-[132px]', isImport && 'opacity-50')}>
+            <span className="max-w-full truncate text-xs text-text sm:text-sm" data-testid="token-price">
               {priceUsd ? formatDisplayNumber(priceUsd, { style: 'currency', significantDigits: 6 }) : '--'}
             </span>
             {priceChange24h !== undefined && (
@@ -265,7 +273,7 @@ export const TokenRow = ({
         )}
 
         {isImport ? (
-          <Stack className="w-[104px] items-end overflow-hidden">
+          <Stack className="w-[52px] items-end overflow-hidden sm:w-[104px]">
             <ButtonPrimary
               data-testid="button-import-token"
               width="fit-content"
@@ -282,13 +290,13 @@ export const TokenRow = ({
             </ButtonPrimary>
           </Stack>
         ) : rightColumn === 'volume' ? (
-          <Stack className="w-[104px] items-end overflow-hidden">
-            <span className="max-w-full truncate text-sm text-text" data-testid="token-volume">
+          <Stack className="w-[52px] items-end overflow-hidden sm:w-[104px]">
+            <span className="max-w-full truncate text-xs text-text sm:text-sm" data-testid="token-volume">
               {volume24h ? formatBigLiquidity(String(volume24h), 2, true) : '--'}
             </span>
           </Stack>
         ) : (
-          <Stack className="w-[104px] items-end gap-0.5 overflow-hidden">
+          <Stack className="w-[52px] items-end gap-0.5 overflow-hidden sm:w-[104px]">
             {customBalance !== undefined ? customBalance : renderBalance()}
             {!!usdBalance && !hideBalance && (
               <span className={cn('text-xs', usdValueClassName)} data-testid="token-usd-value">
@@ -366,7 +374,7 @@ export const TokenRow = ({
         }
       }}
       className={cn(
-        'flex h-12 w-full cursor-pointer items-center justify-between gap-3 rounded-lg px-3 py-1',
+        'flex h-12 w-full cursor-pointer items-center justify-between gap-2 rounded-lg px-3 py-1 sm:gap-3',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 data-[selected=true]:bg-primary-20',
         // Not-yet-imported token: keep the row normal, with a subtle overlay to hint it needs importing.
         importOnClick && 'bg-white-04',
