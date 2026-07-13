@@ -17,8 +17,6 @@ export const CROSS_CHAIN_FEE_RECEIVER_SOLANA = 'D6tN4c5vpMqh4eFdHBUCEo7QLiw6DQy8
 export const BTC_DEFAULT_RECEIVER = 'bc1qmzgkj3hznt8heh4vp33v2cr2mvsyhc3lmfzz9p'
 export const SOLANA_NATIVE = '11111111111111111111111111111111'
 
-export const normalizeAdapterName = (name: string) => name.toLowerCase().replace(/\s+/g, '')
-
 export const ENABLE_CROSS_CHAIN_STREAM_API = false
 
 export const normalizeAdapterName = (name?: string): string => {
