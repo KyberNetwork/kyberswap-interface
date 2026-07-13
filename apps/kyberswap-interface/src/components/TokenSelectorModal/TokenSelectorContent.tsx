@@ -131,7 +131,7 @@ const SortHeader = ({
     onClick={() => onSort(field)}
     className={cn(
       'flex shrink-0 items-center justify-end gap-1 whitespace-nowrap uppercase transition-colors hover:text-text',
-      className ?? 'w-[52px] sm:w-[104px]',
+      className ?? 'w-[72px] sm:w-[104px]',
     )}
   >
     {label}
@@ -765,7 +765,7 @@ export const TokenSelectorContent = ({
             <span className="flex-1">
               <Trans>Token</Trans>
             </span>
-            <HStack className="shrink-0 items-center gap-2 sm:gap-3">
+            <HStack className="shrink-0 items-center gap-3">
               {!isAllTab && (
                 <MouseoverTooltip
                   placement="top"
@@ -800,7 +800,7 @@ export const TokenSelectorContent = ({
                   onSort={cycleSort}
                 />
               ) : (
-                <span className="flex w-[52px] items-center justify-end sm:w-[104px]">
+                <span className="flex w-[72px] items-center justify-end sm:w-[104px]">
                   <span className="sm:hidden">
                     <Trans>Bal</Trans>
                   </span>

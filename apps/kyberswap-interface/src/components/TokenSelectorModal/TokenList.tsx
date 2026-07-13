@@ -254,7 +254,7 @@ export const TokenRow = ({
         </Stack>
       </HStack>
 
-      <HStack className="shrink-0 items-center gap-2 justify-self-end sm:gap-3">
+      <HStack className="shrink-0 items-center gap-3 justify-self-end">
         {showPriceColumn && (
           <Stack className={cn('w-[72px] items-end gap-0.5 overflow-hidden sm:w-[132px]', isImport && 'opacity-50')}>
             <span className="max-w-full truncate text-xs text-text sm:text-sm" data-testid="token-price">
@@ -273,7 +273,7 @@ export const TokenRow = ({
         )}
 
         {isImport ? (
-          <Stack className="w-[52px] items-end overflow-hidden sm:w-[104px]">
+          <Stack className="w-[72px] items-end overflow-hidden sm:w-[104px]">
             <ButtonPrimary
               data-testid="button-import-token"
               width="fit-content"
@@ -290,13 +290,13 @@ export const TokenRow = ({
             </ButtonPrimary>
           </Stack>
         ) : rightColumn === 'volume' ? (
-          <Stack className="w-[52px] items-end overflow-hidden sm:w-[104px]">
+          <Stack className="w-[72px] items-end overflow-hidden sm:w-[104px]">
             <span className="max-w-full truncate text-xs text-text sm:text-sm" data-testid="token-volume">
               {volume24h ? formatBigLiquidity(String(volume24h), 2, true) : '--'}
             </span>
           </Stack>
         ) : (
-          <Stack className="w-[52px] items-end gap-0.5 overflow-hidden sm:w-[104px]">
+          <Stack className="w-[72px] items-end gap-0.5 overflow-hidden sm:w-[104px]">
             {customBalance !== undefined ? customBalance : renderBalance()}
             {!!usdBalance && !hideBalance && (
               <span className={cn('text-xs', usdValueClassName)} data-testid="token-usd-value">
