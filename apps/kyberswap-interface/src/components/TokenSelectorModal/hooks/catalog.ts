@@ -28,6 +28,7 @@ export const catalogMetricsToExtra = (t: TokenCatalogListToken): TokenRowExtra =
   price: t.metrics?.price,
   priceChange24h: t.metrics?.priceChange24h ?? undefined,
   volume24h: t.metrics?.stats24h?.volume24h,
+  marketCap: t.marketCap,
 })
 
 /**

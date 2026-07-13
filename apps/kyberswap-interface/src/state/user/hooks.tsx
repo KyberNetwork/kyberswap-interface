@@ -343,17 +343,6 @@ export const useUserFavoriteTokens = (customChain?: ChainId) => {
     return [...new Set(favoritedTokenAddresses.map(a => a.toLowerCase()))]
   }, [chainId, favoriteTokensByChainId, commonTokens])
 
-  // Addresses the user explicitly starred (value === true), as opposed to the ks-setting `commonTokens`
-  // that are favorited by default. Lets callers prioritize the user's own picks.
-  const favoritedByUser = useMemo(() => {
-    const favoritedTokens = (chainId && favoriteTokensByChainId?.[chainId]) || {}
-    return new Set(
-      Object.keys(favoritedTokens)
-        .filter(address => favoritedTokens[address])
-        .map(address => address.toLowerCase()),
-    )
-  }, [chainId, favoriteTokensByChainId])
-
   const toggleFavoriteToken = useCallback(
     (payload: ToggleFavoriteTokenPayload) => {
       if (!favoriteTokens) return
@@ -369,7 +358,7 @@ export const useUserFavoriteTokens = (customChain?: ChainId) => {
     [dispatch, favoriteTokens],
   )
 
-  return { favoriteTokens, toggleFavoriteToken, favoritedByUser }
+  return { favoriteTokens, toggleFavoriteToken }
 }
 
 export const useViewMode: () => [VIEW_MODE, (mode: VIEW_MODE) => void] = () => {

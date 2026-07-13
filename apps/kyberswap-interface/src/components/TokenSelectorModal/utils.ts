@@ -7,6 +7,7 @@ import { useMemo } from 'react'
 import ksSettingApi from 'services/ksSetting'
 
 import { KS_SETTING_API } from 'constants/env'
+import { ETHER_ADDRESS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import type { NetworkInfo } from 'constants/networks/type'
 import { useActiveWeb3React } from 'hooks'
@@ -228,7 +229,10 @@ function getTokenComparator(
   balances: TokenBalanceMap,
   ethBalance: CurrencyAmount<Currency> | undefined,
   tokenPrices: TokenPriceMap,
+  // Addresses (lowercased) to float above non-favorites once balance/value is a tie.
+  favoriteAddresses?: Set<string>,
 ): (tokenA: Token, tokenB: Token) => number {
+  const favoriteKey = (token: Token) => (isTokenNative(token) ? ETHER_ADDRESS : token.address).toLowerCase()
   return function sortTokens(tokenA: Token, tokenB: Token): number {
     const balanceA = isTokenNative(tokenA) ? ethBalance : balances[tokenA.address]
     const balanceB = isTokenNative(tokenB) ? ethBalance : balances[tokenB.address]
@@ -245,6 +249,13 @@ function getTokenComparator(
     const balanceComp = balanceComparator(balanceA, balanceB)
     if (balanceComp !== 0) return balanceComp
 
+    // Favorites rank above non-favorites, but only after balance/value — a held token still leads.
+    if (favoriteAddresses?.size) {
+      const favA = favoriteAddresses.has(favoriteKey(tokenA))
+      const favB = favoriteAddresses.has(favoriteKey(tokenB))
+      if (favA !== favB) return favA ? -1 : 1
+    }
+
     if (tokenA.symbol && tokenB.symbol) {
       return tokenA.symbol.toLowerCase().localeCompare(tokenB.symbol.toLowerCase())
     }
@@ -259,6 +270,8 @@ export function useTokenComparator(
   // Only the tabs that sort by wallet value need this; when disabled it registers no whole-whitelist
   // balanceOf multicall and no /prices fetch, and just falls back to a symbol sort.
   enabled = true,
+  // Lowercased favorite addresses to float above non-favorites once balance/value is a tie.
+  favoriteAddresses?: Set<string>,
 ): (tokenA: Token, tokenB: Token) => number {
   const { chainId: currentChain } = useActiveWeb3React()
   const chainId = customChain || currentChain
@@ -271,7 +284,7 @@ export function useTokenComparator(
   const tokenPrices = useTokenPrices(tokenPriceAddresses, chainId)
 
   return useMemo(() => {
-    const comparator = getTokenComparator(balances ?? EMPTY_BALANCE_MAP, ethBalance, tokenPrices)
+    const comparator = getTokenComparator(balances ?? EMPTY_BALANCE_MAP, ethBalance, tokenPrices, favoriteAddresses)
     return inverted ? (tokenA: Token, tokenB: Token) => comparator(tokenA, tokenB) * -1 : comparator
-  }, [balances, inverted, ethBalance, tokenPrices])
+  }, [balances, inverted, ethBalance, tokenPrices, favoriteAddresses])
 }

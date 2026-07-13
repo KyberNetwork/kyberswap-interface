@@ -8,6 +8,8 @@ export type TokenRowExtra = {
   priceChange24h?: number
   /** 24h trading volume on KyberSwap, in USD. */
   volume24h?: number
+  /** Market capitalization, in USD. */
+  marketCap?: number
   /** Unix seconds the token was created (New tab age badge; falls back to whitelist time). */
   addedAt?: number
 }

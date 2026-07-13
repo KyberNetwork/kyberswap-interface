@@ -15,6 +15,7 @@ import {
 } from 'react'
 import { isMobile } from 'react-device-detect'
 import { X } from 'react-feather'
+import { useMedia } from 'react-use'
 
 import InfoHelper from 'components/InfoHelper'
 import Loader from 'components/Loader'
@@ -62,7 +63,7 @@ import { fetchListTokenByAddresses, useAllTokens } from 'hooks/useTokens'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import SortIcon, { Direction } from 'pages/MarketOverview/SortIcon'
 import { useRemoveUserAddedToken, useUserAddedTokens, useUserFavoriteTokens } from 'state/user/hooks'
-import { CloseIcon } from 'theme'
+import { CloseIcon, MEDIA_WIDTHS } from 'theme'
 import { filterTruthy, isAddress } from 'utils'
 import { cn } from 'utils/cn'
 import { filterTokens } from 'utils/filtering'
@@ -184,7 +185,7 @@ export const TokenSelectorContent = ({
   const inputRef = useRef<HTMLInputElement>(null)
   const listTokenRef = useRef<HTMLDivElement>(null)
 
-  const { favoriteTokens, toggleFavoriteToken, favoritedByUser } = useUserFavoriteTokens(primaryChainId)
+  const { favoriteTokens, toggleFavoriteToken } = useUserFavoriteTokens(primaryChainId)
   const debouncedQuery = useDebounce(searchQuery, 200)
   const trackingDebouncedQuery = useDebounce(searchQuery, 1000)
   const isQueryValidEVMAddress = !!isAddress(primaryChainId, debouncedQuery)
@@ -194,6 +195,8 @@ export const TokenSelectorContent = ({
   const isTrendingTab = activeTab === TokenSelectorTab.Trending
   const isNewTab = activeTab === TokenSelectorTab.New
   const isFavoritesTab = activeTab === TokenSelectorTab.Favorites
+  // The narrower mobile modal fits one fewer quick-select pill per row.
+  const isMobileWidth = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
   // Column sort. Trending and New resolve it server-side (24h change / volume); Imported / Favorites
   // sort by 24h change in-memory. `null` = the tab's natural order. Cleared on tab / chain change.
@@ -218,7 +221,14 @@ export const TokenSelectorContent = ({
   // Only the All (default order) and Imported tabs sort by wallet value; gate the comparator so the
   // rest never register its whole-whitelist balanceOf multicall + /prices fetch.
   const needsComparator = (isAllTab && !debouncedQuery) || isImportedTab
-  const tokenComparator = useTokenComparator(false, primaryChainId, needsComparator)
+  // On the All tab, favorites float above non-favorites (but only after wallet value / balance).
+  const favoriteAddressSet = useMemo(() => new Set(favoriteTokens ?? []), [favoriteTokens])
+  const tokenComparator = useTokenComparator(
+    false,
+    primaryChainId,
+    needsComparator,
+    isAllTab ? favoriteAddressSet : undefined,
+  )
 
   const {
     tokens: trendingTokens,
@@ -329,17 +339,6 @@ export const TokenSelectorContent = ({
     [localFilter, pinnedTokens, primaryChainId],
   )
 
-  // Quick-select pills (capped at 5). The full favorites list is config-first, which would push the
-  // user's own starred tokens past the cap; here we surface the user's picks first and only backfill
-  // with ks-setting `commonTokens` to fill the remaining slots.
-  const quickSelectTokens = useMemo(() => {
-    const userMarked: Currency[] = []
-    const configured: Currency[] = []
-    favoriteCurrenciesBase.forEach(token => {
-      ;(favoritedByUser.has(token.wrapped.address.toLowerCase()) ? userMarked : configured).push(token)
-    })
-    return [...userMarked, ...configured].slice(0, 5)
-  }, [favoriteCurrenciesBase, favoritedByUser])
   const importedCurrenciesBase = useMemo(
     () => ([...localFilter(tokenImports)] as Token[]).sort(tokenComparator),
     [localFilter, tokenImports, tokenComparator],
@@ -394,6 +393,23 @@ export const TokenSelectorContent = ({
     [sort, listExtras],
   )
 
+  // The Favorites tab's natural order is descending market cap; tokens with no market cap sink to the bottom.
+  const sortByMarketCap = useCallback(
+    (list: Currency[]): Currency[] => {
+      const capOf = (currency: Currency) =>
+        listExtras[tokenRowKey(currency.chainId, currency.wrapped.address)]?.marketCap
+      return [...list].sort((a, b) => {
+        const ca = capOf(a)
+        const cb = capOf(b)
+        if (ca === undefined && cb === undefined) return 0
+        if (ca === undefined) return 1
+        if (cb === undefined) return -1
+        return cb - ca
+      })
+    },
+    [listExtras],
+  )
+
   const visibleCurrencies: Currency[] = useMemo(() => {
     switch (activeTab) {
       // Trending and New both sort server-side (24h change / volume via the catalog API's `sort` param).
@@ -403,8 +419,9 @@ export const TokenSelectorContent = ({
         return newCurrenciesBase
       case TokenSelectorTab.Imported:
         return sortByMetric(importedCurrenciesBase)
+      // Favorites default to market cap desc; a clicked sort header (24h change) overrides that.
       case TokenSelectorTab.Favorites:
-        return sortByMetric(favoriteCurrenciesBase)
+        return sort ? sortByMetric(favoriteCurrenciesBase) : sortByMarketCap(favoriteCurrenciesBase)
       case TokenSelectorTab.All:
       default:
         return allTabTokens
@@ -416,7 +433,9 @@ export const TokenSelectorContent = ({
     importedCurrenciesBase,
     favoriteCurrenciesBase,
     allTabTokens,
+    sort,
     sortByMetric,
+    sortByMarketCap,
   ])
 
   // Show skeleton rows while a tab's whole list is loading from the API.
@@ -721,7 +740,7 @@ export const TokenSelectorContent = ({
                 collapse wrapper's overflow-hidden doesn't clip it. */}
             <div className="overflow-hidden pr-1.5 pt-1.5">
               <PinnedTokens
-                tokens={quickSelectTokens}
+                tokens={favoriteCurrenciesBase.slice(0, isMobileWidth ? 4 : 5)}
                 onToggleFavorite={handleClickFavorite}
                 onSelect={handleCurrencySelect}
                 selectedCurrency={selectedCurrency}
