@@ -195,8 +195,8 @@ export const TokenSelectorContent = ({
   const isNewTab = activeTab === TokenSelectorTab.New
   const isFavoritesTab = activeTab === TokenSelectorTab.Favorites
 
-  // Column sort. Trending resolves it server-side; New / Imported / Favorites sort in-memory (24h
-  // change, plus 24h volume on New). `null` = the tab's natural order. Cleared on tab / chain change.
+  // Column sort. Trending and New resolve it server-side (24h change / volume); Imported / Favorites
+  // sort by 24h change in-memory. `null` = the tab's natural order. Cleared on tab / chain change.
   const [sort, setSort] = useState<TokenSort | null>(null)
   const listAnimation = useAnimationControls()
   const prefersReducedMotion = useReducedMotion()
@@ -227,7 +227,11 @@ export const TokenSelectorContent = ({
     hasMore: trendingHasMore,
     fetchMore: fetchMoreTrending,
   } = useTrendingTokens(primaryChainId, isTrendingTab ? sort : null, isTrendingTab)
-  const { tokens: newTokens, extras: newExtras, loading: newLoading } = useNewTokens(chainIdList, isNewTab)
+  const {
+    tokens: newTokens,
+    extras: newExtras,
+    loading: newLoading,
+  } = useNewTokens(chainIdList, isNewTab ? sort : null, isNewTab)
 
   const filterWrapFunc = useCallback(
     (token: Currency | undefined) => {
@@ -348,10 +352,10 @@ export const TokenSelectorContent = ({
     return EMPTY_EXTRAS
   }, [isTrendingTab, isNewTab, isImportedTab, isFavoritesTab, trendingExtras, newExtras, metricsExtras])
 
-  // In-memory metric sort for the local tabs (New / Imported / Favorites): the "Price & 24h change"
-  // column sorts by 24h change, and the New tab's "Volume" column sorts by 24h volume. Trending sorts
-  // both server-side. Rows are tiered so those missing the sorted metric always sink to the very
-  // bottom regardless of direction; for 24h change, priced-but-no-change rows sit above no-price rows.
+  // In-memory metric sort for the Imported / Favorites tabs, whose "Price & 24h change" column sorts
+  // by 24h change (Trending and New sort server-side). Rows are tiered so those missing the sorted
+  // metric always sink to the very bottom regardless of direction; for 24h change, priced-but-no-change
+  // rows sit above no-price rows.
   const sortByMetric = useCallback(
     (list: Currency[]): Currency[] => {
       if (!sort) return list
@@ -380,11 +384,11 @@ export const TokenSelectorContent = ({
 
   const visibleCurrencies: Currency[] = useMemo(() => {
     switch (activeTab) {
-      // Trending sorts server-side (24h change / volume via the catalog API's `sort` param).
+      // Trending and New both sort server-side (24h change / volume via the catalog API's `sort` param).
       case TokenSelectorTab.Trending:
         return trendingCurrencies
       case TokenSelectorTab.New:
-        return sortByMetric(newCurrenciesBase)
+        return newCurrenciesBase
       case TokenSelectorTab.Imported:
         return sortByMetric(importedCurrenciesBase)
       case TokenSelectorTab.Favorites:
