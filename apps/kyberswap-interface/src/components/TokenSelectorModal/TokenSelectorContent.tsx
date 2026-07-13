@@ -784,7 +784,7 @@ export const TokenSelectorContent = ({
               showAddress={isAllTab}
               showPriceColumn={!isAllTab}
               showVolume={isTrendingTab || isNewTab}
-              importAsRow={isTrendingTab}
+              importAsRow={isTrendingTab || isAllTab}
               onShowTokenInfo={onShowTokenInfo}
             />
           ) : (

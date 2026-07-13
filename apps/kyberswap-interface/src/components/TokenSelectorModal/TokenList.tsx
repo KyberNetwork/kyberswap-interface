@@ -112,7 +112,7 @@ type TokenRowProps = {
   rightColumn?: 'balance' | 'volume' | 'import'
   /**
    * Non-whitelisted token shown as a normal row (with its metric column) rather than an Import button,
-   * set apart by a subtle overlay; clicking it opens the import flow. Used on the Trending tab.
+   * set apart by a subtle overlay; clicking it opens the import flow. Used on the Trending / All tabs.
    */
   importOnClick?: boolean
   /** Start the import flow for a not-yet-imported token (via the Import button or an `importOnClick` row). */
@@ -423,8 +423,9 @@ const VirtualRow = memo(function VirtualRow({ index, style, data }: ListChildCom
 
   const token = currency.wrapped
 
-  // Not whitelisted and not yet imported. On most tabs the right column becomes an Import button; on
-  // the Trending tab (`importAsRow`) the row stays normal — with a subtle overlay — and clicking it imports.
+  // Not whitelisted and not yet imported. On tabs without `importAsRow` (e.g. Favorites) the right
+  // column becomes an Import button; on the Trending / All tabs (`importAsRow`) the row stays normal —
+  // with a subtle overlay — and clicking it imports.
   const needsImport = getNeedsImport(currency, address => data.importedAddressSet.has(address), !!data.onImportToken)
   const importAsRow = needsImport && !!data.importAsRow
   const rightColumn = needsImport && !data.importAsRow ? 'import' : data.showVolume ? 'volume' : 'balance'
@@ -503,7 +504,7 @@ type TokenListProps = {
   showPriceColumn?: boolean
   /** Right column shows 24h volume instead of balance (Trending). */
   showVolume?: boolean
-  /** Render a not-yet-imported token as a darkened normal row (click imports) instead of an Import button (Trending). */
+  /** Render a not-yet-imported token as a normal row with a subtle overlay (click imports) instead of an Import button (Trending / All). */
   importAsRow?: boolean
 }
 
