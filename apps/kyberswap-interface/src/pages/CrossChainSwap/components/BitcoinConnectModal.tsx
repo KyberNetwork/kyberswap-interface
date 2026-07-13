@@ -7,6 +7,7 @@ import Loader from 'components/Loader'
 import Modal from 'components/Modal'
 import { useBitcoinWallet } from 'components/Web3Provider/BitcoinProvider'
 import { DerivationPaths } from 'components/Web3Provider/BitcoinProvider/providers/ledger'
+import { BitcoinToken } from 'pages/CrossChainSwap/adapters/types'
 import { useNotify } from 'state/application/hooks'
 import { useIsAcceptedTerm } from 'state/user/hooks'
 import { cn } from 'utils/cn'
@@ -86,7 +87,7 @@ export const BitcoinConnectModal = ({ isOpen, onDismiss }: { isOpen: boolean; on
                       }}
                     >
                       <Icon>
-                        <img src="https://storage.googleapis.com/bitfi-static-35291d79/images/tokens/btc.svg" alt="" />
+                        <img src={BitcoinToken.logo} alt="" />
                       </Icon>
                       <span>{name}</span>
                       <span className="truncate text-sm font-normal text-subText">{path}</span>
