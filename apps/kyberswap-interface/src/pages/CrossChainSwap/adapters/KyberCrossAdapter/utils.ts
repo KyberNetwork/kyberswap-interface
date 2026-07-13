@@ -14,6 +14,8 @@ export enum NormalizedProvider {
   Optimex = 'optimex',
   KyberAcross = 'kyberacross',
   KyberCross = 'kybercross',
+  CctpV2 = 'cctpv2',
+  CctpV2Fast = 'cctpv2fast',
 }
 
 const normalizedProviderMap: Record<string, NormalizedProvider> = Object.values(NormalizedProvider).reduce(
@@ -32,6 +34,8 @@ const kyberCrossBridgeProviderMap: Partial<Record<NormalizedProvider, BridgeProv
   [NormalizedProvider.Relay]: 'relay',
   [NormalizedProvider.Mayan]: 'mayan',
   [NormalizedProvider.NearIntents]: 'near_intents',
+  [NormalizedProvider.CctpV2]: 'cctp_v2',
+  [NormalizedProvider.CctpV2Fast]: 'cctp_v2_fast',
 }
 
 export const getKyberCrossBridgeProviders = (sources?: string[]): BridgeProvider[] | undefined => {
