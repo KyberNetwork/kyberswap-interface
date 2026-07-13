@@ -50,6 +50,7 @@ import {
   useAddressRpcTokenSearch,
   useTokenComparator,
 } from 'components/TokenSelectorModal/utils'
+import { MouseoverTooltip } from 'components/Tooltip'
 import { NETWORKS_INFO } from 'constants/networks'
 import { Z_INDEXS } from 'constants/styles'
 import { NativeCurrencies } from 'constants/tokens'
@@ -731,13 +732,20 @@ export const TokenSelectorContent = ({
             </span>
             <HStack className="shrink-0 items-center gap-3">
               {!isAllTab && (
-                <SortHeader
-                  label={<Trans>Price & 24h change</Trans>}
-                  field="priceChange24h"
-                  sort={sort}
-                  onSort={cycleSort}
-                  className="w-[132px]"
-                />
+                <MouseoverTooltip
+                  placement="top"
+                  width="fit-content"
+                  style={{ zIndex: Z_INDEXS.MODAL }}
+                  text={<Trans>Price & 24h change</Trans>}
+                >
+                  <SortHeader
+                    label={<Trans>Price</Trans>}
+                    field="priceChange24h"
+                    sort={sort}
+                    onSort={cycleSort}
+                    className="w-[132px]"
+                  />
+                </MouseoverTooltip>
               )}
               {isTrendingTab || isNewTab ? (
                 <SortHeader label={<Trans>Volume</Trans>} field="volume24h" sort={sort} onSort={cycleSort} />
