@@ -60,16 +60,18 @@ export default function Popover({
     ...styles.popper,
     ...style,
   }
+  const popperPlacement = attributes.popper?.['data-popper-placement']
+  const arrowPlacement = popperPlacement?.split('-')[0]
 
   return (
     <>
-      <div ref={setReferenceElement as any} style={containerStyle} className="block">
+      <div ref={setReferenceElement} style={containerStyle} className="block">
         {children}
       </div>
       {show && (
         <Portal>
           <div
-            ref={setPopperElement as any}
+            ref={setPopperElement}
             style={popoverInline}
             onMouseEnter={onMouseEnter}
             onMouseLeave={onMouseLeave}
@@ -82,10 +84,10 @@ export default function Popover({
             {content}
             {noArrow || (
               <div
-                ref={setArrowElement as any}
+                ref={setArrowElement}
                 style={{ ...styles.arrow, zIndex: Z_INDEXS.POPOVER_CONTAINER - 1 }}
                 {...attributes.arrow}
-                className={cn('ks-popover-arrow', `arrow-${attributes.popper?.['data-popper-placement'] ?? ''}`)}
+                className={cn('ks-popover-arrow', arrowPlacement && `arrow-${arrowPlacement}`)}
               />
             )}
           </div>

@@ -312,6 +312,3 @@ export const CROSS_CHAIN_FEE_RECEIVER_SUI = 'intentionally-empty-for-now'
 // use a fake address in case user wallet is not connected. will reject if sign tx with this address
 export const BTC_DEFAULT_RECEIVER = 'bc1qmzgkj3hznt8heh4vp33v2cr2mvsyhc3lmfzz9p'
 export const SOLANA_NATIVE = '11111111111111111111111111111111'
-
-export const BUNGEE_AFFILIATE_ID =
-  '609913096e183f62cecd07e9c13f82e04ffbbdceb5fef75aad43e6cbff367039708902197e0b2b78b1d76cb0837ad0b318baedceb5fef75aad43e6cb'

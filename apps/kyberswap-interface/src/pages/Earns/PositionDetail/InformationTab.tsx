@@ -6,7 +6,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { ChevronDown, PlusCircle } from 'react-feather'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
-import { usePoolDetailQuery } from 'services/zapEarn'
+import { usePoolDetailQuery } from 'services/earn'
 
 import { ReactComponent as IconReposition } from 'assets/svg/earn/ic_reposition.svg'
 import { ReactComponent as RevertPriceIcon } from 'assets/svg/earn/ic_revert_price.svg'
@@ -526,6 +526,10 @@ const InformationTab = () => {
                       chainId: position.chain.id,
                       poolAddress: position.pool.address,
                       id: isUniv2 ? account || '' : position.tokenId,
+                      tokens: [
+                        { address: position.token0.address, symbol: position.token0.symbol },
+                        { address: position.token1.address, symbol: position.token1.symbol },
+                      ],
                     },
                   })
                 }}

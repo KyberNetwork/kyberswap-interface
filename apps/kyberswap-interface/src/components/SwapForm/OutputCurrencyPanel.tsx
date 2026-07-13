@@ -6,7 +6,7 @@ import { useMedia } from 'react-use'
 import CurrencyInputPanel from 'components/CurrencyInputPanel'
 import Skeleton from 'components/Skeleton'
 import { TextHelper } from 'components/Text'
-import { CHAINS_SUPPORT_FEE_CONFIGS, RESERVE_USD_DECIMALS } from 'constants/index'
+import { CHAINS_SUPPORT_FEE_CONFIGS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { WrapType } from 'hooks/useWrapCallback'
 import { MEDIA_WIDTHS } from 'theme'
@@ -49,7 +49,7 @@ const OutputCurrencyPanel: React.FC<Props> = ({
       return parsedAmountIn?.toExact() || ''
     }
     if (!parsedAmountOut) return ''
-    return parsedAmountOut.toSignificant(RESERVE_USD_DECIMALS)
+    return parsedAmountOut.toExact()
   }
 
   const getEstimatedUsd = () => {

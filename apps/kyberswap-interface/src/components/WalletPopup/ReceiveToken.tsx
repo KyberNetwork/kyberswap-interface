@@ -1,8 +1,8 @@
 import { Trans, t } from '@lingui/macro'
-import { useMemo, useRef } from 'react'
+import { ComponentProps, useMemo, useRef } from 'react'
 import { isMobile } from 'react-device-detect'
 import { Download } from 'react-feather'
-import { QRCode, IProps as QRCodeProps } from 'react-qrcode-logo'
+import { QRCode } from 'react-qrcode-logo'
 
 import KncLogo from 'assets/images/kyber_logo_for_qr.png'
 import { AddressInput } from 'components/AddressInputPanel'
@@ -11,6 +11,8 @@ import CopyHelper from 'components/Copy'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { useActiveWeb3React } from 'hooks'
 import { shortenAddress } from 'utils'
+
+type QRCodeProps = ComponentProps<typeof QRCode>
 
 const QR_SIZE = 200
 const QR_ID = 'react-qrcode-logo'

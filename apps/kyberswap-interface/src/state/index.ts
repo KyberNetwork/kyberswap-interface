@@ -11,6 +11,7 @@ import commonServiceApi from 'services/commonService'
 import contractQuery from 'services/contractQuery'
 import crosschainApi from 'services/crossChain'
 import dustSwapApi from 'services/dustSwap'
+import earnServiceApi from 'services/earn'
 import externalApi from 'services/externalApi'
 import geckoTerminalApi from 'services/geckoTermial'
 import identifyApi from 'services/identity'
@@ -22,6 +23,7 @@ import marketOverviewApi from 'services/marketOverview'
 import notificationApi from 'services/notification'
 import priceAlertApi from 'services/priceAlert'
 import referralApi from 'services/referral'
+import restrictedTokensApi from 'services/restrictedTokens'
 import rewardServiceApi from 'services/reward'
 import rewardMerklApi from 'services/rewardMerkl'
 import routeApi from 'services/route'
@@ -31,7 +33,6 @@ import tipLinkApi from 'services/tipLink'
 import tokenApi from 'services/token'
 import tokenChartApi from 'services/tokenChart'
 import zapApi from 'services/zap'
-import zapEarnServiceApi from 'services/zapEarn'
 
 import application from 'state/application/reducer'
 import authen from 'state/authen/reducer'
@@ -120,7 +121,7 @@ const rootReducer = combineReducers({
   [dustSwapApi.reducerPath]: dustSwapApi.reducer,
   [routeApi.reducerPath]: routeApi.reducer,
   [tokenApi.reducerPath]: tokenApi.reducer,
-  [zapEarnServiceApi.reducerPath]: zapEarnServiceApi.reducer,
+  [earnServiceApi.reducerPath]: earnServiceApi.reducer,
   [rewardServiceApi.reducerPath]: rewardServiceApi.reducer,
   [rewardMerklApi.reducerPath]: rewardMerklApi.reducer,
   [kyberdataServiceApi.reducerPath]: kyberdataServiceApi.reducer,
@@ -134,6 +135,7 @@ const rootReducer = combineReducers({
   [smartExitApi.reducerPath]: smartExitApi.reducer,
   [tipLinkApi.reducerPath]: tipLinkApi.reducer,
   [tokenChartApi.reducerPath]: tokenChartApi.reducer,
+  [restrictedTokensApi.reducerPath]: restrictedTokensApi.reducer,
 })
 
 export type AppState = ReturnType<typeof rootReducer>
@@ -158,7 +160,7 @@ const apiMiddlewares: Middleware[] = [
   tokenApi,
   zapApi,
   dustSwapApi,
-  zapEarnServiceApi,
+  earnServiceApi,
   rewardServiceApi,
   rewardMerklApi,
   kyberdataServiceApi,
@@ -172,6 +174,7 @@ const apiMiddlewares: Middleware[] = [
   smartExitApi,
   tipLinkApi,
   tokenChartApi,
+  restrictedTokensApi,
 ].map(api => api.middleware as Middleware)
 
 export const makeStore = (preloadedState?: Partial<AppState>) =>

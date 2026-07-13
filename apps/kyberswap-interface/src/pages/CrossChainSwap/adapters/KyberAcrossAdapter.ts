@@ -21,9 +21,23 @@ import {
   maxUint256,
   parseAbi,
 } from 'viem'
-import { arbitrum, base, blast, bsc, linea, mainnet, optimism, polygon, scroll, unichain, zksync } from 'viem/chains'
+import {
+  arbitrum,
+  base,
+  blast,
+  bsc,
+  linea,
+  mainnet,
+  monad,
+  optimism,
+  plasma,
+  polygon,
+  scroll,
+  unichain,
+  zksync,
+} from 'viem/chains'
 
-import { monad, plasma } from 'components/Web3Provider'
+import { robinhood } from 'components/Web3Provider'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 
 import { Quote } from '../registry'
@@ -54,6 +68,7 @@ const chainIdToViemChain: Record<number, ViemChain> = {
   [ChainId.UNICHAIN]: unichain,
   [ChainId.PLASMA]: plasma,
   [ChainId.MONAD]: monad,
+  [ChainId.ROBINHOOD]: robinhood,
 }
 
 // TransferType enum
@@ -330,7 +345,22 @@ export class KyberAcrossAdapter extends BaseSwapAdapter {
     super()
     this.acrossClient = createAcrossClient({
       integratorId: KYBERSWAP_INTEGRATOR_ID,
-      chains: [mainnet, arbitrum, bsc, optimism, linea, polygon, zksync, base, scroll, blast, unichain, plasma, monad],
+      chains: [
+        mainnet,
+        arbitrum,
+        bsc,
+        optimism,
+        linea,
+        polygon,
+        zksync,
+        base,
+        scroll,
+        blast,
+        unichain,
+        plasma,
+        monad,
+        robinhood,
+      ],
       rpcUrls: [
         ChainId.MAINNET,
         ChainId.ARBITRUM,
@@ -344,6 +374,7 @@ export class KyberAcrossAdapter extends BaseSwapAdapter {
         ChainId.BLAST,
         ChainId.UNICHAIN,
         ChainId.MONAD,
+        ChainId.ROBINHOOD,
       ].reduce((acc, cur) => {
         return { ...acc, [cur]: NETWORKS_INFO[cur].defaultRpcUrl }
       }, {}),
@@ -375,6 +406,7 @@ export class KyberAcrossAdapter extends BaseSwapAdapter {
       ChainId.BSCMAINNET,
       ChainId.PLASMA,
       ChainId.MONAD,
+      ChainId.ROBINHOOD,
     ]
   }
 

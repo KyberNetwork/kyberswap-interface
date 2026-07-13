@@ -1,10 +1,7 @@
 import { WalletClient, formatUnits } from 'viem'
 
-import { BUNGEE_AFFILIATE_ID, CROSS_CHAIN_FEE_RECEIVER, ETHER_ADDRESS, KYBERSWAP_DOMAIN } from 'constants/index'
+import { CROSS_CHAIN_FEE_RECEIVER, ETHER_ADDRESS, ZERO_ADDRESS } from 'constants/index'
 import { MAINNET_NETWORKS } from 'constants/networks'
-
-import { Quote } from '../registry'
-import { isWrappedToken } from '../utils'
 import {
   BaseSwapAdapter,
   Chain,
@@ -14,24 +11,12 @@ import {
   NormalizedQuote,
   NormalizedTxResponse,
   SwapStatus,
-} from './BaseSwapAdapter'
-
-const BUNGEE_API_BASE_URL =
-  typeof window !== 'undefined' && window.location?.hostname === KYBERSWAP_DOMAIN
-    ? 'https://backend.bungee.exchange' // use whitelisted backend for kyberswap.com
-    : 'https://public-backend.bungee.exchange' // use public backend for local development/testing
-
-/** Reference: https://docs.bungee.exchange/integrate/integration-guides/check-status#status-code-enum */
-enum RequestStatusEnum {
-  PENDING = 0,
-  ASSIGNED = 1,
-  EXTRACTED = 2,
-  FULFILLED = 3,
-  SETTLED = 4,
-  EXPIRED = 5,
-  CANCELLED = 6,
-  REFUNDED = 7,
-}
+} from 'pages/CrossChainSwap/adapters/BaseSwapAdapter'
+import { getBungeeQuote, getBungeeStatus } from 'pages/CrossChainSwap/adapters/BungeeAdapter/api'
+import { type SocketQuoteParams, type SocketQuoteResult } from 'pages/CrossChainSwap/adapters/BungeeAdapter/types'
+import { getSocketTxRoute, normalizeSocketStatus } from 'pages/CrossChainSwap/adapters/BungeeAdapter/utils'
+import { Quote } from 'pages/CrossChainSwap/registry'
+import { isWrappedToken } from 'pages/CrossChainSwap/utils'
 
 export class BungeeAdapter extends BaseSwapAdapter {
   constructor() {
@@ -68,7 +53,7 @@ export class BungeeAdapter extends BaseSwapAdapter {
   }
 
   async getQuote(params: EvmQuoteParams): Promise<NormalizedQuote> {
-    const quoteParams = {
+    const quoteParams: SocketQuoteParams = {
       userAddress: params.sender,
       originChainId: params.fromChain.toString(),
       destinationChainId: params.toChain.toString(),
@@ -77,64 +62,62 @@ export class BungeeAdapter extends BaseSwapAdapter {
       receiverAddress: params.recipient,
       outputToken: params.toToken.isNative ? ETHER_ADDRESS : params.toToken.wrapped.address,
       slippage: ((params.slippage * 100) / 10_000).toString(),
-      // delegateAddress: params.sender // optional
-
       feeBps: params.feeBps.toString(),
       feeTakerAddress: CROSS_CHAIN_FEE_RECEIVER,
-      useInbox: 'true', // using approval flow instead of permit 2
+      userOps: 'tx',
     }
-    // Build the URL with query parameters
-    const url = `${BUNGEE_API_BASE_URL}/api/v1/bungee/quote`
-    const queryParams = new URLSearchParams(quoteParams)
-    const fullUrl = `${url}?${queryParams}`
 
-    // Make the request
-    const response = await fetch(fullUrl, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        affiliate: BUNGEE_AFFILIATE_ID,
-      },
-    })
+    const response = await getBungeeQuote(quoteParams)
 
-    const data = await response.json()
-    const serverReqId = response.headers.get('server-req-id')
+    const data = response.data
+    const serverReqId = response.headers['server-req-id']
+    const quoteResult = data.result
 
-    if (!data.success || !data?.result?.autoRoute) {
+    const route = getSocketTxRoute(quoteResult)
+
+    if (!data.success || !quoteResult || !route?.output?.amount) {
       throw new Error(`Quote error: ${data.statusCode}: ${data.message}. server-req-id: ${serverReqId}`)
     }
 
-    const { autoRoute } = data.result
-
     const formattedInputAmount = formatUnits(BigInt(params.amount), params.fromToken.decimals)
-    const formattedOutputAmount = formatUnits(BigInt(autoRoute.output.amount), params.toToken.decimals)
+    const formattedOutputAmount = formatUnits(BigInt(route.output.amount), params.toToken.decimals)
     const inputUsd = NOT_SUPPORTED_CHAINS_PRICE_SERVICE.includes(params.fromChain)
-      ? Number(data.result.input.valueInUsd)
+      ? Number(quoteResult.input?.valueInUsd)
       : params.tokenInUsd * +formattedInputAmount
     const outputUsd = NOT_SUPPORTED_CHAINS_PRICE_SERVICE.includes(params.toChain)
-      ? Number(autoRoute.output.valueInUsd)
+      ? Number(route.output.valueInUsd)
       : params.tokenOutUsd * +formattedOutputAmount
 
     return {
       quoteParams: params,
-      outputAmount: BigInt(autoRoute.output.amount),
+      outputAmount: BigInt(route.output.amount),
       formattedOutputAmount,
       inputUsd,
       outputUsd,
       priceImpact: !inputUsd || !outputUsd ? NaN : ((inputUsd - outputUsd) * 100) / inputUsd,
       rate: +formattedOutputAmount / +formattedInputAmount,
-      gasFeeUsd: autoRoute.gasFee.feeInUsd,
-      timeEstimate: autoRoute.estimatedTime,
-      contractAddress: autoRoute.txData.to,
-      rawQuote: data.result,
+      gasFeeUsd: Number(route.gasFee?.feeInUsd || 0),
+      timeEstimate: route.estimatedTime || 0,
+      contractAddress: route.approval?.spenderAddress || ZERO_ADDRESS,
+      rawQuote: {
+        ...quoteResult,
+        route,
+      },
       protocolFee: 0,
       platformFeePercent: (params.feeBps * 100) / 10000,
     }
   }
 
   async executeSwap({ quote }: Quote, walletClient: WalletClient): Promise<NormalizedTxResponse> {
+    const route = getSocketTxRoute(quote.rawQuote as SocketQuoteResult)
+    const txData = route?.txData?.object
+
+    if (!txData?.to || !txData?.data || !route?.quoteId) {
+      throw new Error('Missing Bungee transaction data')
+    }
+
     const params = {
-      id: quote.rawQuote.autoRoute.requestHash,
+      id: route.quoteId,
       sender: quote.quoteParams.sender,
       adapter: this.getName(),
       sourceChain: quote.quoteParams.fromChain,
@@ -149,9 +132,9 @@ export class BungeeAdapter extends BaseSwapAdapter {
     const account = walletClient.account?.address
     if (!account) throw new Error('WalletClient account is not defined')
     const hash = await walletClient.sendTransaction({
-      to: quote.rawQuote.autoRoute.txData.to,
-      value: BigInt(quote.rawQuote.autoRoute.txData.value),
-      data: quote.rawQuote.autoRoute.txData.data,
+      to: txData.to,
+      value: BigInt(txData.value || '0'),
+      data: txData.data,
       chain: undefined,
       account,
     })
@@ -165,35 +148,15 @@ export class BungeeAdapter extends BaseSwapAdapter {
       recipient: quote.quoteParams.recipient,
     }
   }
+
   async getTransactionStatus(params: NormalizedTxResponse): Promise<SwapStatus> {
-    const response = await fetch(`${BUNGEE_API_BASE_URL}/api/v1/bungee/status?requestHash=${params.id}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        affiliate: BUNGEE_AFFILIATE_ID,
-      },
-    })
-    const data = await response.json()
+    const response = await getBungeeStatus({ quoteId: params.id })
+    const data = response.data
 
-    if (!data.success) {
-      throw new Error(`Status error: ${data.error?.message || 'Unknown error'}`)
+    if (!data.success || !data.result) {
+      throw new Error(`Status error: ${data.message || 'Unknown error'}`)
     }
-    const res = data.result[0]
 
-    // Extract actual output amount from destination data if available
-    const actualAmountOut = res?.destinationData?.output?.[0]?.amount
-
-    return {
-      txHash: res?.destinationData?.txHash || '',
-      status:
-        res.bungeeStatusCode === RequestStatusEnum.REFUNDED
-          ? 'Refunded'
-          : [RequestStatusEnum.EXPIRED, RequestStatusEnum.CANCELLED].includes(res.bungeeStatusCode)
-          ? 'Failed'
-          : [RequestStatusEnum.FULFILLED, RequestStatusEnum.SETTLED].includes(res.bungeeStatusCode)
-          ? 'Success'
-          : 'Processing',
-      amountOut: actualAmountOut ? String(actualAmountOut) : undefined,
-    }
+    return normalizeSocketStatus(data.result)
   }
 }

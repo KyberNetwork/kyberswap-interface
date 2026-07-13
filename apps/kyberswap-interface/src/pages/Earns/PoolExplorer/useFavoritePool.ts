@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { useAddFavoriteMutation, useRemoveFavoriteMutation } from 'services/zapEarn'
+import { useAddFavoriteMutation, useRemoveFavoriteMutation } from 'services/earn'
 
 import { NotificationType } from 'components/Announcement/type'
 import { useActiveWeb3React } from 'hooks'

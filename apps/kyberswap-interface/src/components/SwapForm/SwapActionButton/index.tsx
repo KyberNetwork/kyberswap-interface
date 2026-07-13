@@ -14,6 +14,7 @@ import { useActiveWeb3React } from 'hooks'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import { PermitState, usePermit } from 'hooks/usePermit'
+import { restrictedTokenMessage, useIsTokenRestricted } from 'hooks/useRestrictedTokens'
 import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { WrapType } from 'hooks/useWrapCallback'
@@ -83,6 +84,13 @@ const SwapActionButton: React.FC<Props> = ({
   const noRouteFound = routeSummary && !routeSummary.route
 
   const toggleWalletModal = useWalletModalToggle()
+
+  const isTokenRestricted = useIsTokenRestricted()
+  const restrictedCurrency = isTokenRestricted(currencyIn)
+    ? currencyIn
+    : isTokenRestricted(currencyOut)
+    ? currencyOut
+    : undefined
 
   const showWrap: boolean = wrapType !== WrapType.NOT_APPLICABLE
 
@@ -216,6 +224,14 @@ const SwapActionButton: React.FC<Props> = ({
         <ButtonLight onClick={() => changeNetwork(customChainId)}>
           <Trans>Switch to {NETWORKS_INFO[customChainId].name}</Trans>
         </ButtonLight>
+      )
+    }
+
+    if (restrictedCurrency) {
+      return (
+        <ButtonPrimary id="swap-button" className={CUSTOM_PRIMARY_BUTTON_CLASS} disabled>
+          {restrictedTokenMessage(restrictedCurrency.symbol)}
+        </ButtonPrimary>
       )
     }
 

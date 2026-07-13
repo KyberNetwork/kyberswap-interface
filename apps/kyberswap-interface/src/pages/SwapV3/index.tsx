@@ -6,7 +6,7 @@ import { FarmingPoolBanner, TrendingPoolBanner } from 'components/EarnBanner'
 import LimitOrderForm from 'components/LimitOrder/Form/LimitOrderForm'
 import { LimitOrderProvider } from 'components/LimitOrder/LimitOrderContext'
 import OrderList from 'components/LimitOrder/OrderList'
-import { HStack, Stack } from 'components/Stack'
+import { Stack } from 'components/Stack'
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import LiquiditySourcesPanel from 'components/swapv2/LiquiditySourcesPanel'
@@ -19,7 +19,6 @@ import { PRICE_CHART_QUOTE_TOKEN_BY_CHAIN } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import useParsedQueryString from 'hooks/useParsedQueryString'
-import { useAllTokens } from 'hooks/useTokens'
 import CrossChainSwap from 'pages/CrossChainSwap'
 import { CrossChainSwapSources } from 'pages/CrossChainSwap/components/CrossChainSwapSources'
 import QuoteSteps from 'pages/CrossChainSwap/components/QuoteSteps'
@@ -29,11 +28,11 @@ import SwapTradeRoute from 'pages/SwapV3/Components/SwapTradeRoute'
 import TokenPriceChart from 'pages/SwapV3/Components/TokenPriceChart'
 import Header from 'pages/SwapV3/Header'
 import PopulatedSwapForm from 'pages/SwapV3/PopulatedSwapForm'
-import { AppBodyWrapped, BannerWrapper, SwitchLocaleLinkWrapper } from 'pages/SwapV3/styles'
+import { AppBodyWrapped, BannerWrapper } from 'pages/SwapV3/styles'
 import useCurrenciesByPage from 'pages/SwapV3/useCurrenciesByPage'
 import { useShowPricingChart, useShowTradeRoutes } from 'state/user/hooks'
 import { DetailedRouteSummary } from 'types/route'
-import { getTradeComposition } from 'utils/aggregationRouting'
+import { useTradeComposition } from 'utils/aggregationRouting'
 
 const InfoComponents = ({ children }: { children: ReactNode[] }) => {
   return children.filter(Boolean).length ? <InfoComponentsWrapper>{children}</InfoComponentsWrapper> : null
@@ -56,7 +55,6 @@ export default function Swap() {
   const { chainId } = useActiveWeb3React()
   const isShowPricingChart = useShowPricingChart()
   const isShowTradeRoutes = useShowTradeRoutes()
-  const defaultTokens = useAllTokens()
   const { currencies, currencyIn, currencyOut } = useCurrenciesByPage()
   const qs = useParsedQueryString<{ highlightBox: string }>()
   const [routeSummary, setRouteSummary] = useState<DetailedRouteSummary>()
@@ -110,9 +108,11 @@ export default function Swap() {
     }
   }, [tabFromUrl, searchParams, setSearchParams])
 
-  const tradeRouteComposition = useMemo(() => {
-    return getTradeComposition(chainId, routeSummary?.parsedAmountIn, undefined, routeSummary?.route, defaultTokens)
-  }, [chainId, defaultTokens, routeSummary])
+  const tradeRouteComposition = useTradeComposition({
+    chainId,
+    inputAmount: routeSummary?.parsedAmountIn,
+    swaps: routeSummary?.route,
+  })
 
   const isSmartSettlementActive = useMemo(
     () => routeSummary?.route?.some(route => route.some(swap => swap.extra?._ce)),
@@ -188,18 +188,14 @@ export default function Swap() {
             {isLimitPage && <OrderList />}
             {isCrossChainPage && (
               <Stack className="gap-4">
-                <QuoteSteps quote={selectedQuote} />
+                <QuoteSteps visible={false} quote={selectedQuote} />
                 <TransactionHistory />
               </Stack>
             )}
           </InfoComponents>
         </LimitOrderProvider>
       </Container>
-      <HStack className="justify-center">
-        <SwitchLocaleLinkWrapper>
-          <SwitchLocaleLink />
-        </SwitchLocaleLinkWrapper>
-      </HStack>
+      <SwitchLocaleLink centered />
     </PageWrapper>
   )
 }

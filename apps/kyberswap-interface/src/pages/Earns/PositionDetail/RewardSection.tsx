@@ -57,7 +57,7 @@ const CycleCountdown = ({ endTime, textColor }: { endTime: number; textColor: st
   )
 }
 
-const RewardSection = () => {
+const RewardSection = ({ hasFarmingReward }: { hasFarmingReward: boolean }) => {
   const { position, initialLoading, shareBtn, refetchPositions, isWaitingForRewards } = usePositionDetailContext()
   const theme = useTheme()
 
@@ -69,8 +69,10 @@ const RewardSection = () => {
   } = useKemRewards({ refetchAfterCollect: refetchPositions })
 
   const { rewardsByPosition } = useMerklRewards({ positions: position ? [position] : undefined })
-  const merklRewards = position ? rewardsByPosition[position.positionId]?.rewards || [] : []
-  const merklRewardsTotalUsd = position ? rewardsByPosition[position.positionId]?.totalUsdValue || 0 : 0
+  const merklPositionRewards = position ? rewardsByPosition[position.positionId] : undefined
+  const merklRewards = merklPositionRewards?.rewards || []
+  const merklClaimableUsd = merklPositionRewards?.totalUsdValue || 0
+  const merklClaimedUsd = merklPositionRewards?.claimedUsdValue || 0
 
   const rewardInfoThisPosition = rewardInfo?.nfts.find(item => item.nftId === position?.tokenId.toString())
 
@@ -91,7 +93,7 @@ const RewardSection = () => {
       <DarkCard>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <FarmingIcon width={20} height={20} />
+            {hasFarmingReward && <FarmingIcon width={20} height={20} />}
             {merklRewards.length > 0 && (
               <MouseoverTooltip text={merklRewardTooltip(merklRewards, theme.text)} placement="top" width="160px">
                 <UniBonusIcon width={20} height={20} />
@@ -110,10 +112,13 @@ const RewardSection = () => {
               <>
                 <span className="text-xl font-medium text-text">
                   <AnimatedNumber
-                    value={formatDisplayNumber((rewardInfoThisPosition?.totalUsdValue || 0) + merklRewardsTotalUsd, {
-                      significantDigits: 4,
-                      style: 'currency',
-                    })}
+                    value={formatDisplayNumber(
+                      (rewardInfoThisPosition?.totalUsdValue || 0) + merklClaimedUsd + merklClaimableUsd,
+                      {
+                        significantDigits: 4,
+                        style: 'currency',
+                      },
+                    )}
                   />
                 </span>
                 <InfoHelper
@@ -144,7 +149,7 @@ const RewardSection = () => {
             ) : (
               <span className="text-xl text-text">
                 <AnimatedNumber
-                  value={formatDisplayNumber(rewardInfoThisPosition?.claimedUsdValue || 0, {
+                  value={formatDisplayNumber((rewardInfoThisPosition?.claimedUsdValue || 0) + merklClaimedUsd, {
                     significantDigits: 4,
                     style: 'currency',
                   })}
@@ -153,39 +158,41 @@ const RewardSection = () => {
             )}
           </div>
 
-          <div className="flex w-full items-center justify-between px-4">
-            <span className="text-sm text-subText">{t`In-Progress`}</span>
-            {initialLoading ? (
-              <PositionSkeleton width={80} height={24} />
-            ) : isUnfinalized ? (
-              <PositionSkeleton width={80} height={24} text={t`Finalizing...`} />
-            ) : isWaitingForRewards ? (
-              <RewardSyncing width={80} height={24} />
-            ) : (
-              <div className="flex items-center">
-                <span className="text-xl text-text">
-                  <AnimatedNumber
-                    value={formatDisplayNumber(rewardInfoThisPosition?.inProgressUsdValue || 0, {
-                      significantDigits: 4,
-                      style: 'currency',
+          {hasFarmingReward && (
+            <div className="flex w-full items-center justify-between px-4">
+              <span className="text-sm text-subText">{t`In-Progress`}</span>
+              {initialLoading ? (
+                <PositionSkeleton width={80} height={24} />
+              ) : isUnfinalized ? (
+                <PositionSkeleton width={80} height={24} text={t`Finalizing...`} />
+              ) : isWaitingForRewards ? (
+                <RewardSyncing width={80} height={24} />
+              ) : (
+                <div className="flex items-center">
+                  <span className="text-xl text-text">
+                    <AnimatedNumber
+                      value={formatDisplayNumber(rewardInfoThisPosition?.inProgressUsdValue || 0, {
+                        significantDigits: 4,
+                        style: 'currency',
+                      })}
+                    />
+                  </span>
+                  <InfoHelper
+                    text={inProgressRewardTooltip({
+                      pendingUsdValue: rewardInfoThisPosition?.pendingUsdValue || 0,
+                      vestingUsdValue: rewardInfoThisPosition?.vestingUsdValue || 0,
+                      waitingUsdValue: rewardInfoThisPosition?.waitingUsdValue || 0,
+                      tokens: rewardInfoThisPosition?.tokens || [],
                     })}
+                    width="290px"
+                    placement="top"
                   />
-                </span>
-                <InfoHelper
-                  text={inProgressRewardTooltip({
-                    pendingUsdValue: rewardInfoThisPosition?.pendingUsdValue || 0,
-                    vestingUsdValue: rewardInfoThisPosition?.vestingUsdValue || 0,
-                    waitingUsdValue: rewardInfoThisPosition?.waitingUsdValue || 0,
-                    tokens: rewardInfoThisPosition?.tokens || [],
-                  })}
-                  width="290px"
-                  placement="top"
-                />
-              </div>
-            )}
-          </div>
+                </div>
+              )}
+            </div>
+          )}
 
-          {!!cycleConfig && (
+          {hasFarmingReward && !!cycleConfig && (
             <NextDistribution>
               <div className="flex items-center">
                 <span className="text-sm text-subText">{t`Cycle ends in`}</span>
@@ -214,7 +221,7 @@ const RewardSection = () => {
               ) : (
                 <span className="text-xl text-text">
                   <AnimatedNumber
-                    value={formatDisplayNumber(rewardInfoThisPosition?.claimableUsdValue || 0, {
+                    value={formatDisplayNumber((rewardInfoThisPosition?.claimableUsdValue || 0) + merklClaimableUsd, {
                       significantDigits: 4,
                       style: 'currency',
                     })}
@@ -228,7 +235,7 @@ const RewardSection = () => {
                 !position ||
                 initialLoading ||
                 isUnfinalized ||
-                !rewardInfoThisPosition?.claimableUsdValue ||
+                (!rewardInfoThisPosition?.claimableUsdValue && !merklClaimableUsd) ||
                 isRewardsClaiming
               }
               onClick={() => position && onOpenClaimRewards(position)}

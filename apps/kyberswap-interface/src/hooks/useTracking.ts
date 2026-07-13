@@ -160,6 +160,7 @@ export enum TRACKING_EVENT_TYPE {
   ANNOUNCEMENT_CLICK_CLEAR_ALL_INBOXES,
 
   // Limit Order
+  LO_PAGE_VIEWED,
   LO_CLICK_PLACE_ORDER,
   LO_PLACE_ORDER_SUCCESS,
   LO_ENTER_DETAIL,
@@ -1172,6 +1173,10 @@ export default function useTracking(currencies?: { [field in Field]?: Currency }
           formoTrack('Gas refund - KNC Utility source click', { source })
           break
         }
+        case TRACKING_EVENT_TYPE.LO_PAGE_VIEWED: {
+          formoTrack('Limit Order Page Viewed')
+          break
+        }
         case TRACKING_EVENT_TYPE.LO_CLICK_PLACE_ORDER: {
           formoTrack('Limit Order - Place Order Click', payload)
           break
@@ -1838,7 +1843,7 @@ export default function useTracking(currencies?: { [field in Field]?: Currency }
     [currencies, account, mixpanel.hasOwnProperty('get_distinct_id'), formoTrack],
     /* eslint-enable */
   )
-  return { trackingHandler }
+  return { trackingHandler, isTrackingReady: !!analytics }
 }
 
 export const useGlobalTrackingEvents = () => {

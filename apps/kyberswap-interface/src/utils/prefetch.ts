@@ -1,6 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
+import earnServiceApi from 'services/earn'
 import limitOrderApi from 'services/limitOrder'
-import zapEarnServiceApi from 'services/zapEarn'
 
 import { getInitialListOrdersArgs } from 'components/LimitOrder/listOrdersArgs'
 import { APP_PATHS } from 'constants/index'
@@ -92,7 +92,7 @@ export function prefetchPoolDetail(chainId: number | undefined, address: string 
   if (prefetchedPoolDetail.has(key)) return
   prefetchedPoolDetail.add(key)
   store.dispatch(
-    zapEarnServiceApi.util.prefetch('poolDetail', { chainId, address: normalizedAddress }, { ifOlderThan: 60 }),
+    earnServiceApi.util.prefetch('poolDetail', { chainId, address: normalizedAddress }, { ifOlderThan: 60 }),
   )
 }
 
@@ -130,7 +130,7 @@ export function prefetchMyPositions(account: string | undefined) {
   if (prefetchedPositions.has(key)) return
   prefetchedPositions.add(key)
   store.dispatch(
-    zapEarnServiceApi.util.prefetch('userPositions', getInitialPositionQueryParams(account), { ifOlderThan: 30 }),
+    earnServiceApi.util.prefetch('userPositions', getInitialPositionQueryParams(account), { ifOlderThan: 30 }),
   )
 }
 

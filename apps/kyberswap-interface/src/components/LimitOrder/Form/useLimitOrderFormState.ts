@@ -20,7 +20,7 @@ export type UseLimitOrderFormStateProps = {
   useUrlParams?: boolean
 }
 
-const DEFAULT_EXPIRED = 36500 * TIMES_IN_SECS.ONE_DAY
+const DEFAULT_EXPIRED = 30 * TIMES_IN_SECS.ONE_DAY
 const DEFAULT_RATE_INFO: RateInfo = { rate: '', invertRate: '' }
 
 export const useLimitOrderFormState = ({ currencyIn, currencyOut, useUrlParams }: UseLimitOrderFormStateProps) => {
@@ -140,6 +140,12 @@ export const useLimitOrderFormState = ({ currencyIn, currencyOut, useUrlParams }
   const onChangeRate = (val: string) => {
     if (currencyOut) {
       onSetRate(val, '')
+    }
+  }
+
+  const onChangeInvertedRate = (val: string) => {
+    if (currencyIn) {
+      onSetRate('', val)
     }
   }
 
@@ -280,6 +286,7 @@ export const useLimitOrderFormState = ({ currencyIn, currencyOut, useUrlParams }
     onSetInput,
     onSetOutput,
     onChangeRate,
+    onChangeInvertedRate,
     handleInputSelect,
     handleOutputSelect,
     handleRotateClick,

@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
-import { PoolQueryParams, useSupportedProtocolsQuery } from 'services/zapEarn'
+import { useSupportedProtocolsQuery } from 'services/earn'
+import type { PoolQueryParams } from 'services/earn/types'
 
 import { MenuOption } from 'components/DropdownMenu'
 import useChainsConfig from 'hooks/useChainsConfig'

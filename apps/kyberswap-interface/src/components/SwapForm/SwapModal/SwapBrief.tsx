@@ -8,7 +8,7 @@ import Skeleton from 'components/Skeleton'
 import { Stack } from 'components/Stack'
 import { useSwapFormContext } from 'components/SwapForm/SwapFormContext'
 import UpdatedBadge, { Props as UpdatedBadgeProps } from 'components/SwapForm/SwapModal/SwapDetails/UpdatedBadge'
-import { CHAINS_SUPPORT_FEE_CONFIGS, RESERVE_USD_DECIMALS } from 'constants/index'
+import { CHAINS_SUPPORT_FEE_CONFIGS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { formatDisplayNumber } from 'utils/numbers'
 
@@ -44,11 +44,7 @@ export default function SwapBrief({
       return <span className="min-w-0 flex-1 truncate text-2xl font-medium">--</span>
     }
 
-    return (
-      <span className="min-w-0 flex-1 truncate text-2xl font-medium">
-        {outputAmountFromBuild.toSignificant(RESERVE_USD_DECIMALS)}
-      </span>
-    )
+    return <span className="min-w-0 flex-1 truncate text-2xl font-medium">{outputAmountFromBuild.toExact()}</span>
   }
 
   const renderAmountOutUsd = () => {

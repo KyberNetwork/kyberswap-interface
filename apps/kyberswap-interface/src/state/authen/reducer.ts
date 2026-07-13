@@ -27,7 +27,7 @@ const DEFAULT_AUTHEN_STATE: AuthenState = {
   anonymousUserInfo: undefined,
   signedUserInfo: undefined,
   isLogin: false,
-  pendingAuthentication: true,
+  pendingAuthentication: false,
   authenticationSuccess: false,
   isConnectingWallet: false,
   showConfirmProfile: false,

@@ -52,7 +52,10 @@ export default function useWrapCallback(
   const notify = useNotify()
 
   return useMemo(() => {
-    if (!wethAddress || !inputCurrency || !outputCurrency || !account) return NOT_APPLICABLE
+    // Detect wrap/unwrap independently of wallet connection so the UI shows the 1:1 wrap
+    // immediately and skips the aggregator route path even before an account connects; only
+    // `execute` (which sends the transaction) requires an account.
+    if (!wethAddress || !inputCurrency || !outputCurrency) return NOT_APPLICABLE
 
     const sufficientBalance = inputAmount && balance && !balance.lessThan(inputAmount)
 
@@ -62,7 +65,7 @@ export default function useWrapCallback(
       return {
         wrapType: WrapType.WRAP,
         execute:
-          sufficientBalance && inputAmount
+          account && sufficientBalance && inputAmount
             ? async () => {
                 try {
                   const txReceipt = await sendEVMTransaction({
@@ -121,7 +124,7 @@ export default function useWrapCallback(
       return {
         wrapType: WrapType.UNWRAP,
         execute:
-          sufficientBalance && inputAmount
+          account && sufficientBalance && inputAmount
             ? async () => {
                 try {
                   const txReceipt = await sendEVMTransaction({

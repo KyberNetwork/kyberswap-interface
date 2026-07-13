@@ -2,7 +2,7 @@ import { formatAprNumber } from '@kyber/utils/dist/number'
 import { t } from '@lingui/macro'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useMedia } from 'react-use'
-import { useExplorerLandingQuery } from 'services/zapEarn'
+import { useExplorerLandingQuery } from 'services/earn'
 
 import { ReactComponent as FarmingIcon } from 'assets/svg/kyber/kem.svg'
 import {

@@ -5,8 +5,8 @@ import { readContract } from '@wagmi/core'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Share2 } from 'react-feather'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
+import { useUserPositionsQuery } from 'services/earn'
 import { useGetSmartExitOrdersQuery } from 'services/smartExit'
-import { useUserPositionsQuery } from 'services/zapEarn'
 
 import { ReactComponent as IconEarnNotFound } from 'assets/svg/earn/ic_earn_not_found.svg'
 import { ReactComponent as IconUserEarnPosition } from 'assets/svg/earn/ic_user_earn_position.svg'
@@ -32,6 +32,7 @@ import useClosedPositions, { CheckClosedPositionParams } from 'pages/Earns/hooks
 import useFarmingStablePools from 'pages/Earns/hooks/useFarmingStablePools'
 import useForceLoading from 'pages/Earns/hooks/useForceLoading'
 import useKemRewards from 'pages/Earns/hooks/useKemRewards'
+import useMerklRewards from 'pages/Earns/hooks/useMerklRewards'
 import useReduceFetchInterval from 'pages/Earns/hooks/useReduceFetchInterval'
 import useZapMigrationWidget from 'pages/Earns/hooks/useZapMigrationWidget'
 import { FeeInfo, OrderStatus, PAIR_CATEGORY, ParsedPosition, PositionStatus, SuggestedPool } from 'pages/Earns/types'
@@ -133,6 +134,14 @@ const PositionDetail = () => {
   }, [account, feeInfoFromRpc, userPositions, rewardInfoThisPosition, closedPositionsFromRpc, positionId])
 
   const farmingPoolsByChain = useFarmingStablePools({ chainIds: position ? [position.chain.id] : [] })
+
+  const { rewardsByPosition: merklRewardsByPosition } = useMerklRewards({
+    positions: position ? [position] : undefined,
+  })
+  // Merkl bonus (claimed + claimable) so the shared Total Earnings matches the reward card and the
+  // shared APR, which already folds in `bonusApr`.
+  const merklPositionRewards = position ? merklRewardsByPosition[position.positionId] : undefined
+  const merklEarningsUsd = (merklPositionRewards?.claimedUsdValue || 0) + (merklPositionRewards?.totalUsdValue || 0)
 
   const positionRef = useRef(position)
   positionRef.current = position
@@ -343,7 +352,7 @@ const PositionDetail = () => {
                 lm: position.kemLMApr[aprInterval],
               },
               createdTime: position.createdTime,
-              totalEarnings: position.rewards.totalUsdValue + position.earning.earned,
+              totalEarnings: position.rewards.totalUsdValue + position.earning.earned + merklEarningsUsd,
             },
           })
         }}
@@ -351,7 +360,7 @@ const PositionDetail = () => {
         <Share2 size={size || 16} className="text-primary" />
       </ShareButtonWrapper>
     ),
-    [position, aprInterval],
+    [position, aprInterval, merklEarningsUsd],
   )
 
   const shareModal = shareInfo ? <ShareModal {...shareInfo} /> : null

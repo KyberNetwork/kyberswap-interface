@@ -10,7 +10,10 @@ import React, {
   useTransition,
 } from "react";
 import AutoSizer from "react-virtualized-auto-sizer";
-import { FixedSizeList as List, ListChildComponentProps } from "react-window";
+import {
+  ListChildComponentProps,
+  VariableSizeList as List,
+} from "react-window";
 
 import { useLingui } from "@lingui/react";
 
@@ -66,6 +69,8 @@ interface TokenSelectorProps {
   setTokensIn?: (tokens: Token[]) => void;
   setAmountsIn?: (amounts: string) => void;
   onTokenSelect?: (token: Token) => void;
+  isTokenRestricted?: (token: Token) => boolean;
+  onRestrictedToken?: (token: Token) => void;
   mode: TOKEN_SELECT_MODE;
   selectedTokenAddress?: string;
   token0Address: string;
@@ -98,6 +103,8 @@ interface TokenSelectorProps {
 const normalizeSpecialCharacters = (value: string) => value.replace(/₮/g, "T");
 
 const TOKEN_ROW_HEIGHT = 52;
+// Restricted rows are taller to fit the "not available in your jurisdiction" line.
+const RESTRICTED_TOKEN_ROW_HEIGHT = 88;
 
 interface TokenRowData {
   tokens: CustomizeToken[];
@@ -109,6 +116,8 @@ interface TokenRowData {
   onClickToken: (token: CustomizeToken) => void;
   onRemoveImportedToken: (e: React.MouseEvent, token: Token) => void;
   onShowTokenInfo: (e: React.MouseEvent, token: Token) => void;
+  isTokenRestricted?: (token: Token) => boolean;
+  warnedAddresses: Set<string>;
   i18n: ReturnType<typeof useLingui>["i18n"];
 }
 
@@ -127,6 +136,8 @@ const TokenRow = memo(function TokenRow({
     onClickToken,
     onRemoveImportedToken,
     onShowTokenInfo,
+    warnedAddresses,
+    i18n,
   } = data;
 
   const token = tokens[index];
@@ -135,6 +146,33 @@ const TokenRow = memo(function TokenRow({
   const isSelected =
     mode === TOKEN_SELECT_MODE.SELECT &&
     token.address?.toLowerCase() === selectedTokenAddress?.toLowerCase();
+
+  const warned = warnedAddresses.has(token.address?.toLowerCase());
+
+  if (warned) {
+    return (
+      <div style={style} className="px-6 py-1">
+        <div className="flex flex-col justify-center gap-1 rounded-xl bg-warning-200 px-3 py-2 h-full">
+          <div className="flex items-center space-x-3 opacity-50 pointer-events-none">
+            <TokenLogo src={token.logo} size={24} />
+            <div>
+              <TokenSymbol
+                className="leading-6"
+                symbol={token.symbol}
+                maxWidth={120}
+              />
+              <p className="text-xs text-subText">
+                {tabSelected === TOKEN_TAB.ALL ? token.name : token.balance}
+              </p>
+            </div>
+          </div>
+          <p className="text-xs font-medium text-warning">
+            {i18n._("This token is not available in your jurisdiction")}
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   const price = tokenPrices?.[token.address?.toLowerCase()];
   const balanceNumeric = parseFloat(token.balance ?? "0");
@@ -232,6 +270,8 @@ export default function TokenSelector({
   setTokensIn,
   setAmountsIn,
   onTokenSelect,
+  isTokenRestricted,
+  onRestrictedToken,
   onConnectWallet,
   onSelectLiquiditySource,
   setSelectedTokens,
@@ -264,6 +304,10 @@ export default function TokenSelector({
   );
   const [isPending, startTransition] = useTransition();
   const [message, setMessage] = useState<string>("");
+  // Restricted tokens the user has clicked; only these show the inline "not available" warning.
+  const [warnedRestricted, setWarnedRestricted] = useState<Set<string>>(
+    () => new Set(),
+  );
   const [modalTokensIn, setModalTokensIn] = useState<Token[]>([...tokensIn]);
   const [modalAmountsIn, setModalAmountsIn] = useState(amountsIn);
   const messageTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -411,6 +455,13 @@ export default function TokenSelector({
 
   const handleClickToken = useCallback(
     (newToken: CustomizeToken) => {
+      if (isTokenRestricted?.(newToken)) {
+        setWarnedRestricted((prev) =>
+          new Set(prev).add(newToken.address?.toLowerCase()),
+        );
+        onRestrictedToken?.(newToken);
+        return;
+      }
       if (mode === TOKEN_SELECT_MODE.SELECT) {
         onTokenSelect?.(newToken);
         const index = tokensIn.findIndex(
@@ -464,6 +515,8 @@ export default function TokenSelector({
     [
       mode,
       onTokenSelect,
+      isTokenRestricted,
+      onRestrictedToken,
       tokensIn,
       selectedTokenAddress,
       setTokensIn,
@@ -570,6 +623,8 @@ export default function TokenSelector({
       onClickToken: handleClickToken,
       onRemoveImportedToken: handleRemoveImportedToken,
       onShowTokenInfo: handleShowTokenInfo,
+      isTokenRestricted,
+      warnedAddresses: warnedRestricted,
       i18n,
     }),
     [
@@ -582,9 +637,27 @@ export default function TokenSelector({
       handleClickToken,
       handleRemoveImportedToken,
       handleShowTokenInfo,
+      isTokenRestricted,
+      warnedRestricted,
       i18n,
     ],
   );
+
+  const listRef = useRef<List>(null);
+  const getItemSize = useCallback(
+    (index: number) => {
+      const token = filteredTokens[index];
+      return token && warnedRestricted.has(token.address?.toLowerCase())
+        ? RESTRICTED_TOKEN_ROW_HEIGHT
+        : TOKEN_ROW_HEIGHT;
+    },
+    [filteredTokens, warnedRestricted],
+  );
+
+  // A warned row is taller than a normal one; reset cached offsets when inputs change.
+  useEffect(() => {
+    listRef.current?.resetAfterIndex(0);
+  }, [filteredTokens, warnedRestricted]);
 
   useEffect(() => {
     if (message) {
@@ -788,28 +861,78 @@ export default function TokenSelector({
           {modalTabSelected === MODAL_TAB.TOKENS && (
             <>
               {tabSelected === TOKEN_TAB.ALL &&
-                unImportedTokens.map((token: Token, index) => (
-                  <div
-                    key={`${token.symbol}-${index}`}
-                    className="flex items-center justify-between py-2 px-6 text-red"
-                  >
-                    <div className="flex items-center gap-2">
-                      <TokenLogo src={token.logo} size={24} />
-                      <TokenSymbol
-                        className="ml-2 text-subText"
-                        symbol={token.symbol}
-                        maxWidth={120}
-                      />
-                      <p className="text-xs text-[#6C7284]">{token.name}</p>
-                    </div>
-                    <Button
-                      className="rounded-full !bg-accent font-normal !text-[#222222] px-3 py-[6px] h-fit hover:brightness-75"
-                      onClick={() => handleImportToken(token)}
+                unImportedTokens.map((token: Token, index) => {
+                  const restricted = Boolean(isTokenRestricted?.(token));
+                  const warned = warnedRestricted.has(
+                    token.address?.toLowerCase(),
+                  );
+                  if (warned) {
+                    return (
+                      <div
+                        key={`${token.symbol}-${index}`}
+                        className="px-6 py-1"
+                      >
+                        <div className="flex flex-col gap-1 rounded-xl bg-warning-200 px-3 py-2">
+                          <div className="flex items-center justify-between opacity-50 pointer-events-none">
+                            <div className="flex items-center gap-2">
+                              <TokenLogo src={token.logo} size={24} />
+                              <TokenSymbol
+                                className="ml-2 text-subText"
+                                symbol={token.symbol}
+                                maxWidth={120}
+                              />
+                              <p className="text-xs text-[#6C7284]">
+                                {token.name}
+                              </p>
+                            </div>
+                            <Button
+                              disabled
+                              className="rounded-full !bg-accent font-normal !text-[#222222] px-3 py-[6px] h-fit !cursor-not-allowed"
+                            >
+                              {i18n._("Import")}
+                            </Button>
+                          </div>
+                          <p className="text-xs font-medium text-warning">
+                            {i18n._(
+                              "This token is not available in your jurisdiction",
+                            )}
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  }
+
+                  return (
+                    <div
+                      key={`${token.symbol}-${index}`}
+                      className="flex items-center justify-between py-2 px-6 text-red"
                     >
-                      {i18n._("Import")}
-                    </Button>
-                  </div>
-                ))}
+                      <div className="flex items-center gap-2">
+                        <TokenLogo src={token.logo} size={24} />
+                        <TokenSymbol
+                          className="ml-2 text-subText"
+                          symbol={token.symbol}
+                          maxWidth={120}
+                        />
+                        <p className="text-xs text-[#6C7284]">{token.name}</p>
+                      </div>
+                      <Button
+                        className="rounded-full !bg-accent font-normal !text-[#222222] px-3 py-[6px] h-fit hover:brightness-75"
+                        onClick={() => {
+                          if (restricted) {
+                            setWarnedRestricted((prev) =>
+                              new Set(prev).add(token.address?.toLowerCase()),
+                            );
+                            return;
+                          }
+                          handleImportToken(token);
+                        }}
+                      >
+                        {i18n._("Import")}
+                      </Button>
+                    </div>
+                  );
+                })}
 
               {isLoading || isPending ? (
                 <TokenLoader />
@@ -818,10 +941,12 @@ export default function TokenSelector({
                   <AutoSizer>
                     {({ height, width }) => (
                       <List
+                        ref={listRef}
                         height={height}
                         width={width}
                         itemCount={filteredTokens.length}
-                        itemSize={TOKEN_ROW_HEIGHT}
+                        itemSize={getItemSize}
+                        estimatedItemSize={TOKEN_ROW_HEIGHT}
                         itemData={tokenListData}
                         overscanCount={5}
                       >
