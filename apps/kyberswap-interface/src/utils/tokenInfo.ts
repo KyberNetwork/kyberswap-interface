@@ -2,7 +2,6 @@ import { ChainId, Currency, NativeCurrency, Token } from '@kyberswap/ks-sdk-core
 
 import { ETHER_ADDRESS } from 'constants/index'
 import { TokenInfo, WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
-import { shortenHash } from 'utils/index'
 
 export const getFormattedAddress = (chainId: ChainId, address?: string, fallback?: string): string => {
   try {
@@ -26,7 +25,8 @@ export const getTokenAddress = (currency: Currency) =>
 export const getCurrencyDisplaySymbol = (currency: Currency | undefined): string => {
   if (!currency) return ''
   const address = currency.isNative ? '' : currency.wrapped.address
-  return currency.symbol || currency.name || (address ? shortenHash(address, 4) : '')
+  const shortAddress = address ? `${address.substring(0, 6)}...${address.substring(address.length - 4)}` : ''
+  return currency.symbol || currency.name || shortAddress
 }
 
 export const getProxyTokenLogo = (logoUrl: string | undefined): string =>
