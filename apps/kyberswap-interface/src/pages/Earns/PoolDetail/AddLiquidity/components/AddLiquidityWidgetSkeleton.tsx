@@ -41,9 +41,9 @@ const AddLiquidityWidgetSkeleton = () => {
       <Stack className="gap-4">
         <Skeleton width="100%" height={38} />
         <Stack className="gap-3 rounded-xl border border-buttonGray p-2">
-          <Skeleton width={160} height={18} />
-          <Skeleton width={240} height={18} />
-          <Skeleton width={160} height={18} />
+          <Skeleton width={160} height={20} />
+          <Skeleton width={240} height={20} />
+          <Skeleton width={160} height={20} />
         </Stack>
         <Skeleton width="100%" height={44} borderRadius={22} />
       </Stack>
