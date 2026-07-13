@@ -224,7 +224,7 @@ components:
 
     BridgeProvider:
       type: string
-      enum: [across, relay, mayan, near_intents]
+      enum: [across, relay, mayan, near_intents, cctp_v2, cctp_v2_fast]
 
     FlowType:
       type: string
