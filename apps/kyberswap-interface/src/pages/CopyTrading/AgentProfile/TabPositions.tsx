@@ -2,7 +2,7 @@ import type { HTMLAttributes } from 'react'
 import copyTradingApi from 'services/copyTrading'
 
 import { HStack, Stack } from 'components/Stack'
-import { TableBody, TableCell, TableHeader, TableRow } from 'pages/CopyTrading/components/Table'
+import { HeaderCell, TableBody, TableCell, TableHeader, TableRow } from 'pages/CopyTrading/components/Table'
 import { formatDate, formatTokenAmount, formatUsd, signedPercent, signedUsd } from 'pages/CopyTrading/helpers'
 import { cn } from 'utils/cn'
 
@@ -32,9 +32,14 @@ const TabPositions = ({ agentId }: { agentId: string }) => {
   return (
     <Stack>
       <TabPositionsGrid header>
-        {['Trade ID', 'Token', 'Entry Price', 'Current Price', 'Amount', 'Value', 'P&L', 'Open Since'].map(item => (
-          <TableCell key={item}>{item}</TableCell>
-        ))}
+        <HeaderCell>Trade ID</HeaderCell>
+        <HeaderCell>Token</HeaderCell>
+        <HeaderCell>Entry Price</HeaderCell>
+        <HeaderCell>Current Price</HeaderCell>
+        <HeaderCell>Amount</HeaderCell>
+        <HeaderCell>Value</HeaderCell>
+        <HeaderCell>P&amp;L</HeaderCell>
+        <HeaderCell>Open Since</HeaderCell>
       </TabPositionsGrid>
       <TableBody empty={!rows.length} emptyMessage="No open positions found" loading={isFetching}>
         {rows.map(row => {

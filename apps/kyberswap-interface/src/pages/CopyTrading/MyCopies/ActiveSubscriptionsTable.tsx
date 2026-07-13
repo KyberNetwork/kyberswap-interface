@@ -3,7 +3,7 @@ import type { AgentCard, CopyRunSummary } from 'services/copyTrading/types'
 
 import { ButtonLight } from 'components/Button'
 import { Stack } from 'components/Stack'
-import { TableBody, TableCell, TableHeader, TableRow } from 'pages/CopyTrading/components/Table'
+import { HeaderCell, TableBody, TableCell, TableHeader, TableRow } from 'pages/CopyTrading/components/Table'
 import { CopyRunAgentCell } from 'pages/CopyTrading/components/common'
 import { copyTradingStatIconMap } from 'pages/CopyTrading/constants'
 import { compactUsd, formatUsd, percent } from 'pages/CopyTrading/helpers'
@@ -47,12 +47,12 @@ const ActiveSubscriptionsTable = ({ rows, agents, loading, onOpenSubscription }:
   return (
     <Stack className="overflow-hidden rounded-xl bg-buttonBlack-60">
       <ActiveSubscriptionsGrid header>
-        <TableCell>Agent</TableCell>
-        <TableCell className="text-right">Agent APR</TableCell>
-        <TableCell className="text-right">Win Rates</TableCell>
-        <TableCell className="text-right">Volume</TableCell>
-        <TableCell className="text-right">Capital In</TableCell>
-        <TableCell className="text-right">Positions</TableCell>
+        <HeaderCell>Agent</HeaderCell>
+        <HeaderCell className="justify-end text-right">Agent APR</HeaderCell>
+        <HeaderCell className="justify-end text-right">Win Rates</HeaderCell>
+        <HeaderCell className="justify-end text-right">Volume</HeaderCell>
+        <HeaderCell className="justify-end text-right">Capital In</HeaderCell>
+        <HeaderCell className="justify-end text-right">Positions</HeaderCell>
         <TableCell />
       </ActiveSubscriptionsGrid>
 

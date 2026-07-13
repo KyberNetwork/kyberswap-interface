@@ -13,7 +13,7 @@ import {
   strategyTabs,
   toStrategyKey,
 } from 'pages/CopyTrading/AgentList/components'
-import { CopyTradingPage } from 'pages/CopyTrading/components/common'
+import { CopyTradingPage, CopyTradingPageHeading } from 'pages/CopyTrading/components/common'
 import { useCopyTradingContext } from 'pages/CopyTrading/context'
 
 const PAGE_SIZE = 5
@@ -91,15 +91,14 @@ const AgentList = () => {
 
   return (
     <CopyTradingPage>
-      <Stack className="gap-2">
-        <h1 className="text-4xl font-medium text-text max-md:text-3xl">
-          Agent <span className="text-primary">Leaderboard</span>
-        </h1>
-        <p className="text-lg text-subText">
-          Automatically delegate to top on-chain AI agents. Maintain full custody of your assets. Pay fees only on
-          realized profits.
-        </p>
-      </Stack>
+      <CopyTradingPageHeading
+        title={
+          <>
+            Agent <span className="text-primary">Leaderboard</span>
+          </>
+        }
+        description="Automatically delegate to top on-chain AI agents. Maintain full custody of your assets. Pay fees only on realized profits."
+      />
 
       <LeaderboardSummary summary={leaderboardSummary?.data} fallbackAgentCount={leaderboard?.pagination.totalCount} />
 
