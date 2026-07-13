@@ -4,7 +4,7 @@ import { Connection } from '@solana/web3.js'
 import { type Address, type Hash, WalletClient, formatUnits } from 'viem'
 
 import kyberswapIcon from 'assets/images/kyberswap.ico'
-import { CROSS_CHAIN_FEE_RECEIVER, ETHER_ADDRESS, ZERO_ADDRESS } from 'constants/index'
+import { ETHER_ADDRESS, ZERO_ADDRESS } from 'constants/index'
 import {
   BaseSwapAdapter,
   Chain,
@@ -33,6 +33,7 @@ import {
   normalizeProvider,
 } from 'pages/CrossChainSwap/adapters/KyberCrossAdapter/utils'
 import { Quote } from 'pages/CrossChainSwap/registry'
+import { CROSS_CHAIN_FEE_RECEIVER } from 'pages/CrossChainSwap/utils'
 
 // ============================================
 // KyberCrossAdapter
