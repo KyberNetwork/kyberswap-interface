@@ -1,5 +1,5 @@
 import { ChainId, NativeCurrency } from '@kyberswap/ks-sdk-core'
-import { ReactNode, createContext, useContext, useMemo } from 'react'
+import { PropsWithChildren, ReactNode, createContext, useContext, useMemo, useState } from 'react'
 import { Navigate, useParams } from 'react-router-dom'
 import { usePoolDetailQuery, usePoolsExplorerQuery } from 'services/earn'
 import type { PoolDetail, PoolDetailToken } from 'services/earn/types'
@@ -101,6 +101,27 @@ export const PoolDetailProvider = ({ children }: { children: ReactNode }) => {
     return <Navigate to={APP_PATHS.EARN_POOLS} replace />
   }
 
+  const [checkSkeleton, setCheckSkeleton] = useState(false)
+
+  const CheckSkeleton = ({ children }: PropsWithChildren) => {
+    return (
+      <>
+        <button className="fixed bottom-20 right-10" onClick={() => setCheckSkeleton(v => !v)}>
+          Check Skeleton
+        </button>
+        {children}
+      </>
+    )
+  }
+
+  if (checkSkeleton) {
+    return (
+      <CheckSkeleton>
+        <PoolDetailPageSkeleton />
+      </CheckSkeleton>
+    )
+  }
+
   if (!pool && isPoolLoading) {
     return <PoolDetailPageSkeleton />
   }
@@ -129,7 +150,11 @@ export const PoolDetailProvider = ({ children }: { children: ReactNode }) => {
     secondaryToken,
   }
 
-  return <PoolDetailContext.Provider value={value}>{children}</PoolDetailContext.Provider>
+  return (
+    <PoolDetailContext.Provider value={value}>
+      <CheckSkeleton>{children}</CheckSkeleton>
+    </PoolDetailContext.Provider>
+  )
 }
 
 export const usePoolDetailContext = () => {
