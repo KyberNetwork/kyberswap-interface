@@ -31,7 +31,7 @@ import {
   zksync,
 } from 'viem/chains'
 
-import { wagmiConfig } from 'components/Web3Provider'
+import { robinhood, wagmiConfig } from 'components/Web3Provider'
 import { CROSS_CHAIN_FEE_RECEIVER, ZERO_ADDRESS } from 'constants/index'
 import {
   BaseSwapAdapter,
@@ -82,6 +82,7 @@ export class RelayAdapter extends BaseSwapAdapter {
         hyperEvm,
         plasma,
         monad,
+        robinhood,
       ]
         .map(convertViemChainToRelayChain)
         .concat(solanaChain as any),
@@ -117,6 +118,7 @@ export class RelayAdapter extends BaseSwapAdapter {
       ChainId.HYPEREVM,
       ChainId.PLASMA,
       ChainId.MONAD,
+      ChainId.ROBINHOOD,
     ]
   }
 

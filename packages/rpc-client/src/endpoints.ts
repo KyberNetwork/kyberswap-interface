@@ -10,6 +10,7 @@ const MONAD = 143;
 const ETHERLINK = 42793;
 const MEGAETH = 4326;
 const UNICHAIN = 130;
+const ROBINHOOD = 4663;
 
 export const PUBLIC_RPC_ENDPOINTS: Record<number, string[]> = {
   [ChainId.Ethereum]: [
@@ -186,6 +187,7 @@ export const PUBLIC_RPC_ENDPOINTS: Record<number, string[]> = {
     'https://unichain.gateway.tenderly.co',
     'https://mainnet.unichain.org',
   ],
+  [ROBINHOOD]: ['https://rpc.mainnet.chain.robinhood.com'],
 };
 
 export const KYBER_RPC_ENDPOINTS: Record<number, string> = {
