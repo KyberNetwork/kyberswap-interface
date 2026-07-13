@@ -184,7 +184,7 @@ export const TokenSelectorContent = ({
   const inputRef = useRef<HTMLInputElement>(null)
   const listTokenRef = useRef<HTMLDivElement>(null)
 
-  const { favoriteTokens, toggleFavoriteToken } = useUserFavoriteTokens(primaryChainId)
+  const { favoriteTokens, toggleFavoriteToken, favoritedByUser } = useUserFavoriteTokens(primaryChainId)
   const debouncedQuery = useDebounce(searchQuery, 200)
   const trackingDebouncedQuery = useDebounce(searchQuery, 1000)
   const isQueryValidEVMAddress = !!isAddress(primaryChainId, debouncedQuery)
@@ -328,6 +328,18 @@ export const TokenSelectorContent = ({
     () => localFilter((pinnedTokens as Currency[]).filter(token => token.chainId === primaryChainId)),
     [localFilter, pinnedTokens, primaryChainId],
   )
+
+  // Quick-select pills (capped at 5). The full favorites list is config-first, which would push the
+  // user's own starred tokens past the cap; here we surface the user's picks first and only backfill
+  // with ks-setting `commonTokens` to fill the remaining slots.
+  const quickSelectTokens = useMemo(() => {
+    const userMarked: Currency[] = []
+    const configured: Currency[] = []
+    favoriteCurrenciesBase.forEach(token => {
+      ;(favoritedByUser.has(token.wrapped.address.toLowerCase()) ? userMarked : configured).push(token)
+    })
+    return [...userMarked, ...configured].slice(0, 5)
+  }, [favoriteCurrenciesBase, favoritedByUser])
   const importedCurrenciesBase = useMemo(
     () => ([...localFilter(tokenImports)] as Token[]).sort(tokenComparator),
     [localFilter, tokenImports, tokenComparator],
@@ -709,7 +721,7 @@ export const TokenSelectorContent = ({
                 collapse wrapper's overflow-hidden doesn't clip it. */}
             <div className="overflow-hidden pr-1.5 pt-1.5">
               <PinnedTokens
-                tokens={favoriteCurrenciesBase.slice(0, 5)}
+                tokens={quickSelectTokens}
                 onToggleFavorite={handleClickFavorite}
                 onSelect={handleCurrencySelect}
                 selectedCurrency={selectedCurrency}
