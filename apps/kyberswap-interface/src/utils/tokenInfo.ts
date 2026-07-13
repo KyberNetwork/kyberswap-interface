@@ -2,6 +2,7 @@ import { ChainId, Currency, NativeCurrency, Token } from '@kyberswap/ks-sdk-core
 
 import { ETHER_ADDRESS } from 'constants/index'
 import { TokenInfo, WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
+import { shortenHash } from 'utils/index'
 
 export const getFormattedAddress = (chainId: ChainId, address?: string, fallback?: string): string => {
   try {
@@ -18,6 +19,15 @@ export const isTokenNative = (currency: Currency | WrappedTokenInfo | undefined)
 
 export const getTokenAddress = (currency: Currency) =>
   currency.isNative ? ETHER_ADDRESS : currency?.wrapped.address ?? ''
+
+// Symbol to show for a currency, falling back to its name and then a shortened
+// address when both symbol and name are empty (some tokens legitimately have no
+// symbol/name, e.g. the "(Feather)" token).
+export const getCurrencyDisplaySymbol = (currency: Currency | undefined): string => {
+  if (!currency) return ''
+  const address = currency.isNative ? '' : currency.wrapped.address
+  return currency.symbol || currency.name || (address ? shortenHash(address, 4) : '')
+}
 
 export const getProxyTokenLogo = (logoUrl: string | undefined): string =>
   logoUrl ? (logoUrl.startsWith('data:') ? logoUrl : `https://proxy.kyberswap.com/token-logo?url=${logoUrl}`) : ''
