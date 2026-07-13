@@ -23,6 +23,12 @@ type CopyTradingPageProps = PropsWithChildren<{
   className?: string
 }>
 
+type CopyTradingPageHeadingProps = {
+  className?: string
+  description?: ReactNode
+  title: ReactNode
+}
+
 type AgentCellSize = 'sm' | 'lg'
 
 type AgentCellProps = {
@@ -64,6 +70,13 @@ export const CopyTradingPage = ({ children, backTo, className }: CopyTradingPage
     </Stack>
   )
 }
+
+export const CopyTradingPageHeading = ({ className, description, title }: CopyTradingPageHeadingProps) => (
+  <Stack className={cn('gap-2', className)}>
+    <h1 className="text-4xl font-medium text-text max-md:text-3xl">{title}</h1>
+    {description && <p className="text-lg text-subText">{description}</p>}
+  </Stack>
+)
 
 export const AgentCell = ({ agent, className, size = 'sm', subLineExtension }: AgentCellProps) => {
   const chain = getAgentPrimaryChain(agent)
