@@ -48,7 +48,17 @@ const TAB_META: Record<TokenSelectorTab, TabMeta> = {
     icon: Star,
     // Empty → the star inherits the tab's text color (primary when active, white when inactive).
     iconColor: '',
-    label: <Trans>Favorites</Trans>,
+    // Shortened on mobile so the tab row fits without scrolling.
+    label: (
+      <>
+        <span className="sm:hidden">
+          <Trans>Fav</Trans>
+        </span>
+        <span className="hidden sm:inline">
+          <Trans>Favorites</Trans>
+        </span>
+      </>
+    ),
     subtitle: <Trans>Your saved tokens</Trans>,
   },
 }

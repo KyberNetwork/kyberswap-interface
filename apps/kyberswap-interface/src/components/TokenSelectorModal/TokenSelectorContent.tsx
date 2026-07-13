@@ -783,30 +783,10 @@ export const TokenSelectorContent = ({
                 </MouseoverTooltip>
               )}
               {isTrendingTab || isNewTab ? (
-                <SortHeader
-                  label={
-                    <>
-                      {/* Abbreviated on the narrow mobile column so the label doesn't overflow into the price column. */}
-                      <span className="sm:hidden">
-                        <Trans>Vol</Trans>
-                      </span>
-                      <span className="hidden sm:inline">
-                        <Trans>Volume</Trans>
-                      </span>
-                    </>
-                  }
-                  field="volume24h"
-                  sort={sort}
-                  onSort={cycleSort}
-                />
+                <SortHeader label={<Trans>Volume</Trans>} field="volume24h" sort={sort} onSort={cycleSort} />
               ) : (
                 <span className="flex w-[72px] items-center justify-end sm:w-[104px]">
-                  <span className="sm:hidden">
-                    <Trans>Bal</Trans>
-                  </span>
-                  <span className="hidden sm:inline">
-                    <Trans>Balance</Trans>
-                  </span>
+                  <Trans>Balance</Trans>
                 </span>
               )}
               {/* Spacer aligning the header with the imported rows' remove-token column. */}
