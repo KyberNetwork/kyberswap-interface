@@ -124,6 +124,7 @@ const TokenSelectorModal = ({
         setDetailClosing(false)
         onDismiss?.()
       }}
+      bgColor="var(--ks-background)"
       margin={isMobile ? undefined : 'auto'}
       maxWidth="480px"
       maxHeight={isMobileHorizontal ? 100 : 80}
@@ -149,34 +150,43 @@ const TokenSelectorModal = ({
             onBack={closeTokenInfo}
           />
         </div>
-      ) : modalView === TokenSelectorModalView.search ? (
-        <TokenSelectorContent
-          isOpen={isOpen}
-          onDismiss={onDismiss}
-          onCurrencySelect={handleCurrencySelect}
-          selectedCurrency={selectedCurrency}
-          otherSelectedCurrency={otherSelectedCurrency}
-          showPinnedTokens={showPinnedTokens}
-          onImportToken={onImportToken}
-          filterWrap={filterWrap}
-          title={title}
-          tooltip={tooltip}
-          customChainId={customChainId}
-          trackingSource={trackingSource}
-          onShowTokenInfo={setTokenToShowInfo}
-        />
-      ) : modalView === TokenSelectorModalView.importToken && importToken ? (
-        <ImportTokenView
-          tokens={[importToken]}
-          onDismiss={onDismiss}
-          onBack={() =>
-            setModalView(
-              prevView && prevView !== TokenSelectorModalView.importToken ? prevView : TokenSelectorModalView.search,
-            )
-          }
-          onCurrencySelect={handleCurrencySelect}
-        />
-      ) : null}
+      ) : (
+        <>
+          {/* Kept mounted (only hidden) while importing so the search view's tab and query survive the
+              import round-trip — unmounting it would reset the tab to the default. */}
+          <div className={cn(modalView === TokenSelectorModalView.importToken ? 'hidden' : 'contents')}>
+            <TokenSelectorContent
+              isOpen={isOpen}
+              onDismiss={onDismiss}
+              onCurrencySelect={handleCurrencySelect}
+              selectedCurrency={selectedCurrency}
+              otherSelectedCurrency={otherSelectedCurrency}
+              showPinnedTokens={showPinnedTokens}
+              onImportToken={onImportToken}
+              filterWrap={filterWrap}
+              title={title}
+              tooltip={tooltip}
+              customChainId={customChainId}
+              trackingSource={trackingSource}
+              onShowTokenInfo={setTokenToShowInfo}
+            />
+          </div>
+          {modalView === TokenSelectorModalView.importToken && importToken ? (
+            <ImportTokenView
+              tokens={[importToken]}
+              onDismiss={onDismiss}
+              onBack={() =>
+                setModalView(
+                  prevView && prevView !== TokenSelectorModalView.importToken
+                    ? prevView
+                    : TokenSelectorModalView.search,
+                )
+              }
+              onCurrencySelect={handleCurrencySelect}
+            />
+          ) : null}
+        </>
+      )}
     </Modal>
   )
 }

@@ -110,7 +110,12 @@ type TokenRowProps = {
    * 'import' button for a not-yet-imported token (which also makes the whole row trigger import).
    */
   rightColumn?: 'balance' | 'volume' | 'import'
-  /** Start the import flow for a not-yet-imported token (used when `rightColumn` is 'import'). */
+  /**
+   * Non-whitelisted token shown as a normal row (with its metric column) rather than an Import button,
+   * set apart by a subtle overlay; clicking it opens the import flow. Used on the Trending tab.
+   */
+  importOnClick?: boolean
+  /** Start the import flow for a not-yet-imported token (via the Import button or an `importOnClick` row). */
   onImportToken?: (token: Token) => void
   /** Restricted in the user's jurisdiction: clicking the row reveals the inline notice instead of selecting. */
   restricted?: boolean
@@ -146,6 +151,7 @@ export const TokenRow = ({
   usdValueClassName = 'text-subText',
   showPriceColumn,
   rightColumn = 'balance',
+  importOnClick,
   onImportToken,
   restricted,
   warned,
@@ -327,7 +333,7 @@ export const TokenRow = ({
       onRestrictedClick?.()
       return
     }
-    if (isImport) {
+    if (isImport || importOnClick) {
       onImportToken?.(currency.wrapped)
       return
     }
@@ -362,6 +368,8 @@ export const TokenRow = ({
       className={cn(
         'flex h-12 w-full cursor-pointer items-center justify-between gap-3 rounded-lg px-3 py-1',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 data-[selected=true]:bg-primary-20',
+        // Not-yet-imported token: keep the row normal, with a subtle overlay to hint it needs importing.
+        importOnClick && 'bg-white-04',
         !hoverColor &&
           '[@media(hover:hover)]:hover:bg-primary-15 [@media(hover:hover)]:data-[selected=true]:hover:bg-primary-25',
       )}
@@ -389,6 +397,7 @@ type VirtualRowData = {
   showAddress?: boolean
   showPriceColumn?: boolean
   showVolume?: boolean
+  importAsRow?: boolean
   importedAddressSet: Set<string>
   tokenPrices: { [address: string]: number }
   account?: string | null
@@ -414,9 +423,11 @@ const VirtualRow = memo(function VirtualRow({ index, style, data }: ListChildCom
 
   const token = currency.wrapped
 
-  // Not whitelisted and not yet imported: keep the row's data but swap the right column for an Import button.
+  // Not whitelisted and not yet imported. On most tabs the right column becomes an Import button; on
+  // the Trending tab (`importAsRow`) the row stays normal — with a subtle overlay — and clicking it imports.
   const needsImport = getNeedsImport(currency, address => data.importedAddressSet.has(address), !!data.onImportToken)
-  const rightColumn = needsImport ? 'import' : data.showVolume ? 'volume' : 'balance'
+  const importAsRow = needsImport && !!data.importAsRow
+  const rightColumn = needsImport && !data.importAsRow ? 'import' : data.showVolume ? 'volume' : 'balance'
 
   const isSelected = Boolean(data.selectedCurrency?.equals(currency))
   const otherSelected = Boolean(data.otherCurrency?.equals(currency))
@@ -459,6 +470,7 @@ const VirtualRow = memo(function VirtualRow({ index, style, data }: ListChildCom
         showAddress={data.showAddress}
         showPriceColumn={data.showPriceColumn}
         rightColumn={rightColumn}
+        importOnClick={importAsRow}
         onImportToken={data.onImportToken}
         restricted={restricted}
         warned={warned}
@@ -491,6 +503,8 @@ type TokenListProps = {
   showPriceColumn?: boolean
   /** Right column shows 24h volume instead of balance (Trending). */
   showVolume?: boolean
+  /** Render a not-yet-imported token as a darkened normal row (click imports) instead of an Import button (Trending). */
+  importAsRow?: boolean
 }
 
 const TokenList = ({
@@ -512,6 +526,7 @@ const TokenList = ({
   showAddress,
   showPriceColumn,
   showVolume,
+  importAsRow,
 }: TokenListProps) => {
   const { account } = useActiveWeb3React()
   const { favoriteTokens } = useUserFavoriteTokens(customChainId)
@@ -585,6 +600,7 @@ const TokenList = ({
       showAddress,
       showPriceColumn,
       showVolume,
+      importAsRow,
       importedAddressSet,
       tokenPrices,
       account,
@@ -609,6 +625,7 @@ const TokenList = ({
       showAddress,
       showPriceColumn,
       showVolume,
+      importAsRow,
       importedAddressSet,
       tokenPrices,
       account,
