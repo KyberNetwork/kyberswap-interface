@@ -58,7 +58,7 @@ const PERSISTED_KEYS: string[] = ['user', 'transactions', 'profile', 'crossChain
 // Client-only: read persisted state from localStorage and migrate from old version to
 // new version, preventing lost favorite tokens of user. Returns {} under SSR/prerender.
 function getClientPreloadedState(): Partial<AppState> {
-  if (typeof window === 'undefined') return {}
+  if (import.meta.env.SSR || typeof window === 'undefined') return {}
   const preloadedState: any = load({ states: PERSISTED_KEYS })
   if ('user' in preloadedState) {
     const userState: UserState = preloadedState.user
@@ -226,7 +226,7 @@ export const getClientStore = (): AppStore => {
 }
 
 // Default export: lazy client singleton in the browser; a fresh empty store under Node (prerender).
-const store: AppStore = typeof window !== 'undefined' ? getClientStore() : makeStore()
+const store: AppStore = !import.meta.env.SSR && typeof window !== 'undefined' ? getClientStore() : makeStore()
 export default store
 
 /**
