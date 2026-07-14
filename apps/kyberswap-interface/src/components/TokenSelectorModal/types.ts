@@ -10,7 +10,7 @@ export type TokenRowExtra = {
   volume24h?: number
   /** Market capitalization, in USD. */
   marketCap?: number
-  /** Unix seconds the token was created (New tab age badge; falls back to whitelist time). */
+  /** Unix seconds the token was whitelisted (New tab age badge; falls back to creation time). */
   addedAt?: number
 }
 
