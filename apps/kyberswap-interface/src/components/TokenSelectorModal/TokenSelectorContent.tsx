@@ -746,7 +746,11 @@ export const TokenSelectorContent = ({
                 collapse wrapper's overflow-hidden doesn't clip it. */}
             <div className="overflow-hidden pr-1.5 pt-1.5">
               <PinnedTokens
-                tokens={favoriteCurrenciesBase.slice(0, isMobileWidth ? 4 : 5)}
+                // With no Favorites tab (discovery off), the quick-select is the only place favorites show,
+                // so don't cap it — otherwise favorites past the cap would be unreachable.
+                tokens={
+                  showDiscoveryTabs ? favoriteCurrenciesBase.slice(0, isMobileWidth ? 4 : 5) : favoriteCurrenciesBase
+                }
                 onToggleFavorite={handleClickFavorite}
                 onSelect={handleCurrencySelect}
                 selectedCurrency={selectedCurrency}
