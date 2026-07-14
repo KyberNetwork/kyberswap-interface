@@ -138,6 +138,40 @@ const TokenSelectorModal = ({
         minHeight={minHeight}
         height={isMobileHorizontal ? '95vh' : undefined}
       >
+        {/* Kept mounted (only hidden) behind the token-info / import overlays so the search view's
+            selected chain, tab, query and scroll survive those round-trips — unmounting it resets them. */}
+        <div
+          className={cn(tokenToShowInfo || modalView === TokenSelectorModalView.importToken ? 'hidden' : 'contents')}
+        >
+          <TokenSelectorContent
+            isOpen={isOpen}
+            onDismiss={onDismiss}
+            onCurrencySelect={handleCurrencySelect}
+            selectedCurrency={selectedCurrency}
+            otherSelectedCurrency={otherSelectedCurrency}
+            showPinnedTokens={showPinnedTokens}
+            onImportToken={onImportToken}
+            filterWrap={filterWrap}
+            title={title}
+            tooltip={tooltip}
+            customChainId={customChainId}
+            trackingSource={trackingSource}
+            onShowTokenInfo={setTokenToShowInfo}
+            showDiscoveryTabs={showDiscoveryTabs}
+          />
+        </div>
+        {modalView === TokenSelectorModalView.importToken && importToken && !tokenToShowInfo ? (
+          <ImportTokenView
+            tokens={[importToken]}
+            onDismiss={onDismiss}
+            onBack={() =>
+              setModalView(
+                prevView && prevView !== TokenSelectorModalView.importToken ? prevView : TokenSelectorModalView.search,
+              )
+            }
+            onCurrencySelect={handleCurrencySelect}
+          />
+        ) : null}
         {tokenToShowInfo ? (
           <div
             className={cn(
@@ -157,44 +191,7 @@ const TokenSelectorModal = ({
               onBack={closeTokenInfo}
             />
           </div>
-        ) : (
-          <>
-            {/* Kept mounted (only hidden) while importing so the search view's tab and query survive the
-              import round-trip — unmounting it would reset the tab to the default. */}
-            <div className={cn(modalView === TokenSelectorModalView.importToken ? 'hidden' : 'contents')}>
-              <TokenSelectorContent
-                isOpen={isOpen}
-                onDismiss={onDismiss}
-                onCurrencySelect={handleCurrencySelect}
-                selectedCurrency={selectedCurrency}
-                otherSelectedCurrency={otherSelectedCurrency}
-                showPinnedTokens={showPinnedTokens}
-                onImportToken={onImportToken}
-                filterWrap={filterWrap}
-                title={title}
-                tooltip={tooltip}
-                customChainId={customChainId}
-                trackingSource={trackingSource}
-                onShowTokenInfo={setTokenToShowInfo}
-                showDiscoveryTabs={showDiscoveryTabs}
-              />
-            </div>
-            {modalView === TokenSelectorModalView.importToken && importToken ? (
-              <ImportTokenView
-                tokens={[importToken]}
-                onDismiss={onDismiss}
-                onBack={() =>
-                  setModalView(
-                    prevView && prevView !== TokenSelectorModalView.importToken
-                      ? prevView
-                      : TokenSelectorModalView.search,
-                  )
-                }
-                onCurrencySelect={handleCurrencySelect}
-              />
-            ) : null}
-          </>
-        )}
+        ) : null}
       </Modal>
       <SwitchChainModal
         token={switchChainToken}
