@@ -10,15 +10,12 @@ import store from 'state'
 
 type ChunkLoader = () => Promise<unknown>
 
-// Destination route → its lazy JS chunk, covering every header nav link. Each loader imports the SAME
-// module App.tsx lazy-loads, so Vite serves the identical chunk (dedup by resolved module id) —
-// prefetching never double-downloads. Order matters: list more specific path prefixes before their
-// parents (e.g. every `/earn/*` before `/earn`, `/campaigns/dashboard` before the `/campaigns` catch-all).
+// Destination route → its lazy JS chunk, covering every lazy header nav link. Trade routes are already
+// in the entry bundle so switching tabs does not suspend the whole page. Each loader imports the SAME module
+// App.tsx lazy-loads, so Vite serves the identical chunk (dedup by resolved module id) — prefetching never
+// double-downloads. Order matters: list more specific path prefixes before their parents (e.g. every
+// `/earn/*` before `/earn`, `/campaigns/dashboard` before the `/campaigns` catch-all).
 const ROUTE_CHUNKS: { prefix: string; load: ChunkLoader }[] = [
-  // Trade — swap / limit / cross-chain all render from the SwapV3 chunk.
-  { prefix: APP_PATHS.SWAP, load: () => import('pages/SwapV3') },
-  { prefix: APP_PATHS.LIMIT, load: () => import('pages/SwapV3') },
-  { prefix: APP_PATHS.CROSS_CHAIN, load: () => import('pages/SwapV3') },
   // Market
   { prefix: APP_PATHS.MARKET_OVERVIEW, load: () => import('pages/MarketOverview') },
   // Earn — specific /earn/* routes must precede the /earn landing.

@@ -13,7 +13,6 @@ import BSC from 'assets/svg/about_icon_bsc.svg'
 import ForTraderImage from 'assets/svg/for_trader.svg'
 import KyberDark from 'assets/svg/kyber/about_icon_kyber.svg'
 import { ReactComponent as KNCSVG } from 'assets/svg/kyber/knc_black.svg'
-import Banner from 'components/Banner'
 import { FooterSocialLink } from 'components/Footer/Footer'
 import { BestPrice, Clock, LineaFull, LowestSlippage, OptimismLogoFull, PolygonLogoFull } from 'components/Icons'
 import Loader from 'components/Loader'
@@ -117,8 +116,6 @@ function AboutKyberSwap() {
   return (
     <div className="relative w-full bg-buttonBlack">
       <AboutPage>
-        <Banner margin="32px auto 0" padding="0 16px" maxWidth="1224px" />
-
         <Wrapper>
           <RevealOnScroll>
             <h1 className="text-center text-[28px] font-light leading-8 sm:text-[48px] sm:leading-[60px]">

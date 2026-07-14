@@ -351,8 +351,8 @@ export function CrossChainSwap({ onQuoteChange }: CrossChainSwapProps) {
 }
 
 // memo is load-bearing: this wrapper hosts the route-mounted non-EVM wallet providers (NonEvmProviders).
-// SwapV3 re-renders this on every quote tick (it holds selectedQuote in state), and its only prop
-// `onQuoteChange` is a stable setState setter — so memoizing here keeps SwapV3's re-renders from
+// The parent CrossChain route re-renders this on every quote tick (it holds selectedQuote in state), and its only prop
+// `onQuoteChange` is a stable setState setter — so memoizing here keeps the parent re-renders from
 // re-rendering the providers, which would otherwise churn the wallet contexts (e.g. Solana `connection`)
 // and refetch the cross-chain rate in a loop. The inner CrossChainSwap still re-renders on its own state.
 const CrossChainSwapPage = memo(function CrossChainSwapPage(props: CrossChainSwapProps) {
