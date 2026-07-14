@@ -174,13 +174,13 @@ export const TokenRow = ({
   const renderBalance = () => {
     if (hideBalance) return <span className="max-w-full truncate text-xs text-text sm:text-sm">******</span>
     // Connected wallet: show the balance (a zero balance renders as "0"). With no wallet, currencyBalance
-    // is undefined and showLoading is false, so it falls through to "-".
+    // is undefined and showLoading is false, so it falls through to "0".
     if (currencyBalance) return <Balance balance={currencyBalance} />
     if (showLoading)
       return <Skeleton width={balanceSkeletonWidth} height={18} className="my-[3px]" variant="darkSubtle" />
     return (
       <span className="max-w-full truncate text-xs text-text sm:text-sm" data-testid="token-balance">
-        -
+        0
       </span>
     )
   }
