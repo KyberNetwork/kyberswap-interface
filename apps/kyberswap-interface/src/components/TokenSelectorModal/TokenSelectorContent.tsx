@@ -730,7 +730,9 @@ export const TokenSelectorContent = ({
               <SearchIcon size={18} className="text-gray" />
             )}
           </SearchWrapper>
-          <ChainSelector chains={supportedChains} selectedChainId={selectedChainId} onChange={setSelectedChainId} />
+          {showDiscoveryTabs && (
+            <ChainSelector chains={supportedChains} selectedChainId={selectedChainId} onChange={setSelectedChainId} />
+          )}
         </HStack>
 
         {showPinnedTokens && (
