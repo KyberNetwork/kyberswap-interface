@@ -62,6 +62,7 @@ import { useIsTokenRestricted, useNotifyRestrictedToken } from 'hooks/useRestric
 import { fetchListTokenByAddresses, useAllTokens } from 'hooks/useTokens'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import SortIcon, { Direction } from 'pages/MarketOverview/SortIcon'
+import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { useRemoveUserAddedToken, useUserAddedTokens, useUserFavoriteTokens } from 'state/user/hooks'
 import { CloseIcon, MEDIA_WIDTHS } from 'theme'
 import { filterTruthy, isAddress } from 'utils'
@@ -106,6 +107,8 @@ const SearchLoading = () => (
 
 // Stable empty list so `useTokensMetrics` doesn't refetch on tabs that don't need metrics.
 const EMPTY_CURRENCIES: Currency[] = []
+// Stable empty address list so `useTokenPrices` doesn't fetch on tabs that don't need it.
+const EMPTY_ADDRESSES: string[] = []
 // Stable empty extras so the All tab's `listExtras` keeps the same reference and doesn't re-render
 // the list every time a background discovery query (trending / new / metrics) resolves.
 const EMPTY_EXTRAS: TokenRowExtraMap = {}
@@ -374,12 +377,30 @@ export const TokenSelectorContent = ({
     : EMPTY_CURRENCIES
   const metricsExtras = useTokensMetrics(metricsSource, primaryChainId)
 
+  // Favorites take their price from the live prices endpoint (buy/sell mid — the same source as the
+  // USD balance), while 24h change / volume / market cap stay from the tokens-list metrics.
+  const favoritePriceAddresses = useMemo(
+    () => (isFavoritesTab ? favoriteCurrenciesBase.map(currency => currency.wrapped.address) : EMPTY_ADDRESSES),
+    [isFavoritesTab, favoriteCurrenciesBase],
+  )
+  const favoritePrices = useTokenPrices(favoritePriceAddresses, primaryChainId)
+  const favoriteExtras = useMemo<TokenRowExtraMap>(() => {
+    const result: TokenRowExtraMap = {}
+    favoriteCurrenciesBase.forEach(currency => {
+      const key = tokenRowKey(currency.chainId, currency.wrapped.address)
+      const livePrice = favoritePrices[currency.wrapped.address.toLowerCase()]
+      result[key] = { ...metricsExtras[key], price: livePrice || metricsExtras[key]?.price }
+    })
+    return result
+  }, [favoriteCurrenciesBase, favoritePrices, metricsExtras])
+
   const listExtras: TokenRowExtraMap = useMemo(() => {
     if (isTrendingTab) return trendingExtras
     if (isNewTab) return newExtras
-    if (isImportedTab || isFavoritesTab) return metricsExtras
+    if (isImportedTab) return metricsExtras
+    if (isFavoritesTab) return favoriteExtras
     return EMPTY_EXTRAS
-  }, [isTrendingTab, isNewTab, isImportedTab, isFavoritesTab, trendingExtras, newExtras, metricsExtras])
+  }, [isTrendingTab, isNewTab, isImportedTab, isFavoritesTab, trendingExtras, newExtras, metricsExtras, favoriteExtras])
 
   // In-memory metric sort for the Imported / Favorites tabs, whose "Price & 24h change" column sorts
   // by 24h change (Trending and New sort server-side). Rows are tiered so those missing the sorted
