@@ -681,9 +681,9 @@ export const TokenSelectorContent = ({
   const subtitle = getTabSubtitle(activeTab)
   const emptyMessage =
     activeTab === TokenSelectorTab.Trending ? (
-      <Trans>No trending tokens right now. Check back later.</Trans>
+      <Trans>No trending tokens right recently. Check back later.</Trans>
     ) : activeTab === TokenSelectorTab.New ? (
-      <Trans>No newly listed tokens right now.</Trans>
+      <Trans>No newly whitelisted token recently.</Trans>
     ) : activeTab === TokenSelectorTab.Imported ? (
       <Trans>You haven&apos;t imported any tokens yet. Search a token address in the All tab to import one.</Trans>
     ) : activeTab === TokenSelectorTab.Favorites ? (
