@@ -835,7 +835,8 @@ export const TokenSelectorContent = ({
               showAddress={isAllTab}
               showPriceColumn={!isAllTab}
               showVolume={isTrendingTab || isNewTab}
-              importAsRow={isTrendingTab || isAllTab}
+              // While searching, surface the Import button (not the dimmed row) for non-whitelisted hits.
+              importAsRow={(isTrendingTab || isAllTab) && !debouncedQuery}
               onShowTokenInfo={onShowTokenInfo}
             />
           ) : (
