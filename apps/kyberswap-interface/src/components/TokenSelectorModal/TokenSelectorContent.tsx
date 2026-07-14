@@ -343,6 +343,20 @@ export const TokenSelectorContent = ({
     [localFilter, pinnedTokens, primaryChainId],
   )
 
+  // Quick-select pills: always lead with the chain's native token, then fill the rest from config /
+  // favorites (dropping any native duplicate). Capped at 5 (4 on mobile) when the Favorites tab exists
+  // to hold the overflow; uncapped otherwise (see the discovery-off note below). The native lead is
+  // only hidden by a non-matching text search — never by the wrap filter — so it's always present.
+  const quickSelectTokens = useMemo(() => {
+    const native = NativeCurrencies[primaryChainId] as Currency | undefined
+    const nativeMatchesSearch =
+      !!native && (!debouncedQuery || filterTokens(primaryChainId, [native] as Token[], debouncedQuery).length > 0)
+    const nativeLead = nativeMatchesSearch && native ? [native] : []
+    const rest = favoriteCurrenciesBase.filter(token => !isTokenNative(token))
+    const list = [...nativeLead, ...rest]
+    return showDiscoveryTabs ? list.slice(0, isMobileWidth ? 4 : 5) : list
+  }, [primaryChainId, favoriteCurrenciesBase, debouncedQuery, showDiscoveryTabs, isMobileWidth])
+
   const importedCurrenciesBase = useMemo(
     () => ([...localFilter(tokenImports)] as Token[]).sort(tokenComparator),
     [localFilter, tokenImports, tokenComparator],
@@ -739,18 +753,14 @@ export const TokenSelectorContent = ({
           <div
             className={cn(
               'grid transition-[grid-template-rows] duration-200 ease-out',
-              favoriteCurrenciesBase.length ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]',
+              quickSelectTokens.length ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]',
             )}
           >
             {/* Top/right padding leaves room for each pill's remove "×" (absolute -top/-right) so the
                 collapse wrapper's overflow-hidden doesn't clip it. */}
             <div className="overflow-hidden pr-1.5 pt-1.5">
               <PinnedTokens
-                // With no Favorites tab (discovery off), the quick-select is the only place favorites show,
-                // so don't cap it — otherwise favorites past the cap would be unreachable.
-                tokens={
-                  showDiscoveryTabs ? favoriteCurrenciesBase.slice(0, isMobileWidth ? 4 : 5) : favoriteCurrenciesBase
-                }
+                tokens={quickSelectTokens}
                 onToggleFavorite={handleClickFavorite}
                 onSelect={handleCurrencySelect}
                 selectedCurrency={selectedCurrency}
