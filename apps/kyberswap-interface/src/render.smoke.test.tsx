@@ -1,49 +1,40 @@
-import { QueryClientProvider } from '@tanstack/react-query'
-import { renderToString } from 'react-dom/server'
-import { Provider } from 'react-redux'
-import { StaticRouter } from 'react-router-dom/server'
-import { beforeAll, describe, expect, it } from 'vitest'
-import { WagmiProvider } from 'wagmi'
+import { describe, expect, it } from 'vitest'
 
-// Phase 1 SSR render smoke test: each representative public route must render to non-empty
-// HTML in a node environment without throwing. This proves the app is importable + renderable
-// server-side (foundation for the Phase 2/3 prerender). Ordered lightest import-graph first.
+// Representative public routes must complete the same async static render used by the build. This waits
+// for React.lazy route chunks, so it validates route content rather than only the Suspense fallback.
 const ROUTES = ['/about/kyberswap', '/earn', '/earn/pools', '/', '/swap/ethereum']
 
 describe('SSR render smoke', () => {
-  beforeAll(async () => {
-    // Activate the default catalog synchronously so LanguageProvider renders content.
-    const { activateInitialLocale } = await import('i18n')
-    activateInitialLocale()
+  it.each(ROUTES)('renders %s without throwing', async location => {
+    const { renderRouteApp } = await import('entry-server')
+    const html = await renderRouteApp(location)
+
+    expect(html.length).toBeGreaterThan(0)
+    expect(html).toContain('<main')
   })
 
-  it.each(ROUTES)('renders %s without throwing', async location => {
-    const { makeStore } = await import('state')
-    const { LanguageProvider } = await import('i18n')
-    const ThemeProvider = (await import('theme')).default
-    const { wagmiConfig, queryClient } = await import('components/Web3Provider')
-    const { default: App } = await import('pages/App')
+  it('includes route headings and links in the static swap HTML', async () => {
+    const { renderRouteApp } = await import('entry-server')
+    const html = await renderRouteApp('/swap/ethereum')
 
-    const store = makeStore()
-    let html = ''
-    expect(() => {
-      html = renderToString(
-        <Provider store={store}>
-          <WagmiProvider config={wagmiConfig}>
-            <QueryClientProvider client={queryClient}>
-              <StaticRouter location={location}>
-                <LanguageProvider>
-                  <ThemeProvider>
-                    <App />
-                  </ThemeProvider>
-                </LanguageProvider>
-              </StaticRouter>
-            </QueryClientProvider>
-          </WagmiProvider>
-        </Provider>,
-      )
-    }).not.toThrow()
-    // Non-empty assertion also catches a regression where LanguageProvider renders null.
-    expect(html.length).toBeGreaterThan(0)
+    expect(html).toContain('<h1')
+    expect(html).toContain('<h2')
+    expect(html).toContain('<nav')
+    expect(html).toMatch(/<a\b[^>]*href="\//)
+    expect(html).toMatch(/<a\b[^>]*href="https?:\/\//)
+    expect(html).not.toContain('<div hidden id="S:')
+    expect(html).not.toContain('<!--$?-->')
+    expect(html).not.toContain('$RC(')
+    expect(html).not.toContain('<script')
+  })
+
+  it('uses the route network in static swap navigation', async () => {
+    const { renderRouteApp } = await import('entry-server')
+    const ethereumHtml = await renderRouteApp('/swap/ethereum')
+    const lineaHtml = await renderRouteApp('/swap/linea')
+
+    expect(ethereumHtml).toMatch(/<a\b(?=[^>]*aria-current="page")(?=[^>]*href="\/swap\/ethereum")[^>]*>/)
+    expect(lineaHtml).toMatch(/<a\b(?=[^>]*aria-current="page")(?=[^>]*href="\/swap\/linea")[^>]*>/)
+    expect(lineaHtml).not.toMatch(/<a\b(?=[^>]*aria-current="page")(?=[^>]*href="\/swap\/ethereum")[^>]*>/)
   })
 })
