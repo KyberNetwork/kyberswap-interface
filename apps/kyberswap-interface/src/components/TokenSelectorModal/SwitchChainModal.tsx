@@ -19,7 +19,7 @@ export const SwitchChainModal = ({ token, onDismiss, onConfirm }: SwitchChainMod
   const network = token ? NETWORKS_INFO[token.chainId] : undefined
 
   return (
-    <Modal isOpen={!!token} onDismiss={onDismiss} width="100%" maxWidth="420px">
+    <Modal isOpen={!!token} onDismiss={onDismiss} width="100%" maxWidth="540px">
       {token && network && (
         <div className="flex w-full flex-col gap-6 p-6" data-testid="switch-chain-modal">
           <HStack className="items-center justify-between">
