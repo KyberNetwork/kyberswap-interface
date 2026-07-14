@@ -148,6 +148,7 @@ export default function MyAssets({
         onDismiss={hideModal}
         onCurrencySelect={hideModal}
         showPinnedTokens
+        showDiscoveryTabs={false}
         onCurrencyImport={(token: Token) => {
           trackingHandler(TRACKING_EVENT_TYPE.WUI_IMPORT_TOKEN_BUTTON_CLICK, { token_name: token.symbol })
           trackingHandler(TRACKING_EVENT_TYPE.WALLET_TOKEN_IMPORTED, {

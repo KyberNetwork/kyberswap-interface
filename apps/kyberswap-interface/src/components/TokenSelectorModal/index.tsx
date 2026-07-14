@@ -28,6 +28,8 @@ interface TokenSelectorModalProps {
   onCurrencyImport?: (token: Token) => void
   customChainId?: ChainId
   trackingSource?: string
+  /** Show the discovery tab bar (Trending / New / …). Off for a plain search + list (cross-chain). */
+  showDiscoveryTabs?: boolean
 }
 
 enum TokenSelectorModalView {
@@ -48,6 +50,7 @@ const TokenSelectorModal = ({
   onCurrencyImport,
   customChainId,
   trackingSource,
+  showDiscoveryTabs,
 }: TokenSelectorModalProps) => {
   const [modalView, setModalView] = useState<TokenSelectorModalView>(TokenSelectorModalView.search)
   // A cross-chain token confirmed from the import flow, pending its Switch-Chain confirm.
@@ -173,6 +176,7 @@ const TokenSelectorModal = ({
                 customChainId={customChainId}
                 trackingSource={trackingSource}
                 onShowTokenInfo={setTokenToShowInfo}
+                showDiscoveryTabs={showDiscoveryTabs}
               />
             </div>
             {modalView === TokenSelectorModalView.importToken && importToken ? (

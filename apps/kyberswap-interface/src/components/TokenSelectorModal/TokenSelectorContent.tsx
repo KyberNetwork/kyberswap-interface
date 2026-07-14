@@ -83,6 +83,8 @@ interface TokenSelectorContentProps {
   tooltip?: ReactNode
   trackingSource?: string
   onShowTokenInfo?: (token: Token) => void
+  /** Show the discovery tab bar (Trending / New / …). Off for surfaces that want a plain search + list (cross-chain). */
+  showDiscoveryTabs?: boolean
 }
 
 const NoResult = ({ message }: { message?: ReactNode }) => {
@@ -153,6 +155,7 @@ export const TokenSelectorContent = ({
   tooltip,
   trackingSource,
   onShowTokenInfo,
+  showDiscoveryTabs = true,
 }: TokenSelectorContentProps) => {
   const { chainId: web3ChainId, account } = useActiveWeb3React()
   const anchorChainId = customChainId || web3ChainId
@@ -171,11 +174,12 @@ export const TokenSelectorContent = ({
     () => TOKEN_SELECTOR_TAB_ORDER.filter(tab => tab !== TokenSelectorTab.Trending || trendingSupported),
     [trendingSupported],
   )
-  const defaultTab = account
-    ? TokenSelectorTab.All
-    : trendingSupported
-    ? TokenSelectorTab.Trending
-    : TokenSelectorTab.All
+  const defaultTab =
+    !showDiscoveryTabs || account
+      ? TokenSelectorTab.All
+      : trendingSupported
+      ? TokenSelectorTab.Trending
+      : TokenSelectorTab.All
 
   const [activeTab, setActiveTab] = useState<TokenSelectorTab>(defaultTab)
   const [searchQuery, setSearchQuery] = useState<string>('')
@@ -749,7 +753,7 @@ export const TokenSelectorContent = ({
           </div>
         )}
 
-        <TabBar tabs={visibleTabs} activeTab={activeTab} onChange={setActiveTab} />
+        {showDiscoveryTabs && <TabBar tabs={visibleTabs} activeTab={activeTab} onChange={setActiveTab} />}
       </PaddedColumn>
 
       <div
