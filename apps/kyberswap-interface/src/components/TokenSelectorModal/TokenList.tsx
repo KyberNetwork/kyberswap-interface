@@ -52,11 +52,14 @@ const Balance = ({ balance }: { balance: CurrencyAmount<Currency> }) => {
   )
 }
 
-// Compact age badge for the New tab, e.g. "NEW", "1D", "3D", counted from when it was whitelisted.
+// Compact age badge for the New tab, counted from when the token was whitelisted: "NEW" under 12h,
+// then hours ("15H") up to a day, then days ("3D").
 const formatAgeBadge = (addedAt?: number): string | null => {
   if (!addedAt) return null
-  const days = Math.floor(Date.now() / 1000 / 86400 - addedAt / 86400)
-  return days <= 0 ? 'NEW' : `${days}D`
+  const hours = Math.floor(Date.now() / 1000 / 3600 - addedAt / 3600)
+  if (hours < 12) return 'NEW'
+  if (hours < 24) return `${hours}H`
+  return `${Math.floor(hours / 24)}D`
 }
 
 // Shortened token address shown next to the name on the All tab; click the text to copy.
