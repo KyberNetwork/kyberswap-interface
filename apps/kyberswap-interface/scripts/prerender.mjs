@@ -51,6 +51,7 @@ function setupBrowserGlobals() {
   const localStorage = makeStorage()
   const sessionStorage = makeStorage()
   const noop = () => {}
+  const navigatorShim = { userAgent: 'node', language: 'en-US', languages: ['en-US'] }
   const documentShim = {
     title: 'KyberSwap',
     cookie: '',
@@ -82,7 +83,7 @@ function setupBrowserGlobals() {
       search: '',
     },
     history: { pushState: noop, replaceState: noop, go: noop, back: noop, forward: noop, length: 0, state: null },
-    navigator: { userAgent: 'node', language: 'en-US' },
+    navigator: navigatorShim,
     open: noop,
     addEventListener: noop,
     removeEventListener: noop,
@@ -105,8 +106,9 @@ function setupBrowserGlobals() {
   g.document = documentShim
   // NB: do NOT set bare globalThis.location/history — they collide with Vite/Node URL internals
   // ("Invalid URL"). App code reads window.location, which is shimmed above.
-  if (!g.navigator)
-    Object.defineProperty(g, 'navigator', { value: { userAgent: 'node', language: 'en-US' }, configurable: true })
+  // Node 21 exposes a configurable global Navigator object whose userAgent is undefined. Replace it
+  // deterministically because React DOM reads navigator.userAgent during module evaluation.
+  Object.defineProperty(g, 'navigator', { value: navigatorShim, configurable: true })
   for (const name of [
     'Element',
     'HTMLElement',
