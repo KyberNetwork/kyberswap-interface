@@ -44,6 +44,7 @@ const documentShim = {
   getElementsByClassName: () => [],
   getElementsByTagName: () => [],
   createElement: () => ({ style: {}, setAttribute: noop, appendChild: noop, classList: { add: noop, remove: noop } }),
+  createTextNode: () => ({}),
   createTreeWalker: () => ({ nextNode: () => null, currentNode: null }),
   addEventListener: noop,
   removeEventListener: noop,

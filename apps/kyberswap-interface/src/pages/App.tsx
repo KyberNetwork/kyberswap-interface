@@ -74,11 +74,11 @@ const AppWrapper = ({ children }: { children: React.ReactNode }) => (
 )
 
 const HeaderWrapper = ({ children }: { children: React.ReactNode }) => (
-  <div className="z-[3] flex w-full shrink-0 flex-row flex-nowrap justify-between">{children}</div>
+  <header className="z-[3] flex w-full shrink-0 flex-row flex-nowrap justify-between">{children}</header>
 )
 
 const BodyWrapper = ({ children }: { children: React.ReactNode }) => (
-  <div className="relative z-[1] flex w-full flex-1 flex-col items-center">{children}</div>
+  <main className="relative z-[1] flex w-full flex-1 flex-col items-center">{children}</main>
 )
 
 const preloadImages = () => {

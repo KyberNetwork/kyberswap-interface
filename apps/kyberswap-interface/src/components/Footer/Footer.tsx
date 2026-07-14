@@ -42,7 +42,7 @@ export const FooterSocialLink = () => {
 
 function Footer() {
   return (
-    <div className="w-full shrink-0 bg-buttonGray/20">
+    <footer className="w-full shrink-0 bg-buttonGray/20">
       <div className="mx-auto flex w-full max-w-[1480px] flex-col-reverse items-center justify-between gap-4 p-4 sm:flex-row sm:px-6">
         <div className="flex items-start gap-4 text-xs text-subText max-sm:gap-6 sm:items-center">
           <div className="flex items-center gap-2 max-sm:flex-col max-sm:gap-3">
@@ -111,7 +111,7 @@ function Footer() {
         </div>
         <FooterSocialLink />
       </div>
-    </div>
+    </footer>
   )
 }
 
