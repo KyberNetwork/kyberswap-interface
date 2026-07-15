@@ -9,7 +9,6 @@ import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import usePageLocation from 'hooks/usePageLocation'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
-import { prefetchCrossChainSwap } from 'pages/CrossChainSwap/lazy'
 import { TAB } from 'pages/SwapV3'
 import LimitTab from 'pages/SwapV3/Tabs/LimitTab'
 import { isSupportLimitOrder } from 'utils'
@@ -118,7 +117,6 @@ const Tabs = ({ activeTab, setActiveTab, customChainId }: Props) => {
       node: (
         <Tab
           onClick={() => onClickTab(TAB.CROSS_CHAIN)}
-          onMouseEnter={prefetchCrossChainSwap}
           $isActive={activeTab === TAB.CROSS_CHAIN}
           data-testid="cross-chain-tab"
         >

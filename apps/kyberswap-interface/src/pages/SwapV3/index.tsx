@@ -1,4 +1,4 @@
-import { ReactNode, Suspense, useCallback, useEffect, useMemo, useState } from 'react'
+import { ReactNode, useCallback, useEffect, useMemo, useState } from 'react'
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 
 import Banner from 'components/Banner'
@@ -6,7 +6,6 @@ import { FarmingPoolBanner, TrendingPoolBanner } from 'components/EarnBanner'
 import LimitOrderForm from 'components/LimitOrder/Form/LimitOrderForm'
 import { LimitOrderProvider } from 'components/LimitOrder/LimitOrderContext'
 import OrderList from 'components/LimitOrder/OrderList'
-import LocalLoader from 'components/LocalLoader'
 import { Stack } from 'components/Stack'
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
@@ -20,8 +19,11 @@ import { PRICE_CHART_QUOTE_TOKEN_BY_CHAIN } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import useParsedQueryString from 'hooks/useParsedQueryString'
-import { CrossChainSwap, CrossChainSwapSources, QuoteSteps, TransactionHistory } from 'pages/CrossChainSwap/lazy'
-import type { Quote } from 'pages/CrossChainSwap/registry'
+import CrossChainSwap from 'pages/CrossChainSwap'
+import { CrossChainSwapSources } from 'pages/CrossChainSwap/components/CrossChainSwapSources'
+import QuoteSteps from 'pages/CrossChainSwap/components/QuoteSteps'
+import { TransactionHistory } from 'pages/CrossChainSwap/components/TransactionHistory'
+import { Quote } from 'pages/CrossChainSwap/registry'
 import SwapTradeRoute from 'pages/SwapV3/Components/SwapTradeRoute'
 import TokenPriceChart from 'pages/SwapV3/Components/TokenPriceChart'
 import Header from 'pages/SwapV3/Header'
@@ -156,15 +158,9 @@ export default function Swap() {
                 <LiquiditySourcesPanel onBack={() => setActiveTab(TAB.SETTINGS)} />
               )}
               {activeTab === TAB.LIMIT && <LimitOrderForm />}
-              {activeTab === TAB.CROSS_CHAIN && (
-                <Suspense fallback={<LocalLoader />}>
-                  <CrossChainSwap onQuoteChange={setSelectedQuote} />
-                </Suspense>
-              )}
+              {activeTab === TAB.CROSS_CHAIN && <CrossChainSwap onQuoteChange={setSelectedQuote} />}
               {activeTab === TAB.CROSS_CHAIN_SOURCES && (
-                <Suspense fallback={<LocalLoader />}>
-                  <CrossChainSwapSources onBack={() => setActiveTab(TAB.SETTINGS)} />
-                </Suspense>
+                <CrossChainSwapSources onBack={() => setActiveTab(TAB.SETTINGS)} />
               )}
             </AppBodyWrapped>
           </SwapFormWrapper>
@@ -191,12 +187,10 @@ export default function Swap() {
 
             {isLimitPage && <OrderList />}
             {isCrossChainPage && (
-              <Suspense fallback={null}>
-                <Stack className="gap-4">
-                  <QuoteSteps visible={false} quote={selectedQuote} />
-                  <TransactionHistory />
-                </Stack>
-              </Suspense>
+              <Stack className="gap-4">
+                <QuoteSteps visible={false} quote={selectedQuote} />
+                <TransactionHistory />
+              </Stack>
             )}
           </InfoComponents>
         </LimitOrderProvider>

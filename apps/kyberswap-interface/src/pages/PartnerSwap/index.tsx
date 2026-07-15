@@ -1,5 +1,5 @@
 import { ChainId, Currency, WETH } from '@kyberswap/ks-sdk-core'
-import { ReactNode, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { usePreviousDistinct } from 'react-use'
 import { useGetTipLinkQuery } from 'services/tipLink'
@@ -8,7 +8,6 @@ import Banner from 'components/Banner'
 import LimitOrderForm from 'components/LimitOrder/Form/LimitOrderForm'
 import { LimitOrderProvider } from 'components/LimitOrder/LimitOrderContext'
 import OrderList from 'components/LimitOrder/OrderList'
-import LocalLoader from 'components/LocalLoader'
 import SwapForm, { SwapFormProps } from 'components/SwapForm'
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
 import { DEFAULT_TIP, TIP_LINK_CLIENT_ID, isCreatorNameValid } from 'components/TipLinkGeneratorModal/shared'
@@ -24,7 +23,9 @@ import { useActiveWeb3React } from 'hooks'
 import { useCurrencyV2 } from 'hooks/useTokens'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { BodyWrapper } from 'pages/AppBody'
-import { CrossChainSwap, CrossChainSwapSources, TransactionHistory } from 'pages/CrossChainSwap/lazy'
+import CrossChainSwap from 'pages/CrossChainSwap'
+import { CrossChainSwapSources } from 'pages/CrossChainSwap/components/CrossChainSwapSources'
+import { TransactionHistory } from 'pages/CrossChainSwap/components/TransactionHistory'
 import { TAB, isSettingTab } from 'pages/SwapV3'
 import SwapTradeRoute from 'pages/SwapV3/Components/SwapTradeRoute'
 import TokenPriceChart from 'pages/SwapV3/Components/TokenPriceChart'
@@ -318,15 +319,9 @@ export default function PartnerSwap({ mode = 'partner' }: Props) {
                   <LiquiditySourcesPanel onBack={() => setActiveTab(TAB.SETTINGS)} chainId={swapChainId} />
                 )}
                 {activeTab === TAB.LIMIT && <LimitOrderForm currencyIn={currencyIn} currencyOut={currencyOut} />}
-                {activeTab === TAB.CROSS_CHAIN && (
-                  <Suspense fallback={<LocalLoader />}>
-                    <CrossChainSwap />
-                  </Suspense>
-                )}
+                {activeTab === TAB.CROSS_CHAIN && <CrossChainSwap />}
                 {activeTab === TAB.CROSS_CHAIN_SOURCES && (
-                  <Suspense fallback={<LocalLoader />}>
-                    <CrossChainSwapSources onBack={() => setActiveTab(TAB.SETTINGS)} />
-                  </Suspense>
+                  <CrossChainSwapSources onBack={() => setActiveTab(TAB.SETTINGS)} />
                 )}
               </AppBodyWrapped>
             </SwapFormWrapper>
@@ -345,11 +340,7 @@ export default function PartnerSwap({ mode = 'partner' }: Props) {
                 />
               )}
               {isLimitPage && <OrderList />}
-              {isCrossChainPage && (
-                <Suspense fallback={null}>
-                  <TransactionHistory />
-                </Suspense>
-              )}
+              {isCrossChainPage && <TransactionHistory />}
             </InfoComponents>
           </LimitOrderProvider>
         </Container>
