@@ -5,7 +5,7 @@ import { reconnect, watchChainId } from '@wagmi/core'
 import { Dialog, Mode } from 'porto'
 import { porto } from 'porto/wagmi'
 import { ReactNode, useEffect } from 'react'
-import { type Chain, fallback, http } from 'viem'
+import { type Chain, defineChain, fallback, http } from 'viem'
 import {
   arbitrum,
   avalanche,
@@ -302,6 +302,31 @@ const withKyberRpc = <T extends { id: number; rpcUrls: { default: { http: readon
   }
 }
 
+export const robinhood = defineChain({
+  id: ChainId.ROBINHOOD,
+  name: 'Robinhood',
+  nativeCurrency: {
+    decimals: 18,
+    name: 'Ethereum',
+    symbol: 'ETH',
+  },
+  rpcUrls: {
+    default: {
+      http: ['https://rpc.mainnet.chain.robinhood.com'],
+      webSocket: ['wss://feed.mainnet.chain.robinhood.com'],
+    },
+  },
+  blockExplorers: {
+    default: { name: 'Robinscan', url: 'https://robinscan.io' },
+  },
+  contracts: {
+    multicall3: {
+      address: '0xcA11bde05977b3631167028862bE2a173976CA11',
+      blockCreated: 1,
+    },
+  },
+})
+
 const wagmiChains: readonly [Chain, ...Chain[]] = [
   withKyberRpc(mainnet),
   withKyberRpc(arbitrum),
@@ -325,6 +350,7 @@ const wagmiChains: readonly [Chain, ...Chain[]] = [
   withKyberRpc(plasma),
   withKyberRpc(monad),
   withKyberRpc(megaeth),
+  withKyberRpc(robinhood),
 ] as const
 
 // viem `fallback()` rotates through URLs on transport errors (network, 429, 5xx),

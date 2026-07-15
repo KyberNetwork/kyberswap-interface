@@ -552,7 +552,7 @@ const TokenPriceChartCanvas = ({
     <div className="relative w-full" style={{ height: `${chartHeight}px` }}>
       {tooltip && isViewportReady ? <PriceChartTooltip timeFrame={timeFrame} tooltip={tooltip} /> : null}
       <PoolChartWrapper
-        $height={chartHeight}
+        height={chartHeight}
         ref={chartContainerRef}
         style={{ visibility: isViewportReady ? 'visible' : 'hidden' }}
       />

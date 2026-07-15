@@ -13,6 +13,7 @@ import {
   formatCompactUsd,
   formatTooltipTimeLabel,
   formatUsd,
+  getUniqueDateAxisTicks,
 } from 'pages/Earns/PoolDetail/Information/utils'
 import PoolChartState, { PoolChartWrapper } from 'pages/Earns/PoolDetail/components/PoolChartState'
 import PoolEarningPieChart from 'pages/Earns/PoolDetail/components/PoolEarningPieChart'
@@ -111,13 +112,9 @@ const EarningsTooltip = ({
 }) => {
   if (!active || !point) return null
 
-  const isDailyWindow = window === '7d' || window === '30d'
-
   return (
     <TooltipCard>
-      <span className="text-xs text-subText">
-        {formatTooltipTimeLabel(point.ts, window, { dateOnly: isDailyWindow })}
-      </span>
+      <span className="text-xs text-subText">{formatTooltipTimeLabel(point.ts, window)}</span>
       <TooltipGrid>
         <span className="text-xs text-subText">Total Earn</span>
         <span className="text-right text-xs font-medium text-text">{formatUsd(point.totalUsd)}</span>
@@ -153,7 +150,10 @@ const PoolEarningChart = ({ chainId, poolAddress, positionId }: PoolEarningChart
   )
 
   const earningsData = isPositionChart ? positionEarningsQuery.data : poolEarningsQuery.data
+  const displayWindow = earningsData?.window ?? window
+
   const chartIsError = isPositionChart ? positionEarningsQuery.isError : poolEarningsQuery.isError
+  const chartIsFetching = isPositionChart ? positionEarningsQuery.isFetching : poolEarningsQuery.isFetching
   const chartIsLoading = isPositionChart ? positionEarningsQuery.isLoading : poolEarningsQuery.isLoading
   const buckets = useMemo(() => earningsData?.buckets ?? [], [earningsData?.buckets])
   const hasBonusUsd = useMemo(() => buckets.some(bucket => bucket.bonusUsd !== undefined), [buckets])
@@ -170,17 +170,18 @@ const PoolEarningChart = ({ chainId, poolAddress, positionId }: PoolEarningChart
   }, [hasBonusUsd, theme.blue])
 
   const chartData = useMemo<EarningsChartPoint[]>(() => {
-    const visibleLabelStep = getVisibleLabelStep(buckets.length, upToSmall, window)
+    const visibleLabelStep = getVisibleLabelStep(buckets.length, upToSmall, displayWindow)
 
     return buckets.map((bucket, index) => ({
       ...bucket,
       showTotalLabel: index % visibleLabelStep === 0 || index === buckets.length - 1,
       topSegmentKey: getTopSegmentKey(bucket, breakdownConfig),
     }))
-  }, [breakdownConfig, buckets, upToSmall, window])
+  }, [breakdownConfig, buckets, displayWindow, upToSmall])
+
+  const dateAxisTicks = useMemo(() => getUniqueDateAxisTicks(chartData, displayWindow), [chartData, displayWindow])
 
   const hasChartData = chartData.length > 0
-  const isDailyWindow = window === '7d' || window === '30d'
 
   return (
     <Stack className="gap-4">
@@ -196,10 +197,11 @@ const PoolEarningChart = ({ chainId, poolAddress, positionId }: PoolEarningChart
         height={chartHeight}
         isEmpty={!hasChartData}
         isError={chartIsError}
+        isFetching={chartIsFetching}
         isLoading={chartIsLoading}
         skeletonType="bar"
       >
-        <PoolChartWrapper $height={chartHeight}>
+        <PoolChartWrapper height={chartHeight}>
           <ResponsiveContainer height="100%" width="100%">
             <ComposedChart
               barCategoryGap={upToSmall ? '24%' : '18%'}
@@ -214,7 +216,8 @@ const PoolEarningChart = ({ chainId, poolAddress, positionId }: PoolEarningChart
                 stroke={theme.subText}
                 tick={{ fill: theme.subText, fontSize: 12 }}
                 tickLine={false}
-                tickFormatter={(value: number) => formatAxisTimeLabel(value, window, { dateOnly: isDailyWindow })}
+                tickFormatter={(value: number) => formatAxisTimeLabel(value, displayWindow)}
+                ticks={dateAxisTicks}
               />
               <YAxis
                 axisLine={false}
@@ -231,7 +234,7 @@ const PoolEarningChart = ({ chainId, poolAddress, positionId }: PoolEarningChart
                     active={active}
                     breakdownConfig={breakdownConfig}
                     point={payload?.[0]?.payload as EarningsChartPoint | undefined}
-                    window={window}
+                    window={displayWindow}
                   />
                 )}
                 cursor={{ stroke: cursorColor, strokeDasharray: '4 4' }}

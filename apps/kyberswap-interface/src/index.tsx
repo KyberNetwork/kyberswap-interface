@@ -111,9 +111,10 @@ const ReactApp = () => {
   )
 }
 
-// Prerendered routes are head-only: the served #app is always empty (the cold-load skeleton lives in the
-// .preloadhtml overlay, dropped by hideLoader on mount), so the body is always client-rendered. No route
-// ships server-rendered body markup, so there is nothing to hydrate.
+// Prerendered routes can contain deterministic build-time markup for crawlers. Mount a fresh interactive
+// tree instead of hydrating it: wallet/localStorage state and responsive media queries are client-only and
+// can legitimately differ from the static build. The .preloadhtml overlay hides this replacement and is
+// dropped synchronously by ReactApp before paint.
 const container = document.getElementById('app') as HTMLElement
 createRoot(container).render(<ReactApp />)
 

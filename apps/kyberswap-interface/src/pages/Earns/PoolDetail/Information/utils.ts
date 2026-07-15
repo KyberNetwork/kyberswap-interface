@@ -54,18 +54,55 @@ export const formatCompactUsd = (value?: number) => {
   })
 }
 
-type TimeLabelOptions = {
-  dateOnly?: boolean
+export const getUniqueDateAxisTicks = <T extends { ts: number }>(points: T[], window: PoolAnalyticsWindow) => {
+  if (window === '24h') return undefined
+
+  const dates = new Set<string>()
+
+  return points.reduce<number[]>((ticks, point) => {
+    const date = dayjs.unix(point.ts).format('YYYY-MM-DD')
+
+    if (!dates.has(date)) {
+      dates.add(date)
+      ticks.push(point.ts)
+    }
+
+    return ticks
+  }, [])
 }
 
-export const formatAxisTimeLabel = (timestamp: number, window: PoolAnalyticsWindow, options?: TimeLabelOptions) => {
-  if (options?.dateOnly) return dayjs.unix(timestamp).format('MMM D')
-  if (window === '24h') return dayjs.unix(timestamp).format('HH:mm')
-  if (window === '7d') return dayjs.unix(timestamp).format('MMM D, HH:mm')
-  return dayjs.unix(timestamp).format('MMM D')
+export enum TimeLabelFormat {
+  Date = 'date',
+  DateTime = 'dateTime',
+  Time = 'time',
 }
 
-export const formatTooltipTimeLabel = (timestamp: number, _window: PoolAnalyticsWindow, options?: TimeLabelOptions) => {
-  if (options?.dateOnly) return dayjs.unix(timestamp).format('MMM D')
-  return dayjs.unix(timestamp).format('MMM D, HH:mm')
+type AxisTimeLabelOptions = {
+  format?: TimeLabelFormat.Date | TimeLabelFormat.Time
+}
+
+type TooltipTimeLabelOptions = {
+  format?: TimeLabelFormat.Date | TimeLabelFormat.DateTime
+}
+
+const TIME_LABEL_FORMATS: Record<TimeLabelFormat, string> = {
+  [TimeLabelFormat.Date]: 'MMM D',
+  [TimeLabelFormat.DateTime]: 'MMM D, HH:mm',
+  [TimeLabelFormat.Time]: 'HH:mm',
+}
+
+export const formatAxisTimeLabel = (timestamp: number, window: PoolAnalyticsWindow, options?: AxisTimeLabelOptions) => {
+  const format = options?.format ?? (window === '24h' ? TimeLabelFormat.Time : TimeLabelFormat.Date)
+
+  return dayjs.unix(timestamp).format(TIME_LABEL_FORMATS[format])
+}
+
+export const formatTooltipTimeLabel = (
+  timestamp: number,
+  window: PoolAnalyticsWindow,
+  options?: TooltipTimeLabelOptions,
+) => {
+  const format = options?.format ?? (window === '24h' ? TimeLabelFormat.DateTime : TimeLabelFormat.Date)
+
+  return dayjs.unix(timestamp).format(TIME_LABEL_FORMATS[format])
 }

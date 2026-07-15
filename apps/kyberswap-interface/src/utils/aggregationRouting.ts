@@ -148,18 +148,18 @@ function formatRoutesV2(routes: SwapRoute[]): SwapRouteV2[] {
               existed = true
               swapAmount = JSBI.add(swapAmount, swapPool.swapAmount || ZERO)
             }
-            const percent = new Percent(swapAmount, totalSwapAmount).toFixed(0, undefined, Rounding.ROUND_HALF_UP)
-            p2.swapPercentage = parseInt(percent)
+            const percent = new Percent(swapAmount, totalSwapAmount).toFixed(2, undefined, Rounding.ROUND_HALF_UP)
+            p2.swapPercentage = parseFloat(percent)
             p2.total = totalSwapAmount.toString()
             return p2
           })
           if (!existed) {
             const percent = new Percent(swapPool.swapAmount || ZERO, totalSwapAmount).toFixed(
-              0,
+              2,
               undefined,
               Rounding.ROUND_HALF_UP,
             )
-            newSub.push({ ...swapPool, swapPercentage: parseInt(percent) })
+            newSub.push({ ...swapPool, swapPercentage: parseFloat(percent) })
           }
           subRoutes[ind] = newSub
         })
@@ -237,8 +237,8 @@ function buildTradeComposition(
     }
     const exactTokenIn = tokenIn?.toLowerCase() === inputTokenAmount?.currency.address?.toLowerCase()
     if (exactTokenIn && inputAmount.greaterThan(JSBI.BigInt(0))) {
-      const percent = new Percent(JSBI.BigInt(amount || 0), inputAmount.quotient).toFixed(0)
-      return parseInt(percent)
+      const percent = new Percent(JSBI.BigInt(amount || 0), inputAmount.quotient).toFixed(2)
+      return parseFloat(percent)
     }
     return undefined
   }
