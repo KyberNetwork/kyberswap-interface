@@ -190,6 +190,7 @@ export default function PoolFinder() {
         onDismiss={handleSearchDismiss}
         showPinnedTokens
         selectedCurrency={(activeField === Fields.TOKEN0 ? currency1 : currency0) ?? undefined}
+        showDiscoveryTabs={false}
       />
     </AppBody>
   )

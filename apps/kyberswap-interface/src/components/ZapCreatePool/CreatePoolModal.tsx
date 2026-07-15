@@ -6,7 +6,7 @@ import Portal from '@reach/portal'
 import { useQuery } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useLazyPoolDetailQuery, useSupportedProtocolsQuery } from 'services/earn'
-import { useCheckPairQuery } from 'services/marketOverview'
+import { useCheckPairQuery } from 'services/tokenCatalog'
 
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import { ButtonOutlined, ButtonPrimary } from 'components/Button'

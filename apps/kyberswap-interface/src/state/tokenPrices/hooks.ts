@@ -3,8 +3,8 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { useQueryClient } from '@tanstack/react-query'
 import debounce from 'lodash.debounce'
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { fetchTokenPrices } from 'services/tokenCatalog'
 
-import { TOKEN_API_URL } from 'constants/env'
 import { useActiveWeb3React } from 'hooks'
 import { useAppDispatch, useAppSelector } from 'state/hooks'
 import { isAddressString } from 'utils'
@@ -13,10 +13,6 @@ import { updatePrices } from '.'
 
 export enum PriceType {
   Average = 'Average',
-}
-
-interface PriceResponse {
-  data: { [chainId: string]: { [address: string]: { PriceBuy: number; PriceSell: number } } }
 }
 
 const chunkList = (list: string[], chunkSize: number) => {
@@ -83,24 +79,17 @@ export const useTokenPricesWithLoading = (
       try {
         setLoading(true)
         const chunks = chunkList(normalizedList, CHUNK_SIZE)
-        const responses = await Promise.all<PriceResponse>(
+        const responses = await Promise.all(
           chunks.map(chunk =>
             queryClient.fetchQuery({
               queryKey: ['tokenPrices', chainId, chunk],
-              queryFn: async () => {
-                return fetch(`${TOKEN_API_URL}/v1/public/tokens/prices`, {
-                  method: 'POST',
-                  body: JSON.stringify({
-                    [chainId]: chunk,
-                  }),
-                }).then(res => res.json())
-              },
+              queryFn: () => fetchTokenPrices({ [chainId]: chunk }),
               retry: false,
             }),
           ),
         )
 
-        const prices: { address: string; price: number }[] = responses.flatMap((r: PriceResponse) =>
+        const prices: { address: string; price: number }[] = responses.flatMap(r =>
           Object.entries(r?.data?.[chainId] || {}).map(([address, price]) => {
             return {
               address,
@@ -173,7 +162,15 @@ export const useTokenPricesWithLoading = (
     }, {})
   }, [tokenList, chainId, tokenPrices, wrappedNativeAddress])
 
-  return { data, loading, fetchPrices, refetch }
+  // `data` is rebuilt with a fresh identity whenever the Redux tokenPrices slice changes — which is
+  // on every price poll anywhere in the app, even for tokens this caller never asked about. Cache it
+  // by a value signature over the requested prices so the reference only changes when a requested
+  // token's resolved price actually changes (mirrors the balance path's balanceResultCached).
+  const dataSignature = tokenList.map(address => `${address}:${data[address] ?? 0}`).join('|')
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const dataCached = useMemo(() => data, [dataSignature])
+
+  return { data: dataCached, loading, fetchPrices, refetch }
 }
 
 export const useTokenPrices = (

@@ -1,6 +1,7 @@
 import { ChainId, Token } from '@kyberswap/ks-sdk-core'
 import { useCallback, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
+import { useGetKyberswapConfigurationQuery } from 'services/ksSetting'
 
 import { TERM_FILES_PATH } from 'constants/index'
 import { LOCALE_INFO, SupportedLocale } from 'constants/locales'
@@ -331,6 +332,10 @@ export const useUserFavoriteTokens = (customChain?: ChainId) => {
   const chainId = customChain || currentChain
   const dispatch = useDispatch<AppDispatch>()
   const { favoriteTokensByChainIdv2: favoriteTokensByChainId } = useSelector((state: AppState) => state.user)
+  // The global updater only fetches the connected chain's config, so `commonTokens` for a different
+  // chain (e.g. one picked in the token-selector chain dropdown) would be empty. Fetch it for the
+  // requested chain here; RTK Query dedupes the connected chain and caches the rest.
+  useGetKyberswapConfigurationQuery(chainId, { skip: !chainId })
   const { commonTokens } = useKyberSwapConfig(chainId)
 
   const favoriteTokens = useMemo(() => {
