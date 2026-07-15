@@ -31,7 +31,6 @@ import TransactionConfirmationModal, {
 } from 'components/TransactionConfirmationModal'
 import { wagmiConfig } from 'components/Web3Provider'
 import ZapError from 'components/ZapError'
-import FormattedPriceImpact from 'components/swapv2/FormattedPriceImpact'
 import { ZAP_ABI, ZAP_STATIC_FEE_ABI } from 'constants/abis'
 import { didUserReject } from 'constants/connectors/utils'
 import { APP_PATHS, EIP712Domain } from 'constants/index'
@@ -44,6 +43,7 @@ import useTheme from 'hooks/useTheme'
 import { useCurrency } from 'hooks/useTokens'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
 import { Wrapper } from 'pages/MyPool/styleds'
+import { FormattedPriceImpact } from 'pages/RemoveLiquidity/components/FormattedPriceImpact'
 import {
   CurrentPriceWrapper,
   DetailBox,

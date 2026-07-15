@@ -8,6 +8,7 @@ import { useSearchParams } from 'react-router-dom'
 import { AutoColumn } from 'components/Column'
 import RefreshLoading from 'components/RefreshLoading'
 import Skeleton from 'components/Skeleton'
+import { Stack } from 'components/Stack'
 import ReverseTokenSelectionButton from 'components/SwapForm/ReverseTokenSelectionButton'
 import SlippageSetting from 'components/SwapForm/SlippageSetting'
 import { useBitcoinWallet } from 'components/Web3Provider/BitcoinProvider'
@@ -34,13 +35,11 @@ import { isEvmChain } from 'utils'
 import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
 
-const Wrapper = ({ children }: { children: React.ReactNode }) => <div className="flex flex-col gap-4">{children}</div>
-
 type CrossChainSwapProps = {
   onQuoteChange?: (quote: Quote) => void
 }
 
-export function CrossChainSwap({ onQuoteChange }: CrossChainSwapProps) {
+const CrossChainSwapForm = ({ onQuoteChange }: CrossChainSwapProps) => {
   const {
     amount,
     setAmount,
@@ -164,7 +163,7 @@ export function CrossChainSwap({ onQuoteChange }: CrossChainSwapProps) {
   }, [showConnect, searchParams, setSearchParams, fromChainId, btcAddress, nearWallet, onOpenWallet])
 
   return (
-    <Wrapper>
+    <Stack className="gap-4">
       {termAndPolicyModal}
 
       <AutoColumn className="gap-3">
@@ -346,23 +345,23 @@ export function CrossChainSwap({ onQuoteChange }: CrossChainSwapProps) {
           setShowBtcConnect(false)
         }}
       />
-    </Wrapper>
+    </Stack>
   )
 }
 
 // memo is load-bearing: this wrapper hosts the route-mounted non-EVM wallet providers (NonEvmProviders).
-// SwapV3 re-renders this on every quote tick (it holds selectedQuote in state), and its only prop
-// `onQuoteChange` is a stable setState setter — so memoizing here keeps SwapV3's re-renders from
+// The parent CrossChain route re-renders this on every quote tick (it holds selectedQuote in state), and its only prop
+// `onQuoteChange` is a stable setState setter — so memoizing here keeps the parent re-renders from
 // re-rendering the providers, which would otherwise churn the wallet contexts (e.g. Solana `connection`)
-// and refetch the cross-chain rate in a loop. The inner CrossChainSwap still re-renders on its own state.
-const CrossChainSwapPage = memo(function CrossChainSwapPage(props: CrossChainSwapProps) {
+// and refetch the cross-chain rate in a loop. The inner CrossChainSwapForm still re-renders on its own state.
+const CrossChainSwap = (props: CrossChainSwapProps) => {
   return (
     <NonEvmProviders>
       <CrossChainSwapRegistryProvider>
-        <CrossChainSwap {...props} />
+        <CrossChainSwapForm {...props} />
       </CrossChainSwapRegistryProvider>
     </NonEvmProviders>
   )
-})
+}
 
-export default CrossChainSwapPage
+export default memo(CrossChainSwap)

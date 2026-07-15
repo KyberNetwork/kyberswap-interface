@@ -1,8 +1,21 @@
+import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { ComponentProps, ComponentPropsWithoutRef, forwardRef } from 'react'
 import { Search } from 'react-feather'
 
 import Column, { AutoColumn } from 'components/Column'
 import { cn } from 'utils/cn'
+
+export const Balance = ({ balance }: { balance: CurrencyAmount<Currency> }) => {
+  return (
+    <span
+      className="max-w-full truncate text-xs text-text sm:text-sm"
+      data-testid="token-balance"
+      title={balance.toExact()}
+    >
+      {balance.toSignificant(10)}
+    </span>
+  )
+}
 
 export const ContentWrapper = ({ className, ...rest }: ComponentProps<typeof Column>) => (
   <Column className={cn('relative w-full flex-1', className)} {...rest} />

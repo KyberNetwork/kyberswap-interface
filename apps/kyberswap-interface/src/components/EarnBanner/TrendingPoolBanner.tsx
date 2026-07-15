@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useExplorerLandingQuery } from 'services/earn'
 
 import { ReactComponent as IconTrending } from 'assets/svg/earn/ic_pool_high_apr.svg'
+import { TrendingPoolContentSkeleton } from 'components/EarnBanner/Skeletons'
 import {
   AprText,
   BannerHeaderLink,
@@ -12,7 +13,6 @@ import {
   PoolWrapper,
   TrendingWrapper,
 } from 'components/EarnBanner/styles'
-import Skeleton from 'components/Skeleton'
 import TokenLogo from 'components/TokenLogo'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
@@ -104,14 +104,7 @@ export default function TrendingPoolBanner() {
           </PoolAprWrapper>
         </PoolWrapper>
       ) : (
-        <div className="flex items-center justify-between">
-          <div className="flex items-center">
-            <Skeleton circle height={24} variant="darkSubtle" width={24} />
-            <Skeleton circle height={24} style={{ marginLeft: -8 }} variant="darkSubtle" width={24} />
-            <Skeleton height={18} style={{ marginLeft: 8 }} variant="darkSubtle" width={88} />
-          </div>
-          <Skeleton height={28} borderRadius={16} variant="darkSubtle" width={120} />
-        </div>
+        <TrendingPoolContentSkeleton />
       )}
     </TrendingWrapper>
   )

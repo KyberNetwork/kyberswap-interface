@@ -265,7 +265,7 @@ const TransactionRow = ({ isLast, tx }: { isLast: boolean; tx: NormalizedTxRespo
   </TransactionTableGrid>
 )
 
-export const TransactionHistory = () => {
+const TransactionHistory = () => {
   const transactions = useTransactionHistory()
   const [currentPage, setCurrentPage] = useState(1)
 
@@ -336,3 +336,5 @@ export const TransactionHistory = () => {
     </div>
   )
 }
+
+export default TransactionHistory

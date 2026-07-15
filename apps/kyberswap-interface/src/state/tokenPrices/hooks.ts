@@ -89,37 +89,27 @@ export const useTokenPricesWithLoading = (
           ),
         )
 
-        const prices: { address: string; price: number }[] = responses.flatMap(r =>
-          Object.entries(r?.data?.[chainId] || {}).map(([address, price]) => {
-            return {
-              address,
-              price: priceType === PriceType.Average ? (price.PriceBuy + price.PriceSell) / 2 : price.PriceBuy,
-            }
-          }),
-        )
+        const prices = responses.reduce<Record<string, number>>((acc, response) => {
+          Object.entries(response?.data?.[chainId] || {}).forEach(([address, price]) => {
+            acc[address.toLowerCase()] =
+              priceType === PriceType.Average ? (price.PriceBuy + price.PriceSell) / 2 : price.PriceBuy
+          })
+          return acc
+        }, {})
 
-        const formattedPrices = normalizedList.map(address => {
-          const price = prices.find(
-            (p: { address: string; price: number }) => p.address.toLowerCase() === address.toLowerCase(),
-          )
-
-          return {
-            address,
-            chainId: chainId,
-            price: price?.price || 0,
-          }
-        })
+        const formattedPrices = normalizedList.map(address => ({
+          address,
+          chainId,
+          price: prices[address] || 0,
+        }))
 
         if (formattedPrices?.length) {
           dispatch(updatePrices(formattedPrices))
-          return formattedPrices.reduce(
-            (acc, cur) => ({
-              ...acc,
-              [cur.address]: cur.price,
-              [isAddressString(cur.address)]: cur.price,
-            }),
-            {},
-          )
+          return formattedPrices.reduce<Record<string, number>>((acc, cur) => {
+            acc[cur.address] = cur.price
+            acc[isAddressString(cur.address)] = cur.price
+            return acc
+          }, {})
         }
 
         return {}
@@ -146,7 +136,7 @@ export const useTokenPricesWithLoading = (
   const data: {
     [address: string]: number
   } = useMemo(() => {
-    return tokenList.reduce((acc, address) => {
+    return tokenList.reduce<Record<string, number>>((acc, address) => {
       const key = `${address}_${chainId}`
       const wrappedNativeKey = `${wrappedNativeAddress}_${chainId}`
       const price =
@@ -154,11 +144,9 @@ export const useTokenPricesWithLoading = (
           ? tokenPrices[key] || tokenPrices[wrappedNativeKey] || 0
           : tokenPrices[key] || 0
 
-      return {
-        ...acc,
-        [address]: price,
-        [isAddressString(address)]: price,
-      }
+      acc[address] = price
+      acc[isAddressString(address)] = price
+      return acc
     }, {})
   }, [tokenList, chainId, tokenPrices, wrappedNativeAddress])
 
