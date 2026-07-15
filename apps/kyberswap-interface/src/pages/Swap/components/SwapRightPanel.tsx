@@ -1,10 +1,10 @@
 import type { Currency } from '@kyberswap/ks-sdk-core'
 import { useMemo } from 'react'
 
+import TokenPriceChart from 'components/TokenPriceChart'
 import { PRICE_CHART_QUOTE_TOKEN_BY_CHAIN } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
-import SwapTradeRoute from 'pages/SwapV3/Components/SwapTradeRoute'
-import TokenPriceChart from 'pages/SwapV3/Components/TokenPriceChart'
+import SwapTradeRoute from 'pages/Swap/components/SwapTradeRoute'
 import { useShowPricingChart, useShowTradeRoutes } from 'state/user/hooks'
 import type { DetailedRouteSummary } from 'types/route'
 import { useTradeComposition } from 'utils/aggregationRouting'
@@ -15,7 +15,7 @@ type Props = {
   routeSummary: DetailedRouteSummary | undefined
 }
 
-export default function SwapInfo({ currencyIn, currencyOut, routeSummary }: Props) {
+export const SwapRightPanel = ({ currencyIn, currencyOut, routeSummary }: Props) => {
   const { chainId } = useActiveWeb3React()
   const isShowPricingChart = useShowPricingChart()
   const isShowTradeRoutes = useShowTradeRoutes()

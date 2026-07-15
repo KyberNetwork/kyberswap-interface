@@ -50,25 +50,34 @@ export function prefetchRouteChunk(to: string) {
 // chunk, never a duplicate).
 const EAGER_PRELOAD_PREFIXES: string[] = [`${APP_PATHS.ABOUT}/kyberswap`, `${APP_PATHS.ABOUT}/knc`, APP_PATHS.EARN]
 
-/**
- * Warm the EAGER_PRELOAD_PREFIXES chunks during browser idle time. Client-only (no-op under
- * SSR/prerender) and idle-gated so it never competes with the critical first-load resources. Idempotent
- * — `import()` caches the module — so it's safe to call once after the app boots.
- */
+/** Warm selected static routes one at a time, with a separate idle window between each chunk. */
 export function preloadStaticRouteChunks() {
   if (typeof window === 'undefined') return
-  for (const prefix of EAGER_PRELOAD_PREFIXES) {
+
+  const preloadNext = (index: number) => {
+    const prefix = EAGER_PRELOAD_PREFIXES[index]
+    if (!prefix) return
+
     const load = ROUTE_CHUNKS.find(route => route.prefix === prefix)?.load
-    if (!load) continue
-    // requestIdleCallback so it never competes with critical first-load work; the `timeout` guarantees it
-    // still fires on a perpetually-busy page (no idle window). setTimeout fallback (small ~200ms deferral to
-    // push the warm past first paint) for browsers lacking requestIdleCallback.
+    if (!load) {
+      preloadNext(index + 1)
+      return
+    }
+
+    const run = () => {
+      void load()
+        .catch(() => undefined)
+        .finally(() => preloadNext(index + 1))
+    }
+
     if (window.requestIdleCallback) {
-      window.requestIdleCallback(() => void load().catch(() => undefined), { timeout: 3000 })
+      window.requestIdleCallback(run)
     } else {
-      window.setTimeout(() => void load().catch(() => undefined), 200)
+      window.setTimeout(run, 5_000)
     }
   }
+
+  preloadNext(0)
 }
 
 // Pool-detail prefetches already issued this session — avoids re-dispatching on every re-hover.

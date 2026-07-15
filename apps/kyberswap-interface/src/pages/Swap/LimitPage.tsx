@@ -1,21 +1,22 @@
 import { lazy } from 'react'
 
 import LimitOrderForm from 'components/LimitOrder/Form/LimitOrderForm'
-import { SwapV3Layout, useSwapV3Controller } from 'pages/SwapV3'
-import { TAB } from 'pages/SwapV3/constants'
-import useCurrenciesByPage from 'pages/SwapV3/useCurrenciesByPage'
+import { useCurrenciesByPage } from 'pages/Swap/hooks/useCurrenciesByPage'
+import { useTradeController } from 'pages/Swap/hooks/useTradeController'
+import { SwapLayout } from 'pages/Swap/layout/SwapLayout'
+import { TAB } from 'pages/Swap/layout/Tabs'
 
 const OrderList = lazy(() => import('components/LimitOrder/OrderList'))
 const SettingsPanel = lazy(() => import('components/swapv2/SwapSettingsPanel'))
 const TokenInfoTab = lazy(() => import('components/swapv2/TokenInfo'))
 
-export default function LimitPage() {
-  const controller = useSwapV3Controller(TAB.LIMIT)
+const LimitPage = () => {
+  const controller = useTradeController(TAB.LIMIT)
   const { activeTab, highlightDegenMode, onBackToMainTab, setActiveTab } = controller
   const { currencies } = useCurrenciesByPage()
 
   return (
-    <SwapV3Layout controller={controller} info={<OrderList />}>
+    <SwapLayout controller={controller} rightPanel={<OrderList />}>
       {activeTab === TAB.LIMIT && <LimitOrderForm />}
       {activeTab === TAB.INFO && <TokenInfoTab currencies={currencies} onBack={onBackToMainTab} />}
       {activeTab === TAB.SETTINGS && (
@@ -28,6 +29,8 @@ export default function LimitPage() {
           onClickCrossChainSources={() => setActiveTab(TAB.CROSS_CHAIN_SOURCES)}
         />
       )}
-    </SwapV3Layout>
+    </SwapLayout>
   )
 }
+
+export default LimitPage

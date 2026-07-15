@@ -12,8 +12,8 @@ import { StyledActionButtonSwapForm } from 'components/swapv2/styleds'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
-import { TAB } from 'pages/SwapV3/constants'
-import useCurrenciesByPage from 'pages/SwapV3/useCurrenciesByPage'
+import { useCurrenciesByPage } from 'pages/Swap/hooks/useCurrenciesByPage'
+import { TAB } from 'pages/Swap/layout/Tabs'
 import { useDegenModeManager, useUserSlippageTolerance, useUserTransactionTTL } from 'state/user/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatSlippage } from 'utils/slippage'
@@ -24,7 +24,7 @@ type HeaderRightMenuProps = {
   activeMainTab?: TAB
 }
 
-const HeaderRightMenu = ({ activeTab, setActiveTab, activeMainTab }: HeaderRightMenuProps) => {
+export const HeaderRightMenu = ({ activeTab, setActiveTab, activeMainTab }: HeaderRightMenuProps) => {
   const { pathname } = useLocation()
   const isLimitPage = pathname.startsWith(APP_PATHS.LIMIT) || activeMainTab === TAB.LIMIT
   const isSwapPage = pathname.startsWith(APP_PATHS.SWAP) || activeMainTab === TAB.SWAP
@@ -96,5 +96,3 @@ const HeaderRightMenu = ({ activeTab, setActiveTab, activeMainTab }: HeaderRight
     </div>
   )
 }
-
-export default HeaderRightMenu

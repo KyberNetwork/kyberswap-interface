@@ -1,10 +1,11 @@
 import { Trans, t } from '@lingui/macro'
-import React, { ReactNode, Suspense, lazy, useState } from 'react'
+import React, { ReactNode, useState } from 'react'
 import { ChevronLeft } from 'react-feather'
 
 import IconButton from 'components/Button/IconButton'
 import { HStack, Stack } from 'components/Stack'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
+import { CrossChainSourceSetting } from 'components/swapv2/SwapSettingsPanel/CrossChainSourceSetting'
 import DegenModeSetting from 'components/swapv2/SwapSettingsPanel/DegenModeSetting'
 import LiquiditySourcesSetting from 'components/swapv2/SwapSettingsPanel/LiquiditySourcesSetting'
 import SlippageSetting from 'components/swapv2/SwapSettingsPanel/SlippageSetting'
@@ -26,12 +27,6 @@ import {
   useToggleTradeRoutes,
   useUserSlippageTolerance,
 } from 'state/user/hooks'
-
-const CrossChainSourceSetting = lazy(() =>
-  import('components/swapv2/SwapSettingsPanel/CrossChainSourceSetting').then(({ CrossChainSourceSetting }) => ({
-    default: CrossChainSourceSetting,
-  })),
-)
 
 type Props = {
   onBack: () => void
@@ -119,11 +114,7 @@ const SettingsPanel: React.FC<Props> = ({
               highlight={highlightDegenMode}
             />
             {isSwapPage && <LiquiditySourcesSetting onClick={onClickLiquiditySources} />}
-            {isCrossChainPage && (
-              <Suspense fallback={null}>
-                <CrossChainSourceSetting onClick={onClickCrossChainSources} />
-              </Suspense>
-            )}
+            {isCrossChainPage && <CrossChainSourceSetting onClick={onClickCrossChainSources} />}
           </SettingsSection>
         )}
 

@@ -23,9 +23,10 @@ import { PRICE_CHART_QUOTE_TOKEN_BY_CHAIN } from 'constants/tokens'
 import useTheme from 'hooks/useTheme'
 import { formatPrice, formatSignedPercent } from 'pages/Earns/PoolDetail/Information/utils'
 import PoolChartState, { PoolChartSkeleton } from 'pages/Earns/PoolDetail/components/PoolChartState'
-import type { DisplayCandle } from 'pages/SwapV3/Components/TokenPriceChartCanvas'
 import { ExternalLink, MEDIA_WIDTHS } from 'theme'
 import { cn } from 'utils/cn'
+
+import type { DisplayCandle } from './TokenPriceChartCanvas'
 
 const TokenPriceChartCanvas = lazy(() => import('./TokenPriceChartCanvas'))
 

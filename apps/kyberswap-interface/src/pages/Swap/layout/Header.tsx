@@ -6,9 +6,8 @@ import { useLocation } from 'react-router-dom'
 import { HiddenH1, HiddenH2 } from 'components/Seo/HiddenSeoHeadings'
 import { HStack, Stack } from 'components/Stack'
 import { APP_PATHS } from 'constants/index'
-import HeaderRightMenu from 'pages/SwapV3/HeaderRightMenu'
-import Tabs from 'pages/SwapV3/Tabs'
-import { TAB } from 'pages/SwapV3/constants'
+import { HeaderRightMenu } from 'pages/Swap/layout/HeaderRightMenu'
+import { TAB, Tabs } from 'pages/Swap/layout/Tabs'
 import { useDegenModeManager } from 'state/user/hooks'
 import { CloseIcon } from 'theme'
 
@@ -19,7 +18,7 @@ type HeaderProps = {
   activeMainTab?: TAB
 }
 
-const Header = ({ activeTab, setActiveTab, customChainId, activeMainTab }: HeaderProps) => {
+export const Header = ({ activeTab, setActiveTab, customChainId, activeMainTab }: HeaderProps) => {
   const [isDegenMode] = useDegenModeManager()
   const [isShowDegenBanner, setShowDegenBanner] = useState(true)
   const { pathname } = useLocation()
@@ -79,5 +78,3 @@ const Header = ({ activeTab, setActiveTab, customChainId, activeMainTab }: Heade
     </>
   )
 }
-
-export default Header

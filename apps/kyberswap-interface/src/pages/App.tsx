@@ -26,10 +26,10 @@ import { useGlobalTrackingEvents } from 'hooks/useTracking'
 import { useSyncNetworkParamWithStore } from 'hooks/web3/useSyncNetworkParamWithStore'
 import { getPoolDetailUrl } from 'pages/Earns/utils/url'
 import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
-import { RedirectPathToSwapV3Network } from 'pages/SwapV3/redirects'
-import CrossChainRoute from 'pages/SwapV3/routes/CrossChain'
-import LimitRoute from 'pages/SwapV3/routes/Limit'
-import SwapRoute from 'pages/SwapV3/routes/Swap'
+import CrossChainPage from 'pages/Swap/CrossChainPage'
+import LimitPage from 'pages/Swap/LimitPage'
+import SwapPage from 'pages/Swap/SwapPage'
+import { RedirectPathToTradeNetwork } from 'pages/Swap/redirects'
 import VerifyAuth from 'pages/Verify/VerifyAuth'
 import { useAppDispatch, useAppSelector } from 'state/hooks'
 import { updateSafeAppAcceptedTermOfUse } from 'state/user/actions'
@@ -251,12 +251,12 @@ export default function App() {
             )}
             <Routes>
               {/* From react-router-dom@6.5.0, :fromCurrency-to-:toCurrency no long works, need to manually parse the params */}
-              <Route path={APP_PATHS.SWAP} element={<RedirectPathToSwapV3Network />} />
+              <Route path={APP_PATHS.SWAP} element={<RedirectPathToTradeNetwork />} />
               <Route
                 path={`${APP_PATHS.SWAP}/:network/:currency?`}
                 element={
                   <NetworkSyncedPage>
-                    <SwapRoute />
+                    <SwapPage />
                   </NetworkSyncedPage>
                 }
               />
@@ -264,16 +264,16 @@ export default function App() {
               <Route path={`${APP_PATHS.USER_SWAP}/:tipsId?`} element={<PartnerSwap mode="user" />} />
               <Route path={`${APP_PATHS.USER_SWAP_CREATE_TIPS}`} element={<RedirectToCreateTips />} />
               {CHAINS_SUPPORT_CROSS_CHAIN.includes(chainId) && !isInSafeApp && (
-                <Route path={`${APP_PATHS.CROSS_CHAIN}`} element={<CrossChainRoute />} />
+                <Route path={`${APP_PATHS.CROSS_CHAIN}`} element={<CrossChainPage />} />
               )}
 
-              <Route path={APP_PATHS.LIMIT} element={<RedirectPathToSwapV3Network />} />
+              <Route path={APP_PATHS.LIMIT} element={<RedirectPathToTradeNetwork />} />
               {isSupportLimitOrder(chainId) && (
                 <Route
                   path={`${APP_PATHS.LIMIT}/:network/:currency?`}
                   element={
                     <NetworkSyncedPage>
-                      <LimitRoute />
+                      <LimitPage />
                     </NetworkSyncedPage>
                   }
                 />
@@ -359,7 +359,7 @@ export default function App() {
 
               <Route path={APP_PATHS.RECAP_2025} element={<Recap2025Redirect />} />
 
-              <Route path="*" element={<RedirectPathToSwapV3Network />} />
+              <Route path="*" element={<RedirectPathToTradeNetwork />} />
             </Routes>
           </BodyWrapper>
           {showFooter && <Footer />}

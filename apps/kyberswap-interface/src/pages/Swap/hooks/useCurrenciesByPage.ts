@@ -8,7 +8,7 @@ import { Field } from 'state/swap/actions'
 import { useInputCurrency, useOutputCurrency } from 'state/swap/hooks'
 import { currencyId } from 'utils/currencyId'
 
-const useCurrenciesByPage = () => {
+export const useCurrenciesByPage = () => {
   const { networkInfo, chainId } = useActiveWeb3React()
   const { pathname } = useLocation()
   const isSwapPage =
@@ -51,4 +51,3 @@ const useCurrenciesByPage = () => {
     shareUrl,
   }
 }
-export default useCurrenciesByPage

@@ -1,26 +1,27 @@
 import { lazy, useState } from 'react'
 
-import { SwapV3Layout, useSwapV3Controller } from 'pages/SwapV3'
-import PopulatedSwapForm from 'pages/SwapV3/PopulatedSwapForm'
-import { TAB } from 'pages/SwapV3/constants'
-import SwapInfo from 'pages/SwapV3/routes/SwapInfo'
-import useCurrenciesByPage from 'pages/SwapV3/useCurrenciesByPage'
+import { PopulatedSwapForm } from 'pages/Swap/components/PopulatedSwapForm'
+import { SwapRightPanel } from 'pages/Swap/components/SwapRightPanel'
+import { useCurrenciesByPage } from 'pages/Swap/hooks/useCurrenciesByPage'
+import { useTradeController } from 'pages/Swap/hooks/useTradeController'
+import { SwapLayout } from 'pages/Swap/layout/SwapLayout'
+import { TAB } from 'pages/Swap/layout/Tabs'
 import type { DetailedRouteSummary } from 'types/route'
 
 const LiquiditySourcesPanel = lazy(() => import('components/swapv2/LiquiditySourcesPanel'))
 const SettingsPanel = lazy(() => import('components/swapv2/SwapSettingsPanel'))
 const TokenInfoTab = lazy(() => import('components/swapv2/TokenInfo'))
 
-export default function SwapPage() {
-  const controller = useSwapV3Controller(TAB.SWAP)
+const SwapPage = () => {
+  const controller = useTradeController(TAB.SWAP)
   const { activeTab, highlightDegenMode, onBackToMainTab, setActiveTab } = controller
   const { currencies, currencyIn, currencyOut } = useCurrenciesByPage()
   const [routeSummary, setRouteSummary] = useState<DetailedRouteSummary>()
 
   return (
-    <SwapV3Layout
+    <SwapLayout
       controller={controller}
-      info={<SwapInfo currencyIn={currencyIn} currencyOut={currencyOut} routeSummary={routeSummary} />}
+      rightPanel={<SwapRightPanel currencyIn={currencyIn} currencyOut={currencyOut} routeSummary={routeSummary} />}
     >
       <PopulatedSwapForm
         routeSummary={routeSummary}
@@ -39,6 +40,8 @@ export default function SwapPage() {
         />
       )}
       {activeTab === TAB.LIQUIDITY_SOURCES && <LiquiditySourcesPanel onBack={() => setActiveTab(TAB.SETTINGS)} />}
-    </SwapV3Layout>
+    </SwapLayout>
   )
 }
+
+export default SwapPage

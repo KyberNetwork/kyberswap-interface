@@ -11,7 +11,11 @@ import { CrossChainSwapFactory } from 'pages/CrossChainSwap/factory'
 import { updateExcludedSources } from 'state/crossChainSwap'
 import { useAppDispatch, useAppSelector } from 'state/hooks'
 
-export const CrossChainSwapSources: React.FC<{ onBack: () => void }> = ({ onBack }) => {
+type Props = {
+  onBack?: () => void
+}
+
+const CrossChainSwapSources = ({ onBack }: Props) => {
   const { trackingHandler } = useTracking()
   const [searchText, setSearchText] = useState('')
 
@@ -112,3 +116,5 @@ export const CrossChainSwapSources: React.FC<{ onBack: () => void }> = ({ onBack
     </Stack>
   )
 }
+
+export default CrossChainSwapSources

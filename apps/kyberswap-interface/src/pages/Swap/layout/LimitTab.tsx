@@ -6,7 +6,7 @@ import { useGetListOrdersQuery } from 'services/limitOrder'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
-import { Tab } from 'pages/SwapV3/Tabs'
+import { Tab } from 'pages/Swap/layout/Tabs'
 import { isSupportLimitOrder } from 'utils'
 
 type Props = {
@@ -14,7 +14,8 @@ type Props = {
   active?: boolean
   customChainId?: ChainId
 }
-export default function LimitTab({ onClick, active, customChainId }: Props) {
+
+export const LimitTab = ({ onClick, active, customChainId }: Props) => {
   const { chainId: walletChainId, account } = useActiveWeb3React()
   const { pathname } = useLocation()
 

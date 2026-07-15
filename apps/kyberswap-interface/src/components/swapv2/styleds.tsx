@@ -88,7 +88,7 @@ export const SwapFormWrapper = ({ children, className, ...rest }: React.HTMLAttr
   </div>
 )
 
-export const InfoComponentsWrapper = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
+export const RightPanelWrapper = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
   <div
     className={cn('flex min-w-0 max-w-[920px] flex-1 flex-col gap-5 max-lg:w-full max-lg:flex-none', className)}
     {...rest}

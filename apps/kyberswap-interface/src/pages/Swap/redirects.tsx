@@ -4,8 +4,8 @@ import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { isSupportLimitOrder } from 'utils'
 
-// Redirects to swap-v3 but only replace the pathname
-export function RedirectPathToSwapV3Network() {
+// Redirects to a network-specific trade page but only replaces the pathname
+export const RedirectPathToTradeNetwork = () => {
   const { networkInfo, chainId } = useActiveWeb3React()
   const location = useLocation()
   const { pathname } = location

@@ -5,6 +5,7 @@ import { useMedia } from 'react-use'
 import { useExplorerLandingQuery } from 'services/earn'
 
 import { ReactComponent as FarmingIcon } from 'assets/svg/kyber/kem.svg'
+import { FarmingPoolContentSkeleton } from 'components/EarnBanner/Skeletons'
 import {
   BannerHeaderLink,
   FarmingAprBadge,
@@ -16,7 +17,6 @@ import {
   MoveForwardIcon,
   PoolPairText,
 } from 'components/EarnBanner/styles'
-import Skeleton from 'components/Skeleton'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
@@ -145,21 +145,7 @@ export default function FarmingPoolBanner() {
           <MoveForwardIcon onClick={handleMoveForward} />
         </div>
       ) : (
-        <div
-          className="relative flex items-center justify-center gap-2"
-          style={{ width: 'calc(100% + 8px)', left: '-4px' }}
-        >
-          <Skeleton circle height={20} variant="darkSubtle" width={20} />
-          <div className="flex flex-1 items-center justify-around">
-            {[0, 1].map(index => (
-              <div key={index} className="flex min-w-0 flex-1 items-center justify-center gap-2">
-                <Skeleton height={18} variant="darkSubtle" width={88} />
-                <Skeleton height={28} borderRadius={16} variant="darkSubtle" width={80} />
-              </div>
-            ))}
-          </div>
-          <Skeleton circle height={20} variant="darkSubtle" width={20} />
-        </div>
+        <FarmingPoolContentSkeleton />
       )}
     </FarmingWrapper>
   )

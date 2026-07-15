@@ -9,10 +9,24 @@ import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import usePageLocation from 'hooks/usePageLocation'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
-import LimitTab from 'pages/SwapV3/Tabs/LimitTab'
-import { TAB } from 'pages/SwapV3/constants'
+import { LimitTab } from 'pages/Swap/layout/LimitTab'
 import { isSupportLimitOrder } from 'utils'
 import { cn } from 'utils/cn'
+
+export enum TAB {
+  SWAP = 'swap',
+  INFO = 'info',
+  SETTINGS = 'settings',
+  LIQUIDITY_SOURCES = 'liquidity_sources',
+  LIMIT = 'limit',
+  CROSS_CHAIN = 'cross_chain',
+  CROSS_CHAIN_SOURCES = 'cross_chain_sources',
+}
+
+export type MainTab = TAB.SWAP | TAB.LIMIT | TAB.CROSS_CHAIN
+
+export const isSettingTab = (tab: TAB) =>
+  [TAB.INFO, TAB.SETTINGS, TAB.LIQUIDITY_SOURCES, TAB.CROSS_CHAIN_SOURCES].includes(tab)
 
 export const Tab = ({
   children,
@@ -41,7 +55,7 @@ type Props = {
   customChainId?: ChainId
 }
 
-const Tabs = ({ activeTab, setActiveTab, customChainId }: Props) => {
+export const Tabs = ({ activeTab, setActiveTab, customChainId }: Props) => {
   const navigateFn = useNavigate()
   const { networkInfo, chainId: walletChainId } = useActiveWeb3React()
   const { trackingHandler } = useTracking()
@@ -139,5 +153,3 @@ const Tabs = ({ activeTab, setActiveTab, customChainId }: Props) => {
     </Stack>
   )
 }
-
-export default Tabs
