@@ -8,7 +8,9 @@ import { HStack, Stack } from 'components/Stack'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import usePageLocation from 'hooks/usePageLocation'
+import usePrefetchOnIntent from 'hooks/usePrefetchOnIntent'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
+import { prefetchCrossChainSwap } from 'pages/CrossChainSwap/loader'
 import { LimitTab } from 'pages/Swap/layout/LimitTab'
 import { isSupportLimitOrder } from 'utils'
 import { cn } from 'utils/cn'
@@ -59,6 +61,7 @@ export const Tabs = ({ activeTab, setActiveTab, customChainId }: Props) => {
   const navigateFn = useNavigate()
   const { networkInfo, chainId: walletChainId } = useActiveWeb3React()
   const { trackingHandler } = useTracking()
+  const crossChainIntent = usePrefetchOnIntent(prefetchCrossChainSwap)
   const chainId = customChainId || walletChainId
 
   const { currency: currencyParam } = useParams()
@@ -130,6 +133,7 @@ export const Tabs = ({ activeTab, setActiveTab, customChainId }: Props) => {
       key: TAB.CROSS_CHAIN,
       node: (
         <Tab
+          {...crossChainIntent}
           onClick={() => onClickTab(TAB.CROSS_CHAIN)}
           $isActive={activeTab === TAB.CROSS_CHAIN}
           data-testid="cross-chain-tab"

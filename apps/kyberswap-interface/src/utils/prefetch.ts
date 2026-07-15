@@ -5,17 +5,20 @@ import limitOrderApi from 'services/limitOrder'
 import { getInitialListOrdersArgs } from 'components/LimitOrder/listOrdersArgs'
 import { APP_PATHS } from 'constants/index'
 import { isSupportedChainId } from 'constants/networks'
+import { loadCrossChainSwap } from 'pages/CrossChainSwap/loader'
 import { getInitialPositionQueryParams } from 'pages/Earns/UserPositions/positionsQuery'
 import store from 'state'
 
 type ChunkLoader = () => Promise<unknown>
 
-// Destination route → its lazy JS chunk, covering every lazy header nav link. Trade routes are already
-// in the entry bundle so switching tabs does not suspend the whole page. Each loader imports the SAME module
-// App.tsx lazy-loads, so Vite serves the identical chunk (dedup by resolved module id) — prefetching never
-// double-downloads. Order matters: list more specific path prefixes before their parents (e.g. every
+// Destination route → its lazy JS chunk, covering every lazy header nav link. Trade page shells stay eager,
+// while the heavy CrossChain form has its own lazy boundary. Each loader imports the SAME module as its
+// corresponding lazy boundary, so Vite serves the identical chunk (dedup by resolved module id) — prefetching
+// never double-downloads. Order matters: list more specific path prefixes before their parents (e.g. every
 // `/earn/*` before `/earn`, `/campaigns/dashboard` before the `/campaigns` catch-all).
 const ROUTE_CHUNKS: { prefix: string; load: ChunkLoader }[] = [
+  // Trade — the page shell is eager, but the heavy CrossChain form stays lazy.
+  { prefix: APP_PATHS.CROSS_CHAIN, load: loadCrossChainSwap },
   // Market
   { prefix: APP_PATHS.MARKET_OVERVIEW, load: () => import('pages/MarketOverview') },
   // Earn — specific /earn/* routes must precede the /earn landing.

@@ -1,12 +1,13 @@
 import { lazy, useState } from 'react'
 
 import { Stack } from 'components/Stack'
-import CrossChainSwap from 'pages/CrossChainSwap'
+import { loadCrossChainSwap } from 'pages/CrossChainSwap/loader'
 import type { Quote } from 'pages/CrossChainSwap/registry'
 import { useTradeController } from 'pages/Swap/hooks/useTradeController'
 import { SwapLayout } from 'pages/Swap/layout/SwapLayout'
 import { TAB } from 'pages/Swap/layout/Tabs'
 
+const CrossChainSwap = lazy(loadCrossChainSwap)
 const CrossChainSwapSources = lazy(() => import('pages/CrossChainSwap/components/CrossChainSwapSources'))
 const QuoteSteps = lazy(() => import('pages/CrossChainSwap/components/QuoteSteps'))
 const SwapSettingsPanel = lazy(() => import('pages/Swap/components/SwapSettingsPanel'))

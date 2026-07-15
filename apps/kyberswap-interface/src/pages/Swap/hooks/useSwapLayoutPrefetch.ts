@@ -1,43 +1,54 @@
 import { useEffect } from 'react'
 
+import { loadCrossChainSwap } from 'pages/CrossChainSwap/loader'
+
 type LazyComponentLoader = () => Promise<unknown>
 
-// Forms stay eager. Only warm the lazy content rendered inside SwapLayout's two Suspense regions.
+// Warm the lazy content rendered inside SwapLayout's two Suspense regions, including the CrossChain form.
 const LEFT_CONTENT_LOADERS: LazyComponentLoader[] = [
-  () => import('components/TokenInfo'),
   () => import('pages/Swap/components/SwapSettingsPanel'),
   () => import('pages/Swap/components/LiquiditySourcesPanel'),
+  loadCrossChainSwap,
   () => import('pages/CrossChainSwap/components/CrossChainSwapSources'),
+  () => import('components/TokenInfo'),
 ]
 
 const RIGHT_PANEL_LOADERS: LazyComponentLoader[] = [
   () => import('components/EarnBanner/TrendingPoolBanner'),
   () => import('components/EarnBanner/FarmingPoolBanner'),
+  () => import('components/TokenPriceChart/TokenPriceChartCanvas'),
+  () => import('components/TradeRouting'),
   () => import('components/LimitOrder/OrderList'),
   () => import('pages/CrossChainSwap/components/QuoteSteps'),
   () => import('pages/CrossChainSwap/components/TransactionHistory'),
-  () => import('components/TokenPriceChart/TokenPriceChartCanvas'),
-  () => import('components/TradeRouting'),
 ]
 
 const SWAP_LAYOUT_LOADERS = [...LEFT_CONTENT_LOADERS, ...RIGHT_PANEL_LOADERS]
-const PREFETCH_START_DELAY = 5_000
-const PREFETCH_CHUNK_DELAY = 1_000
+const PREFETCH_START_FALLBACK_DELAY = 5_000
+const PREFETCH_CHUNK_FALLBACK_DELAY = 1_000
 
 let hasStartedPrefetch = false
 
-const prefetchSwapLayoutChunks = async () => {
-  for (const [index, loader] of SWAP_LAYOUT_LOADERS.entries()) {
-    await loader().catch(() => undefined)
-
-    if (index < SWAP_LAYOUT_LOADERS.length - 1) {
-      await new Promise(resolve => window.setTimeout(resolve, PREFETCH_CHUNK_DELAY))
-    }
+const scheduleWhenIdle = (callback: () => void, fallbackDelay: number) => {
+  if (window.requestIdleCallback) {
+    window.requestIdleCallback(callback)
+  } else {
+    window.setTimeout(callback, fallbackDelay)
   }
 }
 
-const schedulePrefetch = () => {
-  window.setTimeout(() => void prefetchSwapLayoutChunks(), PREFETCH_START_DELAY)
+const prefetchSwapLayoutChunk = (index = 0) => {
+  const loader = SWAP_LAYOUT_LOADERS[index]
+  if (!loader) return
+
+  scheduleWhenIdle(
+    () => {
+      void loader()
+        .catch(() => undefined)
+        .finally(() => prefetchSwapLayoutChunk(index + 1))
+    },
+    index === 0 ? PREFETCH_START_FALLBACK_DELAY : PREFETCH_CHUNK_FALLBACK_DELAY,
+  )
 }
 
 export const useSwapLayoutPrefetch = () => {
@@ -47,7 +58,7 @@ export const useSwapLayoutPrefetch = () => {
     const startPrefetch = () => {
       if (hasStartedPrefetch) return
       hasStartedPrefetch = true
-      schedulePrefetch()
+      prefetchSwapLayoutChunk()
     }
 
     if (document.readyState === 'complete') {
