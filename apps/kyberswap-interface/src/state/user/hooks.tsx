@@ -237,6 +237,18 @@ export function useUserAddedTokens(customChain?: ChainId): Token[] {
   }, [serializedTokensMap, chainId])
 }
 
+/**
+ * Whether an address is a user-imported token on a given chain. Unlike `useUserAddedTokens`, the chain
+ * is an argument rather than baked in, so one caller can ask about several chains at once.
+ */
+export function useIsTokenImported(): (chainId: ChainId, address: string) => boolean {
+  const serializedTokensMap = useSelector<AppState, AppState['user']['tokens']>(({ user: { tokens } }) => tokens)
+  return useCallback(
+    (chainId: ChainId, address: string) => !!serializedTokensMap[chainId]?.[address],
+    [serializedTokensMap],
+  )
+}
+
 export function usePairAdderByTokens(): (token0: Token, token1: Token) => void {
   const dispatch = useDispatch<AppDispatch>()
 
