@@ -1,6 +1,6 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { ChevronLeft } from 'react-feather'
 
 import { ReactComponent as Coingecko } from 'assets/svg/coingecko_color.svg'
@@ -15,6 +15,7 @@ import { TextDashed } from 'components/Text'
 import { MouseoverTooltip } from 'components/Tooltip'
 import MarketInfo from 'components/swapv2/TokenInfo/MarketInfo'
 import SecurityInfo from 'components/swapv2/TokenInfo/SecurityInfo'
+import { useSecurityLevelOfCurrency } from 'components/swapv2/TokenInfo/useTokenSecurityLevel'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { Field } from 'state/swap/actions'
@@ -70,15 +71,32 @@ const TokenInfoTab = ({ currencies, onBack }: { currencies: { [field in Field]?:
   const outputToken = outputNativeCurrency?.wrapped
 
   const [activeTab, setActiveTab] = useState(TAB.TOKEN_IN)
+  const isTabPickedByUser = useRef(false)
+
+  const inputSecurityLevel = useSecurityLevelOfCurrency(currencies[Field.INPUT])
+  const outputSecurityLevel = useSecurityLevelOfCurrency(currencies[Field.OUTPUT])
 
   const selectedToken = activeTab === TAB.TOKEN_OUT ? outputToken : inputToken
   const isOneToken = !!inputToken?.address && inputToken.address === outputToken?.address
   const isActiveTokenIn = activeTab === TAB.TOKEN_IN
   const isActiveTokenOut = activeTab === TAB.TOKEN_OUT
 
+  const onSelectTab = (tab: TAB) => {
+    isTabPickedByUser.current = true
+    setActiveTab(tab)
+  }
+
   useEffect(() => {
+    isTabPickedByUser.current = false
     inputToken?.address && setActiveTab(TAB.TOKEN_IN)
-  }, [chainId, inputToken?.address])
+  }, [chainId, inputToken?.address, outputToken?.address])
+
+  // Land on the token carrying the warning — security data arrives async, so this
+  // runs once it resolves. The input token wins ties, and a manual pick always sticks.
+  useEffect(() => {
+    if (isTabPickedByUser.current) return
+    setActiveTab(outputSecurityLevel > inputSecurityLevel ? TAB.TOKEN_OUT : TAB.TOKEN_IN)
+  }, [inputSecurityLevel, outputSecurityLevel])
 
   return (
     <div className="flex flex-col">
@@ -109,12 +127,12 @@ const TokenInfoTab = ({ currencies, onBack }: { currencies: { [field in Field]?:
             <TokenTabButton
               currency={inputNativeCurrency}
               isActive={isActiveTokenIn}
-              onClick={() => setActiveTab(TAB.TOKEN_IN)}
+              onClick={() => onSelectTab(TAB.TOKEN_IN)}
             />
             <TokenTabButton
               currency={outputNativeCurrency}
               isActive={isActiveTokenOut}
-              onClick={() => setActiveTab(TAB.TOKEN_OUT)}
+              onClick={() => onSelectTab(TAB.TOKEN_OUT)}
             />
           </div>
         )}
