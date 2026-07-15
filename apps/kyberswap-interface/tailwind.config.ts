@@ -203,15 +203,16 @@ const config: Config = {
           from: { opacity: '0', transform: 'translateY(-6px) scale(0.97)' },
           to: { opacity: '1', transform: 'translateY(0) scale(1)' },
         },
-        // Push-navigation enter: a detail panel slides in from the right edge (paired with a "←" back).
+        // Push-navigation enter: a detail panel fades in with a short nudge from the right (paired with
+        // a "←" back). Kept to a few pixels — travelling the full panel width janks on slow devices.
         slideInRight: {
-          from: { transform: 'translateX(100%)' },
-          to: { transform: 'translateX(0)' },
+          from: { opacity: '0', transform: 'translateX(12px)' },
+          to: { opacity: '1', transform: 'translateX(0)' },
         },
-        // Push-navigation exit: the detail panel slides back out to the right on "←" back.
+        // Push-navigation exit: the detail panel fades back out toward the right on "←" back.
         slideOutRight: {
-          from: { transform: 'translateX(0)' },
-          to: { transform: 'translateX(100%)' },
+          from: { opacity: '1', transform: 'translateX(0)' },
+          to: { opacity: '0', transform: 'translateX(12px)' },
         },
       },
       animation: {
@@ -227,8 +228,8 @@ const config: Config = {
         'highlight-warning': 'highlight-warning 2s infinite alternate ease-in-out',
         'token-info-glow': 'token-info-glow 1.5s ease-in-out infinite',
         dropdownIn: 'dropdownIn 0.15s ease-out',
-        slideInRight: 'slideInRight 0.25s ease-out',
-        slideOutRight: 'slideOutRight 0.2s ease-in forwards',
+        slideInRight: 'slideInRight 0.15s ease-out',
+        slideOutRight: 'slideOutRight 0.12s ease-in forwards',
       },
     },
   },
