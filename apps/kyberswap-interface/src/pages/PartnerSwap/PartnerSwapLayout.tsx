@@ -3,7 +3,7 @@ import { type PropsWithChildren, type ReactNode, Suspense } from 'react'
 
 import { LimitOrderProvider } from 'components/LimitOrder/LimitOrderContext'
 import Loader from 'components/Loader'
-import Skeleton from 'components/Skeleton'
+import LocalLoader from 'components/LocalLoader'
 import { Center } from 'components/Stack'
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
 import { Header } from 'pages/Swap/layout/Header'
@@ -53,7 +53,7 @@ export const PartnerSwapLayout = ({
 
           {rightPanel ? (
             <RightPanel>
-              <Suspense fallback={<Skeleton height={200} />}>{rightPanel}</Suspense>
+              <Suspense fallback={<LocalLoader />}>{rightPanel}</Suspense>
             </RightPanel>
           ) : null}
         </LimitOrderProvider>

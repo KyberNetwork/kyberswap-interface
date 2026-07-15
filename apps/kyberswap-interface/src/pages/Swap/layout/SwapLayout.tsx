@@ -3,7 +3,7 @@ import { type PropsWithChildren, type ReactNode, Suspense, lazy } from 'react'
 import { FarmingPoolBannerSkeleton, TrendingPoolBannerSkeleton } from 'components/EarnBanner/Skeletons'
 import { LimitOrderProvider } from 'components/LimitOrder/LimitOrderContext'
 import Loader from 'components/Loader'
-import Skeleton from 'components/Skeleton'
+import LocalLoader from 'components/LocalLoader'
 import { Center } from 'components/Stack'
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
@@ -68,7 +68,7 @@ export const SwapLayout = ({ children, controller, rightPanel }: SwapLayoutProps
                 <FarmingPoolBanner />
               </BannerWrapper>
             </Suspense>
-            <Suspense fallback={<Skeleton height={200} />}>{rightPanel}</Suspense>
+            <Suspense fallback={<LocalLoader />}>{rightPanel}</Suspense>
           </RightPanel>
         </LimitOrderProvider>
       </Container>
