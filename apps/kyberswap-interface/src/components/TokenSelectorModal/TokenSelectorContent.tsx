@@ -63,8 +63,14 @@ import { useIsTokenRestricted, useNotifyRestrictedToken } from 'hooks/useRestric
 import { fetchListTokenByAddresses, useAllTokens } from 'hooks/useTokens'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import SortIcon, { Direction } from 'pages/MarketOverview/SortIcon'
+import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
-import { useRemoveUserAddedToken, useUserAddedTokens, useUserFavoriteTokens } from 'state/user/hooks'
+import {
+  useIsTokenImported,
+  useRemoveUserAddedToken,
+  useUserAddedTokens,
+  useUserFavoriteTokens,
+} from 'state/user/hooks'
 import { CloseIcon, MEDIA_WIDTHS } from 'theme'
 import { filterTruthy, isAddress } from 'utils'
 import { cn } from 'utils/cn'
@@ -173,6 +179,7 @@ export const TokenSelectorContent = ({
     return [...supportedChains].sort((a, b) => (chainVolumes[b.chainId] ?? -1) - (chainVolumes[a.chainId] ?? -1))
   }, [supportedChains, chainVolumes])
   const removeToken = useRemoveUserAddedToken()
+  const isTokenImported = useIsTokenImported()
   const isTokenRestricted = useIsTokenRestricted()
   const notifyRestrictedToken = useNotifyRestrictedToken()
 
@@ -553,6 +560,22 @@ export const TokenSelectorContent = ({
     switchChainAndSelect(token)
   }, [switchChainToken, switchChainAndSelect])
 
+  // A hit in the "other chains" group is other-chain only relative to the chain selector, which the
+  // wallet need not be on — so the token can well sit on the app's own chain. Aim the selector at it
+  // and hand off to the row select path, which gates on the app chain and so asks for a network switch
+  // only when one is really needed.
+  const handleOtherChainSelect = useCallback(
+    (token: WrappedTokenInfo) => {
+      setSelectedChainId(token.chainId)
+      if (getNeedsImport(token, address => isTokenImported(token.chainId, address), !!onImportToken)) {
+        onImportToken?.(token.wrapped)
+        return
+      }
+      handleCurrencySelect(token)
+    },
+    [handleCurrencySelect, isTokenImported, onImportToken],
+  )
+
   const handleInput = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
       const input = event.target.value
@@ -908,6 +931,8 @@ export const TokenSelectorContent = ({
                   tokens={otherChainTokens}
                   loading={isCheckingOtherChains}
                   loadingFallback={<SearchLoading />}
+                  anchorChainId={anchorChainId}
+                  onSelect={handleOtherChainSelect}
                 />
               ) : (
                 <NoResult message={debouncedQuery ? undefined : emptyMessage} />

@@ -12,6 +12,7 @@ import Loader from 'components/Loader'
 import Skeleton from 'components/Skeleton'
 import { Center, HStack, Stack } from 'components/Stack'
 import { getDisplayTokenInfo } from 'components/TokenSelectorModal/PinnedTokens'
+import { Balance } from 'components/TokenSelectorModal/components'
 import { TokenRowExtra, TokenRowExtraMap, tokenRowKey } from 'components/TokenSelectorModal/types'
 import { getNeedsImport } from 'components/TokenSelectorModal/utils'
 import { useActiveWeb3React } from 'hooks'
@@ -39,18 +40,6 @@ const EMPTY_ITEM_STYLE: CSSProperties = {}
 // Stable empties so gated balance/price subscriptions never allocate a fresh array to disable them.
 const EMPTY_CURRENCIES: Currency[] = []
 const EMPTY_ADDRESSES: string[] = []
-
-const Balance = ({ balance }: { balance: CurrencyAmount<Currency> }) => {
-  return (
-    <span
-      className="max-w-full truncate text-xs text-text sm:text-sm"
-      data-testid="token-balance"
-      title={balance.toExact()}
-    >
-      {balance.toSignificant(10)}
-    </span>
-  )
-}
 
 // Compact age badge for the New tab, counted from when the token was whitelisted: "NEW" under 12h,
 // then hours ("15H") up to a day, then days ("3D").
