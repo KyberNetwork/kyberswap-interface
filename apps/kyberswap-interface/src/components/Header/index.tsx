@@ -29,7 +29,9 @@ const LogoImage = ({ isChristmas, src, alt }: { isChristmas?: boolean; src: stri
 )
 
 const LogoIcon = ({ children }: { children: React.ReactNode }) => (
-  <div className="transition-transform duration-300 hover:rotate-[-5deg] max-xs:hover:rotate-0">{children}</div>
+  <div className="flex min-h-12 items-center transition-transform duration-300 hover:rotate-[-5deg] max-sm:min-h-9 max-xs:hover:rotate-0">
+    {children}
+  </div>
 )
 
 export default function Header() {
@@ -39,9 +41,12 @@ export default function Header() {
   const upToXXSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToXXSmall}px)`)
   const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
+  const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const upToExtraSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToExtraSmall}px)`)
+  const upTo500 = useMedia('(max-width: 500px)')
 
   const hide = isEmbeddedSwap && upToLarge
+  const navGroupDropdownAlign = upToMedium ? 'right' : 'left'
 
   const menu = (
     <div className="flex items-center gap-2 rounded-[36px] border border-background bg-background px-1.5 text-subText hover:border-border-primary hover:brightness-105">
@@ -55,12 +60,10 @@ export default function Header() {
     <div
       style={{ zIndex: Z_INDEXS.HEADER }}
       className={cn(
-        'relative top-0 grid w-full items-center justify-between border-b border-black/10',
+        'relative top-0 grid w-full items-center justify-between',
         'grid-cols-[1fr_120px] flex-row p-4',
         'max-lg:grid-cols-[1fr]',
-        'max-xs:px-4 max-xs:py-2',
         hide && '!h-0 !overflow-hidden !p-0',
-        hide ? 'max-xs:!h-0' : 'max-xs:h-[60px]',
       )}
     >
       <div className="flex w-fit flex-row flex-nowrap items-center gap-3 justify-self-start max-md:w-full">
@@ -85,25 +88,28 @@ export default function Header() {
           </Link>
         )}
         {!isEmbeddedSwap && (
-          <div className="flex w-full flex-row flex-nowrap items-center justify-center gap-1 max-lg:justify-end max-xxs:gap-0">
-            <SwapNavGroup />
-            <EarnNavGroup />
+          <nav
+            aria-label="Primary"
+            className="flex w-full flex-row flex-nowrap items-center justify-center gap-1 max-lg:justify-end"
+          >
+            <SwapNavGroup dropdownAlign={navGroupDropdownAlign} />
+            <EarnNavGroup dropdownAlign={navGroupDropdownAlign} />
 
             {!upToExtraSmall && (
               <StyledNavLink to={`${APP_PATHS.MARKET_OVERVIEW}`}>
                 <Trans>Market</Trans>
               </StyledNavLink>
             )}
-            <CampaignNavGroup />
-            <KyberDAONavGroup />
+            {!upTo500 && <CampaignNavGroup dropdownAlign={navGroupDropdownAlign} />}
+            {!upToMedium && <KyberDAONavGroup dropdownAlign={navGroupDropdownAlign} />}
             {!upToMedium && (
               <StyledNavExternalLink target="_blank" href={AGGREGATOR_ANALYTICS_URL}>
                 <Trans>Analytics</Trans>
               </StyledNavExternalLink>
             )}
-            <AboutNavGroup />
+            {!upToSmall && <AboutNavGroup dropdownAlign={navGroupDropdownAlign} />}
             <RecapButton />
-          </div>
+          </nav>
         )}
       </div>
 
@@ -112,8 +118,7 @@ export default function Header() {
           'flex flex-row items-center gap-2 justify-self-end',
           'max-lg:fixed max-lg:bottom-0 max-lg:left-0 max-lg:z-[98] max-lg:h-[72px] max-lg:w-full',
           'max-lg:justify-between max-lg:justify-self-center max-lg:bg-buttonBlack max-lg:p-4',
-          'max-sm:h-[60px]',
-          'max-[500px]:px-2 max-[500px]:py-4',
+          'max-sm:h-[60px] max-sm:p-2',
         )}
       >
         {isEmbeddedSwap ? (

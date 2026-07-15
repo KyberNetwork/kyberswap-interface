@@ -1,7 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { useCallback, useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { QueryParams } from 'services/marketOverview'
+import { QueryParams } from 'services/tokenCatalog'
 
 import { useActiveWeb3React } from 'hooks'
 

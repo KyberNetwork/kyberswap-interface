@@ -7,7 +7,7 @@ import { friendlyError } from 'utils/errorMessage'
 export const PageWrapper = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
   <div
     className={cn(
-      'flex w-full max-w-[1464px] flex-col items-stretch gap-6 px-9 pt-6 max-lg:h-auto max-sm:gap-4 max-sm:px-4 max-sm:py-5',
+      'flex w-full max-w-[1464px] flex-col items-stretch gap-6 px-9 py-6 max-lg:h-auto max-sm:gap-4 max-sm:px-4 max-sm:py-5',
       className,
     )}
     {...rest}
@@ -19,7 +19,7 @@ export const PageWrapper = ({ children, className, ...rest }: React.HTMLAttribut
 export const Container = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
   <div
     className={cn(
-      'flex w-full max-w-[1392px] items-start justify-center gap-12 max-lg:flex-col max-lg:items-center max-lg:gap-6 max-sm:gap-4',
+      'flex w-full items-start justify-center gap-12 max-lg:flex-col max-lg:items-center max-lg:gap-6',
       className,
     )}
     {...rest}
@@ -58,7 +58,7 @@ export function SwapCallbackError({ error, style = {} }: { error: string; style?
       className="z-[-1] mt-9 flex w-full items-center rounded-2xl bg-buttonBlack-40 py-2 pl-2 pr-5 text-[0.825rem]"
       style={style}
     >
-      <Alert className="mb-auto" />
+      <Alert className="mb-auto size-10 shrink-0" />
       <div className="my-[10px] ml-2 mr-0 flex basis-full flex-col">
         <span className="text-base font-medium leading-6 text-red">{friendlyError(error)}</span>
         {error !== friendlyError(error) && (
@@ -79,7 +79,7 @@ export function SwapCallbackError({ error, style = {} }: { error: string; style?
 export const SwapFormWrapper = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
   <div
     className={cn(
-      'z-[1] flex w-[425px] flex-shrink-0 flex-col items-center justify-center gap-4 max-sm:w-full lg:sticky lg:top-4',
+      'z-[1] flex w-full max-w-[425px] flex-shrink-0 flex-col items-center justify-center gap-4 lg:sticky lg:top-4',
       className,
     )}
     {...rest}
@@ -89,7 +89,10 @@ export const SwapFormWrapper = ({ children, className, ...rest }: React.HTMLAttr
 )
 
 export const InfoComponentsWrapper = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
-  <div className={cn('flex w-[calc(100%-472px)] flex-grow flex-col gap-5 max-md:w-full', className)} {...rest}>
+  <div
+    className={cn('flex min-w-0 max-w-[920px] flex-1 flex-col gap-5 max-lg:w-full max-lg:flex-none', className)}
+    {...rest}
+  >
     {children}
   </div>
 )
@@ -119,7 +122,7 @@ export const StyledActionButtonSwapForm = ({
   return (
     <button
       className={cn(
-        'relative m-0 flex size-9 cursor-pointer items-center justify-center rounded-full border-none p-0 outline-none',
+        'relative m-0 flex size-8 cursor-pointer items-center justify-center rounded-full border-none p-0 outline-none',
         active ? 'bg-buttonGray' : 'bg-transparent',
         !hoverBg && 'hover:bg-background',
         className,

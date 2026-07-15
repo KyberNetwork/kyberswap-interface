@@ -37,11 +37,11 @@ import { didUserReject } from 'constants/connectors/utils'
 import { APP_PATHS, EIP712Domain } from 'constants/index'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
-import { useCurrency } from 'hooks/Tokens'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
 import { usePairContract } from 'hooks/useContract'
 import useIsArgentWallet from 'hooks/useIsArgentWallet'
 import useTheme from 'hooks/useTheme'
+import { useCurrency } from 'hooks/useTokens'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
 import { Wrapper } from 'pages/MyPool/styleds'
 import {
@@ -167,14 +167,14 @@ export default function ZapOut({
 
   // allowance handling
   const [signatureData, setSignatureData] = useState<{ v: number; r: string; s: string; deadline: number } | null>(null)
-  const [approval, approveCallback] = useApproveCallback(
-    parsedAmounts[Field.LIQUIDITY],
-    isStaticFeePair
+  const [approval, approveCallback] = useApproveCallback({
+    amount: parsedAmounts[Field.LIQUIDITY],
+    spender: isStaticFeePair
       ? isOldStaticFeeContract
         ? networkInfo.classic.oldStatic?.zap
         : networkInfo.classic.static.zap
       : networkInfo.classic.dynamic?.zap,
-  )
+  })
 
   // if user liquidity change => remove signature
   useEffect(() => {
@@ -191,7 +191,8 @@ export default function ZapOut({
     if (!liquidityAmount) throw new Error('missing liquidity amount')
 
     if (isArgentWallet) {
-      return approveCallback()
+      await approveCallback()
+      return
     }
 
     // try to gather a signature for permission
@@ -261,7 +262,7 @@ export default function ZapOut({
           8000,
         )
       } else {
-        approveCallback()
+        await approveCallback()
       }
     }
   }

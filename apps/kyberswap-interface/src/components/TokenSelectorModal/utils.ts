@@ -7,10 +7,11 @@ import { useMemo } from 'react'
 import ksSettingApi from 'services/ksSetting'
 
 import { KS_SETTING_API } from 'constants/env'
+import { ETHER_ADDRESS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import type { NetworkInfo } from 'constants/networks/type'
 import { useActiveWeb3React } from 'hooks'
-import { fetchListTokenByAddresses, fetchTokenInfoFromRpc, formatAndCacheToken } from 'hooks/Tokens'
+import { fetchListTokenByAddresses, fetchTokenInfoFromRpc, formatAndCacheToken } from 'hooks/useTokens'
 import store from 'state'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
@@ -23,6 +24,7 @@ export const TOKEN_SEARCH_PAGE_SIZE = 20
 const UNKNOWN_TOKEN_NAME = 'Unknown Token'
 const UNKNOWN_TOKEN_SYMBOL = 'UNKNOWN'
 const EMPTY_BALANCE_MAP = {}
+const EMPTY_PRICE_ADDRESSES: string[] = []
 
 type TokenBalanceMap = {
   [tokenAddress: string]: TokenAmount | undefined
@@ -62,11 +64,11 @@ const fetchTokenByAddress = async (address: string, chainId: ChainId): Promise<W
 const fetchTokenSearchPage = async (
   search: string | undefined,
   page: number,
-  chainId: ChainId,
+  chainIds: ChainId[],
 ): Promise<WrappedTokenInfo[]> => {
   const params: TokenSearchParams = {
     query: search ?? '',
-    chainIds: chainId.toString(),
+    chainIds: chainIds.join(','),
     page,
     pageSize: TOKEN_SEARCH_PAGE_SIZE,
     ...(!search && { isWhitelisted: true }),
@@ -80,18 +82,34 @@ const fetchTokenSearchPage = async (
 export const fetchTokens = async (
   search: string | undefined,
   page: number,
-  chainId: ChainId,
+  chainIds: ChainId[],
 ): Promise<WrappedTokenInfo[]> => {
   try {
-    if (search && chainId && isAddress(chainId, search)) {
-      return fetchTokenByAddress(search, chainId)
+    const primaryChainId = chainIds[0]
+    if (search && primaryChainId && isAddress(primaryChainId, search)) {
+      return fetchTokenByAddress(search, primaryChainId)
     }
 
-    return fetchTokenSearchPage(search, page, chainId)
+    return fetchTokenSearchPage(search, page, chainIds)
   } catch (error) {
     return []
   }
 }
+
+/**
+ * Whether picking this token should open the import-warning screen rather than select it directly:
+ * a non-native, non-whitelisted token that the user hasn't imported yet (and import is available).
+ * Shared by the row click and the Enter-to-select shortcut so both honor the same gate.
+ */
+export const getNeedsImport = (
+  currency: Currency,
+  isImported: (address: string) => boolean,
+  canImport: boolean,
+): boolean =>
+  canImport &&
+  !isTokenNative(currency) &&
+  !(currency as WrappedTokenInfo)?.isWhitelisted &&
+  !isImported(currency.wrapped.address)
 
 const getRpcSearchChainIds = (chainId: ChainId, supportedChains: NetworkInfo[]) => {
   const otherChainIds = supportedChains
@@ -148,6 +166,9 @@ export const useAddressRpcTokenSearch = ({
       queryKey: ['currency-search-rpc-token', rpcChainId, debouncedQuery],
       enabled: shouldFetchRpcTokens,
       queryFn: () => fetchRpcToken(debouncedQuery, rpcChainId, chainId),
+      // On-chain token metadata is immutable; don't re-run the ~15-chain fan-out on window refocus.
+      staleTime: 300_000,
+      refetchOnWindowFocus: false,
       retry: false,
     })),
   })
@@ -208,7 +229,10 @@ function getTokenComparator(
   balances: TokenBalanceMap,
   ethBalance: CurrencyAmount<Currency> | undefined,
   tokenPrices: TokenPriceMap,
+  // Addresses (lowercased) to float above non-favorites once balance/value is a tie.
+  favoriteAddresses?: Set<string>,
 ): (tokenA: Token, tokenB: Token) => number {
+  const favoriteKey = (token: Token) => (isTokenNative(token) ? ETHER_ADDRESS : token.address).toLowerCase()
   return function sortTokens(tokenA: Token, tokenB: Token): number {
     const balanceA = isTokenNative(tokenA) ? ethBalance : balances[tokenA.address]
     const balanceB = isTokenNative(tokenB) ? ethBalance : balances[tokenB.address]
@@ -225,6 +249,13 @@ function getTokenComparator(
     const balanceComp = balanceComparator(balanceA, balanceB)
     if (balanceComp !== 0) return balanceComp
 
+    // Favorites rank above non-favorites, but only after balance/value — a held token still leads.
+    if (favoriteAddresses?.size) {
+      const favA = favoriteAddresses.has(favoriteKey(tokenA))
+      const favB = favoriteAddresses.has(favoriteKey(tokenB))
+      if (favA !== favB) return favA ? -1 : 1
+    }
+
     if (tokenA.symbol && tokenB.symbol) {
       return tokenA.symbol.toLowerCase().localeCompare(tokenB.symbol.toLowerCase())
     }
@@ -233,19 +264,27 @@ function getTokenComparator(
   }
 }
 
-export function useTokenComparator(inverted: boolean, customChain?: ChainId): (tokenA: Token, tokenB: Token) => number {
+export function useTokenComparator(
+  inverted: boolean,
+  customChain?: ChainId,
+  // Only the tabs that sort by wallet value need this; when disabled it registers no whole-whitelist
+  // balanceOf multicall and no /prices fetch, and just falls back to a symbol sort.
+  enabled = true,
+  // Lowercased favorite addresses to float above non-favorites once balance/value is a tie.
+  favoriteAddresses?: Set<string>,
+): (tokenA: Token, tokenB: Token) => number {
   const { chainId: currentChain } = useActiveWeb3React()
   const chainId = customChain || currentChain
-  const balances = useAllTokenBalances(chainId)
+  const balances = useAllTokenBalances(chainId, enabled)
   const ethBalance = useNativeBalance(chainId)
   const tokenPriceAddresses = useMemo(
-    () => [...Object.keys(balances ?? EMPTY_BALANCE_MAP), NATIVE_TOKEN_ADDRESS],
-    [balances],
+    () => (enabled ? [...Object.keys(balances ?? EMPTY_BALANCE_MAP), NATIVE_TOKEN_ADDRESS] : EMPTY_PRICE_ADDRESSES),
+    [balances, enabled],
   )
   const tokenPrices = useTokenPrices(tokenPriceAddresses, chainId)
 
   return useMemo(() => {
-    const comparator = getTokenComparator(balances ?? EMPTY_BALANCE_MAP, ethBalance, tokenPrices)
+    const comparator = getTokenComparator(balances ?? EMPTY_BALANCE_MAP, ethBalance, tokenPrices, favoriteAddresses)
     return inverted ? (tokenA: Token, tokenB: Token) => comparator(tokenA, tokenB) * -1 : comparator
-  }, [balances, inverted, ethBalance, tokenPrices])
+  }, [balances, inverted, ethBalance, tokenPrices, favoriteAddresses])
 }

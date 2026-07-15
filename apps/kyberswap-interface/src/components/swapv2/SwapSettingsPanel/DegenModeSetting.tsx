@@ -1,6 +1,5 @@
 import { Trans } from '@lingui/macro'
 import { Dispatch, FC, SetStateAction } from 'react'
-import { useSearchParams } from 'react-router-dom'
 
 import AdvanceModeModal from 'components/TransactionSettings/AdvanceModeModal'
 import { SettingsLabel, SettingsRow, SettingsToggle } from 'components/swapv2/SwapSettingsPanel/components'
@@ -10,8 +9,9 @@ import { useDegenModeManager } from 'state/user/hooks'
 type Props = {
   showConfirmation: boolean
   setShowConfirmation: Dispatch<SetStateAction<boolean>>
+  highlight?: boolean
 }
-const DegenModeSetting: FC<Props> = ({ showConfirmation, setShowConfirmation }) => {
+const DegenModeSetting: FC<Props> = ({ showConfirmation, setShowConfirmation, highlight = false }) => {
   const { trackingHandler } = useTracking()
 
   const [isDegenMode, toggleDegenMode] = useDegenModeManager()
@@ -30,15 +30,9 @@ const DegenModeSetting: FC<Props> = ({ showConfirmation, setShowConfirmation }) 
     setShowConfirmation(true)
   }
 
-  const [searchParams] = useSearchParams()
-  const enableDegenMode = searchParams.get('enableDegenMode') === 'true'
-
   return (
     <>
-      <SettingsRow
-        data-highlight={enableDegenMode}
-        className="-m-1 rounded-lg p-1 data-[highlight=true]:animate-highlight"
-      >
+      <SettingsRow data-highlight={highlight} className="-m-1 rounded-lg p-1 data-[highlight=true]:animate-highlight">
         <SettingsLabel
           tooltip={
             <Trans>

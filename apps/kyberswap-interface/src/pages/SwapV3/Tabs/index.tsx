@@ -23,7 +23,7 @@ export const Tab = ({
 }: React.ComponentProps<typeof ButtonEmpty> & { $isActive: boolean; $isDisabled?: boolean }) => (
   <ButtonEmpty
     className={cn(
-      'relative inline-flex w-fit items-center gap-2 rounded-none p-0 text-lg font-medium leading-[normal] hover:no-underline focus:no-underline max-sm:px-1.5 max-sm:py-0 max-sm:text-sm',
+      'relative inline-flex w-fit items-center gap-1 whitespace-nowrap rounded-none p-0 text-lg font-medium leading-[normal] hover:no-underline focus:no-underline max-sm:text-base sm:gap-2',
       $isDisabled ? 'text-border' : $isActive ? 'text-primary' : 'text-subText hover:text-text',
       className,
     )}
@@ -33,14 +33,15 @@ export const Tab = ({
   </ButtonEmpty>
 )
 
-const TabDivider = () => <span aria-hidden className="h-6 w-0.5 shrink-0 rounded-sm bg-border" />
+const TabDivider = () => <span aria-hidden className="h-5 w-0.5 shrink-0 rounded-sm bg-border sm:h-6" />
 
 type Props = {
   activeTab: TAB
   setActiveTab: (tab: TAB) => void
   customChainId?: ChainId
 }
-export default function Tabs({ activeTab, setActiveTab, customChainId }: Props) {
+
+const Tabs = ({ activeTab, setActiveTab, customChainId }: Props) => {
   const navigateFn = useNavigate()
   const { networkInfo, chainId: walletChainId } = useActiveWeb3React()
   const { trackingHandler } = useTracking()
@@ -127,7 +128,7 @@ export default function Tabs({ activeTab, setActiveTab, customChainId }: Props) 
 
   return (
     <Stack className="items-start sm:flex-row sm:items-center sm:justify-between">
-      <HStack className="items-center gap-2">
+      <HStack className="items-center gap-1 sm:gap-2">
         {tabs.map((tab, index) => (
           <Fragment key={tab.key}>
             {index > 0 && <TabDivider />}
@@ -138,3 +139,5 @@ export default function Tabs({ activeTab, setActiveTab, customChainId }: Props) 
     </Stack>
   )
 }
+
+export default Tabs

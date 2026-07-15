@@ -20,6 +20,7 @@ import {
   monad,
   optimism,
   plasma,
+  robinhood,
   ronin,
   scroll,
   sonic,
@@ -54,6 +55,7 @@ const NETWORKS_INFO_CONFIG: NETWORKS_INFO_CONFIG_TYPE = {
   [ChainId.ETHERLINK]: etherlink,
   [ChainId.MONAD]: monad,
   [ChainId.MEGAETH]: megaeth,
+  [ChainId.ROBINHOOD]: robinhood,
 } as const
 
 //this Proxy helps fallback undefined ChainId by Ethereum info
@@ -67,7 +69,7 @@ export const NETWORKS_INFO = new Proxy(NETWORKS_INFO_CONFIG, {
 
 export const SUPPORTED_NETWORKS: ChainId[] = Object.keys(NETWORKS_INFO).map(Number)
 
-export const MAINNET_NETWORKS = [
+export const MAINNET_NETWORKS: ChainId[] = [
   ChainId.MAINNET,
   ChainId.ARBITRUM,
   ChainId.OPTIMISM,
@@ -90,21 +92,17 @@ export const MAINNET_NETWORKS = [
   ChainId.PLASMA,
   ChainId.MONAD,
   ChainId.MEGAETH,
-] as const
+  ChainId.ROBINHOOD,
+]
 
 export function isSupportedChainId(chainId?: number): chainId is ChainId {
   if (!chainId) return false
   return !!(NETWORKS_INFO_CONFIG as any)[chainId]
 }
 
-export const FAUCET_NETWORKS = []
-
-export const CLAIM_REWARDS_DATA_URL: { [chainId: number]: string } = {
-  [ChainId.AVAXMAINNET]:
-    'https://raw.githubusercontent.com/KyberNetwork/avax-trading-contest-reward-distribution/develop/results/reward_proof.json',
-  [ChainId.MATIC]:
-    'https://raw.githubusercontent.com/KyberNetwork/zkyber-reward-distribution/main/results/latest_merkle_data.json',
-}
+export const FAUCET_NETWORKS: ChainId[] = [
+  //
+]
 
 export const ELASTIC_NOT_SUPPORTED: () => { [key: string]: string } = () => ({
   [ChainId.ZKSYNC]: t`Elastic will be available soon`,

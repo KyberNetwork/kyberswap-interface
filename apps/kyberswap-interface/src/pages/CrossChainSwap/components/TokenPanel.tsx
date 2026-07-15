@@ -11,7 +11,7 @@ import UnknownToken from 'assets/svg/kyber/unknown-token.svg'
 import { Aligner, CurrencySelect, InputRow, StyledTokenName } from 'components/CurrencyInputPanel'
 import CurrencyLogo from 'components/CurrencyLogo'
 import Wallet from 'components/Icons/Wallet'
-import { Input as NumericalInput } from 'components/NumericalInput'
+import NumericalInput from 'components/NumericalInput'
 import { RowFixed } from 'components/Row'
 import Skeleton from 'components/Skeleton'
 import { Stack } from 'components/Stack'
@@ -204,8 +204,8 @@ export const TokenPanel = ({
   )
 
   return (
-    <div className="rounded-2xl bg-buttonBlack p-4">
-      <Stack className="gap-2">
+    <div className="rounded-2xl border border-transparent bg-buttonBlack p-4">
+      <Stack className="gap-3">
         <div className="flex items-center justify-between">
           <SelectNetwork
             onSelectNetwork={onSelectNetwork}
@@ -220,7 +220,7 @@ export const TokenPanel = ({
             <div className="relative text-xs font-medium text-subText">
               <div
                 role="button"
-                className="flex cursor-pointer items-center gap-1 hover:brightness-125"
+                className="flex cursor-pointer items-end gap-1 hover:brightness-125"
                 onClick={handleWalletClick}
               >
                 {walletDisplayAddress}
@@ -336,6 +336,7 @@ export const TokenPanel = ({
           showPinnedTokens
           customChainId={selectedChain as ChainId}
           trackingSource="cross_chain"
+          showDiscoveryTabs={false}
         />
       ) : (
         <TokenSelectorNonEvmModal

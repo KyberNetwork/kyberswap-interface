@@ -51,7 +51,7 @@ const PoolAprBadges = ({ pool }: Props) => {
             {lmRewardLogos.length > 0 ? (
               <HStack className="flex-nowrap items-center gap-0.5">
                 {lmRewardLogos.map((logo, index) => (
-                  <TokenLogo key={`${logo}-${index}`} src={logo} size={16} className="shrink-0" />
+                  <TokenLogo key={`${logo}-${index}`} src={logo} size={16} className="min-w-4 shrink-0" />
                 ))}
               </HStack>
             ) : (

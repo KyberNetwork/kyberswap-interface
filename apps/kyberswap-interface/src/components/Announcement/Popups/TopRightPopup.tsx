@@ -1,12 +1,12 @@
 import { motion } from 'framer-motion'
-import { CSSProperties, useCallback, useEffect, useState } from 'react'
-import { X } from 'react-feather'
+import { CSSProperties, ReactNode, useCallback, useEffect, useRef, useState } from 'react'
 
 import getPopupTopRightDescriptionByType from 'components/Announcement/Popups/PopupTopRightDescriptions'
 import SimplePopup from 'components/Announcement/Popups/SimplePopup'
 import TransactionPopup from 'components/Announcement/Popups/TransactionPopup'
 import {
   NotificationType,
+  PopupContent,
   PopupContentAnnouncement,
   PopupContentSimple,
   PopupContentTxn,
@@ -16,8 +16,20 @@ import {
 import { useSuccessSound } from 'hooks/useSuccessSound'
 import useTheme from 'hooks/useTheme'
 import { useRemovePopup } from 'state/application/hooks'
+import { CloseIcon } from 'theme'
 
-const delta = typeof window !== 'undefined' ? window.innerWidth + 'px' : '0px'
+export const TOP_RIGHT_POPUP_EXIT_MS = 500
+
+type PopupItemProps = {
+  popup: PopupItemType
+  hasOverlay: boolean
+  closeSignal?: number
+}
+
+type PopupDisplayContent = {
+  notiType: NotificationType
+  popupContent: ReactNode
+}
 
 const getBackgroundColor = (theme: ReturnType<typeof useTheme>, type: NotificationType = NotificationType.ERROR) => {
   const mapColor = {
@@ -34,88 +46,120 @@ const WrappedAnimatedFader = ({ removeAfterMs }: { removeAfterMs: number | null 
       className="absolute bottom-0 left-0 h-0.5 w-full bg-subText"
       initial={{ width: '100%' }}
       animate={{ width: '0%' }}
-      transition={{ duration: removeAfterMs ?? undefined }}
+      transition={{ duration: removeAfterMs ? removeAfterMs / 1000 : undefined }}
     />
   )
 }
 
-export default function PopupItem({ popup, hasOverlay }: { popup: PopupItemType; hasOverlay: boolean }) {
-  const { removeAfterMs, popupType, content } = popup
-  const playSuccessSound = useSuccessSound()
+const getPopupDisplayContent = (
+  popupType: PopupType,
+  content: PopupContent,
+  removeThisPopup: () => void,
+): PopupDisplayContent | null => {
+  switch (popupType) {
+    case PopupType.SIMPLE: {
+      const { type = NotificationType.ERROR } = content as PopupContentSimple
 
-  const [isRestartAnimation, setRestartAnimation] = useState(false)
+      return {
+        notiType: type,
+        popupContent: <SimplePopup {...(content as PopupContentSimple)} type={type} />,
+      }
+    }
+    case PopupType.TRANSACTION: {
+      const { hash, type = NotificationType.ERROR } = content as PopupContentTxn
+
+      return {
+        notiType: type,
+        popupContent: <TransactionPopup hash={hash} notiType={type} />,
+      }
+    }
+    case PopupType.TOP_RIGHT: {
+      const data = getPopupTopRightDescriptionByType(content as PopupContentAnnouncement)
+      if (!data) return null
+
+      return {
+        notiType: data.type,
+        popupContent: <SimplePopup {...data} onRemove={removeThisPopup} />,
+      }
+    }
+    default:
+      return null
+  }
+}
+
+export default function PopupItem({ popup, hasOverlay, closeSignal = 0 }: PopupItemProps) {
+  const { removeAfterMs, popupType, content } = popup
+  const theme = useTheme()
+  const playSuccessSound = useSuccessSound()
   const removePopup = useRemovePopup()
-  const removeThisPopup = useCallback(() => removePopup(popup), [popup, removePopup])
+
+  const [isClosing, setIsClosing] = useState(false)
+  const handledCloseSignalRef = useRef(closeSignal)
+  const removePopupTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const isClosingRef = useRef(false)
+
+  const removeThisPopup = useCallback(() => {
+    if (isClosingRef.current) return
+
+    isClosingRef.current = true
+    setIsClosing(true)
+    removePopupTimeoutRef.current = setTimeout(() => removePopup(popup), TOP_RIGHT_POPUP_EXIT_MS)
+  }, [popup, removePopup])
+
+  useEffect(() => {
+    return () => {
+      if (removePopupTimeoutRef.current) clearTimeout(removePopupTimeoutRef.current)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (closeSignal === handledCloseSignalRef.current) return
+    handledCloseSignalRef.current = closeSignal
+    if (closeSignal) removeThisPopup()
+  }, [closeSignal, removeThisPopup])
 
   useEffect(() => {
     if (removeAfterMs === null) return
     const timeout = setTimeout(() => {
       removeThisPopup()
-    }, removeAfterMs)
-    requestAnimationFrame(() => setRestartAnimation(false))
+    }, Math.max(removeAfterMs - TOP_RIGHT_POPUP_EXIT_MS, 0))
 
     return () => {
       clearTimeout(timeout)
-      setRestartAnimation(true)
     }
   }, [removeAfterMs, removeThisPopup, content])
-
-  const theme = useTheme()
-
-  let notiType = NotificationType.SUCCESS
-  let popupContent: React.ReactNode | null = null
 
   useEffect(() => {
     if (popupType === PopupType.TRANSACTION && (content as PopupContentTxn).type === NotificationType.SUCCESS) {
       playSuccessSound()
     }
-  }, [content, popupType, playSuccessSound, notiType])
+  }, [content, popupType, playSuccessSound])
 
-  switch (popupType) {
-    case PopupType.SIMPLE: {
-      const { type = NotificationType.ERROR } = content as PopupContentSimple
-      notiType = type
-      popupContent = <SimplePopup {...(content as PopupContentSimple)} type={type} />
-      break
-    }
-    case PopupType.TRANSACTION: {
-      const { hash, type = NotificationType.ERROR } = content as PopupContentTxn
-      notiType = type
-      popupContent = <TransactionPopup hash={hash} notiType={notiType} />
-      break
-    }
-    case PopupType.TOP_RIGHT: {
-      const data = getPopupTopRightDescriptionByType(content as PopupContentAnnouncement)
-      if (!data) return null
-      notiType = data.type
-      popupContent = <SimplePopup {...data} onRemove={removeThisPopup} />
-      break
-    }
-  }
+  const displayContent = getPopupDisplayContent(popupType, content, removeThisPopup)
+  if (!displayContent) return null
 
-  if (!popupContent) return null
+  const { notiType, popupContent } = displayContent
 
-  const ltrDelay = (removeAfterMs || 15000) / 1000 - 0.2
   const wrapperStyle: CSSProperties & Record<'--ks-popup-delta', string> = {
-    '--ks-popup-delta': delta,
-    animation: `ks-popup-rtl 0.7s ease-in-out, ks-popup-ltr 0.5s ease-in-out ${ltrDelay}s`,
+    '--ks-popup-delta': '100vw',
+    animation: isClosing
+      ? `ks-popup-ltr ${TOP_RIGHT_POPUP_EXIT_MS}ms ease-in-out forwards`
+      : 'ks-popup-rtl 0.7s ease-in-out',
   }
 
-  return isRestartAnimation ? (
-    <div />
-  ) : (
+  return (
     <div
-      className="relative w-[min(calc(100vw-32px),425px)] overflow-hidden rounded-[10px] [isolation:isolate] max-md:m-auto [&:not(:first-of-type)]:mt-[15px]"
+      className="relative w-[min(calc(100vw-32px),425px)] overflow-hidden rounded-[10px] [isolation:isolate] max-md:m-auto"
       style={wrapperStyle}
     >
       <div className="absolute left-0 top-0 size-full bg-bg2" />
       <div
-        className="relative inline-block w-full py-5 pl-5 pr-3"
+        className="relative inline-block w-full p-4 pr-3"
         style={{ background: getBackgroundColor(theme, notiType) }}
       >
-        <div className="flex justify-between">
+        <div className="flex justify-between gap-2">
           {popupContent}
-          <X onClick={removeThisPopup} className="ml-[10px] min-w-[24px] text-text2 hover:cursor-pointer" />
+          <CloseIcon onClick={removeThisPopup} />
         </div>
         {removeAfterMs && <WrappedAnimatedFader removeAfterMs={removeAfterMs} />}
       </div>

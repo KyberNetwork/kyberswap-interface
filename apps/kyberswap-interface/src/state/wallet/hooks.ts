@@ -6,9 +6,9 @@ import { ERC20_ABI } from 'constants/abis'
 import { EMPTY_ARRAY, EMPTY_OBJECT } from 'constants/index'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
-import { useAllTokens } from 'hooks/Tokens'
 import { useEthBalanceOfAnotherChain, useTokensBalanceOfAnotherChain } from 'hooks/bridge'
 import { useMulticallContract } from 'hooks/useContract'
+import { useAllTokens } from 'hooks/useTokens'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { useMultipleContractSingleData, useSingleCallResult } from 'state/multicall/hooks'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
@@ -179,9 +179,17 @@ export function useCurrencyBalance(currency?: Currency, chainId?: ChainId): Curr
 }
 
 // mimics useAllBalances
-export function useAllTokenBalances(chainId?: ChainId): { [tokenAddress: string]: TokenAmount | undefined } {
+// `enabled=false` skips registering the per-block balanceOf multicall over the whole token map (for
+// callers that only need it on some tabs) while keeping the return shape stable.
+export function useAllTokenBalances(
+  chainId?: ChainId,
+  enabled = true,
+): { [tokenAddress: string]: TokenAmount | undefined } {
   const allTokens = useAllTokens(false, chainId)
-  const allTokensArray = useMemo(() => Object.values(allTokens ?? {}), [allTokens])
+  const allTokensArray = useMemo(
+    () => (enabled ? Object.values(allTokens ?? {}) : (EMPTY_ARRAY as Token[])),
+    [allTokens, enabled],
+  )
   return useTokenBalances(allTokensArray, chainId) ?? EMPTY_OBJECT
 }
 

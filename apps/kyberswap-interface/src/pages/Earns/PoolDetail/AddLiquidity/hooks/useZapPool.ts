@@ -10,8 +10,8 @@ import {
 import { MAX_TICK, MIN_TICK, nearestUsableTick } from '@kyber/utils/uniswapv3'
 import { skipToken } from '@reduxjs/toolkit/query'
 import { useMemo } from 'react'
-import { useCheckPairQuery } from 'services/marketOverview'
-import { PoolDetail } from 'services/zapEarn'
+import type { PoolDetail } from 'services/earn/types'
+import { useCheckPairQuery } from 'services/tokenCatalog'
 
 import { isUniV3PoolType } from 'pages/Earns/PoolDetail/AddLiquidity/utils'
 

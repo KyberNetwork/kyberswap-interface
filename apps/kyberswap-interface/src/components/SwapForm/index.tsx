@@ -3,6 +3,7 @@ import { Trans } from '@lingui/macro'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { parseGetRouteResponse } from 'services/route/utils'
+import { useGetHoneypotInfoQuery } from 'services/tokenCatalog'
 
 import AddressInputPanel from 'components/AddressInputPanel'
 import { NotificationType } from 'components/Announcement/type'
@@ -24,7 +25,6 @@ import useGetRoute from 'components/SwapForm/hooks/useGetRoute'
 import useParsedAmount from 'components/SwapForm/hooks/useParsedAmount'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import { Wrapper } from 'components/swapv2/styleds'
-import { TOKEN_API_URL } from 'constants/env'
 import { SAFE_APP_CLIENT_ID } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useDebounce from 'hooks/useDebounce'
@@ -235,18 +235,11 @@ const SwapForm: React.FC<SwapFormProps> = props => {
     setRouteSummary(routeSummary)
   }, [routeSummary, setRouteSummary])
 
-  const [honeypot, setHoneypot] = useState<{ isHoneypot: boolean; isFOT: boolean; tax: number } | null>(null)
-
-  useEffect(() => {
-    if (!currencyOut) return
-    fetch(
-      `${TOKEN_API_URL}/v1/public/tokens/honeypot-fot-info?address=${currencyOut.wrapped.address.toLowerCase()}&chainId=${chainId}`,
-    )
-      .then(res => res.json())
-      .then(res => {
-        setHoneypot(res.data)
-      })
-  }, [currencyOut, chainId])
+  const { data: honeypotData } = useGetHoneypotInfoQuery(
+    { chainId, address: currencyOut?.wrapped.address.toLowerCase() ?? '' },
+    { skip: !currencyOut?.wrapped.address },
+  )
+  const honeypot = honeypotData?.data ?? null
 
   return (
     <SwapFormContextProvider
@@ -274,6 +267,7 @@ const SwapForm: React.FC<SwapFormProps> = props => {
               />
 
               <ReverseTokenSelectionButton
+                className="z-20 -my-4 mx-auto"
                 onClick={() => {
                   trackingHandler(TRACKING_EVENT_TYPE.TOKEN_PAIR_REVERSED, {
                     from_token: currencyIn?.symbol,
@@ -307,7 +301,7 @@ const SwapForm: React.FC<SwapFormProps> = props => {
             {!isWrapOrUnwrap && <FeeControlGroup />}
           </div>
         </Wrapper>
-        <div className="flex flex-col gap-5">
+        <div className="flex flex-col gap-4">
           <MultichainKNCNote currencyIn={currencyIn} currencyOut={currencyOut} />
 
           {!isWrapOrUnwrap && (

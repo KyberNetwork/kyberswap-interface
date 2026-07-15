@@ -5,7 +5,7 @@ import { t } from '@lingui/macro'
 import { useState } from 'react'
 import { Share2 } from 'react-feather'
 import { useNavigate } from 'react-router-dom'
-import { PoolDetailToken } from 'services/zapEarn'
+import type { PoolDetailToken } from 'services/earn/types'
 
 import { ReactComponent as RocketIcon } from 'assets/svg/rocket.svg'
 import IconButton from 'components/Button/IconButton'

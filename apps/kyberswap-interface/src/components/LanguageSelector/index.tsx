@@ -1,65 +1,73 @@
-import { isMobile } from 'react-device-detect'
-import { ArrowLeft, Check } from 'react-feather'
+import { Check } from 'react-feather'
 import { useLocation, useNavigate } from 'react-router-dom'
 
-import { ButtonEmpty } from 'components/Button'
-import { LOCALE_INFO, SupportedLocale, getLocaleLabel } from 'constants/locales'
-import useParsedQueryString from 'hooks/useParsedQueryString'
+import { HStack, Stack } from 'components/Stack'
+import { DEFAULT_LOCALE, LOCALE_INFO, SupportedLocale } from 'constants/locales'
 import { useUserLocale } from 'state/user/hooks'
 import { cn } from 'utils/cn'
 
-export default function LanguageSelector({
-  setIsSelectingLanguage,
-  onLanguageChange,
-}: {
-  setIsSelectingLanguage: (isSelectingLanguage: boolean) => void
+const LOCALES = Object.keys(LOCALE_INFO) as SupportedLocale[]
+
+type LanguageSelectorProps = {
+  onDismiss?: () => void
   onLanguageChange?: (previousLanguage: string, newLanguage: string) => void
-}) {
+}
+
+const LanguageSelector = ({ onDismiss, onLanguageChange }: LanguageSelectorProps) => {
   const navigate = useNavigate()
   const location = useLocation()
-  const qs = useParsedQueryString()
   const userLocale = useUserLocale()
+  const selectedLocale = userLocale || DEFAULT_LOCALE
 
   const handleSelectLanguage = (locale: SupportedLocale) => {
-    const target = {
-      ...location,
-      search: new URLSearchParams({ ...qs, lng: locale }).toString(),
+    if (locale !== selectedLocale) {
+      const searchParams = new URLSearchParams(location.search)
+      searchParams.set('lng', locale)
+
+      onLanguageChange?.(selectedLocale, locale)
+      navigate({
+        ...location,
+        search: searchParams.toString(),
+      })
     }
 
-    onLanguageChange?.(userLocale ?? '', locale)
-    navigate(target)
-    setIsSelectingLanguage(false)
+    onDismiss?.()
   }
 
   return (
-    <div className="flex flex-col items-start justify-center">
-      <ButtonEmpty
-        width="fit-content"
-        padding="0"
-        onClick={() => setIsSelectingLanguage(false)}
-        className="mb-6 text-text no-underline"
-      >
-        <ArrowLeft />
-      </ButtonEmpty>
-      <div className={cn('grid w-full gap-x-12 gap-y-6', isMobile ? 'grid-cols-[1fr_1fr]' : 'grid-cols-[1fr]')}>
-        {Object.keys(LOCALE_INFO).map(element => {
-          const locale = element as SupportedLocale
-          const isSelected = locale === userLocale
+    <Stack className="pl-4">
+      <div className="grid w-full grid-cols-[1fr]">
+        {LOCALES.map(locale => {
+          const localeInfo = LOCALE_INFO[locale]
+          const isSelected = locale === selectedLocale
+
           return (
-            <ButtonEmpty
+            <button
+              type="button"
               key={locale}
-              padding="0"
               onClick={() => handleSelectLanguage(locale)}
-              className="flex justify-between no-underline"
+              className={cn(
+                'group flex w-full cursor-pointer items-center justify-between gap-2 border-0 bg-transparent text-left outline-none transition-colors',
+                'px-0 py-2.5 text-sm text-subText hover:text-text focus:text-text',
+                isSelected && '!text-primary',
+              )}
             >
-              <div className={cn('text-sm', isSelected ? 'text-primary' : 'text-subText')}>
-                {getLocaleLabel(locale)}
-              </div>
-              {isSelected && <Check className="text-primary" />}
-            </ButtonEmpty>
+              <HStack
+                className={cn(
+                  'items-center gap-2 whitespace-nowrap',
+                  isSelected ? 'text-primary' : 'text-subText group-hover:text-text group-focus:text-text',
+                )}
+              >
+                <img src={localeInfo.flag} alt="" className="w-5 shrink-0" />
+                <span>{localeInfo.name}</span>
+              </HStack>
+              {isSelected && <Check className="size-4 shrink-0 text-primary" />}
+            </button>
           )
         })}
       </div>
-    </div>
+    </Stack>
   )
 }
+
+export default LanguageSelector

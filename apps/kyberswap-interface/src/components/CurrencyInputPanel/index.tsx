@@ -9,7 +9,7 @@ import Card from 'components/Card'
 import TokenInfo from 'components/CurrencyInputPanel/TokenInfo'
 import CurrencyLogo from 'components/CurrencyLogo'
 import Wallet from 'components/Icons/Wallet'
-import { Input as NumericalInput } from 'components/NumericalInput'
+import NumericalInput from 'components/NumericalInput'
 import { RowFixed } from 'components/Row'
 import TokenSelectorModal from 'components/TokenSelectorModal'
 import { useActiveWeb3React } from 'hooks'
@@ -17,6 +17,7 @@ import { useCurrencyBalance } from 'state/wallet/hooks'
 import { cn } from 'utils/cn'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
 import { shortString } from 'utils/string'
+import { getCurrencyDisplaySymbol } from 'utils/tokenInfo'
 
 type CurrencySelectStyleProps = {
   tight?: boolean
@@ -43,7 +44,7 @@ export const CurrencySelect = forwardRef<
       className={cn(
         'flex min-h-[38px] select-none items-center rounded-full px-2 text-xl font-medium leading-[normal] outline-none',
         hideInput ? 'w-full bg-buttonBlack' : 'w-auto bg-background',
-        selected ? 'border border-transparent text-subText' : 'border border-primary text-primary',
+        selected ? 'border border-transparent text-subText' : 'border border-border-primary text-primary',
         !selected && 'shadow-[0px_6px_10px_rgba(0,0,0,0.075)]',
         isDisable ? 'cursor-default' : 'cursor-pointer',
         !isDisable && 'hover:brightness-125 focus:brightness-125',
@@ -267,10 +268,9 @@ const CurrencySelectContent = ({
   nativeCurrency,
   tight,
 }: CurrencySelectContentProps) => {
+  const currencySymbol = getCurrencyDisplaySymbol(nativeCurrency)
   const displaySymbol =
-    nativeCurrency?.symbol && maxCurrencySymbolLength
-      ? shortString(nativeCurrency.symbol, maxCurrencySymbolLength)
-      : nativeCurrency?.symbol
+    currencySymbol && maxCurrencySymbolLength ? shortString(currencySymbol, maxCurrencySymbolLength) : currencySymbol
   const tokenSymbol = displaySymbol || loadingText || <Trans>Select a token</Trans>
 
   return (
@@ -281,7 +281,7 @@ const CurrencySelectContent = ({
           tight={tight}
           className="token-symbol-container"
           data-testid="token-symbol-container"
-          active={Boolean(currency && currency.symbol)}
+          active={Boolean(currency && getCurrencyDisplaySymbol(currency))}
           fontSize={tight ? '14px' : fontSize}
         >
           {tokenSymbol}

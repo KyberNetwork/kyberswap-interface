@@ -3,8 +3,8 @@ import { useLocation } from 'react-router-dom'
 
 import { DEFAULT_OUTPUT_TOKEN_BY_CHAIN, NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
-import { useCurrencyV2 } from 'hooks/Tokens'
 import useParsedQueryString from 'hooks/useParsedQueryString'
+import { useCurrencyV2 } from 'hooks/useTokens'
 import { Field } from 'state/swap/actions'
 import { queryParametersToSwapState } from 'state/swap/hooks'
 

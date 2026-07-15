@@ -8,9 +8,10 @@ import Skeleton from 'components/Skeleton'
 import { Stack } from 'components/Stack'
 import { useSwapFormContext } from 'components/SwapForm/SwapFormContext'
 import UpdatedBadge, { Props as UpdatedBadgeProps } from 'components/SwapForm/SwapModal/SwapDetails/UpdatedBadge'
-import { CHAINS_SUPPORT_FEE_CONFIGS, RESERVE_USD_DECIMALS } from 'constants/index'
+import { CHAINS_SUPPORT_FEE_CONFIGS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { formatDisplayNumber } from 'utils/numbers'
+import { getCurrencyDisplaySymbol } from 'utils/tokenInfo'
 
 type Props = {
   inputAmount: CurrencyAmount<Currency>
@@ -44,11 +45,7 @@ export default function SwapBrief({
       return <span className="min-w-0 flex-1 truncate text-2xl font-medium">--</span>
     }
 
-    return (
-      <span className="min-w-0 flex-1 truncate text-2xl font-medium">
-        {outputAmountFromBuild.toSignificant(RESERVE_USD_DECIMALS)}
-      </span>
-    )
+    return <span className="min-w-0 flex-1 truncate text-2xl font-medium">{outputAmountFromBuild.toExact()}</span>
   }
 
   const renderAmountOutUsd = () => {
@@ -80,7 +77,7 @@ export default function SwapBrief({
               ~{formatDisplayNumber(amountInUsd, { style: 'currency', significantDigits: 4 })}
             </span>
             <CurrencyLogo currency={inputAmount.currency} size="24px" />
-            <span className="text-xl font-medium text-subText">{inputAmount.currency.symbol}</span>
+            <span className="text-xl font-medium text-subText">{getCurrencyDisplaySymbol(inputAmount.currency)}</span>
           </div>
         </div>
       </div>
@@ -105,7 +102,7 @@ export default function SwapBrief({
           <div className="flex min-w-fit items-center gap-2">
             {renderAmountOutUsd()}
             <CurrencyLogo currency={currencyOut} size="24px" />
-            <span className="text-xl font-medium text-subText">{currencyOut.symbol}</span>
+            <span className="text-xl font-medium text-subText">{getCurrencyDisplaySymbol(currencyOut)}</span>
           </div>
         </div>
       </div>

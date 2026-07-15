@@ -1,24 +1,23 @@
 import { CSSProperties, ReactNode } from 'react'
-import { AlertTriangle } from 'react-feather'
+import { AlertTriangle, Info } from 'react-feather'
 
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import { CollapseItem } from 'components/Collapse'
 import { cn } from 'utils/cn'
 
-const ErrorWarningPanel = ({
-  title,
-  type,
-  desc,
-  style: customStyle = {},
-}: {
+type ErrorWarningProps = {
   title: ReactNode
-  type: 'error' | 'warn'
+  type: 'error' | 'warn' | 'info'
   desc?: ReactNode
   style?: CSSProperties
-}) => {
+}
+
+const ErrorWarning = ({ title, type, desc, style: customStyle = {} }: ErrorWarningProps) => {
   const isError = type === 'error'
-  const bgClass = isError ? 'bg-red-25' : 'bg-warning-25'
-  const colorClass = isError ? 'text-red' : 'text-warning'
+  const isInfo = type === 'info'
+  const bgClass = isError ? 'bg-red-25' : isInfo ? 'bg-primary-20' : 'bg-warning-25'
+  const colorClass = isError ? 'text-red' : isInfo ? 'text-primary' : 'text-warning'
+  const Icon = isInfo ? Info : AlertTriangle
 
   if (!desc)
     return (
@@ -26,7 +25,7 @@ const ErrorWarningPanel = ({
         className={cn('flex min-h-[40px] items-center gap-2 rounded-[18px] px-3 py-2', bgClass, colorClass)}
         style={customStyle}
       >
-        <AlertTriangle size={16} className="min-w-4" />
+        <Icon size={16} className="min-w-4" />
         <span className="text-xs font-normal text-text">{title}</span>
       </div>
     )
@@ -38,7 +37,7 @@ const ErrorWarningPanel = ({
       header={
         <div className={cn('flex items-center gap-2', colorClass)}>
           <div>
-            <AlertTriangle size={16} className="min-w-4" />
+            <Icon size={16} className="min-w-4" />
           </div>
           <span className="text-xs font-medium text-text">{title}</span>
         </div>
@@ -48,4 +47,4 @@ const ErrorWarningPanel = ({
     </CollapseItem>
   )
 }
-export default ErrorWarningPanel
+export default ErrorWarning

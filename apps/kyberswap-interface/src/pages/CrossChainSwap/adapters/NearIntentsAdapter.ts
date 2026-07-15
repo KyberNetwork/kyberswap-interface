@@ -14,6 +14,7 @@ import { Connection, PublicKey, SystemProgram, Transaction } from '@solana/web3.
 import { WalletClient, formatUnits } from 'viem'
 
 import { BTC_DEFAULT_RECEIVER, CROSS_CHAIN_FEE_RECEIVER, SOLANA_NATIVE, ZERO_ADDRESS } from 'constants/index'
+import { saveMyNearWalletPendingTransaction } from 'pages/CrossChainSwap/hooks/useRestoreMyNearWalletPendingTransaction'
 import type { SolanaToken } from 'pages/CrossChainSwap/hooks/useSolanaTokens'
 
 import { Quote } from '../registry'
@@ -58,7 +59,7 @@ export class NearIntentsAdapter extends BaseSwapAdapter {
     // Initialize the API client
     OpenAPI.BASE = 'https://1click.chaindefuser.com'
     OpenAPI.TOKEN =
-      'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IjIwMjUtMDQtMjMtdjEifQ.eyJ2IjoxLCJrZXlfdHlwZSI6ImRpc3RyaWJ1dGlvbl9jaGFubmVsIiwicGFydG5lcl9pZCI6Imt5YmVyIiwiaWF0IjoxNzUxNDUwNzY3LCJleHAiOjE3ODI5ODY3Njd9.lJWUgXKaPNyFfkiMHIaW_brXLavXIDJL97mivJOjQfsw5YU80EBi3uHd1wWFhMiQBmfpTg4ETkuihhC6wsbt1-hb1M6lst03tfDjgepE_EGeYa-_Fp8rdiEs5t56ieH-9Bf2W-5isEjZ984cs0TBwrMaMgoxQ62zC6sAe-SMVkaGFe5E48rjSsR5uk2Y34BGWg_--xqCT0KiJTydOgU-sjmlw6qKcUIojOcI8kK9Xt847y1ELAhNnMWQDlztuZoplrZ9hUABLUE6o-WPsJQ1huTrTisM1RTTVo3UoFE_SleL8HqREfyEnOWJzdI_PM6E2ro3L5w8-Z4dUg6CQIaZUQ'
+      'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IjIwMjUtMDEtMTItdjEifQ.eyJ2IjoxLCJrZXlfdHlwZSI6ImRpc3RyaWJ1dGlvbl9jaGFubmVsIiwicGFydG5lcl9pZCI6Imt5YmVyY3Jvc3MiLCJpYXQiOjE3ODMwNjc5OTUsImV4cCI6MTgxNDYwMzk5NX0.vf1Ntum-A3AxWSlyRoji00SR9m4pVRXiFCJsyztkMZY4oSGp58eXc4TzmgkEGzmh-JONevN_nz730-qq3XNV9DcFrLWFsboXOZjwWTEBix8FNag57tEuMnCNn4t5PhNzDYUrgdX5Z1hqZrhjCvQpH-jeYCywH91RXbOcXAhq8murkquNA4eNe_5mBcNKgnuFmo0kUI7F73ndT41D9iTVJN0-FvIz-BpCaHtNE0Wilg6Rc5qwE3vA_3mUU8zl6xhpOXGcTAUr-LhGM6Yqa2ajk3ri-VmeA8VA83i3hyB7wn8Bo0HGX6JJ8ipqRqMfL1nNqjn_Cz2e793kC8yLtk557Q'
   }
 
   getName(): string {
@@ -458,15 +459,12 @@ export class NearIntentsAdapter extends BaseSwapAdapter {
           ],
         })
 
-        // My near wallet is redirect to wallet website -> need store to process later
-        if (nearWallet?.wallet?.id === 'my-near-wallet')
-          localStorage.setItem(
-            'cross-chain-swap-my-near-wallet-tx',
-            JSON.stringify({
-              ...params,
-              sourceTxHash: depositAddress,
-            }),
-          )
+        if (nearWallet?.wallet?.id === 'my-near-wallet') {
+          saveMyNearWalletPendingTransaction({
+            ...params,
+            sourceTxHash: depositAddress,
+          })
+        }
 
         await nearWallet
           .signAndSendTransactions({

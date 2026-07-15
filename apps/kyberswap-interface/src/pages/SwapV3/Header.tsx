@@ -12,17 +12,14 @@ import Tabs from 'pages/SwapV3/Tabs'
 import { useDegenModeManager } from 'state/user/hooks'
 import { CloseIcon } from 'theme'
 
-export default function Header({
-  activeTab,
-  setActiveTab,
-  customChainId,
-  activeMainTab,
-}: {
+type HeaderProps = {
   activeTab: TAB
   setActiveTab: (tab: TAB) => void
   customChainId?: ChainId
   activeMainTab?: TAB
-}) {
+}
+
+const Header = ({ activeTab, setActiveTab, customChainId, activeMainTab }: HeaderProps) => {
   const [isDegenMode] = useDegenModeManager()
   const [isShowDegenBanner, setShowDegenBanner] = useState(true)
   const { pathname } = useLocation()
@@ -35,7 +32,7 @@ export default function Header({
   return (
     <>
       <Stack className="w-full items-center gap-2">
-        <HStack className="min-h-9 w-full items-center justify-between gap-3">
+        <HStack className="min-h-9 w-full items-center justify-between gap-0">
           <Tabs activeTab={selectedTab} setActiveTab={setActiveTab} customChainId={customChainId} />
           <HeaderRightMenu activeTab={activeTab} setActiveTab={setActiveTab} activeMainTab={activeMainTab} />
         </HStack>
@@ -47,7 +44,7 @@ export default function Header({
                 Gasless & no slippage - Kyberswap Limit Order execute on-chain automatically when the market reaches
                 your price.
               </HiddenH2>
-              <span className="text-xs text-subText">{t`Buy or sell tokens at customized prices`}</span>
+              <span className="text-xs font-medium text-subText">{t`Buy or sell tokens at customized prices`}</span>
             </>
           )}
           {isSwapPage && (
@@ -57,7 +54,7 @@ export default function Header({
                 An advanced aggregator splits your trade across hundreds of DEXs and liquidity sources for minimal
                 slippage.
               </HiddenH2>
-              <span className="text-xs text-subText">{t`Instantly buy or sell tokens at superior prices`}</span>
+              <span className="text-xs font-medium text-subText">{t`Instantly buy or sell tokens at superior prices`}</span>
             </>
           )}
           {isCrossChainPage && (
@@ -66,7 +63,7 @@ export default function Header({
                 Swap tokens between EVMs, Bitcoin, Solana, and Near chains in one step - no manual bridging.
               </HiddenH1>
               <HiddenH2>Quotes from multiple providers, best rate picked automatically.</HiddenH2>
-              <span className="text-xs text-subText">{t`Swap between tokens on different chains`}</span>
+              <span className="text-xs font-medium text-subText">{t`Swap between tokens on different chains`}</span>
             </>
           )}
         </HStack>
@@ -76,9 +73,11 @@ export default function Header({
           <span className="text-xs font-normal text-text">
             <Trans>You have turned on Degen Mode. Be cautious</Trans>
           </span>
-          <CloseIcon size={14} onClick={() => setShowDegenBanner(false)} />
+          <CloseIcon className="size-4" onClick={() => setShowDegenBanner(false)} />
         </HStack>
       )}
     </>
   )
 }
+
+export default Header

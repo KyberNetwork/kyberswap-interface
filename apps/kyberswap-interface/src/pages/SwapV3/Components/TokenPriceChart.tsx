@@ -55,9 +55,10 @@ const countRecentTransactions = (candles: TokenChartCandle[], count: number) => 
 
 type TokenPriceChartProps = {
   tokens?: Array<Currency | undefined>
+  flatten?: boolean
 }
 
-const TokenPriceChart = ({ tokens }: TokenPriceChartProps) => {
+const TokenPriceChart = ({ tokens, flatten }: TokenPriceChartProps) => {
   const theme = useTheme()
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const chartHeight = upToSmall ? 280 : 360
@@ -193,7 +194,7 @@ const TokenPriceChart = ({ tokens }: TokenPriceChartProps) => {
   )
 
   return (
-    <Stack className="gap-0 overflow-hidden rounded-xl border border-darkBorder">
+    <Stack className={cn('gap-0 overflow-hidden rounded-xl', flatten ? 'border-0' : 'border border-darkBorder')}>
       <HStack className="items-center gap-3 pr-4">
         <div role="tablist" className="flex min-w-0 flex-1 items-center overflow-x-auto">
           {filteredTokens.map((token, index) => {
@@ -208,11 +209,18 @@ const TokenPriceChart = ({ tokens }: TokenPriceChartProps) => {
                   setIsExpanded(true)
                 }}
                 className={cn(
-                  'relative flex shrink-0 cursor-pointer items-center gap-1.5 border-0 px-4 py-3 text-sm font-medium',
+                  'relative flex min-h-11 shrink-0 cursor-pointer items-center gap-1.5 border-0 px-4 py-3 text-sm font-medium',
                   !isLast && 'border-r border-darkBorder',
                   isActive
-                    ? 'bg-primary/15 text-primary shadow-[inset_0_-2px_0_var(--ks-primary)] hover:bg-primary/15 hover:text-primary'
-                    : 'bg-transparent text-subText hover:bg-tableHeader hover:text-text',
+                    ? cn(
+                        'text-primary hover:text-primary',
+                        !flatten && 'shadow-[inset_0_-2px_0_var(--ks-primary)]',
+                        flatten ? 'bg-transparent hover:bg-transparent' : 'bg-primary/15 hover:bg-primary/15',
+                      )
+                    : cn(
+                        'bg-transparent text-subText hover:text-text',
+                        flatten ? 'hover:bg-transparent' : 'hover:bg-tableHeader',
+                      ),
                 )}
               >
                 <CurrencyLogo currency={token} size="20px" />
@@ -225,7 +233,7 @@ const TokenPriceChart = ({ tokens }: TokenPriceChartProps) => {
         </div>
 
         {!upToSmall && (
-          <MouseoverTooltip placement="top" text={settlementPriceTooltip} width="360px">
+          <MouseoverTooltip placement="top-end" text={settlementPriceTooltip} width="360px">
             <span className="block min-w-0 shrink basis-auto truncate text-sm italic text-subText transition-colors duration-150 hover:text-text">
               {t`Powered by KyberSwap Settlement Prices`}
             </span>
@@ -323,11 +331,13 @@ const TokenPriceChart = ({ tokens }: TokenPriceChartProps) => {
             </div>
 
             {upToSmall && (
-              <MouseoverTooltip placement="top" text={settlementPriceTooltip} width="280px">
-                <span className="block min-w-0 shrink basis-auto truncate text-sm italic text-subText transition-colors duration-150 hover:text-text">
-                  {t`Settlement Prices`}
-                </span>
-              </MouseoverTooltip>
+              <div className="w-fit">
+                <MouseoverTooltip placement="top-start" text={settlementPriceTooltip} width="320px">
+                  <span className="block min-w-0 shrink basis-auto truncate text-sm italic text-subText transition-colors duration-150 hover:text-text">
+                    {t`Settlement Prices`}
+                  </span>
+                </MouseoverTooltip>
+              </div>
             )}
           </Stack>
         </Stack>

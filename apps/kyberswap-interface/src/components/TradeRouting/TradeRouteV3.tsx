@@ -3,7 +3,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react'
 import ScrollContainer from 'react-indiana-drag-scroll'
 
 import CurrencyLogo from 'components/CurrencyLogo'
-import { getDexInfoByPool, selectPointsOnRectEdge } from 'components/TradeRouting/helpers'
+import { formatRoutePercent, getDexInfoByPool, selectPointsOnRectEdge } from 'components/TradeRouting/helpers'
 import { RouteDot } from 'components/TradeRouting/styled'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
@@ -129,6 +129,12 @@ const TradeRouteV3: React.FC<SwapRouteV3Props> = ({ tradeComposition, tokenIn })
   const maximumPathLengths: { [key: string]: number } = {}
   maximumPathLengths[tokenIn.address] = 0
   const queue = [tokenIn.address]
+  // The aggregator can return routes whose token graph contains a cycle (e.g. a same-token swap
+  // such as ETH→WETH routed WETH→X→WETH). A simple path across `nodes.length` distinct tokens spans
+  // at most `nodes.length - 1` edges, so relaxation must stop there: without this bound the
+  // "longer path" check below keeps re-enqueuing cycle nodes with an ever-increasing length and the
+  // loop never terminates, hard-freezing the whole tab.
+  const maxPathLength = nodes.length
   while (queue.length) {
     const currentNode = queue.shift() as string // Use shift() for BFS
     const currentLength = maximumPathLengths[currentNode] || 0
@@ -138,8 +144,11 @@ const TradeRouteV3: React.FC<SwapRouteV3Props> = ({ tradeComposition, tokenIn })
       const targetAddress = neighbor.target.address
       const newLength = currentLength + 1
 
-      // If we found a longer path to this node
-      if (maximumPathLengths[targetAddress] === undefined || newLength > maximumPathLengths[targetAddress]) {
+      // Relax to a longer path, but never beyond a simple path's length (cycle guard)
+      if (
+        newLength <= maxPathLength &&
+        (maximumPathLengths[targetAddress] === undefined || newLength > maximumPathLengths[targetAddress])
+      ) {
         maximumPathLengths[targetAddress] = newLength
         queue.push(targetAddress) // Add back to the queue to find potentially longer paths from it
       }
@@ -208,7 +217,7 @@ const TradeRouteV3: React.FC<SwapRouteV3Props> = ({ tradeComposition, tokenIn })
 
           const temp = edgesOut.map(edge => {
             const swapAmount = edge.swaps.reduce((acc, cur) => BigInt(cur.swapAmount) + acc, 0n)
-            const percent = (Number(((swapAmount * 100000n) / totalSwapAmount).toString()) / 1000).toFixed(0)
+            const percent = Number(((swapAmount * 100000n) / totalSwapAmount).toString()) / 1000
 
             const sourceLevel = maximumPathLengths[edge.source.address]
             const targetLevel = maximumPathLengths[edge.target.address]
@@ -483,7 +492,7 @@ const TradeRouteV3: React.FC<SwapRouteV3Props> = ({ tradeComposition, tokenIn })
                 return (
                   <React.Fragment key={index}>
                     <text x={labelX} y={labelY} fontSize="10" fontWeight="500" fill="currentColor">
-                      {item.percent}%
+                      {formatRoutePercent(item.percent)}
                     </text>
                     <path
                       d={item.path}
@@ -591,7 +600,7 @@ const RouteNode = ({
                     <img src={dex.logoURL} alt="" width="12px" height="12px" className="rounded-full" />
                   ) : null}
                   <span className="flex-1">{dex?.name || swap.exchange}</span>
-                  <span className="ml-auto">{percent.toFixed(0)}%</span>
+                  <span className="ml-auto">{formatRoutePercent(percent)}</span>
                 </>
               )
 

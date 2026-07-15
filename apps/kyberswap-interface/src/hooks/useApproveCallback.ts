@@ -24,16 +24,41 @@ export enum ApprovalState {
   APPROVED = 'APPROVED',
 }
 
+type ApprovalError = {
+  message: string
+  tokenSymbol?: string
+  tokenAddress?: string
+  spender?: string
+}
+
+export enum ApprovalStatus {
+  SUBMITTED = 'submitted',
+  REJECTED = 'rejected',
+  FAILED = 'failed',
+  SKIPPED = 'skipped',
+}
+
+type UseApproveCallbackArgs = {
+  amount?: CurrencyAmount<Currency>
+  spender?: string
+  forceApprove?: boolean
+  onApprovalError?: (error: ApprovalError) => void
+}
+
 // returns a variable indicating the state of the approval and a function which approves if necessary or early returns
-export function useApproveCallback(
-  amountToApprove?: CurrencyAmount<Currency>,
-  spender?: string,
+export function useApproveCallback({
+  amount,
+  spender,
   forceApprove = false,
-  onApprovalError?: (error: { message: string; tokenSymbol?: string; tokenAddress?: string; spender?: string }) => void,
-): [ApprovalState, (customAllowance?: CurrencyAmount<Currency>) => Promise<void>, TokenAmount | undefined] {
+  onApprovalError,
+}: UseApproveCallbackArgs): [
+  ApprovalState,
+  (customAllowance?: CurrencyAmount<Currency>) => Promise<ApprovalStatus>,
+  TokenAmount | undefined,
+] {
   const { account, chainId } = useActiveWeb3React()
   const { isSmartConnector } = useWeb3React()
-  const token = amountToApprove?.currency.wrapped
+  const token = amount?.currency.wrapped
   const pendingApproval = useHasPendingApproval(token?.address, spender)
 
   const [currentAllowance, setAllowance] = useState<TokenAmount | undefined>(undefined)
@@ -55,13 +80,13 @@ export function useApproveCallback(
 
   // check the current approval status
   const approvalState: ApprovalState = useMemo(() => {
-    if (!amountToApprove || !spender) return ApprovalState.UNKNOWN
-    if (amountToApprove.currency.isNative) return ApprovalState.APPROVED
+    if (!amount || !spender) return ApprovalState.UNKNOWN
+    if (amount.currency.isNative) return ApprovalState.APPROVED
     // we might not have enough data to know whether or not we need to approve
     if (!currentAllowance) return ApprovalState.UNKNOWN
 
     // Handle farm approval.
-    if (amountToApprove.quotient.toString() === maxUint256.toString()) {
+    if (amount.quotient.toString() === maxUint256.toString()) {
       return currentAllowance.equalTo(JSBI.BigInt(0))
         ? pendingApproval
           ? ApprovalState.PENDING
@@ -69,41 +94,41 @@ export function useApproveCallback(
         : ApprovalState.APPROVED
     }
 
-    return currentAllowance.lessThan(amountToApprove)
+    return currentAllowance.lessThan(amount)
       ? pendingApproval
         ? ApprovalState.PENDING
         : ApprovalState.NOT_APPROVED
       : ApprovalState.APPROVED
-  }, [amountToApprove, currentAllowance, pendingApproval, spender])
+  }, [amount, currentAllowance, pendingApproval, spender])
   const notify = useNotify()
 
   const addTransactionWithType = useTransactionAdder()
 
   const approve = useCallback(
-    async (customAmount?: CurrencyAmount<Currency>): Promise<void> => {
+    async (customAmount?: CurrencyAmount<Currency>): Promise<ApprovalStatus> => {
       try {
         if (approvalState !== ApprovalState.NOT_APPROVED && !forceApprove) {
           console.error('approve was called unnecessarily')
-          return
+          return ApprovalStatus.SKIPPED
         }
         if (!token) {
           console.error('no token')
-          return
+          return ApprovalStatus.SKIPPED
         }
 
         if (!account) {
           console.error('no account')
-          return
+          return ApprovalStatus.SKIPPED
         }
 
-        if (!amountToApprove) {
+        if (!amount) {
           console.error('missing amount to approve')
-          return
+          return ApprovalStatus.SKIPPED
         }
 
         if (!spender) {
           console.error('no spender')
-          return
+          return ApprovalStatus.SKIPPED
         }
 
         const buildApproveData = (amount: bigint) =>
@@ -133,11 +158,15 @@ export function useApproveCallback(
           // Abort the retry chain on user rejection — otherwise the wallet would
           // re-prompt with the exact-amount fallback (and again with the USDT
           // zero-reset), surfacing as 2-3 consecutive popups for one click.
-          if (didUserReject(e)) return
+          if (didUserReject(e)) {
+            return ApprovalStatus.REJECTED
+          }
           try {
-            response = await sendApprove(BigInt(amountToApprove.quotient.toString()))
+            response = await sendApprove(BigInt(amount.quotient.toString()))
           } catch (e2) {
-            if (didUserReject(e2)) return
+            if (didUserReject(e2)) {
+              return ApprovalStatus.REJECTED
+            }
             // Last-ditch fallback: reset allowance to 0 (USDT-style tokens reject
             // approve() when the current allowance is non-zero). The user will need
             // to retrigger approve to the desired amount — don't surface this as a
@@ -146,10 +175,12 @@ export function useApproveCallback(
             try {
               await sendApprove(0n)
             } catch (e3) {
-              if (didUserReject(e3)) return
+              if (didUserReject(e3)) {
+                return ApprovalStatus.REJECTED
+              }
               throw e3
             }
-            return
+            return ApprovalStatus.FAILED
           }
         }
 
@@ -163,7 +194,9 @@ export function useApproveCallback(
               contract: spender,
             },
           })
+          return ApprovalStatus.SUBMITTED
         }
+        return ApprovalStatus.FAILED
       } catch (error) {
         const message = friendlyError(error)
         console.error('Approve token error:', { message, error })
@@ -181,13 +214,14 @@ export function useApproveCallback(
           },
           8000,
         )
+        return ApprovalStatus.FAILED
       }
     },
     [
       account,
       approvalState,
       token,
-      amountToApprove,
+      amount,
       spender,
       addTransactionWithType,
       forceApprove,

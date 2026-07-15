@@ -4,6 +4,7 @@ import { useLocation } from 'react-router-dom'
 import { useMedia } from 'react-use'
 
 import TransactionSettingsIcon from 'components/Icons/TransactionSettingsIcon'
+import NotificationTester from 'components/LimitOrder/NotificationTester'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import TokenInfoIcon from 'components/swapv2/TokenInfoIcon'
@@ -17,15 +18,13 @@ import { useDegenModeManager, useUserSlippageTolerance, useUserTransactionTTL } 
 import { MEDIA_WIDTHS } from 'theme'
 import { formatSlippage } from 'utils/slippage'
 
-export default function HeaderRightMenu({
-  activeTab,
-  setActiveTab,
-  activeMainTab,
-}: {
+type HeaderRightMenuProps = {
   activeTab: TAB
   setActiveTab: (tab: TAB) => void
   activeMainTab?: TAB
-}) {
+}
+
+const HeaderRightMenu = ({ activeTab, setActiveTab, activeMainTab }: HeaderRightMenuProps) => {
   const { pathname } = useLocation()
   const isLimitPage = pathname.startsWith(APP_PATHS.LIMIT) || activeMainTab === TAB.LIMIT
   const isSwapPage = pathname.startsWith(APP_PATHS.SWAP) || activeMainTab === TAB.SWAP
@@ -50,7 +49,7 @@ export default function HeaderRightMenu({
   const upToXXSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToXXSmall}px)`)
 
   return (
-    <div className="flex items-center rounded-[18px]">
+    <div className="flex items-center gap-1">
       {!isCrossChainPage && (
         <TokenInfoIcon
           currencies={currencies}
@@ -92,6 +91,10 @@ export default function HeaderRightMenu({
           </MouseoverTooltip>
         </StyledActionButtonSwapForm>
       )}
+
+      <NotificationTester visible={false} />
     </div>
   )
 }
+
+export default HeaderRightMenu

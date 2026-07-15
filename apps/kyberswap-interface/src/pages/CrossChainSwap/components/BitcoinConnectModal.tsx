@@ -1,52 +1,16 @@
-import { Trans, t } from '@lingui/macro'
-import dayjs from 'dayjs'
-import { useEffect, useState } from 'react'
+import { t } from '@lingui/macro'
+import { useCallback, useEffect, useState } from 'react'
 
-import { ReactComponent as Close } from 'assets/images/x.svg'
 import { NotificationType } from 'components/Announcement/type'
-import {
-  CloseIcon,
-  ContentWrapper,
-  OptionGrid,
-  TermAndCondition,
-  UpperSection,
-} from 'components/Header/web3/WalletModal'
+import { Content, Header, Icon, OptionButton, Options, Section, Shell, Terms } from 'components/Header/web3/WalletModal'
 import Loader from 'components/Loader'
 import Modal from 'components/Modal'
-import { RowBetween } from 'components/Row'
 import { useBitcoinWallet } from 'components/Web3Provider/BitcoinProvider'
 import { DerivationPaths } from 'components/Web3Provider/BitcoinProvider/providers/ledger'
-import { TERM_FILES_PATH } from 'constants/index'
+import { BitcoinToken } from 'pages/CrossChainSwap/adapters/types'
 import { useNotify } from 'state/application/hooks'
 import { useIsAcceptedTerm } from 'state/user/hooks'
-import { ExternalLink } from 'theme'
 import { cn } from 'utils/cn'
-
-const Option = ({
-  disabled,
-  selected,
-  children,
-  onClick,
-}: {
-  disabled?: boolean
-  selected?: boolean
-  children: React.ReactNode
-  onClick?: () => void
-}) => (
-  <div
-    role="button"
-    onClick={disabled ? undefined : onClick}
-    className={cn(
-      'flex h-9 w-full items-center justify-between gap-2 rounded-full bg-tableHeader px-2.5 py-2',
-      disabled || selected ? 'cursor-not-allowed' : 'cursor-pointer',
-      !disabled && 'hover:bg-[#171717] hover:!text-text hover:no-underline',
-      selected && 'bg-[#171717]',
-      disabled && 'text-border grayscale',
-    )}
-  >
-    {children}
-  </div>
-)
 
 export const BitcoinConnectModal = ({ isOpen, onDismiss }: { isOpen: boolean; onDismiss: () => void }) => {
   const [isAcceptedTerm, setIsAcceptedTerm] = useIsAcceptedTerm()
@@ -56,12 +20,24 @@ export const BitcoinConnectModal = ({ isOpen, onDismiss }: { isOpen: boolean; on
 
   const { walletInfo, availableWallets, connectingWallet, setConnectingWallet } = useBitcoinWallet()
 
+  const handleDismiss = useCallback(() => {
+    setConnectingWallet(null)
+    onDismiss()
+  }, [onDismiss, setConnectingWallet])
+
+  const handleHeaderClose = useCallback(() => {
+    if (showLedgerType) {
+      setShowLedgerType(false)
+      return
+    }
+    handleDismiss()
+  }, [handleDismiss, showLedgerType])
+
   useEffect(() => {
     if (walletInfo.isConnected) {
-      setConnectingWallet(null)
-      onDismiss()
+      handleDismiss()
     }
-  }, [walletInfo.isConnected, onDismiss, setConnectingWallet])
+  }, [handleDismiss, walletInfo.isConnected])
 
   if (walletInfo.isConnected) return null
 
@@ -70,10 +46,7 @@ export const BitcoinConnectModal = ({ isOpen, onDismiss }: { isOpen: boolean; on
   return (
     <Modal
       isOpen={isOpen}
-      onDismiss={() => {
-        setConnectingWallet(null)
-        onDismiss()
-      }}
+      onDismiss={handleDismiss}
       minHeight={false}
       maxHeight={90}
       maxWidth={600}
@@ -81,69 +54,25 @@ export const BitcoinConnectModal = ({ isOpen, onDismiss }: { isOpen: boolean; on
       bypassFocusLock={true}
       zindex={99999}
     >
-      <div className="m-0 flex w-full flex-col flex-nowrap p-0">
-        <UpperSection>
-          <RowBetween className="mb-[26px] gap-5">
-            <span className="text-xl font-medium">
-              {showLedgerType ? t`Select Derivation Path` : t`Connect your Bitcoin Wallet`}
-            </span>
-            <CloseIcon
-              onClick={() => {
-                if (showLedgerType) {
-                  setShowLedgerType(false)
-                  return
-                }
-                setConnectingWallet(null)
-                onDismiss()
-              }}
-            >
-              <Close />
-            </CloseIcon>
-          </RowBetween>
+      <Shell>
+        <Section>
+          <Header
+            title={showLedgerType ? t`Select Derivation Path` : t`Connect your Bitcoin Wallet`}
+            onClose={handleHeaderClose}
+          />
 
-          {!showLedgerType && (
-            <TermAndCondition
-              onClick={() => {
-                setIsAcceptedTerm(!isAcceptedTerm)
-              }}
-            >
-              <input
-                type="checkbox"
-                checked={isAcceptedTerm}
-                onChange={() => {}}
-                data-testid="accept-term"
-                style={{ marginRight: '12px', height: '14px', width: '14px', minWidth: '14px', cursor: 'pointer' }}
-              />
-              <span className="text-subText">
-                <Trans>
-                  Accept{' '}
-                  <ExternalLink href={TERM_FILES_PATH.KYBERSWAP_TERMS} onClick={e => e.stopPropagation()}>
-                    KyberSwap&lsquo;s Terms of Use
-                  </ExternalLink>{' '}
-                  and{' '}
-                  <ExternalLink href={TERM_FILES_PATH.PRIVACY_POLICY} onClick={e => e.stopPropagation()}>
-                    Privacy Policy
-                  </ExternalLink>
-                  {'. '}
-                  <span className="text-[10px]">
-                    Last updated: {dayjs(TERM_FILES_PATH.VERSION).format('DD MMM YYYY')}
-                  </span>
-                </Trans>
-              </span>
-            </TermAndCondition>
-          )}
-
-          <ContentWrapper>
-            {showLedgerType ? (
-              <>
-                {Object.keys(DerivationPaths).map(item => {
+          {showLedgerType ? (
+            <Content>
+              <div className="flex flex-col gap-4">
+                {Object.entries(DerivationPaths).map(([name, path]) => {
                   return (
-                    <div
-                      key={item}
+                    <OptionButton
+                      key={name}
                       role="button"
-                      className="flex cursor-pointer items-center gap-1 py-3"
+                      connected={false}
+                      className="gap-2"
                       onClick={() => {
-                        ledgerWallet?.connect(DerivationPaths[item]).catch(error => {
+                        ledgerWallet?.connect(path).catch(error => {
                           console.log('Error connecting Ledger wallet:', error)
                           notify(
                             {
@@ -157,54 +86,58 @@ export const BitcoinConnectModal = ({ isOpen, onDismiss }: { isOpen: boolean; on
                         setShowLedgerType(false)
                       }}
                     >
-                      <img
-                        src="https://storage.googleapis.com/bitfi-static-35291d79/images/tokens/btc.svg"
-                        width={20}
-                        height={20}
-                      />
-                      <span className="ml-1.5 text-base font-medium">{item}</span>
-                      <span className="text-sm text-subText">{DerivationPaths[item]}</span>
-                    </div>
+                      <Icon>
+                        <img src={BitcoinToken.logo} alt="" />
+                      </Icon>
+                      <span>{name}</span>
+                      <span className="truncate text-sm font-normal text-subText">{path}</span>
+                    </OptionButton>
                   )
                 })}
-              </>
-            ) : (
-              <OptionGrid>
-                {availableWallets.map(wallet => {
-                  return (
-                    <Option
-                      disabled={!isAcceptedTerm || (connectingWallet !== null && connectingWallet !== wallet.type)}
-                      selected={connectingWallet === wallet.type}
-                      key={wallet.type}
-                      onClick={() => {
-                        if (connectingWallet) return
-                        if (wallet.name === 'Ledger') {
-                          setShowLedgerType(true)
-                        } else wallet.connect()
-                      }}
-                    >
-                      <div className="flex w-full items-center gap-2">
-                        <img
-                          src={wallet.logo}
-                          alt=""
-                          width={20}
-                          height={20}
-                          style={{
-                            borderRadius: '50%',
-                          }}
-                        />
-                        <span className="flex flex-row flex-nowrap font-medium text-subText">{wallet.name}</span>
-                        {connectingWallet === wallet.type && <Loader className="text-white" />}
-                      </div>
-                      <span className="min-w-max text-xs text-subText">{wallet.isInstalled() && t`Detected`}</span>
-                    </Option>
-                  )
-                })}
-              </OptionGrid>
-            )}
-          </ContentWrapper>
-        </UpperSection>
-      </div>
+              </div>
+            </Content>
+          ) : (
+            <div className="flex flex-col gap-4">
+              <Terms checked={isAcceptedTerm} onChange={setIsAcceptedTerm} />
+              <Content>
+                <Options>
+                  {availableWallets.map(wallet => {
+                    const isConnecting = connectingWallet === wallet.type
+                    const isDisabled = !isAcceptedTerm || (connectingWallet !== null && !isConnecting)
+                    const handleConnect = () => {
+                      if (wallet.name === 'Ledger') {
+                        setShowLedgerType(true)
+                        return
+                      }
+                      wallet.connect()
+                    }
+
+                    return (
+                      <OptionButton
+                        key={wallet.type}
+                        role="button"
+                        onClick={isDisabled || isConnecting ? undefined : handleConnect}
+                        connected={isConnecting}
+                        isDisabled={isDisabled}
+                        className={cn('justify-between', isConnecting && 'cursor-not-allowed hover:brightness-100')}
+                      >
+                        <div className="flex w-full items-center gap-2">
+                          <Icon>
+                            <img src={wallet.logo} alt={wallet.name} />
+                          </Icon>
+                          <span>{wallet.name}</span>
+                          {isConnecting && <Loader className="text-white" />}
+                        </div>
+                        <span className="min-w-max text-xs font-normal">{wallet.isInstalled() && t`Detected`}</span>
+                      </OptionButton>
+                    )
+                  })}
+                </Options>
+              </Content>
+            </div>
+          )}
+        </Section>
+      </Shell>
     </Modal>
   )
 }

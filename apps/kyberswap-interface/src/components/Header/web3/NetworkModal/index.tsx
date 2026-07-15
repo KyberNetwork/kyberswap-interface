@@ -2,10 +2,8 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { LayoutGroup } from 'framer-motion'
 import { useEffect, useRef, useState } from 'react'
-import { X } from 'react-feather'
 import { useUpdateProfileMutation } from 'services/identity'
 
-import { ButtonAction } from 'components/Button'
 import Column from 'components/Column'
 import DraggableNetworkButton from 'components/Header/web3/NetworkModal/components/DraggableNetworkButton'
 import DropzoneOverlay from 'components/Header/web3/NetworkModal/components/DropzoneOverlay'
@@ -24,6 +22,7 @@ import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useNetworkModalToggle } from 'state/application/hooks'
 import { useSessionInfo } from 'state/authen/hooks'
 import { useFavoriteChains } from 'state/user/hooks'
+import { CloseIcon } from 'theme'
 
 const FAVORITE_DROPZONE_ID = 'favorite-dropzone'
 
@@ -56,6 +55,7 @@ const l2Chains = [
   ChainId.MANTLE,
   ChainId.ETHERLINK,
   ChainId.MEGAETH,
+  ChainId.ROBINHOOD,
 ]
 
 export default function NetworkModal({
@@ -86,10 +86,17 @@ export default function NetworkModal({
   const networkModalOpen = useModalOpen(ApplicationModal.NETWORK)
   const toggleNetworkModalGlobal = useNetworkModalToggle()
   const [searchText, setSearchText] = useState('')
+  const modalIsOpen = isOpen !== undefined ? isOpen : networkModalOpen
   const toggleNetworkModal = () => {
     setSearchText('')
     ;(customToggleModal || toggleNetworkModalGlobal)()
   }
+
+  // Reset the search whenever the modal closes — selecting a chain closes via customToggleModal,
+  // which bypasses the search reset above, so the next open would otherwise show the stale query.
+  useEffect(() => {
+    if (!modalIsOpen) setSearchText('')
+  }, [modalIsOpen])
 
   const favoriteDropRef = useRef<HTMLDivElement>(null)
   const { allChains, supportedChains } = useChainsConfig()
@@ -110,8 +117,7 @@ export default function NetworkModal({
 
   const orders = allOrders.filter(item => activeChainIds.map(i => i.toString()).includes(item))
 
-  const isDraggingAddToFavorite =
-    draggingItem !== undefined && !favoriteChains.includes(draggingItem) && order === undefined
+  const isDraggingAddToFavorite = draggingItem !== undefined && !favoriteChains.includes(draggingItem)
   const isDraggingRemoveFavorite = favoriteChains.includes(draggingItem) && order === undefined
 
   const saveFavoriteChains = (chains: string[], updatedChain: string) => {
@@ -184,15 +190,15 @@ export default function NetworkModal({
     return (
       <>
         <Row className="gap-3">
-          <span className="flex-shrink-0 text-[10px] leading-6 text-subText">{title}</span>
+          <span className="flex-shrink-0 text-xs text-subText">{title}</span>
           <hr className="w-full border-0 border-b border-solid border-border" />
         </Row>
         <div className="relative mb-3 flex-grow">
           <DropzoneOverlay show={isDraggingRemoveFavorite} text={t`Remove from favorite`} />
           {displayChains.length === 0 ? (
             <Row className="min-h-[60px] justify-center rounded-2xl border border-dashed border-text/20 px-3 py-4">
-              <span className="text-[10px] leading-[14px] text-subText">
-                <Trans>Drag here to unfavorite chain(s).</Trans>
+              <span className="text-xs font-medium text-subText">
+                <Trans>Drag here to unfavorite chain(s)</Trans>
               </span>
             </Row>
           ) : (
@@ -215,7 +221,7 @@ export default function NetworkModal({
   }, [userInfo, setFavoriteChains])
   return (
     <Modal
-      isOpen={isOpen !== undefined ? isOpen : networkModalOpen}
+      isOpen={modalIsOpen}
       onDismiss={toggleNetworkModal}
       zindex={Z_INDEXS.MODAL}
       minHeight="550px"
@@ -236,15 +242,13 @@ export default function NetworkModal({
               }}
               className="bg-buttonBlack"
             />
-            <ButtonAction onClick={toggleNetworkModal}>
-              <X />
-            </ButtonAction>
+            <CloseIcon onClick={toggleNetworkModal} />
           </div>
         </RowBetween>
 
         <Column className="mt-4 grow gap-2">
           <Row className="gap-3">
-            <span className="flex-shrink-0 text-[10px] leading-6 text-subText">
+            <span className="flex-shrink-0 text-xs text-subText">
               <Trans>Favorite Chain(s)</Trans>
             </span>
             <hr className="w-full border-0 border-b border-solid border-border" />
@@ -254,7 +258,7 @@ export default function NetworkModal({
             {favoriteChains.filter(item => activeChainIds.map(i => i.toString()).includes(item)).length === 0 &&
             !isDraggingAddToFavorite ? (
               <Row className="min-h-[60px] justify-center rounded-2xl border border-dashed border-text/20 px-3 py-4">
-                <span className="text-[10px] leading-[14px] text-subText">
+                <span className="text-xs font-medium text-subText">
                   <Trans>Drag your favourite chain(s) here</Trans>
                 </span>
               </Row>

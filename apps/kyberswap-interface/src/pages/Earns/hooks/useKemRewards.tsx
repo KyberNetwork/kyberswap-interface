@@ -1,17 +1,18 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useUserPositionsQuery } from 'services/earn'
 import { useBatchClaimEncodeDataMutation, useClaimEncodeDataMutation, useRewardInfoQuery } from 'services/reward'
 import { MerklRewardsResponse, markChainAsReloaded } from 'services/rewardMerkl'
-import { useUserPositionsQuery } from 'services/zapEarn'
 
 import { NotificationType } from 'components/Announcement/type'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
-import { fetchListTokenByAddresses } from 'hooks/Tokens'
 import useChainsConfig from 'hooks/useChainsConfig'
+import { fetchListTokenByAddresses } from 'hooks/useTokens'
 import useFilter from 'pages/Earns/UserPositions/useFilter'
 import ClaimAllModal, { RewardTabType } from 'pages/Earns/components/ClaimAllModal'
-import ClaimModal, { ClaimInfo, ClaimType } from 'pages/Earns/components/ClaimModal'
+import { ClaimInfo } from 'pages/Earns/components/ClaimModal'
+import PositionClaimModal from 'pages/Earns/components/PositionClaimModal'
 import { PositionStatus } from 'pages/Earns/components/PositionStatusControl'
 import { EARN_CHAINS, EarnChain, Exchange } from 'pages/Earns/constants'
 import useAccountChanged from 'pages/Earns/hooks/useAccountChanged'
@@ -321,16 +322,14 @@ const useKemRewards = (props?: UseKemRewardsProps) => {
     const nftId = position.tokenId
     const positionChainId = position.chain.id
 
-    if (!rewardInfo) {
-      console.log('reward is not ready!')
-      return
-    }
+    setPosition(position)
     setOpenClaimModal(true)
 
-    const rewardNftInfo = rewardInfo.nfts.find(nft => nft.nftId === nftId)
-
+    // A position may carry only a Merkl bonus and no KEM farming reward — still open the modal
+    // (its Bonus tab handles the Merkl claim) and just leave the KEM claim info empty.
+    const rewardNftInfo = rewardInfo?.nfts.find(nft => nft.nftId === nftId)
     if (!rewardNftInfo) {
-      console.log('reward nft info is not existed!')
+      setClaimInfo(null)
       return
     }
 
@@ -348,7 +347,6 @@ const useKemRewards = (props?: UseKemRewardsProps) => {
       totalValue: rewardNftInfo.claimableUsdValue,
       dex: position.dex.id,
     })
-    setPosition(position)
   }
 
   const onOpenClaimAllRewards = () => {
@@ -568,21 +566,6 @@ const useKemRewards = (props?: UseKemRewardsProps) => {
     [pendingClaims],
   )
 
-  const claimModal =
-    openClaimModal && claimInfo ? (
-      <>
-        <ClaimModal
-          claimType={ClaimType.REWARDS}
-          claimInfo={claimInfo}
-          compoundable
-          onClaim={handleClaim}
-          onCompound={onCompound}
-          onClose={onCloseClaim}
-        />
-        {compoundingWidget}
-      </>
-    ) : null
-
   const handleClaimMerkl = useCallback(
     async (targetChainId: number) => {
       const chainRewards = merklRawData?.find(item => item.chain.id === targetChainId)
@@ -598,6 +581,33 @@ const useKemRewards = (props?: UseKemRewardsProps) => {
     },
     [claimMerklRewards, merklRawData],
   )
+
+  // Merkl bonus for the connected wallet on this position's chain (wallet-wide, not per position),
+  // mirroring how the Claim-All modal claims Merkl by chain.
+  const merklChainForPosition = position
+    ? merklChainRewards.find(chain => chain.chainId === position.chain.id)
+    : undefined
+  const claimModal =
+    openClaimModal && position ? (
+      <>
+        <PositionClaimModal
+          chainId={position.chain.id}
+          chainName={position.chain.name}
+          chainLogo={position.chain.logo}
+          ksTokens={claimInfo?.tokens || []}
+          ksTotalValue={claimInfo?.totalValue || 0}
+          onClaimKs={handleClaim}
+          onCompound={onCompound}
+          compoundable
+          merklChainReward={merklChainForPosition}
+          onClaimMerkl={handleClaimMerkl}
+          merklSyncing={merklSyncingChainIds.includes(position.chain.id)}
+          merklPendingTx={merklPendingTxChainIds.includes(position.chain.id)}
+          onClose={onCloseClaim}
+        />
+        {compoundingWidget}
+      </>
+    ) : null
 
   const claimAllRewardsModal =
     openClaimAllModal && ((rewardInfo && filteredRewardInfo) || merklChainRewards.length > 0) ? (

@@ -4,7 +4,13 @@ import ScrollContainer from 'react-indiana-drag-scroll'
 
 import CurrencyLogo from 'components/CurrencyLogo'
 import TradeRouteV3 from 'components/TradeRouting/TradeRouteV3'
-import { getDexInfoByPool, getSwapPercent, onScroll, useShadow } from 'components/TradeRouting/helpers'
+import {
+  formatRoutePercent,
+  getDexInfoByPool,
+  getSwapPercent,
+  onScroll,
+  useShadow,
+} from 'components/TradeRouting/helpers'
 import {
   ArrowHead,
   HopCard,
@@ -26,7 +32,7 @@ import {
   TokenLink,
 } from 'components/TradeRouting/styled'
 import { useActiveWeb3React } from 'hooks'
-import { useCurrencyV2 } from 'hooks/Tokens'
+import { useCurrencyV2 } from 'hooks/useTokens'
 import { useAllDexes } from 'state/customizeDexes/hooks'
 import { getEtherscanLink, isAddress } from 'utils'
 import { SwapRouteV2, SwapRouteV3 } from 'utils/aggregationRouting'
@@ -92,7 +98,9 @@ const HopRow = ({ route, chainId, backgroundColor }: HopRowProps) => {
                           })(
                             <>
                               {dex?.logoURL ? <img src={dex.logoURL} alt="" className="img--sm" /> : null}
-                              {`${dex?.name || pool.exchange}: ${pool.swapPercentage}%`}
+                              {`${dex?.name || pool.exchange}: ${
+                                pool.swapPercentage != null ? formatRoutePercent(pool.swapPercentage) : ''
+                              }`}
                             </>,
                           )
                           return link

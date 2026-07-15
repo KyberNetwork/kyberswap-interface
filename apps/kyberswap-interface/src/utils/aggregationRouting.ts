@@ -1,9 +1,12 @@
 import { ZERO } from '@kyberswap/ks-sdk-classic'
 import { ChainId, Currency, CurrencyAmount, Percent, Rounding, Token, WETH } from '@kyberswap/ks-sdk-core'
 import JSBI from 'jsbi'
+import { useMemo } from 'react'
+import { useGetTokenByAddressesQuery } from 'services/ksSetting'
 
 import { ETHER_ADDRESS } from 'constants/index'
 import { NativeCurrencies } from 'constants/tokens'
+import { useAllTokens } from 'hooks/useTokens'
 import { isAddressString } from 'utils'
 
 export interface SwapPool {
@@ -47,6 +50,73 @@ export interface SwapRouteV3 {
   exchange: string
 }
 
+type InvolvingTokens = { [address: string]: Token | undefined }
+
+type UseTradeCompositionArgs = {
+  chainId: ChainId
+  inputAmount: CurrencyAmount<Currency> | undefined
+  swaps: Swap[][] | undefined
+}
+
+export function useTradeComposition({
+  chainId,
+  inputAmount,
+  swaps,
+}: UseTradeCompositionArgs): SwapRouteV2[] | SwapRouteV3[] | undefined {
+  const allTokens = useAllTokens(false, chainId)
+
+  const routeTokenAddresses = useMemo(() => {
+    const addresses = new Map<string, string>()
+
+    swaps?.forEach(route => {
+      route.forEach(swap => {
+        const tokenAddresses = [swap.tokenIn, swap.tokenOut]
+
+        tokenAddresses.forEach(tokenAddress => {
+          const address = isAddressString(tokenAddress)
+          if (address && address.toLowerCase() !== ETHER_ADDRESS.toLowerCase()) {
+            addresses.set(address.toLowerCase(), address)
+          }
+        })
+      })
+    })
+
+    return Array.from(addresses.values())
+  }, [swaps])
+
+  const missingRouteTokenAddresses = useMemo(() => {
+    return routeTokenAddresses.filter(address => {
+      const formattedAddress = isAddressString(address)
+      return formattedAddress && !allTokens?.[formattedAddress] && !allTokens?.[formattedAddress.toLowerCase()]
+    })
+  }, [allTokens, routeTokenAddresses])
+
+  const { currentData: fetchedTokens = [] } = useGetTokenByAddressesQuery(
+    { chainId, addresses: missingRouteTokenAddresses },
+    { skip: !missingRouteTokenAddresses.length },
+  )
+
+  const involvingTokens = useMemo<InvolvingTokens>(() => {
+    const tokens: InvolvingTokens = {}
+
+    fetchedTokens.forEach(currency => {
+      const token = currency?.wrapped
+      const address = token && isAddressString(token.address)
+      if (!address) return
+
+      tokens[address] = token
+      tokens[address.toLowerCase()] = token
+    })
+
+    return tokens
+  }, [fetchedTokens])
+
+  return useMemo(
+    () => buildTradeComposition(chainId, inputAmount, involvingTokens, swaps, allTokens),
+    [allTokens, chainId, inputAmount, involvingTokens, swaps],
+  )
+}
+
 function formatRoutesV2(routes: SwapRoute[]): SwapRouteV2[] {
   if (!routes.length) {
     return []
@@ -78,18 +148,18 @@ function formatRoutesV2(routes: SwapRoute[]): SwapRouteV2[] {
               existed = true
               swapAmount = JSBI.add(swapAmount, swapPool.swapAmount || ZERO)
             }
-            const percent = new Percent(swapAmount, totalSwapAmount).toFixed(0, undefined, Rounding.ROUND_HALF_UP)
-            p2.swapPercentage = parseInt(percent)
+            const percent = new Percent(swapAmount, totalSwapAmount).toFixed(2, undefined, Rounding.ROUND_HALF_UP)
+            p2.swapPercentage = parseFloat(percent)
             p2.total = totalSwapAmount.toString()
             return p2
           })
           if (!existed) {
             const percent = new Percent(swapPool.swapAmount || ZERO, totalSwapAmount).toFixed(
-              0,
+              2,
               undefined,
               Rounding.ROUND_HALF_UP,
             )
-            newSub.push({ ...swapPool, swapPercentage: parseInt(percent) })
+            newSub.push({ ...swapPool, swapPercentage: parseFloat(percent) })
           }
           subRoutes[ind] = newSub
         })
@@ -125,10 +195,10 @@ function formatRoutesV2(routes: SwapRoute[]): SwapRouteV2[] {
   }
 }
 
-export function getTradeComposition(
+function buildTradeComposition(
   chainId: ChainId,
   inputAmount: CurrencyAmount<Currency> | undefined,
-  involvingTokens: { [address: string]: Token | undefined } | undefined,
+  involvingTokens: InvolvingTokens | undefined,
   swaps: Swap[][] | undefined,
   allTokens: { [address: string]: Token } | undefined,
 ): SwapRouteV2[] | SwapRouteV3[] | undefined {
@@ -167,8 +237,8 @@ export function getTradeComposition(
     }
     const exactTokenIn = tokenIn?.toLowerCase() === inputTokenAmount?.currency.address?.toLowerCase()
     if (exactTokenIn && inputAmount.greaterThan(JSBI.BigInt(0))) {
-      const percent = new Percent(JSBI.BigInt(amount || 0), inputAmount.quotient).toFixed(0)
-      return parseInt(percent)
+      const percent = new Percent(JSBI.BigInt(amount || 0), inputAmount.quotient).toFixed(2)
+      return parseFloat(percent)
     }
     return undefined
   }

@@ -113,6 +113,7 @@ export type TransactionExtraInfo = (
   actuallySuccess?: boolean
   needCheckSubgraph?: boolean
   arbitrary?: any // To store anything arbitrary, so it has any type
+  trackingPayload?: Record<string, unknown>
 }
 
 export interface TransactionDetails {
@@ -194,6 +195,7 @@ export enum TRANSACTION_TYPE {
   KYBERDAO_CLAIM = 'KyberDAO Claim Voting Reward',
   KYBERDAO_CLAIM_GAS_REFUND = 'Gas Refund',
 
+  FILL_LIMIT_ORDER = 'Fill Limit Order',
   CANCEL_LIMIT_ORDER = 'Cancel Limit Order',
   TRANSFER_TOKEN = 'Send',
   CLAIM = 'Claim',
@@ -248,6 +250,7 @@ export const GROUP_TRANSACTION_BY_TYPE = {
     TRANSACTION_TYPE.APPROVE,
     TRANSACTION_TYPE.CLAIM_REWARD,
     TRANSACTION_TYPE.CLAIM,
+    TRANSACTION_TYPE.FILL_LIMIT_ORDER,
     TRANSACTION_TYPE.CANCEL_LIMIT_ORDER,
     TRANSACTION_TYPE.TRANSFER_TOKEN,
   ],

@@ -4,7 +4,7 @@ import { isMobile } from 'react-device-detect'
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import { cn } from 'utils/cn'
 
-type DropdownAlign = 'left' | 'right' | 'center'
+export type DropdownAlign = 'left' | 'right' | 'center'
 
 type Props = {
   id?: string
@@ -42,7 +42,7 @@ const NavGroup: React.FC<Props> = ({
       <div className="flex cursor-pointer items-center gap-0.5 hover:brightness-90">
         {anchor}
         {dropdownContent && (
-          <DropdownSVG className={cn('transition-transform duration-300', showDropdown && '-rotate-180')} />
+          <DropdownSVG className={cn('transition-transform duration-300', showDropdown && 'rotate-180')} />
         )}
       </div>
       {dropdownContent && (
