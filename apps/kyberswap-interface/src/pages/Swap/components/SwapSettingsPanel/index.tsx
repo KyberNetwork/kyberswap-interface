@@ -1,5 +1,5 @@
 import { Trans, t } from '@lingui/macro'
-import { type ReactNode, useState } from 'react'
+import { type ReactNode, Suspense, lazy, useState } from 'react'
 import { ChevronLeft } from 'react-feather'
 
 import IconButton from 'components/Button/IconButton'
@@ -15,7 +15,6 @@ import {
 } from 'components/TransactionSettings/components'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
-import { CrossChainSourceSetting } from 'pages/Swap/components/SwapSettingsPanel/CrossChainSourceSetting'
 import { DegenModeSetting } from 'pages/Swap/components/SwapSettingsPanel/DegenModeSetting'
 import { LiquiditySourcesSetting } from 'pages/Swap/components/SwapSettingsPanel/LiquiditySourcesSetting'
 import {
@@ -27,6 +26,16 @@ import {
   useToggleTradeRoutes,
   useUserSlippageTolerance,
 } from 'state/user/hooks'
+
+// CrossChainSourceSetting calls CrossChainSwapFactory.getAllAdapters(), which drags the whole cross-chain
+// adapter stack (LiFi / NEAR / Solana / Bitcoin SDKs) into whatever chunk imports it. It renders only on
+// the cross-chain page, so keep it lazy: opening Settings on /swap would otherwise download that stack for
+// a row it never shows.
+const CrossChainSourceSetting = lazy(() =>
+  import('pages/Swap/components/SwapSettingsPanel/CrossChainSourceSetting').then(m => ({
+    default: m.CrossChainSourceSetting,
+  })),
+)
 
 type DisplaySettingRowProps = {
   label: ReactNode
@@ -111,7 +120,11 @@ const SwapSettingsPanel = ({
               highlight={highlightDegenMode}
             />
             {isSwapPage && <LiquiditySourcesSetting onClick={onClickLiquiditySources} />}
-            {isCrossChainPage && <CrossChainSourceSetting onClick={onClickCrossChainSources} />}
+            {isCrossChainPage && (
+              <Suspense fallback={null}>
+                <CrossChainSourceSetting onClick={onClickCrossChainSources} />
+              </Suspense>
+            )}
           </SettingsSection>
         )}
 
