@@ -90,7 +90,7 @@ export const ChainSelector = memo(({ chains, selectedChainId, onChange }: ChainS
             role="listbox"
             aria-label="Network"
             onScroll={updateScrollIndicators}
-            className="ks-scrollbar flex max-h-80 flex-col overflow-y-auto"
+            className="ks-scrollbar flex max-h-[360px] flex-col overflow-y-auto"
           >
             {chains.map(chain => {
               const selected = chain.chainId === selectedChainId
