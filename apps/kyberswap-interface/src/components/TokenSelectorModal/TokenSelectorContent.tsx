@@ -39,6 +39,7 @@ import {
   TokenSelectorTab,
   isTrendingSupportedChain,
 } from 'components/TokenSelectorModal/constants'
+import { useChainsVolume } from 'components/TokenSelectorModal/hooks/useChainsVolume'
 import { useNewTokens } from 'components/TokenSelectorModal/hooks/useNewTokens'
 import { usePendingCrossChainSelect } from 'components/TokenSelectorModal/hooks/usePendingCrossChainSelect'
 import { useTokensMetrics } from 'components/TokenSelectorModal/hooks/useTokensMetrics'
@@ -164,6 +165,13 @@ export const TokenSelectorContent = ({
   const anchorChainId = customChainId || web3ChainId
   const { supportedChains } = useChainsConfig()
   const { trackingHandler } = useTracking()
+  // Rank the chain dropdown by trailing volume (busiest first); chains the volume API omits keep their
+  // config order at the bottom. Only fetched when the dropdown is actually shown.
+  const chainVolumes = useChainsVolume(showDiscoveryTabs)
+  const rankedChains = useMemo(() => {
+    if (!Object.keys(chainVolumes).length) return supportedChains
+    return [...supportedChains].sort((a, b) => (chainVolumes[b.chainId] ?? -1) - (chainVolumes[a.chainId] ?? -1))
+  }, [supportedChains, chainVolumes])
   const removeToken = useRemoveUserAddedToken()
   const isTokenRestricted = useIsTokenRestricted()
   const notifyRestrictedToken = useNotifyRestrictedToken()
@@ -799,7 +807,7 @@ export const TokenSelectorContent = ({
             )}
           </SearchWrapper>
           {showDiscoveryTabs && (
-            <ChainSelector chains={supportedChains} selectedChainId={selectedChainId} onChange={setSelectedChainId} />
+            <ChainSelector chains={rankedChains} selectedChainId={selectedChainId} onChange={setSelectedChainId} />
           )}
         </HStack>
 
