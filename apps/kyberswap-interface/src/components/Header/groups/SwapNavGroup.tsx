@@ -10,6 +10,7 @@ import { DropdownTextAnchor, NewLabel, StyledNavLink } from 'components/Header/s
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import { APP_PATHS, CHAINS_SUPPORT_CROSS_CHAIN } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
+import { prefetchCrossChainSwap } from 'pages/CrossChainSwap/lazy'
 import { useTutorialSwapGuide } from 'state/tutorial/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import { isInSafeApp, isSupportLimitOrder } from 'utils'
@@ -82,6 +83,7 @@ const SwapNavGroup = ({ dropdownAlign }: Props) => {
               id="cross-chain-nav-link"
               to={APP_PATHS.CROSS_CHAIN}
               style={{ flexDirection: 'column', width: '100%' }}
+              onMouseEnter={prefetchCrossChainSwap}
             >
               <div className="flex items-center gap-3">
                 <IconWrapper>
