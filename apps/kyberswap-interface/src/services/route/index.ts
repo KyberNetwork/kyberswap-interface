@@ -2,11 +2,10 @@ import { ChainId, CurrencyAmount, Token, WETH } from '@kyberswap/ks-sdk-core'
 import { createApi } from '@reduxjs/toolkit/query/react'
 import { baseQueryOauthDynamic } from 'services/baseQueryOauth'
 import { BuildRoutePayload, BuildRouteResponse } from 'services/route/types/buildRoute'
+import { GetRouteParams, GetRouteResponse } from 'services/route/types/getRoute'
+import { fetchTokenPrices, getMidPrice } from 'services/tokenCatalog'
 
-import { TOKEN_API_URL } from 'constants/env'
 import { ETHER_ADDRESS } from 'constants/index'
-
-import { GetRouteParams, GetRouteResponse } from './types/getRoute'
 
 const getWrappedToken = (token: string, chainId: ChainId) =>
   token.toLowerCase() === ETHER_ADDRESS.toLowerCase() ? WETH[chainId].address : token
@@ -68,23 +67,10 @@ const routeApi = createApi({
             const wrappedTokenIn = getWrappedToken(tokenIn, chainId)
             const wrappedTokenOut = getWrappedToken(tokenOut, chainId)
 
-            const priceResponse = await fetch(`${TOKEN_API_URL}/v1/public/tokens/prices`, {
-              method: 'POST',
-              body: JSON.stringify({
-                [chainId]: [wrappedTokenIn, wrappedTokenOut],
-              }),
-            }).then(res => res.json())
+            const priceResponse = await fetchTokenPrices({ [chainId]: [wrappedTokenIn, wrappedTokenOut] })
 
-            const tokenInPrices = priceResponse?.data?.[chainId]?.[wrappedTokenIn]
-            const tokenInMidPrice =
-              tokenInPrices?.PriceBuy && tokenInPrices?.PriceSell
-                ? (tokenInPrices.PriceBuy + tokenInPrices.PriceSell) / 2
-                : null
-            const tokenOutPrices = priceResponse?.data?.[chainId]?.[wrappedTokenOut]
-            const tokenOutMidPrice =
-              tokenOutPrices?.PriceBuy && tokenOutPrices?.PriceSell
-                ? (tokenOutPrices.PriceBuy + tokenOutPrices.PriceSell) / 2
-                : null
+            const tokenInMidPrice = getMidPrice(priceResponse?.data?.[chainId]?.[wrappedTokenIn])
+            const tokenOutMidPrice = getMidPrice(priceResponse?.data?.[chainId]?.[wrappedTokenOut])
 
             const currencyIn = new Token(chainId, tokenIn, tokenInDecimals)
             const currencyOut = new Token(chainId, tokenOut, tokenOutDecimals)
@@ -162,23 +148,10 @@ const routeApi = createApi({
             const wrappedTokenIn = getWrappedToken(tokenIn, chainId)
             const wrappedTokenOut = getWrappedToken(tokenOut, chainId)
 
-            const priceResponse = await fetch(`${TOKEN_API_URL}/v1/public/tokens/prices`, {
-              method: 'POST',
-              body: JSON.stringify({
-                [chainId]: [wrappedTokenIn, wrappedTokenOut],
-              }),
-            }).then(res => res.json())
+            const priceResponse = await fetchTokenPrices({ [chainId]: [wrappedTokenIn, wrappedTokenOut] })
 
-            const tokenInPrices = priceResponse?.data?.[chainId]?.[wrappedTokenIn]
-            const tokenInMidPrice =
-              tokenInPrices?.PriceBuy && tokenInPrices?.PriceSell
-                ? (tokenInPrices.PriceBuy + tokenInPrices.PriceSell) / 2
-                : null
-            const tokenOutPrices = priceResponse?.data?.[chainId]?.[wrappedTokenOut]
-            const tokenOutMidPrice =
-              tokenOutPrices?.PriceBuy && tokenOutPrices?.PriceSell
-                ? (tokenOutPrices.PriceBuy + tokenOutPrices.PriceSell) / 2
-                : null
+            const tokenInMidPrice = getMidPrice(priceResponse?.data?.[chainId]?.[wrappedTokenIn])
+            const tokenOutMidPrice = getMidPrice(priceResponse?.data?.[chainId]?.[wrappedTokenOut])
 
             const currencyIn = new Token(chainId, tokenIn, tokenInDecimals)
             const currencyOut = new Token(chainId, tokenOut, tokenOutDecimals)

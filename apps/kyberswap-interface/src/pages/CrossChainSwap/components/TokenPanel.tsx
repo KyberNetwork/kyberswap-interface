@@ -336,6 +336,7 @@ export const TokenPanel = ({
           showPinnedTokens
           customChainId={selectedChain as ChainId}
           trackingSource="cross_chain"
+          showDiscoveryTabs={false}
         />
       ) : (
         <TokenSelectorNonEvmModal

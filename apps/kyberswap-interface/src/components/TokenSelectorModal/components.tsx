@@ -14,11 +14,11 @@ export const PaddedColumn = forwardRef<HTMLDivElement, ComponentProps<typeof Aut
 PaddedColumn.displayName = 'PaddedColumn'
 
 export const SearchWrapper = ({ className, ...props }: ComponentPropsWithoutRef<'div'>) => (
-  <div className={cn('relative h-[44px]', className)} {...props} />
+  <div className={cn('relative h-10', className)} {...props} />
 )
 
 export const SearchIcon = ({ className, ...props }: ComponentProps<typeof Search>) => (
-  <Search className={cn('absolute right-3 top-3.5', className)} {...props} />
+  <Search className={cn('absolute right-3 top-1/2 -translate-y-1/2', className)} {...props} />
 )
 
 export const SearchInput = forwardRef<HTMLInputElement, ComponentPropsWithoutRef<'input'>>(
@@ -26,9 +26,9 @@ export const SearchInput = forwardRef<HTMLInputElement, ComponentPropsWithoutRef
     <input
       ref={ref}
       className={cn(
-        'absolute size-full whitespace-nowrap rounded-full border border-buttonBlack bg-buttonBlack px-4 py-3 pr-[30px] text-[17px] leading-normal text-text outline-none transition-[border] duration-100 [-webkit-appearance:none]',
-        'placeholder:text-[12.5px] placeholder:text-border sm:placeholder:text-[13.5px]',
-        'focus:border-border-primary focus:outline-none',
+        'absolute size-full whitespace-nowrap rounded-xl bg-black/20 px-3 pr-9 text-sm leading-normal text-text outline-none [-webkit-appearance:none]',
+        'placeholder:text-sm placeholder:text-gray',
+        'focus:outline-none',
         className,
       )}
       {...props}
