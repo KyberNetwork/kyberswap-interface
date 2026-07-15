@@ -394,13 +394,46 @@ export const TokenSelectorContent = ({
     return result
   }, [favoriteCurrenciesBase, favoritePrices, metricsExtras])
 
+  // The catalog can list New-tab tokens with no `metrics.price` (e.g. Robinhood). Fall back to the
+  // live prices endpoint for just those, so the price column isn't empty when the catalog is short.
+  const newPriceFallbackAddresses = useMemo(
+    () =>
+      isNewTab
+        ? newCurrenciesBase
+            .filter(currency => !newExtras[tokenRowKey(currency.chainId, currency.wrapped.address)]?.price)
+            .map(currency => currency.wrapped.address)
+        : EMPTY_ADDRESSES,
+    [isNewTab, newCurrenciesBase, newExtras],
+  )
+  const newFallbackPrices = useTokenPrices(newPriceFallbackAddresses, primaryChainId)
+  const newExtrasWithPrice = useMemo<TokenRowExtraMap>(() => {
+    if (!newPriceFallbackAddresses.length) return newExtras
+    const result: TokenRowExtraMap = { ...newExtras }
+    newCurrenciesBase.forEach(currency => {
+      const key = tokenRowKey(currency.chainId, currency.wrapped.address)
+      if (result[key]?.price) return
+      const fallback = newFallbackPrices[currency.wrapped.address.toLowerCase()]
+      if (fallback) result[key] = { ...result[key], price: fallback }
+    })
+    return result
+  }, [newExtras, newCurrenciesBase, newFallbackPrices, newPriceFallbackAddresses])
+
   const listExtras: TokenRowExtraMap = useMemo(() => {
     if (isTrendingTab) return trendingExtras
-    if (isNewTab) return newExtras
+    if (isNewTab) return newExtrasWithPrice
     if (isImportedTab) return metricsExtras
     if (isFavoritesTab) return favoriteExtras
     return EMPTY_EXTRAS
-  }, [isTrendingTab, isNewTab, isImportedTab, isFavoritesTab, trendingExtras, newExtras, metricsExtras, favoriteExtras])
+  }, [
+    isTrendingTab,
+    isNewTab,
+    isImportedTab,
+    isFavoritesTab,
+    trendingExtras,
+    newExtrasWithPrice,
+    metricsExtras,
+    favoriteExtras,
+  ])
 
   // In-memory metric sort for the Imported / Favorites tabs, whose "Price & 24h change" column sorts
   // by 24h change (Trending and New sort server-side). Rows are tiered so those missing the sorted
