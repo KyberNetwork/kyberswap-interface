@@ -7,6 +7,7 @@ import LocalLoader from 'components/LocalLoader'
 import { Center } from 'components/Stack'
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
+import { useSwapLayoutPrefetch } from 'pages/Swap/hooks/useSwapLayoutPrefetch'
 import type { TradeController } from 'pages/Swap/hooks/useTradeController'
 import { Header } from 'pages/Swap/layout/Header'
 import { TAB } from 'pages/Swap/layout/Tabs'
@@ -29,6 +30,7 @@ type SwapLayoutProps = PropsWithChildren<{
 
 export const SwapLayout = ({ children, controller, rightPanel }: SwapLayoutProps) => {
   const { activeMainTab, activeTab, shouldHighlightSwapBox, setActiveTab } = controller
+  useSwapLayoutPrefetch()
 
   return (
     <PageWrapper>
