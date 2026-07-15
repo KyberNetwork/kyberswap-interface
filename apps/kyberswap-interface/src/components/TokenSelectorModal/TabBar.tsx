@@ -93,7 +93,7 @@ export const TabBar = memo(({ tabs, activeTab, onChange }: TabBarProps) => {
             onClick={() => onChange(tab)}
             className={cn(
               '-mb-px flex shrink-0 items-center gap-1 border-b-2 pb-2 text-sm font-medium transition-colors',
-              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40',
+              'focus-visible:outline-none',
               isActive ? 'border-primary text-primary' : 'border-transparent text-text',
             )}
           >
