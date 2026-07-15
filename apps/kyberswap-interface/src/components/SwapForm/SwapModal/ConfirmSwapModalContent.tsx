@@ -8,6 +8,7 @@ import { calculatePriceImpact } from 'services/route/utils'
 import { useGetHoneypotInfoQuery } from 'services/tokenCatalog'
 
 import { ButtonOutlined, ButtonPrimary } from 'components/Button'
+import CopyHelper from 'components/Copy'
 import Dots from 'components/Dots'
 import InfoHelper from 'components/InfoHelper'
 import { LimitOrderStatus, LimitOrderTab } from 'components/LimitOrder/types'
@@ -128,7 +129,7 @@ export default function ConfirmSwapModalContent({
   const cat = usePairCategory()
   const { setRawSlippage } = useSlippageSettingByPage()
 
-  const shouldDisableConfirmButton = isBuildingRoute || !!errorWhileBuildRoute
+  const shouldDisableConfirmButton = true
 
   const { currency: currencyParam } = useParams()
   const { currencyIn, currencyOut } = useCurrenciesByPage()
@@ -491,6 +492,32 @@ export default function ConfirmSwapModalContent({
 
         <SwapDetails {...getSwapDetailsProps()} />
 
+        {buildResult?.data && (
+          <div className="flex flex-col gap-2 rounded-xl bg-buttonBlack p-3 text-xs">
+            <span className="font-medium text-text">Build Output</span>
+            <div className="flex items-start gap-2 break-all">
+              <span className="min-w-[90px] text-subText">Router</span>
+              <span className="flex-1 text-text">{buildResult.data.routerAddress}</span>
+              <CopyHelper size={14} toCopy={buildResult.data.routerAddress} />
+            </div>
+            <div className="flex items-start gap-2 break-all">
+              <span className="min-w-[90px] text-subText">Value (wei)</span>
+              <span className="flex-1 text-text">
+                {routeSummary?.parsedAmountIn?.currency.isNative ? buildResult.data.amountIn : '0'}
+              </span>
+              <CopyHelper
+                size={14}
+                toCopy={routeSummary?.parsedAmountIn?.currency.isNative ? buildResult.data.amountIn : '0'}
+              />
+            </div>
+            <div className="flex items-start gap-2 break-all">
+              <span className="min-w-[90px] text-subText">Calldata</span>
+              <span className="max-h-[120px] flex-1 overflow-y-auto font-mono text-text">{buildResult.data.data}</span>
+              <CopyHelper size={14} toCopy={buildResult.data.data} />
+            </div>
+          </div>
+        )}
+
         <div className="flex flex-col gap-4">
           <SlippageWarningNote rawSlippage={slippage} />
 
@@ -573,7 +600,7 @@ export default function ConfirmSwapModalContent({
               >
                 {shouldDisableConfirmButton ? (
                   <span className="text-sm font-medium leading-none">
-                    <Trans>Swap</Trans>
+                    <Trans>Swap Disabled (Build Only)</Trans>
                   </span>
                 ) : disableSwap ? (
                   <>
