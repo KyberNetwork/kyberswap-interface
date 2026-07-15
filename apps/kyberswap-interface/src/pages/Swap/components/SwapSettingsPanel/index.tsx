@@ -1,23 +1,23 @@
 import { Trans, t } from '@lingui/macro'
-import React, { ReactNode, useState } from 'react'
+import { type ReactNode, useState } from 'react'
 import { ChevronLeft } from 'react-feather'
 
 import IconButton from 'components/Button/IconButton'
 import { HStack, Stack } from 'components/Stack'
-import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
-import { CrossChainSourceSetting } from 'components/swapv2/SwapSettingsPanel/CrossChainSourceSetting'
-import DegenModeSetting from 'components/swapv2/SwapSettingsPanel/DegenModeSetting'
-import LiquiditySourcesSetting from 'components/swapv2/SwapSettingsPanel/LiquiditySourcesSetting'
-import SlippageSetting from 'components/swapv2/SwapSettingsPanel/SlippageSetting'
-import TransactionTimeLimitSetting from 'components/swapv2/SwapSettingsPanel/TransactionTimeLimitSetting'
+import { SlippageSetting } from 'components/TransactionSettings/SlippageSetting'
+import { TransactionTimeLimitSetting } from 'components/TransactionSettings/TransactionTimeLimitSetting'
 import {
   SettingsDivider,
   SettingsLabel,
   SettingsRow,
   SettingsSection,
   SettingsToggle,
-} from 'components/swapv2/SwapSettingsPanel/components'
+} from 'components/TransactionSettings/components'
+import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
+import { CrossChainSourceSetting } from 'pages/Swap/components/SwapSettingsPanel/CrossChainSourceSetting'
+import { DegenModeSetting } from 'pages/Swap/components/SwapSettingsPanel/DegenModeSetting'
+import { LiquiditySourcesSetting } from 'pages/Swap/components/SwapSettingsPanel/LiquiditySourcesSetting'
 import {
   useShowPricingChart,
   useShowTradeRoutes,
@@ -28,7 +28,21 @@ import {
   useUserSlippageTolerance,
 } from 'state/user/hooks'
 
-type Props = {
+type DisplaySettingRowProps = {
+  label: ReactNode
+  tooltip: ReactNode
+  isActive: boolean
+  toggle: () => void
+}
+
+export const DisplaySettingRow = ({ label, tooltip, isActive, toggle }: DisplaySettingRowProps) => (
+  <SettingsRow>
+    <SettingsLabel tooltip={tooltip}>{label}</SettingsLabel>
+    <SettingsToggle isActive={isActive} toggle={toggle} />
+  </SettingsRow>
+)
+
+type SwapSettingsPanelProps = {
   onBack: () => void
   onClickLiquiditySources: () => void
   onClickCrossChainSources: () => void
@@ -43,24 +57,7 @@ type Props = {
   }
 }
 
-const DisplaySettingRow = ({
-  label,
-  tooltip,
-  isActive,
-  toggle,
-}: {
-  label: ReactNode
-  tooltip: ReactNode
-  isActive: boolean
-  toggle: () => void
-}) => (
-  <SettingsRow>
-    <SettingsLabel tooltip={tooltip}>{label}</SettingsLabel>
-    <SettingsToggle isActive={isActive} toggle={toggle} />
-  </SettingsRow>
-)
-
-const SettingsPanel: React.FC<Props> = ({
+const SwapSettingsPanel = ({
   isSwapPage,
   isCrossChainPage,
   highlightDegenMode,
@@ -68,7 +65,7 @@ const SettingsPanel: React.FC<Props> = ({
   onClickLiquiditySources,
   onClickCrossChainSources,
   displaySettings,
-}) => {
+}: SwapSettingsPanelProps) => {
   const { trackingHandler } = useTracking()
   const [slippage] = useUserSlippageTolerance()
 
@@ -148,4 +145,4 @@ const SettingsPanel: React.FC<Props> = ({
   )
 }
 
-export default SettingsPanel
+export default SwapSettingsPanel

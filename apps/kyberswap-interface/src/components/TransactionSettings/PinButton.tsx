@@ -6,7 +6,8 @@ type Props = {
   isActive: boolean
   onClick: () => void
 }
-const PinButton: React.FC<Props> = ({ isActive, onClick }) => {
+
+export const PinButton = ({ isActive, onClick }: Props) => {
   return (
     <IconButton aria-label={isActive ? 'Unpin setting' : 'Pin setting'} onClick={onClick} size={24}>
       {isActive ? (
@@ -17,5 +18,3 @@ const PinButton: React.FC<Props> = ({ isActive, onClick }) => {
     </IconButton>
   )
 }
-
-export default PinButton

@@ -1,8 +1,9 @@
 import { Trans, t } from '@lingui/macro'
+import { PropsWithChildren } from 'react'
 import { AlertOctagon } from 'react-feather'
 
 import Loader from 'components/Loader'
-import { RISKY_THRESHOLD, isItemRisky } from 'components/swapv2/TokenInfo/utils'
+import { RISKY_THRESHOLD, isItemRisky } from 'components/TokenInfo/utils'
 import useTheme from 'hooks/useTheme'
 import { cn } from 'utils/cn'
 
@@ -19,30 +20,26 @@ export type ItemData = {
   riskyReverse?: boolean
 }
 
-const Label = ({
-  children,
-  color,
-  className,
-  fontWeight,
-}: {
-  children: React.ReactNode
+type LabelProps = PropsWithChildren<{
   color?: string
   className?: string
   fontWeight?: string
-}) => (
+}>
+
+export const Label = ({ children, color, className, fontWeight }: LabelProps) => (
   <span className={cn('text-xs font-normal text-subText', className)} style={{ color, fontWeight }}>
     {children}
   </span>
 )
 
-const ItemWrapper = ({ children }: { children: React.ReactNode }) => (
+export const ItemWrapper = ({ children }: PropsWithChildren) => (
   <div className="flex min-h-7 basis-[48%] items-center justify-between gap-1.5 rounded px-2 py-1 hover:bg-tabActive">
     {children}
   </div>
 )
 
 const NO_DATA = '--'
-const InfoItem = ({ data, loading }: { data: ItemData; loading: boolean }) => {
+export const InfoItem = ({ data, loading }: { data: ItemData; loading: boolean }) => {
   const { label, value, type, isNumber } = data
   const theme = useTheme()
   const displayValue = loading ? (
@@ -117,4 +114,5 @@ const Content = ({ data, totalRisk, totalWarning, loading }: ContentProps) => {
     </div>
   )
 }
+
 export default Content

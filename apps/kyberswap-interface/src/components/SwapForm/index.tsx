@@ -24,7 +24,6 @@ import useGetInputError from 'components/SwapForm/hooks/useGetInputError'
 import useGetRoute from 'components/SwapForm/hooks/useGetRoute'
 import useParsedAmount from 'components/SwapForm/hooks/useParsedAmount'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
-import { Wrapper } from 'components/swapv2/styleds'
 import { SAFE_APP_CLIENT_ID } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useDebounce from 'hooks/useDebounce'
@@ -250,7 +249,7 @@ const SwapForm: React.FC<SwapFormProps> = props => {
       isAdvancedMode={isDegenMode}
     >
       <div className={cn('flex-col gap-4', hidden ? 'hidden' : 'flex')}>
-        <Wrapper id={TutorialIds.SWAP_FORM_CONTENT}>
+        <div id={TutorialIds.SWAP_FORM_CONTENT} className="relative z-[1] bg-background">
           <div className="flex flex-col gap-3">
             {omniView ? <NetworkSelector chainId={chainId} /> : null}
 
@@ -300,7 +299,7 @@ const SwapForm: React.FC<SwapFormProps> = props => {
             <SlippageSettingGroup isWrapOrUnwrap={isWrapOrUnwrap} />
             {!isWrapOrUnwrap && <FeeControlGroup />}
           </div>
-        </Wrapper>
+        </div>
         <div className="flex flex-col gap-4">
           <MultichainKNCNote currencyIn={currencyIn} currencyOut={currencyOut} />
 

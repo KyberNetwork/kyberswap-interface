@@ -7,19 +7,19 @@ import { DropdownArrowIcon } from 'components/ArrowRotate'
 import CopyHelper from 'components/Copy'
 import CurrencyLogo from 'components/CurrencyLogo'
 import Loader from 'components/Loader'
-import { getMarketTokenInfo } from 'components/swapv2/TokenInfo/utils'
+import { getMarketTokenInfo } from 'components/TokenInfo/utils'
 import { useActiveWeb3React } from 'hooks'
 import useTokenInfo from 'hooks/useTokenInfo'
 import { shortenAddress } from 'utils'
 
-const InfoRow = ({ label, value }: { label: ReactNode; value: ReactNode }) => (
+export const InfoRow = ({ label, value }: { label: ReactNode; value: ReactNode }) => (
   <div className="flex min-h-7 items-center justify-between gap-3 rounded px-2 py-1 hover:bg-tabActive">
     <div className="flex min-w-0 items-center text-xs text-subText">{label}</div>
     <div className="flex min-w-0 items-center justify-end text-right text-xs font-medium text-text">{value}</div>
   </div>
 )
 
-export default function MarketInfo({ token }: { token: Token | undefined }) {
+const MarketInfo = ({ token }: { token: Token | undefined }) => {
   const { data: tokenInfo, loading } = useTokenInfo(token)
   const [expand, setExpand] = useState(false)
   const { chainId } = useActiveWeb3React()
@@ -73,3 +73,5 @@ export default function MarketInfo({ token }: { token: Token | undefined }) {
     </div>
   )
 }
+
+export default MarketInfo

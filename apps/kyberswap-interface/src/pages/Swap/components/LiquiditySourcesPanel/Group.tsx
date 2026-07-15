@@ -3,19 +3,17 @@ import { useEffect, useMemo, useRef } from 'react'
 
 import Checkbox from 'components/CheckBox'
 import { HStack } from 'components/Stack'
-import { ImageWrapper, Source, SourceName } from 'components/swapv2/LiquiditySourcesPanel/styles'
 import { useActiveWeb3React } from 'hooks'
+import { ImageWrapper, Source, SourceName } from 'pages/Swap/components/LiquiditySourcesPanel/components'
 import { useAllDexes, useExcludeDexes } from 'state/customizeDexes/hooks'
 
-export const LiquiditySourceGroup = ({
-  tag,
-  debouncedSearchText,
-  chainId: customChainId,
-}: {
+type Props = {
   tag: { id: number; name: string }
   debouncedSearchText: string
   chainId?: ChainId
-}) => {
+}
+
+export const LiquiditySourceGroup = ({ tag, debouncedSearchText, chainId: customChainId }: Props) => {
   const { chainId: walletChainId } = useActiveWeb3React()
   const chainId = customChainId || walletChainId
   const dexes = useAllDexes(chainId)

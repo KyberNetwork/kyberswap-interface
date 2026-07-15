@@ -3,9 +3,9 @@ import { ReactNode, useRef } from 'react'
 import { Bell } from 'react-feather'
 
 import { NotificationType, PopupType } from 'components/Announcement/type'
+import IconButton from 'components/Button/IconButton'
 import { SummaryNotify } from 'components/LimitOrder/MyOrders/SummaryNotify'
 import { LimitOrder, LimitOrderStatus } from 'components/LimitOrder/types'
-import { StyledActionButtonSwapForm } from 'components/swapv2/styleds'
 import { APP_PATHS, TIMES_IN_SECS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useAddPopup } from 'state/application/hooks'
@@ -202,8 +202,8 @@ export default function NotificationTester({ visible }: Props) {
   }
 
   return (
-    <StyledActionButtonSwapForm onClick={triggerTestPopup}>
+    <IconButton variant="action" onClick={triggerTestPopup}>
       <Bell className="text-subText" size={18} />
-    </StyledActionButtonSwapForm>
+    </IconButton>
   )
 }

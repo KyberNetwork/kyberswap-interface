@@ -1,8 +1,8 @@
 import { Trans } from '@lingui/macro'
-import { Dispatch, FC, SetStateAction } from 'react'
+import { type Dispatch, type SetStateAction } from 'react'
 
 import AdvanceModeModal from 'components/TransactionSettings/AdvanceModeModal'
-import { SettingsLabel, SettingsRow, SettingsToggle } from 'components/swapv2/SwapSettingsPanel/components'
+import { SettingsLabel, SettingsRow, SettingsToggle } from 'components/TransactionSettings/components'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { useDegenModeManager } from 'state/user/hooks'
 
@@ -11,7 +11,8 @@ type Props = {
   setShowConfirmation: Dispatch<SetStateAction<boolean>>
   highlight?: boolean
 }
-const DegenModeSetting: FC<Props> = ({ showConfirmation, setShowConfirmation, highlight = false }) => {
+
+export const DegenModeSetting = ({ showConfirmation, setShowConfirmation, highlight = false }: Props) => {
   const { trackingHandler } = useTracking()
 
   const [isDegenMode, toggleDegenMode] = useDegenModeManager()
@@ -50,5 +51,3 @@ const DegenModeSetting: FC<Props> = ({ showConfirmation, setShowConfirmation, hi
     </>
   )
 }
-
-export default DegenModeSetting

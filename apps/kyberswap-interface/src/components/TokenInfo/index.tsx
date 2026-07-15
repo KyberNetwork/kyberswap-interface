@@ -1,6 +1,6 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { useEffect, useState } from 'react'
+import { HTMLAttributes, PropsWithChildren, useEffect, useState } from 'react'
 import { ChevronLeft } from 'react-feather'
 
 import { ReactComponent as Coingecko } from 'assets/svg/coingecko_color.svg'
@@ -12,26 +12,28 @@ import IconButton from 'components/Button/IconButton'
 import CurrencyLogo from 'components/CurrencyLogo'
 import { HStack } from 'components/Stack'
 import { TextDashed } from 'components/Text'
+import MarketInfo from 'components/TokenInfo/MarketInfo'
+import SecurityInfo from 'components/TokenInfo/SecurityInfo'
 import { MouseoverTooltip } from 'components/Tooltip'
-import MarketInfo from 'components/swapv2/TokenInfo/MarketInfo'
-import SecurityInfo from 'components/swapv2/TokenInfo/SecurityInfo'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { Field } from 'state/swap/actions'
 import { cn } from 'utils/cn'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
 
-export const Container = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
+type ContainerProps = PropsWithChildren<HTMLAttributes<HTMLDivElement>>
+
+export const Container = ({ children, className, ...rest }: ContainerProps) => (
   <div className={cn('flex flex-col px-4', className)} {...rest}>
     {children}
   </div>
 )
 
-const HeaderPanel = ({ children, className }: { children: React.ReactNode; className?: string }) => (
+export const HeaderPanel = ({ children, className }: PropsWithChildren<{ className?: string }>) => (
   <div className={cn('flex h-10 items-center justify-between bg-subText-20 px-4', className)}>{children}</div>
 )
 
-const PoweredBy = ({ children }: { children: React.ReactNode }) => (
+export const PoweredBy = ({ children }: PropsWithChildren) => (
   <div className="flex items-center justify-end gap-1">
     <span className="text-[10px] font-normal text-subText">
       <Trans>Powered by</Trans>
@@ -45,23 +47,23 @@ enum TAB {
   TOKEN_OUT,
 }
 
+const tabBaseClass =
+  'relative z-[1] flex w-full min-w-[80px] items-center justify-center gap-1 rounded-full bg-transparent px-2 py-1.5 text-xs font-medium hover:no-underline'
+
 type TokenTabButtonProps = {
   currency?: Currency
   isActive: boolean
   onClick: () => void
 }
 
-const tabBaseClass =
-  'relative z-[1] flex w-full min-w-[80px] items-center justify-center gap-1 rounded-full bg-transparent px-2 py-1.5 text-xs font-medium hover:no-underline'
-
-const TokenTabButton = ({ currency, isActive, onClick }: TokenTabButtonProps) => (
+export const TokenTabButton = ({ currency, isActive, onClick }: TokenTabButtonProps) => (
   <ButtonEmpty padding="0" onClick={onClick} className={cn(tabBaseClass, !isActive && 'hover:bg-tabActive/40')}>
     <CurrencyLogo currency={currency} size="16px" />
     <span className={cn('whitespace-nowrap', isActive ? 'text-text' : 'text-subText')}>{currency?.symbol}</span>
   </ButtonEmpty>
 )
 
-const TokenInfoTab = ({ currencies, onBack }: { currencies: { [field in Field]?: Currency }; onBack?: () => void }) => {
+const TokenInfo = ({ currencies, onBack }: { currencies: { [field in Field]?: Currency }; onBack?: () => void }) => {
   const { chainId } = useActiveWeb3React()
   const theme = useTheme()
   const inputNativeCurrency = useCurrencyConvertedToNative(currencies[Field.INPUT])
@@ -85,7 +87,7 @@ const TokenInfoTab = ({ currencies, onBack }: { currencies: { [field in Field]?:
       <div className="flex items-center justify-between p-4">
         {onBack && (
           <HStack className="items-center gap-1">
-            <IconButton aria-label={t`Back`} className="hover:brightness-125" onClick={onBack}>
+            <IconButton aria-label="Back" className="hover:brightness-125" onClick={onBack}>
               <ChevronLeft size={26} />
             </IconButton>
             <HStack className="items-baseline gap-2">
@@ -150,4 +152,4 @@ const TokenInfoTab = ({ currencies, onBack }: { currencies: { [field in Field]?:
   )
 }
 
-export default TokenInfoTab
+export default TokenInfo

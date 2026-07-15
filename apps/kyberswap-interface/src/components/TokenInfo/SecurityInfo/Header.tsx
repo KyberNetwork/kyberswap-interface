@@ -1,7 +1,7 @@
 import { ReactNode } from 'react'
 import { AlertOctagon } from 'react-feather'
 
-const BadgeWarning = ({ warning, danger }: { warning: number; danger: number }) => {
+export const BadgeWarning = ({ warning, danger }: { warning: number; danger: number }) => {
   return (
     <div className="flex items-center gap-2.5">
       {danger > 0 && (
@@ -18,17 +18,14 @@ const BadgeWarning = ({ warning, danger }: { warning: number; danger: number }) 
   )
 }
 
-const Header = ({
-  warning,
-  danger,
-  title,
-  icon,
-}: {
+type HeaderProps = {
   warning: number
   danger: number
   title: string
   icon: ReactNode
-}) => {
+}
+
+export const Header = ({ warning, danger, title, icon }: HeaderProps) => {
   return (
     <div className="flex min-h-10 flex-1 items-center justify-between gap-3 py-2 pl-4">
       <div className="flex items-center gap-1.5">
@@ -39,5 +36,3 @@ const Header = ({
     </div>
   )
 }
-
-export default Header

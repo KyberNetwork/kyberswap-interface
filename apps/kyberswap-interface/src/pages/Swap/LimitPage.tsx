@@ -7,8 +7,8 @@ import { SwapLayout } from 'pages/Swap/layout/SwapLayout'
 import { TAB } from 'pages/Swap/layout/Tabs'
 
 const OrderList = lazy(() => import('components/LimitOrder/OrderList'))
-const SettingsPanel = lazy(() => import('components/swapv2/SwapSettingsPanel'))
-const TokenInfoTab = lazy(() => import('components/swapv2/TokenInfo'))
+const SwapSettingsPanel = lazy(() => import('pages/Swap/components/SwapSettingsPanel'))
+const TokenInfo = lazy(() => import('components/TokenInfo'))
 
 const LimitPage = () => {
   const controller = useTradeController(TAB.LIMIT)
@@ -18,9 +18,9 @@ const LimitPage = () => {
   return (
     <SwapLayout controller={controller} rightPanel={<OrderList />}>
       {activeTab === TAB.LIMIT && <LimitOrderForm />}
-      {activeTab === TAB.INFO && <TokenInfoTab currencies={currencies} onBack={onBackToMainTab} />}
+      {activeTab === TAB.INFO && <TokenInfo currencies={currencies} onBack={onBackToMainTab} />}
       {activeTab === TAB.SETTINGS && (
-        <SettingsPanel
+        <SwapSettingsPanel
           isCrossChainPage={false}
           isSwapPage={false}
           highlightDegenMode={highlightDegenMode}

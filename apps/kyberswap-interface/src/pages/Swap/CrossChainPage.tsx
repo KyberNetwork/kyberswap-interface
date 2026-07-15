@@ -9,7 +9,7 @@ import { TAB } from 'pages/Swap/layout/Tabs'
 
 const CrossChainSwapSources = lazy(() => import('pages/CrossChainSwap/components/CrossChainSwapSources'))
 const QuoteSteps = lazy(() => import('pages/CrossChainSwap/components/QuoteSteps'))
-const SettingsPanel = lazy(() => import('components/swapv2/SwapSettingsPanel'))
+const SwapSettingsPanel = lazy(() => import('pages/Swap/components/SwapSettingsPanel'))
 const TransactionHistory = lazy(() => import('pages/CrossChainSwap/components/TransactionHistory'))
 
 const CrossChainPage = () => {
@@ -28,7 +28,7 @@ const CrossChainPage = () => {
     <SwapLayout controller={controller} rightPanel={rightPanel}>
       {activeTab === TAB.CROSS_CHAIN && <CrossChainSwap onQuoteChange={setSelectedQuote} />}
       {activeTab === TAB.SETTINGS && (
-        <SettingsPanel
+        <SwapSettingsPanel
           isCrossChainPage
           isSwapPage={false}
           highlightDegenMode={highlightDegenMode}

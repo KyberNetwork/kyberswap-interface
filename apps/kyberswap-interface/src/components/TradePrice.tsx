@@ -3,8 +3,8 @@ import { Trans } from '@lingui/macro'
 import { CSSProperties, ReactNode, useState } from 'react'
 import { Repeat } from 'react-feather'
 
+import IconButton from 'components/Button/IconButton'
 import Dots from 'components/Dots'
-import { StyledBalanceMaxMini } from 'components/swapv2/styleds'
 import { cn } from 'utils/cn'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
 import { formatDisplayNumber } from 'utils/numbers'
@@ -18,7 +18,7 @@ interface TradePriceProps {
   className?: string
 }
 
-export default function TradePrice({ price, label, icon, style = {}, color, className }: TradePriceProps) {
+const TradePrice = ({ price, label, icon, style = {}, color, className }: TradePriceProps) => {
   const [showInverted, setShowInverted] = useState<boolean>(false)
   let formattedPrice
   try {
@@ -51,9 +51,9 @@ export default function TradePrice({ price, label, icon, style = {}, color, clas
       {show ? (
         <>
           {label && <>{label}&nbsp;</>} <span>{value}</span>
-          <StyledBalanceMaxMini className="group-hover:brightness-[0.85]">
+          <IconButton variant="compact" className="group-hover:brightness-[0.85]">
             {icon || <Repeat size={12} />}
-          </StyledBalanceMaxMini>
+          </IconButton>
         </>
       ) : (
         <Dots>
@@ -63,3 +63,5 @@ export default function TradePrice({ price, label, icon, style = {}, color, clas
     </span>
   )
 }
+
+export default TradePrice

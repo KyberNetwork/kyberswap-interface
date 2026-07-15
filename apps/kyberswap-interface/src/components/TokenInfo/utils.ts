@@ -1,7 +1,7 @@
 import { t } from '@lingui/macro'
 import { SecurityInfo } from 'services/coingecko'
 
-import { ItemData, WarningType } from 'components/swapv2/TokenInfo/SecurityInfo/Content'
+import { ItemData, WarningType } from 'components/TokenInfo/SecurityInfo/Content'
 import { TokenInfo } from 'hooks/useTokenInfo'
 import { formatLongNumber } from 'utils/formatBalance'
 import { formatDisplayNumber } from 'utils/numbers'

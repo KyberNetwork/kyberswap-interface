@@ -5,13 +5,13 @@ const ENABLE_DEGEN_MODE_PARAM = 'enableDegenMode'
 const HIGHLIGHT_DURATION = 4_000
 const DEFAULT_SETTINGS_TAB = 'settings'
 
-export default function useRequiredDegenMode<Tab>({
+export const useRequiredDegenMode = <Tab>({
   settingsTab = DEFAULT_SETTINGS_TAB as Tab,
   setActiveTab,
 }: {
   settingsTab?: Tab
   setActiveTab: (tab: Tab) => void
-}) {
+}) => {
   const [searchParams, setSearchParams] = useSearchParams()
   const shouldOpenSettings = searchParams.get(ENABLE_DEGEN_MODE_PARAM) === 'true'
   const [highlightDegenMode, setHighlightDegenMode] = useState(false)

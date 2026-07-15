@@ -14,7 +14,7 @@ const severityClass = (severity: 0 | 1 | 2 | 3 | 4): string => {
 /**
  * Formatted version of price impact text with warning colors
  */
-export default function FormattedPriceImpact({ priceImpact }: { priceImpact?: Percent }) {
+export const FormattedPriceImpact = ({ priceImpact }: { priceImpact?: Percent }) => {
   if (!priceImpact || priceImpact.lessThan('0')) {
     return <div>--</div>
   }

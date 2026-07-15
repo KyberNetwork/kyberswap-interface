@@ -1,14 +1,14 @@
 import { t } from '@lingui/macro'
 import { isMobile } from 'react-device-detect'
+import { Info } from 'react-feather'
 import { useLocation } from 'react-router-dom'
 import { useMedia } from 'react-use'
 
+import IconButton from 'components/Button/IconButton'
 import TransactionSettingsIcon from 'components/Icons/TransactionSettingsIcon'
 import NotificationTester from 'components/LimitOrder/NotificationTester'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
-import TokenInfoIcon from 'components/swapv2/TokenInfoIcon'
-import { StyledActionButtonSwapForm } from 'components/swapv2/styleds'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
@@ -17,6 +17,19 @@ import { TAB } from 'pages/Swap/layout/Tabs'
 import { useDegenModeManager, useUserSlippageTolerance, useUserTransactionTTL } from 'state/user/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatSlippage } from 'utils/slippage'
+
+type TokenInfoButtonProps = {
+  onClick?: () => void
+  size?: number
+}
+
+export const TokenInfoButton = ({ onClick, size }: TokenInfoButtonProps) => (
+  <IconButton variant="action" onClick={onClick}>
+    <MouseoverTooltip text={t`Token Info`} placement="top" width="fit-content" disableTooltip={isMobile}>
+      <Info className="text-subText" size={size || 20} />
+    </MouseoverTooltip>
+  </IconButton>
+)
 
 type HeaderRightMenuProps = {
   activeTab: TAB
@@ -51,8 +64,7 @@ export const HeaderRightMenu = ({ activeTab, setActiveTab, activeMainTab }: Head
   return (
     <div className="flex items-center gap-1">
       {!isCrossChainPage && (
-        <TokenInfoIcon
-          currencies={currencies}
+        <TokenInfoButton
           size={upToXXSmall ? 16 : 20}
           onClick={() => {
             trackingHandler(TRACKING_EVENT_TYPE.SWAP_TOKEN_INFO_CLICK)
@@ -61,7 +73,8 @@ export const HeaderRightMenu = ({ activeTab, setActiveTab, activeMainTab }: Head
         />
       )}
       {!isLimitPage && (
-        <StyledActionButtonSwapForm
+        <IconButton
+          variant="action"
           active={activeTab === TAB.SETTINGS}
           onClick={() => {
             onToggleActionTab(TAB.SETTINGS)
@@ -89,7 +102,7 @@ export const HeaderRightMenu = ({ activeTab, setActiveTab, activeMainTab }: Head
               <TransactionSettingsIcon className={isDegenMode ? 'text-warning' : 'text-subText'} />
             </span>
           </MouseoverTooltip>
-        </StyledActionButtonSwapForm>
+        </IconButton>
       )}
 
       <NotificationTester visible={false} />

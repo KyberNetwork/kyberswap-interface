@@ -6,7 +6,6 @@ import { useGetTipLinkQuery } from 'services/tipLink'
 
 import SwapForm, { SwapFormProps } from 'components/SwapForm'
 import { DEFAULT_TIP, TIP_LINK_CLIENT_ID, isCreatorNameValid } from 'components/TipLinkGeneratorModal/shared'
-import useRequiredDegenMode from 'components/swapv2/SwapSettingsPanel/useRequiredDegenMode'
 import { MAX_FEE_IN_BIPS } from 'constants/index'
 import { SUPPORTED_NETWORKS } from 'constants/networks'
 import { DEFAULT_OUTPUT_TOKEN_BY_CHAIN, NativeCurrencies, PRICE_CHART_QUOTE_TOKEN_BY_CHAIN } from 'constants/tokens'
@@ -14,6 +13,7 @@ import { useActiveWeb3React } from 'hooks'
 import { useCurrencyV2 } from 'hooks/useTokens'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { PartnerSwapLayout } from 'pages/PartnerSwap/PartnerSwapLayout'
+import { useRequiredDegenMode } from 'pages/Swap/hooks/useRequiredDegenMode'
 import { TAB, isSettingTab } from 'pages/Swap/layout/Tabs'
 import Updater from 'state/customizeDexes/updater'
 import { Field } from 'state/swap/actions'
@@ -26,9 +26,9 @@ import { useTradeComposition } from 'utils/aggregationRouting'
 
 const LimitOrderForm = lazy(() => import('components/LimitOrder/Form/LimitOrderForm'))
 const OrderList = lazy(() => import('components/LimitOrder/OrderList'))
-const LiquiditySourcesPanel = lazy(() => import('components/swapv2/LiquiditySourcesPanel'))
-const SettingsPanel = lazy(() => import('components/swapv2/SwapSettingsPanel'))
-const TokenInfoTab = lazy(() => import('components/swapv2/TokenInfo'))
+const LiquiditySourcesPanel = lazy(() => import('pages/Swap/components/LiquiditySourcesPanel'))
+const SwapSettingsPanel = lazy(() => import('pages/Swap/components/SwapSettingsPanel'))
+const TokenInfo = lazy(() => import('components/TokenInfo'))
 const CrossChainSwap = lazy(() => import('pages/CrossChainSwap'))
 const CrossChainSwapSources = lazy(() => import('pages/CrossChainSwap/components/CrossChainSwapSources'))
 const TransactionHistory = lazy(() => import('pages/CrossChainSwap/components/TransactionHistory'))
@@ -63,7 +63,7 @@ type Props = {
   mode?: 'partner' | 'user'
 }
 
-export default function PartnerSwap({ mode = 'partner' }: Props) {
+const PartnerSwap = ({ mode = 'partner' }: Props) => {
   const { account, chainId: walletChainId } = useActiveWeb3React()
   const { changeNetwork } = useChangeNetwork()
   const [searchParams, setSearchParams] = useSearchParams()
@@ -296,9 +296,9 @@ export default function PartnerSwap({ mode = 'partner' }: Props) {
         setActiveTab={setActiveTab}
       >
         {isSwapPage && <SwapForm {...props} />}
-        {activeTab === TAB.INFO && <TokenInfoTab currencies={currencies} onBack={onBackToSwapTab} />}
+        {activeTab === TAB.INFO && <TokenInfo currencies={currencies} onBack={onBackToSwapTab} />}
         {activeTab === TAB.SETTINGS && (
-          <SettingsPanel
+          <SwapSettingsPanel
             displaySettings={{
               isShowPricingChart,
               isShowTradeRoutes,
@@ -325,3 +325,5 @@ export default function PartnerSwap({ mode = 'partner' }: Props) {
     </>
   )
 }
+
+export default PartnerSwap

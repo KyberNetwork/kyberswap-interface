@@ -1,62 +1,29 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import React, { ButtonHTMLAttributes, useEffect, useRef, useState } from 'react'
-import { ChevronLeft } from 'react-feather'
+import { useEffect, useRef, useState } from 'react'
 
-import IconButton from 'components/Button/IconButton'
 import Checkbox from 'components/CheckBox'
 import { HStack, Stack } from 'components/Stack'
-import { LiquiditySourceGroup } from 'components/swapv2/LiquiditySourcesPanel/Group'
-import SearchBar from 'components/swapv2/LiquiditySourcesPanel/SearchBar'
-import { ImageWrapper, Source, SourceName } from 'components/swapv2/LiquiditySourcesPanel/styles'
 import useDebounce from 'hooks/useDebounce'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
+import { LiquiditySourceGroup } from 'pages/Swap/components/LiquiditySourcesPanel/Group'
+import { SearchBar } from 'pages/Swap/components/LiquiditySourcesPanel/SearchBar'
+import {
+  BackIconWrapper,
+  ImageWrapper,
+  LiquiditySourceHeader,
+  Source,
+  SourceList,
+  SourceName,
+} from 'pages/Swap/components/LiquiditySourcesPanel/components'
 import { useAllDexes, useExcludeDexes } from 'state/customizeDexes/hooks'
-import { cn } from 'utils/cn'
 
 type Props = {
   onBack: () => void
   chainId?: ChainId
 }
 
-export const BackIconWrapper: React.FC<ButtonHTMLAttributes<HTMLButtonElement>> = ({ className, ...rest }) => (
-  <IconButton aria-label={t`Back`} className={className} {...rest}>
-    <ChevronLeft size={24} className="text-subText" />
-  </IconButton>
-)
-
-export const SourceList: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({ className, children, ...rest }) => (
-  <div
-    {...rest}
-    className={cn(
-      'flex h-[280px] max-h-[280px] w-full flex-col gap-2 overflow-x-hidden overflow-y-scroll rounded-b-lg border border-t-0 border-border p-3',
-      '[&::-webkit-scrollbar]:block [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar]:rounded-[999px]',
-      '[&::-webkit-scrollbar-track]:rounded-[999px] [&::-webkit-scrollbar-track]:bg-transparent',
-      '[&::-webkit-scrollbar-thumb]:rounded-[999px] [&::-webkit-scrollbar-thumb]:bg-disableText',
-      className,
-    )}
-  >
-    {children}
-  </div>
-)
-
-export const LiquiditySourceHeader: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({
-  className,
-  children,
-  ...rest
-}) => (
-  <div
-    {...rest}
-    className={cn(
-      'flex items-center justify-between gap-4 rounded-t-lg border border-border bg-tableHeader p-3 text-xs font-medium uppercase text-subText',
-      className,
-    )}
-  >
-    {children}
-  </div>
-)
-
-const LiquiditySourcesPanel: React.FC<Props> = ({ onBack, chainId }) => {
+const LiquiditySourcesPanel = ({ onBack, chainId }: Props) => {
   const [searchText, setSearchText] = useState('')
   const debouncedSearchText = useDebounce(searchText.toLowerCase(), 200).trim()
 

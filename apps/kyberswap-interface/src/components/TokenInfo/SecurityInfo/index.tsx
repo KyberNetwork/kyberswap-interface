@@ -7,10 +7,10 @@ import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import { ReactComponent as ContractSecurity } from 'assets/svg/security_contract.svg'
 import { ReactComponent as TreadingSecurity } from 'assets/svg/security_trading.svg'
 import { CollapseItem, CollapseItemProps } from 'components/Collapse'
-import { Container } from 'components/swapv2/TokenInfo'
-import Content, { ContentProps } from 'components/swapv2/TokenInfo/SecurityInfo/Content'
-import Header from 'components/swapv2/TokenInfo/SecurityInfo/Header'
-import { getSecurityTokenInfo } from 'components/swapv2/TokenInfo/utils'
+import { Container } from 'components/TokenInfo'
+import Content, { ContentProps } from 'components/TokenInfo/SecurityInfo/Content'
+import { Header } from 'components/TokenInfo/SecurityInfo/Header'
+import { getSecurityTokenInfo } from 'components/TokenInfo/utils'
 
 const collapseItemProps: Partial<CollapseItemProps> = {
   animation: true,
@@ -27,7 +27,7 @@ const collapseItemProps: Partial<CollapseItemProps> = {
   },
 }
 
-export default function SecurityInfo({ token }: { token: Token | undefined }) {
+const SecurityInfo = ({ token }: { token: Token | undefined }) => {
   const { data, isLoading, error } = useGetSecurityTokenInfoQuery(
     { chainId: token?.chainId as ChainId, address: token?.address ?? '' },
     { skip: !token?.address },
@@ -75,3 +75,5 @@ export default function SecurityInfo({ token }: { token: Token | undefined }) {
     </Container>
   )
 }
+
+export default SecurityInfo

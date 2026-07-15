@@ -1,25 +1,31 @@
-import { type ReactNode, Suspense, lazy } from 'react'
+import { type PropsWithChildren, type ReactNode, Suspense, lazy } from 'react'
 
 import { FarmingPoolBannerSkeleton, TrendingPoolBannerSkeleton } from 'components/EarnBanner/Skeletons'
 import { LimitOrderProvider } from 'components/LimitOrder/LimitOrderContext'
 import Loader from 'components/Loader'
 import Skeleton from 'components/Skeleton'
+import { Center } from 'components/Stack'
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
-import { Container, PageWrapper, SwapFormWrapper } from 'components/swapv2/styleds'
 import type { TradeController } from 'pages/Swap/hooks/useTradeController'
 import { Header } from 'pages/Swap/layout/Header'
 import { TAB } from 'pages/Swap/layout/Tabs'
-import { BannerWrapper, RightPanel, TradeBody } from 'pages/Swap/layout/components'
+import {
+  BannerWrapper,
+  Container,
+  PageWrapper,
+  RightPanel,
+  SwapFormWrapper,
+  TradeBody,
+} from 'pages/Swap/layout/components'
 
 const FarmingPoolBanner = lazy(() => import('components/EarnBanner/FarmingPoolBanner'))
 const TrendingPoolBanner = lazy(() => import('components/EarnBanner/TrendingPoolBanner'))
 
-type SwapLayoutProps = {
-  children: ReactNode
+type SwapLayoutProps = PropsWithChildren<{
   controller: TradeController
   rightPanel?: ReactNode
-}
+}>
 
 export const SwapLayout = ({ children, controller, rightPanel }: SwapLayoutProps) => {
   const { activeMainTab, activeTab, shouldHighlightSwapBox, setActiveTab } = controller
@@ -36,7 +42,15 @@ export const SwapLayout = ({ children, controller, rightPanel }: SwapLayoutProps
               id={TutorialIds.SWAP_FORM}
               style={activeTab === TAB.INFO ? { padding: 0 } : undefined}
             >
-              <Suspense fallback={<Loader className="mx-auto my-20" />}>{children}</Suspense>
+              <Suspense
+                fallback={
+                  <Center className="h-40">
+                    <Loader size="20px" />
+                  </Center>
+                }
+              >
+                {children}
+              </Suspense>
             </TradeBody>
           </SwapFormWrapper>
 
@@ -54,7 +68,7 @@ export const SwapLayout = ({ children, controller, rightPanel }: SwapLayoutProps
                 <FarmingPoolBanner />
               </BannerWrapper>
             </Suspense>
-            <Suspense fallback={<Skeleton height={200} borderRadius={16} />}>{rightPanel}</Suspense>
+            <Suspense fallback={<Skeleton height={200} />}>{rightPanel}</Suspense>
           </RightPanel>
         </LimitOrderProvider>
       </Container>

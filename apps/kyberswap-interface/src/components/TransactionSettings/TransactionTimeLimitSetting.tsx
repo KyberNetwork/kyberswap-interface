@@ -1,7 +1,7 @@
 import { Trans } from '@lingui/macro'
-import React, { useEffect, useRef, useState } from 'react'
+import { type KeyboardEvent, type MouseEvent, useEffect, useRef, useState } from 'react'
 
-import { SettingsLabel, SettingsRow } from 'components/swapv2/SwapSettingsPanel/components'
+import { SettingsLabel, SettingsRow } from 'components/TransactionSettings/components'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { useUserTransactionTTL } from 'state/user/hooks'
@@ -29,7 +29,7 @@ const validateDeadlineString = (str: string): boolean => {
   return false
 }
 
-const TransactionTimeLimitSetting: React.FC<Props> = ({ className }) => {
+export const TransactionTimeLimitSetting = ({ className }: Props) => {
   const { trackingHandler } = useTracking()
 
   const [deadline, setDeadline] = useUserTransactionTTL()
@@ -54,14 +54,14 @@ const TransactionTimeLimitSetting: React.FC<Props> = ({ className }) => {
     setDeadline(newDeadline)
   }
 
-  const handleKeyUp = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyUp = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       handleCommitChange()
       inputRef.current?.blur()
     }
   }
 
-  const handleWrapperMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+  const handleWrapperMouseDown = (e: MouseEvent<HTMLDivElement>) => {
     if (e.target !== inputRef.current) {
       e.preventDefault()
       inputRef.current?.focus()
@@ -112,5 +112,3 @@ const TransactionTimeLimitSetting: React.FC<Props> = ({ className }) => {
     </SettingsRow>
   )
 }
-
-export default TransactionTimeLimitSetting

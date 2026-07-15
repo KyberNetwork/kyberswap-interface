@@ -1,5 +1,4 @@
 import { t } from '@lingui/macro'
-import React from 'react'
 import { Search } from 'react-feather'
 
 type Props = {
@@ -7,7 +6,7 @@ type Props = {
   onChange: (value: string) => void
 }
 
-const SearchBar: React.FC<Props> = ({ value, onChange }) => {
+export const SearchBar = ({ value, onChange }: Props) => {
   return (
     <div className="relative h-9 w-full">
       <input
@@ -22,5 +21,3 @@ const SearchBar: React.FC<Props> = ({ value, onChange }) => {
     </div>
   )
 }
-
-export default SearchBar

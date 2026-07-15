@@ -1,15 +1,14 @@
 import { Trans } from '@lingui/macro'
-import React from 'react'
 import { ChevronRight } from 'react-feather'
 
-import { SettingsAction, SettingsLabel, SettingsRow } from 'components/swapv2/SwapSettingsPanel/components'
+import { SettingsAction, SettingsLabel, SettingsRow } from 'components/TransactionSettings/components'
 import { useAllDexes, useExcludeDexes } from 'state/customizeDexes/hooks'
 
 type Props = {
   onClick: () => void
 }
 
-const LiquiditySourcesSetting: React.FC<Props> = ({ onClick }) => {
+export const LiquiditySourcesSetting = ({ onClick }: Props) => {
   const allDexes = useAllDexes()
   const [excludeDexes] = useExcludeDexes()
 
@@ -37,5 +36,3 @@ const LiquiditySourcesSetting: React.FC<Props> = ({ onClick }) => {
     </SettingsRow>
   )
 }
-
-export default LiquiditySourcesSetting

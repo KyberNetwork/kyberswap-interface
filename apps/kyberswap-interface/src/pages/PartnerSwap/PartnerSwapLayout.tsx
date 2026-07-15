@@ -1,23 +1,22 @@
 import type { ChainId } from '@kyberswap/ks-sdk-core'
-import { type ReactNode, Suspense } from 'react'
+import { type PropsWithChildren, type ReactNode, Suspense } from 'react'
 
 import { LimitOrderProvider } from 'components/LimitOrder/LimitOrderContext'
 import Loader from 'components/Loader'
 import Skeleton from 'components/Skeleton'
+import { Center } from 'components/Stack'
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
-import { Container, PageWrapper, SwapFormWrapper } from 'components/swapv2/styleds'
 import { Header } from 'pages/Swap/layout/Header'
 import { TAB } from 'pages/Swap/layout/Tabs'
-import { RightPanel, TradeBody } from 'pages/Swap/layout/components'
+import { Container, PageWrapper, RightPanel, SwapFormWrapper, TradeBody } from 'pages/Swap/layout/components'
 
-type PartnerSwapLayoutProps = {
+type PartnerSwapLayoutProps = PropsWithChildren<{
   activeMainTab: TAB
   activeTab: TAB
-  children: ReactNode
   customChainId: ChainId
   rightPanel?: ReactNode
   setActiveTab: (tab: TAB) => void
-}
+}>
 
 export const PartnerSwapLayout = ({
   activeMainTab,
@@ -40,13 +39,21 @@ export const PartnerSwapLayout = ({
             />
 
             <TradeBody style={activeTab === TAB.INFO ? { padding: 0 } : undefined}>
-              <Suspense fallback={<Loader className="mx-auto my-20" />}>{children}</Suspense>
+              <Suspense
+                fallback={
+                  <Center className="h-40">
+                    <Loader size="20px" />
+                  </Center>
+                }
+              >
+                {children}
+              </Suspense>
             </TradeBody>
           </SwapFormWrapper>
 
           {rightPanel ? (
             <RightPanel>
-              <Suspense fallback={<Skeleton height={200} borderRadius={16} />}>{rightPanel}</Suspense>
+              <Suspense fallback={<Skeleton height={200} />}>{rightPanel}</Suspense>
             </RightPanel>
           ) : null}
         </LimitOrderProvider>

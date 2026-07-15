@@ -1,15 +1,14 @@
 import { Placement } from '@popperjs/core'
-import { ButtonHTMLAttributes, ReactNode } from 'react'
+import { type ButtonHTMLAttributes, type PropsWithChildren, type ReactNode } from 'react'
 
 import { HStack, Stack, StackProps } from 'components/Stack'
 import { TextHelper } from 'components/Text'
 import Toggle, { ToggleProps } from 'components/Toggle'
 import { cn } from 'utils/cn'
 
-type SettingsSectionProps = {
+type SettingsSectionProps = PropsWithChildren<{
   title: ReactNode
-  children: ReactNode
-}
+}>
 
 export const SettingsSection = ({ title, children }: SettingsSectionProps) => (
   <Stack className="w-full gap-3">
@@ -26,11 +25,10 @@ export const SettingsRow = ({ className, ...props }: StackProps) => (
   <HStack className={cn('min-h-7 min-w-full items-center justify-between gap-3', className)} {...props} />
 )
 
-type SettingsLabelProps = {
-  children: ReactNode
+type SettingsLabelProps = PropsWithChildren<{
   tooltip: ReactNode
   placement?: Placement
-}
+}>
 
 export const SettingsLabel = ({ children, tooltip, placement = 'right' }: SettingsLabelProps) => (
   <HStack className="items-center">

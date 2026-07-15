@@ -4,11 +4,11 @@ import { isMobile } from 'react-device-detect'
 import { usePrevious } from 'react-use'
 
 import Modal from 'components/Modal'
+import TokenInfo from 'components/TokenInfo'
 import { ImportTokenView } from 'components/TokenSelectorModal/ImportTokenView'
 import { SwitchChainModal } from 'components/TokenSelectorModal/SwitchChainModal'
 import { TokenSelectorContent } from 'components/TokenSelectorModal/TokenSelectorContent'
 import { usePendingCrossChainSelect } from 'components/TokenSelectorModal/hooks/usePendingCrossChainSelect'
-import TokenInfoTab from 'components/swapv2/TokenInfo'
 import { useActiveWeb3React } from 'hooks'
 import useLast from 'hooks/useLast'
 import { useIsTokenRestricted, useNotifyRestrictedToken } from 'hooks/useRestrictedTokens'
@@ -186,7 +186,7 @@ const TokenSelectorModal = ({
               }
             }}
           >
-            <TokenInfoTab
+            <TokenInfo
               currencies={{ [Field.INPUT]: tokenToShowInfo, [Field.OUTPUT]: tokenToShowInfo }}
               onBack={closeTokenInfo}
             />

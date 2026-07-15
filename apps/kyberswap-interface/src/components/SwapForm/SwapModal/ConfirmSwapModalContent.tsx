@@ -8,6 +8,7 @@ import { calculatePriceImpact } from 'services/route/utils'
 import { useGetHoneypotInfoQuery } from 'services/tokenCatalog'
 
 import { ButtonOutlined, ButtonPrimary } from 'components/Button'
+import IconButton from 'components/Button/IconButton'
 import Dots from 'components/Dots'
 import InfoHelper from 'components/InfoHelper'
 import { LimitOrderStatus, LimitOrderTab } from 'components/LimitOrder/types'
@@ -25,7 +26,6 @@ import { BuildRouteResult } from 'components/SwapForm/hooks/useBuildRoute'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { TransactionErrorContent } from 'components/TransactionConfirmationModal'
 import WarningNote from 'components/WarningNote'
-import { StyledBalanceMaxMini } from 'components/swapv2/styleds'
 import { APP_PATHS, PAIR_CATEGORY } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
@@ -459,12 +459,13 @@ export default function ConfirmSwapModalContent({
                           executionPrice={getSwapDetailsProps().executionPrice}
                           showInverted={showInverted}
                         />
-                        <StyledBalanceMaxMini
+                        <IconButton
+                          variant="compact"
                           className="hover:brightness-[0.85]"
                           onClick={() => setShowInverted(!showInverted)}
                         >
-                          <Repeat size={14} className="text-text" />
-                        </StyledBalanceMaxMini>
+                          <Repeat size={12} className="text-text" />
+                        </IconButton>
                       </div>
                     ) : (
                       <p className="m-0 text-[12px] font-medium text-text">--</p>

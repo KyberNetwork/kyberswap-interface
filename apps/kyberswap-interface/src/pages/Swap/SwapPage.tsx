@@ -8,9 +8,9 @@ import { SwapLayout } from 'pages/Swap/layout/SwapLayout'
 import { TAB } from 'pages/Swap/layout/Tabs'
 import type { DetailedRouteSummary } from 'types/route'
 
-const LiquiditySourcesPanel = lazy(() => import('components/swapv2/LiquiditySourcesPanel'))
-const SettingsPanel = lazy(() => import('components/swapv2/SwapSettingsPanel'))
-const TokenInfoTab = lazy(() => import('components/swapv2/TokenInfo'))
+const LiquiditySourcesPanel = lazy(() => import('pages/Swap/components/LiquiditySourcesPanel'))
+const SwapSettingsPanel = lazy(() => import('pages/Swap/components/SwapSettingsPanel'))
+const TokenInfo = lazy(() => import('components/TokenInfo'))
 
 const SwapPage = () => {
   const controller = useTradeController(TAB.SWAP)
@@ -28,9 +28,9 @@ const SwapPage = () => {
         setRouteSummary={setRouteSummary}
         hidden={activeTab !== TAB.SWAP}
       />
-      {activeTab === TAB.INFO && <TokenInfoTab currencies={currencies} onBack={onBackToMainTab} />}
+      {activeTab === TAB.INFO && <TokenInfo currencies={currencies} onBack={onBackToMainTab} />}
       {activeTab === TAB.SETTINGS && (
-        <SettingsPanel
+        <SwapSettingsPanel
           isCrossChainPage={false}
           isSwapPage
           highlightDegenMode={highlightDegenMode}
