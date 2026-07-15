@@ -128,7 +128,7 @@ const PartnerSwapSkeleton = () => (
           </div>
           <Skeleton width={260} height={14} />
         </div>
-        {/* Swap form card — bg-background + rounded-[20px] + p-4 + soft shadow, like the real AppBodyWrapped.
+        {/* Swap form card — bg-background + rounded-[20px] + p-4 + soft shadow, like the real TradeBody.
             Inner field skeletons use the darker buttonBlack base (the real field color) so they read a shade
             below the lighter card. */}
         <div className="rounded-[20px] bg-background p-4 shadow-[0_4px_16px_rgba(0,0,0,0.04)]">

@@ -3,15 +3,25 @@ import { useEffect, useRef, useState } from 'react'
 
 import CheckBox from 'components/CheckBox'
 import { HStack, Stack } from 'components/Stack'
-import { BackIconWrapper, LiquiditySourceHeader, SourceList } from 'components/swapv2/LiquiditySourcesPanel'
-import SearchBar from 'components/swapv2/LiquiditySourcesPanel/SearchBar'
-import { ImageWrapper, Source, SourceName } from 'components/swapv2/LiquiditySourcesPanel/styles'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { CrossChainSwapFactory } from 'pages/CrossChainSwap/factory'
+import { SearchBar } from 'pages/Swap/components/LiquiditySourcesPanel/SearchBar'
+import {
+  BackIconWrapper,
+  ImageWrapper,
+  LiquiditySourceHeader,
+  Source,
+  SourceList,
+  SourceName,
+} from 'pages/Swap/components/LiquiditySourcesPanel/components'
 import { updateExcludedSources } from 'state/crossChainSwap'
 import { useAppDispatch, useAppSelector } from 'state/hooks'
 
-export const CrossChainSwapSources: React.FC<{ onBack: () => void }> = ({ onBack }) => {
+type Props = {
+  onBack?: () => void
+}
+
+const CrossChainSwapSources = ({ onBack }: Props) => {
   const { trackingHandler } = useTracking()
   const [searchText, setSearchText] = useState('')
 
@@ -112,3 +122,5 @@ export const CrossChainSwapSources: React.FC<{ onBack: () => void }> = ({ onBack
     </Stack>
   )
 }
+
+export default CrossChainSwapSources

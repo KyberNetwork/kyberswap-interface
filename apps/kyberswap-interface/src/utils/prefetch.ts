@@ -5,20 +5,20 @@ import limitOrderApi from 'services/limitOrder'
 import { getInitialListOrdersArgs } from 'components/LimitOrder/listOrdersArgs'
 import { APP_PATHS } from 'constants/index'
 import { isSupportedChainId } from 'constants/networks'
+import { loadCrossChainSwap } from 'pages/CrossChainSwap/loader'
 import { getInitialPositionQueryParams } from 'pages/Earns/UserPositions/positionsQuery'
 import store from 'state'
 
 type ChunkLoader = () => Promise<unknown>
 
-// Destination route → its lazy JS chunk, covering every header nav link. Each loader imports the SAME
-// module App.tsx lazy-loads, so Vite serves the identical chunk (dedup by resolved module id) —
-// prefetching never double-downloads. Order matters: list more specific path prefixes before their
-// parents (e.g. every `/earn/*` before `/earn`, `/campaigns/dashboard` before the `/campaigns` catch-all).
+// Destination route → its lazy JS chunk, covering every lazy header nav link. Trade page shells stay eager,
+// while the heavy CrossChain form has its own lazy boundary. Each loader imports the SAME module as its
+// corresponding lazy boundary, so Vite serves the identical chunk (dedup by resolved module id) — prefetching
+// never double-downloads. Order matters: list more specific path prefixes before their parents (e.g. every
+// `/earn/*` before `/earn`, `/campaigns/dashboard` before the `/campaigns` catch-all).
 const ROUTE_CHUNKS: { prefix: string; load: ChunkLoader }[] = [
-  // Trade — swap / limit / cross-chain all render from the SwapV3 chunk.
-  { prefix: APP_PATHS.SWAP, load: () => import('pages/SwapV3') },
-  { prefix: APP_PATHS.LIMIT, load: () => import('pages/SwapV3') },
-  { prefix: APP_PATHS.CROSS_CHAIN, load: () => import('pages/SwapV3') },
+  // Trade — the page shell is eager, but the heavy CrossChain form stays lazy.
+  { prefix: APP_PATHS.CROSS_CHAIN, load: loadCrossChainSwap },
   // Market
   { prefix: APP_PATHS.MARKET_OVERVIEW, load: () => import('pages/MarketOverview') },
   // Earn — specific /earn/* routes must precede the /earn landing.
@@ -53,25 +53,34 @@ export function prefetchRouteChunk(to: string) {
 // chunk, never a duplicate).
 const EAGER_PRELOAD_PREFIXES: string[] = [`${APP_PATHS.ABOUT}/kyberswap`, `${APP_PATHS.ABOUT}/knc`, APP_PATHS.EARN]
 
-/**
- * Warm the EAGER_PRELOAD_PREFIXES chunks during browser idle time. Client-only (no-op under
- * SSR/prerender) and idle-gated so it never competes with the critical first-load resources. Idempotent
- * — `import()` caches the module — so it's safe to call once after the app boots.
- */
+/** Warm selected static routes one at a time, with a separate idle window between each chunk. */
 export function preloadStaticRouteChunks() {
   if (typeof window === 'undefined') return
-  for (const prefix of EAGER_PRELOAD_PREFIXES) {
+
+  const preloadNext = (index: number) => {
+    const prefix = EAGER_PRELOAD_PREFIXES[index]
+    if (!prefix) return
+
     const load = ROUTE_CHUNKS.find(route => route.prefix === prefix)?.load
-    if (!load) continue
-    // requestIdleCallback so it never competes with critical first-load work; the `timeout` guarantees it
-    // still fires on a perpetually-busy page (no idle window). setTimeout fallback (small ~200ms deferral to
-    // push the warm past first paint) for browsers lacking requestIdleCallback.
+    if (!load) {
+      preloadNext(index + 1)
+      return
+    }
+
+    const run = () => {
+      void load()
+        .catch(() => undefined)
+        .finally(() => preloadNext(index + 1))
+    }
+
     if (window.requestIdleCallback) {
-      window.requestIdleCallback(() => void load().catch(() => undefined), { timeout: 3000 })
+      window.requestIdleCallback(run)
     } else {
-      window.setTimeout(() => void load().catch(() => undefined), 200)
+      window.setTimeout(run, 5_000)
     }
   }
+
+  preloadNext(0)
 }
 
 // Pool-detail prefetches already issued this session — avoids re-dispatching on every re-hover.

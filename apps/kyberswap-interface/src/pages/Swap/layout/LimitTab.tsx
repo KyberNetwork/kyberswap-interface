@@ -1,0 +1,57 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
+import { Trans } from '@lingui/macro'
+import { useLocation } from 'react-router-dom'
+import { useGetListOrdersQuery } from 'services/limitOrder'
+
+import { MouseoverTooltip } from 'components/Tooltip'
+import { APP_PATHS } from 'constants/index'
+import { useActiveWeb3React } from 'hooks'
+import { Tab } from 'pages/Swap/layout/Tabs'
+import { isSupportLimitOrder } from 'utils'
+
+type Props = {
+  onClick: () => void
+  active?: boolean
+  customChainId?: ChainId
+}
+
+export const LimitTab = ({ onClick, active, customChainId }: Props) => {
+  const { chainId: walletChainId, account } = useActiveWeb3React()
+  const { pathname } = useLocation()
+
+  const chainId = customChainId || walletChainId
+  const isLimitPage = pathname.startsWith(APP_PATHS.LIMIT)
+  const isSupport = isSupportLimitOrder(chainId)
+
+  const skip = !account || !isSupport
+
+  const { data: { totalOrder = 0 } = {} } = useGetListOrdersQuery(
+    {
+      chainIds: [chainId],
+      maker: account,
+      status: 'active',
+      query: '',
+      page: 1,
+      pageSize: 10,
+    },
+    { skip, refetchOnFocus: true, pollingInterval: 10_000 },
+  )
+  const numberOfActiveOrders = skip ? undefined : totalOrder
+
+  if (!isSupport) {
+    return null
+  }
+
+  return (
+    <Tab id="limit-button" data-testid="limit-button" onClick={onClick} $isActive={active || isLimitPage}>
+      <Trans>Limit Order</Trans>
+      {!!numberOfActiveOrders && (
+        <MouseoverTooltip placement="top" text={<Trans>You have {numberOfActiveOrders} active orders.</Trans>}>
+          <span className="min-w-4 rounded-full bg-primary-30 px-1.5 py-px text-xs font-medium text-primary">
+            {numberOfActiveOrders}
+          </span>
+        </MouseoverTooltip>
+      )}
+    </Tab>
+  )
+}

@@ -1,8 +1,8 @@
 import { Trans, t } from '@lingui/macro'
 
+import { ErrorWarning } from 'components/ErrorWarning'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { NUMBERS } from 'components/WalletPopup/Transactions/helper'
-import ErrorWarning from 'pages/Bridge/ErrorWarning'
 import { ExternalLink } from 'theme'
 
 export default function PendingWarning() {

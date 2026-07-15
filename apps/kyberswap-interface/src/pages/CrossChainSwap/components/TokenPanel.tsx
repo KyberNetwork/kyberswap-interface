@@ -24,8 +24,8 @@ import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useToggle from 'hooks/useToggle'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import useDisconnectWallet from 'hooks/web3/useDisconnectWallet'
-import SelectNetwork from 'pages/Bridge/SelectNetwork'
 import { Chain, Currency, NonEvmChain } from 'pages/CrossChainSwap/adapters'
+import { SelectNetwork, type SelectNetworkRef } from 'pages/CrossChainSwap/components/SelectNetwork'
 import TokenSelectorNonEvmModal from 'pages/CrossChainSwap/components/TokenSelectorNonEvmModal'
 import useAcceptTermAndPolicy from 'pages/CrossChainSwap/hooks/useAcceptTermAndPolicy'
 import { useNearBalances } from 'pages/CrossChainSwap/hooks/useNearBalances'
@@ -88,7 +88,7 @@ export const TokenPanel = ({
   const toggleWalletModal = useWalletModalToggle()
   const disconnectWallet = useDisconnectWallet()
 
-  const ref = useRef<{ toggleNetworkModal: () => void }>(null)
+  const ref = useRef<SelectNetworkRef>(null)
   const node = useRef<HTMLDivElement | null>(null)
   const [autoToggleTokenSelector, setAutoToggleTokenSelector] = useState(false)
   const [showMenu, toggleShowMenu] = useToggle(false)

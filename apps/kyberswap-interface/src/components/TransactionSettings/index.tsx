@@ -2,15 +2,15 @@ import { Trans, t } from '@lingui/macro'
 import { useCallback, useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
+import IconButton from 'components/Button/IconButton'
 import TransactionSettingsIcon from 'components/Icons/TransactionSettingsIcon'
 import MenuFlyout from 'components/MenuFlyout'
 import { TextDashed } from 'components/Text'
 import Toggle from 'components/Toggle'
 import Tooltip, { MouseoverTooltip } from 'components/Tooltip'
 import AdvanceModeModal from 'components/TransactionSettings/AdvanceModeModal'
-import SlippageSetting from 'components/swapv2/SwapSettingsPanel/SlippageSetting'
-import TransactionTimeLimitSetting from 'components/swapv2/SwapSettingsPanel/TransactionTimeLimitSetting'
-import { StyledActionButtonSwapForm } from 'components/swapv2/styleds'
+import { SlippageSetting } from 'components/TransactionSettings/SlippageSetting'
+import { TransactionTimeLimitSetting } from 'components/TransactionSettings/TransactionTimeLimitSetting'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useToggleTransactionSettingsMenu } from 'state/application/hooks'
 import { useAggregatorForZapSetting, useDegenModeManager } from 'state/user/hooks'
@@ -23,7 +23,7 @@ type Props = {
   hoverBg?: string
 }
 
-export default function TransactionSettings({ isElastic, hoverBg }: Props) {
+export const TransactionSettings = ({ isElastic, hoverBg }: Props) => {
   const [isDegenMode, toggleDegenMode] = useDegenModeManager()
   const [isUseAggregatorForZap, toggleAggregatorForZap] = useAggregatorForZapSetting()
   const toggle = useToggleTransactionSettingsMenu()
@@ -75,15 +75,16 @@ export default function TransactionSettings({ isElastic, hoverBg }: Props) {
               show={isDegenMode && isShowTooltip}
             >
               <div onMouseEnter={showTooltip} onMouseLeave={hideTooltip}>
-                <StyledActionButtonSwapForm
-                  hoverBg={hoverBg}
+                <IconButton
+                  variant="action"
                   active={open}
+                  hoverBg={hoverBg}
                   onClick={toggle}
                   id="open-settings-dialog-button"
                   aria-label="Transaction Settings"
                 >
                   <TransactionSettingsIcon className={isDegenMode ? 'text-warning' : 'text-subText'} />
-                </StyledActionButtonSwapForm>
+                </IconButton>
               </div>
             </Tooltip>
           }
