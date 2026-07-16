@@ -3,9 +3,8 @@ import dayjs from 'dayjs'
 import JSBI from 'jsbi'
 import Numeral from 'numeral'
 
-import { ENV_KEY } from 'constants/env'
 import { DEFAULT_GAS_LIMIT_MARGIN, ETHER_ADDRESS, ZERO_ADDRESS } from 'constants/index'
-import { NETWORKS_INFO, SUPPORTED_NETWORKS } from 'constants/networks'
+import { NETWORKS_INFO } from 'constants/networks'
 import { KNCL_ADDRESS, KNC_ADDRESS } from 'constants/tokens'
 import { type Chain, NonEvmChain } from 'pages/CrossChainSwap/adapters/types'
 import store from 'state'
@@ -260,12 +259,6 @@ export const findTx = (txs: GroupedTxsByHash | undefined, hash: string): Transac
 export const isChristmasTime = () => {
   const currentTime = dayjs()
   return currentTime.month() === 11 && currentTime.date() >= 12
-}
-
-export const isSupportLimitOrder = (chainId: ChainId): boolean => {
-  if (!SUPPORTED_NETWORKS.includes(chainId)) return false
-  const limitOrder = NETWORKS_INFO[chainId]?.limitOrder
-  return limitOrder === '*' || (limitOrder || []).includes(ENV_KEY)
 }
 
 export function buildFlagsForFarmV21({

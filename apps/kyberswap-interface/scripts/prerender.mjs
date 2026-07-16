@@ -221,17 +221,26 @@ async function main() {
       throw new Error('Template is missing the `<!-- ssr-skeleton:start/end -->` markers (build/index.html)')
     }
 
-    // Keep build/index.html as the empty-body fallback for non-enumerated SPA routes. nginx serves this
-    // separate document only for exact `/`, whose client redirect resolves to rootPrerenderSourceRoute.
+    // Keep build/index.html as the empty-body fallback for non-enumerated SPA routes. nginx serves the
+    // dedicated index-root.html for exact `/`, whose client redirect resolves to rootPrerenderSourceRoute.
+    // Resolve the homepage head through the same source as every other advertised route so the template's
+    // generic fallback metadata cannot drift from the exact-root document.
+    const rootHead = buildHeadHtml('/')
     const rootSkeleton = rewriteAssetUrls(renderRouteSkeleton(rootPrerenderSourceRoute), manifest)
     const rootApp = rewriteAssetUrls(await renderRouteApp(rootPrerenderSourceRoute), manifest)
     let rootHtml = template.replace(
+      /<!-- ssr-seo:start[\s\S]*?<!-- ssr-seo:end -->/,
+      () => `<!-- ssr-seo:start -->\n    ${rootHead}\n    <!-- ssr-seo:end -->`,
+    )
+    rootHtml = rootHtml.replace(
       /<!-- ssr-skeleton:start[\s\S]*?<!-- ssr-skeleton:end -->/,
       () => `<!-- ssr-skeleton:start -->\n      ${rootSkeleton}\n      <!-- ssr-skeleton:end -->`,
     )
     rootHtml = rootHtml.replace('<div id="app"></div>', () => `<div id="app">${rootApp}</div>`)
     writeFileSync(resolve(appRoot, 'build/index-root.html'), rootHtml, 'utf8')
-    console.log(`✓ prerendered / (app ${rootApp.length} B, skeleton ${rootSkeleton.length} B)`)
+    console.log(
+      `✓ prerendered / (head ${rootHead.length} B, body ${rootApp.length} B, skeleton ${rootSkeleton.length} B)`,
+    )
 
     for (const url of prerenderContentRoutes) {
       const head = buildHeadHtml(url)

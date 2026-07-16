@@ -1,8 +1,8 @@
 import { Navigate, useLocation } from 'react-router-dom'
 
 import { APP_PATHS } from 'constants/index'
+import { isSupportLimitOrder } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
-import { isSupportLimitOrder } from 'utils'
 
 // Redirects to a network-specific trade page but only replaces the pathname
 export const RedirectPathToTradeNetwork = () => {

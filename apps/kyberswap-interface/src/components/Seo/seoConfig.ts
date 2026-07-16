@@ -7,6 +7,7 @@ import {
   KYBER_NETWORK_TELEGRAM_URL,
   KYBER_NETWORK_TWITTER_URL,
 } from 'constants/index'
+import { MAINNET_NETWORKS, NETWORKS_INFO, isSupportLimitOrder } from 'constants/networks'
 
 // Pure (no DOM access) SEO config + head-tag builder, shared by the client-side <RouteSeo>
 // effect and the build-time prerender script (scripts/prerender.mjs). Keep DOM-free so it can
@@ -110,6 +111,15 @@ const normalizePath = (pathname: string) => {
   return pathname.endsWith('/') ? pathname.slice(0, -1) : pathname
 }
 
+const getChainIdFromNetworkRoute = (network: string) =>
+  MAINNET_NETWORKS.find(chainId => NETWORKS_INFO[chainId].route === network)
+
+const isLimitOrderSupported = (network: string) => {
+  const chainId = getChainIdFromNetworkRoute(network)
+  if (chainId === undefined) return false
+  return isSupportLimitOrder(chainId)
+}
+
 // Home is `${SITE_URL}/` (trailing slash) to match index.html's canonical + sitemap.xml; other paths
 // already start with '/', so they append directly.
 export const toAbsoluteUrl = (path: string) => (path === '/' ? `${SITE_URL}/` : `${SITE_URL}${path}`)
@@ -171,10 +181,11 @@ export const resolveSeoConfig = (pathname: string, search: string): SeoConfig =>
   if (swapMatch) {
     const network = swapMatch.params.network || 'ethereum'
     const canonicalPath = `${APP_PATHS.SWAP}/${network}`
+    const isIndexableNetwork = getChainIdFromNetworkRoute(network) !== undefined
     return {
       ...getSwapMetadata(network),
       canonicalPath,
-      robots: hasQueryParams ? NOINDEX_ROBOTS : INDEX_ROBOTS,
+      robots: !isIndexableNetwork || hasQueryParams ? NOINDEX_ROBOTS : INDEX_ROBOTS,
       structuredData: getDefaultStructuredData(canonicalPath),
     }
   }
@@ -197,7 +208,7 @@ export const resolveSeoConfig = (pathname: string, search: string): SeoConfig =>
     return {
       ...getLimitMetadata(network),
       canonicalPath,
-      robots: hasQueryParams ? NOINDEX_ROBOTS : INDEX_ROBOTS,
+      robots: !isLimitOrderSupported(network) || hasQueryParams ? NOINDEX_ROBOTS : INDEX_ROBOTS,
       structuredData: getDefaultStructuredData(canonicalPath),
     }
   }

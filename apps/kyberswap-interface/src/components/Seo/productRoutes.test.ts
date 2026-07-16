@@ -49,6 +49,17 @@ describe('product sitemap routes', () => {
     }
   })
 
+  it.each([
+    ['/swap/zksync', true],
+    ['/swap/goerli', false],
+    ['/swap/not-a-chain', false],
+    ['/limit/zksync', true],
+    ['/limit/etherlink', false],
+    ['/limit/not-a-chain', false],
+  ] as const)('applies network capability to clean chain landing %s', (route, indexable) => {
+    expect(resolveSeoConfig(route, '').robots).toMatch(indexable ? /^index,follow/ : /^noindex,follow/)
+  })
+
   it('has an existing quote-token mapping for every promoted swap chain', () => {
     for (const chain of SITEMAP_SWAP_CHAIN_SLUGS) {
       const chainId = getChainIdFromSlug(chain)

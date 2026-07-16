@@ -14,6 +14,22 @@ export const getTokenIntentFromPath = (pathname: string): TokenIntent | undefine
   return undefined
 }
 
+export const getSyncedNetworkPathname = (pathname: string, networkParam: string, networkRoute: string) => {
+  const syncedPathname = pathname.replace(encodeURIComponent(networkParam), networkRoute)
+
+  if (
+    [APP_PATHS.SWAP, APP_PATHS.BUY, APP_PATHS.SELL].some(path => syncedPathname.startsWith(`${path}/${networkRoute}/`))
+  ) {
+    return `${APP_PATHS.SWAP}/${networkRoute}`
+  }
+
+  if (syncedPathname.startsWith(`${APP_PATHS.LIMIT}/${networkRoute}/`)) {
+    return `${APP_PATHS.LIMIT}/${networkRoute}`
+  }
+
+  return syncedPathname
+}
+
 export const resolveTokenIntentPair = (
   intent: TokenIntent,
   subjectToken: string,

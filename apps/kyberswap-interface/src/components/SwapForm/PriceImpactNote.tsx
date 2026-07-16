@@ -4,10 +4,10 @@ import { isMobile } from 'react-device-detect'
 
 import Row from 'components/Row'
 import WarningNote from 'components/WarningNote'
+import { isSupportLimitOrder } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { useSwitchPairToLimitOrder } from 'state/swap/hooks'
-import { isSupportLimitOrder } from 'utils'
 import { cn } from 'utils/cn'
 import { checkPriceImpact } from 'utils/prices'
 
