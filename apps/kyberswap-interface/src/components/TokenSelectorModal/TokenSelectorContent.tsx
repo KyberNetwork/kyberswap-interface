@@ -36,6 +36,7 @@ import {
 } from 'components/TokenSelectorModal/components'
 import {
   TOKEN_SELECTOR_TAB_ORDER,
+  TRENDING_PRICE_FALLBACK_ENABLED,
   TokenSelectorTab,
   isTrendingSupportedChain,
 } from 'components/TokenSelectorModal/constants'
@@ -411,13 +412,13 @@ export const TokenSelectorContent = ({
   }, [favoriteCurrenciesBase, favoritePrices, metricsExtras])
 
   // Both catalog-sourced tabs can come back short of `metrics.price` (Robinhood especially), so top
-  // their rows up from the live prices endpoint.
+  // their rows up from the live prices endpoint — on Trending only while TRENDING_PRICE_FALLBACK_ENABLED.
   const newExtrasWithPrice = useCatalogPriceFallback(newCurrenciesBase, newExtras, primaryChainId, isNewTab)
   const trendingExtrasWithPrice = useCatalogPriceFallback(
     trendingCurrencies,
     trendingExtras,
     primaryChainId,
-    isTrendingTab,
+    isTrendingTab && TRENDING_PRICE_FALLBACK_ENABLED,
   )
 
   const listExtras: TokenRowExtraMap = useMemo(() => {
