@@ -1,6 +1,11 @@
 import { t } from '@lingui/macro'
 import dayjs from 'dayjs'
 
+export const isChristmasTime = () => {
+  const currentTime = dayjs()
+  return currentTime.month() === 11 && currentTime.date() >= 12
+}
+
 // ex: 60 => 1 minute
 export const formatTimeDuration = (t: number) => {
   if (t > 3124224000) return 'Forever'

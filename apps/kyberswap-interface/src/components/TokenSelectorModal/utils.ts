@@ -16,7 +16,8 @@ import store from 'state'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { useAllTokenBalances, useNativeBalance } from 'state/wallet/hooks'
-import { filterTruthy, isAddress } from 'utils'
+import { isAddress } from 'utils/address'
+import { filterTruthy } from 'utils/array'
 import { isTokenNative } from 'utils/tokenInfo'
 
 export const TOKEN_SEARCH_PAGE_SIZE = 20

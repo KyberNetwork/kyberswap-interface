@@ -13,8 +13,8 @@ import { isSupportLimitOrder } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { useTutorialSwapGuide } from 'state/tutorial/hooks'
 import { MEDIA_WIDTHS } from 'theme'
-import { isInSafeApp } from 'utils'
 import { cn } from 'utils/cn'
+import { isInSafeApp } from 'utils/common'
 import { isSwapLikePath } from 'utils/routes'
 
 const IconWrapper = ({ children }: { children: React.ReactNode }) => (

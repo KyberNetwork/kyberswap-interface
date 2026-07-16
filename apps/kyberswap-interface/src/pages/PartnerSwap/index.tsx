@@ -21,7 +21,7 @@ import { usePermitData } from 'state/swap/hooks'
 import { useDegenModeManager, useUserSlippageTolerance, useUserTransactionTTL } from 'state/user/hooks'
 import { useCurrencyBalances } from 'state/wallet/hooks'
 import { ChargeFeeBy, DetailedRouteSummary } from 'types/route'
-import { isAddress } from 'utils'
+import { isAddress } from 'utils/address'
 import { useTradeComposition } from 'utils/aggregationRouting'
 
 const LimitOrderForm = lazy(() => import('components/LimitOrder/Form/LimitOrderForm'))

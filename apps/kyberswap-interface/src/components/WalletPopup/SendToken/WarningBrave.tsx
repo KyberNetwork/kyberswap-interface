@@ -8,7 +8,7 @@ import { NetworkLogo } from 'components/Logo'
 import Row from 'components/Row'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import { useActiveWeb3React } from 'hooks'
-import { shortenAddress } from 'utils'
+import { shortenAddress } from 'utils/address'
 
 const WarningBrave = ({ token }: { token: Currency | undefined }) => {
   const { chainId, walletKey } = useActiveWeb3React()

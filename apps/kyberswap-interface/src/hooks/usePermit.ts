@@ -6,7 +6,6 @@ import { usePrevious } from 'react-use'
 
 import { NotificationType } from 'components/Announcement/type'
 import { EIP_2612 } from 'constants/abis'
-import { EIP712_DOMAIN_TYPE, EIP712_DOMAIN_TYPE_SALT, PermitType } from 'constants/permit'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useReadingContract } from 'hooks/useContract'
 import { useIsSmartAccount } from 'hooks/useIsSmartAccount'
@@ -19,6 +18,24 @@ import { usePermitData } from 'state/swap/hooks'
 import { friendlyError } from 'utils/errorMessage'
 import { Address, encodeAbiParameters, parseAbiParameters, parseSignature, parseUnits, toHex } from 'utils/viem'
 import { signTypedDataRaw } from 'utils/walletClient'
+
+enum PermitType {
+  SALT = 'SALT',
+}
+
+const EIP712_DOMAIN_TYPE = [
+  { name: 'name', type: 'string' },
+  { name: 'version', type: 'string' },
+  { name: 'chainId', type: 'uint256' },
+  { name: 'verifyingContract', type: 'address' },
+]
+
+const EIP712_DOMAIN_TYPE_SALT = [
+  { name: 'name', type: 'string' },
+  { name: 'version', type: 'string' },
+  { name: 'verifyingContract', type: 'address' },
+  { name: 'salt', type: 'bytes32' },
+]
 
 // 24 hours
 const PERMIT_VALIDITY_BUFFER = 24 * 60 * 60

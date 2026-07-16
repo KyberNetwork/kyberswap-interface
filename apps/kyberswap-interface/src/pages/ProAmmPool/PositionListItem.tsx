@@ -24,7 +24,7 @@ import { ExternalLink, StyledInternalLink } from 'theme'
 import { PositionDetails } from 'types/position'
 import { cn } from 'utils/cn'
 import { currencyId } from 'utils/currencyId'
-import { formatDollarAmount } from 'utils/numbers'
+import { formatDisplayNumber } from 'utils/numbers'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 
 export const TabContainer = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
@@ -225,7 +225,7 @@ function PositionListItem({
                 <span className="text-subText">
                   <Trans>My Staked Balance</Trans>
                 </span>
-                <span>{formatDollarAmount(stakedUsd)}</span>
+                <span>{formatDisplayNumber(stakedUsd, { style: 'currency', significantDigits: 4 })}</span>
               </div>
 
               <div className="flex justify-between text-xs leading-6">

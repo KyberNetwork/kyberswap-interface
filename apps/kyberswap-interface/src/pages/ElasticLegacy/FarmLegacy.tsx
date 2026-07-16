@@ -22,7 +22,7 @@ import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { ExternalLink } from 'theme'
 import { cn } from 'utils/cn'
-import { formatDollarAmount } from 'utils/numbers'
+import { formatDisplayNumber } from 'utils/numbers'
 import { sendEVMTransaction } from 'utils/sendTransaction'
 import { ErrorName } from 'utils/transactionError'
 import { encodeFunctionData } from 'utils/viem'
@@ -179,10 +179,12 @@ export default function FarmLegacy({
         <span>
           <Trans>
             You still have <span className="text-warning">{numberOfPosition}</span> liquidity positions and{' '}
-            <span className="text-warning">{formatDollarAmount(unclaimedUSD)}</span> unclaimed farming rewards that you
-            haven&apos;t withdrawn from the Elastic farms yet. You will first need to withdraw all your liquidity
-            positions by clicking on the &quot;Withdraw Positions&quot; button before you can claim your reward by
-            clicking the &quot;Claim Rewards&quot; button.
+            <span className="text-warning">
+              {formatDisplayNumber(unclaimedUSD, { style: 'currency', significantDigits: 4 })}
+            </span>{' '}
+            unclaimed farming rewards that you haven&apos;t withdrawn from the Elastic farms yet. You will first need to
+            withdraw all your liquidity positions by clicking on the &quot;Withdraw Positions&quot; button before you
+            can claim your reward by clicking the &quot;Claim Rewards&quot; button.
           </Trans>
         </span>
       ) : !!numberOfPosition ? (
@@ -196,8 +198,11 @@ export default function FarmLegacy({
       ) : (
         <span>
           <Trans>
-            You are eligible for <span className="text-warning">{formatDollarAmount(unclaimedUSD)}</span> unclaimed
-            farming rewards, you can claim them by clicking the &quot;Claim Rewards&quot; button below.
+            You are eligible for{' '}
+            <span className="text-warning">
+              {formatDisplayNumber(unclaimedUSD, { style: 'currency', significantDigits: 4 })}
+            </span>{' '}
+            unclaimed farming rewards, you can claim them by clicking the &quot;Claim Rewards&quot; button below.
           </Trans>
         </span>
       )}
@@ -207,7 +212,9 @@ export default function FarmLegacy({
           <span className="text-xs">
             <Trans>Total Rewards</Trans>
           </span>
-          <span className="text-base font-medium text-text">{formatDollarAmount(unclaimedUSD)}</span>
+          <span className="text-base font-medium text-text">
+            {formatDisplayNumber(unclaimedUSD, { style: 'currency', significantDigits: 4 })}
+          </span>
         </div>
       )}
 
@@ -275,7 +282,7 @@ export default function FarmLegacy({
                     </div>
                   }
                 >
-                  {formatDollarAmount(usd)}
+                  {formatDisplayNumber(usd, { style: 'currency', significantDigits: 4 })}
                   <DropdownSvg />
                 </MouseoverTooltip>
               </div>

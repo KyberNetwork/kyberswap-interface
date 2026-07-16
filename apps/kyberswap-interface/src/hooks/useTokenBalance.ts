@@ -5,7 +5,7 @@ import { usePublicClient } from 'wagmi'
 import { ERC20_ABI } from 'constants/abis'
 import { useActiveWeb3React } from 'hooks'
 import useTransactionStatus from 'hooks/useTransactionStatus'
-import { isAddress } from 'utils'
+import { isAddress } from 'utils/address'
 import { Address } from 'utils/viem'
 
 interface BalanceProps {

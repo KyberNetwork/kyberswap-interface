@@ -28,7 +28,7 @@ import { useNotify } from 'state/application/hooks'
 import { useSessionInfo } from 'state/authen/hooks'
 import { useIsKeepCurrentProfile, useProfileInfo, useRefreshProfile, useSignedAccountInfo } from 'state/profile/hooks'
 import { MEDIA_WIDTHS } from 'theme'
-import { shortenAddress } from 'utils'
+import { shortenAddress } from 'utils/address'
 import { cn } from 'utils/cn'
 
 const AVATAR_SIZE = isMobile ? '90px' : '120px'

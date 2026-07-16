@@ -14,7 +14,7 @@ import { useActiveWeb3React } from 'hooks'
 import useProAmmPoolInfo from 'hooks/useProAmmPoolInfo'
 import { FeeTag } from 'pages/ElasticLegacy/PositionLegacy'
 import { MEDIA_WIDTHS } from 'theme'
-import { shortenAddress } from 'utils'
+import { shortenAddress } from 'utils/address'
 import { cn } from 'utils/cn'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 

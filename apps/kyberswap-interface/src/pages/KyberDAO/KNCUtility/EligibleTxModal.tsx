@@ -12,7 +12,8 @@ import { useActiveWeb3React } from 'hooks'
 import { useEligibleTransactions } from 'hooks/kyberdao'
 import { HeaderCell, Table, TableHeader, TableRow } from 'pages/KyberDAO/KNCUtility/TxTable'
 import { ExternalLinkIcon, MEDIA_WIDTHS } from 'theme'
-import { formattedNum, getEtherscanLink } from 'utils'
+import { getEtherscanLink } from 'utils/explorer'
+import { formatDisplayNumber } from 'utils/numbers'
 
 export default function EligibleTxModal({ isOpen, closeModal }: { isOpen: boolean; closeModal: () => void }) {
   const { chainId, networkInfo } = useActiveWeb3React()
@@ -82,9 +83,12 @@ export default function EligibleTxModal({ isOpen, closeModal }: { isOpen: boolea
                         <HeaderCell>
                           <div className="flex flex-col gap-1">
                             <span>
-                              {formattedNum(tx.gasFeeInNativeToken)} {NativeCurrencies[chainId].symbol}
+                              {formatDisplayNumber(tx.gasFeeInNativeToken, { significantDigits: 6 })}{' '}
+                              {NativeCurrencies[chainId].symbol}
                             </span>
-                            <span className="font-normal text-subText">{formattedNum(tx.gasFeeInUSD, true)}</span>
+                            <span className="font-normal text-subText">
+                              {formatDisplayNumber(tx.gasFeeInUSD, { style: 'currency', significantDigits: 6 })}
+                            </span>
                           </div>
                         </HeaderCell>
                       </>
@@ -92,7 +96,7 @@ export default function EligibleTxModal({ isOpen, closeModal }: { isOpen: boolea
 
                     <HeaderCell textAlign="right">
                       <div className="flex flex-col gap-1">
-                        <span>{formattedNum(tx.gasRefundInKNC)} KNC</span>
+                        <span>{formatDisplayNumber(tx.gasRefundInKNC, { significantDigits: 6 })} KNC</span>
                         <span className="font-normal text-subText">
                           <Trans>Tier {tx.userTier}</Trans> - {Number(tx.gasRefundPercentage) * 100}%
                         </span>

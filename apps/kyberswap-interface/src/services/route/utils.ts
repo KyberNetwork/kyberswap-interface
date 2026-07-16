@@ -5,8 +5,8 @@ import { GetRouteData, RouteSummary } from 'services/route/types/getRoute'
 import { getRouteTokenAddressParam } from 'components/SwapForm/hooks/useGetRoute'
 import { BIPS_BASE, RESERVE_USD_DECIMALS } from 'constants/index'
 import { ChargeFeeBy, DetailedRouteSummary } from 'types/route'
-import { formattedNum } from 'utils'
 import { toCurrencyAmount } from 'utils/currencyAmount'
+import { formatDisplayNumber } from 'utils/numbers'
 import { parseUnits } from 'utils/viem'
 
 const calculateFee = (
@@ -32,8 +32,11 @@ const calculateFee = (
   return {
     currency: currencyAmountToTakeFee.currency,
     currencyAmount: feeCurrencyAmount,
-    formattedAmount: formattedNum(feeCurrencyAmount.toExact(), false),
-    formattedAmountUsd: feeAmountUsd && feeAmountUsd !== '0' ? formattedNum(feeAmountUsd, true, 4) : '',
+    formattedAmount: formatDisplayNumber(feeCurrencyAmount, { significantDigits: 6 }),
+    formattedAmountUsd:
+      feeAmountUsd && feeAmountUsd !== '0'
+        ? formatDisplayNumber(feeAmountUsd, { style: 'currency', significantDigits: 4 })
+        : '',
   }
 }
 

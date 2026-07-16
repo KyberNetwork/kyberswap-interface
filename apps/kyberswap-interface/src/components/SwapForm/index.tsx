@@ -35,8 +35,8 @@ import { useNotify } from 'state/application/hooks'
 import { Field } from 'state/swap/actions'
 import { useSwapActionHandlers, useSwapState } from 'state/swap/hooks'
 import { DetailedRouteSummary } from 'types/route'
-import { isInSafeApp } from 'utils'
 import { cn } from 'utils/cn'
+import { isInSafeApp } from 'utils/common'
 
 export type SwapFormProps = {
   hidden: boolean

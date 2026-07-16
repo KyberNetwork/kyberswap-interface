@@ -23,7 +23,7 @@ import { useSessionInfo } from 'state/authen/hooks'
 import { useAppDispatch } from 'state/hooks'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { ChargeFeeBy } from 'types/route'
-import { isInSafeApp } from 'utils'
+import { isInSafeApp } from 'utils/common'
 
 export type ArgsGetRoute = {
   parsedAmount: CurrencyAmount<Currency> | undefined

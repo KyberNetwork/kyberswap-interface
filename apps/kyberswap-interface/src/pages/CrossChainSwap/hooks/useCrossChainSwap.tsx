@@ -33,6 +33,7 @@ import {
   SwapProvider,
 } from 'pages/CrossChainSwap/adapters'
 import { adaptRelaySolanaWallet } from 'pages/CrossChainSwap/adapters/RelayAdapter/relaySolanaWallet'
+import { isEvmChain, isNonEvmChain } from 'pages/CrossChainSwap/adapters/types'
 import { CrossChainSwapFactory } from 'pages/CrossChainSwap/factory'
 import { type NearToken, useNearTokens } from 'pages/CrossChainSwap/hooks/useNearTokens'
 import { type SolanaToken, useSolanaTokens } from 'pages/CrossChainSwap/hooks/useSolanaTokens'
@@ -40,7 +41,6 @@ import { CrossChainSwapAdapterRegistry, Quote } from 'pages/CrossChainSwap/regis
 import { NEAR_STABLE_COINS, SOLANA_STABLE_COINS, isCanonicalPair } from 'pages/CrossChainSwap/utils'
 import { useAppSelector } from 'state/hooks'
 import { useUserSlippageTolerance } from 'state/user/hooks'
-import { isEvmChain, isNonEvmChain } from 'utils'
 
 // SSE Event types from the server
 const SSE_EVENT = {

@@ -10,7 +10,7 @@ import Column from 'components/Column'
 import CopyHelper from 'components/Copy'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { useActiveWeb3React } from 'hooks'
-import { shortenAddress } from 'utils'
+import { shortenAddress } from 'utils/address'
 
 type QRCodeProps = ComponentProps<typeof QRCode>
 

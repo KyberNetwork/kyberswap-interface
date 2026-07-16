@@ -1,7 +1,12 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 
 import { AGGREGATOR_STATS_API } from 'constants/env'
-import { VERSION } from 'constants/v2'
+
+export enum VERSION {
+  ELASTIC = 'elastic',
+  CLASSIC = 'classic',
+  ELASTIC_LEGACY = 'elastic-legacy',
+}
 
 type AggregatorAPR = {
   max_apr: {

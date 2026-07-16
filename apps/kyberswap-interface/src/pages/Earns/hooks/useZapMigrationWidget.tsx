@@ -33,7 +33,7 @@ import { navigateToPoolDetail, navigateToPositionAfterZap } from 'pages/Earns/ut
 import { useKyberSwapConfig, useNotify, useWalletModalToggle } from 'state/application/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
-import { getCookieValue } from 'utils'
+import { getCookieValue } from 'utils/common'
 import { friendlyError } from 'utils/errorMessage'
 import { Address } from 'utils/viem'
 import { signTypedDataRaw } from 'utils/walletClient'

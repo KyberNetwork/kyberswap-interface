@@ -5,7 +5,7 @@ import { ButtonEmpty } from 'components/Button'
 import { RowFixed } from 'components/Row'
 import { CONNECTION, CONNECTOR_ICON_OVERRIDE_MAP } from 'components/Web3Provider'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
-import { getTokenLogoURL } from 'utils'
+import { getTokenLogoURL } from 'utils/tokenLogo'
 
 export default function AddTokenToMetaMask({ token }: { token: Token }) {
   const { chainId, walletKey } = useActiveWeb3React()

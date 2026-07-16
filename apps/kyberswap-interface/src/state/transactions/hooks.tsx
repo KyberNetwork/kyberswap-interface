@@ -14,7 +14,7 @@ import {
   TransactionExtraInfo1Token,
   TransactionHistory,
 } from 'state/transactions/type'
-import { findTx } from 'utils'
+import { findTx } from 'utils/transaction'
 import { Hash } from 'utils/viem'
 
 type LegacyTx = { to?: string | null; nonce?: number; data?: string }

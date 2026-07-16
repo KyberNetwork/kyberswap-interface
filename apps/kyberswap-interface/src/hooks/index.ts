@@ -13,7 +13,7 @@ import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import useDisconnectWallet from 'hooks/web3/useDisconnectWallet'
 import { AppState } from 'state'
 import { useIsAcceptedTerm } from 'state/user/hooks'
-import { isInSafeApp } from 'utils'
+import { isInSafeApp } from 'utils/common'
 
 export function useActiveWeb3React(): {
   chainId: ChainId

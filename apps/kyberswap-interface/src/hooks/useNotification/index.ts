@@ -11,7 +11,7 @@ import { useActiveWeb3React } from 'hooks'
 import { AppState } from 'state'
 import { setLoadingNotification, setSubscribedNotificationTopic } from 'state/application/actions'
 import { useSessionInfo } from 'state/authen/hooks'
-import { pushUnique } from 'utils'
+import { pushUnique } from 'utils/array'
 
 export enum TopicType {
   RESTRICT = 'restricted',

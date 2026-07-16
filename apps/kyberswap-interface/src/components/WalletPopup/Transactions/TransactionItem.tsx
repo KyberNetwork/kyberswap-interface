@@ -26,8 +26,9 @@ import {
   TransactionExtraInfoStakeFarm,
 } from 'state/transactions/type'
 import { ExternalLink, ExternalLinkIcon } from 'theme'
-import { getEtherscanLink, getNativeTokenLogo } from 'utils'
 import { cn } from 'utils/cn'
+import { getEtherscanLink } from 'utils/explorer'
+import { getNativeTokenLogo } from 'utils/tokenLogo'
 
 type PrimaryTextProps = React.HTMLAttributes<HTMLSpanElement> & { color?: string }
 

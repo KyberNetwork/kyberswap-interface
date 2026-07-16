@@ -4,7 +4,7 @@ import { t } from '@lingui/macro'
 import { BAD_RECIPIENT_ADDRESSES } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useENS from 'hooks/useENS'
-import { isAddress } from 'utils'
+import { isAddress } from 'utils/address'
 
 type Args = {
   typedValue: string

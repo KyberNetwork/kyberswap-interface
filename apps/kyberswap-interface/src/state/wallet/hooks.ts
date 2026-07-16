@@ -12,7 +12,7 @@ import { useAllTokens } from 'hooks/useTokens'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { useMultipleContractSingleData, useSingleCallResult } from 'state/multicall/hooks'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
-import { isAddress } from 'utils'
+import { isAddress } from 'utils/address'
 import { isTokenNative } from 'utils/tokenInfo'
 
 export function useNativeBalance(customChain?: ChainId): CurrencyAmount<Currency> | undefined {

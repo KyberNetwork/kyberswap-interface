@@ -10,7 +10,7 @@ import { useSessionInfo } from 'state/authen/hooks'
 import { UserProfile, authenActions } from 'state/authen/reducer'
 import { useAppDispatch } from 'state/hooks'
 import { CacheProfile, ProfileMap, SignedAccountParams, profileActions } from 'state/profile/reducer'
-import getShortenAddress from 'utils/getShortenAddress'
+import { getShortenAddress } from 'utils/address'
 import { isEmailValid } from 'utils/string'
 
 const { setImportToken, setKeepCurrentProfile, setProfileMap, updateSignedAccount } = profileActions

@@ -22,7 +22,7 @@ import { restrictedTokenKey, restrictedTokenMessage, useIsTokenRestricted } from
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { useUserAddedTokens, useUserFavoriteTokens } from 'state/user/hooks'
 import { useCurrencyBalances } from 'state/wallet/hooks'
-import { shortenAddress } from 'utils'
+import { shortenAddress } from 'utils/address'
 import { cn } from 'utils/cn'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
 import { formatBigLiquidity } from 'utils/formatBalance'

@@ -6,7 +6,7 @@ import { MAX_FEE_IN_BIPS } from 'constants/index'
 import { SUPPORTED_NETWORKS } from 'constants/networks'
 import { NativeCurrencies } from 'constants/tokens'
 import { ChargeFeeBy } from 'types/route'
-import { isAddressString } from 'utils'
+import { isAddressString } from 'utils/address'
 import { convertStringToBoolean } from 'utils/string'
 
 const ClientNameMapping: { [key: string]: string } = {

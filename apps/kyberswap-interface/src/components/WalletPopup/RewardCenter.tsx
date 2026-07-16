@@ -13,8 +13,8 @@ import { useRewards } from 'hooks/useRewards'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { useSwitchToEthereum } from 'pages/KyberDAO/StakeKNC/SwitchToEthereumModal'
 import { useNotify } from 'state/application/hooks'
-import { formatNumberWithPrecisionRange } from 'utils'
 import { friendlyError } from 'utils/errorMessage'
+import { formatDisplayNumber } from 'utils/numbers'
 
 export default function RewardCenter() {
   const { trackingHandler } = useTracking()
@@ -81,11 +81,13 @@ export default function RewardCenter() {
               </div>
 
               <span className="overflow-hidden truncate whitespace-nowrap text-4xl font-medium">
-                {formatNumberWithPrecisionRange(totalReward.knc, 0, 8)} KNC
+                {formatDisplayNumber(totalReward.knc, { fractionDigits: 8 })} KNC
               </span>
               <span className="text-xs font-medium leading-4 text-subText">
                 {typeof totalReward.usd === 'number'
-                  ? `${totalReward.usd > 0 ? '~ ' : ''}$${formatNumberWithPrecisionRange(totalReward.usd, 0, 8)}`
+                  ? `${totalReward.usd > 0 ? '~ ' : ''}$${formatDisplayNumber(totalReward.usd, {
+                      fractionDigits: 8,
+                    })}`
                   : '$ --'}
               </span>
             </div>

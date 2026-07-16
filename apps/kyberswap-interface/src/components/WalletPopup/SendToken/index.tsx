@@ -23,10 +23,11 @@ import { tryParseAmount } from 'state/swap/hooks'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { useCurrencyBalance } from 'state/wallet/hooks'
 import { TransactionFlowState } from 'types/TransactionFlowState'
-import { formattedNum, shortenAddress } from 'utils'
+import { shortenAddress } from 'utils/address'
 import { cn } from 'utils/cn'
 import { friendlyError } from 'utils/errorMessage'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
+import { formatDisplayNumber } from 'utils/numbers'
 
 const Label = ({
   className,
@@ -243,7 +244,9 @@ export default function SendToken({
             onHalf={handleHalfInput}
             onClickSelect={() => setShowListToken(!showListToken)}
             loadingText={loadingTokens ? t`Loading token...` : undefined}
-            estimatedUsd={estimateUsd ? formattedNum(estimateUsd.toString(), true).toString() : undefined}
+            estimatedUsd={
+              estimateUsd ? formatDisplayNumber(estimateUsd, { style: 'currency', significantDigits: 6 }) : undefined
+            }
           />
 
           {showListToken && (
@@ -268,7 +271,10 @@ export default function SendToken({
           </Label>
           <Label className="text-text">
             {estimateGas && usdPriceNative
-              ? `~ ${formattedNum((estimateGas * usdPriceNative).toString(), true)} `
+              ? `~ ${formatDisplayNumber(estimateGas * usdPriceNative, {
+                  style: 'currency',
+                  significantDigits: 6,
+                })} `
               : '-'}
           </Label>
         </RowBetween>

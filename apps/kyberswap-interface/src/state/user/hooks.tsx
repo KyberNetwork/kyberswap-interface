@@ -41,8 +41,8 @@ import {
   updateUserSlippageTolerance,
 } from 'state/user/actions'
 import { VIEW_MODE } from 'state/user/reducer'
-import { isChristmasTime } from 'utils'
 import { setLocaleCookie } from 'utils/localeCookie'
+import { isChristmasTime } from 'utils/time'
 
 const MAX_FAVORITE_LIMIT = 12
 

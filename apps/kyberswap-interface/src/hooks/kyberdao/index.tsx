@@ -15,7 +15,6 @@ import kyberDAOApi, {
 import { wagmiConfig } from 'components/Web3Provider'
 import { DaoABI, ERC20_ABI, MigrateABI, RewardDistributorABI, StakingABI } from 'constants/abis'
 import { REWARD_SERVICE_API } from 'constants/env'
-import { CONTRACT_NOT_FOUND_MSG } from 'constants/messages'
 import { NETWORKS_INFO, SUPPORTED_NETWORKS } from 'constants/networks'
 import ethereumInfo from 'constants/networks/ethereum'
 import { KNC } from 'constants/tokens'
@@ -33,6 +32,8 @@ import { formatUnitsToFixed } from 'utils/formatBalance'
 import { sendEVMTransaction } from 'utils/sendTransaction'
 import { ErrorName } from 'utils/transactionError'
 import { Address, encodeFunctionData, formatUnits } from 'utils/viem'
+
+const CONTRACT_NOT_FOUND_MSG = 'Contract not found! Please reload and try again.'
 
 export function isSupportKyberDao(chainId: ChainId) {
   return SUPPORTED_NETWORKS.includes(chainId) && NETWORKS_INFO[chainId].kyberDAO

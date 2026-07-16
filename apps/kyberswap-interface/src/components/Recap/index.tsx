@@ -22,7 +22,7 @@ import { isAutoOpenAvailable, isRecapAvailable } from 'components/Recap/utils'
 import { useActiveWeb3React } from 'hooks'
 import { useCloseModal, useModalOpen, useOpenModal, useWalletModalToggle } from 'state/application/hooks'
 import { ApplicationModal } from 'state/application/types'
-import getShortenAddress from 'utils/getShortenAddress'
+import { getShortenAddress } from 'utils/address'
 
 const STORAGE_KEY = 'closed2025Recap'
 const NICKNAME_STORAGE_KEY = 'recapNickname'

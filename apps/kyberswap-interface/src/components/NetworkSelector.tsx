@@ -7,8 +7,7 @@ import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import NetworkModal from 'components/Header/web3/NetworkModal'
 import { DEFAULT_OUTPUT_TOKENS, NativeCurrencies } from 'constants/tokens'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
-import { type Chain } from 'pages/CrossChainSwap/adapters'
-import { isNonEvmChain } from 'utils'
+import { type Chain, isNonEvmChain } from 'pages/CrossChainSwap/adapters/types'
 
 type NetworkSelectorProps = {
   chainId: ChainId

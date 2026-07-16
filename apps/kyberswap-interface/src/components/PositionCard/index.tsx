@@ -24,10 +24,11 @@ import { UserLiquidityPosition } from 'state/pools/hooks'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { useTokenBalance } from 'state/wallet/hooks'
 import { ExternalLink, UppercaseText } from 'theme'
-import { formattedNum, shortenAddress } from 'utils'
+import { shortenAddress } from 'utils/address'
 import { cn } from 'utils/cn'
 import { currencyId } from 'utils/currencyId'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
+import { formatDisplayNumber } from 'utils/numbers'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 
 const FixedHeightRow = ({ className, ...props }: React.ComponentProps<typeof RowBetween>) => (
@@ -58,7 +59,7 @@ const PositionCardWrapper = ({
 const formattedUSDPrice = (tokenAmount: TokenAmount, price: number) => {
   const usdValue = parseFloat(tokenAmount.toSignificant(6)) * price
 
-  return <span>{`(~${formattedNum(usdValue.toString(), true)})`}</span>
+  return <span>{`(~${formatDisplayNumber(usdValue, { style: 'currency', significantDigits: 6 })})`}</span>
 }
 
 interface PositionCardProps {
@@ -357,7 +358,7 @@ export default function FullPositionCard({ pair, border, stakedBalance, myLiquid
       parseFloat(myLiquidity.pool.totalSupply)
     : 0
 
-  const totalDeposit = formattedNum((usdValue + stakedUSD).toString(), true)
+  const totalDeposit = formatDisplayNumber(usdValue + stakedUSD, { style: 'currency', significantDigits: 6 })
 
   const isWarning = percentToken0.lessThan(JSBI.BigInt(10)) || percentToken1.lessThan(JSBI.BigInt(10))
 
@@ -493,7 +494,9 @@ export default function FullPositionCard({ pair, border, stakedBalance, myLiquid
               <span>
                 <Trans>My Staked Balance</Trans>
               </span>
-              <span className="text-sm text-text">{formattedNum(stakedUSD.toString(), true)}</span>
+              <span className="text-sm text-text">
+                {formatDisplayNumber(stakedUSD, { style: 'currency', significantDigits: 6 })}
+              </span>
             </FullRow>
             <FullRow>
               <span>

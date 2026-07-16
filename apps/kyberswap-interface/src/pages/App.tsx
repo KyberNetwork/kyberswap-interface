@@ -40,7 +40,7 @@ import VerifyAuth from 'pages/Verify/VerifyAuth'
 import { useAppDispatch, useAppSelector } from 'state/hooks'
 import { updateSafeAppAcceptedTermOfUse } from 'state/user/actions'
 import { ExternalLink } from 'theme'
-import { isInSafeApp } from 'utils'
+import { isInSafeApp } from 'utils/common'
 import { SwapIntent } from 'utils/routes'
 
 const Login = lazy(() => import('pages/Oauth/Login'))

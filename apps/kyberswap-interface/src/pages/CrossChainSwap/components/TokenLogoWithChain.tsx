@@ -1,8 +1,9 @@
 import { ChainId, Currency as EvmCurrency } from '@kyberswap/ks-sdk-core'
 
 import { Chain, Currency } from 'pages/CrossChainSwap/adapters'
+import { isEvmChain } from 'pages/CrossChainSwap/adapters/types'
 import { getNetworkInfo } from 'pages/CrossChainSwap/utils'
-import { getNativeTokenLogo, isEvmChain } from 'utils'
+import { getNativeTokenLogo } from 'utils/tokenLogo'
 
 export const TokenLogoWithChain = ({
   currency,

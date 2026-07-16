@@ -12,7 +12,7 @@ import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import useENS from 'hooks/useENS'
 import { useKyberswapGlobalConfig } from 'hooks/useKyberSwapConfig'
-import { getCookieValue, isInSafeApp } from 'utils'
+import { getCookieValue, isInSafeApp } from 'utils/common'
 
 export type BuildRouteResult =
   | {

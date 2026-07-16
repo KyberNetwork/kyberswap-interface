@@ -21,6 +21,7 @@ import { useGatedWalletClient } from 'hooks/useGatedWalletClient'
 import useTracking, { CROSS_CHAIN_MIXPANEL_TYPE, TRACKING_EVENT_TYPE, useCrossChainMixpanel } from 'hooks/useTracking'
 import { Chain, Currency, NonEvmChain, NonEvmChainInfo } from 'pages/CrossChainSwap/adapters'
 import { adaptRelaySolanaWallet } from 'pages/CrossChainSwap/adapters/RelayAdapter/relaySolanaWallet'
+import { isEvmChain } from 'pages/CrossChainSwap/adapters/types'
 import { PiWarning } from 'pages/CrossChainSwap/components/PiWarning'
 import { QuoteProviderName } from 'pages/CrossChainSwap/components/QuoteProviderName'
 import { Summary } from 'pages/CrossChainSwap/components/Summary'
@@ -29,7 +30,8 @@ import { useRestoreMyNearWalletPendingTransaction } from 'pages/CrossChainSwap/h
 import { getChainName } from 'pages/CrossChainSwap/utils'
 import { useCrossChainTransactions } from 'state/crossChainSwap'
 import { CloseIcon, ExternalLink } from 'theme'
-import { getEtherscanLink, isEvmChain, shortenHash } from 'utils'
+import { shortenHash } from 'utils/address'
+import { getEtherscanLink } from 'utils/explorer'
 import { formatDisplayNumber } from 'utils/numbers'
 
 const TokenBoxInfo = ({

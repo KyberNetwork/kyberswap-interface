@@ -33,10 +33,10 @@ import {
   QuoteParams,
   SwapStatus,
 } from 'pages/CrossChainSwap/adapters/BaseSwapAdapter'
+import { isEvmChain } from 'pages/CrossChainSwap/adapters/types'
 import type { SolanaToken } from 'pages/CrossChainSwap/hooks/useSolanaTokens'
 import { Quote } from 'pages/CrossChainSwap/registry'
 import { isNativeToken, isWrappedToken } from 'pages/CrossChainSwap/utils'
-import { isEvmChain } from 'utils'
 
 const API_URL = 'https://app.across.to/api/suggested-fees'
 

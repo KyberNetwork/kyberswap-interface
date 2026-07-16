@@ -11,7 +11,7 @@ import { useActiveWeb3React } from 'hooks'
 import { Position as SubgraphPosition, usePositionFees, useRemoveLiquidityLegacy } from 'hooks/useElasticLegacy'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { cn } from 'utils/cn'
-import { formatDollarAmount } from 'utils/numbers'
+import { formatDisplayNumber } from 'utils/numbers'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 
 export const FeeTag = ({ children, className }: { children: React.ReactNode; className?: string }) => (
@@ -123,7 +123,7 @@ const Row = ({
             </div>
           }
         >
-          {formatDollarAmount(usd)}
+          {formatDisplayNumber(usd, { style: 'currency', significantDigits: 4 })}
           <DropdownSvg />
         </MouseoverTooltip>
       </div>

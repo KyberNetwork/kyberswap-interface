@@ -7,8 +7,7 @@ import NetworkModal from 'components/Header/web3/NetworkModal'
 import { NetworkLogo } from 'components/Logo'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
-import { type Chain, type NonEvmChain, NonEvmChainInfo } from 'pages/CrossChainSwap/adapters/types'
-import { isEvmChain } from 'utils'
+import { type Chain, type NonEvmChain, NonEvmChainInfo, isEvmChain } from 'pages/CrossChainSwap/adapters/types'
 import { cn } from 'utils/cn'
 
 export type SelectNetworkRef = {

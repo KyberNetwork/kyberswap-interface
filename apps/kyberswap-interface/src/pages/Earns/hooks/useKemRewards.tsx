@@ -25,7 +25,7 @@ import { parseReward } from 'pages/Earns/utils/reward'
 import { useNotify } from 'state/application/hooks'
 import { useAllTransactions, useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
-import { enumToArrayOfValues } from 'utils'
+import { enumToArrayOfValues } from 'utils/common'
 import { friendlyError } from 'utils/errorMessage'
 import { formatDisplayNumber } from 'utils/numbers'
 

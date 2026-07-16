@@ -32,7 +32,6 @@ import TransactionConfirmationModal, {
 import { wagmiConfig } from 'components/Web3Provider'
 import ZapError from 'components/ZapError'
 import { ZAP_ABI, ZAP_STATIC_FEE_ABI } from 'constants/abis'
-import { didUserReject } from 'constants/connectors/utils'
 import { APP_PATHS, EIP712Domain } from 'constants/index'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
@@ -63,7 +62,6 @@ import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { useDegenModeManager, useUserSlippageTolerance } from 'state/user/hooks'
 import { StyledInternalLink, UppercaseText } from 'theme'
-import { formattedNum } from 'utils'
 import { currencyId } from 'utils/currencyId'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
 import { friendlyError } from 'utils/errorMessage'
@@ -75,6 +73,7 @@ import { ErrorName, TransactionError } from 'utils/transactionError'
 import useDebouncedChangeHandler from 'utils/useDebouncedChangeHandler'
 import { Address, encodeFunctionData, parseSignature } from 'utils/viem'
 import { signTypedDataRaw } from 'utils/walletClient'
+import { didUserReject } from 'utils/walletError'
 
 export default function ZapOut({
   currencyIdA,
@@ -564,7 +563,7 @@ export default function ZapOut({
           <span className="text-[24px] font-medium leading-[normal]">{independentToken?.symbol}</span>
           {estimatedUsd && (
             <span className="ml-1 text-[18px] font-medium leading-[normal] text-subText">
-              (~{formattedNum(estimatedUsd.toString(), true) || undefined})
+              (~{formatDisplayNumber(estimatedUsd, { style: 'currency', significantDigits: 6 })})
             </span>
           )}
         </AutoRow>
@@ -743,7 +742,10 @@ export default function ZapOut({
                   showPinnedTokens
                   positionMax="top"
                   isSwitchMode
-                  estimatedUsd={formattedNum(estimatedUsd.toString(), true) || undefined}
+                  estimatedUsd={formatDisplayNumber(estimatedUsd, {
+                    style: 'currency',
+                    significantDigits: 6,
+                  })}
                 />
                 <div className="mt-2 flex items-center justify-end">
                   {pairAddress &&
