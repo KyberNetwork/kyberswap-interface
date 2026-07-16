@@ -39,6 +39,7 @@ import {
   TokenSelectorTab,
   isTrendingSupportedChain,
 } from 'components/TokenSelectorModal/constants'
+import { useCatalogPriceFallback } from 'components/TokenSelectorModal/hooks/useCatalogPriceFallback'
 import { useChainsVolume } from 'components/TokenSelectorModal/hooks/useChainsVolume'
 import { useNewTokens } from 'components/TokenSelectorModal/hooks/useNewTokens'
 import { usePendingCrossChainSelect } from 'components/TokenSelectorModal/hooks/usePendingCrossChainSelect'
@@ -409,32 +410,18 @@ export const TokenSelectorContent = ({
     return result
   }, [favoriteCurrenciesBase, favoritePrices, metricsExtras])
 
-  // The catalog can list New-tab tokens with no `metrics.price` (e.g. Robinhood). Fall back to the
-  // live prices endpoint for just those, so the price column isn't empty when the catalog is short.
-  const newPriceFallbackAddresses = useMemo(
-    () =>
-      isNewTab
-        ? newCurrenciesBase
-            .filter(currency => !newExtras[tokenRowKey(currency.chainId, currency.wrapped.address)]?.price)
-            .map(currency => currency.wrapped.address)
-        : EMPTY_ADDRESSES,
-    [isNewTab, newCurrenciesBase, newExtras],
+  // Both catalog-sourced tabs can come back short of `metrics.price` (Robinhood especially), so top
+  // their rows up from the live prices endpoint.
+  const newExtrasWithPrice = useCatalogPriceFallback(newCurrenciesBase, newExtras, primaryChainId, isNewTab)
+  const trendingExtrasWithPrice = useCatalogPriceFallback(
+    trendingCurrencies,
+    trendingExtras,
+    primaryChainId,
+    isTrendingTab,
   )
-  const newFallbackPrices = useTokenPrices(newPriceFallbackAddresses, primaryChainId)
-  const newExtrasWithPrice = useMemo<TokenRowExtraMap>(() => {
-    if (!newPriceFallbackAddresses.length) return newExtras
-    const result: TokenRowExtraMap = { ...newExtras }
-    newCurrenciesBase.forEach(currency => {
-      const key = tokenRowKey(currency.chainId, currency.wrapped.address)
-      if (result[key]?.price) return
-      const fallback = newFallbackPrices[currency.wrapped.address.toLowerCase()]
-      if (fallback) result[key] = { ...result[key], price: fallback }
-    })
-    return result
-  }, [newExtras, newCurrenciesBase, newFallbackPrices, newPriceFallbackAddresses])
 
   const listExtras: TokenRowExtraMap = useMemo(() => {
-    if (isTrendingTab) return trendingExtras
+    if (isTrendingTab) return trendingExtrasWithPrice
     if (isNewTab) return newExtrasWithPrice
     if (isImportedTab) return metricsExtras
     if (isFavoritesTab) return favoriteExtras
@@ -444,7 +431,7 @@ export const TokenSelectorContent = ({
     isNewTab,
     isImportedTab,
     isFavoritesTab,
-    trendingExtras,
+    trendingExtrasWithPrice,
     newExtrasWithPrice,
     metricsExtras,
     favoriteExtras,

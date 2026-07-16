@@ -26,6 +26,7 @@ export const TRENDING_SUPPORTED_CHAINS: ChainId[] = [
   ChainId.AVAXMAINNET,
   ChainId.MATIC,
   ChainId.MONAD,
+  ChainId.ROBINHOOD,
 ]
 
 export const isTrendingSupportedChain = (chainId: ChainId): boolean => TRENDING_SUPPORTED_CHAINS.includes(chainId)
