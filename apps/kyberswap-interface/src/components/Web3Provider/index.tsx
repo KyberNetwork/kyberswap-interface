@@ -275,6 +275,38 @@ const WC_PARAMS = {
   },
 }
 
+// WalletConnect v2 keeps all of its state under `wc@2:`-prefixed localStorage keys. Their presence means
+// this browser has talked to WalletConnect before, so there may be a session worth restoring at boot.
+const hasWalletConnectState = () => {
+  try {
+    if (typeof window === 'undefined' || !window.localStorage) return false
+    return Object.keys(window.localStorage).some(key => key.startsWith('wc@2:'))
+  } catch {
+    // Storage can throw (disabled cookies, partitioned contexts) — treat it as "no session" and let the
+    // SDK load on the first Connect click instead.
+    return false
+  }
+}
+
+// wagmi runs `connector.setup()` for every connector while createConfig() builds the store, and
+// WalletConnect's setup() unconditionally awaits getProvider() — which dynamically imports the ~460KB
+// @walletconnect/ethereum-provider bundle and runs EthereumProvider.init() (relay, keychain, storage).
+// All of that exists to attach one 'connect' listener that only fires for a session being restored, so a
+// visitor who has never used WalletConnect pays the whole cost for nothing. Gate setup() on prior
+// WalletConnect state: connect() awaits getProvider() itself, so a first-time user still gets the SDK the
+// moment they click Connect, and returning WalletConnect users keep today's restore behaviour.
+const walletConnectWithDeferredSetup = (parameters: Parameters<typeof walletConnect>[0]) =>
+  createConnector(config => {
+    const connector = walletConnect(parameters)(config)
+    return {
+      ...connector,
+      async setup() {
+        if (!hasWalletConnectState()) return
+        await connector.setup?.()
+      },
+    }
+  })
+
 // Build an ordered, de-duplicated RPC list for a chain: KyberSwap RPC first,
 // then the public RPCs from @kyber/rpc-client. The list feeds both the wagmi
 // `transports` map (via viem `fallback()` for true rotation on read calls) and
@@ -412,7 +444,7 @@ export const wagmiConfig = createConfig({
       },
     }),
     injectedWithFallback(),
-    walletConnect(WC_PARAMS),
+    walletConnectWithDeferredSetup(WC_PARAMS),
     coinbaseWallet({
       appName: 'KyberSwap',
       appLogoUrl: `${KYBERSWAP_URL}/favicon.png`,
