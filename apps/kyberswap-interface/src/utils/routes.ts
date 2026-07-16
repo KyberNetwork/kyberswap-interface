@@ -33,18 +33,17 @@ export const getSyncedNetworkPathname = (pathname: string, networkParam: string,
 export const resolveTokenIntentPair = (
   intent: TokenIntent,
   subjectToken: string,
-  quoteToken: string,
-  quoteTokenAliases: string[] = [],
+  nativeToken: string,
+  stableCounterToken: string,
+  nativeTokenAliases: string[] = [],
 ) => {
   const subject = subjectToken.toLowerCase()
-  const quote = quoteToken.toLowerCase()
-  const isQuoteTokenSubject = [quote, ...quoteTokenAliases.map(alias => alias.toLowerCase())].includes(subject)
+  const native = nativeToken.toLowerCase()
+  const isNativeSubject = [native, ...nativeTokenAliases.map(alias => alias.toLowerCase())].includes(subject)
+  const counter = isNativeSubject ? stableCounterToken.toLowerCase() : native
+  const normalizedSubject = isNativeSubject ? native : subject
 
-  // A manually entered quote-token subject would otherwise produce a quoteToken -> quoteToken pair.
-  // Keep the requested subject selected and leave the other side open for the user instead.
-  if (isQuoteTokenSubject) {
-    return intent === 'buy' ? { fromCurrency: '', toCurrency: subject } : { fromCurrency: subject, toCurrency: '' }
-  }
-
-  return intent === 'buy' ? { fromCurrency: quote, toCurrency: subject } : { fromCurrency: subject, toCurrency: quote }
+  return intent === 'buy'
+    ? { fromCurrency: counter, toCurrency: normalizedSubject }
+    : { fromCurrency: normalizedSubject, toCurrency: counter }
 }

@@ -168,6 +168,13 @@ export const PRICE_CHART_QUOTE_TOKEN_BY_CHAIN: Partial<Record<ChainId, Token>> =
   [ChainId.ROBINHOOD]: DEFAULT_OUTPUT_TOKEN_BY_CHAIN[ChainId.ROBINHOOD],
 }
 
+// Token-intent routes normally pair the subject with the chain's native gas token. This map is only
+// used when the subject itself is native, avoiding native -> native pairs with a deterministic stablecoin.
+export const TOKEN_INTENT_STABLE_COUNTER_BY_CHAIN: Partial<Record<ChainId, Token>> = {
+  ...DEFAULT_OUTPUT_TOKEN_BY_CHAIN,
+  ...PRICE_CHART_QUOTE_TOKEN_BY_CHAIN,
+}
+
 export const DEFAULT_SWAP_FEE_STABLE_PAIRS = 4
 export const DEFAULT_SWAP_FEE_NOT_STABLE_PAIRS = 10
 

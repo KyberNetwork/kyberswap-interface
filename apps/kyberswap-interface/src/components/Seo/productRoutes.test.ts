@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 
-import { DEFAULT_OUTPUT_TOKEN_BY_CHAIN } from 'constants/tokens'
+import { TOKEN_INTENT_STABLE_COUNTER_BY_CHAIN } from 'constants/tokens'
 import { getChainIdFromSlug } from 'utils/string'
 
 import {
@@ -60,12 +60,14 @@ describe('product sitemap routes', () => {
     expect(resolveSeoConfig(route, '').robots).toMatch(indexable ? /^index,follow/ : /^noindex,follow/)
   })
 
-  it('has an existing quote-token mapping for every promoted swap chain', () => {
+  it('has a deterministic stable fallback for every promoted swap chain', () => {
     for (const chain of SITEMAP_SWAP_CHAIN_SLUGS) {
       const chainId = getChainIdFromSlug(chain)
       expect(chainId, `Unknown chain slug: ${chain}`).toBeDefined()
       if (chainId === undefined) continue
-      expect(DEFAULT_OUTPUT_TOKEN_BY_CHAIN[chainId], `Missing quote token for ${chain}`).toBeDefined()
+      const stableCounter = TOKEN_INTENT_STABLE_COUNTER_BY_CHAIN[chainId]
+      expect(stableCounter, `Missing stable counter for ${chain}`).toBeDefined()
+      expect(stableCounter?.symbol?.toLowerCase(), `Invalid stable counter for ${chain}`).toContain('usd')
     }
   })
 
