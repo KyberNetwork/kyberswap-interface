@@ -10,6 +10,7 @@ import { HeaderRightMenu } from 'pages/Swap/layout/HeaderRightMenu'
 import { TAB, Tabs } from 'pages/Swap/layout/Tabs'
 import { useDegenModeManager } from 'state/user/hooks'
 import { CloseIcon } from 'theme'
+import { isSwapLikePath } from 'utils/routes'
 
 type HeaderProps = {
   activeTab: TAB
@@ -25,7 +26,7 @@ export const Header = ({ activeTab, setActiveTab, customChainId, activeMainTab }
 
   const selectedTab = activeMainTab || activeTab
   const isLimitPage = pathname.startsWith(APP_PATHS.LIMIT) || selectedTab === TAB.LIMIT
-  const isSwapPage = pathname.startsWith(APP_PATHS.SWAP) || selectedTab == TAB.SWAP
+  const isSwapPage = isSwapLikePath(pathname) || selectedTab == TAB.SWAP
   const isCrossChainPage = pathname.startsWith(APP_PATHS.CROSS_CHAIN) || selectedTab === TAB.CROSS_CHAIN
 
   return (

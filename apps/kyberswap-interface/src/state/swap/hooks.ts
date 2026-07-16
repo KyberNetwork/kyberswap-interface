@@ -1,7 +1,7 @@
 import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { useCheckPairQuery } from 'services/tokenCatalog'
 
 import { APP_PATHS, PAIR_CATEGORY } from 'constants/index'
@@ -17,6 +17,7 @@ import { useDegenModeManager } from 'state/user/hooks'
 import { isAddress } from 'utils'
 import { Aggregator } from 'utils/aggregator'
 import { parseFraction } from 'utils/numbers'
+import { getTokenIntentFromPath, resolveTokenIntentPair } from 'utils/routes'
 
 interface ParsedUrlQuery {
   [key: string]: string | string[]
@@ -238,9 +239,22 @@ export function queryParametersToSwapState(
 
 export const useCurrencyFromUrl = () => {
   const { chainId } = useActiveWeb3React()
-  const { currency: currencyParam } = useParams()
+  const { pathname } = useLocation()
+  const { currency: currencyParam, token: tokenParam } = useParams()
 
   return useMemo(() => {
+    const tokenIntent = getTokenIntentFromPath(pathname)
+    const quoteToken = DEFAULT_OUTPUT_TOKEN_BY_CHAIN[chainId]
+
+    if (tokenIntent && tokenParam && quoteToken) {
+      return resolveTokenIntentPair(
+        tokenIntent,
+        tokenParam,
+        quoteToken.address,
+        quoteToken.symbol ? [quoteToken.symbol] : [],
+      )
+    }
+
     const matches = currencyParam?.split('-to-')
     const fromCurrency = matches?.[0]?.toLowerCase() || ''
     let toCurrency = matches?.[1]?.toLowerCase() || ''
@@ -261,12 +275,14 @@ export const useCurrencyFromUrl = () => {
       fromCurrency: fromCurrency || (toCurrency === nativeSymbol ? defaultOutput : nativeSymbol),
       toCurrency: toCurrency || defaultOutput,
     }
-  }, [currencyParam, chainId])
+  }, [chainId, currencyParam, pathname, tokenParam])
 }
 
 export const useInputCurrency = () => {
+  const { chainId } = useActiveWeb3React()
   const { fromCurrency } = useCurrencyFromUrl()
   const allTokens = useAllTokens()
+  const defaultOutputToken = DEFAULT_OUTPUT_TOKEN_BY_CHAIN[chainId]
 
   const token = useMemo(() => {
     return Object.values(allTokens).find(
@@ -277,7 +293,12 @@ export const useInputCurrency = () => {
   }, [allTokens, fromCurrency])
 
   const inputCurrency = useCurrencyV2(token ? token.address : fromCurrency)
-  return inputCurrency || undefined
+  const isDefaultOutputToken =
+    defaultOutputToken &&
+    (defaultOutputToken.symbol?.toLowerCase() === fromCurrency.toLowerCase() ||
+      defaultOutputToken.address.toLowerCase() === fromCurrency.toLowerCase())
+
+  return inputCurrency || (isDefaultOutputToken ? defaultOutputToken : undefined)
 }
 export const useOutputCurrency = () => {
   const { chainId } = useActiveWeb3React()

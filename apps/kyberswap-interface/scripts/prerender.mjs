@@ -20,7 +20,7 @@ const appRoot = resolve(__dirname, '..')
 const SSR_ORIGIN = 'https://kyberswap.com'
 const SSR_HOST = SSR_ORIGIN.replace(/^https?:\/\//, '')
 
-// The route list (`prerenderRoutes`) is derived from app constants and read from the SSR module.
+// The route lists are derived from app constants and read from the SSR module.
 
 // Minimal browser-global shim (mirrors test/smoke.setup.ts). Some BUILT workspace widgets and
 // third-party deps read window/document at module scope; the app's own Phase-1 typeof-window
@@ -196,14 +196,12 @@ async function main() {
       renderRouteApp,
       renderRouteSkeleton,
       buildHeadHtml,
-      prerenderRoutes,
-      appPrerenderRoutes,
+      prerenderContentRoutes,
       rootPrerenderSourceRoute,
       sitemapRoutes,
+      sitemapSections,
       siteUrl,
     } = await vite.ssrLoadModule('/src/entry-server.tsx')
-    const appRoutes = new Set(appPrerenderRoutes)
-
     // Fail loudly if the hardcoded shim origin drifts from the app's canonical domain (KYBERSWAP_URL,
     // re-exported as siteUrl) — the two are kept in sync by hand because the shim is set up before the
     // app constant is importable.
@@ -235,7 +233,7 @@ async function main() {
     writeFileSync(resolve(appRoot, 'build/index-root.html'), rootHtml, 'utf8')
     console.log(`✓ prerendered / (app ${rootApp.length} B, skeleton ${rootSkeleton.length} B)`)
 
-    for (const url of prerenderRoutes) {
+    for (const url of prerenderContentRoutes) {
       const head = buildHeadHtml(url)
       // Every inject uses a replacement FUNCTION, not a string: rendered HTML can contain
       // `$` sequences ($&, $', $<n>) that String.replace would otherwise interpret as special replacement
@@ -254,17 +252,16 @@ async function main() {
         () => `<!-- ssr-skeleton:start -->\n      ${skeleton}\n      <!-- ssr-skeleton:end -->`,
       )
 
-      // Render the actual route tree for indexable pages as well. This is static build output (not a
-      // production Node server), and the client intentionally mounts a fresh interactive tree instead of
-      // hydrating persisted wallet state into deterministic build-time markup.
-      const app = appRoutes.has(url) ? rewriteAssetUrls(await renderRouteApp(url), manifest) : ''
-      if (app) html = html.replace('<div id="app"></div>', () => `<div id="app">${app}</div>`)
+      // Render the actual route tree. This is static build output (not a production Node server), and the client
+      // intentionally mounts a fresh interactive tree instead of hydrating wallet state into deterministic markup.
+      const bodyHtml = rewriteAssetUrls(await renderRouteApp(url), manifest)
+      html = html.replace('<div id="app"></div>', () => `<div id="app">${bodyHtml}</div>`)
 
       const outDir = resolve(appRoot, 'build', url.replace(/^\//, ''))
       mkdirSync(outDir, { recursive: true })
       writeFileSync(resolve(outDir, 'index.html'), html, 'utf8')
       console.log(
-        `✓ prerendered ${url} (head ${head.length} B, app ${app.length || 'skipped'} B, skeleton ${skeleton.length} B)`,
+        `✓ prerendered ${url} (head ${head.length} B, body ${bodyHtml.length} B, skeleton ${skeleton.length} B)`,
       )
     }
 
@@ -287,16 +284,29 @@ async function main() {
       console.log(`✓ wrote build/skeletons/${name}.html (${frag.length} B)`)
     }
 
-    // Regenerate sitemap.xml from the index,follow route list so it tracks the prerendered set.
+    // Regenerate the product sitemap and its stable sitemap index from the same route inventory.
     const SITE = siteUrl // = constants/index KYBERSWAP_URL, via entry-server re-export
     const xmlEscape = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-    const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
+    const renderSitemapEntry = path =>
+      `  <url>\n    <loc>${xmlEscape(`${SITE}${path === '/' ? '/' : path}`)}</loc>\n  </url>`
+    const pagesSitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${sitemapRoutes.map(p => `  <url>\n    <loc>${xmlEscape(`${SITE}${p === '/' ? '/' : p}`)}</loc>\n  </url>`).join('\n')}
+${sitemapSections
+  .map(({ title, routes }) => `  <!-- ${title} -->\n${routes.map(renderSitemapEntry).join('\n')}`)
+  .join('\n\n')}
 </urlset>
 `
-    writeFileSync(resolve(appRoot, 'build/sitemap.xml'), sitemap, 'utf8')
-    console.log(`✓ wrote build/sitemap.xml (${sitemapRoutes.length} URLs)`)
+    const pagesSitemapPath = `${SITE}/sitemap-pages.xml`
+    const sitemapIndex = `<?xml version="1.0" encoding="UTF-8"?>
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <sitemap>
+    <loc>${xmlEscape(pagesSitemapPath)}</loc>
+  </sitemap>
+</sitemapindex>
+`
+    writeFileSync(resolve(appRoot, 'build/sitemap-pages.xml'), pagesSitemap, 'utf8')
+    writeFileSync(resolve(appRoot, 'build/sitemap.xml'), sitemapIndex, 'utf8')
+    console.log(`✓ wrote build/sitemap-pages.xml (${sitemapRoutes.length} URLs) and build/sitemap.xml index`)
   } finally {
     // Vite's dev server keeps esbuild/chokidar handles open. After the work is done these can keep
     // Node's event loop alive so the process hangs instead of exiting — stalling CI's build step.

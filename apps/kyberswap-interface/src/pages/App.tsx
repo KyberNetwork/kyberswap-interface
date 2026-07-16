@@ -260,6 +260,22 @@ export default function App() {
                   </NetworkSyncedPage>
                 }
               />
+              <Route
+                path={`${APP_PATHS.BUY}/:network/:token`}
+                element={
+                  <NetworkSyncedPage>
+                    <SwapPage />
+                  </NetworkSyncedPage>
+                }
+              />
+              <Route
+                path={`${APP_PATHS.SELL}/:network/:token`}
+                element={
+                  <NetworkSyncedPage>
+                    <SwapPage />
+                  </NetworkSyncedPage>
+                }
+              />
               <Route path={`${APP_PATHS.PARTNER_SWAP}`} element={<PartnerSwap />} />
               <Route path={`${APP_PATHS.USER_SWAP}/:tipsId?`} element={<PartnerSwap mode="user" />} />
               <Route path={`${APP_PATHS.USER_SWAP_CREATE_TIPS}`} element={<RedirectToCreateTips />} />

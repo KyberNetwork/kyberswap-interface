@@ -14,6 +14,7 @@ import { prefetchCrossChainSwap } from 'pages/CrossChainSwap/loader'
 import { LimitTab } from 'pages/Swap/layout/LimitTab'
 import { isSupportLimitOrder } from 'utils'
 import { cn } from 'utils/cn'
+import { isSwapLikePath } from 'utils/routes'
 
 export enum TAB {
   SWAP = 'swap',
@@ -92,7 +93,12 @@ export const Tabs = ({ activeTab, setActiveTab, customChainId }: Props) => {
     }
 
     setActiveTab(tab)
-    if (tab === TAB.SWAP && pathname.includes('/swap')) {
+    if (
+      tab === TAB.SWAP &&
+      (isSwapLikePath(pathname) ||
+        pathname.startsWith(APP_PATHS.PARTNER_SWAP) ||
+        pathname.startsWith(APP_PATHS.USER_SWAP))
+    ) {
       return
     }
     navigateFn({

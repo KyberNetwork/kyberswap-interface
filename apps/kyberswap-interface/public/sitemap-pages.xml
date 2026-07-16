@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Fallback sitemap for builds that skip the prerender step (dev/stg). Production (`pnpm build`)
+  regenerates build/sitemap-pages.xml and the build/sitemap.xml index from `PRODUCT_SITEMAP_SECTIONS` —
+  keep this fallback in sync with the approved 46-URL product inventory.
+-->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <!-- Core -->
+  <url>
+    <loc>https://kyberswap.com/</loc>
+  </url>
+
+  <!-- Swap - per chain -->
+  <url>
+    <loc>https://kyberswap.com/swap/ethereum</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/swap/arbitrum</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/swap/base</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/swap/optimism</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/swap/polygon</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/swap/bnb</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/swap/avalanche</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/swap/linea</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/swap/sonic</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/swap/berachain</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/swap/ronin</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/swap/unichain</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/swap/hyperevm</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/swap/plasma</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/swap/etherlink</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/swap/megaeth</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/swap/monad</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/swap/robinhood</loc>
+  </url>
+
+  <!-- Limit Orders - per chain -->
+  <url>
+    <loc>https://kyberswap.com/limit/ethereum</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/limit/arbitrum</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/limit/base</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/limit/optimism</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/limit/polygon</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/limit/bnb</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/limit/avalanche</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/limit/linea</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/limit/sonic</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/limit/berachain</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/limit/ronin</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/limit/unichain</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/limit/hyperevm</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/limit/megaeth</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/limit/monad</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/limit/robinhood</loc>
+  </url>
+
+  <!-- Cross-chain and Earn -->
+  <url>
+    <loc>https://kyberswap.com/cross-chain</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/earn</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/earn/pools</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/earn/positions</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/earn/smart-exit</loc>
+  </url>
+
+  <!-- Market, KyberDAO, and About -->
+  <url>
+    <loc>https://kyberswap.com/market-overview</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/kyberdao/stake-knc</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/kyberdao/vote</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/kyberdao/knc-utility</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/about/kyberswap</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/about/knc</loc>
+  </url>
+</urlset>

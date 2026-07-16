@@ -12,9 +12,10 @@ import { StaticRouter } from 'react-router-dom/server'
 import { WagmiProvider } from 'wagmi'
 
 import RouteFallback from 'components/RouteFallback'
+import { PRODUCT_SITEMAP_ROUTES, PRODUCT_SITEMAP_SECTIONS } from 'components/Seo/productRoutes'
 import { wagmiConfig } from 'components/Web3Provider'
 import { APP_PATHS, KYBERSWAP_URL } from 'constants/index'
-import { MAINNET_NETWORKS, NETWORKS_INFO } from 'constants/networks'
+import { NETWORKS_INFO } from 'constants/networks'
 import App from 'pages/App'
 import { makeStore } from 'state'
 import { updateChainId } from 'state/user/actions'
@@ -38,68 +39,28 @@ export { buildHeadHtml } from 'components/Seo/seoConfig'
 export const siteUrl = KYBERSWAP_URL
 
 /**
- * Bounded public routes to prerender (en-US only), derived from app constants so the list tracks
- * network/campaign changes. Every route gets its per-route <head> and cold-load skeleton; the indexable
- * subset also gets its app body. The home route is intentionally omitted from this directory-route list
- * because scripts/prerender.mjs emits it separately without changing the empty-body SPA fallback.
+ * The 46 approved product URLs to list in sitemap-pages.xml. Runtime routes for other supported chains are
+ * unaffected, but stay outside the public sitemap inventory until Product adds them to this matrix.
+ * Preserve PRODUCT_SITEMAP_SECTIONS order: prerender traversal and sitemap XML consume this inventory directly.
  */
-export const prerenderRoutes: string[] = [
-  `${APP_PATHS.ABOUT}/kyberswap`,
-  `${APP_PATHS.ABOUT}/knc`,
-  APP_PATHS.EARN,
-  APP_PATHS.EARN_POOLS,
-  APP_PATHS.MARKET_OVERVIEW,
-  APP_PATHS.SAFEPAL_CAMPAIGN,
-  APP_PATHS.RAFFLE_CAMPAIGN,
-  APP_PATHS.NEAR_INTENTS_CAMPAIGN,
-  APP_PATHS.MAY_TRADING_CAMPAIGN,
-  APP_PATHS.AGGREGATOR_CAMPAIGN,
-  APP_PATHS.LIMIT_ORDER_CAMPAIGN,
-  APP_PATHS.REFFERAL_CAMPAIGN,
-  APP_PATHS.KYBERDAO_STAKE,
-  APP_PATHS.KYBERDAO_VOTE,
-  APP_PATHS.KYBERDAO_KNC_UTILITY,
-  // Gated (wallet-required, noindex) list pages — prerendered ONLY to bake their page-shell skeleton into
-  // the cold-load overlay (a direct/bookmarked load shows the right shape, not the generic logo). NOT for
-  // SEO: they stay noindex (see seoConfig) and are kept out of sitemapRoutes. Only static list paths
-  // qualify; the dynamic position-detail route stays SPA-fallback.
-  APP_PATHS.EARN_POSITIONS,
-  APP_PATHS.EARN_SMART_EXIT,
-  ...Array.from(new Set(MAINNET_NETWORKS)).map(chainId => `${APP_PATHS.SWAP}/${NETWORKS_INFO[chainId].route}`),
-]
-
-/**
- * The index,follow URLs to list in sitemap.xml (home + about + earn + KyberDAO + per-network swap).
- * The noindex routes (market-overview, campaigns, gated list pages) are prerendered for meta/skeleton but
- * omitted here — a sitemap should only advertise indexable URLs.
- */
-export const sitemapRoutes: string[] = [
-  '/',
-  `${APP_PATHS.ABOUT}/kyberswap`,
-  `${APP_PATHS.ABOUT}/knc`,
-  APP_PATHS.EARN,
-  APP_PATHS.EARN_POOLS,
-  APP_PATHS.KYBERDAO_STAKE,
-  APP_PATHS.KYBERDAO_VOTE,
-  APP_PATHS.KYBERDAO_KNC_UTILITY,
-  ...Array.from(new Set(MAINNET_NETWORKS)).map(chainId => `${APP_PATHS.SWAP}/${NETWORKS_INFO[chainId].route}`),
-]
+export const sitemapRoutes: string[] = [...PRODUCT_SITEMAP_ROUTES]
+export const sitemapSections = PRODUCT_SITEMAP_SECTIONS
 
 // The client resolves `/` to the default Ethereum swap route. Prerender that same existing route tree
 // into a dedicated exact-root document; build/index.html remains an empty-body SPA fallback for dynamic
 // URLs that cannot be enumerated at build time.
 export const rootPrerenderSourceRoute = `${APP_PATHS.SWAP}/${NETWORKS_INFO[ChainId.MAINNET].route}`
 
-// Full body prerender is an SEO concern, so keep it aligned with the index,follow routes. Noindex
-// campaigns and wallet-gated pages retain their route-specific head/skeleton without pulling their
-// wallet-only dependency graph into the Node build renderer.
-export const appPrerenderRoutes = sitemapRoutes.filter(route => route !== '/')
+// Full-body prerender every advertised URL except `/`, which is emitted separately above. Keep the catalog
+// order here; every route outside the sitemap falls through to build/index.html and lets the client router render.
+export const prerenderContentRoutes: string[] = sitemapRoutes.filter(route => route !== '/')
 
 function createRouteApp(url: string) {
   const store = makeStore()
-  const networkSlug = url.startsWith(`${APP_PATHS.SWAP}/`)
-    ? url.slice(APP_PATHS.SWAP.length + 1).split(/[/?#]/, 1)[0]
-    : undefined
+  const networkRoute = [APP_PATHS.SWAP, APP_PATHS.LIMIT, APP_PATHS.BUY, APP_PATHS.SELL].find(route =>
+    url.startsWith(`${route}/`),
+  )
+  const networkSlug = networkRoute ? url.slice(networkRoute.length + 1).split(/[/?#]/, 1)[0] : undefined
   const routeChainId = getChainIdFromSlug(networkSlug)
   if (routeChainId !== undefined) store.dispatch(updateChainId(routeChainId))
 

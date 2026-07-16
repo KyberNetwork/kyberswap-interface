@@ -30,12 +30,36 @@ export const DEFAULT_OG_IMAGE = `${SITE_URL}/kyberswap-og-image.png?version=2023
 const INDEX_ROBOTS = 'index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1'
 const NOINDEX_ROBOTS = 'noindex,follow'
 export const STRUCTURED_DATA_ID = 'kyberswap-structured-data'
-const ABOUT_KYBERSWAP_DESCRIPTION =
-  'KyberSwap is a decentralized platform. We provide our traders with superior token prices by analyzing rates across thousands of exchanges instantly!'
+
+type RouteMetadata = Pick<SeoConfig, 'title' | 'description'>
+
+// Sitemap: Swap - per chain
+const SWAP_TITLE = 'KyberSwap - Swap, Trade & Earn Tokens at the Best Rate Across Chains'
 const SWAP_DESCRIPTION =
   'Swap any token at the best rate across chains. An advanced aggregator splits your trade across hundreds of DEXs and liquidity sources for minimal slippage.'
+const DEFAULT_SWAP_METADATA: RouteMetadata = { title: SWAP_TITLE, description: SWAP_DESCRIPTION }
+
+// Keep the current approved generic copy until Product supplies per-network content. Future content updates
+// only need to add an entry here; route matching, canonical and robots behavior stay unchanged.
+const SWAP_METADATA_BY_NETWORK: Partial<Record<string, RouteMetadata>> = {
+  //
+}
+
+const getSwapMetadata = (network: string) => SWAP_METADATA_BY_NETWORK[network] ?? DEFAULT_SWAP_METADATA
+
+// Sitemap: Limit Orders - per chain
+const LIMIT_TITLE = 'Limit Orders | KyberSwap'
 const LIMIT_DESCRIPTION =
   'Auto execute with your price target. Gasless & no slippage - Kyberswap Limit Order execute on-chain automatically when the market reaches your price.'
+const DEFAULT_LIMIT_METADATA: RouteMetadata = { title: LIMIT_TITLE, description: LIMIT_DESCRIPTION }
+
+const LIMIT_METADATA_BY_NETWORK: Partial<Record<string, RouteMetadata>> = {
+  //
+}
+
+const getLimitMetadata = (network: string) => LIMIT_METADATA_BY_NETWORK[network] ?? DEFAULT_LIMIT_METADATA
+
+// Sitemap: Cross-chain and Earn
 const CROSS_CHAIN_DESCRIPTION =
   'Swap tokens between EVMs, Bitcoin, Solana, and Near chains in one step - no manual bridging. Quotes from multiple providers, best rate picked automatically.'
 const EARN_DESCRIPTION =
@@ -46,18 +70,24 @@ const EARN_POSITIONS_DESCRIPTION =
   'Track all your active liquidity positions in one dashboard. Monitor APR, rewards, and performance across protocols - no need to check each one separately.'
 const EARN_SMART_EXIT_DESCRIPTION =
   'Set automatic exit conditions for your liquidity positions. KyberSwap Smart Exit closes a position on-chain when your target is reached - no manual monitoring required.'
+
+// Sitemap: Market, KyberDAO, and About
 const MARKET_DESCRIPTION =
   'Live token on-chain prices, trading volume, and market trends across multiple chains. Spot opportunities and jump straight into a trade from one dashboard.'
-const CAMPAIGNS_DESCRIPTION =
-  'Earn bonus rewards and incentives while you swap, provide liquidity, or trade. Join active campaigns across supported chains - no lock-up required.'
-const ABOUT_KNC_DESCRIPTION =
-  'KNC is a utility and governance token and an integral part of Kyber Network and its product KyberSwap - the multi-chain decentralized exchange (DEX) that provides superior rates for traders.'
 const KYBERDAO_STAKE_DESCRIPTION =
   'Stake KNC to participate in KyberDAO governance and earn rewards. Voting power and gas refunds for active stakers - help shape the future of KyberSwap.'
 const KYBERDAO_VOTE_DESCRIPTION =
   'Vote on KyberDAO governance proposals (KIPs) with your staked KNC. Decide protocol parameters and earn voting rewards each epoch on KyberSwap.'
 const KYBERDAO_KNC_UTILITY_DESCRIPTION =
   'Stake KNC to get your KyberSwap trading gas fees refunded. The KyberDAO gas refund program rewards active traders based on their staked KNC.'
+const ABOUT_KYBERSWAP_DESCRIPTION =
+  'KyberSwap is a decentralized platform. We provide our traders with superior token prices by analyzing rates across thousands of exchanges instantly!'
+const ABOUT_KNC_DESCRIPTION =
+  'KNC is a utility and governance token and an integral part of Kyber Network and its product KyberSwap - the multi-chain decentralized exchange (DEX) that provides superior rates for traders.'
+
+// Runtime-only routes outside the sitemap inventory
+const CAMPAIGNS_DESCRIPTION =
+  'Earn bonus rewards and incentives while you swap, provide liquidity, or trade. Join active campaigns across supported chains - no lock-up required.'
 
 const ORGANIZATION_SCHEMA: StructuredData = {
   '@context': 'https://schema.org',
@@ -113,12 +143,24 @@ export const resolveSeoConfig = (pathname: string, search: string): SeoConfig =>
   const searchParams = new URLSearchParams(search)
   const hasQueryParams = Array.from(searchParams.keys()).length > 0
 
+  // Sitemap: Core
+  if (normalizedPath === '/') {
+    return {
+      title: DEFAULT_TITLE,
+      description: DEFAULT_DESCRIPTION,
+      canonicalPath: normalizedPath,
+      robots: INDEX_ROBOTS,
+      structuredData: getDefaultStructuredData('/'),
+    }
+  }
+
+  // Sitemap: Swap - per chain. Keep pair routes before chain landings because their canonical and robots
+  // policies differ, even though only chain landings are part of the sitemap inventory.
   const swapPairMatch = matchPath(`${APP_PATHS.SWAP}/:network/:currency`, normalizedPath)
   if (swapPairMatch) {
     const network = swapPairMatch.params.network || 'ethereum'
     return {
-      title: 'KyberSwap - Swap, Trade & Earn Tokens at the Best Rate Across Chains',
-      description: SWAP_DESCRIPTION,
+      ...getSwapMetadata(network),
       canonicalPath: `${APP_PATHS.SWAP}/${network}`,
       robots: NOINDEX_ROBOTS,
       structuredData: getDefaultStructuredData(`${APP_PATHS.SWAP}/${network}`),
@@ -130,31 +172,44 @@ export const resolveSeoConfig = (pathname: string, search: string): SeoConfig =>
     const network = swapMatch.params.network || 'ethereum'
     const canonicalPath = `${APP_PATHS.SWAP}/${network}`
     return {
-      title: 'KyberSwap - Swap, Trade & Earn Tokens at the Best Rate Across Chains',
-      description: SWAP_DESCRIPTION,
+      ...getSwapMetadata(network),
       canonicalPath,
       robots: hasQueryParams ? NOINDEX_ROBOTS : INDEX_ROBOTS,
       structuredData: getDefaultStructuredData(canonicalPath),
     }
   }
 
-  const limitMatch = matchPath(`${APP_PATHS.LIMIT}/:network/:currency?`, normalizedPath)
-  if (limitMatch) {
-    const network = limitMatch.params.network || 'ethereum'
+  // Sitemap: Limit Orders - per chain. Pair routes remain runtime-only and noindex.
+  const limitPairMatch = matchPath(`${APP_PATHS.LIMIT}/:network/:currency`, normalizedPath)
+  if (limitPairMatch) {
+    const network = limitPairMatch.params.network || 'ethereum'
     return {
-      title: 'Limit Orders | KyberSwap',
-      description: LIMIT_DESCRIPTION,
+      ...getLimitMetadata(network),
       canonicalPath: `${APP_PATHS.LIMIT}/${network}`,
       robots: NOINDEX_ROBOTS,
     }
   }
 
-  if (normalizedPath === APP_PATHS.CROSS_CHAIN || normalizedPath === APP_PATHS.PARTNER_SWAP) {
+  const limitMatch = matchPath(`${APP_PATHS.LIMIT}/:network`, normalizedPath)
+  if (limitMatch) {
+    const network = limitMatch.params.network || 'ethereum'
+    const canonicalPath = `${APP_PATHS.LIMIT}/${network}`
+    return {
+      ...getLimitMetadata(network),
+      canonicalPath,
+      robots: hasQueryParams ? NOINDEX_ROBOTS : INDEX_ROBOTS,
+      structuredData: getDefaultStructuredData(canonicalPath),
+    }
+  }
+
+  // Sitemap: Cross-chain and Earn
+  if (normalizedPath === APP_PATHS.CROSS_CHAIN) {
     return {
       title: DEFAULT_TITLE,
       description: CROSS_CHAIN_DESCRIPTION,
       canonicalPath: normalizedPath,
-      robots: NOINDEX_ROBOTS,
+      robots: hasQueryParams ? NOINDEX_ROBOTS : INDEX_ROBOTS,
+      structuredData: getDefaultStructuredData(normalizedPath),
     }
   }
 
@@ -178,29 +233,12 @@ export const resolveSeoConfig = (pathname: string, search: string): SeoConfig =>
     }
   }
 
-  // Path-based pool detail: /pools/:chain/:protocol/:address. Unbounded catalog — NOT
-  // prerendered/sitemapped, but the clean self-canonical URL is the intended SEO landing per pool, so
-  // INDEX it (unlike the noindex swap-pair). The per-pool <title> (tokens + fee) is upgraded
-  // client-side once pool data loads (see PoolDetail). Junk query string -> noindex.
-  const poolDetailMatch = matchPath(`${APP_PATHS.POOLS}/:chain/:protocol/:address`, normalizedPath)
-  if (poolDetailMatch?.params.chain && poolDetailMatch.params.protocol && poolDetailMatch.params.address) {
-    const { chain, protocol, address } = poolDetailMatch.params
-    const canonicalPath = `${APP_PATHS.POOLS}/${chain}/${protocol}/${address}`
-    return {
-      title: 'Liquidity Pool | KyberSwap',
-      description: EARN_POOLS_DESCRIPTION,
-      canonicalPath,
-      robots: hasQueryParams ? NOINDEX_ROBOTS : INDEX_ROBOTS,
-      structuredData: getDefaultStructuredData(canonicalPath),
-    }
-  }
-
   if (normalizedPath === APP_PATHS.EARN_POSITIONS) {
     return {
       title: 'Liquidity Positions | KyberSwap',
       description: EARN_POSITIONS_DESCRIPTION,
       canonicalPath: APP_PATHS.EARN_POSITIONS,
-      robots: NOINDEX_ROBOTS,
+      robots: hasQueryParams ? NOINDEX_ROBOTS : INDEX_ROBOTS,
       structuredData: getDefaultStructuredData(APP_PATHS.EARN_POSITIONS),
     }
   }
@@ -210,27 +248,18 @@ export const resolveSeoConfig = (pathname: string, search: string): SeoConfig =>
       title: 'Smart Exit Orders | KyberSwap',
       description: EARN_SMART_EXIT_DESCRIPTION,
       canonicalPath: APP_PATHS.EARN_SMART_EXIT,
-      robots: NOINDEX_ROBOTS,
+      robots: hasQueryParams ? NOINDEX_ROBOTS : INDEX_ROBOTS,
       structuredData: getDefaultStructuredData(APP_PATHS.EARN_SMART_EXIT),
     }
   }
 
+  // Sitemap: Market, KyberDAO, and About
   if (normalizedPath === APP_PATHS.MARKET_OVERVIEW) {
     return {
       title: 'Market Overview | KyberSwap',
       description: MARKET_DESCRIPTION,
       canonicalPath: APP_PATHS.MARKET_OVERVIEW,
-      robots: NOINDEX_ROBOTS,
-    }
-  }
-
-  const campaignsMatch = matchPath('/campaigns/*', normalizedPath)
-  if (campaignsMatch) {
-    return {
-      title: 'Campaigns | KyberSwap',
-      description: CAMPAIGNS_DESCRIPTION,
-      canonicalPath: normalizedPath,
-      robots: NOINDEX_ROBOTS,
+      robots: hasQueryParams ? NOINDEX_ROBOTS : INDEX_ROBOTS,
     }
   }
 
@@ -284,13 +313,40 @@ export const resolveSeoConfig = (pathname: string, search: string): SeoConfig =>
     }
   }
 
-  if (normalizedPath === '/') {
+  // Runtime-only routes outside the sitemap inventory.
+  if (normalizedPath === APP_PATHS.PARTNER_SWAP) {
     return {
       title: DEFAULT_TITLE,
-      description: DEFAULT_DESCRIPTION,
+      description: CROSS_CHAIN_DESCRIPTION,
       canonicalPath: normalizedPath,
-      robots: INDEX_ROBOTS,
-      structuredData: getDefaultStructuredData('/'),
+      robots: NOINDEX_ROBOTS,
+    }
+  }
+
+  // Path-based pool detail: /pools/:chain/:protocol/:address. Unbounded catalog — NOT
+  // prerendered/sitemapped, but the clean self-canonical URL is the intended SEO landing per pool, so
+  // INDEX it (unlike the noindex swap-pair). The per-pool <title> (tokens + fee) is upgraded
+  // client-side once pool data loads (see PoolDetail). Junk query string -> noindex.
+  const poolDetailMatch = matchPath(`${APP_PATHS.POOLS}/:chain/:protocol/:address`, normalizedPath)
+  if (poolDetailMatch?.params.chain && poolDetailMatch.params.protocol && poolDetailMatch.params.address) {
+    const { chain, protocol, address } = poolDetailMatch.params
+    const canonicalPath = `${APP_PATHS.POOLS}/${chain}/${protocol}/${address}`
+    return {
+      title: 'Liquidity Pool | KyberSwap',
+      description: EARN_POOLS_DESCRIPTION,
+      canonicalPath,
+      robots: hasQueryParams ? NOINDEX_ROBOTS : INDEX_ROBOTS,
+      structuredData: getDefaultStructuredData(canonicalPath),
+    }
+  }
+
+  const campaignsMatch = matchPath('/campaigns/*', normalizedPath)
+  if (campaignsMatch) {
+    return {
+      title: 'Campaigns | KyberSwap',
+      description: CAMPAIGNS_DESCRIPTION,
+      canonicalPath: normalizedPath,
+      robots: NOINDEX_ROBOTS,
     }
   }
 
