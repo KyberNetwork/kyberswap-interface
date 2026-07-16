@@ -68,8 +68,7 @@ export const TOKENS_WITH_FEE_TIER_1: Record<ChainId, string[]> = CHAINS_SUPPORT_
 export const KNC_ADDRESS = '0xdeFA4e8a7bcBA345F687a2f1456F5Edd9CE97202'
 export const KNCL_ADDRESS = '0xdd974D5C2e2928deA5F71b9825b8b646686BD200'
 
-// todo: make it nullable
-export const KNC: { [chainId in ChainId]: Token } = {
+export const KNC: Partial<Record<ChainId, Token>> = {
   [ChainId.MAINNET]: new Token(ChainId.MAINNET, KNC_ADDRESS, 18, 'KNC', 'KNC'),
   [ChainId.GÖRLI]: new Token(ChainId.GÖRLI, '0xd19e5119Efc73FeA1e70f9fbbc105DaB89D914e4', 18, 'KNC', 'KNC'),
   [ChainId.MATIC]: new Token(ChainId.MATIC, '0x1C954E8fe737F99f68Fa1CCda3e51ebDB291948C', 18, 'KNC', 'KNC'),
@@ -79,23 +78,6 @@ export const KNC: { [chainId in ChainId]: Token } = {
   [ChainId.OPTIMISM]: new Token(ChainId.OPTIMISM, '0xa00e3a3511aac35ca78530c85007afcd31753819', 18, 'KNC', 'KNC'),
   [ChainId.LINEA]: new Token(ChainId.LINEA, '0x3b2F62d42DB19B30588648bf1c184865D4C3B1D6', 18, 'KNC', 'KNC'),
   [ChainId.BASE]: new Token(ChainId.BASE, '0x28fe69Ff6864C1C218878BDCA01482D36B9D57b1', 18, 'KNC', 'KNC'),
-
-  // TODO(viet-nv): KNC does not exist on the below chain
-  [ChainId.FANTOM]: new Token(ChainId.FANTOM, KNC_ADDRESS, 18, 'KNC', 'KNC'),
-  [ChainId.SCROLL]: new Token(ChainId.SCROLL, KNC_ADDRESS, 18, 'KNC', 'KNC'),
-  [ChainId.ZKSYNC]: new Token(ChainId.ZKSYNC, KNC_ADDRESS, 18, 'KNC', 'KNC'),
-  [ChainId.BLAST]: new Token(ChainId.BLAST, KNC_ADDRESS, 18, 'KNC', 'KNC'),
-  [ChainId.MANTLE]: new Token(ChainId.MANTLE, KNC_ADDRESS, 18, 'KNC', 'KNC'),
-  [ChainId.SONIC]: new Token(ChainId.SONIC, KNC_ADDRESS, 18, 'KNC', 'KNC'),
-  [ChainId.BERA]: new Token(ChainId.BERA, KNC_ADDRESS, 18, 'KNC', 'KNC'),
-  [ChainId.RONIN]: new Token(ChainId.RONIN, KNC_ADDRESS, 18, 'KNC', 'KNC'),
-  [ChainId.UNICHAIN]: new Token(ChainId.RONIN, KNC_ADDRESS, 18, 'KNC', 'KNC'),
-  [ChainId.HYPEREVM]: new Token(ChainId.RONIN, KNC_ADDRESS, 18, 'KNC', 'KNC'),
-  [ChainId.ETHERLINK]: new Token(ChainId.RONIN, KNC_ADDRESS, 18, 'KNC', 'KNC'),
-  [ChainId.PLASMA]: new Token(ChainId.RONIN, KNC_ADDRESS, 18, 'KNC', 'KNC'),
-  [ChainId.MONAD]: new Token(ChainId.MONAD, KNC_ADDRESS, 18, 'KNC', 'KNC'),
-  [ChainId.MEGAETH]: new Token(ChainId.MEGAETH, KNC_ADDRESS, 18, 'KNC', 'KNC'),
-  [ChainId.ROBINHOOD]: new Token(ChainId.ROBINHOOD, KNC_ADDRESS, 18, 'KNC', 'KNC'),
 }
 
 export const DEFAULT_OUTPUT_TOKEN_BY_CHAIN: Partial<Record<ChainId, Token>> = {
