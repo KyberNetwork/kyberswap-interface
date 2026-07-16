@@ -80,7 +80,7 @@ export const KNC: Partial<Record<ChainId, Token>> = {
   [ChainId.BASE]: new Token(ChainId.BASE, '0x28fe69Ff6864C1C218878BDCA01482D36B9D57b1', 18, 'KNC', 'KNC'),
 }
 
-export const DEFAULT_OUTPUT_TOKEN_BY_CHAIN: Partial<Record<ChainId, Token>> = {
+export const DEFAULT_OUTPUT_TOKENS: Partial<Record<ChainId, Token>> = {
   [ChainId.MAINNET]: new Token(ChainId.MAINNET, '0xdAC17F958D2ee523a2206206994597C13D831ec7', 6, 'USDT', 'Tether USD'),
   [ChainId.MATIC]: new Token(ChainId.MATIC, '0xc2132D05D31c914a87C6611C10748AEb04B58e8F', 6, 'USDT', 'Tether USD'),
   [ChainId.BSCMAINNET]: new Token(ChainId.BSCMAINNET, '0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d', 18, 'USDC', 'USDC'),
@@ -119,9 +119,9 @@ export const DEFAULT_OUTPUT_TOKEN_BY_CHAIN: Partial<Record<ChainId, Token>> = {
   ),
 }
 
-export const PRICE_CHART_QUOTE_TOKEN_BY_CHAIN: Partial<Record<ChainId, Token>> = {
-  [ChainId.MAINNET]: DEFAULT_OUTPUT_TOKEN_BY_CHAIN[ChainId.MAINNET],
-  [ChainId.MATIC]: DEFAULT_OUTPUT_TOKEN_BY_CHAIN[ChainId.MATIC],
+export const PRICE_CHART_QUOTES: Partial<Record<ChainId, Token>> = {
+  [ChainId.MAINNET]: DEFAULT_OUTPUT_TOKENS[ChainId.MAINNET],
+  [ChainId.MATIC]: DEFAULT_OUTPUT_TOKENS[ChainId.MATIC],
   [ChainId.BSCMAINNET]: new Token(
     ChainId.BSCMAINNET,
     '0x55d398326f99059fF775485246999027B3197955',
@@ -146,15 +146,14 @@ export const PRICE_CHART_QUOTE_TOKEN_BY_CHAIN: Partial<Record<ChainId, Token>> =
   ),
   [ChainId.BASE]: new Token(ChainId.BASE, '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913', 6, 'USDC', 'USD Coin'),
   [ChainId.HYPEREVM]: new Token(ChainId.HYPEREVM, '0xb88339CB7199b77E23DB6E890353E22632Ba630f', 6, 'USDC', 'USDC'),
-  [ChainId.MONAD]: DEFAULT_OUTPUT_TOKEN_BY_CHAIN[ChainId.MONAD],
-  [ChainId.ROBINHOOD]: DEFAULT_OUTPUT_TOKEN_BY_CHAIN[ChainId.ROBINHOOD],
+  [ChainId.MONAD]: DEFAULT_OUTPUT_TOKENS[ChainId.MONAD],
+  [ChainId.ROBINHOOD]: DEFAULT_OUTPUT_TOKENS[ChainId.ROBINHOOD],
 }
 
-// Token-intent routes normally pair the subject with the chain's native gas token. This map is only
-// used when the subject itself is native, avoiding native -> native pairs with a deterministic stablecoin.
-export const TOKEN_INTENT_STABLE_COUNTER_BY_CHAIN: Partial<Record<ChainId, Token>> = {
-  ...DEFAULT_OUTPUT_TOKEN_BY_CHAIN,
-  ...PRICE_CHART_QUOTE_TOKEN_BY_CHAIN,
+// Token-intent routes use this only when the subject itself is native, avoiding native -> native pairs.
+export const STABLE_TOKENS: Partial<Record<ChainId, Token>> = {
+  ...DEFAULT_OUTPUT_TOKENS,
+  ...PRICE_CHART_QUOTES,
 }
 
 export const DEFAULT_SWAP_FEE_STABLE_PAIRS = 4

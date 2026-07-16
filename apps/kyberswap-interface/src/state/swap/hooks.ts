@@ -5,7 +5,7 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { useCheckPairQuery } from 'services/tokenCatalog'
 
 import { APP_PATHS, ETHER_ADDRESS, PAIR_CATEGORY, ZERO_ADDRESS } from 'constants/index'
-import { DEFAULT_OUTPUT_TOKEN_BY_CHAIN, NativeCurrencies, TOKEN_INTENT_STABLE_COUNTER_BY_CHAIN } from 'constants/tokens'
+import { DEFAULT_OUTPUT_TOKENS, NativeCurrencies, STABLE_TOKENS } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import { useAllTokens, useCurrencyV2, useStableCoins } from 'hooks/useTokens'
@@ -245,7 +245,7 @@ export const useCurrencyFromUrl = () => {
   return useMemo(() => {
     const tokenIntent = getTokenIntentFromPath(pathname)
     const nativeToken = NativeCurrencies[chainId]
-    const stableCounterToken = TOKEN_INTENT_STABLE_COUNTER_BY_CHAIN[chainId]
+    const stableCounterToken = STABLE_TOKENS[chainId]
 
     if (tokenIntent && tokenParam && nativeToken.symbol && stableCounterToken) {
       return resolveTokenIntentPair(tokenIntent, tokenParam, nativeToken.symbol, stableCounterToken.address, [
@@ -258,7 +258,7 @@ export const useCurrencyFromUrl = () => {
     const fromCurrency = matches?.[0]?.toLowerCase() || ''
     let toCurrency = matches?.[1]?.toLowerCase() || ''
     const nativeSymbol = NativeCurrencies[chainId].symbol?.toLowerCase() || 'eth'
-    const defaultOutput = DEFAULT_OUTPUT_TOKEN_BY_CHAIN[chainId]?.symbol?.toLowerCase() || ''
+    const defaultOutput = DEFAULT_OUTPUT_TOKENS[chainId]?.symbol?.toLowerCase() || ''
 
     if (!fromCurrency && !toCurrency)
       return {
@@ -280,8 +280,8 @@ export const useCurrencyFromUrl = () => {
 const useCurrencyById = (currencyId: string) => {
   const { chainId } = useActiveWeb3React()
   const allTokens = useAllTokens()
-  const defaultOutputToken = DEFAULT_OUTPUT_TOKEN_BY_CHAIN[chainId]
-  const stableCounterToken = TOKEN_INTENT_STABLE_COUNTER_BY_CHAIN[chainId]
+  const defaultOutputToken = DEFAULT_OUTPUT_TOKENS[chainId]
+  const stableCounterToken = STABLE_TOKENS[chainId]
   const normalizedCurrencyId = currencyId.toLowerCase()
 
   const token = useMemo(() => {

@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 
-import { TOKEN_INTENT_STABLE_COUNTER_BY_CHAIN } from 'constants/tokens'
+import { STABLE_TOKENS } from 'constants/tokens'
 import { getChainIdFromSlug } from 'utils/string'
 
 import {
@@ -65,7 +65,7 @@ describe('product sitemap routes', () => {
       const chainId = getChainIdFromSlug(chain)
       expect(chainId, `Unknown chain slug: ${chain}`).toBeDefined()
       if (chainId === undefined) continue
-      const stableCounter = TOKEN_INTENT_STABLE_COUNTER_BY_CHAIN[chainId]
+      const stableCounter = STABLE_TOKENS[chainId]
       expect(stableCounter, `Missing stable counter for ${chain}`).toBeDefined()
       expect(stableCounter?.symbol?.toLowerCase(), `Invalid stable counter for ${chain}`).toContain('usd')
     }

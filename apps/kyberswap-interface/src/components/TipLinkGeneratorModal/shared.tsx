@@ -5,7 +5,7 @@ import { ChevronDown } from 'react-feather'
 import { HStack } from 'components/Stack'
 import { APP_PATHS, ETHER_ADDRESS } from 'constants/index'
 import { NETWORKS_INFO, SUPPORTED_NETWORKS } from 'constants/networks'
-import { DEFAULT_OUTPUT_TOKEN_BY_CHAIN } from 'constants/tokens'
+import { DEFAULT_OUTPUT_TOKENS } from 'constants/tokens'
 import { getTokenLogoURL } from 'utils'
 import { cn } from 'utils/cn'
 
@@ -19,7 +19,7 @@ export const PRIMARY_CHAINS: ChainId[] = [
   ChainId.BSCMAINNET,
 ]
 export const TIP_LINK_CHAINS: ChainId[] = SUPPORTED_NETWORKS.filter(
-  chainId => WETH[chainId] && DEFAULT_OUTPUT_TOKEN_BY_CHAIN[chainId],
+  chainId => WETH[chainId] && DEFAULT_OUTPUT_TOKENS[chainId],
 )
 export const SOLID_COLORS: string[] = ['#235F52', '#244666', '#6D3345', '#715825', '#412762', '#6D3F70', '#3E653F']
 export const MAX_IMAGE_SIZE = 1024 * 1024
@@ -88,7 +88,7 @@ export const getDefaultInputToken = (chainId: ChainId): TokenSchema => {
 }
 
 export const getDefaultOutputToken = (chainId: ChainId): TokenSchema | undefined => {
-  const token = DEFAULT_OUTPUT_TOKEN_BY_CHAIN[chainId]
+  const token = DEFAULT_OUTPUT_TOKENS[chainId]
   if (!token) return
   return {
     address: token.address,
