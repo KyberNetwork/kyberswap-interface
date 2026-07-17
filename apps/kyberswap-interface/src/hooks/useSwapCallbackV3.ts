@@ -142,7 +142,7 @@ const useSwapCallbackV3 = (isPermitSwap?: boolean) => {
           wallet: walletKey,
         },
         chainId,
-        gasLimitMarginBps: isSmartSettlement ? 3_000 : undefined,
+        gasLimitMarginBps: isSmartSettlement ? 5_000 : undefined,
         onRequestSignature,
       })
       if (response?.hash === undefined) throw new Error('sendTransaction returned undefined.')
