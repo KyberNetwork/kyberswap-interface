@@ -18,8 +18,8 @@ import { Stack } from 'components/Stack'
 import TokenSelectorModal from 'components/TokenSelectorModal'
 import { useBitcoinWallet } from 'components/Web3Provider/BitcoinProvider'
 import { useSolanaTokenBalances } from 'components/Web3Provider/SolanaProvider'
-import { MAINNET_NETWORKS } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
+import useChainsConfig from 'hooks/useChainsConfig'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useToggle from 'hooks/useToggle'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
@@ -61,6 +61,7 @@ export const TokenPanel = ({
   loading?: boolean
 }) => {
   const { trackingHandler } = useTracking()
+  const { supportedChains } = useChainsConfig()
   const [modalOpen, setModalOpen] = useState(false)
   const isEvm = isEvmChain(selectedChain as Chain)
   const isSolana = selectedChain === NonEvmChain.Solana
@@ -210,7 +211,12 @@ export const TokenPanel = ({
           <SelectNetwork
             onSelectNetwork={onSelectNetwork}
             selectedChainId={selectedChain}
-            chainIds={[NonEvmChain.Solana, NonEvmChain.Bitcoin, NonEvmChain.Near, ...MAINNET_NETWORKS]}
+            chainIds={[
+              NonEvmChain.Solana,
+              NonEvmChain.Bitcoin,
+              NonEvmChain.Near,
+              ...supportedChains.map(chain => chain.chainId),
+            ]}
             ref={ref}
           />
 
