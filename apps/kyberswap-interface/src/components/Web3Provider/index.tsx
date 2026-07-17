@@ -415,6 +415,17 @@ const transports = Object.fromEntries(
   }
 })()
 
+/** The connector a returning visitor last connected with, as wagmi persists it (JSON-encoded). */
+const readRecentConnectorId = (): string | undefined => {
+  if (typeof window === 'undefined' || !window.localStorage) return undefined
+  try {
+    const raw = window.localStorage.getItem('wagmi.recentConnectorId')
+    return raw ? (JSON.parse(raw) as string) : undefined
+  } catch {
+    return undefined
+  }
+}
+
 export const wagmiConfig = createConfig({
   chains: wagmiChains,
   transports,
@@ -474,10 +485,30 @@ export default function Web3Provider({ children }: { children: ReactNode }) {
     }
   }, [dispatch])
 
+  // Restore the previous session ourselves, because WagmiProvider below passes `reconnectOnMount={false}`.
+  //
+  // wagmi's own mount reconnect walks EVERY connector and awaits `connector.getProvider()` on each — and
+  // that call is where a connector dynamically imports its SDK. A visitor who has never connected a wallet
+  // therefore downloads the MetaMask (~356KB) and WalletConnect (~397KB) SDKs during boot just for wagmi to
+  // learn they have no session. Scoping the walk to the connector they actually last used skips all of it:
+  // with no stored id there is nothing to restore, so no SDK loads at all.
+  //
+  // Runs on mount rather than at idle so a returning visitor's wallet reconnects as promptly as before. If
+  // the stored id names a connector we cannot resolve yet — EIP-6963 wallets announce asynchronously, so a
+  // discovered connector may not be registered at this point — fall back to wagmi's full walk rather than
+  // leave that visitor disconnected.
+  useEffect(() => {
+    const recentConnectorId = readRecentConnectorId()
+    if (!recentConnectorId) return
+
+    const recentConnector = wagmiConfig.connectors.find(connector => connector.id === recentConnectorId)
+    reconnect(wagmiConfig, recentConnector ? { connectors: [recentConnector] } : undefined).catch(() => {})
+  }, [])
+
   // SafePal reconnect recovery. The extension lazy-attaches its EVM provider
   // (window.__safepalEthereumBootstrap__.activeProvider — see getSafepalProvider)
   // some time after the page loads and does NOT fire an EIP-6963 announce, so
-  // wagmi's mount-time reconnect runs before the provider exists, finds nothing
+  // the mount reconnect above runs before the provider exists, finds nothing
   // via `connector.getProvider()`, and gives up without ever reaching
   // `isAuthorized()` (where the shim lives). Poll for the bootstrap object and,
   // once it lands, re-trigger reconnect so the custom safepalConnector finds it.
@@ -518,7 +549,7 @@ export default function Web3Provider({ children }: { children: ReactNode }) {
   }, [])
 
   return (
-    <WagmiProvider config={wagmiConfig}>
+    <WagmiProvider config={wagmiConfig} reconnectOnMount={false}>
       <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
     </WagmiProvider>
   )
