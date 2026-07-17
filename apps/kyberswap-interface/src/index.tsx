@@ -11,7 +11,6 @@ import { LanguageProvider } from 'i18n'
 import { initMixpanel } from 'libs/mixpanel'
 import { StrictMode, useLayoutEffect } from 'react'
 import { createRoot } from 'react-dom/client'
-import TagManager from 'react-gtm-module'
 import 'react-loading-skeleton/dist/skeleton.css'
 import { Provider } from 'react-redux'
 import { BrowserRouter } from 'react-router-dom'
@@ -52,9 +51,17 @@ const scheduleIdle = (cb: () => void) => {
 
 scheduleIdle(() => void initMixpanel())
 
+// GTM has nothing to do with first paint, yet initializing it here at module scope fetched gtm.js while the
+// app was still booting — and that one script chains GA4, Universal Analytics and a web-vitals bundle
+// behind it, all competing for the network and main thread during the window that decides LCP. Move it to
+// idle alongside Mixpanel; the dynamic import also keeps react-gtm-module itself out of the entry chunk.
+// Nothing in the app pushes to `window.dataLayer`, so unlike Mixpanel there are no early calls to buffer —
+// GTM's own page_view simply fires once it initializes.
 if (ENV_LEVEL === ENV_TYPE.PROD && GTM_ID) {
-  TagManager.initialize({
-    gtmId: GTM_ID,
+  scheduleIdle(() => {
+    void import('react-gtm-module')
+      .then(({ default: TagManager }) => TagManager.initialize({ gtmId: GTM_ID }))
+      .catch(() => undefined)
   })
 }
 
