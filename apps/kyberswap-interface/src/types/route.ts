@@ -65,5 +65,6 @@ export type DetailedRouteSummary = {
   extraFee: ExtraFeeConfig
 
   route: Route[][]
+  isSmartSettlement: boolean
   routerAddress: string
 }

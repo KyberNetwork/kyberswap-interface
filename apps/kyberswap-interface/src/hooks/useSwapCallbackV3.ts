@@ -24,6 +24,7 @@ const useSwapCallbackV3 = (isPermitSwap?: boolean) => {
 
   const { recipient: recipientAddressOrName, routeSummary } = useSwapFormContext()
   const { parsedAmountIn: inputAmount, parsedAmountOut: outputAmount, priceImpact } = routeSummary || {}
+  const isSmartSettlement = routeSummary?.isSmartSettlement
 
   const [allowedSlippage] = useUserSlippageTolerance()
   const [searchParams] = useSearchParams()
@@ -141,13 +142,14 @@ const useSwapCallbackV3 = (isPermitSwap?: boolean) => {
           wallet: walletKey,
         },
         chainId,
+        gasLimitMarginBps: isSmartSettlement ? 3_000 : undefined,
         onRequestSignature,
       })
       if (response?.hash === undefined) throw new Error('sendTransaction returned undefined.')
       handleSwapResponse(response)
       return response?.hash
     },
-    [account, chainId, handleSwapResponse, inputAmount, walletKey, isSmartConnector],
+    [account, chainId, handleSwapResponse, inputAmount, walletKey, isSmartConnector, isSmartSettlement],
   )
 
   return swapCallbackForEVM
