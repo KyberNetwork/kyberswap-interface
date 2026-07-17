@@ -150,7 +150,7 @@ export const PRICE_CHART_QUOTES: Partial<Record<ChainId, Token>> = {
   [ChainId.ROBINHOOD]: DEFAULT_OUTPUT_TOKENS[ChainId.ROBINHOOD],
 }
 
-// Token-intent routes use this only when the subject itself is native, avoiding native -> native pairs.
+// Swap-intent routes use this when the subject is native or wrapped-native, avoiding native -> native pairs.
 export const STABLE_TOKENS: Partial<Record<ChainId, Token>> = {
   ...DEFAULT_OUTPUT_TOKENS,
   ...PRICE_CHART_QUOTES,

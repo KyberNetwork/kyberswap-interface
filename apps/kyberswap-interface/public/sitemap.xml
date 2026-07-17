@@ -3,4 +3,7 @@
   <sitemap>
     <loc>https://kyberswap.com/sitemap-pages.xml</loc>
   </sitemap>
+  <sitemap>
+    <loc>https://kyberswap.com/sitemap-swap.xml</loc>
+  </sitemap>
 </sitemapindex>

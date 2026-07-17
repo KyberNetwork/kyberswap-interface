@@ -12,7 +12,8 @@ import { StaticRouter } from 'react-router-dom/server'
 import { WagmiProvider } from 'wagmi'
 
 import RouteFallback from 'components/RouteFallback'
-import { PRODUCT_SITEMAP_ROUTES, PRODUCT_SITEMAP_SECTIONS } from 'components/Seo/productRoutes'
+import { CURATED_SWAP_INTENT_REDIRECTS } from 'components/Seo/curatedSwapCatalog'
+import { SITEMAP_PAGE_ROUTES } from 'components/Seo/sitemapRoutes'
 import { wagmiConfig } from 'components/Web3Provider'
 import { APP_PATHS, KYBERSWAP_URL } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
@@ -27,41 +28,68 @@ dayjs.extend(utc)
 dayjs.extend(duration)
 dayjs.extend(relativeTime)
 
-// Build-time prerender support (no Node runtime in production — this module is loaded once by
-// scripts/prerender.mjs via Vite's ssrLoadModule). Indexable routes get both their route-specific <head>
-// and static app body at build time; the existing client entry mounts the interactive app after load.
+// Build-time static output support (no Node runtime in production — this module is loaded once by
+// scripts/prerender.mjs through Vite's SSR transform pipeline). The manifest owns route-domain
+// decisions; the script only renders and writes the declared artifacts.
 
-// Re-export so the prerender script can read the per-route <head> from the same module.
-export { buildHeadHtml } from 'components/Seo/seoConfig'
+export { renderRouteHeadHtml, renderTradeShellHeadHtml } from 'components/Seo/seoHead'
 
-// Canonical base URL, re-exported so scripts/prerender.mjs builds sitemap <loc>s from the same
-// single source of truth (constants/index KYBERSWAP_URL) instead of hardcoding the domain.
-export const siteUrl = KYBERSWAP_URL
+const DEFAULT_NETWORK_ROUTE = NETWORKS_INFO[ChainId.MAINNET].route
+const ROOT_SOURCE_ROUTE = `${APP_PATHS.SWAP}/${DEFAULT_NETWORK_ROUTE}`
 
-/**
- * The 46 approved product URLs to list in sitemap-pages.xml. Runtime routes for other supported chains are
- * unaffected, but stay outside the public sitemap inventory until Product adds them to this matrix.
- * Preserve PRODUCT_SITEMAP_SECTIONS order: prerender traversal and sitemap XML consume this inventory directly.
- */
-export const sitemapRoutes: string[] = [...PRODUCT_SITEMAP_ROUTES]
-export const sitemapSections = PRODUCT_SITEMAP_SECTIONS
+const distinctPageRoutes = SITEMAP_PAGE_ROUTES.filter(
+  route => route !== '/' && !route.startsWith(`${APP_PATHS.SWAP}/`) && !route.startsWith(`${APP_PATHS.LIMIT}/`),
+)
 
-// The client resolves `/` to the default Ethereum swap route. Prerender that same existing route tree
-// into a dedicated exact-root document; build/index.html remains an empty-body SPA fallback for dynamic
-// URLs that cannot be enumerated at build time.
-export const rootPrerenderSourceRoute = `${APP_PATHS.SWAP}/${NETWORKS_INFO[ChainId.MAINNET].route}`
+export const prerenderManifest = {
+  siteUrl: KYBERSWAP_URL,
+  rootPage: {
+    pathname: '/',
+    sourceRoute: ROOT_SOURCE_ROUTE,
+    outputPath: 'index-root.html',
+  },
+  distinctPages: distinctPageRoutes.map(pathname => ({
+    pathname,
+    sourceRoute: pathname,
+    outputPath: `${pathname.slice(1)}/index.html`,
+  })),
+  tradeShells: [
+    {
+      product: 'swap',
+      sourceRoute: ROOT_SOURCE_ROUTE,
+      outputPath: 'swap/index.html',
+    },
+    {
+      product: 'limit',
+      sourceRoute: `${APP_PATHS.LIMIT}/${DEFAULT_NETWORK_ROUTE}`,
+      outputPath: 'limit/index.html',
+    },
+  ],
+  ogSkeletons: [
+    {
+      name: 'swap',
+      sourceRoute: `${APP_PATHS.SWAP}/${DEFAULT_NETWORK_ROUTE}/eth-to-usdc`,
+      outputPath: 'skeletons/swap.html',
+    },
+    {
+      name: 'pool',
+      sourceRoute: `${APP_PATHS.POOLS}/${DEFAULT_NETWORK_ROUTE}/uniswapv3/0x0000000000000000000000000000000000000001`,
+      outputPath: 'skeletons/pool.html',
+    },
+  ],
+  swapIntentRedirects: CURATED_SWAP_INTENT_REDIRECTS,
+} as const
 
-// Full-body prerender every advertised URL except `/`, which is emitted separately above. Keep the catalog
-// order here; every route outside the sitemap falls through to build/index.html and lets the client router render.
-export const prerenderContentRoutes: string[] = sitemapRoutes.filter(route => route !== '/')
-
-function createRouteApp(url: string) {
-  const store = makeStore()
-  const networkRoute = [APP_PATHS.SWAP, APP_PATHS.LIMIT, APP_PATHS.BUY, APP_PATHS.SELL].find(route =>
-    url.startsWith(`${route}/`),
+const getRouteNetworkSlug = (url: string) => {
+  const productPath = [APP_PATHS.SWAP, APP_PATHS.LIMIT, APP_PATHS.BUY, APP_PATHS.SELL].find(path =>
+    url.startsWith(`${path}/`),
   )
-  const networkSlug = networkRoute ? url.slice(networkRoute.length + 1).split(/[/?#]/, 1)[0] : undefined
-  const routeChainId = getChainIdFromSlug(networkSlug)
+  return productPath ? url.slice(productPath.length + 1).split(/[/?#]/, 1)[0] : undefined
+}
+
+function createRouteAppTree(url: string) {
+  const store = makeStore()
+  const routeChainId = getChainIdFromSlug(getRouteNetworkSlug(url))
   if (routeChainId !== undefined) store.dispatch(updateChainId(routeChainId))
 
   const queryClient = new QueryClient()
@@ -88,10 +116,10 @@ function createRouteApp(url: string) {
  * without React's hidden Suspense reveal payload, so headings and links are directly present even when
  * scripts are disabled. Each pass gets isolated Redux and Query clients to prevent state leakage.
  */
-export async function renderRouteApp(url: string): Promise<string> {
+export async function renderRouteBodyHtml(url: string): Promise<string> {
   const renderErrors: unknown[] = []
 
-  const { prelude } = await prerender(createRouteApp(url), {
+  const { prelude } = await prerender(createRouteAppTree(url), {
     onError(error) {
       renderErrors.push(error)
     },
@@ -102,7 +130,7 @@ export async function renderRouteApp(url: string): Promise<string> {
     throw new AggregateError(renderErrors, `Failed to prerender ${url}`)
   }
 
-  return renderToStaticMarkup(createRouteApp(url))
+  return renderToStaticMarkup(createRouteAppTree(url))
 }
 
 /**
@@ -113,7 +141,7 @@ export async function renderRouteApp(url: string): Promise<string> {
  * useLocation) + ThemeProvider (Skeleton reads useTheme) are needed. renderToStaticMarkup emits no
  * hydration markers — this is a separate cosmetic cold-load overlay.
  */
-export function renderRouteSkeleton(url: string): string {
+export function renderRouteSkeletonHtml(url: string): string {
   return renderToStaticMarkup(
     <StaticRouter location={url}>
       <ThemeProvider>

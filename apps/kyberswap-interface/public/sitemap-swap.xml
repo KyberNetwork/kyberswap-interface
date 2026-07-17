@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <!-- Swap pairs - ethereum -->
+  <url>
+    <loc>https://kyberswap.com/swap/ethereum/usdt-to-eth</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/swap/ethereum/eth-to-usdt</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/swap/ethereum/eth-to-wbtc</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/swap/ethereum/wbtc-to-eth</loc>
+  </url>
+
+  <!-- Swap pairs - arbitrum -->
+  <url>
+    <loc>https://kyberswap.com/swap/arbitrum/usdc-to-eth</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/swap/arbitrum/eth-to-usdc</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/swap/arbitrum/eth-to-arb</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/swap/arbitrum/arb-to-eth</loc>
+  </url>
+
+  <!-- Swap pairs - base -->
+  <url>
+    <loc>https://kyberswap.com/swap/base/usdc-to-eth</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/swap/base/eth-to-usdc</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/swap/base/eth-to-wbtc</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/swap/base/wbtc-to-eth</loc>
+  </url>
+
+  <!-- Swap pairs - optimism -->
+  <url>
+    <loc>https://kyberswap.com/swap/optimism/usdt-to-eth</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/swap/optimism/eth-to-usdt</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/swap/optimism/eth-to-op</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/swap/optimism/op-to-eth</loc>
+  </url>
+
+  <!-- Swap pairs - polygon -->
+  <url>
+    <loc>https://kyberswap.com/swap/polygon/usdt-to-pol</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/swap/polygon/pol-to-usdt</loc>
+  </url>
+
+  <!-- Swap pairs - bnb -->
+  <url>
+    <loc>https://kyberswap.com/swap/bnb/usdt-to-bnb</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/swap/bnb/bnb-to-usdt</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/swap/bnb/bnb-to-wbtc</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/swap/bnb/wbtc-to-bnb</loc>
+  </url>
+
+  <!-- Swap pairs - avalanche -->
+  <url>
+    <loc>https://kyberswap.com/swap/avalanche/usdt-to-avax</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/swap/avalanche/avax-to-usdt</loc>
+  </url>
+
+  <!-- Swap pairs - linea -->
+  <url>
+    <loc>https://kyberswap.com/swap/linea/usdc-to-eth</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/swap/linea/eth-to-usdc</loc>
+  </url>
+
+  <!-- Swap pairs - sonic -->
+  <url>
+    <loc>https://kyberswap.com/swap/sonic/usdc.e-to-s</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/swap/sonic/s-to-usdc.e</loc>
+  </url>
+
+  <!-- Swap pairs - berachain -->
+  <url>
+    <loc>https://kyberswap.com/swap/berachain/usdc.e-to-bera</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/swap/berachain/bera-to-usdc.e</loc>
+  </url>
+
+  <!-- Swap pairs - ronin -->
+  <url>
+    <loc>https://kyberswap.com/swap/ronin/usdc-to-ronin</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/swap/ronin/ronin-to-usdc</loc>
+  </url>
+
+  <!-- Swap pairs - unichain -->
+  <url>
+    <loc>https://kyberswap.com/swap/unichain/usdc-to-eth</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/swap/unichain/eth-to-usdc</loc>
+  </url>
+
+  <!-- Swap pairs - hyperevm -->
+  <url>
+    <loc>https://kyberswap.com/swap/hyperevm/hype-to-eth</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/swap/hyperevm/eth-to-hype</loc>
+  </url>
+
+  <!-- Swap pairs - plasma -->
+  <url>
+    <loc>https://kyberswap.com/swap/plasma/xpl-to-eth</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/swap/plasma/eth-to-xpl</loc>
+  </url>
+
+  <!-- Swap pairs - etherlink -->
+  <url>
+    <loc>https://kyberswap.com/swap/etherlink/usdc-to-xtz</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/swap/etherlink/xtz-to-usdc</loc>
+  </url>
+
+  <!-- Swap pairs - megaeth -->
+  <url>
+    <loc>https://kyberswap.com/swap/megaeth/usdm-to-eth</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/swap/megaeth/eth-to-usdm</loc>
+  </url>
+
+  <!-- Swap pairs - monad -->
+  <url>
+    <loc>https://kyberswap.com/swap/monad/usdc-to-mon</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/swap/monad/mon-to-usdc</loc>
+  </url>
+
+  <!-- Swap pairs - robinhood -->
+  <url>
+    <loc>https://kyberswap.com/swap/robinhood/usdg-to-eth</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/swap/robinhood/eth-to-usdg</loc>
+  </url>
+</urlset>

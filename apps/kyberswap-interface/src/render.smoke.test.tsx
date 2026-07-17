@@ -1,8 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
-// Representative route trees must complete the same async static render used by the build. This waits for
-// React.lazy route chunks, so it validates route content rather than only the Suspense fallback. `/` is emitted
-// from rootPrerenderSourceRoute and covered by the prerender inventory contract below.
+// Representative route trees must complete the same async static render used by distinct pages and the two
+// shared product shells. This waits for React.lazy route chunks and validates real content, not only fallback UI.
 const ROUTES = [
   // Limit Orders - per chain
   '/limit/base',
@@ -19,17 +18,17 @@ const ROUTES = [
 
 describe('SSR render smoke', () => {
   it.each(ROUTES)('renders %s without throwing', async location => {
-    const { renderRouteApp } = await import('entry-server')
-    const html = await renderRouteApp(location)
+    const { renderRouteBodyHtml } = await import('entry-server')
+    const html = await renderRouteBodyHtml(location)
 
     expect(html.length).toBeGreaterThan(0)
     expect(html).toContain('<main')
   })
 
   it('renders complete static swap content with the requested network active', async () => {
-    const { renderRouteApp } = await import('entry-server')
-    const ethereumHtml = await renderRouteApp('/swap/ethereum')
-    const lineaHtml = await renderRouteApp('/swap/linea')
+    const { renderRouteBodyHtml } = await import('entry-server')
+    const ethereumHtml = await renderRouteBodyHtml('/swap/ethereum')
+    const lineaHtml = await renderRouteBodyHtml('/swap/linea')
 
     expect(ethereumHtml).toContain('<h1')
     expect(ethereumHtml).toContain('<h2')
@@ -46,10 +45,23 @@ describe('SSR render smoke', () => {
     expect(lineaHtml).not.toMatch(/<a\b(?=[^>]*aria-current="page")(?=[^>]*href="\/swap\/ethereum")[^>]*>/)
   })
 
-  it('uses the sitemap inventory as the prerender route list and handles root separately', async () => {
-    const { prerenderContentRoutes, rootPrerenderSourceRoute, sitemapRoutes } = await import('entry-server')
+  it('prerenders only distinct pages and two shared product shells', async () => {
+    const { prerenderManifest } = await import('entry-server')
 
-    expect(rootPrerenderSourceRoute).toBe('/swap/ethereum')
-    expect(['/', ...prerenderContentRoutes]).toEqual(sitemapRoutes)
+    expect(prerenderManifest.rootPage).toEqual({
+      pathname: '/',
+      sourceRoute: '/swap/ethereum',
+      outputPath: 'index-root.html',
+    })
+    expect(prerenderManifest.tradeShells).toEqual([
+      { outputPath: 'swap/index.html', product: 'swap', sourceRoute: '/swap/ethereum' },
+      { outputPath: 'limit/index.html', product: 'limit', sourceRoute: '/limit/ethereum' },
+    ])
+    expect(prerenderManifest.distinctPages).toHaveLength(11)
+    expect(
+      prerenderManifest.distinctPages.every(
+        ({ pathname }) => !pathname.startsWith('/swap/') && !pathname.startsWith('/limit/'),
+      ),
+    ).toBe(true)
   })
 })

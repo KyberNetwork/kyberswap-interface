@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Fallback sitemap for builds that skip the prerender step (dev/stg). Production (`pnpm build`)
-  regenerates build/sitemap-pages.xml and the build/sitemap.xml index from `PRODUCT_SITEMAP_SECTIONS` —
-  keep this fallback in sync with the approved 46-URL product inventory.
+  Checked-in landing-page sitemap. Vite copies public/ into build/ unchanged; tests keep these 46 URLs
+  synchronized with the prerender inventory.
 -->
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <!-- Core -->

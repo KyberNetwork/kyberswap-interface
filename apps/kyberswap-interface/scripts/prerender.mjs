@@ -3,24 +3,49 @@
 // Runs AFTER `vite build` (which produces build/index.html, the template + client assets).
 // It loads src/entry-server.tsx through Vite's own SSR transform pipeline (ssrLoadModule) — the
 // same path the Vitest smoke test uses — so SVG `?react`, lingui `.po`, CSS, path aliases and
-// `import.meta.env.SSR` all work without a separate SSR bundle. For each route it renders static
-// HTML, injects the route-specific <head>, and writes build/<route>/index.html. nginx serves these
-// directly and SPA-falls-back to build/index.html for every other route — no Node runtime in prod.
+// `import.meta.env.SSR` all work without a separate SSR bundle. It renders distinct static pages and
+// one shared shell per Swap/Limit product. nginx serves these artifacts directly; there is no Node
+// runtime in production.
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, extname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { createServer } from 'vite'
 
-const __dirname = dirname(fileURLToPath(import.meta.url))
-const appRoot = resolve(__dirname, '..')
+const scriptDirectory = dirname(fileURLToPath(import.meta.url))
+const appRoot = resolve(scriptDirectory, '..')
+const buildDirectory = resolve(appRoot, 'build')
+
+const APP_PLACEHOLDER = '<div id="app"></div>'
+const SEO_SLOT_PATTERN = /<!-- ssr-seo:start[\s\S]*?<!-- ssr-seo:end -->/
+const SKELETON_SLOT_PATTERN = /<!-- ssr-skeleton:start[\s\S]*?<!-- ssr-skeleton:end -->/
 
 // Stub origin for the SSR `window.location` shim. Mirrors constants/index KYBERSWAP_URL — the shim is
 // installed before ssrLoadModule (so the app constant isn't importable yet), then asserted against the
-// app's re-exported `siteUrl` after the module loads (see main) so the two can't silently drift.
+// site URL in the app's prerender manifest after the module loads so the two cannot silently drift.
 const SSR_ORIGIN = 'https://kyberswap.com'
 const SSR_HOST = SSR_ORIGIN.replace(/^https?:\/\//, '')
 
-// The route lists are derived from app constants and read from the SSR module.
+const noop = () => {}
+
+const createMemoryStorage = () => {
+  const store = {}
+  return {
+    getItem: key => (key in store ? store[key] : null),
+    setItem: (key, value) => {
+      store[key] = String(value)
+    },
+    removeItem: key => {
+      delete store[key]
+    },
+    clear: () => {
+      for (const key of Object.keys(store)) delete store[key]
+    },
+    key: index => Object.keys(store)[index] ?? null,
+    get length() {
+      return Object.keys(store).length
+    },
+  }
+}
 
 // Minimal browser-global shim (mirrors test/smoke.setup.ts). Some BUILT workspace widgets and
 // third-party deps read window/document at module scope; the app's own Phase-1 typeof-window
@@ -29,28 +54,8 @@ const SSR_HOST = SSR_ORIGIN.replace(/^https?:\/\//, '')
 function setupBrowserGlobals() {
   const g = globalThis
   if (g.window) return
-  const makeStorage = () => {
-    const store = {}
-    return {
-      getItem: k => (k in store ? store[k] : null),
-      setItem: (k, v) => {
-        store[k] = String(v)
-      },
-      removeItem: k => {
-        delete store[k]
-      },
-      clear: () => {
-        for (const k of Object.keys(store)) delete store[k]
-      },
-      key: i => Object.keys(store)[i] ?? null,
-      get length() {
-        return Object.keys(store).length
-      },
-    }
-  }
-  const localStorage = makeStorage()
-  const sessionStorage = makeStorage()
-  const noop = () => {}
+  const localStorage = createMemoryStorage()
+  const sessionStorage = createMemoryStorage()
   const navigatorShim = { userAgent: 'node', language: 'en-US', languages: ['en-US'] }
   const documentShim = {
     title: 'KyberSwap',
@@ -138,10 +143,10 @@ function setupBrowserGlobals() {
 // ssrLoadModule renders dev asset URLs (/src/assets/x.svg). Rewrite them to the hashed production URLs
 // from the client build's manifest. A `/src/…` URL with no manifest entry would 404 in production, so we
 // throw (fail the build loudly) instead of emitting the dev URL — strip any `?query` suffix before lookup.
-function rewriteAssetUrls(html, manifest) {
+function rewriteAssetUrls(html, assetManifest) {
   return html.replace(/\/src\/[^"')\s>]+/g, m => {
     const sourceUrl = m.slice(1).split('?')[0] // strip leading '/' + any ?query suffix
-    const entry = manifest[sourceUrl]
+    const entry = assetManifest[sourceUrl]
     if (entry?.file) return `/${entry.file}`
 
     // Vite inlines assets below assetsInlineLimit in the client bundle, so they intentionally have no
@@ -162,14 +167,105 @@ function rewriteAssetUrls(html, manifest) {
   })
 }
 
+function validateTemplate(template) {
+  if (!template.includes(APP_PLACEHOLDER)) {
+    throw new Error(`Template is missing the \`${APP_PLACEHOLDER}\` placeholder (build/index.html)`)
+  }
+  if (!SEO_SLOT_PATTERN.test(template)) {
+    throw new Error('Template is missing the `<!-- ssr-seo:start/end -->` markers (build/index.html)')
+  }
+  if (!SKELETON_SLOT_PATTERN.test(template)) {
+    throw new Error('Template is missing the `<!-- ssr-skeleton:start/end -->` markers (build/index.html)')
+  }
+}
+
+function injectDocument(template, { bodyHtml, headHtml, skeletonHtml }) {
+  // Replacement functions insert rendered `$` sequences verbatim instead of treating them as
+  // String.replace patterns such as $&, $' or $<name>.
+  return template
+    .replace(SEO_SLOT_PATTERN, () => `<!-- ssr-seo:start -->\n    ${headHtml}\n    <!-- ssr-seo:end -->`)
+    .replace(
+      SKELETON_SLOT_PATTERN,
+      () => `<!-- ssr-skeleton:start -->\n      ${skeletonHtml}\n      <!-- ssr-skeleton:end -->`,
+    )
+    .replace(APP_PLACEHOLDER, () => `<div id="app">${bodyHtml}</div>`)
+}
+
+function writeBuildArtifact(outputPath, content) {
+  const outputFile = resolve(buildDirectory, outputPath)
+  mkdirSync(dirname(outputFile), { recursive: true })
+  writeFileSync(outputFile, content, 'utf8')
+}
+
+async function renderRouteFragments({ assetManifest, renderRouteBodyHtml, renderRouteSkeletonHtml, sourceRoute }) {
+  const skeletonHtml = rewriteAssetUrls(renderRouteSkeletonHtml(sourceRoute), assetManifest)
+  const bodyHtml = rewriteAssetUrls(await renderRouteBodyHtml(sourceRoute), assetManifest)
+  return { bodyHtml, skeletonHtml }
+}
+
+async function writeRenderedPage(context, { headHtml, label, outputPath, sourceRoute }) {
+  const { bodyHtml, skeletonHtml } = await renderRouteFragments({ ...context, sourceRoute })
+  writeBuildArtifact(outputPath, injectDocument(context.template, { bodyHtml, headHtml, skeletonHtml }))
+  console.log(
+    `✓ wrote build/${outputPath} for ${label} from ${sourceRoute} (head ${headHtml.length} B, body ${bodyHtml.length} B, skeleton ${skeletonHtml.length} B)`,
+  )
+}
+
+async function writeDeclaredPages(context, prerenderManifest, renderRouteHeadHtml, renderTradeShellHeadHtml) {
+  const { rootPage } = prerenderManifest
+  await writeRenderedPage(context, {
+    ...rootPage,
+    label: rootPage.pathname,
+    headHtml: renderRouteHeadHtml(rootPage.pathname),
+  })
+
+  for (const page of prerenderManifest.distinctPages) {
+    await writeRenderedPage(context, {
+      ...page,
+      label: page.pathname,
+      headHtml: renderRouteHeadHtml(page.pathname),
+    })
+  }
+
+  for (const shell of prerenderManifest.tradeShells) {
+    await writeRenderedPage(context, {
+      ...shell,
+      label: `${shell.product} shell`,
+      headHtml: renderTradeShellHeadHtml(shell.product),
+    })
+  }
+}
+
+function writeOgSkeletons(renderRouteSkeletonHtml, assetManifest, ogSkeletons) {
+  for (const { name, outputPath, sourceRoute } of ogSkeletons) {
+    const skeletonHtml = rewriteAssetUrls(renderRouteSkeletonHtml(sourceRoute), assetManifest)
+    writeBuildArtifact(outputPath, skeletonHtml)
+    console.log(`✓ wrote build/${outputPath} for ${name} (${skeletonHtml.length} B)`)
+  }
+}
+
+function writeSwapIntentRedirectMap(swapIntentRedirects) {
+  const nginxPathPattern = /^\/[a-z0-9./-]+$/
+  const redirectLines = swapIntentRedirects.map(({ sourcePath, targetPath }) => {
+    if (!nginxPathPattern.test(sourcePath) || !nginxPathPattern.test(targetPath)) {
+      throw new Error(`Unsafe Nginx swap-intent redirect: ${sourcePath} -> ${targetPath}`)
+    }
+    return `${sourcePath} ${targetPath};`
+  })
+  const redirectMap = `# Generated by scripts/prerender.mjs. Do not edit manually.\n${redirectLines.join('\n')}\n`
+  writeBuildArtifact('swap-intent-redirects.map', redirectMap)
+  console.log(`✓ wrote build/swap-intent-redirects.map (${redirectLines.length} redirects)`)
+}
+
 async function main() {
   // Tell vite.config.ts to skip the browser process/Buffer polyfill (GlobalPolyFill): it's an
   // esbuild@0.24 plugin that crashes Vite 4's esbuild@0.18 dep optimizer here ("Invalid command:
   // on-resolve"). Must be set before createServer loads the config. Node has process/Buffer already.
   process.env.SSR_PRERENDER = '1'
 
-  const template = readFileSync(resolve(appRoot, 'build/index.html'), 'utf8')
-  const manifest = JSON.parse(readFileSync(resolve(appRoot, 'build/manifest.json'), 'utf8'))
+  const template = readFileSync(resolve(buildDirectory, 'index.html'), 'utf8')
+  const assetManifest = JSON.parse(readFileSync(resolve(buildDirectory, 'manifest.json'), 'utf8'))
+  validateTemplate(template)
 
   // production mode so the esbuild config branch matches the client build (constants/env.ts
   // hard-throws on missing VITE_*, which the single committed .env supplies in every mode).
@@ -193,129 +289,37 @@ async function main() {
     // but before module evaluation so module-scope browser access in built widgets is satisfied.
     setupBrowserGlobals()
     const {
-      renderRouteApp,
-      renderRouteSkeleton,
-      buildHeadHtml,
-      prerenderContentRoutes,
-      rootPrerenderSourceRoute,
-      sitemapRoutes,
-      sitemapSections,
-      siteUrl,
+      prerenderManifest,
+      renderRouteBodyHtml,
+      renderRouteHeadHtml,
+      renderRouteSkeletonHtml,
+      renderTradeShellHeadHtml,
     } = await vite.ssrLoadModule('/src/entry-server.tsx')
+
     // Fail loudly if the hardcoded shim origin drifts from the app's canonical domain (KYBERSWAP_URL,
-    // re-exported as siteUrl) — the two are kept in sync by hand because the shim is set up before the
-    // app constant is importable.
-    if (new URL(siteUrl).origin !== SSR_ORIGIN) {
-      throw new Error(`SSR_ORIGIN (${SSR_ORIGIN}) drifted from app siteUrl origin (${new URL(siteUrl).origin})`)
+    // re-exported in the manifest) — the two are kept in sync by hand because the shim is set up before
+    // the app constant is importable.
+    const siteOrigin = new URL(prerenderManifest.siteUrl).origin
+    if (siteOrigin !== SSR_ORIGIN) {
+      throw new Error(`SSR_ORIGIN (${SSR_ORIGIN}) drifted from app site URL origin (${siteOrigin})`)
     }
 
-    // Validate the template placeholders up front so a bad template fails loudly (rather than the
-    // post-replace `includes` check, which could false-fire if a rendered body contained the literal).
-    if (!template.includes('<div id="app"></div>')) {
-      throw new Error('Template is missing the `<div id="app"></div>` placeholder (build/index.html)')
-    }
-    if (!/<!-- ssr-seo:start[\s\S]*?<!-- ssr-seo:end -->/.test(template)) {
-      throw new Error('Template is missing the `<!-- ssr-seo:start/end -->` markers (build/index.html)')
-    }
-    if (!/<!-- ssr-skeleton:start[\s\S]*?<!-- ssr-skeleton:end -->/.test(template)) {
-      throw new Error('Template is missing the `<!-- ssr-skeleton:start/end -->` markers (build/index.html)')
+    const renderContext = {
+      assetManifest,
+      renderRouteBodyHtml,
+      renderRouteSkeletonHtml,
+      template,
     }
 
-    // Keep build/index.html as the empty-body fallback for non-enumerated SPA routes. nginx serves the
-    // dedicated index-root.html for exact `/`, whose client redirect resolves to rootPrerenderSourceRoute.
-    // Resolve the homepage head through the same source as every other advertised route so the template's
-    // generic fallback metadata cannot drift from the exact-root document.
-    const rootHead = buildHeadHtml('/')
-    const rootSkeleton = rewriteAssetUrls(renderRouteSkeleton(rootPrerenderSourceRoute), manifest)
-    const rootApp = rewriteAssetUrls(await renderRouteApp(rootPrerenderSourceRoute), manifest)
-    let rootHtml = template.replace(
-      /<!-- ssr-seo:start[\s\S]*?<!-- ssr-seo:end -->/,
-      () => `<!-- ssr-seo:start -->\n    ${rootHead}\n    <!-- ssr-seo:end -->`,
-    )
-    rootHtml = rootHtml.replace(
-      /<!-- ssr-skeleton:start[\s\S]*?<!-- ssr-skeleton:end -->/,
-      () => `<!-- ssr-skeleton:start -->\n      ${rootSkeleton}\n      <!-- ssr-skeleton:end -->`,
-    )
-    rootHtml = rootHtml.replace('<div id="app"></div>', () => `<div id="app">${rootApp}</div>`)
-    writeFileSync(resolve(appRoot, 'build/index-root.html'), rootHtml, 'utf8')
-    console.log(
-      `✓ prerendered / (head ${rootHead.length} B, body ${rootApp.length} B, skeleton ${rootSkeleton.length} B)`,
-    )
+    // build/index.html remains the empty-body fallback for non-enumerated SPA routes. Every declared
+    // document is written separately from the route-domain manifest exported by entry-server.
+    await writeDeclaredPages(renderContext, prerenderManifest, renderRouteHeadHtml, renderTradeShellHeadHtml)
 
-    for (const url of prerenderContentRoutes) {
-      const head = buildHeadHtml(url)
-      // Every inject uses a replacement FUNCTION, not a string: rendered HTML can contain
-      // `$` sequences ($&, $', $<n>) that String.replace would otherwise interpret as special replacement
-      // patterns and silently corrupt the output. A function's return value is inserted verbatim.
-      let html = template.replace(
-        /<!-- ssr-seo:start[\s\S]*?<!-- ssr-seo:end -->/,
-        () => `<!-- ssr-seo:start -->\n    ${head}\n    <!-- ssr-seo:end -->`,
-      )
+    // og-service reads these fragments to reuse the Interface's route fallback shape for dynamic pages.
+    writeOgSkeletons(renderRouteSkeletonHtml, assetManifest, prerenderManifest.ogSkeletons)
 
-      // Swap the generic cold-load logo for this route's page-shell skeleton (the same <RouteFallback>
-      // the client shows while the lazy chunk downloads) so the cold load shows the page shape, not a
-      // spinner. This overlay remains cosmetic and is removed when the interactive client mounts.
-      const skeleton = rewriteAssetUrls(renderRouteSkeleton(url), manifest)
-      html = html.replace(
-        /<!-- ssr-skeleton:start[\s\S]*?<!-- ssr-skeleton:end -->/,
-        () => `<!-- ssr-skeleton:start -->\n      ${skeleton}\n      <!-- ssr-skeleton:end -->`,
-      )
-
-      // Render the actual route tree. This is static build output (not a production Node server), and the client
-      // intentionally mounts a fresh interactive tree instead of hydrating wallet state into deterministic markup.
-      const bodyHtml = rewriteAssetUrls(await renderRouteApp(url), manifest)
-      html = html.replace('<div id="app"></div>', () => `<div id="app">${bodyHtml}</div>`)
-
-      const outDir = resolve(appRoot, 'build', url.replace(/^\//, ''))
-      mkdirSync(outDir, { recursive: true })
-      writeFileSync(resolve(outDir, 'index.html'), html, 'utf8')
-      console.log(
-        `✓ prerendered ${url} (head ${head.length} B, body ${bodyHtml.length} B, skeleton ${skeleton.length} B)`,
-      )
-    }
-
-    // Emit standalone page-shell skeleton fragments for the dynamic routes the og-service serves but the
-    // build can't enumerate (swap/limit pairs, pool-detail). og-service can't import app code, so it reads
-    // these artifacts and splices them into the SPA shell's cold-load placeholder — same <RouteFallback>
-    // source as the prerendered routes, so no drift. The representative URLs only pick the archetype
-    // (pickSkeleton): any /swap/<net>/<pair> → swap skeleton, any /pools/<...> → detail skeleton.
-    const ogSkeletons = {
-      swap: rewriteAssetUrls(renderRouteSkeleton('/swap/ethereum/eth-to-usdc'), manifest),
-      pool: rewriteAssetUrls(
-        renderRouteSkeleton('/pools/ethereum/uniswapv3/0x0000000000000000000000000000000000000001'),
-        manifest,
-      ),
-    }
-    const skeletonDir = resolve(appRoot, 'build/skeletons')
-    mkdirSync(skeletonDir, { recursive: true })
-    for (const [name, frag] of Object.entries(ogSkeletons)) {
-      writeFileSync(resolve(skeletonDir, `${name}.html`), frag, 'utf8')
-      console.log(`✓ wrote build/skeletons/${name}.html (${frag.length} B)`)
-    }
-
-    // Regenerate the product sitemap and its stable sitemap index from the same route inventory.
-    const SITE = siteUrl // = constants/index KYBERSWAP_URL, via entry-server re-export
-    const xmlEscape = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-    const renderSitemapEntry = path =>
-      `  <url>\n    <loc>${xmlEscape(`${SITE}${path === '/' ? '/' : path}`)}</loc>\n  </url>`
-    const pagesSitemap = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${sitemapSections
-  .map(({ title, routes }) => `  <!-- ${title} -->\n${routes.map(renderSitemapEntry).join('\n')}`)
-  .join('\n\n')}
-</urlset>
-`
-    const pagesSitemapPath = `${SITE}/sitemap-pages.xml`
-    const sitemapIndex = `<?xml version="1.0" encoding="UTF-8"?>
-<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <sitemap>
-    <loc>${xmlEscape(pagesSitemapPath)}</loc>
-  </sitemap>
-</sitemapindex>
-`
-    writeFileSync(resolve(appRoot, 'build/sitemap-pages.xml'), pagesSitemap, 'utf8')
-    writeFileSync(resolve(appRoot, 'build/sitemap.xml'), sitemapIndex, 'utf8')
-    console.log(`✓ wrote build/sitemap-pages.xml (${sitemapRoutes.length} URLs) and build/sitemap.xml index`)
+    // Nginx includes this generated exact-key map before the SPA fallback.
+    writeSwapIntentRedirectMap(prerenderManifest.swapIntentRedirects)
   } finally {
     // Vite's dev server keeps esbuild/chokidar handles open. After the work is done these can keep
     // Node's event loop alive so the process hangs instead of exiting — stalling CI's build step.

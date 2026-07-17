@@ -3,7 +3,7 @@ import { Trans, t } from '@lingui/macro'
 import { useState } from 'react'
 import { useLocation } from 'react-router-dom'
 
-import { HiddenH1, HiddenH2 } from 'components/Seo/HiddenSeoHeadings'
+import { HiddenH1, HiddenH2 } from 'components/Seo/components'
 import { HStack, Stack } from 'components/Stack'
 import { APP_PATHS } from 'constants/index'
 import { HeaderRightMenu } from 'pages/Swap/layout/HeaderRightMenu'
