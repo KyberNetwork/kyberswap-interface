@@ -1,5 +1,4 @@
 import type { Currency } from '@kyberswap/ks-sdk-core'
-import { useMemo } from 'react'
 
 import TokenPriceChart from 'components/TokenPriceChart'
 import { PRICE_CHART_QUOTE_TOKEN_BY_CHAIN } from 'constants/tokens'
@@ -26,11 +25,6 @@ export const SwapRightPanel = ({ currencyIn, currencyOut, routeSummary }: Props)
     swaps: routeSummary?.route,
   })
 
-  const isSmartSettlementActive = useMemo(
-    () => routeSummary?.route?.some(route => route.some(swap => swap.extra?._ce)),
-    [routeSummary?.route],
-  )
-
   const hasSupportedTokenPriceChart = Boolean(PRICE_CHART_QUOTE_TOKEN_BY_CHAIN[chainId])
 
   return (
@@ -44,7 +38,7 @@ export const SwapRightPanel = ({ currencyIn, currencyOut, routeSummary }: Props)
           defaultCollapsed={hasSupportedTokenPriceChart && isShowPricingChart}
           inputAmount={routeSummary?.parsedAmountIn}
           outputAmount={routeSummary?.parsedAmountOut}
-          isSmartSettlementActive={isSmartSettlementActive}
+          isSmartSettlement={routeSummary?.isSmartSettlement}
         />
       )}
     </>

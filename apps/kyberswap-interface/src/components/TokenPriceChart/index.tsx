@@ -169,8 +169,9 @@ const TokenPriceChart = ({ tokens, flatten }: TokenPriceChartProps) => {
 
   const latestPageData = infiniteData?.pages[0]
   const currentPrice = latestPageData?.latestPrice ?? chartData.at(-1)?.close
-  const priceChange = latestPageData?.change24h ?? 0
-  const priceChangeColor = priceChange >= 0 ? theme.primary : theme.red
+  const priceChange = latestPageData?.change24h
+  const hasPriceChange = priceChange !== null && priceChange !== undefined
+  const priceChangeColor = hasPriceChange ? (priceChange >= 0 ? theme.primary : theme.red) : undefined
 
   const activityCandles = useMemo(() => activityData?.candles ?? [], [activityData?.candles])
   const shouldUseActivityState = activityCandles.length > 0
@@ -264,15 +265,19 @@ const TokenPriceChart = ({ tokens, flatten }: TokenPriceChartProps) => {
                   <HStack className="flex-nowrap items-baseline gap-2">
                     <span className="text-xl font-medium text-text">{formatPrice(currentPrice)}</span>
 
-                    <HStack className="items-center gap-1">
-                      <span className="text-sm font-medium" style={{ color: priceChangeColor }}>
-                        {formatSignedPercent(priceChange)}
-                      </span>
-                      <span className="text-[10px]" style={{ color: priceChangeColor }}>
-                        {priceChange >= 0 ? '▲' : '▼'}
-                      </span>
-                    </HStack>
-                    <span className="text-sm text-subText">(24h)</span>
+                    {hasPriceChange && (
+                      <>
+                        <HStack className="items-center gap-1">
+                          <span className="text-sm font-medium" style={{ color: priceChangeColor }}>
+                            {formatSignedPercent(priceChange)}
+                          </span>
+                          <span className="text-[10px]" style={{ color: priceChangeColor }}>
+                            {priceChange >= 0 ? '▲' : '▼'}
+                          </span>
+                        </HStack>
+                        <span className="text-sm text-subText">(24h)</span>
+                      </>
+                    )}
                   </HStack>
                 )}
               </Stack>

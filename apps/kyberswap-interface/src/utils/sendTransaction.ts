@@ -123,6 +123,7 @@ export async function sendEVMTransaction({
   errorInfo,
   isSmartConnector,
   chainId,
+  gasLimitMarginBps,
   onRequestSignature,
 }: {
   account: string
@@ -135,6 +136,7 @@ export async function sendEVMTransaction({
   }
   isSmartConnector: boolean
   chainId: ChainId
+  gasLimitMarginBps?: number
   // Fired once the tx is fully prepared (gas + fees estimated) and we're about to
   // ask the wallet to sign — lets the UI switch from "preparing" to "awaiting
   // signature" instead of claiming the wallet is open while we're still estimating.
@@ -202,7 +204,7 @@ export async function sendEVMTransaction({
     )
   }
 
-  const gasLimit = calculateGasMarginBigInt(gasEstimate, chainId)
+  const gasLimit = calculateGasMarginBigInt(gasEstimate, chainId, gasLimitMarginBps)
 
   // Build the full eth_sendTransaction payload ethers v5 used to populate
   // (type, chainId, fees, gas). Hardware wallets like SafePal can't decode a

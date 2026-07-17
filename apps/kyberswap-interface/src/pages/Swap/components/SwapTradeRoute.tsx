@@ -42,7 +42,7 @@ type SwapTradeRouteProps = {
   defaultCollapsed?: boolean
   inputAmount: CurrencyAmount<Currency> | undefined
   outputAmount: CurrencyAmount<Currency> | undefined
-  isSmartSettlementActive?: boolean
+  isSmartSettlement?: boolean
   scrollOnExpand?: boolean
 }
 
@@ -53,7 +53,7 @@ const SwapTradeRoute = ({
   defaultCollapsed = false,
   inputAmount,
   outputAmount,
-  isSmartSettlementActive = false,
+  isSmartSettlement = false,
   scrollOnExpand = true,
 }: SwapTradeRouteProps) => {
   const panelRef = useRef<HTMLDivElement>(null)
@@ -140,7 +140,7 @@ const SwapTradeRoute = ({
               </div>
             ) : null}
 
-            {isSmartSettlementActive && (
+            {isSmartSettlement && (
               <ClickTooltip text={smartSettlementTooltip} width="360px" placement="top">
                 <div
                   role="button"
