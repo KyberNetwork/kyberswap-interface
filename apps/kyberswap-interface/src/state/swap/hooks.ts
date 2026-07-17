@@ -1,4 +1,4 @@
-import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
+import { ChainId, Currency, CurrencyAmount, WETH } from '@kyberswap/ks-sdk-core'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
@@ -17,7 +17,7 @@ import { useDegenModeManager } from 'state/user/hooks'
 import { isAddress } from 'utils'
 import { Aggregator } from 'utils/aggregator'
 import { parseFraction } from 'utils/numbers'
-import { getTokenIntentFromPath, resolveTokenIntentPair } from 'utils/routes'
+import { getSwapIntentFromPath, resolveSwapIntentPair } from 'utils/routes'
 
 interface ParsedUrlQuery {
   [key: string]: string | string[]
@@ -243,15 +243,22 @@ export const useCurrencyFromUrl = () => {
   const { currency: currencyParam, token: tokenParam } = useParams()
 
   return useMemo(() => {
-    const tokenIntent = getTokenIntentFromPath(pathname)
+    const swapIntent = getSwapIntentFromPath(pathname)
     const nativeToken = NativeCurrencies[chainId]
-    const stableCounterToken = STABLE_TOKENS[chainId]
+    const stableCounterSymbol = STABLE_TOKENS[chainId]?.symbol
+    const wrappedNative = WETH[chainId]
 
-    if (tokenIntent && tokenParam && nativeToken.symbol && stableCounterToken) {
-      return resolveTokenIntentPair(tokenIntent, tokenParam, nativeToken.symbol, stableCounterToken.address, [
-        ETHER_ADDRESS,
-        ZERO_ADDRESS,
-      ])
+    if (swapIntent && tokenParam && nativeToken.symbol && stableCounterSymbol) {
+      return resolveSwapIntentPair({
+        intent: swapIntent,
+        subjectToken: tokenParam,
+        nativeToken: nativeToken.symbol,
+        stableCounterToken: stableCounterSymbol,
+        nativeTokenAliases: [ETHER_ADDRESS, ZERO_ADDRESS],
+        wrappedNativeAliases: [wrappedNative?.address, wrappedNative?.symbol].filter((alias): alias is string =>
+          Boolean(alias),
+        ),
+      })
     }
 
     const matches = currencyParam?.split('-to-')

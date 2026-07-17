@@ -6,11 +6,14 @@ const SWAP_LIKE_PATHS = [APP_PATHS.SWAP, APP_PATHS.BUY, APP_PATHS.SELL]
 
 export const isSwapLikePath = (pathname: string) => SWAP_LIKE_PATHS.some(path => isPathOrChild(pathname, path))
 
-export type TokenIntent = 'buy' | 'sell'
+export enum SwapIntent {
+  BUY = 'buy',
+  SELL = 'sell',
+}
 
-export const getTokenIntentFromPath = (pathname: string): TokenIntent | undefined => {
-  if (isPathOrChild(pathname, APP_PATHS.BUY)) return 'buy'
-  if (isPathOrChild(pathname, APP_PATHS.SELL)) return 'sell'
+export const getSwapIntentFromPath = (pathname: string): SwapIntent | undefined => {
+  if (isPathOrChild(pathname, APP_PATHS.BUY)) return SwapIntent.BUY
+  if (isPathOrChild(pathname, APP_PATHS.SELL)) return SwapIntent.SELL
   return undefined
 }
 
@@ -30,20 +33,31 @@ export const getSyncedNetworkPathname = (pathname: string, networkParam: string,
   return syncedPathname
 }
 
-export const resolveTokenIntentPair = (
-  intent: TokenIntent,
-  subjectToken: string,
-  nativeToken: string,
-  stableCounterToken: string,
-  nativeTokenAliases: string[] = [],
-) => {
+type ResolveSwapIntentPairParams = {
+  intent: SwapIntent
+  subjectToken: string
+  nativeToken: string
+  stableCounterToken: string
+  nativeTokenAliases?: string[]
+  wrappedNativeAliases?: string[]
+}
+
+export const resolveSwapIntentPair = ({
+  intent,
+  subjectToken,
+  nativeToken,
+  stableCounterToken,
+  nativeTokenAliases = [],
+  wrappedNativeAliases = [],
+}: ResolveSwapIntentPairParams) => {
   const subject = subjectToken.toLowerCase()
   const native = nativeToken.toLowerCase()
   const isNativeSubject = [native, ...nativeTokenAliases.map(alias => alias.toLowerCase())].includes(subject)
-  const counter = isNativeSubject ? stableCounterToken.toLowerCase() : native
+  const isWrappedNativeSubject = wrappedNativeAliases.map(alias => alias.toLowerCase()).includes(subject)
+  const counter = isNativeSubject || isWrappedNativeSubject ? stableCounterToken.toLowerCase() : native
   const normalizedSubject = isNativeSubject ? native : subject
 
-  return intent === 'buy'
+  return intent === SwapIntent.BUY
     ? { fromCurrency: counter, toCurrency: normalizedSubject }
     : { fromCurrency: normalizedSubject, toCurrency: counter }
 }

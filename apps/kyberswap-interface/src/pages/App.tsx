@@ -35,12 +35,13 @@ import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
 import CrossChainPage from 'pages/Swap/CrossChainPage'
 import LimitPage from 'pages/Swap/LimitPage'
 import SwapPage from 'pages/Swap/SwapPage'
-import { RedirectPathToTradeNetwork } from 'pages/Swap/redirects'
+import { RedirectPathToTradeNetwork, SwapIntentRedirect } from 'pages/Swap/redirects'
 import VerifyAuth from 'pages/Verify/VerifyAuth'
 import { useAppDispatch, useAppSelector } from 'state/hooks'
 import { updateSafeAppAcceptedTermOfUse } from 'state/user/actions'
 import { ExternalLink } from 'theme'
 import { isInSafeApp } from 'utils'
+import { SwapIntent } from 'utils/routes'
 
 const Login = lazy(() => import('pages/Oauth/Login'))
 const Logout = lazy(() => import('pages/Oauth/Logout'))
@@ -105,6 +106,14 @@ const NetworkSyncedPage = ({ children }: { children: React.ReactNode }) => {
   useSyncNetworkParamWithStore()
   return <>{children}</>
 }
+
+const SwapIntentPage = ({ intent }: { intent: SwapIntent }) => (
+  <SwapIntentRedirect intent={intent}>
+    <NetworkSyncedPage>
+      <SwapPage />
+    </NetworkSyncedPage>
+  </SwapIntentRedirect>
+)
 
 const RedirectToCreateTips = () => {
   const { networkInfo } = useActiveWeb3React()
@@ -266,22 +275,8 @@ export default function App() {
                   </NetworkSyncedPage>
                 }
               />
-              <Route
-                path={`${APP_PATHS.BUY}/:network/:token`}
-                element={
-                  <NetworkSyncedPage>
-                    <SwapPage />
-                  </NetworkSyncedPage>
-                }
-              />
-              <Route
-                path={`${APP_PATHS.SELL}/:network/:token`}
-                element={
-                  <NetworkSyncedPage>
-                    <SwapPage />
-                  </NetworkSyncedPage>
-                }
-              />
+              <Route path={`${APP_PATHS.BUY}/:network/:token`} element={<SwapIntentPage intent={SwapIntent.BUY} />} />
+              <Route path={`${APP_PATHS.SELL}/:network/:token`} element={<SwapIntentPage intent={SwapIntent.SELL} />} />
               <Route path={`${APP_PATHS.PARTNER_SWAP}`} element={<PartnerSwap />} />
               <Route path={`${APP_PATHS.USER_SWAP}/:tipsId?`} element={<PartnerSwap mode="user" />} />
               <Route path={`${APP_PATHS.USER_SWAP_CREATE_TIPS}`} element={<RedirectToCreateTips />} />
