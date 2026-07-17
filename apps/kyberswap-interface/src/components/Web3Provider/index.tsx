@@ -2,8 +2,6 @@ import { PUBLIC_RPC_ENDPOINTS } from '@kyber/rpc-client'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { reconnect, watchChainId } from '@wagmi/core'
-import { Dialog, Mode } from 'porto'
-import { porto } from 'porto/wagmi'
 import { ReactNode, useEffect } from 'react'
 import { type Chain, defineChain, fallback, http } from 'viem'
 import {
@@ -461,17 +459,51 @@ export const wagmiConfig = createConfig({
       appLogoUrl: `${KYBERSWAP_URL}/favicon.png`,
     }),
     safepalConnector(),
-    // Porto's default iframe renderer sets iframe.src during connector setup,
-    // which hits id.porto.sh on app mount. The official popup renderer opens
-    // the remote dialog only when a Porto request needs user confirmation.
-    ...(import.meta.env.SSR ? [] : [porto({ mode: Mode.dialog({ renderer: Dialog.popup() }) })]),
+    // Porto is absent here on purpose — registerPortoConnector() adds it after boot. See that function.
     safe(),
     ...HardCodedConnectors.map(connector => createPriorityConnector(connector)),
   ],
 })
 
+// Porto ships ~620KB of JS (the SDK plus its `ox` dependency) and is one wallet choice among many, so
+// importing it at module scope put all of it in the entry chunk that gates the app's first render for every
+// visitor — including the vast majority who never pick it. Register it once the app is idle instead: the
+// wallet list reads connectors through wagmi's reactive `useConnectors()`, so Porto appears as soon as this
+// resolves. WalletModal calls this too when it opens, since idle can be several seconds out on a slow cold
+// load and the list must not render without Porto by then; the flag below makes whichever fires first win.
+//
+// `_internal` is wagmi's own escape hatch for exactly this (`reconnect` uses the same `setup` to register
+// connectors passed to it) — worth re-checking on a wagmi major bump. `setup()` also invokes the
+// connector's own setup() and wires its `connect` emitter, so the connector is fully live once added.
+let hasRegisteredPorto = false
+
+export const registerPortoConnector = async () => {
+  if (hasRegisteredPorto) return
+  hasRegisteredPorto = true
+  try {
+    const [{ Dialog, Mode }, { porto }] = await Promise.all([import('porto'), import('porto/wagmi')])
+    // Porto's default iframe renderer sets iframe.src while the connector sets itself up, which hits
+    // id.porto.sh. The official popup renderer opens the remote dialog only when a Porto request needs
+    // user confirmation.
+    const connector = wagmiConfig._internal.connectors.setup(porto({ mode: Mode.dialog({ renderer: Dialog.popup() }) }))
+    wagmiConfig._internal.connectors.setState(connectors => [...connectors, connector])
+  } catch {
+    hasRegisteredPorto = false // let a later mount retry; until then Porto is simply not offered
+  }
+}
+
 export default function Web3Provider({ children }: { children: ReactNode }) {
   const dispatch = useAppDispatch()
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    if (window.requestIdleCallback) {
+      const handle = window.requestIdleCallback(() => void registerPortoConnector(), { timeout: 3_000 })
+      return () => window.cancelIdleCallback?.(handle)
+    }
+    const handle = window.setTimeout(() => void registerPortoConnector(), 2_000)
+    return () => window.clearTimeout(handle)
+  }, [])
   useEffect(() => {
     const unwatch = watchChainId(wagmiConfig, {
       onChange(chainId) {
