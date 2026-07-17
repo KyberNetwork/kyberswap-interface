@@ -1,8 +1,6 @@
 /* eslint-disable prettier/prettier */
 // Ordering is intentional and must be preserved: styling, polyfilling, tracing, and then functionality.
 import '@zkmelabs/widget/dist/style.css'
-import AOS from 'aos'
-import 'aos/dist/aos.css'
 import dayjs from 'dayjs'
 import duration from 'dayjs/plugin/duration'
 import relativeTime from 'dayjs/plugin/relativeTime'
@@ -64,8 +62,6 @@ if (ENV_LEVEL === ENV_TYPE.PROD && GTM_ID) {
       .catch(() => undefined)
   })
 }
-
-AOS.init()
 
 if (window.ethereum) {
   window.ethereum.autoRefreshOnNetworkChange = false
