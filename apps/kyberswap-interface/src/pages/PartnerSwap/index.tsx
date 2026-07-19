@@ -187,10 +187,6 @@ const PartnerSwap = ({ mode = 'partner' }: Props) => {
     swaps: routeSummary?.route,
   })
 
-  const isSmartSettlementActive = useMemo(
-    () => routeSummary?.route?.some(route => route.some(swap => swap.extra?._ce)),
-    [routeSummary?.route],
-  )
   const hasSupportedTokenPriceChart = Boolean(PRICE_CHART_QUOTE_TOKEN_BY_CHAIN[swapChainId])
 
   const setActiveTab = useCallback(
@@ -276,7 +272,7 @@ const PartnerSwap = ({ mode = 'partner' }: Props) => {
             defaultCollapsed={hasSupportedTokenPriceChart && isShowPricingChart}
             inputAmount={routeSummary?.parsedAmountIn}
             outputAmount={routeSummary?.parsedAmountOut}
-            isSmartSettlementActive={isSmartSettlementActive}
+            isSmartSettlement={routeSummary?.isSmartSettlement}
           />
         )}
       </>
