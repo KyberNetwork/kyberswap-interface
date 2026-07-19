@@ -28,7 +28,7 @@ import ListsUpdater from 'state/lists/updater'
 import TransactionUpdater from 'state/transactions/updater'
 import UserUpdater from 'state/user/updater'
 import ThemeProvider from 'theme'
-import { preloadStaticRouteChunks } from 'utils/prefetch'
+import { preloadChainIcons, preloadStaticRouteChunks } from 'utils/prefetch'
 
 dayjs.extend(utc)
 dayjs.extend(duration)
@@ -124,6 +124,9 @@ createRoot(container).render(<ReactApp />)
 // Warm a few high-traffic static route chunks so in-app nav to them is instant even without a hover
 // (keyboard / mobile tap). Idle-gated internally — see preloadStaticRouteChunks.
 preloadStaticRouteChunks()
+
+// Warm the chain-switcher icons during idle too; they're not needed for first paint. Idle-gated internally.
+preloadChainIcons()
 
 serviceWorkerRegistration.unregister()
 //serviceWorkerRegistration.register({
