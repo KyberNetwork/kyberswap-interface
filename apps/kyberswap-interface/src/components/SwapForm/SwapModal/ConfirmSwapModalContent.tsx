@@ -1,12 +1,14 @@
 import { Currency, CurrencyAmount, Price } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Check, Info, Repeat } from 'react-feather'
 import { Link, useParams, useSearchParams } from 'react-router-dom'
 import { useGetTotalActiveMakingAmountQuery } from 'services/limitOrder'
 import { calculatePriceImpact } from 'services/route/utils'
+import { useGetHoneypotInfoQuery } from 'services/tokenCatalog'
 
 import { ButtonOutlined, ButtonPrimary } from 'components/Button'
+import IconButton from 'components/Button/IconButton'
 import Dots from 'components/Dots'
 import InfoHelper from 'components/InfoHelper'
 import { LimitOrderStatus, LimitOrderTab } from 'components/LimitOrder/types'
@@ -24,13 +26,11 @@ import { BuildRouteResult } from 'components/SwapForm/hooks/useBuildRoute'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { TransactionErrorContent } from 'components/TransactionConfirmationModal'
 import WarningNote from 'components/WarningNote'
-import { StyledBalanceMaxMini } from 'components/swapv2/styleds'
-import { TOKEN_API_URL } from 'constants/env'
 import { APP_PATHS, PAIR_CATEGORY } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
-import useCurrenciesByPage from 'pages/SwapV3/useCurrenciesByPage'
+import { useCurrenciesByPage } from 'pages/Swap/hooks/useCurrenciesByPage'
 import { useDefaultSlippageByPair, usePairCategory } from 'state/swap/hooks'
 import { useDegenModeManager, useSlippageSettingByPage } from 'state/user/hooks'
 import { useTokenBalance } from 'state/wallet/hooks'
@@ -133,17 +133,11 @@ export default function ConfirmSwapModalContent({
   const { currency: currencyParam } = useParams()
   const { currencyIn, currencyOut } = useCurrenciesByPage()
   const { chainId, account, networkInfo } = useActiveWeb3React()
-  const [honeypot, setHoneypot] = useState<{ isHoneypot: boolean; isFOT: boolean; tax: number } | null>(null)
-  useEffect(() => {
-    if (!currencyIn?.wrapped.address) return
-    fetch(
-      `${TOKEN_API_URL}/v1/public/tokens/honeypot-fot-info?address=${currencyIn.wrapped.address.toLowerCase()}&chainId=${chainId}`,
-    )
-      .then(res => res.json())
-      .then(res => {
-        setHoneypot(res.data)
-      })
-  }, [currencyIn?.wrapped.address, chainId])
+  const { data: honeypotData } = useGetHoneypotInfoQuery(
+    { chainId, address: currencyIn?.wrapped.address.toLowerCase() ?? '' },
+    { skip: !currencyIn?.wrapped.address },
+  )
+  const honeypot = honeypotData?.data ?? null
 
   const isSlippageNotEnough =
     !!errorWhileBuildRoute &&
@@ -465,12 +459,13 @@ export default function ConfirmSwapModalContent({
                           executionPrice={getSwapDetailsProps().executionPrice}
                           showInverted={showInverted}
                         />
-                        <StyledBalanceMaxMini
+                        <IconButton
+                          variant="compact"
                           className="hover:brightness-[0.85]"
                           onClick={() => setShowInverted(!showInverted)}
                         >
-                          <Repeat size={14} className="text-text" />
-                        </StyledBalanceMaxMini>
+                          <Repeat size={12} className="text-text" />
+                        </IconButton>
                       </div>
                     ) : (
                       <p className="m-0 text-[12px] font-medium text-text">--</p>

@@ -2,7 +2,7 @@ import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate, useParams } from 'react-router-dom'
-import { useCheckPairQuery } from 'services/marketOverview'
+import { useCheckPairQuery } from 'services/tokenCatalog'
 
 import { APP_PATHS, PAIR_CATEGORY } from 'constants/index'
 import { DEFAULT_OUTPUT_TOKEN_BY_CHAIN, NativeCurrencies } from 'constants/tokens'

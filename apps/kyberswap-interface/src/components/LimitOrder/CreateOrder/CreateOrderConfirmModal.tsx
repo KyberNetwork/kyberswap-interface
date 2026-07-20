@@ -6,6 +6,7 @@ import { Repeat } from 'react-feather'
 
 import { ButtonPrimary, ButtonWarning } from 'components/Button'
 import CurrencyLogo from 'components/CurrencyLogo'
+import { ErrorWarning } from 'components/ErrorWarning'
 import {
   type CreateOrderWarning,
   WORSE_PRICE_DIFF_THRESHOLD,
@@ -16,7 +17,6 @@ import { formatAmountOrder, removeTrailingZero } from 'components/LimitOrder/uti
 import Modal from 'components/Modal'
 import { HStack, Stack } from 'components/Stack'
 import { BaseTradeInfo } from 'hooks/useBaseTradeInfo'
-import ErrorWarning from 'pages/Bridge/ErrorWarning'
 import { CloseIcon } from 'theme/components'
 import { formatDisplayNumber } from 'utils/numbers'
 

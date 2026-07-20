@@ -108,6 +108,9 @@ export default defineConfig(({ mode }) => ({
     // dynamically imported by the SDK otherwise come back with undefined
     // named exports at runtime.
     include: [
+      // TradeRouting is lazy-loaded. Pre-bundle its CJS dependency up front so discovering it later
+      // does not invalidate the optimized dependency graph while the module is being imported.
+      'react-indiana-drag-scroll',
       '@metamask/mobile-wallet-protocol-core',
       '@metamask/mobile-wallet-protocol-dapp-client',
       '@metamask/connect-multichain',

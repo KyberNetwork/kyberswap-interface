@@ -88,7 +88,10 @@ export default function Header() {
           </Link>
         )}
         {!isEmbeddedSwap && (
-          <div className="flex w-full flex-row flex-nowrap items-center justify-center gap-1 max-lg:justify-end">
+          <nav
+            aria-label="Primary"
+            className="flex w-full flex-row flex-nowrap items-center justify-center gap-1 max-lg:justify-end"
+          >
             <SwapNavGroup dropdownAlign={navGroupDropdownAlign} />
             <EarnNavGroup dropdownAlign={navGroupDropdownAlign} />
             {!upToExtraSmall && (
@@ -114,7 +117,7 @@ export default function Header() {
             )}
             {!upToSmall && <AboutNavGroup dropdownAlign={navGroupDropdownAlign} />}
             <RecapButton />
-          </div>
+          </nav>
         )}
       </div>
 

@@ -6,10 +6,7 @@
 -->
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://kyberswap.com</loc>
-  </url>
-  <url>
-    <loc>https://kyberswap.com/swap</loc>
+    <loc>https://kyberswap.com/</loc>
   </url>
   <url>
     <loc>https://kyberswap.com/about/kyberswap</loc>
@@ -97,5 +94,8 @@
   </url>
   <url>
     <loc>https://kyberswap.com/swap/megaeth</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/swap/robinhood</loc>
   </url>
 </urlset>

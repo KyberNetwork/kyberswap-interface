@@ -3,7 +3,7 @@ import { Trans } from '@lingui/macro'
 import { useEffect, useState } from 'react'
 import { Star, X } from 'react-feather'
 import { useMedia, usePreviousDistinct } from 'react-use'
-import { AssetToken, useGetQuoteByChainQuery } from 'services/marketOverview'
+import { AssetToken, useGetQuoteByChainQuery } from 'services/tokenCatalog'
 
 import { ButtonEmpty, ButtonOutlined } from 'components/Button'
 import CopyHelper from 'components/Copy'

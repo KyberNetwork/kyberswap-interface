@@ -84,6 +84,7 @@ export const parseGetRouteResponse = (
     fee: calculateFee(parsedAmountIn, parsedAmountOut, rawRouteSummary),
     priceImpact: calculatePriceImpact(Number(rawRouteSummary.amountInUsd), Number(rawRouteSummary.amountOutUsd)),
     executionPrice,
+    isSmartSettlement: rawRouteSummary.route?.some(route => route.some(swap => Boolean(swap.extra?._ce))) ?? false,
     routerAddress: rawData.routerAddress,
   }
 

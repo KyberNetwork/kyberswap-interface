@@ -198,6 +198,22 @@ const config: Config = {
           from: { opacity: '0', transform: 'translateY(4px)' },
           to: { opacity: '1', transform: 'translateY(0)' },
         },
+        // Dropdown/popover enter: fade + subtle drop-down + scale from the anchor corner.
+        dropdownIn: {
+          from: { opacity: '0', transform: 'translateY(-6px) scale(0.97)' },
+          to: { opacity: '1', transform: 'translateY(0) scale(1)' },
+        },
+        // Push-navigation enter: a detail panel fades in with a short nudge from the right (paired with
+        // a "←" back). Kept to a few pixels — travelling the full panel width janks on slow devices.
+        slideInRight: {
+          from: { opacity: '0', transform: 'translateX(12px)' },
+          to: { opacity: '1', transform: 'translateX(0)' },
+        },
+        // Push-navigation exit: the detail panel fades back out toward the right on "←" back.
+        slideOutRight: {
+          from: { opacity: '1', transform: 'translateX(0)' },
+          to: { opacity: '0', transform: 'translateX(12px)' },
+        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
@@ -211,6 +227,9 @@ const config: Config = {
         'loading-shimmer': 'loading-shimmer 1.2s ease-in-out infinite',
         'highlight-warning': 'highlight-warning 2s infinite alternate ease-in-out',
         'token-info-glow': 'token-info-glow 1.5s ease-in-out infinite',
+        dropdownIn: 'dropdownIn 0.15s ease-out',
+        slideInRight: 'slideInRight 0.15s ease-out',
+        slideOutRight: 'slideOutRight 0.12s ease-in forwards',
       },
     },
   },
