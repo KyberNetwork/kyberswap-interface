@@ -413,6 +413,11 @@ const transports = Object.fromEntries(
   }
 })()
 
+// Porto's connector id, spelled out rather than imported so reading it cannot pull the Porto SDK back into
+// the entry chunk. registerPortoConnector() matches on the live `connector.id`, so if this ever drifts from
+// upstream the only cost is the mount effect falling back to wagmi's full walk again.
+const PORTO_CONNECTOR_ID = 'xyz.ithaca.porto'
+
 /** The connector a returning visitor last connected with, as wagmi persists it (JSON-encoded). */
 const readRecentConnectorId = (): string | undefined => {
   if (typeof window === 'undefined' || !window.localStorage) return undefined
@@ -487,6 +492,12 @@ export const registerPortoConnector = async () => {
     // user confirmation.
     const connector = wagmiConfig._internal.connectors.setup(porto({ mode: Mode.dialog({ renderer: Dialog.popup() }) }))
     wagmiConfig._internal.connectors.setState(connectors => [...connectors, connector])
+
+    // Porto is not in `connectors` while the mount-time reconnect below runs, so a visitor whose last
+    // wallet was Porto cannot be restored there. Reconnect them here instead, once the connector exists.
+    if (readRecentConnectorId() === connector.id) {
+      reconnect(wagmiConfig, { connectors: [connector] }).catch(() => {})
+    }
   } catch {
     hasRegisteredPorto = false // let a later mount retry; until then Porto is simply not offered
   }
@@ -528,10 +539,12 @@ export default function Web3Provider({ children }: { children: ReactNode }) {
   // Runs on mount rather than at idle so a returning visitor's wallet reconnects as promptly as before. If
   // the stored id names a connector we cannot resolve yet — EIP-6963 wallets announce asynchronously, so a
   // discovered connector may not be registered at this point — fall back to wagmi's full walk rather than
-  // leave that visitor disconnected.
+  // leave that visitor disconnected. Porto is the one exception: it is knowingly absent until
+  // registerPortoConnector() runs, which reconnects it itself, so the full walk here would only load every
+  // other wallet's SDK for nothing.
   useEffect(() => {
     const recentConnectorId = readRecentConnectorId()
-    if (!recentConnectorId) return
+    if (!recentConnectorId || recentConnectorId === PORTO_CONNECTOR_ID) return
 
     const recentConnector = wagmiConfig.connectors.find(connector => connector.id === recentConnectorId)
     reconnect(wagmiConfig, recentConnector ? { connectors: [recentConnector] } : undefined).catch(() => {})
