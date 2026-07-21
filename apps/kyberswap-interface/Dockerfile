@@ -1,12 +1,27 @@
-# Compile the ngx_brotli dynamic modules against the same nginx:alpine used below so `brotli_static`
-# works in the final image (stock nginx:alpine ships no brotli). --with-compat keeps the resulting .so
-# loadable across compatible nginx builds.
-FROM nginx:alpine AS brotli-builder
+# Pinned so both stages resolve to the same nginx build: the modules compiled below are only loadable by a
+# matching nginx, and a floating tag can drift between a cached builder layer and a freshly pulled runtime.
+# 1.31.3-alpine is what `nginx:alpine` resolved to when this was pinned — bump both stages together here.
+ARG NGINX_VERSION=1.31.3
+
+# Compile the ngx_brotli dynamic modules against that same nginx so `brotli_static` works in the final image
+# (stock nginx:alpine ships no brotli). --with-compat keeps the resulting .so loadable across compatible
+# nginx builds.
+FROM nginx:${NGINX_VERSION}-alpine AS brotli-builder
+
+# Pinned to a commit rather than tracking master, so rebuilding this image cannot silently compile different
+# third-party source into the runtime.
+ARG NGX_BROTLI_SHA=a71f9312c2deb28875acc7bacfdd5695a111aa53
 
 RUN set -eux; \
     apk add --no-cache --virtual .build-deps git build-base cmake pcre-dev zlib-dev openssl-dev linux-headers; \
     NGINX_VERSION="$(nginx -v 2>&1 | sed -e 's|.*nginx/||')"; \
-    git clone --depth 1 --recurse-submodules https://github.com/google/ngx_brotli.git /ngx_brotli; \
+    mkdir -p /ngx_brotli; \
+    cd /ngx_brotli; \
+    git init -q .; \
+    git remote add origin https://github.com/google/ngx_brotli.git; \
+    git fetch -q --depth 1 origin "${NGX_BROTLI_SHA}"; \
+    git checkout -q FETCH_HEAD; \
+    git submodule update -q --init --recursive --depth 1; \
     # Build the bundled brotli static libs the module links against (-lbrotlienc/-lbrotlicommon).
     cd /ngx_brotli/deps/brotli && mkdir -p out && cd out; \
     cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF -DCMAKE_C_FLAGS="-fPIC" ..; \
@@ -19,7 +34,7 @@ RUN set -eux; \
     mkdir -p /modules; \
     cp objs/ngx_http_brotli_filter_module.so objs/ngx_http_brotli_static_module.so /modules/
 
-FROM nginx:alpine
+FROM nginx:${NGINX_VERSION}-alpine
 
 # Bring in the compiled modules and load them from the main context (load_module is not valid inside the
 # http/server block that etc/nginx.conf lives in).
