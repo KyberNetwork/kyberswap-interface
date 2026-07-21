@@ -519,6 +519,28 @@ export const TokenSelectorContent = ({
     (isNewTab && newLoading && !newTokens.length) ||
     (isTrendingTab && trendingLoading && !trendingTokens.length)
 
+  // Reported only once a pick actually reaches the consumer, so a selection blocked by the restricted
+  // check or still awaiting its chain-switch confirm doesn't count. Shared by every entry point — row
+  // click, quick-select, Enter, and the cross-chain confirm — so they all land the same shape.
+  const trackTokenSelected = useCallback(
+    (currency: Currency, needsChainSwitch: boolean) => {
+      const address = currency.wrapped.address
+      const rowIndex = visibleCurrencies.findIndex(item => item.wrapped.address === address)
+      trackingHandler(TRACKING_EVENT_TYPE.TS_TOKEN_SELECTED, {
+        source: trackingSource,
+        tab: activeTab,
+        token_symbol: currency.symbol,
+        token_address: isTokenNative(currency) ? 'NATIVE' : address,
+        chain: NETWORKS_INFO[currency.chainId].name,
+        // Absent when the pick came from quick-select or the other-chain group rather than the list.
+        row_index: rowIndex >= 0 ? rowIndex : undefined,
+        is_search_result: !!debouncedQuery,
+        needs_chain_switch: needsChainSwitch,
+      })
+    },
+    [activeTab, debouncedQuery, trackingHandler, trackingSource, visibleCurrencies],
+  )
+
   const handleCurrencySelect = useCallback(
     (currency: Currency) => {
       const resolved = isTokenNative(currency) ? NativeCurrencies[currency.chainId] : currency
@@ -532,10 +554,11 @@ export const TokenSelectorContent = ({
         setSwitchChainToken(resolved)
         return
       }
+      trackTokenSelected(resolved, false)
       onCurrencySelect?.(resolved)
       onDismiss?.()
     },
-    [anchorChainId, onCurrencySelect, onDismiss, isTokenRestricted, notifyRestrictedToken],
+    [anchorChainId, onCurrencySelect, onDismiss, isTokenRestricted, notifyRestrictedToken, trackTokenSelected],
   )
 
   // On confirm, switch to the token's chain and select it once the switch lands (see the hook — it
@@ -545,8 +568,9 @@ export const TokenSelectorContent = ({
     if (!switchChainToken) return
     const token = switchChainToken
     setSwitchChainToken(null)
+    trackTokenSelected(token, true)
     switchChainAndSelect(token)
-  }, [switchChainToken, switchChainAndSelect])
+  }, [switchChainToken, switchChainAndSelect, trackTokenSelected])
 
   // A hit in the "other chains" group is other-chain only relative to the chain selector, which the
   // wallet need not be on — so the token can well sit on the app's own chain. Aim the selector at it
@@ -562,6 +586,32 @@ export const TokenSelectorContent = ({
       handleCurrencySelect(token)
     },
     [handleCurrencySelect, isTokenImported, onImportToken],
+  )
+
+  const handleTabChange = useCallback(
+    (tab: TokenSelectorTab) => {
+      setActiveTab(tab)
+      trackingHandler(TRACKING_EVENT_TYPE.TS_TAB_SELECTED, {
+        source: trackingSource,
+        tab,
+        previous_tab: activeTab,
+        chain: NETWORKS_INFO[primaryChainId].name,
+      })
+    },
+    [activeTab, primaryChainId, trackingHandler, trackingSource],
+  )
+
+  const handleChainChange = useCallback(
+    (chainId: ChainId) => {
+      setSelectedChainId(chainId)
+      trackingHandler(TRACKING_EVENT_TYPE.TS_CHAIN_SWITCHED, {
+        source: trackingSource,
+        from_chain: NETWORKS_INFO[selectedChainId].name,
+        to_chain: NETWORKS_INFO[chainId].name,
+        tab: activeTab,
+      })
+    },
+    [activeTab, selectedChainId, trackingHandler, trackingSource],
   )
 
   const handleInput = useCallback(
@@ -818,7 +868,7 @@ export const TokenSelectorContent = ({
             )}
           </SearchWrapper>
           {showDiscoveryTabs && (
-            <ChainSelector chains={rankedChains} selectedChainId={selectedChainId} onChange={setSelectedChainId} />
+            <ChainSelector chains={rankedChains} selectedChainId={selectedChainId} onChange={handleChainChange} />
           )}
         </HStack>
 
@@ -842,7 +892,7 @@ export const TokenSelectorContent = ({
           </div>
         )}
 
-        {showDiscoveryTabs && <TabBar tabs={visibleTabs} activeTab={activeTab} onChange={setActiveTab} />}
+        {showDiscoveryTabs && <TabBar tabs={visibleTabs} activeTab={activeTab} onChange={handleTabChange} />}
       </PaddedColumn>
 
       <div
