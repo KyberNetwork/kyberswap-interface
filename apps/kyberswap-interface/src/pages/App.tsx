@@ -1,6 +1,6 @@
 import '@kyber/token-selector/styles.css'
 import '@kyber/ui/styles.css'
-import { Suspense, lazy, useEffect } from 'react'
+import { Suspense, lazy } from 'react'
 import { Navigate, Route, Routes, useLocation, useParams, useSearchParams } from 'react-router-dom'
 
 import Popups from 'components/Announcement/Popups'
@@ -82,18 +82,6 @@ const HeaderWrapper = ({ children }: { children: React.ReactNode }) => (
 const BodyWrapper = ({ children }: { children: React.ReactNode }) => (
   <main className="relative z-[1] flex w-full flex-1 flex-col items-center">{children}</main>
 )
-
-const preloadImages = () => {
-  const imageList: string[] = SUPPORTED_NETWORKS.map(chainId => [NETWORKS_INFO[chainId].icon])
-    .flat()
-    .filter(Boolean) as string[]
-
-  imageList.forEach(image => {
-    if (image) {
-      new Image().src = image
-    }
-  })
-}
 
 const NetworkSyncedPage = ({ children }: { children: React.ReactNode }) => {
   useSyncNetworkParamWithStore()
@@ -204,10 +192,6 @@ export default function App() {
 
   useSessionExpiredGlobal()
   useGlobalTrackingEvents()
-
-  useEffect(() => {
-    preloadImages()
-  }, [])
 
   const showFooter = !pathname.includes(APP_PATHS.ABOUT) && !isEmbeddedSwap
 
