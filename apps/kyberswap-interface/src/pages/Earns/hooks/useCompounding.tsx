@@ -1,15 +1,13 @@
-import {
-  ChainId as CompoundingChainId,
-  PoolType as CompoundingPoolType,
-  CompoundingWidget,
-  SupportedLocale,
-} from '@kyberswap/compounding-widget'
-import '@kyberswap/compounding-widget/dist/style.css'
+// PoolType is needed as a value by the DEX map below. The widget package only re-exports @kyber/schema's
+// enum, so taking it from the source keeps the exact same values without dragging the widget in with it.
+import { PoolType as CompoundingPoolType } from '@kyber/schema'
+import type { ChainId as CompoundingChainId, SupportedLocale } from '@kyberswap/compounding-widget'
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { useCallback, useMemo, useState } from 'react'
+import { Suspense, lazy, useCallback, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { NotificationType } from 'components/Announcement/type'
+import LocalLoader from 'components/LocalLoader'
 import Modal from 'components/Modal'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useActiveLocale } from 'hooks/useActiveLocale'
@@ -22,6 +20,16 @@ import { navigateToPoolDetail, navigateToPositionAfterZap } from 'pages/Earns/ut
 import { useKyberSwapConfig, useNotify, useWalletModalToggle } from 'state/application/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
+
+// The widget only renders inside the modal below, so keep it out of every /earn route chunk that calls this
+// hook and load it — with its stylesheet — when the modal actually mounts.
+const CompoundingWidget = lazy(async () => {
+  const [widget] = await Promise.all([
+    import('@kyberswap/compounding-widget'),
+    import('@kyberswap/compounding-widget/dist/style.css'),
+  ])
+  return { default: widget.CompoundingWidget }
+})
 
 interface CompoundingPureParams {
   poolAddress: string
@@ -282,7 +290,9 @@ const useCompounding = ({
 
   const widget = compoundingParams ? (
     <Modal isOpen mobileFullWidth maxWidth={768} width={'768px'} onDismiss={handleCloseCompounding}>
-      <CompoundingWidget {...compoundingParams} />
+      <Suspense fallback={<LocalLoader />}>
+        <CompoundingWidget {...compoundingParams} />
+      </Suspense>
     </Modal>
   ) : null
 

@@ -1,10 +1,13 @@
+// PoolType is needed as a value by the DEX map below. The widget package only re-exports @kyber/schema's
+// enum, so taking it from the source keeps the exact same values without dragging the widget in with it.
+import { PoolType as ZapOutDex } from '@kyber/schema'
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { OnSuccessProps, ZapOut, ChainId as ZapOutChainId, PoolType as ZapOutDex } from '@kyberswap/zap-out-widgets'
-import '@kyberswap/zap-out-widgets/dist/style.css'
-import { useCallback, useMemo, useState } from 'react'
+import type { OnSuccessProps, ChainId as ZapOutChainId } from '@kyberswap/zap-out-widgets'
+import { Suspense, lazy, useCallback, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { NotificationType } from 'components/Announcement/type'
+import LocalLoader from 'components/LocalLoader'
 import Modal from 'components/Modal'
 import { APP_PATHS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
@@ -60,6 +63,16 @@ const zapOutDexMapping: Record<Exchange, ZapOutDex> = {
   [Exchange.DEX_AERODROMECL2]: ZapOutDex.DEX_AERODROMECL2,
   [Exchange.DEX_AERODROMECL3]: ZapOutDex.DEX_AERODROMECL3,
 }
+
+// The widget only renders inside the modal below, so keep it out of every /earn route chunk that calls this
+// hook and load it — with its stylesheet — when the modal actually mounts.
+const ZapOut = lazy(async () => {
+  const [widget] = await Promise.all([
+    import('@kyberswap/zap-out-widgets'),
+    import('@kyberswap/zap-out-widgets/dist/style.css'),
+  ])
+  return { default: widget.ZapOut }
+})
 
 const useZapOutWidget = (
   onRefreshPosition?: (props: CheckClosedPositionParams) => void,
@@ -350,7 +363,9 @@ const useZapOutWidget = (
         clearTracking()
       }}
     >
-      <ZapOut {...zapOutParams} />
+      <Suspense fallback={<LocalLoader />}>
+        <ZapOut {...zapOutParams} />
+      </Suspense>
     </Modal>
   ) : null
 

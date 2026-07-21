@@ -155,7 +155,7 @@ const config: Config = {
         'gradient-radial': 'var(--ks-radialGradient)',
       },
       fontFamily: {
-        sans: ['Work Sans', 'Inter var', 'Inter', 'sans-serif'],
+        sans: ['Work Sans', 'sans-serif'],
       },
       keyframes: {
         'accordion-down': {

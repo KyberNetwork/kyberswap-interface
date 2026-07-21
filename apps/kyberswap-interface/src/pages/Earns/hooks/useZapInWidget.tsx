@@ -1,16 +1,15 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import {
+import type {
   OnSuccessProps,
   SupportedLocale,
-  LiquidityWidget as ZapIn,
   ChainId as ZapInChainId,
   PoolType as ZapInPoolType,
 } from '@kyberswap/liquidity-widgets'
-import '@kyberswap/liquidity-widgets/dist/style.css'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { Suspense, lazy, useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 
 import { NotificationType } from 'components/Announcement/type'
+import LocalLoader from 'components/LocalLoader'
 import Modal from 'components/Modal'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
@@ -37,6 +36,18 @@ import { getCookieValue } from 'utils'
 import { friendlyError } from 'utils/errorMessage'
 import { Address } from 'utils/viem'
 import { signTypedDataRaw } from 'utils/walletClient'
+
+// Every /earn route calls this hook to get its Zap button, but the widget itself only renders inside the
+// modal below — so importing it at module scope made each of those routes download ~760KB gz of widget for
+// UI most visitors never open. Load it, and its stylesheet, only when the modal actually mounts. The types
+// above are erased at build time, so nothing else here pulls the package back into the route chunk.
+const ZapIn = lazy(async () => {
+  const [widget] = await Promise.all([
+    import('@kyberswap/liquidity-widgets'),
+    import('@kyberswap/liquidity-widgets/dist/style.css'),
+  ])
+  return { default: widget.LiquidityWidget }
+})
 
 interface AddLiquidityPureParams {
   poolAddress: string
@@ -467,7 +478,9 @@ const useZapInWidget = ({
 
   const widget = addLiquidityParams ? (
     <Modal isOpen mobileFullWidth maxWidth={840} width={'840px'} onDismiss={handleCloseZapInWidget}>
-      <ZapIn {...addLiquidityParams} />
+      <Suspense fallback={<LocalLoader />}>
+        <ZapIn {...addLiquidityParams} />
+      </Suspense>
     </Modal>
   ) : null
 

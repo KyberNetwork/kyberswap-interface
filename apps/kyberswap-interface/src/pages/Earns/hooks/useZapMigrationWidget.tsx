@@ -1,17 +1,14 @@
+// PoolType is needed as a value by the DEX map below. The widget package only re-exports @kyber/schema's
+// enum, so taking it from the source keeps the exact same values without dragging the widget in with it.
+import { PoolType as ZapMigrationDex } from '@kyber/schema'
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import {
-  OnSuccessProps,
-  SupportedLocale,
-  ZapMigration,
-  ChainId as ZapMigrationChainId,
-  PoolType as ZapMigrationDex,
-} from '@kyberswap/zap-migration-widgets'
-import '@kyberswap/zap-migration-widgets/dist/style.css'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import type { OnSuccessProps, SupportedLocale, ChainId as ZapMigrationChainId } from '@kyberswap/zap-migration-widgets'
+import { Suspense, lazy, useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { usePreviousDistinct } from 'react-use'
 
 import { NotificationType } from 'components/Announcement/type'
+import LocalLoader from 'components/LocalLoader'
 import Modal from 'components/Modal'
 import { APP_PATHS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
@@ -36,6 +33,16 @@ import { getCookieValue } from 'utils'
 import { friendlyError } from 'utils/errorMessage'
 import { Address } from 'utils/viem'
 import { signTypedDataRaw } from 'utils/walletClient'
+
+// The widget only renders inside the modal below, so keep it out of every /earn route chunk that calls this
+// hook and load it — with its stylesheet — when the modal actually mounts.
+const ZapMigration = lazy(async () => {
+  const [widget] = await Promise.all([
+    import('@kyberswap/zap-migration-widgets'),
+    import('@kyberswap/zap-migration-widgets/dist/style.css'),
+  ])
+  return { default: widget.ZapMigration }
+})
 
 interface MigrateLiquidityPureParams {
   from: {
@@ -498,7 +505,9 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
       }}
       zindex={1001}
     >
-      <ZapMigration {...migrateLiquidityParams} />
+      <Suspense fallback={<LocalLoader />}>
+        <ZapMigration {...migrateLiquidityParams} />
+      </Suspense>
     </Modal>
   ) : null
 

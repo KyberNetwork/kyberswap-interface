@@ -6,6 +6,7 @@ import { useMedia } from 'react-use'
 import { ButtonPrimary } from 'components/Button'
 import Modal from 'components/Modal'
 import { MEDIA_WIDTHS } from 'theme'
+import { getCookieValue } from 'utils'
 
 const STORAGE_KEY = 'singapore_warning_acknowledged'
 
@@ -17,19 +18,24 @@ export default function SingaporeWarningPopup() {
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
   useEffect(() => {
-    // Parse from location.search to catch redirects that preserve query string
+    // The edge tags the visitor's country via a `country` cookie. The `?country=` query param is the
+    // legacy transport (kept as a fallback so this keeps working before and after the edge stops
+    // redirecting); when present it wins so the param can be stripped from the URL.
     const params = new URLSearchParams(location.search)
     const countryParam = params.get('country')
-    if (!countryParam) return
+    const country = countryParam || getCookieValue('country')
 
-    const isSingaporeParam = countryParam.toLowerCase() === 'singapore'
+    if (countryParam) {
+      // Remove the legacy country parameter immediately (preserve others)
+      const nextParams = new URLSearchParams(params)
+      nextParams.delete('country')
+      setSearchParams(nextParams, { replace: true })
+    }
 
-    // Always remove the country parameter immediately (preserve others)
-    const nextParams = new URLSearchParams(params)
-    nextParams.delete('country')
-    setSearchParams(nextParams, { replace: true })
+    if (!country) return
 
-    if (!isSingaporeParam) return
+    const normalized = country.toLowerCase()
+    if (normalized !== 'singapore' && normalized !== 'sg') return
 
     let acknowledged = false
     try {
