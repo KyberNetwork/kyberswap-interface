@@ -3,6 +3,8 @@ import dayjs from 'dayjs'
 import JSBI from 'jsbi'
 import Numeral from 'numeral'
 
+import KNCLogoUrl from 'assets/images/KNC.svg'
+import KNCLLogoUrl from 'assets/images/KNCL.png'
 import { ENV_KEY } from 'constants/env'
 import { DEFAULT_GAS_LIMIT_MARGIN, ETHER_ADDRESS, ZERO_ADDRESS } from 'constants/index'
 import { NETWORKS_INFO, SUPPORTED_NETWORKS } from 'constants/networks'
@@ -216,12 +218,12 @@ export const getTokenLogoURL = (inputAddress: string, chainId: ChainId): string 
     address = WETH[chainId].address
   }
 
-  if (address.toLowerCase() === KNC_ADDRESS) {
-    return 'https://raw.githubusercontent.com/KyberNetwork/kyberswap-interface/develop/src/assets/images/KNC.svg'
+  if (address.toLowerCase() === KNC_ADDRESS.toLowerCase()) {
+    return KNCLogoUrl
   }
 
   if (address.toLowerCase() === KNCL_ADDRESS.toLowerCase()) {
-    return 'https://raw.githubusercontent.com/KyberNetwork/kyberswap-interface/develop/src/assets/images/KNCL.png'
+    return KNCLLogoUrl
   }
 
   // WBTC
