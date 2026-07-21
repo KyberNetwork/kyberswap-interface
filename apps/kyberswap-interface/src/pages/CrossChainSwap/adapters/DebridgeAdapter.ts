@@ -2,14 +2,11 @@ import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
 import { useWalletSelector } from '@near-wallet-selector/react-hook'
 import { WalletAdapterProps } from '@solana/wallet-adapter-base'
 import { Connection, Transaction, VersionedTransaction } from '@solana/web3.js'
+import { fetchTokenPrices } from 'services/tokenCatalog'
 import { WalletClient, formatUnits } from 'viem'
 
-import { TOKEN_API_URL } from 'constants/env'
 import { CROSS_CHAIN_FEE_RECEIVER, CROSS_CHAIN_FEE_RECEIVER_SOLANA, ZERO_ADDRESS } from 'constants/index'
 import { NativeCurrencies } from 'constants/tokens'
-import type { SolanaToken } from 'pages/CrossChainSwap/hooks/useSolanaTokens'
-
-import { Quote } from '../registry'
 import {
   BaseSwapAdapter,
   Chain,
@@ -19,7 +16,9 @@ import {
   NormalizedTxResponse,
   QuoteParams,
   SwapStatus,
-} from './BaseSwapAdapter'
+} from 'pages/CrossChainSwap/adapters/BaseSwapAdapter'
+import type { SolanaToken } from 'pages/CrossChainSwap/hooks/useSolanaTokens'
+import { Quote } from 'pages/CrossChainSwap/registry'
 
 const DEBRIDGE_API = 'https://dln.debridge.finance/v1.0/dln/order'
 const DEBRIDGE_STATS_API = 'https://stats-api.dln.trade/api'
@@ -140,16 +139,8 @@ export class DeBridgeAdapter extends BaseSwapAdapter {
     const fixFee = r.fixFee
 
     const wrappedAddress = NativeCurrencies[params.fromChain as ChainId].wrapped.address
-    const nativePrice = await fetch(`${TOKEN_API_URL}/v1/public/tokens/prices`, {
-      method: 'POST',
-      body: JSON.stringify({
-        [params.fromChain]: [wrappedAddress],
-      }),
-    })
-      .then(res => res.json())
-      .then(res => {
-        return res?.data?.[params.fromChain]?.[wrappedAddress]?.PriceBuy || 0
-      })
+    const priceRes = await fetchTokenPrices({ [params.fromChain]: [wrappedAddress] })
+    const nativePrice = priceRes?.data?.[params.fromChain]?.[wrappedAddress]?.PriceBuy || 0
 
     const nativeDecimals = params.fromChain === 'solana' ? 9 : NativeCurrencies[params.fromChain as ChainId].decimals
     const protocolFee = Number(nativePrice) * (Number(fixFee) / 10 ** nativeDecimals)

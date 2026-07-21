@@ -7,7 +7,7 @@
 // HTML, injects the route-specific <head>, and writes build/<route>/index.html. nginx serves these
 // directly and SPA-falls-back to build/index.html for every other route — no Node runtime in prod.
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
-import { dirname, resolve } from 'node:path'
+import { dirname, extname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { createServer } from 'vite'
 
@@ -51,6 +51,7 @@ function setupBrowserGlobals() {
   const localStorage = makeStorage()
   const sessionStorage = makeStorage()
   const noop = () => {}
+  const navigatorShim = { userAgent: 'node', language: 'en-US', languages: ['en-US'] }
   const documentShim = {
     title: 'KyberSwap',
     cookie: '',
@@ -63,6 +64,7 @@ function setupBrowserGlobals() {
     getElementsByClassName: () => [],
     getElementsByTagName: () => [],
     createElement: () => ({ style: {}, setAttribute: noop, appendChild: noop, classList: { add: noop, remove: noop } }),
+    createTextNode: () => ({}),
     createTreeWalker: () => ({ nextNode: () => null, currentNode: null }),
     addEventListener: noop,
     removeEventListener: noop,
@@ -81,7 +83,7 @@ function setupBrowserGlobals() {
       search: '',
     },
     history: { pushState: noop, replaceState: noop, go: noop, back: noop, forward: noop, length: 0, state: null },
-    navigator: { userAgent: 'node', language: 'en-US' },
+    navigator: navigatorShim,
     open: noop,
     addEventListener: noop,
     removeEventListener: noop,
@@ -104,8 +106,9 @@ function setupBrowserGlobals() {
   g.document = documentShim
   // NB: do NOT set bare globalThis.location/history — they collide with Vite/Node URL internals
   // ("Invalid URL"). App code reads window.location, which is shimmed above.
-  if (!g.navigator)
-    Object.defineProperty(g, 'navigator', { value: { userAgent: 'node', language: 'en-US' }, configurable: true })
+  // Node 21 exposes a configurable global Navigator object whose userAgent is undefined. Replace it
+  // deterministically because React DOM reads navigator.userAgent during module evaluation.
+  Object.defineProperty(g, 'navigator', { value: navigatorShim, configurable: true })
   for (const name of [
     'Element',
     'HTMLElement',
@@ -137,11 +140,25 @@ function setupBrowserGlobals() {
 // throw (fail the build loudly) instead of emitting the dev URL — strip any `?query` suffix before lookup.
 function rewriteAssetUrls(html, manifest) {
   return html.replace(/\/src\/[^"')\s>]+/g, m => {
-    const entry = manifest[m.slice(1).split('?')[0]] // strip leading '/' + any ?query suffix
-    if (!entry?.file) {
-      throw new Error(`Prerender emitted a dev asset URL with no manifest entry (would 404 in prod): ${m}`)
-    }
-    return `/${entry.file}`
+    const sourceUrl = m.slice(1).split('?')[0] // strip leading '/' + any ?query suffix
+    const entry = manifest[sourceUrl]
+    if (entry?.file) return `/${entry.file}`
+
+    // Vite inlines assets below assetsInlineLimit in the client bundle, so they intentionally have no
+    // manifest entry even though ssrLoadModule returns their /src URL. Inline the same local asset into
+    // static HTML instead of emitting a production 404.
+    const mime = {
+      '.gif': 'image/gif',
+      '.jpg': 'image/jpeg',
+      '.jpeg': 'image/jpeg',
+      '.png': 'image/png',
+      '.svg': 'image/svg+xml',
+      '.webp': 'image/webp',
+    }[extname(sourceUrl).toLowerCase()]
+    if (!mime) throw new Error(`Prerender emitted a dev asset URL with no manifest entry: ${m}`)
+
+    const data = readFileSync(resolve(appRoot, sourceUrl)).toString('base64')
+    return `data:${mime};base64,${data}`
   })
 }
 
@@ -162,6 +179,9 @@ async function main() {
     appType: 'custom',
     server: { middlewareMode: true },
     logLevel: 'warn',
+    // Ledger's ESM build contains extensionless relative imports. Browser bundling resolves them, but
+    // Node's external ESM loader does not; let Vite transform this package for the static renderer too.
+    ssr: { noExternal: ['@ledgerhq/hw-app-btc'] },
     // vite.config defines `process.env` -> the whole env object (a client-only workaround). Under
     // Node SSR that splices a giant literal into deps like @lingui/react and breaks parsing — and
     // Node already has a real `process.env`, so neutralize the replacement here (identity).
@@ -172,9 +192,17 @@ async function main() {
     // After the config has loaded (so the shim's window.location can't break Vite's URL internals),
     // but before module evaluation so module-scope browser access in built widgets is satisfied.
     setupBrowserGlobals()
-    const { renderRouteSkeleton, buildHeadHtml, prerenderRoutes, sitemapRoutes, siteUrl } = await vite.ssrLoadModule(
-      '/src/entry-server.tsx',
-    )
+    const {
+      renderRouteApp,
+      renderRouteSkeleton,
+      buildHeadHtml,
+      prerenderRoutes,
+      appPrerenderRoutes,
+      rootPrerenderSourceRoute,
+      sitemapRoutes,
+      siteUrl,
+    } = await vite.ssrLoadModule('/src/entry-server.tsx')
+    const appRoutes = new Set(appPrerenderRoutes)
 
     // Fail loudly if the hardcoded shim origin drifts from the app's canonical domain (KYBERSWAP_URL,
     // re-exported as siteUrl) — the two are kept in sync by hand because the shim is set up before the
@@ -195,9 +223,21 @@ async function main() {
       throw new Error('Template is missing the `<!-- ssr-skeleton:start/end -->` markers (build/index.html)')
     }
 
+    // Keep build/index.html as the empty-body fallback for non-enumerated SPA routes. nginx serves this
+    // separate document only for exact `/`, whose client redirect resolves to rootPrerenderSourceRoute.
+    const rootSkeleton = rewriteAssetUrls(renderRouteSkeleton(rootPrerenderSourceRoute), manifest)
+    const rootApp = rewriteAssetUrls(await renderRouteApp(rootPrerenderSourceRoute), manifest)
+    let rootHtml = template.replace(
+      /<!-- ssr-skeleton:start[\s\S]*?<!-- ssr-skeleton:end -->/,
+      () => `<!-- ssr-skeleton:start -->\n      ${rootSkeleton}\n      <!-- ssr-skeleton:end -->`,
+    )
+    rootHtml = rootHtml.replace('<div id="app"></div>', () => `<div id="app">${rootApp}</div>`)
+    writeFileSync(resolve(appRoot, 'build/index-root.html'), rootHtml, 'utf8')
+    console.log(`✓ prerendered / (app ${rootApp.length} B, skeleton ${rootSkeleton.length} B)`)
+
     for (const url of prerenderRoutes) {
       const head = buildHeadHtml(url)
-      // Every inject uses a replacement FUNCTION, not a string: rendered head/skeleton HTML can contain
+      // Every inject uses a replacement FUNCTION, not a string: rendered HTML can contain
       // `$` sequences ($&, $', $<n>) that String.replace would otherwise interpret as special replacement
       // patterns and silently corrupt the output. A function's return value is inserted verbatim.
       let html = template.replace(
@@ -207,18 +247,25 @@ async function main() {
 
       // Swap the generic cold-load logo for this route's page-shell skeleton (the same <RouteFallback>
       // the client shows while the lazy chunk downloads) so the cold load shows the page shape, not a
-      // spinner. Cosmetic only — the body stays the empty <div id="app"></div>; the client createRoot-
-      // renders into it (no server-rendered body, no hydration).
+      // spinner. This overlay remains cosmetic and is removed when the interactive client mounts.
       const skeleton = rewriteAssetUrls(renderRouteSkeleton(url), manifest)
       html = html.replace(
         /<!-- ssr-skeleton:start[\s\S]*?<!-- ssr-skeleton:end -->/,
         () => `<!-- ssr-skeleton:start -->\n      ${skeleton}\n      <!-- ssr-skeleton:end -->`,
       )
 
+      // Render the actual route tree for indexable pages as well. This is static build output (not a
+      // production Node server), and the client intentionally mounts a fresh interactive tree instead of
+      // hydrating persisted wallet state into deterministic build-time markup.
+      const app = appRoutes.has(url) ? rewriteAssetUrls(await renderRouteApp(url), manifest) : ''
+      if (app) html = html.replace('<div id="app"></div>', () => `<div id="app">${app}</div>`)
+
       const outDir = resolve(appRoot, 'build', url.replace(/^\//, ''))
       mkdirSync(outDir, { recursive: true })
       writeFileSync(resolve(outDir, 'index.html'), html, 'utf8')
-      console.log(`✓ prerendered ${url} (head ${head.length} B, skeleton ${skeleton.length} B)`)
+      console.log(
+        `✓ prerendered ${url} (head ${head.length} B, app ${app.length || 'skipped'} B, skeleton ${skeleton.length} B)`,
+      )
     }
 
     // Emit standalone page-shell skeleton fragments for the dynamic routes the og-service serves but the

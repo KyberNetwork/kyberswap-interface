@@ -9,7 +9,7 @@ import {
   useGetQuoteByChainQuery,
   useMarketOverviewQuery,
   useRemoveFavoriteMutation,
-} from 'services/marketOverview'
+} from 'services/tokenCatalog'
 
 import { NotificationType } from 'components/Announcement/type'
 import Divider from 'components/Divider'

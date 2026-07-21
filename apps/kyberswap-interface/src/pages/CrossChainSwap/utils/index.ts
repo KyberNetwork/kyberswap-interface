@@ -31,6 +31,7 @@ export const CANONICAL_TOKENS: Record<string, Record<number, string>> = {
     [ChainId.AVAXMAINNET]: '0x49D5c2BdFfac6CE2BFdB6640F4F80f226bc10bAB',
     [ChainId.BERA]: '0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590',
     [ChainId.HYPEREVM]: '0x1fbccdc677c10671ee50b46c61f0f7d135112450',
+    [ChainId.ROBINHOOD]: '0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73',
   },
   BNB: {
     [ChainId.BSCMAINNET]: '0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c',

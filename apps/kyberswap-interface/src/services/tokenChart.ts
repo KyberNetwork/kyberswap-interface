@@ -54,7 +54,7 @@ export type TokenChartCandle = {
 
 export type TokenChartData = {
   candles: Array<TokenChartCandle>
-  change24h: number
+  change24h?: number | null
   latestPrice: number
   quoteAddress?: string
   summary?: {

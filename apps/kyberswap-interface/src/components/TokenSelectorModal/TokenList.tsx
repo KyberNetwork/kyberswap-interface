@@ -1,40 +1,76 @@
 import { ChainId, Currency, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import React, { CSSProperties, ReactNode, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Info, Star, Trash } from 'react-feather'
+import { Info, Star, X } from 'react-feather'
 import AutoSizer from 'react-virtualized-auto-sizer'
-import { VariableSizeList } from 'react-window'
+import { ListChildComponentProps, VariableSizeList } from 'react-window'
 import InfiniteLoader from 'react-window-infinite-loader'
 
 import { ButtonPrimary } from 'components/Button'
-import { AutoColumn } from 'components/Column'
 import CurrencyLogo from 'components/CurrencyLogo'
 import Loader from 'components/Loader'
-import { AutoRow } from 'components/Row'
 import Skeleton from 'components/Skeleton'
 import { Center, HStack, Stack } from 'components/Stack'
 import { getDisplayTokenInfo } from 'components/TokenSelectorModal/PinnedTokens'
+import { Balance } from 'components/TokenSelectorModal/components'
+import { TokenRowExtra, TokenRowExtraMap, tokenRowKey } from 'components/TokenSelectorModal/types'
+import { getNeedsImport } from 'components/TokenSelectorModal/utils'
 import { useActiveWeb3React } from 'hooks'
+import useCopyClipboard from 'hooks/useCopyClipboard'
 import { restrictedTokenKey, restrictedTokenMessage, useIsTokenRestricted } from 'hooks/useRestrictedTokens'
-import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { useUserAddedTokens, useUserFavoriteTokens } from 'state/user/hooks'
 import { useCurrencyBalances } from 'state/wallet/hooks'
+import { shortenAddress } from 'utils'
 import { cn } from 'utils/cn'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
+import { formatBigLiquidity } from 'utils/formatBalance'
 import { formatDisplayNumber } from 'utils/numbers'
 import { getTokenAddress, isTokenNative } from 'utils/tokenInfo'
 
-// Virtualized row heights. Restricted rows are taller to fit the "not available in your jurisdiction" line.
-const ROW_CONTENT_HEIGHT = 14 * 4 // 56px
-const RESTRICTED_CONTENT_HEIGHT = ROW_CONTENT_HEIGHT + 28 // 84px
-const NORMAL_ITEM_SIZE = ROW_CONTENT_HEIGHT + 8 // 64px (content + row gap)
-const RESTRICTED_ITEM_SIZE = RESTRICTED_CONTENT_HEIGHT + 8 // 92px
+// Virtualized row heights. A restricted row the user clicked grows to fit the "not available" notice.
+const ROW_CONTENT_HEIGHT = 12 * 4 // 48px
+const NORMAL_ITEM_SIZE = ROW_CONTENT_HEIGHT + 8 // 56px (content + row gap)
+const RESTRICTED_CONTENT_HEIGHT = ROW_CONTENT_HEIGHT + 28 // 76px
+const RESTRICTED_ITEM_SIZE = RESTRICTED_CONTENT_HEIGHT + 8 // 84px
 
-const Balance = ({ balance }: { balance: CurrencyAmount<Currency> }) => {
+// Stable default so an omitted `itemStyle` prop doesn't mint a new object each render (which would
+// churn the row data bag and re-render every row).
+const EMPTY_ITEM_STYLE: CSSProperties = {}
+// Stable empties so gated balance/price subscriptions never allocate a fresh array to disable them.
+const EMPTY_CURRENCIES: Currency[] = []
+const EMPTY_ADDRESSES: string[] = []
+
+// Compact age badge for the New tab, counted from when the token was whitelisted: "NEW" under 12h,
+// then hours ("15H") up to a day, then days ("3D").
+const formatAgeBadge = (addedAt?: number): string | null => {
+  if (!addedAt) return null
+  const hours = Math.floor(Date.now() / 1000 / 3600 - addedAt / 3600)
+  if (hours < 12) return 'NEW'
+  if (hours < 24) return `${hours}H`
+  return `${Math.floor(hours / 24)}D`
+}
+
+// Shortened token address shown next to the name on the All tab; click the text to copy.
+const AddressCopy = ({ chainId, address }: { chainId: ChainId; address: string }) => {
+  const [copied, setCopied] = useCopyClipboard(1500)
+  const short = shortenAddress(chainId, address, 4, false)
   return (
-    <span className="text-base max-md:text-sm" title={balance.toExact()}>
-      {balance.toSignificant(10)}
+    <span
+      role="button"
+      data-testid="copy-token-address"
+      onClick={e => {
+        e.stopPropagation()
+        setCopied(address)
+      }}
+      className="relative shrink-0 cursor-pointer text-gray transition-colors hover:text-text"
+    >
+      {short}
+      {copied === address && (
+        <span className="pointer-events-none absolute bottom-[calc(100%+4px)] left-1/2 z-10 -translate-x-1/2 whitespace-nowrap rounded bg-tableHeader px-1.5 py-0.5 text-[10px] font-medium text-text shadow-[0px_2px_8px_rgba(0,0,0,0.4)]">
+          <Trans>Copied!</Trans>
+        </span>
+      )}
     </span>
   )
 }
@@ -57,8 +93,31 @@ type TokenRowProps = {
   showLoading?: boolean
   isFavorite?: boolean
   onShowTokenInfo?: (token: Token) => void
+  priceUsd?: number
+  priceChange24h?: number
+  volume24h?: number
+  addedAt?: number
+  showAddress?: boolean
+  usdValueClassName?: string
+  /** Render the fixed-width price / 24h-change column. Kept tab-level (not data-driven) so rows stay aligned. */
+  showPriceColumn?: boolean
+  /**
+   * What the right column renders: the wallet 'balance' (default), 24h 'volume' (Trending), or an
+   * 'import' button for a not-yet-imported token (which also makes the whole row trigger import).
+   */
+  rightColumn?: 'balance' | 'volume' | 'import'
+  /**
+   * Non-whitelisted token shown as a normal row (with its metric column) rather than an Import button,
+   * dimmed to 50%; clicking it opens the import flow. Used on the Trending / All tabs.
+   */
+  importOnClick?: boolean
+  /** Start the import flow for a not-yet-imported token (via the Import button or an `importOnClick` row). */
+  onImportToken?: (token: Token) => void
+  /** Restricted in the user's jurisdiction: clicking the row reveals the inline notice instead of selecting. */
   restricted?: boolean
+  /** Whether the inline "not available" notice is currently expanded for this row. */
   warned?: boolean
+  /** Reveal the inline restricted notice (called on a restricted row's click). */
   onRestrictedClick?: () => void
 }
 
@@ -80,12 +139,24 @@ export const TokenRow = ({
   showLoading,
   isFavorite,
   onShowTokenInfo,
+  priceUsd,
+  priceChange24h,
+  volume24h,
+  addedAt,
+  showAddress,
+  usdValueClassName = 'text-subText',
+  showPriceColumn,
+  rightColumn = 'balance',
+  importOnClick,
+  onImportToken,
   restricted,
   warned,
   onRestrictedClick,
 }: TokenRowProps) => {
+  const isImport = rightColumn === 'import'
   const nativeCurrency = useCurrencyConvertedToNative(currency || undefined)
-  const balanceSkeletonWidth = useMemo(() => Math.floor(Math.random() * 40) + 40, [])
+  // Uniform skeleton width so balance rows stay aligned and don't jitter as they re-sort while balances load.
+  const balanceSkeletonWidth = 56
 
   const onClickRemove = (e: React.MouseEvent) => {
     e.stopPropagation()
@@ -93,62 +164,147 @@ export const TokenRow = ({
   }
 
   const renderBalance = () => {
-    if (hideBalance) return <span className="text-base max-md:text-sm">******</span>
+    if (hideBalance) return <span className="max-w-full truncate text-xs text-text sm:text-sm">******</span>
+    // Connected wallet: show the balance (a zero balance renders as "0"). With no wallet, currencyBalance
+    // is undefined and showLoading is false, so it falls through to "0".
     if (currencyBalance) return <Balance balance={currencyBalance} />
     if (showLoading)
       return <Skeleton width={balanceSkeletonWidth} height={18} className="my-[3px]" variant="darkSubtle" />
-    return null
+    return (
+      <span className="max-w-full truncate text-xs text-text sm:text-sm" data-testid="token-balance">
+        0
+      </span>
+    )
   }
   const { symbol } = getDisplayTokenInfo(currency)
 
+  const ageBadge = formatAgeBadge(addedAt)
+
   const rowInner = (
     <>
-      <HStack className="min-w-0 flex-1 items-center gap-3">
+      <HStack className={cn('min-w-0 flex-1 items-center gap-2', isImport && 'opacity-50')}>
         {showFavoriteIcon && (
           <Star
             onClick={e => onToggleFavorite?.(e, currency)}
             data-active={isFavorite}
             data-testid="button-favorite-token"
             role="button"
-            className="size-4 text-subText hover:text-primary data-[active=true]:fill-current data-[active=true]:text-primary"
+            className="size-4 shrink-0 text-subText hover:text-primary data-[active=true]:fill-current data-[active=true]:text-primary"
           />
         )}
 
-        <CurrencyLogo currency={currency} size="24px" />
+        <div className="shrink-0">
+          <CurrencyLogo currency={currency} size="24px" />
+        </div>
         <Stack className="min-w-0 gap-0.5">
-          <span title={currency.name} className="font-medium" data-testid="token-symbol">
-            {customName || symbol}
-          </span>
-          <span className="max-w-full truncate text-xs font-light text-subText">{nativeCurrency?.name}</span>
+          <HStack className="min-w-0 items-center gap-1">
+            <span
+              title={currency.name}
+              className="truncate text-xs font-normal text-text sm:text-sm"
+              data-testid="token-symbol"
+            >
+              {customName || symbol}
+            </span>
+            {onShowTokenInfo && (
+              <Info
+                role="button"
+                data-testid="button-token-info"
+                onClick={e => {
+                  e.stopPropagation()
+                  onShowTokenInfo(currency.wrapped)
+                }}
+                size={14}
+                className="shrink-0 text-subText hover:text-text"
+              />
+            )}
+            {ageBadge && (
+              <span
+                className="shrink-0 rounded bg-blue/20 px-1 text-[10px] font-medium leading-4 text-blue"
+                data-testid="token-age-badge"
+              >
+                {ageBadge}
+              </span>
+            )}
+          </HStack>
+          <HStack className="min-w-0 items-center gap-1 text-xs text-gray">
+            <span title={nativeCurrency?.name} className="truncate" data-testid="token-name">
+              {nativeCurrency?.name}
+            </span>
+            {showAddress && (
+              <>
+                <span className="shrink-0">•</span>
+                {isTokenNative(currency) ? (
+                  <span className="shrink-0">
+                    <Trans>Native</Trans>
+                  </span>
+                ) : (
+                  <AddressCopy chainId={currency.chainId} address={currency.wrapped.address} />
+                )}
+              </>
+            )}
+          </HStack>
         </Stack>
       </HStack>
 
       <HStack className="shrink-0 items-center gap-3 justify-self-end">
-        <Stack className="items-end gap-0.5">
-          {customBalance !== undefined ? customBalance : renderBalance()}
-          {usdBalance !== undefined && !hideBalance && (
-            <span className="text-xs text-subText">
-              {formatDisplayNumber(usdBalance, { style: 'currency', significantDigits: 4 })}
+        {showPriceColumn && (
+          <Stack className={cn('w-[72px] items-end gap-0.5 overflow-hidden sm:w-[132px]', isImport && 'opacity-50')}>
+            <span className="max-w-full truncate text-xs text-text sm:text-sm" data-testid="token-price">
+              {priceUsd ? formatDisplayNumber(priceUsd, { style: 'currency', significantDigits: 6 }) : '--'}
             </span>
-          )}
-        </Stack>
-        {onRemoveImportedToken && (
-          <Trash
-            onClick={onClickRemove}
-            data-testid="button-remove-import-token"
-            className="size-4 text-subText hover:text-text"
-          />
+            {priceChange24h !== undefined && (
+              <span
+                className={cn('text-xs', priceChange24h >= 0 ? 'text-primary' : 'text-red')}
+                data-testid="token-price-change"
+              >
+                {priceChange24h >= 0 ? '+' : '-'}
+                {formatDisplayNumber(Math.abs(priceChange24h) / 100, { style: 'percent', fractionDigits: 2 })}
+              </span>
+            )}
+          </Stack>
         )}
-        {onShowTokenInfo && (
-          <Info
-            role="button"
-            onClick={e => {
-              e.stopPropagation()
-              onShowTokenInfo(currency.wrapped)
-            }}
-            size={16}
-            className="text-subText hover:text-text"
-          />
+
+        {isImport ? (
+          <Stack className="w-[72px] items-end overflow-hidden sm:w-[104px]">
+            <ButtonPrimary
+              data-testid="button-import-token"
+              width="fit-content"
+              padding="6px 16px"
+              fontWeight={500}
+              fontSize="14px"
+              className="transition"
+              onClick={e => {
+                e.stopPropagation()
+                onImportToken?.(currency.wrapped)
+              }}
+            >
+              <Trans>Import</Trans>
+            </ButtonPrimary>
+          </Stack>
+        ) : rightColumn === 'volume' ? (
+          <Stack className="w-[72px] items-end overflow-hidden sm:w-[104px]">
+            <span className="max-w-full truncate text-xs text-text sm:text-sm" data-testid="token-volume">
+              {volume24h ? formatBigLiquidity(String(volume24h), 2, true) : '--'}
+            </span>
+          </Stack>
+        ) : (
+          <Stack className="w-[72px] items-end gap-0.5 overflow-hidden sm:w-[104px]">
+            {customBalance !== undefined ? customBalance : renderBalance()}
+            {!!usdBalance && !hideBalance && (
+              <span className={cn('text-xs', usdValueClassName)} data-testid="token-usd-value">
+                {formatDisplayNumber(usdBalance, { style: 'currency', significantDigits: 4 })}
+              </span>
+            )}
+          </Stack>
+        )}
+        {onRemoveImportedToken && (
+          <div className="flex w-6 shrink-0 items-center justify-center">
+            <X
+              onClick={onClickRemove}
+              data-testid="button-remove-import-token"
+              className="size-4 shrink-0 cursor-pointer text-subText hover:text-text"
+            />
+          </div>
         )}
       </HStack>
     </>
@@ -160,14 +316,28 @@ export const TokenRow = ({
         data-testid="token-item"
         data-restricted="true"
         style={style}
-        className="justify-center gap-0.5 rounded-xl bg-warning/[0.08] px-0.5"
+        className="justify-center gap-0.5 rounded-lg bg-warning/[0.08] px-0.5"
       >
-        <HStack className="pointer-events-none h-12 w-full items-center justify-between gap-4 px-3 opacity-50">
+        <HStack className="pointer-events-none h-12 w-full items-center justify-between gap-3 px-3 opacity-50">
           {rowInner}
         </HStack>
-        <span className="px-3 pb-1 text-xs font-medium text-warning">{restrictedTokenMessage()}</span>
+        <span className="px-3 pb-1 text-xs font-medium text-warning" data-testid="restricted-token-notice">
+          {restrictedTokenMessage()}
+        </span>
       </Stack>
     )
+  }
+
+  const activate = () => {
+    if (restricted) {
+      onRestrictedClick?.()
+      return
+    }
+    if (isImport || importOnClick) {
+      onImportToken?.(currency.wrapped)
+      return
+    }
+    onSelect?.(currency)
   }
 
   return (
@@ -175,13 +345,15 @@ export const TokenRow = ({
       data-testid="token-item"
       data-selected={isSelected || otherSelected}
       role="button"
+      tabIndex={0}
+      aria-label={symbol}
       style={style}
-      onClick={() => {
-        if (restricted) {
-          onRestrictedClick?.()
-          return
+      onClick={activate}
+      onKeyDown={e => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault()
+          activate()
         }
-        onSelect?.(currency)
       }}
       onMouseEnter={e => {
         if (hoverColor && window.matchMedia('(hover: hover)').matches) {
@@ -194,8 +366,10 @@ export const TokenRow = ({
         }
       }}
       className={cn(
-        'flex h-14 w-full cursor-pointer items-center justify-between gap-4 rounded-lg px-3 py-1',
-        'data-[selected=true]:bg-primary-20',
+        'flex h-12 w-full cursor-pointer items-center justify-between gap-2 rounded-lg px-3 py-1 sm:gap-3',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 data-[selected=true]:bg-primary-20',
+        // Not-yet-imported token: keep the row normal but dimmed to 50% to hint it needs importing.
+        importOnClick && 'opacity-50',
         !hoverColor &&
           '[@media(hover:hover)]:hover:bg-primary-15 [@media(hover:hover)]:data-[selected=true]:hover:bg-primary-25',
       )}
@@ -205,83 +379,107 @@ export const TokenRow = ({
   )
 }
 
-type ImportTokenRowProps = {
-  token: Token
-  style?: CSSProperties
-  dim?: boolean
+// Data bag handed to every virtualized row through react-window's `itemData`. Delivering row data
+// as a prop (rather than closing over it in an inline render-prop) keeps the row's element type
+// stable, so background price/balance polls re-render rows cheaply instead of remounting them.
+type VirtualRowData = {
+  currencies: Currency[]
+  currencyBalances: (CurrencyAmount<Currency> | undefined)[]
+  selectedCurrency?: Currency | null
+  otherCurrency?: Currency | null
+  onCurrencySelect?: (currency: Currency) => void
   onImportToken?: (token: Token) => void
-  restricted?: boolean
-  warned?: boolean
-  onRestrictedClick?: () => void
+  onToggleFavorite?: (event: React.MouseEvent, currency: Currency) => void
+  onRemoveImportedToken?: (token: Token) => void
+  onShowTokenInfo?: (token: Token) => void
+  showFavoriteIcon?: boolean
+  itemStyle: CSSProperties
+  showAddress?: boolean
+  showPriceColumn?: boolean
+  showVolume?: boolean
+  importAsRow?: boolean
+  importedAddressSet: Set<string>
+  tokenPrices: { [address: string]: number }
+  account?: string | null
+  favoriteAddressSet: Set<string>
+  extras?: TokenRowExtraMap
+  isTokenRestricted: (currency?: Currency | null) => boolean
+  warnedKeys: Set<string>
+  onWarnRestricted: (key: string) => void
 }
 
-const ImportTokenRow = ({
-  token,
-  style,
-  dim,
-  onImportToken,
-  restricted,
-  warned,
-  onRestrictedClick,
-}: ImportTokenRowProps) => {
-  const importRow = (
-    <div
-      className={cn(
-        'grid items-center gap-2 px-5',
-        '[grid-template-columns:auto_minmax(auto,1fr)_auto]',
-        warned ? 'h-12' : 'h-14 rounded-lg py-1 hover:bg-primary-15 active:bg-primary-20',
-      )}
-    >
-      <CurrencyLogo currency={token} size="24px" style={dim || warned ? { opacity: 0.5 } : undefined} />
-      <AutoColumn className={cn('gap-1', (dim || warned) && 'opacity-50')}>
-        <AutoRow>
-          <span className="text-base font-medium leading-[normal] text-text">{token.symbol}</span>
-          <span className="ml-2 text-subText">
-            <span className="block max-w-[140px] truncate text-xs" title={token.name}>
-              {token.name}
-            </span>
-          </span>
-        </AutoRow>
-      </AutoColumn>
-      <ButtonPrimary
-        data-testid="button-import-token"
-        width="fit-content"
-        padding="6px 12px"
-        fontWeight={500}
-        fontSize="14px"
-        disabled={warned}
-        className={cn((dim || warned) && 'opacity-50', warned && 'cursor-not-allowed')}
-        onClick={() => {
-          if (restricted) {
-            if (!warned) onRestrictedClick?.()
-            return
-          }
-          onImportToken?.(token)
-        }}
-      >
-        <Trans>Import</Trans>
-      </ButtonPrimary>
-    </div>
-  )
-
-  if (warned) {
+const VirtualRow = memo(function VirtualRow({ index, style, data }: ListChildComponentProps<VirtualRowData>) {
+  const currency = data.currencies[index]
+  // The trailing slot (present while more pages can load) has no currency yet — show the loader.
+  if (!currency) {
     return (
-      <Stack style={style} className="justify-center gap-0.5 rounded-xl bg-warning/[0.08] px-0.5">
-        {importRow}
-        <span className="px-5 pb-1 text-xs font-medium text-warning">{restrictedTokenMessage()}</span>
-      </Stack>
+      <div className="px-2 pt-2" style={style} data-testid="token-list-load-more">
+        <Center className="h-12">
+          <Loader size="20px" />
+        </Center>
+      </div>
     )
   }
 
-  return <div style={style}>{importRow}</div>
-}
+  const token = currency.wrapped
 
-type VirtualTokenRowProps = {
-  currency: Currency | undefined
-  currencyBalance?: CurrencyAmount<Currency>
-  index: number
-  style: CSSProperties
-}
+  // Not whitelisted and not yet imported. Without `importAsRow` (Favorites, or while searching) the
+  // right column becomes an Import button; with `importAsRow` (Trending / All, not searching) the row
+  // stays normal — dimmed to 50% — and clicking it imports.
+  const needsImport = getNeedsImport(currency, address => data.importedAddressSet.has(address), !!data.onImportToken)
+  const importAsRow = needsImport && !!data.importAsRow
+  const rightColumn = needsImport && !data.importAsRow ? 'import' : data.showVolume ? 'volume' : 'balance'
+
+  const isSelected = Boolean(data.selectedCurrency?.equals(currency))
+  const otherSelected = Boolean(data.otherCurrency?.equals(currency))
+
+  const favoriteTokenAddress = currency.isToken ? (currency as Token).address : undefined
+  const isFavorite = favoriteTokenAddress ? data.favoriteAddressSet.has(favoriteTokenAddress.toLowerCase()) : false
+
+  const currencyBalance = data.currencyBalances[index]
+  const extra: TokenRowExtra | undefined = data.extras?.[tokenRowKey(currency.chainId, token.address)]
+  // Non-All tabs already carry price in the catalog extras; only the All tab fetches Redux prices.
+  const priceForUsd = data.showPriceColumn ? extra?.price ?? 0 : data.tokenPrices[token.address] || 0
+  const usdBalance = priceForUsd * parseFloat(currencyBalance?.toExact() || '0')
+
+  const restrictedKey = restrictedTokenKey(currency.chainId, getTokenAddress(currency))
+  const restricted = data.isTokenRestricted(currency)
+  const warned = restricted && data.warnedKeys.has(restrictedKey)
+  const rowStyle: CSSProperties = { height: warned ? RESTRICTED_CONTENT_HEIGHT : ROW_CONTENT_HEIGHT, ...data.itemStyle }
+
+  return (
+    <div className="px-2 pt-2" style={style}>
+      <TokenRow
+        isFavorite={isFavorite}
+        showLoading={!!data.account}
+        onToggleFavorite={data.onToggleFavorite}
+        onRemoveImportedToken={data.onRemoveImportedToken}
+        style={rowStyle}
+        currency={currency}
+        currencyBalance={currencyBalance}
+        isSelected={isSelected}
+        showFavoriteIcon={data.showFavoriteIcon}
+        onSelect={data.onCurrencySelect}
+        otherSelected={otherSelected}
+        onShowTokenInfo={data.onShowTokenInfo}
+        usdBalance={usdBalance}
+        usdValueClassName="text-primary"
+        priceUsd={extra?.price}
+        priceChange24h={extra?.priceChange24h}
+        volume24h={extra?.volume24h}
+        addedAt={extra?.addedAt}
+        showAddress={data.showAddress}
+        showPriceColumn={data.showPriceColumn}
+        rightColumn={rightColumn}
+        importOnClick={importAsRow}
+        onImportToken={data.onImportToken}
+        restricted={restricted}
+        warned={warned}
+        onRestrictedClick={() => data.onWarnRestricted(restrictedKey)}
+      />
+    </div>
+  )
+})
 
 type TokenListProps = {
   showFavoriteIcon?: boolean
@@ -298,6 +496,16 @@ type TokenListProps = {
   itemStyle?: CSSProperties
   customChainId?: ChainId
   onShowTokenInfo?: (token: Token) => void
+  /** Per-token price / 24h change / volume / added-at metadata keyed by `${chainId}-${address}`. */
+  extras?: TokenRowExtraMap
+  /** Show the shortened, click-to-copy token address next to each name (All tab). */
+  showAddress?: boolean
+  /** Render the price / 24h-change column (every tab except All). */
+  showPriceColumn?: boolean
+  /** Right column shows 24h volume instead of balance (Trending). */
+  showVolume?: boolean
+  /** Render a not-yet-imported token as a normal row dimmed to 50% (click imports) instead of an Import button (Trending / All). */
+  importAsRow?: boolean
 }
 
 const TokenList = ({
@@ -312,23 +520,41 @@ const TokenList = ({
   hasMore,
   listTokenRef,
   showFavoriteIcon,
-  itemStyle = {},
+  itemStyle = EMPTY_ITEM_STYLE,
   customChainId,
   onShowTokenInfo,
+  extras,
+  showAddress,
+  showPriceColumn,
+  showVolume,
+  importAsRow,
 }: TokenListProps) => {
   const { account } = useActiveWeb3React()
   const { favoriteTokens } = useUserFavoriteTokens(customChainId)
   const tokenImports = useUserAddedTokens(customChainId)
 
-  const tokenPrices = useTokenPrices(
-    currencies.map(currency => currency.wrapped.address),
-    customChainId,
+  // Only the All tab derives USD sub-lines from Redux prices (the others read price from catalog
+  // extras), so skip the /prices fetch elsewhere. Trending shows volume, not balance, so skip its
+  // per-block balanceOf multicall entirely.
+  const priceAddresses = useMemo(
+    () => (showPriceColumn ? EMPTY_ADDRESSES : currencies.map(currency => currency.wrapped.address)),
+    [showPriceColumn, currencies],
   )
-  const currencyBalances = useCurrencyBalances(currencies, customChainId)
+  const tokenPrices = useTokenPrices(priceAddresses, customChainId)
+  const balanceCurrencies = showVolume ? EMPTY_CURRENCIES : currencies
+  const currencyBalances = useCurrencyBalances(balanceCurrencies, customChainId)
+
+  // O(1) row-level membership checks (exact-case for imports to match the address equality used
+  // elsewhere; lowercased for favorites, which can be stored in either case).
+  const importedAddressSet = useMemo(() => new Set(tokenImports.map(token => token.address)), [tokenImports])
+  const favoriteAddressSet = useMemo(
+    () => new Set((favoriteTokens ?? []).map(address => address.toLowerCase())),
+    [favoriteTokens],
+  )
 
   const isTokenRestricted = useIsTokenRestricted()
   const listRef = useRef<VariableSizeList | null>(null)
-  // Restricted tokens the user has clicked; only these show the inline "not available" warning.
+  // Keys of restricted rows the user clicked; each grows to reveal the inline "not available" notice.
   const [warnedKeys, setWarnedKeys] = useState<Set<string>>(() => new Set())
 
   const getItemSize = useCallback(
@@ -342,96 +568,73 @@ const TokenList = ({
     [currencies, warnedKeys],
   )
 
-  // Row heights are variable (a warned row is taller); reset cached offsets when inputs change.
+  const onWarnRestricted = useCallback((key: string) => {
+    setWarnedKeys(prev => {
+      if (prev.has(key)) return prev
+      const next = new Set(prev)
+      next.add(key)
+      return next
+    })
+  }, [])
+
+  // Re-measure only when the row order/set changes or a restricted row expands/collapses — not on
+  // every background poll that hands us a new-but-equal `currencies` array, which would otherwise
+  // drop all cached offsets and re-layout the whole list (a visible flicker).
+  const rowsSignature = useMemo(() => currencies.map(currency => currency.wrapped.address).join(','), [currencies])
   useEffect(() => {
     listRef.current?.resetAfterIndex(0)
-  }, [currencies, warnedKeys])
+  }, [rowsSignature, warnedKeys])
 
-  const Row = useCallback(
-    ({ style, currency, currencyBalance }: VirtualTokenRowProps) => {
-      if (!currency) return null
-
-      const extendCurrency = currency as WrappedTokenInfo
-      const token = currency.wrapped
-      const isWhitelisted = !!extendCurrency?.isWhitelisted
-
-      const restricted = isTokenRestricted(currency)
-      const restrictedKey = restrictedTokenKey(currency.chainId, getTokenAddress(currency))
-      const warned = restricted && warnedKeys.has(restrictedKey)
-      const warnRestricted = () => setWarnedKeys(prev => new Set(prev).add(restrictedKey))
-      const rowStyle: CSSProperties = {
-        ...style,
-        height: warned ? RESTRICTED_CONTENT_HEIGHT : ROW_CONTENT_HEIGHT,
-      }
-
-      const showImport =
-        !isWhitelisted &&
-        !tokenImports.find(importedToken => importedToken.address === token.address) &&
-        !isTokenNative(currency)
-
-      if (showImport && token && onImportToken) {
-        return (
-          <ImportTokenRow
-            style={rowStyle}
-            token={token}
-            onImportToken={onImportToken}
-            dim={true}
-            restricted={restricted}
-            warned={warned}
-            onRestrictedClick={warnRestricted}
-          />
-        )
-      }
-
-      const isSelected = Boolean(selectedCurrency?.equals(currency))
-      const otherSelected = Boolean(otherCurrency?.equals(currency))
-
-      const favoriteTokenAddress = currency.isToken ? (currency as Token).address : undefined
-      const isFavorite = favoriteTokenAddress
-        ? !!favoriteTokens?.includes(favoriteTokenAddress) ||
-          !!favoriteTokens?.includes(favoriteTokenAddress.toLowerCase())
-        : false
-
-      const tokenPrice = tokenPrices[token.address] || 0
-      const usdBalance = tokenPrice * parseFloat(currencyBalance?.toExact() || '0')
-
-      return (
-        <TokenRow
-          isFavorite={isFavorite}
-          showLoading={!!account}
-          onToggleFavorite={onToggleFavorite}
-          onRemoveImportedToken={onRemoveImportedToken}
-          style={{ ...rowStyle, ...itemStyle }}
-          currency={currency}
-          currencyBalance={currencyBalance}
-          isSelected={isSelected}
-          showFavoriteIcon={showFavoriteIcon}
-          onSelect={onCurrencySelect}
-          otherSelected={otherSelected}
-          onShowTokenInfo={onShowTokenInfo}
-          usdBalance={usdBalance}
-          restricted={restricted}
-          warned={warned}
-          onRestrictedClick={warnRestricted}
-        />
-      )
-    },
-    [
-      onCurrencySelect,
-      otherCurrency,
+  const itemData = useMemo<VirtualRowData>(
+    () => ({
+      currencies,
+      currencyBalances,
       selectedCurrency,
+      otherCurrency,
+      onCurrencySelect,
       onImportToken,
       onToggleFavorite,
       onRemoveImportedToken,
-      itemStyle,
+      onShowTokenInfo,
       showFavoriteIcon,
-      tokenImports,
+      itemStyle,
+      showAddress,
+      showPriceColumn,
+      showVolume,
+      importAsRow,
+      importedAddressSet,
       tokenPrices,
       account,
-      favoriteTokens,
-      onShowTokenInfo,
+      favoriteAddressSet,
+      extras,
       isTokenRestricted,
       warnedKeys,
+      onWarnRestricted,
+    }),
+    [
+      currencies,
+      currencyBalances,
+      selectedCurrency,
+      otherCurrency,
+      onCurrencySelect,
+      onImportToken,
+      onToggleFavorite,
+      onRemoveImportedToken,
+      onShowTokenInfo,
+      showFavoriteIcon,
+      itemStyle,
+      showAddress,
+      showPriceColumn,
+      showVolume,
+      importAsRow,
+      importedAddressSet,
+      tokenPrices,
+      account,
+      favoriteAddressSet,
+      extras,
+      isTokenRestricted,
+      warnedKeys,
+      onWarnRestricted,
     ],
   )
 
@@ -440,7 +643,7 @@ const TokenList = ({
   const isItemLoaded = (index: number) => !hasMore || index < currencies.length
 
   return (
-    <div className="flex-1 pb-2">
+    <div className="flex-1 pb-2" data-testid="token-list">
       <AutoSizer>
         {({ height, width }) => (
           <InfiniteLoader isItemLoaded={isItemLoaded} itemCount={itemCount} loadMoreItems={loadMoreItems} threshold={3}>
@@ -451,6 +654,7 @@ const TokenList = ({
                 itemCount={itemCount}
                 itemSize={getItemSize}
                 estimatedItemSize={NORMAL_ITEM_SIZE}
+                itemData={itemData}
                 onItemsRendered={onItemsRendered}
                 ref={node => {
                   ref(node)
@@ -458,28 +662,7 @@ const TokenList = ({
                 }}
                 outerRef={listTokenRef}
               >
-                {({ index, style }: { index: number; style: CSSProperties }) => {
-                  if (!isItemLoaded(index)) {
-                    return (
-                      <div className="px-2 pt-2" style={style}>
-                        <Center className="h-14">
-                          <Loader size="20px" />
-                        </Center>
-                      </div>
-                    )
-                  }
-                  return (
-                    <div className="px-2 pt-2" style={style}>
-                      <Row
-                        index={index}
-                        currency={currencies[index]}
-                        key={currencies[index]?.wrapped.address || index}
-                        currencyBalance={currencyBalances[index]}
-                        style={{ height: 14 * 4 }}
-                      />
-                    </div>
-                  )
-                }}
+                {VirtualRow}
               </VariableSizeList>
             )}
           </InfiniteLoader>

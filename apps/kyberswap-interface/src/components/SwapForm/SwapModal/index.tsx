@@ -14,6 +14,7 @@ import {
 import { useActiveWeb3React } from 'hooks'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { permitError } from 'state/swap/actions'
+import { getCurrencyDisplaySymbol } from 'utils/tokenInfo'
 
 import ConfirmSwapModalContent from './ConfirmSwapModalContent'
 
@@ -54,9 +55,9 @@ const SwapModal: React.FC<Props> = props => {
 
   const amountOut = currencyOut && CurrencyAmount.fromRawAmount(currencyOut, buildResult?.data?.amountOut || '0')
   const amountInDisplay = routeSummary?.parsedAmountIn?.toSignificant(6)
-  const symbolIn = currencyIn?.symbol
+  const symbolIn = getCurrencyDisplaySymbol(currencyIn)
   const amountOutDisplay = amountOut?.toSignificant(6)
-  const symbolOut = currencyOut?.symbol
+  const symbolOut = getCurrencyDisplaySymbol(currencyOut)
 
   // text to show while loading
   const pendingText = t`Swapping ${amountInDisplay} ${symbolIn} for ${amountOutDisplay} ${symbolOut}`

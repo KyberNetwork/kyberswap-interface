@@ -19,7 +19,6 @@ import ksSettingApi from 'services/ksSetting'
 import kyberDAO from 'services/kyberDAO'
 import kyberdataServiceApi from 'services/kyberdata'
 import limitOrderApi from 'services/limitOrder'
-import marketOverviewApi from 'services/marketOverview'
 import notificationApi from 'services/notification'
 import priceAlertApi from 'services/priceAlert'
 import referralApi from 'services/referral'
@@ -31,6 +30,7 @@ import smartExitApi from 'services/smartExit'
 import socialApi from 'services/social'
 import tipLinkApi from 'services/tipLink'
 import tokenApi from 'services/token'
+import tokenCatalogApi from 'services/tokenCatalog'
 import tokenChartApi from 'services/tokenChart'
 import zapApi from 'services/zap'
 
@@ -60,7 +60,7 @@ const PERSISTED_KEYS: string[] = ['user', 'transactions', 'profile', 'crossChain
 // Client-only: read persisted state from localStorage and migrate from old version to
 // new version, preventing lost favorite tokens of user. Returns {} under SSR/prerender.
 function getClientPreloadedState(): Partial<AppState> {
-  if (typeof window === 'undefined') return {}
+  if (import.meta.env.SSR || typeof window === 'undefined') return {}
   const preloadedState: any = load({ states: PERSISTED_KEYS })
   if ('user' in preloadedState) {
     const userState: UserState = preloadedState.user
@@ -131,9 +131,9 @@ const rootReducer = combineReducers({
   [campaignApi.reducerPath]: campaignApi.reducer,
   [commonServiceApi.reducerPath]: commonServiceApi.reducer,
   [blackjackApi.reducerPath]: blackjackApi.reducer,
-  [marketOverviewApi.reducerPath]: marketOverviewApi.reducer,
   [smartExitApi.reducerPath]: smartExitApi.reducer,
   [tipLinkApi.reducerPath]: tipLinkApi.reducer,
+  [tokenCatalogApi.reducerPath]: tokenCatalogApi.reducer,
   [tokenChartApi.reducerPath]: tokenChartApi.reducer,
   [restrictedTokensApi.reducerPath]: restrictedTokensApi.reducer,
 })
@@ -170,9 +170,9 @@ const apiMiddlewares: Middleware[] = [
   campaignApi,
   commonServiceApi,
   blackjackApi,
-  marketOverviewApi,
   smartExitApi,
   tipLinkApi,
+  tokenCatalogApi,
   tokenChartApi,
   restrictedTokensApi,
 ].map(api => api.middleware as Middleware)
@@ -231,7 +231,7 @@ export const getClientStore = (): AppStore => {
 }
 
 // Default export: lazy client singleton in the browser; a fresh empty store under Node (prerender).
-const store: AppStore = typeof window !== 'undefined' ? getClientStore() : makeStore()
+const store: AppStore = !import.meta.env.SSR && typeof window !== 'undefined' ? getClientStore() : makeStore()
 export default store
 
 /**

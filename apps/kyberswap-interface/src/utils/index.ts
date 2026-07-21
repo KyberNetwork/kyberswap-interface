@@ -60,13 +60,14 @@ export const shortenHash = (hash: string, chars = 3): string => {
 }
 
 /**
- * Add a margin amount equal to max of 20000 or 20% of estimatedGas
- * total = estimate + max(20k, 20% * estimate) (50% on Polygon and Optimism).
+ * Add a margin amount equal to max of 20000 or the configured percentage of estimatedGas.
+ * The default percentage is 20% (50% on Polygon and Optimism).
  */
-export function calculateGasMarginBigInt(value: bigint, chainId?: ChainId): bigint {
+export function calculateGasMarginBigInt(value: bigint, chainId?: ChainId, minimumMarginBps = 2000): bigint {
   const defaultGasLimitMargin = BigInt(DEFAULT_GAS_LIMIT_MARGIN)
   const needHigherGas = [ChainId.MATIC, ChainId.OPTIMISM].includes(chainId as ChainId)
-  const gasMargin = (value * (needHigherGas ? 5000n : 2000n)) / 10000n
+  const chainMarginBps = needHigherGas ? 5000 : 2000
+  const gasMargin = (value * BigInt(Math.max(chainMarginBps, minimumMarginBps))) / 10000n
   return gasMargin >= defaultGasLimitMargin ? value + gasMargin : value + defaultGasLimitMargin
 }
 

@@ -54,7 +54,12 @@ export const ImportTokenView = ({
       <PaddedColumn className="w-full flex-1">
         <HStack className="items-center justify-between">
           {onBack ? (
-            <ArrowLeft className="cursor-pointer hover:brightness-75" onClick={onBack} />
+            <ArrowLeft
+              role="button"
+              data-testid="import-token-back"
+              className="cursor-pointer hover:brightness-75"
+              onClick={onBack}
+            />
           ) : (
             <span className="size-6" />
           )}
@@ -80,7 +85,9 @@ export const ImportTokenView = ({
               <HStack className="gap-2.5">
                 <CurrencyLogo currency={token} size={'44px'} />
                 <Stack className="gap-1">
-                  <span className="text-xl font-medium leading-[normal] text-text">{token.symbol}</span>
+                  <span className="text-xl font-medium leading-[normal] text-text" data-testid="import-token-symbol">
+                    {token.symbol}
+                  </span>
                   <span className="text-sm font-normal text-subText">{token.name}</span>
                   <HStack className="items-center gap-[5px] text-text">
                     <span className="text-[10px] sm:text-xs">
