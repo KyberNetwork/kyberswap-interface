@@ -64,11 +64,7 @@ export default function CurrencyInputForStake({
         <NumericalInput value={value} onUserInput={setValue} disabled={disabled} />
         <span className="mr-1.5 text-sm text-border">~${kncValueInUsd}</span>
         <KNCLogoWrapper>
-          {getTokenLogoURL(tokenAddress, ChainId.MAINNET) !== '' ? (
-            <img src={`${getTokenLogoURL(tokenAddress, ChainId.MAINNET)}`} alt="knc-logo" width="24px" height="24px" />
-          ) : (
-            <img src={KNC} alt="knc-logo" width="24px" height="24px" />
-          )}
+          <img src={getTokenLogoURL(tokenAddress, ChainId.MAINNET) || KNC} alt="knc-logo" width="24px" height="24px" />
           {tokenName}
         </KNCLogoWrapper>
       </RowBetween>
