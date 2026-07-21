@@ -19,7 +19,7 @@ import CurrencyLogo from 'components/CurrencyLogo'
 import SegmentedControl from 'components/SegmentedControl'
 import { HStack, Stack } from 'components/Stack'
 import { MouseoverTooltip } from 'components/Tooltip'
-import { PRICE_CHART_QUOTE_TOKEN_BY_CHAIN } from 'constants/tokens'
+import { PRICE_CHART_QUOTES } from 'constants/tokens'
 import useTheme from 'hooks/useTheme'
 import { formatPrice, formatSignedPercent } from 'pages/Earns/PoolDetail/Information/utils'
 import PoolChartState, { PoolChartSkeleton } from 'pages/Earns/PoolDetail/components/PoolChartState'
@@ -71,7 +71,7 @@ const TokenPriceChart = ({ tokens, flatten }: TokenPriceChartProps) => {
       if (!token) return result
 
       const currencyKey = getCurrencyKey(token)
-      const quoteStableToken = PRICE_CHART_QUOTE_TOKEN_BY_CHAIN[token.chainId]
+      const quoteStableToken = PRICE_CHART_QUOTES[token.chainId]
       const quoteStableTokenKey = quoteStableToken ? getCurrencyKey(quoteStableToken) : ''
       if (currencyKey === quoteStableTokenKey) return result
 
@@ -87,7 +87,7 @@ const TokenPriceChart = ({ tokens, flatten }: TokenPriceChartProps) => {
   const activeToken = filteredTokens[resolvedActiveTabIndex] ?? filteredTokens[0]
   const activeTokenAddress = activeToken?.wrapped.address.toLowerCase()
 
-  const stableToken = PRICE_CHART_QUOTE_TOKEN_BY_CHAIN[chainId]
+  const stableToken = PRICE_CHART_QUOTES[chainId]
   const stableAddress = stableToken?.wrapped.address.toLowerCase()
   const fromBucketMs = useMemo(() => getTokenChartFromBucketMs({ timeFrame }), [timeFrame])
   const chartRequestKey = `${chainId}:${activeTokenAddress}:${stableAddress}:${timeFrame}`

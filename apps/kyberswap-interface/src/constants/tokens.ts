@@ -68,8 +68,7 @@ export const TOKENS_WITH_FEE_TIER_1: Record<ChainId, string[]> = CHAINS_SUPPORT_
 export const KNC_ADDRESS = '0xdeFA4e8a7bcBA345F687a2f1456F5Edd9CE97202'
 export const KNCL_ADDRESS = '0xdd974D5C2e2928deA5F71b9825b8b646686BD200'
 
-// todo: make it nullable
-export const KNC: { [chainId in ChainId]: Token } = {
+export const KNC: Partial<Record<ChainId, Token>> = {
   [ChainId.MAINNET]: new Token(ChainId.MAINNET, KNC_ADDRESS, 18, 'KNC', 'KNC'),
   [ChainId.GÖRLI]: new Token(ChainId.GÖRLI, '0xd19e5119Efc73FeA1e70f9fbbc105DaB89D914e4', 18, 'KNC', 'KNC'),
   [ChainId.MATIC]: new Token(ChainId.MATIC, '0x1C954E8fe737F99f68Fa1CCda3e51ebDB291948C', 18, 'KNC', 'KNC'),
@@ -79,26 +78,9 @@ export const KNC: { [chainId in ChainId]: Token } = {
   [ChainId.OPTIMISM]: new Token(ChainId.OPTIMISM, '0xa00e3a3511aac35ca78530c85007afcd31753819', 18, 'KNC', 'KNC'),
   [ChainId.LINEA]: new Token(ChainId.LINEA, '0x3b2F62d42DB19B30588648bf1c184865D4C3B1D6', 18, 'KNC', 'KNC'),
   [ChainId.BASE]: new Token(ChainId.BASE, '0x28fe69Ff6864C1C218878BDCA01482D36B9D57b1', 18, 'KNC', 'KNC'),
-
-  // TODO(viet-nv): KNC does not exist on the below chain
-  [ChainId.FANTOM]: new Token(ChainId.FANTOM, KNC_ADDRESS, 18, 'KNC', 'KNC'),
-  [ChainId.SCROLL]: new Token(ChainId.SCROLL, KNC_ADDRESS, 18, 'KNC', 'KNC'),
-  [ChainId.ZKSYNC]: new Token(ChainId.ZKSYNC, KNC_ADDRESS, 18, 'KNC', 'KNC'),
-  [ChainId.BLAST]: new Token(ChainId.BLAST, KNC_ADDRESS, 18, 'KNC', 'KNC'),
-  [ChainId.MANTLE]: new Token(ChainId.MANTLE, KNC_ADDRESS, 18, 'KNC', 'KNC'),
-  [ChainId.SONIC]: new Token(ChainId.SONIC, KNC_ADDRESS, 18, 'KNC', 'KNC'),
-  [ChainId.BERA]: new Token(ChainId.BERA, KNC_ADDRESS, 18, 'KNC', 'KNC'),
-  [ChainId.RONIN]: new Token(ChainId.RONIN, KNC_ADDRESS, 18, 'KNC', 'KNC'),
-  [ChainId.UNICHAIN]: new Token(ChainId.RONIN, KNC_ADDRESS, 18, 'KNC', 'KNC'),
-  [ChainId.HYPEREVM]: new Token(ChainId.RONIN, KNC_ADDRESS, 18, 'KNC', 'KNC'),
-  [ChainId.ETHERLINK]: new Token(ChainId.RONIN, KNC_ADDRESS, 18, 'KNC', 'KNC'),
-  [ChainId.PLASMA]: new Token(ChainId.RONIN, KNC_ADDRESS, 18, 'KNC', 'KNC'),
-  [ChainId.MONAD]: new Token(ChainId.MONAD, KNC_ADDRESS, 18, 'KNC', 'KNC'),
-  [ChainId.MEGAETH]: new Token(ChainId.MEGAETH, KNC_ADDRESS, 18, 'KNC', 'KNC'),
-  [ChainId.ROBINHOOD]: new Token(ChainId.ROBINHOOD, KNC_ADDRESS, 18, 'KNC', 'KNC'),
 }
 
-export const DEFAULT_OUTPUT_TOKEN_BY_CHAIN: Partial<Record<ChainId, Token>> = {
+export const DEFAULT_OUTPUT_TOKENS: Partial<Record<ChainId, Token>> = {
   [ChainId.MAINNET]: new Token(ChainId.MAINNET, '0xdAC17F958D2ee523a2206206994597C13D831ec7', 6, 'USDT', 'Tether USD'),
   [ChainId.MATIC]: new Token(ChainId.MATIC, '0xc2132D05D31c914a87C6611C10748AEb04B58e8F', 6, 'USDT', 'Tether USD'),
   [ChainId.BSCMAINNET]: new Token(ChainId.BSCMAINNET, '0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d', 18, 'USDC', 'USDC'),
@@ -137,9 +119,9 @@ export const DEFAULT_OUTPUT_TOKEN_BY_CHAIN: Partial<Record<ChainId, Token>> = {
   ),
 }
 
-export const PRICE_CHART_QUOTE_TOKEN_BY_CHAIN: Partial<Record<ChainId, Token>> = {
-  [ChainId.MAINNET]: DEFAULT_OUTPUT_TOKEN_BY_CHAIN[ChainId.MAINNET],
-  [ChainId.MATIC]: DEFAULT_OUTPUT_TOKEN_BY_CHAIN[ChainId.MATIC],
+export const PRICE_CHART_QUOTES: Partial<Record<ChainId, Token>> = {
+  [ChainId.MAINNET]: DEFAULT_OUTPUT_TOKENS[ChainId.MAINNET],
+  [ChainId.MATIC]: DEFAULT_OUTPUT_TOKENS[ChainId.MATIC],
   [ChainId.BSCMAINNET]: new Token(
     ChainId.BSCMAINNET,
     '0x55d398326f99059fF775485246999027B3197955',
@@ -164,8 +146,14 @@ export const PRICE_CHART_QUOTE_TOKEN_BY_CHAIN: Partial<Record<ChainId, Token>> =
   ),
   [ChainId.BASE]: new Token(ChainId.BASE, '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913', 6, 'USDC', 'USD Coin'),
   [ChainId.HYPEREVM]: new Token(ChainId.HYPEREVM, '0xb88339CB7199b77E23DB6E890353E22632Ba630f', 6, 'USDC', 'USDC'),
-  [ChainId.MONAD]: DEFAULT_OUTPUT_TOKEN_BY_CHAIN[ChainId.MONAD],
-  [ChainId.ROBINHOOD]: DEFAULT_OUTPUT_TOKEN_BY_CHAIN[ChainId.ROBINHOOD],
+  [ChainId.MONAD]: DEFAULT_OUTPUT_TOKENS[ChainId.MONAD],
+  [ChainId.ROBINHOOD]: DEFAULT_OUTPUT_TOKENS[ChainId.ROBINHOOD],
+}
+
+// Swap-intent routes use this when the subject is native or wrapped-native, avoiding native -> native pairs.
+export const STABLE_TOKENS: Partial<Record<ChainId, Token>> = {
+  ...DEFAULT_OUTPUT_TOKENS,
+  ...PRICE_CHART_QUOTES,
 }
 
 export const DEFAULT_SWAP_FEE_STABLE_PAIRS = 4

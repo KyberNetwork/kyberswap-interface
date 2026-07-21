@@ -11,7 +11,7 @@
     <link rel="apple-touch-icon" type="image/png" href="/favicon.png?version=v1" />
     <link rel="icon" type="image/png" href="/favicon.png?version=v1" />
 
-    <!-- ssr-seo:start — title + per-route metadata; replaced at prerender time by scripts/prerender.mjs -->
+    <!-- ssr-seo:start — replaced for distinct static pages and shared product shells by scripts/prerender.mjs -->
     <title>KyberSwap - Limitless Access To DeFi</title>
 
     <!-- Default SEO metadata -->
@@ -42,8 +42,8 @@
     <meta name="twitter:image" content="https://kyberswap.com/kyberswap-og-image.png?version=2023" />
     <meta name="twitter:image:alt" content="KyberSwap - Limitless Access To DeFi" />
 
-    <!-- Structured data — id lets the client <RouteSeo> update THIS block in place on the (non-prerendered)
-         home route instead of appending a duplicate. Prerendered routes replace it via the ssr-seo markers. -->
+    <!-- Structured data — id lets the client <RouteSeo> update THIS block in place instead of appending
+         a duplicate. Static pages and product shells replace it via the ssr-seo markers. -->
     <script type="application/ld+json" id="kyberswap-structured-data">
       {
         "@context": "https://schema.org",

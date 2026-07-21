@@ -18,7 +18,13 @@ import RouteSeo from 'components/Seo/RouteSeo'
 import SingaporeWarningPopup from 'components/SingaporeWarningPopup'
 import SupportButton from 'components/SupportButton'
 import { APP_PATHS, CHAINS_SUPPORT_CROSS_CHAIN, TERM_FILES_PATH } from 'constants/index'
-import { CLASSIC_NOT_SUPPORTED, ELASTIC_NOT_SUPPORTED, NETWORKS_INFO, SUPPORTED_NETWORKS } from 'constants/networks'
+import {
+  CLASSIC_NOT_SUPPORTED,
+  ELASTIC_NOT_SUPPORTED,
+  NETWORKS_INFO,
+  SUPPORTED_NETWORKS,
+  isSupportLimitOrder,
+} from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import usePageLocation from 'hooks/usePageLocation'
 import useSessionExpiredGlobal from 'hooks/useSessionExpire'
@@ -29,12 +35,13 @@ import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
 import CrossChainPage from 'pages/Swap/CrossChainPage'
 import LimitPage from 'pages/Swap/LimitPage'
 import SwapPage from 'pages/Swap/SwapPage'
-import { RedirectPathToTradeNetwork } from 'pages/Swap/redirects'
+import { RedirectPathToTradeNetwork, SwapIntentRedirect } from 'pages/Swap/redirects'
 import VerifyAuth from 'pages/Verify/VerifyAuth'
 import { useAppDispatch, useAppSelector } from 'state/hooks'
 import { updateSafeAppAcceptedTermOfUse } from 'state/user/actions'
 import { ExternalLink } from 'theme'
-import { isInSafeApp, isSupportLimitOrder } from 'utils'
+import { isInSafeApp } from 'utils'
+import { SwapIntent } from 'utils/routes'
 
 const Login = lazy(() => import('pages/Oauth/Login'))
 const Logout = lazy(() => import('pages/Oauth/Logout'))
@@ -87,6 +94,14 @@ const NetworkSyncedPage = ({ children }: { children: React.ReactNode }) => {
   useSyncNetworkParamWithStore()
   return <>{children}</>
 }
+
+const SwapIntentPage = ({ intent }: { intent: SwapIntent }) => (
+  <SwapIntentRedirect intent={intent}>
+    <NetworkSyncedPage>
+      <SwapPage />
+    </NetworkSyncedPage>
+  </SwapIntentRedirect>
+)
 
 const RedirectToCreateTips = () => {
   const { networkInfo } = useActiveWeb3React()
@@ -244,6 +259,8 @@ export default function App() {
                   </NetworkSyncedPage>
                 }
               />
+              <Route path={`${APP_PATHS.BUY}/:network/:token`} element={<SwapIntentPage intent={SwapIntent.BUY} />} />
+              <Route path={`${APP_PATHS.SELL}/:network/:token`} element={<SwapIntentPage intent={SwapIntent.SELL} />} />
               <Route path={`${APP_PATHS.PARTNER_SWAP}`} element={<PartnerSwap />} />
               <Route path={`${APP_PATHS.USER_SWAP}/:tipsId?`} element={<PartnerSwap mode="user" />} />
               <Route path={`${APP_PATHS.USER_SWAP_CREATE_TIPS}`} element={<RedirectToCreateTips />} />
