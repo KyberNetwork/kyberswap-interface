@@ -532,6 +532,7 @@ export const TokenSelectorContent = ({
         token_symbol: currency.symbol,
         token_address: isTokenNative(currency) ? 'NATIVE' : address,
         chain: NETWORKS_INFO[currency.chainId].name,
+        chain_id: currency.chainId,
         // Absent when the pick came from quick-select or the other-chain group rather than the list.
         row_index: rowIndex >= 0 ? rowIndex : undefined,
         is_search_result: !!debouncedQuery,
@@ -596,6 +597,7 @@ export const TokenSelectorContent = ({
         tab,
         previous_tab: activeTab,
         chain: NETWORKS_INFO[primaryChainId].name,
+        chain_id: primaryChainId,
       })
     },
     [activeTab, primaryChainId, trackingHandler, trackingSource],
@@ -607,7 +609,9 @@ export const TokenSelectorContent = ({
       trackingHandler(TRACKING_EVENT_TYPE.TS_CHAIN_SWITCHED, {
         source: trackingSource,
         from_chain: NETWORKS_INFO[selectedChainId].name,
+        from_chain_id: selectedChainId,
         to_chain: NETWORKS_INFO[chainId].name,
+        to_chain_id: chainId,
         tab: activeTab,
       })
     },
