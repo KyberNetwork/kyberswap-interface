@@ -283,6 +283,16 @@ describe('SEO contract', () => {
       })
     })
 
+    it('rejects duplicate route state keys', () => {
+      expect(
+        resolveRouteMetadata('/swap/base', '?inputCurrency=eth&inputCurrency=weth&outputCurrency=usdc'),
+      ).toMatchObject({ canonicalPath: '/swap/base', robots: 'noindex,follow' })
+      expect(resolveRouteMetadata('/cross-chain', '?from=1&from=8453&to=10&tokenIn=ETH&tokenOut=USDC')).toMatchObject({
+        canonicalPath: '/cross-chain',
+        robots: 'noindex,follow',
+      })
+    })
+
     it('keeps malformed pool paths out of the index', () => {
       const address = `0x${'a'.repeat(40)}`
 

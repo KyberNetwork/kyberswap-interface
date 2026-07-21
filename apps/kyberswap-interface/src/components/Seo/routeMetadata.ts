@@ -101,6 +101,11 @@ const supportsLimitOrder = (networkRoute: string) => {
   return isSupportLimitOrder(chainId)
 }
 
+const getSingleSearchParam = (searchParams: URLSearchParams, key: string) => {
+  const values = searchParams.getAll(key)
+  return values.length === 1 ? values[0] : undefined
+}
+
 const getSwapSeoCopy = (networkRoute: string): SeoCopy => {
   const networkName = getNetworkNameByRoute(networkRoute)
   return networkName
@@ -132,8 +137,8 @@ const getLimitSeoCopy = (networkRoute: string): SeoCopy => {
 }
 
 const getLegacyPairCanonicalPath = (productPath: string, networkRoute: string, searchParams: URLSearchParams) => {
-  const tokenIn = searchParams.get('inputCurrency')?.trim().toLowerCase()
-  const tokenOut = searchParams.get('outputCurrency')?.trim().toLowerCase()
+  const tokenIn = getSingleSearchParam(searchParams, 'inputCurrency')?.trim().toLowerCase()
+  const tokenOut = getSingleSearchParam(searchParams, 'outputCurrency')?.trim().toLowerCase()
   if (!tokenIn || !tokenOut || tokenIn === tokenOut || tokenIn.includes('-to-') || tokenOut.includes('-to-'))
     return undefined
 
@@ -143,10 +148,10 @@ const getLegacyPairCanonicalPath = (productPath: string, networkRoute: string, s
 }
 
 const getCrossChainCanonicalPath = (searchParams: URLSearchParams) => {
-  const from = searchParams.get('from')?.trim().toLowerCase()
-  const to = searchParams.get('to')?.trim().toLowerCase()
-  const tokenIn = searchParams.get('tokenIn')?.trim()
-  const tokenOut = searchParams.get('tokenOut')?.trim()
+  const from = getSingleSearchParam(searchParams, 'from')?.trim().toLowerCase()
+  const to = getSingleSearchParam(searchParams, 'to')?.trim().toLowerCase()
+  const tokenIn = getSingleSearchParam(searchParams, 'tokenIn')?.trim()
+  const tokenOut = getSingleSearchParam(searchParams, 'tokenOut')?.trim()
 
   if (!from || !to || !tokenIn || !tokenOut) return undefined
 
