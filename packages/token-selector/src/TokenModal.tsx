@@ -17,11 +17,11 @@ const TokenInfo = lazy(() => import("@/TokenInfo"));
 
 /** Loading fallback for lazy-loaded TokenInfo */
 const TokenInfoLoader = () => (
-  <div className="w-full mx-auto text-white overflow-hidden">
-    <div className="flex items-center gap-1 p-4 pb-[14px] animate-pulse">
-      <div className="w-[26px] h-[26px] rounded bg-stroke" />
-      <div className="w-20 h-5 rounded bg-stroke ml-1" />
-      <div className="w-32 h-4 rounded bg-stroke mt-1" />
+  <div className="h-full w-full overflow-y-auto text-white">
+    <div className="flex animate-pulse items-center gap-2 p-4">
+      <div className="h-5 w-5 rounded bg-stroke" />
+      <div className="h-6 w-20 rounded bg-stroke" />
+      <div className="h-4 w-32 rounded bg-stroke" />
     </div>
     <div className="flex items-center justify-between px-4 py-2 bg-icon-200">
       <div className="flex items-center gap-2">
@@ -29,7 +29,7 @@ const TokenInfoLoader = () => (
         <div className="w-24 h-4 rounded bg-stroke" />
       </div>
     </div>
-    <div className="flex flex-col gap-3 px-[26px] py-[14px]">
+    <div className="flex flex-col gap-3 px-6 py-4">
       {Array.from({ length: 4 }).map((_, i) => (
         <div
           key={i}
@@ -158,16 +158,13 @@ const TokenModal = ({
     tokensIn,
   ]);
 
-  const isSelectorView = !tokenToShow && !tokenToImport;
-
   return (
     <Dialog onOpenChange={onClose} open={true}>
       <DialogContent
         containerClassName="ks-token-selector"
         className={
-          `bg-layer2 p-0 !max-h-[min(80vh,640px)] ` +
-          `${isSelectorView ? "h-[80vh] pb-6 overflow-hidden " : "overflow-y-auto "}` +
-          `${tokenToImport ? "max-w-[420px]" : "max-w-[435px]"}`
+          `h-[80vh] overflow-hidden !border-0 bg-layer2 p-0 !max-h-[min(80vh,640px)] ` +
+          `${tokenToImport ? "max-w-[420px]" : "max-w-[436px]"}`
         }
         skipClose
         aria-describedby={undefined}

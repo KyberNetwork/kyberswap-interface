@@ -2,9 +2,13 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import type { I18n } from "@lingui/core";
 
-import { API_URLS, ChainId, NETWORKS_INFO } from "@kyber/schema";
+import { API_URLS, ChainId } from "@kyber/schema";
 
-import { TokenInfo, getMarketTokenInfo } from "@/TokenInfo/utils";
+import {
+  TokenInfo,
+  getMarketTokenInfo,
+  getNetworkInfo,
+} from "@/TokenInfo/utils";
 
 const FETCH_INTERVAL = 60_000;
 
@@ -29,15 +33,25 @@ export default function useMarketTokenInfo({
     () => getMarketTokenInfo(marketTokenInfo, i18n),
     [marketTokenInfo, i18n],
   );
+  const networkInfo = useMemo(() => getNetworkInfo(chainId), [chainId]);
 
   const handleFetchCoingeckoData = useCallback(() => {
-    if (!tokenAddress) return;
+    if (!tokenAddress || !networkInfo) return;
+
+    const isNativeToken =
+      tokenAddress === networkInfo.wrappedToken.address.toLowerCase();
+    const requestUrl = isNativeToken
+      ? networkInfo.coingeckoNativeTokenId
+        ? `${API_URLS.COINGECKO_API_URL}/coins/${networkInfo.coingeckoNativeTokenId}`
+        : null
+      : networkInfo.coingeckoNetworkId
+        ? `${API_URLS.COINGECKO_API_URL}/coins/${networkInfo.coingeckoNetworkId}/contract/${tokenAddress}`
+        : null;
+
+    if (!requestUrl) return;
+
     setLoading(true);
-    fetch(
-      tokenAddress === NETWORKS_INFO[chainId].wrappedToken.address.toLowerCase()
-        ? `${API_URLS.COINGECKO_API_URL}/coins/${NETWORKS_INFO[chainId].coingeckoNativeTokenId}`
-        : `${API_URLS.COINGECKO_API_URL}/coins/${NETWORKS_INFO[chainId].coingeckoNetworkId}/contract/${tokenAddress}`,
-    )
+    fetch(requestUrl)
       .then((res) => res.json())
       .then((data) =>
         setMarketTokenInfo({
@@ -58,10 +72,11 @@ export default function useMarketTokenInfo({
         setMarketTokenInfo(null);
       })
       .finally(() => setLoading(false));
-  }, [tokenAddress, chainId]);
+  }, [networkInfo, tokenAddress]);
 
   useEffect(() => {
-    if (!tokenAddress) return;
+    setMarketTokenInfo(null);
+    if (!tokenAddress || !networkInfo) return;
 
     if (fetchIntervalRef.current) clearInterval(fetchIntervalRef.current);
     handleFetchCoingeckoData();
@@ -73,7 +88,7 @@ export default function useMarketTokenInfo({
     return () => {
       if (fetchIntervalRef.current) clearInterval(fetchIntervalRef.current);
     };
-  }, [tokenAddress, handleFetchCoingeckoData]);
+  }, [handleFetchCoingeckoData, networkInfo, tokenAddress]);
 
   return { marketTokenInfo: parsedMarketTokenInfo, loading };
 }
