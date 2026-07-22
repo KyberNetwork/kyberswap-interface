@@ -238,9 +238,9 @@ components:
         - source_confirmed
         - bridge_pending
         - destination_pending
-        - completed
-        - refunded
-        - failed
+        - SUCCESS
+        - REFUNDED
+        - FAILED
 
     ActionType:
       type: string
