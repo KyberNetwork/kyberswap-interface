@@ -19,7 +19,8 @@ type Props = {
   currencyIn: Currency | undefined
   currencyOut: Currency | undefined
   amountOutUsd: string | undefined
-
+  balanceText?: string
+  highlightToken?: boolean
   onChangeCurrencyOut: (c: Currency) => void
   customChainId?: ChainId
   routeLoading: boolean
@@ -32,6 +33,8 @@ const OutputCurrencyPanel: React.FC<Props> = ({
   currencyIn,
   currencyOut,
   amountOutUsd,
+  balanceText,
+  highlightToken,
   onChangeCurrencyOut,
   customChainId,
   routeLoading,
@@ -76,6 +79,8 @@ const OutputCurrencyPanel: React.FC<Props> = ({
         id="swap-currency-output"
         dataTestId="swap-currency-output"
         showPinnedTokens={true}
+        customBalanceText={balanceText}
+        highlightCurrencySelect={highlightToken}
         estimatedUsd={routeLoading ? '' : getEstimatedUsd()}
         label={
           <TextHelper

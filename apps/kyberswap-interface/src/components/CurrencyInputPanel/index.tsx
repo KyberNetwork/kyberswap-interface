@@ -155,7 +155,7 @@ const BalanceRow = ({
   selectedCurrencyBalance,
 }: BalanceRowProps) => {
   const showTopActions = (onMax || onHalf) && positionMax === 'top' && currency && account
-  const balance = customBalanceText || selectedCurrencyBalance?.toSignificant(10) || 0
+  const balance = customBalanceText ?? selectedCurrencyBalance?.toSignificant(10) ?? 0
 
   return (
     <div className="flex min-h-5 items-center justify-between text-xs">
@@ -336,6 +336,7 @@ interface CurrencyInputPanelProps {
   showPinnedTokens?: boolean
   customBalanceText?: string
   hideLogo?: boolean
+  highlightCurrencySelect?: boolean
   fontSize?: string
   customCurrencySelect?: ReactNode
   estimatedUsd?: string
@@ -379,6 +380,7 @@ export default function CurrencyInputPanel({
   showPinnedTokens,
   customBalanceText,
   hideLogo = false,
+  highlightCurrencySelect = false,
   fontSize,
   customCurrencySelect,
   estimatedUsd,
@@ -456,7 +458,11 @@ export default function CurrencyInputPanel({
                 isDisable={disableCurrencySelect}
                 hideInput={hideInput}
                 selected={!!currency}
-                className={cn('open-currency-select-button', selectClassName)}
+                className={cn(
+                  'open-currency-select-button',
+                  highlightCurrencySelect && '!border-blue !bg-blue/20',
+                  selectClassName,
+                )}
                 onClick={() => {
                   if (disableCurrencySelect) return
                   if (!isSwitchMode) {

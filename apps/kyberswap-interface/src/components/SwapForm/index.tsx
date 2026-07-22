@@ -10,6 +10,7 @@ import { NotificationType } from 'components/Announcement/type'
 import FeeControlGroup from 'components/FeeControlGroup'
 import WarningIcon from 'components/Icons/WarningIcon'
 import { NetworkSelector } from 'components/NetworkSelector'
+import ERC8056Info, { useERC8056SwapInfo } from 'components/SwapForm/ERC8056Info'
 import InputCurrencyPanel from 'components/SwapForm/InputCurrencyPanel'
 import MultichainKNCNote from 'components/SwapForm/MultichainKNCNote'
 import OutputCurrencyPanel from 'components/SwapForm/OutputCurrencyPanel'
@@ -162,6 +163,8 @@ const SwapForm: React.FC<SwapFormProps> = props => {
   }, [prefillInputAmount, updateInputAmount, notify])
 
   const parsedAmount = useParsedAmount(currencyIn, typedValue)
+  const erc8056Info = useERC8056SwapInfo({ chainId, currencyIn, currencyOut, balanceIn, balanceOut })
+
   const {
     wrapType,
     inputError: wrapInputError,
@@ -261,6 +264,8 @@ const SwapForm: React.FC<SwapFormProps> = props => {
                 currencyIn={currencyIn}
                 currencyOut={currencyOut}
                 balanceIn={balanceIn}
+                balanceText={erc8056Info.input.balanceText}
+                highlightToken={erc8056Info.input.isScaled}
                 onChangeCurrencyIn={handleChangeCurrencyIn}
                 customChainId={customChainId}
               />
@@ -287,11 +292,15 @@ const SwapForm: React.FC<SwapFormProps> = props => {
                 currencyIn={currencyIn}
                 currencyOut={currencyOut}
                 amountOutUsd={routeSummary?.amountOutUsd}
+                balanceText={erc8056Info.output.balanceText}
+                highlightToken={erc8056Info.output.isScaled}
                 onChangeCurrencyOut={handleChangeCurrencyOut}
                 customChainId={customChainId}
                 routeLoading={routeLoading}
               />
             </div>
+
+            <ERC8056Info tokens={erc8056Info.tokens} />
 
             {isDegenMode && !isWrapOrUnwrap && (
               <AddressInputPanel id="recipient" value={recipient} onChange={setRecipient} />
