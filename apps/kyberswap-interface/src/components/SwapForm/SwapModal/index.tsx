@@ -49,12 +49,12 @@ const SwapModal: React.FC<Props> = props => {
     txHash: '',
   })
 
-  const { routeSummary } = useSwapFormContext()
+  const { routeSummary, displayTypedValue } = useSwapFormContext()
   const currencyIn = routeSummary?.parsedAmountIn?.currency
   const currencyOut = routeSummary?.parsedAmountOut?.currency
 
   const amountOut = currencyOut && CurrencyAmount.fromRawAmount(currencyOut, buildResult?.data?.amountOut || '0')
-  const amountInDisplay = routeSummary?.parsedAmountIn?.toSignificant(6)
+  const amountInDisplay = displayTypedValue || routeSummary?.parsedAmountIn?.toSignificant(6)
   const symbolIn = getCurrencyDisplaySymbol(currencyIn)
   const amountOutDisplay = amountOut?.toSignificant(6)
   const symbolOut = getCurrencyDisplaySymbol(currencyOut)
@@ -96,7 +96,7 @@ const SwapModal: React.FC<Props> = props => {
       from_token: currencyIn?.symbol,
       to_token: currencyOut?.symbol,
       pair: currencyIn?.symbol && currencyOut?.symbol ? `${currencyIn.symbol}/${currencyOut.symbol}` : undefined,
-      amount_in: routeSummary?.parsedAmountIn?.toSignificant(6),
+      amount_in: displayTypedValue || routeSummary?.parsedAmountIn?.toSignificant(6),
       amount_in_usd: routeSummary?.amountInUsd ? Number(routeSummary.amountInUsd) : undefined,
       error_type: isUserRejected ? 'user_rejected' : 'tx_failed',
       error_message: error,
