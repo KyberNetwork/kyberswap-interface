@@ -55,7 +55,7 @@ const CollapseInfoItem = ({
           onClick={onExpand}
         >
           <div className="flex items-center justify-between w-full pr-3">
-            <div className="flex items-center justify-start gap-[6px]">
+            <div className="flex items-center justify-start gap-2">
               <span>{icon}</span>
               <span>{title}</span>
             </div>
@@ -70,8 +70,8 @@ const CollapseInfoItem = ({
           </div>
         </AccordionTrigger>
         <AccordionContent className="px-5 py-4 bg-black bg-opacity-[0.2] rounded-b-md flex gap-3 justify-between flex-wrap">
-          <div className="flex items-center gap-[6px] justify-between basis-[45%] text-xs text-subText">
-            <div className="flex items-center gap-[6px]">
+          <div className="flex basis-[45%] items-center justify-between gap-2 text-xs text-subText">
+            <div className="flex items-center gap-2">
               <IconAlertOctagon className="h-4 w-4 text-error" />
               <span>
                 {totalRisk <= 1
@@ -82,8 +82,8 @@ const CollapseInfoItem = ({
             <span className="text-error font-medium">{totalRisk}</span>
           </div>
 
-          <div className="flex items-center gap-[6px] justify-between basis-[45%] text-xs text-subText">
-            <div className="flex items-center gap-[6px]">
+          <div className="flex basis-[45%] items-center justify-between gap-2 text-xs text-subText">
+            <div className="flex items-center gap-2">
               <IconAlertOctagon className="h-4 w-4 text-warning" />
               <span>
                 {totalWarning <= 1
@@ -120,7 +120,7 @@ const CollapseInfoItem = ({
             return (
               <div
                 key={label}
-                className="flex items-center gap-[6px] justify-between basis-[45%] text-xs text-subText"
+                className="flex basis-[45%] items-center justify-between gap-2 text-xs text-subText"
               >
                 <span>{label}</span>
                 <span

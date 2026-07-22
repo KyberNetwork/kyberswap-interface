@@ -2,8 +2,28 @@
 @tailwind components;
 @tailwind utilities;
 
+:is(.ks-token-selector, kyber-portal.ks-ui-style) {
+  --ks-lw-text: #ffffff;
+  --ks-lw-subText: #979797;
+  --ks-lw-icons: #a9a9a9;
+  --ks-lw-layer1: #1c1c1c;
+  --ks-lw-layer2: #313131;
+  --ks-lw-interactive: #292929;
+  --ks-lw-stroke: #313131;
+  --ks-lw-accent: #31cb9e;
+  --ks-lw-warning: #ff9901;
+  --ks-lw-error: #ff537b;
+  --ks-lw-success: #189470;
+  --ks-lw-textRevert: #333333;
+  --ks-lw-borderRadius: 20px;
+}
+
 @layer components {
-  .token-scroll-container::-webkit-scrollbar {
+  .token-virtual-list {
+    scrollbar-width: none;
+  }
+
+  .token-virtual-list::-webkit-scrollbar {
     display: none;
   }
 }

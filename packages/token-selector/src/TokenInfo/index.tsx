@@ -1,14 +1,10 @@
 import { useMemo } from "react";
 
-import {
-  ChainId,
-  NATIVE_TOKEN_ADDRESS,
-  NETWORKS_INFO,
-  Token,
-} from "@kyber/schema";
+import { ChainId, NATIVE_TOKEN_ADDRESS, Token } from "@kyber/schema";
 
 import MarketInfo from "@/TokenInfo/MarketInfo";
 import SecurityInfo from "@/TokenInfo/SecurityInfo";
+import { getNetworkInfo } from "@/TokenInfo/utils";
 import ChevronLeft from "@/assets/chevron-left.svg?react";
 
 const TokenInfo = ({
@@ -20,29 +16,38 @@ const TokenInfo = ({
   chainId: ChainId;
   onGoBack: () => void;
 }) => {
+  const networkInfo = getNetworkInfo(chainId);
   const tokenAddress = useMemo(
     () =>
       (token?.address
         ? token.address.toLowerCase() === NATIVE_TOKEN_ADDRESS.toLowerCase()
-          ? NETWORKS_INFO[chainId].wrappedToken.address
+          ? networkInfo?.wrappedToken.address || ""
           : token.address
         : ""
       ).toLowerCase(),
-    [token, chainId],
+    [token, networkInfo],
   );
 
   return (
-    <div className="w-full mx-auto text-white overflow-hidden">
-      <div className="flex items-center gap-1 p-4 pb-[14px]">
+    <div className="h-full w-full overflow-y-auto text-white">
+      <div className="flex items-center gap-2 p-4">
         <ChevronLeft
-          className="text-subText w-[26px] h-[26px] cursor-pointer hover:text-text"
+          className="text-subText w-5 h-5 cursor-pointer hover:text-text"
           onClick={onGoBack}
         />
-        <span className="ml-1">{token.symbol || ""}</span>
-        <span className="text-xs text-subText mt-1">{token.name || ""}</span>
+        <span className="font-medium">{token.symbol || ""}</span>
+        <span className="text-xs text-subText">{token.name || ""}</span>
       </div>
-      <MarketInfo token={token} tokenAddress={tokenAddress} chainId={chainId} />
-      <SecurityInfo tokenAddress={tokenAddress} chainId={chainId} />
+      {tokenAddress ? (
+        <>
+          <MarketInfo
+            token={token}
+            tokenAddress={tokenAddress}
+            chainId={chainId}
+          />
+          <SecurityInfo tokenAddress={tokenAddress} chainId={chainId} />
+        </>
+      ) : null}
     </div>
   );
 };
