@@ -22,7 +22,7 @@ import { tryParseAmount } from 'state/swap/hooks'
 import { useCurrencyBalance } from 'state/wallet/hooks'
 import { getCookieValue } from 'utils'
 import { subscribeNotificationOrderExpired } from 'utils/firebase'
-import { maxAmountSpend } from 'utils/maxAmountSpend'
+import { halfAmountSpend, maxAmountSpend } from 'utils/maxAmountSpend'
 
 type UseCreateLimitOrderProps = {
   order: LimitOrderCreateContext
@@ -179,6 +179,14 @@ export const useCreateLimitOrder = ({
     } catch (error) {}
   }
 
+  const handleHalfInput = () => {
+    const halfAmountInput = halfAmountSpend(balance)
+    if (!halfAmountInput) return
+    try {
+      onSetInput?.(halfAmountInput.toExact())
+    } catch (error) {}
+  }
+
   const openReview = () => {
     if (!currencyIn || !currencyOut || !outputAmount || !inputAmount || !displayRate) return
 
@@ -260,6 +268,7 @@ export const useCreateLimitOrder = ({
   return {
     estimateUSD,
     balance: {
+      handleHalfInput,
       handleMaxInput,
       insufficientBalance,
       insufficientBalanceText,

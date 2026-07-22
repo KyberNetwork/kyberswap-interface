@@ -159,16 +159,15 @@ const BalanceRow = ({
 
   return (
     <div className="flex min-h-5 items-center justify-between text-xs">
-      {label && positionLabel === 'in' ? (
-        label
-      ) : showTopActions ? (
+      {(label && positionLabel === 'in') || showTopActions ? (
         <div className="flex items-center gap-1">
-          {onMax && (
+          {label && positionLabel === 'in' && label}
+          {showTopActions && onMax && (
             <StyledBalanceMax onClick={onMax}>
               <Trans>Max</Trans>
             </StyledBalanceMax>
           )}
-          {onHalf && (
+          {showTopActions && onHalf && (
             <StyledBalanceMax onClick={onHalf}>
               <Trans>Half</Trans>
             </StyledBalanceMax>

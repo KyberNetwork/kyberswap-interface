@@ -161,6 +161,7 @@ const LimitOrderForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPr
       onInputAmountChange: form.onSetInput,
       onOutputAmountChange: form.onSetOutput,
       onMaxInput: balance.handleMaxInput,
+      onHalfInput: balance.handleHalfInput,
       onInputTokenSelect: form.handleInputSelect,
       onOutputTokenSelect: form.handleOutputSelect,
       onInputFocus: tracking.trackingTouchInput,
