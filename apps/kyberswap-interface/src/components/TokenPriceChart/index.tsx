@@ -21,6 +21,7 @@ import { HStack, Stack } from 'components/Stack'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { PRICE_CHART_QUOTES } from 'constants/tokens'
 import useTheme from 'hooks/useTheme'
+import { useStableCoins } from 'hooks/useTokens'
 import { formatPrice, formatSignedPercent } from 'pages/Earns/PoolDetail/Information/utils'
 import PoolChartState, { PoolChartSkeleton } from 'pages/Earns/PoolDetail/components/PoolChartState'
 import { ExternalLink, MEDIA_WIDTHS } from 'theme'
@@ -65,6 +66,7 @@ const TokenPriceChart = ({ tokens, flatten }: TokenPriceChartProps) => {
   const chartHeight = upToSmall ? 280 : 360
 
   const chainId = tokens?.find(Boolean)?.chainId || ChainId.MAINNET
+  const { isStableCoin } = useStableCoins(chainId)
 
   const filteredTokens = useMemo(() => {
     return (tokens ?? []).reduce<Currency[]>((result, token) => {
@@ -78,6 +80,12 @@ const TokenPriceChart = ({ tokens, flatten }: TokenPriceChartProps) => {
       return result.concat(token)
     }, [])
   }, [tokens])
+
+  const defaultActiveTabIndex = Math.max(
+    filteredTokens.findIndex(token => !token.isNative && !isStableCoin(token.wrapped.address)),
+    0,
+  )
+  const filteredTokenKeys = filteredTokens.map(getCurrencyKey).join(':')
 
   const [timeFrame, setTimeFrame] = useState<TokenChartTimeFrame>('1d')
   const [activeTabIndex, setActiveTabIndex] = useState(0)
@@ -93,8 +101,8 @@ const TokenPriceChart = ({ tokens, flatten }: TokenPriceChartProps) => {
   const chartRequestKey = `${chainId}:${activeTokenAddress}:${stableAddress}:${timeFrame}`
 
   useEffect(() => {
-    setActiveTabIndex(0)
-  }, [filteredTokens.length])
+    setActiveTabIndex(defaultActiveTabIndex)
+  }, [defaultActiveTabIndex, filteredTokenKeys])
 
   useEffect(() => {
     setIsExpanded(!upToSmall)
