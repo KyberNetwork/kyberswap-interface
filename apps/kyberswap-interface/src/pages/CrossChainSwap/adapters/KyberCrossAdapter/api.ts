@@ -17,9 +17,9 @@ type RouteStatus =
   | 'source_confirmed'
   | 'bridge_pending'
   | 'destination_pending'
-  | 'completed'
-  | 'refunded'
-  | 'failed'
+  | 'SUCCESS'
+  | 'REFUNDED'
+  | 'FAILED'
 type ActionType = 'wrap_native' | 'unwrap_native' | 'transfer'
 
 export type QuoteRequest = {
