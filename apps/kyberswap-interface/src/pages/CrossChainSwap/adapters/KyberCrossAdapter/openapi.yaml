@@ -1,0 +1,918 @@
+openapi: 3.0.3
+info:
+  title: KyberCross Quote / Build API
+  version: 1.0.0
+  description: |
+    OpenAPI YAML for the current public quote/build routes.
+
+    Notes:
+    - Runtime JSON uses `route_id` for the route identifier.
+    - `to_address` defaults to `from_address` on `/api/v1/quotes` and `/api/v1/quote-and-build` when omitted.
+    - `refund_address` defaults to `from_address` on `/api/v1/quotes` and `/api/v1/quote-and-build` when omitted.
+    - `include_bridges` and `exclude_bridges` are request-only filters and are not echoed inside `route_plan.request`.
+    - JSON byte fields such as `message`, `execution_data`, and `protocol_data` are base64 strings.
+
+servers:
+  - url: https://pre-kybercross.kyberengineering.io
+
+paths:
+  /api/v1/quotes:
+    post:
+      tags: [quote]
+      operationId: postQuote
+      summary: Quote routes
+      description: |
+        Returns route plans (each a public route plan that can be sent to `/api/v1/builds`) in a
+        `route_plans` array. By default only the best plan is returned; set `all_route_plans` to
+        `true` to receive every built plan, sorted best-first.
+
+        Notes:
+        - `client_fee_recipient` is required when `client_fee_bps > 0`.
+        - If the same provider appears in both `include_bridges` and `exclude_bridges`, exclusion wins.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QuoteRequest'
+      responses:
+        '200':
+          description: Quote created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuoteSuccessResponse'
+        '400':
+          description: Invalid request or unsupported input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Unexpected internal or upstream failure
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/builds:
+    post:
+      tags: [build]
+      operationId: postBuild
+      summary: Build executable transaction
+      description: |
+        Builds the execution transaction from a client-supplied route plan.
+
+        Notes:
+        - The request body should be one of the route plans in the `route_plans` array returned by
+          `/api/v1/quotes`, or the `route_plan` object returned by `/api/v1/quote-and-build`.
+        - Build revalidates expiry, flow shape, metadata, route continuity, and policy gates.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RoutePlan'
+      responses:
+        '200':
+          description: Build created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BuildSuccessResponse'
+        '400':
+          description: Invalid or expired route plan
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Unexpected internal or upstream failure
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/quote-and-build:
+    post:
+      tags: [quote-and-build]
+      operationId: postQuoteAndBuild
+      summary: Quote then build
+      description: |
+        Convenience endpoint that runs the same quote flow as `/api/v1/quotes`
+        and then the same build flow as `/api/v1/builds`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QuoteRequest'
+      responses:
+        '200':
+          description: Quote and build completed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuoteAndBuildSuccessResponse'
+        '400':
+          description: Invalid request or invalid intermediate route plan
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Unexpected internal or upstream failure
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/scan/tx/{txHash}:
+    get:
+      tags: [scan]
+      operationId: getScanTx
+      summary: Get route execution by transaction hash
+      description: |
+        Returns the public tracking execution for a source or destination transaction hash.
+
+        Source transaction hashes are checked before destination transaction hashes.
+        Set `include_route_plan=true` to include the stored route plan in the response data.
+      parameters:
+        - name: txHash
+          in: path
+          required: true
+          description: Source or destination transaction hash. The value is normalized to lowercase.
+          schema:
+            $ref: '#/components/schemas/HexHash'
+        - name: include_route_plan
+          in: query
+          required: false
+          description: Include the optional `route_plan` object in the tracking execution payload.
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: Tracking execution found successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrackingExecutionSuccessResponse'
+        '400':
+          description: Invalid transaction hash or query parameter
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Tracking execution not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Unexpected internal failure
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  schemas:
+    RequestId:
+      type: string
+      description: Server-generated correlation ID.
+      example: req_01J123ABCXYZ
+
+    JsonObject:
+      type: object
+      additionalProperties: true
+      description: Arbitrary JSON object.
+
+    UIntString:
+      type: string
+      pattern: '^[0-9]+$'
+      description: Unsigned integer encoded as a decimal string.
+      example: '1000000'
+
+    HexAddress:
+      type: string
+      pattern: '^0x[a-fA-F0-9]{40}$'
+      description: EVM hex address.
+      example: '0x1111111111111111111111111111111111111111'
+
+    HexHash:
+      type: string
+      pattern: '^0x[a-fA-F0-9]{64}$'
+      description: Hex-encoded transaction hash.
+      example: '0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+
+    HexAddressOrNativeToken:
+      type: string
+      description: |
+        EVM token address or the native-token sentinel
+        `0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE`.
+      example: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
+
+    TokenReference:
+      type: string
+      description: Provider-facing token identifier.
+
+    ChainName:
+      type: string
+      enum: [ethereum, arbitrum, base, bsc]
+
+    BridgeProvider:
+      type: string
+      enum: [across, relay, mayan, near_intents, cctp_v2, cctp_v2_fast]
+
+    FlowType:
+      type: string
+      enum: [bridge_only, swap_then_bridge]
+
+    RouteStatus:
+      type: string
+      enum:
+        - built
+        - source_pending
+        - source_confirmed
+        - bridge_pending
+        - destination_pending
+        - SUCCESS
+        - REFUNDED
+        - FAILED
+
+    ActionType:
+      type: string
+      enum: [wrap_native, unwrap_native, transfer]
+
+    QuoteRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - from_chain
+        - from_token
+        - from_token_decimals
+        - from_address
+        - to_chain
+        - to_token
+        - to_token_decimals
+        - amount
+      properties:
+        from_chain:
+          $ref: '#/components/schemas/ChainName'
+        from_token:
+          $ref: '#/components/schemas/HexAddressOrNativeToken'
+        from_token_decimals:
+          type: integer
+          minimum: 0
+          maximum: 255
+        from_address:
+          $ref: '#/components/schemas/HexAddress'
+        to_chain:
+          $ref: '#/components/schemas/ChainName'
+        to_token:
+          $ref: '#/components/schemas/HexAddressOrNativeToken'
+        to_token_decimals:
+          type: integer
+          minimum: 0
+          maximum: 255
+        to_address:
+          allOf:
+            - $ref: '#/components/schemas/HexAddress'
+          description: Defaults to `from_address` when omitted or empty.
+        amount:
+          $ref: '#/components/schemas/UIntString'
+        refund_address:
+          allOf:
+            - $ref: '#/components/schemas/HexAddress'
+          description: Defaults to `from_address` when omitted or empty.
+        slippage_bps:
+          type: integer
+          minimum: 0
+          maximum: 10000
+          default: 0
+        client_fee_recipient:
+          allOf:
+            - $ref: '#/components/schemas/HexAddress'
+          description: Required when `client_fee_bps` is greater than zero.
+        client_fee_bps:
+          type: integer
+          minimum: 0
+          maximum: 10000
+          default: 0
+        include_bridges:
+          type: array
+          items:
+            $ref: '#/components/schemas/BridgeProvider'
+        exclude_bridges:
+          type: array
+          items:
+            $ref: '#/components/schemas/BridgeProvider'
+        all_route_plans:
+          type: boolean
+          default: false
+          description: >-
+            When true, return every built route plan (sorted best-first) instead of only the best one.
+            Ignored by `/api/v1/quote-and-build`, which always builds the best plan.
+
+    RoutePlanRequestSnapshot:
+      type: object
+      additionalProperties: false
+      required:
+        - from_chain
+        - from_token
+        - from_token_decimals
+        - from_address
+        - to_chain
+        - to_token
+        - to_token_decimals
+        - to_address
+        - amount
+        - slippage_bps
+      description: Normalized request snapshot embedded in a route plan.
+      properties:
+        from_chain:
+          $ref: '#/components/schemas/ChainName'
+        from_token:
+          $ref: '#/components/schemas/HexAddressOrNativeToken'
+        from_token_decimals:
+          type: integer
+          minimum: 0
+          maximum: 255
+        from_address:
+          $ref: '#/components/schemas/HexAddress'
+        to_chain:
+          $ref: '#/components/schemas/ChainName'
+        to_token:
+          $ref: '#/components/schemas/HexAddressOrNativeToken'
+        to_token_decimals:
+          type: integer
+          minimum: 0
+          maximum: 255
+        to_address:
+          $ref: '#/components/schemas/HexAddress'
+        amount:
+          $ref: '#/components/schemas/UIntString'
+        refund_address:
+          $ref: '#/components/schemas/HexAddress'
+        slippage_bps:
+          type: integer
+          minimum: 0
+          maximum: 10000
+        client_fee_recipient:
+          $ref: '#/components/schemas/HexAddress'
+        client_fee_bps:
+          type: integer
+          minimum: 0
+          maximum: 10000
+
+    FeePlan:
+      type: object
+      additionalProperties: false
+      required:
+        - type
+        - chain
+        - token
+        - recipient
+        - rate_bps
+        - charged_on
+      description: Current v1 fees are client fees charged on bridge input.
+      properties:
+        type:
+          type: string
+          enum: [client]
+        chain:
+          $ref: '#/components/schemas/ChainName'
+        token:
+          $ref: '#/components/schemas/TokenReference'
+        recipient:
+          $ref: '#/components/schemas/HexAddress'
+        rate_bps:
+          type: integer
+          minimum: 0
+          maximum: 10000
+        expected_amount:
+          $ref: '#/components/schemas/UIntString'
+        min_amount:
+          $ref: '#/components/schemas/UIntString'
+        charged_on:
+          type: string
+          enum: [bridge_input]
+
+    SwapMetadata:
+      type: object
+      additionalProperties: false
+      required:
+        - route_id
+        - route_summary
+      properties:
+        route_id:
+          type: string
+        route_summary:
+          $ref: '#/components/schemas/JsonObject'
+
+    SwapPlan:
+      type: object
+      additionalProperties: false
+      required:
+        - token_in
+        - token_out
+        - input_amount
+        - expected_output_amount
+        - min_output_amount
+        - metadata
+      properties:
+        token_in:
+          $ref: '#/components/schemas/TokenReference'
+        token_out:
+          $ref: '#/components/schemas/TokenReference'
+        input_amount:
+          $ref: '#/components/schemas/UIntString'
+        expected_output_amount:
+          $ref: '#/components/schemas/UIntString'
+        min_output_amount:
+          $ref: '#/components/schemas/UIntString'
+        metadata:
+          $ref: '#/components/schemas/SwapMetadata'
+
+    ActionPlan:
+      type: object
+      additionalProperties: false
+      required:
+        - type
+        - token_in
+        - token_out
+      description: '`recipient` is used for `transfer`.'
+      properties:
+        type:
+          $ref: '#/components/schemas/ActionType'
+        token_in:
+          $ref: '#/components/schemas/TokenReference'
+        token_out:
+          $ref: '#/components/schemas/TokenReference'
+        recipient:
+          $ref: '#/components/schemas/HexAddress'
+
+    AcrossSpokePoolBridgeMetadata:
+      type: object
+      additionalProperties: false
+      description: |
+        Across metadata for spoke-pool settlement.
+        `message` is base64-encoded when present.
+      properties:
+        settlement:
+          type: string
+          enum: [spoke_pool]
+        spoke_pool:
+          $ref: '#/components/schemas/HexAddress'
+        input_amount:
+          $ref: '#/components/schemas/UIntString'
+        output_amount:
+          $ref: '#/components/schemas/UIntString'
+        destination_chain_id:
+          type: integer
+        depositor:
+          $ref: '#/components/schemas/HexAddress'
+        recipient:
+          $ref: '#/components/schemas/HexAddress'
+        exclusive_relayer:
+          $ref: '#/components/schemas/HexAddress'
+        quote_timestamp:
+          type: integer
+          format: int64
+        fill_deadline:
+          type: integer
+          format: int64
+        exclusivity_parameter:
+          type: integer
+          format: int64
+        message:
+          type: string
+          format: byte
+          nullable: true
+        quote_expiry_timestamp:
+          type: integer
+          format: int64
+      required:
+        - spoke_pool
+        - input_amount
+        - output_amount
+        - destination_chain_id
+        - depositor
+        - recipient
+
+    AcrossExecutionBridgeMetadata:
+      type: object
+      additionalProperties: false
+      description: |
+        Across metadata for execution-calldata settlement (`cctp` or `oft`).
+        `execution_data` is base64-encoded.
+      required:
+        - settlement
+        - input_amount
+        - output_amount
+        - destination_chain_id
+        - execution_target
+        - execution_data
+      properties:
+        settlement:
+          type: string
+          enum: [cctp, oft]
+        input_amount:
+          $ref: '#/components/schemas/UIntString'
+        output_amount:
+          $ref: '#/components/schemas/UIntString'
+        destination_chain_id:
+          type: integer
+        quote_expiry_timestamp:
+          type: integer
+          format: int64
+        execution_target:
+          $ref: '#/components/schemas/HexAddress'
+        execution_data:
+          type: string
+          format: byte
+        execution_value:
+          allOf:
+            - $ref: '#/components/schemas/UIntString'
+          nullable: true
+
+    MayanBridgeMetadata:
+      type: object
+      additionalProperties: false
+      description: Mayan bridge metadata. `protocol_data` is base64-encoded.
+      required:
+        - mayan_forwarder
+        - mayan_protocol
+        - protocol_data
+      properties:
+        mayan_forwarder:
+          $ref: '#/components/schemas/HexAddress'
+        mayan_protocol:
+          $ref: '#/components/schemas/HexAddress'
+        protocol_data:
+          type: string
+          format: byte
+
+    NearIntentsBridgeMetadata:
+      type: object
+      additionalProperties: false
+      required:
+        - deposit_address
+      properties:
+        deposit_address:
+          type: string
+          description: Provider deposit address.
+
+    BridgeMetadata:
+      description: Provider-specific bridge metadata. Shape depends on `bridge.provider`.
+      oneOf:
+        - $ref: '#/components/schemas/AcrossSpokePoolBridgeMetadata'
+        - $ref: '#/components/schemas/AcrossExecutionBridgeMetadata'
+        - $ref: '#/components/schemas/MayanBridgeMetadata'
+        - $ref: '#/components/schemas/NearIntentsBridgeMetadata'
+
+    BridgePlan:
+      type: object
+      additionalProperties: false
+      required:
+        - lane_id
+        - provider
+        - asset_group
+        - token_in
+        - token_out
+        - input_amount
+        - expected_output_amount
+        - min_output_amount
+        - metadata
+      properties:
+        lane_id:
+          type: string
+        provider:
+          $ref: '#/components/schemas/BridgeProvider'
+        asset_group:
+          type: string
+          description: Canonical asset group such as `usdc` or `eth`.
+        token_in:
+          $ref: '#/components/schemas/TokenReference'
+        token_out:
+          $ref: '#/components/schemas/TokenReference'
+        input_amount:
+          $ref: '#/components/schemas/UIntString'
+        expected_output_amount:
+          $ref: '#/components/schemas/UIntString'
+        min_output_amount:
+          $ref: '#/components/schemas/UIntString'
+        provider_fee:
+          $ref: '#/components/schemas/UIntString'
+        expected_fill_time_sec:
+          type: number
+          format: double
+        metadata:
+          $ref: '#/components/schemas/BridgeMetadata'
+
+    RoutePlan:
+      type: object
+      additionalProperties: false
+      description: Public route-plan contract shared between quote and build.
+      required:
+        - route_id
+        - request
+        - flow_type
+        - expected_output_amount
+        - min_output_amount
+        - expires_at
+        - bridge
+      properties:
+        route_id:
+          type: string
+          description: Canonical route ID. Current build validation expects UUID v7.
+        request:
+          $ref: '#/components/schemas/RoutePlanRequestSnapshot'
+        flow_type:
+          $ref: '#/components/schemas/FlowType'
+        expected_output_amount:
+          $ref: '#/components/schemas/UIntString'
+        min_output_amount:
+          $ref: '#/components/schemas/UIntString'
+        expires_at:
+          type: string
+          format: date-time
+        status:
+          $ref: '#/components/schemas/RouteStatus'
+        updated_at:
+          type: string
+          format: date-time
+        fees:
+          type: array
+          items:
+            $ref: '#/components/schemas/FeePlan'
+        source_swap:
+          $ref: '#/components/schemas/SwapPlan'
+        pre_bridge:
+          type: array
+          items:
+            $ref: '#/components/schemas/ActionPlan'
+        bridge:
+          $ref: '#/components/schemas/BridgePlan'
+        post_bridge:
+          type: array
+          items:
+            $ref: '#/components/schemas/ActionPlan'
+
+    RouteExecutionDetails:
+      type: object
+      additionalProperties: false
+      description: Execution details for the current route state.
+      properties:
+        source_swap:
+          $ref: '#/components/schemas/SwapDetails'
+        bridge:
+          $ref: '#/components/schemas/BridgeDetails'
+        dest_swap:
+          $ref: '#/components/schemas/SwapDetails'
+
+    SwapDetails:
+      type: object
+      additionalProperties: false
+      required:
+        - token_in
+        - token_out
+        - amount_in
+        - amount_out
+      properties:
+        token_in:
+          $ref: '#/components/schemas/HexAddress'
+        token_out:
+          $ref: '#/components/schemas/HexAddress'
+        amount_in:
+          $ref: '#/components/schemas/UIntString'
+        amount_out:
+          $ref: '#/components/schemas/UIntString'
+
+    BridgeDetails:
+      type: object
+      additionalProperties: false
+      required:
+        - source
+      properties:
+        source:
+          $ref: '#/components/schemas/OnChainBridgeDetails'
+        destination:
+          $ref: '#/components/schemas/OnChainBridgeDetails'
+
+    OnChainBridgeDetails:
+      type: object
+      additionalProperties: false
+      required:
+        - tx_hash
+        - token
+        - amount
+      properties:
+        tx_hash:
+          $ref: '#/components/schemas/HexHash'
+        token:
+          $ref: '#/components/schemas/HexAddress'
+        amount:
+          $ref: '#/components/schemas/UIntString'
+
+    TrackingExecution:
+      type: object
+      additionalProperties: false
+      required:
+        - route_id
+        - sender
+        - receiver
+        - source_chain
+        - dest_chain
+        - flow_type
+        - source_tx_hash
+        - route_state
+        - route_state_details
+        - created_at
+        - updated_at
+      properties:
+        route_id:
+          type: string
+        sender:
+          $ref: '#/components/schemas/HexAddress'
+        receiver:
+          $ref: '#/components/schemas/HexAddress'
+        source_chain:
+          $ref: '#/components/schemas/ChainName'
+        dest_chain:
+          $ref: '#/components/schemas/ChainName'
+        flow_type:
+          $ref: '#/components/schemas/FlowType'
+        source_tx_hash:
+          $ref: '#/components/schemas/HexHash'
+        dest_tx_hash:
+          allOf:
+            - $ref: '#/components/schemas/HexHash'
+          nullable: true
+        route_plan:
+          $ref: '#/components/schemas/RoutePlan'
+        route_state:
+          $ref: '#/components/schemas/RouteStatus'
+        route_state_details:
+          $ref: '#/components/schemas/RouteExecutionDetails'
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    ExecutionTx:
+      type: object
+      additionalProperties: false
+      required:
+        - to
+        - data
+        - value
+      properties:
+        to:
+          $ref: '#/components/schemas/HexAddress'
+        data:
+          type: string
+          description: Hex-encoded calldata.
+          example: '0xdeadbeef'
+        value:
+          $ref: '#/components/schemas/UIntString'
+        gas:
+          $ref: '#/components/schemas/UIntString'
+
+    BuildResult:
+      type: object
+      additionalProperties: false
+      required:
+        - tx
+      properties:
+        expires_at:
+          type: string
+          format: date-time
+        tx:
+          $ref: '#/components/schemas/ExecutionTx'
+
+    QuoteAndBuildResult:
+      type: object
+      additionalProperties: false
+      required:
+        - route_plan
+        - build
+      properties:
+        route_plan:
+          $ref: '#/components/schemas/RoutePlan'
+        build:
+          $ref: '#/components/schemas/BuildResult'
+
+    ErrorBody:
+      type: object
+      additionalProperties: false
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+          example: invalid_argument
+        message:
+          type: string
+        details:
+          $ref: '#/components/schemas/JsonObject'
+
+    ErrorResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - request_id
+        - success
+        - error
+      properties:
+        request_id:
+          $ref: '#/components/schemas/RequestId'
+        success:
+          type: boolean
+          example: false
+        error:
+          $ref: '#/components/schemas/ErrorBody'
+
+    QuoteSuccessResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - request_id
+        - success
+        - data
+      properties:
+        request_id:
+          $ref: '#/components/schemas/RequestId'
+        success:
+          type: boolean
+          example: true
+        data:
+          type: object
+          additionalProperties: false
+          required:
+            - ks_allowance_hub_address
+            - route_plans
+          properties:
+            ks_allowance_hub_address:
+              $ref: '#/components/schemas/HexAddress'
+            route_plans:
+              type: array
+              description: >-
+                Route plans sorted best-first. Holds exactly one item (the best plan) unless
+                `all_route_plans` was true in the request.
+              minItems: 1
+              items:
+                $ref: '#/components/schemas/RoutePlan'
+
+    BuildSuccessResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - request_id
+        - success
+        - data
+      properties:
+        request_id:
+          $ref: '#/components/schemas/RequestId'
+        success:
+          type: boolean
+          example: true
+        data:
+          $ref: '#/components/schemas/BuildResult'
+
+    QuoteAndBuildSuccessResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - request_id
+        - success
+        - data
+      properties:
+        request_id:
+          $ref: '#/components/schemas/RequestId'
+        success:
+          type: boolean
+          example: true
+        data:
+          $ref: '#/components/schemas/QuoteAndBuildResult'
+
+    TrackingExecutionSuccessResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - request_id
+        - success
+        - data
+      properties:
+        request_id:
+          $ref: '#/components/schemas/RequestId'
+        success:
+          type: boolean
+          example: true
+        data:
+          $ref: '#/components/schemas/TrackingExecution'

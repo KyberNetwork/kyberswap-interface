@@ -2,7 +2,8 @@ import { AcrossClient, createAcrossClient } from '@across-protocol/app-sdk'
 import { ChainId, Currency, Token } from '@kyberswap/ks-sdk-core'
 import { WalletAdapterProps } from '@solana/wallet-adapter-base'
 import { Connection } from '@solana/web3.js'
-import { WalletClient, formatUnits } from 'viem'
+import axios from 'axios'
+import { type Address, WalletClient, formatUnits } from 'viem'
 import {
   arbitrum,
   base,
@@ -22,6 +23,13 @@ import {
 import { robinhood } from 'components/Web3Provider'
 import { CROSS_CHAIN_FEE_RECEIVER, ZERO_ADDRESS } from 'constants/index'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
+import { getAcrossDepositStatus } from 'pages/CrossChainSwap/adapters/AcrossAdapter/api'
+import {
+  AcrossSuggestedFeesQuote,
+  AcrossSwapQuote,
+  AcrossWalletClient,
+} from 'pages/CrossChainSwap/adapters/AcrossAdapter/types'
+import { getAcrossFillTxHash, mapAcrossDepositStatus } from 'pages/CrossChainSwap/adapters/AcrossAdapter/utils'
 import {
   BaseSwapAdapter,
   Chain,
@@ -39,6 +47,9 @@ import { isNativeToken, isWrappedToken } from 'pages/CrossChainSwap/utils'
 import { isEvmChain } from 'utils'
 
 const API_URL = 'https://app.across.to/api/suggested-fees'
+
+const getAcrossTokenAddress = (token: Currency): Address =>
+  (token.isNative ? ZERO_ADDRESS : token.wrapped.address) as Address
 
 export class AcrossAdapter extends BaseSwapAdapter {
   private acrossClient: AcrossClient
@@ -137,12 +148,19 @@ export class AcrossAdapter extends BaseSwapAdapter {
 
   async getQuote(params: QuoteParams): Promise<NormalizedQuote> {
     try {
-      let res
       const isFromSol = params.fromChain === NonEvmChain.Solana
+      let rawQuote: AcrossSuggestedFeesQuote | AcrossSwapQuote
+      let outputAmount: bigint
+      let contractAddress: string
+      let timeEstimate: number
+      let gasFeeUsd = 0
+
       if (isFromSol && isEvmChain(params.toChain)) {
+        const fromToken = params.fromToken as SolanaToken
+        const toToken = params.toToken as Token
         const reqParams = new URLSearchParams({
-          inputToken: (params.fromToken as SolanaToken).id,
-          outputToken: (params.toToken as Token).wrapped.address,
+          inputToken: fromToken.id,
+          outputToken: toToken.wrapped.address,
           destinationChainId: params.toChain.toString(),
           originChainId: '34268394551451',
           amount: params.amount,
@@ -150,15 +168,19 @@ export class AcrossAdapter extends BaseSwapAdapter {
           allowUnmatchedDecimals: 'true',
         })
 
-        res = await fetch(`${API_URL}?${reqParams}`).then(res => res.json())
+        const { data } = await axios.get<AcrossSuggestedFeesQuote>(API_URL, { params: reqParams })
+        rawQuote = data
+        outputAmount = BigInt(data.outputAmount)
+        contractAddress = ZERO_ADDRESS
+        timeEstimate = data.estimatedFillTimeSec
       } else {
-        const p = params as EvmQuoteParams
-        res = await this.acrossClient.getSwapQuote({
+        const quoteParams = params as EvmQuoteParams
+        const swapQuote = await this.acrossClient.getSwapQuote({
           route: {
             originChainId: +params.fromChain,
             destinationChainId: +params.toChain,
-            inputToken: (p.fromToken.isNative ? ZERO_ADDRESS : p.fromToken.wrapped.address) as `0x${string}`,
-            outputToken: (p.toToken.isNative ? ZERO_ADDRESS : p.toToken.wrapped.address) as `0x${string}`,
+            inputToken: getAcrossTokenAddress(quoteParams.fromToken),
+            outputToken: getAcrossTokenAddress(quoteParams.toToken),
           },
           amount: params.amount,
           appFee: params.feeBps / 10_000,
@@ -166,6 +188,12 @@ export class AcrossAdapter extends BaseSwapAdapter {
           slippage: params.slippage / 10_000, // https://docs.across.to/reference/api-reference#get-swap-approval
           depositor: params.sender,
         })
+
+        rawQuote = swapQuote
+        outputAmount = BigInt(swapQuote.expectedOutputAmount)
+        contractAddress = swapQuote.checks.allowance.spender
+        timeEstimate = swapQuote.expectedFillTime
+        gasFeeUsd = Number(swapQuote.fees.originGas.amountUsd || 0)
       }
 
       // across only have bridge then we can treat token in and out price usd are the same in case price service is not supported
@@ -179,7 +207,6 @@ export class AcrossAdapter extends BaseSwapAdapter {
           ? params.tokenInUsd
           : params.tokenOutUsd
 
-      const outputAmount = BigInt(isFromSol ? res.outputAmount : res.expectedOutputAmount)
       const formattedOutputAmount = formatUnits(outputAmount, params.toToken.decimals)
       const formattedInputAmount = formatUnits(BigInt(params.amount), params.fromToken.decimals)
 
@@ -190,57 +217,59 @@ export class AcrossAdapter extends BaseSwapAdapter {
         quoteParams: params,
         outputAmount,
         formattedOutputAmount,
-        inputUsd: tokenInUsd * +formatUnits(BigInt(params.amount), params.fromToken.decimals),
-        outputUsd: tokenOutUsd * +formattedOutputAmount,
+        inputUsd,
+        outputUsd,
         rate: +formattedOutputAmount / +formattedInputAmount,
-        timeEstimate: isFromSol ? res.estimatedFillTimeSec : res.expectedFillTime,
+        timeEstimate,
         priceImpact: !inputUsd || !outputUsd ? NaN : ((inputUsd - outputUsd) * 100) / inputUsd,
-        // TODO: what is gas fee for across
-        gasFeeUsd: 0,
-        contractAddress: isFromSol ? ZERO_ADDRESS : res.checks.allowance.spender,
-        rawQuote: res,
+        gasFeeUsd,
+        contractAddress,
+        rawQuote,
 
         protocolFee: 0,
         platformFeePercent: (params.feeBps * 100) / 10_000,
       }
-    } catch (e) {
-      console.log('Across getQuote error', e)
-      throw e
+    } catch (error) {
+      console.log('Across getQuote error', error)
+      throw error
     }
   }
 
   async executeSwap(
     quote: Quote,
     walletClient: WalletClient,
-    _nearWalletClient?: any,
+    _nearWalletClient?: unknown,
     _sendBtcFn?: (params: { recipient: string; amount: string | number }) => Promise<string>,
     _sendTransaction?: WalletAdapterProps['sendTransaction'],
     _connection?: Connection,
   ): Promise<NormalizedTxResponse> {
+    const normalizedQuote = quote.quote
+    const quoteParams = normalizedQuote.quoteParams
+
     // For EVM chains, use the original implementation
     return new Promise<NormalizedTxResponse>((resolve, reject) => {
       this.acrossClient
         .executeSwapQuote({
-          walletClient: walletClient as any,
-          swapQuote: quote.quote.rawQuote as any,
+          walletClient: walletClient as AcrossWalletClient,
+          swapQuote: normalizedQuote.rawQuote as AcrossSwapQuote,
           onProgress: progress => {
             if (progress.step === 'swap' && 'txHash' in progress) {
               resolve({
-                sender: quote.quote.quoteParams.sender,
+                sender: quoteParams.sender,
                 sourceTxHash: progress.txHash,
                 adapter: this.getName(),
                 id: progress.txHash,
-                sourceChain: quote.quote.quoteParams.fromChain,
-                targetChain: quote.quote.quoteParams.toChain,
-                inputAmount: quote.quote.quoteParams.amount,
-                outputAmount: quote.quote.outputAmount.toString(),
-                sourceToken: quote.quote.quoteParams.fromToken,
-                targetToken: quote.quote.quoteParams.toToken,
+                sourceChain: quoteParams.fromChain,
+                targetChain: quoteParams.toChain,
+                inputAmount: quoteParams.amount,
+                outputAmount: normalizedQuote.outputAmount.toString(),
+                sourceToken: quoteParams.fromToken,
+                targetToken: quoteParams.toToken,
                 timestamp: new Date().getTime(),
-                amountInUsd: quote.quote.inputUsd,
-                amountOutUsd: quote.quote.outputUsd,
-                platformFeePercent: quote.quote.platformFeePercent,
-                recipient: quote.quote.quoteParams.recipient,
+                amountInUsd: normalizedQuote.inputUsd,
+                amountOutUsd: normalizedQuote.outputUsd,
+                platformFeePercent: normalizedQuote.platformFeePercent,
+                recipient: quoteParams.recipient,
               })
             }
           },
@@ -250,12 +279,11 @@ export class AcrossAdapter extends BaseSwapAdapter {
   }
   async getTransactionStatus(params: NormalizedTxResponse): Promise<SwapStatus> {
     try {
-      const res = await fetch(`https://app.across.to/api/deposit/status?depositTxHash=${params.sourceTxHash}`).then(
-        res => res.json(),
-      )
+      const res = await getAcrossDepositStatus(params.sourceTxHash)
+
       return {
-        txHash: res.fillTx || '',
-        status: res.status === 'refunded' ? 'Refunded' : res.status === 'filled' ? 'Success' : 'Processing',
+        txHash: getAcrossFillTxHash(res),
+        status: mapAcrossDepositStatus(res, { txTimestamp: params.timestamp }),
       }
     } catch (error) {
       console.error('Error fetching transaction status:', error)
