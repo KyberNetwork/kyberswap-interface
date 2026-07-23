@@ -1,4 +1,9 @@
 import { POOL_CATEGORY, Token } from '@kyber/schema'
+// Eager, not with the lazy JS below: each widget's status dialog is styled by utilities scoped under the
+// widget's own root class, which ship only in these stylesheets (the app's eager @kyber/ui styles use a
+// different scope and don't reach them). They must be present whenever the widgets can open.
+import '@kyberswap/liquidity-widgets/dist/style.css'
+import '@kyberswap/zap-create-widgets/dist/style.css'
 import { Suspense, lazy, useCallback, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
@@ -18,23 +23,15 @@ import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { friendlyError } from 'utils/errorMessage'
 
-// Both widgets only render inside the modal below, so keep them out of every /earn route chunk that calls
-// this hook and load whichever the flow needs when the modal actually mounts.
-const ZapWidget = lazy(async () => {
-  const [widget] = await Promise.all([
-    import('@kyberswap/zap-create-widgets'),
-    import('@kyberswap/zap-create-widgets/dist/style.css'),
-  ])
-  return { default: widget.ZapCreateWidget }
-})
+// Both widgets only render inside the modal below, so lazy-load their JS to keep them out of every /earn
+// route chunk that calls this hook.
+const ZapWidget = lazy(() =>
+  import('@kyberswap/zap-create-widgets').then(widget => ({ default: widget.ZapCreateWidget })),
+)
 
-const LiquidityWidget = lazy(async () => {
-  const [widget] = await Promise.all([
-    import('@kyberswap/liquidity-widgets'),
-    import('@kyberswap/liquidity-widgets/dist/style.css'),
-  ])
-  return { default: widget.LiquidityWidget }
-})
+const LiquidityWidget = lazy(() =>
+  import('@kyberswap/liquidity-widgets').then(widget => ({ default: widget.LiquidityWidget })),
+)
 
 type CreateConfig = {
   chainId: number
