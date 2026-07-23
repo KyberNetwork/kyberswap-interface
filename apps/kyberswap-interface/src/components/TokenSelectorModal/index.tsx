@@ -9,9 +9,11 @@ import { ImportTokenView } from 'components/TokenSelectorModal/ImportTokenView'
 import { SwitchChainModal } from 'components/TokenSelectorModal/SwitchChainModal'
 import { TokenSelectorContent } from 'components/TokenSelectorModal/TokenSelectorContent'
 import { usePendingCrossChainSelect } from 'components/TokenSelectorModal/hooks/usePendingCrossChainSelect'
+import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import useLast from 'hooks/useLast'
 import { useIsTokenRestricted, useNotifyRestrictedToken } from 'hooks/useRestrictedTokens'
+import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { Field } from 'state/swap/actions'
 import { cn } from 'utils/cn'
 
@@ -62,12 +64,18 @@ const TokenSelectorModal = ({
   const { chainId: appChainId } = useActiveWeb3React()
   const anchorChainId = customChainId || appChainId
   const { switchChainAndSelect } = usePendingCrossChainSelect(onCurrencySelect, onDismiss)
+  const { trackingHandler } = useTracking()
 
   useEffect(() => {
     if (isOpen && !lastOpen) {
       setModalView(TokenSelectorModalView.search)
+      trackingHandler(TRACKING_EVENT_TYPE.TS_OPENED, {
+        source: trackingSource,
+        chain: NETWORKS_INFO[anchorChainId].name,
+        chain_id: anchorChainId,
+      })
     }
-  }, [isOpen, lastOpen])
+  }, [isOpen, lastOpen, trackingHandler, trackingSource, anchorChainId])
 
   const handleCurrencySelect = useCallback(
     (currency: Currency[] | Currency) => {

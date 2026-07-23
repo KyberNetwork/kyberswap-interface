@@ -249,6 +249,8 @@ export enum TRACKING_EVENT_TYPE {
   // Token selector modal interactions. TS_TOKEN_SELECTED is distinct from TOKEN_SELECTED above: it
   // fires inside the modal, so it carries which tab the pick came from and covers every surface the
   // modal serves (swap, limit order, cross-chain), not just the swap form.
+  TS_OPENED,
+  TS_SEARCHED,
   TS_TAB_SELECTED,
   TS_CHAIN_SWITCHED,
   TS_TOKEN_SELECTED,
@@ -448,6 +450,14 @@ export default function useTracking(currencies?: { [field in Field]?: Currency }
         }
         // Token selector browsing is anonymous on purpose: much of it happens before a wallet is
         // connected, and gating these would drop that whole slice of the discovery funnel.
+        case TRACKING_EVENT_TYPE.TS_OPENED: {
+          formoTrack('Token Selector - Opened', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.TS_SEARCHED: {
+          formoTrack('Token Selector - Searched', payload)
+          break
+        }
         case TRACKING_EVENT_TYPE.TS_TAB_SELECTED: {
           formoTrack('Token Selector - Tab Selected', payload)
           break
