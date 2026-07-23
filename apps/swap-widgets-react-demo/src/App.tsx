@@ -18,6 +18,7 @@ const CHAINS = [
   { id: 143, label: 'Monad', token: 'MON', rpcUrl: 'https://rpc.monad.xyz' },
   { id: 4326, label: 'MegaETH', token: 'ETH', rpcUrl: 'https://mainnet.megaeth.com/rpc' },
   { id: 4153, label: 'Rise', token: 'ETH', rpcUrl: 'https://rpc.risechain.com' },
+  { id: 4663, label: 'Robinhood', token: 'ETH', rpcUrl: 'https://rpc.mainnet.chain.robinhood.com' },
 ] as const
 
 const DEFAULT_TOKEN_OUT: Record<number, string> = {
@@ -32,6 +33,7 @@ const DEFAULT_TOKEN_OUT: Record<number, string> = {
   143: '0xe7cd86e13AC4309349F30B3435a9d337750fC82D',
   4326: '0xFAfDdbb3FC7688494971a79cc65DCa3EF82079E7',
   4153: '0xe436820ba0c69702c1d3e601d421c0ef38262739',
+  4663: '0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168',
 }
 
 const DARK_THEME = {
