@@ -11,6 +11,7 @@ import mantle from '@/constants/networks/mantle';
 import monad from '@/constants/networks/monad';
 import optimism from '@/constants/networks/optimism';
 import polygon from '@/constants/networks/polygon';
+import robinhood from '@/constants/networks/robinhood';
 import scroll from '@/constants/networks/scroll';
 import sonic from '@/constants/networks/sonic';
 import zkSync from '@/constants/networks/zkSync';
@@ -46,6 +47,7 @@ export const NETWORKS_INFO: Record<ChainId, NetworkInfo> = {
   [ChainId.Berachain]: berachain,
   [ChainId.Sonic]: sonic,
   [ChainId.Monad]: monad,
+  [ChainId.Robinhood]: robinhood,
 };
 
 export const CHAIN_ID_TO_CHAIN: { [chainId in ChainId]: string } = {
@@ -65,4 +67,5 @@ export const CHAIN_ID_TO_CHAIN: { [chainId in ChainId]: string } = {
   [ChainId.Berachain]: 'berachain',
   [ChainId.Sonic]: 'sonic',
   [ChainId.Monad]: 'monad',
+  [ChainId.Robinhood]: 'robinhood',
 };

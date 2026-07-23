@@ -17,6 +17,7 @@ const CHAIN_PRIORITY_ORDER = [
   EarnChain.ARBITRUM,
   EarnChain.OPTIMISM,
   EarnChain.MONAD,
+  EarnChain.ROBINHOOD,
   EarnChain.MATIC,
   EarnChain.AVAX,
   EarnChain.BERA,

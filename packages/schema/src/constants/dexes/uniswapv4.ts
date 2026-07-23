@@ -14,5 +14,6 @@ export default {
     [ChainId.Blast]: '0x4ad2f4cca2682cbb5b950d660dd458a1d3f1baad',
     [ChainId.Optimism]: '0x3c3ea4b57a46241e54610e5f022e5c45859a1017',
     [ChainId.Monad]: '0x5b7ec4a94ff9bedb700fb82ab09d5846972f4016',
+    [ChainId.Robinhood]: '0x58daec3116aae6d93017baaea7749052e8a04fa7',
   },
 };
