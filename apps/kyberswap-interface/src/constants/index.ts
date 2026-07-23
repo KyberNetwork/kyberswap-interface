@@ -119,6 +119,8 @@ export const DEFAULT_SLIPPAGE_STABLE_PAIR_SWAP = 1
 export const APP_PATHS = {
   ABOUT: '/about',
   SWAP: '/swap',
+  BUY: '/buy',
+  SELL: '/sell',
   PARTNER_SWAP: '/partner-swap',
   USER_SWAP: '/user-swap',
   USER_SWAP_CREATE_TIPS: '/user-swap/create-tips',

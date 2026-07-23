@@ -155,20 +155,19 @@ const BalanceRow = ({
   selectedCurrencyBalance,
 }: BalanceRowProps) => {
   const showTopActions = (onMax || onHalf) && positionMax === 'top' && currency && account
-  const balance = customBalanceText || selectedCurrencyBalance?.toSignificant(10) || 0
+  const balance = customBalanceText ?? selectedCurrencyBalance?.toSignificant(10) ?? 0
 
   return (
     <div className="flex min-h-5 items-center justify-between text-xs">
-      {label && positionLabel === 'in' ? (
-        label
-      ) : showTopActions ? (
+      {(label && positionLabel === 'in') || showTopActions ? (
         <div className="flex items-center gap-1">
-          {onMax && (
+          {label && positionLabel === 'in' && label}
+          {showTopActions && onMax && (
             <StyledBalanceMax onClick={onMax}>
               <Trans>Max</Trans>
             </StyledBalanceMax>
           )}
-          {onHalf && (
+          {showTopActions && onHalf && (
             <StyledBalanceMax onClick={onHalf}>
               <Trans>Half</Trans>
             </StyledBalanceMax>
@@ -336,6 +335,7 @@ interface CurrencyInputPanelProps {
   showPinnedTokens?: boolean
   customBalanceText?: string
   hideLogo?: boolean
+  highlightCurrencySelect?: boolean
   fontSize?: string
   customCurrencySelect?: ReactNode
   estimatedUsd?: string
@@ -379,6 +379,7 @@ export default function CurrencyInputPanel({
   showPinnedTokens,
   customBalanceText,
   hideLogo = false,
+  highlightCurrencySelect = false,
   fontSize,
   customCurrencySelect,
   estimatedUsd,
@@ -456,7 +457,11 @@ export default function CurrencyInputPanel({
                 isDisable={disableCurrencySelect}
                 hideInput={hideInput}
                 selected={!!currency}
-                className={cn('open-currency-select-button', selectClassName)}
+                className={cn(
+                  'open-currency-select-button',
+                  highlightCurrencySelect && '!border-blue !bg-blue/20',
+                  selectClassName,
+                )}
                 onClick={() => {
                   if (disableCurrencySelect) return
                   if (!isSwitchMode) {

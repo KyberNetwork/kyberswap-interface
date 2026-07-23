@@ -17,6 +17,7 @@ import { TokenRowExtra, TokenRowExtraMap, tokenRowKey } from 'components/TokenSe
 import { getNeedsImport } from 'components/TokenSelectorModal/utils'
 import { useActiveWeb3React } from 'hooks'
 import useCopyClipboard from 'hooks/useCopyClipboard'
+import { useERC8056DisplayBalance, useERC8056TokenInfo } from 'hooks/useERC8056Token'
 import { restrictedTokenKey, restrictedTokenMessage, useIsTokenRestricted } from 'hooks/useRestrictedTokens'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { useUserAddedTokens, useUserFavoriteTokens } from 'state/user/hooks'
@@ -408,6 +409,13 @@ type VirtualRowData = {
   onWarnRestricted: (key: string) => void
 }
 
+const SelectedTokenBalance = ({ currency, balance }: { currency: Currency; balance: CurrencyAmount<Currency> }) => {
+  const info = useERC8056TokenInfo(currency, currency.chainId)
+  const displayBalance = useERC8056DisplayBalance(info, balance)
+
+  return <Balance balance={displayBalance ?? balance} />
+}
+
 const VirtualRow = memo(function VirtualRow({ index, style, data }: ListChildComponentProps<VirtualRowData>) {
   const currency = data.currencies[index]
   // The trailing slot (present while more pages can load) has no currency yet — show the loader.
@@ -441,6 +449,10 @@ const VirtualRow = memo(function VirtualRow({ index, style, data }: ListChildCom
   // Non-All tabs already carry price in the catalog extras; only the All tab fetches Redux prices.
   const priceForUsd = data.showPriceColumn ? extra?.price ?? 0 : data.tokenPrices[token.address] || 0
   const usdBalance = priceForUsd * parseFloat(currencyBalance?.toExact() || '0')
+  const customBalance =
+    currency.isToken && currencyBalance && (isSelected || otherSelected) ? (
+      <SelectedTokenBalance currency={currency} balance={currencyBalance} />
+    ) : undefined
 
   const restrictedKey = restrictedTokenKey(currency.chainId, getTokenAddress(currency))
   const restricted = data.isTokenRestricted(currency)
@@ -457,6 +469,7 @@ const VirtualRow = memo(function VirtualRow({ index, style, data }: ListChildCom
         style={rowStyle}
         currency={currency}
         currencyBalance={currencyBalance}
+        customBalance={customBalance}
         isSelected={isSelected}
         showFavoriteIcon={data.showFavoriteIcon}
         onSelect={data.onCurrencySelect}

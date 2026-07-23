@@ -31,11 +31,11 @@ import {
   isLimitOrderNativeOutput,
 } from 'components/LimitOrder/utils'
 import { APP_PATHS } from 'constants/index'
-import { NETWORKS_INFO, isSupportedChainId } from 'constants/networks'
+import { NETWORKS_INFO, isSupportLimitOrder, isSupportedChainId } from 'constants/networks'
 import { useTokenBalance } from 'state/wallet/hooks'
 import { ExternalLink } from 'theme'
 import { cn } from 'utils/cn'
-import { getEtherscanLink, isSupportLimitOrder } from 'utils/index'
+import { getEtherscanLink } from 'utils/index'
 
 type CancelOrderButtonProps = {
   className?: string

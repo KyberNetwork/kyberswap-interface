@@ -34,7 +34,7 @@ const SecurityInfo = ({
             text={i18n._(
               "Token security info provided by Goplus. Please conduct your own research before trading",
             )}
-            width="250px"
+            width="248px"
           >
             <span className="border-dashed border-b border-text">
               {i18n._("Security Info")}
@@ -42,13 +42,11 @@ const SecurityInfo = ({
           </MouseoverTooltip>
         </div>
         <div className="flex items-center gap-1">
-          <span className="text-subText text-[10px]">
-            {i18n._("Powered by")}
-          </span>{" "}
-          <LogoGoPlus className="h-4 w-14" />
+          <span className="text-subText text-xs">{i18n._("Powered by")}</span>{" "}
+          <LogoGoPlus className="h-5" />
         </div>
       </div>
-      <div className="flex flex-col gap-[14px] p-[14px]">
+      <div className="flex flex-col gap-4 p-4">
         <CollapseInfoItem
           icon={<IconSecurityTrading />}
           title={i18n._("Trading Security")}

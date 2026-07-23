@@ -1,6 +1,6 @@
 import '@kyber/token-selector/styles.css'
 import '@kyber/ui/styles.css'
-import { Suspense, lazy, useEffect } from 'react'
+import { Suspense, lazy } from 'react'
 import { Navigate, Route, Routes, useLocation, useParams, useSearchParams } from 'react-router-dom'
 
 import Popups from 'components/Announcement/Popups'
@@ -18,7 +18,13 @@ import RouteSeo from 'components/Seo/RouteSeo'
 import SingaporeWarningPopup from 'components/SingaporeWarningPopup'
 import SupportButton from 'components/SupportButton'
 import { APP_PATHS, CHAINS_SUPPORT_CROSS_CHAIN, TERM_FILES_PATH } from 'constants/index'
-import { CLASSIC_NOT_SUPPORTED, ELASTIC_NOT_SUPPORTED, NETWORKS_INFO, SUPPORTED_NETWORKS } from 'constants/networks'
+import {
+  CLASSIC_NOT_SUPPORTED,
+  ELASTIC_NOT_SUPPORTED,
+  NETWORKS_INFO,
+  SUPPORTED_NETWORKS,
+  isSupportLimitOrder,
+} from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import usePageLocation from 'hooks/usePageLocation'
 import useSessionExpiredGlobal from 'hooks/useSessionExpire'
@@ -29,12 +35,13 @@ import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
 import CrossChainPage from 'pages/Swap/CrossChainPage'
 import LimitPage from 'pages/Swap/LimitPage'
 import SwapPage from 'pages/Swap/SwapPage'
-import { RedirectPathToTradeNetwork } from 'pages/Swap/redirects'
+import { RedirectPathToTradeNetwork, SwapIntentRedirect } from 'pages/Swap/redirects'
 import VerifyAuth from 'pages/Verify/VerifyAuth'
 import { useAppDispatch, useAppSelector } from 'state/hooks'
 import { updateSafeAppAcceptedTermOfUse } from 'state/user/actions'
 import { ExternalLink } from 'theme'
-import { isInSafeApp, isSupportLimitOrder } from 'utils'
+import { isInSafeApp } from 'utils'
+import { SwapIntent } from 'utils/routes'
 
 const Login = lazy(() => import('pages/Oauth/Login'))
 const Logout = lazy(() => import('pages/Oauth/Logout'))
@@ -84,22 +91,18 @@ const BodyWrapper = ({ children }: { children: React.ReactNode }) => (
   <main className="relative z-[1] flex w-full flex-1 flex-col items-center">{children}</main>
 )
 
-const preloadImages = () => {
-  const imageList: string[] = SUPPORTED_NETWORKS.map(chainId => [NETWORKS_INFO[chainId].icon])
-    .flat()
-    .filter(Boolean) as string[]
-
-  imageList.forEach(image => {
-    if (image) {
-      new Image().src = image
-    }
-  })
-}
-
 const NetworkSyncedPage = ({ children }: { children: React.ReactNode }) => {
   useSyncNetworkParamWithStore()
   return <>{children}</>
 }
+
+const SwapIntentPage = ({ intent }: { intent: SwapIntent }) => (
+  <SwapIntentRedirect intent={intent}>
+    <NetworkSyncedPage>
+      <SwapPage />
+    </NetworkSyncedPage>
+  </SwapIntentRedirect>
+)
 
 const RedirectToCreateTips = () => {
   const { networkInfo } = useActiveWeb3React()
@@ -206,10 +209,6 @@ export default function App() {
   useSessionExpiredGlobal()
   useGlobalTrackingEvents()
 
-  useEffect(() => {
-    preloadImages()
-  }, [])
-
   const showFooter = !pathname.includes(APP_PATHS.ABOUT) && !isEmbeddedSwap
   const isFullPage = pathname.includes(APP_PATHS.COPY_TRADING)
 
@@ -262,6 +261,8 @@ export default function App() {
                   </NetworkSyncedPage>
                 }
               />
+              <Route path={`${APP_PATHS.BUY}/:network/:token`} element={<SwapIntentPage intent={SwapIntent.BUY} />} />
+              <Route path={`${APP_PATHS.SELL}/:network/:token`} element={<SwapIntentPage intent={SwapIntent.SELL} />} />
               <Route path={`${APP_PATHS.PARTNER_SWAP}`} element={<PartnerSwap />} />
               <Route path={`${APP_PATHS.USER_SWAP}/:tipsId?`} element={<PartnerSwap mode="user" />} />
               <Route path={`${APP_PATHS.USER_SWAP_CREATE_TIPS}`} element={<RedirectToCreateTips />} />

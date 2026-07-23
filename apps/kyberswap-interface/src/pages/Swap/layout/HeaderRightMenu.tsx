@@ -16,6 +16,7 @@ import { useCurrenciesByPage } from 'pages/Swap/hooks/useCurrenciesByPage'
 import { TAB } from 'pages/Swap/layout/Tabs'
 import { useDegenModeManager, useUserSlippageTolerance, useUserTransactionTTL } from 'state/user/hooks'
 import { MEDIA_WIDTHS } from 'theme'
+import { isSwapLikePath } from 'utils/routes'
 import { formatSlippage } from 'utils/slippage'
 
 type TokenInfoButtonProps = {
@@ -40,7 +41,7 @@ type HeaderRightMenuProps = {
 export const HeaderRightMenu = ({ activeTab, setActiveTab, activeMainTab }: HeaderRightMenuProps) => {
   const { pathname } = useLocation()
   const isLimitPage = pathname.startsWith(APP_PATHS.LIMIT) || activeMainTab === TAB.LIMIT
-  const isSwapPage = pathname.startsWith(APP_PATHS.SWAP) || activeMainTab === TAB.SWAP
+  const isSwapPage = isSwapLikePath(pathname) || activeMainTab === TAB.SWAP
   const isCrossChainPage = pathname.startsWith(APP_PATHS.CROSS_CHAIN) || activeMainTab === TAB.CROSS_CHAIN
   const defaultTab =
     activeMainTab || (isSwapPage ? TAB.SWAP : isLimitPage ? TAB.LIMIT : isCrossChainPage ? TAB.CROSS_CHAIN : TAB.SWAP)

@@ -15,6 +15,7 @@ import {
 } from 'components/RouteFallback/pageFallbacks'
 import Skeleton from 'components/Skeleton'
 import { APP_PATHS } from 'constants/index'
+import { isSwapLikePath } from 'utils/routes'
 
 // Lightweight, main-bundle page-shell skeletons shown while a route's lazy chunk downloads. They can't
 // reuse a page's own (lazy) internal skeleton — that lives in the chunk being loaded — so they are
@@ -274,28 +275,27 @@ const pickSkeleton = (rawPathname: string) => {
   // overlay (EarnLandingFallback, built from `/earn`) would jump to the logo on mount. The startsWith
   // routes already tolerate the slash; normalizing here keeps every archetype consistent.
   const pathname = rawPathname.length > 1 ? rawPathname.replace(/\/+$/, '') : rawPathname
-  // Partner / user embedded swap — a single centered widget, no right info column. Checked before the swap
-  // group below; `/partner-swap` and `/user-swap` are distinct prefixes from `/swap`, so order is for clarity.
-  if (startsWithAny(pathname, [APP_PATHS.PARTNER_SWAP, APP_PATHS.USER_SWAP])) {
-    return <PartnerSwapSkeleton />
-  }
 
-  // Swap-style widget pages.
-  if (startsWithAny(pathname, [APP_PATHS.SWAP, APP_PATHS.LIMIT, APP_PATHS.CROSS_CHAIN])) {
+  // Sitemap Core `/` is emitted from the existing Ethereum Swap route tree, so prerender reaches this picker
+  // through the Swap group below. Browser-only `/` keeps the existing generic Loader until that route resolves.
+
+  // Sitemap: Swap - per chain. Buy and sell are runtime aliases of the same UI archetype.
+  if (isSwapLikePath(pathname)) {
     return <SwapPageSkeleton />
   }
 
-  // Detail pages — pool detail (`/pools/...`) and position detail (`/earn/position/...`, singular).
-  // Checked before the table archetype so the positions *list* (`/earn/positions`) still gets a table.
-  if (startsWithAny(pathname, ['/pools/', '/earn/position/'])) {
-    return <DetailPageSkeleton />
+  // Sitemap: Limit Orders - per chain
+  if (pathname.startsWith(APP_PATHS.LIMIT)) {
+    return <SwapPageSkeleton />
   }
 
+  // Sitemap: Cross-chain and Earn
+  if (pathname.startsWith(APP_PATHS.CROSS_CHAIN)) {
+    return <SwapPageSkeleton />
+  }
   if (pathname === APP_PATHS.EARN) {
     return <EarnLandingFallback />
   }
-
-  // Pages with dedicated, layout-faithful fallbacks.
   if (pathname.startsWith(APP_PATHS.EARN_POOLS)) {
     return <EarnPoolsFallback />
   }
@@ -305,19 +305,11 @@ const pickSkeleton = (rawPathname: string) => {
   if (pathname.startsWith(APP_PATHS.EARN_SMART_EXIT)) {
     return <SmartExitFallback />
   }
+
+  // Sitemap: Market, KyberDAO, and About
   if (pathname.startsWith(APP_PATHS.MARKET_OVERVIEW)) {
     return <MarketFallback />
   }
-
-  if (pathname.startsWith(APP_PATHS.MY_POOLS)) {
-    return <TablePageSkeleton />
-  }
-
-  if (pathname.startsWith('/campaigns/')) {
-    return <CampaignSkeleton />
-  }
-
-  // KyberDAO + About sub-pages with tailored top-of-page skeletons (checked before the generic catch).
   if (pathname.startsWith(APP_PATHS.KYBERDAO_STAKE)) {
     return <StakeKncFallback />
   }
@@ -334,6 +326,26 @@ const pickSkeleton = (rawPathname: string) => {
     return <AboutKncFallback />
   }
 
+  // Runtime-only routes outside the sitemap inventory.
+  if (startsWithAny(pathname, [APP_PATHS.PARTNER_SWAP, APP_PATHS.USER_SWAP])) {
+    return <PartnerSwapSkeleton />
+  }
+
+  // Detail pages — pool detail (`/pools/...`) and position detail (`/earn/position/...`, singular).
+  // These patterns do not overlap the sitemap list routes above.
+  if (startsWithAny(pathname, ['/pools/', '/earn/position/'])) {
+    return <DetailPageSkeleton />
+  }
+
+  if (pathname.startsWith(APP_PATHS.MY_POOLS)) {
+    return <TablePageSkeleton />
+  }
+
+  if (pathname.startsWith('/campaigns/')) {
+    return <CampaignSkeleton />
+  }
+
+  // Keep specific sitemap routes above this generic runtime catch.
   if (startsWithAny(pathname, [APP_PATHS.ABOUT, APP_PATHS.KYBERDAO])) {
     return <ContentPageSkeleton />
   }

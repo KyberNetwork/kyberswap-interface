@@ -2,8 +2,6 @@ import { PUBLIC_RPC_ENDPOINTS } from '@kyber/rpc-client'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { reconnect, watchChainId } from '@wagmi/core'
-import { Dialog, Mode } from 'porto'
-import { porto } from 'porto/wagmi'
 import { ReactNode, useEffect } from 'react'
 import { type Chain, defineChain, fallback, http } from 'viem'
 import {
@@ -275,6 +273,38 @@ const WC_PARAMS = {
   },
 }
 
+// WalletConnect v2 keeps all of its state under `wc@2:`-prefixed localStorage keys. Their presence means
+// this browser has talked to WalletConnect before, so there may be a session worth restoring at boot.
+const hasWalletConnectState = () => {
+  try {
+    if (typeof window === 'undefined' || !window.localStorage) return false
+    return Object.keys(window.localStorage).some(key => key.startsWith('wc@2:'))
+  } catch {
+    // Storage can throw (disabled cookies, partitioned contexts) — treat it as "no session" and let the
+    // SDK load on the first Connect click instead.
+    return false
+  }
+}
+
+// wagmi runs `connector.setup()` for every connector while createConfig() builds the store, and
+// WalletConnect's setup() unconditionally awaits getProvider() — which dynamically imports the ~460KB
+// @walletconnect/ethereum-provider bundle and runs EthereumProvider.init() (relay, keychain, storage).
+// All of that exists to attach one 'connect' listener that only fires for a session being restored, so a
+// visitor who has never used WalletConnect pays the whole cost for nothing. Gate setup() on prior
+// WalletConnect state: connect() awaits getProvider() itself, so a first-time user still gets the SDK the
+// moment they click Connect, and returning WalletConnect users keep today's restore behaviour.
+const walletConnectWithDeferredSetup = (parameters: Parameters<typeof walletConnect>[0]) =>
+  createConnector(config => {
+    const connector = walletConnect(parameters)(config)
+    return {
+      ...connector,
+      async setup() {
+        if (!hasWalletConnectState()) return
+        await connector.setup?.()
+      },
+    }
+  })
+
 // Build an ordered, de-duplicated RPC list for a chain: KyberSwap RPC first,
 // then the public RPCs from @kyber/rpc-client. The list feeds both the wagmi
 // `transports` map (via viem `fallback()` for true rotation on read calls) and
@@ -383,6 +413,22 @@ const transports = Object.fromEntries(
   }
 })()
 
+// Porto's connector id, spelled out rather than imported so reading it cannot pull the Porto SDK back into
+// the entry chunk. registerPortoConnector() matches on the live `connector.id`, so if this ever drifts from
+// upstream the only cost is the mount effect falling back to wagmi's full walk again.
+const PORTO_CONNECTOR_ID = 'xyz.ithaca.porto'
+
+/** The connector a returning visitor last connected with, as wagmi persists it (JSON-encoded). */
+const readRecentConnectorId = (): string | undefined => {
+  if (typeof window === 'undefined' || !window.localStorage) return undefined
+  try {
+    const raw = window.localStorage.getItem('wagmi.recentConnectorId')
+    return raw ? (JSON.parse(raw) as string) : undefined
+  } catch {
+    return undefined
+  }
+}
+
 export const wagmiConfig = createConfig({
   chains: wagmiChains,
   transports,
@@ -412,23 +458,63 @@ export const wagmiConfig = createConfig({
       },
     }),
     injectedWithFallback(),
-    walletConnect(WC_PARAMS),
+    walletConnectWithDeferredSetup(WC_PARAMS),
     coinbaseWallet({
       appName: 'KyberSwap',
       appLogoUrl: `${KYBERSWAP_URL}/favicon.png`,
     }),
     safepalConnector(),
-    // Porto's default iframe renderer sets iframe.src during connector setup,
-    // which hits id.porto.sh on app mount. The official popup renderer opens
-    // the remote dialog only when a Porto request needs user confirmation.
-    ...(import.meta.env.SSR ? [] : [porto({ mode: Mode.dialog({ renderer: Dialog.popup() }) })]),
+    // Porto is absent here on purpose — registerPortoConnector() adds it after boot. See that function.
     safe(),
     ...HardCodedConnectors.map(connector => createPriorityConnector(connector)),
   ],
 })
 
+// Porto ships ~620KB of JS (the SDK plus its `ox` dependency) and is one wallet choice among many, so
+// importing it at module scope put all of it in the entry chunk that gates the app's first render for every
+// visitor — including the vast majority who never pick it. Register it once the app is idle instead: the
+// wallet list reads connectors through wagmi's reactive `useConnectors()`, so Porto appears as soon as this
+// resolves. WalletModal calls this too when it opens, since idle can be several seconds out on a slow cold
+// load and the list must not render without Porto by then; the flag below makes whichever fires first win.
+//
+// `_internal` is wagmi's own escape hatch for exactly this (`reconnect` uses the same `setup` to register
+// connectors passed to it) — worth re-checking on a wagmi major bump. `setup()` also invokes the
+// connector's own setup() and wires its `connect` emitter, so the connector is fully live once added.
+let hasRegisteredPorto = false
+
+export const registerPortoConnector = async () => {
+  if (hasRegisteredPorto) return
+  hasRegisteredPorto = true
+  try {
+    const [{ Dialog, Mode }, { porto }] = await Promise.all([import('porto'), import('porto/wagmi')])
+    // Porto's default iframe renderer sets iframe.src while the connector sets itself up, which hits
+    // id.porto.sh. The official popup renderer opens the remote dialog only when a Porto request needs
+    // user confirmation.
+    const connector = wagmiConfig._internal.connectors.setup(porto({ mode: Mode.dialog({ renderer: Dialog.popup() }) }))
+    wagmiConfig._internal.connectors.setState(connectors => [...connectors, connector])
+
+    // Porto is not in `connectors` while the mount-time reconnect below runs, so a visitor whose last
+    // wallet was Porto cannot be restored there. Reconnect them here instead, once the connector exists.
+    if (readRecentConnectorId() === connector.id) {
+      reconnect(wagmiConfig, { connectors: [connector] }).catch(() => {})
+    }
+  } catch {
+    hasRegisteredPorto = false // let a later mount retry; until then Porto is simply not offered
+  }
+}
+
 export default function Web3Provider({ children }: { children: ReactNode }) {
   const dispatch = useAppDispatch()
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    if (window.requestIdleCallback) {
+      const handle = window.requestIdleCallback(() => void registerPortoConnector(), { timeout: 3_000 })
+      return () => window.cancelIdleCallback?.(handle)
+    }
+    const handle = window.setTimeout(() => void registerPortoConnector(), 2_000)
+    return () => window.clearTimeout(handle)
+  }, [])
   useEffect(() => {
     const unwatch = watchChainId(wagmiConfig, {
       onChange(chainId) {
@@ -442,10 +528,32 @@ export default function Web3Provider({ children }: { children: ReactNode }) {
     }
   }, [dispatch])
 
+  // Restore the previous session ourselves, because WagmiProvider below passes `reconnectOnMount={false}`.
+  //
+  // wagmi's own mount reconnect walks EVERY connector and awaits `connector.getProvider()` on each — and
+  // that call is where a connector dynamically imports its SDK. A visitor who has never connected a wallet
+  // therefore downloads the MetaMask (~356KB) and WalletConnect (~397KB) SDKs during boot just for wagmi to
+  // learn they have no session. Scoping the walk to the connector they actually last used skips all of it:
+  // with no stored id there is nothing to restore, so no SDK loads at all.
+  //
+  // Runs on mount rather than at idle so a returning visitor's wallet reconnects as promptly as before. If
+  // the stored id names a connector we cannot resolve yet — EIP-6963 wallets announce asynchronously, so a
+  // discovered connector may not be registered at this point — fall back to wagmi's full walk rather than
+  // leave that visitor disconnected. Porto is the one exception: it is knowingly absent until
+  // registerPortoConnector() runs, which reconnects it itself, so the full walk here would only load every
+  // other wallet's SDK for nothing.
+  useEffect(() => {
+    const recentConnectorId = readRecentConnectorId()
+    if (!recentConnectorId || recentConnectorId === PORTO_CONNECTOR_ID) return
+
+    const recentConnector = wagmiConfig.connectors.find(connector => connector.id === recentConnectorId)
+    reconnect(wagmiConfig, recentConnector ? { connectors: [recentConnector] } : undefined).catch(() => {})
+  }, [])
+
   // SafePal reconnect recovery. The extension lazy-attaches its EVM provider
   // (window.__safepalEthereumBootstrap__.activeProvider — see getSafepalProvider)
   // some time after the page loads and does NOT fire an EIP-6963 announce, so
-  // wagmi's mount-time reconnect runs before the provider exists, finds nothing
+  // the mount reconnect above runs before the provider exists, finds nothing
   // via `connector.getProvider()`, and gives up without ever reaching
   // `isAuthorized()` (where the shim lives). Poll for the bootstrap object and,
   // once it lands, re-trigger reconnect so the custom safepalConnector finds it.
@@ -486,7 +594,7 @@ export default function Web3Provider({ children }: { children: ReactNode }) {
   }, [])
 
   return (
-    <WagmiProvider config={wagmiConfig}>
+    <WagmiProvider config={wagmiConfig} reconnectOnMount={false}>
       <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
     </WagmiProvider>
   )

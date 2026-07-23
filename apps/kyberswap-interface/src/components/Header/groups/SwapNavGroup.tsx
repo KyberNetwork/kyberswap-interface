@@ -9,11 +9,13 @@ import NavGroup, { type DropdownAlign } from 'components/Header/groups/NavGroup'
 import { DropdownTextAnchor, NewLabel, StyledNavLink } from 'components/Header/styleds'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import { APP_PATHS, CHAINS_SUPPORT_CROSS_CHAIN } from 'constants/index'
+import { isSupportLimitOrder } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { useTutorialSwapGuide } from 'state/tutorial/hooks'
 import { MEDIA_WIDTHS } from 'theme'
-import { isInSafeApp, isSupportLimitOrder } from 'utils'
+import { isInSafeApp } from 'utils'
 import { cn } from 'utils/cn'
+import { isSwapLikePath } from 'utils/routes'
 
 const IconWrapper = ({ children }: { children: React.ReactNode }) => (
   <div className="flex size-4 flex-[0_0_16px] items-center">{children}</div>
@@ -26,7 +28,8 @@ type Props = {
 const SwapNavGroup = ({ dropdownAlign }: Props) => {
   const { networkInfo, chainId } = useActiveWeb3React()
   const { pathname } = useLocation()
-  const isActive = [APP_PATHS.SWAP, APP_PATHS.LIMIT, APP_PATHS.CROSS_CHAIN].some(path => pathname.startsWith(path))
+  const isActive =
+    isSwapLikePath(pathname) || [APP_PATHS.LIMIT, APP_PATHS.CROSS_CHAIN].some(path => pathname.startsWith(path))
 
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 

@@ -1,6 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 
+import { ENV_KEY, type EnvKeys } from './env'
 import {
   arbitrum,
   avax,
@@ -68,6 +69,12 @@ export const NETWORKS_INFO = new Proxy(NETWORKS_INFO_CONFIG, {
 })
 
 export const SUPPORTED_NETWORKS: ChainId[] = Object.keys(NETWORKS_INFO).map(Number)
+
+export const isSupportLimitOrder = (chainId: ChainId, envKey: EnvKeys = ENV_KEY): boolean => {
+  if (!SUPPORTED_NETWORKS.includes(chainId)) return false
+  const limitOrder = NETWORKS_INFO[chainId].limitOrder
+  return limitOrder === '*' || (limitOrder || []).includes(envKey)
+}
 
 export const MAINNET_NETWORKS: ChainId[] = [
   ChainId.MAINNET,

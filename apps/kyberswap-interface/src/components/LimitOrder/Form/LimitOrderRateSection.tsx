@@ -253,13 +253,6 @@ const LimitOrderRateSection = ({ tokens = {}, rate = {}, events = {} }: Props) =
       </HStack>
 
       <HStack className="min-h-8 min-w-0 items-center gap-2">
-        {baseCurrency?.symbol && (
-          <div className="flex min-w-0 shrink-0 items-center gap-1 text-lg font-medium text-subText">
-            <span className="shrink-0">1</span>
-            <span className="max-w-[92px] truncate">{baseCurrency.symbol}</span>
-            <span className="shrink-0">=</span>
-          </div>
-        )}
         <div className="flex min-w-0 flex-1 items-center">
           <NumericalInput
             maxLength={50}

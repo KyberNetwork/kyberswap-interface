@@ -1042,17 +1042,7 @@
   input,
   textarea,
   button {
-    font-family: 'Work Sans', 'Inter', sans-serif;
-    font-display: fallback;
-  }
-
-  @supports (font-variation-settings: normal) {
-    html,
-    input,
-    textarea,
-    button {
-      font-family: 'Work Sans', 'Inter var', sans-serif;
-    }
+    font-family: 'Work Sans', sans-serif;
   }
 
   @property --border-angle {

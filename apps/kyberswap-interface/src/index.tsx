@@ -1,18 +1,14 @@
 /* eslint-disable prettier/prettier */
 // Ordering is intentional and must be preserved: styling, polyfilling, tracing, and then functionality.
 import '@zkmelabs/widget/dist/style.css'
-import AOS from 'aos'
-import 'aos/dist/aos.css'
 import dayjs from 'dayjs'
 import duration from 'dayjs/plugin/duration'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import utc from 'dayjs/plugin/utc'
 import { LanguageProvider } from 'i18n'
-import 'inter-ui/inter.css'
 import { initMixpanel } from 'libs/mixpanel'
 import { StrictMode, useLayoutEffect } from 'react'
 import { createRoot } from 'react-dom/client'
-import TagManager from 'react-gtm-module'
 import 'react-loading-skeleton/dist/skeleton.css'
 import { Provider } from 'react-redux'
 import { BrowserRouter } from 'react-router-dom'
@@ -32,7 +28,7 @@ import ListsUpdater from 'state/lists/updater'
 import TransactionUpdater from 'state/transactions/updater'
 import UserUpdater from 'state/user/updater'
 import ThemeProvider from 'theme'
-import { preloadStaticRouteChunks } from 'utils/prefetch'
+import { preloadChainIcons, preloadStaticRouteChunks } from 'utils/prefetch'
 
 dayjs.extend(utc)
 dayjs.extend(duration)
@@ -53,13 +49,19 @@ const scheduleIdle = (cb: () => void) => {
 
 scheduleIdle(() => void initMixpanel())
 
+// GTM has nothing to do with first paint, yet initializing it here at module scope fetched gtm.js while the
+// app was still booting — and that one script chains GA4, Universal Analytics and a web-vitals bundle
+// behind it, all competing for the network and main thread during the window that decides LCP. Move it to
+// idle alongside Mixpanel; the dynamic import also keeps react-gtm-module itself out of the entry chunk.
+// Nothing in the app pushes to `window.dataLayer`, so unlike Mixpanel there are no early calls to buffer —
+// GTM's own page_view simply fires once it initializes.
 if (ENV_LEVEL === ENV_TYPE.PROD && GTM_ID) {
-  TagManager.initialize({
-    gtmId: GTM_ID,
+  scheduleIdle(() => {
+    void import('react-gtm-module')
+      .then(({ default: TagManager }) => TagManager.initialize({ gtmId: GTM_ID }))
+      .catch(() => undefined)
   })
 }
-
-AOS.init()
 
 if (window.ethereum) {
   window.ethereum.autoRefreshOnNetworkChange = false
@@ -122,6 +124,9 @@ createRoot(container).render(<ReactApp />)
 // Warm a few high-traffic static route chunks so in-app nav to them is instant even without a hover
 // (keyboard / mobile tap). Idle-gated internally — see preloadStaticRouteChunks.
 preloadStaticRouteChunks()
+
+// Warm the chain-switcher icons during idle too; they're not needed for first paint. Idle-gated internally.
+preloadChainIcons()
 
 serviceWorkerRegistration.unregister()
 //serviceWorkerRegistration.register({

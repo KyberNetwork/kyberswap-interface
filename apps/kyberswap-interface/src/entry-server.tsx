@@ -12,9 +12,11 @@ import { StaticRouter } from 'react-router-dom/server'
 import { WagmiProvider } from 'wagmi'
 
 import RouteFallback from 'components/RouteFallback'
+import { CURATED_SWAP_INTENT_REDIRECTS } from 'components/Seo/curatedSwapCatalog'
+import { SITEMAP_PAGE_ROUTES } from 'components/Seo/sitemapRoutes'
 import { wagmiConfig } from 'components/Web3Provider'
 import { APP_PATHS, KYBERSWAP_URL } from 'constants/index'
-import { MAINNET_NETWORKS, NETWORKS_INFO } from 'constants/networks'
+import { NETWORKS_INFO } from 'constants/networks'
 import App from 'pages/App'
 import { makeStore } from 'state'
 import { updateChainId } from 'state/user/actions'
@@ -26,81 +28,68 @@ dayjs.extend(utc)
 dayjs.extend(duration)
 dayjs.extend(relativeTime)
 
-// Build-time prerender support (no Node runtime in production — this module is loaded once by
-// scripts/prerender.mjs via Vite's ssrLoadModule). Indexable routes get both their route-specific <head>
-// and static app body at build time; the existing client entry mounts the interactive app after load.
+// Build-time static output support (no Node runtime in production — this module is loaded once by
+// scripts/prerender.mjs through Vite's SSR transform pipeline). The manifest owns route-domain
+// decisions; the script only renders and writes the declared artifacts.
 
-// Re-export so the prerender script can read the per-route <head> from the same module.
-export { buildHeadHtml } from 'components/Seo/seoConfig'
+export { renderRouteHeadHtml, renderTradeShellHeadHtml } from 'components/Seo/seoHead'
 
-// Canonical base URL, re-exported so scripts/prerender.mjs builds sitemap <loc>s from the same
-// single source of truth (constants/index KYBERSWAP_URL) instead of hardcoding the domain.
-export const siteUrl = KYBERSWAP_URL
+const DEFAULT_NETWORK_ROUTE = NETWORKS_INFO[ChainId.MAINNET].route
+const ROOT_SOURCE_ROUTE = `${APP_PATHS.SWAP}/${DEFAULT_NETWORK_ROUTE}`
 
-/**
- * Bounded public routes to prerender (en-US only), derived from app constants so the list tracks
- * network/campaign changes. Every route gets its per-route <head> and cold-load skeleton; the indexable
- * subset also gets its app body. The home route is intentionally omitted from this directory-route list
- * because scripts/prerender.mjs emits it separately without changing the empty-body SPA fallback.
- */
-export const prerenderRoutes: string[] = [
-  `${APP_PATHS.ABOUT}/kyberswap`,
-  `${APP_PATHS.ABOUT}/knc`,
-  APP_PATHS.EARN,
-  APP_PATHS.EARN_POOLS,
-  APP_PATHS.MARKET_OVERVIEW,
-  APP_PATHS.SAFEPAL_CAMPAIGN,
-  APP_PATHS.RAFFLE_CAMPAIGN,
-  APP_PATHS.NEAR_INTENTS_CAMPAIGN,
-  APP_PATHS.MAY_TRADING_CAMPAIGN,
-  APP_PATHS.AGGREGATOR_CAMPAIGN,
-  APP_PATHS.LIMIT_ORDER_CAMPAIGN,
-  APP_PATHS.REFFERAL_CAMPAIGN,
-  APP_PATHS.KYBERDAO_STAKE,
-  APP_PATHS.KYBERDAO_VOTE,
-  APP_PATHS.KYBERDAO_KNC_UTILITY,
-  // Gated (wallet-required, noindex) list pages — prerendered ONLY to bake their page-shell skeleton into
-  // the cold-load overlay (a direct/bookmarked load shows the right shape, not the generic logo). NOT for
-  // SEO: they stay noindex (see seoConfig) and are kept out of sitemapRoutes. Only static list paths
-  // qualify; the dynamic position-detail route stays SPA-fallback.
-  APP_PATHS.EARN_POSITIONS,
-  APP_PATHS.EARN_SMART_EXIT,
-  ...Array.from(new Set(MAINNET_NETWORKS)).map(chainId => `${APP_PATHS.SWAP}/${NETWORKS_INFO[chainId].route}`),
-]
+const distinctPageRoutes = SITEMAP_PAGE_ROUTES.filter(
+  route => route !== '/' && !route.startsWith(`${APP_PATHS.SWAP}/`) && !route.startsWith(`${APP_PATHS.LIMIT}/`),
+)
 
-/**
- * The index,follow URLs to list in sitemap.xml (home + about + earn + KyberDAO + per-network swap).
- * The noindex routes (market-overview, campaigns, gated list pages) are prerendered for meta/skeleton but
- * omitted here — a sitemap should only advertise indexable URLs.
- */
-export const sitemapRoutes: string[] = [
-  '/',
-  `${APP_PATHS.ABOUT}/kyberswap`,
-  `${APP_PATHS.ABOUT}/knc`,
-  APP_PATHS.EARN,
-  APP_PATHS.EARN_POOLS,
-  APP_PATHS.KYBERDAO_STAKE,
-  APP_PATHS.KYBERDAO_VOTE,
-  APP_PATHS.KYBERDAO_KNC_UTILITY,
-  ...Array.from(new Set(MAINNET_NETWORKS)).map(chainId => `${APP_PATHS.SWAP}/${NETWORKS_INFO[chainId].route}`),
-]
+export const prerenderManifest = {
+  siteUrl: KYBERSWAP_URL,
+  rootPage: {
+    pathname: '/',
+    sourceRoute: ROOT_SOURCE_ROUTE,
+    outputPath: 'index-root.html',
+  },
+  distinctPages: distinctPageRoutes.map(pathname => ({
+    pathname,
+    sourceRoute: pathname,
+    outputPath: `${pathname.slice(1)}/index.html`,
+  })),
+  tradeShells: [
+    {
+      product: 'swap',
+      sourceRoute: ROOT_SOURCE_ROUTE,
+      outputPath: 'swap/index.html',
+    },
+    {
+      product: 'limit',
+      sourceRoute: `${APP_PATHS.LIMIT}/${DEFAULT_NETWORK_ROUTE}`,
+      outputPath: 'limit/index.html',
+    },
+  ],
+  ogSkeletons: [
+    {
+      name: 'swap',
+      sourceRoute: `${APP_PATHS.SWAP}/${DEFAULT_NETWORK_ROUTE}/eth-to-usdc`,
+      outputPath: 'skeletons/swap.html',
+    },
+    {
+      name: 'pool',
+      sourceRoute: `${APP_PATHS.POOLS}/${DEFAULT_NETWORK_ROUTE}/uniswapv3/0x0000000000000000000000000000000000000001`,
+      outputPath: 'skeletons/pool.html',
+    },
+  ],
+  swapIntentRedirects: CURATED_SWAP_INTENT_REDIRECTS,
+} as const
 
-// The client resolves `/` to the default Ethereum swap route. Prerender that same existing route tree
-// into a dedicated exact-root document; build/index.html remains an empty-body SPA fallback for dynamic
-// URLs that cannot be enumerated at build time.
-export const rootPrerenderSourceRoute = `${APP_PATHS.SWAP}/${NETWORKS_INFO[ChainId.MAINNET].route}`
+const getRouteNetworkSlug = (url: string) => {
+  const productPath = [APP_PATHS.SWAP, APP_PATHS.LIMIT, APP_PATHS.BUY, APP_PATHS.SELL].find(path =>
+    url.startsWith(`${path}/`),
+  )
+  return productPath ? url.slice(productPath.length + 1).split(/[/?#]/, 1)[0] : undefined
+}
 
-// Full body prerender is an SEO concern, so keep it aligned with the index,follow routes. Noindex
-// campaigns and wallet-gated pages retain their route-specific head/skeleton without pulling their
-// wallet-only dependency graph into the Node build renderer.
-export const appPrerenderRoutes = sitemapRoutes.filter(route => route !== '/')
-
-function createRouteApp(url: string) {
+function createRouteAppTree(url: string) {
   const store = makeStore()
-  const networkSlug = url.startsWith(`${APP_PATHS.SWAP}/`)
-    ? url.slice(APP_PATHS.SWAP.length + 1).split(/[/?#]/, 1)[0]
-    : undefined
-  const routeChainId = getChainIdFromSlug(networkSlug)
+  const routeChainId = getChainIdFromSlug(getRouteNetworkSlug(url))
   if (routeChainId !== undefined) store.dispatch(updateChainId(routeChainId))
 
   const queryClient = new QueryClient()
@@ -127,10 +116,10 @@ function createRouteApp(url: string) {
  * without React's hidden Suspense reveal payload, so headings and links are directly present even when
  * scripts are disabled. Each pass gets isolated Redux and Query clients to prevent state leakage.
  */
-export async function renderRouteApp(url: string): Promise<string> {
+export async function renderRouteBodyHtml(url: string): Promise<string> {
   const renderErrors: unknown[] = []
 
-  const { prelude } = await prerender(createRouteApp(url), {
+  const { prelude } = await prerender(createRouteAppTree(url), {
     onError(error) {
       renderErrors.push(error)
     },
@@ -141,7 +130,7 @@ export async function renderRouteApp(url: string): Promise<string> {
     throw new AggregateError(renderErrors, `Failed to prerender ${url}`)
   }
 
-  return renderToStaticMarkup(createRouteApp(url))
+  return renderToStaticMarkup(createRouteAppTree(url))
 }
 
 /**
@@ -152,7 +141,7 @@ export async function renderRouteApp(url: string): Promise<string> {
  * useLocation) + ThemeProvider (Skeleton reads useTheme) are needed. renderToStaticMarkup emits no
  * hydration markers — this is a separate cosmetic cold-load overlay.
  */
-export function renderRouteSkeleton(url: string): string {
+export function renderRouteSkeletonHtml(url: string): string {
   return renderToStaticMarkup(
     <StaticRouter location={url}>
       <ThemeProvider>
