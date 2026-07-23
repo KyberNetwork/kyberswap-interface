@@ -153,38 +153,4 @@ export class CrossChainSwapFactory {
       // CrossChainSwapFactory.getKyberCrossChainAdapter(),
     ]
   }
-
-  // Get adapter by name
-  static getAdapterByName(name: string): SwapProvider | undefined {
-    switch (name.toLowerCase()) {
-      case 'across':
-        return CrossChainSwapFactory.getAcrossAdapter()
-      case 'relay':
-        return CrossChainSwapFactory.getRelayAdapter()
-      case 'xyfinance':
-        return CrossChainSwapFactory.getXyFinanceAdapter()
-      case 'near intents':
-        return CrossChainSwapFactory.getNearIntentsAdapter()
-      case 'mayan':
-        return CrossChainSwapFactory.getMayanAdapter()
-      case 'symbiosis':
-        return CrossChainSwapFactory.getSymbiosisAdapter()
-      case 'debridge':
-        return CrossChainSwapFactory.getDebridgeInstance()
-      case 'lifi':
-        return CrossChainSwapFactory.getLifiInstance()
-      case 'optimex':
-        return CrossChainSwapFactory.getOptimexAdapter()
-      case 'kyberswap':
-        return CrossChainSwapFactory.getKsApdater()
-      case 'orbiter':
-        return CrossChainSwapFactory.getOrbiterAdapter()
-      case 'bungee':
-        return CrossChainSwapFactory.getBungeeAdapter()
-      case 'kyberacross':
-        return CrossChainSwapFactory.getKyberCrossChainAdapter()
-      default:
-        return undefined
-    }
-  }
 }
