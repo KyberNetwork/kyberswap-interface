@@ -6,6 +6,7 @@ import { ChevronRight } from 'react-feather'
 import { useMedia } from 'react-use'
 import { formatUnits } from 'viem'
 
+import UnknownToken from 'assets/svg/kyber/unknown-token.svg'
 import { ReactComponent as NoTransactionIcon } from 'assets/svg/no_transaction.svg'
 import CopyHelper from 'components/Copy'
 import Pagination from 'components/Pagination'
@@ -108,9 +109,14 @@ const TransactionTime = ({ tx }: { tx: NormalizedTxResponse }) => {
   return (
     <div className="flex min-w-0 flex-col gap-2">
       <div className="flex items-center gap-2 whitespace-nowrap">
-        {adapterIcon && (
-          <img src={adapterIcon} className="size-4 rounded-full" width={16} height={16} alt={adapterName} />
-        )}
+        <img
+          src={adapterIcon || UnknownToken}
+          className="size-4 rounded-full"
+          width={16}
+          height={16}
+          alt={adapterName}
+          title={adapterName}
+        />
         <span className="text-sm font-medium text-text">{format(txDate, 'dd/MM/yyyy')}</span>
         <span className="text-sm font-medium text-subText">{format(txDate, 'HH:mm:ss')}</span>
       </div>
