@@ -119,7 +119,7 @@ export default function useApproval() {
   const { permitState, signPermitNft, permitData } = usePermitNft({
     nftManagerContract,
     tokenId: positionId,
-    spender: route?.routerPermitAddress,
+    spender: route?.routerAddress,
     account: connectedAccount?.address,
     chainId: connectedAccount?.chainId,
     rpcUrl,
@@ -146,8 +146,7 @@ export default function useApproval() {
     owner: connectedAccount?.address || '',
     chainId,
     rpcUrl,
-    spender:
-      permitData?.permitData && route?.routerPermitAddress ? route.routerPermitAddress : route?.routerAddress || '',
+    spender: route?.routerAddress || '',
     onSubmitTx: onSubmitTx,
     txStatus,
     txHashMapping,
