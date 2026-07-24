@@ -13,7 +13,6 @@ import {
   univ3PoolNormalize,
   univ3Position,
   univ3Types,
-  univ4Types,
 } from '@kyber/schema';
 import { getPoolPrice } from '@kyber/utils';
 import { formatDisplayNumber } from '@kyber/utils/number';
@@ -37,7 +36,6 @@ export default function Warning() {
   const { route, tickLower, tickUpper } = useZapState();
 
   const initializing = !pool;
-  const isUniV4 = univ4Types.includes(poolType);
   const { token0 = defaultToken, token1 = defaultToken } = !initializing ? pool : {};
 
   const positionOwner = usePositionOwner({
@@ -152,7 +150,7 @@ export default function Warning() {
         </div>
       )}
 
-      {isUniV4 && isNotOwner && (
+      {isNotOwner && (
         <div
           className="py-3 px-4 text-subText text-sm rounded-md mt-4 font-normal"
           style={{ backgroundColor: `${theme.warning}33` }}

@@ -19,11 +19,43 @@ const DEFAULT_MAX_BLOCK_LAG = 50;
 const DEFAULT_PROBE_INTERVAL_MS = 60000; // 1 minute
 
 /**
- * Build a standardized RPC error message prefixed with "Rpc issue:" and tagged
- * with the originating endpoint host and method, so failures are easy to spot
- * in UI / logs.
+ * JSON-RPC error codes that every healthy node answers identically, so rotating
+ * to another endpoint can't change the outcome: JSON parse/request errors and
+ * geth's execution-revert code. Their messages are passed through untouched — no
+ * "Rpc issue:" prefix and no `[method @ host]` tag, which would only be misleading
+ * noise.
+ *
+ * `-32601` (method not found) and `-32602` (invalid params) are deliberately NOT
+ * here: in a heterogeneous public pool, endpoints disagree on which methods they
+ * expose and how strictly they validate params — some Monad gateways reject a
+ * valid `eth_estimateGas` with `-32602`, or lack the method entirely (`-32601`),
+ * while the canonical nodes answer it fine. Those are endpoint-specific, so they
+ * are treated as retryable (see `isRetryableError`) and rotation moves past them.
+ * See https://www.jsonrpc.org/specification#error_object and EIP-1474.
  */
-export function buildRpcErrorMessage(endpoint: string, method: string, detail: string): string {
+const DETERMINISTIC_ERROR_CODES = new Set([
+  -32700, // Parse error
+  -32600, // Invalid Request
+  3, // Execution reverted (EIP-1474)
+]);
+
+/**
+ * Build a standardized RPC error message.
+ *
+ * Endpoint/infrastructure failures (rate limits, timeouts, provider outages,
+ * malformed responses) are tagged with the originating endpoint host and method
+ * and prefixed with "Rpc issue:", so they're easy to spot in UI / logs. Passing
+ * a JSON-RPC error `code` that is a deterministic node response (bad request or
+ * execution revert) returns the raw detail as-is — the endpoint is healthy and
+ * the request/transaction is at fault, so the prefix and endpoint tag would only
+ * mislead.
+ */
+export function buildRpcErrorMessage(endpoint: string, method: string, detail: string, code?: number): string {
+  if (code !== undefined && DETERMINISTIC_ERROR_CODES.has(code)) return detail;
+  // An execution revert is a deterministic node response no matter which code the
+  // endpoint wraps it in (geth uses `3`, others surface it as `-32603`/`-32000`),
+  // so pass it through untagged like the codes above.
+  if (/execution reverted/i.test(detail)) return detail;
   // Extract host without relying on URL (DOM lib not available in this package).
   // Strip protocol, then take substring up to first `/`, `?`, or `#`.
   const noProto = endpoint.replace(/^[a-z][a-z0-9+.-]*:\/\//i, '');
@@ -560,7 +592,11 @@ export class RpcClient {
 
       if (data.error) {
         const { code, message, data: errData } = normalizeRpcError(data.error);
-        throw new RpcError(code, buildRpcErrorMessage(endpoint, method, `JSON-RPC error ${code}: ${message}`), errData);
+        throw new RpcError(
+          code,
+          buildRpcErrorMessage(endpoint, method, `JSON-RPC error ${code}: ${message}`, code),
+          errData,
+        );
       }
 
       if (data.result === undefined) {
@@ -652,7 +688,7 @@ export class RpcClient {
           const { code, message, data: errData } = normalizeRpcError(item.error);
           throw new RpcError(
             code,
-            buildRpcErrorMessage(endpoint, failedMethod, `JSON-RPC error ${code}: ${message}`),
+            buildRpcErrorMessage(endpoint, failedMethod, `JSON-RPC error ${code}: ${message}`, code),
             errData,
           );
         }
@@ -794,6 +830,12 @@ export class RpcClient {
   }
 
   private isRetryableError(error: Error): boolean {
+    // Execution reverts are deterministic regardless of the JSON-RPC code the
+    // endpoint chose (geth: `3`, others wrap it as `-32603`/`-32000`). Rotating
+    // can't change a revert, so never retry one — otherwise a reverting call fans
+    // out across every endpoint and surfaces as a generic "all endpoints failed"
+    // instead of the actual revert.
+    if (/execution reverted/i.test(error.message)) return false;
     if (error instanceof RpcError) {
       // Retryable RPC error codes (non-deterministic server-side errors).
       // HTTP 4xx codes here cover provider-side quirks (e.g. drpc.org returning
@@ -802,6 +844,8 @@ export class RpcClient {
       // not via this path.
       const retryableCodes = [
         -32000, // Server error
+        -32601, // Method not found — this endpoint lacks the method; another may serve it
+        -32602, // Invalid params — some gateways reject requests the canonical nodes accept
         -32603, // Internal error
         -1, // Timeout
         400, // Bad request (provider quirk, e.g. drpc soft-throttle)

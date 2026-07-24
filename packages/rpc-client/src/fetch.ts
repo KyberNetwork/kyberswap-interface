@@ -137,7 +137,12 @@ async function fetchDirectRpc<T>(
     if (data.error) {
       throw new RpcError(
         data.error.code,
-        buildRpcErrorMessage(rpcUrl, method, `JSON-RPC error ${data.error.code}: ${data.error.message}`),
+        buildRpcErrorMessage(
+          rpcUrl,
+          method,
+          `JSON-RPC error ${data.error.code}: ${data.error.message}`,
+          data.error.code,
+        ),
         data.error.data,
       );
     }
