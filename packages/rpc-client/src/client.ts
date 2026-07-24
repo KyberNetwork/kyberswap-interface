@@ -19,11 +19,35 @@ const DEFAULT_MAX_BLOCK_LAG = 50;
 const DEFAULT_PROBE_INTERVAL_MS = 60000; // 1 minute
 
 /**
- * Build a standardized RPC error message prefixed with "Rpc issue:" and tagged
- * with the originating endpoint host and method, so failures are easy to spot
- * in UI / logs.
+ * JSON-RPC error codes that are deterministic responses from a healthy node
+ * rather than endpoint/infrastructure failures: the standard JSON-RPC 2.0 codes
+ * for a malformed request (wrong params / method), plus geth's execution-revert
+ * code. Rotating to another endpoint can't change the outcome, so their messages
+ * are passed through untouched — no "Rpc issue:" prefix and no `[method @ host]`
+ * tag, which would only be misleading noise. See
+ * https://www.jsonrpc.org/specification#error_object and EIP-1474.
  */
-export function buildRpcErrorMessage(endpoint: string, method: string, detail: string): string {
+const DETERMINISTIC_ERROR_CODES = new Set([
+  -32700, // Parse error
+  -32600, // Invalid Request
+  -32601, // Method not found
+  -32602, // Invalid params
+  3, // Execution reverted (EIP-1474)
+]);
+
+/**
+ * Build a standardized RPC error message.
+ *
+ * Endpoint/infrastructure failures (rate limits, timeouts, provider outages,
+ * malformed responses) are tagged with the originating endpoint host and method
+ * and prefixed with "Rpc issue:", so they're easy to spot in UI / logs. Passing
+ * a JSON-RPC error `code` that is a deterministic node response (bad request or
+ * execution revert) returns the raw detail as-is — the endpoint is healthy and
+ * the request/transaction is at fault, so the prefix and endpoint tag would only
+ * mislead.
+ */
+export function buildRpcErrorMessage(endpoint: string, method: string, detail: string, code?: number): string {
+  if (code !== undefined && DETERMINISTIC_ERROR_CODES.has(code)) return detail;
   // Extract host without relying on URL (DOM lib not available in this package).
   // Strip protocol, then take substring up to first `/`, `?`, or `#`.
   const noProto = endpoint.replace(/^[a-z][a-z0-9+.-]*:\/\//i, '');
@@ -560,7 +584,11 @@ export class RpcClient {
 
       if (data.error) {
         const { code, message, data: errData } = normalizeRpcError(data.error);
-        throw new RpcError(code, buildRpcErrorMessage(endpoint, method, `JSON-RPC error ${code}: ${message}`), errData);
+        throw new RpcError(
+          code,
+          buildRpcErrorMessage(endpoint, method, `JSON-RPC error ${code}: ${message}`, code),
+          errData,
+        );
       }
 
       if (data.result === undefined) {
@@ -652,7 +680,7 @@ export class RpcClient {
           const { code, message, data: errData } = normalizeRpcError(item.error);
           throw new RpcError(
             code,
-            buildRpcErrorMessage(endpoint, failedMethod, `JSON-RPC error ${code}: ${message}`),
+            buildRpcErrorMessage(endpoint, failedMethod, `JSON-RPC error ${code}: ${message}`, code),
             errData,
           );
         }
