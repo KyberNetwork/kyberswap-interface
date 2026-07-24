@@ -1,7 +1,8 @@
 import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
 import { WalletClient, formatUnits } from 'viem'
 
-import { CROSS_CHAIN_FEE_RECEIVER, ZERO_ADDRESS } from 'constants/index'
+import { ZERO_ADDRESS } from 'constants/index'
+import { CROSS_CHAIN_FEE_RECEIVER } from 'pages/CrossChainSwap/constants'
 
 import { Quote } from '../registry'
 import {

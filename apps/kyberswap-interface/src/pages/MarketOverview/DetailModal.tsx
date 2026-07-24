@@ -16,7 +16,7 @@ import useTheme from 'hooks/useTheme'
 import { ContentChangable, TabItem } from 'pages/MarketOverview/styles'
 import useFilter from 'pages/MarketOverview/useFilter'
 import { MEDIA_WIDTHS } from 'theme'
-import { shortenAddress } from 'utils'
+import { shortenAddress } from 'utils/address'
 import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
 

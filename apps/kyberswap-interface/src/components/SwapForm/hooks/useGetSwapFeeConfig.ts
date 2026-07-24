@@ -2,16 +2,17 @@ import { ChainId, WETH } from '@kyberswap/ks-sdk-core'
 import { useCallback } from 'react'
 import tokenApi from 'services/token'
 
-import { CHAINS_SUPPORT_FEE_CONFIGS, ETHER_ADDRESS, TOKEN_SCORE_TTL } from 'constants/index'
+import { ETHER_ADDRESS } from 'constants/index'
 import {
   DEFAULT_SWAP_FEE_NOT_STABLE_PAIRS,
   DEFAULT_SWAP_FEE_STABLE_PAIRS,
   STABLE_COIN_ADDRESSES_TO_TAKE_FEE,
   TOKENS_WITH_FEE_TIER_1,
 } from 'constants/tokens'
+import { CHAINS_SUPPORT_FEE_CONFIGS } from 'constants/trade'
 import { useKyberswapGlobalConfig } from 'hooks/useKyberSwapConfig'
 import { timeoutReject } from 'utils/retry'
-import { getTokenScore as getTokenScoreFromLocal, saveTokenScore } from 'utils/tokenScore'
+import { TOKEN_SCORE_TTL, getTokenScore as getTokenScoreFromLocal, saveTokenScore } from 'utils/tokenScore'
 
 export type SwapFeeConfig = {
   token: string

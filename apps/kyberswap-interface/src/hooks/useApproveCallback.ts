@@ -7,7 +7,6 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { NotificationType } from 'components/Announcement/type'
 import { wagmiConfig } from 'components/Web3Provider'
 import { ERC20_ABI } from 'constants/abis'
-import { didUserReject } from 'constants/connectors/utils'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useNotify } from 'state/application/hooks'
 import { useHasPendingApproval, useTransactionAdder } from 'state/transactions/hooks'
@@ -16,6 +15,7 @@ import { friendlyError } from 'utils/errorMessage'
 import { sendEVMTransaction } from 'utils/sendTransaction'
 import { ErrorName } from 'utils/transactionError'
 import { Address, encodeFunctionData, maxUint256 } from 'utils/viem'
+import { didUserReject } from 'utils/walletError'
 
 export enum ApprovalState {
   UNKNOWN = 'UNKNOWN',

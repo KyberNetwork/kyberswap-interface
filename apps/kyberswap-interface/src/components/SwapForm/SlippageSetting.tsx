@@ -9,7 +9,7 @@ import { Stack } from 'components/Stack'
 import { TextDashed } from 'components/Text'
 import { MouseoverTooltip } from 'components/Tooltip'
 import WarningNote from 'components/WarningNote'
-import { DEFAULT_SLIPPAGES, DEFAULT_SLIPPAGES_HIGH_VOTALITY } from 'constants/index'
+import { DEFAULT_SLIPPAGES, DEFAULT_SLIPPAGES_HIGH_VOLATILITY } from 'constants/trade'
 import { useDefaultSlippageByPair, usePairCategory } from 'state/swap/hooks'
 import { useDegenModeManager, useSlippageSettingByPage } from 'state/user/hooks'
 import { ExternalLink } from 'theme'
@@ -81,7 +81,7 @@ const SlippageSetting = ({ rightComponent, tooltip, slippageInfo }: Props) => {
       slippageInfo
         ? slippageInfo.presets
         : pairCategory === 'highVolatilityPair'
-        ? DEFAULT_SLIPPAGES_HIGH_VOTALITY
+        ? DEFAULT_SLIPPAGES_HIGH_VOLATILITY
         : DEFAULT_SLIPPAGES,
     [pairCategory, slippageInfo],
   )

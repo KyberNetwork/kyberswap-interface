@@ -23,8 +23,8 @@ import { useModalOpen, useToggleModal } from 'state/application/hooks'
 import { useSessionInfo } from 'state/authen/hooks'
 import { useProfileInfo, useSignedAccountInfo } from 'state/profile/hooks'
 import { MEDIA_WIDTHS } from 'theme'
+import { getShortenAddress } from 'utils/address'
 import { cn } from 'utils/cn'
-import getShortenAddress from 'utils/getShortenAddress'
 import { shortString } from 'utils/string'
 
 export type Unread = Partial<{ [type in PrivateAnnouncementType]: number | undefined }> & { ALL: number | undefined }

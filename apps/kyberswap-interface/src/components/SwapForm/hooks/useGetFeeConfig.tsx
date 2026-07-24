@@ -2,11 +2,11 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
-import { MAX_FEE_IN_BIPS } from 'constants/index'
 import { SUPPORTED_NETWORKS } from 'constants/networks'
 import { NativeCurrencies } from 'constants/tokens'
+import { MAX_FEE_IN_BIPS } from 'constants/trade'
 import { ChargeFeeBy } from 'types/route'
-import { isAddressString } from 'utils'
+import { isAddressString } from 'utils/address'
 import { convertStringToBoolean } from 'utils/string'
 
 const ClientNameMapping: { [key: string]: string } = {

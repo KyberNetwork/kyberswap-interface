@@ -2,12 +2,12 @@ import { Pair } from '@kyberswap/ks-sdk-classic'
 import { Fraction, Percent } from '@kyberswap/ks-sdk-core'
 import JSBI from 'jsbi'
 
-import {
-  ALLOWED_PRICE_IMPACT_HIGH,
-  ALLOWED_PRICE_IMPACT_LOW,
-  ALLOWED_PRICE_IMPACT_MEDIUM,
-  BLOCKED_PRICE_IMPACT_NON_DEGEN,
-} from 'constants/index'
+import { BIPS_BASE } from 'constants/trade'
+
+const ALLOWED_PRICE_IMPACT_LOW: Percent = new Percent(JSBI.BigInt(100), BIPS_BASE)
+const ALLOWED_PRICE_IMPACT_MEDIUM: Percent = new Percent(JSBI.BigInt(300), BIPS_BASE)
+const ALLOWED_PRICE_IMPACT_HIGH: Percent = new Percent(JSBI.BigInt(500), BIPS_BASE)
+const BLOCKED_PRICE_IMPACT_NON_DEGEN: Percent = new Percent(JSBI.BigInt(1500), BIPS_BASE)
 
 function computeFee(pairs?: Array<Pair>): Fraction {
   let realizedLPFee: Fraction = new Fraction(JSBI.BigInt(0))

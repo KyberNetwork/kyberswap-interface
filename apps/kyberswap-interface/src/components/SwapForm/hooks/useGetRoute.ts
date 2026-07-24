@@ -1,21 +1,14 @@
 import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import debounce from 'lodash.debounce'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import routeApi from 'services/route'
+import routeApi, { AGGREGATOR_API_PATHS } from 'services/route'
 import { GetRouteParams } from 'services/route/types/getRoute'
 
 import useGetFeeConfig from 'components/SwapForm/hooks/useGetFeeConfig'
 import useGetSwapFeeConfig, { SwapFeeConfig } from 'components/SwapForm/hooks/useGetSwapFeeConfig'
 import useSelectedDexes from 'components/SwapForm/hooks/useSelectedDexes'
 import { AGGREGATOR_API } from 'constants/env'
-import {
-  AGGREGATOR_API_PATHS,
-  ETHER_ADDRESS,
-  INPUT_DEBOUNCE_TIME,
-  SAFE_APP_CLIENT_ID,
-  SAFE_APP_FEE_RECEIVER_ADDRESS,
-  SWAP_FEE_RECEIVER_ADDRESS,
-} from 'constants/index'
+import { ETHER_ADDRESS, INPUT_DEBOUNCE_TIME } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { useKyberswapGlobalConfig } from 'hooks/useKyberSwapConfig'
@@ -23,7 +16,10 @@ import { useSessionInfo } from 'state/authen/hooks'
 import { useAppDispatch } from 'state/hooks'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { ChargeFeeBy } from 'types/route'
-import { isInSafeApp } from 'utils'
+import { SAFE_APP_CLIENT_ID, isInSafeApp } from 'utils/safeApp'
+
+const SWAP_FEE_RECEIVER_ADDRESS = '0x4f82e73EDb06d29Ff62C91EC8f5Ff06571bdeb29'
+const SAFE_APP_FEE_RECEIVER_ADDRESS = '0x55602F3057be52BFB6F98fFE799CFDec58Af5130'
 
 export type ArgsGetRoute = {
   parsedAmount: CurrencyAmount<Currency> | undefined

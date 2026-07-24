@@ -4,7 +4,6 @@ import { useCallback } from 'react'
 import { useSwitchChain } from 'wagmi'
 
 import { NotificationType } from 'components/Announcement/type'
-import { didUserReject } from 'constants/connectors/utils'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useNotify } from 'state/application/hooks'
@@ -13,14 +12,12 @@ import { updateChainId } from 'state/user/actions'
 import { friendlyError } from 'utils/errorMessage'
 import { wait } from 'utils/retry'
 import { getGatedWalletClient } from 'utils/walletClient'
-
-//import { useLazyKyberswapConfig } from 'hooks/useKyberSwapConfig'
+import { didUserReject } from 'utils/walletError'
 
 let latestChainId: number | undefined
 export function useChangeNetwork() {
   const { isWrongNetwork, chainId: kyberChainId } = useActiveWeb3React()
   const { chainId, active } = useWeb3React()
-  //const fetchKyberswapConfig = useLazyKyberswapConfig()
 
   const dispatch = useAppDispatch()
   const notify = useNotify()

@@ -8,9 +8,10 @@ import { RouteDot } from 'components/TradeRouting/styled'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import { useAllDexes } from 'state/customizeDexes/hooks'
-import { getEtherscanLink, isAddress } from 'utils'
+import { isAddress } from 'utils/address'
 import { SwapRouteV3 } from 'utils/aggregationRouting'
 import { hexAlpha } from 'utils/colorAlpha'
+import { getEtherscanLink } from 'utils/explorer'
 
 interface SwapRouteV3Props {
   tradeComposition: SwapRouteV3[]

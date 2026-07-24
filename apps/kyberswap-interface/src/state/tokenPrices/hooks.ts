@@ -7,7 +7,7 @@ import { fetchTokenPrices } from 'services/tokenCatalog'
 
 import { useActiveWeb3React } from 'hooks'
 import { useAppDispatch, useAppSelector } from 'state/hooks'
-import { isAddressString } from 'utils'
+import { isAddressString } from 'utils/address'
 
 import { updatePrices } from '.'
 

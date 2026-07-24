@@ -20,7 +20,7 @@ import { useApproveCallback } from 'hooks/useApproveCallback'
 import { useNotify } from 'state/application/hooks'
 import { tryParseAmount } from 'state/swap/hooks'
 import { useCurrencyBalance } from 'state/wallet/hooks'
-import { getCookieValue } from 'utils'
+import { getCookieValue } from 'utils/cookie'
 import { subscribeNotificationOrderExpired } from 'utils/firebase'
 import { halfAmountSpend, maxAmountSpend } from 'utils/maxAmountSpend'
 

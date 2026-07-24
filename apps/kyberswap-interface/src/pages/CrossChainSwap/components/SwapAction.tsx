@@ -14,6 +14,7 @@ import { restrictedTokenMessage, useIsTokenAddressRestricted } from 'hooks/useRe
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { NonEvmChain } from 'pages/CrossChainSwap/adapters'
+import { isEvmChain } from 'pages/CrossChainSwap/adapters/types'
 import { ConfirmationPopup } from 'pages/CrossChainSwap/components/ConfirmationPopup'
 import useAcceptTermAndPolicy from 'pages/CrossChainSwap/hooks/useAcceptTermAndPolicy'
 import { useCrossChainApproval } from 'pages/CrossChainSwap/hooks/useCrossChainApproval'
@@ -22,7 +23,6 @@ import { useNearBalances } from 'pages/CrossChainSwap/hooks/useNearBalances'
 import { useSolanaConnectModal } from 'pages/CrossChainSwap/provider/SolanaConnectModalProvider'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { useCurrencyBalance } from 'state/wallet/hooks'
-import { isEvmChain } from 'utils'
 import { getTokenAddress } from 'utils/tokenInfo'
 
 export const SwapAction = ({ setShowBtcModal }: { setShowBtcModal: (val: boolean) => void }) => {

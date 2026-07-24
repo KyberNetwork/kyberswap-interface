@@ -34,8 +34,9 @@ import {
 import { useActiveWeb3React } from 'hooks'
 import { useCurrencyV2 } from 'hooks/useTokens'
 import { useAllDexes } from 'state/customizeDexes/hooks'
-import { getEtherscanLink, isAddress } from 'utils'
+import { isAddress } from 'utils/address'
 import { SwapRouteV2, SwapRouteV3 } from 'utils/aggregationRouting'
+import { getEtherscanLink } from 'utils/explorer'
 
 interface HopRowProps {
   route: SwapRouteV2

@@ -3,7 +3,13 @@ import invariant from 'tiny-invariant'
 import { PrivateAnnouncementType } from 'components/Announcement/type'
 import { isAddressString } from 'utils/address'
 
-import { ENV_TYPE } from './type'
+export enum ENV_TYPE {
+  LOCAL,
+  ADPR,
+  DEV,
+  STG,
+  PROD,
+}
 
 const required = (envKey: string): string => {
   const key = 'VITE_' + envKey

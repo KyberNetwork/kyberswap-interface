@@ -18,6 +18,7 @@ import RouteSeo from 'components/Seo/RouteSeo'
 import SingaporeWarningPopup from 'components/SingaporeWarningPopup'
 import SupportButton from 'components/SupportButton'
 import { APP_PATHS, CHAINS_SUPPORT_CROSS_CHAIN, TERM_FILES_PATH } from 'constants/index'
+import { LEGACY_POOL_APP_PATHS } from 'constants/legacyPools'
 import {
   CLASSIC_NOT_SUPPORTED,
   ELASTIC_NOT_SUPPORTED,
@@ -40,8 +41,8 @@ import VerifyAuth from 'pages/Verify/VerifyAuth'
 import { useAppDispatch, useAppSelector } from 'state/hooks'
 import { updateSafeAppAcceptedTermOfUse } from 'state/user/actions'
 import { ExternalLink } from 'theme'
-import { isInSafeApp } from 'utils'
 import { SwapIntent } from 'utils/routes'
+import { isInSafeApp } from 'utils/safeApp'
 
 const Login = lazy(() => import('pages/Oauth/Login'))
 const Logout = lazy(() => import('pages/Oauth/Logout'))
@@ -183,14 +184,14 @@ const RoutesWithNetworkPrefix = () => {
       {!CLASSIC_NOT_SUPPORTED()[chainId] && (
         <>
           <Route
-            path={`${APP_PATHS.CLASSIC_REMOVE_POOL}/:currencyIdA/:currencyIdB/:pairAddress`}
+            path={`${LEGACY_POOL_APP_PATHS.CLASSIC_REMOVE_POOL}/:currencyIdA/:currencyIdB/:pairAddress`}
             element={<RemoveLiquidity />}
           />
         </>
       )}
 
       {!ELASTIC_NOT_SUPPORTED()[chainId] && (
-        <Route path={`${APP_PATHS.ELASTIC_REMOVE_POOL}/:tokenId`} element={<ElasticRemoveLiquidity />} />
+        <Route path={`${LEGACY_POOL_APP_PATHS.ELASTIC_REMOVE_POOL}/:tokenId`} element={<ElasticRemoveLiquidity />} />
       )}
 
       <Route path="*" element={<Navigate to="/" />} />
@@ -280,21 +281,27 @@ export default function App() {
                 />
               )}
 
-              <Route path={`${APP_PATHS.FIND_POOL}`} element={<PoolFinder />} />
+              <Route path={`${LEGACY_POOL_APP_PATHS.FIND_POOL}`} element={<PoolFinder />} />
               <>
                 {/* My Pools Routes */}
-                <Route path={`${APP_PATHS.MY_POOLS}`} element={<RedirectWithNetworkSuffix />} />
-                <Route path={`${APP_PATHS.MY_POOLS}/:network`} element={<MyPool />} />
+                <Route path={`${LEGACY_POOL_APP_PATHS.MY_POOLS}`} element={<RedirectWithNetworkSuffix />} />
+                <Route path={`${LEGACY_POOL_APP_PATHS.MY_POOLS}/:network`} element={<MyPool />} />
               </>
 
               <>
                 {/* These are old routes and will soon be deprecated - Check: RoutesWithNetworkParam */}
                 {/*
-                  <Route path={`${APP_PATHS.ELASTIC_CREATE_POOL}/*`} element={<RedirectWithNetworkPrefix />} />
-                  <Route path={`${APP_PATHS.ELASTIC_INCREASE_LIQ}/*`} element={<RedirectWithNetworkPrefix />} />
+                  <Route path={`${LEGACY_POOL_APP_PATHS.ELASTIC_CREATE_POOL}/*`} element={<RedirectWithNetworkPrefix />} />
+                  <Route path={`${LEGACY_POOL_APP_PATHS.ELASTIC_INCREASE_LIQ}/*`} element={<RedirectWithNetworkPrefix />} />
                   */}
-                <Route path={`${APP_PATHS.ELASTIC_REMOVE_POOL}/*`} element={<RedirectWithNetworkPrefix />} />
-                <Route path={`${APP_PATHS.CLASSIC_REMOVE_POOL}/*`} element={<RedirectWithNetworkPrefix />} />
+                <Route
+                  path={`${LEGACY_POOL_APP_PATHS.ELASTIC_REMOVE_POOL}/*`}
+                  element={<RedirectWithNetworkPrefix />}
+                />
+                <Route
+                  path={`${LEGACY_POOL_APP_PATHS.CLASSIC_REMOVE_POOL}/*`}
+                  element={<RedirectWithNetworkPrefix />}
+                />
               </>
 
               <Route path={`${APP_PATHS.KYBERDAO_STAKE}`} element={<KyberDAOStakeKNC />} />
@@ -334,7 +341,7 @@ export default function App() {
               <Route path={APP_PATHS.IAM_LOGOUT} element={<Logout />} />
               <Route path={APP_PATHS.IAM_CONSENT} element={<Consent />} />
 
-              <Route path={APP_PATHS.ELASTIC_SNAPSHOT} element={<ElasticSnapshot />} />
+              <Route path={LEGACY_POOL_APP_PATHS.ELASTIC_SNAPSHOT} element={<ElasticSnapshot />} />
               <Route path={APP_PATHS.MARKET_OVERVIEW} element={<MarketOverview />} />
 
               <Route path={APP_PATHS.SAFEPAL_CAMPAIGN} element={<Campaign />} />

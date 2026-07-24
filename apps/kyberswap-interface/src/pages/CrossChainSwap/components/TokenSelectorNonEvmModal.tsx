@@ -20,7 +20,7 @@ import { BitcoinToken, Chain, Currency, NonEvmChain } from 'pages/CrossChainSwap
 import { type NearToken, useNearTokens } from 'pages/CrossChainSwap/hooks/useNearTokens'
 import { type SolanaToken, useSolanaTokens } from 'pages/CrossChainSwap/hooks/useSolanaTokens'
 import { CloseIcon } from 'theme'
-import { shortenHash } from 'utils'
+import { shortenHash } from 'utils/address'
 import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
 

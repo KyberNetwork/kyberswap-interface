@@ -6,7 +6,7 @@ import { useMedia } from 'react-use'
 import { ButtonPrimary } from 'components/Button'
 import Modal from 'components/Modal'
 import { MEDIA_WIDTHS } from 'theme'
-import { getCookieValue } from 'utils'
+import { getCookieValue } from 'utils/cookie'
 
 const STORAGE_KEY = 'singapore_warning_acknowledged'
 

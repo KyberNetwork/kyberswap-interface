@@ -7,6 +7,11 @@ import { fetchTokenPrices, getMidPrice } from 'services/tokenCatalog'
 
 import { ETHER_ADDRESS } from 'constants/index'
 
+export const AGGREGATOR_API_PATHS = {
+  BUILD_ROUTE: '/api/v1/route/build',
+  GET_ROUTE: '/api/v1/routes',
+} as const
+
 const getWrappedToken = (token: string, chainId: ChainId) =>
   token.toLowerCase() === ETHER_ADDRESS.toLowerCase() ? WETH[chainId].address : token
 

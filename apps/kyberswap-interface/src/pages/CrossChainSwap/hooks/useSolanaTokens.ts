@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 
 import SolanaIcon from 'assets/images/SOL.png'
-import { SOLANA_NATIVE } from 'constants/index'
+import { SOLANA_NATIVE } from 'pages/CrossChainSwap/constants'
 
 const cached: Record<string, SolanaToken> = {}
 const cachedByQuery: Record<string, SolanaToken[]> = {}

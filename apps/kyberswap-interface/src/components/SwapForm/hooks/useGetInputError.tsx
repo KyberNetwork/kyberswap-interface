@@ -1,10 +1,35 @@
 import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 
-import { BAD_RECIPIENT_ADDRESSES } from 'constants/index'
+import { MAINNET_NETWORKS, NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import useENS from 'hooks/useENS'
-import { isAddress } from 'utils'
+import { isAddress } from 'utils/address'
+
+const BAD_RECIPIENT_ADDRESSES: Set<string> = new Set(
+  MAINNET_NETWORKS.map(chainId => [
+    ...Object.values(NETWORKS_INFO[chainId].classic.static || {}),
+    ...Object.values(NETWORKS_INFO[chainId].classic.oldStatic || {}),
+    ...Object.values(NETWORKS_INFO[chainId].classic.dynamic || {}),
+    ...Object.values(NETWORKS_INFO[chainId].classic.fairlaunchV2 || {}),
+    ...Object.values(NETWORKS_INFO[chainId].elastic.farms || {}),
+    ...Object.values(NETWORKS_INFO[chainId].elastic.farmV2S || {}),
+    ...([
+      NETWORKS_INFO[chainId].classic.claimReward,
+      NETWORKS_INFO[chainId].elastic.coreFactory,
+      NETWORKS_INFO[chainId].elastic.nonfungiblePositionManager,
+      NETWORKS_INFO[chainId].elastic.tickReader,
+      NETWORKS_INFO[chainId].elastic.quoter,
+      NETWORKS_INFO[chainId].elastic.routers,
+      NETWORKS_INFO[chainId].elastic.farmv2Quoter,
+      NETWORKS_INFO[chainId].kyberDAO?.staking,
+      NETWORKS_INFO[chainId].kyberDAO?.dao,
+      NETWORKS_INFO[chainId].kyberDAO?.rewardsDistributor,
+      NETWORKS_INFO[chainId].kyberDAO?.KNCAddress,
+      NETWORKS_INFO[chainId].kyberDAO?.KNCLAddress,
+    ].filter(s => typeof s === 'string') as string[]),
+  ]).flat(),
+)
 
 type Args = {
   typedValue: string

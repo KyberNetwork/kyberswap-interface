@@ -3,7 +3,6 @@ import { t } from '@lingui/macro'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 import Loader from 'components/Loader'
-import { didUserReject } from 'constants/connectors/utils'
 import { ENV_KEY } from 'constants/env'
 import { useActiveWeb3React } from 'hooks'
 import { initializeOauthKyberSwap } from 'hooks/useLogin'
@@ -16,11 +15,12 @@ import {
   getSupportLoginMethods,
 } from 'pages/Oauth/helpers'
 import { Container, Content, KyberLogo, TextDesc } from 'pages/Oauth/styled'
-import getShortenAddress from 'utils/getShortenAddress'
+import { getShortenAddress } from 'utils/address'
 import { queryStringToObject } from 'utils/string'
 import { formatSignature } from 'utils/transaction'
 import { Address } from 'utils/viem'
 import { getGatedWalletClient } from 'utils/walletClient'
+import { didUserReject } from 'utils/walletError'
 
 export const getIamErrorMsg = (error: any) => {
   const data = error?.response?.data

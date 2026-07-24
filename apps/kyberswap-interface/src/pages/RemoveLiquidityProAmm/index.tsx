@@ -62,14 +62,39 @@ import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { useUserSlippageTolerance } from 'state/user/hooks'
 import { ExternalLink, MEDIA_WIDTHS } from 'theme'
-import { basisPointsToPercent, buildFlagsForFarmV21, formattedNum, isAddressString } from 'utils'
+import { isAddressString } from 'utils/address'
 import { cn } from 'utils/cn'
-import { formatDollarAmount } from 'utils/numbers'
+import { formatDisplayNumber } from 'utils/numbers'
 import { sendEVMTransaction } from 'utils/sendTransaction'
-import { SLIPPAGE_STATUS, checkRangeSlippage, checkWarningSlippage, formatSlippage } from 'utils/slippage'
+import {
+  SLIPPAGE_STATUS,
+  basisPointsToPercent,
+  checkRangeSlippage,
+  checkWarningSlippage,
+  formatSlippage,
+} from 'utils/slippage'
 import { ErrorName } from 'utils/transactionError'
 import useDebouncedChangeHandler from 'utils/useDebouncedChangeHandler'
 import { encodeFunctionData } from 'utils/viem'
+
+function buildFlagsForFarmV21({
+  isClaimFee,
+  isSyncFee,
+  isClaimReward,
+  isReceiveNative,
+}: {
+  isClaimFee: boolean
+  isSyncFee: boolean
+  isClaimReward: boolean
+  isReceiveNative: boolean
+}) {
+  let flags = 1
+  if (isReceiveNative) flags = 1
+  if (isClaimFee) flags = flags | (1 << 3)
+  if (isSyncFee) flags = flags | (1 << 2)
+  if (isClaimReward) flags = flags | (1 << 1)
+  return flags
+}
 
 const TextUnderlineColor = ({
   children,
@@ -578,7 +603,7 @@ function Remove({ tokenId }: { tokenId: bigint }) {
                       <span>
                         <Trans>My Liquidity</Trans>
                       </span>
-                      <span>{formatDollarAmount(totalPooledUSD)}</span>
+                      <span>{formatDisplayNumber(totalPooledUSD, { style: 'currency', significantDigits: 4 })}</span>
                     </div>
 
                     <Divider />
@@ -606,7 +631,13 @@ function Remove({ tokenId }: { tokenId: bigint }) {
 
                     <div className="mb-3 mt-5 flex justify-between text-xs font-medium">
                       <span>My Fee Earnings</span>
-                      {loadingFee && !feeValue0 ? <Loader /> : <span>{formatDollarAmount(totalFeeRewardUSD)}</span>}
+                      {loadingFee && !feeValue0 ? (
+                        <Loader />
+                      ) : (
+                        <span>
+                          {formatDisplayNumber(totalFeeRewardUSD, { style: 'currency', significantDigits: 4 })}
+                        </span>
+                      )}
                     </div>
 
                     <Divider />
@@ -678,7 +709,10 @@ function Remove({ tokenId }: { tokenId: bigint }) {
                           currency={liquidityValue0?.currency}
                           onCurrencySelect={() => null}
                           id="remove-liquidity-tokena"
-                          estimatedUsd={formattedNum(estimatedUsdCurrencyA.toString(), true) || undefined}
+                          estimatedUsd={formatDisplayNumber(estimatedUsdCurrencyA, {
+                            style: 'currency',
+                            significantDigits: 6,
+                          })}
                           disableCurrencySelect={!currency0IsETHER && !currency0IsWETH}
                           isSwitchMode={currency0IsETHER || currency0IsWETH}
                           onSwitchCurrency={() => setReceiveWETH(prev => !prev)}
@@ -692,7 +726,10 @@ function Remove({ tokenId }: { tokenId: bigint }) {
                           currency={liquidityValue1?.currency}
                           onCurrencySelect={() => null}
                           id="remove-liquidity-tokenb"
-                          estimatedUsd={formattedNum(estimatedUsdCurrencyB.toString(), true) || undefined}
+                          estimatedUsd={formatDisplayNumber(estimatedUsdCurrencyB, {
+                            style: 'currency',
+                            significantDigits: 6,
+                          })}
                           disableCurrencySelect={!currency1IsETHER && !currency1IsWETH}
                           isSwitchMode={currency1IsETHER || currency1IsWETH}
                           onSwitchCurrency={() => setReceiveWETH(prev => !prev)}

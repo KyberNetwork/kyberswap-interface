@@ -26,7 +26,7 @@ import vestingOptionBPhase2 from 'pages/ElasticSnapshot/data/vesting/optionB_pha
 import vestingPhase3 from 'pages/ElasticSnapshot/data/vesting/phase3.json'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { ExternalLink, MEDIA_WIDTHS } from 'theme'
-import { shortenAddress } from 'utils'
+import { shortenAddress } from 'utils/address'
 import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
 

@@ -1,8 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { createReducer } from '@reduxjs/toolkit'
 
-import { findTx } from 'utils'
-import { getTransactionGroupByType } from 'utils/transaction'
+import { findTx, getTransactionGroupByType } from 'utils/transaction'
 
 import {
   addTransaction,

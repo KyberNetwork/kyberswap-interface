@@ -22,8 +22,8 @@ import TransactionConfirmationModal, {
 } from 'components/TransactionConfirmationModal'
 import { wagmiConfig } from 'components/Web3Provider'
 import { KS_ROUTER_STATIC_FEE_ABI, ROUTER_DYNAMIC_FEE_ABI, ROUTER_STATIC_FEE_ABI } from 'constants/abis'
-import { didUserReject } from 'constants/connectors/utils'
-import { APP_PATHS, EIP712Domain } from 'constants/index'
+import { EIP712Domain } from 'constants/index'
+import { LEGACY_POOL_APP_PATHS } from 'constants/legacyPools'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
@@ -52,16 +52,17 @@ import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { useUserSlippageTolerance } from 'state/user/hooks'
 import { StyledInternalLink, UppercaseText } from 'theme'
-import { calculateSlippageAmount, formattedNum } from 'utils'
 import { currencyId } from 'utils/currencyId'
 import { friendlyError } from 'utils/errorMessage'
 import { formatJSBIValue } from 'utils/formatBalance'
 import { formatDisplayNumber } from 'utils/numbers'
 import { sendEVMTransaction } from 'utils/sendTransaction'
+import { calculateSlippageAmount } from 'utils/slippage'
 import { ErrorName, TransactionError } from 'utils/transactionError'
 import useDebouncedChangeHandler from 'utils/useDebouncedChangeHandler'
 import { Address, encodeFunctionData, parseSignature } from 'utils/viem'
 import { signTypedDataRaw } from 'utils/walletClient'
+import { didUserReject } from 'utils/walletError'
 
 export default function TokenPair({
   currencyIdA,
@@ -496,7 +497,7 @@ export default function TokenPair({
           <span className="text-[32px] font-medium leading-[normal]">{nativeA?.symbol}</span>
           {!!estimatedUsdCurrencyA && (
             <span className="ml-1 text-[18px] font-medium leading-[normal] text-subText">
-              (~{formattedNum(estimatedUsdCurrencyA.toString(), true) || undefined})
+              (~{formatDisplayNumber(estimatedUsdCurrencyA, { style: 'currency', significantDigits: 6 })})
             </span>
           )}
         </AutoRow>
@@ -509,7 +510,7 @@ export default function TokenPair({
           <span className="text-[32px] font-medium leading-[normal]">{nativeB?.symbol}</span>
           {!!estimatedUsdCurrencyB && (
             <span className="ml-1 text-[18px] font-medium leading-[normal] text-subText">
-              (~{formattedNum(estimatedUsdCurrencyB.toString(), true) || undefined})
+              (~{formatDisplayNumber(estimatedUsdCurrencyB, { style: 'currency', significantDigits: 6 })})
             </span>
           )}
         </AutoRow>
@@ -683,13 +684,16 @@ export default function TokenPair({
                     onCurrencySelect={() => null}
                     disableCurrencySelect={true}
                     id="remove-liquidity-tokena"
-                    estimatedUsd={formattedNum(estimatedUsdCurrencyA.toString(), true) || undefined}
+                    estimatedUsd={formatDisplayNumber(estimatedUsdCurrencyA, {
+                      style: 'currency',
+                      significantDigits: 6,
+                    })}
                   />
                   <div className="mt-2 flex items-center justify-end">
                     {pairAddress && chainId && (currencyAIsETHER || currencyAIsWETH) && (
                       <StyledInternalLink
                         replace
-                        to={`/${networkInfo.route}${APP_PATHS.CLASSIC_REMOVE_POOL}/${
+                        to={`/${networkInfo.route}${LEGACY_POOL_APP_PATHS.CLASSIC_REMOVE_POOL}/${
                           currencyAIsETHER ? currencyId(WETH[chainId], chainId) : NativeCurrencies[chainId].symbol
                         }/${currencyIdB}/${pairAddress}`}
                       >
@@ -707,13 +711,16 @@ export default function TokenPair({
                     onCurrencySelect={() => null}
                     disableCurrencySelect={true}
                     id="remove-liquidity-tokenb"
-                    estimatedUsd={formattedNum(estimatedUsdCurrencyB.toString(), true) || undefined}
+                    estimatedUsd={formatDisplayNumber(estimatedUsdCurrencyB, {
+                      style: 'currency',
+                      significantDigits: 6,
+                    })}
                   />
                   <div className="mt-2 flex items-center justify-end">
                     {pairAddress && chainId && (currencyBIsWETH || currencyBIsETHER) && (
                       <StyledInternalLink
                         replace
-                        to={`/${networkInfo.route}${APP_PATHS.CLASSIC_REMOVE_POOL}/${currencyIdA}/${
+                        to={`/${networkInfo.route}${LEGACY_POOL_APP_PATHS.CLASSIC_REMOVE_POOL}/${currencyIdA}/${
                           currencyBIsETHER ? currencyId(WETH[chainId], chainId) : NativeCurrencies[chainId].symbol
                         }/${pairAddress}`}
                       >

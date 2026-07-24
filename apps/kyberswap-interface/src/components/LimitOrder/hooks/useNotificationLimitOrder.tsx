@@ -10,13 +10,12 @@ import { useActiveWeb3React } from 'hooks'
 import { useNotify } from 'state/application/hooks'
 import { useAllTransactions } from 'state/transactions/hooks'
 import { GroupedTxsByHash } from 'state/transactions/type'
-import { findTx } from 'utils'
 import {
   subscribeNotificationOrderCancelled,
   subscribeNotificationOrderExpired,
   subscribeNotificationOrderFilled,
 } from 'utils/firebase'
-import { getTransactionStatus } from 'utils/transaction'
+import { findTx, getTransactionStatus } from 'utils/transaction'
 
 const isTransactionFailed = (txHash: string, transactions: GroupedTxsByHash | undefined) => {
   const transactionInfo = findTx(transactions, txHash)

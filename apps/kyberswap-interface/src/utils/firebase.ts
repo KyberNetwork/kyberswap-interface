@@ -3,8 +3,7 @@ import type { Firestore, collection, doc, onSnapshot, query } from 'firebase/fir
 
 import { PopupContentAnnouncement } from 'components/Announcement/type'
 import { LimitOrder } from 'components/LimitOrder/types'
-import { ENV_KEY, ENV_LEVEL, FIREBASE } from 'constants/env'
-import { ENV_TYPE } from 'constants/type'
+import { ENV_KEY, ENV_LEVEL, ENV_TYPE, FIREBASE } from 'constants/env'
 
 const { DEFAULT: FIREBASE_CONFIG_DEFAULT, LIMIT_ORDER: FIREBASE_CONFIG_LO } = FIREBASE[ENV_KEY]
 

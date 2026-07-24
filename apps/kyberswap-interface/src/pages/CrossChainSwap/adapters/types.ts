@@ -26,6 +26,10 @@ export const BitcoinToken = {
 export type Chain = ChainId | NonEvmChain
 export type Currency = EvmCurrency | NearToken | typeof BitcoinToken | SolanaToken
 
+export const isEvmChain = (chain: Chain) => Object.values(ChainId).includes(chain)
+
+export const isNonEvmChain = (chain: Chain) => Object.values(NonEvmChain).includes(chain)
+
 export const NonEvmChainInfo: { [key in NonEvmChain]: { name: string; icon: string } } = {
   [NonEvmChain.Near]: {
     name: 'NEAR',

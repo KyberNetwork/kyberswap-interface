@@ -1,7 +1,7 @@
 import { WalletClient, formatUnits } from 'viem'
 
 import SocketLogo from 'assets/svg/socket_logo.svg'
-import { CROSS_CHAIN_FEE_RECEIVER, ETHER_ADDRESS, ZERO_ADDRESS } from 'constants/index'
+import { ETHER_ADDRESS, ZERO_ADDRESS } from 'constants/index'
 import { MAINNET_NETWORKS } from 'constants/networks'
 import {
   BaseSwapAdapter,
@@ -16,6 +16,7 @@ import {
 import { getBungeeQuote, getBungeeStatus } from 'pages/CrossChainSwap/adapters/BungeeAdapter/api'
 import { type SocketQuoteParams, type SocketQuoteResult } from 'pages/CrossChainSwap/adapters/BungeeAdapter/types'
 import { getSocketTxRoute, normalizeSocketStatus } from 'pages/CrossChainSwap/adapters/BungeeAdapter/utils'
+import { CROSS_CHAIN_FEE_RECEIVER } from 'pages/CrossChainSwap/constants'
 import { Quote } from 'pages/CrossChainSwap/registry'
 import { isWrappedToken } from 'pages/CrossChainSwap/utils'
 

@@ -10,8 +10,8 @@ import { View } from 'components/WalletPopup/type'
 import { useActiveWeb3React } from 'hooks'
 import { useRewards } from 'hooks/useRewards'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
-import { formatNumberWithPrecisionRange } from 'utils'
 import { cn } from 'utils/cn'
+import { formatDisplayNumber } from 'utils/numbers'
 
 type Props = {
   totalBalanceInUsd: number | null | string
@@ -87,7 +87,7 @@ export default function AccountInfo({
               <span className={cn('truncate text-4xl font-medium', isMinimal && 'text-xl')}>
                 {typeof totalBalanceInUsd === 'number' ? (
                   showBalance ? (
-                    `$${formatNumberWithPrecisionRange(totalBalanceInUsd, 0, 8)}`
+                    `$${formatDisplayNumber(totalBalanceInUsd, { fractionDigits: 8 })}`
                   ) : (
                     '******'
                   )
@@ -129,7 +129,7 @@ export default function AccountInfo({
                 }}
               >
                 <span className="text-xs font-medium leading-4 text-text">
-                  ${formatNumberWithPrecisionRange(usd, 0, 8)}
+                  ${formatDisplayNumber(usd, { fractionDigits: 8 })}
                 </span>
                 <ChevronRight size={20} className="text-subText" />
               </div>

@@ -11,7 +11,7 @@ import FormattedCurrencyAmount from 'components/FormattedCurrencyAmount'
 import InfoHelper from 'components/InfoHelper'
 import { RowBetween, RowFixed } from 'components/Row'
 import { MouseoverTooltip } from 'components/Tooltip'
-import { formatDollarAmount } from 'utils/numbers'
+import { formatDisplayNumber } from 'utils/numbers'
 
 export default function ProAmmPooledTokens({
   liquidityValue0,
@@ -82,7 +82,9 @@ export default function ProAmmPooledTokens({
             <span className="text-xs font-medium text-subText">
               <Trans>My Liquidity Balance</Trans>
             </span>
-            <span className="text-xs font-medium">{formatDollarAmount(valueUSD || 0)}</span>
+            <span className="text-xs font-medium">
+              {formatDisplayNumber(valueUSD || 0, { style: 'currency', significantDigits: 4 })}
+            </span>
           </RowBetween>
           <RowBetween>
             <span className="text-xs font-medium text-subText">
@@ -113,7 +115,9 @@ export default function ProAmmPooledTokens({
             <span className="text-xs font-medium text-subText">
               <Trans>My Staked Balance</Trans>
             </span>
-            <span className="text-xs font-medium">{formatDollarAmount(stakedUsd || 0)}</span>
+            <span className="text-xs font-medium">
+              {formatDisplayNumber(stakedUsd || 0, { style: 'currency', significantDigits: 4 })}
+            </span>
           </RowBetween>
 
           <RowBetween>

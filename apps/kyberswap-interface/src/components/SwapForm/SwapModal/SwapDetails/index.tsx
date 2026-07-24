@@ -26,11 +26,12 @@ import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { useSlippageSettingByPage } from 'state/user/hooks'
 import { ExternalLink, ExternalLinkNoLineHeight, MEDIA_WIDTHS } from 'theme'
 import { DetailedRouteSummary } from 'types/route'
-import { isInSafeApp, shortenAddress } from 'utils'
+import { shortenAddress } from 'utils/address'
 import { cn } from 'utils/cn'
 import { calculateFeeFromBuildData } from 'utils/fee'
 import { formatDisplayNumber } from 'utils/numbers'
 import { checkPriceImpact, formatPriceImpact } from 'utils/prices'
+import { isInSafeApp } from 'utils/safeApp'
 import { SLIPPAGE_STATUS, checkRangeSlippage, checkWarningSlippage, formatSlippage } from 'utils/slippage'
 
 type Optional<T> = {

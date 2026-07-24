@@ -4,7 +4,7 @@ import { useActiveWeb3React } from 'hooks'
 import { useENSRegistrarContract, useENSResolverContract } from 'hooks/useContract'
 import useDebounce from 'hooks/useDebounce'
 import { NEVER_RELOAD, useSingleCallResult } from 'state/multicall/hooks'
-import { isAddress } from 'utils'
+import { isAddress } from 'utils/address'
 import isZero from 'utils/isZero'
 import { namehash } from 'utils/viem'
 

@@ -6,9 +6,9 @@ import { ZERO_ADDRESS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { ApprovalState, ApprovalStatus, useApproveCallback } from 'hooks/useApproveCallback'
 import { Chain } from 'pages/CrossChainSwap/adapters'
+import { isEvmChain } from 'pages/CrossChainSwap/adapters/types'
 import { useCrossChainTransactions } from 'state/crossChainSwap'
 import { useHasPendingApproval } from 'state/transactions/hooks'
-import { isEvmChain } from 'utils'
 import { Address, Hash, parseAbi } from 'utils/viem'
 
 const ALLOWANCE_ABI = parseAbi(['function allowance(address owner, address spender) view returns (uint256)'])

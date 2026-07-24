@@ -24,9 +24,9 @@ import { useSwitchToEthereum } from 'pages/KyberDAO/StakeKNC/SwitchToEthereumMod
 import TimerCountdown from 'pages/KyberDAO/TimerCountdown'
 import { useNotify, useWalletModalToggle } from 'state/application/hooks'
 import { LinkStyledButton, MEDIA_WIDTHS } from 'theme'
-import { formattedNum } from 'utils'
 import { cn } from 'utils/cn'
 import { friendlyError } from 'utils/errorMessage'
+import { formatDisplayNumber } from 'utils/numbers'
 
 const Tab = ({ active, children, onClick }: { active?: boolean; children: React.ReactNode; onClick?: () => void }) => (
   <span
@@ -128,10 +128,13 @@ export default function GasRefundBox() {
         <RowBetween className="w-full flex-row items-end gap-4">
           <div className="flex flex-col gap-2">
             <span className="flex items-center text-xl font-medium leading-6 text-text">
-              {account ? formattedNum(reward?.knc.toString() || '0') : '--'} KNC
+              {account ? formatDisplayNumber(reward?.knc ?? 0, { significantDigits: 6 }) : '--'} KNC
             </span>
             <span className="flex items-center text-xs font-medium leading-4 text-subText">
-              {account ? (reward?.usd ? '~' : '') + formattedNum(reward?.usd.toString() || '0', true) : '$ --'}
+              {account
+                ? (reward?.usd ? '~' : '') +
+                  formatDisplayNumber(reward?.usd ?? 0, { style: 'currency', significantDigits: 6 })
+                : '$ --'}
             </span>
           </div>
           <div className="flex w-fit">
@@ -198,11 +201,12 @@ export default function GasRefundBox() {
           </TextDashed>
           <div className="flex flex-col gap-2">
             <span className="flex items-center text-xl font-medium leading-6 text-text">
-              {account ? formattedNum(totalReward?.knc.toString() ?? '0') : '--'} KNC
+              {account ? formatDisplayNumber(totalReward?.knc ?? 0, { significantDigits: 6 }) : '--'} KNC
             </span>
             <span className="flex items-center text-xs font-medium leading-4 text-subText">
               {account
-                ? (totalReward?.usd ? '~' : '') + formattedNum(totalReward?.usd.toString() ?? '0', true)
+                ? (totalReward?.usd ? '~' : '') +
+                  formatDisplayNumber(totalReward?.usd ?? 0, { style: 'currency', significantDigits: 6 })
                 : '$ --'}
             </span>
           </div>

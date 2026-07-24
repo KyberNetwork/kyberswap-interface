@@ -1,7 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 
 import { KNC_ADDRESS } from 'constants/tokens'
-import { getTokenLogoURL } from 'utils'
+import { getTokenLogoURL } from 'utils/tokenLogo'
 
 export default function KNCLogo({ size }: { size?: number }) {
   return (

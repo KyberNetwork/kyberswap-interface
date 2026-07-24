@@ -12,7 +12,8 @@ import { PaddedColumn } from 'components/TokenSelectorModal/components'
 import { useAddUserToken } from 'state/user/hooks'
 import { CloseIcon } from 'theme'
 import { ExternalLinkIcon } from 'theme/components'
-import { getEtherscanLink, shortenAddress } from 'utils'
+import { shortenAddress } from 'utils/address'
+import { getEtherscanLink } from 'utils/explorer'
 
 type ImportTokenViewProps = {
   enterToImport?: boolean

@@ -25,7 +25,7 @@ import {
   TransactionDetails,
   TransactionExtraInfo1Token,
 } from 'state/transactions/type'
-import { findTx } from 'utils'
+import { findTx } from 'utils/transaction'
 import { Address, Hash, decodeEventLog, formatUnits, keccak256, parseAbi, toBytes } from 'utils/viem'
 
 const appsSdk = new SafeAppsSDK()

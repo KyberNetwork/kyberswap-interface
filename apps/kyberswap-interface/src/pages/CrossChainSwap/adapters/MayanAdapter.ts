@@ -14,12 +14,8 @@ import { getPublicClient } from '@wagmi/core'
 import { WalletClient, formatUnits, parseUnits } from 'viem'
 
 import { wagmiConfig } from 'components/Web3Provider'
-import {
-  CROSS_CHAIN_FEE_RECEIVER,
-  CROSS_CHAIN_FEE_RECEIVER_SOLANA,
-  CROSS_CHAIN_FEE_RECEIVER_SUI,
-  ZERO_ADDRESS,
-} from 'constants/index'
+import { ZERO_ADDRESS } from 'constants/index'
+import { CROSS_CHAIN_FEE_RECEIVER, CROSS_CHAIN_FEE_RECEIVER_SOLANA } from 'pages/CrossChainSwap/constants'
 import type { SolanaToken } from 'pages/CrossChainSwap/hooks/useSolanaTokens'
 
 import { Quote } from '../registry'
@@ -32,6 +28,8 @@ import {
   NormalizedTxResponse,
   SwapStatus,
 } from './BaseSwapAdapter'
+
+const CROSS_CHAIN_FEE_RECEIVER_SUI = 'intentionally-empty-for-now'
 
 const mappingChain: Record<string, ChainName> = {
   [ChainId.MAINNET]: 'ethereum',

@@ -13,9 +13,9 @@ import { isSupportLimitOrder } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { useTutorialSwapGuide } from 'state/tutorial/hooks'
 import { MEDIA_WIDTHS } from 'theme'
-import { isInSafeApp } from 'utils'
 import { cn } from 'utils/cn'
 import { isSwapLikePath } from 'utils/routes'
+import { isInSafeApp } from 'utils/safeApp'
 
 const IconWrapper = ({ children }: { children: React.ReactNode }) => (
   <div className="flex size-4 flex-[0_0_16px] items-center">{children}</div>

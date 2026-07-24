@@ -1,7 +1,7 @@
 import { Currency, CurrencyAmount, Fraction, Percent, TokenAmount } from '@kyberswap/ks-sdk-core'
 import JSBI from 'jsbi'
 
-import { basisPointsToPercent } from 'utils'
+import { basisPointsToPercent } from 'utils/slippage'
 
 export const minimumAmountAfterSlippage = (amount: CurrencyAmount<Currency>, slippage: number | Percent) => {
   const slippagePercent = typeof slippage === 'number' ? basisPointsToPercent(slippage) : slippage
