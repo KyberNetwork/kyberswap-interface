@@ -92,7 +92,7 @@ export function useApproval() {
   const { permitState, signPermitNft, permitData } = usePermitNft({
     nftManagerContract,
     tokenId: positionId,
-    spender: route?.routerPermitAddress,
+    spender: route?.routerAddress,
     account,
     chainId: walletChainId,
     rpcUrl,

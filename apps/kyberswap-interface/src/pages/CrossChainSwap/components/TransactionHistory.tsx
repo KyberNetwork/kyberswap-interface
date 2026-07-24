@@ -26,6 +26,7 @@ import {
   isProcessingTransactionStatus,
   useTransactionHistory,
 } from 'pages/CrossChainSwap/hooks/useTransactionHistory'
+import { normalizeAdapterName } from 'pages/CrossChainSwap/registry'
 import { getChainName } from 'pages/CrossChainSwap/utils'
 import { ExternalLinkIcon, MEDIA_WIDTHS } from 'theme'
 import { getEtherscanLink, shortenHash } from 'utils'
@@ -101,8 +102,10 @@ const StatusBadge = ({ status }: { status?: TransactionStatus }) => {
 
 const TransactionTime = ({ tx }: { tx: NormalizedTxResponse }) => {
   const adapter = registry.getAdapter(tx.adapter)
-  const adapterName = adapter?.getName() || tx.adapter
-  const adapterIcon = adapter?.getIcon()
+  const normalizedAdapterName = normalizeAdapterName(tx.adapter)
+  const adapterAlias = adapter?.getAliases?.().find(alias => normalizeAdapterName(alias.name) === normalizedAdapterName)
+  const adapterName = adapterAlias?.name || adapter?.getName() || tx.adapter
+  const adapterIcon = adapterAlias?.icon || adapter?.getIcon()
   const txDate = new Date(tx.timestamp)
   const senderLabel = tx.sender?.includes('.near') ? tx.sender : shortenHash(tx.sender)
 

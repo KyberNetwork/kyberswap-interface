@@ -52,8 +52,16 @@ const Description1Token = (transaction: TransactionDetails) => {
 
 const Description2Token = (transaction: TransactionDetails) => {
   const { extraInfo = {}, type, chainId } = transaction
-  const { tokenAmountIn, tokenAmountOut, tokenSymbolIn, tokenSymbolOut, tokenAddressIn, tokenAddressOut } =
-    extraInfo as TransactionExtraInfo2Token
+  const {
+    tokenAmountIn,
+    tokenAmountInDisplay,
+    tokenAmountOut,
+    tokenAmountOutDisplay,
+    tokenSymbolIn,
+    tokenSymbolOut,
+    tokenAddressIn,
+    tokenAddressOut,
+  } = extraInfo as TransactionExtraInfo2Token
 
   const signTokenOut = ![
     TRANSACTION_TYPE.CLASSIC_ADD_LIQUIDITY,
@@ -75,14 +83,14 @@ const Description2Token = (transaction: TransactionDetails) => {
       <DeltaTokenAmount
         tokenAddress={tokenAddressOut}
         symbol={tokenSymbolOut}
-        amount={tokenAmountOut}
+        amount={tokenAmountOutDisplay || tokenAmountOut}
         plus={signTokenOut}
         logoURL={tokenAddressOut === ETHER_ADDRESS ? getNativeTokenLogo(chainId) : undefined}
       />
       <DeltaTokenAmount
         tokenAddress={tokenAddressIn}
         symbol={tokenSymbolIn}
-        amount={tokenAmountIn}
+        amount={tokenAmountInDisplay || tokenAmountIn}
         plus={signTokenIn}
         logoURL={tokenAddressIn === ETHER_ADDRESS ? getNativeTokenLogo(chainId) : undefined}
       />

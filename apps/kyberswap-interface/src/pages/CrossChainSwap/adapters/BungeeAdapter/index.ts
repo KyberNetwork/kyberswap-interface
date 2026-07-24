@@ -1,5 +1,6 @@
 import { WalletClient, formatUnits } from 'viem'
 
+import SocketLogo from 'assets/svg/socket_logo.svg'
 import { CROSS_CHAIN_FEE_RECEIVER, ETHER_ADDRESS, ZERO_ADDRESS } from 'constants/index'
 import { MAINNET_NETWORKS } from 'constants/networks'
 import {
@@ -24,10 +25,16 @@ export class BungeeAdapter extends BaseSwapAdapter {
   }
 
   getName(): string {
-    return 'Bungee'
+    return 'Socket'
   }
   getIcon(): string {
-    return 'https://www.bungee.exchange/favicon.ico'
+    return SocketLogo
+  }
+  getAliases() {
+    return [
+      // Bungee is now part of Socket, so we can use Socket's name and icon
+      { name: 'Bungee', icon: 'https://www.bungee.exchange/favicon.ico' },
+    ]
   }
 
   canSupport(_category: string, tokenIn?: Currency, _tokenOut?: Currency): boolean {

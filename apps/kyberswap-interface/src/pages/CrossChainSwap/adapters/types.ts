@@ -130,10 +130,16 @@ export interface SwapStatus {
   amountOut?: string // Actual output amount from the destination chain (raw amount, not formatted)
 }
 
+export interface SwapProviderAlias {
+  name: string
+  icon?: string
+}
+
 // Define a common interface for all swap providers
 export interface SwapProvider {
   getName(): string
   getIcon(): string
+  getAliases?(): SwapProviderAlias[]
   getSupportedChains(): Chain[]
   getSupportedTokens(sourceChain: Chain, destChain: Chain): Currency[]
   getQuote(params: QuoteParams): Promise<NormalizedQuote>

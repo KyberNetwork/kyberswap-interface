@@ -28,6 +28,7 @@ import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import { SAFE_APP_CLIENT_ID } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useDebounce from 'hooks/useDebounce'
+import { getERC8056RawTypedValue, useERC8056DisplayTypedValue } from 'hooks/useERC8056Token'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import useWrapCallback, { WrapType } from 'hooks/useWrapCallback'
 import { useNotify } from 'state/application/hooks'
@@ -164,6 +165,13 @@ const SwapForm: React.FC<SwapFormProps> = props => {
 
   const parsedAmount = useParsedAmount(currencyIn, typedValue)
   const erc8056Info = useERC8056SwapInfo({ chainId, currencyIn, currencyOut, balanceIn, balanceOut })
+  const displayTypedValue = useERC8056DisplayTypedValue(erc8056Info.inputInfo, typedValue)
+  const handleUserInput = useCallback(
+    (value: string) => {
+      updateInputAmount(Field.INPUT, getERC8056RawTypedValue(erc8056Info.inputInfo, value))
+    },
+    [erc8056Info.inputInfo, updateInputAmount],
+  )
 
   const {
     wrapType,
@@ -248,6 +256,7 @@ const SwapForm: React.FC<SwapFormProps> = props => {
       slippage={slippage}
       routeSummary={routeSummary}
       typedValue={typedValue}
+      displayTypedValue={displayTypedValue}
       recipient={recipient}
       isAdvancedMode={isDegenMode}
     >
@@ -259,8 +268,9 @@ const SwapForm: React.FC<SwapFormProps> = props => {
             <div className="flex flex-col gap-2">
               <InputCurrencyPanel
                 wrapType={wrapType}
-                typedValue={typedValue}
+                typedValue={displayTypedValue}
                 setTypedValue={onUserInput}
+                onUserInput={handleUserInput}
                 currencyIn={currencyIn}
                 currencyOut={currencyOut}
                 balanceIn={balanceIn}
