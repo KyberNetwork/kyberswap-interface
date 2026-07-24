@@ -1,12 +1,12 @@
 import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
 import { getPublicClient } from '@wagmi/core'
-import routeApi from 'services/route'
+import routeApi, { AGGREGATOR_API_PATHS } from 'services/route'
 import { WalletClient, formatUnits } from 'viem'
 
 import kyberswapIcon from 'assets/images/kyberswap.ico'
 import { wagmiConfig } from 'components/Web3Provider'
 import { AGGREGATOR_API } from 'constants/env'
-import { AGGREGATOR_API_PATHS, ETHER_ADDRESS } from 'constants/index'
+import { ETHER_ADDRESS } from 'constants/index'
 import { MAINNET_NETWORKS, NETWORKS_INFO } from 'constants/networks'
 import {
   BaseSwapAdapter,

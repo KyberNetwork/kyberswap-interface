@@ -1,7 +1,7 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 
 import { TOKEN_API_URL } from 'constants/env'
-import { PAIR_CATEGORY } from 'constants/index'
+import { PAIR_CATEGORY } from 'constants/trade'
 
 /**
  * Single source of truth for the public `token-api` (token catalog) service: token

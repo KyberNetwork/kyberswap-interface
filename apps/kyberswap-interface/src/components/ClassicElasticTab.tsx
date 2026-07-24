@@ -4,13 +4,12 @@ import { useEffect } from 'react'
 import { isMobile } from 'react-device-detect'
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
-import { VERSION } from 'services/aggregatorStats'
 
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import ElasticHackedModal from 'components/ElasticHackedModal'
 import { PoolClassicIcon, PoolElasticIcon } from 'components/Icons'
 import { MouseoverTooltip } from 'components/Tooltip'
-import { APP_PATHS } from 'constants/index'
+import { LEGACY_POOL_APP_PATHS, LEGACY_POOL_VERSION } from 'constants/legacyPools'
 import { CLASSIC_NOT_SUPPORTED, ELASTIC_NOT_SUPPORTED } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import useElasticCompensationData from 'hooks/useElasticCompensationData'
@@ -25,8 +24,8 @@ function ClassicElasticTab() {
   const navigate = useNavigate()
   const location = useLocation()
   const [searchParams, setSearchParams] = useSearchParams()
-  const isFarmPage = location.pathname.startsWith(APP_PATHS.FARMS)
-  const isMyPoolPage = location.pathname.startsWith(APP_PATHS.MY_POOLS)
+  const isFarmPage = location.pathname.startsWith(LEGACY_POOL_APP_PATHS.FARMS)
+  const isMyPoolPage = location.pathname.startsWith(LEGACY_POOL_APP_PATHS.MY_POOLS)
 
   const { positions, farmPositions } = useElasticLegacy(false)
   const { claimInfo } = useElasticCompensationData(false)
@@ -34,14 +33,14 @@ function ClassicElasticTab() {
   const shouldShowPositionTab = !!positions.length
 
   const params = Object.fromEntries(searchParams)
-  const { tab: tabQs = VERSION.ELASTIC, ...qs } = params
-  const tab = isInEnum(tabQs, VERSION) ? tabQs : VERSION.ELASTIC
+  const { tab: tabQs = LEGACY_POOL_VERSION.ELASTIC, ...qs } = params
+  const tab = isInEnum(tabQs, LEGACY_POOL_VERSION) ? tabQs : LEGACY_POOL_VERSION.ELASTIC
 
   const { chainId } = useActiveWeb3React()
   const notSupportedElasticMsg = ELASTIC_NOT_SUPPORTED()[chainId]
   const notSupportedClassicMsg = CLASSIC_NOT_SUPPORTED()[chainId]
 
-  const isOpenElasticHacked = !isMyPoolPage && tab === VERSION.ELASTIC
+  const isOpenElasticHacked = !isMyPoolPage && tab === LEGACY_POOL_VERSION.ELASTIC
 
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
 
@@ -58,14 +57,14 @@ function ClassicElasticTab() {
     upToMedium || dontShowLegacy ? false : isFarmPage ? shouldShowFarmTab : shouldShowPositionTab
 
   useEffect(() => {
-    if (dontShowLegacy && tab === VERSION.ELASTIC_LEGACY) {
-      const newQs = { ...qs, tab: VERSION.ELASTIC }
+    if (dontShowLegacy && tab === LEGACY_POOL_VERSION.ELASTIC_LEGACY) {
+      const newQs = { ...qs, tab: LEGACY_POOL_VERSION.ELASTIC }
       setSearchParams(newQs)
     }
   }, [tab, dontShowLegacy, setSearchParams, qs])
 
   const legacyTag = (small?: boolean) => {
-    const isActive = tab === VERSION.ELASTIC_LEGACY
+    const isActive = tab === LEGACY_POOL_VERSION.ELASTIC_LEGACY
     return (
       <span
         className={cn(
@@ -79,9 +78,9 @@ function ClassicElasticTab() {
     )
   }
 
-  const handleSwitchTab = (version: VERSION) => {
-    if (!!notSupportedClassicMsg && version === VERSION.CLASSIC) return
-    if (!!notSupportedElasticMsg && version !== VERSION.CLASSIC) return
+  const handleSwitchTab = (version: LEGACY_POOL_VERSION) => {
+    if (!!notSupportedClassicMsg && version === LEGACY_POOL_VERSION.CLASSIC) return
+    if (!!notSupportedElasticMsg && version !== LEGACY_POOL_VERSION.CLASSIC) return
     const newQs = { ...qs, tab: version }
     setSearchParams(newQs)
   }
@@ -89,20 +88,22 @@ function ClassicElasticTab() {
   const getClassNameOfElasticTab = () => {
     if (notSupportedElasticMsg) return 'text-disableText'
     if (!showLegacyExplicit) {
-      return [VERSION.ELASTIC, VERSION.ELASTIC_LEGACY].includes(tab) ? 'text-primary' : 'text-subText'
+      return [LEGACY_POOL_VERSION.ELASTIC, LEGACY_POOL_VERSION.ELASTIC_LEGACY].includes(tab)
+        ? 'text-primary'
+        : 'text-subText'
     }
-    return tab === VERSION.ELASTIC ? 'text-primary' : 'text-subText'
+    return tab === LEGACY_POOL_VERSION.ELASTIC ? 'text-primary' : 'text-subText'
   }
 
   const getClassNameOfClassicTab = () => {
     if (notSupportedClassicMsg) return 'text-disableText'
-    if (tab === VERSION.CLASSIC) return 'text-primary'
+    if (tab === LEGACY_POOL_VERSION.CLASSIC) return 'text-primary'
     return 'text-subText'
   }
 
   const getClassNameOfLegacyElasticTab = () => {
     if (notSupportedElasticMsg) return 'text-disableText'
-    return tab === VERSION.ELASTIC_LEGACY ? 'text-primary' : 'text-subText'
+    return tab === LEGACY_POOL_VERSION.ELASTIC_LEGACY ? 'text-primary' : 'text-subText'
   }
 
   const elasticClass = getClassNameOfElasticTab()
@@ -112,11 +113,11 @@ function ClassicElasticTab() {
     if (!!notSupportedClassicMsg && !!notSupportedElasticMsg) {
       return
     }
-    if (!!notSupportedClassicMsg && tab === VERSION.CLASSIC) {
-      const newQs = { ...qs, tab: VERSION.ELASTIC }
+    if (!!notSupportedClassicMsg && tab === LEGACY_POOL_VERSION.CLASSIC) {
+      const newQs = { ...qs, tab: LEGACY_POOL_VERSION.ELASTIC }
       setSearchParams(newQs)
-    } else if (!!notSupportedElasticMsg && tab !== VERSION.CLASSIC) {
-      const newQs = { ...qs, tab: VERSION.CLASSIC }
+    } else if (!!notSupportedElasticMsg && tab !== LEGACY_POOL_VERSION.CLASSIC) {
+      const newQs = { ...qs, tab: LEGACY_POOL_VERSION.CLASSIC }
       setSearchParams(newQs)
     }
   }, [setSearchParams, notSupportedElasticMsg, notSupportedClassicMsg, qs, tab])
@@ -136,9 +137,9 @@ function ClassicElasticTab() {
                 role="button"
                 className={cn(
                   'flex cursor-pointer items-center gap-2 text-sm font-medium',
-                  tab === VERSION.ELASTIC ? 'text-primary' : 'text-subText',
+                  tab === LEGACY_POOL_VERSION.ELASTIC ? 'text-primary' : 'text-subText',
                 )}
-                onClick={() => handleSwitchTab(VERSION.ELASTIC)}
+                onClick={() => handleSwitchTab(LEGACY_POOL_VERSION.ELASTIC)}
               >
                 <PoolElasticIcon size={16} />
                 {isFarmPage ? <Trans>Elastic Farms</Trans> : <Trans>Elastic Pools</Trans>}
@@ -148,9 +149,9 @@ function ClassicElasticTab() {
                 role="button"
                 className={cn(
                   'flex cursor-pointer items-center gap-2 text-sm font-medium',
-                  tab === VERSION.ELASTIC_LEGACY ? 'text-primary' : 'text-subText',
+                  tab === LEGACY_POOL_VERSION.ELASTIC_LEGACY ? 'text-primary' : 'text-subText',
                 )}
-                onClick={() => handleSwitchTab(VERSION.ELASTIC_LEGACY)}
+                onClick={() => handleSwitchTab(LEGACY_POOL_VERSION.ELASTIC_LEGACY)}
               >
                 <PoolElasticIcon size={16} />
                 {isFarmPage ? <Trans>Elastic Farms</Trans> : <Trans>Elastic Pools</Trans>}
@@ -164,8 +165,8 @@ function ClassicElasticTab() {
           className="flex items-center"
           onClick={() => {
             if (isMobile) {
-              if (showLegacyExplicit || dontShowLegacy) handleSwitchTab(VERSION.ELASTIC)
-            } else handleSwitchTab(VERSION.ELASTIC)
+              if (showLegacyExplicit || dontShowLegacy) handleSwitchTab(LEGACY_POOL_VERSION.ELASTIC)
+            } else handleSwitchTab(LEGACY_POOL_VERSION.ELASTIC)
           }}
         >
           <PoolElasticIcon size={20} className={elasticClass} />
@@ -181,7 +182,7 @@ function ClassicElasticTab() {
             {isFarmPage ? <Trans>Elastic Farms</Trans> : <Trans>Elastic Pools</Trans>}
           </span>
 
-          {!showLegacyExplicit && tab === VERSION.ELASTIC_LEGACY && legacyTag()}
+          {!showLegacyExplicit && tab === LEGACY_POOL_VERSION.ELASTIC_LEGACY && legacyTag()}
 
           {!dontShowLegacy && !showLegacyExplicit && <DropdownSVG className={elasticClass} />}
         </div>
@@ -194,7 +195,7 @@ function ClassicElasticTab() {
             <div
               className="relative flex items-center"
               onClick={() => {
-                handleSwitchTab(VERSION.ELASTIC_LEGACY)
+                handleSwitchTab(LEGACY_POOL_VERSION.ELASTIC_LEGACY)
               }}
             >
               <PoolElasticIcon size={20} className={legacyElasticClass} />
@@ -220,7 +221,7 @@ function ClassicElasticTab() {
         <div
           className="flex items-center"
           onClick={() => {
-            handleSwitchTab(VERSION.CLASSIC)
+            handleSwitchTab(LEGACY_POOL_VERSION.CLASSIC)
           }}
         >
           <PoolClassicIcon size={20} className={getClassNameOfClassicTab()} />
@@ -234,13 +235,13 @@ function ClassicElasticTab() {
         isOpen={isOpenElasticHacked}
         onClose={() => {
           if (notSupportedClassicMsg) {
-            navigate({ pathname: APP_PATHS.MY_POOLS })
+            navigate({ pathname: LEGACY_POOL_APP_PATHS.MY_POOLS })
           } else {
-            handleSwitchTab(VERSION.CLASSIC)
+            handleSwitchTab(LEGACY_POOL_VERSION.CLASSIC)
           }
         }}
         onConfirm={() => {
-          navigate({ pathname: APP_PATHS.MY_POOLS })
+          navigate({ pathname: LEGACY_POOL_APP_PATHS.MY_POOLS })
         }}
       />
     </div>

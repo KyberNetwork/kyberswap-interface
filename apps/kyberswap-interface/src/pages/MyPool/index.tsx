@@ -5,7 +5,6 @@ import { useMemo, useState } from 'react'
 import { Info } from 'react-feather'
 import { useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
-import { VERSION } from 'services/aggregatorStats'
 
 import { ButtonPrimary } from 'components/Button'
 import Card from 'components/Card'
@@ -17,6 +16,7 @@ import { AutoRow } from 'components/Row'
 import Search from 'components/Search'
 import Tutorial, { TutorialType } from 'components/Tutorial'
 import { APP_PATHS } from 'constants/index'
+import { LEGACY_POOL_APP_PATHS, LEGACY_POOL_VERSION } from 'constants/legacyPools'
 import { usePairsByAddress } from 'data/Reserves'
 import { useActiveWeb3React } from 'hooks'
 import useDebounce from 'hooks/useDebounce'
@@ -128,16 +128,16 @@ export const PreloadCard = ({ width, height, className, style, ...rest }: Preloa
 )
 
 export default function PoolCombination() {
-  const { tab = VERSION.ELASTIC } = useParsedQueryString<{
+  const { tab = LEGACY_POOL_VERSION.ELASTIC } = useParsedQueryString<{
     tab: string
   }>()
   useSyncNetworkParamWithStore()
   return (
     <PageWrapper className="pb-6">
       <ClassicElasticTab />
-      {tab === VERSION.ELASTIC ? (
+      {tab === LEGACY_POOL_VERSION.ELASTIC ? (
         <ProAmmPool />
-      ) : tab === VERSION.ELASTIC_LEGACY ? (
+      ) : tab === LEGACY_POOL_VERSION.ELASTIC_LEGACY ? (
         <ElasticLegacy tab="my_positions" />
       ) : (
         <MyPoolClassic />
@@ -285,7 +285,7 @@ function MyPoolClassic() {
 
               <ButtonPrimary
                 as={StyledInternalLink}
-                to={APP_PATHS.FIND_POOL}
+                to={LEGACY_POOL_APP_PATHS.FIND_POOL}
                 className="h-9 w-max px-3 py-2.5 text-sm !text-textReverse no-underline"
               >
                 <Withdraw />
@@ -327,7 +327,7 @@ function MyPoolClassic() {
                 </PositionCardGrid>
                 <span className="mt-4 text-center text-base text-subText">
                   {t`Don't see a pool you joined?`}{' '}
-                  <StyledInternalLink id="import-pool-link" to={APP_PATHS.FIND_POOL}>
+                  <StyledInternalLink id="import-pool-link" to={LEGACY_POOL_APP_PATHS.FIND_POOL}>
                     <Trans>Import it.</Trans>
                   </StyledInternalLink>
                 </span>
@@ -344,7 +344,7 @@ function MyPoolClassic() {
                   </Trans>
                   <br />
                   {t`Don't see a pool you joined?`}{' '}
-                  <StyledInternalLink id="import-pool-link" to={APP_PATHS.FIND_POOL}>
+                  <StyledInternalLink id="import-pool-link" to={LEGACY_POOL_APP_PATHS.FIND_POOL}>
                     <Trans>Import it.</Trans>
                   </StyledInternalLink>
                 </span>
@@ -356,7 +356,9 @@ function MyPoolClassic() {
               <span className="mt-4 text-center text-base leading-normal text-subText">
                 <Trans>
                   No staked liquidity found. Check out our{' '}
-                  <StyledInternalLink to={`${APP_PATHS.FARMS}/${networkInfo.route}`}>Farms.</StyledInternalLink>
+                  <StyledInternalLink to={`${LEGACY_POOL_APP_PATHS.FARMS}/${networkInfo.route}`}>
+                    Farms.
+                  </StyledInternalLink>
                 </Trans>
               </span>
             </div>

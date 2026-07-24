@@ -3,7 +3,7 @@ import { Currency, CurrencyAmount, Fraction, Price } from '@kyberswap/ks-sdk-cor
 import { GetRouteData, RouteSummary } from 'services/route/types/getRoute'
 
 import { getRouteTokenAddressParam } from 'components/SwapForm/hooks/useGetRoute'
-import { BIPS_BASE, RESERVE_USD_DECIMALS } from 'constants/index'
+import { BIPS_BASE, RESERVE_USD_DECIMALS } from 'constants/trade'
 import { ChargeFeeBy, DetailedRouteSummary } from 'types/route'
 import { toCurrencyAmount } from 'utils/currencyAmount'
 import { formatDisplayNumber } from 'utils/numbers'

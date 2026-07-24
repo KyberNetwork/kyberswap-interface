@@ -4,7 +4,7 @@ import axios from 'axios'
 import { WalletClient, formatUnits } from 'viem'
 
 import { wagmiConfig } from 'components/Web3Provider'
-import { CROSS_CHAIN_FEE_RECEIVER, ZERO_ADDRESS } from 'constants/index'
+import { ZERO_ADDRESS } from 'constants/index'
 import {
   Currency as AdapterCurrency,
   BaseSwapAdapter,
@@ -15,6 +15,7 @@ import {
   QuoteParams,
   SwapStatus,
 } from 'pages/CrossChainSwap/adapters/BaseSwapAdapter'
+import { CROSS_CHAIN_FEE_RECEIVER } from 'pages/CrossChainSwap/constants'
 import { Quote } from 'pages/CrossChainSwap/registry'
 
 const symbiosisClient = axios.create({

@@ -6,8 +6,9 @@ import { getPublicClient } from '@wagmi/core'
 import { WalletClient, formatUnits } from 'viem'
 
 import { wagmiConfig } from 'components/Web3Provider'
-import { CROSS_CHAIN_FEE_RECEIVER, CROSS_CHAIN_FEE_RECEIVER_SOLANA, ZERO_ADDRESS } from 'constants/index'
+import { ZERO_ADDRESS } from 'constants/index'
 import { MAINNET_NETWORKS } from 'constants/networks'
+import { CROSS_CHAIN_FEE_RECEIVER, CROSS_CHAIN_FEE_RECEIVER_SOLANA } from 'pages/CrossChainSwap/constants'
 import type { SolanaToken } from 'pages/CrossChainSwap/hooks/useSolanaTokens'
 
 import { Quote } from '../registry'

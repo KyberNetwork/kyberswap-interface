@@ -22,7 +22,8 @@ import TransactionConfirmationModal, {
 } from 'components/TransactionConfirmationModal'
 import { wagmiConfig } from 'components/Web3Provider'
 import { KS_ROUTER_STATIC_FEE_ABI, ROUTER_DYNAMIC_FEE_ABI, ROUTER_STATIC_FEE_ABI } from 'constants/abis'
-import { APP_PATHS, EIP712Domain } from 'constants/index'
+import { EIP712Domain } from 'constants/index'
+import { LEGACY_POOL_APP_PATHS } from 'constants/legacyPools'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
@@ -692,7 +693,7 @@ export default function TokenPair({
                     {pairAddress && chainId && (currencyAIsETHER || currencyAIsWETH) && (
                       <StyledInternalLink
                         replace
-                        to={`/${networkInfo.route}${APP_PATHS.CLASSIC_REMOVE_POOL}/${
+                        to={`/${networkInfo.route}${LEGACY_POOL_APP_PATHS.CLASSIC_REMOVE_POOL}/${
                           currencyAIsETHER ? currencyId(WETH[chainId], chainId) : NativeCurrencies[chainId].symbol
                         }/${currencyIdB}/${pairAddress}`}
                       >
@@ -719,7 +720,7 @@ export default function TokenPair({
                     {pairAddress && chainId && (currencyBIsWETH || currencyBIsETHER) && (
                       <StyledInternalLink
                         replace
-                        to={`/${networkInfo.route}${APP_PATHS.CLASSIC_REMOVE_POOL}/${currencyIdA}/${
+                        to={`/${networkInfo.route}${LEGACY_POOL_APP_PATHS.CLASSIC_REMOVE_POOL}/${currencyIdA}/${
                           currencyBIsETHER ? currencyId(WETH[chainId], chainId) : NativeCurrencies[chainId].symbol
                         }/${pairAddress}`}
                       >

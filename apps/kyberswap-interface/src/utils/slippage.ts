@@ -2,7 +2,7 @@ import { Currency, CurrencyAmount, Percent } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import JSBI from 'jsbi'
 
-import { PAIR_CATEGORY } from 'constants/index'
+import { PAIR_CATEGORY } from 'constants/trade'
 
 export enum SLIPPAGE_STATUS {
   NORMAL,

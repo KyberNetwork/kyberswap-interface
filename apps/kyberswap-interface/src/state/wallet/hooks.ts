@@ -3,7 +3,7 @@ import JSBI from 'jsbi'
 import { useEffect, useMemo, useState } from 'react'
 
 import { ERC20_ABI } from 'constants/abis'
-import { EMPTY_ARRAY, EMPTY_OBJECT } from 'constants/index'
+import { EMPTY_ARRAY } from 'constants/index'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { useEthBalanceOfAnotherChain, useTokensBalanceOfAnotherChain } from 'hooks/bridge'
@@ -14,6 +14,8 @@ import { useMultipleContractSingleData, useSingleCallResult } from 'state/multic
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { isAddress } from 'utils/address'
 import { isTokenNative } from 'utils/tokenInfo'
+
+const EMPTY_OBJECT: any = {}
 
 export function useNativeBalance(customChain?: ChainId): CurrencyAmount<Currency> | undefined {
   const { chainId: currentChain } = useActiveWeb3React()

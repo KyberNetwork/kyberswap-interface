@@ -1,6 +1,5 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 
-import { DEFAULT_GAS_LIMIT_MARGIN } from 'constants/index'
 import {
   GROUP_TRANSACTION_BY_TYPE,
   GroupedTxsByHash,
@@ -9,6 +8,8 @@ import {
   TransactionDetails,
 } from 'state/transactions/type'
 import { toBytes, toHex } from 'utils/viem'
+
+const DEFAULT_GAS_LIMIT_MARGIN = 20000
 
 /**
  * Add a margin amount equal to max of 20000 or the configured percentage of estimatedGas.

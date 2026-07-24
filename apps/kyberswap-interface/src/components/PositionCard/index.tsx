@@ -17,7 +17,8 @@ import InfoHelper from 'components/InfoHelper'
 import { IconWrapper } from 'components/PageWrappers'
 import { RowBetween, RowFixed } from 'components/Row'
 import { MouseoverTooltip } from 'components/Tooltip'
-import { APP_PATHS, DMM_ANALYTICS_URL, ONE_BIPS } from 'constants/index'
+import { LEGACY_POOL_APP_PATHS } from 'constants/legacyPools'
+import { ONE_BIPS } from 'constants/trade'
 import { useTotalSupply } from 'data/TotalSupply'
 import { useActiveWeb3React } from 'hooks'
 import { UserLiquidityPosition } from 'state/pools/hooks'
@@ -30,6 +31,8 @@ import { currencyId } from 'utils/currencyId'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
 import { formatDisplayNumber } from 'utils/numbers'
 import { unwrappedToken } from 'utils/wrappedCurrency'
+
+const DMM_ANALYTICS_URL = 'https://analytics.kyberswap.com/classic'
 
 const FixedHeightRow = ({ className, ...props }: React.ComponentProps<typeof RowBetween>) => (
   <RowBetween className={cn('h-6', className)} {...props} />
@@ -540,10 +543,10 @@ export default function FullPositionCard({ pair, border, stakedBalance, myLiquid
             <ButtonOutlined
               className="p-2.5 text-sm"
               as={Link}
-              to={`/${networkInfo.route}${APP_PATHS.CLASSIC_REMOVE_POOL}/${currencyId(currency0, chainId)}/${currencyId(
-                currency1,
+              to={`/${networkInfo.route}${LEGACY_POOL_APP_PATHS.CLASSIC_REMOVE_POOL}/${currencyId(
+                currency0,
                 chainId,
-              )}/${pair.address}`}
+              )}/${currencyId(currency1, chainId)}/${pair.address}`}
             >
               <span className="w-max">
                 <Trans>Remove Liquidity</Trans>
@@ -565,7 +568,7 @@ export default function FullPositionCard({ pair, border, stakedBalance, myLiquid
         <ButtonEmpty width="max-content" className="text-sm" padding="0">
           <ExternalLink
             className="w-full text-center"
-            href={`${DMM_ANALYTICS_URL[chainId]}/pool/${pair.address || ''}`}
+            href={`${DMM_ANALYTICS_URL}/${networkInfo.route}/pool/${pair.address || ''}`}
           >
             <Trans>Analytics ↗</Trans>
           </ExternalLink>

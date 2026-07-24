@@ -25,7 +25,6 @@ import useGetInputError from 'components/SwapForm/hooks/useGetInputError'
 import useGetRoute from 'components/SwapForm/hooks/useGetRoute'
 import useParsedAmount from 'components/SwapForm/hooks/useParsedAmount'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
-import { SAFE_APP_CLIENT_ID } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useDebounce from 'hooks/useDebounce'
 import { getERC8056RawTypedValue, useERC8056DisplayTypedValue } from 'hooks/useERC8056Token'
@@ -36,7 +35,7 @@ import { Field } from 'state/swap/actions'
 import { useSwapActionHandlers, useSwapState } from 'state/swap/hooks'
 import { DetailedRouteSummary } from 'types/route'
 import { cn } from 'utils/cn'
-import { isInSafeApp } from 'utils/common'
+import { SAFE_APP_CLIENT_ID, isInSafeApp } from 'utils/safeApp'
 
 export type SwapFormProps = {
   hidden: boolean

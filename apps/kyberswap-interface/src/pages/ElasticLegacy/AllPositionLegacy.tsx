@@ -12,7 +12,7 @@ import CurrencyLogo from 'components/CurrencyLogo'
 import Divider from 'components/Divider'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
 import TransactionConfirmationModal, { TransactionErrorContent } from 'components/TransactionConfirmationModal'
-import { ELASTIC_BASE_FEE_UNIT } from 'constants/index'
+import { ELASTIC_BASE_FEE_UNIT } from 'constants/legacyPools'
 import { useActiveWeb3React } from 'hooks'
 import {
   Position,

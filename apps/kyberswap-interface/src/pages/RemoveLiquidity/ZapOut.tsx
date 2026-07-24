@@ -32,7 +32,8 @@ import TransactionConfirmationModal, {
 import { wagmiConfig } from 'components/Web3Provider'
 import ZapError from 'components/ZapError'
 import { ZAP_ABI, ZAP_STATIC_FEE_ABI } from 'constants/abis'
-import { APP_PATHS, EIP712Domain } from 'constants/index'
+import { EIP712Domain } from 'constants/index'
+import { LEGACY_POOL_APP_PATHS } from 'constants/legacyPools'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
@@ -756,12 +757,12 @@ export default function ZapOut({
                         replace
                         to={
                           independentTokenField === Field.CURRENCY_A
-                            ? `/${networkInfo.route}${APP_PATHS.CLASSIC_REMOVE_POOL}/${
+                            ? `/${networkInfo.route}${LEGACY_POOL_APP_PATHS.CLASSIC_REMOVE_POOL}/${
                                 selectedCurrencyIsETHER
                                   ? currencyId(WETH[chainId], chainId)
                                   : currencyId(NativeCurrencies[chainId], chainId)
                               }/${currencyId(currencies[dependentTokenField] as Currency, chainId)}/${pairAddress}`
-                            : `/${networkInfo.route}${APP_PATHS.CLASSIC_REMOVE_POOL}/${currencyId(
+                            : `/${networkInfo.route}${LEGACY_POOL_APP_PATHS.CLASSIC_REMOVE_POOL}/${currencyId(
                                 currencies[dependentTokenField] as Currency,
                                 chainId,
                               )}/${

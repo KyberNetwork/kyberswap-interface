@@ -9,7 +9,7 @@ import {
   getConnectorWithId,
   getSafepalProvider,
 } from 'components/Web3Provider'
-import { isInSafeApp } from 'utils/common'
+import { isInSafeApp } from 'utils/safeApp'
 
 function getInjectedConnectors(connectors: readonly Connector[]) {
   let isCoinbaseWalletBrowser = false

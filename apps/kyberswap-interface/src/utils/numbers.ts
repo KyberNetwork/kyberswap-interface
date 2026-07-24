@@ -1,7 +1,10 @@
 import { CurrencyAmount, Fraction, Percent, Price } from '@kyberswap/ks-sdk-core'
 import JSBI from 'jsbi'
 
-import { BIG_INT_ONE, BIG_INT_ZERO, RESERVE_USD_DECIMALS } from 'constants/index'
+import { RESERVE_USD_DECIMALS } from 'constants/trade'
+
+const BIG_INT_ONE = JSBI.BigInt(1)
+const BIG_INT_ZERO = JSBI.BigInt(0)
 
 // stringify number without scientific format
 // e.g: (123456789123456789123456789).toString() => 1.2345678912345679e+26

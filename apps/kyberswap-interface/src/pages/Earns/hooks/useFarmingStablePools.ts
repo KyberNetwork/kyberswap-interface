@@ -2,7 +2,7 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { useMemo } from 'react'
 import { usePoolsExplorerQuery } from 'services/earn'
 
-import { PAIR_CATEGORY } from 'constants/index'
+import { PAIR_CATEGORY } from 'constants/trade'
 import { FilterTag } from 'pages/Earns/PoolExplorer/Filter'
 import { EarnPool } from 'pages/Earns/types'
 

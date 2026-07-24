@@ -15,7 +15,8 @@ import PendingWarning from 'components/WalletPopup/Transactions/PendingWarning'
 import PoolFarmLink from 'components/WalletPopup/Transactions/PoolFarmLink'
 import Status from 'components/WalletPopup/Transactions/Status'
 import { isTxsPendingTooLong } from 'components/WalletPopup/Transactions/helper'
-import { APP_PATHS, ETHER_ADDRESS } from 'constants/index'
+import { ETHER_ADDRESS } from 'constants/index'
+import { LEGACY_POOL_APP_PATHS } from 'constants/legacyPools'
 import {
   TRANSACTION_TYPE,
   TransactionDetails,
@@ -133,7 +134,7 @@ const NftLink = ({
   )
   if (!canNavigate) return icon
   return (
-    <ExternalLink key={nftId} href={`${APP_PATHS.MY_POOLS}?nftId=${nftId}`} className="hover:no-underline">
+    <ExternalLink key={nftId} href={`${LEGACY_POOL_APP_PATHS.MY_POOLS}?nftId=${nftId}`} className="hover:no-underline">
       {icon}
     </ExternalLink>
   )

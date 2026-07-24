@@ -15,6 +15,7 @@ import {
 } from 'components/RouteFallback/pageFallbacks'
 import Skeleton from 'components/Skeleton'
 import { APP_PATHS } from 'constants/index'
+import { LEGACY_POOL_APP_PATHS } from 'constants/legacyPools'
 import { isSwapLikePath } from 'utils/routes'
 
 // Lightweight, main-bundle page-shell skeletons shown while a route's lazy chunk downloads. They can't
@@ -337,7 +338,7 @@ const pickSkeleton = (rawPathname: string) => {
     return <DetailPageSkeleton />
   }
 
-  if (pathname.startsWith(APP_PATHS.MY_POOLS)) {
+  if (pathname.startsWith(LEGACY_POOL_APP_PATHS.MY_POOLS)) {
     return <TablePageSkeleton />
   }
 

@@ -14,7 +14,7 @@ import { FindPoolTabs } from 'components/NavigationTabs'
 import { NarrowPositionCard } from 'components/PositionCard'
 import Row from 'components/Row'
 import TokenSelectorModal from 'components/TokenSelectorModal'
-import { APP_PATHS } from 'constants/index'
+import { LEGACY_POOL_APP_PATHS } from 'constants/legacyPools'
 import { NativeCurrencies } from 'constants/tokens'
 import { PairState, usePair } from 'data/Reserves'
 import { useActiveWeb3React } from 'hooks'
@@ -172,7 +172,7 @@ export default function PoolFinder() {
                   <p className="text-center font-medium">
                     <Trans>Pool Found!</Trans>
                   </p>
-                  <StyledInternalLink to={`${APP_PATHS.MY_POOLS}/${networkInfo.route}?tab=classic`}>
+                  <StyledInternalLink to={`${LEGACY_POOL_APP_PATHS.MY_POOLS}/${networkInfo.route}?tab=classic`}>
                     <p className="text-center">
                       <Trans>Manage your pools.</Trans>
                     </p>

@@ -1,12 +1,7 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 
 import { AGGREGATOR_STATS_API } from 'constants/env'
-
-export enum VERSION {
-  ELASTIC = 'elastic',
-  CLASSIC = 'classic',
-  ELASTIC_LEGACY = 'elastic-legacy',
-}
+import { LEGACY_POOL_VERSION } from 'constants/legacyPools'
 
 type AggregatorAPR = {
   max_apr: {
@@ -14,7 +9,7 @@ type AggregatorAPR = {
     id: string
     chain_id: number
     is_farm: boolean
-    type?: VERSION.CLASSIC | VERSION.ELASTIC
+    type?: LEGACY_POOL_VERSION.CLASSIC | LEGACY_POOL_VERSION.ELASTIC
   }
   total_earnings: number
 }

@@ -9,16 +9,16 @@ import { useSwapFormContext } from 'components/SwapForm/SwapFormContext'
 import useGetFeeConfig from 'components/SwapForm/hooks/useGetFeeConfig'
 import { TextHelper } from 'components/Text'
 import TradePrice from 'components/TradePrice'
-import { BIPS_BASE } from 'constants/index'
+import { BIPS_BASE } from 'constants/trade'
 import useTheme from 'hooks/useTheme'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { ExternalLink } from 'theme'
 import { DetailedRouteSummary } from 'types/route'
 import { cn } from 'utils/cn'
-import { isInSafeApp } from 'utils/common'
 import { minimumAmountAfterSlippage } from 'utils/currencyAmount'
 import { formatDisplayNumber } from 'utils/numbers'
 import { checkPriceImpact, formatPriceImpact } from 'utils/prices'
+import { isInSafeApp } from 'utils/safeApp'
 
 type TooltipTextOfSwapFeeProps = {
   feeBips: string | undefined

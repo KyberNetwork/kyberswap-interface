@@ -28,10 +28,10 @@ import { ExternalLink, ExternalLinkNoLineHeight, MEDIA_WIDTHS } from 'theme'
 import { DetailedRouteSummary } from 'types/route'
 import { shortenAddress } from 'utils/address'
 import { cn } from 'utils/cn'
-import { isInSafeApp } from 'utils/common'
 import { calculateFeeFromBuildData } from 'utils/fee'
 import { formatDisplayNumber } from 'utils/numbers'
 import { checkPriceImpact, formatPriceImpact } from 'utils/prices'
+import { isInSafeApp } from 'utils/safeApp'
 import { SLIPPAGE_STATUS, checkRangeSlippage, checkWarningSlippage, formatSlippage } from 'utils/slippage'
 
 type Optional<T> = {

@@ -2,7 +2,8 @@ import React, { ButtonHTMLAttributes, forwardRef, useEffect, useMemo, useState }
 import { useLocation } from 'react-router-dom'
 
 import CustomSlippageInput from 'components/SlippageControl/CustomSlippageInput'
-import { APP_PATHS, DEFAULT_SLIPPAGES, DEFAULT_SLIPPAGES_HIGH_VOTALITY } from 'constants/index'
+import { APP_PATHS } from 'constants/index'
+import { DEFAULT_SLIPPAGES, DEFAULT_SLIPPAGES_HIGH_VOLATILITY } from 'constants/trade'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { usePairCategory } from 'state/swap/hooks'
 import { cn } from 'utils/cn'
@@ -37,7 +38,7 @@ const SlippageControl: React.FC<Props> = props => {
       props.options?.length
         ? props.options
         : cat === 'highVolatilityPair'
-        ? DEFAULT_SLIPPAGES_HIGH_VOTALITY
+        ? DEFAULT_SLIPPAGES_HIGH_VOLATILITY
         : DEFAULT_SLIPPAGES,
     [cat, props.options],
   )

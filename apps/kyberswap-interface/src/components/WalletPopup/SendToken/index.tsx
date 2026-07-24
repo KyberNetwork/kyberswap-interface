@@ -13,7 +13,6 @@ import TransactionConfirmationModal, { TransactionErrorContent } from 'component
 import CurrencyListHasBalance from 'components/WalletPopup/SendToken/CurrencyListSelect'
 import WarningBrave from 'components/WalletPopup/SendToken/WarningBrave'
 import useSendToken from 'components/WalletPopup/SendToken/useSendToken'
-import { TRANSACTION_STATE_DEFAULT } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import useENS from 'hooks/useENS'
@@ -28,6 +27,14 @@ import { cn } from 'utils/cn'
 import { friendlyError } from 'utils/errorMessage'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
 import { formatDisplayNumber } from 'utils/numbers'
+
+const TRANSACTION_STATE_DEFAULT: TransactionFlowState = {
+  showConfirm: false,
+  attemptingTxn: false,
+  errorMessage: '',
+  txHash: undefined,
+  pendingText: '',
+}
 
 const Label = ({
   className,

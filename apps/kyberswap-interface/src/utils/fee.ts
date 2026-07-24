@@ -2,7 +2,7 @@ import { Currency, CurrencyAmount, Fraction } from '@kyberswap/ks-sdk-core'
 import JSBI from 'jsbi'
 import { BuildRouteData } from 'services/route/types/buildRoute'
 
-import { BIPS_BASE, RESERVE_USD_DECIMALS } from 'constants/index'
+import { BIPS_BASE, RESERVE_USD_DECIMALS } from 'constants/trade'
 import { ChargeFeeBy, DetailedRouteSummary } from 'types/route'
 import { formatDisplayNumber } from 'utils/numbers'
 import { parseUnits } from 'utils/viem'

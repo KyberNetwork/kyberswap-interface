@@ -4,7 +4,7 @@ import { NavLink } from 'react-router-dom'
 
 import Icon from 'components/Icons/Icon'
 import { MenuItem, MenuItemLink, MenuSection, Title } from 'components/Menu/MenuItems'
-import { APP_PATHS } from 'constants/index'
+import { LEGACY_POOL_APP_PATHS } from 'constants/legacyPools'
 
 type LegacySectionProps = {
   toggle?: () => void
@@ -18,7 +18,7 @@ export const LegacySection = ({ toggle }: LegacySectionProps) => (
 
     <MenuItem>
       <MenuItemLink>
-        <NavLink to={APP_PATHS.ELASTIC_SNAPSHOT} onClick={toggle}>
+        <NavLink to={LEGACY_POOL_APP_PATHS.ELASTIC_SNAPSHOT} onClick={toggle}>
           <AlertOctagon size={14} />
           <Trans>Treasury Grant 2023</Trans>
         </NavLink>
@@ -27,7 +27,7 @@ export const LegacySection = ({ toggle }: LegacySectionProps) => (
 
     <MenuItem>
       <MenuItemLink>
-        <NavLink to={APP_PATHS.MY_POOLS} onClick={toggle}>
+        <NavLink to={LEGACY_POOL_APP_PATHS.MY_POOLS} onClick={toggle}>
           <Icon id="liquid-outline" size={16} />
           <Trans>My Pools</Trans>
         </NavLink>
