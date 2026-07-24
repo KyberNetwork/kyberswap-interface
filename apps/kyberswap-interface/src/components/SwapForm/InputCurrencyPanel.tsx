@@ -18,12 +18,14 @@ type Props = {
   highlightToken?: boolean
   onChangeCurrencyIn: (c: Currency) => void
   setTypedValue: (v: string) => void
+  onUserInput: (v: string) => void
   customChainId?: ChainId
 }
 const InputCurrencyPanel: React.FC<Props> = ({
   wrapType,
   typedValue,
   setTypedValue,
+  onUserInput,
   currencyIn,
   currencyOut,
   balanceIn,
@@ -60,7 +62,7 @@ const InputCurrencyPanel: React.FC<Props> = ({
       value={typedValue}
       positionMax="top"
       currency={currencyIn}
-      onUserInput={setTypedValue}
+      onUserInput={onUserInput}
       onMax={handleMaxInput}
       onHalf={handleHalfInput}
       onCurrencySelect={onChangeCurrencyIn}

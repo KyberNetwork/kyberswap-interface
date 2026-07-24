@@ -1,8 +1,10 @@
-import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
+import { ChainId, Currency, CurrencyAmount, Fraction } from '@kyberswap/ks-sdk-core'
+import JSBI from 'jsbi'
 import { useMemo } from 'react'
 import { useReadContract } from 'wagmi'
 
 import { useReadingContract } from 'hooks/useContract'
+import { parseFraction } from 'utils/numbers'
 import { parseAbi } from 'utils/viem'
 
 const UI_MULTIPLIER_SCALE = 10n ** 18n
@@ -73,4 +75,45 @@ export const useERC8056DisplayBalance = (
     const uiBalance = (BigInt(rawBalance.quotient.toString()) * info.multiplier) / UI_MULTIPLIER_SCALE
     return CurrencyAmount.fromRawAmount(rawBalance.currency, uiBalance.toString())
   }, [info.multiplier, rawBalance])
+}
+
+const trimTrailingZero = (value: string) => value.replace(/\.?0+$/, '') || '0'
+
+const formatFractionValue = (value: Fraction) => trimTrailingZero(value.toFixed(18))
+
+const getERC8056DisplayTypedValueByMultiplier = (multiplier: bigint | undefined, rawTypedValue: string): string => {
+  if (!rawTypedValue || !multiplier) return rawTypedValue
+  return formatFractionValue(
+    parseFraction(rawTypedValue)
+      .multiply(JSBI.BigInt(multiplier.toString()))
+      .divide(JSBI.BigInt(UI_MULTIPLIER_SCALE.toString())),
+  )
+}
+
+const getERC8056RawTypedValueByMultiplier = (multiplier: bigint | undefined, displayTypedValue: string): string => {
+  if (!displayTypedValue || !multiplier) return displayTypedValue
+  return formatFractionValue(
+    parseFraction(displayTypedValue)
+      .multiply(JSBI.BigInt(UI_MULTIPLIER_SCALE.toString()))
+      .divide(JSBI.BigInt(multiplier.toString())),
+  )
+}
+
+export const getERC8056DisplayTypedValue = (info: ERC8056TokenInfo, rawTypedValue: string): string =>
+  getERC8056DisplayTypedValueByMultiplier(info.multiplier, rawTypedValue)
+
+export const getERC8056RawTypedValue = (info: ERC8056TokenInfo, displayTypedValue: string): string =>
+  getERC8056RawTypedValueByMultiplier(info.multiplier, displayTypedValue)
+
+export const useERC8056DisplayTypedValue = (info: ERC8056TokenInfo, rawTypedValue: string): string => {
+  const multiplier = info.multiplier
+  return useMemo(() => getERC8056DisplayTypedValueByMultiplier(multiplier, rawTypedValue), [multiplier, rawTypedValue])
+}
+
+export const useERC8056RawTypedValue = (info: ERC8056TokenInfo, displayTypedValue: string): string => {
+  const multiplier = info.multiplier
+  return useMemo(
+    () => getERC8056RawTypedValueByMultiplier(multiplier, displayTypedValue),
+    [multiplier, displayTypedValue],
+  )
 }

@@ -32,9 +32,11 @@ const summary1Token = (txs: TransactionDetails) => {
 }
 
 const summary2Token = (txs: TransactionDetails, withType = true) => {
-  const { tokenAmountIn, tokenSymbolIn, tokenAmountOut, tokenSymbolOut } = (txs.extraInfo ||
-    {}) as TransactionExtraInfo2Token
-  return `${withType ? txs.type : ''} ${tokenAmountIn} ${tokenSymbolIn} to ${tokenAmountOut} ${tokenSymbolOut}`
+  const { tokenAmountIn, tokenAmountInDisplay, tokenSymbolIn, tokenAmountOut, tokenAmountOutDisplay, tokenSymbolOut } =
+    (txs.extraInfo || {}) as TransactionExtraInfo2Token
+  return `${withType ? txs.type : ''} ${tokenAmountInDisplay || tokenAmountIn} ${tokenSymbolIn} to ${
+    tokenAmountOutDisplay || tokenAmountOut
+  } ${tokenSymbolOut}`
 }
 
 const summaryApprove = (txs: TransactionDetails) => {

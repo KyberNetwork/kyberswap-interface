@@ -34,7 +34,7 @@ export default function SwapBrief({
   currencyOut,
 }: Props) {
   const { chainId } = useActiveWeb3React()
-  const { typedValue } = useSwapFormContext()
+  const { displayTypedValue } = useSwapFormContext()
 
   const renderOutputAmount = () => {
     if (isLoading) {
@@ -71,7 +71,7 @@ export default function SwapBrief({
           <Trans>Input Amount</Trans>
         </span>
         <div className="flex w-full items-center justify-between gap-2">
-          <span className="min-w-0 flex-1 truncate text-2xl font-medium">{typedValue}</span>
+          <span className="min-w-0 flex-1 truncate text-2xl font-medium">{displayTypedValue}</span>
           <div className="flex min-w-fit items-center gap-2">
             <span className="text-sm font-medium text-subText">
               ~{formatDisplayNumber(amountInUsd, { style: 'currency', significantDigits: 4 })}
