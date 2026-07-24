@@ -5,6 +5,10 @@ import { isEvmChain } from 'utils'
 
 import { Chain, Currency, NonEvmChain, NonEvmChainInfo } from '../adapters'
 
+export const normalizeAdapterName = (name?: string): string => {
+  return name?.toLowerCase().replace(/[\s_-]+/g, '') ?? ''
+}
+
 export const getNetworkInfo = (chain: Chain) => {
   if (isEvmChain(chain))
     return {
