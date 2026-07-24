@@ -4,15 +4,7 @@ import { t } from '@lingui/macro';
 
 import { PermitNftState, useDebounce, usePositionOwner } from '@kyber/hooks';
 import { APPROVAL_STATE } from '@kyber/hooks';
-import {
-  API_URLS,
-  CHAIN_ID_TO_CHAIN,
-  DEXES_INFO,
-  NETWORKS_INFO,
-  PoolType,
-  univ3PoolNormalize,
-  univ4Types,
-} from '@kyber/schema';
+import { API_URLS, CHAIN_ID_TO_CHAIN, DEXES_INFO, NETWORKS_INFO, PoolType, univ3PoolNormalize } from '@kyber/schema';
 import { PI_LEVEL } from '@kyber/utils';
 
 import { ERROR_MESSAGE, translateErrorMessage } from '@/constants';
@@ -80,7 +72,6 @@ export default function useActionButton({ approval, deadline }: { approval: Appr
   const [clickedApprove, setClickedLoading] = useState(false);
   const [gasLoading, setGasLoading] = useState(false);
 
-  const isUniv4 = univ4Types.includes(poolType);
   const isNotOwner =
     positionId &&
     positionOwner &&
@@ -96,7 +87,7 @@ export default function useActionButton({ approval, deadline }: { approval: Appr
   const isInvalidZapImpact = route ? zapImpact.level === PI_LEVEL.INVALID : false;
 
   const btnDisabled =
-    (isUniv4 && isNotOwner) ||
+    isNotOwner ||
     clickedApprove ||
     approval.nftApproval.pendingTx ||
     approval.nftApprovalAll.pendingTx ||
@@ -110,7 +101,6 @@ export default function useActionButton({ approval, deadline }: { approval: Appr
     approval.permit.state === PermitNftState.SIGNING;
 
   const needApproveNft =
-    isUniv4 &&
     positionId &&
     approval.permit.state !== PermitNftState.SIGNED &&
     !approval.nftApproval.isApproved &&
@@ -130,7 +120,7 @@ export default function useActionButton({ approval, deadline }: { approval: Appr
       text: t`Checking Approval...`,
     },
     { condition: zapLoading, text: t`Fetching Route...` },
-    { condition: isUniv4 && isNotOwner, text: t`Not the position owner` },
+    { condition: isNotOwner, text: t`Not the position owner` },
     { condition: tokenInNotApproved, text: t`Approve ${tokenInNotApproved?.symbol ?? ''}` },
     { condition: !route, text: t`No route found` },
     { condition: isVeryHighZapImpact || isInvalidZapImpact, text: t`Zap anyway` },
@@ -170,7 +160,7 @@ export default function useActionButton({ approval, deadline }: { approval: Appr
       source,
       referral,
     } as any; // Type assertion added to allow dynamic property assignment
-    if (isUniv4 && positionId && approval.permit.state === PermitNftState.SIGNED && approval.permit.data?.permitData) {
+    if (positionId && approval.permit.state === PermitNftState.SIGNED && approval.permit.data?.permitData) {
       (buildBody as any).permits = {
         [positionId]: approval.permit.data.permitData,
       };
