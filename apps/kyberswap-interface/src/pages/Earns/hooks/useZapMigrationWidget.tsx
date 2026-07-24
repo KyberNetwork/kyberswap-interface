@@ -3,6 +3,10 @@
 import { PoolType as ZapMigrationDex } from '@kyber/schema'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import type { OnSuccessProps, SupportedLocale, ChainId as ZapMigrationChainId } from '@kyberswap/zap-migration-widgets'
+// Eager, not with the lazy JS below: the widget's status dialog is styled by utilities scoped under the
+// widget's own root class, which ship only in this stylesheet (the app's eager @kyber/ui styles use a
+// different scope and don't reach it). This widget's scope is its own, so nothing else supplies it.
+import '@kyberswap/zap-migration-widgets/dist/style.css'
 import { Suspense, lazy, useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { usePreviousDistinct } from 'react-use'
@@ -34,15 +38,11 @@ import { friendlyError } from 'utils/errorMessage'
 import { Address } from 'utils/viem'
 import { signTypedDataRaw } from 'utils/walletClient'
 
-// The widget only renders inside the modal below, so keep it out of every /earn route chunk that calls this
-// hook and load it — with its stylesheet — when the modal actually mounts.
-const ZapMigration = lazy(async () => {
-  const [widget] = await Promise.all([
-    import('@kyberswap/zap-migration-widgets'),
-    import('@kyberswap/zap-migration-widgets/dist/style.css'),
-  ])
-  return { default: widget.ZapMigration }
-})
+// The widget only renders inside the modal below, so lazy-load its JS to keep it out of every /earn route
+// chunk that calls this hook.
+const ZapMigration = lazy(() =>
+  import('@kyberswap/zap-migration-widgets').then(widget => ({ default: widget.ZapMigration })),
+)
 
 interface MigrateLiquidityPureParams {
   from: {

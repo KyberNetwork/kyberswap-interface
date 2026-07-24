@@ -5,6 +5,11 @@ import type {
   ChainId as ZapInChainId,
   PoolType as ZapInPoolType,
 } from '@kyberswap/liquidity-widgets'
+// The stylesheet loads eagerly, not with the lazy JS below: the widget's transaction-status dialog is styled
+// by utilities scoped under the widget's own root class (`.ks-lw-style`), which ship only in this stylesheet
+// — the app's eager @kyber/ui styles use a different scope (`.ks-ui-style`) and don't reach it. It must be
+// present whenever the widget can open, independent of its lazy JS chunk.
+import '@kyberswap/liquidity-widgets/dist/style.css'
 import { Suspense, lazy, useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 
@@ -38,16 +43,9 @@ import { Address } from 'utils/viem'
 import { signTypedDataRaw } from 'utils/walletClient'
 
 // Every /earn route calls this hook to get its Zap button, but the widget itself only renders inside the
-// modal below — so importing it at module scope made each of those routes download ~760KB gz of widget for
-// UI most visitors never open. Load it, and its stylesheet, only when the modal actually mounts. The types
-// above are erased at build time, so nothing else here pulls the package back into the route chunk.
-const ZapIn = lazy(async () => {
-  const [widget] = await Promise.all([
-    import('@kyberswap/liquidity-widgets'),
-    import('@kyberswap/liquidity-widgets/dist/style.css'),
-  ])
-  return { default: widget.LiquidityWidget }
-})
+// modal below — so lazy-loading its ~760KB gz JS keeps it off routes whose visitors never open it. The
+// types above are erased at build time, so nothing else here pulls the package back into the route chunk.
+const ZapIn = lazy(() => import('@kyberswap/liquidity-widgets').then(widget => ({ default: widget.LiquidityWidget })))
 
 interface AddLiquidityPureParams {
   poolAddress: string
