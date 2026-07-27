@@ -4,7 +4,7 @@ import { useWalletSelector } from '@near-wallet-selector/react-hook'
 import { useConnection, useWallet } from '@solana/wallet-adapter-react'
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { fetchTokenCategories, fetchTokenPrices } from 'services/tokenCatalog'
+import { fetchTokenCategories, fetchTokenPrices, useLazyCheckSameAssetQuery } from 'services/tokenCatalog'
 import { parseUnits } from 'viem'
 
 import { useBitcoinWallet } from 'components/Web3Provider/BitcoinProvider'
@@ -119,6 +119,18 @@ const isStableCurrency = (currency: Currency | undefined, chain: Chain | undefin
   if (chain === NonEvmChain.Solana && isSolanaToken(currency)) return SOLANA_STABLE_COINS.includes(currency.id)
   if (chain === NonEvmChain.Near && isNearToken(currency)) return NEAR_STABLE_COINS.includes(currency.assetId)
   return false
+}
+
+const unwrapQueryWithAbortSignal = async <T,>(
+  request: { abort: () => void; unwrap: () => Promise<T> },
+  signal: AbortSignal,
+): Promise<T> => {
+  signal.addEventListener('abort', request.abort, { once: true })
+  try {
+    return await request.unwrap()
+  } finally {
+    signal.removeEventListener('abort', request.abort)
+  }
 }
 
 const getDefaultTokenForChain = (chain: string | null | undefined) => {
@@ -392,6 +404,7 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
   const [selectedAdapter, setSelectedAdapter] = useState<string | null>(null)
   const walletClient = useGatedWalletClient()
   const [slippage] = useUserSlippageTolerance()
+  const [checkSameAsset] = useLazyCheckSameAssetQuery()
 
   const selectedQuote = useMemo(() => {
     return quotes.find(q => q.adapter.getName() === selectedAdapter) || quotes[0] || null
@@ -521,6 +534,30 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
       body[toChainId].push(currencyOut.wrapped.address)
     }
 
+    const isEvmPair = isEvmCurrency(currencyIn) && isEvmCurrency(currencyOut)
+    const isCanonicalEvmPair =
+      isEvmPair &&
+      isCanonicalPair(currencyIn.chainId, currencyIn.wrapped.address, currencyOut.chainId, currencyOut.wrapped.address)
+    const shouldCheckSameAsset = isEvmPair && !isCanonicalEvmPair && currencyIn.chainId !== currencyOut.chainId
+
+    const isSameAssetPromise = shouldCheckSameAsset
+      ? unwrapQueryWithAbortSignal(
+          checkSameAsset(
+            {
+              chainIdA: currencyIn.chainId,
+              addressA: currencyIn.wrapped.address,
+              chainIdB: currencyOut.chainId,
+              addressB: currencyOut.wrapped.address,
+            },
+            true,
+          ),
+          signal,
+        ).catch(error => {
+          if (!signal.aborted) console.error('Failed to check whether tokens are the same asset:', error)
+          return false
+        })
+      : Promise.resolve(false)
+
     let pricesResponse: TokenPricesResponse | null = null
     try {
       pricesResponse = await fetchTokenPrices(body, { signal })
@@ -530,6 +567,10 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
     }
 
     // Check if this request has been aborted
+    if (signal.aborted) return
+
+    const isSameAsset = await isSameAssetPromise
+
     if (signal.aborted) return
 
     const tokenInUsd = isEvmCurrency(currencyIn)
@@ -545,16 +586,7 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
     if (isFromBitcoin || isToBitcoin) {
       feeBps = 25
     } else if (isFromEvm && isToEvm) {
-      if (
-        isEvmCurrency(currencyIn) &&
-        isEvmCurrency(currencyOut) &&
-        isCanonicalPair(
-          currencyIn.chainId,
-          currencyIn.wrapped.address,
-          currencyOut.chainId,
-          currencyOut.wrapped.address,
-        )
-      ) {
+      if (isCanonicalEvmPair || isSameAsset) {
         requestCategory = 'stablePair'
         feeBps = 5
       } else {
@@ -1061,6 +1093,7 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
     isToSolana,
     connection,
     excludedSources,
+    checkSameAsset,
   ])
 
   return (
