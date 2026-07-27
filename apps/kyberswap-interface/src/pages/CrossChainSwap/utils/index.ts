@@ -1,9 +1,7 @@
 import { ChainId, WETH } from '@kyberswap/ks-sdk-core'
 
 import { NETWORKS_INFO } from 'constants/networks'
-import { isEvmChain } from 'utils'
-
-import { Chain, Currency, NonEvmChain, NonEvmChainInfo } from '../adapters'
+import { Chain, Currency, NonEvmChain, NonEvmChainInfo, isEvmChain } from 'pages/CrossChainSwap/adapters/types'
 
 export const getNetworkInfo = (chain: Chain) => {
   if (isEvmChain(chain))

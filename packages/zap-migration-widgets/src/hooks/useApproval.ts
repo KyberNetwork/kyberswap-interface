@@ -125,7 +125,7 @@ export function useApproval({ type, spender }: { type: 'source' | 'target'; spen
   const { permitState, signPermitNft, permitData } = usePermitNft({
     nftManagerContract,
     tokenId: nftId ? nftId.toString() : undefined,
-    spender: route?.routerPermitAddress,
+    spender: route?.routerAddress,
     account,
     chainId: walletChainId,
     rpcUrl,

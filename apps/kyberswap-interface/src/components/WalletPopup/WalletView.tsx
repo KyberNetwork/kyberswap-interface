@@ -22,8 +22,9 @@ import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import useDisconnectWallet from 'hooks/web3/useDisconnectWallet'
 import { useTokensHasBalance } from 'state/wallet/hooks'
 import { ExternalLinkIcon } from 'theme'
-import { getEtherscanLink, shortenAddress } from 'utils'
+import { shortenAddress } from 'utils/address'
 import { cn } from 'utils/cn'
+import { getEtherscanLink } from 'utils/explorer'
 
 export const HANDLE_CLASS_NAME = 'walletPopupDragHandle'
 

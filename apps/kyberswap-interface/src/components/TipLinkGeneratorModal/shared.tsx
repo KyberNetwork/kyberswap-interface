@@ -6,8 +6,8 @@ import { HStack } from 'components/Stack'
 import { APP_PATHS, ETHER_ADDRESS } from 'constants/index'
 import { NETWORKS_INFO, SUPPORTED_NETWORKS } from 'constants/networks'
 import { DEFAULT_OUTPUT_TOKENS } from 'constants/tokens'
-import { getTokenLogoURL } from 'utils'
 import { cn } from 'utils/cn'
+import { getTokenLogoURL } from 'utils/tokenLogo'
 
 export const enablePreview = false
 

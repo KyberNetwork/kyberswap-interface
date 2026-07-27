@@ -9,13 +9,7 @@ import { parseUnits } from 'viem'
 
 import { useBitcoinWallet } from 'components/Web3Provider/BitcoinProvider'
 import { CROSSCHAIN_AGGREGATOR_API } from 'constants/env'
-import {
-  BTC_DEFAULT_RECEIVER,
-  CROSS_CHAIN_FEE_RECEIVER,
-  CROSS_CHAIN_FEE_RECEIVER_SOLANA,
-  SOLANA_NATIVE,
-  ZERO_ADDRESS,
-} from 'constants/index'
+import { ZERO_ADDRESS } from 'constants/index'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import useDebounce from 'hooks/useDebounce'
@@ -33,6 +27,13 @@ import {
   SwapProvider,
 } from 'pages/CrossChainSwap/adapters'
 import { adaptRelaySolanaWallet } from 'pages/CrossChainSwap/adapters/RelayAdapter/relaySolanaWallet'
+import { isEvmChain, isNonEvmChain } from 'pages/CrossChainSwap/adapters/types'
+import {
+  BTC_DEFAULT_RECEIVER,
+  CROSS_CHAIN_FEE_RECEIVER,
+  CROSS_CHAIN_FEE_RECEIVER_SOLANA,
+  SOLANA_NATIVE,
+} from 'pages/CrossChainSwap/constants'
 import { CrossChainSwapFactory } from 'pages/CrossChainSwap/factory'
 import { type NearToken, useNearTokens } from 'pages/CrossChainSwap/hooks/useNearTokens'
 import { type SolanaToken, useSolanaTokens } from 'pages/CrossChainSwap/hooks/useSolanaTokens'
@@ -40,7 +41,6 @@ import { CrossChainSwapAdapterRegistry, Quote } from 'pages/CrossChainSwap/regis
 import { NEAR_STABLE_COINS, SOLANA_STABLE_COINS, isCanonicalPair } from 'pages/CrossChainSwap/utils'
 import { useAppSelector } from 'state/hooks'
 import { useUserSlippageTolerance } from 'state/user/hooks'
-import { isEvmChain, isNonEvmChain } from 'utils'
 
 // SSE Event types from the server
 const SSE_EVENT = {

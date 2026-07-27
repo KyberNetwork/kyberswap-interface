@@ -23,9 +23,9 @@ import KNCLogo from 'pages/KyberDAO/kncLogo'
 import { ApplicationModal } from 'state/application/actions'
 import { useKNCPrice, useToggleModal, useWalletModalToggle } from 'state/application/hooks'
 import { StyledInternalLink } from 'theme'
-import { formattedNumLong } from 'utils'
 import { cn } from 'utils/cn'
 import { formatUnitsToFixed } from 'utils/formatBalance'
+import { formatDisplayNumber } from 'utils/numbers'
 
 const Card = ({ hasGreenBackground, children }: { hasGreenBackground?: boolean; children: React.ReactNode }) => (
   <div
@@ -179,11 +179,15 @@ export default function Vote() {
                 <Trans>Total Staked KNC</Trans>
               </span>
               <span className="mb-2 text-xl font-medium leading-[normal]">
-                {daoInfo ? formattedNumLong(Math.round(daoInfo.total_staked)) + ' KNC' : '--'}
+                {daoInfo
+                  ? formatDisplayNumber(Math.round(daoInfo.total_staked), { significantDigits: 6 }) + ' KNC'
+                  : '--'}
               </span>
               <span className="text-xs text-subText">
                 {daoInfo && kncPrice
-                  ? '~' + formattedNumLong(+kncPrice * Math.round(daoInfo.total_staked)) + ' USD'
+                  ? '~' +
+                    formatDisplayNumber(+kncPrice * Math.round(daoInfo.total_staked), { significantDigits: 6 }) +
+                    ' USD'
                   : ''}
               </span>
             </AutoColumn>

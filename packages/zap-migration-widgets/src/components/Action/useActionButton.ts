@@ -124,12 +124,12 @@ export function useActionButton({ onConnectWallet, onSwitchChain }: UseActionBut
 
   const { approval: sourceApproval, permit: sourcePermit } = useApproval({
     type: 'source',
-    spender: isUsePermit ? route?.routerPermitAddress : undefined,
+    spender: isUsePermit ? route?.routerAddress : undefined,
   });
 
   const { approval: targetApproval, permit: targetPermit } = useApproval({
     type: 'target',
-    spender: isUsePermit ? route?.routerPermitAddress : undefined,
+    spender: isUsePermit ? route?.routerAddress : undefined,
   });
 
   useEffect(() => {

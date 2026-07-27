@@ -1,6 +1,6 @@
 import { Percent } from '@kyberswap/ks-sdk-core'
 
-import { ONE_BIPS } from 'constants/index'
+import { ONE_BIPS } from 'constants/trade'
 import { cn } from 'utils/cn'
 import { warningSeverity } from 'utils/prices'
 

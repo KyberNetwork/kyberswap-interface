@@ -44,7 +44,7 @@ import YourTransactionsModal from 'pages/KyberDAO/StakeKNC/YourTransactionsModal
 import KNCLogo from 'pages/KyberDAO/kncLogo'
 import { ApplicationModal } from 'state/application/actions'
 import { useKNCPrice, useToggleModal, useWalletModalToggle } from 'state/application/hooks'
-import { isAddress, shortenAddress } from 'utils'
+import { isAddress, shortenAddress } from 'utils/address'
 import { cn } from 'utils/cn'
 import { formatUnits, parseUnits } from 'utils/viem'
 

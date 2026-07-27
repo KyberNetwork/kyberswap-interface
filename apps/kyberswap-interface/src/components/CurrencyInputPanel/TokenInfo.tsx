@@ -8,7 +8,7 @@ import { useGetPricesQuery, useGetTokenCategoryQuery } from 'services/tokenCatal
 
 import CopyHelper from 'components/Copy'
 import Tooltip from 'components/Tooltip'
-import { PAIR_CATEGORY } from 'constants/index'
+import { PAIR_CATEGORY } from 'constants/trade'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
 import { MEDIA_WIDTHS } from 'theme'

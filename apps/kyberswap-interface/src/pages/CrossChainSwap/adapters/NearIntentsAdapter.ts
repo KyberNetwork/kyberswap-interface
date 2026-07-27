@@ -13,7 +13,8 @@ import { WalletAdapterProps } from '@solana/wallet-adapter-base'
 import { Connection, PublicKey, SystemProgram, Transaction } from '@solana/web3.js'
 import { WalletClient, formatUnits } from 'viem'
 
-import { BTC_DEFAULT_RECEIVER, CROSS_CHAIN_FEE_RECEIVER, SOLANA_NATIVE, ZERO_ADDRESS } from 'constants/index'
+import { ZERO_ADDRESS } from 'constants/index'
+import { BTC_DEFAULT_RECEIVER, CROSS_CHAIN_FEE_RECEIVER, SOLANA_NATIVE } from 'pages/CrossChainSwap/constants'
 import { saveMyNearWalletPendingTransaction } from 'pages/CrossChainSwap/hooks/useRestoreMyNearWalletPendingTransaction'
 import type { SolanaToken } from 'pages/CrossChainSwap/hooks/useSolanaTokens'
 

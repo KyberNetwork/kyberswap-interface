@@ -20,7 +20,7 @@ import {
 } from 'viem/chains'
 
 import { robinhood } from 'components/Web3Provider'
-import { CROSS_CHAIN_FEE_RECEIVER, ZERO_ADDRESS } from 'constants/index'
+import { ZERO_ADDRESS } from 'constants/index'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import {
   BaseSwapAdapter,
@@ -33,10 +33,11 @@ import {
   QuoteParams,
   SwapStatus,
 } from 'pages/CrossChainSwap/adapters/BaseSwapAdapter'
+import { isEvmChain } from 'pages/CrossChainSwap/adapters/types'
+import { CROSS_CHAIN_FEE_RECEIVER } from 'pages/CrossChainSwap/constants'
 import type { SolanaToken } from 'pages/CrossChainSwap/hooks/useSolanaTokens'
 import { Quote } from 'pages/CrossChainSwap/registry'
 import { isNativeToken, isWrappedToken } from 'pages/CrossChainSwap/utils'
-import { isEvmChain } from 'utils'
 
 const API_URL = 'https://app.across.to/api/suggested-fees'
 

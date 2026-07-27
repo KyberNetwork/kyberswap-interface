@@ -74,7 +74,8 @@ import {
   useUserFavoriteTokens,
 } from 'state/user/hooks'
 import { CloseIcon, MEDIA_WIDTHS } from 'theme'
-import { filterTruthy, isAddress } from 'utils'
+import { isAddress } from 'utils/address'
+import { filterTruthy } from 'utils/array'
 import { cn } from 'utils/cn'
 import { filterTokens } from 'utils/filtering'
 import { isTokenNative } from 'utils/tokenInfo'

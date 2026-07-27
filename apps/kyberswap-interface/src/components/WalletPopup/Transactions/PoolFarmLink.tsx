@@ -1,7 +1,7 @@
 import { DoubleCurrencyLogoV2 } from 'components/DoubleLogo'
 import SendIcon from 'components/Icons/SendIcon'
 import { getTokenLogo } from 'components/WalletPopup/Transactions/helper'
-import { APP_PATHS } from 'constants/index'
+import { LEGACY_POOL_APP_PATHS } from 'constants/legacyPools'
 import { TRANSACTION_TYPE, TransactionDetails, TransactionExtraInfo2Token } from 'state/transactions/type'
 import { ExternalLink } from 'theme'
 
@@ -27,9 +27,9 @@ const PoolFarmLink = ({ transaction }: { transaction: TransactionDetails }) => {
   const logoUrlOut = getTokenLogo(tokenAddressOut)
   return (
     <ExternalLink
-      href={`${window.location.origin}${isFarm ? APP_PATHS.FARMS : APP_PATHS.MY_POOLS}?search=${contract}&tab=${
-        isElastic ? 'elastic' : 'classic'
-      }`}
+      href={`${window.location.origin}${
+        isFarm ? LEGACY_POOL_APP_PATHS.FARMS : LEGACY_POOL_APP_PATHS.MY_POOLS
+      }?search=${contract}&tab=${isElastic ? 'elastic' : 'classic'}`}
     >
       <span className="flex items-center gap-1">
         <DoubleCurrencyLogoV2 style={{ marginRight: 12 }} logoUrl1={logoUrlIn} logoUrl2={logoUrlOut} size={16} />

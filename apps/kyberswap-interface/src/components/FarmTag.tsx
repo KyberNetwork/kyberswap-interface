@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom'
 
 import { MoneyBag } from 'components/Icons'
 import { MouseoverTooltip } from 'components/Tooltip'
-import { APP_PATHS } from 'constants/index'
+import { LEGACY_POOL_APP_PATHS } from 'constants/legacyPools'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { cn } from 'utils/cn'
@@ -43,7 +43,7 @@ export const FarmTag = ({
           <Trans>
             Participate in the Elastic farm to earn more rewards. Click{' '}
             <Link
-              to={`${APP_PATHS.FARMS}/${
+              to={`${LEGACY_POOL_APP_PATHS.FARMS}/${
                 NETWORKS_INFO[chainId || currentChainId].route
               }?tab=elastic&type=active&search=${address}`}
             >

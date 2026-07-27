@@ -17,10 +17,10 @@ import {
   TransactionExtraInfo2Token,
 } from 'state/transactions/type'
 import { ExternalLink, HideSmall } from 'theme'
-import { findTx, getEtherscanLink } from 'utils'
+import { getShortenAddress } from 'utils/address'
 import { cn } from 'utils/cn'
-import getShortenAddress from 'utils/getShortenAddress'
-import { getTransactionStatus } from 'utils/transaction'
+import { getEtherscanLink } from 'utils/explorer'
+import { findTx, getTransactionStatus } from 'utils/transaction'
 
 type SummaryFunction = (
   summary: TransactionDetails,
@@ -32,9 +32,11 @@ const summary1Token = (txs: TransactionDetails) => {
 }
 
 const summary2Token = (txs: TransactionDetails, withType = true) => {
-  const { tokenAmountIn, tokenSymbolIn, tokenAmountOut, tokenSymbolOut } = (txs.extraInfo ||
-    {}) as TransactionExtraInfo2Token
-  return `${withType ? txs.type : ''} ${tokenAmountIn} ${tokenSymbolIn} to ${tokenAmountOut} ${tokenSymbolOut}`
+  const { tokenAmountIn, tokenAmountInDisplay, tokenSymbolIn, tokenAmountOut, tokenAmountOutDisplay, tokenSymbolOut } =
+    (txs.extraInfo || {}) as TransactionExtraInfo2Token
+  return `${withType ? txs.type : ''} ${tokenAmountInDisplay || tokenAmountIn} ${tokenSymbolIn} to ${
+    tokenAmountOutDisplay || tokenAmountOut
+  } ${tokenSymbolOut}`
 }
 
 const summaryApprove = (txs: TransactionDetails) => {

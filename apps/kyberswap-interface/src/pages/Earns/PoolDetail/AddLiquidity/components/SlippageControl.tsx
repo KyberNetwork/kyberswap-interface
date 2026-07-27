@@ -7,7 +7,7 @@ import { ChevronDown } from 'react-feather'
 
 import { HStack, Stack } from 'components/Stack'
 import { TextHelper } from 'components/Text'
-import { MAX_DEGEN_SLIPPAGE_IN_BIPS, MAX_NORMAL_SLIPPAGE_IN_BIPS } from 'constants/index'
+import { MAX_DEGEN_SLIPPAGE_IN_BIPS, MAX_NORMAL_SLIPPAGE_IN_BIPS } from 'constants/trade'
 import useTheme from 'hooks/useTheme'
 import {
   formatPercent,

@@ -12,7 +12,7 @@ import CurrencyLogo from 'components/CurrencyLogo'
 import Divider from 'components/Divider'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
 import TransactionConfirmationModal, { TransactionErrorContent } from 'components/TransactionConfirmationModal'
-import { ELASTIC_BASE_FEE_UNIT } from 'constants/index'
+import { ELASTIC_BASE_FEE_UNIT } from 'constants/legacyPools'
 import { useActiveWeb3React } from 'hooks'
 import {
   Position,
@@ -27,9 +27,9 @@ import { Tab, TabContainer } from 'pages/ProAmmPool/PositionListItem'
 import { Bound } from 'state/mint/proamm/type'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { MEDIA_WIDTHS } from 'theme'
-import { shortenAddress } from 'utils'
+import { shortenAddress } from 'utils/address'
 import { formatTickPrice } from 'utils/formatTickPrice'
-import { formatDollarAmount } from 'utils/numbers'
+import { formatDisplayNumber } from 'utils/numbers'
 import { unwrappedToken } from 'utils/wrappedCurrency'
 
 export default function AllPositionLegacy({ positions }: { positions: SubgraphPosition[] }) {
@@ -170,7 +170,9 @@ const Row = memo(
                 <span>
                   <Trans>My Liquidity Balance</Trans>
                 </span>
-                <span className="font-medium text-text">{formatDollarAmount(usd)}</span>
+                <span className="font-medium text-text">
+                  {formatDisplayNumber(usd, { style: 'currency', significantDigits: 4 })}
+                </span>
               </div>
               <div className="mt-3 flex justify-between text-xs text-subText">
                 <span>

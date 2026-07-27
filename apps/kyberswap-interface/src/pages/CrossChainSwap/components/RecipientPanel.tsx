@@ -6,7 +6,7 @@ import { AddressInput } from 'components/AddressInputPanel'
 import { ButtonLight } from 'components/Button'
 import { AutoColumn } from 'components/Column'
 import { Chain, NonEvmChain } from 'pages/CrossChainSwap/adapters'
-import { isEvmChain } from 'utils'
+import { isEvmChain } from 'pages/CrossChainSwap/adapters/types'
 import { cn } from 'utils/cn'
 
 type RecipientPanelProps = {

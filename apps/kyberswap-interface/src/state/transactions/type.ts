@@ -23,6 +23,8 @@ export type TransactionExtraInfo2Token = {
   tokenSymbolOut: string
   tokenAmountIn: string
   tokenAmountOut: string
+  tokenAmountInDisplay?: string
+  tokenAmountOutDisplay?: string
 
   tokenLogoURLIn?: string
   tokenLogoURLOut?: string

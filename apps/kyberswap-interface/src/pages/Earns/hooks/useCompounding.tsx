@@ -2,6 +2,10 @@
 // enum, so taking it from the source keeps the exact same values without dragging the widget in with it.
 import { PoolType as CompoundingPoolType } from '@kyber/schema'
 import type { ChainId as CompoundingChainId, SupportedLocale } from '@kyberswap/compounding-widget'
+// Eager, not with the lazy JS below: the widget's status dialog is styled by utilities scoped under the
+// widget's own root class, which ship only in this stylesheet (the app's eager @kyber/ui styles use a
+// different scope and don't reach it). This widget's scope is its own, so nothing else supplies it.
+import '@kyberswap/compounding-widget/dist/style.css'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Suspense, lazy, useCallback, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
@@ -21,15 +25,11 @@ import { useKyberSwapConfig, useNotify, useWalletModalToggle } from 'state/appli
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 
-// The widget only renders inside the modal below, so keep it out of every /earn route chunk that calls this
-// hook and load it — with its stylesheet — when the modal actually mounts.
-const CompoundingWidget = lazy(async () => {
-  const [widget] = await Promise.all([
-    import('@kyberswap/compounding-widget'),
-    import('@kyberswap/compounding-widget/dist/style.css'),
-  ])
-  return { default: widget.CompoundingWidget }
-})
+// The widget only renders inside the modal below, so lazy-load its JS to keep it out of every /earn route
+// chunk that calls this hook.
+const CompoundingWidget = lazy(() =>
+  import('@kyberswap/compounding-widget').then(widget => ({ default: widget.CompoundingWidget })),
+)
 
 interface CompoundingPureParams {
   poolAddress: string

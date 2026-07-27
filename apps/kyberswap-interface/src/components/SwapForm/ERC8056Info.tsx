@@ -27,6 +27,8 @@ export const useERC8056SwapInfo = ({
   const displayBalanceOut = useERC8056DisplayBalance(outputInfo, balanceOut)
 
   return {
+    inputInfo,
+    outputInfo,
     input: {
       balanceText:
         displayBalanceIn && inputInfo.enabled && (inputInfo.isLoading || inputInfo.isScaled)

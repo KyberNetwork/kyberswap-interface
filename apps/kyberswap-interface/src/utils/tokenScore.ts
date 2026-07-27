@@ -1,5 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 
+export const TOKEN_SCORE_TTL = 86_400
+
 export type TokenScore = {
   score: string
   savedAt: number

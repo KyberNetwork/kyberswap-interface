@@ -1,9 +1,6 @@
-// import { isEvmChain } from 'utils'
-import {
-  // NearQuoteParams,
-  NormalizedQuote, // QuoteParams,
-  SwapProvider,
-} from './adapters'
+import { NormalizedQuote, SwapProvider } from './adapters'
+
+export const normalizeAdapterName = (name: string) => name.toLowerCase().replace(/\s+/g, '')
 
 export interface Quote {
   adapter: SwapProvider
@@ -14,16 +11,20 @@ export class CrossChainSwapAdapterRegistry {
   private adapters: Map<string, SwapProvider> = new Map()
 
   registerAdapter(adapter: SwapProvider): void {
-    this.adapters.set(adapter.getName().toLowerCase().replace(/\s+/g, ''), adapter)
+    this.adapters.set(normalizeAdapterName(adapter.getName()), adapter)
+
+    for (const alias of adapter.getAliases?.() ?? []) {
+      this.adapters.set(normalizeAdapterName(alias.name), adapter)
+    }
   }
 
   getAdapter(name?: string): SwapProvider | undefined {
     if (!name) return undefined
-    return this.adapters.get(name.toLowerCase().replace(/\s+/g, ''))
+    return this.adapters.get(normalizeAdapterName(name))
   }
 
   getAllAdapters(): SwapProvider[] {
-    return Array.from(this.adapters.values())
+    return Array.from(new Set(this.adapters.values()))
   }
 
   // get quotes from all adapters and sort them by output amount

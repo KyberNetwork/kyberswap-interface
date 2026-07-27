@@ -12,7 +12,7 @@ import { useNearIntentSelectedWallet } from 'pages/Campaign/hooks/useNearIntentS
 import { StatCard } from 'pages/Campaign/styles'
 import { BitcoinConnectModal } from 'pages/CrossChainSwap/components/BitcoinConnectModal'
 import { ButtonText, MEDIA_WIDTHS } from 'theme'
-import { shortenHash } from 'utils'
+import { shortenHash } from 'utils/address'
 import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
 

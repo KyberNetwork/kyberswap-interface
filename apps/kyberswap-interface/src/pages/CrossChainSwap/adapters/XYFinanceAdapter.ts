@@ -3,7 +3,8 @@ import { getPublicClient } from '@wagmi/core'
 import { WalletClient, formatUnits } from 'viem'
 
 import { wagmiConfig } from 'components/Web3Provider'
-import { CROSS_CHAIN_FEE_RECEIVER, ETHER_ADDRESS } from 'constants/index'
+import { ETHER_ADDRESS } from 'constants/index'
+import { CROSS_CHAIN_FEE_RECEIVER } from 'pages/CrossChainSwap/constants'
 
 import { Quote } from '../registry'
 import {
