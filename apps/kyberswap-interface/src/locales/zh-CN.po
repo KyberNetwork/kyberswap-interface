@@ -35,8 +35,8 @@ msgid "Please type the word <0>Confirm</0> below to enable Degen Mode"
 msgstr "请在下方输入“Confirm”以启用 \"高风险\" 模式"
 
 #: src/components/LimitOrder/ActionButtonLimitOrder.tsx
-msgid "You need to first allow KyberSwap smart contracts to use your {inSymbol}. This has to be done only once for each token."
-msgstr "您需要先允许 KyberSwap 的智能合约使用您的 {inSymbol}。每种代币只需进行一次授权。"
+#~ msgid "You need to first allow KyberSwap smart contracts to use your {inSymbol}. This has to be done only once for each token."
+#~ msgstr "您需要先允许 KyberSwap 的智能合约使用您的 {inSymbol}。每种代币只需进行一次授权。"
 
 #: src/pages/Campaign/components/CampaignStats/NearIntentCampaignStats.tsx
 #: src/pages/Campaign/components/MyDashboard/NearIntentDashboard.tsx
@@ -45,13 +45,17 @@ msgid "Disconnect"
 msgstr "断开连接"
 
 #: src/pages/CrossChainSwap/components/SwapAction.tsx
-msgid "Finding the best route..."
-msgstr "寻找最佳交易路线中…"
+#~ msgid "Finding the best route..."
+#~ msgstr "寻找最佳交易路线中…"
 
 #: src/components/Announcement/AnnouncementHeader.tsx
 #: src/components/Announcement/PrivateAnnoucement/index.tsx
 msgid "Earn Position"
 msgstr "收益仓位"
+
+#: src/components/LimitOrder/ProcessingOrder/ProcessingOrderModal.tsx
+msgid "Filling order"
+msgstr ""
 
 #: src/components/Announcement/PrivateAnnoucement/InboxItemSmartExit.tsx
 msgid "Received:"
@@ -70,7 +74,8 @@ msgstr "已更新"
 msgid "Position Status"
 msgstr "收益仓位"
 
-#: src/components/LimitOrder/const.ts
+#: src/components/LimitOrder/MyOrders/utils.ts
+#: src/components/LimitOrder/OrderList/index.tsx
 msgid "Open Orders"
 msgstr "未成交订单"
 
@@ -118,8 +123,8 @@ msgstr "导出的配置文件不会与您的钱包关联。您的导出码是唯
 
 #: src/components/LimitOrder/ListOrder/TableHeader.tsx
 #: src/components/LimitOrder/OrderBook/TableHeader.tsx
-msgid "RATE"
-msgstr "汇率"
+#~ msgid "RATE"
+#~ msgstr "汇率"
 
 #: src/pages/Campaign/components/Information/info/stipReferrals.tsx
 msgid "1. John refers Vitalik."
@@ -132,6 +137,10 @@ msgstr "已退款"
 #: src/constants/networks.ts
 msgid "Classic is not supported on Base. Please switch to other chains"
 msgstr "Base 不支持 Classic，请切换到其他链"
+
+#: src/components/LimitOrder/ProcessingOrder/ProcessingOrderModal.tsx
+msgid "Wrap {nativeSymbol}"
+msgstr ""
 
 #: src/pages/Earns/components/SmartExit/Warning.tsx
 msgid "Trigger time must be before the order expires. Adjust the time settings accordingly."
@@ -158,12 +167,17 @@ msgid "Eligible transaction hashes per wallet per week are capped at the first 5
 msgstr "每个钱包每周的合格交易哈希最多计入前 50 个。"
 
 #: src/components/Header/groups/EarnNavGroup.tsx
+#: src/pages/Earns/components/EarnSidebar/index.tsx
 #: src/pages/Earns/SmartExitOrders/index.tsx
 msgid "Smart Exit Orders"
 msgstr ""
 
-#: src/components/swapv2/TokenInfo/index.tsx
-#: src/components/swapv2/TokenInfoIcon.tsx
+#: src/components/DropdownMenu/MultiSelect.tsx
+msgid "Only"
+msgstr ""
+
+#: src/components/TokenInfo/index.tsx
+#: src/pages/Swap/layout/HeaderRightMenu.tsx
 msgid "Token Info"
 msgstr "代币信息"
 
@@ -192,6 +206,7 @@ msgstr "回到区间内"
 msgid "Farming rewards"
 msgstr "流动性挖矿奖励"
 
+#: src/components/TokenSelectorModal/TokenSelectorContent.tsx
 #: src/pages/Earns/PoolExplorer/MobileTableRow.tsx
 #: src/pages/Earns/PoolExplorer/TableHeader.tsx
 #: src/pages/Earns/UserPositions/MigrationModal.tsx
@@ -207,7 +222,7 @@ msgstr "成交量"
 msgid "Unclaimed Fee"
 msgstr ""
 
-#: src/components/Menu/index.tsx
+#: src/components/Menu/components/MainMenuSection.tsx
 msgid "Roadmap"
 msgstr "路线图"
 
@@ -230,8 +245,8 @@ msgstr ""
 
 #: src/components/LimitOrder/LimitOrderForm.tsx
 #: src/components/LimitOrder/Modals/ConfirmOrderModal.tsx
-msgid "Placing order"
-msgstr "正在下单"
+#~ msgid "Placing order"
+#~ msgstr "正在下单"
 
 #: src/components/WalletPopup/SendToken/index.tsx
 msgid "Loading token..."
@@ -240,6 +255,10 @@ msgstr "正在加载代币..."
 #: src/pages/Campaign/components/Information/index.tsx
 msgid "📄 Terms & Conditions"
 msgstr "📄 条款与细则"
+
+#: src/pages/Earns/components/PositionClaimModal/index.tsx
+msgid "These bonus rewards are funded & distributed by a third party via Merkl. Claiming is per wallet on this chain, not per position."
+msgstr ""
 
 #: src/components/SwapForm/index.tsx
 msgid "Our simulation detects that {0} token can not be sold immediately or has an extremely high sell fee after being bought, please check further before buying!"
@@ -336,6 +355,8 @@ msgstr "未找到仓位！"
 msgid "Elastic is not supported on Blast. Please switch to other chains"
 msgstr "Elastic 不支持 Blast 网络，请切换至其他链"
 
+#: src/components/LimitOrder/MyOrders/components.tsx
+#: src/pages/CrossChainSwap/components/TransactionHistory.tsx
 #: src/pages/KyberDAO/Vote/ProposalListComponent.tsx
 msgid "History"
 msgstr "历史"
@@ -360,16 +381,21 @@ msgstr ""
 msgid "My Farming Positions"
 msgstr "我的挖矿仓位"
 
+#: src/components/LimitOrder/ProcessingOrder/ProcessingOrderModal.tsx
+msgid "token"
+msgstr ""
+
 #: src/pages/Campaign/components/Information/info/stipAggregator.tsx
 #: src/pages/Campaign/components/Information/info/stipLimitOrder.tsx
 msgid "Ex: ARB <> USDC; ETH <> ARB; PENDLE <> ARB"
 msgstr "示例：ARB <> USDC；ETH <> ARB；PENDLE <> ARB"
 
 #: src/components/FeeControlGroup/index.tsx
-msgid "No hidden fees - Your optional tips support {clientName}!"
-msgstr "无隐藏费用——您的自愿打赏将支持 {clientName}！"
+#~ msgid "No hidden fees - Your optional tips support {clientName}!"
+#~ msgstr "无隐藏费用——您的自愿打赏将支持 {clientName}！"
 
-#: src/components/LimitOrder/Modals/CancelOrderModal.tsx
+#: src/components/LimitOrder/CancelOrder/CancelOrderModal.tsx
+#: src/components/LimitOrder/CancelOrder/CancelOrderModal.tsx
 msgid "Hard Cancel"
 msgstr "强制取消"
 
@@ -435,8 +461,9 @@ msgstr "领取燃气费返还没有期限。您可以等待累积更多 KNC 后�
 msgid "An error occurred. Invalid Permit Signature."
 msgstr "发生错误：许可签名无效"
 
+#: src/components/LimitOrder/CancelOrder/CancelOrderModal.tsx
+#: src/components/LimitOrder/Form/LimitOrderForm.tsx
 #: src/components/SwapForm/SwapActionButton/index.tsx
-#: src/components/LimitOrder/LimitOrderForm.tsx
 msgid "Switch to {0}"
 msgstr "切换至 {0}"
 
@@ -479,7 +506,7 @@ msgstr "忽略"
 msgid "<0>Third-party fee detected</0><1/>An additional fee appears to have been added by a browser extension or other third-party modification, not by KyberSwap. KyberSwap does not charge a flat fee for this trade by default. Please review your browser extensions before proceeding."
 msgstr ""
 
-#: src/components/swapv2/TokenInfo/SecurityInfo/Content.tsx
+#: src/components/TokenInfo/SecurityInfo/Content.tsx
 msgid "No"
 msgstr "否"
 
@@ -500,6 +527,7 @@ msgstr ""
 msgid "Sender:"
 msgstr "发送方："
 
+#: src/components/LimitOrder/components.tsx
 #: src/pages/Earns/components/SmartExit/Confirmation/Condition.tsx
 msgid "When"
 msgstr ""
@@ -512,7 +540,7 @@ msgstr "稳定交易对："
 msgid "USD stablecoins equivalent to 60% of the Reference Value of Lost Affected Assets contributed from such Affected Address, vested continuously on a linear basis over 3 months."
 msgstr "向该受影响地址发放相当于受影响资产参考价值 60% 的美元稳定币，并在 3 个月内按线性方式持续归属。"
 
-#: src/components/LimitOrder/ListOrder/SummaryNotify.tsx
+#: src/components/LimitOrder/MyOrders/SummaryNotify.tsx
 msgid "<0>{0} {makerAssetSymbol}</0> and receive <1>{1} {takerAssetSymbol}</1> <2>at {takerAssetSymbol} price of {rate} {makerAssetSymbol}</2>"
 msgstr "<0>{0} {makerAssetSymbol}</0> 并接收 <1>{1} {takerAssetSymbol}</1> <2>按 {rate} {makerAssetSymbol} 的 {takerAssetSymbol} 价格</2>"
 
@@ -546,7 +574,7 @@ msgstr ""
 msgid "There was an issue while confirming your price and minimum amount received. You may consider adjusting your <0>Max Slippage</0> and then trying to swap again."
 msgstr "在确认价格和最小接收金额时出现问题，可尝试调整 <0>最大滑点</0> 后重新兑换"
 
-#: src/components/swapv2/TokenInfo/utils.ts
+#: src/components/TokenInfo/utils.ts
 msgid "All-Time High"
 msgstr "历史最高价"
 
@@ -571,16 +599,20 @@ msgid "Join Now"
 msgstr "立即加入"
 
 #: src/hooks/kyberdao/index.tsx
-msgid "Unknown error"
-msgstr "未知错误"
+#~ msgid "Unknown error"
+#~ msgstr "未知错误"
 
 #: src/components/Header/web3/SignWallet/ConfirmModal.tsx
 #~ msgid "Switch Profile"
 #~ msgstr "切换配置文件"
 
+#: src/pages/Earns/Landing/index.tsx
+msgid "⚡ Highlighted Pools"
+msgstr ""
+
 #: src/components/LimitOrder/Modals/CancelStatusCountDown.tsx
-msgid "Canceling order"
-msgstr "取消订单中"
+#~ msgid "Canceling order"
+#~ msgstr "取消订单中"
 
 #: src/pages/NotificationCenter/Profile/index.tsx
 msgid "Keep this profile active whenever you switch wallets."
@@ -626,12 +658,16 @@ msgstr "领取后您将获得 100% 的手续费收益"
 msgid "Winner"
 msgstr ""
 
+#: src/components/LimitOrder/CreateOrder/CreateOrderConfirmModal.tsx
+msgid "Wrap & Place Order"
+msgstr ""
+
 #: src/pages/ElasticSnapshot/components/InstantClaim.tsx
 #: src/pages/ElasticSnapshot/components/SelectTreasuryGrant.tsx
 msgid "TOTAL AMOUNT (USD)"
 msgstr "总金额（美元）"
 
-#: src/components/LimitOrder/Modals/ConfirmOrderModal.tsx
+#: src/components/LimitOrder/CreateOrder/CreateOrderConfirmModal.tsx
 msgid "Review your order"
 msgstr "检查您的订单"
 
@@ -643,9 +679,9 @@ msgstr "我们发现同交易对的资金池提供额外奖励，迁移至 {sugg
 msgid "Joined"
 msgstr "已加入"
 
-#: src/components/swapv2/SwapSettingsPanel/DegenModeSetting.tsx
 #: src/components/TransactionSettings/index.tsx
 #: src/pages/Earns/PoolDetail/AddLiquidity/components/AddLiquiditySettings.tsx
+#: src/pages/Swap/components/SwapSettingsPanel/DegenModeSetting.tsx
 msgid "Degen Mode"
 msgstr "Degen 模式"
 
@@ -678,18 +714,30 @@ msgstr "该流动性仓位的所有者为 {0}"
 
 #: src/components/SwapForm/SlippageSettingGroup.tsx
 #: src/components/swapv2/GasTokenSetting.tsx
-msgid "Pay network fees in the token of your choice."
-msgstr "使用您选择的代币支付网络费用"
+#~ msgid "Pay network fees in the token of your choice."
+#~ msgstr "使用您选择的代币支付网络费用"
+
+#: src/pages/Earns/MyVaults/index.tsx
+msgid "Your Balance"
+msgstr ""
+
+#: src/components/TipLinkGeneratorModal/index.tsx
+msgid "Unsupported file"
+msgstr ""
 
 #: src/components/SwapForm/OutputCurrencyPanel.tsx
 msgid "This is the estimated output amount. It is inclusive of any applicable swap fees. Do review the actual output amount at the confirmation stage."
 msgstr "这是预估输出金额，已包含可能的兑换手续费，请在确认阶段核对实际数量"
 
-#: src/components/swapv2/SwapSettingsPanel/TransactionTimeLimitSetting.tsx
+#: src/components/LimitOrder/TakeOrder/TakeOrderConfirmModal.tsx
+msgid "You Receive"
+msgstr ""
+
+#: src/components/TransactionSettings/TransactionTimeLimitSetting.tsx
 msgid "mins"
 msgstr "分钟"
 
-#: src/components/Header/web3/WalletModal/index.tsx
+#: src/components/Header/web3/WalletModal/components.tsx
 msgid "KyberSwap‘s Terms of Use"
 msgstr "KyberSwap 使用条款"
 
@@ -702,8 +750,8 @@ msgid "Your wallet has been verified. Please select the grant option."
 msgstr "您的钱包已验证，请选择赠款选项。"
 
 #: src/pages/Earns/Landing/index.tsx
-msgid "My positions"
-msgstr "我的仓位"
+#~ msgid "My positions"
+#~ msgstr "我的仓位"
 
 #: src/components/CurrencyInputPanel/index.tsx
 msgid "The price of the pool is outside your selected price range and hence you can only deposit a single token. To see more options, update the price range."
@@ -724,7 +772,7 @@ msgstr "当前奖励基于您的当前排名。详情请查看“信息”页签
 msgid "Error occur, please try again"
 msgstr "发生错误，请重试"
 
-#: src/components/LimitOrder/Modals/CancelOrderModal.tsx
+#: src/components/LimitOrder/CancelOrder/CancelOrderModal.tsx
 msgid "Bulk Cancellation"
 msgstr "批量取消"
 
@@ -739,6 +787,10 @@ msgstr "仍然移除"
 #: src/components/ProAmm/ProAmmPooledTokens.tsx
 msgid "Your Liquidity"
 msgstr "您的流动性"
+
+#: src/components/RefreshLoading/index.tsx
+msgid "Click to refresh"
+msgstr ""
 
 #: src/pages/AddLiquidityV2/constants.ts
 #~ msgid "Suitable for low-risk appetite LPs for pairs with high price volatility. Anticipating price to fluctuate within ~100%. You can earn fees even if the price goes up by 50% or goes down by 50%."
@@ -755,8 +807,8 @@ msgid "Users can freely choose pairs and routes to optimize their points within 
 msgstr "用户可以在第 2 周 5 万美元的交易量上限内自由选择交易对和路径以优化积分。例如："
 
 #: src/pages/CrossChainSwap/components/QuoteSelector.tsx
-msgid "More options"
-msgstr "更多选项"
+#~ msgid "More options"
+#~ msgstr "更多选项"
 
 #: src/pages/Campaign/components/Information/info/stipAggregator.tsx
 #: src/pages/Campaign/components/Information/info/stipLimitOrder.tsx
@@ -830,8 +882,8 @@ msgstr "当仓位进出价格区间时通过 Telegram 通知我"
 
 #: src/components/LimitOrder/Modals/CancelOrderModal.tsx
 #: src/components/LimitOrder/Modals/ConfirmOrderModal.tsx
-msgid "and receive"
-msgstr "并接收"
+#~ msgid "and receive"
+#~ msgstr "并接收"
 
 #: src/pages/Earns/UserPositions/index.tsx
 msgid "Increase liquidity"
@@ -848,6 +900,10 @@ msgstr "您的手续费将自动复投以获得更多收益"
 
 #: src/pages/Campaign/components/Leaderboard/SafePalLeaderboard.tsx
 msgid "No participants found for this week."
+msgstr ""
+
+#: src/components/TokenSelectorModal/TabBar.tsx
+msgid "Trending"
 msgstr ""
 
 #: src/pages/Campaign/components/Information/info/stipAggregator.tsx
@@ -884,6 +940,10 @@ msgstr "最终奖励与预计奖励有何区别"
 msgid "ARB trading will give 10 Points per USD swapped. It can be paired with any eligible tokens from the list, except plsARB that falls in Category 3."
 msgstr "交易 ARB 每兑换 1 美元可获得 10 积分，可与列表中的任何合格代币配对，除第 3 类的 plsARB 外。"
 
+#: src/components/TipLinkGeneratorModal/index.tsx
+msgid "Image is too large"
+msgstr ""
+
 #: src/components/CurrencyInputPanel/index.tsx
 msgid "MAX"
 msgstr "最大"
@@ -913,7 +973,7 @@ msgstr "第 1 周：7 月 21 日 0:00 UTC - 7 月 27 日 23:59 UTC。"
 msgid "You are undelegating your voting from {delegatedAddress}."
 msgstr "您正在从 {delegatedAddress} 撤回投票委托"
 
-#: src/components/Menu/index.tsx
+#: src/components/Menu/components/MainMenuSection.tsx
 msgid "Terms"
 msgstr "条款"
 
@@ -925,7 +985,7 @@ msgstr "连接钱包以查找资金池"
 msgid "Why have I made a successful swap transaction, but it's not counted even after I successfully clicked \"Join Now\"?"
 msgstr "为什么我已完成成功的兑换交易，但即使成功点击了“Join Now”，也没有被计入？"
 
-#: src/components/swapv2/SwapSettingsPanel/CrossChainSourceSetting.tsx
+#: src/pages/Swap/components/SwapSettingsPanel/CrossChainSourceSetting.tsx
 msgid "Cross-Chain Routing Sources"
 msgstr "跨链路由来源"
 
@@ -934,12 +994,16 @@ msgid "If you miss the claiming deadline, your eligibility will expire and the r
 msgstr ""
 
 #: src/components/LimitOrder/Modals/CancelOrderModal.tsx
-msgid "Are you sure you want to cancel {0} limit orders?"
-msgstr "确认要取消 {0} 个限价单吗？"
+#~ msgid "Are you sure you want to cancel {0} limit orders?"
+#~ msgstr "确认要取消 {0} 个限价单吗？"
 
 #: src/components/SwapForm/SwapModal/SwapDetails/index.tsx
-msgid "Est. Paymaster Gas Fee"
-msgstr "预估 Paymaster Gas 费"
+#~ msgid "Est. Paymaster Gas Fee"
+#~ msgstr "预估 Paymaster Gas 费"
+
+#: src/hooks/useRestrictedTokens.ts
+msgid "Token not available"
+msgstr ""
 
 #: src/pages/Earns/PoolExplorer/MobileTableRow.tsx
 #: src/pages/Earns/PoolExplorer/TableHeader.tsx
@@ -971,7 +1035,7 @@ msgstr ""
 msgid "Position Out of range"
 msgstr ""
 
-#: src/pages/SwapV3/Components/SwapTradeRoute.tsx
+#: src/pages/Swap/components/SwapTradeRoute.tsx
 msgid "Learn more ↗"
 msgstr ""
 
@@ -980,7 +1044,7 @@ msgstr ""
 msgid "KyberSwap reserves the right to disqualify any address found to engage in manipulative or abusive behavior, including but not limited to wash trading, sybil attacks, flashloan-based volume inflation, just-in-time liquidity attack, and any other behavior deemed manipulative or abusive by KyberSwap."
 msgstr "KyberSwap 保留取消任何被发现从事操纵或滥用行为地址资格的权利，包括但不限于刷量交易、女巫攻击、基于闪电贷的成交量膨胀、即时流动性攻击以及 KyberSwap 认为操纵或滥用的其他行为。"
 
-#: src/components/swapv2/TokenInfo/MarketInfo.tsx
+#: src/components/TokenInfo/MarketInfo.tsx
 msgid "View more"
 msgstr "查看更多"
 
@@ -1009,7 +1073,7 @@ msgstr "按代币或池地址搜索"
 msgid "Loading ..."
 msgstr "加载中…"
 
-#: src/components/swapv2/TokenInfo/utils.ts
+#: src/components/TokenInfo/utils.ts
 msgid "All-Time Low"
 msgstr "历史最低价"
 
@@ -1030,12 +1094,20 @@ msgstr ""
 msgid "Transactions"
 msgstr "交易记录"
 
+#: src/pages/Earns/VaultDetail/index.tsx
+msgid "Withdraw flow coming soon."
+msgstr ""
+
 #: src/components/Announcement/PrivateAnnoucement/index.tsx
 #: src/components/ConfirmModal.tsx
 msgid "Notification"
 msgstr "通知"
 
-#: src/components/LimitOrder/DeltaRate.tsx
+#: src/components/LimitOrder/OrderBook/index.tsx
+msgid "BUYING"
+msgstr ""
+
+#: src/components/LimitOrder/Form/LimitOrderRateSection.tsx
 msgid "Your selected price is {styledPercent} better than the current market price."
 msgstr "您选择的价格比当前市场价好 {styledPercent}"
 
@@ -1045,7 +1117,7 @@ msgid "Pooled {0}"
 msgstr "已注入 {0}"
 
 #: src/components/Header/groups/SwapNavGroup.tsx
-#: src/pages/SwapV3/Tabs/index.tsx
+#: src/pages/Swap/layout/Tabs.tsx
 msgid "Cross-Chain"
 msgstr "跨链"
 
@@ -1057,11 +1129,18 @@ msgstr "本流程使用的所有数据（交易哈希和比特币区块哈希）
 msgid "Signing..."
 msgstr ""
 
+#: src/pages/Earns/ExploreVaults/index.tsx
+#: src/pages/Earns/Landing/FeaturedPartnerVaults/index.tsx
+#: src/pages/Earns/MyVaults/index.tsx
+#: src/pages/Earns/VaultDetail/index.tsx
+msgid "managed by"
+msgstr ""
+
 #: src/pages/Campaign/components/Information/info/mayTrading.tsx
 msgid "For $1 in trading volume, you earn 1 point"
 msgstr "每 1 美元的交易量可获得 1 积分"
 
-#: src/components/Menu/index.tsx
+#: src/components/Menu/components/MainMenuSection.tsx
 msgid "Bridge Assets"
 msgstr "跨链桥资产"
 
@@ -1074,7 +1153,7 @@ msgstr "管理您的资金池"
 msgid "MEV Protection"
 msgstr "MEV 保护"
 
-#: src/components/Menu/FaucetModal.tsx
+#: src/components/Menu/hooks/useFaucetReward.ts
 msgid "Request to Faucet - Submitted"
 msgstr "请求水龙头——已提交"
 
@@ -1086,14 +1165,19 @@ msgstr "奖励分配机制"
 msgid "Search wallet address"
 msgstr ""
 
-#: src/components/swapv2/TokenInfo/utils.ts
+#: src/components/TokenInfo/utils.ts
 #: src/pages/MarketOverview/DetailModal.tsx
 #: src/pages/MarketOverview/TableContent.tsx
 msgid "Market Cap"
 msgstr "市值"
 
 #: src/pages/Earns/components/ClaimAllModal/index.tsx
+#: src/pages/Earns/components/PositionClaimModal/index.tsx
 msgid "KS Rewards"
+msgstr ""
+
+#: src/pages/Earns/ExploreVaults/index.tsx
+msgid "List view"
 msgstr ""
 
 #: src/pages/NotificationCenter/Profile/ImportAccountModal/index.tsx
@@ -1108,7 +1192,7 @@ msgstr "您已成功导入该配置文件，并以访客账号登录"
 msgid "Automatically remove liquidity from this position when your pre-set rice, time, or fee yield condition(s)."
 msgstr ""
 
-#: src/components/LimitOrder/ListOrder/SummaryNotify.tsx
+#: src/components/LimitOrder/MyOrders/SummaryNotify.tsx
 msgid "Cancel order to pay {mainMsg} failed"
 msgstr "取消订单并支付 {mainMsg} 失败"
 
@@ -1117,7 +1201,7 @@ msgid "I understand"
 msgstr "我已了解"
 
 #: src/components/Header/groups/CampaignNavGroup.tsx
-#: src/components/Menu/index.tsx
+#: src/components/Menu/components/MainMenuSection.tsx
 #: src/pages/Campaign/MyDashboard.tsx
 msgid "May Trading"
 msgstr "五月交易"
@@ -1131,8 +1215,8 @@ msgid "Forgot your Passcode?"
 msgstr "忘记密码？"
 
 #: src/components/RefreshLoading/index.tsx
-msgid "Click to refresh, occur once per second."
-msgstr "点击刷新（每秒最多一次）"
+#~ msgid "Click to refresh, occur once per second."
+#~ msgstr "点击刷新（每秒最多一次）"
 
 #: src/components/SwapForm/SwapActionButton/SwapButtonWithPriceImpact.tsx
 msgid "There was an issue while trying to find a price for these tokens. Please try again. Otherwise, you may select some other tokens to swap."
@@ -1142,7 +1226,11 @@ msgstr "查找价格时出现问题，请重试或选择其他代币进行兑换
 msgid "Add a note"
 msgstr "添加备注"
 
-#: src/components/swapv2/TokenInfo/utils.ts
+#: src/components/LimitOrder/TakeOrder/RateComparison.tsx
+msgid "This order <0>(after fee)</0>"
+msgstr ""
+
+#: src/components/TokenInfo/utils.ts
 msgid "Trading Volume (24H)"
 msgstr "24 小时交易量"
 
@@ -1164,12 +1252,17 @@ msgstr "数量无效"
 #~ msgstr "选择您偏好的网络，KyberSwap 支持 13+ 条链"
 
 #: src/components/Header/groups/EarnNavGroup.tsx
+#: src/pages/Earns/components/EarnSidebar/index.tsx
 msgid "Overview"
 msgstr "概览"
 
 #: src/components/LimitOrder/ListOrder/OrderItem.tsx
-msgid "Insufficient {0} balance for order execution."
-msgstr "{0} 余额不足，无法执行订单"
+#~ msgid "Insufficient {0} balance for order execution."
+#~ msgstr "{0} 余额不足，无法执行订单"
+
+#: src/components/Header/web3/WalletModal/components.tsx
+msgid "{walletName} does not support {chainName} yet. Please switch chain or try a different wallet."
+msgstr ""
 
 #: src/pages/NotificationCenter/Profile/ImportAccountModal/UserEnterPasscodeContent.tsx
 msgid "Your QR code is invalid, please try another one"
@@ -1188,7 +1281,7 @@ msgstr "导入资金池"
 msgid "Due to a <0><1>potential issue</1></0> with our legacy Elastic protocol, we recommend that all liquidity providers withdraw their liquidity from Elastic Pools (Legacy). We have fixed all the issues and deployed the new and audited <2>{0}</2> where you can add liquidity normally instead."
 msgstr "由于旧版 Elastic 协议存在潜在问题，建议从旧池中移除流动性，并使用全新审计的 <2>{0}</2>"
 
-#: src/components/LimitOrder/ListLimitOrder/TabSelector.tsx
+#: src/components/LimitOrder/OrderList/index.tsx
 msgid "My Order(s)"
 msgstr "我的订单"
 
@@ -1201,8 +1294,8 @@ msgid "Maintenance"
 msgstr "维护中"
 
 #: src/pages/CrossChainSwap/components/BitcoinConnectModal.tsx
-msgid "Accept <0>KyberSwap‘s Terms of Use</0> and <1>Privacy Policy</1>. <2>Last updated: {0}</2>"
-msgstr "同意 <0>KyberSwap 使用条款</0> 与 <1>隐私政策</1> <2>最后更新：{0}</2>"
+#~ msgid "Accept <0>KyberSwap‘s Terms of Use</0> and <1>Privacy Policy</1>. <2>Last updated: {0}</2>"
+#~ msgstr "同意 <0>KyberSwap 使用条款</0> 与 <1>隐私政策</1> <2>最后更新：{0}</2>"
 
 #: src/pages/KyberDAO/Vote/ProposalItem/VoteInformation.tsx
 msgid "Voting System"
@@ -1226,12 +1319,16 @@ msgstr "我的资金池导航教程"
 msgid "The actual gas cost will be deducted from your outputs when the order executes."
 msgstr ""
 
-#: src/components/LimitOrder/ListOrder/SummaryNotify.tsx
+#: src/components/LimitOrder/MyOrders/SummaryNotify.tsx
 msgid "Your orders below have successfully cancelled:<0/>{listOrderName}"
 msgstr "以下订单已成功取消：<0/>{listOrderName}"
 
 #: src/pages/Campaign/components/Leaderboard/SafePalLeaderboard.tsx
 msgid "Join to start tracking - only joined wallets have transactions recorded."
+msgstr ""
+
+#: src/components/LimitOrder/ProcessingOrder/ProcessingOrderModal.tsx
+msgid "My Orders"
 msgstr ""
 
 #: src/pages/About/AboutKyberSwap/index.tsx
@@ -1254,7 +1351,7 @@ msgstr ""
 msgid "Choose Pool Pair"
 msgstr "选择池交易对"
 
-#: src/components/LimitOrder/ExpirePicker.tsx
+#: src/components/DateTimePicker/index.tsx
 msgid "Hour"
 msgstr "小时"
 
@@ -1280,6 +1377,10 @@ msgstr "市值"
 msgid "Are you sure?"
 msgstr "确认？"
 
+#: src/components/LimitOrder/ProcessingOrder/ProcessingOrderModal.tsx
+msgid "Retry"
+msgstr ""
+
 #: src/utils/time.ts
 msgid "{hour} {temp} ago"
 msgstr "{hour} {temp} 前"
@@ -1291,6 +1392,11 @@ msgstr "收起"
 #: src/pages/Campaign/components/Information/info/mayTrading.tsx
 msgid "How are points calculated?"
 msgstr "积分如何计算？"
+
+#: src/components/DateTimePicker/index.tsx
+#: src/components/LimitOrder/Form/LimitOrderExpirySection.tsx
+msgid "1 Day"
+msgstr ""
 
 #: src/pages/CrossChainSwap/components/SwapAction.tsx
 #: src/pages/Earns/components/SmartExit/Confirmation/index.tsx
@@ -1314,9 +1420,9 @@ msgstr "流动性"
 msgid "APR"
 msgstr "年化收益率"
 
-#: src/pages/Earns/components/PoolAprInfo.tsx
-#~ msgid "Total"
-#~ msgstr ""
+#: src/components/LimitOrder/OrderBook/TableHeader.tsx
+msgid "Total"
+msgstr ""
 
 #: src/pages/Campaign/components/Information/info/mayTrading.tsx
 msgid "Example: You trade $100 of AIXBT for USDC. If you receive $99 worth of USDC, then your trade volume is counted as $99 ~ 99 points."
@@ -1330,7 +1436,7 @@ msgstr "如何使用已质押的 KNC 参与 KIP 投票并赚取奖励？"
 msgid "Within 48 hours after each week ends, KyberSwap will publish the claim portal links on KyberSwap's <0>X</0>, <1>Telegram</1>, and <2>Discord</2> for both the top 667 and FCFS participants. Participants should turn on notifications for these channels to receive the latest updates."
 msgstr ""
 
-#: src/components/Menu/index.tsx
+#: src/components/Menu/components/MainMenuSection.tsx
 #: src/pages/About/AboutKNC.tsx
 #: src/pages/About/AboutKyberSwap/index.tsx
 #: src/pages/KyberDAO/Vote/ProposalListComponent.tsx
@@ -1354,6 +1460,7 @@ msgstr "KNC 奖励将于 6 月 9 日 00:00 UTC 起可在“我的仪表板”页
 msgid "How do I claim my SafePal X1 Hardware Wallet?"
 msgstr ""
 
+#: src/pages/CrossChainSwap/components/TransactionHistory.tsx
 #: src/pages/Earns/UserPositions/index.tsx
 msgid "Actions"
 msgstr "操作"
@@ -1402,6 +1509,10 @@ msgstr "确认"
 msgid "Fee Earn"
 msgstr ""
 
+#: src/components/LimitOrder/TakeOrder/useTakeOrderValidation.tsx
+msgid "Exceeds available"
+msgstr ""
+
 #: src/pages/Campaign/MyDashboard.tsx
 msgid "Total Claim-able rewards"
 msgstr "可领取奖励总额"
@@ -1428,6 +1539,10 @@ msgstr ""
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 msgid "Approved"
 msgstr "已批准"
+
+#: src/components/LimitOrder/TakeOrder/useTakeLimitOrder.ts
+msgid "Fill Order Error"
+msgstr ""
 
 #: src/pages/KyberDAO/Vote/ClaimConfirmModal.tsx
 msgid "If your wallet is eligible, you will be able to claim your reward below:"
@@ -1479,7 +1594,7 @@ msgid "Choose to create pool on"
 msgstr "选择在哪条链创建池"
 
 #: src/components/Header/groups/CampaignNavGroup.tsx
-#: src/components/Menu/index.tsx
+#: src/components/Menu/components/MainMenuSection.tsx
 msgid "Cross Chain Campaign"
 msgstr "跨链活动"
 
@@ -1498,8 +1613,8 @@ msgid "These Terms and Conditions <0>(\"Terms\")</0> should be read in conjuncti
 msgstr "这些条款与细则 <0>(“条款”)</0> 应与 KyberSwap 使用条款一并阅读，后者规定了适用于所有 KyberSwap 推广活动（“活动”）的条款与条件。"
 
 #: src/components/LimitOrder/useWarningCreateOrder.tsx
-msgid "Your current allowance is insufficient. Approve an additional {0} {1} to proceed."
-msgstr "当前授权额度不足，请额外授权 {0} {1}"
+#~ msgid "Your current allowance is insufficient. Approve an additional {0} {1} to proceed."
+#~ msgstr "当前授权额度不足，请额外授权 {0} {1}"
 
 #: src/pages/AddLiquidityV2/constants.ts
 #~ msgid "Full Range"
@@ -1509,6 +1624,10 @@ msgstr "当前授权额度不足，请额外授权 {0} {1}"
 #: src/pages/Campaign/components/Information/info/stipLimitOrder.tsx
 msgid "What are points and how do I convert it to ARB rewards?"
 msgstr "什么是积分？我该如何将其兑换为 ARB 奖励？"
+
+#: src/pages/Earns/ExploreVaults/index.tsx
+msgid "Sort by:"
+msgstr ""
 
 #: src/pages/Campaign/components/JoinReferral.tsx
 msgid "By signing this message, you confirm your participation in the KyberSwap Referral Program. This action does not trigger any transaction and does not incur any gas fees."
@@ -1526,9 +1645,13 @@ msgstr "低于"
 msgid "Smart Exit expired"
 msgstr ""
 
-#: src/components/swapv2/TokenInfo/utils.ts
+#: src/components/TokenInfo/utils.ts
 msgid "Gas Abuser"
 msgstr "Gas 滥用"
+
+#: src/pages/Earns/ExploreVaults/index.tsx
+msgid "No vaults found"
+msgstr ""
 
 #: src/pages/Campaign/components/Information/info/nearIntents.tsx
 msgid "Each user’s eligible trading volume is capped at $100,000 per week in Week 1 and <0>$50,000 per week in Week 2</0>"
@@ -1547,11 +1670,16 @@ msgstr ""
 msgid "You are <0>not eligible</0> for this campaign"
 msgstr "您<0>不符合</0>本次活动资格"
 
+#: src/pages/Earns/MyVaults/index.tsx
+msgid "Timestamp"
+msgstr ""
+
 #: src/components/Header/groups/AboutNavGroup.tsx
 msgid "KyberSwap"
 msgstr "KyberSwap"
 
 #: src/components/FeeControlGroup/CustomFeeInput.tsx
+#: src/components/LimitOrder/Form/LimitOrderRateSection.tsx
 #: src/components/SlippageControl/CustomSlippageInput.tsx
 #: src/pages/Earns/components/SmartExit/GasSetting.tsx
 msgid "Custom"
@@ -1579,8 +1707,8 @@ msgid "Routed via"
 msgstr ""
 
 #: src/components/LimitOrder/const.ts
-msgid "Partially Filled Orders"
-msgstr "部分成交订单"
+#~ msgid "Partially Filled Orders"
+#~ msgstr "部分成交订单"
 
 #: src/pages/KyberDAO/KNCUtility/EligibleTxModal.tsx
 msgid "GAS FEE"
@@ -1597,8 +1725,8 @@ msgid "Vote on current epoch proposals to get your full reward."
 msgstr "对当前 Epoch 提案投票以获得完整奖励"
 
 #: src/components/LimitOrder/ListOrder/TableHeader.tsx
-msgid "CREATED | EXPIRY"
-msgstr "创建 | 到期"
+#~ msgid "CREATED | EXPIRY"
+#~ msgstr "创建 | 到期"
 
 #: src/pages/Earns/components/AprDetailTooltip.tsx
 #: src/pages/Earns/components/PoolAprBadges.tsx
@@ -1615,7 +1743,15 @@ msgstr "投票结束于："
 msgid "KNC Staked"
 msgstr "已质押 KNC"
 
-#: src/components/LimitOrder/Modals/CancelOrderModal.tsx
+#: src/pages/Earns/ExploreVaults/index.tsx
+msgid "Explore"
+msgstr ""
+
+#: src/hooks/useRestrictedTokens.ts
+msgid "This token"
+msgstr ""
+
+#: src/components/LimitOrder/CancelOrder/CancelOrderModal.tsx
 msgid "Hard Cancel All Orders"
 msgstr "强制取消所有订单"
 
@@ -1624,20 +1760,24 @@ msgid "🏆 Prize: {0} KNC"
 msgstr "🏆 奖励：{0} KNC"
 
 #: src/components/SwapForm/hooks/useGetInputError.tsx
-#: src/components/LimitOrder/useValidateInputError.tsx
 msgid "Insufficient {symbol} balance"
 msgstr "{symbol} 余额不足"
+
+#: src/components/LimitOrder/ProcessingOrder/ProcessingOrderModal.tsx
+msgid "Order successfully listed"
+msgstr ""
 
 #: src/pages/Campaign/components/ClaimButton.tsx
 #: src/pages/Campaign/components/ClaimButton.tsx
 msgid "Claim failed"
 msgstr "领取失败"
 
-#: src/components/swapv2/TokenInfo/utils.ts
+#: src/components/TokenInfo/utils.ts
 msgid "Can Change Balance"
 msgstr "可更改余额"
 
 #: src/pages/Earns/components/ClaimAllModal/index.tsx
+#: src/pages/Earns/components/PositionClaimModal/index.tsx
 msgid "Syncing your last claim with Merkl — please wait a moment."
 msgstr ""
 
@@ -1649,12 +1789,16 @@ msgstr "预估输出"
 msgid "Claim your rewards"
 msgstr "领取奖励"
 
+#: src/components/LimitOrder/components.tsx
+msgid "Before the order expires on"
+msgstr ""
+
 #: src/pages/Earns/components/AprDetailTooltip.tsx
 #: src/pages/Earns/UserPositions/PositionRowItem.tsx
 msgid "Merkl Bonus"
 msgstr ""
 
-#: src/components/LimitOrder/ListOrder/SummaryNotify.tsx
+#: src/components/LimitOrder/MyOrders/SummaryNotify.tsx
 msgid "You have successfully cancelled an order to pay {mainMsg}{filledComponent}"
 msgstr "您已成功取消支付 {mainMsg}{filledComponent} 的订单"
 
@@ -1663,7 +1807,7 @@ msgstr "您已成功取消支付 {mainMsg}{filledComponent} 的订单"
 msgid "No liquidity found. Check out our <0>Pools.</0>"
 msgstr "未找到流动性，查看 <0>资金池</0>"
 
-#: src/components/Menu/index.tsx
+#: src/components/Menu/components/PreferencesSection.tsx
 msgid "KyberSwap Guide"
 msgstr "KyberSwap 指南"
 
@@ -1672,8 +1816,8 @@ msgid "Total Amount (USDC)"
 msgstr "总金额（USDC）"
 
 #: src/components/LimitOrder/ListOrder/OrderItem.tsx
-msgid "Once you add {0}, the order will be executed at <0>{1}%</0> below the market price."
-msgstr "添加 {0} 后，订单将以低于市价 <0>{1}%</0> 执行"
+#~ msgid "Once you add {0}, the order will be executed at <0>{1}%</0> below the market price."
+#~ msgstr "添加 {0} 后，订单将以低于市价 <0>{1}%</0> 执行"
 
 #: src/pages/Campaign/components/Information/info/stipReferrals.tsx
 msgid "<0>Note</0>: The referral bonus applies only on trades made on KyberSwap.com within the Aggregator Trading Campaign."
@@ -1682,6 +1826,10 @@ msgstr "<0>注意</0>：推荐奖金仅适用于聚合器交易活动期间在 K
 #: src/pages/CrossChainSwap/components/Summary.tsx
 msgid "You will receive at least this amount or your transaction will revert."
 msgstr "您至少会收到该金额，否则交易将回退"
+
+#: src/components/Header/web3/WalletModal/index.tsx
+msgid "Open MetaMask"
+msgstr ""
 
 #: src/pages/NotificationCenter/Profile/index.tsx
 msgid "Profile updated failed"
@@ -1705,7 +1853,7 @@ msgstr "需先给予 KyberSwap 合约 24 小时临时授权以使用您的 {0}�
 msgid "To learn more about how to increase liquidity to KyberSwap Elastic, view <0> here</0>"
 msgstr "了解如何增加 KyberSwap Elastic 流动性 <0>点击这里</0>"
 
-#: src/components/LimitOrder/Modals/CancelButtons.tsx
+#: src/components/LimitOrder/CancelOrder/CancelButtons.tsx
 msgid "This chain is not supported gasless cancel. It's coming soon."
 msgstr "该链暂不支持免 Gas 取消，敬请期待"
 
@@ -1730,8 +1878,8 @@ msgstr "连接钱包以查看通知"
 #~ msgstr "{0} 跳过"
 
 #: src/components/LimitOrder/Modals/CancelOrderModal.tsx
-msgid "Note: Your currently existing order is {percent}% filled"
-msgstr "注意：当前订单已成交 {percent}%"
+#~ msgid "Note: Your currently existing order is {percent}% filled"
+#~ msgstr "注意：当前订单已成交 {percent}%"
 
 #: src/pages/Earns/PositionDetail/RewardSection.tsx
 #: src/pages/Earns/UserPositions/PositionBanner.tsx
@@ -1740,13 +1888,18 @@ msgstr "注意：当前订单已成交 {percent}%"
 msgid "In-Progress"
 msgstr "进行中"
 
-#: src/components/LimitOrder/ListLimitOrder/TabSelector.tsx
+#: src/components/LimitOrder/OrderList/index.tsx
 msgid "Open Limit Orders"
 msgstr "开放的限价单"
 
+#: src/components/LimitOrder/components.tsx
+#: src/components/LimitOrder/Form/LimitOrderForm.tsx
+msgid "Market Price"
+msgstr ""
+
 #: src/components/LimitOrder/ListOrder/index.tsx
-msgid "Search by token symbol or token address"
-msgstr "按代币符号或地址搜索"
+#~ msgid "Search by token symbol or token address"
+#~ msgstr "按代币符号或地址搜索"
 
 #: src/components/SwapForm/SwapModal/SwapDetails/index.tsx
 #: src/components/SwapForm/TradeSummary.tsx
@@ -1760,6 +1913,14 @@ msgstr "您的投票权"
 #: src/pages/Campaign/components/Information/info/nearIntents.tsx
 msgid "EVM ← Near L1"
 msgstr "EVM ← Near L1"
+
+#: src/pages/Earns/components/EarnSidebar/index.tsx
+msgid "Open Earn menu"
+msgstr ""
+
+#: src/components/LimitOrder/CreateOrder/useWarningCreateOrder.tsx
+msgid "Token in and token out must be different."
+msgstr ""
 
 #: src/pages/Campaign/components/Information/info/nearIntents.tsx
 msgid "Any Other Pairs:"
@@ -1822,7 +1983,7 @@ msgstr "生成推荐链接"
 msgid "(ii) holds a licence issued by MAS for the provision of, or is authorised by MAS to provide, any service relating to tokens (whether digital payment tokens under the Payment Services Act of Singapore or digital tokens under the Financial Markets Services Act of Singapore)."
 msgstr "（ii）持有或获 MAS 授权提供代币相关服务"
 
-#: src/components/LimitOrder/DeltaRate.tsx
+#: src/components/LimitOrder/Form/LimitOrderRateSection.tsx
 msgid "Sell {symbol} at rate"
 msgstr "按汇率卖出 {symbol}"
 
@@ -1836,8 +1997,8 @@ msgid "voting power"
 msgstr "投票权"
 
 #: src/components/TokenSelectorModal/TokenSelectorContent.tsx
-msgid "You can search and select <0>any token</0> on KyberSwap."
-msgstr "您可以在 KyberSwap 搜索并选择 <0>任意代币</0>"
+#~ msgid "You can search and select <0>any token</0> on KyberSwap."
+#~ msgstr "您可以在 KyberSwap 搜索并选择 <0>任意代币</0>"
 
 #: src/components/Announcement/PrivateAnnoucement/InboxItemLimitOrder.tsx
 #: src/components/Announcement/PrivateAnnoucement/InboxItemLimitOrder.tsx
@@ -1863,8 +2024,8 @@ msgid "Total Balance"
 msgstr "总余额"
 
 #: src/components/LimitOrder/useValidateInputError.tsx
-msgid "Your output amount is invalid."
-msgstr "输出金额无效"
+#~ msgid "Your output amount is invalid."
+#~ msgstr "输出金额无效"
 
 #: src/pages/Earns/UserPositions/index.tsx
 msgid "<0>Unclaimed</0><1>rewards</1>"
@@ -1882,9 +2043,13 @@ msgstr "活跃提醒"
 #~ msgid "Join Campaign"
 #~ msgstr "加入活动"
 
-#: src/components/swapv2/SwapSettingsPanel/CrossChainSourceSetting.tsx
+#: src/pages/Swap/components/SwapSettingsPanel/CrossChainSourceSetting.tsx
 msgid "Your trade is routed through one of these cross-chain sources."
 msgstr "您的交易通过以下跨链来源之一进行路由"
+
+#: src/pages/Earns/components/EarnSidebar/index.tsx
+msgid "Toggle sidebar"
+msgstr ""
 
 #: src/pages/Earns/components/ClaimModal/index.tsx
 #: src/pages/Earns/UserPositions/DropdownAction.tsx
@@ -1936,16 +2101,16 @@ msgstr "前往我的资金池"
 #~ msgid "Max:"
 #~ msgstr "最大值："
 
-#: src/components/LimitOrder/TradePrice.tsx
+#: src/components/LimitOrder/Form/MarketPrice.tsx
 msgid "Unable to get the market price"
 msgstr "无法获取市场价格"
 
-#: src/pages/SwapV3/Components/SwapTradeRoute.tsx
+#: src/pages/Swap/components/SwapTradeRoute.tsx
 msgid "At execution, KyberSwap compares candidate pools on-chain in real time and picks the one that delivers the highest output - giving your swap the best possible rate with an extra layer of protection from slippage, PropAMM manipulation, Just-in-Time attacks and MEVs. <0>Your minimum amount out is always guaranteed.</0> No extra steps needed."
 msgstr ""
 
+#: src/components/Menu/components/MainMenuSection.tsx
 #: src/components/Menu/FaucetModal.tsx
-#: src/components/Menu/index.tsx
 msgid "Faucet"
 msgstr "水龙头"
 
@@ -1954,7 +2119,11 @@ msgstr "水龙头"
 msgid "How to calculate the Estimated Rewards"
 msgstr "如何计算预计奖励"
 
-#: src/components/swapv2/TokenInfo/utils.ts
+#: src/components/LimitOrder/CancelOrder/CancelOrderModal.tsx
+msgid "Cancel All Orders"
+msgstr ""
+
+#: src/components/TokenInfo/utils.ts
 msgid "Whitelisted Function"
 msgstr "白名单功能"
 
@@ -1968,9 +2137,9 @@ msgstr "协议手续费："
 msgid "Swap Disabled"
 msgstr "已禁用兑换"
 
-#: src/components/swapv2/SwapSettingsPanel/DegenModeSetting.tsx
 #: src/components/TransactionSettings/AdvanceModeModal.tsx
 #: src/pages/Earns/PoolDetail/AddLiquidity/components/AddLiquiditySettings.tsx
+#: src/pages/Swap/components/SwapSettingsPanel/DegenModeSetting.tsx
 msgid "Turn this on to make trades with very high price impact or to set very high slippage tolerance. This can result in bad rates and loss of funds. Be cautious."
 msgstr "开启后可进行高价格影响或高滑点交易，风险自负"
 
@@ -1992,6 +2161,7 @@ msgstr ""
 msgid "Pool Analytics ↗"
 msgstr "资金池分析 ↗"
 
+#: src/components/Menu/hooks/useClaimReward.ts
 #: src/hooks/kyberdao/index.tsx
 #: src/hooks/kyberdao/index.tsx
 #: src/hooks/kyberdao/index.tsx
@@ -2007,11 +2177,17 @@ msgid "Some topics that you need to be whitelist to subscribe"
 msgstr "部分主题需加入白名单才能订阅"
 
 #: src/components/CurrencyInputPanel/index.tsx
+#: src/components/LimitOrder/TakeOrder/TakeOrderConfirmModal.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 #: src/pages/RemoveLiquidityProAmm/index.tsx
 msgid "Max"
 msgstr "最大"
+
+#: src/pages/Earns/VaultDetail/index.tsx
+#: src/pages/Earns/VaultDetail/index.tsx
+msgid "Go back"
+msgstr ""
 
 #: src/pages/Campaign/components/Information/info/mayTrading.tsx
 msgid "Only trading volume executed on <0>kyberswap.com/swap/base</0> is counted."
@@ -2035,6 +2211,10 @@ msgstr "我的资金池份额："
 msgid "Smart Exit canceled: position liquidity is different than the signed amount."
 msgstr ""
 
+#: src/components/TokenSelectorModal/OtherChainTokens.tsx
+msgid "Available on other chains"
+msgstr ""
+
 #: src/pages/KyberDAO/StakeKNC/DelegateConfirmModal.tsx
 msgid "You are undelegating your voting power from this address"
 msgstr "您正在从该地址撤销投票委托"
@@ -2047,7 +2227,7 @@ msgstr "本次活动每周分配 <0>9,000 ARB</0>。"
 msgid "Estimated network fee for your transaction."
 msgstr "本次交易的预估网络手续费"
 
-#: src/pages/SwapV3/Components/TokenPriceChart.tsx
+#: src/components/TokenPriceChart/index.tsx
 msgid "Limited on-chain activity in the past 24h - price may not reflect tradable rates"
 msgstr ""
 
@@ -2056,21 +2236,26 @@ msgid "Yes. We only count the first 50 eligible hashes per wallet."
 msgstr "是的。每个钱包只计算前 50 个合格哈希。"
 
 #: src/components/LimitOrder/Modals/styled.tsx
-msgid "Est. Market Price"
-msgstr "预估市场价"
+#~ msgid "Est. Market Price"
+#~ msgstr "预估市场价"
 
 #: src/pages/RemoveLiquidityProAmm/index.tsx
 #: src/pages/RemoveLiquidityProAmm/index.tsx
 msgid "<0>Slippage</0><1>is high. Your transaction may be front-run</1>"
 msgstr "<0>滑点</0><1>过高，交易可能被抢跑</1>"
 
-#: src/components/LimitOrder/const.ts
+#: src/components/LimitOrder/MyOrders/utils.ts
 msgid "Cancelled Orders"
 msgstr "已取消订单"
 
 #: src/pages/Earns/components/RewardsFilterSetting.tsx
 msgid "Only position with rewards above this estimated value will be included in the claim. Others will remain unclaimed."
 msgstr "仅奖励高于该预估值的仓位将被领取"
+
+#: src/components/LimitOrder/MyOrders/TableHeader.tsx
+#: src/components/LimitOrder/OrderBook/TableHeader.tsx
+msgid "Size"
+msgstr ""
 
 #: src/components/NetworkSelector.tsx
 msgid "Choose a chain"
@@ -2091,17 +2276,19 @@ msgid "The Campaign will run from <0>8th July 2024 at 0:00 UTC to 15th September
 msgstr "本次活动将于 <0>2024 年 7 月 8 日 0:00 UTC 至 2024 年 9 月 15 日 23:59 UTC</0> 期间进行。KyberSwap 保留在给予合理通知的情况下调整活动开始和结束日期的权利。"
 
 #: src/pages/Earns/Landing/index.tsx
-msgid "Staking/Compounding Strategies"
-msgstr "质押/复投策略"
+#~ msgid "Staking/Compounding Strategies"
+#~ msgstr "质押/复投策略"
 
 #: src/pages/Campaign/components/Information/info/mayTrading.tsx
 msgid "Rewards are distributed based on the points leaderboard - the more points you earn, the higher your rank and the bigger your reward."
 msgstr "奖励将根据积分排行榜发放——积分越多，排名越高，奖励也越丰厚。"
 
+#: src/components/LimitOrder/TakeOrder/TakeOrderActionButtons.tsx
 #: src/pages/Campaign/components/CampaignStats/NearIntentCampaignStats.tsx
 #: src/pages/Campaign/components/MyDashboard/NearIntentDashboard.tsx
 #: src/pages/Campaign/MyDashboard.tsx
 #: src/pages/CrossChainSwap/components/SwapAction.tsx
+#: src/pages/Earns/MyVaults/index.tsx
 #: src/pages/Earns/UserPositions/TableContent.tsx
 msgid "Connect Wallet"
 msgstr "连接钱包"
@@ -2115,8 +2302,8 @@ msgid "Exit this position"
 msgstr ""
 
 #: src/components/SwapForm/SlippageSettingGroup.tsx
-msgid "Gas Token"
-msgstr "Gas 代币"
+#~ msgid "Gas Token"
+#~ msgstr "Gas 代币"
 
 #: src/pages/Campaign/components/Information/info/nearIntents.tsx
 msgid "Bitcoin L1 ↔ Solana L1"
@@ -2169,8 +2356,7 @@ msgid "What are the different categories and how does it work?"
 msgstr "有哪些不同的类别？它们如何运作？"
 
 #: src/components/SwapForm/SwapActionButton/SwapButtonWithPriceImpact.tsx
-#: src/components/LimitOrder/TradePrice.tsx
-#: src/components/swapv2/TradePrice.tsx
+#: src/components/TradePrice.tsx
 msgid "Calculating"
 msgstr "计算中"
 
@@ -2178,7 +2364,7 @@ msgstr "计算中"
 msgid "Removing a Smart Exit"
 msgstr ""
 
-#: src/components/LimitOrder/DeltaRate.tsx
+#: src/components/LimitOrder/Form/LimitOrderRateSection.tsx
 msgid "Your selected price is {styledPercent} worse than the current market price."
 msgstr "您选择的价格比当前市场价差 {styledPercent}"
 
@@ -2198,7 +2384,7 @@ msgstr "质押 KNC 仅支持以太坊"
 msgid "This Website and its contents have not been reviewed by the Monetary Authority of Singapore (\"MAS\")."
 msgstr "本网站未经过新加坡金管局审核"
 
-#: src/components/swapv2/SwapSettingsPanel/TransactionTimeLimitSetting.tsx
+#: src/components/TransactionSettings/TransactionTimeLimitSetting.tsx
 msgid "Transaction will revert if it is pending for longer than the indicated time."
 msgstr "交易若超时将自动回退"
 
@@ -2243,6 +2429,10 @@ msgstr "当前价格"
 msgid "Unsupported by your wallet."
 msgstr "钱包不支持"
 
+#: src/pages/Earns/ExploreVaults/index.tsx
+msgid "Try adjusting your filters or search keyword."
+msgstr ""
+
 #: src/components/Tutorial/TutorialSwap/index.tsx
 #~ msgid "Maybe later"
 #~ msgstr "稍后再说"
@@ -2251,11 +2441,12 @@ msgstr "钱包不支持"
 msgid "Confirmation"
 msgstr ""
 
-#: src/components/swapv2/SwapSettingsPanel/index.tsx
+#: src/pages/Swap/components/SwapSettingsPanel/index.tsx
 msgid "Display Settings"
 msgstr "显示设置"
 
 #: src/pages/Earns/components/ClaimAllModal/index.tsx
+#: src/pages/Earns/components/PositionClaimModal/index.tsx
 #: src/pages/ElasticSnapshot/components/InstantClaimModal.tsx
 #: src/pages/ElasticSnapshot/components/VestingClaimModal.tsx
 msgid "You are currently claiming"
@@ -2269,7 +2460,7 @@ msgstr "重新考虑"
 msgid "Multichain team ceased operations, and we discourage user interaction with the deployed Wrapped KNC token contracts on various chains. See more <0>here</0>"
 msgstr "Multichain 团队已停止运营，请避免与 Wrapped KNC 合约交互 <0>了解更多</0>"
 
-#: src/components/LimitOrder/ListOrder/index.tsx
+#: src/components/LimitOrder/MyOrders/components.tsx
 msgid "No orders found."
 msgstr "未找到订单"
 
@@ -2277,7 +2468,7 @@ msgstr "未找到订单"
 #~ msgid "Expert"
 #~ msgstr "专家模式"
 
-#: src/components/LimitOrder/Modals/CancelButtons.tsx
+#: src/components/LimitOrder/CancelOrder/CancelOrderModal.tsx
 msgid "Hard Cancel Instead"
 msgstr "改为强制取消"
 
@@ -2306,8 +2497,8 @@ msgid "Claim threshold"
 msgstr "领取阈值"
 
 #: src/components/LimitOrder/LimitOrderForm.tsx
-msgid "Est. Market Price:"
-msgstr "预估市场价："
+#~ msgid "Est. Market Price:"
+#~ msgstr "预估市场价："
 
 #: src/pages/About/AboutKyberSwap/index.tsx
 msgid "Total Trading Volume"
@@ -2335,6 +2526,7 @@ msgid "LP Tokens Removed"
 msgstr "已移除 LP 代币"
 
 #: src/pages/Earns/components/ClaimAllModal/index.tsx
+#: src/pages/Earns/components/PositionClaimModal/index.tsx
 msgid "Syncing"
 msgstr ""
 
@@ -2354,6 +2546,10 @@ msgstr "奖励将于 8 月 12 日前直接空投至获奖者钱包。"
 #: src/components/ShareModal/index.tsx
 msgid "Copy Link"
 msgstr "复制链接"
+
+#: src/components/LimitOrder/components.tsx
+msgid "And receive"
+msgstr ""
 
 #: src/components/LiveChart/index.tsx
 #~ msgid "You can swap {0} for {1} (and vice versa)"
@@ -2393,7 +2589,7 @@ msgstr "移除池代币将按当前比例返还底层资产并包含手续费"
 msgid "A portion of your voting power can only be used from the next Epoch onward"
 msgstr "部分投票权需从下一个 Epoch 才可使用"
 
-#: src/components/swapv2/TokenInfo/SecurityInfo/Content.tsx
+#: src/components/TokenInfo/SecurityInfo/Content.tsx
 msgid "Unknown"
 msgstr "未知"
 
@@ -2453,11 +2649,15 @@ msgstr "EVM → Near L1"
 msgid "Visit the claim portal, connect your eligible wallet address, and complete the shipping information and checkout."
 msgstr ""
 
+#: src/components/SwapForm/SwapModal/SwapModalAreYouSure.tsx
+msgid "Please type the word <0>Confirm</0> below to accept this new amount."
+msgstr ""
+
 #: src/hooks/web3/useChangeNetwork.ts
 msgid "Failed to switch network"
 msgstr "切换网络失败"
 
-#: src/components/LimitOrder/ListOrder/index.tsx
+#: src/components/LimitOrder/MyOrders/components.tsx
 msgid "You don't have any open orders yet."
 msgstr "您尚无任何未完成订单"
 
@@ -2475,9 +2675,10 @@ msgstr ""
 msgid "{pendingLength} Pending"
 msgstr "{pendingLength} 个待处理"
 
-#: src/pages/Earns/components/PoolAprInfo.tsx
-#~ msgid "Active"
-#~ msgstr "进行中"
+#: src/components/LimitOrder/MyOrders/utils.ts
+#: src/components/LimitOrder/MyOrders/utils.ts
+msgid "Active"
+msgstr "进行中"
 
 #: src/components/PoolPriceBar/index.tsx
 #~ msgid "Share of Pool"
@@ -2494,7 +2695,6 @@ msgstr "严禁大量刷量、女巫攻击、即时流动性攻击、闪电贷攻
 msgid "Fill:"
 msgstr "成交："
 
-#: src/pages/Earns/Landing/index.tsx
 #: src/pages/Earns/PoolExplorer/Filter.tsx
 msgid "Top 100 pools that have the high total earned fee in the last 7 days"
 msgstr "过去 7 天手续费最高的前 100 个资金池"
@@ -2503,16 +2703,17 @@ msgstr "过去 7 天手续费最高的前 100 个资金池"
 #: src/pages/Earns/PoolExplorer/TableHeader.tsx
 #: src/pages/Earns/UserPositions/MigrationModal.tsx
 #: src/pages/Earns/UserPositions/MigrationModal.tsx
+#: src/pages/Earns/VaultDetail/index.tsx
 msgid "TVL"
 msgstr "TVL总锁仓价值"
 
 #: src/components/LimitOrder/Modals/CancelButtons.tsx
-msgid "Cancel without paying gas."
-msgstr "无需 Gas 取消"
+#~ msgid "Cancel without paying gas."
+#~ msgstr "无需 Gas 取消"
 
 #: src/components/TokenSelectorModal/TokenSelectorContent.tsx
-msgid "{0} Custom Tokens"
-msgstr "{0} 个自定义代币"
+#~ msgid "{0} Custom Tokens"
+#~ msgstr "{0} 个自定义代币"
 
 #: src/pages/Campaign/components/Information/info/raffle.tsx
 #: src/pages/Campaign/components/Information/info/safepal.tsx
@@ -2520,14 +2721,14 @@ msgid "This Campaign is a marketing promotion designed to reward user participat
 msgstr "本活动为营销推广，旨在奖励用户参与，不构成任何司法辖区的抽奖、抽签、赠奖或赌博活动。"
 
 #: src/pages/CrossChainSwap/components/TransactionHistory.tsx
-msgid "HISTORY"
-msgstr "历史"
+#~ msgid "HISTORY"
+#~ msgstr "历史"
 
 #: src/pages/Earns/UserPositions/index.tsx
 msgid "<0>Unclaimed</0><1><2>fees</2><3/></1>"
 msgstr "<0>未领取</0><1><2>手续费</2><3/></1>"
 
-#: src/components/swapv2/TokenInfo/utils.ts
+#: src/components/TokenInfo/utils.ts
 msgid "Self-destruct"
 msgstr "自毁"
 
@@ -2544,6 +2745,7 @@ msgid "❓ FAQ"
 msgstr "❓ 常见问题"
 
 #: src/pages/Earns/components/ClaimAllModal/index.tsx
+#: src/pages/Earns/components/PositionClaimModal/index.tsx
 #: src/pages/NotificationCenter/PriceAlerts/AlertCondition.tsx
 msgid "on"
 msgstr "在"
@@ -2564,13 +2766,18 @@ msgstr ""
 msgid "Smart Exit executed"
 msgstr ""
 
-#: src/components/LimitOrder/Modals/CancelOrderModal.tsx
+#: src/components/LimitOrder/CancelOrder/CancelOrderModal.tsx
 msgid "Gasless Cancel All Orders"
 msgstr "免 Gas 取消全部订单"
 
 #: src/pages/Campaign/components/Information/info/stipLimitOrder.tsx
 msgid "In order to be eligible, you need to create a Limit Order with eligible tokens and get it filled on <0>https://kyberswap.com/limit/arbitrum.</0> Only filled orders will give you points."
 msgstr "要符合资格，您需要使用合资格代币创建限价单，并在 <0>https://kyberswap.com/limit/arbitrum.</0> 成交。只有成交的订单才会获得积分。"
+
+#: src/components/LimitOrder/Form/useValidateInputError.tsx
+#: src/components/LimitOrder/Form/useValidateInputError.tsx
+msgid "Please enter a valid input amount"
+msgstr ""
 
 #: src/components/SwapForm/SwapModal/ConfirmSwapModalContent.tsx
 msgid "There was an issue while trying to confirm your price. <0>Permit signature invalid</0>"
@@ -2608,7 +2815,7 @@ msgstr "Kyber Network 及其关联实体均不"
 msgid "Error {summary}."
 msgstr "错误 {summary}"
 
-#: src/pages/SwapV3/Components/TokenPriceChart.tsx
+#: src/components/TokenPriceChart/index.tsx
 msgid "Settlement Prices"
 msgstr ""
 
@@ -2620,9 +2827,17 @@ msgstr "领取手续费中"
 msgid "Note: Voting on KyberDAO is only available on Ethereum chain."
 msgstr "注意：KyberDAO 投票仅支持以太坊"
 
+#: src/components/LimitOrder/TakeOrder/RateComparison.tsx
+msgid "Rate Comparison"
+msgstr ""
+
 #: src/components/Header/web3/NetworkModal/index.tsx
 msgid "Remove from favorite"
 msgstr "从收藏中移除"
+
+#: src/components/LimitOrder/CreateOrder/useWarningCreateOrder.tsx
+msgid "Limit order price is <0>{displayPercent}</0> higher than the market. We just want to make sure this is correct."
+msgstr ""
 
 #: src/pages/ProAmmPool/index.tsx
 msgid "Show closed positions"
@@ -2637,8 +2852,7 @@ msgid "Search by token symbol or pool/token address"
 msgstr "按代币符号或池/代币地址搜索"
 
 #: src/components/WalletPopup/RewardCenter.tsx
-#: src/hooks/kyberdao/index.tsx
-#: src/hooks/kyberdao/index.tsx
+#: src/pages/KyberDAO/KNCUtility/GasRefundBox.tsx
 msgid "Claim Error"
 msgstr "领取错误"
 
@@ -2655,7 +2869,7 @@ msgstr "资产"
 msgid "Exit when {baseSymbol}/{quoteSymbol}"
 msgstr ""
 
-#: src/components/swapv2/TokenInfo/utils.ts
+#: src/components/TokenInfo/utils.ts
 msgid "Anti Whale"
 msgstr "防鲸鱼机制"
 
@@ -2687,7 +2901,7 @@ msgstr "请输入金额"
 msgid "Your assets are spread across various networks. Kindly choose the relevant network and proceed with the claiming process."
 msgstr "您的资产分布在多个网络上，请选择相应网络并继续领取流程。"
 
-#: src/components/swapv2/TokenInfo/SecurityInfo/Content.tsx
+#: src/components/TokenInfo/SecurityInfo/Content.tsx
 msgid "Risky Item"
 msgstr "高风险项"
 
@@ -2701,6 +2915,7 @@ msgid "Price Alert"
 msgstr "价格提醒"
 
 #: src/components/Header/groups/EarnNavGroup.tsx
+#: src/pages/Earns/components/EarnSidebar/index.tsx
 #: src/pages/Earns/PoolExplorer/Filter.tsx
 #: src/pages/Earns/PoolExplorer/index.tsx
 #: src/pages/Earns/PositionDetail/Header.tsx
@@ -2711,7 +2926,7 @@ msgstr "价格提醒"
 msgid "My Positions"
 msgstr "我的仓位"
 
-#: src/components/LimitOrder/helpers.ts
+#: src/components/LimitOrder/utils.ts
 msgid "User denied message signature"
 msgstr "用户拒绝签名"
 
@@ -2719,7 +2934,11 @@ msgstr "用户拒绝签名"
 msgid "→ Hash 1 is chosen for promotional rewards."
 msgstr "→ 选择哈希 1 作为推广奖励。"
 
-#: src/components/LimitOrder/useNotificationLimitOrder.tsx
+#: src/components/LimitOrder/TakeOrder/useTakeOrderValidation.tsx
+msgid "Max fill: <0>{0} {1}</0> at this rate"
+msgstr ""
+
+#: src/components/LimitOrder/hooks/useNotificationLimitOrder.tsx
 msgid "You have successfully cancelled all orders."
 msgstr "您已成功取消所有订单"
 
@@ -2732,8 +2951,8 @@ msgid "Step 1 - Stake KNC on KyberDAO<0/>Step 2 - Trade on KyberSwap"
 msgstr "步骤 1：在 KyberDAO 质押 KNC / 步骤 2：在 KyberSwap 交易"
 
 #: src/components/Header/web3/SelectWallet.tsx
-msgid "You are not signed in with this wallet address. If you wish, you can <0>sign-in</0> to link your wallet to a profile. This will allow us to offer you a better experience."
-msgstr "当前钱包未登录该配置文件，可 <0>登录</0> 关联以获得更佳体验"
+#~ msgid "You are not signed in with this wallet address. If you wish, you can <0>sign-in</0> to link your wallet to a profile. This will allow us to offer you a better experience."
+#~ msgstr "当前钱包未登录该配置文件，可 <0>登录</0> 关联以获得更佳体验"
 
 #: src/components/Header/web3/SignWallet/ConfirmModal.tsx
 #~ msgid "profile <0>{currentProfileName}</0>"
@@ -2759,9 +2978,7 @@ msgstr "我的流动性"
 msgid "Smart Exit cancelled"
 msgstr ""
 
-#: src/components/Header/web3/WalletModal/index.tsx
-#: src/pages/CrossChainSwap/components/SolanaConnectModal.tsx
-#: src/pages/CrossChainSwap/components/TermAndPolicy.tsx
+#: src/components/Header/web3/WalletModal/components.tsx
 msgid "and"
 msgstr "以及"
 
@@ -2774,8 +2991,8 @@ msgid "No price alerts created yet"
 msgstr "尚未创建任何价格提醒"
 
 #: src/components/LimitOrder/Modals/CancelStatusCountDown.tsx
-msgid "Your request has timed out."
-msgstr "请求超时"
+#~ msgid "Your request has timed out."
+#~ msgstr "请求超时"
 
 #: src/pages/Campaign/components/MyDashboard/SafePalDashboard.tsx
 msgid "Weeks"
@@ -2784,6 +3001,10 @@ msgstr ""
 #: src/components/SwapForm/SwapActionButton/index.tsx
 msgid "Infinite Allowance"
 msgstr "无限授权"
+
+#: src/components/TokenSelectorModal/TokenSelectorContent.tsx
+msgid "Search by name, symbol or address"
+msgstr ""
 
 #: src/pages/MarketOverview/index.tsx
 #: src/pages/MarketOverview/index.tsx
@@ -2835,7 +3056,7 @@ msgstr "我质押的资金池"
 msgid "We will automatically remove your liquidity and convert it into your desired token (either token from the token pair), all in a single transaction"
 msgstr "我们将自动移除您的流动性并转换为目标代币"
 
-#: src/components/TokenSelectorModal/TokenSelectorContent.tsx
+#: src/components/TokenSelectorModal/TabBar.tsx
 msgid "Imported"
 msgstr "已导入"
 
@@ -2867,14 +3088,17 @@ msgstr "交易没有最低或最高金额要求。"
 msgid "Past Actions"
 msgstr ""
 
-#: src/components/LimitOrder/Modals/ConfirmOrderModal.tsx
-#: src/components/LimitOrder/Modals/ConfirmOrderModal.tsx
+#: src/components/LimitOrder/CreateOrder/CreateOrderConfirmModal.tsx
 msgid "Confirm Price"
 msgstr "确认价格"
 
 #: src/pages/KyberDAO/StakeKNC/StakeKNCComponent.tsx
 msgid "Stake Information"
 msgstr "质押信息"
+
+#: src/components/LimitOrder/CancelOrder/CancelOrderModal.tsx
+msgid "You are canceling {0} active orders"
+msgstr ""
 
 #: src/components/SwapForm/SwapModal/SwapDetails/index.tsx
 #: src/components/WalletPopup/SendToken/index.tsx
@@ -2890,7 +3114,7 @@ msgstr "提取仓位"
 #~ msgid "Meet the team"
 #~ msgstr "认识团队"
 
-#: src/components/Menu/index.tsx
+#: src/components/Menu/components/MainMenuSection.tsx
 #: src/pages/Campaign/constants.tsx
 msgid "SafePal Campaign"
 msgstr ""
@@ -2911,11 +3135,15 @@ msgstr "向 <0>{email}</0> 发送验证码失败，请重试"
 #~ msgid "Force Withdraw"
 #~ msgstr "强制提取"
 
+#: src/components/LimitOrder/CancelOrder/CancelButtons.tsx
+msgid "Cancel without paying gas. Cancellation may not be instant."
+msgstr ""
+
 #: src/pages/NotificationCenter/NotificationPreference/ActionButtons.tsx
 msgid "Opt-out"
 msgstr "退出"
 
-#: src/components/Header/web3/WalletModal/index.tsx
+#: src/components/Header/web3/WalletModal/components.tsx
 msgid "Last updated: {0}"
 msgstr "最后更新：{0}"
 
@@ -2932,7 +3160,6 @@ msgstr "交易哈希"
 msgid "Best Return"
 msgstr "最佳回报"
 
-#: src/pages/Earns/Landing/index.tsx
 #: src/pages/Earns/PoolExplorer/Filter.tsx
 msgid "Low Volatility"
 msgstr "低波动"
@@ -2945,11 +3172,11 @@ msgstr "低波动"
 msgid "partially filled ({filledPercent})"
 msgstr "部分成交（{filledPercent}）"
 
-#: src/components/swapv2/SwapSettingsPanel/SlippageSetting.tsx
+#: src/components/TransactionSettings/SlippageSetting.tsx
 msgid "During your swap if the price changes by more than this %, your transaction will revert. Read more <0>here ↗</0>."
 msgstr "在兑换过程中，若价格波动超过该百分比，交易将回退 <0>了解更多 ↗</0>"
 
-#: src/components/swapv2/TokenInfo/index.tsx
+#: src/components/TokenInfo/index.tsx
 msgid "Market Info"
 msgstr "市场信息"
 
@@ -2965,7 +3192,7 @@ msgstr "前往 <0>质押</0>"
 msgid "Delete all {notificationName}"
 msgstr "删除所有 {notificationName}"
 
-#: src/components/swapv2/TokenInfo/utils.ts
+#: src/components/TokenInfo/utils.ts
 msgid "Take Back Ownership"
 msgstr "收回所有权"
 
@@ -2980,6 +3207,14 @@ msgstr ""
 #: src/pages/ElasticSnapshot/components/ChooseGrantModal.tsx
 msgid "You have chosen option {selectedOption} for KyberSwap Elastic Exploit Treasury Grant Program"
 msgstr "您已为 KyberSwap Elastic 漏洞国库赠款计划选择了选项 {selectedOption}"
+
+#: src/components/TokenSelectorModal/TokenList.tsx
+msgid "Native"
+msgstr ""
+
+#: src/components/Header/web3/NetworkModal/index.tsx
+msgid "Drag here to unfavorite chain(s)"
+msgstr ""
 
 #: src/components/PositionCard/index.tsx
 msgid "Available LP Tokens"
@@ -2999,6 +3234,10 @@ msgstr "已成功退出登录"
 msgid "Your Transactions"
 msgstr "您的交易"
 
+#: src/components/LimitOrder/ProcessingOrder/ProcessingOrderModal.tsx
+msgid "Approved token"
+msgstr ""
+
 #: src/pages/ElasticSnapshot/index.tsx
 #: src/pages/ElasticSnapshot/index.tsx
 msgid "This is the USD value of the fees earned by your liquidity position immediately before the exploit."
@@ -3008,7 +3247,7 @@ msgstr "这是在被攻击前您的流动性仓位所赚取手续费的美元价
 msgid "Insufficient fee rewards amount, try to remove your liquidity without claiming fees for now and you can try to claim it later."
 msgstr "手续费奖励不足，建议先移除流动性稍后再领取"
 
-#: src/components/Announcement/Popups/SnippetPopup.tsx
+#: src/components/Announcement/Popups/SnippetPopupItem.tsx
 #: src/pages/NotificationCenter/Profile/WarningSignMessage.tsx
 msgid "Read More"
 msgstr "阅读更多"
@@ -3033,6 +3272,7 @@ msgstr ""
 msgid "RPC Url"
 msgstr "RPC 地址"
 
+#: src/pages/Earns/components/EarnSidebar/index.tsx
 #: src/pages/Earns/Landing/index.tsx
 msgid "Liquidity Pools"
 msgstr "流动性池"
@@ -3043,10 +3283,10 @@ msgstr "每个钱包地址在两个 Epoch 内最多可获 $200 Gas 退款"
 
 #: src/components/Header/groups/KyberDaoGroup.tsx
 #: src/components/Menu/index.tsx
-msgid "Feature Request"
-msgstr "功能请求"
+#~ msgid "Feature Request"
+#~ msgstr "功能请求"
 
-#: src/components/swapv2/SwapSettingsPanel/LiquiditySourcesSetting.tsx
+#: src/pages/Swap/components/SwapSettingsPanel/LiquiditySourcesSetting.tsx
 msgid "Your trade is routed through one or more of these liquidity sources."
 msgstr "您的交易通过以下流动性来源之一路由"
 
@@ -3063,16 +3303,16 @@ msgid "Stake KNC, Vote, Earn Rewards."
 msgstr "质押 KNC、投票、赚取奖励"
 
 #: src/components/TransactionConfirmationModal/index.tsx
-msgid "Show more details"
-msgstr "显示更多详情"
+#~ msgid "Show more details"
+#~ msgstr "显示更多详情"
 
 #: src/components/Announcement/AnnouncementHeader.tsx
 msgid "Mark all read"
 msgstr "全部标记为已读"
 
 #: src/components/LimitOrder/OrderBook/index.tsx
-msgid "Orders refresh in"
-msgstr "订单刷新于"
+#~ msgid "Orders refresh in"
+#~ msgstr "订单刷新于"
 
 #: src/pages/Earns/components/SmartExit/Confirmation/Success.tsx
 msgid "View All Condition(s)"
@@ -3091,8 +3331,8 @@ msgid "Claim rewards"
 msgstr "领取奖励"
 
 #: src/pages/CrossChainSwap/components/TransactionHistory.tsx
-msgid "ROUTE"
-msgstr "路由"
+#~ msgid "ROUTE"
+#~ msgstr "路由"
 
 #: src/components/ProAmm/ProAmmFee.tsx
 #: src/components/ProAmm/ProAmmFee.tsx
@@ -3103,7 +3343,7 @@ msgstr "路由"
 msgid "{0} Fees Earned"
 msgstr "{0} 手续费收益"
 
-#: src/components/swapv2/TokenInfo/SecurityInfo/Content.tsx
+#: src/components/TokenInfo/SecurityInfo/Content.tsx
 msgid "Risky Item(s)"
 msgstr "高风险项"
 
@@ -3115,8 +3355,8 @@ msgstr "推荐计划"
 msgid "New Suggested Slippage:"
 msgstr "新的建议滑点："
 
-#: src/components/swapv2/SwapSettingsPanel/index.tsx
 #: src/components/TransactionSettings/index.tsx
+#: src/pages/Swap/components/SwapSettingsPanel/index.tsx
 msgid "Advanced Settings"
 msgstr "高级设置"
 
@@ -3148,10 +3388,14 @@ msgid "Your slippage is set higher than usual, which may cause unexpected losses
 msgstr "您的滑点设置过高，可能导致非预期损失"
 
 #: src/components/Header/groups/CampaignNavGroup.tsx
-#: src/components/Menu/index.tsx
+#: src/components/Menu/components/MainMenuSection.tsx
 #: src/pages/Campaign/MyDashboard.tsx
 msgid "My Dashboard"
 msgstr "我的仪表盘"
+
+#: src/components/LimitOrder/ProcessingOrder/ProcessingOrderModal.tsx
+msgid "Fill order"
+msgstr ""
 
 #: src/pages/ElasticSnapshot/index.tsx
 #: src/pages/ElasticSnapshot/index.tsx
@@ -3189,15 +3433,19 @@ msgstr ""
 msgid "Checking data"
 msgstr "检查数据中"
 
-#: src/components/LimitOrder/LimitOrderForm.tsx
+#: src/pages/Earns/components/EarnSidebar/index.tsx
+msgid "Earn breadcrumbs"
+msgstr ""
+
+#: src/components/LimitOrder/Form/LimitOrderTokenSection.tsx
 msgid "You Sell"
 msgstr "您卖出"
 
 #: src/components/LimitOrder/ListOrder/TableHeader.tsx
-msgid "FILLED % | STATUS"
-msgstr "成交率 | 状态"
+#~ msgid "FILLED % | STATUS"
+#~ msgstr "成交率 | 状态"
 
-#: src/pages/Bridge/SelectNetwork.tsx
+#: src/pages/CrossChainSwap/components/SelectNetwork.tsx
 msgid "The token cannot be bridged to this chain"
 msgstr "该代币无法桥接至此链"
 
@@ -3228,6 +3476,11 @@ msgstr ""
 msgid "Note"
 msgstr "备注"
 
+#: src/pages/Earns/ExploreVaults/index.tsx
+#: src/pages/Earns/ExploreVaults/index.tsx
+msgid "View Position"
+msgstr ""
+
 #: src/components/Header/web3/SelectWallet.tsx
 msgid "Wrong Network"
 msgstr "网络错误"
@@ -3244,6 +3497,8 @@ msgstr "已质押 LP 代币"
 #: src/pages/Campaign/components/ClaimButton.tsx
 #: src/pages/Earns/components/ClaimAllModal/index.tsx
 #: src/pages/Earns/components/ClaimModal/index.tsx
+#: src/pages/Earns/components/PositionClaimModal/index.tsx
+#: src/pages/Earns/components/PositionClaimModal/index.tsx
 #: src/pages/Earns/PositionDetail/LeftSection.tsx
 #: src/pages/Earns/PositionDetail/RewardSection.tsx
 #: src/pages/KyberDAO/KNCUtility/GasRefundBox.tsx
@@ -3251,20 +3506,25 @@ msgid "Claiming"
 msgstr "领取中"
 
 #: src/components/LimitOrder/Modals/CancelButtons.tsx
-msgid "<0/> Cancellation may not be instant. <1>Learn more ↗︎</1>"
-msgstr "<0/> 取消可能不会立即生效 <1>了解更多 ↗︎</1>"
+#~ msgid "<0/> Cancellation may not be instant. <1>Learn more ↗︎</1>"
+#~ msgstr "<0/> 取消可能不会立即生效 <1>了解更多 ↗︎</1>"
 
 #: src/pages/Campaign/components/Information/info/stipAggregator.tsx
 msgid "ETH Derivatives trading will give 1 Point per USD swapped."
 msgstr "交易 ETH 衍生品每兑换 1 美元可获得 1 积分。"
+
+#: src/pages/Earns/ExploreVaults/index.tsx
+#: src/pages/Earns/MyVaults/index.tsx
+msgid "Search by token or vaults"
+msgstr ""
 
 #: src/pages/Earns/UserPositions/TableContent.tsx
 msgid "Explore Liquidity Pools to get started"
 msgstr "浏览流动性池以开始"
 
 #: src/components/Header/index.tsx
-#: src/components/Menu/index.tsx
-#: src/components/LimitOrder/LimitOrderForm.tsx
+#: src/components/LimitOrder/Form/LimitOrderRateSection.tsx
+#: src/components/Menu/components/MainMenuSection.tsx
 msgid "Market"
 msgstr "市场"
 
@@ -3281,6 +3541,10 @@ msgstr "第 1 类"
 #: src/components/Announcement/PrivateAnnoucement/NotificationCenter/PoolPosition.tsx
 msgid "Max Price of your range is {maxPrice} {token0Symbol} per {token1Symbol}"
 msgstr "您价格区间的最高价为 {maxPrice} {token0Symbol}/{token1Symbol}"
+
+#: src/pages/Earns/VaultDetail/index.tsx
+msgid "Deposit flow coming soon."
+msgstr ""
 
 #: src/components/Announcement/PrivateAnnoucement/InboxItemLimitOrder.tsx
 msgid "{filledPercentLabel} Filled"
@@ -3344,10 +3608,8 @@ msgstr "您导入的代币"
 msgid "Received amount"
 msgstr ""
 
-#: src/components/Header/web3/WalletModal/index.tsx
-#: src/components/Menu/index.tsx
-#: src/pages/CrossChainSwap/components/SolanaConnectModal.tsx
-#: src/pages/CrossChainSwap/components/TermAndPolicy.tsx
+#: src/components/Header/web3/WalletModal/components.tsx
+#: src/components/Menu/components/MainMenuSection.tsx
 msgid "Privacy Policy"
 msgstr "隐私政策"
 
@@ -3368,12 +3630,20 @@ msgstr ""
 msgid "We need access to your local storage. The reason can be that you may have accidentally blocked cookies from this site. Please find it in your settings and turn it off."
 msgstr "我们需要访问本地存储，请检查是否误禁用 Cookie"
 
+#: src/components/TokenSelectorModal/TokenSelectorContent.tsx
+msgid "You haven't imported any tokens yet. Search a token address in the All tab to import one."
+msgstr ""
+
 #: src/components/Header/groups/CampaignNavGroup.tsx
 msgid "Wallet Campaign"
 msgstr ""
 
 #: src/pages/Earns/components/SmartExit/Confirmation/index.tsx
 msgid "Confirm Smart Exit"
+msgstr ""
+
+#: src/components/LimitOrder/TakeOrder/RateComparison.tsx
+msgid "Swap best route"
 msgstr ""
 
 #: src/pages/NotificationCenter/CreateAlert/CreateAlertForm.tsx
@@ -3396,19 +3666,20 @@ msgid "Review the Cross-chain Swap"
 msgstr "审查跨链兑换"
 
 #: src/components/LimitOrder/ListOrder/OrderItem.tsx
-msgid "insufficient funds"
-msgstr "资金不足"
+#~ msgid "insufficient funds"
+#~ msgstr "资金不足"
 
 #: src/components/Announcement/PrivateAnnoucement/InboxItemLimitOrder.tsx
+#: src/components/LimitOrder/MyOrders/utils.ts
 msgid "Expired"
 msgstr "已过期"
 
-#: src/components/LimitOrder/ExpirePicker.tsx
+#: src/components/DateTimePicker/index.tsx
 msgid "Default Options"
 msgstr "默认选项"
 
 #: src/components/Header/groups/KyberDaoGroup.tsx
-#: src/components/Menu/index.tsx
+#: src/components/Menu/components/MainMenuSection.tsx
 #: src/pages/About/AboutKNC.tsx
 #: src/pages/KyberDAO/StakeKNC/index.tsx
 msgid "Stake KNC"
@@ -3433,8 +3704,8 @@ msgid "Your cancellation {summary} has been submitted"
 msgstr "您的取消请求 {summary} 已提交"
 
 #: src/components/Footer/Footer.tsx
-msgid "Audited {0} By"
-msgstr "由 {0} 审计"
+#~ msgid "Audited {0} By"
+#~ msgstr "由 {0} 审计"
 
 #: src/pages/Campaign/components/RaffleRewardModal.tsx
 msgid "🎉 Congratulations!"
@@ -3456,6 +3727,10 @@ msgstr "直接在 <0>KyberSwap.com</0> 网站进行兑换的用户，每笔合�
 #: src/pages/Earns/PoolExplorer/TableHeader.tsx
 #~ msgid "EG Sharing"
 #~ msgstr "EG 分成"
+
+#: src/pages/CrossChainSwap/components/SolanaConnectModal.tsx
+msgid "No Solana wallet detected"
+msgstr ""
 
 #: src/pages/Earns/components/SmartExit/Warning.tsx
 msgid "Max fee is capped at 100% for safety."
@@ -3497,6 +3772,10 @@ msgstr ""
 msgid "Rewards are subject to successful redemption via the reward website, with applicable shipping fees paid by participants."
 msgstr ""
 
+#: src/pages/CrossChainSwap/components/TokenSelectorNonEvmModal.tsx
+msgid "Search and select a token on the selected network."
+msgstr ""
+
 #: src/pages/Campaign/components/MyDashboard/ReferralDashboard.tsx
 #~ msgid "My total referrals"
 #~ msgstr "我的推荐总数"
@@ -3508,6 +3787,7 @@ msgid "Participants"
 msgstr "参与者"
 
 #: src/components/TokenSelectorModal/TokenSelectorContent.tsx
+#: src/pages/CrossChainSwap/components/TokenSelectorNonEvmModal.tsx
 msgid "No results found."
 msgstr "未找到结果"
 
@@ -3517,6 +3797,10 @@ msgstr ""
 
 #: src/pages/Earns/components/SmartExit/useSmartExit.ts
 msgid "We could not read fee data from the server. Please try again."
+msgstr ""
+
+#: src/pages/Earns/MyVaults/index.tsx
+msgid "Txn"
 msgstr ""
 
 #: src/components/EarningAreaChart/TooltipContent.tsx
@@ -3542,12 +3826,16 @@ msgstr "历史最高价"
 #: src/components/LimitOrder/OrderBook/TableHeader.tsx
 #: src/components/LimitOrder/OrderBook/TableHeader.tsx
 #: src/pages/CrossChainSwap/components/TransactionHistory.tsx
-msgid "AMOUNT"
-msgstr "金额"
+#~ msgid "AMOUNT"
+#~ msgstr "金额"
 
 #: src/components/FarmTag.tsx
 msgid "Participate in the Elastic farm to earn more rewards. Click <0>here</0> to go to the farm."
 msgstr "参与 Elastic Farm 以赚取更多奖励，点击 <0>这里</0> 前往"
+
+#: src/components/LimitOrder/ProcessingOrder/ProcessingOrderModal.tsx
+msgid "Wrapped {nativeSymbol}"
+msgstr ""
 
 #: src/pages/Verify/VerifyCodeModal/index.tsx
 msgid "Resend"
@@ -3567,11 +3855,11 @@ msgstr "75%"
 msgid "Your session has expired. Please sign-in to continue."
 msgstr "您的会话已过期，请重新登录以继续"
 
-#: src/components/Menu/index.tsx
+#: src/components/Menu/components/BottomSection.tsx
 msgid "Claiming..."
 msgstr "领取中…"
 
-#: src/pages/CrossChainSwap/index.tsx
+#: src/pages/CrossChainSwap/components/RecipientPanel.tsx
 msgid "Send to other wallet"
 msgstr "发送到其他钱包"
 
@@ -3583,7 +3871,7 @@ msgstr "KNC 持有者可通过 KyberSwap 获益。质押 KNC 并参与投票即�
 msgid "Insufficient Balance"
 msgstr "余额不足"
 
-#: src/components/TokenSelectorModal/TokenSelectorContent.tsx
+#: src/components/TokenSelectorModal/TabBar.tsx
 #: src/components/WalletPopup/Transactions/index.tsx
 #: src/pages/KyberDAO/Vote/SelectProposalStatus.tsx
 #: src/pages/MarketOverview/index.tsx
@@ -3616,7 +3904,7 @@ msgstr "*仅可委托给以太坊地址"
 #~ msgstr "如需支持，请联系 Transak <0>这里</0>"
 
 #: src/components/Header/groups/CampaignNavGroup.tsx
-#: src/components/Menu/index.tsx
+#: src/components/Menu/components/MainMenuSection.tsx
 #: src/pages/Campaign/constants.tsx
 #: src/pages/Campaign/MyDashboard.tsx
 msgid "Weekly Rewards"
@@ -3633,8 +3921,8 @@ msgid "EG Sharing Reward:"
 msgstr "EG 分成奖励："
 
 #: src/pages/CrossChainSwap/components/TransactionHistory.tsx
-msgid "CREATED"
-msgstr "创建时间"
+#~ msgid "CREATED"
+#~ msgstr "创建时间"
 
 #: src/components/SwapForm/SwapActionButton/index.tsx
 msgid "Insufficient liquidity for this trade"
@@ -3657,7 +3945,7 @@ msgstr "请先从 Farm 中撤出您的流动性仓位"
 msgid "The Total Claimable Rewards is the real amount of ARB that a user will get after filtering sybils, cheaters and potential calculation issues. All ARB allocations from recognized sybils and cheaters will be re-allocated proportionally to other eligible traders."
 msgstr "可领取奖励总额是在过滤女巫、作弊和潜在计算问题后，用户实际可获得的 ARB 数量。来自确认的女巫和作弊地址的 ARB 分配将按比例重新分配给其他合格交易者。"
 
-#: src/components/swapv2/TokenInfo/utils.ts
+#: src/components/TokenInfo/utils.ts
 msgid "Sell Tax"
 msgstr "卖出税"
 
@@ -3671,16 +3959,33 @@ msgid "Token is not available"
 msgstr "代币不可用"
 
 #: src/components/LimitOrder/ExpirePicker.tsx
-msgid "Set"
-msgstr "设置"
+#~ msgid "Set"
+#~ msgstr "设置"
 
 #: src/pages/Campaign/components/Information/info/raffle.tsx
 msgid "Where can I see my eligible transactions?"
 msgstr "我在哪里可以查看我的合格交易？"
 
+#: src/components/LimitOrder/ProcessingOrder/ProcessingOrderModal.tsx
+msgid "Approving {inputSymbol}"
+msgstr ""
+
 #: src/pages/CrossChainSwap/hooks/useCrossChainSwap.tsx
 msgid "Your slippage is set lower than usual, which may cause transaction failure."
 msgstr "您的滑点设置低于常规，可能导致交易失败"
+
+#: src/pages/Earns/components/EarnSidebar/index.tsx
+msgid "Earn navigation"
+msgstr ""
+
+#: src/components/TokenSelectorModal/TabBar.tsx
+msgid "Your saved tokens"
+msgstr ""
+
+#: src/pages/Earns/ExploreVaults/index.tsx
+#: src/pages/Earns/MyVaults/index.tsx
+msgid "Partner-managed vaults. Auto-compounding. Native withdrawals are not instant."
+msgstr ""
 
 #: src/components/WalletPopup/Transactions/index.tsx
 msgid "Others"
@@ -3691,7 +3996,7 @@ msgstr "其他"
 msgid "Claim Asset"
 msgstr "领取资产"
 
-#: src/components/LimitOrder/ExpirePicker.tsx
+#: src/components/DateTimePicker/index.tsx
 msgid "Customize the Expiry Time"
 msgstr "自定义过期时间"
 
@@ -3725,9 +4030,13 @@ msgstr "这里"
 msgid "Find out more"
 msgstr "了解更多"
 
-#: src/components/swapv2/TokenInfo/utils.ts
+#: src/components/TokenInfo/utils.ts
 msgid "Modifiable Anti Whale"
 msgstr "可修改防鲸机制"
+
+#: src/components/Header/web3/NetworkModal/components/DraggableNetworkButton.tsx
+msgid "Provisional"
+msgstr ""
 
 #: src/pages/KyberDAO/StakeKNC/StakeKNCComponent.tsx
 msgid "Unstake"
@@ -3751,6 +4060,10 @@ msgstr "结束于"
 msgid "Week 2: 00:00 26/11/2025 - 23:59 02/12/2025 UTC, 5,000 KNC"
 msgstr "第 2 周：2025/11/26 00:00 - 2025/12/02 23:59（UTC），5,000 KNC"
 
+#: src/pages/Earns/components/SmartExit/Confirmation/index.tsx
+msgid "Smart Wallet not supported"
+msgstr ""
+
 #: src/utils/slippage.ts
 msgid "setting might be high compared with other similar trades. Consider adjusting it to reduce front-running risks."
 msgstr "该设置相比类似交易可能偏高，建议调整以降低被抢跑风险"
@@ -3771,6 +4084,11 @@ msgstr ""
 msgid "Participants can earn an additional 170 bonus points weekly by using multiple KyberSwap products within the same week:"
 msgstr ""
 
+#: src/components/Header/groups/EarnNavGroup.tsx
+#: src/pages/Earns/components/EarnSidebar/index.tsx
+msgid "Explore Vaults"
+msgstr ""
+
 #: src/pages/Campaign/components/Information/info/mayTrading.tsx
 msgid "Examples of eligible pairs: AIXBT-VVV, AIXBT-USDC…"
 msgstr "合资格交易对示例：AIXBT-VVV、AIXBT-USDC…"
@@ -3780,9 +4098,17 @@ msgstr "合资格交易对示例：AIXBT-VVV、AIXBT-USDC…"
 msgid "Phase 1"
 msgstr "第一阶段"
 
+#: src/components/TokenSelectorModal/TabBar.tsx
+msgid "Your custom imported tokens"
+msgstr ""
+
 #: src/components/Header/web3/NetworkModal/index.tsx
 msgid "Please connect to the appropriate chain."
 msgstr "请连接至正确的链"
+
+#: src/components/TokenSelectorModal/TabBar.tsx
+msgid "Based on analyzed on chain trading activities"
+msgstr ""
 
 #: src/pages/AddLiquidityV2/constants.ts
 #: src/pages/AddLiquidityV2/constants.ts
@@ -3798,6 +4124,10 @@ msgstr ""
 #: src/components/SwapForm/PriceImpactNote.tsx
 #~ msgid "<0>Price Impact</0> is very high. You will lose funds! {0}"
 #~ msgstr "<0>价格影响</0> 极高，您将损失资金！{0}"
+
+#: src/components/TokenSelectorModal/SwitchChainModal.tsx
+msgid "to swap"
+msgstr ""
 
 #: src/components/WalletPopup/WalletView.tsx
 msgid "Open scan explorer"
@@ -3826,13 +4156,14 @@ msgstr "授权 <0>{0}</0> 需大于 <1>{1} {2}</1>，了解更多 <2>这里</2>"
 #~ msgid "Withdraw your liquidity positions (i.e. your NFT tokens) from the farming contract."
 #~ msgstr "从 Farming 合约中提取您的流动性仓位（NFT）"
 
-#: src/components/LimitOrder/Modals/CancelOrderModal.tsx
+#: src/components/LimitOrder/CancelOrder/CancelOrderModal.tsx
 msgid "Cancel Order"
 msgstr "取消订单"
 
-#: src/components/YieldPools/ElasticFarmGroup/buttons.tsx
-#~ msgid "Withdraw"
-#~ msgstr "提现"
+#: src/pages/Earns/MyVaults/index.tsx
+#: src/pages/Earns/VaultDetail/index.tsx
+msgid "Withdraw"
+msgstr "提现"
 
 #: src/pages/Earns/components/PoolAprInfo.tsx
 msgid "Bonus APR"
@@ -3850,6 +4181,11 @@ msgstr "我如何获得交易活动的参与资格？"
 #~ msgid "You can now seamlessly buy 100+ cryptocurrencies on over 10+ blockchains using a wide range of payment options!"
 #~ msgstr "您现在可以在 10+ 条区块链上使用多种支付方式无缝购买 100+ 种加密货币"
 
+#: src/components/DateTimePicker/index.tsx
+#: src/components/LimitOrder/Form/LimitOrderExpirySection.tsx
+msgid "1 Hour"
+msgstr ""
+
 #: src/components/ProAmm/ProAmmPriceRange.tsx
 msgid "Represents the range where all your liquidity is concentrated. When market price of your token pair is no longer between your selected price range, your liquidity becomes inactive and you stop earning fees."
 msgstr "表示您所有流动性集中的价格区间。当市场价格超出该区间时，您的流动性将失效并停止赚取手续费"
@@ -3858,7 +4194,7 @@ msgstr "表示您所有流动性集中的价格区间。当市场价格超出该
 #~ msgid "Safe"
 #~ msgstr "安全"
 
-#: src/components/Menu/index.tsx
+#: src/components/Menu/components/PreferencesSection.tsx
 msgid "Notification Center"
 msgstr "通知中心"
 
@@ -3867,7 +4203,6 @@ msgstr "通知中心"
 msgid "No notification yet"
 msgstr "暂无通知"
 
-#: src/components/SwapForm/SwapModal/SwapDetails/index.tsx
 #: src/components/SwapForm/TradeSummary.tsx
 msgid "Read more <0><1>here ↗</1></0>"
 msgstr "阅读更多 <0><1>这里 ↗</1></0>"
@@ -3897,7 +4232,7 @@ msgstr "通过名称、符号或地址查找代币<0/>您可以在 KyberSwap 上
 msgid "Open pool detail failed"
 msgstr "打开资金池详情失败"
 
-#: src/components/Menu/FaucetModal.tsx
+#: src/components/Menu/hooks/useFaucetReward.ts
 msgid "You will receive {amount} {tokenSymbol} soon!"
 msgstr "您将很快收到 {amount} {tokenSymbol}！"
 
@@ -3906,7 +4241,7 @@ msgstr "您将很快收到 {amount} {tokenSymbol}！"
 msgid "Total Available Rewards"
 msgstr "可领取总奖励"
 
-#: src/components/LimitOrder/const.ts
+#: src/components/LimitOrder/MyOrders/utils.ts
 msgid "Filled Orders"
 msgstr "已成交订单"
 
@@ -3941,6 +4276,7 @@ msgstr "示例：某用户获得 100 积分，所有参与者总积分为 1,000�
 msgid "Est. Output (incl. fee)"
 msgstr "预估输出（含手续费）"
 
+#: src/components/LimitOrder/TakeOrder/TakeOrderConfirmModal.tsx
 #: src/components/WalletPopup/SendToken/index.tsx
 msgid "Gas Fee"
 msgstr "Gas 费"
@@ -3948,6 +4284,10 @@ msgstr "Gas 费"
 #: src/pages/CrossChainSwap/components/QuoteSelector.tsx
 msgid "Route Options"
 msgstr "路由选项"
+
+#: src/components/TipLinkGeneratorModal/index.tsx
+msgid "Failed to generate link"
+msgstr ""
 
 #: src/pages/Campaign/components/Information/info/mayTrading.tsx
 #: src/pages/Campaign/components/Information/info/nearIntents.tsx
@@ -3984,7 +4324,7 @@ msgstr "没看到您加入的资金池？"
 msgid "Enter Recipient"
 msgstr "输入接收地址"
 
-#: src/components/swapv2/TokenInfo/utils.ts
+#: src/components/TokenInfo/utils.ts
 msgid "Circulating Supply"
 msgstr "流通供应量"
 
@@ -3992,11 +4332,16 @@ msgstr "流通供应量"
 msgid "Add more liquidity to this position using any token(s)."
 msgstr "使用任意代币为该仓位添加更多流动性"
 
+#: src/pages/Earns/Landing/index.tsx
+msgid "Unlock the full potential of your assets. Offering data, tools, and utilities—centered around Zap technology—to help you maximize earnings from your liquidity across various DeFi protocols."
+msgstr ""
+
 #: src/pages/Campaign/components/Leaderboard/SafePalLeaderboard.tsx
 msgid "You haven't joined this week yet. Join now to appear on the leaderboard."
 msgstr ""
 
 #: src/components/ShareModal/index.tsx
+#: src/components/TokenSelectorModal/TokenList.tsx
 msgid "Copied!"
 msgstr "已复制！"
 
@@ -4004,7 +4349,7 @@ msgstr "已复制！"
 msgid "Voting starts in:"
 msgstr "投票开始于："
 
-#: src/pages/SwapV3/Components/TokenPriceChart.tsx
+#: src/components/TokenPriceChart/index.tsx
 msgid "Prices are tracked by KyberSwap from on-chain settlement data, tracked and calculated by KyberSwap, from actual on-chain swap events across supported DEX liquidity sources — not aggregated feeds or oracle data. Values may differ from prices on other platforms."
 msgstr ""
 
@@ -4012,7 +4357,7 @@ msgstr ""
 msgid "The referral data, including My Referrals, My Estimated Rewards, and Referees' Wallet Addresses, is updated approximately hourly."
 msgstr "推荐数据（包括我的推荐、我的预估奖励以及被推荐人钱包地址）大约每小时更新一次。"
 
-#: src/components/swapv2/TokenInfo/index.tsx
+#: src/components/TokenInfo/index.tsx
 msgid "Security Info"
 msgstr "安全信息"
 
@@ -4021,6 +4366,7 @@ msgid "After the campaign period ends, KyberSwap will determine results using a 
 msgstr "活动期结束后，KyberSwap 将使用<0>完全透明、可在链上验证的计算</0>来确定结果。"
 
 #: src/pages/Earns/components/ClaimAllModal/index.tsx
+#: src/pages/Earns/components/PositionClaimModal/index.tsx
 msgid "Bonus"
 msgstr ""
 
@@ -4036,12 +4382,11 @@ msgstr "所有链上的 Swap 是否都支持 Gas 返还？"
 msgid "As a referrer, when someone you referred earns ARB on a trade made on KyberSwap.com, you get 10% of their rewards allocation."
 msgstr "作为推荐人，当您推荐的用户在 KyberSwap.com 上交易并获得 ARB 奖励时，您将得到其奖励分配的 10%。"
 
-#: src/components/LimitOrder/useValidateInputError.tsx
 #: src/components/WalletPopup/SendToken/index.tsx
 msgid "Your input amount is invalid."
 msgstr "输入金额无效"
 
-#: src/pages/SwapV3/Header.tsx
+#: src/pages/Swap/layout/Header.tsx
 msgid "Buy or sell tokens at customized prices"
 msgstr "以自定义价格买卖代币"
 
@@ -4066,6 +4411,10 @@ msgstr "连接钱包以查看您的奖励"
 msgid "New contents are available."
 msgstr "有新内容可用"
 
+#: src/components/SwapForm/SwapModal/ConfirmSwapModalContent.tsx
+msgid "<0>Notice</0>: Some of your {symbol} is already reserved by an open Limit Order - review it <1>here</1>."
+msgstr ""
+
 #: src/utils/errorMessage.ts
 msgid "Your current balance falls short of covering the required gas fee."
 msgstr "当前余额不足以支付所需 Gas 费"
@@ -4083,7 +4432,7 @@ msgstr "限价单取消已提交！"
 msgid "setting might be high. Consider adjusting it to reduce front-running risks."
 msgstr "该设置可能偏高，建议调整以降低被抢跑风险"
 
-#: src/components/Menu/index.tsx
+#: src/components/Menu/components/PreferencesSection.tsx
 msgid "Preferences"
 msgstr "偏好设置"
 
@@ -4103,7 +4452,7 @@ msgstr "从 Farm 农场中解除流动性质押"
 msgid "Verified"
 msgstr "已验证"
 
-#: src/pages/SwapV3/Components/TokenPriceChart.tsx
+#: src/components/TokenPriceChart/index.tsx
 msgid "Powered by KyberSwap Settlement Prices"
 msgstr ""
 
@@ -4113,6 +4462,7 @@ msgstr "奖励分配"
 
 #: src/components/Header/groups/EarnNavGroup.tsx
 #: src/components/Header/groups/EarnNavGroup.tsx
+#: src/pages/Earns/components/EarnSidebar/index.tsx
 msgid "Earn"
 msgstr "赚取"
 
@@ -4124,6 +4474,7 @@ msgstr "赚取"
 msgid "Cross-Chain Race x NEAR Intents"
 msgstr "跨链竞速 x NEAR Intents"
 
+#: src/components/LimitOrder/TakeOrder/useTakeLimitOrder.ts
 #: src/hooks/useApproveCallback.ts
 msgid "Approve Error"
 msgstr "授权错误"
@@ -4132,7 +4483,7 @@ msgstr "授权错误"
 #~ msgid "empty"
 #~ msgstr "空"
 
-#: src/components/LimitOrder/DeltaRate.tsx
+#: src/components/LimitOrder/Form/LimitOrderRateSection.tsx
 msgid "Buy {symbol} at rate"
 msgstr "以该价格买入 {symbol}"
 
@@ -4145,7 +4496,6 @@ msgid "Position status"
 msgstr "仓位状态"
 
 #: src/components/SwapForm/SlippageSetting.tsx
-#: src/components/swapv2/SwapSettingsPanel/SlippageSetting.tsx
 msgid "Your slippage {msg}"
 msgstr "您的滑点 {msg}"
 
@@ -4192,6 +4542,10 @@ msgstr ""
 
 #: src/pages/Earns/PositionDetail/RewardSection.tsx
 msgid "Merkl Bonus:"
+msgstr ""
+
+#: src/pages/Earns/Landing/index.tsx
+msgid "💎 Stable Pairs"
 msgstr ""
 
 #: src/components/SwapForm/SwapActionButton/index.tsx
@@ -4247,7 +4601,7 @@ msgstr "KyberSwap 保留取消任何被发现存在刷量、女巫攻击、闪�
 msgid "<0>Week 5</0> Aug 05 - Aug 11"
 msgstr "<0>第 5 周</0> 8 月 5 日 - 8 月 11 日"
 
-#: src/components/LimitOrder/helpers.ts
+#: src/components/LimitOrder/utils.ts
 msgid "Invalid signature"
 msgstr "签名无效"
 
@@ -4271,8 +4625,6 @@ msgstr "交易已提交"
 msgid "Code will expire in {0}{1}"
 msgstr "验证码将在 {0}{1} 后过期"
 
-#: src/components/Announcement/Popups/index.tsx
-#: src/components/TokenSelectorModal/TokenSelectorContent.tsx
 #: src/components/WalletPopup/Transactions/index.tsx
 #: src/pages/NotificationCenter/DeleteAllAlertsButton/index.tsx
 msgid "Clear All"
@@ -4287,8 +4639,8 @@ msgid "Stablecoins to Stablecoins trading will give 0.5 Points per USD swapped."
 msgstr "稳定币之间的交易每兑换 1 美元可获得 0.5 积分。"
 
 #: src/components/LimitOrder/Modals/CancelButtons.tsx
-msgid "Edit immediately by paying {gasAmountDisplay} gas fees."
-msgstr "立即编辑并支付 {gasAmountDisplay} Gas 费"
+#~ msgid "Edit immediately by paying {gasAmountDisplay} gas fees."
+#~ msgstr "立即编辑并支付 {gasAmountDisplay} Gas 费"
 
 #: src/components/swapv2/AdvancedSwapDetails.tsx
 #~ msgid "half a minute"
@@ -4308,8 +4660,8 @@ msgid "KyberSwap reserves the right to shorten, extend, suspend, or terminate th
 msgstr "KyberSwap 有权自行决定随时缩短、延长、暂停或终止本活动。"
 
 #: src/components/LimitOrder/ListOrder/OrderItem.tsx
-msgid "Partially Filled"
-msgstr "部分成交"
+#~ msgid "Partially Filled"
+#~ msgstr "部分成交"
 
 #: src/pages/Campaign/components/Information/info/nearIntents.tsx
 msgid "No. Bitcoin wallets will only receive an airdrop if the reward share is ≥ $10."
@@ -4319,7 +4671,7 @@ msgstr "不会。比特币钱包只有在奖励份额达到或超过 10 美元�
 msgid "You will need to verify your email address first."
 msgstr "您需要先验证邮箱地址"
 
-#: src/components/swapv2/TokenInfo/utils.ts
+#: src/components/TokenInfo/utils.ts
 msgid "Modifiable Tax"
 msgstr "可修改税率"
 
@@ -4347,7 +4699,7 @@ msgstr ""
 msgid "2. At the end of the week, Vitalik earns 10 ARB from trading on KyberSwap.com."
 msgstr "2. 在本周结束时，维塔利克在 KyberSwap.com 交易获得 10 ARB。"
 
-#: src/components/swapv2/TokenInfo/utils.ts
+#: src/components/TokenInfo/utils.ts
 msgid "Buy Tax"
 msgstr "买入税"
 
@@ -4363,7 +4715,7 @@ msgstr ""
 msgid "Use any 2 different products: +20 points"
 msgstr ""
 
-#: src/components/LimitOrder/ExpirePicker.tsx
+#: src/components/DateTimePicker/index.tsx
 msgid "Order will Expire on"
 msgstr "订单将于以下时间到期"
 
@@ -4371,10 +4723,13 @@ msgstr "订单将于以下时间到期"
 msgid "High Volatility tokens are newly listed tokens that experience significant price swings."
 msgstr ""
 
-#: src/pages/Earns/Landing/index.tsx
 #: src/pages/Earns/PoolExplorer/Filter.tsx
 msgid "High APR"
 msgstr "高 年化收益率"
+
+#: src/components/TipLinkGeneratorModal/index.tsx
+msgid "Please upload an image smaller than 1MB."
+msgstr ""
 
 #: src/pages/Earns/UserPositions/Filter.tsx
 msgid "Out Range"
@@ -4388,7 +4743,6 @@ msgstr "超出区间"
 msgid "Elastic Pools"
 msgstr "Elastic 流动性池"
 
-#: src/pages/Earns/Landing/index.tsx
 #: src/pages/Earns/PoolExplorer/Filter.tsx
 msgid "Solid Earning"
 msgstr "稳健收益"
@@ -4397,7 +4751,7 @@ msgstr "稳健收益"
 msgid "You can’t use your own address as a receiver"
 msgstr "不能使用您自己的地址作为接收地址"
 
-#: src/pages/CrossChainSwap/index.tsx
+#: src/pages/CrossChainSwap/components/RecipientPanel.tsx
 msgid "Recipient ({networkName} address)"
 msgstr "接收方（{networkName} 地址）"
 
@@ -4416,7 +4770,7 @@ msgstr "本地时间"
 msgid "REWARDS"
 msgstr "奖励"
 
-#: src/components/swapv2/TokenInfo/utils.ts
+#: src/components/TokenInfo/utils.ts
 msgid "Can sell all"
 msgstr "可全部卖出"
 
@@ -4430,8 +4784,8 @@ msgstr "选择手续费档位"
 
 #: src/pages/Campaign/hooks/useRaffleCampaignJoin.ts
 #: src/pages/Campaign/hooks/useSafePalCampaignJoin.ts
-msgid "Please reconnect your wallet and try again."
-msgstr "请重新连接钱包后再试。"
+#~ msgid "Please reconnect your wallet and try again."
+#~ msgstr "请重新连接钱包后再试。"
 
 #: src/components/Tutorial/TutorialSwap/constant.ts
 #~ msgid "View our KyberSwap Guide again"
@@ -4470,7 +4824,7 @@ msgstr ""
 #~ msgid "PRICE RANGE"
 #~ msgstr "价格区间"
 
-#: src/components/swapv2/TokenInfo/utils.ts
+#: src/components/TokenInfo/utils.ts
 msgid "Honeypot"
 msgstr "蜜罐"
 
@@ -4493,6 +4847,7 @@ msgstr "在区块浏览器中查看"
 #: src/pages/Earns/hooks/useKemRewards.tsx
 #: src/pages/ElasticSnapshot/components/ChooseGrantModal.tsx
 #: src/pages/ElasticSnapshot/components/ChooseGrantModal.tsx
+#: src/pages/ElasticSnapshot/components/ChooseGrantModal.tsx
 #: src/pages/ElasticSnapshot/components/SelectTreasuryGrant.tsx
 #: src/pages/ElasticSnapshot/components/SelectTreasuryGrant.tsx
 #: src/pages/Verify/VerifyCodeModal/index.tsx
@@ -4503,7 +4858,7 @@ msgstr "错误"
 msgid "Tier {userTier} - {0}% Gas Refund"
 msgstr "等级 {userTier} - {0}% Gas 返还"
 
-#: src/components/Menu/index.tsx
+#: src/components/Menu/components/LegacySection.tsx
 msgid "Legacy"
 msgstr "旧版"
 
@@ -4514,6 +4869,10 @@ msgstr ""
 #: src/pages/Campaign/components/Information/info/nearIntents.tsx
 msgid "Refers to any trading pairs that are not classified as Stable Pairs."
 msgstr "指所有未归类为稳定交易对的任意交易对。"
+
+#: src/components/LimitOrder/ProcessingOrder/ProcessingOrderModal.tsx
+msgid "Approving token"
+msgstr ""
 
 #: src/components/SwapForm/GasPriceNote.tsx
 #~ msgid "Gas fees and Price Impact are very high. You will lose your funds."
@@ -4540,11 +4899,12 @@ msgid "Remove from favorites"
 msgstr "从收藏中移除"
 
 #: src/components/CurrencyInputPanel/index.tsx
-#: src/components/TokenSelectorModal/TokenSelectorContent.tsx
 #: src/components/SwapForm/hooks/useGetInputError.tsx
+#: src/components/TipLinkGeneratorModal/index.tsx
+#: src/components/TokenSelectorModal/TokenSelectorContent.tsx
 #: src/components/ZapCreatePool/CreatePoolModal.tsx
 #: src/pages/CrossChainSwap/components/TokenPanel.tsx
-#: src/pages/CrossChainSwap/components/TokenPanel.tsx
+#: src/pages/CrossChainSwap/components/TokenSelectorNonEvmModal.tsx
 #: src/pages/PoolFinder/index.tsx
 #: src/pages/PoolFinder/index.tsx
 msgid "Select a token"
@@ -4577,12 +4937,17 @@ msgstr "教程"
 #~ msgstr "开启"
 
 #: src/pages/Earns/components/ClaimAllModal/index.tsx
+#: src/pages/Earns/components/PositionClaimModal/index.tsx
 msgid "Claimable Reward"
 msgstr ""
 
 #: src/pages/NotificationCenter/Profile/ImportAccountModal/index.tsx
 msgid "Your passcode or Import Token is invalid"
 msgstr "您的密码或导入代币无效"
+
+#: src/components/LimitOrder/CancelOrder/CancelButtons.tsx
+msgid "This order is not supported gasless cancel. Because it was created by our old contract."
+msgstr ""
 
 #: src/components/swapv2/TokenInfo/index.tsx
 #: src/components/swapv2/TokenInfo/index.tsx
@@ -4593,7 +4958,7 @@ msgstr "您的密码或导入代币无效"
 msgid "Disconnect wallet"
 msgstr "断开钱包连接"
 
-#: src/components/swapv2/GasTokenSetting.tsx
+#: src/components/TokenSelectorModal/TokenSelectorContent.tsx
 msgid "Token"
 msgstr "代币"
 
@@ -4608,6 +4973,10 @@ msgstr "EVM ↔ EVM（不含同链）"
 #: src/components/ZapCreatePool/CreatePoolModal.tsx
 msgid "Can't create pool because {0} is a fee-on-transfer token"
 msgstr "无法创建池子，因为 {0} 是转账收税代币"
+
+#: src/components/LimitOrder/ProcessingOrder/ProcessingOrderModal.tsx
+msgid "Approve token"
+msgstr ""
 
 #: src/components/PositionCard/index.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
@@ -4625,7 +4994,7 @@ msgstr "可领取"
 msgid "More information about KNC is available on:"
 msgstr "关于 KNC 的更多信息请见："
 
-#: src/components/Menu/index.tsx
+#: src/components/Menu/components/MainMenuSection.tsx
 #: src/pages/About/AboutKNC.tsx
 #: src/pages/About/AboutKyberSwap/index.tsx
 msgid "Docs"
@@ -4671,6 +5040,12 @@ msgstr "KNC 使 KyberDAO 能够塑造代币行为与升级，使其更具适应�
 msgid "You have zapped {zapAmountIn} {zapSymbolIn} into {tokenAmountIn} {tokenSymbolIn} and {tokenAmountOut} {tokenSymbolOut} of liquidity to the pool."
 msgstr "您已将 {zapAmountIn} {zapSymbolIn} Zap 成 {tokenAmountIn} {tokenSymbolIn} 和 {tokenAmountOut} {tokenSymbolOut} 的流动性并注入池中"
 
+#: src/components/LimitOrder/MyOrders/components.tsx
+#: src/components/LimitOrder/OrderBook/OrderRow.tsx
+#: src/components/LimitOrder/OrderBook/OrderRow.tsx
+msgid "Fill"
+msgstr ""
+
 #: src/components/PositionCard/index.tsx
 #: src/components/PositionCard/index.tsx
 msgid "Staked {0}"
@@ -4680,8 +5055,8 @@ msgstr "已质押 {0}"
 #~ msgid "Suitable for stable pairs. Anticipating price to fluctuate within ~0.3%. You can earn fees even if the price goes up by 0.15% or goes down by 0.15%."
 #~ msgstr "适用于稳定交易对，预期价格波动约 ±0.3%。即使价格上涨 0.15% 或下跌 0.15% 仍可赚取手续费"
 
-#: src/components/swapv2/SwapSettingsPanel/index.tsx
-#: src/pages/SwapV3/HeaderRightMenu.tsx
+#: src/pages/Swap/components/SwapSettingsPanel/index.tsx
+#: src/pages/Swap/layout/HeaderRightMenu.tsx
 msgid "Settings"
 msgstr "设置"
 
@@ -4693,17 +5068,21 @@ msgstr ""
 #~ msgid "Choose your preferred wallet, connect it, and get started with KyberSwap!"
 #~ msgstr "选择您偏好的钱包并连接，开始使用 KyberSwap！"
 
+#: src/components/TipLinkGeneratorModal/index.tsx
+msgid "Please try again in a moment."
+msgstr ""
+
 #: src/pages/KyberDAO/Vote/ProposalItem/VoteInformation.tsx
 msgid "Quorum Status"
 msgstr "法定人数状态"
 
 #: src/pages/Earns/Landing/index.tsx
-msgid ""
-"Unlock the full potential of your assets. Offering data, tools, and utilities—centered around Zap\n"
-"technology—to help you maximize earnings from your liquidity across various DeFi protocols."
-msgstr ""
-"释放资产的全部潜力。我们围绕 Zap 技术提供数据、工具和实用功能，\n"
-"帮助您在各类 DeFi 协议中最大化流动性收益。"
+#~ msgid ""
+#~ "Unlock the full potential of your assets. Offering data, tools, and utilities—centered around Zap\n"
+#~ "technology—to help you maximize earnings from your liquidity across various DeFi protocols."
+#~ msgstr ""
+#~ "释放资产的全部潜力。我们围绕 Zap 技术提供数据、工具和实用功能，\n"
+#~ "帮助您在各类 DeFi 协议中最大化流动性收益。"
 
 #: src/pages/KyberDAO/StakeKNC/MigrateModal.tsx
 msgid "Click Migrate to start the migration process from KNC Legacy to the new KNC. You will receive the new KNC tokens in your wallet once the transaction has been confirmed. Conversion rate is 1:1. Read about the KNC migration <0>here ↗</0>"
@@ -4714,8 +5093,8 @@ msgid "Exact Allowance"
 msgstr "精确授权额度"
 
 #: src/pages/CrossChainSwap/components/TransactionHistory.tsx
-msgid "ACTIONS"
-msgstr "操作"
+#~ msgid "ACTIONS"
+#~ msgstr "操作"
 
 #: src/pages/Verify/VerifyCodeModal/index.tsx
 msgid "Didn't receive code? <0>Resend</0>"
@@ -4730,12 +5109,16 @@ msgid "{0} {1} per {2}"
 msgstr "{0} {1} / {2}"
 
 #: src/pages/Earns/Landing/index.tsx
-msgid "EXPLORE POOLS"
-msgstr "探索流动性池"
+#~ msgid "EXPLORE POOLS"
+#~ msgstr "探索流动性池"
 
 #: src/pages/Earns/components/ClaimAllModal/index.tsx
 #~ msgid "Claimable Rewards"
 #~ msgstr "可领取奖励"
+
+#: src/pages/Earns/components/PositionClaimModal/index.tsx
+msgid "Claim Bonus"
+msgstr ""
 
 #: src/pages/NotificationCenter/Profile/ExportAccountModal/UserEnterPasscodeContent.tsx
 msgid "Your passcode must be at least 6 characters long"
@@ -4799,7 +5182,7 @@ msgstr "处理中"
 msgid "Affected Assets taken from Affected Pools by subsequent activity (“Category 2 MBA”) of two mimicking bots mimicking the Primary Exploit, which Affected Assets have yet to be recovered"
 msgstr "两名模仿主攻击的机器人后续活动（“类别 2 MBA”）从受影响池中取走的受影响资产尚未追回。"
 
-#: src/components/LimitOrder/ListOrder/SummaryNotify.tsx
+#: src/components/LimitOrder/MyOrders/SummaryNotify.tsx
 msgid "Your order was {filledPercent}% filled"
 msgstr "您的订单已成交 {filledPercent}%"
 
@@ -4820,6 +5203,7 @@ msgid "Claim reward"
 msgstr "领取奖励"
 
 #: src/pages/Earns/components/ClaimModal/index.tsx
+#: src/pages/Earns/components/PositionClaimModal/index.tsx
 msgid "Claim only"
 msgstr "仅领取"
 
@@ -4831,7 +5215,7 @@ msgstr "仅领取"
 msgid "WALLET"
 msgstr "钱包"
 
-#: src/components/LimitOrder/LimitOrderForm.tsx
+#: src/components/LimitOrder/Form/LimitOrderTokenSection.tsx
 msgid "You Buy"
 msgstr "您买入"
 
@@ -4870,12 +5254,12 @@ msgstr ""
 
 #: src/components/Header/groups/CampaignNavGroup.tsx
 #: src/components/Header/groups/SwapNavGroup.tsx
-#: src/components/Menu/index.tsx
+#: src/components/LimitOrder/hooks/useNotificationLimitOrder.tsx
+#: src/components/LimitOrder/hooks/useNotificationLimitOrder.tsx
+#: src/components/Menu/components/MainMenuSection.tsx
 #: src/components/SwapForm/PriceImpactNote.tsx
-#: src/components/LimitOrder/useNotificationLimitOrder.tsx
-#: src/components/LimitOrder/useNotificationLimitOrder.tsx
 #: src/pages/Campaign/MyDashboard.tsx
-#: src/pages/SwapV3/Tabs/LimitTab.tsx
+#: src/pages/Swap/layout/LimitTab.tsx
 msgid "Limit Order"
 msgstr "限价单"
 
@@ -4886,6 +5270,10 @@ msgstr "以线性方式在 12 个月内归属，由该受影响地址贡献的�
 #: src/pages/Campaign/MyDashboard.tsx
 msgid "Total final rewards that you can claim for the campaign."
 msgstr "此活动您可领取的最终奖励总额。"
+
+#: src/components/TokenSelectorModal/TokenSelectorContent.tsx
+msgid "Clear search"
+msgstr ""
 
 #: src/components/SingaporeWarningPopup/index.tsx
 msgid "(i) is regulated by MAS; or"
@@ -4915,8 +5303,8 @@ msgstr "连接钱包"
 
 #: src/components/LimitOrder/Modals/CancelOrderModal.tsx
 #: src/components/LimitOrder/Modals/ConfirmOrderModal.tsx
-msgid "at"
-msgstr "在"
+#~ msgid "at"
+#~ msgstr "在"
 
 #: src/pages/KyberDAO/KNCUtility/index.tsx
 msgid "Stake your KNC (<0>Kyber Network Crystal</0>) tokens to <1>vote on KIPs</1> and shape the future of the KyberSwap ecosystem. KNC stakers also enjoy multiple benefits such as savings on gas fees, protocol fee rewards, and more."
@@ -4931,18 +5319,21 @@ msgstr "质押您的 KNC（<0>Kyber Network Crystal</0>）以 <1>参与 KIP 投�
 msgid "LP Fee APR"
 msgstr ""
 
+#: src/components/TokenSelectorModal/TokenSelectorContent.tsx
+msgid "You have no saved tokens yet."
+msgstr ""
+
 #: src/pages/Campaign/components/Information/info/raffle.tsx
 msgid "No element of chance, randomness or gambling is involved."
 msgstr "不涉及任何机会、随机性或赌博成分。"
 
 #: src/components/Header/web3/NetworkModal/components/DraggableNetworkButton.tsx
-#: src/pages/Earns/Landing/index.tsx
 msgid "Coming Soon"
 msgstr "即将上线"
 
 #: src/components/LimitOrder/Modals/ConfirmOrderModal.tsx
-msgid "before the order expires on"
-msgstr "在订单到期前"
+#~ msgid "before the order expires on"
+#~ msgstr "在订单到期前"
 
 #: src/pages/KyberDAO/Vote/ProposalItem/index.tsx
 msgid "You already delegated your Voting power"
@@ -4994,7 +5385,11 @@ msgstr "发生错误"
 msgid "To be eligible, you must make a swap on <0>KyberSwap.com</0> using trading pairs composed of eligible tokens from the list, excluding WETH-ETH, WETH-USDC, and ETH-USDC."
 msgstr "要符合资格，您必须在 <0>KyberSwap.com</0> 上使用列表中的合资格代币交易对进行兑换，但不包括 WETH-ETH、WETH-USDC 和 ETH-USDC。"
 
-#: src/components/LimitOrder/ListOrder/SummaryNotify.tsx
+#: src/components/LimitOrder/CreateOrder/useWarningCreateOrder.tsx
+msgid "Limit order price is <0>{displayPercent}</0> lower than the market. You will be selling your {0} exceedingly cheap."
+msgstr ""
+
+#: src/components/LimitOrder/MyOrders/SummaryNotify.tsx
 msgid "Your order to pay {mainMsg} is {filledPercent}% filled"
 msgstr "您用于支付 {mainMsg} 的订单已成交 {filledPercent}%"
 
@@ -5003,7 +5398,7 @@ msgstr "您用于支付 {mainMsg} 的订单已成交 {filledPercent}%"
 #~ msgstr "农场奖励"
 
 #: src/components/SwapForm/SwapModal/SwapDetails/index.tsx
-#: src/components/swapv2/TokenInfo/MarketInfo.tsx
+#: src/components/TokenInfo/MarketInfo.tsx
 #: src/components/WalletPopup/SendToken/WarningBrave.tsx
 msgid "Contract Address"
 msgstr "合约地址"
@@ -5016,11 +5411,11 @@ msgstr "注意：KNC 质押仅支持以太坊链"
 msgid "You're eligible to claim 🎁 SafePal X1 Hardware Wallet"
 msgstr ""
 
-#: src/components/Menu/index.tsx
+#: src/components/Menu/components/PreferencesSection.tsx
 msgid "Holiday Mode"
 msgstr "假日模式"
 
-#: src/pages/SwapV3/Components/SwapTradeRoute.tsx
+#: src/pages/Swap/components/SwapTradeRoute.tsx
 msgid "Smart Settlement"
 msgstr ""
 
@@ -5042,12 +5437,16 @@ msgstr "奖励将以 KNC 代币在以太坊上发放。"
 msgid "Select Token"
 msgstr "选择代币"
 
-#: src/hooks/useClaimReward.ts
+#: src/components/Menu/hooks/useClaimReward.ts
 msgid "Insufficient reward amount available for claim!"
 msgstr "可领取奖励金额不足"
 
+#: src/components/LimitOrder/ProcessingOrder/ProcessingOrderModal.tsx
+msgid "Signing order"
+msgstr ""
+
 #: src/components/Header/groups/KyberDaoGroup.tsx
-#: src/components/Menu/index.tsx
+#: src/components/Menu/components/MainMenuSection.tsx
 #: src/components/WalletPopup/Transactions/index.tsx
 msgid "KyberDAO"
 msgstr "KyberDAO"
@@ -5093,8 +5492,8 @@ msgid "Your wallet not support chain {name}"
 msgstr "您的钱包不支持 {name} 链"
 
 #: src/components/Button/index.tsx
-msgid "Approve {tokenSymbol}"
-msgstr "授权 {tokenSymbol}"
+#~ msgid "Approve {tokenSymbol}"
+#~ msgstr "授权 {tokenSymbol}"
 
 #: src/pages/Earns/PositionDetail/RewardSection.tsx
 msgid "Cycle ends in"
@@ -5103,6 +5502,13 @@ msgstr "周期结束于"
 #: src/pages/KyberDAO/KNCUtility/EligibleTxModal.tsx
 msgid "GAS REFUND REWARDS"
 msgstr "Gas 返还奖励"
+
+#: src/components/LimitOrder/TakeOrder/TakeOrderActionButtons.tsx
+#: src/components/LimitOrder/TakeOrder/TakeOrderActionButtons.tsx
+#: src/components/LimitOrder/TakeOrder/TakeOrderActionButtons.tsx
+#: src/components/LimitOrder/TakeOrder/TakeOrderActionButtons.tsx
+msgid "Use Swap Instead"
+msgstr ""
 
 #: src/components/FeeControlGroup/CustomFeeInput.tsx
 #: src/components/SlippageControl/CustomSlippageInput.tsx
@@ -5113,9 +5519,13 @@ msgstr "最大为 {format}"
 msgid "You can <0>choose Grant Option once</0>, please read and decide carefully"
 msgstr "您<0>只能选择一次资助选项</0>，请仔细阅读并谨慎决定"
 
-#: src/components/LimitOrder/Modals/CancelOrderModal.tsx
+#: src/components/LimitOrder/CancelOrder/CancelOrderModal.tsx
 msgid "Gasless Cancel {0}/{1} Orders"
 msgstr "免 Gas 取消 {0}/{1} 个订单"
+
+#: src/components/LimitOrder/OrderBook/OrderRow.tsx
+msgid "Take"
+msgstr ""
 
 #: src/pages/Campaign/components/Information/info/raffle.tsx
 msgid "The transaction hash whose last 4 hex digits have the <0>SMALLEST absolute numerical difference</0> from the last 4 hex digits of the Bitcoin Block Hash mined closest after 23:59 UTC on 25/11 (Week 1) and 02/12 (Week 2), will receive the promotional reward."
@@ -5132,6 +5542,10 @@ msgstr "在本次 Gas 返还试点计划中，KyberSwap 有权在合理通知后
 #: src/components/LiquidityProviderMode/index.tsx
 msgid "Zap In"
 msgstr "Zap注入"
+
+#: src/components/TokenSelectorModal/TabBar.tsx
+msgid "Favorites"
+msgstr ""
 
 #: src/pages/KyberDAO/Vote/index.tsx
 msgid "You can only vote from the next Epoch onward"
@@ -5170,11 +5584,15 @@ msgid "Invalid email address"
 msgstr "无效的邮箱地址"
 
 #: src/components/LimitOrder/useValidateInputError.tsx
-msgid "Insufficient {0} balance.<0/><1>{1}{formatNum} {2}</1> remaining after deducting Active and Open orders."
-msgstr "{0} 余额不足。扣除进行中和未完成订单后剩余 <1>{1}{formatNum} {2}</1>"
+#~ msgid "Insufficient {0} balance.<0/><1>{1}{formatNum} {2}</1> remaining after deducting Active and Open orders."
+#~ msgstr "{0} 余额不足。扣除进行中和未完成订单后剩余 <1>{1}{formatNum} {2}</1>"
 
 #: src/pages/Earns/components/SmartExit/useSmartExit.ts
 msgid "Smart Exit Order Created"
+msgstr ""
+
+#: src/components/LimitOrder/TakeOrder/RateComparison.tsx
+msgid "Swap offers a better rate. You can still fill this order directly if you prefer."
 msgstr ""
 
 #: src/components/Header/web3/SignWallet/ConfirmModal.tsx
@@ -5185,13 +5603,17 @@ msgstr ""
 msgid "- powered by Blink to protect your transactions from front-running attacks and ensure a better trading experience."
 msgstr "— 由 Blink 提供支持，防止抢跑攻击并提升交易体验"
 
+#: src/components/LimitOrder/TakeOrder/TakeOrderActionButtons.tsx
+msgid "Fill this order"
+msgstr ""
+
 #: src/pages/ElasticLegacy/FarmLegacy.tsx
 msgid "Claiming rewards"
 msgstr "领取奖励中"
 
 #: src/components/LimitOrder/Modals/CancelOrderModal.tsx
-msgid "Are you sure you want to cancel this limit order?"
-msgstr "确定要取消该限价单吗？"
+#~ msgid "Are you sure you want to cancel this limit order?"
+#~ msgstr "确定要取消该限价单吗？"
 
 #: src/pages/Oauth/Login.tsx
 msgid "Verification code is wrong or expired. Please try again."
@@ -5203,14 +5625,14 @@ msgid "Vesting"
 msgstr "归属中"
 
 #: src/components/LimitOrder/Modals/styled.tsx
-msgid "{0} price of {rateStr} {1}"
-msgstr "{1} 的 {0} 价格为 {rateStr}"
+#~ msgid "{0} price of {rateStr} {1}"
+#~ msgstr "{1} 的 {0} 价格为 {rateStr}"
 
 #: src/components/SupportButton.tsx
 msgid "Support"
 msgstr "支持"
 
-#: src/components/Menu/index.tsx
+#: src/components/Menu/components/LegacySection.tsx
 msgid "Treasury Grant 2023"
 msgstr "2023 年国库资助"
 
@@ -5233,6 +5655,10 @@ msgstr "该路径当前波动性过高，尝试自定义滑点以继续"
 msgid "You can view your total points earned and current rank by going to the “Leaderboard” tab."
 msgstr "您可以在“排行榜”标签中查看累计积分和当前排名。"
 
+#: src/components/LimitOrder/OrderBook/index.tsx
+msgid "No orders"
+msgstr ""
+
 #: src/pages/NotificationCenter/CreateAlert/CreateAlertForm.tsx
 msgid "Alert Conditions"
 msgstr "提醒条件"
@@ -5244,6 +5670,17 @@ msgstr "可领取奖励总计"
 #: src/pages/ProAmmPool/PositionListItem.tsx
 msgid "You have zero liquidity to remove"
 msgstr "您没有可移除的流动性"
+
+#: src/components/Header/groups/EarnNavGroup.tsx
+#: src/pages/Earns/components/EarnSidebar/index.tsx
+#: src/pages/Earns/MyVaults/index.tsx
+msgid "My Vaults"
+msgstr ""
+
+#: src/components/DateTimePicker/index.tsx
+#: src/components/LimitOrder/Form/LimitOrderExpirySection.tsx
+msgid "7 Days"
+msgstr ""
 
 #: src/pages/About/AboutKNC.tsx
 msgid "Kyber Network Crystal <0>(KNC)</0>"
@@ -5257,9 +5694,13 @@ msgstr "保存中……"
 #~ msgid "Suitable for stablecoin or stable correlated pairs. Anticipating price to fluctuate within ~0.6%. You can earn fees even if the price goes up by 0.3% or goes down by 0.3%."
 #~ msgstr "适用于稳定币或强相关交易对，预期价格波动约 ±0.6%。即使上涨 0.3% 或下跌 0.3% 仍可赚取手续费"
 
-#: src/components/LimitOrder/useNotificationLimitOrder.tsx
+#: src/components/LimitOrder/hooks/useNotificationLimitOrder.tsx
 msgid "Cancel Orders Failed"
 msgstr "取消订单失败"
+
+#: src/components/TokenSelectorModal/ImportTokenView.tsx
+msgid "This token isn't frequently swapped. Please do your own research before trading."
+msgstr ""
 
 #: src/pages/RemoveLiquidityProAmm/index.tsx
 msgid "More Information"
@@ -5273,9 +5714,13 @@ msgstr "在所选周内由您连接的钱包执行的合格交易。"
 msgid "Collected Fees"
 msgstr ""
 
+#: src/components/LimitOrder/CancelOrder/components.tsx
+msgid "Note: There is a possibility that the order might be filled before cancellation."
+msgstr ""
+
 #: src/pages/Earns/Landing/index.tsx
-msgid "Track, adjust, and optimize your positions to stay in control of your DeFi journey."
-msgstr "追踪、调整并优化您的仓位，全面掌控您的 DeFi 之旅"
+#~ msgid "Track, adjust, and optimize your positions to stay in control of your DeFi journey."
+#~ msgstr "追踪、调整并优化您的仓位，全面掌控您的 DeFi 之旅"
 
 #: src/pages/NotificationCenter/CreateAlert/CreateAlertForm.tsx
 msgid "Additional Options"
@@ -5288,8 +5733,8 @@ msgid "Price Range"
 msgstr "价格区间"
 
 #: src/pages/CrossChainSwap/components/QuoteProviderName.tsx
-msgid "Beta"
-msgstr "测试版"
+#~ msgid "Beta"
+#~ msgstr "测试版"
 
 #: src/components/PositionCard/index.tsx
 #: src/pages/ElasticLegacy/AllPositionLegacy.tsx
@@ -5346,16 +5791,16 @@ msgstr "手动从待处理列表中清除此交易，不影响其链上状态"
 #~ msgstr "若参与该池，预计可获得的交易手续费收益"
 
 #: src/pages/CrossChainSwap/components/SwapAction.tsx
-msgid "Approving..."
-msgstr "正在授权…"
+#~ msgid "Approving..."
+#~ msgstr "正在授权…"
 
 #: src/pages/Campaign/components/Information/info/safepal.tsx
 msgid "For every $100 volume, participants earn points based on the following distribution:"
 msgstr ""
 
 #: src/components/LimitOrder/OrderBook/TableHeader.tsx
-msgid "ORDER STATUS"
-msgstr "订单状态"
+#~ msgid "ORDER STATUS"
+#~ msgstr "订单状态"
 
 #: src/pages/CrossChainSwap/components/ConfirmationPopup.tsx
 msgid "Swapping {0} for {1}"
@@ -5399,10 +5844,10 @@ msgstr "价差"
 #~ msgstr "适用于稳定交易对，预期价格波动约 ±1%。即使上涨 0.5% 或下跌 0.5% 仍可赚取手续费"
 
 #: src/components/Announcement/Popups/index.tsx
-msgid "See All"
-msgstr "查看全部"
+#~ msgid "See All"
+#~ msgstr "查看全部"
 
-#: src/components/LimitOrder/ListOrder/SummaryNotify.tsx
+#: src/components/LimitOrder/MyOrders/SummaryNotify.tsx
 msgid "You have successfully placed an order to pay <0>{0} {1}</0> and receive <1>{2} {3} </1><2>at {4} price of {5} {6}.</2>"
 msgstr "您已成功下单，支付 <0>{0} {1}</0> 并接收 <1>{2} {3}</1><2>，成交价为 {4}，价格为 {5} {6}</2>"
 
@@ -5422,6 +5867,12 @@ msgstr ""
 #: src/pages/NotificationCenter/PriceAlerts/ActiveAlerts/SingleAlert.tsx
 msgid "Maximum number of Active Alerts reached."
 msgstr "已达到最大可用提醒数量"
+
+#: src/components/TokenSelectorModal/TokenSelectorContent.tsx
+#: src/pages/CrossChainSwap/components/TokenSelectorNonEvmModal.tsx
+#: src/pages/Earns/VaultDetail/index.tsx
+msgid "Loading..."
+msgstr ""
 
 #: src/components/Toggle/LegacyToggle.tsx
 #~ msgid "On"
@@ -5461,8 +5912,8 @@ msgid "<0>Your </0><1>Slippage</1><2> {msg}</2>"
 msgstr "<0>您的 </0><1>滑点</1><2> {msg}</2>"
 
 #: src/components/LimitOrder/Modals/CancelOrderModal.tsx
-msgid "Cancel Orders"
-msgstr "取消订单"
+#~ msgid "Cancel Orders"
+#~ msgstr "取消订单"
 
 #: src/components/Toggle/ListToggle.tsx
 #~ msgid "OFF"
@@ -5479,6 +5930,10 @@ msgstr "在此质押 ↗"
 #: src/pages/KyberDAO/KNCUtility/index.tsx
 msgid "The amount of the gas refunded will depend on your tier displayed below. Read more <0>here ↗</0>"
 msgstr "返还的 Gas 费用取决于您下方显示的等级。了解更多 <0>这里 ↗</0>"
+
+#: src/pages/Earns/VaultDetail/index.tsx
+msgid "Strategy vault optimizing yield across DeFi; earnings auto-compound."
+msgstr ""
 
 #: src/pages/Earns/components/SmartExit/Warning.tsx
 msgid "This will likely execute immediately."
@@ -5524,7 +5979,7 @@ msgid "You need to first allow KyberSwap's smart contract to use your {0}. <0>Re
 msgstr "您需要先授权 KyberSwap 的智能合约使用您的 {0}。<0>了解更多 ↗</0>"
 
 #: src/components/Header/index.tsx
-#: src/components/Menu/index.tsx
+#: src/components/Menu/components/MainMenuSection.tsx
 #: src/pages/Earns/PositionDetail/RightSection.tsx
 msgid "Analytics"
 msgstr "分析"
@@ -5551,6 +6006,10 @@ msgstr "按池地址搜索"
 msgid "Confirm to join"
 msgstr "确认加入"
 
+#: src/components/Footer/Footer.tsx
+msgid "Audited <0><1/></0> By"
+msgstr ""
+
 #: src/pages/KyberDAO/Vote/index.tsx
 msgid "Voting Power next Epoch: {0}"
 msgstr "下个 Epoch 的投票权：{0}"
@@ -5568,7 +6027,9 @@ msgstr "选择钱包"
 msgid "All Protocols"
 msgstr "所有协议"
 
-#: src/components/swapv2/TokenInfo/utils.ts
+#: src/components/LimitOrder/OrderList/index.tsx
+#: src/components/TokenInfo/utils.ts
+#: src/components/TokenSelectorModal/TokenSelectorContent.tsx
 msgid "Price"
 msgstr "价格"
 
@@ -5595,6 +6056,10 @@ msgstr "搜索提案"
 
 #: src/pages/Earns/UserPositions/PositionBanner.tsx
 msgid "3rd Party (Merkl) Incentives"
+msgstr ""
+
+#: src/components/SwapForm/TradeSummary.tsx
+msgid "Tip for"
 msgstr ""
 
 #: src/pages/Earns/UserPositions/Filter.tsx
@@ -5646,12 +6111,16 @@ msgid "Protection safeguards you from front-running attacks on {chainName}. We r
 msgstr "该保护机制可在 {chainName} 上防止抢跑攻击，建议使用"
 
 #: src/components/LimitOrder/ListOrder/OrderItem.tsx
-msgid "Expiry"
-msgstr "到期时间"
+#~ msgid "Expiry"
+#~ msgstr "到期时间"
 
 #: src/constants/networks.ts
 msgid "Elastic will be available soon"
 msgstr "Elastic 即将上线"
+
+#: src/components/TokenSelectorModal/TabBar.tsx
+msgid "Recently whitelisted on KyberSwap"
+msgstr ""
 
 #: src/pages/Earns/SmartExitOrders/OrderItem.tsx
 msgid "Est. liquidity & earned fee"
@@ -5661,7 +6130,7 @@ msgstr ""
 msgid "Migrating {value} KNCL to KNC"
 msgstr "迁移 {value} KNCL 至 KNC"
 
-#: src/components/LimitOrder/Modals/CancelButtons.tsx
+#: src/components/LimitOrder/CancelOrder/CancelButtons.tsx
 msgid "Cancel immediately by paying {gasAmountDisplay} gas fees."
 msgstr "支付 {gasAmountDisplay} Gas 费用可立即取消"
 
@@ -5669,7 +6138,7 @@ msgstr "支付 {gasAmountDisplay} Gas 费用可立即取消"
 msgid "Add Condition 2"
 msgstr ""
 
-#: src/components/LimitOrder/ListOrder/SummaryNotify.tsx
+#: src/components/LimitOrder/MyOrders/SummaryNotify.tsx
 msgid "Your orders below cancel failed:<0/>{listOrderName}"
 msgstr "以下订单取消失败：<0/>{listOrderName}"
 
@@ -5686,7 +6155,7 @@ msgid "Click sign to add favorite tokens at KyberSwap.com without logging in.\\n
 msgstr "点击签名即可在 KyberSwap.com 添加收藏代币，无需登录。\\n此请求不会触发任何链上交易或产生 Gas 费用，有效期为 7 天。\\n\\n签发时间：{issuedAt}"
 
 #: src/components/Header/groups/AboutNavGroup.tsx
-#: src/components/Menu/index.tsx
+#: src/components/Menu/components/MainMenuSection.tsx
 msgid "Blog"
 msgstr "博客"
 
@@ -5720,7 +6189,7 @@ msgstr ""
 msgid "MEV Protection Mode is on"
 msgstr "MEV 保护模式已开启"
 
-#: src/components/swapv2/SwapSettingsPanel/index.tsx
+#: src/pages/Swap/components/SwapSettingsPanel/index.tsx
 msgid "Turn on to display trade route."
 msgstr "开启以显示交易路径"
 
@@ -5779,8 +6248,8 @@ msgid "Cooldown"
 msgstr "冷却期"
 
 #: src/pages/Earns/Landing/index.tsx
-msgid "Enhance Your Liquidity Positions"
-msgstr "增强您的流动性仓位"
+#~ msgid "Enhance Your Liquidity Positions"
+#~ msgstr "增强您的流动性仓位"
 
 #: src/pages/Campaign/components/Information/info/stipAggregator.tsx
 #: src/pages/Campaign/components/Information/info/stipReferrals.tsx
@@ -5816,8 +6285,8 @@ msgstr "连接比特币钱包"
 #~ msgstr "适用于稳定交易对，预期价格波动约 ±1.5%。即使上涨 0.75% 或下跌 0.75% 仍可赚取手续费"
 
 #: src/components/Header/web3/NetworkModal/index.tsx
-msgid "Drag here to unfavorite chain(s)."
-msgstr "拖拽至此以取消收藏链"
+#~ msgid "Drag here to unfavorite chain(s)."
+#~ msgstr "拖拽至此以取消收藏链"
 
 #: src/components/EarnBanner/TrendingPoolBanner.tsx
 msgid "TRENDING POOLS"
@@ -5835,6 +6304,7 @@ msgstr "验证中"
 msgid "Grouping selection across chains is sourced from Coingecko and CoinMarketCap"
 msgstr "跨链分组选择数据来源于 Coingecko 与 CoinMarketCap"
 
+#: src/components/LimitOrder/OrderBook/TableHeader.tsx
 #: src/pages/ElasticLegacy/PositionLegacy.tsx
 #: src/pages/KyberDAO/StakeKNC/YourTransactionsModal.tsx
 msgid "Action"
@@ -5849,6 +6319,10 @@ msgstr "这是攻击发生前您的流动性仓位所对应的美元价值。"
 msgid "Participation Rewards"
 msgstr "参与奖励"
 
+#: src/pages/Earns/components/SmartExit/index.tsx
+msgid "Switch wallet"
+msgstr ""
+
 #: src/pages/Campaign/components/Information/info/raffle.tsx
 msgid "Hash 1 difference: |7A5F - 6B5E| = 0x0F01 = 3,841 (decimal)"
 msgstr "哈希 1 差值：|7A5F - 6B5E| = 0x0F01 = 3,841（十进制）"
@@ -5862,8 +6336,8 @@ msgstr "费用总额<0/>（美元）"
 #~ msgstr "开始"
 
 #: src/components/LimitOrder/ListOrder/useRequestCancelOrder.tsx
-msgid "Canceling your orders"
-msgstr "取消您的订单中"
+#~ msgid "Canceling your orders"
+#~ msgstr "取消您的订单中"
 
 #: src/pages/Earns/PositionDetail/RewardSection.tsx
 msgid "will move to \"Vesting\" when this cycle ends."
@@ -5874,18 +6348,18 @@ msgstr ""
 msgid "There is no minimum nor maximum value requirement for a trade to earn points."
 msgstr "交易获得积分没有最低或最高金额限制。"
 
-#: src/components/swapv2/LiquiditySourcesPanel/SearchBar.tsx
+#: src/pages/Swap/components/LiquiditySourcesPanel/SearchBar.tsx
 msgid "Search for a liquidity source"
 msgstr "搜索流动性来源"
 
-#: src/components/LimitOrder/ExpirePicker.tsx
+#: src/components/DateTimePicker/index.tsx
 msgid "Order will trigger on"
 msgstr ""
 
 #: src/components/LimitOrder/ListOrder/TableHeader.tsx
 #: src/components/LimitOrder/ListOrder/TableHeader.tsx
-msgid "LIMIT ORDER(S)"
-msgstr "限价单"
+#~ msgid "LIMIT ORDER(S)"
+#~ msgstr "限价单"
 
 #: src/pages/Earns/PositionDetail/RewardSection.tsx
 #~ msgid "Uniswap Bonus:"
@@ -5895,7 +6369,7 @@ msgstr "限价单"
 msgid "<0>To become a Referrer</0>, users simply need to click on \"Invite your friends,\" sign an on-chain message to confirm their participation (if you were referred by a friend and have already signed the message as a referee, you won't need to sign again), and then generate a link ready to share."
 msgstr "<0>要成为推荐人</0>，用户只需点击“邀请好友”，签署一条链上消息确认参与（若您先前作为被推荐人已签署过，则无需再次签名），随后即可生成可分享的链接。"
 
-#: src/components/swapv2/SwapSettingsPanel/index.tsx
+#: src/pages/Swap/components/SwapSettingsPanel/index.tsx
 msgid "Turn on to display pricing chart."
 msgstr ""
 
@@ -5923,11 +6397,15 @@ msgstr "移除流动性"
 msgid "Logging out"
 msgstr "正在退出登录"
 
+#: src/components/LimitOrder/MyOrders/utils.ts
+msgid "Insufficient funds"
+msgstr ""
+
 #: src/components/WalletPopup/type.ts
 msgid "Reward Center"
 msgstr "奖励中心"
 
-#: src/components/swapv2/TokenInfo/SecurityInfo/index.tsx
+#: src/components/TokenInfo/SecurityInfo/index.tsx
 msgid "Trading Security"
 msgstr "交易安全"
 
@@ -5958,7 +6436,7 @@ msgstr "<0>第 9 周</0> 9 月 2 日 - 9 月 8 日"
 msgid "Step"
 msgstr "步骤"
 
-#: src/components/LimitOrder/Modals/CancelOrderModal.tsx
+#: src/components/LimitOrder/CancelOrder/CancelOrderModal.tsx
 msgid "Cancel an order"
 msgstr "取消订单"
 
@@ -5966,6 +6444,9 @@ msgstr "取消订单"
 msgid "Delete"
 msgstr "删除"
 
+#: src/components/LimitOrder/MyOrders/TableHeader.tsx
+#: src/components/LimitOrder/OrderBook/TableHeader.tsx
+#: src/components/LimitOrder/TakeOrder/TakeOrderConfirmModal.tsx
 #: src/pages/KyberDAO/KNCUtility/GasRefundBox.tsx
 msgid "Available"
 msgstr "可用"
@@ -5977,6 +6458,10 @@ msgstr "未达到"
 #: src/pages/ElasticSnapshot/components/ChooseGrantModal.tsx
 msgid "Treasury Grant Options"
 msgstr "国库资助选项"
+
+#: src/components/FeeControlGroup/index.tsx
+msgid "No hidden fees! Your <0>optional tips</0> support"
+msgstr ""
 
 #: src/pages/CrossChainSwap/components/SwapAction.tsx
 msgid "Connect NEAR Wallet"
@@ -5991,7 +6476,7 @@ msgstr "您的交易"
 msgid "If I swap $1 volume from EVM to Near L1, is the volume counted for my EVM wallet or my Near wallet?"
 msgstr "如果我从 EVM 向 Near L1 兑换 1 美元，交易量算在 EVM 钱包还是 Near 钱包？"
 
-#: src/components/LimitOrder/ListOrder/OrderItem.tsx
+#: src/pages/CrossChainSwap/components/TransactionHistory.tsx
 msgid "Created"
 msgstr "已创建"
 
@@ -6035,8 +6520,8 @@ msgstr "必需："
 msgid "Acknowledge"
 msgstr "确认"
 
-#: src/components/LimitOrder/ExpirePicker.tsx
-#: src/components/LimitOrder/ListOrder/ActionButtons.tsx
+#: src/components/DateTimePicker/index.tsx
+#: src/components/TokenSelectorModal/SwitchChainModal.tsx
 #: src/components/WalletPopup/Transactions/index.tsx
 #: src/components/ZapCreatePool/CreatePoolModal.tsx
 #: src/hooks/useLogin.tsx
@@ -6045,6 +6530,7 @@ msgstr "确认"
 #: src/pages/Campaign/components/SafePalClaimModal.tsx
 #: src/pages/Earns/components/ClaimAllModal/index.tsx
 #: src/pages/Earns/components/ClaimModal/index.tsx
+#: src/pages/Earns/components/PositionClaimModal/index.tsx
 #: src/pages/Earns/components/SmartExit/Actions.tsx
 #: src/pages/Earns/components/SmartExit/Confirmation/Success.tsx
 #: src/pages/Earns/SmartExitOrders/index.tsx
@@ -6062,7 +6548,7 @@ msgid "Time to sign-in is Expired, please go back and try again."
 msgstr "登录时间已过期，请返回重试"
 
 #: src/components/Announcement/PrivateAnnoucement/InboxItemPriceAlert.tsx
-#: src/components/LimitOrder/ListOrder/SummaryNotify.tsx
+#: src/components/LimitOrder/MyOrders/SummaryNotify.tsx
 #: src/components/WalletPopup/Transactions/ContractAddress.tsx
 #: src/components/WalletPopup/Transactions/TransactionItem.tsx
 #: src/pages/NotificationCenter/CreateAlert/ConfirmModal.tsx
@@ -6075,7 +6561,6 @@ msgstr "至"
 #: src/pages/Campaign/components/Leaderboard/SafePalLeaderboard.tsx
 #: src/pages/Campaign/components/MyDashboard/SafePalDashboard.tsx
 #: src/pages/Campaign/components/MyDashboard/SafePalDashboard.tsx
-#: src/pages/CrossChainSwap/components/TransactionHistory.tsx
 msgid "STATUS"
 msgstr "状态"
 
@@ -6100,8 +6585,8 @@ msgid "KNC holders can stake their tokens to vote on proposals and receive rewar
 msgstr "KNC 持有者可质押代币参与投票并以 KNC 形式获得奖励"
 
 #: src/pages/PartnerSwap/index.tsx
-msgid "Note: Once your order is filled, you will receive {currencyName} ({currencySymbol})"
-msgstr "注意：订单成交后，您将收到 {currencyName}（{currencySymbol}）"
+#~ msgid "Note: Once your order is filled, you will receive {currencyName} ({currencySymbol})"
+#~ msgstr "注意：订单成交后，您将收到 {currencyName}（{currencySymbol}）"
 
 #: src/pages/ElasticLegacy/FarmLegacy.tsx
 msgid "Farms"
@@ -6133,9 +6618,7 @@ msgstr "这些数据多久更新一次？"
 msgid "Current Cycle"
 msgstr "当前周期"
 
-#: src/components/LimitOrder/Modals/ConfirmOrderModal.tsx
-#: src/components/LimitOrder/Modals/ConfirmOrderModal.tsx
-#: src/components/LimitOrder/Modals/ConfirmOrderModal.tsx
+#: src/components/LimitOrder/CreateOrder/CreateOrderConfirmModal.tsx
 #: src/pages/Campaign/constants.tsx
 msgid "Place Order"
 msgstr "下单"
@@ -6166,6 +6649,10 @@ msgstr "以更优价格兑换代币，无限制"
 msgid "<0>Price Impact</0><1>is high</1>"
 msgstr "<0>价格影响</0><1>较高</1>"
 
+#: src/components/Header/web3/WalletModal/index.tsx
+msgid "Tap the button below to open the MetaMask app and approve the connection."
+msgstr ""
+
 #: src/components/Announcement/PrivateAnnoucement/InboxItemSmartExit.tsx
 msgid "Reason:"
 msgstr ""
@@ -6193,8 +6680,8 @@ msgid "Classic Pools"
 msgstr "经典池"
 
 #: src/components/LimitOrder/ListOrder/index.tsx
-msgid "Your currently existing order is {filledPercent}% filled."
-msgstr "您当前的订单已成交 {filledPercent}%"
+#~ msgid "Your currently existing order is {filledPercent}% filled."
+#~ msgstr "您当前的订单已成交 {filledPercent}%"
 
 #: src/pages/Campaign/components/Information/info/stipAggregator.tsx
 #: src/pages/Campaign/components/Information/info/stipLimitOrder.tsx
@@ -6214,6 +6701,14 @@ msgstr "不到 1 分钟前"
 #~ msgid "Choose between Infinite or Custom allowance. <0>Read more ↗</0>"
 #~ msgstr "选择无限或自定义授权额度。<0>了解更多 ↗</0>"
 
+#: src/components/LimitOrder/CreateOrder/useCreateLimitOrder.tsx
+msgid "Insufficient {inputCurrencySymbol} balance"
+msgstr ""
+
+#: src/components/SwapForm/SwapModal/index.tsx
+msgid "Estimating gas & network fees…"
+msgstr ""
+
 #: src/pages/Campaign/components/Information/info/stipAggregator.tsx
 #: src/pages/Campaign/components/Information/info/stipLimitOrder.tsx
 msgid "The Campaign will take place over 10 weeks, from 8th July to 16th September 2024. Points and Rewards are reset to 0 each Monday at 0:00 UTC, after the end of each weekly event."
@@ -6227,6 +6722,10 @@ msgstr "已解锁数量（USDC）"
 #~ msgid "Your Position"
 #~ msgstr "您的仓位"
 
+#: src/components/LimitOrder/ProcessingOrder/ProcessingOrderModal.tsx
+msgid "Approved {inputSymbol}"
+msgstr ""
+
 #: src/pages/NotificationCenter/Profile/AvatarEdit.tsx
 msgid "Edit"
 msgstr "编辑"
@@ -6235,11 +6734,11 @@ msgstr "编辑"
 msgid "Pool Address:"
 msgstr ""
 
-#: src/components/swapv2/TokenInfo/utils.ts
+#: src/components/TokenInfo/utils.ts
 msgid "External Call"
 msgstr "外部调用"
 
-#: src/components/LimitOrder/ExpirePicker.tsx
+#: src/components/DateTimePicker/index.tsx
 msgid "Min"
 msgstr "最小"
 
@@ -6272,16 +6771,16 @@ msgid "No staked liquidity found. Check out our <0>Farms.</0>"
 msgstr "未发现已质押流动性，查看 <0>农场</0>"
 
 #: src/components/LimitOrder/LimitOrderForm.tsx
-msgid "Wrapping {amount} {inSymbol} to {amount} {wethSymbol}"
-msgstr "将 {amount} {inSymbol} 包装为 {amount} {wethSymbol}"
+#~ msgid "Wrapping {amount} {inSymbol} to {amount} {wethSymbol}"
+#~ msgstr "将 {amount} {inSymbol} 包装为 {amount} {wethSymbol}"
 
 #: src/pages/Earns/UserPositions/DropdownAction.tsx
 msgid "Reposition"
 msgstr "重新定位仓位"
 
 #: src/components/LimitOrder/Modals/ConfirmOrderModal.tsx
-msgid "Edit Type"
-msgstr "编辑类型"
+#~ msgid "Edit Type"
+#~ msgstr "编辑类型"
 
 #: src/pages/Earns/SmartExitOrders/index.tsx
 msgid "Condition(s)"
@@ -6302,6 +6801,10 @@ msgstr "有可领取的奖励"
 #: src/pages/KyberDAO/KNCUtility/FAQ.tsx
 msgid "No. You have to stake a minimum of 500 KNC in KyberDAO (on Ethereum) <0>here</0>, and meet the eligibility criteria by completing swap(s) on KyberSwap, with a minimum trading volume of ≥$200 per swap."
 msgstr "不可以。您需在以太坊链的 KyberDAO 中至少质押 500 KNC <0>这里</0>，并完成 KyberSwap 的兑换（单笔 ≥$200）以满足资格"
+
+#: src/components/SwapForm/SwapModal/SwapDetails/index.tsx
+msgid "Read more <0>here ↗</0>"
+msgstr ""
 
 #: src/pages/Campaign/components/Information/info/raffle.tsx
 msgid "Take the last 4 hex digits from each eligible transaction hash."
@@ -6359,6 +6862,10 @@ msgstr "这些池子无需质押即可赚取奖励"
 #~ msgid "Do you want to make a <0>Limit Order</0> instead?"
 #~ msgstr "要改用 <0>限价单</0> 吗？"
 
+#: src/components/TransactionConfirmationModal/index.tsx
+msgid "Show more"
+msgstr ""
+
 #: src/pages/Campaign/components/CampaignStats/SafePalCampaignStats.tsx
 #: src/pages/Campaign/components/MyDashboard/SafePalDashboard.tsx
 msgid "Claim deadline: {0}"
@@ -6383,7 +6890,7 @@ msgstr ""
 msgid "Something went wrong. Please try again."
 msgstr "出现问题，请重试"
 
-#: src/components/Menu/index.tsx
+#: src/components/Menu/components/LegacySection.tsx
 #: src/pages/MyPool/index.tsx
 msgid "My Pools"
 msgstr "我的池子"
@@ -6396,8 +6903,7 @@ msgstr "我的池子"
 msgid "Approve {0}"
 msgstr "授权 {0}"
 
-#: src/components/TokenSelectorModal/TokenSelectorContent.tsx
-#: src/pages/CrossChainSwap/components/TokenPanel.tsx
+#: src/pages/CrossChainSwap/components/TokenSelectorNonEvmModal.tsx
 msgid "Search by token name, token symbol or address"
 msgstr "按代币名称、符号或地址搜索"
 
@@ -6427,6 +6933,8 @@ msgstr "已回滚 {increasedFilledPercent}"
 msgid "Trigger time must be in the future. Adjust the time settings accordingly."
 msgstr ""
 
+#: src/components/LimitOrder/MyOrders/TableHeader.tsx
+#: src/components/LimitOrder/OrderBook/TableHeader.tsx
 #: src/components/SwapForm/TradeSummary.tsx
 msgid "Rate"
 msgstr "汇率"
@@ -6435,7 +6943,7 @@ msgstr "汇率"
 msgid "Example:"
 msgstr "示例："
 
-#: src/components/swapv2/GasTokenSetting.tsx
+#: src/components/TokenSelectorModal/TokenSelectorContent.tsx
 #: src/pages/Earns/UserPositions/index.tsx
 #: src/pages/Earns/UserPositions/PositionRowItem.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
@@ -6459,18 +6967,16 @@ msgstr ""
 msgid "KYBER DAO"
 msgstr "KYBER DAO"
 
-#: src/components/swapv2/SwapSettingsPanel/index.tsx
+#: src/pages/Swap/components/SwapSettingsPanel/index.tsx
 msgid "Sound"
 msgstr ""
 
-#: src/components/swapv2/TokenInfo/index.tsx
+#: src/components/TokenInfo/index.tsx
 #: src/pages/About/AboutKyberSwap/index.tsx
 msgid "Powered by"
 msgstr "技术支持"
 
-#: src/components/Header/web3/WalletModal/index.tsx
-#: src/pages/CrossChainSwap/components/SolanaConnectModal.tsx
-#: src/pages/CrossChainSwap/components/TermAndPolicy.tsx
+#: src/components/Header/web3/WalletModal/components.tsx
 msgid "Accept"
 msgstr "接受"
 
@@ -6482,7 +6988,7 @@ msgstr "触发一次后禁用该提醒"
 msgid "Copy wallet address"
 msgstr "复制钱包地址"
 
-#: src/pages/SwapV3/Tabs/LimitTab.tsx
+#: src/pages/Swap/layout/LimitTab.tsx
 msgid "You have {numberOfActiveOrders} active orders."
 msgstr "您有 {numberOfActiveOrders} 个进行中的订单"
 
@@ -6490,7 +6996,11 @@ msgstr "您有 {numberOfActiveOrders} 个进行中的订单"
 msgid "Swapping {amountInDisplay} {symbolIn} for {amountOutDisplay} {symbolOut}"
 msgstr "正在将 {amountInDisplay} {symbolIn} 兑换为 {amountOutDisplay} {symbolOut}"
 
-#: src/pages/SwapV3/Header.tsx
+#: src/components/Menu/components/MainMenuSection.tsx
+msgid "Tip Link Generator"
+msgstr ""
+
+#: src/pages/Swap/layout/Header.tsx
 msgid "You have turned on Degen Mode. Be cautious"
 msgstr "您已开启 Degen 模式，请谨慎操作"
 
@@ -6587,9 +7097,8 @@ msgstr "了解如何向 KyberSwap Classic 添加流动性，请查看 <0>这里<
 msgid "Approve failed"
 msgstr "授权失败"
 
-#: src/components/LimitOrder/Modals/CancelButtons.tsx
-#: src/components/LimitOrder/Modals/CancelStatusCountDown.tsx
-#: src/components/LimitOrder/Modals/CancelStatusCountDown.tsx
+#: src/components/LimitOrder/CancelOrder/CancelButtons.tsx
+#: src/components/LimitOrder/CancelOrder/components.tsx
 msgid "Learn more ↗︎"
 msgstr "了解更多 ↗︎"
 
@@ -6601,6 +7110,13 @@ msgstr "数据分析 ↗"
 msgid "Please ensure the selected token has been imported in your Brave wallet before sending. Otherwise, your transaction will be rejected. In this case, you can quickly import token with contract address below."
 msgstr "请确保所选代币已导入 Brave 钱包，否则交易将被拒绝。您可使用下方合约地址快速导入"
 
+#: src/pages/Earns/ExploreVaults/index.tsx
+#: src/pages/Earns/ExploreVaults/index.tsx
+#: src/pages/Earns/Landing/FeaturedPartnerVaults/index.tsx
+#: src/pages/Earns/MyVaults/index.tsx
+msgid "+ Deposit"
+msgstr ""
+
 #: src/components/WalletPopup/SendToken/index.tsx
 msgid "Paste from clipboard"
 msgstr "从剪贴板粘贴"
@@ -6611,8 +7127,8 @@ msgstr "切换网络时发生错误"
 
 #: src/pages/CrossChainSwap/components/SolanaConnectModal.tsx
 #: src/pages/CrossChainSwap/components/TermAndPolicy.tsx
-msgid "KyberSwap's Terms of Use"
-msgstr "KyberSwap 使用条款"
+#~ msgid "KyberSwap's Terms of Use"
+#~ msgstr "KyberSwap 使用条款"
 
 #: src/components/SwapForm/PriceImpactNote.tsx
 #: src/components/SwapForm/PriceImpactNote.tsx
@@ -6685,6 +7201,7 @@ msgstr "奖励是如何计算的？"
 msgid "Importing..."
 msgstr "导入中…"
 
+#: src/pages/CrossChainSwap/components/TransactionHistory.tsx
 #: src/pages/KyberDAO/StakeKNC/YourTransactionsModal.tsx
 #: src/pages/KyberDAO/Vote/ProposalItem/Participants.tsx
 #: src/pages/KyberDAO/Vote/ProposalItem/Participants.tsx
@@ -6767,7 +7284,7 @@ msgid "Email Address"
 msgstr "邮箱地址"
 
 #: src/components/Announcement/PrivateAnnoucement/InboxItemLimitOrder.tsx
-#: src/components/LimitOrder/useNotificationLimitOrder.tsx
+#: src/components/LimitOrder/hooks/useNotificationLimitOrder.tsx
 msgid "Order Expired"
 msgstr "订单已过期"
 
@@ -6776,7 +7293,7 @@ msgstr "订单已过期"
 msgid "DIFFERENCE"
 msgstr "差值"
 
-#: src/components/LimitOrder/ListOrder/index.tsx
+#: src/components/LimitOrder/MyOrders/components.tsx
 msgid "You don't have any order history."
 msgstr "您暂无订单历史"
 
@@ -6802,7 +7319,7 @@ msgstr "请输入接收地址"
 msgid "Out of range"
 msgstr "超出区间"
 
-#: src/components/swapv2/TokenInfo/SecurityInfo/Content.tsx
+#: src/components/TokenInfo/SecurityInfo/Content.tsx
 msgid "Attention Item(s)"
 msgstr "注意事项"
 
@@ -6810,7 +7327,6 @@ msgstr "注意事项"
 msgid "These Terms and Conditions should be read in conjunction with the KyberSwap <0>Terms of Use</0>, which lay out the terms and conditions that apply to all KyberSwap activities."
 msgstr "本条款需结合 KyberSwap <0>使用条款</0> 一并阅读，后者规定了适用于所有 KyberSwap 活动的条款与条件。"
 
-#: src/components/LimitOrder/LimitOrderForm.tsx
 #: src/pages/Earns/components/SmartExit/Confirmation/MoreInfo.tsx
 msgid "Expires in"
 msgstr "剩余有效期"
@@ -6831,24 +7347,24 @@ msgstr "通知"
 
 #: src/pages/Campaign/hooks/useRaffleCampaignJoin.ts
 #: src/pages/Campaign/hooks/useSafePalCampaignJoin.ts
-msgid "Unable to access wallet"
-msgstr "无法访问钱包"
+#~ msgid "Unable to access wallet"
+#~ msgstr "无法访问钱包"
 
-#: src/components/Tutorial/TutorialSwap/CustomPopup.tsx
-#~ msgid "Back"
-#~ msgstr "返回"
+#: src/pages/Swap/components/SwapSettingsPanel/index.tsx
+msgid "Back"
+msgstr "返回"
 
 #: src/components/WalletPopup/Transactions/Status.tsx
-msgid "Checking"
-msgstr "检查中"
+#~ msgid "Checking"
+#~ msgstr "检查中"
 
 #: src/pages/About/AboutKyberSwap/index.tsx
 msgid "TVL From DEXs"
 msgstr "来自 DEX 的 TVL"
 
 #: src/components/swapv2/GasTokenSetting.tsx
-msgid "The PayMaster module & contracts are developed and operated by HoldStations, <0>details</0>"
-msgstr "PayMaster 模块及合约由 HoldStations 开发并运营，<0>详情</0>"
+#~ msgid "The PayMaster module & contracts are developed and operated by HoldStations, <0>details</0>"
+#~ msgstr "PayMaster 模块及合约由 HoldStations 开发并运营，<0>详情</0>"
 
 #: src/components/NavigationTabs/index.tsx
 msgid "Share with your friends!"
@@ -6858,6 +7374,11 @@ msgstr "分享给您的朋友！"
 msgid "Alert when"
 msgstr "触发提醒条件"
 
+#: src/components/LimitOrder/TakeOrder/TakeOrderConfirmModal.tsx
+msgid "Order Rate"
+msgstr ""
+
+#: src/components/LimitOrder/TakeOrder/useTakeOrderValidation.tsx
 #: src/components/SwapForm/hooks/useGetInputError.tsx
 #: src/hooks/useWrapCallback.ts
 #: src/hooks/useWrapCallback.ts
@@ -6867,9 +7388,9 @@ msgid "Enter an amount"
 msgstr "请输入金额"
 
 #: src/components/Header/web3/SelectWallet.tsx
+#: src/components/LimitOrder/Form/LimitOrderForm.tsx
 #: src/components/Menu/FaucetModal.tsx
 #: src/components/SwapForm/SwapActionButton/index.tsx
-#: src/components/LimitOrder/ActionButtonLimitOrder.tsx
 #: src/components/YieldPools/ElasticFarmGroup/buttons.tsx
 #: src/pages/Campaign/components/CampaignStats/NearIntentCampaignStats.tsx
 #: src/pages/Campaign/components/MyDashboard/NearIntentDashboard.tsx
@@ -6890,18 +7411,18 @@ msgstr "连接"
 #~ msgid "Suitable for pairs with low price volatility. Anticipating price to fluctuate within ~9%. You can earn fees even if the price goes up by 4.5% or goes down by 4.5%."
 #~ msgstr "适用于低波动交易对，预期价格波动约 ±9%，即使上涨或下跌 4.5% 仍可赚取手续费"
 
-#: src/pages/Bridge/SelectNetwork.tsx
+#: src/pages/CrossChainSwap/components/SelectNetwork.tsx
 msgid "Select a network"
 msgstr "选择网络"
 
 #: src/components/Header/groups/CampaignNavGroup.tsx
-#: src/components/Menu/index.tsx
+#: src/components/Menu/components/MainMenuSection.tsx
 msgid "Aggregator Trading"
 msgstr "聚合交易"
 
 #: src/components/Button/index.tsx
-msgid "Approved {tokenSymbol}"
-msgstr "已授权 {tokenSymbol}"
+#~ msgid "Approved {tokenSymbol}"
+#~ msgstr "已授权 {tokenSymbol}"
 
 #: src/components/Announcement/PrivateAnnoucement/InboxItemEarnPosition.tsx
 msgid "Created Balance:"
@@ -6924,11 +7445,15 @@ msgstr "您已成功开启 MEV 保护模式，{chainName} 上的所有交易将�
 msgid "Current Market Price is {currentPrice} {token0Symbol} per {token1Symbol}"
 msgstr "当前市场价为 {currentPrice} {token0Symbol}/{token1Symbol}"
 
-#: src/components/LimitOrder/ListOrder/index.tsx
-msgid "Note: Your existing order will be automatically cancelled and a new order will be created."
-msgstr "注意：您现有的订单将被自动取消并创建新订单"
+#: src/components/LimitOrder/ProcessingOrder/ProcessingOrderModal.tsx
+msgid "Approve {inputSymbol}"
+msgstr ""
 
-#: src/components/LimitOrder/ListOrder/SummaryNotify.tsx
+#: src/components/LimitOrder/ListOrder/index.tsx
+#~ msgid "Note: Your existing order will be automatically cancelled and a new order will be created."
+#~ msgstr "注意：您现有的订单将被自动取消并创建新订单"
+
+#: src/components/LimitOrder/MyOrders/SummaryNotify.tsx
 msgid "Your order to pay {mainMsg} was successfully filled"
 msgstr "您用于支付 {mainMsg} 的订单已成功成交"
 
@@ -6952,13 +7477,19 @@ msgstr "非 EVM → Near L1（不含同链）"
 msgid "Please select a token"
 msgstr "请选择代币"
 
-#: src/pages/CrossChainSwap/index.tsx
+#: src/components/LimitOrder/MyOrders/TableHeader.tsx
+#: src/components/LimitOrder/OrderBook/TableHeader.tsx
+msgid "Amount available to be filled."
+msgstr ""
+
+#: src/pages/CrossChainSwap/components/RecipientPanel.tsx
 msgid "Enter {networkName} receiving address"
 msgstr "请输入 {networkName} 接收地址"
 
 #: src/components/Header/groups/CampaignNavGroup.tsx
 #: src/components/Header/groups/CampaignNavGroup.tsx
 #: src/components/Header/web3/NetworkModal/components/DraggableNetworkButton.tsx
+#: src/components/TokenSelectorModal/TabBar.tsx
 #: src/pages/Campaign/MyDashboard.tsx
 msgid "New"
 msgstr "新"
@@ -6976,8 +7507,8 @@ msgstr "委托仅支持以太坊链"
 #~ msgid "Exit when {0}/{1}"
 #~ msgstr ""
 
-#: src/components/Button/index.tsx
 #: src/components/SwapForm/SwapActionButton/index.tsx
+#: src/pages/CrossChainSwap/components/SwapAction.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 msgid "Approving"
@@ -6994,11 +7525,15 @@ msgstr "Github"
 msgid "Add MEV Protection to safeguard you from front-running attacks."
 msgstr "开启 MEV 保护以防止抢跑攻击"
 
-#: src/components/swapv2/TokenInfo/utils.ts
+#: src/pages/Earns/components/SmartExit/Confirmation/index.tsx
+msgid "Smart Exit requires a regular EOA wallet (e.g. MetaMask, Rabby) that hasn't been upgraded to a smart account (e.g. via EIP-7702) to sign the position permit. Please reconnect with a non-smart wallet."
+msgstr ""
+
+#: src/components/TokenInfo/utils.ts
 msgid "Blacklisted Function"
 msgstr "黑名单功能"
 
-#: src/components/LimitOrder/ListOrder/TabSelector.tsx
+#: src/components/LimitOrder/MyOrders/components.tsx
 msgid "Active Orders"
 msgstr "活跃订单"
 
@@ -7078,16 +7613,20 @@ msgstr "最低价"
 
 #: src/pages/CrossChainSwap/components/SolanaConnectModal.tsx
 #: src/pages/CrossChainSwap/components/TermAndPolicy.tsx
-msgid "Last updated:"
-msgstr "最后更新："
+#~ msgid "Last updated:"
+#~ msgstr "最后更新："
 
 #: src/pages/Earns/PoolExplorer/Filter.tsx
 msgid "All pools"
 msgstr "所有池子"
 
-#: src/components/Menu/index.tsx
+#: src/components/Menu/components/PreferencesSection.tsx
 msgid "View"
 msgstr "查看"
+
+#: src/components/LimitOrder/MyOrders/TableHeader.tsx
+msgid "Created / Expiry"
+msgstr ""
 
 #: src/pages/MarketOverview/TableContent.tsx
 #: src/pages/MarketOverview/TableContent.tsx
@@ -7115,11 +7654,11 @@ msgstr ""
 msgid "EVM ↔ Solana L1"
 msgstr "EVM ↔ Solana L1"
 
-#: src/components/LimitOrder/ActionButtonLimitOrder.tsx
-#: src/components/LimitOrder/ActionButtonLimitOrder.tsx
+#: src/components/LimitOrder/Form/LimitOrderForm.tsx
 msgid "Review Order"
 msgstr "审核订单"
 
+#: src/components/LimitOrder/MyOrders/index.tsx
 #: src/pages/Earns/UserPositions/Filter.tsx
 msgid "Search by token symbol or address"
 msgstr "按代币符号或地址搜索"
@@ -7153,7 +7692,7 @@ msgstr "已成功登出所有账户"
 msgid "See here"
 msgstr "查看这里"
 
-#: src/components/LimitOrder/Modals/CancelStatusCountDown.tsx
+#: src/components/LimitOrder/CancelOrder/components.tsx
 msgid "Order will be automatically cancelled in"
 msgstr "订单将自动取消于"
 
@@ -7166,8 +7705,8 @@ msgstr "步骤 2："
 #~ msgstr "池手续费"
 
 #: src/components/LimitOrder/useWarningCreateOrder.tsx
-msgid "We suggest you increase the value of your limit order to at least <0>${threshold}</0>. This will increase the odds of your order being filled."
-msgstr "建议将限价单金额提高至至少 <0>${threshold}</0> 以提高成交概率"
+#~ msgid "We suggest you increase the value of your limit order to at least <0>${threshold}</0>. This will increase the odds of your order being filled."
+#~ msgstr "建议将限价单金额提高至至少 <0>${threshold}</0> 以提高成交概率"
 
 #: src/components/ProAmm/ProAmmPriceRange.tsx
 #: src/pages/Earns/components/SmartExit/PoolPrice.tsx
@@ -7182,21 +7721,29 @@ msgstr "建议将限价单金额提高至至少 <0>${threshold}</0> 以提高成
 msgid "Current Price"
 msgstr "当前价格"
 
+#: src/hooks/useRestrictedTokens.ts
+msgid "{name} is not available in your jurisdiction"
+msgstr ""
+
 #: src/pages/Earns/SmartExitOrders/components/ConditionContent.tsx
 msgid "Smart Exit canceled: condition can never be met."
 msgstr ""
 
-#: src/components/swapv2/SwapSettingsPanel/index.tsx
+#: src/pages/Swap/components/SwapSettingsPanel/index.tsx
 msgid "Turn on to play success sound."
+msgstr ""
+
+#: src/components/Header/web3/WalletModal/index.tsx
+msgid "No MetaMask app yet? Install it"
 msgstr ""
 
 #: src/components/PositionCard/index.tsx
 msgid "My position"
 msgstr "我的仓位"
 
-#: src/components/YieldPools/ElasticFarmGroup/buttons.tsx
-#~ msgid "Deposit"
-#~ msgstr "存入"
+#: src/pages/Earns/VaultDetail/index.tsx
+msgid "Deposit"
+msgstr "存入"
 
 #: src/components/TransactionConfirmationModal/index.tsx
 msgid "Add {0} to {name}"
@@ -7228,7 +7775,7 @@ msgstr "Gas 返还总额"
 msgid "Reposition to new range"
 msgstr "重新定位至新区间"
 
-#: src/components/LimitOrder/ListOrder/SummaryNotify.tsx
+#: src/components/LimitOrder/MyOrders/SummaryNotify.tsx
 msgid "Your order to pay {mainMsg} has expired{filledComponent}"
 msgstr "您用于支付 {mainMsg} 的订单已过期{filledComponent}"
 
@@ -7236,7 +7783,7 @@ msgstr "您用于支付 {mainMsg} 的订单已过期{filledComponent}"
 #~ msgid "You can place limit orders, bridge tokens, or buy crypto with multiple payment options!"
 #~ msgstr "您可以提交限价单、跨链或使用多种支付方式购买加密资产"
 
-#: src/components/LimitOrder/Modals/CancelOrderModal.tsx
+#: src/components/LimitOrder/CancelOrder/CancelOrderModal.tsx
 msgid "Gasless Cancel"
 msgstr "免 Gas 取消"
 
@@ -7247,6 +7794,10 @@ msgstr "地址总数"
 #: src/pages/KyberDAO/KNCUtility/FAQ.tsx
 msgid "On the “Pending” tab, there is a countdown timer showing when pending refunds become available for claiming. Refunds become available for claiming at the start of n+2 epoch. Each epoch lasts approximately 2 weeks. You can claim your rewards in the KNC Utility page or in the Wallet widget."
 msgstr "在“待处理”标签页中，可查看退款可领取倒计时。退款将在第 n+2 个 Epoch 开始时可领取，每个 Epoch 约持续 2 周"
+
+#: src/components/TokenSelectorModal/TokenSelectorContent.tsx
+msgid "Price & 24h change"
+msgstr ""
 
 #: src/components/SwapForm/SwapModal/SwapModalAreYouSure.tsx
 msgid "Due to market conditions, your output has been updated from {0} {1} to {2} {3} ({formattedOutputChangePercent}%)."
@@ -7284,7 +7835,7 @@ msgid "Condition never met"
 msgstr ""
 
 #: src/components/SwapForm/AddMEVProtectionModal.tsx
-#: src/components/swapv2/TokenInfo/SecurityInfo/Content.tsx
+#: src/components/TokenInfo/SecurityInfo/Content.tsx
 msgid "Yes"
 msgstr "是"
 
@@ -7296,8 +7847,12 @@ msgstr ""
 msgid "Clear Pending Transactions"
 msgstr "清除待处理交易"
 
+#: src/components/LimitOrder/CancelOrder/components.tsx
+msgid "All Orders"
+msgstr ""
+
 #: src/components/Announcement/PrivateAnnoucement/InboxItemLimitOrder.tsx
-#: src/components/LimitOrder/useNotificationLimitOrder.tsx
+#: src/components/LimitOrder/hooks/useNotificationLimitOrder.tsx
 msgid "Order Partially Filled"
 msgstr "订单部分成交"
 
@@ -7314,6 +7869,7 @@ msgstr "刷新"
 msgid "Receive"
 msgstr "接收"
 
+#: src/components/LimitOrder/TakeOrder/TakeOrderConfirmModal.tsx
 #: src/pages/CrossChainSwap/components/Summary.tsx
 msgid "Protocol Fee"
 msgstr "协议手续费"
@@ -7330,8 +7886,12 @@ msgstr "最小接收量"
 msgid "Unable to calculate <0>Price Impact</0>."
 msgstr "无法计算 <0>价格影响</0>"
 
+#: src/components/LimitOrder/ProcessingOrder/ProcessingOrderModal.tsx
+msgid "Order filled"
+msgstr ""
+
 #: src/components/Header/groups/KyberDaoGroup.tsx
-#: src/components/Menu/index.tsx
+#: src/components/Menu/components/MainMenuSection.tsx
 #: src/pages/KyberDAO/StakeKNC/index.tsx
 #: src/pages/KyberDAO/Vote/VoteConfirmModal.tsx
 msgid "Vote"
@@ -7350,7 +7910,11 @@ msgstr "流动性池"
 msgid "Minimum Received"
 msgstr "最少接收"
 
-#: src/components/LimitOrder/ListOrder/index.tsx
+#: src/components/LimitOrder/OrderBook/index.tsx
+msgid "SELLING"
+msgstr ""
+
+#: src/components/LimitOrder/MyOrders/components.tsx
 msgid "Cancel All"
 msgstr "全部取消"
 
@@ -7360,8 +7924,11 @@ msgstr "全部取消"
 msgid "You can find the full list of eligible tokens <0>here</0>"
 msgstr "可在<0>此处</0>查看合资格代币的完整列表"
 
-#: src/components/LimitOrder/Modals/CancelOrderModal.tsx
-#: src/components/LimitOrder/Modals/ConfirmOrderModal.tsx
+#: src/components/TokenSelectorModal/TabBar.tsx
+msgid "Fav"
+msgstr ""
+
+#: src/components/LimitOrder/components.tsx
 msgid "I pay"
 msgstr "我支付"
 
@@ -7381,30 +7948,46 @@ msgstr "<0><1>价格影响</1></0> 极高，您将损失资金"
 msgid "Weekly reset: Product usage and bonus progress reset after the weekly event ends."
 msgstr ""
 
-#: src/components/LimitOrder/useNotificationLimitOrder.tsx
+#: src/components/LimitOrder/hooks/useNotificationLimitOrder.tsx
 msgid "Order Cancel Failed"
 msgstr "取消订单失败"
 
+#: src/pages/Earns/MyVaults/index.tsx
+msgid "Processing Time"
+msgstr ""
+
 #: src/components/TransactionSettings/index.tsx
-#: src/pages/SwapV3/HeaderRightMenu.tsx
+#: src/pages/Swap/layout/HeaderRightMenu.tsx
 msgid "Degen mode is on. Be cautious!"
 msgstr "Degen 模式已开启，请谨慎"
 
 #: src/components/LimitOrder/ActionButtonLimitOrder.tsx
-msgid "Checking Allowance..."
-msgstr "检查授权中…"
+#~ msgid "Checking Allowance..."
+#~ msgstr "检查授权中…"
 
 #: src/pages/AddLiquidityV2/constants.ts
 #~ msgid "Suitable for pairs with low price volatility. Anticipating price to fluctuate within ~30%. You can earn fees even if the price goes up by 15% or goes down by 15%."
 #~ msgstr "适用于低波动交易对，预期价格波动约 ±30%，即使上涨或下跌 15% 仍可赚取手续费"
 
-#: src/components/swapv2/LiquiditySourcesPanel/index.tsx
-#: src/components/swapv2/LiquiditySourcesPanel/index.tsx
-#: src/components/swapv2/SwapSettingsPanel/LiquiditySourcesSetting.tsx
 #: src/pages/CrossChainSwap/components/CrossChainSwapSources.tsx
 #: src/pages/CrossChainSwap/components/CrossChainSwapSources.tsx
+#: src/pages/Swap/components/LiquiditySourcesPanel/index.tsx
+#: src/pages/Swap/components/LiquiditySourcesPanel/index.tsx
+#: src/pages/Swap/components/SwapSettingsPanel/LiquiditySourcesSetting.tsx
 msgid "Liquidity Sources"
 msgstr "流动性来源"
+
+#: src/pages/Earns/VaultDetail/index.tsx
+msgid "How it works:"
+msgstr ""
+
+#: src/components/SwapForm/TradeSummary.tsx
+msgid "You're adding a {feePercent} tip ({feeAmountText}) to this swap for the link sharer. This is deducted from your output - the Est. Output above already includes it. Tips are optional and go directly to the link sharer's wallet."
+msgstr ""
+
+#: src/pages/Earns/ExploreVaults/index.tsx
+msgid "Gallery view"
+msgstr ""
 
 #: src/pages/KyberDAO/StakeKNC/StakeKNCComponent.tsx
 msgid "In this default delegation method, your delegate is responsible for voting on your behalf and distributing your KNC rewards to you, though only you can withdraw/unstake your own KNC"
@@ -7414,7 +7997,6 @@ msgstr "在默认委托模式下，受托人将代表您投票并分发 KNC 奖�
 msgid "Failed to connect Ledger wallet"
 msgstr "Ledger 钱包连接失败"
 
-#: src/components/SwapForm/SwapModal/SwapDetails/index.tsx
 #: src/components/SwapForm/TradeSummary.tsx
 msgid "Est. Swap Fee"
 msgstr "预估兑换手续费"
@@ -7447,7 +8029,7 @@ msgstr ""
 msgid "My Staked"
 msgstr "我的已质押"
 
-#: src/hooks/useClaimReward.ts
+#: src/components/Menu/hooks/useClaimReward.ts
 msgid "Something is wrong. Please try again later!"
 msgstr "发生异常，请稍后重试"
 
@@ -7463,7 +8045,7 @@ msgstr ""
 msgid "Which tokens can referees trade to be eligible for the rewards?"
 msgstr "被推荐人需要交易哪些代币才能符合奖励资格？"
 
-#: src/pages/CrossChainSwap/index.tsx
+#: src/pages/CrossChainSwap/components/RecipientPanel.tsx
 msgid "Use my wallet"
 msgstr "使用我的钱包"
 
@@ -7494,20 +8076,24 @@ msgid "On-chain Price"
 msgstr "链上价格"
 
 #: src/components/SwapForm/SwapModal/SwapModalAreYouSure.tsx
-msgid "If you're okay with this, please type the word 'confirm' below to accept this new amount."
-msgstr "若您接受该金额，请在下方输入“confirm” 一词以接受此新金额"
+#~ msgid "If you're okay with this, please type the word 'confirm' below to accept this new amount."
+#~ msgstr "若您接受该金额，请在下方输入“confirm” 一词以接受此新金额"
 
 #: src/components/SwapForm/index.tsx
 msgid "Our simulation detects that {0} has {1}% fee on transfer, please check further before buying."
 msgstr "模拟检测到 {0} 存在 {1}% 转账手续费，请谨慎交易"
+
+#: src/components/LimitOrder/TakeOrder/useTakeOrderValidation.tsx
+msgid "Insufficient {0} balance"
+msgstr ""
 
 #: src/pages/Campaign/components/Information/info/mayTrading.tsx
 msgid "Trade more to earn more points to climb the leaderboard - the higher your rank, the greater your rewards."
 msgstr "交易越多，积分越多，排名越高，奖励越丰厚。"
 
 #: src/components/LimitOrder/ActionButtonLimitOrder.tsx
-msgid "You will need to wrap your {inSymbol} to {wrapSymbol} before you can place a limit order. Your tokens will be exchanged 1 to 1."
-msgstr "在下限价单前需将 {inSymbol} 包装为 {wrapSymbol}，代币将按 1:1 兑换"
+#~ msgid "You will need to wrap your {inSymbol} to {wrapSymbol} before you can place a limit order. Your tokens will be exchanged 1 to 1."
+#~ msgstr "在下限价单前需将 {inSymbol} 包装为 {wrapSymbol}，代币将按 1:1 兑换"
 
 #: src/components/TokenSelectorModal/ImportTokenView.tsx
 msgid "Import Token"
@@ -7518,8 +8104,8 @@ msgid "Invalid Ethereum address"
 msgstr "无效的以太坊地址"
 
 #: src/components/TokenSelectorModal/ImportTokenView.tsx
-msgid "This token isn’t frequently swapped. Please do your own research before trading."
-msgstr "该代币兑换交易不频繁，请自行做好研究"
+#~ msgid "This token isn’t frequently swapped. Please do your own research before trading."
+#~ msgstr "该代币兑换交易不频繁，请自行做好研究"
 
 #: src/pages/Campaign/components/Information/info/stipAggregator.tsx
 #: src/pages/Campaign/components/Information/info/stipAggregator.tsx
@@ -7556,6 +8142,10 @@ msgstr "{nativeTokenSymbol} 余额不足"
 #~ msgid "Download Wallet"
 #~ msgstr "下载钱包"
 
+#: src/components/LimitOrder/ProcessingOrder/ProcessingOrderModal.tsx
+msgid "Processing Order"
+msgstr ""
+
 #: src/components/Header/web3/SignWallet/ProfileContent.tsx
 #~ msgid "Edit current account"
 #~ msgstr "编辑当前账户"
@@ -7572,6 +8162,7 @@ msgstr "复制地址到剪贴板"
 msgid "You are eligible for <0>{0}</0> unclaimed farming rewards, you can claim them by clicking the \"Claim Rewards\" button below."
 msgstr "您有 <0>{0}</0> 未领取的农场奖励，可点击下方“领取奖励”"
 
+#: src/components/LimitOrder/Form/LimitOrderExpirySection.tsx
 #: src/pages/Earns/components/SmartExit/ExpireSetting.tsx
 msgid "Expires In"
 msgstr ""
@@ -7580,25 +8171,33 @@ msgstr ""
 msgid "Available assets for claiming"
 msgstr "可领取的资产"
 
-#: src/pages/SwapV3/Components/TokenPriceChart.tsx
+#: src/components/Header/web3/WalletModal/components.tsx
+msgid "{walletName} does not support the selected chain. Please switch chain or try a different wallet."
+msgstr ""
+
+#: src/components/TokenPriceChart/index.tsx
 msgid "Not enough on-chain activity to display a reliable price chart for this token"
 msgstr ""
 
 #: src/components/Menu/index.tsx
-msgid "Icons"
-msgstr "图标"
+#~ msgid "Icons"
+#~ msgstr "图标"
 
 #: src/pages/PoolFinder/index.tsx
 msgid "Select a token to find your liquidity."
 msgstr "选择代币以查找您的流动性"
+
+#: src/pages/CrossChainSwap/components/SwapAction.tsx
+msgid "Checking approval"
+msgstr ""
 
 #: src/components/Announcement/PrivateAnnoucement/NotificationCenter/PoolPosition.tsx
 msgid "Your position <0/> {token0Symbol}-{token1Symbol} is <1>{statusMessage}</1><2/>"
 msgstr "您的仓位 <0/> {token0Symbol}-{token1Symbol} 状态为 <1>{statusMessage}</1><2/>"
 
 #: src/pages/Earns/Landing/index.tsx
-msgid "Coming soon..."
-msgstr "即将上线…"
+#~ msgid "Coming soon..."
+#~ msgstr "即将上线…"
 
 #: src/pages/Campaign/components/Information/info/stipLimitOrder.tsx
 msgid "After your first week of Limit-Order activities (from Monday 0:00 UTC to Sunday 23h59 UTC) points and rewards are locked 7 days. During this 7 days buffer period, the team will analyze the data and exclude potential cheaters. Once this buffer period ends, ARB will be claimable on <0>KyberSwap.com/campaigns/dashboard.</0>"
@@ -7617,8 +8216,8 @@ msgid "Go to <0>KyberSwap Cross-Chain</0> feature."
 msgstr "前往 <0>KyberSwap 跨链</0> 功能。"
 
 #: src/components/LimitOrder/OrderBook/index.tsx
-msgid "No orders."
-msgstr "暂无订单"
+#~ msgid "No orders."
+#~ msgstr "暂无订单"
 
 #: src/pages/KyberDAO/KNCUtility/index.tsx
 msgid "Terms and Conditions"
@@ -7640,6 +8239,10 @@ msgstr "最低可用滑点"
 msgid "Rewards are distributed every 7 days"
 msgstr "奖励每 7 天分发一次"
 
+#: src/components/TokenSelectorModal/TokenSelectorContent.tsx
+msgid "On-chain data for informational purposes only. Not financial advice."
+msgstr ""
+
 #: src/pages/Earns/PoolDetail/AddLiquidity/components/EstimatedPositionApr.tsx
 msgid "LP Fees: {0}%"
 msgstr ""
@@ -7647,6 +8250,10 @@ msgstr ""
 #: src/pages/AddLiquidityV2/constants.ts
 #~ msgid "Suitable for pairs with low price volatility. Anticipating price to fluctuate within ~45%. You can earn fees even if the price goes up by 22.5% or goes down by 22.5%."
 #~ msgstr "适用于低波动交易对，预期价格波动约 ±45%，即使上涨或下跌 22.5% 仍可赚取手续费"
+
+#: src/pages/Earns/components/SmartExit/index.tsx
+msgid "Smart wallets (Porto, Safe, Coinbase Smart Wallet, Argent, Ambire, ...) — including EOAs upgraded to a smart account via EIP-7702 on {chainName} — aren't compatible with Smart Exit because the position permit can't verify their contract signatures. Switch to a standard EOA wallet (e.g. MetaMask, Rabby) that hasn't been upgraded to use this feature."
+msgstr ""
 
 #: src/components/TransactionSettings/index.tsx
 msgid "Zap will include DEX aggregator to find the best price."
@@ -7667,6 +8274,10 @@ msgstr "Classic 不支持 Blast，请切换至其他链"
 #: src/pages/Campaign/components/Information/index.tsx
 msgid "🕑️ Timeline"
 msgstr "🕑️ 时间线"
+
+#: src/components/SwapForm/ERC8056Info.tsx
+msgid "{symbolsText}: accrued dividends are included in the balance display. The tradeable amount and wallet signing prompt will reflect the base balance."
+msgstr ""
 
 #: src/components/WalletPopup/SendToken/WarningBrave.tsx
 msgid "Notice for Brave wallet users"
@@ -7692,7 +8303,7 @@ msgstr ""
 msgid "Tier"
 msgstr "等级"
 
-#: src/components/swapv2/TokenInfo/utils.ts
+#: src/components/TokenInfo/utils.ts
 msgid "Can be bought"
 msgstr "可购买"
 
@@ -7700,6 +8311,11 @@ msgstr "可购买"
 #: src/pages/Earns/PositionDetail/RightSection.tsx
 msgid "Information"
 msgstr "信息"
+
+#: src/pages/Earns/components/EarnSidebar/index.tsx
+#: src/pages/Earns/Landing/index.tsx
+msgid "Partner Vaults"
+msgstr ""
 
 #: src/pages/NotificationCenter/CreateAlert/CreateAlertForm.tsx
 msgid "Specify the amount of time that must pass before the alert can be fired again."
@@ -7709,7 +8325,7 @@ msgstr "设置提醒再次触发前的最短间隔时间"
 msgid "The price of this pool is outside of your selected price range. Currently, your position is not earning any fees or rewards."
 msgstr "该池价格已超出您选择的区间，当前仓位未赚取手续费或奖励"
 
-#: src/pages/SwapV3/Header.tsx
+#: src/pages/Swap/layout/Header.tsx
 msgid "Swap between tokens on different chains"
 msgstr "跨链代币兑换"
 
@@ -7725,6 +8341,10 @@ msgstr "清除所有待处理交易"
 #: src/pages/SwapV3/ApprovalModal.tsx
 #~ msgid "Custom Allowance"
 #~ msgstr "自定义授权额度"
+
+#: src/components/SwapForm/SwapModal/index.tsx
+msgid "Preparing Transaction"
+msgstr ""
 
 #: src/pages/CrossChainSwap/components/QuoteSelector.tsx
 msgid "On-Going Campaign"
@@ -7744,6 +8364,7 @@ msgstr "稳定交易对"
 #: src/pages/Campaign/components/JoinReferral.tsx
 #: src/pages/ElasticSnapshot/components/ChooseGrantModal.tsx
 #: src/pages/ElasticSnapshot/components/ChooseGrantModal.tsx
+#: src/pages/ElasticSnapshot/components/ChooseGrantModal.tsx
 #: src/pages/ElasticSnapshot/components/SelectTreasuryGrant.tsx
 #: src/pages/ElasticSnapshot/components/SelectTreasuryGrant.tsx
 #: src/pages/MarketOverview/TableContent.tsx
@@ -7752,7 +8373,7 @@ msgstr "稳定交易对"
 msgid "Something went wrong"
 msgstr "发生错误"
 
-#: src/components/swapv2/TokenInfo/utils.ts
+#: src/components/TokenInfo/utils.ts
 msgid "Open Source"
 msgstr "开源"
 
@@ -7800,14 +8421,19 @@ msgstr "退出"
 msgid "There is no maximum allocation for each eligible wallet."
 msgstr "每个合资格钱包没有最高分配额度。"
 
+#: src/components/DateTimePicker/index.tsx
+#: src/components/LimitOrder/Form/LimitOrderExpirySection.tsx
+msgid "30 Days"
+msgstr ""
+
 #: src/components/Header/groups/CampaignNavGroup.tsx
-#: src/components/Menu/index.tsx
+#: src/components/Menu/components/MainMenuSection.tsx
 msgid "Campaigns"
 msgstr "活动"
 
 #: src/components/LimitOrder/ActionButtonLimitOrder.tsx
-msgid "Wrap {inSymbol}"
-msgstr "包装 {inSymbol}"
+#~ msgid "Wrap {inSymbol}"
+#~ msgstr "包装 {inSymbol}"
 
 #: src/components/PositionCard/index.tsx
 msgid "Total LP Tokens"
@@ -7818,8 +8444,8 @@ msgid "🏆 Rewards"
 msgstr "🏆 奖励"
 
 #: src/components/LimitOrder/Modals/CancelStatusCountDown.tsx
-msgid "*There is a possibility that the order might be filled before cancellation."
-msgstr "*订单可能在取消前被成交"
+#~ msgid "*There is a possibility that the order might be filled before cancellation."
+#~ msgstr "*订单可能在取消前被成交"
 
 #: src/pages/RemoveLiquidityProAmm/index.tsx
 msgid "Remove Amount"
@@ -7833,6 +8459,10 @@ msgstr "跨链汇率："
 msgid "How can I be eligible for the campaign?"
 msgstr "我如何获得参加此活动的资格？"
 
+#: src/components/LimitOrder/Form/useValidateInputError.tsx
+msgid "Please enter a valid output amount"
+msgstr ""
+
 #: src/pages/Campaign/components/MyDashboard/NearIntentDashboard.tsx
 #: src/pages/Campaign/MyDashboard.tsx
 #: src/pages/Campaign/MyDashboard.tsx
@@ -7844,7 +8474,7 @@ msgid "Please review the details of your swap"
 msgstr "请确认您的兑换详情"
 
 #: src/components/Header/groups/KyberDaoGroup.tsx
-#: src/components/Menu/index.tsx
+#: src/components/Menu/components/MainMenuSection.tsx
 #: src/pages/KyberDAO/KNCUtility/index.tsx
 #: src/pages/KyberDAO/StakeKNC/index.tsx
 #: src/pages/KyberDAO/StakeKNC/index.tsx
@@ -7855,6 +8485,10 @@ msgstr "KNC 工具"
 #: src/pages/Campaign/components/Leaderboard/SafePalLeaderboard.tsx
 msgid "Your rank"
 msgstr "您的排名"
+
+#: src/components/LimitOrder/ProcessingOrder/ProcessingOrderModal.tsx
+msgid "Sign order"
+msgstr ""
 
 #: src/pages/KyberDAO/Vote/index.tsx
 msgid "You have been delegated voting power from other address(es)"
@@ -7872,6 +8506,10 @@ msgstr "总获奖次数"
 #: src/components/SwapForm/SwapModal/ConfirmSwapModalContent.tsx
 msgid "Please review the details of your swap:"
 msgstr "请确认您的兑换详情："
+
+#: src/pages/Earns/MyVaults/index.tsx
+msgid "Earned"
+msgstr ""
 
 #: src/pages/Earns/SmartExitOrders/components/TitleContent.tsx
 #: src/pages/Earns/SmartExitOrders/index.tsx
@@ -7904,6 +8542,10 @@ msgstr ""
 msgid "Add to favorites"
 msgstr "加入收藏"
 
+#: src/components/Header/web3/WalletModal/components.tsx
+msgid "Wallet not supported on this chain"
+msgstr ""
+
 #: src/hooks/useLogin.tsx
 msgid "Connected successfully with Guest Profile."
 msgstr "已成功以访客配置文件连接"
@@ -7919,8 +8561,8 @@ msgid "Cancel all orders"
 msgstr "取消所有订单"
 
 #: src/components/LimitOrder/useWarningCreateOrder.tsx
-msgid "Your limit order price is <0>{percentWithoutMinus}</0> lower than the market. You will be selling your {0} exceedingly cheap."
-msgstr "您的限价单价格比市价低 <0>{percentWithoutMinus}</0>，将以极低价格卖出 {0}"
+#~ msgid "Your limit order price is <0>{percentWithoutMinus}</0> lower than the market. You will be selling your {0} exceedingly cheap."
+#~ msgstr "您的限价单价格比市价低 <0>{percentWithoutMinus}</0>，将以极低价格卖出 {0}"
 
 #: src/pages/Earns/PositionDetail/RewardSection.tsx
 msgid "Total Reward"
@@ -7930,7 +8572,7 @@ msgstr ""
 #~ msgid "A cryptocurrency wallet gives you access to your digital tokens and acts as a gateway to many blockchain applications like KyberSwap. You can buy, store, send and swap tokens using this wallet.<0/><1/>On KyberSwap we support a list of wallets including: MetaMask, Coin98, Wallet Connect, Coinbase Wallet, Ledger and others."
 #~ msgstr "加密钱包让您掌控数字代币，并成为进入 KyberSwap 等区块链应用的入口。通过钱包，您可以购买、存储、发送和兑换代币。<0/><1/>KyberSwap 支持的部分钱包包括：MetaMask、Coin98、WalletConnect、Coinbase Wallet、Ledger 等。"
 
-#: src/components/LimitOrder/useNotificationLimitOrder.tsx
+#: src/components/LimitOrder/hooks/useNotificationLimitOrder.tsx
 msgid "Cancel all orders failed. Please try again."
 msgstr "取消所有订单失败，请重试"
 
@@ -7961,14 +8603,14 @@ msgid "Total Amount (USD)"
 msgstr "总金额（美元）"
 
 #: src/components/LimitOrder/ActionButtonLimitOrder.tsx
-msgid "Wrapping"
-msgstr "包装中"
+#~ msgid "Wrapping"
+#~ msgstr "包装中"
 
 #: src/components/Header/groups/AboutNavGroup.tsx
 msgid "KNC"
 msgstr "KNC"
 
-#: src/components/swapv2/SwapSettingsPanel/CrossChainSourceSetting.tsx
+#: src/pages/Swap/components/SwapSettingsPanel/CrossChainSourceSetting.tsx
 msgid "{0} out of {1} selected"
 msgstr "已选择 {0}/{1}"
 
@@ -8011,15 +8653,14 @@ msgid "Attention"
 msgstr "注意"
 
 #: src/components/LimitOrder/ListOrder/TableHeader.tsx
-msgid "ACTION"
-msgstr "操作"
+#~ msgid "ACTION"
+#~ msgstr "操作"
 
-#: src/pages/Earns/Landing/index.tsx
 #: src/pages/Earns/PoolExplorer/Filter.tsx
 msgid "Highlighted Pools"
 msgstr "精选池子"
 
-#: src/components/swapv2/SwapSettingsPanel/index.tsx
+#: src/pages/Swap/components/SwapSettingsPanel/index.tsx
 msgid "Trade Route"
 msgstr "交易路径"
 
@@ -8027,7 +8668,7 @@ msgstr "交易路径"
 msgid "Connected successfully with the current wallet address."
 msgstr "已成功使用当前钱包地址连接"
 
-#: src/components/swapv2/TokenInfo/utils.ts
+#: src/components/TokenInfo/utils.ts
 msgid "Total Supply"
 msgstr "总供应量"
 
@@ -8067,13 +8708,16 @@ msgstr "合约"
 msgid "None of the liquidity position(s) held by your wallet ({0}) were affected by the exploit."
 msgstr "您的钱包（{0}）持有的流动性仓位均未受到此次攻击影响。"
 
+#: src/components/TokenSelectorModal/OtherChainTokens.tsx
+#: src/components/TokenSelectorModal/SwitchChainModal.tsx
+#: src/components/TokenSelectorModal/SwitchChainModal.tsx
 #: src/pages/Earns/SmartExitOrders/index.tsx
 msgid "Switch Chain"
 msgstr ""
 
 #: src/components/LimitOrder/Modals/CancelButtons.tsx
-msgid "Try Again"
-msgstr "重试"
+#~ msgid "Try Again"
+#~ msgstr "重试"
 
 #: src/pages/Campaign/components/SafePalClaimModal.tsx
 msgid "Rewards Claiming"
@@ -8083,9 +8727,13 @@ msgstr ""
 msgid "Sign-In with Google"
 msgstr "使用 Google 登录"
 
-#: src/components/swapv2/SwapSettingsPanel/LiquiditySourcesSetting.tsx
+#: src/pages/Swap/components/SwapSettingsPanel/LiquiditySourcesSetting.tsx
 msgid "{0} out of {numberOfDEXes} selected"
 msgstr "已选择 {0}/{numberOfDEXes}"
+
+#: src/pages/CrossChainSwap/components/SwapAction.tsx
+msgid "Finding the best route"
+msgstr ""
 
 #: src/pages/MarketOverview/DetailModal.tsx
 #: src/pages/MarketOverview/index.tsx
@@ -8114,7 +8762,7 @@ msgstr ""
 msgid "You have turned on Degen Mode from settings. Trades with very high price impact can be executed"
 msgstr "您已在设置中开启 Degen 模式，可执行高价格影响的交易"
 
-#: src/components/swapv2/TokenInfo/index.tsx
+#: src/components/TokenInfo/index.tsx
 msgid "Token security info provided by Goplus. Please conduct your own research before trading"
 msgstr "代币安全信息由 Goplus 提供，请自行研究"
 
@@ -8124,6 +8772,11 @@ msgstr "总归属金额（USDC）"
 
 #: src/pages/Campaign/components/Information/info/safepal.tsx
 msgid "Users are solely responsible for accessing the SafePal's platform to claim and receive rewards and must comply with all its applicable terms and policies."
+msgstr ""
+
+#: src/components/DateTimePicker/index.tsx
+#: src/components/LimitOrder/Form/LimitOrderExpirySection.tsx
+msgid "Never Expires"
 msgstr ""
 
 #: src/components/CurrencyInputPanel/TokenInfo.tsx
@@ -8160,7 +8813,9 @@ msgstr "已完成"
 msgid "Subscribe to receive emails on your Elastic liquidity positions across all chains. Whenever a position goes<0>out-of-range</0> or comes back <1>in-range</1>, you will receive an email."
 msgstr "订阅 Elastic 流动性仓位邮件通知，当仓位 <0>超出区间</0> 或 <1>回到区间</1> 时将收到邮件"
 
+#: src/pages/Earns/components/EarnSidebar/index.tsx
 #: src/pages/Earns/Landing/index.tsx
+#: src/pages/Earns/PoolDetail/components/PoolHeader.tsx
 #: src/pages/Earns/UserPositions/index.tsx
 msgid "Explore Pools"
 msgstr "探索池子"
@@ -8177,6 +8832,10 @@ msgstr "积分数据每小时更新一次。"
 #: src/pages/Earns/PositionDetail/InformationTab.tsx
 #: src/pages/Earns/UserPositions/DropdownAction.tsx
 msgid "View Smart Exit Orders"
+msgstr ""
+
+#: src/components/LimitOrder/TakeOrder/TakeOrderConfirmModal.tsx
+msgid "Fill Order"
 msgstr ""
 
 #: src/pages/About/AboutKyberSwap/index.tsx
@@ -8199,7 +8858,7 @@ msgstr "领取 {amount} KNC"
 msgid "Search by token name, symbol or address"
 msgstr "按代币名称、符号或地址搜索"
 
-#: src/components/swapv2/TokenInfo/utils.ts
+#: src/components/TokenInfo/utils.ts
 msgid "Market Cap Rank"
 msgstr "市值排名"
 
@@ -8235,9 +8894,19 @@ msgstr ""
 msgid "Detail"
 msgstr "详情"
 
+#: src/pages/Earns/Landing/FeaturedPartnerVaults/index.tsx
+#: src/pages/Earns/VaultDetail/index.tsx
+#: src/pages/Earns/VaultDetail/index.tsx
+msgid "APY"
+msgstr ""
+
 #: src/pages/About/AboutKNC.tsx
 msgid "KNC is a utility and governance token and an integral part of Kyber Network and its product KyberSwap - the multi-chain decentralized exchange (DEX) that provides superior rates for traders."
 msgstr "KNC 是一种实用型与治理代币，是 Kyber Network 及其产品 KyberSwap 不可或缺的一部分。KyberSwap 是一个多链去中心化交易所（DEX），为交易者提供更优的兑换价格。"
+
+#: src/pages/CrossChainSwap/components/TransactionHistory.tsx
+msgid "Route"
+msgstr ""
 
 #: src/pages/Earns/components/SmartExit/Confirmation/index.tsx
 msgid "The information is intended solely for your reference at the time you are viewing. It is your responsibility to verify all information before making decisions"
@@ -8256,12 +8925,16 @@ msgstr "KyberSwap 提供用于跟踪并向第三方协议添加流动性工具�
 msgid "Price:"
 msgstr "价格："
 
-#: src/components/LimitOrder/Modals/CancelStatusCountDown.tsx
+#: src/components/LimitOrder/CancelOrder/CancelOrderModal.tsx
 msgid "Order has been successfully cancelled."
 msgstr "订单已成功取消"
 
 #: src/components/Announcement/PrivateAnnoucement/InboxItemEarnPosition.tsx
 msgid "Position Increased"
+msgstr ""
+
+#: src/pages/Earns/ExploreVaults/index.tsx
+msgid "Layout"
 msgstr ""
 
 #: src/pages/Earns/components/SmartExit/Actions.tsx
@@ -8281,7 +8954,7 @@ msgstr "若钱包符合条件，可在下方免费领取 {tokenSymbol}，每个�
 msgid "Save time & effort"
 msgstr "节省时间与精力"
 
-#: src/components/swapv2/TokenInfo/MarketInfo.tsx
+#: src/components/TokenInfo/MarketInfo.tsx
 msgid "View less"
 msgstr "收起"
 
@@ -8302,8 +8975,8 @@ msgid "Limit Order: Only filled order volume is counted (unfilled or canceled or
 msgstr ""
 
 #: src/components/FeeControlGroup/index.tsx
-msgid "Tip"
-msgstr "提示"
+#~ msgid "Tip"
+#~ msgstr "提示"
 
 #: src/components/swapv2/AdvancedSwapDetails.tsx
 #~ msgid "Read more <0><1>here ↗</1>.</0>"
@@ -8317,7 +8990,7 @@ msgstr "注意：{warningToken} 已低于池中 10%，若降至 0% 池子可能�
 msgid "Invalid wallet address"
 msgstr "无效的钱包地址"
 
-#: src/components/LimitOrder/const.ts
+#: src/components/LimitOrder/MyOrders/utils.ts
 msgid "Expired Orders"
 msgstr "已过期订单"
 
@@ -8331,8 +9004,8 @@ msgid "NFT Permit Error"
 msgstr ""
 
 #: src/components/LimitOrder/useWarningCreateOrder.tsx
-msgid "Limit order price is >={BETTER_PRICE_DIFF_THRESHOLD}% higher than the market. We just want to make sure this is correct"
-msgstr "限价单价格高于市价 ≥{BETTER_PRICE_DIFF_THRESHOLD}%，请确认是否正确"
+#~ msgid "Limit order price is >={BETTER_PRICE_DIFF_THRESHOLD}% higher than the market. We just want to make sure this is correct"
+#~ msgstr "限价单价格高于市价 ≥{BETTER_PRICE_DIFF_THRESHOLD}%，请确认是否正确"
 
 #: src/pages/Earns/PositionDetail/AnalyticTab.tsx
 msgid "Liquidity Source"
@@ -8350,7 +9023,7 @@ msgstr "从 Arbitrum 向 Near L1 的稳定交易对兑换 50,000 美元可获得
 msgid "What is the First-Come, First-Served (FCFS) round?"
 msgstr ""
 
-#: src/components/LimitOrder/Modals/CancelOrderModal.tsx
+#: src/components/LimitOrder/CancelOrder/CancelOrderModal.tsx
 msgid "I want to cancel my order where"
 msgstr "我想取消我的订单，其中"
 
@@ -8393,7 +9066,7 @@ msgstr "您的价格区间最低价为 {minPrice} {token0Symbol}/{token1Symbol}"
 msgid "Farming Pools"
 msgstr "挖矿池"
 
-#: src/components/swapv2/TokenInfo/utils.ts
+#: src/components/TokenInfo/utils.ts
 msgid "Proxy Contract"
 msgstr "代理合约"
 
@@ -8423,6 +9096,7 @@ msgid "Permit Error"
 msgstr "授权错误"
 
 #: src/components/CurrencyInputPanel/index.tsx
+#: src/components/LimitOrder/TakeOrder/TakeOrderConfirmModal.tsx
 msgid "Half"
 msgstr "一半"
 
@@ -8444,6 +9118,14 @@ msgstr "钱包"
 msgid "Import it."
 msgstr "导入"
 
+#: src/pages/Earns/MyVaults/index.tsx
+msgid "Explore Vaults to get started"
+msgstr ""
+
+#: src/pages/Earns/components/SmartExit/index.tsx
+msgid "Smart Exit unavailable with your current wallet"
+msgstr ""
+
 #: src/pages/Campaign/components/Information/info/stipAggregator.tsx
 msgid "In order to be eligible, you need to make a swap from KyberSwap Aggregator API and trade any of the eligible tokens. You can trade on any of the whitelisted platforms that support KyberSwap Aggregator API. This includes <0>KyberSwap.com</0> and other interfaces that support our Aggregator. To name a few: Defillama, Pendle, Ramses… Whitelisted platforms will communicate on their eligibility for the KyberSwap STIP ARB Rewards. If no communication has been made on social medias or on their website, consider the platform as not eligible."
 msgstr "要符合资格，您需要通过 KyberSwap Aggregator API 进行兑换并交易任意合资格代币。您可以在所有支持 KyberSwap Aggregator API 的白名单平台上交易，其中包括 <0>KyberSwap.com</0> 以及 Defillama、Pendle、Ramses 等支持我们聚合器的界面。白名单平台会公布其是否符合 KyberSwap STIP ARB 奖励资格；若其在社交媒体或官网上未做说明，请视为不符合资格。"
@@ -8452,7 +9134,7 @@ msgstr "要符合资格，您需要通过 KyberSwap Aggregator API 进行兑换�
 #~ msgid "Here's a quick tutorial guide about KyberSwap's main features. Do you wish to have a look?"
 #~ msgstr "这是 KyberSwap 主要功能的快速指南，是否查看？"
 
-#: src/components/LimitOrder/ListOrder/SummaryNotify.tsx
+#: src/components/LimitOrder/MyOrders/SummaryNotify.tsx
 msgid "Your orders below has expired:<0/>{listOrderName}"
 msgstr "以下订单已过期：<0/>{listOrderName}"
 
@@ -8549,7 +9231,7 @@ msgstr "排行榜"
 msgid "{conditionTime} is already met."
 msgstr ""
 
-#: src/components/LimitOrder/ListOrder/SummaryNotify.tsx
+#: src/components/LimitOrder/MyOrders/SummaryNotify.tsx
 msgid "Your orders below was successfully filled:<0/>{listOrderName}"
 msgstr "以下订单已成功成交：<0/>{listOrderName}"
 
@@ -8636,6 +9318,10 @@ msgstr ""
 msgid "Sign-In with Email"
 msgstr "使用邮箱登录"
 
+#: src/components/TokenSelectorModal/SwitchChainModal.tsx
+msgid "Switch to"
+msgstr ""
+
 #: src/pages/Earns/UserPositions/index.tsx
 msgid "Claim fees"
 msgstr "领取手续费"
@@ -8643,6 +9329,10 @@ msgstr "领取手续费"
 #: src/pages/Campaign/timelines.tsx
 msgid "<0>Week 7</0> Aug 19 - Aug 25"
 msgstr "<0>第 7 周</0> 8 月 19 日 - 8 月 25 日"
+
+#: src/components/LimitOrder/CreateOrder/useWarningCreateOrder.tsx
+msgid "Your {tokenIn} balance is fully used by existing {tokenIn}/{tokenOut} orders. Cancel or reduce an order to free up balance. <0>Review orders</0>"
+msgstr ""
 
 #: src/pages/Campaign/components/Information/info/stipLimitOrder.tsx
 msgid "How can I be eligible to the Limit Order campaign?"
@@ -8665,10 +9355,9 @@ msgstr "选择链"
 msgid "Gas Refund Rewards is only available on Ethereum chain. Switch your network to continue <0>here</0>"
 msgstr "Gas 返还仅支持以太坊链，请切换网络 <0>这里</0>"
 
-#: src/components/Select/MultipleChainSelect/index.tsx
-#: src/components/Select/MultipleChainSelect/SelectButton.tsx
-#~ msgid "All Chains"
-#~ msgstr "所有链"
+#: src/components/LimitOrder/MyOrders/index.tsx
+msgid "All Chains"
+msgstr "所有链"
 
 #: src/components/Tutorial/index.tsx
 #: src/components/Tutorial/index.tsx
@@ -8679,6 +9368,12 @@ msgstr "池导航教程"
 msgid "order to pay {tokenAmountIn} {tokenSymbolIn} and receive {tokenAmountOut} {tokenSymbolOut}"
 msgstr "支付 {tokenAmountIn} {tokenSymbolIn} 并接收 {tokenAmountOut} {tokenSymbolOut} 的订单"
 
+#: src/components/LimitOrder/TakeOrder/TakeOrderActionButtons.tsx
+msgid "Fill order anyway"
+msgstr ""
+
+#: src/components/LimitOrder/MyOrders/TableHeader.tsx
+#: src/pages/CrossChainSwap/components/TransactionHistory.tsx
 #: src/pages/Earns/SmartExitOrders/index.tsx
 msgid "Status"
 msgstr ""
@@ -8713,11 +9408,15 @@ msgstr "验证"
 msgid "Output is estimated. If the price changes by more than {displaySlp}% your transaction will revert."
 msgstr "输出为预估值，若价格变动超过 {displaySlp}% 交易将回滚"
 
-#: src/components/LimitOrder/LimitOrderForm.tsx
+#: src/components/LimitOrder/Form/LimitOrderExpirySection.tsx
 #: src/pages/Earns/components/SmartExit/Confirmation/MoreInfo.tsx
 #: src/pages/Earns/components/SmartExit/ExpireSetting.tsx
 msgid "Once an order expires, it will be cancelled automatically. No gas fees will be charged."
 msgstr "订单到期后将自动取消，不收取 Gas"
+
+#: src/components/TokenSelectorModal/TokenSelectorContent.tsx
+msgid "No newly whitelisted token recently."
+msgstr ""
 
 #: src/components/ExpandableBox/index.tsx
 msgid "Header"
@@ -8744,6 +9443,10 @@ msgstr "链维护中，我们将尽快恢复"
 msgid "Oops! Something went wrong"
 msgstr "糟糕，出错了"
 
+#: src/pages/Earns/Landing/index.tsx
+msgid "🔥 High APR"
+msgstr ""
+
 #: src/pages/KyberDAO/Vote/index.tsx
 msgid "Total Staked KNC"
 msgstr "KNC 质押总量"
@@ -8760,7 +9463,7 @@ msgstr "使用 Zap 创建池子"
 msgid "These bonus rewards are funded & distributed by a third party via Merkl. Claiming is per wallet on this chain (not per position)."
 msgstr ""
 
-#: src/components/swapv2/TokenInfo/utils.ts
+#: src/components/TokenInfo/utils.ts
 msgid "Mint Function"
 msgstr "铸造功能"
 
@@ -8770,7 +9473,7 @@ msgid "All decisions regarding eligibility, rewards and disqualification are fin
 msgstr "关于参与资格、奖励及取消资格的所有决定均为最终决定，并由 KyberSwap 全权裁定。"
 
 #: src/components/Header/groups/AboutNavGroup.tsx
-#: src/components/Menu/index.tsx
+#: src/components/Menu/components/MainMenuSection.tsx
 msgid "About"
 msgstr "关于"
 
@@ -8789,6 +9492,10 @@ msgstr "已领取奖励"
 #: src/components/SwapForm/AddMEVProtectionModal.tsx
 msgid "Failed to switch to {name} RPC Endpoint"
 msgstr "切换至 {name} RPC 节点失败"
+
+#: src/components/LimitOrder/Form/LimitOrderExpirySection.tsx
+msgid "Custom Date"
+msgstr ""
 
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
@@ -8828,7 +9535,7 @@ msgstr "我的农场 年化收益率"
 #: src/components/SwapForm/SwapModal/ConfirmSwapModalContent.tsx
 #: src/pages/Campaign/components/Information/info/safepal.tsx
 #: src/pages/MarketOverview/DetailModal.tsx
-#: src/pages/SwapV3/Tabs/index.tsx
+#: src/pages/Swap/layout/Tabs.tsx
 msgid "Swap"
 msgstr "兑换"
 
@@ -8856,7 +9563,7 @@ msgstr ""
 msgid "KyberSwap Elastic Exploit Treasury Grant Program (“Program”) will support Affected Users who have lost Affected Assets to the KyberSwap Elastic Exploit. Under the Program, an Affected User who fulfils Eligibility Requirements can choose from one of the following options for the Treasury Grants in respect of each Affected Address of such Affected User."
 msgstr "KyberSwap Elastic 漏洞国库资助计划（“计划”）将支持在此次漏洞中损失资产的受影响用户。符合资格要求的用户，可针对每个受影响地址从以下资助方案中选择其一。"
 
-#: src/components/swapv2/TokenInfo/SecurityInfo/Content.tsx
+#: src/components/TokenInfo/SecurityInfo/Content.tsx
 msgid "Attention Item"
 msgstr "注意事项"
 
@@ -8892,12 +9599,12 @@ msgstr "此前因主攻击导致池状态异常而锁定在受影响资金池中
 msgid "Sending {inputAmount} {inSymbol} to {recipient}"
 msgstr "发送 {inputAmount} {inSymbol} 至 {recipient}"
 
-#: src/components/Menu/index.tsx
+#: src/components/Menu/components/PreferencesSection.tsx
 msgid "Language"
 msgstr "语言"
 
 #: src/components/Header/groups/CampaignNavGroup.tsx
-#: src/components/Menu/index.tsx
+#: src/components/Menu/components/MainMenuSection.tsx
 #: src/pages/Campaign/MyDashboard.tsx
 msgid "Referral"
 msgstr "推荐"
@@ -8932,7 +9639,6 @@ msgstr "您的配置文件"
 #: src/components/SwapForm/SwapActionButton/SwapButtonWithPriceImpact.tsx
 #: src/components/WalletPopup/Transactions/Status.tsx
 #: src/pages/CrossChainSwap/components/TransactionHistory.tsx
-#: src/pages/CrossChainSwap/components/TransactionHistory.tsx
 msgid "Processing"
 msgstr "处理中"
 
@@ -8948,6 +9654,10 @@ msgstr ""
 #: src/state/profile/hooks.ts
 msgid "Imported Guest"
 msgstr "已导入访客"
+
+#: src/components/LimitOrder/MyOrders/utils.ts
+msgid "Cancelled"
+msgstr ""
 
 #: src/pages/Campaign/components/SafePalClaimModal.tsx
 msgid "Claim deadline: {deadlineText}"
@@ -8965,7 +9675,7 @@ msgstr ""
 msgid "Only successful (\"success\" status on explorer) transaction hash is counted."
 msgstr "仅计入成功（区块浏览器显示为“success”状态）的交易哈希。"
 
-#: src/components/LimitOrder/helpers.ts
+#: src/components/LimitOrder/utils.ts
 msgid "You don't have sufficient fund for this transaction."
 msgstr "余额不足，无法完成交易"
 
@@ -8989,7 +9699,7 @@ msgstr "在 EVM 链之间的稳定交易对兑换 50,000 美元可获得 50,000 
 msgid "🕑️ Timeline and Reward"
 msgstr "🕑️ 时间线与奖励"
 
-#: src/components/LimitOrder/LimitOrderForm.tsx
+#: src/components/LimitOrder/CreateOrder/useCreateLimitOrder.tsx
 msgid "Order Placed"
 msgstr "订单已提交"
 
@@ -8998,8 +9708,8 @@ msgid "Click <0>Join Now</0> on the kyberswap.com to participate."
 msgstr "在 kyberswap.com 点击 <0>Join Now</0> 参与。"
 
 #: src/components/LimitOrder/useValidateInputError.tsx
-msgid "Invalid input amount"
-msgstr "无效的输入金额"
+#~ msgid "Invalid input amount"
+#~ msgstr "无效的输入金额"
 
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 msgid "Price impact is too high"
@@ -9012,13 +9722,17 @@ msgstr "价格影响过高"
 msgid "Value"
 msgstr "数值"
 
-#: src/components/swapv2/SwapSettingsPanel/TransactionTimeLimitSetting.tsx
+#: src/components/TransactionSettings/TransactionTimeLimitSetting.tsx
 msgid "Transaction time limit"
 msgstr "交易时间限制"
 
 #: src/components/SwapForm/SwapModal/ConfirmSwapModalContent.tsx
 msgid "This suggestion is based on your trade's estimated slippage and token pair volatility, with a cap applied."
 msgstr "该建议基于预估滑点与交易对波动性，并设有上限"
+
+#: src/components/LimitOrder/TakeOrder/TakeOrderConfirmModal.tsx
+msgid "Fill Amount"
+msgstr ""
 
 #: src/pages/Earns/PoolDetail/AddLiquidity/components/TokenAmountInput.tsx
 #: src/pages/RemoveLiquidityProAmm/index.tsx
@@ -9034,7 +9748,7 @@ msgstr "价格影响较高"
 msgid "Claim Now"
 msgstr ""
 
-#: src/components/swapv2/SwapSettingsPanel/index.tsx
+#: src/pages/Swap/components/SwapSettingsPanel/index.tsx
 msgid "Pricing Chart"
 msgstr ""
 
@@ -9059,8 +9773,8 @@ msgid "User Points: Points earned within the $100,000 volume cap"
 msgstr "用户积分：在 10 万美元交易量上限内获得的积分"
 
 #: src/components/LimitOrder/ListOrder/ActionButtons.tsx
-msgid "Copy Txn Hash"
-msgstr "复制交易哈希"
+#~ msgid "Copy Txn Hash"
+#~ msgstr "复制交易哈希"
 
 #: src/pages/Earns/components/SmartExit/Confirmation/Condition.tsx
 msgid "Pool price is"
@@ -9097,7 +9811,7 @@ msgstr ""
 msgid "LM Reward:"
 msgstr "LM 奖励："
 
-#: src/components/LimitOrder/ListOrder/TabSelector.tsx
+#: src/components/LimitOrder/MyOrders/components.tsx
 msgid "Order History"
 msgstr "订单历史"
 
@@ -9115,7 +9829,7 @@ msgstr "要加入推荐计划，用户可以生成自己的推荐链接并分享
 
 #: src/components/SwapForm/SlippageSetting.tsx
 #: src/components/SwapForm/SwapModal/SwapDetails/index.tsx
-#: src/components/swapv2/SwapSettingsPanel/SlippageSetting.tsx
+#: src/components/TransactionSettings/SlippageSetting.tsx
 #: src/pages/CrossChainSwap/components/QuoteSteps.tsx
 #: src/pages/CrossChainSwap/components/Summary.tsx
 #: src/pages/RemoveLiquidityProAmm/index.tsx
@@ -9123,12 +9837,17 @@ msgid "Max Slippage"
 msgstr "最大滑点"
 
 #: src/pages/Earns/components/ClaimModal/index.tsx
+#: src/pages/Earns/components/PositionClaimModal/index.tsx
 msgid "Compound"
 msgstr "复投"
 
 #: src/components/Header/web3/SignWallet/ProfileContent.tsx
 #~ msgid "Sign out of all accounts"
 #~ msgstr "退出所有账户"
+
+#: src/pages/Earns/MyVaults/index.tsx
+msgid "You don't have any vault positions yet"
+msgstr ""
 
 #: src/pages/CrossChainSwap/components/TermAndPolicy.tsx
 msgid "Continue"
@@ -9151,7 +9870,11 @@ msgstr "卖出"
 msgid "Your KIP Voting Power"
 msgstr "您的 KIP 投票权"
 
-#: src/components/LimitOrder/const.ts
+#: src/components/TokenSelectorModal/TokenSelectorContent.tsx
+msgid "No trending tokens right recently. Check back later."
+msgstr ""
+
+#: src/components/LimitOrder/MyOrders/utils.ts
 msgid "All Closed Orders"
 msgstr "所有已关闭订单"
 
@@ -9171,9 +9894,13 @@ msgstr ""
 msgid "Smart Exit created"
 msgstr ""
 
-#: src/components/LimitOrder/ListLimitOrder/TabSelector.tsx
+#: src/components/LimitOrder/OrderList/index.tsx
 msgid "You have {numberOfInsufficientFundOrders} active orders that don't have sufficient funds."
 msgstr "您有 {numberOfInsufficientFundOrders} 个资金不足的活跃订单"
+
+#: src/components/TipLinkGeneratorModal/index.tsx
+msgid "Please upload an image file."
+msgstr ""
 
 #: src/pages/Campaign/MyDashboard.tsx
 msgid "CLAIMABLE REWARDS"
@@ -9191,6 +9918,10 @@ msgstr "ETH 衍生品成交的订单每兑换 1 美元可获得 1 积分。"
 msgid "Grant Plan: USD stablecoins equivalent of {0} of Reference Value of Affected Assets associated with such Affected Address, vested over {1} months."
 msgstr "资助方案：按受影响资产参考价值 {0} 的等值美元稳定币，分 {1} 个月线性归属。"
 
+#: src/components/LimitOrder/MyOrders/TableHeader.tsx
+msgid "Chain"
+msgstr ""
+
 #: src/components/Announcement/Popups/TransactionPopup.tsx
 msgid "all orders"
 msgstr "全部订单"
@@ -9203,7 +9934,7 @@ msgstr "计算绝对数值差。"
 msgid "Points are earned each time a user swap eligible tokens on KyberSwap Aggregator API. Eligible tokens are indexed in 4 different categories, giving different amount of points per USD swapped. Eligible tokens can be found on <0>this list</0>"
 msgstr "每当用户通过 KyberSwap Aggregator API 兑换合资格代币时都会获得积分。合资格代币分为 4 个类别，每兑换 1 美元可获得不同积分。可在 <0>该列表</0> 中查看合资格代币。"
 
-#: src/components/LimitOrder/const.ts
+#: src/components/LimitOrder/MyOrders/utils.ts
 msgid "All Active Orders"
 msgstr "所有活跃订单"
 
@@ -9234,7 +9965,7 @@ msgstr "保留当前配置文件"
 msgid "If I swap a derivatives pair of ETH, POL, or BNB, do I receive 1 or 3 points?"
 msgstr "如果我兑换 ETH、POL 或 BNB 的衍生品交易对，会获得 1 分还是 3 分？"
 
-#: src/pages/SwapV3/Header.tsx
+#: src/pages/Swap/layout/Header.tsx
 msgid "Instantly buy or sell tokens at superior prices"
 msgstr "以最优价格即时买卖代币"
 
@@ -9248,6 +9979,10 @@ msgstr "使用包装代币"
 #: src/pages/Earns/PoolExplorer/Filter.tsx
 msgid "Top 100 highest TVL Pools consisting of stable coins or correlated pairs"
 msgstr "TVL 最高的前 100 个稳定币或相关交易对池"
+
+#: src/components/LimitOrder/MyOrders/utils.ts
+msgid "Cancelling"
+msgstr ""
 
 #: src/pages/Earns/PositionDetail/index.tsx
 #: src/pages/Earns/UserPositions/PositionRowItem.tsx
@@ -9323,15 +10058,20 @@ msgstr ""
 #~ msgstr "添加新仓位"
 
 #: src/components/LimitOrder/Modals/CancelButtons.tsx
-msgid "This order is not supported gasless cancel. Because it was created by our old contract"
-msgstr "该订单不支持免 Gas 取消（由旧合约创建）"
+#~ msgid "This order is not supported gasless cancel. Because it was created by our old contract"
+#~ msgstr "该订单不支持免 Gas 取消（由旧合约创建）"
+
+#: src/pages/Earns/Landing/index.tsx
+msgid "Auto-compounding, single-asset strategies managed by partners (starting with ether.fi)."
+msgstr ""
 
 #: src/components/Announcement/Popups/CenterPopup.tsx
 #: src/components/Announcement/Popups/CtaButton.tsx
 #: src/components/Announcement/Popups/DetailAnnouncementPopup.tsx
 #: src/components/ElasticHackedModal.tsx
-#: src/components/LimitOrder/Modals/CancelButtons.tsx
-#: src/components/LimitOrder/Modals/CancelButtons.tsx
+#: src/components/LimitOrder/CancelOrder/CancelOrderModal.tsx
+#: src/components/LimitOrder/CancelOrder/CancelOrderModal.tsx
+#: src/components/LimitOrder/ProcessingOrder/ProcessingOrderModal.tsx
 #: src/components/TransactionConfirmationModal/index.tsx
 #: src/pages/Campaign/components/RaffleRewardModal.tsx
 #: src/pages/Earns/UserPositions/PositionBanner.tsx
@@ -9387,16 +10127,21 @@ msgstr "KNC 是 Kyber Network 及其旗舰产品 KyberSwap 的实用与治理代
 msgid "Total Points: Combined points from all participants"
 msgstr "总代积分：所有参与者的积分总和"
 
-#: src/components/Menu/index.tsx
+#: src/components/LimitOrder/ProcessingOrder/ProcessingOrderModal.tsx
+msgid "Wrapping {nativeSymbol}"
+msgstr ""
+
+#: src/components/Menu/components/BottomSection.tsx
 #: src/pages/Earns/components/ClaimAllModal/index.tsx
 #: src/pages/Earns/components/ClaimAllModal/index.tsx
 #: src/pages/Earns/components/ClaimModal/index.tsx
+#: src/pages/Earns/components/PositionClaimModal/index.tsx
 #: src/pages/Earns/UserPositions/DropdownAction.tsx
 #: src/pages/ElasticLegacy/FarmLegacy.tsx
 msgid "Claim Rewards"
 msgstr "领取奖励"
 
-#: src/components/LimitOrder/ListOrder/OrderItem.tsx
+#: src/components/LimitOrder/MyOrders/utils.ts
 msgid "Filled"
 msgstr "已成交"
 
@@ -9407,7 +10152,7 @@ msgstr "已成交"
 msgid "Swap Now"
 msgstr "立即兑换"
 
-#: src/pages/SwapV3/Components/TokenPriceChart.tsx
+#: src/components/TokenPriceChart/index.tsx
 msgid "Learn more about KyberSwap Settlement Prices"
 msgstr ""
 
@@ -9429,6 +10174,10 @@ msgstr "推荐人数"
 msgid "Connect your Wallet"
 msgstr "连接您的钱包"
 
+#: src/components/DateTimePicker/index.tsx
+msgid "OK"
+msgstr ""
+
 #: src/pages/Earns/PositionDetail/RewardSection.tsx
 msgid "are under review after failing to finalize in the 2 days vesting period."
 msgstr "在 2 天解锁期内未完成最终确认，当前处于审核中"
@@ -9444,16 +10193,16 @@ msgstr "余额不足"
 msgid "No proposal found"
 msgstr "未找到提案"
 
-#: src/components/swapv2/TokenInfo/SecurityInfo/index.tsx
+#: src/components/TokenInfo/SecurityInfo/index.tsx
 msgid "Contract Security"
 msgstr "合约安全"
 
 #: src/components/Announcement/PrivateAnnoucement/InboxItemLimitOrder.tsx
-#: src/components/LimitOrder/useNotificationLimitOrder.tsx
+#: src/components/LimitOrder/hooks/useNotificationLimitOrder.tsx
 msgid "Order Filled"
 msgstr "订单已成交"
 
-#: src/components/Menu/index.tsx
+#: src/components/Menu/components/MainMenuSection.tsx
 msgid "Menu"
 msgstr "菜单"
 

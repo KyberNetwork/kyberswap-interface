@@ -6,7 +6,9 @@ import { ReactComponent as OverviewIcon } from 'assets/svg/earn/ic_earn_overview
 import { ReactComponent as PoolsIcon } from 'assets/svg/earn/ic_earn_pools.svg'
 import { ReactComponent as PositionsIcon } from 'assets/svg/earn/ic_earn_positions.svg'
 import { ReactComponent as FarmingIcon } from 'assets/svg/earn/ic_farming.svg'
+import { ReactComponent as FeaturedVaultIcon } from 'assets/svg/earn/ic_featured_vault.svg'
 import { ReactComponent as ListSmartExitIcon } from 'assets/svg/earn/ic_list_smart_exit.svg'
+import { ReactComponent as VaultIcon } from 'assets/svg/earn/ic_partner_vault.svg'
 import { ReactComponent as KemIcon } from 'assets/svg/kyber/kem.svg'
 import NavGroup, { type DropdownAlign } from 'components/Header/groups/NavGroup'
 import { DropdownTextAnchor, NewLabel, StyledNavLink } from 'components/Header/styleds'
@@ -26,6 +28,8 @@ const EarnNavGroup = ({ dropdownAlign }: Props) => {
     APP_PATHS.EARN_POSITIONS,
     APP_PATHS.EARN_POSITION_DETAIL,
     APP_PATHS.EARN_SMART_EXIT,
+    APP_PATHS.EARN_VAULTS,
+    APP_PATHS.EARN_MY_VAULTS,
   ].some(path => pathname.includes(path))
 
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
@@ -98,13 +102,35 @@ const EarnNavGroup = ({ dropdownAlign }: Props) => {
               {t`My Positions`}
             </div>
           </StyledNavLink>
-          <StyledNavLink data-testid="earn-positions-nav-link" to={{ pathname: `${APP_PATHS.EARN_SMART_EXIT}` }}>
+          <StyledNavLink data-testid="earn-smart-exit-nav-link" to={{ pathname: `${APP_PATHS.EARN_SMART_EXIT}` }}>
             <div className="flex items-center gap-3">
               <ListSmartExitIcon width={16} height={16} />
               <div className="flex">
                 {t`Smart Exit Orders`}
                 <NewLabel>Beta</NewLabel>
               </div>
+            </div>
+          </StyledNavLink>
+
+          <StyledNavLink
+            id="earn-vaults-nav-link"
+            data-testid="earn-vaults-nav-link"
+            to={{ pathname: `${APP_PATHS.EARN_VAULTS}` }}
+          >
+            <div className="flex items-center gap-3">
+              <VaultIcon width={16} height={16} />
+              {t`Explore Vaults`}
+            </div>
+          </StyledNavLink>
+
+          <StyledNavLink
+            id="earn-my-vaults-nav-link"
+            data-testid="earn-my-vaults-nav-link"
+            to={{ pathname: `${APP_PATHS.EARN_MY_VAULTS}` }}
+          >
+            <div className="flex items-center gap-3">
+              <FeaturedVaultIcon width={16} height={16} />
+              {t`My Vaults`}
             </div>
           </StyledNavLink>
         </div>

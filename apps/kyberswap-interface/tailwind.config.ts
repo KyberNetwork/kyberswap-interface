@@ -140,7 +140,7 @@ const config: Config = {
         blue: 'rgb(var(--ks-blue-rgb) / <alpha-value>)',
         blue1: 'var(--ks-blue1)',
         blue2: 'var(--ks-blue2)',
-        blue3: 'var(--ks-blue3)',
+        blue3: 'rgb(var(--ks-blue3-rgb) / <alpha-value>)',
         darkBlue: 'var(--ks-darkBlue)',
 
         // shadow colors (used interpolated into box-shadow shorthands)
@@ -196,6 +196,12 @@ const config: Config = {
         },
         fadeInUp: {
           from: { opacity: '0', transform: 'translateY(4px)' },
+          to: { opacity: '1', transform: 'translateY(0)' },
+        },
+        // Earns Landing reveal: sections fade up in a stagger as the page mounts. Travels
+        // further than fadeInUp because these are full page sections, not list rows.
+        'earn-fade-in-up': {
+          from: { opacity: '0', transform: 'translateY(12px)' },
           to: { opacity: '1', transform: 'translateY(0)' },
         },
         // Dropdown/popover enter: fade + subtle drop-down + scale from the anchor corner.

@@ -906,6 +906,66 @@
     }
   }
 
+  /* Earns vault grid/list — children reveal in an index-based stagger. Consumers set
+     --ks-stagger-step to control the spacing between successive items. */
+  @keyframes ks-vault-fade-in-up {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  .ks-vault-stagger > * {
+    opacity: 0;
+    animation: ks-vault-fade-in-up 0.4s ease-out forwards;
+    animation-delay: calc((var(--ks-stagger-index, 0)) * var(--ks-stagger-step, 60ms));
+  }
+  .ks-vault-stagger > *:nth-child(1) {
+    --ks-stagger-index: 0;
+  }
+  .ks-vault-stagger > *:nth-child(2) {
+    --ks-stagger-index: 1;
+  }
+  .ks-vault-stagger > *:nth-child(3) {
+    --ks-stagger-index: 2;
+  }
+  .ks-vault-stagger > *:nth-child(4) {
+    --ks-stagger-index: 3;
+  }
+  .ks-vault-stagger > *:nth-child(5) {
+    --ks-stagger-index: 4;
+  }
+  .ks-vault-stagger > *:nth-child(6) {
+    --ks-stagger-index: 5;
+  }
+  .ks-vault-stagger > *:nth-child(7) {
+    --ks-stagger-index: 6;
+  }
+  .ks-vault-stagger > *:nth-child(8) {
+    --ks-stagger-index: 7;
+  }
+  .ks-vault-stagger > *:nth-child(9) {
+    --ks-stagger-index: 8;
+  }
+  .ks-vault-stagger > *:nth-child(10) {
+    --ks-stagger-index: 9;
+  }
+  .ks-vault-stagger > *:nth-child(11) {
+    --ks-stagger-index: 10;
+  }
+  .ks-vault-stagger > *:nth-child(n + 12) {
+    --ks-stagger-index: 11;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .ks-vault-stagger > * {
+      opacity: 1;
+      animation: none;
+    }
+  }
+
   /* EarnBanner — TrendingPoolBanner pulse on slide change. */
   @keyframes ks-earn-pulse {
     0% {
@@ -1295,6 +1355,7 @@
     --ks-white-rgb: 255 255 255;
     --ks-black-rgb: 0 0 0;
     --ks-white2-rgb: 250 250 250;
+    --ks-blue3-rgb: 88 181 238;
     --ks-text-rgb: 255 255 255;
     --ks-subText-rgb: 169 169 169;
     --ks-background-rgb: 28 28 28;

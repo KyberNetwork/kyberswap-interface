@@ -1,13 +1,50 @@
 import { useNavigate } from 'react-router-dom'
-import { useMedia } from 'react-use'
 
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
-import Icon from 'pages/Earns/Landing/Icon'
 import PoolItem from 'pages/Earns/Landing/PoolItem'
-import PoolItemSkeleton from 'pages/Earns/Landing/PoolItemSkeleton'
-import { ListPoolWrapper, PoolWrapper } from 'pages/Earns/Landing/styles'
-import { MEDIA_WIDTHS } from 'theme'
+import {
+  FarmingPoolsList,
+  HighlightedPoolsGrid,
+  InnerListContainer,
+  InnerSectionTitle,
+  SimpleSectionHeader,
+} from 'pages/Earns/Landing/styles'
+import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
+import { EarnPool } from 'pages/Earns/types'
+import { cn } from 'utils/cn'
+
+type Variant = 'inner' | 'inner-stable' | 'highlighted' | 'farming'
+
+const SmallSkeleton = () => (
+  <div className="flex items-center justify-between px-4 py-3">
+    <div className="flex items-center gap-1">
+      <PositionSkeleton width={24} height={24} style={{ borderRadius: '50%' }} />
+      <PositionSkeleton width={24} height={24} style={{ borderRadius: '50%', marginLeft: '-8px' }} />
+      <PositionSkeleton width={100} height={16} />
+      <PositionSkeleton width={40} height={20} />
+    </div>
+    <PositionSkeleton width={60} height={16} />
+  </div>
+)
+
+const LargeSkeleton = () => (
+  <div className="rounded-xl bg-white-04 p-4">
+    <div className="mb-3 flex items-center justify-between">
+      <div className="flex items-center gap-1">
+        <PositionSkeleton width={24} height={24} style={{ borderRadius: '50%' }} />
+        <PositionSkeleton width={24} height={24} style={{ borderRadius: '50%', marginLeft: '-8px' }} />
+        <PositionSkeleton width={100} height={20} />
+        <PositionSkeleton width={40} height={20} />
+      </div>
+      <PositionSkeleton width={80} height={20} />
+    </div>
+    <div className="flex items-center justify-between">
+      <PositionSkeleton width={80} height={20} />
+      <PositionSkeleton width={80} height={20} />
+    </div>
+  </div>
+)
 
 const PoolSection = ({
   title,
@@ -15,65 +52,109 @@ const PoolSection = ({
   icon,
   tag,
   isLoading,
-  size = 'small',
   listPools,
-  styles,
+  variant,
+  skeletonCount,
+  onPoolClick,
 }: {
   title: string
-  tooltip: string
-  icon: string | React.ReactNode
-  tag: string
+  tooltip?: string
+  icon?: string | React.ReactNode
+  tag?: string
   isLoading: boolean
-  size?: 'small' | 'large'
-  listPools: any[]
-  styles?: React.CSSProperties
+  listPools: EarnPool[]
+  variant: Variant
+  skeletonCount?: number
+  onPoolClick: (pool: EarnPool) => void
 }) => {
   const navigate = useNavigate()
-  const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
-  const poolItemContainerClass = size === 'small' ? 'flex flex-col gap-4' : 'grid gap-4'
-  const poolItemContainerStyle: React.CSSProperties =
-    size === 'large' ? { gridTemplateColumns: upToSmall ? '1fr' : 'repeat(3, 1fr)' } : {}
+  const handleSectionClick = (e?: React.MouseEvent) => {
+    if (!tag) return
+    e?.stopPropagation()
+    navigate({
+      pathname: APP_PATHS.EARN_POOLS,
+      search: `tag=${tag}`,
+    })
+  }
 
-  // Match the real slice counts (Landing index): large = 9 / 5 (mobile), small = 5.
-  const skeletonCount = size === 'large' ? (upToSmall ? 5 : 9) : 5
+  const handleSectionKeyDown = (e: React.KeyboardEvent) => {
+    if (!tag) return
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault()
+      e.stopPropagation()
+      handleSectionClick()
+    }
+  }
+
+  const renderIcon = () => {
+    if (!icon) return null
+    if (typeof icon === 'string') return <img src={icon} alt={title} width={20} height={20} />
+    return icon
+  }
+
+  const renderTitle = () =>
+    tooltip ? (
+      <MouseoverTooltipDesktopOnly text={tooltip} placement="top">
+        <span className="text-xl font-medium">{title}</span>
+      </MouseoverTooltipDesktopOnly>
+    ) : (
+      <span className="text-xl font-medium">{title}</span>
+    )
+
+  if (variant === 'highlighted' || variant === 'farming') {
+    const isFarming = variant === 'farming'
+    const ItemContainer = isFarming ? FarmingPoolsList : HighlightedPoolsGrid
+    const count = skeletonCount ?? (isFarming ? 3 : 6)
+
+    return (
+      <div
+        role={tag ? 'button' : undefined}
+        tabIndex={tag ? 0 : undefined}
+        onClick={handleSectionClick}
+        onKeyDown={handleSectionKeyDown}
+        className={cn(tag ? 'cursor-pointer' : 'cursor-default')}
+      >
+        <SimpleSectionHeader>
+          {renderIcon()}
+          {renderTitle()}
+        </SimpleSectionHeader>
+        <ItemContainer>
+          {isLoading
+            ? Array.from({ length: count }).map((_, i) => <LargeSkeleton key={i} />)
+            : listPools.map(pool => (
+                <PoolItem
+                  key={pool.address}
+                  pool={pool}
+                  variant={isFarming ? 'large-farming' : 'large'}
+                  onClick={onPoolClick}
+                />
+              ))}
+        </ItemContainer>
+      </div>
+    )
+  }
+
+  const innerVariant = variant === 'inner-stable' ? 'small-stable' : 'small'
+  const count = skeletonCount ?? 4
 
   return (
-    <PoolWrapper style={styles}>
-      <ListPoolWrapper
-        role="button"
-        onClick={() => {
-          navigate({
-            pathname: APP_PATHS.EARN_POOLS,
-            search: `tag=${tag}`,
-          })
-        }}
-      >
-        <div className="flex items-center gap-3">
-          <Icon icon={icon} size="small" />
-          <MouseoverTooltipDesktopOnly text={tooltip} placement="top">
-            <h2 className="text-xl">{title}</h2>
-          </MouseoverTooltipDesktopOnly>
-        </div>
-        <div
-          className="m-4 h-px w-full"
-          style={{ background: 'linear-gradient(90deg, #161A1C 0%, #49287F 29%, #111413 100%)' }}
-        />
-        {isLoading ? (
-          <div className={poolItemContainerClass} style={poolItemContainerStyle}>
-            {Array.from({ length: skeletonCount }, (_, i) => (
-              <PoolItemSkeleton key={i} />
+    <div
+      role={tag ? 'button' : undefined}
+      tabIndex={tag ? 0 : undefined}
+      onClick={handleSectionClick}
+      onKeyDown={handleSectionKeyDown}
+      className={cn(tag ? 'cursor-pointer' : 'cursor-default')}
+    >
+      <InnerSectionTitle>{renderTitle()}</InnerSectionTitle>
+      <InnerListContainer>
+        {isLoading
+          ? Array.from({ length: count }).map((_, i) => <SmallSkeleton key={i} />)
+          : listPools.map(pool => (
+              <PoolItem key={pool.address} pool={pool} variant={innerVariant} onClick={onPoolClick} />
             ))}
-          </div>
-        ) : (
-          <div className={poolItemContainerClass} style={poolItemContainerStyle}>
-            {listPools.map((pool, index) => (
-              <PoolItem pool={pool} key={pool.address} rowIndex={index} />
-            ))}
-          </div>
-        )}
-      </ListPoolWrapper>
-    </PoolWrapper>
+      </InnerListContainer>
+    </div>
   )
 }
 

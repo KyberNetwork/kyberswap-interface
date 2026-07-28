@@ -13,13 +13,7 @@ export const POSITION_GRID = 'grid'
 export const POSITION_GRID_TEMPLATE_COLUMNS =
   'minmax(260px, 2.6fr) minmax(80px, 0.8fr) minmax(90px, 0.8fr) minmax(100px, 1fr) minmax(120px, 1fr) 24px minmax(150px, 0.4fr) minmax(160px, 1.8fr) minmax(75px, auto)'
 
-type PositionPageWrapperProps = React.ComponentProps<typeof PoolPageWrapper>
-export const PositionPageWrapper = forwardRef<HTMLDivElement, PositionPageWrapperProps>(
-  ({ className, ...rest }, ref) => (
-    <PoolPageWrapper ref={ref} className={cn('sm:px-12 min-[1921px]:px-6', className)} {...rest} />
-  ),
-)
-PositionPageWrapper.displayName = 'PositionPageWrapper'
+export { PoolPageWrapper as PositionPageWrapper }
 
 type PositionRowProps = LinkProps & {
   $isUnfinalized?: boolean

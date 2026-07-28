@@ -5,16 +5,11 @@ import usePrefetchOnIntent from 'hooks/usePrefetchOnIntent'
 import usePrefetchRoute from 'hooks/usePrefetchRoute'
 import { cn } from 'utils/cn'
 
+// Page width and padding are owned by EarnLayout's content area, so the wrapper only
+// stretches to fill it.
 export const PoolPageWrapper = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
   ({ className, ...rest }, ref) => (
-    <div
-      ref={ref}
-      className={cn(
-        'flex w-full max-w-[1500px] flex-col gap-4 px-6 pb-16 pt-8 max-sm:px-4 max-sm:pb-[100px] max-sm:pt-6',
-        className,
-      )}
-      {...rest}
-    />
+    <div ref={ref} className={cn('flex w-full flex-1 flex-col gap-4', className)} {...rest} />
   ),
 )
 PoolPageWrapper.displayName = 'PoolPageWrapper'
@@ -340,13 +335,6 @@ export const MobileTableBottomRow = forwardRef<HTMLDivElement, HTMLAttributes<HT
 MobileTableBottomRow.displayName = 'MobileTableBottomRow'
 
 export const Disclaimer = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(({ className, ...rest }, ref) => (
-  <div
-    ref={ref}
-    className={cn(
-      'absolute bottom-7 left-1/2 w-full -translate-x-1/2 px-4 text-center text-sm italic text-gray max-md:bottom-5',
-      className,
-    )}
-    {...rest}
-  />
+  <div ref={ref} className={cn('mt-auto w-full pt-6 text-center text-sm italic text-gray', className)} {...rest} />
 ))
 Disclaimer.displayName = 'Disclaimer'
