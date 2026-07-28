@@ -1,5 +1,4 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { ContractInterface } from 'ethers'
 
 import { SmartExitDexType } from 'pages/Earns/components/SmartExit/constants'
 import arbitrum from 'pages/Earns/constants/chains/arbitrum'
@@ -23,13 +22,16 @@ import thena from 'pages/Earns/constants/dexes/thena'
 import uniswapv2 from 'pages/Earns/constants/dexes/uniswapv2'
 import uniswapv3 from 'pages/Earns/constants/dexes/uniswapv3'
 import uniswapv4 from 'pages/Earns/constants/dexes/uniswapv4'
+import { Abi } from 'utils/viem'
+
+type NftManagerAbi = Abi
 
 // Dex info
 export interface EarnDexInfo {
   name: string
   logo: string
   nftManagerContract: { [key in ChainId]?: string } | string
-  nftManagerContractAbi: ContractInterface | null
+  nftManagerContractAbi: NftManagerAbi | null
   unwrapWNativeTokenFuncName: string | null
   siteUrl: string
   collectFeeSupported: boolean
@@ -57,6 +59,8 @@ export enum Exchange {
   DEX_PANCAKE_INFINITY_CL_BREVIS = 'pancake-infinity-cl-brevis',
   DEX_PANCAKE_INFINITY_CL_LO = 'pancake-infinity-cl-lo',
   DEX_AERODROMECL = 'aerodromecl',
+  DEX_AERODROMECL2 = 'aerodromecl2',
+  DEX_AERODROMECL3 = 'aerodromecl3',
 }
 
 const EARN_DEXES_CONFIG: Record<Exchange, EarnDexInfo> = {
@@ -103,6 +107,20 @@ const EARN_DEXES_CONFIG: Record<Exchange, EarnDexInfo> = {
     smartExitDexType: undefined,
   },
   [Exchange.DEX_AERODROMECL]: aerodrome,
+  [Exchange.DEX_AERODROMECL2]: {
+    ...aerodrome,
+    nftManagerContract: {
+      [ChainId.BASE]: '0xa990C6a764b73BF43cee5Bb40339c3322FB9D55F',
+    },
+    name: 'Aerodrome Concentrated V2',
+  },
+  [Exchange.DEX_AERODROMECL3]: {
+    ...aerodrome,
+    nftManagerContract: {
+      [ChainId.BASE]: '0xe1f8cd9AC4e4A65F54f38a5CdAfCA44f6dD68b53',
+    },
+    name: 'Aerodrome Concentrated V3',
+  },
 }
 
 const defaultConfig = {

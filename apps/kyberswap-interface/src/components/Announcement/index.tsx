@@ -10,6 +10,15 @@ import { formatNumberOfUnread } from 'components/Announcement/helper'
 import { getEarnPosition, getLimitOrderPreview, getSmartExitPreview } from 'components/Announcement/helpers'
 import { useGeneralAnnouncements } from 'components/Announcement/hooks/useGeneralAnnouncements'
 import { usePrivateAnnouncements } from 'components/Announcement/hooks/usePrivateAnnouncements'
+import {
+  ANNOUNCEMENT_FLYOUT_CLASS,
+  Badge,
+  Container,
+  StyledMenu,
+  StyledMenuButton,
+  Title,
+  Wrapper,
+} from 'components/Announcement/styles'
 import { Announcement, AnnouncementTemplatePopup, PrivateAnnouncementType } from 'components/Announcement/type'
 import NotificationIcon from 'components/Icons/NotificationIcon'
 import MenuFlyout from 'components/MenuFlyout'
@@ -20,8 +29,6 @@ import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { useDetailAnnouncement, useModalOpen, useToggleNotificationCenter } from 'state/application/hooks'
 import { ApplicationModal } from 'state/application/types'
 import { MEDIA_WIDTHS } from 'theme'
-
-import { Badge, Container, StyledMenu, StyledMenuButton, Title, Wrapper, browserCustomStyle } from './styles'
 
 function AnnouncementComponent() {
   const [activeTab, setActiveTab] = useState(Tab.CATEGORY)
@@ -325,7 +332,7 @@ function AnnouncementComponent() {
   const content = (
     <Wrapper>
       <Container>
-        <RowBetween alignItems="center" gap="10px">
+        <RowBetween className="items-center gap-2.5">
           <Title>
             <NotificationIcon size={18} />
             <Trans>Notifications</Trans>
@@ -382,7 +389,7 @@ function AnnouncementComponent() {
       ) : (
         <MenuFlyout
           trigger={bellIcon}
-          customStyle={browserCustomStyle}
+          className={ANNOUNCEMENT_FLYOUT_CLASS}
           isOpen={isOpenInbox}
           toggle={toggleNotificationCenter}
         >

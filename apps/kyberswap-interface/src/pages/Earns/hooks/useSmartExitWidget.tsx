@@ -1,7 +1,7 @@
 import { ChainId, PoolType } from '@kyber/schema'
 import { getNftManagerContractAddress } from '@kyber/utils'
 import { ReactElement, useCallback, useEffect, useState } from 'react'
-import { useUserPositionsQuery } from 'services/zapEarn'
+import { useUserPositionsQuery } from 'services/earn'
 
 import { useActiveWeb3React } from 'hooks'
 import { SmartExit } from 'pages/Earns/components/SmartExit'

@@ -1,7 +1,6 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 
 import { BLACKJACK_API } from 'constants/env'
-import { ApiValidateError } from 'constants/errors'
 import { isArray, isBoolean, isNumber, isString, isStruct } from 'utils/validate'
 
 const verifyBlackjackResponse = isStruct({
@@ -30,16 +29,16 @@ const blackjackApi = createApi({
           wallets: address,
         },
       }),
-      transformResponse: (res: unknown, meta) => {
+      transformResponse: (res: unknown) => {
         if (verifyBlackjackResponse(res)) {
           return res.data.wallets[0]
         }
-        throw new ApiValidateError(res, meta)
+        throw new Error('Data error. Please try again later.')
       },
     }),
   }),
 })
 
-export const { useCheckBlackjackQuery, useLazyCheckBlackjackQuery } = blackjackApi
+export const { useLazyCheckBlackjackQuery } = blackjackApi
 
 export default blackjackApi

@@ -1,61 +1,43 @@
 import { X as Xsvg } from 'react-feather'
-import { Flex, Text } from 'rebass'
-import styled from 'styled-components'
 
 import TokenLogo from 'components/TokenLogo'
-import useTheme from 'hooks/useTheme'
 import { LIMIT_TEXT_STYLES } from 'pages/Earns/constants'
+import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
 
-export const Wrapper = styled.div`
-  min-height: fit-content;
-  padding: 20px;
-  border-radius: 20px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 24px;
-  width: 100%;
-  background-color: ${({ theme }) => theme.background};
-  color: ${({ theme }) => theme.text};
-`
+export const Wrapper = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
+  <div
+    className={cn(
+      'flex min-h-fit w-full flex-col items-center justify-center gap-6 rounded-[20px] bg-background p-5 text-text',
+      className,
+    )}
+    {...rest}
+  >
+    {children}
+  </div>
+)
 
-export const ModalHeader = styled.div`
-  display: flex;
-  justify-content: center;
-  position: relative;
-  width: 100%;
-`
+export const ModalHeader = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('relative flex w-full justify-center', className)} {...rest}>
+    {children}
+  </div>
+)
 
-export const X = styled(Xsvg)`
-  position: absolute;
-  right: 0;
-  top: 0;
-  color: ${({ theme }) => theme.subText};
-  cursor: pointer;
+export const X = ({ className, ...rest }: React.ComponentProps<typeof Xsvg>) => (
+  <Xsvg {...rest} className={cn('absolute right-0 top-0 cursor-pointer text-subText hover:text-text', className)} />
+)
 
-  :hover {
-    color: ${({ theme }) => theme.text};
-  }
-`
+export const ClaimInfoWrapper = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('flex w-full flex-col gap-5', className)} {...rest}>
+    {children}
+  </div>
+)
 
-export const ClaimInfoWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  width: 100%;
-`
-
-export const ClaimInfo = styled.div`
-  width: 100%;
-  padding: 12px 16px;
-  border-radius: 12px;
-  background-color: #0f0f0f;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-`
+export const ClaimInfo = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('flex w-full flex-col gap-2.5 rounded-xl bg-buttonBlack px-4 py-3', className)} {...rest}>
+    {children}
+  </div>
+)
 
 export const ClaimInfoRow = ({
   tokenImage,
@@ -70,26 +52,24 @@ export const ClaimInfoRow = ({
   tokenSymbol: string
   tokenUsdValue: number
 }) => {
-  const theme = useTheme()
-
   return (
-    <Flex alignItems={'center'} sx={{ gap: '6px' }}>
-      <Flex alignItems={'flex-end'}>
+    <div className="flex items-center gap-1.5">
+      <div className="flex items-end">
         <TokenLogo src={tokenImage} alt="tokenImage" />
         <TokenLogo src={dexImage} size={14} alt="dexImage" translateLeft />
-      </Flex>
-      <Text sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '100px' }}>
+      </div>
+      <span className="max-w-[100px]" style={LIMIT_TEXT_STYLES}>
         {formatDisplayNumber(tokenAmount, {
           significantDigits: 4,
         })}
-      </Text>
-      <Text>{tokenSymbol}</Text>
-      <Text color={theme.subText} sx={{ ...LIMIT_TEXT_STYLES, maxWidth: '85px' }}>
+      </span>
+      <span>{tokenSymbol}</span>
+      <span className="max-w-[85px] text-subText" style={LIMIT_TEXT_STYLES}>
         {formatDisplayNumber(tokenUsdValue, {
           style: 'currency',
           significantDigits: 4,
         })}
-      </Text>
-    </Flex>
+      </span>
+    </div>
   )
 }

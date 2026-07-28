@@ -12,11 +12,6 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: src/components/TokenSelector/TokenInfo/MarketInfo.tsx
-#: src/components/TokenSelector/TokenInfo/SecurityInfo.tsx
-msgid "Powered by <0/>"
-msgstr "Powered by <0/>"
-
 #: src/components/Setting/index.tsx
 msgid "Please type the word <0>Confirm</0> below to enable Degen Mode"
 msgstr "Please type the word <0>Confirm</0> below to enable Degen Mode"
@@ -238,8 +233,13 @@ msgid "Permit NFT"
 msgstr "Permit NFT"
 
 #: src/components/ZapSummary.tsx
-msgid "<0>Swap {0} {1} for {2} </0>{3}"
-msgstr "<0>Swap {0} {1} for {2} </0>{3}"
+#~ msgid "<0>Swap {0} {1} for {2} </0>{3}"
+#~ msgstr "<0>Swap {0} {1} for {2} </0>{3}"
+
+#: src/components/TokenSelector/TokenInfo/MarketInfo.tsx
+#: src/components/TokenSelector/TokenInfo/SecurityInfo.tsx
+#~ msgid "Powered by <0/>"
+#~ msgstr "Powered by <0/>"
 
 #: src/components/Setting/SlippageInput.tsx
 #: src/components/Setting/SlippageInput.tsx
@@ -263,6 +263,10 @@ msgstr "Native token"
 #: src/components/Action/useActionButton.ts
 msgid "Connect wallet"
 msgstr "Connect wallet"
+
+#: src/components/ZapSummary.tsx
+msgid "Swap {0} {1} for {2} {3} via {4}"
+msgstr "Swap {0} {1} for {2} {3} via {4}"
 
 #: src/components/Preview.tsx
 msgid "Receiving Amount"
@@ -289,8 +293,8 @@ msgid "Remove Liquidity Success!"
 msgstr "Remove Liquidity Success!"
 
 #: src/components/Action/useActionButton.ts
-msgid "Estimate Gas Failed"
-msgstr "Estimate Gas Failed"
+#~ msgid "Estimate Gas Failed"
+#~ msgstr "Estimate Gas Failed"
 
 #: src/components/Action/index.tsx
 msgid "Cancel"

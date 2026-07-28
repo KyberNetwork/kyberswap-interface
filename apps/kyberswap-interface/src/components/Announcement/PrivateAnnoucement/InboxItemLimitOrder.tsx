@@ -21,11 +21,10 @@ import {
 } from 'components/Announcement/PrivateAnnoucement/styled'
 import { AnnouncementTemplateLimitOrder } from 'components/Announcement/type'
 import { CheckCircle } from 'components/Icons'
+import { LimitOrderStatus } from 'components/LimitOrder/types'
 import { TokenLogoWithShadow } from 'components/Logo'
-import { LimitOrderStatus } from 'components/swapv2/LimitOrder/type'
 import { APP_PATHS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
-import useTheme from 'hooks/useTheme'
 import { useNavigateToUrl } from 'utils/redirect'
 
 function InboxItemLimitOrder({
@@ -37,7 +36,6 @@ function InboxItemLimitOrder({
   onDelete,
 }: PrivateAnnouncementProp<AnnouncementTemplateLimitOrder>) {
   const { templateBody, isRead, templateType } = announcement
-  const theme = useTheme()
   const {
     status,
     makerAssetSymbol,
@@ -72,8 +70,8 @@ function InboxItemLimitOrder({
     if (isReorg) {
       return {
         label: t`Order Reverted`,
-        color: theme.red,
-        icon: <XCircle color={theme.red} size={14} />,
+        colorClass: 'text-red',
+        icon: <XCircle className="text-red" size={14} />,
         message: increasedFilledPercent ? t`Reverted ${increasedFilledPercent}` : t`Order Reverted`,
       }
     }
@@ -81,15 +79,15 @@ function InboxItemLimitOrder({
       case LimitOrderStatus.FILLED:
         return {
           label: t`Order Filled`,
-          color: theme.primary,
-          icon: <CheckCircle size="14" color={theme.primary} />,
+          colorClass: 'text-primary',
+          icon: <CheckCircle size="14" className="text-primary" />,
           message: t`100% Filled`,
         }
       case LimitOrderStatus.PARTIALLY_FILLED:
         return {
           label: t`Order Partially Filled`,
-          color: theme.warning,
-          icon: <Repeat color={theme.warning} size={14} />,
+          colorClass: 'text-warning',
+          icon: <Repeat className="text-warning" size={14} />,
           message: increasedFilledPercent
             ? t`${filledPercentLabel} Filled ${increasedFilledPercent}`
             : t`${filledPercentLabel} Filled`,
@@ -97,37 +95,37 @@ function InboxItemLimitOrder({
       case LimitOrderStatus.EXPIRED:
         return {
           label: t`Order Expired`,
-          color: theme.subText,
-          icon: <XCircle color={theme.subText} size={14} />,
+          colorClass: 'text-subText',
+          icon: <XCircle className="text-subText" size={14} />,
           message: filledPercent ? t`${filledPercent}% Filled | Expired` : t`Expired`,
         }
       case LimitOrderStatus.CANCELLING:
         return {
           label: t`Cancelling Order`,
-          color: theme.warning,
-          icon: <Repeat color={theme.warning} size={14} />,
+          colorClass: 'text-warning',
+          icon: <Repeat className="text-warning" size={14} />,
           message: t`Cancelling Order`,
         }
       case LimitOrderStatus.CANCELLED:
       case LimitOrderStatus.CLOSED:
         return {
           label: t`Order Cancelled`,
-          color: theme.subText,
-          icon: <XCircle color={theme.subText} size={14} />,
+          colorClass: 'text-subText',
+          icon: <XCircle className="text-subText" size={14} />,
           message: t`Order Cancelled`,
         }
       case LimitOrderStatus.INSUFFICIENT_FUNDS:
         return {
           label: t`Insufficient Funds`,
-          color: theme.warning,
-          icon: <XCircle color={theme.warning} size={14} />,
+          colorClass: 'text-warning',
+          icon: <XCircle className="text-warning" size={14} />,
           message: t`Insufficient Funds`,
         }
       default:
         return {
           label: t`Order Created`,
-          color: isRead ? theme.text : theme.primary,
-          icon: <CheckCircle size="14" color={isRead ? theme.text : theme.primary} />,
+          colorClass: isRead ? 'text-text' : 'text-primary',
+          icon: <CheckCircle size="14" className={isRead ? 'text-text' : 'text-primary'} />,
           message: t`Order Created`,
         }
     }
@@ -137,7 +135,9 @@ function InboxItemLimitOrder({
   const navigate = useNavigateToUrl()
   const onClick = () => {
     const route = NETWORKS_INFO[chainId]?.route ?? NETWORKS_INFO[ChainId.MAINNET].route
-    navigate(`${APP_PATHS.LIMIT}/${route}?activeTab=my_order`, chainId)
+    const orderTab =
+      isFilled || isPartialFilled || isCancelled || status === LimitOrderStatus.EXPIRED ? 'closed' : 'active'
+    navigate(`${APP_PATHS.LIMIT}/${route}?tab=my_order&orderTab=${orderTab}`, chainId)
     onRead(announcement, statusMessage)
   }
 
@@ -179,7 +179,7 @@ function InboxItemLimitOrder({
       <InboxItemRow>
         <RowItem>
           <InboxIcon type={templateType} chainId={chainId} />
-          <StatusTitle isRead={isRead} $color={statusMeta.color}>
+          <StatusTitle isRead={isRead} className={statusMeta.colorClass}>
             {statusMeta.icon}
             {statusMeta.label}
           </StatusTitle>
@@ -195,7 +195,7 @@ function InboxItemLimitOrder({
               {makingAmount} {makerAssetSymbol}
             </span>
           </AmountItem>
-          <ArrowRight size={14} color={theme.subText} />
+          <ArrowRight size={14} className="text-subText" />
           <AmountItem>
             {takerAssetLogoURL && <TokenLogoWithShadow size="16px" srcs={[takerAssetLogoURL]} />}
             <span>
@@ -217,7 +217,7 @@ function InboxItemLimitOrder({
 
       <MetaRow>
         {expiredAtLabel ? (
-          <DetailItem style={{ padding: 0 }}>
+          <DetailItem className="p-0">
             {t`Expired time:`} <DetailValue>{expiredAtLabel}</DetailValue>
           </DetailItem>
         ) : (

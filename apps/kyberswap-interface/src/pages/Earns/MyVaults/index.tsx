@@ -2,11 +2,10 @@ import { t } from '@lingui/macro'
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
-import { Flex, Text } from 'rebass'
 import { useVaultPositionsQuery } from 'services/vault'
-import { DefaultTheme } from 'styled-components'
 
 import { ReactComponent as IconEarnNotFound } from 'assets/svg/earn/ic_earn_not_found.svg'
+import MultiSelectDropdownMenu from 'components/DropdownMenu/MultiSelect'
 import Search from 'components/Search'
 import TokenLogo from 'components/TokenLogo'
 import { APP_PATHS } from 'constants/index'
@@ -45,12 +44,12 @@ import {
 } from 'pages/Earns/ExploreVaults/styles'
 import { UserVaultPosition, WithdrawalStatus } from 'pages/Earns/ExploreVaults/types'
 import { PositionAction as PositionActionBtn } from 'pages/Earns/PositionDetail/styles'
-import MultiSelectDropdownMenu from 'pages/Earns/components/DropdownMenu/MultiSelect'
 import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
 import { toUserVaultPosition } from 'pages/Earns/utils/vault'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { MEDIA_WIDTHS } from 'theme'
-import { shortenHash } from 'utils'
+import { Colors } from 'theme/color'
+import { shortenHash } from 'utils/address'
 import { formatDisplayNumber } from 'utils/numbers'
 
 const formatTvl = (value: number) => formatDisplayNumber(value, { style: 'decimal', significantDigits: 3 })
@@ -60,7 +59,7 @@ const formatUsd = (value: number) => formatDisplayNumber(value, { style: 'curren
 const formatBalance = (value: number, token: string) =>
   `${formatDisplayNumber(value, { style: 'decimal', significantDigits: 4 })} ${token}`
 
-const getStatusConfig = (theme: DefaultTheme): Record<WithdrawalStatus, { label: string; color: string } | null> => ({
+const getStatusConfig = (theme: Colors): Record<WithdrawalStatus, { label: string; color: string } | null> => ({
   [WithdrawalStatus.NONE]: null,
   [WithdrawalStatus.REQUESTED]: { label: 'Requested', color: theme.blue3 },
   [WithdrawalStatus.PENDING]: { label: 'Pending', color: theme.warning },
@@ -128,7 +127,7 @@ const MyVaultCard = ({ vault }: { vault: UserVaultPosition }) => {
       }}
     >
       <CardHeader>
-        <Flex alignItems="center" style={{ gap: '4px' }}>
+        <div className="flex items-center gap-1">
           <TokenIconWrapper>
             <TokenLogo src={vault.tokenIcon} alt={vault.token} size={24} />
             <TokenLogo
@@ -138,15 +137,11 @@ const MyVaultCard = ({ vault }: { vault: UserVaultPosition }) => {
               style={{ position: 'absolute', bottom: -2, right: -4, borderRadius: 4 }}
             />
           </TokenIconWrapper>
-          <Text fontSize={16} color={theme.white2} style={{ marginLeft: '4px' }}>
-            {vault.token}
-          </Text>
-          <Text fontSize={16} color={theme.gray}>
-            {vault.label}
-          </Text>
-        </Flex>
+          <span className="ml-1 text-base text-white2">{vault.token}</span>
+          <span className="text-base text-gray">{vault.label}</span>
+        </div>
 
-        <Flex alignItems="center" style={{ gap: '12px' }}>
+        <div className="flex items-center gap-3">
           <WithdrawButton
             type="button"
             $disabled={isWithdrawDisabled(vault.withdrawalStatus)}
@@ -167,7 +162,7 @@ const MyVaultCard = ({ vault }: { vault: UserVaultPosition }) => {
           >
             {t`+ Deposit`}
           </DepositButton>
-        </Flex>
+        </div>
       </CardHeader>
 
       <MyVaultCardBody>
@@ -226,15 +221,11 @@ const MyVaultCard = ({ vault }: { vault: UserVaultPosition }) => {
         <ApyTvlRow>
           <FooterMetric>
             <FooterMetricLabel>APY</FooterMetricLabel>
-            <Text color={theme.primary} fontWeight={400} fontSize={16}>
-              {vault.apy.toFixed(2)}%
-            </Text>
+            <span className="text-base font-normal text-primary">{vault.apy.toFixed(2)}%</span>
           </FooterMetric>
           <FooterMetric>
             <FooterMetricLabel>TVL</FooterMetricLabel>
-            <Text color={theme.white2} fontSize={16}>
-              {formatTvl(vault.tvl)}
-            </Text>
+            <span className="text-base text-white2">{formatTvl(vault.tvl)}</span>
           </FooterMetric>
         </ApyTvlRow>
 
@@ -253,39 +244,39 @@ const MyVaultCard = ({ vault }: { vault: UserVaultPosition }) => {
 }
 
 const MyVaultCardSkeleton = () => (
-  <VaultCard style={{ gap: '12px' }}>
-    <Flex alignItems="center" justifyContent="space-between" width="100%">
-      <Flex alignItems="center" style={{ gap: '4px' }}>
+  <VaultCard className="gap-3">
+    <div className="flex w-full items-center justify-between">
+      <div className="flex items-center gap-1">
         <PositionSkeleton width={24} height={24} style={{ borderRadius: '50%' }} />
         <PositionSkeleton width={40} height={18} />
         <PositionSkeleton width={30} height={18} />
-      </Flex>
-      <Flex alignItems="center" style={{ gap: '8px' }}>
+      </div>
+      <div className="flex items-center gap-2">
         <PositionSkeleton width={72} height={28} />
         <PositionSkeleton width={80} height={28} />
-      </Flex>
-    </Flex>
-    <Flex flexDirection="column" style={{ gap: '12px', flex: 1 }}>
-      <Flex justifyContent="space-between">
+      </div>
+    </div>
+    <div className="flex flex-1 flex-col gap-3">
+      <div className="flex justify-between">
         <PositionSkeleton width={80} height={16} />
         <PositionSkeleton width={100} height={16} />
-      </Flex>
-      <Flex justifyContent="space-between">
+      </div>
+      <div className="flex justify-between">
         <PositionSkeleton width={50} height={16} />
         <PositionSkeleton width={80} height={16} />
-      </Flex>
-      <Flex justifyContent="space-between">
+      </div>
+      <div className="flex justify-between">
         <PositionSkeleton width={100} height={16} />
         <PositionSkeleton width={120} height={16} />
-      </Flex>
-    </Flex>
-    <Flex flexDirection="column" style={{ gap: '8px' }}>
-      <Flex justifyContent="space-between">
+      </div>
+    </div>
+    <div className="flex flex-col gap-2">
+      <div className="flex justify-between">
         <PositionSkeleton width={80} height={16} />
         <PositionSkeleton width={80} height={16} />
-      </Flex>
+      </div>
       <PositionSkeleton width={140} height={22} />
-    </Flex>
+    </div>
   </VaultCard>
 )
 
@@ -324,7 +315,7 @@ const MyVaults = () => {
 
       <FilterRow>
         <MultiSelectDropdownMenu
-          alignLeft
+          alignItems="flex-start"
           highlightOnSelect
           label={chainLabel}
           options={VAULT_CHAIN_OPTIONS}

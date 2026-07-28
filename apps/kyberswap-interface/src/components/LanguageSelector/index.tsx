@@ -1,88 +1,73 @@
-import { isMobile } from 'react-device-detect'
-import { ArrowLeft, Check } from 'react-feather'
+import { Check } from 'react-feather'
 import { useLocation, useNavigate } from 'react-router-dom'
-import styled from 'styled-components'
 
-import { ButtonEmpty } from 'components/Button'
-import { LOCALE_INFO, SupportedLocale, getLocaleLabel } from 'constants/locales'
-import useParsedQueryString from 'hooks/useParsedQueryString'
-import useTheme from 'hooks/useTheme'
+import { HStack, Stack } from 'components/Stack'
+import { DEFAULT_LOCALE, LOCALE_INFO, SupportedLocale } from 'constants/locales'
 import { useUserLocale } from 'state/user/hooks'
+import { cn } from 'utils/cn'
 
-const StyledLanguageSelector = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: center;
-`
+const LOCALES = Object.keys(LOCALE_INFO) as SupportedLocale[]
 
-const OptionTitle = styled.div<{ isSelected?: boolean }>`
-  color: ${({ theme, isSelected }) => (isSelected ? theme.primary : theme.subText)};
-  font-size: 14px;
-`
-
-const GridWrapper = styled.div`
-  display: grid;
-  grid-gap: 1.5rem 3rem;
-  grid-template-columns: 1fr ${isMobile ? '1fr' : ''};
-  width: 100%;
-`
-
-export default function LanguageSelector({
-  setIsSelectingLanguage,
-  onLanguageChange,
-}: {
-  setIsSelectingLanguage: (isSelectingLanguage: boolean) => void
+type LanguageSelectorProps = {
+  onDismiss?: () => void
   onLanguageChange?: (previousLanguage: string, newLanguage: string) => void
-}) {
-  const theme = useTheme()
+}
+
+const LanguageSelector = ({ onDismiss, onLanguageChange }: LanguageSelectorProps) => {
   const navigate = useNavigate()
   const location = useLocation()
-  const qs = useParsedQueryString()
   const userLocale = useUserLocale()
+  const selectedLocale = userLocale || DEFAULT_LOCALE
 
   const handleSelectLanguage = (locale: SupportedLocale) => {
-    const target = {
-      ...location,
-      search: new URLSearchParams({ ...qs, lng: locale }).toString(),
+    if (locale !== selectedLocale) {
+      const searchParams = new URLSearchParams(location.search)
+      searchParams.set('lng', locale)
+
+      onLanguageChange?.(selectedLocale, locale)
+      navigate({
+        ...location,
+        search: searchParams.toString(),
+      })
     }
 
-    onLanguageChange?.(userLocale ?? '', locale)
-    navigate(target)
-    setIsSelectingLanguage(false)
+    onDismiss?.()
   }
 
   return (
-    <StyledLanguageSelector>
-      <ButtonEmpty
-        width="fit-content"
-        padding="0"
-        onClick={() => setIsSelectingLanguage(false)}
-        style={{ textDecoration: 'none', color: theme.text, marginBottom: '24px' }}
-      >
-        <ArrowLeft />
-      </ButtonEmpty>
-      <GridWrapper>
-        {Object.keys(LOCALE_INFO).map(element => {
-          const locale = element as SupportedLocale
-          return (
-            <ButtonEmpty
-              key={locale}
-              padding="0"
-              onClick={() => handleSelectLanguage(locale)}
-              style={{
-                textDecoration: 'none',
-                display: 'flex',
-                justifyContent: 'space-between',
-              }}
-            >
-              <OptionTitle isSelected={locale === userLocale}>{getLocaleLabel(locale)}</OptionTitle>
+    <Stack className="pl-4">
+      <div className="grid w-full grid-cols-[1fr]">
+        {LOCALES.map(locale => {
+          const localeInfo = LOCALE_INFO[locale]
+          const isSelected = locale === selectedLocale
 
-              {locale === userLocale && <Check color={theme.primary}></Check>}
-            </ButtonEmpty>
+          return (
+            <button
+              type="button"
+              key={locale}
+              onClick={() => handleSelectLanguage(locale)}
+              className={cn(
+                'group flex w-full cursor-pointer items-center justify-between gap-2 border-0 bg-transparent text-left outline-none transition-colors',
+                'px-0 py-2.5 text-sm text-subText hover:text-text focus:text-text',
+                isSelected && '!text-primary',
+              )}
+            >
+              <HStack
+                className={cn(
+                  'items-center gap-2 whitespace-nowrap',
+                  isSelected ? 'text-primary' : 'text-subText group-hover:text-text group-focus:text-text',
+                )}
+              >
+                <img src={localeInfo.flag} alt="" className="w-5 shrink-0" />
+                <span>{localeInfo.name}</span>
+              </HStack>
+              {isSelected && <Check className="size-4 shrink-0 text-primary" />}
+            </button>
           )
         })}
-      </GridWrapper>
-    </StyledLanguageSelector>
+      </div>
+    </Stack>
   )
 }
+
+export default LanguageSelector

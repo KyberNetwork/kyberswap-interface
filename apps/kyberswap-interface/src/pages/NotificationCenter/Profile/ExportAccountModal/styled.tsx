@@ -1,7 +1,7 @@
-import styled from 'styled-components'
+import { cn } from 'utils/cn'
 
-export const Label = styled.label`
-  font-weight: 400;
-  font-size: 14px;
-  line-height: 20px;
-`
+export const Label = ({ children, className, ...rest }: React.LabelHTMLAttributes<HTMLLabelElement>) => (
+  <label className={cn('text-sm font-normal leading-5', className)} {...rest}>
+    {children}
+  </label>
+)

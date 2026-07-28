@@ -43,7 +43,11 @@ pnpm start-stg     # staging mode
 - Build app: `pnpm build`
 - Preview build: `pnpm preview`
 - Lint: `pnpm lint`
-- Storybook: `pnpm storybook` / `pnpm build-storybook`
+
+## Architecture references
+
+- [SEO, sitemap, and OG-service contract](docs/seo-og-contract.md): route ownership, discovery inventory, static
+  artifact handoff, canonical/robots expectations, hydration marker, and paired release requirements.
 
 ## Contributions
 

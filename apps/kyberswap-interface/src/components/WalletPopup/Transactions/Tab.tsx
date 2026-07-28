@@ -1,116 +1,6 @@
 import { useCallback, useLayoutEffect, useState } from 'react'
-import styled, { css } from 'styled-components'
 
-import Row from 'components/Row'
-
-const ListTab = styled.div`
-  display: flex;
-  width: 100%;
-  gap: 2px;
-  align-items: center;
-  justify-content: space-between;
-  padding: 3px;
-  overflow-x: auto;
-`
-
-type WrapperProps = {
-  $scrollable: boolean
-  $scrollLeft: boolean
-  $scrollRight: boolean
-}
-const TabWrapper = styled(Row).attrs<WrapperProps>(props => ({
-  'data-scrollable': props.$scrollable,
-  'data-scroll-left': props.$scrollLeft,
-  'data-scroll-right': props.$scrollRight,
-}))<WrapperProps>`
-  position: relative;
-
-  width: 100%;
-  background-color: ${({ theme }) => theme.buttonBlack};
-  border-radius: 20px;
-  justify-content: center;
-
-  overflow: hidden;
-
-  &[data-scrollable='true'] {
-    justify-content: flex-start;
-
-    ${ListTab} {
-      justify-content: flex-start;
-    }
-
-    &[data-scroll-left='true'] {
-      ::before {
-        content: '';
-        width: 36px;
-        height: 100%;
-
-        position: absolute;
-        top: 0;
-        left: 0;
-        transform: translateX(-1px);
-
-        display: flex;
-        align-items: center;
-
-        background: linear-gradient(
-          -90deg,
-          rgba(0, 0, 0, 0) 0%,
-          ${({ theme }) => theme.background} 90%,
-          ${({ theme }) => theme.background} 100%
-        );
-      }
-    }
-
-    &[data-scroll-right='true'] {
-      ::after {
-        content: '';
-        width: 36px;
-        height: 100%;
-
-        position: absolute;
-        top: 0;
-        right: 0;
-        transform: translateX(1px);
-
-        display: flex;
-        justify-content: flex-end;
-        align-items: center;
-
-        background: linear-gradient(
-          90deg,
-          rgba(0, 0, 0, 0) 0%,
-          ${({ theme }) => theme.background} 90%,
-          ${({ theme }) => theme.background} 100%
-        );
-      }
-    }
-  }
-`
-
-const TabItem = styled.div<{ active: boolean }>`
-  width: 100%;
-  padding: 6px;
-  font-weight: 500;
-  font-size: 12px;
-  line-height: 14px;
-  text-align: center;
-  cursor: pointer;
-  user-select: none;
-  color: ${({ theme }) => theme.subText};
-  border-radius: 20px;
-  :hover {
-    color: ${({ theme }) => theme.text};
-    background-color: ${({ theme }) => theme.tabActive};
-  }
-  ${({ active }) =>
-    active
-      ? css`
-          color: ${({ theme }) => theme.text};
-          background-color: ${({ theme }) => theme.border} !important;
-        `
-      : null}
-`
+import { cn } from 'utils/cn'
 
 interface TabProps<T extends string> {
   activeTab: T
@@ -154,15 +44,39 @@ function Tab<T extends string>({ activeTab, setActiveTab, tabs }: TabProps<T>) {
   }, [listRef])
 
   return (
-    <TabWrapper $scrollable={isScrollable} $scrollLeft={scrollLeft} $scrollRight={scrollRight}>
-      <ListTab ref={listRef => setListRef(listRef)} onScroll={handleScroll}>
+    <div
+      data-scrollable={isScrollable}
+      data-scroll-left={scrollLeft}
+      data-scroll-right={scrollRight}
+      className={cn(
+        'ks-transactions-tab',
+        'relative flex w-full items-center justify-center overflow-hidden rounded-[20px] bg-buttonBlack',
+        isScrollable && 'justify-start',
+      )}
+    >
+      <div
+        ref={listRef => setListRef(listRef)}
+        onScroll={handleScroll}
+        className={cn(
+          'flex w-full items-center justify-between gap-[2px] overflow-x-auto p-[3px]',
+          isScrollable && 'justify-start',
+        )}
+      >
         {tabs.map(tab => (
-          <TabItem key={tab.title} active={activeTab === tab.value} onClick={() => setActiveTab(tab.value)}>
+          <div
+            key={tab.title}
+            onClick={() => setActiveTab(tab.value)}
+            className={cn(
+              'w-full cursor-pointer select-none rounded-[20px] p-1.5 text-center text-xs font-medium leading-[14px]',
+              'text-subText hover:bg-tabActive hover:text-text',
+              activeTab === tab.value && '!bg-border text-text',
+            )}
+          >
             {tab.title}
-          </TabItem>
+          </div>
         ))}
-      </ListTab>
-    </TabWrapper>
+      </div>
+    </div>
   )
 }
 

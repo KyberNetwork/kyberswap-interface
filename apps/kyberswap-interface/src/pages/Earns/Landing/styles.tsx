@@ -1,583 +1,341 @@
-import { rgba } from 'polished'
-import { Link } from 'react-router-dom'
-import { Flex } from 'rebass'
-import styled, { css, keyframes } from 'styled-components'
+import { CSSProperties, HTMLAttributes } from 'react'
+import { Link, LinkProps } from 'react-router-dom'
 
-const STABLE_PAIR_BG = 'rgba(8, 161, 231, 0.06)'
-const STABLE_PAIR_BG_HOVER = 'rgba(8, 161, 231, 0.16)'
+import useTheme from 'hooks/useTheme'
+import { cn } from 'utils/cn'
+import { hexAlpha } from 'utils/colorAlpha'
 
-const fadeInUp = keyframes`
-  from {
-    opacity: 0;
-    transform: translateY(12px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-`
+const STABLE_PAIR_BG = 'bg-[rgba(8,161,231,0.06)]'
+const STABLE_PAIR_BG_HOVER = 'hover:bg-[rgba(8,161,231,0.16)]'
 
-const fadeIn = (delay = 0) => css`
-  opacity: 0;
-  animation: ${fadeInUp} 0.5s ease-out ${delay}s forwards;
+// Sections reveal in a stagger as the page mounts. Each delay is spelled out in full —
+// Tailwind only generates classes it can find as complete literals in the source.
+const FADE_IN_BASE = 'opacity-0 motion-reduce:!animate-none motion-reduce:opacity-100'
+const FADE_IN = {
+  hero: cn(FADE_IN_BASE, '[animation:earn-fade-in-up_0.5s_ease-out_0s_forwards]'),
+  top: cn(FADE_IN_BASE, '[animation:earn-fade-in-up_0.5s_ease-out_0.15s_forwards]'),
+  bottom: cn(FADE_IN_BASE, '[animation:earn-fade-in-up_0.5s_ease-out_0.3s_forwards]'),
+  explore: cn(FADE_IN_BASE, '[animation:earn-fade-in-up_0.5s_ease-out_0.45s_forwards]'),
+}
 
-  @media (prefers-reduced-motion: reduce) {
-    opacity: 1;
-    animation: none;
-  }
-`
+export const PageGrid = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('flex flex-col gap-6', className)} {...rest} />
+)
 
-const borderRotate = keyframes`
-  0% { --border-angle: 0deg; }
-  100% { --border-angle: 360deg; }
-`
+export const HeroSection = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
+  <div
+    className={cn(
+      'flex flex-col items-center gap-8 px-4 pb-4 pt-8',
+      'max-xs:gap-6 max-xs:px-0 max-xs:pb-2 max-xs:pt-4',
+      FADE_IN.hero,
+      className,
+    )}
+    {...rest}
+  />
+)
 
-export const PageGrid = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-`
+export const HeroTitle = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('flex max-w-[880px] flex-col items-center gap-4 text-center', className)} {...rest} />
+)
 
-export const HeroSection = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 32px;
-  padding: 32px 16px 16px;
-  ${fadeIn(0)}
+export const HeroRewardRow = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
+  <div
+    className={cn('flex flex-wrap items-center justify-center gap-8 max-xs:flex-col max-xs:gap-4', className)}
+    {...rest}
+  />
+)
 
-  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
-    gap: 24px;
-    padding: 16px 0 8px;
-  `}
-`
+export const TopSectionsRow = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
+  <div
+    className={cn('grid grid-cols-[868fr_408fr] gap-[22px]', 'max-lg:grid-cols-1 max-lg:gap-4', FADE_IN.top, className)}
+    {...rest}
+  />
+)
 
-export const HeroTitle = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 16px;
-  text-align: center;
-  max-width: 880px;
-`
+export const BottomSectionsRow = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn(FADE_IN.bottom, className)} {...rest} />
+)
 
-export const HeroRewardRow = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 32px;
-  flex-wrap: wrap;
-  justify-content: center;
+export const BottomSectionInner = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('relative grid grid-cols-[2fr_1fr] items-stretch max-lg:grid-cols-1', className)} {...rest} />
+)
 
-  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
-    gap: 16px;
-    flex-direction: column;
-  `}
-`
+export const BottomLeftCol = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
+  <div
+    className={cn(
+      'min-w-0 p-6 pt-5',
+      'max-lg:px-5 max-lg:pb-6 max-lg:pt-5',
+      'max-md:px-4 max-md:pb-5 max-md:pt-4',
+      'max-xs:px-0 max-xs:pb-0 max-xs:pt-6',
+      className,
+    )}
+    {...rest}
+  />
+)
 
-export const TopSectionsRow = styled.div`
-  display: grid;
-  grid-template-columns: 868fr 408fr;
-  gap: 22px;
-  ${fadeIn(0.15)}
+export const BottomRightCol = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
+  <div
+    className={cn(
+      'relative min-w-0 p-6 pt-5',
+      // Vertical rule between the two bottom columns; drops away once they stack.
+      "before:absolute before:bottom-6 before:left-0 before:top-[76px] before:w-px before:bg-border/40 before:content-['']",
+      'max-lg:px-5 max-lg:pb-6 max-lg:pt-0 max-lg:before:hidden',
+      'max-md:px-4 max-md:pb-5 max-md:pt-0',
+      'max-xs:px-0 max-xs:pb-0 max-xs:pt-6',
+      className,
+    )}
+    {...rest}
+  />
+)
 
-  ${({ theme }) => theme.mediaWidth.upToLarge`
-    grid-template-columns: 1fr;
-    gap: 16px;
-  `}
-`
-
-export const BottomSectionsRow = styled.div`
-  ${fadeIn(0.3)}
-`
-
-export const BottomSectionInner = styled.div`
-  display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 0;
-  align-items: stretch;
-  position: relative;
-
-  ${({ theme }) => theme.mediaWidth.upToLarge`
-    grid-template-columns: 1fr;
-  `}
-`
-
-export const BottomLeftCol = styled.div`
-  padding: 20px 24px 24px 24px;
-  min-width: 0;
-
-  ${({ theme }) => theme.mediaWidth.upToLarge`
-    padding: 20px 20px 24px;
-  `}
-
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    padding: 16px 16px 20px;
-  `}
-
-  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
-    padding: 24px 0 0;
-  `}
-`
-
-export const BottomRightCol = styled.div`
-  padding: 20px 24px 24px 24px;
-  min-width: 0;
-  position: relative;
-
-  &::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 76px;
-    bottom: 24px;
-    width: 1px;
-    background: ${({ theme }) => rgba(theme.border, 0.4)};
-  }
-
-  ${({ theme }) => theme.mediaWidth.upToLarge`
-    padding: 0 20px 24px;
-
-    &::before {
-      display: none;
-    }
-  `}
-
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    padding: 0 16px 20px;
-  `}
-
-  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
-    padding: 24px 0 0;
-  `}
-`
-
-export const SectionContainer = styled.div<{
+type SectionContainerProps = HTMLAttributes<HTMLDivElement> & {
   accentColor?: string
   clickable?: boolean
-}>`
-  ${({ clickable }) => clickable && 'cursor: pointer;'}
-  position: relative;
-  padding: 1px;
-  border-radius: 20px;
-  overflow: hidden;
-  background-clip: padding-box;
-  transition: transform 0.2s ease;
+}
+export const SectionContainer = ({ accentColor, clickable, className, style, ...rest }: SectionContainerProps) => {
+  const theme = useTheme()
+  const accent = accentColor || theme.primary
+  return (
+    <div
+      className={cn(
+        'relative overflow-hidden rounded-[20px] bg-clip-padding p-px transition-transform duration-200',
+        clickable && 'cursor-pointer',
+        "before:pointer-events-none before:absolute before:inset-0 before:z-0 before:rounded-[20px] before:p-px before:content-['']",
+        'before:[--border-angle:0deg] before:[background:var(--ks-section-border)]',
+        'before:[-webkit-mask-composite:xor] before:[-webkit-mask:linear-gradient(#fff_0_0)_content-box,linear-gradient(#fff_0_0)]',
+        'before:[mask-composite:exclude] before:[mask:linear-gradient(#fff_0_0)_content-box,linear-gradient(#fff_0_0)]',
+        'hover:-translate-y-0.5',
+        'hover:before:[animation:ks-earn-border-rotate_3s_linear_infinite] hover:before:[background:var(--ks-section-border-hover)]',
+        // Full-bleed on the smallest screens: card chrome is dropped and the section
+        // spans the content area's horizontal padding.
+        'max-xs:-mx-4 max-xs:rounded-none max-xs:bg-none max-xs:p-0',
+        'max-xs:before:hidden max-xs:hover:translate-y-0 max-xs:hover:before:hidden',
+        'max-xxs:-mx-3',
+        className,
+      )}
+      style={
+        {
+          '--ks-section-border': `linear-gradient(306.9deg, #262525 38.35%, ${hexAlpha(
+            accent,
+            0.06,
+          )} 104.02%), radial-gradient(58.61% 54.58% at 30.56% 0%, ${hexAlpha(accent, 0.6)} 0%, rgba(0, 0, 0, 0) 100%)`,
+          '--ks-section-border-hover': `conic-gradient(from var(--border-angle), ${hexAlpha(
+            accent,
+            0.05,
+          )} 0%, ${hexAlpha(accent, 0.9)} 10%, ${hexAlpha(accent, 0.05)} 25%, ${hexAlpha(accent, 0.05)} 100%)`,
+          ...style,
+        } as CSSProperties
+      }
+      {...rest}
+    />
+  )
+}
 
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    padding: 1px;
-    border-radius: 20px;
-    --border-angle: 0deg;
-    background: linear-gradient(
-        306.9deg,
-        #262525 38.35%,
-        ${({ accentColor, theme }) => rgba(accentColor || theme.primary, 0.06)} 104.02%
-      ),
-      radial-gradient(
-        58.61% 54.58% at 30.56% 0%,
-        ${({ accentColor, theme }) => rgba(accentColor || theme.primary, 0.6)} 0%,
-        rgba(0, 0, 0, 0) 100%
-      );
-    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor;
-    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    mask-composite: exclude;
-    z-index: 0;
-    pointer-events: none;
-  }
+type SectionInnerProps = HTMLAttributes<HTMLDivElement> & { accentColor?: string }
+export const SectionInner = ({ accentColor, className, style, ...rest }: SectionInnerProps) => {
+  const theme = useTheme()
+  const accent = accentColor || theme.primary
+  return (
+    <div
+      className={cn(
+        'relative z-[1] flex h-full flex-col gap-5 rounded-[20px] bg-black/20 px-8 pb-6 backdrop-blur-[5px]',
+        'max-md:gap-4 max-md:px-6 max-md:pb-5',
+        'max-sm:px-5 max-sm:pb-5',
+        'max-xs:rounded-none max-xs:px-4 max-xs:pb-4',
+        // Accent hairlines only show in the full-bleed mobile layout, where the card
+        // border is gone and they take over as the section separators.
+        "after:pointer-events-none after:absolute after:inset-x-0 after:top-0 after:h-px after:opacity-0 after:content-[''] after:[background:var(--ks-accent-line-top)]",
+        "before:pointer-events-none before:absolute before:inset-x-0 before:bottom-0 before:h-px before:opacity-0 before:content-[''] before:[background:var(--ks-accent-line-bottom)]",
+        'max-xs:before:opacity-100 max-xs:after:opacity-100',
+        className,
+      )}
+      style={
+        {
+          '--ks-accent-line-top': `linear-gradient(90deg, ${hexAlpha(accent, 0.15)} 0%, ${hexAlpha(
+            accent,
+            0.85,
+          )} 18%, ${hexAlpha(accent, 0.2)} 50%, ${hexAlpha(accent, 0.1)} 80%, ${hexAlpha(accent, 0.05)} 100%)`,
+          '--ks-accent-line-bottom': `linear-gradient(90deg, ${hexAlpha(accent, 0.08)} 0%, ${hexAlpha(
+            accent,
+            0.45,
+          )} 18%, ${hexAlpha(accent, 0.1)} 50%, ${hexAlpha(accent, 0.05)} 80%, transparent 100%)`,
+          ...style,
+        } as CSSProperties
+      }
+      {...rest}
+    />
+  )
+}
 
-  &:hover {
-    transform: translateY(-2px);
-  }
+export const SectionHeader = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('flex w-full items-start gap-5', className)} {...rest} />
+)
 
-  &:hover::before {
-    background: conic-gradient(
-      from var(--border-angle),
-      ${({ accentColor, theme }) => rgba(accentColor || theme.primary, 0.05)} 0%,
-      ${({ accentColor, theme }) => rgba(accentColor || theme.primary, 0.9)} 10%,
-      ${({ accentColor, theme }) => rgba(accentColor || theme.primary, 0.05)} 25%,
-      ${({ accentColor, theme }) => rgba(accentColor || theme.primary, 0.05)} 100%
-    );
-    animation: ${borderRotate} 3s linear infinite;
-  }
+export const HeaderIconWrapper = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('relative flex w-20 shrink-0 flex-col items-center max-xs:w-16', className)} {...rest} />
+)
 
-  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
-    padding: 0;
-    background: none;
-    border-radius: 0;
-    margin-left: -16px;
-    margin-right: -16px;
+type AccentProps = HTMLAttributes<HTMLDivElement> & { accentColor?: string }
 
-    &::before,
-    &:hover::before {
-      display: none;
-    }
+export const HeaderIconLine = ({ accentColor, className, style, ...rest }: AccentProps) => (
+  <div
+    className={cn('h-5 w-px bg-primary', className)}
+    style={accentColor ? { background: accentColor, ...style } : style}
+    {...rest}
+  />
+)
 
-    &:hover {
-      transform: none;
-    }
-  `}
+export const HeaderIconCircle = ({ accentColor, className, style, ...rest }: AccentProps) => {
+  const theme = useTheme()
+  const accent = accentColor || theme.primary
+  return (
+    <div
+      className={cn(
+        'relative flex size-20 items-center justify-center rounded-full border border-solid bg-transparent text-subText',
+        "before:pointer-events-none before:absolute before:inset-2 before:rounded-full before:bg-[var(--ks-icon-fill)] before:content-['']",
+        '[&>*]:relative [&>*]:z-[1]',
+        'max-xs:size-16 max-xs:before:inset-1.5',
+        className,
+      )}
+      style={
+        {
+          borderColor: hexAlpha(accent, 0.6),
+          '--ks-icon-fill': hexAlpha(accent, accentColor ? 0.2 : 0.15),
+          ...style,
+        } as CSSProperties
+      }
+      {...rest}
+    />
+  )
+}
 
-  ${({ theme }) => theme.mediaWidth.upToXXSmall`
-    margin-left: -12px;
-    margin-right: -12px;
-  `}
-`
+export const HeaderTextBlock = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('flex min-w-0 flex-1 flex-col gap-2 pt-8 max-xs:pt-5', className)} {...rest} />
+)
 
-export const SectionInner = styled.div<{ accentColor?: string }>`
-  position: relative;
-  background: rgba(0, 0, 0, 0.2);
-  backdrop-filter: blur(5px);
-  border-radius: 20px;
-  padding: 0 32px 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  height: 100%;
-  z-index: 1;
+export const SectionDivider = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('h-px w-full bg-border/40', className)} {...rest} />
+)
 
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    padding: 0 24px 20px;
-    gap: 16px;
-  `}
+export const TwoColumnGrid = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('grid grid-cols-2 gap-5 max-xs:grid-cols-1 max-xs:gap-4', className)} {...rest} />
+)
 
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    padding: 0 20px 20px;
-  `}
+export const InnerSectionTitle = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('mb-4 flex items-center gap-2', className)} {...rest} />
+)
 
-  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
-    padding: 0 16px 16px;
-    border-radius: 0;
-  `}
+export const InnerListContainer = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('flex flex-col gap-3', className)} {...rest} />
+)
 
-  &::after {
-    content: '';
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 0;
-    height: 1px;
-    background: linear-gradient(
-      90deg,
-      ${({ accentColor, theme }) => rgba(accentColor || theme.primary, 0.15)} 0%,
-      ${({ accentColor, theme }) => rgba(accentColor || theme.primary, 0.85)} 18%,
-      ${({ accentColor, theme }) => rgba(accentColor || theme.primary, 0.2)} 50%,
-      ${({ accentColor, theme }) => rgba(accentColor || theme.primary, 0.1)} 80%,
-      ${({ accentColor, theme }) => rgba(accentColor || theme.primary, 0.05)} 100%
-    );
-    pointer-events: none;
-    opacity: 0;
+export const PartnerVaultsList = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('flex w-full flex-col gap-4', className)} {...rest} />
+)
 
-    ${({ theme }) => theme.mediaWidth.upToExtraSmall`
-      opacity: 1;
-    `}
-  }
+export const HighlightedPoolsGrid = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('grid grid-cols-2 gap-5 max-lg:gap-4 max-xs:grid-cols-1 max-xs:gap-3', className)} {...rest} />
+)
 
-  &::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    height: 1px;
-    background: linear-gradient(
-      90deg,
-      ${({ accentColor, theme }) => rgba(accentColor || theme.primary, 0.08)} 0%,
-      ${({ accentColor, theme }) => rgba(accentColor || theme.primary, 0.45)} 18%,
-      ${({ accentColor, theme }) => rgba(accentColor || theme.primary, 0.1)} 50%,
-      ${({ accentColor, theme }) => rgba(accentColor || theme.primary, 0.05)} 80%,
-      transparent 100%
-    );
-    pointer-events: none;
-    opacity: 0;
+export const FarmingPoolsList = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('flex flex-col gap-5 max-lg:gap-3', className)} {...rest} />
+)
 
-    ${({ theme }) => theme.mediaWidth.upToExtraSmall`
-      opacity: 1;
-    `}
-  }
-`
+export const SimpleSectionHeader = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
+  <div
+    className={cn('mb-1 flex items-center gap-2 pb-4 pl-0 pr-6 pt-2', 'max-md:pb-3 max-md:pr-3 max-md:pt-1', className)}
+    {...rest}
+  />
+)
 
-export const SectionHeader = styled.div`
-  display: flex;
-  align-items: flex-start;
-  gap: 20px;
-  width: 100%;
-`
+type PoolRowVariant = 'default' | 'stable' | 'farming'
 
-export const HeaderIconWrapper = styled.div`
-  position: relative;
-  width: 80px;
-  flex-shrink: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+// Stable pairs get a blue wash; farming rows a faint primary tint; everything else a
+// neutral white tint. All three share the same primary hover except stable pairs, which
+// deepen their own blue.
+const poolRowSurface = (variant?: PoolRowVariant) =>
+  variant === 'stable'
+    ? cn(STABLE_PAIR_BG, STABLE_PAIR_BG_HOVER)
+    : cn(variant === 'farming' ? 'bg-primary/[0.04]' : 'bg-white-04', 'hover:bg-primary/[0.16]')
 
-  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
-    width: 64px;
-  `}
-`
+type LargePoolRowProps = HTMLAttributes<HTMLDivElement> & { variant?: PoolRowVariant }
+export const LargePoolRow = ({ variant, className, ...rest }: LargePoolRowProps) => (
+  <div
+    className={cn(
+      'flex cursor-pointer flex-col gap-3 rounded-xl p-4 transition-colors',
+      poolRowSurface(variant),
+      className,
+    )}
+    {...rest}
+  />
+)
 
-export const HeaderIconLine = styled.div<{ accentColor?: string }>`
-  width: 1px;
-  height: 20px;
-  background: ${({ accentColor, theme }) => accentColor || theme.primary};
-`
+type SmallPoolRowProps = HTMLAttributes<HTMLDivElement> & { variant?: 'default' | 'stable' }
+export const SmallPoolRow = ({ variant, className, ...rest }: SmallPoolRowProps) => (
+  <div
+    className={cn(
+      'flex cursor-pointer items-center justify-between gap-3 rounded-xl px-4 py-3 transition-colors',
+      poolRowSurface(variant),
+      variant !== 'stable' && 'max-xs:flex-col max-xs:items-start max-xs:gap-2 max-xs:p-4',
+      className,
+    )}
+    {...rest}
+  />
+)
 
-export const HeaderIconCircle = styled.div<{ accentColor?: string }>`
-  position: relative;
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  border: 1px solid ${({ accentColor, theme }) => rgba(accentColor || theme.primary, 0.6)};
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: ${({ theme }) => theme.subText};
-  background: transparent;
+export const Tag = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
+  <div
+    className={cn(
+      'shrink-0 whitespace-nowrap rounded-[999px] bg-white-08 px-2 py-1 text-xs leading-4 text-subText',
+      className,
+    )}
+    {...rest}
+  />
+)
 
-  &::before {
-    content: '';
-    position: absolute;
-    inset: 8px;
-    border-radius: 50%;
-    background: ${({ accentColor, theme }) => (accentColor ? rgba(accentColor, 0.2) : rgba(theme.primary, 0.15))};
-    pointer-events: none;
-  }
+export const ProtocolTag = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
+  <div
+    className={cn(
+      'flex max-w-full shrink-0 items-center gap-1 truncate rounded-lg bg-white-08 px-2 py-0.5 text-xs leading-4 text-subText',
+      className,
+    )}
+    {...rest}
+  />
+)
 
-  & > * {
-    position: relative;
-    z-index: 1;
-  }
+// Rotating conic-gradient border shared by both call-to-action buttons.
+const rewardsButtonBase = cn(
+  'flex shrink-0 cursor-pointer items-center gap-2 rounded-[30px] border border-solid border-transparent',
+  '[--border-angle:0deg] [animation:ks-earn-border-rotate_2s_infinite_linear]',
+  '[background:linear-gradient(161.87deg,rgba(22,31,28,0.8)_8.13%,rgba(24,45,39,0.8)_99%)_padding-box,conic-gradient(from_var(--border-angle),var(--ks-primary)_0%,#196750_15%,#196750_35%,var(--ks-primary)_50%,#196750_65%,#196750_85%,var(--ks-primary)_100%)_border-box]',
+  'shadow-[0px_4px_4px_rgba(0,0,0,0.25)] transition-[box-shadow,filter] duration-200',
+  'max-xs:w-full max-xs:justify-center',
+)
 
-  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
-    width: 64px;
-    height: 64px;
+export const RewardsNavigateButton = ({ className, ...rest }: LinkProps) => (
+  <Link
+    className={cn(
+      rewardsButtonBase,
+      'px-5 py-2',
+      'hover:shadow-[0px_4px_16px_rgba(49,203,158,0.25)] hover:brightness-125',
+      className,
+    )}
+    {...rest}
+  />
+)
 
-    &::before {
-      inset: 6px;
-    }
-  `}
-`
+export const ExplorePoolsButton = ({ className, ...rest }: LinkProps) => (
+  <Link
+    className={cn(
+      rewardsButtonBase,
+      'mx-auto mt-4 px-8 py-4 text-base max-xs:px-6 max-xs:py-3',
+      'hover:shadow-[0px_6px_24px_rgba(49,203,158,0.3)] hover:brightness-125',
+      className,
+    )}
+    {...rest}
+  />
+)
 
-export const HeaderTextBlock = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding-top: 32px;
-  flex: 1;
-  min-width: 0;
-
-  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
-    padding-top: 20px;
-  `}
-`
-
-export const SectionDivider = styled.div`
-  width: 100%;
-  height: 1px;
-  background: ${({ theme }) => rgba(theme.border, 0.4)};
-`
-
-export const TwoColumnGrid = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
-
-  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
-    grid-template-columns: 1fr;
-    gap: 16px;
-  `}
-`
-
-export const InnerSectionTitle = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 16px;
-`
-
-export const InnerListContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-`
-
-export const PartnerVaultsList = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  width: 100%;
-`
-
-export const HighlightedPoolsGrid = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
-
-  ${({ theme }) => theme.mediaWidth.upToLarge`
-    gap: 16px;
-  `}
-
-  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
-    grid-template-columns: 1fr;
-    gap: 12px;
-  `}
-`
-
-export const FarmingPoolsList = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-
-  ${({ theme }) => theme.mediaWidth.upToLarge`
-    gap: 12px;
-  `}
-`
-
-export const SimpleSectionHeader = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 24px 16px 0;
-  margin-bottom: 4px;
-
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    padding: 4px 12px 12px 0;
-  `}
-`
-
-export const LargePoolRow = styled.div<{ variant?: 'default' | 'stable' | 'farming' }>`
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  padding: 16px;
-  border-radius: 12px;
-  background: ${({ variant, theme }) =>
-    variant === 'stable'
-      ? STABLE_PAIR_BG
-      : variant === 'farming'
-      ? rgba(theme.primary, 0.04)
-      : rgba(theme.white, 0.04)};
-  cursor: pointer;
-  transition: background 0.15s ease;
-
-  &:hover {
-    background: ${({ variant, theme }) => (variant === 'stable' ? STABLE_PAIR_BG_HOVER : rgba(theme.primary, 0.16))};
-  }
-`
-
-export const SmallPoolRow = styled(Flex)<{ variant?: 'default' | 'stable' }>`
-  gap: 12px;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 16px;
-  border-radius: 12px;
-  background: ${({ variant, theme }) => (variant === 'stable' ? STABLE_PAIR_BG : rgba(theme.white, 0.04))};
-  cursor: pointer;
-  transition: background 0.15s ease;
-
-  &:hover {
-    background: ${({ variant, theme }) => (variant === 'stable' ? STABLE_PAIR_BG_HOVER : rgba(theme.primary, 0.16))};
-  }
-
-  ${({ theme, variant }) =>
-    variant !== 'stable' &&
-    theme.mediaWidth.upToExtraSmall`
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 8px;
-      padding: 16px;
-    `}
-`
-
-export const Tag = styled.div`
-  border-radius: 999px;
-  background: ${({ theme }) => rgba(theme.white, 0.08)};
-  color: ${({ theme }) => theme.subText};
-  padding: 4px 8px;
-  font-size: 12px;
-  line-height: 16px;
-  white-space: nowrap;
-  flex-shrink: 0;
-`
-
-export const ProtocolTag = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  padding: 2px 8px;
-  border-radius: 8px;
-  background: ${({ theme }) => rgba(theme.white, 0.08)};
-  color: ${({ theme }) => theme.subText};
-  font-size: 12px;
-  line-height: 16px;
-  flex-shrink: 0;
-  max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-`
-
-export const RewardsNavigateButton = styled(Link)`
-  padding: 8px 20px;
-  border-radius: 30px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-shrink: 0;
-  cursor: pointer;
-
-  --border-angle: 0deg;
-  animation: ${borderRotate} 2s infinite linear;
-  border: 1px solid transparent;
-  background: linear-gradient(161.87deg, rgba(22, 31, 28, 0.8) 8.13%, rgba(24, 45, 39, 0.8) 99%) padding-box,
-    conic-gradient(
-        from var(--border-angle),
-        ${({ theme }) => theme.primary} 0%,
-        #196750 15%,
-        #196750 35%,
-        ${({ theme }) => theme.primary} 50%,
-        #196750 65%,
-        #196750 85%,
-        ${({ theme }) => theme.primary} 100%
-      )
-      border-box;
-  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
-  transition: box-shadow 0.2s ease, filter 0.2s ease;
-
-  &:hover {
-    box-shadow: 0px 4px 16px rgba(49, 203, 158, 0.25);
-    filter: brightness(1.2);
-  }
-
-  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
-    width: 100%;
-    justify-content: center;
-  `}
-`
-
-export const ExplorePoolsButton = styled(RewardsNavigateButton)`
-  padding: 16px 32px;
-  font-size: 16px;
-  margin: 16px auto 0;
-
-  &:hover {
-    box-shadow: 0px 6px 24px rgba(49, 203, 158, 0.3);
-    filter: brightness(1.25);
-  }
-
-  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
-    padding: 12px 24px;
-  `}
-`
-
-export const ExplorePoolsWrapper = styled.div`
-  display: flex;
-  justify-content: center;
-  ${fadeIn(0.45)}
-`
+export const ExplorePoolsWrapper = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('flex justify-center', FADE_IN.explore, className)} {...rest} />
+)

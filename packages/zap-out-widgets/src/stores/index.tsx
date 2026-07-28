@@ -68,40 +68,46 @@ const createZapOutStore = (initProps: InnerZapOutProps) => {
       const { success: isUniV3, data: univ3PoolInfo } = univ3PoolNormalize.safeParse(pool);
       const { success: isUniV2, data: univ2PoolInfo } = univ2PoolNormalize.safeParse(pool);
 
-      if (isUniV3) {
-        const positionInfo = await getUniv3PositionInfo({
-          poolType,
-          positionId,
-          chainId,
-          tickCurrent: univ3PoolInfo.tick,
-          sqrtPriceX96: univ3PoolInfo.sqrtPriceX96,
-        });
+      try {
+        if (isUniV3) {
+          const positionInfo = await getUniv3PositionInfo({
+            poolType,
+            positionId,
+            chainId,
+            tickCurrent: univ3PoolInfo.tick,
+            sqrtPriceX96: univ3PoolInfo.sqrtPriceX96,
+          });
 
-        if (positionInfo.error) set({ errorMsg: positionInfo.error, position: null });
-        else {
-          set({ position: positionInfo.position as Position });
+          if (positionInfo.error) set({ errorMsg: positionInfo.error, position: null });
+          else {
+            set({ position: positionInfo.position as Position });
+          }
+
+          return;
         }
 
-        return;
+        if (isUniV2) {
+          const positionInfo = await getUniv2PositionInfo({
+            poolType,
+            positionId,
+            chainId,
+            poolAddress: univ2PoolInfo.address,
+            reserve0: univ2PoolInfo.reserves[0],
+            reserve1: univ2PoolInfo.reserves[1],
+          });
+
+          if (positionInfo.error) set({ errorMsg: positionInfo.error, position: null });
+          else set({ position: positionInfo.position as Position });
+
+          return;
+        }
+
+        set({ errorMsg: 'Invalid pool type' });
+      } catch (error) {
+        // Swallow RPC failures (e.g. a flaky public endpoint) so they don't surface
+        // as unhandled promise rejections; the 15s poll in the provider retries.
+        console.error('Failed to fetch position info:', error);
       }
-
-      if (isUniV2) {
-        const positionInfo = await getUniv2PositionInfo({
-          poolType,
-          positionId,
-          chainId,
-          poolAddress: univ2PoolInfo.address,
-          reserve0: univ2PoolInfo.reserves[0],
-          reserve1: univ2PoolInfo.reserves[1],
-        });
-
-        if (positionInfo.error) set({ errorMsg: positionInfo.error, position: null });
-        else set({ position: positionInfo.position as Position });
-
-        return;
-      }
-
-      set({ errorMsg: 'Invalid pool type' });
     },
     toggleRevertPrice: () => {
       set(state => ({ revertPrice: !state.revertPrice }));

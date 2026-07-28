@@ -1,15 +1,17 @@
-import {
-  ChainId as CompoundingChainId,
-  PoolType as CompoundingPoolType,
-  CompoundingWidget,
-  SupportedLocale,
-} from '@kyberswap/compounding-widget'
+// PoolType is needed as a value by the DEX map below. The widget package only re-exports @kyber/schema's
+// enum, so taking it from the source keeps the exact same values without dragging the widget in with it.
+import { PoolType as CompoundingPoolType } from '@kyber/schema'
+import type { ChainId as CompoundingChainId, SupportedLocale } from '@kyberswap/compounding-widget'
+// Eager, not with the lazy JS below: the widget's status dialog is styled by utilities scoped under the
+// widget's own root class, which ship only in this stylesheet (the app's eager @kyber/ui styles use a
+// different scope and don't reach it). This widget's scope is its own, so nothing else supplies it.
 import '@kyberswap/compounding-widget/dist/style.css'
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { useCallback, useMemo, useState } from 'react'
+import { Suspense, lazy, useCallback, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { NotificationType } from 'components/Announcement/type'
+import LocalLoader from 'components/LocalLoader'
 import Modal from 'components/Modal'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useActiveLocale } from 'hooks/useActiveLocale'
@@ -18,10 +20,16 @@ import { EARN_DEXES, Exchange } from 'pages/Earns/constants'
 import useAccountChanged from 'pages/Earns/hooks/useAccountChanged'
 import useTransactionReplacement from 'pages/Earns/hooks/useTransactionReplacement'
 import { submitTransaction } from 'pages/Earns/utils'
-import { navigateToPositionAfterZap } from 'pages/Earns/utils/zap'
+import { navigateToPoolDetail, navigateToPositionAfterZap } from 'pages/Earns/utils/zap'
 import { useKyberSwapConfig, useNotify, useWalletModalToggle } from 'state/application/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
+
+// The widget only renders inside the modal below, so lazy-load its JS to keep it out of every /earn route
+// chunk that calls this hook.
+const CompoundingWidget = lazy(() =>
+  import('@kyberswap/compounding-widget').then(widget => ({ default: widget.CompoundingWidget })),
+)
 
 interface CompoundingPureParams {
   poolAddress: string
@@ -46,6 +54,7 @@ interface CompoundingParams extends CompoundingPureParams {
   onSwitchChain: () => void
   onSubmitTx: (txData: { from: string; to: string; value: string; data: string; gasLimit: string }) => Promise<string>
   onViewPosition?: (txHash: string) => void
+  onOpenPoolDetail?: (pool: { chainId: number; poolAddress: string; dexId?: string }) => void
 }
 
 export interface CompoundingInfo {
@@ -78,6 +87,8 @@ const compoundingDexMapping: Record<Exchange, CompoundingPoolType> = {
   [Exchange.DEX_PANCAKE_INFINITY_CL_ALPHA]: CompoundingPoolType.DEX_PANCAKE_INFINITY_CL,
   [Exchange.DEX_PANCAKE_INFINITY_CL_DYNAMIC]: CompoundingPoolType.DEX_PANCAKE_INFINITY_CL,
   [Exchange.DEX_AERODROMECL]: CompoundingPoolType.DEX_AERODROMECL,
+  [Exchange.DEX_AERODROMECL2]: CompoundingPoolType.DEX_AERODROMECL2,
+  [Exchange.DEX_AERODROMECL3]: CompoundingPoolType.DEX_AERODROMECL3,
 }
 
 const useCompounding = ({
@@ -92,7 +103,7 @@ const useCompounding = ({
   const toggleWalletModal = useWalletModalToggle()
   const notify = useNotify()
   const navigate = useNavigate()
-  const { library } = useWeb3React()
+  const { isSmartConnector } = useWeb3React()
   const { account, chainId } = useActiveWeb3React()
   const { changeNetwork } = useChangeNetwork()
 
@@ -107,8 +118,6 @@ const useCompounding = ({
 
   const handleNavigateToPosition = useCallback(
     async (txHash: string, chainId: number, poolType: CompoundingPoolType, poolId: string, tokenId: number) => {
-      if (!library) return
-
       const dexIndex = Object.values(compoundingDexMapping).findIndex(
         (item, index) => item === poolType && EARN_DEXES[Object.keys(compoundingDexMapping)[index] as Exchange],
       )
@@ -118,9 +127,9 @@ const useCompounding = ({
       }
       const dex = Object.keys(compoundingDexMapping)[dexIndex]
 
-      navigateToPositionAfterZap(library, txHash, chainId, dex, poolId, navigate, tokenId)
+      navigateToPositionAfterZap(txHash, chainId, dex, poolId, navigate, tokenId)
     },
-    [library, navigate],
+    [navigate],
   )
 
   const handleOpenCompounding = useCallback(
@@ -165,6 +174,11 @@ const useCompounding = ({
             txStatus,
             txHashMapping: originalToCurrentHash,
             onSwitchChain: () => changeNetwork(compoundingPureParams.chainId as number),
+            onOpenPoolDetail: (pool: { chainId: number; poolAddress: string; dexId?: string }) => {
+              if (!pool.dexId) return
+              handleCloseCompounding()
+              navigateToPoolDetail(pool, navigate)
+            },
             onViewPosition: (txHash: string) => {
               const { chainId, poolType, poolAddress, positionId } = compoundingPureParams
               handleCloseCompounding()
@@ -191,7 +205,12 @@ const useCompounding = ({
                     dexName?: string
                   },
             ) => {
-              const res = await submitTransaction({ library, txData })
+              const res = await submitTransaction({
+                account,
+                chainId: compoundingPureParams.chainId,
+                txData,
+                isSmartConnector,
+              })
               const { txHash, error } = res
               if (!txHash || error) throw new Error(error?.message || 'Transaction failed')
 
@@ -255,7 +274,8 @@ const useCompounding = ({
       handleCloseCompounding,
       handleNavigateToPosition,
       locale,
-      library,
+      navigate,
+      isSmartConnector,
       onRefreshPosition,
       toggleWalletModal,
       onCloseClaimModal,
@@ -270,7 +290,9 @@ const useCompounding = ({
 
   const widget = compoundingParams ? (
     <Modal isOpen mobileFullWidth maxWidth={768} width={'768px'} onDismiss={handleCloseCompounding}>
-      <CompoundingWidget {...compoundingParams} />
+      <Suspense fallback={<LocalLoader />}>
+        <CompoundingWidget {...compoundingParams} />
+      </Suspense>
     </Modal>
   ) : null
 

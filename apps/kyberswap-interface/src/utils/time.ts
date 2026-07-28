@@ -1,10 +1,17 @@
 import { t } from '@lingui/macro'
 import dayjs from 'dayjs'
 
+export const isChristmasTime = () => {
+  const currentTime = dayjs()
+  return currentTime.month() === 11 && currentTime.date() >= 12
+}
+
 // ex: 60 => 1 minute
 export const formatTimeDuration = (t: number) => {
   if (t > 3124224000) return 'Forever'
-  const str = dayjs.duration(t, 'seconds').humanize()
+  // Pin the English locale: some wallet SDKs (web3modal) globally switch dayjs to an abbreviated
+  // 'en-web3-modal' locale, which would otherwise render this as "1 hr" / "1 d" / "1 mo".
+  const str = dayjs.duration(t, 'seconds').locale('en').humanize()
   return str.includes('few') ? str : str.replace('a ', '1 ').replace('an ', '1 ')
 }
 

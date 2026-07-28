@@ -1,12 +1,10 @@
 import { Trans } from '@lingui/macro'
 import { Link } from 'react-router-dom'
-import { Text } from 'rebass'
 
 import nearCampaignGuide from 'pages/Campaign/assets/near_campaign_guide.png'
-
-import CampaignFaqSection from './CampaignFaqSection'
-import { StyledTable, TableWrapper, Td, Th, Tr } from './styles'
-import { CampaignContent, CampaignSectionComponent, FaqItem } from './types'
+import CampaignFaqSection from 'pages/Campaign/components/Information/info/CampaignFaqSection'
+import { StyledTable, TableWrapper, Td, Th, Tr } from 'pages/Campaign/components/Information/info/styles'
+import { CampaignContent, CampaignSectionComponent, FaqItem } from 'pages/Campaign/components/Information/info/types'
 
 const NearIntentsHowToSection = (): CampaignSectionComponent => {
   const nearIntentTableData = [
@@ -194,18 +192,12 @@ const NearIntentsRewardsSection = (): CampaignSectionComponent => (
   <>
     <li>
       <Trans>
-        Week 1:{' '}
-        <Text as="span" color="#fff">
-          20,000 USDT
-        </Text>
+        Week 1: <span className="text-white">20,000 USDT</span>
       </Trans>
     </li>
     <li>
       <Trans>
-        Week 2:{' '}
-        <Text as="span" color="#fff">
-          30,000 USDT
-        </Text>
+        Week 2: <span className="text-white">30,000 USDT</span>
       </Trans>
     </li>
     <li>

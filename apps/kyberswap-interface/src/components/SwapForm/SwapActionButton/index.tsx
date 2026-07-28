@@ -1,21 +1,20 @@
 import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { useCallback, useEffect, useState } from 'react'
-import { Flex } from 'rebass'
-import styled from 'styled-components'
 
 import { ButtonConfirmed, ButtonLight, ButtonPrimary } from 'components/Button'
 import InfoHelper from 'components/InfoHelper'
 import Loader from 'components/Loader'
 import { AutoRow, RowBetween, RowFit } from 'components/Row'
 import Select from 'components/Select'
-import SwapOnlyButton from 'components/SwapForm/SwapActionButton/SwapOnlyButton'
+import { SwapCallbackError } from 'components/SwapForm/SwapActionButton/SwapCallbackError'
+import SwapOnlyButton, { Props as SwapOnlyButtonProps } from 'components/SwapForm/SwapActionButton/SwapOnlyButton'
 import { BuildRouteResult } from 'components/SwapForm/hooks/useBuildRoute'
-import { SwapCallbackError } from 'components/swapv2/styleds'
 import { useActiveWeb3React } from 'hooks'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import { PermitState, usePermit } from 'hooks/usePermit'
+import { restrictedTokenMessage, useIsTokenRestricted } from 'hooks/useRestrictedTokens'
 import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { WrapType } from 'hooks/useWrapCallback'
@@ -23,23 +22,12 @@ import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { DetailedRouteSummary } from 'types/route'
 
-import { Props as SwapOnlyButtonProps } from './SwapOnlyButton'
-
 enum AllowanceType {
   EXACT = 'EXACT',
   INFINITE = 'INFINITE',
 }
 
-const CustomPrimaryButton = styled(ButtonPrimary).attrs({
-  id: 'swap-button',
-})`
-  border: none;
-  font-weight: 500;
-
-  &:disabled {
-    border: none;
-  }
-`
+const CUSTOM_PRIMARY_BUTTON_CLASS = 'border-none font-medium disabled:border-none'
 
 type Props = {
   isDegenMode: boolean
@@ -95,8 +83,14 @@ const SwapActionButton: React.FC<Props> = ({
   const [errorWhileSwap, setErrorWhileSwap] = useState('')
   const noRouteFound = routeSummary && !routeSummary.route
 
-  // toggle wallet when disconnected
   const toggleWalletModal = useWalletModalToggle()
+
+  const isTokenRestricted = useIsTokenRestricted()
+  const restrictedCurrency = isTokenRestricted(currencyIn)
+    ? currencyIn
+    : isTokenRestricted(currencyOut)
+    ? currencyOut
+    : undefined
 
   const showWrap: boolean = wrapType !== WrapType.NOT_APPLICABLE
 
@@ -117,20 +111,16 @@ const SwapActionButton: React.FC<Props> = ({
     [trackingHandler, networkInfo?.name],
   )
 
-  // check whether the user has approved the router on the input token
-  const [approval, approveCallback, currentAllowance] = useApproveCallback(
-    parsedAmountFromTypedValue,
-    routeSummary?.routerAddress,
-    false,
-    handleApprovalError,
-  )
+  const [approval, approveCallback, currentAllowance] = useApproveCallback({
+    amount: parsedAmountFromTypedValue,
+    spender: routeSummary?.routerAddress,
+    onApprovalError: handleApprovalError,
+  })
 
-  // check if user has gone through approval process, used to show two step buttons, reset on token change
   const [approvalSubmitted, setApprovalSubmitted] = useState<boolean>(false)
 
   const { permitState, permitCallback } = usePermit(parsedAmountFromTypedValue, routeSummary?.routerAddress)
 
-  // mark when a user has submitted an approval, reset onTokenSelection for input field
   useEffect(() => {
     if (approval === ApprovalState.PENDING) {
       setApprovalSubmitted(true)
@@ -141,14 +131,11 @@ const SwapActionButton: React.FC<Props> = ({
   }, [approval, approvalSubmitted])
 
   useEffect(() => {
-    // reset approval submitted when input token changes
     if (!isProcessingSwap) {
       setApprovalSubmitted(false)
     }
   }, [currencyIn, typedValue, isProcessingSwap])
 
-  // show approve flow when: no error on inputs, not approved or pending, or approved in current session
-  // never show if price impact is above threshold in non degen mode
   const showApproveFlow =
     !swapInputError &&
     (approval === ApprovalState.NOT_APPROVED || approval === ApprovalState.PENDING) &&
@@ -240,28 +227,44 @@ const SwapActionButton: React.FC<Props> = ({
       )
     }
 
+    if (restrictedCurrency) {
+      return (
+        <ButtonPrimary id="swap-button" className={CUSTOM_PRIMARY_BUTTON_CLASS} disabled>
+          {restrictedTokenMessage(restrictedCurrency.symbol)}
+        </ButtonPrimary>
+      )
+    }
+
     if (wrapInputError) {
-      return <CustomPrimaryButton disabled>{wrapInputError}</CustomPrimaryButton>
+      return (
+        <ButtonPrimary id="swap-button" className={CUSTOM_PRIMARY_BUTTON_CLASS} disabled>
+          {wrapInputError}
+        </ButtonPrimary>
+      )
     }
 
     if (showWrap) {
       return (
-        <CustomPrimaryButton onClick={onWrap}>
+        <ButtonPrimary id="swap-button" className={CUSTOM_PRIMARY_BUTTON_CLASS} onClick={onWrap}>
           {wrapType === WrapType.WRAP ? <Trans>Wrap</Trans> : <Trans>Unwrap</Trans>}
-        </CustomPrimaryButton>
+        </ButtonPrimary>
       )
     }
 
     if (userHasSpecifiedInputOutput && noRouteFound) {
       return (
-        <CustomPrimaryButton disabled>
+        <ButtonPrimary id="swap-button" className={CUSTOM_PRIMARY_BUTTON_CLASS} disabled>
           <Trans>Insufficient liquidity for this trade</Trans>
-        </CustomPrimaryButton>
+        </ButtonPrimary>
       )
     }
 
     if (swapInputError) {
-      return <CustomPrimaryButton disabled>{swapInputError}</CustomPrimaryButton>
+      return (
+        <ButtonPrimary id="swap-button" className={CUSTOM_PRIMARY_BUTTON_CLASS} disabled>
+          {swapInputError}
+        </ButtonPrimary>
+      )
     }
 
     const swapOnlyButtonProps: SwapOnlyButtonProps = {
@@ -289,7 +292,7 @@ const SwapActionButton: React.FC<Props> = ({
     if (showApproveFlow) {
       return (
         <div>
-          <RowBetween style={{ gap: '1rem' }}>
+          <RowBetween className="gap-4">
             {permitState === PermitState.NOT_SIGNED && (
               <ButtonConfirmed
                 disabled={loading || approval === ApprovalState.PENDING}
@@ -298,13 +301,11 @@ const SwapActionButton: React.FC<Props> = ({
                   setLoading(true)
                   permitCallback().finally(() => setLoading(false))
                 }}
-                style={{
-                  flex: 1,
-                }}
+                className="flex-1"
               >
-                <RowFit gap="4px">
+                <RowFit className="gap-1">
                   <InfoHelper
-                    color={theme.textReverse}
+                    className="text-textReverse"
                     placement="top"
                     text={
                       <Trans>
@@ -328,17 +329,14 @@ const SwapActionButton: React.FC<Props> = ({
             <Approvebtn
               onClick={handleApproveClick}
               disabled={loading || approval === ApprovalState.PENDING}
-              style={{
-                border: 'none',
-                flex: 1,
-              }}
+              className="flex-1 border-none"
             >
               {approval === ApprovalState.PENDING ? (
-                <AutoRow gap="6px" justify="center">
-                  <Trans>Approving</Trans> <Loader stroke={theme.border} />
+                <AutoRow className="justify-center gap-1.5">
+                  <Trans>Approving</Trans> <Loader className="text-border" />
                 </AutoRow>
               ) : (
-                <RowFit gap="4px">
+                <RowFit className="gap-1">
                   <InfoHelper
                     color={!loading && permitState === PermitState.NOT_SIGNED ? theme.primary : theme.textReverse}
                     placement="top"
@@ -353,7 +351,7 @@ const SwapActionButton: React.FC<Props> = ({
             <div />
             <Select
               value={approvalType}
-              style={{ marginTop: '1rem', fontSize: '14px', padding: 0, background: 'transparent' }}
+              className="mt-4 bg-transparent p-0 text-sm"
               optionStyle={{ fontSize: '14px' }}
               options={[
                 {
@@ -369,7 +367,7 @@ const SwapActionButton: React.FC<Props> = ({
               ]}
               activeRender={selected =>
                 selected ? (
-                  <Flex>
+                  <div className="flex">
                     {selected.label}{' '}
                     <InfoHelper
                       text={
@@ -378,7 +376,7 @@ const SwapActionButton: React.FC<Props> = ({
                           : t`You wish to give KyberSwap permission to use the selected token for transactions without any limit. You do not need to give permission again unless revoke.`
                       }
                     />
-                  </Flex>
+                  </div>
                 ) : null
               }
             />

@@ -1,5 +1,3 @@
-import { Flex, Text } from 'rebass'
-
 import TokenLogo from 'components/TokenLogo'
 import useTheme from 'hooks/useTheme'
 import { TokenRewardInfo } from 'pages/Earns/types'
@@ -15,8 +13,8 @@ export const TokenRewardRow = ({ token, chainLogo, chainName }: TokenRewardRowPr
   const theme = useTheme()
 
   return (
-    <Flex alignItems={'center'} justifyContent={'space-between'}>
-      <Flex alignItems={'center'} sx={{ gap: 1 }}>
+    <div className="flex items-center justify-between">
+      <div className="flex items-center gap-1">
         <TokenLogo src={token.logo} size={16} alt={token.symbol} />
         <TokenLogo
           src={chainLogo}
@@ -25,12 +23,12 @@ export const TokenRewardRow = ({ token, chainLogo, chainName }: TokenRewardRowPr
           translateLeft
           style={{ position: 'relative', top: 4, border: `1px solid ${theme.black}` }}
         />
-        <Text marginLeft={1}>{formatDisplayNumber(token.claimableAmount, { significantDigits: 4 })}</Text>
-        <Text>{token.symbol}</Text>
-      </Flex>
-      <Text color={theme.subText}>
+        <span className="ml-1">{formatDisplayNumber(token.claimableAmount, { significantDigits: 4 })}</span>
+        <span>{token.symbol}</span>
+      </div>
+      <span className="text-subText">
         {formatDisplayNumber(token.claimableUsdValue, { significantDigits: 4, style: 'currency' })}
-      </Text>
-    </Flex>
+      </span>
+    </div>
   )
 }

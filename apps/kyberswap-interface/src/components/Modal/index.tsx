@@ -1,96 +1,16 @@
 import { DialogContent, DialogOverlay } from '@reach/dialog'
 import '@reach/dialog/styles.css'
-import { AnimatePresence, motion } from 'framer-motion'
-import { transparentize } from 'polished'
-import React, { useCallback } from 'react'
+import { motion } from 'framer-motion'
+import React, { CSSProperties, useCallback } from 'react'
 import { isMobile } from 'react-device-detect'
-import styled, { css } from 'styled-components'
 
-const AnimatedDialogOverlay = motion(DialogOverlay)
+import { cn } from 'utils/cn'
 
-const StyledDialogOverlay = styled(AnimatedDialogOverlay)<{ zindex: string | number }>`
-  &[data-reach-dialog-overlay] {
-    z-index: ${({ zindex }) => zindex};
-    overflow: hidden;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    background-color: ${({ theme }) => theme.bgModal};
-  }
-`
-
-const AnimatedDialogContent = motion(DialogContent)
-// destructure to not pass custom props to Dialog DOM element
-const StyledDialogContent = styled(
-  ({
-    borderRadius,
-    minHeight,
-    maxHeight,
-    maxWidth,
-    width,
-    height,
-    bgColor,
-    mobile,
-    isOpen,
-    margin,
-    mobileFullWidth,
-    ...rest
-  }) => <AnimatedDialogContent {...rest} />,
-).attrs({
-  'aria-label': 'dialog',
-})`
-  &[data-reach-dialog-content] {
-    margin: ${({ margin }) => margin || '0 0 2rem 0'};
-    background-color: ${({ theme, bgColor }) => bgColor || theme.tableHeader};
-    box-shadow: 0 4px 8px 0 ${({ theme }) => transparentize(0.95, theme.shadow1)};
-    padding: ${({ padding }) => padding || '0'};
-    width: ${({ width }) => width || '50vw'};
-    height: ${({ height }) => height || 'auto'};
-    overflow-y: scroll;
-    overflow-x: hidden;
-    align-self: ${({ mobile }) => (mobile ? 'flex-end' : 'center')};
-    max-width: ${({ maxWidth }) => (maxWidth && !isNaN(maxWidth) ? `${maxWidth}px` : maxWidth)};
-    ${({ maxHeight }) =>
-      maxHeight &&
-      `
-        max-height: ${maxHeight && !isNaN(maxHeight) ? `${maxHeight}vh` : maxHeight};
-      `}
-    ${({ minHeight }) =>
-      minHeight &&
-      `
-        min-height: ${!isNaN(minHeight) ? `${minHeight}vh` : minHeight};
-      `}
-    display: flex;
-    ${({ borderRadius }) =>
-      borderRadius &&
-      `
-        border-radius: ${borderRadius};
-      `}
-    ${({ theme, width }) => theme.mediaWidth.upToMedium`
-      width:  ${width || '65vw'};
-      margin: 0;
-    `}
-    ${({ theme, mobile, borderRadius, mobileFullWidth }) => theme.mediaWidth.upToSmall`
-      ${
-        !mobileFullWidth &&
-        `
-          width:  85vw;
-        `
-      }
-      ${
-        mobile &&
-        `
-          width: 100vw;
-          border-radius: ${borderRadius};
-          border-bottom-left-radius: 0;
-          border-bottom-right-radius: 0;
-        `
-      }
-    `}
-  }
-`
+// motion.create wraps @reach/dialog content only for the mobile swipe-drag below. The entrance fade is
+// CSS (.ks-dialog-overlay). The overlay is rendered/unmounted with a plain conditional (no AnimatePresence):
+// AnimatePresence leaves the @reach/dialog portal orphaned in the DOM when the modal closes during a
+// concurrent re-render under React 19, freezing the dialog (clicks dead). Plain unmount is reliable.
+const AnimatedDialogContent = motion.create(DialogContent)
 
 export interface ModalProps {
   isOpen: boolean
@@ -115,13 +35,19 @@ export interface ModalProps {
   mobileFullWidth?: boolean
 }
 
+const resolveDim = (v: number | string | undefined, unit: 'px' | 'vh' | 'vw') => {
+  if (v === undefined) return undefined
+  if (typeof v === 'number') return `${v}${unit}`
+  return /^\d+(\.\d+)?$/.test(v) ? `${v}${unit}` : v
+}
+
 export default function Modal({
   isOpen,
   onDismiss = () => {
     // when not pass prop onDismiss, we stop close Modal when click outside Modal
   },
   minHeight = false,
-  margin = '',
+  margin,
   padding = '',
   maxHeight = 90,
   maxWidth = 420,
@@ -139,13 +65,6 @@ export default function Modal({
   bypassFocusLock = false,
   mobileFullWidth = false,
 }: ModalProps) {
-  const animateValues = {
-    initial: { opacity: 0 },
-    animate: { opacity: 1 },
-    exit: { opacity: 0 },
-    transition: { duration: transition ? 0.2 : 0 },
-  }
-
   const handleDrag = useCallback(
     (e: any, info: any) => {
       if (info.offset.y > 500 || info.velocity.y > 2000) {
@@ -155,50 +74,64 @@ export default function Modal({
     [onDismiss],
   )
 
+  const overlayStyle: CSSProperties = { zIndex: zindex as number }
+
+  // Only set width/borderRadius/alignSelf inline when consumer overrode the default — otherwise
+  // let .ks-dialog-content CSS handle defaults + responsive fallbacks via media queries.
+  const hasExplicitWidth = !!width
+  const hasExplicitBorderRadius = borderRadius !== undefined && borderRadius !== '20px'
+  const contentStyle: CSSProperties = {
+    backgroundColor: bgColor || 'var(--ks-tableHeader)',
+    boxShadow: '0 4px 8px 0 rgba(0, 0, 0, 0.05)',
+    padding: padding || '0',
+    height: height || 'auto',
+    maxWidth: resolveDim(maxWidth, 'px'),
+    maxHeight: maxHeight ? resolveDim(maxHeight, 'vh') : undefined,
+    minHeight: minHeight ? resolveDim(minHeight, 'vh') : undefined,
+    // Only inline margin when the consumer overrode the default — otherwise let
+    // .ks-dialog-content's CSS (with mobile `margin: 0` media query) take effect.
+    // Setting it inline always would beat the media query via specificity and
+    // push the bottom-sheet popup 2rem up from the viewport edge on mobile.
+    ...(margin !== undefined && { margin }),
+    ...(hasExplicitWidth && { width }),
+    ...(hasExplicitBorderRadius && { borderRadius: borderRadius as string }),
+  }
+
+  if (!isOpen) return null
+
   return (
-    <AnimatePresence>
-      {isOpen && (
-        <StyledDialogOverlay
-          zindex={zindex}
-          onDismiss={onDismiss}
-          dangerouslyBypassScrollLock={bypassScrollLock}
-          dangerouslyBypassFocusLock={bypassFocusLock}
-          {...animateValues}
-        >
-          <StyledDialogContent
-            drag={isMobile && enableSwipeGesture && 'y'}
-            dragConstraints={{ top: 0, bottom: 0 }}
-            dragElastic={{ top: 0, bottom: 0.5 }}
-            onDrag={handleDrag}
-            aria-label="dialog content"
-            minHeight={minHeight}
-            maxHeight={maxHeight}
-            maxWidth={maxWidth}
-            margin={margin}
-            padding={padding}
-            width={width}
-            height={height}
-            bgColor={bgColor}
-            borderRadius={borderRadius}
-            mobile={isMobile}
-            mobileFullWidth={mobileFullWidth}
-            className={className}
-            {...animateValues}
-          >
-            {/* prevents the automatic focusing of inputs on mobile by the reach dialog */}
-            {!enableInitialFocusInput && isMobile ? <div tabIndex={1} /> : null}
-            {children}
-          </StyledDialogContent>
-        </StyledDialogOverlay>
-      )}
-    </AnimatePresence>
+    <DialogOverlay
+      onDismiss={onDismiss}
+      dangerouslyBypassScrollLock={bypassScrollLock}
+      dangerouslyBypassFocusLock={bypassFocusLock}
+      className="ks-dialog-overlay"
+      style={overlayStyle}
+      data-no-transition={transition ? 'false' : 'true'}
+    >
+      <AnimatedDialogContent
+        drag={isMobile && enableSwipeGesture && 'y'}
+        dragConstraints={{ top: 0, bottom: 0 }}
+        dragElastic={{ top: 0, bottom: 0.5 }}
+        onDrag={handleDrag as any}
+        aria-label="dialog content"
+        className={cn('ks-dialog-content', className)}
+        style={contentStyle}
+        data-has-explicit-width={hasExplicitWidth ? 'true' : 'false'}
+        data-has-explicit-radius={hasExplicitBorderRadius ? 'true' : 'false'}
+        data-mobile={isMobile ? 'true' : 'false'}
+        data-mobile-full-width={mobileFullWidth ? 'true' : 'false'}
+      >
+        {/* prevents the automatic focusing of inputs on mobile by the reach dialog */}
+        {!enableInitialFocusInput && isMobile ? <div tabIndex={1} /> : null}
+        {children}
+      </AnimatedDialogContent>
+    </DialogOverlay>
   )
 }
 
-export const ModalCenter = styled(Modal)`
-  ${isMobile &&
-  css`
-    align-self: unset !important;
-    border-radius: 24px !important;
-  `}
-`
+export const ModalCenter = ({ className, ...props }: ModalProps) => (
+  // `ks-modal-center` triggers the override rules in tailwind.css that beat inline-style
+  // alignSelf/borderRadius when wrapped on mobile (rendered as a centered dialog instead of
+  // a bottom sheet).
+  <Modal {...props} className={cn('ks-modal-center', className)} />
+)

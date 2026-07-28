@@ -1,4 +1,4 @@
-import zapEarnServiceApi from 'services/zapEarn'
+import earnServiceApi from 'services/earn'
 
 export interface VaultApiToken {
   address: string
@@ -150,7 +150,7 @@ interface ApiEnvelope<T> {
   requestId: string
 }
 
-const vaultApi = zapEarnServiceApi.injectEndpoints({
+const vaultApi = earnServiceApi.injectEndpoints({
   endpoints: builder => ({
     vaultList: builder.query<VaultListResponseData, VaultListParams>({
       query: params => ({

@@ -1,18 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>https://kyberswap.com/</loc>
-  </url>
-  <url>
-    <loc>https://kyberswap.com/about/kyberswap</loc>
-  </url>
-  <url>
-    <loc>https://kyberswap.com/swap/ethereum</loc>
-  </url>
-  <url>
-    <loc>https://kyberswap.com/earn</loc>
-  </url>
-  <url>
-    <loc>https://kyberswap.com/earn/pools</loc>
-  </url>
-</urlset>
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <sitemap>
+    <loc>https://kyberswap.com/sitemap-pages.xml</loc>
+  </sitemap>
+  <sitemap>
+    <loc>https://kyberswap.com/sitemap-swap.xml</loc>
+  </sitemap>
+</sitemapindex>

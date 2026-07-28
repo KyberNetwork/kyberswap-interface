@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import styled from 'styled-components'
 import { SCAN_LINK, TokenInfo as Token } from '../constants'
-import Question from '../assets/question.svg'
+import UnknownToken from '../assets/unknown-token.svg'
 import External from '../assets/external.svg'
 import Copy from '../assets/copy.svg'
 import SuccessSVG from '../assets/success.svg'
@@ -121,7 +121,7 @@ function ImportModal({ token, onImport }: { token: Token; onImport: () => void }
   return (
     <>
       <TokenInfo>
-        <Question style={{ width: '44px', height: '44px' }} />
+        <UnknownToken style={{ width: '44px', height: '44px' }} />
         <div>
           <TokenSymbol>{token.symbol}</TokenSymbol>
           <TokenName>{token.symbol}</TokenName>

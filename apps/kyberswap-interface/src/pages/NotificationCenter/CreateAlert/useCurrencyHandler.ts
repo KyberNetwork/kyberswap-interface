@@ -3,13 +3,13 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { APP_PATHS } from 'constants/index'
-import { DEFAULT_OUTPUT_TOKEN_BY_CHAIN, NativeCurrencies } from 'constants/tokens'
+import { DEFAULT_OUTPUT_TOKENS, NativeCurrencies } from 'constants/tokens'
 import useDefaultsTokenFromURLSearch from 'hooks/useDefaultsTokenFromURLSearch'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 
 export default function useCurrencyHandler(chainId: ChainId) {
   const [currencyIn, setCurrencyIn] = useState<Currency>(NativeCurrencies[chainId])
-  const [currencyOut, setCurrencyOut] = useState<Currency>(DEFAULT_OUTPUT_TOKEN_BY_CHAIN[chainId] as Currency)
+  const [currencyOut, setCurrencyOut] = useState<Currency>(DEFAULT_OUTPUT_TOKENS[chainId] as Currency)
   const qs = useParsedQueryString()
 
   const { inputCurrency, outputCurrency } = useDefaultsTokenFromURLSearch(
@@ -38,7 +38,7 @@ export default function useCurrencyHandler(chainId: ChainId) {
     }
     replaceUrl()
     setCurrencyIn(NativeCurrencies[chainId])
-    setCurrencyOut(DEFAULT_OUTPUT_TOKEN_BY_CHAIN[chainId] as Currency)
+    setCurrencyOut(DEFAULT_OUTPUT_TOKENS[chainId] as Currency)
   }, [chainId, replaceUrl])
 
   useEffect(() => {

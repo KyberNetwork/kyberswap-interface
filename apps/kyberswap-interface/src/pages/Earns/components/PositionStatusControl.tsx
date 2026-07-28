@@ -1,6 +1,4 @@
-import { rgba } from 'polished'
 import React, { useState } from 'react'
-import styled, { css } from 'styled-components'
 
 import { PositionStatus as EarnPositionStatus } from 'pages/Earns/types'
 
@@ -11,49 +9,8 @@ export type PositionStatusOption = {
   value: PositionStatus
 }
 
-const Container = styled.div`
-  display: flex;
-  align-items: stretch;
-  justify-content: space-between;
-  height: 36px;
-`
-
-const optionButtonCSS = css`
-  height: 100%;
-  padding-inline: 22px;
-  border-radius: 20px;
-  border: 1px solid ${({ theme }) => theme.border};
-
-  background-color: transparent;
-  color: ${({ theme }) => theme.subText};
-  text-align: center;
-
-  font-size: 14px;
-  font-weight: 400;
-  line-height: 16px;
-  cursor: pointer;
-  outline: none;
-
-  &:hover {
-    background-color: ${({ theme }) => theme.tabActive};
-  }
-
-  &[data-active='true'] {
-    background-color: ${({ theme }) => rgba(theme.primary, 0.2)};
-    color: ${({ theme }) => theme.text};
-    font-weight: 500;
-    border-color: ${({ theme }) => rgba(theme.primary, 0.5)};
-  }
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    padding-inline: 12px;
-    font-size: 12px;
-  `}
-`
-
-const OptionButton = styled.button`
-  ${optionButtonCSS};
-`
+const OPTION_BUTTON_CLASS =
+  'h-full cursor-pointer rounded-[20px] border border-solid border-border bg-transparent px-[22px] text-center text-sm font-normal leading-4 text-subText outline-none hover:bg-tabActive max-sm:px-3 max-sm:text-xs data-[active=true]:border-primary-50 data-[active=true]:bg-primary-20 data-[active=true]:font-medium data-[active=true]:text-text'
 
 export const POSITION_STATUS_OPTIONS: PositionStatusOption[] = [
   { label: 'All', value: 'all' },
@@ -80,18 +37,19 @@ const PositionStatusControl: React.FC<Props> = ({ value, onChange, options = POS
   }
 
   return (
-    <Container>
+    <div className="flex h-9 items-stretch justify-between">
       {options.map(option => (
-        <OptionButton
+        <button
           type="button"
           key={option.value}
           onClick={() => handleChange(option.value)}
           data-active={option.value === currentValue}
+          className={OPTION_BUTTON_CLASS}
         >
           {option.label}
-        </OptionButton>
+        </button>
       ))}
-    </Container>
+    </div>
   )
 }
 

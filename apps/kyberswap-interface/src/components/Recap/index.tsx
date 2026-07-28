@@ -20,16 +20,14 @@ import {
 import useRecapData from 'components/Recap/useRecapData'
 import { isAutoOpenAvailable, isRecapAvailable } from 'components/Recap/utils'
 import { useActiveWeb3React } from 'hooks'
-import useTheme from 'hooks/useTheme'
 import { useCloseModal, useModalOpen, useOpenModal, useWalletModalToggle } from 'state/application/hooks'
 import { ApplicationModal } from 'state/application/types'
-import getShortenAddress from 'utils/getShortenAddress'
+import { getShortenAddress } from 'utils/address'
 
 const STORAGE_KEY = 'closed2025Recap'
 const NICKNAME_STORAGE_KEY = 'recapNickname'
 
 export default function RecapSection() {
-  const theme = useTheme()
   const { account } = useActiveWeb3React()
   const toggleWalletModal = useWalletModalToggle()
 
@@ -230,7 +228,7 @@ export default function RecapSection() {
         <ModalContent>
           <BackgroundOverlay />
           <CloseButton onClick={handleClose}>
-            <X color={theme.subText} size={20} />
+            <X className="text-subText" size={20} />
           </CloseButton>
 
           <TitleWrapper>

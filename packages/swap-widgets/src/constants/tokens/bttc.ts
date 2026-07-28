@@ -152,7 +152,7 @@ const bttcTokens = [
     symbol: 'KNC_e',
     name: 'Kyber Network Crystal v2 - Ethereum',
     decimals: 18,
-    logoURI: 'https://raw.githubusercontent.com/KyberNetwork/dmm-interface/main/src/assets/images/KNC.svg',
+    logoURI: 'https://raw.githubusercontent.com/KyberNetwork/kyberswap-interface/develop/src/assets/images/KNC.svg',
   },
   {
     chainId: 199,
@@ -161,7 +161,7 @@ const bttcTokens = [
     symbol: 'KNC_b',
     name: 'Kyber Network Crystal v2 - BSC',
     decimals: 18,
-    logoURI: 'https://raw.githubusercontent.com/KyberNetwork/dmm-interface/main/src/assets/images/KNC.svg',
+    logoURI: 'https://raw.githubusercontent.com/KyberNetwork/kyberswap-interface/develop/src/assets/images/KNC.svg',
   },
   {
     chainId: 199,

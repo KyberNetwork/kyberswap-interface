@@ -1,22 +1,14 @@
 import KyberOauth2, { LoginMethod } from '@kyberswap/oauth2'
 import { Trans, t } from '@lingui/macro'
 import { useState } from 'react'
-import styled from 'styled-components'
 
 import { ButtonPrimary } from 'components/Button'
-import Column from 'components/Column'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import { useValidateEmail } from 'pages/NotificationCenter/NotificationPreference'
 import InputEmailWithVerification from 'pages/NotificationCenter/NotificationPreference/InputEmail'
 import useAutoSignIn from 'pages/Oauth/AuthForm/useAutoSignIn'
 import { FlowStatus, getIamErrorMsg } from 'pages/Oauth/Login'
 import { isEmailValid, queryStringToObject } from 'utils/string'
-
-const Wrapper = styled(Column)`
-  width: 100%;
-  justify-content: center;
-  gap: 16px;
-`
 
 const EmailLoginForm = ({ flowStatus }: { flowStatus: FlowStatus }) => {
   const { email } = useParsedQueryString<{ email: string }>()
@@ -49,7 +41,7 @@ const EmailLoginForm = ({ flowStatus }: { flowStatus: FlowStatus }) => {
   }
 
   return (
-    <Wrapper>
+    <div className="flex w-full flex-col justify-center gap-4">
       <InputEmailWithVerification
         hasError={!!errorInput}
         isVerifiedEmail
@@ -66,7 +58,7 @@ const EmailLoginForm = ({ flowStatus }: { flowStatus: FlowStatus }) => {
       <ButtonPrimary height={'36px'} onClick={onVerifyEmail}>
         <Trans>Sign-In with Email</Trans>
       </ButtonPrimary>
-    </Wrapper>
+    </div>
   )
 }
 

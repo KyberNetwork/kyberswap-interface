@@ -214,7 +214,6 @@ const smartExitApi = createApi({
 export const {
   useGetSmartExitConfigQuery,
   useGetSmartExitOrdersQuery,
-  useLazyGetSmartExitOrdersQuery,
   useCreateSmartExitOrderMutation,
   useGetSmartExitSignMessageMutation,
   useGetSmartExitCancelSignMessageMutation,

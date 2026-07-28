@@ -1,0 +1,117 @@
+.ks-trade-routing-fade-y::before,
+.ks-trade-routing-fade-y::after {
+  content: '';
+  position: absolute;
+  display: block;
+  pointer-events: none;
+  opacity: 0;
+  left: 50%;
+  z-index: 3;
+  width: 100%;
+  height: 50px;
+  transform: translateX(-50%);
+  transition: all 0.2s ease;
+}
+
+.ks-trade-routing-fade-y::before {
+  top: 0;
+  background: linear-gradient(to bottom, var(--ks-tr-bg, transparent), transparent);
+}
+
+.ks-trade-routing-fade-y::after {
+  bottom: 0;
+  background: linear-gradient(to top, var(--ks-tr-bg, transparent), transparent);
+}
+
+.ks-trade-routing-fade-y.top::before,
+.ks-trade-routing-fade-y.bottom::after {
+  opacity: 1;
+}
+
+.ks-trade-routing-viewport {
+  overflow-x: hidden;
+  overflow-y: scroll;
+}
+
+.ks-trade-routing-viewport::-webkit-scrollbar {
+  height: 6px;
+  width: 6px;
+}
+
+.ks-trade-routing-viewport::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 999px;
+}
+
+.ks-trade-routing-viewport:hover::-webkit-scrollbar-thumb {
+  background: var(--ks-border);
+  border-radius: 999px;
+}
+
+.ks-trade-routing-viewport::-webkit-scrollbar-track-piece {
+  background: transparent;
+}
+
+.ks-trade-routing-list::before {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 0;
+  display: block;
+}
+
+.ks-trade-routing-row::before,
+.ks-trade-routing-row::after {
+  content: '';
+  position: absolute;
+  display: block;
+  width: 100%;
+  height: calc(50% + 20px);
+  box-sizing: border-box;
+  pointer-events: none;
+  border-right: 1px solid var(--ks-buttonGray);
+  border-left: 1px solid var(--ks-buttonGray);
+}
+
+.ks-trade-routing-row::before {
+  top: -20px;
+}
+
+.ks-trade-routing-row::after {
+  bottom: -10px;
+}
+
+.ks-trade-routing-row:last-child::after {
+  display: none;
+}
+
+.ks-trade-routing-fade-x::before,
+.ks-trade-routing-fade-x::after {
+  content: '';
+  position: absolute;
+  display: block;
+  pointer-events: none;
+  opacity: 0;
+  inset: 0 0 auto auto;
+  top: 50%;
+  z-index: 2;
+  width: 40px;
+  height: calc(100% - 20px);
+  transform: translateY(-50%);
+  transition: all 0.1s ease;
+}
+
+.ks-trade-routing-fade-x::after {
+  left: 42px;
+  background: linear-gradient(to right, var(--ks-tr-bg, transparent), transparent);
+}
+
+.ks-trade-routing-fade-x::before {
+  right: 24px;
+  background: linear-gradient(to left, var(--ks-tr-bg, transparent), transparent);
+}
+
+.ks-trade-routing-fade-x.left-visible::after,
+.ks-trade-routing-fade-x.right-visible::before {
+  opacity: 1;
+}

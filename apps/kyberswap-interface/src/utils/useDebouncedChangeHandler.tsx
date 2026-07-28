@@ -12,7 +12,7 @@ export default function useDebouncedChangeHandler<T>(
   debouncedMs = 100,
 ): [T, (value: T) => void] {
   const [inner, setInner] = useState<T>(() => value)
-  const timer = useRef<ReturnType<typeof setTimeout>>()
+  const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
 
   const onChangeInner = useCallback(
     (newValue: T) => {

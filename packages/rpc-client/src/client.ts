@@ -19,6 +19,41 @@ const DEFAULT_MAX_BLOCK_LAG = 50;
 const DEFAULT_PROBE_INTERVAL_MS = 60000; // 1 minute
 
 /**
+ * Build a standardized RPC error message prefixed with "Rpc issue:" and tagged
+ * with the originating endpoint host and method, so failures are easy to spot
+ * in UI / logs.
+ */
+export function buildRpcErrorMessage(endpoint: string, method: string, detail: string): string {
+  // Extract host without relying on URL (DOM lib not available in this package).
+  // Strip protocol, then take substring up to first `/`, `?`, or `#`.
+  const noProto = endpoint.replace(/^[a-z][a-z0-9+.-]*:\/\//i, '');
+  const host = noProto.split(/[/?#]/, 1)[0] || endpoint;
+  return `Rpc issue: [${method} @ ${host}] ${detail}`;
+}
+
+/**
+ * Coerce a JSON-RPC `error` field into a consistent `{ code, message, data }`.
+ *
+ * Spec-compliant providers return an object `{ code, message }`, but some public
+ * endpoints (e.g. zan.top for unregistered accounts) return `error` as a bare
+ * string. Those are coerced to a retryable internal-error code so rotation moves
+ * on to the next endpoint, and the original text is kept as the message instead
+ * of surfacing "undefined: undefined".
+ */
+function normalizeRpcError(error: unknown): { code: number; message: string; data?: unknown } {
+  if (typeof error === 'string') {
+    return { code: -32603, message: error };
+  }
+  if (error && typeof error === 'object') {
+    const e = error as { code?: unknown; message?: unknown; data?: unknown };
+    const code = typeof e.code === 'number' ? e.code : -32603;
+    const message = typeof e.message === 'string' ? e.message : JSON.stringify(error);
+    return { code, message, data: e.data };
+  }
+  return { code: -32603, message: String(error) };
+}
+
+/**
  * RPC Client with automatic endpoint rotation, health probing, and fallback.
  *
  * Features:
@@ -503,22 +538,33 @@ export class RpcClient {
 
       if (!response.ok) {
         if (response.status === 429 || response.status === 402) {
-          throw new RpcError(429, 'Rate limit exceeded');
+          throw new RpcError(429, buildRpcErrorMessage(endpoint, method, 'Rate limit exceeded'));
         }
-        if (response.status === 502 || response.status === 503 || response.status === 504) {
-          throw new RpcError(response.status, `Provider unavailable: ${response.status} ${response.statusText}`);
+        if (response.status === 500 || response.status === 502 || response.status === 503 || response.status === 504) {
+          throw new RpcError(
+            response.status,
+            buildRpcErrorMessage(
+              endpoint,
+              method,
+              `Provider unavailable (HTTP ${response.status} ${response.statusText})`,
+            ),
+          );
         }
-        throw new RpcError(response.status, `HTTP error: ${response.status} ${response.statusText}`);
+        throw new RpcError(
+          response.status,
+          buildRpcErrorMessage(endpoint, method, `HTTP error ${response.status} ${response.statusText}`),
+        );
       }
 
       const data = (await response.json()) as JsonRpcResponse<T>;
 
       if (data.error) {
-        throw new RpcError(data.error.code, data.error.message, data.error.data);
+        const { code, message, data: errData } = normalizeRpcError(data.error);
+        throw new RpcError(code, buildRpcErrorMessage(endpoint, method, `JSON-RPC error ${code}: ${message}`), errData);
       }
 
       if (data.result === undefined) {
-        throw new RpcError(-1, 'No result in response');
+        throw new RpcError(-1, buildRpcErrorMessage(endpoint, method, 'No result in response'));
       }
 
       return {
@@ -534,10 +580,10 @@ export class RpcClient {
       }
 
       if ((error as Error).name === 'AbortError') {
-        throw new RpcError(-1, `Request timeout after ${effectiveTimeout}ms`);
+        throw new RpcError(-1, buildRpcErrorMessage(endpoint, method, `Request timeout after ${effectiveTimeout}ms`));
       }
 
-      throw new RpcError(-1, (error as Error).message);
+      throw new RpcError(-1, buildRpcErrorMessage(endpoint, method, (error as Error).message || 'Network error'));
     }
   }
 
@@ -570,12 +616,22 @@ export class RpcClient {
 
       if (!response.ok) {
         if (response.status === 429 || response.status === 402) {
-          throw new RpcError(429, 'Rate limit exceeded');
+          throw new RpcError(429, buildRpcErrorMessage(endpoint, 'batch', 'Rate limit exceeded'));
         }
-        if (response.status === 502 || response.status === 503 || response.status === 504) {
-          throw new RpcError(response.status, `Provider unavailable: ${response.status} ${response.statusText}`);
+        if (response.status === 500 || response.status === 502 || response.status === 503 || response.status === 504) {
+          throw new RpcError(
+            response.status,
+            buildRpcErrorMessage(
+              endpoint,
+              'batch',
+              `Provider unavailable (HTTP ${response.status} ${response.statusText})`,
+            ),
+          );
         }
-        throw new RpcError(response.status, `HTTP error: ${response.status} ${response.statusText}`);
+        throw new RpcError(
+          response.status,
+          buildRpcErrorMessage(endpoint, 'batch', `HTTP error ${response.status} ${response.statusText}`),
+        );
       }
 
       const data = (await response.json()) as JsonRpcResponse[];
@@ -586,7 +642,19 @@ export class RpcClient {
       const results: unknown[] = [];
       for (const item of sortedData) {
         if (item.error) {
-          throw new RpcError(item.error.code, item.error.message, item.error.data);
+          // Requests are sent with 1-indexed numeric ids (see `requests` above), but
+          // a non-compliant provider could echo back a string or null id — guard
+          // against NaN/out-of-range lookups so we always surface the error even
+          // if the method tag falls back to "batch".
+          const rawId = Number(item.id);
+          const idx = Number.isFinite(rawId) ? rawId - 1 : -1;
+          const failedMethod = calls[idx]?.method ?? 'batch';
+          const { code, message, data: errData } = normalizeRpcError(item.error);
+          throw new RpcError(
+            code,
+            buildRpcErrorMessage(endpoint, failedMethod, `JSON-RPC error ${code}: ${message}`),
+            errData,
+          );
         }
         results.push(item.result);
       }
@@ -600,10 +668,10 @@ export class RpcClient {
       }
 
       if ((error as Error).name === 'AbortError') {
-        throw new RpcError(-1, `Request timeout after ${this.timeout}ms`);
+        throw new RpcError(-1, buildRpcErrorMessage(endpoint, 'batch', `Request timeout after ${this.timeout}ms`));
       }
 
-      throw new RpcError(-1, (error as Error).message);
+      throw new RpcError(-1, buildRpcErrorMessage(endpoint, 'batch', (error as Error).message || 'Network error'));
     }
   }
 
@@ -727,11 +795,20 @@ export class RpcClient {
 
   private isRetryableError(error: Error): boolean {
     if (error instanceof RpcError) {
-      // Retryable RPC error codes (non-deterministic server-side errors)
+      // Retryable RPC error codes (non-deterministic server-side errors).
+      // HTTP 4xx codes here cover provider-side quirks (e.g. drpc.org returning
+      // 400 for soft throttling or payload rejection) — true deterministic errors
+      // like execution-reverted come back as HTTP 200 with a JSON-RPC error code,
+      // not via this path.
       const retryableCodes = [
         -32000, // Server error
         -32603, // Internal error
         -1, // Timeout
+        400, // Bad request (provider quirk, e.g. drpc soft-throttle)
+        408, // Request timeout
+        409, // Conflict
+        425, // Too early
+        500, // Internal server error
         502, // Bad gateway
         503, // Service unavailable
         504, // Gateway timeout

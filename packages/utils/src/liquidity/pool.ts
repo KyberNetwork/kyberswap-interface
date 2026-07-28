@@ -285,21 +285,23 @@ export const getPoolPrice = ({ pool, revertPrice }: { pool: Pool | 'loading' | n
   const { success: isUniV2, data: uniV2PoolInfo } = univ2PoolNormalize.safeParse(pool);
 
   if (isUniV3) {
-    return +sqrtToPrice(
-      BigInt(uniV3PoolInfo.sqrtPriceX96 || 0),
-      uniV3PoolInfo.token0.decimals,
-      uniV3PoolInfo.token1.decimals,
-      revertPrice,
-    );
+    const sqrtPriceX96 = BigInt(uniV3PoolInfo.sqrtPriceX96 || 0);
+    if (revertPrice && sqrtPriceX96 === 0n) return null;
+
+    return +sqrtToPrice(sqrtPriceX96, uniV3PoolInfo.token0.decimals, uniV3PoolInfo.token1.decimals, revertPrice);
   }
   if (isUniV2) {
-    const price = +divideBigIntToString(
-      BigInt(uniV2PoolInfo.reserves[1]) * 10n ** BigInt(uniV2PoolInfo.token0.decimals),
-      BigInt(uniV2PoolInfo.reserves[0]) * 10n ** BigInt(uniV2PoolInfo.token1.decimals),
-      18,
-    );
+    const reserve0 = BigInt(uniV2PoolInfo.reserves[0]);
+    const reserve1 = BigInt(uniV2PoolInfo.reserves[1]);
+    const token0Decimals = 10n ** BigInt(uniV2PoolInfo.token0.decimals);
+    const token1Decimals = 10n ** BigInt(uniV2PoolInfo.token1.decimals);
 
-    return revertPrice ? 1 / price : price;
+    const numerator = revertPrice ? reserve0 * token1Decimals : reserve1 * token0Decimals;
+    const denominator = revertPrice ? reserve1 * token0Decimals : reserve0 * token1Decimals;
+
+    if (denominator === 0n) return null;
+
+    return +divideBigIntToString(numerator, denominator, 18);
   }
 
   return null;

@@ -2,59 +2,42 @@ import { Trans } from '@lingui/macro'
 import { Repeat } from 'react-feather'
 import { useLocation } from 'react-router-dom'
 import { useMedia } from 'react-use'
-import { Flex } from 'rebass'
-import styled from 'styled-components'
 
-//import { ReactComponent as MasterCard } from 'assets/buy-crypto/master-card.svg'
-//import { ReactComponent as Visa } from 'assets/buy-crypto/visa.svg'
-//import { ReactComponent as BuyCrypto } from 'assets/svg/buy_crypto.svg'
 import { ReactComponent as CrossChainIcon } from 'assets/svg/cross_chain_icon.svg'
 import { ReactComponent as LimitOrderIcon } from 'assets/svg/limit_order.svg'
-import { DropdownTextAnchor, StyledNavLink } from 'components/Header/styleds'
-import { NewLabel } from 'components/Menu'
+import NavGroup, { type DropdownAlign } from 'components/Header/groups/NavGroup'
+import { DropdownTextAnchor, NewLabel, StyledNavLink } from 'components/Header/styleds'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import { APP_PATHS, CHAINS_SUPPORT_CROSS_CHAIN } from 'constants/index'
+import { isSupportLimitOrder } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
-//import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { useTutorialSwapGuide } from 'state/tutorial/hooks'
-import { isInSafeApp, isSupportLimitOrder } from 'utils'
+import { MEDIA_WIDTHS } from 'theme'
+import { cn } from 'utils/cn'
+import { isSwapLikePath } from 'utils/routes'
+import { isInSafeApp } from 'utils/safeApp'
 
-import NavGroup from './NavGroup'
+const IconWrapper = ({ children }: { children: React.ReactNode }) => (
+  <div className="flex size-4 flex-[0_0_16px] items-center">{children}</div>
+)
 
-const IconWrapper = styled.div`
-  flex: 0 0 16px;
-  display: flex;
-  width: 16px;
-  height: 16px;
-  align-items: center;
-`
+type Props = {
+  dropdownAlign?: DropdownAlign
+}
 
-//const VisaSVG = styled(Visa)`
-//  path {
-//    fill: ${({ theme }) => theme.text};
-//  }
-//`
-
-//const StyledBuyCrypto = styled(BuyCrypto)`
-//  path {
-//    fill: currentColor;
-//  }
-//`
-
-const SwapNavGroup = () => {
+const SwapNavGroup = ({ dropdownAlign }: Props) => {
   const { networkInfo, chainId } = useActiveWeb3React()
   const { pathname } = useLocation()
-  const upTo430 = useMedia('(max-width: 430px)')
+  const isActive =
+    isSwapLikePath(pathname) || [APP_PATHS.LIMIT, APP_PATHS.CROSS_CHAIN].some(path => pathname.startsWith(path))
+
+  const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
   const [{ show: isShowTutorial = false, stepInfo }] = useTutorialSwapGuide()
 
-  const isActive = [APP_PATHS.SWAP, APP_PATHS.BUY_CRYPTO, APP_PATHS.LIMIT, APP_PATHS.CROSS_CHAIN].some(path =>
-    pathname.startsWith(path),
-  )
-
   return (
     <NavGroup
-      dropdownAlign={upTo430 ? 'center' : 'left'}
+      dropdownAlign={dropdownAlign}
       isActive={isActive}
       forceOpen={isShowTutorial && stepInfo?.selector === `#${TutorialIds.BRIDGE_LINKS}`}
       anchor={
@@ -63,18 +46,21 @@ const SwapNavGroup = () => {
         </DropdownTextAnchor>
       }
       dropdownContent={
-        <Flex flexDirection={'column'} id={TutorialIds.BRIDGE_LINKS} minWidth={upTo430 ? '160px' : '250px'}>
+        <div
+          id={TutorialIds.BRIDGE_LINKS}
+          className={cn('flex flex-col', upToSmall ? 'min-w-[180px]' : 'min-w-[240px]')}
+        >
           <StyledNavLink
             id={`swapv2-nav-link`}
             to={`${APP_PATHS.SWAP}/${networkInfo.route}`}
             style={{ flexDirection: 'column' }}
           >
-            <Flex alignItems="center" sx={{ gap: '12px' }}>
+            <div className="flex items-center gap-3">
               <IconWrapper>
                 <Repeat size={16} />
               </IconWrapper>
               <Trans>Swap</Trans>
-            </Flex>
+            </div>
           </StyledNavLink>
 
           {isSupportLimitOrder(chainId) && (
@@ -83,14 +69,14 @@ const SwapNavGroup = () => {
               to={`${APP_PATHS.LIMIT}/${networkInfo.route}`}
               style={{ flexDirection: 'column', width: '100%' }}
             >
-              <Flex alignItems="center" sx={{ gap: '12px' }}>
+              <div className="flex items-center gap-3">
                 <IconWrapper>
                   <LimitOrderIcon />
                 </IconWrapper>
-                <Flex alignItems={'center'} sx={{ flex: 1 }} justifyContent={'space-between'}>
+                <div className="flex flex-1 items-center justify-between">
                   <Trans>Limit Order</Trans>
-                </Flex>
-              </Flex>
+                </div>
+              </div>
             </StyledNavLink>
           )}
 
@@ -100,43 +86,18 @@ const SwapNavGroup = () => {
               to={APP_PATHS.CROSS_CHAIN}
               style={{ flexDirection: 'column', width: '100%' }}
             >
-              <Flex alignItems="center" sx={{ gap: '12px' }}>
+              <div className="flex items-center gap-3">
                 <IconWrapper>
                   <CrossChainIcon height={15} />
                 </IconWrapper>
-                <Flex>
+                <div className="flex">
                   <Trans>Cross-Chain</Trans>
                   <NewLabel isNew>New</NewLabel>
-                </Flex>
-              </Flex>
+                </div>
+              </div>
             </StyledNavLink>
           )}
-
-          {/*
-          <StyledNavLink
-            id="buy-crypto-nav-link"
-            to={APP_PATHS.BUY_CRYPTO}
-            onClick={() => {
-              trackingHandler(TRACKING_EVENT_TYPE.SWAP_BUY_CRYPTO_CLICKED)
-            }}
-            style={{ flexDirection: 'column', width: '100%' }}
-          >
-            <Flex alignItems="center" sx={{ gap: '12px' }} justifyContent="space-between">
-              <IconWrapper>
-                <StyledBuyCrypto />
-              </IconWrapper>
-              <Flex alignItems={'center'} sx={{ flex: 1 }} justifyContent={'space-between'}>
-                <Trans>Buy Crypto</Trans>
-                <Flex sx={{ gap: '8px' }}>
-                  <VisaSVG width="20" height="20" />
-                  <MasterCard width="20" height="20" />
-                </Flex>
-              </Flex>
-            </Flex>
-          </StyledNavLink>
-
-          */}
-        </Flex>
+        </div>
       }
     />
   )

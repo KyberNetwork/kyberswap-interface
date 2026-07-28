@@ -69,6 +69,13 @@ function parseKnownPattern(text: string): string | undefined {
 
   if (didUserReject(error)) return `User rejected the transaction.`
 
+  if (
+    error.includes('insufficient funds') ||
+    error.includes('insufficient balance for transfer') ||
+    error.includes('outoffund')
+  )
+    return `Your current balance falls short of covering the required gas fee.`
+
   // classic/elastic remove liquidity error
   if (error.includes('insufficient')) return `An error occurred. Please try increasing max slippage`
 

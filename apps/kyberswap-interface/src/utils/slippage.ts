@@ -1,11 +1,8 @@
+import { Currency, CurrencyAmount, Percent } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
+import JSBI from 'jsbi'
 
-import {
-  DEFAULT_SLIPPAGE,
-  DEFAULT_SLIPPAGE_CORRELATED_PAIR,
-  DEFAULT_SLIPPAGE_STABLE_PAIR_SWAP,
-  PAIR_CATEGORY,
-} from 'constants/index'
+import { PAIR_CATEGORY } from 'constants/trade'
 
 export enum SLIPPAGE_STATUS {
   NORMAL,
@@ -13,12 +10,19 @@ export enum SLIPPAGE_STATUS {
   HIGH,
 }
 
-export const getDefaultSlippage = (isStablePairSwap: boolean, isCorrelatedPair: boolean): number => {
-  return isStablePairSwap
-    ? DEFAULT_SLIPPAGE_STABLE_PAIR_SWAP
-    : isCorrelatedPair
-    ? DEFAULT_SLIPPAGE_CORRELATED_PAIR
-    : DEFAULT_SLIPPAGE
+// converts a basis points value to a sdk percent
+export function basisPointsToPercent(num: number): Percent {
+  return new Percent(JSBI.BigInt(num), JSBI.BigInt(10000))
+}
+
+export function calculateSlippageAmount(value: CurrencyAmount<Currency>, slippage: number): [JSBI, JSBI] {
+  if (slippage < 0 || slippage > 10000) {
+    throw Error(`Unexpected slippage value: ${slippage}`)
+  }
+  return [
+    JSBI.divide(JSBI.multiply(value.quotient, JSBI.BigInt(10000 - slippage)), JSBI.BigInt(10000)),
+    JSBI.divide(JSBI.multiply(value.quotient, JSBI.BigInt(10000 + slippage)), JSBI.BigInt(10000)),
+  ]
 }
 
 export const checkRangeSlippage = (slippage: number, pairCategory: PAIR_CATEGORY | undefined): SLIPPAGE_STATUS => {

@@ -2,67 +2,28 @@ import { useScroll } from '@use-gesture/react'
 import memoizeOne from 'memoize-one'
 import React, { CSSProperties, ComponentType, forwardRef, memo, useMemo, useRef } from 'react'
 import { useMedia } from 'react-use'
-import { FixedSizeGrid as FixedSizeGridRW, GridChildComponentProps, areEqual } from 'react-window'
-import styled from 'styled-components'
+import { FixedSizeGrid, GridChildComponentProps, areEqual } from 'react-window'
 
+import PositionListItem from 'pages/ProAmmPool/PositionListItem'
 import { MEDIA_WIDTHS } from 'theme'
 import { PositionDetails } from 'types/position'
+import { cn } from 'utils/cn'
 
-import PositionListItem from './PositionListItem'
-
-const FixedSizeGrid = styled(FixedSizeGridRW)`
-  overflow-x: hidden !important;
-
-  /* width */
-  ::-webkit-scrollbar {
-    display: unset;
-    width: 4px;
-    border-radius: 999px;
-  }
-
-  /* Track */
-  ::-webkit-scrollbar-track {
-    background: transparent;
-    border-radius: 999px;
-    margin: 8px 0;
-  }
-
-  /* Handle */
-  ::-webkit-scrollbar-thumb {
-    background: ${({ theme }) => theme.border};
-    border-radius: 999px;
-  }
-`
-export const PositionCardGrid = styled.div`
-  display: grid;
-  grid-template-columns: minmax(392px, auto) minmax(392px, auto) minmax(392px, auto);
-  gap: 24px;
-
-  ${({ theme }) => theme.mediaWidth.upToLarge`
-    grid-template-columns: 1fr 1fr;
-    max-width: 832px;
-  `}
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    grid-template-columns: 1fr;
-    max-width: 392px;
-  `};
-`
+const GRID_SCROLLBAR_CLASS =
+  '!overflow-x-hidden ' +
+  '[&::-webkit-scrollbar]:block [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar]:rounded-full ' +
+  '[&::-webkit-scrollbar-track]:my-2 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-transparent ' +
+  '[&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-border'
 
 function PositionGrid({ positions, refe }: { positions: PositionDetails[]; refe?: React.MutableRefObject<any> }) {
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
 
   const feeRewards = useMemo(() => {
-    return positions.reduce<{ [tokenId: string]: [string, string] }>((acc, item, _index) => {
+    return positions.reduce<{ [tokenId: string]: [string, string] }>((acc, item) => {
       return {
         ...acc,
         [item.tokenId.toString()]: ['0', '0'],
-        // rewardRes[index].result
-        //   ? [
-        //       rewardRes[index].result?.token0Owed?.toString() || '0',
-        //       rewardRes[index].result?.token1Owed.toString() || '0',
-        //     ]
-        //   : ['0', '0'] ,
       }
     }, {})
   }, [positions])
@@ -72,6 +33,7 @@ function PositionGrid({ positions, refe }: { positions: PositionDetails[]; refe?
   const columnCount = upToSmall ? 1 : upToLarge ? 2 : 3
   return (
     <FixedSizeGrid
+      className={GRID_SCROLLBAR_CLASS}
       width={10000}
       columnCount={columnCount}
       outerElementType={outerElementType}
@@ -157,44 +119,46 @@ const emptyFunction = (): void => {
 
 type DocumentPropsType = React.HTMLProps<HTMLElement>
 
-export const outerElementType = forwardRef<HTMLElement, DocumentPropsType>(({ onScroll, children }, forwardedRef) => {
-  const containerRef = useRef<HTMLDivElement>(null)
-  useScroll(
-    () => {
-      if (!(onScroll instanceof Function)) {
-        return
-      }
+export const outerElementType = forwardRef<HTMLElement, DocumentPropsType>(
+  ({ onScroll, children, className, ...rest }, forwardedRef) => {
+    const containerRef = useRef<HTMLDivElement>(null)
+    useScroll(
+      () => {
+        if (!(onScroll instanceof Function)) {
+          return
+        }
 
-      const { clientWidth, clientHeight, scrollLeft, scrollTop, scrollHeight, scrollWidth } = document.documentElement
+        const { clientWidth, clientHeight, scrollLeft, scrollTop, scrollHeight, scrollWidth } = document.documentElement
 
-      onScroll({
-        currentTarget: {
-          clientHeight,
-          clientWidth,
-          scrollLeft,
-          addEventListener: emptyFunction,
-          removeEventListener: emptyFunction,
-          dispatchEvent: () => false,
-          scrollTop:
-            scrollTop - (containerRef.current ? containerRef.current.getBoundingClientRect().top + scrollTop : 0),
-          scrollHeight,
-          scrollWidth,
-        },
-      } as unknown as React.UIEvent<HTMLElement>)
-    },
-    { target: window },
-  )
+        onScroll({
+          currentTarget: {
+            clientHeight,
+            clientWidth,
+            scrollLeft,
+            addEventListener: emptyFunction,
+            removeEventListener: emptyFunction,
+            dispatchEvent: () => false,
+            scrollTop:
+              scrollTop - (containerRef.current ? containerRef.current.getBoundingClientRect().top + scrollTop : 0),
+            scrollHeight,
+            scrollWidth,
+          },
+        } as unknown as React.UIEvent<HTMLElement>)
+      },
+      { target: window },
+    )
 
-  if (forwardedRef != null && !(forwardedRef instanceof Function)) {
-    forwardedRef.current = document.documentElement
-  }
+    if (forwardedRef != null && !(forwardedRef instanceof Function)) {
+      forwardedRef.current = document.documentElement
+    }
 
-  return (
-    <div ref={containerRef} style={{ position: 'relative' }}>
-      {children}
-    </div>
-  )
-})
+    return (
+      <div ref={containerRef} className={cn('relative', className)} {...(rest as any)}>
+        {children}
+      </div>
+    )
+  },
+)
 
 outerElementType.displayName = 'outerElementType'
 

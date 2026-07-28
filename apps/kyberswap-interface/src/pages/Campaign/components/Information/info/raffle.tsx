@@ -1,32 +1,21 @@
 import { Trans } from '@lingui/macro'
 import { PropsWithChildren } from 'react'
 import { Link } from 'react-router-dom'
-import { Text } from 'rebass'
-import styled from 'styled-components'
 
+import { KYBERSWAP_URL } from 'constants/index'
+import CampaignFaqSection from 'pages/Campaign/components/Information/info/CampaignFaqSection'
+import { StyledTable, TableWrapper, Td, Th, Tr } from 'pages/Campaign/components/Information/info/styles'
+import { CampaignContent, CampaignSectionComponent, FaqItem } from 'pages/Campaign/components/Information/info/types'
 import { ExternalLink } from 'theme'
 
-import CampaignFaqSection from './CampaignFaqSection'
-import { StyledTable, TableWrapper, Td, Th, Tr } from './styles'
-import { CampaignContent, CampaignSectionComponent, FaqItem } from './types'
-
-const Quote = styled('div')`
-  position: relative;
-  margin: 0px;
-  margin-left: 40px;
-  &::before {
-    content: '';
-    background-color: #a9a9a9a9;
-    width: 2px;
-    position: absolute;
-    left: -12px;
-    top: 6px;
-    bottom: 6px;
-  }
-`
+const Quote = ({ children }: PropsWithChildren) => (
+  <div className="relative m-0 ml-10 before:absolute before:inset-y-1.5 before:-left-3 before:w-0.5 before:bg-subText/[0.66] before:content-['']">
+    {children}
+  </div>
+)
 
 const KyberswapLink = ({ children }: PropsWithChildren) => (
-  <ExternalLink href="https://kyberswap.com">{children || 'kyberswap.com'}</ExternalLink>
+  <ExternalLink href={KYBERSWAP_URL}>{children || 'kyberswap.com'}</ExternalLink>
 )
 
 const RaffleHowToSection = (): CampaignSectionComponent => (
@@ -82,9 +71,9 @@ const RaffleRewardsSection = (): CampaignSectionComponent => (
         {
           step: (
             <>
-              <Text as="span" fontWeight="500">
+              <span className="font-medium">
                 <Trans>Step 1:</Trans>
-              </Text>{' '}
+              </span>{' '}
               <Trans>Take the last 4 hex digits from each eligible transaction hash.</Trans>
             </>
           ),
@@ -105,9 +94,9 @@ const RaffleRewardsSection = (): CampaignSectionComponent => (
         {
           step: (
             <>
-              <Text as="span" fontWeight="500">
+              <span className="font-medium">
                 <Trans>Step 2:</Trans>
-              </Text>{' '}
+              </span>{' '}
               <Trans>
                 Take the last 4 hex digits of the Bitcoin block hash, mined closest after 23:59 UTC on 25/11 (Week 1)
                 and 02/12 (Week 2).
@@ -130,9 +119,9 @@ const RaffleRewardsSection = (): CampaignSectionComponent => (
         {
           step: (
             <>
-              <Text as="span" fontWeight="500">
+              <span className="font-medium">
                 <Trans>Step 3:</Trans>
-              </Text>{' '}
+              </span>{' '}
               <Trans>Calculate the absolute numerical difference.</Trans>
             </>
           ),
@@ -152,38 +141,33 @@ const RaffleRewardsSection = (): CampaignSectionComponent => (
 
       return (
         <>
-          <Text color="white" fontWeight="500" marginBottom="8px">
+          <div className="mb-2 font-medium text-white">
             <Trans>Reward Allocation Mechanism</Trans>
-          </Text>
+          </div>
           <li>
             <Trans>
               After the campaign period ends, KyberSwap will determine results using a{' '}
-              <Text as="span" fontWeight="500">
-                fully transparent, on-chain verifiable computation
-              </Text>
-              .
+              <span className="font-medium">fully transparent, on-chain verifiable computation</span>.
             </Trans>
           </li>
           <li>
             <Trans>
               The transaction hash whose last 4 hex digits have the{' '}
-              <Text as="span" fontWeight="500">
-                SMALLEST absolute numerical difference
-              </Text>{' '}
-              from the last 4 hex digits of the Bitcoin Block Hash mined closest after 23:59 UTC on 25/11 (Week 1) and
-              02/12 (Week 2), will receive the promotional reward.
+              <span className="font-medium">SMALLEST absolute numerical difference</span> from the last 4 hex digits of
+              the Bitcoin Block Hash mined closest after 23:59 UTC on 25/11 (Week 1) and 02/12 (Week 2), will receive
+              the promotional reward.
             </Trans>
-            <Text as="span" display="block" fontStyle="italic">
+            <span className="block italic">
               <Trans>
                 Hex (often as hexadecimal) is a base-16 numbering system, 0-9 represent the same values as in decimal
                 (0-9).
                 <br />
                 A-F represent decimal values 10-15.
               </Trans>
-            </Text>
-            <Text as="span" display="block">
+            </span>
+            <span className="block">
               <Trans>For example:</Trans>
-            </Text>
+            </span>
             <TableWrapper>
               <StyledTable>
                 <thead>
@@ -241,9 +225,9 @@ const RaffleRewardsSection = (): CampaignSectionComponent => (
               among them.
             </Trans>
           </li>
-          <Text color="white" fontWeight="500" marginY="8px">
+          <div className="my-2 font-medium text-white">
             <Trans>Rewards Distribution</Trans>
-          </Text>
+          </div>
           <li>
             <Trans>The full campaign results will be published on KyberSwap by:</Trans>
             <ul style={{ margin: 0 }}>

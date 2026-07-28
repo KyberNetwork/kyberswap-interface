@@ -1,10 +1,10 @@
 import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
 import { useLocation } from 'react-router-dom'
 
-import { DEFAULT_OUTPUT_TOKEN_BY_CHAIN, NativeCurrencies } from 'constants/tokens'
+import { DEFAULT_OUTPUT_TOKENS, NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
-import { useCurrencyV2 } from 'hooks/Tokens'
 import useParsedQueryString from 'hooks/useParsedQueryString'
+import { useCurrencyV2 } from 'hooks/useTokens'
 import { Field } from 'state/swap/actions'
 import { queryParametersToSwapState } from 'state/swap/hooks'
 
@@ -23,7 +23,7 @@ const useDefaultsTokenFromURLSearch = (
   const { pathname } = useLocation()
   const parsed = queryParametersToSwapState(parsedQs, chainId, pathname.startsWith(pagePath))
 
-  const outputCurrencyAddress = chainId ? DEFAULT_OUTPUT_TOKEN_BY_CHAIN[chainId]?.address ?? '' : ''
+  const outputCurrencyAddress = chainId ? DEFAULT_OUTPUT_TOKENS[chainId]?.address ?? '' : ''
 
   const parsedInputValue = parsed[Field.INPUT].currencyId // default inputCurrency is the native token
   const parsedOutputValue = parsed[Field.OUTPUT].currencyId || outputCurrencyAddress || ''

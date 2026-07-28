@@ -1,12 +1,10 @@
 import { t } from '@lingui/macro'
 import { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Flex, Text } from 'rebass'
 import { useVaultListQuery } from 'services/vault'
 
 import TokenLogo from 'components/TokenLogo'
 import { APP_PATHS } from 'constants/index'
-import useTheme from 'hooks/useTheme'
 import {
   PartnerVaultsList,
   VaultCard,
@@ -21,23 +19,22 @@ const FEATURED_COUNT = 3
 
 const VaultItemSkeleton = () => (
   <VaultCard>
-    <Flex alignItems="center" justifyContent="space-between" width="100%">
-      <Flex alignItems="center" sx={{ gap: '4px' }}>
+    <div className="flex w-full items-center justify-between">
+      <div className="flex items-center gap-1">
         <PositionSkeleton width={24} height={24} style={{ borderRadius: '50%' }} />
         <PositionSkeleton width={40} height={16} />
         <PositionSkeleton width={30} height={16} />
-      </Flex>
+      </div>
       <PositionSkeleton width={80} height={20} />
-    </Flex>
-    <Flex alignItems="center" justifyContent="space-between" width="100%">
+    </div>
+    <div className="flex w-full items-center justify-between">
       <PositionSkeleton width={120} height={18} />
       <PositionSkeleton width={72} height={24} />
-    </Flex>
+    </div>
   </VaultCard>
 )
 
 const FeaturedPartnerVaults = ({ isLoading: parentLoading }: { isLoading?: boolean }) => {
-  const theme = useTheme()
   const navigate = useNavigate()
 
   const { data, isLoading } = useVaultListQuery({
@@ -72,38 +69,32 @@ const FeaturedPartnerVaults = ({ isLoading: parentLoading }: { isLoading?: boole
                     goToDetail()
                   }
                 }}
-                style={{ cursor: 'pointer' }}
+                className="cursor-pointer"
               >
-                <Flex alignItems="flex-start" justifyContent="space-between" width="100%">
-                  <Flex alignItems="center" sx={{ gap: '4px' }}>
+                <div className="flex w-full items-start justify-between">
+                  <div className="flex items-center gap-1">
                     <TokenLogo src={vault.tokenIcon} alt={vault.token} size={24} />
-                    <Text fontSize={16} color={theme.text}>
-                      {vault.token}
-                    </Text>
-                    <Text fontSize={16} color={theme.subText}>
-                      {vault.label}
-                    </Text>
-                  </Flex>
+                    <span className="text-base text-text">{vault.token}</span>
+                    <span className="text-base text-subText">{vault.label}</span>
+                  </div>
 
-                  <Flex alignItems="center" sx={{ gap: '8px' }}>
-                    <Text fontSize={16} color={theme.subText}>
-                      {t`APY`}
-                    </Text>
-                    <Text fontSize={18} color={theme.primary} fontWeight={500} lineHeight="24px">
+                  <div className="flex items-center gap-2">
+                    <span className="text-base text-subText">{t`APY`}</span>
+                    <span className="text-lg font-medium leading-6 text-primary">
                       {formatDisplayNumber(vault.apy, { style: 'decimal', fractionDigits: 2 })}%
-                    </Text>
-                  </Flex>
-                </Flex>
+                    </span>
+                  </div>
+                </div>
 
-                <Flex alignItems="center" justifyContent="space-between" width="100%">
+                <div className="flex w-full items-center justify-between">
                   <VaultProtocolTag>
                     <TokenLogo src={vault.partnerLogo} alt={vault.partner} size={12} />
-                    <Text fontSize={12} color={theme.subText}>
+                    <span className="text-xs text-subText">
                       {t`managed by`} {vault.partner}
-                    </Text>
+                    </span>
                   </VaultProtocolTag>
                   <VaultDepositButton onClick={e => e.stopPropagation()}>{t`+ Deposit`}</VaultDepositButton>
-                </Flex>
+                </div>
               </VaultCard>
             )
           })}

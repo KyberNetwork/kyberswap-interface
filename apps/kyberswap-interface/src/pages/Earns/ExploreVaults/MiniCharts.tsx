@@ -1,24 +1,21 @@
 import { memo, useId } from 'react'
 import { Area, AreaChart, Bar, BarChart, ResponsiveContainer, Tooltip } from 'recharts'
-import styled from 'styled-components'
 
 import useTheme from 'hooks/useTheme'
 import { ChartDataPoint } from 'pages/Earns/ExploreVaults/types'
 import { formatDisplayNumber } from 'utils/numbers'
 
-const TooltipWrapper = styled.div`
-  background: ${({ theme }) => theme.buttonGray};
-  border: 1px solid ${({ theme }) => theme.border};
-  border-radius: 8px;
-  padding: 6px 10px;
-  font-size: 12px;
-  white-space: nowrap;
-`
+const TooltipWrapper = ({ children }: { children: React.ReactNode }) => (
+  <div className="whitespace-nowrap rounded-lg border border-solid border-border bg-buttonGray px-2.5 py-1.5 text-xs">
+    {children}
+  </div>
+)
 
-const TooltipValue = styled.span<{ $color: string }>`
-  color: ${({ $color }) => $color};
-  font-weight: 500;
-`
+const TooltipValue = ({ $color, children }: { $color: string; children: React.ReactNode }) => (
+  <span className="font-medium" style={{ color: $color }}>
+    {children}
+  </span>
+)
 
 const ApyTooltipContent = ({ active, payload }: { active?: boolean; payload?: { value: number }[] }) => {
   const theme = useTheme()

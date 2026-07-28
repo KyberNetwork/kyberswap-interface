@@ -26,6 +26,7 @@ interface WidgetProps {
   onSubmitTx: (txData: { from: string; to: string; value: string; data: string; gasLimit: string }) => Promise<string>;
   signTypedData?: (account: string, typedDataJson: string) => Promise<string>;
   onSuccess?: (props: OnSuccessProps) => void;
+  onOpenPoolDetail?: (pool: { chainId: number; poolAddress: string; dexId?: string }) => void;
 }
 
 interface WidgetState extends WidgetProps {
@@ -56,6 +57,7 @@ const initState = {
   onSubmitTx: async () => '',
   signTypedData: undefined,
   onSuccess: undefined,
+  onOpenPoolDetail: undefined,
 };
 
 const useWidgetRawStore = create<WidgetState>((set, _get) => ({
@@ -79,6 +81,7 @@ const useWidgetRawStore = create<WidgetState>((set, _get) => ({
     onSubmitTx,
     signTypedData,
     onSuccess,
+    onOpenPoolDetail,
   }: WidgetProps) => {
     const themeToApply =
       theme && typeof theme === 'object'
@@ -106,6 +109,7 @@ const useWidgetRawStore = create<WidgetState>((set, _get) => ({
       onSubmitTx,
       signTypedData,
       onSuccess,
+      onOpenPoolDetail,
     });
   },
   setWidgetError: (error: string) => set({ widgetError: error }),

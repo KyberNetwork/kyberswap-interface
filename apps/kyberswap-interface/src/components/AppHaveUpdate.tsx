@@ -1,24 +1,9 @@
 import { Trans } from '@lingui/macro'
-import { transparentize } from 'polished'
-import { Text } from 'rebass'
-import styled from 'styled-components'
 
+import { ButtonPrimary } from 'components/Button'
 import { Z_INDEXS } from 'constants/styles'
 import { useServiceWorkerRegistration } from 'state/application/hooks'
 
-import { ButtonPrimary } from './Button'
-
-const Wrapper = styled.div`
-  padding: 20px;
-  position: fixed;
-  bottom: 16px;
-  right: 16px;
-  background: ${({ theme }) => theme.tableHeader};
-  z-index: ${Z_INDEXS.MODAL};
-  box-shadow: 0 4px 8px 0 ${({ theme }) => transparentize(0.95, theme.shadow1)};
-  text-align: center;
-  border-radius: 1rem;
-`
 const AppHaveUpdate = () => {
   const serviceWorkerRegistration = useServiceWorkerRegistration()
 
@@ -41,17 +26,17 @@ const AppHaveUpdate = () => {
   if (!serviceWorkerRegistration?.waiting) return null
 
   return (
-    <Wrapper>
-      <Text>
+    <div
+      style={{ zIndex: Z_INDEXS.MODAL }}
+      className="fixed bottom-4 right-4 rounded-2xl bg-tableHeader p-5 text-center shadow-[0_4px_8px_0_rgba(0,0,0,0.05)]"
+    >
+      <div>
         <Trans>New contents are available.</Trans>
-      </Text>
-      <ButtonPrimary
-        style={{ width: 'fit-content', padding: '8px 20px', margin: 'auto', marginTop: '1rem' }}
-        onClick={updateServiceWorker}
-      >
+      </div>
+      <ButtonPrimary className="m-auto mt-4 w-fit px-5 py-2" onClick={updateServiceWorker}>
         <Trans>Reload</Trans>
       </ButtonPrimary>
-    </Wrapper>
+    </div>
   )
 }
 

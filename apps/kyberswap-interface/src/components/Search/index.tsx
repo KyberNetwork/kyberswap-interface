@@ -1,56 +1,54 @@
 import { t } from '@lingui/macro'
-import React from 'react'
+import React, { HTMLAttributes, InputHTMLAttributes, forwardRef } from 'react'
 import { X } from 'react-feather'
-import styled from 'styled-components'
 
 import { ButtonEmpty } from 'components/Button'
 import SearchIcon from 'components/Icons/Search'
-import useTheme from 'hooks/useTheme'
+import { cn } from 'utils/cn'
 
-export const Container = styled.div<{ minWidth?: string }>`
-  z-index: 1;
-  position: relative;
-  background-color: ${({ theme }) => theme.background};
-  border-radius: 999px;
-  min-width: ${({ minWidth }) => minWidth || '360px'};
+type ContainerProps = HTMLAttributes<HTMLDivElement> & { minWidth?: string }
 
-  @media screen and (max-width: 768px) {
-    width: 100%;
-  }
-`
+export const Container = forwardRef<HTMLDivElement, ContainerProps>(({ minWidth, className, style, ...rest }, ref) => (
+  <div
+    ref={ref}
+    style={{ ...style, ['--search-min-width' as never]: minWidth || '320px' }}
+    className={cn(
+      'relative z-[1] rounded-full bg-background',
+      // Min-width kicks in at >= 480px (custom breakpoint, hence arbitrary screen).
+      'max-sm:w-full min-[480px]:min-w-[var(--search-min-width)]',
+      className,
+    )}
+    {...rest}
+  />
+))
+Container.displayName = 'SearchContainer'
 
-export const Wrapper = styled.div`
-  display: flex;
-  position: relative;
-  flex-direction: row;
-  align-items: center;
-  justify-content: flex-end;
-  padding: 6px 12px;
-  border-radius: 40px;
-  width: 100%;
-  box-sizing: border-box;
-  @media screen and (max-width: 500px) {
-    box-shadow: none;
-    min-width: 100%;
-  }
-`
-export const Input = styled.input`
-  position: relative;
-  display: flex;
-  align-items: center;
-  white-space: nowrap;
-  background: none;
-  border: none;
-  outline: none;
-  width: 100%;
-  color: ${({ theme }) => theme.text};
-  font-size: 12px;
+export const Wrapper = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(({ className, ...rest }, ref) => (
+  <div
+    ref={ref}
+    className={cn(
+      'relative box-border flex w-full flex-row items-center justify-end rounded-[40px] px-3 py-1.5',
+      'max-[500px]:min-w-full max-[500px]:shadow-none',
+      className,
+    )}
+    {...rest}
+  />
+))
+Wrapper.displayName = 'SearchWrapper'
 
-  ::placeholder {
-    color: ${({ theme }) => theme.subText};
-    font-size: 12px;
-  }
-`
+export const Input = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputElement>>(
+  ({ className, ...rest }, ref) => (
+    <input
+      ref={ref}
+      className={cn(
+        'relative flex w-full items-center whitespace-nowrap border-none bg-transparent text-xs text-text outline-none placeholder:text-xs placeholder:text-subText',
+        className,
+      )}
+      {...rest}
+    />
+  ),
+)
+Input.displayName = 'SearchInput'
 
 interface SearchProps {
   searchValue: string
@@ -62,7 +60,6 @@ interface SearchProps {
 }
 
 const Search = ({ searchValue, onSearch, placeholder, minWidth, style }: SearchProps) => {
-  const theme = useTheme()
   return (
     <Container style={style} minWidth={minWidth}>
       <Wrapper>
@@ -76,11 +73,11 @@ const Search = ({ searchValue, onSearch, placeholder, minWidth, style }: SearchP
           }}
         />
         {searchValue && (
-          <ButtonEmpty onClick={() => onSearch('')} style={{ padding: '2px 4px', width: 'max-content' }}>
-            <X color={theme.subText} size={14} style={{ minWidth: '14px' }} />
+          <ButtonEmpty onClick={() => onSearch('')} className="w-max px-1 py-0.5">
+            <X className="min-w-[14px] text-subText" size={14} />
           </ButtonEmpty>
         )}
-        <SearchIcon color={theme.subText} onClick={() => onSearch(searchValue)} />
+        <SearchIcon className="text-subText" onClick={() => onSearch(searchValue)} />
       </Wrapper>
     </Container>
   )

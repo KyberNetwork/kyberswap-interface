@@ -5,8 +5,8 @@ import { useSwapFormContext } from 'components/SwapForm/SwapFormContext'
 import { useActiveWeb3React } from 'hooks'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { WrapType } from 'hooks/useWrapCallback'
-import { formattedNum } from 'utils'
 import { halfAmountSpend, maxAmountSpend } from 'utils/maxAmountSpend'
+import { formatDisplayNumber } from 'utils/numbers'
 
 type Props = {
   wrapType: WrapType
@@ -14,17 +14,23 @@ type Props = {
   currencyIn: Currency | undefined
   currencyOut: Currency | undefined
   balanceIn: CurrencyAmount<Currency> | undefined
+  balanceText?: string
+  highlightToken?: boolean
   onChangeCurrencyIn: (c: Currency) => void
   setTypedValue: (v: string) => void
+  onUserInput: (v: string) => void
   customChainId?: ChainId
 }
 const InputCurrencyPanel: React.FC<Props> = ({
   wrapType,
   typedValue,
   setTypedValue,
+  onUserInput,
   currencyIn,
   currencyOut,
   balanceIn,
+  balanceText,
+  highlightToken,
   onChangeCurrencyIn,
   customChainId,
 }) => {
@@ -56,16 +62,23 @@ const InputCurrencyPanel: React.FC<Props> = ({
       value={typedValue}
       positionMax="top"
       currency={currencyIn}
-      onUserInput={setTypedValue}
+      onUserInput={onUserInput}
       onMax={handleMaxInput}
       onHalf={handleHalfInput}
       onCurrencySelect={onChangeCurrencyIn}
       otherCurrency={currencyOut}
       id="swap-currency-input"
       dataTestId="swap-currency-input"
-      showCommonBases={true}
-      estimatedUsd={trade?.amountInUsd ? `${formattedNum(trade.amountInUsd.toString(), true)}` : undefined}
+      showPinnedTokens={true}
+      customBalanceText={balanceText}
+      highlightCurrencySelect={highlightToken}
+      estimatedUsd={
+        trade?.amountInUsd
+          ? formatDisplayNumber(trade.amountInUsd, { style: 'currency', significantDigits: 4 })
+          : undefined
+      }
       customChainId={customChainId}
+      trackingSource="swap"
     />
   )
 }

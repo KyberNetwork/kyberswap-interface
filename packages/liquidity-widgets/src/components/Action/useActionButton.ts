@@ -13,7 +13,7 @@ import {
   univ3PoolNormalize,
   univ4Types,
 } from '@kyber/schema';
-import { PI_LEVEL, friendlyError } from '@kyber/utils';
+import { PI_LEVEL } from '@kyber/utils';
 
 import { ERROR_MESSAGE, translateErrorMessage } from '@/constants';
 import { ApprovalState } from '@/hooks/useApproval';
@@ -175,39 +175,63 @@ export default function useActionButton({ approval, deadline }: { approval: Appr
         [positionId]: approval.permit.data.permitData,
       };
     }
+
+    let data: BuildDataWithGas | undefined;
     try {
       const response = await fetch(`${API_URLS.ZAP_API}/${CHAIN_ID_TO_CHAIN[chainId]}/api/v1/in/route/build`, {
         method: 'POST',
         body: JSON.stringify(buildBody),
       });
 
-      let body: { data: BuildDataWithGas } | null = null;
-      body = await response.json();
-
-      const { data } = body || {};
-      if (data && data.callData && account) {
-        const txData = {
-          from: account,
-          to: data.routerAddress,
-          data: data.callData,
-          value: `0x${BigInt(data.value).toString(16)}`,
-        };
-
-        const { gasUsd, error } = await estimateGasForTx({ txData, chainId });
-
-        if (error || !gasUsd) {
-          setWidgetError(error);
-          return;
-        }
-        return { ...data, gasUsd };
+      let body: { data?: BuildDataWithGas; message?: string; error?: string } | null = null;
+      try {
+        body = await response.json();
+      } catch {
+        // Handled below based on HTTP status.
       }
 
-      if (data && 'message' in data && typeof data.message === 'string') {
-        throw new Error(data.message);
+      if (!response.ok) {
+        const apiMsg = body?.message || body?.error;
+        throw new Error(
+          `Build route step: build API returned HTTP ${response.status} ${response.statusText}${apiMsg ? ` — ${apiMsg}` : ''}`,
+        );
       }
-      throw new Error('Failed to build route');
+
+      data = body?.data;
+      if (!data?.callData) {
+        const apiMsg = body?.message || body?.error;
+        throw new Error(`Build route step: build API returned no data${apiMsg ? ` — ${apiMsg}` : ''}`);
+      }
     } catch (err) {
-      setWidgetError(friendlyError(err as Error));
+      const msg = (err as Error)?.message || 'unknown error';
+      setWidgetError(msg.startsWith('Build route step:') ? msg : `Build route step: ${msg}`);
+      console.error(err);
+      setGasLoading(false);
+      return;
+    }
+
+    if (!account) {
+      setGasLoading(false);
+      return;
+    }
+
+    try {
+      const txData = {
+        from: account,
+        to: data.routerAddress,
+        data: data.callData,
+        value: `0x${BigInt(data.value).toString(16)}`,
+      };
+
+      const { gasUsd, error } = await estimateGasForTx({ txData, chainId });
+
+      if (error || !gasUsd) {
+        setWidgetError(error || 'Estimate gas step: estimate gas failed');
+        return;
+      }
+      return { ...data, gasUsd };
+    } catch (err) {
+      setWidgetError(`Estimate gas step: ${(err as Error)?.message || 'unknown error'}`);
       console.error(err);
     } finally {
       setGasLoading(false);

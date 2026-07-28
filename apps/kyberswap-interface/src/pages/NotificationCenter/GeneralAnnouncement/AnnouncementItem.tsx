@@ -1,7 +1,5 @@
-import { useState } from 'react'
+import { CSSProperties, useState } from 'react'
 import { useMedia } from 'react-use'
-import { Flex } from 'rebass'
-import styled, { CSSProperties, css } from 'styled-components'
 
 import NotificationImage from 'assets/images/notification_default.png'
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
@@ -9,125 +7,13 @@ import CtaButton from 'components/Announcement/Popups/CtaButton'
 import { formatCtaName } from 'components/Announcement/Popups/DetailAnnouncementPopup'
 import { Announcement } from 'components/Announcement/type'
 import { MEDIA_WIDTHS } from 'theme'
+import { cn } from 'utils/cn'
 import { useNavigateToUrl } from 'utils/redirect'
 import { escapeScriptHtml } from 'utils/string'
 import { formatTime } from 'utils/time'
 
 const HEIGHT = '92px'
 
-const Wrapper = styled.div`
-  border-bottom: 1px solid ${({ theme }) => theme.border};
-  background-color: ${({ theme }) => theme.background};
-  font-size: 12px;
-  padding: 16px 0px;
-  gap: 14px;
-  display: flex;
-  align-items: flex-start;
-  cursor: pointer;
-  :first-child {
-    padding-top: 0;
-  }
-  :last-child {
-    border: none;
-  }
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    :first-child {
-      padding: 16px 0px;
-  }
-  `}
-`
-
-const Title = styled.div<{ expand: boolean }>`
-  font-size: 12px;
-  font-weight: 500;
-  color: ${({ theme }) => theme.text};
-  ${({ expand }) =>
-    !expand &&
-    css`
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    `}
-`
-
-const Desc = styled.div<{ expand: boolean }>`
-  font-size: 12px;
-  color: ${({ theme }) => theme.subText};
-  word-break: break-word;
-  display: block;
-  display: -webkit-box;
-  max-width: 100%;
-  line-height: 16px;
-
-  ${({ expand }) =>
-    !expand
-      ? css`
-          -webkit-line-clamp: 2;
-          -webkit-box-orient: vertical;
-          overflow: hidden;
-          text-overflow: ellipsis;
-          height: 34px;
-          > * {
-            margin: 0;
-          }
-        `
-      : css`
-          display: block;
-          > * {
-            :first-child {
-              margin-top: 0;
-            }
-            :last-child {
-              margin-bottom: 0;
-            }
-          }
-        `}
-`
-
-const Time = styled.div<{ isLeft?: boolean }>`
-  color: ${({ theme }) => theme.subText};
-  text-align: ${({ isLeft }) => (isLeft ? 'left' : 'right')};
-  width: 100%;
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    font-size: 10px;
-  `}
-`
-
-const RowItem = styled.div`
-  display: flex;
-  align-items: center;
-  flex-direction: column;
-  gap: 10px;
-  align-items: flex-start;
-  flex: 1;
-  justify-content: space-between;
-  overflow: hidden;
-  height: ${HEIGHT};
-  max-width: 100%;
-`
-
-const Image = styled.img`
-  width: 140px;
-  max-height: ${HEIGHT};
-  border-radius: 8px;
-  object-fit: scale-down;
-`
-const ArrowWrapper = styled.div`
-  width: 20px;
-  height: 20px;
-  color: ${({ theme }) => theme.subText};
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  svg {
-    transition: all 150ms ease-in-out;
-  }
-  &[data-expanded='true'] {
-    svg {
-      transform: rotate(180deg);
-    }
-  }
-`
 export default function AnnouncementItem({
   announcement,
   style,
@@ -147,24 +33,51 @@ export default function AnnouncementItem({
     navigate(ctaURL)
   }
   return (
-    <Wrapper onClick={() => setExpand(!expand)} style={style}>
-      <Image src={thumbnailImageURL || NotificationImage} />
-      <RowItem style={{ maxHeight: expand ? 'unset' : '100%', height: expand ? 'auto' : 'unset' }}>
-        <Flex justifyContent="space-between" width="100%">
-          <Title expand={expand}>{name} </Title>
-          <Flex alignItems={'center'}>
-            {!upToMedium && <Time>{formatTime(startAt)} </Time>}
-            <ArrowWrapper data-expanded={expand}>
+    <div
+      onClick={() => setExpand(!expand)}
+      style={style}
+      className="flex cursor-pointer items-start gap-3.5 border-b border-solid border-border bg-background py-4 text-xs first:pt-0 last:border-0 max-md:first:py-4"
+    >
+      <img
+        src={thumbnailImageURL || NotificationImage}
+        className="max-h-[92px] w-[140px] rounded-lg [object-fit:scale-down]"
+      />
+      <div
+        className="flex max-w-full flex-1 flex-col items-start justify-between gap-2.5 overflow-hidden"
+        style={{
+          height: HEIGHT,
+          maxHeight: expand ? 'unset' : '100%',
+          ...(expand && { height: 'auto' }),
+        }}
+      >
+        <div className="flex w-full justify-between">
+          <div className={cn('text-xs font-medium text-text', !expand && 'truncate')}>{name} </div>
+          <div className="flex items-center">
+            {!upToMedium && (
+              <div className="w-full text-right text-subText max-md:text-[10px]">{formatTime(startAt)} </div>
+            )}
+            <div
+              data-expanded={expand}
+              className="flex size-5 items-center justify-center text-subText [&_svg]:transition-all [&_svg]:duration-150 [&_svg]:ease-in-out data-[expanded=true]:[&_svg]:rotate-180"
+            >
               <DropdownSVG />
-            </ArrowWrapper>
-          </Flex>
-        </Flex>
-        {upToMedium && <Time isLeft>{formatTime(startAt)} </Time>}
-        <Desc expand={expand} dangerouslySetInnerHTML={{ __html: escapeScriptHtml(content) }} />
+            </div>
+          </div>
+        </div>
+        {upToMedium && <div className="w-full text-left text-subText max-md:text-[10px]">{formatTime(startAt)} </div>}
+        <div
+          dangerouslySetInnerHTML={{ __html: escapeScriptHtml(content) }}
+          className={cn(
+            'max-w-full break-words text-xs leading-4 text-subText',
+            !expand &&
+              'h-[34px] overflow-hidden text-ellipsis [-webkit-box-orient:vertical] [-webkit-line-clamp:2] [display:-webkit-box] [&>*]:m-0',
+            expand && 'block [&>*:first-child]:mt-0 [&>*:last-child]:mb-0',
+          )}
+        />
         {expand && ctaName && ctaURL && (
           <CtaButton color="link" data={{ url: ctaURL, name: ctaName }} onClick={onClickCta} />
         )}
-      </RowItem>
-    </Wrapper>
+      </div>
+    </div>
   )
 }

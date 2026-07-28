@@ -1,5 +1,3 @@
-import styled from 'styled-components'
-
 import FlagEN from 'assets/images/flag-EN.svg'
 // import FlagKO from 'assets/images/flag-KO.svg'
 // import FlagTR from 'assets/images/flag-TR.svg'
@@ -16,18 +14,3 @@ export const LOCALE_INFO = {
 
 export type SupportedLocale = keyof typeof LOCALE_INFO
 export const DEFAULT_LOCALE: SupportedLocale = 'en-US'
-
-const Flag = styled.img`
-  width: 20px;
-  vertical-align: middle;
-`
-
-export const getLocaleLabel = (locale: SupportedLocale | null, codeOnly = false) => {
-  locale = locale || DEFAULT_LOCALE
-  const { name, flag } = LOCALE_INFO[locale] || LOCALE_INFO[DEFAULT_LOCALE]
-  return (
-    <>
-      <Flag src={flag} /> &nbsp;{codeOnly ? locale?.split('-')?.[0]?.toUpperCase() : name}
-    </>
-  )
-}

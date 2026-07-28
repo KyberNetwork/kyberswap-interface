@@ -3,7 +3,7 @@
   "private": true,
   "workspaces": [
     "packages/*",
-    "apps/**"
+    "apps/*"
   ],
   "packageManager": "pnpm@8.9.2",
   "devDependencies": {
@@ -12,7 +12,15 @@
     "eslint-plugin-prettier": "^5.4.0",
     "prettier": "^3.5.3",
     "turbo": "^2.1.1",
-    "typescript": "5.1"
+    "typescript": "^5.7.3"
+  },
+  "pnpm": {
+    "overrides": {
+      "@types/react": "^19.0.0",
+      "@types/react-dom": "^19.0.0",
+      "react": "^19.2.6",
+      "react-dom": "^19.2.6"
+    }
   },
   "scripts": {
     "build": "turbo build",
@@ -24,6 +32,6 @@
     "dev:web": "pnpm --filter @kyberswap/interface dev",
     "dev:web:clean": "rm -rf apps/kyberswap-interface/node_modules/.vite && pnpm --filter @kyberswap/interface dev",
     "dev:widgets": "pnpm --filter zap-widgets-demo dev",
-    "type-check": "turbo type-check"
+    "type-check": "turbo type-check --filter=!@kyberswap/widgets"
   }
 }

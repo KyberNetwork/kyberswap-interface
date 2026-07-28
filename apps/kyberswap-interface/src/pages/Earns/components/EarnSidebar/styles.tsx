@@ -1,288 +1,184 @@
-import { motion } from 'framer-motion'
-import { rgba } from 'polished'
-import styled, { css } from 'styled-components'
+import { HTMLMotionProps, motion } from 'framer-motion'
+import { ButtonHTMLAttributes, ElementType, HTMLAttributes } from 'react'
+
+import { cn } from 'utils/cn'
 
 export const SIDEBAR_WIDTH_EXPANDED = 220
 export const SIDEBAR_WIDTH_COLLAPSED = 64
 
-export const SidebarContainer = styled.div<{ $collapsed?: boolean; $inDrawer?: boolean }>`
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  width: ${({ $collapsed }) => ($collapsed ? SIDEBAR_WIDTH_COLLAPSED : SIDEBAR_WIDTH_EXPANDED)}px;
-  min-width: ${({ $collapsed }) => ($collapsed ? SIDEBAR_WIDTH_COLLAPSED : SIDEBAR_WIDTH_EXPANDED)}px;
-  padding: 24px 12px 12px;
-  flex-shrink: 0;
-  overflow: hidden;
-  white-space: nowrap;
-  transition: width 0.2s ease, min-width 0.2s ease;
+type SidebarContainerProps = HTMLAttributes<HTMLElement> & {
+  as?: ElementType
+  $collapsed?: boolean
+  $inDrawer?: boolean
+}
+export const SidebarContainer = ({
+  as: Tag = 'div',
+  $collapsed,
+  $inDrawer,
+  className,
+  style,
+  ...rest
+}: SidebarContainerProps) => {
+  const width = $collapsed ? SIDEBAR_WIDTH_COLLAPSED : SIDEBAR_WIDTH_EXPANDED
+  return (
+    <Tag
+      className={cn(
+        'flex shrink-0 flex-col gap-4 whitespace-nowrap px-3 pb-3 pt-6',
+        'transition-[width,min-width] duration-200',
+        $inDrawer ? 'w-full min-w-0 overflow-visible' : 'overflow-hidden max-md:hidden',
+        className,
+      )}
+      style={$inDrawer ? style : { width, minWidth: width, ...style }}
+      {...rest}
+    />
+  )
+}
 
-  ${({ $inDrawer }) =>
-    $inDrawer
-      ? css`
-          width: 100%;
-          min-width: 0;
-          overflow: visible;
-        `
-      : css`
-          ${({ theme }) => theme.mediaWidth.upToMedium`
-            display: none;
-          `}
-        `}
-`
+type SidebarHeaderProps = HTMLAttributes<HTMLDivElement> & { $collapsed?: boolean; $active?: boolean }
+export const SidebarHeader = ({ $collapsed, $active, className, ...rest }: SidebarHeaderProps) => (
+  <div
+    className={cn(
+      'flex min-h-10 items-center gap-1 rounded-xl transition-[padding,background] duration-200',
+      $collapsed ? 'justify-center p-0.5' : 'justify-between py-1 pl-4 pr-1',
+      $active ? 'bg-white/[0.06]' : 'bg-transparent',
+      'focus-within:bg-white/[0.06] hover:bg-white/[0.06]',
+      className,
+    )}
+    {...rest}
+  />
+)
 
-export const SidebarHeader = styled.div<{ $collapsed?: boolean; $active?: boolean }>`
-  display: flex;
-  align-items: center;
-  justify-content: ${({ $collapsed }) => ($collapsed ? 'center' : 'space-between')};
-  gap: 4px;
-  padding: ${({ $collapsed }) => ($collapsed ? '2px' : '4px 4px 4px 16px')};
-  min-height: 40px;
-  border-radius: 12px;
-  background: ${({ theme, $active }) => ($active ? rgba(theme.white, 0.06) : 'transparent')};
-  transition: padding 0.2s ease, background 0.15s ease;
+type SidebarHeaderLabelProps = ButtonHTMLAttributes<HTMLButtonElement> & { $active?: boolean }
+export const SidebarHeaderLabel = ({ $active, className, ...rest }: SidebarHeaderLabelProps) => (
+  <button
+    className={cn(
+      'min-w-0 flex-1 cursor-pointer overflow-hidden whitespace-nowrap border-none bg-none p-0 text-left',
+      'font-[inherit] text-sm font-medium uppercase tracking-[0.5px] transition-colors',
+      $active ? 'text-primary' : 'text-subText',
+      'hover:text-primary focus-visible:text-primary focus-visible:outline-none',
+      className,
+    )}
+    {...rest}
+  />
+)
 
-  &:hover,
-  &:focus-within {
-    background: ${({ theme }) => rgba(theme.white, 0.06)};
-  }
-`
+export const CollapseToggleButton = ({ className, ...rest }: ButtonHTMLAttributes<HTMLButtonElement>) => (
+  <button
+    className={cn(
+      'inline-flex size-9 cursor-pointer items-center justify-center rounded-lg border-none bg-transparent p-0',
+      'text-subText transition-colors hover:bg-white-04 hover:text-text',
+      className,
+    )}
+    {...rest}
+  />
+)
 
-export const SidebarHeaderLabel = styled.button<{ $active?: boolean }>`
-  appearance: none;
-  background: none;
-  border: none;
-  padding: 0;
-  flex: 1;
-  min-width: 0;
-  text-align: left;
-  font: inherit;
-  font-size: 14px;
-  font-weight: 500;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-  white-space: nowrap;
-  overflow: hidden;
-  cursor: pointer;
-  color: ${({ theme, $active }) => ($active ? theme.primary : theme.subText)};
-  transition: color 0.15s ease;
+export const SidebarGroup = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('flex flex-col gap-1', className)} {...rest} />
+)
 
-  &:hover,
-  &:focus-visible {
-    color: ${({ theme }) => theme.primary};
-    outline: none;
-  }
-`
+type SidebarGroupLabelProps = HTMLAttributes<HTMLDivElement> & { $active?: boolean }
+export const SidebarGroupLabel = ({ $active, className, ...rest }: SidebarGroupLabelProps) => (
+  <div
+    className={cn(
+      'flex items-center whitespace-nowrap rounded-xl px-4 py-2 text-sm font-medium uppercase tracking-[0.5px]',
+      $active ? 'bg-white/[0.06] text-primary' : 'bg-transparent text-subText',
+      className,
+    )}
+    {...rest}
+  />
+)
 
-export const CollapseToggleButton = styled.button`
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-  padding: 0;
-  background: transparent;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  color: ${({ theme }) => theme.subText};
-  transition: color 0.15s ease, background 0.15s ease;
+type SidebarNavItemProps = ButtonHTMLAttributes<HTMLButtonElement> & { $active?: boolean; $collapsed?: boolean }
+export const SidebarNavItem = ({ $active, $collapsed, className, ...rest }: SidebarNavItemProps) => (
+  <button
+    className={cn(
+      'relative flex w-full cursor-pointer items-center gap-3 rounded-xl border-none bg-transparent text-left',
+      'whitespace-nowrap font-[inherit] text-sm transition-[color,background,padding] duration-200',
+      $collapsed ? 'px-[11px] py-2.5' : 'py-2.5 pl-6 pr-4',
+      $active ? 'font-medium text-primary' : 'font-normal text-gray',
+      '[&>svg]:shrink-0',
+      // Neutralize hardcoded fill/stroke colors in legacy icons so they inherit the nav
+      // item's color (active = primary, inactive = gray). Icons already using
+      // currentColor are unaffected — these selectors only match explicit attributes.
+      '[&>svg_path[fill]:not([fill=none]):not([fill=currentColor])]:fill-current',
+      '[&>svg_path[stroke]:not([stroke=none]):not([stroke=currentColor])]:stroke-current',
+      'hover:bg-white-04 hover:text-primary focus-visible:bg-white-04 focus-visible:text-primary focus-visible:outline-none',
+      $active &&
+        cn(
+          "before:absolute before:left-4 before:top-1/2 before:h-[18px] before:w-0.5 before:-translate-y-1/2 before:rounded-sm before:bg-primary before:transition-opacity before:content-['']",
+          $collapsed ? 'before:opacity-0' : 'before:opacity-100',
+        ),
+      className,
+    )}
+    {...rest}
+  />
+)
 
-  &:hover {
-    color: ${({ theme }) => theme.text};
-    background: ${({ theme }) => rgba(theme.white, 0.04)};
-  }
-`
+export const GroupDivider = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('mx-3 my-1 h-px bg-white/[0.06]', className)} {...rest} />
+)
 
-export const SidebarGroup = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-`
+type BreadcrumbsContainerProps = HTMLAttributes<HTMLElement> & { as?: ElementType }
+export const BreadcrumbsContainer = ({ as: Tag = 'div', className, ...rest }: BreadcrumbsContainerProps) => (
+  <Tag className={cn('mb-4 hidden min-w-0 items-center gap-2 max-md:flex', className)} {...rest} />
+)
 
-export const SidebarGroupLabel = styled.div<{ $active?: boolean }>`
-  display: flex;
-  align-items: center;
-  padding: 8px 16px;
-  border-radius: 12px;
-  font-size: 14px;
-  font-weight: 500;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-  white-space: nowrap;
-  color: ${({ theme, $active }) => ($active ? theme.primary : theme.subText)};
-  background: ${({ theme, $active }) => ($active ? rgba(theme.white, 0.06) : 'transparent')};
-`
+export const BreadcrumbsToggleButton = ({ className, ...rest }: ButtonHTMLAttributes<HTMLButtonElement>) => (
+  <button
+    className={cn(
+      'inline-flex size-9 shrink-0 cursor-pointer items-center justify-center rounded-lg border-none p-0',
+      'bg-white-04 text-subText transition-colors hover:bg-white-08 hover:text-text',
+      className,
+    )}
+    {...rest}
+  />
+)
 
-const activeItemStyles = css`
-  color: ${({ theme }) => theme.primary};
-  font-weight: 500;
-`
+export const BreadcrumbsTrail = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('flex min-w-0 items-center gap-1.5 overflow-hidden', className)} {...rest} />
+)
 
-const inactiveItemStyles = css`
-  color: ${({ theme }) => theme.gray};
-  font-weight: 400;
-`
+type BreadcrumbsItemProps = HTMLAttributes<HTMLElement> & {
+  as?: ElementType
+  type?: 'button'
+  $current?: boolean
+  $clickable?: boolean
+}
+export const BreadcrumbsItem = ({
+  as: Tag = 'span',
+  $current,
+  $clickable,
+  className,
+  ...rest
+}: BreadcrumbsItemProps) => (
+  <Tag
+    className={cn(
+      'truncate border-none bg-none p-0 font-[inherit] text-sm transition-colors',
+      $current ? 'font-medium text-text' : 'font-normal text-subText',
+      $clickable ? 'pointer-events-auto cursor-pointer' : 'pointer-events-none cursor-default',
+      $clickable && 'hover:text-primary focus-visible:text-primary focus-visible:outline-none',
+      className,
+    )}
+    {...rest}
+  />
+)
 
-export const SidebarNavItem = styled.button<{ $active?: boolean; $collapsed?: boolean }>`
-  appearance: none;
-  border: none;
-  font: inherit;
-  text-align: left;
-  background: transparent;
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  width: 100%;
-  padding: ${({ $collapsed }) => ($collapsed ? '10px 11px' : '10px 16px 10px 24px')};
-  border-radius: 12px;
-  cursor: pointer;
-  font-size: 14px;
-  white-space: nowrap;
-  ${({ $active }) => ($active ? activeItemStyles : inactiveItemStyles)};
-  transition: color 0.15s ease, background 0.15s ease, padding 0.2s ease;
+export const BreadcrumbsSeparator = ({ className, ...rest }: HTMLAttributes<HTMLSpanElement>) => (
+  <span className={cn('shrink-0 text-sm text-subText', className)} {...rest} />
+)
 
-  > svg {
-    flex-shrink: 0;
+export const MobileDrawerOverlay = ({ className, ...rest }: HTMLMotionProps<'div'>) => (
+  <motion.div className={cn('fixed inset-0 z-[9998] bg-black/60', className)} {...rest} />
+)
 
-    /* Neutralize hardcoded fill/stroke colors in legacy icons so they inherit
-       the nav item's color (active = primary, inactive = gray). Icons that
-       already use currentColor are unaffected since these selectors only
-       target paths with explicit fill/stroke attributes. */
-    path[fill]:not([fill='none']):not([fill='currentColor']) {
-      fill: currentColor;
-    }
-    path[stroke]:not([stroke='none']):not([stroke='currentColor']) {
-      stroke: currentColor;
-    }
-  }
-
-  &:hover,
-  &:focus-visible {
-    color: ${({ theme }) => theme.primary};
-    background: ${({ theme }) => rgba(theme.white, 0.04)};
-    outline: none;
-  }
-
-  ${({ $active, $collapsed, theme }) =>
-    $active
-      ? css`
-          &::before {
-            content: '';
-            position: absolute;
-            left: 16px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 2px;
-            height: 18px;
-            border-radius: 2px;
-            background: ${theme.primary};
-            opacity: ${$collapsed ? 0 : 1};
-            transition: opacity 0.15s ease;
-          }
-        `
-      : ''}
-`
-
-export const GroupDivider = styled.div`
-  height: 1px;
-  margin: 4px 12px;
-  background: ${({ theme }) => rgba(theme.white, 0.06)};
-`
-
-export const BreadcrumbsContainer = styled.div`
-  display: none;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 16px;
-  min-width: 0;
-
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    display: flex;
-  `}
-`
-
-export const BreadcrumbsToggleButton = styled.button`
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-  padding: 0;
-  background: ${({ theme }) => rgba(theme.white, 0.04)};
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  color: ${({ theme }) => theme.subText};
-  flex-shrink: 0;
-  transition: color 0.15s ease, background 0.15s ease;
-
-  &:hover {
-    color: ${({ theme }) => theme.text};
-    background: ${({ theme }) => rgba(theme.white, 0.08)};
-  }
-`
-
-export const BreadcrumbsTrail = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  min-width: 0;
-  overflow: hidden;
-`
-
-export const BreadcrumbsItem = styled.span<{ $current?: boolean; $clickable?: boolean }>`
-  appearance: none;
-  background: none;
-  border: none;
-  padding: 0;
-  font: inherit;
-  font-size: 14px;
-  color: ${({ theme, $current }) => ($current ? theme.text : theme.subText)};
-  font-weight: ${({ $current }) => ($current ? 500 : 400)};
-  cursor: ${({ $clickable }) => ($clickable ? 'pointer' : 'default')};
-  pointer-events: ${({ $clickable }) => ($clickable ? 'auto' : 'none')};
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  transition: color 0.15s ease;
-
-  ${({ $clickable, theme }) =>
-    $clickable &&
-    css`
-      &:hover,
-      &:focus-visible {
-        color: ${theme.primary};
-        outline: none;
-      }
-    `}
-`
-
-export const BreadcrumbsSeparator = styled.span`
-  color: ${({ theme }) => theme.subText};
-  font-size: 14px;
-  flex-shrink: 0;
-`
-
-export const MobileDrawerOverlay = styled(motion.div)`
-  position: fixed;
-  inset: 0;
-  background: ${({ theme }) => rgba(theme.black, 0.6)};
-  z-index: 9998;
-`
-
-export const MobileDrawerPanel = styled(motion.div)`
-  position: fixed;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  width: 260px;
-  max-width: 85vw;
-  background: ${({ theme }) => theme.background};
-  z-index: 9999;
-  display: flex;
-  flex-direction: column;
-  box-shadow: ${({ theme }) => `4px 0 16px ${rgba(theme.black, 0.4)}`};
-  overflow-y: auto;
-`
+export const MobileDrawerPanel = ({ className, ...rest }: HTMLMotionProps<'div'>) => (
+  <motion.div
+    className={cn(
+      'fixed inset-y-0 left-0 z-[9999] flex w-[260px] max-w-[85vw] flex-col overflow-y-auto bg-background',
+      'shadow-[4px_0_16px_rgb(var(--ks-black-rgb)/0.4)]',
+      className,
+    )}
+    {...rest}
+  />
+)

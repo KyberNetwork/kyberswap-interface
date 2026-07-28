@@ -142,12 +142,7 @@ function SummaryScene({
         </SummaryStatsColumn>
       </SummaryMainRow>
 
-      <SummaryFooter
-        as={motion.div}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.5, delay: 1.2 }}
-      >
+      <SummaryFooter initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5, delay: 1.2 }}>
         Watch your 2025 Journey 👇 <SummaryFooterLink>kyberswap.com/2025-journey</SummaryFooterLink>
       </SummaryFooter>
     </SummaryContainer>

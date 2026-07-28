@@ -13,6 +13,27 @@ export enum PAIR_CATEGORY {
   DEFAULT_EMPTY = '', // For Krystal data
 }
 
+export interface KemReward {
+  rewardCfg: Array<{
+    tokenAddress: string
+    amountReward: string | number
+    weightFee: number
+    weightAt: number
+    weightAtFee3: number
+    weightAt3Fee: number
+    weightFeeEg: number
+    tokenInfo?: {
+      address: string
+      symbol: string
+      decimals: number
+      logoURL?: string
+    }
+  }>
+  startTime: number
+  endTime: number
+  egSharingPercentage: number
+}
+
 export interface EarnPool {
   address: string
   earnFee: number
@@ -25,6 +46,10 @@ export interface EarnPool {
   kemEGApr: number
   kemLMApr: number
   bonusApr?: number
+  activeApr?: number
+  activeFeeApr?: number
+  activeEgApr?: number
+  activeLmApr?: number
   liquidity: number
   tvl: number
   chainId?: number
@@ -39,6 +64,7 @@ export interface EarnPool {
   }
   category?: PAIR_CATEGORY
   programs?: Array<ProgramType>
+  kemReward?: KemReward
   merklOpportunity?: MerklOpportunity
   tokens: Array<{
     address: string
@@ -56,6 +82,8 @@ export interface EarnPool {
     kemLMApr: string
   }
   egUsd?: number
+  sparkline?: number[]
+  sparklinePriceToken?: string
 }
 
 export interface ParsedEarnPool extends EarnPool {
@@ -67,6 +95,7 @@ export interface MerklOpportunity {
   type: string
   chainId: number
   identifier: string
+  name: string
   status: string
   action: string
   tvl: number
@@ -77,6 +106,7 @@ export interface MerklOpportunity {
   protocol: {
     id: string
     name: string
+    icon: string
   }
   rewardsRecord: {
     total: number
@@ -88,7 +118,7 @@ export interface MerklOpportunity {
         address: string
         decimals: number
         symbol: string
-        displaySymbol: string
+        icon?: string
         verified: boolean
         isTest: boolean
         type: string
@@ -109,5 +139,10 @@ export interface MerklOpportunity {
     startTimestamp: number
     endTimestamp: number
     apr: number
+    dailyRewards: number
+    creator?: {
+      address: string
+      tags?: string[]
+    }
   }>
 }

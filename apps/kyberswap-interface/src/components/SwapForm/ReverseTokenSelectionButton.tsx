@@ -1,20 +1,14 @@
 import { useState } from 'react'
-import styled from 'styled-components'
 
 import ArrowRotate from 'components/ArrowRotate'
-import useTheme from 'hooks/useTheme'
-
-const Wrapper = styled.div`
-  margin: -18px auto;
-  z-index: 10;
-`
+import { cn } from 'utils/cn'
 
 type Props = {
+  className?: string
   onClick: () => void
 }
-const ReverseTokenSelectionButton: React.FC<Props> = ({ onClick }) => {
+const ReverseTokenSelectionButton: React.FC<Props> = ({ className, onClick }) => {
   const [rotated, setRotated] = useState(false)
-  const theme = useTheme()
 
   const handleClick = () => {
     onClick()
@@ -22,13 +16,11 @@ const ReverseTokenSelectionButton: React.FC<Props> = ({ onClick }) => {
   }
 
   return (
-    <Wrapper>
-      <ArrowRotate
-        rotate={rotated}
-        onClick={handleClick}
-        style={{ width: 28, height: 28, padding: 4, background: theme.background }}
-      />
-    </Wrapper>
+    <ArrowRotate
+      rotate={rotated}
+      onClick={handleClick}
+      className={cn('size-7 bg-background p-1 hover:bg-buttonGray', className)}
+    />
   )
 }
 

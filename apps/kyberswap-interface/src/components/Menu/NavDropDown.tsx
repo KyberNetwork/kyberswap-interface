@@ -1,85 +1,79 @@
-import { ReactNode, useRef, useState } from 'react'
+import { type ReactNode, useState } from 'react'
 import { NavLink } from 'react-router-dom'
-import { Text } from 'rebass'
-import styled from 'styled-components'
 
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
+import { MenuItem, MenuItemContent, MenuItemLink } from 'components/Menu/MenuItems'
+import { HStack, Stack } from 'components/Stack'
 import { ApplicationModal } from 'state/application/actions'
 import { useToggleModal } from 'state/application/hooks'
 import { ExternalLink } from 'theme'
+import { cn } from 'utils/cn'
 
-const Wrapper = styled.div`
-  transition: all 0.2s ease;
-  overflow: hidden;
-  flex: 1;
-`
-const LinkContainer = styled.div<{ $isShow?: boolean; $height: number }>`
-  padding-left: 24px;
-  transition: all 0.3s ease;
-  ${({ $isShow, $height }) => ($isShow ? `height: ${$height}px;` : 'height: 0px;')}
-  > * {
-    padding: 12px 0;
-  }
+type NavDropDownOption = {
+  external?: boolean
+  label?: ReactNode
+  link?: string
+}
 
-  > *:first-child {
-    padding-top: 24px;
-  }
-  > *:last-child {
-    padding-bottom: 0;
-  }
-`
-const DropdownIcon = styled(DropdownSVG)<{ $isShow?: boolean }>`
-  transition: all 0.2s ease;
-  height: 24px !important;
-  width: 24px !important;
-  ${({ $isShow }) => $isShow && 'transform: rotate(180deg);'}
-`
+type NavDropDownProps = {
+  icon?: ReactNode
+  options?: NavDropDownOption[]
+  title?: ReactNode
+}
 
-const TitleWrapper = styled(NavLink)`
-  display: flex;
-  justify-content: space-between;
-`
-
-export default function NavDropDown({
-  title,
-  link,
-  icon,
-  options,
-}: {
-  title: ReactNode
-  icon: ReactNode
-  link: string
-  options: { link: string; label: ReactNode; external?: boolean }[]
-}) {
+const NavDropDown = ({ title, icon, options = [] }: NavDropDownProps) => {
   const [isShowOptions, setIsShowOptions] = useState(false)
   const toggle = useToggleModal(ApplicationModal.MENU)
-  const ref = useRef<HTMLDivElement>(null)
 
-  const handleClick = (e: any) => {
-    e.preventDefault()
+  const toggleOptions = () => {
     setIsShowOptions(prev => !prev)
   }
 
   return (
-    <Wrapper>
-      <TitleWrapper to={link} onClick={handleClick}>
-        {icon}
-        <Text flex={1}>{title}</Text>
-        <DropdownIcon $isShow={isShowOptions} />
-      </TitleWrapper>
-      <LinkContainer $isShow={isShowOptions} ref={ref} $height={ref.current?.scrollHeight || 0}>
-        {options.map(item =>
-          item.external ? (
-            <ExternalLink key={item.link} href={item.link} onClick={toggle}>
-              {item.label}
-            </ExternalLink>
-          ) : (
-            <NavLink to={item.link} key={item.link} onClick={toggle}>
-              {item.label}
-            </NavLink>
-          ),
+    <Stack className="flex-1 overflow-hidden">
+      <MenuItemContent onClick={toggleOptions} fullWidth className="justify-between">
+        <HStack className="min-w-0 items-center gap-2 [&_svg]:size-4">
+          {icon}
+          {title}
+        </HStack>
+        <DropdownSVG
+          className={cn('-mx-1 size-6 shrink-0 transition-all duration-200 ease-in-out', isShowOptions && 'rotate-180')}
+        />
+      </MenuItemContent>
+      <div
+        className={cn(
+          'grid transition-[grid-template-rows] duration-300 ease-in-out',
+          isShowOptions ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]',
         )}
-      </LinkContainer>
-    </Wrapper>
+      >
+        <Stack className="min-h-0 overflow-hidden">
+          <Stack as="ul" className="m-0 list-none pl-6 pt-2.5">
+            {options.map(item => {
+              const optionLink = item.link ?? ''
+
+              return (
+                <MenuItem key={optionLink}>
+                  {item.external ? (
+                    <MenuItemLink>
+                      <ExternalLink href={optionLink} onClick={toggle}>
+                        {item.label}
+                      </ExternalLink>
+                    </MenuItemLink>
+                  ) : (
+                    <MenuItemLink>
+                      <NavLink to={optionLink} onClick={toggle}>
+                        {item.label}
+                      </NavLink>
+                    </MenuItemLink>
+                  )}
+                </MenuItem>
+              )
+            })}
+          </Stack>
+        </Stack>
+      </div>
+    </Stack>
   )
 }
+
+export default NavDropDown

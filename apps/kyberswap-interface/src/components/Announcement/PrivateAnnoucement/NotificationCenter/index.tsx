@@ -14,7 +14,7 @@ export type PrivateAnnouncementPropCenter<T extends AnnouncementTemplate = Annou
 }
 
 type PrivateAnnouncementCenterMap = {
-  [type in PrivateAnnouncementType]: (data: { announcement: PrivateAnnouncement }) => JSX.Element
+  [type in PrivateAnnouncementType]: (data: { announcement: PrivateAnnouncement }) => React.JSX.Element
 }
 const ANNOUNCEMENT_MAP_IN_CENTER = {
   [PrivateAnnouncementType.ELASTIC_POOLS]: PoolPosition,

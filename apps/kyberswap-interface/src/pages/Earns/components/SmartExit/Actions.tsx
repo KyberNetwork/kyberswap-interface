@@ -1,9 +1,9 @@
 import { Trans } from '@lingui/macro'
 import { useMedia } from 'react-use'
-import { Flex, Text } from 'rebass'
 
 import { ButtonOutlined, ButtonPrimary } from 'components/Button'
 import { MEDIA_WIDTHS } from 'theme'
+import { cn } from 'utils/cn'
 
 export default function Actions({
   onDismiss,
@@ -21,14 +21,14 @@ export default function Actions({
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
   return (
-    <Flex sx={{ gap: '20px' }} mt="20px" pb={upToSmall ? '20px' : '0'} justifyContent="center">
+    <div className={cn('mt-5 flex justify-center gap-5', upToSmall ? 'pb-5' : 'pb-0')}>
       <ButtonOutlined onClick={onDismiss} width="188px">
-        <Text fontSize={14} lineHeight="20px">
+        <span className="text-sm leading-5">
           <Trans>Cancel</Trans>
-        </Text>
+        </span>
       </ButtonOutlined>
       <ButtonPrimary width="188px" disabled={disabled} onClick={onPreview}>
-        <Text fontSize={14} lineHeight="20px">
+        <span className="text-sm leading-5">
           {positionLoading ? (
             <Trans>Loading position...</Trans>
           ) : feeLoading ? (
@@ -36,8 +36,8 @@ export default function Actions({
           ) : (
             <Trans>Preview</Trans>
           )}
-        </Text>
+        </span>
       </ButtonPrimary>
-    </Flex>
+    </div>
   )
 }

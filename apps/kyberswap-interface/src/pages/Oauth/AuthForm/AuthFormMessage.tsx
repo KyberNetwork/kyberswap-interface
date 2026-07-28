@@ -1,18 +1,13 @@
-import { Text } from 'rebass'
-
-import useTheme from 'hooks/useTheme'
-
 const AuthFormFieldMessage: React.FC<{ messages?: { type: string; text: string }[] }> = ({ messages }) => {
-  const theme = useTheme()
   if (!messages?.length) return null
 
   return (
     <div>
       {messages.map((value, index) => {
         return (
-          <Text as="label" key={index} color={value.type === 'warn' ? theme.warning : theme.red}>
+          <label key={index} className={value.type === 'warn' ? 'text-warning' : 'text-red'}>
             {value.text}
-          </Text>
+          </label>
         )
       })}
     </div>

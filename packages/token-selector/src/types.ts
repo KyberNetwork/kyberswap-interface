@@ -50,6 +50,10 @@ export interface TokenOptions {
   token1Address?: string;
   /** External token balances (optional - if not provided, will fetch internally) */
   tokenBalances?: { [key: string]: bigint };
+  /** Returns true if the token is geo-restricted and must not be selectable */
+  isTokenRestricted?: (token: Token) => boolean;
+  /** Called when a restricted token is clicked (e.g. to show a warning); selection is aborted */
+  onRestrictedToken?: (token: Token) => void;
 }
 
 /**
@@ -227,6 +231,8 @@ export interface TokenSelectorModalProps {
   tokenOptions?: TokenOptions;
   /** Position/liquidity source options */
   positionOptions?: PositionOptions;
+  /** Optional analytics callback (e.g. for TOKEN_SEARCHED events) */
+  onTrackEvent?: (eventName: string, data?: Record<string, unknown>) => void;
 }
 
 // Internal token with additional UI state

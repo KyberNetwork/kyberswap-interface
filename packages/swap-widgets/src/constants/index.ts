@@ -20,6 +20,8 @@ import {
   etherlinkTokens,
   monadTokens,
   megaethTokens,
+  riseTokens,
+  robinhoodTokens,
 } from './tokens'
 import hyperEvmTokens from './tokens/hyperevm'
 
@@ -167,6 +169,8 @@ export const NATIVE_TOKEN: {
     logoURI: 'https://storage.googleapis.com/ks-setting-1d682dca/43addef0-610f-4495-8eca-b9cfe93364df1763539360932.png',
   },
   4326: eth(4326),
+  4153: eth(4153),
+  4663: eth(4663),
 }
 
 export const WRAPPED_NATIVE_TOKEN: {
@@ -348,6 +352,22 @@ export const WRAPPED_NATIVE_TOKEN: {
     chainId: 4326,
     logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/1027.png',
   },
+  4153: {
+    name: 'Wrapped ETH',
+    decimals: 18,
+    symbol: 'WETH',
+    address: '0x4200000000000000000000000000000000000006',
+    chainId: 4153,
+    logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/1027.png',
+  },
+  4663: {
+    name: 'Wrapped ETH',
+    decimals: 18,
+    symbol: 'WETH',
+    address: '0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73',
+    chainId: 4663,
+    logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/1027.png',
+  },
 }
 
 export const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
@@ -377,6 +397,8 @@ export const DEFAULT_TOKENS: {
   42793: etherlinkTokens,
   143: monadTokens,
   4326: megaethTokens,
+  4153: riseTokens,
+  4663: robinhoodTokens,
 }
 
 export const MULTICALL_ADDRESS: { [chainId: number]: string } = {
@@ -402,6 +424,8 @@ export const MULTICALL_ADDRESS: { [chainId: number]: string } = {
   42793: '0xcA11bde05977b3631167028862bE2a173976CA11',
   143: '0xcA11bde05977b3631167028862bE2a173976CA11',
   4326: '0xcA11bde05977b3631167028862bE2a173976CA11',
+  4153: '0xcA11bde05977b3631167028862bE2a173976CA11',
+  4663: '0xcA11bde05977b3631167028862bE2a173976CA11',
 }
 
 export const AGGREGATOR_PATH: { [chainId: number]: string } = {
@@ -427,6 +451,8 @@ export const AGGREGATOR_PATH: { [chainId: number]: string } = {
   42793: 'etherlink',
   143: 'monad',
   4326: 'megaeth',
+  4153: 'rise',
+  4663: 'robinhood',
 }
 
 export const SCAN_LINK: { [chainId: number]: string } = {
@@ -452,6 +478,8 @@ export const SCAN_LINK: { [chainId: number]: string } = {
   42793: 'https://explorer.etherlink.com',
   143: 'https://mainnet-beta.monvision.io',
   4326: 'https://megaeth.blockscout.com',
+  4153: 'https://explorer.risechain.com',
+  4663: 'https://robinscan.io',
 }
 
 export const DefaultRpcUrl: { [chainId: number]: string } = {
@@ -477,6 +505,8 @@ export const DefaultRpcUrl: { [chainId: number]: string } = {
   42793: 'https://node.mainnet.etherlink.com',
   143: 'https://rpc.monad.xyz',
   4326: 'https://mainnet.megaeth.com/rpc',
+  4153: 'https://rpc.risechain.com',
+  4663: 'https://rpc.mainnet.chain.robinhood.com',
 }
 
 export const SUPPORTED_NETWORKS = Object.keys(SCAN_LINK)

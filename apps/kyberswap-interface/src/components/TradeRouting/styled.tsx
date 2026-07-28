@@ -1,304 +1,181 @@
-import { rgba } from 'polished'
-import styled, { css } from 'styled-components'
+import { AnchorHTMLAttributes, CSSProperties, HTMLAttributes, forwardRef } from 'react'
 
-export const StyledContainer = styled.div`
-  flex: 1;
-  max-height: 100%;
-  max-width: 100%;
-  margin-left: 0;
-  overflow-y: scroll;
-  overflow-x: hidden;
+import { cn } from 'utils/cn'
 
-  &::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
-  }
+import './styled.css'
 
-  &::-webkit-scrollbar-thumb {
-    background: transparent;
-    border-radius: 999px;
-  }
+type RoutingFadeYProps = HTMLAttributes<HTMLDivElement> & { backgroundColor?: string }
 
-  &:hover::-webkit-scrollbar-thumb {
-    background: ${({ theme }) => theme.border};
-    border-radius: 999px;
-  }
+export const RoutingFadeY = forwardRef<HTMLDivElement, RoutingFadeYProps>(
+  ({ className, backgroundColor, style, ...rest }, ref) => (
+    <div
+      ref={ref}
+      className={cn('ks-trade-routing-fade-y relative min-h-0 overflow-hidden', className)}
+      style={{ ...(backgroundColor ? ({ '--ks-tr-bg': backgroundColor } as CSSProperties) : {}), ...style }}
+      {...rest}
+    />
+  ),
+)
+RoutingFadeY.displayName = 'RoutingFadeY'
 
-  &::-webkit-scrollbar-track-piece {
-    background: transparent;
-  }
-`
+export const RoutingViewport = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
+  ({ className, ...rest }, ref) => (
+    <div ref={ref} className={cn('ks-trade-routing-viewport ml-0 max-h-full max-w-full flex-1', className)} {...rest} />
+  ),
+)
+RoutingViewport.displayName = 'RoutingViewport'
 
-export const Shadow = styled.div<{ backgroundColor?: string }>`
-  position: relative;
-  min-height: 0;
-  overflow: hidden;
+export const PairRow = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(({ className, ...rest }, ref) => (
+  <div ref={ref} className={cn('relative flex items-center justify-between pt-3', className)} {...rest} />
+))
+PairRow.displayName = 'PairRow'
 
-  &:before,
-  &:after {
-    content: '';
-    display: block;
-    z-index: 3;
-    pointer-events: none;
-    position: absolute;
-    height: 50px;
-    width: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    transition: all 0.2s ease;
-    opacity: 0;
-  }
+export const PairTokenSlot = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
+  ({ className, ...rest }, ref) => (
+    <div
+      ref={ref}
+      className={cn(
+        'flex min-h-[38px] w-max min-w-[100px] items-center justify-between whitespace-nowrap rounded-lg text-base font-medium max-sm:min-w-[120px]',
+        className,
+      )}
+      {...rest}
+    />
+  ),
+)
+PairTokenSlot.displayName = 'PairTokenSlot'
 
-  &:before {
-    background: linear-gradient(to bottom, ${({ backgroundColor }) => backgroundColor}, transparent);
-    top: 0;
-  }
+type TokenLinkProps = AnchorHTMLAttributes<HTMLAnchorElement> & {
+  reverse?: boolean
+  as?: 'a' | 'div'
+}
 
-  &:after {
-    background: linear-gradient(to top, ${({ backgroundColor }) => backgroundColor}, transparent);
-    bottom: 0;
-  }
+export const TokenLink = forwardRef<HTMLAnchorElement, TokenLinkProps>(
+  ({ className, reverse, as: As = 'a', ...rest }, ref) => {
+    const cls = cn(
+      'flex w-full items-center whitespace-nowrap pb-2 text-subText no-underline [&>span]:mx-1',
+      reverse && 'flex-row-reverse justify-start',
+      className,
+    )
+    if (As === 'div') {
+      const { href: _href, ...divRest } = rest
+      return (
+        <div
+          ref={ref as unknown as React.Ref<HTMLDivElement>}
+          className={cls}
+          {...(divRest as HTMLAttributes<HTMLDivElement>)}
+        />
+      )
+    }
+    return <a ref={ref} className={cls} {...rest} />
+  },
+)
+TokenLink.displayName = 'TokenLink'
 
-  &.top:before,
-  &.bottom:after {
-    opacity: 1;
-  }
-`
-export const StyledPercent = styled.div<{ backgroundColor?: string }>`
-  font-size: 12px;
-  line-height: 14px;
-  font-weight: 700;
-  position: absolute;
-  top: calc(50% - 15px);
-  left: 8px;
-  transform: translateY(50%);
-  z-index: 2;
-  color: ${({ theme }) => theme.primary};
-  background: ${({ backgroundColor }) => backgroundColor};
-`
-export const StyledDot = styled.i<{ out?: boolean }>`
-  display: inline-block;
-  width: 8px;
-  height: 8px;
-  border-radius: 100%;
-  position: absolute;
-  top: 0;
-  left: ${({ out }) => (out ? 'unset' : '6.5px')};
-  right: ${({ out }) => (out ? '6.5px' : 'unset')};
-  z-index: 1;
-  background-color: ${({ theme }) => theme.primary};
-`
+export const RouteList = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(({ className, ...rest }, ref) => (
+  <div ref={ref} className={cn('ks-trade-routing-list relative m-auto w-full px-2.5 pt-5', className)} {...rest} />
+))
+RouteList.displayName = 'RouteList'
 
-export const StyledPair = styled.div`
-  position: relative;
-  padding-top: 12px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-`
+type RouteDotProps = HTMLAttributes<HTMLElement> & { out?: boolean }
 
-export const StyledPairLine = styled.div`
-  flex: auto;
-  min-width: 50px;
-  border-bottom: 1px solid ${rgba('#fff', 0.1)};
-  height: 1px;
-`
-export const StyledWrapToken = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  min-width: 100px;
-  width: max-content;
-  font-size: 16px;
-  font-weight: 500;
-  white-space: nowrap;
-  min-height: 38px;
-  border-radius: 0.5rem;
+export const RouteDot = forwardRef<HTMLElement, RouteDotProps>(({ className, out, ...rest }, ref) => (
+  <i
+    ref={ref}
+    className={cn(
+      'absolute top-0 z-[1] inline-block size-2 rounded-full bg-primary',
+      out ? 'right-[6.5px]' : 'left-[6.5px]',
+      className,
+    )}
+    {...rest}
+  />
+))
+RouteDot.displayName = 'RouteDot'
 
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    min-width: 120px;
-  `}
-`
-export const StyledToken = styled.a<{ reverse?: boolean }>`
-  width: 100%;
-  display: flex;
-  align-items: center;
-  white-space: nowrap;
-  text-decoration: none;
-  color: ${({ theme }) => theme.subText};
-  ${({ reverse }) =>
-    reverse &&
-    css`
-      flex-direction: row-reverse;
-      justify-content: flex-start;
-    `}
-  padding-bottom: 7px;
+export const RouteRow = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(({ className, ...rest }, ref) => (
+  <div ref={ref} className={cn('ks-trade-routing-row relative flex items-center justify-end', className)} {...rest} />
+))
+RouteRow.displayName = 'RouteRow'
 
-  & > span {
-    margin-left: 4px;
-    margin-right: 4px;
-  }
-`
+export const RouteBadge = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(({ className, ...rest }, ref) => (
+  <div
+    ref={ref}
+    className={cn(
+      'absolute left-2 top-[calc(50%-15px)] z-[2] translate-y-1/2 bg-buttonBlack px-1 text-xs font-bold leading-[14px] text-primary',
+      className,
+    )}
+    {...rest}
+  />
+))
+RouteBadge.displayName = 'RouteBadge'
 
-export const StyledRoutes = styled.div`
-  margin: auto;
-  width: 100%;
-  position: relative;
-  padding: 20px 10px 0;
+export const RouteConnector = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
+  ({ className, ...rest }, ref) => (
+    <div ref={ref} className={cn('absolute left-0 w-full border-b border-buttonGray', className)} {...rest} />
+  ),
+)
+RouteConnector.displayName = 'RouteConnector'
 
-  &:before {
-    position: absolute;
-    display: block;
-    content: '';
-    top: 0;
-    right: 0;
-  }
-`
-export const StyledRoute = styled.div`
-  display: flex;
-  justify-content: flex-end;
-  position: relative;
-  align-items: center;
+type RoutingFadeXProps = HTMLAttributes<HTMLDivElement> & { backgroundColor?: string }
 
-  &:before,
-  &:after {
-    content: '';
-    display: block;
-    border-left: 1px solid ${({ theme }) => theme.border};
-    width: 100%;
-    height: calc(50% + 20px);
-    position: absolute;
-    border-right: 1px solid ${({ theme }) => theme.border};
-    box-sizing: border-box;
-    pointer-events: none;
-  }
+export const RoutingFadeX = forwardRef<HTMLDivElement, RoutingFadeXProps>(
+  ({ className, backgroundColor, style, ...rest }, ref) => (
+    <div
+      ref={ref}
+      className={cn('ks-trade-routing-fade-x my-2.5 ml-1.5 w-[calc(100%-68px)]', className)}
+      style={{ ...(backgroundColor ? ({ '--ks-tr-bg': backgroundColor } as CSSProperties) : {}), ...style }}
+      {...rest}
+    />
+  ),
+)
+RoutingFadeX.displayName = 'RoutingFadeX'
 
-  &:before {
-    top: -20px;
-  }
+export const HopList = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(({ className, ...rest }, ref) => (
+  <div ref={ref} className={cn('z-[1] flex items-center', className)} {...rest} />
+))
+HopList.displayName = 'HopList'
 
-  &:after {
-    bottom: -10px;
-  }
+export const HopCard = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(({ className, ...rest }, ref) => (
+  <div
+    ref={ref}
+    className={cn(
+      'relative m-auto h-fit shrink-0 grow-0 basis-[168px] rounded-lg border border-buttonGray bg-buttonBlack p-3',
+      className,
+    )}
+    {...rest}
+  />
+))
+HopCard.displayName = 'HopCard'
 
-  &:last-child:after {
-    display: none;
-  }
-`
-export const StyledRouteLine = styled.div`
-  position: absolute;
-  border-bottom: 1px solid ${rgba('#fff', 0.1)};
-  width: calc(100% - 68px);
-  left: 43px;
-`
-export const StyledHops = styled.div<{ length: string | number }>`
-  z-index: 1;
-  display: flex;
-  align-items: center;
-`
+export const PoolList = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(({ className, ...rest }, ref) => (
+  <div ref={ref} className={cn('mt-1 flex flex-col gap-2 rounded-lg bg-background px-3 py-2', className)} {...rest} />
+))
+PoolList.displayName = 'PoolList'
 
-export const StyledHop = styled.div`
-  padding: 12px;
-  border-radius: 12px;
-  background-color: ${({ theme }) => theme.buttonBlack};
-  border: 1px solid ${rgba('#fff', 0.1)};
-  height: fit-content;
-  position: relative;
-  flex: 0 0 146px;
-  margin: auto;
-  transition: filter 0.15s ease;
-  cursor: pointer;
+const POOL_ITEM_CLASS =
+  'flex w-full items-center whitespace-nowrap rounded-xl text-[10px] leading-5 text-subText no-underline [&>.img--sm]:mr-1 [&>.img--sm]:size-3.5'
 
-  :hover {
-    filter: brightness(130%);
-  }
-`
-export const StyledExchange = styled.a`
-  display: flex;
-  align-items: center;
-  width: 100%;
-  font-size: 10px;
-  border-radius: 12px;
-  color: ${({ theme }) => theme.subText};
-  line-height: 20px;
-  white-space: nowrap;
-  text-decoration: none;
+export const PoolLink = forwardRef<HTMLAnchorElement, AnchorHTMLAttributes<HTMLAnchorElement>>(
+  ({ className, ...rest }, ref) => (
+    <a ref={ref} className={cn(POOL_ITEM_CLASS, 'hover:text-white', className)} {...rest} />
+  ),
+)
+PoolLink.displayName = 'PoolLink'
 
-  &:hover {
-    color: ${({ theme }) => theme.white};
-  }
+export const PoolLabel = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(({ className, ...rest }, ref) => (
+  <div ref={ref} className={cn(POOL_ITEM_CLASS, className)} {...rest} />
+))
+PoolLabel.displayName = 'PoolLabel'
 
-  & > .img--sm {
-    width: 14px;
-    height: 14px;
-    margin-right: 4px;
-  }
-`
-export const StyledExchangeStatic = styled.div`
-  display: flex;
-  align-items: center;
-  width: 100%;
-  font-size: 10px;
-  border-radius: 12px;
-  color: ${({ theme }) => theme.subText};
-  line-height: 20px;
-  white-space: nowrap;
-  text-decoration: none;
+export const RouteArrow = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(({ className, ...rest }, ref) => (
+  <div ref={ref} className={cn('z-[1] flex h-6 min-w-[24px] items-center justify-center', className)} {...rest} />
+))
+RouteArrow.displayName = 'RouteArrow'
 
-  & > .img--sm {
-    width: 14px;
-    height: 14px;
-    margin-right: 4px;
-  }
-`
-
-export const StyledWrap = styled.div<{ backgroundColor?: string }>`
-  width: calc(100% - 68px);
-  margin: 10px 0 10px 6px;
-
-  &:after,
-  &:before {
-    transition: all 0.1s ease;
-    content: '';
-    display: block;
-    z-index: 2;
-    pointer-events: none;
-    position: absolute;
-    inset: 0 0 auto auto;
-    width: 40px;
-    height: calc(100% - 20px);
-    top: 50%;
-    transform: translateY(-50%);
-    opacity: 0;
-  }
-
-  &:after {
-    background: linear-gradient(to right, ${({ backgroundColor }) => backgroundColor}, transparent);
-    left: 42px;
-  }
-
-  &:before {
-    background: linear-gradient(to left, ${({ backgroundColor }) => backgroundColor}, transparent);
-    right: 24px;
-  }
-
-  &.left-visible:after,
-  &.right-visible:before {
-    opacity: 1;
-  }
-`
-
-export const StyledHopChevronRight = styled.div`
-  border-top: 5px solid transparent;
-  border-bottom: 5px solid transparent;
-  border-left: 5px solid ${({ theme }) => theme.primary};
-`
-
-export const StyledHopChevronWrapper = styled.div`
-  min-width: 24px;
-  height: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1;
-`
+export const ArrowHead = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(({ className, ...rest }, ref) => (
+  <div
+    ref={ref}
+    className={cn('size-0 border-y-[5px] border-l-[5px] border-y-transparent border-l-primary', className)}
+    {...rest}
+  />
+))
+ArrowHead.displayName = 'ArrowHead'

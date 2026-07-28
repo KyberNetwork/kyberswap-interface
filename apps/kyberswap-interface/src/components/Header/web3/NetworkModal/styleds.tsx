@@ -1,31 +1,20 @@
-import { motion } from 'framer-motion'
-import styled from 'styled-components'
+import { HTMLMotionProps, motion } from 'framer-motion'
+import { HTMLAttributes, forwardRef } from 'react'
 
-export const Wrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  padding: 20px;
-  height: fit-content;
-`
+import { cn } from 'utils/cn'
 
-export const NetworkList = styled(motion.div)`
-  min-height: 60px;
-  display: flex;
-  align-items: center;
-  column-gap: 16px;
-  row-gap: 6px;
-  flex-wrap: wrap;
-  width: 100%;
-  & > * {
-    width: calc(33% - 2 * 16px / 3);
-  }
+export const Wrapper = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(({ className, ...props }, ref) => (
+  <div ref={ref} className={cn('flex h-fit w-full flex-col p-5', className)} {...props} />
+))
+Wrapper.displayName = 'Wrapper'
 
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    column-gap: 8px;
-
-    & > * {
-      width: calc(50% - 8px / 2);
-    }
-  `}
-`
+export const NetworkList = ({ className, ...props }: HTMLMotionProps<'div'>) => (
+  <motion.div
+    className={cn(
+      'flex min-h-[60px] w-full flex-wrap items-center gap-x-2 gap-y-1.5 [&>*]:w-[calc(50%-4px)]',
+      'sm:gap-x-4 sm:[&>*]:w-[calc(33%-32px/3)]',
+      className,
+    )}
+    {...props}
+  />
+)

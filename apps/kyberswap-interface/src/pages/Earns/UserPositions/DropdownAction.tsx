@@ -4,8 +4,6 @@ import { createPortal } from 'react-dom'
 import { Minus, MoreVertical, Plus } from 'react-feather'
 import { useNavigate } from 'react-router'
 import { useMedia } from 'react-use'
-import { Text } from 'rebass'
-import styled from 'styled-components'
 
 import { ReactComponent as IconClaimRewards } from 'assets/svg/earn/ic_claim.svg'
 import { ReactComponent as IconClaimFees } from 'assets/svg/earn/ic_earn_claim_fees.svg'
@@ -16,106 +14,10 @@ import Loader from 'components/Loader'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
-import useTheme from 'hooks/useTheme'
 import { EARN_CHAINS, EARN_DEXES, EarnChain } from 'pages/Earns/constants'
 import { ParsedPosition, PositionStatus } from 'pages/Earns/types'
 import { MEDIA_WIDTHS } from 'theme'
-
-const DropdownWrapper = styled.div`
-  position: relative;
-  width: fit-content;
-`
-
-const DropdownTitleWrapper = styled.div<{ open: boolean }>`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 30px;
-  height: 30px;
-  flex-shrink: 0;
-  border-radius: 12px;
-  background: ${({ theme, open }) => (open ? theme.tabActive : 'inherit')};
-  transform: scale(1.1);
-  position: relative;
-  top: 5px;
-  cursor: pointer;
-
-  ${({ theme, open }) => theme.mediaWidth.upToSmall`
-    background: ${open ? theme.buttonGray : theme.tabActive};
-  `}
-`
-
-const DropdownContent = styled.div`
-  position: fixed;
-  background: ${({ theme }) => theme.tabActive};
-  border-radius: 12px;
-  padding: 14px 0;
-  font-size: 14px;
-  color: ${({ theme }) => theme.text};
-  width: max-content;
-  display: flex;
-  flex-direction: column;
-  align-items: 'flex-start';
-  gap: 4px;
-  z-index: 1000;
-  box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.1);
-  will-change: top, left;
-`
-
-const DropdownContentItem = styled.div<{ disabled?: boolean }>`
-  display: flex;
-  gap: 8px;
-  padding: 8px 16px;
-  align-items: center;
-  align-self: stretch;
-  justify-content: flex-start;
-  text-transform: capitalize;
-  cursor: pointer;
-
-  &:hover {
-    color: ${({ theme, disabled }) => (disabled ? theme.subText : theme.primary)};
-  }
-
-  ${({ disabled, theme }) =>
-    disabled &&
-    `
-      cursor: not-allowed;
-      color: ${theme.subText};
-      filter: brightness(0.6) !important;
-    `}
-`
-
-const BottomDrawer = styled.div<{ open: boolean }>`
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: ${({ theme }) => theme.tabActive};
-  border-radius: 20px 20px 0 0;
-  padding: 16px;
-  transform: translateY(${({ open }) => (open ? '-60px' : '100%')});
-  transition: transform 0.3s ease-in-out;
-  z-index: 1000;
-`
-
-const DrawerContent = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-`
-
-const Overlay = styled.div<{ open: boolean }>`
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  opacity: ${({ open }) => (open ? 1 : 0)};
-  visibility: ${({ open }) => (open ? 'visible' : 'hidden')};
-  transition: opacity 0.3s ease-in-out;
-  z-index: 999;
-`
+import { cn } from 'utils/cn'
 
 const DropdownAction = ({
   position,
@@ -144,7 +46,6 @@ const DropdownAction = ({
   }
   hasActiveSmartExitOrder: boolean
 }) => {
-  const theme = useTheme()
   const { account } = useActiveWeb3React()
   const [open, setOpen] = useState(false)
   const [portalPosition, setPortalPosition] = useState({ top: 0, left: 0 })
@@ -294,7 +195,7 @@ const DropdownAction = ({
     {
       label: t`Claim Fees`,
       disabled: feesClaimDisabled,
-      icon: feesClaiming ? <Loader size={'16px'} stroke={'#7a7a7a'} /> : <IconClaimFees width={16} />,
+      icon: feesClaiming ? <Loader size={'16px'} className="text-[#7a7a7a]" /> : <IconClaimFees width={16} />,
       onClick: (e: React.MouseEvent) => {
         e.stopPropagation()
         if (!feesClaimDisabled) handleAction(e, onClaimFee)
@@ -305,9 +206,9 @@ const DropdownAction = ({
       label: t`Claim Rewards`,
       disabled: rewardsClaimDisabled,
       icon: rewardsClaiming ? (
-        <Loader size={'16px'} stroke={'#7a7a7a'} />
+        <Loader size={'16px'} className="text-[#7a7a7a]" />
       ) : (
-        <IconClaimRewards width={14} style={{ marginRight: '2px' }} />
+        <IconClaimRewards width={14} className="mr-0.5" />
       ),
       onClick: (e: React.MouseEvent) => {
         e.stopPropagation()
@@ -327,53 +228,79 @@ const DropdownAction = ({
     },
   ]
 
+  const dropdownContentItemClass = (disabled?: boolean) =>
+    cn(
+      'flex cursor-pointer items-center gap-2 self-stretch px-4 py-2 capitalize hover:text-primary',
+      disabled && 'cursor-not-allowed text-subText !brightness-[0.6] hover:text-subText',
+    )
+
   const renderActionItems = () =>
     actionItems.map((item, index) =>
       item.disabledTooltip ? (
         <MouseoverTooltip key={index} text={item.disabledTooltip} width="fit-content" placement="left">
-          <DropdownContentItem disabled={item.disabled} onClick={item.onClick}>
+          <div className={dropdownContentItemClass(item.disabled)} onClick={item.onClick}>
             {item.icon}
-            <Text>{item.label}</Text>
-          </DropdownContentItem>
+            <span>{item.label}</span>
+          </div>
         </MouseoverTooltip>
       ) : (
-        <DropdownContentItem key={index} disabled={item.disabled} onClick={item.onClick}>
+        <div key={index} className={dropdownContentItemClass(item.disabled)} onClick={item.onClick}>
           {item.icon}
-          <Text>{item.label}</Text>
-        </DropdownContentItem>
+          <span>{item.label}</span>
+        </div>
       ),
     )
 
   return (
-    <DropdownWrapper ref={ref}>
-      <DropdownTitleWrapper open={open} onClick={handleOpenChange}>
-        <MoreVertical color={theme.subText} size={18} />
-      </DropdownTitleWrapper>
+    <div ref={ref} className="relative w-fit">
+      <div
+        onClick={handleOpenChange}
+        className={cn(
+          'relative top-[5px] flex h-[30px] w-[30px] flex-shrink-0 scale-110 cursor-pointer items-center justify-center rounded-xl',
+          open ? 'bg-tabActive max-sm:bg-buttonGray' : 'bg-inherit max-sm:bg-tabActive',
+        )}
+      >
+        <MoreVertical className="text-subText" size={18} />
+      </div>
       {!upToExtraSmall &&
         open &&
         createPortal(
-          <DropdownContent
+          <div
             onClick={e => {
               e.preventDefault()
               e.stopPropagation()
             }}
             ref={contentRef}
-            style={portalPosition}
+            style={{ ...portalPosition, willChange: 'top, left' }}
             data-dropdown-content
+            className="fixed z-[1000] flex w-max flex-col items-start gap-1 rounded-xl bg-tabActive py-3.5 text-sm text-text shadow-[0px_4px_16px_rgba(0,0,0,0.1)]"
           >
             {renderActionItems()}
-          </DropdownContent>,
+          </div>,
           document.body,
         )}
-      {upToExtraSmall && (
-        <>
-          <Overlay open={open} onClick={onClickOverlay} />
-          <BottomDrawer open={open}>
-            <DrawerContent>{renderActionItems()}</DrawerContent>
-          </BottomDrawer>
-        </>
-      )}
-    </DropdownWrapper>
+      {upToExtraSmall &&
+        createPortal(
+          <>
+            <div
+              onClick={onClickOverlay}
+              className={cn(
+                'fixed inset-0 z-[999] bg-black/50 transition-opacity duration-300 ease-in-out',
+                open ? 'visible opacity-100' : 'invisible opacity-0',
+              )}
+            />
+            <div
+              className={cn(
+                'fixed inset-x-0 bottom-0 z-[1000] rounded-t-[20px] bg-tabActive p-4 transition-transform duration-300 ease-in-out',
+                open ? 'translate-y-0' : 'translate-y-full',
+              )}
+            >
+              <div className="flex flex-col gap-3">{renderActionItems()}</div>
+            </div>
+          </>,
+          document.body,
+        )}
+    </div>
   )
 }
 

@@ -31,6 +31,8 @@ export enum PoolType {
   DEX_QUICKSWAPV3ALGEBRA = 14,
   DEX_CAMELOTV3 = 13,
   DEX_AERODROMECL = 24,
+  DEX_AERODROMECL2 = 82,
+  DEX_AERODROMECL3 = 83,
 }
 
 export const univ4Types = [
@@ -67,6 +69,8 @@ export const univ3Types = [
   PoolType.DEX_PANCAKE_INFINITY_CL,
   PoolType.DEX_PANCAKE_INFINITY_CL_FAIRFLOW,
   PoolType.DEX_AERODROMECL,
+  PoolType.DEX_AERODROMECL2,
+  PoolType.DEX_AERODROMECL3,
 ] as const;
 export type Univ3PoolType = (typeof univ3Types)[number];
 

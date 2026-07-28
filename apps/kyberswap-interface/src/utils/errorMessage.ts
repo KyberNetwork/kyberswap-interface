@@ -1,7 +1,7 @@
 import { t } from '@lingui/macro'
 
-import { didUserReject } from 'constants/connectors/utils'
 import { capitalizeFirstLetter } from 'utils/string'
+import { didUserReject } from 'utils/walletError'
 
 const matchPatterns = (patterns: string[], error: string) =>
   patterns.some(pattern => error.toLowerCase().includes(pattern.toLowerCase()))
@@ -24,8 +24,6 @@ export const knownPatterns = {
     t`Insufficient fee rewards amount, try to remove your liquidity without claiming fees for now and you can try to claim it later.`,
   object_object: () => t`Something went wrong. Please try again.`,
 } as const
-
-export type KnownPatternKey = keyof typeof knownPatterns
 
 function parseKnownPattern(text: string): string | undefined {
   const error = text?.toLowerCase?.() || ''

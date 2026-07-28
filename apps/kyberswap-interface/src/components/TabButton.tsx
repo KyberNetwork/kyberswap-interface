@@ -1,47 +1,6 @@
-import { forwardRef } from 'react'
-import styled, { CSSProperties, css } from 'styled-components'
+import { CSSProperties, forwardRef } from 'react'
 
-const ButtonWrapper = styled.div<{ active?: boolean; separator?: boolean }>`
-  font-size: 12px;
-  line-height: 16px;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 40px;
-  flex: 1;
-  box-sizing: border-box;
-  cursor: pointer;
-  user-select: none;
-  ${({ theme, separator, active }) =>
-    separator &&
-    !active &&
-    css`
-      position: relative;
-      &::before {
-        content: '';
-        position: absolute;
-        left: 0;
-        height: 16px;
-        border: 1px solid ${theme.border};
-      }
-    `}
-  ${({ theme, active }) =>
-    active
-      ? css`
-          color: ${theme.primary};
-          background-color: ${theme.primary + '40'};
-          box-shadow: inset 0 -2px 0 0 ${theme.primary};
-        `
-      : css`
-          color: ${theme.subText};
-          background-color: ${theme.background};
-        `}
-
-  :hover {
-    filter: brightness(1.2);
-  }
-`
+import { cn } from 'utils/cn'
 
 type Props = {
   text?: string | React.ReactNode
@@ -51,21 +10,30 @@ type Props = {
   separator?: boolean
   className?: string
 }
+
 const TabButton = forwardRef<HTMLDivElement, Props>(function TabButton(
   { text, active, onClick, style, separator, className },
   ref,
 ) {
   return (
-    <ButtonWrapper
-      active={active}
+    <div
       onClick={onClick}
       style={style}
-      separator={separator}
       ref={ref}
-      className={className}
+      className={cn(
+        'box-border flex h-10 flex-1 cursor-pointer select-none items-center justify-center text-xs leading-4 transition-all duration-200 ease-linear hover:brightness-125',
+        active
+          ? 'bg-primary-25 text-primary shadow-[inset_0_-2px_0_0_var(--ks-primary)]'
+          : 'bg-background text-subText',
+        // Vertical separator (only on inactive tabs)
+        separator &&
+          !active &&
+          "relative before:absolute before:left-0 before:h-4 before:border before:border-border before:content-['']",
+        className,
+      )}
     >
       {text}
-    </ButtonWrapper>
+    </div>
   )
 })
 

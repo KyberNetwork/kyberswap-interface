@@ -73,7 +73,7 @@ export const formatCurrency = (value: number) =>
   }).format(value);
 export const formatNumber = (
   value: number,
-  maximumSignificantDigits?: number
+  maximumSignificantDigits?: number,
 ) =>
   new Intl.NumberFormat("en-US", {
     maximumSignificantDigits: maximumSignificantDigits || 6,
@@ -114,12 +114,12 @@ const rejectedPhrases: readonly string[] = [
 ].map((phrase) => phrase.toLowerCase());
 
 function didUserReject(
-  error: { code: number; message: string; errorMessage: string } | string
+  error: { code: number; message: string; errorMessage: string } | string,
 ): boolean {
   const message = String(
     typeof error === "string"
       ? error
-      : error?.message || error?.code || error?.errorMessage || ""
+      : error?.message || error?.code || error?.errorMessage || "",
   ).toLowerCase();
   return (
     [
@@ -167,6 +167,13 @@ function parseKnownPattern(text: string): string | undefined {
 
   if (didUserReject(error)) return `User rejected the transaction.`;
 
+  if (
+    error.includes("insufficient funds") ||
+    error.includes("insufficient balance for transfer") ||
+    error.includes("outoffund")
+  )
+    return `Your current balance falls short of covering the required gas fee.`;
+
   // classic/elastic remove liquidity error
   if (error.includes("insufficient"))
     return `An error occurred. Please try increasing max slippage`;
@@ -198,7 +205,7 @@ function parseKnownRegexPattern(text: string): string | undefined {
   const pattern = patterns.find((pattern) => pattern.pattern.exec(text));
   if (pattern)
     return capitalizeFirstLetter(
-      pattern.getMessage(pattern.pattern.exec(text)!)
+      pattern.getMessage(pattern.pattern.exec(text)!),
     );
   return undefined;
 }
@@ -239,7 +246,7 @@ export enum ImpactType {
 export const getPriceImpact = (
   pi: number | null | undefined,
   type: ImpactType,
-  zapFeeInfo?: ProtocolFeeAction
+  zapFeeInfo?: ProtocolFeeAction,
 ) => {
   if (pi === null || pi === undefined || isNaN(pi))
     return {
@@ -325,7 +332,7 @@ export const getPoolInfo = async ({
   poolType: PoolType;
 }) => {
   const res = await fetch(
-    `${API_URL.KYBERSWAP_BFF_API}/v1/pools?chainId=${chainId}&ids=${poolAddress}`
+    `${API_URL.KYBERSWAP_BFF_API}/v1/pools?chainId=${chainId}&ids=${poolAddress}`,
   ).then((res) => res.json());
 
   const poolInfo = res?.data?.pools?.[0];
@@ -354,7 +361,7 @@ export const getPoolInfo = async ({
     sqrtPriceX96,
     liquidity,
     tick,
-    tickSpacing
+    tickSpacing,
   );
 };
 
@@ -396,16 +403,16 @@ export const getTokenInfo = async ({
 
   try {
     const tokens = await fetch(
-      `${API_URL.KYBERSWAP_SETTING_API}/tokens?chainIds=${chainId}&addresses=${address0},${address1}`
+      `${API_URL.KYBERSWAP_SETTING_API}/tokens?chainIds=${chainId}&addresses=${address0},${address1}`,
     )
       .then((res) => res.json())
       .then((res) => res?.data?.tokens || []);
 
     let token0Info = tokens.find(
-      (tk: TokenInfo) => tk.address.toLowerCase() === address0.toLowerCase()
+      (tk: TokenInfo) => tk.address.toLowerCase() === address0.toLowerCase(),
     );
     let token1Info = tokens.find(
-      (tk: TokenInfo) => tk.address.toLowerCase() === address1.toLowerCase()
+      (tk: TokenInfo) => tk.address.toLowerCase() === address1.toLowerCase(),
     );
 
     const addressToImport = [
@@ -424,7 +431,7 @@ export const getTokenInfo = async ({
               address: item,
             })),
           }),
-        }
+        },
       )
         .then((res) => res.json())
         .then(
@@ -432,18 +439,18 @@ export const getTokenInfo = async ({
             res?.data?.tokens.map((item: { data: TokenInfo }) => ({
               ...item.data,
               chainId: +item.data.chainId,
-            })) || []
+            })) || [],
         );
 
       if (!token0Info)
         token0Info = tokens.find(
           (item: PancakeToken) =>
-            item.address.toLowerCase() === address0.toLowerCase()
+            item.address.toLowerCase() === address0.toLowerCase(),
         );
       if (!token1Info)
         token1Info = tokens.find(
           (item: PancakeToken) =>
-            item.address.toLowerCase() === address1.toLowerCase()
+            item.address.toLowerCase() === address1.toLowerCase(),
         );
     }
 
@@ -455,7 +462,7 @@ export const getTokenInfo = async ({
           t.decimals,
           t.symbol,
           t.name,
-          t.logoURI || `https://ui-avatars.com/api/?name=?`
+          t.logoURI || `https://ui-avatars.com/api/?name=?`,
         );
 
       const token0 = initToken(token0Info);
@@ -498,7 +505,7 @@ export const getPositionInfo = async ({
   const isPancakeV3 = isForkFrom(poolType, CoreProtocol.PancakeSwapV3);
   const isPancakeInfinityCL = isForkFrom(
     poolType,
-    CoreProtocol.PancakeInfinityCL
+    CoreProtocol.PancakeInfinityCL,
   );
 
   const posManagerContractAddress = POSITION_MANAGER_CONTRACT[poolType][
@@ -616,7 +623,7 @@ export const correctPrice = ({
     value,
     pool.token0.decimals,
     pool.token1.decimals,
-    revertPrice
+    revertPrice,
   );
 
   if (tick !== undefined) {

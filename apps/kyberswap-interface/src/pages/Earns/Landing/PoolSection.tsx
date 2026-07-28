@@ -1,5 +1,4 @@
 import { useNavigate } from 'react-router-dom'
-import { Box, Flex, Text } from 'rebass'
 
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
@@ -13,37 +12,38 @@ import {
 } from 'pages/Earns/Landing/styles'
 import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
 import { EarnPool } from 'pages/Earns/types'
+import { cn } from 'utils/cn'
 
 type Variant = 'inner' | 'inner-stable' | 'highlighted' | 'farming'
 
 const SmallSkeleton = () => (
-  <Flex alignItems="center" justifyContent="space-between" sx={{ padding: '12px 16px' }}>
-    <Flex alignItems="center" sx={{ gap: '4px' }}>
+  <div className="flex items-center justify-between px-4 py-3">
+    <div className="flex items-center gap-1">
       <PositionSkeleton width={24} height={24} style={{ borderRadius: '50%' }} />
       <PositionSkeleton width={24} height={24} style={{ borderRadius: '50%', marginLeft: '-8px' }} />
       <PositionSkeleton width={100} height={16} />
       <PositionSkeleton width={40} height={20} />
-    </Flex>
+    </div>
     <PositionSkeleton width={60} height={16} />
-  </Flex>
+  </div>
 )
 
 const LargeSkeleton = () => (
-  <Box sx={{ padding: '16px', borderRadius: '12px', background: 'rgba(255, 255, 255, 0.04)' }}>
-    <Flex alignItems="center" justifyContent="space-between" marginBottom="12px">
-      <Flex alignItems="center" sx={{ gap: '4px' }}>
+  <div className="rounded-xl bg-white-04 p-4">
+    <div className="mb-3 flex items-center justify-between">
+      <div className="flex items-center gap-1">
         <PositionSkeleton width={24} height={24} style={{ borderRadius: '50%' }} />
         <PositionSkeleton width={24} height={24} style={{ borderRadius: '50%', marginLeft: '-8px' }} />
         <PositionSkeleton width={100} height={20} />
         <PositionSkeleton width={40} height={20} />
-      </Flex>
+      </div>
       <PositionSkeleton width={80} height={20} />
-    </Flex>
-    <Flex alignItems="center" justifyContent="space-between">
+    </div>
+    <div className="flex items-center justify-between">
       <PositionSkeleton width={80} height={20} />
       <PositionSkeleton width={80} height={20} />
-    </Flex>
-  </Box>
+    </div>
+  </div>
 )
 
 const PoolSection = ({
@@ -93,32 +93,31 @@ const PoolSection = ({
     return icon
   }
 
+  const renderTitle = () =>
+    tooltip ? (
+      <MouseoverTooltipDesktopOnly text={tooltip} placement="top">
+        <span className="text-xl font-medium">{title}</span>
+      </MouseoverTooltipDesktopOnly>
+    ) : (
+      <span className="text-xl font-medium">{title}</span>
+    )
+
   if (variant === 'highlighted' || variant === 'farming') {
     const isFarming = variant === 'farming'
     const ItemContainer = isFarming ? FarmingPoolsList : HighlightedPoolsGrid
     const count = skeletonCount ?? (isFarming ? 3 : 6)
 
     return (
-      <Box
+      <div
         role={tag ? 'button' : undefined}
         tabIndex={tag ? 0 : undefined}
         onClick={handleSectionClick}
         onKeyDown={handleSectionKeyDown}
-        sx={{ cursor: tag ? 'pointer' : 'default' }}
+        className={cn(tag ? 'cursor-pointer' : 'cursor-default')}
       >
         <SimpleSectionHeader>
           {renderIcon()}
-          {tooltip ? (
-            <MouseoverTooltipDesktopOnly text={tooltip} placement="top">
-              <Text fontSize={20} fontWeight={500}>
-                {title}
-              </Text>
-            </MouseoverTooltipDesktopOnly>
-          ) : (
-            <Text fontSize={20} fontWeight={500}>
-              {title}
-            </Text>
-          )}
+          {renderTitle()}
         </SimpleSectionHeader>
         <ItemContainer>
           {isLoading
@@ -132,7 +131,7 @@ const PoolSection = ({
                 />
               ))}
         </ItemContainer>
-      </Box>
+      </div>
     )
   }
 
@@ -140,26 +139,14 @@ const PoolSection = ({
   const count = skeletonCount ?? 4
 
   return (
-    <Box
+    <div
       role={tag ? 'button' : undefined}
       tabIndex={tag ? 0 : undefined}
       onClick={handleSectionClick}
       onKeyDown={handleSectionKeyDown}
-      sx={{ cursor: tag ? 'pointer' : 'default' }}
+      className={cn(tag ? 'cursor-pointer' : 'cursor-default')}
     >
-      <InnerSectionTitle>
-        {tooltip ? (
-          <MouseoverTooltipDesktopOnly text={tooltip} placement="top">
-            <Text fontSize={20} fontWeight={500}>
-              {title}
-            </Text>
-          </MouseoverTooltipDesktopOnly>
-        ) : (
-          <Text fontSize={20} fontWeight={500}>
-            {title}
-          </Text>
-        )}
-      </InnerSectionTitle>
+      <InnerSectionTitle>{renderTitle()}</InnerSectionTitle>
       <InnerListContainer>
         {isLoading
           ? Array.from({ length: count }).map((_, i) => <SmallSkeleton key={i} />)
@@ -167,7 +154,7 @@ const PoolSection = ({
               <PoolItem key={pool.address} pool={pool} variant={innerVariant} onClick={onPoolClick} />
             ))}
       </InnerListContainer>
-    </Box>
+    </div>
   )
 }
 

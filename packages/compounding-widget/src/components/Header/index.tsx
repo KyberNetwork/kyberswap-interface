@@ -11,6 +11,7 @@ import {
   univ3Position,
 } from '@kyber/schema';
 import { MouseoverTooltip, Skeleton, TokenLogo } from '@kyber/ui';
+import { cn } from '@kyber/utils/tailwind-helpers';
 
 import IconBack from '@/assets/svg/arrow-left.svg';
 import SettingIcon from '@/assets/svg/setting.svg';
@@ -21,7 +22,7 @@ import { usePositionStore } from '@/stores/usePositionStore';
 import { useWidgetStore } from '@/stores/useWidgetStore';
 
 const Header = () => {
-  const { theme, chainId, onClose, poolType, positionId, dexId } = useWidgetStore(
+  const { theme, chainId, onClose, poolType, positionId, dexId, poolAddress, onOpenPoolDetail } = useWidgetStore(
     useShallow(s => ({
       theme: s.theme,
       chainId: s.chainId,
@@ -29,6 +30,8 @@ const Header = () => {
       poolType: s.poolType,
       positionId: s.positionId,
       dexId: s.dexId,
+      poolAddress: s.poolAddress,
+      onOpenPoolDetail: s.onOpenPoolDetail,
     })),
   );
   const { pool } = usePoolStore(
@@ -87,19 +90,24 @@ const Header = () => {
           </>
         ) : (
           <div className="flex items-center flex-wrap gap-1 text-sm max-sm:gap-y-2">
-            <div className="flex items-end">
-              <TokenLogo src={token0.logo} size={26} className="border-[2px] border-layer1" />
-              <TokenLogo src={token1.logo} size={26} className="border-[2px] border-layer1 -ml-[6px]" />
-              <TokenLogo
-                src={NETWORKS_INFO[chainId].logo}
-                size={14}
-                className="border-[2px] border-layer1 max-sm:w-[18px] max-sm:h-[18px] max-sm:-ml-2 -ml-1"
-              />
-            </div>
+            <div
+              className={cn('flex items-center gap-1', onOpenPoolDetail && 'cursor-pointer')}
+              onClick={onOpenPoolDetail ? () => onOpenPoolDetail({ chainId, poolAddress, dexId }) : undefined}
+            >
+              <div className="flex items-end">
+                <TokenLogo src={token0.logo} size={26} className="border-[2px] border-layer1" />
+                <TokenLogo src={token1.logo} size={26} className="border-[2px] border-layer1 -ml-[6px]" />
+                <TokenLogo
+                  src={NETWORKS_INFO[chainId].logo}
+                  size={14}
+                  className="border-[2px] border-layer1 max-sm:w-[18px] max-sm:h-[18px] max-sm:-ml-2 -ml-1"
+                />
+              </div>
 
-            <span className="text-xl">
-              {token0.symbol}/{token1.symbol}
-            </span>
+              <span className="text-xl">
+                {token0.symbol}/{token1.symbol}
+              </span>
+            </div>
 
             <div className="flex flex-wrap ml-[2px] gap-[6px] text-subText items-center">
               {isUniV3 && (

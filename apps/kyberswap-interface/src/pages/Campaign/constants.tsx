@@ -30,12 +30,15 @@ const stipInfo = {
   program: 'stip' as const,
 }
 
+const baseKnc = KNC[ChainId.BASE]
+if (!baseKnc) throw new Error('Missing KNC configuration for Base')
+
 const rewardKNC = {
   chainId: ChainId.BASE,
   symbol: 'KNC',
   logo: 'https://s2.coinmarketcap.com/static/img/coins/64x64/9444.png',
-  address: KNC[ChainId.BASE].address,
-  decimals: KNC[ChainId.BASE].decimals,
+  address: baseKnc.address,
+  decimals: baseKnc.decimals,
 }
 
 export enum CampaignType {
@@ -59,7 +62,7 @@ type CampaignConfig = {
     logo: string
   }
   type: CampaignType
-  ctaText: JSX.Element
+  ctaText: React.JSX.Element
   weeks: CampaignWeek[]
   program?: 'stip' | 'grind/base'
   campaign?: 'trading-incentive' | 'limit-order-farming' | 'referral-program'
@@ -67,7 +70,7 @@ type CampaignConfig = {
 
   banner: string
   ctaLink: string
-  title: JSX.Element
+  title: React.JSX.Element
   apiKey?: string
 }
 

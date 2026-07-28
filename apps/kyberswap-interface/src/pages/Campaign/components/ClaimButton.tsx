@@ -1,25 +1,23 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { BigNumber } from 'ethers'
 import { useCallback, useEffect, useState } from 'react'
 
 import { NotificationType } from 'components/Announcement/type'
 import { ButtonOutlined } from 'components/Button'
 import { REWARD_SERVICE_API } from 'constants/env'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
-import useTheme from 'hooks/useTheme'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { useNotify } from 'state/application/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
-import { calculateGasMargin } from 'utils'
+import { sendEVMTransaction } from 'utils/sendTransaction'
+import { ErrorName } from 'utils/transactionError'
 
 const ClaimButton = ({ info }: { info: { ref: string; clientCode: string } }) => {
-  const theme = useTheme()
   const { account, chainId } = useActiveWeb3React()
+  const { isSmartConnector } = useWeb3React()
   const [claiming, setIsClaiming] = useState(false)
   const notify = useNotify()
-  const { library } = useWeb3React()
   const { changeNetwork } = useChangeNetwork()
   const [autoClaim, setAutoClaim] = useState(false)
 
@@ -60,23 +58,22 @@ const ClaimButton = ({ info }: { info: { ref: string; clientCode: string } }) =>
           return
         }
 
-        library
-          ?.getSigner()
-          .estimateGas({
-            to: res.data.ContractAddress,
-            data: res.data.EncodedData,
-          })
-          .then(async (estimate: BigNumber) => {
-            const sendTxRes = await library.getSigner().sendTransaction({
-              to: res.data.ContractAddress,
-              data: res.data.EncodedData,
-              gasLimit: calculateGasMargin(estimate),
-            })
-
-            addTransactionWithType({
-              hash: sendTxRes.hash,
-              type: TRANSACTION_TYPE.CLAIM,
-            })
+        sendEVMTransaction({
+          account,
+          contractAddress: res.data.ContractAddress,
+          encodedData: res.data.EncodedData,
+          value: 0n,
+          errorInfo: { name: ErrorName.GasRefundClaimError, wallet: undefined },
+          isSmartConnector,
+          chainId,
+        })
+          .then(tx => {
+            if (tx?.hash) {
+              addTransactionWithType({
+                hash: tx.hash,
+                type: TRANSACTION_TYPE.CLAIM,
+              })
+            }
           })
           .catch(e => {
             notify(
@@ -94,7 +91,6 @@ const ClaimButton = ({ info }: { info: { ref: string; clientCode: string } }) =>
       })
   }, [
     chainId,
-    library,
     changeNetwork,
     addTransactionWithType,
     info.ref,
@@ -102,6 +98,7 @@ const ClaimButton = ({ info }: { info: { ref: string; clientCode: string } }) =>
     notify,
     account,
     networkToSwitch,
+    isSmartConnector,
   ])
 
   useEffect(() => {
@@ -112,7 +109,7 @@ const ClaimButton = ({ info }: { info: { ref: string; clientCode: string } }) =>
   }, [chainId, autoClaim, handleClaim, networkToSwitch])
 
   return (
-    <ButtonOutlined color={theme.primary} width="88px" height="32px" onClick={handleClaim} disabled={claiming}>
+    <ButtonOutlined className="text-primary" width="88px" height="32px" onClick={handleClaim} disabled={claiming}>
       {claiming ? <Trans>Claiming</Trans> : <Trans>Claim</Trans>}
     </ButtonOutlined>
   )

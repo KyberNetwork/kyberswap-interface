@@ -8,10 +8,6 @@ export type UserProfile = {
   avatarUrl: string
   data?: { favouriteChainIds?: string[] }
 }
-export type ConfirmProfile = {
-  showModal: boolean
-}
-
 export type AutoSignIn = {
   value: boolean
   account: string | undefined
@@ -31,7 +27,7 @@ const DEFAULT_AUTHEN_STATE: AuthenState = {
   anonymousUserInfo: undefined,
   signedUserInfo: undefined,
   isLogin: false,
-  pendingAuthentication: true,
+  pendingAuthentication: false,
   authenticationSuccess: false,
   isConnectingWallet: false,
   showConfirmProfile: false,

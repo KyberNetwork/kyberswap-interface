@@ -1,81 +1,68 @@
 import { Trans } from '@lingui/macro'
 import { motion } from 'framer-motion'
-import { useState } from 'react'
+import { type ReactNode, useEffect, useRef, useState } from 'react'
 import { HelpCircle } from 'react-feather'
 import { useMedia } from 'react-use'
-import { Flex, Text } from 'rebass'
-import styled from 'styled-components'
 
 import { ReactComponent as DiscordIcon } from 'assets/svg/discord_color.svg'
 import { ReactComponent as EmailIcon } from 'assets/svg/email_color.svg'
 import { ReactComponent as TeleIcon } from 'assets/svg/tele_color.svg'
-import { KYBER_NETWORK_TELEGRAM_URL } from 'constants/index'
-import useTheme from 'hooks/useTheme'
+import { KYBER_NETWORK_DISCORD_URL, KYBER_NETWORK_TELEGRAM_URL } from 'constants/index'
+import usePageLocation from 'hooks/usePageLocation'
 import { ExternalLink, MEDIA_WIDTHS } from 'theme'
+import { cn } from 'utils/cn'
 
-const SubMenu = styled(motion.div)`
-  position: absolute;
-  top: 0;
-  right: 0;
-  transform: translateY(-100%) !important;
-  padding-bottom: 10px;
+type SupportItemProps = {
+  children: ReactNode
+  href: string
+  external?: boolean
+}
 
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    right: -10px;
-  `}
-`
-const SubMenuBackground = styled.div`
-  border-radius: 12px;
-  position: absolute;
-  top: -10px;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-  z-index: -1;
-`
-
-const SubMenuContent = styled(Flex)`
-  background: ${({ theme }) => theme.tableHeader};
-  padding: 12px 24px;
-  border-radius: 12px;
-  margin-bottom: -10px;
-
-  :after {
-    bottom: 100%;
-    right: 20px;
-    top: calc(100% - 10px);
-    border: solid transparent;
-    content: '';
-    height: 0;
-    width: 0;
-    position: absolute;
-    pointer-events: none;
-    border-bottom-color: ${({ theme }) => theme.tableHeader};
-    border-width: 10px;
-    margin-left: -10px;
-    border-top-color: ${({ theme }) => theme.tableHeader};
-    border-bottom-color: transparent;
-    border-width: 10px;
-    margin-left: -10px;
+const SupportItem = ({ children, href, external = true }: SupportItemProps) => {
+  if (!external) {
+    return (
+      <a
+        href={href}
+        className="no-underline transition hover:no-underline hover:brightness-75 [@media(hover:hover)]:hover:no-underline"
+      >
+        <div className="flex items-center gap-1.5">{children}</div>
+      </a>
+    )
   }
-`
 
-const Wrapper = styled(motion.div)`
-  position: fixed;
-  bottom: 1rem;
-  right: 1rem;
-  z-index: 1;
-
-  ${({ theme }) => theme.mediaWidth.upToLarge`
-    bottom: 75px;
-  `};
-`
+  return (
+    <ExternalLink
+      href={href}
+      className="no-underline transition hover:no-underline hover:brightness-75 [@media(hover:hover)]:hover:no-underline"
+    >
+      <div className="flex items-center gap-1.5">{children}</div>
+    </ExternalLink>
+  )
+}
 
 export default function SupportButton() {
-  const [isHover, setIsHover] = useState(false)
-  const theme = useTheme()
+  const [isOpen, setIsOpen] = useState(false)
+  const supportButtonRef = useRef<HTMLDivElement>(null)
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
+  const { isEmbeddedSwap } = usePageLocation()
+
+  useEffect(() => {
+    if (!isOpen) return
+
+    const closeOnClickOutside = (event: MouseEvent | TouchEvent) => {
+      if (!supportButtonRef.current?.contains(event.target as Node)) {
+        setIsOpen(false)
+      }
+    }
+
+    document.addEventListener('mousedown', closeOnClickOutside)
+    document.addEventListener('touchstart', closeOnClickOutside)
+
+    return () => {
+      document.removeEventListener('mousedown', closeOnClickOutside)
+      document.removeEventListener('touchstart', closeOnClickOutside)
+    }
+  }, [isOpen])
 
   const subMenuAnimate = {
     enter: {
@@ -99,65 +86,50 @@ export default function SupportButton() {
     },
   }
 
-  if (window.location.href.includes('/partner-swap')) return null
+  if (isEmbeddedSwap) return null
 
   return (
-    <Wrapper onMouseEnter={() => setIsHover(true)} onMouseLeave={() => setIsHover(false)}>
-      <Flex
-        backgroundColor={theme.primary}
-        alignItems="center"
-        justifyContent="center"
-        sx={{
-          height: '36px',
-          width: upToSmall ? '36px' : 'max-content',
-          padding: upToSmall ? 0 : '0 12px',
-          borderRadius: '999px',
-          color: theme.textReverse,
-          fontSize: '14px',
-          fontWeight: '500',
-          cursor: 'pointer',
-        }}
+    <motion.div ref={supportButtonRef} className="fixed bottom-4 right-4 z-[1] max-lg:bottom-[88px]">
+      <button
+        type="button"
+        aria-expanded={isOpen}
+        aria-label="Support"
+        onClick={() => setIsOpen(open => !open)}
+        className={cn(
+          'flex h-9 cursor-pointer items-center justify-center rounded-full border-0 bg-primary text-sm font-medium text-textReverse hover:brightness-110',
+          upToSmall ? 'w-9 p-0' : 'w-max px-3 py-0',
+        )}
       >
         <HelpCircle size={18} />
         {!upToSmall && (
-          <Text marginLeft="0.5rem">
+          <span className="ml-2">
             <Trans>Support</Trans>
-          </Text>
+          </span>
         )}
-      </Flex>
+      </button>
 
-      <SubMenu initial="exit" animate={isHover ? 'enter' : 'exit'} variants={subMenuAnimate}>
-        <SubMenuContent flexDirection="column" sx={{ gap: '1rem' }}>
-          <ExternalLink
-            href="https://discord.com/channels/608934314960224276/1192426056183972010"
-            style={{ textDecoration: 'none' }}
-          >
-            <Flex alignItems="center" sx={{ gap: '6px' }}>
-              <DiscordIcon />
-              <Text fontSize="14px" fontWeight="500" color={theme.text}>
-                Discord
-              </Text>
-            </Flex>
-          </ExternalLink>
-          <ExternalLink href={KYBER_NETWORK_TELEGRAM_URL} style={{ textDecoration: 'none' }}>
-            <Flex alignItems="center" sx={{ gap: '6px' }}>
-              <TeleIcon />
-              <Text fontSize="14px" fontWeight="500" color={theme.text}>
-                Telegram
-              </Text>
-            </Flex>
-          </ExternalLink>
-          <a href="mailto:support@kyberswap.com">
-            <Flex alignItems="center" sx={{ gap: '6px' }}>
-              <EmailIcon />
-              <Text fontSize="14px" fontWeight="500" color={theme.text}>
-                Email Us
-              </Text>
-            </Flex>
-          </a>
-        </SubMenuContent>
-        <SubMenuBackground />
-      </SubMenu>
-    </Wrapper>
+      <motion.div
+        initial="exit"
+        animate={isOpen ? 'enter' : 'exit'}
+        variants={subMenuAnimate}
+        className="absolute bottom-[calc(100%+2px)] right-0 pb-2 max-sm:-right-2.5"
+      >
+        <div className="relative flex flex-col gap-4 rounded-xl bg-tableHeader px-5 py-3 after:pointer-events-none after:absolute after:right-8 after:top-full after:size-0 after:border-x-8 after:border-b-0 after:border-t-8 after:border-solid after:border-x-transparent after:border-t-tableHeader after:content-[''] max-sm:after:right-5">
+          <SupportItem href={KYBER_NETWORK_DISCORD_URL}>
+            <DiscordIcon />
+            <span className="text-sm font-medium text-text">Discord</span>
+          </SupportItem>
+          <SupportItem href={KYBER_NETWORK_TELEGRAM_URL}>
+            <TeleIcon />
+            <span className="text-sm font-medium text-text">Telegram</span>
+          </SupportItem>
+          <SupportItem href="mailto:support@kyberswap.com" external={false}>
+            <EmailIcon />
+            <span className="text-sm font-medium text-text">Email Us</span>
+          </SupportItem>
+        </div>
+        <div className="absolute inset-x-0 -top-2.5 bottom-2 z-[-1] rounded-xl shadow-[0_20px_25px_-5px_rgba(0,0,0,0.1),0_10px_10px_-5px_rgba(0,0,0,0.04)]" />
+      </motion.div>
+    </motion.div>
   )
 }

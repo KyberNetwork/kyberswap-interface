@@ -1,18 +1,16 @@
 import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
-import { rgba } from 'polished'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { Box, Flex, Text } from 'rebass'
 import { parseGetRouteResponse } from 'services/route/utils'
-import styled from 'styled-components'
+import { useGetHoneypotInfoQuery } from 'services/tokenCatalog'
 
-import { ReactComponent as RoutingIcon } from 'assets/svg/routing-icon.svg'
 import AddressInputPanel from 'components/AddressInputPanel'
 import { NotificationType } from 'components/Announcement/type'
 import FeeControlGroup from 'components/FeeControlGroup'
 import WarningIcon from 'components/Icons/WarningIcon'
 import { NetworkSelector } from 'components/NetworkSelector'
+import ERC8056Info, { useERC8056SwapInfo } from 'components/SwapForm/ERC8056Info'
 import InputCurrencyPanel from 'components/SwapForm/InputCurrencyPanel'
 import MultichainKNCNote from 'components/SwapForm/MultichainKNCNote'
 import OutputCurrencyPanel from 'components/SwapForm/OutputCurrencyPanel'
@@ -27,28 +25,17 @@ import useGetInputError from 'components/SwapForm/hooks/useGetInputError'
 import useGetRoute from 'components/SwapForm/hooks/useGetRoute'
 import useParsedAmount from 'components/SwapForm/hooks/useParsedAmount'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
-import { Wrapper } from 'components/swapv2/styleds'
-import { TOKEN_API_URL } from 'constants/env'
-import { SAFE_APP_CLIENT_ID } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useDebounce from 'hooks/useDebounce'
-import useTheme from 'hooks/useTheme'
+import { getERC8056RawTypedValue, useERC8056DisplayTypedValue } from 'hooks/useERC8056Token'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import useWrapCallback, { WrapType } from 'hooks/useWrapCallback'
 import { useNotify } from 'state/application/hooks'
 import { Field } from 'state/swap/actions'
 import { useSwapActionHandlers, useSwapState } from 'state/swap/hooks'
 import { DetailedRouteSummary } from 'types/route'
-import { isInSafeApp } from 'utils'
-
-export const RoutingIconWrapper = styled(RoutingIcon)`
-  height: 20px;
-  width: 20px;
-  margin-right: 10px;
-  path {
-    fill: ${({ theme }) => theme.text} !important;
-  }
-`
+import { cn } from 'utils/cn'
+import { SAFE_APP_CLIENT_ID, isInSafeApp } from 'utils/safeApp'
 
 export type SwapFormProps = {
   hidden: boolean
@@ -71,7 +58,6 @@ export type SwapFormProps = {
   onChangeCurrencyOut: (c: Currency) => void
   customChainId?: ChainId
   omniView?: boolean
-  onOpenGasToken?: () => void
 }
 
 const SwapForm: React.FC<SwapFormProps> = props => {
@@ -92,7 +78,6 @@ const SwapForm: React.FC<SwapFormProps> = props => {
     onChangeCurrencyOut,
     customChainId,
     omniView,
-    onOpenGasToken,
   } = props
 
   const { chainId: walletChainId, networkInfo } = useActiveWeb3React()
@@ -178,6 +163,15 @@ const SwapForm: React.FC<SwapFormProps> = props => {
   }, [prefillInputAmount, updateInputAmount, notify])
 
   const parsedAmount = useParsedAmount(currencyIn, typedValue)
+  const erc8056Info = useERC8056SwapInfo({ chainId, currencyIn, currencyOut, balanceIn, balanceOut })
+  const displayTypedValue = useERC8056DisplayTypedValue(erc8056Info.inputInfo, typedValue)
+  const handleUserInput = useCallback(
+    (value: string) => {
+      updateInputAmount(Field.INPUT, getERC8056RawTypedValue(erc8056Info.inputInfo, value))
+    },
+    [erc8056Info.inputInfo, updateInputAmount],
+  )
+
   const {
     wrapType,
     inputError: wrapInputError,
@@ -250,47 +244,43 @@ const SwapForm: React.FC<SwapFormProps> = props => {
     setRouteSummary(routeSummary)
   }, [routeSummary, setRouteSummary])
 
-  const theme = useTheme()
-
-  const [honeypot, setHoneypot] = useState<{ isHoneypot: boolean; isFOT: boolean; tax: number } | null>(null)
-
-  useEffect(() => {
-    if (!currencyOut) return
-    fetch(
-      `${TOKEN_API_URL}/v1/public/tokens/honeypot-fot-info?address=${currencyOut.wrapped.address.toLowerCase()}&chainId=${chainId}`,
-    )
-      .then(res => res.json())
-      .then(res => {
-        setHoneypot(res.data)
-      })
-  }, [currencyOut, chainId])
+  const { data: honeypotData } = useGetHoneypotInfoQuery(
+    { chainId, address: currencyOut?.wrapped.address.toLowerCase() ?? '' },
+    { skip: !currencyOut?.wrapped.address },
+  )
+  const honeypot = honeypotData?.data ?? null
 
   return (
     <SwapFormContextProvider
       slippage={slippage}
       routeSummary={routeSummary}
       typedValue={typedValue}
+      displayTypedValue={displayTypedValue}
       recipient={recipient}
       isAdvancedMode={isDegenMode}
     >
-      <Box sx={{ flexDirection: 'column', gap: '16px', display: hidden ? 'none' : 'flex' }}>
-        <Wrapper id={TutorialIds.SWAP_FORM_CONTENT}>
-          <Flex flexDirection="column" sx={{ gap: '0.75rem' }}>
+      <div className={cn('flex-col gap-4', hidden ? 'hidden' : 'flex')}>
+        <div id={TutorialIds.SWAP_FORM_CONTENT} className="relative z-[1] bg-background">
+          <div className="flex flex-col gap-3">
             {omniView ? <NetworkSelector chainId={chainId} /> : null}
 
-            <Flex flexDirection="column" sx={{ gap: '0.5rem' }}>
+            <div className="flex flex-col gap-2">
               <InputCurrencyPanel
                 wrapType={wrapType}
-                typedValue={typedValue}
+                typedValue={displayTypedValue}
                 setTypedValue={onUserInput}
+                onUserInput={handleUserInput}
                 currencyIn={currencyIn}
                 currencyOut={currencyOut}
                 balanceIn={balanceIn}
+                balanceText={erc8056Info.input.balanceText}
+                highlightToken={erc8056Info.input.isScaled}
                 onChangeCurrencyIn={handleChangeCurrencyIn}
                 customChainId={customChainId}
               />
 
               <ReverseTokenSelectionButton
+                className="z-20 -my-4 mx-auto"
                 onClick={() => {
                   trackingHandler(TRACKING_EVENT_TYPE.TOKEN_PAIR_REVERSED, {
                     from_token: currencyIn?.symbol,
@@ -311,20 +301,24 @@ const SwapForm: React.FC<SwapFormProps> = props => {
                 currencyIn={currencyIn}
                 currencyOut={currencyOut}
                 amountOutUsd={routeSummary?.amountOutUsd}
+                balanceText={erc8056Info.output.balanceText}
+                highlightToken={erc8056Info.output.isScaled}
                 onChangeCurrencyOut={handleChangeCurrencyOut}
                 customChainId={customChainId}
                 routeLoading={routeLoading}
               />
-            </Flex>
+            </div>
+
+            <ERC8056Info tokens={erc8056Info.tokens} />
 
             {isDegenMode && !isWrapOrUnwrap && (
               <AddressInputPanel id="recipient" value={recipient} onChange={setRecipient} />
             )}
-            <SlippageSettingGroup onOpenGasToken={onOpenGasToken} isWrapOrUnwrap={isWrapOrUnwrap} />
-            <FeeControlGroup />
-          </Flex>
-        </Wrapper>
-        <Flex flexDirection="column" style={{ gap: '1.25rem' }}>
+            <SlippageSettingGroup isWrapOrUnwrap={isWrapOrUnwrap} />
+            {!isWrapOrUnwrap && <FeeControlGroup />}
+          </div>
+        </div>
+        <div className="flex flex-col gap-4">
           <MultichainKNCNote currencyIn={currencyIn} currencyOut={currencyOut} />
 
           {!isWrapOrUnwrap && (
@@ -339,16 +333,9 @@ const SwapForm: React.FC<SwapFormProps> = props => {
           )}
 
           {honeypot?.isFOT || honeypot?.isHoneypot ? (
-            <Flex
-              sx={{
-                borderRadius: '1rem',
-                background: rgba(theme.warning, 0.3),
-                padding: '10px 12px',
-                gap: '8px',
-              }}
-            >
-              <WarningIcon color={theme.warning} size={20} />
-              <Text fontSize={14} flex={1}>
+            <div className="flex gap-2 rounded-2xl bg-warning-30 px-3 py-2.5">
+              <WarningIcon className="text-warning" size={20} />
+              <span className="flex-1 text-sm">
                 {honeypot.isHoneypot ? (
                   <Trans>
                     Our simulation detects that {currencyOut?.symbol} token can not be sold immediately or has an
@@ -360,8 +347,8 @@ const SwapForm: React.FC<SwapFormProps> = props => {
                     check further before buying.
                   </Trans>
                 )}
-              </Text>
-            </Flex>
+              </span>
+            </div>
           ) : null}
 
           <PriceImpactNote priceImpact={routeSummary?.priceImpact} isDegenMode={isDegenMode} showLimitOrderLink />
@@ -385,8 +372,8 @@ const SwapForm: React.FC<SwapFormProps> = props => {
             swapInputError={swapInputError}
             customChainId={customChainId}
           />
-        </Flex>
-      </Box>
+        </div>
+      </div>
     </SwapFormContextProvider>
   )
 }

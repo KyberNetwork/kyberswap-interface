@@ -4,7 +4,7 @@ import LocalLoader from 'components/LocalLoader'
 import { useSessionInfo } from 'state/authen/hooks'
 
 type Props = {
-  children: JSX.Element
+  children: React.JSX.Element
   redirectUrl?: string
 }
 

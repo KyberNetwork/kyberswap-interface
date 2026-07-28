@@ -4,9 +4,10 @@ import { WalletAdapterProps } from '@solana/wallet-adapter-base'
 import { Connection, Transaction, VersionedTransaction } from '@solana/web3.js'
 import { WalletClient, formatUnits } from 'viem'
 
-import { CROSS_CHAIN_FEE_RECEIVER, ZERO_ADDRESS } from 'constants/index'
+import { ZERO_ADDRESS } from 'constants/index'
 import { MAINNET_NETWORKS } from 'constants/networks'
-import { SolanaToken } from 'state/crossChainSwap'
+import { CROSS_CHAIN_FEE_RECEIVER } from 'pages/CrossChainSwap/constants'
+import type { SolanaToken } from 'pages/CrossChainSwap/hooks/useSolanaTokens'
 import { toBigIntSafe } from 'utils/bigint'
 
 import { Quote } from '../registry'

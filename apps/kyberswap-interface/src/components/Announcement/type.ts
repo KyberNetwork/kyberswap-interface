@@ -1,6 +1,6 @@
 import { ReactNode } from 'react'
 
-import { LimitOrderStatus } from 'components/swapv2/LimitOrder/type'
+import { LimitOrderStatus } from 'components/LimitOrder/types'
 import { SmartExitDexType } from 'pages/Earns/components/SmartExit/constants'
 import { SmartExitCondition } from 'pages/Earns/types'
 import { HistoricalPriceAlert } from 'pages/NotificationCenter/const'
@@ -149,14 +149,6 @@ export type AnnouncementTemplateSmartExit = {
   position: SmartExitPosition
   popupType: PopupType
   reason?: SmartExitReason
-}
-
-export type TokenInfoWatchlist = {
-  logoURL: string
-  kyberScore: string
-  symbol: string
-  price: string
-  priceChange: string
 }
 
 export type AnnouncementTemplatePoolPosition = {

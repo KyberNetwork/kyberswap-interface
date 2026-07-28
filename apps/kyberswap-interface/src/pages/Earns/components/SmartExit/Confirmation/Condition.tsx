@@ -1,10 +1,7 @@
 import { Trans } from '@lingui/macro'
 import dayjs from 'dayjs'
-import { rgba } from 'polished'
-import { Box, Flex, Text } from 'rebass'
 
 import TokenLogo from 'components/TokenLogo'
-import useTheme from 'hooks/useTheme'
 import { Badge, ImageContainer } from 'pages/Earns/UserPositions/styles'
 import {
   getFeeYieldCondition,
@@ -25,8 +22,6 @@ export default function Condition({
   conditionType: ConditionType
   revertPrice?: boolean
 }) {
-  const theme = useTheme()
-
   const [metric1, metric2] = selectedMetrics
 
   const feeYieldCondition1 = getFeeYieldCondition(metric1)
@@ -57,79 +52,56 @@ export default function Condition({
 
   return (
     <>
-      <Flex mt="1rem" alignItems="center" flexWrap="wrap">
+      <div className="mt-4 flex flex-wrap items-center">
         <Trans>Remove</Trans>
-        <Flex
-          mx="8px"
-          alignItems="center"
-          sx={{ borderRadius: '16px', background: rgba(theme.white, 0.04), gap: '4px', padding: '8px 12px' }}
-        >
+        <div className="mx-2 flex items-center gap-1 rounded-2xl bg-white-04 px-3 py-2">
           <ImageContainer>
             <TokenLogo src={position?.token0.logo} />
             <TokenLogo src={position?.token1.logo} translateLeft />
             <TokenLogo src={position.chain.logo} size={12} translateLeft translateTop />
           </ImageContainer>
-          <Text>
+          <span>
             {position.token0.symbol}/{position.token1.symbol}
-          </Text>
-          <Badge>Fee {position?.pool.fee}%</Badge>
-        </Flex>
+          </span>
+          <Badge>Fee {formatDisplayNumber(position?.pool.fee, { significantDigits: 4 })}%</Badge>
+        </div>
         <Trans>When</Trans>
-      </Flex>
+      </div>
 
-      <Box
-        sx={{
-          padding: '12px 16px',
-          borderRadius: '12px',
-          background: `${theme.primary}22`,
-          marginTop: '1rem',
-        }}
-      >
+      <div className="mt-4 rounded-xl bg-primary/15 px-4 py-3">
         {metric1.metric === Metric.FeeYield && feeYieldCondition1 && (
           <Trans>The fee yield ≥ {feeYieldCondition1}%</Trans>
         )}
         {metric1.metric === Metric.Time && timeCondition1 && timeCondition1.time && (
           <>
-            <Text>{timeCondition1.condition.charAt(0).toUpperCase() + timeCondition1.condition.slice(1)}</Text>
-            <Text>{dayjs(timeCondition1.time).format('DD/MM/YYYY HH:mm:ss')}</Text>
+            <p>{timeCondition1.condition.charAt(0).toUpperCase() + timeCondition1.condition.slice(1)}</p>
+            <p>{dayjs(timeCondition1.time).format('DD/MM/YYYY HH:mm:ss')}</p>
           </>
         )}
-        {metric1.metric === Metric.PoolPrice && priceCondition1 && <Text>{renderPricePhrase(priceCondition1)}</Text>}
+        {metric1.metric === Metric.PoolPrice && priceCondition1 && <p>{renderPricePhrase(priceCondition1)}</p>}
         {metric2 && (
           <>
-            <Flex alignItems="center" sx={{ gap: '1rem' }} my="8px">
-              <Box
-                sx={{
-                  height: '1px',
-                  borderBottom: `1px dashed ${theme.border}`,
-                  flex: 1,
-                }}
-              />
+            <div className="my-2 flex items-center gap-4">
+              <div className="h-px flex-1 border-b border-dashed border-border" />
               {conditionType === ConditionType.And ? <Trans>And</Trans> : <Trans>Or</Trans>}
-              <Box
-                sx={{
-                  height: '1px',
-                  borderBottom: `1px dashed ${theme.border}`,
-                  flex: 1,
-                }}
-              />
-            </Flex>
+              <div className="h-px flex-1 border-b border-dashed border-border" />
+            </div>
 
             {metric2.metric === Metric.FeeYield && feeYieldCondition2 && (
               <Trans>The fee yield ≥ {feeYieldCondition2}%</Trans>
             )}
             {metric2.metric === Metric.Time && timeCondition2 && timeCondition2.time && (
               <>
-                <Text>{timeCondition2.condition.charAt(0).toUpperCase() + timeCondition2.condition.slice(1)}</Text>
-                <Text mt="6px">{dayjs(timeCondition2.time).format('DD/MM/YYYY HH:mm:ss')}</Text>
+                <p>{timeCondition2.condition.charAt(0).toUpperCase() + timeCondition2.condition.slice(1)}</p>
+                <p className="mt-1.5">{dayjs(timeCondition2.time).format('DD/MM/YYYY HH:mm:ss')}</p>
               </>
             )}
             {metric2.metric === Metric.PoolPrice && priceCondition2 && (
-              <Text mt="6px">{renderPricePhrase(priceCondition2)}</Text>
+              <p className="mt-1.5">{renderPricePhrase(priceCondition2)}</p>
             )}
           </>
         )}
-      </Box>
+      </div>
     </>
   )
 }

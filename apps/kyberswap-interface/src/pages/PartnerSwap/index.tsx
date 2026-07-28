@@ -1,94 +1,170 @@
-import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
-import { t } from '@lingui/macro'
-import { ReactNode, useCallback, useEffect, useMemo, useState } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { ChainId, Currency, WETH } from '@kyberswap/ks-sdk-core'
+import { lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { usePreviousDistinct } from 'react-use'
-import { Flex } from 'rebass'
-import styled from 'styled-components'
+import { useGetTipLinkQuery } from 'services/tipLink'
 
-import { ReactComponent as RoutingIcon } from 'assets/svg/routing-icon.svg'
-import Banner from 'components/Banner'
 import SwapForm, { SwapFormProps } from 'components/SwapForm'
-import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
-import LimitOrderForm from 'components/swapv2/LimitOrder/LimitOrderForm'
-import ListLimitOrder from 'components/swapv2/LimitOrder/ListLimitOrder'
-import LiquiditySourcesPanel from 'components/swapv2/LiquiditySourcesPanel'
-import SettingsPanel from 'components/swapv2/SwapSettingsPanel'
-import TokenInfoTab from 'components/swapv2/TokenInfo'
-import { Container, InfoComponentsWrapper, PageWrapper, SwapFormWrapper, highlight } from 'components/swapv2/styleds'
-import { TRANSACTION_STATE_DEFAULT } from 'constants/index'
+import { DEFAULT_TIP, TIP_LINK_CLIENT_ID, isCreatorNameValid } from 'components/TipLinkGeneratorModal/shared'
 import { SUPPORTED_NETWORKS } from 'constants/networks'
-import { DEFAULT_OUTPUT_TOKEN_BY_CHAIN, NativeCurrencies } from 'constants/tokens'
+import { DEFAULT_OUTPUT_TOKENS, NativeCurrencies, PRICE_CHART_QUOTES } from 'constants/tokens'
+import { MAX_FEE_IN_BIPS } from 'constants/trade'
 import { useActiveWeb3React } from 'hooks'
-import { useCurrencyV2 } from 'hooks/Tokens'
+import { useCurrencyV2 } from 'hooks/useTokens'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
-import { BodyWrapper } from 'pages/AppBody'
-import CrossChainSwap from 'pages/CrossChainSwap'
-import { CrossChainSwapSources } from 'pages/CrossChainSwap/components/CrossChainSwapSources'
-import { TransactionHistory } from 'pages/CrossChainSwap/components/TransactionHistory'
-import { TAB, isSettingTab } from 'pages/SwapV3'
-import Header from 'pages/SwapV3/Header'
+import { PartnerSwapLayout } from 'pages/PartnerSwap/PartnerSwapLayout'
+import { useRequiredDegenMode } from 'pages/Swap/hooks/useRequiredDegenMode'
+import { TAB, isSettingTab } from 'pages/Swap/layout/Tabs'
 import Updater from 'state/customizeDexes/updater'
 import { Field } from 'state/swap/actions'
 import { usePermitData } from 'state/swap/hooks'
 import { useDegenModeManager, useUserSlippageTolerance, useUserTransactionTTL } from 'state/user/hooks'
 import { useCurrencyBalances } from 'state/wallet/hooks'
-import { TransactionFlowState } from 'types/TransactionFlowState'
-import { DetailedRouteSummary } from 'types/route'
+import { ChargeFeeBy, DetailedRouteSummary } from 'types/route'
+import { isAddress } from 'utils/address'
+import { useTradeComposition } from 'utils/aggregationRouting'
 
-export const InfoComponents = ({ children }: { children: ReactNode[] }) => {
-  return children.filter(Boolean).length ? <InfoComponentsWrapper>{children}</InfoComponentsWrapper> : null
+const LimitOrderForm = lazy(() => import('components/LimitOrder/Form/LimitOrderForm'))
+const OrderList = lazy(() => import('components/LimitOrder/OrderList'))
+const LiquiditySourcesPanel = lazy(() => import('pages/Swap/components/LiquiditySourcesPanel'))
+const SwapSettingsPanel = lazy(() => import('pages/Swap/components/SwapSettingsPanel'))
+const TokenInfo = lazy(() => import('components/TokenInfo'))
+const CrossChainSwap = lazy(() => import('pages/CrossChainSwap'))
+const CrossChainSwapSources = lazy(() => import('pages/CrossChainSwap/components/CrossChainSwapSources'))
+const TransactionHistory = lazy(() => import('pages/CrossChainSwap/components/TransactionHistory'))
+const SwapTradeRoute = lazy(() => import('pages/Swap/components/SwapTradeRoute'))
+const TokenPriceChart = lazy(() => import('components/TokenPriceChart'))
+
+const getSupportedChainId = (chainId?: string | null) => {
+  const parsed = Number(chainId)
+  return SUPPORTED_NETWORKS.includes(parsed) ? parsed : undefined
 }
 
-export const AppBodyWrapped = styled(BodyWrapper)`
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
-  padding: 16px;
-  margin-top: 0;
+const getTipCurrencyParam = (currency: string | undefined, chainId: number) => {
+  if (!currency) return currency
+  const native = NativeCurrencies[chainId as ChainId]
+  const wrappedNative = WETH[chainId as ChainId]
+  return wrappedNative?.address?.toLowerCase() === currency.toLowerCase() ? native.symbol || currency : currency
+}
 
-  &[data-highlight='true'] {
-    animation: ${({ theme }) => highlight(theme)} 2s 2 alternate ease-in-out;
-  }
-`
+const getFeeAmountFallback = (feeAmount: string | null) => {
+  const trimmedFeeAmount = feeAmount?.trim()
+  const parsedFeeAmount = Number(trimmedFeeAmount)
+  const isFeeAmountNumber =
+    !!trimmedFeeAmount && /^\d+$/.test(trimmedFeeAmount) && Number.isSafeInteger(parsedFeeAmount)
 
-export const SwitchLocaleLinkWrapper = styled.div`
-  margin-bottom: 30px;
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-  margin-bottom: 0px;
-`}
-`
+  if (!isFeeAmountNumber) return '0'
+  if (parsedFeeAmount > MAX_FEE_IN_BIPS) return String(MAX_FEE_IN_BIPS)
 
-export const RoutingIconWrapper = styled(RoutingIcon)`
-  height: 27px;
-  width: 27px;
-  margin-right: 10px;
-  path {
-    fill: ${({ theme }) => theme.subText} !important;
-  }
-`
+  return null
+}
 
-export default function PartnerSwap() {
+type Props = {
+  mode?: 'partner' | 'user'
+}
+
+const PartnerSwap = ({ mode = 'partner' }: Props) => {
   const { account, chainId: walletChainId } = useActiveWeb3React()
   const { changeNetwork } = useChangeNetwork()
   const [searchParams, setSearchParams] = useSearchParams()
+  const navigate = useNavigate()
+  const { tipsId = '' } = useParams()
 
-  const chainIdFromParam = searchParams.get('chainId')
-  const inputTokenFromParam = searchParams.get('inputCurrency')
-  const outputTokenFromParam = searchParams.get('outputCurrency')
-  const expectedChainId =
-    chainIdFromParam && SUPPORTED_NETWORKS.includes(+chainIdFromParam) ? +chainIdFromParam : ChainId.MAINNET
+  const isUserSwap = mode === 'user'
 
-  // sync form chainId and wallet chainId when disconnected
+  const { data: tipConfig } = useGetTipLinkQuery(tipsId, { skip: !isUserSwap || !tipsId })
+  const appliedTipRef = useRef('')
+
+  const clientId = searchParams.get('clientId')
+  const tabFromUrl = searchParams.get('tab')
+  const activeTab = Object.values(TAB).includes(tabFromUrl as TAB) ? (tabFromUrl as TAB) : TAB.SWAP
+
+  const chainIdFromUrl = getSupportedChainId(searchParams.get('chainId'))
+  const chainIdFromTip = isUserSwap ? getSupportedChainId(tipConfig?.chainId) : undefined
+  const swapChainId = chainIdFromUrl || chainIdFromTip || ChainId.MAINNET
+
+  const tipInputCurrency = isUserSwap ? getTipCurrencyParam(tipConfig?.inputCurrency, swapChainId) : undefined
+  const tipOutputCurrency = isUserSwap ? getTipCurrencyParam(tipConfig?.outputCurrency, swapChainId) : undefined
+  const inputCurrencyId = searchParams.get('inputCurrency') || tipInputCurrency
+  const outputCurrencyId = searchParams.get('outputCurrency') || tipOutputCurrency
+
+  const isInvalidFeeConfig = useMemo(() => {
+    const feeAmount = searchParams.get('feeAmount')
+    const feeReceiver = searchParams.get('feeReceiver')
+    const chargeFeeBy = searchParams.get('chargeFeeBy') || ChargeFeeBy.CURRENCY_OUT
+    const hasFeeConfig = Boolean(
+      searchParams.get('enableTip') || searchParams.get('isInBps') || feeAmount || feeReceiver,
+    )
+    if (!hasFeeConfig) return false
+
+    const isValidFeeReceiver = Boolean(feeReceiver && isAddress(swapChainId, feeReceiver))
+    const isValidChargeFeeBy = chargeFeeBy === ChargeFeeBy.CURRENCY_IN || chargeFeeBy === ChargeFeeBy.CURRENCY_OUT
+
+    return !isValidFeeReceiver || !isValidChargeFeeBy
+  }, [searchParams, swapChainId])
+
+  // Hydrate short tip-link configs into regular swap URL params once. The swap form
+  // only reads fee/token attribution from the URL, so keep this as the bridge between
+  // the persisted tip-link payload and quote/build params.
   useEffect(() => {
-    if (!account && walletChainId !== expectedChainId) {
-      changeNetwork(expectedChainId)
+    if (!isUserSwap || !tipsId || !tipConfig || appliedTipRef.current === tipsId) return
+
+    const nextSearchParams = new URLSearchParams(searchParams)
+    nextSearchParams.set('chainId', String(swapChainId))
+    nextSearchParams.set('inputCurrency', tipInputCurrency || '')
+    nextSearchParams.set('outputCurrency', tipOutputCurrency || '')
+    nextSearchParams.set('enableTip', 'true')
+    nextSearchParams.set('feeReceiver', tipConfig.tipReceiver)
+    nextSearchParams.set('clientId', TIP_LINK_CLIENT_ID)
+    const creatorName = tipConfig.creatorName?.trim()
+    if (creatorName && isCreatorNameValid(creatorName)) nextSearchParams.set('creatorName', creatorName)
+    else nextSearchParams.delete('creatorName')
+    if (!nextSearchParams.get('feeAmount')) {
+      nextSearchParams.set('feeAmount', String(DEFAULT_TIP))
     }
-  }, [account, walletChainId, expectedChainId, changeNetwork])
+    if (!nextSearchParams.get('chargeFeeBy')) nextSearchParams.set('chargeFeeBy', ChargeFeeBy.CURRENCY_OUT)
+
+    appliedTipRef.current = tipsId
+    setSearchParams(nextSearchParams, { replace: true })
+  }, [isUserSwap, searchParams, setSearchParams, swapChainId, tipConfig, tipInputCurrency, tipOutputCurrency, tipsId])
+
+  // Normalize recoverable tip params in place, then reject configs that cannot produce
+  // a valid fee receiver/charge target. Partner swap also requires clientId so regular
+  // users do not accidentally enter this route without attribution.
+  useEffect(() => {
+    const feeAmount = searchParams.get('feeAmount')
+    const feeReceiver = searchParams.get('feeReceiver')
+    const creatorName = searchParams.get('creatorName')
+    const hasFeeConfig = Boolean(
+      searchParams.get('enableTip') || searchParams.get('isInBps') || feeAmount || feeReceiver,
+    )
+    const fallbackFeeAmount = hasFeeConfig ? getFeeAmountFallback(feeAmount) : null
+    const shouldRemoveCreatorName = Boolean(creatorName && !isCreatorNameValid(creatorName))
+
+    if (shouldRemoveCreatorName || fallbackFeeAmount !== null) {
+      const nextSearchParams = new URLSearchParams(searchParams)
+      if (shouldRemoveCreatorName) nextSearchParams.delete('creatorName')
+      if (fallbackFeeAmount !== null) nextSearchParams.set('feeAmount', fallbackFeeAmount)
+      setSearchParams(nextSearchParams, { replace: true })
+      return
+    }
+
+    if (isInvalidFeeConfig || (!isUserSwap && !clientId)) {
+      navigate('/', { replace: true })
+    }
+  }, [clientId, isInvalidFeeConfig, isUserSwap, navigate, searchParams, setSearchParams])
+
+  // Sync form chainId and wallet chainId when disconnected
+  useEffect(() => {
+    if (!account && walletChainId !== swapChainId) {
+      changeNetwork(swapChainId)
+    }
+  }, [account, walletChainId, swapChainId, changeNetwork])
 
   const currencyIn =
-    useCurrencyV2(inputTokenFromParam || undefined, expectedChainId) || NativeCurrencies[expectedChainId as ChainId]
+    useCurrencyV2(inputCurrencyId || undefined, swapChainId) || NativeCurrencies[swapChainId as ChainId]
   const currencyOut =
-    useCurrencyV2(outputTokenFromParam || undefined, expectedChainId) ||
-    DEFAULT_OUTPUT_TOKEN_BY_CHAIN[expectedChainId as ChainId]
+    useCurrencyV2(outputCurrencyId || undefined, swapChainId) || DEFAULT_OUTPUT_TOKENS[swapChainId as ChainId]
 
   const currencies = useMemo(
     () => ({
@@ -100,33 +176,43 @@ export default function PartnerSwap() {
 
   const [routeSummary, setRouteSummary] = useState<DetailedRouteSummary>()
 
-  const activeTab = Object.values(TAB).includes(searchParams.get('tab')) ? (searchParams.get('tab') as TAB) : TAB.SWAP
+  const [isShowPricingChart, setIsShowPricingChart] = useState(false)
+  const [isShowTradeRoutes, setIsShowTradeRoutes] = useState(false)
+  const togglePricingChart = useCallback(() => setIsShowPricingChart(prev => !prev), [])
+  const toggleTradeRoutes = useCallback(() => setIsShowTradeRoutes(prev => !prev), [])
+
+  const tradeRouteComposition = useTradeComposition({
+    chainId: swapChainId,
+    inputAmount: routeSummary?.parsedAmountIn,
+    swaps: routeSummary?.route,
+  })
+
+  const hasSupportedTokenPriceChart = Boolean(PRICE_CHART_QUOTES[swapChainId])
+
   const setActiveTab = useCallback(
     (tab: TAB) => {
-      searchParams.set('tab', tab)
-      setSearchParams(searchParams)
+      const nextSearchParams = new URLSearchParams(searchParams)
+      nextSearchParams.set('tab', tab)
+      setSearchParams(nextSearchParams)
     },
     [searchParams, setSearchParams],
   )
 
-  const navigate = useNavigate()
-  const clientId = searchParams.get('clientId')
-  useEffect(() => {
-    if (!clientId) navigate('/')
-  }, [clientId, navigate])
-
   const isSetting = isSettingTab(activeTab)
   const previousTab = usePreviousDistinct(!isSetting ? activeTab : undefined)
+  const activeMainTab = isSetting ? previousTab || TAB.SWAP : activeTab
 
-  const isSwapPage = activeTab === TAB.SWAP || (previousTab === TAB.SWAP && isSetting)
-  const isLimitPage = activeTab === TAB.LIMIT || (previousTab === TAB.LIMIT && isSetting)
-  const isCrossChainPage = activeTab === TAB.CROSS_CHAIN || (previousTab === TAB.CROSS_CHAIN && isSetting)
+  const isSwapPage = activeMainTab === TAB.SWAP
+  const isLimitPage = activeMainTab === TAB.LIMIT
+  const isCrossChainPage = activeMainTab === TAB.CROSS_CHAIN
 
-  const onBackToSwapTab = () => setActiveTab(previousTab || TAB.SWAP)
+  const highlightDegenMode = useRequiredDegenMode({ setActiveTab })
+
+  const onBackToSwapTab = () => setActiveTab(activeMainTab)
 
   const [balanceIn, balanceOut] = useCurrencyBalances(
     useMemo(() => [currencyIn ?? undefined, currencyOut ?? undefined], [currencyIn, currencyOut]),
-    expectedChainId,
+    swapChainId,
   )
 
   const [ttl] = useUserTransactionTTL()
@@ -137,23 +223,23 @@ export default function PartnerSwap() {
   const onChangeCurrencyIn = useCallback(
     (c: Currency) => {
       const value = c.isNative ? c.symbol || c.wrapped.address : c.wrapped.address
-      if (value === outputTokenFromParam) searchParams.set('outputCurrency', inputTokenFromParam || '')
+      if (value === outputCurrencyId) searchParams.set('outputCurrency', inputCurrencyId || '')
       searchParams.set('inputCurrency', value)
       setSearchParams(searchParams)
     },
-    [searchParams, setSearchParams, inputTokenFromParam, outputTokenFromParam],
+    [searchParams, setSearchParams, inputCurrencyId, outputCurrencyId],
   )
 
   const onChangeCurrencyOut = useCallback(
     (c: Currency) => {
       const value = c.isNative ? c.symbol || c.wrapped.address : c.wrapped.address
-      if (value.toLowerCase() === inputTokenFromParam?.toLowerCase()) {
-        searchParams.set('inputCurrency', outputTokenFromParam || '')
+      if (value.toLowerCase() === inputCurrencyId?.toLowerCase()) {
+        searchParams.set('inputCurrency', outputCurrencyId || '')
       }
       searchParams.set('outputCurrency', value)
       setSearchParams(searchParams)
     },
-    [searchParams, setSearchParams, inputTokenFromParam, outputTokenFromParam],
+    [searchParams, setSearchParams, inputCurrencyId, outputCurrencyId],
   )
 
   const props: SwapFormProps = {
@@ -170,74 +256,70 @@ export default function PartnerSwap() {
     permit: permitData?.rawSignature,
     onChangeCurrencyIn,
     onChangeCurrencyOut,
-    customChainId: expectedChainId,
+    customChainId: swapChainId,
     omniView: true,
   }
 
-  // modal and loading
-  const [flowState, setFlowState] = useState<TransactionFlowState>(TRANSACTION_STATE_DEFAULT)
+  const rightPanel =
+    isSwapPage && (isShowPricingChart || isShowTradeRoutes) ? (
+      <>
+        {isShowPricingChart && <TokenPriceChart tokens={[currencyIn, currencyOut]} />}
+        {isShowTradeRoutes && (
+          <SwapTradeRoute
+            tradeComposition={tradeRouteComposition}
+            currencyIn={currencyIn}
+            currencyOut={currencyOut}
+            defaultCollapsed={hasSupportedTokenPriceChart && isShowPricingChart}
+            inputAmount={routeSummary?.parsedAmountIn}
+            outputAmount={routeSummary?.parsedAmountOut}
+            isSmartSettlement={routeSummary?.isSmartSettlement}
+          />
+        )}
+      </>
+    ) : isLimitPage ? (
+      <OrderList />
+    ) : isCrossChainPage ? (
+      <TransactionHistory />
+    ) : null
 
-  const currencyName = currencyOut?.wrapped.name
-  const currencySymbol = currencyOut?.wrapped.symbol
   return (
     <>
-      <PageWrapper>
-        <Banner />
-        <Container>
-          <SwapFormWrapper>
-            <Header activeTab={activeTab} setActiveTab={setActiveTab} customChainId={expectedChainId} />
+      <PartnerSwapLayout
+        activeMainTab={activeMainTab}
+        activeTab={activeTab}
+        customChainId={swapChainId}
+        rightPanel={rightPanel}
+        setActiveTab={setActiveTab}
+      >
+        {isSwapPage && <SwapForm {...props} />}
+        {activeTab === TAB.INFO && <TokenInfo currencies={currencies} onBack={onBackToSwapTab} />}
+        {activeTab === TAB.SETTINGS && (
+          <SwapSettingsPanel
+            displaySettings={{
+              isShowPricingChart,
+              isShowTradeRoutes,
+              togglePricingChart,
+              toggleTradeRoutes,
+            }}
+            isCrossChainPage={isCrossChainPage}
+            isSwapPage={isSwapPage}
+            highlightDegenMode={highlightDegenMode}
+            onBack={onBackToSwapTab}
+            onClickLiquiditySources={() => setActiveTab(TAB.LIQUIDITY_SOURCES)}
+            onClickCrossChainSources={() => setActiveTab(TAB.CROSS_CHAIN_SOURCES)}
+          />
+        )}
+        {activeTab === TAB.LIQUIDITY_SOURCES && (
+          <LiquiditySourcesPanel onBack={() => setActiveTab(TAB.SETTINGS)} chainId={swapChainId} />
+        )}
+        {activeTab === TAB.LIMIT && <LimitOrderForm currencyIn={currencyIn} currencyOut={currencyOut} />}
+        {activeTab === TAB.CROSS_CHAIN && <CrossChainSwap />}
+        {activeTab === TAB.CROSS_CHAIN_SOURCES && <CrossChainSwapSources onBack={() => setActiveTab(TAB.SETTINGS)} />}
+      </PartnerSwapLayout>
 
-            <AppBodyWrapped style={[TAB.INFO, TAB.LIMIT].includes(activeTab) ? { padding: 0 } : undefined}>
-              {isSwapPage && <SwapForm {...props} />}
-              {activeTab === TAB.INFO && <TokenInfoTab currencies={currencies} onBack={onBackToSwapTab} />}
-              {activeTab === TAB.SETTINGS && (
-                <SettingsPanel
-                  isCrossChainPage={isCrossChainPage}
-                  isSwapPage={isSwapPage}
-                  onBack={onBackToSwapTab}
-                  onClickLiquiditySources={() => setActiveTab(TAB.LIQUIDITY_SOURCES)}
-                  onClickCrossChainSources={() => setActiveTab(TAB.CROSS_CHAIN_SOURCES)}
-                />
-              )}
-              {activeTab === TAB.LIQUIDITY_SOURCES && (
-                <LiquiditySourcesPanel onBack={() => setActiveTab(TAB.SETTINGS)} chainId={expectedChainId} />
-              )}
-              {activeTab === TAB.LIMIT && (
-                <div style={{ padding: '16px' }}>
-                  <LimitOrderForm
-                    flowState={flowState}
-                    setFlowState={setFlowState}
-                    currencyIn={currencyIn}
-                    currencyOut={currencyOut}
-                    note={
-                      currencyOut?.isNative
-                        ? t`Note: Once your order is filled, you will receive ${currencyName} (${currencySymbol})`
-                        : undefined
-                    }
-                    useUrlParams
-                  />
-                </div>
-              )}
-              {activeTab === TAB.CROSS_CHAIN && <CrossChainSwap />}
-              {activeTab === TAB.CROSS_CHAIN_SOURCES && (
-                <CrossChainSwapSources onBack={() => setActiveTab(TAB.SETTINGS)} />
-              )}
-            </AppBodyWrapped>
-          </SwapFormWrapper>
-
-          <InfoComponents>
-            {isLimitPage && <ListLimitOrder customChainId={expectedChainId} />}
-            {isCrossChainPage && <TransactionHistory />}
-          </InfoComponents>
-        </Container>
-        <Flex justifyContent="center">
-          <SwitchLocaleLinkWrapper>
-            <SwitchLocaleLink />
-          </SwitchLocaleLinkWrapper>
-        </Flex>
-      </PageWrapper>
-
-      <Updater customChainId={expectedChainId} />
+      <Updater customChainId={swapChainId} />
     </>
   )
 }
+
+export default PartnerSwap

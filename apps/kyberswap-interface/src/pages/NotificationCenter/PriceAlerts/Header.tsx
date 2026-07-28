@@ -1,12 +1,11 @@
 import { Trans } from '@lingui/macro'
-import { Flex, Text } from 'rebass'
 import { useClearAllPriceAlertHistoryMutation } from 'services/announcement'
 import { useDeleteAllAlertsMutation, useGetAlertStatsQuery } from 'services/priceAlert'
-import styled, { CSSProperties, useTheme } from 'styled-components'
 
 import { ButtonLight, ButtonOutlined } from 'components/Button'
 import Loader from 'components/Loader'
 import { useActiveWeb3React } from 'hooks'
+import useTheme from 'hooks/useTheme'
 import DeleteAllAlertsButton from 'pages/NotificationCenter/DeleteAllAlertsButton'
 import { Tab } from 'pages/NotificationCenter/PriceAlerts'
 import CreateAlertButton from 'pages/NotificationCenter/PriceAlerts/CreateAlertButton'
@@ -18,13 +17,7 @@ const TabButton: React.FC<{ isActive: boolean; onClick: () => void; children: Re
 }) => {
   const props = {
     onClick,
-    style: {
-      flex: '0 0 fit-content',
-      height: '36px',
-      padding: '0 8px',
-      whiteSpace: 'nowrap',
-      flexWrap: 'nowrap',
-    } as CSSProperties,
+    className: 'h-9 flex-[0_0_fit-content] flex-nowrap whitespace-nowrap py-0 px-2',
   }
   if (isActive) return <ButtonLight {...props}> {children}</ButtonLight>
   return <ButtonOutlined {...props}>{children}</ButtonOutlined>
@@ -52,26 +45,11 @@ const StatItem: React.FC<StatItemProps> = ({ isLoading, label, totalNumber, maxN
   }
 
   return (
-    <Text as="span" color={!!totalNumber && totalNumber === maxNumber ? theme.warning : undefined}>
+    <span style={{ color: !!totalNumber && totalNumber === maxNumber ? theme.warning : undefined }}>
       {label} {renderContent()}
-    </Text>
+    </span>
   )
 }
-
-const Wrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  padding-bottom: 0.5rem;
-  border-bottom: 1px solid ${({ theme }) => theme.border};
-
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    padding: 1rem 0;
-    ${CreateAlertButton} {
-      display: none;
-    }
-  `}
-`
 
 type Props = {
   currentTab: Tab
@@ -79,7 +57,6 @@ type Props = {
   disabledClearAll: boolean
 }
 const Header: React.FC<Props> = ({ currentTab, setCurrentTab, disabledClearAll }) => {
-  const theme = useTheme()
   const { account } = useActiveWeb3React()
 
   const { data, isLoading } = useGetAlertStatsQuery()
@@ -87,28 +64,18 @@ const Header: React.FC<Props> = ({ currentTab, setCurrentTab, disabledClearAll }
   const [clearAllHistory] = useClearAllPriceAlertHistoryMutation()
 
   return (
-    <Wrapper>
-      <Flex alignItems={'center'} justifyContent="space-between">
-        <Flex
-          alignItems="center"
-          sx={{
-            gap: '0.5rem',
-          }}
-        >
+    <div className="flex flex-col gap-4 border-b border-solid border-border pb-2 max-md:py-4 max-md:pb-2">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
           <TabButton isActive={currentTab === Tab.ACTIVE} onClick={() => setCurrentTab(Tab.ACTIVE)}>
             <Trans>Active Alerts</Trans>
           </TabButton>
           <TabButton isActive={currentTab === Tab.HISTORY} onClick={() => setCurrentTab(Tab.HISTORY)}>
             <Trans>Alerts History</Trans>
           </TabButton>
-        </Flex>
+        </div>
 
-        <Flex
-          alignItems="center"
-          sx={{
-            gap: '1rem',
-          }}
-        >
+        <div className="flex items-center gap-4">
           <DeleteAllAlertsButton
             disabled={disabledClearAll}
             onClear={() =>
@@ -116,19 +83,11 @@ const Header: React.FC<Props> = ({ currentTab, setCurrentTab, disabledClearAll }
             }
             notificationName={'Alerts'}
           />
-          <CreateAlertButton />
-        </Flex>
-      </Flex>
+          <CreateAlertButton className="max-md:hidden" />
+        </div>
+      </div>
 
-      <Flex
-        alignItems="center"
-        justifyContent="space-between"
-        sx={{
-          color: theme.subText,
-          fontSize: '12px',
-          fontWeight: 500,
-        }}
-      >
+      <div className="flex items-center justify-between text-xs font-medium text-subText">
         <StatItem
           label={<Trans>Alerts Created: </Trans>}
           isLoading={isLoading}
@@ -142,8 +101,8 @@ const Header: React.FC<Props> = ({ currentTab, setCurrentTab, disabledClearAll }
           totalNumber={data?.totalActiveAlerts}
           maxNumber={data?.maxActiveAlerts}
         />
-      </Flex>
-    </Wrapper>
+      </div>
+    </div>
   )
 }
 

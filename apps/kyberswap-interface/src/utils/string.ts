@@ -1,23 +1,7 @@
-import { ChainId, Currency, Token } from '@kyberswap/ks-sdk-core'
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import DOMPurify from 'dompurify'
 
 import { NETWORKS_INFO, SUPPORTED_NETWORKS } from 'constants/networks'
-
-/**
- * ex:  nguyen hoai danh => nguyen-hoai-danh
- * @param text
- * @returns
- */
-export function convertToSlug(text: string) {
-  return text
-    .trim()
-    .toLowerCase()
-    .replace(/ +/g, '-')
-    .replace(/[^\w-.]+/g, '')
-}
-
-export const getSymbolSlug = (token: Currency | Token | undefined) =>
-  token ? (token?.symbol || token?.wrapped?.symbol || '').toLowerCase() : ''
 
 export const queryStringToObject = (queryString: string) => {
   return Object.fromEntries(new URLSearchParams(queryString).entries())
@@ -34,6 +18,9 @@ export const shortString = (str: string | undefined, n: number) => {
 }
 
 export const escapeScriptHtml = (str: string) => {
+  // DOMPurify needs a real DOM; under SSR/prerender it has no `sanitize`. Skip there — the
+  // client re-renders (and re-sanitizes) this content on hydration.
+  if (typeof DOMPurify.sanitize !== 'function') return str
   return DOMPurify.sanitize(str)
 }
 

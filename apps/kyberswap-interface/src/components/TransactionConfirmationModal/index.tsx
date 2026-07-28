@@ -2,115 +2,92 @@ import { ChainId, Currency, Token } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import React, { useState } from 'react'
 import { ArrowUpCircle, BarChart2 } from 'react-feather'
-import { Flex, Text } from 'rebass'
-import styled from 'styled-components'
+import { useWatchAsset } from 'wagmi'
 
 import { ReactComponent as Alert } from 'assets/images/alert.svg'
-import Banner from 'components/Banner'
 import { ButtonLight, ButtonOutlined, ButtonPrimary } from 'components/Button'
-import { AutoColumn, ColumnCenter } from 'components/Column'
+import { AutoColumn } from 'components/Column'
 import Loader from 'components/Loader'
 import Modal from 'components/Modal'
 import { RowBetween, RowFixed } from 'components/Row'
+import { HStack, Stack } from 'components/Stack'
 import { CONNECTOR_ICON_OVERRIDE_MAP } from 'components/Web3Provider'
 import ListGridViewGroup from 'components/YieldPools/ListGridViewGroup'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
-import useTheme from 'hooks/useTheme'
 import { VIEW_MODE } from 'state/user/reducer'
-import { ExternalLink } from 'theme'
+import { ExternalLinkNoLineHeight } from 'theme'
 import { CloseIcon } from 'theme/components'
-import { getEtherscanLink, getTokenLogoURL } from 'utils'
 import { friendlyError } from 'utils/errorMessage'
+import { getEtherscanLink } from 'utils/explorer'
+import { getTokenLogoURL } from 'utils/tokenLogo'
 
-const Wrapper = styled.div`
-  width: 100%;
-  overflow-y: auto;
-`
-const Section = styled(AutoColumn)`
-  padding: 20px;
-`
-
-const BottomSection = styled(Section)`
-  padding-top: 0;
-  padding-bottom: 28px;
-  border-bottom-left-radius: 20px;
-  border-bottom-right-radius: 20px;
-`
-
-const ConfirmedIcon = styled(ColumnCenter)`
-  padding: 30px 0;
-`
-
-const StyledLogo = styled.img`
-  height: 16px;
-  width: 16px;
-  margin-left: 6px;
-`
+type ConfirmationPendingContentProps = {
+  onDismiss: () => void
+  pendingText: string | React.ReactNode
+  // Override the default title/subtitle, e.g. to show a "Preparing Transaction"
+  // phase before the wallet prompt actually opens. Defaults preserve the
+  // original "Waiting For Confirmation" copy.
+  title?: React.ReactNode
+  subtitle?: React.ReactNode
+}
 
 export function ConfirmationPendingContent({
   onDismiss,
   pendingText,
-}: {
-  onDismiss: () => void
-  pendingText: string | React.ReactNode
-}) {
-  const theme = useTheme()
-
+  title,
+  subtitle,
+}: ConfirmationPendingContentProps) {
   return (
-    <Wrapper>
-      <Section>
-        <RowBetween>
+    <div className="w-full overflow-y-auto">
+      <div className="flex flex-col gap-2 p-5">
+        <RowBetween className="min-h-6 shrink-0">
           <div />
           <CloseIcon onClick={onDismiss} />
         </RowBetween>
-        <ConfirmedIcon>
-          <Loader size="90px" stroke={theme.primary} strokeWidth="1" />
-        </ConfirmedIcon>
-        <AutoColumn gap="12px" justify={'center'}>
-          <Text fontWeight={500} fontSize={20}>
-            <Trans>Waiting For Confirmation</Trans>
-          </Text>
-          <AutoColumn gap="12px" justify={'center'}>
-            <Text fontWeight={600} fontSize={14} color="" textAlign="center">
-              {pendingText}
-            </Text>
-          </AutoColumn>
-          <Text fontSize={12} color="#565A69" textAlign="center">
-            <Trans>Confirm this transaction in your wallet</Trans>
-          </Text>
-        </AutoColumn>
-      </Section>
-    </Wrapper>
+        <div className="flex flex-col items-center justify-center gap-4 text-center">
+          <div className="flex size-16 shrink-0 items-center justify-center">
+            <Loader size="64px" className="text-primary" strokeWidth="1" />
+          </div>
+          <div className="flex w-full flex-col items-center justify-center gap-3">
+            <span className="text-xl font-medium">{title ?? <Trans>Waiting For Confirmation</Trans>}</span>
+            <span className="max-w-full text-sm font-semibold">{pendingText}</span>
+            <span className="text-sm font-medium text-subText-40">
+              {subtitle ?? <Trans>Confirm this transaction in your wallet</Trans>}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
   )
 }
 
-function AddTokenToInjectedWallet({ token, chainId }: { token: Token; chainId: ChainId }) {
-  const { connector } = useWeb3React()
-  const handleClick = async () => {
-    const tokenAddress = token.address
-    const tokenSymbol = token.symbol
-    const tokenDecimals = token.decimals
-    const tokenImage = getTokenLogoURL(token.address, chainId)
+type AddTokenToInjectedWalletProps = {
+  token: Token
+  chainId: ChainId
+}
 
-    try {
-      const hasInjectedWallet = !!window.ethereum
-      if (hasInjectedWallet) {
-        await (window.ethereum as any).request({
-          method: 'wallet_watchAsset',
-          params: {
-            type: 'ERC20',
-            options: {
-              address: tokenAddress,
-              symbol: tokenSymbol,
-              decimals: tokenDecimals,
-              image: tokenImage,
-            },
-          },
-        })
-      }
-    } catch (error) {
-      console.log(error)
-    }
+function AddTokenToInjectedWallet({ token, chainId }: AddTokenToInjectedWalletProps) {
+  const { connector } = useWeb3React()
+  // Routes wallet_watchAsset through the active connector's provider so it works for the
+  // metaMask SDK on mobile (no window.ethereum) as well as desktop injected wallets.
+  const { mutate: watchAsset } = useWatchAsset()
+  const handleClick = () => {
+    watchAsset(
+      {
+        type: 'ERC20',
+        options: {
+          address: token.address,
+          symbol: token.symbol ?? '',
+          decimals: token.decimals,
+          image: getTokenLogoURL(token.address, chainId),
+        },
+      },
+      {
+        onError: error => {
+          console.error(error)
+        },
+      },
+    )
   }
 
   if (!connector || connector?.name === 'WalletConnect') return null
@@ -118,15 +95,23 @@ function AddTokenToInjectedWallet({ token, chainId }: { token: Token; chainId: C
   const icon = CONNECTOR_ICON_OVERRIDE_MAP[connector.id] ?? connector.icon
 
   return (
-    <ButtonLight mt="12px" padding="6px 12px" width="fit-content" onClick={handleClick}>
-      <RowFixed>
+    <ButtonLight padding="6px 12px" width="fit-content" onClick={handleClick}>
+      <RowFixed className="gap-1.5">
         <Trans>
           Add {token.symbol} to {name}
-        </Trans>{' '}
-        <StyledLogo src={icon} />
+        </Trans>
+        <img src={icon} className="size-4" />
       </RowFixed>
     </ButtonLight>
   )
+}
+
+type TransactionSubmittedContentProps = {
+  onDismiss: () => void
+  hash: string | undefined
+  scanLink?: string
+  chainId: ChainId
+  tokenAddToMetaMask?: Token
 }
 
 export function TransactionSubmittedContent({
@@ -134,56 +119,48 @@ export function TransactionSubmittedContent({
   chainId,
   hash,
   tokenAddToMetaMask,
-  showTxBanner = true,
   scanLink,
-}: {
-  onDismiss: () => void
-  hash: string | undefined
-  scanLink?: string
-  chainId: ChainId
-  tokenAddToMetaMask?: Token
-  showTxBanner?: boolean
-}) {
-  const theme = useTheme()
-  const hasInjectedWallet = !!window.ethereum
-
+}: TransactionSubmittedContentProps) {
   return (
-    <Wrapper>
-      <Section>
-        {!showTxBanner && (
-          <RowBetween>
-            <div />
-            <CloseIcon onClick={onDismiss} />
-          </RowBetween>
-        )}
-        {showTxBanner && <Banner isInModal />}
+    <div className="w-full overflow-y-auto">
+      <Stack className="gap-2 p-5">
+        <RowBetween className="min-h-6 shrink-0">
+          <div />
+          <CloseIcon onClick={onDismiss} />
+        </RowBetween>
 
-        <ConfirmedIcon>
-          <ArrowUpCircle strokeWidth={0.5} size={90} color={theme.primary} />
-        </ConfirmedIcon>
-        <AutoColumn gap="16px" justify={'center'}>
-          <Text fontWeight={500} fontSize={20}>
-            <Trans>Transaction Submitted</Trans>
-          </Text>
-          {hash && (
-            <ExternalLink href={scanLink || getEtherscanLink(chainId, hash, 'transaction')}>
-              <Text fontWeight={500} fontSize={14} color={theme.primary}>
-                <Trans>View transaction</Trans>
-              </Text>
-            </ExternalLink>
-          )}
-          {hasInjectedWallet && tokenAddToMetaMask?.address && (
-            <AddTokenToInjectedWallet token={tokenAddToMetaMask} chainId={chainId} />
-          )}
-          <ButtonPrimary onClick={onDismiss} style={{ margin: '24px 0 0 0' }}>
-            <Text fontWeight={500} fontSize={14}>
+        <Stack className="items-center gap-4 text-center">
+          <ArrowUpCircle strokeWidth={0.5} className="size-12 shrink-0 text-primary" />
+          <Stack className="w-full items-center gap-[5px]">
+            <span className="text-base font-medium leading-6">
+              <Trans>Transaction Submitted</Trans>
+            </span>
+            {hash && (
+              <ExternalLinkNoLineHeight href={scanLink || getEtherscanLink(chainId, hash, 'transaction')}>
+                <span className="text-sm font-medium text-primary">
+                  <Trans>View transaction</Trans>
+                </span>
+              </ExternalLinkNoLineHeight>
+            )}
+          </Stack>
+          {tokenAddToMetaMask?.address && <AddTokenToInjectedWallet token={tokenAddToMetaMask} chainId={chainId} />}
+          <Stack className="w-full items-center gap-2">
+            <ButtonPrimary onClick={onDismiss}>
               <Trans>Close</Trans>
-            </Text>
-          </ButtonPrimary>
-        </AutoColumn>
-      </Section>
-    </Wrapper>
+            </ButtonPrimary>
+          </Stack>
+        </Stack>
+      </Stack>
+    </div>
   )
+}
+
+type ConfirmationModalContentProps = {
+  title: string
+  showGridListOption?: boolean
+  onDismiss: () => void
+  topContent: () => React.ReactNode
+  bottomContent: () => React.ReactNode
 }
 
 export function ConfirmationModalContent({
@@ -192,57 +169,35 @@ export function ConfirmationModalContent({
   bottomContent,
   onDismiss,
   topContent,
-}: {
-  title: string
-  showGridListOption?: boolean
-  onDismiss: () => void
-  topContent: () => React.ReactNode
-  bottomContent: () => React.ReactNode
-}) {
+}: ConfirmationModalContentProps) {
   return (
-    <Wrapper>
-      <Section>
+    <div className="w-full overflow-y-auto">
+      <AutoColumn className="p-5">
         <RowBetween>
-          <Text fontWeight={500} fontSize={20}>
-            {title}
-          </Text>
-          <Flex
-            sx={{
-              gap: '18px',
-              alignItems: 'center',
-            }}
-          >
+          <span className="text-xl font-medium">{title}</span>
+          <div className="flex items-center gap-[18px]">
             {showGridListOption && <ListGridViewGroup customIcons={{ [VIEW_MODE.GRID]: <BarChart2 size="28px" /> }} />}
             <CloseIcon onClick={onDismiss} />
-          </Flex>
+          </div>
         </RowBetween>
         {topContent()}
-      </Section>
+      </AutoColumn>
 
-      <BottomSection gap="0">{bottomContent()}</BottomSection>
-    </Wrapper>
+      <AutoColumn className="gap-0 rounded-b-[20px] px-5 pb-7 pt-0">{bottomContent()}</AutoColumn>
+    </div>
   )
 }
 
-const ErrorDetail = styled(Section)`
-  padding: 12px;
-  word-break: break-word;
-  max-height: 200px;
-  overflow-y: scroll;
-  border-radius: 4px;
-  margin-top: 12px;
-  color: ${({ theme }) => theme.text};
-  background-color: ${({ theme }) => `${theme.buttonBlack}66`};
-  font-size: 10px;
-  width: 100%;
-  text-align: center;
-  line-height: 16px;
-`
+type TransactionErrorContentProps = {
+  message: string
+  onDismiss: () => void
+  confirmAction?: () => void
+  confirmText?: string
+  confirmBtnStyle?: React.CSSProperties
+  dismissBtnStyle?: React.CSSProperties
+  suggestionMessage?: React.ReactNode
+}
 
-const StyledAlert = styled(Alert)`
-  height: 108px;
-  width: 108px;
-`
 export function TransactionErrorContent({
   message,
   onDismiss,
@@ -251,79 +206,63 @@ export function TransactionErrorContent({
   confirmBtnStyle,
   dismissBtnStyle,
   suggestionMessage,
-}: {
-  message: string
-  onDismiss: () => void
-  confirmAction?: () => void
-  confirmText?: string
-  confirmBtnStyle?: React.CSSProperties
-  dismissBtnStyle?: React.CSSProperties
-  suggestionMessage?: React.ReactNode
-}) {
-  const theme = useTheme()
+}: TransactionErrorContentProps) {
   const [showDetail, setShowDetail] = useState<boolean>(false)
 
   return (
-    <Wrapper>
-      <Section>
-        <RowBetween>
-          <Text fontWeight={500} fontSize={20}>
+    <div className="w-full overflow-y-auto">
+      <Stack className="gap-2 p-5">
+        <RowBetween className="min-h-6 shrink-0">
+          <span className="text-xl font-medium leading-none">
             <Trans>Error</Trans>
-          </Text>
+          </span>
           <CloseIcon onClick={onDismiss} />
         </RowBetween>
-        <AutoColumn style={{ marginTop: 20 }} gap="8px" justify="center">
-          <StyledAlert />
-          <Text
-            fontWeight={500}
-            fontSize={16}
-            color={theme.red}
-            lineHeight={'24px'}
-            style={{ textAlign: 'center', width: '85%' }}
-          >
-            {friendlyError(message)}
-          </Text>
-          {message !== friendlyError(message) && (
-            <AutoColumn justify="center" style={{ width: '100%' }}>
-              <Text
-                color={theme.primary}
-                fontSize="14px"
-                sx={{ cursor: `pointer` }}
-                onClick={() => setShowDetail(prev => !prev)}
-              >
-                {showDetail ? t`Show less` : t`Show more details`}
-              </Text>
-              {showDetail && (
-                <ErrorDetail>{typeof message === 'string' ? message : JSON.stringify(message)}</ErrorDetail>
-              )}
-            </AutoColumn>
-          )}
-          {suggestionMessage}
-        </AutoColumn>
-      </Section>
-      <BottomSection gap="12px">
-        <Flex sx={{ gap: '1rem' }}>
-          {confirmAction && confirmText ? (
-            <ButtonOutlined onClick={onDismiss} style={dismissBtnStyle}>
-              <Trans>Dismiss</Trans>
-            </ButtonOutlined>
-          ) : (
-            <ButtonPrimary onClick={onDismiss} style={dismissBtnStyle}>
-              <Trans>Dismiss</Trans>
-            </ButtonPrimary>
-          )}
-          {confirmAction && confirmText && (
-            <ButtonPrimary onClick={confirmAction} style={confirmBtnStyle}>
-              {confirmText}
-            </ButtonPrimary>
-          )}
-        </Flex>
-      </BottomSection>
-    </Wrapper>
+        <Stack className="items-center gap-4 text-center">
+          <Alert className="size-12 shrink-0" />
+          <Stack className="w-full items-center gap-[5px]">
+            <span className="text-base font-medium leading-6 text-red">{friendlyError(message)}</span>
+            {message !== friendlyError(message) && (
+              <Stack className="w-full items-center gap-2">
+                <span
+                  className="cursor-pointer text-sm font-medium text-primary hover:text-primary/80"
+                  onClick={() => setShowDetail(prev => !prev)}
+                >
+                  {showDetail ? t`Show less` : t`Show more`}
+                </span>
+                {showDetail && (
+                  <div className="max-h-[200px] w-full overflow-y-scroll break-words rounded bg-buttonBlack/40 p-3 text-center text-[10px] leading-4 text-text">
+                    {typeof message === 'string' ? message : JSON.stringify(message)}
+                  </div>
+                )}
+              </Stack>
+            )}
+            {suggestionMessage}
+          </Stack>
+
+          <HStack className="w-full gap-2">
+            {confirmAction && confirmText ? (
+              <ButtonOutlined onClick={onDismiss} style={dismissBtnStyle}>
+                <Trans>Dismiss</Trans>
+              </ButtonOutlined>
+            ) : (
+              <ButtonPrimary onClick={onDismiss} style={dismissBtnStyle}>
+                <Trans>Dismiss</Trans>
+              </ButtonPrimary>
+            )}
+            {confirmAction && confirmText && (
+              <ButtonPrimary onClick={confirmAction} style={confirmBtnStyle}>
+                {confirmText}
+              </ButtonPrimary>
+            )}
+          </HStack>
+        </Stack>
+      </Stack>
+    </div>
   )
 }
 
-interface ConfirmationModalProps {
+type TransactionConfirmationModalProps = {
   isOpen: boolean
   onDismiss: () => void
   hash: string | undefined
@@ -332,7 +271,6 @@ interface ConfirmationModalProps {
   attemptingTxnContent?: () => React.ReactNode
   pendingText: string | React.ReactNode
   tokenAddToMetaMask?: Currency
-  showTxBanner?: boolean
   maxWidth?: string | number
   width?: string
   scanLink?: string
@@ -348,10 +286,9 @@ export default function TransactionConfirmationModal({
   pendingText,
   content,
   tokenAddToMetaMask,
-  showTxBanner,
   maxWidth = 420,
   width,
-}: ConfirmationModalProps) {
+}: TransactionConfirmationModalProps) {
   const { chainId } = useActiveWeb3React()
 
   return (
@@ -370,7 +307,6 @@ export default function TransactionConfirmationModal({
         )
       ) : hash ? (
         <TransactionSubmittedContent
-          showTxBanner={showTxBanner}
           chainId={chainId}
           scanLink={scanLink}
           hash={hash}

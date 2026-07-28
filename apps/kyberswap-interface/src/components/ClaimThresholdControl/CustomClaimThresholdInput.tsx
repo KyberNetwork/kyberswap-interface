@@ -1,65 +1,7 @@
-import { rgba } from 'polished'
 import React, { useEffect, useMemo, useState } from 'react'
-import styled, { css } from 'styled-components'
 
-const optionCSS = css`
-  height: 100%;
-  padding: 0 8px;
-  border-radius: 20px;
-  border-color: transparent;
-
-  color: ${({ theme }) => theme.subText};
-  text-align: center;
-
-  font-size: 14px;
-  font-weight: 400;
-  line-height: 16px;
-
-  outline: none;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-
-  &:hover {
-    background-color: ${({ theme }) => rgba(theme.tabActive, 0.8)};
-  }
-
-  &[data-active='true'] {
-    background-color: ${({ theme }) => theme.tabActive};
-    color: ${({ theme }) => theme.text};
-    border-color: ${({ theme }) => theme.primary};
-    font-weight: 500;
-  }
-`
-
-const CustomOption = styled.div`
-  ${optionCSS};
-  flex: 1;
-  column-gap: 4px;
-  cursor: text;
-`
-
-const CustomInput = styled.input`
-  width: 60px;
-  min-width: 0;
-  height: 100%;
-  border: 0;
-  padding: 4px 0px;
-  background: transparent;
-  color: inherit;
-  outline: none;
-  text-align: center;
-
-  &::-webkit-outer-spin-button,
-  &::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-  }
-
-  &::placeholder {
-    color: inherit;
-    opacity: 0.6;
-  }
-`
+const customOptionClasses =
+  'inline-flex h-full flex-1 cursor-text items-center justify-center gap-1 rounded-[20px] border-transparent px-2 text-center text-sm font-normal leading-4 text-subText outline-none hover:bg-tabActive-80 data-[active=true]:border-primary data-[active=true]:bg-tabActive data-[active=true]:font-medium data-[active=true]:text-text'
 
 export const formatThresholdValue = (value?: number) => {
   const number = (value ?? 0)
@@ -127,8 +69,8 @@ const CustomClaimThresholdInput: React.FC<Props> = ({
   }
 
   return (
-    <CustomOption data-active={isCustom}>
-      <CustomInput
+    <div data-active={isCustom} className={customOptionClasses}>
+      <input
         type="text"
         value={text}
         onChange={handleChange}
@@ -145,8 +87,9 @@ const CustomClaimThresholdInput: React.FC<Props> = ({
         placeholder={placeholder}
         inputMode="decimal"
         step={1}
+        className="h-full w-[60px] min-w-0 border-0 bg-transparent py-1 text-center text-inherit outline-none placeholder:text-inherit placeholder:opacity-60 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
       />
-    </CustomOption>
+    </div>
   )
 }
 

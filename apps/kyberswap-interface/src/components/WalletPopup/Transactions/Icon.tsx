@@ -1,6 +1,5 @@
 import { ReactNode } from 'react'
 import { Repeat } from 'react-feather'
-import { DefaultTheme } from 'styled-components'
 
 import { ReactComponent as ApproveIcon } from 'assets/svg/approve_icon.svg'
 import { ReactComponent as LiquidityIcon } from 'assets/svg/liquidity_icon.svg'
@@ -11,7 +10,6 @@ import IconSprite from 'components/Icons/Icon'
 import SendIcon from 'components/Icons/SendIcon'
 import StakeIcon from 'components/Icons/Stake'
 import VoteIcon from 'components/Icons/Vote'
-import useTheme from 'hooks/useTheme'
 import { TRANSACTION_GROUP, TRANSACTION_TYPE, TransactionDetails } from 'state/transactions/type'
 
 const MAP_ICON_BY_GROUP: { [group in TRANSACTION_GROUP]: ReactNode } = {
@@ -21,10 +19,8 @@ const MAP_ICON_BY_GROUP: { [group in TRANSACTION_GROUP]: ReactNode } = {
   [TRANSACTION_GROUP.OTHER]: null,
 }
 
-const MAP_ICON_BY_TYPE: (theme: DefaultTheme) => Partial<Record<TRANSACTION_TYPE, ReactNode>> = (
-  theme: DefaultTheme,
-) => ({
-  [TRANSACTION_TYPE.KYBERDAO_CLAIM_GAS_REFUND]: <IconSprite id="refund" size={16} color={theme.subText} />,
+const MAP_ICON_BY_TYPE: Partial<Record<TRANSACTION_TYPE, ReactNode>> = {
+  [TRANSACTION_TYPE.KYBERDAO_CLAIM_GAS_REFUND]: <IconSprite id="refund" size={16} className="text-subText" />,
   [TRANSACTION_TYPE.CANCEL_LIMIT_ORDER]: <IconFailure size={18} />,
   [TRANSACTION_TYPE.APPROVE]: <ApproveIcon width={20} height={22} />,
   [TRANSACTION_TYPE.CLAIM_REWARD]: <MoneyBag size={18} />,
@@ -32,11 +28,10 @@ const MAP_ICON_BY_TYPE: (theme: DefaultTheme) => Partial<Record<TRANSACTION_TYPE
   [TRANSACTION_TYPE.KYBERDAO_STAKE]: <StakeIcon size={18} />,
   [TRANSACTION_TYPE.KYBERDAO_MIGRATE]: <ThunderIcon />,
   [TRANSACTION_TYPE.KYBERDAO_UNSTAKE]: <StakeIcon size={18} style={{ transform: 'scaleY(-1)' }} />,
-})
+}
 
 const Icon = ({ txs }: { txs: TransactionDetails }) => {
-  const theme = useTheme()
-  const icon = MAP_ICON_BY_TYPE(theme)[txs.type] || MAP_ICON_BY_GROUP[txs.group] || <Repeat size={16} />
-  return icon as JSX.Element
+  const icon = MAP_ICON_BY_TYPE[txs.type] || MAP_ICON_BY_GROUP[txs.group] || <Repeat size={16} />
+  return icon as React.JSX.Element
 }
 export default Icon

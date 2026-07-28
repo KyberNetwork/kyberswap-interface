@@ -2,89 +2,15 @@ import { t } from '@lingui/macro'
 import { Placement } from '@popperjs/core'
 import { Portal } from '@reach/portal'
 import { AnimatePresence, motion } from 'framer-motion'
-import { CSSProperties, ReactNode, useEffect, useRef, useState } from 'react'
+import { CSSProperties, ReactNode, useEffect, useMemo, useRef, useState } from 'react'
 import { usePopper } from 'react-popper'
-import styled from 'styled-components'
 
 import { DropdownArrowIcon } from 'components/ArrowRotate'
 import Icon from 'components/Icons/Icon'
 import { Z_INDEXS } from 'constants/styles'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
+import { cn } from 'utils/cn'
 
-const SelectWrapper = styled.div`
-  cursor: pointer;
-  border-radius: 12px;
-  background: ${({ theme }) => theme.buttonBlack};
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  position: relative;
-  font-size: 12px;
-  color: ${({ theme }) => theme.subText};
-  padding: 12px;
-  :hover {
-    filter: brightness(1.2);
-  }
-`
-
-const SelectMenu = styled(motion.div)`
-  padding: 8px;
-  border-radius: 16px;
-  overflow: hidden;
-  filter: drop-shadow(0px 4px 12px rgba(0, 0, 0, 0.36));
-  z-index: 2;
-  background: ${({ theme }) => theme.tabActive};
-  width: max-content;
-`
-
-const Option = styled.div<{ $selected: boolean; $disabled?: boolean }>`
-  padding: 8px;
-  border-radius: 8px;
-  cursor: ${({ $disabled }) => ($disabled ? 'not-allowed' : 'pointer')};
-  font-size: 12px;
-  color: ${({ theme, $disabled }) => ($disabled ? theme.border : theme.subText)};
-  white-space: nowrap;
-  opacity: ${({ $disabled }) => ($disabled ? 0.5 : 1)};
-  &:hover {
-    background-color: ${({ theme, $disabled }) => ($disabled ? 'transparent' : theme.background)};
-  }
-  font-weight: ${({ $selected }) => ($selected ? '500' : 'unset')};
-`
-
-const SelectedWrap = styled.div`
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  flex: 1;
-  user-select: none;
-`
-
-const SearchWrapper = styled.div`
-  position: relative;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border-radius: 8px;
-  background-color: ${({ theme }) => theme.buttonGray};
-  margin-bottom: 8px;
-  transition: all 0.1s ease;
-  transition-property: background-color, color;
-  color: ${({ theme }) => theme.subText};
-  :hover {
-    background-color: ${({ theme }) => theme.buttonBlack};
-    color: ${({ theme }) => theme.text};
-  }
-  :focus-within {
-    background-color: ${({ theme }) => theme.buttonBlack};
-    color: ${({ theme }) => theme.text};
-  }
-  input {
-    width: 100%;
-    padding-inline-start: 40px;
-    line-height: 32px;
-    color: ${({ theme }) => theme.text};
-  }
-`
 export type SelectOption = { value?: string | number; label: ReactNode; onSelect?: () => void; disabled?: boolean }
 
 const getOptionValue = (option: SelectOption | undefined) => {
@@ -117,9 +43,10 @@ export type SelectProps = {
   placement?: Placement
   withSearch?: boolean
   onHideMenu?: () => void // hide without changes
+  matchMenuWidth?: boolean
 }
 
-function Select({
+export default function Select({
   options = [],
   activeRender,
   optionRender,
@@ -138,6 +65,7 @@ function Select({
   withSearch,
   placement = 'bottom',
   placeholder,
+  matchMenuWidth,
 }: SelectProps) {
   const hasPlaceholder = placeholder !== undefined && placeholder !== null
   const getInitialSelected = () => {
@@ -173,11 +101,17 @@ function Select({
   }, [selectedValue, options, hasPlaceholder])
 
   const ref = useRef<HTMLDivElement>(null)
+  const popperRef = useRef<HTMLDivElement | null>(null)
+  const outsideRefs = useMemo(() => [ref, popperRef], [])
 
-  useOnClickOutside(ref, () => {
-    setShowMenu(false)
-    onHideMenu?.()
-  })
+  useOnClickOutside(
+    outsideRefs,
+    () => {
+      setShowMenu(false)
+      onHideMenu?.()
+    },
+    { ignoreReachPortal: false },
+  )
   const selectedInfo = options.find(item => getOptionValue(item) === selected)
   const shouldShowPlaceholder =
     hasPlaceholder && (selectedValue === null || selectedValue === undefined) && !selectedInfo
@@ -202,22 +136,33 @@ function Select({
             onChange?.(value)
           }
         }
+        const isSelected = value === selectedValue || value === getOptionValue(selectedInfo)
         return (
-          <Option
+          <div
             key={value}
             role="button"
-            $selected={value === selectedValue || value === getOptionValue(selectedInfo)}
-            $disabled={item.disabled}
             onClick={onClick}
             style={optionStyle}
+            className={cn(
+              'whitespace-nowrap rounded-lg p-2 text-sm transition-colors',
+              item.disabled && 'cursor-not-allowed text-border opacity-50',
+              !item.disabled &&
+                (isSelected
+                  ? 'cursor-pointer bg-primary-10 font-medium text-primary'
+                  : 'cursor-pointer text-subText hover:bg-white/[0.04] hover:text-text'),
+            )}
           >
             {optionRender ? optionRender(item) : getOptionLabel(item)}
-          </Option>
+          </div>
         )
       })
   }
 
   const [popperElement, setPopperElement] = useState<HTMLDivElement | null>(null)
+  const setPopperRef = (node: HTMLDivElement | null) => {
+    popperRef.current = node
+    setPopperElement(node)
+  }
 
   const { styles } = usePopper(ref.current, popperElement, {
     placement: placement,
@@ -226,58 +171,65 @@ function Select({
   })
 
   return (
-    <SelectWrapper
+    <div
       ref={ref}
       role="button"
       onClick={() => {
         setShowMenu(v => !v)
       }}
       style={style}
-      className={className}
+      className={cn(
+        'relative flex cursor-pointer items-center justify-between rounded-xl bg-buttonBlack p-3 text-xs text-subText hover:brightness-125',
+        className,
+      )}
     >
-      <SelectedWrap>
+      <div className="flex-1 select-none truncate">
         {shouldShowPlaceholder ? placeholder : activeRender ? activeRender(selectedInfo) : getOptionLabel(selectedInfo)}
-      </SelectedWrap>
-      <DropdownArrowIcon rotate={showMenu} color={arrowColor} arrow={arrow} size={arrowSize} />
+      </div>
+      <DropdownArrowIcon rotate={showMenu} color={arrowColor} arrow={arrow} size={arrowSize} className="-mx-1" />
       <AnimatePresence>
         {showMenu && (
           <Portal>
             <div
-              ref={setPopperElement}
+              ref={setPopperRef}
               style={{
                 ...styles.popper,
                 ...(menuPlacementTop ? { bottom: 40, top: 'unset' } : {}),
                 zIndex: Z_INDEXS.POPOVER_CONTAINER,
               }}
             >
-              <SelectMenu
+              <motion.div
                 initial={{ y: -10, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 exit={{ y: -10, opacity: 0 }}
                 transition={{ duration: 0.1 }}
-                style={menuStyle}
+                style={{ ...(matchMenuWidth ? { width: ref.current?.offsetWidth } : {}), ...menuStyle }}
+                className="z-[2] w-max overflow-hidden rounded-2xl bg-background p-2 [filter:drop-shadow(0px_4px_12px_rgba(0,0,0,0.36))]"
               >
                 {withSearch && (
-                  <SearchWrapper onClick={e => e.stopPropagation()}>
-                    <span style={{ position: 'absolute', left: '8px' }}>
+                  <div
+                    onClick={e => e.stopPropagation()}
+                    className="relative mb-2 flex items-center justify-center rounded-lg bg-white/[0.04] text-subText [transition:background-color_0.1s_ease,color_0.1s_ease] focus-within:bg-white/[0.08] focus-within:text-text hover:bg-white/[0.08] hover:text-text"
+                  >
+                    <span className="absolute left-2">
                       <Icon id="search" />
                     </span>
                     <input
                       placeholder={t`Search...`}
-                      style={{ background: 'transparent', outline: 'none', border: 'none' }}
                       value={searchValue}
                       onChange={e => setSearchValue(e.target.value)}
+                      className="w-full border-none bg-transparent ps-10 leading-8 text-text outline-none"
                     />
-                  </SearchWrapper>
+                  </div>
                 )}
-                <div>{dropdownRender ? dropdownRender(renderMenu()) : renderMenu()}</div>
-              </SelectMenu>
+                <div className="flex flex-col gap-1">
+                  {dropdownRender ? dropdownRender(renderMenu()) : renderMenu()}
+                </div>
+              </motion.div>
             </div>
           </Portal>
         )}
       </AnimatePresence>
-    </SelectWrapper>
+    </div>
   )
 }
-
-export default styled(Select)``

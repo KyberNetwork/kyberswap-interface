@@ -1,16 +1,8 @@
 import { Currency } from '@kyberswap/ks-sdk-core'
-import styled, { CSSProperties } from 'styled-components'
+import { CSSProperties } from 'react'
 
 import CurrencyLogo from 'components/CurrencyLogo'
 import Logo from 'components/Logo'
-
-const Wrapper = styled.div<{ margin: boolean; sizeraw: number }>`
-  position: relative;
-  display: flex;
-  align-items: center;
-  flex-direction: row;
-  margin-right: ${({ sizeraw, margin }) => margin && ((3 * sizeraw) / 4 + 8).toString() + 'px'};
-`
 
 interface DoubleCurrencyLogoProps {
   margin?: boolean
@@ -19,18 +11,13 @@ interface DoubleCurrencyLogoProps {
   currency1?: Currency | null
 }
 
-const HigherLogo = styled.div`
-  z-index: 2;
-  display: flex;
-  align-items: center;
-`
-const CoveredLogo = styled.div<{ sizeraw: number }>`
-  z-index: 1;
-  position: absolute;
-  display: flex;
-  align-items: center;
-  left: ${({ sizeraw }) => ((3 * sizeraw) / 4).toString() + 'px'} !important;
-`
+const wrapperStyle = (sizeraw: number, margin: boolean): CSSProperties => ({
+  marginRight: margin ? `${(3 * sizeraw) / 4 + 8}px` : undefined,
+})
+
+const coveredStyle = (sizeraw: number): CSSProperties => ({
+  left: `${(3 * sizeraw) / 4}px`,
+})
 
 export default function DoubleCurrencyLogo({
   currency0,
@@ -39,18 +26,18 @@ export default function DoubleCurrencyLogo({
   margin = true,
 }: DoubleCurrencyLogoProps) {
   return (
-    <Wrapper sizeraw={size} margin={margin}>
+    <div className="relative flex flex-row items-center" style={wrapperStyle(size, margin)}>
       {currency0 && (
-        <HigherLogo>
+        <div className="z-[2] flex items-center">
           <CurrencyLogo currency={currency0} size={size.toString() + 'px'} />
-        </HigherLogo>
+        </div>
       )}
       {currency1 && (
-        <CoveredLogo sizeraw={size}>
+        <div className="absolute z-[1] flex items-center" style={coveredStyle(size)}>
           <CurrencyLogo currency={currency1} size={size.toString() + 'px'} />
-        </CoveredLogo>
+        </div>
       )}
-    </Wrapper>
+    </div>
   )
 }
 
@@ -66,17 +53,17 @@ export function DoubleCurrencyLogoV2({
   style?: CSSProperties
 }) {
   return (
-    <Wrapper sizeraw={size} margin={false} style={style}>
+    <div className="relative flex flex-row items-center" style={{ ...wrapperStyle(size, false), ...style }}>
       {logoUrl1 && (
-        <HigherLogo>
+        <div className="z-[2] flex items-center">
           <Logo srcs={[logoUrl1]} style={{ width: size, height: size, borderRadius: '100%' }} />
-        </HigherLogo>
+        </div>
       )}
       {logoUrl2 && (
-        <CoveredLogo sizeraw={size}>
+        <div className="absolute z-[1] flex items-center" style={coveredStyle(size)}>
           <Logo srcs={[logoUrl2]} style={{ width: size, height: size, borderRadius: '100%' }} />
-        </CoveredLogo>
+        </div>
       )}
-    </Wrapper>
+    </div>
   )
 }

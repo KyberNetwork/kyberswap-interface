@@ -24,6 +24,7 @@ import thrusterv3 from '@/constants/dexes/thrusterv3';
 import uniswapv2 from '@/constants/dexes/uniswapv2';
 import uniswapv3 from '@/constants/dexes/uniswapv3';
 import uniswapv4 from '@/constants/dexes/uniswapv4';
+import { ChainId } from '@/schema/chain';
 import { DexInfo, PoolType } from '@/schema/dex';
 
 export const DEXES_INFO: Record<PoolType, DexInfo> = {
@@ -61,6 +62,20 @@ export const DEXES_INFO: Record<PoolType, DexInfo> = {
   [PoolType.DEX_SQUADSWAP_V3]: squadswapv3,
   [PoolType.DEX_SQUADSWAP_V2]: squadswapv2,
   [PoolType.DEX_AERODROMECL]: aerodrome,
+  [PoolType.DEX_AERODROMECL2]: {
+    ...aerodrome,
+    nftManagerContract: {
+      [ChainId.Base]: '0xa990C6a764b73BF43cee5Bb40339c3322FB9D55F',
+    },
+    name: 'Aerodrome Concentrated V2',
+  },
+  [PoolType.DEX_AERODROMECL3]: {
+    ...aerodrome,
+    nftManagerContract: {
+      [ChainId.Base]: '0xe1f8cd9AC4e4A65F54f38a5CdAfCA44f6dD68b53',
+    },
+    name: 'Aerodrome Concentrated V3',
+  },
 };
 
 export const defaultDexInfo = { icon: '', name: '' };
@@ -116,4 +131,6 @@ export const dexMapping: Record<PoolType, readonly string[]> = {
   [PoolType.DEX_CAMELOTV3]: ['camelot-v3'],
   [PoolType.DEX_QUICKSWAPV3ALGEBRA]: ['quickswap-v3'],
   [PoolType.DEX_AERODROMECL]: ['aerodrome-cl', 'aerodromecl'],
+  [PoolType.DEX_AERODROMECL2]: ['aerodromecl2'],
+  [PoolType.DEX_AERODROMECL3]: ['aerodromecl3'],
 } as const;

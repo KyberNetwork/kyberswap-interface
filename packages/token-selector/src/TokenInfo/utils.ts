@@ -1,5 +1,21 @@
 import type { I18n } from "@lingui/core";
 
+import { ChainId, NETWORKS_INFO, type Token } from "@kyber/schema";
+
+interface TokenSelectorNetworkInfo {
+  scanLink: string;
+  wrappedToken: Token;
+  coingeckoNetworkId: string | null;
+  coingeckoNativeTokenId: string | null;
+}
+
+export const getNetworkInfo = (
+  chainId: ChainId,
+): TokenSelectorNetworkInfo | undefined =>
+  Object.prototype.hasOwnProperty.call(NETWORKS_INFO, chainId)
+    ? NETWORKS_INFO[chainId]
+    : undefined;
+
 export interface TokenInfo {
   price: number;
   marketCap: number;

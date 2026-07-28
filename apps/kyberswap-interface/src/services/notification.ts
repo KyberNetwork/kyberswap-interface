@@ -125,13 +125,10 @@ const notificationApi = createApi({
 })
 
 export const {
-  useGetNotificationsQuery,
   useLazyGetNotificationsQuery,
-  useGetNumberUnreadNotificationsQuery,
   useReadNotificationsMutation,
   useReadAllNotificationsMutation,
   useClearNotificationsMutation,
-  useClearAllNotificationsMutation,
 } = notificationApi
 
 export default notificationApi

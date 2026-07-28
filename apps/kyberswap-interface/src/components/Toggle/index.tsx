@@ -1,8 +1,6 @@
-import { rgba } from 'polished'
 import React, { CSSProperties, ReactNode } from 'react'
-import styled from 'styled-components'
 
-import { highlight } from 'components/swapv2/styleds'
+import { cn } from 'utils/cn'
 
 export interface ToggleProps {
   id?: string
@@ -12,54 +10,38 @@ export interface ToggleProps {
   style?: CSSProperties
   icon?: ReactNode
   highlight?: boolean
+  size?: 'md' | 'sm'
 }
 
-const Dot = styled.div`
-  position: absolute;
-  top: 50%;
-  left: 4px;
-
-  width: 20px;
-  height: 20px;
-
-  background: ${({ theme }) => theme.border};
-  border-radius: 50%;
-
-  transform: translateY(-50%);
-  transition: all 0.2s ease-in-out;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-`
-
-const Toggle: React.FC<ToggleProps> = ({ id, isActive, toggle, style, className, icon, highlight }) => {
+const Toggle: React.FC<ToggleProps> = ({ id, isActive, toggle, style, className, icon, highlight, size = 'md' }) => {
   return (
-    <div id={id} onClick={toggle} style={style} data-active={isActive} className={className} data-highlight={highlight}>
-      <Dot>{isActive && icon}</Dot>
+    <div
+      id={id}
+      onClick={toggle}
+      style={style}
+      data-active={isActive}
+      data-highlight={highlight}
+      className={cn(
+        'group relative cursor-pointer rounded-full bg-background transition-all duration-200 ease-in-out',
+        size === 'sm' ? 'h-5 w-9' : 'h-7 w-14',
+        'data-[active=true]:bg-primary-20',
+        'data-[highlight=true]:animate-highlight',
+        className,
+      )}
+    >
+      <div
+        className={cn(
+          'absolute top-1/2 flex -translate-y-1/2 items-center justify-center rounded-full bg-border transition-all duration-200 ease-in-out',
+          size === 'sm'
+            ? 'left-0.5 size-4 group-data-[active=true]:left-[18px]'
+            : 'left-1 size-5 group-data-[active=true]:left-8',
+          'group-data-[active=true]:bg-primary',
+        )}
+      >
+        {isActive && icon}
+      </div>
     </div>
   )
 }
 
-export default styled(Toggle)<{ backgroundColor?: string }>`
-  position: relative;
-  width: 56px;
-  height: 28px;
-  background: ${({ theme, backgroundColor }) => backgroundColor || theme.background};
-  border-radius: 999px;
-  transition: all 0.2s ease-in-out;
-  cursor: pointer;
-
-  &[data-active='true'] {
-    background: ${({ theme }) => rgba(theme.primary, 0.2)};
-
-    ${Dot} {
-      background: ${({ theme }) => theme.primary};
-      left: 32px;
-    }
-  }
-
-  &[data-highlight='true'] {
-    animation: ${({ theme }) => highlight(theme)} 2s 2 alternate ease-in-out;
-  }
-`
+export default Toggle

@@ -1,41 +1,32 @@
-import styled from 'styled-components'
+import { CSSProperties, InputHTMLAttributes } from 'react'
 
-const InputWrapper = styled.input<{ $borderColor?: string; color?: string; $isPassword: boolean }>`
-  display: flex;
-  align-items: center;
-  white-space: nowrap;
-  background: none;
-  outline: none;
-  border-radius: 20px;
-  width: 100%;
-  padding: 12px 14px;
-  color: ${({ theme, color }) => color || theme.subText};
-  font-size: 14px;
-  background-color: ${({ theme }) => theme.buttonBlack};
-  transition: border 0.5s;
-  border: ${({ theme, $borderColor }) => `1px solid ${$borderColor || theme.border}`};
-  ::placeholder {
-    color: ${({ theme }) => theme.border};
-    font-size: 12px;
+import { cn } from 'utils/cn'
+
+type InputProps = InputHTMLAttributes<HTMLInputElement> & { borderColor?: string }
+
+export default function Input({ borderColor, color, type, className, style, ...props }: InputProps) {
+  const isPassword = type === 'password'
+  const overrides: CSSProperties = {
+    ...(color ? { color } : null),
+    ...(borderColor ? { borderColor } : null),
+    // Mask user input visually while keeping type=text (browser autofill compat).
+    // WebkitTextSecurity is non-standard; not in React's CSSProperties type.
+    ...(isPassword ? ({ WebkitTextSecurity: 'disc' } as CSSProperties) : null),
+    ...style,
   }
-  ${({ $isPassword }) => $isPassword && `-webkit-text-security: disc !important;`};
-`
-
-export default function Input({
-  borderColor,
-  type,
-  ...props
-}: React.InputHTMLAttributes<HTMLInputElement> & { borderColor?: string }) {
   return (
-    <InputWrapper
+    <input
       autoComplete="off"
       autoCorrect="off"
       autoCapitalize="off"
       spellCheck="false"
       {...props}
-      $isPassword={type === 'password'}
-      type={type === 'password' ? 'text' : type}
-      $borderColor={borderColor}
+      type={isPassword ? 'text' : type}
+      className={cn(
+        'flex w-full items-center whitespace-nowrap rounded-[20px] border border-border bg-buttonBlack px-3.5 py-3 text-sm text-subText outline-none transition-[border] duration-500 placeholder:text-xs placeholder:text-border',
+        className,
+      )}
+      style={overrides}
     />
   )
 }

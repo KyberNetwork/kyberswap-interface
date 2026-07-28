@@ -1,8 +1,7 @@
-import { rgba } from 'polished'
-import { FC, ReactNode } from 'react'
-import styled, { CSSProperties } from 'styled-components'
+import { CSSProperties, FC, ReactNode } from 'react'
 
-import HorizontalScroll from './HorizontalScroll'
+import HorizontalScroll from 'components/HorizontalScroll'
+import { cn } from 'utils/cn'
 
 interface TabsProps {
   activeKey: string | number
@@ -18,31 +17,6 @@ interface TabsProps {
   tabItemActiveStyle?: CSSProperties
 }
 
-const Wrapper = styled.div(({ theme }) => ({
-  borderRadius: '20px',
-  background: theme.buttonBlack,
-  overflow: 'hidden',
-  display: 'flex',
-  flexDirection: 'column',
-}))
-
-const TabHeader = styled.div(({ theme }) => ({
-  display: 'flex',
-  overflowY: 'scroll',
-  borderBottom: `1px solid ${theme.border}`,
-}))
-
-const TabHeaderItem = styled.div<{ active: boolean }>(({ theme, active }) => ({
-  display: 'flex',
-  padding: '0.5rem',
-  borderRight: `1px solid ${theme.border}`,
-  background: active ? rgba(theme.primary, 0.3) : theme.buttonBlack,
-  color: active ? theme.primary : theme.subText,
-  fontSize: '12px',
-  fontWeight: '500',
-  cursor: 'pointer',
-}))
-
 const Tabs: FC<TabsProps> = ({
   activeKey,
   items,
@@ -53,27 +27,31 @@ const Tabs: FC<TabsProps> = ({
   tabItemActiveStyle = {},
 }) => {
   return (
-    <Wrapper className={className}>
-      <TabHeader>
+    <div className={cn('flex flex-col overflow-hidden rounded-[20px] bg-buttonBlack', className)}>
+      <div className="flex overflow-y-scroll border-b border-border">
         <HorizontalScroll
           style={{ gap: 0, ...horizontalWrapperStyle }}
           items={items.map(item => item.key.toString())}
           renderItem={key => {
+            const isActive = +key === +activeKey
             const label = items.find(i => +i.key === +key)?.label || ''
             return (
-              <TabHeaderItem
+              <div
                 onClick={() => onChange(key)}
-                active={+key === +activeKey}
-                style={+key !== +activeKey ? tabItemStyle : tabItemActiveStyle}
+                className={cn(
+                  'flex cursor-pointer border-r border-border p-2 text-xs font-medium',
+                  isActive ? 'bg-primary-30 text-primary' : 'bg-buttonBlack text-subText',
+                )}
+                style={isActive ? tabItemActiveStyle : tabItemStyle}
               >
                 {label}
-              </TabHeaderItem>
+              </div>
             )
           }}
         />
-      </TabHeader>
+      </div>
       {items.find(item => item.key === activeKey)?.children}
-    </Wrapper>
+    </div>
   )
 }
 

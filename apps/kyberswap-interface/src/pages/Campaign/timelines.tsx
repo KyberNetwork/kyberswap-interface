@@ -1,6 +1,5 @@
 import { Trans } from '@lingui/macro'
 import { ReactNode } from 'react'
-import { Text } from 'rebass'
 
 export type CampaignWeek = {
   value: number
@@ -38,12 +37,9 @@ export const safepalWeeks: CampaignWeek[] = [
   return {
     value,
     label: (
-      <Text>
-        <Text as="span" color="#ffffff">
-          Week {value}
-        </Text>{' '}
-        {formatShortDateUtc(start)} - {formatShortDateUtc(end)}
-      </Text>
+      <span>
+        <span className="text-white">Week {value}</span> {formatShortDateUtc(start)} - {formatShortDateUtc(end)}
+      </span>
     ),
     start,
     end,
@@ -56,14 +52,11 @@ export const nearIntentWeeks: CampaignWeek[] = [
   {
     value: 31,
     label: (
-      <Text>
+      <span>
         <Trans>
-          <Text as="span" color="#ffffff">
-            Week 2
-          </Text>{' '}
-          Jul 28 - Aug 03
+          <span className="text-white">Week 2</span> Jul 28 - Aug 03
         </Trans>
-      </Text>
+      </span>
     ),
     start: 1753660800,
     end: 1754265600,
@@ -71,14 +64,11 @@ export const nearIntentWeeks: CampaignWeek[] = [
   {
     value: 30,
     label: (
-      <Text>
+      <span>
         <Trans>
-          <Text as="span" color="#ffffff">
-            Week 1
-          </Text>{' '}
-          Jul 21 - Jul 27
+          <span className="text-white">Week 1</span> Jul 21 - Jul 27
         </Trans>
-      </Text>
+      </span>
     ),
     start: 1753056000,
     end: 1753660800,
@@ -89,14 +79,11 @@ export const mayTradingWeeks: CampaignWeek[] = [
   {
     value: 22,
     label: (
-      <Text>
+      <span>
         <Trans>
-          <Text as="span" color="#ffffff">
-            Week 1
-          </Text>{' '}
-          May 19 - May 25
+          <span className="text-white">Week 1</span> May 19 - May 25
         </Trans>
-      </Text>
+      </span>
     ),
     start: 1748304000,
     end: 1748822400,
@@ -107,14 +94,11 @@ export const stipWeeks: CampaignWeek[] = [
   {
     value: 37,
     label: (
-      <Text>
+      <span>
         <Trans>
-          <Text as="span" color="#ffffff">
-            Week 10
-          </Text>{' '}
-          Sep 09 - Sep 15
+          <span className="text-white">Week 10</span> Sep 09 - Sep 15
         </Trans>
-      </Text>
+      </span>
     ),
     start: 1725840000,
     end: 1726444800,
@@ -122,14 +106,11 @@ export const stipWeeks: CampaignWeek[] = [
   {
     value: 36,
     label: (
-      <Text>
+      <span>
         <Trans>
-          <Text as="span" color="#ffffff">
-            Week 9
-          </Text>{' '}
-          Sep 02 - Sep 08
+          <span className="text-white">Week 9</span> Sep 02 - Sep 08
         </Trans>
-      </Text>
+      </span>
     ),
     start: 1725235200,
     end: 1725840000,
@@ -137,14 +118,11 @@ export const stipWeeks: CampaignWeek[] = [
   {
     value: 35,
     label: (
-      <Text>
+      <span>
         <Trans>
-          <Text as="span" color="#ffffff">
-            Week 8
-          </Text>{' '}
-          Aug 26 - Sep 01
+          <span className="text-white">Week 8</span> Aug 26 - Sep 01
         </Trans>
-      </Text>
+      </span>
     ),
     start: 1724630400,
     end: 1725235200,
@@ -152,14 +130,11 @@ export const stipWeeks: CampaignWeek[] = [
   {
     value: 34,
     label: (
-      <Text>
+      <span>
         <Trans>
-          <Text as="span" color="#ffffff">
-            Week 7
-          </Text>{' '}
-          Aug 19 - Aug 25
+          <span className="text-white">Week 7</span> Aug 19 - Aug 25
         </Trans>
-      </Text>
+      </span>
     ),
     start: 1724025600,
     end: 1724630400,
@@ -167,14 +142,11 @@ export const stipWeeks: CampaignWeek[] = [
   {
     value: 33,
     label: (
-      <Text>
+      <span>
         <Trans>
-          <Text as="span" color="#ffffff">
-            Week 6
-          </Text>{' '}
-          Aug 12 - Aug 18
+          <span className="text-white">Week 6</span> Aug 12 - Aug 18
         </Trans>
-      </Text>
+      </span>
     ),
     start: 1723420800,
     end: 1724025600,
@@ -182,14 +154,11 @@ export const stipWeeks: CampaignWeek[] = [
   {
     value: 32,
     label: (
-      <Text>
+      <span>
         <Trans>
-          <Text as="span" color="#ffffff">
-            Week 5
-          </Text>{' '}
-          Aug 05 - Aug 11
+          <span className="text-white">Week 5</span> Aug 05 - Aug 11
         </Trans>
-      </Text>
+      </span>
     ),
     start: 1722816000,
     end: 1723420800,
@@ -197,14 +166,11 @@ export const stipWeeks: CampaignWeek[] = [
   {
     value: 31,
     label: (
-      <Text>
+      <span>
         <Trans>
-          <Text as="span" color="#ffffff">
-            Week 4
-          </Text>{' '}
-          July 29 - Aug 04
+          <span className="text-white">Week 4</span> July 29 - Aug 04
         </Trans>
-      </Text>
+      </span>
     ),
     start: 1722211200,
     end: 1722816000,
@@ -212,14 +178,11 @@ export const stipWeeks: CampaignWeek[] = [
   {
     value: 30,
     label: (
-      <Text>
+      <span>
         <Trans>
-          <Text as="span" color="#ffffff">
-            Week 3
-          </Text>{' '}
-          July 22 - July 28
+          <span className="text-white">Week 3</span> July 22 - July 28
         </Trans>
-      </Text>
+      </span>
     ),
     start: 1721606400,
     end: 1722211200,
@@ -227,14 +190,11 @@ export const stipWeeks: CampaignWeek[] = [
   {
     value: 29,
     label: (
-      <Text>
+      <span>
         <Trans>
-          <Text as="span" color="#ffffff">
-            Week 2
-          </Text>{' '}
-          July 15 - July 21
+          <span className="text-white">Week 2</span> July 15 - July 21
         </Trans>
-      </Text>
+      </span>
     ),
     start: 1721001600,
     end: 1721606400,
@@ -242,14 +202,11 @@ export const stipWeeks: CampaignWeek[] = [
   {
     value: 28,
     label: (
-      <Text>
+      <span>
         <Trans>
-          <Text as="span" color="#ffffff">
-            Week 1
-          </Text>{' '}
-          July 08 - July 14
+          <span className="text-white">Week 1</span> July 08 - July 14
         </Trans>
-      </Text>
+      </span>
     ),
     start: 1720396800,
     end: 1721001600,

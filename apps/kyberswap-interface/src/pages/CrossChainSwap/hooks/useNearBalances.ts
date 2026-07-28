@@ -2,7 +2,8 @@ import { useWalletSelector } from '@near-wallet-selector/react-hook'
 import * as nearAPI from 'near-api-js'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
-import { useCrossChainTransactions, useNearTokens } from 'state/crossChainSwap'
+import { useNearTokens } from 'pages/CrossChainSwap/hooks/useNearTokens'
+import { useCrossChainTransactions } from 'state/crossChainSwap'
 
 const TTL = 30 // 30s
 let lastUpdated = Date.now() / 1000

@@ -16,7 +16,7 @@ export default function ExportAccountButton() {
           setOpen(true)
         }}
       >
-        <Download size={16} style={{ marginRight: '4px' }} />
+        <Download size={16} className="mr-1" />
         Export
       </ButtonExport>
       <ExportAccountModal isOpen={isOpen} onDismiss={onDismiss} />

@@ -477,7 +477,7 @@ kyberswap.com/2025-journey`
         )}
 
         {/* Preload video */}
-        <video preload="auto" style={{ display: 'none' }}>
+        <video preload="auto" className="hidden">
           <source src={recapAnimation} type="video/mp4" />
         </video>
 
@@ -516,7 +516,8 @@ kyberswap.com/2025-journey`
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.3, ease: 'easeInOut' }}
-              style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', background: '#0f0f0f' }}
+              className="absolute left-0 top-0 size-full"
+              style={{ background: '#0f0f0f' }}
             >
               <BackgroundOverlayImage src={stars} alt="" />
             </motion.div>
@@ -702,7 +703,7 @@ kyberswap.com/2025-journey`
             </ShareButton>
             {scene === 'summary' && (
               <ShareButton onClick={handleShareToX} aria-label="Share to X">
-                <img src={xIcon} alt="X" style={{ width: '14px', height: '14px' }} />
+                <img src={xIcon} alt="X" className="size-[14px]" />
               </ShareButton>
             )}
           </ShareButtonsContainer>

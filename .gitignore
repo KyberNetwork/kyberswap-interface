@@ -30,3 +30,11 @@ dist-ssr
 .npmrc
 
 i18n-extract
+
+# TypeScript build info
+*.tsbuildinfo
+
+.claude/scheduled_tasks.lock
+
+# Playwright MCP scratch artifacts (snapshots, console logs, screenshots)
+.playwright-mcp/

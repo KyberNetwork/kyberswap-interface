@@ -1,7 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 
 import aerodromeLogo from 'assets/dexes/aerodrome.svg'
-import Univ3NftManagerABI from 'constants/abis/earn/uniswapv3NftManagerContract.json'
+import { Univ3NftManagerABI } from 'constants/abis'
 import { CoreProtocol } from 'pages/Earns/constants/coreProtocol'
 
 export default {

@@ -1,52 +1,30 @@
 import { Trans } from '@lingui/macro'
-import { Flex, Text } from 'rebass'
-import styled from 'styled-components'
 
-import { ReactComponent as DollarIcon } from 'assets/svg/dollar.svg'
 import { ButtonLight } from 'components/Button'
 import SendIcon from 'components/Icons/SendIcon'
 import { ClickHandlerProps } from 'components/WalletPopup/AccountInfo'
-import useTheme from 'hooks/useTheme'
-
-const ActionButton = styled(ButtonLight)`
-  flex: 0 1 105px;
-  width: 105px;
-  height: 40px;
-`
+import { cn } from 'utils/cn'
 
 type Props = {
   className?: string
 } & ClickHandlerProps
-const ActionButtonGroup: React.FC<Props> = ({ onClickBuy, onClickReceive, onClickSend, className, disabledSend }) => {
-  const theme = useTheme()
+const ActionButtonGroup: React.FC<Props> = ({ onClickReceive, onClickSend, className, disabledSend }) => {
   return (
-    <Flex
-      className={className}
-      sx={{
-        justifyContent: 'space-between',
-        gap: '4px',
-      }}
-    >
-      <ActionButton onClick={onClickBuy}>
-        <DollarIcon color={theme.primary} />
-        <Text as="span" marginLeft="7px">
-          <Trans>Buy</Trans>
-        </Text>
-      </ActionButton>
-      <ActionButton onClick={onClickReceive}>
+    <div data-action="full" className={cn('flex gap-1', className)}>
+      <ButtonLight onClick={onClickReceive} className="!h-10 flex-1">
         <SendIcon style={{ transform: 'rotate(180deg)' }} />
-        <Text as="span" marginLeft="7px">
+        <span className="ml-[7px]">
           <Trans>Receive</Trans>
-        </Text>
-      </ActionButton>
-      <ActionButton onClick={onClickSend} disabled={disabledSend}>
+        </span>
+      </ButtonLight>
+      <ButtonLight onClick={onClickSend} disabled={disabledSend} className="!h-10 flex-1">
         <SendIcon />
-        <Text as="span" marginLeft="7px">
+        <span className="ml-[7px]">
           <Trans>Send</Trans>
-        </Text>
-      </ActionButton>
-    </Flex>
+        </span>
+      </ButtonLight>
+    </div>
   )
 }
 
-export default styled(ActionButtonGroup)``
+export default ActionButtonGroup

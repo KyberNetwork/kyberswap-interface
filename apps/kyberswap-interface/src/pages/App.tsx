@@ -1,13 +1,8 @@
 import '@kyber/token-selector/styles.css'
 import '@kyber/ui/styles.css'
-import * as Sentry from '@sentry/react'
-import { Suspense, lazy, useEffect } from 'react'
-import { Navigate, Route, Routes, useLocation, useParams } from 'react-router-dom'
-import { useNetwork, usePrevious } from 'react-use'
-import { Flex, Text } from 'rebass'
-import styled from 'styled-components'
+import { Suspense, lazy } from 'react'
+import { Navigate, Route, Routes, useLocation, useParams, useSearchParams } from 'react-router-dom'
 
-import snow from 'assets/images/snow.png'
 import Popups from 'components/Announcement/Popups'
 import TopBanner from 'components/Announcement/Popups/TopBanner'
 import AppHaveUpdate from 'components/AppHaveUpdate'
@@ -15,42 +10,51 @@ import { ButtonPrimary } from 'components/Button'
 import ErrorBoundary from 'components/ErrorBoundary'
 import Footer from 'components/Footer/Footer'
 import Header from 'components/Header'
-import Loader from 'components/LocalLoader'
 import Modal from 'components/Modal'
 import ModalsGlobal from 'components/ModalsGlobal'
 import ProtectedRoute from 'components/ProtectedRoute'
+import RouteFallback from 'components/RouteFallback'
 import RouteSeo from 'components/Seo/RouteSeo'
 import SingaporeWarningPopup from 'components/SingaporeWarningPopup'
 import SupportButton from 'components/SupportButton'
 import { APP_PATHS, CHAINS_SUPPORT_CROSS_CHAIN, TERM_FILES_PATH } from 'constants/index'
-import { CLASSIC_NOT_SUPPORTED, ELASTIC_NOT_SUPPORTED, NETWORKS_INFO, SUPPORTED_NETWORKS } from 'constants/networks'
+import { LEGACY_POOL_APP_PATHS } from 'constants/legacyPools'
+import {
+  CLASSIC_NOT_SUPPORTED,
+  ELASTIC_NOT_SUPPORTED,
+  NETWORKS_INFO,
+  SUPPORTED_NETWORKS,
+  isSupportLimitOrder,
+} from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
-import { useAutoLogin } from 'hooks/useLogin'
+import usePageLocation from 'hooks/usePageLocation'
 import useSessionExpiredGlobal from 'hooks/useSessionExpire'
 import { useGlobalTrackingEvents } from 'hooks/useTracking'
-import { useWebVitals } from 'hooks/useWebVitals'
 import { useSyncNetworkParamWithStore } from 'hooks/web3/useSyncNetworkParamWithStore'
+import { getPoolDetailUrl } from 'pages/Earns/utils/url'
 import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
-import { RedirectPathToSwapV3Network } from 'pages/SwapV3/redirects'
+import CrossChainPage from 'pages/Swap/CrossChainPage'
+import LimitPage from 'pages/Swap/LimitPage'
+import SwapPage from 'pages/Swap/SwapPage'
+import { RedirectPathToTradeNetwork, SwapIntentRedirect } from 'pages/Swap/redirects'
+import VerifyAuth from 'pages/Verify/VerifyAuth'
 import { useAppDispatch, useAppSelector } from 'state/hooks'
 import { updateSafeAppAcceptedTermOfUse } from 'state/user/actions'
 import { ExternalLink } from 'theme'
-import { isInSafeApp, isSupportLimitOrder } from 'utils'
+import { SwapIntent } from 'utils/routes'
+import { isInSafeApp } from 'utils/safeApp'
 
-import VerifyAuth from './Verify/VerifyAuth'
+const Login = lazy(() => import('pages/Oauth/Login'))
+const Logout = lazy(() => import('pages/Oauth/Logout'))
+const Consent = lazy(() => import('pages/Oauth/Consent'))
 
-const Login = lazy(() => import('./Oauth/Login'))
-const Logout = lazy(() => import('./Oauth/Logout'))
-const Consent = lazy(() => import('./Oauth/Consent'))
+const ElasticSnapshot = lazy(() => import('pages/ElasticSnapshot'))
+const MarketOverview = lazy(() => import('pages/MarketOverview'))
 
-const ElasticSnapshot = lazy(() => import('./ElasticSnapshot'))
-const MarketOverview = lazy(() => import('./MarketOverview'))
+const PartnerSwap = lazy(() => import('pages/PartnerSwap'))
+const MyPool = lazy(() => import('pages/MyPool'))
 
-const SwapV3 = lazy(() => import('./SwapV3'))
-const PartnerSwap = lazy(() => import('./PartnerSwap'))
-const MyPool = lazy(() => import('./MyPool'))
-
-const PoolFinder = lazy(() => import('./PoolFinder'))
+const PoolFinder = lazy(() => import('pages/PoolFinder'))
 const ElasticRemoveLiquidity = lazy(() => import('pages/RemoveLiquidityProAmm'))
 
 const RemoveLiquidity = lazy(() => import('pages/RemoveLiquidity'))
@@ -58,9 +62,8 @@ const RemoveLiquidity = lazy(() => import('pages/RemoveLiquidity'))
 const KyberDAOStakeKNC = lazy(() => import('pages/KyberDAO/StakeKNC'))
 const KyberDAOVote = lazy(() => import('pages/KyberDAO/Vote'))
 const KNCUtility = lazy(() => import('pages/KyberDAO/KNCUtility'))
-const AboutKyberSwap = lazy(() => import('pages//About/AboutKyberSwap'))
+const AboutKyberSwap = lazy(() => import('pages/About/AboutKyberSwap'))
 const AboutKNC = lazy(() => import('pages/About/AboutKNC'))
-//const BuyCrypto = lazy(() => import('pages/BuyCrypto'))
 
 const NotificationCenter = lazy(() => import('pages/NotificationCenter'))
 
@@ -73,51 +76,50 @@ const EarnPoolExplorer = lazy(() => import('pages/Earns/PoolExplorer'))
 const EarnUserPositions = lazy(() => import('pages/Earns/UserPositions'))
 const EarnPositionDetail = lazy(() => import('pages/Earns/PositionDetail'))
 const SmartExit = lazy(() => import('pages/Earns/SmartExitOrders'))
+const PoolDetail = lazy(() => import('pages/Earns/PoolDetail'))
 const ExploreVaults = lazy(() => import('pages/Earns/ExploreVaults'))
 const MyVaults = lazy(() => import('pages/Earns/MyVaults'))
 const VaultDetail = lazy(() => import('pages/Earns/VaultDetail'))
 
 const Recap2025Redirect = lazy(() => import('pages/Recap2025Redirect'))
 
-const AppWrapper = styled.div`
-  display: flex;
-  flex-flow: column;
-  align-items: flex-start;
-`
+const AppWrapper = ({ children }: { children: React.ReactNode }) => (
+  <div className="flex min-h-dvh w-full flex-col items-start max-lg:pb-[72px] max-sm:pb-[60px]">{children}</div>
+)
 
-const HeaderWrapper = styled.div`
-  ${({ theme }) => theme.flexRowNoWrap}
-  width: 100%;
-  justify-content: space-between;
-  z-index: 3;
-`
+const HeaderWrapper = ({ children }: { children: React.ReactNode }) => (
+  <header className="z-[3] flex w-full shrink-0 flex-row flex-nowrap justify-between">{children}</header>
+)
 
-const BodyWrapper = styled.div`
-  display: flex;
-  position: relative;
-  flex-direction: column;
-  width: 100%;
-  align-items: center;
-  min-height: calc(100vh - 148px);
-  flex: 1;
-  z-index: 1;
-`
+const BodyWrapper = ({ children }: { children: React.ReactNode }) => (
+  <main className="relative z-[1] flex w-full flex-1 flex-col items-center">{children}</main>
+)
 
-const preloadImages = () => {
-  const imageList: string[] = SUPPORTED_NETWORKS.map(chainId => [NETWORKS_INFO[chainId].icon])
-    .flat()
-    .filter(Boolean) as string[]
-
-  imageList.forEach(image => {
-    if (image) {
-      new Image().src = image
-    }
-  })
+const NetworkSyncedPage = ({ children }: { children: React.ReactNode }) => {
+  useSyncNetworkParamWithStore()
+  return <>{children}</>
 }
 
-const SwapPage = () => {
-  useSyncNetworkParamWithStore()
-  return <SwapV3 />
+const SwapIntentPage = ({ intent }: { intent: SwapIntent }) => (
+  <SwapIntentRedirect intent={intent}>
+    <NetworkSyncedPage>
+      <SwapPage />
+    </NetworkSyncedPage>
+  </SwapIntentRedirect>
+)
+
+const RedirectToCreateTips = () => {
+  const { networkInfo } = useActiveWeb3React()
+
+  return (
+    <Navigate
+      to={{
+        pathname: `${APP_PATHS.SWAP}/${networkInfo.route}`,
+        search: 'modal=tip-link-generator',
+      }}
+      replace
+    />
+  )
 }
 
 const RedirectWithNetworkPrefix = () => {
@@ -150,6 +152,21 @@ const RedirectWithNetworkSuffix = () => {
   )
 }
 
+// Legacy pool-detail URL (`/pools/add-liquidity?exchange=&poolChainId=&poolAddress=`) ->
+// the canonical path form (`/pools/<chain>/<protocol>/<address>`). The og-service also
+// 301s this for crawlers; this client-side redirect covers in-SPA navigation + direct hits.
+const RedirectAddLiquidityToPoolPath = () => {
+  const [searchParams] = useSearchParams()
+  const exchange = searchParams.get('exchange') || ''
+  const poolAddress = searchParams.get('poolAddress') || ''
+  const poolChainId = parseInt(searchParams.get('poolChainId') || '0', 10) || 0
+
+  if (!exchange || !poolAddress || !poolChainId) {
+    return <Navigate to={APP_PATHS.EARN_POOLS} replace />
+  }
+  return <Navigate to={getPoolDetailUrl(poolChainId, exchange, poolAddress)} replace />
+}
+
 const RoutesWithNetworkPrefix = () => {
   const { network } = useParams()
   const { networkInfo, chainId } = useActiveWeb3React()
@@ -171,14 +188,14 @@ const RoutesWithNetworkPrefix = () => {
       {!CLASSIC_NOT_SUPPORTED()[chainId] && (
         <>
           <Route
-            path={`${APP_PATHS.CLASSIC_REMOVE_POOL}/:currencyIdA/:currencyIdB/:pairAddress`}
+            path={`${LEGACY_POOL_APP_PATHS.CLASSIC_REMOVE_POOL}/:currencyIdA/:currencyIdB/:pairAddress`}
             element={<RemoveLiquidity />}
           />
         </>
       )}
 
       {!ELASTIC_NOT_SUPPORTED()[chainId] && (
-        <Route path={`${APP_PATHS.ELASTIC_REMOVE_POOL}/:tokenId`} element={<ElasticRemoveLiquidity />} />
+        <Route path={`${LEGACY_POOL_APP_PATHS.ELASTIC_REMOVE_POOL}/:tokenId`} element={<ElasticRemoveLiquidity />} />
       )}
 
       <Route path="*" element={<Navigate to="/" />} />
@@ -187,50 +204,16 @@ const RoutesWithNetworkPrefix = () => {
 }
 
 export default function App() {
-  const { account, chainId, networkInfo } = useActiveWeb3React()
+  const { chainId } = useActiveWeb3React()
   const { pathname } = useLocation()
-  useAutoLogin()
-  const { online } = useNetwork()
-  const prevOnline = usePrevious(online)
-  useSessionExpiredGlobal()
-
-  useEffect(() => {
-    if (prevOnline === false && online && account) {
-      // refresh page when network back to normal to prevent some issues: ex: stale data, ...
-      window.location.reload()
-    }
-  }, [online, prevOnline, account])
-
-  useEffect(() => {
-    preloadImages()
-  }, [])
-
-  useEffect(() => {
-    if (account) {
-      Sentry.setUser({ id: account })
-    }
-  }, [account])
-
-  useEffect(() => {
-    if (chainId) {
-      Sentry.setTags({
-        chainId: chainId,
-        network: networkInfo.name,
-      })
-    }
-  }, [chainId, networkInfo.name])
-
-  useGlobalTrackingEvents()
-  useWebVitals()
-  const isPartnerSwap = pathname.includes(APP_PATHS.PARTNER_SWAP)
-  const showFooter = !pathname.includes(APP_PATHS.ABOUT) && !isPartnerSwap
-  //const [holidayMode] = useHolidayMode()
-
-  const snowflake = new Image()
-  snowflake.src = snow
-
-  const safeAppAcceptedTermOfUse = useAppSelector(state => state.user.safeAppAcceptedTermOfUse)
+  const { isEmbeddedSwap } = usePageLocation()
   const dispatch = useAppDispatch()
+  const safeAppAcceptedTermOfUse = useAppSelector(state => state.user.safeAppAcceptedTermOfUse)
+
+  useSessionExpiredGlobal()
+  useGlobalTrackingEvents()
+
+  const showFooter = !pathname.includes(APP_PATHS.ABOUT) && !isEmbeddedSwap
 
   return (
     <ErrorBoundary>
@@ -238,30 +221,19 @@ export default function App() {
       <RouteSeo />
       <AppWrapper>
         <ModalsGlobal />
-        {!isPartnerSwap && <TopBanner />}
+        {!isEmbeddedSwap && <TopBanner />}
         <HeaderWrapper>
           <SupportButton />
           <Header />
         </HeaderWrapper>
-        <Suspense fallback={<Loader />}>
-          {/*
-            holidayMode && (
-            <Snowfall
-              speed={[0.5, 1]}
-              wind={[-0.5, 0.25]}
-              snowflakeCount={isMobile ? 13 : 31}
-              images={[snowflake]}
-              radius={[5, 15]}
-            />
-          )
-          */}
-
+        <Suspense fallback={<RouteFallback />}>
+          <Popups />
           <BodyWrapper>
             <SingaporeWarningPopup />
             {isInSafeApp && !safeAppAcceptedTermOfUse && (
               <Modal isOpen>
-                <Flex width="100%" padding="32px 24px" flexDirection="column" sx={{ gap: '24px' }} alignItems="center">
-                  <Text fontSize={16} lineHeight="24px" textAlign="center">
+                <div className="flex w-full flex-col items-center gap-6 px-6 py-8">
+                  <span className="text-center text-base leading-6">
                     By clicking Continue, you accept the{' '}
                     <ExternalLink href={TERM_FILES_PATH.KYBERSWAP_TERMS} onClick={e => e.stopPropagation()}>
                       KyberSwap&lsquo;s Terms of Use
@@ -270,7 +242,7 @@ export default function App() {
                     <ExternalLink href={TERM_FILES_PATH.PRIVACY_POLICY} onClick={e => e.stopPropagation()}>
                       Privacy Policy
                     </ExternalLink>
-                  </Text>
+                  </span>
                   <ButtonPrimary
                     onClick={() => {
                       dispatch(updateSafeAppAcceptedTermOfUse(true))
@@ -278,39 +250,62 @@ export default function App() {
                   >
                     Continue
                   </ButtonPrimary>
-                </Flex>
+                </div>
               </Modal>
             )}
-            <Popups />
             <Routes>
               {/* From react-router-dom@6.5.0, :fromCurrency-to-:toCurrency no long works, need to manually parse the params */}
-              <Route path={`${APP_PATHS.SWAP}/:network/:currency?`} element={<SwapPage />} />
+              <Route path={APP_PATHS.SWAP} element={<RedirectPathToTradeNetwork />} />
+              <Route
+                path={`${APP_PATHS.SWAP}/:network/:currency?`}
+                element={
+                  <NetworkSyncedPage>
+                    <SwapPage />
+                  </NetworkSyncedPage>
+                }
+              />
+              <Route path={`${APP_PATHS.BUY}/:network/:token`} element={<SwapIntentPage intent={SwapIntent.BUY} />} />
+              <Route path={`${APP_PATHS.SELL}/:network/:token`} element={<SwapIntentPage intent={SwapIntent.SELL} />} />
               <Route path={`${APP_PATHS.PARTNER_SWAP}`} element={<PartnerSwap />} />
+              <Route path={`${APP_PATHS.USER_SWAP}/:tipsId?`} element={<PartnerSwap mode="user" />} />
+              <Route path={`${APP_PATHS.USER_SWAP_CREATE_TIPS}`} element={<RedirectToCreateTips />} />
               {CHAINS_SUPPORT_CROSS_CHAIN.includes(chainId) && !isInSafeApp && (
-                <Route path={`${APP_PATHS.CROSS_CHAIN}`} element={<SwapV3 />} />
+                <Route path={`${APP_PATHS.CROSS_CHAIN}`} element={<CrossChainPage />} />
               )}
 
+              <Route path={APP_PATHS.LIMIT} element={<RedirectPathToTradeNetwork />} />
               {isSupportLimitOrder(chainId) && (
-                <Route path={`${APP_PATHS.LIMIT}/:network/:currency?`} element={<SwapPage />} />
+                <Route
+                  path={`${APP_PATHS.LIMIT}/:network/:currency?`}
+                  element={
+                    <NetworkSyncedPage>
+                      <LimitPage />
+                    </NetworkSyncedPage>
+                  }
+                />
               )}
 
-              <Route path={`${APP_PATHS.FIND_POOL}`} element={<PoolFinder />} />
+              <Route path={`${LEGACY_POOL_APP_PATHS.FIND_POOL}`} element={<PoolFinder />} />
               <>
                 {/* My Pools Routes */}
-                <Route path={`${APP_PATHS.MY_POOLS}`} element={<RedirectWithNetworkSuffix />} />
-                <Route path={`${APP_PATHS.MY_POOLS}/:network`} element={<MyPool />} />
+                <Route path={`${LEGACY_POOL_APP_PATHS.MY_POOLS}`} element={<RedirectWithNetworkSuffix />} />
+                <Route path={`${LEGACY_POOL_APP_PATHS.MY_POOLS}/:network`} element={<MyPool />} />
               </>
 
               <>
                 {/* These are old routes and will soon be deprecated - Check: RoutesWithNetworkParam */}
                 {/*
-                  <Route path={`${APP_PATHS.ELASTIC_CREATE_POOL}/*`} element={<RedirectWithNetworkPrefix />} />
-                  <Route path={`${APP_PATHS.ELASTIC_INCREASE_LIQ}/*`} element={<RedirectWithNetworkPrefix />} />
+                  <Route path={`${LEGACY_POOL_APP_PATHS.ELASTIC_CREATE_POOL}/*`} element={<RedirectWithNetworkPrefix />} />
+                  <Route path={`${LEGACY_POOL_APP_PATHS.ELASTIC_INCREASE_LIQ}/*`} element={<RedirectWithNetworkPrefix />} />
                   */}
-
-                <Route path={`${APP_PATHS.ELASTIC_REMOVE_POOL}/*`} element={<RedirectWithNetworkPrefix />} />
-
-                <Route path={`${APP_PATHS.CLASSIC_REMOVE_POOL}/*`} element={<RedirectWithNetworkPrefix />} />
+                <Route
+                  path={`${LEGACY_POOL_APP_PATHS.ELASTIC_REMOVE_POOL}/*`}
+                  element={<RedirectWithNetworkPrefix />}
+                />
+                <Route
+                  path={`${LEGACY_POOL_APP_PATHS.CLASSIC_REMOVE_POOL}/*`}
+                  element={<RedirectWithNetworkPrefix />}
+                />
               </>
 
               <Route path={`${APP_PATHS.KYBERDAO_STAKE}`} element={<KyberDAOStakeKNC />} />
@@ -318,7 +313,6 @@ export default function App() {
               <Route path={`${APP_PATHS.KYBERDAO_KNC_UTILITY}`} element={<KNCUtility />} />
               <Route path={`${APP_PATHS.ABOUT}/kyberswap`} element={<AboutKyberSwap />} />
               <Route path={`${APP_PATHS.ABOUT}/knc`} element={<AboutKNC />} />
-              {/*<Route path={`${APP_PATHS.BUY_CRYPTO}`} element={<BuyCrypto />} />*/}
               <Route
                 path={`${APP_PATHS.PROFILE_MANAGE}`}
                 element={
@@ -351,7 +345,7 @@ export default function App() {
               <Route path={APP_PATHS.IAM_LOGOUT} element={<Logout />} />
               <Route path={APP_PATHS.IAM_CONSENT} element={<Consent />} />
 
-              <Route path={APP_PATHS.ELASTIC_SNAPSHOT} element={<ElasticSnapshot />} />
+              <Route path={LEGACY_POOL_APP_PATHS.ELASTIC_SNAPSHOT} element={<ElasticSnapshot />} />
               <Route path={APP_PATHS.MARKET_OVERVIEW} element={<MarketOverview />} />
 
               <Route path={APP_PATHS.SAFEPAL_CAMPAIGN} element={<Campaign />} />
@@ -369,10 +363,13 @@ export default function App() {
                 <Route path={APP_PATHS.EARN_POSITIONS} element={<EarnUserPositions />} />
                 <Route path={APP_PATHS.EARN_POSITION_DETAIL} element={<EarnPositionDetail />} />
                 <Route path={APP_PATHS.EARN_SMART_EXIT} element={<SmartExit />} />
+                <Route path={APP_PATHS.POOL_DETAIL} element={<PoolDetail />} />
                 <Route path={APP_PATHS.EARN_VAULTS} element={<ExploreVaults />} />
                 <Route path={APP_PATHS.EARN_MY_VAULTS} element={<MyVaults />} />
                 <Route path={APP_PATHS.EARN_VAULT_DETAIL} element={<VaultDetail />} />
               </Route>
+
+              <Route path={APP_PATHS.ADD_LIQUIDITY} element={<RedirectAddLiquidityToPoolPath />} />
 
               <Route path={APP_PATHS.EARNS} element={<Navigate to={APP_PATHS.EARN} replace />} />
               <Route path={APP_PATHS.EARNS_POOLS} element={<Navigate to={APP_PATHS.EARN_POOLS} replace />} />
@@ -380,11 +377,10 @@ export default function App() {
 
               <Route path={APP_PATHS.RECAP_2025} element={<Recap2025Redirect />} />
 
-              <Route path="*" element={<RedirectPathToSwapV3Network />} />
+              <Route path="*" element={<RedirectPathToTradeNetwork />} />
             </Routes>
           </BodyWrapper>
           {showFooter && <Footer />}
-          {!showFooter && <div style={{ marginBottom: '4rem' }} />}
         </Suspense>
       </AppWrapper>
     </ErrorBoundary>

@@ -1,17 +1,15 @@
 import { t } from '@lingui/macro'
 import { useEffect, useState } from 'react'
-import { Flex } from 'rebass'
 import { useGetAlertStatsQuery, useGetListAlertsQuery } from 'services/priceAlert'
 
 import { PrivateAnnouncementType } from 'components/Announcement/type'
 import useDebounce from 'hooks/useDebounce'
 import NoData from 'pages/NotificationCenter/NoData'
+import SingleAlert from 'pages/NotificationCenter/PriceAlerts/ActiveAlerts/SingleAlert'
 import CommonPagination from 'pages/NotificationCenter/PriceAlerts/CommonPagination'
 import { ITEMS_PER_PAGE } from 'pages/NotificationCenter/const'
 import { useSessionInfo } from 'state/authen/hooks'
 import { subscribePrivateAnnouncementProfile } from 'utils/firebase'
-
-import SingleAlert from './SingleAlert'
 
 const ActiveAlerts = ({ setDisabledClearAll }: { setDisabledClearAll: (v: boolean) => void }) => {
   const { userInfo } = useSessionInfo()
@@ -57,18 +55,14 @@ const ActiveAlerts = ({ setDisabledClearAll }: { setDisabledClearAll: (v: boolea
 
   return (
     <>
-      <Flex
-        sx={{
-          flexDirection: 'column',
-        }}
-      >
+      <div className="flex flex-col">
         {data?.alerts.map(alert => (
           <SingleAlert key={alert.id} alert={alert} isMaxQuotaActiveAlert={isMaxQuotaActiveAlert} />
         ))}
-      </Flex>
+      </div>
 
       <CommonPagination
-        style={{ margin: 0 }}
+        className="m-0"
         onPageChange={setPage}
         totalCount={data?.pagination?.totalItems || 0}
         currentPage={page}

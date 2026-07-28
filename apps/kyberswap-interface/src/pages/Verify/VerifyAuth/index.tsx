@@ -1,6 +1,5 @@
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Flex } from 'rebass'
 
 import Loader from 'components/LocalLoader'
 import useParsedQueryString from 'hooks/useParsedQueryString'
@@ -22,7 +21,7 @@ const VerifyAuth = () => {
         const { code, scope, state, ...rest } = qs
         const query = queryStringToObject(search)
         const filteredParams = Object.fromEntries(
-          Object.entries({ ...query, ...rest }).filter(([_, value]) => value !== undefined), // Remove undefined values
+          Object.entries({ ...query, ...rest }).filter(([_, value]) => value !== undefined),
         ) as { [key: string]: string }
 
         navigate(`${pathname}?${new URLSearchParams(filteredParams).toString()}`, { replace: true })
@@ -31,9 +30,9 @@ const VerifyAuth = () => {
   }, [navigate, qs, pendingAuthentication])
 
   return (
-    <Flex justifyContent={'center'}>
+    <div className="flex justify-center">
       <Loader />
-    </Flex>
+    </div>
   )
 }
 

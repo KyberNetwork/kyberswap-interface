@@ -1,80 +1,8 @@
 import { Trans } from '@lingui/macro'
-import { Flex, Text } from 'rebass'
-import styled from 'styled-components'
 
 import { ReactComponent as AlarmIcon } from 'assets/svg/alarm.svg'
-import Toggle from 'components/Toggle'
-import useTheme from 'hooks/useTheme'
 import AlertCondition, { AlertConditionData } from 'pages/NotificationCenter/PriceAlerts/AlertCondition'
 import { PriceAlert } from 'pages/NotificationCenter/const'
-
-const Wrapper = styled.div`
-  padding: 20px 0;
-
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-
-  border-bottom: 1px solid ${({ theme }) => theme.border};
-
-  ${Toggle} {
-    &[data-active='false'] {
-      background: ${({ theme }) => theme.buttonBlack};
-    }
-  }
-  :last-child {
-    border: none;
-  }
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    padding: 16px 0;
-  `}
-`
-
-const TimeText = styled.span`
-  font-size: 12px;
-  color: ${({ theme }) => theme.subText};
-  flex: 0 0 max-content;
-  white-space: nowrap;
-  line-height: 20px;
-`
-
-const AlertConditionWrapper = styled.div`
-  display: flex;
-  flex-direction: row;
-  gap: 16px;
-  flex-wrap: wrap;
-
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    flex-direction: column-reverse;
-    gap: 12px;
-
-    ${TimeText} {
-      font-size: 12px;
-    }
-  `}
-`
-
-const SupplementaryTextWrapper = styled.div`
-  display: flex;
-  flex-direction: row;
-  gap: 12px 16px;
-  justify-content: space-between;
-  flex-wrap: wrap;
-
-  font-size: 12px;
-  white-space: nowrap;
-  line-height: 16px;
-  color: ${({ theme }) => theme.subText};
-
-  ${({ theme }) => theme.mediaWidth.upToMedium`
-    flex-direction: column;
-    ${EmptySupplementaryText} {
-      display: none;
-    }
-  `}
-`
-
-const EmptySupplementaryText = styled.span``
 
 type Props = {
   renderToggle?: () => React.ReactNode
@@ -92,74 +20,53 @@ const CommonSingleAlert: React.FC<Props> = ({
   alertData,
   onClick,
 }) => {
-  const theme = useTheme()
   if (!alertData) return null
   const { note, disableAfterTrigger } = alertData
   return (
-    <Wrapper onClick={onClick} style={{ cursor: onClick ? 'pointer' : 'unset' }}>
-      <Flex alignItems={'center'} justifyContent="space-between" height="24px">
-        <Flex
-          sx={{
-            fontWeight: '500',
-            fontSize: '14px',
-            color: theme.subText,
-            alignItems: 'center',
-            gap: '4px',
-          }}
-        >
+    <div
+      onClick={onClick}
+      style={{ cursor: onClick ? 'pointer' : 'unset' }}
+      className="flex flex-col gap-3 border-b border-solid border-border py-5 last:border-0 max-md:py-4"
+    >
+      <div className="flex h-6 items-center justify-between">
+        <div className="flex items-center gap-1 text-sm font-medium text-subText">
           <AlarmIcon width={16} height={16} />
           <span>
             <Trans>Price Alert</Trans>
           </span>
-        </Flex>
+        </div>
 
-        <Flex
-          sx={{
-            alignItems: 'center',
-            gap: '0.5rem',
-          }}
-        >
+        <div className="flex items-center gap-2">
           {renderToggle?.()}
           {renderDeleteButton?.()}
-        </Flex>
-      </Flex>
+        </div>
+      </div>
 
-      <AlertConditionWrapper>
+      <div className="flex flex-row flex-wrap gap-4 max-md:flex-col-reverse max-md:gap-3">
         <AlertCondition alertData={alertData} shouldIncludePrefix={!isHistorical} />
-        <TimeText>{timeText}</TimeText>
-      </AlertConditionWrapper>
+        <span className="flex-[0_0_max-content] whitespace-nowrap text-xs leading-5 text-subText">{timeText}</span>
+      </div>
 
       {note || alertData.disableAfterTrigger ? (
-        <SupplementaryTextWrapper>
+        <div className="flex flex-row flex-wrap justify-between gap-x-4 gap-y-3 whitespace-nowrap text-xs leading-4 text-subText max-md:flex-col [&_.empty-supplementary]:max-md:hidden">
           {note ? (
-            <Text
-              as="span"
-              sx={{
-                whiteSpace: 'break-spaces',
-                overflowWrap: 'anywhere',
-              }}
-            >
+            <span className="whitespace-pre-wrap [overflow-wrap:anywhere]">
               <Trans>Note</Trans>: {note}
-            </Text>
+            </span>
           ) : (
-            <EmptySupplementaryText />
+            <span className="empty-supplementary" />
           )}
 
           {disableAfterTrigger ? (
-            <Text
-              as="span"
-              sx={{
-                whiteSpace: 'nowrap',
-              }}
-            >
+            <span className="whitespace-nowrap">
               <Trans>This alert will be disabled after its triggered once</Trans>
-            </Text>
+            </span>
           ) : (
-            <EmptySupplementaryText />
+            <span className="empty-supplementary" />
           )}
-        </SupplementaryTextWrapper>
+        </div>
       ) : null}
-    </Wrapper>
+    </div>
   )
 }
 

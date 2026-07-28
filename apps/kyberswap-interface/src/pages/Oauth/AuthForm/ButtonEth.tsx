@@ -1,7 +1,6 @@
 import { LoginMethod } from '@kyberswap/oauth2'
 import { Trans } from '@lingui/macro'
 import React, { useCallback } from 'react'
-import { Text } from 'rebass'
 
 import { ButtonLight, ButtonPrimary } from 'components/Button'
 import Wallet from 'components/Icons/Wallet'
@@ -40,7 +39,7 @@ const ButtonEth = ({
   const propsEth = {
     height: '36px',
     id: 'btnLoginEth',
-    onClick: (e: MouseEvent) => {
+    onClick: (e: React.MouseEvent<HTMLButtonElement>) => {
       e.preventDefault()
       onClickEth()
     },
@@ -51,10 +50,10 @@ const ButtonEth = ({
           <>
             <Loader />
             &nbsp;{' '}
-            <Text sx={{ whiteSpace: 'nowrap' }}>
+            <span className="whitespace-nowrap">
               {' '}
               <Trans>Signing In</Trans>
-            </Text>
+            </span>
           </>
         ) : (
           <>
@@ -65,7 +64,8 @@ const ButtonEth = ({
       </>
     ),
   }
-  return React.createElement(primary ? ButtonPrimary : ButtonLight, propsEth)
+  const Component = primary ? ButtonPrimary : ButtonLight
+  return <Component {...propsEth} />
 }
 
 export default ButtonEth

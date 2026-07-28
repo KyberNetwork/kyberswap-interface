@@ -1,7 +1,7 @@
 import { t } from '@lingui/macro'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useUserPositionsQuery } from 'services/earn'
 import { useGetSmartExitOrdersQuery } from 'services/smartExit'
-import { useUserPositionsQuery } from 'services/zapEarn'
 
 import { SmartExitDexType } from 'pages/Earns/components/SmartExit/constants'
 import { EARN_DEXES, Exchange } from 'pages/Earns/constants'
@@ -81,7 +81,7 @@ type UseSmartExitOrdersDataParams = {
 export function useSmartExitOrdersData({ account, filters, pageSize, updateFilters }: UseSmartExitOrdersDataParams) {
   const currentPage = filters.page || 1
   const [pageLoading, setPageLoading] = useState(false)
-  const prevFiltersRef = useRef<SmartExitFilter>()
+  const prevFiltersRef = useRef<SmartExitFilter | undefined>(undefined)
 
   const lastEnrichedOrdersRef = useRef<ParsedSmartExitOrder[]>([])
   const lastTotalItemsRef = useRef<number>(0)

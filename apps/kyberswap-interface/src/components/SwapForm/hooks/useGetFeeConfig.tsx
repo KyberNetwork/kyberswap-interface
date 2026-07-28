@@ -2,12 +2,16 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
-import { MAX_FEE_IN_BIPS } from 'constants/index'
 import { SUPPORTED_NETWORKS } from 'constants/networks'
 import { NativeCurrencies } from 'constants/tokens'
+import { MAX_FEE_IN_BIPS } from 'constants/trade'
 import { ChargeFeeBy } from 'types/route'
-import { isAddressString } from 'utils'
+import { isAddressString } from 'utils/address'
 import { convertStringToBoolean } from 'utils/string'
+
+const ClientNameMapping: { [key: string]: string } = {
+  dexscreener: 'DEX Screener',
+}
 
 const useGetFeeConfig = () => {
   const [searchParams] = useSearchParams()
@@ -18,7 +22,7 @@ const useGetFeeConfig = () => {
   }
 
   const clientId = searchParams.get('clientId') || ''
-  const chargeFeeByFromParam = (searchParams.get('chargeFeeBy') as ChargeFeeBy) || ChargeFeeBy.NONE
+  const chargeFeeByFromParam = (searchParams.get('chargeFeeBy') as ChargeFeeBy) || ChargeFeeBy.CURRENCY_OUT
   const preferredFeeTokensParam = searchParams.get('preferredFeeTokens') || ''
   const preferredFeeTokens = preferredFeeTokensParam
     .split(',')
@@ -53,6 +57,7 @@ const useGetFeeConfig = () => {
   const enableTip = convertStringToBoolean(searchParams.get('enableTip') || '')
   const isInBps = searchParams.get('isInBps') || ''
   const feeReceiver = searchParams.get('feeReceiver') || ''
+  const creatorName = searchParams.get('creatorName') || ClientNameMapping[clientId] || ''
 
   const feeConfigFromUrl = useMemo(() => {
     if (feeAmount && chargeFeeBy && (enableTip || isInBps) && feeReceiver)
@@ -63,9 +68,10 @@ const useGetFeeConfig = () => {
         isInBps: enableTip ? '1' : isInBps,
         feeReceiver,
         clientId,
+        creatorName,
       }
     return null
-  }, [feeAmount, chargeFeeBy, enableTip, isInBps, feeReceiver, clientId])
+  }, [feeAmount, chargeFeeBy, enableTip, isInBps, feeReceiver, clientId, creatorName])
 
   return feeConfigFromUrl
 }

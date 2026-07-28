@@ -1,32 +1,27 @@
-import { useFormo } from '@formo/analytics'
-import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
-import { formatUnits, isAddress } from 'ethers/lib/utils'
+import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import mixpanel, { crossChainMixpanel } from 'libs/mixpanel'
-import { useCallback, useEffect, useMemo } from 'react'
-import { isMobile } from 'react-device-detect'
-import { useLocation } from 'react-router-dom'
+import { useCallback, useEffect } from 'react'
 import { usePrevious } from 'react-use'
 
+// `useFormo` comes from the local Formo context so the heavy `@formo/analytics` SDK stays out of this
+// eager module's chunk and is only loaded by the deferred provider.
+import { useFormo } from 'components/Analytics/formoContext'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { sanitizeFormoPayload } from 'hooks/sanitizeFormoPayload'
-import { RANGE } from 'state/mint/proamm/type'
 import { Field } from 'state/swap/actions'
 import { useInputCurrency, useOutputCurrency } from 'state/swap/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { useUserSlippageTolerance } from 'state/user/hooks'
+import { formatUnits, isAddress } from 'utils/viem'
 
 export enum TRACKING_EVENT_TYPE {
-  PAGE_VIEWED,
-  WALLET_CONNECTED,
   WALLET_CONNECT_CLICK,
   WALLET_CONNECT_ACCEPT_TERM_CLICK,
   WALLET_CONNECT_WALLET_CLICK,
   SWAP_INITIATED,
   SWAP_CONFIRMED,
   SWAP_COMPLETED,
-  SWAP_TYPED_ON_THE_TEXT_BOX,
-  SWAP_INPUT_AMOUNT,
   SWAP_SETTINGS_CLICK,
   SWAP_TUTORIAL_CLICK,
   SWAP_TOKEN_INFO_CLICK,
@@ -43,7 +38,6 @@ export enum TRACKING_EVENT_TYPE {
   TRADING_ROUTE_ON_MOBILE,
   TOKEN_INFO_CHECKED,
   TOKEN_SWAP_LINK_SHARED,
-  CHAIN_SWITCHED,
   ADD_FAVORITE_CHAIN,
   REMOVE_FAVORITE_CHAIN,
   CREATE_POOL_INITITATED,
@@ -115,10 +109,6 @@ export enum TRACKING_EVENT_TYPE {
   DISCOVER_CLICK_SUBSCRIBE_TRENDING_SOON,
   DISCOVER_SUBSCRIBE_TRENDING_SOON_SUCCESS,
   DISCOVER_UNSUBSCRIBE_TRENDING_SOON_SUCCESS,
-  TRANSAK_BUY_CRYPTO_CLICKED,
-  TRANSAK_DOWNLOAD_WALLET_CLICKED,
-  TRANSAK_SWAP_NOW_CLICKED,
-  SWAP_BUY_CRYPTO_CLICKED,
 
   // for tutorial swap
   TUTORIAL_CLICK_START,
@@ -145,7 +135,7 @@ export enum TRACKING_EVENT_TYPE {
   BRIDGE_CLICK_DISCLAIMER,
   BRIDGE_CLICK_UNDERSTAND_IN_FIRST_TIME_VISIT,
 
-  //Kyber DAO
+  // Kyber DAO
   KYBER_DAO_STAKE_CLICK,
   KYBER_DAO_UNSTAKE_CLICK,
   KYBER_DAO_DELEGATE_CLICK,
@@ -169,18 +159,15 @@ export enum TRACKING_EVENT_TYPE {
   ANNOUNCEMENT_CLICK_CTA_POPUP,
   ANNOUNCEMENT_CLICK_CLEAR_ALL_INBOXES,
 
-  // limit order
+  // Limit Order
+  LO_PAGE_VIEWED,
   LO_CLICK_PLACE_ORDER,
   LO_PLACE_ORDER_SUCCESS,
   LO_ENTER_DETAIL,
   LO_CLICK_CANCEL_ORDER,
   LO_CANCEL_ORDER_SUBMITTED,
   LO_CLICK_REVIEW_PLACE_ORDER,
-  LO_CLICK_EDIT_ORDER,
-  LO_DISPLAY_SETTING_CLICK,
-  LO_CLICK_SUBSCRIBE_BTN,
   LO_CLICK_CANCEL_TYPE,
-  LO_CLICK_UPDATE_TYPE,
   LO_CLICK_GET_STARTED,
   LO_CLICK_WARNING_IN_SWAP,
   LO_REVIEW_OPENED,
@@ -191,6 +178,18 @@ export enum TRACKING_EVENT_TYPE {
   LO_SIDE_SELECTED,
   LO_PRICE_SET,
   LO_EXPIRY_CHANGED,
+  LO2_CLICK_TAKE,
+  LO2_CLICK_PAIR_INVERT,
+  LO2_CLICK_HALF,
+  LO2_CLICK_MAX,
+  LO2_CLICK_WALLET_MAX,
+  LO2_CLICK_USE_SWAP,
+  LO2_CLICK_FILL,
+  LO2_CLICK_RETRY,
+  LO2_CLOSE_PANEL,
+  LO2_CLICK_RATE_PRESET,
+  LO2_CLICK_MARKET_RATE,
+  LO2_CLICK_SHARED_BALANCE_REVIEW,
 
   // Wallet UI
   WUI_WALLET_CLICK,
@@ -204,8 +203,6 @@ export enum TRACKING_EVENT_TYPE {
   // Menu header
   MENU_MENU_CLICK,
   MENU_PREFERENCE_CLICK,
-  MENU_CLAIM_REWARDS_CLICK,
-  SUPPORT_CLICK,
 
   // price alert
   PA_CLICK_TAB_IN_NOTI_CENTER,
@@ -244,13 +241,22 @@ export enum TRACKING_EVENT_TYPE {
 
   // Swap form interactions
   TOKEN_SELECTED,
+  TOKEN_SEARCHED,
   AMOUNT_ENTERED,
   TOKEN_PAIR_REVERSED,
   MAX_BALANCE_CLICKED,
 
+  // Token selector modal interactions. TS_TOKEN_SELECTED is distinct from TOKEN_SELECTED above: it
+  // fires inside the modal, so it carries which tab the pick came from and covers every surface the
+  // modal serves (swap, limit order, cross-chain), not just the swap form.
+  TS_OPENED,
+  TS_SEARCHED,
+  TS_TAB_SELECTED,
+  TS_CHAIN_SWITCHED,
+  TS_TOKEN_SELECTED,
+
   // Swap settings interactions
   TRANSACTION_TIME_LIMIT_CHANGED,
-  GAS_TOKEN_CHANGED,
   LIQUIDITY_SOURCES_TOGGLED,
 
   // Cross-chain execution flow
@@ -332,7 +338,6 @@ export enum TRACKING_EVENT_TYPE {
   WALLET_EXTERNAL_LINK_CLICKED,
   WALLET_PINNED,
   BALANCE_VISIBILITY_TOGGLED,
-  WALLET_BUY_CLICKED,
   WALLET_RECEIVE_CLICKED,
   WALLET_SEND_CLICKED,
   WALLET_SEND_INITIATED,
@@ -347,6 +352,10 @@ export enum TRACKING_EVENT_TYPE {
   MENU_LINK_CLICKED,
   NOTIFICATION_CENTER_OPENED,
   LANGUAGE_CHANGED,
+
+  // Tip Link Generator
+  TIP_LINK_GENERATE_LINK_CLICK,
+  TIP_LINK_TRADE,
 }
 
 export const NEED_CHECK_SUBGRAPH_TRANSACTION_TYPES: readonly TRANSACTION_TYPE[] = [
@@ -394,7 +403,6 @@ export const useCrossChainMixpanel = () => {
 
 export default function useTracking(currencies?: { [field in Field]?: Currency }) {
   const { account, networkInfo } = useActiveWeb3React()
-  const network = networkInfo.name
   const analytics = useFormo()
 
   const inputCurrencyFromHook = useInputCurrency()
@@ -418,11 +426,6 @@ export default function useTracking(currencies?: { [field in Field]?: Currency }
     (type: TRACKING_EVENT_TYPE, payload?: any) => {
       // Anonymous events
       switch (type) {
-        case TRACKING_EVENT_TYPE.PAGE_VIEWED: {
-          const { page } = payload
-          page && formoTrack(page + ' Page Viewed')
-          break
-        }
         case TRACKING_EVENT_TYPE.WALLET_CONNECT_CLICK: {
           formoTrack('Wallet Connect - Connect Wallet Button Click')
           break
@@ -435,12 +438,36 @@ export default function useTracking(currencies?: { [field in Field]?: Currency }
           formoTrack('Wallet Connect - Wallet click', payload)
           break
         }
-        case TRACKING_EVENT_TYPE.CHAIN_SWITCHED: {
-          const { old_network, new_network } = payload
-          formoTrack('Chain Switched', {
-            old_network,
-            new_network,
-          })
+        case TRACKING_EVENT_TYPE.TIP_LINK_GENERATE_LINK_CLICK: {
+          formoTrack('Tip Link - Generate Link Click', payload)
+          break
+        }
+        // Tip-link attributed trade (swap / limit order / cross-chain). The trade type is
+        // carried in `payload.trade_type` so all three flows roll up into one event.
+        case TRACKING_EVENT_TYPE.TIP_LINK_TRADE: {
+          formoTrack('Tip Link Trade', payload)
+          break
+        }
+        // Token selector browsing is anonymous on purpose: much of it happens before a wallet is
+        // connected, and gating these would drop that whole slice of the discovery funnel.
+        case TRACKING_EVENT_TYPE.TS_OPENED: {
+          formoTrack('Token Selector - Opened', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.TS_SEARCHED: {
+          formoTrack('Token Selector - Searched', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.TS_TAB_SELECTED: {
+          formoTrack('Token Selector - Tab Selected', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.TS_CHAIN_SWITCHED: {
+          formoTrack('Token Selector - Chain Switched', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.TS_TOKEN_SELECTED: {
+          formoTrack('Token Selector - Token Selected', payload)
           break
         }
       }
@@ -449,14 +476,6 @@ export default function useTracking(currencies?: { [field in Field]?: Currency }
       }
       // Need connect wallet events
       switch (type) {
-        case TRACKING_EVENT_TYPE.WALLET_CONNECTED:
-          formoTrack('Wallet Connected', {
-            wallet_address: account,
-            platform: isMobile ? 'Mobile' : 'Web',
-            network,
-            source: location.pathname,
-          })
-          break
         case TRACKING_EVENT_TYPE.ADD_FAVORITE_CHAIN:
           formoTrack('Favourite Chain - Add chain over favourite list success', payload)
           break
@@ -483,7 +502,6 @@ export default function useTracking(currencies?: { [field in Field]?: Currency }
             trade_route_steps,
             route_split,
             chain,
-            volume,
           } = (payload || {}) as {
             gasUsd: number | string | undefined
             inputAmount: CurrencyAmount<Currency> | undefined
@@ -503,7 +521,6 @@ export default function useTracking(currencies?: { [field in Field]?: Currency }
             trade_route_steps?: number
             route_split?: boolean
             chain?: string
-            volume?: number
           }
 
           const body: Record<string, any> = {
@@ -527,7 +544,6 @@ export default function useTracking(currencies?: { [field in Field]?: Currency }
             trade_route_steps,
             route_split,
             chain,
-            volume,
           }
 
           if (feeInfo) {
@@ -586,7 +602,7 @@ export default function useTracking(currencies?: { [field in Field]?: Currency }
         case TRACKING_EVENT_TYPE.SWAP_COMPLETED: {
           const { arbitrary, actual_gas, gas_price, tx_hash } = payload
           const feeInfo = payload.feeInfo as FeeInfo
-          const formattedGas = gas_price ? formatUnits(gas_price, networkInfo.nativeToken.decimal) : '0'
+          const formattedGas = gas_price ? formatUnits(gas_price as bigint, networkInfo.nativeToken.decimal) : '0'
 
           const body: Record<string, any> = {
             input_token: arbitrary.inputSymbol,
@@ -597,7 +613,7 @@ export default function useTracking(currencies?: { [field in Field]?: Currency }
               arbitrary.inputSymbol && arbitrary.outputSymbol
                 ? `${arbitrary.inputSymbol}/${arbitrary.outputSymbol}`
                 : undefined,
-            actual_gas: actual_gas.toNumber() * parseFloat(formattedGas),
+            actual_gas: Number(actual_gas as bigint) * parseFloat(formattedGas),
             tx_hash: tx_hash,
             trade_qty: arbitrary.inputAmount,
             amount_in_usd: arbitrary.amountInUsd,
@@ -605,7 +621,7 @@ export default function useTracking(currencies?: { [field in Field]?: Currency }
             slippage_setting: arbitrary.slippageSetting,
             price_impact: arbitrary.priceImpact,
             gas_price: formattedGas,
-            actual_gas_native: actual_gas?.toNumber(),
+            actual_gas_native: actual_gas !== undefined ? Number(actual_gas as bigint) : undefined,
             trade_route_dexes: arbitrary.tradeRouteDexes,
             chain: arbitrary.chain,
             volume: arbitrary.volume,
@@ -721,11 +737,11 @@ export default function useTracking(currencies?: { [field in Field]?: Currency }
           break
         }
         case TRACKING_EVENT_TYPE.MEV_ADD_CLICK_MODAL: {
-          formoTrack('MEV Protection -  MEV protection type click', payload)
+          formoTrack('MEV Protection - MEV protection type click', payload)
           break
         }
         case TRACKING_EVENT_TYPE.MEV_ADD_RESULT: {
-          formoTrack('MEV Protection -  Add MEV protection result', payload)
+          formoTrack('MEV Protection - Add MEV protection result', payload)
           break
         }
         case TRACKING_EVENT_TYPE.CREATE_POOL_INITITATED: {
@@ -1035,22 +1051,6 @@ export default function useTracking(currencies?: { [field in Field]?: Currency }
           formoTrack('Faucet feature - Request faucet Completed')
           break
         }
-        case TRACKING_EVENT_TYPE.TRANSAK_DOWNLOAD_WALLET_CLICKED: {
-          formoTrack('Buy Crypto - Download a wallet "Download Wallet”')
-          break
-        }
-        case TRACKING_EVENT_TYPE.TRANSAK_BUY_CRYPTO_CLICKED: {
-          formoTrack('Buy Crypto - To purchase crypto on Transak "Buy Now”')
-          break
-        }
-        case TRACKING_EVENT_TYPE.TRANSAK_SWAP_NOW_CLICKED: {
-          formoTrack('Buy Crypto - Swap token on KyberSwap "Swap" button')
-          break
-        }
-        case TRACKING_EVENT_TYPE.SWAP_BUY_CRYPTO_CLICKED: {
-          formoTrack('Buy Crypto - Click on Buy Crypto on KyberSwap')
-          break
-        }
         case TRACKING_EVENT_TYPE.TUTORIAL_CLICK_START: {
           formoTrack('On-Screen Guide - User click on "View" in Setting to view guide')
           break
@@ -1095,7 +1095,7 @@ export default function useTracking(currencies?: { [field in Field]?: Currency }
         }
         case TRACKING_EVENT_TYPE.BRIDGE_TRANSACTION_SUBMIT: {
           const { tx_hash, from_token, to_token, bridge_fee, from_network, to_network, trade_qty } = payload
-          formoTrack('Bridge -  Transaction Submitted', {
+          formoTrack('Bridge - Transaction Submitted', {
             tx_hash,
             from_token,
             to_token,
@@ -1204,12 +1204,16 @@ export default function useTracking(currencies?: { [field in Field]?: Currency }
           formoTrack('Gas refund - KNC Utility source click', { source })
           break
         }
+        case TRACKING_EVENT_TYPE.LO_PAGE_VIEWED: {
+          formoTrack('Limit Order Page Viewed')
+          break
+        }
         case TRACKING_EVENT_TYPE.LO_CLICK_PLACE_ORDER: {
-          formoTrack('Limit Order -  Place Order Click', payload)
+          formoTrack('Limit Order - Place Order Click', payload)
           break
         }
         case TRACKING_EVENT_TYPE.LO_PLACE_ORDER_SUCCESS: {
-          formoTrack('Limit Order -  Place Order Submit Success', payload)
+          formoTrack('Limit Order - Place Order Submit Success', payload)
           break
         }
         case TRACKING_EVENT_TYPE.LO_ENTER_DETAIL: {
@@ -1217,40 +1221,24 @@ export default function useTracking(currencies?: { [field in Field]?: Currency }
           break
         }
         case TRACKING_EVENT_TYPE.LO_CLICK_CANCEL_ORDER: {
-          formoTrack('Limit Order -  Cancel Order Click', payload)
+          formoTrack('Limit Order - Cancel Order Click', payload)
           break
         }
 
         case TRACKING_EVENT_TYPE.LO_CANCEL_ORDER_SUBMITTED: {
-          formoTrack('Limit Order -  Cancel Order Submit Success', payload)
+          formoTrack('Limit Order - Cancel Order Submit Success', payload)
           break
         }
         case TRACKING_EVENT_TYPE.LO_CLICK_REVIEW_PLACE_ORDER: {
-          formoTrack('Limit Order -  Review Order Click', payload)
-          break
-        }
-        case TRACKING_EVENT_TYPE.LO_CLICK_EDIT_ORDER: {
-          formoTrack('Limit Order -  Update Order Click', payload)
-          break
-        }
-        case TRACKING_EVENT_TYPE.LO_DISPLAY_SETTING_CLICK: {
-          formoTrack('Limit Order - Display settings on Limit settings', payload)
-          break
-        }
-        case TRACKING_EVENT_TYPE.LO_CLICK_SUBSCRIBE_BTN: {
-          formoTrack('Limit Order - User click to Subscribe button')
+          formoTrack('Limit Order - Review Order Click', payload)
           break
         }
         case TRACKING_EVENT_TYPE.LO_CLICK_CANCEL_TYPE: {
           formoTrack('Limit Order - Cancel Order Double Signature Click', payload)
           break
         }
-        case TRACKING_EVENT_TYPE.LO_CLICK_UPDATE_TYPE: {
-          formoTrack('Limit Order - Update Order Double Signature Click', payload)
-          break
-        }
         case TRACKING_EVENT_TYPE.LO_CLICK_GET_STARTED: {
-          formoTrack('Limit Order - Get Started Click', payload)
+          formoTrack('Limit Order - Get Started Click')
           break
         }
         case TRACKING_EVENT_TYPE.LO_CLICK_WARNING_IN_SWAP: {
@@ -1287,6 +1275,54 @@ export default function useTracking(currencies?: { [field in Field]?: Currency }
         }
         case TRACKING_EVENT_TYPE.LO_EXPIRY_CHANGED: {
           formoTrack('Limit Order Expiry Changed', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.LO2_CLICK_TAKE: {
+          formoTrack('Limit Order 2.0 - Click Take', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.LO2_CLICK_PAIR_INVERT: {
+          formoTrack('Limit Order 2.0 - Click Pair Invert', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.LO2_CLICK_HALF: {
+          formoTrack('Limit Order 2.0 - Click Half', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.LO2_CLICK_MAX: {
+          formoTrack('Limit Order 2.0 - Click Max', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.LO2_CLICK_WALLET_MAX: {
+          formoTrack('Limit Order 2.0 - Click Wallet Max', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.LO2_CLICK_USE_SWAP: {
+          formoTrack('Limit Order 2.0 - Click Use Swap', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.LO2_CLICK_FILL: {
+          formoTrack('Limit Order 2.0 - Click Fill', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.LO2_CLICK_RETRY: {
+          formoTrack('Limit Order 2.0 - Click Retry', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.LO2_CLOSE_PANEL: {
+          formoTrack('Limit Order 2.0 - Close Panel', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.LO2_CLICK_RATE_PRESET: {
+          formoTrack('Limit Order 2.0 - Click Rate Preset', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.LO2_CLICK_MARKET_RATE: {
+          formoTrack('Limit Order 2.0 - Click Market Rate', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.LO2_CLICK_SHARED_BALANCE_REVIEW: {
+          formoTrack('Limit Order 2.0 - Click Shared Balance Review', payload)
           break
         }
 
@@ -1346,7 +1382,7 @@ export default function useTracking(currencies?: { [field in Field]?: Currency }
           const { token_1, token_2, range } = payload as {
             token_1: string
             token_2: string
-            range: RANGE
+            range: string
           }
           formoTrack('Elastic - Add Liquidity page - Select range for pool', {
             token_1,
@@ -1503,6 +1539,10 @@ export default function useTracking(currencies?: { [field in Field]?: Currency }
           formoTrack('Token Selected', payload)
           break
         }
+        case TRACKING_EVENT_TYPE.TOKEN_SEARCHED: {
+          formoTrack('Token Searched', payload)
+          break
+        }
         case TRACKING_EVENT_TYPE.AMOUNT_ENTERED: {
           formoTrack('Amount Entered', payload)
           break
@@ -1519,10 +1559,6 @@ export default function useTracking(currencies?: { [field in Field]?: Currency }
         // Swap settings interaction events
         case TRACKING_EVENT_TYPE.TRANSACTION_TIME_LIMIT_CHANGED: {
           formoTrack('Transaction Time Limit Changed', payload)
-          break
-        }
-        case TRACKING_EVENT_TYPE.GAS_TOKEN_CHANGED: {
-          formoTrack('Gas Token Changed', payload)
           break
         }
         case TRACKING_EVENT_TYPE.LIQUIDITY_SOURCES_TOGGLED: {
@@ -1782,10 +1818,6 @@ export default function useTracking(currencies?: { [field in Field]?: Currency }
           formoTrack('Balance Visibility Toggled', payload)
           break
         }
-        case TRACKING_EVENT_TYPE.WALLET_BUY_CLICKED: {
-          formoTrack('Wallet Buy Clicked', payload)
-          break
-        }
         case TRACKING_EVENT_TYPE.WALLET_RECEIVE_CLICKED: {
           formoTrack('Wallet Receive Clicked', payload)
           break
@@ -1839,26 +1871,30 @@ export default function useTracking(currencies?: { [field in Field]?: Currency }
       }
     },
     /* eslint-disable */
-    [currencies, network, account, mixpanel.hasOwnProperty('get_distinct_id'), formoTrack],
+    [currencies, account, mixpanel.hasOwnProperty('get_distinct_id'), formoTrack],
     /* eslint-enable */
   )
-  return { trackingHandler }
+  return { trackingHandler, isTrackingReady: !!analytics }
 }
 
 export const useGlobalTrackingEvents = () => {
   const { account, chainId } = useActiveWeb3React()
-  const { trackingHandler } = useTracking()
   const analytics = useFormo()
   const oldNetwork = usePrevious(chainId)
-  const location = useLocation()
-  const pathName = useMemo(() => {
-    if (location.pathname.split('/')[1] !== 'elastic') return location.pathname.split('/')[1]
-    return 'elastic/' + location.pathname.split('/')[2]
-  }, [location])
+
+  // Formo identify. `analytics` loads lazily on browser idle, so the effect depends on it to re-run once
+  // the SDK is ready. Kept separate from the mixpanel effect so a late Formo load doesn't reset the live
+  // mixpanel session.
+  useEffect(() => {
+    if (!analytics || !account || !isAddress(account, { strict: false })) return
+    analytics.identify({ address: account })
+    return () => {
+      analytics.reset()
+    }
+  }, [account, analytics])
 
   useEffect(() => {
-    if (account && isAddress(account)) {
-      analytics?.identify({ address: account })
+    if (account && isAddress(account, { strict: false })) {
       crossChainMixpanel?.identify(account)
 
       const getQueryParam = (url: string, param: string) => {
@@ -1894,12 +1930,9 @@ export const useGlobalTrackingEvents = () => {
       crossChainMixpanel?.people.set(params)
       crossChainMixpanel?.people.set_once(first_params)
       crossChainMixpanel?.register_once(params)
-
-      trackingHandler(TRACKING_EVENT_TYPE.WALLET_CONNECTED)
     }
     return () => {
       if (account) {
-        analytics?.reset()
         crossChainMixpanel?.reset()
       }
     }
@@ -1908,43 +1941,8 @@ export const useGlobalTrackingEvents = () => {
 
   useEffect(() => {
     if (oldNetwork) {
-      trackingHandler(TRACKING_EVENT_TYPE.CHAIN_SWITCHED, {
-        new_network: chainId && NETWORKS_INFO[chainId].name,
-        old_network: oldNetwork && NETWORKS_INFO[oldNetwork as ChainId].name,
-      })
       crossChainMixpanel?.register({ network: chainId && NETWORKS_INFO[chainId].name })
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chainId])
-
-  useEffect(() => {
-    if (pathName) {
-      const map: { [key: string]: string } = {
-        swap: 'Swap',
-        find: 'Pool Finder',
-        pools: 'Pools',
-        farms: 'Farms',
-        myPools: 'My Pools',
-        migration: 'Migration',
-        create: 'Create Pool',
-        add: 'Add Liquidity',
-        remove: 'Remove Liquidity',
-        about: 'About',
-        discover: 'Discover',
-        'elastic/remove': 'Elastic - Remove Liquidity',
-        'elastic/add': 'Elastic - Add Liquidity',
-        'elastic/increase': 'Elastic - Increase Liquidity',
-        'buy-crypto': 'Buy Crypto',
-        bridge: 'Bridge',
-        '/kyberdao/stake-knc': 'KyberDAO Stake',
-        '/kyberdao/vote': 'KyberDAO Vote',
-        limit: 'Limit Order',
-        'cross-chain': 'Cross Chain',
-        'notification-center': 'Notification',
-      }
-      const pageName = map[pathName] || map[location.pathname]
-      pageName && trackingHandler(TRACKING_EVENT_TYPE.PAGE_VIEWED, { page: pageName })
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pathName, account, chainId, location.pathname])
 }

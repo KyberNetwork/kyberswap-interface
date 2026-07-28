@@ -1,38 +1,23 @@
 import { Trans, t } from '@lingui/macro'
-import { Flex, Text } from 'rebass'
-import styled from 'styled-components'
 
 import { ButtonPrimary } from 'components/Button'
 import CurrencyLogo from 'components/CurrencyLogo'
-import { RowBetween } from 'components/Row'
+import { useClaimReward } from 'components/Menu/hooks/useClaimReward'
+import { HStack, Stack } from 'components/Stack'
 import TransactionConfirmationModal, { TransactionErrorContent } from 'components/TransactionConfirmationModal'
 import { KNC } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
-import useClaimReward from 'hooks/useClaimReward'
-import useTheme from 'hooks/useTheme'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useToggleModal } from 'state/application/hooks'
 import { CloseIcon } from 'theme'
-import { shortenAddress } from 'utils'
+import { shortenAddress } from 'utils/address'
 
-const AddressWrapper = styled.div`
-  background: ${({ theme }) => theme.buttonBlack};
-  border-radius: 8px;
-  padding: 12px;
-  overflow: hidden;
-  p {
-    margin: 12px 0 0 0;
-    font-size: 24px;
-    line-height: 28px;
-    font-weight: 500;
-    color: ${({ theme }) => theme.disableText};
-  }
-`
-function ClaimRewardModal() {
+const ClaimRewardModal = () => {
   const { chainId, account } = useActiveWeb3React()
+
   const open = useModalOpen(ApplicationModal.CLAIM_POPUP)
   const toggle = useToggleModal(ApplicationModal.CLAIM_POPUP)
-  const theme = useTheme()
+
   const {
     isUserHasReward,
     rewardAmounts,
@@ -42,8 +27,11 @@ function ClaimRewardModal() {
     pendingTx,
     error: claimRewardError,
     resetTxn,
-  } = useClaimReward()
-  const isCanClaim = isUserHasReward && rewardAmounts !== '0' && !pendingTx
+  } = useClaimReward({ enabled: open })
+
+  const canClaim = isUserHasReward && rewardAmounts !== '0' && !pendingTx
+  const rewardToken = KNC[chainId]
+  const walletAddress = account ? shortenAddress(chainId, account, 9) : '--'
 
   const modalContent = () =>
     claimRewardError ? (
@@ -55,30 +43,35 @@ function ClaimRewardModal() {
         message={claimRewardError}
       />
     ) : (
-      <Flex flexDirection={'column'} padding="26px 24px" style={{ gap: '25px' }}>
-        <RowBetween>
-          <Text fontSize={20} fontWeight={500} color={theme.text}>
+      <Stack className="gap-6 p-5">
+        <HStack className="items-center justify-between">
+          <span className="text-xl font-medium text-text">
             <Trans>Claim your rewards</Trans>
-          </Text>
+          </span>
           <CloseIcon onClick={toggle} />
-        </RowBetween>
+        </HStack>
 
-        <AddressWrapper>
-          <Text color={theme.subText} fontSize={12}>
-            <Trans>Your wallet address</Trans>
-          </Text>
-          <p>{account && shortenAddress(chainId, account, 9)}</p>
-        </AddressWrapper>
-        <Text fontSize={16} lineHeight="24px" color={theme.text}>
-          <Trans>If your wallet is eligible, you will be able to claim your reward below. You can claim:</Trans>
-        </Text>
-        <Text fontSize={32} lineHeight="38px" fontWeight={500}>
-          <CurrencyLogo currency={KNC[chainId]} /> {rewardAmounts} KNC
-        </Text>
-        <ButtonPrimary disabled={!isCanClaim} onClick={claimRewardsCallback}>
+        <Stack className="gap-4">
+          <Stack className="gap-3 overflow-hidden rounded-lg bg-buttonBlack p-3">
+            <span className="text-sm text-subText">
+              <Trans>Your wallet address</Trans>
+            </span>
+            <span className="truncate text-2xl font-medium text-subText">{walletAddress}</span>
+          </Stack>
+
+          <span className="text-sm italic text-subText">
+            <Trans>If your wallet is eligible, you will be able to claim your reward below. You can claim:</Trans>
+          </span>
+
+          <HStack className="items-center gap-2 text-3xl font-medium leading-none text-text">
+            <CurrencyLogo currency={rewardToken} size="32px" /> {rewardAmounts} KNC
+          </HStack>
+        </Stack>
+
+        <ButtonPrimary disabled={!canClaim} onClick={claimRewardsCallback}>
           <Trans>Claim</Trans>
         </ButtonPrimary>
-      </Flex>
+      </Stack>
     )
 
   return (

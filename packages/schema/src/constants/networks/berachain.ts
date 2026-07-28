@@ -13,7 +13,7 @@ export default {
   wrappedToken: {
     name: 'Wrapped Bera',
     address: '0x6969696969696969696969696969696969696969',
-    symbol: 'wBera',
+    symbol: 'WBERA',
     decimals: 18,
   },
 };

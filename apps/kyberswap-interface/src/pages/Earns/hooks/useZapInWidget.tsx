@@ -1,20 +1,25 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import {
+import type {
   OnSuccessProps,
   SupportedLocale,
-  LiquidityWidget as ZapIn,
   ChainId as ZapInChainId,
   PoolType as ZapInPoolType,
 } from '@kyberswap/liquidity-widgets'
+// The stylesheet loads eagerly, not with the lazy JS below: the widget's transaction-status dialog is styled
+// by utilities scoped under the widget's own root class (`.ks-lw-style`), which ship only in this stylesheet
+// — the app's eager @kyber/ui styles use a different scope (`.ks-ui-style`) and don't reach it. It must be
+// present whenever the widget can open, independent of its lazy JS chunk.
 import '@kyberswap/liquidity-widgets/dist/style.css'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { Suspense, lazy, useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 
 import { NotificationType } from 'components/Announcement/type'
+import LocalLoader from 'components/LocalLoader'
 import Modal from 'components/Modal'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useActiveLocale } from 'hooks/useActiveLocale'
+import { useIsSmartAccount } from 'hooks/useIsSmartAccount'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { EARN_CHAINS, EARN_DEXES, EarnChain, Exchange } from 'pages/Earns/constants'
@@ -28,11 +33,19 @@ import { DEFAULT_PARSED_POSITION, ParsedPosition } from 'pages/Earns/types'
 import { getNftManagerContractAddress, getTokenId, submitTransaction } from 'pages/Earns/utils'
 import { getDexVersion } from 'pages/Earns/utils/position'
 import { updateUnfinalizedPosition } from 'pages/Earns/utils/unfinalizedPosition'
-import { navigateToPositionAfterZap } from 'pages/Earns/utils/zap'
+import { navigateToPoolDetail, navigateToPositionAfterZap } from 'pages/Earns/utils/zap'
 import { useKyberSwapConfig, useNotify, useWalletModalToggle } from 'state/application/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
-import { getCookieValue } from 'utils'
+import { getCookieValue } from 'utils/cookie'
+import { friendlyError } from 'utils/errorMessage'
+import { Address } from 'utils/viem'
+import { signTypedDataRaw } from 'utils/walletClient'
+
+// Every /earn route calls this hook to get its Zap button, but the widget itself only renders inside the
+// modal below — so lazy-loading its ~760KB gz JS keeps it off routes whose visitors never open it. The
+// types above are erased at build time, so nothing else here pulls the package back into the route chunk.
+const ZapIn = lazy(() => import('@kyberswap/liquidity-widgets').then(widget => ({ default: widget.LiquidityWidget })))
 
 interface AddLiquidityPureParams {
   poolAddress: string
@@ -55,6 +68,7 @@ interface AddLiquidityParams extends AddLiquidityPureParams {
   onConnectWallet: () => void
   onSwitchChain: () => void
   onOpenZapMigration?: (position: { exchange: string; poolId: string; positionId: string | number }) => void
+  onOpenPoolDetail?: (pool: { chainId: number; poolAddress: string; dexId?: string }) => void
   onSubmitTx: (txData: { from: string; to: string; value: string; data: string; gasLimit: string }) => Promise<string>
 }
 
@@ -88,8 +102,9 @@ const useZapInWidget = ({
   const notify = useNotify()
   const navigate = useNavigate()
   const refCode = getCookieValue('refCode')
-  const { library } = useWeb3React()
+  const { isSmartConnector } = useWeb3React()
   const { account, chainId } = useActiveWeb3React()
+  const isSmartAccount = useIsSmartAccount()
   const { changeNetwork } = useChangeNetwork()
   const [searchParams, setSearchParams] = useSearchParams()
 
@@ -108,11 +123,9 @@ const useZapInWidget = ({
 
   const handleNavigateToPosition = useCallback(
     async (txHash: string, chainId: number, dex: Exchange, poolId: string) => {
-      if (!library) return
-
-      navigateToPositionAfterZap(library, txHash, chainId, dex, poolId, navigate)
+      navigateToPositionAfterZap(txHash, chainId, dex, poolId, navigate)
     },
-    [library, navigate],
+    [navigate],
   )
 
   const handleOpenZapIn = ({ pool, positionId, initialTick }: ZapInInfo) => {
@@ -187,10 +200,21 @@ const useZapInWidget = ({
             ...addLiquidityPureParams,
             source: 'kyberswap-earn',
             rpcUrl: zapInRpcUrl,
-            signTypedData: library
-              ? (account: string, typedDataJson: string) =>
-                  library.send('eth_signTypedData_v4', [account.toLowerCase(), typedDataJson])
-              : undefined,
+            // See useZapOutWidget for the smart-wallet permit rationale — EIP-1271
+            // signatures from smart wallets (Porto, Safe, Coinbase Smart Wallet,
+            // EIP-7702 EOAs, ...) don't verify on the NFT contract, so we let the
+            // widget fall back to approve.
+            signTypedData:
+              isSmartConnector || isSmartAccount
+                ? undefined
+                : async (account: string, typedDataJson: string) => {
+                    const parsedTypedData = JSON.parse(typedDataJson)
+                    return signTypedDataRaw({
+                      chainId: chainId,
+                      account: account.toLowerCase() as Address,
+                      typedData: parsedTypedData,
+                    })
+                  },
             referral: refCode,
             txStatus,
             txHashMapping: originalToCurrentHash,
@@ -227,6 +251,11 @@ const useZapInWidget = ({
             },
             onConnectWallet: toggleWalletModal,
             onSwitchChain: () => changeNetwork(addLiquidityPureParams.chainId as number),
+            onOpenPoolDetail: (pool: { chainId: number; poolAddress: string; dexId?: string }) => {
+              if (!pool.dexId) return
+              handleCloseZapInWidget()
+              navigateToPoolDetail(pool, navigate)
+            },
             onEvent: (eventName: string, data?: Record<string, any>) => {
               const eventMap: Record<string, TRACKING_EVENT_TYPE> = {
                 PRICE_RANGE_PRESET_SELECTED: TRACKING_EVENT_TYPE.LIQ_PRICE_RANGE_PRESET_SELECTED,
@@ -249,14 +278,12 @@ const useZapInWidget = ({
             },
             onOpenZapMigration: handleOpenZapMigration,
             onSuccess: async (data: OnSuccessProps) => {
-              if (!library) return
-
               const dex = addLiquidityPureParams.dexId
               const isUniv2 = EARN_DEXES[dex as Exchange]?.isForkFrom === CoreProtocol.UniswapV2
 
               const nftId =
                 data.position.positionId ||
-                (isUniv2 ? account || '' : ((await getTokenId(library, data.txHash, dex)) || '').toString())
+                (isUniv2 ? account || '' : ((await getTokenId(chainId, data.txHash, dex)) || '').toString())
 
               const dexVersion = getDexVersion(dex)
               const contract = getNftManagerContractAddress(dex, chainId)
@@ -287,6 +314,7 @@ const useZapInWidget = ({
                     ...DEFAULT_PARSED_POSITION.token0,
                     address: data.position.token0.address,
                     totalProvide: data.position.token0.amount,
+                    currentAmount: data.position.token0.amount,
                     logo: data.position.token0.logo,
                     symbol: data.position.token0.symbol,
                   },
@@ -294,6 +322,7 @@ const useZapInWidget = ({
                     ...DEFAULT_PARSED_POSITION.token1,
                     address: data.position.token1.address,
                     totalProvide: data.position.token1.amount,
+                    currentAmount: data.position.token1.amount,
                     logo: data.position.token1.logo,
                     symbol: data.position.token1.symbol,
                   },
@@ -349,10 +378,15 @@ const useZapInWidget = ({
                     dexName?: string
                   },
             ) => {
-              const res = await submitTransaction({ library, txData })
+              const res = await submitTransaction({
+                account,
+                chainId: addLiquidityPureParams.chainId,
+                txData,
+                isSmartConnector,
+              })
               const { txHash, error } = res
 
-              if (!txHash || error) throw new Error(error?.message || 'Transaction failed')
+              if (!txHash || error) throw new Error(error ? friendlyError(error) : 'Transaction failed')
 
               const dex = addLiquidityPureParams.dexId
               if (additionalInfo?.type === 'zap' && dex) {
@@ -415,9 +449,11 @@ const useZapInWidget = ({
       handleCloseZapInWidget,
       handleNavigateToPosition,
       handleOpenZapMigration,
+      isSmartConnector,
+      isSmartAccount,
       isSmartExitSupported,
-      library,
       locale,
+      navigate,
       onOpenSmartExit,
       onRefreshPosition,
       originalToCurrentHash,
@@ -440,7 +476,9 @@ const useZapInWidget = ({
 
   const widget = addLiquidityParams ? (
     <Modal isOpen mobileFullWidth maxWidth={840} width={'840px'} onDismiss={handleCloseZapInWidget}>
-      <ZapIn {...addLiquidityParams} />
+      <Suspense fallback={<LocalLoader />}>
+        <ZapIn {...addLiquidityParams} />
+      </Suspense>
     </Modal>
   ) : null
 

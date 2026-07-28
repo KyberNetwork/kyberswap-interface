@@ -1,19 +1,18 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { ReactNode } from 'react'
-import styled, { CSSProperties } from 'styled-components'
+import { CSSProperties, ReactNode } from 'react'
 
 import { TokenLogoWithChain, TokenLogoWithShadow } from 'components/Logo'
 import TokenLogo from 'components/TokenLogo'
 import { PrimaryText } from 'components/WalletPopup/Transactions/TransactionItem'
 import { getTokenLogo } from 'components/WalletPopup/Transactions/helper'
 import useTheme from 'hooks/useTheme'
+import { cn } from 'utils/cn'
 
-export const TokenAmountWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 12px;
-`
+export const TokenAmountWrapper = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('flex items-center gap-1 text-xs', className)} {...rest}>
+    {children}
+  </div>
+)
 
 const DeltaTokenAmount = ({
   symbol,
@@ -21,6 +20,7 @@ const DeltaTokenAmount = ({
   tokenAddress,
   plus,
   color: customColor,
+  className,
   logoURL,
   chainId,
   style,
@@ -30,14 +30,14 @@ const DeltaTokenAmount = ({
   tokenAddress?: string
   plus?: boolean
   color?: string
+  className?: string
   logoURL?: string
   chainId?: ChainId
   style?: CSSProperties
 }) => {
   const withSign = plus !== undefined
-  const theme = useTheme()
   const sign = amount === undefined || !withSign ? null : plus ? '+' : '-'
-  const color = customColor ?? (plus ? theme.primary : theme.subText)
+  const defaultColorClass = plus ? 'text-primary' : 'text-subText'
   const logoUrl = logoURL || getTokenLogo(tokenAddress)
   if (!amount && amount !== null) return null
   return (
@@ -48,7 +48,10 @@ const DeltaTokenAmount = ({
         ) : (
           <TokenLogoWithShadow size="12px" srcs={[logoUrl]} />
         ))}
-      <PrimaryText style={{ color }}>
+      <PrimaryText
+        className={cn(defaultColorClass, className)}
+        style={customColor ? { color: customColor } : undefined}
+      >
         {sign} {amount} {symbol}
       </PrimaryText>
     </TokenAmountWrapper>

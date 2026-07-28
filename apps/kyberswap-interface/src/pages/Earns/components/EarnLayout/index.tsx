@@ -22,7 +22,10 @@ const EarnLayout = ({ children }: { children?: ReactNode }) => {
   const isMobile = useMedia('(max-width: 992px)')
   const [collapsed, setCollapsed] = useState<boolean>(readStoredCollapsed)
   const [drawerOpen, setDrawerOpen] = useState(false)
+  const [mounted, setMounted] = useState(false)
   const { pathname } = useLocation()
+
+  useEffect(() => setMounted(true), [])
 
   const handleToggleCollapsed = useCallback(() => {
     setCollapsed(prev => {
@@ -57,32 +60,37 @@ const EarnLayout = ({ children }: { children?: ReactNode }) => {
   }, [drawerOpen])
 
   const drawerVisible = isMobile && drawerOpen
-  const drawerPortal = createPortal(
-    <AnimatePresence>
-      {drawerVisible && (
-        <MobileDrawerOverlay
-          key="earn-drawer-overlay"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.2 }}
-          onClick={handleCloseDrawer}
-        />
-      )}
-      {drawerVisible && (
-        <MobileDrawerPanel
-          key="earn-drawer-panel"
-          initial={{ x: '-100%' }}
-          animate={{ x: 0 }}
-          exit={{ x: '-100%' }}
-          transition={{ duration: 0.25, ease: 'easeOut' }}
-        >
-          <EarnSidebar collapsed={false} inDrawer onToggle={handleCloseDrawer} onNavigate={handleCloseDrawer} />
-        </MobileDrawerPanel>
-      )}
-    </AnimatePresence>,
-    document.body,
-  )
+  // Portals need a real document.body, which prerendering doesn't have. Mounting the
+  // portal after the first client render also keeps AnimatePresence's exit animation,
+  // which gating on drawerVisible would cut short.
+  const drawerPortal = mounted
+    ? createPortal(
+        <AnimatePresence>
+          {drawerVisible && (
+            <MobileDrawerOverlay
+              key="earn-drawer-overlay"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              onClick={handleCloseDrawer}
+            />
+          )}
+          {drawerVisible && (
+            <MobileDrawerPanel
+              key="earn-drawer-panel"
+              initial={{ x: '-100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '-100%' }}
+              transition={{ duration: 0.25, ease: 'easeOut' }}
+            >
+              <EarnSidebar collapsed={false} inDrawer onToggle={handleCloseDrawer} onNavigate={handleCloseDrawer} />
+            </MobileDrawerPanel>
+          )}
+        </AnimatePresence>,
+        document.body,
+      )
+    : null
 
   return (
     <EarnLayoutContainer>

@@ -1,42 +1,31 @@
-import styled, { css, keyframes } from 'styled-components'
+import { HTMLAttributes, SVGAttributes, forwardRef } from 'react'
 
-const spin = keyframes`
-    from {
-        transform:rotate(0deg);
-    }
-    to {
-        transform:rotate(360deg);
-    }
-`
+import { cn } from 'utils/cn'
 
-export const WrappedSvg = styled.svg<{ spinning: boolean }>`
-  ${({ spinning }) =>
-    spinning
-      ? css`
-          animation-name: ${spin};
-          animation-duration: 696ms;
-          animation-iteration-count: infinite;
-          animation-timing-function: linear;
-        `
-      : ''}
-`
+type WrappedSvgProps = SVGAttributes<SVGSVGElement> & { spinning: boolean }
 
-export const SpinWrapper = styled.div<{ clickable?: boolean }>`
-  display: flex;
-  align-items: center;
-  position: relative;
-  width: fit-content;
-  cursor: ${({ clickable }) => (clickable ? 'pointer' : 'default')};
-`
+// 696ms is intentional (matches refresh tick visual cadence) — kept as arbitrary animation value.
+export const WrappedSvg = forwardRef<SVGSVGElement, WrappedSvgProps>(({ spinning, className, ...rest }, ref) => (
+  <svg ref={ref} {...rest} className={cn(spinning && '[animation:spin_696ms_linear_infinite]', className)} />
+))
+WrappedSvg.displayName = 'WrappedSvg'
 
-export const CountDown = styled.div`
-  font-size: 0.75rem;
-  font-weight: 500;
-  position: absolute;
-  margin-left: auto;
-  margin-right: auto;
-  left: 0;
-  right: 0;
-  text-align: center;
-  color: ${({ theme }) => theme.primary};
-`
+type SpinWrapperProps = HTMLAttributes<HTMLDivElement> & { clickable?: boolean }
+
+export const SpinWrapper = forwardRef<HTMLDivElement, SpinWrapperProps>(({ clickable, className, ...rest }, ref) => (
+  <div
+    ref={ref}
+    {...rest}
+    className={cn('relative flex w-fit items-center', clickable ? 'cursor-pointer' : 'cursor-default', className)}
+  />
+))
+SpinWrapper.displayName = 'SpinWrapper'
+
+export const CountDown = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(({ className, ...rest }, ref) => (
+  <div
+    ref={ref}
+    {...rest}
+    className={cn('absolute inset-x-0 mx-auto text-center text-xs font-medium text-primary', className)}
+  />
+))
+CountDown.displayName = 'CountDown'

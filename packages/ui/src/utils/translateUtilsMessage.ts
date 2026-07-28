@@ -11,6 +11,7 @@ const FRIENDLY_ERROR_TRANSLATIONS: Record<string, () => string> = {
   [ERROR_MESSAGES.USER_REJECTED]: () => t`User rejected the transaction.`,
   [ERROR_MESSAGES.USER_REJECTED_REQUEST]: () => t`User rejected the request.`,
   [ERROR_MESSAGES.INCREASE_SLIPPAGE]: () => t`An error occurred. Please try increasing max slippage`,
+  [ERROR_MESSAGES.INSUFFICIENT_GAS_FUNDS]: () => t`Your current balance falls short of covering the required gas fee.`,
   [ERROR_MESSAGES.INVALID_PERMIT_SIGNATURE]: () => t`An error occurred. Invalid Permit Signature`,
   [ERROR_MESSAGES.INSUFFICIENT_FEE_REWARDS]: () =>
     t`Insufficient fee rewards amount, try to remove your liquidity without claiming fees for now and you can try to claim it later`,

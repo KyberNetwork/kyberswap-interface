@@ -1,30 +1,21 @@
-import { Box } from 'rebass'
-import styled from 'styled-components'
+import { HTMLAttributes, forwardRef } from 'react'
 
-const Column = styled(Box)<{
-  gap?: 'sm' | 'md' | 'lg' | string
-  justify?: 'stretch' | 'center' | 'start' | 'end' | 'flex-start' | 'flex-end' | 'space-between'
-}>`
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  gap: ${({ gap }) => (gap === 'sm' && '8px') || (gap === 'md' && '12px') || (gap === 'lg' && '24px') || gap};
-  justify-items: ${({ justify }) => justify && justify};
-`
+import { cn } from 'utils/cn'
 
-export const ColumnCenter = styled(Column)`
-  width: 100%;
-  align-items: center;
-`
+type ColumnProps = HTMLAttributes<HTMLDivElement>
 
-export const AutoColumn = styled.div<{
-  gap?: 'sm' | 'md' | 'lg' | string
-  justify?: 'stretch' | 'center' | 'start' | 'end' | 'flex-start' | 'flex-end' | 'space-between'
-}>`
-  display: grid;
-  grid-auto-rows: auto;
-  grid-row-gap: ${({ gap }) => (gap === 'sm' && '8px') || (gap === 'md' && '12px') || (gap === 'lg' && '24px') || gap};
-  justify-items: ${({ justify }) => justify && justify};
-`
-
+const Column = forwardRef<HTMLDivElement, ColumnProps>(({ className, ...rest }, ref) => (
+  <div ref={ref} className={cn('flex flex-col justify-start', className)} {...rest} />
+))
+Column.displayName = 'Column'
 export default Column
+
+export const ColumnCenter = forwardRef<HTMLDivElement, ColumnProps>(({ className, ...rest }, ref) => (
+  <Column ref={ref} className={cn('w-full items-center', className)} {...rest} />
+))
+ColumnCenter.displayName = 'ColumnCenter'
+
+export const AutoColumn = forwardRef<HTMLDivElement, ColumnProps>(({ className, ...rest }, ref) => (
+  <div ref={ref} className={cn('grid auto-rows-auto', className)} {...rest} />
+))
+AutoColumn.displayName = 'AutoColumn'

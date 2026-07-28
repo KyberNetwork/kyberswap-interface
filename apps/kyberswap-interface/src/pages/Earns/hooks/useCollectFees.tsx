@@ -9,11 +9,12 @@ import { CoreProtocol } from 'pages/Earns/constants/coreProtocol'
 import useAccountChanged from 'pages/Earns/hooks/useAccountChanged'
 import useCompounding from 'pages/Earns/hooks/useCompounding'
 import { ParsedPosition } from 'pages/Earns/types'
-import { getNftManagerContract, submitTransaction } from 'pages/Earns/utils'
+import { getNftManagerContractAddress, submitTransaction } from 'pages/Earns/utils'
 import { getUniv3CollectCallData, getUniv4CollectCallData } from 'pages/Earns/utils/fees'
 import { useNotify } from 'state/application/hooks'
 import { useAllTransactions, useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
+import { friendlyError } from 'utils/errorMessage'
 import { formatDisplayNumber } from 'utils/numbers'
 
 type UseCollectFeesProps = {
@@ -26,7 +27,7 @@ const useCollectFees = ({ refetchAfterCollect }: UseCollectFeesProps) => {
   const allTransactions = useAllTransactions(true)
 
   const { account } = useActiveWeb3React()
-  const { library } = useWeb3React()
+  const { isSmartConnector } = useWeb3React()
 
   const [claimInfo, setClaimInfo] = useState<ClaimInfo | null>(null)
   const [openClaimModal, setOpenClaimModal] = useState(false)
@@ -46,7 +47,7 @@ const useCollectFees = ({ refetchAfterCollect }: UseCollectFeesProps) => {
   })
 
   const handleClaim = useCallback(async () => {
-    if (!library || !claimInfo?.dex) return
+    if (!claimInfo?.dex) return
     if (!EARN_DEXES[claimInfo.dex].collectFeeSupported) {
       notify({
         title: t`Error`,
@@ -56,8 +57,8 @@ const useCollectFees = ({ refetchAfterCollect }: UseCollectFeesProps) => {
       return
     }
 
-    const contract = getNftManagerContract(claimInfo.dex, claimInfo.chainId)
-    if (!contract) return
+    if (!getNftManagerContractAddress(claimInfo.dex, claimInfo.chainId)) return
+    if (!EARN_DEXES[claimInfo.dex]?.nftManagerContractAbi) return
 
     const token0 = claimInfo.tokens[0]
     const token1 = claimInfo.tokens[1]
@@ -73,14 +74,16 @@ const useCollectFees = ({ refetchAfterCollect }: UseCollectFeesProps) => {
     let errorMessage = ''
 
     const res = await submitTransaction({
-      library,
+      account,
+      chainId: claimInfo.chainId,
+      isSmartConnector,
       txData,
       onError: (error: Error) => {
         errorMessage = error.message
         notify({
           title: t`Error`,
           type: NotificationType.ERROR,
-          summary: error.message.includes('user rejected transaction') ? 'User rejected transaction' : error.message,
+          summary: friendlyError(error),
         })
       },
     })
@@ -90,9 +93,7 @@ const useCollectFees = ({ refetchAfterCollect }: UseCollectFeesProps) => {
         notify({
           title: t`Error`,
           type: NotificationType.ERROR,
-          summary: error?.message?.includes('user rejected transaction')
-            ? 'User rejected transaction'
-            : error?.message || 'Transaction failed',
+          summary: friendlyError(error),
         })
       throw new Error(error?.message || 'Transaction failed')
     }
@@ -121,7 +122,7 @@ const useCollectFees = ({ refetchAfterCollect }: UseCollectFeesProps) => {
         },
       },
     })
-  }, [account, addTransactionWithType, claimInfo, library, notify])
+  }, [account, addTransactionWithType, claimInfo, isSmartConnector, notify])
 
   const onOpenClaim = (position: ParsedPosition) => {
     setOpenClaimModal(true)

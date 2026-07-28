@@ -4,7 +4,7 @@ import { useEffect, useRef } from 'react';
  * On each render returns the previous value of the given variable/constant.
  */
 const usePreviousValue = <TValue>(value?: TValue): TValue | undefined => {
-  const prevValue = useRef<TValue>();
+  const prevValue = useRef<TValue | undefined>(undefined);
 
   useEffect(() => {
     prevValue.current = value;

@@ -2,11 +2,15 @@ import { ChainId, CurrencyAmount, Token, WETH } from '@kyberswap/ks-sdk-core'
 import { createApi } from '@reduxjs/toolkit/query/react'
 import { baseQueryOauthDynamic } from 'services/baseQueryOauth'
 import { BuildRoutePayload, BuildRouteResponse } from 'services/route/types/buildRoute'
+import { GetRouteParams, GetRouteResponse } from 'services/route/types/getRoute'
+import { fetchTokenPrices, getMidPrice } from 'services/tokenCatalog'
 
-import { TOKEN_API_URL } from 'constants/env'
 import { ETHER_ADDRESS } from 'constants/index'
 
-import { GetRouteParams, GetRouteResponse } from './types/getRoute'
+export const AGGREGATOR_API_PATHS = {
+  BUILD_ROUTE: '/api/v1/route/build',
+  GET_ROUTE: '/api/v1/routes',
+} as const
 
 const getWrappedToken = (token: string, chainId: ChainId) =>
   token.toLowerCase() === ETHER_ADDRESS.toLowerCase() ? WETH[chainId].address : token
@@ -42,30 +46,36 @@ const routeApi = createApi({
         const { chainId, tokenInDecimals, tokenOutDecimals, tokenIn, tokenOut } = params || {}
 
         // Ensure all necessary data is available
-        if (baseResponse?.data?.routeSummary && routeSummary && chainId && tokenInDecimals && tokenOutDecimals) {
+        if (
+          baseResponse?.data?.routeSummary &&
+          routeSummary &&
+          chainId &&
+          // decimals can be 0
+          tokenInDecimals !== null &&
+          tokenInDecimals !== undefined &&
+          tokenOutDecimals !== null &&
+          tokenOutDecimals !== undefined
+        ) {
           const { amountIn, amountOut } = routeSummary
+
+          if (!routeSummary.amountInUsd || !routeSummary.amountOutUsd) {
+            console.warn('[getRoute] aggregator returned empty amountInUsd/amountOutUsd', {
+              amountInUsd: routeSummary.amountInUsd,
+              amountOutUsd: routeSummary.amountOutUsd,
+              tokenIn,
+              tokenOut,
+              chainId,
+            })
+          }
 
           try {
             const wrappedTokenIn = getWrappedToken(tokenIn, chainId)
             const wrappedTokenOut = getWrappedToken(tokenOut, chainId)
 
-            const priceResponse = await fetch(`${TOKEN_API_URL}/v1/public/tokens/prices`, {
-              method: 'POST',
-              body: JSON.stringify({
-                [chainId]: [wrappedTokenIn, wrappedTokenOut],
-              }),
-            }).then(res => res.json())
+            const priceResponse = await fetchTokenPrices({ [chainId]: [wrappedTokenIn, wrappedTokenOut] })
 
-            const tokenInPrices = priceResponse?.data?.[chainId]?.[wrappedTokenIn]
-            const tokenInMidPrice =
-              tokenInPrices?.PriceBuy && tokenInPrices?.PriceSell
-                ? (tokenInPrices.PriceBuy + tokenInPrices.PriceSell) / 2
-                : null
-            const tokenOutPrices = priceResponse?.data?.[chainId]?.[wrappedTokenOut]
-            const tokenOutMidPrice =
-              tokenOutPrices?.PriceBuy && tokenOutPrices?.PriceSell
-                ? (tokenOutPrices.PriceBuy + tokenOutPrices.PriceSell) / 2
-                : null
+            const tokenInMidPrice = getMidPrice(priceResponse?.data?.[chainId]?.[wrappedTokenIn])
+            const tokenOutMidPrice = getMidPrice(priceResponse?.data?.[chainId]?.[wrappedTokenOut])
 
             const currencyIn = new Token(chainId, tokenIn, tokenInDecimals)
             const currencyOut = new Token(chainId, tokenOut, tokenOutDecimals)
@@ -87,8 +97,26 @@ const routeApi = createApi({
               },
             }
           } catch (error) {
-            console.error('Failed to fetch on-chain price:', error)
+            console.error('[getRoute] on-chain price fetch failed; rawAmount*Usd will not be set', {
+              error,
+              tokenIn,
+              tokenOut,
+              chainId,
+              apiAmountInUsd: routeSummary.amountInUsd,
+              apiAmountOutUsd: routeSummary.amountOutUsd,
+            })
           }
+        } else {
+          console.warn('[getRoute] transform skipped; rawAmount*Usd will not be set', {
+            hasRouteSummary: !!routeSummary,
+            chainId,
+            tokenInDecimals,
+            tokenOutDecimals,
+            tokenIn,
+            tokenOut,
+            apiAmountInUsd: routeSummary?.amountInUsd,
+            apiAmountOutUsd: routeSummary?.amountOutUsd,
+          })
         }
 
         // Return original response if conditions are not met or request fails
@@ -125,23 +153,10 @@ const routeApi = createApi({
             const wrappedTokenIn = getWrappedToken(tokenIn, chainId)
             const wrappedTokenOut = getWrappedToken(tokenOut, chainId)
 
-            const priceResponse = await fetch(`${TOKEN_API_URL}/v1/public/tokens/prices`, {
-              method: 'POST',
-              body: JSON.stringify({
-                [chainId]: [wrappedTokenIn, wrappedTokenOut],
-              }),
-            }).then(res => res.json())
+            const priceResponse = await fetchTokenPrices({ [chainId]: [wrappedTokenIn, wrappedTokenOut] })
 
-            const tokenInPrices = priceResponse?.data?.[chainId]?.[wrappedTokenIn]
-            const tokenInMidPrice =
-              tokenInPrices?.PriceBuy && tokenInPrices?.PriceSell
-                ? (tokenInPrices.PriceBuy + tokenInPrices.PriceSell) / 2
-                : null
-            const tokenOutPrices = priceResponse?.data?.[chainId]?.[wrappedTokenOut]
-            const tokenOutMidPrice =
-              tokenOutPrices?.PriceBuy && tokenOutPrices?.PriceSell
-                ? (tokenOutPrices.PriceBuy + tokenOutPrices.PriceSell) / 2
-                : null
+            const tokenInMidPrice = getMidPrice(priceResponse?.data?.[chainId]?.[wrappedTokenIn])
+            const tokenOutMidPrice = getMidPrice(priceResponse?.data?.[chainId]?.[wrappedTokenOut])
 
             const currencyIn = new Token(chainId, tokenIn, tokenInDecimals)
             const currencyOut = new Token(chainId, tokenOut, tokenOutDecimals)
@@ -170,5 +185,3 @@ const routeApi = createApi({
 })
 
 export default routeApi
-
-export const { useLazyGetRouteQuery, useBuildRouteMutation } = routeApi

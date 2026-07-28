@@ -1,19 +1,24 @@
 import { Trans } from '@lingui/macro'
-import dayjs from 'dayjs'
-import { rgba } from 'polished'
 import { useEffect, useState } from 'react'
-import { ChevronLeft } from 'react-feather'
-import { Text } from 'rebass'
-import styled from 'styled-components'
+import { isAndroid, isIOS } from 'react-device-detect'
 import { useConnect } from 'wagmi'
 
-import { ReactComponent as Close } from 'assets/images/x.svg'
+import METAMASK_ICON from 'assets/wallets-connect/metamask.svg'
+import {
+  Content,
+  Header,
+  Options,
+  Section,
+  Shell,
+  Terms,
+  WalletOption,
+} from 'components/Header/web3/WalletModal/components'
+import { useOrderedConnections } from 'components/Header/web3/WalletModal/useConnections'
 import Modal from 'components/Modal'
-import { RowBetween } from 'components/Row'
 import WalletPopup from 'components/WalletPopup'
-import { TERM_FILES_PATH } from 'constants/index'
+import { registerPortoConnector } from 'components/Web3Provider'
+import { setMetaMaskMobileLink, useMetaMaskMobileLink } from 'components/Web3Provider/metamaskMobileLink'
 import { useActiveWeb3React } from 'hooks'
-import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { ApplicationModal } from 'state/application/actions'
 import {
@@ -24,84 +29,27 @@ import {
   useWalletModalToggle,
 } from 'state/application/hooks'
 import { useIsAcceptedTerm } from 'state/user/hooks'
-import { ExternalLink } from 'theme'
 
-import Option from './Option'
-import { useOrderedConnections } from './useConnections'
+// Store page shown alongside the mobile "Open MetaMask" deep link, for users without the app.
+const METAMASK_STORE_URL = isAndroid
+  ? 'https://play.google.com/store/apps/details?id=io.metamask'
+  : isIOS
+  ? 'https://apps.apple.com/app/metamask/id1438144202'
+  : 'https://metamask.io/download/'
 
-export const CloseIcon = styled.div`
-  height: 24px;
-  align-self: flex-end;
-  cursor: pointer;
-  color: ${({ theme }) => theme.text};
-  &:hover {
-    opacity: 0.6;
-  }
-`
-
-const Wrapper = styled.div`
-  ${({ theme }) => theme.flexColumnNoWrap}
-  margin: 0;
-  padding: 0;
-  width: 100%;
-`
-
-export const ContentWrapper = styled.div`
-  border-bottom-left-radius: 20px;
-  border-bottom-right-radius: 20px;
-  margin-top: 1rem;
-  gap: 1rem;
-`
-
-export const TermAndCondition = styled.div`
-  padding: 8px;
-  font-size: 12px;
-  font-weight: 500;
-  line-height: 16px;
-  background-color: ${({ theme }) => rgba(theme.buttonBlack, 0.35)};
-  color: ${props => (props.color === 'blue' ? ({ theme }) => theme.primary : 'inherit')};
-  accent-color: ${({ theme }) => theme.primary};
-  border-radius: 16px;
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-  :hover {
-    background-color: ${({ theme }) => rgba(theme.buttonBlack, 0.5)};
-  }
-`
-
-export const UpperSection = styled.div`
-  position: relative;
-  padding: 24px;
-  position: relative;
-`
-
-export const OptionGrid = styled.div`
-  display: grid;
-  gap: 1rem;
-  align-items: center;
-  grid-template-columns: repeat(2, 1fr);
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-     grid-template-columns: 1fr;
-  `}
-`
-
-const HoverText = styled.div`
-  display: flex;
-  gap: 4px;
-  align-items: center;
-  font-size: 20px;
-  :hover {
-    cursor: pointer;
-  }
-`
+export {
+  Content,
+  Header,
+  Icon,
+  OptionButton,
+  Options,
+  Section,
+  Shell,
+  Terms,
+} from 'components/Header/web3/WalletModal/components'
 
 export default function WalletModal() {
   const { isWrongNetwork, account } = useActiveWeb3React()
-
-  const theme = useTheme()
-
   const walletModalOpen = useModalOpen(ApplicationModal.WALLET)
   const toggleWalletModal = useWalletModalToggle()
   const closeWalletModal = useCloseModal(ApplicationModal.WALLET)
@@ -109,10 +57,34 @@ export default function WalletModal() {
   const openNetworkModal = useOpenNetworkModal()
 
   const { isPending: isSomeOptionPending, isIdle, isError, reset } = useConnect()
-  const onDismiss = () => {
+
+  // On a native mobile browser the MetaMask SDK surfaces its connection deep link here (see
+  // metamaskMobileLink). We render it as a tappable anchor instead of opening it automatically.
+  const metaMaskLink = useMetaMaskMobileLink()
+  const resetConnect = () => {
+    setMetaMaskMobileLink(null)
     reset()
+  }
+  const onDismiss = () => {
+    resetConnect()
     closeWalletModal()
   }
+
+  // Porto registers itself during idle to keep its SDK out of the entry chunk (see
+  // registerPortoConnector), which leaves a gap on a slow cold load where the list would render without
+  // it. Opening this modal is the point where that stops being acceptable, so ask for it here too — the
+  // call de-dupes, so whichever happens first wins.
+  useEffect(() => {
+    if (walletModalOpen) void registerPortoConnector()
+  }, [walletModalOpen])
+
+  // Drop a stale deep link once the attempt settles (success/error) or the modal closes, so the
+  // "Open MetaMask" view never lingers into the next time the modal opens.
+  useEffect(() => {
+    if (!walletModalOpen || !isSomeOptionPending) {
+      setMetaMaskMobileLink(null)
+    }
+  }, [walletModalOpen, isSomeOptionPending])
 
   const [isAcceptedTerm, setIsAcceptedTerm] = useIsAcceptedTerm()
 
@@ -129,71 +101,59 @@ export default function WalletModal() {
   const [isPinnedPopupWallet, setPinnedPopupWallet] = useState(false)
 
   function getModalContent() {
+    const isConnectingBackVisible = isSomeOptionPending || isError
+
+    const handleAcceptTermChange = (checked: boolean) => {
+      if (checked && !isAcceptedTerm) {
+        trackingHandler(TRACKING_EVENT_TYPE.WALLET_CONNECT_ACCEPT_TERM_CLICK)
+      }
+      setIsAcceptedTerm(checked)
+    }
+
     return (
-      <UpperSection>
-        <RowBetween marginBottom="26px" gap="20px">
-          {(isSomeOptionPending || isError) && (
-            <HoverText
-              onClick={() => {
-                reset()
-              }}
-              style={{ marginRight: '1rem', flex: 1 }}
+      <Section>
+        <Header
+          title={!isSomeOptionPending ? <Trans>Connect your Wallet</Trans> : <Trans>Connecting Wallet</Trans>}
+          onBack={isConnectingBackVisible ? resetConnect : undefined}
+          onClose={() => {
+            resetConnect()
+            toggleWalletModal()
+          }}
+        />
+        {metaMaskLink ? (
+          <Content className="flex flex-col items-center gap-4 pb-1 pt-2 text-center">
+            <img src={METAMASK_ICON} alt="MetaMask" className="size-12 rounded-lg" />
+            <span className="text-sm text-subText">
+              <Trans>Tap the button below to open the MetaMask app and approve the connection.</Trans>
+            </span>
+            <a
+              href={metaMaskLink}
+              className="w-full rounded-full bg-primary py-2 text-center text-base font-medium !text-darkText hover:brightness-110"
             >
-              <ChevronLeft color={theme.primary} />
-            </HoverText>
-          )}
-          <HoverText>
-            {!isSomeOptionPending ? <Trans>Connect your Wallet</Trans> : <Trans>Connecting Wallet</Trans>}
-          </HoverText>
-          <CloseIcon
-            onClick={() => {
-              reset()
-              toggleWalletModal()
-            }}
-          >
-            <Close />
-          </CloseIcon>
-        </RowBetween>
-        {isIdle && (
-          <TermAndCondition
-            onClick={() => {
-              if (!isAcceptedTerm) {
-                trackingHandler(TRACKING_EVENT_TYPE.WALLET_CONNECT_ACCEPT_TERM_CLICK)
-              }
-              setIsAcceptedTerm(!isAcceptedTerm)
-            }}
-          >
-            <input
-              type="checkbox"
-              checked={isAcceptedTerm}
-              onChange={() => {}}
-              data-testid="accept-term"
-              style={{ marginRight: '12px', height: '14px', width: '14px', minWidth: '14px', cursor: 'pointer' }}
-            />
-            <Text color={theme.subText}>
-              <Trans>Accept </Trans>{' '}
-              <ExternalLink href={TERM_FILES_PATH.KYBERSWAP_TERMS} onClick={e => e.stopPropagation()}>
-                <Trans>KyberSwap&lsquo;s Terms of Use</Trans>
-              </ExternalLink>{' '}
-              <Trans>and</Trans>{' '}
-              <ExternalLink href={TERM_FILES_PATH.PRIVACY_POLICY} onClick={e => e.stopPropagation()}>
-                <Trans>Privacy Policy</Trans>
-              </ExternalLink>
-              {'. '}
-              <Text fontSize={10} as="span">
-                <Trans>Last updated: {dayjs(TERM_FILES_PATH.VERSION).format('DD MMM YYYY')}</Trans>
-              </Text>
-            </Text>
-          </TermAndCondition>
+              <Trans>Open MetaMask</Trans>
+            </a>
+            <a
+              href={METAMASK_STORE_URL}
+              target="_blank"
+              rel="noreferrer"
+              className="text-sm font-medium text-subText underline"
+            >
+              <Trans>No MetaMask app yet? Install it</Trans>
+            </a>
+          </Content>
+        ) : (
+          <div className="flex flex-col gap-4">
+            {isIdle && <Terms checked={isAcceptedTerm} onChange={handleAcceptTermChange} />}
+            <Content>
+              <Options>
+                {connectors.map(c => (
+                  <WalletOption connector={c} key={c.uid} />
+                ))}
+              </Options>
+            </Content>
+          </div>
         )}
-        <ContentWrapper>
-          <OptionGrid>
-            {connectors.map(c => (
-              <Option connector={c} key={c.uid} />
-            ))}
-          </OptionGrid>
-        </ContentWrapper>
-      </UpperSection>
+      </Section>
     )
   }
 
@@ -216,20 +176,11 @@ export default function WalletModal() {
       minHeight={false}
       maxHeight={90}
       maxWidth={600}
-      bypassScrollLock={
-        true
-        //isSomeOptionPending
-        //&& activationState.connection.type === ConnectionType.WALLET_CONNECT_V2
-      }
-      bypassFocusLock={
-        true
-        //isSomeOptionPending
-        //&& activationState.connection.type === ConnectionType.WALLET_CONNECT_V2
-        // walletView === WALLET_VIEWS.PENDING && ['WALLET_CONNECT', 'KRYSTAL_WC', 'BLOCTO'].includes(pendingWalletKey)
-      }
+      bypassScrollLock={true}
+      bypassFocusLock={true}
       zindex={99999}
     >
-      <Wrapper>{getModalContent()}</Wrapper>
+      <Shell>{getModalContent()}</Shell>
     </Modal>
   )
 }

@@ -3,9 +3,7 @@ import PriceSlider from '@kyberswap/price-slider'
 import '@kyberswap/price-slider/style.css'
 import { Trans } from '@lingui/macro'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Box, Flex, Text } from 'rebass'
 
-import useTheme from 'hooks/useTheme'
 import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
 import { HighlightWrapper } from 'pages/Earns/components/SmartExit/GuidedHighlight'
 import { calculateExpectedAmounts } from 'pages/Earns/components/SmartExit/Metrics/calculateExpectedAmounts'
@@ -38,7 +36,6 @@ export default function PriceInput({
   isHighlighted?: boolean
   revertPrice?: boolean
 }) {
-  const theme = useTheme()
   const priceCondition = useMemo(() => getPriceCondition(metric) || defaultPriceCondition, [metric])
 
   // Stored condition (priceCondition) is always in forward (token0/token1) domain
@@ -406,50 +403,42 @@ export default function PriceInput({
 
   return (
     <>
-      <Flex alignItems="center" sx={{ gap: '4px' }}>
-        <Text>
+      <div className="flex items-center gap-1">
+        <span>
           <Trans>
             Exit when {baseSymbol}/{quoteSymbol}
           </Trans>
-        </Text>
+        </span>
         <HighlightWrapper isHighlighted={isHighlighted}>
-          <Flex alignItems="center" sx={{ gap: '4px' }}>
-            <Flex
-              sx={{
-                display: 'inline-flex',
-                borderRadius: '12px',
-                overflow: 'hidden',
-                border: `1px solid ${theme.border}`,
-              }}
-            >
+          <div className="flex items-center gap-1">
+            <div className="inline-flex overflow-hidden rounded-xl border border-solid border-border">
               <PriceInputIcon onClick={() => handleComparatorChange('gte')} $active={comparator === 'gte'}>
                 ≥
               </PriceInputIcon>
               <PriceInputIcon onClick={() => handleComparatorChange('lte')} $active={comparator === 'lte'}>
                 ≤
               </PriceInputIcon>
-            </Flex>
+            </div>
             <PriceCustomInput
               placeholder={`${baseSymbol}/${quoteSymbol}`}
               value={inputPrice}
               onChange={e => {
                 const value = e.target.value
-                // Only allow numbers and decimal point
                 if (/^\d*\.?\d*$/.test(value)) {
                   setInputPrice(value)
                   const typedTick = displayPriceToTick(value)
                   if (typedTick !== undefined) {
-                    updateComparatorOnCross(typedTick, toForwardPrice(value)) // change comparator immediately on cross
+                    updateComparatorOnCross(typedTick, toForwardPrice(value))
                   }
                 }
               }}
               onBlur={e => wrappedCorrectPrice(e.target.value)}
             />
-          </Flex>
+          </div>
         </HighlightWrapper>
-      </Flex>
+      </div>
 
-      <Box>
+      <div>
         <PriceSlider
           pool={{
             tickSpacing: position.pool.tickSpacing,
@@ -464,36 +453,32 @@ export default function PriceInput({
           showStepButtons
           invertPrice={revertPrice}
         />
-      </Box>
+      </div>
 
-      <Flex alignItems="center" justifyContent="space-between" sx={{ gap: '8px' }} flexWrap="wrap">
-        <Text color={theme.subText} fontSize={12}>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <span className="text-[12px] text-subText">
           <Trans>Est. Balance</Trans>
-        </Text>
-        <Flex alignItems="center" sx={{ gap: '8px' }}>
+        </span>
+        <div className="flex items-center gap-2">
           {expectedAmounts ? (
-            <Text fontSize={14} color={theme.primary}>
+            <p className="text-[14px] text-primary">
               {formatDisplayNumber(expectedAmounts.amount0, { significantDigits: 4 })}{' '}
-              <Text as="span" color={theme.text}>
-                {position.token0.symbol}
-              </Text>
-            </Text>
+              <span className="text-text">{position.token0.symbol}</span>
+            </p>
           ) : (
             <PositionSkeleton width={60} height={14} />
           )}
-          <Box width={'1px'} height={'12px'} bg={theme.border} />
+          <div className="h-3 w-px bg-border" />
           {expectedAmounts ? (
-            <Text fontSize={14} color={theme.primary}>
+            <p className="text-[14px] text-primary">
               {formatDisplayNumber(expectedAmounts.amount1, { significantDigits: 4 })}{' '}
-              <Text as="span" color={theme.text}>
-                {position.token1.symbol}
-              </Text>
-            </Text>
+              <span className="text-text">{position.token1.symbol}</span>
+            </p>
           ) : (
             <PositionSkeleton width={60} height={14} />
           )}
-        </Flex>
-      </Flex>
+        </div>
+      </div>
     </>
   )
 }

@@ -12,11 +12,6 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: src/components/TokenSelector/TokenInfo/MarketInfo.tsx
-#: src/components/TokenSelector/TokenInfo/SecurityInfo.tsx
-msgid "Powered by <0/>"
-msgstr "由 <0/> 提供支持"
-
 #: src/components/Setting/index.tsx
 msgid "Please type the word <0>Confirm</0> below to enable Degen Mode"
 msgstr "请输入下方 <0>Confirm</0> 以开启 Degen 模式"
@@ -238,8 +233,13 @@ msgid "Permit NFT"
 msgstr "授权NFT"
 
 #: src/components/ZapSummary.tsx
-msgid "<0>Swap {0} {1} for {2} </0>{3}"
-msgstr "<0>将 {0} {1} 兑换为 {2} </0>{3}"
+#~ msgid "<0>Swap {0} {1} for {2} </0>{3}"
+#~ msgstr "<0>将 {0} {1} 兑换为 {2} </0>{3}"
+
+#: src/components/TokenSelector/TokenInfo/MarketInfo.tsx
+#: src/components/TokenSelector/TokenInfo/SecurityInfo.tsx
+#~ msgid "Powered by <0/>"
+#~ msgstr "由 <0/> 提供支持"
 
 #: src/components/Setting/SlippageInput.tsx
 #: src/components/Setting/SlippageInput.tsx
@@ -263,6 +263,10 @@ msgstr "原生代币"
 #: src/components/Action/useActionButton.ts
 msgid "Connect wallet"
 msgstr "连接钱包"
+
+#: src/components/ZapSummary.tsx
+msgid "Swap {0} {1} for {2} {3} via {4}"
+msgstr ""
 
 #: src/components/Preview.tsx
 msgid "Receiving Amount"
@@ -289,8 +293,8 @@ msgid "Remove Liquidity Success!"
 msgstr "流动性移除成功！"
 
 #: src/components/Action/useActionButton.ts
-msgid "Estimate Gas Failed"
-msgstr "Gas 预估失败"
+#~ msgid "Estimate Gas Failed"
+#~ msgstr "Gas 预估失败"
 
 #: src/components/Action/index.tsx
 msgid "Cancel"

@@ -1,10 +1,10 @@
-import { BigNumber } from '@ethersproject/bignumber'
 import { Fraction } from '@kyberswap/ks-sdk-core'
-import { formatUnits } from 'ethers/lib/utils'
 import JSBI from 'jsbi'
 import Numeral from 'numeral'
 
-export const getFullDisplayBalance = (balance: BigNumber | string, decimals = 18, significant = 6): string => {
+import { formatUnits } from 'utils/viem'
+
+export const getFullDisplayBalance = (balance: bigint | string, decimals = 18, significant = 6): string => {
   if (!balance) {
     return '0'
   }
@@ -64,23 +64,6 @@ export const formatLongNumber = (num: string, usd?: boolean): string => {
   return usd ? `$${Numeral(num).format('0,0')}` : Numeral(num).format('0,0')
 }
 
-export const formatTokenBalance = (balance: number): string => {
-  if (balance === 0) {
-    return '0'
-  }
-
-  if (0 < balance && balance < 1) {
-    return balance.toPrecision(3)
-  }
-
-  return balance.toFixed(3)
-}
-
-export const fixedFormatting = (value: BigNumber, decimals: number) => {
-  const res = new Fraction(value.toString(), JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(decimals))).toFixed(6)
-  return parseFloat(res).toString()
-}
-
-export const formatUnitsToFixed = (amount: BigNumber, decimals?: number, decimalPlaces?: number) => {
-  return (+(+formatUnits(amount, decimals)).toFixed(decimalPlaces ?? 3)).toString()
+export const formatUnitsToFixed = (amount: bigint, decimals?: number, decimalPlaces?: number) => {
+  return (+(+formatUnits(amount, decimals ?? 18)).toFixed(decimalPlaces ?? 3)).toString()
 }

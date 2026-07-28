@@ -22,6 +22,9 @@ export interface Pool {
     fees: number;
     eg: number;
     lm: number;
+    activeTotal?: number;
+    activeEg?: number;
+    activeLm?: number;
   };
 }
 
@@ -44,6 +47,7 @@ interface Reward {
 interface GetValueByOptionParams {
   type: ShareType;
   option?: ShareOption;
+  selectedOptions?: Set<ShareOption>;
   pool?: Pool;
   position?: Position;
   reward?: Reward;
@@ -95,18 +99,32 @@ export const formatTimeDurationFromTimestamp = (timestamp: number): string => {
   return `${months} ${monthText} ${remainingDays} ${dayText}`;
 };
 
-export const getSharePath = (type: ShareType, pool: Pool): string => {
+export const getSharePath = (type: ShareType, pool: Pool, url?: string): string => {
   const origin = window?.location?.origin || 'kyberswap.com';
 
-  const path =
-    type === ShareType.REWARD_INFO
-      ? '/earn/pools?tag=farming_pool'
-      : `/earn/pools?poolAddress=${pool.address}&poolChainId=${pool.chainId}&exchange=${pool.exchange}`;
+  if (type === ShareType.REWARD_INFO) {
+    return `${origin}/earn/pools?tag=farming_pool`;
+  }
 
-  return `${origin}${path}`;
+  if (url) return url;
+
+  const searchParams = new URLSearchParams({
+    exchange: pool.exchange || '',
+    poolAddress: pool.address || '',
+    poolChainId: pool.chainId?.toString() || '',
+  });
+
+  return `${origin}/pools/add-liquidity?${searchParams.toString()}`;
 };
 
-export const getValueByOption = ({ type, option, pool, position, reward }: GetValueByOptionParams): string => {
+export const getValueByOption = ({
+  type,
+  option,
+  selectedOptions,
+  pool,
+  position,
+  reward,
+}: GetValueByOptionParams): string => {
   if (!option) return '';
 
   const isPoolSharing = type === ShareType.POOL_INFO;
@@ -114,13 +132,16 @@ export const getValueByOption = ({ type, option, pool, position, reward }: GetVa
   const isRewardSharing = type === ShareType.REWARD_INFO;
 
   if (isPoolSharing) {
+    const useActive = selectedOptions?.has(ShareOption.ACTIVE_APR);
     switch (option) {
       case ShareOption.TOTAL_APR:
         return `${formatAprNumber((pool?.apr?.fees || 0) + (pool?.apr?.eg || 0) + (pool?.apr?.lm || 0))}%`;
+      case ShareOption.ACTIVE_APR:
+        return `${formatAprNumber(pool?.apr?.activeTotal || 0)}%`;
       case ShareOption.LM_APR:
-        return `${formatAprNumber(pool?.apr?.lm || 0)}%`;
+        return `${formatAprNumber((useActive ? pool?.apr?.activeLm : pool?.apr?.lm) || 0)}%`;
       case ShareOption.EG_APR:
-        return `${formatAprNumber(pool?.apr?.eg || 0)}%`;
+        return `${formatAprNumber((useActive ? pool?.apr?.activeEg : pool?.apr?.eg) || 0)}%`;
       default:
         return '';
     }
@@ -180,7 +201,7 @@ const STAGGERED_EFFECTS = [
 
 const SPECIAL_CHARS = ['$', '%'] as const;
 
-export const renderStaggeredNumber = (numberString: string): JSX.Element => {
+export const renderStaggeredNumber = (numberString: string): React.JSX.Element => {
   const chars = numberString.split('');
 
   return (
@@ -205,6 +226,8 @@ export const getShareOptionLabel = (i18n: I18n, option: ShareOption): string => 
   switch (option) {
     case ShareOption.TOTAL_APR:
       return i18n._('Total APR');
+    case ShareOption.ACTIVE_APR:
+      return i18n._('Active APR');
     case ShareOption.LM_APR:
       return i18n._('Liquidity Mining APR');
     case ShareOption.EG_APR:

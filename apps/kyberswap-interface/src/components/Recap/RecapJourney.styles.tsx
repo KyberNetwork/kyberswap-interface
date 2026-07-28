@@ -1,6 +1,5 @@
-import { motion } from 'framer-motion'
-import { rgba } from 'polished'
-import styled, { createGlobalStyle } from 'styled-components'
+import { HTMLMotionProps, motion } from 'framer-motion'
+import { ComponentPropsWithoutRef, forwardRef, useEffect } from 'react'
 
 import CeraBlack from 'assets/fonts/cera/Cera-Black.ttf'
 import CeraBlackItalic from 'assets/fonts/cera/Cera-BlackItalic.ttf'
@@ -14,2307 +13,539 @@ import CeraRegular from 'assets/fonts/cera/Cera-Regular.ttf'
 import CeraRegularItalic from 'assets/fonts/cera/Cera-RegularItalic.ttf'
 import CeraThin from 'assets/fonts/cera/Cera-Thin.ttf'
 import CeraThinItalic from 'assets/fonts/cera/Cera-ThinItalic.ttf'
-
-export const CeraFontFace = createGlobalStyle`
-  @font-face {
-    font-family: 'Cera';
-    src: url(${CeraThin}) format('truetype');
-    font-weight: 100;
-    font-style: normal;
-    font-display: swap;
-  }
-
-  @font-face {
-    font-family: 'Cera';
-    src: url(${CeraThinItalic}) format('truetype');
-    font-weight: 100;
-    font-style: italic;
-    font-display: swap;
-  }
-
-  @font-face {
-    font-family: 'Cera';
-    src: url(${CeraLight}) format('truetype');
-    font-weight: 300;
-    font-style: normal;
-    font-display: swap;
-  }
-
-  @font-face {
-    font-family: 'Cera';
-    src: url(${CeraLightItalic}) format('truetype');
-    font-weight: 300;
-    font-style: italic;
-    font-display: swap;
-  }
-
-  @font-face {
-    font-family: 'Cera';
-    src: url(${CeraRegular}) format('truetype');
-    font-weight: 400;
-    font-style: normal;
-    font-display: swap;
-  }
-
-  @font-face {
-    font-family: 'Cera';
-    src: url(${CeraRegularItalic}) format('truetype');
-    font-weight: 400;
-    font-style: italic;
-    font-display: swap;
-  }
-
-  @font-face {
-    font-family: 'Cera';
-    src: url(${CeraMedium}) format('truetype');
-    font-weight: 500;
-    font-style: normal;
-    font-display: swap;
-  }
-
-  @font-face {
-    font-family: 'Cera';
-    src: url(${CeraMediumItalic}) format('truetype');
-    font-weight: 500;
-    font-style: italic;
-    font-display: swap;
-  }
-
-  @font-face {
-    font-family: 'Cera';
-    src: url(${CeraBold}) format('truetype');
-    font-weight: 700;
-    font-style: normal;
-    font-display: swap;
-  }
-
-  @font-face {
-    font-family: 'Cera';
-    src: url(${CeraBoldItalic}) format('truetype');
-    font-weight: 700;
-    font-style: italic;
-    font-display: swap;
-  }
-
-  @font-face {
-    font-family: 'Cera';
-    src: url(${CeraBlack}) format('truetype');
-    font-weight: 900;
-    font-style: normal;
-    font-display: swap;
-  }
-
-  @font-face {
-    font-family: 'Cera';
-    src: url(${CeraBlackItalic}) format('truetype');
-    font-weight: 900;
-    font-style: italic;
-    font-display: swap;
-  }
-`
-
-export const JourneyContainer = styled.div`
-  position: relative;
-  width: 640px;
-  height: 640px;
-  overflow: hidden;
-  background: #0f0f0f;
-  font-family: 'Cera', sans-serif;
-  cursor: default;
-  user-select: none;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-
-  /* Prevent text selection and cursor change on all children */
-  * {
-    cursor: default;
-    user-select: none;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-  }
-
-  /* Allow pointer cursor only on interactive elements */
-  button,
-  .controls-container,
-  .share-buttons-container,
-  .mute-button {
-    cursor: pointer;
-
-    /* Ensure icons inside buttons also have pointer cursor */
-    svg,
-    img {
-      cursor: pointer;
-    }
-  }
-
-  &:hover .controls-container {
-    opacity: 1;
-  }
-
-  &:hover .mute-button {
-    opacity: 1;
-  }
-
-  @media screen and (max-width: 480px) {
-    &:hover .mute-button {
-      opacity: 1;
-    }
-  }
-
-  @media screen and (max-width: 640px) {
-    width: 480px;
-    height: 480px;
-  }
-
-  @media screen and (max-width: 480px) {
-    width: 100vw;
-    height: 100vw;
-  }
-`
-
-export const BackgroundImage = styled.div<{ src: string }>`
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-image: url(${({ src }) => src});
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-`
-
-export const BackgroundOverlayImage = styled.img`
-  position: absolute;
-  top: 5%;
-  left: 5%;
-  right: 5%;
-  bottom: 5%;
-  width: 90%;
-  height: 90%;
-  object-fit: contain;
-  pointer-events: none;
-  opacity: 0.3;
-`
-
-export const VideoBackground = styled.video`
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-`
-
-export const VideoOverlay = styled.div`
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  z-index: 2;
-  pointer-events: none;
-`
-
-export const LogoContainer = styled.div`
-  position: absolute;
-  top: 30px;
-  left: 24px;
-  z-index: 20;
-  gap: 8px;
-
-  @media screen and (max-width: 640px) {
-    top: 22px;
-    left: 18px;
-    gap: 6px;
-  }
-
-  @media screen and (max-width: 480px) {
-    top: 16px;
-    left: 12px;
-    gap: 4px;
-  }
-`
-
-export const LogoImage = styled.img`
-  width: 124px;
-
-  @media screen and (max-width: 640px) {
-    width: 93px;
-  }
-
-  @media screen and (max-width: 480px) {
-    width: calc(124 / 640 * 100vw);
-  }
-`
-
-export const YearTag = styled.div`
-  position: absolute;
-  top: 0;
-  right: 32px;
-  z-index: 20;
-
-  @media screen and (max-width: 640px) {
-    right: 24px;
-  }
-
-  @media screen and (max-width: 480px) {
-    right: calc(32 / 640 * 100vw);
-  }
-`
-
-export const YearTagBanner = styled.div<{ $isFinale?: boolean }>`
-  background: ${({ theme, $isFinale }) => rgba(theme.primary, $isFinale ? 0.4 : 0.2)};
-  padding: 30px 10px 32px;
-  color: ${({ theme }) => theme.primary};
-  font-family: 'Antonio', sans-serif;
-  font-size: 24px;
-  letter-spacing: -1.2px;
-  font-weight: 700;
-  position: relative;
-  clip-path: polygon(0 0, 100% 0, 100% 100%, 50% calc(100% - 20px), 0 100%);
-  -webkit-clip-path: polygon(0 0, 100% 0, 100% 100%, 50% calc(100% - 20px), 0 100%);
-  transition: background 0.5s ease;
-
-  @media screen and (max-width: 640px) {
-    padding: 22px 8px 24px;
-    font-size: 18px;
-    letter-spacing: -0.9px;
-  }
-
-  @media screen and (max-width: 480px) {
-    padding: calc(30 / 640 * 100vw) calc(10 / 640 * 100vw) calc(32 / 640 * 100vw);
-    font-size: calc(24 / 640 * 100vw);
-    letter-spacing: calc(-1.2 / 640 * 100vw);
-  }
-`
-
-export const ContentContainer = styled(motion.div)`
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  z-index: 5;
-  padding: 24px;
-
-  @media screen and (max-width: 640px) {
-    padding: 18px;
-  }
-
-  @media screen and (max-width: 480px) {
-    padding: calc(24 / 640 * 100vw);
-  }
-`
-
-export const FireworkContentWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  margin-top: -180px;
-`
-
-export const Year2025 = styled(motion.h1)`
-  font-size: 112px;
-  font-weight: 400;
-  color: ${({ theme }) => theme.text};
-  text-align: center;
-  margin: 0;
-  line-height: 1;
-
-  @media screen and (max-width: 640px) {
-    font-size: 84px;
-  }
-
-  @media screen and (max-width: 480px) {
-    font-size: calc(112 / 640 * 100vw);
-  }
-`
-
-export const YearOfFlow = styled(motion.h2)`
-  font-size: 46px;
-  font-weight: 400;
-  color: ${({ theme }) => theme.text};
-  text-align: center;
-  margin: 18px 0 0 0;
-  line-height: 1.2;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  gap: 12px;
-
-  @media screen and (max-width: 640px) {
-    font-size: 34px;
-    margin: 14px 0 0 0;
-    gap: 9px;
-  }
-
-  @media screen and (max-width: 480px) {
-    font-size: calc(46 / 640 * 100vw);
-    margin: calc(18 / 640 * 100vw) 0 0 0;
-    gap: calc(12 / 640 * 100vw);
-  }
-`
-
-export const FlowText = styled.span`
-  font-family: 'Antonio', sans-serif;
-  font-size: 62px;
-  font-weight: 700;
-  color: ${({ theme }) => theme.primary};
-  position: relative;
-  top: -6px;
-
-  @media screen and (max-width: 640px) {
-    font-size: 46px;
-    top: -4px;
-  }
-
-  @media screen and (max-width: 480px) {
-    font-size: calc(62 / 640 * 100vw);
-    top: calc(-6 / 640 * 100vw);
-  }
-`
-
-export const TextLine = styled(motion.div)`
-  font-size: 48px;
-  font-weight: 500;
-  color: ${({ theme }) => theme.text};
-  text-align: center;
-  margin: 12px 0;
-  line-height: normal;
-  min-height: 58px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  @media screen and (max-width: 640px) {
-    font-size: 36px;
-    margin: 9px 0;
-    min-height: 44px;
-  }
-
-  @media screen and (max-width: 480px) {
-    font-size: calc(48 / 640 * 100vw);
-    margin: calc(12 / 640 * 100vw) 0;
-    min-height: calc(58 / 640 * 100vw);
-  }
-`
-
-export const VideoTextWrapper = styled(motion.div)`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  min-height: 120px;
-  justify-content: center;
-
-  @media screen and (max-width: 640px) {
-    min-height: 90px;
-    gap: 6px;
-  }
-
-  @media screen and (max-width: 480px) {
-    min-height: calc(120 / 640 * 100vw);
-    gap: calc(8 / 640 * 100vw);
-  }
-`
-
-export const ButYouWrapper = styled(motion.div)`
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  gap: 4px;
-  min-height: 58px;
-
-  @media screen and (max-width: 640px) {
-    min-height: 44px;
-    gap: 3px;
-  }
-
-  @media screen and (max-width: 480px) {
-    min-height: calc(58 / 640 * 100vw);
-    gap: calc(4 / 640 * 100vw);
-  }
-`
-
-export const ButText = styled(motion.span)`
-  font-size: 36px;
-  font-weight: 500;
-  color: ${({ theme }) => theme.text};
-  margin-right: 4px;
-
-  @media screen and (max-width: 640px) {
-    font-size: 27px;
-    margin-right: 3px;
-  }
-
-  @media screen and (max-width: 480px) {
-    font-size: calc(36 / 640 * 100vw);
-    margin-right: calc(4 / 640 * 100vw);
-  }
-`
-
-export const YouText = styled(motion.span)`
-  font-size: 48px;
-  font-weight: 500;
-  color: ${({ theme }) => theme.text};
-  position: relative;
-  top: 4px;
-
-  @media screen and (max-width: 640px) {
-    font-size: 36px;
-    top: 3px;
-  }
-
-  @media screen and (max-width: 480px) {
-    font-size: calc(48 / 640 * 100vw);
-    top: calc(4 / 640 * 100vw);
-  }
-`
-
-export const NicknameText = styled(motion.p)`
-  font-size: 48px;
-  font-weight: 400;
-  color: #ffde69;
-  margin: 12px 0 0;
-  text-align: center;
-  min-height: 58px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  @media screen and (max-width: 640px) {
-    font-size: 36px;
-    margin: 9px 0 0;
-    min-height: 44px;
-  }
-
-  @media screen and (max-width: 480px) {
-    font-size: calc(48 / 640 * 100vw);
-    margin: calc(12 / 640 * 100vw) 0 0;
-    min-height: calc(58 / 640 * 100vw);
-  }
-`
-
-export const NavigatedWrapper = styled(motion.div)`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  min-height: 58px;
-
-  @media screen and (max-width: 640px) {
-    min-height: 44px;
-    gap: 7px;
-  }
-
-  @media screen and (max-width: 480px) {
-    min-height: calc(58 / 640 * 100vw);
-    gap: calc(10 / 640 * 100vw);
-  }
-`
-
-export const NavigatedText = styled(motion.span)`
-  font-size: 48px;
-  font-weight: 500;
-  color: ${({ theme }) => theme.primary};
-
-  @media screen and (max-width: 640px) {
-    font-size: 36px;
-  }
-
-  @media screen and (max-width: 480px) {
-    font-size: calc(48 / 640 * 100vw);
-  }
-`
-
-export const StormText = styled(motion.span)`
-  font-size: 48px;
-  font-weight: 500;
-  color: ${({ theme }) => theme.text};
-
-  @media screen and (max-width: 640px) {
-    font-size: 36px;
-  }
-
-  @media screen and (max-width: 480px) {
-    font-size: calc(48 / 640 * 100vw);
-  }
-`
-
-export const StatsContainer = styled(motion.div)`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  margin-top: 0;
-
-  @media screen and (max-width: 640px) {
-    gap: 3px;
-  }
-
-  @media screen and (max-width: 480px) {
-    gap: calc(4 / 640 * 100vw);
-  }
-`
-
-export const StatsText = styled(motion.div)`
-  font-size: 48px;
-  font-weight: 600;
-  color: ${({ theme }) => theme.text};
-  text-align: center;
-  line-height: 1.2;
-
-  @media screen and (max-width: 640px) {
-    font-size: 36px;
-  }
-
-  @media screen and (max-width: 480px) {
-    font-size: calc(48 / 640 * 100vw);
-  }
-`
-
-export const VolumeText = styled(motion.span)`
-  font-size: 64px;
-  font-weight: 700;
-  color: ${({ theme }) => theme.primary};
-  font-family: 'Antonio', sans-serif;
-
-  @media screen and (max-width: 640px) {
-    font-size: 48px;
-  }
-
-  @media screen and (max-width: 480px) {
-    font-size: calc(64 / 640 * 100vw);
-  }
-`
-
-export const UsersText = styled(motion.span)`
-  font-size: 64px;
-  font-weight: 700;
-  color: ${({ theme }) => theme.primary};
-  position: relative;
-
-  @media screen and (max-width: 640px) {
-    font-size: 48px;
-  }
-
-  @media screen and (max-width: 480px) {
-    font-size: calc(64 / 640 * 100vw);
-  }
-`
-
-export const LabelText = styled.span`
-  font-size: 32px;
-  font-weight: 500;
-  color: ${({ theme }) => theme.text};
-  margin-left: 8px;
-
-  @media screen and (max-width: 640px) {
-    font-size: 24px;
-    margin-left: 6px;
-  }
-
-  @media screen and (max-width: 480px) {
-    font-size: calc(32 / 640 * 100vw);
-    margin-left: calc(8 / 640 * 100vw);
-  }
-`
-
-// Bar Chart for Stats Scene
-export const BarChartWrapper = styled(motion.div)`
-  width: 100%;
-  margin-top: 40px;
-  display: flex;
-  justify-content: center;
-  align-items: flex-end;
-
-  @media screen and (max-width: 640px) {
-    margin-top: 30px;
-  }
-
-  @media screen and (max-width: 480px) {
-    margin-top: calc(40 / 640 * 100vw);
-  }
-`
-
-export const BarChartContainer = styled.div`
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  gap: 4px;
-  height: 120px;
-  width: 100%;
-  max-width: 500px;
-  padding: 0 20px;
-
-  @media screen and (max-width: 640px) {
-    height: 90px;
-    gap: 3px;
-    max-width: 375px;
-    padding: 0 15px;
-  }
-
-  @media screen and (max-width: 480px) {
-    height: calc(120 / 640 * 100vw);
-    gap: calc(4 / 640 * 100vw);
-    max-width: calc(500 / 640 * 100vw);
-    padding: 0 calc(20 / 640 * 100vw);
-  }
-`
-
-export const ChartBar = styled(motion.div)<{ $height: number; $color: string }>`
-  flex: 1;
-  min-width: 8px;
-  max-width: 40px;
-  height: ${({ $height }) => $height}%;
-  background: ${({ $color }) => $color};
-  border-radius: 4px 4px 0 0;
-  position: relative;
-  overflow: hidden;
-
-  @media screen and (max-width: 640px) {
-    min-width: 6px;
-    max-width: 30px;
-    border-radius: 3px 3px 0 0;
-  }
-
-  @media screen and (max-width: 480px) {
-    min-width: calc(8 / 640 * 100vw);
-    max-width: calc(40 / 640 * 100vw);
-    border-radius: calc(4 / 640 * 100vw) calc(4 / 640 * 100vw) 0 0;
-  }
-`
-
-// Scene 2: You made the MARK
-export const MarkContainer = styled(motion.div)`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-
-  @media screen and (max-width: 640px) {
-    gap: 6px;
-  }
-
-  @media screen and (max-width: 480px) {
-    gap: calc(8 / 640 * 100vw);
-  }
-`
-
-export const MarkText = styled(motion.div)`
-  font-size: 40px;
-  font-weight: 500;
-  color: ${({ theme }) => theme.text};
-  text-align: center;
-  line-height: 1.15;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  gap: 10px;
-  flex-wrap: wrap;
-  white-space: normal;
-  max-width: 520px;
-
-  @media screen and (max-width: 640px) {
-    font-size: 30px;
-    gap: 7px;
-    max-width: 390px;
-  }
-
-  @media screen and (max-width: 480px) {
-    font-size: calc(40 / 640 * 100vw);
-    gap: calc(10 / 640 * 100vw);
-    max-width: calc(520 / 640 * 100vw);
-  }
-`
-
-export const MarkHighlight = styled.span`
-  font-size: 52px;
-  font-weight: 500;
-  position: relative;
-  top: 4px;
-  color: ${({ theme }) => theme.primary};
-
-  @media screen and (max-width: 640px) {
-    font-size: 39px;
-    top: 3px;
-  }
-
-  @media screen and (max-width: 480px) {
-    font-size: calc(52 / 640 * 100vw);
-    top: calc(4 / 640 * 100vw);
-  }
-`
-
-// Scene 3: You moved / Executed
-export const TradingStatsContainer = styled(motion.div)`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-  width: 100%;
-  height: 100%;
-  position: relative;
-  padding-top: 120px;
-
-  @media screen and (max-width: 640px) {
-    padding-top: 90px;
-  }
-
-  @media screen and (max-width: 480px) {
-    padding-top: calc(120 / 640 * 100vw);
-  }
-`
-
-export const TradingStatsTextWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 16px;
-  flex: 1;
-
-  @media screen and (max-width: 640px) {
-    gap: 12px;
-  }
-
-  @media screen and (max-width: 480px) {
-    gap: calc(16 / 640 * 100vw);
-  }
-`
-
-export const TradingStatLine = styled(motion.div)`
-  display: flex;
-  align-items: baseline;
-  justify-content: center;
-  gap: 8px;
-  flex-wrap: wrap;
-  min-height: 48px;
-
-  @media screen and (max-width: 640px) {
-    gap: 6px;
-    min-height: 36px;
-  }
-
-  @media screen and (max-width: 480px) {
-    gap: calc(8 / 640 * 100vw);
-    min-height: calc(48 / 640 * 100vw);
-  }
-`
-
-export const TradingStatLine2 = styled(TradingStatLine)`
-  display: flex;
-  align-items: flex-end;
-  flex-direction: column;
-`
-
-export const TradingStatLabel = styled.span`
-  font-size: 36px;
-  font-weight: 500;
-  color: ${({ theme }) => theme.text};
-
-  @media screen and (max-width: 640px) {
-    font-size: 27px;
-  }
-
-  @media screen and (max-width: 480px) {
-    font-size: calc(36 / 640 * 100vw);
-  }
-`
-
-export const TradingStatLabel2 = styled(TradingStatLabel)`
-  font-size: 24px;
-
-  @media screen and (max-width: 640px) {
-    font-size: 18px;
-  }
-
-  @media screen and (max-width: 480px) {
-    font-size: calc(24 / 640 * 100vw);
-  }
-`
-
-export const TradingStatValue = styled.span`
-  font-size: 48px;
-  font-weight: 700;
-  color: ${({ theme }) => theme.primary};
-  font-family: 'Antonio', sans-serif;
-
-  @media screen and (max-width: 640px) {
-    font-size: 36px;
-  }
-
-  @media screen and (max-width: 480px) {
-    font-size: calc(48 / 640 * 100vw);
-  }
-`
-
-export const TradingStatValue2 = styled(TradingStatValue)`
-  color: ${({ theme }) => theme.blue3};
-  position: relative;
-  top: -4px;
-
-  @media screen and (max-width: 640px) {
-    top: -3px;
-  }
-
-  @media screen and (max-width: 480px) {
-    top: calc(-4 / 640 * 100vw);
-  }
-`
-
-// Candlestick Chart for Trading Stats Scene
-export const CandlestickChartWrapper = styled(motion.div)`
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: flex-end;
-  margin-top: auto;
-  padding-bottom: 24px;
-
-  @media screen and (max-width: 640px) {
-    padding-bottom: 18px;
-  }
-
-  @media screen and (max-width: 480px) {
-    padding-bottom: calc(24 / 640 * 100vw);
-  }
-`
-
-export const CandlestickChartImage = styled(motion.img)`
-  width: 80%;
-  max-width: 480px;
-  height: auto;
-  max-height: 180px;
-  object-fit: contain;
-
-  @media screen and (max-width: 640px) {
-    width: 85%;
-    max-width: 360px;
-    max-height: 135px;
-  }
-
-  @media screen and (max-width: 480px) {
-    width: 85%;
-    max-width: calc(480 / 640 * 100vw);
-    max-height: calc(180 / 640 * 100vw);
-  }
-`
-
-// Scene 4: Top X%
-export const TopPercentContainer = styled(motion.div)`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  min-height: 60px;
-
-  @media screen and (max-width: 640px) {
-    gap: 6px;
-    min-height: 45px;
-  }
-
-  @media screen and (max-width: 480px) {
-    gap: calc(8 / 640 * 100vw);
-    min-height: calc(60 / 640 * 100vw);
-  }
-`
-
-export const TopPercentNickname = styled(motion.div)`
-  font-size: 42px;
-  font-weight: 700;
-  color: #ffde69;
-  text-align: center;
-  line-height: 1.2;
-  font-family: 'Cera', sans-serif;
-
-  @media screen and (max-width: 640px) {
-    font-size: 32px;
-    margin-bottom: 9px;
-    margin-top: 32px;
-  }
-
-  @media screen and (max-width: 480px) {
-    font-size: calc(42 / 640 * 100vw);
-    margin-bottom: calc(12 / 640 * 100vw);
-    margin-top: 60px;
-  }
-`
-
-export const TopPercentText = styled(motion.div)`
-  font-size: 36px;
-  font-weight: 500;
-  color: ${({ theme }) => theme.text};
-  text-align: center;
-  line-height: 1.2;
-  display: flex;
-  align-items: baseline;
-  justify-content: center;
-  gap: 8px;
-  flex-wrap: wrap;
-  margin-bottom: 40px;
-
-  @media screen and (max-width: 640px) {
-    font-size: 27px;
-    gap: 6px;
-    margin-bottom: 30px;
-  }
-
-  @media screen and (max-width: 480px) {
-    font-size: calc(36 / 640 * 100vw);
-    gap: calc(8 / 640 * 100vw);
-    margin-bottom: calc(40 / 640 * 100vw);
-  }
-`
-
-export const TopPercentValue = styled.span`
-  font-family: 'Antonio', sans-serif;
-  font-size: 48px;
-  font-weight: 700;
-  color: ${({ theme }) => theme.primary};
-
-  @media screen and (max-width: 640px) {
-    font-size: 36px;
-  }
-
-  @media screen and (max-width: 480px) {
-    font-size: calc(48 / 640 * 100vw);
-  }
-`
-
-// Badge
-export const BadgeContainer = styled(motion.div)`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 200px;
-  width: 100%;
-
-  @media screen and (max-width: 640px) {
-    min-height: 150px;
-  }
-
-  @media screen and (max-width: 480px) {
-    min-height: calc(200 / 640 * 100vw);
-  }
-`
-
-export const BadgeImage = styled.img`
-  width: 240px;
-  height: auto;
-
-  @media screen and (max-width: 640px) {
-    width: 180px;
-  }
-
-  @media screen and (max-width: 480px) {
-    width: calc(240 / 640 * 100vw);
-  }
-`
-
-// Progress Bar
-export const ControlsContainer = styled.div`
-  position: absolute;
-  bottom: 14px;
-  left: 18px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  z-index: 100;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-
-  @media screen and (max-width: 640px) {
-    bottom: 10px;
-    left: 14px;
-    gap: 6px;
-  }
-
-  @media screen and (max-width: 480px) {
-    display: none;
-  }
-`
-
-export const ControlButton = styled.button`
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: ${({ theme }) => rgba(theme.black, 0.5)};
-  border: 1px solid ${({ theme }) => rgba(theme.white, 0.2)};
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
-  backdrop-filter: blur(8px);
-
-  &:hover {
-    background: ${({ theme }) => rgba(theme.black, 0.7)};
-    border-color: ${({ theme }) => rgba(theme.white, 0.4)};
-    transform: scale(1.05);
-  }
-
-  &:active {
-    transform: scale(0.95);
-  }
-
-  svg {
-    width: 14px;
-    height: 14px;
-    color: ${({ theme }) => theme.white};
-  }
-
-  @media screen and (max-width: 640px) {
-    width: 32px;
-    height: 32px;
-
-    svg {
-      width: 12px;
-      height: 12px;
-    }
-  }
-
-  @media screen and (max-width: 480px) {
-    width: 44px;
-    height: 44px;
-
-    svg {
-      width: 18px;
-      height: 18px;
-    }
-  }
-`
-
-export const ShareButtonsContainer = styled.div`
-  position: absolute;
-  bottom: 14px;
-  right: 18px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  z-index: 100;
-  opacity: 1;
-
-  @media screen and (max-width: 640px) {
-    bottom: 10px;
-    right: 14px;
-    gap: 6px;
-  }
-
-  @media screen and (max-width: 480px) {
-    bottom: calc(14 / 640 * 100vw);
-    right: calc(18 / 640 * 100vw);
-    gap: calc(8 / 640 * 100vw);
-  }
-`
-
-export const MuteButton = styled.button`
-  position: absolute;
-  top: 28px;
-  right: 18px;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: ${({ theme }) => rgba(theme.black, 0.5)};
-  border: 1px solid ${({ theme }) => rgba(theme.white, 0.2)};
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
-  backdrop-filter: blur(8px);
-  z-index: 100;
-  opacity: 0;
-
-  &:hover {
-    background: ${({ theme }) => rgba(theme.black, 0.7)};
-    border-color: ${({ theme }) => rgba(theme.white, 0.4)};
-    transform: scale(1.05);
-  }
-
-  &:active {
-    transform: scale(0.95);
-  }
-
-  svg {
-    width: 16px;
-    height: 16px;
-    color: ${({ theme }) => theme.white};
-  }
-
-  @media screen and (max-width: 640px) {
-    top: 20px;
-    right: 14px;
-    width: 32px;
-    height: 32px;
-
-    svg {
-      width: 14px;
-      height: 14px;
-    }
-  }
-
-  @media screen and (max-width: 480px) {
-    top: auto;
-    bottom: 14px;
-    left: 18px;
-    right: auto;
-    width: 44px;
-    height: 44px;
-    opacity: 1;
-
-    svg {
-      width: 20px;
-      height: 20px;
-    }
-  }
-`
-
-export const PauseResumeOverlay = styled(motion.div)`
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 200;
-  pointer-events: none;
-`
-
-export const PauseResumeIcon = styled(motion.div)`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.8)) drop-shadow(0 0 40px rgba(255, 255, 255, 0.4));
-
-  svg {
-    width: 64px;
-    height: 64px;
-    color: ${({ theme }) => theme.white};
-    filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.9));
-  }
-
-  @media screen and (max-width: 640px) {
-    filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.8)) drop-shadow(0 0 30px rgba(255, 255, 255, 0.4));
-
-    svg {
-      width: 48px;
-      height: 48px;
-      filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.9));
-    }
-  }
-
-  @media screen and (max-width: 480px) {
-    filter: drop-shadow(0 0 calc(15 / 640 * 100vw) rgba(255, 255, 255, 0.8))
-      drop-shadow(0 0 calc(30 / 640 * 100vw) rgba(255, 255, 255, 0.4));
-
-    svg {
-      width: calc(64 / 640 * 100vw);
-      height: calc(64 / 640 * 100vw);
-      filter: drop-shadow(0 0 calc(8 / 640 * 100vw) rgba(255, 255, 255, 0.9));
-    }
-  }
-`
-
-export const ShareButton = styled.button<{ $isSuccess?: boolean; $isLoading?: boolean }>`
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: ${({ theme, $isSuccess, $isLoading }) =>
-    $isSuccess ? rgba(theme.primary, 0.2) : $isLoading ? rgba(34, 34, 34, 0.9) : rgba(34, 34, 34, 0.8)};
-  border: none;
-  cursor: ${({ $isLoading }) => ($isLoading ? 'wait' : 'pointer')};
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.3s ease;
-  backdrop-filter: blur(8px);
-
-  &:hover {
-    background: ${({ theme, $isSuccess, $isLoading }) =>
-      $isSuccess ? rgba(theme.primary, 0.3) : $isLoading ? rgba(34, 34, 34, 0.9) : rgba(34, 34, 34, 1)};
-    transform: ${({ $isLoading }) => ($isLoading ? 'none' : 'scale(1.05)')};
-  }
-
-  &:active {
-    transform: scale(0.95);
-  }
-
-  svg {
-    width: 14px;
-    height: 14px;
-    color: ${({ theme, $isSuccess }) => ($isSuccess ? theme.primary : theme.subText)};
-    transition: ${({ $isLoading }) => ($isLoading ? 'none' : 'color 0.3s ease')};
-  }
-
-  .loading-spinner {
-    animation: spin 0.8s linear infinite;
-    will-change: transform;
-    transform-origin: center center;
-    backface-visibility: hidden;
-    -webkit-backface-visibility: hidden;
-  }
-
-  @keyframes spin {
-    from {
-      transform: rotate(0deg);
-    }
-    to {
-      transform: rotate(360deg);
-    }
-  }
-
-  @media screen and (max-width: 640px) {
-    width: 32px;
-    height: 32px;
-
-    svg {
-      width: 12px;
-      height: 12px;
-    }
-  }
-
-  @media screen and (max-width: 480px) {
-    width: 44px;
-    height: 44px;
-
-    svg {
-      width: 18px;
-      height: 18px;
-    }
-  }
-`
-
-export const ProgressBarContainer = styled.div`
-  position: absolute;
-  top: 12px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 10;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-
-  @media screen and (max-width: 640px) {
-    top: 9px;
-    gap: 6px;
-  }
-
-  @media screen and (max-width: 480px) {
-    top: calc(12 / 640 * 100vw);
-    gap: calc(8 / 640 * 100vw);
-  }
-`
-
-export const ProgressBar = styled.div`
-  display: flex;
-  gap: 4px;
-  align-items: center;
-
-  @media screen and (max-width: 640px) {
-    gap: 3px;
-  }
-
-  @media screen and (max-width: 480px) {
-    gap: calc(4 / 640 * 100vw);
-  }
-`
-
-export const ProgressSegment = styled.div<{ $isActive: boolean }>`
-  width: 116px;
-  height: 4px;
-  background: ${({ theme }) => theme.tableHeader};
-  border-radius: 2px;
-  position: relative;
-  overflow: hidden;
-
-  @media screen and (max-width: 640px) {
-    width: 87px;
-    height: 3px;
-  }
-
-  @media screen and (max-width: 480px) {
-    width: calc(116 / 640 * 100vw);
-    height: calc(4 / 640 * 100vw);
-  }
-`
-
-export const ProgressSegmentFill = styled(motion.div)<{ $isActive: boolean }>`
-  position: absolute;
-  top: 0;
-  left: 0;
-  height: 100%;
-  background: ${({ theme }) => theme.gray};
-  border-radius: 2px;
-  width: ${({ $isActive }) => ($isActive ? '100%' : '0%')};
-`
-
-export const ProgressLabel = styled.div`
-  font-size: 12px;
-  font-weight: 400;
-  color: ${({ theme }) => theme.primary};
-  text-transform: uppercase;
-  letter-spacing: 1px;
-
-  @media screen and (max-width: 640px) {
-    font-size: 9px;
-    letter-spacing: 0.75px;
-  }
-
-  @media screen and (max-width: 480px) {
-    font-size: calc(12 / 640 * 100vw);
-    letter-spacing: calc(1 / 640 * 100vw);
-  }
-`
-
-// Part 3: Capital Flow
-export const CapitalFlowContainer = styled(motion.div)`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  text-align: center;
-
-  @media screen and (max-width: 640px) {
-    gap: 6px;
-  }
-
-  @media screen and (max-width: 480px) {
-    gap: calc(8 / 640 * 100vw);
-  }
-`
-
-export const CapitalFlowText = styled(motion.div)`
-  font-size: 36px;
-  font-weight: 500;
-  color: ${({ theme }) => theme.text};
-  line-height: 1.3;
-
-  @media screen and (max-width: 640px) {
-    font-size: 27px;
-  }
-
-  @media screen and (max-width: 480px) {
-    font-size: calc(36 / 640 * 100vw);
-  }
-`
-
-export const CapitalHighlight = styled(motion.div)`
-  font-size: 42px;
-  font-weight: 500;
-  color: ${({ theme }) => theme.primary};
-  line-height: 1.3;
-
-  @media screen and (max-width: 640px) {
-    font-size: 31px;
-  }
-
-  @media screen and (max-width: 480px) {
-    font-size: calc(42 / 640 * 100vw);
-  }
-`
-
-// Part 3: Top Lists (Chains & Tokens)
-export const NicknameHeader = styled.div`
-  position: absolute;
-  top: 85px;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 28px;
-  font-weight: 600;
-  color: #ffde69;
-
-  @media screen and (max-width: 640px) {
-    top: 64px;
-    font-size: 21px;
-  }
-
-  @media screen and (max-width: 480px) {
-    top: calc(85 / 640 * 100vw);
-    font-size: calc(28 / 640 * 100vw);
-  }
-`
-
-export const TopListContainer = styled(motion.div)`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 32px;
-
-  @media screen and (max-width: 640px) {
-    gap: 24px;
-  }
-
-  @media screen and (max-width: 480px) {
-    gap: calc(32 / 640 * 100vw);
-  }
-`
-
-export const TopListTitle = styled(motion.div)`
-  font-size: 36px;
-  font-weight: 600;
-  color: ${({ theme }) => theme.text};
-  text-align: center;
-
-  @media screen and (max-width: 640px) {
-    font-size: 27px;
-  }
-
-  @media screen and (max-width: 480px) {
-    font-size: calc(36 / 640 * 100vw);
-  }
-`
-
-export const TopListItems = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  width: 100%;
-  max-width: 320px;
-
-  @media screen and (max-width: 640px) {
-    gap: 12px;
-    max-width: 240px;
-  }
-
-  @media screen and (max-width: 480px) {
-    gap: calc(16 / 640 * 100vw);
-    max-width: calc(320 / 640 * 100vw);
-  }
-`
-
-export const TopListItem = styled(motion.div)`
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 8px 0;
-
-  @media screen and (max-width: 640px) {
-    gap: 12px;
-    padding: 6px 0;
-  }
-
-  @media screen and (max-width: 480px) {
-    gap: calc(16 / 640 * 100vw);
-    padding: calc(8 / 640 * 100vw) 0;
-  }
-`
-
-export const EmptyItem = styled.div`
-  text-align: center;
-  color: ${({ theme }) => theme.subText};
-`
-
-export const TopListRank = styled.div`
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: ${({ theme }) => rgba(theme.primary, 0.4)};
-  color: ${({ theme }) => theme.text};
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 16px;
-  font-weight: 600;
-  font-family: 'Antonio', sans-serif;
-
-  @media screen and (max-width: 640px) {
-    width: 24px;
-    height: 24px;
-    font-size: 12px;
-  }
-
-  @media screen and (max-width: 480px) {
-    width: calc(32 / 640 * 100vw);
-    height: calc(32 / 640 * 100vw);
-    font-size: calc(16 / 640 * 100vw);
-  }
-`
-
-export const TopListIconWrapper = styled.div`
-  position: relative;
-  width: 36px;
-  height: 36px;
-
-  @media screen and (max-width: 640px) {
-    width: 27px;
-    height: 27px;
-  }
-
-  @media screen and (max-width: 480px) {
-    width: calc(36 / 640 * 100vw);
-    height: calc(36 / 640 * 100vw);
-  }
-`
-
-export const TopListIcon = styled.img`
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  object-fit: cover;
-
-  @media screen and (max-width: 640px) {
-    width: 27px;
-    height: 27px;
-  }
-
-  @media screen and (max-width: 480px) {
-    width: calc(36 / 640 * 100vw);
-    height: calc(36 / 640 * 100vw);
-  }
-`
-
-export const TopListChainIcon = styled.img`
-  position: absolute;
-  bottom: -4px;
-  right: -4px;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 2px solid ${({ theme }) => theme.background};
-
-  @media screen and (max-width: 640px) {
-    width: 12px;
-    height: 12px;
-    bottom: -3px;
-    right: -3px;
-    border-width: 1.5px;
-  }
-
-  @media screen and (max-width: 480px) {
-    width: calc(16 / 640 * 100vw);
-    height: calc(16 / 640 * 100vw);
-    bottom: calc(-4 / 640 * 100vw);
-    right: calc(-4 / 640 * 100vw);
-  }
-`
-
-export const TopListName = styled.div`
-  font-size: 24px;
-  font-weight: 600;
-  color: ${({ theme }) => theme.text};
-
-  @media screen and (max-width: 640px) {
-    font-size: 18px;
-  }
-
-  @media screen and (max-width: 480px) {
-    font-size: calc(24 / 640 * 100vw);
-  }
-`
-
-// Part 4: MEV Bots
-export const MevContainer = styled(motion.div)`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  text-align: center;
-  position: relative;
-  width: 100%;
-  height: 100%;
-
-  @media screen and (max-width: 640px) {
-    gap: 6px;
-  }
-
-  @media screen and (max-width: 480px) {
-    gap: calc(8 / 640 * 100vw);
-  }
-`
-
-export const MevText = styled(motion.div)`
-  font-size: 36px;
-  font-weight: 600;
-  color: ${({ theme }) => theme.text};
-  line-height: 1.3;
-
-  @media screen and (max-width: 640px) {
-    font-size: 27px;
-  }
-
-  @media screen and (max-width: 480px) {
-    font-size: calc(36 / 640 * 100vw);
-  }
-`
-
-export const MevTextWrapper = styled(motion.div)`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-
-  @media screen and (max-width: 640px) {
-    gap: 6px;
-  }
-
-  @media screen and (max-width: 480px) {
-    gap: calc(8 / 640 * 100vw);
-  }
-`
-
-export const MevFlowLine = styled(motion.div)`
-  font-size: 32px;
-  font-weight: 500;
-  color: ${({ theme }) => theme.text};
-  display: flex;
-  align-items: baseline;
-  justify-content: center;
-  gap: 10px;
-  flex-wrap: wrap;
-  margin-top: 12px;
-
-  @media screen and (max-width: 640px) {
-    font-size: 24px;
-    gap: 7px;
-    margin-top: 9px;
-  }
-
-  @media screen and (max-width: 480px) {
-    font-size: calc(32 / 640 * 100vw);
-    gap: calc(10 / 640 * 100vw);
-    margin-top: calc(12 / 640 * 100vw);
-  }
-`
-
-export const MevOutsmarted = styled.span`
-  color: ${({ theme }) => theme.primary};
-  font-weight: 500;
-`
-
-export const MevFlowHighlight = styled.span`
-  font-family: 'Antonio', sans-serif;
-  font-size: 48px;
-  font-weight: 700;
-  color: ${({ theme }) => theme.primary};
-
-  @media screen and (max-width: 640px) {
-    font-size: 36px;
-  }
-
-  @media screen and (max-width: 480px) {
-    font-size: calc(48 / 640 * 100vw);
-  }
-`
-
-export const FairflowImage = styled(motion.img)`
-  position: absolute;
-  bottom: 40px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: auto;
-  height: 60px;
-  object-fit: contain;
-
-  @media screen and (max-width: 640px) {
-    bottom: 30px;
-    height: 45px;
-  }
-
-  @media screen and (max-width: 480px) {
-    bottom: calc(40 / 640 * 100vw);
-    height: calc(60 / 640 * 100vw);
-  }
-`
-
-// Part 4: FairFlow Rewards
-export const FairflowContainer = styled(motion.div)`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  text-align: center;
-  position: relative;
-  width: 100%;
-  height: 100%;
-
-  @media screen and (max-width: 640px) {
-    gap: 6px;
-  }
-
-  @media screen and (max-width: 480px) {
-    gap: calc(8 / 640 * 100vw);
-  }
-`
-
-export const FairflowTitle = styled(motion.div)`
-  font-size: 36px;
-  font-weight: 500;
-  color: ${({ theme }) => theme.text};
-  line-height: 1.3;
-
-  @media screen and (max-width: 640px) {
-    font-size: 27px;
-  }
-
-  @media screen and (max-width: 480px) {
-    font-size: calc(36 / 640 * 100vw);
-  }
-`
-
-export const FairflowHighlight = styled.span`
-  color: #ff007a;
-  font-weight: 500;
-`
-
-export const FairflowEarned = styled(motion.div)`
-  font-size: 24px;
-  font-weight: 500;
-  color: ${({ theme }) => theme.text};
-  line-height: 1.3;
-
-  @media screen and (max-width: 640px) {
-    font-size: 18px;
-  }
-
-  @media screen and (max-width: 480px) {
-    font-size: calc(24 / 640 * 100vw);
-  }
-`
-
-export const FairflowRewardLine = styled(motion.div)`
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  gap: 12px;
-  margin: 16px 0;
-
-  @media screen and (max-width: 640px) {
-    gap: 9px;
-    margin: 12px 0;
-  }
-
-  @media screen and (max-width: 480px) {
-    gap: calc(12 / 640 * 100vw);
-    margin: calc(16 / 640 * 100vw) 0;
-  }
-`
-
-export const KemLmIcon = styled.img`
-  width: 48px;
-  height: 48px;
-
-  @media screen and (max-width: 640px) {
-    width: 36px;
-    height: 36px;
-  }
-
-  @media screen and (max-width: 480px) {
-    width: calc(48 / 640 * 100vw);
-    height: calc(48 / 640 * 100vw);
-  }
-`
-
-export const FairflowRewardValue = styled.span`
-  font-family: 'Antonio', sans-serif;
-  font-size: 56px;
-  font-weight: 700;
-  color: ${({ theme }) => theme.primary};
-
-  @media screen and (max-width: 640px) {
-    font-size: 42px;
-  }
-
-  @media screen and (max-width: 480px) {
-    font-size: calc(56 / 640 * 100vw);
-  }
-`
-
-export const FairflowRewardLabel = styled.span`
-  font-size: 32px;
-  font-weight: 500;
-  color: ${({ theme }) => theme.text};
-
-  @media screen and (max-width: 640px) {
-    font-size: 24px;
-  }
-
-  @media screen and (max-width: 480px) {
-    font-size: calc(32 / 640 * 100vw);
-  }
-`
-
-export const FairflowSubtext = styled(motion.div)`
-  font-size: 24px;
-  font-weight: 400;
-  font-style: italic;
-  color: ${({ theme }) => theme.text};
-  line-height: 1.3;
-
-  @media screen and (max-width: 640px) {
-    font-size: 18px;
-  }
-
-  @media screen and (max-width: 480px) {
-    font-size: calc(24 / 640 * 100vw);
-  }
-`
-
-export const SmarterBannerWrapper = styled(motion.div)`
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  pointer-events: none;
-  z-index: 10;
-`
-
-export const SmarterBannerBg = styled(motion.div)`
-  position: absolute;
-  background: #09ae7d;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  pointer-events: none;
-`
-
-export const SmarterBannerText = styled(motion.div)`
-  color: ${({ theme }) => theme.textReverse};
-  font-size: 20px;
-  font-weight: 500;
-  text-align: center;
-  white-space: nowrap;
-  margin: 16px 32px;
-
-  @media screen and (max-width: 640px) {
-    font-size: 15px;
-    margin: 12px 24px;
-  }
-
-  @media screen and (max-width: 480px) {
-    font-size: calc(20 / 640 * 100vw);
-    margin: calc(16 / 640 * 100vw) calc(32 / 640 * 100vw);
-  }
-`
-
-export const SmarterBold = styled.span`
-  font-weight: 700;
-`
-
-// Summary Scene (Part 5)
-export const SummaryContainer = styled(motion.div)`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 16px;
-  width: 100%;
-  max-width: 700px;
-  padding: 20px;
-
-  @media screen and (max-width: 640px) {
-    padding: 15px;
-    gap: 12px;
-    max-width: 525px;
-  }
-
-  @media screen and (max-width: 480px) {
-    padding: calc(20 / 640 * 100vw);
-    gap: calc(16 / 640 * 100vw);
-    max-width: calc(700 / 640 * 100vw);
-  }
-`
-
-export const SummaryNickname = styled.div`
-  font-size: 40px;
-  font-weight: 700;
-  color: ${({ theme }) => theme.text};
-  text-align: center;
-  margin-bottom: 8px;
-
-  @media screen and (max-width: 640px) {
-    font-size: 30px;
-    margin-bottom: 6px;
-  }
-
-  @media screen and (max-width: 480px) {
-    font-size: calc(40 / 640 * 100vw);
-    margin-bottom: calc(8 / 640 * 100vw);
-  }
-`
-
-export const SummaryMainRow = styled.div`
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  gap: 24px;
-  width: 100%;
-  margin-top: 8px;
-
-  @media screen and (max-width: 640px) {
-    gap: 18px;
-    margin-top: 6px;
-  }
-
-  @media screen and (max-width: 480px) {
-    gap: calc(24 / 640 * 100vw);
-    margin-top: calc(8 / 640 * 100vw);
-  }
-`
-
-export const SummaryBadge = styled.img`
-  width: 200px;
-  height: auto;
-
-  @media screen and (max-width: 640px) {
-    width: 150px;
-  }
-
-  @media screen and (max-width: 480px) {
-    width: calc(200 / 640 * 100vw);
-  }
-`
-
-export const SummaryStatsColumn = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-
-  @media screen and (max-width: 640px) {
-    gap: 6px;
-  }
-
-  @media screen and (max-width: 480px) {
-    gap: calc(8 / 640 * 100vw);
-  }
-`
-
-export const SummaryStatsRow = styled.div`
-  display: grid;
-  grid-template-columns: auto auto;
-  grid-template-rows: auto auto auto;
-  gap: 12px 24px;
-
-  @media screen and (max-width: 640px) {
-    gap: 6px 18px;
-  }
-
-  @media screen and (max-width: 480px) {
-    gap: calc(12 / 640 * 100vw) calc(24 / 640 * 100vw);
-  }
-`
-
-export const SummaryVolumeColumn = styled.div`
-  display: contents;
-`
-
-export const SummaryTradesColumn = styled.div`
-  display: contents;
-`
-
-export const SummaryStatItem = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-`
-
-export const SummaryStatLabel = styled.div`
-  font-size: 18px;
-  font-weight: 600;
-  color: ${({ theme }) => theme.text};
-  margin-bottom: -10px;
-
-  @media screen and (max-width: 640px) {
-    font-size: 13px;
-    margin-bottom: -7px;
-  }
-
-  @media screen and (max-width: 480px) {
-    font-size: calc(18 / 640 * 100vw);
-    margin-bottom: calc(-10 / 640 * 100vw);
-  }
-`
-
-export const SummaryStatValue = styled.div`
-  font-family: 'Antonio', sans-serif;
-  font-size: 48px;
-  font-weight: 700;
-  color: ${({ theme }) => theme.primary};
-  line-height: 1;
-
-  @media screen and (max-width: 640px) {
-    font-size: 36px;
-  }
-
-  @media screen and (max-width: 480px) {
-    font-size: calc(48 / 640 * 100vw);
-  }
-`
-
-export const SummaryTradesValue = styled.div`
-  font-family: 'Antonio', sans-serif;
-  font-size: 48px;
-  font-weight: 700;
-  color: ${({ theme }) => theme.primary};
-  line-height: 1;
-
-  @media screen and (max-width: 640px) {
-    font-size: 36px;
-  }
-
-  @media screen and (max-width: 480px) {
-    font-size: calc(48 / 640 * 100vw);
-  }
-`
-
-export const SummaryTradesItem = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-`
-
-export const SummaryTradesLabel = styled.div`
-  font-size: 18px;
-  font-weight: 600;
-  color: ${({ theme }) => theme.text};
-
-  @media screen and (max-width: 640px) {
-    font-size: 13px;
-  }
-
-  @media screen and (max-width: 480px) {
-    font-size: calc(18 / 640 * 100vw);
-  }
-`
-
-export const SummaryTopBadge = styled.div`
-  background: ${({ theme }) => theme.primary};
-  color: ${({ theme }) => theme.textReverse};
-  padding: 6px 24px;
-  border-radius: 20px;
-  font-size: 20px;
-  font-weight: 500;
-  width: fit-content;
-
-  @media screen and (max-width: 640px) {
-    font-size: 15px;
-    padding: 4px 18px;
-    border-radius: 15px;
-  }
-
-  @media screen and (max-width: 480px) {
-    font-size: calc(20 / 640 * 100vw);
-    padding: calc(6 / 640 * 100vw) calc(24 / 640 * 100vw);
-    border-radius: calc(20 / 640 * 100vw);
-  }
-`
-
-export const SummaryFavoritesRow = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 16px;
-  margin-top: 16px;
-
-  @media screen and (max-width: 640px) {
-    gap: 12px;
-    margin-top: 12px;
-  }
-
-  @media screen and (max-width: 480px) {
-    gap: calc(16 / 640 * 100vw);
-    margin-top: calc(16 / 640 * 100vw);
-  }
-`
-
-export const SummaryFavoriteItem = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  background: rgba(34, 34, 34, 0.8);
-  border-radius: 12px;
-  padding: 12px 22px 10px;
-  gap: 4px;
-
-  @media screen and (max-width: 640px) {
-    padding: 9px 16px 7px;
-    gap: 3px;
-    border-radius: 9px;
-  }
-
-  @media screen and (max-width: 480px) {
-    padding: calc(12 / 640 * 100vw) calc(22 / 640 * 100vw) calc(10 / 640 * 100vw);
-    gap: calc(4 / 640 * 100vw);
-    border-radius: calc(12 / 640 * 100vw);
-  }
-`
-
-export const SummaryFavoriteLabel = styled.div`
-  font-size: 12px;
-  color: ${({ theme }) => theme.subText};
-
-  @media screen and (max-width: 640px) {
-    font-size: 9px;
-  }
-
-  @media screen and (max-width: 480px) {
-    font-size: calc(12 / 640 * 100vw);
-  }
-`
-
-export const SummaryFavoriteValue = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 18px;
-  font-weight: 600;
-  color: ${({ theme }) => theme.text};
-
-  @media screen and (max-width: 640px) {
-    font-size: 13px;
-    gap: 4px;
-  }
-
-  @media screen and (max-width: 480px) {
-    font-size: calc(18 / 640 * 100vw);
-    gap: calc(6 / 640 * 100vw);
-  }
-`
-
-export const SummaryFavoriteIconWrapper = styled.div`
-  position: relative;
-  width: 20px;
-  height: 20px;
-
-  @media screen and (max-width: 640px) {
-    width: 15px;
-    height: 15px;
-  }
-
-  @media screen and (max-width: 480px) {
-    width: calc(20 / 640 * 100vw);
-    height: calc(20 / 640 * 100vw);
-  }
-`
-
-export const SummaryFavoriteIcon = styled.img`
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-
-  @media screen and (max-width: 640px) {
-    width: 15px;
-    height: 15px;
-  }
-
-  @media screen and (max-width: 480px) {
-    width: calc(20 / 640 * 100vw);
-    height: calc(20 / 640 * 100vw);
-  }
-`
-
-export const SummaryFavoriteChainIcon = styled.img`
-  position: absolute;
-  bottom: -3px;
-  right: -3px;
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  border: 1px solid ${({ theme }) => theme.background};
-
-  @media screen and (max-width: 640px) {
-    width: 7px;
-    height: 7px;
-    bottom: -2px;
-    right: -2px;
-  }
-
-  @media screen and (max-width: 480px) {
-    width: calc(10 / 640 * 100vw);
-    height: calc(10 / 640 * 100vw);
-    bottom: calc(-3 / 640 * 100vw);
-    right: calc(-3 / 640 * 100vw);
-  }
-`
-
-export const SummaryRewardsSection = styled.div`
-  display: flex;
-  align-items: flex-end;
-  justify-content: flex-start;
-  gap: 12px;
-  margin-top: 16px;
-
-  @media screen and (max-width: 640px) {
-    gap: 9px;
-    margin-top: 12px;
-  }
-
-  @media screen and (max-width: 480px) {
-    gap: calc(12 / 640 * 100vw);
-    margin-top: calc(16 / 640 * 100vw);
-  }
-`
-
-export const SummaryRewardsValue = styled.div`
-  font-family: 'Antonio', sans-serif;
-  font-size: 48px;
-  font-weight: 700;
-  color: ${({ theme }) => theme.primary};
-  line-height: 1.1;
-
-  @media screen and (max-width: 640px) {
-    font-size: 36px;
-  }
-
-  @media screen and (max-width: 480px) {
-    font-size: calc(48 / 640 * 100vw);
-  }
-`
-
-export const SummaryRewardsLabel = styled.div`
-  font-size: 20px;
-  font-weight: 600;
-  color: ${({ theme }) => theme.text};
-
-  @media screen and (max-width: 640px) {
-    font-size: 15px;
-  }
-
-  @media screen and (max-width: 480px) {
-    font-size: calc(20 / 640 * 100vw);
-  }
-`
-
-export const SummaryFooter = styled.div`
-  position: absolute;
-  bottom: 24px;
-  left: 24px;
-  font-size: 14px;
-  color: ${({ theme }) => theme.text};
-
-  @media screen and (max-width: 640px) {
-    bottom: 18px;
-    left: 18px;
-    font-size: 10px;
-  }
-
-  @media screen and (max-width: 480px) {
-    bottom: calc(24 / 640 * 100vw);
-    left: calc(24 / 640 * 100vw);
-    font-size: calc(14 / 640 * 100vw);
-  }
-`
-
-export const SummaryFooterLink = styled.span`
-  color: ${({ theme }) => theme.primary};
-`
+import useTheme from 'hooks/useTheme'
+import { cn } from 'utils/cn'
+import { hexAlpha } from 'utils/colorAlpha'
+
+import './RecapJourney.styles.css'
+
+const CERA_STYLE_ID = 'ks-cera-font-face'
+const CERA_FONT_FACE_CSS = `
+@font-face { font-family: 'Cera'; src: url(${CeraThin}) format('truetype'); font-weight: 100; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Cera'; src: url(${CeraThinItalic}) format('truetype'); font-weight: 100; font-style: italic; font-display: swap; }
+@font-face { font-family: 'Cera'; src: url(${CeraLight}) format('truetype'); font-weight: 300; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Cera'; src: url(${CeraLightItalic}) format('truetype'); font-weight: 300; font-style: italic; font-display: swap; }
+@font-face { font-family: 'Cera'; src: url(${CeraRegular}) format('truetype'); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Cera'; src: url(${CeraRegularItalic}) format('truetype'); font-weight: 400; font-style: italic; font-display: swap; }
+@font-face { font-family: 'Cera'; src: url(${CeraMedium}) format('truetype'); font-weight: 500; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Cera'; src: url(${CeraMediumItalic}) format('truetype'); font-weight: 500; font-style: italic; font-display: swap; }
+@font-face { font-family: 'Cera'; src: url(${CeraBold}) format('truetype'); font-weight: 700; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Cera'; src: url(${CeraBoldItalic}) format('truetype'); font-weight: 700; font-style: italic; font-display: swap; }
+@font-face { font-family: 'Cera'; src: url(${CeraBlack}) format('truetype'); font-weight: 900; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Cera'; src: url(${CeraBlackItalic}) format('truetype'); font-weight: 900; font-style: italic; font-display: swap; }
+`
+
+export const CeraFontFace = () => {
+  useEffect(() => {
+    if (document.getElementById(CERA_STYLE_ID)) return
+    const style = document.createElement('style')
+    style.id = CERA_STYLE_ID
+    style.textContent = CERA_FONT_FACE_CSS
+    document.head.appendChild(style)
+  }, [])
+  return null
+}
+
+export const JourneyContainer = forwardRef<HTMLDivElement, ComponentPropsWithoutRef<'div'>>(
+  ({ className, ...rest }, ref) => <div ref={ref} className={cn('ks-rj-journey', className)} {...rest} />,
+)
+JourneyContainer.displayName = 'JourneyContainer'
+
+type BackgroundImageProps = ComponentPropsWithoutRef<'div'> & { src: string }
+export const BackgroundImage = ({ className, src, style, ...rest }: BackgroundImageProps) => (
+  <div className={cn('ks-rj-bg-image', className)} style={{ backgroundImage: `url(${src})`, ...style }} {...rest} />
+)
+
+export const BackgroundOverlayImage = ({ className, ...rest }: ComponentPropsWithoutRef<'img'>) => (
+  <img className={cn('ks-rj-bg-overlay', className)} {...rest} />
+)
+
+export const VideoBackground = ({ className, children, ...rest }: ComponentPropsWithoutRef<'video'>) => (
+  <video className={cn('ks-rj-video-bg', className)} {...rest}>
+    {children}
+  </video>
+)
+
+export const VideoOverlay = ({ className, ...rest }: ComponentPropsWithoutRef<'div'>) => (
+  <div className={cn('ks-rj-video-overlay', className)} {...rest} />
+)
+
+export const LogoContainer = ({ className, ...rest }: ComponentPropsWithoutRef<'div'>) => (
+  <div className={cn('ks-rj-logo-container', className)} {...rest} />
+)
+
+export const LogoImage = ({ className, ...rest }: ComponentPropsWithoutRef<'img'>) => (
+  <img className={cn('ks-rj-logo-image', className)} {...rest} />
+)
+
+export const YearTag = ({ className, ...rest }: ComponentPropsWithoutRef<'div'>) => (
+  <div className={cn('ks-rj-year-tag', className)} {...rest} />
+)
+
+type YearTagBannerProps = ComponentPropsWithoutRef<'div'> & { $isFinale?: boolean }
+export const YearTagBanner = ({ className, $isFinale, style, ...rest }: YearTagBannerProps) => {
+  const theme = useTheme()
+  return (
+    <div
+      className={cn('ks-rj-year-tag-banner', className)}
+      style={{
+        background: hexAlpha(theme.primary, $isFinale ? 0.4 : 0.2),
+        ...style,
+      }}
+      {...rest}
+    />
+  )
+}
+
+export const ContentContainer = ({ className, ...rest }: HTMLMotionProps<'div'>) => (
+  <motion.div className={cn('ks-rj-content-container', className)} {...rest} />
+)
+
+export const FireworkContentWrapper = ({ className, ...rest }: ComponentPropsWithoutRef<'div'>) => (
+  <div className={cn('ks-rj-firework-wrapper', className)} {...rest} />
+)
+
+export const Year2025 = ({ className, ...rest }: HTMLMotionProps<'h1'>) => (
+  <motion.h1 className={cn('ks-rj-year2025', className)} {...rest} />
+)
+
+export const YearOfFlow = ({ className, ...rest }: HTMLMotionProps<'h2'>) => (
+  <motion.h2 className={cn('ks-rj-year-of-flow', className)} {...rest} />
+)
+
+export const FlowText = ({ className, ...rest }: ComponentPropsWithoutRef<'span'>) => (
+  <span className={cn('ks-rj-flow-text', className)} {...rest} />
+)
+
+export const TextLine = ({ className, ...rest }: HTMLMotionProps<'div'>) => (
+  <motion.div className={cn('ks-rj-text-line', className)} {...rest} />
+)
+
+export const VideoTextWrapper = ({ className, ...rest }: HTMLMotionProps<'div'>) => (
+  <motion.div className={cn('ks-rj-video-text-wrapper', className)} {...rest} />
+)
+
+export const ButYouWrapper = ({ className, ...rest }: HTMLMotionProps<'div'>) => (
+  <motion.div className={cn('ks-rj-but-you-wrapper', className)} {...rest} />
+)
+
+export const ButText = ({ className, ...rest }: HTMLMotionProps<'span'>) => (
+  <motion.span className={cn('ks-rj-but-text', className)} {...rest} />
+)
+
+export const YouText = ({ className, ...rest }: HTMLMotionProps<'span'>) => (
+  <motion.span className={cn('ks-rj-you-text', className)} {...rest} />
+)
+
+export const NicknameText = ({ className, ...rest }: HTMLMotionProps<'p'>) => (
+  <motion.p className={cn('ks-rj-nickname-text', className)} {...rest} />
+)
+
+export const NavigatedWrapper = ({ className, ...rest }: HTMLMotionProps<'div'>) => (
+  <motion.div className={cn('ks-rj-navigated-wrapper', className)} {...rest} />
+)
+
+export const NavigatedText = ({ className, ...rest }: HTMLMotionProps<'span'>) => (
+  <motion.span className={cn('ks-rj-navigated-text', className)} {...rest} />
+)
+
+export const StormText = ({ className, ...rest }: HTMLMotionProps<'span'>) => (
+  <motion.span className={cn('ks-rj-storm-text', className)} {...rest} />
+)
+
+export const StatsContainer = ({ className, ...rest }: HTMLMotionProps<'div'>) => (
+  <motion.div className={cn('ks-rj-stats-container', className)} {...rest} />
+)
+
+export const StatsText = ({ className, ...rest }: HTMLMotionProps<'div'>) => (
+  <motion.div className={cn('ks-rj-stats-text', className)} {...rest} />
+)
+
+export const VolumeText = ({ className, ...rest }: HTMLMotionProps<'span'>) => (
+  <motion.span className={cn('ks-rj-volume-text', className)} {...rest} />
+)
+
+export const UsersText = ({ className, ...rest }: HTMLMotionProps<'span'>) => (
+  <motion.span className={cn('ks-rj-users-text', className)} {...rest} />
+)
+
+export const LabelText = ({ className, ...rest }: ComponentPropsWithoutRef<'span'>) => (
+  <span className={cn('ks-rj-label-text', className)} {...rest} />
+)
+
+export const BarChartWrapper = ({ className, ...rest }: HTMLMotionProps<'div'>) => (
+  <motion.div className={cn('ks-rj-bar-chart-wrapper', className)} {...rest} />
+)
+
+export const BarChartContainer = ({ className, ...rest }: ComponentPropsWithoutRef<'div'>) => (
+  <div className={cn('ks-rj-bar-chart-container', className)} {...rest} />
+)
+
+type ChartBarProps = HTMLMotionProps<'div'> & { $height: number; $color: string }
+export const ChartBar = ({ className, $height, $color, style, ...rest }: ChartBarProps) => (
+  <motion.div
+    className={cn('ks-rj-chart-bar', className)}
+    style={{ height: `${$height}%`, background: $color, ...style }}
+    {...rest}
+  />
+)
+
+export const MarkContainer = ({ className, ...rest }: HTMLMotionProps<'div'>) => (
+  <motion.div className={cn('ks-rj-mark-container', className)} {...rest} />
+)
+
+export const MarkText = ({ className, ...rest }: HTMLMotionProps<'div'>) => (
+  <motion.div className={cn('ks-rj-mark-text', className)} {...rest} />
+)
+
+export const MarkHighlight = ({ className, ...rest }: ComponentPropsWithoutRef<'span'>) => (
+  <span className={cn('ks-rj-mark-highlight', className)} {...rest} />
+)
+
+export const TradingStatsContainer = ({ className, ...rest }: HTMLMotionProps<'div'>) => (
+  <motion.div className={cn('ks-rj-trading-stats-container', className)} {...rest} />
+)
+
+export const TradingStatsTextWrapper = ({ className, ...rest }: ComponentPropsWithoutRef<'div'>) => (
+  <div className={cn('ks-rj-trading-stats-text-wrapper', className)} {...rest} />
+)
+
+export const TradingStatLine = ({ className, ...rest }: HTMLMotionProps<'div'>) => (
+  <motion.div className={cn('ks-rj-trading-stat-line', className)} {...rest} />
+)
+
+export const TradingStatLine2 = ({ className, ...rest }: HTMLMotionProps<'div'>) => (
+  <motion.div className={cn('ks-rj-trading-stat-line ks-rj-trading-stat-line-2', className)} {...rest} />
+)
+
+export const TradingStatLabel = ({ className, ...rest }: ComponentPropsWithoutRef<'span'>) => (
+  <span className={cn('ks-rj-trading-stat-label', className)} {...rest} />
+)
+
+export const TradingStatLabel2 = ({ className, ...rest }: ComponentPropsWithoutRef<'span'>) => (
+  <span className={cn('ks-rj-trading-stat-label ks-rj-trading-stat-label-2', className)} {...rest} />
+)
+
+export const TradingStatValue = ({ className, ...rest }: ComponentPropsWithoutRef<'span'>) => (
+  <span className={cn('ks-rj-trading-stat-value', className)} {...rest} />
+)
+
+export const TradingStatValue2 = ({ className, ...rest }: ComponentPropsWithoutRef<'span'>) => (
+  <span className={cn('ks-rj-trading-stat-value ks-rj-trading-stat-value-2', className)} {...rest} />
+)
+
+export const CandlestickChartWrapper = ({ className, ...rest }: HTMLMotionProps<'div'>) => (
+  <motion.div className={cn('ks-rj-candlestick-wrapper', className)} {...rest} />
+)
+
+export const CandlestickChartImage = ({ className, ...rest }: HTMLMotionProps<'img'>) => (
+  <motion.img className={cn('ks-rj-candlestick-image', className)} {...rest} />
+)
+
+export const TopPercentContainer = ({ className, ...rest }: HTMLMotionProps<'div'>) => (
+  <motion.div className={cn('ks-rj-top-percent-container', className)} {...rest} />
+)
+
+export const TopPercentNickname = ({ className, ...rest }: HTMLMotionProps<'div'>) => (
+  <motion.div className={cn('ks-rj-top-percent-nickname', className)} {...rest} />
+)
+
+export const TopPercentText = ({ className, ...rest }: HTMLMotionProps<'div'>) => (
+  <motion.div className={cn('ks-rj-top-percent-text', className)} {...rest} />
+)
+
+export const TopPercentValue = ({ className, ...rest }: ComponentPropsWithoutRef<'span'>) => (
+  <span className={cn('ks-rj-top-percent-value', className)} {...rest} />
+)
+
+export const BadgeContainer = ({ className, ...rest }: HTMLMotionProps<'div'>) => (
+  <motion.div className={cn('ks-rj-badge-container', className)} {...rest} />
+)
+
+export const BadgeImage = ({ className, ...rest }: ComponentPropsWithoutRef<'img'>) => (
+  <img className={cn('ks-rj-badge-image', className)} {...rest} />
+)
+
+export const ControlsContainer = ({ className, ...rest }: ComponentPropsWithoutRef<'div'>) => (
+  <div className={cn('ks-rj-controls-container', className)} {...rest} />
+)
+
+export const ControlButton = ({ className, ...rest }: ComponentPropsWithoutRef<'button'>) => (
+  <button className={cn('ks-rj-control-button', className)} {...rest} />
+)
+
+export const ShareButtonsContainer = ({ className, ...rest }: ComponentPropsWithoutRef<'div'>) => (
+  <div className={cn('ks-rj-share-buttons-container', className)} {...rest} />
+)
+
+export const MuteButton = ({ className, ...rest }: ComponentPropsWithoutRef<'button'>) => (
+  <button className={cn('ks-rj-mute-button', className)} {...rest} />
+)
+
+export const PauseResumeOverlay = ({ className, ...rest }: HTMLMotionProps<'div'>) => (
+  <motion.div className={cn('ks-rj-pause-resume-overlay', className)} {...rest} />
+)
+
+export const PauseResumeIcon = ({ className, ...rest }: HTMLMotionProps<'div'>) => (
+  <motion.div className={cn('ks-rj-pause-resume-icon', className)} {...rest} />
+)
+
+type ShareButtonProps = ComponentPropsWithoutRef<'button'> & { $isSuccess?: boolean; $isLoading?: boolean }
+export const ShareButton = ({ className, $isSuccess, $isLoading, ...rest }: ShareButtonProps) => (
+  <button
+    className={cn('ks-rj-share-button', className)}
+    data-success={$isSuccess ? 'true' : undefined}
+    data-loading={$isLoading ? 'true' : undefined}
+    {...rest}
+  />
+)
+
+export const ProgressBarContainer = ({ className, ...rest }: ComponentPropsWithoutRef<'div'>) => (
+  <div className={cn('ks-rj-progress-bar-container', className)} {...rest} />
+)
+
+export const ProgressBar = ({ className, ...rest }: ComponentPropsWithoutRef<'div'>) => (
+  <div className={cn('ks-rj-progress-bar', className)} {...rest} />
+)
+
+type ProgressSegmentProps = ComponentPropsWithoutRef<'div'> & { $isActive: boolean }
+export const ProgressSegment = ({ className, $isActive: _isActive, ...rest }: ProgressSegmentProps) => (
+  <div className={cn('ks-rj-progress-segment', className)} {...rest} />
+)
+
+type ProgressSegmentFillProps = HTMLMotionProps<'div'> & { $isActive: boolean }
+export const ProgressSegmentFill = ({ className, $isActive, style, ...rest }: ProgressSegmentFillProps) => (
+  <motion.div
+    className={cn('ks-rj-progress-segment-fill', className)}
+    style={{ width: $isActive ? '100%' : '0%', ...style }}
+    {...rest}
+  />
+)
+
+export const CapitalFlowContainer = ({ className, ...rest }: HTMLMotionProps<'div'>) => (
+  <motion.div className={cn('ks-rj-capital-flow-container', className)} {...rest} />
+)
+
+export const CapitalFlowText = ({ className, ...rest }: HTMLMotionProps<'div'>) => (
+  <motion.div className={cn('ks-rj-capital-flow-text', className)} {...rest} />
+)
+
+export const CapitalHighlight = ({ className, ...rest }: HTMLMotionProps<'div'>) => (
+  <motion.div className={cn('ks-rj-capital-highlight', className)} {...rest} />
+)
+
+export const NicknameHeader = ({ className, ...rest }: ComponentPropsWithoutRef<'div'>) => (
+  <div className={cn('ks-rj-nickname-header', className)} {...rest} />
+)
+
+export const TopListContainer = ({ className, ...rest }: HTMLMotionProps<'div'>) => (
+  <motion.div className={cn('ks-rj-top-list-container', className)} {...rest} />
+)
+
+export const TopListTitle = ({ className, ...rest }: HTMLMotionProps<'div'>) => (
+  <motion.div className={cn('ks-rj-top-list-title', className)} {...rest} />
+)
+
+export const TopListItems = ({ className, ...rest }: ComponentPropsWithoutRef<'div'>) => (
+  <div className={cn('ks-rj-top-list-items', className)} {...rest} />
+)
+
+export const TopListItem = ({ className, ...rest }: HTMLMotionProps<'div'>) => (
+  <motion.div className={cn('ks-rj-top-list-item', className)} {...rest} />
+)
+
+export const EmptyItem = ({ className, ...rest }: ComponentPropsWithoutRef<'div'>) => (
+  <div className={cn('ks-rj-empty-item', className)} {...rest} />
+)
+
+export const TopListRank = ({ className, ...rest }: ComponentPropsWithoutRef<'div'>) => (
+  <div className={cn('ks-rj-top-list-rank', className)} {...rest} />
+)
+
+export const TopListIconWrapper = ({ className, ...rest }: ComponentPropsWithoutRef<'div'>) => (
+  <div className={cn('ks-rj-top-list-icon-wrapper', className)} {...rest} />
+)
+
+export const TopListIcon = ({ className, ...rest }: ComponentPropsWithoutRef<'img'>) => (
+  <img className={cn('ks-rj-top-list-icon', className)} {...rest} />
+)
+
+export const TopListChainIcon = ({ className, ...rest }: ComponentPropsWithoutRef<'img'>) => (
+  <img className={cn('ks-rj-top-list-chain-icon', className)} {...rest} />
+)
+
+export const TopListName = ({ className, ...rest }: ComponentPropsWithoutRef<'div'>) => (
+  <div className={cn('ks-rj-top-list-name', className)} {...rest} />
+)
+
+export const MevContainer = ({ className, ...rest }: HTMLMotionProps<'div'>) => (
+  <motion.div className={cn('ks-rj-mev-container', className)} {...rest} />
+)
+
+export const MevText = ({ className, ...rest }: HTMLMotionProps<'div'>) => (
+  <motion.div className={cn('ks-rj-mev-text', className)} {...rest} />
+)
+
+export const MevTextWrapper = ({ className, ...rest }: HTMLMotionProps<'div'>) => (
+  <motion.div className={cn('ks-rj-mev-text-wrapper', className)} {...rest} />
+)
+
+export const MevFlowLine = ({ className, ...rest }: HTMLMotionProps<'div'>) => (
+  <motion.div className={cn('ks-rj-mev-flow-line', className)} {...rest} />
+)
+
+export const MevOutsmarted = ({ className, ...rest }: ComponentPropsWithoutRef<'span'>) => (
+  <span className={cn('ks-rj-mev-outsmarted', className)} {...rest} />
+)
+
+export const MevFlowHighlight = ({ className, ...rest }: ComponentPropsWithoutRef<'span'>) => (
+  <span className={cn('ks-rj-mev-flow-highlight', className)} {...rest} />
+)
+
+export const FairflowImage = ({ className, ...rest }: HTMLMotionProps<'img'>) => (
+  <motion.img className={cn('ks-rj-fairflow-image', className)} {...rest} />
+)
+
+export const FairflowContainer = ({ className, ...rest }: HTMLMotionProps<'div'>) => (
+  <motion.div className={cn('ks-rj-fairflow-container', className)} {...rest} />
+)
+
+export const FairflowTitle = ({ className, ...rest }: HTMLMotionProps<'div'>) => (
+  <motion.div className={cn('ks-rj-fairflow-title', className)} {...rest} />
+)
+
+export const FairflowHighlight = ({ className, ...rest }: ComponentPropsWithoutRef<'span'>) => (
+  <span className={cn('ks-rj-fairflow-highlight', className)} {...rest} />
+)
+
+export const FairflowEarned = ({ className, ...rest }: HTMLMotionProps<'div'>) => (
+  <motion.div className={cn('ks-rj-fairflow-earned', className)} {...rest} />
+)
+
+export const FairflowRewardLine = ({ className, ...rest }: HTMLMotionProps<'div'>) => (
+  <motion.div className={cn('ks-rj-fairflow-reward-line', className)} {...rest} />
+)
+
+export const KemLmIcon = ({ className, ...rest }: ComponentPropsWithoutRef<'img'>) => (
+  <img className={cn('ks-rj-kem-lm-icon', className)} {...rest} />
+)
+
+export const FairflowRewardValue = ({ className, ...rest }: ComponentPropsWithoutRef<'span'>) => (
+  <span className={cn('ks-rj-fairflow-reward-value', className)} {...rest} />
+)
+
+export const FairflowRewardLabel = ({ className, ...rest }: ComponentPropsWithoutRef<'span'>) => (
+  <span className={cn('ks-rj-fairflow-reward-label', className)} {...rest} />
+)
+
+export const FairflowSubtext = ({ className, ...rest }: HTMLMotionProps<'div'>) => (
+  <motion.div className={cn('ks-rj-fairflow-subtext', className)} {...rest} />
+)
+
+export const SmarterBannerWrapper = ({ className, ...rest }: HTMLMotionProps<'div'>) => (
+  <motion.div className={cn('ks-rj-smarter-banner-wrapper', className)} {...rest} />
+)
+
+export const SmarterBannerBg = ({ className, ...rest }: HTMLMotionProps<'div'>) => (
+  <motion.div className={cn('ks-rj-smarter-banner-bg', className)} {...rest} />
+)
+
+export const SmarterBannerText = ({ className, ...rest }: HTMLMotionProps<'div'>) => (
+  <motion.div className={cn('ks-rj-smarter-banner-text', className)} {...rest} />
+)
+
+export const SmarterBold = ({ className, ...rest }: ComponentPropsWithoutRef<'span'>) => (
+  <span className={cn('ks-rj-smarter-bold', className)} {...rest} />
+)
+
+export const SummaryContainer = ({ className, ...rest }: HTMLMotionProps<'div'>) => (
+  <motion.div className={cn('ks-rj-summary-container', className)} {...rest} />
+)
+
+export const SummaryNickname = ({ className, ...rest }: ComponentPropsWithoutRef<'div'>) => (
+  <div className={cn('ks-rj-summary-nickname', className)} {...rest} />
+)
+
+export const SummaryMainRow = ({ className, ...rest }: ComponentPropsWithoutRef<'div'>) => (
+  <div className={cn('ks-rj-summary-main-row', className)} {...rest} />
+)
+
+export const SummaryBadge = ({ className, ...rest }: ComponentPropsWithoutRef<'img'>) => (
+  <img className={cn('ks-rj-summary-badge', className)} {...rest} />
+)
+
+export const SummaryStatsColumn = ({ className, ...rest }: ComponentPropsWithoutRef<'div'>) => (
+  <div className={cn('ks-rj-summary-stats-column', className)} {...rest} />
+)
+
+export const SummaryStatsRow = ({ className, ...rest }: ComponentPropsWithoutRef<'div'>) => (
+  <div className={cn('ks-rj-summary-stats-row', className)} {...rest} />
+)
+
+export const SummaryStatLabel = ({ className, ...rest }: ComponentPropsWithoutRef<'div'>) => (
+  <div className={cn('ks-rj-summary-stat-label', className)} {...rest} />
+)
+
+export const SummaryStatValue = ({ className, ...rest }: ComponentPropsWithoutRef<'div'>) => (
+  <div className={cn('ks-rj-summary-stat-value', className)} {...rest} />
+)
+
+export const SummaryTradesValue = ({ className, ...rest }: ComponentPropsWithoutRef<'div'>) => (
+  <div className={cn('ks-rj-summary-trades-value', className)} {...rest} />
+)
+
+export const SummaryTradesLabel = ({ className, ...rest }: ComponentPropsWithoutRef<'div'>) => (
+  <div className={cn('ks-rj-summary-trades-label', className)} {...rest} />
+)
+
+export const SummaryTopBadge = ({ className, ...rest }: ComponentPropsWithoutRef<'div'>) => (
+  <div className={cn('ks-rj-summary-top-badge', className)} {...rest} />
+)
+
+export const SummaryFavoritesRow = ({ className, ...rest }: ComponentPropsWithoutRef<'div'>) => (
+  <div className={cn('ks-rj-summary-favorites-row', className)} {...rest} />
+)
+
+export const SummaryFavoriteItem = ({ className, ...rest }: ComponentPropsWithoutRef<'div'>) => (
+  <div className={cn('ks-rj-summary-favorite-item', className)} {...rest} />
+)
+
+export const SummaryFavoriteLabel = ({ className, ...rest }: ComponentPropsWithoutRef<'div'>) => (
+  <div className={cn('ks-rj-summary-favorite-label', className)} {...rest} />
+)
+
+export const SummaryFavoriteValue = ({ className, ...rest }: ComponentPropsWithoutRef<'div'>) => (
+  <div className={cn('ks-rj-summary-favorite-value', className)} {...rest} />
+)
+
+export const SummaryFavoriteIconWrapper = ({ className, ...rest }: ComponentPropsWithoutRef<'div'>) => (
+  <div className={cn('ks-rj-summary-favorite-icon-wrapper', className)} {...rest} />
+)
+
+export const SummaryFavoriteIcon = ({ className, ...rest }: ComponentPropsWithoutRef<'img'>) => (
+  <img className={cn('ks-rj-summary-favorite-icon', className)} {...rest} />
+)
+
+export const SummaryFavoriteChainIcon = ({ className, ...rest }: ComponentPropsWithoutRef<'img'>) => (
+  <img className={cn('ks-rj-summary-favorite-chain-icon', className)} {...rest} />
+)
+
+export const SummaryRewardsSection = ({ className, ...rest }: ComponentPropsWithoutRef<'div'>) => (
+  <div className={cn('ks-rj-summary-rewards-section', className)} {...rest} />
+)
+
+export const SummaryRewardsValue = ({ className, ...rest }: ComponentPropsWithoutRef<'div'>) => (
+  <div className={cn('ks-rj-summary-rewards-value', className)} {...rest} />
+)
+
+export const SummaryRewardsLabel = ({ className, ...rest }: ComponentPropsWithoutRef<'div'>) => (
+  <div className={cn('ks-rj-summary-rewards-label', className)} {...rest} />
+)
+
+export const SummaryFooter = ({ className, ...rest }: HTMLMotionProps<'div'>) => (
+  <motion.div className={cn('ks-rj-summary-footer', className)} {...rest} />
+)
+
+export const SummaryFooterLink = ({ className, ...rest }: ComponentPropsWithoutRef<'span'>) => (
+  <span className={cn('ks-rj-summary-footer-link', className)} {...rest} />
+)

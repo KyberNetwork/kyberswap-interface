@@ -37,6 +37,7 @@ export interface WidgetProps {
       | ApprovalAdditionalInfo,
   ) => Promise<string>;
   onViewPosition?: (txHash: string) => void;
+  onOpenPoolDetail?: (pool: { chainId: number; poolAddress: string; dexId?: string }) => void;
 }
 
 export interface ZapState {

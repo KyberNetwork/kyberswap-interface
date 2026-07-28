@@ -1,7 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { ReactNode } from 'react'
 import { Bell } from 'react-feather'
-import styled from 'styled-components'
 
 import { ReactComponent as AlarmIcon } from 'assets/svg/alarm.svg'
 import { ReactComponent as BridgeIcon } from 'assets/svg/bridge_icon.svg'
@@ -11,14 +10,8 @@ import { ReactComponent as LimitOrderIcon } from 'assets/svg/limit_order.svg'
 import { ReactComponent as LiquidityIcon } from 'assets/svg/liquidity_icon.svg'
 import { PrivateAnnouncementType } from 'components/Announcement/type'
 import { NetworkLogo } from 'components/Logo'
+import { cn } from 'utils/cn'
 
-const IconWrapper = styled.div<{ hasNetwork: boolean }>`
-  display: flex;
-  align-items: center;
-  min-height: 18px;
-  position: relative;
-  ${({ hasNetwork }) => hasNetwork && `margin-right: 4px;`}
-`
 const mapIcon: Partial<{ [type in PrivateAnnouncementType]: ReactNode }> = {
   [PrivateAnnouncementType.BRIDGE_ASSET]: <BridgeIcon />,
   [PrivateAnnouncementType.LIMIT_ORDER]: <LimitOrderIcon />,
@@ -32,7 +25,7 @@ const mapIcon: Partial<{ [type in PrivateAnnouncementType]: ReactNode }> = {
 export default function InboxIcon({ type, chainId }: { type: PrivateAnnouncementType; chainId?: ChainId }) {
   const icon = mapIcon[type]
   return (
-    <IconWrapper hasNetwork={!!chainId}>
+    <div className={cn('relative flex min-h-[18px] items-center', chainId && 'mr-1')}>
       {icon}
       {chainId && (
         <NetworkLogo
@@ -46,6 +39,6 @@ export default function InboxIcon({ type, chainId }: { type: PrivateAnnouncement
           }}
         />
       )}
-    </IconWrapper>
+    </div>
   )
 }

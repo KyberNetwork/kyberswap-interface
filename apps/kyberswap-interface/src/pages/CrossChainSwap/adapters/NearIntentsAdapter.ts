@@ -13,8 +13,10 @@ import { WalletAdapterProps } from '@solana/wallet-adapter-base'
 import { Connection, PublicKey, SystemProgram, Transaction } from '@solana/web3.js'
 import { WalletClient, formatUnits } from 'viem'
 
-import { BTC_DEFAULT_RECEIVER, CROSS_CHAIN_FEE_RECEIVER, SOLANA_NATIVE, ZERO_ADDRESS } from 'constants/index'
-import { SolanaToken } from 'state/crossChainSwap'
+import { ZERO_ADDRESS } from 'constants/index'
+import { BTC_DEFAULT_RECEIVER, CROSS_CHAIN_FEE_RECEIVER, SOLANA_NATIVE } from 'pages/CrossChainSwap/constants'
+import { saveMyNearWalletPendingTransaction } from 'pages/CrossChainSwap/hooks/useRestoreMyNearWalletPendingTransaction'
+import type { SolanaToken } from 'pages/CrossChainSwap/hooks/useSolanaTokens'
 
 import { Quote } from '../registry'
 import {
@@ -58,7 +60,7 @@ export class NearIntentsAdapter extends BaseSwapAdapter {
     // Initialize the API client
     OpenAPI.BASE = 'https://1click.chaindefuser.com'
     OpenAPI.TOKEN =
-      'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IjIwMjUtMDQtMjMtdjEifQ.eyJ2IjoxLCJrZXlfdHlwZSI6ImRpc3RyaWJ1dGlvbl9jaGFubmVsIiwicGFydG5lcl9pZCI6Imt5YmVyIiwiaWF0IjoxNzQ5MDQyNDk1LCJleHAiOjE3ODA1Nzg0OTV9.sC5g1Jn4BRIGXkIRmN4dnK2BzbIglLOVuOmnrTItGaAP-QU69lbyYs2QGPE-5c7dRC9Cc3s0ktO50W9VXiqQEefu-VCQTKtjsfIwfAm7wDC1XKUT7lbQL2uODqXxR6yg5d8ENu6p8F2t86_T8IEpid6b1yBidKladbs9tI2QebSp3Sn6bjtsnpD-9W2dsW0Gd6PUkpZizb--YqkmdPQ8Eu85fIxtDO64qbp0Xp6NY8caFEA1yakbwaMEUWXnNX6PB_elfH28sF0cMbqlyAGiHe98J8tZ47kga6e6yZP4UHoak3Y_eRNuX_CpwoXfULx1t8YLoSJEQuP9JsPIoyw5dA'
+      'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IjIwMjUtMDEtMTItdjEifQ.eyJ2IjoxLCJrZXlfdHlwZSI6ImRpc3RyaWJ1dGlvbl9jaGFubmVsIiwicGFydG5lcl9pZCI6Imt5YmVyY3Jvc3MiLCJpYXQiOjE3ODMwNjc5OTUsImV4cCI6MTgxNDYwMzk5NX0.vf1Ntum-A3AxWSlyRoji00SR9m4pVRXiFCJsyztkMZY4oSGp58eXc4TzmgkEGzmh-JONevN_nz730-qq3XNV9DcFrLWFsboXOZjwWTEBix8FNag57tEuMnCNn4t5PhNzDYUrgdX5Z1hqZrhjCvQpH-jeYCywH91RXbOcXAhq8murkquNA4eNe_5mBcNKgnuFmo0kUI7F73ndT41D9iTVJN0-FvIz-BpCaHtNE0Wilg6Rc5qwE3vA_3mUU8zl6xhpOXGcTAUr-LhGM6Yqa2ajk3ri-VmeA8VA83i3hyB7wn8Bo0HGX6JJ8ipqRqMfL1nNqjn_Cz2e793kC8yLtk557Q'
   }
 
   getName(): string {
@@ -192,34 +194,38 @@ export class NearIntentsAdapter extends BaseSwapAdapter {
     sendSolanaFn?: WalletAdapterProps['sendTransaction'],
     solanaConnection?: Connection,
   ): Promise<NormalizedTxResponse> {
-    const quoteParams = {
-      ...quote.rawQuote.quoteRequest,
-      dry: false,
-      // adjust slippage to 0,01% to accept the rate change
-      slippageTolerance:
-        Math.floor(quote.quoteParams.slippage * 0.9) > 1
-          ? Math.floor(quote.quoteParams.slippage * 0.9)
-          : quote.quoteParams.slippage,
-    }
-    delete quoteParams.correlationId
-
-    const refreshedQuote = await OneClickService.getQuote(quoteParams)
-    const depositAddress = refreshedQuote?.quote?.depositAddress
+    let depositAddress = quote.rawQuote.quote.depositAddress
 
     if (!depositAddress) {
-      throw new Error('Deposit address not found')
-    }
+      const quoteParams = {
+        ...quote.rawQuote.quoteRequest,
+        dry: false,
+        // adjust slippage to 0,01% to accept the rate change
+        slippageTolerance:
+          Math.floor(quote.quoteParams.slippage * 0.9) > 1
+            ? Math.floor(quote.quoteParams.slippage * 0.9)
+            : quote.quoteParams.slippage,
+      }
+      delete quoteParams.correlationId
 
-    if (
-      refreshedQuote.quoteRequest.recipient === ZERO_ADDRESS ||
-      refreshedQuote.quoteRequest.refundTo === ZERO_ADDRESS ||
-      refreshedQuote.quoteRequest.recipient.toLowerCase() === BTC_DEFAULT_RECEIVER ||
-      refreshedQuote.quoteRequest.refundTo.toLowerCase() === BTC_DEFAULT_RECEIVER
-    ) {
-      throw new Error('Near Intent recipient or refundTo is ZERO ADDRESS')
-    }
-    if (BigInt(refreshedQuote.quote.minAmountOut) < BigInt(quote.rawQuote.quote.minAmountOut)) {
-      throw new Error('Quote amount out is less than expected')
+      const refreshedQuote = await OneClickService.getQuote(quoteParams)
+      depositAddress = refreshedQuote?.quote?.depositAddress
+
+      if (!depositAddress) {
+        throw new Error('Deposit address not found')
+      }
+
+      if (
+        refreshedQuote.quoteRequest.recipient === ZERO_ADDRESS ||
+        refreshedQuote.quoteRequest.refundTo === ZERO_ADDRESS ||
+        refreshedQuote.quoteRequest.recipient.toLowerCase() === BTC_DEFAULT_RECEIVER ||
+        refreshedQuote.quoteRequest.refundTo.toLowerCase() === BTC_DEFAULT_RECEIVER
+      ) {
+        throw new Error('Near Intent recipient or refundTo is ZERO ADDRESS')
+      }
+      if (BigInt(refreshedQuote.quote.minAmountOut) < BigInt(quote.rawQuote.quote.minAmountOut)) {
+        throw new Error('Quote amount out is less than expected')
+      }
     }
 
     const params = {
@@ -454,15 +460,12 @@ export class NearIntentsAdapter extends BaseSwapAdapter {
           ],
         })
 
-        // My near wallet is redirect to wallet website -> need store to process later
-        if (nearWallet?.wallet?.id === 'my-near-wallet')
-          localStorage.setItem(
-            'cross-chain-swap-my-near-wallet-tx',
-            JSON.stringify({
-              ...params,
-              sourceTxHash: depositAddress,
-            }),
-          )
+        if (nearWallet?.wallet?.id === 'my-near-wallet') {
+          saveMyNearWalletPendingTransaction({
+            ...params,
+            sourceTxHash: depositAddress,
+          })
+        }
 
         await nearWallet
           .signAndSendTransactions({

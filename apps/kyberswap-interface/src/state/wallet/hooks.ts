@@ -2,18 +2,20 @@ import { ChainId, Currency, CurrencyAmount, Token, TokenAmount } from '@kyberswa
 import JSBI from 'jsbi'
 import { useEffect, useMemo, useState } from 'react'
 
-import ERC20_INTERFACE from 'constants/abis/erc20'
-import { EMPTY_ARRAY, EMPTY_OBJECT } from 'constants/index'
+import { ERC20_ABI } from 'constants/abis'
+import { EMPTY_ARRAY } from 'constants/index'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
-import { useAllTokens } from 'hooks/Tokens'
 import { useEthBalanceOfAnotherChain, useTokensBalanceOfAnotherChain } from 'hooks/bridge'
 import { useMulticallContract } from 'hooks/useContract'
+import { useAllTokens } from 'hooks/useTokens'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { useMultipleContractSingleData, useSingleCallResult } from 'state/multicall/hooks'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
-import { isAddress } from 'utils'
+import { isAddress } from 'utils/address'
 import { isTokenNative } from 'utils/tokenInfo'
+
+const EMPTY_OBJECT: any = {}
 
 export function useNativeBalance(customChain?: ChainId): CurrencyAmount<Currency> | undefined {
   const { chainId: currentChain } = useActiveWeb3React()
@@ -32,7 +34,7 @@ function useETHBalance(): CurrencyAmount<Currency> | undefined {
   const multicallContract = useMulticallContract()
 
   const addressParam: (string | undefined)[] = useMemo(
-    () => (account && isAddress(chainId, account) ? [account] || [undefined] : [undefined]),
+    () => (account && isAddress(chainId, account) ? [account] : [undefined]),
     [chainId, account],
   )
 
@@ -62,14 +64,13 @@ function useTokensBalanceEVM(tokens?: Token[]): TokenAmountLoading[] {
   const { account } = useActiveWeb3React()
 
   const validatedTokenAddresses = useMemo(() => tokens?.map(token => token?.address) ?? [], [tokens])
-  const balances = useMultipleContractSingleData(validatedTokenAddresses, ERC20_INTERFACE, 'balanceOf', [account])
+  const balances = useMultipleContractSingleData(validatedTokenAddresses, ERC20_ABI, 'balanceOf', [account])
   return useMemo(
     () =>
       balances.map((balanceCall, i) => {
+        const raw = balanceCall.result?.[0]
         const amount =
-          balanceCall.result?.[0] && tokens?.[i]
-            ? TokenAmount.fromRawAmount(tokens?.[i], balanceCall.result?.[0])
-            : undefined
+          raw !== undefined && tokens?.[i] ? TokenAmount.fromRawAmount(tokens[i], raw.toString()) : undefined
         return [amount, balanceCall.loading]
       }),
     [balances, tokens],
@@ -180,9 +181,17 @@ export function useCurrencyBalance(currency?: Currency, chainId?: ChainId): Curr
 }
 
 // mimics useAllBalances
-export function useAllTokenBalances(chainId?: ChainId): { [tokenAddress: string]: TokenAmount | undefined } {
+// `enabled=false` skips registering the per-block balanceOf multicall over the whole token map (for
+// callers that only need it on some tabs) while keeping the return shape stable.
+export function useAllTokenBalances(
+  chainId?: ChainId,
+  enabled = true,
+): { [tokenAddress: string]: TokenAmount | undefined } {
   const allTokens = useAllTokens(false, chainId)
-  const allTokensArray = useMemo(() => Object.values(allTokens ?? {}), [allTokens])
+  const allTokensArray = useMemo(
+    () => (enabled ? Object.values(allTokens ?? {}) : (EMPTY_ARRAY as Token[])),
+    [allTokens, enabled],
+  )
   return useTokenBalances(allTokensArray, chainId) ?? EMPTY_OBJECT
 }
 

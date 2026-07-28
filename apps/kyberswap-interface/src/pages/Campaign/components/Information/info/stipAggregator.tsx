@@ -1,11 +1,14 @@
 import { Trans } from '@lingui/macro'
 import { Link } from 'react-router-dom'
-import { Text } from 'rebass'
 
+import CampaignFaqSection from 'pages/Campaign/components/Information/info/CampaignFaqSection'
+import {
+  CampaignContent,
+  CampaignSectionComponent,
+  CampaignSectionProps,
+  FaqItem,
+} from 'pages/Campaign/components/Information/info/types'
 import { ExternalLink } from 'theme'
-
-import CampaignFaqSection from './CampaignFaqSection'
-import { CampaignContent, CampaignSectionComponent, CampaignSectionProps, FaqItem } from './types'
 
 const AggregatorHowToSection = ({ week = 0 }: CampaignSectionProps): CampaignSectionComponent => (
   <>
@@ -19,9 +22,9 @@ const AggregatorHowToSection = ({ week = 0 }: CampaignSectionProps): CampaignSec
       </Trans>
     </li>
     <li>
-      <Text as="span" fontStyle="bold" color="#ffffff">
+      <span className="font-bold text-white">
         <Trans>Category 1</Trans>
-      </Text>
+      </span>
       :{' '}
       <Trans>
         ARB trading will give 10 Points per USD swapped. It can be paired with any eligible tokens from the list, except
@@ -34,9 +37,9 @@ const AggregatorHowToSection = ({ week = 0 }: CampaignSectionProps): CampaignSec
       </ul>
     </li>
     <li>
-      <Text as="span" fontStyle="bold" color="#ffffff">
+      <span className="font-bold text-white">
         <Trans>Category 2</Trans>
-      </Text>
+      </span>
       :{' '}
       <Trans>
         Uncorrelated tokens trading will give 5 Points per USD swapped. This section includes trading of any eligible
@@ -49,9 +52,9 @@ const AggregatorHowToSection = ({ week = 0 }: CampaignSectionProps): CampaignSec
       </ul>
     </li>
     <li>
-      <Text as="span" fontStyle="bold" color="#ffffff">
+      <span className="font-bold text-white">
         <Trans>Category 3</Trans>
-      </Text>
+      </span>
       : <Trans>ETH Derivatives trading will give 1 Point per USD swapped.</Trans>
       <ul style={{ margin: 0 }}>
         <li>
@@ -60,9 +63,9 @@ const AggregatorHowToSection = ({ week = 0 }: CampaignSectionProps): CampaignSec
       </ul>
     </li>
     <li>
-      <Text as="span" fontStyle="bold" color="#ffffff">
+      <span className="font-bold text-white">
         <Trans>Category 4</Trans>
-      </Text>
+      </span>
       :{' '}
       {week > 28 ? (
         <Trans>Stablecoins to Stablecoins trading will give 0.25 Points per USD swapped.</Trans>
@@ -76,18 +79,18 @@ const AggregatorHowToSection = ({ week = 0 }: CampaignSectionProps): CampaignSec
       </ul>
     </li>
     <li>
-      <Text as="span" color="#ffffff" fontStyle="bold">
+      <span className="font-bold text-white">
         <Trans>Bonus:</Trans>
-      </Text>{' '}
+      </span>{' '}
       <Trans>
         Users that perform swaps with <Link to="/">KyberSwap.com</Link> website directly will benefit of 25% more points
         on each eligible trade.
       </Trans>
     </li>
     <li>
-      <Text as="span" color="#ffffff" fontStyle="bold">
+      <span className="font-bold text-white">
         <Trans>Note:</Trans>
-      </Text>{' '}
+      </span>{' '}
       {week > 28 ? (
         <ul style={{ margin: 0 }}>
           <li>
@@ -121,10 +124,7 @@ const AggregatorRewardsSection = (): CampaignSectionComponent => (
   <>
     <li>
       <Trans>
-        <Text as="span" fontSize="24px" style={{ color: '#ffffff' }}>
-          31,500 ARB
-        </Text>{' '}
-        is allocated for this campaign each week.
+        <span className="text-2xl text-white">31,500 ARB</span> is allocated for this campaign each week.
       </Trans>
     </li>
     <li>
@@ -133,11 +133,11 @@ const AggregatorRewardsSection = (): CampaignSectionComponent => (
         <li>
           <Trans>The Estimated Rewards are based on the following formula for the conversion of Points to ARB:</Trans>
         </li>
-        <Text fontStyle="italic">
+        <p className="italic">
           <Trans>
             User earned Points for the week / Total Users Point for the week) X Amount of ARB allocation for the week.
           </Trans>
-        </Text>
+        </p>
       </ul>
     </li>
     <li>
@@ -160,10 +160,8 @@ const AggregatorTermsSection = ({ week = 0 }: CampaignSectionProps): CampaignSec
     <li>
       <Trans>
         The Campaign will run from{' '}
-        <Text as="span" color="#ffffff" fontStyle="bold">
-          8th July 2024 at 0:00 UTC to 15th September 2024 at 23:59 UTC UTC
-        </Text>
-        . KyberSwap retains the right to amend the Campaign&apos;s start and end dates with reasonable notice.
+        <span className="font-bold text-white">8th July 2024 at 0:00 UTC to 15th September 2024 at 23:59 UTC UTC</span>.
+        KyberSwap retains the right to amend the Campaign&apos;s start and end dates with reasonable notice.
       </Trans>
     </li>
     <li>
@@ -186,9 +184,9 @@ const AggregatorTermsSection = ({ week = 0 }: CampaignSectionProps): CampaignSec
       <Trans>
         Points & Rewards on the Leaderboard are subject to change during the buffer period before the distribution of
         ARB.{' '}
-        <Text as="span" color="#ffffff" fontStyle="bold">
+        <span className="font-bold text-white">
           Any wallet that tries to sybil or cheat in any way will have all their points and rewards forfeited.
-        </Text>
+        </span>
       </Trans>
     </li>
 
@@ -266,13 +264,13 @@ const AggregatorFaqListSection = (): CampaignSectionComponent => {
     {
       q: <Trans>How do you calculate the rewards?</Trans>,
       a: (
-        <Text>
+        <p>
           <Trans>
             The distribution of ARB rewards are based on the points distributed to users. All users will grow a Points
             portfolio for each week. Here’s the formula for the conversion of Points to ARB: User earned Points for the
             week / Total Users Point for the week) X Amount of ARB allocation for the week.
           </Trans>
-        </Text>
+        </p>
       ),
     },
     {

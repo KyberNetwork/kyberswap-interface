@@ -1,29 +1,10 @@
 import { CurrencyAmount, Fraction, Percent, Price } from '@kyberswap/ks-sdk-core'
-import { BigNumber } from 'ethers'
 import JSBI from 'jsbi'
 
-import { BIG_INT_ONE, BIG_INT_ZERO, RESERVE_USD_DECIMALS } from 'constants/index'
+import { RESERVE_USD_DECIMALS } from 'constants/trade'
 
-/** @deprecated use formatDisplayNumber instead
- * @example formatDisplayNumber(num, { style: 'currency', significantDigits: 4 })
- */
-export const formatDollarAmount = (num: number | undefined, digits = 2) => {
-  if (num === 0) return '$0.00'
-  if (!num) return '-'
-  if (num < 0.01 && digits <= 3) {
-    return '<$0.01'
-  }
-  const fractionDigits = num > 1000 ? 2 : digits
-  return Intl.NumberFormat('en-US', {
-    notation: num < 10_000_000 ? 'standard' : 'compact',
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: fractionDigits,
-  })
-    .format(num)
-    .toLowerCase()
-}
+const BIG_INT_ONE = JSBI.BigInt(1)
+const BIG_INT_ZERO = JSBI.BigInt(0)
 
 // stringify number without scientific format
 // e.g: (123456789123456789123456789).toString() => 1.2345678912345679e+26
@@ -108,7 +89,6 @@ export const parseFraction = (value: FormatValue): Fraction => {
     if (
       typeof value === 'string' ||
       typeof value === 'number' ||
-      value instanceof BigNumber ||
       value instanceof CurrencyAmount ||
       value instanceof Percent ||
       value instanceof Price
@@ -116,7 +96,6 @@ export const parseFraction = (value: FormatValue): Fraction => {
       const valueStr = (() => {
         if (typeof value === 'string') return parseString(value).toFixed(100)
         if (typeof value === 'number') return toString(value)
-        if (value instanceof BigNumber) return value.toString()
         if (value instanceof CurrencyAmount) return value.toFixed(value.currency.decimals)
         if (value instanceof Price) return value.toFixed(18)
         if (value instanceof Percent) return value.divide(100).toFixed(100)
@@ -134,7 +113,7 @@ export const parseFraction = (value: FormatValue): Fraction => {
   }
 }
 
-type FormatValue = string | number | bigint | JSBI | BigNumber | Fraction | undefined | null
+type FormatValue = string | number | bigint | JSBI | Fraction | undefined | null
 type FormatOptions = {
   style?: 'decimal' | 'currency' | 'percent'
   fractionDigits?: number // usually for percent  & currency styles
@@ -191,7 +170,7 @@ export const formatDisplayNumber = (
   if (absShownFraction.lessThan(BIG_INT_ONE) && !shownFraction.equalTo(BIG_INT_ZERO)) {
     const decimal = shownFraction.toFixed(100).split('.')[1]
     const negative = shownFraction.lessThan(BIG_INT_ZERO) ? '-' : ''
-    const numberOfLeadingZeros = -Math.floor(log10(absShownFraction) + 1)
+    const numberOfLeadingZeros = Math.max(0, -Math.floor(log10(absShownFraction) + 1))
     const slicedDecimal = decimal
       .replace(/^0+/, '')
       .slice(0, fractionDigits ? fractionDigits : 30)

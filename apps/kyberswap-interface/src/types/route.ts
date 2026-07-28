@@ -25,6 +25,9 @@ export enum ChargeFeeBy {
 
 export type ExtraFeeConfig = {
   feeAmount: string
+  /**
+   * @deprecated
+   */
   feeAmountUsd: string
   chargeFeeBy: ChargeFeeBy
   isInBps: boolean
@@ -53,11 +56,15 @@ export type DetailedRouteSummary = {
     currency: Currency
     currencyAmount: CurrencyAmount<Currency>
     formattedAmount: string
+    /**
+     * @deprecated
+     */
     formattedAmountUsd: string
   }
 
   extraFee: ExtraFeeConfig
 
   route: Route[][]
+  isSmartSettlement: boolean
   routerAddress: string
 }

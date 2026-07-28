@@ -1,28 +1,11 @@
 import { Trans, t } from '@lingui/macro'
 import { useEffect, useState } from 'react'
 import { Trash, X } from 'react-feather'
-import { Flex, Text } from 'rebass'
-import styled from 'styled-components'
 
 import { ButtonEmpty, ButtonOutlined, ButtonPrimary } from 'components/Button'
 import Modal from 'components/Modal'
 import { RowBetween } from 'components/Row'
 import { useActiveWeb3React } from 'hooks'
-import useTheme from 'hooks/useTheme'
-
-const Wrapper = styled.div`
-  margin: 0;
-  padding: 24px 24px;
-  width: 100%;
-  display: flex;
-  gap: 20px;
-  flex-direction: column;
-`
-
-const CloseIcon = styled(X)`
-  cursor: pointer;
-  color: ${({ theme }) => theme.subText};
-`
 
 type Props = {
   disabled: boolean
@@ -30,7 +13,6 @@ type Props = {
   notificationName: string | undefined
 }
 const DeleteAllAlertsButton: React.FC<Props> = ({ onClear, disabled, notificationName }) => {
-  const theme = useTheme()
   const { account } = useActiveWeb3React()
   const [isModalOpen, setModalOpen] = useState(false)
 
@@ -62,14 +44,7 @@ const DeleteAllAlertsButton: React.FC<Props> = ({ onClear, disabled, notificatio
   return (
     <>
       <ButtonEmpty
-        style={{
-          width: '80px',
-          whiteSpace: 'nowrap',
-          height: '24px',
-          color: theme.red,
-          padding: 0,
-          gap: '4px',
-        }}
+        className="h-6 w-20 gap-1 whitespace-nowrap p-0 text-red"
         onClick={() => {
           setModalOpen(true)
         }}
@@ -79,24 +54,19 @@ const DeleteAllAlertsButton: React.FC<Props> = ({ onClear, disabled, notificatio
       </ButtonEmpty>
 
       <Modal isOpen={isModalOpen} onDismiss={handleDismiss} minHeight={false} maxWidth={400}>
-        <Wrapper>
+        <div className="m-0 flex w-full flex-col gap-5 p-6">
           <RowBetween>
-            <Text fontSize={20} fontWeight={400}>
+            <span className="text-xl font-normal">
               <Trans>Delete all {notificationName}</Trans>
-            </Text>
-            <CloseIcon onClick={handleDismiss} />
+            </span>
+            <X onClick={handleDismiss} className="cursor-pointer text-subText" />
           </RowBetween>
 
-          <Text as="span" fontSize="14px" color={theme.subText}>
+          <span className="text-sm text-subText">
             <Trans>Are you sure you want to delete all {notificationName}?</Trans>
-          </Text>
+          </span>
 
-          <Flex
-            sx={{
-              alignItems: 'center',
-              gap: '16px',
-            }}
-          >
+          <div className="flex items-center gap-4">
             <ButtonPrimary
               borderRadius="24px"
               height="36px"
@@ -116,8 +86,8 @@ const DeleteAllAlertsButton: React.FC<Props> = ({ onClear, disabled, notificatio
             >
               {t`Delete all`}
             </ButtonOutlined>
-          </Flex>
-        </Wrapper>
+          </div>
+        </div>
       </Modal>
     </>
   )

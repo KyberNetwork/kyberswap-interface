@@ -130,7 +130,14 @@ export class AllEndpointsFailedError extends Error {
     public readonly chainId: number,
     public readonly errors: Array<{ endpoint: string; error: Error }>,
   ) {
-    super(`All RPC endpoints failed for chain ${chainId}`);
+    // Inner error.message already carries the `Rpc issue: [method @ host] ...`
+    // prefix from the client's throw sites. Strip it so the composed message
+    // keeps a single leading "Rpc issue:" instead of nesting it per-endpoint.
+    const reasons = errors.map(({ error }) => error.message.replace(/^Rpc issue:\s*/, '')).join(' | ');
+    super(
+      `Rpc issue: all ${errors.length} RPC endpoint${errors.length === 1 ? '' : 's'} failed for chain ${chainId}` +
+        (reasons ? ` — ${reasons}` : ''),
+    );
     this.name = 'AllEndpointsFailedError';
   }
 }

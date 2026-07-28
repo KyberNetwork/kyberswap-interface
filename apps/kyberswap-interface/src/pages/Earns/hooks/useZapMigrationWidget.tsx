@@ -1,22 +1,24 @@
+// PoolType is needed as a value by the DEX map below. The widget package only re-exports @kyber/schema's
+// enum, so taking it from the source keeps the exact same values without dragging the widget in with it.
+import { PoolType as ZapMigrationDex } from '@kyber/schema'
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import {
-  OnSuccessProps,
-  SupportedLocale,
-  ZapMigration,
-  ChainId as ZapMigrationChainId,
-  PoolType as ZapMigrationDex,
-} from '@kyberswap/zap-migration-widgets'
+import type { OnSuccessProps, SupportedLocale, ChainId as ZapMigrationChainId } from '@kyberswap/zap-migration-widgets'
+// Eager, not with the lazy JS below: the widget's status dialog is styled by utilities scoped under the
+// widget's own root class, which ship only in this stylesheet (the app's eager @kyber/ui styles use a
+// different scope and don't reach it). This widget's scope is its own, so nothing else supplies it.
 import '@kyberswap/zap-migration-widgets/dist/style.css'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { Suspense, lazy, useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { usePreviousDistinct } from 'react-use'
 
 import { NotificationType } from 'components/Announcement/type'
+import LocalLoader from 'components/LocalLoader'
 import Modal from 'components/Modal'
 import { APP_PATHS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useActiveLocale } from 'hooks/useActiveLocale'
+import { useIsSmartAccount } from 'hooks/useIsSmartAccount'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { EARN_DEXES, Exchange } from 'pages/Earns/constants'
@@ -27,11 +29,20 @@ import { DEFAULT_PARSED_POSITION } from 'pages/Earns/types'
 import { getNftManagerContractAddress, getTokenId, submitTransaction } from 'pages/Earns/utils'
 import { getDexVersion } from 'pages/Earns/utils/position'
 import { updateUnfinalizedPosition } from 'pages/Earns/utils/unfinalizedPosition'
-import { navigateToPositionAfterZap } from 'pages/Earns/utils/zap'
+import { navigateToPoolDetail, navigateToPositionAfterZap } from 'pages/Earns/utils/zap'
 import { useKyberSwapConfig, useNotify, useWalletModalToggle } from 'state/application/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
-import { getCookieValue } from 'utils'
+import { getCookieValue } from 'utils/cookie'
+import { friendlyError } from 'utils/errorMessage'
+import { Address } from 'utils/viem'
+import { signTypedDataRaw } from 'utils/walletClient'
+
+// The widget only renders inside the modal below, so lazy-load its JS to keep it out of every /earn route
+// chunk that calls this hook.
+const ZapMigration = lazy(() =>
+  import('@kyberswap/zap-migration-widgets').then(widget => ({ default: widget.ZapMigration })),
+)
 
 interface MigrateLiquidityPureParams {
   from: {
@@ -48,6 +59,7 @@ interface MigrateLiquidityPureParams {
   }
   chainId: ZapMigrationChainId
   initialTick?: { tickUpper: number; tickLower: number }
+  initialRevertPrice?: boolean
   initialSlippage?: number
   rePositionMode?: boolean
 }
@@ -64,6 +76,7 @@ interface MigrateLiquidityParams extends MigrateLiquidityPureParams {
   onCloseSuccess?: () => void
   onConnectWallet: () => void
   onSwitchChain: () => void
+  onOpenPoolDetail?: (pool: { chainId: number; poolAddress: string; dexId?: string }) => void
   onSubmitTx: (txData: { from: string; to: string; value: string; data: string }) => Promise<string>
 }
 
@@ -82,6 +95,7 @@ export interface ZapMigrationInfo {
   }
   chainId: number
   initialTick?: { tickUpper: number; tickLower: number }
+  initialRevertPrice?: boolean
   initialSlippage?: number
   rePositionMode?: boolean
 }
@@ -104,6 +118,8 @@ const zapMigrationDexMapping: Record<Exchange, ZapMigrationDex | null> = {
   [Exchange.DEX_PANCAKE_INFINITY_CL_BREVIS]: ZapMigrationDex.DEX_PANCAKE_INFINITY_CL,
   [Exchange.DEX_PANCAKE_INFINITY_CL_LO]: ZapMigrationDex.DEX_PANCAKE_INFINITY_CL,
   [Exchange.DEX_AERODROMECL]: ZapMigrationDex.DEX_AERODROMECL,
+  [Exchange.DEX_AERODROMECL2]: ZapMigrationDex.DEX_AERODROMECL2,
+  [Exchange.DEX_AERODROMECL3]: ZapMigrationDex.DEX_AERODROMECL3,
 }
 
 const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
@@ -113,8 +129,9 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
   const notify = useNotify()
   const navigate = useNavigate()
   const refCode = getCookieValue('refCode')
-  const { library } = useWeb3React()
+  const { isSmartConnector } = useWeb3React()
   const { account, chainId } = useActiveWeb3React()
+  const isSmartAccount = useIsSmartAccount()
   const { changeNetwork } = useChangeNetwork()
 
   const { trackingHandler } = useTracking()
@@ -125,11 +142,9 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
 
   const handleNavigateToPosition = useCallback(
     async (txHash: string, chainId: number, dex: Exchange, targetPoolId: string) => {
-      if (!library) return
-
-      navigateToPositionAfterZap(library, txHash, chainId, dex, targetPoolId, navigate)
+      navigateToPositionAfterZap(txHash, chainId, dex, targetPoolId, navigate)
     },
-    [library, navigate],
+    [navigate],
   )
 
   const handleCloseMigration = useCallback(() => {
@@ -149,6 +164,7 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
     to,
     chainId,
     initialTick,
+    initialRevertPrice,
     initialSlippage,
     rePositionMode,
   }: ZapMigrationInfo) => {
@@ -183,6 +199,7 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
         : undefined,
       chainId: chainId as ZapMigrationChainId,
       initialTick,
+      initialRevertPrice,
       initialSlippage,
       rePositionMode,
     })
@@ -195,10 +212,21 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
             ...migrateLiquidityPureParams,
             client: 'kyberswap-earn',
             rpcUrl: zapMigrationRpcUrl,
-            signTypedData: library
-              ? (account: string, typedDataJson: string) =>
-                  library.send('eth_signTypedData_v4', [account.toLowerCase(), typedDataJson])
-              : undefined,
+            // See useZapOutWidget for the smart-wallet permit rationale — EIP-1271
+            // signatures from smart wallets (Porto, Safe, Coinbase Smart Wallet,
+            // EIP-7702 EOAs, ...) don't verify on the NFT contract, so we let the
+            // widget fall back to approve.
+            signTypedData:
+              isSmartConnector || isSmartAccount
+                ? undefined
+                : async (account: string, typedDataJson: string) => {
+                    const parsedTypedData = JSON.parse(typedDataJson)
+                    return signTypedDataRaw({
+                      chainId: chainId,
+                      account: account.toLowerCase() as Address,
+                      typedData: parsedTypedData,
+                    })
+                  },
             referral: refCode,
             txStatus,
             txHashMapping: originalToCurrentHash,
@@ -225,6 +253,13 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
             },
             onConnectWallet: toggleWalletModal,
             onSwitchChain: () => changeNetwork(migrateLiquidityPureParams.chainId as number),
+            onOpenPoolDetail: (pool: { chainId: number; poolAddress: string; dexId?: string }) => {
+              if (!pool.dexId) return
+              setTriggerClose(true)
+              setMigrateLiquidityPureParams(null)
+              clearTracking()
+              navigateToPoolDetail(pool, navigate)
+            },
             onSubmitTx: async (
               txData: { from: string; to: string; value: string; data: string },
               additionalInfo?:
@@ -242,7 +277,12 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
                     dexName?: string
                   },
             ) => {
-              const res = await submitTransaction({ library, txData })
+              const res = await submitTransaction({
+                account,
+                chainId: migrateLiquidityPureParams.chainId,
+                txData,
+                isSmartConnector,
+              })
               const { txHash, error } = res
               if (!txHash || error) {
                 const isReposition = migrateLiquidityPureParams.rePositionMode
@@ -256,7 +296,7 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
                     completion_time_ms: Date.now(),
                   },
                 )
-                throw new Error(error?.message || 'Transaction failed')
+                throw new Error(error ? friendlyError(error) : 'Transaction failed')
               }
 
               const sourceDex = migrateLiquidityPureParams.from.dexId
@@ -323,8 +363,6 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
               navigate(APP_PATHS.EARN_POOLS)
             },
             onSuccess: async (data: OnSuccessProps) => {
-              if (!library) return
-
               const isReposition = migrateLiquidityPureParams.rePositionMode
               const tokenPair = `${data.position.token0.symbol}/${data.position.token1.symbol}`
               trackingHandler(
@@ -351,7 +389,7 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
 
               const nftId =
                 data.position.positionId ||
-                (isUniv2 ? account || '' : ((await getTokenId(library, data.txHash, dex)) || '').toString())
+                (isUniv2 ? account || '' : ((await getTokenId(chainId, data.txHash, dex)) || '').toString())
 
               const dexVersion = getDexVersion(dex)
               const contract = getNftManagerContractAddress(dex, chainId)
@@ -381,6 +419,7 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
                     ...DEFAULT_PARSED_POSITION.token0,
                     address: data.position.token0.address,
                     totalProvide: data.position.token0.amount,
+                    currentAmount: data.position.token0.amount,
                     logo: data.position.token0.logo,
                     symbol: data.position.token0.symbol,
                   },
@@ -388,6 +427,7 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
                     ...DEFAULT_PARSED_POSITION.token1,
                     address: data.position.token1.address,
                     totalProvide: data.position.token1.amount,
+                    currentAmount: data.position.token1.amount,
                     logo: data.position.token1.logo,
                     symbol: data.position.token1.symbol,
                   },
@@ -418,7 +458,8 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
     [
       migrateLiquidityPureParams,
       zapMigrationRpcUrl,
-      library,
+      isSmartConnector,
+      isSmartAccount,
       refCode,
       txStatus,
       originalToCurrentHash,
@@ -464,7 +505,9 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
       }}
       zindex={1001}
     >
-      <ZapMigration {...migrateLiquidityParams} />
+      <Suspense fallback={<LocalLoader />}>
+        <ZapMigration {...migrateLiquidityParams} />
+      </Suspense>
     </Modal>
   ) : null
 

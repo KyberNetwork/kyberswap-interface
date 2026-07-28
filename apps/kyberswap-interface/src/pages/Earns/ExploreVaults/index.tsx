@@ -2,17 +2,17 @@ import { t } from '@lingui/macro'
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
-import { Flex, Text } from 'rebass'
 import { useVaultListQuery, useVaultPositionsQuery } from 'services/vault'
 
 import { ReactComponent as IconEarnNotFound } from 'assets/svg/earn/ic_earn_not_found.svg'
 import { ReactComponent as GridViewIcon } from 'assets/svg/grid_view.svg'
 import { ReactComponent as ListViewIcon } from 'assets/svg/list_view.svg'
+import DropdownMenu from 'components/DropdownMenu'
+import MultiSelectDropdownMenu from 'components/DropdownMenu/MultiSelect'
 import Search from 'components/Search'
 import TokenLogo from 'components/TokenLogo'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
-import useTheme from 'hooks/useTheme'
 import { ApyBarChart, TvlLineChart } from 'pages/Earns/ExploreVaults/MiniCharts'
 import { VAULT_CHAIN_OPTIONS } from 'pages/Earns/ExploreVaults/sampleData'
 import {
@@ -53,8 +53,6 @@ import {
   ViewToggleGroup,
 } from 'pages/Earns/ExploreVaults/styles'
 import { VaultInfo, VaultSortBy, VaultViewMode } from 'pages/Earns/ExploreVaults/types'
-import DropdownMenu from 'pages/Earns/components/DropdownMenu'
-import MultiSelectDropdownMenu from 'pages/Earns/components/DropdownMenu/MultiSelect'
 import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
 import { toVaultInfo } from 'pages/Earns/utils/vault'
 import { MEDIA_WIDTHS } from 'theme'
@@ -76,7 +74,6 @@ const buildVaultDetailPath = (chainId: number, vaultId: string) =>
   APP_PATHS.EARN_VAULT_DETAIL.replace(':chainId', String(chainId)).replace(':vaultId', vaultId)
 
 const ExploreVaultCard = ({ vault, hasPosition }: { vault: VaultInfo; hasPosition: boolean }) => {
-  const theme = useTheme()
   const navigate = useNavigate()
 
   const goToDetail = () => {
@@ -100,7 +97,7 @@ const ExploreVaultCard = ({ vault, hasPosition }: { vault: VaultInfo; hasPositio
       }}
     >
       <CardHeader>
-        <Flex alignItems="center" style={{ gap: '4px' }}>
+        <div className="flex items-center gap-1">
           <TokenIconWrapper>
             <TokenLogo src={vault.tokenIcon} alt={vault.token} size={24} />
             <TokenLogo
@@ -110,15 +107,11 @@ const ExploreVaultCard = ({ vault, hasPosition }: { vault: VaultInfo; hasPositio
               style={{ position: 'absolute', bottom: -2, right: -4 }}
             />
           </TokenIconWrapper>
-          <Text fontSize={16} color={theme.white2} style={{ marginLeft: '4px' }}>
-            {vault.token}
-          </Text>
-          <Text fontSize={16} color={theme.gray}>
-            {vault.label}
-          </Text>
-        </Flex>
+          <span className="ml-1 text-base text-white2">{vault.token}</span>
+          <span className="text-base text-gray">{vault.label}</span>
+        </div>
 
-        <Flex alignItems="center" style={{ gap: '12px' }}>
+        <div className="flex items-center gap-3">
           {hasPosition && (
             <ViewPositionButton
               type="button"
@@ -141,11 +134,11 @@ const ExploreVaultCard = ({ vault, hasPosition }: { vault: VaultInfo; hasPositio
           >
             {t`+ Deposit`}
           </DepositButton>
-        </Flex>
+        </div>
       </CardHeader>
 
       <CardBody>
-        <Flex flexDirection="column" style={{ gap: '4px' }}>
+        <div className="flex flex-col gap-1">
           <MetricRow>
             <MetricLabel>APY</MetricLabel>
             <ApyValue>{vault.apy.toFixed(2)}%</ApyValue>
@@ -153,9 +146,9 @@ const ExploreVaultCard = ({ vault, hasPosition }: { vault: VaultInfo; hasPositio
           <ChartWrapper $height={28}>
             <ApyBarChart data={vault.apyHistory} height={28} />
           </ChartWrapper>
-        </Flex>
+        </div>
 
-        <Flex flexDirection="column" style={{ gap: '16px' }}>
+        <div className="flex flex-col gap-4">
           <MetricRow>
             <MetricLabel>TVL</MetricLabel>
             <TvlValue>{formatTvl(vault.tvl)}</TvlValue>
@@ -163,7 +156,7 @@ const ExploreVaultCard = ({ vault, hasPosition }: { vault: VaultInfo; hasPositio
           <ChartWrapper $height={49}>
             <TvlLineChart data={vault.tvlHistory} height={49} />
           </ChartWrapper>
-        </Flex>
+        </div>
 
         <CardFooter>
           <ProtocolTag>
@@ -179,8 +172,6 @@ const ExploreVaultCard = ({ vault, hasPosition }: { vault: VaultInfo; hasPositio
 }
 
 const ExploreVaultListItem = ({ vault, hasPosition }: { vault: VaultInfo; hasPosition: boolean }) => {
-  const theme = useTheme()
-
   return (
     <VaultListRow $disabled={vault.disabled}>
       <VaultListRowMain>
@@ -193,13 +184,9 @@ const ExploreVaultListItem = ({ vault, hasPosition }: { vault: VaultInfo; hasPos
             style={{ position: 'absolute', bottom: -2, right: -4 }}
           />
         </TokenIconWrapper>
-        <Text fontSize={16} color={theme.white2} style={{ marginLeft: '4px' }}>
-          {vault.token}
-        </Text>
-        <Text fontSize={16} color={theme.gray}>
-          {vault.label}
-        </Text>
-        <ProtocolTag style={{ marginLeft: '4px' }}>
+        <span className="ml-1 text-base text-white2">{vault.token}</span>
+        <span className="text-base text-gray">{vault.label}</span>
+        <ProtocolTag className="ml-1">
           <img src={vault.partnerLogo} alt={vault.partner} width={16} height={16} style={{ borderRadius: '50%' }} />
           <span>{`managed by ${vault.partner}`}</span>
         </ProtocolTag>
@@ -254,29 +241,29 @@ const ExploreVaultListItemSkeleton = () => (
 )
 
 const ExploreVaultCardSkeleton = () => (
-  <VaultCard style={{ gap: '16px' }}>
-    <Flex alignItems="center" justifyContent="space-between" width="100%">
-      <Flex alignItems="center" style={{ gap: '4px' }}>
+  <VaultCard className="gap-4">
+    <div className="flex w-full items-center justify-between">
+      <div className="flex items-center gap-1">
         <PositionSkeleton width={24} height={24} style={{ borderRadius: '50%' }} />
         <PositionSkeleton width={40} height={18} />
         <PositionSkeleton width={30} height={18} />
-      </Flex>
+      </div>
       <PositionSkeleton width={80} height={28} />
-    </Flex>
-    <Flex flexDirection="column" style={{ gap: '4px' }}>
-      <Flex alignItems="flex-end" style={{ gap: '8px' }}>
+    </div>
+    <div className="flex flex-col gap-1">
+      <div className="flex items-end gap-2">
         <PositionSkeleton width={30} height={16} />
         <PositionSkeleton width={80} height={32} />
-      </Flex>
+      </div>
       <PositionSkeleton width="100%" height={28} />
-    </Flex>
-    <Flex flexDirection="column" style={{ gap: '16px' }}>
-      <Flex alignItems="flex-end" style={{ gap: '8px' }}>
+    </div>
+    <div className="flex flex-col gap-4">
+      <div className="flex items-end gap-2">
         <PositionSkeleton width={30} height={16} />
         <PositionSkeleton width={60} height={24} />
-      </Flex>
+      </div>
       <PositionSkeleton width="100%" height={49} />
-    </Flex>
+    </div>
     <PositionSkeleton width={140} height={22} />
   </VaultCard>
 )
@@ -328,7 +315,7 @@ const ExploreVaults = () => {
       <FilterRow>
         <FilterControls>
           <MultiSelectDropdownMenu
-            alignLeft
+            alignItems="flex-start"
             highlightOnSelect
             label={chainLabel}
             options={VAULT_CHAIN_OPTIONS}
@@ -339,7 +326,7 @@ const ExploreVaults = () => {
           <SortByGroup>
             <SortByLabel>{t`Sort by:`}</SortByLabel>
             <DropdownMenu
-              alignLeft
+              alignItems="flex-start"
               width={70}
               options={SORT_BY_OPTIONS}
               value={sortBy}

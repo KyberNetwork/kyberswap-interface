@@ -1,9 +1,9 @@
+import { PUBLIC_RPC_ENDPOINTS } from '@kyber/rpc-client'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { watchChainId } from '@wagmi/core'
-import { porto } from 'porto/wagmi'
-import { ReactNode, useEffect, useMemo } from 'react'
-import { createClient, defineChain, http } from 'viem'
+import { reconnect, watchChainId } from '@wagmi/core'
+import { ReactNode, useEffect } from 'react'
+import { type Chain, defineChain, fallback, http } from 'viem'
 import {
   arbitrum,
   avalanche,
@@ -13,10 +13,14 @@ import {
   bsc,
   etherlink,
   fantom,
+  hyperEvm,
   linea,
   mainnet,
   mantle,
+  megaeth,
+  monad,
   optimism,
+  plasma,
   polygon,
   ronin,
   scroll,
@@ -24,122 +28,26 @@ import {
   unichain,
   zksync,
 } from 'viem/chains'
-import { Connector, WagmiProvider, createConfig, createConnector, useConnect } from 'wagmi'
-import { coinbaseWallet, injected, safe, walletConnect } from 'wagmi/connectors'
+import { Connector, WagmiProvider, createConfig, createConnector } from 'wagmi'
+import { coinbaseWallet, injected, metaMask, safe, walletConnect } from 'wagmi/connectors'
 
 import WC_BG from 'assets/images/wc-bg.png'
 import Kyber from 'assets/svg/kyber/logo_kyberswap_with_padding.svg'
 import BINANCE_ICON from 'assets/wallets-connect/binance.svg'
+import BITGET_ICON from 'assets/wallets-connect/bitget-wallet.png'
 import COINBASE_ICON from 'assets/wallets-connect/coinbase.svg'
 import METAMASK_ICON from 'assets/wallets-connect/metamask.svg'
+import RABBY_ICON from 'assets/wallets-connect/rabby.svg'
 import SAFE_ICON from 'assets/wallets-connect/safe.svg'
 import SAFEPAL_ICON from 'assets/wallets-connect/safepal.svg'
 import WALLET_CONNECT_ICON from 'assets/wallets-connect/wallet-connect.svg'
 import INJECTED_DARK_ICON from 'assets/wallets/browser-wallet-dark.svg'
+import { setMetaMaskMobileLink } from 'components/Web3Provider/metamaskMobileLink'
 import { WALLETCONNECT_PROJECT_ID } from 'constants/env'
-import { isSupportedChainId } from 'constants/networks'
+import { KYBERSWAP_URL } from 'constants/index'
+import { NETWORKS_INFO, isSupportedChainId } from 'constants/networks'
 import { useAppDispatch } from 'state/hooks'
 import { updateChainId } from 'state/user/actions'
-
-export const megaeth = defineChain({
-  id: ChainId.MEGAETH,
-  name: 'MegaETH',
-  nativeCurrency: {
-    decimals: 18,
-    name: 'Ethereum',
-    symbol: 'ETH',
-  },
-  rpcUrls: {
-    default: {
-      http: ['https://mainnet.megaeth.com/rpc'],
-      webSocket: ['wss://mainnet.megaeth.com/rpc'],
-    },
-  },
-  blockExplorers: {
-    default: { name: 'Explorer', url: 'https://megaeth.blockscout.com/' },
-  },
-  contracts: {
-    multicall3: {
-      address: '0xcA11bde05977b3631167028862bE2a173976CA11',
-      blockCreated: 1,
-    },
-  },
-})
-
-export const monad = defineChain({
-  id: ChainId.MONAD,
-  name: 'Monad',
-  nativeCurrency: {
-    decimals: 18,
-    name: 'MON',
-    symbol: 'MON',
-  },
-  rpcUrls: {
-    default: {
-      http: ['https://rpc.monad.xyz'],
-      webSocket: ['wss://rpc.monad.xyz'],
-    },
-  },
-  blockExplorers: {
-    default: { name: 'Explorer', url: 'https://mainnet-beta.monvision.io' },
-  },
-  contracts: {
-    multicall3: {
-      address: '0xcA11bde05977b3631167028862bE2a173976CA11',
-      blockCreated: 1,
-    },
-  },
-})
-
-export const plasma = defineChain({
-  id: ChainId.PLASMA,
-  name: 'Plasma',
-  nativeCurrency: {
-    decimals: 18,
-    name: 'XPL',
-    symbol: 'XPL',
-  },
-  rpcUrls: {
-    default: {
-      http: ['https://rpc.plasma.to'],
-      webSocket: ['wss://rpc.plasma.to'],
-    },
-  },
-  blockExplorers: {
-    default: { name: 'Explorer', url: 'https://plasmascan.to' },
-  },
-  contracts: {
-    multicall3: {
-      address: '0xcA11bde05977b3631167028862bE2a173976CA11',
-      blockCreated: 1,
-    },
-  },
-})
-
-export const hyperevm = defineChain({
-  id: 999,
-  name: 'HyperEVM',
-  nativeCurrency: {
-    decimals: 18,
-    name: 'HYPE',
-    symbol: 'HYPE',
-  },
-  rpcUrls: {
-    default: {
-      http: ['https://rpc.hyperliquid.xyz/evm'],
-      webSocket: ['wss://hyperliquid.drpc.org'],
-    },
-  },
-  blockExplorers: {
-    default: { name: 'Explorer', url: 'https://www.hyperscan.com' },
-  },
-  contracts: {
-    multicall3: {
-      address: '0xcA11bde05977b3631167028862bE2a173976CA11',
-      blockCreated: 13051,
-    },
-  },
-})
 
 export const queryClient = new QueryClient()
 
@@ -150,18 +58,24 @@ export const CONNECTION = {
   INJECTED_CONNECTOR_TYPE: 'injected',
   COINBASE_SDK_CONNECTOR_ID: 'coinbaseWalletSDK',
   COINBASE_RDNS: 'com.coinbase.wallet',
+  METAMASK_SDK_CONNECTOR_ID: 'metaMaskSDK',
   METAMASK_RDNS: 'io.metamask',
+  PHANTOM: 'app.phantom',
   RABBY: 'io.rabby',
-  //UNISWAP_EXTENSION_RDNS: 'org.uniswap.app',
   SAFE_CONNECTOR_ID: 'safe',
   PORTO: 'xyz.ithaca.porto',
   BINANCE: 'com.binance.wallet',
   BITGET: 'com.bitget.web3',
   SAFEPAL: 'io.safepal',
+  // SafePal's EIP-6963 announce uses its download URL as rdns (non-standard).
+  SAFEPAL_RDNS: 'https://www.safepal.com/download',
 } as const
 
 export const CONNECTION_ORDER = [
+  CONNECTION.METAMASK_SDK_CONNECTOR_ID,
   CONNECTION.METAMASK_RDNS,
+  CONNECTION.WALLET_CONNECT_CONNECTOR_ID,
+  CONNECTION.PHANTOM,
   CONNECTION.RABBY,
   CONNECTION.COINBASE_SDK_CONNECTOR_ID,
   CONNECTION.COINBASE_RDNS,
@@ -169,10 +83,10 @@ export const CONNECTION_ORDER = [
   CONNECTION.BITGET,
   CONNECTION.SAFEPAL,
   CONNECTION.PORTO,
-  CONNECTION.WALLET_CONNECT_CONNECTOR_ID,
 ]
 
 export const CONNECTOR_ICON_OVERRIDE_MAP: { [id in string]?: string } = {
+  [CONNECTION.METAMASK_SDK_CONNECTOR_ID]: METAMASK_ICON,
   [CONNECTION.METAMASK_RDNS]: METAMASK_ICON,
   [CONNECTION.COINBASE_SDK_CONNECTOR_ID]: COINBASE_ICON,
   [CONNECTION.WALLET_CONNECT_CONNECTOR_ID]: WALLET_CONNECT_ICON,
@@ -202,17 +116,6 @@ export function getConnectorWithId(
   return connector
 }
 
-/** Returns a wagmi `Connector` with the given id. If `shouldThrow` is passed, an error will be thrown if the connector is not found. */
-export function useConnectorWithId(id: ConnectorID, options: { shouldThrow: true }): Connector
-export function useConnectorWithId(id: ConnectorID): Connector | undefined
-export function useConnectorWithId(id: ConnectorID, options?: { shouldThrow: true }): Connector | undefined {
-  const { connectors } = useConnect()
-  return useMemo(
-    () => (options?.shouldThrow ? getConnectorWithId(connectors, id, options) : getConnectorWithId(connectors, id)),
-    [connectors, id, options],
-  )
-}
-
 declare module 'wagmi' {
   interface Register {
     config: typeof wagmiConfig
@@ -221,15 +124,8 @@ declare module 'wagmi' {
 
 export const HardCodedConnectors = [
   {
-    id: 'KSMetaMask',
-    name: 'MetaMask',
-    logo: METAMASK_ICON,
-    url: 'https://metamask.io',
-    realId: 'io.metamask',
-  },
-  {
     id: 'KSRabby',
-    logo: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGcgY2xpcC1wYXRoPSJ1cmwoI2NsaXAwXzc0MV8yNzUxKSI+CjxtYXNrIGlkPSJtYXNrMF83NDFfMjc1MSIgc3R5bGU9Im1hc2stdHlwZTpsdW1pbmFuY2UiIG1hc2tVbml0cz0idXNlclNwYWNlT25Vc2UiIHg9IjAiIHk9IjAiIHdpZHRoPSIzMiIgaGVpZ2h0PSIzMiI+CjxwYXRoIGQ9Ik0zMiAxNkMzMiA3LjE2MzQ0IDI0LjgzNjYgMCAxNiAwQzcuMTYzNDQgMCAwIDcuMTYzNDQgMCAxNkMwIDI0LjgzNjYgNy4xNjM0NCAzMiAxNiAzMkMyNC44MzY2IDMyIDMyIDI0LjgzNjYgMzIgMTZaIiBmaWxsPSJ3aGl0ZSIvPgo8L21hc2s+CjxnIG1hc2s9InVybCgjbWFzazBfNzQxXzI3NTEpIj4KPHBhdGggZD0iTTMyIDE2QzMyIDcuMTYzNDQgMjQuODM2NiAwIDE2IDBDNy4xNjM0NCAwIDAgNy4xNjM0NCAwIDE2QzAgMjQuODM2NiA3LjE2MzQ0IDMyIDE2IDMyQzI0LjgzNjYgMzIgMzIgMjQuODM2NiAzMiAxNloiIGZpbGw9IiM3MDg0RkYiLz4KPGcgZmlsdGVyPSJ1cmwoI2ZpbHRlcjBfZF83NDFfMjc1MSkiPgo8cGF0aCBkPSJNMjcuNjAxOSAxNy4zODc2QzI4LjUyMTYgMTUuMzI2MSAyMy45NzQ4IDkuNTY2MzIgMTkuNjMxIDcuMTY2NzZDMTYuODkyOSA1LjMwNzc5IDE0LjAzOTkgNS41NjMxOCAxMy40NjIgNi4zNzkzOEMxMi4xOTQgOC4xNzA2OSAxNy42NjExIDkuNjg4NTEgMjEuMzE3NCAxMS40NTk3QzIwLjUzMTQgMTEuODAyMiAxOS43OTA4IDEyLjQxNjkgMTkuMzU1MiAxMy4yMDI5QzE3Ljk5MjEgMTEuNzA5OCAxNS4wMDAzIDEwLjQyMzkgMTEuNDg5NyAxMS40NTk3QzkuMTIzOTcgMTIuMTU3NyA3LjE1NzkxIDEzLjgwMzIgNi4zOTgwNCAxNi4yODg1QzYuMjEzMzcgMTYuMjA2MiA2LjAwODk0IDE2LjE2MDQgNS43OTM4NyAxNi4xNjA0QzQuOTcxNDIgMTYuMTYwNCA0LjMwNDY5IDE2LjgyOTQgNC4zMDQ2OSAxNy42NTQ2QzQuMzA0NjkgMTguNDc5OSA0Ljk3MTQyIDE5LjE0ODggNS43OTM4NyAxOS4xNDg4QzUuOTQ2MzIgMTkuMTQ4OCA2LjQyMjk4IDE5LjA0NjMgNi40MjI5OCAxOS4wNDYzTDE0LjAzOTkgMTkuMTAxNkMxMC45OTM3IDIzLjk1MDQgOC41ODYzNSAyNC42NTkxIDguNTg2MzUgMjUuNDk5MkM4LjU4NjM1IDI2LjMzOTIgMTAuODg5OCAyNi4xMTE2IDExLjc1NDcgMjUuNzk4NEMxNS44OTQ5IDI0LjI5OTUgMjAuMzQxNyAxOS42MjggMjEuMTA0OCAxOC4yODMzQzI0LjMwOTIgMTguNjg0NCAyNy4wMDIyIDE4LjczMTggMjcuNjAxOSAxNy4zODc2WiIgZmlsbD0idXJsKCNwYWludDBfbGluZWFyXzc0MV8yNzUxKSIvPgo8cGF0aCBmaWxsLXJ1bGU9ImV2ZW5vZGQiIGNsaXAtcnVsZT0iZXZlbm9kZCIgZD0iTTIxLjMwMjkgMTEuNDUzOEMyMS4zMDY3IDExLjQ1NTUgMjEuMzEwNiAxMS40NTcxIDIxLjMxNDQgMTEuNDU4OEMyMS40ODM5IDExLjM5MTggMjEuNDU2NSAxMS4xNDA3IDIxLjQwOTkgMTAuOTQzNUMyMS4zMDMgMTAuNDkwMSAxOS40NTc1IDguNjYxNjUgMTcuNzI0NSA3Ljg0MjY1QzE1LjM2MjkgNi43MjY2NSAxMy42MjQgNi43ODQyMSAxMy4zNjcyIDcuMjk4NjVDMTMuODQ3MiA4LjI4ODIxIDE2LjA3NzkgOS4yMTcyNyAxOC40MDc3IDEwLjE4NzZDMTkuMzk3MSAxMC41OTk2IDIwLjQwNDMgMTEuMDE5MSAyMS4zMDI5IDExLjQ1MzhaIiBmaWxsPSJ1cmwoI3BhaW50MV9saW5lYXJfNzQxXzI3NTEpIi8+CjxwYXRoIGZpbGwtcnVsZT0iZXZlbm9kZCIgY2xpcC1ydWxlPSJldmVub2RkIiBkPSJNMTguMzIyOCAyMS40MTY3QzE3Ljg0NTMgMjEuMjMzNyAxNy4zMDYgMjEuMDY1OCAxNi42OTI5IDIwLjkxMzNDMTcuMzQ2OSAxOS43MzkzIDE3LjQ4NDEgMTguMDAxMSAxNi44NjY1IDE2LjkwMjJDMTUuOTk5OCAxNS4zNTk5IDE0LjkxMTcgMTQuNTM5MSAxMi4zODM0IDE0LjUzOTFDMTAuOTkyOCAxNC41MzkxIDcuMjQ4NzcgMTUuMDA5IDcuMTgyMjcgMTguMTQ1QzcuMTc1MzQgMTguNDczOCA3LjE4MjA5IDE4Ljc3NTEgNy4yMDU3NyAxOS4wNTIxTDE0LjA0MyAxOS4xMDE5QzEzLjEyMSAyMC41Njk0IDEyLjI1NzUgMjEuNjU3NyAxMS41MDE2IDIyLjQ4NTJDMTIuNDA5MiAyMi43MTg2IDEzLjE1ODEgMjIuOTE0NCAxMy44NDU3IDIzLjA5NDNDMTQuNDk3OCAyMy4yNjQ4IDE1LjA5NDYgMjMuNDIwOSAxNS43MTkzIDIzLjU4MDlDMTYuNjYyIDIyLjg5MTggMTcuNTQ4MyAyMi4xNDA0IDE4LjMyMjggMjEuNDE2N1oiIGZpbGw9InVybCgjcGFpbnQyX2xpbmVhcl83NDFfMjc1MSkiLz4KPHBhdGggZD0iTTYuMzA4NzQgMTguNzI4M0M2LjU4ODA1IDIxLjExMDUgNy45MzczNiAyMi4wNDQxIDEwLjY5NDYgMjIuMzIwNUMxMy40NTE5IDIyLjU5NjggMTUuMDMzNSAyMi40MTE0IDE3LjEzOTEgMjIuNjAzNkMxOC44OTc3IDIyLjc2NDEgMjAuNDY4IDIzLjY2MzMgMjEuMDUwNSAyMy4zNTI2QzIxLjU3NDcgMjMuMDczIDIxLjI4MTQgMjIuMDYyNiAyMC41Nzk5IDIxLjQxNDRDMTkuNjcwNiAyMC41NzQxIDE4LjQxMjEgMTkuOTkgMTYuMTk3NyAxOS43ODI2QzE2LjYzOSAxOC41NzAyIDE2LjUxNTQgMTYuODcwMyAxNS44Mjk5IDE1Ljk0NTVDMTQuODM4OSAxNC42MDgyIDEzLjAwOTcgMTQuMDAzNiAxMC42OTQ2IDE0LjI2NzhDOC4yNzU4NiAxNC41NDM4IDUuOTU4MjEgMTUuNzM4NiA2LjMwODc0IDE4LjcyODNaIiBmaWxsPSJ1cmwoI3BhaW50M19saW5lYXJfNzQxXzI3NTEpIi8+CjwvZz4KPC9nPgo8L2c+CjxkZWZzPgo8ZmlsdGVyIGlkPSJmaWx0ZXIwX2RfNzQxXzI3NTEiIHg9Ii03Ny42MTUzIiB5PSItNzYuMTYwMiIgd2lkdGg9IjE4Ny4yNTQiIGhlaWdodD0iMTg0LjE2MiIgZmlsdGVyVW5pdHM9InVzZXJTcGFjZU9uVXNlIiBjb2xvci1pbnRlcnBvbGF0aW9uLWZpbHRlcnM9InNSR0IiPgo8ZmVGbG9vZCBmbG9vZC1vcGFjaXR5PSIwIiByZXN1bHQ9IkJhY2tncm91bmRJbWFnZUZpeCIvPgo8ZmVDb2xvck1hdHJpeCBpbj0iU291cmNlQWxwaGEiIHR5cGU9Im1hdHJpeCIgdmFsdWVzPSIwIDAgMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDAgMCAxMjcgMCIgcmVzdWx0PSJoYXJkQWxwaGEiLz4KPGZlT2Zmc2V0Lz4KPGZlR2F1c3NpYW5CbHVyIHN0ZERldmlhdGlvbj0iNDAuOTYiLz4KPGZlQ29tcG9zaXRlIGluMj0iaGFyZEFscGhhIiBvcGVyYXRvcj0ib3V0Ii8+CjxmZUNvbG9yTWF0cml4IHR5cGU9Im1hdHJpeCIgdmFsdWVzPSIwIDAgMCAwIDAuMTUxOTMzIDAgMCAwIDAgMC4yMzkyMzggMCAwIDAgMCAwLjQ5MDI0MSAwIDAgMCAwLjU0IDAiLz4KPGZlQmxlbmQgbW9kZT0ibm9ybWFsIiBpbjI9IkJhY2tncm91bmRJbWFnZUZpeCIgcmVzdWx0PSJlZmZlY3QxX2Ryb3BTaGFkb3dfNzQxXzI3NTEiLz4KPGZlQmxlbmQgbW9kZT0ibm9ybWFsIiBpbj0iU291cmNlR3JhcGhpYyIgaW4yPSJlZmZlY3QxX2Ryb3BTaGFkb3dfNzQxXzI3NTEiIHJlc3VsdD0ic2hhcGUiLz4KPC9maWx0ZXI+CjxsaW5lYXJHcmFkaWVudCBpZD0icGFpbnQwX2xpbmVhcl83NDFfMjc1MSIgeDE9IjExLjIxNDIiIHkxPSIxNS41NjIiIHgyPSIyNy40MTE5IiB5Mj0iMjAuMTM5OSIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiPgo8c3RvcCBzdG9wLWNvbG9yPSJ3aGl0ZSIvPgo8c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IndoaXRlIi8+CjwvbGluZWFyR3JhZGllbnQ+CjxsaW5lYXJHcmFkaWVudCBpZD0icGFpbnQxX2xpbmVhcl83NDFfMjc1MSIgeDE9IjI0LjY3NDUiIHkxPSIxNS4yNTE4IiB4Mj0iMTIuOTUzNiIgeTI9IjMuNTQxNjMiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIj4KPHN0b3Agc3RvcC1jb2xvcj0iIzg2OTdGRiIvPgo8c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM4Njk3RkYiIHN0b3Atb3BhY2l0eT0iMCIvPgo8L2xpbmVhckdyYWRpZW50Pgo8bGluZWFyR3JhZGllbnQgaWQ9InBhaW50Ml9saW5lYXJfNzQxXzI3NTEiIHgxPSIxOC42NDc4IiB5MT0iMjEuODI2MSIgeDI9IjcuNDA4MDIiIHkyPSIxNS4zODU5IiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+CjxzdG9wIHN0b3AtY29sb3I9IiM4Njk3RkYiLz4KPHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjODY5N0ZGIiBzdG9wLW9wYWNpdHk9IjAiLz4KPC9saW5lYXJHcmFkaWVudD4KPGxpbmVhckdyYWRpZW50IGlkPSJwYWludDNfbGluZWFyXzc0MV8yNzUxIiB4MT0iMTIuMTgyNyIgeTE9IjE1LjQzOTQiIHgyPSIxOS43OTkxIiB5Mj0iMjUuMDg0MyIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiPgo8c3RvcCBzdG9wLWNvbG9yPSJ3aGl0ZSIvPgo8c3RvcCBvZmZzZXQ9IjAuOTgzODk1IiBzdG9wLWNvbG9yPSIjRDFEOEZGIi8+CjwvbGluZWFyR3JhZGllbnQ+CjxjbGlwUGF0aCBpZD0iY2xpcDBfNzQxXzI3NTEiPgo8cmVjdCB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIGZpbGw9IndoaXRlIi8+CjwvY2xpcFBhdGg+CjwvZGVmcz4KPC9zdmc+Cg==',
+    logo: RABBY_ICON,
     name: 'Rabby Wallet',
     url: 'https://rabby.io/',
     realId: 'io.rabby',
@@ -244,7 +140,7 @@ export const HardCodedConnectors = [
   {
     id: 'KSBitgetWallet',
     name: 'Bitget Wallet',
-    logo: 'data:image/png;base64,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',
+    logo: BITGET_ICON,
     url: 'https://web3.bitget.com/en/wallet-download',
     realId: 'com.bitget.web3',
   },
@@ -254,6 +150,11 @@ export const HardCodedConnectors = [
 const createPriorityConnector = ({ id, name, logo, url }: (typeof HardCodedConnectors)[number]) => {
   return createConnector(config => {
     const injectedConnector = injected()(config)
+
+    const connect: typeof injectedConnector.connect = () => {
+      window.open(url, '_blank')
+      return Promise.reject()
+    }
 
     return {
       ...injectedConnector,
@@ -266,19 +167,46 @@ const createPriorityConnector = ({ id, name, logo, url }: (typeof HardCodedConne
       get id() {
         return id
       },
-      connect() {
-        window.open(url, '_blank')
-        return Promise.reject()
-      },
+      connect,
     }
   })
+}
+
+// Resolve SafePal's EVM provider across both injection shapes the extension
+// uses: legacy `window.safepalProvider` (older builds) and the current
+// `window.__safepalEthereumBootstrap__.activeProvider` (newer builds, where
+// SafePal lazy-attaches the EVM provider behind a bootstrap object that also
+// holds Aptos/Tron providers + a setProvider switch). The active provider
+// carries an `isSafePal: true` flag even when it shims MetaMask via
+// `isMetaMask: true` / `__isMetaMaskShim__`, so use that to discriminate from
+// other wallets that may be active under the same bootstrap.
+export function getSafepalProvider(): typeof window.safepalProvider {
+  if (typeof window === 'undefined') return undefined
+  const active = window.__safepalEthereumBootstrap__?.activeProvider
+  if (active?.isSafePal) return active as typeof window.safepalProvider
+  return window.safepalProvider
 }
 
 function safepalConnector() {
   return createConnector(config => {
     const injectedConnector = injected({
-      target: () => ({ id: CONNECTION.SAFEPAL, name: 'SafePal', provider: window.safepalProvider }),
+      target: () => ({ id: CONNECTION.SAFEPAL, name: 'SafePal', provider: getSafepalProvider() }),
+      // SafePal's content script can inject `window.safepalProvider` after wagmi's
+      // mount-time reconnect already runs `isAuthorized()`. Without this shim the
+      // connector would return `false` synchronously and stay disconnected until a
+      // manual reconnect. The shim makes `isAuthorized()` wait up to 5s for
+      // `ethereum#initialized` (or re-check the target on timeout) so a slow
+      // content-script injection no longer drops the session on refresh.
+      unstable_shimAsyncInject: 5_000,
     })(config)
+
+    const connect: typeof injectedConnector.connect = (...params) => {
+      if (!getSafepalProvider()) {
+        window.open('https://www.safepal.com/download', '_blank')
+        return Promise.reject(new Error('SafePal extension not installed'))
+      }
+      return injectedConnector.connect(...params)
+    }
 
     return {
       ...injectedConnector,
@@ -291,34 +219,31 @@ function safepalConnector() {
       get name() {
         return 'SafePal'
       },
-      connect(...params: Parameters<typeof injectedConnector.connect>) {
-        if (!window.safepalProvider) {
-          window.open('https://www.safepal.com/download', '_blank')
-          return Promise.reject()
-        }
-        return injectedConnector.connect(...params)
-      },
+      // Pin the rdns SafePal advertises via EIP-6963 so wagmi's mipd dedup
+      // collapses the announced provider onto this custom connector instead of
+      // appending a second `id = <URL>` connector after first render. That keeps
+      // `recentConnectorId` stable as `io.safepal` and lets the reconnect path
+      // always find the same connector entry on refresh.
+      rdns: CONNECTION.SAFEPAL_RDNS,
+      connect,
     }
   })
 }
 
+// Generic browser-wallet fallback for non-MetaMask injected providers (Brave, Trust, etc.).
+// MetaMask install/deep-link is handled by the dedicated metaMask() SDK connector now,
+// so this connector is hidden when the active EIP-1193 provider is MetaMask.
 function injectedWithFallback() {
   return createConnector(config => {
     const injectedConnector = injected()(config)
 
     return {
       ...injectedConnector,
-      connect(...params) {
-        if (!window.ethereum) {
-          window.open('https://metamask.io/', 'inst_metamask')
-        }
-        return injectedConnector.connect(...params)
-      },
       get icon() {
-        return !window.ethereum || window.ethereum?.isMetaMask ? METAMASK_ICON : INJECTED_DARK_ICON
+        return INJECTED_DARK_ICON
       },
       get name() {
-        return !window.ethereum ? 'Install MetaMask' : window.ethereum?.isMetaMask ? 'MetaMask' : 'Browser Wallet'
+        return 'Browser Wallet'
       },
     }
   })
@@ -329,9 +254,9 @@ const WC_PARAMS = {
   projectId: WALLETCONNECT_PROJECT_ID,
   metadata: {
     name: 'KyberSwap',
-    description: document.title,
-    url: window.location.origin,
-    icons: ['https://kyberswap.com/favicon.svg'],
+    description: typeof document !== 'undefined' ? document.title : 'KyberSwap',
+    url: typeof window !== 'undefined' ? window.location.origin : KYBERSWAP_URL,
+    icons: [`${KYBERSWAP_URL}/favicon.svg`],
   },
   qrModalOptions: {
     chainImages: undefined,
@@ -348,59 +273,248 @@ const WC_PARAMS = {
   },
 }
 
-const wagmiChains = [
-  mainnet,
-  arbitrum,
-  optimism,
-  zksync,
-  polygon,
-  base,
-  bsc,
-  linea,
-  mantle,
-  scroll,
-  avalanche,
-  fantom,
-  blast,
-  sonic,
-  berachain,
-  ronin,
-  unichain,
-  hyperevm,
-  etherlink,
-  plasma,
-  monad,
-  megaeth,
-] as const
+// WalletConnect v2 keeps all of its state under `wc@2:`-prefixed localStorage keys. Their presence means
+// this browser has talked to WalletConnect before, so there may be a session worth restoring at boot.
+const hasWalletConnectState = () => {
+  try {
+    if (typeof window === 'undefined' || !window.localStorage) return false
+    return Object.keys(window.localStorage).some(key => key.startsWith('wc@2:'))
+  } catch {
+    // Storage can throw (disabled cookies, partitioned contexts) — treat it as "no session" and let the
+    // SDK load on the first Connect click instead.
+    return false
+  }
+}
 
-export const wagmiConfig = createConfig({
-  chains: wagmiChains,
-  connectors: [
-    injectedWithFallback(),
-    walletConnect(WC_PARAMS),
-    coinbaseWallet({
-      appName: 'KyberSwap',
-      appLogoUrl: 'https://kyberswap.com/favicon.png',
-      reloadOnDisconnect: false,
-      enableMobileWalletLink: true,
-    }),
-    safepalConnector(),
-    porto(),
-    safe(),
-    ...HardCodedConnectors.map(connector => createPriorityConnector(connector)),
-  ],
-  client({ chain }) {
-    return createClient({
-      chain,
-      batch: { multicall: true },
-      pollingInterval: 12_000,
-      transport: http(),
-    })
+// wagmi runs `connector.setup()` for every connector while createConfig() builds the store, and
+// WalletConnect's setup() unconditionally awaits getProvider() — which dynamically imports the ~460KB
+// @walletconnect/ethereum-provider bundle and runs EthereumProvider.init() (relay, keychain, storage).
+// All of that exists to attach one 'connect' listener that only fires for a session being restored, so a
+// visitor who has never used WalletConnect pays the whole cost for nothing. Gate setup() on prior
+// WalletConnect state: connect() awaits getProvider() itself, so a first-time user still gets the SDK the
+// moment they click Connect, and returning WalletConnect users keep today's restore behaviour.
+const walletConnectWithDeferredSetup = (parameters: Parameters<typeof walletConnect>[0]) =>
+  createConnector(config => {
+    const connector = walletConnect(parameters)(config)
+    return {
+      ...connector,
+      async setup() {
+        if (!hasWalletConnectState()) return
+        await connector.setup?.()
+      },
+    }
+  })
+
+// Build an ordered, de-duplicated RPC list for a chain: KyberSwap RPC first,
+// then the public RPCs from @kyber/rpc-client. The list feeds both the wagmi
+// `transports` map (via viem `fallback()` for true rotation on read calls) and
+// the chain object's `rpcUrls.default.http` (which connectors like the MetaMask
+// SDK read directly — they ignore `transports` and only consume URL[0]).
+const getRpcUrlsForChain = (chainId: number): string[] => {
+  const primary = NETWORKS_INFO[chainId as ChainId]?.defaultRpcUrl
+  const publics = PUBLIC_RPC_ENDPOINTS[chainId] ?? []
+  const all = [primary, ...publics].filter((url): url is string => !!url)
+  return Array.from(new Set(all))
+}
+
+// Override viem's hardcoded chain defaults (e.g. https://56.rpc.thirdweb.com for BSC)
+// so connector-internal RPC clients don't bypass our transports config and hit
+// public RPCs that quickly rate-limit (HTTP 429).
+const withKyberRpc = <T extends { id: number; rpcUrls: { default: { http: readonly string[] } } }>(chain: T): T => {
+  const urls = getRpcUrlsForChain(chain.id)
+  if (urls.length === 0) return chain
+  return {
+    ...chain,
+    rpcUrls: {
+      ...chain.rpcUrls,
+      default: { ...chain.rpcUrls.default, http: urls },
+    },
+  }
+}
+
+export const robinhood = defineChain({
+  id: ChainId.ROBINHOOD,
+  name: 'Robinhood',
+  nativeCurrency: {
+    decimals: 18,
+    name: 'Ethereum',
+    symbol: 'ETH',
+  },
+  rpcUrls: {
+    default: {
+      http: ['https://rpc.mainnet.chain.robinhood.com'],
+      webSocket: ['wss://feed.mainnet.chain.robinhood.com'],
+    },
+  },
+  blockExplorers: {
+    default: { name: 'Robinscan', url: 'https://robinscan.io' },
+  },
+  contracts: {
+    multicall3: {
+      address: '0xcA11bde05977b3631167028862bE2a173976CA11',
+      blockCreated: 1,
+    },
   },
 })
 
+const wagmiChains: readonly [Chain, ...Chain[]] = [
+  withKyberRpc(mainnet),
+  withKyberRpc(arbitrum),
+  withKyberRpc(optimism),
+  withKyberRpc(zksync),
+  withKyberRpc(polygon),
+  withKyberRpc(base),
+  withKyberRpc(bsc),
+  withKyberRpc(linea),
+  withKyberRpc(mantle),
+  withKyberRpc(scroll),
+  withKyberRpc(avalanche),
+  withKyberRpc(fantom),
+  withKyberRpc(blast),
+  withKyberRpc(sonic),
+  withKyberRpc(berachain),
+  withKyberRpc(ronin),
+  withKyberRpc(unichain),
+  withKyberRpc(hyperEvm),
+  withKyberRpc(etherlink),
+  withKyberRpc(plasma),
+  withKyberRpc(monad),
+  withKyberRpc(megaeth),
+  withKyberRpc(robinhood),
+] as const
+
+// viem `fallback()` rotates through URLs on transport errors (network, 429, 5xx),
+// giving us true client-side RPC rotation for every wagmi-issued call (multicall,
+// useReadContract, polling). KyberSwap RPC sits first; public endpoints are tried
+// only when it errors. Connector-internal calls still use URL[0] of `rpcUrls.default`
+// (set by `withKyberRpc` above), which is the same KyberSwap RPC.
+const transports = Object.fromEntries(
+  wagmiChains.map(c => {
+    const urls = getRpcUrlsForChain(c.id)
+    const httpTransports = urls.length > 0 ? urls.map(url => http(url)) : [http()]
+    return [c.id, fallback(httpTransports, { retryCount: 1 })]
+  }),
+) as Record<(typeof wagmiChains)[number]['id'], ReturnType<typeof fallback>>
+
+// Migrate localStorage's recent-connector hint from the EIP-6963 io.metamask id (used by the
+// pre-PR injected connector) to the metaMaskSDK id (the new SDK connector). wagmi auto-resets
+// the main `wagmi.store` on the v2→v3 version bump, but `wagmi.recentConnectorId` lives outside
+// that store and would otherwise stay pointing at a non-existent connector — preventing the
+// reconnect-priority boost for returning MetaMask users on first visit after deploy.
+;(() => {
+  if (typeof window === 'undefined' || !window.localStorage) return
+  try {
+    const raw = window.localStorage.getItem('wagmi.recentConnectorId')
+    if (raw && JSON.parse(raw) === CONNECTION.METAMASK_RDNS) {
+      window.localStorage.setItem('wagmi.recentConnectorId', JSON.stringify(CONNECTION.METAMASK_SDK_CONNECTOR_ID))
+    }
+  } catch {
+    // ignore parse / storage failures — at worst the user reconnects manually
+  }
+})()
+
+// Porto's connector id, spelled out rather than imported so reading it cannot pull the Porto SDK back into
+// the entry chunk. registerPortoConnector() matches on the live `connector.id`, so if this ever drifts from
+// upstream the only cost is the mount effect falling back to wagmi's full walk again.
+const PORTO_CONNECTOR_ID = 'xyz.ithaca.porto'
+
+/** The connector a returning visitor last connected with, as wagmi persists it (JSON-encoded). */
+const readRecentConnectorId = (): string | undefined => {
+  if (typeof window === 'undefined' || !window.localStorage) return undefined
+  try {
+    const raw = window.localStorage.getItem('wagmi.recentConnectorId')
+    return raw ? (JSON.parse(raw) as string) : undefined
+  } catch {
+    return undefined
+  }
+}
+
+export const wagmiConfig = createConfig({
+  chains: wagmiChains,
+  transports,
+  batch: { multicall: true },
+  pollingInterval: 12_000,
+  connectors: [
+    metaMask({
+      dapp: {
+        name: 'KyberSwap',
+        url: typeof window !== 'undefined' ? window.location.origin : KYBERSWAP_URL,
+        iconUrl: `${KYBERSWAP_URL}/favicon.svg`,
+      },
+      // The SDK calls this on a native mobile browser with the `metamask://connect/mwp?...`
+      // deep link, asynchronously after the relay handshake. We surface it to the wallet modal
+      // rather than opening it here, so the user launches MetaMask with a real tap — a genuine
+      // gesture is the reliable way to open the app, and tapping a custom-scheme link keeps this
+      // page (and its open relay connection) alive so the pairing can complete on return.
+      //
+      // Keep the `metamask://` custom scheme as-is: it carries the connection payload straight
+      // into the app, so MetaMask lands on the approval screen. Do NOT rewrite it to the
+      // `metamask.app.link` Universal Link — that domain is a Branch link that drops the query
+      // params, so the app opens to its home screen with no pairing request.
+      mobile: {
+        preferredOpenLink: deeplink => {
+          setMetaMaskMobileLink(deeplink)
+        },
+      },
+    }),
+    injectedWithFallback(),
+    walletConnectWithDeferredSetup(WC_PARAMS),
+    coinbaseWallet({
+      appName: 'KyberSwap',
+      appLogoUrl: `${KYBERSWAP_URL}/favicon.png`,
+    }),
+    safepalConnector(),
+    // Porto is absent here on purpose — registerPortoConnector() adds it after boot. See that function.
+    safe(),
+    ...HardCodedConnectors.map(connector => createPriorityConnector(connector)),
+  ],
+})
+
+// Porto ships ~620KB of JS (the SDK plus its `ox` dependency) and is one wallet choice among many, so
+// importing it at module scope put all of it in the entry chunk that gates the app's first render for every
+// visitor — including the vast majority who never pick it. Register it once the app is idle instead: the
+// wallet list reads connectors through wagmi's reactive `useConnectors()`, so Porto appears as soon as this
+// resolves. WalletModal calls this too when it opens, since idle can be several seconds out on a slow cold
+// load and the list must not render without Porto by then; the flag below makes whichever fires first win.
+//
+// `_internal` is wagmi's own escape hatch for exactly this (`reconnect` uses the same `setup` to register
+// connectors passed to it) — worth re-checking on a wagmi major bump. `setup()` also invokes the
+// connector's own setup() and wires its `connect` emitter, so the connector is fully live once added.
+let hasRegisteredPorto = false
+
+export const registerPortoConnector = async () => {
+  if (hasRegisteredPorto) return
+  hasRegisteredPorto = true
+  try {
+    const [{ Dialog, Mode }, { porto }] = await Promise.all([import('porto'), import('porto/wagmi')])
+    // Porto's default iframe renderer sets iframe.src while the connector sets itself up, which hits
+    // id.porto.sh. The official popup renderer opens the remote dialog only when a Porto request needs
+    // user confirmation.
+    const connector = wagmiConfig._internal.connectors.setup(porto({ mode: Mode.dialog({ renderer: Dialog.popup() }) }))
+    wagmiConfig._internal.connectors.setState(connectors => [...connectors, connector])
+
+    // Porto is not in `connectors` while the mount-time reconnect below runs, so a visitor whose last
+    // wallet was Porto cannot be restored there. Reconnect them here instead, once the connector exists.
+    if (readRecentConnectorId() === connector.id) {
+      reconnect(wagmiConfig, { connectors: [connector] }).catch(() => {})
+    }
+  } catch {
+    hasRegisteredPorto = false // let a later mount retry; until then Porto is simply not offered
+  }
+}
+
 export default function Web3Provider({ children }: { children: ReactNode }) {
   const dispatch = useAppDispatch()
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    if (window.requestIdleCallback) {
+      const handle = window.requestIdleCallback(() => void registerPortoConnector(), { timeout: 3_000 })
+      return () => window.cancelIdleCallback?.(handle)
+    }
+    const handle = window.setTimeout(() => void registerPortoConnector(), 2_000)
+    return () => window.clearTimeout(handle)
+  }, [])
   useEffect(() => {
     const unwatch = watchChainId(wagmiConfig, {
       onChange(chainId) {
@@ -414,8 +528,73 @@ export default function Web3Provider({ children }: { children: ReactNode }) {
     }
   }, [dispatch])
 
+  // Restore the previous session ourselves, because WagmiProvider below passes `reconnectOnMount={false}`.
+  //
+  // wagmi's own mount reconnect walks EVERY connector and awaits `connector.getProvider()` on each — and
+  // that call is where a connector dynamically imports its SDK. A visitor who has never connected a wallet
+  // therefore downloads the MetaMask (~356KB) and WalletConnect (~397KB) SDKs during boot just for wagmi to
+  // learn they have no session. Scoping the walk to the connector they actually last used skips all of it:
+  // with no stored id there is nothing to restore, so no SDK loads at all.
+  //
+  // Runs on mount rather than at idle so a returning visitor's wallet reconnects as promptly as before. If
+  // the stored id names a connector we cannot resolve yet — EIP-6963 wallets announce asynchronously, so a
+  // discovered connector may not be registered at this point — fall back to wagmi's full walk rather than
+  // leave that visitor disconnected. Porto is the one exception: it is knowingly absent until
+  // registerPortoConnector() runs, which reconnects it itself, so the full walk here would only load every
+  // other wallet's SDK for nothing.
+  useEffect(() => {
+    const recentConnectorId = readRecentConnectorId()
+    if (!recentConnectorId || recentConnectorId === PORTO_CONNECTOR_ID) return
+
+    const recentConnector = wagmiConfig.connectors.find(connector => connector.id === recentConnectorId)
+    reconnect(wagmiConfig, recentConnector ? { connectors: [recentConnector] } : undefined).catch(() => {})
+  }, [])
+
+  // SafePal reconnect recovery. The extension lazy-attaches its EVM provider
+  // (window.__safepalEthereumBootstrap__.activeProvider — see getSafepalProvider)
+  // some time after the page loads and does NOT fire an EIP-6963 announce, so
+  // the mount reconnect above runs before the provider exists, finds nothing
+  // via `connector.getProvider()`, and gives up without ever reaching
+  // `isAuthorized()` (where the shim lives). Poll for the bootstrap object and,
+  // once it lands, re-trigger reconnect so the custom safepalConnector finds it.
+  // Guarded so it only runs while no other connector is current.
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+
+    let triggered = false
+    let pollHandle: ReturnType<typeof setInterval> | null = null
+
+    const tryReconnect = () => {
+      if (triggered) return
+      if (!getSafepalProvider()) return
+      if (wagmiConfig.state.current) return
+      // Status `reconnecting`/`connecting` means wagmi is still iterating
+      // connectors; calling reconnect() now hits its `isReconnecting` re-entry
+      // guard and no-ops. Defer to the next poll tick.
+      const status = wagmiConfig.state.status
+      if (status === 'reconnecting' || status === 'connecting') return
+      triggered = true
+      if (pollHandle) clearInterval(pollHandle)
+      reconnect(wagmiConfig).catch(() => {})
+    }
+
+    let pollCount = 0
+    pollHandle = setInterval(() => {
+      pollCount += 1
+      if (pollCount > 50 || triggered) {
+        if (pollHandle) clearInterval(pollHandle)
+        return
+      }
+      tryReconnect()
+    }, 100)
+
+    return () => {
+      if (pollHandle) clearInterval(pollHandle)
+    }
+  }, [])
+
   return (
-    <WagmiProvider config={wagmiConfig}>
+    <WagmiProvider config={wagmiConfig} reconnectOnMount={false}>
       <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
     </WagmiProvider>
   )

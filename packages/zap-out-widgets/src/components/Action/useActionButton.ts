@@ -4,7 +4,7 @@ import { t } from '@lingui/macro';
 
 import { PermitNftState, usePositionOwner } from '@kyber/hooks';
 import { FARMING_CONTRACTS, univ2Types } from '@kyber/schema';
-import { PI_LEVEL, friendlyError } from '@kyber/utils';
+import { PI_LEVEL } from '@kyber/utils';
 import { estimateGasForTx } from '@kyber/utils/crypto/transaction';
 
 import { useApproval } from '@/hooks/useApproval';
@@ -92,8 +92,9 @@ export default function useActionButton() {
     if (!route || !connectedAccount.address) return;
     setGasLoading(true);
 
+    let buildData;
     try {
-      const buildData = await buildRouteData({
+      buildData = await buildRouteData({
         sender: connectedAccount.address,
         route: route.route,
         source,
@@ -107,11 +108,15 @@ export default function useActionButton() {
             },
           }),
       });
-      if (!buildData) {
-        setGasLoading(false);
-        return;
-      }
+    } catch (error) {
+      const msg = (error as Error)?.message || 'unknown error';
+      setWidgetError(msg.startsWith('Build route step:') ? msg : `Build route step: ${msg}`);
+      console.log('build route error', error);
+      setGasLoading(false);
+      return;
+    }
 
+    try {
       const txData = {
         from: connectedAccount.address,
         to: buildData.routerAddress,
@@ -119,16 +124,15 @@ export default function useActionButton() {
         value: `0x${BigInt(buildData.value).toString(16)}`,
       };
       const { gasUsd, error } = await estimateGasForTx({ txData, chainId });
-      setGasLoading(false);
 
       if (error || !gasUsd) {
-        setWidgetError(error || t`Estimate Gas Failed`);
+        setWidgetError(error || 'Estimate gas step: estimate gas failed');
         return;
       }
 
       return { ...buildData, gasUsd };
     } catch (error) {
-      setWidgetError(friendlyError(error as Error));
+      setWidgetError(`Estimate gas step: ${(error as Error)?.message || 'unknown error'}`);
       console.log('estimate gas error', error);
     } finally {
       setGasLoading(false);

@@ -4,6 +4,7 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { useAccount } from 'hooks/useAccount'
+import { getSyncedNetworkPathname } from 'utils/routes'
 import { getChainIdFromSlug } from 'utils/string'
 
 import { useChangeNetwork } from './useChangeNetwork'
@@ -40,7 +41,10 @@ export function useSyncNetworkParamWithStore() {
       setRequestingNetwork(networkParamKeeper.current)
       await changeNetwork(chainIdKeeper.current, undefined, () => {
         navigate(
-          { ...location, pathname: location.pathname.replace(networkParamKeeper.current, networkInfo.route) },
+          {
+            ...location,
+            pathname: getSyncedNetworkPathname(location.pathname, networkParamKeeper.current, networkInfo.route),
+          },
           { replace: true },
         )
       })
@@ -76,7 +80,7 @@ export function useSyncNetworkParamWithStore() {
       triedSync.current
     ) {
       navigate(
-        { ...location, pathname: location.pathname.replace(encodeURIComponent(networkParam), networkInfo.route) },
+        { ...location, pathname: getSyncedNetworkPathname(location.pathname, networkParam, networkInfo.route) },
         { replace: true },
       )
     }

@@ -1,75 +1,24 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
-import { lighten } from 'polished'
 import { useMemo } from 'react'
-import styled from 'styled-components'
 
 import { ReactComponent as DropdownSvg } from 'assets/svg/down.svg'
 import Card from 'components/Card'
 import NetworkModal from 'components/Header/web3/NetworkModal'
-import Row from 'components/Row'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import useChainsConfig from 'hooks/useChainsConfig'
 import { useWalletSupportedChains } from 'hooks/web3/useWalletSupportedChains'
-import { NonEvmChain } from 'pages/CrossChainSwap/adapters'
+import { NonEvmChain } from 'pages/CrossChainSwap/adapters/types'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useNetworkModalToggle } from 'state/application/hooks'
 import { useNativeBalance } from 'state/wallet/hooks'
+import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
 
-const NetworkSwitchContainer = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-  min-width: fit-content;
-`
-
-const NetworkCard = styled(Card)`
-  position: relative;
-  background-color: ${({ theme }) => theme.background};
-  color: ${({ theme }) => theme.text};
-  border-radius: 999px;
-  padding: 8px 12px;
-  border: 1px solid transparent;
-  width: fit-content;
-
-  &:hover {
-    text-decoration: none;
-    border: 1px solid ${({ theme }) => theme.primary};
-    cursor: pointer;
-    background-color: ${({ theme }) => lighten(0.05, theme.background)};
-  }
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    margin: 0;
-    width: initial;
-    text-overflow: ellipsis;
-    flex-shrink: 1;
-    min-width: auto;
-  `};
-`
-
-const DropdownIcon = styled(DropdownSvg)<{ open: boolean }>`
-  color: ${({ theme }) => theme.text};
-  transform: rotate(${({ open }) => (open ? '180deg' : '0')});
-  transition: transform 300ms;
-  min-width: 24px;
-`
-
-const NetworkLabel = styled.div`
-  white-space: nowrap;
-  font-weight: 500;
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    display: none;
-  `};
-`
-
-function SelectNetwork(): JSX.Element | null {
+function SelectNetwork(): React.JSX.Element | null {
   const { chainId, networkInfo } = useActiveWeb3React()
   const networkModalOpen = useModalOpen(ApplicationModal.NETWORK)
   const toggleNetworkModal = useNetworkModalToggle()
@@ -85,26 +34,33 @@ function SelectNetwork(): JSX.Element | null {
   const { supportedChains } = useChainsConfig()
 
   const button = (
-    <NetworkCard
+    <Card
       onClick={() => (disableSelectNetwork ? null : toggleNetworkModal())}
       role="button"
       id={TutorialIds.SELECT_NETWORK}
       data-testid="select-network"
+      className={cn(
+        'relative w-fit rounded-full border border-transparent bg-background px-3 py-2 text-text',
+        'hover:cursor-pointer hover:border-border-primary hover:bg-background hover:no-underline hover:brightness-105',
+        'max-sm:m-0 max-sm:w-auto max-sm:min-w-0 max-sm:flex-shrink max-sm:[text-overflow:ellipsis]',
+      )}
     >
-      <NetworkSwitchContainer>
-        <Row gap="10px">
+      <div className="flex w-full min-w-fit items-center justify-between">
+        <div className="flex w-max shrink-0 items-center gap-2.5">
           <img src={networkInfo.icon} alt={networkInfo.name + ' logo'} style={{ width: 20, height: 20 }} />
-          <NetworkLabel>{labelContent}</NetworkLabel>
-        </Row>
-        <DropdownIcon open={networkModalOpen} />
-      </NetworkSwitchContainer>
+          <div className="whitespace-nowrap font-medium max-sm:hidden">{labelContent}</div>
+        </div>
+        <DropdownSvg
+          className={cn('min-w-[24px] text-text transition-transform duration-300', networkModalOpen && 'rotate-180')}
+        />
+      </div>
       <NetworkModal
         deprecatedSoons={[ChainId.ZKSYNC, ChainId.MANTLE]}
         selectedId={chainId}
         disabledMsg={t`Unsupported by your wallet.`}
         activeChainIds={[NonEvmChain.Bitcoin, NonEvmChain.Near, ...supportedChains.map(item => item.chainId)]}
       />
-    </NetworkCard>
+    </Card>
   )
   if (disableSelectNetwork)
     return (

@@ -43,18 +43,16 @@ export default function Preview(props: PreviewProps) {
     onDismiss,
   } = props;
 
-  const { chainId, rpcUrl, poolType, connectedAccount, onSubmitTx, onViewPosition, source, onClose, dexId } =
-    useWidgetStore([
-      'chainId',
-      'rpcUrl',
-      'poolType',
-      'connectedAccount',
-      'onSubmitTx',
-      'onViewPosition',
-      'source',
-      'onClose',
-      'dexId',
-    ]);
+  const { chainId, poolType, connectedAccount, onSubmitTx, onViewPosition, source, onClose, dexId } = useWidgetStore([
+    'chainId',
+    'poolType',
+    'connectedAccount',
+    'onSubmitTx',
+    'onViewPosition',
+    'source',
+    'onClose',
+    'dexId',
+  ]);
   const { setSlippage, slippage, tokensIn, amountsIn } = useZapState();
 
   const [txHash, setTxHash] = useState('');
@@ -118,7 +116,7 @@ export default function Preview(props: PreviewProps) {
           };
 
           try {
-            const gasEstimation = await estimateGas(rpcUrl, txData);
+            const gasEstimation = await estimateGas(chainId, txData);
             const txHash = await onSubmitTx(
               {
                 ...txData,

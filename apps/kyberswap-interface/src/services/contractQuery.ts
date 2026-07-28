@@ -21,6 +21,4 @@ const contractQuery = createApi({
   }),
 })
 
-export const { useFetchBalancesQuery } = contractQuery
-
 export default contractQuery

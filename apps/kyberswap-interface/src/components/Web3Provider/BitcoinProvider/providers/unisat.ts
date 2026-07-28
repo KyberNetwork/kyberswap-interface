@@ -52,6 +52,16 @@ export const createUnisatProvider = ({
     logo: 'https://storage.googleapis.com/ks-setting-1d682dca/d2d471f2-8a3c-4824-9166-39db073aec131747803667826.png',
     type: 'unisat' as const,
     isInstalled: () => !!window.unisat_wallet,
+    // getAccounts() returns already-authorized accounts WITHOUT a popup (unlike requestAccounts()), so the
+    // connection can be re-hydrated on mount silently. No-ops (no prompt) when not previously authorized.
+    restore: async () => {
+      if (!window.unisat_wallet) return
+      const accounts: string[] = await window.unisat_wallet.getAccounts()
+      if (!accounts?.length) return
+      const publicKey = await window.unisat_wallet.getPublicKey()
+      setWalletInfo({ isConnected: true, address: accounts[0], publicKey, walletType: 'unisat' })
+      setupEventListeners()
+    },
     connect: async () => {
       if (!window.unisat_wallet) {
         window.open(

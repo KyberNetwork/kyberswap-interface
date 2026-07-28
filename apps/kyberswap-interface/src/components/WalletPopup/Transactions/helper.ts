@@ -1,4 +1,4 @@
-import { findCacheToken } from 'hooks/Tokens'
+import { findCacheToken } from 'hooks/useTokens'
 import { TRANSACTION_GROUP, TransactionDetails } from 'state/transactions/type'
 import { getTransactionStatus } from 'utils/transaction'
 

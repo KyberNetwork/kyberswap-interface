@@ -1,8 +1,9 @@
 import { useMemo } from 'react'
-import { PoolQueryParams, useSupportedProtocolsQuery } from 'services/zapEarn'
+import { useSupportedProtocolsQuery } from 'services/earn'
+import type { PoolQueryParams } from 'services/earn/types'
 
+import { MenuOption } from 'components/DropdownMenu'
 import useChainsConfig from 'hooks/useChainsConfig'
-import { MenuOption } from 'pages/Earns/components/DropdownMenu'
 import { EARN_CHAINS, EARN_DEXES, EarnChain, Exchange } from 'pages/Earns/constants'
 import { PositionFilter } from 'pages/Earns/types'
 
@@ -21,6 +22,16 @@ const CHAIN_PRIORITY_ORDER = [
   EarnChain.BERA,
 ]
 
+export const sortChainOptionsByPriority = (a: MenuOption, b: MenuOption) => {
+  const aIndex = CHAIN_PRIORITY_ORDER.indexOf(Number(a.value) as EarnChain)
+  const bIndex = CHAIN_PRIORITY_ORDER.indexOf(Number(b.value) as EarnChain)
+
+  if (aIndex !== -1 && bIndex !== -1) return aIndex - bIndex
+  if (aIndex !== -1) return -1
+  if (bIndex !== -1) return 1
+  return a.label.localeCompare(b.label)
+}
+
 const DEX_PRIORITY_ORDER = [
   Exchange.DEX_UNISWAP_V4_FAIRFLOW,
   Exchange.DEX_UNISWAP_V4,
@@ -35,6 +46,8 @@ const DEX_PRIORITY_ORDER = [
   Exchange.DEX_KODIAK_V3,
   Exchange.DEX_UNISWAPV2,
   Exchange.DEX_AERODROMECL,
+  Exchange.DEX_AERODROMECL2,
+  Exchange.DEX_AERODROMECL3,
 ]
 
 const useSupportedDexesAndChains = (
@@ -51,18 +64,7 @@ const useSupportedDexesAndChains = (
         icon: chain.icon,
       }))
       .filter(chain => supportedProtocols?.data?.chains?.[chain.value] && EARN_CHAINS[Number(chain.value) as EarnChain])
-      .sort((a, b) => {
-        const aIndex = CHAIN_PRIORITY_ORDER.indexOf(Number(a.value))
-        const bIndex = CHAIN_PRIORITY_ORDER.indexOf(Number(b.value))
-
-        // If both chains are in priority order, sort by their priority
-        if (aIndex !== -1 && bIndex !== -1) return aIndex - bIndex
-        // If only one chain is in priority order, prioritize it
-        if (aIndex !== -1) return -1
-        if (bIndex !== -1) return 1
-        // If neither chain is in priority order, sort alphabetically
-        return a.label.localeCompare(b.label)
-      })
+      .sort(sortChainOptionsByPriority)
 
     const allowAllChains = 'chainIds' in filters
     return allowAllChains ? [AllChainsOption].concat(parsedChains) : parsedChains

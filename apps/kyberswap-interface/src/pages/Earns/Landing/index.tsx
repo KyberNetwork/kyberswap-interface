@@ -2,8 +2,7 @@ import { t } from '@lingui/macro'
 import { useCallback, useEffect } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
-import { Text } from 'rebass'
-import { useExplorerLandingQuery } from 'services/zapEarn'
+import { useExplorerLandingQuery } from 'services/earn'
 
 import { ReactComponent as VaultIcon } from 'assets/svg/earn/ic_earn_pools.svg'
 import { ReactComponent as LiquidityPoolIcon } from 'assets/svg/earn/liquidity-pools.svg'
@@ -44,13 +43,14 @@ import useZapInWidget from 'pages/Earns/hooks/useZapInWidget'
 import useZapMigrationWidget from 'pages/Earns/hooks/useZapMigrationWidget'
 import { EarnPool } from 'pages/Earns/types'
 import { MEDIA_WIDTHS } from 'theme'
+import { cn } from 'utils/cn'
 
 const PARTNER_VAULTS_ACCENT = '#8165f5'
 
 const EarnLanding = () => {
   const navigate = useNavigate()
-  const [searchParams, setSearchParams] = useSearchParams()
   const theme = useTheme()
+  const [searchParams, setSearchParams] = useSearchParams()
   const { account } = useActiveWeb3React()
   const { isLoading, data } = useExplorerLandingQuery({ userAddress: account })
   const { widget: zapMigrationWidget, handleOpenZapMigration, triggerClose, setTriggerClose } = useZapMigrationWidget()
@@ -109,12 +109,12 @@ const EarnLanding = () => {
         {/* Hero */}
         <HeroSection>
           <HeroTitle>
-            <Text fontSize={upToSmall ? 28 : 36} fontWeight={400} lineHeight={upToSmall ? '36px' : '48px'}>
+            <h1 className={cn('font-normal', upToSmall ? 'text-[28px] leading-9' : 'text-4xl leading-[48px]')}>
               {t`Maximize Your Earnings in DeFi`}
-            </Text>
-            <Text fontSize={upToSmall ? 14 : 16} color={theme.subText} lineHeight="24px">
+            </h1>
+            <p className={cn('leading-6 text-subText', upToSmall ? 'text-sm' : 'text-base')}>
               {t`Unlock the full potential of your assets. Offering data, tools, and utilities—centered around Zap technology—to help you maximize earnings from your liquidity across various DeFi protocols.`}
-            </Text>
+            </p>
           </HeroTitle>
           <RewardSection />
         </HeroSection>
@@ -143,12 +143,10 @@ const EarnLanding = () => {
                   </HeaderIconCircle>
                 </HeaderIconWrapper>
                 <HeaderTextBlock>
-                  <Text fontSize={18} fontWeight={500} color={theme.text}>
-                    {t`Liquidity Pools`}
-                  </Text>
-                  <Text fontSize={14} color={theme.subText} lineHeight="20px">
+                  <span className="text-lg font-medium text-text">{t`Liquidity Pools`}</span>
+                  <span className="text-sm leading-5 text-subText">
                     {t`Explore and instantly add liquidity to high-APY pools the easy way with Zap Technology.`}
-                  </Text>
+                  </span>
                 </HeaderTextBlock>
               </SectionHeader>
 
@@ -203,12 +201,10 @@ const EarnLanding = () => {
                   </HeaderIconCircle>
                 </HeaderIconWrapper>
                 <HeaderTextBlock>
-                  <Text fontSize={18} fontWeight={500} color={theme.text}>
-                    {t`Partner Vaults`}
-                  </Text>
-                  <Text fontSize={14} color={theme.subText} lineHeight="20px">
+                  <span className="text-lg font-medium text-text">{t`Partner Vaults`}</span>
+                  <span className="text-sm leading-5 text-subText">
                     {t`Auto-compounding, single-asset strategies managed by partners (starting with ether.fi).`}
-                  </Text>
+                  </span>
                 </HeaderTextBlock>
               </SectionHeader>
 
@@ -255,9 +251,7 @@ const EarnLanding = () => {
         {/* CTA */}
         <ExplorePoolsWrapper>
           <ExplorePoolsButton to={APP_PATHS.EARN_POOLS}>
-            <Text fontSize={16} color={theme.primary} fontWeight={500} sx={{ textTransform: 'uppercase' }}>
-              {t`Explore Pools`}
-            </Text>
+            <span className="text-base font-medium uppercase text-primary">{t`Explore Pools`}</span>
             <img src={PlayIcon} alt="play" width={28} height={28} />
           </ExplorePoolsButton>
         </ExplorePoolsWrapper>

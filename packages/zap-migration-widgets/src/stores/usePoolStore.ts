@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { useShallow } from 'zustand/shallow';
 
-import { ChainId, Pool, PoolType } from '@kyber/schema';
+import { ChainId, NATIVE_TOKEN_ADDRESS, NETWORKS_INFO, Pool, PoolType } from '@kyber/schema';
 import { POOL_ERROR, getPoolInfo, getPoolPrice } from '@kyber/utils';
 
 interface PoolState {
@@ -19,6 +19,7 @@ interface PoolState {
 interface getPoolsProps {
   chainId: ChainId;
   rePositionMode?: boolean;
+  initialRevertPrice?: boolean;
   source: {
     poolAddress: string;
     poolType: PoolType;
@@ -28,6 +29,18 @@ interface getPoolsProps {
     poolType: PoolType;
   };
 }
+
+const getDefaultRevertPrice = ({ pool, chainId }: { pool: Pool | null; chainId: ChainId }) => {
+  if (!pool) return false;
+
+  const token0Address = pool.token0.address.toLowerCase();
+  const wrappedNativeAddress = NETWORKS_INFO[chainId]?.wrappedToken.address.toLowerCase();
+  const isToken0Native = token0Address === wrappedNativeAddress || token0Address === NATIVE_TOKEN_ADDRESS.toLowerCase();
+  const isToken0Stable = pool.token0.isStable;
+  const isToken1Stable = pool.token1.isStable;
+
+  return Boolean(isToken0Stable || (isToken0Native && !isToken1Stable));
+};
 
 const initState: Omit<PoolState, 'getPools' | 'toggleRevertPrice' | 'reset'> = {
   loading: false,
@@ -41,7 +54,7 @@ const initState: Omit<PoolState, 'getPools' | 'toggleRevertPrice' | 'reset'> = {
 export const usePoolRawStore = create<PoolState>((set, get) => ({
   ...initState,
   reset: () => set(initState),
-  getPools: async ({ chainId, source, target, rePositionMode }: getPoolsProps) => {
+  getPools: async ({ chainId, source, target, rePositionMode, initialRevertPrice }: getPoolsProps) => {
     if (!target && !rePositionMode) {
       set({ error: POOL_ERROR.MISSING_TARGET_POOL });
       return;
@@ -75,10 +88,13 @@ export const usePoolRawStore = create<PoolState>((set, get) => ({
     }
 
     if (targetPool) {
-      set({ targetPool });
-      const revertPrice = get().revertPrice;
+      const currentState = get();
+      const isSameTargetPool = currentState.targetPool?.address.toLowerCase() === targetPool.address.toLowerCase();
+      const revertPrice = isSameTargetPool
+        ? currentState.revertPrice
+        : (initialRevertPrice ?? getDefaultRevertPrice({ pool: targetPool, chainId }));
       const price = getPoolPrice({ pool: targetPool, revertPrice });
-      if (price !== null) set({ targetPoolPrice: price });
+      set({ targetPool, revertPrice, targetPoolPrice: price });
     }
 
     set({ loading: false });

@@ -91,6 +91,7 @@ export default function Widget() {
     tokenId: +positionId,
     spender: zapInfo?.routerAddress || '',
     userAddress: connectedAccount?.address || '',
+    chainId,
     rpcUrl,
     nftManagerContract,
     onSubmitTx: onSubmitTx,
@@ -144,7 +145,7 @@ export default function Widget() {
           };
 
           try {
-            const gasEstimation = await estimateGas(rpcUrl, txData);
+            const gasEstimation = await estimateGas(chainId, txData);
             const txHash = await onSubmitTx(
               {
                 ...txData,
@@ -176,7 +177,7 @@ export default function Widget() {
         }
       });
     // .finally(() => setAttempTx(false));
-  }, [snapshotState, attempTx, txError, pool, chainId, account, rpcUrl, onSubmitTx, poolType, position]);
+  }, [snapshotState, attempTx, txError, pool, chainId, account, onSubmitTx, poolType, position]);
 
   useEffect(() => {
     handleClick();

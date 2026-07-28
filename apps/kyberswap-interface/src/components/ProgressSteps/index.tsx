@@ -1,80 +1,50 @@
-import { transparentize } from 'polished'
-import styled from 'styled-components'
-
 import { AutoColumn } from 'components/Column'
 import { RowBetween } from 'components/Row'
-
-const Wrapper = styled(AutoColumn)``
-
-const Grouping = styled(RowBetween)`
-  width: 50%;
-`
-
-const Circle = styled.div<{ confirmed?: boolean; disabled?: boolean }>`
-  min-width: 20px;
-  min-height: 20px;
-  background-color: ${({ theme, confirmed, disabled }) =>
-    disabled ? theme.buttonGray : confirmed ? theme.green1 : theme.primary};
-  border-radius: 50%;
-  color: ${({ theme, disabled }) => (disabled ? theme.border : theme.textReverse)};
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  line-height: 8px;
-  font-size: 12px;
-`
-
-const CircleRow = styled.div`
-  width: calc(100% - 20px);
-  display: flex;
-  align-items: center;
-`
-
-const Connector = styled.div<{ prevConfirmed?: boolean; disabled?: boolean }>`
-  width: 100%;
-  height: 2px;
-  background: linear-gradient(
-    90deg,
-    ${({ theme, prevConfirmed, disabled }) =>
-        disabled ? theme.bg4 : transparentize(0.5, prevConfirmed ? theme.green1 : theme.primary)}
-      0%,
-    ${({ theme, prevConfirmed, disabled }) => (disabled ? theme.bg4 : prevConfirmed ? theme.primary : theme.bg4)} 80%
-  );
-  opacity: 0.6;
-`
+import { cn } from 'utils/cn'
 
 interface ProgressCirclesProps {
   steps: boolean[]
   disabled?: boolean
 }
 
+const circleClasses = (confirmed?: boolean, disabled?: boolean) =>
+  cn(
+    'flex min-h-5 min-w-5 items-center justify-center rounded-full text-xs leading-[8px]',
+    disabled ? 'bg-buttonGray text-border' : confirmed ? 'bg-green1 text-textReverse' : 'bg-primary text-textReverse',
+  )
+
+const Connector = ({ prevConfirmed, disabled }: { prevConfirmed?: boolean; disabled?: boolean }) => {
+  // transparentize(0.5, X) = X at 50% alpha. green1-50 and primary-50 tokens.
+  const fromColor = disabled ? 'var(--ks-bg4)' : prevConfirmed ? 'var(--ks-green1-50)' : 'var(--ks-primary-50)'
+  const toColor = disabled ? 'var(--ks-bg4)' : prevConfirmed ? 'var(--ks-primary)' : 'var(--ks-bg4)'
+  return (
+    <div
+      className="h-0.5 w-full opacity-60"
+      style={{ background: `linear-gradient(90deg, ${fromColor} 0%, ${toColor} 80%)` }}
+    />
+  )
+}
+
 /**
  * Based on array of steps, create a step counter of circles.
  * A circle can be enabled, disabled, or confirmed. States are derived
  * from previous step.
- *
- * An extra circle is added to represent the ability to swap, add, or remove.
- * This step will never be marked as complete (because no 'txn done' state in body ui).
- *
- * @param steps  array of booleans where true means step is complete
  */
 export default function ProgressCircles({ steps, disabled = false, ...rest }: ProgressCirclesProps) {
   return (
-    <Wrapper justify={'center'} {...rest}>
-      <Grouping>
+    <AutoColumn className="justify-items-center" {...rest}>
+      <RowBetween className="w-1/2">
         {steps.map((step, i) => {
+          const stepDisabled = disabled || (!steps[i - 1] && i !== 0)
           return (
-            <CircleRow key={i}>
-              <Circle confirmed={step} disabled={disabled || (!steps[i - 1] && i !== 0)}>
-                {step ? '✓' : i + 1}
-              </Circle>
+            <div key={i} className="flex w-[calc(100%-20px)] items-center">
+              <div className={circleClasses(step, stepDisabled)}>{step ? '✓' : i + 1}</div>
               <Connector prevConfirmed={step} disabled={disabled} />
-            </CircleRow>
+            </div>
           )
         })}
-
-        <Circle disabled={disabled || !steps[steps.length - 1]}>{steps.length + 1}</Circle>
-      </Grouping>
-    </Wrapper>
+        <div className={circleClasses(false, disabled || !steps[steps.length - 1])}>{steps.length + 1}</div>
+      </RowBetween>
+    </AutoColumn>
   )
 }

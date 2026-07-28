@@ -1,14 +1,16 @@
-import styled from 'styled-components'
+import { cn } from 'utils/cn'
 
-export const SkeletonWrapper = styled.div`
-  position: relative;
-`
+export const SkeletonWrapper = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('relative', className)} {...rest}>
+    {children}
+  </div>
+)
 
-export const SkeletonText = styled.div`
-  position: absolute;
-  font-size: 10px;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  color: ${({ theme }) => theme.subText};
-`
+export const SkeletonText = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
+  <div
+    className={cn('absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-[10px] text-subText', className)}
+    {...rest}
+  >
+    {children}
+  </div>
+)

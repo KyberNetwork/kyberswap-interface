@@ -8,7 +8,7 @@ import { useActiveWeb3React } from 'hooks'
 import useSwapCallbackV3 from 'hooks/useSwapCallbackV3'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { Field } from 'state/swap/actions'
-import { usePaymentToken, useUserSlippageTolerance, useUserTransactionTTL } from 'state/user/hooks'
+import { useUserSlippageTolerance, useUserTransactionTTL } from 'state/user/hooks'
 import { ChargeFeeBy, DetailedRouteSummary } from 'types/route'
 import { minimumAmountAfterSlippage, toCurrencyAmount } from 'utils/currencyAmount'
 
@@ -69,7 +69,6 @@ const SwapOnlyButton: React.FC<Props> = ({
   })
   const { networkInfo } = useActiveWeb3React()
   const [transactionTimeout] = useUserTransactionTTL()
-  const [paymentToken] = usePaymentToken()
   const [buildResult, setBuildResult] = useState<BuildRouteResult>()
   const [isBuildingRoute, setBuildingRoute] = useState(false)
   const { priceImpact } = routeSummary || {}
@@ -118,7 +117,7 @@ const SwapOnlyButton: React.FC<Props> = ({
       minimum_received: minReceived,
       rate: routeSummary?.executionPrice?.toSignificant(6),
       transaction_time_limit: transactionTimeout / 60,
-      gas_token: paymentToken?.symbol || networkInfo.nativeToken.symbol,
+      gas_token: networkInfo.nativeToken.symbol,
       trade_route_dexes: getRouteDexes(),
       trade_route_steps: routeSummary?.route?.length,
       route_split: (routeSummary?.route?.length || 0) > 1,
@@ -169,7 +168,7 @@ const SwapOnlyButton: React.FC<Props> = ({
 
   const swapCallbackForModal = useMemo(() => {
     if (buildResult?.data?.data && buildResult?.data?.routerAddress && swapCallback) {
-      return () => {
+      return (onRequestSignature?: () => void) => {
         let outputAmountDescription = ''
         if (buildResult.data?.amountOut !== undefined && buildResult.data?.outputChange?.percent !== undefined) {
           const amountOut = buildResult.data?.amountOut
@@ -213,7 +212,7 @@ const SwapOnlyButton: React.FC<Props> = ({
           feeInfo: getFeeInfoForMixPanel(routeSummary),
         })
 
-        return swapCallback(buildResult.data.routerAddress, buildResult.data.data)
+        return swapCallback(buildResult.data.routerAddress, buildResult.data.data, onRequestSignature)
       }
     }
 

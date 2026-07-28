@@ -1,8 +1,5 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
 import { RewardData, RewardType } from 'services/reward'
 
-import monadIcon from 'assets/networks/monad.svg'
-import uniBonusIcon from 'assets/svg/kyber/uni_bonus.svg'
 import { NetworkInfo } from 'constants/networks/type'
 import { ChainRewardInfo, NftRewardInfo, RewardInfo, TokenInfo, TokenRewardInfo } from 'pages/Earns/types'
 
@@ -22,9 +19,6 @@ export const defaultRewardInfo: RewardInfo = {
   egTokens: [],
   lmTokens: [],
 }
-
-export const getMerklBonusMeta = (chainId?: number) =>
-  chainId === ChainId.MONAD ? { name: 'Monad Bonus', icon: monadIcon } : { name: 'Uniswap Bonus', icon: uniBonusIcon }
 
 const deepClone = <T>(obj: T): T => {
   if (typeof structuredClone !== 'undefined') {

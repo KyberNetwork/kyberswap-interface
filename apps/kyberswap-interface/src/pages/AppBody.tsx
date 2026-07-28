@@ -1,17 +1,19 @@
 import React from 'react'
-import styled from 'styled-components'
 
-export const BodyWrapper = styled.div`
-  position: relative;
-  max-width: 425px;
-  width: 100%;
-  background: ${({ theme }) => theme.background};
-  box-shadow: 0px 0px 1px rgba(0, 0, 0, 0.01), 0px 4px 8px rgba(0, 0, 0, 0.04), 0px 16px 24px rgba(0, 0, 0, 0.04),
-    0px 24px 32px rgba(0, 0, 0, 0.01);
-  border-radius: 20px;
-  padding: 2rem 1.5rem 1.5rem 1.5rem;
-  margin-top: 20px;
-`
+import { cn } from 'utils/cn'
+
+export const BodyWrapper = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
+  <div
+    className={cn(
+      'relative mt-5 w-full max-w-[425px] rounded-[20px] bg-background px-6 pb-6 pt-8',
+      'shadow-[0_0_1px_rgba(0,0,0,0.01),0_4px_8px_rgba(0,0,0,0.04),0_16px_24px_rgba(0,0,0,0.04),0_24px_32px_rgba(0,0,0,0.01)]',
+      className,
+    )}
+    {...rest}
+  >
+    {children}
+  </div>
+)
 
 /**
  * The styled container element that wraps the content of most pages and the tabs.

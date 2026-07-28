@@ -16,8 +16,19 @@ import { useZapOutContext } from '@/stores';
 import { useZapOutUserState } from '@/stores/state';
 
 export const Header = () => {
-  const { poolAddress, onClose, poolType, pool, position, positionId, theme, chainId, poolPrice, dexId } =
-    useZapOutContext(s => s);
+  const {
+    poolAddress,
+    onClose,
+    poolType,
+    pool,
+    position,
+    positionId,
+    theme,
+    chainId,
+    poolPrice,
+    dexId,
+    onOpenPoolDetail,
+  } = useZapOutContext(s => s);
   const isUniV3 = univ3Types.includes(poolType as any);
 
   const { degenMode, toggleSetting, mode } = useZapOutUserState();
@@ -85,18 +96,23 @@ export const Header = () => {
           <Skeleton className="w-[300px] h-6 mt-1" />
         ) : (
           <div className="flex items-center gap-1 flex-1 flex-wrap">
-            <div className="relative flex items-end">
-              <TokenLogo src={pool.token0.logo} size={26} className="border-[2px] border-layer1" />
-              <TokenLogo src={pool.token1.logo} size={26} className="border-[2px] border-layer1 -ml-[6px]" />
-              <TokenLogo
-                src={NETWORKS_INFO[chainId].logo}
-                size={14}
-                className="border-[2px] border-layer1 max-sm:w-[18px] max-sm:h-[18px] max-sm:-ml-2 -ml-1"
-              />
-            </div>
-            <div className="text-xl flex items-center">
-              <TokenSymbol symbol={pool.token0.symbol} />/
-              <TokenSymbol symbol={pool.token1.symbol} />
+            <div
+              className={cn('flex items-center gap-1', onOpenPoolDetail && 'cursor-pointer')}
+              onClick={onOpenPoolDetail ? () => onOpenPoolDetail({ chainId, poolAddress, dexId }) : undefined}
+            >
+              <div className="relative flex items-end">
+                <TokenLogo src={pool.token0.logo} size={26} className="border-[2px] border-layer1" />
+                <TokenLogo src={pool.token1.logo} size={26} className="border-[2px] border-layer1 -ml-[6px]" />
+                <TokenLogo
+                  src={NETWORKS_INFO[chainId].logo}
+                  size={14}
+                  className="border-[2px] border-layer1 max-sm:w-[18px] max-sm:h-[18px] max-sm:-ml-2 -ml-1"
+                />
+              </div>
+              <div className="text-xl flex items-center">
+                <TokenSymbol symbol={pool.token0.symbol} />/
+                <TokenSymbol symbol={pool.token1.symbol} />
+              </div>
             </div>
             <div className="rounded-full text-xs bg-layer2 text-subText px-[14px] py-1">
               <Trans>Fee {pool.fee}%</Trans>

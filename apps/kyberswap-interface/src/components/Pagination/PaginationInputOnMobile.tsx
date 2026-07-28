@@ -1,15 +1,4 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { Box, Text } from 'rebass'
-import styled from 'styled-components'
-
-import useTheme from 'hooks/useTheme'
-
-type Props = {
-  className?: string
-  page: number
-  lastPage: number
-  setPage: (p: number) => void
-}
 
 const isValidInteger = (s: string): boolean => {
   const numberRegex = /^\d+$/
@@ -27,40 +16,14 @@ const getInputWidth = (n: number): number => {
   return Math.min(minWidth + Math.max(n - minChar, 0) * pxPerChar, maxWidth)
 }
 
-export const Input = styled.input`
-  outline: none;
-  border: none;
-  background-color: ${({ theme }) => theme.buttonBlack};
-  color: ${({ theme }) => theme.primary};
-  overflow: hidden;
-  text-overflow: ellipsis;
+type Props = {
+  className?: string
+  page: number
+  lastPage: number
+  setPage: (p: number) => void
+}
 
-  font-weight: 500;
-  font-size: 12px;
-  line-height: 16px;
-  text-align: center;
-
-  border-radius: 20px;
-  padding: 8px 12px;
-
-  ::placeholder {
-    color: ${({ theme }) => theme.subText};
-  }
-
-  -webkit-appearance: textfield;
-
-  ::-webkit-search-decoration {
-    -webkit-appearance: none;
-  }
-
-  ::-webkit-outer-spin-button,
-  ::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-  }
-`
-
-const PaginationInputOnMobile: React.FC<Props> = ({ className, page, lastPage, setPage }) => {
-  const theme = useTheme()
+const PaginationInputOnMobile: React.FC<Props> = ({ page, lastPage, setPage }) => {
   const [inputValue, setInputValue] = useState(String(page))
   const inputRef = useRef<HTMLInputElement>(null)
 
@@ -99,54 +62,23 @@ const PaginationInputOnMobile: React.FC<Props> = ({ className, page, lastPage, s
   }, [page])
 
   return (
-    <div className={className}>
-      <Box
-        sx={{
-          display: 'inline-flex',
-          width: 'min-content',
-          alignItems: 'center',
-        }}
-      >
-        <Input
+    <div className="mx-1 inline-flex w-min items-center gap-2">
+      <div className="inline-flex w-min items-center">
+        <input
           ref={inputRef}
           value={inputValue}
           type="number"
           onChange={e => setInputValue(e.target.value)}
           onBlur={handleCommitChange}
           onKeyUp={handleKeyUp}
-          style={{
-            width: `${width}px`,
-          }}
+          style={{ width: `${width}px` }}
+          className="h-full overflow-hidden truncate rounded-[20px] border-0 bg-buttonBlack px-3 py-2 text-center text-xs font-medium leading-4 text-primary outline-none [appearance:textfield] placeholder:text-subText [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-search-decoration]:appearance-none"
         />
-      </Box>
-      <Text
-        color={theme.subText}
-        sx={{
-          fontWeight: 500,
-          fontSize: '12px',
-          lineHeight: '16px',
-        }}
-      >
-        /
-      </Text>
-      <Text
-        color={theme.subText}
-        sx={{
-          fontWeight: 500,
-          fontSize: '12px',
-          lineHeight: '16px',
-        }}
-      >
-        {lastPage}
-      </Text>
+      </div>
+      <span className="text-xs font-medium leading-4 text-subText">/</span>
+      <span className="text-xs font-medium leading-4 text-subText">{lastPage}</span>
     </div>
   )
 }
 
-export default styled(PaginationInputOnMobile)`
-  display: inline-flex;
-  column-gap: 8px;
-  width: min-content;
-  align-items: center;
-  margin: 0 4px;
-`
+export default PaginationInputOnMobile

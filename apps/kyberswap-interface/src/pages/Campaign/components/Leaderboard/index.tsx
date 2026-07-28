@@ -2,29 +2,17 @@ import { CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
-import { Flex, Text } from 'rebass'
 import { useGetLeaderboardQuery, useGetUserRewardQuery } from 'services/campaign'
 import { useGetDashboardQuery } from 'services/referral'
-import styled from 'styled-components'
 
 import Divider from 'components/Divider'
-import LocalLoader from 'components/LocalLoader'
 import Pagination from 'components/Pagination'
+import Skeleton from 'components/Skeleton'
 import { useActiveWeb3React } from 'hooks'
-import useTheme from 'hooks/useTheme'
 import { CampaignType, campaignConfig } from 'pages/Campaign/constants'
 import { MEDIA_WIDTHS } from 'theme'
+import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
-
-const Wrapper = styled.div`
-  border-radius: 20px;
-  padding: 20px;
-  background: ${({ theme }) => theme.background};
-  margin-top: 20px;
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    padding: 1rem;
-  `}
-`
 
 type Props = {
   type: CampaignType
@@ -32,8 +20,44 @@ type Props = {
   wallet?: string
 }
 
+// Mirrors the leaderboard row layout (rank · wallet · points · optional rewards), so the loading
+// placeholder lines up under the column headers.
+const LeaderboardRowsSkeleton = ({
+  rows = 8,
+  isReferral,
+  showReward,
+  upToSmall,
+}: {
+  rows?: number
+  isReferral: boolean
+  showReward: boolean
+  upToSmall: boolean
+}) => (
+  <>
+    {Array.from({ length: rows }, (_, i) => (
+      <div key={i} className="flex px-5 py-4 max-sm:px-0 max-sm:py-4">
+        {!isReferral && (
+          <span className={cn(upToSmall ? 'w-[30px]' : 'w-[50px]', 'text-center')}>
+            <Skeleton width={16} height={16} />
+          </span>
+        )}
+        <span className={cn('flex-1', isReferral ? 'ml-0' : 'ml-5')}>
+          <Skeleton width={upToSmall ? 110 : 220} height={16} />
+        </span>
+        <span className={cn(isReferral ? 'w-[100px]' : 'w-[70px]', 'ml-5 text-right')}>
+          <Skeleton width={48} height={16} />
+        </span>
+        {showReward && (
+          <span className={cn('ml-5 text-right', !upToSmall ? 'w-[150px]' : 'w-[70px]')}>
+            <Skeleton width={70} height={16} />
+          </span>
+        )}
+      </div>
+    ))}
+  </>
+)
+
 export default function Leaderboard({ type, selectedWeek, wallet }: Props) {
-  const theme = useTheme()
   const [searchParams, setSearchParams] = useSearchParams()
   const page = +(searchParams.get('page') || '1')
 
@@ -82,90 +106,80 @@ export default function Leaderboard({ type, selectedWeek, wallet }: Props) {
   const showReward = [CampaignType.MayTrading, CampaignType.NearIntents].includes(type)
 
   return (
-    <Wrapper>
+    <div className="mt-5 rounded-[20px] bg-background p-5 max-sm:p-4">
       {!isReferralCampaign && (
         <>
-          <Text fontSize={16} color={theme.subText} mb="1rem">
+          <div className="mb-4 text-base text-subText">
             <Trans>Your rank</Trans>{' '}
-            <Text color={theme.text} fontWeight="500" as="span" fontSize={18}>
-              {userData?.data?.rank || '--'}
-            </Text>
-          </Text>
+            <span className="text-lg font-medium text-text">{userData?.data?.rank || '--'}</span>
+          </div>
 
           <Divider />
         </>
       )}
 
-      <Flex padding={upToSmall ? '1rem 0' : '1rem 1.25rem'} fontSize={12} fontWeight="500" color={theme.subText}>
+      <div className="flex px-5 py-4 text-xs font-medium text-subText max-sm:px-0 max-sm:py-4">
         {!isReferralCampaign && (
-          <Text width={upToSmall ? '30px' : '50px'} textAlign="center">
-            {t`RANK`}
-          </Text>
+          <span className={cn(upToSmall ? 'w-[30px]' : 'w-[50px]', 'text-center')}>{t`RANK`}</span>
         )}
 
-        <Text flex={1} marginLeft={isReferralCampaign ? 0 : '1.25rem'}>
-          {t`WALLET`}
-        </Text>
+        <span className={cn('flex-1', isReferralCampaign ? 'ml-0' : 'ml-5')}>{t`WALLET`}</span>
 
-        <Text width={isReferralCampaign ? '150px' : '80px'} marginLeft="1.25rem" textAlign="right">
+        <span className={cn(isReferralCampaign ? 'w-[150px]' : 'w-[80px]', 'ml-5 text-right')}>
           {isReferralCampaign ? t`NUMBER OF REFERRALS` : t`POINTS`}
-        </Text>
+        </span>
 
         {showReward && (
-          <Text width={!upToSmall ? '150px' : '80px'} marginLeft="1.25rem" textAlign="right">
-            {t`REWARDS`}
-          </Text>
+          <span className={cn(!upToSmall ? 'w-[150px]' : 'w-[80px]', 'ml-5 text-right')}>{t`REWARDS`}</span>
         )}
-      </Flex>
+      </div>
 
       <Divider />
 
       {isLoading ? (
-        <LocalLoader />
+        <LeaderboardRowsSkeleton isReferral={isReferralCampaign} showReward={showReward} upToSmall={upToSmall} />
       ) : !isReferralCampaign ? (
         data?.data?.leaderBoards.map((item, index) => (
-          <Flex padding={upToSmall ? '1rem 0' : '1rem 1.25rem'} key={item.wallet} fontSize={14} color={theme.text}>
-            <Text width={upToSmall ? '30px' : '50px'} fontWeight="500" textAlign="center">
+          <div key={item.wallet} className="flex px-5 py-4 text-sm text-text max-sm:px-0 max-sm:py-4">
+            <span className={cn(upToSmall ? 'w-[30px]' : 'w-[50px]', 'text-center font-medium')}>
               {index + (page - 1) * 10 + 1}
-            </Text>
+            </span>
 
-            <Text fontWeight="500" flex={1} marginLeft="1.25rem" overflow="hidden">
+            <span className="ml-5 flex-1 overflow-hidden font-medium">
               {upToSmall ? `${item.wallet.substring(0, 4 + 2)}...${item.wallet.substring(42 - 4)}` : item.wallet}
-            </Text>
+            </span>
 
-            <Text width={'70px'} marginLeft="1.25rem" textAlign="right">
+            <span className="ml-5 w-[70px] text-right">
               {formatDisplayNumber(Math.floor(item.point), { significantDigits: 4 })}
-            </Text>
+            </span>
 
             {showReward && (
-              <Text width={!upToSmall ? '150px' : '70px'} marginLeft="1.25rem" textAlign="right">
+              <span className={cn('ml-5', !upToSmall ? 'w-[150px]' : 'w-[70px]', 'text-right')}>
                 {formatDisplayNumber(rewardAmount(item.reward), { significantDigits: 4 })} {reward.symbol}
-              </Text>
+              </span>
             )}
-          </Flex>
+          </div>
         ))
       ) : (
         referralData?.data.referrals.map(item => {
           return (
-            <Flex padding="1.25rem" key={item.id} fontSize={14} color={theme.subText}>
-              <Text fontWeight="500" flex={1} overflow="hidden">
+            <div key={item.id} className="flex p-5 text-sm text-subText">
+              <span className="flex-1 overflow-hidden font-medium">
                 {upToSmall
                   ? `${item.walletAddress.substring(0, 4 + 2)}...${item.walletAddress.substring(42 - 4)}`
                   : item.walletAddress}
-              </Text>
+              </span>
 
-              <Text width="100px" fontWeight="500" marginLeft="1.25rem" textAlign="right">
+              <span className="ml-5 w-[100px] text-right font-medium">
                 {formatDisplayNumber(item.referralsNumber, { significantDigits: 6 })}
-              </Text>
-            </Flex>
+              </span>
+            </div>
           )
         })
       )}
 
       {!isLoading && (isReferralCampaign ? !referralData?.data.referrals.length : !data?.data?.leaderBoards.length) && (
-        <Text color={theme.subText} textAlign="center" padding="24px" marginTop="24px">
-          {t`No data found`}
-        </Text>
+        <div className="mt-6 p-6 text-center text-subText">{t`No data found`}</div>
       )}
 
       {!isLoading && (
@@ -181,6 +195,6 @@ export default function Leaderboard({ type, selectedWeek, wallet }: Props) {
           pageSize={10}
         />
       )}
-    </Wrapper>
+    </div>
   )
 }

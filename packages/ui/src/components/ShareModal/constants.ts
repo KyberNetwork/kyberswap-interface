@@ -1,7 +1,7 @@
 import { ShareOption, ShareType } from '@/components/ShareModal/types';
 
 export const shareOptions: Record<ShareType, ShareOption[]> = {
-  [ShareType.POOL_INFO]: [ShareOption.TOTAL_APR, ShareOption.LM_APR, ShareOption.EG_APR],
+  [ShareType.POOL_INFO]: [ShareOption.ACTIVE_APR, ShareOption.TOTAL_APR, ShareOption.LM_APR, ShareOption.EG_APR],
   [ShareType.POSITION_INFO]: [
     ShareOption.TOTAL_APR,
     ShareOption.LM_APR,
@@ -13,7 +13,10 @@ export const shareOptions: Record<ShareType, ShareOption[]> = {
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const conflictOptions: Record<ShareType, { [key in ShareOption]?: ShareOption[] }> = {
-  [ShareType.POOL_INFO]: {},
+  [ShareType.POOL_INFO]: {
+    [ShareOption.TOTAL_APR]: [ShareOption.ACTIVE_APR],
+    [ShareOption.ACTIVE_APR]: [ShareOption.TOTAL_APR],
+  },
   [ShareType.POSITION_INFO]: {
     [ShareOption.LM_APR]: [ShareOption.TOTAL_EARNINGS],
     [ShareOption.EG_APR]: [ShareOption.TOTAL_EARNINGS],

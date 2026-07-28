@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react'
 
 import DeltaTokenAmount, { DeltaNft } from 'components/WalletPopup/Transactions/DeltaTokenAmount'
-import { useWeb3React } from 'hooks'
+import { useActiveWeb3React } from 'hooks'
 import { getTokenId } from 'pages/Earns/utils'
 import { EarnAddLiquidityExtraInfo, TransactionDetails } from 'state/transactions/type'
 import { getTransactionStatus } from 'utils/transaction'
 
 export default function AddLiquidityDescription(transaction: TransactionDetails) {
-  const { library } = useWeb3React()
+  const { chainId } = useActiveWeb3React()
   const { extraInfo = {} } = transaction
   const { tokensIn, pool, positionId, dexLogoUrl, dex } = extraInfo as EarnAddLiquidityExtraInfo
   const [tokenId, setTokenId] = useState<string | null>(null)
@@ -15,15 +15,15 @@ export default function AddLiquidityDescription(transaction: TransactionDetails)
   const { success } = getTransactionStatus(transaction)
 
   useEffect(() => {
-    if (library && !positionId) {
-      getTokenId(library, transaction.hash, dex)
+    if (!positionId) {
+      getTokenId(chainId, transaction.hash, dex)
         .then(id => {
           if (id) setTokenId(id.toString())
           else setTokenId(null)
         })
-        .catch(error => console.log('failed to get token id', error))
+        .catch(error => console.error('failed to get token id', error))
     }
-  }, [library, transaction.hash, dex, positionId])
+  }, [chainId, transaction.hash, dex, positionId])
 
   return !success ? null : (
     <>

@@ -1,19 +1,7 @@
 import { Trans } from '@lingui/macro'
-import { Flex, Text } from 'rebass'
-import styled from 'styled-components'
 
-import { ReactComponent as Close } from 'assets/images/x.svg'
-import { CloseIcon } from 'components/Header/web3/WalletModal'
+import { Content, Header, Icon, OptionButton, Options, Section, Shell } from 'components/Header/web3/WalletModal'
 import Modal from 'components/Modal'
-import { RowBetween } from 'components/Row'
-
-const Option = styled(Flex)`
-  padding: 14px;
-  border-radius: 10px;
-  :hover {
-    background-color: ${({ theme }) => theme.buttonBlack};
-  }
-`
 
 export const SelectChainModal = ({
   showSelect,
@@ -26,48 +14,46 @@ export const SelectChainModal = ({
   setShowSelect: (show: boolean) => void
   logo: Record<string, string>
 }) => {
+  const closeModal = () => setShowSelect(false)
+  const chainOptions = Object.entries(logo)
+
   return (
     <Modal
       isOpen={showSelect}
-      onDismiss={() => setShowSelect(false)}
+      onDismiss={closeModal}
       maxHeight={90}
       maxWidth={600}
       bypassScrollLock={true}
       bypassFocusLock={true}
       zindex={99999}
-      width="240px"
+      width="min(430px, calc(100vw - 32px))"
     >
-      <Flex width="100%" flexDirection="column" padding="24px">
-        <RowBetween gap="20px" mb="24px">
-          <Text fontSize="20px" fontWeight="500">
-            <Trans>Select chain</Trans>
-          </Text>
-          <CloseIcon
-            onClick={() => {
-              setShowSelect(false)
-            }}
-          >
-            <Close />
-          </CloseIcon>
-        </RowBetween>
+      <Shell>
+        <Section>
+          <Header title={<Trans>Select chain</Trans>} onClose={closeModal} />
 
-        {Object.keys(logo).map(walletType => (
-          <Option
-            key={walletType}
-            alignItems="center"
-            sx={{ gap: '8px', cursor: 'pointer' }}
-            role="button"
-            fontWeight="500"
-            onClick={() => {
-              setShowSelect(false)
-              connect[walletType]()
-            }}
-          >
-            <img src={logo[walletType]} width={20} height={20} alt="" style={{ borderRadius: '50%' }} />
-            <Text>{walletType}</Text>
-          </Option>
-        ))}
-      </Flex>
+          <Content>
+            <Options>
+              {chainOptions.map(([walletType, icon]) => (
+                <OptionButton
+                  key={walletType}
+                  role="button"
+                  connected={false}
+                  onClick={() => {
+                    closeModal()
+                    connect[walletType]()
+                  }}
+                >
+                  <Icon>
+                    <img src={icon} alt={walletType} />
+                  </Icon>
+                  <span>{walletType}</span>
+                </OptionButton>
+              ))}
+            </Options>
+          </Content>
+        </Section>
+      </Shell>
     </Modal>
   )
 }

@@ -1,89 +1,97 @@
-import styled from 'styled-components'
+import { CSSProperties } from 'react'
 
-import { escapeRegExp } from 'utils'
+import { cn } from 'utils/cn'
 
-const StyledInput = styled.input<{ error?: boolean; fontSize?: string; align?: string }>`
-  width: 0;
-  position: relative;
-  font-weight: 500;
-  outline: none;
-  border: none;
-  flex: 1 1 auto;
-  background-color: ${({ theme }) => theme.buttonBlack};
-  font-size: ${({ fontSize }) => fontSize ?? '24px'};
-  text-align: ${({ align }) => align && align};
-  color: ${({ disabled, theme, error }) => (error ? theme.red1 : disabled ? theme.disableText : theme.text)};
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  padding: 0px;
-  -webkit-appearance: textfield;
+const inputRegex = /^\d*\.?\d*$/
+const signedInputRegex = /^[+-]?\d*\.?\d*$/
 
-  ${({ disabled, theme }) => disabled && `cursor: not-allowed; opacity: 1; -webkit-text-fill-color: ${theme.border}`};
-
-  ::-webkit-search-decoration {
-    -webkit-appearance: none;
-  }
-
-  [type='number'] {
-    -moz-appearance: textfield;
-  }
-
-  ::-webkit-outer-spin-button,
-  ::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-  }
-
-  ::placeholder {
-    color: ${({ theme }) => theme.text4};
-  }
-`
-
-const inputRegex = RegExp(`^\\d*(?:\\\\[.])?\\d*$`) // match escaped "." characters via in a non-capturing group
-
-export const Input = function InnerInput({
-  value,
-  onUserInput,
-  placeholder,
-  maxLength = 79,
-  ...rest
-}: {
+type Props = {
   value: string | number
   onUserInput?: (input: string) => void
   error?: boolean
   fontSize?: string
   align?: 'right' | 'left'
-} & Omit<React.HTMLProps<HTMLInputElement>, 'ref' | 'onChange' | 'as'>) {
+  allowNegative?: boolean
+} & Omit<React.HTMLProps<HTMLInputElement>, 'ref' | 'onChange' | 'as'>
+
+const NumericalInput = ({
+  value,
+  onUserInput,
+  placeholder,
+  maxLength = 79,
+  error,
+  fontSize,
+  align,
+  className,
+  style,
+  disabled,
+  allowNegative,
+  onKeyDown,
+  ...rest
+}: Props) => {
   const enforcer = (nextUserInput: string) => {
-    if (nextUserInput === '' || inputRegex.test(escapeRegExp(nextUserInput))) {
+    const regex = allowNegative ? signedInputRegex : inputRegex
+    if (nextUserInput === '' || regex.test(nextUserInput)) {
       onUserInput?.(nextUserInput)
     }
   }
 
+  const handleStep = (step: 1 | -1) => {
+    const numericValue = Number(value || 0)
+    if (!Number.isFinite(numericValue)) return
+    const nextValue = numericValue + step
+    onUserInput?.(String(!allowNegative && nextValue < 0 ? 0 : nextValue))
+  }
+
+  // Only set fontSize inline when caller explicitly passes one — otherwise leave
+  // the size to the className (default `text-2xl` below) so consumers can
+  // override with `text-xs` / `text-sm` via the className prop.
+  const inline: CSSProperties = {
+    ...(fontSize ? { fontSize } : {}),
+    textAlign: align,
+    ...style,
+  }
+  // `disabled` color uses -webkit-text-fill-color so the disabled overlay matches `theme.border`.
+  if (disabled) {
+    ;(inline as Record<string, string>)['WebkitTextFillColor'] = 'var(--ks-border)'
+  }
+
   return (
-    <StyledInput
+    <input
       {...rest}
+      disabled={disabled}
       value={value}
       onChange={event => {
-        // replace commas with periods, because dmmexchange exclusively uses period as the decimal separator
+        // replace commas with periods (period is the decimal separator)
         enforcer(event.target.value.replace(/,/g, '.'))
       }}
-      // universal input options
+      onKeyDown={event => {
+        onKeyDown?.(event)
+        if (event.defaultPrevented) return
+        if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
+          event.preventDefault()
+          handleStep(event.key === 'ArrowUp' ? 1 : -1)
+        }
+      }}
       inputMode="decimal"
       title={value.toString()}
       autoComplete="off"
       autoCorrect="off"
-      // text-specific options
       type="text"
-      pattern="^[0-9]*[.,]?[0-9]*$"
+      pattern={allowNegative ? '^[+\\-]?[0-9]*[.,]?[0-9]*$' : '^[0-9]*[.,]?[0-9]*$'}
       placeholder={placeholder || '0.0'}
       minLength={1}
       maxLength={maxLength}
       spellCheck="false"
+      className={cn(
+        'relative w-0 flex-1 truncate border-none bg-buttonBlack p-0 text-2xl font-medium outline-none placeholder:text-text4',
+        '[-webkit-appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-search-decoration]:appearance-none',
+        error ? 'text-red1' : disabled ? 'cursor-auto text-disableText opacity-100' : 'text-text',
+        className,
+      )}
+      style={inline}
     />
   )
 }
 
-export default Input
-
-// const inputRegex = RegExp(`^\\d*(?:\\\\[.])?\\d*$`) // match escaped "." characters via in a non-capturing group
+export default NumericalInput

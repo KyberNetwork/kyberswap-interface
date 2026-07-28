@@ -42,7 +42,6 @@ export interface SmartExitCondition {
 
 export enum ExecutionStatus {
   Success = 'OrderExecutionStatusSuccess',
-  Failed = 'OrderExecutionStatusFailed',
 }
 
 export interface SmartExitOrder {

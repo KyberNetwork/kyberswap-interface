@@ -1,40 +1,19 @@
 import { shortenAddress } from '@kyber/utils/dist/crypto'
 import { Token } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { Info } from 'react-feather'
 import { useMedia } from 'react-use'
-import { Flex, Text } from 'rebass'
-import styled, { keyframes } from 'styled-components'
+import { useGetPricesQuery, useGetTokenCategoryQuery } from 'services/tokenCatalog'
 
 import CopyHelper from 'components/Copy'
 import Tooltip from 'components/Tooltip'
-import { TOKEN_API_URL } from 'constants/env'
-import { PAIR_CATEGORY } from 'constants/index'
+import { PAIR_CATEGORY } from 'constants/trade'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useTheme from 'hooks/useTheme'
 import { MEDIA_WIDTHS } from 'theme'
+import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
-
-const glow = keyframes`
-  0% {
-    filter: drop-shadow(0 0 2px rgba(255, 178, 55, 0.2));
-  }
-  50% {
-    filter: drop-shadow(0 0 8px rgba(255, 178, 55, 0.8)) drop-shadow(0 0 12px rgba(255, 178, 55, 0.4));
-  }
-  100% {
-    filter: drop-shadow(0 0 2px rgba(255, 178, 55, 0.2));
-  }
-`
-
-const StyledInfo = styled(Info)<{ $warning: boolean }>`
-  animation: ${props => (props.$warning ? glow : 'none')} 1.5s ease-in-out infinite;
-`
-
-interface PriceResponse {
-  data: { [chainId: string]: { [address: string]: { PriceBuy: number; PriceSell: number } } }
-}
 
 enum TOKEN_CATEGORY {
   STABLE = 'stablePair',
@@ -53,8 +32,31 @@ const SPREAD_THRESHOLD = {
 export default function TokenInfo({ token, isNativeToken = false }: { token: Token; isNativeToken?: boolean }) {
   const theme = useTheme()
 
-  const [tokenCategory, setTokenCategory] = useState<TOKEN_CATEGORY | null>(null)
-  const [priceInfo, setPriceInfo] = useState<{ buyPrice?: number; sellPrice?: number; spread?: number } | null>(null)
+  const { data: priceData, isFetching: isFetchingPrice } = useGetPricesQuery(
+    { [token.chainId]: [token.address] },
+    { pollingInterval: 15_000 },
+  )
+  const priceInfo = useMemo(() => {
+    if (!priceData) return null
+    const entry = priceData.data?.[token.chainId]?.[token.address]
+    const buyPrice = entry?.PriceBuy
+    const sellPrice = entry?.PriceSell
+    const spread =
+      buyPrice === undefined || sellPrice === undefined
+        ? undefined
+        : (Math.abs(buyPrice - sellPrice) / ((buyPrice + sellPrice) / 2)) * 100
+    return { buyPrice, sellPrice, spread }
+  }, [priceData, token.chainId, token.address])
+
+  const { data: categoryData } = useGetTokenCategoryQuery({ chainId: token.chainId, tokens: token.address })
+  const tokenCategory = useMemo(
+    () =>
+      (categoryData?.find(item => item.token.toLowerCase() === token.address.toLowerCase())?.category as
+        | TOKEN_CATEGORY
+        | undefined) ?? null,
+    [categoryData, token.address],
+  )
+
   const [showTooltip, setShowTooltip] = useState(false)
   const infoRef = useRef<HTMLDivElement>(null)
   useOnClickOutside(infoRef, () => setShowTooltip(false))
@@ -80,99 +82,57 @@ export default function TokenInfo({ token, isNativeToken = false }: { token: Tok
     [priceInfo?.buyPrice, priceInfo?.sellPrice, priceInfo?.spread, spreadThreshold],
   )
 
-  useEffect(() => {
-    const getOnChainPrice = async () => {
-      const r: PriceResponse = await fetch(`${TOKEN_API_URL}/v1/public/tokens/prices`, {
-        method: 'POST',
-        body: JSON.stringify({
-          [token.chainId]: [token.address],
-        }),
-      }).then(res => res.json())
-
-      const buyPrice = r.data[token.chainId][token.address]?.PriceBuy
-      const sellPrice = r.data[token.chainId][token.address]?.PriceSell
-
-      const spread =
-        buyPrice === undefined || sellPrice === undefined
-          ? undefined
-          : (Math.abs(buyPrice - sellPrice) / ((buyPrice + sellPrice) / 2)) * 100
-
-      setPriceInfo({ buyPrice, sellPrice, spread })
-    }
-
-    getOnChainPrice()
-    const fetchPriceInterval = setInterval(getOnChainPrice, 15_000)
-
-    return () => clearInterval(fetchPriceInterval)
-  }, [token.address, token.chainId])
-
-  useEffect(() => {
-    if (!token) return
-
-    const getTokenCategory = async () => {
-      const r = await fetch(
-        `${TOKEN_API_URL}/v1/public/category/token?tokens=${token.address}&chainId=${token.chainId}`,
-      ).then(res => res.json())
-
-      const cat = r.data.find((item: any) => item.token.toLowerCase() === token.address.toLowerCase())?.category
-
-      if (cat) setTokenCategory(cat as TOKEN_CATEGORY)
-    }
-
-    getTokenCategory()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [token.address])
-
   const tooltipContent = (
-    <Flex flexDirection="column" sx={{ gap: '2px' }}>
-      <Flex alignItems="center" sx={{ gap: '2px' }}>
-        <Text>{isNativeToken ? t`Native token` : shortenAddress(token?.wrapped.address || '', 6)}</Text>
+    <div className="flex flex-col gap-0.5">
+      <div className="flex items-center gap-0.5">
+        <span>{isNativeToken ? t`Native token` : shortenAddress(token?.wrapped.address || '', 6)}</span>
         {!isNativeToken ? <CopyHelper size={14} toCopy={token?.wrapped.address} /> : null}
-      </Flex>
-      <Flex alignItems="center" sx={{ gap: '4px' }}>
-        <Text>{t`Buy`}:</Text>
-        <Text color={priceInfo?.buyPrice ? theme.primary : theme.warning}>
+      </div>
+      <div className="flex items-center gap-1">
+        <span>{t`Buy`}:</span>
+        <span className={priceInfo?.buyPrice ? 'text-primary' : 'text-warning'}>
           {priceInfo?.buyPrice
             ? formatDisplayNumber(priceInfo?.buyPrice, { significantDigits: 8, style: 'currency' })
             : t`N/A`}
-        </Text>
-      </Flex>
-      <Flex alignItems="center" sx={{ gap: '4px' }}>
-        <Text>{t`Sell`}:</Text>
-        <Text color={priceInfo?.sellPrice ? theme.blue : theme.warning}>
+        </span>
+      </div>
+      <div className="flex items-center gap-1">
+        <span>{t`Sell`}:</span>
+        <span className={priceInfo?.sellPrice ? 'text-blue' : 'text-warning'}>
           {priceInfo?.sellPrice
             ? formatDisplayNumber(priceInfo?.sellPrice, { significantDigits: 8, style: 'currency' })
             : t`N/A`}
-        </Text>
-      </Flex>
+        </span>
+      </div>
       {spreadCheck.display ? (
-        <Flex alignItems="center" sx={{ gap: '4px' }}>
-          <Text>{t`Spread`}:</Text>
-          <Text color={spreadCheck.warning ? theme.warning : theme.text}>
+        <div className="flex items-center gap-1">
+          <span>{t`Spread`}:</span>
+          <span className={spreadCheck.warning ? 'text-warning' : 'text-text'}>
             {priceInfo?.spread ? formatDisplayNumber(priceInfo?.spread, { significantDigits: 2 }) + '%' : t`N/A`}
-          </Text>
-        </Flex>
+          </span>
+        </div>
       ) : null}
       {spreadCheck.warning ? (
-        <Text color={theme.warning} fontStyle="italic">
+        <span className="italic text-warning">
           <Trans>
             The current difference between buy and sell is{' '}
             {formatDisplayNumber(priceInfo?.spread, { significantDigits: 2 })}% of the mid point, which might be higher
             than usual for similar tokens.
           </Trans>
-        </Text>
+        </span>
       ) : null}
-    </Flex>
+    </div>
   )
 
-  const isWarning = !!spreadCheck.warning || (priceInfo ? !priceInfo.buyPrice || !priceInfo.sellPrice : false)
+  // Flag a genuinely high spread, or a missing price — but only once the price fetch has SETTLED.
+  // While the just-selected token's price is still loading, the icon must not glow warning (it
+  // briefly did, since the price hadn't arrived yet to compute the spread).
+  const isWarning =
+    !!spreadCheck.warning || (priceInfo && !isFetchingPrice ? !priceInfo.buyPrice || !priceInfo.sellPrice : false)
 
   return (
-    <Flex
-      width="fit-content"
-      height="fit-content"
-      marginTop="6px"
-      marginLeft="4px"
+    <div
+      className="flex size-fit"
       role="button"
       ref={infoRef}
       onClick={e => {
@@ -188,8 +148,12 @@ export default function TokenInfo({ token, isNativeToken = false }: { token: Tok
         width="fit-content"
         maxWidth={upToSmall ? '280px' : '400px'}
       >
-        <StyledInfo color={isWarning ? theme.warning : theme.subText} size={18} $warning={isWarning} />
+        <Info
+          color={isWarning ? theme.warning : theme.subText}
+          size={18}
+          className={cn(isWarning && 'animate-token-info-glow')}
+        />
       </Tooltip>
-    </Flex>
+    </div>
   )
 }

@@ -55,6 +55,7 @@ export interface ZapMigrationProps {
     tickLower: number;
     tickUpper: number;
   };
+  initialRevertPrice?: boolean;
   connectedAccount: {
     address: string | undefined;
     chainId: number;
@@ -93,4 +94,5 @@ export interface ZapMigrationProps {
   onCloseSuccess?: () => void;
   onBack?: () => void;
   onClose: () => void;
+  onOpenPoolDetail?: (pool: { chainId: number; poolAddress: string; dexId?: string }) => void;
 }

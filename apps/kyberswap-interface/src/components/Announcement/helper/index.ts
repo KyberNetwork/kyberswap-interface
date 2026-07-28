@@ -23,7 +23,13 @@ export const ackAnnouncementPopup = (id: string | number) => {
 
 export const formatNumberOfUnread = (num: number | undefined) => (num ? (num > 10 ? '10+' : num + '') : null)
 
-const NO_NOTI_PAGES = [APP_PATHS.IAM_CONSENT, APP_PATHS.IAM_LOGIN, APP_PATHS.IAM_LOGOUT, APP_PATHS.PARTNER_SWAP]
+const NO_NOTI_PAGES = [
+  APP_PATHS.IAM_CONSENT,
+  APP_PATHS.IAM_LOGIN,
+  APP_PATHS.IAM_LOGOUT,
+  APP_PATHS.PARTNER_SWAP,
+  APP_PATHS.USER_SWAP,
+]
 
 export const isPopupCanShow = (
   popupInfo: PopupItemType<PopupContentAnnouncement>,

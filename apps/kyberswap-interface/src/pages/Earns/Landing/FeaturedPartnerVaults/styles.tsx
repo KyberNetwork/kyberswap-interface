@@ -1,56 +1,37 @@
-import { rgba } from 'polished'
-import styled from 'styled-components'
+import { HTMLAttributes } from 'react'
+
+import { cn } from 'utils/cn'
 
 export { PartnerVaultsList } from 'pages/Earns/Landing/styles'
 
-const VAULT_CARD_BG = 'rgba(54, 39, 86, 0.2)'
-const VAULT_CARD_BG_HOVER = 'rgba(91, 58, 164, 0.32)'
+export const VaultCard = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
+  <div
+    className={cn(
+      'flex flex-col gap-2 rounded-xl bg-[rgba(54,39,86,0.2)] p-4 transition-colors duration-200',
+      'hover:bg-[rgba(91,58,164,0.32)]',
+      'max-sm:p-3',
+      className,
+    )}
+    {...rest}
+  />
+)
 
-export const VaultCard = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding: 16px;
-  border-radius: 12px;
-  background: ${VAULT_CARD_BG};
-  transition: background 0.2s ease;
+export const VaultProtocolTag = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
+  <div
+    className={cn('flex items-center gap-1 whitespace-nowrap rounded-lg bg-white-08 px-2 py-0.5', className)}
+    {...rest}
+  />
+)
 
-  &:hover {
-    background: ${VAULT_CARD_BG_HOVER};
-  }
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    padding: 12px;
-  `}
-`
-
-export const VaultProtocolTag = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  padding: 2px 8px;
-  border-radius: 8px;
-  background: ${({ theme }) => rgba(theme.white, 0.08)};
-  white-space: nowrap;
-`
-
-export const VaultDepositButton = styled.div<{ $disabled?: boolean }>`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 4px 12px;
-  border-radius: 12px;
-  border: 1px solid ${({ theme }) => theme.primary};
-  color: ${({ theme }) => theme.primary};
-  font-size: 12px;
-  font-weight: 500;
-  line-height: 16px;
-  cursor: ${({ $disabled }) => ($disabled ? 'not-allowed' : 'pointer')};
-  opacity: ${({ $disabled }) => ($disabled ? 0.4 : 1)};
-  transition: opacity 0.15s ease, background 0.15s ease;
-
-  &:hover {
-    opacity: ${({ $disabled }) => ($disabled ? 0.4 : 0.85)};
-    background: ${({ $disabled, theme }) => ($disabled ? 'transparent' : `${theme.primary}10`)};
-  }
-`
+type VaultDepositButtonProps = HTMLAttributes<HTMLDivElement> & { $disabled?: boolean }
+export const VaultDepositButton = ({ $disabled, className, ...rest }: VaultDepositButtonProps) => (
+  <div
+    className={cn(
+      'flex items-center justify-center rounded-xl border border-solid border-primary px-3 py-1',
+      'text-xs font-medium leading-4 text-primary transition-[opacity,background] duration-150',
+      $disabled ? 'cursor-not-allowed opacity-40' : 'cursor-pointer opacity-100 hover:bg-primary-10 hover:opacity-85',
+      className,
+    )}
+    {...rest}
+  />
+)

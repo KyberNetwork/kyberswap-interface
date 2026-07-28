@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { X } from 'react-feather'
 import { useMedia } from 'react-use'
-import styled, { css, keyframes } from 'styled-components'
 
 import CtaButton from 'components/Announcement/Popups/CtaButton'
 import { AnnouncementTemplatePopup, PopupType } from 'components/Announcement/type'
@@ -9,157 +8,13 @@ import Announcement from 'components/Icons/Announcement'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { useActivePopups, useRemoveAllPopupByType } from 'state/application/hooks'
 import { MEDIA_WIDTHS } from 'theme'
+import { cn } from 'utils/cn'
 import { useNavigateToUrl } from 'utils/redirect'
 import { escapeScriptHtml } from 'utils/string'
 
 const DEFAULT_ANIMATION_DURATION = 12
 const ICON_SIZE = 24
 const MARQUEE_GAP = 32
-
-const BannerWrapper = styled.div`
-  width: 100%;
-  background: linear-gradient(90deg, #12372b 0%, #113126 100%);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-`
-
-const BannerInner = styled.div`
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
-  align-items: center;
-  gap: 12px;
-  padding: 8px 24px;
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    display: flex;
-    align-items: stretch;
-    flex-direction: column;
-    gap: 8px;
-    padding: 8px 12px;
-  `}
-`
-
-const CloseButton = styled(X)`
-  color: rgba(255, 255, 255, 0.6);
-  cursor: pointer;
-  flex-shrink: 0;
-  justify-self: end;
-
-  :hover {
-    color: rgba(255, 255, 255, 0.9);
-  }
-`
-
-const DesktopSpacer = styled.div`
-  width: ${ICON_SIZE}px;
-  height: ${ICON_SIZE}px;
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    display: none;
-  `}
-`
-
-const Content = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  justify-content: center;
-  justify-self: center;
-  min-width: 0;
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    width: 100%;
-    justify-content: space-between;
-  `}
-`
-
-const MainRow = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  min-width: 0;
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    flex: 1;
-  `}
-`
-
-const LeadingIcon = styled.div`
-  display: flex;
-  align-items: center;
-  flex-shrink: 0;
-`
-
-const TextWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  color: rgba(255, 255, 255, 0.92);
-  flex: 0 1 auto;
-  max-width: min(860px, calc(100vw - 320px));
-  min-width: 0;
-  overflow: hidden;
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    flex: 1;
-    max-width: calc(100vw - 84px);
-  `}
-`
-
-const marquee = keyframes`
-  from {
-    transform: translateX(0);
-  }
-
-  to {
-    transform: translateX(calc(-1 * var(--marquee-shift, 0px)));
-  }
-`
-
-const TextContent = styled.div<{ $isOverflow: boolean; $animationDuration: number }>`
-  display: flex;
-  align-items: center;
-  gap: ${({ $isOverflow }) => ($isOverflow ? `${MARQUEE_GAP}px` : '0')};
-  color: rgba(255, 255, 255, 0.92);
-  font-size: 14px;
-  font-weight: 400;
-  line-height: 24px;
-  white-space: nowrap;
-  width: max-content;
-
-  ${({ $isOverflow, $animationDuration }) =>
-    $isOverflow &&
-    css`
-      animation: ${marquee} ${$animationDuration}s linear infinite;
-    `}
-`
-
-const TextLine = styled.div`
-  flex-shrink: 0;
-  white-space: nowrap;
-
-  > * {
-    margin: 0;
-    white-space: nowrap;
-  }
-`
-
-const JoinButton = styled(CtaButton)`
-  background: transparent;
-  border-color: rgba(29, 216, 164, 0.85);
-  color: #1dd8a4;
-  font-size: 13px;
-  font-weight: 500;
-  height: 28px;
-  margin-left: 8px;
-  min-width: 108px;
-  padding: 0 12px;
-  white-space: nowrap;
-  width: fit-content;
-
-  ${({ theme }) => theme.mediaWidth.upToSmall`
-    margin-left: 0;
-    width: 100%;
-  `}
-`
 
 function TopBanner() {
   const isMobile = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
@@ -191,8 +46,6 @@ function TopBanner() {
     () => escapeScriptHtml(isMobile ? content.replace(/<br\/>/g, '&nbsp;') : content),
     [content, isMobile],
   )
-
-  const marqueeStyle = { ['--marquee-shift' as string]: `${marqueeShift}px` }
 
   useEffect(() => {
     const measure = () => {
@@ -257,49 +110,82 @@ function TopBanner() {
   }
 
   const marqueeText = (
-    <TextWrapper ref={textWrapperRef}>
-      <TextContent $animationDuration={animationDuration} $isOverflow={isOverflow} style={marqueeStyle}>
-        <TextLine
+    <div
+      ref={textWrapperRef}
+      className="flex min-w-0 max-w-[min(860px,calc(100vw-320px))] flex-[0_1_auto] items-center overflow-hidden text-white/[0.92] max-sm:max-w-[calc(100vw-84px)] max-sm:flex-1"
+    >
+      <div
+        className={cn(
+          'flex w-max items-center whitespace-nowrap text-sm font-normal leading-6 text-white/[0.92]',
+          isOverflow ? 'animate-[ks-top-banner-marquee_var(--ks-marquee-duration)_linear_infinite] gap-8' : 'gap-0',
+        )}
+        style={
+          {
+            '--ks-marquee-shift': `${marqueeShift}px`,
+            '--ks-marquee-duration': `${animationDuration}s`,
+          } as React.CSSProperties
+        }
+      >
+        <div
           ref={textLineRef}
-          dangerouslySetInnerHTML={{
-            __html: sanitizedContent,
-          }}
+          className="shrink-0 whitespace-nowrap [&>*]:m-0 [&>*]:whitespace-nowrap"
+          dangerouslySetInnerHTML={{ __html: sanitizedContent }}
         />
 
         {isOverflow && (
-          <TextLine
+          <div
             aria-hidden="true"
-            dangerouslySetInnerHTML={{
-              __html: sanitizedContent,
-            }}
+            className="shrink-0 whitespace-nowrap [&>*]:m-0 [&>*]:whitespace-nowrap"
+            dangerouslySetInnerHTML={{ __html: sanitizedContent }}
           />
         )}
-      </TextContent>
-    </TextWrapper>
+      </div>
+    </div>
   )
 
-  return (
-    <BannerWrapper>
-      <BannerInner>
-        {!isMobile && <DesktopSpacer />}
+  const joinButton = hasCta ? (
+    <CtaButton
+      color="outline"
+      data={primaryCta}
+      onClick={onClickCta}
+      className="ks-top-banner-join-btn ml-2 h-7 w-fit min-w-[108px] whitespace-nowrap !border-[#1dd8a4d9] bg-transparent px-3 text-[13px] font-medium !text-[#1dd8a4] max-sm:ml-0 max-sm:w-full"
+    />
+  ) : null
 
-        <Content>
-          <MainRow>
-            <LeadingIcon>
+  return (
+    <div className="w-full border-b border-white-08 bg-[linear-gradient(90deg,#12372b_0%,#113126_100%)]">
+      <div className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-3 px-6 py-2 max-sm:flex max-sm:flex-col max-sm:items-stretch max-sm:gap-2 max-sm:px-3">
+        {!isMobile && <div className="size-6" />}
+
+        <div className="flex min-w-0 items-center justify-center gap-2 justify-self-center max-sm:w-full max-sm:justify-between">
+          <div className="flex min-w-0 items-center gap-2 max-sm:flex-1">
+            <div className="flex shrink-0 items-center">
               <Announcement style={{ minWidth: ICON_SIZE }} />
-            </LeadingIcon>
+            </div>
 
             {marqueeText}
-          </MainRow>
+          </div>
 
-          {!isMobile && hasCta && <JoinButton color="outline" data={primaryCta} onClick={onClickCta} />}
-          {isMobile && <CloseButton onClick={hideBanner} size={20} />}
-        </Content>
+          {!isMobile && joinButton}
+          {isMobile && (
+            <X
+              onClick={hideBanner}
+              size={20}
+              className="shrink-0 cursor-pointer justify-self-end text-white-60 hover:text-white/90"
+            />
+          )}
+        </div>
 
-        {!isMobile && <CloseButton onClick={hideBanner} size={20} />}
-        {isMobile && hasCta && <JoinButton color="outline" data={primaryCta} onClick={onClickCta} />}
-      </BannerInner>
-    </BannerWrapper>
+        {!isMobile && (
+          <X
+            onClick={hideBanner}
+            size={20}
+            className="shrink-0 cursor-pointer justify-self-end text-white-60 hover:text-white/90"
+          />
+        )}
+        {isMobile && joinButton}
+      </div>
+    </div>
   )
 }
 
