@@ -1,8 +1,7 @@
 import { matchPath, useLocation } from 'react-router-dom'
 
 import Loader from 'components/LocalLoader'
-import { AboutKncSkeleton, AboutKyberSwapSkeleton, ContentPageSkeleton } from 'components/RouteFallback/AboutSkeletons'
-import CampaignSkeleton from 'components/RouteFallback/CampaignSkeleton'
+import { AboutKncSkeleton, AboutKyberSwapSkeleton } from 'components/RouteFallback/AboutSkeletons'
 import {
   EarnLandingSkeleton,
   EarnPoolsSkeleton,
@@ -14,7 +13,6 @@ import {
   EarnPositionsSkeleton,
   SmartExitSkeleton,
 } from 'components/RouteFallback/EarnPositionSkeletons'
-import { KncUtilitySkeleton, StakeKncSkeleton, VoteSkeleton } from 'components/RouteFallback/KyberDAOSkeletons'
 import MarketSkeleton from 'components/RouteFallback/MarketSkeleton'
 import { SwapPageSkeleton } from 'components/RouteFallback/TradeSkeletons'
 import { APP_PATHS } from 'constants/index'
@@ -51,15 +49,6 @@ const pickSkeleton = (rawPathname: string) => {
   if (pathname.startsWith(APP_PATHS.MARKET_OVERVIEW)) {
     return <MarketSkeleton />
   }
-  if (pathname.startsWith(APP_PATHS.KYBERDAO_STAKE)) {
-    return <StakeKncSkeleton />
-  }
-  if (pathname.startsWith(APP_PATHS.KYBERDAO_VOTE)) {
-    return <VoteSkeleton />
-  }
-  if (pathname.startsWith(APP_PATHS.KYBERDAO_KNC_UTILITY)) {
-    return <KncUtilitySkeleton />
-  }
   if (pathname.startsWith(`${APP_PATHS.ABOUT}/kyberswap`)) {
     return <AboutKyberSwapSkeleton />
   }
@@ -81,14 +70,6 @@ const pickSkeleton = (rawPathname: string) => {
 
   if (pathname.startsWith(LEGACY_POOL_APP_PATHS.MY_POOLS)) {
     return <TablePageSkeleton />
-  }
-
-  if (pathname.startsWith('/campaigns/')) {
-    return <CampaignSkeleton />
-  }
-
-  if (startsWithAny(pathname, [APP_PATHS.ABOUT, APP_PATHS.KYBERDAO])) {
-    return <ContentPageSkeleton />
   }
 
   return <Loader />

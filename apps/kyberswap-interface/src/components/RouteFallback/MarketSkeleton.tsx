@@ -14,7 +14,7 @@ const MarketRow = ({ children, className }: { children: React.ReactNode; classNa
 )
 
 const MarketSkeleton = () => (
-  <div className="flex w-full max-w-[1500px] flex-col gap-5 px-6 pb-12 pt-8 max-sm:px-4 max-sm:pt-6">
+  <div className="flex min-h-[calc(100vh-80px)] w-full max-w-[1500px] flex-col gap-5 px-6 pb-12 pt-8 max-sm:px-4 max-sm:pt-6">
     {/* Title + subtitle. h-9 / py-1 reserve the real 36px + 24px line boxes so nothing below shifts down. */}
     <div className="flex flex-col gap-2">
       <div className="flex h-9 items-center">

@@ -111,7 +111,7 @@ export const HeaderTitle = ({ children, className, ...rest }: React.HTMLAttribut
 export const HeaderAction = ({ children, className, ...rest }: React.ButtonHTMLAttributes<HTMLButtonElement>) => (
   <button
     className={cn(
-      'inline-flex cursor-pointer gap-1 border-0 bg-transparent text-primary disabled:cursor-not-allowed disabled:opacity-60',
+      'inline-flex cursor-pointer items-center gap-1 border-0 bg-transparent text-primary disabled:cursor-not-allowed disabled:opacity-60',
       className,
     )}
     {...rest}

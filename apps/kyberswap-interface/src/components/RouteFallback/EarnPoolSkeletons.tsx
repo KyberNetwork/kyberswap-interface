@@ -145,26 +145,26 @@ export const EarnLandingSkeleton = () => (
   <div className="flex w-full max-w-[1152px] flex-col gap-16 px-4 py-[60px] max-xxs:py-9">
     <div className="flex flex-col gap-8">
       <div className="flex flex-col items-center gap-4">
-        <Skeleton width={440} height={40} />
+        <Skeleton width={549} height={40} />
         <div className="flex flex-col items-center gap-2">
-          <Skeleton width={760} height={16} />
-          <Skeleton width={620} height={16} />
+          <Skeleton width={749} height={20} />
+          <Skeleton width={731} height={20} />
         </div>
       </div>
-      <div className="flex flex-wrap items-center justify-center gap-4 max-sm:flex-col">
-        <Skeleton width={120} height={18} />
-        <Skeleton width={120} height={28} />
-        <Skeleton width={170} height={44} />
+      <div className="flex flex-wrap items-center justify-center gap-[18px] max-sm:flex-col">
+        <Skeleton width={133} height={24} />
+        <Skeleton width={140} height={42} />
+        <Skeleton width={200} height={42} />
       </div>
     </div>
     <div className="grid grid-cols-3 gap-5 max-sm:grid-cols-1">
       {Array.from({ length: 3 }, (_, i) => (
-        <Skeleton key={i} height={366} />
+        <Skeleton key={i} height={390} />
       ))}
     </div>
-    <div className="flex flex-col gap-5">
-      <Skeleton height={240} />
-      <Skeleton height={240} />
+    <div className="flex flex-col gap-10">
+      <Skeleton height={268} />
+      <Skeleton height={267} />
     </div>
   </div>
 )

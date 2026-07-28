@@ -146,7 +146,7 @@ function AboutKyberSwap() {
               <HStack className="w-full max-w-[900px] justify-center gap-4 self-center">
                 <Stack className="flex-1 items-center gap-2 rounded-lg bg-background py-5 text-center text-sm">
                   <span className="flex min-h-[1.2em] items-center justify-center text-2xl font-semibold sm:text-3xl">
-                    {dataToShow.totalTradingVolume ? (
+                    {dataToShow.totalTradingVolume !== undefined ? (
                       formatBigLiquidity(dataToShow.totalTradingVolume, 2, true)
                     ) : (
                       <Loader />
@@ -158,7 +158,7 @@ function AboutKyberSwap() {
                 </Stack>
                 <Stack className="flex-1 items-center gap-2 rounded-lg bg-background py-5 text-center text-sm">
                   <span className="flex min-h-[1.2em] items-center justify-center text-2xl font-semibold sm:text-3xl">
-                    {dataToShow['24hTradingVolume'] ? (
+                    {dataToShow['24hTradingVolume'] !== undefined ? (
                       formatBigLiquidity(dataToShow['24hTradingVolume'], 2, true)
                     ) : (
                       <Loader />

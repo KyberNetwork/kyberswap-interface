@@ -57,9 +57,7 @@ improving `RouteFallback`.
 ### Other Header groups
 
 - `MarketSkeleton` in `MarketSkeleton.tsx`: `/market-overview/**`.
-- `StakeKncSkeleton`, `VoteSkeleton`, and `KncUtilitySkeleton` in `KyberDAOSkeletons.tsx`.
-- `AboutKyberSwapSkeleton`, `AboutKncSkeleton`, and `ContentPageSkeleton` in `AboutSkeletons.tsx`.
-- `CampaignSkeleton`: `/campaigns/**`.
+- `AboutKyberSwapSkeleton` and `AboutKncSkeleton` in `AboutSkeletons.tsx`.
 
 Routes without a matching skeleton fall back to the shared logo `Loader`.
 
@@ -70,7 +68,6 @@ Routes without a matching skeleton fall back to the shared logo `Loader`.
   detail approximation and need to be aligned with their actual layouts.
 - Several pages already own higher-quality loading skeletons, causing duplicated loading UI with separate implementations.
 - Dedicated page skeleton files duplicate grid templates, breakpoints, spacing, and responsive card layouts from lazy page modules and can drift when those pages change.
-- Generic campaign and content skeletons cover broad route groups and may not resemble every destination page.
 - Route fallbacks should represent only the major page sections needed to preserve layout stability. Avoid
   detailed controls, text, charts, and other content-level approximations.
 - Fallbacks must remain presentational and avoid increasing the main bundle with page code or data dependencies.
@@ -109,18 +106,16 @@ Priority route families:
 
 - [ ] Align Earn Landing, Earn Pools, Earn Positions, and Smart Exit with their current page layouts.
 - [ ] Align Market with its current page layout and responsive loading state.
-- [ ] Align Stake KNC, Vote, KNC Utility, About KyberSwap, and About KNC with their current page layouts.
+- [ ] Align About KyberSwap and About KNC with their current page layouts.
 - [ ] Keep shared presentational primitives only where multiple skeletons genuinely use the same visual
       contract.
 
 ### Phase 4: review the remaining runtime-only fallbacks
 
 - [ ] Review Partner Swap and User Swap.
-- [ ] Review Campaign routes.
 - [ ] Review My Pools.
-- [ ] Review generic About and KyberDAO content routes not covered by a dedicated fallback.
 
-These routes are lower priority than the designated Swap, Detail, Earn, Market, KyberDAO, and About pages.
+These routes are lower priority than the designated Swap, Detail, Earn, Market, and About pages.
 
 ### Phase 5: verify prerender and runtime output
 
