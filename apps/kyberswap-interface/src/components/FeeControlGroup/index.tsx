@@ -5,7 +5,7 @@ import { useSearchParams } from 'react-router-dom'
 import CustomFeeInput from 'components/FeeControlGroup/CustomFeeInput'
 import { HStack, Stack } from 'components/Stack'
 import useGetFeeConfig from 'components/SwapForm/hooks/useGetFeeConfig'
-import { DEFAULT_TIPS } from 'constants/index'
+import { DEFAULT_TIPS } from 'constants/trade'
 import { cn } from 'utils/cn'
 
 const FeeControlGroup = () => {

@@ -10,7 +10,7 @@ import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useToggleModal, useWalletModalToggle } from 'state/application/hooks'
 import { CloseIcon } from 'theme'
-import { shortenAddress } from 'utils'
+import { shortenAddress } from 'utils/address'
 
 const FaucetModal = () => {
   const { chainId, account } = useActiveWeb3React()

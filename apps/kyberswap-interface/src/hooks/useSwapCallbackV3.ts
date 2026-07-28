@@ -11,8 +11,8 @@ import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE, TransactionExtraInfo2Token } from 'state/transactions/type'
 import { useUserSlippageTolerance } from 'state/user/hooks'
 import { ChargeFeeBy } from 'types/route'
-import { isAddress, shortenAddress } from 'utils'
-import { formatCurrencyAmount } from 'utils/formatCurrencyAmount'
+import { isAddress, shortenAddress } from 'utils/address'
+import { formatDisplayNumber } from 'utils/numbers'
 import { sendEVMTransaction } from 'utils/sendTransaction'
 import { ErrorName } from 'utils/transactionError'
 
@@ -47,8 +47,8 @@ const useSwapCallbackV3 = (isPermitSwap?: boolean) => {
     const outputSymbol = outputAmount.currency.symbol
     const inputAddress = inputAmount.currency.isNative ? ETHER_ADDRESS : inputAmount.currency.address
     const outputAddress = outputAmount.currency.isNative ? ETHER_ADDRESS : outputAmount.currency.address
-    const inputAmountStr = formatCurrencyAmount(inputAmount, 6)
-    const outputAmountStr = formatCurrencyAmount(outputAmount, 6)
+    const inputAmountStr = formatDisplayNumber(inputAmount, { significantDigits: 6, fallback: '-' })
+    const outputAmountStr = formatDisplayNumber(outputAmount, { significantDigits: 6, fallback: '-' })
 
     const withRecipient =
       recipient === account

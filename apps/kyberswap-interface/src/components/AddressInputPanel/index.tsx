@@ -7,8 +7,8 @@ import Row from 'components/Row'
 import { useActiveWeb3React } from 'hooks'
 import useENS from 'hooks/useENS'
 import { ExternalLink } from 'theme'
-import { getEtherscanLink } from 'utils'
 import { cn } from 'utils/cn'
+import { getEtherscanLink } from 'utils/explorer'
 
 type Props = {
   pattern?: string | null

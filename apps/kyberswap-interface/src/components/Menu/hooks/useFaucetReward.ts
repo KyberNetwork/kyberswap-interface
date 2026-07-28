@@ -9,8 +9,9 @@ import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { useAllTokens } from 'hooks/useTokens'
 import { useNotify } from 'state/application/hooks'
-import { getNativeTokenLogo, getTokenLogoURL, isAddress } from 'utils'
+import { isAddress } from 'utils/address'
 import { filterTokens } from 'utils/filtering'
+import { getNativeTokenLogo, getTokenLogoURL } from 'utils/tokenLogo'
 
 type FaucetRewardData = {
   amount: bigint

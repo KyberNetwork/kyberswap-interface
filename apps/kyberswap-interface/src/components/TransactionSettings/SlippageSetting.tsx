@@ -5,7 +5,7 @@ import SlippageControl from 'components/SlippageControl'
 import { HStack, Stack } from 'components/Stack'
 import { PinButton } from 'components/TransactionSettings/PinButton'
 import { SettingsLabel } from 'components/TransactionSettings/components'
-import { DEFAULT_SLIPPAGES, DEFAULT_SLIPPAGES_HIGH_VOTALITY, PAIR_CATEGORY } from 'constants/index'
+import { DEFAULT_SLIPPAGES, DEFAULT_SLIPPAGES_HIGH_VOLATILITY, PAIR_CATEGORY } from 'constants/trade'
 import { usePairCategory } from 'state/swap/hooks'
 import { useSlippageSettingByPage } from 'state/user/hooks'
 import { ExternalLink } from 'theme'
@@ -20,7 +20,7 @@ export const SlippageSetting = ({ shouldShowPinButton = true }: Props) => {
   const pairCategory = usePairCategory()
 
   const options = useMemo(
-    () => (pairCategory === PAIR_CATEGORY.HIGH_VOLATILITY ? DEFAULT_SLIPPAGES_HIGH_VOTALITY : DEFAULT_SLIPPAGES),
+    () => (pairCategory === PAIR_CATEGORY.HIGH_VOLATILITY ? DEFAULT_SLIPPAGES_HIGH_VOLATILITY : DEFAULT_SLIPPAGES),
     [pairCategory],
   )
 

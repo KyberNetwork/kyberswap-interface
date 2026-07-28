@@ -2,7 +2,7 @@ import { t } from '@lingui/macro'
 import React, { useEffect, useRef, useState } from 'react'
 
 import Tooltip from 'components/Tooltip'
-import { DEFAULT_TIPS, MAX_FEE_IN_BIPS } from 'constants/index'
+import { DEFAULT_TIPS, MAX_FEE_IN_BIPS } from 'constants/trade'
 import { cn } from 'utils/cn'
 import { formatSlippage } from 'utils/slippage'
 

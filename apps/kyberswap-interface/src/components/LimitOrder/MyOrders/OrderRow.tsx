@@ -35,7 +35,7 @@ import { NETWORKS_INFO, isSupportLimitOrder, isSupportedChainId } from 'constant
 import { useTokenBalance } from 'state/wallet/hooks'
 import { ExternalLink } from 'theme'
 import { cn } from 'utils/cn'
-import { getEtherscanLink } from 'utils/index'
+import { getEtherscanLink } from 'utils/explorer'
 
 type CancelOrderButtonProps = {
   className?: string

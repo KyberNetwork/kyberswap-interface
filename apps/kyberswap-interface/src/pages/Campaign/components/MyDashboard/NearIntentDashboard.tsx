@@ -14,7 +14,7 @@ import { useNearIntentCampaignReward } from 'pages/Campaign/hooks/useNearIntentC
 import { useNearIntentSelectedWallet } from 'pages/Campaign/hooks/useNearIntentSelectedWallet'
 import { BitcoinConnectModal } from 'pages/CrossChainSwap/components/BitcoinConnectModal'
 import { ButtonText, MEDIA_WIDTHS } from 'theme'
-import { shortenHash } from 'utils'
+import { shortenHash } from 'utils/address'
 import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
 

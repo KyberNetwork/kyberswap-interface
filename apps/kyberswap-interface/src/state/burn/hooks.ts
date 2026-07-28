@@ -15,7 +15,7 @@ import { useAppDispatch } from 'state/hooks'
 import { tryParseAmount } from 'state/swap/hooks'
 import { useUserSlippageTolerance } from 'state/user/hooks'
 import { useTokenBalance } from 'state/wallet/hooks'
-import { calculateSlippageAmount } from 'utils'
+import { calculateSlippageAmount } from 'utils/slippage'
 
 export function useBurnState(): AppState['burn'] {
   return useSelector<AppState, AppState['burn']>(state => state.burn)

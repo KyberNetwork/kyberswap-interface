@@ -10,10 +10,13 @@ import {
 } from '@kyberswap/ks-sdk-core'
 import JSBI from 'jsbi'
 import invariant from 'tiny-invariant'
+import { v4 as uuid } from 'uuid'
 
-import { ETHER_ADDRESS, KYBERSWAP_SOURCE, requestId } from 'constants/index'
+import { ETHER_ADDRESS } from 'constants/index'
+import fetchWaiting from 'utils/fetchWaiting'
 
-import fetchWaiting from './fetchWaiting'
+const KYBERSWAP_SOURCE = '{"source":"kyberswap"}'
+const requestId = uuid()
 
 const toCurrencyAmount = function (value: string, currency: Currency): CurrencyAmount<Currency> {
   try {

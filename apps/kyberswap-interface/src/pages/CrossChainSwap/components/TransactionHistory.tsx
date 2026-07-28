@@ -29,8 +29,9 @@ import {
 import { normalizeAdapterName } from 'pages/CrossChainSwap/registry'
 import { getChainName } from 'pages/CrossChainSwap/utils'
 import { ExternalLinkIcon, MEDIA_WIDTHS } from 'theme'
-import { getEtherscanLink, shortenHash } from 'utils'
+import { shortenHash } from 'utils/address'
 import { cn } from 'utils/cn'
+import { getEtherscanLink } from 'utils/explorer'
 import { formatDisplayNumber } from 'utils/numbers'
 
 const PAGE_SIZE = 6

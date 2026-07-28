@@ -4,12 +4,13 @@ import { ChevronDown, ChevronUp } from 'react-feather'
 import { formatUnits } from 'viem'
 
 import { Chain, SwapProvider } from 'pages/CrossChainSwap/adapters'
+import { isEvmChain } from 'pages/CrossChainSwap/adapters/types'
 import { registry } from 'pages/CrossChainSwap/hooks/useCrossChainSwap'
 import { Quote } from 'pages/CrossChainSwap/registry'
 import { getNetworkInfo } from 'pages/CrossChainSwap/utils'
-import { getNativeTokenLogo, getTokenLogoURL, isEvmChain } from 'utils'
 import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
+import { getNativeTokenLogo, getTokenLogoURL } from 'utils/tokenLogo'
 
 type KyberAcrossBridgeToken = {
   address: string

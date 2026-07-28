@@ -25,13 +25,17 @@ import { parseReward } from 'pages/Earns/utils/reward'
 import { useNotify } from 'state/application/hooks'
 import { useAllTransactions, useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
-import { enumToArrayOfValues } from 'utils'
 import { friendlyError } from 'utils/errorMessage'
 import { formatDisplayNumber } from 'utils/numbers'
 
 type UseKemRewardsProps = {
   refetchAfterCollect?: () => void
 }
+
+const enumToArrayOfValues = (enumObject: { [x: string]: unknown }, valueType?: string) =>
+  Object.keys(enumObject)
+    .map(key => enumObject[key])
+    .filter(value => !valueType || typeof value === valueType)
 
 // True when a chain's Merkl response no longer has any token whose `amount > claimed`.
 // Used to detect when Merkl's indexer has caught up with a freshly claimed tx.

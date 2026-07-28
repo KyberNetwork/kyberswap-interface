@@ -4,9 +4,9 @@ import React, { memo, useCallback, useMemo } from 'react'
 import Logo from 'components/Logo'
 import useHttpLocations from 'hooks/useHttpLocations'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
-import { getNativeTokenLogo, getTokenLogoURL } from 'utils'
 import { cn } from 'utils/cn'
 import { getProxyTokenLogo } from 'utils/tokenInfo'
+import { getNativeTokenLogo, getTokenLogoURL } from 'utils/tokenLogo'
 
 const baseShadow = 'shadow-[0px_6px_10px_rgba(0,0,0,0.075)]'
 

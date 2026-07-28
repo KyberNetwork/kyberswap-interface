@@ -17,10 +17,10 @@ import {
   TransactionExtraInfo2Token,
 } from 'state/transactions/type'
 import { ExternalLink, HideSmall } from 'theme'
-import { findTx, getEtherscanLink } from 'utils'
+import { getShortenAddress } from 'utils/address'
 import { cn } from 'utils/cn'
-import getShortenAddress from 'utils/getShortenAddress'
-import { getTransactionStatus } from 'utils/transaction'
+import { getEtherscanLink } from 'utils/explorer'
+import { findTx, getTransactionStatus } from 'utils/transaction'
 
 type SummaryFunction = (
   summary: TransactionDetails,

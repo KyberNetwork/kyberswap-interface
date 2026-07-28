@@ -8,8 +8,8 @@ import { AutoRow, RowBetween } from 'components/Row'
 import useTokenBalance from 'hooks/useTokenBalance'
 import { KNCLogoWrapper, SmallButton } from 'pages/KyberDAO/StakeKNC/StakeKNCComponent'
 import { useKNCPrice } from 'state/application/hooks'
-import { getTokenLogoURL } from 'utils'
 import { getFullDisplayBalance } from 'utils/formatBalance'
+import { getTokenLogoURL } from 'utils/tokenLogo'
 
 export default function CurrencyInputForStake({
   value,

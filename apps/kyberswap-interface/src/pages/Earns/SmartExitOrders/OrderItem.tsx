@@ -8,8 +8,8 @@ import { ORDERS_TABLE_GRID_COLUMNS } from 'pages/Earns/SmartExitOrders/constants
 import type { ParsedSmartExitOrder } from 'pages/Earns/SmartExitOrders/useSmartExitOrdersData'
 import { Badge, BadgeType } from 'pages/Earns/UserPositions/styles'
 import { ExecutionStatus, OrderStatus, SmartExitOrder } from 'pages/Earns/types'
-import { getEtherscanLink } from 'utils'
 import { cn } from 'utils/cn'
+import { getEtherscanLink } from 'utils/explorer'
 import { formatDisplayNumber } from 'utils/numbers'
 
 type OrderItemProps = {

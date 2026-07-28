@@ -4,6 +4,7 @@ import { useLocation } from 'react-router-dom'
 import { useGetChainsConfigurationQuery } from 'services/ksSetting'
 
 import { APP_PATHS } from 'constants/index'
+import { LEGACY_POOL_APP_PATHS } from 'constants/legacyPools'
 import { useActiveWeb3React } from 'hooks'
 import { useEnsureTokenList } from 'hooks/useTokens'
 import { getChainIdFromSlug } from 'utils/string'
@@ -18,7 +19,7 @@ const getPathChainId = (pathname: string): ChainId | undefined => {
   const chainIdFromFirstSegment = getChainIdFromSlug(firstSegment)
   if (chainIdFromFirstSegment) return chainIdFromFirstSegment
 
-  if ([APP_PATHS.SWAP, APP_PATHS.LIMIT, APP_PATHS.MY_POOLS].some(path => firstSegment === path.slice(1))) {
+  if ([APP_PATHS.SWAP, APP_PATHS.LIMIT, LEGACY_POOL_APP_PATHS.MY_POOLS].some(path => firstSegment === path.slice(1))) {
     return getChainIdFromSlug(secondSegment)
   }
 

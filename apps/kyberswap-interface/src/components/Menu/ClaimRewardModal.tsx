@@ -10,7 +10,7 @@ import { useActiveWeb3React } from 'hooks'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useToggleModal } from 'state/application/hooks'
 import { CloseIcon } from 'theme'
-import { shortenAddress } from 'utils'
+import { shortenAddress } from 'utils/address'
 
 const ClaimRewardModal = () => {
   const { chainId, account } = useActiveWeb3React()

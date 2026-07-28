@@ -21,7 +21,7 @@ import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
 import { useNotify } from 'state/application/hooks'
 import { useSessionInfo } from 'state/authen/hooks'
 import { useSignedAccountInfo } from 'state/profile/hooks'
-import { pushUnique } from 'utils'
+import { pushUnique } from 'utils/array'
 import { isEmailValid } from 'utils/string'
 
 const noop = () => {}

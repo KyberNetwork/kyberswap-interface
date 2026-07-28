@@ -15,7 +15,7 @@ import {
 import { AnnouncementTemplatePoolPosition } from 'components/Announcement/type'
 import { DoubleCurrencyLogoV2 } from 'components/DoubleLogo'
 import { MoneyBag } from 'components/Icons'
-import { APP_PATHS } from 'constants/index'
+import { LEGACY_POOL_APP_PATHS } from 'constants/legacyPools'
 import { NETWORKS_INFO } from 'constants/networks'
 import useTheme from 'hooks/useTheme'
 import { useNavigateToUrl } from 'utils/redirect'
@@ -50,7 +50,7 @@ function InboxItemPoolPosition({
   const statusMessage = isInRange ? t`Back in range` : t`Out of range`
 
   const onClick = () => {
-    navigate(`${APP_PATHS.MY_POOLS}/${NETWORKS_INFO[chainId].route}?search=${poolAddress}`, chainId)
+    navigate(`${LEGACY_POOL_APP_PATHS.MY_POOLS}/${NETWORKS_INFO[chainId].route}?search=${poolAddress}`, chainId)
     onRead(announcement, statusMessage)
   }
 

@@ -13,7 +13,7 @@ import { TransactionSettings } from 'components/TransactionSettings'
 import Tutorial, { TutorialType } from 'components/Tutorial'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
-import { shortenAddress } from 'utils'
+import { shortenAddress } from 'utils/address'
 import { cn } from 'utils/cn'
 
 export const StyledMenuButton = ({
