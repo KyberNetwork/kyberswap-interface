@@ -17,18 +17,18 @@ export default function SelectProposalStatus({
   const ref = useRef<HTMLDivElement>(null)
   useOnClickOutside(ref, () => setShow(false))
   return (
-    <div ref={ref} className="relative">
+    <div ref={ref} className="relative w-full sm:w-36">
       <div
         onClick={() => setShow(s => !s)}
-        className="relative z-[101] flex h-9 w-[min(140px,30vw)] cursor-pointer items-center justify-between rounded-[20px] bg-background px-3 py-2 text-sm font-medium text-border hover:brightness-110"
+        className="relative z-[101] flex h-9 w-full cursor-pointer items-center justify-between rounded-full bg-background px-3 py-2 text-sm font-medium text-border hover:brightness-110"
       >
         <span className={cn(!!status && status !== 'All' && 'text-text')}>{status || 'All'}</span>
         <ChevronDown size={16} />
       </div>
       <div
         className={cn(
-          'absolute left-0 z-[100] flex w-[140px] flex-col overflow-hidden rounded-lg bg-tableHeader p-2 text-sm font-medium text-subText transition-all duration-200 ease-linear',
-          show ? 'top-[calc(100%+4px)] max-h-[500px] opacity-100' : 'top-0 max-h-0 opacity-0',
+          'absolute left-0 z-[100] flex w-full flex-col overflow-hidden rounded-lg bg-tableHeader p-2 text-sm font-medium text-subText transition-all duration-200 ease-linear',
+          show ? 'top-[calc(100%+4px)] max-h-96 opacity-100' : 'top-0 max-h-0 opacity-0',
         )}
       >
         <div

@@ -1,10 +1,10 @@
 import { Trans, t } from '@lingui/macro'
-import { X } from 'react-feather'
 
 import { ButtonOutlined, ButtonPrimary } from 'components/Button'
-import { AutoColumn } from 'components/Column'
 import Modal from 'components/Modal'
 import { RowBetween } from 'components/Row'
+import { Stack } from 'components/Stack'
+import { KyberDAOModalCloseButton } from 'pages/KyberDAO/common'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useToggleModal } from 'state/application/hooks'
 
@@ -27,14 +27,12 @@ export default function DelegateConfirmModal({
   return (
     <Modal isOpen={modalOpen} onDismiss={toggleModal} minHeight={false} maxHeight={90} maxWidth={500}>
       <div className="p-6">
-        <AutoColumn className="gap-5">
+        <Stack className="gap-4">
           <RowBetween>
             <span className="text-xl">{isUndelegate ? <Trans>Undelegate</Trans> : <Trans>Delegate</Trans>}</span>
-            <div role="button" onClick={toggleModal} className="flex cursor-pointer">
-              <X onClick={toggleModal} size={20} className="text-subText" />
-            </div>
+            <KyberDAOModalCloseButton onClick={toggleModal} />
           </RowBetween>
-          <span className="text-base leading-6 text-subText">
+          <span className="text-base text-subText">
             {isUndelegate ? (
               <Trans>You are undelegating your voting power from this address</Trans>
             ) : (
@@ -50,21 +48,21 @@ export default function DelegateConfirmModal({
             value={isUndelegate ? delegatedAddress : address}
             onChange={e => onAddressChange(e.target.value)}
             disabled
-            className="rounded-[20px] border-0 bg-buttonBlack px-3 py-2.5 text-sm text-subText outline-none"
+            className="rounded-2xl border-0 bg-buttonBlack p-3 text-sm text-subText outline-none"
           />
-          <RowBetween className="gap-6">
+          <RowBetween className="gap-4">
             <ButtonOutlined onClick={toggleModal}>
-              <span className="text-sm leading-5">
+              <span className="text-sm">
                 <Trans>Cancel</Trans>
               </span>
             </ButtonOutlined>
             <ButtonPrimary onClick={delegateCallback}>
-              <span className="text-sm leading-5">
+              <span className="text-sm">
                 <Trans>Confirm</Trans>
               </span>
             </ButtonPrimary>
           </RowBetween>
-        </AutoColumn>
+        </Stack>
       </div>
     </Modal>
   )

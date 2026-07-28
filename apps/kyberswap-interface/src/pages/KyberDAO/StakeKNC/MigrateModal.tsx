@@ -1,12 +1,12 @@
 import { ChainId, Token } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { useEffect, useState } from 'react'
-import { ArrowDown, X } from 'react-feather'
+import { type Dispatch, type SetStateAction, useEffect, useMemo, useState } from 'react'
+import { ArrowDown } from 'react-feather'
 
 import { ButtonLight, ButtonPrimary } from 'components/Button'
-import { AutoColumn } from 'components/Column'
 import Modal from 'components/Modal'
 import Row, { AutoRow, RowBetween } from 'components/Row'
+import { Stack } from 'components/Stack'
 import useParsedAmount from 'components/SwapForm/hooks/useParsedAmount'
 import { useActiveWeb3React } from 'hooks'
 import { useKyberDAOInfo, useKyberDaoStakeActions } from 'hooks/kyberdao'
@@ -14,37 +14,46 @@ import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
 import useTokenBalance from 'hooks/useTokenBalance'
 import CurrencyInputForStake from 'pages/KyberDAO/StakeKNC/CurrencyInputForStake'
 import { useSwitchToEthereum } from 'pages/KyberDAO/StakeKNC/SwitchToEthereumModal'
+import { KyberDAOModalCloseButton } from 'pages/KyberDAO/common'
 import { ApplicationModal } from 'state/application/actions'
-import { useModalOpen, useToggleModal, useWalletModalToggle } from 'state/application/hooks'
+import { useCloseModal, useModalOpen, useWalletModalToggle } from 'state/application/hooks'
 import { ExternalLink } from 'theme'
 import { parseUnits } from 'utils/viem'
 
-export default function MigrateModal({
+type MigrateModalProps = {
+  setPendingText: Dispatch<SetStateAction<string>>
+  setShowConfirm: Dispatch<SetStateAction<boolean>>
+  setAttemptingTxn: Dispatch<SetStateAction<boolean>>
+  setTransactionError: Dispatch<SetStateAction<string | undefined>>
+  setTxHash: Dispatch<SetStateAction<string | undefined>>
+}
+
+const MigrateModalContent = ({
   setPendingText,
   setShowConfirm,
   setAttemptingTxn,
   setTransactionError,
   setTxHash,
-}: {
-  setPendingText: React.Dispatch<React.SetStateAction<string>>
-  setShowConfirm: React.Dispatch<React.SetStateAction<boolean>>
-  setAttemptingTxn: React.Dispatch<React.SetStateAction<boolean>>
-  setTransactionError: React.Dispatch<React.SetStateAction<string | undefined>>
-  setTxHash: React.Dispatch<React.SetStateAction<string | undefined>>
-}) {
+  onDismiss,
+}: MigrateModalProps & { onDismiss: () => void }) => {
   const kyberDAOInfo = useKyberDAOInfo()
   const { chainId, account } = useActiveWeb3React()
-  const modalOpen = useModalOpen(ApplicationModal.MIGRATE_KNC)
-  const toggleModal = useToggleModal(ApplicationModal.MIGRATE_KNC)
   const toggleWalletModal = useWalletModalToggle()
 
   const { migrate } = useKyberDaoStakeActions()
   const [value, setValue] = useState('1')
   const [error, setError] = useState('')
-  const parsedAmount = useParsedAmount(
-    new Token(chainId === ChainId.GÖRLI ? ChainId.GÖRLI : ChainId.MAINNET, kyberDAOInfo?.KNCLAddress || '', 18, 'KNCL'),
-    value,
+  const knclToken = useMemo(
+    () =>
+      new Token(
+        chainId === ChainId.GÖRLI ? ChainId.GÖRLI : ChainId.MAINNET,
+        kyberDAOInfo?.KNCLAddress || '',
+        18,
+        'KNCL',
+      ),
+    [chainId, kyberDAOInfo?.KNCLAddress],
   )
+  const parsedAmount = useParsedAmount(knclToken, value)
 
   const [approval, approveCallback] = useApproveCallback({
     amount: parsedAmount,
@@ -70,42 +79,44 @@ export default function MigrateModal({
   }, [value, oldKNCBalance?.value])
   const { switchToEthereum } = useSwitchToEthereum()
 
-  const handleMigrate = () => {
+  const handleMigrate = async () => {
+    try {
+      await switchToEthereum(t`Migrate`)
+    } catch {
+      return
+    }
+
     setError('')
-    switchToEthereum(t`Migrate`).then(() => {
-      try {
-        setPendingText(t`Migrating ${value} KNCL to KNC`)
-        setShowConfirm(true)
-        setAttemptingTxn(true)
-        toggleModal()
-        migrate(parseUnits(value, 18), value)
-          .then(tx => {
-            setAttemptingTxn(false)
-            setTxHash(tx)
-          })
-          .catch(error => {
-            setTransactionError(error?.message)
-            setAttemptingTxn(false)
-          })
-      } catch (error) {
-        setError(error)
-      }
-    })
+    try {
+      setPendingText(t`Migrating ${value} KNCL to KNC`)
+      setShowConfirm(true)
+      setAttemptingTxn(true)
+      onDismiss()
+      migrate(parseUnits(value, 18), value)
+        .then(tx => {
+          setAttemptingTxn(false)
+          setTxHash(tx)
+        })
+        .catch(error => {
+          setTransactionError(error?.message)
+          setAttemptingTxn(false)
+        })
+    } catch (error) {
+      setError(error)
+    }
   }
 
   return (
-    <Modal isOpen={modalOpen} onDismiss={toggleModal} minHeight={false} maxHeight={664} maxWidth={420}>
+    <Modal isOpen onDismiss={onDismiss} minHeight={false} maxHeight={664} maxWidth={420}>
       <div className="p-6">
-        <AutoColumn className="gap-5">
+        <Stack className="gap-4">
           <RowBetween>
             <span className="text-xl text-text">
               <Trans>KNC Migration</Trans>
             </span>
-            <div role="button" onClick={toggleModal} className="flex cursor-pointer">
-              <X onClick={toggleModal} size={20} className="text-subText" />
-            </div>
+            <KyberDAOModalCloseButton onClick={onDismiss} />
           </RowBetween>
-          <span className="text-xs leading-4 text-subText">
+          <span className="text-xs text-subText">
             <Trans>
               Click Migrate to start the migration process from KNC Legacy to the new KNC. You will receive the new KNC
               tokens in your wallet once the transaction has been confirmed. Conversion rate is 1:1. Read about the KNC{' '}
@@ -135,7 +146,7 @@ export default function MigrateModal({
             tokenName="KNC"
             disabled
           />
-          <Row className="gap-3">
+          <Row className="gap-4">
             {account ? (
               <>
                 {(approval === ApprovalState.NOT_APPROVED || approval === ApprovalState.PENDING) && !error && (
@@ -153,8 +164,15 @@ export default function MigrateModal({
               </ButtonLight>
             )}
           </Row>
-        </AutoColumn>
+        </Stack>
       </div>
     </Modal>
   )
+}
+
+export default function MigrateModal(props: MigrateModalProps) {
+  const modalOpen = useModalOpen(ApplicationModal.MIGRATE_KNC)
+  const closeModal = useCloseModal(ApplicationModal.MIGRATE_KNC)
+
+  return modalOpen ? <MigrateModalContent {...props} onDismiss={closeModal} /> : null
 }
