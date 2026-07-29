@@ -96,6 +96,8 @@ interface TokenSelectorContentProps {
   onShowTokenInfo?: (token: Token) => void
   /** Show the discovery tab bar (Trending / New / …). Off for surfaces that want a plain search + list (cross-chain). */
   showDiscoveryTabs?: boolean
+  /** Select a different chain in the owning form instead of switching the connected app/wallet chain. */
+  onSelectChain?: (chainId: ChainId) => void
 }
 
 const NoResult = ({ message }: { message?: ReactNode }) => {
@@ -173,6 +175,7 @@ export const TokenSelectorContent = ({
   trackingSource,
   onShowTokenInfo,
   showDiscoveryTabs = true,
+  onSelectChain,
 }: TokenSelectorContentProps) => {
   const { chainId: web3ChainId, account } = useActiveWeb3React()
   const anchorChainId = customChainId || web3ChainId
@@ -562,8 +565,16 @@ export const TokenSelectorContent = ({
         notifyRestrictedToken(resolved)
         return
       }
-      // Picking a token on another chain asks the user to switch first.
+      // Cross-chain forms own their chain state, so update that form and select immediately without
+      // switching the connected app/wallet chain. Other surfaces keep the existing confirm flow.
       if (resolved.chainId !== anchorChainId) {
+        if (onSelectChain) {
+          trackTokenSelected(resolved, true, selectionMethod)
+          onSelectChain(resolved.chainId)
+          onCurrencySelect?.(resolved)
+          onDismiss?.()
+          return
+        }
         pendingSelectMethodRef.current = selectionMethod
         setSwitchChainToken(resolved)
         return
@@ -580,6 +591,7 @@ export const TokenSelectorContent = ({
       isTokenRestricted,
       notifyRestrictedToken,
       trackTokenSelected,
+      onSelectChain,
     ],
   )
 
