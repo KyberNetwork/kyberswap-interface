@@ -20,10 +20,10 @@ export const Tag = ({
 }: React.HTMLAttributes<HTMLDivElement> & { active: boolean }) => (
   <div
     className={cn(
-      'cursor-pointer rounded-xl border border-solid px-4 py-2 text-sm',
+      'flex cursor-pointer items-center rounded-xl border border-solid px-4 py-2 text-sm font-medium',
       active
-        ? 'border-primary bg-primary-20 font-medium text-text'
-        : 'border-transparent bg-tableHeader font-normal text-subText',
+        ? 'border-primary bg-primary-20 text-text'
+        : 'border-transparent bg-tableHeader text-subText hover:brightness-110',
       className,
     )}
     {...rest}

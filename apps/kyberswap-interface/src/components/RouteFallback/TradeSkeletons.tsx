@@ -47,7 +47,7 @@ export const SwapPageSkeleton = () => (
                 <Skeleton width={44} height={18} baseColor="var(--ks-buttonBlack)" />
               </HStack>
             </Stack>
-            <Skeleton width="100%" height={44} borderRadius={99} baseColor="var(--ks-buttonBlack)" />
+            <Skeleton width="100%" height={44} rounded baseColor="var(--ks-buttonBlack)" />
           </Stack>
         </Stack>
       </Center>

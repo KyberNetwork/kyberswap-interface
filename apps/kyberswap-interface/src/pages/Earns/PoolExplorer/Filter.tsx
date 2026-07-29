@@ -15,12 +15,13 @@ import { ButtonOutlined } from 'components/Button'
 import DropdownMenu, { MenuOption } from 'components/DropdownMenu'
 import { default as MultiSelectDropdownMenu } from 'components/DropdownMenu/MultiSelect'
 import { ItemIcon } from 'components/DropdownMenu/styles'
+import { ListingPageNavigateButton } from 'components/Listing/Page'
 import Search from 'components/Search'
 import { HStack, Stack } from 'components/Stack'
 import { MouseoverTooltip, MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
-import { HeadSection, NavigateButton, Tag, TagContainer } from 'pages/Earns/PoolExplorer/styles'
+import { HeadSection, Tag, TagContainer } from 'pages/Earns/PoolExplorer/styles'
 import useSupportedDexesAndChains, {
   AllChainsOption,
   AllProtocolsOption,
@@ -302,7 +303,11 @@ const Filter = ({
           })}
         </TagContainer>
         {!upToLarge && (
-          <NavigateButton icon={<IconUserEarnPosition />} text={t`My Positions`} to={APP_PATHS.EARN_POSITIONS} />
+          <ListingPageNavigateButton
+            icon={<IconUserEarnPosition />}
+            text={t`My Positions`}
+            to={APP_PATHS.EARN_POSITIONS}
+          />
         )}
       </HeadSection>
       <Stack className="flex-row justify-between gap-4 max-md:flex-col">

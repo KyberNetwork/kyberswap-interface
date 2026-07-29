@@ -21,7 +21,7 @@ export const AboutKyberSwapSkeleton = () => (
           <Skeleton height={18} containerClassName="w-4/5" />
         </Center>
 
-        <Skeleton width={216} height={42} borderRadius={99} />
+        <Skeleton width={216} height={42} rounded />
       </Stack>
     </Stack>
 

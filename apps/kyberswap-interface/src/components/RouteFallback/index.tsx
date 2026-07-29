@@ -2,24 +2,16 @@ import { matchPath, useLocation } from 'react-router-dom'
 
 import Loader from 'components/LocalLoader'
 import { AboutKncSkeleton, AboutKyberSwapSkeleton } from 'components/RouteFallback/AboutSkeletons'
-import {
-  EarnLandingSkeleton,
-  EarnPoolsSkeleton,
-  PoolDetailSkeleton,
-  TablePageSkeleton,
-} from 'components/RouteFallback/EarnPoolSkeletons'
-import {
-  EarnPositionDetailSkeleton,
-  EarnPositionsSkeleton,
-  SmartExitSkeleton,
-} from 'components/RouteFallback/EarnPositionSkeletons'
+import { EarnLandingSkeleton, EarnPoolsSkeleton } from 'components/RouteFallback/EarnPoolSkeletons'
+import { EarnPositionsSkeleton } from 'components/RouteFallback/EarnPositionSkeletons'
 import MarketSkeleton from 'components/RouteFallback/MarketSkeleton'
+import { SmartExitSkeleton } from 'components/RouteFallback/SmartExitSkeletons'
 import { SwapPageSkeleton } from 'components/RouteFallback/TradeSkeletons'
+import { DetailPageSkeleton } from 'components/RouteFallback/common'
 import { APP_PATHS } from 'constants/index'
-import { LEGACY_POOL_APP_PATHS } from 'constants/legacyPools'
-import { isSwapLikePath } from 'utils/routes'
+import { isPathOrChild, isSwapLikePath } from 'utils/routes'
 
-const startsWithAny = (pathname: string, prefixes: string[]) => prefixes.some(prefix => pathname.startsWith(prefix))
+const matchesAnyRoute = (pathname: string, paths: string[]) => paths.some(path => isPathOrChild(pathname, path))
 
 /**
  * Route-aware Suspense fallback: picks a page-shell skeleton matching the destination route while its
@@ -29,47 +21,43 @@ const startsWithAny = (pathname: string, prefixes: string[]) => prefixes.some(pr
 const pickSkeleton = (rawPathname: string) => {
   const pathname = rawPathname.length > 1 ? rawPathname.replace(/\/+$/, '') : rawPathname
 
-  if (isSwapLikePath(pathname) || pathname.startsWith(APP_PATHS.LIMIT) || pathname.startsWith(APP_PATHS.CROSS_CHAIN)) {
+  if (isSwapLikePath(pathname) || matchesAnyRoute(pathname, [APP_PATHS.LIMIT, APP_PATHS.CROSS_CHAIN])) {
     return <SwapPageSkeleton />
   }
 
   if (pathname === APP_PATHS.EARN) {
     return <EarnLandingSkeleton />
   }
-  if (pathname.startsWith(APP_PATHS.EARN_POOLS)) {
+  if (isPathOrChild(pathname, APP_PATHS.EARN_POOLS)) {
     return <EarnPoolsSkeleton />
   }
-  if (pathname.startsWith(APP_PATHS.EARN_POSITIONS)) {
+  if (isPathOrChild(pathname, APP_PATHS.EARN_POSITIONS)) {
     return <EarnPositionsSkeleton />
   }
-  if (pathname.startsWith(APP_PATHS.EARN_SMART_EXIT)) {
+  if (isPathOrChild(pathname, APP_PATHS.EARN_SMART_EXIT)) {
     return <SmartExitSkeleton />
   }
 
-  if (pathname.startsWith(APP_PATHS.MARKET_OVERVIEW)) {
+  if (isPathOrChild(pathname, APP_PATHS.MARKET_OVERVIEW)) {
     return <MarketSkeleton />
   }
-  if (pathname.startsWith(`${APP_PATHS.ABOUT}/kyberswap`)) {
+  if (isPathOrChild(pathname, `${APP_PATHS.ABOUT}/kyberswap`)) {
     return <AboutKyberSwapSkeleton />
   }
-  if (pathname.startsWith(`${APP_PATHS.ABOUT}/knc`)) {
+  if (isPathOrChild(pathname, `${APP_PATHS.ABOUT}/knc`)) {
     return <AboutKncSkeleton />
   }
 
-  if (startsWithAny(pathname, [APP_PATHS.PARTNER_SWAP, APP_PATHS.USER_SWAP])) {
+  if (matchesAnyRoute(pathname, [APP_PATHS.PARTNER_SWAP, APP_PATHS.USER_SWAP])) {
     return <SwapPageSkeleton />
   }
 
   if (matchPath({ path: APP_PATHS.POOL_DETAIL, end: true }, pathname)) {
-    return <PoolDetailSkeleton />
+    return <DetailPageSkeleton />
   }
 
   if (matchPath({ path: APP_PATHS.EARN_POSITION_DETAIL, end: true }, pathname)) {
-    return <EarnPositionDetailSkeleton />
-  }
-
-  if (pathname.startsWith(LEGACY_POOL_APP_PATHS.MY_POOLS)) {
-    return <TablePageSkeleton />
+    return <DetailPageSkeleton />
   }
 
   return <Loader />

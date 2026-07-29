@@ -1,74 +1,69 @@
-import Skeleton from 'components/Skeleton'
+import Skeleton, { SkeletonProps } from 'components/Skeleton'
+import TableCellSkeleton from 'components/Skeleton/TableCellSkeleton'
+import { Center } from 'components/Stack'
 import { cn } from 'utils/cn'
 
-export const Circle = ({ size }: { size: number }) => <Skeleton circle width={size} height={size} />
-
-export const Chips = ({ count }: { count: number }) => (
-  <div className="flex flex-wrap gap-3">
-    {Array.from({ length: count }, (_, index) => (
-      <Skeleton key={index} width={96} height={36} />
-    ))}
-  </div>
-)
-
-export const Cards = ({ count, height }: { count: number; height: number }) => (
+const DetailSummaryCardsSkeleton = () => (
   <div className="flex gap-4 max-sm:flex-col">
-    {Array.from({ length: count }, (_, index) => (
+    {Array.from({ length: 4 }, (_, index) => (
       <div key={index} className="flex-1">
-        <Skeleton height={height} />
+        <Skeleton height={72} />
       </div>
     ))}
   </div>
 )
 
-// Shared Earn page container. Individual pages can extend the gutters through className.
-export const PageWrapper = ({ children, className }: { children: React.ReactNode; className?: string }) => (
-  <div
-    className={cn(
-      'flex w-full max-w-[1500px] flex-col gap-4 px-6 pb-16 pt-8 max-sm:px-4 max-sm:pb-[100px] max-sm:pt-6',
-      className,
-    )}
-  >
-    {children}
-  </div>
-)
-
-export const Cell = ({ children, className }: { children: React.ReactNode; className?: string }) => (
-  <div className={cn('flex min-w-0 flex-col justify-center gap-1 px-3 py-2', className)}>{children}</div>
-)
-
-export const Right = ({ width, height = 16, className }: { width: number; height?: number; className?: string }) => (
-  <div className={cn('flex items-center justify-end px-3', className)}>
-    <Skeleton width={width} height={height} />
-  </div>
-)
-
-export const PairCell = () => (
-  <Cell>
+export const DetailPageSkeleton = () => (
+  <div className="flex w-full max-w-[1224px] flex-col gap-5 px-6 pt-6 max-sm:px-4">
     <div className="flex items-center gap-2">
-      <div className="flex w-10 items-end gap-0">
-        <Circle size={24} />
-        <div className="-translate-x-2">
-          <Circle size={24} />
-        </div>
+      <Skeleton circle width={32} height={32} />
+      <Skeleton circle width={28} height={28} />
+      <Skeleton circle width={28} height={28} />
+      <Skeleton width={160} height={24} />
+      <Skeleton width={60} height={22} />
+    </div>
+    <DetailSummaryCardsSkeleton />
+    <div className="flex gap-5 max-lg:flex-col">
+      <div className="flex-1">
+        <Skeleton height={380} />
       </div>
-      <Skeleton width={88} height={16} />
-      <Skeleton width={34} height={16} />
+      <div className="w-[400px] max-lg:w-full">
+        <Skeleton height={380} />
+      </div>
     </div>
-    <div className="flex items-center gap-1">
-      <Circle size={16} />
-      <Skeleton width={64} height={12} />
-    </div>
-  </Cell>
+  </div>
 )
 
-export const TableShell = ({ children, className }: { children: React.ReactNode; className?: string }) => (
-  <div className={cn('overflow-hidden rounded-2xl bg-background/80', className)}>{children}</div>
+type ControlSkeletonProps = Omit<SkeletonProps, 'width'> & {
+  width: number
+  wrapperClassName?: string
+}
+
+export const ControlSkeleton = ({ width, wrapperClassName, ...props }: ControlSkeletonProps) => (
+  <div className={cn('shrink-0 max-sm:!w-full', wrapperClassName)} style={{ width }}>
+    <Skeleton width="100%" height={36} {...props} />
+  </div>
 )
 
-export const TitleRow = ({ width, rowH = 36 }: { width: number; rowH?: number }) => (
-  <div className="flex items-center gap-4" style={{ height: rowH }}>
-    <Skeleton width={24} height={24} />
+/** Shared 20px header text line for RouteFallback table cells. */
+export const TableHeaderLineSkeleton = ({ width }: { width: number }) => (
+  <div className="flex h-5 items-center">
+    <TableCellSkeleton width={width} height={14} />
+  </div>
+)
+
+/** Shared 24px value line for RouteFallback table cells. */
+export const TableValueSkeleton = ({ width }: { width: number }) => (
+  <Center className="h-6">
+    <TableCellSkeleton width={width} height={18} />
+  </Center>
+)
+
+export const TitleRowSkeleton = ({ width }: { width: number }) => (
+  <div className="flex h-9 items-center gap-4">
+    <Center className="size-9">
+      <Skeleton width={24} height={24} />
+    </Center>
     <Skeleton width={width} height={32} />
   </div>
 )

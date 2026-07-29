@@ -1,6 +1,13 @@
-import { Circle, Right } from 'components/RouteFallback/common'
 import Skeleton from 'components/Skeleton'
 import { cn } from 'utils/cn'
+
+const Circle = ({ size }: { size: number }) => <Skeleton circle width={size} height={size} />
+
+const Right = ({ width, height = 16, className }: { width: number; height?: number; className?: string }) => (
+  <div className={cn('flex items-center justify-end px-3', className)}>
+    <Skeleton width={width} height={height} />
+  </div>
+)
 
 const MarketRow = ({ children, className }: { children: React.ReactNode; className?: string }) => (
   <div
@@ -21,18 +28,18 @@ const MarketSkeleton = () => (
         <Skeleton width={200} height={30} />
       </div>
       <div className="py-1">
-        <Skeleton width="90%" height={16} containerClassName="block" />
+        <Skeleton width="80%" height={16} containerClassName="block max-w-5xl" />
       </div>
     </div>
 
     {/* Category tags (h-38, gap-4) + 320px search pill. */}
-    <div className="flex flex-wrap items-center justify-between gap-4">
+    <div className="flex flex-wrap justify-between gap-4">
       <div className="flex flex-wrap gap-4">
         {[52, 48, 61, 75, 47, 65, 73].map((w, i) => (
           <Skeleton key={i} width={w} height={38} />
         ))}
       </div>
-      <Skeleton width={320} height={36} />
+      <Skeleton width={320} height={36} rounded />
     </div>
 
     <div className="overflow-hidden rounded-2xl bg-background/80 p-6 max-md:w-[calc(100%+2rem)] max-md:self-center max-md:p-4">

@@ -1,5 +1,11 @@
 # RouteFallback audit and improvement plan
 
+## Status
+
+Implementation was accepted as complete on 2026-07-28. The checklist below is retained as the historical audit
+plan; unchecked items are not active scope and should be re-evaluated against the current page before being
+picked up.
+
 ## Goal
 
 Keep route-aware skeletons simple while matching the destination page's major geometry, spacing, and responsive
@@ -30,9 +36,10 @@ improving `RouteFallback`.
 
 - `index.tsx` owns pathname matching and selects the appropriate page skeleton.
 - `common.tsx` owns small presentational skeleton primitives reused across page files.
-- Page skeletons are grouped into files matching the primary Header navigation.
+- Page skeletons are grouped by route domain; Smart Exit has a dedicated file instead of living under the
+  Position entity.
 - Earn Pool and Earn Position remain separate entity groups in `EarnPoolSkeletons.tsx` and
-  `EarnPositionSkeletons.tsx`.
+  `EarnPositionSkeletons.tsx`; their list skeletons expose the same header/default-list API.
 - Small related About and generic content skeletons are grouped in `AboutSkeletons.tsx`.
 
 ## Current fallback inventory
@@ -45,14 +52,19 @@ improving `RouteFallback`.
 
 - `EarnLandingSkeleton`: `/earn`.
 - `EarnPoolsSkeleton`: `/earn/pools/**`.
-- `PoolDetailSkeleton`: `/pools/:chain/:protocol/:address`.
-- `TablePageSkeleton`: `/myPools/**`.
 
 ### `EarnPositionSkeletons.tsx`
 
 - `EarnPositionsSkeleton`: `/earn/positions/**`.
-- `EarnPositionDetailSkeleton`: `/earn/position/:positionId/:chainId/:exchange`.
+
+### `SmartExitSkeletons.tsx`
+
 - `SmartExitSkeleton`: `/earn/smart-exit/**`.
+
+### `common.tsx`
+
+- `DetailPageSkeleton`: `/pools/:chain/:protocol/:address` and
+  `/earn/position/:positionId/:chainId/:exchange`.
 
 ### Other Header groups
 
@@ -61,23 +73,23 @@ improving `RouteFallback`.
 
 Routes without a matching skeleton fall back to the shared logo `Loader`.
 
-## Current concerns
+## Historical concerns
 
 - `SwapPageSkeleton` approximates three page families that can have different first-loaded layouts.
-- Pool Detail and Earn Position Detail now have separate ownership, but both still start from the old generic
-  detail approximation and need to be aligned with their actual layouts.
+- Pool Detail and Earn Position Detail currently share the same generic detail approximation and still need to
+  be aligned with their actual layouts.
 - Several pages already own higher-quality loading skeletons, causing duplicated loading UI with separate implementations.
 - Dedicated page skeleton files duplicate grid templates, breakpoints, spacing, and responsive card layouts from lazy page modules and can drift when those pages change.
 - Route fallbacks should represent only the major page sections needed to preserve layout stability. Avoid
   detailed controls, text, charts, and other content-level approximations.
 - Fallbacks must remain presentational and avoid increasing the main bundle with page code or data dependencies.
 
-## Improvement plan
+## Historical improvement plan
 
 ### Phase 1: audit and capture the visual contract
 
 - [ ] Compare `SwapPageSkeleton` with the page-owned skeletons for Swap, Limit Order, and Cross-Chain on desktop and mobile.
-- [ ] Compare `PoolDetailSkeleton` and `EarnPositionDetailSkeleton` with their respective page-owned skeletons.
+- [ ] Compare `DetailPageSkeleton` with the Pool Detail and Earn Position Detail page-owned skeletons.
 - [ ] Record each page's container width, primary sections, responsive breakpoints, spacing, and initial loading
       geometry.
 - [ ] Check layout shift during the transition from `RouteFallback` to each page-owned skeleton.
@@ -88,7 +100,7 @@ Routes without a matching skeleton fall back to the shared logo `Loader`.
       while keeping its internal skeletons simple.
 - [ ] Give Limit Order and Cross-Chain dedicated variants when their first-loaded layouts differ materially
       from Swap.
-- [x] Split Pool Detail and Earn Position Detail into exact route matchers and separately owned skeleton files.
+- [x] Match Pool Detail and Earn Position Detail as exact routes before using their shared detail skeleton.
 - [ ] Align each detail skeleton with its respective page-owned layout.
 - [ ] Match the page-owned skeletons' main geometry and responsive behavior without importing from lazy page
       modules.
@@ -113,9 +125,9 @@ Priority route families:
 ### Phase 4: review the remaining runtime-only fallbacks
 
 - [ ] Review Partner Swap and User Swap.
-- [ ] Review My Pools.
 
-These routes are lower priority than the designated Swap, Detail, Earn, Market, and About pages.
+These routes are lower priority than the designated Swap, Detail, Earn, Market, and About pages. Legacy My
+Pools intentionally uses the shared `Loader` instead of a maintained route-specific skeleton.
 
 ### Phase 5: verify prerender and runtime output
 
