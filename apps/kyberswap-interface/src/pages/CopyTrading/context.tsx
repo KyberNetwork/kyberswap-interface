@@ -1,15 +1,26 @@
 import { type PropsWithChildren, createContext, useContext, useMemo, useState } from 'react'
+import type { Address, Chain } from 'services/copyTrading/types'
 
 type CopyTradingContextValue = {
+  chains: Chain[]
+  ownerAddress?: Address
   selectedChainId?: number
   setSelectedChainId: (chainId?: number) => void
 }
 
 const CopyTradingContext = createContext<CopyTradingContextValue | undefined>(undefined)
 
-export const CopyTradingProvider = ({ children }: PropsWithChildren) => {
+type CopyTradingProviderProps = PropsWithChildren<{
+  chains: Chain[]
+  ownerAddress?: Address
+}>
+
+export const CopyTradingProvider = ({ chains, children, ownerAddress }: CopyTradingProviderProps) => {
   const [selectedChainId, setSelectedChainId] = useState<number>()
-  const value = useMemo(() => ({ selectedChainId, setSelectedChainId }), [selectedChainId])
+  const value = useMemo(
+    () => ({ chains, ownerAddress, selectedChainId, setSelectedChainId }),
+    [chains, ownerAddress, selectedChainId],
+  )
 
   return <CopyTradingContext.Provider value={value}>{children}</CopyTradingContext.Provider>
 }

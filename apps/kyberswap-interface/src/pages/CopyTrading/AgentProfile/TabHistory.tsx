@@ -49,15 +49,15 @@ const TabHistory = ({ agentId }: { agentId: string }) => {
           return (
             <TabHistoryGrid key={row.positionId}>
               <TableCell className="text-subText">{row.tradeId}</TableCell>
-              <TableCell>{row.token.symbol}</TableCell>
+              <TableCell>{row.token.symbol || '—'}</TableCell>
               <TableCell>{formatUsd(row.entryPriceUsd)}</TableCell>
               <TableCell>{formatUsd(row.exitPriceUsd || row.currentPriceUsd)}</TableCell>
               <TableCell>{formatTokenAmount(row.amountDecimal)}</TableCell>
               <TableCell className={cn(isNegative ? 'text-red' : 'text-primary')}>
                 {signedUsd(row.realizedPnlUsd)}
               </TableCell>
-              <TableCell>{formatUsd(row.feeUsd)}</TableCell>
-              <TableCell>{formatUsd(row.rebateUsd)}</TableCell>
+              <TableCell>{formatUsd(row.flatFeeCapturedUsd)}</TableCell>
+              <TableCell>{formatUsd(row.cashbackReceivedUsd)}</TableCell>
               <TableCell className="text-subText">{formatDate(row.closedAt)}</TableCell>
             </TabHistoryGrid>
           )

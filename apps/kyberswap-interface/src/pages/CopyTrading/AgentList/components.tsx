@@ -32,7 +32,7 @@ export const LeaderboardSummary = ({ summary, fallbackAgentCount }: LeaderboardS
   const stats: LeaderboardStat[] = [
     {
       label: 'Total Agents',
-      value: String(summary?.totalAgents || fallbackAgentCount || 0),
+      value: summary?.totalAgents ?? (fallbackAgentCount === undefined ? '—' : String(fallbackAgentCount)),
       icon: copyTradingStatIconMap.agents,
     },
     {
@@ -42,7 +42,7 @@ export const LeaderboardSummary = ({ summary, fallbackAgentCount }: LeaderboardS
     },
     {
       label: 'Total Copiers',
-      value: String(summary?.totalCopiers || 0),
+      value: summary?.totalCopiers || '—',
       icon: copyTradingStatIconMap.users,
     },
     {

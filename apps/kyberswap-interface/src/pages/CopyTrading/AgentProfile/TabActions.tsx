@@ -11,7 +11,7 @@ import { TableBody } from 'pages/CopyTrading/components/Table'
 import { formatDate } from 'pages/CopyTrading/helpers'
 import { ExternalLink } from 'theme'
 import { cn } from 'utils/cn'
-import { getEtherscanLink } from 'utils/index'
+import { getEtherscanLink } from 'utils/explorer'
 
 const formatLogTime = (value?: string) => {
   const date = formatDate(value)
@@ -21,6 +21,15 @@ const formatLogTime = (value?: string) => {
 const formatStatus = (status: string) => {
   return status?.replace(/[-_]/g, ' ').replace(/\b\w/g, value => value.toUpperCase()) ?? '-'
 }
+
+const statusClassName = (status: string) =>
+  status === 'broadcast'
+    ? 'text-primary'
+    : status === 'failed'
+    ? 'text-red'
+    : status === 'skipped'
+    ? 'text-warning'
+    : 'text-subText'
 
 const DetailSection = ({ label, children }: PropsWithChildren<{ label: string }>) => (
   <Stack className="gap-1">
@@ -54,11 +63,16 @@ const ActionLogRow = ({ expanded, onToggle, row }: ActionLogRowProps) => {
   return (
     <Stack className="border-b border-darkBorder py-3 last:border-b-0">
       <HStack className="w-full items-center gap-3 text-subText">
-        <span className="size-2 shrink-0 rounded-full bg-primary" />
+        <span
+          className={cn(
+            'size-2 shrink-0 rounded-full',
+            row.status === 'broadcast' ? 'bg-primary' : row.status === 'failed' ? 'bg-red' : 'bg-warning',
+          )}
+        />
         <Stack className="min-w-0 flex-1 gap-1">
           <HStack className="min-w-0 flex-wrap items-center gap-x-2 gap-y-1 text-sm">
             <span>{formatLogTime(row.occurredAt)}</span>
-            <span className="rounded bg-primary-12 px-2 py-0.5 font-medium text-primary">
+            <span className={cn('rounded bg-primary-12 px-2 py-0.5 font-medium', statusClassName(row.status))}>
               {formatStatus(row.status)}
             </span>
           </HStack>
@@ -85,9 +99,7 @@ const ActionLogRow = ({ expanded, onToggle, row }: ActionLogRowProps) => {
               <DetailSection label="Reasoning">{row.reasoning}</DetailSection>
               <DetailSection label="Action">{row.action}</DetailSection>
               <HStack className="flex-wrap items-center gap-x-3 gap-y-1 text-sm">
-                <span
-                  className={cn('font-medium uppercase', row.status === 'confirmed' ? 'text-primary' : 'text-subText')}
-                >
+                <span className={cn('font-medium uppercase', statusClassName(row.status))}>
                   {formatStatus(row.status)}
                 </span>
                 <span>
@@ -105,7 +117,7 @@ const ActionLogRow = ({ expanded, onToggle, row }: ActionLogRowProps) => {
 const TabActions = ({ agentId }: { agentId: string }) => {
   const [expandedIds, setExpandedIds] = useState<string[]>([])
 
-  const { data: cotLogs, isFetching } = copyTradingApi.useGetAgentCotLogsQuery({ agentId })
+  const { data: cotLogs, isFetching } = copyTradingApi.useGetAgentActionLogsQuery({ agentId })
   const rows = useMemo(() => cotLogs?.data || [], [cotLogs?.data])
 
   const toggleExpanded = (id: string) => {

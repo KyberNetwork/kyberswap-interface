@@ -6,9 +6,11 @@ import { Stack } from 'components/Stack'
 import {
   CapitalValueChart,
   CumulativeRealisedPnlChart,
+  mergePerformancePoints,
   toPerformanceChartPoint,
 } from 'pages/CopyTrading/components/PerformanceCharts'
-import { OWNER_ADDRESS } from 'pages/CopyTrading/helpers'
+import { useCopyTradingContext } from 'pages/CopyTrading/context'
+import { isCopyRunClosed } from 'pages/CopyTrading/helpers'
 
 type CopyRunPerformanceProps = {
   copyRunId: string
@@ -16,22 +18,50 @@ type CopyRunPerformanceProps = {
 }
 
 const CopyRunPerformance = ({ copyRunId, status }: CopyRunPerformanceProps) => {
+  const { ownerAddress } = useCopyTradingContext()
   const [window, setWindow] = useState<PerformanceWindow>('30d')
-  const isClosed = status === 'closed'
+  const isClosed = isCopyRunClosed(status)
   const performanceWindow = isClosed ? 'all' : window
+  const interval = isClosed ? 'month' : 'day'
   const {
-    data: performance,
-    isError,
-    isFetching,
-  } = copyTradingApi.useGetCopyRunPerformanceQuery({
-    ownerAddress: OWNER_ADDRESS,
-    copyRunId,
-    interval: 'day',
-    limit: 60,
-    series: 'portfolio_value',
-    window: performanceWindow,
-  })
-  const chartData = useMemo(() => (performance?.data || []).map(toPerformanceChartPoint), [performance?.data])
+    data: portfolioPerformance,
+    isError: isPortfolioError,
+    isFetching: isPortfolioFetching,
+  } = copyTradingApi.useGetCopyRunPerformanceQuery(
+    {
+      ownerAddress: ownerAddress || '',
+      copyRunId,
+      interval,
+      limit: 100,
+      series: 'portfolio_value',
+      window: performanceWindow,
+    },
+    { skip: !ownerAddress },
+  )
+  const {
+    data: realizedPnlPerformance,
+    isError: isRealizedPnlError,
+    isFetching: isRealizedPnlFetching,
+  } = copyTradingApi.useGetCopyRunPerformanceQuery(
+    {
+      ownerAddress: ownerAddress || '',
+      copyRunId,
+      interval,
+      limit: 100,
+      series: 'cumulative_realized_pnl',
+      window: performanceWindow,
+    },
+    { skip: !ownerAddress },
+  )
+  const chartData = useMemo(
+    () =>
+      mergePerformancePoints(portfolioPerformance?.data || [], realizedPnlPerformance?.data || []).map(
+        toPerformanceChartPoint,
+      ),
+    [portfolioPerformance?.data, realizedPnlPerformance?.data],
+  )
+  const isError = isPortfolioError || isRealizedPnlError
+  const isFetching = isPortfolioFetching || isRealizedPnlFetching
 
   return (
     <Stack className="gap-6 rounded-xl bg-buttonBlack p-6">
