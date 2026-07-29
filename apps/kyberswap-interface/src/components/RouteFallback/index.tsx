@@ -13,11 +13,6 @@ import { isPathOrChild, isSwapLikePath } from 'utils/routes'
 
 const matchesAnyRoute = (pathname: string, paths: string[]) => paths.some(path => isPathOrChild(pathname, path))
 
-/**
- * Route-aware Suspense fallback: picks a page-shell skeleton matching the destination route while its
- * lazy chunk loads, instead of one global centered logo. Falls back to the logo loader for routes
- * without a tailored skeleton.
- */
 const pickSkeleton = (rawPathname: string) => {
   const pathname = rawPathname.length > 1 ? rawPathname.replace(/\/+$/, '') : rawPathname
 
@@ -63,6 +58,13 @@ const pickSkeleton = (rawPathname: string) => {
   return <Loader />
 }
 
+/**
+ * Route-aware fallback shared by runtime Suspense and prerendered cold-load markup.
+ *
+ * Keep skeletons presentational and dependency-light, mirroring only the page's major structure. Treat
+ * page-owned loading UI as the source of truth and share primitives instead of duplicating implementations.
+ * Routes without a dedicated skeleton fall back to `Loader`.
+ */
 const RouteFallback = () => {
   const { pathname } = useLocation()
 
