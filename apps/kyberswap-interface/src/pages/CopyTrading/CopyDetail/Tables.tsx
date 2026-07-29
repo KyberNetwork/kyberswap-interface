@@ -1,6 +1,6 @@
 import type { HTMLAttributes } from 'react'
 import { AlertCircle, AlertTriangle } from 'react-feather'
-import type { PositionSummary } from 'services/copyTrading/types'
+import type { PositionActionKind, PositionSummary } from 'services/copyTrading/types'
 
 import { ButtonLight, ButtonPrimary } from 'components/Button'
 import Loader from 'components/Loader'
@@ -49,7 +49,17 @@ type PositionTableProps = {
   rows: PositionSummary[]
 }
 
-const formatDuration = (openedAt: string, closedAt?: string) => {
+const formatDuration = (durationSeconds?: string, openedAt?: string, closedAt?: string) => {
+  const apiDuration = Number(durationSeconds)
+  if (durationSeconds !== undefined && Number.isFinite(apiDuration)) {
+    const totalMinutes = Math.max(0, Math.floor(apiDuration / 60))
+    const hours = Math.floor(totalMinutes / 60)
+    const minutes = totalMinutes % 60
+
+    return hours ? `${hours}h ${minutes}m` : `${minutes}m`
+  }
+
+  if (!openedAt) return '-'
   if (!closedAt) return '-'
 
   const durationMs = new Date(closedAt).getTime() - new Date(openedAt).getTime()
@@ -96,16 +106,27 @@ const PositionStatus = ({ status }: { status?: string }) => {
   )
 }
 
-const PositionAction = ({ status }: { status?: string }) => {
-  const normalizedStatus = status?.toLowerCase() || ''
-  if (!normalizedStatus.includes('skipped')) return null
+const actionLabels: Partial<Record<PositionActionKind, string>> = {
+  POSITION_ACTION_KIND_MANUAL_SELL: 'Manual Sell',
+  POSITION_ACTION_KIND_CLOSE_POSITION: 'Close position',
+}
 
-  const repeated = Number.parseInt(normalizedStatus, 10) > 1
-  const Button = repeated ? ButtonPrimary : ButtonLight
+const PositionAction = ({
+  actionKind,
+  availableActionKinds,
+}: Pick<PositionSummary, 'actionKind' | 'availableActionKinds'>) => {
+  const availableAction =
+    actionKind && actionKind !== 'POSITION_ACTION_KIND_UNSPECIFIED'
+      ? actionKind
+      : availableActionKinds.find(kind => kind !== 'POSITION_ACTION_KIND_UNSPECIFIED')
+  const label = availableAction && actionLabels[availableAction]
+  if (!label) return null
+
+  const Button = availableAction === 'POSITION_ACTION_KIND_CLOSE_POSITION' ? ButtonPrimary : ButtonLight
 
   return (
     <Button type="button" padding="7px 12px" className="whitespace-nowrap" onClick={event => event.stopPropagation()}>
-      {repeated ? 'Close position' : 'Manual Sell'}
+      {label}
     </Button>
   )
 }
@@ -137,18 +158,20 @@ export const TradeHistoryTable = ({ loading, rows }: PositionTableProps) => (
         return (
           <TradeHistoryGrid key={row.positionId}>
             <TableCell className="text-subText">{row.tradeId}</TableCell>
-            <TableCell>{row.token.symbol}</TableCell>
+            <TableCell>{row.token.symbol || '—'}</TableCell>
             <TableCell>{formatUsd(row.entryPriceUsd)}</TableCell>
             <TableCell>{formatUsd(row.exitPriceUsd || row.currentPriceUsd)}</TableCell>
             <TableCell className={cn(isNegative ? 'text-red' : 'text-primary')}>
               {signedUsd(row.realizedPnlUsd)}
             </TableCell>
-            <TableCell>{formatUsd(row.feeUsd)}</TableCell>
-            <TableCell>{formatUsd(row.rebateUsd)}</TableCell>
-            <TableCell>{formatUsd(row.valueUsd)}</TableCell>
+            <TableCell>{formatUsd(row.flatFeeCapturedUsd)}</TableCell>
+            <TableCell>{formatUsd(row.cashbackReceivedUsd)}</TableCell>
+            <TableCell>{formatUsd(row.netFeeCostUsd)}</TableCell>
             <TableCell className="text-subText">{formatDate(row.openedAt)}</TableCell>
             <TableCell className="text-subText">{formatDate(row.closedAt)}</TableCell>
-            <TableCell className="text-subText">{formatDuration(row.openedAt, row.closedAt)}</TableCell>
+            <TableCell className="text-subText">
+              {formatDuration(row.durationSeconds, row.openedAt, row.closedAt)}
+            </TableCell>
           </TradeHistoryGrid>
         )
       })}
@@ -182,7 +205,7 @@ export const CopyPositionsTable = ({ loading, rows }: PositionTableProps) => (
         return (
           <CopyPositionsGrid key={row.positionId}>
             <TableCell className="text-subText">{row.tradeId}</TableCell>
-            <TableCell>{row.token.symbol}</TableCell>
+            <TableCell>{row.token.symbol || '—'}</TableCell>
             <TableCell>{formatUsd(row.entryPriceUsd)}</TableCell>
             <TableCell>{formatUsd(row.currentPriceUsd)}</TableCell>
             <TableCell>{formatUsd(row.valueUsd)}</TableCell>
@@ -192,13 +215,13 @@ export const CopyPositionsTable = ({ loading, rows }: PositionTableProps) => (
                 <span className="text-xs">{signedPercent(row.unrealizedPnlPct)}</span>
               </Stack>
             </TableCell>
-            <TableCell className="text-warning">~{formatUsd(row.rebateUsd)}</TableCell>
+            <TableCell className="text-warning">~{formatUsd(row.estimatedCashbackUsd)}</TableCell>
             <TableCell className="text-subText">{formatDate(row.openedAt)}</TableCell>
             <TableCell>
               <PositionStatus status={row.trackingStatus} />
             </TableCell>
             <TableCell>
-              <PositionAction status={row.trackingStatus} />
+              <PositionAction actionKind={row.actionKind} availableActionKinds={row.availableActionKinds} />
             </TableCell>
           </CopyPositionsGrid>
         )

@@ -1,539 +1,691 @@
-# Copy Trading - Entity Hierarchy and User Flows
+# Copy Trading - Entities and User Flows
 
-Source: `Copy Trading v1.1.md`.
+Last reviewed: 2026-07-29
 
-This document keeps only the main entities, their hierarchy, and the user flows. Field details are intentionally omitted for readability.
+Contract sources:
+
+- `FE_API_Catalog.md` for frontend integration rules.
+- `openapi.yaml` for the machine-readable HTTP contract.
+- `IMPLEMENTATION_STATUS.md` for the current code status and known UI gaps.
+
+This document describes the product entities and frontend flows exposed by the
+current aggregate API. It does not describe private operator or projector
+internals.
 
 ---
 
 ## 1. Entity Hierarchy
 
-### A. User Side
+### A. Owner / Follower
 
 ```text
-User / Follower
-└── Copy Subscription
-    ├── Smart Contract Wallet / KSFollowerAccount
-    │   ├── Deposited Capital
-    │   ├── Token Balances
-    │   ├── Follower Config
-    │   └── User Positions
-    │       ├── Open Position
-    │       ├── Closing Position
-    │       ├── Skipped Position
-    │       ├── Tracking Paused Position
-    │       ├── Withdrawn Position
-    │       └── Closed Position
-    ├── Active Copy State
-    ├── Stop Copy Intent
-    ├── Manual Close Request
-    ├── Withdraw Request
-    └── Copy History
+Owner Wallet
+├── Owner Copy Summary
+├── Copy Runs
+│   └── Copy Run
+│       ├── Agent Snapshot
+│       ├── Copy Account
+│       ├── Capital and Portfolio Metrics
+│       ├── Positions
+│       ├── Performance
+│       └── Add / Stop / Withdraw Availability
+├── Owner Positions
+├── Owner Activity
+└── Copy Accounts
 ```
 
-User side is what the copier owns or directly controls.
+Key rules:
 
-- The user owns the smart contract wallet.
-- The user deposits capital.
-- The user can stop copying.
-- The user can manually close or withdraw positions.
-- The user keeps historical copy records after stopping.
+- `ownerAddress` scopes owner routes and identifies the wallet that created the
+  follower account. It must not be treated as current authorization evidence by
+  itself.
+- A Copy Run is the public product record for copying one agent.
+- A Copy Run references the smart-contract `copyAccount` where copy balances and
+  positions are tracked.
+- Open and History are server-defined views. They are not client-side aliases
+  for a single Copy Run status.
+- A read response is display/state evidence. A prepared action decides whether
+  a transaction can currently execute.
 
----
-
-### B. Agent Side
+### B. Agent / Leader
 
 ```text
-Agent / Leader
+Agent
+├── Agent Card
+│   ├── Identity and Chain
+│   ├── Model and Strategy Categories
+│   ├── Metrics
+│   └── Start Copy Availability
 ├── Agent Profile
-├── KSLeaderAccount
-│   ├── Agent Capital
-│   └── Agent Positions
-├── Leader Config
-├── Agent Trades
-│   ├── Buy Trade
-│   ├── Sell Trade
-│   └── Trade ID
+│   ├── Bio and Live Since
+│   ├── Whitelisted Symbols
+│   └── Strategy & Execution Display Items
+├── Performance Series
+├── Positions
+│   └── Position Events
 └── Action Logs
-    ├── Trigger
-    ├── Market Data
-    ├── Reasoning
-    └── Action Result
 ```
 
-Agent side is what users inspect before deciding to copy.
+Key rules:
 
-- Leaderboard shows agents.
-- Agent profile shows performance and logs.
-- Agent trades create the source events for follower positions.
-- Every agent trade has a Trade ID for audit and tracking.
+- `agentId` is the canonical identity. Display name is not unique identity.
+- Strategy categories can overlap; one agent can belong to more than one
+  category.
+- Agent metrics, performance points, and valuations carry independent
+  freshness/availability statuses.
+- Action-log narrative fields are display content. Do not parse their text to
+  derive transaction state.
 
----
-
-### C. Protocol / Contract Side
+### C. Copy Run
 
 ```text
-Copy Trading Protocol
-├── CopyTradeController
-│   ├── Leader Trade Records
-│   ├── Follower Config Validation
-│   ├── Position State
-│   └── Token Pair Slippage Config
-├── Fee / Cashback Logic
-├── Operator Whitelist
-└── Account Factories
-    ├── KSLeaderAccountFactory
-    └── KSFollowerAccountFactory
+Copy Run
+├── Identity
+│   ├── copyRunId
+│   ├── ownerAddress
+│   ├── agentId
+│   ├── chainId
+│   └── copyAccount
+├── Lifecycle
+│   ├── ACTIVE
+│   ├── CLOSING
+│   ├── CLOSED
+│   └── STOPPED
+├── Agent Snapshot
+├── Capital / Portfolio / P&L Metrics
+├── Fee / Cashback Metrics
+├── Position Counts
+└── Advisory Action Availability
+    ├── Add Capital
+    ├── Stop Copy
+    └── Withdraw Quote
 ```
 
-Protocol side enforces the rules.
+The agent snapshot is the correct row-level identity/metric source for a Copy
+Run. The frontend should not issue one Agent Detail request for every Copy Run
+row.
 
-- Records leader trades.
-- Validates follower copy execution.
-- Stores position state.
-- Enforces fee, cashback, and slippage-related constraints.
-- Keeps custody non-custodial from the user's perspective.
-
----
-
-### D. Operator / Signer Side
+### D. Position
 
 ```text
-Execution Infrastructure
-├── Leader Operator
-├── CopyTrade Operator
-├── KS_SIGNER
-├── KYBERSWAP_SIGNER
-└── Aggregator
+Position
+├── Identity
+│   ├── positionId
+│   ├── userPositionId
+│   ├── agentPositionId
+│   ├── copyRunId
+│   └── tradeId
+├── Token and Raw Amount Accounting
+├── Lifecycle
+│   ├── ACTIVE
+│   ├── CLOSING
+│   └── CLOSED
+├── Entry / Current / Exit Valuation
+├── P&L / Fee / Cashback Metrics
+├── Quantity / Exit / Leftover State
+└── Recovery Actions
+    ├── Manual Sell
+    └── Close Position
 ```
 
-Execution infrastructure connects agent activity to follower wallets.
+Key rules:
 
-- Leader Operator submits agent trades.
-- CopyTrade Operator mirrors agent trades for followers.
-- Signers authorize sensitive close/cashback flows.
-- Aggregator provides swap routes.
+- Skipped execution is not a position lifecycle. It is represented through
+  activity/execution detail, skip metrics, and pending sell obligations.
+- Leftover is explicit residue state (`isLeftover`, `leftoverReason`) and can be
+  queried through `POSITION_VIEW_LEFTOVER`.
+- `actionKind` is the primary suggested recovery action.
+  `availableActionKinds[]` is the complete advisory action set.
+- Use `displayBaseRaw` with token decimals for the main user-facing amount.
+- Entry, current, exit, and leftover valuations can have different statuses.
 
----
-
-### E. UI Side
+### E. Copy Account
 
 ```text
-Copy Trading UI
-├── Leaderboard
-├── Agent Profile
-├── Start Copying Flow
-├── My Copies Dashboard
-├── Copy Detail Page
-├── Stop Copying Modal
-├── Manual Sell Modal
-├── Withdraw Modal
-├── History Page
-└── Alerts Feed
+Copy Account
+├── Account Summary
+├── Token Balances
+│   └── Pinned Stable / Quote Balance
+├── Positions
+├── Pending Sell Obligations
+└── Activity History
 ```
 
-UI side is how the user understands and controls the product.
+Key rules:
 
-- Leaderboard and Agent Profile are discovery surfaces.
-- Start Copying creates the copy relationship.
-- My Copies and Copy Detail are active management surfaces.
-- Stop Copying, Manual Sell, and Withdraw are exit/recovery surfaces.
-- History and Alerts are audit surfaces.
+- The Copy Account is the smart-contract account used by the Copy Run.
+- The pinned quote/stable balance is action-critical and is separate from the
+  ordinary cursor page of balances.
+- Pending sell obligations are the current source for Manual Sell sizing.
+- Use the returned FIFO order, current obligation count, and exact
+  `currentRatioRaw`; do not reconstruct them from activity text or local history.
+
+### F. Activity
+
+```text
+Activity Row
+├── Typed Activity Type
+├── Display Summary
+└── Exactly One Typed Detail
+    ├── Copy Lifecycle
+    ├── Position
+    ├── Capital
+    ├── Fee
+    └── Execution
+```
+
+The top-level summary is display text. Business logic must switch on the typed
+activity type and detail variant.
+
+### G. Prepared Action
+
+```text
+Prepared Action
+├── Status
+├── Chain and Expected Sending Account
+├── Prepared / Retry / Deadline Times
+├── Exact Prepared Call
+├── Typed Reason and Warnings
+├── Evidence
+└── Exactly One Preview
+    ├── Start Copy
+    ├── Add Capital
+    ├── Stop Copy
+    ├── Withdraw Quote
+    ├── Manual Sell
+    └── Close Position
+```
+
+Preparation routes create wallet calls; they do not submit transactions.
+
+Prepared-action statuses:
+
+```text
+READY
+PARTIALLY_COMPLETED
+COMPLETED
+PENDING
+UNAVAILABLE
+```
+
+Frontend behavior:
+
+- `READY`: validate and submit the exact prepared call.
+- `PARTIALLY_COMPLETED`: Start Copy has another executable stage; submit the
+  call, wait for convergence, then prepare again.
+- `COMPLETED`: refresh reads and finish the action flow.
+- `PENDING`: submit nothing; retry at `reprepareAfter` when present.
+- `UNAVAILABLE`: submit nothing; render the typed reason.
+
+### H. Wallet Session
+
+```text
+Wallet Session
+├── Challenge
+│   ├── SIWE Message
+│   ├── Challenge Token
+│   └── Expiry
+├── Exact Wallet Signature
+└── Access Token
+    ├── Owner Scope
+    ├── Chain Scope
+    └── Expiry
+```
+
+Wallet sessions authorize only Manual Sell and Close Position preparation. They
+do not authorize Start Copy, Add Capital, Stop Copy, or Withdraw Quote, and they
+do not submit transactions.
 
 ---
 
 ## 2. Core Relationships
 
 ```text
-User
-└── copies
-    └── Agent
-        └── through Copy Subscription
-            └── backed by KSFollowerAccount
+Owner Wallet
+└── Copy Run
+    ├── copies one Agent
+    ├── references one Copy Account
+    └── contains follower Positions
 ```
 
 ```text
-Agent Trade
-└── creates or closes
-    └── User Position
-        └── tracked by Trade ID / Position ID
-```
-
-```text
-Stop Copy
-└── creates
-    └── Stop Copy Intent
-        └── Operator async sells selected positions
+Agent Position / Trade
+└── identified by Trade ID
+    └── mirrored into a follower Position
+        └── identified by userPositionId / positionId
 ```
 
 ```text
 Skipped Sell
-└── creates
-    └── Manual Close option
-        └── User submits close transaction
+└── creates or updates Pending Sell Obligations
+    └── advertises Manual Sell or Close Position
+        └── requires a Wallet Session before preparation
 ```
 
 ```text
-Withdraw
-└── bypasses swap and cashback
-    └── User receives raw token
+Advisory Availability
+└── controls action entry state
+    └── Prepare API returns authoritative action status
+        └── exact prepared call is submitted by the expected account
 ```
 
-## 3. UI Flow Map
+---
 
-This section maps the main flows against the current UI export files in `CopyTrading/UI`.
+## 3. Common Read Flow
 
-### Flow Group 1: Discover Agents
+All list routes use opaque cursor pagination.
 
-UI files:
+```text
+Request First Page
+→ Render Data With Metric / Valuation Freshness
+→ If pagination.hasMore
+→ Pass pagination.nextCursor Unchanged
+→ Continue Until The Required UI Set Is Loaded
+```
 
-- `Agents List - Leaderboard.png`
+Start a new cursor sequence whenever route, owner, agent, chain, view, filter,
+sort, series, window, or interval changes.
 
-Sub-flows:
+Read-state rules:
+
+- Render `CURRENT` normally.
+- Render `STALE` with a stale indication.
+- Do not fabricate zero for `UNAVAILABLE`.
+- Treat `NOT_APPLICABLE` as a valid product state.
+- Do not merge Open and History owner summaries locally.
+- Do not derive lifecycle, execution, or profit/loss state from display text.
+
+---
+
+## 4. Discovery and Agent Evaluation
+
+### Discover Agents
 
 ```text
 Open Copy Trading
-→ View Leaderboard
-→ View Summary Stats
-→ Filter by Strategy
-→ Search Agent
-→ View Agent Rows
-→ Click Agent Row
-→ Go To Agent Profile
+→ GET /chains
+→ GET /leaderboard/summary
+→ GET /leaderboard
+→ Filter By Chain / Search / Overlapping Strategy Category
+→ Load Additional Cursor Pages
+→ Open Agent Profile Or Start Copy
 ```
 
-CTA sub-flow:
-
-```text
-Click Copy
-→ Should open Start Copying Flow
-```
-
-Current UI status:
-
-- Leaderboard screen exists.
-- Strategy tabs exist visually.
-- Search exists visually.
-- Copy CTA exists.
-- Start Copying modal is not present in current UI exports.
-
----
-
-### Flow Group 2: Evaluate Agent Before Copying
-
-UI files:
-
-- `Agent Profile - General.png`
-- `Agent Profile - Trade History.png`
-- `Agent Profile - Action Log.png`
-- `Agent Profile - Have Copied.png`
-
-Sub-flows:
+### Evaluate an Agent
 
 ```text
 Open Agent Profile
-→ Review Agent Header
-→ Review Agent Stats
-→ Review P&L Chart
-→ Review Side Panel
-→ Decide Whether To Copy
+→ GET /agents/{agentId}
+→ GET /agents/{agentId}/stats
+→ GET Both Requested Performance Series
+→ Lazy-load Open Positions / History / Action Logs
+→ Load Additional Cursor Pages
+→ Review startCopyAvailability
+→ Start Copy Or Open Existing Copy Run
 ```
 
-Tab sub-flows:
+Performance combinations:
 
-```text
-Open Positions Tab
-→ View Current Agent Positions
-→ Check Token / Entry / Current / P&L
-```
-
-```text
-Trade History Tab
-→ View Closed Trades
-→ Check Entry / Exit / Realised P&L / Fee / Cashback
-```
-
-```text
-Action Log Tab
-→ View Agent Reasoning Log
-→ Expand Log Entry
-→ Check Trigger / Data / Reasoning / Action / Status
-```
-
-Copied-state sub-flow:
-
-```text
-Agent Already Copied
-→ Show Current Copy Panel
-→ Click My Copy
-→ Should Go To Copy Detail
-→ Click Add Capital
-→ Should Open Add Capital Modal
-```
-
-Current UI status:
-
-- Agent Profile screen exists.
-- The three profile tabs exist.
-- Copied state exists.
-- My Copy and Add Capital CTAs exist.
-- Add Capital modal is not present in current UI exports.
+- `7D`, `30D`, and `90D` portfolio/cumulative P&L use daily intervals.
+- `ALL` portfolio/cumulative P&L must use weekly or monthly intervals.
 
 ---
 
-### Flow Group 3: Start Copying
+## 5. Owner Dashboard and Copy Detail
 
-UI files:
-
-- No dedicated exported UI file found for this modal/flow.
-
-Expected sub-flows from spec:
+### Open Copies
 
 ```text
-Click Copy From Leaderboard Or Agent Profile
-→ Open Configure Step
-→ Enter Capital
-→ Continue To Review Step
-→ Review Fee / Risk / Execution Details
-→ Accept Risk Checkbox
-→ Confirm Wallet Transaction
-→ Show Success State
-→ Click View My Copies
+Connect Wallet
+→ GET copy-summary With OWNER_COPY_VIEW_OPEN
+→ GET copy-runs With OWNER_COPY_VIEW_OPEN
+→ Load Additional Cursor Pages
+→ GET Owner Activity
+→ Open A Copy Run
 ```
 
-Current UI status:
+Available actions depend on the selected run:
 
-- Entry CTA exists.
-- Configure step is missing.
-- Review step is missing.
-- Success state is missing.
+- Add Capital.
+- Stop Copy.
+- Withdraw Quote.
+- Manual Sell or Close Position for advertised recovery positions.
+
+### History
+
+```text
+GET copy-summary With OWNER_COPY_VIEW_HISTORY
+→ GET copy-runs With OWNER_COPY_VIEW_HISTORY
+→ Load Additional Cursor Pages
+→ Open Closed / Stopped Copy Run
+→ Review Timeline, Performance, Positions, Fees, Cashback, And Net Cost
+→ Withdraw Remaining Quote When Availability Allows
+```
+
+### Copy Detail
+
+```text
+GET Copy Run Detail
+→ GET Copy Run Positions
+→ GET Requested Performance Series
+→ Optionally GET Owner Activity Filtered By copyRunId
+→ Render Current Lifecycle And Advisory Actions
+```
+
+The direct Copy Run and Position detail reads are the correct pre-action refresh
+sources. Cached list rows are not authoritative transaction state.
 
 ---
 
-### Flow Group 4: Manage Active Copies
+## 6. Common Write Flow
 
-UI files:
-
-- `My Copies (Open).png`
-
-Sub-flows:
+All six product actions follow the same safety boundary:
 
 ```text
-Open My Copies
-→ View Open Copies Summary
-→ View Active Copy Rows
-→ Click Active Copy Row
-→ Go To Copy Detail Active
+Read Advisory Availability
+→ Open Action UI
+→ Refresh Direct Copy Run / Account / Position State
+→ POST The Matching Prepare Route
+→ Inspect Prepared Status And Typed Reason
+→ Validate Preview And Exact Call
+→ Ask Wallet To Submit Exact call.to / call.data / call.valueRaw
+→ Wait For Successful Receipt
+→ Poll Direct Reads Until Projected State Advances
+→ Refresh Parent Lists And Summaries
 ```
 
-Action sub-flows:
+Before wallet submission, require:
 
-```text
-Click Stop Copying
-→ Should Open Stop Copying Modal
-```
+1. Expected action status.
+2. Route-appropriate preview.
+3. Route-appropriate `call.kind`.
+4. Prepared `chainId` matching the wallet network.
+5. `expectedAccount` matching the sending account.
+6. `valueRaw === "0"`.
+7. Current `reprepareAfter` and `liquidationConfigDeadline`.
 
-```text
-Read Alerts Feed
-→ See New Position / Closed Position / Skipped Trade / Offline Alerts
-→ Click Related Trade Or Copy
-→ Should Go To Relevant Detail
-```
-
-Current UI status:
-
-- Open Copies dashboard exists.
-- Active copy rows exist.
-- Stop Copying CTA exists.
-- Alerts feed exists.
-- Stop Copying modal is not present in current UI exports.
+Never ABI-encode, rebuild, or mutate the prepared calldata from preview fields.
 
 ---
 
-### Flow Group 5: View Active Copy Detail
+## 7. Start Copy
 
-UI files:
-
-- `Copy(Agent) Details - Active.png`
-
-Sub-flows:
+Endpoint:
 
 ```text
-Open Active Copy Row
-→ View Agent Header
-→ View Personal Metrics
-→ View My Positions Table
-→ View Position Status
-→ View P&L Chart
-→ View Current Copy Side Panel
+POST /users/{ownerAddress}/agents/{agentId}:prepareStartCopy
 ```
 
-Action sub-flows:
+Input:
 
 ```text
-Click Add Capital
-→ Should Open Add Capital Modal
+chainId
+targetCapitalRaw
+startRequestId
 ```
+
+Flow:
 
 ```text
-Click My Copy
-→ Should Keep User In Current Copy Detail Or Focus Current Copy Section
+Generate One UUIDv4 startRequestId
+→ Prepare Start Copy
+→ Validate Account / Chain / Stage / Call Kind
+→ Submit Exact Create Or Fund Call
+→ Wait For Receipt And Read-model Convergence
+→ Prepare Again With The Same UUID And Target
+→ Repeat Until COMPLETED / START_COPY_STAGE_COMPLETE
 ```
 
-```text
-Position Has Closing Status
-→ User Monitors Closing Progress
-→ Position Becomes Closed Or Skipped
-```
-
-```text
-Position Has Tracking Paused Status
-→ User Should Be Guided To Manual Close Or Withdraw
-```
-
-Current UI status:
-
-- Active copy detail screen exists.
-- Positions table exists.
-- Closing / Tracking Paused states are represented.
-- Add Capital CTA exists.
-- Manual Close and Withdraw actions are not present in current UI exports.
+Start Copy can require separate account-creation and funding transactions. Keep
+the same UUID for one attempt.
 
 ---
 
-### Flow Group 6: Stop Copying
+## 8. Add Capital
 
-UI files:
-
-- No dedicated exported UI file found for this modal/flow.
-
-Expected sub-flows from spec:
+Endpoint:
 
 ```text
-Click Stop Copying
-→ Show Open Positions
-→ Select Positions To Sell
-→ Keep Some Positions Unchecked If Desired
-→ Confirm Stop Copy
-→ Future Copy Actions Halt
-→ Operator Sells Selected Positions Async
-→ Positions Become Closed Or Skipped
-→ Copy Becomes Stopped
+POST /users/{ownerAddress}/copy-runs/{copyRunId}:prepareAddCapital
 ```
 
-Current UI status:
+Input:
 
-- Stop Copying CTA exists in Open Copies.
-- Stop Copying modal is missing.
-- Async closing progress is partially represented by position status in active detail.
+```text
+amountRaw
+```
+
+Flow:
+
+```text
+Check addCapitalAvailability
+→ Enter A Positive Base-unit Amount
+→ Prepare Add Capital
+→ Review Quote Token, Minimum, Wallet Balance, And New Allocation
+→ Submit Exact Call
+→ Wait For Receipt
+→ Poll Copy Run / Copy Account Until Capital Advances
+```
+
+The preparation response is authoritative even when advisory availability was
+previously available.
 
 ---
 
-### Flow Group 7: Manual Close / Recovery
+## 9. Stop Copy
 
-UI files:
-
-- No dedicated exported UI file found for manual close modal.
-- Related states appear in `Copy(Agent) Details - Active.png`.
-
-Sub-flows:
+Endpoint:
 
 ```text
-Position Sell Is Skipped
-→ Alert Appears
-→ Position Shows Skipped Status
-→ User Clicks Manual Sell
-→ User Reviews Reason And Sell Details
-→ User Confirms Transaction
-→ Position Updates
+POST /users/{ownerAddress}/copy-runs/{copyRunId}:prepareStopCopy
 ```
+
+Input:
 
 ```text
-Same Position Has Multiple Skips
-→ User Clicks Close Position
-→ User Chooses Sell Skipped Portion Or Close Entire Position
-→ User Confirms Transaction
-→ Position Updates
+userPositionIds[]
+slippageBps
 ```
 
-Current UI status:
+Rules:
 
-- Alerts feed exists.
-- Closing / Tracking Paused states exist.
-- Skipped status/action UI is not clearly exported.
-- Manual Sell modal is missing.
-- Close Position modal is missing.
+- Select at most 32 position IDs.
+- The array can be empty when there are no selected sellable positions.
+- `slippageBps` must be an integer from 0 to 10,000.
+- If the selectable position set changes, discard the old preparation.
+
+Flow:
+
+```text
+Check stopCopyAvailability
+→ Refresh Copy Run Positions
+→ Select Positions To Include In Stop
+→ Enter Slippage
+→ Prepare Stop Copy
+→ Review Exact Position Previews And Totals
+→ Submit Exact Call
+→ Wait For Receipt
+→ Poll Copy Run And Positions Through Closing / Terminal State
+```
 
 ---
 
-### Flow Group 8: Withdraw Raw Token
+## 10. Withdraw Quote
 
-UI files:
-
-- No dedicated exported UI file found for withdraw modal.
-
-Expected sub-flow from spec:
+Endpoint:
 
 ```text
-Open Position Detail
-→ Open Advanced
-→ Click Withdraw Tokens
-→ Read No Swap / No Cashback Warning
-→ User Confirms Transaction
-→ Raw Token Transfers To User Wallet
-→ Position Becomes Withdrawn
+POST /users/{ownerAddress}/copy-runs/{copyRunId}:prepareWithdrawQuote
 ```
 
-Current UI status:
+Request body:
 
-- Withdraw flow is not present in current UI exports.
+```json
+{}
+```
+
+Flow:
+
+```text
+Check withdrawQuoteAvailability
+→ Prepare Withdraw Quote
+→ Review Quote Token, Current Balance, Sweep Amount, And Recipient
+→ Submit Exact Call
+→ Wait For Receipt
+→ Poll Copy Account Balance And Activity
+```
+
+This action is a repeatable maximum sweep of the prepared quote-token balance.
+The recipient is determined by current prepared state, not entered by the
+frontend. It is not a generic raw-position-token withdrawal flow.
 
 ---
 
-### Flow Group 9: Review Copy History
+## 11. Wallet Session
 
-UI files:
-
-- `My Copies (Closed) - History.png`
-- `Copy(Agent) Details - Closed.png`
-
-Sub-flows:
+Required only before Manual Sell and Close Position.
 
 ```text
-Open History
-→ View History Summary
-→ View Closed Copy Rows
-→ Click Closed Copy Row
-→ Go To Closed Copy Detail
+POST /wallet-session-challenges
+→ Receive siweMessage / challengeToken / expiresAt
+→ Sign The Exact SIWE Message As An Ethereum Personal Message
+→ POST /wallet-sessions With Challenge Token And Signature
+→ Keep Access Token In Memory
+→ Use It Only As Bearer Authorization On Manual Sell / Close Position
 ```
 
-```text
-Closed Copy Detail
-→ Review Start Copy Event
-→ Review Stop Copy Event
-→ Review Realised P&L
-→ Review Closed Positions Table
-→ Audit Fee / Cashback / Net Result
-```
+Rules:
 
-Current UI status:
-
-- History screen exists.
-- Closed copy detail exists.
-- Closed positions table exists.
+- Do not reconstruct or edit the SIWE message.
+- A challenge is one-time use.
+- Honor challenge and access-token expiry.
+- The session owner and chain must match the protected action.
+- On `401`, discard the token and restart the challenge flow.
+- Never persist challenge tokens, signatures, or access tokens in
+  `localStorage`, URLs, analytics, telemetry, or logs.
 
 ---
 
-## 4. Mental Model
+## 12. Manual Sell
+
+Endpoint:
 
 ```text
-Agent = source of trades
-Subscription = user follows one agent
-Follower Wallet = where user's copy trades happen
-Trade ID = audit link between agent trade and user position
-Position = user's per-token exposure
-Operator = mirrors agent actions
-Stop Copy = stop following and optionally sell positions
-Manual Close = recovery when operator sell is skipped
-Withdraw = final escape hatch, raw token only
+POST /users/{ownerAddress}/copy-runs/{copyRunId}/positions/{userPositionId}:prepareManualSell
+Authorization: Bearer <wallet-session-access-token>
+```
+
+Input:
+
+```text
+slippageBps
+expectedUnresolvedSkipCount
+expectedSellRatioRaw
+```
+
+Flow:
+
+```text
+Position Advertises Manual Sell
+→ Create Or Reuse A Valid Wallet Session
+→ GET Current Pending Sell Obligation FIFO
+→ Use Current FIFO Count And Exact Ratio
+→ Prepare Manual Sell
+→ If Obligation Changed, Refresh FIFO And Prepare Again
+→ Review Recovery Preview
+→ Submit Exact Call
+→ Poll Position, Obligations, And Activity
+```
+
+Manual Sell is skipped-sell recovery. It must not be sized from error text,
+activity summaries, or locally accumulated ratios.
+
+---
+
+## 13. Close Position
+
+Endpoint:
+
+```text
+POST /users/{ownerAddress}/copy-runs/{copyRunId}/positions/{userPositionId}:prepareClosePosition
+Authorization: Bearer <wallet-session-access-token>
+```
+
+Input:
+
+```text
+slippageBps
+```
+
+Flow:
+
+```text
+Position Advertises Close Position
+→ Create Or Reuse A Valid Wallet Session
+→ Refresh Direct Position And Account State
+→ Prepare Close Position
+→ Require READY And Full-position Recovery Preview
+→ Submit Exact Call
+→ Poll Position And Activity Through Terminal State
+```
+
+Close Position is available only for an eligible full-position recovery close
+under current operator state. It is not a generic market-sell endpoint.
+
+---
+
+## 14. Current Frontend Status
+
+Implemented in the service:
+
+- All 24 GET routes.
+- All six transaction-preparation POST routes.
+- Both wallet-session POST routes.
+- Typed request/response models and exported hooks.
+
+Implemented read UI:
+
+- Leaderboard and agent profile.
+- Agent positions, history, action logs, and performance.
+- Open Copies, History, Copy Detail, and Alerts Feed.
+
+Not yet connected in the UI:
+
+- Start Copy.
+- Add Capital.
+- Stop Copy.
+- Withdraw Quote.
+- Wallet Session.
+- Manual Sell.
+- Close Position.
+
+Known read/UI gaps:
+
+- Cursor pagination is missing on most lists outside the leaderboard.
+- `ALL + DAY` performance requests are invalid; `ALL` must use week/month.
+- Activity detail variants are not yet fully typed in the frontend model.
+- Stale response/metric status is preserved but not indicated in the UI.
+- Alerts Feed is labelled live but does not poll.
+
+See `IMPLEMENTATION_STATUS.md` for file-level evidence and the recommended
+implementation order.
+
+---
+
+## 15. Mental Model
+
+```text
+Agent = source identity, strategy, performance, positions, and action logs
+Copy Run = one owner's public record of copying one agent
+Copy Account = smart-contract account holding balances and follower positions
+Trade ID = audit link between agent activity and follower position activity
+Position = per-token follower exposure with explicit lifecycle and recovery state
+Activity = typed event plus one typed detail; summary is display-only
+Advisory Availability = button guidance from read state
+Prepared Action = authoritative executable state and exact wallet call
+Wallet Session = short-lived authorization for Manual Sell / Close Position only
+Stop Copy = stop flow with an explicit selected-position intent
+Manual Sell = recovery for current pending skipped-sell obligations
+Close Position = eligible full-position recovery, not a generic sell
+Withdraw Quote = maximum sweep of prepared quote balance after eligibility
 ```

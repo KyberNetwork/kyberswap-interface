@@ -7,6 +7,7 @@ import Leaderboard, { type LeaderboardStat } from 'pages/CopyTrading/components/
 import {
   CapitalValueChart,
   CumulativeRealisedPnlChart,
+  mergePerformancePoints,
   toPerformanceChartPoint,
 } from 'pages/CopyTrading/components/PerformanceCharts'
 import { copyTradingStatIconMap } from 'pages/CopyTrading/constants'
@@ -20,7 +21,7 @@ const getProfileStats = (stats?: AgentStatsData): LeaderboardStat[] => [
   },
   {
     label: 'Copiers',
-    value: String(stats?.copiers || 0),
+    value: stats?.copiers || '—',
     icon: copyTradingStatIconMap.users,
   },
   {
@@ -44,18 +45,37 @@ const AgentStats = ({ agentId }: AgentStatsProps) => {
 
   const { data: agentStats } = copyTradingApi.useGetAgentStatsQuery({ agentId })
   const {
-    data: performance,
-    isError,
-    isFetching,
+    data: portfolioPerformance,
+    isError: isPortfolioError,
+    isFetching: isPortfolioFetching,
   } = copyTradingApi.useGetAgentPerformanceQuery({
     agentId,
     interval: 'day',
-    limit: 60,
+    limit: 100,
     series: 'portfolio_value',
     window,
   })
+  const {
+    data: realizedPnlPerformance,
+    isError: isRealizedPnlError,
+    isFetching: isRealizedPnlFetching,
+  } = copyTradingApi.useGetAgentPerformanceQuery({
+    agentId,
+    interval: 'day',
+    limit: 100,
+    series: 'cumulative_realized_pnl',
+    window,
+  })
   const stats = agentStats?.data
-  const chartData = useMemo(() => (performance?.data || []).map(toPerformanceChartPoint), [performance?.data])
+  const chartData = useMemo(
+    () =>
+      mergePerformancePoints(portfolioPerformance?.data || [], realizedPnlPerformance?.data || []).map(
+        toPerformanceChartPoint,
+      ),
+    [portfolioPerformance?.data, realizedPnlPerformance?.data],
+  )
+  const isError = isPortfolioError || isRealizedPnlError
+  const isFetching = isPortfolioFetching || isRealizedPnlFetching
 
   return (
     <Stack className="min-w-0 gap-5">

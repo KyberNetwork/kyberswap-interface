@@ -82,7 +82,7 @@ const ClosedSubscriptionsTable = ({ rows, agents, loading, onOpenSubscription }:
             >
               <CopyRunAgentCell agent={agentsById[subscription.agentId]} run={subscription} className="px-3 py-2" />
               <TableCell className="text-right">
-                {subscription.closedTradeCount || subscription.openPositionCount}
+                {subscription.closedPositionCount || subscription.openPositionCount}
               </TableCell>
               <TableCell className="text-right text-subText">{formatDate(subscription.startedAt)}</TableCell>
               <TableCell className="text-right text-subText">{formatDate(subscription.stoppedAt)}</TableCell>
@@ -91,8 +91,8 @@ const ClosedSubscriptionsTable = ({ rows, agents, loading, onOpenSubscription }:
               <TableCell className={cn('text-right', realizedPnl.startsWith('-') ? 'text-red' : 'text-primary')}>
                 {realizedPnl}
               </TableCell>
-              <TableCell className="text-right">{formatUsd(subscription.feesPaidUsd)}</TableCell>
-              <TableCell className="text-right">{formatUsd(subscription.rebatesReceivedUsd)}</TableCell>
+              <TableCell className="text-right">{formatUsd(subscription.flatFeesCapturedUsd)}</TableCell>
+              <TableCell className="text-right">{formatUsd(subscription.cashbackReceivedUsd)}</TableCell>
             </ClosedSubscriptionsGrid>
           )
         })}

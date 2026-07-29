@@ -22,6 +22,7 @@ const AgentList = () => {
   const { selectedChainId } = useCopyTradingContext()
 
   const [page, setPage] = useState(1)
+  const [pageCursors, setPageCursors] = useState<(string | undefined)[]>([undefined])
   const [search, setSearch] = useState('')
   const [sortBy, setSortBy] = useState<LeaderboardSortBy>()
   const [sortOrder, setSortOrder] = useState<SortOrder>()
@@ -49,10 +50,10 @@ const AgentList = () => {
       ...summaryQuery,
       sortBy,
       sortOrder,
-      page,
-      pageSize: PAGE_SIZE,
+      cursor: pageCursors[page - 1],
+      limit: PAGE_SIZE,
     }),
-    [page, sortBy, sortOrder, summaryQuery],
+    [page, pageCursors, sortBy, sortOrder, summaryQuery],
   )
 
   const { data: leaderboardSummary } = copyTradingApi.useGetLeaderboardSummaryQuery(summaryQuery)
@@ -61,16 +62,19 @@ const AgentList = () => {
 
   const handleStrategyChange = (strategy: StrategyFilter) => {
     setPage(1)
+    setPageCursors([undefined])
     setActiveTab(strategy)
   }
 
   const handleSearchChange = (value: string) => {
     setPage(1)
+    setPageCursors([undefined])
     setSearch(value)
   }
 
   const handleSortChange = (nextSortBy: LeaderboardSortBy) => {
     setPage(1)
+    setPageCursors([undefined])
 
     if (sortBy !== nextSortBy) {
       setSortBy(nextSortBy)
@@ -87,7 +91,22 @@ const AgentList = () => {
 
   useEffect(() => {
     setPage(1)
+    setPageCursors([undefined])
   }, [selectedChainId])
+
+  const handlePageChange = (nextPage: number) => {
+    if (nextPage > page && leaderboard?.pagination.nextCursor) {
+      setPageCursors(current => {
+        const next = [...current]
+        next[nextPage - 1] = leaderboard.pagination.nextCursor
+        return next
+      })
+    }
+    setPage(nextPage)
+  }
+
+  const loadedCount = (page - 1) * PAGE_SIZE + (leaderboard?.data.length || 0)
+  const totalCount = loadedCount + (leaderboard?.pagination.hasMore ? 1 : 0)
 
   return (
     <CopyTradingPage>
@@ -97,10 +116,10 @@ const AgentList = () => {
             Agent <span className="text-primary">Leaderboard</span>
           </>
         }
-        description="Automatically delegate to top on-chain AI agents. Maintain full custody of your assets. Pay fees only on realized profits."
+        description="Automatically delegate to top on-chain AI agents. Maintain full custody of your assets with transparent fees and cashback."
       />
 
-      <LeaderboardSummary summary={leaderboardSummary?.data} fallbackAgentCount={leaderboard?.pagination.totalCount} />
+      <LeaderboardSummary summary={leaderboardSummary?.data} fallbackAgentCount={leaderboard?.data.length} />
 
       <Stack className="gap-4">
         <HStack className="flex-wrap items-center justify-between gap-4">
@@ -115,10 +134,10 @@ const AgentList = () => {
           sortOrder={sortOrder}
           onSortChange={handleSortChange}
           pagination={{
-            totalCount: leaderboard?.pagination.totalCount || 0,
-            currentPage: leaderboard?.pagination.page || page,
-            pageSize: leaderboard?.pagination.pageSize || PAGE_SIZE,
-            onPageChange: setPage,
+            totalCount,
+            currentPage: page,
+            pageSize: PAGE_SIZE,
+            onPageChange: handlePageChange,
           }}
         />
       </Stack>

@@ -74,27 +74,20 @@ export const AgentRiskCard = ({ agent }: AgentRiskCardProps) => {
       </HStack>
       <HStack className="items-center justify-between">
         <span className="text-sm text-subText">Max Drawdown</span>
-        <span className="text-sm text-text">-12.5%</span>
+        <span className="text-sm text-text">{percent(agent.stats.maxDrawdownPct)}</span>
       </HStack>
     </SidePanelCard>
   )
 }
 
-export const StrategyExecutionCard = () => (
+export const StrategyExecutionCard = ({ items }: { items: AgentProfile['strategyExecutionItems'] }) => (
   <SidePanelCard title="Strategy & Execution">
     <Stack as="ul" className="list-disc gap-2 pl-4 text-sm text-subText">
-      <li className="pl-0">
-        <span className="font-medium text-text">Momentum Tracking:</span> Aims to capture sustained price movements
-        across L2 networks.
-      </li>
-      <li className="pl-0">
-        <span className="font-medium text-text">Execution Model:</span> Sequential follower execution. Slight lag may
-        occur between agent and follower trades.
-      </li>
-      <li className="pl-0">
-        <span className="font-medium text-text">v1 Constraints:</span> Trades only vs Stablecoins (USDC). TP/SL limits
-        are manual.
-      </li>
+      {items.map(item => (
+        <li key={`${item.label}-${item.description}`} className="pl-0">
+          <span className="font-medium text-text">{item.label}:</span> {item.description}
+        </li>
+      ))}
     </Stack>
   </SidePanelCard>
 )

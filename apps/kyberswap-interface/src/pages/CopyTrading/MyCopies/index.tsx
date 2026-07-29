@@ -5,21 +5,34 @@ import { APP_PATHS } from 'constants/index'
 import ActiveSubscriptionsTable from 'pages/CopyTrading/MyCopies/ActiveSubscriptionsTable'
 import { AlertsFeed, OpenCopiesSummary } from 'pages/CopyTrading/MyCopies/components'
 import { CopyTradingPage, CopyTradingPageHeading } from 'pages/CopyTrading/components/common'
-import { OWNER_ADDRESS } from 'pages/CopyTrading/helpers'
+import { useCopyTradingContext } from 'pages/CopyTrading/context'
 
 const MyCopiesView = () => {
   const navigate = useNavigate()
-  const { data: ownerSummary } = copyTradingApi.useGetOwnerCopySummaryQuery({
-    ownerAddress: OWNER_ADDRESS,
-  })
-  const { data: activeRuns, isFetching: isActiveRunsFetching } = copyTradingApi.useGetCopyRunsQuery({
-    ownerAddress: OWNER_ADDRESS,
-    status: 'active',
-  })
-  const { data: activity, isFetching: isActivityFetching } = copyTradingApi.useGetOwnerActivityQuery({
-    ownerAddress: OWNER_ADDRESS,
-  })
-  const { data: agents, isFetching: isAgentsFetching } = copyTradingApi.useGetAgentsQuery({ pageSize: 100 })
+  const { ownerAddress } = useCopyTradingContext()
+  const { data: ownerSummary } = copyTradingApi.useGetOwnerCopySummaryQuery(
+    {
+      ownerAddress: ownerAddress || '',
+      view: 'open',
+    },
+    { skip: !ownerAddress },
+  )
+  const { data: activeRuns, isFetching: isActiveRunsFetching } = copyTradingApi.useGetCopyRunsQuery(
+    {
+      ownerAddress: ownerAddress || '',
+      view: 'open',
+      limit: 100,
+    },
+    { skip: !ownerAddress },
+  )
+  const { data: activity, isFetching: isActivityFetching } = copyTradingApi.useGetOwnerActivityQuery(
+    {
+      ownerAddress: ownerAddress || '',
+      limit: 100,
+    },
+    { skip: !ownerAddress },
+  )
+  const { data: agents, isFetching: isAgentsFetching } = copyTradingApi.useGetAgentsQuery({ limit: 100 })
   const summary = ownerSummary?.data
 
   return (

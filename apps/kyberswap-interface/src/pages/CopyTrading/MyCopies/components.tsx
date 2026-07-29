@@ -28,12 +28,12 @@ export const OpenCopiesSummary = ({ fallbackActiveCopies, summary }: OpenCopiesS
     },
     {
       label: 'Open Positions',
-      value: String(summary?.openPositions || 0),
+      value: summary?.openPositions || '—',
       icon: copyTradingStatIconMap.positionOpen,
     },
     {
       label: 'Active Copies',
-      value: String(summary?.activeCopies || fallbackActiveCopies || 0),
+      value: summary?.activeCopies ?? (fallbackActiveCopies === undefined ? '—' : String(fallbackActiveCopies)),
       icon: copyTradingStatIconMap.agents,
     },
   ]
@@ -47,8 +47,18 @@ type AlertsFeedProps = {
 }
 
 const getActivityDotColor = (activity: ActivityRow) => {
-  if (activity.activityType === 'trade_skipped' || activity.activityType === 'execution_failed') return 'bg-warning'
-  if (activity.activityType === 'position_closed') {
+  if (
+    activity.activityType === 'aligned_trade_skipped' ||
+    activity.activityType === 'exit_skipped' ||
+    activity.activityType === 'exit_failed' ||
+    activity.activityType === 'execution_failed'
+  )
+    return 'bg-warning'
+  if (
+    activity.activityType === 'position_closed' ||
+    activity.activityType === 'exit_succeeded' ||
+    activity.activityType === 'position_reduced'
+  ) {
     return /(?:p&l|profit)[^\d-]*-/i.test(activity.summary) ? 'bg-red' : 'bg-primary'
   }
   if (activity.activityType === 'copy_stopped') return 'bg-red'
