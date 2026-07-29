@@ -12,17 +12,19 @@ import {
   OpenPositionsPanel,
 } from 'pages/CopyTrading/CopyDetail/components'
 import { AgentIdentity, CopyTradingPage } from 'pages/CopyTrading/components/common'
-import { OWNER_ADDRESS } from 'pages/CopyTrading/helpers'
+import { useCopyTradingContext } from 'pages/CopyTrading/context'
+import { isCopyRunClosed } from 'pages/CopyTrading/helpers'
 
 const CopyDetailView = ({ backPath }: { backPath: 'my-copies' | 'history' }) => {
   const { copyId } = useParams()
-  const copyRunQuery = { ownerAddress: OWNER_ADDRESS, copyRunId: copyId || '' }
+  const { ownerAddress } = useCopyTradingContext()
+  const copyRunQuery = { ownerAddress: ownerAddress || '', copyRunId: copyId || '' }
   const {
     data: copyRun,
     isFetching,
     isLoading,
     isUninitialized,
-  } = copyTradingApi.useGetCopyRunQuery(copyRunQuery, { skip: !copyId })
+  } = copyTradingApi.useGetCopyRunQuery(copyRunQuery, { skip: !copyId || !ownerAddress })
   const {
     data: agent,
     isFetching: isAgentFetching,
@@ -37,7 +39,7 @@ const CopyDetailView = ({ backPath }: { backPath: 'my-copies' | 'history' }) => 
   }
   if (!run || !profile) return <Navigate to={`${APP_PATHS.COPY_TRADING}/${backPath}`} replace />
 
-  const isClosed = run.status === 'closed'
+  const isClosed = isCopyRunClosed(run.status)
   const backLabel = backPath === 'history' ? 'History' : 'My Copies'
 
   return (
