@@ -1,6 +1,6 @@
 import { APP_PATHS } from 'constants/index'
 
-const isPathOrChild = (pathname: string, path: string) => pathname === path || pathname.startsWith(`${path}/`)
+export const isPathOrChild = (pathname: string, path: string) => pathname === path || pathname.startsWith(`${path}/`)
 
 const SWAP_LIKE_PATHS = [APP_PATHS.SWAP, APP_PATHS.BUY, APP_PATHS.SELL]
 

@@ -7,6 +7,7 @@ import {
   SwapIntent,
   getSwapIntentFromPath,
   getSyncedNetworkPathname,
+  isPathOrChild,
   isSwapLikePath,
   resolveSwapIntentPair,
 } from './routes'
@@ -22,6 +23,23 @@ const PAIR_PARAMS = {
   nativeTokenAliases: NATIVE_ALIASES,
   wrappedNativeAliases: WRAPPED_NATIVE_ALIASES,
 }
+
+describe('isPathOrChild', () => {
+  it.each([
+    ['/earn/pools', '/earn/pools'],
+    ['/earn/pools/', '/earn/pools'],
+    ['/earn/pools/ethereum', '/earn/pools'],
+  ])('accepts %s within %s', (pathname, path) => {
+    expect(isPathOrChild(pathname, path)).toBe(true)
+  })
+
+  it.each([
+    ['/earn/pools-v2', '/earn/pools'],
+    ['/earn/pool', '/earn/pools'],
+  ])('rejects %s outside %s', (pathname, path) => {
+    expect(isPathOrChild(pathname, path)).toBe(false)
+  })
+})
 
 describe('isSwapLikePath', () => {
   it.each(['/swap', '/swap/base', '/buy/base/wbtc', '/sell/base/wbtc'])('accepts %s', pathname => {

@@ -1,7 +1,6 @@
 import { Trans, t } from '@lingui/macro'
 import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { useMedia } from 'react-use'
 
 import DropdownMenu, { MenuOption } from 'components/DropdownMenu'
 import { default as MultiSelectDropdownMenu } from 'components/DropdownMenu/MultiSelect'
@@ -9,8 +8,6 @@ import Search from 'components/Search'
 import useDebounce from 'hooks/useDebounce'
 import { AllProtocolsOption } from 'pages/Earns/hooks/useSupportedDexesAndChains'
 import { PositionFilter, PositionStatus } from 'pages/Earns/types'
-import { MEDIA_WIDTHS } from 'theme'
-import { cn } from 'utils/cn'
 
 const POSITION_STATUS = [
   { label: <Trans>In Range</Trans>, value: PositionStatus.IN_RANGE },
@@ -23,7 +20,6 @@ export default function Filter({
   filters,
   updateFilters,
 }: {
-  supportedChains: MenuOption[]
   supportedDexes: MenuOption[]
   filters: PositionFilter
   updateFilters: (key: keyof PositionFilter, value: string | number) => void
@@ -31,7 +27,6 @@ export default function Filter({
   const [searchParams] = useSearchParams()
   const [search, setSearch] = useState('')
   const deboundedSearch = useDebounce(search, 300)
-  const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
   useEffect(() => {
     if (filters.keyword !== deboundedSearch) {
@@ -60,8 +55,8 @@ export default function Filter({
   }, [filters.protocols, supportedDexes, updateFilters])
 
   return (
-    <div className={cn('flex items-center justify-between gap-2', upToSmall ? 'flex-col' : 'flex-row')}>
-      <div className={cn('flex flex-wrap gap-2', upToSmall ? 'w-full' : 'w-auto')}>
+    <div className="flex items-center justify-between gap-4 max-sm:flex-col max-sm:items-stretch">
+      <div className="flex flex-wrap gap-4 max-sm:w-full max-sm:gap-3">
         <DropdownMenu
           mobileFullWidth
           options={supportedDexes.length ? supportedDexes : [AllProtocolsOption]}

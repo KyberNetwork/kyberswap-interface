@@ -3,10 +3,11 @@ import { useMemo, useState } from 'react'
 import kyberDAOApi from 'services/kyberDAO'
 
 import Gold from 'assets/svg/gold_icon.svg'
-import Divider from 'components/Divider'
 import Modal from 'components/Modal'
-import Row, { RowBetween, RowFit } from 'components/Row'
+import Row, { RowBetween } from 'components/Row'
+import { HStack, Stack } from 'components/Stack'
 import { ProposalType, VoteDetail } from 'hooks/kyberdao/types'
+import { KyberDAOCardDivider } from 'pages/KyberDAO/common'
 import { HARDCODED_OPTION_TITLE } from 'pages/KyberDAO/constants'
 import { cn } from 'utils/cn'
 import { getFullDisplayBalance } from 'utils/formatBalance'
@@ -33,7 +34,7 @@ const OptionWrapper = ({
     onClick={onClick}
     style={isWonOption ? { background: WON_OPTION_BG, ...style } : style}
     className={cn(
-      'rounded-[20px] border border-border bg-buttonBlack px-4 py-3 transition-all duration-100',
+      'overflow-hidden rounded-2xl border border-border bg-buttonBlack transition-all duration-100',
       hasHoverStyle && 'cursor-pointer hover:shadow-[0_2px_5px_2px_var(--ks-buttonBlack)] hover:brightness-125',
       className,
     )}
@@ -72,26 +73,28 @@ const VotersListModal = ({
   return (
     <Modal isOpen={isOpen} onDismiss={onDismiss}>
       <OptionWrapper isWonOption={isWonOption} className="w-full">
-        <RowBetween>
-          <RowFit className="h-[19px]">
-            {isWonOption && <img alt="gold-medal" src={Gold} style={{ marginRight: '8px' }} />}
+        <RowBetween className="gap-4 p-4">
+          <HStack className="min-w-0 items-center gap-2">
+            {isWonOption && <img alt="gold-medal" src={Gold} />}
             <span className="overflow-hidden text-ellipsis">{option}</span>
-          </RowFit>
+          </HStack>
 
-          <span className="shrink-0 pl-2.5">{sumPower ? Math.round(sumPower).toLocaleString() : '--'}</span>
+          <span className="shrink-0">{sumPower ? Math.round(sumPower).toLocaleString() : '--'}</span>
         </RowBetween>
-        <Divider className="my-2.5" />
-        <TableHeaderWrapper>
-          <span>
-            <Trans>Wallet</Trans>
-          </span>
-          <span>
-            <Trans>Amount</Trans>
-          </span>
-        </TableHeaderWrapper>
-        <Divider className="my-2.5" />
+        <KyberDAOCardDivider />
+        <div className="px-4 py-3">
+          <TableHeaderWrapper>
+            <span>
+              <Trans>Wallet</Trans>
+            </span>
+            <span>
+              <Trans>Amount</Trans>
+            </span>
+          </TableHeaderWrapper>
+        </div>
+        <KyberDAOCardDivider />
         <div
-          className="select-none overflow-auto"
+          className="select-none overflow-auto px-4 py-3"
           style={{ height: 'fit-content', maxHeight: '70vh', minHeight: '200px' }}
         >
           {participants.map(vote => {
@@ -136,7 +139,7 @@ export default function Participants({ proposalId }: { proposalId?: number }) {
   }, [options])
 
   return (
-    <div className="flex flex-wrap items-start justify-start gap-5 [&>*]:w-[calc(25%-15px)] max-md:[&>*]:w-[calc(33.33%-40px/3)] max-sm:[&>*]:w-[calc(50%-10px)] max-[500px]:[&>*]:w-full">
+    <div className="grid grid-cols-1 items-start gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
       {options && participants
         ? options.map((optionTitle, index) => {
             const sumPower = proposalInfo?.vote_stats.options.find(option => option.option === index)?.vote_count
@@ -153,30 +156,32 @@ export default function Participants({ proposalId }: { proposalId?: number }) {
                 onClick={() => setModalIndex(index)}
                 hasHoverStyle
               >
-                <RowBetween>
-                  <RowFit className="h-[19px]">
-                    {isWonOption && <img alt="gold-medal" src={Gold} style={{ marginRight: '8px' }} />}
+                <RowBetween className="gap-4 p-4">
+                  <HStack className="min-w-0 items-center gap-2">
+                    {isWonOption && <img alt="gold-medal" src={Gold} />}
                     <span className={cn('overflow-hidden text-ellipsis', isLongText ? 'text-sm' : 'text-base')}>
                       {hardCodedTitle || optionTitle}
                     </span>
-                  </RowFit>
+                  </HStack>
 
-                  <span className={cn('shrink-0 pl-2.5', isLongText ? 'text-sm' : 'text-base')}>
+                  <span className={cn('shrink-0', isLongText ? 'text-sm' : 'text-base')}>
                     {sumPower ? Math.round(sumPower).toLocaleString() : '--'}
                   </span>
                 </RowBetween>
-                <Divider className="my-2.5" />
-                <TableHeaderWrapper>
-                  <span>
-                    <Trans>Wallet</Trans>
-                  </span>
-                  <span>
-                    <Trans>Amount</Trans>
-                  </span>
-                </TableHeaderWrapper>
-                <Divider className="my-2.5" />
+                <KyberDAOCardDivider />
+                <div className="px-4 py-3">
+                  <TableHeaderWrapper>
+                    <span>
+                      <Trans>Wallet</Trans>
+                    </span>
+                    <span>
+                      <Trans>Amount</Trans>
+                    </span>
+                  </TableHeaderWrapper>
+                </div>
+                <KyberDAOCardDivider />
 
-                <div className="h-[150px] select-none overflow-auto max-[500px]:h-[130px]">
+                <Stack className="h-40 select-none overflow-auto px-4 py-3 max-sm:h-32">
                   {filteredParticipants.slice(0, 5).map(vote => {
                     return (
                       <InfoRow key={vote.staker}>
@@ -186,11 +191,11 @@ export default function Participants({ proposalId }: { proposalId?: number }) {
                     )
                   })}
                   {filteredParticipants.length > 5 && (
-                    <Row className="mt-1 justify-center">
+                    <Row className="justify-center pt-2">
                       <span className="text-xs text-primary">View more</span>
                     </Row>
                   )}
-                </div>
+                </Stack>
                 <VotersListModal
                   participants={filteredParticipants}
                   isOpen={index === modalIndex}

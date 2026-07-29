@@ -109,6 +109,19 @@
         unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329,
           U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
       }
+      /* Work Sans ships no arrows, math signs or subscript digits, so the glyphs below come from Inter —
+         the same face that drew them when Inter was the app's second font. The unicode-range holds this
+         face to exactly those glyphs, so it never competes with Work Sans for letters and stays ~5KB.
+         Keep it in sync with the symbols the UI renders. */
+      @font-face {
+        font-family: 'Inter Symbols';
+        font-style: normal;
+        font-weight: 100 900;
+        font-display: swap;
+        src: url('/fonts/inter/inter-symbols.3571ae4c.woff2') format('woff2');
+        unicode-range: U+2080-2089, U+20AE, U+2190, U+2192, U+2194-2199, U+221E, U+2248, U+2264-2265, U+25B2, U+25BC,
+          U+25CF, U+2605, U+26A0, U+2713;
+      }
     </style>
 
     <script>
@@ -139,7 +152,7 @@
         left: 0;
         right: 0;
         bottom: 0;
-        font-family: 'Work Sans', sans-serif;
+        font-family: 'Work Sans', 'Inter Symbols', sans-serif;
       }
 
       .preloadhtml {

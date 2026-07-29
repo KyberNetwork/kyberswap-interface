@@ -1,15 +1,15 @@
-import { PoolPageWrapper } from 'pages/Earns/PoolExplorer/styles'
+import { ListingPageWrapper } from 'components/Listing/Page'
 import { cn } from 'utils/cn'
 
 export type NoteCardTone = 'info' | 'warning' | 'error'
 
 export const PoolDetailWrapper = ({ children, className, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
-  <PoolPageWrapper
+  <ListingPageWrapper
     className={cn('mx-auto w-full gap-6 px-6 pb-[68px] pt-8 max-sm:px-4 max-sm:pb-[100px] max-sm:pt-6', className)}
     {...rest}
   >
     {children}
-  </PoolPageWrapper>
+  </ListingPageWrapper>
 )
 
 export const NoteCard = ({

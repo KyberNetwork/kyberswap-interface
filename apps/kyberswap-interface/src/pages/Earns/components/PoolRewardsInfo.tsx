@@ -166,7 +166,7 @@ const PoolRewardsInfo = ({ pool, showEstimate = true }: Props) => {
   const estWeeklyRewards = (depositAmount / (merklTvl + depositAmount)) * merklWeeklyRewards
 
   return (
-    <Stack className="gap-2">
+    <Stack className="gap-1">
       {totalRewards > 0 ? (
         <MouseoverTooltipDesktopOnly
           text={<RewardTooltipContent egRewards={egRewards} lmRewards={lmRewards} bonusRewards={bonusRewards} />}
@@ -207,7 +207,7 @@ const PoolRewardsInfo = ({ pool, showEstimate = true }: Props) => {
           )}
 
           {kemRewardTokens.length > 0 && (
-            <HStack className="flex-wrap items-center justify-end gap-1">
+            <HStack className="flex-nowrap items-center justify-end gap-1">
               {kemRewardTokens.map(token => (
                 <MouseoverTooltipDesktopOnly
                   key={token.address}

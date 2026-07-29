@@ -349,7 +349,7 @@ export default function PositionRowItem({
       </PositionValueWrapper>
 
       {/* Unclaimed fees info */}
-      <PositionValueWrapper align={upToCustomLarge ? 'flex-end' : ''}>
+      <PositionValueWrapper>
         <PositionValueLabel>{t`Unclaimed fees`}</PositionValueLabel>
 
         {isUnfinalized ? (
@@ -379,7 +379,7 @@ export default function PositionRowItem({
       </PositionValueWrapper>
 
       {/* Unclaimed rewards info */}
-      <PositionValueWrapper align={!upToCustomLarge ? 'center' : ''}>
+      <PositionValueWrapper className="min-[1301px]:justify-center">
         <PositionValueLabel>{t`Unclaimed rewards`}</PositionValueLabel>
         {isUnfinalized ? (
           <PositionSkeleton width={80} height={19} text={t`Finalizing...`} />
@@ -432,17 +432,15 @@ export default function PositionRowItem({
         )}
       </PositionValueWrapper>
 
-      {!upToCustomLarge && <div />}
-
       {/* Balance info */}
-      <PositionValueWrapper align={upToSmall ? 'flex-end' : ''}>
+      <PositionValueWrapper>
         <PositionValueLabel>{t`Balance`}</PositionValueLabel>
 
         {token0.symbol && token1.symbol ? (
           <div
             className={cn(
-              'flex w-full gap-[7.2px] overflow-hidden',
-              upToSmall ? 'flex-row items-center' : 'flex-col items-start',
+              'flex w-full gap-1 overflow-hidden',
+              upToSmall ? 'flex-row items-center justify-end' : 'flex-col items-start',
             )}
           >
             <div className="flex max-w-full items-center gap-1">
@@ -469,7 +467,7 @@ export default function PositionRowItem({
       </PositionValueWrapper>
 
       {/* Price range info */}
-      <PositionValueWrapper align={upToCustomLarge ? 'flex-end' : ''}>
+      <PositionValueWrapper>
         {upToCustomLarge ? (
           isUnfinalized ? null : (
             <PriceRange
@@ -499,7 +497,7 @@ export default function PositionRowItem({
 
       {/* Actions info */}
       {!upToCustomLarge && (
-        <PositionValueWrapper align="flex-end">
+        <PositionValueWrapper className="justify-end">
           {isUnfinalized ? <PositionSkeleton width={80} height={19} text={t`Finalizing...`} /> : actions}
         </PositionValueWrapper>
       )}

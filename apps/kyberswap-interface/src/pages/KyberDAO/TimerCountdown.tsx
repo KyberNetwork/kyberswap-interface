@@ -1,14 +1,16 @@
-import { CSSProperties, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Clock } from 'react-feather'
+
+import { cn } from 'utils/cn'
 
 export default function TimerCountdown({
   endTime,
   maxLength = Number.MAX_SAFE_INTEGER,
-  style,
+  className,
 }: {
   endTime: number
   maxLength?: number
-  style?: CSSProperties
+  className?: string
 }) {
   const [timeString, setTimeString] = useState<string>('--')
 
@@ -49,10 +51,12 @@ export default function TimerCountdown({
 
   return (
     <div
-      style={style}
-      className="mx-1 flex w-fit flex-row flex-nowrap items-center gap-1 rounded-lg bg-primary-20 px-2 py-[3px] text-primary"
+      className={cn(
+        'flex w-fit flex-row flex-nowrap items-center gap-2 rounded-lg bg-primary-20 px-2 py-1 text-primary',
+        className,
+      )}
     >
-      <Clock size="12px" /> <span className="text-xs leading-3">{timeString}</span>
+      <Clock size="12px" /> <span className="text-xs">{timeString}</span>
     </div>
   )
 }

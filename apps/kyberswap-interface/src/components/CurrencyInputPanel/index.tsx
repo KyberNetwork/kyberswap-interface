@@ -47,7 +47,7 @@ export const CurrencySelect = forwardRef<
         selected ? 'border border-transparent text-subText' : 'border border-border-primary text-primary',
         !selected && 'shadow-[0px_6px_10px_rgba(0,0,0,0.075)]',
         isDisable ? 'cursor-default' : 'cursor-pointer',
-        !isDisable && 'hover:brightness-125 focus:brightness-125',
+        !isDisable && 'hover:brightness-110 focus:brightness-110',
         className,
       )}
     >

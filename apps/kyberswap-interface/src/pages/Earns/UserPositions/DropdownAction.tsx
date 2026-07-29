@@ -230,8 +230,9 @@ const DropdownAction = ({
 
   const dropdownContentItemClass = (disabled?: boolean) =>
     cn(
-      'flex cursor-pointer items-center gap-2 self-stretch px-4 py-2 capitalize hover:text-primary',
-      disabled && 'cursor-not-allowed text-subText !brightness-[0.6] hover:text-subText',
+      'flex cursor-pointer items-center gap-2 self-stretch px-4 py-2 font-medium capitalize text-subText transition-colors',
+      'hover:bg-buttonGray hover:text-text',
+      disabled && 'cursor-not-allowed !brightness-[0.6] hover:bg-transparent hover:text-subText',
     )
 
   const renderActionItems = () =>
@@ -256,7 +257,7 @@ const DropdownAction = ({
       <div
         onClick={handleOpenChange}
         className={cn(
-          'relative top-[5px] flex h-[30px] w-[30px] flex-shrink-0 scale-110 cursor-pointer items-center justify-center rounded-xl',
+          'relative top-2 flex size-7 flex-shrink-0 scale-110 cursor-pointer items-center justify-center rounded-full hover:bg-tabActive',
           open ? 'bg-tabActive max-sm:bg-buttonGray' : 'bg-inherit max-sm:bg-tabActive',
         )}
       >
@@ -273,7 +274,7 @@ const DropdownAction = ({
             ref={contentRef}
             style={{ ...portalPosition, willChange: 'top, left' }}
             data-dropdown-content
-            className="fixed z-[1000] flex w-max flex-col items-start gap-1 rounded-xl bg-tabActive py-3.5 text-sm text-text shadow-[0px_4px_16px_rgba(0,0,0,0.1)]"
+            className="fixed z-[1000] flex w-max flex-col items-start gap-1 rounded-xl bg-tabActive py-2 text-sm text-text shadow-[0px_4px_16px_rgba(0,0,0,0.1)]"
           >
             {renderActionItems()}
           </div>,

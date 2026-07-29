@@ -1,6 +1,7 @@
 import { t } from '@lingui/macro'
 import { Star } from 'react-feather'
 
+import { TableCell, TableRow, getPoolTableGridTemplateColumns } from 'components/Listing/Table'
 import Loader from 'components/Loader'
 import { HStack } from 'components/Stack'
 import TokenLogo from 'components/TokenLogo'
@@ -9,7 +10,7 @@ import usePrefetchOnIntent from 'hooks/usePrefetchOnIntent'
 import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import SparklineChart from 'pages/Earns/PoolExplorer/SparklineChart'
-import { FeeTier, SymbolText, TableCell, TableRow } from 'pages/Earns/PoolExplorer/styles'
+import { FeeTier, SymbolText } from 'pages/Earns/PoolExplorer/styles'
 import PoolAprBadges from 'pages/Earns/components/PoolAprBadges'
 import PoolAprInfo from 'pages/Earns/components/PoolAprInfo'
 import PoolRewardsInfo from 'pages/Earns/components/PoolRewardsInfo'
@@ -71,11 +72,9 @@ const DesktopTableRow = ({
 
   return (
     <TableRow
-      showRewards={showRewards}
-      showPoolPrice={showPoolPrice}
       onClick={e => handleOpenZapInWidget(e)}
-      className="animate-[fadeInUp_0.3s_ease-out_both] motion-reduce:animate-none"
-      style={{ animationDelay }}
+      className="animate-[fadeInUp_0.3s_ease-out_both] cursor-pointer hover:bg-primary-10 motion-reduce:animate-none"
+      style={{ gridTemplateColumns: getPoolTableGridTemplateColumns(showRewards, showPoolPrice), animationDelay }}
       {...prefetchDetail}
     >
       <TableCell>
@@ -105,7 +104,7 @@ const DesktopTableRow = ({
           <span className="text-sm text-subText">{pool.dexName}</span>
         </HStack>
       </TableCell>
-      <TableCell>
+      <TableCell className="gap-1">
         <PoolAprInfo pool={pool} />
         <PoolAprBadges pool={pool} />
       </TableCell>
@@ -136,7 +135,7 @@ const DesktopTableRow = ({
           />
         </TableCell>
       )}
-      <TableCell justifyContent="flex-start" pt={16}>
+      <TableCell className="pt-4">
         {favoriteLoading.includes(pool.address) ? (
           <Loader />
         ) : (
