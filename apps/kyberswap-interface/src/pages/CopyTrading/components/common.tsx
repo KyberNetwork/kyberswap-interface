@@ -7,8 +7,9 @@ import verifiedIcon from 'assets/images/copy-trading/verified.svg'
 import { ButtonEmpty } from 'components/Button'
 import CopyHelper from 'components/Copy'
 import { Center, HStack, Stack } from 'components/Stack'
+import { useCopyTradingContext } from 'pages/CopyTrading/context'
 import { formatDate, getAgentDisplayName, getAgentInitials } from 'pages/CopyTrading/helpers'
-import { shortenAddress } from 'utils'
+import { shortenAddress } from 'utils/address'
 import { cn } from 'utils/cn'
 
 import { Badge, StrategyBadge } from './Badge'
@@ -38,13 +39,9 @@ type AgentCellProps = {
   subLineExtension?: ReactNode
 }
 
-const getLeaderAddress = (agent: AgentCard | AgentProfile) =>
-  'leaderAddress' in agent ? agent.leaderAddress : agent.leaderAddresses[0]
+const getLeaderAddress = (agent: AgentCard | AgentProfile) => agent.leaderAddress
 
-const getAgentPrimaryChain = (agent: AgentCard | AgentProfile) => agent.chains[0]
-
-const isVerifiedAgent = (agent: AgentCard | AgentProfile) =>
-  'isVerified' in agent ? agent.isVerified : agent.badges.includes('Verified')
+const isVerifiedAgent = (agent: AgentCard | AgentProfile) => agent.isVerified
 
 export const CopyTradingPage = ({ children, backTo, className }: CopyTradingPageProps) => {
   const navigate = useNavigate()
@@ -79,7 +76,8 @@ export const CopyTradingPageHeading = ({ className, description, title }: CopyTr
 )
 
 export const AgentCell = ({ agent, className, size = 'sm', subLineExtension }: AgentCellProps) => {
-  const chain = getAgentPrimaryChain(agent)
+  const { chains } = useCopyTradingContext()
+  const chain = chains.find(item => item.chainId === agent.chainId)
   const displayName = getAgentDisplayName(agent)
   const isLarge = size === 'lg'
 
@@ -125,13 +123,13 @@ export const AgentIdentity = ({ agent }: { agent: AgentCard | AgentProfile }) =>
     subLineExtension={
       <HStack className="flex-wrap items-center gap-2 text-sm font-medium text-subText">
         <span>•</span>
-        <span>{shortenAddress(getAgentPrimaryChain(agent).chainId, getLeaderAddress(agent))}</span>
+        <span>{shortenAddress(agent.chainId, getLeaderAddress(agent))}</span>
         <CopyHelper toCopy={getLeaderAddress(agent)} margin="0" size={13} className="text-subText" />
-        {'performanceFeePct' in agent && (
+        {agent.flatFeeRatePct && (
           <>
             <span>•</span>
-            <span>Fee:</span>
-            <span className="text-text">{agent.performanceFeePct}% of profits</span>
+            <span>Flat fee:</span>
+            <span className="text-text">{agent.flatFeeRatePct}%</span>
           </>
         )}
         {'liveSince' in agent && (

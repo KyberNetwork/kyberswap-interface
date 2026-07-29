@@ -124,9 +124,7 @@ const Sidebar = ({ agents, activeRuns, chains }: SidebarProps) => {
   const activeCopyId = isCopyDetailPage ? location.pathname.split('/').at(-1) : ''
   const agentById = new Map(agents.map(agent => [agent.agentId, agent]))
   const enabledChains = chains.filter(chain => chain.isEnabled)
-  const filteredAgents = !selectedChainId
-    ? agents
-    : agents.filter(agent => agent.chains.some(chain => chain.chainId === selectedChainId))
+  const filteredAgents = !selectedChainId ? agents : agents.filter(agent => agent.chainId === selectedChainId)
   const networkDropdownOptions = [
     { label: 'All Networks', value: ALL_NETWORKS },
     ...enabledChains.map(chain => ({

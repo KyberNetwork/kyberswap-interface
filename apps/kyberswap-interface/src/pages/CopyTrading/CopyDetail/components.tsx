@@ -5,7 +5,8 @@ import { Center, HStack, Stack } from 'components/Stack'
 import { CopyPositionsTable, TradeHistoryTable } from 'pages/CopyTrading/CopyDetail/Tables'
 import Leaderboard, { type LeaderboardStat } from 'pages/CopyTrading/components/Leaderboard'
 import { copyTradingStatIconMap } from 'pages/CopyTrading/constants'
-import { OWNER_ADDRESS, formatDate, formatUsd, percent, signedPercent, signedUsd } from 'pages/CopyTrading/helpers'
+import { useCopyTradingContext } from 'pages/CopyTrading/context'
+import { formatDate, formatUsd, percent, signedPercent, signedUsd } from 'pages/CopyTrading/helpers'
 
 type CopyRunPanelProps = {
   run: CopyRunSummary
@@ -30,12 +31,12 @@ const getCopyRunStats = (run: CopyRunSummary): LeaderboardStat[] => {
     },
     {
       label: 'Fees Paid',
-      value: formatUsd(run.feesPaidUsd),
+      value: formatUsd(run.flatFeesCapturedUsd),
       icon: copyTradingStatIconMap.volume,
     },
     {
       label: 'Est. Rebate Pending',
-      value: `~${formatUsd(run.estimatedRebatePendingUsd)}`,
+      value: `~${formatUsd(run.estimatedCashbackPendingUsd)}`,
       icon: copyTradingStatIconMap.money,
     },
   ]
@@ -64,18 +65,24 @@ export const CopyTimeline = ({ run }: CopyRunPanelProps) => (
 )
 
 export const OpenPositionsPanel = ({ run }: CopyRunPanelProps) => {
-  const { data: positions, isFetching } = copyTradingApi.useGetCopyRunPositionsQuery({
-    ownerAddress: OWNER_ADDRESS,
-    copyRunId: run.copyRunId,
-    status: 'open',
-  })
+  const { ownerAddress } = useCopyTradingContext()
+  const { data: positions, isFetching } = copyTradingApi.useGetCopyRunPositionsQuery(
+    {
+      ownerAddress: ownerAddress || '',
+      copyRunId: run.copyRunId,
+      status: 'open',
+    },
+    { skip: !ownerAddress },
+  )
 
   return (
     <Stack className="overflow-hidden rounded-xl bg-buttonBlack-60">
       <HStack className="flex-wrap items-center justify-between gap-4 border-b border-tableHeader bg-background-60 px-6 py-4">
         <HStack className="items-center gap-2">
           <h2 className="text-base font-medium text-text">My Positions</h2>
-          <Center className="size-5 rounded-full bg-primary-12 text-xs text-primary">{run.openPositionCount}</Center>
+          <Center className="size-5 rounded-full bg-primary-12 text-xs text-primary">
+            {run.openPositionCount || '—'}
+          </Center>
         </HStack>
         <HStack className="flex-wrap gap-5 text-sm">
           <span className="text-subText">Realised P&L</span>
@@ -92,17 +99,23 @@ export const OpenPositionsPanel = ({ run }: CopyRunPanelProps) => {
 }
 
 export const ClosedPositionsPanel = ({ run }: CopyRunPanelProps) => {
-  const { data: closedPositions, isFetching } = copyTradingApi.useGetCopyRunPositionsQuery({
-    ownerAddress: OWNER_ADDRESS,
-    copyRunId: run.copyRunId,
-    status: 'closed',
-  })
+  const { ownerAddress } = useCopyTradingContext()
+  const { data: closedPositions, isFetching } = copyTradingApi.useGetCopyRunPositionsQuery(
+    {
+      ownerAddress: ownerAddress || '',
+      copyRunId: run.copyRunId,
+      status: 'closed',
+    },
+    { skip: !ownerAddress },
+  )
 
   return (
     <Stack className="overflow-hidden rounded-xl bg-buttonBlack-60">
       <HStack className="items-center gap-2 border-b border-tableHeader bg-background-60 px-6 py-4">
         <h2 className="text-lg font-medium text-text">Full Closed Positions</h2>
-        <Center className="h-6 rounded-full bg-subText-20 px-3 text-xs text-text">{run.closedTradeCount}</Center>
+        <Center className="h-6 rounded-full bg-subText-20 px-3 text-xs text-text">
+          {run.closedPositionCount || '—'}
+        </Center>
       </HStack>
       <div className="overflow-x-auto">
         <TradeHistoryTable loading={isFetching} rows={closedPositions?.data || []} />

@@ -49,7 +49,7 @@ const TabPositions = ({ agentId }: { agentId: string }) => {
           return (
             <TabPositionsGrid key={row.positionId}>
               <TableCell className="text-subText">{row.tradeId}</TableCell>
-              <TableCell>{row.token.symbol}</TableCell>
+              <TableCell>{row.token.symbol || '—'}</TableCell>
               <TableCell>{formatUsd(row.entryPriceUsd)}</TableCell>
               <TableCell>{formatUsd(row.currentPriceUsd)}</TableCell>
               <TableCell>{formatTokenAmount(row.amountDecimal)}</TableCell>

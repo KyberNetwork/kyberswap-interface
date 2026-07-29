@@ -18,21 +18,38 @@ const chartWindowOptions: readonly SegmentedControlOption<PerformanceWindow>[] =
 
 type PerformanceChartPoint = {
   timestamp: number
-  portfolioValueUsd: number
-  realizedPnlUsd: number
+  portfolioValueUsd?: number
+  realizedPnlUsd?: number
 }
 
 export const toPerformanceChartPoint = (point: PerformancePoint): PerformanceChartPoint => ({
   timestamp: new Date(point.timestamp).getTime(),
-  portfolioValueUsd: Number(point.portfolioValueUsd || 0),
-  realizedPnlUsd: Number(point.realizedPnlUsd || 0),
+  portfolioValueUsd: point.portfolioValueUsd === undefined ? undefined : Number(point.portfolioValueUsd),
+  realizedPnlUsd: point.realizedPnlUsd === undefined ? undefined : Number(point.realizedPnlUsd),
 })
+
+export const mergePerformancePoints = (...series: PerformancePoint[][]) => {
+  const pointsByTimestamp = new Map<string, PerformancePoint>()
+
+  series.flat().forEach(point => {
+    const current = pointsByTimestamp.get(point.timestamp)
+    pointsByTimestamp.set(point.timestamp, {
+      ...current,
+      ...point,
+      portfolioValueUsd: point.portfolioValueUsd ?? current?.portfolioValueUsd,
+      realizedPnlUsd: point.realizedPnlUsd ?? current?.realizedPnlUsd,
+    })
+  })
+
+  return [...pointsByTimestamp.values()].sort((a, b) => a.timestamp.localeCompare(b.timestamp))
+}
 
 const formatTickDate = (value: number | string) =>
   new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric' }).format(new Date(value))
 
 const getPnlGradientOffset = (data: PerformanceChartPoint[]) => {
-  const values = data.map(point => point.realizedPnlUsd)
+  const values = data.map(point => point.realizedPnlUsd).filter(value => value !== undefined)
+  if (!values.length) return 1
   const maximum = Math.max(...values)
   const minimum = Math.min(...values)
 
@@ -75,7 +92,7 @@ const ChartTooltip = ({ active, payload }: ChartTooltipProps) => {
       <span className="text-subText">{formatTickDate(point.timestamp)}</span>
       {payload.map(item => (
         <span key={item.dataKey} className="font-medium" style={{ color: item.color }}>
-          {item.name}: {formatUsd(String(item.value || 0))}
+          {item.name}: {formatUsd(item.value === undefined ? undefined : String(item.value))}
         </span>
       ))}
     </Stack>

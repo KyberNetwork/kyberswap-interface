@@ -10,7 +10,8 @@ import { APP_PATHS } from 'constants/index'
 import { HeaderCell, TableBody, TableCell, TableHeader, TableRow } from 'pages/CopyTrading/components/Table'
 import { AgentCell } from 'pages/CopyTrading/components/common'
 import { copyTradingStatIconMap } from 'pages/CopyTrading/constants'
-import { OWNER_ADDRESS, compactUsd, percent } from 'pages/CopyTrading/helpers'
+import { useCopyTradingContext } from 'pages/CopyTrading/context'
+import { compactUsd, percent } from 'pages/CopyTrading/helpers'
 import { cn } from 'utils/cn'
 
 type LeaderboardGridProps = HTMLAttributes<HTMLDivElement> & {
@@ -47,11 +48,16 @@ type AgentTableProps = {
 
 const AgentTable = ({ agents, loading, sortBy, sortOrder, onSortChange, pagination }: AgentTableProps) => {
   const navigate = useNavigate()
+  const { ownerAddress } = useCopyTradingContext()
 
-  const { data: activeCopyRuns } = copyTradingApi.useGetCopyRunsQuery({
-    ownerAddress: OWNER_ADDRESS,
-    status: 'active',
-  })
+  const { data: activeCopyRuns } = copyTradingApi.useGetCopyRunsQuery(
+    {
+      ownerAddress: ownerAddress || '',
+      view: 'open',
+      limit: 100,
+    },
+    { skip: !ownerAddress },
+  )
 
   const copiedRunsByAgentId = useMemo(
     () =>
@@ -148,9 +154,9 @@ const AgentTable = ({ agents, loading, sortBy, sortOrder, onSortChange, paginati
               <TableCell className="text-right text-primary">{percent(agent.stats.apr30dPct)}</TableCell>
               <TableCell className="text-right">{percent(agent.stats.winRatePct)}</TableCell>
               <TableCell className="text-right">{compactUsd(agent.stats.volumeUsd)}</TableCell>
-              <TableCell className="text-right">{agent.stats.copiers.toLocaleString()}</TableCell>
+              <TableCell className="text-right">{agent.stats.copiers?.toLocaleString() || '—'}</TableCell>
               <TableCell className="text-right">{compactUsd(agent.stats.aumUsd)}</TableCell>
-              <TableCell className="text-right">{agent.stats.openPositions}</TableCell>
+              <TableCell className="text-right">{agent.stats.openPositions || '—'}</TableCell>
               <TableCell className="flex justify-center">
                 {copiedRun ? (
                   <span className="text-sm font-medium text-primary">Copied</span>
