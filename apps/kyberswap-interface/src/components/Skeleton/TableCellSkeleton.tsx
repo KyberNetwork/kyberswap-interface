@@ -15,7 +15,7 @@ type Props = {
  */
 const TableCellSkeleton = ({ width, height, circle = false, className }: Props) => (
   <div
-    className={cn('shrink-0 bg-[#ffffff1f]', circle ? 'rounded-full' : 'rounded', className)}
+    className={cn('shrink-0 bg-text-12', circle ? 'rounded-full' : 'rounded', className)}
     style={{ width, height }}
   />
 )

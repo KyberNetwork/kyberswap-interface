@@ -20,9 +20,17 @@ export const ListingPageWrapper = ({ className, ...rest }: HTMLAttributes<HTMLDi
 type ListingPageTitleProps = HTMLAttributes<HTMLDivElement> & {
   backLabel: string
   onBack: () => void
+  titleAs?: 'h1' | 'h2' | 'span'
 }
 
-export const ListingPageTitle = ({ backLabel, children, className, onBack, ...rest }: ListingPageTitleProps) => (
+export const ListingPageTitle = ({
+  backLabel,
+  children,
+  className,
+  onBack,
+  titleAs: Title = 'h1',
+  ...rest
+}: ListingPageTitleProps) => (
   <div className={cn('flex items-center gap-4', className)} {...rest}>
     <button
       type="button"
@@ -32,7 +40,7 @@ export const ListingPageTitle = ({ backLabel, children, className, onBack, ...re
     >
       <IconArrowLeft className="text-white2" />
     </button>
-    <span className="text-2xl font-medium">{children}</span>
+    <Title className="m-0 text-2xl font-medium">{children}</Title>
   </div>
 )
 

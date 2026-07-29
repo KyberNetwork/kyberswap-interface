@@ -45,13 +45,13 @@ const MarketFilter = () => {
     <Stack className="gap-4">
       <HStack className="items-center justify-between gap-4 max-sm:flex-col max-sm:items-stretch">
         <ListingFilterTagContainer>
-          <ListingFilterTag active={!tags.length} onClick={() => updateFilters('tags', '')} role="button">
+          <ListingFilterTag active={!tags.length} onClick={() => updateFilters('tags', '')}>
             <Trans>All</Trans>
           </ListingFilterTag>
           <ListingFilterTag
             active={!!isFavorite}
+            aria-label="Favorite tokens"
             onClick={() => updateFilters('isFavorite', isFavorite ? '' : 'true')}
-            role="button"
           >
             <Star size={14} />
           </ListingFilterTag>
@@ -67,7 +67,6 @@ const MarketFilter = () => {
                     : [...tags, item.value].join(','),
                 )
               }
-              role="button"
             >
               {item.label}
             </ListingFilterTag>

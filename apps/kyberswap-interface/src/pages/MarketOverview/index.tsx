@@ -28,7 +28,7 @@ const MarketOverview = () => {
       <HiddenH2>Spot opportunities and jump straight into a trade from one dashboard.</HiddenH2>
 
       <Stack className="gap-2">
-        <ListingPageTitle backLabel="Go back" onBack={() => navigate(-1)}>
+        <ListingPageTitle backLabel="Go back" onBack={() => navigate(-1)} titleAs="span">
           <Trans>Market Overview</Trans>
         </ListingPageTitle>
         <span className="italic text-subText">

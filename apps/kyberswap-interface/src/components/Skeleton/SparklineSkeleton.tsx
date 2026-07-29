@@ -12,7 +12,7 @@ const SparklineSkeleton = ({ className }: { className?: string }) => (
       <path
         d="M2 31 C14 28 20 18 32 22 S50 34 64 20 S84 8 98 14 S118 27 130 10"
         fill="none"
-        stroke="#a9a9a933"
+        stroke="var(--ks-subText-20)"
         strokeLinecap="round"
         strokeLinejoin="round"
         strokeWidth={3}

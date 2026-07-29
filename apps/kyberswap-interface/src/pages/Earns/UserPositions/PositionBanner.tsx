@@ -149,7 +149,7 @@ export default function PositionBanner({
           </span>
           <button
             type="button"
-            aria-label={t`Close`}
+            aria-label="Close"
             onClick={() => setShowTotalRewardModal(false)}
             className="flex size-6 cursor-pointer items-center justify-center border-0 bg-transparent p-0 text-subText hover:text-text"
           >
@@ -338,7 +338,7 @@ export default function PositionBanner({
                       </p>
                       <button
                         type="button"
-                        aria-label={t`View total rewards details`}
+                        aria-label="View total rewards details"
                         onClick={() => setShowTotalRewardModal(true)}
                         className="mr-2 flex size-4 cursor-pointer items-center justify-center border-0 bg-transparent p-0 text-subText hover:text-text"
                       >

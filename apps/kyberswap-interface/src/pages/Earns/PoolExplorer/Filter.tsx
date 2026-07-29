@@ -242,7 +242,6 @@ const Filter = ({
         <ListingFilterTagContainer className="w-full">
           <ListingFilterTag
             active={!filters.tag}
-            role="button"
             onClick={() => {
               pendingFilterTrackRef.current = {
                 eventType: TRACKING_EVENT_TYPE.POOL_CATEGORY_SELECTED,
@@ -260,7 +259,7 @@ const Filter = ({
           <MouseoverTooltip text={t`List of pools added as favorite`} placement="top" width="fit-content">
             <ListingFilterTag
               active={filters.tag === 'favorite'}
-              role="button"
+              aria-label="Favorite pools"
               onClick={() => {
                 pendingFilterTrackRef.current = {
                   eventType: TRACKING_EVENT_TYPE.POOL_CATEGORY_SELECTED,
@@ -290,23 +289,13 @@ const Filter = ({
             }
             return !upToMedium ? (
               <MouseoverTooltipDesktopOnly text={item.tooltip} placement="top" key={index}>
-                <ListingFilterTag
-                  active={filters.tag === item.value}
-                  key={item.value}
-                  role="button"
-                  onClick={handleTagClick}
-                >
+                <ListingFilterTag active={filters.tag === item.value} key={item.value} onClick={handleTagClick}>
                   {item.icon}
                   {item.label}
                 </ListingFilterTag>
               </MouseoverTooltipDesktopOnly>
             ) : (
-              <ListingFilterTag
-                active={filters.tag === item.value}
-                key={item.value}
-                role="button"
-                onClick={handleTagClick}
-              >
+              <ListingFilterTag active={filters.tag === item.value} key={item.value} onClick={handleTagClick}>
                 {item.icon}
                 {item.label}
               </ListingFilterTag>

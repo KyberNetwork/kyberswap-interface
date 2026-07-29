@@ -224,7 +224,7 @@ const PoolExplorer = () => {
         Trading volume, TVL, and pool performance across networks - all from one interface without switching apps.
       </HiddenH2>
       <Stack className="gap-2">
-        <ListingPageTitle backLabel="Go back" onBack={() => navigate(-1)}>
+        <ListingPageTitle backLabel="Go back" onBack={() => navigate(-1)} titleAs="span">
           {t`Earning with Smart Liquidity Providing`}
         </ListingPageTitle>
         <span className="italic text-subText">

@@ -879,7 +879,7 @@ export const TokenSelectorContent = ({
             {searchQuery ? (
               <button
                 type="button"
-                aria-label={t`Clear search`}
+                aria-label="Clear search"
                 data-testid="clear-search"
                 onClick={() => {
                   setSearchQuery('')

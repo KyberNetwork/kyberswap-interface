@@ -59,8 +59,8 @@ const pickSkeleton = (rawPathname: string) => {
 /**
  * Route-aware fallback shared by runtime Suspense and prerendered cold-load markup.
  *
- * Keep skeletons presentational and dependency-light, mirroring only the page's major structure. Treat
- * page-owned loading UI as the source of truth and share primitives instead of duplicating implementations.
+ * Keep skeletons presentational and dependency-light. The real page layout is the visual source of truth;
+ * shared list skeleton bodies live here and page data-loading states reuse them instead of maintaining copies.
  * Routes without a dedicated skeleton fall back to `Loader`.
  */
 const RouteFallback = () => {

@@ -263,7 +263,7 @@ const UserPositions = () => {
         <HiddenH2>
           Monitor APR, rewards, and performance across protocols — no need to check each one separately.
         </HiddenH2>
-        <ListingPageTitle backLabel="Go back" onBack={() => navigate(-1)}>
+        <ListingPageTitle backLabel="Go back" onBack={() => navigate(-1)} titleAs="span">
           {t`My Liquidity Positions`}
         </ListingPageTitle>
 
