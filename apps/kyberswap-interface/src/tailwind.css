@@ -2,11 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Keep page geometry stable while route fallback skeletons are being tuned. */
-.debug-static-page-content [class*='animate-[fadeInUp_'] {
-  animation: none !important;
-}
-
 /* Primary CTA emitted by `@kyber/token-selector` (e.g. the "Connect" button
    inside the Liquidity Source modal). The package only emits the className
    and expects the host app to style it. Kept unlayered + with `!` so it wins

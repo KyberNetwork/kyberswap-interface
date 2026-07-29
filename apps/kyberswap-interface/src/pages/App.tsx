@@ -1,6 +1,6 @@
 import '@kyber/token-selector/styles.css'
 import '@kyber/ui/styles.css'
-import { Suspense, lazy, useState } from 'react'
+import { Suspense, lazy } from 'react'
 import { Navigate, Route, Routes, useLocation, useParams, useSearchParams } from 'react-router-dom'
 
 import Popups from 'components/Announcement/Popups'
@@ -87,12 +87,9 @@ const HeaderWrapper = ({ children }: { children: React.ReactNode }) => (
   <header className="z-[3] flex w-full shrink-0 flex-row flex-nowrap justify-between">{children}</header>
 )
 
-const BodyWrapper = ({ children, visible = true }: { children: React.ReactNode; visible?: boolean }) =>
-  visible ? (
-    <main className="debug-static-page-content relative z-[1] flex w-full flex-1 flex-col items-center">
-      {children}
-    </main>
-  ) : null
+const BodyWrapper = ({ children }: { children: React.ReactNode }) => (
+  <main className="relative z-[1] flex w-full flex-1 flex-col items-center">{children}</main>
+)
 
 const NetworkSyncedPage = ({ children }: { children: React.ReactNode }) => {
   useSyncNetworkParamWithStore()
@@ -208,7 +205,6 @@ export default function App() {
   const { isEmbeddedSwap } = usePageLocation()
   const dispatch = useAppDispatch()
   const safeAppAcceptedTermOfUse = useAppSelector(state => state.user.safeAppAcceptedTermOfUse)
-  const [showRouteFallback, setShowRouteFallback] = useState(false)
 
   useSessionExpiredGlobal()
   useGlobalTrackingEvents()
@@ -220,23 +216,15 @@ export default function App() {
       <AppHaveUpdate />
       <RouteSeo />
       <AppWrapper>
-        <ButtonPrimary
-          className="fixed bottom-16 right-4 z-[99] !w-auto px-4 py-2"
-          aria-pressed={showRouteFallback}
-          onClick={() => setShowRouteFallback(current => !current)}
-        >
-          Check Skeleton
-        </ButtonPrimary>
         <ModalsGlobal />
         {!isEmbeddedSwap && <TopBanner />}
         <HeaderWrapper>
           <SupportButton />
           <Header />
         </HeaderWrapper>
-        {showRouteFallback && <RouteFallback />}
         <Suspense fallback={<RouteFallback />}>
           <Popups />
-          <BodyWrapper visible={!showRouteFallback}>
+          <BodyWrapper>
             <SingaporeWarningPopup />
             {isInSafeApp && !safeAppAcceptedTermOfUse && (
               <Modal isOpen>
