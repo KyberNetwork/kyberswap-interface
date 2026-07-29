@@ -4,7 +4,7 @@ import type { MessageDescriptor } from '@lingui/core';
 import { msg, t } from '@lingui/macro';
 
 import { PermitNftState } from '@kyber/hooks';
-import { getDexName, univ2Types, univ4Types } from '@kyber/schema';
+import { getDexName, univ2Types } from '@kyber/schema';
 import { PI_LEVEL } from '@kyber/utils';
 import { estimateGasForTx } from '@kyber/utils/crypto/transaction';
 
@@ -115,7 +115,6 @@ export function useActionButton({ onConnectWallet, onSwitchChain }: UseActionBut
 
   const isSourceUniV2 = sourcePoolType ? univ2Types.includes(sourcePoolType as any) : false;
   const isTargetUniV2 = targetPoolType ? univ2Types.includes(targetPoolType as any) : false;
-  const isTargetUniV4 = targetPoolType ? univ4Types.includes(targetPoolType as any) : false;
 
   const sourceDexName = sourcePoolType ? getDexName(sourcePoolType, chainId, sourceDexId) : '';
   const targetDexName = targetPoolType ? getDexName(targetPoolType, chainId, targetDexId) : '';
@@ -185,7 +184,7 @@ export function useActionButton({ onConnectWallet, onSwitchChain }: UseActionBut
 
     if (!connectedAccount.address) return translateButtonText(BUTTON_TEXTS.CONNECT_WALLET);
     if (connectedAccount.chainId !== chainId) return translateButtonText(BUTTON_TEXTS.SWITCH_NETWORK);
-    if (isTargetUniV4 && isNotTargetOwner) return translateButtonText(BUTTON_TEXTS.NOT_POSITION_OWNER);
+    if (isNotTargetOwner) return translateButtonText(BUTTON_TEXTS.NOT_POSITION_OWNER);
     if (isAnyChecking) return translateButtonText(BUTTON_TEXTS.CHECKING_ALLOWANCE);
     if (zapImpactLevel.isVeryHigh) return translateButtonText(BUTTON_TEXTS.ZAP_ANYWAY);
 
@@ -202,7 +201,6 @@ export function useActionButton({ onConnectWallet, onSwitchChain }: UseActionBut
     isNotTargetOwner,
     isPriceRangeRequired,
     isSourceFarming,
-    isTargetUniV4,
     liquidityOut,
     rePositionMode,
     route,
@@ -221,7 +219,7 @@ export function useActionButton({ onConnectWallet, onSwitchChain }: UseActionBut
           !isNotSourceOwner &&
           connectedAccount.address &&
           connectedAccount.chainId === chainId &&
-          (!isTargetUniV4 || !isNotTargetOwner) &&
+          !isNotTargetOwner &&
           !sourceApproval.isApproved &&
           (isSourceUniV2 || sourcePermit.state !== PermitNftState.SIGNED),
       ),
@@ -235,7 +233,6 @@ export function useActionButton({ onConnectWallet, onSwitchChain }: UseActionBut
       isNotTargetOwner,
       isPriceRangeRequired,
       isSourceUniV2,
-      isTargetUniV4,
       liquidityOut,
       route,
       sourceApproval.isApproved,
@@ -247,7 +244,6 @@ export function useActionButton({ onConnectWallet, onSwitchChain }: UseActionBut
     () =>
       Boolean(
         !!targetPositionId &&
-          isTargetUniV4 &&
           !gasLoading &&
           liquidityOut > 0n &&
           (!isPriceRangeRequired || hasValidPriceRange) &&
@@ -270,7 +266,6 @@ export function useActionButton({ onConnectWallet, onSwitchChain }: UseActionBut
       isNotSourceOwner,
       isNotTargetOwner,
       isPriceRangeRequired,
-      isTargetUniV4,
       liquidityOut,
       route,
       sourceApproval.isApproved,
@@ -288,7 +283,7 @@ export function useActionButton({ onConnectWallet, onSwitchChain }: UseActionBut
         liquidityOut === 0n ||
         (isPriceRangeRequired && !hasValidPriceRange) ||
         isNotSourceOwner ||
-        (isTargetUniV4 && isNotTargetOwner) ||
+        isNotTargetOwner ||
         isAnyChecking ||
         isAnyApproving,
     );
@@ -300,7 +295,6 @@ export function useActionButton({ onConnectWallet, onSwitchChain }: UseActionBut
     isPriceRangeRequired,
     hasValidPriceRange,
     isNotSourceOwner,
-    isTargetUniV4,
     isNotTargetOwner,
     isAnyChecking,
     isAnyApproving,
