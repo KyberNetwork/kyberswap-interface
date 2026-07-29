@@ -1,5 +1,5 @@
+import { ListingFilterTagContainer } from 'components/Listing/components'
 import Skeleton, { SkeletonProps } from 'components/Skeleton'
-import TableCellSkeleton from 'components/Skeleton/TableCellSkeleton'
 import { Center } from 'components/Stack'
 import { cn } from 'utils/cn'
 
@@ -45,18 +45,24 @@ export const ControlSkeleton = ({ width, wrapperClassName, ...props }: ControlSk
   </div>
 )
 
-/** Shared 20px header text line for RouteFallback table cells. */
-export const TableHeaderLineSkeleton = ({ width }: { width: number }) => (
-  <div className="flex h-5 items-center">
-    <TableCellSkeleton width={width} height={14} />
-  </div>
-)
+type ListingFilterTagsSkeletonProps = {
+  widths: readonly number[]
+  className?: string
+}
 
-/** Shared 24px value line for RouteFallback table cells. */
-export const TableValueSkeleton = ({ width }: { width: number }) => (
-  <Center className="h-6">
-    <TableCellSkeleton width={width} height={18} />
-  </Center>
+export const ListingFilterTagsSkeleton = ({ widths, className }: ListingFilterTagsSkeletonProps) => (
+  <>
+    <ListingFilterTagContainer className={cn('max-md:hidden', className)}>
+      {widths.map((width, index) => (
+        <Skeleton key={index} width={width} height={42} />
+      ))}
+    </ListingFilterTagContainer>
+    <ListingFilterTagContainer className={cn('hidden max-md:flex', className)}>
+      {widths.map((width, index) => (
+        <Skeleton key={index} width={width} height={38} />
+      ))}
+    </ListingFilterTagContainer>
+  </>
 )
 
 export const TitleRowSkeleton = ({ width }: { width: number }) => (

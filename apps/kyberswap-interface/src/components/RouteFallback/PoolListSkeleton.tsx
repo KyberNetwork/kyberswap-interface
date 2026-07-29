@@ -1,7 +1,7 @@
 import { TableCell, TableGrid, getPoolTableGridTemplateColumns } from 'components/Listing/Table'
-import { TableHeaderLineSkeleton, TableValueSkeleton } from 'components/RouteFallback/common'
 import SparklineSkeleton from 'components/Skeleton/SparklineSkeleton'
 import TableCellSkeleton from 'components/Skeleton/TableCellSkeleton'
+import TextSkeleton from 'components/Skeleton/TextSkeleton'
 import { cn } from 'utils/cn'
 
 const PoolCircle = ({ size }: { size: number }) => <TableCellSkeleton circle width={size} height={size} />
@@ -43,7 +43,7 @@ export const PoolTableHeaderSkeleton = ({
     >
       {widths.map((width, index) => (
         <TableCell key={index} className="justify-center">
-          {width ? <TableHeaderLineSkeleton width={width} /> : null}
+          {width ? <TextSkeleton width={width} size="sm" /> : null}
         </TableCell>
       ))}
     </PoolTableGrid>
@@ -65,11 +65,9 @@ const PoolPairCellSkeleton = ({ index }: { index: number }) => {
     <TableCell>
       <div className="flex items-center gap-3">
         <PoolCircle size={24} />
-        <TableCellSkeleton width={widths.pair} height={18} />
+        <TextSkeleton width={widths.pair} size="base" />
       </div>
-      <div className="flex h-5 items-center">
-        <TableCellSkeleton width={widths.protocol} height={14} />
-      </div>
+      <TextSkeleton width={widths.protocol} size="sm" />
     </TableCell>
   )
 }
@@ -89,20 +87,20 @@ const PoolDesktopRowSkeleton = ({
     <PoolTableGrid className="p-3" showRewards={showRewards} showPoolPrice={showPoolPrice}>
       <PoolPairCellSkeleton index={index} />
       <TableCell>
-        <TableValueSkeleton width={widths.apr} />
+        <TextSkeleton width={widths.apr} size="base" />
       </TableCell>
       <TableCell>
-        <TableValueSkeleton width={widths.fee} />
+        <TextSkeleton width={widths.fee} size="base" />
       </TableCell>
       <TableCell>
-        <TableValueSkeleton width={widths.tvl} />
+        <TextSkeleton width={widths.tvl} size="base" />
       </TableCell>
       <TableCell>
-        <TableValueSkeleton width={widths.volume} />
+        <TextSkeleton width={widths.volume} size="base" />
       </TableCell>
       {showRewards && (
         <TableCell>
-          <TableValueSkeleton width={widths.rewards} />
+          <TextSkeleton width={widths.rewards} size="base" />
         </TableCell>
       )}
       {showPoolPrice && (

@@ -8,33 +8,6 @@ export const HeadSection = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElem
 ))
 HeadSection.displayName = 'HeadSection'
 
-export const TagContainer = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
-  ({ className, ...rest }, ref) => (
-    <div ref={ref} className={cn('flex w-full flex-wrap gap-4 max-sm:gap-3', className)} {...rest} />
-  ),
-)
-TagContainer.displayName = 'TagContainer'
-
-type TagProps = HTMLAttributes<HTMLDivElement> & { active: boolean; height?: number }
-
-export const Tag = forwardRef<HTMLDivElement, TagProps>(({ className, active, height, style, ...rest }, ref) => (
-  <div
-    ref={ref}
-    data-active={active}
-    className={cn(
-      'flex h-[42px] shrink-0 cursor-pointer items-center gap-2 rounded-xl border border-transparent px-4 py-1 text-sm font-medium leading-7 text-subText transition-colors duration-200 max-md:h-[38px]',
-      active && 'border-primary bg-primary-20 text-text',
-      !active && 'bg-background',
-      'data-[active=true]:[&[role=button]:hover]:border-primary data-[active=true]:[&[role=button]:hover]:bg-primary-30',
-      'data-[active=false]:[&[role=button]:hover]:bg-primary-10',
-      className,
-    )}
-    style={{ ...(height ? { height: `${height}px` } : {}), ...style }}
-    {...rest}
-  />
-))
-Tag.displayName = 'Tag'
-
 export const PoolTableWrapper = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
   <TableWrapper className={cn('max-md:bg-transparent', className)} {...rest} />
 )

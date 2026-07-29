@@ -1,6 +1,6 @@
 import { TableCell, TableGrid, getSmartExitTableGridTemplateColumns } from 'components/Listing/Table'
-import { TableHeaderLineSkeleton, TableValueSkeleton } from 'components/RouteFallback/common'
 import TableCellSkeleton from 'components/Skeleton/TableCellSkeleton'
+import TextSkeleton from 'components/Skeleton/TextSkeleton'
 import { cn } from 'utils/cn'
 
 type SmartExitListSkeletonProps = {
@@ -33,11 +33,9 @@ const OrderTitleSkeleton = ({ index, className }: { index: number; className?: s
     <TableCell className={cn('gap-3', className)}>
       <div className="flex h-6 items-center gap-2">
         <TableCellSkeleton circle width={24} height={24} />
-        <TableCellSkeleton className="max-w-[calc(100%_-_32px)]" width={widths.pair} height={18} />
+        <TextSkeleton className="max-w-[calc(100%_-_32px)]" width={widths.pair} size="base" />
       </div>
-      <div className="flex h-5 items-center">
-        <TableCellSkeleton width={widths.protocol} height={14} />
-      </div>
+      <TextSkeleton width={widths.protocol} size="sm" />
     </TableCell>
   )
 }
@@ -47,8 +45,8 @@ const OrderConditionSkeleton = ({ index, className }: { index: number; className
 
   return (
     <TableCell className={cn('lg:w-[calc(50%_-_36px)]', className)}>
-      <TableValueSkeleton width={widths.condition} />
-      <TableValueSkeleton width={widths.conditionSub} />
+      <TextSkeleton width={widths.condition} size="base" />
+      <TextSkeleton width={widths.conditionSub} size="base" />
     </TableCell>
   )
 }
@@ -56,33 +54,33 @@ const OrderConditionSkeleton = ({ index, className }: { index: number; className
 const ReceivedSkeleton = ({ index }: { index: number }) => {
   const width = SMART_EXIT_ROW_VARIANTS[index % SMART_EXIT_ROW_VARIANTS.length].received
 
-  return <TableValueSkeleton width={width} />
+  return <TextSkeleton width={width} size="base" />
 }
 
 export const SmartExitTableHeaderSkeleton = () => (
   <SmartExitTableGrid className="border-b border-tableHeader p-3 max-[992px]:hidden">
     <SmartExitTableCell>
-      <TableHeaderLineSkeleton width={12} />
+      <TextSkeleton width={12} size="sm" />
     </SmartExitTableCell>
     <SmartExitTableCell>
-      <TableHeaderLineSkeleton width={64} />
+      <TextSkeleton width={64} size="sm" />
     </SmartExitTableCell>
     <SmartExitTableCell>
-      <TableHeaderLineSkeleton width={84} />
+      <TextSkeleton width={84} size="sm" />
     </SmartExitTableCell>
     <SmartExitTableCell>
-      <TableHeaderLineSkeleton width={76} />
-      <TableHeaderLineSkeleton width={56} />
+      <TextSkeleton width={76} size="sm" />
+      <TextSkeleton width={56} size="sm" />
     </SmartExitTableCell>
     <SmartExitTableCell>
-      <TableHeaderLineSkeleton width={68} />
-      <TableHeaderLineSkeleton width={52} />
+      <TextSkeleton width={68} size="sm" />
+      <TextSkeleton width={52} size="sm" />
     </SmartExitTableCell>
     <SmartExitTableCell>
-      <TableHeaderLineSkeleton width={56} />
+      <TextSkeleton width={56} size="sm" />
     </SmartExitTableCell>
     <SmartExitTableCell>
-      <TableHeaderLineSkeleton width={48} />
+      <TextSkeleton width={48} size="sm" />
     </SmartExitTableCell>
     <SmartExitTableCell className="px-1" />
   </SmartExitTableGrid>
@@ -97,13 +95,13 @@ const SmartExitDesktopRowSkeleton = ({ index }: { index: number }) => {
       <OrderTitleSkeleton index={index} />
       <OrderConditionSkeleton index={index} />
       <SmartExitTableCell>
-        <TableValueSkeleton width={widths.value} />
+        <TextSkeleton width={widths.value} size="base" />
       </SmartExitTableCell>
       <SmartExitTableCell>
         <ReceivedSkeleton index={index} />
       </SmartExitTableCell>
       <SmartExitTableCell>
-        <TableValueSkeleton width={48} />
+        <TextSkeleton width={48} size="base" />
       </SmartExitTableCell>
       <SmartExitTableCell>
         <TableCellSkeleton width={widths.status} height={24} circle />
@@ -128,13 +126,13 @@ const SmartExitMobileCardSkeleton = ({ index }: { index: number }) => {
       <OrderTitleSkeleton index={index} className="h-auto p-2" />
       <OrderConditionSkeleton index={index} className="h-auto p-2" />
       <MobileFieldSkeleton labelWidth={120}>
-        <TableValueSkeleton width={widths.value} />
+        <TextSkeleton width={widths.value} size="base" />
       </MobileFieldSkeleton>
       <MobileFieldSkeleton labelWidth={100}>
         <ReceivedSkeleton index={index} />
       </MobileFieldSkeleton>
       <MobileFieldSkeleton labelWidth={64}>
-        <TableValueSkeleton width={48} />
+        <TextSkeleton width={48} size="base" />
       </MobileFieldSkeleton>
       <div className="flex min-h-12 items-center justify-between gap-2 p-2">
         <TableCellSkeleton width={widths.status} height={24} circle />

@@ -1,6 +1,6 @@
 import { TableCell, TableGrid, getPositionTableGridTemplateColumns } from 'components/Listing/Table'
-import { TableHeaderLineSkeleton, TableValueSkeleton } from 'components/RouteFallback/common'
 import TableCellSkeleton from 'components/Skeleton/TableCellSkeleton'
+import TextSkeleton from 'components/Skeleton/TextSkeleton'
 import { Center, Stack } from 'components/Stack'
 import { cn } from 'utils/cn'
 
@@ -36,35 +36,35 @@ const PositionTableHeaderCell = ({ children, className }: { children?: React.Rea
 export const PositionTableHeaderSkeleton = () => (
   <PositionTableGrid className="border-b border-tableHeader p-3 max-[1300px]:hidden">
     <PositionTableHeaderCell>
-      <TableHeaderLineSkeleton width={64} />
+      <TextSkeleton width={64} size="sm" />
     </PositionTableHeaderCell>
     <PositionTableHeaderCell>
-      <TableHeaderLineSkeleton width={52} />
+      <TextSkeleton width={52} size="sm" />
     </PositionTableHeaderCell>
     <PositionTableHeaderCell>
-      <TableHeaderLineSkeleton width={64} />
+      <TextSkeleton width={64} size="sm" />
     </PositionTableHeaderCell>
     <PositionTableHeaderCell>
       <div className="flex flex-col gap-1">
-        <TableHeaderLineSkeleton width={76} />
-        <TableHeaderLineSkeleton width={48} />
+        <TextSkeleton width={76} size="sm" />
+        <TextSkeleton width={48} size="sm" />
       </div>
     </PositionTableHeaderCell>
     <PositionTableHeaderCell className="flex-row gap-1">
       <TableCellSkeleton circle width={24} height={24} />
       <div className="flex flex-col">
-        <TableHeaderLineSkeleton width={76} />
-        <TableHeaderLineSkeleton width={64} />
+        <TextSkeleton width={76} size="sm" />
+        <TextSkeleton width={64} size="sm" />
       </div>
     </PositionTableHeaderCell>
     <PositionTableHeaderCell className="items-center">
-      <TableHeaderLineSkeleton width={52} />
+      <TextSkeleton width={52} size="sm" />
     </PositionTableHeaderCell>
     <PositionTableHeaderCell>
-      <TableHeaderLineSkeleton width={80} />
+      <TextSkeleton width={80} size="sm" />
     </PositionTableHeaderCell>
     <PositionTableHeaderCell className="items-end overflow-visible">
-      <TableHeaderLineSkeleton width={68} />
+      <TextSkeleton width={68} size="sm" />
     </PositionTableHeaderCell>
   </PositionTableGrid>
 )
@@ -80,11 +80,9 @@ const PositionOverviewSkeleton = ({ index }: { index: number }) => {
     <TableCell className="gap-3 max-[1300px]:col-span-2 max-sm:w-full max-sm:p-2">
       <div className="flex items-center gap-3">
         <TableCellSkeleton circle width={24} height={24} />
-        <TableCellSkeleton width={widths.pair} height={18} />
+        <TextSkeleton width={widths.pair} size="base" />
       </div>
-      <div className="flex h-5 items-center">
-        <TableCellSkeleton width={widths.protocol} height={16} />
-      </div>
+      <TextSkeleton width={widths.protocol} size="sm" height={16} />
     </TableCell>
   )
 }
@@ -116,26 +114,26 @@ const PositionRowSkeleton = ({ index = 0 }: { index?: number }) => {
 
       <PositionTableCell>
         <ResponsiveLabelSkeleton width={36} />
-        <TableValueSkeleton width={widths.value} />
+        <TextSkeleton width={widths.value} size="base" />
       </PositionTableCell>
       <PositionTableCell>
         <ResponsiveLabelSkeleton width={28} />
-        <TableValueSkeleton width={widths.apr} />
+        <TextSkeleton width={widths.apr} size="base" />
       </PositionTableCell>
       <PositionTableCell>
         <ResponsiveLabelSkeleton width={96} />
-        <TableValueSkeleton width={widths.fees} />
+        <TextSkeleton width={widths.fees} size="base" />
       </PositionTableCell>
       <PositionTableCell className="min-[1301px]:justify-center">
         <ResponsiveLabelSkeleton width={116} />
-        <TableValueSkeleton width={widths.rewards} />
+        <TextSkeleton width={widths.rewards} size="base" />
       </PositionTableCell>
 
       <PositionTableCell>
         <ResponsiveLabelSkeleton width={52} />
         <Stack className="items-start gap-1 max-sm:flex-row">
-          <TableValueSkeleton width={widths.balance} />
-          <TableValueSkeleton width={widths.balance + 8} />
+          <TextSkeleton width={widths.balance} size="base" />
+          <TextSkeleton width={widths.balance + 8} size="base" />
         </Stack>
       </PositionTableCell>
       <PositionTableCell>

@@ -1,7 +1,7 @@
 import { ListingPageWrapper } from 'components/Listing/Page'
 import { TableWrapper } from 'components/Listing/Table'
 import PoolListSkeleton, { PoolTableHeaderSkeleton } from 'components/RouteFallback/PoolListSkeleton'
-import { TitleRowSkeleton } from 'components/RouteFallback/common'
+import { ListingFilterTagsSkeleton, TitleRowSkeleton } from 'components/RouteFallback/common'
 import Skeleton from 'components/Skeleton'
 
 export const EarnLandingSkeleton = () => (
@@ -60,16 +60,7 @@ export const EarnPoolsSkeleton = () => (
 
     {/* Category tags (h-42, rounded-xl, gap-4) + My Positions button. */}
     <div className="flex flex-wrap items-center justify-between gap-4">
-      <div className="flex flex-wrap gap-4 max-md:hidden">
-        {[94, 50, 162, 181, 123, 152, 153].map((w, i) => (
-          <Skeleton key={i} width={w} height={42} />
-        ))}
-      </div>
-      <div className="hidden flex-wrap gap-3 max-md:flex">
-        {[94, 50, 162, 181, 123, 152, 153].map((w, i) => (
-          <Skeleton key={i} width={w} height={38} />
-        ))}
-      </div>
+      <ListingFilterTagsSkeleton widths={[94, 50, 162, 181, 123, 152, 153]} />
       <div className="max-md:hidden">
         <Skeleton width={148} height={36} />
       </div>

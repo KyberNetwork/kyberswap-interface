@@ -17,6 +17,10 @@ export const getSmartExitTableGridTemplateColumns = () => {
   return '40px minmax(180px, 1fr) minmax(240px, 1.5fr) minmax(110px, 0.5fr) minmax(120px, 0.6fr) minmax(80px, 0.4fr) minmax(100px, 0.5fr) 40px'
 }
 
+export const getMarketTableGridTemplateColumns = () => {
+  return 'minmax(180px, 1fr) minmax(100px, 0.5fr) minmax(100px, 0.5fr) minmax(100px, 0.5fr) minmax(100px, 0.5fr) minmax(110px, 0.6fr) minmax(110px, 0.6fr) 100px'
+}
+
 type TableGridProps = HTMLAttributes<HTMLDivElement> & {
   columns: CSSProperties['gridTemplateColumns']
 }
