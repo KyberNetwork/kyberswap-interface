@@ -12,20 +12,35 @@ import {
 } from 'services/tokenCatalog'
 
 import { NotificationType } from 'components/Announcement/type'
-import Divider from 'components/Divider'
+import { TableCell, TableHeader } from 'components/Listing/Table'
+import MarketListSkeleton from 'components/RouteFallback/MarketListSkeleton'
+import SegmentedControl from 'components/SegmentedControl'
+import { Center, HStack, Stack } from 'components/Stack'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import DetailModal, { Price, PriceChange } from 'pages/MarketOverview/DetailModal'
-import MarketOverviewSkeleton from 'pages/MarketOverview/MarketOverviewSkeleton'
 import SortIcon, { Direction } from 'pages/MarketOverview/SortIcon'
-import { TabItem, TableRow } from 'pages/MarketOverview/styles'
+import { MarketTableRow } from 'pages/MarketOverview/styles'
 import useFilter from 'pages/MarketOverview/useFilter'
 import { useNotify, useWalletModalToggle } from 'state/application/hooks'
 import { MEDIA_WIDTHS } from 'theme'
-import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
 import { Address } from 'utils/viem'
 import { getGatedWalletClient } from 'utils/walletClient'
+
+const PRICE_SIDE_OPTIONS = [
+  { label: 'Buy', value: 'buy' },
+  { label: 'Sell', value: 'sell' },
+] as const
+
+const PRICE_CHANGE_WINDOW_OPTIONS = [
+  { label: '1H', value: '1h' },
+  { label: '24H', value: '24h' },
+  { label: '7D', value: '7d' },
+] as const
+
+const MOBILE_SORT_HEADER_CLASS_NAME =
+  'cursor-pointer items-center justify-end gap-1 text-sm text-subText hover:text-text hover:[&_svg_path]:stroke-text'
 
 export default function TableContent({
   showMarketInfo,
@@ -88,14 +103,14 @@ export default function TableContent({
   const [removeFavorite] = useRemoveFavoriteMutation()
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
 
-  const [selectedSort, setSelectedSort] = useState('24h')
-  const [selectedPrice, setSelectedPrice] = useState<'buy' | 'sell'>('buy')
+  const [selectedSort, setSelectedSort] = useState<(typeof PRICE_CHANGE_WINDOW_OPTIONS)[number]['value']>('24h')
+  const [selectedPrice, setSelectedPrice] = useState<(typeof PRICE_SIDE_OPTIONS)[number]['value']>('buy')
 
   if (!tokens.length && !isLoading) {
     return (
-      <p className="m-12 mt-16 text-center text-subText">
+      <Center className="min-h-32 text-center text-subText">
         <Trans>No data found</Trans>
-      </p>
+      </Center>
     )
   }
 
@@ -200,123 +215,84 @@ export default function TableContent({
   const tokenToShow = tokens.find(item => item.id === tokenToShowId)
 
   const mobileHeader = (
-    <>
-      <div className="grid grid-cols-3 py-3">
-        <p className="h-full text-[14px] text-subText">
+    <TableHeader className="grid-cols-3 md:hidden">
+      <TableCell className="flex-row text-sm">
+        <span>
           <Trans>Name</Trans>
-        </p>
+        </span>
+      </TableCell>
 
-        {showMarketInfo ? (
-          <>
-            <div
-              className="flex cursor-pointer items-center justify-end gap-1 text-[14px] text-subText"
+      {showMarketInfo ? (
+        <>
+          <TableCell
+            className="cursor-pointer flex-row items-center justify-end gap-1 text-sm hover:text-text hover:[&_svg_path]:stroke-text"
+            role="button"
+            onClick={() => updateSort('volume_24h', false)}
+          >
+            <Trans>24h Volume</Trans>
+            <SortIcon sorted={sortCol === 'volume_24h' ? (sortDirection as Direction) : undefined} />
+          </TableCell>
+
+          <TableCell
+            className="cursor-pointer flex-row items-center justify-end gap-1 text-sm hover:text-text hover:[&_svg_path]:stroke-text"
+            role="button"
+            onClick={() => updateSort('market_cap', false)}
+          >
+            <Trans>Market Cap</Trans>
+            <SortIcon sorted={sortCol === 'market_cap' ? (sortDirection as Direction) : undefined} />
+          </TableCell>
+        </>
+      ) : (
+        <>
+          <TableCell className="items-end text-xs">
+            <HStack
+              className={MOBILE_SORT_HEADER_CLASS_NAME}
               role="button"
-              onClick={() => updateSort('volume_24h', false)}
+              onClick={() => updateSort(`price_${selectedPrice}`)}
             >
-              <Trans>24h Volume</Trans>
-              <SortIcon sorted={sortCol === 'volume_24h' ? (sortDirection as Direction) : undefined} />
-            </div>
+              {selectedPrice === 'buy' ? <Trans>Buy Price</Trans> : <Trans>Sell Price</Trans>}
+              <SortIcon
+                sorted={sortCol.startsWith(`price_${selectedPrice}`) ? (sortDirection as Direction) : undefined}
+              />
+            </HStack>
+            <SegmentedControl
+              onChange={value => {
+                setSelectedPrice(value)
+                if (sortCol.startsWith(`price_${value === 'buy' ? 'sell' : 'buy'}`)) {
+                  updateFilters('sort', `price_${value}-${filters.chainId} ${sortDirection}`)
+                }
+              }}
+              options={PRICE_SIDE_OPTIONS}
+              size="xs"
+              value={selectedPrice}
+            />
+          </TableCell>
 
-            <div
-              className="flex cursor-pointer items-center justify-end gap-1 text-[14px] text-subText"
+          <TableCell className="items-end text-xs">
+            <HStack
+              className={MOBILE_SORT_HEADER_CLASS_NAME}
               role="button"
-              onClick={() => updateSort('market_cap', false)}
+              onClick={() => updateSort(`price_${selectedPrice}_change_${selectedSort}`)}
             >
-              <Trans>Market Cap</Trans>
-              <SortIcon sorted={sortCol === 'market_cap' ? (sortDirection as Direction) : undefined} />
-            </div>
-          </>
-        ) : (
-          <>
-            <div className="flex flex-col items-end text-[12px]">
-              <div
-                className="flex cursor-pointer justify-end gap-1 text-[14px] text-subText"
-                role="button"
-                onClick={() => updateSort(`price_${selectedPrice}`)}
-              >
-                {selectedPrice === 'buy' ? <Trans>Buy Price</Trans> : <Trans>Sell Price</Trans>}
-                <div className="mt-[3px] flex">
-                  <SortIcon
-                    sorted={sortCol.startsWith(`price_${selectedPrice}`) ? (sortDirection as Direction) : undefined}
-                  />
-                </div>
-              </div>
-              <div className="mt-2 flex w-fit rounded-[999px] border border-solid border-border bg-buttonBlack p-px">
-                <TabItem
-                  active={selectedPrice === 'buy'}
-                  onClick={() => {
-                    setSelectedPrice('buy')
-                    if (sortCol.startsWith('price_sell'))
-                      updateFilters('sort', `price_buy-${filters.chainId} ${sortDirection}`)
-                  }}
-                >
-                  Buy
-                </TabItem>
+              {selectedSort} {t`Change`}
+              <SortIcon
+                sorted={sortCol.startsWith(`price_${selectedPrice}_change`) ? (sortDirection as Direction) : undefined}
+              />
+            </HStack>
 
-                <TabItem
-                  active={selectedPrice === 'sell'}
-                  onClick={() => {
-                    setSelectedPrice('sell')
-                    if (sortCol.startsWith('price_buy'))
-                      updateFilters('sort', `price_sell-${filters.chainId} ${sortDirection}`)
-                  }}
-                >
-                  Sell
-                </TabItem>
-              </div>
-            </div>
-
-            <div className="flex flex-col items-end text-[12px]">
-              <div
-                className="flex cursor-pointer items-center justify-end gap-1 text-subText"
-                role="button"
-                onClick={() => updateSort(`price_${selectedPrice}_change_${selectedSort}`)}
-              >
-                {selectedSort} {t`Change`}
-                <SortIcon
-                  sorted={
-                    sortCol.startsWith(`price_${selectedPrice}_change`) ? (sortDirection as Direction) : undefined
-                  }
-                />
-              </div>
-
-              <div className="mt-2 flex w-fit rounded-[999px] border border-solid border-border bg-buttonBlack p-px">
-                <TabItem
-                  active={selectedSort === '1h'}
-                  onClick={() => {
-                    setSelectedSort('1h')
-                    updateSort(`price_${selectedPrice}_change_1h`, true, true)
-                  }}
-                >
-                  <Trans>1H</Trans>
-                </TabItem>
-
-                <TabItem
-                  active={selectedSort === '24h'}
-                  onClick={() => {
-                    setSelectedSort('24h')
-                    updateSort(`price_${selectedPrice}_change_24h`, true, true)
-                  }}
-                >
-                  <Trans>24H</Trans>
-                </TabItem>
-
-                <TabItem
-                  active={selectedSort === '7d'}
-                  onClick={() => {
-                    setSelectedSort('7d')
-                    updateSort(`price_${selectedPrice}_change_7d`, true, true)
-                  }}
-                >
-                  <Trans>7D</Trans>
-                </TabItem>
-              </div>
-            </div>
-          </>
-        )}
-      </div>
-      <Divider />
-    </>
+            <SegmentedControl
+              onChange={value => {
+                setSelectedSort(value)
+                updateSort(`price_${selectedPrice}_change_${value}`, true, true)
+              }}
+              options={PRICE_CHANGE_WINDOW_OPTIONS}
+              size="xs"
+              value={selectedSort}
+            />
+          </TableCell>
+        </>
+      )}
+    </TableHeader>
   )
 
   return (
@@ -331,165 +307,167 @@ export default function TableContent({
       )}
       {upToMedium && mobileHeader}
 
-      {isLoading && !tokens.length && <MarketOverviewSkeleton upToMedium={upToMedium} />}
+      {isLoading && !tokens.length && <MarketListSkeleton />}
 
-      {tokens.map((item, idx) => {
-        const token = item.tokens.find(t => +t.chainId === filters.chainId)
-        const priceBuy = token
-          ? latestPrices.current?.data?.[token.chainId]?.[token.address]?.PriceBuy || token.priceBuy
-          : ''
-        const priceSell = token
-          ? latestPrices.current?.data?.[token.chainId]?.[token.address]?.PriceSell || token.priceSell
-          : ''
+      <Stack className="max-md:gap-2 max-md:py-2">
+        {tokens.map((item, idx) => {
+          const token = item.tokens.find(t => +t.chainId === filters.chainId)
+          const priceBuy = token
+            ? latestPrices.current?.data?.[token.chainId]?.[token.address]?.PriceBuy || token.priceBuy
+            : ''
+          const priceSell = token
+            ? latestPrices.current?.data?.[token.chainId]?.[token.address]?.PriceSell || token.priceSell
+            : ''
 
-        const quoteSymbol = quoteData?.data?.onchainPrice?.usdQuoteTokenByChainId?.[filters.chainId || 1]?.symbol
+          const quoteSymbol = quoteData?.data?.onchainPrice?.usdQuoteTokenByChainId?.[filters.chainId || 1]?.symbol
 
-        const priceBuyChange1h =
-          token?.priceBuyChange1h && priceBuy
-            ? ((100 + token.priceBuyChange1h) * priceBuy) / token.priceBuy - 100
-            : token?.priceBuyChange1h
+          const priceBuyChange1h =
+            token?.priceBuyChange1h && priceBuy
+              ? ((100 + token.priceBuyChange1h) * priceBuy) / token.priceBuy - 100
+              : token?.priceBuyChange1h
 
-        const priceBuyChange24h =
-          token?.priceBuyChange24h !== undefined && priceBuy
-            ? ((100 + token.priceBuyChange24h) * priceBuy) / token.priceBuy - 100
-            : token?.priceBuyChange24h
+          const priceBuyChange24h =
+            token?.priceBuyChange24h !== undefined && priceBuy
+              ? ((100 + token.priceBuyChange24h) * priceBuy) / token.priceBuy - 100
+              : token?.priceBuyChange24h
 
-        const priceBuyChange7d =
-          token?.priceBuyChange7d !== undefined && priceBuy
-            ? ((100 + token.priceBuyChange7d) * priceBuy) / token.priceBuy - 100
-            : token?.priceBuyChange7d
+          const priceBuyChange7d =
+            token?.priceBuyChange7d !== undefined && priceBuy
+              ? ((100 + token.priceBuyChange7d) * priceBuy) / token.priceBuy - 100
+              : token?.priceBuyChange7d
 
-        const priceSellChange1h =
-          token?.priceSellChange1h && priceSell
-            ? ((100 + token.priceSellChange1h) * priceSell) / token.priceSell - 100
-            : token?.priceSellChange1h
+          const priceSellChange1h =
+            token?.priceSellChange1h && priceSell
+              ? ((100 + token.priceSellChange1h) * priceSell) / token.priceSell - 100
+              : token?.priceSellChange1h
 
-        const priceSellChange24h =
-          token?.priceSellChange24h !== undefined && priceSell
-            ? ((100 + token.priceSellChange24h) * priceSell) / token.priceSell - 100
-            : token?.priceSellChange24h
+          const priceSellChange24h =
+            token?.priceSellChange24h !== undefined && priceSell
+              ? ((100 + token.priceSellChange24h) * priceSell) / token.priceSell - 100
+              : token?.priceSellChange24h
 
-        const priceSellChange7d =
-          token?.priceSellChange7d !== undefined && priceSell
-            ? ((100 + token.priceSellChange7d) * priceSell) / token.priceSell - 100
-            : token?.priceBuyChange7d
+          const priceSellChange7d =
+            token?.priceSellChange7d !== undefined && priceSell
+              ? ((100 + token.priceSellChange7d) * priceSell) / token.priceSell - 100
+              : token?.priceBuyChange7d
 
-        const volAndMc = (
-          <>
-            <div className="flex items-center justify-end">
-              {item.volume24h ? formatDisplayNumber(item.volume24h, { style: 'currency', fractionDigits: 2 }) : '--'}
-            </div>
-            <div className="flex h-full items-center justify-end">
-              {item.marketCap ? formatDisplayNumber(item.marketCap, { style: 'currency', fractionDigits: 2 }) : '--'}
-            </div>
-          </>
-        )
+          const volAndMc = (
+            <>
+              <TableCell className="items-end justify-center">
+                {item.volume24h ? formatDisplayNumber(item.volume24h, { style: 'currency', fractionDigits: 2 }) : '--'}
+              </TableCell>
+              <TableCell className="items-end justify-center">
+                {item.marketCap ? formatDisplayNumber(item.marketCap, { style: 'currency', fractionDigits: 2 }) : '--'}
+              </TableCell>
+            </>
+          )
 
-        let priceChangeToDisplayOnMobile
-        if (selectedPrice === 'buy') {
-          if (selectedSort === '1h') priceChangeToDisplayOnMobile = priceBuyChange1h
-          else if (selectedSort === '24h') priceChangeToDisplayOnMobile = priceBuyChange24h
-          else priceChangeToDisplayOnMobile = priceBuyChange7d
-        } else {
-          if (selectedSort === '1h') priceChangeToDisplayOnMobile = priceSellChange1h
-          else if (selectedSort === '24h') priceChangeToDisplayOnMobile = priceSellChange24h
-          else priceChangeToDisplayOnMobile = priceSellChange7d
-        }
+          let priceChangeToDisplayOnMobile
+          if (selectedPrice === 'buy') {
+            if (selectedSort === '1h') priceChangeToDisplayOnMobile = priceBuyChange1h
+            else if (selectedSort === '24h') priceChangeToDisplayOnMobile = priceBuyChange24h
+            else priceChangeToDisplayOnMobile = priceBuyChange7d
+          } else {
+            if (selectedSort === '1h') priceChangeToDisplayOnMobile = priceSellChange1h
+            else if (selectedSort === '24h') priceChangeToDisplayOnMobile = priceSellChange24h
+            else priceChangeToDisplayOnMobile = priceSellChange7d
+          }
 
-        const mobileDisplay = showMarketInfo ? (
-          volAndMc
-        ) : (
-          <>
-            <Price price={selectedPrice === 'buy' ? +priceBuy : +priceSell} />
-            <div className="flex items-center justify-end" style={{ color: getColor(priceChangeToDisplayOnMobile) }}>
-              <PriceChange priceChange={priceChangeToDisplayOnMobile} />
-            </div>
-          </>
-        )
+          const mobileDisplay = showMarketInfo ? (
+            volAndMc
+          ) : (
+            <>
+              <TableCell className="items-end justify-center">
+                <Price price={selectedPrice === 'buy' ? +priceBuy : +priceSell} />
+              </TableCell>
+              <TableCell className="items-end justify-center" style={{ color: getColor(priceChangeToDisplayOnMobile) }}>
+                <PriceChange priceChange={priceChangeToDisplayOnMobile} />
+              </TableCell>
+            </>
+          )
 
-        const desktopBuyPriceChange =
-          buyPriceSelectedField === '1h'
-            ? priceBuyChange1h
-            : buyPriceSelectedField === '24h'
-            ? priceBuyChange24h
-            : priceBuyChange7d
+          const desktopBuyPriceChange =
+            buyPriceSelectedField === '1h'
+              ? priceBuyChange1h
+              : buyPriceSelectedField === '24h'
+              ? priceBuyChange24h
+              : priceBuyChange7d
 
-        const desktopSellPriceChange =
-          sellPriceSelectedField === '1h'
-            ? priceSellChange1h
-            : sellPriceSelectedField === '24h'
-            ? priceSellChange24h
-            : priceSellChange7d
+          const desktopSellPriceChange =
+            sellPriceSelectedField === '1h'
+              ? priceSellChange1h
+              : sellPriceSelectedField === '24h'
+              ? priceSellChange24h
+              : priceSellChange7d
 
-        return (
-          <TableRow
-            key={item.id + '-' + idx}
-            role="button"
-            onClick={() => setShowTokenId(item.id)}
-            className="animate-[fadeInUp_0.3s_ease-out_both] motion-reduce:animate-none"
-            style={{ animationDelay: `${Math.min(idx * 50, 300)}ms` }}
-          >
-            <div className={cn('flex items-start gap-2', upToMedium ? 'py-3' : 'p-3')}>
-              <img
-                src={item.logoURL || 'https://i.imgur.com/b3I8QRs.jpeg'}
-                width="24px"
-                height="24px"
-                alt=""
-                className="rounded-full"
-              />
-              <div>
-                <div className="flex items-end text-[16px]">
-                  {item.symbol}
-                  {quoteSymbol && <span className="text-[14px] text-subText">/{quoteSymbol}</span>}
-                </div>
-                <p className="mt-0.5 text-[14px] text-subText">{item.name}</p>
-              </div>
-            </div>
+          return (
+            <MarketTableRow
+              key={item.id + '-' + idx}
+              role="button"
+              onClick={() => setShowTokenId(item.id)}
+              className="animate-[fadeInUp_0.3s_ease-out_both] motion-reduce:animate-none max-md:rounded-xl max-md:bg-background/80"
+              style={{ animationDelay: `${Math.min(idx * 50, 300)}ms` }}
+            >
+              <TableCell className="flex-row gap-2">
+                <img
+                  src={item.logoURL || 'https://i.imgur.com/b3I8QRs.jpeg'}
+                  width="24px"
+                  height="24px"
+                  alt=""
+                  className="rounded-full"
+                />
+                <Stack className="gap-0.5">
+                  <HStack className="items-end text-base text-text">
+                    {item.symbol}
+                    {quoteSymbol && <span className="text-sm text-subText">/{quoteSymbol}</span>}
+                  </HStack>
+                  <span className="text-sm text-subText">{item.name}</span>
+                </Stack>
+              </TableCell>
 
-            {upToMedium ? (
-              mobileDisplay
-            ) : (
-              <>
-                <Price price={+priceBuy} />
+              {upToMedium ? (
+                mobileDisplay
+              ) : (
+                <>
+                  <TableCell className="items-end justify-center">
+                    <Price price={+priceBuy} />
+                  </TableCell>
 
-                <div
-                  className="flex h-full items-center justify-end px-6 py-3"
-                  style={{ color: getColor(desktopBuyPriceChange) }}
-                >
-                  <PriceChange priceChange={desktopBuyPriceChange} />
-                </div>
+                  <TableCell className="items-end justify-center" style={{ color: getColor(desktopBuyPriceChange) }}>
+                    <PriceChange priceChange={desktopBuyPriceChange} />
+                  </TableCell>
 
-                <Price price={+priceSell} />
+                  <TableCell className="items-end justify-center">
+                    <Price price={+priceSell} />
+                  </TableCell>
 
-                <div
-                  className="flex h-full items-center justify-end px-6 py-3"
-                  style={{ color: getColor(desktopSellPriceChange) }}
-                >
-                  <PriceChange priceChange={desktopSellPriceChange} />
-                </div>
+                  <TableCell className="items-end justify-center" style={{ color: getColor(desktopSellPriceChange) }}>
+                    <PriceChange priceChange={desktopSellPriceChange} />
+                  </TableCell>
 
-                {volAndMc}
+                  {volAndMc}
 
-                <div className="flex items-center justify-center gap-3">
-                  <Info size={16} className="text-subText" />
+                  <TableCell className="flex-row items-center justify-center gap-3">
+                    <Info size={16} className="cursor-pointer hover:brightness-125" />
 
-                  <Star
-                    size={16}
-                    color={item.isFavorite ? theme.yellow1 : theme.subText}
-                    role="button"
-                    cursor="pointer"
-                    fill={item.isFavorite ? theme.yellow1 : 'none'}
-                    onClick={e => {
-                      e.stopPropagation()
-                      toggleFavorite(item)
-                    }}
-                  />
-                </div>
-              </>
-            )}
-          </TableRow>
-        )
-      })}
+                    <Star
+                      size={16}
+                      color={item.isFavorite ? theme.yellow1 : theme.subText}
+                      role="button"
+                      className="cursor-pointer hover:brightness-125"
+                      fill={item.isFavorite ? theme.yellow1 : 'none'}
+                      onClick={e => {
+                        e.stopPropagation()
+                        toggleFavorite(item)
+                      }}
+                    />
+                  </TableCell>
+                </>
+              )}
+            </MarketTableRow>
+          )
+        })}
+      </Stack>
     </>
   )
 }

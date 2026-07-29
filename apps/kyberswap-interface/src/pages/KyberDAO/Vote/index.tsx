@@ -1,14 +1,12 @@
 import { Trans, t } from '@lingui/macro'
 import { useCallback, useMemo, useState } from 'react'
-import { isMobile } from 'react-device-detect'
 
-import bgimg from 'assets/images/about_background.png'
 import luxuryGreenBackground from 'assets/images/kyberdao/luxury-green-background-small.jpg'
 import { ButtonLight, ButtonPrimary } from 'components/Button'
-import { AutoColumn } from 'components/Column'
 import VoteIcon from 'components/Icons/Vote'
 import InfoHelper from 'components/InfoHelper'
-import { AutoRow, RowBetween, RowFit } from 'components/Row'
+import { RowBetween, RowFit } from 'components/Row'
+import { HStack, Stack } from 'components/Stack'
 import { MouseoverTooltip } from 'components/Tooltip'
 import TransactionConfirmationModal, { TransactionErrorContent } from 'components/TransactionConfirmationModal'
 import { useActiveWeb3React } from 'hooks'
@@ -19,6 +17,13 @@ import { useSwitchToEthereum } from 'pages/KyberDAO/StakeKNC/SwitchToEthereumMod
 import TimerCountdown from 'pages/KyberDAO/TimerCountdown'
 import ClaimConfirmModal from 'pages/KyberDAO/Vote/ClaimConfirmModal'
 import ProposalListComponent from 'pages/KyberDAO/Vote/ProposalListComponent'
+import {
+  KyberDAOCaption,
+  KyberDAOPage,
+  KyberDAOPageHeader,
+  KyberDAOSupportingText,
+  KyberDAOValue,
+} from 'pages/KyberDAO/common'
 import KNCLogo from 'pages/KyberDAO/kncLogo'
 import { ApplicationModal } from 'state/application/actions'
 import { useKNCPrice, useToggleModal, useWalletModalToggle } from 'state/application/hooks'
@@ -28,14 +33,14 @@ import { formatUnitsToFixed } from 'utils/formatBalance'
 import { formatDisplayNumber } from 'utils/numbers'
 
 const Card = ({ hasGreenBackground, children }: { hasGreenBackground?: boolean; children: React.ReactNode }) => (
-  <div
-    className="flex-1 rounded-[20px] bg-buttonGray/70 px-6 py-5"
+  <Stack
+    className="min-w-0 rounded-2xl bg-buttonGray/70 p-5"
     style={
       hasGreenBackground ? { backgroundImage: `url('${luxuryGreenBackground}')`, backgroundSize: 'cover' } : undefined
     }
   >
     {children}
-  </div>
+  </Stack>
 )
 
 const formatVotingPower = (votingPowerNumber?: number) => {
@@ -111,10 +116,12 @@ export default function Vote() {
   const isDelegated = stakerInfo && account ? stakerInfo.delegate?.toLowerCase() !== account.toLowerCase() : false
 
   const handleClaim = useCallback(() => {
-    switchToEthereum(t`Claim reward`).then(() => {
-      trackingHandler(TRACKING_EVENT_TYPE.KYBER_DAO_CLAIM_CLICK)
-      toggleClaimConfirmModal()
-    })
+    switchToEthereum(t`Claim reward`)
+      .then(() => {
+        trackingHandler(TRACKING_EVENT_TYPE.KYBER_DAO_CLAIM_CLICK)
+        toggleClaimConfirmModal()
+      })
+      .catch(() => undefined)
   }, [toggleClaimConfirmModal, trackingHandler, switchToEthereum])
 
   const handleConfirmClaim = useCallback(async () => {
@@ -158,80 +165,53 @@ export default function Vote() {
   )
 
   return (
-    <div
-      className="z-[1] w-full animate-[fadeInUp_0.5s_ease-out_both] bg-transparent bg-[length:100%_auto] bg-top bg-repeat-y motion-reduce:animate-none"
-      style={{ backgroundImage: `url(${bgimg})` }}
-    >
-      <div className="mx-auto flex min-h-[1200px] w-[1224px] flex-col gap-3 py-12 max-lg:w-full max-lg:px-4 max-lg:py-12">
-        <RowBetween className={isMobile ? '' : 'mb-9'}>
-          <span className={cn('flex-1 font-medium leading-7', isMobile ? 'text-[22px]' : 'text-2xl')}>
-            <Trans>Vote - Earn Rewards</Trans>
-          </span>
-          <RowFit className="gap-1">
-            <KNCLogo size={20} />
-            <span className="text-base leading-[normal]">KNC: ${kncPrice ? (+kncPrice).toPrecision(4) : '--'}</span>
-          </RowFit>
-        </RowBetween>
-        <RowBetween className="mb-3 w-full items-stretch gap-6 max-md:flex-col">
-          <Card>
-            <AutoColumn>
-              <span className="mb-5 text-sm text-subText">
-                <Trans>Total Staked KNC</Trans>
-              </span>
-              <span className="mb-2 text-xl font-medium leading-[normal]">
+    <KyberDAOPage>
+      <KyberDAOPageHeader title={<Trans>Vote - Earn Rewards</Trans>}>
+        <HStack className="items-center gap-2">
+          <KNCLogo size={20} />
+          <span className="text-base">KNC: ${kncPrice ? (+kncPrice).toPrecision(4) : '--'}</span>
+        </HStack>
+      </KyberDAOPageHeader>
+
+      <div className="grid w-full gap-4 md:grid-cols-3">
+        <Card>
+          <Stack className="gap-4">
+            <KyberDAOSupportingText>
+              <Trans>Total Staked KNC</Trans>
+            </KyberDAOSupportingText>
+            <Stack className="gap-2">
+              <KyberDAOValue>
                 {daoInfo
                   ? formatDisplayNumber(Math.round(daoInfo.total_staked), { significantDigits: 6 }) + ' KNC'
                   : '--'}
-              </span>
-              <span className="text-xs text-subText">
+              </KyberDAOValue>
+              <KyberDAOCaption>
                 {daoInfo && kncPrice
                   ? '~' +
                     formatDisplayNumber(+kncPrice * Math.round(daoInfo.total_staked), { significantDigits: 6 }) +
                     ' USD'
                   : ''}
-              </span>
-            </AutoColumn>
-          </Card>
-          {/* <Card>
-            <AutoColumn>
-              <RowBetween marginBottom="20px">
-                <Text color={theme.subText} fontSize="14px">
-                  <Trans>Total Voting Rewards</Trans>
-                </Text>
-                <Text color={theme.subText} fontSize="14px">
-                  <Trans>APR</Trans>
-                </Text>
-              </RowBetween>
-              <RowBetween className="mb-2">
-                <Text fontSize={20} fontWeight={500}>
-                  {(+knc?.toFixed(0)).toLocaleString() ?? '--'} KNC
-                </Text>
-                <Text fontSize={20} fontWeight={500} color={theme.apr}>
-                  {apr.toFixed(2) ?? '--'}%
-                </Text>
-              </RowBetween>
-
-              <Text fontSize={12} color={theme.subText}>
-                ~{(+usd?.toFixed(0)).toLocaleString() ?? '--'} USD
-              </Text>
-            </AutoColumn>
-          </Card> */}
-          <Card>
-            <AutoColumn>
-              <span className="mb-5 text-sm text-subText">
-                <Trans>Your Voting Power</Trans>{' '}
-                <InfoHelper
-                  fontSize={12}
-                  placement="top"
-                  text={t`Your voting power is calculated by
+              </KyberDAOCaption>
+            </Stack>
+          </Stack>
+        </Card>
+        <Card>
+          <Stack className="gap-4">
+            <KyberDAOSupportingText>
+              <Trans>Your Voting Power</Trans>{' '}
+              <InfoHelper
+                fontSize={12}
+                placement="top"
+                text={t`Your voting power is calculated by
 [Your Staked KNC] / [Total Staked KNC] * 100%.`}
-                />
-              </span>
+              />
+            </KyberDAOSupportingText>
 
-              <RowBetween className="mb-2">
+            <Stack className="gap-2">
+              <RowBetween>
                 <RowFit>
                   <span
-                    className="text-xl font-medium leading-[normal]"
+                    className="text-xl font-medium"
                     style={{ color: hasPendingStakeAmount && !hasStakeAmount ? theme.border : theme.text }}
                   >
                     {formatVotingPower(
@@ -245,8 +225,8 @@ export default function Vote() {
                         className="text-warning"
                         size={14}
                         text={
-                          <AutoColumn className="gap-2">
-                            <span className="block w-[260px] leading-[14px] text-subText">
+                          <Stack className="gap-2">
+                            <span className="block w-64 text-subText">
                               {hasPendingStakeAmount ? (
                                 <Trans>
                                   A portion of your voting power can only be used from the next Epoch onward
@@ -287,7 +267,7 @@ export default function Vote() {
                                 )}
                               </Trans>
                             </span>
-                          </AutoColumn>
+                          </Stack>
                         }
                       />
                     ) : null}
@@ -314,7 +294,7 @@ export default function Vote() {
                     text={t`You have already delegated your voting power to this address.`}
                     placement="top"
                   >
-                    <RowFit className="gap-1 text-subText">
+                    <RowFit className="gap-2 text-subText">
                       <VoteIcon size={14} />
                       <span className="text-xs">
                         {stakerInfo?.delegate.slice(0, 5) + '...' + stakerInfo?.delegate.slice(-4)}
@@ -324,84 +304,84 @@ export default function Vote() {
                 )}
               </RowBetween>
               <RowBetween>
-                <span className="text-xs text-subText">
+                <KyberDAOCaption>
                   {totalStakedAmount ? (+totalStakedAmount.toFixed(2)).toLocaleString() + ' KNC Staked' : '--'}
-                </span>
-                <StyledInternalLink to="/kyberdao/stake-knc" style={{ fontSize: '12px', whiteSpace: 'nowrap' }}>
+                </KyberDAOCaption>
+                <StyledInternalLink to="/kyberdao/stake-knc" className="whitespace-nowrap text-xs">
                   <Trans>Stake KNC ↗</Trans>
                 </StyledInternalLink>
               </RowBetween>
-            </AutoColumn>
-          </Card>
-          <Card hasGreenBackground={isHasReward}>
-            <AutoColumn className="justify-between">
-              <span className="mb-5 text-sm text-subText">
-                <span
-                  className={cn(
-                    'cursor-pointer hover:brightness-125',
-                    rewardTab === REWARD_TAB.YourReward && 'text-primary',
-                  )}
-                  onClick={() => setRewardTab(REWARD_TAB.YourReward)}
-                >
-                  <Trans>Your Reward</Trans>
-                </span>{' '}
-                |{' '}
-                <span
-                  className={cn(
-                    'cursor-pointer hover:brightness-125',
-                    rewardTab === REWARD_TAB.ClaimedReward && 'text-primary',
-                  )}
-                  onClick={() => setRewardTab(REWARD_TAB.ClaimedReward)}
-                >
-                  <Trans>Claimed Reward</Trans>
-                </span>
+            </Stack>
+          </Stack>
+        </Card>
+        <Card hasGreenBackground={isHasReward}>
+          <Stack className="h-full justify-between gap-4">
+            <KyberDAOSupportingText>
+              <span
+                className={cn(
+                  'cursor-pointer hover:brightness-125',
+                  rewardTab === REWARD_TAB.YourReward && 'text-primary',
+                )}
+                onClick={() => setRewardTab(REWARD_TAB.YourReward)}
+              >
+                <Trans>Your Reward</Trans>
+              </span>{' '}
+              |{' '}
+              <span
+                className={cn(
+                  'cursor-pointer hover:brightness-125',
+                  rewardTab === REWARD_TAB.ClaimedReward && 'text-primary',
+                )}
+                onClick={() => setRewardTab(REWARD_TAB.ClaimedReward)}
+              >
+                <Trans>Claimed Reward</Trans>
               </span>
-              {account ? (
-                rewardTab === REWARD_TAB.YourReward ? (
-                  <RowBetween>
-                    <AutoColumn>
-                      <span className="mb-2 text-xl font-medium leading-[normal]">
-                        {formatUnitsToFixed(remainingCumulativeAmount, undefined, 2)} KNC
-                      </span>
-                      <span className="text-xs text-subText">
-                        {(+(+formatUnitsToFixed(remainingCumulativeAmount) * +(kncPrice || '0')).toFixed(
-                          2,
-                        )).toLocaleString()}{' '}
-                        USD
-                      </span>
-                    </AutoColumn>
-                    <ButtonPrimary
-                      width="75px"
-                      disabled={!isHasReward}
-                      style={{ filter: 'drop-shadow(0px 4px 4px rgba(0, 0, 0, 0.16))' }}
-                      onClick={handleClaim}
-                    >
-                      <Trans>Claim</Trans>
-                    </ButtonPrimary>
-                  </RowBetween>
-                ) : (
-                  <RowBetween>
-                    <AutoColumn>
-                      <span className="mb-2 text-xl font-medium leading-[normal]">
-                        {(+formatUnitsToFixed(claimedRewardAmount, undefined, 2)).toLocaleString()} KNC
-                      </span>
-                      <span className="text-xs text-subText">
-                        {(+(+formatUnitsToFixed(claimedRewardAmount) * +(kncPrice || 0)).toFixed(2)).toLocaleString()}{' '}
-                        USD
-                      </span>
-                    </AutoColumn>
-                  </RowBetween>
-                )
+            </KyberDAOSupportingText>
+            {account ? (
+              rewardTab === REWARD_TAB.YourReward ? (
+                <RowBetween>
+                  <Stack className="gap-2">
+                    <KyberDAOValue>{formatUnitsToFixed(remainingCumulativeAmount, undefined, 2)} KNC</KyberDAOValue>
+                    <KyberDAOCaption>
+                      {(+(+formatUnitsToFixed(remainingCumulativeAmount) * +(kncPrice || '0')).toFixed(
+                        2,
+                      )).toLocaleString()}{' '}
+                      USD
+                    </KyberDAOCaption>
+                  </Stack>
+                  <ButtonPrimary
+                    width="75px"
+                    disabled={!isHasReward}
+                    style={{ filter: 'drop-shadow(0px 4px 4px rgba(0, 0, 0, 0.16))' }}
+                    onClick={handleClaim}
+                  >
+                    <Trans>Claim</Trans>
+                  </ButtonPrimary>
+                </RowBetween>
               ) : (
-                <ButtonLight onClick={toggleWalletModal}>
-                  <Trans>Connect</Trans>
-                </ButtonLight>
-              )}
-            </AutoColumn>
-          </Card>
-        </RowBetween>
-        <AutoRow className={cn('text-xs', isMobile ? 'flex-col items-start gap-1' : 'flex-row items-center gap-0')}>
-          <RowFit>
+                <RowBetween>
+                  <Stack className="gap-2">
+                    <KyberDAOValue>
+                      {(+formatUnitsToFixed(claimedRewardAmount, undefined, 2)).toLocaleString()} KNC
+                    </KyberDAOValue>
+                    <KyberDAOCaption>
+                      {(+(+formatUnitsToFixed(claimedRewardAmount) * +(kncPrice || 0)).toFixed(2)).toLocaleString()} USD
+                    </KyberDAOCaption>
+                  </Stack>
+                </RowBetween>
+              )
+            ) : (
+              <ButtonLight onClick={toggleWalletModal}>
+                <Trans>Connect</Trans>
+              </ButtonLight>
+            )}
+          </Stack>
+        </Card>
+      </div>
+
+      <Stack className="gap-2 text-xs">
+        <HStack className="items-center gap-2 max-sm:flex-col max-sm:items-start">
+          <HStack className="items-center gap-2">
             <span>
               <Trans>In Progress: Epoch {daoInfo ? daoInfo.current_epoch : '--'}</Trans>
             </span>
@@ -410,30 +390,31 @@ export default function Vote() {
                 endTime={daoInfo.first_epoch_start_timestamp + daoInfo.current_epoch * daoInfo.epoch_period_in_seconds}
               />
             )}
-          </RowFit>
+          </HStack>
           <span>
             <Trans>Vote on current epoch proposals to get your full reward.</Trans>
           </span>
-        </AutoRow>
-        <span className="text-xs italic text-subText" hidden={isMobile}>
+        </HStack>
+        <span className="text-xs italic text-subText max-sm:hidden">
           <Trans>Note: Voting on KyberDAO is only available on Ethereum chain.</Trans>
         </span>
-        <ProposalListComponent voteCallback={handleVote} />
-        <ClaimConfirmModal amount={formatUnitsToFixed(remainingCumulativeAmount)} onConfirmClaim={handleConfirmClaim} />
-        <TransactionConfirmationModal
-          isOpen={showConfirm}
-          onDismiss={() => setShowConfirm(false)}
-          attemptingTxn={attemptingTxn}
-          hash={txHash}
-          pendingText={pendingText}
-          content={() => {
-            if (transactionError) {
-              return <TransactionErrorContent message={transactionError} onDismiss={() => setShowConfirm(false)} />
-            }
-            return <></>
-          }}
-        />
-      </div>
-    </div>
+      </Stack>
+
+      <ProposalListComponent voteCallback={handleVote} />
+      <ClaimConfirmModal amount={formatUnitsToFixed(remainingCumulativeAmount)} onConfirmClaim={handleConfirmClaim} />
+      <TransactionConfirmationModal
+        isOpen={showConfirm}
+        onDismiss={() => setShowConfirm(false)}
+        attemptingTxn={attemptingTxn}
+        hash={txHash}
+        pendingText={pendingText}
+        content={() => {
+          if (transactionError) {
+            return <TransactionErrorContent message={transactionError} onDismiss={() => setShowConfirm(false)} />
+          }
+          return <></>
+        }}
+      />
+    </KyberDAOPage>
   )
 }

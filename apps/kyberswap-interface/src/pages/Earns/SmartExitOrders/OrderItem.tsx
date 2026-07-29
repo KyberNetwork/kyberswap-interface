@@ -2,9 +2,9 @@ import { Trans } from '@lingui/macro'
 import React from 'react'
 import { ExternalLink, Trash2 } from 'react-feather'
 
+import { TableCell, TableRow, getSmartExitTableGridTemplateColumns } from 'components/Listing/Table'
 import ConditionContent from 'pages/Earns/SmartExitOrders/components/ConditionContent'
 import TitleContent from 'pages/Earns/SmartExitOrders/components/TitleContent'
-import { ORDERS_TABLE_GRID_COLUMNS } from 'pages/Earns/SmartExitOrders/constants'
 import type { ParsedSmartExitOrder } from 'pages/Earns/SmartExitOrders/useSmartExitOrdersData'
 import { Badge, BadgeType } from 'pages/Earns/UserPositions/styles'
 import { ExecutionStatus, OrderStatus, SmartExitOrder } from 'pages/Earns/types'
@@ -20,6 +20,10 @@ type OrderItemProps = {
   upToMedium: boolean
   onDelete: (order: ParsedSmartExitOrder) => void
 }
+
+const MobileField = ({ children }: { children: React.ReactNode }) => (
+  <div className="flex min-h-10 items-center justify-between gap-2 p-2">{children}</div>
+)
 
 const StatusContent = ({ order }: { order: SmartExitOrder }) => (
   <div className="flex items-center justify-start gap-1">
@@ -75,7 +79,7 @@ const OrderItem = React.memo(({ order, index, rowIndex, upToMedium, onDelete }: 
   const tokensInfo = order.executions[0]?.extraData?.tokensInfo
 
   const currentValue = (
-    <span className="text-left text-sm text-subText">
+    <span className="flex h-6 items-center text-left text-sm text-subText">
       {executedAmounts
         ? formatDisplayNumber((+executedAmounts[0]?.amountUsd || 0) + (+executedAmounts[1]?.amountUsd || 0), {
             significantDigits: 6,
@@ -89,11 +93,11 @@ const OrderItem = React.memo(({ order, index, rowIndex, upToMedium, onDelete }: 
 
   const receivedAmount = receivedAmounts ? (
     <div className={cn('flex flex-col gap-1', upToMedium ? 'items-end' : 'items-start')}>
-      <span className="text-sm" style={{ color: '#05966B' }}>
-        + {formatDisplayNumber(receivedAmounts[0]?.amount, { significantDigits: 6 })} {tokensInfo?.[0]?.symbol}
+      <span className="flex h-6 items-center text-sm" style={{ color: '#05966B' }}>
+        +{formatDisplayNumber(receivedAmounts[0]?.amount, { significantDigits: 6 })} {tokensInfo?.[0]?.symbol}
       </span>
-      <span className="text-sm" style={{ color: '#05966B' }}>
-        + {formatDisplayNumber(receivedAmounts[1]?.amount, { significantDigits: 6 })} {tokensInfo?.[1]?.symbol}
+      <span className="flex h-6 items-center text-sm" style={{ color: '#05966B' }}>
+        +{formatDisplayNumber(receivedAmounts[1]?.amount, { significantDigits: 6 })} {tokensInfo?.[1]?.symbol}
       </span>
     </div>
   ) : (
@@ -101,7 +105,7 @@ const OrderItem = React.memo(({ order, index, rowIndex, upToMedium, onDelete }: 
   )
 
   const maxGas = (
-    <span className="text-left text-sm text-subText">
+    <span className="flex h-6 items-center text-left text-sm text-subText">
       {formatDisplayNumber(order.maxGasPercentage, { significantDigits: 4 })}%
     </span>
   )
@@ -133,33 +137,32 @@ const OrderItem = React.memo(({ order, index, rowIndex, upToMedium, onDelete }: 
   if (upToMedium)
     return (
       <div
-        key={order.id}
-        className="mb-4 flex animate-[fadeInUp_0.3s_ease-out_both] flex-col gap-3 rounded-xl bg-background p-4 motion-reduce:animate-none"
+        className="flex animate-[fadeInUp_0.3s_ease-out_both] flex-col rounded-xl bg-background p-2 motion-reduce:animate-none"
         style={{ animationDelay }}
       >
-        <div>{title}</div>
-        {condition}
-        <div className="-mt-1 flex items-center justify-between gap-1">
+        <div className="p-2">{title}</div>
+        <div className="p-2">{condition}</div>
+        <MobileField>
           <span className="text-sm text-subText">
             <Trans>Est. liquidity & earned fee</Trans>:
           </span>
           {currentValue}
-        </div>
+        </MobileField>
         {receivedAmounts ? (
-          <div className="-mt-1 flex items-center justify-between gap-1">
+          <MobileField>
             <span className="text-sm text-subText">
               <Trans>Received amount</Trans>:
             </span>
             {receivedAmount}
-          </div>
+          </MobileField>
         ) : null}
-        <div className="-mt-1 flex items-center justify-between gap-1">
+        <MobileField>
           <span className="text-sm text-subText">
             <Trans>Max gas</Trans>:
           </span>
           {maxGas}
-        </div>
-        <div className="flex items-center justify-between">
+        </MobileField>
+        <div className="flex min-h-12 items-center justify-between gap-2 p-2">
           {status}
           {actionDelete}
         </div>
@@ -167,20 +170,25 @@ const OrderItem = React.memo(({ order, index, rowIndex, upToMedium, onDelete }: 
     )
 
   return (
-    <div
-      key={order.id}
-      className="grid animate-[fadeInUp_0.3s_ease-out_both] items-center gap-4 py-4 text-text motion-reduce:animate-none"
-      style={{ gridTemplateColumns: ORDERS_TABLE_GRID_COLUMNS, animationDelay }}
+    <TableRow
+      className="animate-[fadeInUp_0.3s_ease-out_both] text-base text-text hover:bg-primary-10 motion-reduce:animate-none"
+      style={{ gridTemplateColumns: getSmartExitTableGridTemplateColumns(), animationDelay }}
     >
-      <span className="text-subText">{index}</span>
-      <div>{title}</div>
-      {condition}
-      {currentValue}
-      {receivedAmount}
-      {maxGas}
-      {status}
-      {actionDelete}
-    </div>
+      <TableCell>
+        <span className="text-subText">{index}</span>
+      </TableCell>
+      <TableCell>
+        <div className="w-full">{title}</div>
+      </TableCell>
+      <TableCell>
+        <div className="w-full">{condition}</div>
+      </TableCell>
+      <TableCell>{currentValue}</TableCell>
+      <TableCell>{receivedAmount}</TableCell>
+      <TableCell>{maxGas}</TableCell>
+      <TableCell>{status}</TableCell>
+      <TableCell className="items-end px-1">{actionDelete}</TableCell>
+    </TableRow>
   )
 })
 

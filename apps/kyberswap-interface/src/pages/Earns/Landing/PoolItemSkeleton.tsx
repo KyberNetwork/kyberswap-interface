@@ -12,7 +12,7 @@ const PoolItemSkeleton = () => (
         <Skeleton circle width={12} height={12} containerClassName="-ml-1 self-end" />
       </div>
       <Skeleton width={84} height={16} containerClassName="ml-1" />
-      <Skeleton width={36} height={20} borderRadius={999} />
+      <Skeleton width={36} height={20} rounded />
     </div>
     <Skeleton width={40} height={16} />
   </PoolRow>

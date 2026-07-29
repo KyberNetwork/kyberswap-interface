@@ -62,7 +62,7 @@ export default function ExpireSetting({
 
       <SettingContainer ref={settingRef}>
         <div className="flex justify-end">
-          <SettingButton type="button" onClick={() => setOpenSetting(v => !v)} aria-label={t`Open settings`}>
+          <SettingButton type="button" onClick={() => setOpenSetting(v => !v)} aria-label="Open settings">
             <Sliders size={16} />
           </SettingButton>
         </div>

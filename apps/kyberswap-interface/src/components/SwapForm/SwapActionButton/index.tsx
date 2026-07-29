@@ -27,8 +27,6 @@ enum AllowanceType {
   INFINITE = 'INFINITE',
 }
 
-const CUSTOM_PRIMARY_BUTTON_CLASS = 'border-none font-medium disabled:border-none'
-
 type Props = {
   isDegenMode: boolean
   isGettingRoute: boolean
@@ -229,7 +227,7 @@ const SwapActionButton: React.FC<Props> = ({
 
     if (restrictedCurrency) {
       return (
-        <ButtonPrimary id="swap-button" className={CUSTOM_PRIMARY_BUTTON_CLASS} disabled>
+        <ButtonPrimary id="swap-button" disabled>
           {restrictedTokenMessage(restrictedCurrency.symbol)}
         </ButtonPrimary>
       )
@@ -237,7 +235,7 @@ const SwapActionButton: React.FC<Props> = ({
 
     if (wrapInputError) {
       return (
-        <ButtonPrimary id="swap-button" className={CUSTOM_PRIMARY_BUTTON_CLASS} disabled>
+        <ButtonPrimary id="swap-button" disabled>
           {wrapInputError}
         </ButtonPrimary>
       )
@@ -245,7 +243,7 @@ const SwapActionButton: React.FC<Props> = ({
 
     if (showWrap) {
       return (
-        <ButtonPrimary id="swap-button" className={CUSTOM_PRIMARY_BUTTON_CLASS} onClick={onWrap}>
+        <ButtonPrimary id="swap-button" onClick={onWrap}>
           {wrapType === WrapType.WRAP ? <Trans>Wrap</Trans> : <Trans>Unwrap</Trans>}
         </ButtonPrimary>
       )
@@ -253,7 +251,7 @@ const SwapActionButton: React.FC<Props> = ({
 
     if (userHasSpecifiedInputOutput && noRouteFound) {
       return (
-        <ButtonPrimary id="swap-button" className={CUSTOM_PRIMARY_BUTTON_CLASS} disabled>
+        <ButtonPrimary id="swap-button" disabled>
           <Trans>Insufficient liquidity for this trade</Trans>
         </ButtonPrimary>
       )
@@ -261,7 +259,7 @@ const SwapActionButton: React.FC<Props> = ({
 
     if (swapInputError) {
       return (
-        <ButtonPrimary id="swap-button" className={CUSTOM_PRIMARY_BUTTON_CLASS} disabled>
+        <ButtonPrimary id="swap-button" disabled>
           {swapInputError}
         </ButtonPrimary>
       )
