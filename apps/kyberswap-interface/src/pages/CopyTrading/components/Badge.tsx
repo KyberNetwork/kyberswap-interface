@@ -29,7 +29,7 @@ type StrategyBadgeProps = {
 }
 
 const getStrategyBadgeColor = (strategy: StrategyKey): BadgeColor =>
-  strategy === 'active' ? 'red' : strategy === 'diversified' ? 'blue' : 'primary'
+  strategy === 'active' ? 'red' : strategy === 'diversified' ? 'blue' : strategy === 'focused' ? 'primary' : 'gray'
 
 export const StrategyBadge = ({ strategy }: StrategyBadgeProps) => (
   <Badge color={getStrategyBadgeColor(strategy)}>{strategyLabel(strategy)}</Badge>

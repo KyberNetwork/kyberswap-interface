@@ -3,73 +3,138 @@ export type DecimalString = string
 export type Timestamp = string
 export type Address = `0x${string}` | (string & Record<never, never>)
 
+export type DataStatus =
+  | 'DATA_STATUS_CURRENT'
+  | 'DATA_STATUS_STALE'
+  | 'DATA_STATUS_UNAVAILABLE'
+  | 'DATA_STATUS_UNSPECIFIED'
+
+export type MetricStatus =
+  | 'METRIC_STATUS_CURRENT'
+  | 'METRIC_STATUS_STALE'
+  | 'METRIC_STATUS_UNAVAILABLE'
+  | 'METRIC_STATUS_NOT_APPLICABLE'
+  | 'METRIC_STATUS_UNSPECIFIED'
+
+export type Metric = {
+  value?: DecimalString
+  valueRaw?: string
+  status?: MetricStatus
+  asOf?: Timestamp
+  window?: ApiWindow
+  nominalWindowDays?: number
+  actualWindowSeconds?: string
+  windowPolicy?: WindowPolicy
+  windowStart?: Timestamp
+  windowEnd?: Timestamp
+}
+
+export type AdvisoryActionStatus =
+  | 'ADVISORY_ACTION_STATUS_UNSPECIFIED'
+  | 'ADVISORY_ACTION_STATUS_AVAILABLE'
+  | 'ADVISORY_ACTION_STATUS_PENDING'
+  | 'ADVISORY_ACTION_STATUS_UNAVAILABLE'
+
+export type AdvisoryActionAvailability = {
+  status?: AdvisoryActionStatus
+  reason?: PreparedActionReason
+  asOf?: Timestamp
+}
+
+export type PositionActionKind =
+  | 'POSITION_ACTION_KIND_UNSPECIFIED'
+  | 'POSITION_ACTION_KIND_MANUAL_SELL'
+  | 'POSITION_ACTION_KIND_CLOSE_POSITION'
+
+export type StrategyCategory =
+  | 'STRATEGY_CATEGORY_UNSPECIFIED'
+  | 'STRATEGY_CATEGORY_FOCUSED'
+  | 'STRATEGY_CATEGORY_DIVERSIFIED'
+  | 'STRATEGY_CATEGORY_ACTIVE'
+
+export type ApiWindow = 'WINDOW_UNSPECIFIED' | 'WINDOW_7D' | 'WINDOW_30D' | 'WINDOW_90D' | 'WINDOW_ALL'
+
+export type WindowPolicy =
+  | 'WINDOW_POLICY_UNSPECIFIED'
+  | 'WINDOW_POLICY_TRAILING'
+  | 'WINDOW_POLICY_SINCE_LIVE'
+  | 'WINDOW_POLICY_SINCE_COPY_START'
+
+export type ChainFreshness = {
+  chainId?: string
+  dataAsOf?: Timestamp
+  asOfBlockNumber?: string
+  safeBlockNumber?: string
+  syncedAt?: Timestamp
+  status?: DataStatus
+}
+
 export type ResponseMeta = {
-  requestId: string
-  generatedAt: Timestamp
-  dataAsOf: Timestamp
-  isStale: boolean
-  asOfChains: number[]
+  requestId?: string
+  generatedAt?: Timestamp
+  dataAsOf?: Timestamp
   stalenessReason?: string
+  asOfChains?: ChainFreshness[]
+  status?: DataStatus
 }
 
 export type SingleResponse<T> = {
   data: T
-  meta: ResponseMeta
+  meta?: ResponseMeta
 }
 
 export type CursorPagination = {
-  nextCursor: string
+  nextCursor?: string
   hasMore: boolean
   limit: number
-}
-
-export type PagePagination = {
-  page: number
-  pageSize: number
-  totalCount: number
-  totalPages: number
 }
 
 export type CursorResponse<T> = {
   data: T[]
   pagination: CursorPagination
-  meta: ResponseMeta
-}
-
-export type PageResponse<T> = {
-  data: T[]
-  pagination: PagePagination
-  meta: ResponseMeta
+  meta?: ResponseMeta
 }
 
 export type PerformanceWindow = '7d' | '30d' | '90d' | 'all'
-export type PerformanceInterval = 'hour' | 'day' | 'week' | 'month'
-export type PerformanceSeries = 'portfolio_value'
+export type PerformanceInterval = 'day' | 'week' | 'month'
+export type PerformanceSeries =
+  | 'portfolio_value'
+  | 'cumulative_realized_pnl'
+  | 'period_realized_pnl'
+  | 'per_trade_realized_pnl'
 export type AgentStatsWindow = '30d'
 export type SortOrder = 'desc' | 'asc'
-export type PositionStatus = 'open' | 'closed'
-export type PositionStatusFilter = 'all' | PositionStatus
-export type CopyRunStatus = 'active' | 'closed'
-export type CopyAccountStatus = 'active' | 'closed' | 'unknown'
-export type CopyAccountStatusFilter = 'all' | CopyAccountStatus
-export type Risk = LooseString<'low' | 'moderate' | 'medium' | 'high' | 'aggressive'>
-export type StrategyKey = LooseString<'focused' | 'diversified' | 'active'>
+export type PositionStatus = 'open' | 'closed' | 'unknown'
+export type PositionStatusFilter = 'all' | Exclude<PositionStatus, 'unknown'> | 'leftover'
+export type AgentPositionStatusFilter = Exclude<PositionStatusFilter, 'leftover'>
+export type CopyRunView = 'open' | 'history'
+export type CopyRunStatus = 'active' | 'closing' | 'closed' | 'stopped' | 'unknown'
+export type CopyAccountStatus = 'active' | 'closed' | 'closing' | 'stopped' | 'unknown'
+export type CopyAccountStatusFilter = 'all' | Exclude<CopyAccountStatus, 'unknown'>
+export type StrategyKey = LooseString<'focused' | 'diversified' | 'active' | 'unknown'>
 
 export type ActivityType =
   | 'copy_started'
   | 'copy_stopped'
   | 'position_opened'
   | 'position_closed'
-  | 'capital_added'
-  | 'capital_removed'
-  | 'fee_charged'
-  | 'rebate_received'
-  | 'trade_skipped'
+  | 'capital_deposited'
+  | 'capital_topped_up'
+  | 'capital_withdrawn'
+  | 'capital_returned'
+  | 'flat_fee_captured'
+  | 'cashback_received'
+  | 'aligned_trade_skipped'
+  | 'exit_started'
+  | 'exit_succeeded'
+  | 'exit_skipped'
+  | 'exit_failed'
   | 'execution_failed'
+  | 'position_reduced'
 
 export type ActivityTypeFilter = 'all' | ActivityType
 export type LeaderboardSortBy = 'apr_30d_pct' | 'win_rate_pct' | 'volume_usd' | 'aum_usd' | 'copiers'
-export type PositionSortBy = 'opened_at' | 'closed_at' | 'value_usd' | 'realized_pnl_usd' | 'unrealized_pnl_usd'
+export type PositionSortBy = 'opened_at' | 'closed_at' | 'value_usd'
 
 export type Chain = {
   chainId: number
@@ -82,70 +147,135 @@ export type Chain = {
 export type Token = {
   chainId: number
   address: Address
-  symbol: string
-  name: string
-  decimals: number
+  symbol?: string
+  name?: string
+  decimals?: number
   iconUrl?: string
 }
 
+export type AgentMetrics = {
+  apr30d?: Metric
+  winRatePct?: Metric
+  lifetimeVolumeUsd?: Metric
+  copiers?: Metric
+  aumUsd?: Metric
+  openPositions?: Metric
+  totalRealizedPnlUsd?: Metric
+  maxDrawdownPct?: Metric
+  winningPositionCount?: Metric
+  losingPositionCount?: Metric
+  breakevenPositionCount?: Metric
+  closedPositionCount?: Metric
+}
+
 export type AgentStats = {
-  apr30dPct: DecimalString
-  winRatePct: DecimalString
-  volumeUsd: DecimalString
-  copiers: number
-  aumUsd: DecimalString
-  openPositions: number
-  totalRealizedPnlUsd: DecimalString
+  apr30dPct?: DecimalString
+  winRatePct?: DecimalString
+  volumeUsd?: DecimalString
+  copiers?: DecimalString
+  aumUsd?: DecimalString
+  openPositions?: DecimalString
+  totalRealizedPnlUsd?: DecimalString
+  maxDrawdownPct?: DecimalString
+  metrics: AgentMetrics
+}
+
+export type StrategyExecutionItem = {
+  label: string
+  description: string
 }
 
 export type AgentCard = {
   agentId: string
+  chainId: number
   leaderAddress: Address
   displayName: string
   avatarUrl?: string
   isVerified: boolean
   badges: string[]
   isTrending: boolean
-  risk: Risk
   strategy: StrategyKey
+  strategyLabel?: string
+  strategyCategories: StrategyCategory[]
   modelName: string
-  chains: Chain[]
   stats: AgentStats
-  asOf: Timestamp
+  flatFeeRatePct?: DecimalString
+  flatFeeRatePctMetric?: Metric
+  startCopyAvailability?: AdvisoryActionAvailability
+  asOf?: Timestamp
 }
 
-export type AgentProfile = {
-  agentId: string
-  leaderAddresses: Address[]
-  displayName: string
-  avatarUrl?: string
+export type AgentProfile = AgentCard & {
   bio?: string
-  risk: Risk
-  strategy: StrategyKey
-  modelName: string
-  badges: string[]
-  isTrending: boolean
-  chains: Chain[]
-  performanceFeePct: DecimalString
-  liveSince: Timestamp
-  stats: AgentStats
+  liveSince?: Timestamp
   whitelistedSymbols: string[]
   tags: string[]
+  strategyExecutionItems: StrategyExecutionItem[]
+}
+
+export type AgentSnapshot = {
+  agentId: string
+  chainId: number
+  leaderAddress: Address
+  displayName: string
+  avatarUrl?: string
+  isVerified: boolean
+  modelName: string
+  strategy: StrategyKey
+  strategyLabel?: string
+  strategyCategories: StrategyCategory[]
+  badges: string[]
+  metrics: Pick<AgentMetrics, 'apr30d' | 'winRatePct' | 'lifetimeVolumeUsd'>
 }
 
 export type LeaderboardSummary = {
-  totalAgents: number
-  totalAumUsd: DecimalString
-  totalCopiers: number
-  totalVolumeUsd: DecimalString
+  asOf?: Timestamp
+  totalAgents?: DecimalString
+  totalAumUsd?: DecimalString
+  totalCopiers?: DecimalString
+  totalVolumeUsd?: DecimalString
+  metrics: {
+    agentCount?: Metric
+    totalAumUsd?: Metric
+    totalCopierCount?: Metric
+    lifetimeVolumeUsd?: Metric
+  }
 }
 
 export type PerformancePoint = {
   timestamp: Timestamp
-  portfolioValueUsd: DecimalString
+  series: PerformanceSeries
+  interval?: PerformanceInterval
+  portfolioValueUsd?: DecimalString
   realizedPnlUsd?: DecimalString
-  unrealizedPnlUsd?: DecimalString
-  metadata?: Record<string, unknown>
+  tradeId?: string
+  positionId?: string
+  token?: Token
+  metric: Metric
+}
+
+export type PositionValuation = {
+  valueUsd?: DecimalString
+  priceUsd?: DecimalString
+  priceSource?: string
+  priceAsOf?: Timestamp
+  asOf?: Timestamp
+  isEstimated?: boolean
+  isFinal?: boolean
+  status?: DataStatus
+}
+
+export type PositionMetrics = {
+  realizedPnlUsd?: Metric
+  unrealizedPnlUsd?: Metric
+  unrealizedPnlPct?: Metric
+  flatFeeCapturedUsd?: Metric
+  cashbackReceivedUsd?: Metric
+  netFeeCostUsd?: Metric
+  estimatedCashbackUsd?: Metric
+  skippedSellCount?: Metric
+  latestSkippedRatio?: Metric
+  cumulativeSkippedRatio?: Metric
 }
 
 export type PositionSummary = {
@@ -160,29 +290,54 @@ export type PositionSummary = {
   token: Token
   status: LooseString<PositionStatus>
   trackingStatus?: string
-  statusReason?: string
   amountRaw: DecimalString
-  amountDecimal: DecimalString
-  entryPriceUsd: DecimalString
+  amountDecimal?: DecimalString
+  remainingBaseRaw?: string
+  totalGrossBaseBoughtRaw?: string
+  totalGrossBaseSoldRaw?: string
+  upfrontFeeCapturedBaseRaw?: string
+  upfrontFeeReleasedBaseRaw?: string
+  netBaseReceivedRaw?: string
+  remainingNetBaseRaw?: string
+  displayBaseRaw?: string
+  entryValuation?: PositionValuation
+  currentValuation?: PositionValuation
+  exitValuation?: PositionValuation
+  entryPriceUsd?: DecimalString
   currentPriceUsd?: DecimalString
   exitPriceUsd?: DecimalString
-  valueUsd: DecimalString
+  valueUsd?: DecimalString
   realizedPnlUsd?: DecimalString
   unrealizedPnlUsd?: DecimalString
   unrealizedPnlPct?: DecimalString
-  feeUsd?: DecimalString
-  rebateUsd?: DecimalString
+  flatFeeCapturedUsd?: DecimalString
+  cashbackReceivedUsd?: DecimalString
+  netFeeCostUsd?: DecimalString
+  estimatedCashbackUsd?: DecimalString
+  metrics: PositionMetrics
+  quantityState?: string
+  exitKind?: string
+  actionKind?: PositionActionKind
+  availableActionKinds: PositionActionKind[]
+  isLeftover?: boolean
+  leftoverReason?: string
+  leftoverValuation?: PositionValuation
+  latestSkipPublicErrorCode?: string
+  durationSeconds?: DecimalString
+  durationAsOf?: Timestamp
   openedAt: Timestamp
   closedAt?: Timestamp
-  valuation?: Record<string, unknown>
 }
 
 export type PositionEvent = {
   eventId: string
   positionId: string
   activityType: LooseString<ActivityType>
+  chainId: number
   summary: string
   occurredAt: Timestamp
+  txHash?: string
+  blockNumber?: string
   metadata?: Record<string, unknown>
 }
 
@@ -195,17 +350,36 @@ export type CotLog = {
   data: string
   reasoning: string
   action: string
+  actionCode?: string
   status: string
+  summary?: string
   txHash?: string
+  blockNumber?: string
+  tokenAddress?: Address
+  model?: string
+  strategyVersion?: string
   occurredAt: Timestamp
 }
 
 export type OwnerCopySummary = {
-  totalAllocatedUsd: DecimalString
-  realizedPnlUsd: DecimalString
-  unrealizedPnlUsd: DecimalString
-  openPositions: number
-  activeCopies: number
+  ownerAddress: Address
+  view: CopyRunView
+  totalAllocatedUsd?: DecimalString
+  realizedPnlUsd?: DecimalString
+  unrealizedPnlUsd?: DecimalString
+  openPositions?: DecimalString
+  activeCopies?: DecimalString
+  closedCopies?: DecimalString
+  closedPositions?: DecimalString
+  closedCapitalUsd?: DecimalString
+  portfolioValueUsd?: DecimalString
+  leftoverPositions?: DecimalString
+  leftoverValueUsd?: DecimalString
+  flatFeesCapturedUsd?: DecimalString
+  cashbackReceivedUsd?: DecimalString
+  netFeeCostUsd?: DecimalString
+  estimatedCashbackPendingUsd?: DecimalString
+  metrics: Record<string, Metric | undefined>
 }
 
 export type CopyRunSummary = {
@@ -217,18 +391,27 @@ export type CopyRunSummary = {
   status: CopyRunStatus
   startedAt: Timestamp
   stoppedAt?: Timestamp
-  capitalInUsd: DecimalString
+  capitalInUsd?: DecimalString
   capitalOutUsd?: DecimalString
-  portfolioValueUsd: DecimalString
-  realizedPnlUsd: DecimalString
-  unrealizedPnlUsd: DecimalString
+  portfolioValueUsd?: DecimalString
+  realizedPnlUsd?: DecimalString
+  unrealizedPnlUsd?: DecimalString
   myAprSinceCopyPct?: DecimalString
-  openPositionCount: number
-  closedTradeCount: number
-  feesPaidUsd: DecimalString
-  rebatesReceivedUsd: DecimalString
-  netFeesPaidUsd: DecimalString
-  estimatedRebatePendingUsd: DecimalString
+  openPositionCount?: DecimalString
+  closedPositionCount?: DecimalString
+  leftoverPositionCount?: DecimalString
+  leftoverValueUsd?: DecimalString
+  flatFeesCapturedUsd?: DecimalString
+  cashbackReceivedUsd?: DecimalString
+  netFeeCostUsd?: DecimalString
+  estimatedCashbackPendingUsd?: DecimalString
+  durationSeconds?: DecimalString
+  durationAsOf?: Timestamp
+  addCapitalAvailability?: AdvisoryActionAvailability
+  stopCopyAvailability?: AdvisoryActionAvailability
+  withdrawQuoteAvailability?: AdvisoryActionAvailability
+  metrics: Record<string, Metric | undefined>
+  agentSnapshot?: AgentSnapshot
   agentStats: AgentStats
 }
 
@@ -237,13 +420,28 @@ export type CopyAccountSummary = {
   copyAccount: Address
   ownerAddress: Address
   status: CopyAccountStatus
-  activeCopyRuns: number
-  totalAllocatedUsd: DecimalString
-  portfolioValueUsd: DecimalString
-  availableBalanceUsd: DecimalString
-  realizedPnlUsd: DecimalString
-  unrealizedPnlUsd: DecimalString
-  netFeesPaidUsd: DecimalString
+  activeCopyRuns?: DecimalString
+  totalAllocatedUsd?: DecimalString
+  portfolioValueUsd?: DecimalString
+  availableBalanceUsd?: DecimalString
+  realizedPnlUsd?: DecimalString
+  unrealizedPnlUsd?: DecimalString
+  openPositionCount?: DecimalString
+  closedPositionCount?: DecimalString
+  leftoverPositionCount?: DecimalString
+  leftoverValueUsd?: DecimalString
+  flatFeesCapturedUsd?: DecimalString
+  cashbackReceivedUsd?: DecimalString
+  netFeeCostUsd?: DecimalString
+  estimatedCashbackPendingUsd?: DecimalString
+  copyRunId?: string
+  startedAt?: Timestamp
+  stoppedAt?: Timestamp
+  addCapitalAvailability?: AdvisoryActionAvailability
+  stopCopyAvailability?: AdvisoryActionAvailability
+  withdrawQuoteAvailability?: AdvisoryActionAvailability
+  metrics: Record<string, Metric | undefined>
+  agentSnapshot?: AgentSnapshot
 }
 
 export type ActivityRow = {
@@ -256,7 +454,17 @@ export type ActivityRow = {
   activityType: LooseString<ActivityType>
   summary: string
   occurredAt: Timestamp
-  metadata?: Record<string, unknown>
+  userPositionId?: string
+  followerPositionId?: string
+  tradeId?: string
+  txHash?: string
+  agentDisplayName?: string
+  agentAvatarUrl?: string
+  copyLifecycle?: Record<string, unknown>
+  position?: Record<string, unknown>
+  capital?: Record<string, unknown>
+  fee?: Record<string, unknown>
+  execution?: Record<string, unknown>
 }
 
 export type WalletBalanceRow = {
@@ -269,11 +477,22 @@ export type WalletBalanceRow = {
   balanceAsOfBlock: DecimalString
   cachedAt: Timestamp
   stalenessReason?: string
+  token?: Token
+  valueUsd?: DecimalString
+  currentValuation?: PositionValuation
 }
 
-export type PageQuery = {
-  page?: number
-  pageSize?: number
+export type PinnedStableBalanceStatus =
+  | 'PINNED_STABLE_BALANCE_STATUS_UNSPECIFIED'
+  | 'PINNED_STABLE_BALANCE_STATUS_PRESENT'
+  | 'PINNED_STABLE_BALANCE_STATUS_REGISTRATION_PENDING'
+  | 'PINNED_STABLE_BALANCE_STATUS_NOT_INDEXED'
+  | 'PINNED_STABLE_BALANCE_STATUS_UNAVAILABLE'
+  | 'PINNED_STABLE_BALANCE_STATUS_TOKEN_MISMATCH'
+
+export type PinnedStableBalance = {
+  status?: PinnedStableBalanceStatus
+  balance?: WalletBalanceRow
 }
 
 export type CursorQuery = {
@@ -284,18 +503,17 @@ export type CursorQuery = {
 export type LeaderboardFilters = {
   chainId?: number
   strategy?: StrategyKey
-  risk?: Risk
   search?: string
 }
 
 export type LeaderboardSummaryQuery = LeaderboardFilters
-export type LeaderboardQuery = PageQuery &
+export type LeaderboardQuery = CursorQuery &
   LeaderboardFilters & {
     sortBy?: LeaderboardSortBy
     sortOrder?: SortOrder
   }
 
-export type AgentsQuery = PageQuery & LeaderboardFilters
+export type AgentsQuery = CursorQuery & LeaderboardFilters
 
 export type AgentQuery = {
   agentId: string
@@ -303,7 +521,6 @@ export type AgentQuery = {
 
 export type AgentStatsQuery = AgentQuery & {
   window?: AgentStatsWindow
-  chainId?: number
 }
 
 export type PerformanceQuery = CursorQuery & {
@@ -312,15 +529,11 @@ export type PerformanceQuery = CursorQuery & {
   interval?: PerformanceInterval
 }
 
-export type AgentPerformanceQuery = AgentQuery &
-  PerformanceQuery & {
-    chainId?: number
-  }
+export type AgentPerformanceQuery = AgentQuery & PerformanceQuery
 
 export type AgentPositionsQuery = CursorQuery &
   AgentQuery & {
-    status?: PositionStatusFilter
-    chainId?: number
+    status?: AgentPositionStatusFilter
     token?: Address
     sortBy?: PositionSortBy
     sortOrder?: SortOrder
@@ -334,8 +547,7 @@ export type AgentPositionEventsQuery = CursorQuery & AgentPositionQuery
 
 export type CotLogsQuery = CursorQuery &
   AgentQuery & {
-    chainId?: number
-    positionId?: string
+    leaderPositionId?: string
     from?: Timestamp
     to?: Timestamp
   }
@@ -345,10 +557,16 @@ export type OwnerQuery = {
   chainId?: number
 }
 
+export type OwnerCopySummaryQuery = OwnerQuery & {
+  view: CopyRunView
+}
+
 export type CopyRunsQuery = CursorQuery &
   OwnerQuery & {
-    status?: CopyRunStatus
+    view: CopyRunView
     agentId?: string
+    sortBy?: 'started_at' | 'stopped_at' | 'agent_apr_30d' | 'agent_win_rate' | 'agent_volume' | 'capital_in'
+    sortOrder?: SortOrder
   }
 
 export type CopyRunQuery = {
@@ -363,12 +581,7 @@ export type CopyRunPositionsQuery = CursorQuery &
     sortOrder?: SortOrder
   }
 
-export type CopyRunPerformanceQuery = CursorQuery &
-  CopyRunQuery & {
-    series?: PerformanceSeries
-    window?: PerformanceWindow
-    interval?: PerformanceInterval
-  }
+export type CopyRunPerformanceQuery = CursorQuery & CopyRunQuery & PerformanceQuery
 
 export type OwnerPositionsQuery = CursorQuery &
   OwnerQuery & {
@@ -381,9 +594,11 @@ export type OwnerPositionsQuery = CursorQuery &
 export type OwnerActivityQuery = CursorQuery &
   OwnerQuery & {
     copyRunId?: string
+    activityType?: ActivityTypeFilter
+    group?: 'buys' | 'sells' | 'deposits_withdrawals' | 'skipped'
   }
 
-export type OwnerCopyAccountsQuery = PageQuery &
+export type OwnerCopyAccountsQuery = CursorQuery &
   OwnerQuery & {
     status?: CopyAccountStatusFilter
   }
@@ -393,10 +608,7 @@ export type CopyAccountQuery = {
   copyAccount: Address
 }
 
-export type CopyAccountBalancesQuery = CursorQuery &
-  CopyAccountQuery & {
-    tokenAddresses?: Address[]
-  }
+export type CopyAccountBalancesQuery = CursorQuery & CopyAccountQuery
 
 export type CopyAccountPositionsQuery = CursorQuery &
   CopyAccountQuery & {
@@ -408,12 +620,26 @@ export type CopyAccountPositionsQuery = CursorQuery &
 export type CopyAccountHistoryQuery = CursorQuery &
   CopyAccountQuery & {
     activityType?: ActivityTypeFilter
+    group?: 'buys' | 'sells' | 'deposits_withdrawals' | 'skipped'
   }
+
+export type PendingSellObligationsQuery = CursorQuery &
+  CopyAccountQuery & {
+    userPositionId: string
+  }
+
+export type PendingSellObligation = {
+  leaderPositionEventId: string
+  currentRatioRaw: string
+  skippedAt?: Timestamp
+  publicErrorCode?: string
+  publicErrorMessage?: string
+}
 
 export type ChainsResponse = SingleResponse<Chain[]>
 export type LeaderboardSummaryResponse = SingleResponse<LeaderboardSummary>
-export type LeaderboardResponse = PageResponse<AgentCard>
-export type AgentsResponse = PageResponse<AgentCard>
+export type LeaderboardResponse = CursorResponse<AgentCard>
+export type AgentsResponse = CursorResponse<AgentCard>
 export type AgentResponse = SingleResponse<AgentProfile>
 export type AgentStatsResponse = SingleResponse<AgentStats>
 export type AgentPerformanceResponse = CursorResponse<PerformancePoint>
@@ -428,8 +654,287 @@ export type CopyRunPositionsResponse = CursorResponse<PositionSummary>
 export type CopyRunPerformanceResponse = CursorResponse<PerformancePoint>
 export type OwnerPositionsResponse = CursorResponse<PositionSummary>
 export type OwnerActivityResponse = CursorResponse<ActivityRow>
-export type OwnerCopyAccountsResponse = PageResponse<CopyAccountSummary>
+export type OwnerCopyAccountsResponse = CursorResponse<CopyAccountSummary>
 export type CopyAccountResponse = SingleResponse<CopyAccountSummary>
-export type CopyAccountBalancesResponse = CursorResponse<WalletBalanceRow>
+export type CopyAccountBalancesResponse = CursorResponse<WalletBalanceRow> & {
+  pinnedStableBalance?: PinnedStableBalance
+}
 export type CopyAccountPositionsResponse = CursorResponse<PositionSummary>
 export type CopyAccountHistoryResponse = CursorResponse<ActivityRow>
+export type PendingSellObligationsResponse = CursorResponse<PendingSellObligation>
+
+export type RawAmountMetric = Pick<Metric, 'valueRaw' | 'status' | 'asOf'>
+
+export type PreparedToken = {
+  chainId?: string
+  address?: Address
+  symbol?: string
+  name?: string
+  decimals?: number
+  logoUrl?: string
+}
+
+export type PreparedCallKind =
+  | 'PREPARED_CALL_KIND_UNSPECIFIED'
+  | 'PREPARED_CALL_KIND_START_COPY_CREATE'
+  | 'PREPARED_CALL_KIND_START_COPY_FUND'
+  | 'PREPARED_CALL_KIND_ADD_CAPITAL'
+  | 'PREPARED_CALL_KIND_STOP_COPY'
+  | 'PREPARED_CALL_KIND_WITHDRAW_QUOTE'
+  | 'PREPARED_CALL_KIND_MANUAL_SELL'
+  | 'PREPARED_CALL_KIND_CLOSE_POSITION'
+
+export type PreparedCall = {
+  kind?: PreparedCallKind
+  to?: Address
+  data?: `0x${string}`
+  valueRaw?: string
+}
+
+export type PreparedActionStatus =
+  | 'PREPARED_ACTION_STATUS_UNSPECIFIED'
+  | 'PREPARED_ACTION_STATUS_READY'
+  | 'PREPARED_ACTION_STATUS_PARTIALLY_COMPLETED'
+  | 'PREPARED_ACTION_STATUS_COMPLETED'
+  | 'PREPARED_ACTION_STATUS_PENDING'
+  | 'PREPARED_ACTION_STATUS_UNAVAILABLE'
+
+export type PreparedActionReason =
+  | 'PREPARED_ACTION_REASON_UNSPECIFIED'
+  | 'PREPARED_ACTION_REASON_ALREADY_ACTIVE'
+  | 'PREPARED_ACTION_REASON_NOT_CURRENT_OWNER'
+  | 'PREPARED_ACTION_REASON_ACCOUNT_NOT_ACTIVE'
+  | 'PREPARED_ACTION_REASON_ACCOUNT_NOT_STOPPED'
+  | 'PREPARED_ACTION_REASON_ACCOUNT_PERMANENTLY_PAUSED'
+  | 'PREPARED_ACTION_REASON_EXIT_IN_PROGRESS'
+  | 'PREPARED_ACTION_REASON_EXIT_NOT_TERMINAL'
+  | 'PREPARED_ACTION_REASON_SOURCE_STALE'
+  | 'PREPARED_ACTION_REASON_SOURCE_COVERAGE_PENDING'
+  | 'PREPARED_ACTION_REASON_FACTORY_PAUSED'
+  | 'PREPARED_ACTION_REASON_FEE_POLICY_CHANGED'
+  | 'PREPARED_ACTION_REASON_SIGNER_POLICY_CHANGED'
+  | 'PREPARED_ACTION_REASON_REQUEST_ID_CONFLICT'
+  | 'PREPARED_ACTION_REASON_UNSUPPORTED_ACCOUNT_GENERATION'
+  | 'PREPARED_ACTION_REASON_NO_QUOTE_BALANCE'
+  | 'PREPARED_ACTION_REASON_INSUFFICIENT_QUOTE_BALANCE'
+  | 'PREPARED_ACTION_REASON_CONTROLLER_PAUSED'
+  | 'PREPARED_ACTION_REASON_COPY_RUN_STOPPED'
+  | 'PREPARED_ACTION_REASON_UNSUPPORTED_QUOTE_TOKEN'
+  | 'PREPARED_ACTION_REASON_AMOUNT_BELOW_MINIMUM'
+  | 'PREPARED_ACTION_REASON_INVALID_STOP_INTENT'
+  | 'PREPARED_ACTION_REASON_NO_EXECUTABLE_ROUTE'
+  | 'PREPARED_ACTION_REASON_INNER_CALL_REVERTED'
+  | 'PREPARED_ACTION_REASON_NO_SELLABLE_BASE'
+  | 'PREPARED_ACTION_REASON_NO_PENDING_SELL_OBLIGATION'
+  | 'PREPARED_ACTION_REASON_SELL_OBLIGATION_CHANGED'
+  | 'PREPARED_ACTION_REASON_POSITION_NOT_OPEN'
+  | 'PREPARED_ACTION_REASON_CLOSE_NOT_ELIGIBLE'
+
+export type PreparedActionWarning =
+  | 'PREPARED_ACTION_WARNING_UNSPECIFIED'
+  | 'PREPARED_ACTION_WARNING_ALLOCATION_STALE'
+  | 'PREPARED_ACTION_WARNING_INVALID_STOP_INTENT_RECOVERED'
+  | 'PREPARED_ACTION_WARNING_OWNER_SNAPSHOT_REQUIRES_REFRESH'
+
+export type ProjectorCoverage = {
+  projector?: string
+  completedThroughBlockNumber?: string
+  coverageGeneration?: string
+  sourceReorgSequence?: string
+}
+
+export type EvidenceAnchor = {
+  blockNumber?: string
+  blockHash?: string
+  blockTime?: Timestamp
+  coverageGeneration?: string
+  sourceReorgSequence?: string
+  actionFactEventSeq?: string
+  projectors?: ProjectorCoverage[]
+}
+
+export type ActionBlock = {
+  blockNumber?: string
+  blockHash?: string
+  blockTime?: Timestamp
+}
+
+export type ActionEvidence = {
+  evidenceAnchor?: EvidenceAnchor
+  actionBlock?: ActionBlock
+}
+
+export type FeePolicyPreview = {
+  advertisedUpfrontFeeRateRaw?: string
+  advertisedRateStatus?: MetricStatus
+}
+
+export type StartCopyStage =
+  | 'START_COPY_STAGE_UNSPECIFIED'
+  | 'START_COPY_STAGE_CREATE_REQUIRED'
+  | 'START_COPY_STAGE_FUNDING_REQUIRED'
+  | 'START_COPY_STAGE_COMPLETE'
+
+export type StartCopyPreview = {
+  stage?: StartCopyStage
+  startRequestId?: string
+  predictedCopyAccount?: Address
+  quoteToken?: PreparedToken
+  requestedTargetRaw?: string
+  initialCapitalCredited?: RawAmountMetric
+  remainingTargetDeficit?: RawAmountMetric
+  minimumInitialCapitalRaw?: string
+  walletQuoteBalance?: RawAmountMetric
+  feePolicy?: FeePolicyPreview
+}
+
+export type AddCapitalPreview = {
+  quoteToken?: PreparedToken
+  addedCapitalRaw?: string
+  minimumAddCapitalRaw?: string
+  walletQuoteBalance?: RawAmountMetric
+  currentAllocatedCapital?: RawAmountMetric
+  newAllocatedCapital?: RawAmountMetric
+}
+
+export type PositionLifecycle =
+  | 'POSITION_LIFECYCLE_UNSPECIFIED'
+  | 'POSITION_LIFECYCLE_ACTIVE'
+  | 'POSITION_LIFECYCLE_CLOSING'
+  | 'POSITION_LIFECYCLE_CLOSED'
+
+export type StopPositionPreview = {
+  userPositionId?: string
+  tradeId?: string
+  baseToken?: PreparedToken
+  userBaseRaw?: string
+  cashback?: RawAmountMetric
+  currentValuation?: PositionValuation
+  lifecycle?: PositionLifecycle
+  unrealizedPnlUsd?: Metric
+}
+
+export type StopCopyPreview = {
+  positions?: StopPositionPreview[]
+  totalCurrentValueUsd?: Metric
+  totalCashback?: RawAmountMetric
+  quoteToken?: PreparedToken
+}
+
+export type WithdrawQuotePreview = {
+  quoteToken?: PreparedToken
+  quoteBalance?: RawAmountMetric
+  sweepAmountRaw?: string
+  recipientAddress?: Address
+}
+
+export type PositionSellContext =
+  | 'POSITION_SELL_CONTEXT_UNSPECIFIED'
+  | 'POSITION_SELL_CONTEXT_ALIGN_SKIP'
+  | 'POSITION_SELL_CONTEXT_STOP_COPY'
+
+export type PositionSellPreview = {
+  context?: PositionSellContext
+  userPositionId?: string
+  tradeId?: string
+  baseToken?: PreparedToken
+  quoteToken?: PreparedToken
+  remainingBaseBefore?: RawAmountMetric
+  sellBase?: RawAmountMetric
+  upfrontFeeReleasedBase?: RawAmountMetric
+  sellRatioRaw?: string
+  unresolvedSkipCount?: number
+  cashback?: RawAmountMetric
+}
+
+export type PreparedAction = {
+  status?: PreparedActionStatus
+  chainId?: string
+  expectedAccount?: Address
+  preparedAt?: Timestamp
+  reprepareAfter?: Timestamp
+  liquidationConfigDeadline?: Timestamp
+  call?: PreparedCall
+  reason?: PreparedActionReason
+  warnings?: PreparedActionWarning[]
+  evidence?: ActionEvidence
+  startCopy?: StartCopyPreview
+  addCapital?: AddCapitalPreview
+  stopCopy?: StopCopyPreview
+  withdrawQuote?: WithdrawQuotePreview
+  manualSell?: PositionSellPreview
+  closePosition?: PositionSellPreview
+}
+
+export type PreparedActionResponse = { data: PreparedAction }
+export type PrepareStartCopyResponse = PreparedActionResponse
+export type PrepareAddCapitalResponse = PreparedActionResponse
+export type PrepareStopCopyResponse = PreparedActionResponse
+export type PrepareWithdrawQuoteResponse = PreparedActionResponse
+export type PrepareManualSellResponse = PreparedActionResponse
+export type PrepareClosePositionResponse = PreparedActionResponse
+
+export type PrepareStartCopyRequest = {
+  ownerAddress: Address
+  agentId: string
+  chainId: string
+  targetCapitalRaw: string
+  startRequestId: string
+}
+
+export type PrepareCopyRunRequest = {
+  ownerAddress: Address
+  copyRunId: string
+}
+
+export type PrepareAddCapitalRequest = PrepareCopyRunRequest & {
+  amountRaw: string
+}
+
+export type PrepareStopCopyRequest = PrepareCopyRunRequest & {
+  userPositionIds: string[]
+  slippageBps: number
+}
+
+export type PrepareWithdrawQuoteRequest = PrepareCopyRunRequest
+
+export type PreparePositionRequest = PrepareCopyRunRequest & {
+  userPositionId: string
+  accessToken: string
+  slippageBps: number
+}
+
+export type PrepareManualSellRequest = PreparePositionRequest & {
+  expectedUnresolvedSkipCount: number
+  expectedSellRatioRaw: string
+}
+
+export type PrepareClosePositionRequest = PreparePositionRequest
+
+export type CreateWalletSessionChallengeRequest = {
+  chainId: string
+  ownerAddress: Address
+}
+
+export type WalletSessionChallengeResponse = {
+  data: {
+    siweMessage: string
+    challengeToken: string
+    expiresAt: Timestamp
+  }
+}
+
+export type CreateWalletSessionRequest = {
+  challengeToken: string
+  signature: `0x${string}`
+}
+
+export type WalletSessionResponse = {
+  data: {
+    accessToken: string
+    tokenType: 'Bearer'
+    chainId: string
+    ownerAddress: Address
+    expiresAt: Timestamp
+  }
+}
