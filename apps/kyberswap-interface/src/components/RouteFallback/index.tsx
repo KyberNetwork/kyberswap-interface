@@ -19,6 +19,9 @@ const pickSkeleton = (rawPathname: string) => {
   if (isSwapLikePath(pathname) || matchesAnyRoute(pathname, [APP_PATHS.LIMIT, APP_PATHS.CROSS_CHAIN])) {
     return <SwapPageSkeleton />
   }
+  if (matchesAnyRoute(pathname, [APP_PATHS.PARTNER_SWAP, APP_PATHS.USER_SWAP])) {
+    return <SwapPageSkeleton />
+  }
 
   if (pathname === APP_PATHS.EARN) {
     return <EarnLandingSkeleton />
@@ -32,27 +35,22 @@ const pickSkeleton = (rawPathname: string) => {
   if (isPathOrChild(pathname, APP_PATHS.EARN_SMART_EXIT)) {
     return <SmartExitSkeleton />
   }
+  if (matchPath({ path: APP_PATHS.POOL_DETAIL, end: true }, pathname)) {
+    return <DetailPageSkeleton />
+  }
+  if (matchPath({ path: APP_PATHS.EARN_POSITION_DETAIL, end: true }, pathname)) {
+    return <DetailPageSkeleton />
+  }
 
   if (isPathOrChild(pathname, APP_PATHS.MARKET_OVERVIEW)) {
     return <MarketSkeleton />
   }
+
   if (isPathOrChild(pathname, `${APP_PATHS.ABOUT}/kyberswap`)) {
     return <AboutKyberSwapSkeleton />
   }
   if (isPathOrChild(pathname, `${APP_PATHS.ABOUT}/knc`)) {
     return <AboutKncSkeleton />
-  }
-
-  if (matchesAnyRoute(pathname, [APP_PATHS.PARTNER_SWAP, APP_PATHS.USER_SWAP])) {
-    return <SwapPageSkeleton />
-  }
-
-  if (matchPath({ path: APP_PATHS.POOL_DETAIL, end: true }, pathname)) {
-    return <DetailPageSkeleton />
-  }
-
-  if (matchPath({ path: APP_PATHS.EARN_POSITION_DETAIL, end: true }, pathname)) {
-    return <DetailPageSkeleton />
   }
 
   return <Loader />
