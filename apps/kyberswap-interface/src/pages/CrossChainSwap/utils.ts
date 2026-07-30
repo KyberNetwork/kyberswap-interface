@@ -1,7 +1,23 @@
 import { ChainId, WETH } from '@kyberswap/ks-sdk-core'
 
 import { NETWORKS_INFO } from 'constants/networks'
-import { Chain, Currency, NonEvmChain, NonEvmChainInfo, isEvmChain } from 'pages/CrossChainSwap/adapters/types'
+import {
+  type Chain,
+  type Currency,
+  NonEvmChain,
+  NonEvmChainInfo,
+  isEvmChain,
+} from 'pages/CrossChainSwap/adapters/types'
+import type { Quote } from 'pages/CrossChainSwap/registry'
+
+export const CROSS_CHAIN_FEE_RECEIVER = '0x0891617fe27647731d6f1e764092b2f9f06130A0'
+export const CROSS_CHAIN_FEE_RECEIVER_SOLANA = 'D6tN4c5vpMqh4eFdHBUCEo7QLiw6DQy8f4NwqABZuJEf'
+
+// Use a fake address when the user wallet is not connected. Signing with this address will be rejected.
+export const BTC_DEFAULT_RECEIVER = 'bc1qmzgkj3hznt8heh4vp33v2cr2mvsyhc3lmfzz9p'
+export const SOLANA_NATIVE = '11111111111111111111111111111111'
+
+export const normalizeAdapterName = (name: string) => name.toLowerCase().replace(/\s+/g, '')
 
 export const getNetworkInfo = (chain: Chain) => {
   if (isEvmChain(chain))
@@ -82,3 +98,12 @@ export const getChainName = (chainId: ChainId | NonEvmChain) => {
   if (isEvmChain(chainId)) return NETWORKS_INFO[chainId as ChainId].name
   return NonEvmChainInfo[chainId as NonEvmChain].name
 }
+
+const areAddressesEqual = (first: string | undefined, second: string | undefined, ignoreCase: boolean) =>
+  !!first && !!second && (ignoreCase ? first.toLowerCase() === second.toLowerCase() : first === second)
+
+export const isQuoteExecutable = (quote: Quote | null, sender?: string, receiver?: string) =>
+  !!quote &&
+  !quote.isReadOnly &&
+  areAddressesEqual(quote.quote.quoteParams.sender, sender, isEvmChain(quote.quote.quoteParams.fromChain)) &&
+  areAddressesEqual(quote.quote.quoteParams.recipient, receiver, isEvmChain(quote.quote.quoteParams.toChain))

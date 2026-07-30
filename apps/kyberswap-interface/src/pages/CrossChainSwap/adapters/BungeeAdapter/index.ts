@@ -16,9 +16,8 @@ import {
 import { getBungeeQuote, getBungeeStatus } from 'pages/CrossChainSwap/adapters/BungeeAdapter/api'
 import { type SocketQuoteParams, type SocketQuoteResult } from 'pages/CrossChainSwap/adapters/BungeeAdapter/types'
 import { getSocketTxRoute, normalizeSocketStatus } from 'pages/CrossChainSwap/adapters/BungeeAdapter/utils'
-import { CROSS_CHAIN_FEE_RECEIVER } from 'pages/CrossChainSwap/constants'
 import { Quote } from 'pages/CrossChainSwap/registry'
-import { isWrappedToken } from 'pages/CrossChainSwap/utils'
+import { CROSS_CHAIN_FEE_RECEIVER, isWrappedToken } from 'pages/CrossChainSwap/utils'
 
 export class BungeeAdapter extends BaseSwapAdapter {
   constructor() {

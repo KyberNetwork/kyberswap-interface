@@ -21,6 +21,7 @@ import { useCrossChainApproval } from 'pages/CrossChainSwap/hooks/useCrossChainA
 import { useCrossChainSwap } from 'pages/CrossChainSwap/hooks/useCrossChainSwap'
 import { useNearBalances } from 'pages/CrossChainSwap/hooks/useNearBalances'
 import { useSolanaConnectModal } from 'pages/CrossChainSwap/provider/SolanaConnectModalProvider'
+import { isQuoteExecutable } from 'pages/CrossChainSwap/utils'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { useCurrencyBalance } from 'state/wallet/hooks'
 import { getTokenAddress } from 'utils/tokenInfo'
@@ -38,6 +39,8 @@ export const SwapAction = ({ setShowBtcModal }: { setShowBtcModal: (val: boolean
     allLoading,
     selectedQuote,
     recipient,
+    sender,
+    receiver,
   } = useCrossChainSwap()
   const { account, chainId } = useActiveWeb3React()
   const { trackingHandler } = useTracking()
@@ -74,6 +77,7 @@ export const SwapAction = ({ setShowBtcModal }: { setShowBtcModal: (val: boolean
     })
 
   const isFindingRoute = loading || (allLoading && !selectedQuote)
+  const isSelectedQuoteExecutable = isQuoteExecutable(selectedQuote, isFromEvm ? account : sender, receiver)
 
   // Restricted-token check applies only to EVM sides (the restricted list is keyed by EVM chainId).
   const restrictedCurrency =
@@ -100,6 +104,8 @@ export const SwapAction = ({ setShowBtcModal }: { setShowBtcModal: (val: boolean
   }
 
   const checkAllowanceAndOpenPreview = async () => {
+    if (!isSelectedQuoteExecutable) return
+
     const hasSufficientAllowance = await revalidateAllowance()
     if (!hasSufficientAllowance) return
 
@@ -220,6 +226,13 @@ export const SwapAction = ({ setShowBtcModal }: { setShowBtcModal: (val: boolean
     if (!recipient) {
       return {
         label: t`Enter Recipient`,
+        disabled: true,
+      }
+    }
+
+    if (!isSelectedQuoteExecutable) {
+      return {
+        label: <Dots>{t`Refreshing route`}</Dots>,
         disabled: true,
       }
     }
