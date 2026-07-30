@@ -1,9 +1,11 @@
 import { Zap } from 'react-feather'
+import { useNavigate } from 'react-router-dom'
 import copyTradingApi from 'services/copyTrading'
 import type { AdvisoryActionAvailability, AgentProfile } from 'services/copyTrading/types'
 
 import { ButtonPrimary } from 'components/Button'
 import { HStack, Stack } from 'components/Stack'
+import { APP_PATHS } from 'constants/index'
 import {
   AgentRiskCard,
   CurrentCopyCard,
@@ -13,8 +15,9 @@ import {
 } from 'pages/CopyTrading/components/AgentSidebarCards'
 import { useCopyTradingContext } from 'pages/CopyTrading/context'
 import { formatUsd } from 'pages/CopyTrading/helpers'
+import { useCopyTradeWrite } from 'pages/CopyTrading/write/WriteContext'
 
-const StartCopyCard = ({ availability }: { availability?: AdvisoryActionAvailability }) => {
+const StartCopyCard = ({ availability, onCopy }: { availability?: AdvisoryActionAvailability; onCopy: () => void }) => {
   const disabled = Boolean(availability?.status && availability.status !== 'ADVISORY_ACTION_STATUS_AVAILABLE')
 
   return (
@@ -27,6 +30,7 @@ const StartCopyCard = ({ availability }: { availability?: AdvisoryActionAvailabi
         padding="10px 12px"
         disabled={disabled}
         title={disabled ? availability?.reason : undefined}
+        onClick={onCopy}
       >
         <HStack className="items-center gap-1">
           <Zap size={14} className="fill-warning text-warning" />
@@ -42,7 +46,9 @@ type AgentInstructionProps = {
 }
 
 const AgentInstruction = ({ agent }: AgentInstructionProps) => {
+  const navigate = useNavigate()
   const { ownerAddress } = useCopyTradingContext()
+  const { openSubscribe, openAddCapital } = useCopyTradeWrite()
   const { data: activeCopyRuns } = copyTradingApi.useGetCopyRunsQuery(
     {
       ownerAddress: ownerAddress || '',
@@ -57,9 +63,13 @@ const AgentInstruction = ({ agent }: AgentInstructionProps) => {
   return (
     <Stack className="gap-4">
       {activeCopyRun ? (
-        <CurrentCopyCard capital={formatUsd(activeCopyRun.capitalInUsd)} />
+        <CurrentCopyCard
+          capital={formatUsd(activeCopyRun.capitalInUsd)}
+          onView={() => navigate(`${APP_PATHS.COPY_TRADING}/my-copies/${activeCopyRun.copyRunId}`)}
+          onAddCapital={() => openAddCapital(activeCopyRun, agent.displayName)}
+        />
       ) : (
-        <StartCopyCard availability={agent.startCopyAvailability} />
+        <StartCopyCard availability={agent.startCopyAvailability} onCopy={() => openSubscribe(agent)} />
       )}
       <AgentRiskCard agent={agent} />
       <StrategyExecutionCard items={agent.strategyExecutionItems} />

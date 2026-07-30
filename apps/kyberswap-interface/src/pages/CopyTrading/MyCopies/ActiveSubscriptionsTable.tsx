@@ -6,7 +6,8 @@ import { Stack } from 'components/Stack'
 import { HeaderCell, TableBody, TableCell, TableHeader, TableRow } from 'pages/CopyTrading/components/Table'
 import { CopyRunAgentCell } from 'pages/CopyTrading/components/common'
 import { copyTradingStatIconMap } from 'pages/CopyTrading/constants'
-import { compactUsd, formatUsd, percent } from 'pages/CopyTrading/helpers'
+import { compactUsd, formatUsd, getAgentDisplayName, percent } from 'pages/CopyTrading/helpers'
+import { useCopyTradeWrite } from 'pages/CopyTrading/write/WriteContext'
 import { cn } from 'utils/cn'
 
 type ActiveSubscriptionsGridProps = HTMLAttributes<HTMLDivElement> & {
@@ -35,6 +36,7 @@ type ActiveSubscriptionsTableProps = {
 }
 
 const ActiveSubscriptionsTable = ({ rows, agents, loading, onOpenSubscription }: ActiveSubscriptionsTableProps) => {
+  const { openStopCopy } = useCopyTradeWrite()
   const agentsById = useMemo(
     () =>
       agents.reduce<Record<string, AgentCard>>((acc, agent) => {
@@ -87,7 +89,11 @@ const ActiveSubscriptionsTable = ({ rows, agents, loading, onOpenSubscription }:
             <TableCell className="text-right">{formatUsd(subscription.capitalInUsd)}</TableCell>
             <TableCell className="text-right">{subscription.openPositionCount}</TableCell>
             <TableCell className="flex justify-end">
-              <ButtonLight type="button" padding="8px 12px">
+              <ButtonLight
+                type="button"
+                padding="8px 12px"
+                onClick={() => openStopCopy(subscription, getAgentDisplayName(agentsById[subscription.agentId]))}
+              >
                 Stop Copying
               </ButtonLight>
             </TableCell>

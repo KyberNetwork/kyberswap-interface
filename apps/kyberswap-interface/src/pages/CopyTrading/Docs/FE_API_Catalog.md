@@ -1,8 +1,8 @@
 # Copy Trade API — Frontend Integration Catalog
 
-Contract verified against repository source: **2026-07-27**
+Contract verified against repository source and live OpenAPI: **2026-07-31**
 
-Live pre-release snapshot verified: **2026-07-27 08:57 UTC**
+Live pre-release reads rechecked: **2026-07-31**
 
 Pre-release origin:
 
@@ -22,14 +22,15 @@ deployment details.
 
 ## Contract Authority and Naming
 
-This catalog is an integration guide. The machine-readable contract remains:
+This catalog is an integration guide. The machine-readable contract checked into
+this folder is [`openapi.yaml`](./openapi.yaml). The current pre-release service
+also exposes
+[`/openapi.yaml`](https://pre-copy-trade-api.kyberengineering.io/openapi.yaml).
+The two documents matched exactly during the 2026-07-31 review.
 
-- [`aggregate_read.proto`](../proto/aggregate/v1/aggregate_read.proto) for
-  read routes, enums, request validation, and response models.
-- [`aggregate_action.proto`](../proto/aggregate/v1/aggregate_action.proto) for
-  transaction preparation and wallet sessions.
-- [`aggregate.swagger.yaml`](../proto/gen/openapi/aggregate/v1/aggregate.swagger.yaml)
-  for the generated HTTP/OpenAPI surface.
+Point-in-time implementation and E2E results belong in
+[`IMPLEMENTATION_STATUS.md`](./IMPLEMENTATION_STATUS.md), not in this contract
+catalog.
 
 HTTP JSON and query strings use lower-camel-case names:
 
@@ -51,30 +52,30 @@ This is the recommended UI integration map. “Initial” calls are needed to
 render the main screen. “Lazy” calls should be issued only when the relevant
 tab, chart, drawer, or drilldown is opened.
 
-| Screen or UI region | Initial APIs | Lazy or drilldown APIs | Action APIs |
-| --- | --- | --- | --- |
-| App bootstrap / network selector | `GET /chains` | None | None |
-| Explore / leaderboard header | `GET /leaderboard/summary` | None | None |
-| Leaderboard table | `GET /leaderboard` | Load the next cursor page | Start Copy flow from the selected agent |
-| Agent discovery/search | `GET /agents` | Load the next cursor page | Start Copy flow from the selected agent |
-| Agent profile header and KPI cards | `GET /agents/{agentId}`, optionally `GET /agents/{agentId}/stats` | None | Start Copy flow |
-| Agent performance chart | `GET /agents/{agentId}/performance` | Additional cursor pages or a new request when series/window changes | None |
-| Agent action-log tab | `GET /agents/{agentId}/action-logs` | Filter by leader position or time range; load the next cursor page | None |
-| Agent open/history positions tab | `GET /agents/{agentId}/positions` | `GET /agents/{agentId}/positions/{positionId}` and `/events` when a row is opened | None |
-| My Copies — Open summary | `GET /users/{ownerAddress}/copy-summary?view=OWNER_COPY_VIEW_OPEN` | None | None |
-| My Copies — Open rows | `GET /users/{ownerAddress}/copy-runs?view=OWNER_COPY_VIEW_OPEN` | Load the next cursor page | Add Capital, Stop Copy, or Withdraw Quote from a selected run |
-| My Copies — History summary | `GET /users/{ownerAddress}/copy-summary?view=OWNER_COPY_VIEW_HISTORY` | None | None |
-| My Copies — History rows | `GET /users/{ownerAddress}/copy-runs?view=OWNER_COPY_VIEW_HISTORY` | Load the next cursor page | Withdraw Quote when advisory availability allows it |
-| Copy-run detail | `GET /users/{ownerAddress}/copy-runs/{copyRunId}` and `/positions` | `/performance`; owner activity filtered by `copyRunId` | Add Capital, Stop Copy, Withdraw Quote, Manual Sell, Close Position |
-| All owner positions | `GET /users/{ownerAddress}/positions` | Filter by agent, chain, view, or sort; load the next cursor page | Manual Sell or Close Position when advertised |
-| Leftover positions | Owner or copy-run positions with `view=POSITION_VIEW_LEFTOVER` | Copy-account drilldown and pending-sell obligations | Manual Sell or Close Position when advertised |
-| Owner activity feed | `GET /users/{ownerAddress}/activity` | Filter by `copyRunId`, `chainId`, exact `type`, or product `group` | None |
-| Owner copy-account list | `GET /users/{ownerAddress}/copy-accounts` | Load the next cursor page | None |
-| Copy-account overview | `GET /copy-accounts/{chainId}/{copyAccount}` | Balances, positions, and history routes below | Add Capital, Stop Copy, or Withdraw Quote through the associated copy run |
-| Copy-account balances | `GET /copy-accounts/{chainId}/{copyAccount}/balances` | Load the next cursor page | None |
-| Copy-account positions | `GET /copy-accounts/{chainId}/{copyAccount}/positions` | Pending-sell obligations for a selected `userPositionId` | Manual Sell or Close Position |
-| Copy-account history | `GET /copy-accounts/{chainId}/{copyAccount}/history` | Filter by exact `type` or product `group` | None |
-| Skipped-sell recovery drawer | Position row plus `GET .../pending-sell-obligations` | Refresh the FIFO immediately before preparation | Wallet challenge/session, then Manual Sell or Close Position |
+| Screen or UI region                | Initial APIs                                                          | Lazy or drilldown APIs                                                            | Action APIs                                                               |
+| ---------------------------------- | --------------------------------------------------------------------- | --------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| App bootstrap / network selector   | `GET /chains`                                                         | None                                                                              | None                                                                      |
+| Explore / leaderboard header       | `GET /leaderboard/summary`                                            | None                                                                              | None                                                                      |
+| Leaderboard table                  | `GET /leaderboard`                                                    | Load the next cursor page                                                         | Start Copy flow from the selected agent                                   |
+| Agent discovery/search             | `GET /agents`                                                         | Load the next cursor page                                                         | Start Copy flow from the selected agent                                   |
+| Agent profile header and KPI cards | `GET /agents/{agentId}`, optionally `GET /agents/{agentId}/stats`     | None                                                                              | Start Copy flow                                                           |
+| Agent performance chart            | `GET /agents/{agentId}/performance`                                   | Additional cursor pages or a new request when series/window changes               | None                                                                      |
+| Agent action-log tab               | `GET /agents/{agentId}/action-logs`                                   | Filter by leader position or time range; load the next cursor page                | None                                                                      |
+| Agent open/history positions tab   | `GET /agents/{agentId}/positions`                                     | `GET /agents/{agentId}/positions/{positionId}` and `/events` when a row is opened | None                                                                      |
+| My Copies — Open summary           | `GET /users/{ownerAddress}/copy-summary?view=OWNER_COPY_VIEW_OPEN`    | None                                                                              | None                                                                      |
+| My Copies — Open rows              | `GET /users/{ownerAddress}/copy-runs?view=OWNER_COPY_VIEW_OPEN`       | Load the next cursor page                                                         | Add Capital, Stop Copy, or Withdraw Quote from a selected run             |
+| My Copies — History summary        | `GET /users/{ownerAddress}/copy-summary?view=OWNER_COPY_VIEW_HISTORY` | None                                                                              | None                                                                      |
+| My Copies — History rows           | `GET /users/{ownerAddress}/copy-runs?view=OWNER_COPY_VIEW_HISTORY`    | Load the next cursor page                                                         | Withdraw Quote when advisory availability allows it                       |
+| Copy-run detail                    | `GET /users/{ownerAddress}/copy-runs/{copyRunId}` and `/positions`    | `/performance`; owner activity filtered by `copyRunId`                            | Add Capital, Stop Copy, Withdraw Quote, Manual Sell, Close Position       |
+| All owner positions                | `GET /users/{ownerAddress}/positions`                                 | Filter by agent, chain, view, or sort; load the next cursor page                  | Manual Sell or Close Position when advertised                             |
+| Leftover positions                 | Owner or copy-run positions with `view=POSITION_VIEW_LEFTOVER`        | Copy-account drilldown and pending-sell obligations                               | Manual Sell or Close Position when advertised                             |
+| Owner activity feed                | `GET /users/{ownerAddress}/activity`                                  | Filter by `copyRunId`, `chainId`, exact `type`, or product `group`                | None                                                                      |
+| Owner copy-account list            | `GET /users/{ownerAddress}/copy-accounts`                             | Load the next cursor page                                                         | None                                                                      |
+| Copy-account overview              | `GET /copy-accounts/{chainId}/{copyAccount}`                          | Balances, positions, and history routes below                                     | Add Capital, Stop Copy, or Withdraw Quote through the associated copy run |
+| Copy-account balances              | `GET /copy-accounts/{chainId}/{copyAccount}/balances`                 | Load the next cursor page                                                         | None                                                                      |
+| Copy-account positions             | `GET /copy-accounts/{chainId}/{copyAccount}/positions`                | Pending-sell obligations for a selected `userPositionId`                          | Manual Sell or Close Position                                             |
+| Copy-account history               | `GET /copy-accounts/{chainId}/{copyAccount}/history`                  | Filter by exact `type` or product `group`                                         | None                                                                      |
+| Skipped-sell recovery drawer       | Position row plus `GET .../pending-sell-obligations`                  | Refresh the FIFO immediately before preparation                                   | Wallet challenge/session, then Manual Sell or Close Position              |
 
 ### Screen Fetch Guidance
 
@@ -119,18 +120,18 @@ GET /users/{ownerAddress}/activity?group=ACTIVITY_GROUP_SKIPPED&limit=25
 Public read requests do not require an API key.
 
 ```ts
-const API_ORIGIN = "https://pre-copy-trade-api.kyberengineering.io";
+const API_ORIGIN = 'https://pre-copy-trade-api.kyberengineering.io'
 
 async function apiGet<T>(path: string): Promise<T> {
   const response = await fetch(`${API_ORIGIN}/api/v1${path}`, {
-    headers: { Accept: "application/json" },
-  });
+    headers: { Accept: 'application/json' },
+  })
 
-  const body = await response.json();
+  const body = await response.json()
   if (!response.ok) {
-    throw new Error(body.message ?? `HTTP ${response.status}`);
+    throw new Error(body.message ?? `HTTP ${response.status}`)
   }
-  return body as T;
+  return body as T
 }
 ```
 
@@ -145,14 +146,14 @@ Path variables belong in the URL and are omitted from POST bodies. URL-encode
 opaque IDs:
 
 ```ts
-const pathID = (value: string) => encodeURIComponent(value);
+const pathID = (value: string) => encodeURIComponent(value)
 
 const query = new URLSearchParams({
-  view: "OWNER_COPY_VIEW_OPEN",
-  sortBy: "OWNER_COPY_RUN_SORT_FIELD_STARTED_AT",
-  sortOrder: "SORT_ORDER_DESC",
-  limit: "25",
-});
+  view: 'OWNER_COPY_VIEW_OPEN',
+  sortBy: 'OWNER_COPY_RUN_SORT_FIELD_STARTED_AT',
+  sortOrder: 'SORT_ORDER_DESC',
+  limit: '25',
+})
 ```
 
 Omit optional query parameters instead of sending an empty enum string,
@@ -217,34 +218,34 @@ objects carry `expiresAt`.
 
 ### Response Metadata
 
-| Field | Meaning |
-| --- | --- |
-| `requestId` | Server request correlation ID. Include it in bug reports, but do not use it as product identity. |
-| `generatedAt` | Time this response was assembled. It is not necessarily the source-data time. |
-| `dataAsOf` | Conservative time through which the response's aggregate data is known. |
+| Field             | Meaning                                                                                                      |
+| ----------------- | ------------------------------------------------------------------------------------------------------------ |
+| `requestId`       | Server request correlation ID. Include it in bug reports, but do not use it as product identity.             |
+| `generatedAt`     | Time this response was assembled. It is not necessarily the source-data time.                                |
+| `dataAsOf`        | Conservative time through which the response's aggregate data is known.                                      |
 | `stalenessReason` | Optional sanitized reason when data is stale or unavailable. Treat it as diagnostic text, not a stable enum. |
-| `asOfChains[]` | Per-chain source coverage contributing to the response. |
-| `status` | Response-level `DataStatus`. Individual metrics and valuations can have more specific statuses. |
+| `asOfChains[]`    | Per-chain source coverage contributing to the response.                                                      |
+| `status`          | Response-level `DataStatus`. Individual metrics and valuations can have more specific statuses.              |
 
 Each `asOfChains[]` entry contains:
 
-| Field | Meaning |
-| --- | --- |
-| `chainId` | Chain to which this coverage applies. |
-| `dataAsOf` | Source-data time at the covered boundary. |
-| `asOfBlockNumber` | Highest covered block represented by the response. |
+| Field             | Meaning                                                                      |
+| ----------------- | ---------------------------------------------------------------------------- |
+| `chainId`         | Chain to which this coverage applies.                                        |
+| `dataAsOf`        | Source-data time at the covered boundary.                                    |
+| `asOfBlockNumber` | Highest covered block represented by the response.                           |
 | `safeBlockNumber` | Operator-configured reorg-safe boundary. This is **not** consensus finality. |
-| `syncedAt` | Time the source/materializer recorded the coverage. |
-| `status` | Per-chain `DataStatus`. |
+| `syncedAt`        | Time the source/materializer recorded the coverage.                          |
+| `status`          | Per-chain `DataStatus`.                                                      |
 
 ### Freshness
 
 Every successful read response includes `meta`.
 
-| Status | FE behavior |
-| --- | --- |
-| `DATA_STATUS_CURRENT` | Render normally. |
-| `DATA_STATUS_STALE` | Render the returned data and show a stale-data indication where appropriate. |
+| Status                    | FE behavior                                                                                        |
+| ------------------------- | -------------------------------------------------------------------------------------------------- |
+| `DATA_STATUS_CURRENT`     | Render normally.                                                                                   |
+| `DATA_STATUS_STALE`       | Render the returned data and show a stale-data indication where appropriate.                       |
 | `DATA_STATUS_UNAVAILABLE` | Do not invent missing values. A response may still contain independently usable fields or metrics. |
 
 `meta.asOfChains[]` can contain:
@@ -270,29 +271,29 @@ Most numeric display values use an explicit status:
 
 ```ts
 type MetricStatus =
-  | "METRIC_STATUS_CURRENT"
-  | "METRIC_STATUS_STALE"
-  | "METRIC_STATUS_UNAVAILABLE"
-  | "METRIC_STATUS_NOT_APPLICABLE";
+  | 'METRIC_STATUS_CURRENT'
+  | 'METRIC_STATUS_STALE'
+  | 'METRIC_STATUS_UNAVAILABLE'
+  | 'METRIC_STATUS_NOT_APPLICABLE'
 
 interface DecimalMetric {
-  value?: string;
-  status: MetricStatus;
-  asOf?: string;
+  value?: string
+  status: MetricStatus
+  asOf?: string
 }
 
 interface CountMetric {
   // int64 values are encoded as decimal strings in JSON.
-  value?: string;
-  status: MetricStatus;
-  asOf?: string;
+  value?: string
+  status: MetricStatus
+  asOf?: string
 }
 
 interface RatioMetric {
   // Fixed-point integer scaled by 1e18.
-  valueRaw?: string;
-  status: MetricStatus;
-  asOf?: string;
+  valueRaw?: string
+  status: MetricStatus
+  asOf?: string
 }
 ```
 
@@ -320,16 +321,16 @@ recomputing APR in the browser.
 
 `PositionValuation` is independently status-bearing:
 
-| Field | Meaning |
-| --- | --- |
-| `valueUsd` | Position or asset value as an exact decimal string. |
-| `priceUsd` | Unit price used for the valuation. |
-| `priceSource` | Sanitized source label for display/debugging. |
-| `priceAsOf` | Observation time of the price. |
-| `asOf` | Time of the resulting valuation. |
-| `isEstimated` | Value is provisional or derived from a retained price. |
-| `isFinal` | Value belongs to a terminal/settled position and is final. |
-| `status` | `DATA_STATUS_CURRENT`, `STALE`, or `UNAVAILABLE`. |
+| Field         | Meaning                                                    |
+| ------------- | ---------------------------------------------------------- |
+| `valueUsd`    | Position or asset value as an exact decimal string.        |
+| `priceUsd`    | Unit price used for the valuation.                         |
+| `priceSource` | Sanitized source label for display/debugging.              |
+| `priceAsOf`   | Observation time of the price.                             |
+| `asOf`        | Time of the resulting valuation.                           |
+| `isEstimated` | Value is provisional or derived from a retained price.     |
+| `isFinal`     | Value belongs to a terminal/settled position and is final. |
+| `status`      | `DATA_STATUS_CURRENT`, `STALE`, or `UNAVAILABLE`.          |
 
 An unavailable valuation is not the same as a zero-valued asset. Never derive a
 USD value from missing fields.
@@ -390,10 +391,10 @@ Important distinctions:
 
 All list routes use opaque cursor pagination.
 
-| Parameter | Behavior |
-| --- | --- |
-| `limit` | Default `25`; valid range `0..100`, where `0` selects the default. |
-| `cursor` | Omit on the first request. Pass the exact returned `nextCursor` on the next request. |
+| Parameter | Behavior                                                                             |
+| --------- | ------------------------------------------------------------------------------------ |
+| `limit`   | Default `25`; valid range `0..100`, where `0` selects the default.                   |
+| `cursor`  | Omit on the first request. Pass the exact returned `nextCursor` on the next request. |
 
 The pending-sell-obligation FIFO is the one limit exception: it accepts
 `0..200`, with `0` still selecting the default `25`.
@@ -422,18 +423,18 @@ the safest client behavior is to keep it stable through one sequence.
 
 ### Stable Ordering
 
-| Collection | Default/effective order |
-| --- | --- |
-| Leaderboard | APR 30D descending, with stable identity tie-breakers |
-| Agent discovery | Display name ascending, nulls last |
-| Performance points | Timestamp ascending; per-trade series also uses trade ID |
-| Agent action logs | `occurredAt` descending, then `actionLogId` descending |
-| Positions | `openedAt` descending unless explicitly changed |
-| Open copy runs | `startedAt` descending unless explicitly changed |
-| History copy runs | `stoppedAt` descending when `sortBy` is omitted |
-| Owner activity / copy-account history | `occurredAt` descending, then `activityId` descending |
-| Owner copy accounts | Chain and copy-account ascending |
-| Pending sell obligations | Operator-authoritative FIFO order; never re-sort client-side |
+| Collection                            | Default/effective order                                      |
+| ------------------------------------- | ------------------------------------------------------------ |
+| Leaderboard                           | APR 30D descending, with stable identity tie-breakers        |
+| Agent discovery                       | Display name ascending, nulls last                           |
+| Performance points                    | Timestamp ascending; per-trade series also uses trade ID     |
+| Agent action logs                     | `occurredAt` descending, then `actionLogId` descending       |
+| Positions                             | `openedAt` descending unless explicitly changed              |
+| Open copy runs                        | `startedAt` descending unless explicitly changed             |
+| History copy runs                     | `stoppedAt` descending when `sortBy` is omitted              |
+| Owner activity / copy-account history | `occurredAt` descending, then `activityId` descending        |
+| Owner copy accounts                   | Chain and copy-account ascending                             |
+| Pending sell obligations              | Operator-authoritative FIFO order; never re-sort client-side |
 
 `closedAt` and live `valueUsd` sorts place unavailable/null values last.
 
@@ -562,14 +563,14 @@ interval = PERFORMANCE_INTERVAL_DAY
 
 Supported combinations:
 
-| Series | Window | Interval |
-| --- | --- | --- |
-| `PERFORMANCE_SERIES_PORTFOLIO_EQUITY` | `WINDOW_7D`, `WINDOW_30D`, `WINDOW_90D` | `PERFORMANCE_INTERVAL_DAY` |
-| `PERFORMANCE_SERIES_PORTFOLIO_EQUITY` | `WINDOW_ALL` | `PERFORMANCE_INTERVAL_WEEK` or `PERFORMANCE_INTERVAL_MONTH` |
-| `PERFORMANCE_SERIES_CUMULATIVE_REALIZED_PNL` | `WINDOW_7D`, `WINDOW_30D`, `WINDOW_90D` | `PERFORMANCE_INTERVAL_DAY` |
-| `PERFORMANCE_SERIES_CUMULATIVE_REALIZED_PNL` | `WINDOW_ALL` | `PERFORMANCE_INTERVAL_WEEK` or `PERFORMANCE_INTERVAL_MONTH` |
-| `PERFORMANCE_SERIES_PERIOD_REALIZED_PNL` | Any supported window | `PERFORMANCE_INTERVAL_MONTH` |
-| `PERFORMANCE_SERIES_PER_TRADE_REALIZED_PNL` | Any supported window | Omit `interval` |
+| Series                                       | Window                                  | Interval                                                    |
+| -------------------------------------------- | --------------------------------------- | ----------------------------------------------------------- |
+| `PERFORMANCE_SERIES_PORTFOLIO_EQUITY`        | `WINDOW_7D`, `WINDOW_30D`, `WINDOW_90D` | `PERFORMANCE_INTERVAL_DAY`                                  |
+| `PERFORMANCE_SERIES_PORTFOLIO_EQUITY`        | `WINDOW_ALL`                            | `PERFORMANCE_INTERVAL_WEEK` or `PERFORMANCE_INTERVAL_MONTH` |
+| `PERFORMANCE_SERIES_CUMULATIVE_REALIZED_PNL` | `WINDOW_7D`, `WINDOW_30D`, `WINDOW_90D` | `PERFORMANCE_INTERVAL_DAY`                                  |
+| `PERFORMANCE_SERIES_CUMULATIVE_REALIZED_PNL` | `WINDOW_ALL`                            | `PERFORMANCE_INTERVAL_WEEK` or `PERFORMANCE_INTERVAL_MONTH` |
+| `PERFORMANCE_SERIES_PERIOD_REALIZED_PNL`     | Any supported window                    | `PERFORMANCE_INTERVAL_MONTH`                                |
+| `PERFORMANCE_SERIES_PER_TRADE_REALIZED_PNL`  | Any supported window                    | Omit `interval`                                             |
 
 Agent stats currently support `WINDOW_30D`; omitting `window` selects it.
 
@@ -584,12 +585,12 @@ ACTIVITY_GROUP_SKIPPED
 
 Groups are stable product groupings, not aliases for every related activity:
 
-| Group | Included activity types |
-| --- | --- |
-| `BUYS` | `POSITION_OPENED` |
-| `SELLS` | `POSITION_CLOSED`, `EXIT_SUCCEEDED`, `POSITION_REDUCED` |
+| Group                  | Included activity types                                                           |
+| ---------------------- | --------------------------------------------------------------------------------- |
+| `BUYS`                 | `POSITION_OPENED`                                                                 |
+| `SELLS`                | `POSITION_CLOSED`, `EXIT_SUCCEEDED`, `POSITION_REDUCED`                           |
 | `DEPOSITS_WITHDRAWALS` | `CAPITAL_DEPOSITED`, `CAPITAL_TOPPED_UP`, `CAPITAL_WITHDRAWN`, `CAPITAL_RETURNED` |
-| `SKIPPED` | `ALIGNED_TRADE_SKIPPED`, `EXIT_SKIPPED` |
+| `SKIPPED`              | `ALIGNED_TRADE_SKIPPED`, `EXIT_SKIPPED`                                           |
 
 In-progress and failed execution rows are intentionally available only through
 an exact `type` filter or the unfiltered feed. `type` and `group` are mutually
@@ -650,9 +651,9 @@ must not be converted to a zero balance.
 
 ### Chain Metadata
 
-| Method | Path | Parameters | `data` |
-| --- | --- | --- | --- |
-| GET | `/chains` | None | `Chain[]` |
+| Method | Path      | Parameters | `data`    |
+| ------ | --------- | ---------- | --------- |
+| GET    | `/chains` | None       | `Chain[]` |
 
 A chain contains `chainId`, `slug`, `name`, `iconUrl`, and `isEnabled`.
 
@@ -661,11 +662,11 @@ hard-code chain display names or icons from `chainId`.
 
 ### Leaderboard and Agent Discovery
 
-| Method | Path | Parameters | `data` |
-| --- | --- | --- | --- |
-| GET | `/leaderboard/summary` | `chainId?`, `search?`, `strategyCategory?` | `LeaderboardSummary` |
-| GET | `/leaderboard` | Previous filters plus `cursor?`, `limit?`, `sortBy?`, `sortOrder?` | `AgentCard[]` |
-| GET | `/agents` | `chainId?`, `search?`, `strategyCategory?`, `cursor?`, `limit?` | `AgentCard[]` |
+| Method | Path                   | Parameters                                                         | `data`               |
+| ------ | ---------------------- | ------------------------------------------------------------------ | -------------------- |
+| GET    | `/leaderboard/summary` | `chainId?`, `search?`, `strategyCategory?`                         | `LeaderboardSummary` |
+| GET    | `/leaderboard`         | Previous filters plus `cursor?`, `limit?`, `sortBy?`, `sortOrder?` | `AgentCard[]`        |
+| GET    | `/agents`              | `chainId?`, `search?`, `strategyCategory?`, `cursor?`, `limit?`    | `AgentCard[]`        |
 
 Leaderboard sort fields:
 
@@ -683,14 +684,14 @@ stable display-name order.
 
 Filter behavior:
 
-| Parameter | Supported values and behavior |
-| --- | --- |
-| `chainId` | Optional positive chain ID. Omit for all configured chains. |
-| `search` | Optional, trimmed and case-insensitive, maximum 256 Unicode characters. |
+| Parameter          | Supported values and behavior                                                                                  |
+| ------------------ | -------------------------------------------------------------------------------------------------------------- |
+| `chainId`          | Optional positive chain ID. Omit for all configured chains.                                                    |
+| `search`           | Optional, trimmed and case-insensitive, maximum 256 Unicode characters.                                        |
 | `strategyCategory` | Optional `FOCUSED`, `DIVERSIFIED`, or `ACTIVE` enum. Categories overlap; an agent can appear in more than one. |
-| `sortBy` | Leaderboard only. Omit for APR 30D. |
-| `sortOrder` | Leaderboard only. Omit for descending. |
-| `limit`, `cursor` | Standard cursor pagination. |
+| `sortBy`           | Leaderboard only. Omit for APR 30D.                                                                            |
+| `sortOrder`        | Leaderboard only. Omit for descending.                                                                         |
+| `limit`, `cursor`  | Standard cursor pagination.                                                                                    |
 
 Key `AgentCard` fields:
 
@@ -703,17 +704,17 @@ Key `AgentCard` fields:
 
 `AgentCard.metrics` contains:
 
-| Field | Meaning |
-| --- | --- |
-| `apr30d` | APR with its exact effective interval and status. |
-| `winRatePct` | Closed-position win rate. |
-| `lifetimeVolumeUsd` | Lifetime notional volume. |
-| `copiers` | Unique active copier count. |
-| `aumUsd` | Follower assets under management. |
-| `openPositions` | Current open-position count. |
-| `totalRealizedPnlUsd` | Lifetime realized P&L. |
-| `maxDrawdownPct` | Maximum drawdown percentage when available. |
-| `winningPositionCount`, `losingPositionCount`, `breakevenPositionCount`, `closedPositionCount` | Explicit terminal-position counts. |
+| Field                                                                                          | Meaning                                           |
+| ---------------------------------------------------------------------------------------------- | ------------------------------------------------- |
+| `apr30d`                                                                                       | APR with its exact effective interval and status. |
+| `winRatePct`                                                                                   | Closed-position win rate.                         |
+| `lifetimeVolumeUsd`                                                                            | Lifetime notional volume.                         |
+| `copiers`                                                                                      | Unique active copier count.                       |
+| `aumUsd`                                                                                       | Follower assets under management.                 |
+| `openPositions`                                                                                | Current open-position count.                      |
+| `totalRealizedPnlUsd`                                                                          | Lifetime realized P&L.                            |
+| `maxDrawdownPct`                                                                               | Maximum drawdown percentage when available.       |
+| `winningPositionCount`, `losingPositionCount`, `breakevenPositionCount`, `closedPositionCount` | Explicit terminal-position counts.                |
 
 `LeaderboardSummary` contains status-bearing `agentCount`, `totalAumUsd`,
 `totalCopierCount`, and `lifetimeVolumeUsd`, plus `asOf`. Summary and row
@@ -722,28 +723,28 @@ handled independently.
 
 ### Agent Profile, Performance, and Positions
 
-| Method | Path | Parameters | `data` |
-| --- | --- | --- | --- |
-| GET | `/agents/{agentId}` | Path: `agentId` | `AgentProfile` |
-| GET | `/agents/{agentId}/stats` | `window?` | `AgentMetrics` |
-| GET | `/agents/{agentId}/performance` | `series?`, `window?`, `interval?`, `cursor?`, `limit?` | `PerformancePoint[]` |
-| GET | `/agents/{agentId}/action-logs` | `leaderPositionId?`, `from?`, `to?`, `cursor?`, `limit?` | `AgentActionLog[]` |
-| GET | `/agents/{agentId}/positions` | `view?`, `token?`, `cursor?`, `limit?`, `sortBy?`, `sortOrder?` | `PositionSummary[]` |
-| GET | `/agents/{agentId}/positions/{positionId}` | Path: `agentId`, `positionId` | `PositionSummary` |
-| GET | `/agents/{agentId}/positions/{positionId}/events` | `cursor?`, `limit?` | `PositionEvent[]` |
+| Method | Path                                              | Parameters                                                      | `data`               |
+| ------ | ------------------------------------------------- | --------------------------------------------------------------- | -------------------- |
+| GET    | `/agents/{agentId}`                               | Path: `agentId`                                                 | `AgentProfile`       |
+| GET    | `/agents/{agentId}/stats`                         | `window?`                                                       | `AgentMetrics`       |
+| GET    | `/agents/{agentId}/performance`                   | `series?`, `window?`, `interval?`, `cursor?`, `limit?`          | `PerformancePoint[]` |
+| GET    | `/agents/{agentId}/action-logs`                   | `leaderPositionId?`, `from?`, `to?`, `cursor?`, `limit?`        | `AgentActionLog[]`   |
+| GET    | `/agents/{agentId}/positions`                     | `view?`, `token?`, `cursor?`, `limit?`, `sortBy?`, `sortOrder?` | `PositionSummary[]`  |
+| GET    | `/agents/{agentId}/positions/{positionId}`        | Path: `agentId`, `positionId`                                   | `PositionSummary`    |
+| GET    | `/agents/{agentId}/positions/{positionId}/events` | `cursor?`, `limit?`                                             | `PositionEvent[]`    |
 
 Action-log `from` and `to` are RFC3339 timestamps. When both are present,
 `from` must not be after `to`.
 
 Agent-route behavior:
 
-| Route | Defaults and constraints |
-| --- | --- |
-| Stats | Omitted `window` means `WINDOW_30D`; 30D is currently the only accepted stats window. |
-| Performance | Uses the performance defaults/combinations above and returns points in ascending time order. |
-| Action logs | Optional `leaderPositionId` is 1..256 characters. `from` and `to` are inclusive source-time bounds. Rows are newest first. |
-| Positions | Omitted view means `ALL`; `LEFTOVER` is rejected. Optional `token` is a token-address filter. |
-| Position events | Standard pagination; events preserve source lifecycle order for the selected position. |
+| Route           | Defaults and constraints                                                                                                   |
+| --------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| Stats           | Omitted `window` means `WINDOW_30D`; 30D is currently the only accepted stats window.                                      |
+| Performance     | Uses the performance defaults/combinations above and returns points in ascending time order.                               |
+| Action logs     | Optional `leaderPositionId` is 1..256 characters. `from` and `to` are inclusive source-time bounds. Rows are newest first. |
+| Positions       | Omitted view means `ALL`; `LEFTOVER` is rejected. Optional `token` is a token-address filter.                              |
+| Position events | Standard pagination; events preserve source lifecycle order for the selected position.                                     |
 
 Key `AgentProfile` additions over a card:
 
@@ -798,16 +799,16 @@ the related detail, while the point timestamp remains the chart order key.
 
 ### Owner Dashboard and Copy Runs
 
-| Method | Path | Parameters | `data` |
-| --- | --- | --- | --- |
-| GET | `/users/{ownerAddress}/copy-summary` | `view` **required**, `chainId?` | `OwnerCopySummary` |
-| GET | `/users/{ownerAddress}/copy-runs` | `view` **required**, `agentId?`, `chainId?`, `cursor?`, `limit?`, `sortBy?`, `sortOrder?` | `CopyRunSummary[]` |
-| GET | `/users/{ownerAddress}/copy-runs/{copyRunId}` | Path only | `CopyRunSummary` |
-| GET | `/users/{ownerAddress}/copy-runs/{copyRunId}/positions` | `view?`, `cursor?`, `limit?`, `sortBy?`, `sortOrder?` | `PositionSummary[]` |
-| GET | `/users/{ownerAddress}/copy-runs/{copyRunId}/performance` | `series?`, `window?`, `interval?`, `cursor?`, `limit?` | `PerformancePoint[]` |
-| GET | `/users/{ownerAddress}/positions` | `agentId?`, `chainId?`, `view?`, `cursor?`, `limit?`, `sortBy?`, `sortOrder?` | `PositionSummary[]` |
-| GET | `/users/{ownerAddress}/activity` | `copyRunId?`, `chainId?`, `type?`, `group?`, `cursor?`, `limit?` | `ActivityRow[]` |
-| GET | `/users/{ownerAddress}/copy-accounts` | `chainId?`, `status?`, `cursor?`, `limit?` | `CopyAccountSummary[]` |
+| Method | Path                                                      | Parameters                                                                                | `data`                 |
+| ------ | --------------------------------------------------------- | ----------------------------------------------------------------------------------------- | ---------------------- |
+| GET    | `/users/{ownerAddress}/copy-summary`                      | `view` **required**, `chainId?`                                                           | `OwnerCopySummary`     |
+| GET    | `/users/{ownerAddress}/copy-runs`                         | `view` **required**, `agentId?`, `chainId?`, `cursor?`, `limit?`, `sortBy?`, `sortOrder?` | `CopyRunSummary[]`     |
+| GET    | `/users/{ownerAddress}/copy-runs/{copyRunId}`             | Path only                                                                                 | `CopyRunSummary`       |
+| GET    | `/users/{ownerAddress}/copy-runs/{copyRunId}/positions`   | `view?`, `cursor?`, `limit?`, `sortBy?`, `sortOrder?`                                     | `PositionSummary[]`    |
+| GET    | `/users/{ownerAddress}/copy-runs/{copyRunId}/performance` | `series?`, `window?`, `interval?`, `cursor?`, `limit?`                                    | `PerformancePoint[]`   |
+| GET    | `/users/{ownerAddress}/positions`                         | `agentId?`, `chainId?`, `view?`, `cursor?`, `limit?`, `sortBy?`, `sortOrder?`             | `PositionSummary[]`    |
+| GET    | `/users/{ownerAddress}/activity`                          | `copyRunId?`, `chainId?`, `type?`, `group?`, `cursor?`, `limit?`                          | `ActivityRow[]`        |
+| GET    | `/users/{ownerAddress}/copy-accounts`                     | `chainId?`, `status?`, `cursor?`, `limit?`                                                | `CopyAccountSummary[]` |
 
 Owner copy-run sort fields:
 
@@ -827,14 +828,14 @@ status.
 
 Copy-run list behavior:
 
-| Parameter | Behavior |
-| --- | --- |
-| `view` | Required: `OPEN` or `HISTORY`. |
-| `agentId` | Optional exact agent filter. |
-| `chainId` | Optional positive chain filter. |
-| `sortBy` | Open defaults to `STARTED_AT`; History defaults to `STOPPED_AT`. |
-| `sortOrder` | Defaults to descending. |
-| `limit`, `cursor` | Standard cursor pagination. |
+| Parameter         | Behavior                                                         |
+| ----------------- | ---------------------------------------------------------------- |
+| `view`            | Required: `OPEN` or `HISTORY`.                                   |
+| `agentId`         | Optional exact agent filter.                                     |
+| `chainId`         | Optional positive chain filter.                                  |
+| `sortBy`          | Open defaults to `STARTED_AT`; History defaults to `STOPPED_AT`. |
+| `sortOrder`       | Defaults to descending.                                          |
+| `limit`, `cursor` | Standard cursor pagination.                                      |
 
 Copy-account status filters:
 
@@ -872,26 +873,26 @@ the activity: `copyLifecycle`, `position`, `capital`, `fee`, or `execution`.
 
 The detail variant has this shape:
 
-| Variant | Used for | Important fields |
-| --- | --- | --- |
-| `copyLifecycle` | Copy started/stopped | `eventId`, `eventType`, optional `beforeStatus`, `afterStatus` |
-| `position` | Open/close/reduce position | Tokens, raw base/quote accounting, settlement value, realized P&L, fee, cashback |
-| `capital` | Deposit/top-up/withdraw/return | `movementType`, exact raw amount, token, USD metric |
-| `fee` | Flat fee/cashback | Exact raw amount, token, USD metric |
-| `execution` | Skip/exit/failure lifecycle | Execution/action identifiers and statuses, public error, config index/rate/deadline, display amount/value |
+| Variant         | Used for                       | Important fields                                                                                          |
+| --------------- | ------------------------------ | --------------------------------------------------------------------------------------------------------- |
+| `copyLifecycle` | Copy started/stopped           | `eventId`, `eventType`, optional `beforeStatus`, `afterStatus`                                            |
+| `position`      | Open/close/reduce position     | Tokens, raw base/quote accounting, settlement value, realized P&L, fee, cashback                          |
+| `capital`       | Deposit/top-up/withdraw/return | `movementType`, exact raw amount, token, USD metric                                                       |
+| `fee`           | Flat fee/cashback              | Exact raw amount, token, USD metric                                                                       |
+| `execution`     | Skip/exit/failure lifecycle    | Execution/action identifiers and statuses, public error, config index/rate/deadline, display amount/value |
 
 The top-level `summary` is display text. Business logic should switch on the
 typed `type` and oneof detail, not parse the summary.
 
 ### Copy Accounts
 
-| Method | Path | Parameters | `data` |
-| --- | --- | --- | --- |
-| GET | `/copy-accounts/{chainId}/{copyAccount}` | Path only | `CopyAccountSummary` |
-| GET | `/copy-accounts/{chainId}/{copyAccount}/balances` | `cursor?`, `limit?` | `WalletBalanceRow[]`; response also includes `pinnedStableBalance` |
-| GET | `/copy-accounts/{chainId}/{copyAccount}/positions` | `view?`, `cursor?`, `limit?`, `sortBy?`, `sortOrder?` | `PositionSummary[]` |
-| GET | `/copy-accounts/{chainId}/{copyAccount}/positions/{userPositionId}/pending-sell-obligations` | `cursor?`, `limit?` | `PendingSellObligation[]` |
-| GET | `/copy-accounts/{chainId}/{copyAccount}/history` | `type?`, `group?`, `cursor?`, `limit?` | `ActivityRow[]` |
+| Method | Path                                                                                         | Parameters                                            | `data`                                                             |
+| ------ | -------------------------------------------------------------------------------------------- | ----------------------------------------------------- | ------------------------------------------------------------------ |
+| GET    | `/copy-accounts/{chainId}/{copyAccount}`                                                     | Path only                                             | `CopyAccountSummary`                                               |
+| GET    | `/copy-accounts/{chainId}/{copyAccount}/balances`                                            | `cursor?`, `limit?`                                   | `WalletBalanceRow[]`; response also includes `pinnedStableBalance` |
+| GET    | `/copy-accounts/{chainId}/{copyAccount}/positions`                                           | `view?`, `cursor?`, `limit?`, `sortBy?`, `sortOrder?` | `PositionSummary[]`                                                |
+| GET    | `/copy-accounts/{chainId}/{copyAccount}/positions/{userPositionId}/pending-sell-obligations` | `cursor?`, `limit?`                                   | `PendingSellObligation[]`                                          |
+| GET    | `/copy-accounts/{chainId}/{copyAccount}/history`                                             | `type?`, `group?`, `cursor?`, `limit?`                | `ActivityRow[]`                                                    |
 
 `CopyAccountSummary` contains chain/account/creation-owner identity, current
 copy run and agent snapshot, start/stop times, lifecycle status, capital and
@@ -909,17 +910,17 @@ Use the returned FIFO order and exact ratios when requesting Manual Sell.
 
 `WalletBalanceRow` contains:
 
-| Field | Meaning |
-| --- | --- |
-| `chainId`, `copyAccount`, `tokenAddress` | Exact inventory identity. |
-| `amountDecimal` | Human-unit decimal amount, not a base-unit `*Raw` integer. |
-| `balanceSource` | Sanitized upstream/source label. |
-| `freshnessStatus` | Source-specific freshness label. |
-| `balanceAsOfBlock` | Block at which the balance was read. |
-| `cachedAt` | Time the row was cached. |
-| `stalenessReason` | Optional diagnostic reason. |
-| `token` | Token metadata. |
-| `currentValuation` | Independently status-bearing USD valuation. |
+| Field                                    | Meaning                                                    |
+| ---------------------------------------- | ---------------------------------------------------------- |
+| `chainId`, `copyAccount`, `tokenAddress` | Exact inventory identity.                                  |
+| `amountDecimal`                          | Human-unit decimal amount, not a base-unit `*Raw` integer. |
+| `balanceSource`                          | Sanitized upstream/source label.                           |
+| `freshnessStatus`                        | Source-specific freshness label.                           |
+| `balanceAsOfBlock`                       | Block at which the balance was read.                       |
+| `cachedAt`                               | Time the row was cached.                                   |
+| `stalenessReason`                        | Optional diagnostic reason.                                |
+| `token`                                  | Token metadata.                                            |
+| `currentValuation`                       | Independently status-bearing USD valuation.                |
 
 The balance endpoint also returns `pinnedStableBalance`. This is separate from
 the ordinary page because the configured quote/stable token has action-critical
@@ -942,10 +943,10 @@ submit the returned `data.call` exactly:
 
 ```ts
 interface PreparedCall {
-  kind: string;
-  to: `0x${string}`;
-  data: `0x${string}`;
-  valueRaw: "0";
+  kind: string
+  to: `0x${string}`
+  data: `0x${string}`
+  valueRaw: '0'
 }
 ```
 
@@ -959,13 +960,13 @@ PREPARED_ACTION_STATUS_PENDING
 PREPARED_ACTION_STATUS_UNAVAILABLE
 ```
 
-| Status | Call present? | FE behavior |
-| --- | --- | --- |
-| `READY` | Yes | Show the preview and request wallet submission of the exact call. |
-| `PARTIALLY_COMPLETED` | Yes, Start Copy only | The account exists and the next funding call is ready. Submit it, confirm, then prepare again. |
-| `COMPLETED` | No | The requested state is already complete. Refresh reads and close the action flow. |
-| `PENDING` | No | Current evidence is not yet sufficient or an earlier transaction is still converging. Honor `reprepareAfter` when present and retry preparation. |
-| `UNAVAILABLE` | No | The action cannot currently execute. Render the typed `reason`; do not submit anything. |
+| Status                | Call present?        | FE behavior                                                                                                                                      |
+| --------------------- | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `READY`               | Yes                  | Show the preview and request wallet submission of the exact call.                                                                                |
+| `PARTIALLY_COMPLETED` | Yes, Start Copy only | The account exists and the next funding call is ready. Submit it, confirm, then prepare again.                                                   |
+| `COMPLETED`           | No                   | The requested state is already complete. Refresh reads and close the action flow.                                                                |
+| `PENDING`             | No                   | Current evidence is not yet sufficient or an earlier transaction is still converging. Honor `reprepareAfter` when present and retry preparation. |
+| `UNAVAILABLE`         | No                   | The action cannot currently execute. Render the typed `reason`; do not submit anything.                                                          |
 
 Prepared call kinds:
 
@@ -987,19 +988,19 @@ empty states, but the corresponding preparation response is authoritative.
 
 ### Prepared Action Fields
 
-| Field | Meaning |
-| --- | --- |
-| `status` | Typed outcome described above. |
-| `chainId` | Chain on which the wallet call belongs. |
-| `expectedAccount` | Account expected to send the outer transaction. Compare it with the connected wallet/account. |
-| `preparedAt` | Time the preparation was produced. |
-| `reprepareAfter` | Only public expiry/retry boundary for the preparation. Discard the result after this time. |
-| `liquidationConfigDeadline` | Optional action-specific deadline. Do not submit after it. |
-| `call` | Exact reviewed EVM inner call, only when executable. |
-| `reason` | Stable typed reason for non-ready/advisory state. |
-| `warnings[]` | Allowlisted render-only qualifications. Warnings do not authorize changing calldata. |
-| `evidence` | Exact safely covered fact boundary and fresh action block used by preparation. |
-| one preview | Exactly one of `startCopy`, `addCapital`, `stopCopy`, `withdrawQuote`, `manualSell`, or `closePosition`. |
+| Field                       | Meaning                                                                                                  |
+| --------------------------- | -------------------------------------------------------------------------------------------------------- |
+| `status`                    | Typed outcome described above.                                                                           |
+| `chainId`                   | Chain on which the wallet call belongs.                                                                  |
+| `expectedAccount`           | Account expected to send the outer transaction. Compare it with the connected wallet/account.            |
+| `preparedAt`                | Time the preparation was produced.                                                                       |
+| `reprepareAfter`            | Only public expiry/retry boundary for the preparation. Discard the result after this time.               |
+| `liquidationConfigDeadline` | Optional action-specific deadline. Do not submit after it.                                               |
+| `call`                      | Exact reviewed EVM inner call, only when executable.                                                     |
+| `reason`                    | Stable typed reason for non-ready/advisory state.                                                        |
+| `warnings[]`                | Allowlisted render-only qualifications. Warnings do not authorize changing calldata.                     |
+| `evidence`                  | Exact safely covered fact boundary and fresh action block used by preparation.                           |
+| one preview                 | Exactly one of `startCopy`, `addCapital`, `stopCopy`, `withdrawQuote`, `manualSell`, or `closePosition`. |
 
 `evidence.evidenceAnchor` is the safely covered fact boundary (S/E), when one is
 required. `evidence.actionBlock` is the fresh canonical mutable-state/preflight
@@ -1300,18 +1301,18 @@ display/debug context.
 
 Common statuses observed or expected:
 
-| HTTP | Meaning |
-| --- | --- |
-| 400 | Invalid parameter, unsupported enum combination, or cursor mismatch |
-| 401 | Missing, expired, or invalid wallet session |
-| 403 | A valid wallet session does not authorize the requested owner/chain |
-| 408 | Request was canceled |
-| 404 | Requested public resource not found |
-| 409 | Another preparation for the same action is already in progress |
-| 429 | Server action-preparation capacity is exhausted |
-| 500 | Internal request failure; the response is sanitized |
-| 503 | Temporarily unavailable; retry with bounded backoff |
-| 504 | Request deadline exceeded; retry with bounded backoff |
+| HTTP | Meaning                                                             |
+| ---- | ------------------------------------------------------------------- |
+| 400  | Invalid parameter, unsupported enum combination, or cursor mismatch |
+| 401  | Missing, expired, or invalid wallet session                         |
+| 403  | A valid wallet session does not authorize the requested owner/chain |
+| 408  | Request was canceled                                                |
+| 404  | Requested public resource not found                                 |
+| 409  | Another preparation for the same action is already in progress      |
+| 429  | Server action-preparation capacity is exhausted                     |
+| 500  | Internal request failure; the response is sanitized                 |
+| 503  | Temporarily unavailable; retry with bounded backoff                 |
+| 504  | Request deadline exceeded; retry with bounded backoff               |
 
 Some upstream failed-precondition responses also map to HTTP 400. Use the typed
 prepared-action `status` and `reason` for normal product state; HTTP errors are
@@ -1336,14 +1337,14 @@ Retry guidance:
 
 ```ts
 type ListEnvelope<T> = {
-  data?: T[];
+  data?: T[]
   pagination?: {
-    nextCursor?: string;
-    hasMore?: boolean;
-    limit?: number;
-  };
-  meta: ResponseMeta;
-};
+    nextCursor?: string
+    hasMore?: boolean
+    limit?: number
+  }
+  meta: ResponseMeta
+}
 
 function normalizePage<T>(body: ListEnvelope<T>) {
   return {
@@ -1352,7 +1353,7 @@ function normalizePage<T>(body: ListEnvelope<T>) {
     hasMore: body.pagination?.hasMore === true,
     limit: body.pagination?.limit ?? 25,
     meta: body.meta,
-  };
+  }
 }
 ```
 
@@ -1362,19 +1363,16 @@ stable ID as a defensive UI measure, but do not re-sort server pages.
 ### Render a status-bearing metric
 
 ```ts
-function metricText(metric?: {
-  value?: string;
-  status?: string;
-}): string {
-  if (!metric) return "—";
+function metricText(metric?: { value?: string; status?: string }): string {
+  if (!metric) return '—'
   switch (metric.status) {
-    case "METRIC_STATUS_CURRENT":
-    case "METRIC_STATUS_STALE":
-      return metric.value ?? "—";
-    case "METRIC_STATUS_NOT_APPLICABLE":
-    case "METRIC_STATUS_UNAVAILABLE":
+    case 'METRIC_STATUS_CURRENT':
+    case 'METRIC_STATUS_STALE':
+      return metric.value ?? '—'
+    case 'METRIC_STATUS_NOT_APPLICABLE':
+    case 'METRIC_STATUS_UNAVAILABLE':
     default:
-      return "—";
+      return '—'
   }
 }
 ```
@@ -1426,78 +1424,11 @@ must use only the aggregate routes in this document.
 
 ## Live Pre-release Verification
 
-The following is a point-in-time integration snapshot, not a permanent data
-guarantee. All 32 public HTTP operations were called against pre-release.
+Live fixtures are mutable and must not become contract requirements. Keep this
+catalog focused on request/response rules and recheck the service before relying
+on a sample value, minimum, lifecycle distribution, or freshness status.
 
-Representative read fixture:
-
-```text
-chainId:        8453
-agentId:        agt_base_leader_c7f1b205
-displayName:    Vortex Sentinel
-positionId:     0xc0d105d69d848c37ed5da526e0523545b55d6852c63759b53acb61bc2e650207
-
-ownerAddress:   0x665c7a5bac26af69398d60e7730694863e66a759
-copyRunId:      copy_run_dc668c0ba0174729e0811229e11693065b95a96849c3c29e9e1e0170e0134a7c
-copyAccount:    0x582f54b1d818c1b1f154b5219f73f31b8b2854aa
-userPositionId: user_position_8453_0x582f54b1d818c1b1f154b5219f73f31b8b2854aa_0x1c4dd4968f594ea8e8a4bef8fb21c79051d3d92a19811fa4f6ed14b36d893e10
-```
-
-### Read routes
-
-All 24 GET routes returned HTTP 200.
-
-| Route | Rows/object returned | Response status |
-| --- | ---: | --- |
-| `/chains` | 1 Base chain | `DATA_STATUS_CURRENT` |
-| `/leaderboard/summary` | Summary object | `DATA_STATUS_UNAVAILABLE` |
-| `/leaderboard` | 0 rows | `DATA_STATUS_UNAVAILABLE` |
-| `/agents` | 0 rows | `DATA_STATUS_UNAVAILABLE` |
-| `/agents/{agentId}` | Agent profile | `DATA_STATUS_CURRENT` |
-| `/agents/{agentId}/stats` | Metrics object | `DATA_STATUS_CURRENT` |
-| `/agents/{agentId}/performance` | 1 point | `DATA_STATUS_STALE` |
-| `/agents/{agentId}/action-logs` | 0 rows | `DATA_STATUS_UNAVAILABLE`, reason `source_unavailable` |
-| `/agents/{agentId}/positions` | 4 rows | `DATA_STATUS_CURRENT` |
-| `/agents/{agentId}/positions/{positionId}` | Position object | `DATA_STATUS_CURRENT` |
-| `/agents/{agentId}/positions/{positionId}/events` | 1 row | `DATA_STATUS_CURRENT` |
-| `/users/{ownerAddress}/copy-summary` | Summary object | `DATA_STATUS_CURRENT` |
-| `/users/{ownerAddress}/copy-runs` | 5 rows | `DATA_STATUS_CURRENT` |
-| `/users/{ownerAddress}/copy-runs/{copyRunId}` | Copy-run object | `DATA_STATUS_CURRENT` |
-| `/users/{ownerAddress}/copy-runs/{copyRunId}/positions` | 2 rows | `DATA_STATUS_CURRENT` |
-| `/users/{ownerAddress}/copy-runs/{copyRunId}/performance` | 2 points | `DATA_STATUS_STALE` |
-| `/users/{ownerAddress}/positions` | 3 rows | `DATA_STATUS_CURRENT` |
-| `/users/{ownerAddress}/activity` | 26 rows | `DATA_STATUS_CURRENT` |
-| `/users/{ownerAddress}/copy-accounts` | 6 rows | `DATA_STATUS_CURRENT` |
-| `/copy-accounts/{chainId}/{copyAccount}` | Copy-account object | `DATA_STATUS_CURRENT` |
-| `/copy-accounts/{chainId}/{copyAccount}/balances` | 2 rows | `DATA_STATUS_UNAVAILABLE` |
-| `/copy-accounts/{chainId}/{copyAccount}/positions` | 2 rows | `DATA_STATUS_CURRENT` |
-| `/copy-accounts/{chainId}/{copyAccount}/positions/{userPositionId}/pending-sell-obligations` | 0 rows | `DATA_STATUS_CURRENT` |
-| `/copy-accounts/{chainId}/{copyAccount}/history` | 8 rows | `DATA_STATUS_CURRENT` |
-
-Important FE observations:
-
-- Direct agent/profile/position routes currently return useful data even though
-  the discovery and leaderboard lists are empty.
-- Agent action logs currently return no rows.
-- Stale performance points remain renderable with their freshness status.
-- Balance rows can be present while the response-level status is unavailable;
-  inspect row-level freshness and valuation status before displaying values.
-
-### POST routes
-
-No returned transaction call was submitted.
-
-| Route | Observed HTTP/result |
-| --- | --- |
-| `:prepareStartCopy` | 503 `service unavailable` |
-| `:prepareAddCapital` | 500 |
-| `:prepareStopCopy` | 504 |
-| `:prepareWithdrawQuote` | 200 typed `PREPARED_ACTION_STATUS_UNAVAILABLE` / `PREPARED_ACTION_REASON_ACCOUNT_NOT_STOPPED` |
-| `:prepareManualSell` | 401 without a wallet session, as required |
-| `:prepareClosePosition` | 401 without a wallet session, as required |
-| `/wallet-session-challenges` | 200 with challenge data |
-| `/wallet-sessions` | A correctly signed throwaway EOA challenge reached the route but returned 503 `service unavailable` |
-
-At this snapshot, read integration can proceed. Treat transaction preparation
-and signed wallet-session exchange as pre-release blockers until their 5xx
-responses are resolved and reverified.
+The current live dataset, positive-path POST E2E coverage, unresolved recovery
+preconditions, previously observed API defects, and frontend integration
+concerns are maintained in
+[`IMPLEMENTATION_STATUS.md`](./IMPLEMENTATION_STATUS.md).
