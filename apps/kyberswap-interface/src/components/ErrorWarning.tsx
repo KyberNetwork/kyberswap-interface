@@ -1,6 +1,7 @@
-import { type CSSProperties, type ReactNode, useState } from 'react'
+import { type CSSProperties, type ReactNode, useId, useState } from 'react'
 import { AlertTriangle, ChevronDown, Info } from 'react-feather'
 
+import IconButton from 'components/Button/IconButton'
 import { HStack, Stack } from 'components/Stack'
 import { cn } from 'utils/cn'
 
@@ -20,8 +21,9 @@ type ErrorWarningProps = {
 }
 
 export const ErrorWarning = ({ title, type, desc, style: customStyle = {}, className, action }: ErrorWarningProps) => {
-  const [expanded, setExpanded] = useState(false)
+  const detailsId = useId()
   const { backgroundClass, colorClass, Icon } = WARNING_STYLES[type]
+  const [expanded, setExpanded] = useState(false)
 
   if (!desc) {
     return (
@@ -30,7 +32,7 @@ export const ErrorWarning = ({ title, type, desc, style: customStyle = {}, class
         style={customStyle}
       >
         <Icon size={16} className="shrink-0" />
-        <span className="flex-1 text-xs font-medium italic text-text-60">{title}</span>
+        <div className="flex-1 text-xs font-medium italic text-text-60">{title}</div>
         {action}
       </HStack>
     )
@@ -39,30 +41,38 @@ export const ErrorWarning = ({ title, type, desc, style: customStyle = {}, class
   return (
     <Stack className={cn('rounded-2xl px-3 py-2', backgroundClass, className)} style={customStyle}>
       <HStack
-        role="button"
-        tabIndex={0}
-        aria-expanded={expanded}
-        className={cn('cursor-pointer select-none items-start gap-2', colorClass)}
-        onClick={() => setExpanded(value => !value)}
-        onKeyDown={event => {
-          if (event.key === 'Enter' || event.key === ' ') {
-            event.preventDefault()
-            setExpanded(value => !value)
+        className={cn('group cursor-pointer select-none items-start gap-2', colorClass)}
+        onClick={event => {
+          const target = event.target
+          if (
+            target instanceof Element &&
+            target.closest('a, button, input, select, textarea, [role="button"], [role="link"]')
+          ) {
+            return
           }
+          setExpanded(value => !value)
         }}
       >
         <Icon size={16} className="shrink-0" />
-        <span className="flex-1 text-xs font-medium italic text-text-60">{title}</span>
+        <div className="flex-1 text-xs font-medium italic text-text-60">{title}</div>
         {action}
-        <HStack
+        <IconButton
+          variant="compact"
+          size={16}
+          aria-label="Toggle warning details"
+          aria-controls={detailsId}
+          aria-expanded={expanded}
           data-expanded={expanded}
-          className="size-4 shrink-0 items-center justify-center text-text-60 transition-transform duration-200 ease-in-out data-[expanded=true]:rotate-180"
+          className="p-0 text-text-60 transition-transform duration-200 ease-in-out group-hover:text-text data-[expanded=true]:rotate-180"
+          onClick={() => setExpanded(value => !value)}
         >
           <ChevronDown size={14} />
-        </HStack>
+        </IconButton>
       </HStack>
 
       <div
+        id={detailsId}
+        aria-hidden={!expanded}
         className={cn(
           'grid transition-[grid-template-rows,opacity] duration-200 ease-in-out',
           expanded ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0',
