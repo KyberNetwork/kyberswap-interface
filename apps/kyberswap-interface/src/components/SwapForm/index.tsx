@@ -1,14 +1,12 @@
 import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
-import { Trans } from '@lingui/macro'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { parseGetRouteResponse } from 'services/route/utils'
-import { useGetHoneypotInfoQuery } from 'services/tokenCatalog'
 
 import AddressInputPanel from 'components/AddressInputPanel'
 import { NotificationType } from 'components/Announcement/type'
 import FeeControlGroup from 'components/FeeControlGroup'
-import WarningIcon from 'components/Icons/WarningIcon'
+import { HoneypotWarning, useHoneypotWarning } from 'components/HoneypotWarning'
 import { NetworkSelector } from 'components/NetworkSelector'
 import ERC8056Info, { useERC8056SwapInfo } from 'components/SwapForm/ERC8056Info'
 import InputCurrencyPanel from 'components/SwapForm/InputCurrencyPanel'
@@ -244,11 +242,11 @@ const SwapForm: React.FC<SwapFormProps> = props => {
     setRouteSummary(routeSummary)
   }, [routeSummary, setRouteSummary])
 
-  const { data: honeypotData } = useGetHoneypotInfoQuery(
-    { chainId, address: currencyOut?.wrapped.address.toLowerCase() ?? '' },
-    { skip: !currencyOut?.wrapped.address },
-  )
-  const honeypot = honeypotData?.data ?? null
+  const { message: honeypotWarning } = useHoneypotWarning({
+    chainId,
+    tokenAddress: currencyOut?.wrapped.address,
+    tokenSymbol: currencyOut?.symbol,
+  })
 
   return (
     <SwapFormContextProvider
@@ -332,24 +330,7 @@ const SwapForm: React.FC<SwapFormProps> = props => {
             />
           )}
 
-          {honeypot?.isFOT || honeypot?.isHoneypot ? (
-            <div className="flex gap-2 rounded-2xl bg-warning-30 px-3 py-2.5">
-              <WarningIcon className="text-warning" size={20} />
-              <span className="flex-1 text-sm">
-                {honeypot.isHoneypot ? (
-                  <Trans>
-                    Our simulation detects that {currencyOut?.symbol} token can not be sold immediately or has an
-                    extremely high sell fee after being bought, please check further before buying!
-                  </Trans>
-                ) : (
-                  <Trans>
-                    Our simulation detects that {currencyOut?.symbol} has {honeypot.tax * 100}% fee on transfer, please
-                    check further before buying.
-                  </Trans>
-                )}
-              </span>
-            </div>
-          ) : null}
+          <HoneypotWarning message={honeypotWarning} />
 
           <PriceImpactNote priceImpact={routeSummary?.priceImpact} isDegenMode={isDegenMode} showLimitOrderLink />
 
