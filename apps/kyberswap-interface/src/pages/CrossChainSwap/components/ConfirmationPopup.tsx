@@ -27,6 +27,7 @@ import { QuoteProviderName } from 'pages/CrossChainSwap/components/QuoteProvider
 import { Summary } from 'pages/CrossChainSwap/components/Summary'
 import { useCrossChainSwap } from 'pages/CrossChainSwap/hooks/useCrossChainSwap'
 import { useRestoreMyNearWalletPendingTransaction } from 'pages/CrossChainSwap/hooks/useRestoreMyNearWalletPendingTransaction'
+import type { Quote } from 'pages/CrossChainSwap/registry'
 import { getChainName, isQuoteExecutable } from 'pages/CrossChainSwap/utils'
 import { useCrossChainTransactions } from 'state/crossChainSwap'
 import { CloseIcon, ExternalLink } from 'theme'
@@ -75,22 +76,18 @@ const TokenBoxInfo = ({
   )
 }
 
-export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDismiss: () => void }) => {
+type ConfirmationPopupProps = {
+  quote: Quote | null
+  isOpen: boolean
+  onDismiss?: () => void
+}
+
+export const ConfirmationPopup = ({ quote: selectedQuote, isOpen, onDismiss }: ConfirmationPopupProps) => {
   const { crossChainMixpanelHandler } = useCrossChainMixpanel()
   const { trackingHandler } = useTracking()
   const { data: walletClient } = useGatedWalletClient()
-  const {
-    selectedQuote,
-    currencyIn,
-    currencyOut,
-    amountInWei,
-    fromChainId,
-    toChainId,
-    warning,
-    recipient,
-    sender,
-    receiver,
-  } = useCrossChainSwap()
+  const { currencyIn, currencyOut, amountInWei, fromChainId, toChainId, warning, recipient, sender, receiver } =
+    useCrossChainSwap()
 
   const [searchParams] = useSearchParams()
   const [submittingTx, setSubmittingTx] = useState(false)
@@ -323,7 +320,7 @@ export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDi
 
   const dismiss = () => {
     setSubmittingTx(false)
-    onDismiss()
+    onDismiss?.()
     setTxHash('')
     setSubmittingTx(false)
     setTxError('')

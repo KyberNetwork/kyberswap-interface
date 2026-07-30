@@ -2,6 +2,7 @@ import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { useWalletSelector } from '@near-wallet-selector/react-hook'
 import { useWallet } from '@solana/wallet-adapter-react'
+import { useState } from 'react'
 
 import { ButtonPrimary } from 'components/Button'
 import Dots from 'components/Dots'
@@ -21,6 +22,7 @@ import { useCrossChainApproval } from 'pages/CrossChainSwap/hooks/useCrossChainA
 import { useCrossChainSwap } from 'pages/CrossChainSwap/hooks/useCrossChainSwap'
 import { useNearBalances } from 'pages/CrossChainSwap/hooks/useNearBalances'
 import { useSolanaConnectModal } from 'pages/CrossChainSwap/provider/SolanaConnectModalProvider'
+import type { Quote } from 'pages/CrossChainSwap/registry'
 import { isQuoteExecutable } from 'pages/CrossChainSwap/utils'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { useCurrencyBalance } from 'state/wallet/hooks'
@@ -44,6 +46,7 @@ export const SwapAction = ({ setShowBtcModal }: { setShowBtcModal: (val: boolean
   } = useCrossChainSwap()
   const { account, chainId } = useActiveWeb3React()
   const { trackingHandler } = useTracking()
+  const [reviewQuote, setReviewQuote] = useState<Quote | null>(null)
 
   const isFromEvm = isEvmChain(fromChainId)
   const isFromNear = fromChainId === NonEvmChain.Near
@@ -91,6 +94,9 @@ export const SwapAction = ({ setShowBtcModal }: { setShowBtcModal: (val: boolean
       : undefined
 
   const openPreview = () => {
+    if (!selectedQuote) return
+
+    setReviewQuote(selectedQuote)
     setShowPreview(true)
     trackingHandler(TRACKING_EVENT_TYPE.CC_REVIEW_OPENED, {
       from_token: currencyIn?.symbol,
@@ -256,9 +262,11 @@ export const SwapAction = ({ setShowBtcModal }: { setShowBtcModal: (val: boolean
     <>
       {termAndPolicyModal}
       <ConfirmationPopup
+        quote={reviewQuote}
         isOpen={showPreview}
         onDismiss={() => {
           setShowPreview(false)
+          setReviewQuote(null)
         }}
       />
       <ButtonPrimary
