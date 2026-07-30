@@ -28,7 +28,6 @@ export const RewardsFilterSetting = ({
 
   const thresholdDisplayValue = formatThresholdValue(thresholdValue)
   const isExpanded = statusExpanded || thresholdExpanded
-  const expandedHeight = statusExpanded ? 48 : thresholdExpanded ? 90 : 0
 
   return (
     <div className="flex flex-col">
@@ -82,23 +81,26 @@ export const RewardsFilterSetting = ({
 
       <div
         className={cn(
-          'flex flex-col gap-3 overflow-hidden transition-[height,padding] duration-200 ease-in-out',
-          isExpanded ? 'pt-3 max-sm:min-h-fit' : 'pt-0',
+          'grid transition-[grid-template-rows,padding] duration-200 ease-in-out',
+          isExpanded ? 'grid-rows-[1fr] pt-3' : 'grid-rows-[0fr] pt-0',
         )}
-        style={{ height: isExpanded ? `${expandedHeight}px` : '0' }}
       >
-        {statusExpanded && <PositionStatusControl value={positionStatus} onChange={onPositionStatusChange} />}
-        {thresholdExpanded && (
-          <>
-            <span className="text-xs text-subText">
-              <Trans>
-                Only position with rewards above this estimated value will be included in the claim. Others will remain
-                unclaimed.
-              </Trans>
-            </span>
-            <ClaimThresholdControl value={thresholdValue} onChange={onThresholdChange} />
-          </>
-        )}
+        <div className="min-h-0 overflow-hidden">
+          <div className="flex flex-col gap-3 pb-px">
+            {statusExpanded && <PositionStatusControl value={positionStatus} onChange={onPositionStatusChange} />}
+            {thresholdExpanded && (
+              <>
+                <span className="text-xs text-subText">
+                  <Trans>
+                    Only position with rewards above this estimated value will be included in the claim. Others will
+                    remain unclaimed.
+                  </Trans>
+                </span>
+                <ClaimThresholdControl value={thresholdValue} onChange={onThresholdChange} />
+              </>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   )
