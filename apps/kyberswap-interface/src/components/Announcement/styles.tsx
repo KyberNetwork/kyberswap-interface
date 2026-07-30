@@ -32,7 +32,7 @@ export const Badge = ({
 }: React.HTMLAttributes<HTMLDivElement> & { isOverflow: boolean }) => (
   <div
     className={cn(
-      'absolute -top-1.5 z-[1] inline-flex h-5 min-w-[20px] items-center justify-center rounded-2xl bg-primary px-1 text-center font-medium leading-none',
+      'absolute -top-1.5 z-[1] inline-flex h-5 min-w-5 items-center justify-center rounded-2xl bg-primary px-1 text-center text-sm font-semibold',
       isOverflow ? '-right-4' : '-right-2.5',
       className,
     )}
