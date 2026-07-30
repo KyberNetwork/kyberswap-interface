@@ -1,4 +1,3 @@
-import { ChainId } from '@kyber/schema'
 import { useCallback, useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import type { PoolQueryParams } from 'services/earn/types'
@@ -6,17 +5,15 @@ import type { PoolQueryParams } from 'services/earn/types'
 import { useActiveWeb3React } from 'hooks'
 import { SortBy } from 'pages/Earns/PoolExplorer'
 import { FilterTag, timings } from 'pages/Earns/PoolExplorer/Filter'
-import { EARN_CHAINS, EarnChain } from 'pages/Earns/constants'
 import { Direction } from 'pages/MarketOverview/SortIcon'
 
 export default function useFilter(setSearch?: (search: string) => void) {
   const [searchParams, setSearchParams] = useSearchParams()
-  const { account, chainId } = useActiveWeb3React()
+  const { account } = useActiveWeb3React()
 
   const filters: PoolQueryParams = useMemo(() => {
-    const fallbackChainId = EARN_CHAINS[chainId as unknown as EarnChain] ? chainId : ChainId.Ethereum
     return {
-      chainIds: searchParams.get('chainIds') ?? String(fallbackChainId),
+      chainIds: searchParams.get('chainIds') ?? '',
       page: +(searchParams.get('page') || 1),
       limit: 10,
       interval: searchParams.get('interval') || (timings[0].value as string),
@@ -28,7 +25,7 @@ export default function useFilter(setSearch?: (search: string) => void) {
       orderBy: searchParams.get('orderBy') || '',
       q: searchParams.get('q')?.trim() || '',
     }
-  }, [searchParams, account, chainId])
+  }, [searchParams, account])
 
   const updateFilters = useCallback(
     (key: keyof PoolQueryParams, value: string) => {
