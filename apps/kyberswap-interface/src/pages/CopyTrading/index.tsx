@@ -12,6 +12,7 @@ import CopyHistoryView from 'pages/CopyTrading/CopyHistory'
 import MyCopiesView from 'pages/CopyTrading/MyCopies'
 import Sidebar from 'pages/CopyTrading/components/Sidebar'
 import { CopyTradingProvider } from 'pages/CopyTrading/context'
+import { CopyTradeWriteProvider } from 'pages/CopyTrading/write/WriteContext'
 
 const CopyTrading = () => {
   const { pathname } = useLocation()
@@ -44,18 +45,20 @@ const CopyTrading = () => {
 
   return (
     <CopyTradingProvider chains={chains?.data || []} ownerAddress={ownerAddress}>
-      <div className="flex min-h-screen w-full bg-black text-text max-lg:block">
-        <Sidebar agents={agents} activeRuns={activeCopyRuns} chains={chains?.data || []} />
-        <Routes>
-          <Route index element={<AgentList />} />
-          <Route path="my-copies" element={<MyCopiesView />} />
-          <Route path="my-copies/:copyId" element={<CopyDetailView backPath="my-copies" />} />
-          <Route path="history" element={<CopyHistoryView />} />
-          <Route path="history/:copyId" element={<CopyDetailView backPath="history" />} />
-          <Route path=":agentCode" element={<AgentProfile />} />
-          <Route path="*" element={<Navigate to={APP_PATHS.COPY_TRADING} replace />} />
-        </Routes>
-      </div>
+      <CopyTradeWriteProvider>
+        <div className="flex min-h-screen w-full bg-black text-text max-lg:block">
+          <Sidebar agents={agents} activeRuns={activeCopyRuns} chains={chains?.data || []} />
+          <Routes>
+            <Route index element={<AgentList />} />
+            <Route path="my-copies" element={<MyCopiesView />} />
+            <Route path="my-copies/:copyId" element={<CopyDetailView backPath="my-copies" />} />
+            <Route path="history" element={<CopyHistoryView />} />
+            <Route path="history/:copyId" element={<CopyDetailView backPath="history" />} />
+            <Route path=":agentCode" element={<AgentProfile />} />
+            <Route path="*" element={<Navigate to={APP_PATHS.COPY_TRADING} replace />} />
+          </Routes>
+        </div>
+      </CopyTradeWriteProvider>
     </CopyTradingProvider>
   )
 }

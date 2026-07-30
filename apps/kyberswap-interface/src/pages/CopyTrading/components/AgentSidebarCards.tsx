@@ -22,22 +22,31 @@ export const SidePanelCard = ({ bodyClassName, children, title }: SidePanelCardP
 type CurrentCopyCardProps = {
   capital: string
   title?: string
+  onView?: () => void
+  onAddCapital?: () => void
 }
 
-export const CurrentCopyCard = ({ capital, title = 'Your Current Copy' }: CurrentCopyCardProps) => (
+export const CurrentCopyCard = ({
+  capital,
+  title = 'Your Current Copy',
+  onView,
+  onAddCapital,
+}: CurrentCopyCardProps) => (
   <SidePanelCard title={title}>
     <HStack className="items-center justify-between">
       <span className="text-subText">Capital In</span>
       <span className="text-xl font-medium text-primary">{capital}</span>
     </HStack>
     <HStack className="gap-3 max-md:flex-col">
+      {onView && (
+        <div className="w-full flex-1">
+          <ButtonLight type="button" padding="10px 12px" onClick={onView}>
+            My Copy
+          </ButtonLight>
+        </div>
+      )}
       <div className="w-full flex-1">
-        <ButtonLight type="button" padding="10px 12px">
-          My Copy
-        </ButtonLight>
-      </div>
-      <div className="w-full flex-1">
-        <ButtonPrimary type="button" padding="10px 12px">
+        <ButtonPrimary type="button" padding="10px 12px" onClick={onAddCapital}>
           Add Capital
         </ButtonPrimary>
       </div>
