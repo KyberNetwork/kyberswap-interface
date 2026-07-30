@@ -84,7 +84,7 @@ const CrossChainSwapForm = ({ onQuoteChange }: CrossChainSwapProps) => {
 
     const timeout = setTimeout(() => {
       getQuote()
-    }, 300)
+    }, 3000)
 
     return () => clearTimeout(timeout)
   }, [disable, getQuote, showPreview])
