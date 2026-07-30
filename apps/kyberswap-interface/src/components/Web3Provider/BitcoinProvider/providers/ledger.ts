@@ -267,7 +267,7 @@ export const createLedgerProvider = ({
         outputs: [
           {
             amount: amountToBuffer(+amount),
-            script: Buffer.from(bitcoin.address.toOutputScript(recipient, bitcoin.networks.bitcoin)),
+            script: Buffer.from(new Uint8Array(bitcoin.address.toOutputScript(recipient, bitcoin.networks.bitcoin))),
           },
         ],
       }
@@ -275,7 +275,7 @@ export const createLedgerProvider = ({
       if (changeAmount > 546) {
         transaction.outputs.push({
           amount: amountToBuffer(changeAmount),
-          script: Buffer.from(bitcoin.address.toOutputScript(sender, bitcoin.networks.bitcoin)),
+          script: Buffer.from(new Uint8Array(bitcoin.address.toOutputScript(sender, bitcoin.networks.bitcoin))),
         })
       }
 
