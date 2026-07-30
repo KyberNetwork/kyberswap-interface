@@ -3,6 +3,7 @@ import { Trans, t } from '@lingui/macro'
 import { useState } from 'react'
 import { useLocation } from 'react-router-dom'
 
+import { ErrorWarning } from 'components/ErrorWarning'
 import { HiddenH1, HiddenH2 } from 'components/Seo/components'
 import { HStack, Stack } from 'components/Stack'
 import { APP_PATHS } from 'constants/index'
@@ -69,12 +70,11 @@ export const Header = ({ activeTab, setActiveTab, customChainId, activeMainTab }
         </HStack>
       </Stack>
       {isDegenMode && isShowDegenBanner && (
-        <HStack className="items-center justify-between gap-3 rounded-3xl bg-warning-30 px-4 py-2.5">
-          <span className="text-xs font-normal text-text">
-            <Trans>You have turned on Degen Mode. Be cautious</Trans>
-          </span>
-          <CloseIcon className="size-4" onClick={() => setShowDegenBanner(false)} />
-        </HStack>
+        <ErrorWarning
+          type="warn"
+          title={<Trans>You have turned on Degen Mode. Be cautious</Trans>}
+          action={<CloseIcon className="size-4" onClick={() => setShowDegenBanner(false)} />}
+        />
       )}
     </>
   )

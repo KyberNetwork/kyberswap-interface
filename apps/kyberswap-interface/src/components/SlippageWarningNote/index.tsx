@@ -1,7 +1,7 @@
 import { Trans } from '@lingui/macro'
 import { FC } from 'react'
 
-import WarningNote from 'components/WarningNote'
+import { ErrorWarning } from 'components/ErrorWarning'
 import { PAIR_CATEGORY } from 'constants/trade'
 import { usePairCategory } from 'state/swap/hooks'
 import { SLIPPAGE_STATUS, SLIPPAGE_WARNING_MESSAGES, checkRangeSlippage } from 'utils/slippage'
@@ -42,7 +42,7 @@ const SlippageWarningNote: FC<Props> = ({ className, rawSlippage }) => {
     </div>
   )
 
-  return <WarningNote className={className} shortText={shortText} />
+  return <ErrorWarning className={className} type="warn" title={shortText} />
 }
 
 export default SlippageWarningNote
