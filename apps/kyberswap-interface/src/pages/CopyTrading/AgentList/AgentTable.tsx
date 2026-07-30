@@ -12,6 +12,7 @@ import { AgentCell } from 'pages/CopyTrading/components/common'
 import { copyTradingStatIconMap } from 'pages/CopyTrading/constants'
 import { useCopyTradingContext } from 'pages/CopyTrading/context'
 import { compactUsd, percent } from 'pages/CopyTrading/helpers'
+import { useCopyTradeWrite } from 'pages/CopyTrading/write/WriteContext'
 import { cn } from 'utils/cn'
 
 type LeaderboardGridProps = HTMLAttributes<HTMLDivElement> & {
@@ -49,6 +50,7 @@ type AgentTableProps = {
 const AgentTable = ({ agents, loading, sortBy, sortOrder, onSortChange, pagination }: AgentTableProps) => {
   const navigate = useNavigate()
   const { ownerAddress } = useCopyTradingContext()
+  const { openSubscribe } = useCopyTradeWrite()
 
   const { data: activeCopyRuns } = copyTradingApi.useGetCopyRunsQuery(
     {
@@ -162,7 +164,7 @@ const AgentTable = ({ agents, loading, sortBy, sortOrder, onSortChange, paginati
                   <span className="text-sm font-medium text-primary">Copied</span>
                 ) : (
                   <div>
-                    <ButtonPrimary type="button" padding="6px 12px">
+                    <ButtonPrimary type="button" padding="6px 12px" onClick={() => openSubscribe(agent)}>
                       Copy
                     </ButtonPrimary>
                   </div>

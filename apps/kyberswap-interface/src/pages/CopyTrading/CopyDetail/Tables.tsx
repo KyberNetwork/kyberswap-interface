@@ -8,6 +8,7 @@ import { HStack, Stack } from 'components/Stack'
 import { HeaderCell, TableBody, TableCell, TableHeader, TableRow } from 'pages/CopyTrading/components/Table'
 import { copyTradingStatIconMap } from 'pages/CopyTrading/constants'
 import { formatDate, formatUsd, signedPercent, signedUsd } from 'pages/CopyTrading/helpers'
+import { useCopyTradeWrite } from 'pages/CopyTrading/write/WriteContext'
 import { cn } from 'utils/cn'
 
 type TableGridWrapperProps = HTMLAttributes<HTMLDivElement> & {
@@ -111,21 +112,28 @@ const actionLabels: Partial<Record<PositionActionKind, string>> = {
   POSITION_ACTION_KIND_CLOSE_POSITION: 'Close position',
 }
 
-const PositionAction = ({
-  actionKind,
-  availableActionKinds,
-}: Pick<PositionSummary, 'actionKind' | 'availableActionKinds'>) => {
+const PositionAction = ({ position }: { position: PositionSummary }) => {
+  const { openManagePosition } = useCopyTradeWrite()
   const availableAction =
-    actionKind && actionKind !== 'POSITION_ACTION_KIND_UNSPECIFIED'
-      ? actionKind
-      : availableActionKinds.find(kind => kind !== 'POSITION_ACTION_KIND_UNSPECIFIED')
+    position.actionKind && position.actionKind !== 'POSITION_ACTION_KIND_UNSPECIFIED'
+      ? position.actionKind
+      : position.availableActionKinds.find(kind => kind !== 'POSITION_ACTION_KIND_UNSPECIFIED')
   const label = availableAction && actionLabels[availableAction]
   if (!label) return null
 
-  const Button = availableAction === 'POSITION_ACTION_KIND_CLOSE_POSITION' ? ButtonPrimary : ButtonLight
+  const isClose = availableAction === 'POSITION_ACTION_KIND_CLOSE_POSITION'
+  const Button = isClose ? ButtonPrimary : ButtonLight
 
   return (
-    <Button type="button" padding="7px 12px" className="whitespace-nowrap" onClick={event => event.stopPropagation()}>
+    <Button
+      type="button"
+      padding="7px 12px"
+      className="whitespace-nowrap"
+      onClick={event => {
+        event.stopPropagation()
+        openManagePosition(position, isClose ? 'close' : 'sell')
+      }}
+    >
       {label}
     </Button>
   )
@@ -221,7 +229,7 @@ export const CopyPositionsTable = ({ loading, rows }: PositionTableProps) => (
               <PositionStatus status={row.trackingStatus} />
             </TableCell>
             <TableCell>
-              <PositionAction actionKind={row.actionKind} availableActionKinds={row.availableActionKinds} />
+              <PositionAction position={row} />
             </TableCell>
           </CopyPositionsGrid>
         )
