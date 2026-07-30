@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import copyTradingApi from 'services/copyTrading'
 import type { Address } from 'services/copyTrading/types'
@@ -17,9 +17,9 @@ const CopyTrading = () => {
   const { pathname } = useLocation()
   const { account } = useActiveWeb3React()
   const ownerAddress = account?.toLowerCase() as Address | undefined
-  const { data: leaderboard } = copyTradingApi.useGetLeaderboardQuery({ limit: 100 })
-  const { data: chains } = copyTradingApi.useGetChainsQuery()
-  const { data: activeRuns } = copyTradingApi.useGetCopyRunsQuery(
+  const { data: leaderboard, refetch: refetchLeaderboard } = copyTradingApi.useGetLeaderboardQuery({ limit: 100 })
+  const { data: chains, refetch: refetchChains } = copyTradingApi.useGetChainsQuery()
+  const { data: activeRuns, refetch: refetchActiveRuns } = copyTradingApi.useGetCopyRunsQuery(
     {
       ownerAddress: ownerAddress || '',
       view: 'open',
@@ -29,10 +29,18 @@ const CopyTrading = () => {
   )
   const agents = leaderboard?.data || []
   const activeCopyRuns = activeRuns?.data || []
+  const previousPathname = useRef(pathname)
 
   useEffect(() => {
     window.scrollTo({ top: 80, behavior: 'smooth' })
-  }, [pathname])
+
+    if (previousPathname.current === pathname) return
+    previousPathname.current = pathname
+
+    void refetchLeaderboard()
+    void refetchChains()
+    if (ownerAddress) void refetchActiveRuns()
+  }, [ownerAddress, pathname, refetchActiveRuns, refetchChains, refetchLeaderboard])
 
   return (
     <CopyTradingProvider chains={chains?.data || []} ownerAddress={ownerAddress}>

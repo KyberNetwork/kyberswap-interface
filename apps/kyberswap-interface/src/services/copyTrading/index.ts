@@ -219,6 +219,7 @@ const positionParams = ({
 
 const copyTradingApi = createApi({
   reducerPath: 'copyTradingApi',
+  refetchOnMountOrArgChange: true,
   baseQuery: fetchBaseQuery({
     baseUrl: import.meta.env.VITE_COPY_TRADING_API_URL,
     prepareHeaders: headers => {
