@@ -28,17 +28,19 @@ import {
 } from 'pages/CrossChainSwap/adapters'
 import { adaptRelaySolanaWallet } from 'pages/CrossChainSwap/adapters/RelayAdapter/relaySolanaWallet'
 import { isEvmChain, isNonEvmChain } from 'pages/CrossChainSwap/adapters/types'
-import {
-  BTC_DEFAULT_RECEIVER,
-  CROSS_CHAIN_FEE_RECEIVER,
-  CROSS_CHAIN_FEE_RECEIVER_SOLANA,
-  SOLANA_NATIVE,
-} from 'pages/CrossChainSwap/constants'
 import { CrossChainSwapFactory } from 'pages/CrossChainSwap/factory'
 import { type NearToken, useNearTokens } from 'pages/CrossChainSwap/hooks/useNearTokens'
 import { type SolanaToken, useSolanaTokens } from 'pages/CrossChainSwap/hooks/useSolanaTokens'
 import { CrossChainSwapAdapterRegistry, Quote } from 'pages/CrossChainSwap/registry'
-import { NEAR_STABLE_COINS, SOLANA_STABLE_COINS, isCanonicalPair } from 'pages/CrossChainSwap/utils'
+import {
+  BTC_DEFAULT_RECEIVER,
+  CROSS_CHAIN_FEE_RECEIVER,
+  CROSS_CHAIN_FEE_RECEIVER_SOLANA,
+  NEAR_STABLE_COINS,
+  SOLANA_NATIVE,
+  SOLANA_STABLE_COINS,
+  isCanonicalPair,
+} from 'pages/CrossChainSwap/utils'
 import { useAppSelector } from 'state/hooks'
 import { useUserSlippageTolerance } from 'state/user/hooks'
 
@@ -464,34 +466,46 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
   const disable = !fromChainId || !toChainId || !currencyIn || !currencyOut || !inputAmount || inputAmount === '0'
 
   const abortControllerRef = useRef(new AbortController())
+  const requestIdRef = useRef(0)
 
-  const sender = isFromSolana
-    ? solanaAddress?.toString() || CROSS_CHAIN_FEE_RECEIVER_SOLANA
-    : isFromBitcoin
-    ? btcAddress || BTC_DEFAULT_RECEIVER
-    : isFromNear
-    ? signedAccountId || ZERO_ADDRESS
-    : walletClient?.data?.account?.address || CROSS_CHAIN_FEE_RECEIVER
+  const evmWalletAddress = walletClient?.data?.account?.address
 
-  const receiver = isToSolana
-    ? recipient || solanaAddress?.toString() || CROSS_CHAIN_FEE_RECEIVER_SOLANA
-    : isToBitcoin
-    ? recipient || BTC_DEFAULT_RECEIVER
-    : isToNear
-    ? recipient || signedAccountId || ZERO_ADDRESS
-    : recipient || walletClient?.data?.account?.address || CROSS_CHAIN_FEE_RECEIVER
+  const resolveAddress = (chain: Chain | undefined, role: 'sender' | 'receiver') => {
+    const recipientAddress = role === 'receiver' ? recipient : undefined
+
+    switch (chain) {
+      case NonEvmChain.Solana:
+        return recipientAddress || solanaAddress?.toString() || CROSS_CHAIN_FEE_RECEIVER_SOLANA
+      case NonEvmChain.Bitcoin:
+        return recipientAddress || (role === 'sender' ? btcAddress : undefined) || BTC_DEFAULT_RECEIVER
+      case NonEvmChain.Near:
+        return recipientAddress || signedAccountId || ZERO_ADDRESS
+      default:
+        return recipientAddress || evmWalletAddress || CROSS_CHAIN_FEE_RECEIVER
+    }
+  }
+
+  const sender = resolveAddress(fromChainId, 'sender')
+  const receiver = resolveAddress(toChainId, 'receiver')
 
   const getQuote = useCallback(async () => {
     if (showPreview) return
     if (disable) {
+      requestIdRef.current += 1
+      abortControllerRef.current.abort()
       setQuotes([])
       setSelectedAdapter(null)
       setLoading(false)
       setAllLoading(false)
-      abortControllerRef.current.abort()
       return
     }
+
+    // Keep placeholder quotes visible, but never allow that request snapshot
+    // to become executable after the wallet state resolves.
+    const requestIsReadOnly = (isFromEvm && !evmWalletAddress) || (isToEvm && !recipient && !evmWalletAddress)
+
     abortControllerRef.current.abort()
+    const requestId = ++requestIdRef.current
     // Create a new controller for this request
     abortControllerRef.current = new AbortController()
 
@@ -619,7 +633,11 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
 
             if (signal.aborted) throw new Error('Cancelled')
 
-            quotes.push({ adapter: kyberswapAdapter, quote })
+            quotes.push({
+              adapter: kyberswapAdapter,
+              quote,
+              isReadOnly: requestIsReadOnly,
+            })
             setQuotes(quotes)
             setLoading(false)
 
@@ -713,6 +731,8 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
 
         // Set up soft timeout to enable swap button after SOFT_TIMEOUT_MS if we have at least 1 quote
         softTimeoutTimer = setTimeout(() => {
+          if (signal.aborted) return
+
           if (quotes.length > 0) {
             console.log(
               `[Soft Timeout] ${SOFT_TIMEOUT_MS}ms reached with ${quotes.length} quote(s). Enabling swap button while continuing to collect quotes.`,
@@ -751,6 +771,7 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
 
           const { done, value } = await reader.read()
 
+          if (signal.aborted) throw new Error('Cancelled')
           if (done) break
 
           buffer += decoder.decode(value, { stream: true })
@@ -853,7 +874,11 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
                     platformFeePercent: data.platformFeePercent,
                   }
 
-                  quotes.push({ adapter, quote: normalizedQuote })
+                  quotes.push({
+                    adapter,
+                    quote: normalizedQuote,
+                    isReadOnly: requestIsReadOnly,
+                  })
 
                   const sortedQuotes = [...quotes].sort((a, b) => {
                     const netA = getNetOutputAmount(a.quote)
@@ -937,7 +962,11 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
             // Check for cancellation after getting quote
             if (signal.aborted) throw new Error('Cancelled')
 
-            fallbackQuotes.push({ adapter, quote })
+            fallbackQuotes.push({
+              adapter,
+              quote,
+              isReadOnly: requestIsReadOnly,
+            })
             const sortedQuotes = [...fallbackQuotes].sort((a, b) => {
               const netA = getNetOutputAmount(a.quote)
               const netB = getNetOutputAmount(b.quote)
@@ -995,18 +1024,22 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
         nearTokens,
         publicKey: btcPublicKey || '',
       })
-    } catch (e) {
-      console.error('Error getting quotes:', e)
-      if ((e as Error).message !== 'Cancelled') {
+    } catch (error) {
+      if ((error as Error).message !== 'Cancelled') {
+        console.error('Error getting quotes:', error)
         setQuotes([])
       }
     } finally {
-      setLoading(false)
-      setAllLoading(false)
+      if (requestIdRef.current === requestId) {
+        setLoading(false)
+        setAllLoading(false)
+      }
     }
   }, [
     sender,
     receiver,
+    recipient,
+    evmWalletAddress,
     isFromEvm,
     isToEvm,
     btcPublicKey,

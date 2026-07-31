@@ -27,7 +27,8 @@ import { QuoteProviderName } from 'pages/CrossChainSwap/components/QuoteProvider
 import { Summary } from 'pages/CrossChainSwap/components/Summary'
 import { useCrossChainSwap } from 'pages/CrossChainSwap/hooks/useCrossChainSwap'
 import { useRestoreMyNearWalletPendingTransaction } from 'pages/CrossChainSwap/hooks/useRestoreMyNearWalletPendingTransaction'
-import { getChainName } from 'pages/CrossChainSwap/utils'
+import type { Quote } from 'pages/CrossChainSwap/registry'
+import { getChainName, isQuoteExecutable } from 'pages/CrossChainSwap/utils'
 import { useCrossChainTransactions } from 'state/crossChainSwap'
 import { CloseIcon, ExternalLink } from 'theme'
 import { shortenHash } from 'utils/address'
@@ -75,22 +76,18 @@ const TokenBoxInfo = ({
   )
 }
 
-export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDismiss: () => void }) => {
+type ConfirmationPopupProps = {
+  quote: Quote | null
+  isOpen: boolean
+  onDismiss?: () => void
+}
+
+export const ConfirmationPopup = ({ quote: selectedQuote, isOpen, onDismiss }: ConfirmationPopupProps) => {
   const { crossChainMixpanelHandler } = useCrossChainMixpanel()
   const { trackingHandler } = useTracking()
   const { data: walletClient } = useGatedWalletClient()
-  const {
-    selectedQuote,
-    currencyIn,
-    currencyOut,
-    amountInWei,
-    fromChainId,
-    toChainId,
-    warning,
-    recipient,
-    sender,
-    receiver,
-  } = useCrossChainSwap()
+  const { currencyIn, currencyOut, amountInWei, fromChainId, toChainId, warning, recipient, sender, receiver } =
+    useCrossChainSwap()
 
   const [searchParams] = useSearchParams()
   const [submittingTx, setSubmittingTx] = useState(false)
@@ -146,7 +143,17 @@ export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDi
   const amount = inputAmount?.toExact() || formatUnits(BigInt(amountInWei), currencyIn.decimals)
 
   const handleSwap = async () => {
-    if (isEvmChain(fromChainId) && !walletClient) return
+    if (isEvmChain(fromChainId) && !walletClient) {
+      setTxError(t`The route is outdated. Please refresh and try again.`)
+      return
+    }
+
+    const executionSender = isEvmChain(fromChainId) ? walletClient?.account.address : sender
+    if (!isQuoteExecutable(selectedQuote, executionSender, receiver)) {
+      setTxError(t`The route is outdated. Please refresh and try again.`)
+      return
+    }
+
     const adaptedWallet = adaptRelaySolanaWallet(
       solanaAddress?.toString() || '1nc1nerator11111111111111111111111111111111',
       792703809, //chain id that Relay uses to identify solana
@@ -313,7 +320,7 @@ export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDi
 
   const dismiss = () => {
     setSubmittingTx(false)
-    onDismiss()
+    onDismiss?.()
     setTxHash('')
     setSubmittingTx(false)
     setTxError('')

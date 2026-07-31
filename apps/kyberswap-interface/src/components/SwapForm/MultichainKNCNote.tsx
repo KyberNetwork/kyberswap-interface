@@ -2,7 +2,7 @@ import { Currency } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import { FC } from 'react'
 
-import WarningNote from 'components/WarningNote'
+import { ErrorWarning } from 'components/ErrorWarning'
 import { mKNC } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 
@@ -36,7 +36,7 @@ const MultichainKNCNote: FC<Props> = ({ currencyIn, currencyOut }) => {
         </Trans>
       </div>
     )
-    return <WarningNote shortText={shortText} />
+    return <ErrorWarning type="warn" title={shortText} />
   }
 
   return null
