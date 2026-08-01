@@ -18,7 +18,6 @@ import {
   PI_LEVEL,
   correctPrice,
   getPriceImpact,
-  isForkFrom,
 } from "@/utils";
 import {
   ZapAction,
@@ -32,9 +31,9 @@ import ErrorIcon from "@/assets/error.svg";
 import {
   MAX_ZAP_IN_TOKENS,
   POSITION_MANAGER_CONTRACT,
-  CoreProtocol,
 } from "@/constants";
 import { sqrtToPrice } from "@kyber/utils/uniswapv3";
+import { usePermitNft, PermitNftState } from "@kyber/hooks";
 import { useNftApproval } from "@/hooks/useNftApproval";
 
 export default function Content({
@@ -72,7 +71,7 @@ export default function Content({
     onOpenTokenSelectModal,
     poolType,
   } = useWidgetInfo();
-  const { account, chainId } = useWeb3Provider();
+  const { account, chainId, walletClient } = useWeb3Provider();
 
   const [clickedApprove, setClickedLoading] = useState(false);
   const [snapshotState, setSnapshotState] = useState<ZapState | null>(null);
@@ -94,10 +93,37 @@ export default function Content({
     spender: zapInfo?.routerAddress,
   });
 
-  const isPancakeInfinityCL = isForkFrom(
-    poolType,
-    CoreProtocol.PancakeInfinityCL
+  const signTypedData = useCallback(
+    async (signer: string, typedData: string): Promise<string> => {
+      if (!walletClient) throw new Error("Wallet not connected");
+      // usePermitNft builds the EIP-712 payload as a raw JSON string; viem's
+      // typed request schema doesn't cover eth_signTypedData_v4 with that shape.
+      return (await walletClient.request({
+        method: "eth_signTypedData_v4",
+        params: [signer as `0x${string}`, typedData],
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } as any)) as string;
+    },
+    [walletClient]
   );
+
+  const {
+    permitState,
+    signPermitNft,
+    permitData: permitResult,
+  } = usePermitNft({
+    nftManagerContract,
+    tokenId: positionId,
+    spender: zapInfo?.routerPermitAddress,
+    account,
+    chainId,
+    signTypedData,
+  });
+
+  const canPermit =
+    permitState === PermitNftState.READY_TO_SIGN ||
+    permitState === PermitNftState.SIGNING;
+  const nftAuthorized = nftApproved || permitState === PermitNftState.SIGNED;
 
   const amountsInWei: string[] = useMemo(
     () =>
@@ -182,22 +208,47 @@ export default function Content({
     return { piVeryHigh, piHigh };
   }, [zapInfo]);
 
+  const isInNftApprovalStep = Boolean(
+    positionId &&
+      !nftAuthorized &&
+      !notApprove &&
+      !addressToApprove &&
+      !error &&
+      !zapLoading &&
+      !loading
+  );
+
+  const onPermitNft = () => {
+    setClickedLoading(true);
+    const date = new Date();
+    date.setMinutes(date.getMinutes() + (ttl || 20));
+    signPermitNft(Math.floor(date.getTime() / 1000)).finally(() =>
+      setClickedLoading(false)
+    );
+  };
+
+  const onApproveNft = () => {
+    setClickedLoading(true);
+    approveNft().finally(() => setClickedLoading(false));
+  };
+
   const btnText = useMemo(() => {
     if (error) return error;
     if (zapLoading) return "Loading...";
     if (loading) return "Checking Allowance";
     if (addressToApprove || pendingTxNft) return "Approving";
     if (notApprove) return `Approve ${notApprove.symbol}`;
-    if (isPancakeInfinityCL && positionId && !nftApproved) return "Approve NFT";
+    if (positionId && !nftAuthorized)
+      return canPermit ? "Permit NFT" : "Approve NFT";
     if (pi.piVeryHigh) return "Zap anyway";
 
     return "Preview";
   }, [
     addressToApprove,
     error,
-    isPancakeInfinityCL,
     loading,
-    nftApproved,
+    nftAuthorized,
+    canPermit,
     notApprove,
     pendingTxNft,
     pi.piVeryHigh,
@@ -208,7 +259,10 @@ export default function Content({
   const disabled = useMemo(
     () =>
       clickedApprove ||
-      (isPancakeInfinityCL && positionId && (pendingTxNft || isChecking)) ||
+      (positionId &&
+        (pendingTxNft ||
+          isChecking ||
+          permitState === PermitNftState.SIGNING)) ||
       loading ||
       zapLoading ||
       !!error ||
@@ -222,9 +276,9 @@ export default function Content({
       degenMode,
       error,
       isChecking,
-      isPancakeInfinityCL,
       loading,
       pendingTxNft,
+      permitState,
       pi.piVeryHigh,
       positionId,
       zapLoading,
@@ -235,9 +289,17 @@ export default function Content({
     if (notApprove) {
       setClickedLoading(true);
       approve(notApprove.address).finally(() => setClickedLoading(false));
-    } else if (isPancakeInfinityCL && positionId && !nftApproved) {
+    } else if (positionId && !nftAuthorized) {
       setClickedLoading(true);
-      approveNft().finally(() => setClickedLoading(false));
+      if (canPermit) {
+        const date = new Date();
+        date.setMinutes(date.getMinutes() + (ttl || 20));
+        signPermitNft(Math.floor(date.getTime() / 1000)).finally(() =>
+          setClickedLoading(false)
+        );
+      } else {
+        approveNft().finally(() => setClickedLoading(false));
+      }
     } else if (
       pool &&
       amountsIn &&
@@ -263,6 +325,7 @@ export default function Content({
         slippage,
         tickUpper,
         tickLower,
+        permitData: permitResult?.permitData,
       });
       onTogglePreview?.(true);
     }
@@ -444,13 +507,33 @@ export default function Content({
       </div>
 
       <div className="flex gap-6 p-6">
-        <button className="pcs-outline-btn flex-1" onClick={onDismiss}>
-          Cancel
-        </button>
+        {isInNftApprovalStep && canPermit ? (
+          <button
+            className="pcs-primary-btn flex-1"
+            disabled={clickedApprove || permitState === PermitNftState.SIGNING}
+            onClick={onPermitNft}
+          >
+            {permitState === PermitNftState.SIGNING ? "Signing..." : "Permit NFT"}
+          </button>
+        ) : (
+          <button className="pcs-outline-btn flex-1" onClick={onDismiss}>
+            Cancel
+          </button>
+        )}
 
         {!account ? (
           <button className="pcs-primary-btn flex-1" onClick={onConnectWallet}>
             Connect Wallet
+          </button>
+        ) : isInNftApprovalStep ? (
+          <button
+            className={
+              canPermit ? "pcs-outline-btn flex-1" : "pcs-primary-btn flex-1"
+            }
+            disabled={clickedApprove || !!pendingTxNft || isChecking}
+            onClick={onApproveNft}
+          >
+            {pendingTxNft ? "Approving..." : "Approve NFT"}
           </button>
         ) : (
           <button
