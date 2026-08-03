@@ -14,16 +14,19 @@ export const CopyHistorySummary = ({ summary }: CopyHistorySummaryProps) => {
       label: 'Realised P&L (All time)',
       value: signedUsd(summary?.realizedPnlUsd),
       icon: copyTradingStatIconMap.money,
+      status: summary?.metrics.realizedPnlUsd?.status,
     },
     {
-      label: 'Closed Positions',
+      label: 'Closed Positions in History Runs',
       value: summary?.closedPositions || '—',
       icon: copyTradingStatIconMap.positionClose,
+      status: summary?.metrics.closedPositionCount?.status,
     },
     {
       label: 'Closed Capital (Returned)',
       value: formatUsd(summary?.closedCapitalUsd),
       icon: copyTradingStatIconMap.volume,
+      status: summary?.metrics.closedCapitalUsd?.status,
     },
   ]
 

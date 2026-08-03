@@ -1,4 +1,4 @@
-import { type PropsWithChildren, createContext, useContext, useMemo, useState } from 'react'
+import { type PropsWithChildren, createContext, useContext, useEffect, useMemo, useState } from 'react'
 import type { Address, Chain } from 'services/copyTrading/types'
 
 type CopyTradingContextValue = {
@@ -17,6 +17,16 @@ type CopyTradingProviderProps = PropsWithChildren<{
 
 export const CopyTradingProvider = ({ chains, children, ownerAddress }: CopyTradingProviderProps) => {
   const [selectedChainId, setSelectedChainId] = useState<number>()
+
+  useEffect(() => {
+    setSelectedChainId(currentChainId => {
+      const enabledChains = chains.filter(chain => chain.isEnabled)
+      const isCurrentChainEnabled = enabledChains.some(chain => chain.chainId === currentChainId)
+
+      return isCurrentChainEnabled ? currentChainId : enabledChains[0]?.chainId
+    })
+  }, [chains])
+
   const value = useMemo(
     () => ({ chains, ownerAddress, selectedChainId, setSelectedChainId }),
     [chains, ownerAddress, selectedChainId],

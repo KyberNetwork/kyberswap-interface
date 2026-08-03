@@ -5,7 +5,6 @@ import { Link, useLocation } from 'react-router-dom'
 import type { AgentCard, Chain, CopyRunSummary } from 'services/copyTrading/types'
 
 import { ButtonEmpty } from 'components/Button'
-import DropdownMenu from 'components/DropdownMenu'
 import { Center, HStack, Stack } from 'components/Stack'
 import { APP_PATHS } from 'constants/index'
 import { useCopyTradingContext } from 'pages/CopyTrading/context'
@@ -46,11 +45,14 @@ const SidebarSection = ({ title, active, count, children, onClick, to }: Sidebar
     ) : (
       <div
         className={cn(
-          'flex h-8 items-center rounded-lg px-4 text-xs font-semibold uppercase text-subText',
+          'flex h-8 items-center justify-between rounded-lg px-4 text-xs font-semibold uppercase text-subText',
           active && 'bg-buttonBlack',
         )}
       >
-        {title}
+        <span>{title}</span>
+        {typeof count === 'number' && (
+          <Center className="size-5 rounded-full bg-primary-12 text-xs font-medium text-primary">{count}</Center>
+        )}
       </div>
     )}
     {children}
@@ -58,7 +60,7 @@ const SidebarSection = ({ title, active, count, children, onClick, to }: Sidebar
 )
 
 type SidebarMenuItemProps = PropsWithChildren<{
-  to: string
+  to?: string
   active?: boolean
   onClick?: () => void
   activeStyle?: 'surface' | 'text'
@@ -74,32 +76,50 @@ const SidebarMenuItem = ({
   activeStyle = 'surface',
   layout = 'default',
   colorByActive,
-}: SidebarMenuItemProps) => (
-  <div
-    className={cn(
-      'h-9 rounded-lg transition-colors hover:bg-primary-10',
-      active && activeStyle === 'surface' && 'border-l-2 border-primary bg-primary-12 text-primary',
-      active && activeStyle === 'text' && 'text-primary',
-    )}
-  >
-    <Link
-      to={to}
-      onClick={onClick}
+}: SidebarMenuItemProps) => {
+  const className = cn(
+    'flex size-full items-center px-2 text-left font-medium no-underline',
+    layout === 'between' && 'justify-between',
+    layout === 'row' && 'gap-3',
+    colorByActive && 'text-sm hover:text-primary',
+    colorByActive && (active ? 'text-primary' : 'text-subText'),
+  )
+
+  return (
+    <div
       className={cn(
-        'flex size-full items-center px-2 text-left font-medium no-underline',
-        layout === 'between' && 'justify-between',
-        layout === 'row' && 'gap-3',
-        colorByActive && 'text-sm hover:text-primary',
-        colorByActive && (active ? 'text-primary' : 'text-subText'),
+        'h-9 rounded-lg transition-colors hover:bg-primary-10',
+        active && activeStyle === 'surface' && 'border-l-2 border-primary bg-primary-12 text-primary',
+        active && activeStyle === 'text' && 'text-primary',
       )}
     >
-      {children}
-    </Link>
-  </div>
-)
+      {to ? (
+        <Link to={to} onClick={onClick} className={className}>
+          {children}
+        </Link>
+      ) : (
+        <button type="button" onClick={onClick} className={className}>
+          {children}
+        </button>
+      )}
+    </div>
+  )
+}
 
 const DEFAULT_VISIBLE_AGENTS = 5
-const ALL_NETWORKS = 'all'
+const ACTIVE_COPY_DOT_COLORS = ['bg-primary', 'bg-yellow1', 'bg-blue3', 'bg-lightGreen', 'bg-warning'] as const
+
+const getActiveCopyDotColor = (copyRunId: string) => {
+  const colorIndex = Array.from(copyRunId).reduce((hash, character) => (hash * 31 + character.charCodeAt(0)) >>> 0, 0)
+  return ACTIVE_COPY_DOT_COLORS[colorIndex % ACTIVE_COPY_DOT_COLORS.length]
+}
+
+const getCopyStatusDotColor = (run: CopyRunSummary) => {
+  if (run.status === 'active') return getActiveCopyDotColor(run.copyRunId)
+  if (run.status === 'closing') return 'bg-blue'
+  if (run.status === 'stopped') return 'bg-red'
+  return 'bg-subText'
+}
 
 type SidebarProps = {
   agents: AgentCard[]
@@ -125,149 +145,221 @@ const Sidebar = ({ agents, activeRuns, chains }: SidebarProps) => {
   const agentById = new Map(agents.map(agent => [agent.agentId, agent]))
   const enabledChains = chains.filter(chain => chain.isEnabled)
   const filteredAgents = !selectedChainId ? agents : agents.filter(agent => agent.chainId === selectedChainId)
-  const networkDropdownOptions = [
-    { label: 'All Networks', value: ALL_NETWORKS },
-    ...enabledChains.map(chain => ({
-      icon: chain.iconUrl,
-      label: chain.name,
-      value: String(chain.chainId),
-    })),
-  ]
   const visibleAgents = filteredAgents.slice(0, DEFAULT_VISIBLE_AGENTS)
   const hiddenAgents = filteredAgents.slice(DEFAULT_VISIBLE_AGENTS)
   const hiddenAgentCount = hiddenAgents.length
 
+  const mobileNavigation = [
+    {
+      active: isAgentsPage,
+      count: filteredAgents.length,
+      label: 'Agents',
+      to: APP_PATHS.COPY_TRADING,
+    },
+    {
+      active: isCopiesPage,
+      count: activeRuns.length,
+      label: 'Open Copies',
+      to: `${APP_PATHS.COPY_TRADING}/my-copies`,
+    },
+    {
+      active: isHistoryPage || isHistoryDetailPage,
+      label: 'History',
+      to: `${APP_PATHS.COPY_TRADING}/history`,
+    },
+  ]
+
   return (
-    <aside className="sticky top-0 h-screen w-60 flex-none overflow-y-auto px-8 py-6 max-lg:hidden">
-      <Stack className="gap-6">
-        <SidebarSection title="My Copies" active={isMyCopiesSectionActive}>
-          <SidebarMenuItem to={`${APP_PATHS.COPY_TRADING}/my-copies`} active={isCopiesPage} layout="between">
-            <span className={cn('text-sm', isCopiesPage ? 'text-primary' : 'text-subText')}>Open Copies</span>
-            <Center className="size-6 rounded-full bg-primary-12 text-xs font-medium text-primary">
-              {activeRuns.length}
-            </Center>
-          </SidebarMenuItem>
-          <Stack className="gap-1">
-            {activeRuns.map(run => {
-              const agent = agentById.get(run.agentId)
-
-              return (
-                <SidebarMenuItem
-                  key={run.copyRunId}
-                  to={`${APP_PATHS.COPY_TRADING}/my-copies/${run.copyRunId}`}
-                  active={activeCopyId === run.copyRunId}
-                  activeStyle="text"
-                  layout="row"
-                >
-                  <span className="size-2 rounded-full bg-primary" />
-                  <span className={cn('text-sm', activeCopyId === run.copyRunId ? 'text-primary' : 'text-subText')}>
-                    {agent?.displayName || run.agentId}
-                  </span>
-                </SidebarMenuItem>
-              )
-            })}
-          </Stack>
-          <SidebarMenuItem
-            to={`${APP_PATHS.COPY_TRADING}/history`}
-            active={isHistoryPage || isHistoryDetailPage}
-            colorByActive
-          >
-            History
-          </SidebarMenuItem>
-        </SidebarSection>
-
-        <SidebarSection title="Networks">
-          <DropdownMenu
-            fullWidth
-            background="var(--ks-buttonBlack)"
-            options={networkDropdownOptions}
-            value={selectedChainId ? String(selectedChainId) : ALL_NETWORKS}
-            onChange={value => {
-              const nextValue = String(value)
-              setSelectedChainId(nextValue === ALL_NETWORKS ? undefined : Number(nextValue))
-              setExpandedAgents(false)
-            }}
-          />
-        </SidebarSection>
-
-        <SidebarSection title="Agents" to={APP_PATHS.COPY_TRADING} active={isAgentsPage} count={filteredAgents.length}>
-          <Stack className="gap-1">
-            {visibleAgents.map(agent => {
-              const activeAgentName = activeProfileAgent?.displayName
-              return (
-                <SidebarMenuItem
-                  key={agent.agentId}
-                  to={`${APP_PATHS.COPY_TRADING}/${agent.agentId}`}
-                  active={activeAgentName === agent.displayName}
-                  activeStyle="text"
-                  layout="row"
-                >
-                  <Center className="size-5 rounded-full bg-subText-20 text-xs text-subText">
-                    {getAgentInitials(agent.displayName)}
-                  </Center>
-                  <span
-                    className={cn('text-sm', activeAgentName === agent.displayName ? 'text-primary' : 'text-subText')}
-                  >
-                    {agent.displayName}
-                  </span>
-                </SidebarMenuItem>
-              )
-            })}
-            <AnimatePresence initial={false}>
-              {expandedAgents && (
-                <motion.div
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: 'auto', opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  transition={{ duration: 0.18, ease: 'easeInOut' }}
-                  className="overflow-hidden"
-                >
-                  <Stack className="gap-1">
-                    {hiddenAgents.map(agent => {
-                      const activeAgentName = activeProfileAgent?.displayName
-                      return (
-                        <SidebarMenuItem
-                          key={agent.agentId}
-                          to={`${APP_PATHS.COPY_TRADING}/${agent.agentId}`}
-                          active={activeAgentName === agent.displayName}
-                          activeStyle="text"
-                          layout="row"
-                        >
-                          <Center className="size-5 rounded-full bg-subText-20 text-xs text-subText">
-                            {getAgentInitials(agent.displayName)}
-                          </Center>
-                          <span
-                            className={cn(
-                              'text-sm',
-                              activeAgentName === agent.displayName ? 'text-primary' : 'text-subText',
-                            )}
-                          >
-                            {agent.displayName}
-                          </span>
-                        </SidebarMenuItem>
-                      )
-                    })}
-                  </Stack>
-                </motion.div>
+    <>
+      <nav aria-label="Copy Trading" className="hidden border-b border-darkBorder bg-black px-4 py-3 max-lg:block">
+        <div className="flex gap-2 overflow-x-auto">
+          {mobileNavigation.map(item => (
+            <Link
+              key={item.label}
+              to={item.to}
+              className={cn(
+                'flex h-9 shrink-0 items-center gap-2 rounded-lg bg-buttonBlack px-3 text-sm font-medium text-subText no-underline transition-colors hover:bg-primary-10 hover:text-primary',
+                item.active && 'bg-primary-12 text-primary',
               )}
-            </AnimatePresence>
-            {!!hiddenAgentCount && (
-              <ButtonEmpty
-                type="button"
-                onClick={() => setExpandedAgents(value => !value)}
-                padding="4px 10px"
-                className="w-fit"
-              >
-                <HStack className="items-center gap-2">
-                  {expandedAgents ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-                  <span>{expandedAgents ? 'Show less' : `+ ${hiddenAgentCount} more`}</span>
-                </HStack>
-              </ButtonEmpty>
-            )}
-          </Stack>
-        </SidebarSection>
-      </Stack>
-    </aside>
+            >
+              <span>{item.label}</span>
+              {typeof item.count === 'number' && (
+                <Center className="size-5 rounded-full bg-primary-12 text-xs text-primary">{item.count}</Center>
+              )}
+            </Link>
+          ))}
+        </div>
+
+        {!!enabledChains.length && (
+          <div className="mt-2 flex gap-2 overflow-x-auto">
+            {enabledChains.map(chain => {
+              const active = selectedChainId === chain.chainId
+
+              return (
+                <button
+                  key={chain.chainId}
+                  type="button"
+                  onClick={() => {
+                    setSelectedChainId(chain.chainId)
+                    setExpandedAgents(false)
+                  }}
+                  className={cn(
+                    'flex h-9 shrink-0 items-center gap-2 rounded-lg px-3 text-sm font-medium text-subText transition-colors hover:bg-primary-10 hover:text-primary',
+                    active && 'bg-primary-12 text-primary',
+                  )}
+                >
+                  <img src={chain.iconUrl} alt="" className="size-5 rounded-full" />
+                  <span>{chain.name}</span>
+                </button>
+              )
+            })}
+          </div>
+        )}
+      </nav>
+
+      <aside className="sticky top-0 h-screen w-60 flex-none overflow-y-auto px-8 py-6 max-lg:hidden">
+        <Stack className="gap-6">
+          <SidebarSection title="My Copies" active={isMyCopiesSectionActive}>
+            <SidebarMenuItem to={`${APP_PATHS.COPY_TRADING}/my-copies`} active={isCopiesPage} layout="between">
+              <span className={cn('text-sm', isCopiesPage ? 'text-primary' : 'text-subText')}>Open Copies</span>
+              <Center className="size-6 rounded-full bg-primary-12 text-xs font-medium text-primary">
+                {activeRuns.length}
+              </Center>
+            </SidebarMenuItem>
+            <Stack className="gap-1">
+              {activeRuns.map(run => {
+                const agent = agentById.get(run.agentId)
+
+                return (
+                  <SidebarMenuItem
+                    key={run.copyRunId}
+                    to={`${APP_PATHS.COPY_TRADING}/my-copies/${run.copyRunId}`}
+                    active={activeCopyId === run.copyRunId}
+                    activeStyle="text"
+                    layout="row"
+                  >
+                    <span
+                      role="img"
+                      aria-label={`Copy status: ${run.status}`}
+                      className={cn('size-2 shrink-0 rounded-full', getCopyStatusDotColor(run))}
+                    />
+                    <span className={cn('text-sm', activeCopyId === run.copyRunId ? 'text-primary' : 'text-subText')}>
+                      {agent?.displayName || run.agentId}
+                    </span>
+                  </SidebarMenuItem>
+                )
+              })}
+            </Stack>
+            <SidebarMenuItem
+              to={`${APP_PATHS.COPY_TRADING}/history`}
+              active={isHistoryPage || isHistoryDetailPage}
+              colorByActive
+            >
+              History
+            </SidebarMenuItem>
+          </SidebarSection>
+
+          <SidebarSection
+            title="Agents"
+            to={APP_PATHS.COPY_TRADING}
+            active={isAgentsPage}
+            count={filteredAgents.length}
+          >
+            <Stack className="gap-1">
+              {visibleAgents.map(agent => {
+                const active = activeProfileAgent?.agentId === agent.agentId
+                return (
+                  <SidebarMenuItem
+                    key={agent.agentId}
+                    to={`${APP_PATHS.COPY_TRADING}/${agent.agentId}`}
+                    active={active}
+                    activeStyle="text"
+                    layout="row"
+                  >
+                    <Center className="size-5 rounded-full bg-subText-20 text-xs text-subText">
+                      {getAgentInitials(agent.displayName)}
+                    </Center>
+                    <span className={cn('text-sm', active ? 'text-primary' : 'text-subText')}>{agent.displayName}</span>
+                  </SidebarMenuItem>
+                )
+              })}
+              <AnimatePresence initial={false}>
+                {expandedAgents && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.18, ease: 'easeInOut' }}
+                    className="overflow-hidden"
+                  >
+                    <Stack className="gap-1">
+                      {hiddenAgents.map(agent => {
+                        const active = activeProfileAgent?.agentId === agent.agentId
+                        return (
+                          <SidebarMenuItem
+                            key={agent.agentId}
+                            to={`${APP_PATHS.COPY_TRADING}/${agent.agentId}`}
+                            active={active}
+                            activeStyle="text"
+                            layout="row"
+                          >
+                            <Center className="size-5 rounded-full bg-subText-20 text-xs text-subText">
+                              {getAgentInitials(agent.displayName)}
+                            </Center>
+                            <span className={cn('text-sm', active ? 'text-primary' : 'text-subText')}>
+                              {agent.displayName}
+                            </span>
+                          </SidebarMenuItem>
+                        )
+                      })}
+                    </Stack>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+              {!!hiddenAgentCount && (
+                <ButtonEmpty
+                  type="button"
+                  onClick={() => setExpandedAgents(value => !value)}
+                  padding="4px 10px"
+                  className="w-fit"
+                >
+                  <HStack className="items-center gap-2">
+                    {expandedAgents ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                    <span>{expandedAgents ? 'Show less' : `+ ${hiddenAgentCount} more`}</span>
+                  </HStack>
+                </ButtonEmpty>
+              )}
+            </Stack>
+          </SidebarSection>
+
+          <SidebarSection title="Networks" count={enabledChains.length}>
+            <Stack className="gap-1">
+              {enabledChains.map(chain => {
+                const active = selectedChainId === chain.chainId
+
+                return (
+                  <SidebarMenuItem
+                    key={chain.chainId}
+                    active={active}
+                    activeStyle="text"
+                    layout="row"
+                    onClick={() => {
+                      setSelectedChainId(chain.chainId)
+                      setExpandedAgents(false)
+                    }}
+                  >
+                    <img src={chain.iconUrl} alt="" className="size-5 rounded-full" />
+                    <span className={cn('truncate text-sm', active ? 'text-primary' : 'text-subText')}>
+                      {chain.name}
+                    </span>
+                  </SidebarMenuItem>
+                )
+              })}
+            </Stack>
+          </SidebarSection>
+        </Stack>
+      </aside>
+    </>
   )
 }
 

@@ -1,6 +1,6 @@
 # Copy Trading Implementation Status
 
-Last reviewed: 2026-07-31
+Last reviewed: 2026-08-03
 
 This document is the source of truth for the current frontend implementation,
 live API verification, E2E evidence, and integration concerns. Product entities
@@ -30,14 +30,14 @@ evidence.
 
 ## Implementation at a Glance
 
-| Layer                  | Current status                                                                                                                                |
-| ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
-| Checked-in OpenAPI     | Matches the live `/openapi.yaml` document as of 2026-07-31.                                                                                   |
-| RTK Query service      | `IMPLEMENTED`: all 24 GET and 8 POST operations are declared and typed.                                                                       |
-| Read UI                | Partially implemented: 15 of 24 GET operations have a UI consumer.                                                                            |
-| Write UX               | `PROTOTYPE`: Start, Add, Stop, Withdraw, Manual Sell, and Close modals are reachable.                                                         |
-| Real write integration | Not implemented: no Copy Trading UI calls the preparation or wallet-session mutation hooks.                                                   |
-| Live positive-path E2E | Six of eight POST operations have passed a real positive path. Manual Sell and Close Position still lack an executable positive-path fixture. |
+| Layer                  | Current status                                                                                                                                               |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Checked-in OpenAPI     | Refreshed from the live `/openapi.yaml` document on 2026-08-03.                                                                                              |
+| RTK Query service      | `IMPLEMENTED`: all 24 GET and 8 POST operations are declared and typed.                                                                                      |
+| Read UI                | Partially implemented: 18 of 24 GET operations have a UI consumer.                                                                                           |
+| Write UX               | `PROTOTYPE`: Start, Add, Stop, and Manage Position modal paths exist; legacy Withdraw is nested in Manage Position, while Smart Wallet Withdraw is disabled. |
+| Real write integration | Not implemented: no Copy Trading UI calls the preparation or wallet-session mutation hooks.                                                                  |
+| Live positive-path E2E | Six of eight POST operations have passed a real positive path. Manual Sell and Close Position still lack an executable positive-path fixture.                |
 
 ## Contract and Service Coverage
 
@@ -70,36 +70,75 @@ Confirmed service behavior:
   values are exposed only for `CURRENT` and `STALE`.
 - Position display amount prefers `displayBaseRaw`.
 - Copy Run lifecycle preserves `ACTIVE`, `CLOSING`, `STOPPED`, and `CLOSED`.
-- Position `ACTIVE` and `CLOSING` currently both map to compatibility
-  `status: "open"`; the API lifecycle remains available in `trackingStatus`.
+- Position `ACTIVE` and `CLOSING` both map to compatibility `status: "open"`;
+  exact API lifecycle is preserved separately in `lifecycle`.
 
 ## Current UI Read Coverage
 
-The current UI consumes these 15 GET operations:
+The current UI consumes these 18 GET operations:
 
 - Chains.
 - Leaderboard summary and leaderboard rows.
-- Agent discovery, profile, stats, performance, positions, and action logs.
+- Agent profile, stats, performance, positions, and action logs.
 - Owner copy summary and copy runs.
 - Copy Run detail, positions, and performance.
 - Owner activity.
+- Copy-account detail, balances, positions, and history through the stopped-run
+  Copy Smart Wallet surface.
 
-The following nine GET operations are declared but have no dedicated Copy
+The following six GET operations are declared but have no dedicated Copy
 Trading UI consumer:
 
+- Agent discovery (`GET /agents`). The current Agent List uses the distinct
+  qualification-ranked `GET /leaderboard` collection.
 - Agent position detail.
 - Agent position events.
 - All owner positions.
 - Owner copy-account list.
-- Copy-account detail.
-- Copy-account balances.
-- Copy-account positions.
 - Pending sell obligations.
-- Copy-account history.
 
-These missing drilldowns are not service gaps. They become blockers for a safe
-recovery UX because Manual Sell requires the current pending-obligation FIFO and
-all write flows require fresh direct state before preparation.
+These are product-surface gaps, not service gaps. Pending sell obligations are a
+hard prerequisite for Manual Sell. Agent position detail/events and owner-wide
+position/account lists need an agreed drilldown or collection owner; they are
+not blanket prerequisites for every write action. Each write flow must still
+refresh its own direct run/account/position state before preparation.
+
+Current primary-screen read behavior:
+
+- `WINDOW_ALL` uses monthly performance intervals; shorter windows use daily
+  intervals.
+- Copy Run badges preserve `ACTIVE`, `CLOSING`, `STOPPED`, and `CLOSED`.
+- Position lifecycle and quantity state render independently from typed fields.
+- Open and History remain server-owned Copy Run views. The History screen shows
+  only the History Copy Run summary and one Copy History table.
+- Agent Positions, Agent History, Action Logs, My Copies, Copy History, Copy Run
+  positions, Alerts Feed, and Copy Smart Wallet cursor collections use infinite
+  scroll inside bounded scroll containers.
+- Cursor lists use TanStack `useInfiniteQuery` for the page/cursor chain and
+  invoke the existing RTK lazy query trigger from `queryFn`; page components no
+  longer maintain manual cursor arrays. The default container max height is
+  `480px`; Alerts Feed uses `360px`.
+- Copy Smart Wallet owns independent cursor chains for balances, open positions,
+  and account history.
+- Agent and Copy Run performance charts still request only the first page with
+  `limit=100`. The Sidebar also uses bounded `limit=100` leaderboard/open-run
+  snapshots rather than a cursor chain. These are documented read-pagination
+  gaps, not completed infinite-scroll surfaces.
+- The shared infinite-scroll hook does not yet expose an error/retry state or
+  restart from page one after a rejected/expired cursor.
+- Copy-run rows use their `agentSnapshot`; My Copies and History no longer issue
+  a redundant `/agents?limit=100` request.
+- Activity details are typed and Alerts Feed no longer parses display summary
+  text for P&L direction.
+- Generic `sell_unaligned` activity renders as `Owner Sell`; Stop Copy remains
+  an amount-less lifecycle row separate from downstream position/execution rows.
+- Summary KPI cards identify `STALE` metrics; unavailable values remain `—`.
+- Agent search is debounced, Open Positions is sortable, overlapping strategy
+  categories render separately, and Sidebar agent matching uses `agentId`.
+- Agent Profile and Copy Detail show the logo loader only while their initial
+  detail request is pending. Existing table, tab, chart, feed, and background
+  refetch loading behavior is unchanged.
+- Owner screens show a dedicated disconnected-wallet state.
 
 ## Current Write UI: Mock Prototype
 
@@ -152,36 +191,40 @@ activated by changing one flag.
 
 ## Action Integration Matrix
 
-| Capability     | Current UI                                                                                                           | Required real integration                                                                                                                                               | Live API E2E                    |
-| -------------- | -------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------- |
-| Start Copy     | Subscribe modal with mock balance, local factory ABI, zero salt, optional arbitrary token, and a local two-step flow | Call `prepareStartCopy` repeatedly with one UUID and target; submit only the exact returned Create/Fund call; wait for receipt and projector convergence between stages | `PASS E2E`                      |
-| Add Capital    | Modal locally calls ERC20 `transfer` for any selected token                                                          | Use the API quote token, minimum, wallet balance, allocation preview, and exact prepared call                                                                           | `PASS E2E`                      |
-| Stop Copy      | Modal locally pauses the account and builds one mock-signed sell per selected position                               | Refresh positions, send current `userPositionIds[]` and slippage to `prepareStopCopy`, review the preview, and submit only the returned call                            | `PASS E2E`                      |
-| Withdraw Quote | Hidden under the position modal's Advanced section and locally calls `withdrawQuoteToken`                            | Expose at Copy Run/account level, respect `withdrawQuoteAvailability`, and use the exact prepared max-sweep amount and recipient                                        | `PASS E2E`                      |
-| Wallet Session | No UI integration                                                                                                    | Sign the exact SIWE message, exchange it once, keep the access token in memory, scope it to owner/chain, and discard it on expiry or `401`                              | `PASS E2E` for both POST routes |
-| Manual Sell    | User chooses an arbitrary 25/50/100% ratio; local mock signer builds the call                                        | Require the advertised action, current FIFO obligation count and exact ratio, a valid wallet session, and `prepareManualSell`                                           | `PREREQUISITE BLOCKED`          |
-| Close Position | Generic local 100% sell path                                                                                         | Require the advertised full-recovery action, valid wallet session, and `prepareClosePosition`; this is not a generic market sell                                        | `API PASS / BUSINESS BLOCKED`   |
+| Capability     | Current UI                                                                                                                                | Required real integration                                                                                                                                                                      | Live API E2E                    |
+| -------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------- |
+| Start Copy     | Subscribe modal with mock balance, local factory ABI, zero salt, optional arbitrary token, and a local two-step flow                      | Call `prepareStartCopy` repeatedly with one UUID and target; submit only the exact returned Create/Fund call; wait for receipt and projector convergence between stages                        | `PASS E2E`                      |
+| Add Capital    | Modal locally calls ERC20 `transfer` for any selected token                                                                               | Use the API quote token, minimum, wallet balance, allocation preview, and exact prepared call                                                                                                  | `PASS E2E`                      |
+| Stop Copy      | Modal locally pauses the account and builds one mock-signed sell per selected position                                                    | Refresh positions, send current `userPositionIds[]` and slippage to `prepareStopCopy`, review the preview, and submit only the returned call                                                   | `PASS E2E`                      |
+| Withdraw Quote | Smart Wallet exposes a disabled CTA; a legacy mock action remains under Manage Position → Advanced and locally calls `withdrawQuoteToken` | Replace the nested local-ABI path, enable the account-level CTA only through the prepared flow, respect `withdrawQuoteAvailability`, and use the exact prepared max-sweep amount and recipient | `PASS E2E`                      |
+| Wallet Session | No UI integration                                                                                                                         | Sign the exact SIWE message, exchange it once, keep the access token in memory, scope it to owner/chain, and discard it on expiry or `401`                                                     | `PASS E2E` for both POST routes |
+| Manual Sell    | User chooses an arbitrary 25/50/100% ratio; local mock signer builds the call                                                             | Require the advertised action, current FIFO obligation count and exact ratio, a valid wallet session, and `prepareManualSell`                                                                  | `PREREQUISITE BLOCKED`          |
+| Close Position | Generic local 100% sell path                                                                                                              | Require the advertised full-recovery action, valid wallet session, and `prepareClosePosition`; this is not a generic market sell                                                               | `API PASS / BUSINESS BLOCKED`   |
 
 ## Live Read Snapshot
 
-Read-only calls were rechecked on 2026-07-31 against the configured API using
-the existing Base test owner.
+Read-only calls were rechecked on 2026-08-03 against the configured API using
+the existing Base test owner. This is diagnostic evidence as of that date, not
+a stable fixture.
 
-Observed current data:
+Observed snapshot:
 
 - `/chains` returns only Base (`8453`) as enabled.
 - Leaderboard returns five agents.
-- Open view returns four Copy Runs, all
-  `COPY_RUN_STATUS_ACTIVE`.
+- Open view returns four Copy Runs: three `COPY_RUN_STATUS_ACTIVE` and one
+  `COPY_RUN_STATUS_STOPPED`.
+- The stopped Open run reports three open positions and three leftover
+  positions. Its Withdraw advisory state is `PENDING`.
 - History returns five Copy Runs, all
   `COPY_RUN_STATUS_CLOSED`.
-- Copy-account list returns four `ACTIVE` and five `CLOSED` accounts.
-- Owner positions return one
-  `POSITION_LIFECYCLE_ACTIVE / POSITION_QUANTITY_STATE_OPEN_FULL` row and eight
-  `POSITION_LIFECYCLE_CLOSED / POSITION_QUANTITY_STATE_CLOSED` rows.
-- The eight closed rows use `POSITION_EXIT_KIND_ALIGNED`.
-- No current row demonstrates `CLOSING`, `STOPPED`, `OPEN_PARTIAL`, `LEFTOVER`,
-  Manual Sell availability, or Close Position availability.
+- Copy-account list returns three `ACTIVE`, one `STOPPED`, and five `CLOSED`
+  accounts.
+- Owner positions return seven
+  `POSITION_LIFECYCLE_ACTIVE / POSITION_QUANTITY_STATE_OPEN_FULL` rows and 45
+  `POSITION_LIFECYCLE_CLOSED / POSITION_QUANTITY_STATE_CLOSED` rows; three of
+  the active rows are marked leftover.
+- No current row demonstrates `CLOSING`, `OPEN_PARTIAL`, Manual Sell
+  availability, or Close Position availability.
 - Active Copy Runs advertise Add Capital and Stop Copy as `AVAILABLE`; Withdraw
   is `UNAVAILABLE / ACCOUNT_NOT_STOPPED`.
 
@@ -191,14 +234,18 @@ Lifecycle evidence across snapshots:
 COPY_STOPPED
 → EXIT_STARTED when a position must be sold
 → POSITION_CLOSED / EXIT_SUCCEEDED
-→ CAPITAL_RETURNED when quote balance is swept
-→ the same Copy Run is now returned in History as CLOSED
+→ no ACTIVE / CLOSING / LEFTOVER position remains
+→ the Copy Run becomes eligible for the server-owned History view
+
+CAPITAL_RETURNED is a separate Withdraw/return activity and is not a History-membership gate
 ```
 
-Earlier reads returned `STOPPED` rows in Open while History was empty. The
-current reads return those same runs as `CLOSED` in History. The frontend must
-therefore treat `STOPPED`/`CLOSING` and view membership as server-owned
-convergence state, not locally promote a row to `CLOSED`.
+The current snapshot simultaneously demonstrates a `STOPPED` run with residue
+positions in Open and terminal `CLOSED` runs in History. View membership is
+server-owned: Open retains stopped runs while any active, closing, or leftover
+position remains, and History begins when the authoritative projection reports
+none. Quote balance alone does not keep a run in Open. The frontend must not
+locally promote a row to `CLOSED` or move it between views.
 
 ## Live POST E2E Results
 
@@ -271,13 +318,34 @@ path as a fallback.
 
 ### P0: Fail Closed on Availability and Prepared Status
 
-- Leaderboard Copy currently ignores `startCopyAvailability`.
-- Add and Stop buttons do not enforce their run-level advisory availability.
+- Leaderboard Copy currently ignores `startCopyAvailability`; Agent Profile
+  only disables when an explicit non-available status is present.
+- Add Capital partially enforces explicit non-available status, but missing or
+  unspecified availability still fails open. Stop Copy does not enforce its
+  run-level advisory availability and remains visible for every Open-view row,
+  including `CLOSING` or `STOPPED` rows.
 - Missing/unspecified/PENDING availability must disable execution.
 - Read availability can lag behind chain/projector state. The newest prepare
   response remains authoritative.
 - `PENDING`, `UNAVAILABLE`, or an unrecognized call kind must never reach wallet
   submission.
+
+### P0: Prepared Smart Wallet Identity and Quote Lifetime
+
+- The service types now include `PreparedAction.copyAccount`, per-position
+  `swapQuote`, Stop Copy `totalSwapQuote`, and Manual Sell/Close Position
+  `swapQuote`. The mock write UI does not consume them yet.
+- For every non-Start action, `PreparedAction.copyAccount` must equal the
+  selected Copy Run/Smart Wallet. For Start funding/completion, it must equal
+  `startCopy.predictedCopyAccount`. It is not interchangeable with `call.to` or
+  `expectedAccount`.
+- Render expected/minimum quote from the returned preparation and preserve each
+  metric status. Optional `effectiveSlippageBps: 0` is a real value.
+- Stop Copy has per-position slippage only. Do not average it into an aggregate
+  slippage for `totalSwapQuote`.
+- Quote previews expire with the parent preparation at `reprepareAfter` and,
+  when present, `liquidationConfigDeadline`. Discard and reprepare after expiry
+  or any relevant position/account change.
 
 ### P0: Receipt, Convergence, and Idempotency
 
@@ -304,62 +372,69 @@ path as a fallback.
 
 ### P1: Performance Query Compatibility
 
-Agent Profile and active Copy Detail can still send:
+Resolved in the current read UI:
 
 ```text
 window=WINDOW_ALL
-interval=PERFORMANCE_INTERVAL_DAY
+interval=PERFORMANCE_INTERVAL_MONTH
 ```
 
-The API accepts `WINDOW_ALL` only with weekly or monthly intervals for the
-portfolio-equity and cumulative-realised-PnL series. Copy Detail already forces
-monthly for a closed run, but its active window selector and Agent Profile still
-allow the invalid combination.
+Both Agent Profile and Copy Detail derive the interval from the effective
+window, so an active run selecting All no longer sends the invalid daily
+combination.
 
-Affected files:
+### P1: Infinite Scroll, Errors, and Freshness
 
-- `AgentProfile/AgentStats.tsx`.
-- `CopyDetail/CopyRunPerformance.tsx`.
-- `components/PerformanceCharts.tsx`.
-
-### P1: Pagination, Errors, and Freshness
-
-- Only the leaderboard implements cursor navigation. Most other list consumers
-  request one page.
-- Read screens often render a failed request as an empty state or redirect as if
-  data were not found.
-- Stale metrics/valuations are preserved but usually look identical to current
-  data.
+- Primary cursor-list surfaces now use bounded infinite-scroll containers backed
+  by `useInfiniteQuery`. Copy Smart Wallet also owns independent cursor chains
+  for balances, open positions, and account history. The six unowned GET
+  operations listed above still need a product surface.
+- Performance charts and the Sidebar's bounded collection snapshots do not yet
+  follow cursor pages. The Stop prototype also reads only the first position
+  page; the real Stop integration must load the complete selectable set before
+  preparation.
+- Infinite-scroll failures are not yet rendered with retry/restart behavior. In
+  particular, an expired or rejected cursor must discard the sequence and
+  restart from page one with the current filters.
+- Initial logo loading is intentionally limited to Agent Profile and Copy
+  Detail. Existing loading/error/empty behavior remains unchanged elsewhere.
+- KPI cards identify stale metrics. Position-level stale valuation indication is
+  still a future polish item.
 - `UNAVAILABLE` must remain `—`; it must not become a fabricated zero.
-- Alerts Feed displays `LIVE` without polling.
+- Alerts Feed no longer displays `LIVE` because it does not poll.
 
 ### P1: Typed Activity and Lifecycle Mapping
 
-- `ActivityRow` models typed detail variants as `Record<string, unknown>`.
-- Alerts Feed parses display summary text to infer P&L direction; business logic
-  must use `type` and the typed detail payload.
-- `isCopyRunClosed` treats both `STOPPED` and `CLOSED` as closed and drives the
-  Copy Detail layout and chart query. The live API later moved observed
-  `STOPPED` runs to `CLOSED`; components needing exact lifecycle or action
-  eligibility must not use this compatibility helper as authoritative state.
-- The position adapter collapses API `ACTIVE` and `CLOSING` into compatibility
-  `status: "open"`. Components needing exact lifecycle must use
-  `trackingStatus`, and action logic must use the direct API entity.
+- `ActivityRow` has typed copy-lifecycle, position, capital, fee, and execution
+  detail variants.
+- Alerts Feed uses the typed position detail for realized P&L direction.
+- Smart Wallet Activity and Alerts Feed label generic `sell_unaligned` rows as
+  `Owner Sell`, and render Deposit, Add Capital, Withdraw Quote, and Returned
+  Capital as distinct action labels.
+- Stop Copy renders as its own amount-less lifecycle activity; token-specific
+  exit/reduction/closure rows remain independent.
+- Copy Detail treats only `CLOSED` as closed. `STOPPED` is not locally promoted
+  to `CLOSED`, and `isCopyRunClosed` has been removed.
+- `my-copies/:copyId` renders Open Copy Detail for `ACTIVE`/`CLOSING` and Copy
+  Smart Wallet for `STOPPED`. A direct `CLOSED` response is redirected to the
+  canonical `history/:copyId` detail route.
+- Copy Smart Wallet reads direct account summary, balances, open positions, and
+  account history. Position recovery buttons remain driven by advertised API
+  action kinds; Withdraw remains disabled until its prepared write flow is
+  integrated.
+- The position adapter keeps compatibility `status: "open"` for both `ACTIVE`
+  and `CLOSING`, while preserving exact lifecycle in `lifecycle`. UI status
+  rendering now uses the exact lifecycle field.
 - `OPEN`, `CLOSED`, and `LEFTOVER` list views are filters, not lifecycle values.
 
 ### P2: Remaining Model and UI Gaps
 
-- OpenAPI supports `LEADERBOARD_SORT_FIELD_OPEN_POSITIONS`, but the frontend
-  sort type/map/header omit it.
-- Strategy categories can overlap, while some UI surfaces show only one badge.
-- Sidebar active-agent matching uses display name rather than canonical
-  `agentId`.
-- Leaderboard search is not debounced.
 - Performance charts combine both series' error/loading state.
-- Agent portfolio equity is labelled `Assets Under Management ($)`, although
-  portfolio equity and follower AUM are distinct API metrics.
-- Disconnected owner screens render empty content instead of a dedicated wallet
-  state.
+- Position-level stale valuation indication is not yet rendered.
+- The six remaining discovery/drilldown GET operations need an agreed route,
+  tab, drawer, or expandable-row owner before UI implementation.
+- Responsive and keyboard behavior still require browser validation with
+  representative multi-page data.
 
 ## API Behavior and Open Concerns
 
@@ -381,10 +456,10 @@ Affected files:
 4. Integrate Add Capital, Stop Copy, and Withdraw Quote using their exact
    prepared previews and calls.
 5. Implement in-memory wallet-session management.
-6. Add copy-account/position drilldowns and pending-obligation reads.
+6. Add the remaining position/account drilldowns and pending-obligation reads.
 7. Integrate Manual Sell and Close Position only when the API advertises them.
-8. Fix performance interval selection, typed activity details, pagination,
-   freshness, errors, and disconnected-wallet states.
+8. Assign UI ownership for the remaining read-only drilldowns, then implement
+   their cursor, freshness, and direct-entity states.
 9. Add unit tests for prepared-call validation and integration tests for
    receipt/convergence state machines.
 10. Run positive-path Manual Sell and Close Position E2E when genuine business
@@ -397,11 +472,17 @@ Affected files:
 - Searched the Copy Trading UI for preparation/wallet-session hook consumers:
   none.
 - Rechecked live `/chains`, leaderboard, Open/History copy runs, copy accounts,
-  and owner positions.
+  and owner positions on 2026-08-03.
 - Rechecked below-minimum Start preparation without submitting its returned
   call: HTTP 200 typed `AMOUNT_BELOW_MINIMUM`.
 - Inspected every current write modal, transaction helper, placeholder config,
   and mock signer.
+- Implemented the primary-screen read corrections above and ran app TypeScript,
+  Copy Trading ESLint, Prettier, and `git diff --check`.
+- Browser-smoked Agent Profile, the All performance window, stale KPI
+  indication, Open Positions sorting, and the disconnected My Copies state
+  against the local app. Copy Detail and multi-page owner cursors still need a
+  connected test wallet fixture.
 
 No prepared transaction was submitted and no on-chain state was changed during
 this documentation review.
