@@ -1,5 +1,5 @@
-import { NATIVE_TOKEN_ADDRESS, NETWORKS_INFO as SCHEMA_NETWORKS_INFO, ChainId as SchemaChainId } from '@kyber/schema'
-import { ChainId } from '@kyberswap/ks-sdk-core'
+import { NATIVE_TOKEN_ADDRESS } from '@kyber/schema'
+import { ChainId, Token, WETH } from '@kyberswap/ks-sdk-core'
 import { useQueryClient } from '@tanstack/react-query'
 import debounce from 'lodash.debounce'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -48,10 +48,7 @@ export const useTokenPricesWithLoading = (
     .map(x => x.toLowerCase())
     .join(',')
 
-  const wrappedNativeAddress = useMemo(
-    () => SCHEMA_NETWORKS_INFO[chainId as unknown as SchemaChainId]?.wrappedToken.address?.toLowerCase(),
-    [chainId],
-  )
+  const wrappedNativeAddress = useMemo(() => (WETH[chainId] as Token | undefined)?.address?.toLowerCase(), [chainId])
 
   const tokenList = useMemo(() => {
     const list = addressKeys.split(',').filter(Boolean)
