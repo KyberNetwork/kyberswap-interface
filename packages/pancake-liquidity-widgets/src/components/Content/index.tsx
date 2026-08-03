@@ -106,7 +106,7 @@ export default function Content({
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } as any)) as string;
     },
-    [walletClient]
+    [walletClient],
   );
 
   const {
@@ -116,7 +116,7 @@ export default function Content({
   } = usePermitNft({
     nftManagerContract,
     tokenId: positionId,
-    spender: zapInfo?.routerPermitAddress,
+    spender: zapInfo?.routerAddress,
     account,
     chainId,
     signTypedData,
@@ -124,7 +124,7 @@ export default function Content({
 
   const isPancakeInfinityCL = isForkFrom(
     poolType,
-    CoreProtocol.PancakeInfinityCL
+    CoreProtocol.PancakeInfinityCL,
   );
   // ZapRouter v2 keeps the legacy flow (only Pancake Infinity CL positions need
   // NFT authorization); v3 requires it for every concentrated-liquidity position.
@@ -132,7 +132,7 @@ export default function Content({
     zapInfo?.routerAddress?.toLowerCase() ===
     "0x0e97c887b61ccd952a53578b04763e7134429e05";
   const requiresNftAuth = Boolean(
-    positionId && (!isZapV2 || isPancakeInfinityCL)
+    positionId && (!isZapV2 || isPancakeInfinityCL),
   );
 
   const canPermit =
@@ -148,43 +148,43 @@ export default function Content({
         : amountsIn
             .split(",")
             .map((amount, index) =>
-              parseUnits(amount || "0", tokensIn[index]?.decimals).toString()
+              parseUnits(amount || "0", tokensIn[index]?.decimals).toString(),
             ),
-    [tokensIn, amountsIn]
+    [tokensIn, amountsIn],
   );
 
   const { loading, approvalStates, addressToApprove, approve } = useApprovals(
     amountsInWei,
     tokensIn.map((token) => token?.address || ""),
-    zapInfo?.routerAddress || ""
+    zapInfo?.routerAddress || "",
   );
 
   const notApprove = useMemo(
     () =>
       tokensIn.find(
         (item) =>
-          approvalStates[item?.address || ""] === APPROVAL_STATE.NOT_APPROVED
+          approvalStates[item?.address || ""] === APPROVAL_STATE.NOT_APPROVED,
       ),
-    [approvalStates, tokensIn]
+    [approvalStates, tokensIn],
   );
 
   const pi = useMemo(() => {
     const aggregatorSwapInfo = zapInfo?.zapDetails.actions.find(
-      (item) => item.type === ZapAction.AGGREGATOR_SWAP
+      (item) => item.type === ZapAction.AGGREGATOR_SWAP,
     ) as AggregatorSwapAction | undefined;
 
     const poolSwapInfo = zapInfo?.zapDetails.actions.find(
-      (item) => item.type === ZapAction.POOL_SWAP
+      (item) => item.type === ZapAction.POOL_SWAP,
     ) as PoolSwapAction | null;
 
     const feeInfo = zapInfo?.zapDetails.actions.find(
-      (item) => item.type === ZapAction.PROTOCOL_FEE
+      (item) => item.type === ZapAction.PROTOCOL_FEE,
     ) as ProtocolFeeAction | undefined;
 
     const piRes = getPriceImpact(
       zapInfo?.zapDetails.priceImpact,
       ImpactType.ZAP,
-      feeInfo
+      feeInfo,
     );
 
     const aggregatorSwapPi =
@@ -231,7 +231,7 @@ export default function Content({
       !addressToApprove &&
       !error &&
       !zapLoading &&
-      !loading
+      !loading,
   );
 
   const onPermitNft = () => {
@@ -239,7 +239,7 @@ export default function Content({
     const date = new Date();
     date.setMinutes(date.getMinutes() + (ttl || 20));
     signPermitNft(Math.floor(date.getTime() / 1000)).finally(() =>
-      setClickedLoading(false)
+      setClickedLoading(false),
     );
   };
 
@@ -283,7 +283,7 @@ export default function Content({
       zapLoading ||
       !!error ||
       Object.values(approvalStates).some(
-        (item) => item === APPROVAL_STATE.PENDING
+        (item) => item === APPROVAL_STATE.PENDING,
       ) ||
       (pi.piVeryHigh && !degenMode),
     [
@@ -298,7 +298,7 @@ export default function Content({
       pi.piVeryHigh,
       requiresNftAuth,
       zapLoading,
-    ]
+    ],
   );
 
   const hanldeClick = () => {
@@ -311,7 +311,7 @@ export default function Content({
         const date = new Date();
         date.setMinutes(date.getMinutes() + (ttl || 20));
         signPermitNft(Math.floor(date.getTime() / 1000)).finally(() =>
-          setClickedLoading(false)
+          setClickedLoading(false),
         );
       } else {
         approveNft().finally(() => setClickedLoading(false));
@@ -358,7 +358,7 @@ export default function Content({
         BigInt(pool.sqrtRatioX96 || 0),
         pool.token0.decimals,
         pool.token1.decimals,
-        revertPrice
+        revertPrice,
       )
     : undefined;
 
@@ -383,7 +383,7 @@ export default function Content({
         setTick,
       });
     },
-    [currentPoolPrice, pool, revertPrice, setTick]
+    [currentPoolPrice, pool, revertPrice, setTick],
   );
 
   useEffect(() => {
@@ -501,11 +501,11 @@ export default function Content({
                     if (!pool) return;
                     setTick(
                       Type.PriceLower,
-                      revertPrice ? pool.maxTick : pool.minTick
+                      revertPrice ? pool.maxTick : pool.minTick,
                     );
                     setTick(
                       Type.PriceUpper,
-                      revertPrice ? pool.minTick : pool.maxTick
+                      revertPrice ? pool.minTick : pool.maxTick,
                     );
                   }}
                 >
@@ -529,7 +529,9 @@ export default function Content({
             disabled={clickedApprove || permitState === PermitNftState.SIGNING}
             onClick={onPermitNft}
           >
-            {permitState === PermitNftState.SIGNING ? "Signing..." : "Permit NFT"}
+            {permitState === PermitNftState.SIGNING
+              ? "Signing..."
+              : "Permit NFT"}
           </button>
         ) : (
           <button className="pcs-outline-btn flex-1" onClick={onDismiss}>
@@ -559,7 +561,7 @@ export default function Content({
             style={
               !disabled &&
               Object.values(approvalStates).some(
-                (item) => item !== APPROVAL_STATE.NOT_APPROVED
+                (item) => item !== APPROVAL_STATE.NOT_APPROVED,
               )
                 ? {
                     background:
