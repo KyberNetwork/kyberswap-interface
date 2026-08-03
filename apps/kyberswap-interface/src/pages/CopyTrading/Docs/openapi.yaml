@@ -2748,12 +2748,14 @@ definitions:
         format: int64
       cashback:
         $ref: '#/definitions/v1RawAmountMetric'
+      swapQuote:
+        $ref: '#/definitions/v1SwapQuotePreview'
     description: |-
       PositionSellPreview contains the shared Manual Sell and Close Position facts.
       Identity and obligation fields may be absent while source coverage is pending;
       retained raw metrics remain present with an explicit unavailable status.
-      Route quantities, quote outputs, and effective slippage are validated against
-      the private operator response but are not aggregate UI response fields.
+      Gross route input remains private because it is an internal accounting and
+      routing quantity rather than the user's sell amount.
   v1PositionSortField:
     type: string
     enum:
@@ -2951,6 +2953,8 @@ definitions:
           $ref: '#/definitions/v1PreparedActionWarning'
       evidence:
         $ref: '#/definitions/v1ActionEvidence'
+      copyAccount:
+        type: string
       startCopy:
         $ref: '#/definitions/v1StartCopyPreview'
       addCapital:
@@ -3153,6 +3157,8 @@ definitions:
         $ref: '#/definitions/v1RawAmountMetric'
       quoteToken:
         $ref: '#/definitions/v1Token'
+      totalSwapQuote:
+        $ref: '#/definitions/v1SwapQuotePreview'
     description: StopCopyPreview contains the atomic Stop Copy selection and totals.
   v1StopPositionPreview:
     type: object
@@ -3173,6 +3179,8 @@ definitions:
         $ref: '#/definitions/v1PositionLifecycle'
       unrealizedPnlUsd:
         $ref: '#/definitions/v1DecimalMetric'
+      swapQuote:
+        $ref: '#/definitions/v1SwapQuotePreview'
     description: StopPositionPreview is one bounded position row in a Stop Copy preview.
   v1StrategyCategory:
     type: string
@@ -3191,6 +3199,17 @@ definitions:
       description:
         type: string
     description: StrategyExecutionItem is one configured Strategy & Execution display item.
+  v1SwapQuotePreview:
+    type: object
+    properties:
+      expectedQuote:
+        $ref: '#/definitions/v1RawAmountMetric'
+      minimumQuote:
+        $ref: '#/definitions/v1RawAmountMetric'
+      effectiveSlippageBps:
+        type: integer
+        format: int64
+    description: SwapQuotePreview is valid only for its parent preparation through reprepare_after.
   v1Token:
     type: object
     properties:

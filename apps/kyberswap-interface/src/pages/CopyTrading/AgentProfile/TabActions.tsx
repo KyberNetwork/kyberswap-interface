@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from 'framer-motion'
-import { type PropsWithChildren, useMemo, useState } from 'react'
+import { type PropsWithChildren, useState } from 'react'
 import { ChevronDown, ChevronUp, ExternalLink as ExternalLinkIcon } from 'react-feather'
 import copyTradingApi from 'services/copyTrading'
 import { type CotLog } from 'services/copyTrading/types'
@@ -7,11 +7,15 @@ import { type CotLog } from 'services/copyTrading/types'
 import IconButton from 'components/IconButton'
 import { HStack, Stack } from 'components/Stack'
 import { isSupportedChainId } from 'constants/networks'
+import InfiniteScroll from 'pages/CopyTrading/components/InfiniteScroll'
 import { TableBody } from 'pages/CopyTrading/components/Table'
 import { formatDate } from 'pages/CopyTrading/helpers'
+import useInfiniteCursorQuery from 'pages/CopyTrading/useInfiniteCursorQuery'
 import { ExternalLink } from 'theme'
 import { cn } from 'utils/cn'
 import { getEtherscanLink } from 'utils/explorer'
+
+const PAGE_SIZE = 10
 
 const formatLogTime = (value?: string) => {
   const date = formatDate(value)
@@ -116,27 +120,42 @@ const ActionLogRow = ({ expanded, onToggle, row }: ActionLogRowProps) => {
 
 const TabActions = ({ agentId }: { agentId: string }) => {
   const [expandedIds, setExpandedIds] = useState<string[]>([])
-
-  const { data: cotLogs, isFetching } = copyTradingApi.useGetAgentActionLogsQuery({ agentId })
-  const rows = useMemo(() => cotLogs?.data || [], [cotLogs?.data])
+  const [getActionLogs] = copyTradingApi.useLazyGetAgentActionLogsQuery()
+  const {
+    infiniteScroll,
+    isFetching,
+    items: rows,
+  } = useInfiniteCursorQuery({
+    queryKey: ['copy-trading', 'agent-action-logs', agentId],
+    queryFn: cursor =>
+      getActionLogs({
+        agentId,
+        cursor,
+        limit: PAGE_SIZE,
+      }).unwrap(),
+  })
 
   const toggleExpanded = (id: string) => {
     setExpandedIds(current => (current.includes(id) ? current.filter(item => item !== id) : [...current, id]))
   }
 
   return (
-    <TableBody empty={!rows.length} emptyMessage="No action logs found" loading={isFetching}>
-      <Stack className="px-4 py-2">
-        {rows?.map(row => (
-          <ActionLogRow
-            key={row.logId}
-            expanded={expandedIds.includes(row.logId)}
-            onToggle={toggleExpanded}
-            row={row}
-          />
-        ))}
-      </Stack>
-    </TableBody>
+    <Stack>
+      <InfiniteScroll {...infiniteScroll}>
+        <TableBody empty={!rows.length} emptyMessage="No action logs found" loading={isFetching && !rows.length}>
+          <Stack className="px-4 py-2">
+            {rows.map(row => (
+              <ActionLogRow
+                key={row.logId}
+                expanded={expandedIds.includes(row.logId)}
+                onToggle={toggleExpanded}
+                row={row}
+              />
+            ))}
+          </Stack>
+        </TableBody>
+      </InfiniteScroll>
+    </Stack>
   )
 }
 

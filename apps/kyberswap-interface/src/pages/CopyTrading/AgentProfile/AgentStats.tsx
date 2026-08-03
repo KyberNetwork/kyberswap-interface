@@ -18,21 +18,25 @@ const getProfileStats = (stats?: AgentStatsData): LeaderboardStat[] => [
     label: 'Total Realised P&L',
     value: signedUsd(stats?.totalRealizedPnlUsd),
     icon: copyTradingStatIconMap.money,
+    status: stats?.metrics.totalRealizedPnlUsd?.status,
   },
   {
     label: 'Copiers',
     value: stats?.copiers || '—',
     icon: copyTradingStatIconMap.users,
+    status: stats?.metrics.copiers?.status,
   },
   {
     label: 'Win Rate',
     value: percent(stats?.winRatePct),
     icon: copyTradingStatIconMap.positionOpen,
+    status: stats?.metrics.winRatePct?.status,
   },
   {
     label: 'AUM',
     value: compactUsd(stats?.aumUsd),
     icon: copyTradingStatIconMap.volume,
+    status: stats?.metrics.aumUsd?.status,
   },
 ]
 
@@ -42,6 +46,7 @@ type AgentStatsProps = {
 
 const AgentStats = ({ agentId }: AgentStatsProps) => {
   const [window, setWindow] = useState<PerformanceWindow>('30d')
+  const interval = window === 'all' ? 'month' : 'day'
 
   const { data: agentStats } = copyTradingApi.useGetAgentStatsQuery({ agentId })
   const {
@@ -50,7 +55,7 @@ const AgentStats = ({ agentId }: AgentStatsProps) => {
     isFetching: isPortfolioFetching,
   } = copyTradingApi.useGetAgentPerformanceQuery({
     agentId,
-    interval: 'day',
+    interval,
     limit: 100,
     series: 'portfolio_value',
     window,
@@ -61,7 +66,7 @@ const AgentStats = ({ agentId }: AgentStatsProps) => {
     isFetching: isRealizedPnlFetching,
   } = copyTradingApi.useGetAgentPerformanceQuery({
     agentId,
-    interval: 'day',
+    interval,
     limit: 100,
     series: 'cumulative_realized_pnl',
     window,
@@ -78,7 +83,7 @@ const AgentStats = ({ agentId }: AgentStatsProps) => {
   const isFetching = isPortfolioFetching || isRealizedPnlFetching
 
   return (
-    <Stack className="min-w-0 gap-5">
+    <Stack className="min-w-0 gap-4">
       <Leaderboard items={getProfileStats(stats)} size="sm" />
       <Stack className="gap-6 rounded-xl bg-buttonBlack p-6">
         <CumulativeRealisedPnlChart
@@ -88,12 +93,7 @@ const AgentStats = ({ agentId }: AgentStatsProps) => {
           onWindowChange={setWindow}
           window={window}
         />
-        <CapitalValueChart
-          data={chartData}
-          isError={isError}
-          isFetching={isFetching}
-          title="Assets Under Management ($)"
-        />
+        <CapitalValueChart data={chartData} isError={isError} isFetching={isFetching} title="Portfolio Equity ($)" />
       </Stack>
     </Stack>
   )

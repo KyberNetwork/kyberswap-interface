@@ -1,15 +1,23 @@
 import { type PropsWithChildren, type ReactNode } from 'react'
 import { ArrowLeft } from 'react-feather'
 import { useNavigate } from 'react-router-dom'
-import type { AgentCard, AgentProfile, CopyRunSummary } from 'services/copyTrading/types'
+import type {
+  AgentCard,
+  AgentProfile,
+  AgentSnapshot,
+  CopyRunStatus,
+  CopyRunSummary,
+  PositionLifecycle,
+  PositionQuantityState,
+} from 'services/copyTrading/types'
 
 import verifiedIcon from 'assets/images/copy-trading/verified.svg'
 import { ButtonEmpty } from 'components/Button'
 import CopyHelper from 'components/Copy'
 import { Center, HStack, Stack } from 'components/Stack'
 import { useCopyTradingContext } from 'pages/CopyTrading/context'
-import { formatDate, getAgentDisplayName, getAgentInitials } from 'pages/CopyTrading/helpers'
-import { shortenAddress } from 'utils/address'
+import { formatDate, getAgentDisplayName, getAgentInitials, strategyCategoryKey } from 'pages/CopyTrading/helpers'
+import { shortenAddress, shortenHash } from 'utils/address'
 import { cn } from 'utils/cn'
 
 import { Badge, StrategyBadge } from './Badge'
@@ -30,18 +38,27 @@ type CopyTradingPageHeadingProps = {
   title: ReactNode
 }
 
+type ContentPanelProps = PropsWithChildren<{
+  bodyClassName?: string
+  className?: string
+  headerAside?: ReactNode
+  title: string
+  titleAddon?: ReactNode
+}>
+
 type AgentCellSize = 'sm' | 'lg'
 
 type AgentCellProps = {
-  agent: AgentCard | AgentProfile
+  agent: AgentCard | AgentProfile | AgentSnapshot
   className?: string
+  nameExtension?: ReactNode
   size?: AgentCellSize
   subLineExtension?: ReactNode
 }
 
-const getLeaderAddress = (agent: AgentCard | AgentProfile) => agent.leaderAddress
+const getLeaderAddress = (agent: AgentCard | AgentProfile | AgentSnapshot) => agent.leaderAddress
 
-const isVerifiedAgent = (agent: AgentCard | AgentProfile) => agent.isVerified
+const isVerifiedAgent = (agent: AgentCard | AgentProfile | AgentSnapshot) => agent.isVerified
 
 export const CopyTradingPage = ({ children, backTo, className }: CopyTradingPageProps) => {
   const navigate = useNavigate()
@@ -75,11 +92,41 @@ export const CopyTradingPageHeading = ({ className, description, title }: CopyTr
   </Stack>
 )
 
-export const AgentCell = ({ agent, className, size = 'sm', subLineExtension }: AgentCellProps) => {
+export const ContentPanel = ({
+  bodyClassName,
+  children,
+  className,
+  headerAside,
+  title,
+  titleAddon,
+}: ContentPanelProps) => (
+  <Stack className={cn('overflow-hidden rounded-xl bg-buttonBlack-60', className)}>
+    <HStack className="flex-wrap items-center justify-between gap-4 border-b border-tableHeader bg-background-60 px-6 py-4">
+      <HStack className="items-center gap-2">
+        <h2 className="text-base font-medium text-text">{title}</h2>
+        {titleAddon}
+      </HStack>
+      {headerAside}
+    </HStack>
+    <Stack className={cn('gap-0', bodyClassName)}>{children}</Stack>
+  </Stack>
+)
+
+export const ShortenedId = ({ value }: { value?: string }) => (
+  <span className="whitespace-nowrap font-mono" title={value}>
+    {value ? shortenHash(value, 2) : '—'}
+  </span>
+)
+
+export const AgentCell = ({ agent, className, nameExtension, size = 'sm', subLineExtension }: AgentCellProps) => {
   const { chains } = useCopyTradingContext()
   const chain = chains.find(item => item.chainId === agent.chainId)
   const displayName = getAgentDisplayName(agent)
   const isLarge = size === 'lg'
+  const strategies = Array.from(
+    new Set(agent.strategyCategories.map(strategyCategoryKey).filter(strategy => strategy !== 'unknown')),
+  )
+  if (!strategies.length) strategies.push(agent.strategy)
 
   return (
     <HStack className={cn('min-w-0 items-center gap-4', className)}>
@@ -104,10 +151,13 @@ export const AgentCell = ({ agent, className, size = 'sm', subLineExtension }: A
             <span className="truncate text-base font-medium text-text">{displayName}</span>
           )}
           {isVerifiedAgent(agent) && <img src={verifiedIcon} alt="Verified" className="size-5 shrink-0" />}
-          {agent.isTrending && <span className="text-sm">🔥</span>}
+          {nameExtension}
+          {'isTrending' in agent && agent.isTrending && <span className="text-sm">🔥</span>}
         </HStack>
         <HStack className={cn('items-center gap-2', isLarge && 'flex-wrap')}>
-          <StrategyBadge strategy={agent.strategy} />
+          {strategies.map(strategy => (
+            <StrategyBadge key={strategy} strategy={strategy} />
+          ))}
           <Badge color="gray">{agent.modelName}</Badge>
           {subLineExtension}
         </HStack>
@@ -116,16 +166,17 @@ export const AgentCell = ({ agent, className, size = 'sm', subLineExtension }: A
   )
 }
 
-export const AgentIdentity = ({ agent }: { agent: AgentCard | AgentProfile }) => (
+export const AgentIdentity = ({ agent, status }: { agent: AgentCard | AgentProfile; status?: CopyRunStatus }) => (
   <AgentCell
     agent={agent}
+    nameExtension={status ? <CopyRunStatusBadge status={status} /> : undefined}
     size="lg"
     subLineExtension={
       <HStack className="flex-wrap items-center gap-2 text-sm font-medium text-subText">
         <span>•</span>
         <span>{shortenAddress(agent.chainId, getLeaderAddress(agent))}</span>
         <CopyHelper toCopy={getLeaderAddress(agent)} margin="0" size={13} className="text-subText" />
-        {agent.flatFeeRatePct && (
+        {'flatFeeRatePct' in agent && agent.flatFeeRatePct && (
           <>
             <span>•</span>
             <span>Flat fee:</span>
@@ -145,12 +196,12 @@ export const AgentIdentity = ({ agent }: { agent: AgentCard | AgentProfile }) =>
 )
 
 type CopyRunAgentCellProps = {
-  agent?: AgentCard
   className?: string
-  run: Pick<CopyRunSummary, 'agentId' | 'chainId'>
+  run: Pick<CopyRunSummary, 'agentId' | 'agentSnapshot' | 'chainId'>
 }
 
-export const CopyRunAgentCell = ({ agent, className, run }: CopyRunAgentCellProps) => {
+export const CopyRunAgentCell = ({ className, run }: CopyRunAgentCellProps) => {
+  const agent = run.agentSnapshot
   if (agent) return <AgentCell agent={agent} className={className} />
 
   const fallbackName = run.agentId.replace(/[-_]/g, ' ')
@@ -169,3 +220,74 @@ export const CopyRunAgentCell = ({ agent, className, run }: CopyRunAgentCellProp
     </HStack>
   )
 }
+
+const copyRunStatusLabel: Record<CopyRunStatus, string> = {
+  active: 'Active',
+  closing: 'Closing',
+  stopped: 'Stopped',
+  closed: 'Closed',
+  unknown: 'Unknown',
+}
+
+export const CopyRunStatusBadge = ({ status }: { status: CopyRunStatus }) => (
+  <span
+    className={cn(
+      'inline-flex w-fit rounded-full px-3 py-1 text-xs font-medium',
+      status === 'active' && 'bg-primary-12 text-primary',
+      status === 'closing' && 'bg-blue/10 text-blue',
+      status === 'stopped' && 'bg-red-20 text-red',
+      status === 'closed' && 'bg-subText-20 text-subText',
+      status === 'unknown' && 'bg-subText-20 text-subText',
+    )}
+  >
+    {copyRunStatusLabel[status]}
+  </span>
+)
+
+const positionLifecycleLabel: Record<PositionLifecycle, string> = {
+  active: 'Active',
+  closing: 'Closing',
+  closed: 'Closed',
+  unknown: 'Unknown',
+}
+
+const positionQuantityLabel: Record<PositionQuantityState, string | undefined> = {
+  open_full: 'Full',
+  open_partial: 'Partial',
+  closed: undefined,
+  unknown: undefined,
+}
+
+export const PositionLifecycleBadge = ({
+  lifecycle,
+  quantityState,
+}: {
+  lifecycle: PositionLifecycle
+  quantityState: PositionQuantityState
+}) => {
+  const quantityLabel = positionQuantityLabel[quantityState]
+
+  return (
+    <span
+      className={cn(
+        'inline-flex whitespace-nowrap rounded-full px-3 py-1 text-xs font-medium',
+        lifecycle === 'active' && 'bg-primary-12 text-primary',
+        lifecycle === 'closing' && 'bg-blue/10 text-blue',
+        lifecycle === 'closed' && 'bg-subText-20 text-subText',
+        lifecycle === 'unknown' && 'bg-subText-20 text-subText',
+      )}
+    >
+      {positionLifecycleLabel[lifecycle]}
+      {quantityLabel ? ` · ${quantityLabel}` : ''}
+    </span>
+  )
+}
+
+export const OwnerWalletRequired = () => (
+  <Center className="min-h-[240px] rounded-xl bg-buttonBlack-60 px-6 text-center">
+    <Stack className="items-center gap-2">
+      <span className="text-base font-medium text-text">Connect your wallet</span>
+      <span className="text-sm text-subText">Connect a wallet to view your Copy Trading data.</span>
+    </Stack>
+  </Center>
+)

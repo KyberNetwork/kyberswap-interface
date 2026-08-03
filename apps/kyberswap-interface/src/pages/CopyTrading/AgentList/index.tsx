@@ -1,8 +1,9 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import copyTradingApi from 'services/copyTrading'
 import type { LeaderboardSortBy, SortOrder } from 'services/copyTrading/types'
 
 import { HStack, Stack } from 'components/Stack'
+import useDebounce from 'hooks/useDebounce'
 import useTab from 'hooks/useTab'
 import AgentTable from 'pages/CopyTrading/AgentList/AgentTable'
 import {
@@ -15,14 +16,13 @@ import {
 } from 'pages/CopyTrading/AgentList/components'
 import { CopyTradingPage, CopyTradingPageHeading } from 'pages/CopyTrading/components/common'
 import { useCopyTradingContext } from 'pages/CopyTrading/context'
+import useInfiniteCursorQuery from 'pages/CopyTrading/useInfiniteCursorQuery'
 
 const PAGE_SIZE = 5
 
 const AgentList = () => {
   const { selectedChainId } = useCopyTradingContext()
 
-  const [page, setPage] = useState(1)
-  const [pageCursors, setPageCursors] = useState<(string | undefined)[]>([undefined])
   const [search, setSearch] = useState('')
   const [sortBy, setSortBy] = useState<LeaderboardSortBy>()
   const [sortOrder, setSortOrder] = useState<SortOrder>()
@@ -34,7 +34,8 @@ const AgentList = () => {
   })
 
   const selectedStrategy = toStrategyKey(activeTab || 'all')
-  const normalizedSearch = search.trim() || undefined
+  const debouncedSearch = useDebounce(search, 300)
+  const normalizedSearch = debouncedSearch.trim() || undefined
 
   const summaryQuery = useMemo(
     () => ({
@@ -45,37 +46,33 @@ const AgentList = () => {
     [normalizedSearch, selectedChainId, selectedStrategy],
   )
 
-  const leaderboardQuery = useMemo(
-    () => ({
-      ...summaryQuery,
-      sortBy,
-      sortOrder,
-      cursor: pageCursors[page - 1],
-      limit: PAGE_SIZE,
-    }),
-    [page, pageCursors, sortBy, sortOrder, summaryQuery],
-  )
-
   const { data: leaderboardSummary } = copyTradingApi.useGetLeaderboardSummaryQuery(summaryQuery)
-  const { data: leaderboard, isFetching: isLeaderboardFetching } =
-    copyTradingApi.useGetLeaderboardQuery(leaderboardQuery)
+  const [getLeaderboard] = copyTradingApi.useLazyGetLeaderboardQuery()
+  const {
+    infiniteScroll,
+    isFetching: isLeaderboardFetching,
+    items: agents,
+  } = useInfiniteCursorQuery({
+    queryKey: ['copy-trading', 'leaderboard', selectedChainId, selectedStrategy, normalizedSearch, sortBy, sortOrder],
+    queryFn: cursor =>
+      getLeaderboard({
+        ...summaryQuery,
+        sortBy,
+        sortOrder,
+        cursor,
+        limit: PAGE_SIZE,
+      }).unwrap(),
+  })
 
   const handleStrategyChange = (strategy: StrategyFilter) => {
-    setPage(1)
-    setPageCursors([undefined])
     setActiveTab(strategy)
   }
 
   const handleSearchChange = (value: string) => {
-    setPage(1)
-    setPageCursors([undefined])
     setSearch(value)
   }
 
   const handleSortChange = (nextSortBy: LeaderboardSortBy) => {
-    setPage(1)
-    setPageCursors([undefined])
-
     if (sortBy !== nextSortBy) {
       setSortBy(nextSortBy)
       setSortOrder('desc')
@@ -89,25 +86,6 @@ const AgentList = () => {
     setSortOrder(undefined)
   }
 
-  useEffect(() => {
-    setPage(1)
-    setPageCursors([undefined])
-  }, [selectedChainId])
-
-  const handlePageChange = (nextPage: number) => {
-    if (nextPage > page && leaderboard?.pagination.nextCursor) {
-      setPageCursors(current => {
-        const next = [...current]
-        next[nextPage - 1] = leaderboard.pagination.nextCursor
-        return next
-      })
-    }
-    setPage(nextPage)
-  }
-
-  const loadedCount = (page - 1) * PAGE_SIZE + (leaderboard?.data.length || 0)
-  const totalCount = loadedCount + (leaderboard?.pagination.hasMore ? 1 : 0)
-
   return (
     <CopyTradingPage>
       <CopyTradingPageHeading
@@ -119,7 +97,7 @@ const AgentList = () => {
         description="Automatically delegate to top on-chain AI agents. Maintain full custody of your assets with transparent fees and cashback."
       />
 
-      <LeaderboardSummary summary={leaderboardSummary?.data} fallbackAgentCount={leaderboard?.data.length} />
+      <LeaderboardSummary summary={leaderboardSummary?.data} fallbackAgentCount={agents.length} />
 
       <Stack className="gap-4">
         <HStack className="flex-wrap items-center justify-between gap-4">
@@ -128,17 +106,12 @@ const AgentList = () => {
         </HStack>
 
         <AgentTable
-          agents={leaderboard?.data || []}
-          loading={isLeaderboardFetching}
+          agents={agents}
+          infiniteScroll={infiniteScroll}
+          loading={isLeaderboardFetching && !agents.length}
           sortBy={sortBy}
           sortOrder={sortOrder}
           onSortChange={handleSortChange}
-          pagination={{
-            totalCount,
-            currentPage: page,
-            pageSize: PAGE_SIZE,
-            onPageChange: handlePageChange,
-          }}
         />
       </Stack>
     </CopyTradingPage>

@@ -4,12 +4,32 @@ import copyTradingApi from 'services/copyTrading'
 import { APP_PATHS } from 'constants/index'
 import ClosedSubscriptionsTable from 'pages/CopyTrading/CopyHistory/ClosedSubscriptionsTable'
 import { CopyHistorySummary } from 'pages/CopyTrading/CopyHistory/components'
-import { CopyTradingPage, CopyTradingPageHeading } from 'pages/CopyTrading/components/common'
+import CopyRunsPageHeading from 'pages/CopyTrading/components/CopyRunsPageHeading'
+import { CopyTradingPage, OwnerWalletRequired } from 'pages/CopyTrading/components/common'
 import { useCopyTradingContext } from 'pages/CopyTrading/context'
+import useInfiniteCursorQuery from 'pages/CopyTrading/useInfiniteCursorQuery'
+
+const PAGE_SIZE = 10
 
 const CopyHistoryView = () => {
   const navigate = useNavigate()
   const { ownerAddress } = useCopyTradingContext()
+  const [getCopyRuns] = copyTradingApi.useLazyGetCopyRunsQuery()
+  const {
+    infiniteScroll,
+    isFetching: isClosedRunsFetching,
+    items: closedRuns,
+  } = useInfiniteCursorQuery({
+    enabled: !!ownerAddress,
+    queryKey: ['copy-trading', 'copy-runs', ownerAddress, 'history'],
+    queryFn: cursor =>
+      getCopyRuns({
+        ownerAddress: ownerAddress || '',
+        view: 'history',
+        cursor,
+        limit: PAGE_SIZE,
+      }).unwrap(),
+  })
   const { data: ownerSummary } = copyTradingApi.useGetOwnerCopySummaryQuery(
     {
       ownerAddress: ownerAddress || '',
@@ -17,27 +37,23 @@ const CopyHistoryView = () => {
     },
     { skip: !ownerAddress },
   )
-  const { data: closedRuns, isFetching: isClosedRunsFetching } = copyTradingApi.useGetCopyRunsQuery(
-    {
-      ownerAddress: ownerAddress || '',
-      view: 'history',
-      limit: 100,
-    },
-    { skip: !ownerAddress },
-  )
-  const { data: agents, isFetching: isAgentsFetching } = copyTradingApi.useGetAgentsQuery({ limit: 100 })
-  const closedRunData = closedRuns?.data || []
 
   return (
     <CopyTradingPage>
-      <CopyTradingPageHeading title="History" description="Review all closed copy runs and settled performance." />
-      <CopyHistorySummary summary={ownerSummary?.data} />
-      <ClosedSubscriptionsTable
-        agents={agents?.data || []}
-        loading={isClosedRunsFetching || isAgentsFetching}
-        rows={closedRunData}
-        onOpenSubscription={subscription => navigate(`${APP_PATHS.COPY_TRADING}/history/${subscription.copyRunId}`)}
-      />
+      <CopyRunsPageHeading activeView="history" />
+      {!ownerAddress ? (
+        <OwnerWalletRequired />
+      ) : (
+        <>
+          <CopyHistorySummary summary={ownerSummary?.data} />
+          <ClosedSubscriptionsTable
+            infiniteScroll={infiniteScroll}
+            loading={isClosedRunsFetching && !closedRuns.length}
+            rows={closedRuns}
+            onOpenSubscription={subscription => navigate(`${APP_PATHS.COPY_TRADING}/history/${subscription.copyRunId}`)}
+          />
+        </>
+      )}
     </CopyTradingPage>
   )
 }
