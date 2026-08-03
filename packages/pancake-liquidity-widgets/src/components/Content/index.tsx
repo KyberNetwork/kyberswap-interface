@@ -137,8 +137,7 @@ export default function Content({
 
   const canPermit =
     !isZapV2 &&
-    (permitState === PermitNftState.READY_TO_SIGN ||
-      permitState === PermitNftState.SIGNING);
+    (permitState != PermitNftState.SIGNED);
   const nftAuthorized = nftApproved || permitState === PermitNftState.SIGNED;
 
   const amountsInWei: string[] = useMemo(
@@ -146,10 +145,10 @@ export default function Content({
       !amountsIn
         ? []
         : amountsIn
-            .split(",")
-            .map((amount, index) =>
-              parseUnits(amount || "0", tokensIn[index]?.decimals).toString(),
-            ),
+          .split(",")
+          .map((amount, index) =>
+            parseUnits(amount || "0", tokensIn[index]?.decimals).toString(),
+          ),
     [tokensIn, amountsIn],
   );
 
@@ -226,12 +225,12 @@ export default function Content({
 
   const isInNftApprovalStep = Boolean(
     requiresNftAuth &&
-      !nftAuthorized &&
-      !notApprove &&
-      !addressToApprove &&
-      !error &&
-      !zapLoading &&
-      !loading,
+    !nftAuthorized &&
+    !notApprove &&
+    !addressToApprove &&
+    !error &&
+    !zapLoading &&
+    !loading,
   );
 
   const onPermitNft = () => {
@@ -355,11 +354,11 @@ export default function Content({
 
   const currentPoolPrice = pool
     ? sqrtToPrice(
-        BigInt(pool.sqrtRatioX96 || 0),
-        pool.token0.decimals,
-        pool.token1.decimals,
-        revertPrice,
-      )
+      BigInt(pool.sqrtRatioX96 || 0),
+      pool.token0.decimals,
+      pool.token1.decimals,
+      revertPrice,
+    )
     : undefined;
 
   const selectPriceRange = useCallback(
@@ -443,9 +442,8 @@ export default function Content({
           ))}
 
           <div
-            className={`mt-4 text-primary cursor-pointer w-fit text-sm ${
-              tokensIn.length >= MAX_ZAP_IN_TOKENS ? "opacity-50" : ""
-            }`}
+            className={`mt-4 text-primary cursor-pointer w-fit text-sm ${tokensIn.length >= MAX_ZAP_IN_TOKENS ? "opacity-50" : ""
+              }`}
             onClick={() =>
               tokensIn.length < MAX_ZAP_IN_TOKENS && onOpenTokenSelectModal()
             }
@@ -560,24 +558,24 @@ export default function Content({
             onClick={hanldeClick}
             style={
               !disabled &&
-              Object.values(approvalStates).some(
-                (item) => item !== APPROVAL_STATE.NOT_APPROVED,
-              )
+                Object.values(approvalStates).some(
+                  (item) => item !== APPROVAL_STATE.NOT_APPROVED,
+                )
                 ? {
-                    background:
-                      pi.piVeryHigh && degenMode
-                        ? theme.error
-                        : pi.piHigh
-                          ? theme.warning
-                          : undefined,
-                    border:
-                      pi.piVeryHigh && degenMode
-                        ? `1px solid ${theme.error}`
-                        : pi.piHigh
-                          ? theme.warning
-                          : undefined,
-                    color: pi.piVeryHigh && degenMode ? "fff" : undefined,
-                  }
+                  background:
+                    pi.piVeryHigh && degenMode
+                      ? theme.error
+                      : pi.piHigh
+                        ? theme.warning
+                        : undefined,
+                  border:
+                    pi.piVeryHigh && degenMode
+                      ? `1px solid ${theme.error}`
+                      : pi.piHigh
+                        ? theme.warning
+                        : undefined,
+                  color: pi.piVeryHigh && degenMode ? "fff" : undefined,
+                }
                 : {}
             }
           >
