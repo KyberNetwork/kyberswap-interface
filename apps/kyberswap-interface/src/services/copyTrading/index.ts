@@ -112,6 +112,7 @@ const leaderboardSortMap: Record<LeaderboardSortBy, string> = {
   volume_usd: 'LEADERBOARD_SORT_FIELD_LIFETIME_VOLUME',
   copiers: 'LEADERBOARD_SORT_FIELD_COPIERS',
   aum_usd: 'LEADERBOARD_SORT_FIELD_AUM',
+  open_positions: 'LEADERBOARD_SORT_FIELD_OPEN_POSITIONS',
 }
 
 const positionSortMap: Record<PositionSortBy, string> = {

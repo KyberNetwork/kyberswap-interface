@@ -1,4 +1,12 @@
-import type { AgentCard, AgentProfile, CopyRunStatus, DecimalString, StrategyKey } from 'services/copyTrading/types'
+import type {
+  ActivityRow,
+  AgentCard,
+  AgentProfile,
+  AgentSnapshot,
+  DecimalString,
+  StrategyCategory,
+  StrategyKey,
+} from 'services/copyTrading/types'
 
 export const compactUsd = (value?: DecimalString) => {
   if (value === undefined) return '—'
@@ -36,6 +44,38 @@ export const strategyLabel = (strategy: StrategyKey) =>
     ? 'Focused'
     : 'Unknown'
 
-export const getAgentDisplayName = (agent?: AgentCard | AgentProfile) => agent?.displayName || 'Unknown Agent'
+export const strategyCategoryKey = (category: StrategyCategory): StrategyKey =>
+  category === 'STRATEGY_CATEGORY_ACTIVE'
+    ? 'active'
+    : category === 'STRATEGY_CATEGORY_DIVERSIFIED'
+    ? 'diversified'
+    : category === 'STRATEGY_CATEGORY_FOCUSED'
+    ? 'focused'
+    : 'unknown'
 
-export const isCopyRunClosed = (status: CopyRunStatus) => status === 'closed' || status === 'stopped'
+export const getAgentDisplayName = (agent?: AgentCard | AgentProfile | AgentSnapshot) =>
+  agent?.displayName || 'Unknown Agent'
+
+export const getActivityLabel = (activity: Pick<ActivityRow, 'activityType' | 'position'>) => {
+  if (activity.position?.actionType?.toLowerCase() === 'sell_unaligned') return 'Owner Sell'
+
+  switch (activity.activityType) {
+    case 'copy_started':
+      return 'Start Copy'
+    case 'copy_stopped':
+      return 'Stop Copy'
+    case 'capital_deposited':
+      return 'Deposit'
+    case 'capital_topped_up':
+      return 'Add Capital'
+    case 'capital_withdrawn':
+      return 'Withdraw Quote'
+    case 'capital_returned':
+      return 'Returned Capital'
+    default:
+      return activity.activityType
+        .split('_')
+        .map(part => part.charAt(0).toUpperCase() + part.slice(1))
+        .join(' ')
+  }
+}

@@ -34,21 +34,25 @@ export const LeaderboardSummary = ({ summary, fallbackAgentCount }: LeaderboardS
       label: 'Total Agents',
       value: summary?.totalAgents ?? (fallbackAgentCount === undefined ? '—' : String(fallbackAgentCount)),
       icon: copyTradingStatIconMap.agents,
+      status: summary?.metrics.agentCount?.status,
     },
     {
       label: 'Total AUM',
       value: compactUsd(summary?.totalAumUsd),
       icon: copyTradingStatIconMap.money,
+      status: summary?.metrics.totalAumUsd?.status,
     },
     {
       label: 'Total Copiers',
       value: summary?.totalCopiers || '—',
       icon: copyTradingStatIconMap.users,
+      status: summary?.metrics.totalCopierCount?.status,
     },
     {
       label: 'Total Volume',
       value: compactUsd(summary?.totalVolumeUsd),
       icon: copyTradingStatIconMap.volume,
+      status: summary?.metrics.lifetimeVolumeUsd?.status,
     },
   ]
 

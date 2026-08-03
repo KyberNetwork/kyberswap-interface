@@ -10,7 +10,6 @@ import {
   toPerformanceChartPoint,
 } from 'pages/CopyTrading/components/PerformanceCharts'
 import { useCopyTradingContext } from 'pages/CopyTrading/context'
-import { isCopyRunClosed } from 'pages/CopyTrading/helpers'
 
 type CopyRunPerformanceProps = {
   copyRunId: string
@@ -20,9 +19,9 @@ type CopyRunPerformanceProps = {
 const CopyRunPerformance = ({ copyRunId, status }: CopyRunPerformanceProps) => {
   const { ownerAddress } = useCopyTradingContext()
   const [window, setWindow] = useState<PerformanceWindow>('30d')
-  const isClosed = isCopyRunClosed(status)
+  const isClosed = status === 'closed'
   const performanceWindow = isClosed ? 'all' : window
-  const interval = isClosed ? 'month' : 'day'
+  const interval = performanceWindow === 'all' ? 'month' : 'day'
   const {
     data: portfolioPerformance,
     isError: isPortfolioError,

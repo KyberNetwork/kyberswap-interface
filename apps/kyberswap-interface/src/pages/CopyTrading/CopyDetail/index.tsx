@@ -1,6 +1,7 @@
 import { Navigate, useParams } from 'react-router-dom'
 import copyTradingApi from 'services/copyTrading'
 
+import LocalLoader from 'components/LocalLoader'
 import { Stack } from 'components/Stack'
 import { APP_PATHS } from 'constants/index'
 import CopyRunPerformance from 'pages/CopyTrading/CopyDetail/CopyRunPerformance'
@@ -11,9 +12,9 @@ import {
   CopyTimeline,
   OpenPositionsPanel,
 } from 'pages/CopyTrading/CopyDetail/components'
-import { AgentIdentity, CopyTradingPage } from 'pages/CopyTrading/components/common'
+import CopySmartWallet from 'pages/CopyTrading/CopySmartWallet'
+import { AgentIdentity, CopyTradingPage, OwnerWalletRequired } from 'pages/CopyTrading/components/common'
 import { useCopyTradingContext } from 'pages/CopyTrading/context'
-import { isCopyRunClosed } from 'pages/CopyTrading/helpers'
 
 const CopyDetailView = ({ backPath }: { backPath: 'my-copies' | 'history' }) => {
   const { copyId } = useParams()
@@ -33,30 +34,52 @@ const CopyDetailView = ({ backPath }: { backPath: 'my-copies' | 'history' }) => 
 
   const run = copyRun?.data
   const profile = agent?.data
+  const backLabel = backPath === 'history' ? 'History' : 'My Copies'
+
+  if (!ownerAddress) {
+    return (
+      <CopyTradingPage backTo={{ label: backLabel, to: `${APP_PATHS.COPY_TRADING}/${backPath}` }}>
+        <OwnerWalletRequired />
+      </CopyTradingPage>
+    )
+  }
 
   if ((!run || !profile) && (isFetching || isLoading || isUninitialized || isAgentFetching || isAgentLoading)) {
-    return null
+    return (
+      <CopyTradingPage>
+        <LocalLoader />
+      </CopyTradingPage>
+    )
   }
   if (!run || !profile) return <Navigate to={`${APP_PATHS.COPY_TRADING}/${backPath}`} replace />
 
-  const isClosed = isCopyRunClosed(run.status)
-  const backLabel = backPath === 'history' ? 'History' : 'My Copies'
+  const isClosed = run.status === 'closed'
+
+  if (isClosed && backPath === 'my-copies') {
+    return <Navigate to={`${APP_PATHS.COPY_TRADING}/history/${run.copyRunId}`} replace />
+  }
 
   return (
     <CopyTradingPage backTo={{ label: backLabel, to: `${APP_PATHS.COPY_TRADING}/${backPath}` }}>
-      <AgentIdentity agent={profile} />
+      <AgentIdentity agent={profile} status={run.status} />
 
-      {!isClosed && <CopyRunStats run={run} />}
+      {run.status === 'stopped' ? (
+        <CopySmartWallet run={run} />
+      ) : (
+        <>
+          {!isClosed && <CopyRunStats run={run} />}
 
-      <div className="grid grid-cols-[minmax(0,1fr)_340px] gap-4 max-xl:grid-cols-1">
-        <Stack className="min-w-0 gap-4">
-          {isClosed ? <CopyTimeline run={run} /> : <OpenPositionsPanel run={run} />}
-          <CopyRunPerformance copyRunId={run.copyRunId} status={run.status} />
-        </Stack>
-        <CopySidePanel agent={profile} run={run} />
-      </div>
+          <div className="grid grid-cols-[minmax(0,1fr)_340px] gap-4 max-xl:grid-cols-1">
+            <Stack className="min-w-0 gap-4">
+              {isClosed ? <CopyTimeline run={run} /> : <OpenPositionsPanel run={run} />}
+              <CopyRunPerformance copyRunId={run.copyRunId} status={run.status} />
+            </Stack>
+            <CopySidePanel agent={profile} run={run} />
+          </div>
 
-      {isClosed && <ClosedPositionsPanel run={run} />}
+          {isClosed && <ClosedPositionsPanel run={run} />}
+        </>
+      )}
     </CopyTradingPage>
   )
 }
