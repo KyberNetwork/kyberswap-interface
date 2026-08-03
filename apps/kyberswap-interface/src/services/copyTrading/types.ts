@@ -46,6 +46,11 @@ export type PositionActionKind =
   | 'POSITION_ACTION_KIND_MANUAL_SELL'
   | 'POSITION_ACTION_KIND_CLOSE_POSITION'
 
+export type PositionExitKind =
+  | 'POSITION_EXIT_KIND_UNSPECIFIED'
+  | 'POSITION_EXIT_KIND_ALIGNED'
+  | 'POSITION_EXIT_KIND_MANUAL'
+
 export type StrategyCategory =
   | 'STRATEGY_CATEGORY_UNSPECIFIED'
   | 'STRATEGY_CATEGORY_FOCUSED'
@@ -107,6 +112,8 @@ export type SortOrder = 'desc' | 'asc'
 export type PositionStatus = 'open' | 'closed' | 'unknown'
 export type PositionStatusFilter = 'all' | Exclude<PositionStatus, 'unknown'> | 'leftover'
 export type AgentPositionStatusFilter = Exclude<PositionStatusFilter, 'leftover'>
+export type PositionLifecycle = 'active' | 'closing' | 'closed' | 'unknown'
+export type PositionQuantityState = 'open_full' | 'open_partial' | 'closed' | 'unknown'
 export type CopyRunView = 'open' | 'history'
 export type CopyRunStatus = 'active' | 'closing' | 'closed' | 'stopped' | 'unknown'
 export type CopyAccountStatus = 'active' | 'closed' | 'closing' | 'stopped' | 'unknown'
@@ -133,7 +140,7 @@ export type ActivityType =
   | 'position_reduced'
 
 export type ActivityTypeFilter = 'all' | ActivityType
-export type LeaderboardSortBy = 'apr_30d_pct' | 'win_rate_pct' | 'volume_usd' | 'aum_usd' | 'copiers'
+export type LeaderboardSortBy = 'apr_30d_pct' | 'win_rate_pct' | 'volume_usd' | 'aum_usd' | 'copiers' | 'open_positions'
 export type PositionSortBy = 'opened_at' | 'closed_at' | 'value_usd'
 
 export type Chain = {
@@ -289,7 +296,7 @@ export type PositionSummary = {
   tradeId: string
   token: Token
   status: LooseString<PositionStatus>
-  trackingStatus?: string
+  lifecycle: PositionLifecycle
   amountRaw: DecimalString
   amountDecimal?: DecimalString
   remainingBaseRaw?: string
@@ -315,8 +322,8 @@ export type PositionSummary = {
   netFeeCostUsd?: DecimalString
   estimatedCashbackUsd?: DecimalString
   metrics: PositionMetrics
-  quantityState?: string
-  exitKind?: string
+  quantityState: PositionQuantityState
+  exitKind?: PositionExitKind
   actionKind?: PositionActionKind
   availableActionKinds: PositionActionKind[]
   isLeftover?: boolean
@@ -327,6 +334,74 @@ export type PositionSummary = {
   durationAsOf?: Timestamp
   openedAt: Timestamp
   closedAt?: Timestamp
+}
+
+export type CopyLifecycleActivityDetail = {
+  eventId?: string
+  eventType?: string
+  beforeStatus?: string
+  afterStatus?: string
+}
+
+export type PositionActivityDetail = {
+  eventId?: string
+  actionType?: string
+  baseTokenAddress?: Address
+  quoteTokenAddress?: Address
+  baseAmountRaw?: string
+  quoteAmountRaw?: string
+  accountingStatus?: string
+  grossBaseSoldRaw?: string
+  grossQuoteReceivedRaw?: string
+  baseToken?: Token
+  quoteToken?: Token
+  grossBaseBoughtRaw?: string
+  upfrontFeeCapturedBaseRaw?: string
+  upfrontFeeReleasedBaseRaw?: string
+  netBaseReceivedRaw?: string
+  netBaseSoldRaw?: string
+  displayBaseRaw?: string
+  settlementValueUsd?: Metric
+  realizedPnlUsd?: Metric
+  flatFeeCapturedUsd?: Metric
+  cashbackReceivedUsd?: Metric
+}
+
+export type CapitalActivityDetail = {
+  movementType?: string
+  amountRaw?: string
+  tokenAddress?: Address
+  token?: Token
+  valueUsd?: Metric
+}
+
+export type FeeActivityDetail = {
+  amountRaw?: string
+  tokenAddress?: Address
+  token?: Token
+  valueUsd?: Metric
+}
+
+export type ExecutionActivityDetail = {
+  executionKind?: string
+  eventSeq?: string
+  eventType?: string
+  actionKind?: string
+  copyJobId?: string
+  exitActionId?: string
+  executionId?: string
+  copyJobAction?: string
+  copyJobStatus?: string
+  actionStatus?: string
+  executionStatus?: string
+  publicErrorCode?: string
+  publicErrorMessage?: string
+  configIndex?: number
+  minBaseTokenRateRaw?: string
+  configDeadlineRaw?: string
+  token?: Token
+  displayAmountRaw?: string
+  valueUsd?: Metric
 }
 
 export type PositionEvent = {
@@ -460,11 +535,11 @@ export type ActivityRow = {
   txHash?: string
   agentDisplayName?: string
   agentAvatarUrl?: string
-  copyLifecycle?: Record<string, unknown>
-  position?: Record<string, unknown>
-  capital?: Record<string, unknown>
-  fee?: Record<string, unknown>
-  execution?: Record<string, unknown>
+  copyLifecycle?: CopyLifecycleActivityDetail
+  position?: PositionActivityDetail
+  capital?: CapitalActivityDetail
+  fee?: FeeActivityDetail
+  execution?: ExecutionActivityDetail
 }
 
 export type WalletBalanceRow = {
@@ -665,6 +740,12 @@ export type PendingSellObligationsResponse = CursorResponse<PendingSellObligatio
 
 export type RawAmountMetric = Pick<Metric, 'valueRaw' | 'status' | 'asOf'>
 
+export type SwapQuotePreview = {
+  expectedQuote?: RawAmountMetric
+  minimumQuote?: RawAmountMetric
+  effectiveSlippageBps?: number
+}
+
 export type PreparedToken = {
   chainId?: string
   address?: Address
@@ -797,7 +878,7 @@ export type AddCapitalPreview = {
   newAllocatedCapital?: RawAmountMetric
 }
 
-export type PositionLifecycle =
+export type PreparedPositionLifecycle =
   | 'POSITION_LIFECYCLE_UNSPECIFIED'
   | 'POSITION_LIFECYCLE_ACTIVE'
   | 'POSITION_LIFECYCLE_CLOSING'
@@ -810,8 +891,9 @@ export type StopPositionPreview = {
   userBaseRaw?: string
   cashback?: RawAmountMetric
   currentValuation?: PositionValuation
-  lifecycle?: PositionLifecycle
+  lifecycle?: PreparedPositionLifecycle
   unrealizedPnlUsd?: Metric
+  swapQuote?: SwapQuotePreview
 }
 
 export type StopCopyPreview = {
@@ -819,6 +901,7 @@ export type StopCopyPreview = {
   totalCurrentValueUsd?: Metric
   totalCashback?: RawAmountMetric
   quoteToken?: PreparedToken
+  totalSwapQuote?: SwapQuotePreview
 }
 
 export type WithdrawQuotePreview = {
@@ -845,12 +928,14 @@ export type PositionSellPreview = {
   sellRatioRaw?: string
   unresolvedSkipCount?: number
   cashback?: RawAmountMetric
+  swapQuote?: SwapQuotePreview
 }
 
 export type PreparedAction = {
   status?: PreparedActionStatus
   chainId?: string
   expectedAccount?: Address
+  copyAccount?: Address
   preparedAt?: Timestamp
   reprepareAfter?: Timestamp
   liquidationConfigDeadline?: Timestamp

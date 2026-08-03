@@ -4,9 +4,9 @@ import copyTradingApi from 'services/copyTrading'
 import type { AgentCard, CopyRunSummary, LeaderboardSortBy, SortOrder } from 'services/copyTrading/types'
 
 import { ButtonPrimary } from 'components/Button'
-import Pagination from 'components/Pagination'
 import { Stack } from 'components/Stack'
 import { APP_PATHS } from 'constants/index'
+import InfiniteScroll, { type InfiniteScrollState } from 'pages/CopyTrading/components/InfiniteScroll'
 import { HeaderCell, TableBody, TableCell, TableHeader, TableRow } from 'pages/CopyTrading/components/Table'
 import { AgentCell } from 'pages/CopyTrading/components/common'
 import { copyTradingStatIconMap } from 'pages/CopyTrading/constants'
@@ -25,7 +25,7 @@ const LeaderboardGrid = ({ header, className, ...props }: LeaderboardGridProps) 
   return (
     <Grid
       className={cn(
-        'grid-cols-[minmax(0,2.2fr)_minmax(0,0.9fr)_minmax(0,0.85fr)_minmax(0,0.85fr)_minmax(0,0.75fr)_minmax(0,0.85fr)_minmax(0,0.75fr)_minmax(0,0.8fr)]',
+        'min-w-[1024px] grid-cols-[minmax(0,2.2fr)_minmax(0,0.9fr)_minmax(0,0.85fr)_minmax(0,0.85fr)_minmax(0,0.75fr)_minmax(0,0.85fr)_minmax(0,0.75fr)_minmax(0,0.8fr)]',
         className,
       )}
       {...props}
@@ -35,19 +35,14 @@ const LeaderboardGrid = ({ header, className, ...props }: LeaderboardGridProps) 
 
 type AgentTableProps = {
   agents: AgentCard[]
+  infiniteScroll: InfiniteScrollState
   loading?: boolean
   sortBy?: LeaderboardSortBy
   sortOrder?: SortOrder
   onSortChange: (sortBy: LeaderboardSortBy) => void
-  pagination: {
-    totalCount: number
-    currentPage: number
-    pageSize: number
-    onPageChange: (page: number) => void
-  }
 }
 
-const AgentTable = ({ agents, loading, sortBy, sortOrder, onSortChange, pagination }: AgentTableProps) => {
+const AgentTable = ({ agents, infiniteScroll, loading, sortBy, sortOrder, onSortChange }: AgentTableProps) => {
   const navigate = useNavigate()
   const { ownerAddress } = useCopyTradingContext()
   const { openSubscribe } = useCopyTradeWrite()
@@ -76,112 +71,108 @@ const AgentTable = ({ agents, loading, sortBy, sortOrder, onSortChange, paginati
 
   return (
     <Stack className="overflow-hidden rounded-xl bg-buttonBlack-60">
-      <LeaderboardGrid header>
-        <HeaderCell>Agent</HeaderCell>
-        <HeaderCell
-          activeSortBy={sortBy}
-          className="justify-end text-right"
-          onSortChange={onSortChange}
-          sortField="apr_30d_pct"
-          sortOrder={sortOrder}
-        >
-          Agent APR <span className="rounded-md bg-background px-2 py-1">30D</span>
-        </HeaderCell>
-        <HeaderCell
-          activeSortBy={sortBy}
-          className="justify-end text-right"
-          onSortChange={onSortChange}
-          sortField="win_rate_pct"
-          sortOrder={sortOrder}
-        >
-          Win Rates
-        </HeaderCell>
-        <HeaderCell
-          activeSortBy={sortBy}
-          className="justify-end text-right"
-          onSortChange={onSortChange}
-          sortField="volume_usd"
-          sortOrder={sortOrder}
-        >
-          Volume
-        </HeaderCell>
-        <HeaderCell
-          activeSortBy={sortBy}
-          className="justify-end text-right"
-          onSortChange={onSortChange}
-          sortField="copiers"
-          sortOrder={sortOrder}
-        >
-          Copiers
-        </HeaderCell>
-        <HeaderCell
-          activeSortBy={sortBy}
-          className="justify-end text-right"
-          onSortChange={onSortChange}
-          sortField="aum_usd"
-          sortOrder={sortOrder}
-        >
-          AUM
-        </HeaderCell>
-        <HeaderCell
-          activeSortBy={sortBy}
-          className="justify-end text-right"
-          onSortChange={onSortChange}
-          sortOrder={sortOrder}
-        >
-          Position
-        </HeaderCell>
-        <TableCell />
-      </LeaderboardGrid>
+      <InfiniteScroll {...infiniteScroll}>
+        <LeaderboardGrid header className="sticky top-0 z-[1]">
+          <HeaderCell>Agent</HeaderCell>
+          <HeaderCell
+            activeSortBy={sortBy}
+            className="justify-end text-right"
+            onSortChange={onSortChange}
+            sortField="apr_30d_pct"
+            sortOrder={sortOrder}
+          >
+            Agent APR <span className="rounded-md bg-background px-2 py-1">30D</span>
+          </HeaderCell>
+          <HeaderCell
+            activeSortBy={sortBy}
+            className="justify-end text-right"
+            onSortChange={onSortChange}
+            sortField="win_rate_pct"
+            sortOrder={sortOrder}
+          >
+            Win Rates
+          </HeaderCell>
+          <HeaderCell
+            activeSortBy={sortBy}
+            className="justify-end text-right"
+            onSortChange={onSortChange}
+            sortField="volume_usd"
+            sortOrder={sortOrder}
+          >
+            Volume
+          </HeaderCell>
+          <HeaderCell
+            activeSortBy={sortBy}
+            className="justify-end text-right"
+            onSortChange={onSortChange}
+            sortField="copiers"
+            sortOrder={sortOrder}
+          >
+            Copiers
+          </HeaderCell>
+          <HeaderCell
+            activeSortBy={sortBy}
+            className="justify-end text-right"
+            onSortChange={onSortChange}
+            sortField="aum_usd"
+            sortOrder={sortOrder}
+          >
+            AUM
+          </HeaderCell>
+          <HeaderCell
+            activeSortBy={sortBy}
+            className="justify-end text-right"
+            onSortChange={onSortChange}
+            sortField="open_positions"
+            sortOrder={sortOrder}
+          >
+            Position
+          </HeaderCell>
+          <TableCell />
+        </LeaderboardGrid>
 
-      <TableBody
-        empty={!agents.length}
-        emptyIconUrl={copyTradingStatIconMap.agents.iconUrl}
-        emptyMessage="No agents found"
-        loading={loading}
-      >
-        {agents.map(agent => {
-          const copiedRun = copiedRunsByAgentId?.[agent.agentId]
+        <TableBody
+          className="min-w-[1024px]"
+          empty={!agents.length}
+          emptyIconUrl={copyTradingStatIconMap.agents.iconUrl}
+          emptyMessage="No agents found"
+          loading={loading}
+        >
+          {agents.map(agent => {
+            const copiedRun = copiedRunsByAgentId?.[agent.agentId]
 
-          return (
-            <LeaderboardGrid
-              key={agent.agentId}
-              role="button"
-              onClick={event => {
-                if ((event.target as HTMLElement).closest('button')) return
-                openAgent(agent.agentId)
-              }}
-            >
-              <AgentCell agent={agent} className="px-3 py-2" />
-              <TableCell className="text-right text-primary">{percent(agent.stats.apr30dPct)}</TableCell>
-              <TableCell className="text-right">{percent(agent.stats.winRatePct)}</TableCell>
-              <TableCell className="text-right">{compactUsd(agent.stats.volumeUsd)}</TableCell>
-              <TableCell className="text-right">{agent.stats.copiers?.toLocaleString() || '—'}</TableCell>
-              <TableCell className="text-right">{compactUsd(agent.stats.aumUsd)}</TableCell>
-              <TableCell className="text-right">{agent.stats.openPositions || '—'}</TableCell>
-              <TableCell className="flex justify-center">
-                {copiedRun ? (
-                  <span className="text-sm font-medium text-primary">Copied</span>
-                ) : (
-                  <div>
-                    <ButtonPrimary type="button" padding="6px 12px" onClick={() => openSubscribe(agent)}>
-                      Copy
-                    </ButtonPrimary>
-                  </div>
-                )}
-              </TableCell>
-            </LeaderboardGrid>
-          )
-        })}
-      </TableBody>
-
-      <Pagination
-        className="bg-buttonGray/40"
-        currentPage={pagination.currentPage}
-        onPageChange={pagination.onPageChange}
-        pageSize={pagination.pageSize}
-        totalCount={pagination.totalCount}
-      />
+            return (
+              <LeaderboardGrid
+                key={agent.agentId}
+                role="button"
+                onClick={event => {
+                  if ((event.target as HTMLElement).closest('button')) return
+                  openAgent(agent.agentId)
+                }}
+              >
+                <AgentCell agent={agent} className="px-3 py-2" />
+                <TableCell className="text-right text-primary">{percent(agent.stats.apr30dPct)}</TableCell>
+                <TableCell className="text-right">{percent(agent.stats.winRatePct)}</TableCell>
+                <TableCell className="text-right">{compactUsd(agent.stats.volumeUsd)}</TableCell>
+                <TableCell className="text-right">{agent.stats.copiers?.toLocaleString() || '—'}</TableCell>
+                <TableCell className="text-right">{compactUsd(agent.stats.aumUsd)}</TableCell>
+                <TableCell className="text-right">{agent.stats.openPositions || '—'}</TableCell>
+                <TableCell className="flex justify-center">
+                  {copiedRun ? (
+                    <span className="text-sm font-medium text-primary">Copied</span>
+                  ) : (
+                    <div>
+                      <ButtonPrimary type="button" padding="6px 12px" onClick={() => openSubscribe(agent)}>
+                        Copy
+                      </ButtonPrimary>
+                    </div>
+                  )}
+                </TableCell>
+              </LeaderboardGrid>
+            )
+          })}
+        </TableBody>
+      </InfiniteScroll>
     </Stack>
   )
 }

@@ -2,6 +2,7 @@ import { type PropsWithChildren } from 'react'
 import { Navigate, useParams } from 'react-router-dom'
 import copyTradingApi from 'services/copyTrading'
 
+import LocalLoader from 'components/LocalLoader'
 import { HStack, Stack } from 'components/Stack'
 import { APP_PATHS } from 'constants/index'
 import useTab from 'hooks/useTab'
@@ -50,7 +51,7 @@ const Tabs = ({ activeTab, onTabChange, children }: AgentProfileTabsProps) => {
         </div>
       </HStack>
 
-      <div className="relative min-h-20 overflow-x-auto">{children}</div>
+      <div className="relative min-h-20">{children}</div>
     </Stack>
   )
 }
@@ -76,7 +77,13 @@ const AgentProfile = () => {
     queryKey: 'profileTab',
   })
 
-  if (!profile && (isAgentFetching || isAgentLoading || isAgentUninitialized)) return null
+  if (!profile && (isAgentFetching || isAgentLoading || isAgentUninitialized)) {
+    return (
+      <CopyTradingPage>
+        <LocalLoader />
+      </CopyTradingPage>
+    )
+  }
   if (!profile) return <Navigate to={APP_PATHS.COPY_TRADING} replace />
 
   const currentProfileTab = activeProfileTab || 'open-position'

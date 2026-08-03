@@ -1,6 +1,6 @@
 # Entities and Flows
 
-Lần cập nhật: 2026-07-31
+Lần cập nhật: 2026-08-03
 
 Tài liệu này là bản đọc nhanh để hiểu entity, lifecycle và user flow của Copy
 Trading. Chi tiết endpoint/schema nằm trong `FE_API_Catalog.md` và
@@ -30,16 +30,42 @@ Owner Wallet
 
 ### Copy Run và Copy Account
 
-| Status    | Ý nghĩa                                                                                |
-| --------- | -------------------------------------------------------------------------------------- |
-| `ACTIVE`  | Đang copy Agent. Có thể Add Capital hoặc Stop Copy nếu availability cho phép.          |
-| `CLOSING` | Stop hoặc position exit đang xử lý. Không gửi lại action cũ; chờ API hội tụ.           |
-| `STOPPED` | Generation đã ngừng copy nhưng có thể còn quote balance hoặc settlement chưa hoàn tất. |
-| `CLOSED`  | Run đã settle và hiện được API trả trong History.                                      |
+| Status    | Ý nghĩa                                                                                                  |
+| --------- | -------------------------------------------------------------------------------------------------------- |
+| `ACTIVE`  | Đang copy Agent. Có thể Add Capital hoặc Stop Copy nếu availability cho phép.                            |
+| `CLOSING` | Stop hoặc position exit đang xử lý. Không gửi lại action cũ; chờ API hội tụ.                             |
+| `STOPPED` | Generation đã ngừng copy. Run vẫn có thể còn position `ACTIVE`, `CLOSING` hoặc `LEFTOVER`.               |
+| `CLOSED`  | Lifecycle đã terminal. Live API hiện trả các run này trong History, nhưng view vẫn do server quyết định. |
 
-Live API từng trả `STOPPED` trong Open rồi sau đó trả cùng Copy Run dưới History
-với status `CLOSED`. Vì vậy frontend không tự đổi lifecycle hoặc chuyển row giữa
-Open và History; cả status và view đều do server quyết định.
+Status và Open/History là hai trục riêng. Contract hiện tại quy định:
+
+- Open chứa run `ACTIVE`/`CLOSING` và run đã stop nhưng vẫn còn position
+  `ACTIVE`, `CLOSING` hoặc `LEFTOVER`.
+- Khi authoritative projection không còn các position trên, server chuyển run
+  sang History ngay; không có time-based grace period.
+- Quote balance còn lại không giữ run trong Open. Run trong History vẫn có thể
+  advertise Withdraw Quote.
+- Frontend không tự filter, promote status hoặc chuyển row giữa hai view. Reorg
+  hay reactivation có thể khiến server đưa run trở lại Open.
+
+Trong route Open hiện tại, frontend dùng cùng `my-copies/:copyId` nhưng tách
+surface theo status của direct response:
+
+```text
+ACTIVE / CLOSING → Open Copy Detail
+STOPPED          → Copy Smart Wallet
+CLOSED           → redirect sang history/:copyId
+```
+
+Copy Smart Wallet đọc trực tiếp Copy Account overview, balances, open positions
+và account history. Đây là nơi hiển thị inventory/quote balance còn lại và các
+recovery action được API advertise. Quy tắc route này không định nghĩa
+membership của list Open/History.
+
+Màn History hiện chỉ có một bảng Copy History, dùng
+`copy-runs?view=OWNER_COPY_VIEW_HISTORY`. Summary và các row đều cùng scope
+terminal/history Copy Run. Endpoint owner-wide
+`positions?view=POSITION_VIEW_CLOSED` chưa có UI surface trên màn này.
 
 ### Position
 
@@ -68,10 +94,11 @@ Chọn Agent
 → Add Capital nếu cần
 → Agent execution có thể tạo follower Position
 → Stop Copy
-→ Copy Run/Position chuyển qua CLOSING hoặc STOPPED
-→ Chờ position exit và settlement
-→ Withdraw quote balance nếu prepare cho phép
-→ API trả Copy Run CLOSED trong History
+→ Copy Run CLOSING vẫn ở Open Copy Detail trong khi API hội tụ
+→ Copy Run STOPPED và còn active/closing/leftover position ở Copy Smart Wallet
+→ Withdraw/Manual Sell/Close Position chỉ khi API advertise và prepare cho phép
+→ Khi không còn active/closing/leftover position, server đưa run vào History
+→ Live API hiện trả run đó với status CLOSED
 ```
 
 ### Start Copy
@@ -135,7 +162,18 @@ Manual Sell và Close Position không phải nút bán tùy ý:
 Read availability dùng để enable UI. Kết quả prepare mới nhất mới là quyết định
 cuối cùng.
 
-## 5. Prepared-action flow
+## 5. Activity semantics
+
+- `position.actionType = sell_unaligned` là generic owner-directed exit và phải
+  hiển thị **Owner Sell**. Không suy luận thành Manual Sell hoặc Close Position
+  từ amount, remaining balance, lifecycle hay calldata.
+- Stop Copy là một lifecycle row không có token/amount/value. Các row
+  `EXIT_*`, `POSITION_REDUCED` và `POSITION_CLOSED` phía sau là những sự kiện
+  độc lập và giữ token/accounting của chính chúng.
+- Deposit, Add Capital, Withdraw Quote và Returned Capital phải dùng typed
+  activity/capital detail; summary chỉ là display text.
+
+## 6. Prepared-action flow
 
 Mọi write action dùng cùng safety boundary:
 
@@ -144,7 +182,7 @@ Read availability
 → Refresh direct entity/account/position
 → Gọi prepare endpoint
 → Kiểm tra status, reason, preview và exact call
-→ Validate account, chain, call kind, target, value và deadline
+→ Validate owner account, Smart Wallet, chain, call kind, target, value và deadline
 → Gửi call.to / call.data / call.valueRaw nguyên trạng
 → Đợi receipt thành công
 → Poll đến khi read model hội tụ
@@ -163,7 +201,17 @@ Không ABI-encode, rebuild hoặc chỉnh sửa calldata từ preview. Wallet Se
 authorize preparation cho Manual Sell/Close Position; nó không submit
 transaction.
 
-## 6. Implementation boundary
+`PreparedAction.copyAccount` là identity của Smart Wallet, không phải `call.to`.
+Với mọi action ngoài Start Copy, field này phải khớp Copy Account đang chọn;
+Start funding/completion phải khớp `startCopy.predictedCopyAccount`.
+
+Các swap preview của Stop Copy, Manual Sell và Close Position chỉ có hiệu lực
+trong preparation hiện tại. Render expected/minimum quote theo metric status và
+giữ `effectiveSlippageBps = 0` như một giá trị thật. Stop Copy total không có
+aggregate slippage; không average từ các position. Khi qua `reprepareAfter`, qua
+`liquidationConfigDeadline`, hoặc state liên quan đổi, bỏ preview và prepare lại.
+
+## 7. Implementation boundary
 
 Service đã khai báo đủ read và prepare API, nhưng write UI hiện tại vẫn là mock
 prototype và chưa gọi mutation hook thật. Không được bật real mode chỉ bằng cách

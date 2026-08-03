@@ -1,11 +1,11 @@
 import type { HTMLAttributes } from 'react'
-import { AlertCircle, AlertTriangle } from 'react-feather'
 import type { PositionActionKind, PositionSummary } from 'services/copyTrading/types'
 
 import { ButtonLight, ButtonPrimary } from 'components/Button'
-import Loader from 'components/Loader'
-import { HStack, Stack } from 'components/Stack'
+import { Stack } from 'components/Stack'
+import InfiniteScroll, { type InfiniteScrollState } from 'pages/CopyTrading/components/InfiniteScroll'
 import { HeaderCell, TableBody, TableCell, TableHeader, TableRow } from 'pages/CopyTrading/components/Table'
+import { PositionLifecycleBadge, ShortenedId } from 'pages/CopyTrading/components/common'
 import { copyTradingStatIconMap } from 'pages/CopyTrading/constants'
 import { formatDate, formatUsd, signedPercent, signedUsd } from 'pages/CopyTrading/helpers'
 import { useCopyTradeWrite } from 'pages/CopyTrading/write/WriteContext'
@@ -46,6 +46,7 @@ const CopyPositionsGrid = ({ header, className, ...props }: TableGridWrapperProp
 }
 
 type PositionTableProps = {
+  infiniteScroll: InfiniteScrollState
   loading?: boolean
   rows: PositionSummary[]
 }
@@ -71,40 +72,6 @@ const formatDuration = (durationSeconds?: string, openedAt?: string, closedAt?: 
   const minutes = totalMinutes % 60
 
   return hours ? `${hours}h ${minutes}m` : `${minutes}m`
-}
-
-const PositionStatus = ({ status }: { status?: string }) => {
-  const normalizedStatus = status?.toLowerCase() || 'active'
-
-  if (normalizedStatus.includes('closing')) {
-    return (
-      <HStack className="w-fit items-center gap-1.5 whitespace-nowrap rounded-full bg-blue/10 px-2.5 py-1 text-xs font-medium text-blue">
-        <Loader size="12px" />
-        <span>{status}</span>
-      </HStack>
-    )
-  }
-
-  if (normalizedStatus.includes('skipped')) {
-    const repeated = Number.parseInt(normalizedStatus, 10) > 1
-    const StatusIcon = repeated ? AlertCircle : AlertTriangle
-
-    return (
-      <HStack
-        className={cn(
-          'w-fit items-center gap-1 whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-medium',
-          repeated ? 'bg-red-20 text-red' : 'bg-warning-20 text-warning',
-        )}
-      >
-        <StatusIcon size={12} />
-        <span>{status}</span>
-      </HStack>
-    )
-  }
-
-  return (
-    <span className="inline-flex rounded-full bg-primary-12 px-4 py-1 text-xs font-medium text-primary">Active</span>
-  )
 }
 
 const actionLabels: Partial<Record<PositionActionKind, string>> = {
@@ -139,101 +106,111 @@ const PositionAction = ({ position }: { position: PositionSummary }) => {
   )
 }
 
-export const TradeHistoryTable = ({ loading, rows }: PositionTableProps) => (
+export const TradeHistoryTable = ({ infiniteScroll, loading, rows }: PositionTableProps) => (
   <Stack>
-    <TradeHistoryGrid header>
-      <HeaderCell>Trade ID</HeaderCell>
-      <HeaderCell>Token</HeaderCell>
-      <HeaderCell>Entry Price</HeaderCell>
-      <HeaderCell>Exit</HeaderCell>
-      <HeaderCell>P&amp;L</HeaderCell>
-      <HeaderCell>Fee</HeaderCell>
-      <HeaderCell>Rebate</HeaderCell>
-      <HeaderCell>Net Cost</HeaderCell>
-      <HeaderCell>Opened</HeaderCell>
-      <HeaderCell>Closed</HeaderCell>
-      <HeaderCell>Duration</HeaderCell>
-    </TradeHistoryGrid>
-    <TableBody
-      empty={!rows.length}
-      emptyIconUrl={copyTradingStatIconMap.positionClose.iconUrl}
-      emptyMessage="No closed positions found"
-      loading={loading}
-    >
-      {rows.map(row => {
-        const isNegative = Number(row.realizedPnlUsd || 0) < 0
+    <InfiniteScroll {...infiniteScroll}>
+      <TradeHistoryGrid header className="sticky top-0 z-[1]">
+        <HeaderCell>Trade ID</HeaderCell>
+        <HeaderCell>Token</HeaderCell>
+        <HeaderCell>Entry Price</HeaderCell>
+        <HeaderCell>Exit</HeaderCell>
+        <HeaderCell>P&amp;L</HeaderCell>
+        <HeaderCell>Fee</HeaderCell>
+        <HeaderCell>Rebate</HeaderCell>
+        <HeaderCell>Net Cost</HeaderCell>
+        <HeaderCell>Opened</HeaderCell>
+        <HeaderCell>Closed</HeaderCell>
+        <HeaderCell>Duration</HeaderCell>
+      </TradeHistoryGrid>
+      <TableBody
+        className="min-w-[1320px]"
+        empty={!rows.length}
+        emptyIconUrl={copyTradingStatIconMap.positionClose.iconUrl}
+        emptyMessage="No closed positions found"
+        loading={loading}
+      >
+        {rows.map(row => {
+          const isNegative = Number(row.realizedPnlUsd || 0) < 0
 
-        return (
-          <TradeHistoryGrid key={row.positionId}>
-            <TableCell className="text-subText">{row.tradeId}</TableCell>
-            <TableCell>{row.token.symbol || '—'}</TableCell>
-            <TableCell>{formatUsd(row.entryPriceUsd)}</TableCell>
-            <TableCell>{formatUsd(row.exitPriceUsd || row.currentPriceUsd)}</TableCell>
-            <TableCell className={cn(isNegative ? 'text-red' : 'text-primary')}>
-              {signedUsd(row.realizedPnlUsd)}
-            </TableCell>
-            <TableCell>{formatUsd(row.flatFeeCapturedUsd)}</TableCell>
-            <TableCell>{formatUsd(row.cashbackReceivedUsd)}</TableCell>
-            <TableCell>{formatUsd(row.netFeeCostUsd)}</TableCell>
-            <TableCell className="text-subText">{formatDate(row.openedAt)}</TableCell>
-            <TableCell className="text-subText">{formatDate(row.closedAt)}</TableCell>
-            <TableCell className="text-subText">
-              {formatDuration(row.durationSeconds, row.openedAt, row.closedAt)}
-            </TableCell>
-          </TradeHistoryGrid>
-        )
-      })}
-    </TableBody>
+          return (
+            <TradeHistoryGrid key={row.positionId}>
+              <TableCell className="text-subText">
+                <ShortenedId value={row.tradeId} />
+              </TableCell>
+              <TableCell>{row.token.symbol || '—'}</TableCell>
+              <TableCell>{formatUsd(row.entryPriceUsd)}</TableCell>
+              <TableCell>{formatUsd(row.exitPriceUsd || row.currentPriceUsd)}</TableCell>
+              <TableCell className={cn(isNegative ? 'text-red' : 'text-primary')}>
+                {signedUsd(row.realizedPnlUsd)}
+              </TableCell>
+              <TableCell>{formatUsd(row.flatFeeCapturedUsd)}</TableCell>
+              <TableCell>{formatUsd(row.cashbackReceivedUsd)}</TableCell>
+              <TableCell>{formatUsd(row.netFeeCostUsd)}</TableCell>
+              <TableCell className="text-subText">{formatDate(row.openedAt)}</TableCell>
+              <TableCell className="text-subText">{formatDate(row.closedAt)}</TableCell>
+              <TableCell className="text-subText">
+                {formatDuration(row.durationSeconds, row.openedAt, row.closedAt)}
+              </TableCell>
+            </TradeHistoryGrid>
+          )
+        })}
+      </TableBody>
+    </InfiniteScroll>
   </Stack>
 )
 
-export const CopyPositionsTable = ({ loading, rows }: PositionTableProps) => (
+export const CopyPositionsTable = ({ infiniteScroll, loading, rows }: PositionTableProps) => (
   <Stack>
-    <CopyPositionsGrid header>
-      <HeaderCell>Trade ID</HeaderCell>
-      <HeaderCell>Token</HeaderCell>
-      <HeaderCell>Entry Price</HeaderCell>
-      <HeaderCell>Current</HeaderCell>
-      <HeaderCell>Value</HeaderCell>
-      <HeaderCell>Unrealised P&amp;L</HeaderCell>
-      <HeaderCell>Est. Rebate</HeaderCell>
-      <HeaderCell>Open Since</HeaderCell>
-      <HeaderCell>Status</HeaderCell>
-      <HeaderCell>Action</HeaderCell>
-    </CopyPositionsGrid>
-    <TableBody
-      empty={!rows.length}
-      emptyIconUrl={copyTradingStatIconMap.positionOpen.iconUrl}
-      emptyMessage="No open positions found"
-      loading={loading}
-    >
-      {rows.map(row => {
-        const isNegative = Number(row.unrealizedPnlUsd || 0) < 0
+    <InfiniteScroll {...infiniteScroll}>
+      <CopyPositionsGrid header className="sticky top-0 z-[1]">
+        <HeaderCell>Trade ID</HeaderCell>
+        <HeaderCell>Token</HeaderCell>
+        <HeaderCell>Entry Price</HeaderCell>
+        <HeaderCell>Current</HeaderCell>
+        <HeaderCell>Value</HeaderCell>
+        <HeaderCell>Unrealised P&amp;L</HeaderCell>
+        <HeaderCell>Est. Rebate</HeaderCell>
+        <HeaderCell>Open Since</HeaderCell>
+        <HeaderCell>Status</HeaderCell>
+        <HeaderCell>Action</HeaderCell>
+      </CopyPositionsGrid>
+      <TableBody
+        className="min-w-[1120px]"
+        empty={!rows.length}
+        emptyIconUrl={copyTradingStatIconMap.positionOpen.iconUrl}
+        emptyMessage="No open positions found"
+        loading={loading}
+      >
+        {rows.map(row => {
+          const isNegative = Number(row.unrealizedPnlUsd || 0) < 0
 
-        return (
-          <CopyPositionsGrid key={row.positionId}>
-            <TableCell className="text-subText">{row.tradeId}</TableCell>
-            <TableCell>{row.token.symbol || '—'}</TableCell>
-            <TableCell>{formatUsd(row.entryPriceUsd)}</TableCell>
-            <TableCell>{formatUsd(row.currentPriceUsd)}</TableCell>
-            <TableCell>{formatUsd(row.valueUsd)}</TableCell>
-            <TableCell className={cn(isNegative ? 'text-red' : 'text-primary')}>
-              <Stack className="gap-0.5">
-                <span>{signedUsd(row.unrealizedPnlUsd)}</span>
-                <span className="text-xs">{signedPercent(row.unrealizedPnlPct)}</span>
-              </Stack>
-            </TableCell>
-            <TableCell className="text-warning">~{formatUsd(row.estimatedCashbackUsd)}</TableCell>
-            <TableCell className="text-subText">{formatDate(row.openedAt)}</TableCell>
-            <TableCell>
-              <PositionStatus status={row.trackingStatus} />
-            </TableCell>
-            <TableCell>
-              <PositionAction position={row} />
-            </TableCell>
-          </CopyPositionsGrid>
-        )
-      })}
-    </TableBody>
+          return (
+            <CopyPositionsGrid key={row.positionId}>
+              <TableCell className="text-subText">
+                <ShortenedId value={row.tradeId} />
+              </TableCell>
+              <TableCell>{row.token.symbol || '—'}</TableCell>
+              <TableCell>{formatUsd(row.entryPriceUsd)}</TableCell>
+              <TableCell>{formatUsd(row.currentPriceUsd)}</TableCell>
+              <TableCell>{formatUsd(row.valueUsd)}</TableCell>
+              <TableCell className={cn(isNegative ? 'text-red' : 'text-primary')}>
+                <Stack className="gap-0.5">
+                  <span>{signedUsd(row.unrealizedPnlUsd)}</span>
+                  <span className="text-xs">{signedPercent(row.unrealizedPnlPct)}</span>
+                </Stack>
+              </TableCell>
+              <TableCell className="text-warning">~{formatUsd(row.estimatedCashbackUsd)}</TableCell>
+              <TableCell className="text-subText">{formatDate(row.openedAt)}</TableCell>
+              <TableCell>
+                <PositionLifecycleBadge lifecycle={row.lifecycle} quantityState={row.quantityState} />
+              </TableCell>
+              <TableCell>
+                <PositionAction position={row} />
+              </TableCell>
+            </CopyPositionsGrid>
+          )
+        })}
+      </TableBody>
+    </InfiniteScroll>
   </Stack>
 )

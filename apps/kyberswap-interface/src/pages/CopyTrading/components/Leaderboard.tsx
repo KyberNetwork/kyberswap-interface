@@ -1,4 +1,5 @@
 import { type CSSProperties } from 'react'
+import type { MetricStatus } from 'services/copyTrading/types'
 
 import { Center, HStack, Stack } from 'components/Stack'
 import { type StatIcon } from 'pages/CopyTrading/constants'
@@ -10,6 +11,7 @@ export type LeaderboardStat = {
   label: string
   value: string
   icon: StatIcon
+  status?: MetricStatus
 }
 
 const getMinCardWidth = (size: LeaderboardSize, itemCount: number) => {
@@ -22,6 +24,15 @@ type LeaderboardCardProps = {
   item: LeaderboardStat
 }
 
+const StatLabel = ({ item }: LeaderboardCardProps) => (
+  <HStack className="flex-wrap items-center gap-2">
+    <span className="break-words">{item.label}</span>
+    {item.status === 'METRIC_STATUS_STALE' && (
+      <span className="rounded bg-warning-20 px-1.5 py-0.5 text-[10px] font-medium uppercase text-warning">Stale</span>
+    )}
+  </HStack>
+)
+
 const LargeLeaderboardCard = ({ item }: LeaderboardCardProps) => {
   const { iconUrl, backgroundColor } = item.icon
 
@@ -32,7 +43,9 @@ const LargeLeaderboardCard = ({ item }: LeaderboardCardProps) => {
       </Center>
       <Stack className="min-w-0 gap-1">
         <span className="break-words text-[28px] font-medium leading-9 text-text">{item.value}</span>
-        <span className="break-words text-base leading-5 text-subText">{item.label}</span>
+        <div className="text-base leading-5 text-subText">
+          <StatLabel item={item} />
+        </div>
       </Stack>
     </HStack>
   )
@@ -48,7 +61,9 @@ const SmallLeaderboardCard = ({ item }: LeaderboardCardProps) => {
       </Center>
       <Stack className="min-w-0 gap-0.5">
         <span className="break-words text-lg font-medium leading-6 text-primary">{item.value}</span>
-        <span className="break-words text-sm leading-5 text-subText">{item.label}</span>
+        <div className="text-sm leading-5 text-subText">
+          <StatLabel item={item} />
+        </div>
       </Stack>
     </HStack>
   )

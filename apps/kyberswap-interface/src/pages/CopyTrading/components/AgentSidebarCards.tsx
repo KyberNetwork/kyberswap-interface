@@ -1,5 +1,5 @@
 import { type PropsWithChildren, type ReactNode } from 'react'
-import type { AgentProfile } from 'services/copyTrading/types'
+import type { AdvisoryActionAvailability, AgentProfile } from 'services/copyTrading/types'
 
 import { ButtonLight, ButtonPrimary } from 'components/Button'
 import InfoHelper from 'components/InfoHelper'
@@ -20,6 +20,7 @@ export const SidePanelCard = ({ bodyClassName, children, title }: SidePanelCardP
 )
 
 type CurrentCopyCardProps = {
+  addCapitalAvailability?: AdvisoryActionAvailability
   capital: string
   title?: string
   onView?: () => void
@@ -27,32 +28,45 @@ type CurrentCopyCardProps = {
 }
 
 export const CurrentCopyCard = ({
+  addCapitalAvailability,
   capital,
   title = 'Your Current Copy',
   onView,
   onAddCapital,
-}: CurrentCopyCardProps) => (
-  <SidePanelCard title={title}>
-    <HStack className="items-center justify-between">
-      <span className="text-subText">Capital In</span>
-      <span className="text-xl font-medium text-primary">{capital}</span>
-    </HStack>
-    <HStack className="gap-3 max-md:flex-col">
-      {onView && (
+}: CurrentCopyCardProps) => {
+  const addCapitalDisabled = Boolean(
+    addCapitalAvailability?.status && addCapitalAvailability.status !== 'ADVISORY_ACTION_STATUS_AVAILABLE',
+  )
+
+  return (
+    <SidePanelCard title={title}>
+      <HStack className="items-center justify-between">
+        <span className="text-subText">Capital In</span>
+        <span className="text-xl font-medium text-primary">{capital}</span>
+      </HStack>
+      <HStack className="gap-3 max-md:flex-col">
+        {onView && (
+          <div className="w-full flex-1">
+            <ButtonLight type="button" padding="10px 12px" onClick={onView}>
+              My Copy
+            </ButtonLight>
+          </div>
+        )}
         <div className="w-full flex-1">
-          <ButtonLight type="button" padding="10px 12px" onClick={onView}>
-            My Copy
-          </ButtonLight>
+          <ButtonPrimary
+            type="button"
+            padding="10px 12px"
+            disabled={addCapitalDisabled}
+            title={addCapitalDisabled ? addCapitalAvailability?.reason : undefined}
+            onClick={onAddCapital}
+          >
+            Add Capital
+          </ButtonPrimary>
         </div>
-      )}
-      <div className="w-full flex-1">
-        <ButtonPrimary type="button" padding="10px 12px" onClick={onAddCapital}>
-          Add Capital
-        </ButtonPrimary>
-      </div>
-    </HStack>
-  </SidePanelCard>
-)
+      </HStack>
+    </SidePanelCard>
+  )
+}
 
 type AgentRiskCardProps = {
   agent: AgentProfile
@@ -75,7 +89,7 @@ export const AgentRiskCard = ({ agent }: AgentRiskCardProps) => {
           </div>
           <Center
             className="absolute top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-md bg-primary px-2 py-0.5 text-sm font-medium text-black shadow-sm ring-1"
-            style={{ left: `${winRate}%` }}
+            style={{ left: `clamp(20px, ${winRate}%, calc(100% - 20px))` }}
           >
             {percent(winRatePct)}
           </Center>

@@ -64,6 +64,7 @@ const AgentInstruction = ({ agent }: AgentInstructionProps) => {
     <Stack className="gap-4">
       {activeCopyRun ? (
         <CurrentCopyCard
+          addCapitalAvailability={activeCopyRun.addCapitalAvailability}
           capital={formatUsd(activeCopyRun.capitalInUsd)}
           onView={() => navigate(`${APP_PATHS.COPY_TRADING}/my-copies/${activeCopyRun.copyRunId}`)}
           onAddCapital={() => openAddCapital(activeCopyRun, agent.displayName)}

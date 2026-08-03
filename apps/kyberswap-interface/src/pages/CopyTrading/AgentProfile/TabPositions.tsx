@@ -2,9 +2,14 @@ import type { HTMLAttributes } from 'react'
 import copyTradingApi from 'services/copyTrading'
 
 import { HStack, Stack } from 'components/Stack'
+import InfiniteScroll from 'pages/CopyTrading/components/InfiniteScroll'
 import { HeaderCell, TableBody, TableCell, TableHeader, TableRow } from 'pages/CopyTrading/components/Table'
+import { PositionLifecycleBadge, ShortenedId } from 'pages/CopyTrading/components/common'
 import { formatDate, formatTokenAmount, formatUsd, signedPercent, signedUsd } from 'pages/CopyTrading/helpers'
+import useInfiniteCursorQuery from 'pages/CopyTrading/useInfiniteCursorQuery'
 import { cn } from 'utils/cn'
+
+const PAGE_SIZE = 10
 
 type TabPositionsGridProps = HTMLAttributes<HTMLDivElement> & {
   header?: boolean
@@ -16,7 +21,7 @@ const TabPositionsGrid = ({ header, className, ...props }: TabPositionsGridProps
   return (
     <Grid
       className={cn(
-        'grid-cols-[minmax(0,1fr)_minmax(0,0.8fr)_minmax(0,1.1fr)_minmax(0,1.1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1.1fr)_minmax(0,1.4fr)] gap-x-4 px-4 py-1',
+        'min-w-[1120px] grid-cols-[minmax(0,1fr)_minmax(0,0.8fr)_minmax(0,1.1fr)_minmax(0,1.1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1.1fr)_minmax(0,1fr)_minmax(0,1.4fr)] gap-x-4 px-4 py-1',
         header && 'border-b-0 tracking-[0.04em]',
         className,
       )}
@@ -26,45 +31,71 @@ const TabPositionsGrid = ({ header, className, ...props }: TabPositionsGridProps
 }
 
 const TabPositions = ({ agentId }: { agentId: string }) => {
-  const { data: positions, isFetching } = copyTradingApi.useGetAgentPositionsQuery({ agentId, status: 'open' })
-  const rows = positions?.data || []
+  const [getAgentPositions] = copyTradingApi.useLazyGetAgentPositionsQuery()
+  const {
+    infiniteScroll,
+    isFetching,
+    items: rows,
+  } = useInfiniteCursorQuery({
+    queryKey: ['copy-trading', 'agent-positions', agentId, 'open'],
+    queryFn: cursor =>
+      getAgentPositions({
+        agentId,
+        status: 'open',
+        cursor,
+        limit: PAGE_SIZE,
+      }).unwrap(),
+  })
 
   return (
     <Stack>
-      <TabPositionsGrid header>
-        <HeaderCell>Trade ID</HeaderCell>
-        <HeaderCell>Token</HeaderCell>
-        <HeaderCell>Entry Price</HeaderCell>
-        <HeaderCell>Current Price</HeaderCell>
-        <HeaderCell>Amount</HeaderCell>
-        <HeaderCell>Value</HeaderCell>
-        <HeaderCell>P&amp;L</HeaderCell>
-        <HeaderCell>Open Since</HeaderCell>
-      </TabPositionsGrid>
-      <TableBody empty={!rows.length} emptyMessage="No open positions found" loading={isFetching}>
-        {rows.map(row => {
-          const pnl = row.unrealizedPnlUsd || row.realizedPnlUsd
-          const isNegative = Number(pnl || 0) < 0
+      <InfiniteScroll {...infiniteScroll}>
+        <TabPositionsGrid header className="sticky top-0 z-[1]">
+          <HeaderCell>Trade ID</HeaderCell>
+          <HeaderCell>Token</HeaderCell>
+          <HeaderCell>Entry Price</HeaderCell>
+          <HeaderCell>Current Price</HeaderCell>
+          <HeaderCell>Amount</HeaderCell>
+          <HeaderCell>Value</HeaderCell>
+          <HeaderCell>P&amp;L</HeaderCell>
+          <HeaderCell>Status</HeaderCell>
+          <HeaderCell>Open Since</HeaderCell>
+        </TabPositionsGrid>
+        <TableBody
+          className="min-w-[1120px]"
+          empty={!rows.length}
+          emptyMessage="No open positions found"
+          loading={isFetching && !rows.length}
+        >
+          {rows.map(row => {
+            const pnl = row.unrealizedPnlUsd || row.realizedPnlUsd
+            const isNegative = Number(pnl || 0) < 0
 
-          return (
-            <TabPositionsGrid key={row.positionId}>
-              <TableCell className="text-subText">{row.tradeId}</TableCell>
-              <TableCell>{row.token.symbol || '—'}</TableCell>
-              <TableCell>{formatUsd(row.entryPriceUsd)}</TableCell>
-              <TableCell>{formatUsd(row.currentPriceUsd)}</TableCell>
-              <TableCell>{formatTokenAmount(row.amountDecimal)}</TableCell>
-              <TableCell>{formatUsd(row.valueUsd)}</TableCell>
-              <TableCell className={cn(isNegative ? 'text-red' : 'text-primary')}>
-                <HStack className="items-center gap-2">
-                  <span>{signedUsd(pnl)}</span>
-                  <span className="text-xs">{signedPercent(row.unrealizedPnlPct)}</span>
-                </HStack>
-              </TableCell>
-              <TableCell className="text-subText">{formatDate(row.openedAt)}</TableCell>
-            </TabPositionsGrid>
-          )
-        })}
-      </TableBody>
+            return (
+              <TabPositionsGrid key={row.positionId}>
+                <TableCell className="text-subText">
+                  <ShortenedId value={row.tradeId} />
+                </TableCell>
+                <TableCell>{row.token.symbol || '—'}</TableCell>
+                <TableCell>{formatUsd(row.entryPriceUsd)}</TableCell>
+                <TableCell>{formatUsd(row.currentPriceUsd)}</TableCell>
+                <TableCell>{formatTokenAmount(row.amountDecimal)}</TableCell>
+                <TableCell>{formatUsd(row.valueUsd)}</TableCell>
+                <TableCell className={cn(isNegative ? 'text-red' : 'text-primary')}>
+                  <HStack className="items-center gap-2">
+                    <span>{signedUsd(pnl)}</span>
+                    <span className="text-xs">{signedPercent(row.unrealizedPnlPct)}</span>
+                  </HStack>
+                </TableCell>
+                <TableCell>
+                  <PositionLifecycleBadge lifecycle={row.lifecycle} quantityState={row.quantityState} />
+                </TableCell>
+                <TableCell className="text-subText">{formatDate(row.openedAt)}</TableCell>
+              </TabPositionsGrid>
+            )
+          })}
+        </TableBody>
+      </InfiniteScroll>
     </Stack>
   )
 }
