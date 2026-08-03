@@ -18,6 +18,7 @@ import {
   PI_LEVEL,
   correctPrice,
   getPriceImpact,
+  isForkFrom,
 } from "@/utils";
 import {
   ZapAction,
@@ -31,6 +32,7 @@ import ErrorIcon from "@/assets/error.svg";
 import {
   MAX_ZAP_IN_TOKENS,
   POSITION_MANAGER_CONTRACT,
+  CoreProtocol,
 } from "@/constants";
 import { sqrtToPrice } from "@kyber/utils/uniswapv3";
 import { usePermitNft, PermitNftState } from "@kyber/hooks";
@@ -120,9 +122,23 @@ export default function Content({
     signTypedData,
   });
 
+  const isPancakeInfinityCL = isForkFrom(
+    poolType,
+    CoreProtocol.PancakeInfinityCL
+  );
+  // ZapRouter v2 keeps the legacy flow (only Pancake Infinity CL positions need
+  // NFT authorization); v3 requires it for every concentrated-liquidity position.
+  const isZapV2 =
+    zapInfo?.routerAddress?.toLowerCase() ===
+    "0x0e97c887b61ccd952a53578b04763e7134429e05";
+  const requiresNftAuth = Boolean(
+    positionId && (!isZapV2 || isPancakeInfinityCL)
+  );
+
   const canPermit =
-    permitState === PermitNftState.READY_TO_SIGN ||
-    permitState === PermitNftState.SIGNING;
+    !isZapV2 &&
+    (permitState === PermitNftState.READY_TO_SIGN ||
+      permitState === PermitNftState.SIGNING);
   const nftAuthorized = nftApproved || permitState === PermitNftState.SIGNED;
 
   const amountsInWei: string[] = useMemo(
@@ -209,7 +225,7 @@ export default function Content({
   }, [zapInfo]);
 
   const isInNftApprovalStep = Boolean(
-    positionId &&
+    requiresNftAuth &&
       !nftAuthorized &&
       !notApprove &&
       !addressToApprove &&
@@ -238,7 +254,7 @@ export default function Content({
     if (loading) return "Checking Allowance";
     if (addressToApprove || pendingTxNft) return "Approving";
     if (notApprove) return `Approve ${notApprove.symbol}`;
-    if (positionId && !nftAuthorized)
+    if (requiresNftAuth && !nftAuthorized)
       return canPermit ? "Permit NFT" : "Approve NFT";
     if (pi.piVeryHigh) return "Zap anyway";
 
@@ -252,14 +268,14 @@ export default function Content({
     notApprove,
     pendingTxNft,
     pi.piVeryHigh,
-    positionId,
+    requiresNftAuth,
     zapLoading,
   ]);
 
   const disabled = useMemo(
     () =>
       clickedApprove ||
-      (positionId &&
+      (requiresNftAuth &&
         (pendingTxNft ||
           isChecking ||
           permitState === PermitNftState.SIGNING)) ||
@@ -280,7 +296,7 @@ export default function Content({
       pendingTxNft,
       permitState,
       pi.piVeryHigh,
-      positionId,
+      requiresNftAuth,
       zapLoading,
     ]
   );
@@ -289,7 +305,7 @@ export default function Content({
     if (notApprove) {
       setClickedLoading(true);
       approve(notApprove.address).finally(() => setClickedLoading(false));
-    } else if (positionId && !nftAuthorized) {
+    } else if (requiresNftAuth && !nftAuthorized) {
       setClickedLoading(true);
       if (canPermit) {
         const date = new Date();
