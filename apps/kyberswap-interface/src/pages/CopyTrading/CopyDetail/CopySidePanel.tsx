@@ -7,7 +7,7 @@ import {
   StrategyExecutionCard,
   WishlistedTokensCard,
 } from 'pages/CopyTrading/components/AgentSidebarCards'
-import { formatUsd, isCopyRunClosed, signedUsd } from 'pages/CopyTrading/helpers'
+import { formatUsd, signedUsd } from 'pages/CopyTrading/helpers'
 import { useCopyTradeWrite } from 'pages/CopyTrading/write/WriteContext'
 import { cn } from 'utils/cn'
 
@@ -36,7 +36,7 @@ type CopySidePanelProps = {
 const CopySidePanel = ({ agent, run }: CopySidePanelProps) => {
   const { openAddCapital } = useCopyTradeWrite()
 
-  if (isCopyRunClosed(run.status)) {
+  if (run.status === 'closed') {
     return (
       <Stack className="gap-4">
         <ClosedCopySummary run={run} />
@@ -48,6 +48,7 @@ const CopySidePanel = ({ agent, run }: CopySidePanelProps) => {
   return (
     <Stack className="gap-4">
       <CurrentCopyCard
+        addCapitalAvailability={run.addCapitalAvailability}
         capital={formatUsd(run.capitalInUsd)}
         title="Current Copying"
         onAddCapital={() => openAddCapital(run, agent.displayName)}

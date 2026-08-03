@@ -50,6 +50,9 @@ import type {
   PerformanceSeries,
   PinnedStableBalanceStatus,
   PositionEvent,
+  PositionExitKind,
+  PositionLifecycle,
+  PositionQuantityState,
   PositionSummary,
   ResponseMeta,
   SingleResponse,
@@ -284,11 +287,69 @@ type ApiActivity = {
   txHash?: string
   agentDisplayName?: string
   agentAvatarUrl?: string
-  copyLifecycle?: Record<string, unknown>
-  position?: Record<string, unknown>
-  capital?: Record<string, unknown>
-  fee?: Record<string, unknown>
-  execution?: Record<string, unknown>
+  copyLifecycle?: {
+    eventId?: string
+    eventType?: string
+    beforeStatus?: string
+    afterStatus?: string
+  }
+  position?: {
+    eventId?: string
+    actionType?: string
+    baseTokenAddress?: string
+    quoteTokenAddress?: string
+    baseAmountRaw?: string
+    quoteAmountRaw?: string
+    accountingStatus?: string
+    grossBaseSoldRaw?: string
+    grossQuoteReceivedRaw?: string
+    baseToken?: ApiToken
+    quoteToken?: ApiToken
+    grossBaseBoughtRaw?: string
+    upfrontFeeCapturedBaseRaw?: string
+    upfrontFeeReleasedBaseRaw?: string
+    netBaseReceivedRaw?: string
+    netBaseSoldRaw?: string
+    displayBaseRaw?: string
+    settlementValueUsd?: ApiMetric
+    realizedPnlUsd?: ApiMetric
+    flatFeeCapturedUsd?: ApiMetric
+    cashbackReceivedUsd?: ApiMetric
+  }
+  capital?: {
+    movementType?: string
+    amountRaw?: string
+    tokenAddress?: string
+    token?: ApiToken
+    valueUsd?: ApiMetric
+  }
+  fee?: {
+    amountRaw?: string
+    tokenAddress?: string
+    token?: ApiToken
+    valueUsd?: ApiMetric
+  }
+  execution?: {
+    executionKind?: string
+    eventSeq?: string
+    eventType?: string
+    actionKind?: string
+    copyJobId?: string
+    exitActionId?: string
+    executionId?: string
+    copyJobAction?: string
+    copyJobStatus?: string
+    actionStatus?: string
+    executionStatus?: string
+    publicErrorCode?: string
+    publicErrorMessage?: string
+    configIndex?: number
+    minBaseTokenRateRaw?: string
+    configDeadlineRaw?: string
+    token?: ApiToken
+    displayAmountRaw?: string
+    valueUsd?: ApiMetric
+  }
 }
 
 type ApiCopyAccount = {
@@ -370,6 +431,16 @@ const toToken = (token?: ApiToken): Token => ({
   decimals: token?.decimals,
   iconUrl: token?.logoUrl,
 })
+
+const toPositionLifecycle = (lifecycle?: string): PositionLifecycle => {
+  const value = lifecycle?.replace('POSITION_LIFECYCLE_', '').toLowerCase()
+  return value === 'active' || value === 'closing' || value === 'closed' ? value : 'unknown'
+}
+
+const toPositionQuantityState = (quantityState?: string): PositionQuantityState => {
+  const value = quantityState?.replace('POSITION_QUANTITY_STATE_', '').toLowerCase()
+  return value === 'open_full' || value === 'open_partial' || value === 'closed' ? value : 'unknown'
+}
 
 const formatRawAmount = (value: string, decimals?: number) => {
   if (decimals === undefined) return undefined
@@ -453,16 +524,29 @@ const toAgentProfile = (agent: ApiAgentProfile): AgentProfile => ({
     })) || [],
 })
 
-const toPositionStatus = (lifecycle?: string) =>
-  lifecycle === 'POSITION_LIFECYCLE_CLOSED'
+const toPositionStatus = (lifecycle: PositionLifecycle) =>
+  lifecycle === 'closed'
     ? ('closed' as const)
-    : lifecycle === 'POSITION_LIFECYCLE_ACTIVE' || lifecycle === 'POSITION_LIFECYCLE_CLOSING'
+    : lifecycle === 'active' || lifecycle === 'closing'
     ? ('open' as const)
     : ('unknown' as const)
+
+const toPositionExitKind = (exitKind?: string): PositionExitKind | undefined => {
+  if (
+    exitKind === 'POSITION_EXIT_KIND_UNSPECIFIED' ||
+    exitKind === 'POSITION_EXIT_KIND_ALIGNED' ||
+    exitKind === 'POSITION_EXIT_KIND_MANUAL'
+  ) {
+    return exitKind
+  }
+
+  return undefined
+}
 
 const toPosition = (position: ApiPosition): PositionSummary => {
   const token = toToken(position.token)
   const amountRaw = position.displayBaseRaw || position.remainingBaseRaw || '0'
+  const lifecycle = toPositionLifecycle(position.lifecycle)
 
   return {
     positionId: position.positionId || '',
@@ -474,8 +558,8 @@ const toPosition = (position: ApiPosition): PositionSummary => {
     copyAccount: position.copyAccount as Address | undefined,
     tradeId: position.tradeId || '',
     token,
-    status: toPositionStatus(position.lifecycle),
-    trackingStatus: position.lifecycle,
+    status: toPositionStatus(lifecycle),
+    lifecycle,
     amountRaw,
     amountDecimal: formatRawAmount(amountRaw, token.decimals),
     remainingBaseRaw: position.remainingBaseRaw,
@@ -516,8 +600,8 @@ const toPosition = (position: ApiPosition): PositionSummary => {
       latestSkippedRatio: position.latestSkippedRatio,
       cumulativeSkippedRatio: position.cumulativeSkippedRatio,
     },
-    quantityState: position.quantityState,
-    exitKind: position.exitKind,
+    quantityState: toPositionQuantityState(position.quantityState),
+    exitKind: toPositionExitKind(position.exitKind),
     actionKind: position.actionKind as PositionSummary['actionKind'],
     availableActionKinds: (position.availableActionKinds || []) as PositionSummary['availableActionKinds'],
     isLeftover: position.isLeftover,
@@ -621,6 +705,43 @@ const toCopyRun = (run: ApiCopyRun): CopyRunSummary => ({
   agentStats: toAgentStats(run.agentSnapshot?.metrics),
 })
 
+const toPositionActivity = (detail: ApiActivity['position']): ActivityRow['position'] =>
+  detail
+    ? {
+        ...detail,
+        baseTokenAddress: detail.baseTokenAddress as Address | undefined,
+        quoteTokenAddress: detail.quoteTokenAddress as Address | undefined,
+        baseToken: detail.baseToken ? toToken(detail.baseToken) : undefined,
+        quoteToken: detail.quoteToken ? toToken(detail.quoteToken) : undefined,
+      }
+    : undefined
+
+const toCapitalActivity = (detail: ApiActivity['capital']): ActivityRow['capital'] =>
+  detail
+    ? {
+        ...detail,
+        tokenAddress: detail.tokenAddress as Address | undefined,
+        token: detail.token ? toToken(detail.token) : undefined,
+      }
+    : undefined
+
+const toFeeActivity = (detail: ApiActivity['fee']): ActivityRow['fee'] =>
+  detail
+    ? {
+        ...detail,
+        tokenAddress: detail.tokenAddress as Address | undefined,
+        token: detail.token ? toToken(detail.token) : undefined,
+      }
+    : undefined
+
+const toExecutionActivity = (detail: ApiActivity['execution']): ActivityRow['execution'] =>
+  detail
+    ? {
+        ...detail,
+        token: detail.token ? toToken(detail.token) : undefined,
+      }
+    : undefined
+
 const toActivity = (activity: ApiActivity): ActivityRow => ({
   activityId: activity.activityId || '',
   ownerAddress: (activity.ownerAddress || '') as Address,
@@ -638,10 +759,10 @@ const toActivity = (activity: ApiActivity): ActivityRow => ({
   agentDisplayName: activity.agentDisplayName,
   agentAvatarUrl: activity.agentAvatarUrl,
   copyLifecycle: activity.copyLifecycle,
-  position: activity.position,
-  capital: activity.capital,
-  fee: activity.fee,
-  execution: activity.execution,
+  position: toPositionActivity(activity.position),
+  capital: toCapitalActivity(activity.capital),
+  fee: toFeeActivity(activity.fee),
+  execution: toExecutionActivity(activity.execution),
 })
 
 const toCopyAccount = (account: ApiCopyAccount): CopyAccountSummary => ({
