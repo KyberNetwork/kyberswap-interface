@@ -8,6 +8,7 @@ import SegmentedControl, { type SegmentedControlOption } from 'components/Segmen
 import { HStack, Stack } from 'components/Stack'
 import { compactUsd, formatUsd } from 'pages/CopyTrading/helpers'
 import { cn } from 'utils/cn'
+import { formatDateTime, formatShortDate } from 'utils/time'
 
 const chartWindowOptions: readonly SegmentedControlOption<PerformanceWindow>[] = [
   { label: '7D', value: '7d' },
@@ -27,25 +28,6 @@ export const toPerformanceChartPoint = (point: PerformancePoint): PerformanceCha
   portfolioValueUsd: point.portfolioValueUsd === undefined ? undefined : Number(point.portfolioValueUsd),
   realizedPnlUsd: point.realizedPnlUsd === undefined ? undefined : Number(point.realizedPnlUsd),
 })
-
-export const mergePerformancePoints = (...series: PerformancePoint[][]) => {
-  const pointsByTimestamp = new Map<string, PerformancePoint>()
-
-  series.flat().forEach(point => {
-    const current = pointsByTimestamp.get(point.timestamp)
-    pointsByTimestamp.set(point.timestamp, {
-      ...current,
-      ...point,
-      portfolioValueUsd: point.portfolioValueUsd ?? current?.portfolioValueUsd,
-      realizedPnlUsd: point.realizedPnlUsd ?? current?.realizedPnlUsd,
-    })
-  })
-
-  return [...pointsByTimestamp.values()].sort((a, b) => a.timestamp.localeCompare(b.timestamp))
-}
-
-const formatTickDate = (value: number | string) =>
-  new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric' }).format(new Date(value))
 
 const getPnlGradientOffset = (data: PerformanceChartPoint[]) => {
   const values = data.map(point => point.realizedPnlUsd).filter(value => value !== undefined)
@@ -89,7 +71,7 @@ const ChartTooltip = ({ active, payload }: ChartTooltipProps) => {
 
   return (
     <Stack className="gap-2 rounded-lg bg-background px-4 py-3 text-xs shadow-lg">
-      <span className="text-subText">{formatTickDate(point.timestamp)}</span>
+      <span className="text-subText">{formatDateTime(point.timestamp)}</span>
       {payload.map(item => (
         <span key={item.dataKey} className="font-medium" style={{ color: item.color }}>
           {item.name}: {formatUsd(item.value === undefined ? undefined : String(item.value))}
@@ -174,7 +156,7 @@ export const CumulativeRealisedPnlChart = ({
                 dataKey="timestamp"
                 minTickGap={24}
                 tick={{ fill: 'var(--ks-subText)', fontSize: 12 }}
-                tickFormatter={formatTickDate}
+                tickFormatter={formatShortDate}
                 tickLine={false}
               />
               <YAxis
@@ -225,7 +207,7 @@ export const CapitalValueChart = ({ data, isError, isFetching, title = 'Capital 
                 dataKey="timestamp"
                 minTickGap={24}
                 tick={{ fill: 'var(--ks-subText)', fontSize: 12 }}
-                tickFormatter={formatTickDate}
+                tickFormatter={formatShortDate}
                 tickLine={false}
               />
               <YAxis

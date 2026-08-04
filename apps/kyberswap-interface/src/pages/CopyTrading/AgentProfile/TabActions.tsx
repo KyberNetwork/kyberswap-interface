@@ -8,19 +8,14 @@ import IconButton from 'components/IconButton'
 import { HStack, Stack } from 'components/Stack'
 import { isSupportedChainId } from 'constants/networks'
 import InfiniteScroll from 'pages/CopyTrading/components/InfiniteScroll'
+import useInfiniteCursorQuery from 'pages/CopyTrading/components/InfiniteScroll/useInfiniteCursorQuery'
 import { TableBody } from 'pages/CopyTrading/components/Table'
-import { formatDate } from 'pages/CopyTrading/helpers'
-import useInfiniteCursorQuery from 'pages/CopyTrading/useInfiniteCursorQuery'
 import { ExternalLink } from 'theme'
 import { cn } from 'utils/cn'
 import { getEtherscanLink } from 'utils/explorer'
+import { formatDateTime } from 'utils/time'
 
 const PAGE_SIZE = 10
-
-const formatLogTime = (value?: string) => {
-  const date = formatDate(value)
-  return date === '-' ? date : `${date} UTC`
-}
 
 const formatStatus = (status: string) => {
   return status?.replace(/[-_]/g, ' ').replace(/\b\w/g, value => value.toUpperCase()) ?? '-'
@@ -75,7 +70,7 @@ const ActionLogRow = ({ expanded, onToggle, row }: ActionLogRowProps) => {
         />
         <Stack className="min-w-0 flex-1 gap-1">
           <HStack className="min-w-0 flex-wrap items-center gap-x-2 gap-y-1 text-sm">
-            <span>{formatLogTime(row.occurredAt)}</span>
+            <span>{formatDateTime(row.occurredAt)}</span>
             <span className={cn('rounded bg-primary-12 px-2 py-0.5 font-medium', statusClassName(row.status))}>
               {formatStatus(row.status)}
             </span>

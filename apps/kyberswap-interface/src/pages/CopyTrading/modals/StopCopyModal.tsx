@@ -1,20 +1,27 @@
-import { useMemo, useState } from 'react'
-import copyTradingApi from 'services/copyTrading'
-import type { CopyRunSummary } from 'services/copyTrading/types'
+import { ChainId } from '@kyberswap/ks-sdk-core'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import copyTradingApi, { usePrepareStopCopyMutation } from 'services/copyTrading'
+import type { CopyRunSummary, PositionSummary, PreparedCallKind } from 'services/copyTrading/types'
 
 import { ButtonWarning } from 'components/Button'
+import Loader from 'components/Loader'
 import { HStack, Stack } from 'components/Stack'
 import { useActiveWeb3React } from 'hooks'
-import { useCopyTradingContext } from 'pages/CopyTrading/context'
-import { signedUsd } from 'pages/CopyTrading/helpers'
-import { CopyTradeTxModal } from 'pages/CopyTrading/write/CopyTradeTxModal'
-import { FOLLOWER_ACCOUNT_ABI } from 'pages/CopyTrading/write/abis'
-import { FollowerPause } from 'pages/CopyTrading/write/config'
-import { fetchUnalignedSellAuthorization } from 'pages/CopyTrading/write/mockSigner'
-import { type CopyTxStep, useCopyTradeTx } from 'pages/CopyTrading/write/useCopyTradeTx'
+import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
+import { ShortenedId } from 'pages/CopyTrading/components/common'
+import { formatUsd, signedUsd } from 'pages/CopyTrading/helpers'
+import PreparedActionModal, { ReviewRow, ReviewSection } from 'pages/CopyTrading/write/PreparedActionModal'
+import { useCopyTradeWrite } from 'pages/CopyTrading/write/WriteContext'
+import {
+  formatPreparedAmount,
+  formatSlippage,
+  getApiErrorMessage,
+  getPreparedReasonMessage,
+  isActionAvailable,
+} from 'pages/CopyTrading/write/preparedAction'
+import { DEFAULT_PREPARED_ACTION_STATE, usePreparedAction } from 'pages/CopyTrading/write/usePreparedAction'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { cn } from 'utils/cn'
-import { encodeFunctionData } from 'utils/viem'
 
 type StopCopyModalProps = {
   isOpen: boolean
@@ -23,114 +30,248 @@ type StopCopyModalProps = {
   agentName?: string
 }
 
-const StopCopyModal = ({ isOpen, onDismiss, run, agentName }: StopCopyModalProps) => {
-  const { account } = useActiveWeb3React()
-  const { ownerAddress } = useCopyTradingContext()
-  const toggleWalletModal = useWalletModalToggle()
-  const { status, run: runTx, reset } = useCopyTradeTx()
-  const { data: positionsData } = copyTradingApi.useGetCopyRunPositionsQuery(
-    { ownerAddress: ownerAddress || '', copyRunId: run.copyRunId, status: 'open' },
-    { skip: !isOpen || !ownerAddress },
-  )
-  const positions = useMemo(() => positionsData?.data || [], [positionsData])
+const STOP_COPY_CALL_KINDS: PreparedCallKind[] = ['PREPARED_CALL_KIND_STOP_COPY']
+const SLIPPAGE_OPTIONS = [0.5, 1, 2]
+const MAX_STOP_POSITIONS = 32
 
+const getUserPositionId = (position: PositionSummary) => position.userPositionId
+
+const StopCopyModal = ({ isOpen, onDismiss, run, agentName }: StopCopyModalProps) => {
+  const { account, chainId } = useActiveWeb3React()
+  const { changeNetwork } = useChangeNetwork()
+  const toggleWalletModal = useWalletModalToggle()
+  const { refreshCopyTrading } = useCopyTradeWrite()
+  const [prepareStopCopy] = usePrepareStopCopyMutation()
+  const [getPositions] = copyTradingApi.useLazyGetCopyRunPositionsQuery()
+  const { data: runResponse, isFetching: isRefreshingRun } = copyTradingApi.useGetCopyRunQuery(
+    { ownerAddress: run.ownerAddress, copyRunId: run.copyRunId },
+    { skip: !isOpen },
+  )
+  const [flowState, setFlowState] = useState(DEFAULT_PREPARED_ACTION_STATE)
+  const [positions, setPositions] = useState<PositionSummary[]>([])
+  const [positionsLoading, setPositionsLoading] = useState(false)
+  const [positionsError, setPositionsError] = useState<string>()
   const [selected, setSelected] = useState<Record<string, boolean>>({})
   const [slippage, setSlippage] = useState(0.5)
 
-  // Default every position to selected once the list loads.
-  const isSelected = (id: string) => selected[id] ?? true
-  const toggle = (id: string) => setSelected(prev => ({ ...prev, [id]: !isSelected(id) }))
+  const directRun = runResponse?.data || run
+  const availability = directRun.stopCopyAvailability
+  const onExpectedChain = chainId === directRun.chainId
+  const ownershipMessage =
+    account && directRun.ownerAddress.toLowerCase() !== account.toLowerCase()
+      ? 'The selected Copy Run is not owned by the connected wallet.'
+      : undefined
 
-  const selectedPositions = positions.filter(position => isSelected(position.positionId))
+  const fetchAllPositions = useCallback(async () => {
+    const rows: PositionSummary[] = []
+    let cursor: string | undefined
+
+    while (true) {
+      const response = await getPositions({
+        ownerAddress: directRun.ownerAddress,
+        copyRunId: directRun.copyRunId,
+        status: 'open',
+        cursor,
+        limit: 100,
+      }).unwrap()
+      rows.push(...response.data)
+
+      if (!response.pagination.hasMore) return rows
+      const nextCursor = response.pagination.nextCursor
+      if (!nextCursor || nextCursor === cursor) {
+        throw new Error('The positions response returned an invalid pagination cursor.')
+      }
+      cursor = nextCursor
+    }
+  }, [directRun.copyRunId, directRun.ownerAddress, getPositions])
+
+  useEffect(() => {
+    if (!isOpen) return
+    let cancelled = false
+
+    const loadPositions = async () => {
+      setPositionsLoading(true)
+      setPositionsError(undefined)
+      try {
+        const rows = await fetchAllPositions()
+        if (!cancelled) setPositions(rows)
+      } catch (error) {
+        if (!cancelled) setPositionsError(getApiErrorMessage(error))
+      } finally {
+        if (!cancelled) setPositionsLoading(false)
+      }
+    }
+
+    void loadPositions()
+    return () => {
+      cancelled = true
+    }
+  }, [fetchAllPositions, isOpen])
+
+  const selectablePositions = useMemo(
+    () => positions.filter(position => getUserPositionId(position)).slice(0, MAX_STOP_POSITIONS),
+    [positions],
+  )
+  const isSelected = (position: PositionSummary) => {
+    const positionId = getUserPositionId(position)
+    return positionId ? selected[positionId] ?? true : false
+  }
+  const selectedPositions = selectablePositions.filter(isSelected)
+
+  const flow = usePreparedAction({
+    state: flowState,
+    setState: setFlowState,
+    expected: {
+      account: account || '',
+      callKinds: STOP_COPY_CALL_KINDS,
+      chainId: directRun.chainId,
+      copyAccount: directRun.copyAccount,
+      preview: 'stopCopy',
+    },
+    prepare: async () => {
+      if (!account) throw new Error('Connect your wallet first.')
+      if (directRun.ownerAddress.toLowerCase() !== account.toLowerCase()) {
+        throw new Error('The selected Copy Run is not owned by the connected wallet.')
+      }
+
+      const currentPositions = await fetchAllPositions()
+      setPositions(currentPositions)
+      setPositionsError(undefined)
+      const currentPositionIds = currentPositions
+        .filter(position => getUserPositionId(position))
+        .slice(0, MAX_STOP_POSITIONS)
+        .filter(position => {
+          const positionId = getUserPositionId(position) as string
+          return selected[positionId] ?? true
+        })
+        .map(position => getUserPositionId(position) as string)
+
+      const response = await prepareStopCopy({
+        ownerAddress: account.toLowerCase(),
+        copyRunId: directRun.copyRunId,
+        userPositionIds: currentPositionIds,
+        slippageBps: Math.round(slippage * 100),
+      }).unwrap()
+      const preparedPositionIds = (response.data.stopCopy?.positions || [])
+        .map(position => position.userPositionId)
+        .filter((positionId): positionId is string => !!positionId)
+      if (preparedPositionIds.some(positionId => !currentPositionIds.includes(positionId))) {
+        throw new Error('The prepared position set does not match your current selection.')
+      }
+      return response.data
+    },
+    onComplete: refreshCopyTrading,
+  })
 
   const dismiss = () => {
-    reset()
+    flow.reset()
     setSelected({})
+    setSlippage(0.5)
     onDismiss()
   }
 
-  const handleStop = () => {
-    const steps: CopyTxStep[] = [
-      {
-        label: 'Halting copy trades',
-        build: () => ({
-          to: run.copyAccount,
-          data: encodeFunctionData({
-            abi: FOLLOWER_ACCOUNT_ABI,
-            functionName: 'updatePauseState',
-            args: [FollowerPause.PAUSE_PERMANENTLY],
-          }),
-        }),
-      },
-      ...selectedPositions.map(position => ({
-        label: `Selling ${position.token.symbol}`,
-        build: async () => {
-          const auth = await fetchUnalignedSellAuthorization({
-            chainId: position.chainId,
-            copyAccount: run.copyAccount,
-            positionId: position.positionId,
-            sellRatioBps: 10000,
-            slippageBps: Math.round(slippage * 100),
-          })
-          return {
-            to: run.copyAccount,
-            data: encodeFunctionData({
-              abi: FOLLOWER_ACCOUNT_ABI,
-              functionName: 'executeFollowerUnalignedSell',
-              args: [
-                {
-                  positionId: position.positionId,
-                  swapper: auth.swapper,
-                  encodedAmountIn: BigInt(auth.encodedAmountIn),
-                  swapperData: auth.swapperData,
-                  minQuoteTokenReceived: BigInt(auth.minQuoteTokenReceived),
-                  deadline: BigInt(auth.deadline),
-                  signature: auth.signature,
-                },
-              ],
-            }),
-          }
-        },
-      })),
-    ]
-
-    runTx(steps)
+  const handlePrimaryAction = () => {
+    if (!account) {
+      toggleWalletModal()
+      return
+    }
+    if (!onExpectedChain) {
+      void changeNetwork(directRun.chainId as ChainId)
+      return
+    }
+    void flow.prepare()
   }
 
+  const preview = flowState.action?.stopCopy
+  const review = (
+    <Stack className="gap-4">
+      <ReviewSection title="Review Stop Copy">
+        <ReviewRow label="Agent" value={agentName || directRun.agentSnapshot?.displayName || 'Copy Run'} />
+        <ReviewRow label="Positions to sell" value={preview?.positions?.length || 0} />
+        <ReviewRow label="Current value" value={formatUsd(preview?.totalCurrentValueUsd?.value)} />
+        <ReviewRow
+          label="Estimated cashback"
+          value={formatPreparedAmount(preview?.totalCashback, preview?.quoteToken)}
+        />
+        <ReviewRow
+          label="Minimum received"
+          value={formatPreparedAmount(preview?.totalSwapQuote?.minimumQuote, preview?.quoteToken)}
+        />
+      </ReviewSection>
+      {!!preview?.positions?.length && (
+        <ReviewSection title="Prepared positions">
+          {preview.positions.map(position => (
+            <ReviewRow
+              key={position.userPositionId || position.tradeId}
+              label={position.baseToken?.symbol || <ShortenedId value={position.tradeId} />}
+              value={formatPreparedAmount(position.swapQuote?.minimumQuote, preview.quoteToken)}
+            />
+          ))}
+        </ReviewSection>
+      )}
+    </Stack>
+  )
+
+  const availabilityMessage = isRefreshingRun
+    ? 'Refreshing availability…'
+    : ownershipMessage
+    ? ownershipMessage
+    : !isActionAvailable(availability)
+    ? getPreparedReasonMessage(availability?.reason)
+    : undefined
+
   return (
-    <CopyTradeTxModal
+    <PreparedActionModal
       isOpen={isOpen}
       onDismiss={dismiss}
-      status={status}
+      state={flowState}
       title={`Stop Copying${agentName ? ` ${agentName}` : ''}`}
+      review={review}
+      confirmLabel="Stop Copying"
+      onBack={flow.reset}
+      onConfirm={() => void flow.confirm()}
+      onRetry={() => void flow.retry()}
+      pendingText="Refreshing the Copy Run and selected positions…"
       successTitle="Copy stopped"
-      successText="Selected positions are being sold. Unchecked tokens stay in your wallet."
-      width="480px"
+      successText="The transaction is confirmed on-chain. Copy Trading data will refresh in the background."
+      width={480}
     >
       <Stack className="gap-4">
-        <span className="text-sm text-subText">Select positions to sell. Unchecked tokens stay in your wallet.</span>
+        <span className="text-sm text-subText">
+          Select positions to sell while stopping. Leaving every position unchecked is valid and stops future copying
+          without requesting an exit.
+        </span>
 
-        <Stack className="max-h-64 gap-1 overflow-y-auto">
-          {positions.length ? (
-            positions.map(position => {
+        <Stack className="gap-1">
+          {positionsLoading ? (
+            <HStack className="items-center justify-center gap-2 text-sm text-subText">
+              <Loader size="18px" /> Loading all positions…
+            </HStack>
+          ) : positionsError ? (
+            <span className="text-center text-sm text-red">{positionsError}</span>
+          ) : selectablePositions.length ? (
+            selectablePositions.map(position => {
+              const userPositionId = getUserPositionId(position) as string
               const negative = Number(position.unrealizedPnlUsd || 0) < 0
               return (
                 <label
-                  key={position.positionId}
+                  key={userPositionId}
                   className="flex cursor-pointer items-center gap-3 rounded-lg bg-white-04 px-3 py-2"
                 >
                   <input
                     type="checkbox"
-                    checked={isSelected(position.positionId)}
-                    onChange={() => toggle(position.positionId)}
+                    checked={isSelected(position)}
+                    onChange={() => setSelected(current => ({ ...current, [userPositionId]: !isSelected(position) }))}
                     className="size-4 shrink-0 accent-primary"
                   />
                   <HStack className="min-w-0 flex-1 items-center justify-between gap-2">
-                    <Stack className="gap-0.5">
-                      <span className="text-sm font-medium text-text">{position.token.symbol}</span>
-                      <span className="text-xs text-subText">{position.tradeId}</span>
+                    <Stack className="min-w-0 flex-1 gap-0.5">
+                      <span className="truncate text-sm font-medium text-text">{position.token.symbol}</span>
+                      <span className="text-xs text-subText">
+                        <ShortenedId value={position.tradeId} />
+                      </span>
                     </Stack>
-                    <span className={cn('text-sm font-medium', negative ? 'text-red' : 'text-primary')}>
+                    <span className={cn('shrink-0 text-sm font-medium', negative ? 'text-red' : 'text-primary')}>
                       {signedUsd(position.unrealizedPnlUsd)}
                     </span>
                   </HStack>
@@ -138,14 +279,20 @@ const StopCopyModal = ({ isOpen, onDismiss, run, agentName }: StopCopyModalProps
               )
             })
           ) : (
-            <span className="py-4 text-center text-sm text-subText">No open positions to sell.</span>
+            <span className="text-center text-sm text-subText">No open positions. You can still stop copying.</span>
           )}
         </Stack>
 
-        <HStack className="items-center justify-between">
+        {positions.length > MAX_STOP_POSITIONS && (
+          <span className="text-xs text-warning">
+            Only the first {MAX_STOP_POSITIONS} eligible positions can be prepared.
+          </span>
+        )}
+
+        <HStack className="items-center justify-between gap-3">
           <span className="text-sm text-subText">Slippage tolerance</span>
           <HStack className="gap-2">
-            {[0.5, 1, 2].map(value => (
+            {SLIPPAGE_OPTIONS.map(value => (
               <button
                 key={value}
                 type="button"
@@ -157,7 +304,7 @@ const StopCopyModal = ({ isOpen, onDismiss, run, agentName }: StopCopyModalProps
                     : 'border-darkBorder text-subText hover:text-text',
                 )}
               >
-                {value}%
+                {formatSlippage(value * 100)}
               </button>
             ))}
           </HStack>
@@ -165,14 +312,22 @@ const StopCopyModal = ({ isOpen, onDismiss, run, agentName }: StopCopyModalProps
 
         <ButtonWarning
           type="button"
-          padding="12px"
-          disabled={!!account && (!positions.length || !selectedPositions.length)}
-          onClick={account ? handleStop : toggleWalletModal}
+          disabled={!!account && onExpectedChain && (positionsLoading || !!positionsError || !!availabilityMessage)}
+          title={availabilityMessage || positionsError}
+          onClick={handlePrimaryAction}
         >
-          {!account ? 'Connect wallet' : `Stop & sell ${selectedPositions.length} selected`}
+          {!account
+            ? 'Connect wallet'
+            : !onExpectedChain
+            ? 'Switch network'
+            : availabilityMessage
+            ? 'Stop Copy unavailable'
+            : selectedPositions.length
+            ? `Review Stop & Sell ${selectedPositions.length}`
+            : 'Review Stop Copy'}
         </ButtonWarning>
       </Stack>
-    </CopyTradeTxModal>
+    </PreparedActionModal>
   )
 }
 

@@ -16,9 +16,10 @@ import { ButtonEmpty } from 'components/Button'
 import CopyHelper from 'components/Copy'
 import { Center, HStack, Stack } from 'components/Stack'
 import { useCopyTradingContext } from 'pages/CopyTrading/context'
-import { formatDate, getAgentDisplayName, getAgentInitials, strategyCategoryKey } from 'pages/CopyTrading/helpers'
+import { getAgentDisplayName, getAgentInitials, strategyCategoryKey } from 'pages/CopyTrading/helpers'
 import { shortenAddress, shortenHash } from 'utils/address'
 import { cn } from 'utils/cn'
+import { formatDateTime } from 'utils/time'
 
 import { Badge, StrategyBadge } from './Badge'
 
@@ -64,7 +65,7 @@ export const CopyTradingPage = ({ children, backTo, className }: CopyTradingPage
   const navigate = useNavigate()
 
   return (
-    <Stack as="main" className={cn('w-full min-w-0 flex-1 gap-4 px-8 py-6 max-md:px-4 max-md:py-8', className)}>
+    <Stack as="main" className={cn('w-full min-w-0 flex-1 gap-4 px-8 pb-20 pt-6 max-md:px-4 max-md:pt-8', className)}>
       {backTo && (
         <div className="w-fit">
           <ButtonEmpty
@@ -92,6 +93,10 @@ export const CopyTradingPageHeading = ({ className, description, title }: CopyTr
   </Stack>
 )
 
+export const StickySideColumn = ({ children }: PropsWithChildren) => (
+  <aside className="sticky top-4 self-start max-xl:static">{children}</aside>
+)
+
 export const ContentPanel = ({
   bodyClassName,
   children,
@@ -101,7 +106,7 @@ export const ContentPanel = ({
   titleAddon,
 }: ContentPanelProps) => (
   <Stack className={cn('overflow-hidden rounded-xl bg-buttonBlack-60', className)}>
-    <HStack className="flex-wrap items-center justify-between gap-4 border-b border-tableHeader bg-background-60 px-6 py-4">
+    <HStack className="flex-wrap items-center justify-between gap-4 border-b border-tableHeader bg-background px-4 py-2">
       <HStack className="items-center gap-2">
         <h2 className="text-base font-medium text-text">{title}</h2>
         {titleAddon}
@@ -113,8 +118,8 @@ export const ContentPanel = ({
 )
 
 export const ShortenedId = ({ value }: { value?: string }) => (
-  <span className="whitespace-nowrap font-mono" title={value}>
-    {value ? shortenHash(value, 2) : '—'}
+  <span className="whitespace-nowrap" title={value}>
+    {value ? shortenHash(value, 3) : '—'}
   </span>
 )
 
@@ -187,7 +192,7 @@ export const AgentIdentity = ({ agent, status }: { agent: AgentCard | AgentProfi
           <>
             <span>•</span>
             <span className="text-primary">Live since</span>
-            <span className="text-text">{formatDate(agent.liveSince).split(' ')[0]}</span>
+            <span className="text-text">{formatDateTime(agent.liveSince)}</span>
           </>
         )}
       </HStack>

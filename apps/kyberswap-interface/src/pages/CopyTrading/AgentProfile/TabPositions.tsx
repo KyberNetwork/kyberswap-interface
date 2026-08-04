@@ -3,11 +3,12 @@ import copyTradingApi from 'services/copyTrading'
 
 import { HStack, Stack } from 'components/Stack'
 import InfiniteScroll from 'pages/CopyTrading/components/InfiniteScroll'
+import useInfiniteCursorQuery from 'pages/CopyTrading/components/InfiniteScroll/useInfiniteCursorQuery'
 import { HeaderCell, TableBody, TableCell, TableHeader, TableRow } from 'pages/CopyTrading/components/Table'
 import { PositionLifecycleBadge, ShortenedId } from 'pages/CopyTrading/components/common'
-import { formatDate, formatTokenAmount, formatUsd, signedPercent, signedUsd } from 'pages/CopyTrading/helpers'
-import useInfiniteCursorQuery from 'pages/CopyTrading/useInfiniteCursorQuery'
+import { formatTokenAmount, formatUsd, signedPercent, signedUsd } from 'pages/CopyTrading/helpers'
 import { cn } from 'utils/cn'
+import { formatDateTime } from 'utils/time'
 
 const PAGE_SIZE = 10
 
@@ -21,8 +22,8 @@ const TabPositionsGrid = ({ header, className, ...props }: TabPositionsGridProps
   return (
     <Grid
       className={cn(
-        'min-w-[1120px] grid-cols-[minmax(0,1fr)_minmax(0,0.8fr)_minmax(0,1.1fr)_minmax(0,1.1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1.1fr)_minmax(0,1fr)_minmax(0,1.4fr)] gap-x-4 px-4 py-1',
-        header && 'border-b-0 tracking-[0.04em]',
+        'min-w-[1120px] grid-cols-[minmax(0,1fr)_minmax(0,0.8fr)_minmax(0,1.1fr)_minmax(0,1.1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1.1fr)_minmax(0,1fr)_minmax(0,1.4fr)] gap-x-4',
+        !header && 'px-4 py-1',
         className,
       )}
       {...props}
@@ -90,7 +91,7 @@ const TabPositions = ({ agentId }: { agentId: string }) => {
                 <TableCell>
                   <PositionLifecycleBadge lifecycle={row.lifecycle} quantityState={row.quantityState} />
                 </TableCell>
-                <TableCell className="text-subText">{formatDate(row.openedAt)}</TableCell>
+                <TableCell className="text-subText">{formatDateTime(row.openedAt)}</TableCell>
               </TabPositionsGrid>
             )
           })}

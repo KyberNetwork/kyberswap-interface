@@ -13,7 +13,12 @@ import {
   OpenPositionsPanel,
 } from 'pages/CopyTrading/CopyDetail/components'
 import CopySmartWallet from 'pages/CopyTrading/CopySmartWallet'
-import { AgentIdentity, CopyTradingPage, OwnerWalletRequired } from 'pages/CopyTrading/components/common'
+import {
+  AgentIdentity,
+  CopyTradingPage,
+  OwnerWalletRequired,
+  StickySideColumn,
+} from 'pages/CopyTrading/components/common'
 import { useCopyTradingContext } from 'pages/CopyTrading/context'
 
 const CopyDetailView = ({ backPath }: { backPath: 'my-copies' | 'history' }) => {
@@ -74,7 +79,9 @@ const CopyDetailView = ({ backPath }: { backPath: 'my-copies' | 'history' }) => 
               {isClosed ? <CopyTimeline run={run} /> : <OpenPositionsPanel run={run} />}
               <CopyRunPerformance copyRunId={run.copyRunId} status={run.status} />
             </Stack>
-            <CopySidePanel agent={profile} run={run} />
+            <StickySideColumn>
+              <CopySidePanel agent={profile} run={run} />
+            </StickySideColumn>
           </div>
 
           {isClosed && <ClosedPositionsPanel run={run} />}
