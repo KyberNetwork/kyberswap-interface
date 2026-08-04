@@ -14,9 +14,9 @@ import {
   strategyTabs,
   toStrategyKey,
 } from 'pages/CopyTrading/AgentList/components'
+import useInfiniteCursorQuery from 'pages/CopyTrading/components/InfiniteScroll/useInfiniteCursorQuery'
 import { CopyTradingPage, CopyTradingPageHeading } from 'pages/CopyTrading/components/common'
 import { useCopyTradingContext } from 'pages/CopyTrading/context'
-import useInfiniteCursorQuery from 'pages/CopyTrading/useInfiniteCursorQuery'
 
 const PAGE_SIZE = 5
 

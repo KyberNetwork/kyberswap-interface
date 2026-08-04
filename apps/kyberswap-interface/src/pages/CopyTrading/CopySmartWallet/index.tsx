@@ -8,13 +8,15 @@ import { Center, HStack, Stack } from 'components/Stack'
 import { CopyPositionsTable } from 'pages/CopyTrading/CopyDetail/Tables'
 import { SidePanelCard } from 'pages/CopyTrading/components/AgentSidebarCards'
 import InfiniteScroll, { type InfiniteScrollState } from 'pages/CopyTrading/components/InfiniteScroll'
+import useInfiniteCursorQuery from 'pages/CopyTrading/components/InfiniteScroll/useInfiniteCursorQuery'
 import Leaderboard, { type LeaderboardStat } from 'pages/CopyTrading/components/Leaderboard'
 import { HeaderCell, TableBody, TableCell, TableHeader, TableRow } from 'pages/CopyTrading/components/Table'
-import { ContentPanel, ShortenedId } from 'pages/CopyTrading/components/common'
+import { ContentPanel, ShortenedId, StickySideColumn } from 'pages/CopyTrading/components/common'
 import { copyTradingStatIconMap } from 'pages/CopyTrading/constants'
-import { formatDate, formatTokenAmount, formatUsd, getActivityLabel, signedUsd } from 'pages/CopyTrading/helpers'
-import useInfiniteCursorQuery from 'pages/CopyTrading/useInfiniteCursorQuery'
+import { formatCount, formatTokenAmount, formatUsd, getActivityLabel, signedUsd } from 'pages/CopyTrading/helpers'
+import { useCopyTradeWrite } from 'pages/CopyTrading/write/WriteContext'
 import { cn } from 'utils/cn'
+import { formatDateTime } from 'utils/time'
 
 const PAGE_SIZE = 10
 
@@ -57,8 +59,6 @@ const activityColor = (activity: ActivityRow) => {
   if (activity.activityType.includes('closed') || activity.activityType.includes('succeeded')) return 'text-primary'
   return 'text-text'
 }
-
-const compactHash = (hash?: string) => (hash ? `${hash.slice(0, 8)}…${hash.slice(-6)}` : '—')
 
 type WalletBalancesTableProps = {
   infiniteScroll: InfiniteScrollState
@@ -134,10 +134,10 @@ const SmartWalletActivity = ({ infiniteScroll, loading, rows }: SmartWalletActiv
             </TableCell>
             <TableCell className={activityColor(row)}>{getActivityLabel(row)}</TableCell>
             <TableCell>{row.summary || '—'}</TableCell>
-            <TableCell className="text-subText" title={row.txHash}>
-              {compactHash(row.txHash)}
+            <TableCell className="text-subText">
+              <ShortenedId value={row.txHash} />
             </TableCell>
-            <TableCell className="text-subText">{formatDate(row.occurredAt)}</TableCell>
+            <TableCell className="text-subText">{formatDateTime(row.occurredAt)}</TableCell>
           </ActivityGrid>
         ))}
       </TableBody>
@@ -146,6 +146,7 @@ const SmartWalletActivity = ({ infiniteScroll, loading, rows }: SmartWalletActiv
 )
 
 const SmartWalletSummary = ({ account, run }: { account?: CopyAccountSummary; run: CopyRunSummary }) => {
+  const { openWithdrawQuote } = useCopyTradeWrite()
   const withdrawalAvailability = account?.withdrawQuoteAvailability || run.withdrawQuoteAvailability
   const canWithdraw = withdrawalAvailability?.status === 'ADVISORY_ACTION_STATUS_AVAILABLE'
   const unavailableReason = withdrawalAvailability?.reason?.replace('PREPARED_ACTION_REASON_', '').replaceAll('_', ' ')
@@ -172,7 +173,9 @@ const SmartWalletSummary = ({ account, run }: { account?: CopyAccountSummary; ru
         </HStack>
         <HStack className="items-center justify-between gap-4 text-sm">
           <span className="text-subText">Positions left</span>
-          <span className="font-medium text-text">{account?.openPositionCount ?? run.openPositionCount ?? '—'}</span>
+          <span className="font-medium text-text">
+            {formatCount(account?.openPositionCount ?? run.openPositionCount)}
+          </span>
         </HStack>
         <HStack className="items-start gap-2 text-xs italic text-subText">
           <Info size={14} className="mt-0.5 shrink-0" />
@@ -184,12 +187,9 @@ const SmartWalletSummary = ({ account, run }: { account?: CopyAccountSummary; ru
         <span className="text-sm text-subText">Withdraw available quote balance without selling positions.</span>
         <ButtonPrimary
           type="button"
-          disabled
-          title={
-            canWithdraw
-              ? 'Withdraw write flow is not connected yet'
-              : unavailableReason || 'Withdraw is not currently available'
-          }
+          disabled={!canWithdraw}
+          title={!canWithdraw ? unavailableReason || 'Withdraw is not currently available' : undefined}
+          onClick={() => openWithdrawQuote(run)}
         >
           Withdraw
         </ButtonPrimary>
@@ -239,7 +239,7 @@ const CopySmartWallet = ({ run }: CopySmartWalletProps) => {
     },
     {
       label: 'Stopped At',
-      value: formatDate(run.stoppedAt),
+      value: formatDateTime(run.stoppedAt),
       icon: copyTradingStatIconMap.positionClose,
     },
   ]
@@ -250,19 +250,22 @@ const CopySmartWallet = ({ run }: CopySmartWalletProps) => {
 
       <div className="grid grid-cols-[minmax(0,1fr)_340px] items-start gap-4 max-xl:grid-cols-1">
         <Stack className="min-w-0 gap-4">
-          <ContentPanel title="Balance">
+          <ContentPanel title="Wallet">
             <WalletBalancesTable
               infiniteScroll={balances.infiniteScroll}
               loading={balances.isFetching && !balances.items.length}
               rows={balances.items}
             />
+          </ContentPanel>
 
-            <HStack className="items-center gap-2 border-y border-tableHeader bg-background-60 px-6 py-4">
-              <span className="text-sm font-medium text-subText">Positions</span>
+          <ContentPanel
+            title="Positions"
+            titleAddon={
               <Center className="size-5 rounded-full bg-warning-20 text-xs text-warning">
-                {run.openPositionCount || '—'}
+                {formatCount(run.openPositionCount)}
               </Center>
-            </HStack>
+            }
+          >
             <CopyPositionsTable
               infiniteScroll={positions.infiniteScroll}
               loading={positions.isFetching && !positions.items.length}
@@ -277,7 +280,9 @@ const CopySmartWallet = ({ run }: CopySmartWalletProps) => {
           />
         </Stack>
 
-        <SmartWalletSummary account={accountResponse?.data} run={run} />
+        <StickySideColumn>
+          <SmartWalletSummary account={accountResponse?.data} run={run} />
+        </StickySideColumn>
       </div>
     </Stack>
   )

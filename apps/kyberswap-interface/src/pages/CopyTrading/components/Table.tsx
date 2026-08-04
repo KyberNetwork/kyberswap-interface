@@ -50,7 +50,7 @@ const EmptyState = ({ iconUrl, message, className }: EmptyStateProps) => (
 export const TableHeader = ({ className, ...props }: HTMLAttributes<HTMLDivElement>) => (
   <TableGrid
     className={cn(
-      'cursor-default border-b border-tableHeader bg-background-60 p-3 text-xs font-medium uppercase text-subText',
+      'cursor-default border-b border-tableHeader bg-background px-3 py-1 text-xs font-medium uppercase text-subText',
       className,
     )}
     {...props}

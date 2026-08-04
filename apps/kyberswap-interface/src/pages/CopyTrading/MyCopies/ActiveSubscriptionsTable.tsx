@@ -7,8 +7,9 @@ import InfiniteScroll, { type InfiniteScrollState } from 'pages/CopyTrading/comp
 import { HeaderCell, TableBody, TableCell, TableHeader, TableRow } from 'pages/CopyTrading/components/Table'
 import { CopyRunAgentCell, CopyRunStatusBadge } from 'pages/CopyTrading/components/common'
 import { copyTradingStatIconMap } from 'pages/CopyTrading/constants'
-import { compactUsd, formatUsd, getAgentDisplayName, percent } from 'pages/CopyTrading/helpers'
+import { compactUsd, formatCount, formatUsd, getAgentDisplayName, percent } from 'pages/CopyTrading/helpers'
 import { useCopyTradeWrite } from 'pages/CopyTrading/write/WriteContext'
+import { getPreparedReasonMessage, isActionAvailable } from 'pages/CopyTrading/write/preparedAction'
 import { cn } from 'utils/cn'
 
 type ActiveSubscriptionsGridProps = HTMLAttributes<HTMLDivElement> & {
@@ -88,7 +89,7 @@ const ActiveSubscriptionsTable = ({
               <TableCell className="text-right">{percent(subscription.agentStats.winRatePct)}</TableCell>
               <TableCell className="text-right">{compactUsd(subscription.agentStats.volumeUsd)}</TableCell>
               <TableCell className="text-right">{formatUsd(subscription.capitalInUsd)}</TableCell>
-              <TableCell className="text-right">{subscription.openPositionCount}</TableCell>
+              <TableCell className="text-right">{formatCount(subscription.openPositionCount)}</TableCell>
               <TableCell>
                 <CopyRunStatusBadge status={subscription.status} />
               </TableCell>
@@ -96,6 +97,12 @@ const ActiveSubscriptionsTable = ({
                 <ButtonLight
                   type="button"
                   padding="8px 12px"
+                  disabled={!isActionAvailable(subscription.stopCopyAvailability)}
+                  title={
+                    !isActionAvailable(subscription.stopCopyAvailability)
+                      ? getPreparedReasonMessage(subscription.stopCopyAvailability?.reason)
+                      : undefined
+                  }
                   onClick={() => openStopCopy(subscription, getAgentDisplayName(subscription.agentSnapshot))}
                 >
                   Stop Copying

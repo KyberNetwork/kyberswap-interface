@@ -14,17 +14,21 @@ import Sidebar from 'pages/CopyTrading/components/Sidebar'
 import { CopyTradingProvider } from 'pages/CopyTrading/context'
 import { CopyTradeWriteProvider } from 'pages/CopyTrading/write/WriteContext'
 
+const SIDEBAR_ITEM_LIMIT = 10
+
 const CopyTrading = () => {
   const { pathname } = useLocation()
   const { account } = useActiveWeb3React()
   const ownerAddress = account?.toLowerCase() as Address | undefined
-  const { data: leaderboard, refetch: refetchLeaderboard } = copyTradingApi.useGetLeaderboardQuery({ limit: 100 })
+  const { data: leaderboard, refetch: refetchLeaderboard } = copyTradingApi.useGetLeaderboardQuery({
+    limit: SIDEBAR_ITEM_LIMIT,
+  })
   const { data: chains, refetch: refetchChains } = copyTradingApi.useGetChainsQuery()
   const { data: activeRuns, refetch: refetchActiveRuns } = copyTradingApi.useGetCopyRunsQuery(
     {
       ownerAddress: ownerAddress || '',
       view: 'open',
-      limit: 100,
+      limit: SIDEBAR_ITEM_LIMIT,
     },
     { skip: !ownerAddress },
   )

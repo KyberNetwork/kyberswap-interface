@@ -1,15 +1,16 @@
 import type { HTMLAttributes } from 'react'
 import type { PositionActionKind, PositionSummary } from 'services/copyTrading/types'
 
-import { ButtonLight, ButtonPrimary } from 'components/Button'
+import { ButtonLight } from 'components/Button'
 import { Stack } from 'components/Stack'
 import InfiniteScroll, { type InfiniteScrollState } from 'pages/CopyTrading/components/InfiniteScroll'
 import { HeaderCell, TableBody, TableCell, TableHeader, TableRow } from 'pages/CopyTrading/components/Table'
 import { PositionLifecycleBadge, ShortenedId } from 'pages/CopyTrading/components/common'
 import { copyTradingStatIconMap } from 'pages/CopyTrading/constants'
-import { formatDate, formatUsd, signedPercent, signedUsd } from 'pages/CopyTrading/helpers'
+import { formatUsd, signedPercent, signedUsd } from 'pages/CopyTrading/helpers'
 import { useCopyTradeWrite } from 'pages/CopyTrading/write/WriteContext'
 import { cn } from 'utils/cn'
+import { formatDateTime } from 'utils/time'
 
 type TableGridWrapperProps = HTMLAttributes<HTMLDivElement> & {
   header?: boolean
@@ -21,8 +22,8 @@ const TradeHistoryGrid = ({ header, className, ...props }: TableGridWrapperProps
   return (
     <Grid
       className={cn(
-        'min-w-[1320px] grid-cols-[minmax(0,0.9fr)_minmax(0,0.75fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,0.8fr)_minmax(0,0.8fr)_minmax(0,0.9fr)_minmax(0,1.25fr)_minmax(0,1.25fr)_minmax(0,0.8fr)] gap-x-4 px-4 py-1',
-        header && 'border-b-0 tracking-[0.04em]',
+        'min-w-[1320px] grid-cols-[minmax(0,0.9fr)_minmax(0,0.75fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,0.8fr)_minmax(0,0.8fr)_minmax(0,0.9fr)_minmax(0,1.25fr)_minmax(0,1.25fr)_minmax(0,0.8fr)] gap-x-4',
+        !header && 'px-4 py-1',
         className,
       )}
       {...props}
@@ -36,8 +37,8 @@ const CopyPositionsGrid = ({ header, className, ...props }: TableGridWrapperProp
   return (
     <Grid
       className={cn(
-        'min-w-[1120px] grid-cols-[minmax(0,0.8fr)_minmax(0,0.7fr)_minmax(0,0.9fr)_minmax(0,0.9fr)_minmax(0,0.9fr)_minmax(0,1.25fr)_minmax(0,0.85fr)_minmax(0,1.2fr)_minmax(0,1fr)_minmax(0,1.1fr)] gap-x-3 px-4 py-1',
-        header && 'border-b-0 tracking-[0.04em]',
+        'min-w-[1120px] grid-cols-[minmax(0,0.8fr)_minmax(0,0.7fr)_minmax(0,0.9fr)_minmax(0,0.9fr)_minmax(0,0.9fr)_minmax(0,1.25fr)_minmax(0,0.85fr)_minmax(0,1.2fr)_minmax(0,1fr)_minmax(144px,1.1fr)] gap-x-3',
+        !header && 'px-4 py-1',
         className,
       )}
       {...props}
@@ -89,12 +90,13 @@ const PositionAction = ({ position }: { position: PositionSummary }) => {
   if (!label) return null
 
   const isClose = availableAction === 'POSITION_ACTION_KIND_CLOSE_POSITION'
-  const Button = isClose ? ButtonPrimary : ButtonLight
+  const color = isClose ? 'var(--ks-red)' : 'var(--ks-warning)'
 
   return (
-    <Button
+    <ButtonLight
       type="button"
       padding="7px 12px"
+      color={color}
       className="whitespace-nowrap"
       onClick={event => {
         event.stopPropagation()
@@ -102,7 +104,7 @@ const PositionAction = ({ position }: { position: PositionSummary }) => {
       }}
     >
       {label}
-    </Button>
+    </ButtonLight>
   )
 }
 
@@ -146,8 +148,8 @@ export const TradeHistoryTable = ({ infiniteScroll, loading, rows }: PositionTab
               <TableCell>{formatUsd(row.flatFeeCapturedUsd)}</TableCell>
               <TableCell>{formatUsd(row.cashbackReceivedUsd)}</TableCell>
               <TableCell>{formatUsd(row.netFeeCostUsd)}</TableCell>
-              <TableCell className="text-subText">{formatDate(row.openedAt)}</TableCell>
-              <TableCell className="text-subText">{formatDate(row.closedAt)}</TableCell>
+              <TableCell className="text-subText">{formatDateTime(row.openedAt)}</TableCell>
+              <TableCell className="text-subText">{formatDateTime(row.closedAt)}</TableCell>
               <TableCell className="text-subText">
                 {formatDuration(row.durationSeconds, row.openedAt, row.closedAt)}
               </TableCell>
@@ -200,7 +202,7 @@ export const CopyPositionsTable = ({ infiniteScroll, loading, rows }: PositionTa
                 </Stack>
               </TableCell>
               <TableCell className="text-warning">~{formatUsd(row.estimatedCashbackUsd)}</TableCell>
-              <TableCell className="text-subText">{formatDate(row.openedAt)}</TableCell>
+              <TableCell className="text-subText">{formatDateTime(row.openedAt)}</TableCell>
               <TableCell>
                 <PositionLifecycleBadge lifecycle={row.lifecycle} quantityState={row.quantityState} />
               </TableCell>

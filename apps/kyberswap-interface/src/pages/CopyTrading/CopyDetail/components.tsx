@@ -3,12 +3,13 @@ import type { CopyRunSummary } from 'services/copyTrading/types'
 
 import { Center, HStack, Stack } from 'components/Stack'
 import { CopyPositionsTable, TradeHistoryTable } from 'pages/CopyTrading/CopyDetail/Tables'
+import useInfiniteCursorQuery from 'pages/CopyTrading/components/InfiniteScroll/useInfiniteCursorQuery'
 import Leaderboard, { type LeaderboardStat } from 'pages/CopyTrading/components/Leaderboard'
 import { ContentPanel } from 'pages/CopyTrading/components/common'
 import { copyTradingStatIconMap } from 'pages/CopyTrading/constants'
 import { useCopyTradingContext } from 'pages/CopyTrading/context'
-import { formatDate, formatUsd, percent, signedPercent, signedUsd } from 'pages/CopyTrading/helpers'
-import useInfiniteCursorQuery from 'pages/CopyTrading/useInfiniteCursorQuery'
+import { formatCount, formatUsd, percent, signedPercent, signedUsd } from 'pages/CopyTrading/helpers'
+import { formatDateTime } from 'utils/time'
 
 const PAGE_SIZE = 10
 
@@ -60,14 +61,14 @@ export const CopyTimeline = ({ run }: CopyRunPanelProps) => (
         Started Copy
       </Center>
       <Stack>
-        <span className="text-sm text-subText">{formatDate(run.startedAt)}</span>
+        <span className="text-sm text-subText">{formatDateTime(run.startedAt)}</span>
         <span className="text-lg font-medium text-text">In: {formatUsd(run.capitalInUsd)}</span>
       </Stack>
     </HStack>
     <div className="h-0.5 min-w-16 flex-1 bg-gradient-to-r from-primary to-red max-md:hidden" />
     <HStack className="items-center justify-end gap-5 max-md:justify-start">
       <Stack className="items-end max-md:items-start">
-        <span className="text-right text-sm text-subText">{formatDate(run.stoppedAt)}</span>
+        <span className="text-right text-sm text-subText">{formatDateTime(run.stoppedAt)}</span>
         <span className="text-lg font-medium text-text">Out: {formatUsd(run.capitalOutUsd)}</span>
       </Stack>
       <Center className="min-h-12 rounded-xl bg-red-20 px-6 py-2 text-lg font-medium text-red">Stopped Copy</Center>
@@ -100,7 +101,7 @@ export const OpenPositionsPanel = ({ run }: CopyRunPanelProps) => {
       title="My Positions"
       titleAddon={
         <Center className="size-5 rounded-full bg-primary-12 text-xs text-primary">
-          {run.openPositionCount || '—'}
+          {formatCount(run.openPositionCount)}
         </Center>
       }
       headerAside={
@@ -141,8 +142,8 @@ export const ClosedPositionsPanel = ({ run }: CopyRunPanelProps) => {
     <ContentPanel
       title="Full Closed Positions"
       titleAddon={
-        <Center className="h-6 rounded-full bg-subText-20 px-3 text-xs text-text">
-          {run.closedPositionCount || '—'}
+        <Center className="size-5 rounded-full bg-subText-20 text-xs text-subText">
+          {formatCount(run.closedPositionCount)}
         </Center>
       }
     >

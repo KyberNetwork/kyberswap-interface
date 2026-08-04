@@ -6,7 +6,7 @@ import { ButtonEmpty } from 'components/Button'
 import { HStack, Stack } from 'components/Stack'
 import Leaderboard, { type LeaderboardStat } from 'pages/CopyTrading/components/Leaderboard'
 import { copyTradingStatIconMap } from 'pages/CopyTrading/constants'
-import { compactUsd } from 'pages/CopyTrading/helpers'
+import { compactUsd, formatCount } from 'pages/CopyTrading/helpers'
 import { cn } from 'utils/cn'
 
 const strategyOptions = [
@@ -32,7 +32,7 @@ export const LeaderboardSummary = ({ summary, fallbackAgentCount }: LeaderboardS
   const stats: LeaderboardStat[] = [
     {
       label: 'Total Agents',
-      value: summary?.totalAgents ?? (fallbackAgentCount === undefined ? '—' : String(fallbackAgentCount)),
+      value: formatCount(summary?.totalAgents ?? fallbackAgentCount),
       icon: copyTradingStatIconMap.agents,
       status: summary?.metrics.agentCount?.status,
     },
@@ -44,7 +44,7 @@ export const LeaderboardSummary = ({ summary, fallbackAgentCount }: LeaderboardS
     },
     {
       label: 'Total Copiers',
-      value: summary?.totalCopiers || '—',
+      value: formatCount(summary?.totalCopiers),
       icon: copyTradingStatIconMap.users,
       status: summary?.metrics.totalCopierCount?.status,
     },

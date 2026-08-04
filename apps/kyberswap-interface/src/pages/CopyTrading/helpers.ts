@@ -8,24 +8,80 @@ import type {
   StrategyKey,
 } from 'services/copyTrading/types'
 
-export const compactUsd = (value?: DecimalString) => {
-  if (value === undefined) return '—'
-  const amount = Number(value)
-  if (amount >= 1_000_000) return `$${(amount / 1_000_000).toFixed(1)}M`
-  if (amount >= 1_000) return `$${(amount / 1_000).toFixed(1)}K`
-  return `$${amount.toLocaleString()}`
+import { formatDisplayNumber } from 'utils/numbers'
+
+type NumericValue = DecimalString | number
+
+const parseNumericValue = (value?: NumericValue) => {
+  if (value === undefined || (typeof value === 'string' && !value.trim())) return undefined
+
+  const numeric = Number(value)
+  return Number.isFinite(numeric) ? numeric : undefined
 }
 
-export const formatUsd = (value?: DecimalString) => (value === undefined ? '—' : `$${Number(value).toLocaleString()}`)
+export const compactUsd = (value?: DecimalString) => {
+  const amount = parseNumericValue(value)
+  return amount === undefined
+    ? '—'
+    : formatDisplayNumber(amount, { allowDisplayNegative: true, significantDigits: 3, style: 'currency' })
+}
 
-export const signedUsd = (value?: DecimalString) =>
-  value === undefined ? '—' : `${Number(value) >= 0 ? '+' : '-'}${formatUsd(Math.abs(Number(value)).toString())}`
+export const formatUsd = (value?: DecimalString) => {
+  const amount = parseNumericValue(value)
+  if (amount === undefined) return '—'
 
-export const formatTokenAmount = (value?: DecimalString) => (value === undefined ? '—' : Number(value).toLocaleString())
-export const percent = (value?: DecimalString) => (value === undefined ? '—' : `${Number(value).toFixed(1)}%`)
-export const signedPercent = (value?: DecimalString) =>
-  value === undefined ? '—' : `${Number(value) >= 0 ? '+' : ''}${percent(value)}`
-export const formatDate = (value?: string) => (value ? value.replace('T', ' ').replace(':00Z', '') : '-')
+  const absoluteAmount = Math.abs(amount)
+  const fractionDigits = absoluteAmount > 0 && absoluteAmount < 1 ? 6 : 2
+  return formatDisplayNumber(amount, {
+    allowDisplayNegative: true,
+    fractionDigits,
+    significantDigits: 15,
+    style: 'currency',
+  })
+}
+
+export const signedUsd = (value?: DecimalString) => {
+  const amount = parseNumericValue(value)
+  if (amount === undefined) return '—'
+
+  return `${amount > 0 ? '+' : amount < 0 ? '-' : ''}${formatUsd(String(Math.abs(amount)))}`
+}
+
+export const formatTokenAmount = (value?: DecimalString) => {
+  const amount = parseNumericValue(value)
+  if (amount === undefined) return '—'
+
+  return formatDisplayNumber(amount, {
+    allowDisplayNegative: true,
+    fractionDigits: 6,
+    significantDigits: 15,
+  })
+}
+
+export const formatCount = (value?: NumericValue) => {
+  const amount = parseNumericValue(value)
+  return amount === undefined
+    ? '—'
+    : formatDisplayNumber(Math.round(amount), { fractionDigits: 0, significantDigits: 15 })
+}
+
+export const percent = (value?: DecimalString) => {
+  const amount = parseNumericValue(value)
+  return amount === undefined
+    ? '—'
+    : `${formatDisplayNumber(amount, {
+        allowDisplayNegative: true,
+        fractionDigits: 1,
+        significantDigits: 15,
+      })}%`
+}
+
+export const signedPercent = (value?: DecimalString) => {
+  const amount = parseNumericValue(value)
+  if (amount === undefined) return '—'
+
+  return `${amount > 0 ? '+' : ''}${percent(value)}`
+}
 
 export const getAgentInitials = (name: string) =>
   name

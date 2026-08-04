@@ -2,7 +2,7 @@ import type { OwnerCopySummary } from 'services/copyTrading/types'
 
 import Leaderboard, { type LeaderboardStat } from 'pages/CopyTrading/components/Leaderboard'
 import { copyTradingStatIconMap } from 'pages/CopyTrading/constants'
-import { formatUsd, signedUsd } from 'pages/CopyTrading/helpers'
+import { formatCount, formatUsd, signedUsd } from 'pages/CopyTrading/helpers'
 
 type CopyHistorySummaryProps = {
   summary?: OwnerCopySummary
@@ -18,7 +18,7 @@ export const CopyHistorySummary = ({ summary }: CopyHistorySummaryProps) => {
     },
     {
       label: 'Closed Positions in History Runs',
-      value: summary?.closedPositions || '—',
+      value: formatCount(summary?.closedPositions),
       icon: copyTradingStatIconMap.positionClose,
       status: summary?.metrics.closedPositionCount?.status,
     },
