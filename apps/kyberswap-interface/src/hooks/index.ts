@@ -61,7 +61,7 @@ export function useWeb3React() {
 
   return useMemo(
     () => ({
-      account: '0xb08f7F0bbB5f145f7b36bAB1372fCe17563CD84A',
+      account: account.address,
       chainId: account.chainId,
       connector: account.connector,
       active: account.address !== undefined,

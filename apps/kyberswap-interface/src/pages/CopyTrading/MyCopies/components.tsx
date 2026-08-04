@@ -1,4 +1,3 @@
-import dayjs from 'dayjs'
 import type { ActivityRow, OwnerCopySummary } from 'services/copyTrading/types'
 
 import Dots from 'components/Dots'
@@ -7,8 +6,9 @@ import InfiniteScroll, { type InfiniteScrollState } from 'pages/CopyTrading/comp
 import Leaderboard, { type LeaderboardStat } from 'pages/CopyTrading/components/Leaderboard'
 import { ContentPanel } from 'pages/CopyTrading/components/common'
 import { copyTradingStatIconMap } from 'pages/CopyTrading/constants'
-import { formatDate, formatUsd, getActivityLabel, signedUsd } from 'pages/CopyTrading/helpers'
+import { formatCount, formatUsd, getActivityLabel, signedUsd } from 'pages/CopyTrading/helpers'
 import { cn } from 'utils/cn'
+import { formatDateTime } from 'utils/time'
 
 type OpenCopiesSummaryProps = {
   fallbackActiveCopies?: number
@@ -31,13 +31,13 @@ export const OpenCopiesSummary = ({ fallbackActiveCopies, summary }: OpenCopiesS
     },
     {
       label: 'Open Positions',
-      value: summary?.openPositions || '—',
+      value: formatCount(summary?.openPositions),
       icon: copyTradingStatIconMap.positionOpen,
       status: summary?.metrics.openPositionCount?.status,
     },
     {
       label: 'Active Copies',
-      value: summary?.activeCopies ?? (fallbackActiveCopies === undefined ? '—' : String(fallbackActiveCopies)),
+      value: formatCount(summary?.activeCopies ?? fallbackActiveCopies),
       icon: copyTradingStatIconMap.agents,
       status: summary?.metrics.activeCopyRuns?.status,
     },
@@ -84,9 +84,7 @@ export const AlertsFeed = ({ infiniteScroll, loading, rows }: AlertsFeedProps) =
               <Stack className="min-w-0 gap-1">
                 <span className="text-xs font-medium text-subText">{getActivityLabel(item)}</span>
                 <span className="break-words text-sm text-text">{item.summary}</span>
-                <span className="text-sm text-subText" title={`${formatDate(item.occurredAt)} UTC`}>
-                  {dayjs(item.occurredAt).fromNow()}
-                </span>
+                <span className="text-sm text-subText">{formatDateTime(item.occurredAt)}</span>
               </Stack>
             </HStack>
           ))}

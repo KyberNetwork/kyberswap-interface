@@ -5,6 +5,7 @@ import { ButtonLight, ButtonPrimary } from 'components/Button'
 import InfoHelper from 'components/InfoHelper'
 import { Center, HStack, Stack } from 'components/Stack'
 import { percent } from 'pages/CopyTrading/helpers'
+import { getPreparedReasonMessage, isActionAvailable } from 'pages/CopyTrading/write/preparedAction'
 import { cn } from 'utils/cn'
 
 type SidePanelCardProps = PropsWithChildren<{
@@ -34,9 +35,7 @@ export const CurrentCopyCard = ({
   onView,
   onAddCapital,
 }: CurrentCopyCardProps) => {
-  const addCapitalDisabled = Boolean(
-    addCapitalAvailability?.status && addCapitalAvailability.status !== 'ADVISORY_ACTION_STATUS_AVAILABLE',
-  )
+  const addCapitalDisabled = !isActionAvailable(addCapitalAvailability)
 
   return (
     <SidePanelCard title={title}>
@@ -57,7 +56,7 @@ export const CurrentCopyCard = ({
             type="button"
             padding="10px 12px"
             disabled={addCapitalDisabled}
-            title={addCapitalDisabled ? addCapitalAvailability?.reason : undefined}
+            title={addCapitalDisabled ? getPreparedReasonMessage(addCapitalAvailability?.reason) : undefined}
             onClick={onAddCapital}
           >
             Add Capital

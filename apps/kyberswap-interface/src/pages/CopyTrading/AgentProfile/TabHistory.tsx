@@ -3,11 +3,12 @@ import copyTradingApi from 'services/copyTrading'
 
 import { Stack } from 'components/Stack'
 import InfiniteScroll from 'pages/CopyTrading/components/InfiniteScroll'
+import useInfiniteCursorQuery from 'pages/CopyTrading/components/InfiniteScroll/useInfiniteCursorQuery'
 import { HeaderCell, TableBody, TableCell, TableHeader, TableRow } from 'pages/CopyTrading/components/Table'
 import { ShortenedId } from 'pages/CopyTrading/components/common'
-import { formatDate, formatTokenAmount, formatUsd, signedUsd } from 'pages/CopyTrading/helpers'
-import useInfiniteCursorQuery from 'pages/CopyTrading/useInfiniteCursorQuery'
+import { formatTokenAmount, formatUsd, signedUsd } from 'pages/CopyTrading/helpers'
 import { cn } from 'utils/cn'
+import { formatDateTime } from 'utils/time'
 
 const PAGE_SIZE = 10
 
@@ -21,8 +22,8 @@ const TabHistoryGrid = ({ header, className, ...props }: TabHistoryGridProps) =>
   return (
     <Grid
       className={cn(
-        'min-w-[1120px] grid-cols-[minmax(0,1fr)_minmax(0,0.8fr)_minmax(0,1.1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1.2fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1.4fr)] gap-x-4 px-4 py-1',
-        header && 'border-b-0 tracking-[0.04em]',
+        'min-w-[1120px] grid-cols-[minmax(0,1fr)_minmax(0,0.8fr)_minmax(0,1.1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1.2fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1.4fr)] gap-x-4',
+        !header && 'px-4 py-1',
         className,
       )}
       {...props}
@@ -84,7 +85,7 @@ const TabHistory = ({ agentId }: { agentId: string }) => {
                 </TableCell>
                 <TableCell>{formatUsd(row.flatFeeCapturedUsd)}</TableCell>
                 <TableCell>{formatUsd(row.cashbackReceivedUsd)}</TableCell>
-                <TableCell className="text-subText">{formatDate(row.closedAt)}</TableCell>
+                <TableCell className="text-subText">{formatDateTime(row.closedAt)}</TableCell>
               </TabHistoryGrid>
             )
           })}
