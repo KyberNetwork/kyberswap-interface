@@ -1,5 +1,5 @@
 import { type ReactNode } from 'react'
-import { AlertCircle, CheckCircle, Clock, RefreshCw } from 'react-feather'
+import { AlertCircle, CheckCircle, Clock, RotateCw } from 'react-feather'
 
 import { ButtonLight, ButtonOutlined, ButtonPrimary } from 'components/Button'
 import Loader from 'components/Loader'
@@ -233,12 +233,12 @@ const PreparedActionModal = ({
                 </ButtonLight>
                 <ButtonPrimary type="button" className="flex-1" onClick={onRetry}>
                   <HStack className="items-center justify-center gap-2">
-                    <RefreshCw size={15} />
+                    <RotateCw size={15} />
                     {receiptConfirmationPending
                       ? 'Check confirmation'
                       : state.phase === 'sync_error'
                       ? 'Refresh status'
-                      : 'Prepare again'}
+                      : 'Try again'}
                   </HStack>
                 </ButtonPrimary>
               </HStack>

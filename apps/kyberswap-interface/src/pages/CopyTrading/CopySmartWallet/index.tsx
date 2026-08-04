@@ -3,10 +3,9 @@ import { CreditCard, Info } from 'react-feather'
 import copyTradingApi from 'services/copyTrading'
 import type { ActivityRow, CopyAccountSummary, CopyRunSummary, WalletBalanceRow } from 'services/copyTrading/types'
 
-import { ButtonPrimary } from 'components/Button'
 import { Center, HStack, Stack } from 'components/Stack'
 import { CopyPositionsTable } from 'pages/CopyTrading/CopyDetail/Tables'
-import { SidePanelCard } from 'pages/CopyTrading/components/AgentSidebarCards'
+import { SidePanelCard, WithdrawQuoteCard } from 'pages/CopyTrading/components/AgentSidebarCards'
 import InfiniteScroll, { type InfiniteScrollState } from 'pages/CopyTrading/components/InfiniteScroll'
 import useInfiniteCursorQuery from 'pages/CopyTrading/components/InfiniteScroll/useInfiniteCursorQuery'
 import Leaderboard, { type LeaderboardStat } from 'pages/CopyTrading/components/Leaderboard'
@@ -148,8 +147,6 @@ const SmartWalletActivity = ({ infiniteScroll, loading, rows }: SmartWalletActiv
 const SmartWalletSummary = ({ account, run }: { account?: CopyAccountSummary; run: CopyRunSummary }) => {
   const { openWithdrawQuote } = useCopyTradeWrite()
   const withdrawalAvailability = account?.withdrawQuoteAvailability || run.withdrawQuoteAvailability
-  const canWithdraw = withdrawalAvailability?.status === 'ADVISORY_ACTION_STATUS_AVAILABLE'
-  const unavailableReason = withdrawalAvailability?.reason?.replace('PREPARED_ACTION_REASON_', '').replaceAll('_', ' ')
 
   return (
     <Stack className="gap-4">
@@ -183,17 +180,10 @@ const SmartWalletSummary = ({ account, run }: { account?: CopyAccountSummary; ru
         </HStack>
       </SidePanelCard>
 
-      <SidePanelCard title="Advanced">
-        <span className="text-sm text-subText">Withdraw available quote balance without selling positions.</span>
-        <ButtonPrimary
-          type="button"
-          disabled={!canWithdraw}
-          title={!canWithdraw ? unavailableReason || 'Withdraw is not currently available' : undefined}
-          onClick={() => openWithdrawQuote(run)}
-        >
-          Withdraw
-        </ButtonPrimary>
-      </SidePanelCard>
+      <WithdrawQuoteCard
+        availability={withdrawalAvailability}
+        onWithdraw={() => openWithdrawQuote(run, withdrawalAvailability)}
+      />
     </Stack>
   )
 }
