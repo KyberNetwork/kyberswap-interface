@@ -1,5 +1,7 @@
+import { useState } from 'react'
 import { Navigate, useParams } from 'react-router-dom'
 import copyTradingApi from 'services/copyTrading'
+import type { PositionSummary } from 'services/copyTrading/types'
 
 import LocalLoader from 'components/LocalLoader'
 import { Stack } from 'components/Stack'
@@ -24,6 +26,7 @@ import { useCopyTradingContext } from 'pages/CopyTrading/context'
 const CopyDetailView = ({ backPath }: { backPath: 'my-copies' | 'history' }) => {
   const { copyId } = useParams()
   const { ownerAddress } = useCopyTradingContext()
+  const [openPositions, setOpenPositions] = useState<PositionSummary[]>([])
   const copyRunQuery = { ownerAddress: ownerAddress || '', copyRunId: copyId || '' }
   const {
     data: copyRun,
@@ -76,11 +79,15 @@ const CopyDetailView = ({ backPath }: { backPath: 'my-copies' | 'history' }) => 
 
           <div className="grid grid-cols-[minmax(0,1fr)_340px] gap-4 max-xl:grid-cols-1">
             <Stack className="min-w-0 gap-4">
-              {isClosed ? <CopyTimeline run={run} /> : <OpenPositionsPanel run={run} />}
+              {isClosed ? (
+                <CopyTimeline run={run} />
+              ) : (
+                <OpenPositionsPanel run={run} onPositionsChange={setOpenPositions} />
+              )}
               <CopyRunPerformance copyRunId={run.copyRunId} status={run.status} />
             </Stack>
             <StickySideColumn>
-              <CopySidePanel agent={profile} run={run} />
+              <CopySidePanel agent={profile} positions={openPositions} run={run} />
             </StickySideColumn>
           </div>
 

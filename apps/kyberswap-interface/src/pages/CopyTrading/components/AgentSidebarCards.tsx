@@ -23,19 +23,24 @@ export const SidePanelCard = ({ bodyClassName, children, title }: SidePanelCardP
 type CurrentCopyCardProps = {
   addCapitalAvailability?: AdvisoryActionAvailability
   capital: string
+  stopCopyAvailability?: AdvisoryActionAvailability
   title?: string
   onView?: () => void
   onAddCapital?: () => void
+  onStopCopy?: () => void
 }
 
 export const CurrentCopyCard = ({
   addCapitalAvailability,
   capital,
+  stopCopyAvailability,
   title = 'Your Current Copy',
   onView,
   onAddCapital,
+  onStopCopy,
 }: CurrentCopyCardProps) => {
   const addCapitalDisabled = !isActionAvailable(addCapitalAvailability)
+  const stopCopyDisabled = !isActionAvailable(stopCopyAvailability)
 
   return (
     <SidePanelCard title={title}>
@@ -44,6 +49,20 @@ export const CurrentCopyCard = ({
         <span className="text-xl font-medium text-primary">{capital}</span>
       </HStack>
       <HStack className="gap-3 max-md:flex-col">
+        {onStopCopy && (
+          <div className="w-full flex-1">
+            <ButtonLight
+              type="button"
+              padding="10px 12px"
+              color="var(--ks-warning)"
+              disabled={stopCopyDisabled}
+              title={stopCopyDisabled ? getPreparedReasonMessage(stopCopyAvailability?.reason) : undefined}
+              onClick={onStopCopy}
+            >
+              Stop Copy
+            </ButtonLight>
+          </div>
+        )}
         {onView && (
           <div className="w-full flex-1">
             <ButtonLight type="button" padding="10px 12px" onClick={onView}>
@@ -63,6 +82,29 @@ export const CurrentCopyCard = ({
           </ButtonPrimary>
         </div>
       </HStack>
+    </SidePanelCard>
+  )
+}
+
+type WithdrawQuoteCardProps = {
+  availability?: AdvisoryActionAvailability
+  onWithdraw: () => void
+}
+
+export const WithdrawQuoteCard = ({ availability, onWithdraw }: WithdrawQuoteCardProps) => {
+  const disabled = !isActionAvailable(availability)
+
+  return (
+    <SidePanelCard title="Advanced">
+      <span className="text-sm text-subText">Withdraw available quote balance without selling positions.</span>
+      <ButtonPrimary
+        type="button"
+        disabled={disabled}
+        title={disabled ? getPreparedReasonMessage(availability?.reason) : undefined}
+        onClick={onWithdraw}
+      >
+        Withdraw
+      </ButtonPrimary>
     </SidePanelCard>
   )
 }

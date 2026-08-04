@@ -1,5 +1,6 @@
+import { useEffect } from 'react'
 import copyTradingApi from 'services/copyTrading'
-import type { CopyRunSummary } from 'services/copyTrading/types'
+import type { CopyRunSummary, PositionSummary } from 'services/copyTrading/types'
 
 import { Center, HStack, Stack } from 'components/Stack'
 import { CopyPositionsTable, TradeHistoryTable } from 'pages/CopyTrading/CopyDetail/Tables'
@@ -15,6 +16,10 @@ const PAGE_SIZE = 10
 
 type CopyRunPanelProps = {
   run: CopyRunSummary
+}
+
+type OpenPositionsPanelProps = CopyRunPanelProps & {
+  onPositionsChange?: (positions: PositionSummary[]) => void
 }
 
 const getCopyRunStats = (run: CopyRunSummary): LeaderboardStat[] => {
@@ -76,7 +81,7 @@ export const CopyTimeline = ({ run }: CopyRunPanelProps) => (
   </HStack>
 )
 
-export const OpenPositionsPanel = ({ run }: CopyRunPanelProps) => {
+export const OpenPositionsPanel = ({ run, onPositionsChange }: OpenPositionsPanelProps) => {
   const { ownerAddress } = useCopyTradingContext()
   const [getCopyRunPositions] = copyTradingApi.useLazyGetCopyRunPositionsQuery()
   const {
@@ -92,9 +97,13 @@ export const OpenPositionsPanel = ({ run }: CopyRunPanelProps) => {
         copyRunId: run.copyRunId,
         status: 'open',
         cursor,
-        limit: PAGE_SIZE,
+        limit: 100,
       }).unwrap(),
   })
+
+  useEffect(() => {
+    onPositionsChange?.(positions)
+  }, [onPositionsChange, positions])
 
   return (
     <ContentPanel

@@ -1,10 +1,9 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { useCallback, useEffect, useMemo, useState } from 'react'
-import copyTradingApi, { usePrepareStopCopyMutation } from 'services/copyTrading'
+import { useMemo, useState } from 'react'
+import { usePrepareStopCopyMutation } from 'services/copyTrading'
 import type { CopyRunSummary, PositionSummary, PreparedCallKind } from 'services/copyTrading/types'
 
 import { ButtonWarning } from 'components/Button'
-import Loader from 'components/Loader'
 import { HStack, Stack } from 'components/Stack'
 import { useActiveWeb3React } from 'hooks'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
@@ -15,7 +14,6 @@ import { useCopyTradeWrite } from 'pages/CopyTrading/write/WriteContext'
 import {
   formatPreparedAmount,
   formatSlippage,
-  getApiErrorMessage,
   getPreparedReasonMessage,
   isActionAvailable,
 } from 'pages/CopyTrading/write/preparedAction'
@@ -26,7 +24,8 @@ import { cn } from 'utils/cn'
 type StopCopyModalProps = {
   isOpen: boolean
   onDismiss: () => void
-  run: CopyRunSummary
+  copyRun: CopyRunSummary
+  positions: PositionSummary[]
   agentName?: string
 }
 
@@ -36,87 +35,38 @@ const MAX_STOP_POSITIONS = 32
 
 const getUserPositionId = (position: PositionSummary) => position.userPositionId
 
-const StopCopyModal = ({ isOpen, onDismiss, run, agentName }: StopCopyModalProps) => {
+const StopCopyModal = ({ isOpen, onDismiss, copyRun, positions, agentName }: StopCopyModalProps) => {
   const { account, chainId } = useActiveWeb3React()
   const { changeNetwork } = useChangeNetwork()
   const toggleWalletModal = useWalletModalToggle()
   const { refreshCopyTrading } = useCopyTradeWrite()
   const [prepareStopCopy] = usePrepareStopCopyMutation()
-  const [getPositions] = copyTradingApi.useLazyGetCopyRunPositionsQuery()
-  const { data: runResponse, isFetching: isRefreshingRun } = copyTradingApi.useGetCopyRunQuery(
-    { ownerAddress: run.ownerAddress, copyRunId: run.copyRunId },
-    { skip: !isOpen },
-  )
   const [flowState, setFlowState] = useState(DEFAULT_PREPARED_ACTION_STATE)
-  const [positions, setPositions] = useState<PositionSummary[]>([])
-  const [positionsLoading, setPositionsLoading] = useState(false)
-  const [positionsError, setPositionsError] = useState<string>()
   const [selected, setSelected] = useState<Record<string, boolean>>({})
   const [slippage, setSlippage] = useState(0.5)
 
-  const directRun = runResponse?.data || run
-  const availability = directRun.stopCopyAvailability
-  const onExpectedChain = chainId === directRun.chainId
+  const availability = copyRun.stopCopyAvailability
+  const onExpectedChain = chainId === copyRun.chainId
   const ownershipMessage =
-    account && directRun.ownerAddress.toLowerCase() !== account.toLowerCase()
+    account && copyRun.ownerAddress.toLowerCase() !== account.toLowerCase()
       ? 'The selected Copy Run is not owned by the connected wallet.'
       : undefined
 
-  const fetchAllPositions = useCallback(async () => {
-    const rows: PositionSummary[] = []
-    let cursor: string | undefined
-
-    while (true) {
-      const response = await getPositions({
-        ownerAddress: directRun.ownerAddress,
-        copyRunId: directRun.copyRunId,
-        status: 'open',
-        cursor,
-        limit: 100,
-      }).unwrap()
-      rows.push(...response.data)
-
-      if (!response.pagination.hasMore) return rows
-      const nextCursor = response.pagination.nextCursor
-      if (!nextCursor || nextCursor === cursor) {
-        throw new Error('The positions response returned an invalid pagination cursor.')
-      }
-      cursor = nextCursor
-    }
-  }, [directRun.copyRunId, directRun.ownerAddress, getPositions])
-
-  useEffect(() => {
-    if (!isOpen) return
-    let cancelled = false
-
-    const loadPositions = async () => {
-      setPositionsLoading(true)
-      setPositionsError(undefined)
-      try {
-        const rows = await fetchAllPositions()
-        if (!cancelled) setPositions(rows)
-      } catch (error) {
-        if (!cancelled) setPositionsError(getApiErrorMessage(error))
-      } finally {
-        if (!cancelled) setPositionsLoading(false)
-      }
-    }
-
-    void loadPositions()
-    return () => {
-      cancelled = true
-    }
-  }, [fetchAllPositions, isOpen])
-
-  const selectablePositions = useMemo(
-    () => positions.filter(position => getUserPositionId(position)).slice(0, MAX_STOP_POSITIONS),
-    [positions],
-  )
-  const isSelected = (position: PositionSummary) => {
+  const selectablePositions = useMemo(() => positions.filter(position => getUserPositionId(position)), [positions])
+  const isSelected = (position: PositionSummary, index: number) => {
     const positionId = getUserPositionId(position)
-    return positionId ? selected[positionId] ?? true : false
+    return positionId ? selected[positionId] ?? index < MAX_STOP_POSITIONS : false
   }
   const selectedPositions = selectablePositions.filter(isSelected)
+
+  const togglePosition = (position: PositionSummary, index: number) => {
+    const positionId = getUserPositionId(position)
+    if (!positionId) return
+
+    const checked = isSelected(position, index)
+    if (!checked && selectedPositions.length >= MAX_STOP_POSITIONS) return
+    setSelected(current => ({ ...current, [positionId]: !checked }))
+  }
 
   const flow = usePreparedAction({
     state: flowState,
@@ -124,31 +74,24 @@ const StopCopyModal = ({ isOpen, onDismiss, run, agentName }: StopCopyModalProps
     expected: {
       account: account || '',
       callKinds: STOP_COPY_CALL_KINDS,
-      chainId: directRun.chainId,
-      copyAccount: directRun.copyAccount,
+      chainId: copyRun.chainId,
+      copyAccount: copyRun.copyAccount,
       preview: 'stopCopy',
     },
     prepare: async () => {
       if (!account) throw new Error('Connect your wallet first.')
-      if (directRun.ownerAddress.toLowerCase() !== account.toLowerCase()) {
+      if (copyRun.ownerAddress.toLowerCase() !== account.toLowerCase()) {
         throw new Error('The selected Copy Run is not owned by the connected wallet.')
       }
 
-      const currentPositions = await fetchAllPositions()
-      setPositions(currentPositions)
-      setPositionsError(undefined)
-      const currentPositionIds = currentPositions
-        .filter(position => getUserPositionId(position))
+      const currentPositionIds = selectablePositions
+        .filter(isSelected)
         .slice(0, MAX_STOP_POSITIONS)
-        .filter(position => {
-          const positionId = getUserPositionId(position) as string
-          return selected[positionId] ?? true
-        })
         .map(position => getUserPositionId(position) as string)
 
       const response = await prepareStopCopy({
         ownerAddress: account.toLowerCase(),
-        copyRunId: directRun.copyRunId,
+        copyRunId: copyRun.copyRunId,
         userPositionIds: currentPositionIds,
         slippageBps: Math.round(slippage * 100),
       }).unwrap()
@@ -176,7 +119,7 @@ const StopCopyModal = ({ isOpen, onDismiss, run, agentName }: StopCopyModalProps
       return
     }
     if (!onExpectedChain) {
-      void changeNetwork(directRun.chainId as ChainId)
+      void changeNetwork(copyRun.chainId as ChainId)
       return
     }
     void flow.prepare()
@@ -186,7 +129,7 @@ const StopCopyModal = ({ isOpen, onDismiss, run, agentName }: StopCopyModalProps
   const review = (
     <Stack className="gap-4">
       <ReviewSection title="Review Stop Copy">
-        <ReviewRow label="Agent" value={agentName || directRun.agentSnapshot?.displayName || 'Copy Run'} />
+        <ReviewRow label="Agent" value={agentName || copyRun.agentSnapshot?.displayName || 'Copy Run'} />
         <ReviewRow label="Positions to sell" value={preview?.positions?.length || 0} />
         <ReviewRow label="Current value" value={formatUsd(preview?.totalCurrentValueUsd?.value)} />
         <ReviewRow
@@ -212,9 +155,7 @@ const StopCopyModal = ({ isOpen, onDismiss, run, agentName }: StopCopyModalProps
     </Stack>
   )
 
-  const availabilityMessage = isRefreshingRun
-    ? 'Refreshing availability…'
-    : ownershipMessage
+  const availabilityMessage = ownershipMessage
     ? ownershipMessage
     : !isActionAvailable(availability)
     ? getPreparedReasonMessage(availability?.reason)
@@ -228,10 +169,11 @@ const StopCopyModal = ({ isOpen, onDismiss, run, agentName }: StopCopyModalProps
       title={`Stop Copying${agentName ? ` ${agentName}` : ''}`}
       review={review}
       confirmLabel="Stop Copying"
+      confirmVariant="warning"
       onBack={flow.reset}
       onConfirm={() => void flow.confirm()}
       onRetry={() => void flow.retry()}
-      pendingText="Refreshing the Copy Run and selected positions…"
+      pendingText="Preparing Stop Copy…"
       successTitle="Copy stopped"
       successText="The transaction is confirmed on-chain. Copy Trading data will refresh in the background."
       width={480}
@@ -243,26 +185,26 @@ const StopCopyModal = ({ isOpen, onDismiss, run, agentName }: StopCopyModalProps
         </span>
 
         <Stack className="gap-1">
-          {positionsLoading ? (
-            <HStack className="items-center justify-center gap-2 text-sm text-subText">
-              <Loader size="18px" /> Loading all positions…
-            </HStack>
-          ) : positionsError ? (
-            <span className="text-center text-sm text-red">{positionsError}</span>
-          ) : selectablePositions.length ? (
-            selectablePositions.map(position => {
+          {selectablePositions.length ? (
+            selectablePositions.map((position, index) => {
               const userPositionId = getUserPositionId(position) as string
               const negative = Number(position.unrealizedPnlUsd || 0) < 0
+              const checked = isSelected(position, index)
+              const selectionLimitReached = !checked && selectedPositions.length >= MAX_STOP_POSITIONS
               return (
                 <label
                   key={userPositionId}
-                  className="flex cursor-pointer items-center gap-3 rounded-lg bg-white-04 px-3 py-2"
+                  className={cn(
+                    'flex items-center gap-3 rounded-lg bg-white-04 px-3 py-2',
+                    selectionLimitReached ? 'cursor-not-allowed opacity-50' : 'cursor-pointer',
+                  )}
                 >
                   <input
                     type="checkbox"
-                    checked={isSelected(position)}
-                    onChange={() => setSelected(current => ({ ...current, [userPositionId]: !isSelected(position) }))}
-                    className="size-4 shrink-0 accent-primary"
+                    checked={checked}
+                    disabled={selectionLimitReached}
+                    onChange={() => togglePosition(position, index)}
+                    className="size-4 shrink-0 accent-warning"
                   />
                   <HStack className="min-w-0 flex-1 items-center justify-between gap-2">
                     <Stack className="min-w-0 flex-1 gap-0.5">
@@ -283,9 +225,9 @@ const StopCopyModal = ({ isOpen, onDismiss, run, agentName }: StopCopyModalProps
           )}
         </Stack>
 
-        {positions.length > MAX_STOP_POSITIONS && (
+        {selectablePositions.length > MAX_STOP_POSITIONS && (
           <span className="text-xs text-warning">
-            Only the first {MAX_STOP_POSITIONS} eligible positions can be prepared.
+            Select up to {MAX_STOP_POSITIONS} positions to sell in this Stop Copy request.
           </span>
         )}
 
@@ -312,8 +254,8 @@ const StopCopyModal = ({ isOpen, onDismiss, run, agentName }: StopCopyModalProps
 
         <ButtonWarning
           type="button"
-          disabled={!!account && onExpectedChain && (positionsLoading || !!positionsError || !!availabilityMessage)}
-          title={availabilityMessage || positionsError}
+          disabled={!!account && onExpectedChain && !!availabilityMessage}
+          title={availabilityMessage}
           onClick={handlePrimaryAction}
         >
           {!account

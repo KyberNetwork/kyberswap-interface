@@ -15,7 +15,7 @@ export type LeaderboardStat = {
 }
 
 const getMinCardWidth = (size: LeaderboardSize, itemCount: number) => {
-  if (size === 'lg') return itemCount > 3 ? 240 : 280
+  if (size === 'lg') return itemCount > 3 ? 210 : 240
 
   return itemCount > 4 ? 180 : 190
 }
@@ -37,13 +37,13 @@ const LargeLeaderboardCard = ({ item }: LeaderboardCardProps) => {
   const { iconUrl, backgroundColor } = item.icon
 
   return (
-    <HStack className="min-h-[122px] items-center gap-6 rounded-xl bg-buttonBlack px-7 py-6">
-      <Center className={cn('size-16 shrink-0 rounded-full', backgroundColor)}>
-        <img src={iconUrl} alt="" className="size-9" />
+    <HStack className="min-h-24 items-center gap-4 rounded-xl bg-buttonBlack px-5 py-4">
+      <Center className={cn('size-12 shrink-0 rounded-full', backgroundColor)}>
+        <img src={iconUrl} alt="" className="size-6" />
       </Center>
       <Stack className="min-w-0 gap-1">
-        <span className="break-words text-[28px] font-medium leading-9 text-text">{item.value}</span>
-        <div className="text-base leading-5 text-subText">
+        <span className="break-words text-2xl font-medium leading-8 text-text">{item.value}</span>
+        <div className="text-sm leading-5 text-subText">
           <StatLabel item={item} />
         </div>
       </Stack>
@@ -90,7 +90,7 @@ const Leaderboard = ({ items, size = 'lg', className }: LeaderboardProps) => {
   }
 
   return (
-    <div className={cn('grid', size === 'sm' ? 'gap-4' : 'gap-6', className)} style={gridStyle}>
+    <div className={cn('grid gap-4', className)} style={gridStyle}>
       {items.map(item => (
         <LeaderboardCard key={item.label} item={item} size={size} />
       ))}

@@ -1,4 +1,4 @@
-import type { AgentProfile, CopyRunSummary } from 'services/copyTrading/types'
+import type { AgentProfile, CopyRunSummary, PositionSummary } from 'services/copyTrading/types'
 
 import { HStack, Stack } from 'components/Stack'
 import {
@@ -6,6 +6,7 @@ import {
   CurrentCopyCard,
   StrategyExecutionCard,
   WishlistedTokensCard,
+  WithdrawQuoteCard,
 } from 'pages/CopyTrading/components/AgentSidebarCards'
 import { formatUsd, signedUsd } from 'pages/CopyTrading/helpers'
 import { useCopyTradeWrite } from 'pages/CopyTrading/write/WriteContext'
@@ -30,16 +31,21 @@ const ClosedCopySummary = ({ run }: CopyStatusCardProps) => {
 
 type CopySidePanelProps = {
   agent: AgentProfile
+  positions: PositionSummary[]
   run: CopyRunSummary
 }
 
-const CopySidePanel = ({ agent, run }: CopySidePanelProps) => {
-  const { openAddCapital } = useCopyTradeWrite()
+const CopySidePanel = ({ agent, positions, run }: CopySidePanelProps) => {
+  const { openAddCapital, openStopCopy, openWithdrawQuote } = useCopyTradeWrite()
 
   if (run.status === 'closed') {
     return (
       <Stack className="gap-4">
         <ClosedCopySummary run={run} />
+        <WithdrawQuoteCard
+          availability={run.withdrawQuoteAvailability}
+          onWithdraw={() => openWithdrawQuote(run, run.withdrawQuoteAvailability)}
+        />
         <StrategyExecutionCard items={agent.strategyExecutionItems} />
       </Stack>
     )
@@ -50,8 +56,10 @@ const CopySidePanel = ({ agent, run }: CopySidePanelProps) => {
       <CurrentCopyCard
         addCapitalAvailability={run.addCapitalAvailability}
         capital={formatUsd(run.capitalInUsd)}
+        stopCopyAvailability={run.stopCopyAvailability}
         title="Current Copying"
         onAddCapital={() => openAddCapital(run, agent.displayName)}
+        onStopCopy={() => openStopCopy(run, positions, agent.displayName)}
       />
       <AgentRiskCard agent={agent} />
       <StrategyExecutionCard items={agent.strategyExecutionItems} />

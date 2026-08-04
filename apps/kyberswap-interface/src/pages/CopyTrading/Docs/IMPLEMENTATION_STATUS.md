@@ -90,9 +90,12 @@ Current primary-screen read behavior:
 - Position lifecycle and quantity state render independently from typed fields.
 - Open and History remain server-owned Copy Run views. The frontend does not
   locally move rows between them.
-- Agent Positions, Agent History, Action Logs, My Copies, Copy History, Copy Run
-  positions, Alerts Feed, and Copy Smart Wallet cursor collections use infinite
-  scroll inside bounded scroll containers.
+- Agent Positions, Agent History, Action Logs, My Copies, Copy Run positions,
+  Alerts Feed, and Copy Smart Wallet cursor collections use infinite scroll
+  inside bounded scroll containers.
+- Copy History uses cursor-backed Previous / Page N / Next pagination with 5
+  rows per page. The API does not expose a total count, so the UI does not
+  invent numbered last-page navigation.
 - Cursor lists use TanStack `useInfiniteQuery` for the page/cursor chain and
   invoke the existing RTK lazy query trigger from `queryFn`.
 - Copy Smart Wallet owns independent cursor chains for balances, open positions,
@@ -116,9 +119,15 @@ Current primary-screen read behavior:
 - Keep Agent and Copy Run performance at the first API page (`limit=100`).
 - Keep Sidebar Agents and Open Copies capped at 10 items.
 - Open and History membership remains owned by the server response.
-- Manual Sell and Close Position trust the selected `PositionSummary` passed to
-  the modal. They do not reload a direct position before preparation. The
-  preparation response remains authoritative before any wallet submission.
+- Stop Copy trusts the Copy Run and loaded positions passed to the modal. Manual
+  Sell and Close Position trust the selected `PositionSummary`. These flows do
+  not reload their input entities before preparation; the preparation response
+  remains authoritative before any wallet submission.
+- Every Stop Copy entry point supplies open positions before opening the modal.
+  Copy Detail reuses its loaded position list; My Copies loads the complete
+  cursor chain at the table action boundary.
+- Withdraw trusts the Copy Run and availability passed from Copy Detail or Smart
+  Wallet. The modal does not reload either entity before preparation.
 - A write action is successful in the UI after its submitted transaction has a
   successful receipt. Cache invalidation runs asynchronously and the UI does not
   wait for backend indexing.
@@ -151,10 +160,11 @@ Implemented behavior:
 - Add Capital uses the fixed supported quote token for decimal-to-raw input,
   then reviews the API quote token, minimum, wallet balance, and resulting
   allocation.
-- Stop Copy loads the complete open-position cursor chain, sends at most 32
-  current selected `userPositionIds`, and permits an empty array.
-- Withdraw is owned by the Smart Wallet CTA. It sends `{}` to preparation and
-  requires the prepared amount and connected-owner recipient.
+- Stop Copy uses the loaded positions passed to the modal, sends at most 32
+  selected `userPositionIds`, and permits an empty array.
+- Withdraw is exposed for stopped Smart Wallets and closed Copy Runs, gated by
+  `withdrawQuoteAvailability`. It sends `{}` to preparation and requires the
+  prepared amount and connected-owner recipient.
 - Manual Sell trusts the selected position props and reloads the complete
   pending-obligation cursor chain. It uses the FIFO head ratio and total
   unresolved FIFO count.
@@ -174,15 +184,15 @@ Implemented behavior:
 
 ## Action Integration Matrix
 
-| Capability     | Current production UI                                                                                                                 |
-| -------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
-| Start Copy     | Reuses one UUID, target amount, and predicted account through Create, Fund, and Complete; each exact call waits for receipt.          |
-| Add Capital    | Reviews quote-token, minimum, balance, and allocation data, then submits the exact prepared call.                                     |
-| Stop Copy      | Loads all open-position cursors, supports zero to 32 selected IDs, reviews recovery totals, and submits the exact prepared call.      |
-| Withdraw Quote | Smart Wallet owns an availability-gated CTA; amount and owner recipient are server-prepared and non-editable.                         |
-| Wallet Session | Exact SIWE challenge/signature exchange with an owner/chain-scoped, expiring in-memory Bearer session; `401` forces re-authorization. |
-| Manual Sell    | Trusts selected position props, requires the authoritative FIFO head ratio/count, then prepares through the wallet session.           |
-| Close Position | Trusts selected position props, requires the advertised full-recovery action, then prepares through the wallet session.               |
+| Capability     | Current production UI                                                                                                                   |
+| -------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| Start Copy     | Reuses one UUID, target amount, and predicted account through Create, Fund, and Complete; each exact call waits for receipt.            |
+| Add Capital    | Reviews quote-token, minimum, balance, and allocation data, then submits the exact prepared call.                                       |
+| Stop Copy      | Trusts loaded position props, supports zero to 32 selected IDs, reviews recovery totals, and submits the exact prepared call.           |
+| Withdraw Quote | Stopped and closed Copy Detail views expose an availability-gated CTA; amount and owner recipient are server-prepared and non-editable. |
+| Wallet Session | Exact SIWE challenge/signature exchange with an owner/chain-scoped, expiring in-memory Bearer session; `401` forces re-authorization.   |
+| Manual Sell    | Trusts selected position props, requires the authoritative FIFO head ratio/count, then prepares through the wallet session.             |
+| Close Position | Trusts selected position props, requires the advertised full-recovery action, then prepares through the wallet session.                 |
 
 ## Implemented Write Invariants
 

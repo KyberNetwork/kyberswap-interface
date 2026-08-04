@@ -239,12 +239,12 @@ export const validatePreparedAction = (
   if (action.reprepareAfter) {
     const reprepareAfter = Date.parse(action.reprepareAfter)
     if (!Number.isFinite(reprepareAfter)) return 'The preparation returned an invalid expiry.'
-    if (reprepareAfter <= now) return 'This preparation expired. Prepare again.'
+    if (reprepareAfter <= now) return 'This preparation has expired. Please try again.'
   }
   if (action.liquidationConfigDeadline) {
     const liquidationConfigDeadline = Date.parse(action.liquidationConfigDeadline)
     if (!Number.isFinite(liquidationConfigDeadline)) return 'The preparation returned an invalid liquidation deadline.'
-    if (liquidationConfigDeadline <= now) return 'The liquidation quote expired. Prepare again.'
+    if (liquidationConfigDeadline <= now) return 'The liquidation quote has expired. Please try again.'
   }
 
   return undefined

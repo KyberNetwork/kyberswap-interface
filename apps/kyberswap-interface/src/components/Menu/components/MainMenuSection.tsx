@@ -77,7 +77,7 @@ export const MainMenuSection = ({ openTipLinkGenerator, toggle }: MainMenuSectio
         <>
           <MenuItem>
             <MenuItemLink>
-              <NavLink to={APP_PATHS.COPY_TRADING} onClick={toggle}>
+              <NavLink to={APP_PATHS.COPY_TRADING} state={{ scrollToCopyTrading: true }} onClick={toggle}>
                 <Users />
                 <span className="w-max">
                   <Trans>Copy Trading</Trans>
