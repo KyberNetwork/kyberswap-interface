@@ -130,6 +130,27 @@ const normalizeSupportedLimitOrders = (orders: LimitOrder[] = []) =>
     return accumulator
   }, [])
 
+const isUnsignedIntegerString = (value: unknown): value is string => typeof value === 'string' && /^\d+$/.test(value)
+
+export const normalizeTokenPairOrder = (order: LimitOrderFromTokenPair): LimitOrderFromTokenPair | undefined => {
+  if (
+    !isUnsignedIntegerString(order.makingAmount) ||
+    order.makingAmount === '0' ||
+    !isUnsignedIntegerString(order.takingAmount) ||
+    order.takingAmount === '0' ||
+    !isUnsignedIntegerString(order.filledMakingAmount)
+  ) {
+    return undefined
+  }
+
+  return {
+    ...order,
+    chainId: Number(order.chainId) as ChainId,
+    availableMakingAmount: isUnsignedIntegerString(order.availableMakingAmount) ? order.availableMakingAmount : '0',
+    makerBalanceAllowance: isUnsignedIntegerString(order.makerBalanceAllowance) ? order.makerBalanceAllowance : '0',
+  }
+}
+
 const limitOrderApi = createApi({
   reducerPath: 'limitOrderApi',
   baseQuery: fetchBaseQuery({ baseUrl: '' }),
@@ -193,10 +214,13 @@ const limitOrderApi = createApi({
         params,
       }),
       transformResponse: ({ data }: ApiEnvelope<TokenPairOrdersResponse>) => {
-        data.orders?.forEach(order => {
-          order.chainId = Number(order.chainId) as ChainId
-        })
-        return { orders: data?.orders || [] }
+        const orders = (data.orders || []).reduce<LimitOrderFromTokenPair[]>((accumulator, order) => {
+          const normalizedOrder = normalizeTokenPairOrder(order)
+          if (normalizedOrder) accumulator.push(normalizedOrder)
+          return accumulator
+        }, [])
+
+        return { orders }
       },
       providesTags: [RTK_QUERY_TAGS.GET_LIMIT_ORDER_BOOK],
     }),
