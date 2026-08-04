@@ -1,7 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { useState } from 'react'
-import copyTradingApi, { usePrepareWithdrawQuoteMutation } from 'services/copyTrading'
-import type { CopyRunSummary, PreparedCallKind } from 'services/copyTrading/types'
+import { usePrepareWithdrawQuoteMutation } from 'services/copyTrading'
+import type { AdvisoryActionAvailability, CopyRunSummary, PreparedCallKind } from 'services/copyTrading/types'
 
 import { ButtonPrimary } from 'components/Button'
 import { HStack, Stack } from 'components/Stack'
@@ -21,32 +21,24 @@ import { shortenAddress } from 'utils/address'
 type WithdrawQuoteModalProps = {
   isOpen: boolean
   onDismiss: () => void
-  run: CopyRunSummary
+  copyRun: CopyRunSummary
+  withdrawQuoteAvailability?: AdvisoryActionAvailability
 }
 
 const WITHDRAW_CALL_KINDS: PreparedCallKind[] = ['PREPARED_CALL_KIND_WITHDRAW_QUOTE']
 
-const WithdrawQuoteModal = ({ isOpen, onDismiss, run }: WithdrawQuoteModalProps) => {
+const WithdrawQuoteModal = ({ isOpen, onDismiss, copyRun, withdrawQuoteAvailability }: WithdrawQuoteModalProps) => {
   const { account, chainId } = useActiveWeb3React()
   const { changeNetwork } = useChangeNetwork()
   const toggleWalletModal = useWalletModalToggle()
   const { refreshCopyTrading } = useCopyTradeWrite()
   const [prepareWithdrawQuote] = usePrepareWithdrawQuoteMutation()
-  const { data: runResponse, isFetching: isRefreshingRun } = copyTradingApi.useGetCopyRunQuery(
-    { ownerAddress: run.ownerAddress, copyRunId: run.copyRunId },
-    { skip: !isOpen },
-  )
-  const { data: accountResponse } = copyTradingApi.useGetCopyAccountQuery(
-    { chainId: run.chainId, copyAccount: run.copyAccount },
-    { skip: !isOpen },
-  )
   const [flowState, setFlowState] = useState(DEFAULT_PREPARED_ACTION_STATE)
 
-  const directRun = runResponse?.data || run
-  const availability = accountResponse?.data.withdrawQuoteAvailability || directRun.withdrawQuoteAvailability
-  const onExpectedChain = chainId === directRun.chainId
+  const availability = withdrawQuoteAvailability || copyRun.withdrawQuoteAvailability
+  const onExpectedChain = chainId === copyRun.chainId
   const ownershipMessage =
-    account && directRun.ownerAddress.toLowerCase() !== account.toLowerCase()
+    account && copyRun.ownerAddress.toLowerCase() !== account.toLowerCase()
       ? 'The selected Copy Run is not owned by the connected wallet.'
       : undefined
 
@@ -56,18 +48,18 @@ const WithdrawQuoteModal = ({ isOpen, onDismiss, run }: WithdrawQuoteModalProps)
     expected: {
       account: account || '',
       callKinds: WITHDRAW_CALL_KINDS,
-      chainId: directRun.chainId,
-      copyAccount: directRun.copyAccount,
+      chainId: copyRun.chainId,
+      copyAccount: copyRun.copyAccount,
       preview: 'withdrawQuote',
     },
     prepare: async () => {
       if (!account) throw new Error('Connect your wallet first.')
-      if (directRun.ownerAddress.toLowerCase() !== account.toLowerCase()) {
+      if (copyRun.ownerAddress.toLowerCase() !== account.toLowerCase()) {
         throw new Error('The selected Copy Run is not owned by the connected wallet.')
       }
       const response = await prepareWithdrawQuote({
         ownerAddress: account.toLowerCase(),
-        copyRunId: directRun.copyRunId,
+        copyRunId: copyRun.copyRunId,
       }).unwrap()
       const recipient = response.data.withdrawQuote?.recipientAddress
       if (response.data.status === 'PREPARED_ACTION_STATUS_READY') {
@@ -94,7 +86,7 @@ const WithdrawQuoteModal = ({ isOpen, onDismiss, run }: WithdrawQuoteModalProps)
       return
     }
     if (!onExpectedChain) {
-      void changeNetwork(directRun.chainId as ChainId)
+      void changeNetwork(copyRun.chainId as ChainId)
       return
     }
     void flow.prepare()
@@ -107,14 +99,12 @@ const WithdrawQuoteModal = ({ isOpen, onDismiss, run }: WithdrawQuoteModalProps)
       <ReviewRow label="Sweep amount" value={formatPreparedAmount(preview?.sweepAmountRaw, preview?.quoteToken)} />
       <ReviewRow
         label="Recipient"
-        value={preview?.recipientAddress ? shortenAddress(directRun.chainId, preview.recipientAddress) : '—'}
+        value={preview?.recipientAddress ? shortenAddress(copyRun.chainId, preview.recipientAddress) : '—'}
       />
     </ReviewSection>
   )
 
-  const availabilityMessage = isRefreshingRun
-    ? 'Refreshing availability…'
-    : ownershipMessage
+  const availabilityMessage = ownershipMessage
     ? ownershipMessage
     : !isActionAvailable(availability)
     ? getPreparedReasonMessage(availability?.reason)

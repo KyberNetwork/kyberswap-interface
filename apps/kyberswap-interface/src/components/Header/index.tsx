@@ -95,7 +95,7 @@ export default function Header() {
             <SwapNavGroup dropdownAlign={navGroupDropdownAlign} />
             <EarnNavGroup dropdownAlign={navGroupDropdownAlign} />
             {!upToExtraSmall && (
-              <StyledNavLink to={`${APP_PATHS.COPY_TRADING}`}>
+              <StyledNavLink to={APP_PATHS.COPY_TRADING} state={{ scrollToCopyTrading: true }}>
                 <Trans>Copy Trading</Trans>
                 <NewLabel isNew>
                   <Trans>New</Trans>
