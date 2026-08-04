@@ -38,7 +38,7 @@ export default function Widget() {
   const isUniv4 = univ4Types.includes(poolType);
 
   const onClosePreview = () => {
-    if (isUniv4) {
+    if (positionId) {
       approval.nftApproval.check();
       approval.nftApprovalAll.check();
     }
