@@ -1,7 +1,7 @@
 import { useQueryClient } from '@tanstack/react-query'
 import { type PropsWithChildren, createContext, useCallback, useContext, useMemo, useState } from 'react'
 import copyTradingApi from 'services/copyTrading'
-import type { Address, CopyRunSummary, PositionSummary } from 'services/copyTrading/types'
+import type { Address, AdvisoryActionAvailability, CopyRunSummary, PositionSummary } from 'services/copyTrading/types'
 
 import AddCapitalModal from 'pages/CopyTrading/modals/AddCapitalModal'
 import ManagePositionModal, { type ManagePositionMode } from 'pages/CopyTrading/modals/ManagePositionModal'
@@ -12,10 +12,10 @@ import { useCopyTradingWalletSession } from 'pages/CopyTrading/write/usePrepared
 import { useAppDispatch } from 'state/hooks'
 
 type ActiveModal =
-  | { type: 'subscribe'; target: SubscribeTarget }
-  | { type: 'addCapital'; run: CopyRunSummary; agentName?: string }
-  | { type: 'stopCopy'; run: CopyRunSummary; agentName?: string }
-  | { type: 'withdrawQuote'; run: CopyRunSummary }
+  | { type: 'subscribe'; agent: SubscribeTarget }
+  | { type: 'addCapital'; copyRun: CopyRunSummary; agentName?: string }
+  | { type: 'stopCopy'; copyRun: CopyRunSummary; positions: PositionSummary[]; agentName?: string }
+  | { type: 'withdrawQuote'; copyRun: CopyRunSummary; withdrawQuoteAvailability?: AdvisoryActionAvailability }
   | { type: 'managePosition'; position: PositionSummary; mode: ManagePositionMode }
 
 type WithWalletSession = <T>(
@@ -25,10 +25,10 @@ type WithWalletSession = <T>(
 ) => Promise<T>
 
 type CopyTradeWriteContextValue = {
-  openSubscribe: (target: SubscribeTarget) => void
-  openAddCapital: (run: CopyRunSummary, agentName?: string) => void
-  openStopCopy: (run: CopyRunSummary, agentName?: string) => void
-  openWithdrawQuote: (run: CopyRunSummary) => void
+  openSubscribe: (agent: SubscribeTarget) => void
+  openAddCapital: (copyRun: CopyRunSummary, agentName?: string) => void
+  openStopCopy: (copyRun: CopyRunSummary, positions: PositionSummary[], agentName?: string) => void
+  openWithdrawQuote: (copyRun: CopyRunSummary, availability?: AdvisoryActionAvailability) => void
   openManagePosition: (position: PositionSummary, mode: ManagePositionMode) => void
   refreshCopyTrading: () => Promise<void>
   withWalletSession: WithWalletSession
@@ -49,10 +49,11 @@ export const CopyTradeWriteProvider = ({ children }: PropsWithChildren) => {
 
   const value = useMemo<CopyTradeWriteContextValue>(
     () => ({
-      openSubscribe: target => setActive({ type: 'subscribe', target }),
-      openAddCapital: (run, agentName) => setActive({ type: 'addCapital', run, agentName }),
-      openStopCopy: (run, agentName) => setActive({ type: 'stopCopy', run, agentName }),
-      openWithdrawQuote: run => setActive({ type: 'withdrawQuote', run }),
+      openSubscribe: agent => setActive({ type: 'subscribe', agent }),
+      openAddCapital: (copyRun, agentName) => setActive({ type: 'addCapital', copyRun, agentName }),
+      openStopCopy: (copyRun, positions, agentName) => setActive({ type: 'stopCopy', copyRun, positions, agentName }),
+      openWithdrawQuote: (copyRun, withdrawQuoteAvailability) =>
+        setActive({ type: 'withdrawQuote', copyRun, withdrawQuoteAvailability }),
       openManagePosition: (position, mode) => setActive({ type: 'managePosition', position, mode }),
       refreshCopyTrading,
       withWalletSession: withAccessToken,
@@ -65,14 +66,27 @@ export const CopyTradeWriteProvider = ({ children }: PropsWithChildren) => {
   return (
     <CopyTradeWriteContext.Provider value={value}>
       {children}
-      {active?.type === 'subscribe' && <SubscribeModal isOpen onDismiss={close} target={active.target} />}
+      {active?.type === 'subscribe' && <SubscribeModal isOpen onDismiss={close} agent={active.agent} />}
       {active?.type === 'addCapital' && (
-        <AddCapitalModal isOpen onDismiss={close} run={active.run} agentName={active.agentName} />
+        <AddCapitalModal isOpen onDismiss={close} copyRun={active.copyRun} agentName={active.agentName} />
       )}
       {active?.type === 'stopCopy' && (
-        <StopCopyModal isOpen onDismiss={close} run={active.run} agentName={active.agentName} />
+        <StopCopyModal
+          isOpen
+          onDismiss={close}
+          copyRun={active.copyRun}
+          positions={active.positions}
+          agentName={active.agentName}
+        />
       )}
-      {active?.type === 'withdrawQuote' && <WithdrawQuoteModal isOpen onDismiss={close} run={active.run} />}
+      {active?.type === 'withdrawQuote' && (
+        <WithdrawQuoteModal
+          isOpen
+          onDismiss={close}
+          copyRun={active.copyRun}
+          withdrawQuoteAvailability={active.withdrawQuoteAvailability}
+        />
+      )}
       {active?.type === 'managePosition' && (
         <ManagePositionModal isOpen onDismiss={close} position={active.position} mode={active.mode} />
       )}

@@ -42,11 +42,11 @@ const CopyRunsPageHeading = ({ activeView }: CopyRunsPageHeadingProps) => {
 
           return (
             <div key={tab.value} className="flex shrink-0 items-center gap-3">
-              {!!index && <span aria-hidden className="h-8 border border-subText-40 max-md:h-7" />}
+              {!!index && <span aria-hidden className="h-6 border border-subText-40" />}
               <Link
                 aria-selected={active}
                 className={cn(
-                  'text-4xl font-medium no-underline transition-colors max-md:text-3xl',
+                  'text-2xl font-medium no-underline transition-colors',
                   active ? (tab.value === 'open' ? 'text-text' : 'text-primary') : 'text-subText hover:text-text',
                 )}
                 role="tab"
@@ -64,7 +64,7 @@ const CopyRunsPageHeading = ({ activeView }: CopyRunsPageHeadingProps) => {
           )
         })}
       </div>
-      <p className="text-lg text-subText">{activeTab.description}</p>
+      <p className="text-base text-subText">{activeTab.description}</p>
     </Stack>
   )
 }

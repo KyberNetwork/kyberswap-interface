@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
+import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 import copyTradingApi from 'services/copyTrading'
 import type { Address } from 'services/copyTrading/types'
 
@@ -17,7 +17,9 @@ import { CopyTradeWriteProvider } from 'pages/CopyTrading/write/WriteContext'
 const SIDEBAR_ITEM_LIMIT = 10
 
 const CopyTrading = () => {
-  const { pathname } = useLocation()
+  const location = useLocation()
+  const navigate = useNavigate()
+  const { pathname } = location
   const { account } = useActiveWeb3React()
   const ownerAddress = account?.toLowerCase() as Address | undefined
   const { data: leaderboard, refetch: refetchLeaderboard } = copyTradingApi.useGetLeaderboardQuery({
@@ -37,8 +39,13 @@ const CopyTrading = () => {
   const previousPathname = useRef(pathname)
 
   useEffect(() => {
-    window.scrollTo({ top: 80, behavior: 'smooth' })
+    if (!location.state?.scrollToCopyTrading) return
 
+    window.scrollTo({ top: 80, behavior: 'smooth' })
+    navigate(location, { replace: true, state: null })
+  }, [location, navigate])
+
+  useEffect(() => {
     if (previousPathname.current === pathname) return
     previousPathname.current = pathname
 

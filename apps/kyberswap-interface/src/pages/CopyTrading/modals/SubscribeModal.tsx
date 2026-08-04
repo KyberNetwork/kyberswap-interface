@@ -1,7 +1,7 @@
 import { ChainId, Token } from '@kyberswap/ks-sdk-core'
 import { useMemo, useState } from 'react'
 import { Info } from 'react-feather'
-import copyTradingApi, { usePrepareStartCopyMutation } from 'services/copyTrading'
+import { usePrepareStartCopyMutation } from 'services/copyTrading'
 import type { AgentCard, AgentProfile, PreparedCallKind } from 'services/copyTrading/types'
 import { v4 as uuidv4 } from 'uuid'
 
@@ -38,7 +38,7 @@ export type SubscribeTarget = AgentCard | AgentProfile
 type SubscribeModalProps = {
   isOpen: boolean
   onDismiss: () => void
-  target: SubscribeTarget
+  agent: SubscribeTarget
 }
 
 const START_CALL_KINDS: PreparedCallKind[] = [
@@ -75,31 +75,27 @@ const AgentHeader = ({ agent }: { agent: SubscribeTarget }) => (
   </HStack>
 )
 
-const SubscribeModal = ({ isOpen, onDismiss, target }: SubscribeModalProps) => {
+const SubscribeModal = ({ isOpen, onDismiss, agent }: SubscribeModalProps) => {
   const { account, chainId } = useActiveWeb3React()
   const { changeNetwork } = useChangeNetwork()
   const toggleWalletModal = useWalletModalToggle()
   const { refreshCopyTrading } = useCopyTradeWrite()
   const [prepareStartCopy] = usePrepareStartCopyMutation()
-  const { data: agentResponse, isFetching: isRefreshingAgent } = copyTradingApi.useGetAgentQuery(
-    { agentId: target.agentId },
-    { skip: !isOpen },
-  )
   const [flowState, setFlowState] = useState(DEFAULT_PREPARED_ACTION_STATE)
   const [amount, setAmount] = useState('')
   const [agreed, setAgreed] = useState(false)
   const [predictedCopyAccount, setPredictedCopyAccount] = useState<string>()
   const [startRequestId, setStartRequestId] = useState(() => uuidv4())
 
-  const quoteToken = getInputQuoteToken(target.chainId)
+  const quoteToken = getInputQuoteToken(agent.chainId)
   const quoteCurrency = useMemo(
     () =>
       quoteToken
-        ? new Token(target.chainId, quoteToken.address, quoteToken.decimals, quoteToken.symbol, quoteToken.symbol)
+        ? new Token(agent.chainId, quoteToken.address, quoteToken.decimals, quoteToken.symbol, quoteToken.symbol)
         : undefined,
-    [quoteToken, target.chainId],
+    [quoteToken, agent.chainId],
   )
-  const walletBalance = useTokenBalance(quoteToken?.address || '', target.chainId as ChainId)
+  const walletBalance = useTokenBalance(quoteToken?.address || '', agent.chainId as ChainId)
   const walletBalanceRaw = account && quoteToken ? walletBalance.value.toString() : undefined
   const presetAmounts = useMemo(() => {
     if (!quoteToken || !walletBalanceRaw) return undefined
@@ -117,7 +113,7 @@ const SubscribeModal = ({ isOpen, onDismiss, target }: SubscribeModalProps) => {
       return undefined
     }
   }, [amount, quoteToken])
-  const availability = agentResponse?.data.startCopyAvailability || target.startCopyAvailability
+  const availability = agent.startCopyAvailability
   const amountBelowMinimum =
     !!targetCapitalRaw && !!quoteToken && BigInt(targetCapitalRaw) < BigInt(quoteToken.minimumStartCopyCapitalRaw)
   const insufficientBalance =
@@ -131,7 +127,7 @@ const SubscribeModal = ({ isOpen, onDismiss, target }: SubscribeModalProps) => {
       ? `Insufficient ${quoteToken.symbol} balance.`
       : undefined
   const amountIsValid = !!targetCapitalRaw && !amountBelowMinimum && !insufficientBalance
-  const onExpectedChain = chainId === target.chainId
+  const onExpectedChain = chainId === agent.chainId
   const presetsEnabled = !!account && onExpectedChain && !!walletBalanceRaw && BigInt(walletBalanceRaw) > 0n
   const walletBalanceText =
     walletBalanceRaw && quoteToken
@@ -158,7 +154,7 @@ const SubscribeModal = ({ isOpen, onDismiss, target }: SubscribeModalProps) => {
     expected: {
       account: account || '',
       callKinds: START_CALL_KINDS,
-      chainId: target.chainId,
+      chainId: agent.chainId,
       preview: 'startCopy',
       startCopyPredictedAccount: predictedCopyAccount,
       startCopyRequestId: startRequestId,
@@ -170,8 +166,8 @@ const SubscribeModal = ({ isOpen, onDismiss, target }: SubscribeModalProps) => {
       if (amountError) throw new Error(amountError)
       const response = await prepareStartCopy({
         ownerAddress: account.toLowerCase(),
-        agentId: target.agentId,
-        chainId: String(target.chainId),
+        agentId: agent.agentId,
+        chainId: String(agent.chainId),
         targetCapitalRaw,
         startRequestId,
       }).unwrap()
@@ -221,7 +217,7 @@ const SubscribeModal = ({ isOpen, onDismiss, target }: SubscribeModalProps) => {
       return
     }
     if (!onExpectedChain) {
-      void changeNetwork(target.chainId as ChainId)
+      void changeNetwork(agent.chainId as ChainId)
       return
     }
     if (!amountIsValid) return
@@ -291,9 +287,7 @@ const SubscribeModal = ({ isOpen, onDismiss, target }: SubscribeModalProps) => {
     </Stack>
   )
 
-  const availabilityMessage = isRefreshingAgent
-    ? 'Refreshing availability…'
-    : !isActionAvailable(availability)
+  const availabilityMessage = !isActionAvailable(availability)
     ? getPreparedReasonMessage(availability?.reason)
     : undefined
 
@@ -302,7 +296,7 @@ const SubscribeModal = ({ isOpen, onDismiss, target }: SubscribeModalProps) => {
       isOpen={isOpen}
       onDismiss={dismiss}
       state={flowState}
-      title={<AgentHeader agent={agentResponse?.data || target} />}
+      title={<AgentHeader agent={agent} />}
       review={review}
       showReviewWhilePreparing
       confirmLabel={confirmLabel}
@@ -314,7 +308,7 @@ const SubscribeModal = ({ isOpen, onDismiss, target }: SubscribeModalProps) => {
       }}
       onRetry={() => void flow.retry()}
       pendingText="Checking the latest agent, balance and fee policy…"
-      successTitle={`You're now copying ${target.displayName}`}
+      successTitle={`You're now copying ${agent.displayName}`}
       successText={
         flowState.hash
           ? 'The transaction is confirmed on-chain. Copy Trading data will refresh in the background.'
@@ -334,7 +328,7 @@ const SubscribeModal = ({ isOpen, onDismiss, target }: SubscribeModalProps) => {
             error={!!amountError}
             currency={quoteCurrency}
             customBalanceText={walletBalanceText}
-            customChainId={target.chainId as ChainId}
+            customChainId={agent.chainId as ChainId}
             disableCurrencySelect
             id="copy-trading-start-capital"
             dataTestId="copy-trading-start-capital"

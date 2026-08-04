@@ -49,6 +49,13 @@ type ContentPanelProps = PropsWithChildren<{
 
 type AgentCellSize = 'sm' | 'lg'
 
+type AgentAvatarProps = {
+  avatarUrl?: string
+  chainId: number
+  displayName: string
+  size?: AgentCellSize
+}
+
 type AgentCellProps = {
   agent: AgentCard | AgentProfile | AgentSnapshot
   className?: string
@@ -88,8 +95,8 @@ export const CopyTradingPage = ({ children, backTo, className }: CopyTradingPage
 
 export const CopyTradingPageHeading = ({ className, description, title }: CopyTradingPageHeadingProps) => (
   <Stack className={cn('gap-2', className)}>
-    <h1 className="text-4xl font-medium text-text max-md:text-3xl">{title}</h1>
-    {description && <p className="text-lg text-subText">{description}</p>}
+    <h1 className="text-2xl font-medium text-text">{title}</h1>
+    {description && <p className="text-base text-subText">{description}</p>}
   </Stack>
 )
 
@@ -106,7 +113,7 @@ export const ContentPanel = ({
   titleAddon,
 }: ContentPanelProps) => (
   <Stack className={cn('overflow-hidden rounded-xl bg-buttonBlack-60', className)}>
-    <HStack className="flex-wrap items-center justify-between gap-4 border-b border-tableHeader bg-background px-4 py-2">
+    <HStack className="flex-wrap items-center justify-between gap-4 border-b border-tableHeader bg-background-60 px-6 py-3">
       <HStack className="items-center gap-2">
         <h2 className="text-base font-medium text-text">{title}</h2>
         {titleAddon}
@@ -123,9 +130,30 @@ export const ShortenedId = ({ value }: { value?: string }) => (
   </span>
 )
 
-export const AgentCell = ({ agent, className, nameExtension, size = 'sm', subLineExtension }: AgentCellProps) => {
+export const AgentAvatar = ({ avatarUrl, chainId, displayName, size = 'sm' }: AgentAvatarProps) => {
   const { chains } = useCopyTradingContext()
-  const chain = chains.find(item => item.chainId === agent.chainId)
+  const chain = chains.find(item => item.chainId === chainId)
+  const isLarge = size === 'lg'
+
+  return (
+    <Center
+      className={cn(
+        'relative shrink-0 rounded-full bg-buttonGray font-medium text-subText',
+        isLarge ? 'size-14 text-2xl' : 'size-10 text-sm',
+      )}
+    >
+      {getAgentInitials(displayName)}
+      {avatarUrl && <img src={avatarUrl} alt="" className="absolute inset-0 size-full rounded-full object-cover" />}
+      {chain?.iconUrl && (
+        <Center className="absolute -bottom-0.5 -right-0.5">
+          <img src={chain.iconUrl} alt={chain.name} className={cn('rounded-full', isLarge ? 'size-5' : 'size-4')} />
+        </Center>
+      )}
+    </Center>
+  )
+}
+
+export const AgentCell = ({ agent, className, nameExtension, size = 'sm', subLineExtension }: AgentCellProps) => {
   const displayName = getAgentDisplayName(agent)
   const isLarge = size === 'lg'
   const strategies = Array.from(
@@ -135,19 +163,7 @@ export const AgentCell = ({ agent, className, nameExtension, size = 'sm', subLin
 
   return (
     <HStack className={cn('min-w-0 items-center gap-4', className)}>
-      <Center
-        className={cn(
-          'relative shrink-0 rounded-full bg-buttonGray font-medium text-subText',
-          isLarge ? 'size-14 text-2xl' : 'size-10 text-sm',
-        )}
-      >
-        {getAgentInitials(displayName)}
-        {chain?.iconUrl && (
-          <Center className="absolute -bottom-0.5 -right-0.5">
-            <img src={chain.iconUrl} alt={chain.name} className={cn('rounded-full', isLarge ? 'size-5' : 'size-4')} />
-          </Center>
-        )}
-      </Center>
+      <AgentAvatar avatarUrl={agent.avatarUrl} chainId={agent.chainId} displayName={displayName} size={size} />
       <Stack className={cn('min-w-0', isLarge ? 'gap-2' : 'gap-1')}>
         <HStack className="min-w-0 items-center gap-2">
           {isLarge ? (
@@ -250,15 +266,15 @@ export const CopyRunStatusBadge = ({ status }: { status: CopyRunStatus }) => (
 )
 
 const positionLifecycleLabel: Record<PositionLifecycle, string> = {
-  active: 'Active',
+  active: 'Open',
   closing: 'Closing',
   closed: 'Closed',
-  unknown: 'Unknown',
+  unknown: 'Status unavailable',
 }
 
 const positionQuantityLabel: Record<PositionQuantityState, string | undefined> = {
-  open_full: 'Full',
-  open_partial: 'Partial',
+  open_full: undefined,
+  open_partial: 'Partially sold',
   closed: undefined,
   unknown: undefined,
 }
@@ -270,7 +286,8 @@ export const PositionLifecycleBadge = ({
   lifecycle: PositionLifecycle
   quantityState: PositionQuantityState
 }) => {
-  const quantityLabel = positionQuantityLabel[quantityState]
+  const quantityLabel =
+    lifecycle === 'active' || lifecycle === 'closing' ? positionQuantityLabel[quantityState] : undefined
 
   return (
     <span
