@@ -137,13 +137,12 @@ const AprHistoryChart = ({ chainId, poolAddress, positionId, programs, currentAp
   const latestAprPoint = chartData[chartData.length - 1]
   const activeApr = currentApr?.activeApr ?? latestAprPoint?.activeApr
   const totalApr = currentApr?.totalApr ?? latestAprPoint?.totalApr
-  const hasActiveApr = activeApr !== undefined
-  const showActiveApr = !isPositionChart && hasActiveApr
+  const showActiveApr = !isPositionChart && !!activeApr
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div className="flex min-h-12 flex-col gap-1">
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div className="flex min-h-12 flex-col justify-center gap-1">
           {showActiveApr && totalApr !== undefined && (
             <div className="flex items-baseline gap-1">
               <span className="text-sm text-subText">APR</span>
