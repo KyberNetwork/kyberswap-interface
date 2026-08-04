@@ -6,8 +6,9 @@ import InfiniteScroll, { type InfiniteScrollState } from 'pages/CopyTrading/comp
 import { HeaderCell, TableBody, TableCell, TableHeader, TableRow } from 'pages/CopyTrading/components/Table'
 import { CopyRunAgentCell, CopyRunStatusBadge } from 'pages/CopyTrading/components/common'
 import { copyTradingStatIconMap } from 'pages/CopyTrading/constants'
-import { formatDate, formatUsd, signedUsd } from 'pages/CopyTrading/helpers'
+import { formatCount, formatUsd, signedUsd } from 'pages/CopyTrading/helpers'
 import { cn } from 'utils/cn'
+import { formatDateTime } from 'utils/time'
 
 type ClosedSubscriptionsGridProps = HTMLAttributes<HTMLDivElement> & {
   header?: boolean
@@ -82,10 +83,10 @@ const ClosedSubscriptionsTable = ({
               >
                 <CopyRunAgentCell run={subscription} className="px-3 py-2" />
                 <TableCell className="text-right">
-                  {subscription.closedPositionCount || subscription.openPositionCount}
+                  {formatCount(subscription.closedPositionCount ?? subscription.openPositionCount)}
                 </TableCell>
-                <TableCell className="text-right text-subText">{formatDate(subscription.startedAt)}</TableCell>
-                <TableCell className="text-right text-subText">{formatDate(subscription.stoppedAt)}</TableCell>
+                <TableCell className="text-right text-subText">{formatDateTime(subscription.startedAt)}</TableCell>
+                <TableCell className="text-right text-subText">{formatDateTime(subscription.stoppedAt)}</TableCell>
                 <TableCell className="text-right">{formatUsd(subscription.capitalInUsd)}</TableCell>
                 <TableCell className="text-right">{formatUsd(subscription.capitalOutUsd)}</TableCell>
                 <TableCell className={cn('text-right', realizedPnl.startsWith('-') ? 'text-red' : 'text-primary')}>

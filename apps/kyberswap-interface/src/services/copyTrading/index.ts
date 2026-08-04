@@ -220,6 +220,7 @@ const positionParams = ({
 
 const copyTradingApi = createApi({
   reducerPath: 'copyTradingApi',
+  tagTypes: ['CopyTrading'],
   refetchOnMountOrArgChange: true,
   baseQuery: fetchBaseQuery({
     baseUrl: import.meta.env.VITE_COPY_TRADING_API_URL,
@@ -243,6 +244,7 @@ const copyTradingApi = createApi({
         }),
       }),
       transformResponse: adaptLeaderboardSummaryResponse,
+      providesTags: ['CopyTrading'],
     }),
     getLeaderboard: builder.query<LeaderboardResponse, LeaderboardQuery | void>({
       query: query => ({
@@ -258,6 +260,7 @@ const copyTradingApi = createApi({
         }),
       }),
       transformResponse: adaptLeaderboardResponse,
+      providesTags: ['CopyTrading'],
     }),
     getAgents: builder.query<AgentsResponse, AgentsQuery | void>({
       query: query => ({
@@ -275,6 +278,7 @@ const copyTradingApi = createApi({
     getAgent: builder.query<AgentResponse, AgentQuery>({
       query: ({ agentId }) => `/agents/${pathPart(agentId)}`,
       transformResponse: adaptAgentResponse,
+      providesTags: ['CopyTrading'],
     }),
     getAgentStats: builder.query<AgentStatsResponse, AgentStatsQuery>({
       query: ({ agentId, window }) => ({
@@ -324,6 +328,7 @@ const copyTradingApi = createApi({
         params: cleanParams({ view: ownerViewMap[view], chainId }),
       }),
       transformResponse: adaptOwnerCopySummaryResponse,
+      providesTags: ['CopyTrading'],
     }),
     getCopyRuns: builder.query<CopyRunsResponse, CopyRunsQuery>({
       query: ({ ownerAddress, view, agentId, chainId, sortBy, sortOrder, cursor, limit }) => ({
@@ -339,10 +344,12 @@ const copyTradingApi = createApi({
         }),
       }),
       transformResponse: adaptCopyRunsResponse,
+      providesTags: ['CopyTrading'],
     }),
     getCopyRun: builder.query<CopyRunResponse, CopyRunQuery>({
       query: ({ ownerAddress, copyRunId }) => `/users/${pathPart(ownerAddress)}/copy-runs/${pathPart(copyRunId)}`,
       transformResponse: adaptCopyRunResponse,
+      providesTags: ['CopyTrading'],
     }),
     getCopyRunPositions: builder.query<CopyRunPositionsResponse, CopyRunPositionsQuery>({
       query: query => ({
@@ -350,6 +357,7 @@ const copyTradingApi = createApi({
         params: positionParams(query),
       }),
       transformResponse: adaptPositionsResponse,
+      providesTags: ['CopyTrading'],
     }),
     getCopyRunPerformance: builder.query<CopyRunPerformanceResponse, CopyRunPerformanceQuery>({
       query: query => ({
@@ -357,6 +365,7 @@ const copyTradingApi = createApi({
         params: performanceParams(query),
       }),
       transformResponse: adaptPerformanceResponse,
+      providesTags: ['CopyTrading'],
     }),
     getOwnerPositions: builder.query<OwnerPositionsResponse, OwnerPositionsQuery>({
       query: query => ({
@@ -367,6 +376,7 @@ const copyTradingApi = createApi({
         },
       }),
       transformResponse: adaptPositionsResponse,
+      providesTags: ['CopyTrading'],
     }),
     getOwnerActivity: builder.query<OwnerActivityResponse, OwnerActivityQuery>({
       query: ({ ownerAddress, copyRunId, chainId, activityType, group, cursor, limit }) => ({
@@ -381,6 +391,7 @@ const copyTradingApi = createApi({
         }),
       }),
       transformResponse: adaptActivityResponse,
+      providesTags: ['CopyTrading'],
     }),
     getOwnerCopyAccounts: builder.query<OwnerCopyAccountsResponse, OwnerCopyAccountsQuery>({
       query: ({ ownerAddress, chainId, status, cursor, limit }) => ({
@@ -393,10 +404,12 @@ const copyTradingApi = createApi({
         }),
       }),
       transformResponse: adaptCopyAccountsResponse,
+      providesTags: ['CopyTrading'],
     }),
     getCopyAccount: builder.query<CopyAccountResponse, CopyAccountQuery>({
       query: ({ chainId, copyAccount }) => `/copy-accounts/${pathPart(chainId)}/${pathPart(copyAccount)}`,
       transformResponse: adaptCopyAccountResponse,
+      providesTags: ['CopyTrading'],
     }),
     getCopyAccountBalances: builder.query<CopyAccountBalancesResponse, CopyAccountBalancesQuery>({
       query: ({ chainId, copyAccount, cursor, limit }) => ({
@@ -404,6 +417,7 @@ const copyTradingApi = createApi({
         params: cleanParams({ cursor, limit }),
       }),
       transformResponse: adaptCopyAccountBalancesResponse,
+      providesTags: ['CopyTrading'],
     }),
     getCopyAccountPositions: builder.query<CopyAccountPositionsResponse, CopyAccountPositionsQuery>({
       query: query => ({
@@ -411,6 +425,7 @@ const copyTradingApi = createApi({
         params: positionParams(query),
       }),
       transformResponse: adaptPositionsResponse,
+      providesTags: ['CopyTrading'],
     }),
     getPendingSellObligations: builder.query<PendingSellObligationsResponse, PendingSellObligationsQuery>({
       query: ({ chainId, copyAccount, userPositionId, cursor, limit }) => ({
@@ -420,6 +435,7 @@ const copyTradingApi = createApi({
         params: cleanParams({ cursor, limit }),
       }),
       transformResponse: adaptPendingSellObligationsResponse,
+      providesTags: ['CopyTrading'],
     }),
     getCopyAccountHistory: builder.query<CopyAccountHistoryResponse, CopyAccountHistoryQuery>({
       query: ({ chainId, copyAccount, activityType, group, cursor, limit }) => ({
@@ -432,6 +448,7 @@ const copyTradingApi = createApi({
         }),
       }),
       transformResponse: adaptActivityResponse,
+      providesTags: ['CopyTrading'],
     }),
     prepareStartCopy: builder.mutation<PrepareStartCopyResponse, PrepareStartCopyRequest>({
       query: ({ ownerAddress, agentId, ...body }) => ({

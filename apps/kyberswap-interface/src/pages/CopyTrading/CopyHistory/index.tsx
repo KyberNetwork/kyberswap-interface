@@ -5,9 +5,9 @@ import { APP_PATHS } from 'constants/index'
 import ClosedSubscriptionsTable from 'pages/CopyTrading/CopyHistory/ClosedSubscriptionsTable'
 import { CopyHistorySummary } from 'pages/CopyTrading/CopyHistory/components'
 import CopyRunsPageHeading from 'pages/CopyTrading/components/CopyRunsPageHeading'
+import useInfiniteCursorQuery from 'pages/CopyTrading/components/InfiniteScroll/useInfiniteCursorQuery'
 import { CopyTradingPage, OwnerWalletRequired } from 'pages/CopyTrading/components/common'
 import { useCopyTradingContext } from 'pages/CopyTrading/context'
-import useInfiniteCursorQuery from 'pages/CopyTrading/useInfiniteCursorQuery'
 
 const PAGE_SIZE = 10
 

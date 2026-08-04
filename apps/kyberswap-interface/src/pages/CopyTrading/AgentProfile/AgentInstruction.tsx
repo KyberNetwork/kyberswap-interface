@@ -16,9 +16,10 @@ import {
 import { useCopyTradingContext } from 'pages/CopyTrading/context'
 import { formatUsd } from 'pages/CopyTrading/helpers'
 import { useCopyTradeWrite } from 'pages/CopyTrading/write/WriteContext'
+import { getPreparedReasonMessage, isActionAvailable } from 'pages/CopyTrading/write/preparedAction'
 
 const StartCopyCard = ({ availability, onCopy }: { availability?: AdvisoryActionAvailability; onCopy: () => void }) => {
-  const disabled = Boolean(availability?.status && availability.status !== 'ADVISORY_ACTION_STATUS_AVAILABLE')
+  const disabled = !isActionAvailable(availability)
 
   return (
     <SidePanelCard title="Copy This Agent">
@@ -29,7 +30,7 @@ const StartCopyCard = ({ availability, onCopy }: { availability?: AdvisoryAction
         type="button"
         padding="10px 12px"
         disabled={disabled}
-        title={disabled ? availability?.reason : undefined}
+        title={disabled ? getPreparedReasonMessage(availability?.reason) : undefined}
         onClick={onCopy}
       >
         <HStack className="items-center gap-1">
