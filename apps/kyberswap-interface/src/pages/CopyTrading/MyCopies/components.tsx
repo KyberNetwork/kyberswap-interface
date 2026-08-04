@@ -106,7 +106,7 @@ export const AlertsFeed = ({ infiniteScroll, loading, rows }: AlertsFeedProps) =
                     <span className="min-w-0 truncate text-sm text-subText">{agentName}</span>
                     <span className="ml-auto shrink-0 text-xs text-subText">{formatDateTime(item.occurredAt)}</span>
                   </HStack>
-                  {showSummary && <span className="break-words text-sm text-text">{summary}</span>}
+                  {showSummary && <span className="break-words text-sm text-subText">{summary}</span>}
                   {showPublicError && <span className="break-words text-xs text-warning">{publicError}</span>}
                   {(tokenSymbol || valueUsd !== undefined || realizedPnlUsd !== undefined) && (
                     <HStack className="flex-wrap items-center gap-2 text-xs">
