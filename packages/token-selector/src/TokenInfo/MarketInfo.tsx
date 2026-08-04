@@ -24,8 +24,8 @@ const MarketInfo = ({
   const { i18n } = useLingui();
   const Copy = useCopy({
     text: tokenAddress,
-    copyClassName: "w-3 h-3 text-text hover:text-subText",
-    successClassName: "w-3 h-3",
+    copyClassName: "w-4 h-4 text-text hover:text-subText",
+    successClassName: "w-4 h-4",
   });
 
   const { marketTokenInfo, loading } = useMarketTokenInfo({
@@ -46,15 +46,13 @@ const MarketInfo = ({
           <span>{i18n._("Market Info")}</span>
         </div>
         <div className="flex items-center gap-1">
-          <span className="text-subText text-[10px]">
-            {i18n._("Powered by")}
-          </span>{" "}
-          <LogoCoingecko className="h-4 w-14" />
+          <span className="text-subText text-xs">{i18n._("Powered by")}</span>{" "}
+          <LogoCoingecko className="h-5" />
         </div>
       </div>
       <div
-        className={`flex flex-col gap-3 px-[26px] pt-[14px] transition-all ease-in-out duration-300 overflow-hidden ${
-          expand ? "h-[226px]" : "h-[86px]"
+        className={`flex flex-col gap-3 overflow-hidden px-6 pt-4 transition-all duration-300 ease-in-out ${
+          expand ? "h-56" : "h-[88px]"
         }`}
       >
         {(marketTokenInfo || []).map(
@@ -75,7 +73,7 @@ const MarketInfo = ({
           ),
         )}
       </div>
-      <div className="flex flex-col gap-3 px-[26px] py-[14px]">
+      <div className="flex flex-col gap-3 px-6 py-4">
         <div className="flex items-center justify-between text-xs">
           <span className="text-subText">{i18n._("Contract Address")}</span>
           <div className="flex items-center gap-1">
@@ -91,7 +89,7 @@ const MarketInfo = ({
           </div>
         </div>
         <div
-          className="text-xs text-accent cursor-pointer mx-auto w-fit flex items-center"
+          className="text-xs font-medium text-accent cursor-pointer mx-auto w-fit flex items-center"
           onClick={handleChangeExpand}
         >
           <span>{!expand ? i18n._("View more") : i18n._("View less")}</span>

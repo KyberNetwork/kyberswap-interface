@@ -1,5 +1,5 @@
 import { useActiveWeb3React } from 'hooks'
-import { isAddress } from 'utils'
+import { isAddress } from 'utils/address'
 
 import useENSAddress from './useENSAddress'
 import useENSName from './useENSName'

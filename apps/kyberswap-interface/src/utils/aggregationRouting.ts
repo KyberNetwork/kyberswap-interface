@@ -7,7 +7,7 @@ import { useGetTokenByAddressesQuery } from 'services/ksSetting'
 import { ETHER_ADDRESS } from 'constants/index'
 import { NativeCurrencies } from 'constants/tokens'
 import { useAllTokens } from 'hooks/useTokens'
-import { isAddressString } from 'utils'
+import { isAddressString } from 'utils/address'
 
 export interface SwapPool {
   id: string

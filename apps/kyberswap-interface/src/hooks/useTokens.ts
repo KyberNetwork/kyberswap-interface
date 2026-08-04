@@ -20,7 +20,8 @@ import { TokenAddressMap } from 'state/lists/reducer'
 import { TokenInfo, WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { NEVER_RELOAD, useSingleCallResult } from 'state/multicall/hooks'
 import { useUserAddedTokens } from 'state/user/hooks'
-import { filterTruthy, isAddress } from 'utils'
+import { isAddress } from 'utils/address'
+import { filterTruthy } from 'utils/array'
 import { escapeQuoteString, getFormattedAddress } from 'utils/tokenInfo'
 import { Address, hexToString, toBytes } from 'utils/viem'
 
@@ -95,18 +96,35 @@ export function useEnsureTokenList(chainId?: ChainId) {
     const getTokens = async () => {
       fetchingChainIds.add(chainId)
       try {
-        let tokens: TokenInfo[] = []
         const pageSize = 100
         const maximumPage = 15
-        let page = 1
 
-        while (true) {
-          const { data, error } = await fetchTokenList({ chainId, page, pageSize, isWhitelisted: true }, true)
-          if (error) throw error
-          page++
-          const tokensResponse = data?.data.tokens ?? []
-          tokens = tokens.concat(tokensResponse)
-          if (tokensResponse.length < pageSize || page >= maximumPage) break // out of tokens, and prevent infinity loop
+        // Fetch page 1 first — its pagination.totalItems tells us how many pages exist, so the rest can be
+        // fetched concurrently instead of walking them one blocking round-trip at a time.
+        const firstPage = await fetchTokenList({ chainId, page: 1, pageSize, isWhitelisted: true }, true)
+        if (firstPage.error) throw firstPage.error
+        let tokens: TokenInfo[] = firstPage.data?.data.tokens ?? []
+
+        const totalItems = firstPage.data?.data.pagination?.totalItems
+        // With a token count, request exactly the remaining pages; without one, fall back to fetching up to
+        // the cap (empty pages concat harmlessly) so a missing pagination field can never drop tokens.
+        const totalPages =
+          totalItems != null
+            ? Math.min(Math.ceil(totalItems / pageSize), maximumPage)
+            : tokens.length < pageSize
+            ? 1
+            : maximumPage
+
+        if (totalPages > 1) {
+          const restResults = await Promise.all(
+            Array.from({ length: totalPages - 1 }, (_, index) =>
+              fetchTokenList({ chainId, page: index + 2, pageSize, isWhitelisted: true }, true),
+            ),
+          )
+          for (const result of restResults) {
+            if (result.error) throw result.error
+            tokens = tokens.concat(result.data?.data.tokens ?? [])
+          }
         }
 
         const tokenList = listToTokenMap(tokens, chainId)

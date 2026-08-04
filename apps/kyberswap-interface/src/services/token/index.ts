@@ -2,7 +2,7 @@ import { createApi } from '@reduxjs/toolkit/query/react'
 import { baseQueryOauthDynamic } from 'services/baseQueryOauth'
 
 import { BFF_API } from 'constants/env'
-import { TOKEN_SCORE_TTL } from 'constants/index'
+import { TOKEN_SCORE_TTL } from 'utils/tokenScore'
 
 import { GetTokenScoreParams, GetTokenScoreResponse } from './types'
 

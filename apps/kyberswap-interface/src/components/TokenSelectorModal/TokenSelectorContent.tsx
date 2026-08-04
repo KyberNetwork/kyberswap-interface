@@ -74,7 +74,8 @@ import {
   useUserFavoriteTokens,
 } from 'state/user/hooks'
 import { CloseIcon, MEDIA_WIDTHS } from 'theme'
-import { filterTruthy, isAddress } from 'utils'
+import { isAddress } from 'utils/address'
+import { filterTruthy } from 'utils/array'
 import { cn } from 'utils/cn'
 import { filterTokens } from 'utils/filtering'
 import { isTokenNative } from 'utils/tokenInfo'
@@ -95,6 +96,8 @@ interface TokenSelectorContentProps {
   onShowTokenInfo?: (token: Token) => void
   /** Show the discovery tab bar (Trending / New / …). Off for surfaces that want a plain search + list (cross-chain). */
   showDiscoveryTabs?: boolean
+  /** Select a different chain in the owning form instead of switching the connected app/wallet chain. */
+  onSelectChain?: (chainId: ChainId) => void
 }
 
 const NoResult = ({ message }: { message?: ReactNode }) => {
@@ -153,6 +156,10 @@ const SortHeader = ({
   </button>
 )
 
+// How a token pick was initiated, reported on the Token Selected event so the discovery funnel can
+// tell quick-select taps from list browsing and from search-result picks.
+type TokenSelectionMethod = 'browse' | 'search' | 'quick_select_pill'
+
 export const TokenSelectorContent = ({
   selectedCurrency,
   onCurrencySelect,
@@ -168,6 +175,7 @@ export const TokenSelectorContent = ({
   trackingSource,
   onShowTokenInfo,
   showDiscoveryTabs = true,
+  onSelectChain,
 }: TokenSelectorContentProps) => {
   const { chainId: web3ChainId, account } = useActiveWeb3React()
   const anchorChainId = customChainId || web3ChainId
@@ -523,7 +531,7 @@ export const TokenSelectorContent = ({
   // check or still awaiting its chain-switch confirm doesn't count. Shared by every entry point — row
   // click, quick-select, Enter, and the cross-chain confirm — so they all land the same shape.
   const trackTokenSelected = useCallback(
-    (currency: Currency, needsChainSwitch: boolean) => {
+    (currency: Currency, needsChainSwitch: boolean, method: TokenSelectionMethod) => {
       const address = currency.wrapped.address
       const rowIndex = visibleCurrencies.findIndex(item => item.wrapped.address === address)
       trackingHandler(TRACKING_EVENT_TYPE.TS_TOKEN_SELECTED, {
@@ -532,33 +540,59 @@ export const TokenSelectorContent = ({
         token_symbol: currency.symbol,
         token_address: isTokenNative(currency) ? 'NATIVE' : address,
         chain: NETWORKS_INFO[currency.chainId].name,
+        chain_id: currency.chainId,
         // Absent when the pick came from quick-select or the other-chain group rather than the list.
         row_index: rowIndex >= 0 ? rowIndex : undefined,
         is_search_result: !!debouncedQuery,
+        selection_method: method,
         needs_chain_switch: needsChainSwitch,
       })
     },
     [activeTab, debouncedQuery, trackingHandler, trackingSource, visibleCurrencies],
   )
 
+  // Carries how a cross-chain pick was initiated across the deferred Switch-Chain confirm so it reports
+  // the same selection_method the immediate (same-chain) path would have.
+  const pendingSelectMethodRef = useRef<TokenSelectionMethod>('browse')
   const handleCurrencySelect = useCallback(
-    (currency: Currency) => {
+    (currency: Currency, method?: TokenSelectionMethod) => {
       const resolved = isTokenNative(currency) ? NativeCurrencies[currency.chainId] : currency
+      // Quick-select pills pass their method explicitly; every other entry point (row click, Enter,
+      // other-chain group) is browsing unless a search is active.
+      const selectionMethod: TokenSelectionMethod = method ?? (debouncedQuery ? 'search' : 'browse')
       // Restricted in the user's jurisdiction — block selection and keep the modal open with a notice.
       if (isTokenRestricted(resolved)) {
         notifyRestrictedToken(resolved)
         return
       }
-      // Picking a token on another chain asks the user to switch first.
+      // Cross-chain forms own their chain state, so update that form and select immediately without
+      // switching the connected app/wallet chain. Other surfaces keep the existing confirm flow.
       if (resolved.chainId !== anchorChainId) {
+        if (onSelectChain) {
+          trackTokenSelected(resolved, true, selectionMethod)
+          onSelectChain(resolved.chainId)
+          onCurrencySelect?.(resolved)
+          onDismiss?.()
+          return
+        }
+        pendingSelectMethodRef.current = selectionMethod
         setSwitchChainToken(resolved)
         return
       }
-      trackTokenSelected(resolved, false)
+      trackTokenSelected(resolved, false, selectionMethod)
       onCurrencySelect?.(resolved)
       onDismiss?.()
     },
-    [anchorChainId, onCurrencySelect, onDismiss, isTokenRestricted, notifyRestrictedToken, trackTokenSelected],
+    [
+      anchorChainId,
+      debouncedQuery,
+      onCurrencySelect,
+      onDismiss,
+      isTokenRestricted,
+      notifyRestrictedToken,
+      trackTokenSelected,
+      onSelectChain,
+    ],
   )
 
   // On confirm, switch to the token's chain and select it once the switch lands (see the hook — it
@@ -568,7 +602,7 @@ export const TokenSelectorContent = ({
     if (!switchChainToken) return
     const token = switchChainToken
     setSwitchChainToken(null)
-    trackTokenSelected(token, true)
+    trackTokenSelected(token, true, pendingSelectMethodRef.current)
     switchChainAndSelect(token)
   }, [switchChainToken, switchChainAndSelect, trackTokenSelected])
 
@@ -596,6 +630,7 @@ export const TokenSelectorContent = ({
         tab,
         previous_tab: activeTab,
         chain: NETWORKS_INFO[primaryChainId].name,
+        chain_id: primaryChainId,
       })
     },
     [activeTab, primaryChainId, trackingHandler, trackingSource],
@@ -607,7 +642,9 @@ export const TokenSelectorContent = ({
       trackingHandler(TRACKING_EVENT_TYPE.TS_CHAIN_SWITCHED, {
         source: trackingSource,
         from_chain: NETWORKS_INFO[selectedChainId].name,
+        from_chain_id: selectedChainId,
         to_chain: NETWORKS_INFO[chainId].name,
+        to_chain_id: chainId,
         tab: activeTab,
       })
     },
@@ -793,10 +830,11 @@ export const TokenSelectorContent = ({
 
   useEffect(() => {
     if (!trackingDebouncedQuery || !trackingSource) return
-    trackingHandler(TRACKING_EVENT_TYPE.TOKEN_SEARCHED, {
+    trackingHandler(TRACKING_EVENT_TYPE.TS_SEARCHED, {
       source: trackingSource,
       search_query: trackingDebouncedQuery,
       chain: NETWORKS_INFO[primaryChainId].name,
+      chain_id: primaryChainId,
       is_address: !!isAddress(primaryChainId, trackingDebouncedQuery),
     })
   }, [trackingDebouncedQuery, trackingSource, primaryChainId, trackingHandler])
@@ -853,7 +891,7 @@ export const TokenSelectorContent = ({
             {searchQuery ? (
               <button
                 type="button"
-                aria-label={t`Clear search`}
+                aria-label="Clear search"
                 data-testid="clear-search"
                 onClick={() => {
                   setSearchQuery('')
@@ -885,7 +923,7 @@ export const TokenSelectorContent = ({
               <PinnedTokens
                 tokens={quickSelectTokens}
                 onToggleFavorite={handleClickFavorite}
-                onSelect={handleCurrencySelect}
+                onSelect={token => handleCurrencySelect(token, 'quick_select_pill')}
                 selectedCurrency={selectedCurrency}
               />
             </div>

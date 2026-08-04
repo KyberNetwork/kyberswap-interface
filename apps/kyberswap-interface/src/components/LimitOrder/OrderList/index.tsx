@@ -9,7 +9,7 @@ import { LimitOrderTab } from 'components/LimitOrder/types'
 import { HStack, Stack } from 'components/Stack'
 import TokenPriceChart from 'components/TokenPriceChart'
 import { MouseoverTooltip } from 'components/Tooltip'
-import { PRICE_CHART_QUOTE_TOKEN_BY_CHAIN } from 'constants/tokens'
+import { PRICE_CHART_QUOTES } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import useTab from 'hooks/useTab'
 import { useLimitState } from 'state/limit/hooks'
@@ -100,7 +100,7 @@ const OrderList = () => {
   const { chainId, syncOrderListTabWithQuery } = useLimitOrderContext()
   const { currencyIn, currencyOut } = useLimitState()
 
-  const hasSupportedTokenPriceChart = Boolean(PRICE_CHART_QUOTE_TOKEN_BY_CHAIN[chainId])
+  const hasSupportedTokenPriceChart = Boolean(PRICE_CHART_QUOTES[chainId])
   const tabs = useMemo(
     () => ORDER_LIST_TABS.filter(tab => hasSupportedTokenPriceChart || tab.id !== LimitOrderTab.PRICE),
     [hasSupportedTokenPriceChart],

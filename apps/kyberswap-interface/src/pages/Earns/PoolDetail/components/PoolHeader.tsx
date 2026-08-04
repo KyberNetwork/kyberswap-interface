@@ -11,12 +11,12 @@ import { ReactComponent as RocketIcon } from 'assets/svg/rocket.svg'
 import IconButton from 'components/Button/IconButton'
 import CopyHelper from 'components/Copy'
 import InfoHelper from 'components/InfoHelper'
+import { ListingPageNavigateButton } from 'components/Listing/Page'
 import { Center, HStack, Stack } from 'components/Stack'
 import TokenLogo from 'components/TokenLogo'
 import { APP_PATHS } from 'constants/index'
 import { NetworkInfo } from 'constants/networks/type'
 import { usePoolDetailContext } from 'pages/Earns/PoolDetail/context'
-import { NavigateButton } from 'pages/Earns/PoolExplorer/styles'
 import { IconArrowLeft, ShareButtonWrapper } from 'pages/Earns/PositionDetail/styles'
 import { getPoolDetailUrl } from 'pages/Earns/utils/url'
 import { formatDisplayNumber } from 'utils/numbers'
@@ -43,7 +43,7 @@ const PoolHeaderPage = () => {
 
   const isFarming = Boolean(pool.programs?.includes('eg') || pool.programs?.includes('lm'))
   const poolStats = pool.poolStats
-  const hasActiveApr = poolStats?.activeApr !== undefined
+  const hasActiveApr = !!poolStats?.activeApr
   const bonusApr = poolStats?.bonusApr || 0
   const activeTotal = hasActiveApr ? (poolStats?.activeApr || 0) + bonusApr : undefined
 
@@ -143,7 +143,7 @@ const PoolHeaderPage = () => {
         </HStack>
       </HStack>
 
-      <NavigateButton
+      <ListingPageNavigateButton
         mobileFullWidth
         icon={<RocketIcon width={20} height={20} />}
         text={t`Explore Pools`}

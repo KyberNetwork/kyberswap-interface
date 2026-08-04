@@ -4,7 +4,7 @@ import { RefreshCw } from 'react-feather'
 import { DustSwapRouteApiResponse } from 'services/dustSwap'
 
 import SlippageControl from 'components/SlippageControl'
-import { DEFAULT_SLIPPAGES, MAX_NORMAL_SLIPPAGE_IN_BIPS } from 'constants/index'
+import { DEFAULT_SLIPPAGES, MAX_NORMAL_SLIPPAGE_IN_BIPS } from 'constants/trade'
 import { useDustLiquidationActions, useDustLiquidationState } from 'state/dustLiquidation/hooks'
 import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'

@@ -153,6 +153,11 @@ const getUnixTimestampFromChartTime = (time: Time) => {
   return Math.floor(Date.UTC(time.year, time.month - 1, time.day) / 1000)
 }
 
+// Axis labels carry subscript digits (0.0₅28…) and Work Sans has no glyph for them, so the chart needs
+// the same symbol face the DOM uses — canvas text resolves its own font list, not the CSS stack.
+const SYMBOL_FONT = 'Inter Symbols'
+const CHART_FONT_FAMILY = `'Work Sans', '${SYMBOL_FONT}', sans-serif`
+
 const getChartOptions = ({
   chartHeight,
   crosshairColor,
@@ -169,7 +174,7 @@ const getChartOptions = ({
   height: chartHeight,
   layout: {
     background: { color: 'transparent' },
-    fontFamily: "'Work Sans', 'Inter', sans-serif",
+    fontFamily: CHART_FONT_FAMILY,
     textColor: subTextColor,
   },
   grid: {
@@ -513,6 +518,21 @@ const TokenPriceChartCanvas = ({
     })
     candlestickSeriesRef.current?.applyOptions(candlestickSeriesOptions)
   }, [candlestickSeriesOptions, chartOptions])
+
+  // Drawing to a canvas neither pulls a webfont in nor repaints once one arrives, so request the symbol
+  // face directly and redraw when it lands. Without this the labels can keep the system fallback's
+  // subscript digits, which sit below the baseline at a fraction of the size.
+  useEffect(() => {
+    let cancelled = false
+
+    document.fonts.load(`12px '${SYMBOL_FONT}'`, '₀').then(() => {
+      if (!cancelled) chartRef.current?.applyOptions(chartOptions)
+    })
+
+    return () => {
+      cancelled = true
+    }
+  }, [chartOptions])
 
   useEffect(() => {
     if (!chartRef.current || !candlestickSeriesRef.current || !volumeSeriesRef.current) return

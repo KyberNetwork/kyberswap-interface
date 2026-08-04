@@ -1,7 +1,7 @@
 import type { Currency } from '@kyberswap/ks-sdk-core'
 
 import TokenPriceChart from 'components/TokenPriceChart'
-import { PRICE_CHART_QUOTE_TOKEN_BY_CHAIN } from 'constants/tokens'
+import { PRICE_CHART_QUOTES } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import SwapTradeRoute from 'pages/Swap/components/SwapTradeRoute'
 import { useShowPricingChart, useShowTradeRoutes } from 'state/user/hooks'
@@ -25,7 +25,7 @@ export const SwapRightPanel = ({ currencyIn, currencyOut, routeSummary }: Props)
     swaps: routeSummary?.route,
   })
 
-  const hasSupportedTokenPriceChart = Boolean(PRICE_CHART_QUOTE_TOKEN_BY_CHAIN[chainId])
+  const hasSupportedTokenPriceChart = Boolean(PRICE_CHART_QUOTES[chainId])
 
   return (
     <>

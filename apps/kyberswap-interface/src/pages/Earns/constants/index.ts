@@ -10,6 +10,7 @@ import ethereum from 'pages/Earns/constants/chains/ethereum'
 import matic from 'pages/Earns/constants/chains/matic'
 import monad from 'pages/Earns/constants/chains/monad'
 import optimism from 'pages/Earns/constants/chains/optimism'
+import robinhood from 'pages/Earns/constants/chains/robinhood'
 import { CoreProtocol } from 'pages/Earns/constants/coreProtocol'
 import aerodrome from 'pages/Earns/constants/dexes/aerodrome'
 import camelotv3 from 'pages/Earns/constants/dexes/camelotv3'
@@ -172,6 +173,7 @@ export enum EarnChain {
   MATIC = ChainId.MATIC,
   BERA = ChainId.BERA,
   MONAD = ChainId.MONAD,
+  ROBINHOOD = ChainId.ROBINHOOD,
 }
 
 export const EARN_CHAINS: Record<EarnChain, EarnChainInfo> = {
@@ -184,6 +186,7 @@ export const EARN_CHAINS: Record<EarnChain, EarnChainInfo> = {
   [EarnChain.MATIC]: matic,
   [EarnChain.BERA]: bera,
   [EarnChain.MONAD]: monad,
+  [EarnChain.ROBINHOOD]: robinhood,
 }
 
 export const LIMIT_TEXT_STYLES = {

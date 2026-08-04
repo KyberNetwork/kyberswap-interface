@@ -83,7 +83,9 @@ const MobileTableRow = ({
             <HStack>
               <TokenLogo src={pool.tokens?.[0]?.logoURI} />
               <TokenLogo src={pool.tokens?.[1]?.logoURI} translateLeft />
-              {pool.chain?.logoUrl && <TokenLogo src={pool.chain.logoUrl} size={12} translateLeft translateTop />}
+              {pool.chain?.logoUrl && (
+                <TokenLogo src={pool.chain.logoUrl} size={12} translateLeft translateTop className="size-3" />
+              )}
             </HStack>
             <SymbolText>
               {pool.tokens?.[0]?.symbol}/{pool.tokens?.[1]?.symbol}

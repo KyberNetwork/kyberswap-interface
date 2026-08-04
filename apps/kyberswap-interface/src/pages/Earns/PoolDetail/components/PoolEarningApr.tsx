@@ -28,7 +28,7 @@ const PoolEarningApr = () => {
     }
   }, [pool])
 
-  const hasActiveApr = aprSummary?.activeApr !== undefined
+  const hasActiveApr = !!aprSummary.activeApr
 
   return (
     <HStack className="flex-wrap items-stretch gap-3">

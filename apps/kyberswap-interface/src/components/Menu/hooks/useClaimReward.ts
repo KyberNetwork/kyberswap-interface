@@ -1,4 +1,4 @@
-import { ChainId, CurrencyAmount } from '@kyberswap/ks-sdk-core'
+import { CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { skipToken } from '@reduxjs/toolkit/query'
 import { readContract } from '@wagmi/core'
@@ -50,8 +50,8 @@ const getRemainingRewardAmount = (reward?: ClaimReward, claimedAmounts?: readonl
   return remainingAmount > 0n ? remainingAmount : 0n
 }
 
-const formatRewardAmount = (chainId: ChainId, amount: bigint) =>
-  CurrencyAmount.fromRawAmount(KNC[chainId], amount.toString()).toSignificant(6)
+const formatRewardAmount = (rewardToken: Token, amount: bigint) =>
+  CurrencyAmount.fromRawAmount(rewardToken, amount.toString()).toSignificant(6)
 
 const getErrorMessage = (error: unknown) => {
   if (error instanceof Error) return error.message
@@ -78,7 +78,8 @@ export const useClaimReward = ({ enabled = true }: UseClaimRewardParams = {}) =>
   const { chainId, account, walletKey } = useActiveWeb3React()
   const { isSmartConnector } = useWeb3React()
   const rewardContractAddress = enabled ? NETWORKS_INFO[chainId].classic.claimReward ?? undefined : undefined
-  const claimRewardsQueryArg = enabled && account && rewardContractAddress ? chainId : skipToken
+  const rewardToken = KNC[chainId]
+  const claimRewardsQueryArg = enabled && account && rewardContractAddress && rewardToken ? chainId : skipToken
 
   const rewardReadingContract = useReadingContract(rewardContractAddress, CLAIM_REWARD_ABI)
   const rewardSigningContract = useSigningContract(rewardContractAddress, CLAIM_REWARD_ABI)
@@ -109,9 +110,9 @@ export const useClaimReward = ({ enabled = true }: UseClaimRewardParams = {}) =>
 
   const updateRewardAmounts = useCallback(async () => {
     setRewardAmounts('0')
-    setIsUserHasReward(enabled && hasRewardData)
+    setIsUserHasReward(enabled && hasRewardData && !!rewardToken)
 
-    if (!enabled || !rewardReadingContract || !chainId || !account || !hasRewardData) return
+    if (!enabled || !rewardReadingContract || !chainId || !account || !hasRewardData || !rewardToken) return
 
     for (const [index, userReward] of userRewards.entries()) {
       if (!userReward.reward) continue
@@ -125,13 +126,13 @@ export const useClaimReward = ({ enabled = true }: UseClaimRewardParams = {}) =>
       })) as readonly bigint[]
 
       const remainingAmount = getRemainingRewardAmount(userReward.reward, claimedAmounts)
-      setRewardAmounts(formatRewardAmount(chainId, remainingAmount))
+      setRewardAmounts(formatRewardAmount(rewardToken, remainingAmount))
       if (remainingAmount > 0n) {
         setSelectedRewardIndex(index)
         break
       }
     }
-  }, [enabled, rewardReadingContract, chainId, account, hasRewardData, userRewards])
+  }, [enabled, rewardReadingContract, chainId, account, hasRewardData, rewardToken, userRewards])
 
   useEffect(() => {
     setRewardAmounts('0')
@@ -163,7 +164,7 @@ export const useClaimReward = ({ enabled = true }: UseClaimRewardParams = {}) =>
   }, [enabled, pendingTx, resetTxn])
 
   const claimRewardsCallback = useCallback(async () => {
-    if (!rewardSigningContract || !chainId || !account || !selectedUserReward?.reward) return
+    if (!rewardSigningContract || !chainId || !account || !selectedUserReward?.reward || !rewardToken) return
 
     setAttemptingTxn(true)
     try {
@@ -213,7 +214,7 @@ export const useClaimReward = ({ enabled = true }: UseClaimRewardParams = {}) =>
         hash: tx.hash,
         type: TRANSACTION_TYPE.CLAIM_REWARD,
         extraInfo: {
-          tokenAddress: KNC[chainId].address,
+          tokenAddress: rewardToken.address,
           tokenAmount: rewardAmounts,
           tokenSymbol: 'KNC',
         },
@@ -229,6 +230,7 @@ export const useClaimReward = ({ enabled = true }: UseClaimRewardParams = {}) =>
     isSmartConnector,
     walletKey,
     rewardAmounts,
+    rewardToken,
     selectedUserReward,
     addTransactionWithType,
   ])

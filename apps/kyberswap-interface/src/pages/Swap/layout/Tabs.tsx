@@ -6,14 +6,15 @@ import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { ButtonEmpty } from 'components/Button'
 import { HStack, Stack } from 'components/Stack'
 import { APP_PATHS } from 'constants/index'
+import { isSupportLimitOrder } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import usePageLocation from 'hooks/usePageLocation'
 import usePrefetchOnIntent from 'hooks/usePrefetchOnIntent'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { prefetchCrossChainSwap } from 'pages/CrossChainSwap/loader'
 import { LimitTab } from 'pages/Swap/layout/LimitTab'
-import { isSupportLimitOrder } from 'utils'
 import { cn } from 'utils/cn'
+import { isSwapLikePath } from 'utils/routes'
 
 export enum TAB {
   SWAP = 'swap',
@@ -92,7 +93,12 @@ export const Tabs = ({ activeTab, setActiveTab, customChainId }: Props) => {
     }
 
     setActiveTab(tab)
-    if (tab === TAB.SWAP && pathname.includes('/swap')) {
+    if (
+      tab === TAB.SWAP &&
+      (isSwapLikePath(pathname) ||
+        pathname.startsWith(APP_PATHS.PARTNER_SWAP) ||
+        pathname.startsWith(APP_PATHS.USER_SWAP))
+    ) {
       return
     }
     navigateFn({

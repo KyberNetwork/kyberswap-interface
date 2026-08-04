@@ -1,16 +1,20 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import {
+import type {
   OnSuccessProps,
   SupportedLocale,
-  LiquidityWidget as ZapIn,
   ChainId as ZapInChainId,
   PoolType as ZapInPoolType,
 } from '@kyberswap/liquidity-widgets'
+// The stylesheet loads eagerly, not with the lazy JS below: the widget's transaction-status dialog is styled
+// by utilities scoped under the widget's own root class (`.ks-lw-style`), which ship only in this stylesheet
+// — the app's eager @kyber/ui styles use a different scope (`.ks-ui-style`) and don't reach it. It must be
+// present whenever the widget can open, independent of its lazy JS chunk.
 import '@kyberswap/liquidity-widgets/dist/style.css'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { Suspense, lazy, useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 
 import { NotificationType } from 'components/Announcement/type'
+import LocalLoader from 'components/LocalLoader'
 import Modal from 'components/Modal'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
@@ -33,10 +37,15 @@ import { navigateToPoolDetail, navigateToPositionAfterZap } from 'pages/Earns/ut
 import { useKyberSwapConfig, useNotify, useWalletModalToggle } from 'state/application/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
-import { getCookieValue } from 'utils'
+import { getCookieValue } from 'utils/cookie'
 import { friendlyError } from 'utils/errorMessage'
 import { Address } from 'utils/viem'
 import { signTypedDataRaw } from 'utils/walletClient'
+
+// Every /earn route calls this hook to get its Zap button, but the widget itself only renders inside the
+// modal below — so lazy-loading its ~760KB gz JS keeps it off routes whose visitors never open it. The
+// types above are erased at build time, so nothing else here pulls the package back into the route chunk.
+const ZapIn = lazy(() => import('@kyberswap/liquidity-widgets').then(widget => ({ default: widget.LiquidityWidget })))
 
 interface AddLiquidityPureParams {
   poolAddress: string
@@ -467,7 +476,9 @@ const useZapInWidget = ({
 
   const widget = addLiquidityParams ? (
     <Modal isOpen mobileFullWidth maxWidth={840} width={'840px'} onDismiss={handleCloseZapInWidget}>
-      <ZapIn {...addLiquidityParams} />
+      <Suspense fallback={<LocalLoader />}>
+        <ZapIn {...addLiquidityParams} />
+      </Suspense>
     </Modal>
   ) : null
 

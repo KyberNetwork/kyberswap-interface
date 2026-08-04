@@ -14,17 +14,23 @@ type Props = {
   currencyIn: Currency | undefined
   currencyOut: Currency | undefined
   balanceIn: CurrencyAmount<Currency> | undefined
+  balanceText?: string
+  highlightToken?: boolean
   onChangeCurrencyIn: (c: Currency) => void
   setTypedValue: (v: string) => void
+  onUserInput: (v: string) => void
   customChainId?: ChainId
 }
 const InputCurrencyPanel: React.FC<Props> = ({
   wrapType,
   typedValue,
   setTypedValue,
+  onUserInput,
   currencyIn,
   currencyOut,
   balanceIn,
+  balanceText,
+  highlightToken,
   onChangeCurrencyIn,
   customChainId,
 }) => {
@@ -56,7 +62,7 @@ const InputCurrencyPanel: React.FC<Props> = ({
       value={typedValue}
       positionMax="top"
       currency={currencyIn}
-      onUserInput={setTypedValue}
+      onUserInput={onUserInput}
       onMax={handleMaxInput}
       onHalf={handleHalfInput}
       onCurrencySelect={onChangeCurrencyIn}
@@ -64,6 +70,8 @@ const InputCurrencyPanel: React.FC<Props> = ({
       id="swap-currency-input"
       dataTestId="swap-currency-input"
       showPinnedTokens={true}
+      customBalanceText={balanceText}
+      highlightCurrencySelect={highlightToken}
       estimatedUsd={
         trade?.amountInUsd
           ? formatDisplayNumber(trade.amountInUsd, { style: 'currency', significantDigits: 4 })

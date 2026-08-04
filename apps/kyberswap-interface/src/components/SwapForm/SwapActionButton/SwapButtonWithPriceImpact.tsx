@@ -7,11 +7,8 @@ import { ButtonPrimary } from 'components/Button'
 import Dots from 'components/Dots'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { useDegenModeManager } from 'state/user/hooks'
-import { cn } from 'utils/cn'
 import { checkShouldDisableByPriceImpact } from 'utils/priceImpact'
 import { checkPriceImpact } from 'utils/prices'
-
-const BUTTON_CLASS = 'flex-1 border-none font-medium disabled:border-none'
 
 const SwapButtonWithPriceImpact = ({
   isProcessingSwap,
@@ -46,7 +43,7 @@ const SwapButtonWithPriceImpact = ({
 
   if (isProcessingSwap) {
     return (
-      <ButtonPrimary id="swap-button" className={BUTTON_CLASS} disabled>
+      <ButtonPrimary id="swap-button" disabled>
         <Dots>
           <Trans>Processing</Trans>
         </Dots>
@@ -56,7 +53,7 @@ const SwapButtonWithPriceImpact = ({
 
   if (showLoading) {
     return (
-      <ButtonPrimary id="swap-button" className={BUTTON_CLASS} disabled>
+      <ButtonPrimary id="swap-button" disabled>
         <Dots>
           <Trans>Calculating</Trans>
         </Dots>
@@ -71,7 +68,7 @@ const SwapButtonWithPriceImpact = ({
     return (
       <ButtonPrimary
         id="swap-button"
-        className={cn(BUTTON_CLASS, !shouldDisable && '!bg-red !text-text')}
+        className={!shouldDisable ? '!bg-red !text-text' : undefined}
         onClick={onClick}
         disabled={shouldDisable}
       >
@@ -83,7 +80,7 @@ const SwapButtonWithPriceImpact = ({
   return (
     <ButtonPrimary
       id="swap-button"
-      className={cn(BUTTON_CLASS, 'gap-1')}
+      className="gap-1"
       disabled={shouldDisable}
       onClick={() => {
         if (shouldDisableByPriceImpact && !isDegenMode) {

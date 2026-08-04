@@ -1,7 +1,5 @@
 import { cn } from '@kyber/utils/tailwind-helpers';
 
-import { MouseoverTooltip } from '@/components/Tooltip';
-
 export default function TokenSymbol({
   symbol,
   maxWidth = 140,
@@ -12,10 +10,8 @@ export default function TokenSymbol({
   className?: string;
 }) {
   return (
-    <MouseoverTooltip className="w-fit" text={symbol} placement="top" width="fit-content">
-      <p className={cn('truncate ks-ui-style', className)} style={{ maxWidth }}>
-        {symbol}
-      </p>
-    </MouseoverTooltip>
+    <p className={cn('truncate ks-ui-style', className)} style={{ maxWidth }} title={symbol}>
+      {symbol}
+    </p>
   );
 }

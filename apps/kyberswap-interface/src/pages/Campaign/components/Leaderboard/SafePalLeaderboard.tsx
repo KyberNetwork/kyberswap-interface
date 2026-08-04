@@ -16,8 +16,9 @@ import { useSafePalCampaignJoin } from 'pages/Campaign/hooks/useSafePalCampaignJ
 import { resolveSelectedCampaignWeek } from 'pages/Campaign/utils'
 import { isCampaignWeekActive, isCampaignWeekEnded, isSafePalCampaignWinner } from 'pages/Campaign/utils/safepalUtils'
 import { ExternalLinkIcon, MEDIA_WIDTHS } from 'theme'
-import { getEtherscanLink, shortenHash } from 'utils'
+import { shortenHash } from 'utils/address'
 import { cn } from 'utils/cn'
+import { getEtherscanLink } from 'utils/explorer'
 
 const StatusBadge = ({ isWinner, children }: { isWinner: boolean; children: ReactNode }) => (
   <div
@@ -86,7 +87,7 @@ const SafePalRowsSkeleton = ({
               <Skeleton width={48} height={16} />
             </div>
             <div className={cn('flex flex-col', upToSmall ? 'w-full items-start' : 'w-[120px] items-end')}>
-              <Skeleton width={88} height={24} borderRadius={999} />
+              <Skeleton width={88} height={24} rounded />
             </div>
           </>
         )}

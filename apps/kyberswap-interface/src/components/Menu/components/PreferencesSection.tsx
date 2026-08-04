@@ -16,8 +16,9 @@ import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
 import { useTutorialSwapGuide } from 'state/tutorial/hooks'
 import { useHolidayMode, useUserLocale } from 'state/user/hooks'
-import { isChristmasTime } from 'utils'
 import { cn } from 'utils/cn'
+import { isSwapLikePath } from 'utils/routes'
+import { isChristmasTime } from 'utils/time'
 
 const noop = () => {}
 
@@ -52,7 +53,7 @@ export const PreferencesSection = ({ toggle }: PreferencesSectionProps) => {
         <Trans>Preferences</Trans>
       </Title>
 
-      {location.pathname.startsWith(APP_PATHS.SWAP) && (
+      {isSwapLikePath(location.pathname) && (
         <NavLinkBetween
           id={TutorialIds.BUTTON_VIEW_GUIDE_SWAP}
           onClick={() => {

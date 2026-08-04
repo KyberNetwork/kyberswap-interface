@@ -1,8 +1,10 @@
-import { ChainId, Currency as EvmCurrency } from '@kyberswap/ks-sdk-core'
+import { ChainId } from '@kyberswap/ks-sdk-core'
 
+import UnknownToken from 'assets/svg/kyber/unknown-token.svg'
 import { Chain, Currency } from 'pages/CrossChainSwap/adapters'
+import { isEvmChain } from 'pages/CrossChainSwap/adapters/types'
 import { getNetworkInfo } from 'pages/CrossChainSwap/utils'
-import { getNativeTokenLogo, isEvmChain } from 'utils'
+import { getNativeTokenLogo } from 'utils/tokenLogo'
 
 export const TokenLogoWithChain = ({
   currency,
@@ -10,7 +12,7 @@ export const TokenLogoWithChain = ({
   size = 16,
   chainLogoStyle = {},
 }: {
-  currency?: Currency
+  currency?: Currency & Partial<{ isNative: boolean; logoURI: string; logo: string }>
   chainId: Chain
   size?: number
   chainLogoStyle?: React.CSSProperties
@@ -19,16 +21,14 @@ export const TokenLogoWithChain = ({
     <div className="relative mr-1 flex">
       {isEvmChain(chainId) ? (
         <img
-          src={
-            (currency as EvmCurrency)?.isNative ? getNativeTokenLogo(chainId as ChainId) : (currency as any)?.logoURI
-          }
+          src={(currency?.isNative ? getNativeTokenLogo(chainId as ChainId) : currency?.logoURI) || UnknownToken}
           width={size}
           height={size}
           className="rounded-full"
           alt={currency?.symbol}
         />
       ) : (
-        <img src={(currency as any)?.logo} width={size} height={size} className="rounded-full" alt={currency?.symbol} />
+        <img src={currency?.logo} width={size} height={size} className="rounded-full" alt={currency?.symbol} />
       )}
       <img
         src={getNetworkInfo(chainId).icon}

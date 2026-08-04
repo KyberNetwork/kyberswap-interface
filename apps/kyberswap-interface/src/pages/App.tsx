@@ -1,6 +1,6 @@
 import '@kyber/token-selector/styles.css'
 import '@kyber/ui/styles.css'
-import { Suspense, lazy, useEffect } from 'react'
+import { Suspense, lazy } from 'react'
 import { Navigate, Route, Routes, useLocation, useParams, useSearchParams } from 'react-router-dom'
 
 import Popups from 'components/Announcement/Popups'
@@ -18,7 +18,14 @@ import RouteSeo from 'components/Seo/RouteSeo'
 import SingaporeWarningPopup from 'components/SingaporeWarningPopup'
 import SupportButton from 'components/SupportButton'
 import { APP_PATHS, CHAINS_SUPPORT_CROSS_CHAIN, TERM_FILES_PATH } from 'constants/index'
-import { CLASSIC_NOT_SUPPORTED, ELASTIC_NOT_SUPPORTED, NETWORKS_INFO, SUPPORTED_NETWORKS } from 'constants/networks'
+import { LEGACY_POOL_APP_PATHS } from 'constants/legacyPools'
+import {
+  CLASSIC_NOT_SUPPORTED,
+  ELASTIC_NOT_SUPPORTED,
+  NETWORKS_INFO,
+  SUPPORTED_NETWORKS,
+  isSupportLimitOrder,
+} from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import usePageLocation from 'hooks/usePageLocation'
 import useSessionExpiredGlobal from 'hooks/useSessionExpire'
@@ -29,12 +36,13 @@ import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
 import CrossChainPage from 'pages/Swap/CrossChainPage'
 import LimitPage from 'pages/Swap/LimitPage'
 import SwapPage from 'pages/Swap/SwapPage'
-import { RedirectPathToTradeNetwork } from 'pages/Swap/redirects'
+import { RedirectPathToTradeNetwork, SwapIntentRedirect } from 'pages/Swap/redirects'
 import VerifyAuth from 'pages/Verify/VerifyAuth'
 import { useAppDispatch, useAppSelector } from 'state/hooks'
 import { updateSafeAppAcceptedTermOfUse } from 'state/user/actions'
 import { ExternalLink } from 'theme'
-import { isInSafeApp, isSupportLimitOrder } from 'utils'
+import { SwapIntent } from 'utils/routes'
+import { isInSafeApp } from 'utils/safeApp'
 
 const Login = lazy(() => import('pages/Oauth/Login'))
 const Logout = lazy(() => import('pages/Oauth/Logout'))
@@ -84,22 +92,18 @@ const BodyWrapper = ({ children }: { children: React.ReactNode }) => (
   <main className="relative z-[1] flex w-full flex-1 flex-col items-center">{children}</main>
 )
 
-const preloadImages = () => {
-  const imageList: string[] = SUPPORTED_NETWORKS.map(chainId => [NETWORKS_INFO[chainId].icon])
-    .flat()
-    .filter(Boolean) as string[]
-
-  imageList.forEach(image => {
-    if (image) {
-      new Image().src = image
-    }
-  })
-}
-
 const NetworkSyncedPage = ({ children }: { children: React.ReactNode }) => {
   useSyncNetworkParamWithStore()
   return <>{children}</>
 }
+
+const SwapIntentPage = ({ intent }: { intent: SwapIntent }) => (
+  <SwapIntentRedirect intent={intent}>
+    <NetworkSyncedPage>
+      <SwapPage />
+    </NetworkSyncedPage>
+  </SwapIntentRedirect>
+)
 
 const RedirectToCreateTips = () => {
   const { networkInfo } = useActiveWeb3React()
@@ -181,14 +185,14 @@ const RoutesWithNetworkPrefix = () => {
       {!CLASSIC_NOT_SUPPORTED()[chainId] && (
         <>
           <Route
-            path={`${APP_PATHS.CLASSIC_REMOVE_POOL}/:currencyIdA/:currencyIdB/:pairAddress`}
+            path={`${LEGACY_POOL_APP_PATHS.CLASSIC_REMOVE_POOL}/:currencyIdA/:currencyIdB/:pairAddress`}
             element={<RemoveLiquidity />}
           />
         </>
       )}
 
       {!ELASTIC_NOT_SUPPORTED()[chainId] && (
-        <Route path={`${APP_PATHS.ELASTIC_REMOVE_POOL}/:tokenId`} element={<ElasticRemoveLiquidity />} />
+        <Route path={`${LEGACY_POOL_APP_PATHS.ELASTIC_REMOVE_POOL}/:tokenId`} element={<ElasticRemoveLiquidity />} />
       )}
 
       <Route path="*" element={<Navigate to="/" />} />
@@ -205,10 +209,6 @@ export default function App() {
 
   useSessionExpiredGlobal()
   useGlobalTrackingEvents()
-
-  useEffect(() => {
-    preloadImages()
-  }, [])
 
   const showFooter = !pathname.includes(APP_PATHS.ABOUT) && !isEmbeddedSwap
 
@@ -261,6 +261,8 @@ export default function App() {
                   </NetworkSyncedPage>
                 }
               />
+              <Route path={`${APP_PATHS.BUY}/:network/:token`} element={<SwapIntentPage intent={SwapIntent.BUY} />} />
+              <Route path={`${APP_PATHS.SELL}/:network/:token`} element={<SwapIntentPage intent={SwapIntent.SELL} />} />
               <Route path={`${APP_PATHS.PARTNER_SWAP}`} element={<PartnerSwap />} />
               <Route path={`${APP_PATHS.USER_SWAP}/:tipsId?`} element={<PartnerSwap mode="user" />} />
               <Route path={`${APP_PATHS.USER_SWAP_CREATE_TIPS}`} element={<RedirectToCreateTips />} />
@@ -280,21 +282,27 @@ export default function App() {
                 />
               )}
 
-              <Route path={`${APP_PATHS.FIND_POOL}`} element={<PoolFinder />} />
+              <Route path={`${LEGACY_POOL_APP_PATHS.FIND_POOL}`} element={<PoolFinder />} />
               <>
                 {/* My Pools Routes */}
-                <Route path={`${APP_PATHS.MY_POOLS}`} element={<RedirectWithNetworkSuffix />} />
-                <Route path={`${APP_PATHS.MY_POOLS}/:network`} element={<MyPool />} />
+                <Route path={`${LEGACY_POOL_APP_PATHS.MY_POOLS}`} element={<RedirectWithNetworkSuffix />} />
+                <Route path={`${LEGACY_POOL_APP_PATHS.MY_POOLS}/:network`} element={<MyPool />} />
               </>
 
               <>
                 {/* These are old routes and will soon be deprecated - Check: RoutesWithNetworkParam */}
                 {/*
-                  <Route path={`${APP_PATHS.ELASTIC_CREATE_POOL}/*`} element={<RedirectWithNetworkPrefix />} />
-                  <Route path={`${APP_PATHS.ELASTIC_INCREASE_LIQ}/*`} element={<RedirectWithNetworkPrefix />} />
+                  <Route path={`${LEGACY_POOL_APP_PATHS.ELASTIC_CREATE_POOL}/*`} element={<RedirectWithNetworkPrefix />} />
+                  <Route path={`${LEGACY_POOL_APP_PATHS.ELASTIC_INCREASE_LIQ}/*`} element={<RedirectWithNetworkPrefix />} />
                   */}
-                <Route path={`${APP_PATHS.ELASTIC_REMOVE_POOL}/*`} element={<RedirectWithNetworkPrefix />} />
-                <Route path={`${APP_PATHS.CLASSIC_REMOVE_POOL}/*`} element={<RedirectWithNetworkPrefix />} />
+                <Route
+                  path={`${LEGACY_POOL_APP_PATHS.ELASTIC_REMOVE_POOL}/*`}
+                  element={<RedirectWithNetworkPrefix />}
+                />
+                <Route
+                  path={`${LEGACY_POOL_APP_PATHS.CLASSIC_REMOVE_POOL}/*`}
+                  element={<RedirectWithNetworkPrefix />}
+                />
               </>
 
               <Route path={`${APP_PATHS.KYBERDAO_STAKE}`} element={<KyberDAOStakeKNC />} />
@@ -334,7 +342,7 @@ export default function App() {
               <Route path={APP_PATHS.IAM_LOGOUT} element={<Logout />} />
               <Route path={APP_PATHS.IAM_CONSENT} element={<Consent />} />
 
-              <Route path={APP_PATHS.ELASTIC_SNAPSHOT} element={<ElasticSnapshot />} />
+              <Route path={LEGACY_POOL_APP_PATHS.ELASTIC_SNAPSHOT} element={<ElasticSnapshot />} />
               <Route path={APP_PATHS.MARKET_OVERVIEW} element={<MarketOverview />} />
 
               <Route path={APP_PATHS.SAFEPAL_CAMPAIGN} element={<Campaign />} />

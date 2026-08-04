@@ -17,8 +17,9 @@ import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { VIEW_MODE } from 'state/user/reducer'
 import { ExternalLinkNoLineHeight } from 'theme'
 import { CloseIcon } from 'theme/components'
-import { getEtherscanLink, getTokenLogoURL } from 'utils'
 import { friendlyError } from 'utils/errorMessage'
+import { getEtherscanLink } from 'utils/explorer'
+import { getTokenLogoURL } from 'utils/tokenLogo'
 
 type ConfirmationPendingContentProps = {
   onDismiss: () => void

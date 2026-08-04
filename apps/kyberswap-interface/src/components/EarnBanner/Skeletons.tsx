@@ -8,7 +8,7 @@ export const TrendingPoolContentSkeleton = () => (
       <Skeleton circle height={24} style={{ marginLeft: -8 }} variant="darkSubtle" width={24} />
       <Skeleton height={18} style={{ marginLeft: 8 }} variant="darkSubtle" width={88} />
     </div>
-    <Skeleton height={28} borderRadius={16} variant="darkSubtle" width={120} />
+    <Skeleton height={28} rounded variant="darkSubtle" width={120} />
   </div>
 )
 
@@ -19,7 +19,7 @@ export const FarmingPoolContentSkeleton = () => (
       {[0, 1].map(index => (
         <div key={index} className="flex min-w-0 flex-1 items-center justify-center gap-2">
           <Skeleton height={18} variant="darkSubtle" width={88} />
-          <Skeleton height={28} borderRadius={16} variant="darkSubtle" width={80} />
+          <Skeleton height={28} rounded variant="darkSubtle" width={80} />
         </div>
       ))}
     </div>

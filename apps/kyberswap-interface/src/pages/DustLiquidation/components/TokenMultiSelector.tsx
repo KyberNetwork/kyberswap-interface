@@ -26,9 +26,9 @@ import { useWalletModalToggle } from 'state/application/hooks'
 import { DustInput, DustToken } from 'state/dustLiquidation/actions'
 import { useDustLiquidationActions, useDustLiquidationState } from 'state/dustLiquidation/hooks'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
-import { getNativeTokenLogo } from 'utils'
 import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
+import { getNativeTokenLogo } from 'utils/tokenLogo'
 import { formatUnits } from 'utils/viem'
 
 const Row = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (

@@ -3,8 +3,9 @@ import { useLingui } from "@lingui/react";
 import { useCopy } from "@kyber/hooks";
 import { ChainId, Token } from "@kyber/schema";
 import { Button, TokenLogo } from "@kyber/ui";
-import { getEtherscanLink } from "@kyber/utils";
 import { shortenAddress } from "@kyber/utils/crypto";
+
+import { getNetworkInfo } from "@/TokenInfo/utils";
 
 import IconAlertTriangle from "@/assets/alert-triangle.svg?react";
 import IconBack from "@/assets/arrow-left.svg?react";
@@ -28,12 +29,15 @@ const TokenImportConfirm = ({
   const Copy = useCopy({ text: token.address });
 
   const handleOpenExternalLink = () => {
-    const externalLink = getEtherscanLink(chainId, token.address, "address");
+    const scanLink = getNetworkInfo(chainId)?.scanLink;
+    const externalLink = scanLink
+      ? `${scanLink}/address/${token.address}`
+      : undefined;
     if (externalLink && window) window.open(externalLink, "_blank");
   };
 
   return (
-    <div className="w-full text-white">
+    <div className="h-full w-full overflow-y-auto text-white">
       <div className="flex items-center justify-between p-4 pb-2 border-b border-[#40444f]">
         <IconBack
           className="w-6 h-6 cursor-pointer hover:text-subText"
@@ -43,20 +47,20 @@ const TokenImportConfirm = ({
         <X className="cursor-pointer hover:text-subText" onClick={onClose} />
       </div>
       <div className="p-4 flex flex-col gap-4">
-        <div className="bg-warning-200 p-[15px] flex rounded-md text-warning items-start gap-2">
-          <IconAlertTriangle className="h-[18px]" />
+        <div className="flex items-start gap-2 rounded-md bg-warning-200 p-4 text-warning">
+          <IconAlertTriangle className="h-5" />
           <p className="text-sm">
             {i18n._(
               "This token isn't frequently swapped. Please do your own research before trading.",
             )}
           </p>
         </div>
-        <div className="bg-[#0f0f0f] rounded-md p-8 flex gap-[10px] items-start">
+        <div className="flex items-start gap-3 rounded-md bg-[#0f0f0f] p-8">
           <TokenLogo src={token.logo} size={44} />
           <div className="flex flex-col gap-1">
             <p className="text-lg">{token.symbol}</p>
             <p className="text-subText text-sm">{token.name}</p>
-            <p className="text-xs flex items-center gap-[5px]">
+            <p className="flex items-center gap-1 text-xs">
               <span>
                 {i18n._("Address: {address}", {
                   address: shortenAddress(token.address, 7),

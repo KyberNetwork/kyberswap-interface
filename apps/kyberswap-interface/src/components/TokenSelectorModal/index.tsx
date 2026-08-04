@@ -9,9 +9,11 @@ import { ImportTokenView } from 'components/TokenSelectorModal/ImportTokenView'
 import { SwitchChainModal } from 'components/TokenSelectorModal/SwitchChainModal'
 import { TokenSelectorContent } from 'components/TokenSelectorModal/TokenSelectorContent'
 import { usePendingCrossChainSelect } from 'components/TokenSelectorModal/hooks/usePendingCrossChainSelect'
+import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import useLast from 'hooks/useLast'
 import { useIsTokenRestricted, useNotifyRestrictedToken } from 'hooks/useRestrictedTokens'
+import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { Field } from 'state/swap/actions'
 import { cn } from 'utils/cn'
 
@@ -30,6 +32,8 @@ interface TokenSelectorModalProps {
   trackingSource?: string
   /** Show the discovery tab bar (Trending / New / …). Off for a plain search + list (cross-chain). */
   showDiscoveryTabs?: boolean
+  /** Select a different chain in the owning form instead of switching the connected app/wallet chain. */
+  onSelectChain?: (chainId: ChainId) => void
 }
 
 enum TokenSelectorModalView {
@@ -51,6 +55,7 @@ const TokenSelectorModal = ({
   customChainId,
   trackingSource,
   showDiscoveryTabs,
+  onSelectChain,
 }: TokenSelectorModalProps) => {
   const [modalView, setModalView] = useState<TokenSelectorModalView>(TokenSelectorModalView.search)
   // A cross-chain token confirmed from the import flow, pending its Switch-Chain confirm.
@@ -62,12 +67,18 @@ const TokenSelectorModal = ({
   const { chainId: appChainId } = useActiveWeb3React()
   const anchorChainId = customChainId || appChainId
   const { switchChainAndSelect } = usePendingCrossChainSelect(onCurrencySelect, onDismiss)
+  const { trackingHandler } = useTracking()
 
   useEffect(() => {
     if (isOpen && !lastOpen) {
       setModalView(TokenSelectorModalView.search)
+      trackingHandler(TRACKING_EVENT_TYPE.TS_OPENED, {
+        source: trackingSource,
+        chain: NETWORKS_INFO[anchorChainId].name,
+        chain_id: anchorChainId,
+      })
     }
-  }, [isOpen, lastOpen])
+  }, [isOpen, lastOpen, trackingHandler, trackingSource, anchorChainId])
 
   const handleCurrencySelect = useCallback(
     (currency: Currency[] | Currency) => {
@@ -80,13 +91,19 @@ const TokenSelectorModal = ({
       // directly, so its Switch-Chain confirm is shown here, after the import, rather than before it).
       // Row selections arrive already on the right chain, so this branch no-ops for them.
       if (picked.chainId !== anchorChainId) {
+        if (onSelectChain) {
+          onSelectChain(picked.chainId)
+          onCurrencySelect?.(picked)
+          onDismiss?.()
+          return
+        }
         setSwitchChainToken(picked)
         return
       }
       onCurrencySelect?.(picked)
       onDismiss?.()
     },
-    [onDismiss, onCurrencySelect, isTokenRestricted, notifyRestrictedToken, anchorChainId],
+    [onDismiss, onCurrencySelect, isTokenRestricted, notifyRestrictedToken, anchorChainId, onSelectChain],
   )
 
   // for token import view
@@ -158,6 +175,7 @@ const TokenSelectorModal = ({
             trackingSource={trackingSource}
             onShowTokenInfo={setTokenToShowInfo}
             showDiscoveryTabs={showDiscoveryTabs}
+            onSelectChain={onSelectChain}
           />
         </div>
         {modalView === TokenSelectorModalView.importToken && importToken && !tokenToShowInfo ? (

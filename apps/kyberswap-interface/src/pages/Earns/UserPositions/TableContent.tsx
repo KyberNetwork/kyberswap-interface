@@ -8,7 +8,8 @@ import { useMedia } from 'react-use'
 import { useGetSmartExitOrdersQuery } from 'services/smartExit'
 
 import { ReactComponent as IconEarnNotFound } from 'assets/svg/earn/ic_earn_not_found.svg'
-import { APP_PATHS, ETHER_ADDRESS, PAIR_CATEGORY } from 'constants/index'
+import { APP_PATHS, ETHER_ADDRESS } from 'constants/index'
+import { PAIR_CATEGORY } from 'constants/trade'
 import { useActiveWeb3React } from 'hooks'
 import { PositionAction as PositionActionBtn } from 'pages/Earns/PositionDetail/styles'
 import MigrationModal from 'pages/Earns/UserPositions/MigrationModal'
@@ -306,7 +307,7 @@ export default function TableContent({
       {migrationModal}
       {smartExitPosition && <SmartExit position={smartExitPosition} onDismiss={() => setSmartExitPosition(null)} />}
 
-      <div>
+      <div className="max-[1300px]:flex max-[1300px]:flex-col max-[1300px]:gap-4">
         {account && positions && positions.length > 0
           ? positions.map((position, index) => (
               <PositionRowItem

@@ -11,10 +11,10 @@ import { useGetSmartExitOrdersQuery } from 'services/smartExit'
 import { ReactComponent as IconEarnNotFound } from 'assets/svg/earn/ic_earn_not_found.svg'
 import { ReactComponent as IconUserEarnPosition } from 'assets/svg/earn/ic_user_earn_position.svg'
 import { ReactComponent as RocketIcon } from 'assets/svg/rocket.svg'
+import { ListingPageNavigateButton, ListingPageWrapper } from 'components/Listing/Page'
 import { wagmiConfig } from 'components/Web3Provider'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
-import { NavigateButton } from 'pages/Earns/PoolExplorer/styles'
 import PositionDetailHeader from 'pages/Earns/PositionDetail/Header'
 import LeftSection from 'pages/Earns/PositionDetail/LeftSection'
 import { PositionDetailProvider } from 'pages/Earns/PositionDetail/PositionDetailContext'
@@ -25,7 +25,7 @@ import {
   ShareButtonWrapper,
 } from 'pages/Earns/PositionDetail/styles'
 import MigrationModal from 'pages/Earns/UserPositions/MigrationModal'
-import { EmptyPositionText, PositionPageWrapper } from 'pages/Earns/UserPositions/styles'
+import { EmptyPositionText } from 'pages/Earns/UserPositions/styles'
 import { EARN_DEXES, Exchange } from 'pages/Earns/constants'
 import { CoreProtocol } from 'pages/Earns/constants/coreProtocol'
 import useClosedPositions, { CheckClosedPositionParams } from 'pages/Earns/hooks/useClosedPositions'
@@ -307,12 +307,16 @@ const PositionDetail = () => {
         <IconEarnNotFound />
         <span>{t`No position found!`}</span>
         <div className="mt-3 flex gap-2">
-          <NavigateButton
+          <ListingPageNavigateButton
             icon={<RocketIcon width={20} height={20} />}
             text={t`Explorer Pools`}
             to={APP_PATHS.EARN_POOLS}
           />
-          <NavigateButton icon={<IconUserEarnPosition />} text={t`My Positions`} to={APP_PATHS.EARN_POSITIONS} />
+          <ListingPageNavigateButton
+            icon={<IconUserEarnPosition />}
+            text={t`My Positions`}
+            to={APP_PATHS.EARN_POSITIONS}
+          />
         </div>
       </EmptyPositionText>
     ),
@@ -426,7 +430,7 @@ const PositionDetail = () => {
       {migrationModal}
 
       <PositionDetailProvider value={contextValue}>
-        <PositionPageWrapper>
+        <ListingPageWrapper>
           {!!position || initialLoading ? (
             <>
               <PositionDetailHeader />
@@ -467,7 +471,7 @@ const PositionDetail = () => {
           ) : (
             emptyPosition
           )}
-        </PositionPageWrapper>
+        </ListingPageWrapper>
       </PositionDetailProvider>
     </>
   )

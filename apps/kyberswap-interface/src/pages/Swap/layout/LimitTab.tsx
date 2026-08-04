@@ -5,9 +5,9 @@ import { useGetListOrdersQuery } from 'services/limitOrder'
 
 import { MouseoverTooltip } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
+import { isSupportLimitOrder } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { Tab } from 'pages/Swap/layout/Tabs'
-import { isSupportLimitOrder } from 'utils'
 
 type Props = {
   onClick: () => void

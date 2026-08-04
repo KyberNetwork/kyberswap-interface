@@ -3,13 +3,15 @@ import { Trans, t } from '@lingui/macro'
 import { useState } from 'react'
 import { useLocation } from 'react-router-dom'
 
-import { HiddenH1, HiddenH2 } from 'components/Seo/HiddenSeoHeadings'
+import { ErrorWarning } from 'components/ErrorWarning'
+import { HiddenH1, HiddenH2 } from 'components/Seo/components'
 import { HStack, Stack } from 'components/Stack'
 import { APP_PATHS } from 'constants/index'
 import { HeaderRightMenu } from 'pages/Swap/layout/HeaderRightMenu'
 import { TAB, Tabs } from 'pages/Swap/layout/Tabs'
 import { useDegenModeManager } from 'state/user/hooks'
 import { CloseIcon } from 'theme'
+import { isSwapLikePath } from 'utils/routes'
 
 type HeaderProps = {
   activeTab: TAB
@@ -25,7 +27,7 @@ export const Header = ({ activeTab, setActiveTab, customChainId, activeMainTab }
 
   const selectedTab = activeMainTab || activeTab
   const isLimitPage = pathname.startsWith(APP_PATHS.LIMIT) || selectedTab === TAB.LIMIT
-  const isSwapPage = pathname.startsWith(APP_PATHS.SWAP) || selectedTab == TAB.SWAP
+  const isSwapPage = isSwapLikePath(pathname) || selectedTab == TAB.SWAP
   const isCrossChainPage = pathname.startsWith(APP_PATHS.CROSS_CHAIN) || selectedTab === TAB.CROSS_CHAIN
 
   return (
@@ -68,12 +70,11 @@ export const Header = ({ activeTab, setActiveTab, customChainId, activeMainTab }
         </HStack>
       </Stack>
       {isDegenMode && isShowDegenBanner && (
-        <HStack className="items-center justify-between gap-3 rounded-3xl bg-warning-30 px-4 py-2.5">
-          <span className="text-xs font-normal text-text">
-            <Trans>You have turned on Degen Mode. Be cautious</Trans>
-          </span>
-          <CloseIcon className="size-4" onClick={() => setShowDegenBanner(false)} />
-        </HStack>
+        <ErrorWarning
+          type="warn"
+          title={<Trans>You have turned on Degen Mode. Be cautious</Trans>}
+          action={<CloseIcon className="size-4" onClick={() => setShowDegenBanner(false)} />}
+        />
       )}
     </>
   )

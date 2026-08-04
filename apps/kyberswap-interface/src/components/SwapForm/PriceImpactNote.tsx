@@ -2,12 +2,12 @@ import { Trans } from '@lingui/macro'
 import { FC } from 'react'
 import { isMobile } from 'react-device-detect'
 
+import { ErrorWarning } from 'components/ErrorWarning'
 import Row from 'components/Row'
-import WarningNote from 'components/WarningNote'
+import { isSupportLimitOrder } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { useSwitchPairToLimitOrder } from 'state/swap/hooks'
-import { isSupportLimitOrder } from 'utils'
 import { cn } from 'utils/cn'
 import { checkPriceImpact } from 'utils/prices'
 
@@ -62,9 +62,9 @@ const PriceImpactNote: FC<Props> = ({ isDegenMode, priceImpact, showLimitOrderLi
 
   if (priceImpactResult.isInvalid) {
     return (
-      <WarningNote
-        level="serious"
-        shortText={
+      <ErrorWarning
+        type="error"
+        title={
           <span>
             <Trans>
               Unable to calculate{' '}
@@ -85,7 +85,7 @@ const PriceImpactNote: FC<Props> = ({ isDegenMode, priceImpact, showLimitOrderLi
             )}
           </span>
         }
-        longText={
+        desc={
           isDegenMode ? (
             <div>
               {isDegenMode ? (
@@ -108,9 +108,9 @@ const PriceImpactNote: FC<Props> = ({ isDegenMode, priceImpact, showLimitOrderLi
 
   if (priceImpactResult.isVeryHigh) {
     return (
-      <WarningNote
-        level="serious"
-        shortText={
+      <ErrorWarning
+        type="error"
+        title={
           <div className="flex items-center gap-[0.5ch]">
             <Trans>
               <span>
@@ -127,7 +127,7 @@ const PriceImpactNote: FC<Props> = ({ isDegenMode, priceImpact, showLimitOrderLi
             </Trans>
           </div>
         }
-        longText={
+        desc={
           <div>
             {isDegenMode ? (
               <Trans>
@@ -152,8 +152,9 @@ const PriceImpactNote: FC<Props> = ({ isDegenMode, priceImpact, showLimitOrderLi
 
   if (showLimitOrderLink && !!priceImpact && priceImpact > 1 && isSupportLimitOrder(chainId)) {
     return (
-      <WarningNote
-        shortText={
+      <ErrorWarning
+        type="warn"
+        title={
           <div>
             <Trans>
               Price Impact is high. Please consider placing a {!isMobile ? <br /> : null}
@@ -167,8 +168,9 @@ const PriceImpactNote: FC<Props> = ({ isDegenMode, priceImpact, showLimitOrderLi
 
   if (priceImpactResult.isHigh) {
     return (
-      <WarningNote
-        shortText={
+      <ErrorWarning
+        type="warn"
+        title={
           <Row className="items-center gap-[0.5ch]">
             <Trans>
               <TextUnderlineColor as="a" href={PRICE_IMPACT_EXPLANATION_URL} target="_blank" rel="noreferrer">

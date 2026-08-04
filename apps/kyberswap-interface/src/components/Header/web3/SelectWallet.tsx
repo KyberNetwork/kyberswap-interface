@@ -17,7 +17,7 @@ import { useNetworkModalToggle, useWalletModalToggle } from 'state/application/h
 import { isTransactionRecent, newTransactionsFirst, useAllTransactions } from 'state/transactions/hooks'
 import { TransactionDetails } from 'state/transactions/type'
 import { MEDIA_WIDTHS } from 'theme'
-import { shortenAddress } from 'utils'
+import { shortenAddress } from 'utils/address'
 import { cn } from 'utils/cn'
 
 const STATUS_BASE_CLASS = cn(

@@ -46,41 +46,54 @@ const listDexesWithVersion = [
 export const earnSupportedExchanges = enumToArrayOfValues(Exchange);
 
 /** Skeleton row for token list loading state - matches TokenRow layout */
-const TokenSkeletonRow = () => (
-  <div className="flex items-center justify-between py-2 px-6">
-    {/* Left side: Token logo + symbol + name */}
-    <div className="flex items-center space-x-3">
-      {/* Token logo (24x24) */}
-      <Skeleton className="!rounded-full" style={{ width: 24, height: 24 }} />
-      <div className="flex flex-col gap-1">
-        {/* Token symbol */}
-        <Skeleton style={{ width: 60, height: 16 }} />
-        {/* Token name */}
-        <Skeleton style={{ width: 80, height: 12 }} />
+const tokenSkeletonWidths = [
+  { symbol: 64, name: 112, balance: 48 },
+  { symbol: 80, name: 132, balance: 40 },
+  { symbol: 72, name: 96, balance: 56 },
+  { symbol: 88, name: 124, balance: 44 },
+] as const;
+
+export const TokenSkeletonRow = ({ index = 0 }: { index?: number }) => {
+  const widths = tokenSkeletonWidths[index % tokenSkeletonWidths.length];
+
+  return (
+    <div className="flex items-center justify-between px-6 py-2">
+      <div className="flex items-center gap-3">
+        <div className="h-6 w-6 shrink-0 rounded-full bg-icon-200" />
+        <div className="flex flex-col gap-1">
+          <div
+            className="h-4 rounded bg-icon-200"
+            style={{ width: widths.symbol }}
+          />
+          <div
+            className="h-4 rounded bg-icon-200"
+            style={{ width: widths.name }}
+          />
+        </div>
+      </div>
+      <div className="flex items-center gap-2">
+        <div
+          className="h-4 rounded bg-icon-200"
+          style={{ width: widths.balance }}
+        />
+        <div className="h-5 w-5 rounded-full bg-icon-200" />
       </div>
     </div>
-    {/* Right side: balance + info icon */}
-    <div className="flex items-center gap-2">
-      {/* Balance */}
-      <Skeleton style={{ width: 50, height: 16 }} />
-      {/* Info icon placeholder */}
-      <Skeleton className="!rounded-full" style={{ width: 18, height: 18 }} />
-    </div>
-  </div>
-);
+  );
+};
 
 /** Skeleton loader showing multiple placeholder rows */
-export const TokenLoader = ({ rows = 6 }: { rows?: number }) => (
-  <div className="flex flex-col">
+export const TokenLoader = ({ rows = 9 }: { rows?: number }) => (
+  <div className="flex animate-pulse flex-col">
     {Array.from({ length: rows }).map((_, index) => (
-      <TokenSkeletonRow key={index} />
+      <TokenSkeletonRow key={index} index={index} />
     ))}
   </div>
 );
 
 /** Skeleton row for position list loading state - matches PositionRow layout */
 const PositionSkeletonRow = () => (
-  <div className="flex flex-col py-3 px-[26px] gap-2">
+  <div className="flex flex-col gap-2 px-6 py-3">
     {/* Row 1: Token logos + pair name + fee badge | value */}
     <div className="flex items-center justify-between w-full">
       <div className="flex gap-2 items-center">
@@ -88,17 +101,17 @@ const PositionSkeletonRow = () => (
           {/* Token 0 logo */}
           <Skeleton
             className="!rounded-full"
-            style={{ width: 26, height: 26 }}
+            style={{ width: 24, height: 24 }}
           />
           {/* Token 1 logo */}
           <Skeleton
             className="!rounded-full"
-            style={{ width: 26, height: 26, marginLeft: -8 }}
+            style={{ width: 24, height: 24, marginLeft: -8 }}
           />
           {/* Chain logo */}
           <Skeleton
             className="!rounded-full relative top-1"
-            style={{ width: 14, height: 14, marginLeft: -6 }}
+            style={{ width: 16, height: 16, marginLeft: -8 }}
           />
         </div>
         {/* Token pair name (e.g., "ETH/USDC") */}
@@ -197,7 +210,7 @@ const PositionRow = memo(function PositionRow({
   return (
     <div style={style}>
       <div
-        className="flex flex-col py-3 px-[26px] gap-2 cursor-pointer hover:bg-[#31cb9e33]"
+        className="flex h-full cursor-pointer flex-col gap-2 px-6 py-3 hover:bg-[#31cb9e33]"
         onClick={() => {
           const isUniV2 = Univ2EarnDex.safeParse(
             position.pool.protocol.type,
@@ -233,7 +246,7 @@ const PositionRow = memo(function PositionRow({
               <TokenLogo
                 src={position.chain.logo}
                 size={14}
-                className="ml-[-6px] border-[2px] border-transparent relative top-1"
+                className="relative top-1 -ml-2 border-[2px] border-transparent"
               />
             </div>
             <span>
@@ -241,7 +254,7 @@ const PositionRow = memo(function PositionRow({
               {position.pool.tokenAmounts[1]?.token.symbol || ""}
             </span>
             {position.pool.fees?.length > 0 && (
-              <div className="rounded-full text-sm bg-[#ffffff14] text-subText px-[10px] py-1">
+              <div className="rounded-full bg-[#ffffff14] px-3 py-1 text-sm text-subText">
                 {formatDisplayNumber(position.pool.fees[0], {
                   significantDigits: 4,
                 })}
@@ -267,18 +280,18 @@ const PositionRow = memo(function PositionRow({
             {!isUniv2 && (
               <span className="text-subText text-xs">#{position.tokenId}</span>
             )}
-            <div className="text-[#027BC7] bg-[#ffffff0a] rounded-full px-[10px] py-1 flex gap-1 text-sm">
+            <div className="flex gap-1 rounded-full bg-[#ffffff0a] px-3 py-1 text-sm text-[#027BC7]">
               {shortenAddress(position.pool.address, 4)}
               {copied !== position.tokenId.toString() ? (
                 <IconCopy
-                  className="w-[14px] h-[14px] text-[#027BC7] hover:brightness-125 relative top-[3px] cursor-pointer"
+                  className="relative top-1 h-4 w-4 cursor-pointer text-[#027BC7] hover:brightness-125"
                   onClick={(e) => {
                     e.stopPropagation();
                     onCopy(position);
                   }}
                 />
               ) : (
-                <CircleCheckBig className="w-[14px] h-[14px] text-accent relative top-1" />
+                <CircleCheckBig className="relative top-1 h-4 w-4 text-accent" />
               )}
             </div>
           </div>
@@ -433,7 +446,7 @@ const UserPositions = ({
 
   if (!account)
     return (
-      <div className="flex flex-col items-center justify-center gap-3 text-subText font-medium h-[260px] relative mx-6">
+      <div className="relative mx-6 flex h-[260px] flex-col items-center justify-center gap-3 font-medium text-subText">
         <IconPositionConnectWallet />
         {i18n._("No positions found. Connect your wallet first.")}
         {onConnectWallet && (
@@ -454,6 +467,7 @@ const UserPositions = ({
       <AutoSizer>
         {({ height, width }) => (
           <List
+            className="token-virtual-list"
             height={height}
             width={width}
             itemCount={itemCount}

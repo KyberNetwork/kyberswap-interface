@@ -3,12 +3,12 @@ import { HTMLAttributes, useEffect, useMemo, useState } from 'react'
 
 import { ButtonLight, ButtonPrimary } from 'components/Button'
 import { isDustSwapSupported } from 'constants/dustLiquidation'
-import { DEFAULT_OUTPUT_TOKEN_BY_CHAIN } from 'constants/tokens'
+import { DEFAULT_OUTPUT_TOKENS } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { useDustLiquidationActions, useDustLiquidationState } from 'state/dustLiquidation/hooks'
-import { getTokenLogoURL } from 'utils'
 import { cn } from 'utils/cn'
+import { getTokenLogoURL } from 'utils/tokenLogo'
 
 import ConfirmModal from './components/ConfirmModal'
 import OutputSelector from './components/OutputSelector'
@@ -59,7 +59,7 @@ const DustLiquidation = () => {
   useEffect(() => {
     reset()
     if (!isDustSwapSupported(chainId)) return
-    const defaultOut = DEFAULT_OUTPUT_TOKEN_BY_CHAIN[chainId]
+    const defaultOut = DEFAULT_OUTPUT_TOKENS[chainId]
     if (!defaultOut) return
     updateOutput({
       address: defaultOut.address,

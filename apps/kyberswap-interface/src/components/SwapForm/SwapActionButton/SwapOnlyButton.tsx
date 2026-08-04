@@ -41,7 +41,6 @@ export type Props = {
   isPermitSwap?: boolean
 
   setProcessingSwap: React.Dispatch<React.SetStateAction<boolean>>
-  setErrorWhileSwap: (e: string) => void
   buildRoute: () => Promise<BuildRouteResult>
 }
 
@@ -60,7 +59,6 @@ const SwapOnlyButton: React.FC<Props> = ({
   isPermitSwap,
 
   setProcessingSwap,
-  setErrorWhileSwap,
   buildRoute,
 }) => {
   const { trackingHandler } = useTracking({
@@ -160,8 +158,6 @@ const SwapOnlyButton: React.FC<Props> = ({
     })
 
     trackingSwapInit()
-
-    setErrorWhileSwap('')
 
     handleClickSwapForNormalMode()
   }

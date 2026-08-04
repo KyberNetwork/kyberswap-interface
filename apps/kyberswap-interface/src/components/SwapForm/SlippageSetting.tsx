@@ -3,13 +3,13 @@ import { ReactNode, useEffect, useMemo, useState } from 'react'
 import { ChevronDown } from 'react-feather'
 import { useSearchParams } from 'react-router-dom'
 
+import { ErrorWarning } from 'components/ErrorWarning'
 import SlippageControl from 'components/SlippageControl'
 import SlippageWarningNote from 'components/SlippageWarningNote'
 import { Stack } from 'components/Stack'
 import { TextDashed } from 'components/Text'
 import { MouseoverTooltip } from 'components/Tooltip'
-import WarningNote from 'components/WarningNote'
-import { DEFAULT_SLIPPAGES, DEFAULT_SLIPPAGES_HIGH_VOTALITY } from 'constants/index'
+import { DEFAULT_SLIPPAGES, DEFAULT_SLIPPAGES_HIGH_VOLATILITY } from 'constants/trade'
 import { useDefaultSlippageByPair, usePairCategory } from 'state/swap/hooks'
 import { useDegenModeManager, useSlippageSettingByPage } from 'state/user/hooks'
 import { ExternalLink } from 'theme'
@@ -81,7 +81,7 @@ const SlippageSetting = ({ rightComponent, tooltip, slippageInfo }: Props) => {
       slippageInfo
         ? slippageInfo.presets
         : pairCategory === 'highVolatilityPair'
-        ? DEFAULT_SLIPPAGES_HIGH_VOTALITY
+        ? DEFAULT_SLIPPAGES_HIGH_VOLATILITY
         : DEFAULT_SLIPPAGES,
     [pairCategory, slippageInfo],
   )
@@ -170,7 +170,7 @@ const SlippageSetting = ({ rightComponent, tooltip, slippageInfo }: Props) => {
                 options={options}
               />
               {isDegenMode && expanded && (
-                <span className="px-1.5 py-1 text-xs font-medium text-subText">
+                <span className="px-1 text-xs font-medium text-subText">
                   <Trans>Maximum slippage allowed for Degen mode is 50%</Trans>
                 </span>
               )}
@@ -190,7 +190,11 @@ const SlippageSetting = ({ rightComponent, tooltip, slippageInfo }: Props) => {
               )}
             </Stack>
 
-            {slippageInfo ? msg && <WarningNote shortText={msg} /> : <SlippageWarningNote rawSlippage={rawSlippage} />}
+            {slippageInfo ? (
+              msg && <ErrorWarning type="warn" title={msg} />
+            ) : (
+              <SlippageWarningNote rawSlippage={rawSlippage} />
+            )}
           </Stack>
         </div>
       </div>

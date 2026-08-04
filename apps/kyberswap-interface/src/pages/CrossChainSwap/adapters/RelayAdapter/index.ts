@@ -32,7 +32,7 @@ import {
 } from 'viem/chains'
 
 import { robinhood, wagmiConfig } from 'components/Web3Provider'
-import { CROSS_CHAIN_FEE_RECEIVER, ZERO_ADDRESS } from 'constants/index'
+import { ZERO_ADDRESS } from 'constants/index'
 import {
   BaseSwapAdapter,
   Chain,
@@ -45,6 +45,7 @@ import {
 } from 'pages/CrossChainSwap/adapters/BaseSwapAdapter'
 import type { SolanaToken } from 'pages/CrossChainSwap/hooks/useSolanaTokens'
 import { Quote } from 'pages/CrossChainSwap/registry'
+import { CROSS_CHAIN_FEE_RECEIVER } from 'pages/CrossChainSwap/utils'
 
 const SolanaChainId = 792703809
 

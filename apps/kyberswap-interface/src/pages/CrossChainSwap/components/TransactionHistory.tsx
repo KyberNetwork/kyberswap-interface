@@ -6,6 +6,7 @@ import { ChevronRight } from 'react-feather'
 import { useMedia } from 'react-use'
 import { formatUnits } from 'viem'
 
+import UnknownToken from 'assets/svg/kyber/unknown-token.svg'
 import { ReactComponent as NoTransactionIcon } from 'assets/svg/no_transaction.svg'
 import CopyHelper from 'components/Copy'
 import Pagination from 'components/Pagination'
@@ -25,10 +26,11 @@ import {
   isProcessingTransactionStatus,
   useTransactionHistory,
 } from 'pages/CrossChainSwap/hooks/useTransactionHistory'
-import { getChainName } from 'pages/CrossChainSwap/utils'
+import { getChainName, normalizeAdapterName } from 'pages/CrossChainSwap/utils'
 import { ExternalLinkIcon, MEDIA_WIDTHS } from 'theme'
-import { getEtherscanLink, shortenHash } from 'utils'
+import { shortenHash } from 'utils/address'
 import { cn } from 'utils/cn'
+import { getEtherscanLink } from 'utils/explorer'
 import { formatDisplayNumber } from 'utils/numbers'
 
 const PAGE_SIZE = 6
@@ -100,17 +102,24 @@ const StatusBadge = ({ status }: { status?: TransactionStatus }) => {
 
 const TransactionTime = ({ tx }: { tx: NormalizedTxResponse }) => {
   const adapter = registry.getAdapter(tx.adapter)
-  const adapterName = adapter?.getName() || tx.adapter
-  const adapterIcon = adapter?.getIcon()
+  const normalizedAdapterName = normalizeAdapterName(tx.adapter)
+  const adapterAlias = adapter?.getAliases?.().find(alias => normalizeAdapterName(alias.name) === normalizedAdapterName)
+  const adapterName = adapterAlias?.name || adapter?.getName() || tx.adapter
+  const adapterIcon = adapterAlias?.icon || adapter?.getIcon()
   const txDate = new Date(tx.timestamp)
   const senderLabel = tx.sender?.includes('.near') ? tx.sender : shortenHash(tx.sender)
 
   return (
     <div className="flex min-w-0 flex-col gap-2">
       <div className="flex items-center gap-2 whitespace-nowrap">
-        {adapterIcon && (
-          <img src={adapterIcon} className="size-4 rounded-full" width={16} height={16} alt={adapterName} />
-        )}
+        <img
+          src={adapterIcon || UnknownToken}
+          className="size-4 rounded-full"
+          width={16}
+          height={16}
+          alt={adapterName}
+          title={adapterName}
+        />
         <span className="text-sm font-medium text-text">{format(txDate, 'dd/MM/yyyy')}</span>
         <span className="text-sm font-medium text-subText">{format(txDate, 'HH:mm:ss')}</span>
       </div>

@@ -1042,17 +1042,9 @@
   input,
   textarea,
   button {
-    font-family: 'Work Sans', 'Inter', sans-serif;
-    font-display: fallback;
-  }
-
-  @supports (font-variation-settings: normal) {
-    html,
-    input,
-    textarea,
-    button {
-      font-family: 'Work Sans', 'Inter var', sans-serif;
-    }
+    /* 'Inter Symbols' (declared in index.html) only covers the arrows, math signs and subscript digits
+       Work Sans has no glyph for; every letter still resolves to Work Sans ahead of it. */
+    font-family: 'Work Sans', 'Inter Symbols', sans-serif;
   }
 
   @property --border-angle {

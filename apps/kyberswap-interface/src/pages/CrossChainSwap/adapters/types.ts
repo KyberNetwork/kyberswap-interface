@@ -26,6 +26,10 @@ export const BitcoinToken = {
 export type Chain = ChainId | NonEvmChain
 export type Currency = EvmCurrency | NearToken | typeof BitcoinToken | SolanaToken
 
+export const isEvmChain = (chain: Chain) => Object.values(ChainId).includes(chain)
+
+export const isNonEvmChain = (chain: Chain) => Object.values(NonEvmChain).includes(chain)
+
 export const NonEvmChainInfo: { [key in NonEvmChain]: { name: string; icon: string } } = {
   [NonEvmChain.Near]: {
     name: 'NEAR',
@@ -130,10 +134,16 @@ export interface SwapStatus {
   amountOut?: string // Actual output amount from the destination chain (raw amount, not formatted)
 }
 
+export interface SwapProviderAlias {
+  name: string
+  icon?: string
+}
+
 // Define a common interface for all swap providers
 export interface SwapProvider {
   getName(): string
   getIcon(): string
+  getAliases?(): SwapProviderAlias[]
   getSupportedChains(): Chain[]
   getSupportedTokens(sourceChain: Chain, destChain: Chain): Currency[]
   getQuote(params: QuoteParams): Promise<NormalizedQuote>

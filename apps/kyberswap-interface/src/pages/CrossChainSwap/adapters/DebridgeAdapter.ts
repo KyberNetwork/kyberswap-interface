@@ -5,7 +5,7 @@ import { Connection, Transaction, VersionedTransaction } from '@solana/web3.js'
 import { fetchTokenPrices } from 'services/tokenCatalog'
 import { WalletClient, formatUnits } from 'viem'
 
-import { CROSS_CHAIN_FEE_RECEIVER, CROSS_CHAIN_FEE_RECEIVER_SOLANA, ZERO_ADDRESS } from 'constants/index'
+import { ZERO_ADDRESS } from 'constants/index'
 import { NativeCurrencies } from 'constants/tokens'
 import {
   BaseSwapAdapter,
@@ -19,6 +19,7 @@ import {
 } from 'pages/CrossChainSwap/adapters/BaseSwapAdapter'
 import type { SolanaToken } from 'pages/CrossChainSwap/hooks/useSolanaTokens'
 import { Quote } from 'pages/CrossChainSwap/registry'
+import { CROSS_CHAIN_FEE_RECEIVER, CROSS_CHAIN_FEE_RECEIVER_SOLANA } from 'pages/CrossChainSwap/utils'
 
 const DEBRIDGE_API = 'https://dln.debridge.finance/v1.0/dln/order'
 const DEBRIDGE_STATS_API = 'https://stats-api.dln.trade/api'

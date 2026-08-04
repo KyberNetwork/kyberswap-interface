@@ -15,7 +15,6 @@ import kyberDAOApi, {
 import { wagmiConfig } from 'components/Web3Provider'
 import { DaoABI, ERC20_ABI, MigrateABI, RewardDistributorABI, StakingABI } from 'constants/abis'
 import { REWARD_SERVICE_API } from 'constants/env'
-import { CONTRACT_NOT_FOUND_MSG } from 'constants/messages'
 import { NETWORKS_INFO, SUPPORTED_NETWORKS } from 'constants/networks'
 import ethereumInfo from 'constants/networks/ethereum'
 import { KNC } from 'constants/tokens'
@@ -33,6 +32,8 @@ import { formatUnitsToFixed } from 'utils/formatBalance'
 import { sendEVMTransaction } from 'utils/sendTransaction'
 import { ErrorName } from 'utils/transactionError'
 import { Address, encodeFunctionData, formatUnits } from 'utils/viem'
+
+const CONTRACT_NOT_FOUND_MSG = 'Contract not found! Please reload and try again.'
 
 export function isSupportKyberDao(chainId: ChainId) {
   return SUPPORTED_NETWORKS.includes(chainId) && NETWORKS_INFO[chainId].kyberDAO
@@ -645,9 +646,10 @@ export function useClaimGasRefundRewards() {
   const addTransactionWithType = useTransactionAdder()
   const { claimableReward } = useGasRefundInfo({})
   const refetch = useRefetchGasRefundInfo()
+  const rewardToken = KNC[chainId]
 
   const claimGasRefundRewards = useCallback(async (): Promise<string> => {
-    if (!account || !claimableReward || claimableReward.knc <= 0) throw new Error(t`Invalid claim`)
+    if (!account || !claimableReward || claimableReward.knc <= 0 || !rewardToken) throw new Error(t`Invalid claim`)
     refetch()
 
     const url = REWARD_SERVICE_API + '/rewards/claim'
@@ -686,7 +688,7 @@ export function useClaimGasRefundRewards() {
         hash: tx.hash,
         type: TRANSACTION_TYPE.KYBERDAO_CLAIM_GAS_REFUND,
         extraInfo: {
-          tokenAddress: KNC[chainId].address,
+          tokenAddress: rewardToken.address,
           tokenAmount: claimableReward.knc.toString(),
           tokenSymbol: 'KNC',
         },
@@ -699,7 +701,7 @@ export function useClaimGasRefundRewards() {
       console.error('Claim error:', { message, error })
       throw error
     }
-  }, [account, addTransactionWithType, chainId, claimableReward, refetch, walletKey, isSmartConnector])
+  }, [account, addTransactionWithType, chainId, claimableReward, refetch, rewardToken, walletKey, isSmartConnector])
   return claimGasRefundRewards
 }
 

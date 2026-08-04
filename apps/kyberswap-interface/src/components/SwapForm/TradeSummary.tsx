@@ -2,23 +2,23 @@ import { Trans } from '@lingui/macro'
 import React, { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
-import WarningIcon from 'components/Icons/WarningIcon'
+import { ErrorWarning } from 'components/ErrorWarning'
 import RefreshLoading from 'components/RefreshLoading'
 import { HStack, Stack } from 'components/Stack'
 import { useSwapFormContext } from 'components/SwapForm/SwapFormContext'
 import useGetFeeConfig from 'components/SwapForm/hooks/useGetFeeConfig'
 import { TextHelper } from 'components/Text'
 import TradePrice from 'components/TradePrice'
-import { BIPS_BASE } from 'constants/index'
+import { BIPS_BASE } from 'constants/trade'
 import useTheme from 'hooks/useTheme'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { ExternalLink } from 'theme'
 import { DetailedRouteSummary } from 'types/route'
-import { isInSafeApp } from 'utils'
 import { cn } from 'utils/cn'
 import { minimumAmountAfterSlippage } from 'utils/currencyAmount'
 import { formatDisplayNumber } from 'utils/numbers'
 import { checkPriceImpact, formatPriceImpact } from 'utils/prices'
+import { isInSafeApp } from 'utils/safeApp'
 
 type TooltipTextOfSwapFeeProps = {
   feeBips: string | undefined
@@ -316,9 +316,9 @@ const TradeSummary: React.FC<Props> = ({
         <SwapFee isFeeTampered={isFeeTampered} />
 
         {isFeeTampered && (
-          <div className="flex gap-2 rounded-xl bg-warning-30 px-3 py-2.5">
-            <WarningIcon className="text-warning" size={16} />
-            <span className="flex-1 text-xs">
+          <ErrorWarning
+            type="warn"
+            title={
               <Trans>
                 <b>Third-party fee detected</b>
                 <br />
@@ -326,8 +326,8 @@ const TradeSummary: React.FC<Props> = ({
                 not by KyberSwap. KyberSwap does not charge a flat fee for this trade by default. Please review your
                 browser extensions before proceeding.
               </Trans>
-            </span>
-          </div>
+            }
+          />
         )}
       </Stack>
     </div>

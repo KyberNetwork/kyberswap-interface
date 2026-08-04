@@ -152,7 +152,6 @@ export interface ZapRouteDetail {
   };
   route: string;
   routerAddress: string;
-  routerPermitAddress?: string;
   gas: string;
   gasUsd: string;
 }

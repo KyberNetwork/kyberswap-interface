@@ -1,15 +1,14 @@
 import { ChainId, Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
-import { Trans } from '@lingui/macro'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { parseGetRouteResponse } from 'services/route/utils'
-import { useGetHoneypotInfoQuery } from 'services/tokenCatalog'
 
 import AddressInputPanel from 'components/AddressInputPanel'
 import { NotificationType } from 'components/Announcement/type'
 import FeeControlGroup from 'components/FeeControlGroup'
-import WarningIcon from 'components/Icons/WarningIcon'
+import { HoneypotWarning, useHoneypotWarning } from 'components/HoneypotWarning'
 import { NetworkSelector } from 'components/NetworkSelector'
+import ERC8056Info, { useERC8056SwapInfo } from 'components/SwapForm/ERC8056Info'
 import InputCurrencyPanel from 'components/SwapForm/InputCurrencyPanel'
 import MultichainKNCNote from 'components/SwapForm/MultichainKNCNote'
 import OutputCurrencyPanel from 'components/SwapForm/OutputCurrencyPanel'
@@ -24,17 +23,17 @@ import useGetInputError from 'components/SwapForm/hooks/useGetInputError'
 import useGetRoute from 'components/SwapForm/hooks/useGetRoute'
 import useParsedAmount from 'components/SwapForm/hooks/useParsedAmount'
 import { TutorialIds } from 'components/Tutorial/TutorialSwap/constant'
-import { SAFE_APP_CLIENT_ID } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useDebounce from 'hooks/useDebounce'
+import { getERC8056RawTypedValue, useERC8056DisplayTypedValue } from 'hooks/useERC8056Token'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import useWrapCallback, { WrapType } from 'hooks/useWrapCallback'
 import { useNotify } from 'state/application/hooks'
 import { Field } from 'state/swap/actions'
 import { useSwapActionHandlers, useSwapState } from 'state/swap/hooks'
 import { DetailedRouteSummary } from 'types/route'
-import { isInSafeApp } from 'utils'
 import { cn } from 'utils/cn'
+import { SAFE_APP_CLIENT_ID, isInSafeApp } from 'utils/safeApp'
 
 export type SwapFormProps = {
   hidden: boolean
@@ -162,6 +161,15 @@ const SwapForm: React.FC<SwapFormProps> = props => {
   }, [prefillInputAmount, updateInputAmount, notify])
 
   const parsedAmount = useParsedAmount(currencyIn, typedValue)
+  const erc8056Info = useERC8056SwapInfo({ chainId, currencyIn, currencyOut, balanceIn, balanceOut })
+  const displayTypedValue = useERC8056DisplayTypedValue(erc8056Info.inputInfo, typedValue)
+  const handleUserInput = useCallback(
+    (value: string) => {
+      updateInputAmount(Field.INPUT, getERC8056RawTypedValue(erc8056Info.inputInfo, value))
+    },
+    [erc8056Info.inputInfo, updateInputAmount],
+  )
+
   const {
     wrapType,
     inputError: wrapInputError,
@@ -234,17 +242,18 @@ const SwapForm: React.FC<SwapFormProps> = props => {
     setRouteSummary(routeSummary)
   }, [routeSummary, setRouteSummary])
 
-  const { data: honeypotData } = useGetHoneypotInfoQuery(
-    { chainId, address: currencyOut?.wrapped.address.toLowerCase() ?? '' },
-    { skip: !currencyOut?.wrapped.address },
-  )
-  const honeypot = honeypotData?.data ?? null
+  const { message: honeypotWarning } = useHoneypotWarning({
+    chainId,
+    tokenAddress: currencyOut?.wrapped.address,
+    tokenSymbol: currencyOut?.symbol,
+  })
 
   return (
     <SwapFormContextProvider
       slippage={slippage}
       routeSummary={routeSummary}
       typedValue={typedValue}
+      displayTypedValue={displayTypedValue}
       recipient={recipient}
       isAdvancedMode={isDegenMode}
     >
@@ -256,11 +265,14 @@ const SwapForm: React.FC<SwapFormProps> = props => {
             <div className="flex flex-col gap-2">
               <InputCurrencyPanel
                 wrapType={wrapType}
-                typedValue={typedValue}
+                typedValue={displayTypedValue}
                 setTypedValue={onUserInput}
+                onUserInput={handleUserInput}
                 currencyIn={currencyIn}
                 currencyOut={currencyOut}
                 balanceIn={balanceIn}
+                balanceText={erc8056Info.input.balanceText}
+                highlightToken={erc8056Info.input.isScaled}
                 onChangeCurrencyIn={handleChangeCurrencyIn}
                 customChainId={customChainId}
               />
@@ -287,11 +299,15 @@ const SwapForm: React.FC<SwapFormProps> = props => {
                 currencyIn={currencyIn}
                 currencyOut={currencyOut}
                 amountOutUsd={routeSummary?.amountOutUsd}
+                balanceText={erc8056Info.output.balanceText}
+                highlightToken={erc8056Info.output.isScaled}
                 onChangeCurrencyOut={handleChangeCurrencyOut}
                 customChainId={customChainId}
                 routeLoading={routeLoading}
               />
             </div>
+
+            <ERC8056Info tokens={erc8056Info.tokens} />
 
             {isDegenMode && !isWrapOrUnwrap && (
               <AddressInputPanel id="recipient" value={recipient} onChange={setRecipient} />
@@ -314,24 +330,7 @@ const SwapForm: React.FC<SwapFormProps> = props => {
             />
           )}
 
-          {honeypot?.isFOT || honeypot?.isHoneypot ? (
-            <div className="flex gap-2 rounded-2xl bg-warning-30 px-3 py-2.5">
-              <WarningIcon className="text-warning" size={20} />
-              <span className="flex-1 text-sm">
-                {honeypot.isHoneypot ? (
-                  <Trans>
-                    Our simulation detects that {currencyOut?.symbol} token can not be sold immediately or has an
-                    extremely high sell fee after being bought, please check further before buying!
-                  </Trans>
-                ) : (
-                  <Trans>
-                    Our simulation detects that {currencyOut?.symbol} has {honeypot.tax * 100}% fee on transfer, please
-                    check further before buying.
-                  </Trans>
-                )}
-              </span>
-            </div>
-          ) : null}
+          <HoneypotWarning message={honeypotWarning} />
 
           <PriceImpactNote priceImpact={routeSummary?.priceImpact} isDegenMode={isDegenMode} showLimitOrderLink />
 

@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 
+import { SERVER_SEO_PATH_META_NAME } from 'components/Seo/seoHead'
 import AddLiquidity from 'pages/Earns/PoolDetail/AddLiquidity'
 import PoolInformation from 'pages/Earns/PoolDetail/Information'
 import PoolHeader from 'pages/Earns/PoolDetail/components/PoolHeader'
@@ -7,10 +8,10 @@ import { PoolDetailProvider, usePoolDetailContext } from 'pages/Earns/PoolDetail
 import { PoolDetailWrapper } from 'pages/Earns/PoolDetail/styled'
 import { formatDisplayNumber } from 'utils/numbers'
 
-// Upgrade the generic seoConfig <title> to a per-pool one (tokens + fee) once pool data loads. Lives
+// Upgrade the generic route metadata <title> to a per-pool one (tokens + fee) once pool data loads. Lives
 // inside the provider, which renders children only after the pool resolves, so the context is ready.
-// RouteSeo sets the generic title on navigation; this overrides it, and RouteSeo resets it on the
-// next route — no cleanup needed.
+// RouteSeo sets the generic title on navigation; this overrides it after pool data resolves. A matching
+// server SEO marker keeps OG's initial pool title untouched, and RouteSeo resets the title on the next route.
 const PoolSeoTitle = () => {
   const { primaryToken, secondaryToken, pool } = usePoolDetailContext()
   const token0 = primaryToken?.symbol
@@ -19,6 +20,10 @@ const PoolSeoTitle = () => {
 
   useEffect(() => {
     if (!token0 || !token1) return
+
+    const serverSeoMarker = document.head.querySelector<HTMLMetaElement>(`meta[name='${SERVER_SEO_PATH_META_NAME}']`)
+    if (serverSeoMarker?.content === `${window.location.pathname}${window.location.search}`) return
+
     // Format the fee like PoolHeader does (raw swapFee can carry float noise, e.g. 0.30000000000004).
     const feeText = typeof fee === 'number' ? ` ${formatDisplayNumber(fee, { significantDigits: 4 })}%` : ''
     const title = `${token0}/${token1}${feeText} Pool | KyberSwap`

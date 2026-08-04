@@ -125,7 +125,7 @@ export function useApproval({ type, spender }: { type: 'source' | 'target'; spen
   const { permitState, signPermitNft, permitData } = usePermitNft({
     nftManagerContract,
     tokenId: nftId ? nftId.toString() : undefined,
-    spender: route?.routerPermitAddress,
+    spender: route?.routerAddress,
     account,
     chainId: walletChainId,
     rpcUrl,
@@ -135,19 +135,19 @@ export function useApproval({ type, spender }: { type: 'source' | 'target'; spen
 
   const isChecking = isFromUniV2
     ? erc20ApprovalLoading
-    : type === 'source' || (isToUniV4 && targetPosition)
+    : type === 'source' || targetPosition
       ? isCheckingNftApproval || isCheckingNftApprovalAll
       : false;
 
   const isApproved = isFromUniV2
     ? erc20ApprovalStates[pool?.address || ''] === 'approved'
-    : type === 'source' || (isToUniV4 && targetPosition)
+    : type === 'source' || targetPosition
       ? nftApproved || nftApprovedAll
       : true;
 
   const approve = isFromUniV2
     ? () => approveErc20(pool?.address || '')
-    : type === 'source' || (isToUniV4 && targetPosition)
+    : type === 'source' || targetPosition
       ? nftApprovalType === 'single'
         ? approveNft
         : approveNftAll
@@ -155,7 +155,7 @@ export function useApproval({ type, spender }: { type: 'source' | 'target'; spen
 
   const pendingTx = isFromUniV2
     ? erc20ApprovalPendingTx
-    : type === 'source' || (isToUniV4 && targetPosition)
+    : type === 'source' || targetPosition
       ? nftApprovalType === 'single'
         ? nftApprovePendingTx
         : nftApprovePendingTxAll
@@ -164,7 +164,7 @@ export function useApproval({ type, spender }: { type: 'source' | 'target'; spen
   // Current pending tx hash (tracks replacements)
   const currentPendingTx = isFromUniV2
     ? erc20CurrentPendingTx
-    : type === 'source' || (isToUniV4 && targetPosition)
+    : type === 'source' || targetPosition
       ? nftApprovalType === 'single'
         ? nftCurrentPendingTx
         : nftCurrentPendingTxAll

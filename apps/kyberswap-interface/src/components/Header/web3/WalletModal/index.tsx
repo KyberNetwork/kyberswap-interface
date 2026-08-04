@@ -16,6 +16,7 @@ import {
 import { useOrderedConnections } from 'components/Header/web3/WalletModal/useConnections'
 import Modal from 'components/Modal'
 import WalletPopup from 'components/WalletPopup'
+import { registerPortoConnector } from 'components/Web3Provider'
 import { setMetaMaskMobileLink, useMetaMaskMobileLink } from 'components/Web3Provider/metamaskMobileLink'
 import { useActiveWeb3React } from 'hooks'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
@@ -68,6 +69,14 @@ export default function WalletModal() {
     resetConnect()
     closeWalletModal()
   }
+
+  // Porto registers itself during idle to keep its SDK out of the entry chunk (see
+  // registerPortoConnector), which leaves a gap on a slow cold load where the list would render without
+  // it. Opening this modal is the point where that stops being acceptable, so ask for it here too — the
+  // call de-dupes, so whichever happens first wins.
+  useEffect(() => {
+    if (walletModalOpen) void registerPortoConnector()
+  }, [walletModalOpen])
 
   // Drop a stale deep link once the attempt settles (success/error) or the modal closes, so the
   // "Open MetaMask" view never lingers into the next time the modal opens.

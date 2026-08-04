@@ -12,7 +12,7 @@ import ProAmmPooledTokens from 'components/ProAmm/ProAmmPooledTokens'
 import ProAmmPriceRange from 'components/ProAmm/ProAmmPriceRange'
 import { RowBetween } from 'components/Row'
 import { MouseoverTooltip } from 'components/Tooltip'
-import { APP_PATHS, PROMM_ANALYTICS_URL } from 'constants/index'
+import { LEGACY_POOL_APP_PATHS } from 'constants/legacyPools'
 import { useActiveWeb3React } from 'hooks'
 import useIsTickAtLimit from 'hooks/useIsTickAtLimit'
 import { usePool } from 'hooks/usePools'
@@ -24,8 +24,10 @@ import { ExternalLink, StyledInternalLink } from 'theme'
 import { PositionDetails } from 'types/position'
 import { cn } from 'utils/cn'
 import { currencyId } from 'utils/currencyId'
-import { formatDollarAmount } from 'utils/numbers'
+import { formatDisplayNumber } from 'utils/numbers'
 import { unwrappedToken } from 'utils/wrappedCurrency'
+
+const PROMM_ANALYTICS_URL = 'https://analytics.kyberswap.com/elastic'
 
 export const TabContainer = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
   <div className={cn('flex rounded-full bg-tabBackground p-0.5', className)} {...rest} />
@@ -225,7 +227,7 @@ function PositionListItem({
                 <span className="text-subText">
                   <Trans>My Staked Balance</Trans>
                 </span>
-                <span>{formatDollarAmount(stakedUsd)}</span>
+                <span>{formatDisplayNumber(stakedUsd, { style: 'currency', significantDigits: 4 })}</span>
               </div>
 
               <div className="flex justify-between text-xs leading-6">
@@ -272,7 +274,7 @@ function PositionListItem({
             className="mb-5 text-sm !text-textReverse no-underline"
             padding="8px"
             as={StyledInternalLink}
-            to={`${APP_PATHS.FARMS}/${networkInfo.route}?${new URLSearchParams({
+            to={`${LEGACY_POOL_APP_PATHS.FARMS}/${networkInfo.route}?${new URLSearchParams({
               tab: 'elastic',
               type: positionDetails.endTime ? (positionDetails.endTime > now ? 'active' : 'ended') : 'active',
               search: positionDetails.poolId,
@@ -296,7 +298,7 @@ function PositionListItem({
               <ButtonOutlined
                 padding="8px"
                 as={Link}
-                to={`/${networkInfo.route}${APP_PATHS.ELASTIC_REMOVE_POOL}/${positionDetails.tokenId}`}
+                to={`/${networkInfo.route}${LEGACY_POOL_APP_PATHS.ELASTIC_REMOVE_POOL}/${positionDetails.tokenId}`}
                 onClick={() => {
                   trackingHandler(TRACKING_EVENT_TYPE.ELASTIC_REMOVE_LIQUIDITY_INITIATED, {
                     token_1: token0?.symbol || '',
@@ -316,7 +318,7 @@ function PositionListItem({
               padding="8px"
               className="rounded-[18px] text-sm"
               as={Link}
-              to={`/${networkInfo.route}${APP_PATHS.ELASTIC_INCREASE_LIQ}/${currencyId(
+              to={`/${networkInfo.route}${LEGACY_POOL_APP_PATHS.ELASTIC_INCREASE_LIQ}/${currencyId(
                 currency0,
                 chainId,
               )}/${currencyId(currency1, chainId)}/${feeAmount}/${positionDetails.tokenId}`}
@@ -339,7 +341,7 @@ function PositionListItem({
           <ButtonEmpty width="max-content" className="text-sm" padding="0">
             <ExternalLink
               className="w-full text-center"
-              href={`${PROMM_ANALYTICS_URL[chainId]}/pool/${positionDetails.poolId.toLowerCase()}`}
+              href={`${PROMM_ANALYTICS_URL}/${networkInfo.route}/pool/${positionDetails.poolId.toLowerCase()}`}
             >
               <Trans>Pool Analytics ↗</Trans>
             </ExternalLink>
@@ -347,7 +349,10 @@ function PositionListItem({
 
           {(hasUserDepositedInFarm || hasActiveFarm || hasActiveFarmV2) && (
             <ButtonEmpty width="max-content" className="text-sm" padding="0">
-              <StyledInternalLink className="w-full text-center" to={`${APP_PATHS.FARMS}/${networkInfo.route}`}>
+              <StyledInternalLink
+                className="w-full text-center"
+                to={`${LEGACY_POOL_APP_PATHS.FARMS}/${networkInfo.route}`}
+              >
                 <Trans>Go to Farms ↗</Trans>
               </StyledInternalLink>
             </ButtonEmpty>

@@ -1,7 +1,7 @@
 import { t } from '@lingui/macro'
 
-import { didUserReject } from 'constants/connectors/utils'
 import { capitalizeFirstLetter } from 'utils/string'
+import { didUserReject } from 'utils/walletError'
 
 const matchPatterns = (patterns: string[], error: string) =>
   patterns.some(pattern => error.toLowerCase().includes(pattern.toLowerCase()))

@@ -6,9 +6,9 @@ import { useGetTipLinkQuery } from 'services/tipLink'
 
 import SwapForm, { SwapFormProps } from 'components/SwapForm'
 import { DEFAULT_TIP, TIP_LINK_CLIENT_ID, isCreatorNameValid } from 'components/TipLinkGeneratorModal/shared'
-import { MAX_FEE_IN_BIPS } from 'constants/index'
 import { SUPPORTED_NETWORKS } from 'constants/networks'
-import { DEFAULT_OUTPUT_TOKEN_BY_CHAIN, NativeCurrencies, PRICE_CHART_QUOTE_TOKEN_BY_CHAIN } from 'constants/tokens'
+import { DEFAULT_OUTPUT_TOKENS, NativeCurrencies, PRICE_CHART_QUOTES } from 'constants/tokens'
+import { MAX_FEE_IN_BIPS } from 'constants/trade'
 import { useActiveWeb3React } from 'hooks'
 import { useCurrencyV2 } from 'hooks/useTokens'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
@@ -21,7 +21,7 @@ import { usePermitData } from 'state/swap/hooks'
 import { useDegenModeManager, useUserSlippageTolerance, useUserTransactionTTL } from 'state/user/hooks'
 import { useCurrencyBalances } from 'state/wallet/hooks'
 import { ChargeFeeBy, DetailedRouteSummary } from 'types/route'
-import { isAddress } from 'utils'
+import { isAddress } from 'utils/address'
 import { useTradeComposition } from 'utils/aggregationRouting'
 
 const LimitOrderForm = lazy(() => import('components/LimitOrder/Form/LimitOrderForm'))
@@ -164,7 +164,7 @@ const PartnerSwap = ({ mode = 'partner' }: Props) => {
   const currencyIn =
     useCurrencyV2(inputCurrencyId || undefined, swapChainId) || NativeCurrencies[swapChainId as ChainId]
   const currencyOut =
-    useCurrencyV2(outputCurrencyId || undefined, swapChainId) || DEFAULT_OUTPUT_TOKEN_BY_CHAIN[swapChainId as ChainId]
+    useCurrencyV2(outputCurrencyId || undefined, swapChainId) || DEFAULT_OUTPUT_TOKENS[swapChainId as ChainId]
 
   const currencies = useMemo(
     () => ({
@@ -187,7 +187,7 @@ const PartnerSwap = ({ mode = 'partner' }: Props) => {
     swaps: routeSummary?.route,
   })
 
-  const hasSupportedTokenPriceChart = Boolean(PRICE_CHART_QUOTE_TOKEN_BY_CHAIN[swapChainId])
+  const hasSupportedTokenPriceChart = Boolean(PRICE_CHART_QUOTES[swapChainId])
 
   const setActiveTab = useCallback(
     (tab: TAB) => {

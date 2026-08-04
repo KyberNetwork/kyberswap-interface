@@ -6,9 +6,15 @@ import { usePoolsExplorerQuery } from 'services/earn'
 
 import { ReactComponent as IconUserEarnPosition } from 'assets/svg/earn/ic_user_earn_position.svg'
 import { NotificationType } from 'components/Announcement/type'
+import {
+  ListingPageDisclaimer,
+  ListingPageNavigateButton,
+  ListingPageTitle,
+  ListingPageWrapper,
+} from 'components/Listing/Page'
 import Pagination from 'components/Pagination'
-import { HiddenH1, HiddenH2 } from 'components/Seo/HiddenSeoHeadings'
-import { HStack, Stack } from 'components/Stack'
+import { HiddenH1, HiddenH2 } from 'components/Seo/components'
+import { Stack } from 'components/Stack'
 import CreatePoolModal from 'components/ZapCreatePool/CreatePoolModal'
 import { BFF_API } from 'constants/env'
 import { APP_PATHS } from 'constants/index'
@@ -17,16 +23,8 @@ import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import Filter from 'pages/Earns/PoolExplorer/Filter'
 import TableContent, { dexKeyMapping } from 'pages/Earns/PoolExplorer/TableContent'
 import TableHeader from 'pages/Earns/PoolExplorer/TableHeader'
-import {
-  BackButton,
-  ContentWrapper,
-  Disclaimer,
-  NavigateButton,
-  PoolPageWrapper,
-  PoolTableWrapper,
-} from 'pages/Earns/PoolExplorer/styles'
+import { PoolTableWrapper } from 'pages/Earns/PoolExplorer/styles'
 import useFilter from 'pages/Earns/PoolExplorer/useFilter'
-import { IconArrowLeft } from 'pages/Earns/PositionDetail/styles'
 import { Exchange } from 'pages/Earns/constants'
 import useSmartExitWidget from 'pages/Earns/hooks/useSmartExitWidget'
 import useZapCreatePoolWidget from 'pages/Earns/hooks/useZapCreatePoolWidget'
@@ -215,7 +213,7 @@ const PoolExplorer = () => {
   }, [])
 
   return (
-    <PoolPageWrapper>
+    <ListingPageWrapper>
       {zapInWidget}
       {zapMigrationWidget}
       {zapCreatePoolWidget}
@@ -226,12 +224,9 @@ const PoolExplorer = () => {
         Trading volume, TVL, and pool performance across networks - all from one interface without switching apps.
       </HiddenH2>
       <Stack className="gap-2">
-        <HStack className="items-center gap-4">
-          <BackButton aria-label="Go back" onClick={() => navigate(-1)} type="button">
-            <IconArrowLeft />
-          </BackButton>
-          <span className="text-2xl font-medium">{t`Earning with Smart Liquidity Providing`}</span>
-        </HStack>
+        <ListingPageTitle backLabel="Go back" onBack={() => navigate(-1)} titleAs="span">
+          {t`Earning with Smart Liquidity Providing`}
+        </ListingPageTitle>
         <span className="italic text-subText">
           {t`KyberSwap Zap: Instantly and easily add liquidity to high-APY pools using any token or a combination of tokens.`}
         </span>
@@ -248,7 +243,7 @@ const PoolExplorer = () => {
       />
 
       {upToLarge && (
-        <NavigateButton
+        <ListingPageNavigateButton
           mobileFullWidth
           icon={<IconUserEarnPosition />}
           text={t`My Positions`}
@@ -257,7 +252,7 @@ const PoolExplorer = () => {
       )}
 
       <PoolTableWrapper>
-        <ContentWrapper>
+        <div>
           <TableHeader
             onSortChange={onSortChange}
             filters={filters}
@@ -270,7 +265,7 @@ const PoolExplorer = () => {
             showRewards={showRewards}
             showPoolPrice={showPoolPrice}
           />
-        </ContentWrapper>
+        </div>
         {!isError && (
           <Pagination
             onPageChange={(newPage: number) => updateFilters('page', newPage.toString())}
@@ -287,8 +282,8 @@ const PoolExplorer = () => {
         onSubmit={openZapCreatePoolWidget}
       />
 
-      <Disclaimer>{t`KyberSwap provides tools for tracking & adding liquidity to third-party Protocols. For any pool-related concerns, please contact the respective Liquidity Protocol directly.`}</Disclaimer>
-    </PoolPageWrapper>
+      <ListingPageDisclaimer>{t`KyberSwap provides tools for tracking & adding liquidity to third-party Protocols. For any pool-related concerns, please contact the respective Liquidity Protocol directly.`}</ListingPageDisclaimer>
+    </ListingPageWrapper>
   )
 }
 

@@ -4,7 +4,7 @@ import limitOrderApi from 'services/limitOrder'
 
 import { getInitialListOrdersArgs } from 'components/LimitOrder/listOrdersArgs'
 import { APP_PATHS } from 'constants/index'
-import { isSupportedChainId } from 'constants/networks'
+import { NETWORKS_INFO, SUPPORTED_NETWORKS, isSupportedChainId } from 'constants/networks'
 import { loadCrossChainSwap } from 'pages/CrossChainSwap/loader'
 import { getInitialPositionQueryParams } from 'pages/Earns/UserPositions/positionsQuery'
 import store from 'state'
@@ -48,10 +48,22 @@ export function prefetchRouteChunk(to: string) {
 
 // Bounded set of high-traffic, mostly-static destinations worth warming during browser idle time, so
 // navigating to them is instant by ANY means — keyboard, mobile tap, programmatic — not just on the
-// hover/focus that on-intent prefetch needs. Keep this SMALL: an unbounded list just rebuilds an eager
-// payload. Loaders come from ROUTE_CHUNKS so the import() identities match App.tsx exactly (one shared
-// chunk, never a duplicate).
-const EAGER_PRELOAD_PREFIXES: string[] = [`${APP_PATHS.ABOUT}/kyberswap`, `${APP_PATHS.ABOUT}/knc`, APP_PATHS.EARN]
+// hover/focus that on-intent prefetch needs. Keep this SMALL and CHEAP: an unbounded list just rebuilds an
+// eager payload, and every entry here is paid by visitors who never open the route. The About pages cost
+// ~12KB gz between them, which the instant nav is worth. `/earn` is deliberately NOT here: its Landing
+// chunk drags the zap-widget hooks behind it (~1.9MB gz), so hover/tap intent via prefetchRouteChunk is the
+// only sensible way to warm it.
+const EAGER_PRELOAD_PREFIXES: string[] = [`${APP_PATHS.ABOUT}/kyberswap`, `${APP_PATHS.ABOUT}/knc`]
+
+// Skip the warm entirely on metered or very slow connections, where spending a visitor's data on a route
+// they may never open is the wrong trade. The Network Information API is Chromium-only; elsewhere this
+// reads as undefined and the warm proceeds.
+const shouldSkipPreload = () => {
+  const connection = (navigator as Navigator & { connection?: { saveData?: boolean; effectiveType?: string } })
+    .connection
+  if (!connection) return false
+  return Boolean(connection.saveData) || /(^|-)2g$/.test(connection.effectiveType ?? '')
+}
 
 /** Warm selected static routes one at a time, with a separate idle window between each chunk. */
 export function preloadStaticRouteChunks() {
@@ -80,7 +92,41 @@ export function preloadStaticRouteChunks() {
     }
   }
 
-  preloadNext(0)
+  // requestIdleCallback only tracks the main thread, so on a network-bound cold load it fires while the
+  // app is still fetching its own chunks and the warm competes for bandwidth. Waiting for `load` keeps it
+  // strictly after the page has finished, which is the point of warming during idle in the first place.
+  const start = () => {
+    if (shouldSkipPreload()) return
+    preloadNext(0)
+  }
+
+  if (document.readyState === 'complete') start()
+  else window.addEventListener('load', start, { once: true })
+}
+
+/**
+ * Warm every supported chain's network icon so opening the chain switcher shows them instantly.
+ * Only the current chain's icon is visible at first paint, so the other ~two dozen icons (~200KB of
+ * SVGs) are pure speculation — kept off the critical load window and warmed during idle after `load`,
+ * mirroring `preloadStaticRouteChunks` (skips on save-data / 2g).
+ */
+export function preloadChainIcons() {
+  if (typeof window === 'undefined') return
+
+  const warm = () => {
+    if (shouldSkipPreload()) return
+    const run = () => {
+      for (const chainId of SUPPORTED_NETWORKS) {
+        const icon = NETWORKS_INFO[chainId]?.icon
+        if (icon) new Image().src = icon
+      }
+    }
+    if (window.requestIdleCallback) window.requestIdleCallback(run)
+    else window.setTimeout(run, 5_000)
+  }
+
+  if (document.readyState === 'complete') warm()
+  else window.addEventListener('load', warm, { once: true })
 }
 
 // Pool-detail prefetches already issued this session — avoids re-dispatching on every re-hover.

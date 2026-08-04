@@ -2,7 +2,6 @@ import TokenSelectorModal, { EarnPosition } from '@kyber/token-selector'
 import { Trans, t } from '@lingui/macro'
 import Portal from '@reach/portal'
 import { useCallback, useMemo, useState } from 'react'
-import { X } from 'react-feather'
 import { useNavigate } from 'react-router'
 import { useMedia } from 'react-use'
 import {
@@ -15,18 +14,22 @@ import { ReactComponent as IconListSmartExit } from 'assets/svg/earn/ic_list_sma
 import { ReactComponent as IconUserEarnPosition } from 'assets/svg/earn/ic_user_earn_position.svg'
 import { NotificationType } from 'components/Announcement/type'
 import { ButtonOutlined, ButtonPrimary } from 'components/Button'
+import {
+  ListingPageActionButton,
+  ListingPageNavigateButton,
+  ListingPageTitle,
+  ListingPageWrapper,
+} from 'components/Listing/Page'
+import { TableCell, TableHeader, TableWrapper, getSmartExitTableGridTemplateColumns } from 'components/Listing/Table'
 import Modal from 'components/Modal'
 import Pagination from 'components/Pagination'
 import RefetchIndicator from 'components/RefetchIndicator'
+import SmartExitListSkeleton from 'components/RouteFallback/SmartExitListSkeleton'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
-import { NavigateButton, PoolPageWrapper, StyledNavigateButton, TableWrapper } from 'pages/Earns/PoolExplorer/styles'
-import { IconArrowLeft } from 'pages/Earns/PositionDetail/styles'
 import Filter from 'pages/Earns/SmartExitOrders/Filter'
 import OrderItem from 'pages/Earns/SmartExitOrders/OrderItem'
-import SmartExitOrdersSkeleton from 'pages/Earns/SmartExitOrders/SmartExitOrdersSkeleton'
-import { ORDERS_TABLE_GRID_COLUMNS } from 'pages/Earns/SmartExitOrders/constants'
 import useSmartExitFilter from 'pages/Earns/SmartExitOrders/useSmartExitFilter'
 import { useSmartExitOrdersData } from 'pages/Earns/SmartExitOrders/useSmartExitOrdersData'
 import { SmartExit as SmartExitModal } from 'pages/Earns/components/SmartExit'
@@ -34,19 +37,14 @@ import { SMART_EXIT_SUPPORTED_CHAINS, SMART_EXIT_SUPPORTED_EXCHANGES } from 'pag
 import { OrderStatus, ParsedPosition, SmartExitOrder, UserPosition } from 'pages/Earns/types'
 import { parsePosition } from 'pages/Earns/utils/position'
 import { useNotify, useWalletModalToggle } from 'state/application/hooks'
-import { MEDIA_WIDTHS } from 'theme'
+import { CloseIcon, MEDIA_WIDTHS } from 'theme'
 import { cn } from 'utils/cn'
 import { friendlyError } from 'utils/errorMessage'
 import { Address } from 'utils/viem'
 import { signTypedDataRaw } from 'utils/walletClient'
 
-const TableHeader = ({ children }: { children: React.ReactNode }) => (
-  <div
-    className="grid gap-4 border-b border-border py-4 text-subText"
-    style={{ gridTemplateColumns: ORDERS_TABLE_GRID_COLUMNS }}
-  >
-    {children}
-  </div>
+const SmartExitTableHeaderCell = ({ children, className }: { children?: React.ReactNode; className?: string }) => (
+  <TableCell className={cn('gap-0 text-sm font-medium uppercase', className)}>{children}</TableCell>
 )
 
 const SMART_EXIT_ORDERS_PAGE_SIZE = 10
@@ -178,26 +176,13 @@ const SmartExit = () => {
     setSmartExitPosition(null)
   }, [])
 
-  const tableWrapperStyle = useMemo(
-    () => ({
-      padding: '16px 20px 0',
-      background: upToMedium ? 'transparent' : undefined,
-      position: 'relative' as const,
-      overflow: 'hidden' as const,
-    }),
-    [upToMedium],
-  )
-
   return (
-    <PoolPageWrapper>
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <div className="flex items-center gap-4">
-          <IconArrowLeft onClick={() => navigate(-1)} />
-          <h1 className="text-2xl font-medium">
-            <Trans>Smart Exit Orders</Trans>
-          </h1>
-        </div>
-        <NavigateButton
+    <ListingPageWrapper>
+      <div className="flex items-center justify-between gap-4 max-sm:flex-col max-sm:items-stretch">
+        <ListingPageTitle backLabel="Go back" onBack={() => navigate(-1)}>
+          <Trans>Smart Exit Orders</Trans>
+        </ListingPageTitle>
+        <ListingPageNavigateButton
           mobileFullWidth
           icon={<IconUserEarnPosition />}
           text={t`My Positions`}
@@ -205,100 +190,99 @@ const SmartExit = () => {
         />
       </div>
 
-      <div className="flex flex-wrap items-center justify-between gap-3">
+      <div className="flex items-center justify-between gap-4 max-sm:flex-col max-sm:items-stretch">
         <Filter filters={filters} updateFilters={updateFilters} />
-        <StyledNavigateButton
+        <ListingPageActionButton
+          mobileFullWidth
           onClick={handleOpenTokenSelector}
           className="border border-primary bg-transparent text-primary hover:bg-primary/10 hover:brightness-100"
         >
           <Trans>Set Up Smart Exit</Trans>
-        </StyledNavigateButton>
+        </ListingPageActionButton>
       </div>
 
-      <TableWrapper style={tableWrapperStyle}>
-        <RefetchIndicator visible={overlayLoading} />
-
+      <TableWrapper className="max-[992px]:rounded-none max-[992px]:bg-transparent">
         {!upToMedium && (
-          <TableHeader>
-            <span>#</span>
-            <span>
+          <TableHeader style={{ gridTemplateColumns: getSmartExitTableGridTemplateColumns() }}>
+            <SmartExitTableHeaderCell>#</SmartExitTableHeaderCell>
+            <SmartExitTableHeaderCell>
               <Trans>Position</Trans>
-            </span>
-            <span>
+            </SmartExitTableHeaderCell>
+            <SmartExitTableHeaderCell>
               <Trans>Condition(s)</Trans>
-            </span>
-            <span className="text-left leading-[1.45]">
+            </SmartExitTableHeaderCell>
+            <SmartExitTableHeaderCell>
               <Trans>
-                Est. liquidity & <br /> earned fee
+                <span className="whitespace-nowrap">Est. liquidity &</span>
+                <span className="whitespace-nowrap">earned fee</span>
               </Trans>
-            </span>
-            <span className="text-left leading-[1.45]">
+            </SmartExitTableHeaderCell>
+            <SmartExitTableHeaderCell>
               <Trans>
-                Received <br /> amount
+                <span>Received</span>
+                <span>amount</span>
               </Trans>
-            </span>
-            <span className="text-left">
+            </SmartExitTableHeaderCell>
+            <SmartExitTableHeaderCell>
               <Trans>Max gas</Trans>
-            </span>
-            <span className="text-left">
+            </SmartExitTableHeaderCell>
+            <SmartExitTableHeaderCell>
               <Trans>Status</Trans>
-            </span>
-            <div></div>
+            </SmartExitTableHeaderCell>
+            <SmartExitTableHeaderCell className="px-1" />
           </TableHeader>
         )}
 
-        {tableLoading ? (
-          <SmartExitOrdersSkeleton upToMedium={upToMedium} />
-        ) : shouldShowEmptyState ? (
-          <div className="flex flex-col items-center justify-center gap-4 px-5 py-[60px]">
-            <IconListSmartExit width={80} height={80} color="#134E4B" />
-            <span className="text-base font-medium italic text-subText">
-              <Trans>No Smart Exit orders yet</Trans>
-            </span>
-            <span className="text-center text-sm italic text-gray">
-              <Trans>Automate your exit by setting conditions based on price, time, or earnings.</Trans>
-            </span>
-            <div className="mt-2 flex gap-3">
-              <button
-                onClick={() => navigate(APP_PATHS.EARN_POSITIONS)}
-                className="flex cursor-pointer items-center justify-center rounded-2xl border-0 bg-white/[0.08] px-[18px] py-2.5 text-sm font-medium text-white/70 transition-all duration-200"
-              >
-                <Trans>My Positions</Trans>
-              </button>
-              <button
-                onClick={handleOpenTokenSelector}
-                className="flex cursor-pointer items-center justify-center rounded-2xl border-0 bg-primary px-[18px] py-2.5 text-sm font-medium text-textReverse transition-all duration-200 hover:brightness-90"
-              >
-                <Trans>Set Up Smart Exit</Trans>
-              </button>
+        <div className="relative">
+          <RefetchIndicator visible={overlayLoading} />
+
+          {tableLoading ? (
+            <SmartExitListSkeleton />
+          ) : shouldShowEmptyState ? (
+            <div className="flex flex-col items-center justify-center gap-4 px-4 py-16">
+              <IconListSmartExit width={80} height={80} color="#134E4B" />
+              <span className="text-base font-medium italic text-subText">
+                <Trans>No Smart Exit orders yet</Trans>
+              </span>
+              <span className="text-center text-sm italic text-gray">
+                <Trans>Automate your exit by setting conditions based on price, time, or earnings.</Trans>
+              </span>
+              <div className="mt-2 flex gap-3 max-sm:w-full">
+                <button
+                  onClick={() => navigate(APP_PATHS.EARN_POSITIONS)}
+                  className="flex cursor-pointer items-center justify-center rounded-xl border-0 bg-white/[0.08] px-4 py-2 text-sm font-medium text-subText hover:bg-buttonGray hover:text-text max-sm:flex-1"
+                >
+                  <Trans>My Positions</Trans>
+                </button>
+                <button
+                  onClick={handleOpenTokenSelector}
+                  className="flex cursor-pointer items-center justify-center rounded-xl border-0 bg-primary px-4 py-2 text-sm font-medium text-textReverse hover:brightness-90 max-sm:flex-1"
+                >
+                  <Trans>Set Up Smart Exit</Trans>
+                </button>
+              </div>
             </div>
-          </div>
-        ) : (
-          <div
-            className={cn(
-              '[&>*]:border-b [&>*]:border-border',
-              totalItems <= SMART_EXIT_ORDERS_PAGE_SIZE && '[&>:last-child]:border-b-0',
-            )}
-          >
-            {renderedOrders.map((order, index) => (
-              <OrderItem
-                key={order.id}
-                order={order}
-                index={(currentPage - 1) * SMART_EXIT_ORDERS_PAGE_SIZE + index + 1}
-                rowIndex={index}
-                upToMedium={upToMedium}
-                onDelete={handleDeleteRequest}
-              />
-            ))}
-          </div>
-        )}
+          ) : (
+            <div className={cn('max-[992px]:flex max-[992px]:flex-col max-[992px]:gap-4')}>
+              {renderedOrders.map((order, index) => (
+                <OrderItem
+                  key={order.id}
+                  order={order}
+                  index={(currentPage - 1) * SMART_EXIT_ORDERS_PAGE_SIZE + index + 1}
+                  rowIndex={index}
+                  upToMedium={upToMedium}
+                  onDelete={handleDeleteRequest}
+                />
+              ))}
+            </div>
+          )}
+        </div>
 
         <Pagination
           onPageChange={handlePageChange}
           totalCount={tableLoading ? 0 : totalItems}
           currentPage={currentPage}
           pageSize={SMART_EXIT_ORDERS_PAGE_SIZE}
-          style={{ margin: '0 -20px', width: 'calc(100% + 40px)' }}
         />
       </TableWrapper>
 
@@ -308,7 +292,7 @@ const SmartExit = () => {
             <span className="text-xl font-medium">
               <Trans>Removing a Smart Exit</Trans>
             </span>
-            <X onClick={handleDismissModal} />
+            <CloseIcon onClick={handleDismissModal} />
           </div>
           <Trans>Are you sure you want to remove this Smart Exit?</Trans>
           <div className="flex gap-4">
@@ -351,7 +335,7 @@ const SmartExit = () => {
       )}
 
       {smartExitPosition && <SmartExitModal position={smartExitPosition} onDismiss={handleDismissSmartExit} />}
-    </PoolPageWrapper>
+    </ListingPageWrapper>
   )
 }
 

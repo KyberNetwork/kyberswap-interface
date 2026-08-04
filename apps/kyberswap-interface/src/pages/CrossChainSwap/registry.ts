@@ -1,66 +1,29 @@
-// import { isEvmChain } from 'utils'
-import {
-  // NearQuoteParams,
-  NormalizedQuote, // QuoteParams,
-  SwapProvider,
-} from './adapters'
+import type { NormalizedQuote, SwapProvider } from 'pages/CrossChainSwap/adapters'
+import { normalizeAdapterName } from 'pages/CrossChainSwap/utils'
 
 export interface Quote {
   adapter: SwapProvider
   quote: NormalizedQuote
+  isReadOnly: boolean
 }
 
 export class CrossChainSwapAdapterRegistry {
   private adapters: Map<string, SwapProvider> = new Map()
 
   registerAdapter(adapter: SwapProvider): void {
-    this.adapters.set(adapter.getName().toLowerCase().replace(/\s+/g, ''), adapter)
+    this.adapters.set(normalizeAdapterName(adapter.getName()), adapter)
+
+    for (const alias of adapter.getAliases?.() ?? []) {
+      this.adapters.set(normalizeAdapterName(alias.name), adapter)
+    }
   }
 
   getAdapter(name?: string): SwapProvider | undefined {
     if (!name) return undefined
-    return this.adapters.get(name.toLowerCase().replace(/\s+/g, ''))
+    return this.adapters.get(normalizeAdapterName(name))
   }
 
   getAllAdapters(): SwapProvider[] {
-    return Array.from(this.adapters.values())
+    return Array.from(new Set(this.adapters.values()))
   }
-
-  // get quotes from all adapters and sort them by output amount
-  // async getQuotes(params: QuoteParams | NearQuoteParams): Promise<Quote[]> {
-  //   const quotes: { adapter: SwapProvider; quote: NormalizedQuote }[] = []
-  //
-  //   const adapters =
-  //     params.fromChain === params.toChain && isEvmChain(params.fromChain)
-  //       ? ([this.getAdapter('KyberSwap')] as SwapProvider[])
-  //       : this.getAllAdapters().filter(
-  //           adapter =>
-  //             adapter.getSupportedChains().includes(params.fromChain) &&
-  //             adapter.getSupportedChains().includes(params.toChain),
-  //         )
-  //
-  //   console.log(
-  //     'Available adapters',
-  //     params,
-  //     adapters.map(ad => ad.getName()),
-  //   )
-  //   // Get quotes from all compatible adapters
-  //   const quotePromises = adapters.map(async adapter => {
-  //     try {
-  //       const quote = await adapter.getQuote(params)
-  //       quotes.push({ adapter, quote })
-  //     } catch (err) {
-  //       console.error(`Failed to get quote from ${adapter.getName()}:`, err)
-  //     }
-  //   })
-  //
-  //   await Promise.all(quotePromises)
-  //
-  //   if (quotes.length === 0) {
-  //     throw new Error('No valid quotes found for the requested swap')
-  //   }
-  //
-  //   quotes.sort((a, b) => (a.quote.outputAmount < b.quote.outputAmount ? 1 : -1))
-  //   return quotes
-  // }
 }

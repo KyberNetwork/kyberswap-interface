@@ -4,7 +4,7 @@ import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 
 import { ButtonPrimary } from 'components/Button'
-import { HiddenH1, HiddenH2 } from 'components/Seo/HiddenSeoHeadings'
+import { HiddenH1, HiddenH2 } from 'components/Seo/components'
 import NonEvmProviders from 'components/Web3Provider/NonEvmProviders'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'

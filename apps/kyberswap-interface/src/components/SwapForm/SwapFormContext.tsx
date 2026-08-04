@@ -6,6 +6,7 @@ type SwapFormContextProps = {
   slippage: number
   routeSummary: DetailedRouteSummary | undefined
   typedValue: string
+  displayTypedValue: string
   recipient: string | null
   isAdvancedMode: boolean
 }

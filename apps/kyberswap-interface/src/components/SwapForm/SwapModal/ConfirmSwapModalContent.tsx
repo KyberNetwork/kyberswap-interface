@@ -5,11 +5,12 @@ import { Check, Info, Repeat } from 'react-feather'
 import { Link, useParams, useSearchParams } from 'react-router-dom'
 import { useGetTotalActiveMakingAmountQuery } from 'services/limitOrder'
 import { calculatePriceImpact } from 'services/route/utils'
-import { useGetHoneypotInfoQuery } from 'services/tokenCatalog'
 
 import { ButtonOutlined, ButtonPrimary } from 'components/Button'
 import IconButton from 'components/Button/IconButton'
 import Dots from 'components/Dots'
+import { ErrorWarning } from 'components/ErrorWarning'
+import { useHoneypotWarning } from 'components/HoneypotWarning'
 import InfoHelper from 'components/InfoHelper'
 import { LimitOrderStatus, LimitOrderTab } from 'components/LimitOrder/types'
 import Loader from 'components/Loader'
@@ -25,8 +26,8 @@ import SwapModalAreYouSure from 'components/SwapForm/SwapModal/SwapModalAreYouSu
 import { BuildRouteResult } from 'components/SwapForm/hooks/useBuildRoute'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { TransactionErrorContent } from 'components/TransactionConfirmationModal'
-import WarningNote from 'components/WarningNote'
-import { APP_PATHS, PAIR_CATEGORY } from 'constants/index'
+import { APP_PATHS } from 'constants/index'
+import { PAIR_CATEGORY } from 'constants/trade'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
@@ -45,12 +46,15 @@ const AMOUNT_OUT_FROM_BUILD_ERROR_THRESHOLD = -5
 const SHOW_CONFIRM_MODAL_AFTER_CLICK_SWAP_THRESHOLD = -10
 
 const ReservedOrderNotice = ({ symbol, to }: { symbol: string | undefined; to: string }) => (
-  <span className="text-xs font-medium italic text-subText">
-    <Trans>
-      <span className="text-text">Notice</span>: Some of your {symbol} is already reserved by an open Limit Order -
-      review it <Link to={to}>here</Link>.
-    </Trans>
-  </span>
+  <ErrorWarning
+    type="warn"
+    title={
+      <Trans>
+        <span className="text-text">Notice</span>: Some of your {symbol} is already reserved by an open Limit Order -
+        review it <Link to={to}>here</Link>.
+      </Trans>
+    }
+  />
 )
 
 function ExecutionPrice({
@@ -83,20 +87,13 @@ const PriceUpdateWarning = ({
   isAccepted: boolean
   level: 'warning' | 'error'
   children: React.ReactNode
-}) => (
-  <div
-    className={cn(
-      'flex items-center gap-2 rounded-2xl px-3 py-2 text-xs',
-      isAccepted
-        ? 'bg-subText/20 text-subText'
-        : level === 'warning'
-        ? 'bg-warning/30 text-text'
-        : 'bg-red/30 text-text',
-    )}
-  >
-    {children}
-  </div>
-)
+}) => {
+  if (!isAccepted) {
+    return <ErrorWarning type={level === 'error' ? 'error' : 'warn'} title={children} />
+  }
+
+  return <div className="flex items-center gap-2 rounded-2xl bg-subText/20 px-3 py-2 text-xs">{children}</div>
+}
 
 type Props = {
   buildResult: BuildRouteResult | undefined
@@ -133,11 +130,11 @@ export default function ConfirmSwapModalContent({
   const { currency: currencyParam } = useParams()
   const { currencyIn, currencyOut } = useCurrenciesByPage()
   const { chainId, account, networkInfo } = useActiveWeb3React()
-  const { data: honeypotData } = useGetHoneypotInfoQuery(
-    { chainId, address: currencyIn?.wrapped.address.toLowerCase() ?? '' },
-    { skip: !currencyIn?.wrapped.address },
-  )
-  const honeypot = honeypotData?.data ?? null
+  const { honeypot } = useHoneypotWarning({
+    chainId,
+    tokenAddress: currencyIn?.wrapped.address,
+    tokenSymbol: currencyIn?.symbol,
+  })
 
   const isSlippageNotEnough =
     !!errorWhileBuildRoute &&
@@ -427,7 +424,7 @@ export default function ConfirmSwapModalContent({
               isAccepted={hasAcceptedNewAmount}
             >
               {hasAcceptedNewAmount && <Check size={20} className="text-text" />}
-              <div className="flex-1 text-text">
+              <div className={cn('flex-1', hasAcceptedNewAmount && 'text-text')}>
                 {hasAcceptedNewAmount ? (
                   <Trans>New Amount Accepted</Trans>
                 ) : (
@@ -497,7 +494,7 @@ export default function ConfirmSwapModalContent({
 
           <PriceImpactNote isDegenMode={isAdvancedMode} priceImpact={priceImpactFromBuild} />
 
-          {errorWhileBuildRoute && <WarningNote shortText={errorText} />}
+          {errorWhileBuildRoute && <ErrorWarning type="warn" title={errorText} />}
           {showLOWwarning && (
             <ReservedOrderNotice
               symbol={currencyIn?.symbol}

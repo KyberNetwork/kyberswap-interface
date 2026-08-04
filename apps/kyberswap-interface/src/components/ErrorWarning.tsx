@@ -1,8 +1,8 @@
-import { type CSSProperties, type ReactNode } from 'react'
-import { AlertTriangle, Info } from 'react-feather'
+import { type CSSProperties, type ReactNode, useId, useState } from 'react'
+import { AlertTriangle, ChevronDown, Info } from 'react-feather'
 
-import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
-import { CollapseItem } from 'components/Collapse'
+import IconButton from 'components/Button/IconButton'
+import { HStack, Stack } from 'components/Stack'
 import { cn } from 'utils/cn'
 
 const WARNING_STYLES = {
@@ -16,38 +16,72 @@ type ErrorWarningProps = {
   type: keyof typeof WARNING_STYLES
   desc?: ReactNode
   style?: CSSProperties
+  className?: string
+  action?: ReactNode
 }
 
-export const ErrorWarning = ({ title, type, desc, style: customStyle = {} }: ErrorWarningProps) => {
+export const ErrorWarning = ({ title, type, desc, style: customStyle = {}, className, action }: ErrorWarningProps) => {
+  const detailsId = useId()
   const { backgroundClass, colorClass, Icon } = WARNING_STYLES[type]
+  const [expanded, setExpanded] = useState(false)
 
   if (!desc) {
     return (
-      <div
-        className={cn('flex min-h-[40px] items-center gap-2 rounded-[18px] px-3 py-2', backgroundClass, colorClass)}
+      <HStack
+        className={cn('items-start gap-2 rounded-2xl px-3 py-2', backgroundClass, colorClass, className)}
         style={customStyle}
       >
-        <Icon size={16} className="min-w-4" />
-        <span className="text-xs font-normal text-text">{title}</span>
-      </div>
+        <Icon size={16} className="shrink-0" />
+        <div className="flex-1 text-xs font-medium italic text-text-60">{title}</div>
+        {action}
+      </HStack>
     )
   }
 
   return (
-    <CollapseItem
-      arrowComponent={<DropdownSVG className="-mr-2" />}
-      style={{ gap: '8px', borderRadius: '18px', padding: '8px 12px', ...customStyle }}
-      className={backgroundClass}
-      header={
-        <div className={cn('flex items-center gap-2', colorClass)}>
-          <div>
-            <Icon size={16} className="min-w-4" />
-          </div>
-          <span className="text-xs font-medium text-text">{title}</span>
+    <Stack className={cn('rounded-2xl px-3 py-2', backgroundClass, className)} style={customStyle}>
+      <HStack
+        className={cn('group cursor-pointer select-none items-start gap-2', colorClass)}
+        onClick={event => {
+          const target = event.target
+          if (
+            target instanceof Element &&
+            target.closest('a, button, input, select, textarea, [role="button"], [role="link"]')
+          ) {
+            return
+          }
+          setExpanded(value => !value)
+        }}
+      >
+        <Icon size={16} className="shrink-0" />
+        <div className="flex-1 text-xs font-medium italic text-text-60">{title}</div>
+        {action}
+        <IconButton
+          variant="compact"
+          size={16}
+          aria-label="Toggle warning details"
+          aria-controls={detailsId}
+          aria-expanded={expanded}
+          data-expanded={expanded}
+          className="p-0 text-text-60 transition-transform duration-200 ease-in-out group-hover:text-text data-[expanded=true]:rotate-180"
+          onClick={() => setExpanded(value => !value)}
+        >
+          <ChevronDown size={14} />
+        </IconButton>
+      </HStack>
+
+      <div
+        id={detailsId}
+        aria-hidden={!expanded}
+        className={cn(
+          'grid transition-[grid-template-rows,opacity] duration-200 ease-in-out',
+          expanded ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0',
+        )}
+      >
+        <div className="min-h-0 overflow-hidden">
+          <Stack className="gap-2 pl-6 pt-2 text-xs font-normal text-text">{desc}</Stack>
         </div>
-      }
-    >
-      <div className="ml-[22px] text-xs">{desc}</div>
-    </CollapseItem>
+      </div>
+    </Stack>
   )
 }

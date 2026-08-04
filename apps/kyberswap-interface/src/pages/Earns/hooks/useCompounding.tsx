@@ -1,15 +1,17 @@
-import {
-  ChainId as CompoundingChainId,
-  PoolType as CompoundingPoolType,
-  CompoundingWidget,
-  SupportedLocale,
-} from '@kyberswap/compounding-widget'
+// PoolType is needed as a value by the DEX map below. The widget package only re-exports @kyber/schema's
+// enum, so taking it from the source keeps the exact same values without dragging the widget in with it.
+import { PoolType as CompoundingPoolType } from '@kyber/schema'
+import type { ChainId as CompoundingChainId, SupportedLocale } from '@kyberswap/compounding-widget'
+// Eager, not with the lazy JS below: the widget's status dialog is styled by utilities scoped under the
+// widget's own root class, which ship only in this stylesheet (the app's eager @kyber/ui styles use a
+// different scope and don't reach it). This widget's scope is its own, so nothing else supplies it.
 import '@kyberswap/compounding-widget/dist/style.css'
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { useCallback, useMemo, useState } from 'react'
+import { Suspense, lazy, useCallback, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { NotificationType } from 'components/Announcement/type'
+import LocalLoader from 'components/LocalLoader'
 import Modal from 'components/Modal'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useActiveLocale } from 'hooks/useActiveLocale'
@@ -22,6 +24,12 @@ import { navigateToPoolDetail, navigateToPositionAfterZap } from 'pages/Earns/ut
 import { useKyberSwapConfig, useNotify, useWalletModalToggle } from 'state/application/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
+
+// The widget only renders inside the modal below, so lazy-load its JS to keep it out of every /earn route
+// chunk that calls this hook.
+const CompoundingWidget = lazy(() =>
+  import('@kyberswap/compounding-widget').then(widget => ({ default: widget.CompoundingWidget })),
+)
 
 interface CompoundingPureParams {
   poolAddress: string
@@ -282,7 +290,9 @@ const useCompounding = ({
 
   const widget = compoundingParams ? (
     <Modal isOpen mobileFullWidth maxWidth={768} width={'768px'} onDismiss={handleCloseCompounding}>
-      <CompoundingWidget {...compoundingParams} />
+      <Suspense fallback={<LocalLoader />}>
+        <CompoundingWidget {...compoundingParams} />
+      </Suspense>
     </Modal>
   ) : null
 
