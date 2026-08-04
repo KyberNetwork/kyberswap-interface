@@ -11,8 +11,9 @@ import { HeaderCell, TableBody, TableCell, TableHeader, TableRow } from 'pages/C
 import { AgentCell } from 'pages/CopyTrading/components/common'
 import { copyTradingStatIconMap } from 'pages/CopyTrading/constants'
 import { useCopyTradingContext } from 'pages/CopyTrading/context'
-import { compactUsd, percent } from 'pages/CopyTrading/helpers'
+import { compactUsd, formatCount, percent } from 'pages/CopyTrading/helpers'
 import { useCopyTradeWrite } from 'pages/CopyTrading/write/WriteContext'
+import { getPreparedReasonMessage, isActionAvailable } from 'pages/CopyTrading/write/preparedAction'
 import { cn } from 'utils/cn'
 
 type LeaderboardGridProps = HTMLAttributes<HTMLDivElement> & {
@@ -140,6 +141,7 @@ const AgentTable = ({ agents, infiniteScroll, loading, sortBy, sortOrder, onSort
         >
           {agents.map(agent => {
             const copiedRun = copiedRunsByAgentId?.[agent.agentId]
+            const canStartCopy = isActionAvailable(agent.startCopyAvailability)
 
             return (
               <LeaderboardGrid
@@ -154,15 +156,23 @@ const AgentTable = ({ agents, infiniteScroll, loading, sortBy, sortOrder, onSort
                 <TableCell className="text-right text-primary">{percent(agent.stats.apr30dPct)}</TableCell>
                 <TableCell className="text-right">{percent(agent.stats.winRatePct)}</TableCell>
                 <TableCell className="text-right">{compactUsd(agent.stats.volumeUsd)}</TableCell>
-                <TableCell className="text-right">{agent.stats.copiers?.toLocaleString() || '—'}</TableCell>
+                <TableCell className="text-right">{formatCount(agent.stats.copiers)}</TableCell>
                 <TableCell className="text-right">{compactUsd(agent.stats.aumUsd)}</TableCell>
-                <TableCell className="text-right">{agent.stats.openPositions || '—'}</TableCell>
+                <TableCell className="text-right">{formatCount(agent.stats.openPositions)}</TableCell>
                 <TableCell className="flex justify-center">
                   {copiedRun ? (
                     <span className="text-sm font-medium text-primary">Copied</span>
                   ) : (
                     <div>
-                      <ButtonPrimary type="button" padding="6px 12px" onClick={() => openSubscribe(agent)}>
+                      <ButtonPrimary
+                        type="button"
+                        padding="6px 12px"
+                        disabled={!canStartCopy}
+                        title={
+                          !canStartCopy ? getPreparedReasonMessage(agent.startCopyAvailability?.reason) : undefined
+                        }
+                        onClick={() => openSubscribe(agent)}
+                      >
                         Copy
                       </ButtonPrimary>
                     </div>

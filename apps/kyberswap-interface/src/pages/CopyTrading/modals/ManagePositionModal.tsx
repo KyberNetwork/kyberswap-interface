@@ -1,18 +1,26 @@
-import { useState } from 'react'
-import { ChevronDown } from 'react-feather'
-import type { PositionSummary } from 'services/copyTrading/types'
+import { ChainId } from '@kyberswap/ks-sdk-core'
+import { useCallback, useState } from 'react'
+import copyTradingApi, { usePrepareClosePositionMutation, usePrepareManualSellMutation } from 'services/copyTrading'
+import type {
+  PendingSellObligation,
+  PositionActionKind,
+  PositionSummary,
+  PreparedCallKind,
+} from 'services/copyTrading/types'
 
-import { ButtonLight, ButtonPrimary } from 'components/Button'
+import { ButtonLight } from 'components/Button'
 import { HStack, Stack } from 'components/Stack'
 import { useActiveWeb3React } from 'hooks'
+import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
+import { ShortenedId } from 'pages/CopyTrading/components/common'
+import { useCopyTradingContext } from 'pages/CopyTrading/context'
 import { formatUsd } from 'pages/CopyTrading/helpers'
-import { CopyTradeTxModal } from 'pages/CopyTrading/write/CopyTradeTxModal'
-import { FOLLOWER_ACCOUNT_ABI } from 'pages/CopyTrading/write/abis'
-import { fetchUnalignedSellAuthorization } from 'pages/CopyTrading/write/mockSigner'
-import { useCopyTradeTx } from 'pages/CopyTrading/write/useCopyTradeTx'
+import PreparedActionModal, { ReviewRow, ReviewSection } from 'pages/CopyTrading/write/PreparedActionModal'
+import { useCopyTradeWrite } from 'pages/CopyTrading/write/WriteContext'
+import { formatPreparedAmount, formatSlippage, formatWadPercent } from 'pages/CopyTrading/write/preparedAction'
+import { DEFAULT_PREPARED_ACTION_STATE, usePreparedAction } from 'pages/CopyTrading/write/usePreparedAction'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { cn } from 'utils/cn'
-import { encodeFunctionData, maxUint256 } from 'utils/viem'
 
 export type ManagePositionMode = 'sell' | 'close'
 
@@ -23,127 +31,219 @@ type ManagePositionModalProps = {
   mode: ManagePositionMode
 }
 
-const SELL_RATIOS = [25, 50, 100]
 const SLIPPAGE_OPTIONS = [0.5, 1, 2]
+const MANUAL_SELL_CALL_KINDS: PreparedCallKind[] = ['PREPARED_CALL_KIND_MANUAL_SELL']
+const CLOSE_POSITION_CALL_KINDS: PreparedCallKind[] = ['PREPARED_CALL_KIND_CLOSE_POSITION']
+
+const PositionValue = ({ symbol, tradeId }: { symbol?: string; tradeId: string }) => (
+  <>
+    {symbol || 'Token'} · <ShortenedId value={tradeId} />
+  </>
+)
+
+const hasPositionAction = (position: PositionSummary, action: PositionActionKind) =>
+  position.actionKind === action || position.availableActionKinds.includes(action)
+
+const isValidWadRatio = (value?: string) => {
+  if (!value || !/^\d+$/.test(value)) return false
+  const ratio = BigInt(value)
+  return ratio > 0n && ratio <= 10n ** 18n
+}
 
 const ManagePositionModal = ({ isOpen, onDismiss, position, mode }: ManagePositionModalProps) => {
-  const { account } = useActiveWeb3React()
+  const { account, chainId } = useActiveWeb3React()
+  const { ownerAddress } = useCopyTradingContext()
+  const { changeNetwork } = useChangeNetwork()
   const toggleWalletModal = useWalletModalToggle()
-  const { status, run: runTx, reset } = useCopyTradeTx()
-  const [ratio, setRatio] = useState(mode === 'close' ? 100 : 25)
+  const { refreshCopyTrading, withWalletSession } = useCopyTradeWrite()
+  const [prepareManualSell] = usePrepareManualSellMutation()
+  const [prepareClosePosition] = usePrepareClosePositionMutation()
+  const [getObligations] = copyTradingApi.useLazyGetPendingSellObligationsQuery()
+  const [flowState, setFlowState] = useState(DEFAULT_PREPARED_ACTION_STATE)
   const [slippage, setSlippage] = useState(0.5)
-  const [showAdvanced, setShowAdvanced] = useState(false)
 
   const isClose = mode === 'close'
+  const actionColor = isClose ? 'var(--ks-red)' : 'var(--ks-warning)'
+  const requiredAction: PositionActionKind = isClose
+    ? 'POSITION_ACTION_KIND_CLOSE_POSITION'
+    : 'POSITION_ACTION_KIND_MANUAL_SELL'
+  const userPositionId = position.userPositionId
+  const copyRunId = position.copyRunId
   const copyAccount = position.copyAccount
+  const onExpectedChain = chainId === position.chainId
+  const actionAdvertised = hasPositionAction(position, requiredAction)
+
+  const fetchObligations = useCallback(async () => {
+    if (!copyAccount || !userPositionId) throw new Error('This position is missing its Smart Wallet identity.')
+
+    const fifo: PendingSellObligation[] = []
+    let obligationCursor: string | undefined
+    while (true) {
+      const response = await getObligations({
+        chainId: position.chainId,
+        copyAccount,
+        userPositionId,
+        cursor: obligationCursor,
+        limit: 200,
+      }).unwrap()
+      fifo.push(...response.data)
+      if (!response.pagination.hasMore) break
+      const nextCursor = response.pagination.nextCursor
+      if (!nextCursor || nextCursor === obligationCursor) {
+        throw new Error('The pending obligations response returned an invalid pagination cursor.')
+      }
+      obligationCursor = nextCursor
+    }
+    return fifo
+  }, [copyAccount, getObligations, position.chainId, userPositionId])
+
+  const flow = usePreparedAction({
+    state: flowState,
+    setState: setFlowState,
+    expected: {
+      account: account || '',
+      callKinds: isClose ? CLOSE_POSITION_CALL_KINDS : MANUAL_SELL_CALL_KINDS,
+      chainId: position.chainId,
+      copyAccount,
+      preview: isClose ? 'closePosition' : 'manualSell',
+    },
+    prepare: async () => {
+      if (!account || !ownerAddress || !copyRunId || !copyAccount || !userPositionId) {
+        throw new Error('The selected position is missing write-flow identity fields.')
+      }
+      if (ownerAddress.toLowerCase() !== account.toLowerCase()) {
+        throw new Error('The selected position is not owned by the connected wallet.')
+      }
+
+      if (!hasPositionAction(position, requiredAction)) {
+        throw new Error('The selected position does not advertise this recovery action.')
+      }
+
+      const currentObligations = isClose ? [] : await fetchObligations()
+
+      return withWalletSession(ownerAddress, position.chainId, async accessToken => {
+        const slippageBps = Math.round(slippage * 100)
+        if (isClose) {
+          const response = await prepareClosePosition({
+            ownerAddress,
+            copyRunId,
+            userPositionId,
+            accessToken,
+            slippageBps,
+          }).unwrap()
+          if (
+            response.data.status === 'PREPARED_ACTION_STATUS_READY' &&
+            response.data.closePosition?.userPositionId !== userPositionId
+          ) {
+            throw new Error('The prepared position does not match your selection.')
+          }
+          return response.data
+        }
+
+        const currentObligation = currentObligations[0]
+        if (!isValidWadRatio(currentObligation?.currentRatioRaw) || !currentObligations.length) {
+          throw new Error('There is no current pending sell obligation for this position.')
+        }
+        const response = await prepareManualSell({
+          ownerAddress,
+          copyRunId,
+          userPositionId,
+          accessToken,
+          slippageBps,
+          expectedUnresolvedSkipCount: currentObligations.length,
+          expectedSellRatioRaw: currentObligation.currentRatioRaw,
+        }).unwrap()
+        const preview = response.data.manualSell
+        if (response.data.status === 'PREPARED_ACTION_STATUS_READY') {
+          if (preview?.userPositionId !== userPositionId) {
+            throw new Error('The prepared position does not match your selection.')
+          }
+          if (preview.sellRatioRaw !== currentObligation.currentRatioRaw) {
+            throw new Error('The prepared sell ratio does not match the current FIFO obligation.')
+          }
+          if (preview.unresolvedSkipCount !== currentObligations.length) {
+            throw new Error('The prepared obligation count does not match the current FIFO.')
+          }
+        }
+        return response.data
+      })
+    },
+    onComplete: refreshCopyTrading,
+  })
 
   const dismiss = () => {
-    reset()
-    setShowAdvanced(false)
+    flow.reset()
+    setSlippage(0.5)
     onDismiss()
   }
 
-  const handleSell = () =>
-    runTx([
-      {
-        label: `Selling ${ratio}% of ${position.token.symbol}`,
-        build: async () => {
-          if (!copyAccount) throw new Error('Missing wallet address')
-          const auth = await fetchUnalignedSellAuthorization({
-            chainId: position.chainId,
-            copyAccount,
-            positionId: position.positionId,
-            sellRatioBps: ratio * 100,
-            slippageBps: Math.round(slippage * 100),
-          })
-          return {
-            to: copyAccount,
-            data: encodeFunctionData({
-              abi: FOLLOWER_ACCOUNT_ABI,
-              functionName: 'executeFollowerUnalignedSell',
-              args: [
-                {
-                  positionId: position.positionId,
-                  swapper: auth.swapper,
-                  encodedAmountIn: BigInt(auth.encodedAmountIn),
-                  swapperData: auth.swapperData,
-                  minQuoteTokenReceived: BigInt(auth.minQuoteTokenReceived),
-                  deadline: BigInt(auth.deadline),
-                  signature: auth.signature,
-                },
-              ],
-            }),
-          }
-        },
-      },
-    ])
+  const handlePrimaryAction = () => {
+    if (!account) {
+      toggleWalletModal()
+      return
+    }
+    if (!onExpectedChain) {
+      void changeNetwork(position.chainId as ChainId)
+      return
+    }
+    void flow.prepare()
+  }
 
-  // Withdraws the account's available quote token (USDC) to the owner. The
-  // contract's max-uint256 sentinel means "withdraw the full balance".
-  const handleWithdraw = () =>
-    runTx([
-      {
-        label: 'Withdrawing available USDC',
-        build: () => {
-          if (!copyAccount) throw new Error('Missing wallet address')
-          if (!account) throw new Error('Wallet not connected')
-          return {
-            to: copyAccount,
-            data: encodeFunctionData({
-              abi: FOLLOWER_ACCOUNT_ABI,
-              functionName: 'withdrawQuoteToken',
-              args: [maxUint256, account],
-            }),
+  const preview = isClose ? flowState.action?.closePosition : flowState.action?.manualSell
+  const review = (
+    <Stack className="gap-4">
+      <ReviewSection title={isClose ? 'Review full recovery' : 'Review pending sell recovery'}>
+        <ReviewRow
+          label="Position"
+          value={
+            <PositionValue symbol={preview?.baseToken?.symbol || position.token.symbol} tradeId={position.tradeId} />
           }
-        },
-      },
-    ])
+        />
+        {!isClose && <ReviewRow label="Required sell ratio" value={formatWadPercent(preview?.sellRatioRaw)} />}
+        {!isClose && <ReviewRow label="Pending obligations" value={preview?.unresolvedSkipCount} />}
+        <ReviewRow label="Sell amount" value={formatPreparedAmount(preview?.sellBase, preview?.baseToken)} />
+        <ReviewRow
+          label="Minimum received"
+          value={formatPreparedAmount(preview?.swapQuote?.minimumQuote, preview?.quoteToken)}
+        />
+        <ReviewRow label="Estimated cashback" value={formatPreparedAmount(preview?.cashback, preview?.baseToken)} />
+        <ReviewRow label="Effective slippage" value={formatSlippage(preview?.swapQuote?.effectiveSlippageBps)} />
+      </ReviewSection>
+    </Stack>
+  )
+
+  const unavailableMessage = !actionAdvertised
+    ? `The selected position does not advertise ${isClose ? 'Close Position' : 'Manual Sell'}.`
+    : undefined
 
   return (
-    <CopyTradeTxModal
+    <PreparedActionModal
       isOpen={isOpen}
       onDismiss={dismiss}
-      status={status}
+      state={flowState}
       title={isClose ? 'Close Position' : 'Manual Sell'}
-      successTitle={isClose ? 'Position closed' : 'Sell submitted'}
-      successText={`${position.token.symbol} · Trade ${position.tradeId}`}
+      review={review}
+      confirmLabel={isClose ? 'Close Position' : 'Execute Manual Sell'}
+      confirmVariant={isClose ? 'error' : 'warning'}
+      onBack={flow.reset}
+      onConfirm={() => void flow.confirm()}
+      onRetry={() => void flow.retry()}
+      pendingText="Preparing this recovery action…"
+      successTitle={isClose ? 'Position closed' : 'Manual sell submitted'}
+      successText={
+        <>
+          {position.token.symbol || 'Token'} · Trade <ShortenedId value={position.tradeId} />
+        </>
+      }
     >
       <Stack className="gap-4">
-        <Stack className="gap-1 rounded-xl bg-white-04 px-4 py-3 text-sm">
-          <HStack className="items-center justify-between">
-            <span className="text-subText">Position</span>
-            <span className="font-medium text-text">
-              {position.token.symbol} · {position.tradeId}
-            </span>
-          </HStack>
-          <HStack className="items-center justify-between">
-            <span className="text-subText">Value</span>
-            <span className="font-medium text-text">{formatUsd(position.valueUsd)}</span>
-          </HStack>
-        </Stack>
-
-        {!isClose && (
-          <Stack className="gap-2">
-            <span className="text-sm text-subText">Sell amount</span>
-            <HStack className="gap-2">
-              {SELL_RATIOS.map(value => (
-                <button
-                  key={value}
-                  type="button"
-                  onClick={() => setRatio(value)}
-                  className={cn(
-                    'flex-1 rounded-lg border px-3 py-2 text-sm font-medium transition-colors',
-                    ratio === value
-                      ? 'border-primary bg-primary-12 text-primary'
-                      : 'border-darkBorder text-subText hover:text-text',
-                  )}
-                >
-                  {value === 100 ? 'All' : `${value}%`}
-                </button>
-              ))}
-            </HStack>
-          </Stack>
-        )}
+        <ReviewSection>
+          <ReviewRow
+            label="Position"
+            value={<PositionValue symbol={position.token.symbol} tradeId={position.tradeId} />}
+          />
+          <ReviewRow label="Current value" value={formatUsd(position.valueUsd)} />
+        </ReviewSection>
 
         <Stack className="gap-2">
           <span className="text-sm text-subText">Slippage tolerance</span>
@@ -160,55 +260,29 @@ const ManagePositionModal = ({ isOpen, onDismiss, position, mode }: ManagePositi
                     : 'border-darkBorder text-subText hover:text-text',
                 )}
               >
-                {value}%
+                {formatSlippage(value * 100)}
               </button>
             ))}
           </HStack>
         </Stack>
 
-        <ButtonPrimary
+        <ButtonLight
           type="button"
-          padding="12px"
-          disabled={!!account && !copyAccount}
-          onClick={account ? handleSell : toggleWalletModal}
+          color={actionColor}
+          disabled={!!account && onExpectedChain && !!unavailableMessage}
+          title={unavailableMessage}
+          onClick={handlePrimaryAction}
         >
           {!account
             ? 'Connect wallet'
-            : !copyAccount
-            ? 'Wallet unavailable'
-            : isClose
-            ? 'Close entire position'
-            : `Sell ${ratio}%`}
-        </ButtonPrimary>
-
-        <Stack className="gap-2 border-t border-darkBorder pt-3">
-          <button
-            type="button"
-            onClick={() => setShowAdvanced(prev => !prev)}
-            className="flex items-center gap-1 text-sm font-medium text-subText transition-colors hover:text-text"
-          >
-            Advanced
-            <ChevronDown size={16} className={cn('transition-transform', showAdvanced && 'rotate-180')} />
-          </button>
-          {showAdvanced && (
-            <Stack className="gap-2">
-              <p className="text-xs text-subText">
-                Withdraw the available USDC from your wallet without a swap. No cashback is returned. Token positions
-                must be sold to exit.
-              </p>
-              <ButtonLight
-                type="button"
-                padding="10px 12px"
-                disabled={!!account && !copyAccount}
-                onClick={account ? handleWithdraw : toggleWalletModal}
-              >
-                {account ? 'Withdraw USDC' : 'Connect wallet'}
-              </ButtonLight>
-            </Stack>
-          )}
-        </Stack>
+            : !onExpectedChain
+            ? 'Switch network'
+            : unavailableMessage
+            ? `${isClose ? 'Close Position' : 'Manual Sell'} unavailable`
+            : `Review ${isClose ? 'Close Position' : 'Manual Sell'}`}
+        </ButtonLight>
       </Stack>
-    </CopyTradeTxModal>
+    </PreparedActionModal>
   )
 }
 

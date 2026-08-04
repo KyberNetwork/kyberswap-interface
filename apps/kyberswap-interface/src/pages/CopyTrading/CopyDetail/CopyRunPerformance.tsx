@@ -6,7 +6,6 @@ import { Stack } from 'components/Stack'
 import {
   CapitalValueChart,
   CumulativeRealisedPnlChart,
-  mergePerformancePoints,
   toPerformanceChartPoint,
 } from 'pages/CopyTrading/components/PerformanceCharts'
 import { useCopyTradingContext } from 'pages/CopyTrading/context'
@@ -35,7 +34,7 @@ const CopyRunPerformance = ({ copyRunId, status }: CopyRunPerformanceProps) => {
       series: 'portfolio_value',
       window: performanceWindow,
     },
-    { skip: !ownerAddress },
+    { skip: !ownerAddress || isClosed },
   )
   const {
     data: realizedPnlPerformance,
@@ -52,26 +51,27 @@ const CopyRunPerformance = ({ copyRunId, status }: CopyRunPerformanceProps) => {
     },
     { skip: !ownerAddress },
   )
-  const chartData = useMemo(
-    () =>
-      mergePerformancePoints(portfolioPerformance?.data || [], realizedPnlPerformance?.data || []).map(
-        toPerformanceChartPoint,
-      ),
-    [portfolioPerformance?.data, realizedPnlPerformance?.data],
+  const portfolioData = useMemo(
+    () => (portfolioPerformance?.data || []).map(toPerformanceChartPoint),
+    [portfolioPerformance?.data],
   )
-  const isError = isPortfolioError || isRealizedPnlError
-  const isFetching = isPortfolioFetching || isRealizedPnlFetching
+  const realizedPnlData = useMemo(
+    () => (realizedPnlPerformance?.data || []).map(toPerformanceChartPoint),
+    [realizedPnlPerformance?.data],
+  )
 
   return (
     <Stack className="gap-6 rounded-xl bg-buttonBlack p-6">
       <CumulativeRealisedPnlChart
-        data={chartData}
-        isError={isError}
-        isFetching={isFetching}
+        data={realizedPnlData}
+        isError={isRealizedPnlError}
+        isFetching={isRealizedPnlFetching}
         onWindowChange={isClosed ? undefined : setWindow}
         window={isClosed ? undefined : performanceWindow}
       />
-      {!isClosed && <CapitalValueChart data={chartData} isError={isError} isFetching={isFetching} />}
+      {!isClosed && (
+        <CapitalValueChart data={portfolioData} isError={isPortfolioError} isFetching={isPortfolioFetching} />
+      )}
     </Stack>
   )
 }

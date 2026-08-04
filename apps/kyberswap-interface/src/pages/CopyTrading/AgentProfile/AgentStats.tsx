@@ -7,11 +7,10 @@ import Leaderboard, { type LeaderboardStat } from 'pages/CopyTrading/components/
 import {
   CapitalValueChart,
   CumulativeRealisedPnlChart,
-  mergePerformancePoints,
   toPerformanceChartPoint,
 } from 'pages/CopyTrading/components/PerformanceCharts'
 import { copyTradingStatIconMap } from 'pages/CopyTrading/constants'
-import { compactUsd, percent, signedUsd } from 'pages/CopyTrading/helpers'
+import { compactUsd, formatCount, percent, signedUsd } from 'pages/CopyTrading/helpers'
 
 const getProfileStats = (stats?: AgentStatsData): LeaderboardStat[] => [
   {
@@ -22,7 +21,7 @@ const getProfileStats = (stats?: AgentStatsData): LeaderboardStat[] => [
   },
   {
     label: 'Copiers',
-    value: stats?.copiers || '—',
+    value: formatCount(stats?.copiers),
     icon: copyTradingStatIconMap.users,
     status: stats?.metrics.copiers?.status,
   },
@@ -72,28 +71,32 @@ const AgentStats = ({ agentId }: AgentStatsProps) => {
     window,
   })
   const stats = agentStats?.data
-  const chartData = useMemo(
-    () =>
-      mergePerformancePoints(portfolioPerformance?.data || [], realizedPnlPerformance?.data || []).map(
-        toPerformanceChartPoint,
-      ),
-    [portfolioPerformance?.data, realizedPnlPerformance?.data],
+  const portfolioData = useMemo(
+    () => (portfolioPerformance?.data || []).map(toPerformanceChartPoint),
+    [portfolioPerformance?.data],
   )
-  const isError = isPortfolioError || isRealizedPnlError
-  const isFetching = isPortfolioFetching || isRealizedPnlFetching
+  const realizedPnlData = useMemo(
+    () => (realizedPnlPerformance?.data || []).map(toPerformanceChartPoint),
+    [realizedPnlPerformance?.data],
+  )
 
   return (
     <Stack className="min-w-0 gap-4">
       <Leaderboard items={getProfileStats(stats)} size="sm" />
       <Stack className="gap-6 rounded-xl bg-buttonBlack p-6">
         <CumulativeRealisedPnlChart
-          data={chartData}
-          isError={isError}
-          isFetching={isFetching}
+          data={realizedPnlData}
+          isError={isRealizedPnlError}
+          isFetching={isRealizedPnlFetching}
           onWindowChange={setWindow}
           window={window}
         />
-        <CapitalValueChart data={chartData} isError={isError} isFetching={isFetching} title="Portfolio Equity ($)" />
+        <CapitalValueChart
+          data={portfolioData}
+          isError={isPortfolioError}
+          isFetching={isPortfolioFetching}
+          title="Portfolio Equity ($)"
+        />
       </Stack>
     </Stack>
   )

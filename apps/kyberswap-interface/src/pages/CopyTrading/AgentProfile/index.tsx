@@ -11,7 +11,7 @@ import AgentStats from 'pages/CopyTrading/AgentProfile/AgentStats'
 import TabActions from 'pages/CopyTrading/AgentProfile/TabActions'
 import TabHistory from 'pages/CopyTrading/AgentProfile/TabHistory'
 import TabPositions from 'pages/CopyTrading/AgentProfile/TabPositions'
-import { AgentIdentity, CopyTradingPage } from 'pages/CopyTrading/components/common'
+import { AgentIdentity, CopyTradingPage, StickySideColumn } from 'pages/CopyTrading/components/common'
 import { type ProfileTab, profileTabLabel, profileTabs } from 'pages/CopyTrading/constants'
 import { cn } from 'utils/cn'
 
@@ -94,7 +94,9 @@ const AgentProfile = () => {
 
       <div className="grid grid-cols-[minmax(0,1fr)_340px] gap-4 max-xl:grid-cols-1">
         <AgentStats agentId={profile.agentId} />
-        <AgentInstruction agent={profile} />
+        <StickySideColumn>
+          <AgentInstruction agent={profile} />
+        </StickySideColumn>
       </div>
 
       <Tabs activeTab={currentProfileTab} onTabChange={setActiveProfileTab}>
