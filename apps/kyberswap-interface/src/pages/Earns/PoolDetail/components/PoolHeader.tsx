@@ -43,7 +43,7 @@ const PoolHeaderPage = () => {
 
   const isFarming = Boolean(pool.programs?.includes('eg') || pool.programs?.includes('lm'))
   const poolStats = pool.poolStats
-  const hasActiveApr = poolStats?.activeApr !== undefined
+  const hasActiveApr = !!poolStats?.activeApr
   const bonusApr = poolStats?.bonusApr || 0
   const activeTotal = hasActiveApr ? (poolStats?.activeApr || 0) + bonusApr : undefined
 
