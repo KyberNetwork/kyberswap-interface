@@ -1,5 +1,11 @@
 # KyberSwap Interface
 
+<!-- hy-mt2-i18n:start -->
+
+**English** · [中文](./README_zh-CN.md) · [日本語](./README_ja.md) · [Español](./README_es.md)
+
+<!-- hy-mt2-i18n:end -->
+
 KyberSwap Interface is the unified frontend for the entire Kyber Network suite of products. This monorepo houses all KyberSwap frontend projects, allowing for a modular, scalable, and collaborative development environment.
 
 - Website: [kyberswap.com](https://kyberswap.com/)
