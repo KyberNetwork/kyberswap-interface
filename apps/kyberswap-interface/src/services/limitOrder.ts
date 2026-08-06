@@ -56,6 +56,9 @@ export type ListOrdersParams = {
 }
 
 type TokenPairOrdersResponse = {
+  // Unvalidated wire payload: limitOrderFromTokenPairSchema is what turns these into
+  // LimitOrderFromTokenPair. Declaring that type here would assert a shape the API can drop
+  // fields from, which is how an undefined raw amount reaches the SDK.
   orders?: unknown[]
 }
 
