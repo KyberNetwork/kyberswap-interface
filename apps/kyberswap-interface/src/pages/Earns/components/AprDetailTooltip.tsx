@@ -3,15 +3,17 @@ import { t } from '@lingui/macro'
 import { PropsWithChildren } from 'react'
 
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
+import EgCalculating from 'pages/Earns/components/EgCalculating'
 
 type Props = PropsWithChildren<{
   feeApr?: number
   egApr?: number
   lmApr?: number
   merklApr?: number
+  egCalculating?: boolean
 }>
 
-export default function AprDetailTooltip({ feeApr, egApr, lmApr, merklApr, children }: Props) {
+export default function AprDetailTooltip({ feeApr, egApr, lmApr, merklApr, egCalculating, children }: Props) {
   return (
     <MouseoverTooltipDesktopOnly
       placement="top"
@@ -23,9 +25,9 @@ export default function AprDetailTooltip({ feeApr, egApr, lmApr, merklApr, child
               {t`LP Fee APR`}: {formatAprNumber(feeApr)}%
             </span>
           )}
-          {egApr !== undefined && (
+          {(egCalculating || egApr !== undefined) && (
             <span>
-              {t`FairFlow EG Rewards`}: {formatAprNumber(egApr)}%
+              {t`FairFlow EG Rewards`}: {egCalculating ? <EgCalculating /> : `${formatAprNumber(egApr ?? 0)}%`}
             </span>
           )}
           {!!lmApr && (

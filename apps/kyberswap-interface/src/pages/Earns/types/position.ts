@@ -149,6 +149,7 @@ export const DEFAULT_PARSED_POSITION: ParsedPosition = {
     isUniv2: false,
     isUniv4: false,
     isFarming: false,
+    isFarmingEg: false,
     isFarmingLm: false,
     nativeToken: {
       symbol: '',
@@ -253,6 +254,7 @@ export interface ParsedPosition {
     isUniv2: boolean
     isUniv4: boolean
     isFarming: boolean
+    isFarmingEg: boolean
     isFarmingLm: boolean
     nativeToken: NativeToken
     tickSpacing: number

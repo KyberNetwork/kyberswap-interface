@@ -6,10 +6,20 @@ import { ReactComponent as FarmingIcon } from 'assets/svg/kyber/kem.svg'
 import { ReactComponent as FarmingLmIcon } from 'assets/svg/kyber/kemLm.svg'
 import { HStack, Stack } from 'components/Stack'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
+import EgCalculating from 'pages/Earns/components/EgCalculating'
 import { ParsedEarnPool, ProgramType } from 'pages/Earns/types'
+import { excludeEg, hasEgProgram, isEgCalculating } from 'pages/Earns/utils/egCalculating'
 import { ExternalLink } from 'theme/components'
 
-const AprTooltipContent = ({ pool, type }: { pool: ParsedEarnPool; type: 'total' | 'active' }) => {
+const AprTooltipContent = ({
+  pool,
+  type,
+  egCalculating,
+}: {
+  pool: ParsedEarnPool
+  type: 'total' | 'active'
+  egCalculating: boolean
+}) => {
   const hasActiveApr = type === 'active'
   const lpApr = hasActiveApr ? pool.activeFeeApr : pool.lpApr
   const egApr = hasActiveApr ? pool.activeEgApr : pool.kemEGApr
@@ -39,9 +49,9 @@ const AprTooltipContent = ({ pool, type }: { pool: ParsedEarnPool; type: 'total'
           {t`LP Fee APR`}: {formatAprNumber(lpApr)}%
         </p>
       )}
-      {!!egApr && (
+      {(egCalculating || !!egApr) && (
         <p>
-          {t`FairFlow EG Rewards`}: {formatAprNumber(egApr)}%
+          {t`FairFlow EG Rewards`}: {egCalculating ? <EgCalculating /> : `${formatAprNumber(egApr ?? 0)}%`}
         </p>
       )}
       {!!lmApr && (
@@ -73,23 +83,28 @@ const FarmingMarker = ({ pool }: { pool: ParsedEarnPool }) => {
 }
 
 const PoolAprInfo = ({ pool }: { pool: ParsedEarnPool }) => {
+  // The aggregates stay real by dropping the EG share; only the EG row itself reads as calculating.
+  const egCalculating = isEgCalculating(pool.chain?.id ?? pool.chainId, hasEgProgram(pool.programs))
+  const activeApr = egCalculating ? excludeEg(pool.activeApr, pool.activeEgApr) : pool.activeApr
+  const allApr = egCalculating ? excludeEg(pool.allApr, pool.kemEGApr) : pool.allApr
+
   return (
     <HStack className="flex-nowrap items-center gap-1">
       {pool.activeApr ? (
         <MouseoverTooltipDesktopOnly
           placement="left"
           width="fit-content"
-          text={<AprTooltipContent pool={pool} type="active" />}
+          text={<AprTooltipContent pool={pool} type="active" egCalculating={egCalculating} />}
         >
-          <span className="text-primary">{formatAprNumber(pool.activeApr + (pool.bonusApr || 0))}%</span>
+          <span className="text-primary">{formatAprNumber((activeApr || 0) + (pool.bonusApr || 0))}%</span>
         </MouseoverTooltipDesktopOnly>
       ) : (
         <MouseoverTooltipDesktopOnly
           placement="left"
           width="fit-content"
-          text={<AprTooltipContent pool={pool} type="total" />}
+          text={<AprTooltipContent pool={pool} type="total" egCalculating={egCalculating} />}
         >
-          <span className="text-blue">{formatAprNumber(pool.allApr)}%</span>
+          <span className="text-blue">{formatAprNumber(allApr)}%</span>
         </MouseoverTooltipDesktopOnly>
       )}
 
