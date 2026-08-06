@@ -225,6 +225,23 @@ export const NetworkInfo: {
     },
   },
 
+  4663: {
+    name: "Robinhood",
+    logo: "https://raw.githubusercontent.com/KyberNetwork/kyberswap-interface/main/apps/kyberswap-interface/src/assets/networks/robinhood.svg",
+    nativeLogo:
+      "https://storage.googleapis.com/ks-setting-1d682dca/8fca1ea5-2637-48bc-bb08-c734065442fe1693634037115.png",
+    scanLink: "https://robinhoodchain.blockscout.com",
+    multiCall: "0xcA11bde05977b3631167028862bE2a173976CA11",
+    defaultRpc: "https://rpc.mainnet.chain.robinhood.com",
+    wrappedToken: {
+      chainId: 4663,
+      name: "WETH",
+      address: "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73",
+      symbol: "WETH",
+      decimals: 18,
+    },
+  },
+
   1101: {
     name: "Polygyon ZkEVM",
     logo: "https://storage.googleapis.com/ks-setting-1d682dca/815d1f9c-86b2-4515-8bb1-4212106321c01699420293856.png",
@@ -259,6 +276,7 @@ export const MULTICALL_ADDRESS: { [chainId: number]: string } = {
   8453: "0xcA11bde05977b3631167028862bE2a173976CA11",
   81457: "0xcA11bde05977b3631167028862bE2a173976CA11",
   5000: "0xcA11bde05977b3631167028862bE2a173976CA11",
+  4663: "0xcA11bde05977b3631167028862bE2a173976CA11",
 };
 
 export const BASE_BPS = 10_000;
@@ -277,6 +295,7 @@ export const chainIdToChain: { [chainId: number]: string } = {
   534352: "scroll",
   59144: "linea",
   1101: "polygon-zkevm",
+  4663: "robinhood",
 };
 
 export const MAX_ZAP_IN_TOKENS = 5;
@@ -309,6 +328,7 @@ export const POSITION_MANAGER_CONTRACT: {
     10: "0x46A15B0b27311cedF172AB29E4f4766fbE7F4364",
     534352: "0x46A15B0b27311cedF172AB29E4f4766fbE7F4364",
     1101: "0x46A15B0b27311cedF172AB29E4f4766fbE7F4364",
+    4663: "0x46A15B0b27311cedF172AB29E4f4766fbE7F4364",
   },
   [PoolType.DEX_PANCAKE_INFINITY_CL]: {
     56: "0x55f4c8abA71A1e923edC303eb4fEfF14608cC226",
