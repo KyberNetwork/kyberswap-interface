@@ -55,6 +55,7 @@ import useZapInWidget from 'pages/Earns/hooks/useZapInWidget'
 import useZapOutWidget from 'pages/Earns/hooks/useZapOutWidget'
 import { ParsedPosition, PositionStatus } from 'pages/Earns/types'
 import { getNftManagerContractAddress } from 'pages/Earns/utils'
+import { excludeEg, isEgCalculating } from 'pages/Earns/utils/egCalculating'
 import { MEDIA_WIDTHS } from 'theme'
 import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
@@ -112,6 +113,13 @@ const InformationTab = () => {
     [position?.priceRange, revert],
   )
   const isUniv2 = EARN_DEXES[exchange as Exchange]?.isForkFrom === CoreProtocol.UniswapV2
+  const egCalculating = isEgCalculating(Number(chainId), position?.pool.isFarmingEg)
+  const egApr = position?.kemEGApr[aprInterval] || 0
+  const bonusApr = position?.bonusApr || 0
+  // Both aggregates drop the EG share so they stay real; the EG row itself reads as calculating.
+  const totalApr =
+    (egCalculating ? excludeEg(position?.apr[aprInterval] || 0, egApr) : position?.apr[aprInterval] || 0) + bonusApr
+  const rewardApr = (egCalculating ? 0 : egApr) + (position?.kemLMApr[aprInterval] || 0) + bonusApr
 
   const explorerUrl = useMemo(() => {
     if (!position || !chainId) return null
@@ -267,9 +275,7 @@ const InformationTab = () => {
                         position?.apr && position.apr[aprInterval] > 0 ? 'text-primary' : 'text-text',
                       )}
                     >
-                      <AnimatedNumber
-                        value={`${formatAprNum((position?.apr[aprInterval] || 0) + (position?.bonusApr || 0))}%`}
-                      />
+                      <AnimatedNumber value={`${formatAprNum(totalApr)}%`} />
                     </span>
                     {position?.status !== PositionStatus.CLOSED && shareBtn(12, [ShareOption.TOTAL_APR])}
                   </div>
@@ -292,17 +298,11 @@ const InformationTab = () => {
                     dexLogo={position.dex.logo}
                     dexName={position.dex.name}
                     merklOpportunity={pool?.merklOpportunity}
+                    egCalculating={egCalculating}
                   >
                     <div className="flex cursor-pointer items-center gap-4">
                       <span className="text-[14px] text-subText">{t`Rewards`}</span>
-                      <span className="text-[14px] text-text">
-                        {formatAprNum(
-                          (position.kemEGApr[aprInterval] || 0) +
-                            (position.kemLMApr[aprInterval] || 0) +
-                            (position.bonusApr || 0),
-                        )}
-                        %
-                      </span>
+                      <span className="text-[14px] text-text">{formatAprNum(rewardApr)}%</span>
                     </div>
                   </PositionAprTooltip>
                 )}

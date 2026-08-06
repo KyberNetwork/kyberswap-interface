@@ -6,7 +6,9 @@ import { HStack } from 'components/Stack'
 import TokenLogo from 'components/TokenLogo'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import { Badge } from 'pages/Earns/PoolExplorer/styles'
+import EgCalculating from 'pages/Earns/components/EgCalculating'
 import { EarnPool, ProgramType } from 'pages/Earns/types'
+import { hasEgProgram, isEgCalculating } from 'pages/Earns/utils/egCalculating'
 
 type Props = {
   pool: EarnPool
@@ -16,7 +18,8 @@ const PoolAprBadges = ({ pool }: Props) => {
   const hasActiveApr = !!pool.activeApr
   const egApr = hasActiveApr ? pool.activeEgApr || 0 : pool.kemEGApr
   const lmApr = hasActiveApr ? pool.activeLmApr || 0 : pool.kemLMApr
-  const showEgReward = pool.programs?.includes(ProgramType.EG) && egApr > 0
+  const egCalculating = isEgCalculating(pool.chain?.id ?? pool.chainId, hasEgProgram(pool.programs))
+  const showEgReward = pool.programs?.includes(ProgramType.EG) && (egCalculating || egApr > 0)
   const showLmReward = pool.programs?.includes(ProgramType.LM) && lmApr > 0
   const merklOpportunity = pool.merklOpportunity
 
@@ -34,11 +37,15 @@ const PoolAprBadges = ({ pool }: Props) => {
           containerStyle={{ width: 'fit-content', flexShrink: 0 }}
           placement="bottom"
           width="fit-content"
-          text={`${t`FairFlow EG Rewards`}: ${formatAprNumber(egApr)}%`}
+          text={
+            <span>
+              {t`FairFlow EG Rewards`}: {egCalculating ? <EgCalculating /> : `${formatAprNumber(egApr)}%`}
+            </span>
+          }
         >
           <Badge>
             <KyberBonusIcon width={16} height={16} />
-            <span>+{formatAprNumber(egApr)}%</span>
+            <span>{egCalculating ? <EgCalculating /> : `+${formatAprNumber(egApr)}%`}</span>
           </Badge>
         </MouseoverTooltipDesktopOnly>
       )}

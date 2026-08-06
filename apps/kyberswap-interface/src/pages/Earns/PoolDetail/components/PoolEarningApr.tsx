@@ -4,17 +4,25 @@ import InfoHelper from 'components/InfoHelper'
 import { HStack, Stack } from 'components/Stack'
 import { formatAprValue } from 'pages/Earns/PoolDetail/components/AprHistoryChart'
 import { usePoolDetailContext } from 'pages/Earns/PoolDetail/context'
+import { excludeEg, hasEgProgram, isEgCalculating } from 'pages/Earns/utils/egCalculating'
 
 const PoolEarningApr = () => {
-  const { pool } = usePoolDetailContext()
+  const { chainId, pool } = usePoolDetailContext()
+  // Every aggregate here drops the EG share while it is unavailable, so it stays a real figure.
+  const egCalculating = isEgCalculating(chainId, hasEgProgram(pool.programs))
 
   const aprSummary = useMemo(() => {
-    const totalApr = pool.poolStats?.allApr24h ?? 0
+    const rawTotalApr = pool.poolStats?.allApr24h ?? 0
+    const totalApr = egCalculating ? excludeEg(rawTotalApr, pool.poolStats?.kemEGApr24h) : rawTotalApr
     const feeApr = pool.poolStats?.lpApr24h ?? 0
     const rewardApr = Math.max(totalApr - feeApr, 0)
 
     const bonusApr = pool.poolStats?.bonusApr ?? 0
-    const activeApr = pool.poolStats?.activeApr !== undefined ? pool.poolStats.activeApr + bonusApr : undefined
+    const rawActiveApr = pool.poolStats?.activeApr
+    const activeApr =
+      rawActiveApr !== undefined
+        ? (egCalculating ? excludeEg(rawActiveApr, pool.poolStats?.activeEgApr) : rawActiveApr) + bonusApr
+        : undefined
     const activeFeeApr = pool.poolStats?.activeFeeApr ?? 0
     const activeRewardApr = activeApr !== undefined ? Math.max(activeApr - activeFeeApr, 0) : undefined
 
@@ -26,7 +34,7 @@ const PoolEarningApr = () => {
       activeFeeApr,
       activeRewardApr,
     }
-  }, [pool])
+  }, [egCalculating, pool])
 
   const hasActiveApr = !!aprSummary.activeApr
 

@@ -11,6 +11,7 @@ import useSmartExitWidget from 'pages/Earns/hooks/useSmartExitWidget'
 import useZapInWidget from 'pages/Earns/hooks/useZapInWidget'
 import useZapMigrationWidget from 'pages/Earns/hooks/useZapMigrationWidget'
 import { EarnPool, ProgramType } from 'pages/Earns/types'
+import { excludeEg, hasEgProgram, isEgCalculating } from 'pages/Earns/utils/egCalculating'
 import { formatDisplayNumber } from 'utils/numbers'
 
 const PoolItem = ({ pool, rowIndex = 0 }: { pool: EarnPool; rowIndex?: number }) => {
@@ -25,6 +26,7 @@ const PoolItem = ({ pool, rowIndex = 0 }: { pool: EarnPool; rowIndex?: number })
 
   const isFarming = pool.programs?.includes(ProgramType.EG) || pool.programs?.includes(ProgramType.LM)
   const isFarmingLm = pool.programs?.includes(ProgramType.LM)
+  const egCalculating = isEgCalculating(pool.chain?.id ?? pool.chainId, hasEgProgram(pool.programs))
 
   return (
     <PoolRow
@@ -63,9 +65,16 @@ const PoolItem = ({ pool, rowIndex = 0 }: { pool: EarnPool; rowIndex?: number })
       </div>
 
       <div className="flex items-center gap-1">
-        <span className="text-primary">{formatAprNumber(pool.allApr)}%</span>
+        <span className="text-primary">
+          {formatAprNumber(egCalculating ? excludeEg(pool.allApr, pool.kemEGApr) : pool.allApr)}%
+        </span>
         {isFarming ? (
-          <AprDetailTooltip feeApr={pool.lpApr} egApr={pool.kemEGApr} lmApr={pool.kemLMApr}>
+          <AprDetailTooltip
+            feeApr={pool.lpApr}
+            egApr={pool.kemEGApr}
+            lmApr={pool.kemLMApr}
+            egCalculating={egCalculating}
+          >
             {isFarmingLm ? <FarmingLmIcon width={20} height={20} /> : <FarmingIcon width={20} height={20} />}
           </AprDetailTooltip>
         ) : null}

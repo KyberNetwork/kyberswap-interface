@@ -8,6 +8,7 @@ import TopMetricsStrip, { type TopMetricItem } from 'pages/Earns/PoolDetail/comp
 import { getParsedRewardAmount } from 'pages/Earns/PoolDetail/components/utils'
 import { usePoolDetailContext } from 'pages/Earns/PoolDetail/context'
 import { ProgramType } from 'pages/Earns/types/pool'
+import { excludeEg, hasEgProgram, isEgCalculating } from 'pages/Earns/utils/egCalculating'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 
 const BLOCKS_PER_CYCLE = 2016
@@ -18,9 +19,13 @@ const InformationTab = () => {
 
   const poolStats = pool.poolStats
   const bonusApr = poolStats?.bonusApr ?? 0
+  // Aggregates keep rendering real numbers by dropping the EG share while it is unavailable.
+  const egCalculating = isEgCalculating(chainId, hasEgProgram(pool.programs))
   const currentApr = {
-    totalApr: poolStats?.allApr24h,
-    activeApr: poolStats?.activeApr ? poolStats.activeApr + bonusApr : undefined,
+    totalApr: egCalculating ? excludeEg(poolStats?.allApr24h, poolStats?.kemEGApr24h) : poolStats?.allApr24h,
+    activeApr: poolStats?.activeApr
+      ? (egCalculating ? excludeEg(poolStats.activeApr, poolStats.activeEgApr) : poolStats.activeApr) + bonusApr
+      : undefined,
   }
 
   const kemRewardTokens = useMemo(() => {
@@ -50,7 +55,7 @@ const InformationTab = () => {
     return sum + token.dailyTotalAmount * tokenPrice
   }, 0)
   const merklRewards = pool.merklOpportunity?.dailyRewards ?? 0
-  const rewards24hUsd = egRewards + lmRewards + merklRewards
+  const rewards24hUsd = (egCalculating ? 0 : egRewards) + lmRewards + merklRewards
 
   const tvlValue = formatUsd(poolStats?.tvl)
   const volumeValue = formatUsd(poolStats?.volume24h)
@@ -77,6 +82,7 @@ const InformationTab = () => {
       <AprHistoryChart
         chainId={chainId}
         currentApr={currentApr}
+        egCalculating={egCalculating}
         poolAddress={poolAddress}
         programs={pool.programs as ProgramType[]}
       />
