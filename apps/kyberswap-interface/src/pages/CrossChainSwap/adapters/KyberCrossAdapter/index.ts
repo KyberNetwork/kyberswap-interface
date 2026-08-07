@@ -83,13 +83,13 @@ export class KyberCrossAdapter extends BaseSwapAdapter {
       refund_address: params.sender as Address,
       amount: params.amount,
       slippage_bps: params.slippage,
-      client_fee_bps: params.feeBps,
+      partner_fee_bps: params.feeBps,
       include_bridges: getKyberCrossBridgeProviders(params.includedSources),
       exclude_bridges: getKyberCrossBridgeProviders(params.excludedSources),
     }
 
     if (params.feeBps > 0) {
-      request.client_fee_recipient = CROSS_CHAIN_FEE_RECEIVER as Address
+      request.partner_fee_recipient = CROSS_CHAIN_FEE_RECEIVER as Address
     }
 
     const quoteResponse = await kyberCrossApi.getQuote(request)

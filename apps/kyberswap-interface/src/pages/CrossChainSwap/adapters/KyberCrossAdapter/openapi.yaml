@@ -27,7 +27,7 @@ paths:
         `true` to receive every built plan, sorted best-first.
 
         Notes:
-        - `client_fee_recipient` is required when `client_fee_bps > 0`.
+        - `partner_fee_recipient` is required when `partner_fee_bps > 0`.
         - If the same provider appears in both `include_bridges` and `exclude_bridges`, exclusion wins.
       requestBody:
         required: true
@@ -292,11 +292,11 @@ components:
           minimum: 0
           maximum: 10000
           default: 0
-        client_fee_recipient:
+        partner_fee_recipient:
           allOf:
             - $ref: '#/components/schemas/HexAddress'
-          description: Required when `client_fee_bps` is greater than zero.
-        client_fee_bps:
+          description: Required when `partner_fee_bps` is greater than zero.
+        partner_fee_bps:
           type: integer
           minimum: 0
           maximum: 10000
@@ -360,9 +360,9 @@ components:
           type: integer
           minimum: 0
           maximum: 10000
-        client_fee_recipient:
+        partner_fee_recipient:
           $ref: '#/components/schemas/HexAddress'
-        client_fee_bps:
+        partner_fee_bps:
           type: integer
           minimum: 0
           maximum: 10000
@@ -377,11 +377,11 @@ components:
         - recipient
         - rate_bps
         - charged_on
-      description: Current v1 fees are client fees charged on bridge input.
+      description: Current v1 fees are partner fees charged on the source chain using the bridge input token.
       properties:
         type:
           type: string
-          enum: [client]
+          enum: [partner]
         chain:
           $ref: '#/components/schemas/ChainName'
         token:

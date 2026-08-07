@@ -34,8 +34,8 @@ export type QuoteRequest = {
   to_address?: Address
   refund_address?: Address
   slippage_bps?: number
-  client_fee_recipient?: Address
-  client_fee_bps?: number
+  partner_fee_recipient?: Address
+  partner_fee_bps?: number
   include_bridges?: BridgeProvider[]
   exclude_bridges?: BridgeProvider[]
   all_route_plans?: boolean
@@ -53,12 +53,12 @@ type RoutePlanRequestSnapshot = {
   amount: UIntString
   slippage_bps: number
   refund_address?: Address
-  client_fee_recipient?: Address
-  client_fee_bps?: number
+  partner_fee_recipient?: Address
+  partner_fee_bps?: number
 }
 
 type FeePlan = {
-  type: 'client'
+  type: 'partner'
   chain: ChainName
   token: TokenReference
   recipient: Address
