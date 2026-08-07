@@ -27,6 +27,7 @@ import {
 } from 'pages/Earns/UserPositions/styles'
 import AnimatedNumber from 'pages/Earns/components/AnimatedNumber'
 import AprDetailTooltip from 'pages/Earns/components/AprDetailTooltip'
+import EgCalculatingMarker from 'pages/Earns/components/EgCalculatingMarker'
 import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
 import RewardSyncing from 'pages/Earns/components/RewardSyncing'
 import { EARN_DEXES, LIMIT_TEXT_STYLES } from 'pages/Earns/constants'
@@ -314,8 +315,9 @@ export default function PositionRowItem({
                 merklApr={bonusApr}
                 egCalculating={egCalculating}
               >
-                <span className="text-primary">
+                <span className="whitespace-nowrap text-primary">
                   <AnimatedNumber value={`${formatAprNumber(totalApr)}%`} />
+                  {egCalculating && <EgCalculatingMarker compact />}
                 </span>
               </AprDetailTooltip>
             ) : (

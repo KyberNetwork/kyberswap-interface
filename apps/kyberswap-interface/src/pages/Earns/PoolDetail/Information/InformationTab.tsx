@@ -7,6 +7,7 @@ import AprHistoryChart from 'pages/Earns/PoolDetail/components/AprHistoryChart'
 import TopMetricsStrip, { type TopMetricItem } from 'pages/Earns/PoolDetail/components/TopMetricsStrip'
 import { getParsedRewardAmount } from 'pages/Earns/PoolDetail/components/utils'
 import { usePoolDetailContext } from 'pages/Earns/PoolDetail/context'
+import EgCalculatingMarker from 'pages/Earns/components/EgCalculatingMarker'
 import { ProgramType } from 'pages/Earns/types/pool'
 import { excludeEg, hasEgProgram, isEgCalculating } from 'pages/Earns/utils/egCalculating'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
@@ -63,7 +64,10 @@ const InformationTab = () => {
 
   const rewardsValue = (
     <HStack className="items-center gap-1">
-      <span className="font-medium text-text">{formatUsd(rewards24hUsd)}</span>
+      <span className="whitespace-nowrap font-medium text-text">
+        {formatUsd(rewards24hUsd)}
+        {egCalculating && <EgCalculatingMarker />}
+      </span>
       <BagIcon height={18} width={18} />
     </HStack>
   )

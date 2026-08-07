@@ -18,6 +18,7 @@ import {
   SymbolText,
 } from 'pages/Earns/PoolExplorer/styles'
 import AprDetailTooltip from 'pages/Earns/components/AprDetailTooltip'
+import EgCalculatingMarker from 'pages/Earns/components/EgCalculatingMarker'
 import { EarnPool, ParsedPosition, ProgramType, SuggestedPool } from 'pages/Earns/types'
 import { excludeEg, hasEgProgram, isEgCalculating } from 'pages/Earns/utils/egCalculating'
 import { MEDIA_WIDTHS } from 'theme'
@@ -87,7 +88,7 @@ export default function MigrationModal({
                       <FeeTier>{formatDisplayNumber(pool.feeTier, { significantDigits: 4 })}%</FeeTier>
                     </div>
                     <Apr value={allApr}>
-                      {formatAprNumber(allApr)}%{' '}
+                      {formatAprNumber(allApr)}%{egCalculating && <EgCalculatingMarker compact />}{' '}
                       {isFarming ? (
                         <AprDetailTooltip
                           feeApr={pool.lpApr}
@@ -153,7 +154,9 @@ export default function MigrationModal({
                         </SymbolText>
                       </div>
                       <div className="flex items-center gap-0.5">
-                        <Apr value={allApr}>{formatAprNumber(allApr)}%</Apr>
+                        <Apr value={allApr}>
+                          {formatAprNumber(allApr)}%{egCalculating && <EgCalculatingMarker compact />}
+                        </Apr>
                         {isFarming ? (
                           <AprDetailTooltip
                             feeApr={pool.lpApr}

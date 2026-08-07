@@ -17,6 +17,7 @@ import {
   getUniqueDateAxisTicks,
 } from 'pages/Earns/PoolDetail/Information/utils'
 import PoolChartState, { PoolChartWrapper } from 'pages/Earns/PoolDetail/components/PoolChartState'
+import EgCalculatingMarker from 'pages/Earns/components/EgCalculatingMarker'
 import { ProgramType } from 'pages/Earns/types'
 import { excludeEg } from 'pages/Earns/utils/egCalculating'
 import { MEDIA_WIDTHS } from 'theme'
@@ -162,7 +163,10 @@ const AprHistoryChart = ({
           {showActiveApr && totalApr !== undefined && (
             <div className="flex items-baseline gap-1">
               <span className="text-sm text-subText">APR</span>
-              <span className="text-sm font-medium text-blue">{formatAprValue(totalApr)}</span>
+              <span className="whitespace-nowrap text-sm font-medium text-blue">
+                {formatAprValue(totalApr)}
+                {egCalculating && <EgCalculatingMarker />}
+              </span>
             </div>
           )}
 
@@ -171,7 +175,10 @@ const AprHistoryChart = ({
               <span className="text-base font-medium text-text">Active APR</span>
               <div className="flex items-center gap-1">
                 <FarmingMarker programs={programs} />
-                <span className="text-xl font-medium leading-none text-primary">{formatAprValue(activeApr)}</span>
+                <span className="whitespace-nowrap text-xl font-medium leading-none text-primary">
+                  {formatAprValue(activeApr)}
+                  {egCalculating && <EgCalculatingMarker />}
+                </span>
               </div>
               <span className="text-sm text-subText">(Earning Per Active TVL)</span>
             </div>
@@ -180,7 +187,10 @@ const AprHistoryChart = ({
               <span className="text-base font-medium text-text">APR</span>
               <div className="flex items-center gap-1">
                 <FarmingMarker programs={programs} />
-                <span className="text-xl font-medium leading-none text-blue">{formatAprValue(totalApr)}</span>
+                <span className="whitespace-nowrap text-xl font-medium leading-none text-blue">
+                  {formatAprValue(totalApr)}
+                  {egCalculating && <EgCalculatingMarker />}
+                </span>
               </div>
               <span className="text-sm text-subText">
                 {isPositionChart ? '(Earning Per Position Liquidity)' : '(Earning Per Total TVL)'}

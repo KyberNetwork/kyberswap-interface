@@ -9,6 +9,7 @@ import { HStack, Stack } from 'components/Stack'
 import { MouseoverTooltip } from 'components/Tooltip'
 import useDebounce from 'hooks/useDebounce'
 import EgCalculating from 'pages/Earns/components/EgCalculating'
+import EgCalculatingMarker from 'pages/Earns/components/EgCalculatingMarker'
 import { isEgCalculating } from 'pages/Earns/utils/egCalculating'
 import { ExternalLink } from 'theme/components'
 
@@ -127,8 +128,9 @@ const EstimatedPositionApr = ({
               <Skeleton width={48} height={17} />
             </div>
           ) : (
-            <span className="text-sm font-medium text-primary">
+            <span className="whitespace-nowrap text-sm font-medium text-primary">
               {!aprValues ? '--' : aprValues.totalApr === 0 ? '~0%' : `${formatAprNumber(aprValues.totalApr)}%`}
+              {egCalculating && !!aprValues && <EgCalculatingMarker />}
             </span>
           )}
         </HStack>

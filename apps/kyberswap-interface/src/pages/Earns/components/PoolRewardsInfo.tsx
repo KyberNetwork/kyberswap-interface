@@ -9,6 +9,7 @@ import { getParsedRewardAmount } from 'pages/Earns/PoolDetail/components/utils'
 import { Badge } from 'pages/Earns/PoolExplorer/styles'
 import useFilter from 'pages/Earns/PoolExplorer/useFilter'
 import EgCalculating from 'pages/Earns/components/EgCalculating'
+import EgCalculatingMarker from 'pages/Earns/components/EgCalculatingMarker'
 import { EarnPool } from 'pages/Earns/types'
 import { hasEgProgram, isEgCalculating } from 'pages/Earns/utils/egCalculating'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
@@ -191,7 +192,10 @@ const PoolRewardsInfo = ({ pool, showEstimate = true }: Props) => {
           width="fit-content"
           placement="left"
         >
-          <span>{formatDisplayNumber(totalRewards, { style: 'currency', significantDigits: 4 })}</span>
+          <span className="whitespace-nowrap">
+            {formatDisplayNumber(totalRewards, { style: 'currency', significantDigits: 4 })}
+            {egCalculating && <EgCalculatingMarker compact />}
+          </span>
         </MouseoverTooltipDesktopOnly>
       ) : (
         <span>{formatDisplayNumber(totalRewards, { style: 'currency', significantDigits: 4 })}</span>

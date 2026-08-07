@@ -4,6 +4,7 @@ import InfoHelper from 'components/InfoHelper'
 import { HStack, Stack } from 'components/Stack'
 import { formatAprValue } from 'pages/Earns/PoolDetail/components/AprHistoryChart'
 import { usePoolDetailContext } from 'pages/Earns/PoolDetail/context'
+import EgCalculatingMarker from 'pages/Earns/components/EgCalculatingMarker'
 import { excludeEg, hasEgProgram, isEgCalculating } from 'pages/Earns/utils/egCalculating'
 
 const PoolEarningApr = () => {
@@ -47,7 +48,10 @@ const PoolEarningApr = () => {
             <InfoHelper text="Earning Per Total TVL" size={14} placement="top" />
           </HStack>
           <Stack className="rounded-xl bg-blue/[0.12] px-3 py-1">
-            <span className="text-2xl font-semibold text-blue">{formatAprValue(aprSummary.totalApr)}</span>
+            <span className="whitespace-nowrap text-2xl font-semibold text-blue">
+              {formatAprValue(aprSummary.totalApr)}
+              {egCalculating && <EgCalculatingMarker compact />}
+            </span>
           </Stack>
         </Stack>
 
@@ -60,7 +64,10 @@ const PoolEarningApr = () => {
           </HStack>
           <HStack className="items-baseline gap-2">
             <span className="text-sm text-subText">Rewards</span>
-            <span className="font-medium text-text">{formatAprValue(aprSummary.rewardApr)}</span>
+            <span className="whitespace-nowrap font-medium text-text">
+              {formatAprValue(aprSummary.rewardApr)}
+              {egCalculating && <EgCalculatingMarker compact />}
+            </span>
           </HStack>
         </Stack>
       </HStack>
@@ -73,7 +80,10 @@ const PoolEarningApr = () => {
               <InfoHelper text="Earning Per Active TVL" size={14} placement="top" />
             </HStack>
             <Stack className="rounded-xl bg-primary-12 px-3 py-1">
-              <span className="text-2xl font-semibold text-primary">{formatAprValue(aprSummary.activeApr)}</span>
+              <span className="whitespace-nowrap text-2xl font-semibold text-primary">
+                {formatAprValue(aprSummary.activeApr)}
+                {egCalculating && <EgCalculatingMarker compact />}
+              </span>
             </Stack>
           </Stack>
 
@@ -86,7 +96,10 @@ const PoolEarningApr = () => {
             </HStack>
             <HStack className="items-baseline gap-2">
               <span className="text-sm text-subText">Rewards</span>
-              <span className="font-medium text-text">{formatAprValue(aprSummary.activeRewardApr)}</span>
+              <span className="whitespace-nowrap font-medium text-text">
+                {formatAprValue(aprSummary.activeRewardApr)}
+                {egCalculating && <EgCalculatingMarker compact />}
+              </span>
             </HStack>
           </Stack>
         </HStack>
