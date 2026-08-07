@@ -51,7 +51,7 @@ type TokenPriceChartCanvasProps = {
   timeFrame: TokenChartTimeFrame
 }
 
-const DEFAULT_VISIBLE_CANDLES = 60
+const DEFAULT_VISIBLE_CANDLES = 40
 const LOAD_MORE_THRESHOLD = 20
 
 const formatAxisTimeLabel = (timestamp: number, timeFrame: TokenChartTimeFrame) => {
