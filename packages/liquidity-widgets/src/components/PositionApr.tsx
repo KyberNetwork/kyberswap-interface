@@ -1,6 +1,7 @@
 import { Trans } from '@lingui/macro';
 
-import { MouseoverTooltip, Skeleton } from '@kyber/ui';
+import { Calculating, MouseoverTooltip, Skeleton } from '@kyber/ui';
+import { isEgCalculating } from '@kyber/utils/egCalculating';
 import { formatAprNumber } from '@kyber/utils/number';
 
 import { useEstimatedPositionApr } from '@/hooks/useEstimatedPositionApr';
@@ -22,6 +23,10 @@ export const PositionApr = () => {
     enabled: pool?.isFarming,
   });
 
+  // The estimate stays a real figure by dropping the EG share; only its EG row reads as calculating.
+  const egCalculating = isEgCalculating(chainId, pool?.isFarming);
+  const totalApr = data ? (egCalculating ? Math.max(data.totalApr - data.egApr, 0) : data.totalApr) : 0;
+
   const tooltipContent = !route ? (
     <div>
       <Trans>Input an amount to calculate.</Trans>
@@ -36,7 +41,13 @@ export const PositionApr = () => {
         <Trans>LP Fees: {formatAprNumber(data.feeApr)}%</Trans>
       </div>
       <div>
-        <Trans>EG Sharing Reward: {formatAprNumber(data.egApr)}%</Trans>
+        {egCalculating ? (
+          <>
+            <Trans>EG Sharing Reward:</Trans> <Calculating />
+          </>
+        ) : (
+          <Trans>EG Sharing Reward: {formatAprNumber(data.egApr)}%</Trans>
+        )}
       </div>
       <div>
         <Trans>LM Reward: {formatAprNumber(data.lmApr)}%</Trans>
@@ -71,9 +82,7 @@ export const PositionApr = () => {
         {loading && !data ? (
           <Skeleton className="w-16 h-5" />
         ) : (
-          <p className="text-accent">
-            {!data ? '--' : data.totalApr === 0 ? '~0%' : `${formatAprNumber(data.totalApr)}%`}
-          </p>
+          <p className="text-accent">{!data ? '--' : totalApr === 0 ? '~0%' : `${formatAprNumber(totalApr)}%`}</p>
         )}
       </div>
     </MouseoverTooltip>
