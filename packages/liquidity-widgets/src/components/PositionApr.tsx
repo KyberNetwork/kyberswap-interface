@@ -1,6 +1,7 @@
 import { Trans } from '@lingui/macro';
 
-import { MouseoverTooltip, Skeleton } from '@kyber/ui';
+import { Calculating, MouseoverTooltip, Skeleton } from '@kyber/ui';
+import { isEgCalculating } from '@kyber/utils/egCalculating';
 import { formatAprNumber } from '@kyber/utils/number';
 
 import { useEstimatedPositionApr } from '@/hooks/useEstimatedPositionApr';
@@ -22,6 +23,10 @@ export const PositionApr = () => {
     enabled: pool?.isFarming,
   });
 
+  // The estimate leaves the EG share out while it is unreliable, and says so through the marker.
+  const egCalculating = isEgCalculating(chainId, pool?.isFarming);
+  const totalApr = data ? (egCalculating ? Math.max(data.totalApr - data.egApr, 0) : data.totalApr) : 0;
+
   const tooltipContent = !route ? (
     <div>
       <Trans>Input an amount to calculate.</Trans>
@@ -36,7 +41,13 @@ export const PositionApr = () => {
         <Trans>LP Fees: {formatAprNumber(data.feeApr)}%</Trans>
       </div>
       <div>
-        <Trans>EG Sharing Reward: {formatAprNumber(data.egApr)}%</Trans>
+        {egCalculating ? (
+          <>
+            <Trans>EG Sharing Reward:</Trans> <Calculating />
+          </>
+        ) : (
+          <Trans>EG Sharing Reward: {formatAprNumber(data.egApr)}%</Trans>
+        )}
       </div>
       <div>
         <Trans>LM Reward: {formatAprNumber(data.lmApr)}%</Trans>
@@ -71,8 +82,13 @@ export const PositionApr = () => {
         {loading && !data ? (
           <Skeleton className="w-16 h-5" />
         ) : (
-          <p className="text-accent">
-            {!data ? '--' : data.totalApr === 0 ? '~0%' : `${formatAprNumber(data.totalApr)}%`}
+          <p className="text-accent whitespace-nowrap">
+            {!data ? '--' : totalApr === 0 ? '~0%' : `${formatAprNumber(totalApr)}%`}
+            {egCalculating && !!data && (
+              <sup className="ml-0.5 text-[10px] font-normal text-subText">
+                <Calculating label="+EG calculating" />
+              </sup>
+            )}
           </p>
         )}
       </div>

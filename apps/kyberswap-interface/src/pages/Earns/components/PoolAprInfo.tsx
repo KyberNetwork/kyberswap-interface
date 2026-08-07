@@ -7,6 +7,7 @@ import { ReactComponent as FarmingLmIcon } from 'assets/svg/kyber/kemLm.svg'
 import { HStack, Stack } from 'components/Stack'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import EgCalculating from 'pages/Earns/components/EgCalculating'
+import EgCalculatingMarker from 'pages/Earns/components/EgCalculatingMarker'
 import { ParsedEarnPool, ProgramType } from 'pages/Earns/types'
 import { excludeEg, hasEgProgram, isEgCalculating } from 'pages/Earns/utils/egCalculating'
 import { ExternalLink } from 'theme/components'
@@ -96,7 +97,10 @@ const PoolAprInfo = ({ pool }: { pool: ParsedEarnPool }) => {
           width="fit-content"
           text={<AprTooltipContent pool={pool} type="active" egCalculating={egCalculating} />}
         >
-          <span className="text-primary">{formatAprNumber((activeApr || 0) + (pool.bonusApr || 0))}%</span>
+          <span className="whitespace-nowrap text-primary">
+            {formatAprNumber((activeApr || 0) + (pool.bonusApr || 0))}%
+            {egCalculating && <EgCalculatingMarker compact />}
+          </span>
         </MouseoverTooltipDesktopOnly>
       ) : (
         <MouseoverTooltipDesktopOnly
@@ -104,7 +108,9 @@ const PoolAprInfo = ({ pool }: { pool: ParsedEarnPool }) => {
           width="fit-content"
           text={<AprTooltipContent pool={pool} type="total" egCalculating={egCalculating} />}
         >
-          <span className="text-blue">{formatAprNumber(allApr)}%</span>
+          <span className="whitespace-nowrap text-blue">
+            {formatAprNumber(allApr)}%{egCalculating && <EgCalculatingMarker compact />}
+          </span>
         </MouseoverTooltipDesktopOnly>
       )}
 

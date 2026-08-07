@@ -1,7 +1,8 @@
 import { Trans, t } from '@lingui/macro';
 
 import { univ2Types } from '@kyber/schema';
-import { MouseoverTooltip, Skeleton } from '@kyber/ui';
+import { Calculating, MouseoverTooltip, Skeleton } from '@kyber/ui';
+import { isEgCalculating } from '@kyber/utils/egCalculating';
 import { formatAprNumber, formatDisplayNumber } from '@kyber/utils/number';
 import { cn } from '@kyber/utils/tailwind-helpers';
 
@@ -10,7 +11,7 @@ import FarmingLmIcon from '@/assets/svg/kemLm.svg';
 import { useZapOutContext } from '@/stores';
 
 export default function PoolStat() {
-  const { position, pool, poolType, positionId } = useZapOutContext(s => s);
+  const { position, pool, poolType, positionId, chainId } = useZapOutContext(s => s);
 
   const initializing = !pool || !position;
 
@@ -20,9 +21,11 @@ export default function PoolStat() {
       ? null
       : Number((BigInt(position.liquidity) * 10000n) / BigInt(position.totalSupply)) / 100;
 
+  // The APR leaves the EG share out while it is unreliable, and says so through the marker.
+  const egCalculating = isEgCalculating(chainId, !initializing && !!pool.stats.kemEGApr24h);
   const poolApr = initializing
     ? 0
-    : (pool.stats.apr24h || 0) + (pool.stats.kemEGApr24h || 0) + (pool.stats.kemLMApr24h || 0);
+    : (pool.stats.apr24h || 0) + (egCalculating ? 0 : pool.stats.kemEGApr24h || 0) + (pool.stats.kemLMApr24h || 0);
   const isFarming = initializing ? false : pool.isFarming || false;
   const isFarmingLm = initializing ? false : pool.isFarmingLm || false;
 
@@ -93,13 +96,28 @@ export default function PoolStat() {
             <Skeleton className="w-16 h-5" />
           ) : (
             <div className={`flex items-center gap-1 ${poolApr > 0 ? 'text-accent' : 'text-text'}`}>
-              {formatAprNumber(poolApr) + '%'}
+              <span className="whitespace-nowrap">
+                {formatAprNumber(poolApr) + '%'}
+                {egCalculating && (
+                  <sup className="ml-0.5 text-[10px] font-normal text-subText">
+                    <Calculating label="+EG calc" />
+                  </sup>
+                )}
+              </span>
               {isFarming ? (
                 <MouseoverTooltip
                   text={
                     <div className="flex flex-col gap-0.5">
                       <div>{t`LP Fees: ${formatAprNumber(pool.stats.apr24h)}%`}</div>
-                      <div>{t`EG Sharing Reward: ${formatAprNumber(pool.stats.kemEGApr24h)}%`}</div>
+                      <div>
+                        {egCalculating ? (
+                          <>
+                            {t`EG Sharing Reward:`} <Calculating />
+                          </>
+                        ) : (
+                          t`EG Sharing Reward: ${formatAprNumber(pool.stats.kemEGApr24h)}%`
+                        )}
+                      </div>
                       {pool.stats.kemLMApr24h > 0 && (
                         <div>{t`LM Reward: ${formatAprNumber(pool.stats.kemLMApr24h)}%`}</div>
                       )}

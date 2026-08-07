@@ -7,6 +7,7 @@ import TokenLogo from 'components/TokenLogo'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import { PoolRow, Tag } from 'pages/Earns/Landing/styles'
 import AprDetailTooltip from 'pages/Earns/components/AprDetailTooltip'
+import EgCalculatingMarker from 'pages/Earns/components/EgCalculatingMarker'
 import useSmartExitWidget from 'pages/Earns/hooks/useSmartExitWidget'
 import useZapInWidget from 'pages/Earns/hooks/useZapInWidget'
 import useZapMigrationWidget from 'pages/Earns/hooks/useZapMigrationWidget'
@@ -65,8 +66,9 @@ const PoolItem = ({ pool, rowIndex = 0 }: { pool: EarnPool; rowIndex?: number })
       </div>
 
       <div className="flex items-center gap-1">
-        <span className="text-primary">
+        <span className="whitespace-nowrap text-primary">
           {formatAprNumber(egCalculating ? excludeEg(pool.allApr, pool.kemEGApr) : pool.allApr)}%
+          {egCalculating && <EgCalculatingMarker compact />}
         </span>
         {isFarming ? (
           <AprDetailTooltip

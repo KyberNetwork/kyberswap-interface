@@ -45,6 +45,7 @@ import {
   VerticalDivider,
 } from 'pages/Earns/PositionDetail/styles'
 import AnimatedNumber from 'pages/Earns/components/AnimatedNumber'
+import EgCalculatingMarker from 'pages/Earns/components/EgCalculatingMarker'
 import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
 import RewardSyncing from 'pages/Earns/components/RewardSyncing'
 import { SmartExit } from 'pages/Earns/components/SmartExit'
@@ -276,6 +277,7 @@ const InformationTab = () => {
                       )}
                     >
                       <AnimatedNumber value={`${formatAprNum(totalApr)}%`} />
+                      {egCalculating && <EgCalculatingMarker />}
                     </span>
                     {position?.status !== PositionStatus.CLOSED && shareBtn(12, [ShareOption.TOTAL_APR])}
                   </div>
@@ -302,7 +304,9 @@ const InformationTab = () => {
                   >
                     <div className="flex cursor-pointer items-center gap-4">
                       <span className="text-[14px] text-subText">{t`Rewards`}</span>
-                      <span className="text-[14px] text-text">{formatAprNum(rewardApr)}%</span>
+                      <span className="whitespace-nowrap text-[14px] text-text">
+                        {formatAprNum(rewardApr)}%{egCalculating && <EgCalculatingMarker />}
+                      </span>
                     </div>
                   </PositionAprTooltip>
                 )}

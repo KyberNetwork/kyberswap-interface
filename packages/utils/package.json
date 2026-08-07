@@ -11,24 +11,60 @@
   "types": "./dist/index.d.ts",
   "typesVersions": {
     "*": {
-      "crypto": ["src/crypto/index.ts"],
-      "crypto/*": ["src/crypto/*"],
-      "dist/crypto": ["src/crypto/index.ts"],
-      "dist/crypto/*": ["src/crypto/*"],
-      "dist/error": ["src/error.ts"],
-      "dist/liquidity": ["src/liquidity/index.ts"],
-      "dist/liquidity/*": ["src/liquidity/*"],
-      "dist/number": ["src/number.ts"],
-      "dist/services": ["src/services/index.ts"],
-      "dist/tailwind-helpers": ["src/tailwind-helpers.ts"],
-      "dist/uniswapv3": ["src/uniswapv3.ts"],
-      "error": ["src/error.ts"],
-      "liquidity": ["src/liquidity/index.ts"],
-      "liquidity/*": ["src/liquidity/*"],
-      "number": ["src/number.ts"],
-      "services": ["src/services/index.ts"],
-      "tailwind-helpers": ["src/tailwind-helpers.ts"],
-      "uniswapv3": ["src/uniswapv3.ts"]
+      "crypto": [
+        "src/crypto/index.ts"
+      ],
+      "crypto/*": [
+        "src/crypto/*"
+      ],
+      "dist/crypto": [
+        "src/crypto/index.ts"
+      ],
+      "dist/crypto/*": [
+        "src/crypto/*"
+      ],
+      "dist/error": [
+        "src/error.ts"
+      ],
+      "dist/liquidity": [
+        "src/liquidity/index.ts"
+      ],
+      "dist/liquidity/*": [
+        "src/liquidity/*"
+      ],
+      "dist/number": [
+        "src/number.ts"
+      ],
+      "dist/services": [
+        "src/services/index.ts"
+      ],
+      "dist/tailwind-helpers": [
+        "src/tailwind-helpers.ts"
+      ],
+      "dist/uniswapv3": [
+        "src/uniswapv3.ts"
+      ],
+      "error": [
+        "src/error.ts"
+      ],
+      "liquidity": [
+        "src/liquidity/index.ts"
+      ],
+      "liquidity/*": [
+        "src/liquidity/*"
+      ],
+      "number": [
+        "src/number.ts"
+      ],
+      "services": [
+        "src/services/index.ts"
+      ],
+      "tailwind-helpers": [
+        "src/tailwind-helpers.ts"
+      ],
+      "uniswapv3": [
+        "src/uniswapv3.ts"
+      ]
     }
   },
   "peerDependencies": {
@@ -39,6 +75,7 @@
     "./uniswapv3": "./src/uniswapv3.ts",
     "./crypto": "./src/crypto/index.ts",
     "./number": "./src/number.ts",
+    "./egCalculating": "./src/egCalculating.ts",
     "./error": "./src/error.ts",
     "./services": "./src/services/index.ts",
     "./liquidity/pool": "./src/liquidity/pool.ts",
@@ -52,6 +89,7 @@
     "./dist/uniswapv3": "./src/uniswapv3.ts",
     "./dist/crypto": "./src/crypto/index.ts",
     "./dist/number": "./src/number.ts",
+    "./dist/egCalculating": "./src/egCalculating.ts",
     "./dist/error": "./src/error.ts",
     "./dist/services": "./src/services/index.ts",
     "./dist/liquidity": "./src/liquidity/index.ts",
