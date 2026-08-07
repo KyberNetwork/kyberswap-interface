@@ -30,6 +30,57 @@ export type HoneypotInfo = {
 
 export type TokenCategoryItem = { token: string; category: string }
 
+type TokenCategoryParams = {
+  chainId: number | string
+  tokens: string
+}
+
+type CheckSameAssetResponse = {
+  data?: { sameAsset?: boolean }
+}
+
+type CheckSameAssetParams = {
+  chainIdA: number | string
+  addressA: string
+  chainIdB: number | string
+  addressB: string
+}
+
+/** Per-token market metrics embedded in the token-catalog `/tokens` list response. */
+export type TokenCatalogMetrics = {
+  price?: number
+  /** 24h price change in percent (e.g. 1.25 = +1.25%). Can be `null` when unknown. */
+  priceChange24h?: number | null
+  kyberScore?: number
+  liquidityUsd?: number
+  stats24h?: { volume24h?: number }
+}
+
+/** Raw token shape returned by the public token-catalog `/tokens` list endpoint. */
+export type TokenCatalogListToken = {
+  id: number
+  chainId: string
+  address: string
+  name: string
+  symbol: string
+  decimals: number
+  logoURL?: string
+  isWhitelisted?: boolean
+  isStable?: boolean
+  isStandardERC20?: boolean
+  cmcRank?: number
+  marketCap?: number
+  createdAt?: number
+  whitelistedAt?: number
+  metrics?: TokenCatalogMetrics
+}
+
+export type TokenCatalogListResponse = {
+  data: { tokens: TokenCatalogListToken[]; pagination?: { totalItems: number } }
+}
+
+type TokenCatalogParams = Record<string, string | number | boolean | undefined>
+
 type TokenConfigResponse = {
   data: { onchainPrice: { usdQuoteTokenByChainId: { [chain: string]: { symbol: string } } } }
 }
@@ -89,9 +140,6 @@ interface AddRemoveFavoriteParams {
   signature: string
 }
 
-const PRICES_URL = `${TOKEN_API_URL}/v1/public/tokens/prices`
-const TOKEN_CATEGORY_URL = `${TOKEN_API_URL}/v1/public/category/token`
-
 /** Mid price of a token, or `null` when either side of the spread is missing. */
 export const getMidPrice = (entry?: TokenPriceEntry): number | null =>
   entry?.PriceBuy && entry?.PriceSell ? (entry.PriceBuy + entry.PriceSell) / 2 : null
@@ -101,7 +149,7 @@ export const fetchTokenPrices = async (
   body: TokenPricesBody,
   options?: { signal?: AbortSignal },
 ): Promise<TokenPricesResponse> => {
-  const res = await fetch(PRICES_URL, {
+  const res = await fetch(`${TOKEN_API_URL}/v1/public/tokens/prices`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
@@ -111,66 +159,23 @@ export const fetchTokenPrices = async (
 }
 
 /** Fetch the category (stable/common/exotic/high-volatility) of one or more tokens on a chain. */
-export const fetchTokenCategories = async ({
-  chainId,
-  tokens,
-}: {
-  chainId: number | string
-  tokens: string
-}): Promise<TokenCategoryItem[]> => {
-  const res = await fetch(`${TOKEN_CATEGORY_URL}?tokens=${tokens}&chainId=${chainId}`)
+export const fetchTokenCategories = async ({ chainId, tokens }: TokenCategoryParams): Promise<TokenCategoryItem[]> => {
+  const res = await fetch(`${TOKEN_API_URL}/v1/public/category/token?tokens=${tokens}&chainId=${chainId}`)
   const json = await res.json()
   return json?.data ?? []
 }
-
-/** Per-token market metrics embedded in the token-catalog `/tokens` list response. */
-export type TokenCatalogMetrics = {
-  price?: number
-  /** 24h price change in percent (e.g. 1.25 = +1.25%). Can be `null` when unknown. */
-  priceChange24h?: number | null
-  kyberScore?: number
-  liquidityUsd?: number
-  stats24h?: { volume24h?: number }
-}
-
-/** Raw token shape returned by the public token-catalog `/tokens` list endpoint. */
-export type TokenCatalogListToken = {
-  id: number
-  chainId: string
-  address: string
-  name: string
-  symbol: string
-  decimals: number
-  logoURL?: string
-  isWhitelisted?: boolean
-  isStable?: boolean
-  isStandardERC20?: boolean
-  cmcRank?: number
-  marketCap?: number
-  createdAt?: number
-  whitelistedAt?: number
-  metrics?: TokenCatalogMetrics
-}
-
-export type TokenCatalogListResponse = {
-  data: { tokens: TokenCatalogListToken[]; pagination?: { totalItems: number } }
-}
-
-const TOKENS_URL = `${TOKEN_API_URL}/v1/public/tokens`
 
 /**
  * Fetch tokens straight from the public token-catalog list endpoint, bypassing ks-setting.
  * Used where ks-setting does not expose the needed fields/sort (e.g. `createdAt` for the New tab).
  */
-export const fetchTokenCatalogTokens = async (
-  params: Record<string, string | number | boolean | undefined>,
-): Promise<TokenCatalogListResponse> => {
+export const fetchTokenCatalogTokens = async (params: TokenCatalogParams): Promise<TokenCatalogListResponse> => {
   const search = new URLSearchParams(
     Object.entries(params)
       .filter(([, v]) => v !== undefined)
       .map(([k, v]) => [k, String(v)]),
   ).toString()
-  const res = await fetch(`${TOKENS_URL}?${search}`)
+  const res = await fetch(`${TOKEN_API_URL}/v1/public/tokens?${search}`)
   return res.json()
 }
 
@@ -202,7 +207,7 @@ const tokenCatalogApi = createApi({
       }),
     }),
 
-    getTokenCategory: builder.query<TokenCategoryItem[], { chainId: number | string; tokens: string }>({
+    getTokenCategory: builder.query<TokenCategoryItem[], TokenCategoryParams>({
       queryFn: async args => {
         try {
           return { data: await fetchTokenCategories(args) }
@@ -212,19 +217,32 @@ const tokenCatalogApi = createApi({
       },
     }),
 
+    checkSameAsset: builder.query<boolean, CheckSameAssetParams>({
+      query: ({ chainIdA, addressA, chainIdB, addressB }) => ({
+        url: '/v1/public/asset-groups/same-asset',
+        params: {
+          chainIdA,
+          addressA: addressA.toLowerCase(),
+          chainIdB,
+          addressB: addressB.toLowerCase(),
+        },
+      }),
+      transformResponse: (response: CheckSameAssetResponse) => response.data?.sameAsset === true,
+    }),
+
     checkPair: builder.query<
       { data: { category: PAIR_CATEGORY } },
       { chainId: number; tokenIn: string; tokenOut: string }
     >({
       query: ({ chainId, tokenIn, tokenOut }) => ({
-        url: `/v1/public/category/pair`,
+        url: '/v1/public/category/pair',
         params: { chainId, tokenIn, tokenOut },
       }),
     }),
 
     marketOverview: builder.query<MarketAssetsResponse, QueryParams>({
       query: params => ({
-        url: `/v1/public/assets`,
+        url: '/v1/public/assets',
         params: {
           ...params,
           chainIds: params.chainId,
@@ -239,7 +257,7 @@ const tokenCatalogApi = createApi({
       query: body => ({
         method: 'POST',
         body,
-        url: `/v1/public/assets/favorite`,
+        url: '/v1/public/assets/favorite',
       }),
     }),
 
@@ -247,7 +265,7 @@ const tokenCatalogApi = createApi({
       query: body => ({
         method: 'DELETE',
         body,
-        url: `/v1/public/assets/favorite`,
+        url: '/v1/public/assets/favorite',
       }),
     }),
   }),
@@ -258,6 +276,7 @@ export const {
   useGetQuoteByChainQuery,
   useGetHoneypotInfoQuery,
   useGetTokenCategoryQuery,
+  useLazyCheckSameAssetQuery,
   useCheckPairQuery,
   useMarketOverviewQuery,
   useAddFavoriteMutation,
