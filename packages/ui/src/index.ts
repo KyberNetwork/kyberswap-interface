@@ -22,7 +22,6 @@ export { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 export { Skeleton } from '@/components/ui/skeleton';
 export { default as Tooltip, MouseoverTooltip } from '@/components/Tooltip';
 export { InfoHelper } from '@/components/info-helper';
-export { Calculating } from '@/components/calculating';
 export { default as TokenLogo } from '@/components/token-logo';
 export { Portal } from '@/portal';
 export { default as Loader } from '@/components/loader';
