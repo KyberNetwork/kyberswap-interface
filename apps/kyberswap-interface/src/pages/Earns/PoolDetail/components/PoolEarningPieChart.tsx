@@ -7,7 +7,6 @@ import Skeleton from 'components/Skeleton'
 import { HStack, Stack } from 'components/Stack'
 import useTheme from 'hooks/useTheme'
 import { formatCompactUsd, formatUsd } from 'pages/Earns/PoolDetail/Information/utils'
-import { excludeEg } from 'pages/Earns/utils/egCalculating'
 
 type EarningsSegmentKey = 'lpFeeUsd' | 'lmUsd' | 'egUsd' | 'bonusUsd'
 
@@ -23,8 +22,6 @@ type PoolEarningPieChartProps = {
   poolAddress?: string
   positionId?: string
   size: number
-  /** Drops the EG slice and its share of the total earned. */
-  egCalculating?: boolean
 }
 
 const EARNINGS_BREAKDOWN_WINDOW: PoolAnalyticsWindow = '30d'
@@ -44,7 +41,7 @@ const PoolEarningPieChartSkeleton = ({ size }: { size: number }) => (
   </Stack>
 )
 
-const PoolEarningPieChart = ({ chainId, poolAddress, positionId, size, egCalculating }: PoolEarningPieChartProps) => {
+const PoolEarningPieChart = ({ chainId, poolAddress, positionId, size }: PoolEarningPieChartProps) => {
   const theme = useTheme()
   const isPositionChart = !!positionId
 
@@ -71,19 +68,14 @@ const PoolEarningPieChart = ({ chainId, poolAddress, positionId, size, egCalcula
       { key: 'bonusUsd', label: 'Bonus', color: '#FF9B5C' },
     ]
 
-    return config
-      .filter(item => (hasBonusUsd || item.key !== 'bonusUsd') && (!egCalculating || item.key !== 'egUsd'))
-      .map(item => ({
-        ...item,
-        value: buckets.reduce((sum, bucket) => sum + (bucket[item.key] ?? 0), 0),
-      }))
-  }, [buckets, egCalculating, hasBonusUsd, theme.blue])
+    return (hasBonusUsd ? config : config.filter(item => item.key !== 'bonusUsd')).map(item => ({
+      ...item,
+      value: buckets.reduce((sum, bucket) => sum + (bucket[item.key] ?? 0), 0),
+    }))
+  }, [buckets, hasBonusUsd, theme.blue])
 
   const pieData = useMemo(() => items.filter(item => item.value > 0), [items])
-  const totalEarned = buckets.reduce(
-    (sum, bucket) => sum + (egCalculating ? excludeEg(bucket.totalUsd, bucket.egUsd) : bucket.totalUsd),
-    0,
-  )
+  const totalEarned = buckets.reduce((sum, bucket) => sum + bucket.totalUsd, 0)
 
   if (isLoading) {
     return <PoolEarningPieChartSkeleton size={size} />

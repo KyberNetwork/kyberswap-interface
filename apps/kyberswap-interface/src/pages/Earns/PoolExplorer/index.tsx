@@ -30,7 +30,6 @@ import useSmartExitWidget from 'pages/Earns/hooks/useSmartExitWidget'
 import useZapCreatePoolWidget from 'pages/Earns/hooks/useZapCreatePoolWidget'
 import useZapInWidget, { ZapInInfo } from 'pages/Earns/hooks/useZapInWidget'
 import useZapMigrationWidget from 'pages/Earns/hooks/useZapMigrationWidget'
-import { hasEgProgram, isEgCalculating } from 'pages/Earns/utils/egCalculating'
 import { getPoolDetailUrl } from 'pages/Earns/utils/url'
 import { Direction } from 'pages/MarketOverview/SortIcon'
 import { useNotify } from 'state/application/hooks'
@@ -76,8 +75,6 @@ const PoolExplorer = () => {
     return pools.some(pool => {
       if (pool.egUsd || pool.merklOpportunity?.rewardsRecord?.total) return true
       if (pool.kemReward?.rewardCfg) return true
-      // Keep the column so pools with masked EG figures still have somewhere to render the placeholder.
-      if (isEgCalculating(pool.chain?.id ?? pool.chainId, hasEgProgram(pool.programs))) return true
       return false
     })
   }, [poolData?.data?.pools])

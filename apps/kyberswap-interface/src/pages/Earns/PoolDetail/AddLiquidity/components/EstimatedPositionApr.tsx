@@ -8,8 +8,6 @@ import Skeleton from 'components/Skeleton'
 import { HStack, Stack } from 'components/Stack'
 import { MouseoverTooltip } from 'components/Tooltip'
 import useDebounce from 'hooks/useDebounce'
-import EgCalculating from 'pages/Earns/components/EgCalculating'
-import { isEgCalculating } from 'pages/Earns/utils/egCalculating'
 import { ExternalLink } from 'theme/components'
 
 const TooltipContent = ({ children }: { children: React.ReactNode }) => (
@@ -36,8 +34,6 @@ const EstimatedPositionApr = ({
   route,
 }: EstimatedPositionAprProps) => {
   const hasInput = Boolean(route)
-  // The estimate is a single total that folds EG in, so the whole widget is masked for farming pools.
-  const egCalculating = isEgCalculating(chainId, isFarming)
   const debouncedLower = useDebounce(tickLower, 150)
   const debouncedUpper = useDebounce(tickUpper, 150)
 
@@ -70,7 +66,7 @@ const EstimatedPositionApr = ({
         feeApr: aprData.data.feeApr * 100,
         egApr: aprData.data.egApr * 100,
         lmApr: aprData.data.lmApr * 100,
-        totalApr: (aprData.data.feeApr + (egCalculating ? 0 : aprData.data.egApr) + aprData.data.lmApr) * 100,
+        totalApr: (aprData.data.feeApr + aprData.data.egApr + aprData.data.lmApr) * 100,
       }
     : undefined
 
@@ -88,13 +84,7 @@ const EstimatedPositionApr = ({
         <Trans>LP Fees: {formatAprNumber(aprValues.feeApr || 0)}%</Trans>
       </div>
       <div>
-        {egCalculating ? (
-          <>
-            <Trans>EG Sharing Reward:</Trans> <EgCalculating />
-          </>
-        ) : (
-          <Trans>EG Sharing Reward: {formatAprNumber(aprValues.egApr || 0)}%</Trans>
-        )}
+        <Trans>EG Sharing Reward: {formatAprNumber(aprValues.egApr || 0)}%</Trans>
       </div>
       <div>
         <Trans>LM Reward: {formatAprNumber(aprValues.lmApr || 0)}%</Trans>

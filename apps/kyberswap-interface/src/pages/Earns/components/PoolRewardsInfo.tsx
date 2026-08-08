@@ -8,9 +8,7 @@ import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import { getParsedRewardAmount } from 'pages/Earns/PoolDetail/components/utils'
 import { Badge } from 'pages/Earns/PoolExplorer/styles'
 import useFilter from 'pages/Earns/PoolExplorer/useFilter'
-import EgCalculating from 'pages/Earns/components/EgCalculating'
 import { EarnPool } from 'pages/Earns/types'
-import { hasEgProgram, isEgCalculating } from 'pages/Earns/utils/egCalculating'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { getFullDisplayBalance } from 'utils/formatBalance'
 import { formatDisplayNumber } from 'utils/numbers'
@@ -53,25 +51,18 @@ const getEffectiveRewardDays = ({
 
 const RewardTooltipContent = ({
   bonusRewards,
-  egCalculating,
   egRewards,
   lmRewards,
 }: {
   bonusRewards: number
-  egCalculating: boolean
   egRewards: number
   lmRewards: number
 }) => {
   return (
     <Stack className="gap-0.5">
-      {(egCalculating || egRewards > 0) && (
+      {egRewards > 0 && (
         <p>
-          {t`FairFlow EG Rewards`}:{' '}
-          {egCalculating ? (
-            <EgCalculating />
-          ) : (
-            formatDisplayNumber(egRewards, { style: 'currency', significantDigits: 4 })
-          )}
+          {t`FairFlow EG Rewards`}: {formatDisplayNumber(egRewards, { style: 'currency', significantDigits: 4 })}
         </p>
       )}
       {lmRewards > 0 && (
@@ -160,9 +151,7 @@ const PoolRewardsInfo = ({ pool, showEstimate = true }: Props) => {
     return sum + campaign.dailyRewards * rewardDays
   }, 0)
 
-  // The aggregate drops the EG share so it stays a real figure; only the EG row reads as calculating.
-  const egCalculating = isEgCalculating(pool.chain?.id ?? pool.chainId, hasEgProgram(pool.programs))
-  const totalRewards = (egCalculating ? 0 : egRewards) + lmRewards + bonusRewards
+  const totalRewards = egRewards + lmRewards + bonusRewards
 
   const merklRewardTokens = useMemo(() => {
     const breakdowns = pool.merklOpportunity?.rewardsRecord?.breakdowns || []
@@ -178,16 +167,9 @@ const PoolRewardsInfo = ({ pool, showEstimate = true }: Props) => {
 
   return (
     <Stack className="gap-1">
-      {egCalculating || totalRewards > 0 ? (
+      {totalRewards > 0 ? (
         <MouseoverTooltipDesktopOnly
-          text={
-            <RewardTooltipContent
-              egCalculating={egCalculating}
-              egRewards={egRewards}
-              lmRewards={lmRewards}
-              bonusRewards={bonusRewards}
-            />
-          }
+          text={<RewardTooltipContent egRewards={egRewards} lmRewards={lmRewards} bonusRewards={bonusRewards} />}
           width="fit-content"
           placement="left"
         >

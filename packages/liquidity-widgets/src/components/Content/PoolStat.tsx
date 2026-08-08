@@ -3,10 +3,9 @@ import { useState } from 'react';
 import { Trans } from '@lingui/macro';
 
 import { DEXES_INFO, NETWORKS_INFO, PoolType, defaultToken, dexMapping, univ2Types } from '@kyber/schema';
-import { Calculating, MouseoverTooltip, ShareModal, ShareType } from '@kyber/ui';
+import { MouseoverTooltip, ShareModal, ShareType } from '@kyber/ui';
 import { Skeleton } from '@kyber/ui';
 import { shortenAddress } from '@kyber/utils/crypto';
-import { isEgCalculating } from '@kyber/utils/egCalculating';
 import { formatAprNumber, formatDisplayNumber } from '@kyber/utils/number';
 import { cn } from '@kyber/utils/tailwind-helpers';
 
@@ -40,13 +39,8 @@ export default function PoolStat() {
       : Number((BigInt(position.liquidity) * 10000n) / BigInt(position.totalSupply)) / 100;
 
   const poolStat = initializing ? null : pool?.stats;
-  // The APR stays a real figure by dropping the EG share; only the EG row itself reads as calculating.
-  const egCalculating = isEgCalculating(chainId, !!poolStat?.kemEGApr24h);
   const poolApr =
-    (poolStat?.apr24h || 0) +
-    (egCalculating ? 0 : poolStat?.kemEGApr24h || 0) +
-    (poolStat?.kemLMApr24h || 0) +
-    (poolStat?.bonusApr || 0);
+    (poolStat?.apr24h || 0) + (poolStat?.kemEGApr24h || 0) + (poolStat?.kemLMApr24h || 0) + (poolStat?.bonusApr || 0);
   const isFarming = initializing ? false : pool?.isFarming || false;
   const isFarmingLm = initializing ? false : pool?.isFarmingLm || false;
 
@@ -175,13 +169,7 @@ export default function PoolStat() {
                           <Trans>LP Fees: {formatAprNumber(poolStat?.apr24h || 0)}%</Trans>
                         </div>
                         <div>
-                          {egCalculating ? (
-                            <>
-                              <Trans>EG Sharing Reward:</Trans> <Calculating />
-                            </>
-                          ) : (
-                            <Trans>EG Sharing Reward: {formatAprNumber(poolStat?.kemEGApr24h || 0)}%</Trans>
-                          )}
+                          <Trans>EG Sharing Reward: {formatAprNumber(poolStat?.kemEGApr24h || 0)}%</Trans>
                         </div>
                         {poolStat?.kemLMApr24h ? (
                           <div>
