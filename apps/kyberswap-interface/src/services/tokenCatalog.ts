@@ -13,7 +13,8 @@ import { PAIR_CATEGORY } from 'constants/trade'
  * place.
  */
 
-export type TokenPriceEntry = { PriceBuy: number; PriceSell: number }
+/** Either side can be absent when the price service cannot value that leg of the market. */
+export type TokenPriceEntry = { PriceBuy?: number; PriceSell?: number }
 
 export type TokenPricesResponse = {
   data: { [chainId: string]: { [address: string]: TokenPriceEntry } }
@@ -140,9 +141,19 @@ interface AddRemoveFavoriteParams {
   signature: string
 }
 
+/**
+ * A one-sided quote comes from a market the price service could only value on one leg, and can sit
+ * orders of magnitude away from the tradable price, so both resolvers below treat it as no price.
+ */
+const hasBothSides = (entry?: TokenPriceEntry): entry is { PriceBuy: number; PriceSell: number } =>
+  !!entry?.PriceBuy && !!entry?.PriceSell
+
 /** Mid price of a token, or `null` when either side of the spread is missing. */
 export const getMidPrice = (entry?: TokenPriceEntry): number | null =>
-  entry?.PriceBuy && entry?.PriceSell ? (entry.PriceBuy + entry.PriceSell) / 2 : null
+  hasBothSides(entry) ? (entry.PriceBuy + entry.PriceSell) / 2 : null
+
+/** Buy-side price of a token, or `null` when either side of the spread is missing. */
+export const getBuyPrice = (entry?: TokenPriceEntry): number | null => (hasBothSides(entry) ? entry.PriceBuy : null)
 
 /** Fetch buy/sell prices for one or more chains. */
 export const fetchTokenPrices = async (
