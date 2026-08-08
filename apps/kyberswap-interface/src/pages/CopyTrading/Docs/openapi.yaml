@@ -1,0 +1,3320 @@
+swagger: "2.0"
+info:
+  title: AI Copy Trade Aggregate API
+  description: UI-facing read API for AI copy trading
+  version: 1.0.0
+tags:
+  - name: Chains
+    description: Public chain metadata.
+  - name: Leaderboard
+    description: Public agent ranking and leaderboard summary reads.
+  - name: Agents
+    description: Public agent discovery, profile, and position reads.
+  - name: Owner Copies
+    description: Copy-run, position, activity, and copy-account reads filtered by the initial follower-account creation wallet; this is not current ownership or authorization evidence.
+  - name: Copy Accounts
+    description: Chain-scoped copy account balances, positions, history, and summary reads.
+  - name: Transaction Preparation
+    description: Prepare authoritative Copy Trade contract calls for wallet-owned execution.
+  - name: Wallet Sessions
+    description: Create an ERC-4361 challenge and exchange its EOA or ERC-1271 wallet signature for a short-lived aggregate session.
+basePath: /api/v1
+schemes:
+  - https
+consumes:
+  - application/json
+produces:
+  - application/json
+paths:
+  /chains:
+    get:
+      summary: ListChains lists enabled public chain metadata.
+      operationId: listChains
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1ListChainsResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      tags:
+        - Chains
+  /leaderboard/summary:
+    get:
+      summary: GetLeaderboardSummary returns summary cards for the filtered leaderboard universe.
+      operationId: getLeaderboardSummary
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1GetLeaderboardSummaryResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: chainId
+          in: query
+          required: false
+          type: string
+          format: int64
+        - name: search
+          in: query
+          required: false
+          type: string
+        - name: strategyCategory
+          in: query
+          required: false
+          type: string
+          enum:
+            - STRATEGY_CATEGORY_UNSPECIFIED
+            - STRATEGY_CATEGORY_FOCUSED
+            - STRATEGY_CATEGORY_DIVERSIFIED
+            - STRATEGY_CATEGORY_ACTIVE
+          default: STRATEGY_CATEGORY_UNSPECIFIED
+      tags:
+        - Leaderboard
+  /leaderboard:
+    get:
+      summary: ListLeaderboard returns leaderboard agent rows.
+      operationId: listLeaderboard
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1ListLeaderboardResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: chainId
+          in: query
+          required: false
+          type: string
+          format: int64
+        - name: search
+          in: query
+          required: false
+          type: string
+        - name: cursor
+          in: query
+          required: false
+          type: string
+        - name: limit
+          in: query
+          required: false
+          type: integer
+          format: int32
+        - name: strategyCategory
+          in: query
+          required: false
+          type: string
+          enum:
+            - STRATEGY_CATEGORY_UNSPECIFIED
+            - STRATEGY_CATEGORY_FOCUSED
+            - STRATEGY_CATEGORY_DIVERSIFIED
+            - STRATEGY_CATEGORY_ACTIVE
+          default: STRATEGY_CATEGORY_UNSPECIFIED
+        - name: sortBy
+          in: query
+          required: false
+          type: string
+          enum:
+            - LEADERBOARD_SORT_FIELD_UNSPECIFIED
+            - LEADERBOARD_SORT_FIELD_APR_30D
+            - LEADERBOARD_SORT_FIELD_WIN_RATE
+            - LEADERBOARD_SORT_FIELD_LIFETIME_VOLUME
+            - LEADERBOARD_SORT_FIELD_COPIERS
+            - LEADERBOARD_SORT_FIELD_AUM
+            - LEADERBOARD_SORT_FIELD_OPEN_POSITIONS
+          default: LEADERBOARD_SORT_FIELD_UNSPECIFIED
+        - name: sortOrder
+          in: query
+          required: false
+          type: string
+          enum:
+            - SORT_ORDER_UNSPECIFIED
+            - SORT_ORDER_ASC
+            - SORT_ORDER_DESC
+          default: SORT_ORDER_UNSPECIFIED
+      tags:
+        - Leaderboard
+  /agents:
+    get:
+      summary: ListAgents searches and lists public agents.
+      operationId: listAgents
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1ListAgentsResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: chainId
+          in: query
+          required: false
+          type: string
+          format: int64
+        - name: search
+          in: query
+          required: false
+          type: string
+        - name: cursor
+          in: query
+          required: false
+          type: string
+        - name: limit
+          in: query
+          required: false
+          type: integer
+          format: int32
+        - name: strategyCategory
+          in: query
+          required: false
+          type: string
+          enum:
+            - STRATEGY_CATEGORY_UNSPECIFIED
+            - STRATEGY_CATEGORY_FOCUSED
+            - STRATEGY_CATEGORY_DIVERSIFIED
+            - STRATEGY_CATEGORY_ACTIVE
+          default: STRATEGY_CATEGORY_UNSPECIFIED
+      tags:
+        - Agents
+  /agents/{agentId}:
+    get:
+      summary: GetAgent returns one public agent profile.
+      operationId: getAgent
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1GetAgentResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: agentId
+          in: path
+          required: true
+          type: string
+      tags:
+        - Agents
+  /agents/{agentId}/stats:
+    get:
+      summary: GetAgentStats returns one agent metric window.
+      operationId: getAgentStats
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1GetAgentStatsResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: agentId
+          in: path
+          required: true
+          type: string
+        - name: window
+          in: query
+          required: false
+          type: string
+          enum:
+            - WINDOW_UNSPECIFIED
+            - WINDOW_7D
+            - WINDOW_30D
+            - WINDOW_90D
+            - WINDOW_ALL
+          default: WINDOW_UNSPECIFIED
+      tags:
+        - Agents
+  /agents/{agentId}/performance:
+    get:
+      summary: ListAgentPerformance returns profile chart points.
+      operationId: listAgentPerformance
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1ListAgentPerformanceResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: agentId
+          in: path
+          required: true
+          type: string
+        - name: cursor
+          in: query
+          required: false
+          type: string
+        - name: limit
+          in: query
+          required: false
+          type: integer
+          format: int32
+        - name: series
+          in: query
+          required: false
+          type: string
+          enum:
+            - PERFORMANCE_SERIES_UNSPECIFIED
+            - PERFORMANCE_SERIES_PORTFOLIO_EQUITY
+            - PERFORMANCE_SERIES_CUMULATIVE_REALIZED_PNL
+            - PERFORMANCE_SERIES_PERIOD_REALIZED_PNL
+            - PERFORMANCE_SERIES_PER_TRADE_REALIZED_PNL
+          default: PERFORMANCE_SERIES_UNSPECIFIED
+        - name: window
+          in: query
+          required: false
+          type: string
+          enum:
+            - WINDOW_UNSPECIFIED
+            - WINDOW_7D
+            - WINDOW_30D
+            - WINDOW_90D
+            - WINDOW_ALL
+          default: WINDOW_UNSPECIFIED
+        - name: interval
+          in: query
+          required: false
+          type: string
+          enum:
+            - PERFORMANCE_INTERVAL_UNSPECIFIED
+            - PERFORMANCE_INTERVAL_DAY
+            - PERFORMANCE_INTERVAL_WEEK
+            - PERFORMANCE_INTERVAL_MONTH
+          default: PERFORMANCE_INTERVAL_UNSPECIFIED
+      tags:
+        - Agents
+  /agents/{agentId}/action-logs:
+    get:
+      summary: ListAgentActionLogs returns the sanitized public agent decision timeline.
+      operationId: listAgentActionLogs
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1ListAgentActionLogsResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: agentId
+          in: path
+          required: true
+          type: string
+        - name: leaderPositionId
+          in: query
+          required: false
+          type: string
+        - name: from
+          in: query
+          required: false
+          type: string
+          format: date-time
+        - name: to
+          in: query
+          required: false
+          type: string
+          format: date-time
+        - name: cursor
+          in: query
+          required: false
+          type: string
+        - name: limit
+          in: query
+          required: false
+          type: integer
+          format: int32
+      tags:
+        - Agents
+  /agents/{agentId}/positions:
+    get:
+      summary: ListAgentPositions returns agent position summary rows.
+      operationId: listAgentPositions
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1ListAgentPositionsResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: agentId
+          in: path
+          required: true
+          type: string
+        - name: view
+          in: query
+          required: false
+          type: string
+          enum:
+            - POSITION_VIEW_UNSPECIFIED
+            - POSITION_VIEW_ALL
+            - POSITION_VIEW_OPEN
+            - POSITION_VIEW_CLOSED
+            - POSITION_VIEW_LEFTOVER
+          default: POSITION_VIEW_UNSPECIFIED
+        - name: token
+          in: query
+          required: false
+          type: string
+        - name: cursor
+          in: query
+          required: false
+          type: string
+        - name: limit
+          in: query
+          required: false
+          type: integer
+          format: int32
+        - name: sortBy
+          in: query
+          required: false
+          type: string
+          enum:
+            - POSITION_SORT_FIELD_UNSPECIFIED
+            - POSITION_SORT_FIELD_OPENED_AT
+            - POSITION_SORT_FIELD_CLOSED_AT
+            - POSITION_SORT_FIELD_VALUE_USD
+          default: POSITION_SORT_FIELD_UNSPECIFIED
+        - name: sortOrder
+          in: query
+          required: false
+          type: string
+          enum:
+            - SORT_ORDER_UNSPECIFIED
+            - SORT_ORDER_ASC
+            - SORT_ORDER_DESC
+          default: SORT_ORDER_UNSPECIFIED
+      tags:
+        - Agents
+  /agents/{agentId}/positions/{positionId}:
+    get:
+      summary: GetAgentPosition returns one agent position detail.
+      operationId: getAgentPosition
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1GetAgentPositionResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: agentId
+          in: path
+          required: true
+          type: string
+        - name: positionId
+          in: path
+          required: true
+          type: string
+      tags:
+        - Agents
+  /agents/{agentId}/positions/{positionId}/events:
+    get:
+      summary: ListAgentPositionEvents returns lifecycle events for an agent position.
+      operationId: listAgentPositionEvents
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1ListAgentPositionEventsResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: agentId
+          in: path
+          required: true
+          type: string
+        - name: positionId
+          in: path
+          required: true
+          type: string
+        - name: cursor
+          in: query
+          required: false
+          type: string
+        - name: limit
+          in: query
+          required: false
+          type: integer
+          format: int32
+      tags:
+        - Agents
+  /users/{ownerAddress}/copy-summary:
+    get:
+      summary: GetOwnerCopySummary returns public My Copies summary values for an owner.
+      operationId: getOwnerCopySummary
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1GetOwnerCopySummaryResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: ownerAddress
+          description: Initial follower-account creation wallet filter; not current ownership or authorization evidence.
+          in: path
+          required: true
+          type: string
+        - name: chainId
+          in: query
+          required: false
+          type: string
+          format: int64
+        - name: view
+          in: query
+          required: false
+          type: string
+          enum:
+            - OWNER_COPY_VIEW_UNSPECIFIED
+            - OWNER_COPY_VIEW_OPEN
+            - OWNER_COPY_VIEW_HISTORY
+          default: OWNER_COPY_VIEW_UNSPECIFIED
+      tags:
+        - Owner Copies
+  /users/{ownerAddress}/copy-runs:
+    get:
+      summary: ListOwnerCopyRuns lists copy runs for an owner.
+      operationId: listOwnerCopyRuns
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1ListOwnerCopyRunsResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: ownerAddress
+          description: Initial follower-account creation wallet filter; not current ownership or authorization evidence.
+          in: path
+          required: true
+          type: string
+        - name: agentId
+          in: query
+          required: false
+          type: string
+        - name: chainId
+          in: query
+          required: false
+          type: string
+          format: int64
+        - name: cursor
+          in: query
+          required: false
+          type: string
+        - name: limit
+          in: query
+          required: false
+          type: integer
+          format: int32
+        - name: view
+          in: query
+          required: false
+          type: string
+          enum:
+            - OWNER_COPY_VIEW_UNSPECIFIED
+            - OWNER_COPY_VIEW_OPEN
+            - OWNER_COPY_VIEW_HISTORY
+          default: OWNER_COPY_VIEW_UNSPECIFIED
+        - name: sortBy
+          in: query
+          required: false
+          type: string
+          enum:
+            - OWNER_COPY_RUN_SORT_FIELD_UNSPECIFIED
+            - OWNER_COPY_RUN_SORT_FIELD_STARTED_AT
+            - OWNER_COPY_RUN_SORT_FIELD_STOPPED_AT
+            - OWNER_COPY_RUN_SORT_FIELD_AGENT_APR_30D
+            - OWNER_COPY_RUN_SORT_FIELD_AGENT_WIN_RATE
+            - OWNER_COPY_RUN_SORT_FIELD_AGENT_LIFETIME_VOLUME
+            - OWNER_COPY_RUN_SORT_FIELD_CAPITAL_IN
+          default: OWNER_COPY_RUN_SORT_FIELD_UNSPECIFIED
+        - name: sortOrder
+          in: query
+          required: false
+          type: string
+          enum:
+            - SORT_ORDER_UNSPECIFIED
+            - SORT_ORDER_ASC
+            - SORT_ORDER_DESC
+          default: SORT_ORDER_UNSPECIFIED
+      tags:
+        - Owner Copies
+  /users/{ownerAddress}/copy-runs/{copyRunId}:
+    get:
+      summary: GetOwnerCopyRun returns one owner copy-run detail.
+      operationId: getOwnerCopyRun
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1GetOwnerCopyRunResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: ownerAddress
+          description: Initial follower-account creation wallet filter; not current ownership or authorization evidence.
+          in: path
+          required: true
+          type: string
+        - name: copyRunId
+          in: path
+          required: true
+          type: string
+      tags:
+        - Owner Copies
+  /users/{ownerAddress}/copy-runs/{copyRunId}/positions:
+    get:
+      summary: ListOwnerCopyRunPositions lists positions inside one copy run.
+      operationId: listOwnerCopyRunPositions
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1ListOwnerCopyRunPositionsResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: ownerAddress
+          description: Initial follower-account creation wallet filter; not current ownership or authorization evidence.
+          in: path
+          required: true
+          type: string
+        - name: copyRunId
+          in: path
+          required: true
+          type: string
+        - name: cursor
+          in: query
+          required: false
+          type: string
+        - name: limit
+          in: query
+          required: false
+          type: integer
+          format: int32
+        - name: view
+          in: query
+          required: false
+          type: string
+          enum:
+            - POSITION_VIEW_UNSPECIFIED
+            - POSITION_VIEW_ALL
+            - POSITION_VIEW_OPEN
+            - POSITION_VIEW_CLOSED
+            - POSITION_VIEW_LEFTOVER
+          default: POSITION_VIEW_UNSPECIFIED
+        - name: sortBy
+          in: query
+          required: false
+          type: string
+          enum:
+            - POSITION_SORT_FIELD_UNSPECIFIED
+            - POSITION_SORT_FIELD_OPENED_AT
+            - POSITION_SORT_FIELD_CLOSED_AT
+            - POSITION_SORT_FIELD_VALUE_USD
+          default: POSITION_SORT_FIELD_UNSPECIFIED
+        - name: sortOrder
+          in: query
+          required: false
+          type: string
+          enum:
+            - SORT_ORDER_UNSPECIFIED
+            - SORT_ORDER_ASC
+            - SORT_ORDER_DESC
+          default: SORT_ORDER_UNSPECIFIED
+      tags:
+        - Owner Copies
+  /users/{ownerAddress}/copy-runs/{copyRunId}/performance:
+    get:
+      summary: ListOwnerCopyRunPerformance returns copy-run chart points.
+      operationId: listOwnerCopyRunPerformance
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1ListOwnerCopyRunPerformanceResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: ownerAddress
+          description: Initial follower-account creation wallet filter; not current ownership or authorization evidence.
+          in: path
+          required: true
+          type: string
+        - name: copyRunId
+          in: path
+          required: true
+          type: string
+        - name: cursor
+          in: query
+          required: false
+          type: string
+        - name: limit
+          in: query
+          required: false
+          type: integer
+          format: int32
+        - name: series
+          in: query
+          required: false
+          type: string
+          enum:
+            - PERFORMANCE_SERIES_UNSPECIFIED
+            - PERFORMANCE_SERIES_PORTFOLIO_EQUITY
+            - PERFORMANCE_SERIES_CUMULATIVE_REALIZED_PNL
+            - PERFORMANCE_SERIES_PERIOD_REALIZED_PNL
+            - PERFORMANCE_SERIES_PER_TRADE_REALIZED_PNL
+          default: PERFORMANCE_SERIES_UNSPECIFIED
+        - name: window
+          in: query
+          required: false
+          type: string
+          enum:
+            - WINDOW_UNSPECIFIED
+            - WINDOW_7D
+            - WINDOW_30D
+            - WINDOW_90D
+            - WINDOW_ALL
+          default: WINDOW_UNSPECIFIED
+        - name: interval
+          in: query
+          required: false
+          type: string
+          enum:
+            - PERFORMANCE_INTERVAL_UNSPECIFIED
+            - PERFORMANCE_INTERVAL_DAY
+            - PERFORMANCE_INTERVAL_WEEK
+            - PERFORMANCE_INTERVAL_MONTH
+          default: PERFORMANCE_INTERVAL_UNSPECIFIED
+      tags:
+        - Owner Copies
+  /users/{ownerAddress}/positions:
+    get:
+      summary: ListOwnerPositions lists flattened owner positions.
+      operationId: listOwnerPositions
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1ListOwnerPositionsResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: ownerAddress
+          description: Initial follower-account creation wallet filter; not current ownership or authorization evidence.
+          in: path
+          required: true
+          type: string
+        - name: agentId
+          in: query
+          required: false
+          type: string
+        - name: chainId
+          in: query
+          required: false
+          type: string
+          format: int64
+        - name: cursor
+          in: query
+          required: false
+          type: string
+        - name: limit
+          in: query
+          required: false
+          type: integer
+          format: int32
+        - name: view
+          in: query
+          required: false
+          type: string
+          enum:
+            - POSITION_VIEW_UNSPECIFIED
+            - POSITION_VIEW_ALL
+            - POSITION_VIEW_OPEN
+            - POSITION_VIEW_CLOSED
+            - POSITION_VIEW_LEFTOVER
+          default: POSITION_VIEW_UNSPECIFIED
+        - name: sortBy
+          in: query
+          required: false
+          type: string
+          enum:
+            - POSITION_SORT_FIELD_UNSPECIFIED
+            - POSITION_SORT_FIELD_OPENED_AT
+            - POSITION_SORT_FIELD_CLOSED_AT
+            - POSITION_SORT_FIELD_VALUE_USD
+          default: POSITION_SORT_FIELD_UNSPECIFIED
+        - name: sortOrder
+          in: query
+          required: false
+          type: string
+          enum:
+            - SORT_ORDER_UNSPECIFIED
+            - SORT_ORDER_ASC
+            - SORT_ORDER_DESC
+          default: SORT_ORDER_UNSPECIFIED
+      tags:
+        - Owner Copies
+  /users/{ownerAddress}/activity:
+    get:
+      summary: ListOwnerActivity lists public owner activity rows.
+      operationId: listOwnerActivity
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1ListOwnerActivityResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: ownerAddress
+          description: Initial follower-account creation wallet filter; not current ownership or authorization evidence.
+          in: path
+          required: true
+          type: string
+        - name: copyRunId
+          in: query
+          required: false
+          type: string
+        - name: chainId
+          in: query
+          required: false
+          type: string
+          format: int64
+        - name: cursor
+          in: query
+          required: false
+          type: string
+        - name: limit
+          in: query
+          required: false
+          type: integer
+          format: int32
+        - name: type
+          in: query
+          required: false
+          type: string
+          enum:
+            - ACTIVITY_TYPE_UNSPECIFIED
+            - ACTIVITY_TYPE_COPY_STARTED
+            - ACTIVITY_TYPE_COPY_STOPPED
+            - ACTIVITY_TYPE_POSITION_OPENED
+            - ACTIVITY_TYPE_POSITION_CLOSED
+            - ACTIVITY_TYPE_CAPITAL_DEPOSITED
+            - ACTIVITY_TYPE_CAPITAL_TOPPED_UP
+            - ACTIVITY_TYPE_CAPITAL_WITHDRAWN
+            - ACTIVITY_TYPE_CAPITAL_RETURNED
+            - ACTIVITY_TYPE_FLAT_FEE_CAPTURED
+            - ACTIVITY_TYPE_CASHBACK_RECEIVED
+            - ACTIVITY_TYPE_ALIGNED_TRADE_SKIPPED
+            - ACTIVITY_TYPE_EXIT_STARTED
+            - ACTIVITY_TYPE_EXIT_SUCCEEDED
+            - ACTIVITY_TYPE_EXIT_SKIPPED
+            - ACTIVITY_TYPE_EXIT_FAILED
+            - ACTIVITY_TYPE_EXECUTION_FAILED
+            - ACTIVITY_TYPE_POSITION_REDUCED
+          default: ACTIVITY_TYPE_UNSPECIFIED
+        - name: group
+          in: query
+          required: false
+          type: string
+          enum:
+            - ACTIVITY_GROUP_UNSPECIFIED
+            - ACTIVITY_GROUP_BUYS
+            - ACTIVITY_GROUP_SELLS
+            - ACTIVITY_GROUP_DEPOSITS_WITHDRAWALS
+            - ACTIVITY_GROUP_SKIPPED
+          default: ACTIVITY_GROUP_UNSPECIFIED
+      tags:
+        - Owner Copies
+  /users/{ownerAddress}/copy-accounts:
+    get:
+      summary: ListOwnerCopyAccounts lists copy accounts for an owner.
+      operationId: listOwnerCopyAccounts
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1ListOwnerCopyAccountsResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: ownerAddress
+          description: Initial follower-account creation wallet filter; not current ownership or authorization evidence.
+          in: path
+          required: true
+          type: string
+        - name: chainId
+          in: query
+          required: false
+          type: string
+          format: int64
+        - name: cursor
+          in: query
+          required: false
+          type: string
+        - name: limit
+          in: query
+          required: false
+          type: integer
+          format: int32
+        - name: status
+          in: query
+          required: false
+          type: string
+          enum:
+            - COPY_ACCOUNT_STATUS_UNSPECIFIED
+            - COPY_ACCOUNT_STATUS_ACTIVE
+            - COPY_ACCOUNT_STATUS_CLOSED
+            - COPY_ACCOUNT_STATUS_CLOSING
+            - COPY_ACCOUNT_STATUS_STOPPED
+          default: COPY_ACCOUNT_STATUS_UNSPECIFIED
+      tags:
+        - Owner Copies
+  /copy-accounts/{chainId}/{copyAccount}:
+    get:
+      summary: GetCopyAccountSummary returns one chain-scoped copy account summary.
+      operationId: getCopyAccountSummary
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1GetCopyAccountSummaryResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: chainId
+          in: path
+          required: true
+          type: string
+          format: int64
+        - name: copyAccount
+          in: path
+          required: true
+          type: string
+      tags:
+        - Copy Accounts
+  /copy-accounts/{chainId}/{copyAccount}/balances:
+    get:
+      summary: ListCopyAccountBalances lists explicit wallet inventory for a copy account.
+      operationId: listCopyAccountBalances
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1ListCopyAccountBalancesResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: chainId
+          in: path
+          required: true
+          type: string
+          format: int64
+        - name: copyAccount
+          in: path
+          required: true
+          type: string
+        - name: cursor
+          in: query
+          required: false
+          type: string
+        - name: limit
+          in: query
+          required: false
+          type: integer
+          format: int32
+      tags:
+        - Copy Accounts
+  /copy-accounts/{chainId}/{copyAccount}/positions:
+    get:
+      summary: ListCopyAccountPositions lists positions for a copy account.
+      operationId: listCopyAccountPositions
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1ListCopyAccountPositionsResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: chainId
+          in: path
+          required: true
+          type: string
+          format: int64
+        - name: copyAccount
+          in: path
+          required: true
+          type: string
+        - name: cursor
+          in: query
+          required: false
+          type: string
+        - name: limit
+          in: query
+          required: false
+          type: integer
+          format: int32
+        - name: view
+          in: query
+          required: false
+          type: string
+          enum:
+            - POSITION_VIEW_UNSPECIFIED
+            - POSITION_VIEW_ALL
+            - POSITION_VIEW_OPEN
+            - POSITION_VIEW_CLOSED
+            - POSITION_VIEW_LEFTOVER
+          default: POSITION_VIEW_UNSPECIFIED
+        - name: sortBy
+          in: query
+          required: false
+          type: string
+          enum:
+            - POSITION_SORT_FIELD_UNSPECIFIED
+            - POSITION_SORT_FIELD_OPENED_AT
+            - POSITION_SORT_FIELD_CLOSED_AT
+            - POSITION_SORT_FIELD_VALUE_USD
+          default: POSITION_SORT_FIELD_UNSPECIFIED
+        - name: sortOrder
+          in: query
+          required: false
+          type: string
+          enum:
+            - SORT_ORDER_UNSPECIFIED
+            - SORT_ORDER_ASC
+            - SORT_ORDER_DESC
+          default: SORT_ORDER_UNSPECIFIED
+      tags:
+        - Copy Accounts
+  /copy-accounts/{chainId}/{copyAccount}/positions/{userPositionId}/pending-sell-obligations:
+    get:
+      summary: |-
+        ListCopyAccountPositionPendingSellObligations returns the current
+        operator-authoritative FIFO used by Manual Sell and Close Position modals.
+      operationId: listCopyAccountPositionPendingSellObligations
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1ListCopyAccountPositionPendingSellObligationsResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: chainId
+          in: path
+          required: true
+          type: string
+          format: int64
+        - name: copyAccount
+          in: path
+          required: true
+          type: string
+        - name: userPositionId
+          in: path
+          required: true
+          type: string
+        - name: cursor
+          in: query
+          required: false
+          type: string
+        - name: limit
+          in: query
+          required: false
+          type: integer
+          format: int32
+      tags:
+        - Copy Accounts
+  /copy-accounts/{chainId}/{copyAccount}/history:
+    get:
+      summary: ListCopyAccountHistory lists balance and execution history for a copy account.
+      operationId: listCopyAccountHistory
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1ListCopyAccountHistoryResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: chainId
+          in: path
+          required: true
+          type: string
+          format: int64
+        - name: copyAccount
+          in: path
+          required: true
+          type: string
+        - name: cursor
+          in: query
+          required: false
+          type: string
+        - name: limit
+          in: query
+          required: false
+          type: integer
+          format: int32
+        - name: type
+          in: query
+          required: false
+          type: string
+          enum:
+            - ACTIVITY_TYPE_UNSPECIFIED
+            - ACTIVITY_TYPE_COPY_STARTED
+            - ACTIVITY_TYPE_COPY_STOPPED
+            - ACTIVITY_TYPE_POSITION_OPENED
+            - ACTIVITY_TYPE_POSITION_CLOSED
+            - ACTIVITY_TYPE_CAPITAL_DEPOSITED
+            - ACTIVITY_TYPE_CAPITAL_TOPPED_UP
+            - ACTIVITY_TYPE_CAPITAL_WITHDRAWN
+            - ACTIVITY_TYPE_CAPITAL_RETURNED
+            - ACTIVITY_TYPE_FLAT_FEE_CAPTURED
+            - ACTIVITY_TYPE_CASHBACK_RECEIVED
+            - ACTIVITY_TYPE_ALIGNED_TRADE_SKIPPED
+            - ACTIVITY_TYPE_EXIT_STARTED
+            - ACTIVITY_TYPE_EXIT_SUCCEEDED
+            - ACTIVITY_TYPE_EXIT_SKIPPED
+            - ACTIVITY_TYPE_EXIT_FAILED
+            - ACTIVITY_TYPE_EXECUTION_FAILED
+            - ACTIVITY_TYPE_POSITION_REDUCED
+          default: ACTIVITY_TYPE_UNSPECIFIED
+        - name: group
+          in: query
+          required: false
+          type: string
+          enum:
+            - ACTIVITY_GROUP_UNSPECIFIED
+            - ACTIVITY_GROUP_BUYS
+            - ACTIVITY_GROUP_SELLS
+            - ACTIVITY_GROUP_DEPOSITS_WITHDRAWALS
+            - ACTIVITY_GROUP_SKIPPED
+          default: ACTIVITY_GROUP_UNSPECIFIED
+      tags:
+        - Copy Accounts
+  /users/{ownerAddress}/agents/{agentId}:prepareStartCopy:
+    post:
+      operationId: prepareStartCopy
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1PrepareStartCopyResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: ownerAddress
+          in: path
+          required: true
+          type: string
+        - name: agentId
+          in: path
+          required: true
+          type: string
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/TransactionPreparationServicePrepareStartCopyBody'
+      tags:
+        - Transaction Preparation
+  /users/{ownerAddress}/copy-runs/{copyRunId}:prepareAddCapital:
+    post:
+      operationId: prepareAddCapital
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1PrepareAddCapitalResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: ownerAddress
+          in: path
+          required: true
+          type: string
+        - name: copyRunId
+          in: path
+          required: true
+          type: string
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/TransactionPreparationServicePrepareAddCapitalBody'
+      tags:
+        - Transaction Preparation
+  /users/{ownerAddress}/copy-runs/{copyRunId}:prepareStopCopy:
+    post:
+      operationId: prepareStopCopy
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1PrepareStopCopyResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: ownerAddress
+          in: path
+          required: true
+          type: string
+        - name: copyRunId
+          in: path
+          required: true
+          type: string
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/TransactionPreparationServicePrepareStopCopyBody'
+      tags:
+        - Transaction Preparation
+  /users/{ownerAddress}/copy-runs/{copyRunId}:prepareWithdrawQuote:
+    post:
+      operationId: prepareWithdrawQuote
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1PrepareWithdrawQuoteResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: ownerAddress
+          in: path
+          required: true
+          type: string
+        - name: copyRunId
+          in: path
+          required: true
+          type: string
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/TransactionPreparationServicePrepareWithdrawQuoteBody'
+      tags:
+        - Transaction Preparation
+  /users/{ownerAddress}/copy-runs/{copyRunId}/positions/{userPositionId}:prepareManualSell:
+    post:
+      summary: PrepareManualSell prepares the exact unresolved skipped-sell obligation.
+      operationId: prepareManualSell
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1PrepareManualSellResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: ownerAddress
+          in: path
+          required: true
+          type: string
+        - name: copyRunId
+          in: path
+          required: true
+          type: string
+        - name: userPositionId
+          in: path
+          required: true
+          type: string
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/TransactionPreparationServicePrepareManualSellBody'
+      tags:
+        - Transaction Preparation
+      security:
+        - WalletSessionBearer: []
+  /users/{ownerAddress}/copy-runs/{copyRunId}/positions/{userPositionId}:prepareClosePosition:
+    post:
+      summary: PrepareClosePosition prepares one eligible full-position recovery close.
+      operationId: prepareClosePosition
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1PrepareClosePositionResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: ownerAddress
+          in: path
+          required: true
+          type: string
+        - name: copyRunId
+          in: path
+          required: true
+          type: string
+        - name: userPositionId
+          in: path
+          required: true
+          type: string
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/TransactionPreparationServicePrepareClosePositionBody'
+      tags:
+        - Transaction Preparation
+      security:
+        - WalletSessionBearer: []
+  /wallet-session-challenges:
+    post:
+      operationId: createWalletSessionChallenge
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1CreateWalletSessionChallengeResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/v1CreateWalletSessionChallengeRequest'
+      tags:
+        - Wallet Sessions
+  /wallet-sessions:
+    post:
+      operationId: createWalletSession
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1CreateWalletSessionResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/v1CreateWalletSessionRequest'
+      tags:
+        - Wallet Sessions
+definitions:
+  TransactionPreparationServicePrepareAddCapitalBody:
+    type: object
+    properties:
+      amountRaw:
+        type: string
+  TransactionPreparationServicePrepareClosePositionBody:
+    type: object
+    properties:
+      slippageBps:
+        type: integer
+        format: int64
+  TransactionPreparationServicePrepareManualSellBody:
+    type: object
+    properties:
+      slippageBps:
+        type: integer
+        format: int64
+      expectedUnresolvedSkipCount:
+        type: integer
+        format: int64
+      expectedSellRatioRaw:
+        type: string
+  TransactionPreparationServicePrepareStartCopyBody:
+    type: object
+    properties:
+      chainId:
+        type: string
+        format: int64
+      targetCapitalRaw:
+        type: string
+      startRequestId:
+        type: string
+  TransactionPreparationServicePrepareStopCopyBody:
+    type: object
+    properties:
+      userPositionIds:
+        type: array
+        items:
+          type: string
+      slippageBps:
+        type: integer
+        format: int64
+  TransactionPreparationServicePrepareWithdrawQuoteBody:
+    type: object
+  protobufAny:
+    type: object
+    properties:
+      '@type':
+        type: string
+    additionalProperties: {}
+  rpcStatus:
+    type: object
+    properties:
+      code:
+        type: integer
+        format: int32
+      message:
+        type: string
+      details:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/protobufAny'
+  v1ActionBlock:
+    type: object
+    properties:
+      blockNumber:
+        type: string
+      blockHash:
+        type: string
+      blockTime:
+        type: string
+        format: date-time
+    description: ActionBlock is the fresh canonical mutable-state and preflight block H.
+  v1ActionEvidence:
+    type: object
+    properties:
+      evidenceAnchor:
+        $ref: '#/definitions/v1EvidenceAnchor'
+      actionBlock:
+        $ref: '#/definitions/v1ActionBlock'
+    description: |-
+      ActionEvidence exposes the fact and mutable-state boundaries used to prepare
+      the call. Operator-owned route clocks remain internal; reprepare_after is the
+      only client expiry boundary.
+  v1ActivityGroup:
+    type: string
+    enum:
+      - ACTIVITY_GROUP_UNSPECIFIED
+      - ACTIVITY_GROUP_BUYS
+      - ACTIVITY_GROUP_SELLS
+      - ACTIVITY_GROUP_DEPOSITS_WITHDRAWALS
+      - ACTIVITY_GROUP_SKIPPED
+    default: ACTIVITY_GROUP_UNSPECIFIED
+    description: ActivityGroup selects one stable product activity grouping.
+  v1ActivityRow:
+    type: object
+    properties:
+      activityId:
+        type: string
+      ownerAddress:
+        type: string
+        description: Initial follower-account creation wallet; not current ownership or authorization evidence.
+      agentId:
+        type: string
+      chainId:
+        type: string
+        format: int64
+      copyRunId:
+        type: string
+      copyAccount:
+        type: string
+      summary:
+        type: string
+      occurredAt:
+        type: string
+        format: date-time
+      type:
+        $ref: '#/definitions/v1ActivityType'
+      userPositionId:
+        type: string
+      followerPositionId:
+        type: string
+      tradeId:
+        type: string
+      txHash:
+        type: string
+      agentDisplayName:
+        type: string
+      agentAvatarUrl:
+        type: string
+      copyLifecycle:
+        $ref: '#/definitions/v1CopyLifecycleActivityDetail'
+      position:
+        $ref: '#/definitions/v1PositionActivityDetail'
+      capital:
+        $ref: '#/definitions/v1CapitalActivityDetail'
+      fee:
+        $ref: '#/definitions/v1FeeActivityDetail'
+      execution:
+        $ref: '#/definitions/v1ExecutionActivityDetail'
+    description: ActivityRow is a public owner or copy-account timeline row.
+  v1ActivityType:
+    type: string
+    enum:
+      - ACTIVITY_TYPE_UNSPECIFIED
+      - ACTIVITY_TYPE_COPY_STARTED
+      - ACTIVITY_TYPE_COPY_STOPPED
+      - ACTIVITY_TYPE_POSITION_OPENED
+      - ACTIVITY_TYPE_POSITION_CLOSED
+      - ACTIVITY_TYPE_CAPITAL_DEPOSITED
+      - ACTIVITY_TYPE_CAPITAL_TOPPED_UP
+      - ACTIVITY_TYPE_CAPITAL_WITHDRAWN
+      - ACTIVITY_TYPE_CAPITAL_RETURNED
+      - ACTIVITY_TYPE_FLAT_FEE_CAPTURED
+      - ACTIVITY_TYPE_CASHBACK_RECEIVED
+      - ACTIVITY_TYPE_ALIGNED_TRADE_SKIPPED
+      - ACTIVITY_TYPE_EXIT_STARTED
+      - ACTIVITY_TYPE_EXIT_SUCCEEDED
+      - ACTIVITY_TYPE_EXIT_SKIPPED
+      - ACTIVITY_TYPE_EXIT_FAILED
+      - ACTIVITY_TYPE_EXECUTION_FAILED
+      - ACTIVITY_TYPE_POSITION_REDUCED
+    default: ACTIVITY_TYPE_UNSPECIFIED
+    description: ActivityType is the stable public activity timeline type set.
+  v1AddCapitalPreview:
+    type: object
+    properties:
+      quoteToken:
+        $ref: '#/definitions/v1Token'
+      addedCapitalRaw:
+        type: string
+      minimumAddCapitalRaw:
+        type: string
+      walletQuoteBalance:
+        $ref: '#/definitions/v1RawAmountMetric'
+      currentAllocatedCapital:
+        $ref: '#/definitions/v1RawAmountMetric'
+      newAllocatedCapital:
+        $ref: '#/definitions/v1RawAmountMetric'
+    description: AddCapitalPreview contains direct-transfer and net-allocation values.
+  v1AdvisoryActionAvailability:
+    type: object
+    properties:
+      status:
+        $ref: '#/definitions/v1AdvisoryActionStatus'
+      reason:
+        $ref: '#/definitions/v1PreparedActionReason'
+      asOf:
+        type: string
+        format: date-time
+    description: AdvisoryActionAvailability is compact and safe to materialize on list rows.
+  v1AdvisoryActionStatus:
+    type: string
+    enum:
+      - ADVISORY_ACTION_STATUS_UNSPECIFIED
+      - ADVISORY_ACTION_STATUS_AVAILABLE
+      - ADVISORY_ACTION_STATUS_PENDING
+      - ADVISORY_ACTION_STATUS_UNAVAILABLE
+    default: ADVISORY_ACTION_STATUS_UNSPECIFIED
+    description: |-
+      AdvisoryActionStatus is render-only aggregate availability. Live preparation
+      remains authoritative and may return a different typed result.
+  v1AgentActionLog:
+    type: object
+    properties:
+      actionLogId:
+        type: string
+      chainId:
+        type: string
+        format: int64
+      occurredAt:
+        type: string
+        format: date-time
+      summary:
+        type: string
+      trigger:
+        type: string
+      dataSummary:
+        type: string
+      reasoningSummary:
+        type: string
+      actionSummary:
+        type: string
+      action:
+        type: string
+      status:
+        type: string
+      txHash:
+        type: string
+      leaderPositionId:
+        type: string
+      blockNumber:
+        type: string
+      tokenAddress:
+        type: string
+      model:
+        type: string
+      strategyVersion:
+        type: string
+    description: |-
+      AgentActionLog is one sanitized public decision-log narrative. Optional
+      chain links are populated only from canonical operator-derived facts.
+  v1AgentCard:
+    type: object
+    properties:
+      agentId:
+        type: string
+      leaderAddress:
+        type: string
+      displayName:
+        type: string
+      avatarUrl:
+        type: string
+      isVerified:
+        type: boolean
+      badges:
+        type: array
+        items:
+          type: string
+      modelName:
+        type: string
+      chainId:
+        type: string
+        format: int64
+      asOf:
+        type: string
+        format: date-time
+      strategyLabel:
+        type: string
+      strategyCategories:
+        type: array
+        items:
+          $ref: '#/definitions/v1StrategyCategory'
+      metrics:
+        $ref: '#/definitions/v1AgentMetrics'
+      flatFeeRatePct:
+        $ref: '#/definitions/v1DecimalMetric'
+      startCopyAvailability:
+        $ref: '#/definitions/v1AdvisoryActionAvailability'
+    description: AgentCard is a row in leaderboard and agent discovery.
+  v1AgentMetrics:
+    type: object
+    properties:
+      apr30d:
+        $ref: '#/definitions/v1AprMetric'
+      winRatePct:
+        $ref: '#/definitions/v1DecimalMetric'
+      lifetimeVolumeUsd:
+        $ref: '#/definitions/v1DecimalMetric'
+      copiers:
+        $ref: '#/definitions/v1CountMetric'
+      aumUsd:
+        $ref: '#/definitions/v1DecimalMetric'
+      openPositions:
+        $ref: '#/definitions/v1CountMetric'
+      totalRealizedPnlUsd:
+        $ref: '#/definitions/v1DecimalMetric'
+      maxDrawdownPct:
+        $ref: '#/definitions/v1DecimalMetric'
+      winningPositionCount:
+        $ref: '#/definitions/v1CountMetric'
+      losingPositionCount:
+        $ref: '#/definitions/v1CountMetric'
+      breakevenPositionCount:
+        $ref: '#/definitions/v1CountMetric'
+      closedPositionCount:
+        $ref: '#/definitions/v1CountMetric'
+    description: AgentMetrics contains canonical public agent metrics.
+  v1AgentProfile:
+    type: object
+    properties:
+      agentId:
+        type: string
+      chainId:
+        type: string
+        format: int64
+      displayName:
+        type: string
+      avatarUrl:
+        type: string
+      bio:
+        type: string
+      modelName:
+        type: string
+      badges:
+        type: array
+        items:
+          type: string
+      liveSince:
+        type: string
+        format: date-time
+      whitelistedSymbols:
+        type: array
+        items:
+          type: string
+      tags:
+        type: array
+        items:
+          type: string
+      leaderAddress:
+        type: string
+      isVerified:
+        type: boolean
+      strategyLabel:
+        type: string
+      strategyCategories:
+        type: array
+        items:
+          $ref: '#/definitions/v1StrategyCategory'
+      metrics:
+        $ref: '#/definitions/v1AgentMetrics'
+      flatFeeRatePct:
+        $ref: '#/definitions/v1DecimalMetric'
+      strategyExecutionItems:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/v1StrategyExecutionItem'
+      startCopyAvailability:
+        $ref: '#/definitions/v1AdvisoryActionAvailability'
+    description: AgentProfile contains one agent profile.
+  v1AgentSnapshot:
+    type: object
+    properties:
+      agentId:
+        type: string
+      chainId:
+        type: string
+        format: int64
+      leaderAddress:
+        type: string
+      displayName:
+        type: string
+      avatarUrl:
+        type: string
+      isVerified:
+        type: boolean
+      modelName:
+        type: string
+      strategyLabel:
+        type: string
+      strategyCategories:
+        type: array
+        items:
+          $ref: '#/definitions/v1StrategyCategory'
+      metrics:
+        $ref: '#/definitions/v1AgentSnapshotMetrics'
+      badges:
+        type: array
+        items:
+          type: string
+    description: AgentSnapshot is the lightweight agent projection nested in copy-run rows.
+  v1AgentSnapshotMetrics:
+    type: object
+    properties:
+      apr30d:
+        $ref: '#/definitions/v1AprMetric'
+      winRatePct:
+        $ref: '#/definitions/v1DecimalMetric'
+      lifetimeVolumeUsd:
+        $ref: '#/definitions/v1DecimalMetric'
+    description: AgentSnapshotMetrics contains only metrics required on copy-run rows.
+  v1AprMetric:
+    type: object
+    properties:
+      value:
+        type: string
+      status:
+        $ref: '#/definitions/v1MetricStatus'
+      asOf:
+        type: string
+        format: date-time
+      window:
+        $ref: '#/definitions/v1Window'
+      nominalWindowDays:
+        type: integer
+        format: int32
+      actualWindowSeconds:
+        type: string
+        format: int64
+      windowPolicy:
+        $ref: '#/definitions/v1WindowPolicy'
+      windowStart:
+        type: string
+        format: date-time
+      windowEnd:
+        type: string
+        format: date-time
+    description: AprMetric preserves exact APR value and the interval used to derive it.
+  v1CapitalActivityDetail:
+    type: object
+    properties:
+      movementType:
+        type: string
+      amountRaw:
+        type: string
+      tokenAddress:
+        type: string
+      token:
+        $ref: '#/definitions/v1Token'
+      valueUsd:
+        $ref: '#/definitions/v1DecimalMetric'
+    description: CapitalActivityDetail contains typed copy-account capital movement context.
+  v1Chain:
+    type: object
+    properties:
+      chainId:
+        type: string
+        format: int64
+      slug:
+        type: string
+      name:
+        type: string
+      iconUrl:
+        type: string
+      isEnabled:
+        type: boolean
+    description: Chain is a supported public chain.
+  v1ChainFreshness:
+    type: object
+    properties:
+      chainId:
+        type: string
+        format: int64
+      dataAsOf:
+        type: string
+        format: date-time
+      asOfBlockNumber:
+        type: string
+      safeBlockNumber:
+        type: string
+        description: safe_block_number is the operator's configured reorg-safe boundary, not consensus finality.
+      syncedAt:
+        type: string
+        format: date-time
+      status:
+        $ref: '#/definitions/v1DataStatus'
+    description: ChainFreshness describes source freshness for one chain.
+  v1CopyAccountStatus:
+    type: string
+    enum:
+      - COPY_ACCOUNT_STATUS_UNSPECIFIED
+      - COPY_ACCOUNT_STATUS_ACTIVE
+      - COPY_ACCOUNT_STATUS_CLOSED
+      - COPY_ACCOUNT_STATUS_CLOSING
+      - COPY_ACCOUNT_STATUS_STOPPED
+    default: COPY_ACCOUNT_STATUS_UNSPECIFIED
+    description: CopyAccountStatus describes the public copy-account lifecycle.
+  v1CopyAccountSummary:
+    type: object
+    properties:
+      chainId:
+        type: string
+        format: int64
+      copyAccount:
+        type: string
+      ownerAddress:
+        type: string
+        description: Initial follower-account creation wallet; not current ownership or authorization evidence.
+      activeCopyRuns:
+        $ref: '#/definitions/v1CountMetric'
+      totalAllocatedUsd:
+        $ref: '#/definitions/v1DecimalMetric'
+      portfolioValueUsd:
+        $ref: '#/definitions/v1DecimalMetric'
+      availableBalanceUsd:
+        $ref: '#/definitions/v1DecimalMetric'
+      realizedPnlUsd:
+        $ref: '#/definitions/v1DecimalMetric'
+      unrealizedPnlUsd:
+        $ref: '#/definitions/v1DecimalMetric'
+      openPositionCount:
+        $ref: '#/definitions/v1CountMetric'
+      closedPositionCount:
+        $ref: '#/definitions/v1CountMetric'
+      leftoverPositionCount:
+        $ref: '#/definitions/v1CountMetric'
+      leftoverValueUsd:
+        $ref: '#/definitions/v1DecimalMetric'
+      flatFeesCapturedUsd:
+        $ref: '#/definitions/v1DecimalMetric'
+      cashbackReceivedUsd:
+        $ref: '#/definitions/v1DecimalMetric'
+      netFeeCostUsd:
+        $ref: '#/definitions/v1DecimalMetric'
+      estimatedCashbackPendingUsd:
+        $ref: '#/definitions/v1DecimalMetric'
+      status:
+        $ref: '#/definitions/v1CopyAccountStatus'
+      copyRunId:
+        type: string
+      agentSnapshot:
+        $ref: '#/definitions/v1AgentSnapshot'
+      startedAt:
+        type: string
+        format: date-time
+      stoppedAt:
+        type: string
+        format: date-time
+      addCapitalAvailability:
+        $ref: '#/definitions/v1AdvisoryActionAvailability'
+      stopCopyAvailability:
+        $ref: '#/definitions/v1AdvisoryActionAvailability'
+      withdrawQuoteAvailability:
+        $ref: '#/definitions/v1AdvisoryActionAvailability'
+    description: CopyAccountSummary contains chain-scoped copy-account totals.
+  v1CopyLifecycleActivityDetail:
+    type: object
+    properties:
+      eventId:
+        type: string
+      eventType:
+        type: string
+      beforeStatus:
+        type: string
+      afterStatus:
+        type: string
+    description: CopyLifecycleActivityDetail contains typed copy-run lifecycle context.
+  v1CopyRunStatus:
+    type: string
+    enum:
+      - COPY_RUN_STATUS_UNSPECIFIED
+      - COPY_RUN_STATUS_ACTIVE
+      - COPY_RUN_STATUS_CLOSED
+      - COPY_RUN_STATUS_CLOSING
+      - COPY_RUN_STATUS_STOPPED
+    default: COPY_RUN_STATUS_UNSPECIFIED
+    description: CopyRunStatus describes the public copy-run lifecycle.
+  v1CopyRunSummary:
+    type: object
+    properties:
+      copyRunId:
+        type: string
+      ownerAddress:
+        type: string
+        description: Initial follower-account creation wallet; not current ownership or authorization evidence.
+      agentId:
+        type: string
+      chainId:
+        type: string
+        format: int64
+      copyAccount:
+        type: string
+      startedAt:
+        type: string
+        format: date-time
+      stoppedAt:
+        type: string
+        format: date-time
+      agentSnapshot:
+        $ref: '#/definitions/v1AgentSnapshot'
+      capitalInUsd:
+        $ref: '#/definitions/v1DecimalMetric'
+      capitalOutUsd:
+        $ref: '#/definitions/v1DecimalMetric'
+      portfolioValueUsd:
+        $ref: '#/definitions/v1DecimalMetric'
+      realizedPnlUsd:
+        $ref: '#/definitions/v1DecimalMetric'
+      unrealizedPnlUsd:
+        $ref: '#/definitions/v1DecimalMetric'
+      myAprSinceCopy:
+        $ref: '#/definitions/v1AprMetric'
+      openPositionCount:
+        $ref: '#/definitions/v1CountMetric'
+      closedPositionCount:
+        $ref: '#/definitions/v1CountMetric'
+      leftoverPositionCount:
+        $ref: '#/definitions/v1CountMetric'
+      leftoverValueUsd:
+        $ref: '#/definitions/v1DecimalMetric'
+      durationSeconds:
+        type: string
+        format: int64
+      durationAsOf:
+        type: string
+        format: date-time
+      flatFeesCapturedUsd:
+        $ref: '#/definitions/v1DecimalMetric'
+      cashbackReceivedUsd:
+        $ref: '#/definitions/v1DecimalMetric'
+      netFeeCostUsd:
+        $ref: '#/definitions/v1DecimalMetric'
+      estimatedCashbackPendingUsd:
+        $ref: '#/definitions/v1DecimalMetric'
+      status:
+        $ref: '#/definitions/v1CopyRunStatus'
+      addCapitalAvailability:
+        $ref: '#/definitions/v1AdvisoryActionAvailability'
+      stopCopyAvailability:
+        $ref: '#/definitions/v1AdvisoryActionAvailability'
+      withdrawQuoteAvailability:
+        $ref: '#/definitions/v1AdvisoryActionAvailability'
+    description: CopyRunSummary contains one copy-run row.
+  v1CountMetric:
+    type: object
+    properties:
+      value:
+        type: string
+        format: int64
+      status:
+        $ref: '#/definitions/v1MetricStatus'
+      asOf:
+        type: string
+        format: date-time
+    description: CountMetric preserves an integer count and independent availability.
+  v1CreateWalletSessionChallengeRequest:
+    type: object
+    properties:
+      chainId:
+        type: string
+        format: int64
+      ownerAddress:
+        type: string
+  v1CreateWalletSessionChallengeResponse:
+    type: object
+    properties:
+      data:
+        $ref: '#/definitions/v1WalletSessionChallenge'
+  v1CreateWalletSessionRequest:
+    type: object
+    properties:
+      challengeToken:
+        type: string
+      signature:
+        type: string
+  v1CreateWalletSessionResponse:
+    type: object
+    properties:
+      data:
+        $ref: '#/definitions/v1WalletSession'
+  v1CursorPagination:
+    type: object
+    properties:
+      nextCursor:
+        type: string
+      hasMore:
+        type: boolean
+      limit:
+        type: integer
+        format: int32
+    description: CursorPagination describes opaque cursor pagination.
+  v1DataStatus:
+    type: string
+    enum:
+      - DATA_STATUS_UNSPECIFIED
+      - DATA_STATUS_CURRENT
+      - DATA_STATUS_STALE
+      - DATA_STATUS_UNAVAILABLE
+    default: DATA_STATUS_UNSPECIFIED
+    description: DataStatus describes aggregate response data availability.
+  v1DecimalMetric:
+    type: object
+    properties:
+      value:
+        type: string
+      status:
+        $ref: '#/definitions/v1MetricStatus'
+      asOf:
+        type: string
+        format: date-time
+    description: DecimalMetric preserves exact decimal values and independent availability.
+  v1EvidenceAnchor:
+    type: object
+    properties:
+      blockNumber:
+        type: string
+      blockHash:
+        type: string
+      blockTime:
+        type: string
+        format: date-time
+      coverageGeneration:
+        type: string
+      sourceReorgSequence:
+        type: string
+      actionFactEventSeq:
+        type: string
+      projectors:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/v1ProjectorCoverage'
+    description: EvidenceAnchor is the exact safely covered fact boundary S/E.
+  v1ExecutionActivityDetail:
+    type: object
+    properties:
+      executionKind:
+        type: string
+      eventSeq:
+        type: string
+      eventType:
+        type: string
+      actionKind:
+        type: string
+      copyJobId:
+        type: string
+      exitActionId:
+        type: string
+      executionId:
+        type: string
+      copyJobAction:
+        type: string
+      copyJobStatus:
+        type: string
+      actionStatus:
+        type: string
+      executionStatus:
+        type: string
+      publicErrorCode:
+        type: string
+      publicErrorMessage:
+        type: string
+      configIndex:
+        type: integer
+        format: int64
+      minBaseTokenRateRaw:
+        type: string
+      configDeadlineRaw:
+        type: string
+      token:
+        $ref: '#/definitions/v1Token'
+      displayAmountRaw:
+        type: string
+      valueUsd:
+        $ref: '#/definitions/v1DecimalMetric'
+    description: ExecutionActivityDetail contains typed action and exit lifecycle context.
+  v1FeeActivityDetail:
+    type: object
+    properties:
+      amountRaw:
+        type: string
+      tokenAddress:
+        type: string
+      token:
+        $ref: '#/definitions/v1Token'
+      valueUsd:
+        $ref: '#/definitions/v1DecimalMetric'
+    description: FeeActivityDetail contains typed flat-fee or cashback context.
+  v1FeePolicyPreview:
+    type: object
+    properties:
+      advertisedUpfrontFeeRateRaw:
+        type: string
+      advertisedRateStatus:
+        $ref: '#/definitions/v1MetricStatus'
+    description: |-
+      FeePolicyPreview exposes the controller rate used by the deployed beta-3
+      account. It deliberately does not claim immutable per-account fee terms.
+  v1GetAgentPositionResponse:
+    type: object
+    properties:
+      data:
+        $ref: '#/definitions/v1PositionSummary'
+      meta:
+        $ref: '#/definitions/v1ResponseMeta'
+    description: GetAgentPositionResponse is the agent position detail envelope.
+  v1GetAgentResponse:
+    type: object
+    properties:
+      data:
+        $ref: '#/definitions/v1AgentProfile'
+      meta:
+        $ref: '#/definitions/v1ResponseMeta'
+    description: GetAgentResponse is the agent profile envelope.
+  v1GetAgentStatsResponse:
+    type: object
+    properties:
+      data:
+        $ref: '#/definitions/v1AgentMetrics'
+      meta:
+        $ref: '#/definitions/v1ResponseMeta'
+    description: GetAgentStatsResponse is the agent stats envelope.
+  v1GetCopyAccountSummaryResponse:
+    type: object
+    properties:
+      data:
+        $ref: '#/definitions/v1CopyAccountSummary'
+      meta:
+        $ref: '#/definitions/v1ResponseMeta'
+    description: GetCopyAccountSummaryResponse is the copy-account summary envelope.
+  v1GetLeaderboardSummaryResponse:
+    type: object
+    properties:
+      data:
+        $ref: '#/definitions/v1LeaderboardSummary'
+      meta:
+        $ref: '#/definitions/v1ResponseMeta'
+    description: GetLeaderboardSummaryResponse is the leaderboard summary envelope.
+  v1GetOwnerCopyRunResponse:
+    type: object
+    properties:
+      data:
+        $ref: '#/definitions/v1CopyRunSummary'
+      meta:
+        $ref: '#/definitions/v1ResponseMeta'
+    description: GetOwnerCopyRunResponse is the owner copy-run detail envelope.
+  v1GetOwnerCopySummaryResponse:
+    type: object
+    properties:
+      data:
+        $ref: '#/definitions/v1OwnerCopySummary'
+      meta:
+        $ref: '#/definitions/v1ResponseMeta'
+    description: GetOwnerCopySummaryResponse is the owner summary envelope.
+  v1LeaderboardSortField:
+    type: string
+    enum:
+      - LEADERBOARD_SORT_FIELD_UNSPECIFIED
+      - LEADERBOARD_SORT_FIELD_APR_30D
+      - LEADERBOARD_SORT_FIELD_WIN_RATE
+      - LEADERBOARD_SORT_FIELD_LIFETIME_VOLUME
+      - LEADERBOARD_SORT_FIELD_COPIERS
+      - LEADERBOARD_SORT_FIELD_AUM
+      - LEADERBOARD_SORT_FIELD_OPEN_POSITIONS
+    default: LEADERBOARD_SORT_FIELD_UNSPECIFIED
+    description: LeaderboardSortField selects a public leaderboard metric order.
+  v1LeaderboardSummary:
+    type: object
+    properties:
+      asOf:
+        type: string
+        format: date-time
+      agentCount:
+        $ref: '#/definitions/v1CountMetric'
+      totalAumUsd:
+        $ref: '#/definitions/v1DecimalMetric'
+      totalCopierCount:
+        $ref: '#/definitions/v1CountMetric'
+      lifetimeVolumeUsd:
+        $ref: '#/definitions/v1DecimalMetric'
+    description: LeaderboardSummary contains aggregate leaderboard totals.
+  v1ListAgentActionLogsResponse:
+    type: object
+    properties:
+      data:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/v1AgentActionLog'
+      pagination:
+        $ref: '#/definitions/v1CursorPagination'
+      meta:
+        $ref: '#/definitions/v1ResponseMeta'
+    description: ListAgentActionLogsResponse is the sanitized action-log list envelope.
+  v1ListAgentPerformanceResponse:
+    type: object
+    properties:
+      data:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/v1PerformancePoint'
+      pagination:
+        $ref: '#/definitions/v1CursorPagination'
+      meta:
+        $ref: '#/definitions/v1ResponseMeta'
+    description: ListAgentPerformanceResponse is the agent performance list envelope.
+  v1ListAgentPositionEventsResponse:
+    type: object
+    properties:
+      data:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/v1PositionEvent'
+      pagination:
+        $ref: '#/definitions/v1CursorPagination'
+      meta:
+        $ref: '#/definitions/v1ResponseMeta'
+    description: ListAgentPositionEventsResponse is the agent position event list envelope.
+  v1ListAgentPositionsResponse:
+    type: object
+    properties:
+      data:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/v1PositionSummary'
+      pagination:
+        $ref: '#/definitions/v1CursorPagination'
+      meta:
+        $ref: '#/definitions/v1ResponseMeta'
+    description: ListAgentPositionsResponse is the agent position list envelope.
+  v1ListAgentsResponse:
+    type: object
+    properties:
+      data:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/v1AgentCard'
+      pagination:
+        $ref: '#/definitions/v1CursorPagination'
+      meta:
+        $ref: '#/definitions/v1ResponseMeta'
+    description: ListAgentsResponse is the agent list envelope.
+  v1ListChainsResponse:
+    type: object
+    properties:
+      data:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/v1Chain'
+      meta:
+        $ref: '#/definitions/v1ResponseMeta'
+    description: ListChainsResponse is the chain list envelope.
+  v1ListCopyAccountBalancesResponse:
+    type: object
+    properties:
+      data:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/v1WalletBalanceRow'
+      pagination:
+        $ref: '#/definitions/v1CursorPagination'
+      meta:
+        $ref: '#/definitions/v1ResponseMeta'
+      pinnedStableBalance:
+        $ref: '#/definitions/v1PinnedStableBalance'
+    description: ListCopyAccountBalancesResponse is the wallet inventory list envelope.
+  v1ListCopyAccountHistoryResponse:
+    type: object
+    properties:
+      data:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/v1ActivityRow'
+      pagination:
+        $ref: '#/definitions/v1CursorPagination'
+      meta:
+        $ref: '#/definitions/v1ResponseMeta'
+    description: ListCopyAccountHistoryResponse is the copy-account history envelope.
+  v1ListCopyAccountPositionPendingSellObligationsResponse:
+    type: object
+    properties:
+      data:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/v1PendingSellObligation'
+      pagination:
+        $ref: '#/definitions/v1CursorPagination'
+      meta:
+        $ref: '#/definitions/v1ResponseMeta'
+    description: |-
+      ListCopyAccountPositionPendingSellObligationsResponse is one
+      watermark-consistent current FIFO page.
+  v1ListCopyAccountPositionsResponse:
+    type: object
+    properties:
+      data:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/v1PositionSummary'
+      pagination:
+        $ref: '#/definitions/v1CursorPagination'
+      meta:
+        $ref: '#/definitions/v1ResponseMeta'
+    description: ListCopyAccountPositionsResponse is the copy-account position list envelope.
+  v1ListLeaderboardResponse:
+    type: object
+    properties:
+      data:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/v1AgentCard'
+      pagination:
+        $ref: '#/definitions/v1CursorPagination'
+      meta:
+        $ref: '#/definitions/v1ResponseMeta'
+    description: ListLeaderboardResponse is the leaderboard list envelope.
+  v1ListOwnerActivityResponse:
+    type: object
+    properties:
+      data:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/v1ActivityRow'
+      pagination:
+        $ref: '#/definitions/v1CursorPagination'
+      meta:
+        $ref: '#/definitions/v1ResponseMeta'
+    description: ListOwnerActivityResponse is the owner activity list envelope.
+  v1ListOwnerCopyAccountsResponse:
+    type: object
+    properties:
+      data:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/v1CopyAccountSummary'
+      pagination:
+        $ref: '#/definitions/v1CursorPagination'
+      meta:
+        $ref: '#/definitions/v1ResponseMeta'
+    description: ListOwnerCopyAccountsResponse is the owner copy-account list envelope.
+  v1ListOwnerCopyRunPerformanceResponse:
+    type: object
+    properties:
+      data:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/v1PerformancePoint'
+      pagination:
+        $ref: '#/definitions/v1CursorPagination'
+      meta:
+        $ref: '#/definitions/v1ResponseMeta'
+    description: ListOwnerCopyRunPerformanceResponse is the copy-run performance list envelope.
+  v1ListOwnerCopyRunPositionsResponse:
+    type: object
+    properties:
+      data:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/v1PositionSummary'
+      pagination:
+        $ref: '#/definitions/v1CursorPagination'
+      meta:
+        $ref: '#/definitions/v1ResponseMeta'
+    description: ListOwnerCopyRunPositionsResponse is the copy-run position list envelope.
+  v1ListOwnerCopyRunsResponse:
+    type: object
+    properties:
+      data:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/v1CopyRunSummary'
+      pagination:
+        $ref: '#/definitions/v1CursorPagination'
+      meta:
+        $ref: '#/definitions/v1ResponseMeta'
+      view:
+        $ref: '#/definitions/v1OwnerCopyView'
+    description: ListOwnerCopyRunsResponse is the owner copy-run list envelope.
+  v1ListOwnerPositionsResponse:
+    type: object
+    properties:
+      data:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/v1PositionSummary'
+      pagination:
+        $ref: '#/definitions/v1CursorPagination'
+      meta:
+        $ref: '#/definitions/v1ResponseMeta'
+    description: ListOwnerPositionsResponse is the flattened owner position list envelope.
+  v1MetricStatus:
+    type: string
+    enum:
+      - METRIC_STATUS_UNSPECIFIED
+      - METRIC_STATUS_CURRENT
+      - METRIC_STATUS_STALE
+      - METRIC_STATUS_UNAVAILABLE
+      - METRIC_STATUS_NOT_APPLICABLE
+    default: METRIC_STATUS_UNSPECIFIED
+    description: MetricStatus describes one independently available metric value.
+  v1OwnerCopyRunSortField:
+    type: string
+    enum:
+      - OWNER_COPY_RUN_SORT_FIELD_UNSPECIFIED
+      - OWNER_COPY_RUN_SORT_FIELD_STARTED_AT
+      - OWNER_COPY_RUN_SORT_FIELD_STOPPED_AT
+      - OWNER_COPY_RUN_SORT_FIELD_AGENT_APR_30D
+      - OWNER_COPY_RUN_SORT_FIELD_AGENT_WIN_RATE
+      - OWNER_COPY_RUN_SORT_FIELD_AGENT_LIFETIME_VOLUME
+      - OWNER_COPY_RUN_SORT_FIELD_CAPITAL_IN
+    default: OWNER_COPY_RUN_SORT_FIELD_UNSPECIFIED
+    description: OwnerCopyRunSortField selects a public owner copy-run order.
+  v1OwnerCopySummary:
+    type: object
+    properties:
+      ownerAddress:
+        type: string
+        description: Initial follower-account creation wallet; not current ownership or authorization evidence.
+      activeCopyRuns:
+        $ref: '#/definitions/v1CountMetric'
+      closedCopyRuns:
+        $ref: '#/definitions/v1CountMetric'
+      totalAllocatedUsd:
+        $ref: '#/definitions/v1DecimalMetric'
+      portfolioValueUsd:
+        $ref: '#/definitions/v1DecimalMetric'
+      realizedPnlUsd:
+        $ref: '#/definitions/v1DecimalMetric'
+      unrealizedPnlUsd:
+        $ref: '#/definitions/v1DecimalMetric'
+      openPositionCount:
+        $ref: '#/definitions/v1CountMetric'
+      closedPositionCount:
+        $ref: '#/definitions/v1CountMetric'
+      closedCapitalUsd:
+        $ref: '#/definitions/v1DecimalMetric'
+      leftoverPositionCount:
+        $ref: '#/definitions/v1CountMetric'
+      leftoverValueUsd:
+        $ref: '#/definitions/v1DecimalMetric'
+      flatFeesCapturedUsd:
+        $ref: '#/definitions/v1DecimalMetric'
+      cashbackReceivedUsd:
+        $ref: '#/definitions/v1DecimalMetric'
+      netFeeCostUsd:
+        $ref: '#/definitions/v1DecimalMetric'
+      estimatedCashbackPendingUsd:
+        $ref: '#/definitions/v1DecimalMetric'
+      view:
+        $ref: '#/definitions/v1OwnerCopyView'
+    description: OwnerCopySummary contains public owner dashboard totals.
+  v1OwnerCopyView:
+    type: string
+    enum:
+      - OWNER_COPY_VIEW_UNSPECIFIED
+      - OWNER_COPY_VIEW_OPEN
+      - OWNER_COPY_VIEW_HISTORY
+    default: OWNER_COPY_VIEW_UNSPECIFIED
+    description: OwnerCopyView selects one product tab and its exact membership universe.
+  v1PendingSellObligation:
+    type: object
+    properties:
+      leaderPositionEventId:
+        type: string
+      currentRatioRaw:
+        type: string
+      skippedAt:
+        type: string
+        format: date-time
+        description: |-
+          Optional aggregate display evidence; absence does not invalidate the
+          operator-authoritative obligation or its exact ratio.
+      publicErrorCode:
+        type: string
+      publicErrorMessage:
+        type: string
+    description: |-
+      PendingSellObligation is one current FIFO item behind a skipped-sell
+      recovery. The ratio is the operator's exact post-rebase WAD value. Error
+      fields are sanitized display evidence and are not sizing authority.
+  v1PerformanceInterval:
+    type: string
+    enum:
+      - PERFORMANCE_INTERVAL_UNSPECIFIED
+      - PERFORMANCE_INTERVAL_DAY
+      - PERFORMANCE_INTERVAL_WEEK
+      - PERFORMANCE_INTERVAL_MONTH
+    default: PERFORMANCE_INTERVAL_UNSPECIFIED
+    description: PerformanceInterval selects a public chart bucket interval.
+  v1PerformancePoint:
+    type: object
+    properties:
+      timestamp:
+        type: string
+        format: date-time
+      series:
+        $ref: '#/definitions/v1PerformanceSeries'
+      interval:
+        $ref: '#/definitions/v1PerformanceInterval'
+      valueUsd:
+        $ref: '#/definitions/v1DecimalMetric'
+      tradeId:
+        type: string
+      positionId:
+        type: string
+      token:
+        $ref: '#/definitions/v1Token'
+    description: PerformancePoint is a chart point.
+  v1PerformanceSeries:
+    type: string
+    enum:
+      - PERFORMANCE_SERIES_UNSPECIFIED
+      - PERFORMANCE_SERIES_PORTFOLIO_EQUITY
+      - PERFORMANCE_SERIES_CUMULATIVE_REALIZED_PNL
+      - PERFORMANCE_SERIES_PERIOD_REALIZED_PNL
+      - PERFORMANCE_SERIES_PER_TRADE_REALIZED_PNL
+    default: PERFORMANCE_SERIES_UNSPECIFIED
+    description: PerformanceSeries selects a public chart series.
+  v1PinnedStableBalance:
+    type: object
+    properties:
+      status:
+        $ref: '#/definitions/v1PinnedStableBalanceStatus'
+      balance:
+        $ref: '#/definitions/v1WalletBalanceRow'
+    description: PinnedStableBalance describes the configured stablecoin balance for a copy account.
+  v1PinnedStableBalanceStatus:
+    type: string
+    enum:
+      - PINNED_STABLE_BALANCE_STATUS_UNSPECIFIED
+      - PINNED_STABLE_BALANCE_STATUS_PRESENT
+      - PINNED_STABLE_BALANCE_STATUS_REGISTRATION_PENDING
+      - PINNED_STABLE_BALANCE_STATUS_NOT_INDEXED
+      - PINNED_STABLE_BALANCE_STATUS_UNAVAILABLE
+      - PINNED_STABLE_BALANCE_STATUS_TOKEN_MISMATCH
+    default: PINNED_STABLE_BALANCE_STATUS_UNSPECIFIED
+    description: PinnedStableBalanceStatus describes exact approved-stable balance authority.
+  v1PositionActionKind:
+    type: string
+    enum:
+      - POSITION_ACTION_KIND_UNSPECIFIED
+      - POSITION_ACTION_KIND_MANUAL_SELL
+      - POSITION_ACTION_KIND_CLOSE_POSITION
+    default: POSITION_ACTION_KIND_UNSPECIFIED
+    description: |-
+      PositionActionKind identifies one recovery action currently available for a
+      public position. Live transaction preparation remains authoritative.
+  v1PositionActivityDetail:
+    type: object
+    properties:
+      eventId:
+        type: string
+      actionType:
+        type: string
+      baseTokenAddress:
+        type: string
+      quoteTokenAddress:
+        type: string
+      baseAmountRaw:
+        type: string
+      quoteAmountRaw:
+        type: string
+      accountingStatus:
+        type: string
+      grossBaseSoldRaw:
+        type: string
+      grossQuoteReceivedRaw:
+        type: string
+      baseToken:
+        $ref: '#/definitions/v1Token'
+      quoteToken:
+        $ref: '#/definitions/v1Token'
+      grossBaseBoughtRaw:
+        type: string
+      upfrontFeeCapturedBaseRaw:
+        type: string
+      upfrontFeeReleasedBaseRaw:
+        type: string
+      netBaseReceivedRaw:
+        type: string
+      netBaseSoldRaw:
+        type: string
+      displayBaseRaw:
+        type: string
+      settlementValueUsd:
+        $ref: '#/definitions/v1DecimalMetric'
+      realizedPnlUsd:
+        $ref: '#/definitions/v1DecimalMetric'
+      flatFeeCapturedUsd:
+        $ref: '#/definitions/v1DecimalMetric'
+      cashbackReceivedUsd:
+        $ref: '#/definitions/v1DecimalMetric'
+    description: PositionActivityDetail contains typed follower-position context.
+  v1PositionEvent:
+    type: object
+    properties:
+      eventId:
+        type: string
+      positionId:
+        type: string
+      chainId:
+        type: string
+        format: int64
+      eventType:
+        type: string
+      summary:
+        type: string
+      occurredAt:
+        type: string
+        format: date-time
+      txHash:
+        type: string
+      blockNumber:
+        type: string
+    description: PositionEvent is a public position lifecycle event.
+  v1PositionExitKind:
+    type: string
+    enum:
+      - POSITION_EXIT_KIND_UNSPECIFIED
+      - POSITION_EXIT_KIND_ALIGNED
+      - POSITION_EXIT_KIND_MANUAL
+    default: POSITION_EXIT_KIND_UNSPECIFIED
+    description: PositionExitKind identifies how a terminal or reduced position exited.
+  v1PositionLifecycle:
+    type: string
+    enum:
+      - POSITION_LIFECYCLE_UNSPECIFIED
+      - POSITION_LIFECYCLE_ACTIVE
+      - POSITION_LIFECYCLE_CLOSING
+      - POSITION_LIFECYCLE_CLOSED
+    default: POSITION_LIFECYCLE_UNSPECIFIED
+    description: PositionLifecycle describes the authoritative public position state.
+  v1PositionQuantityState:
+    type: string
+    enum:
+      - POSITION_QUANTITY_STATE_UNSPECIFIED
+      - POSITION_QUANTITY_STATE_OPEN_FULL
+      - POSITION_QUANTITY_STATE_OPEN_PARTIAL
+      - POSITION_QUANTITY_STATE_CLOSED
+    default: POSITION_QUANTITY_STATE_UNSPECIFIED
+    description: PositionQuantityState describes how much of the original position remains.
+  v1PositionSellContext:
+    type: string
+    enum:
+      - POSITION_SELL_CONTEXT_UNSPECIFIED
+      - POSITION_SELL_CONTEXT_ALIGN_SKIP
+      - POSITION_SELL_CONTEXT_STOP_COPY
+    default: POSITION_SELL_CONTEXT_UNSPECIFIED
+    description: PositionSellContext identifies the canonical recovery source for a position sell.
+  v1PositionSellPreview:
+    type: object
+    properties:
+      context:
+        $ref: '#/definitions/v1PositionSellContext'
+      userPositionId:
+        type: string
+      tradeId:
+        type: string
+      baseToken:
+        $ref: '#/definitions/v1Token'
+      quoteToken:
+        $ref: '#/definitions/v1Token'
+      remainingBaseBefore:
+        $ref: '#/definitions/v1RawAmountMetric'
+      sellBase:
+        $ref: '#/definitions/v1RawAmountMetric'
+      upfrontFeeReleasedBase:
+        $ref: '#/definitions/v1RawAmountMetric'
+      sellRatioRaw:
+        type: string
+      unresolvedSkipCount:
+        type: integer
+        format: int64
+      cashback:
+        $ref: '#/definitions/v1RawAmountMetric'
+      swapQuote:
+        $ref: '#/definitions/v1SwapQuotePreview'
+    description: |-
+      PositionSellPreview contains the shared Manual Sell and Close Position facts.
+      Identity and obligation fields may be absent while source coverage is pending;
+      retained raw metrics remain present with an explicit unavailable status.
+      Gross route input remains private because it is an internal accounting and
+      routing quantity rather than the user's sell amount.
+  v1PositionSortField:
+    type: string
+    enum:
+      - POSITION_SORT_FIELD_UNSPECIFIED
+      - POSITION_SORT_FIELD_OPENED_AT
+      - POSITION_SORT_FIELD_CLOSED_AT
+      - POSITION_SORT_FIELD_VALUE_USD
+    default: POSITION_SORT_FIELD_UNSPECIFIED
+    description: PositionSortField selects a public position order.
+  v1PositionSummary:
+    type: object
+    properties:
+      positionId:
+        type: string
+      userPositionId:
+        type: string
+      agentPositionId:
+        type: string
+      copyRunId:
+        type: string
+      agentId:
+        type: string
+      chainId:
+        type: string
+        format: int64
+      copyAccount:
+        type: string
+      tradeId:
+        type: string
+      token:
+        $ref: '#/definitions/v1Token'
+      openedAt:
+        type: string
+        format: date-time
+      closedAt:
+        type: string
+        format: date-time
+      lifecycle:
+        $ref: '#/definitions/v1PositionLifecycle'
+      remainingBaseRaw:
+        type: string
+      entryValuation:
+        $ref: '#/definitions/v1PositionValuation'
+      currentValuation:
+        $ref: '#/definitions/v1PositionValuation'
+      exitValuation:
+        $ref: '#/definitions/v1PositionValuation'
+      realizedPnlUsd:
+        $ref: '#/definitions/v1DecimalMetric'
+      unrealizedPnlUsd:
+        $ref: '#/definitions/v1DecimalMetric'
+      unrealizedPnlPct:
+        $ref: '#/definitions/v1DecimalMetric'
+      flatFeeCapturedUsd:
+        $ref: '#/definitions/v1DecimalMetric'
+      cashbackReceivedUsd:
+        $ref: '#/definitions/v1DecimalMetric'
+      netFeeCostUsd:
+        $ref: '#/definitions/v1DecimalMetric'
+      estimatedCashbackUsd:
+        $ref: '#/definitions/v1DecimalMetric'
+      skippedSellCount:
+        $ref: '#/definitions/v1CountMetric'
+      latestSkippedRatio:
+        $ref: '#/definitions/v1RatioMetric'
+      cumulativeSkippedRatio:
+        $ref: '#/definitions/v1RatioMetric'
+      latestSkipPublicErrorCode:
+        type: string
+      isLeftover:
+        type: boolean
+      leftoverReason:
+        type: string
+      leftoverValuation:
+        $ref: '#/definitions/v1PositionValuation'
+      durationSeconds:
+        type: string
+        format: int64
+      durationAsOf:
+        type: string
+        format: date-time
+      totalGrossBaseBoughtRaw:
+        type: string
+      totalGrossBaseSoldRaw:
+        type: string
+      upfrontFeeCapturedBaseRaw:
+        type: string
+      upfrontFeeReleasedBaseRaw:
+        type: string
+      netBaseReceivedRaw:
+        type: string
+      remainingNetBaseRaw:
+        type: string
+      displayBaseRaw:
+        type: string
+      quantityState:
+        $ref: '#/definitions/v1PositionQuantityState'
+      exitKind:
+        $ref: '#/definitions/v1PositionExitKind'
+      actionKind:
+        $ref: '#/definitions/v1PositionActionKind'
+      availableActionKinds:
+        type: array
+        items:
+          $ref: '#/definitions/v1PositionActionKind'
+    description: PositionSummary is a public position row.
+  v1PositionValuation:
+    type: object
+    properties:
+      valueUsd:
+        type: string
+      priceUsd:
+        type: string
+      priceSource:
+        type: string
+      priceAsOf:
+        type: string
+        format: date-time
+      asOf:
+        type: string
+        format: date-time
+      isEstimated:
+        type: boolean
+      isFinal:
+        type: boolean
+      status:
+        $ref: '#/definitions/v1DataStatus'
+    description: PositionValuation describes one independently available position value.
+  v1PositionView:
+    type: string
+    enum:
+      - POSITION_VIEW_UNSPECIFIED
+      - POSITION_VIEW_ALL
+      - POSITION_VIEW_OPEN
+      - POSITION_VIEW_CLOSED
+      - POSITION_VIEW_LEFTOVER
+    default: POSITION_VIEW_UNSPECIFIED
+    description: PositionView filters position collections without changing lifecycle state.
+  v1PrepareAddCapitalResponse:
+    type: object
+    properties:
+      data:
+        $ref: '#/definitions/v1PreparedAction'
+  v1PrepareClosePositionResponse:
+    type: object
+    properties:
+      data:
+        $ref: '#/definitions/v1PreparedAction'
+  v1PrepareManualSellResponse:
+    type: object
+    properties:
+      data:
+        $ref: '#/definitions/v1PreparedAction'
+  v1PrepareStartCopyResponse:
+    type: object
+    properties:
+      data:
+        $ref: '#/definitions/v1PreparedAction'
+  v1PrepareStopCopyResponse:
+    type: object
+    properties:
+      data:
+        $ref: '#/definitions/v1PreparedAction'
+  v1PrepareWithdrawQuoteResponse:
+    type: object
+    properties:
+      data:
+        $ref: '#/definitions/v1PreparedAction'
+  v1PreparedAction:
+    type: object
+    properties:
+      status:
+        $ref: '#/definitions/v1PreparedActionStatus'
+      chainId:
+        type: string
+        format: int64
+      expectedAccount:
+        type: string
+      preparedAt:
+        type: string
+        format: date-time
+      reprepareAfter:
+        type: string
+        format: date-time
+      liquidationConfigDeadline:
+        type: string
+        format: date-time
+      call:
+        $ref: '#/definitions/v1PreparedCall'
+      reason:
+        $ref: '#/definitions/v1PreparedActionReason'
+      warnings:
+        type: array
+        items:
+          $ref: '#/definitions/v1PreparedActionWarning'
+      evidence:
+        $ref: '#/definitions/v1ActionEvidence'
+      copyAccount:
+        type: string
+      startCopy:
+        $ref: '#/definitions/v1StartCopyPreview'
+      addCapital:
+        $ref: '#/definitions/v1AddCapitalPreview'
+      stopCopy:
+        $ref: '#/definitions/v1StopCopyPreview'
+      withdrawQuote:
+        $ref: '#/definitions/v1WithdrawQuotePreview'
+      manualSell:
+        $ref: '#/definitions/v1PositionSellPreview'
+      closePosition:
+        $ref: '#/definitions/v1PositionSellPreview'
+    description: PreparedAction is the common current-action result.
+  v1PreparedActionReason:
+    type: string
+    enum:
+      - PREPARED_ACTION_REASON_UNSPECIFIED
+      - PREPARED_ACTION_REASON_ALREADY_ACTIVE
+      - PREPARED_ACTION_REASON_NOT_CURRENT_OWNER
+      - PREPARED_ACTION_REASON_ACCOUNT_NOT_ACTIVE
+      - PREPARED_ACTION_REASON_ACCOUNT_NOT_STOPPED
+      - PREPARED_ACTION_REASON_ACCOUNT_PERMANENTLY_PAUSED
+      - PREPARED_ACTION_REASON_EXIT_IN_PROGRESS
+      - PREPARED_ACTION_REASON_EXIT_NOT_TERMINAL
+      - PREPARED_ACTION_REASON_SOURCE_STALE
+      - PREPARED_ACTION_REASON_SOURCE_COVERAGE_PENDING
+      - PREPARED_ACTION_REASON_FACTORY_PAUSED
+      - PREPARED_ACTION_REASON_FEE_POLICY_CHANGED
+      - PREPARED_ACTION_REASON_SIGNER_POLICY_CHANGED
+      - PREPARED_ACTION_REASON_REQUEST_ID_CONFLICT
+      - PREPARED_ACTION_REASON_UNSUPPORTED_ACCOUNT_GENERATION
+      - PREPARED_ACTION_REASON_NO_QUOTE_BALANCE
+      - PREPARED_ACTION_REASON_INSUFFICIENT_QUOTE_BALANCE
+      - PREPARED_ACTION_REASON_CONTROLLER_PAUSED
+      - PREPARED_ACTION_REASON_COPY_RUN_STOPPED
+      - PREPARED_ACTION_REASON_UNSUPPORTED_QUOTE_TOKEN
+      - PREPARED_ACTION_REASON_AMOUNT_BELOW_MINIMUM
+      - PREPARED_ACTION_REASON_INVALID_STOP_INTENT
+      - PREPARED_ACTION_REASON_NO_EXECUTABLE_ROUTE
+      - PREPARED_ACTION_REASON_INNER_CALL_REVERTED
+      - PREPARED_ACTION_REASON_NO_SELLABLE_BASE
+      - PREPARED_ACTION_REASON_NO_PENDING_SELL_OBLIGATION
+      - PREPARED_ACTION_REASON_SELL_OBLIGATION_CHANGED
+      - PREPARED_ACTION_REASON_POSITION_NOT_OPEN
+      - PREPARED_ACTION_REASON_CLOSE_NOT_ELIGIBLE
+    default: PREPARED_ACTION_REASON_UNSPECIFIED
+    description: PreparedActionReason is the shared stable action/preparation reason vocabulary.
+  v1PreparedActionStatus:
+    type: string
+    enum:
+      - PREPARED_ACTION_STATUS_UNSPECIFIED
+      - PREPARED_ACTION_STATUS_READY
+      - PREPARED_ACTION_STATUS_PARTIALLY_COMPLETED
+      - PREPARED_ACTION_STATUS_COMPLETED
+      - PREPARED_ACTION_STATUS_PENDING
+      - PREPARED_ACTION_STATUS_UNAVAILABLE
+    default: PREPARED_ACTION_STATUS_UNSPECIFIED
+    description: PreparedActionStatus describes whether a prepared action can be submitted.
+  v1PreparedActionWarning:
+    type: string
+    enum:
+      - PREPARED_ACTION_WARNING_UNSPECIFIED
+      - PREPARED_ACTION_WARNING_ALLOCATION_STALE
+      - PREPARED_ACTION_WARNING_INVALID_STOP_INTENT_RECOVERED
+      - PREPARED_ACTION_WARNING_OWNER_SNAPSHOT_REQUIRES_REFRESH
+    default: PREPARED_ACTION_WARNING_UNSPECIFIED
+    description: PreparedActionWarning carries allowlisted render-only qualifications.
+  v1PreparedCall:
+    type: object
+    properties:
+      kind:
+        $ref: '#/definitions/v1PreparedCallKind'
+      to:
+        type: string
+      data:
+        type: string
+      valueRaw:
+        type: string
+    description: PreparedCall is one reviewed ordinary EVM CALL. The wallet owns its outer envelope.
+  v1PreparedCallKind:
+    type: string
+    enum:
+      - PREPARED_CALL_KIND_UNSPECIFIED
+      - PREPARED_CALL_KIND_START_COPY_CREATE
+      - PREPARED_CALL_KIND_START_COPY_FUND
+      - PREPARED_CALL_KIND_ADD_CAPITAL
+      - PREPARED_CALL_KIND_STOP_COPY
+      - PREPARED_CALL_KIND_WITHDRAW_QUOTE
+      - PREPARED_CALL_KIND_MANUAL_SELL
+      - PREPARED_CALL_KIND_CLOSE_POSITION
+    default: PREPARED_CALL_KIND_UNSPECIFIED
+    description: PreparedCallKind identifies the reviewed semantic call returned to the wallet.
+  v1ProjectorCoverage:
+    type: object
+    properties:
+      projector:
+        type: string
+      completedThroughBlockNumber:
+        type: string
+      coverageGeneration:
+        type: string
+      sourceReorgSequence:
+        type: string
+    description: ProjectorCoverage identifies one projector included in the frozen evidence fold.
+  v1RatioMetric:
+    type: object
+    properties:
+      valueRaw:
+        type: string
+      status:
+        $ref: '#/definitions/v1MetricStatus'
+      asOf:
+        type: string
+        format: date-time
+    description: RatioMetric preserves an exact fixed-point ratio scaled by 1e18.
+  v1RawAmountMetric:
+    type: object
+    properties:
+      valueRaw:
+        type: string
+      status:
+        $ref: '#/definitions/v1MetricStatus'
+      asOf:
+        type: string
+        format: date-time
+    description: RawAmountMetric preserves authoritative zero separately from unavailable data.
+  v1ResponseMeta:
+    type: object
+    properties:
+      requestId:
+        type: string
+      generatedAt:
+        type: string
+        format: date-time
+      dataAsOf:
+        type: string
+        format: date-time
+      stalenessReason:
+        type: string
+      asOfChains:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/v1ChainFreshness'
+      status:
+        $ref: '#/definitions/v1DataStatus'
+    description: ResponseMeta carries freshness metadata for public responses.
+  v1SortOrder:
+    type: string
+    enum:
+      - SORT_ORDER_UNSPECIFIED
+      - SORT_ORDER_ASC
+      - SORT_ORDER_DESC
+    default: SORT_ORDER_UNSPECIFIED
+    description: SortOrder controls the direction of a stable public order.
+  v1StartCopyPreview:
+    type: object
+    properties:
+      stage:
+        $ref: '#/definitions/v1StartCopyStage'
+      startRequestId:
+        type: string
+      predictedCopyAccount:
+        type: string
+      quoteToken:
+        $ref: '#/definitions/v1Token'
+      requestedTargetRaw:
+        type: string
+      initialCapitalCredited:
+        $ref: '#/definitions/v1RawAmountMetric'
+      remainingTargetDeficit:
+        $ref: '#/definitions/v1RawAmountMetric'
+      minimumInitialCapitalRaw:
+        type: string
+      walletQuoteBalance:
+        $ref: '#/definitions/v1RawAmountMetric'
+      feePolicy:
+        $ref: '#/definitions/v1FeePolicyPreview'
+    description: StartCopyPreview contains the deterministic create/fund state shown by the UI.
+  v1StartCopyStage:
+    type: string
+    enum:
+      - START_COPY_STAGE_UNSPECIFIED
+      - START_COPY_STAGE_CREATE_REQUIRED
+      - START_COPY_STAGE_FUNDING_REQUIRED
+      - START_COPY_STAGE_COMPLETE
+    default: START_COPY_STAGE_UNSPECIFIED
+    description: StartCopyStage identifies the current deterministic Start Copy stage.
+  v1StopCopyPreview:
+    type: object
+    properties:
+      positions:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/v1StopPositionPreview'
+      totalCurrentValueUsd:
+        $ref: '#/definitions/v1DecimalMetric'
+      totalCashback:
+        $ref: '#/definitions/v1RawAmountMetric'
+      quoteToken:
+        $ref: '#/definitions/v1Token'
+      totalSwapQuote:
+        $ref: '#/definitions/v1SwapQuotePreview'
+    description: StopCopyPreview contains the atomic Stop Copy selection and totals.
+  v1StopPositionPreview:
+    type: object
+    properties:
+      userPositionId:
+        type: string
+      tradeId:
+        type: string
+      baseToken:
+        $ref: '#/definitions/v1Token'
+      userBaseRaw:
+        type: string
+      cashback:
+        $ref: '#/definitions/v1RawAmountMetric'
+      currentValuation:
+        $ref: '#/definitions/v1PositionValuation'
+      lifecycle:
+        $ref: '#/definitions/v1PositionLifecycle'
+      unrealizedPnlUsd:
+        $ref: '#/definitions/v1DecimalMetric'
+      swapQuote:
+        $ref: '#/definitions/v1SwapQuotePreview'
+    description: StopPositionPreview is one bounded position row in a Stop Copy preview.
+  v1StrategyCategory:
+    type: string
+    enum:
+      - STRATEGY_CATEGORY_UNSPECIFIED
+      - STRATEGY_CATEGORY_FOCUSED
+      - STRATEGY_CATEGORY_DIVERSIFIED
+      - STRATEGY_CATEGORY_ACTIVE
+    default: STRATEGY_CATEGORY_UNSPECIFIED
+    description: StrategyCategory is a derived, overlapping public strategy category.
+  v1StrategyExecutionItem:
+    type: object
+    properties:
+      label:
+        type: string
+      description:
+        type: string
+    description: StrategyExecutionItem is one configured Strategy & Execution display item.
+  v1SwapQuotePreview:
+    type: object
+    properties:
+      expectedQuote:
+        $ref: '#/definitions/v1RawAmountMetric'
+      minimumQuote:
+        $ref: '#/definitions/v1RawAmountMetric'
+      effectiveSlippageBps:
+        type: integer
+        format: int64
+    description: SwapQuotePreview is valid only for its parent preparation through reprepare_after.
+  v1Token:
+    type: object
+    properties:
+      chainId:
+        type: string
+        format: int64
+      address:
+        type: string
+      symbol:
+        type: string
+      name:
+        type: string
+      decimals:
+        type: integer
+        format: int32
+      logoUrl:
+        type: string
+    description: Token describes public token display metadata.
+  v1WalletBalanceRow:
+    type: object
+    properties:
+      chainId:
+        type: string
+        format: int64
+      copyAccount:
+        type: string
+      tokenAddress:
+        type: string
+      amountDecimal:
+        type: string
+      balanceSource:
+        type: string
+      freshnessStatus:
+        type: string
+      balanceAsOfBlock:
+        type: string
+      cachedAt:
+        type: string
+        format: date-time
+      stalenessReason:
+        type: string
+      token:
+        $ref: '#/definitions/v1Token'
+      currentValuation:
+        $ref: '#/definitions/v1PositionValuation'
+    description: WalletBalanceRow is a copy-account wallet inventory row.
+  v1WalletSession:
+    type: object
+    properties:
+      accessToken:
+        type: string
+      tokenType:
+        type: string
+      chainId:
+        type: string
+        format: int64
+      ownerAddress:
+        type: string
+      expiresAt:
+        type: string
+        format: date-time
+  v1WalletSessionChallenge:
+    type: object
+    properties:
+      siweMessage:
+        type: string
+      challengeToken:
+        type: string
+      expiresAt:
+        type: string
+        format: date-time
+  v1Window:
+    type: string
+    enum:
+      - WINDOW_UNSPECIFIED
+      - WINDOW_7D
+      - WINDOW_30D
+      - WINDOW_90D
+      - WINDOW_ALL
+    default: WINDOW_UNSPECIFIED
+    description: Window selects a public metric or chart time window.
+  v1WindowPolicy:
+    type: string
+    enum:
+      - WINDOW_POLICY_UNSPECIFIED
+      - WINDOW_POLICY_TRAILING
+      - WINDOW_POLICY_SINCE_LIVE
+      - WINDOW_POLICY_SINCE_COPY_START
+    default: WINDOW_POLICY_UNSPECIFIED
+    description: WindowPolicy identifies how an APR interval boundary was selected.
+  v1WithdrawQuotePreview:
+    type: object
+    properties:
+      quoteToken:
+        $ref: '#/definitions/v1Token'
+      quoteBalance:
+        $ref: '#/definitions/v1RawAmountMetric'
+      sweepAmountRaw:
+        type: string
+      recipientAddress:
+        type: string
+    description: WithdrawQuotePreview describes a repeatable max sweep to the owner snapshot at H.
+securityDefinitions:
+  WalletSessionBearer:
+    type: apiKey
+    description: 'Short-lived wallet session as: Bearer <access_token>. Required only for Manual Sell and Close Position preparation.'
+    name: Authorization
+    in: header

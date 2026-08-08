@@ -1,6 +1,19 @@
 import { t } from '@lingui/macro'
 import dayjs from 'dayjs'
 
+type DateTimeValue = string | number | Date
+
+const parseDateTime = (value?: DateTimeValue) => {
+  if (value === undefined || value === '') return undefined
+
+  const date = dayjs(value).locale('en')
+  return date.isValid() ? date : undefined
+}
+
+export const formatDateTime = (value?: DateTimeValue) => parseDateTime(value)?.format('YYYY-MM-DD HH:mm') || '-'
+
+export const formatShortDate = (value?: DateTimeValue) => parseDateTime(value)?.format('MMM D') || '-'
+
 export const isChristmasTime = () => {
   const currentTime = dayjs()
   return currentTime.month() === 11 && currentTime.date() >= 12
