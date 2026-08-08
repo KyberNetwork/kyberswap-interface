@@ -31,7 +31,6 @@ import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
 import RewardSyncing from 'pages/Earns/components/RewardSyncing'
 import { EARN_DEXES, LIMIT_TEXT_STYLES } from 'pages/Earns/constants'
 import { EarnPool, ParsedPosition, PositionStatus, TokenRewardInfo } from 'pages/Earns/types'
-import { excludeEg, isEgCalculating } from 'pages/Earns/utils/egCalculating'
 import { checkEarlyPosition } from 'pages/Earns/utils/position'
 import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
@@ -140,8 +139,6 @@ export default function PositionRowItem({
   const isStablePair = pool.category === PAIR_CATEGORY.STABLE
   const isEarlyPosition = checkEarlyPosition(position)
   const isWaitingForRewards = pool.isFarming && rewards.totalUsdValue === 0 && isEarlyPosition
-  const egCalculating = isEgCalculating(chain.id, pool.isFarmingEg)
-  const totalApr = (egCalculating ? excludeEg(apr['24h'], position.kemEGApr['24h']) : apr['24h']) + bonusApr
   const merklRewards = rewardsByPosition?.[positionId]?.rewards || []
   const merklRewardsTotalUsd = rewardsByPosition?.[positionId]?.totalUsdValue || 0
   const suggestedProtocolName = position.suggestionPool
@@ -312,10 +309,9 @@ export default function PositionRowItem({
                 egApr={position.kemEGApr['24h']}
                 lmApr={position.kemLMApr['24h']}
                 merklApr={bonusApr}
-                egCalculating={egCalculating}
               >
                 <span className="text-primary">
-                  <AnimatedNumber value={`${formatAprNumber(totalApr)}%`} />
+                  <AnimatedNumber value={`${formatAprNumber(apr['24h'] + bonusApr)}%`} />
                 </span>
               </AprDetailTooltip>
             ) : (

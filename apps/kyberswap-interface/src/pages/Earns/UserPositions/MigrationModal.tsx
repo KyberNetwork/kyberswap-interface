@@ -19,7 +19,6 @@ import {
 } from 'pages/Earns/PoolExplorer/styles'
 import AprDetailTooltip from 'pages/Earns/components/AprDetailTooltip'
 import { EarnPool, ParsedPosition, ProgramType, SuggestedPool } from 'pages/Earns/types'
-import { excludeEg, hasEgProgram, isEgCalculating } from 'pages/Earns/utils/egCalculating'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
 
@@ -54,8 +53,6 @@ export default function MigrationModal({
               farmingPools.map((pool: EarnPool) => {
                 const isFarming = pool.programs?.includes(ProgramType.EG) || pool.programs?.includes(ProgramType.LM)
                 const isFarmingLm = pool.programs?.includes(ProgramType.LM)
-                const egCalculating = isEgCalculating(pool.chain?.id ?? pool.chainId, hasEgProgram(pool.programs))
-                const allApr = egCalculating ? excludeEg(pool.allApr, pool.kemEGApr) : pool.allApr
 
                 return (
                   <MigrateTableRow
@@ -86,15 +83,10 @@ export default function MigrationModal({
                       </SymbolText>
                       <FeeTier>{formatDisplayNumber(pool.feeTier, { significantDigits: 4 })}%</FeeTier>
                     </div>
-                    <Apr value={allApr}>
-                      {formatAprNumber(allApr)}%{' '}
+                    <Apr value={pool.allApr}>
+                      {formatAprNumber(pool.allApr)}%{' '}
                       {isFarming ? (
-                        <AprDetailTooltip
-                          feeApr={pool.lpApr}
-                          egApr={pool.kemEGApr}
-                          lmApr={pool.kemLMApr}
-                          egCalculating={egCalculating}
-                        >
+                        <AprDetailTooltip feeApr={pool.lpApr} egApr={pool.kemEGApr} lmApr={pool.kemLMApr}>
                           {isFarmingLm ? (
                             <FarmingLmIcon width={20} height={20} />
                           ) : (
@@ -120,8 +112,6 @@ export default function MigrationModal({
               farmingPools.map(pool => {
                 const isFarming = pool.programs?.includes(ProgramType.EG) || pool.programs?.includes(ProgramType.LM)
                 const isFarmingLm = pool.programs?.includes(ProgramType.LM)
-                const egCalculating = isEgCalculating(pool.chain?.id ?? pool.chainId, hasEgProgram(pool.programs))
-                const allApr = egCalculating ? excludeEg(pool.allApr, pool.kemEGApr) : pool.allApr
 
                 return (
                   <MobileTableRow
@@ -153,14 +143,9 @@ export default function MigrationModal({
                         </SymbolText>
                       </div>
                       <div className="flex items-center gap-0.5">
-                        <Apr value={allApr}>{formatAprNumber(allApr)}%</Apr>
+                        <Apr value={pool.allApr}>{formatAprNumber(pool.allApr)}%</Apr>
                         {isFarming ? (
-                          <AprDetailTooltip
-                            feeApr={pool.lpApr}
-                            egApr={pool.kemEGApr}
-                            lmApr={pool.kemLMApr}
-                            egCalculating={egCalculating}
-                          >
+                          <AprDetailTooltip feeApr={pool.lpApr} egApr={pool.kemEGApr} lmApr={pool.kemLMApr}>
                             {isFarmingLm ? (
                               <FarmingLmIcon width={20} height={20} />
                             ) : (

@@ -17,7 +17,6 @@ import {
 } from 'pages/Earns/PoolDetail/Information/utils'
 import PoolChartState, { PoolChartWrapper } from 'pages/Earns/PoolDetail/components/PoolChartState'
 import PoolEarningPieChart from 'pages/Earns/PoolDetail/components/PoolEarningPieChart'
-import { excludeEg } from 'pages/Earns/utils/egCalculating'
 import { MEDIA_WIDTHS } from 'theme'
 
 type EarningsSegmentKey = 'lpFeeUsd' | 'lmUsd' | 'egUsd' | 'bonusUsd'
@@ -34,8 +33,6 @@ type PoolEarningChartProps = {
   chainId: number
   poolAddress?: string
   positionId?: string
-  /** Drops the EG segment and its share of every bucket total. */
-  egCalculating?: boolean
 }
 
 const TooltipCard = ({ children }: { children: React.ReactNode }) => (
@@ -132,7 +129,7 @@ const EarningsTooltip = ({
   )
 }
 
-const PoolEarningChart = ({ chainId, poolAddress, positionId, egCalculating }: PoolEarningChartProps) => {
+const PoolEarningChart = ({ chainId, poolAddress, positionId }: PoolEarningChartProps) => {
   const theme = useTheme()
   const [window, setWindow] = useState<PoolAnalyticsWindow>('7d')
 
@@ -169,22 +166,18 @@ const PoolEarningChart = ({ chainId, poolAddress, positionId, egCalculating }: P
       { key: 'bonusUsd', label: 'Bonus', color: '#FF9B5C' },
     ]
 
-    return items.filter(item => (hasBonusUsd || item.key !== 'bonusUsd') && (!egCalculating || item.key !== 'egUsd'))
-  }, [egCalculating, hasBonusUsd, theme.blue])
+    return hasBonusUsd ? items : items.filter(item => item.key !== 'bonusUsd')
+  }, [hasBonusUsd, theme.blue])
 
   const chartData = useMemo<EarningsChartPoint[]>(() => {
     const visibleLabelStep = getVisibleLabelStep(buckets.length, upToSmall, displayWindow)
 
-    return buckets.map((bucket, index) => {
-      const point = egCalculating ? { ...bucket, egUsd: 0, totalUsd: excludeEg(bucket.totalUsd, bucket.egUsd) } : bucket
-
-      return {
-        ...point,
-        showTotalLabel: index % visibleLabelStep === 0 || index === buckets.length - 1,
-        topSegmentKey: getTopSegmentKey(point, breakdownConfig),
-      }
-    })
-  }, [breakdownConfig, buckets, displayWindow, egCalculating, upToSmall])
+    return buckets.map((bucket, index) => ({
+      ...bucket,
+      showTotalLabel: index % visibleLabelStep === 0 || index === buckets.length - 1,
+      topSegmentKey: getTopSegmentKey(bucket, breakdownConfig),
+    }))
+  }, [breakdownConfig, buckets, displayWindow, upToSmall])
 
   const dateAxisTicks = useMemo(() => getUniqueDateAxisTicks(chartData, displayWindow), [chartData, displayWindow])
 
@@ -275,7 +268,6 @@ const PoolEarningChart = ({ chainId, poolAddress, positionId, egCalculating }: P
 
       <PoolEarningPieChart
         chainId={chainId}
-        egCalculating={egCalculating}
         poolAddress={poolAddress}
         positionId={positionId}
         size={breakdownChartSize}

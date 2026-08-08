@@ -18,7 +18,6 @@ import {
 } from 'pages/Earns/PoolDetail/Information/utils'
 import PoolChartState, { PoolChartWrapper } from 'pages/Earns/PoolDetail/components/PoolChartState'
 import { ProgramType } from 'pages/Earns/types'
-import { excludeEg } from 'pages/Earns/utils/egCalculating'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
 
@@ -87,18 +86,9 @@ type AprHistoryChartProps = {
     totalApr?: number
     activeApr?: number
   }
-  /** Drops the EG share out of every APR figure, current and historical. */
-  egCalculating?: boolean
 }
 
-const AprHistoryChart = ({
-  chainId,
-  poolAddress,
-  positionId,
-  programs,
-  currentApr,
-  egCalculating,
-}: AprHistoryChartProps) => {
+const AprHistoryChart = ({ chainId, poolAddress, positionId, programs, currentApr }: AprHistoryChartProps) => {
   const theme = useTheme()
 
   const [window, setWindow] = useState<PoolAnalyticsWindow>('7d')
@@ -136,16 +126,10 @@ const AprHistoryChart = ({
       (aprHistoryData?.points ?? []).map(point => {
         return {
           ...point,
-          ...(egCalculating
-            ? {
-                totalApr: excludeEg(point.totalApr, point.egApr),
-                activeApr: excludeEg(point.activeApr, point.activeEgApr),
-              }
-            : null),
           volumeBarColor: point.close >= point.open ? volumeUpColor : volumeDownColor,
         }
       }),
-    [aprHistoryData?.points, egCalculating, volumeDownColor, volumeUpColor],
+    [aprHistoryData?.points, volumeDownColor, volumeUpColor],
   )
 
   const dateAxisTicks = useMemo(() => getUniqueDateAxisTicks(chartData, displayWindow), [chartData, displayWindow])

@@ -5,7 +5,6 @@ import { PropsWithChildren, useMemo } from 'react'
 import TokenLogo from 'components/TokenLogo'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import { NETWORKS_INFO } from 'constants/networks'
-import EgCalculating from 'pages/Earns/components/EgCalculating'
 import { MerklOpportunity } from 'pages/Earns/types'
 
 type Props = PropsWithChildren<{
@@ -14,18 +13,9 @@ type Props = PropsWithChildren<{
   dexLogo?: string
   dexName?: string
   merklOpportunity?: MerklOpportunity
-  egCalculating?: boolean
 }>
 
-export default function PositionAprTooltip({
-  egApr,
-  lmApr,
-  dexLogo,
-  dexName,
-  merklOpportunity,
-  egCalculating,
-  children,
-}: Props) {
+export default function PositionAprTooltip({ egApr, lmApr, dexLogo, dexName, merklOpportunity, children }: Props) {
   const campaignRows = useMemo(() => {
     if (!merklOpportunity?.campaigns.length) return []
 
@@ -42,7 +32,7 @@ export default function PositionAprTooltip({
     })
   }, [merklOpportunity])
 
-  const hasContent = egCalculating || !!egApr || !!lmApr || campaignRows.length > 0
+  const hasContent = !!egApr || !!lmApr || campaignRows.length > 0
 
   if (!hasContent) return <>{children}</>
 
@@ -52,11 +42,11 @@ export default function PositionAprTooltip({
       width="fit-content"
       text={
         <div className="flex flex-col gap-2">
-          {(egCalculating || !!egApr) && (
+          {!!egApr && (
             <div className="flex items-center gap-1">
               <TokenLogo src={dexLogo} size={16} />
               <span className="text-xs text-subText">
-                {dexName} EG | {egCalculating ? <EgCalculating /> : `${formatAprNumber(egApr ?? 0)}%`}
+                {dexName} EG | {formatAprNumber(egApr)}%
               </span>
             </div>
           )}
