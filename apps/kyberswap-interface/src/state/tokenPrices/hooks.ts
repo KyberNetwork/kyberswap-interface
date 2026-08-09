@@ -3,7 +3,7 @@ import { ChainId, Token, WETH } from '@kyberswap/ks-sdk-core'
 import { useQueryClient } from '@tanstack/react-query'
 import debounce from 'lodash.debounce'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { fetchTokenPrices } from 'services/tokenCatalog'
+import { fetchTokenPrices, getBuyPrice, getMidPrice } from 'services/tokenCatalog'
 
 import { useActiveWeb3React } from 'hooks'
 import { useAppDispatch, useAppSelector } from 'state/hooks'
@@ -87,9 +87,9 @@ export const useTokenPricesWithLoading = (
         )
 
         const prices = responses.reduce<Record<string, number>>((acc, response) => {
-          Object.entries(response?.data?.[chainId] || {}).forEach(([address, price]) => {
-            acc[address.toLowerCase()] =
-              priceType === PriceType.Average ? (price.PriceBuy + price.PriceSell) / 2 : price.PriceBuy
+          Object.entries(response?.data?.[chainId] || {}).forEach(([address, entry]) => {
+            const price = priceType === PriceType.Average ? getMidPrice(entry) : getBuyPrice(entry)
+            if (price !== null) acc[address.toLowerCase()] = price
           })
           return acc
         }, {})

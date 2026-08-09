@@ -3,7 +3,7 @@ import { Trans } from '@lingui/macro'
 import { useEffect, useState } from 'react'
 import { Star } from 'react-feather'
 import { useMedia, usePreviousDistinct } from 'react-use'
-import { AssetToken, useGetQuoteByChainQuery } from 'services/tokenCatalog'
+import { AssetToken, TokenPricesResponse, useGetQuoteByChainQuery } from 'services/tokenCatalog'
 
 import { ButtonOutlined } from 'components/Button'
 import CopyHelper from 'components/Copy'
@@ -30,9 +30,7 @@ export default function DetailModal({
   tokenToShow: AssetToken
   onDismiss: () => void
   toggleFavorite: (tk: AssetToken) => void
-  latestPrices: {
-    current: undefined | { data: { [chainId: string]: { [address: string]: { PriceBuy: number; PriceSell: number } } } }
-  }
+  latestPrices: { current: TokenPricesResponse | undefined }
 }) {
   const theme = useTheme()
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
