@@ -4,7 +4,7 @@ import type { CopyRunSummary, PositionSummary } from 'services/copyTrading/types
 
 import { ButtonLight } from 'components/Button'
 import { Stack } from 'components/Stack'
-import InfiniteScroll, { type InfiniteScrollState } from 'pages/CopyTrading/components/InfiniteScroll'
+import CursorPagination, { type CursorPaginationState } from 'pages/CopyTrading/components/CursorPagination'
 import { HeaderCell, TableBody, TableCell, TableHeader, TableRow } from 'pages/CopyTrading/components/Table'
 import { CopyRunAgentCell, CopyRunStatusBadge } from 'pages/CopyTrading/components/common'
 import { copyTradingStatIconMap } from 'pages/CopyTrading/constants'
@@ -32,18 +32,13 @@ const ActiveSubscriptionsGrid = ({ header, className, ...props }: ActiveSubscrip
 }
 
 type ActiveSubscriptionsTableProps = {
-  infiniteScroll: InfiniteScrollState
   loading?: boolean
+  pagination: CursorPaginationState
   rows: CopyRunSummary[]
   onOpenSubscription: (subscription: CopyRunSummary) => void
 }
 
-const ActiveSubscriptionsTable = ({
-  rows,
-  infiniteScroll,
-  loading,
-  onOpenSubscription,
-}: ActiveSubscriptionsTableProps) => {
+const ActiveSubscriptionsTable = ({ rows, loading, pagination, onOpenSubscription }: ActiveSubscriptionsTableProps) => {
   const { openStopCopy } = useCopyTradeWrite()
   const [getCopyRunPositions] = copyTradingApi.useLazyGetCopyRunPositionsQuery()
   const [loadingStopCopyRunId, setLoadingStopCopyRunId] = useState<string>()
@@ -87,7 +82,7 @@ const ActiveSubscriptionsTable = ({
 
   return (
     <Stack className="overflow-hidden rounded-xl bg-buttonBlack-60">
-      <InfiniteScroll {...infiniteScroll}>
+      <div className="ks-scrollbar relative max-h-[480px] overflow-auto">
         <ActiveSubscriptionsGrid header className="sticky top-0 z-[1]">
           <HeaderCell>Agent</HeaderCell>
           <HeaderCell className="justify-end text-right">Agent APR</HeaderCell>
@@ -103,7 +98,7 @@ const ActiveSubscriptionsTable = ({
           className="min-w-[1120px]"
           empty={!rows.length}
           emptyIconUrl={copyTradingStatIconMap.agents.iconUrl}
-          emptyMessage="No active copies found"
+          emptyMessage={pagination.error ? 'Unable to load active copies' : 'No active copies found'}
           loading={loading}
         >
           {rows.map(subscription => {
@@ -158,7 +153,8 @@ const ActiveSubscriptionsTable = ({
             )
           })}
         </TableBody>
-      </InfiniteScroll>
+      </div>
+      <CursorPagination {...pagination} />
     </Stack>
   )
 }

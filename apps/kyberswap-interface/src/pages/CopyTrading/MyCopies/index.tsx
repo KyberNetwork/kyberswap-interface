@@ -5,6 +5,7 @@ import { APP_PATHS } from 'constants/index'
 import ActiveSubscriptionsTable from 'pages/CopyTrading/MyCopies/ActiveSubscriptionsTable'
 import { AlertsFeed, OpenCopiesSummary } from 'pages/CopyTrading/MyCopies/components'
 import CopyRunsPageHeading from 'pages/CopyTrading/components/CopyRunsPageHeading'
+import useCursorPageQuery from 'pages/CopyTrading/components/CursorPagination/useCursorPageQuery'
 import useInfiniteCursorQuery from 'pages/CopyTrading/components/InfiniteScroll/useInfiniteCursorQuery'
 import { CopyTradingPage, OwnerWalletRequired } from 'pages/CopyTrading/components/common'
 import { useCopyTradingContext } from 'pages/CopyTrading/context'
@@ -16,11 +17,7 @@ const MyCopiesView = () => {
   const { ownerAddress } = useCopyTradingContext()
   const [getCopyRuns] = copyTradingApi.useLazyGetCopyRunsQuery()
   const [getOwnerActivity] = copyTradingApi.useLazyGetOwnerActivityQuery()
-  const {
-    infiniteScroll: activeRunsInfiniteScroll,
-    isFetching: isActiveRunsFetching,
-    items: activeRuns,
-  } = useInfiniteCursorQuery({
+  const activeRunsPage = useCursorPageQuery({
     enabled: !!ownerAddress,
     queryKey: ['copy-trading', 'copy-runs', ownerAddress, 'open'],
     queryFn: cursor =>
@@ -31,6 +28,7 @@ const MyCopiesView = () => {
         limit: PAGE_SIZE,
       }).unwrap(),
   })
+  const activeRuns = activeRunsPage.items
   const {
     infiniteScroll: activityInfiniteScroll,
     isFetching: isActivityFetching,
@@ -63,8 +61,8 @@ const MyCopiesView = () => {
         <>
           <OpenCopiesSummary summary={summary} fallbackActiveCopies={activeRuns.length} />
           <ActiveSubscriptionsTable
-            infiniteScroll={activeRunsInfiniteScroll}
-            loading={isActiveRunsFetching && !activeRuns.length}
+            loading={activeRunsPage.loading}
+            pagination={activeRunsPage}
             rows={activeRuns}
             onOpenSubscription={subscription =>
               navigate(`${APP_PATHS.COPY_TRADING}/my-copies/${subscription.copyRunId}`)
