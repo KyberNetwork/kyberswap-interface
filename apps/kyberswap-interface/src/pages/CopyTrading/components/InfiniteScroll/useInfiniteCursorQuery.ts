@@ -4,13 +4,19 @@ import type { CursorResponse } from 'services/copyTrading/types'
 
 import type { InfiniteScrollState } from 'pages/CopyTrading/components/InfiniteScroll'
 
-type InfiniteCursorQueryParams<T> = {
+type InfiniteCursorQueryParams<TResponse extends CursorResponse<unknown>> = {
   enabled?: boolean
-  queryFn: (cursor?: string) => Promise<CursorResponse<T>>
+  queryFn: (cursor?: string) => Promise<TResponse>
   queryKey: QueryKey
 }
 
-const useInfiniteCursorQuery = <T>({ enabled = true, queryFn, queryKey }: InfiniteCursorQueryParams<T>) => {
+type CursorItem<TResponse> = TResponse extends CursorResponse<infer T> ? T : never
+
+const useInfiniteCursorQuery = <TResponse extends CursorResponse<unknown>>({
+  enabled = true,
+  queryFn,
+  queryKey,
+}: InfiniteCursorQueryParams<TResponse>) => {
   const queryClient = useQueryClient()
   const [restarting, setRestarting] = useState(false)
   const query = useInfiniteQuery({
@@ -23,7 +29,10 @@ const useInfiniteCursorQuery = <T>({ enabled = true, queryFn, queryKey }: Infini
     retry: false,
   })
 
-  const items = useMemo(() => query.data?.pages.flatMap(page => page.data) || [], [query.data?.pages])
+  const items = useMemo<CursorItem<TResponse>[]>(
+    () => (query.data?.pages.flatMap(page => page.data) || []) as CursorItem<TResponse>[],
+    [query.data?.pages],
+  )
   const restart = useCallback(async () => {
     setRestarting(true)
     try {
@@ -46,6 +55,7 @@ const useInfiniteCursorQuery = <T>({ enabled = true, queryFn, queryKey }: Infini
     infiniteScroll,
     isFetching: query.isFetching,
     items,
+    pages: query.data?.pages || [],
   }
 }
 

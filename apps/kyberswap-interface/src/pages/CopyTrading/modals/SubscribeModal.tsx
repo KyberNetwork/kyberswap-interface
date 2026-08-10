@@ -158,6 +158,7 @@ const SubscribeModal = ({ isOpen, onDismiss, agent }: SubscribeModalProps) => {
       preview: 'startCopy',
       startCopyPredictedAccount: predictedCopyAccount,
       startCopyRequestId: startRequestId,
+      startCopyTargetRaw: targetCapitalRaw,
     },
     prepare: async () => {
       if (!account || !quoteToken) throw new Error('Connect a supported wallet and network first.')
@@ -176,6 +177,7 @@ const SubscribeModal = ({ isOpen, onDismiss, agent }: SubscribeModalProps) => {
           'PREPARED_ACTION_STATUS_READY',
           'PREPARED_ACTION_STATUS_PARTIALLY_COMPLETED',
           'PREPARED_ACTION_STATUS_COMPLETED',
+          'PREPARED_ACTION_STATUS_PENDING',
         ].includes(response.data.status || '') &&
         response.data.startCopy?.requestedTargetRaw !== targetCapitalRaw
       ) {

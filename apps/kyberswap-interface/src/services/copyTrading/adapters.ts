@@ -14,6 +14,7 @@ import type {
   AgentStats,
   AgentStatsResponse,
   AgentsResponse,
+  CapitalInProjectionStatus,
   Chain,
   ChainsResponse,
   CopyAccountBalancesResponse,
@@ -227,6 +228,7 @@ type ApiCopyRun = {
   chainId?: string
   copyAccount?: string
   status?: string
+  capitalInProjectionStatus?: string
   startedAt?: string
   stoppedAt?: string
   capitalInUsd?: ApiMetric
@@ -657,53 +659,66 @@ const toCopyAccountStatus = (status?: string): CopyAccountStatus => {
   ) as CopyAccountStatus
 }
 
-const toCopyRun = (run: ApiCopyRun): CopyRunSummary => ({
-  copyRunId: run.copyRunId || '',
-  ownerAddress: (run.ownerAddress || '') as Address,
-  agentId: run.agentId || run.agentSnapshot?.agentId || '',
-  chainId: chainIdNumber(run.chainId),
-  copyAccount: (run.copyAccount || '') as Address,
-  status: toCopyRunStatus(run.status),
-  startedAt: run.startedAt || '',
-  stoppedAt: run.stoppedAt,
-  capitalInUsd: metricValue(run.capitalInUsd),
-  capitalOutUsd: metricValue(run.capitalOutUsd),
-  portfolioValueUsd: metricValue(run.portfolioValueUsd),
-  realizedPnlUsd: metricValue(run.realizedPnlUsd),
-  unrealizedPnlUsd: metricValue(run.unrealizedPnlUsd),
-  myAprSinceCopyPct: metricValue(run.myAprSinceCopy),
-  openPositionCount: metricValue(run.openPositionCount),
-  closedPositionCount: metricValue(run.closedPositionCount),
-  leftoverPositionCount: metricValue(run.leftoverPositionCount),
-  leftoverValueUsd: metricValue(run.leftoverValueUsd),
-  flatFeesCapturedUsd: metricValue(run.flatFeesCapturedUsd),
-  cashbackReceivedUsd: metricValue(run.cashbackReceivedUsd),
-  netFeeCostUsd: metricValue(run.netFeeCostUsd),
-  estimatedCashbackPendingUsd: metricValue(run.estimatedCashbackPendingUsd),
-  durationSeconds: run.durationSeconds,
-  durationAsOf: run.durationAsOf,
-  addCapitalAvailability: run.addCapitalAvailability,
-  stopCopyAvailability: run.stopCopyAvailability,
-  withdrawQuoteAvailability: run.withdrawQuoteAvailability,
-  metrics: {
-    capitalInUsd: run.capitalInUsd,
-    capitalOutUsd: run.capitalOutUsd,
-    portfolioValueUsd: run.portfolioValueUsd,
-    realizedPnlUsd: run.realizedPnlUsd,
-    unrealizedPnlUsd: run.unrealizedPnlUsd,
-    myAprSinceCopy: run.myAprSinceCopy,
-    openPositionCount: run.openPositionCount,
-    closedPositionCount: run.closedPositionCount,
-    leftoverPositionCount: run.leftoverPositionCount,
-    leftoverValueUsd: run.leftoverValueUsd,
-    flatFeesCapturedUsd: run.flatFeesCapturedUsd,
-    cashbackReceivedUsd: run.cashbackReceivedUsd,
-    netFeeCostUsd: run.netFeeCostUsd,
-    estimatedCashbackPendingUsd: run.estimatedCashbackPendingUsd,
-  },
-  agentSnapshot: run.agentSnapshot ? toAgentSnapshot(run.agentSnapshot) : undefined,
-  agentStats: toAgentStats(run.agentSnapshot?.metrics),
-})
+const toCapitalInProjectionStatus = (status?: string): CapitalInProjectionStatus => {
+  const value = status
+    ?.replace('COPY_RUN_CAPITAL_IN_PROJECTION_STATUS_', '')
+    .replace('CAPITAL_IN_PROJECTION_STATUS_', '')
+    .toLowerCase()
+  return value === 'syncing' || value === 'ready' || value === 'unavailable' ? value : 'unknown'
+}
+
+const toCopyRun = (run: ApiCopyRun): CopyRunSummary => {
+  const capitalInProjectionStatus = toCapitalInProjectionStatus(run.capitalInProjectionStatus)
+
+  return {
+    copyRunId: run.copyRunId || '',
+    ownerAddress: (run.ownerAddress || '') as Address,
+    agentId: run.agentId || run.agentSnapshot?.agentId || '',
+    chainId: chainIdNumber(run.chainId),
+    copyAccount: (run.copyAccount || '') as Address,
+    status: toCopyRunStatus(run.status),
+    capitalInProjectionStatus,
+    startedAt: run.startedAt || '',
+    stoppedAt: run.stoppedAt,
+    capitalInUsd: capitalInProjectionStatus === 'ready' ? metricValue(run.capitalInUsd) : undefined,
+    capitalOutUsd: metricValue(run.capitalOutUsd),
+    portfolioValueUsd: metricValue(run.portfolioValueUsd),
+    realizedPnlUsd: metricValue(run.realizedPnlUsd),
+    unrealizedPnlUsd: metricValue(run.unrealizedPnlUsd),
+    myAprSinceCopyPct: metricValue(run.myAprSinceCopy),
+    openPositionCount: metricValue(run.openPositionCount),
+    closedPositionCount: metricValue(run.closedPositionCount),
+    leftoverPositionCount: metricValue(run.leftoverPositionCount),
+    leftoverValueUsd: metricValue(run.leftoverValueUsd),
+    flatFeesCapturedUsd: metricValue(run.flatFeesCapturedUsd),
+    cashbackReceivedUsd: metricValue(run.cashbackReceivedUsd),
+    netFeeCostUsd: metricValue(run.netFeeCostUsd),
+    estimatedCashbackPendingUsd: metricValue(run.estimatedCashbackPendingUsd),
+    durationSeconds: run.durationSeconds,
+    durationAsOf: run.durationAsOf,
+    addCapitalAvailability: run.addCapitalAvailability,
+    stopCopyAvailability: run.stopCopyAvailability,
+    withdrawQuoteAvailability: run.withdrawQuoteAvailability,
+    metrics: {
+      capitalInUsd: run.capitalInUsd,
+      capitalOutUsd: run.capitalOutUsd,
+      portfolioValueUsd: run.portfolioValueUsd,
+      realizedPnlUsd: run.realizedPnlUsd,
+      unrealizedPnlUsd: run.unrealizedPnlUsd,
+      myAprSinceCopy: run.myAprSinceCopy,
+      openPositionCount: run.openPositionCount,
+      closedPositionCount: run.closedPositionCount,
+      leftoverPositionCount: run.leftoverPositionCount,
+      leftoverValueUsd: run.leftoverValueUsd,
+      flatFeesCapturedUsd: run.flatFeesCapturedUsd,
+      cashbackReceivedUsd: run.cashbackReceivedUsd,
+      netFeeCostUsd: run.netFeeCostUsd,
+      estimatedCashbackPendingUsd: run.estimatedCashbackPendingUsd,
+    },
+    agentSnapshot: run.agentSnapshot ? toAgentSnapshot(run.agentSnapshot) : undefined,
+    agentStats: toAgentStats(run.agentSnapshot?.metrics),
+  }
+}
 
 const toPositionActivity = (detail: ApiActivity['position']): ActivityRow['position'] =>
   detail
