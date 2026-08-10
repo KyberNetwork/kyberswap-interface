@@ -18,6 +18,7 @@ export type PreparedActionExpectation = {
   preview: 'startCopy' | 'addCapital' | 'stopCopy' | 'withdrawQuote' | 'manualSell' | 'closePosition'
   startCopyPredictedAccount?: string
   startCopyRequestId?: string
+  startCopyTargetRaw?: string
 }
 
 // The write contract currently supports Base USDC. The preparation response is
@@ -172,14 +173,20 @@ export const validatePreparedAction = (
   }
 
   const call = action.call
-  if (action.status === 'PREPARED_ACTION_STATUS_COMPLETED' && call) {
-    return 'The completed preparation unexpectedly returned a call.'
+  if (
+    (action.status === 'PREPARED_ACTION_STATUS_COMPLETED' || action.status === 'PREPARED_ACTION_STATUS_PENDING') &&
+    call
+  ) {
+    return 'The non-executable preparation unexpectedly returned a call.'
   }
 
   if (expected.preview === 'startCopy') {
     const startCopy = action.startCopy
     if (expected.startCopyRequestId && startCopy?.startRequestId !== expected.startCopyRequestId) {
       return 'The prepared Start Copy request does not match this attempt.'
+    }
+    if (expected.startCopyTargetRaw && startCopy?.requestedTargetRaw !== expected.startCopyTargetRaw) {
+      return 'The prepared Start Copy target does not match this attempt.'
     }
     if (
       expected.startCopyPredictedAccount &&
@@ -194,6 +201,19 @@ export const validatePreparedAction = (
       return 'The prepared Start Copy account identity is inconsistent.'
     }
 
+    if (startCopy.stage === 'START_COPY_STAGE_CREATE_REQUIRED' && action.copyAccount) {
+      return 'The Start Copy create preparation unexpectedly returned a Smart Wallet identity.'
+    }
+
+    if (action.status === 'PREPARED_ACTION_STATUS_PENDING') {
+      if (startCopy.stage !== 'START_COPY_STAGE_CREATE_CONFIRMING') {
+        return 'The pending Start Copy action returned an unexpected stage.'
+      }
+      if (!action.copyAccount || !sameAddress(startCopy.predictedCopyAccount, action.copyAccount)) {
+        return 'The confirming Start Copy action is missing its Smart Wallet identity.'
+      }
+    }
+
     if (action.status === 'PREPARED_ACTION_STATUS_COMPLETED') {
       if (startCopy.stage !== 'START_COPY_STAGE_COMPLETE') {
         return 'The completed Start Copy action returned an unexpected stage.'
@@ -201,6 +221,24 @@ export const validatePreparedAction = (
       if (!action.copyAccount || !sameAddress(startCopy.predictedCopyAccount, action.copyAccount)) {
         return 'The completed Start Copy action is missing its Smart Wallet identity.'
       }
+    }
+  }
+
+  if (requireCall || action.status === 'PREPARED_ACTION_STATUS_PENDING') {
+    const now = Date.now()
+    if (action.reprepareAfter) {
+      const reprepareAfter = Date.parse(action.reprepareAfter)
+      if (!Number.isFinite(reprepareAfter)) return 'The preparation returned an invalid expiry.'
+      if (action.status !== 'PREPARED_ACTION_STATUS_PENDING' && reprepareAfter <= now) {
+        return 'This preparation has expired. Please try again.'
+      }
+    }
+    if (action.liquidationConfigDeadline) {
+      const liquidationConfigDeadline = Date.parse(action.liquidationConfigDeadline)
+      if (!Number.isFinite(liquidationConfigDeadline)) {
+        return 'The preparation returned an invalid liquidation deadline.'
+      }
+      if (liquidationConfigDeadline <= now) return 'The liquidation quote has expired. Please try again.'
     }
   }
 
@@ -232,20 +270,7 @@ export const validatePreparedAction = (
 
   if (!call.to || !isAddress(call.to)) return 'The preparation returned an invalid call target.'
   if (!call.data || !/^0x[0-9a-fA-F]*$/.test(call.data)) return 'The preparation returned invalid calldata.'
-  if (call.valueRaw !== undefined && !/^\d+$/.test(call.valueRaw))
-    return 'The preparation returned an invalid call value.'
-
-  const now = Date.now()
-  if (action.reprepareAfter) {
-    const reprepareAfter = Date.parse(action.reprepareAfter)
-    if (!Number.isFinite(reprepareAfter)) return 'The preparation returned an invalid expiry.'
-    if (reprepareAfter <= now) return 'This preparation has expired. Please try again.'
-  }
-  if (action.liquidationConfigDeadline) {
-    const liquidationConfigDeadline = Date.parse(action.liquidationConfigDeadline)
-    if (!Number.isFinite(liquidationConfigDeadline)) return 'The preparation returned an invalid liquidation deadline.'
-    if (liquidationConfigDeadline <= now) return 'The liquidation quote has expired. Please try again.'
-  }
+  if (call.valueRaw !== '0') return 'The preparation returned a non-zero call value.'
 
   return undefined
 }

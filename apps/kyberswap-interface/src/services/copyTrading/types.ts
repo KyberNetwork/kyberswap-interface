@@ -116,6 +116,7 @@ export type PositionLifecycle = 'active' | 'closing' | 'closed' | 'unknown'
 export type PositionQuantityState = 'open_full' | 'open_partial' | 'closed' | 'unknown'
 export type CopyRunView = 'open' | 'history'
 export type CopyRunStatus = 'active' | 'closing' | 'closed' | 'stopped' | 'unknown'
+export type CapitalInProjectionStatus = 'syncing' | 'ready' | 'unavailable' | 'unknown'
 export type CopyAccountStatus = 'active' | 'closed' | 'closing' | 'stopped' | 'unknown'
 export type CopyAccountStatusFilter = 'all' | Exclude<CopyAccountStatus, 'unknown'>
 export type StrategyKey = LooseString<'focused' | 'diversified' | 'active' | 'unknown'>
@@ -464,6 +465,7 @@ export type CopyRunSummary = {
   chainId: number
   copyAccount: Address
   status: CopyRunStatus
+  capitalInProjectionStatus: CapitalInProjectionStatus
   startedAt: Timestamp
   stoppedAt?: Timestamp
   capitalInUsd?: DecimalString
@@ -853,6 +855,7 @@ export type FeePolicyPreview = {
 export type StartCopyStage =
   | 'START_COPY_STAGE_UNSPECIFIED'
   | 'START_COPY_STAGE_CREATE_REQUIRED'
+  | 'START_COPY_STAGE_CREATE_CONFIRMING'
   | 'START_COPY_STAGE_FUNDING_REQUIRED'
   | 'START_COPY_STAGE_COMPLETE'
 

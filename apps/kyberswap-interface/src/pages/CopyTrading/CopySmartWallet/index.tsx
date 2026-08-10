@@ -1,7 +1,14 @@
-import { type HTMLAttributes } from 'react'
+import { type HTMLAttributes, useMemo } from 'react'
 import { CreditCard, Info } from 'react-feather'
 import copyTradingApi from 'services/copyTrading'
-import type { ActivityRow, CopyAccountSummary, CopyRunSummary, WalletBalanceRow } from 'services/copyTrading/types'
+import type {
+  ActivityRow,
+  CopyAccountBalancesResponse,
+  CopyAccountSummary,
+  CopyRunSummary,
+  PinnedStableBalance,
+  WalletBalanceRow,
+} from 'services/copyTrading/types'
 
 import { Center, HStack, Stack } from 'components/Stack'
 import { CopyPositionsTable } from 'pages/CopyTrading/CopyDetail/Tables'
@@ -62,47 +69,82 @@ const activityColor = (activity: ActivityRow) => {
 type WalletBalancesTableProps = {
   infiniteScroll: InfiniteScrollState
   loading?: boolean
+  pinnedStableBalanceLoaded: boolean
+  pinnedStableBalance?: PinnedStableBalance
   rows: WalletBalanceRow[]
 }
 
-const WalletBalancesTable = ({ infiniteScroll, loading, rows }: WalletBalancesTableProps) => (
-  <Stack>
-    <InfiniteScroll {...infiniteScroll}>
-      <WalletBalanceGrid header className="sticky top-0 z-[1]">
-        <HeaderCell>Token</HeaderCell>
-        <HeaderCell className="justify-end text-right">Balance</HeaderCell>
-        <HeaderCell className="justify-end text-right">Value</HeaderCell>
-        <HeaderCell>Status</HeaderCell>
-      </WalletBalanceGrid>
-      <TableBody
-        className="min-w-[640px]"
-        empty={!rows.length}
-        emptyMessage="No wallet balances found"
-        loading={loading}
-      >
-        {rows.map(row => (
-          <WalletBalanceGrid key={`${row.chainId}:${row.tokenAddress}`}>
-            <TableCell>
-              <HStack className="items-center gap-2">
-                {row.token?.iconUrl ? (
-                  <img src={row.token.iconUrl} alt="" className="size-5 rounded-full" />
-                ) : (
-                  <Center className="size-5 rounded-full bg-subText-20 text-[10px] text-subText">
-                    {row.token?.symbol?.slice(0, 1) || '?'}
-                  </Center>
-                )}
-                <span>{row.token?.symbol || row.tokenAddress}</span>
-              </HStack>
-            </TableCell>
-            <TableCell className="text-right">{formatTokenAmount(row.amountDecimal)}</TableCell>
-            <TableCell className="text-right">{formatUsd(row.valueUsd)}</TableCell>
-            <TableCell className="text-subText">{row.freshnessStatus.replace('DATA_STATUS_', '') || '—'}</TableCell>
-          </WalletBalanceGrid>
-        ))}
-      </TableBody>
-    </InfiniteScroll>
-  </Stack>
-)
+const getPinnedStableBalanceMessage = (loaded: boolean, pinnedStableBalance?: PinnedStableBalance) => {
+  if (!loaded) return undefined
+  if (pinnedStableBalance?.status === 'PINNED_STABLE_BALANCE_STATUS_PRESENT' && pinnedStableBalance.balance) {
+    return undefined
+  }
+  if (pinnedStableBalance?.status === 'PINNED_STABLE_BALANCE_STATUS_REGISTRATION_PENDING') {
+    return 'Stable balance registration is pending.'
+  }
+  if (pinnedStableBalance?.status === 'PINNED_STABLE_BALANCE_STATUS_NOT_INDEXED') {
+    return 'Stable balance has not been indexed yet.'
+  }
+  if (pinnedStableBalance?.status === 'PINNED_STABLE_BALANCE_STATUS_TOKEN_MISMATCH') {
+    return 'The configured stable token does not match this Smart Wallet.'
+  }
+  return 'Stable balance is currently unavailable.'
+}
+
+const WalletBalancesTable = ({
+  infiniteScroll,
+  loading,
+  pinnedStableBalance,
+  pinnedStableBalanceLoaded,
+  rows,
+}: WalletBalancesTableProps) => {
+  const pinnedStableBalanceMessage = getPinnedStableBalanceMessage(pinnedStableBalanceLoaded, pinnedStableBalance)
+
+  return (
+    <Stack className="gap-3">
+      {pinnedStableBalanceMessage && (
+        <HStack className="items-start gap-2 rounded-md bg-warning-20 px-3 py-2 text-xs text-warning">
+          <Info size={14} className="mt-0.5 shrink-0" />
+          <span>{pinnedStableBalanceMessage}</span>
+        </HStack>
+      )}
+      <InfiniteScroll {...infiniteScroll}>
+        <WalletBalanceGrid header className="sticky top-0 z-[1]">
+          <HeaderCell>Token</HeaderCell>
+          <HeaderCell className="justify-end text-right">Balance</HeaderCell>
+          <HeaderCell className="justify-end text-right">Value</HeaderCell>
+          <HeaderCell>Status</HeaderCell>
+        </WalletBalanceGrid>
+        <TableBody
+          className="min-w-[640px]"
+          empty={!rows.length}
+          emptyMessage="No wallet balances found"
+          loading={loading}
+        >
+          {rows.map(row => (
+            <WalletBalanceGrid key={`${row.chainId}:${row.tokenAddress}`}>
+              <TableCell>
+                <HStack className="items-center gap-2">
+                  {row.token?.iconUrl ? (
+                    <img src={row.token.iconUrl} alt="" className="size-5 rounded-full" />
+                  ) : (
+                    <Center className="size-5 rounded-full bg-subText-20 text-[10px] text-subText">
+                      {row.token?.symbol?.slice(0, 1) || '?'}
+                    </Center>
+                  )}
+                  <span>{row.token?.symbol || row.tokenAddress}</span>
+                </HStack>
+              </TableCell>
+              <TableCell className="text-right">{formatTokenAmount(row.amountDecimal)}</TableCell>
+              <TableCell className="text-right">{formatUsd(row.valueUsd)}</TableCell>
+              <TableCell className="text-subText">{row.freshnessStatus.replace('DATA_STATUS_', '') || '—'}</TableCell>
+            </WalletBalanceGrid>
+          ))}
+        </TableBody>
+      </InfiniteScroll>
+    </Stack>
+  )
+}
 
 type SmartWalletActivityProps = {
   infiniteScroll: InfiniteScrollState
@@ -195,7 +237,7 @@ const CopySmartWallet = ({ run }: CopySmartWalletProps) => {
   const [getPositions] = copyTradingApi.useLazyGetCopyAccountPositionsQuery()
   const [getHistory] = copyTradingApi.useLazyGetCopyAccountHistoryQuery()
 
-  const balances = useInfiniteCursorQuery({
+  const balances = useInfiniteCursorQuery<CopyAccountBalancesResponse>({
     queryKey: ['copy-trading', 'copy-account-balances', run.chainId, run.copyAccount],
     queryFn: cursor => getBalances({ ...accountQuery, cursor, limit: PAGE_SIZE }).unwrap(),
   })
@@ -207,6 +249,21 @@ const CopySmartWallet = ({ run }: CopySmartWalletProps) => {
     queryKey: ['copy-trading', 'copy-account-history', run.chainId, run.copyAccount],
     queryFn: cursor => getHistory({ ...accountQuery, cursor, limit: PAGE_SIZE }).unwrap(),
   })
+  const pinnedStableBalance = balances.pages[balances.pages.length - 1]?.pinnedStableBalance
+  const walletBalanceRows = useMemo(() => {
+    const pinnedBalance =
+      pinnedStableBalance?.status === 'PINNED_STABLE_BALANCE_STATUS_PRESENT' ? pinnedStableBalance.balance : undefined
+    if (!pinnedBalance) return balances.items
+
+    return [
+      pinnedBalance,
+      ...balances.items.filter(
+        row =>
+          row.chainId !== pinnedBalance.chainId ||
+          row.tokenAddress.toLowerCase() !== pinnedBalance.tokenAddress.toLowerCase(),
+      ),
+    ]
+  }, [balances.items, pinnedStableBalance])
 
   const stats: LeaderboardStat[] = [
     {
@@ -244,7 +301,9 @@ const CopySmartWallet = ({ run }: CopySmartWalletProps) => {
             <WalletBalancesTable
               infiniteScroll={balances.infiniteScroll}
               loading={balances.isFetching && !balances.items.length}
-              rows={balances.items}
+              pinnedStableBalance={pinnedStableBalance}
+              pinnedStableBalanceLoaded={!!balances.pages.length}
+              rows={walletBalanceRows}
             />
           </ContentPanel>
 

@@ -63,10 +63,6 @@ const CopyDetailView = ({ backPath }: { backPath: 'my-copies' | 'history' }) => 
 
   const isClosed = run.status === 'closed'
 
-  if (isClosed && backPath === 'my-copies') {
-    return <Navigate to={`${APP_PATHS.COPY_TRADING}/history/${run.copyRunId}`} replace />
-  }
-
   return (
     <CopyTradingPage backTo={{ label: backLabel, to: `${APP_PATHS.COPY_TRADING}/${backPath}` }}>
       <AgentIdentity agent={profile} status={run.status} />

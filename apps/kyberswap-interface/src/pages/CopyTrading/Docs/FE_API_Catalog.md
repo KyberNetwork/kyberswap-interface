@@ -1,6 +1,7 @@
 # Copy Trade API — Frontend Integration Catalog
 
-Contract verified against repository source: **2026-08-03**
+Contract verified on **2026-08-10** against `origin/main` commit
+`dabc523032b32177e013fadb3a227277d6913e77` (2026-08-07).
 
 Live pre-release action-preparation smoke verified: **2026-07-30 07:56 UTC**
 
@@ -20,7 +21,22 @@ This document describes the public HTTPS/JSON contract used by frontend
 applications. It intentionally excludes service architecture, storage, and
 deployment details.
 
-## Latest FE Contract Update — 2026-08-03
+## Latest `origin/main` Status — 2026-08-07
+
+The public route count remains 32. The following frontend-visible semantics are
+merged on `origin/main`; this source status does not by itself prove that a
+particular environment is running the same image.
+
+| Surface | `origin/main` status | Required FE behavior |
+| --- | --- | --- |
+| Start Copy onboarding | `START_COPY_STAGE_CREATE_CONFIRMING` is implemented. It is returned with `PREPARED_ACTION_STATUS_PENDING`, `PREPARED_ACTION_REASON_SOURCE_COVERAGE_PENDING`, the predicted `copyAccount`, and no call. | Keep polling with the same `startRequestId` and target. Do not resubmit the create call and do not fund until `START_COPY_STAGE_FUNDING_REQUIRED`. |
+| Capital In | `CopyRunSummary.capitalInProjectionStatus` is implemented with `SYNCING`, `READY`, and `UNAVAILABLE`. | Render `capitalInUsd` only when the projection status is `READY`. A visible funding transaction does not make a provisional aggregate value authoritative. |
+| Pinned stable balance | The current-stable materializer reads exact quote-token balances from the operator at one canonical block anchor. A present row can use `balanceSource = "onchain_rpc"`; exact zero remains present. | Trust the row only when `pinnedStableBalance.status` is `PRESENT`. Preserve all other typed states as unavailable rather than converting them to zero. |
+| Action-log chain links | Valid mixed-case EVM addresses and hashes are canonicalized to lowercase. Invalid optional linkage claims are discarded while a safe narrative row remains renderable. | Treat `txHash`, `leaderPositionId`, `blockNumber`, and `tokenAddress` as optional links. Their absence is not an action failure and must not be reconstructed from narrative text. |
+| Copy lifecycle views | Open/History membership and current-stable eligibility use the canonical run/position lifecycle and are reorg-repairable. | A terminal run moves to History only when it has no active, closing, or leftover positions. Refresh from the server after lifecycle changes; do not pin local tab membership. |
+| Public HTTP surface | All 24 reads, six preparations, and two wallet-session operations have generated gateway mappings and concrete aggregate handlers. | Do not feature-gate a route as unimplemented. Treat typed product statuses separately from HTTP availability. |
+
+## Current FE Contract Notes
 
 The current API contract adds the following UI-facing behavior. FE clients
 should update all affected action dialogs and Smart Wallet activity rendering
@@ -28,11 +44,11 @@ together.
 
 | Surface | Current contract | Required FE behavior |
 | --- | --- | --- |
-| Prepared Smart Wallet identity | `PreparedAction.copyAccount` | For every non-Start action, require it to equal the selected Smart Wallet. It is absent only for Start Copy creation; Start funding/completion must equal `startCopy.predictedCopyAccount`. Do not confuse it with `call.to` or `expectedAccount`. |
+| Prepared Smart Wallet identity | `PreparedAction.copyAccount` | For every non-Start action, require it to equal the selected Smart Wallet. It is absent only for Start Copy creation; Start confirming, funding, and completion must equal `startCopy.predictedCopyAccount`. Do not confuse it with `call.to` or `expectedAccount`. |
 | Manual Sell / Close Position quote | `data.manualSell.swapQuote` or `data.closePosition.swapQuote` | Display `expectedQuote`, `minimumQuote`, and optional `effectiveSlippageBps`. Preserve metric status; unavailable is not zero. |
 | Stop Copy per-position quote | `data.stopCopy.positions[].swapQuote` | Render the expected/minimum quote for each selected position. These values belong only to the returned preparation. |
 | Stop Copy total quote | `data.stopCopy.totalSwapQuote` | Render total expected/minimum quote. There is intentionally no aggregate `effectiveSlippageBps`; do not average per-position slippage. |
-| Generic owner sell history | `position.actionType = "sell_unaligned"` and `PositionSummary.exitKind = EXIT_KIND_UNSPECIFIED` | Label it **Owner Sell**. Do not infer Manual Sell or Close Position from sold amount, remaining amount, lifecycle, skipped obligations, or calldata shape. |
+| Generic owner sell history | `position.actionType = "sell_unaligned"` and `PositionSummary.exitKind = POSITION_EXIT_KIND_UNSPECIFIED` | Label it **Owner Sell**. Do not infer Manual Sell or Close Position from sold amount, remaining amount, lifecycle, skipped obligations, or calldata shape. |
 | Stop Copy activity | One `ACTIVITY_TYPE_COPY_STOPPED` lifecycle row plus independent downstream position/execution rows | Render Stop Copy as an amount-less lifecycle row. Render each token-specific reduction, closure, or exit separately; do not attach one arbitrary token/amount/value to the lifecycle row. |
 
 All quote-preview values expire with their parent preparation at
@@ -42,11 +58,14 @@ and prepare again.
 
 ## Contract Authority and Naming
 
-This catalog is an integration guide. The frontend repository keeps a checked-in
-snapshot of the generated machine-readable contract in
-[`openapi.yaml`](./openapi.yaml). The backend source of truth remains its
-aggregate read/action protos and generated Swagger; refresh the checked-in
-snapshot together with this catalog whenever that contract changes.
+This catalog is an integration guide. The machine-readable contract remains:
+
+- [`aggregate_read.proto`](../proto/aggregate/v1/aggregate_read.proto) for
+  read routes, enums, request validation, and response models.
+- [`aggregate_action.proto`](../proto/aggregate/v1/aggregate_action.proto) for
+  transaction preparation and wallet sessions.
+- [`aggregate.swagger.yaml`](../proto/gen/openapi/aggregate/v1/aggregate.swagger.yaml)
+  for the generated HTTP/OpenAPI surface.
 
 HTTP JSON and query strings use lower-camel-case names:
 
@@ -132,9 +151,10 @@ History-view summary.
 
 ### Action Screen Map
 
-All six preparation routes are implemented and available. Preparation is
-read-only with respect to the chain: the frontend must submit the returned
-wallet call.
+All six preparation routes are implemented in the source baseline. Preparation
+is read-only with respect to the chain: the frontend must submit the returned
+wallet call. Environment availability still depends on the deployed image and
+its operator dependencies.
 
 | UI action | Read before enabling the control | Preparation route | Wallet session |
 | --- | --- | --- | --- |
@@ -667,10 +687,10 @@ Groups are stable product groupings, not aliases for every related activity:
 
 | Group | Included activity types |
 | --- | --- |
-| `BUYS` | `POSITION_OPENED` |
-| `SELLS` | `POSITION_CLOSED`, `EXIT_SUCCEEDED`, `POSITION_REDUCED` |
-| `DEPOSITS_WITHDRAWALS` | `CAPITAL_DEPOSITED`, `CAPITAL_TOPPED_UP`, `CAPITAL_WITHDRAWN`, `CAPITAL_RETURNED` |
-| `SKIPPED` | `ALIGNED_TRADE_SKIPPED`, `EXIT_SKIPPED` |
+| `ACTIVITY_GROUP_BUYS` | `ACTIVITY_TYPE_POSITION_OPENED` |
+| `ACTIVITY_GROUP_SELLS` | `ACTIVITY_TYPE_POSITION_CLOSED`, `ACTIVITY_TYPE_EXIT_SUCCEEDED`, `ACTIVITY_TYPE_POSITION_REDUCED` |
+| `ACTIVITY_GROUP_DEPOSITS_WITHDRAWALS` | `ACTIVITY_TYPE_CAPITAL_DEPOSITED`, `ACTIVITY_TYPE_CAPITAL_TOPPED_UP`, `ACTIVITY_TYPE_CAPITAL_WITHDRAWN`, `ACTIVITY_TYPE_CAPITAL_RETURNED` |
+| `ACTIVITY_GROUP_SKIPPED` | `ACTIVITY_TYPE_ALIGNED_TRADE_SKIPPED`, `ACTIVITY_TYPE_EXIT_SKIPPED` |
 
 In-progress and failed execution rows are intentionally available only through
 an exact `type` filter or the unfiltered feed. `type` and `group` are mutually
@@ -709,8 +729,9 @@ PINNED_STABLE_BALANCE_STATUS_TOKEN_MISMATCH
 ```
 
 Only `PRESENT` guarantees that `pinnedStableBalance.balance` is the configured
-stable-token row. The other values are explicit operational/data states and
-must not be converted to a zero balance.
+stable-token row. A present row can contain an exact zero balance and can use
+`balanceSource = "onchain_rpc"`. The other values are explicit
+operational/data states and must not be converted to a zero balance.
 
 ## Shared Request Validation
 
@@ -797,9 +818,12 @@ Key `AgentCard` fields:
 | `winningPositionCount`, `losingPositionCount`, `breakevenPositionCount`, `closedPositionCount` | Explicit terminal-position counts. |
 
 `LeaderboardSummary` contains status-bearing `agentCount`, `totalAumUsd`,
-`totalCopierCount`, and `lifetimeVolumeUsd`, plus `asOf`. Summary and row
-responses use the same filters, but their metric statuses must still be
-handled independently.
+`totalCopierCount`, and `lifetimeVolumeUsd`, plus `asOf`. `agentCount`,
+`totalAumUsd`, and `lifetimeVolumeUsd` use the supplied leaderboard filters.
+`totalCopierCount` is different: it is the platform-wide lifetime count of
+distinct owner wallets across configured agents and intentionally ignores
+leaderboard filters, including `chainId`, search, and strategy category. Every
+metric still has its own status and can be unavailable independently.
 
 ### Agent Profile, Performance, and Positions
 
@@ -859,11 +883,12 @@ Position rendering rules:
   `availableActionKinds[]` is the complete advisory set.
 - A position's three valuations can have different statuses. Closed-position
   `exitValuation` can remain final even when a current price is unavailable.
-- `EXIT_KIND_MANUAL` is reserved for an explicitly proven manual exit.
+- `POSITION_EXIT_KIND_MANUAL` is reserved for an explicitly proven manual
+  exit.
   Generic owner-directed `sell_unaligned` history projects as
-  `EXIT_KIND_UNSPECIFIED`; render a neutral **Owner Sell** label from the typed
-  activity detail rather than inferring Manual Sell versus Close Position from
-  amount, lifecycle, or skip count.
+  `POSITION_EXIT_KIND_UNSPECIFIED`; render a neutral **Owner Sell** label from
+  the typed activity detail rather than inferring Manual Sell versus Close
+  Position from amount, lifecycle, or skip count.
 
 An `AgentActionLog` contains the public fields `actionLogId`, `chainId`,
 `occurredAt`, `summary`, `trigger`, `dataSummary`, `reasoningSummary`,
@@ -872,7 +897,11 @@ An `AgentActionLog` contains the public fields `actionLogId`, `chainId`,
 
 Action-log text is sanitized, public narrative content. Optional chain links
 are populated only after canonical linkage is validated; absence does not make
-the narrative row invalid. `model` and `strategyVersion` are optional
+the narrative row invalid. Valid fixed-width EVM addresses and hashes are
+returned in canonical lowercase form even when the upstream claim used mixed
+case. If any optional linkage claim is malformed or cannot be validated, the
+linkage set is omitted while the safe narrative can still be returned. Do not
+reconstruct omitted links from text. `model` and `strategyVersion` are optional
 provenance labels. `action` and `status` are source-owned strings rather than
 public enums. Do not parse `summary`, `trigger`, `status`, or reasoning strings
 to derive transaction state.
@@ -932,7 +961,7 @@ Copy-run list behavior:
 | `view` | Required: `OPEN` or `HISTORY`. |
 | `agentId` | Optional exact agent filter. |
 | `chainId` | Optional positive chain filter. |
-| `sortBy` | Open defaults to `STARTED_AT`; History defaults to `STOPPED_AT`. |
+| `sortBy` | Open defaults to `OWNER_COPY_RUN_SORT_FIELD_STARTED_AT`; History defaults to `OWNER_COPY_RUN_SORT_FIELD_STOPPED_AT`. |
 | `sortOrder` | Defaults to descending. |
 | `limit`, `cursor` | Standard cursor pagination. |
 
@@ -951,6 +980,11 @@ Key `CopyRunSummary` fields:
 - `startedAt`, `stoppedAt`, `status`, `durationSeconds`
 - `agentSnapshot`
 - capital, portfolio, PnL, fee, cashback, position-count, and APR metrics
+- `capitalInProjectionStatus`, which must be `READY` before the UI renders a
+  numeric `capitalInUsd`. `SYNCING` means canonical funding is visible but the
+  immutable account-capital projection is still catching up; `UNAVAILABLE`
+  means its source or lineage cannot currently authorize a value. In both
+  non-ready states `capitalInUsd` is unavailable and never a provisional zero.
 - `addCapitalAvailability`, `stopCopyAvailability`,
   `withdrawQuoteAvailability`
 
@@ -995,15 +1029,16 @@ independent canonical facts:
 
 | Row | What it represents | Token / amount / value |
 | --- | --- | --- |
-| `COPY_STOPPED` | The copy-account lifecycle transition to stopped/cancelled | None. Use `copyLifecycle` and the optional top-level `txHash`. |
-| `EXIT_STARTED`, `EXIT_SUCCEEDED`, `EXIT_SKIPPED`, `EXIT_FAILED` | One exit-action execution transition | Use `execution`; monetary display fields can be absent when no authoritative value exists. |
-| `POSITION_REDUCED` | One completed sell that leaves base inventory | Use the token and exact raw accounting from `position`. |
-| `POSITION_CLOSED` | One completed sell that closes the position | Use the token and exact raw accounting from `position`. |
+| `ACTIVITY_TYPE_COPY_STOPPED` | The copy-account lifecycle transition to stopped/cancelled | None. Use `copyLifecycle` and the optional top-level `txHash`. |
+| `ACTIVITY_TYPE_EXIT_STARTED`, `ACTIVITY_TYPE_EXIT_SUCCEEDED`, `ACTIVITY_TYPE_EXIT_SKIPPED`, `ACTIVITY_TYPE_EXIT_FAILED` | One exit-action execution transition | Use `execution`; monetary display fields can be absent when no authoritative value exists. |
+| `ACTIVITY_TYPE_POSITION_REDUCED` | One completed sell that leaves base inventory | Use the token and exact raw accounting from `position`. |
+| `ACTIVITY_TYPE_POSITION_CLOSED` | One completed sell that closes the position | Use the token and exact raw accounting from `position`. |
 
 All such rows can share `copyRunId` and `copyAccount`. Position and execution
 rows can additionally carry `userPositionId`, `followerPositionId`, `tradeId`,
-or `execution.exitActionId`. The public `COPY_STOPPED` row does **not** expose a
-parent/child correlation identifier connecting it to every downstream exit.
+or `execution.exitActionId`. The public `ACTIVITY_TYPE_COPY_STOPPED` row does
+**not** expose a parent/child correlation identifier connecting it to every
+downstream exit.
 Do not group rows by timestamp proximity or assume that every nearby sell was
 caused by that Stop Copy.
 
@@ -1055,8 +1090,12 @@ Use the returned FIFO order and exact ratios when requesting Manual Sell.
 
 The balance endpoint also returns `pinnedStableBalance`. This is separate from
 the ordinary page because the configured quote/stable token has action-critical
-semantics. A response-level `meta.status=DATA_STATUS_UNAVAILABLE` can coexist
-with usable rows; check row freshness, valuation status, and
+semantics. On `origin/main`, this sidecar is materialized from the operator's
+exact quote-token balance batch at one canonical block anchor; it does not
+depend on the token appearing in the ordinary paginated balance rows. A
+present row can therefore report `balanceSource = "onchain_rpc"`. A
+response-level `meta.status=DATA_STATUS_UNAVAILABLE` can coexist with usable
+rows; check row freshness, valuation status, and
 `pinnedStableBalance.status` separately.
 
 Pending obligations are current operator authority, while `skippedAt` and
@@ -1224,9 +1263,16 @@ Stages:
 
 ```text
 START_COPY_STAGE_CREATE_REQUIRED
+START_COPY_STAGE_CREATE_CONFIRMING
 START_COPY_STAGE_FUNDING_REQUIRED
 START_COPY_STAGE_COMPLETE
 ```
+
+`CREATE_CONFIRMING` means the deterministic account exists with the exact
+reviewed live deployment graph, but its canonical creation/allocation evidence
+has not crossed the safe funding boundary. Do not resubmit the create call in
+this stage. Continue polling with the same UUID and target until
+`FUNDING_REQUIRED`, then submit only the newly returned funding call.
 
 `targetCapitalRaw` is a positive base-unit integer with at most 78 digits.
 `data.startCopy` includes the stage, request ID, predicted copy account, quote
@@ -1240,7 +1286,9 @@ Recommended loop:
 3. Validate `expectedAccount`, `chainId`, status, stage, and call kind.
 4. Submit the exact call and wait for a successful receipt.
 5. Refresh relevant reads, then prepare again with the same UUID and target.
-6. Finish only on `COMPLETED`/`START_COPY_STAGE_COMPLETE`.
+   If the stage is `CREATE_CONFIRMING`, do not submit another transaction.
+6. Submit the funding call only after `FUNDING_REQUIRED` is returned.
+7. Finish only on `COMPLETED`/`START_COPY_STAGE_COMPLETE`.
 
 ### Prepare Add Capital
 
@@ -1542,8 +1590,8 @@ Before opening the wallet:
 4. Require `chainId` to match the wallet network.
 5. Require `expectedAccount` to match the sending account.
 6. For non-Start actions, require `copyAccount` to match the selected Smart
-   Wallet. For Start create it is absent; funding/complete must match
-   `startCopy.predictedCopyAccount`.
+   Wallet. For Start create it is absent; confirming, funding, and complete
+   stages must match `startCopy.predictedCopyAccount`.
 7. Require `valueRaw === "0"`.
 8. Reject a response past `reprepareAfter` or
    `liquidationConfigDeadline`.
@@ -1580,29 +1628,32 @@ must use only the aggregate routes in this document.
 
 ## Current Availability and Verification Status
 
-As of **2026-07-30**, the generated OpenAPI contract contains all 32 public
-HTTP operations:
+At `origin/main` commit
+`dabc523032b32177e013fadb3a227277d6913e77`, the generated OpenAPI contract
+contains all 32 public HTTP operations:
 
 - 24 GET read operations;
 - 6 transaction-preparation POST operations;
 - 2 wallet-session POST operations.
 
-All of these operations are available for frontend integration. No
-transaction-preparation route should be feature-gated as “not implemented.”
-The preparation routes do not broadcast transactions; they return a typed
-product outcome and, only when executable, an exact wallet call.
+All of these operations have concrete aggregate handlers and are available for
+frontend integration once that revision is deployed with its required schema
+and dependencies. No transaction-preparation route should be feature-gated as
+“not implemented.” The preparation routes do not broadcast transactions; they
+return a typed product outcome and, only when executable, an exact wallet call.
 
 ### Live pre-release action smoke
 
-No returned call was submitted. Against pre-release, representative requests
-produced:
+This is dated deployment evidence from **2026-07-30 07:56 UTC**, not proof that
+pre-release currently runs the source baseline above. No returned call was
+submitted. Representative requests produced:
 
 | Route | HTTP/result |
 | --- | --- |
 | `:prepareStartCopy` | 200 `READY`, `START_COPY_STAGE_CREATE_REQUIRED`, `PREPARED_CALL_KIND_START_COPY_CREATE` |
 | `:prepareAddCapital` | 200 `READY`, `PREPARED_CALL_KIND_ADD_CAPITAL` |
 | `:prepareStopCopy` | 200 `READY`, `PREPARED_CALL_KIND_STOP_COPY` |
-| `:prepareWithdrawQuote` | 200 typed `UNAVAILABLE` / `ACCOUNT_NOT_STOPPED` for an active run |
+| `:prepareWithdrawQuote` | 200 typed `PREPARED_ACTION_STATUS_UNAVAILABLE` / `PREPARED_ACTION_REASON_ACCOUNT_NOT_STOPPED` for an active run |
 | `:prepareManualSell` | Available; requires a valid wallet-session bearer token |
 | `:prepareClosePosition` | Available; requires a valid wallet-session bearer token |
 | `/wallet-session-challenges` | Available for creating the exact message to sign |

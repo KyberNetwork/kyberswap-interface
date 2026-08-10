@@ -90,6 +90,11 @@ export const usePreparedAction = ({
       }
 
       if (action.status === 'PREPARED_ACTION_STATUS_PENDING') {
+        const validationError = validatePreparedAction(action, expected, { requireCall: false })
+        if (validationError) {
+          setState({ phase: 'error', action, error: validationError, hash })
+          return
+        }
         if (continuation && attempt < CONTINUATION_ATTEMPTS - 1) {
           await wait(getReprepareDelay(action))
           continue
