@@ -56,7 +56,7 @@ Confirmed service behavior:
 
 ## Current UI Read Coverage
 
-The current UI consumes these 19 GET operations:
+The current UI consumes these 17 GET operations:
 
 - Chains.
 - Leaderboard summary and leaderboard rows.
@@ -64,12 +64,12 @@ The current UI consumes these 19 GET operations:
 - Owner copy summary and copy runs.
 - Copy Run detail, positions, and performance.
 - Owner activity.
-- Copy-account detail, balances, positions, and history through the stopped-run
-  Copy Smart Wallet surface.
+- One page of copy-account open positions and the pinned quote-token balance as
+  a temporary `Remaining in Wallet` approximation.
 - Pending sell obligations through the Manual Sell recovery modal. The complete
   cursor-backed FIFO is preparation input, not a user-selected sell ratio.
 
-The following five GET operations are declared but have no dedicated Copy
+The following seven GET operations are declared but have no dedicated Copy
 Trading UI consumer:
 
 - Agent discovery (`GET /agents`). The current Agent List uses the distinct
@@ -78,9 +78,15 @@ Trading UI consumer:
 - Agent position events.
 - All owner positions.
 - Owner copy-account list.
+- Copy-account detail.
+- Copy-account history.
 
 These are product-surface gaps, not service gaps. They need an agreed route,
 tab, drawer, collection, or drilldown owner before implementation.
+
+`Remaining in Wallet` intentionally reads only the first page of open positions
+plus the pinned quote-token balance. A colocated TODO requires replacing this
+temporary approximation with the dedicated backend aggregate when available.
 
 Current primary-screen read behavior:
 
@@ -90,16 +96,16 @@ Current primary-screen read behavior:
 - Position lifecycle and quantity state render independently from typed fields.
 - Open and History remain server-owned Copy Run views. The frontend does not
   locally move rows between them.
-- Agent Positions, Agent History, Action Logs, My Copies, Copy Run positions,
-  Alerts Feed, and Copy Smart Wallet cursor collections use infinite scroll
+- Agent Positions, Agent History, Action Logs, My Copies, Copy Run detail tabs,
+  and Alerts Feed cursor collections use infinite scroll
   inside bounded scroll containers.
 - Copy History uses cursor-backed Previous / Page N / Next pagination with 5
   rows per page. The API does not expose a total count, so the UI does not
   invent numbered last-page navigation.
 - Cursor lists use TanStack `useInfiniteQuery` for the page/cursor chain and
   invoke the existing RTK lazy query trigger from `queryFn`.
-- Copy Smart Wallet owns independent cursor chains for balances, open positions,
-  and account history.
+- Copy Detail owns independent cursor chains for Open Positions, Closed
+  Positions, and owner activity filtered by `copyRunId`.
 - Agent and Copy Run performance charts intentionally request only the first
   page with `limit=100`.
 - Sidebar Agents and Open Copies are product-capped snapshots with `limit=10`.
@@ -162,9 +168,9 @@ Implemented behavior:
   allocation.
 - Stop Copy uses the loaded positions passed to the modal, sends at most 32
   selected `userPositionIds`, and permits an empty array.
-- Withdraw is exposed for stopped Smart Wallets and closed Copy Runs, gated by
-  `withdrawQuoteAvailability`. It sends `{}` to preparation and requires the
-  prepared amount and connected-owner recipient.
+- Withdraw is exposed only when the selected Copy Run status is `STOPPED`, then
+  gated by `withdrawQuoteAvailability`. It sends `{}` to preparation and
+  requires the prepared amount and connected-owner recipient.
 - Manual Sell trusts the selected position props and reloads the complete
   pending-obligation cursor chain. It uses the FIFO head ratio and total
   unresolved FIFO count.
@@ -189,7 +195,7 @@ Implemented behavior:
 | Start Copy     | Reuses one UUID, target amount, and predicted account through Create, Fund, and Complete; each exact call waits for receipt.            |
 | Add Capital    | Reviews quote-token, minimum, balance, and allocation data, then submits the exact prepared call.                                       |
 | Stop Copy      | Trusts loaded position props, supports zero to 32 selected IDs, reviews recovery totals, and submits the exact prepared call.           |
-| Withdraw Quote | Stopped and closed Copy Detail views expose an availability-gated CTA; amount and owner recipient are server-prepared and non-editable. |
+| Withdraw Quote | Only a `STOPPED` Copy Detail exposes the availability-gated CTA; amount and owner recipient are server-prepared and non-editable.       |
 | Wallet Session | Exact SIWE challenge/signature exchange with an owner/chain-scoped, expiring in-memory Bearer session; `401` forces re-authorization.   |
 | Manual Sell    | Trusts selected position props, requires the authoritative FIFO head ratio/count, then prepares through the wallet session.             |
 | Close Position | Trusts selected position props, requires the advertised full-recovery action, then prepares through the wallet session.                 |

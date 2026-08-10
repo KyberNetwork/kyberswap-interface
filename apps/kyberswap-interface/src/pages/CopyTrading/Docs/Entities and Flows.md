@@ -48,19 +48,25 @@ Status và Open/History là hai trục riêng. Contract hiện tại quy định
 - Frontend không tự filter, promote status hoặc chuyển row giữa hai view. Reorg
   hay reactivation có thể khiến server đưa run trở lại Open.
 
-Trong route Open hiện tại, frontend dùng cùng `my-copies/:copyId` nhưng tách
-surface theo status của direct response:
+Hai route `my-copies/:copyId` và `history/:copyId` dùng chung một Copy Detail.
+Direct response chỉ đổi badge, timeline và action eligibility; không đổi sang
+một page riêng:
 
 ```text
-ACTIVE / CLOSING → Open Copy Detail
-STOPPED          → Copy Smart Wallet
-CLOSED           → redirect sang history/:copyId
+Open Positions | Closed Positions | Action Logs
 ```
 
-Copy Smart Wallet đọc trực tiếp Copy Account overview, balances, open positions
-và account history. Đây là nơi hiển thị inventory/quote balance còn lại và các
-recovery action được API advertise. Quy tắc route này không định nghĩa
-membership của list Open/History.
+Các tab đọc dữ liệu theo selected Copy Run:
+
+```text
+Open/Closed Positions → Copy Run positions + status filter
+Action Logs           → Owner activity + copyRunId filter
+Remaining in Wallet   → temporary first-page positions + pinned quote token; TODO dedicated BE API
+```
+
+Withdraw chỉ render khi direct Copy Run có status `STOPPED`, sau đó vẫn phải
+qua `withdrawQuoteAvailability`. Quy tắc detail này không định nghĩa membership
+của list Open/History.
 
 Màn History hiện chỉ có một bảng Copy History, dùng
 `copy-runs?view=OWNER_COPY_VIEW_HISTORY`. Summary và các row đều cùng scope
@@ -95,7 +101,7 @@ Chọn Agent
 → Agent execution có thể tạo follower Position
 → Stop Copy
 → Copy Run CLOSING vẫn ở Open Copy Detail trong khi API hội tụ
-→ Copy Run STOPPED và còn active/closing/leftover position ở Copy Smart Wallet
+→ Copy Run STOPPED và còn active/closing/leftover position vẫn ở Copy Detail
 → Withdraw/Manual Sell/Close Position chỉ khi API advertise và prepare cho phép
 → Khi không còn active/closing/leftover position, server đưa run vào History
 → Live API hiện trả run đó với status CLOSED
