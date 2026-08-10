@@ -1,20 +1,14 @@
 import { useState } from 'react'
 import { Navigate, useParams } from 'react-router-dom'
 import copyTradingApi from 'services/copyTrading'
-import type { PositionSummary } from 'services/copyTrading/types'
+import type { AgentProfile, CopyRunSummary, PositionSummary } from 'services/copyTrading/types'
 
 import LocalLoader from 'components/LocalLoader'
 import { Stack } from 'components/Stack'
 import { APP_PATHS } from 'constants/index'
 import CopyRunPerformance from 'pages/CopyTrading/CopyDetail/CopyRunPerformance'
 import CopySidePanel from 'pages/CopyTrading/CopyDetail/CopySidePanel'
-import {
-  ClosedPositionsPanel,
-  CopyRunStats,
-  CopyTimeline,
-  OpenPositionsPanel,
-} from 'pages/CopyTrading/CopyDetail/components'
-import CopySmartWallet from 'pages/CopyTrading/CopySmartWallet'
+import { CopyDetailTabs, CopyRunStats, CopyTimeline } from 'pages/CopyTrading/CopyDetail/components'
 import {
   AgentIdentity,
   CopyTradingPage,
@@ -23,10 +17,43 @@ import {
 } from 'pages/CopyTrading/components/common'
 import { useCopyTradingContext } from 'pages/CopyTrading/context'
 
+const CopyDetailContent = ({
+  agent,
+  backPath,
+  run,
+}: {
+  agent: AgentProfile
+  backPath: 'my-copies' | 'history'
+  run: CopyRunSummary
+}) => {
+  const [openPositions, setOpenPositions] = useState<PositionSummary[]>([])
+  const isTerminal = run.status === 'stopped' || run.status === 'closed'
+
+  return (
+    <>
+      <CopyRunStats run={run} />
+      {isTerminal && <CopyTimeline run={run} />}
+
+      <div className="grid grid-cols-[minmax(0,1fr)_340px] gap-4 max-xl:grid-cols-1">
+        <Stack className="min-w-0 gap-4">
+          <CopyDetailTabs
+            defaultTab={backPath === 'history' ? 'closed-positions' : 'open-positions'}
+            run={run}
+            onOpenPositionsChange={setOpenPositions}
+          />
+          <CopyRunPerformance copyRunId={run.copyRunId} status={run.status} />
+        </Stack>
+        <StickySideColumn>
+          <CopySidePanel agent={agent} positions={openPositions} run={run} />
+        </StickySideColumn>
+      </div>
+    </>
+  )
+}
+
 const CopyDetailView = ({ backPath }: { backPath: 'my-copies' | 'history' }) => {
   const { copyId } = useParams()
   const { ownerAddress } = useCopyTradingContext()
-  const [openPositions, setOpenPositions] = useState<PositionSummary[]>([])
   const copyRunQuery = { ownerAddress: ownerAddress || '', copyRunId: copyId || '' }
   const {
     data: copyRun,
@@ -61,35 +88,10 @@ const CopyDetailView = ({ backPath }: { backPath: 'my-copies' | 'history' }) => 
   }
   if (!run || !profile) return <Navigate to={`${APP_PATHS.COPY_TRADING}/${backPath}`} replace />
 
-  const isClosed = run.status === 'closed'
-
   return (
     <CopyTradingPage backTo={{ label: backLabel, to: `${APP_PATHS.COPY_TRADING}/${backPath}` }}>
       <AgentIdentity agent={profile} status={run.status} />
-
-      {run.status === 'stopped' ? (
-        <CopySmartWallet run={run} />
-      ) : (
-        <>
-          {!isClosed && <CopyRunStats run={run} />}
-
-          <div className="grid grid-cols-[minmax(0,1fr)_340px] gap-4 max-xl:grid-cols-1">
-            <Stack className="min-w-0 gap-4">
-              {isClosed ? (
-                <CopyTimeline run={run} />
-              ) : (
-                <OpenPositionsPanel run={run} onPositionsChange={setOpenPositions} />
-              )}
-              <CopyRunPerformance copyRunId={run.copyRunId} status={run.status} />
-            </Stack>
-            <StickySideColumn>
-              <CopySidePanel agent={profile} positions={openPositions} run={run} />
-            </StickySideColumn>
-          </div>
-
-          {isClosed && <ClosedPositionsPanel run={run} />}
-        </>
-      )}
+      <CopyDetailContent key={run.copyRunId} agent={profile} backPath={backPath} run={run} />
     </CopyTradingPage>
   )
 }
