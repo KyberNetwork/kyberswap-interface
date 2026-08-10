@@ -1,9 +1,8 @@
 import { type HTMLAttributes } from 'react'
-import { ChevronLeft, ChevronRight } from 'react-feather'
 import type { CopyRunSummary } from 'services/copyTrading/types'
 
-import { ButtonLight } from 'components/Button'
-import { HStack, Stack } from 'components/Stack'
+import { Stack } from 'components/Stack'
+import CursorPagination, { type CursorPaginationState } from 'pages/CopyTrading/components/CursorPagination'
 import { HeaderCell, TableBody, TableCell, TableHeader, TableRow } from 'pages/CopyTrading/components/Table'
 import { CopyRunAgentCell, CopyRunStatusBadge } from 'pages/CopyTrading/components/common'
 import { copyTradingStatIconMap } from 'pages/CopyTrading/constants'
@@ -30,32 +29,13 @@ const ClosedSubscriptionsGrid = ({ header, className, ...props }: ClosedSubscrip
 }
 
 type ClosedSubscriptionsTableProps = {
-  currentPage: number
-  error?: boolean
-  hasNextPage: boolean
   loading?: boolean
-  navigating?: boolean
-  onNextPage: () => void
+  pagination: CursorPaginationState
   rows: CopyRunSummary[]
   onOpenSubscription: (subscription: CopyRunSummary) => void
-  onPreviousPage: () => void
-  onRetry: () => void
 }
 
-const ClosedSubscriptionsTable = ({
-  currentPage,
-  error,
-  hasNextPage,
-  loading,
-  navigating,
-  onNextPage,
-  onOpenSubscription,
-  onPreviousPage,
-  onRetry,
-  rows,
-}: ClosedSubscriptionsTableProps) => {
-  const showPagination = currentPage > 1 || hasNextPage || !!error
-
+const ClosedSubscriptionsTable = ({ loading, onOpenSubscription, pagination, rows }: ClosedSubscriptionsTableProps) => {
   return (
     <Stack className="overflow-hidden rounded-xl bg-buttonBlack-60">
       <div className="ks-scrollbar relative max-h-[480px] overflow-auto">
@@ -76,7 +56,7 @@ const ClosedSubscriptionsTable = ({
           className="min-w-[1360px]"
           empty={!rows.length}
           emptyIconUrl={copyTradingStatIconMap.positionClose.iconUrl}
-          emptyMessage={error ? 'Unable to load copy history' : 'No closed copies found'}
+          emptyMessage={pagination.error ? 'Unable to load copy history' : 'No closed copies found'}
           loading={loading}
         >
           {rows.map(subscription => {
@@ -117,37 +97,7 @@ const ClosedSubscriptionsTable = ({
           })}
         </TableBody>
       </div>
-      {showPagination && (
-        <HStack className="items-center justify-center gap-3 border-t border-tableHeader bg-background-60 px-6 py-3">
-          <ButtonLight
-            type="button"
-            className="gap-1 sm:w-auto"
-            padding="7px 12px"
-            disabled={currentPage === 1 || navigating}
-            onClick={onPreviousPage}
-          >
-            <ChevronLeft size={16} aria-hidden />
-            Previous
-          </ButtonLight>
-          <span className="min-w-16 text-center text-sm font-medium text-subText">Page {currentPage}</span>
-          {error ? (
-            <ButtonLight type="button" className="sm:w-auto" padding="7px 12px" disabled={navigating} onClick={onRetry}>
-              {navigating ? 'Retrying…' : 'Retry'}
-            </ButtonLight>
-          ) : (
-            <ButtonLight
-              type="button"
-              className="gap-1 sm:w-auto"
-              padding="7px 12px"
-              disabled={!hasNextPage || navigating}
-              onClick={onNextPage}
-            >
-              Next
-              <ChevronRight size={16} aria-hidden />
-            </ButtonLight>
-          )}
-        </HStack>
-      )}
+      <CursorPagination {...pagination} />
     </Stack>
   )
 }

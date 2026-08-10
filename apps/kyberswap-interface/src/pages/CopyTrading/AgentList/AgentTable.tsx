@@ -6,7 +6,7 @@ import type { AgentCard, CopyRunSummary, LeaderboardSortBy, SortOrder } from 'se
 import { ButtonPrimary } from 'components/Button'
 import { Stack } from 'components/Stack'
 import { APP_PATHS } from 'constants/index'
-import InfiniteScroll, { type InfiniteScrollState } from 'pages/CopyTrading/components/InfiniteScroll'
+import CursorPagination, { type CursorPaginationState } from 'pages/CopyTrading/components/CursorPagination'
 import { HeaderCell, TableBody, TableCell, TableHeader, TableRow } from 'pages/CopyTrading/components/Table'
 import { AgentCell } from 'pages/CopyTrading/components/common'
 import { copyTradingStatIconMap } from 'pages/CopyTrading/constants'
@@ -36,14 +36,14 @@ const LeaderboardGrid = ({ header, className, ...props }: LeaderboardGridProps) 
 
 type AgentTableProps = {
   agents: AgentCard[]
-  infiniteScroll: InfiniteScrollState
   loading?: boolean
+  pagination: CursorPaginationState
   sortBy?: LeaderboardSortBy
   sortOrder?: SortOrder
   onSortChange: (sortBy: LeaderboardSortBy) => void
 }
 
-const AgentTable = ({ agents, infiniteScroll, loading, sortBy, sortOrder, onSortChange }: AgentTableProps) => {
+const AgentTable = ({ agents, loading, pagination, sortBy, sortOrder, onSortChange }: AgentTableProps) => {
   const navigate = useNavigate()
   const { ownerAddress } = useCopyTradingContext()
   const { openSubscribe } = useCopyTradeWrite()
@@ -72,7 +72,7 @@ const AgentTable = ({ agents, infiniteScroll, loading, sortBy, sortOrder, onSort
 
   return (
     <Stack className="overflow-hidden rounded-xl bg-buttonBlack-60">
-      <InfiniteScroll {...infiniteScroll}>
+      <div className="ks-scrollbar relative max-h-[480px] overflow-auto">
         <LeaderboardGrid header className="sticky top-0 z-[1]">
           <HeaderCell>Agent</HeaderCell>
           <HeaderCell
@@ -136,7 +136,7 @@ const AgentTable = ({ agents, infiniteScroll, loading, sortBy, sortOrder, onSort
           className="min-w-[1024px]"
           empty={!agents.length}
           emptyIconUrl={copyTradingStatIconMap.agents.iconUrl}
-          emptyMessage="No agents found"
+          emptyMessage={pagination.error ? 'Unable to load agents' : 'No agents found'}
           loading={loading}
         >
           {agents.map(agent => {
@@ -182,7 +182,8 @@ const AgentTable = ({ agents, infiniteScroll, loading, sortBy, sortOrder, onSort
             )
           })}
         </TableBody>
-      </InfiniteScroll>
+      </div>
+      <CursorPagination {...pagination} />
     </Stack>
   )
 }
