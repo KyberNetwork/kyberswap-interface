@@ -14,7 +14,7 @@ import {
   strategyTabs,
   toStrategyKey,
 } from 'pages/CopyTrading/AgentList/components'
-import useInfiniteCursorQuery from 'pages/CopyTrading/components/InfiniteScroll/useInfiniteCursorQuery'
+import useCursorPageQuery from 'pages/CopyTrading/components/CursorPagination/useCursorPageQuery'
 import { CopyTradingPage, CopyTradingPageHeading } from 'pages/CopyTrading/components/common'
 import { useCopyTradingContext } from 'pages/CopyTrading/context'
 
@@ -48,11 +48,7 @@ const AgentList = () => {
 
   const { data: leaderboardSummary } = copyTradingApi.useGetLeaderboardSummaryQuery(summaryQuery)
   const [getLeaderboard] = copyTradingApi.useLazyGetLeaderboardQuery()
-  const {
-    infiniteScroll,
-    isFetching: isLeaderboardFetching,
-    items: agents,
-  } = useInfiniteCursorQuery({
+  const leaderboardPage = useCursorPageQuery({
     queryKey: ['copy-trading', 'leaderboard', selectedChainId, selectedStrategy, normalizedSearch, sortBy, sortOrder],
     queryFn: cursor =>
       getLeaderboard({
@@ -63,6 +59,7 @@ const AgentList = () => {
         limit: PAGE_SIZE,
       }).unwrap(),
   })
+  const agents = leaderboardPage.items
 
   const handleStrategyChange = (strategy: StrategyFilter) => {
     setActiveTab(strategy)
@@ -107,8 +104,8 @@ const AgentList = () => {
 
         <AgentTable
           agents={agents}
-          infiniteScroll={infiniteScroll}
-          loading={isLeaderboardFetching && !agents.length}
+          loading={leaderboardPage.loading}
+          pagination={leaderboardPage}
           sortBy={sortBy}
           sortOrder={sortOrder}
           onSortChange={handleSortChange}
