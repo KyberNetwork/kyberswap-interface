@@ -7,7 +7,7 @@ import InfiniteScroll, { type InfiniteScrollState } from 'pages/CopyTrading/comp
 import { HeaderCell, TableBody, TableCell, TableHeader, TableRow } from 'pages/CopyTrading/components/Table'
 import { PositionLifecycleBadge, ShortenedId } from 'pages/CopyTrading/components/common'
 import { copyTradingStatIconMap } from 'pages/CopyTrading/constants'
-import { formatUsd, getActivityLabel, signedPercent, signedUsd } from 'pages/CopyTrading/helpers'
+import { formatApproximateUsd, formatUsd, getActivityLabel, signedPercent, signedUsd } from 'pages/CopyTrading/helpers'
 import { useCopyTradeWrite } from 'pages/CopyTrading/write/WriteContext'
 import { cn } from 'utils/cn'
 import { formatDateTime } from 'utils/time'
@@ -228,7 +228,7 @@ export const CopyPositionsTable = ({ infiniteScroll, loading, rows }: PositionTa
                   <span className="text-xs">{signedPercent(row.unrealizedPnlPct)}</span>
                 </Stack>
               </TableCell>
-              <TableCell className="text-warning">~{formatUsd(row.estimatedCashbackUsd)}</TableCell>
+              <TableCell className="text-warning">{formatApproximateUsd(row.estimatedCashbackUsd)}</TableCell>
               <TableCell className="text-subText">{formatDateTime(row.openedAt)}</TableCell>
               <TableCell>
                 <PositionLifecycleBadge lifecycle={row.lifecycle} quantityState={row.quantityState} />

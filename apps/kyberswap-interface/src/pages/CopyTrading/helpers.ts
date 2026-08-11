@@ -11,6 +11,7 @@ import type {
 import { formatDisplayNumber } from 'utils/numbers'
 
 type NumericValue = DecimalString | number
+const METRIC_FALLBACK = 'N/A'
 
 const parseNumericValue = (value?: NumericValue) => {
   if (value === undefined || (typeof value === 'string' && !value.trim())) return undefined
@@ -22,13 +23,13 @@ const parseNumericValue = (value?: NumericValue) => {
 export const compactUsd = (value?: DecimalString) => {
   const amount = parseNumericValue(value)
   return amount === undefined
-    ? '—'
+    ? METRIC_FALLBACK
     : formatDisplayNumber(amount, { allowDisplayNegative: true, significantDigits: 3, style: 'currency' })
 }
 
 export const formatUsd = (value?: DecimalString) => {
   const amount = parseNumericValue(value)
-  if (amount === undefined) return '—'
+  if (amount === undefined) return METRIC_FALLBACK
 
   const absoluteAmount = Math.abs(amount)
   const fractionDigits = absoluteAmount > 0 && absoluteAmount < 1 ? 6 : 2
@@ -42,14 +43,21 @@ export const formatUsd = (value?: DecimalString) => {
 
 export const signedUsd = (value?: DecimalString) => {
   const amount = parseNumericValue(value)
-  if (amount === undefined) return '—'
+  if (amount === undefined) return METRIC_FALLBACK
 
   return `${amount > 0 ? '+' : amount < 0 ? '-' : ''}${formatUsd(String(Math.abs(amount)))}`
 }
 
+export const sumUsdValues = (...values: Array<DecimalString | undefined>) => {
+  const amounts = values.map(parseNumericValue)
+  if (amounts.some(amount => amount === undefined)) return undefined
+
+  return String(amounts.reduce<number>((total, amount) => total + (amount ?? 0), 0))
+}
+
 export const formatTokenAmount = (value?: DecimalString) => {
   const amount = parseNumericValue(value)
-  if (amount === undefined) return '—'
+  if (amount === undefined) return METRIC_FALLBACK
 
   return formatDisplayNumber(amount, {
     allowDisplayNegative: true,
@@ -61,14 +69,14 @@ export const formatTokenAmount = (value?: DecimalString) => {
 export const formatCount = (value?: NumericValue) => {
   const amount = parseNumericValue(value)
   return amount === undefined
-    ? '—'
+    ? METRIC_FALLBACK
     : formatDisplayNumber(Math.round(amount), { fractionDigits: 0, significantDigits: 15 })
 }
 
 export const percent = (value?: DecimalString) => {
   const amount = parseNumericValue(value)
   return amount === undefined
-    ? '—'
+    ? METRIC_FALLBACK
     : `${formatDisplayNumber(amount, {
         allowDisplayNegative: true,
         fractionDigits: 1,
@@ -78,9 +86,14 @@ export const percent = (value?: DecimalString) => {
 
 export const signedPercent = (value?: DecimalString) => {
   const amount = parseNumericValue(value)
-  if (amount === undefined) return '—'
+  if (amount === undefined) return METRIC_FALLBACK
 
   return `${amount > 0 ? '+' : ''}${percent(value)}`
+}
+
+export const formatApproximateUsd = (value?: DecimalString) => {
+  const formattedValue = formatUsd(value)
+  return formattedValue === METRIC_FALLBACK ? formattedValue : `~${formattedValue}`
 }
 
 export const getAgentInitials = (name: string) =>

@@ -1,5 +1,5 @@
-import { type QueryKey, useInfiniteQuery, useQueryClient } from '@tanstack/react-query'
-import { useCallback, useMemo, useState } from 'react'
+import { type QueryKey, useInfiniteQuery } from '@tanstack/react-query'
+import { useMemo } from 'react'
 import type { CursorResponse } from 'services/copyTrading/types'
 
 import type { InfiniteScrollState } from 'pages/CopyTrading/components/InfiniteScroll'
@@ -17,8 +17,6 @@ const useInfiniteCursorQuery = <TResponse extends CursorResponse<unknown>>({
   queryFn,
   queryKey,
 }: InfiniteCursorQueryParams<TResponse>) => {
-  const queryClient = useQueryClient()
-  const [restarting, setRestarting] = useState(false)
   const query = useInfiniteQuery({
     enabled,
     initialPageParam: null as string | null,
@@ -33,22 +31,12 @@ const useInfiniteCursorQuery = <TResponse extends CursorResponse<unknown>>({
     () => (query.data?.pages.flatMap(page => page.data) || []) as CursorItem<TResponse>[],
     [query.data?.pages],
   )
-  const restart = useCallback(async () => {
-    setRestarting(true)
-    try {
-      await queryClient.resetQueries({ exact: true, queryKey })
-    } finally {
-      setRestarting(false)
-    }
-  }, [queryClient, queryKey])
   const infiniteScroll: InfiniteScrollState = {
     error: query.isError,
     hasMore: !!query.hasNextPage,
     initialError: query.isError && !items.length,
     loadingMore: query.isFetchingNextPage,
     onLoadMore: query.fetchNextPage,
-    onRetry: restart,
-    retrying: restarting,
   }
 
   return {

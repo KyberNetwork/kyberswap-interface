@@ -10,25 +10,35 @@ import { percent } from 'pages/CopyTrading/helpers'
 import { getPreparedReasonMessage, isActionAvailable } from 'pages/CopyTrading/write/preparedAction'
 import { cn } from 'utils/cn'
 
-type SidePanelCardProps = PropsWithChildren<{
+export type SidePanelCardProps = PropsWithChildren<{
   bodyClassName?: string
   collapsible?: boolean
   headerRight?: ReactNode
+  initialExpanded?: boolean
   title?: ReactNode
 }>
+export type SidePanelCardWrapperProps = Omit<SidePanelCardProps, 'children'>
 
-export const SidePanelCard = ({ bodyClassName, children, collapsible, headerRight, title }: SidePanelCardProps) => {
-  const [expanded, setExpanded] = useState(true)
+export const SidePanelCard = ({
+  bodyClassName,
+  children,
+  collapsible,
+  headerRight,
+  initialExpanded = true,
+  title,
+}: SidePanelCardProps) => {
+  const [expanded, setExpanded] = useState(initialExpanded)
+  const hasBody = children !== undefined && children !== null && children !== false
 
-  if (collapsible && title) {
+  if (collapsible && title && hasBody) {
     return (
       <Stack className="overflow-hidden rounded-xl bg-buttonBlack">
         <button
           type="button"
           aria-expanded={expanded}
           className={cn(
-            'w-full border-b border-transparent px-4 py-3 text-left outline-none hover:bg-white-04',
-            expanded && 'border-darkBorder',
+            'w-full border-b px-4 py-3 text-left outline-none hover:bg-white-04',
+            expanded ? 'border-darkBorder' : 'border-transparent',
           )}
           onClick={() => setExpanded(value => !value)}
         >
@@ -59,23 +69,38 @@ export const SidePanelCard = ({ bodyClassName, children, collapsible, headerRigh
 
   return (
     <Stack className="overflow-hidden rounded-xl bg-buttonBlack">
-      {title && <h3 className="border-b border-darkBorder px-4 py-3 text-base font-medium text-text">{title}</h3>}
-      <Stack className={cn('gap-3 px-4 py-3', bodyClassName)}>{children}</Stack>
+      {title && (
+        <h3
+          className={cn(
+            'border-b px-4 py-3 text-base font-medium text-text',
+            hasBody ? 'border-darkBorder' : 'border-transparent',
+          )}
+        >
+          {headerRight ? (
+            <HStack className="items-center justify-between gap-4">
+              <span className="min-w-0">{title}</span>
+              <span className="shrink-0">{headerRight}</span>
+            </HStack>
+          ) : (
+            title
+          )}
+        </h3>
+      )}
+      {hasBody && <Stack className={cn('gap-3 px-4 py-3', bodyClassName)}>{children}</Stack>}
     </Stack>
   )
 }
 
-type CurrentCopyCardProps = {
+type CopyCapitalCardProps = SidePanelCardWrapperProps & {
   addCapitalAvailability?: AdvisoryActionAvailability
   capital: string
   stopCopyAvailability?: AdvisoryActionAvailability
-  title?: string
   onView?: () => void
   onAddCapital?: () => void
   onStopCopy?: () => void
 }
 
-export const CurrentCopyCard = ({
+export const CopyCapitalCard = ({
   addCapitalAvailability,
   capital,
   stopCopyAvailability,
@@ -83,50 +108,56 @@ export const CurrentCopyCard = ({
   onView,
   onAddCapital,
   onStopCopy,
-}: CurrentCopyCardProps) => {
+  ...sidePanelCardProps
+}: CopyCapitalCardProps) => {
   const addCapitalDisabled = !isActionAvailable(addCapitalAvailability)
   const stopCopyDisabled = !isActionAvailable(stopCopyAvailability)
+  const hasActions = !!onStopCopy || !!onView || !!onAddCapital
 
   return (
-    <SidePanelCard title={title}>
+    <SidePanelCard {...sidePanelCardProps} title={title}>
       <HStack className="items-center justify-between">
         <span className="text-subText">Capital In</span>
         <span className="text-xl font-medium text-primary">{capital}</span>
       </HStack>
-      <HStack className="gap-3 max-md:flex-col">
-        {onStopCopy && (
-          <div className="w-full flex-1">
-            <ButtonLight
-              type="button"
-              padding="10px 12px"
-              color="var(--ks-warning)"
-              disabled={stopCopyDisabled}
-              title={stopCopyDisabled ? getPreparedReasonMessage(stopCopyAvailability?.reason) : undefined}
-              onClick={onStopCopy}
-            >
-              Stop Copy
-            </ButtonLight>
-          </div>
-        )}
-        {onView && (
-          <div className="w-full flex-1">
-            <ButtonLight type="button" padding="10px 12px" onClick={onView}>
-              My Copy
-            </ButtonLight>
-          </div>
-        )}
-        <div className="w-full flex-1">
-          <ButtonPrimary
-            type="button"
-            padding="10px 12px"
-            disabled={addCapitalDisabled}
-            title={addCapitalDisabled ? getPreparedReasonMessage(addCapitalAvailability?.reason) : undefined}
-            onClick={onAddCapital}
-          >
-            Add Capital
-          </ButtonPrimary>
-        </div>
-      </HStack>
+      {hasActions && (
+        <HStack className="gap-3 max-md:flex-col">
+          {onStopCopy && (
+            <div className="w-full flex-1">
+              <ButtonLight
+                type="button"
+                padding="10px 12px"
+                color="var(--ks-warning)"
+                disabled={stopCopyDisabled}
+                title={stopCopyDisabled ? getPreparedReasonMessage(stopCopyAvailability?.reason) : undefined}
+                onClick={onStopCopy}
+              >
+                Stop Copy
+              </ButtonLight>
+            </div>
+          )}
+          {onView && (
+            <div className="w-full flex-1">
+              <ButtonLight type="button" padding="10px 12px" onClick={onView}>
+                My Copy
+              </ButtonLight>
+            </div>
+          )}
+          {onAddCapital && (
+            <div className="w-full flex-1">
+              <ButtonPrimary
+                type="button"
+                padding="10px 12px"
+                disabled={addCapitalDisabled}
+                title={addCapitalDisabled ? getPreparedReasonMessage(addCapitalAvailability?.reason) : undefined}
+                onClick={onAddCapital}
+              >
+                Add Capital
+              </ButtonPrimary>
+            </div>
+          )}
+        </HStack>
+      )}
     </SidePanelCard>
   )
 }
@@ -189,44 +220,52 @@ export const AgentRiskCard = ({ agent }: AgentRiskCardProps) => {
   )
 }
 
-export const StrategyExecutionCard = ({ items }: { items: AgentProfile['strategyExecutionItems'] }) => (
-  <SidePanelCard title="Strategy & Execution">
-    <Stack as="ul" className="list-disc gap-2 pl-4 text-sm text-subText">
-      {items.map(item => (
-        <li key={`${item.label}-${item.description}`} className="pl-0">
-          <span className="font-medium text-text">{item.label}:</span> {item.description}
-        </li>
-      ))}
-    </Stack>
-  </SidePanelCard>
-)
+export const StrategyExecutionCard = ({ items }: { items: AgentProfile['strategyExecutionItems'] }) => {
+  return (
+    <SidePanelCard title="Strategy & Execution">
+      {items.length ? (
+        <Stack as="ul" className="list-disc gap-2 pl-4 text-sm text-subText">
+          {items.map(item => (
+            <li key={`${item.label}-${item.description}`} className="pl-0">
+              <span className="font-medium text-text">{item.label}:</span> {item.description}
+            </li>
+          ))}
+        </Stack>
+      ) : (
+        <span className="text-sm text-subText">No strategy or execution details available</span>
+      )}
+    </SidePanelCard>
+  )
+}
 
 type WishlistedTokensCardProps = {
   tokens: string[]
 }
 
-export const WishlistedTokensCard = ({ tokens }: WishlistedTokensCardProps) => (
-  <SidePanelCard
-    title={
-      <HStack className="items-center gap-1">
-        Wishlisted Tokens
-        <InfoHelper margin={false} placement="top" size={14} text="Agent will trade within this list of tokens" />
+export const WishlistedTokensCard = ({ tokens }: WishlistedTokensCardProps) => {
+  return (
+    <SidePanelCard
+      title={
+        <HStack className="items-center gap-1">
+          Wishlisted Tokens
+          <InfoHelper margin={false} placement="top" size={14} text="Agent will trade within this list of tokens" />
+        </HStack>
+      }
+    >
+      <HStack className="flex-wrap gap-2">
+        {tokens.length ? (
+          tokens.map(token => (
+            <span
+              key={token}
+              className="rounded-full border border-darkBorder bg-background px-3 py-1 text-sm font-medium text-subText"
+            >
+              {token}
+            </span>
+          ))
+        ) : (
+          <span className="text-sm font-medium text-subText">No wishlisted tokens</span>
+        )}
       </HStack>
-    }
-  >
-    <HStack className="flex-wrap gap-2">
-      {tokens.length ? (
-        tokens.map(token => (
-          <span
-            key={token}
-            className="rounded-full border border-darkBorder bg-background px-3 py-1 text-sm font-medium text-subText"
-          >
-            {token}
-          </span>
-        ))
-      ) : (
-        <span className="text-sm font-medium text-subText">No wishlisted tokens</span>
-      )}
-    </HStack>
-  </SidePanelCard>
-)
+    </SidePanelCard>
+  )
+}

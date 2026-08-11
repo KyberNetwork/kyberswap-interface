@@ -17,22 +17,35 @@ import {
 } from 'pages/CopyTrading/components/common'
 import { useCopyTradingContext } from 'pages/CopyTrading/context'
 
-const CopyDetailContent = ({
-  agent,
-  backPath,
-  run,
-}: {
+type CopyDetailContentProps = {
   agent: AgentProfile
   backPath: 'my-copies' | 'history'
   run: CopyRunSummary
-}) => {
+}
+
+const CopyDetailContent = ({ agent, backPath, run }: CopyDetailContentProps) => {
   const [openPositions, setOpenPositions] = useState<PositionSummary[]>([])
-  const isTerminal = run.status === 'stopped' || run.status === 'closed'
+
+  if (run.status === 'closed') {
+    return (
+      <>
+        <div className="grid grid-cols-[minmax(0,1fr)_340px] gap-4 max-xl:grid-cols-1">
+          <Stack className="min-w-0 gap-4">
+            <CopyTimeline run={run} />
+            <CopyRunPerformance copyRunId={run.copyRunId} status={run.status} />
+          </Stack>
+          <StickySideColumn>
+            <CopySidePanel agent={agent} positions={openPositions} run={run} />
+          </StickySideColumn>
+        </div>
+        <CopyDetailTabs defaultTab="closed-positions" includeOpenPositions={false} run={run} />
+      </>
+    )
+  }
 
   return (
     <>
       <CopyRunStats run={run} />
-      {isTerminal && <CopyTimeline run={run} />}
 
       <div className="grid grid-cols-[minmax(0,1fr)_340px] gap-4 max-xl:grid-cols-1">
         <Stack className="min-w-0 gap-4">
