@@ -47,7 +47,7 @@ export class CrossChainSwapFactory {
     orbiter: () => new OrbiterAdapter(),
     socket: () => new BungeeAdapter(),
     kyberacross: () => new KyberAcrossAdapter(),
-    kybercross: () => new KyberCrossAdapter(CrossChainSwapFactory.getAdapterByName),
+    kybercross: () => new KyberCrossAdapter(),
   }
 
   private static adapters = new Map<string, SwapProvider>()
@@ -129,11 +129,5 @@ export class CrossChainSwapFactory {
       CrossChainSwapFactory.getOrCreateAdapter('kyberacross'),
       CrossChainSwapFactory.getOrCreateAdapter('kybercross'),
     ]
-  }
-  // Get adapter by name
-  static getAdapterByName(name?: string): SwapProvider | undefined {
-    if (!name || !CrossChainSwapFactory.getAdapterCreator(name)) return undefined
-
-    return CrossChainSwapFactory.getOrCreateAdapter(name)
   }
 }

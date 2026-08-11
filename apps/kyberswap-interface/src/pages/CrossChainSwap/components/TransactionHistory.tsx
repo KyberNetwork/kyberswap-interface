@@ -1,10 +1,10 @@
 import { type ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { format } from 'date-fns'
-import { type HTMLAttributes, type ReactNode, useEffect, useMemo, useState } from 'react'
+import { type HTMLAttributes, type ReactNode, useEffect, useMemo, useRef, useState } from 'react'
 import { ChevronRight } from 'react-feather'
 import { useMedia } from 'react-use'
-import { formatUnits } from 'viem'
+import { type Hash, formatUnits } from 'viem'
 
 import UnknownToken from 'assets/svg/kyber/unknown-token.svg'
 import { ReactComponent as NoTransactionIcon } from 'assets/svg/no_transaction.svg'
@@ -12,6 +12,9 @@ import CopyHelper from 'components/Copy'
 import Pagination from 'components/Pagination'
 import Skeleton from 'components/Skeleton'
 import { NETWORKS_INFO } from 'constants/networks'
+import { KyberCrossAdapter } from 'pages/CrossChainSwap/adapters/KyberCrossAdapter'
+import { kyberCrossApi } from 'pages/CrossChainSwap/adapters/KyberCrossAdapter/api'
+import { mapRouteStateToSwapStatus } from 'pages/CrossChainSwap/adapters/KyberCrossAdapter/utils'
 import {
   type Chain,
   type Currency,
@@ -27,6 +30,8 @@ import {
   useTransactionHistory,
 } from 'pages/CrossChainSwap/hooks/useTransactionHistory'
 import { getChainName, normalizeAdapterName } from 'pages/CrossChainSwap/utils'
+import { updateTransactionStatus } from 'state/crossChainSwap'
+import { useAppDispatch } from 'state/hooks'
 import { ExternalLinkIcon, MEDIA_WIDTHS } from 'theme'
 import { shortenHash } from 'utils/address'
 import { cn } from 'utils/cn'
@@ -280,9 +285,44 @@ const TransactionRow = ({ isLast, tx }: { isLast: boolean; tx: NormalizedTxRespo
   </TransactionTableGrid>
 )
 
+type TransactionRecordProps = {
+  checkedTransactionIds: Set<string>
+  isLast: boolean
+  isMobile: boolean
+  tx: NormalizedTxResponse
+}
+
+const TransactionRecord = ({ checkedTransactionIds, isLast, isMobile, tx }: TransactionRecordProps) => {
+  const dispatch = useAppDispatch()
+
+  useEffect(() => {
+    const shouldCheckStatus =
+      registry.getAdapter(tx.adapter) instanceof KyberCrossAdapter && !isProcessingTransactionStatus(tx.status)
+
+    if (!shouldCheckStatus || checkedTransactionIds.has(tx.id)) return
+
+    checkedTransactionIds.add(tx.id)
+
+    kyberCrossApi
+      .scanTxStatus(tx.sourceTxHash as Hash)
+      .then(response => {
+        dispatch(
+          updateTransactionStatus({
+            id: tx.id,
+            result: mapRouteStateToSwapStatus(response.data.route_execution),
+          }),
+        )
+      })
+      .catch(() => undefined)
+  }, [checkedTransactionIds, dispatch, tx.adapter, tx.id, tx.sourceTxHash, tx.status])
+
+  return isMobile ? <TransactionCard tx={tx} /> : <TransactionRow tx={tx} isLast={isLast} />
+}
+
 const TransactionHistory = () => {
   const transactions = useTransactionHistory()
   const [currentPage, setCurrentPage] = useState(1)
+  const checkedTransactionIdsRef = useRef<Set<string>>(new Set())
 
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
@@ -322,17 +362,15 @@ const TransactionHistory = () => {
             <span className="text-center text-sm font-medium text-subText">{t`No historical data available.`}</span>
           </div>
         ) : (
-          visibleTransactions.map((tx, index) =>
-            upToSmall ? (
-              <TransactionCard key={tx.id} tx={tx} />
-            ) : (
-              <TransactionRow
-                key={tx.id}
-                tx={tx}
-                isLast={!showPagination && index === visibleTransactions.length - 1}
-              />
-            ),
-          )
+          visibleTransactions.map((tx, index) => (
+            <TransactionRecord
+              key={tx.id}
+              tx={tx}
+              isMobile={upToSmall}
+              checkedTransactionIds={checkedTransactionIdsRef.current}
+              isLast={!showPagination && index === visibleTransactions.length - 1}
+            />
+          ))
         )}
       </div>
 
