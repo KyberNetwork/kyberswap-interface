@@ -9,36 +9,20 @@ import Loader from 'components/Loader'
 import { Center, HStack, Stack } from 'components/Stack'
 import {
   AgentRiskCard,
-  CurrentCopyCard,
+  CopyCapitalCard,
   SidePanelCard,
+  type SidePanelCardWrapperProps,
   StrategyExecutionCard,
   WishlistedTokensCard,
   WithdrawQuoteCard,
 } from 'pages/CopyTrading/components/AgentSidebarCards'
-import { formatTokenAmount, formatUsd, signedUsd } from 'pages/CopyTrading/helpers'
+import { copyRunStatusTextClassName } from 'pages/CopyTrading/components/common'
+import { formatTokenAmount, formatUsd } from 'pages/CopyTrading/helpers'
 import { useCopyTradeWrite } from 'pages/CopyTrading/write/WriteContext'
 import { cn } from 'utils/cn'
+import { formatDateTime } from 'utils/time'
 
 const POSITION_ASSET_LIMIT = 10
-
-type CopyStatusCardProps = {
-  run: CopyRunSummary
-}
-
-const TerminalCopySummary = ({ run }: CopyStatusCardProps) => {
-  const realizedPnl = signedUsd(run.realizedPnlUsd)
-
-  return (
-    <SidePanelCard title={run.status === 'stopped' ? 'Stopped Copy' : 'Closed Copy'}>
-      <HStack className="items-center justify-between gap-4">
-        <span className="text-base text-subText">Total Realised P&amp;L</span>
-        <span className={cn('text-2xl font-medium', realizedPnl.startsWith('-') ? 'text-red' : 'text-primary')}>
-          {realizedPnl}
-        </span>
-      </HStack>
-    </SidePanelCard>
-  )
-}
 
 type AssetRowProps = {
   amount?: string
@@ -70,14 +54,25 @@ const AssetRow = ({ amount, chainId, token, tokenAddress, valueUsd }: AssetRowPr
   )
 }
 
-type RemainingInWalletCardProps = {
+type RemainingInWalletCardProps = SidePanelCardWrapperProps & {
   loading: boolean
   positionAssets: PositionSummary[]
   quoteBalance?: WalletBalanceRow
 }
 
-const RemainingInWalletCard = ({ loading, positionAssets, quoteBalance }: RemainingInWalletCardProps) => {
+const RemainingInWalletCard = ({
+  bodyClassName,
+  collapsible = true,
+  headerRight,
+  initialExpanded = false,
+  loading,
+  positionAssets,
+  quoteBalance,
+  title,
+  ...sidePanelCardProps
+}: RemainingInWalletCardProps) => {
   const hasAssets = !!quoteBalance || !!positionAssets.length
+  const hasContent = loading || hasAssets
   const totalValueUsd = [quoteBalance?.valueUsd, ...positionAssets.map(position => position.valueUsd)].reduce(
     (total, value) => {
       const numericValue = Number(value)
@@ -88,45 +83,53 @@ const RemainingInWalletCard = ({ loading, positionAssets, quoteBalance }: Remain
 
   return (
     <SidePanelCard
-      collapsible
-      bodyClassName="max-h-[300px] gap-0 overflow-y-auto"
-      headerRight={<span className="text-lg font-medium text-primary">{formatUsd(String(totalValueUsd))}</span>}
+      {...sidePanelCardProps}
+      collapsible={collapsible && hasContent}
+      bodyClassName={cn('max-h-[300px] gap-0 overflow-y-auto', bodyClassName)}
+      headerRight={
+        headerRight ?? <span className="text-lg font-medium text-primary">{formatUsd(String(totalValueUsd))}</span>
+      }
+      initialExpanded={initialExpanded}
       title={
-        <HStack className="min-w-0 items-center gap-2">
-          <CreditCard size={18} className="shrink-0" />
-          <span className="truncate">Remaining in Wallet</span>
-        </HStack>
+        title ?? (
+          <HStack className="min-w-0 items-center gap-2">
+            <CreditCard size={18} className="shrink-0" />
+            <span className="truncate">Remaining in Wallet</span>
+          </HStack>
+        )
       }
     >
-      {/* TODO(copy-trading): Replace this first-page positions + pinned quote-token approximation with the dedicated Remaining in Wallet API when BE provides it. */}
-      {loading && !hasAssets ? (
-        <Center className="min-h-20">
-          <Loader />
-        </Center>
-      ) : hasAssets ? (
+      {hasContent && (
         <>
-          {quoteBalance && (
-            <AssetRow
-              amount={quoteBalance.amountDecimal}
-              chainId={quoteBalance.chainId}
-              token={quoteBalance.token}
-              tokenAddress={quoteBalance.tokenAddress}
-              valueUsd={quoteBalance.valueUsd}
-            />
+          {/* TODO(copy-trading): Replace this first-page positions + pinned quote-token approximation with the dedicated Remaining in Wallet API when BE provides it. */}
+          {loading && !hasAssets ? (
+            <Center className="min-h-20">
+              <Loader />
+            </Center>
+          ) : (
+            <>
+              {quoteBalance && (
+                <AssetRow
+                  amount={quoteBalance.amountDecimal}
+                  chainId={quoteBalance.chainId}
+                  token={quoteBalance.token}
+                  tokenAddress={quoteBalance.tokenAddress}
+                  valueUsd={quoteBalance.valueUsd}
+                />
+              )}
+              {positionAssets.map(position => (
+                <AssetRow
+                  key={position.positionId}
+                  amount={position.amountDecimal}
+                  chainId={position.chainId}
+                  token={position.token}
+                  tokenAddress={position.token.address}
+                  valueUsd={position.valueUsd}
+                />
+              ))}
+            </>
           )}
-          {positionAssets.map(position => (
-            <AssetRow
-              key={position.positionId}
-              amount={position.amountDecimal}
-              chainId={position.chainId}
-              token={position.token}
-              tokenAddress={position.token.address}
-              valueUsd={position.valueUsd}
-            />
-          ))}
         </>
-      ) : (
-        <Center className="min-h-20 text-center text-sm text-subText">No assets remaining</Center>
       )}
     </SidePanelCard>
   )
@@ -157,6 +160,36 @@ const CopySidePanel = ({ agent, positions, run }: CopySidePanelProps) => {
   const assetsLoading = isPositionsFetching || isBalanceFetching
   const isTerminal = run.status === 'stopped' || run.status === 'closed'
 
+  const capitalCard = (
+    <CopyCapitalCard
+      addCapitalAvailability={run.addCapitalAvailability}
+      capital={formatUsd(run.capitalInUsd)}
+      headerRight={
+        run.status === 'stopped' ? (
+          <span className="text-sm font-normal text-subText">{formatDateTime(run.stoppedAt)}</span>
+        ) : undefined
+      }
+      stopCopyAvailability={run.stopCopyAvailability}
+      title={
+        run.status === 'stopped' ? (
+          <HStack className={cn('items-center gap-2', copyRunStatusTextClassName.stopped)}>
+            <span className="size-4 shrink-0 rounded-full bg-current" aria-hidden />
+            <span>Stopped Copy</span>
+          </HStack>
+        ) : run.status === 'closed' ? (
+          <HStack className={cn('items-center gap-2', copyRunStatusTextClassName.closed)}>
+            <span className="size-4 shrink-0 rounded-full bg-current" aria-hidden />
+            <span>Closed Copy</span>
+          </HStack>
+        ) : (
+          'Current Copying'
+        )
+      }
+      onAddCapital={isTerminal ? undefined : () => openAddCapital(run, agent.displayName)}
+      onStopCopy={isTerminal ? undefined : () => openStopCopy(run, positions, agent.displayName)}
+    />
+  )
+
   const remainingInWallet = (
     <RemainingInWalletCard loading={assetsLoading} positionAssets={positionAssets} quoteBalance={quoteBalance} />
   )
@@ -164,7 +197,7 @@ const CopySidePanel = ({ agent, positions, run }: CopySidePanelProps) => {
   if (isTerminal) {
     return (
       <Stack className="gap-4">
-        <TerminalCopySummary run={run} />
+        {capitalCard}
         {remainingInWallet}
         {run.status === 'stopped' && (
           <WithdrawQuoteCard
@@ -172,24 +205,16 @@ const CopySidePanel = ({ agent, positions, run }: CopySidePanelProps) => {
             onWithdraw={() => openWithdrawQuote(run, run.withdrawQuoteAvailability)}
           />
         )}
-        <StrategyExecutionCard items={agent.strategyExecutionItems} />
       </Stack>
     )
   }
 
   return (
     <Stack className="gap-4">
-      <CurrentCopyCard
-        addCapitalAvailability={run.addCapitalAvailability}
-        capital={formatUsd(run.capitalInUsd)}
-        stopCopyAvailability={run.stopCopyAvailability}
-        title="Current Copying"
-        onAddCapital={() => openAddCapital(run, agent.displayName)}
-        onStopCopy={() => openStopCopy(run, positions, agent.displayName)}
-      />
+      {capitalCard}
       {remainingInWallet}
       <AgentRiskCard agent={agent} />
-      <StrategyExecutionCard items={agent.strategyExecutionItems} />
+      {run.status === 'active' && <StrategyExecutionCard items={agent.strategyExecutionItems} />}
       <WishlistedTokensCard tokens={agent.whitelistedSymbols} />
     </Stack>
   )

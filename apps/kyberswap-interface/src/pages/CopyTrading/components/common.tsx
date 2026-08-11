@@ -250,15 +250,23 @@ const copyRunStatusLabel: Record<CopyRunStatus, string> = {
   unknown: 'Unknown',
 }
 
+export const copyRunStatusTextClassName: Record<CopyRunStatus, string> = {
+  active: 'text-primary',
+  closing: 'text-blue',
+  stopped: 'text-red',
+  closed: 'text-subText',
+  unknown: 'text-subText',
+}
+
 export const CopyRunStatusBadge = ({ status }: { status: CopyRunStatus }) => (
   <span
     className={cn(
       'inline-flex w-fit rounded-full px-3 py-1 text-xs font-medium',
-      status === 'active' && 'bg-primary-12 text-primary',
-      status === 'closing' && 'bg-blue/10 text-blue',
-      status === 'stopped' && 'bg-red-20 text-red',
-      status === 'closed' && 'bg-subText-20 text-subText',
-      status === 'unknown' && 'bg-subText-20 text-subText',
+      copyRunStatusTextClassName[status],
+      status === 'active' && 'bg-primary-12',
+      status === 'closing' && 'bg-blue/10',
+      status === 'stopped' && 'bg-red-20',
+      (status === 'closed' || status === 'unknown') && 'bg-subText-20',
     )}
   >
     {copyRunStatusLabel[status]}
