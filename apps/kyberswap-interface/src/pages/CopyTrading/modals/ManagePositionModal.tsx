@@ -254,7 +254,7 @@ const ManagePositionModal = ({ isOpen, onDismiss, position, mode }: ManagePositi
                 type="button"
                 onClick={() => setSlippage(value)}
                 className={cn(
-                  'flex-1 rounded-lg border px-3 py-2 text-sm font-medium transition-colors',
+                  'flex-1 rounded-lg border px-3 py-2 text-sm font-medium',
                   slippage === value
                     ? 'border-primary bg-primary-12 text-primary'
                     : 'border-darkBorder text-subText hover:text-text',
