@@ -219,7 +219,12 @@ export const CopyDetailTabs = ({ defaultTab = 'open-positions', onOpenPositionsC
               >
                 <span className="text-sm font-medium uppercase">{copyDetailTabLabels[tab]}</span>
                 {count !== undefined && (
-                  <Center className={cn('size-5 rounded-full text-xs', active ? 'bg-primary-20' : 'bg-subText-20')}>
+                  <Center
+                    className={cn(
+                      'h-5 min-w-5 rounded-full px-1.5 text-xs',
+                      active ? 'bg-primary-20' : 'bg-subText-20',
+                    )}
+                  >
                     {formatCount(count)}
                   </Center>
                 )}

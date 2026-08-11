@@ -79,7 +79,7 @@ export const CopyTradingPage = ({ children, backTo, className }: CopyTradingPage
             type="button"
             onClick={() => navigate(backTo.to)}
             padding="0"
-            className="text-subText transition-colors hover:text-text focus-visible:text-text"
+            className="text-subText hover:text-text"
           >
             <HStack className="items-center gap-2">
               <ArrowLeft size={16} />

@@ -240,7 +240,7 @@ const StopCopyModal = ({ isOpen, onDismiss, copyRun, positions, agentName }: Sto
                 type="button"
                 onClick={() => setSlippage(value)}
                 className={cn(
-                  'rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors',
+                  'rounded-lg border px-3 py-1.5 text-sm font-medium',
                   slippage === value
                     ? 'border-primary bg-primary-12 text-primary'
                     : 'border-darkBorder text-subText hover:text-text',

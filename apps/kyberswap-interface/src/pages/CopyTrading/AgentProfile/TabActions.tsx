@@ -79,7 +79,7 @@ const ActionLogRow = ({ expanded, onToggle, row }: ActionLogRowProps) => {
         role="button"
         tabIndex={0}
         aria-expanded={expanded}
-        className="-m-1 min-w-0 cursor-pointer gap-1.5 rounded-md p-1 outline-none transition-colors hover:bg-white-04 focus-visible:bg-white-04"
+        className="-m-1 min-w-0 cursor-pointer gap-1.5 rounded-md p-1 outline-none hover:bg-white-04"
         onClick={toggle}
         onKeyDown={event => {
           if (event.key === 'Enter' || event.key === ' ') {

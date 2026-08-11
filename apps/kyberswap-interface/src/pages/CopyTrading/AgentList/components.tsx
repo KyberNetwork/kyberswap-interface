@@ -76,7 +76,7 @@ export const StrategyFilterControl = ({ activeStrategy, onChange }: StrategyFilt
         style={{ gridTemplateColumns: `repeat(${optionCount}, minmax(0, 1fr))` }}
       >
         <div
-          className="pointer-events-none absolute inset-y-1 left-1 rounded-lg bg-primary-20 [transition:transform_200ms_ease,background_200ms_ease]"
+          className="pointer-events-none absolute inset-y-1 left-1 rounded-lg bg-primary-20 [transition:transform_200ms_ease]"
           style={{
             width: `calc((100% - 8px - ${4 * (optionCount - 1)}px) / ${optionCount})`,
             transform: `translateX(calc((100% + 4px) * ${Math.max(activeIndex, 0)}))`,
