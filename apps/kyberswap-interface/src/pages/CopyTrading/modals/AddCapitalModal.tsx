@@ -229,8 +229,7 @@ const AddCapitalModal = ({ isOpen, onDismiss, copyRun, agentName }: AddCapitalMo
                       disabled={!presetsEnabled}
                       onClick={() => setPercentageAmount(percentage)}
                       className={cn(
-                        'rounded-full bg-subText-20 px-2 py-0.5 text-xs font-medium text-subText transition-colors',
-                        'hover:text-text focus-visible:text-text-60 focus-visible:outline-none',
+                        'rounded-full bg-subText-20 px-2 py-0.5 text-xs font-medium text-subText hover:text-text',
                         selected && 'bg-background text-text',
                         'disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:text-subText',
                       )}

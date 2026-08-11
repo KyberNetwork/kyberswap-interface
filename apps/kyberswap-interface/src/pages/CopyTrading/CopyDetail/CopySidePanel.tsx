@@ -1,7 +1,10 @@
+import { Token as CurrencyToken } from '@kyberswap/ks-sdk-core'
+import { useMemo } from 'react'
 import { CreditCard } from 'react-feather'
 import copyTradingApi from 'services/copyTrading'
-import type { AgentProfile, CopyRunSummary, PositionSummary, WalletBalanceRow } from 'services/copyTrading/types'
+import type { AgentProfile, CopyRunSummary, PositionSummary, Token, WalletBalanceRow } from 'services/copyTrading/types'
 
+import CurrencyLogo from 'components/CurrencyLogo'
 import Loader from 'components/Loader'
 import { Center, HStack, Stack } from 'components/Stack'
 import {
@@ -39,35 +42,33 @@ const TerminalCopySummary = ({ run }: CopyStatusCardProps) => {
 
 type AssetRowProps = {
   amount?: string
-  iconUrl?: string
-  quote?: boolean
-  symbol?: string
+  chainId: number
+  token?: Token
+  tokenAddress: string
   valueUsd?: string
 }
 
-const AssetRow = ({ amount, iconUrl, quote, symbol, valueUsd }: AssetRowProps) => (
-  <HStack className="items-center justify-between gap-3 px-3 py-2.5">
-    <HStack className="min-w-0 items-center gap-2">
-      {iconUrl ? (
-        <img src={iconUrl} alt="" className="size-6 shrink-0 rounded-full" />
-      ) : (
-        <Center className="size-6 shrink-0 rounded-full bg-subText-20 text-[10px] text-subText">
-          {symbol?.slice(0, 1) || '?'}
-        </Center>
-      )}
-      <Stack className="min-w-0 gap-0.5">
-        <HStack className="items-center gap-1.5">
-          <span className="truncate text-sm font-medium text-text">{symbol || 'Unknown token'}</span>
-          {quote && (
-            <span className="rounded bg-primary-12 px-1.5 py-0.5 text-[10px] font-medium text-primary">Quote</span>
-          )}
-        </HStack>
-        <span className="text-xs text-subText">{formatTokenAmount(amount)}</span>
-      </Stack>
+const AssetRow = ({ amount, chainId, token, tokenAddress, valueUsd }: AssetRowProps) => {
+  const currency = useMemo(() => {
+    try {
+      return new CurrencyToken(chainId, tokenAddress, token?.decimals ?? 0, token?.symbol, token?.name)
+    } catch {
+      return undefined
+    }
+  }, [chainId, token?.decimals, token?.name, token?.symbol, tokenAddress])
+
+  return (
+    <HStack className="items-center justify-between gap-3 py-2">
+      <HStack className="min-w-0 items-center gap-2">
+        <CurrencyLogo currency={currency} size="20px" />
+        <span className="truncate text-base text-text">
+          {formatTokenAmount(amount)} {token?.symbol || 'Unknown token'}
+        </span>
+      </HStack>
+      <span className="shrink-0 text-base text-subText">{formatUsd(valueUsd)}</span>
     </HStack>
-    <span className="shrink-0 text-sm font-medium text-text">{formatUsd(valueUsd)}</span>
-  </HStack>
-)
+  )
+}
 
 type RemainingInWalletCardProps = {
   loading: boolean
@@ -77,47 +78,56 @@ type RemainingInWalletCardProps = {
 
 const RemainingInWalletCard = ({ loading, positionAssets, quoteBalance }: RemainingInWalletCardProps) => {
   const hasAssets = !!quoteBalance || !!positionAssets.length
+  const totalValueUsd = [quoteBalance?.valueUsd, ...positionAssets.map(position => position.valueUsd)].reduce(
+    (total, value) => {
+      const numericValue = Number(value)
+      return Number.isFinite(numericValue) ? total + numericValue : total
+    },
+    0,
+  )
 
   return (
     <SidePanelCard
+      collapsible
+      bodyClassName="max-h-[300px] gap-0 overflow-y-auto"
+      headerRight={<span className="text-lg font-medium text-primary">{formatUsd(String(totalValueUsd))}</span>}
       title={
-        <HStack className="items-center gap-2 text-base text-text">
-          <CreditCard size={18} />
-          <span>Remaining in Wallet</span>
+        <HStack className="min-w-0 items-center gap-2">
+          <CreditCard size={18} className="shrink-0" />
+          <span className="truncate">Remaining in Wallet</span>
         </HStack>
       }
     >
       {/* TODO(copy-trading): Replace this first-page positions + pinned quote-token approximation with the dedicated Remaining in Wallet API when BE provides it. */}
-      <Stack className="max-h-[300px] gap-0 divide-y divide-darkBorder overflow-y-auto rounded-lg border border-darkBorder bg-background">
-        {loading && !hasAssets ? (
-          <Center className="min-h-20">
-            <Loader />
-          </Center>
-        ) : hasAssets ? (
-          <>
-            {quoteBalance && (
-              <AssetRow
-                amount={quoteBalance.amountDecimal}
-                iconUrl={quoteBalance.token?.iconUrl}
-                quote
-                symbol={quoteBalance.token?.symbol}
-                valueUsd={quoteBalance.valueUsd}
-              />
-            )}
-            {positionAssets.map(position => (
-              <AssetRow
-                key={position.positionId}
-                amount={position.amountDecimal}
-                iconUrl={position.token.iconUrl}
-                symbol={position.token.symbol}
-                valueUsd={position.valueUsd}
-              />
-            ))}
-          </>
-        ) : (
-          <Center className="min-h-20 px-3 text-center text-sm text-subText">No assets remaining</Center>
-        )}
-      </Stack>
+      {loading && !hasAssets ? (
+        <Center className="min-h-20">
+          <Loader />
+        </Center>
+      ) : hasAssets ? (
+        <>
+          {quoteBalance && (
+            <AssetRow
+              amount={quoteBalance.amountDecimal}
+              chainId={quoteBalance.chainId}
+              token={quoteBalance.token}
+              tokenAddress={quoteBalance.tokenAddress}
+              valueUsd={quoteBalance.valueUsd}
+            />
+          )}
+          {positionAssets.map(position => (
+            <AssetRow
+              key={position.positionId}
+              amount={position.amountDecimal}
+              chainId={position.chainId}
+              token={position.token}
+              tokenAddress={position.token.address}
+              valueUsd={position.valueUsd}
+            />
+          ))}
+        </>
+      ) : (
+        <Center className="min-h-20 text-center text-sm text-subText">No assets remaining</Center>
+      )}
     </SidePanelCard>
   )
 }

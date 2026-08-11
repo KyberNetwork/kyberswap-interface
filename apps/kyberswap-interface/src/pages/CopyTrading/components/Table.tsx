@@ -99,13 +99,7 @@ export const TableBody = ({ children, className, empty, emptyIconUrl, emptyMessa
 )
 
 export const TableRow = ({ className, ...props }: HTMLAttributes<HTMLDivElement>) => (
-  <TableGrid
-    className={cn(
-      'px-3 py-2 text-sm text-text outline-none transition-colors hover:bg-primary-10 focus-visible:bg-primary-10',
-      className,
-    )}
-    {...props}
-  />
+  <TableGrid className={cn('px-3 py-2 text-sm text-text outline-none hover:bg-primary-10', className)} {...props} />
 )
 
 export const TableCell = ({ className, padding = 'default', ...rest }: TableCellProps) => (

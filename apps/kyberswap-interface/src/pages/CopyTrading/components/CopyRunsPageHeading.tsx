@@ -46,7 +46,7 @@ const CopyRunsPageHeading = ({ activeView }: CopyRunsPageHeadingProps) => {
               <Link
                 aria-selected={active}
                 className={cn(
-                  'text-2xl font-medium no-underline transition-colors',
+                  'text-2xl font-medium no-underline',
                   active ? (tab.value === 'open' ? 'text-text' : 'text-primary') : 'text-subText hover:text-text',
                 )}
                 role="tab"

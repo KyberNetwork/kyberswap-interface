@@ -1,4 +1,6 @@
-import { type PropsWithChildren, type ReactNode } from 'react'
+import { AnimatePresence, motion } from 'framer-motion'
+import { type PropsWithChildren, type ReactNode, useState } from 'react'
+import { ChevronDown, ChevronUp } from 'react-feather'
 import type { AdvisoryActionAvailability, AgentProfile } from 'services/copyTrading/types'
 
 import { ButtonLight, ButtonPrimary } from 'components/Button'
@@ -10,15 +12,58 @@ import { cn } from 'utils/cn'
 
 type SidePanelCardProps = PropsWithChildren<{
   bodyClassName?: string
+  collapsible?: boolean
+  headerRight?: ReactNode
   title?: ReactNode
 }>
 
-export const SidePanelCard = ({ bodyClassName, children, title }: SidePanelCardProps) => (
-  <Stack className="overflow-hidden rounded-xl bg-buttonBlack">
-    {title && <h3 className="border-b border-darkBorder px-4 py-3 text-base font-medium text-text">{title}</h3>}
-    <Stack className={cn('gap-3 px-4 py-3', bodyClassName)}>{children}</Stack>
-  </Stack>
-)
+export const SidePanelCard = ({ bodyClassName, children, collapsible, headerRight, title }: SidePanelCardProps) => {
+  const [expanded, setExpanded] = useState(true)
+
+  if (collapsible && title) {
+    return (
+      <Stack className="overflow-hidden rounded-xl bg-buttonBlack">
+        <button
+          type="button"
+          aria-expanded={expanded}
+          className={cn(
+            'w-full border-b border-transparent px-4 py-3 text-left outline-none hover:bg-white-04',
+            expanded && 'border-darkBorder',
+          )}
+          onClick={() => setExpanded(value => !value)}
+        >
+          <HStack className="items-center justify-between gap-4">
+            <h3 className="min-w-0 text-base font-medium text-text">{title}</h3>
+            <HStack className="shrink-0 items-center gap-1">
+              {headerRight}
+              {expanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+            </HStack>
+          </HStack>
+        </button>
+        <AnimatePresence initial={false}>
+          {expanded && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.18, ease: 'easeInOut' }}
+              className="overflow-hidden"
+            >
+              <Stack className={cn('gap-3 px-4 py-3', bodyClassName)}>{children}</Stack>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </Stack>
+    )
+  }
+
+  return (
+    <Stack className="overflow-hidden rounded-xl bg-buttonBlack">
+      {title && <h3 className="border-b border-darkBorder px-4 py-3 text-base font-medium text-text">{title}</h3>}
+      <Stack className={cn('gap-3 px-4 py-3', bodyClassName)}>{children}</Stack>
+    </Stack>
+  )
+}
 
 type CurrentCopyCardProps = {
   addCapitalAvailability?: AdvisoryActionAvailability
@@ -137,7 +182,7 @@ export const AgentRiskCard = ({ agent }: AgentRiskCardProps) => {
         </div>
       </HStack>
       <HStack className="items-center justify-between">
-        <span className="text-sm text-subText">Max Drawdown</span>
+        <span className="text-sm font-medium text-subText">Max Drawdown</span>
         <span className="text-sm text-text">{percent(agent.stats.maxDrawdownPct)}</span>
       </HStack>
     </SidePanelCard>
