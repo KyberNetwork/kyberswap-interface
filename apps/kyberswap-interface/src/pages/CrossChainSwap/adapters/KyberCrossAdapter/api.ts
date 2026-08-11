@@ -11,15 +11,21 @@ type JsonObject = Record<string, unknown>
 export type ChainName = 'ethereum' | 'arbitrum' | 'base' | 'bsc'
 export type BridgeProvider = 'across' | 'relay' | 'mayan' | 'near_intents' | 'cctp_v2' | 'cctp_v2_fast'
 type FlowType = 'bridge_only' | 'swap_then_bridge' | 'bridge_then_swap' | 'swap_bridge_swap'
-type RouteStatus =
-  | 'built'
-  | 'source_pending'
-  | 'source_confirmed'
-  | 'bridge_pending'
-  | 'destination_pending'
+export type RouteState =
+  | 'BRIDGE_PENDING'
+  | 'BRIDGE_CLAIM_PENDING'
+  | 'DST_ACTION_PENDING'
+  | 'BRIDGE_EXPIRED'
+  | 'BRIDGE_FAILED'
+  | 'DST_RECEIVED'
+  | 'SWAP_PENDING'
+  | 'SWAP_EXPIRED'
+  | 'SWAP_UNEXECUTABLE'
+  | 'SWAP_REFUND_PENDING'
   | 'SUCCESS'
   | 'REFUNDED'
   | 'FAILED'
+export type FundState = 'IN_BRIDGE' | 'IN_DST_ESCROW' | 'SETTLED_OUT' | 'SETTLED_REFUND' | 'UNRECOVERED'
 type ActionType = 'wrap_native' | 'unwrap_native' | 'transfer'
 
 export type QuoteRequest = {
@@ -34,8 +40,8 @@ export type QuoteRequest = {
   to_address?: Address
   refund_address?: Address
   slippage_bps?: number
-  client_fee_recipient?: Address
-  client_fee_bps?: number
+  partner_fee_recipient?: Address
+  partner_fee_bps?: number
   include_bridges?: BridgeProvider[]
   exclude_bridges?: BridgeProvider[]
   all_route_plans?: boolean
@@ -53,19 +59,28 @@ type RoutePlanRequestSnapshot = {
   amount: UIntString
   slippage_bps: number
   refund_address?: Address
-  client_fee_recipient?: Address
-  client_fee_bps?: number
+  partner_fee_recipient?: Address
+  partner_fee_bps?: number
 }
 
 type FeePlan = {
-  type: 'client'
+  type: 'partner_fee' | 'protocol_fee'
   chain: ChainName
   token: TokenReference
   recipient: Address
   rate_bps: number
-  charged_on: 'bridge_input'
+  charged_on: 'bridge_input' | 'bridge_output'
   expected_amount?: UIntString
   min_amount?: UIntString
+}
+
+type SwapIntent = {
+  factory: Address
+  implementation: Address
+  salt: Hash
+  intent_hash: Hash
+  inbox_address: Address
+  intent_params: JsonObject
 }
 
 type SwapPlan = {
@@ -78,24 +93,24 @@ type SwapPlan = {
     route_id: string
     route_summary: JsonObject
   }
+  intent?: SwapIntent
 }
 
 type ActionPlan = {
   type: ActionType
   token_in: TokenReference
   token_out: TokenReference
-  recipient?: Address
+  to_address?: Address
 }
 
-type AcrossSpokePoolBridgeMetadata = {
-  settlement?: 'spoke_pool'
-  spoke_pool: Address
+type AcrossBridgeMetadata = {
+  spoke_pool_address: Address
   input_amount: UIntString
-  output_amount: UIntString
-  destination_chain_id: number
-  depositor: Address
-  recipient: Address
-  exclusive_relayer?: Address
+  min_output_amount: UIntString
+  dest_chain_id: number
+  from_address: Address
+  to_address: Address
+  exclusive_relayer_address: Address | ''
   quote_timestamp?: number
   fill_deadline?: number
   exclusivity_parameter?: number
@@ -103,20 +118,34 @@ type AcrossSpokePoolBridgeMetadata = {
   quote_expiry_timestamp?: number
 }
 
-type AcrossExecutionBridgeMetadata = {
-  settlement: 'cctp' | 'oft'
-  input_amount: UIntString
-  output_amount: UIntString
-  destination_chain_id: number
-  execution_target: Address
-  execution_data: string
-  quote_expiry_timestamp?: number
-  execution_value?: UIntString | null
+type CCTPBridgeMetadata = {
+  source_domain_id: number
+  dest_domain_id: number
+  mint_to_address: Address
+  dest_caller_address: Address
+  max_fee_amount: UIntString
+  min_finality_threshold: number
+  forward: boolean
+  hook_data?: string | null
+  protocol_fee_amount: UIntString
+  forwarder_fee_amount: UIntString
+}
+
+type RelayDepositoryBridgeMetadata = {
+  execution_mode: 'depository'
+  depository_address: Address
+  from_address: Address
+  order_id: Hash
+}
+
+type RelayDepositAddressBridgeMetadata = {
+  execution_mode: 'deposit_address'
+  deposit_address: Address
 }
 
 type MayanBridgeMetadata = {
-  mayan_forwarder: Address
-  mayan_protocol: Address
+  mayan_forwarder_address: Address
+  mayan_protocol_address: Address
   protocol_data: string
 }
 
@@ -125,17 +154,18 @@ export type NearIntentsBridgeMetadata = {
 }
 
 export type BridgeMetadata =
-  | AcrossSpokePoolBridgeMetadata
-  | AcrossExecutionBridgeMetadata
+  | AcrossBridgeMetadata
+  | CCTPBridgeMetadata
+  | RelayDepositoryBridgeMetadata
+  | RelayDepositAddressBridgeMetadata
   | MayanBridgeMetadata
   | NearIntentsBridgeMetadata
 
 type BridgePlan = {
   lane_id: string
   provider: BridgeProvider
-  asset_group: string
-  token_in: TokenReference
-  token_out: TokenReference
+  from_token: TokenReference
+  to_token: TokenReference
   input_amount: UIntString
   expected_output_amount: UIntString
   min_output_amount: UIntString
@@ -145,59 +175,77 @@ type BridgePlan = {
 }
 
 export type RoutePlan = {
-  route_id: string
+  id: string
   request: RoutePlanRequestSnapshot
   flow_type: FlowType
   expected_output_amount: UIntString
   min_output_amount: UIntString
   expires_at: string
   bridge: BridgePlan
-  status?: RouteStatus
-  updated_at?: string
   fees?: FeePlan[]
   source_swap?: SwapPlan
+  dest_swap?: SwapPlan
   pre_bridge?: ActionPlan[]
   post_bridge?: ActionPlan[]
 }
 
-type SwapDetails = {
+type SwapData = {
   token_in: Address
   token_out: Address
-  amount_in: UIntString
-  amount_out: UIntString
+  input_amount?: UIntString
+  output_amount: UIntString
 }
 
-type OnChainBridgeDetails = {
+type OnChainBridgeData = {
   tx_hash: Hash
   token: Address
   amount: UIntString
 }
 
-type BridgeDetails = {
-  source: OnChainBridgeDetails
-  destination?: OnChainBridgeDetails
+type CCTPClaimData = {
+  nonce: string
+  message: string
+  attestation: string
 }
 
-type RouteExecutionDetails = {
-  source_swap?: SwapDetails
-  bridge?: BridgeDetails
-  dest_swap?: SwapDetails
+type BridgeData = {
+  source: OnChainBridgeData
+  dest?: OnChainBridgeData
+  cctp?: CCTPClaimData
+}
+
+type WithdrawData = {
+  token: Address
+  withdraw_amount: UIntString
+  to_address: Address
+}
+
+type RouteExecutionData = {
+  source_swap?: SwapData
+  bridge?: BridgeData
+  dest_swap?: SwapData
+  dest_withdraw?: WithdrawData
 }
 
 export type TrackingExecution = {
-  route_id: string
-  sender: Address
-  receiver: Address
+  route_plan_id: string
+  from_address: Address
+  to_address: Address
   source_chain: ChainName
   dest_chain: ChainName
   flow_type: FlowType
   source_tx_hash: Hash
-  route_state: RouteStatus
-  route_state_details: RouteExecutionDetails
-  created_at: string
-  updated_at: string
+  token_in: Address
+  token_out: Address
+  bridge_provider: BridgeProvider
+  route_state: RouteState
+  fund_state?: FundState
+  data: RouteExecutionData
   dest_tx_hash?: Hash | null
-  route_plan?: RoutePlan
+}
+
+type TrackingExecutionResponseData = {
+  route_execution: TrackingExecution
 }
 
 export type ExecutionTx = {
@@ -239,11 +287,7 @@ export type QuoteResponseData = {
 
 export type QuoteResponse = SuccessResponse<QuoteResponseData>
 export type BuildResponse = SuccessResponse<BuildResult>
-export type ScanTxStatusResponse = SuccessResponse<TrackingExecution>
-
-export type ScanTxStatusParams = {
-  include_route_plan?: boolean
-}
+export type ScanTxStatusResponse = SuccessResponse<TrackingExecutionResponseData>
 
 const kyberCrossApiClient = axios.create({
   baseURL: CROSSCHAIN_KYBERCROSS_API,
@@ -279,11 +323,11 @@ const build = (data: RoutePlan): Promise<BuildResponse> =>
     data,
   })
 
-const scanTxStatus = (txHash: Hash, params?: ScanTxStatusParams): Promise<ScanTxStatusResponse> =>
-  call<TrackingExecution>({
+const scanTxStatus = (txHash: Hash): Promise<ScanTxStatusResponse> =>
+  call<TrackingExecutionResponseData>({
     method: 'GET',
-    url: `/api/v1/scan/tx/${txHash}`,
-    params,
+    url: '/api/v1/executions',
+    params: { source_tx_hash: txHash },
   })
 
 export const kyberCrossApi = {

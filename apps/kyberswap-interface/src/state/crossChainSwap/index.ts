@@ -1,7 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { useCallback } from 'react'
 
-import type { NormalizedTxResponse } from 'pages/CrossChainSwap/adapters/types'
+import type { NormalizedTxResponse, SwapStatus } from 'pages/CrossChainSwap/adapters/types'
 import { useAppDispatch, useAppSelector } from 'state/hooks'
 
 const MAX_CROSS_CHAIN_TRANSACTIONS = 30
@@ -21,13 +21,27 @@ const slice = createSlice({
     updateTransactions: (state, { payload }: { payload: NormalizedTxResponse[] }) => {
       state.transactions = payload
     },
+    updateTransactionStatus: (state, { payload }: { payload: { id: string; result: SwapStatus } }) => {
+      const transaction = state.transactions.find(tx => tx.id === payload.id)
+      if (!transaction) return
+
+      const { txHash, status, amountOut } = payload.result
+
+      transaction.status = status
+      if (txHash) transaction.targetTxHash = txHash
+
+      if (amountOut && amountOut !== '0' && amountOut !== transaction.outputAmount) {
+        transaction.estimatedAmountOut = transaction.estimatedAmountOut || transaction.outputAmount
+        transaction.outputAmount = amountOut
+      }
+    },
     updateExcludedSources: (state, { payload }: { payload: string[] }) => {
       state.excludedSources = payload
     },
   },
 })
 
-export const { updateTransactions, updateExcludedSources } = slice.actions
+export const { updateTransactions, updateTransactionStatus, updateExcludedSources } = slice.actions
 export default slice.reducer
 
 export const useCrossChainTransactions = (): [
