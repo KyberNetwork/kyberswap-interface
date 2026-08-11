@@ -72,6 +72,7 @@ const RemainingInWalletCard = ({
   ...sidePanelCardProps
 }: RemainingInWalletCardProps) => {
   const hasAssets = !!quoteBalance || !!positionAssets.length
+  const hasContent = loading || hasAssets
   const totalValueUsd = [quoteBalance?.valueUsd, ...positionAssets.map(position => position.valueUsd)].reduce(
     (total, value) => {
       const numericValue = Number(value)
@@ -83,7 +84,7 @@ const RemainingInWalletCard = ({
   return (
     <SidePanelCard
       {...sidePanelCardProps}
-      collapsible={collapsible}
+      collapsible={collapsible && hasContent}
       bodyClassName={cn('max-h-[300px] gap-0 overflow-y-auto', bodyClassName)}
       headerRight={
         headerRight ?? <span className="text-lg font-medium text-primary">{formatUsd(String(totalValueUsd))}</span>
@@ -98,35 +99,37 @@ const RemainingInWalletCard = ({
         )
       }
     >
-      {/* TODO(copy-trading): Replace this first-page positions + pinned quote-token approximation with the dedicated Remaining in Wallet API when BE provides it. */}
-      {loading && !hasAssets ? (
-        <Center className="min-h-20">
-          <Loader />
-        </Center>
-      ) : hasAssets ? (
+      {hasContent && (
         <>
-          {quoteBalance && (
-            <AssetRow
-              amount={quoteBalance.amountDecimal}
-              chainId={quoteBalance.chainId}
-              token={quoteBalance.token}
-              tokenAddress={quoteBalance.tokenAddress}
-              valueUsd={quoteBalance.valueUsd}
-            />
+          {/* TODO(copy-trading): Replace this first-page positions + pinned quote-token approximation with the dedicated Remaining in Wallet API when BE provides it. */}
+          {loading && !hasAssets ? (
+            <Center className="min-h-20">
+              <Loader />
+            </Center>
+          ) : (
+            <>
+              {quoteBalance && (
+                <AssetRow
+                  amount={quoteBalance.amountDecimal}
+                  chainId={quoteBalance.chainId}
+                  token={quoteBalance.token}
+                  tokenAddress={quoteBalance.tokenAddress}
+                  valueUsd={quoteBalance.valueUsd}
+                />
+              )}
+              {positionAssets.map(position => (
+                <AssetRow
+                  key={position.positionId}
+                  amount={position.amountDecimal}
+                  chainId={position.chainId}
+                  token={position.token}
+                  tokenAddress={position.token.address}
+                  valueUsd={position.valueUsd}
+                />
+              ))}
+            </>
           )}
-          {positionAssets.map(position => (
-            <AssetRow
-              key={position.positionId}
-              amount={position.amountDecimal}
-              chainId={position.chainId}
-              token={position.token}
-              tokenAddress={position.token.address}
-              valueUsd={position.valueUsd}
-            />
-          ))}
         </>
-      ) : (
-        <Center className="min-h-20 text-center text-sm text-subText">No assets remaining</Center>
       )}
     </SidePanelCard>
   )

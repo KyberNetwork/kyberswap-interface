@@ -28,16 +28,17 @@ export const SidePanelCard = ({
   title,
 }: SidePanelCardProps) => {
   const [expanded, setExpanded] = useState(initialExpanded)
+  const hasBody = children !== undefined && children !== null && children !== false
 
-  if (collapsible && title) {
+  if (collapsible && title && hasBody) {
     return (
       <Stack className="overflow-hidden rounded-xl bg-buttonBlack">
         <button
           type="button"
           aria-expanded={expanded}
           className={cn(
-            'w-full border-b border-transparent px-4 py-3 text-left outline-none hover:bg-white-04',
-            expanded && 'border-darkBorder',
+            'w-full border-b px-4 py-3 text-left outline-none hover:bg-white-04',
+            expanded ? 'border-darkBorder' : 'border-transparent',
           )}
           onClick={() => setExpanded(value => !value)}
         >
@@ -69,7 +70,12 @@ export const SidePanelCard = ({
   return (
     <Stack className="overflow-hidden rounded-xl bg-buttonBlack">
       {title && (
-        <h3 className="border-b border-darkBorder px-4 py-3 text-base font-medium text-text">
+        <h3
+          className={cn(
+            'border-b px-4 py-3 text-base font-medium text-text',
+            hasBody ? 'border-darkBorder' : 'border-transparent',
+          )}
+        >
           {headerRight ? (
             <HStack className="items-center justify-between gap-4">
               <span className="min-w-0">{title}</span>
@@ -80,7 +86,7 @@ export const SidePanelCard = ({
           )}
         </h3>
       )}
-      <Stack className={cn('gap-3 px-4 py-3', bodyClassName)}>{children}</Stack>
+      {hasBody && <Stack className={cn('gap-3 px-4 py-3', bodyClassName)}>{children}</Stack>}
     </Stack>
   )
 }
