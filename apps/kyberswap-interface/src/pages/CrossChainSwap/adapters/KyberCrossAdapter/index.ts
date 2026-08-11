@@ -11,7 +11,6 @@ import {
   NormalizedQuote,
   NormalizedTxResponse,
   QuoteParams,
-  SwapProvider,
   SwapStatus,
 } from 'pages/CrossChainSwap/adapters/BaseSwapAdapter'
 import {
@@ -50,10 +49,6 @@ const getKyberCrossTokenAddress = (token: Currency): Address =>
   (token.isNative ? ETHER_ADDRESS : token.wrapped.address) as Address
 
 export class KyberCrossAdapter extends BaseSwapAdapter {
-  constructor(private readonly getAdapterByName?: (name?: string) => SwapProvider | undefined) {
-    super()
-  }
-
   getName(): string {
     return 'KyberCross'
   }
@@ -83,13 +78,13 @@ export class KyberCrossAdapter extends BaseSwapAdapter {
       refund_address: params.sender as Address,
       amount: params.amount,
       slippage_bps: params.slippage,
-      client_fee_bps: params.feeBps,
+      partner_fee_bps: params.feeBps,
       include_bridges: getKyberCrossBridgeProviders(params.includedSources),
       exclude_bridges: getKyberCrossBridgeProviders(params.excludedSources),
     }
 
     if (params.feeBps > 0) {
-      request.client_fee_recipient = CROSS_CHAIN_FEE_RECEIVER as Address
+      request.partner_fee_recipient = CROSS_CHAIN_FEE_RECEIVER as Address
     }
 
     const quoteResponse = await kyberCrossApi.getQuote(request)
@@ -190,7 +185,7 @@ export class KyberCrossAdapter extends BaseSwapAdapter {
       platformFeePercent: normalizedQuote.platformFeePercent,
       recipient: quoteParams.recipient,
       bridgeProvider: routeProvider,
-      routeId: routePlan.route_id,
+      routeId: routePlan.id,
     }
   }
 
@@ -198,34 +193,12 @@ export class KyberCrossAdapter extends BaseSwapAdapter {
     try {
       const trackingExecution = await kyberCrossApi.scanTxStatus(params.sourceTxHash as Hash)
 
-      return mapRouteStateToSwapStatus(trackingExecution.data)
-    } catch (error) {
-      // Fallback to delegated adapter/source receipt when KyberCross scan does not have this tx yet.
-    }
-
-    const provider = normalizeProvider(params.bridgeProvider)
-    const adapter = this.getAdapterByName?.(provider)
-
-    if (adapter && normalizeProvider(adapter.getName()) !== NormalizedProvider.KyberCross) {
-      const delegatedId = provider === NormalizedProvider.NearIntents ? params.id : params.routeId || params.id
-
-      if (!delegatedId) {
-        return {
-          txHash: '',
-          status: 'Processing',
-        }
+      return mapRouteStateToSwapStatus(trackingExecution.data.route_execution)
+    } catch {
+      return {
+        txHash: '',
+        status: 'Processing',
       }
-
-      return adapter.getTransactionStatus({
-        ...params,
-        adapter: adapter.getName(),
-        id: delegatedId,
-      })
-    }
-
-    return {
-      txHash: '',
-      status: 'Processing',
     }
   }
 }
