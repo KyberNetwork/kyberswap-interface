@@ -1,6 +1,5 @@
 import { type PropsWithChildren, useEffect, useRef } from 'react'
 
-import { ButtonLight } from 'components/Button'
 import Loader from 'components/Loader'
 import { Center, Stack } from 'components/Stack'
 import { cn } from 'utils/cn'
@@ -11,8 +10,6 @@ export type InfiniteScrollState = {
   initialError?: boolean
   loadingMore?: boolean
   onLoadMore: () => Promise<unknown> | void
-  onRetry?: () => Promise<unknown> | void
-  retrying?: boolean
 }
 
 type InfiniteScrollProps = PropsWithChildren<
@@ -29,8 +26,6 @@ const InfiniteScroll = ({
   initialError,
   loadingMore,
   onLoadMore,
-  onRetry,
-  retrying,
 }: InfiniteScrollProps) => {
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const loadMoreRef = useRef<HTMLDivElement>(null)
@@ -56,15 +51,10 @@ const InfiniteScroll = ({
       {!initialError && children}
       {error && (
         <Stack
-          className={cn('items-center justify-center gap-2 px-4 py-3 text-center', initialError && 'min-h-[180px]')}
+          className={cn('items-center justify-center px-4 py-3 text-center', initialError && 'min-h-[180px]')}
           role="alert"
         >
           <span className="text-sm font-medium text-subText">Unable to load data.</span>
-          {onRetry && (
-            <ButtonLight type="button" padding="5px 10px" disabled={retrying} onClick={() => void onRetry()}>
-              {retrying ? 'Retrying…' : 'Retry'}
-            </ButtonLight>
-          )}
         </Stack>
       )}
       {!error && hasMore && (

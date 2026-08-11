@@ -9,12 +9,20 @@ import useInfiniteCursorQuery from 'pages/CopyTrading/components/InfiniteScroll/
 import Leaderboard, { type LeaderboardStat } from 'pages/CopyTrading/components/Leaderboard'
 import { copyTradingStatIconMap } from 'pages/CopyTrading/constants'
 import { useCopyTradingContext } from 'pages/CopyTrading/context'
-import { formatCount, formatUsd, percent, signedPercent, signedUsd } from 'pages/CopyTrading/helpers'
+import {
+  formatApproximateUsd,
+  formatCount,
+  formatUsd,
+  signedPercent,
+  signedUsd,
+  sumUsdValues,
+} from 'pages/CopyTrading/helpers'
 import { cn } from 'utils/cn'
 import { formatDateTime } from 'utils/time'
 
 const PAGE_SIZE = 10
 const copyDetailTabs = ['open-positions', 'closed-positions', 'action-logs'] as const
+const closedCopyDetailTabs = ['closed-positions', 'action-logs'] as const
 
 type CopyDetailTab = (typeof copyDetailTabs)[number]
 
@@ -34,11 +42,27 @@ type OpenPositionsPanelProps = CopyRunPanelProps & {
 }
 
 const getCopyRunStats = (run: CopyRunSummary): LeaderboardStat[] => {
+  const totalPnlUsd = sumUsdValues(run.realizedPnlUsd, run.unrealizedPnlUsd)
+  const totalPnlStatus =
+    run.metrics.realizedPnlUsd?.status === 'METRIC_STATUS_STALE' ||
+    run.metrics.unrealizedPnlUsd?.status === 'METRIC_STATUS_STALE'
+      ? 'METRIC_STATUS_STALE'
+      : run.metrics.realizedPnlUsd?.status === 'METRIC_STATUS_CURRENT' &&
+        run.metrics.unrealizedPnlUsd?.status === 'METRIC_STATUS_CURRENT'
+      ? 'METRIC_STATUS_CURRENT'
+      : undefined
+
   return [
     {
-      label: 'Total Realised P&L',
-      value: signedUsd(run.realizedPnlUsd),
+      label: 'Total P&L',
+      value: signedUsd(totalPnlUsd),
       icon: copyTradingStatIconMap.money,
+      status: totalPnlStatus,
+    },
+    {
+      label: 'Realised P&L',
+      value: signedUsd(run.realizedPnlUsd),
+      icon: copyTradingStatIconMap.positionClose,
       status: run.metrics.realizedPnlUsd?.status,
     },
     {
@@ -48,20 +72,14 @@ const getCopyRunStats = (run: CopyRunSummary): LeaderboardStat[] => {
       status: run.metrics.myAprSinceCopy?.status,
     },
     {
-      label: 'Agent Win Rate',
-      value: percent(run.agentStats.winRatePct),
-      icon: copyTradingStatIconMap.users,
-      status: run.agentStats.metrics.winRatePct?.status,
-    },
-    {
-      label: 'Fees Paid',
+      label: 'Fee Paid',
       value: formatUsd(run.flatFeesCapturedUsd),
       icon: copyTradingStatIconMap.volume,
       status: run.metrics.flatFeesCapturedUsd?.status,
     },
     {
-      label: 'Est. Rebate Pending',
-      value: `~${formatUsd(run.estimatedCashbackPendingUsd)}`,
+      label: 'Est. Rebase Pending',
+      value: formatApproximateUsd(run.estimatedCashbackPendingUsd),
       icon: copyTradingStatIconMap.money,
       status: run.metrics.estimatedCashbackPendingUsd?.status,
     },
@@ -70,27 +88,29 @@ const getCopyRunStats = (run: CopyRunSummary): LeaderboardStat[] => {
 
 export const CopyRunStats = ({ run }: CopyRunPanelProps) => <Leaderboard items={getCopyRunStats(run)} size="sm" />
 
-export const CopyTimeline = ({ run }: CopyRunPanelProps) => (
-  <HStack className="items-center justify-between gap-5 rounded-xl bg-buttonBlack p-6 max-md:flex-col max-md:items-stretch">
-    <HStack className="items-center gap-5">
-      <Center className="min-h-12 rounded-xl bg-primary-12 px-6 py-2 text-lg font-medium text-primary">
-        Started Copy
-      </Center>
-      <Stack>
-        <span className="text-sm text-subText">{formatDateTime(run.startedAt)}</span>
-        <span className="text-lg font-medium text-text">In: {formatUsd(run.capitalInUsd)}</span>
-      </Stack>
+export const CopyTimeline = ({ run }: CopyRunPanelProps) => {
+  return (
+    <HStack className="items-center justify-between gap-5 rounded-xl bg-buttonBlack p-6 max-md:flex-col max-md:items-stretch">
+      <HStack className="items-center gap-5">
+        <Center className="min-h-12 rounded-xl bg-primary-12 px-6 py-2 text-lg font-medium text-primary">
+          Started Copy
+        </Center>
+        <Stack>
+          <span className="text-sm text-subText">{formatDateTime(run.startedAt)}</span>
+          <span className="text-lg font-medium text-text">In: {formatUsd(run.capitalInUsd)}</span>
+        </Stack>
+      </HStack>
+      <div className="h-0.5 min-w-16 flex-1 bg-gradient-to-r from-primary to-red max-md:hidden" />
+      <HStack className="items-center justify-end gap-5 max-md:justify-start">
+        <Stack className="items-end max-md:items-start">
+          <span className="text-right text-sm text-subText">{formatDateTime(run.stoppedAt)}</span>
+          <span className="text-lg font-medium text-text">Out: {formatUsd(run.capitalOutUsd)}</span>
+        </Stack>
+        <Center className="min-h-12 rounded-xl bg-red-20 px-6 py-2 text-lg font-medium text-red">Stopped Copy</Center>
+      </HStack>
     </HStack>
-    <div className="h-0.5 min-w-16 flex-1 bg-gradient-to-r from-primary to-red max-md:hidden" />
-    <HStack className="items-center justify-end gap-5 max-md:justify-start">
-      <Stack className="items-end max-md:items-start">
-        <span className="text-right text-sm text-subText">{formatDateTime(run.stoppedAt)}</span>
-        <span className="text-lg font-medium text-text">Out: {formatUsd(run.capitalOutUsd)}</span>
-      </Stack>
-      <Center className="min-h-12 rounded-xl bg-red-20 px-6 py-2 text-lg font-medium text-red">Stopped Copy</Center>
-    </HStack>
-  </HStack>
-)
+  )
+}
 
 const OpenPositionsPanel = ({ enabled = true, run, onPositionsChange }: OpenPositionsPanelProps) => {
   const { ownerAddress } = useCopyTradingContext()
@@ -176,25 +196,32 @@ const ActionLogsPanel = ({ enabled = true, run }: CopyRunPanelProps) => {
 
 type CopyDetailTabsProps = CopyRunPanelProps & {
   defaultTab?: CopyDetailTab
+  includeOpenPositions?: boolean
   onOpenPositionsChange?: (positions: PositionSummary[]) => void
 }
 
-export const CopyDetailTabs = ({ defaultTab = 'open-positions', onOpenPositionsChange, run }: CopyDetailTabsProps) => {
+export const CopyDetailTabs = ({
+  defaultTab = 'open-positions',
+  includeOpenPositions = true,
+  onOpenPositionsChange,
+  run,
+}: CopyDetailTabsProps) => {
+  const tabs = includeOpenPositions ? copyDetailTabs : closedCopyDetailTabs
   const { activeTab, setActiveTab } = useTab<CopyDetailTab>({
-    tabs: copyDetailTabs,
+    tabs,
     defaultTab,
     queryKey: 'detailTab',
   })
   const currentTab = activeTab || defaultTab
-  const keepOpenPositionsLoaded = run.status === 'active' || run.status === 'closing'
+  const keepOpenPositionsLoaded = includeOpenPositions && (run.status === 'active' || run.status === 'closing')
 
   return (
     <Stack className="overflow-hidden rounded-xl bg-buttonBlack-60">
       <HStack className="items-center gap-3 border-b border-darkBorder bg-background pr-4">
         <div className="flex min-w-0 flex-1 items-stretch overflow-x-auto" role="tablist">
-          {copyDetailTabs.map((tab, index) => {
+          {tabs.map((tab, index) => {
             const active = currentTab === tab
-            const isLast = index === copyDetailTabs.length - 1
+            const isLast = index === tabs.length - 1
             const count =
               tab === 'open-positions'
                 ? run.openPositionCount
@@ -234,13 +261,15 @@ export const CopyDetailTabs = ({ defaultTab = 'open-positions', onOpenPositionsC
         </div>
       </HStack>
 
-      <div className="relative min-h-20" hidden={currentTab !== 'open-positions'} role="tabpanel">
-        <OpenPositionsPanel
-          enabled={currentTab === 'open-positions' || keepOpenPositionsLoaded}
-          run={run}
-          onPositionsChange={onOpenPositionsChange}
-        />
-      </div>
+      {includeOpenPositions && (
+        <div className="relative min-h-20" hidden={currentTab !== 'open-positions'} role="tabpanel">
+          <OpenPositionsPanel
+            enabled={currentTab === 'open-positions' || keepOpenPositionsLoaded}
+            run={run}
+            onPositionsChange={onOpenPositionsChange}
+          />
+        </div>
+      )}
       <div className="relative min-h-20" hidden={currentTab !== 'closed-positions'} role="tabpanel">
         <ClosedPositionsPanel enabled={currentTab === 'closed-positions'} run={run} />
       </div>

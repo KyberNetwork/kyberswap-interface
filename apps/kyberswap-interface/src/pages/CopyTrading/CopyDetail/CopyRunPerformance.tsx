@@ -18,8 +18,8 @@ type CopyRunPerformanceProps = {
 const CopyRunPerformance = ({ copyRunId, status }: CopyRunPerformanceProps) => {
   const { ownerAddress } = useCopyTradingContext()
   const [window, setWindow] = useState<PerformanceWindow>('30d')
-  const isStopped = status === 'stopped' || status === 'closed'
-  const performanceWindow = isStopped ? 'all' : window
+  const isTerminal = status === 'stopped' || status === 'closed'
+  const performanceWindow = isTerminal ? 'all' : window
   const interval = performanceWindow === 'all' ? 'month' : 'day'
   const {
     data: portfolioPerformance,
@@ -34,7 +34,7 @@ const CopyRunPerformance = ({ copyRunId, status }: CopyRunPerformanceProps) => {
       series: 'portfolio_value',
       window: performanceWindow,
     },
-    { skip: !ownerAddress || isStopped },
+    { skip: !ownerAddress || isTerminal },
   )
   const {
     data: realizedPnlPerformance,
@@ -66,10 +66,10 @@ const CopyRunPerformance = ({ copyRunId, status }: CopyRunPerformanceProps) => {
         data={realizedPnlData}
         isError={isRealizedPnlError}
         isFetching={isRealizedPnlFetching}
-        onWindowChange={isStopped ? undefined : setWindow}
-        window={isStopped ? undefined : performanceWindow}
+        onWindowChange={isTerminal ? undefined : setWindow}
+        window={isTerminal ? undefined : performanceWindow}
       />
-      {!isStopped && (
+      {!isTerminal && (
         <CapitalValueChart data={portfolioData} isError={isPortfolioError} isFetching={isPortfolioFetching} />
       )}
     </Stack>

@@ -8,7 +8,7 @@ import { HStack, Stack } from 'components/Stack'
 import { APP_PATHS } from 'constants/index'
 import {
   AgentRiskCard,
-  CurrentCopyCard,
+  CopyCapitalCard,
   SidePanelCard,
   StrategyExecutionCard,
   WishlistedTokensCard,
@@ -64,7 +64,7 @@ const AgentInstruction = ({ agent }: AgentInstructionProps) => {
   return (
     <Stack className="gap-4">
       {activeCopyRun ? (
-        <CurrentCopyCard
+        <CopyCapitalCard
           addCapitalAvailability={activeCopyRun.addCapitalAvailability}
           capital={formatUsd(activeCopyRun.capitalInUsd)}
           onView={() => navigate(`${APP_PATHS.COPY_TRADING}/my-copies/${activeCopyRun.copyRunId}`)}
