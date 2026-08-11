@@ -24,7 +24,7 @@ const SidebarSection = ({ title, active, count, children, onClick, to }: Sidebar
     {to ? (
       <div
         className={cn(
-          'h-9 rounded-lg transition-colors hover:bg-primary-10',
+          'h-9 rounded-lg hover:bg-primary-10',
           active && 'border-l-2 border-primary bg-primary-12 text-primary',
         )}
       >
@@ -88,7 +88,7 @@ const SidebarMenuItem = ({
   return (
     <div
       className={cn(
-        'h-9 rounded-lg transition-colors hover:bg-primary-10',
+        'h-9 rounded-lg hover:bg-primary-10',
         active && activeStyle === 'surface' && 'border-l-2 border-primary bg-primary-12 text-primary',
         active && activeStyle === 'text' && 'text-primary',
       )}
@@ -178,7 +178,7 @@ const Sidebar = ({ agents, activeRuns, chains }: SidebarProps) => {
               key={item.label}
               to={item.to}
               className={cn(
-                'flex h-9 shrink-0 items-center gap-2 rounded-lg bg-buttonBlack px-3 text-sm font-medium text-subText no-underline transition-colors hover:bg-primary-10 hover:text-primary',
+                'flex h-9 shrink-0 items-center gap-2 rounded-lg bg-buttonBlack px-3 text-sm font-medium text-subText no-underline hover:bg-primary-10 hover:text-primary',
                 item.active && 'bg-primary-12 text-primary',
               )}
             >
@@ -204,7 +204,7 @@ const Sidebar = ({ agents, activeRuns, chains }: SidebarProps) => {
                     setExpandedAgents(false)
                   }}
                   className={cn(
-                    'flex h-9 shrink-0 items-center gap-2 rounded-lg px-3 text-sm font-medium text-subText transition-colors hover:bg-primary-10 hover:text-primary',
+                    'flex h-9 shrink-0 items-center gap-2 rounded-lg px-3 text-sm font-medium text-subText hover:bg-primary-10 hover:text-primary',
                     active && 'bg-primary-12 text-primary',
                   )}
                 >
