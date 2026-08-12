@@ -17,6 +17,7 @@ export type PreparedActionExpectation = {
   copyAccount?: string
   preview: 'startCopy' | 'addCapital' | 'stopCopy' | 'withdrawQuote' | 'manualSell' | 'closePosition'
   startCopyPredictedAccount?: string
+  startCopyCreateAmountRaw?: string
   startCopyRequestId?: string
   startCopyTargetRaw?: string
 }
@@ -204,6 +205,13 @@ export const validatePreparedAction = (
     if (startCopy.stage === 'START_COPY_STAGE_CREATE_REQUIRED' && action.copyAccount) {
       return 'The Start Copy create preparation unexpectedly returned a Smart Wallet identity.'
     }
+    if (
+      startCopy.stage === 'START_COPY_STAGE_CREATE_REQUIRED' &&
+      expected.startCopyCreateAmountRaw !== undefined &&
+      startCopy.createAmountRaw !== expected.startCopyCreateAmountRaw
+    ) {
+      return 'The prepared Start Copy create amount does not match the selected funding mode.'
+    }
 
     if (action.status === 'PREPARED_ACTION_STATUS_PENDING') {
       if (startCopy.stage !== 'START_COPY_STAGE_CREATE_CONFIRMING') {
@@ -280,5 +288,10 @@ export const getReprepareDelay = (action: PreparedAction) => {
   if (!Number.isFinite(requestedAt)) return 2_000
   return Math.max(500, requestedAt - Date.now())
 }
+
+export const validatePreparedActionContinuation = (action: PreparedAction) =>
+  action.status === 'PREPARED_ACTION_STATUS_READY' || action.status === 'PREPARED_ACTION_STATUS_PARTIALLY_COMPLETED'
+    ? 'The confirmed Start Copy transaction returned another executable preparation. Do not submit another transaction.'
+    : undefined
 
 export const wait = (milliseconds: number) => new Promise(resolve => setTimeout(resolve, milliseconds))

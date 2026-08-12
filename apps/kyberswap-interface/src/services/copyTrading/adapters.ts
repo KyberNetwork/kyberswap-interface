@@ -23,6 +23,8 @@ import type {
   CopyAccountResponse,
   CopyAccountStatus,
   CopyAccountSummary,
+  CopyRunCashbackPolicy,
+  CopyRunCashbackPolicyResponse,
   CopyRunPerformanceResponse,
   CopyRunPositionsResponse,
   CopyRunResponse,
@@ -251,6 +253,23 @@ type ApiCopyRun = {
   addCapitalAvailability?: ApiAgentCard['startCopyAvailability']
   stopCopyAvailability?: ApiAgentCard['startCopyAvailability']
   withdrawQuoteAvailability?: ApiAgentCard['startCopyAvailability']
+}
+
+type ApiCopyRunCashbackPolicy = {
+  copyRunId?: string
+  chainId?: string
+  copyAccount?: string
+  agentId?: string
+  capCashbackRatioRaw?: string
+  pnlRateRaw?: string
+  scope?: string
+  status?: string
+  selectionPolicyVersion?: string
+  cashbackFormulaVersion?: number
+  selectedAt?: string
+  invalidatedAt?: string
+  unavailableReason?: string
+  fallbackAt?: string
 }
 
 type ApiOwnerCopySummary = {
@@ -1024,6 +1043,29 @@ export const adaptCopyRunsResponse = (response: ApiCursorResponse<ApiCopyRun>): 
 
 export const adaptCopyRunResponse = (response: ApiSingleResponse<ApiCopyRun>): CopyRunResponse =>
   singleResponse(response, toCopyRun)
+
+export const adaptCopyRunCashbackPolicyResponse = (
+  response: ApiSingleResponse<ApiCopyRunCashbackPolicy>,
+): CopyRunCashbackPolicyResponse =>
+  singleResponse(
+    response,
+    (policy): CopyRunCashbackPolicy => ({
+      copyRunId: policy.copyRunId || '',
+      chainId: chainIdNumber(policy.chainId),
+      copyAccount: (policy.copyAccount || '') as Address,
+      agentId: policy.agentId || '',
+      capCashbackRatioRaw: policy.capCashbackRatioRaw,
+      pnlRateRaw: policy.pnlRateRaw,
+      scope: policy.scope || 'COPY_RUN_CASHBACK_POLICY_SCOPE_UNSPECIFIED',
+      status: policy.status || 'COPY_RUN_CASHBACK_POLICY_STATUS_UNSPECIFIED',
+      selectionPolicyVersion: policy.selectionPolicyVersion,
+      cashbackFormulaVersion: policy.cashbackFormulaVersion,
+      selectedAt: policy.selectedAt,
+      invalidatedAt: policy.invalidatedAt,
+      unavailableReason: policy.unavailableReason,
+      fallbackAt: policy.fallbackAt,
+    }),
+  )
 
 export const adaptActivityResponse = (
   response: ApiCursorResponse<ApiActivity>,

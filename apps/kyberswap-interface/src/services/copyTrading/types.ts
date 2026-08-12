@@ -492,6 +492,41 @@ export type CopyRunSummary = {
   agentStats: AgentStats
 }
 
+export type CopyRunCashbackPolicyScope =
+  | 'COPY_RUN_CASHBACK_POLICY_SCOPE_UNSPECIFIED'
+  | 'COPY_RUN_CASHBACK_POLICY_SCOPE_DEFAULT'
+  | 'COPY_RUN_CASHBACK_POLICY_SCOPE_EXTRA'
+
+export type CopyRunCashbackPolicyStatus =
+  | 'COPY_RUN_CASHBACK_POLICY_STATUS_UNSPECIFIED'
+  | 'COPY_RUN_CASHBACK_POLICY_STATUS_AVAILABLE'
+  | 'COPY_RUN_CASHBACK_POLICY_STATUS_NOT_CONFIGURED'
+  | 'COPY_RUN_CASHBACK_POLICY_STATUS_INVALIDATED'
+  | 'COPY_RUN_CASHBACK_POLICY_STATUS_UNAVAILABLE'
+
+export type CopyRunCashbackPolicyUnavailableReason =
+  | 'COPY_RUN_CASHBACK_POLICY_UNAVAILABLE_REASON_UNSPECIFIED'
+  | 'COPY_RUN_CASHBACK_POLICY_UNAVAILABLE_REASON_COVERAGE_PENDING'
+  | 'COPY_RUN_CASHBACK_POLICY_UNAVAILABLE_REASON_HISTORICAL_GENERATION_UNSUPPORTED'
+  | 'COPY_RUN_CASHBACK_POLICY_UNAVAILABLE_REASON_POLICY_TRANSITION_PENDING'
+
+export type CopyRunCashbackPolicy = {
+  copyRunId: string
+  chainId: number
+  copyAccount: Address
+  agentId: string
+  capCashbackRatioRaw?: string
+  pnlRateRaw?: string
+  scope: LooseString<CopyRunCashbackPolicyScope>
+  status: LooseString<CopyRunCashbackPolicyStatus>
+  selectionPolicyVersion?: string
+  cashbackFormulaVersion?: number
+  selectedAt?: Timestamp
+  invalidatedAt?: Timestamp
+  unavailableReason?: LooseString<CopyRunCashbackPolicyUnavailableReason>
+  fallbackAt?: Timestamp
+}
+
 export type CopyAccountSummary = {
   chainId: number
   copyAccount: Address
@@ -727,6 +762,7 @@ export type CotLogsResponse = CursorResponse<CotLog>
 export type OwnerCopySummaryResponse = SingleResponse<OwnerCopySummary>
 export type CopyRunsResponse = CursorResponse<CopyRunSummary>
 export type CopyRunResponse = SingleResponse<CopyRunSummary>
+export type CopyRunCashbackPolicyResponse = SingleResponse<CopyRunCashbackPolicy>
 export type CopyRunPositionsResponse = CursorResponse<PositionSummary>
 export type CopyRunPerformanceResponse = CursorResponse<PerformancePoint>
 export type OwnerPositionsResponse = CursorResponse<PositionSummary>
@@ -865,6 +901,7 @@ export type StartCopyPreview = {
   predictedCopyAccount?: Address
   quoteToken?: PreparedToken
   requestedTargetRaw?: string
+  createAmountRaw?: string
   initialCapitalCredited?: RawAmountMetric
   remainingTargetDeficit?: RawAmountMetric
   minimumInitialCapitalRaw?: string
@@ -962,13 +999,21 @@ export type PrepareWithdrawQuoteResponse = PreparedActionResponse
 export type PrepareManualSellResponse = PreparedActionResponse
 export type PrepareClosePositionResponse = PreparedActionResponse
 
-export type PrepareStartCopyRequest = {
+export type StartCopyFundingMode = 'START_COPY_FUNDING_MODE_UNFUNDED' | 'START_COPY_FUNDING_MODE_FUNDED'
+
+type PrepareStartCopyRequestBase = {
   ownerAddress: Address
   agentId: string
   chainId: string
   targetCapitalRaw: string
   startRequestId: string
 }
+
+export type PrepareStartCopyRequest = PrepareStartCopyRequestBase &
+  (
+    | { fundingMode: Extract<StartCopyFundingMode, 'START_COPY_FUNDING_MODE_UNFUNDED'>; createPermitData?: never }
+    | { fundingMode: Extract<StartCopyFundingMode, 'START_COPY_FUNDING_MODE_FUNDED'>; createPermitData?: string }
+  )
 
 export type PrepareCopyRunRequest = {
   ownerAddress: Address

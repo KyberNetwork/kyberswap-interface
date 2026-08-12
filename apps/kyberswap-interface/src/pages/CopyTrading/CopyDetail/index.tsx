@@ -1,7 +1,6 @@
-import { useState } from 'react'
 import { Navigate, useParams } from 'react-router-dom'
 import copyTradingApi from 'services/copyTrading'
-import type { AgentProfile, CopyRunSummary, PositionSummary } from 'services/copyTrading/types'
+import type { AgentProfile, CopyRunSummary } from 'services/copyTrading/types'
 
 import LocalLoader from 'components/LocalLoader'
 import { Stack } from 'components/Stack'
@@ -24,8 +23,6 @@ type CopyDetailContentProps = {
 }
 
 const CopyDetailContent = ({ agent, backPath, run }: CopyDetailContentProps) => {
-  const [openPositions, setOpenPositions] = useState<PositionSummary[]>([])
-
   if (run.status === 'closed') {
     return (
       <>
@@ -35,7 +32,7 @@ const CopyDetailContent = ({ agent, backPath, run }: CopyDetailContentProps) => 
             <CopyRunPerformance copyRunId={run.copyRunId} status={run.status} />
           </Stack>
           <StickySideColumn>
-            <CopySidePanel agent={agent} positions={openPositions} run={run} />
+            <CopySidePanel agent={agent} run={run} />
           </StickySideColumn>
         </div>
         <CopyDetailTabs defaultTab="closed-positions" includeOpenPositions={false} run={run} />
@@ -49,15 +46,11 @@ const CopyDetailContent = ({ agent, backPath, run }: CopyDetailContentProps) => 
 
       <div className="grid grid-cols-[minmax(0,1fr)_340px] gap-4 max-xl:grid-cols-1">
         <Stack className="min-w-0 gap-4">
-          <CopyDetailTabs
-            defaultTab={backPath === 'history' ? 'closed-positions' : 'open-positions'}
-            run={run}
-            onOpenPositionsChange={setOpenPositions}
-          />
+          <CopyDetailTabs defaultTab={backPath === 'history' ? 'closed-positions' : 'open-positions'} run={run} />
           <CopyRunPerformance copyRunId={run.copyRunId} status={run.status} />
         </Stack>
         <StickySideColumn>
-          <CopySidePanel agent={agent} positions={openPositions} run={run} />
+          <CopySidePanel agent={agent} run={run} />
         </StickySideColumn>
       </div>
     </>
