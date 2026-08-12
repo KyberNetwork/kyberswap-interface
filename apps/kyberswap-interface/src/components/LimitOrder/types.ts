@@ -3,6 +3,7 @@ import { ChainId, Currency, Fraction } from '@kyberswap/ks-sdk-core'
 import type { BaseTradeInfo } from 'hooks/useBaseTradeInfo'
 
 export enum LimitOrderTab {
+  STOP_LOSS = 'stop_loss',
   PRICE = 'price',
   ORDER_BOOK = 'order_book',
   MY_ORDER = 'my_order',

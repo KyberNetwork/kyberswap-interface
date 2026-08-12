@@ -39,6 +39,12 @@ export const DropdownIcon = ({
   </div>
 )
 
+/**
+ * Grid placement for a setting that renders a compact header plus an expanding panel, where the two
+ * belong in different cells. `header` and `panel` are the caller's placement classes.
+ */
+export type SettingGridCells = { header?: string; panel?: string }
+
 type Props = {
   rightComponent?: ReactNode
   tooltip?: ReactNode
@@ -49,15 +55,35 @@ type Props = {
     default: number
     presets: number[]
   }
+  /**
+   * Feature-local value. Without it the control reads and writes the global Swap setting, which is
+   * wrong for a form that stores its own slippage on the order it creates.
+   */
+  slippage?: { value: number; onChange: (value: number) => void }
+  /** Renders regardless of the Swap settings pin, for forms that own the control outright. */
+  alwaysVisible?: boolean
+  /**
+   * Places the header and the expanding panel as separate cells of the caller's grid: the root stops
+   * being a box (`display: contents`) so its two children become grid items directly. Lets a caller
+   * keep a narrow header column while the panel, which needs more room than the column has, spans
+   * the full grid width. Requires the caller to be a grid; leave unset everywhere else.
+   */
+  gridCells?: SettingGridCells
 }
-const SlippageSetting = ({ rightComponent, tooltip, slippageInfo }: Props) => {
+const SlippageSetting = ({ rightComponent, tooltip, slippageInfo, slippage, alwaysVisible, gridCells }: Props) => {
   const [searchParams, setSearchParams] = useSearchParams()
   const [expanded, setExpanded] = useState(false)
   const [isHighlight, setIsHighlight] = useState(false)
   const [triedSimulatedSlippage, setTriedSimulatedSlippage] = useState(false)
   const [isDegenMode] = useDegenModeManager()
 
-  const { rawSlippage, setRawSlippage, isSlippageControlPinned } = useSlippageSettingByPage()
+  const {
+    rawSlippage: globalSlippage,
+    setRawSlippage: setGlobalSlippage,
+    isSlippageControlPinned,
+  } = useSlippageSettingByPage()
+  const rawSlippage = slippage ? slippage.value : globalSlippage
+  const setRawSlippage = slippage ? slippage.onChange : setGlobalSlippage
 
   const defaultSlippage = useDefaultSlippageByPair()
   const defaultSlp = slippageInfo ? slippageInfo.default : defaultSlippage
@@ -86,7 +112,8 @@ const SlippageSetting = ({ rightComponent, tooltip, slippageInfo }: Props) => {
     [pairCategory, slippageInfo],
   )
 
-  const actionFromUrl = searchParams.get('action')
+  // The deep link targets the Swap setting, so an instance holding its own value ignores it.
+  const actionFromUrl = slippage ? null : searchParams.get('action')
   useEffect(() => {
     if (actionFromUrl === 'open-slippage-panel') {
       setExpanded(true)
@@ -100,13 +127,13 @@ const SlippageSetting = ({ rightComponent, tooltip, slippageInfo }: Props) => {
     }
   }, [actionFromUrl, searchParams, setSearchParams])
 
-  if (!isSlippageControlPinned) {
+  if (!isSlippageControlPinned && !alwaysVisible) {
     return null
   }
 
   return (
-    <div className="flex w-full flex-col">
-      <div className="flex items-center justify-between gap-1 text-subText">
+    <div className={cn('flex w-full flex-col', gridCells && 'contents')} data-testid="slippage-setting">
+      <div className={cn('flex items-center justify-between gap-1 text-subText', gridCells?.header)}>
         <div className="flex items-center gap-1">
           <TextDashed fontSize={12} fontWeight={500} className="flex h-fit items-center text-subText">
             <MouseoverTooltip
@@ -134,9 +161,13 @@ const SlippageSetting = ({ rightComponent, tooltip, slippageInfo }: Props) => {
           <div
             role="button"
             onClick={() => setExpanded(e => !e)}
+            data-testid="slippage-setting-toggle"
             className="flex cursor-pointer items-center gap-1 hover:brightness-[0.85]"
           >
-            <span className={cn('text-sm font-medium leading-none', isWarningSlippage ? 'text-warning' : 'text-text')}>
+            <span
+              data-testid="slippage-value"
+              className={cn('text-sm font-medium leading-none', isWarningSlippage ? 'text-warning' : 'text-text')}
+            >
               {msg ? (
                 <MouseoverTooltip text={slippageInfo ? msg : t`Your slippage ${msg}`}>
                   {formatSlippage(rawSlippage)}
@@ -157,6 +188,9 @@ const SlippageSetting = ({ rightComponent, tooltip, slippageInfo }: Props) => {
         className={cn(
           'grid transition-[grid-template-rows,opacity] duration-200 ease-in-out',
           expanded ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0',
+          // As a grid item the panel's automatic minimum size would hold the collapsed 0fr row open.
+          gridCells && 'min-h-0',
+          gridCells?.panel,
         )}
       >
         <div className={cn('min-h-0', isHighlight ? 'overflow-visible' : 'overflow-hidden')}>
@@ -191,7 +225,7 @@ const SlippageSetting = ({ rightComponent, tooltip, slippageInfo }: Props) => {
             </Stack>
 
             {slippageInfo ? (
-              msg && <ErrorWarning type="warn" title={msg} />
+              msg && <ErrorWarning type="warn" title={msg} dataTestId="slippage-warning" />
             ) : (
               <SlippageWarningNote rawSlippage={rawSlippage} />
             )}

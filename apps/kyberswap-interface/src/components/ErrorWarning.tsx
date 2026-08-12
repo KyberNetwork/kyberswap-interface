@@ -18,9 +18,18 @@ type ErrorWarningProps = {
   style?: CSSProperties
   className?: string
   action?: ReactNode
+  dataTestId?: string
 }
 
-export const ErrorWarning = ({ title, type, desc, style: customStyle = {}, className, action }: ErrorWarningProps) => {
+export const ErrorWarning = ({
+  title,
+  type,
+  desc,
+  style: customStyle = {},
+  className,
+  action,
+  dataTestId,
+}: ErrorWarningProps) => {
   const detailsId = useId()
   const { backgroundClass, colorClass, Icon } = WARNING_STYLES[type]
   const [expanded, setExpanded] = useState(false)
@@ -30,6 +39,8 @@ export const ErrorWarning = ({ title, type, desc, style: customStyle = {}, class
       <HStack
         className={cn('items-start gap-2 rounded-2xl px-3 py-2', backgroundClass, colorClass, className)}
         style={customStyle}
+        data-testid={dataTestId}
+        data-warning-type={type}
       >
         <Icon size={16} className="shrink-0" />
         <div className="flex-1 text-xs font-medium italic text-text-60">{title}</div>
@@ -39,7 +50,12 @@ export const ErrorWarning = ({ title, type, desc, style: customStyle = {}, class
   }
 
   return (
-    <Stack className={cn('rounded-2xl px-3 py-2', backgroundClass, className)} style={customStyle}>
+    <Stack
+      className={cn('rounded-2xl px-3 py-2', backgroundClass, className)}
+      style={customStyle}
+      data-testid={dataTestId}
+      data-warning-type={type}
+    >
       <HStack
         className={cn('group cursor-pointer select-none items-start gap-2', colorClass)}
         onClick={event => {

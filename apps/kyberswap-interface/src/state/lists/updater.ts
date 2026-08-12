@@ -19,7 +19,11 @@ const getPathChainId = (pathname: string): ChainId | undefined => {
   const chainIdFromFirstSegment = getChainIdFromSlug(firstSegment)
   if (chainIdFromFirstSegment) return chainIdFromFirstSegment
 
-  if ([APP_PATHS.SWAP, APP_PATHS.LIMIT, LEGACY_POOL_APP_PATHS.MY_POOLS].some(path => firstSegment === path.slice(1))) {
+  if (
+    [APP_PATHS.SWAP, APP_PATHS.LIMIT, APP_PATHS.STOP_LOSS, LEGACY_POOL_APP_PATHS.MY_POOLS].some(
+      path => firstSegment === path.slice(1),
+    )
+  ) {
     return getChainIdFromSlug(secondSegment)
   }
 

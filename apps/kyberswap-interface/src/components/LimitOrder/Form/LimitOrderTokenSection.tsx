@@ -13,6 +13,8 @@ export type LimitOrderTokenPanelProps = {
   tokens?: TokenSectionTokens
   estimateUsd?: TokenSectionEstimateUsd
   events?: TokenSectionEvents
+  /** Rendered inside the panel, under the amount row — for a note about the token chosen here. */
+  footer?: ReactNode
 }
 
 type TokenSectionTokens = {
@@ -45,11 +47,13 @@ export const LimitOrderInputTokenPanel = ({
   tokens = {},
   estimateUsd = DEFAULT_ESTIMATE_USD,
   events = {},
+  footer,
 }: LimitOrderTokenPanelProps) => {
   const { currencyIn, currencyOut, inputAmount = '' } = tokens
 
   return (
     <CurrencyInputPanel
+      footer={footer}
       value={inputAmount}
       positionMax="top"
       onUserInput={events.onInputAmountChange}
