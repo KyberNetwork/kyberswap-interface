@@ -243,6 +243,7 @@ export enum TRACKING_EVENT_TYPE {
   EARN_BANNER_POOL_CLICK,
 
   // Swap flow custom events
+  SWAP_ROUTE_VIEWED,
   SWAP_REVIEW_OPENED,
   TOKEN_APPROVAL_INITIATED,
   TOKEN_APPROVAL_COMPLETED,
@@ -1555,6 +1556,10 @@ export default function useTracking(currencies?: { [field in Field]?: Currency }
         }
 
         // Swap flow custom events
+        case TRACKING_EVENT_TYPE.SWAP_ROUTE_VIEWED: {
+          formoTrack('Swap Route Viewed', payload)
+          break
+        }
         case TRACKING_EVENT_TYPE.SWAP_REVIEW_OPENED: {
           formoTrack('Swap Review Opened', payload)
           break

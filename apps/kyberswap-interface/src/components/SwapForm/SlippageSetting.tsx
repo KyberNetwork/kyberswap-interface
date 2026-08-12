@@ -4,10 +4,10 @@ import { ChevronDown } from 'react-feather'
 import { useSearchParams } from 'react-router-dom'
 
 import { ErrorWarning } from 'components/ErrorWarning'
+import InfoHelper from 'components/InfoHelper'
 import SlippageControl from 'components/SlippageControl'
 import SlippageWarningNote from 'components/SlippageWarningNote'
 import { Stack } from 'components/Stack'
-import { TextDashed } from 'components/Text'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { DEFAULT_SLIPPAGES, DEFAULT_SLIPPAGES_HIGH_VOLATILITY } from 'constants/trade'
 import { useDefaultSlippageByPair, usePairCategory } from 'state/swap/hooks'
@@ -134,30 +134,31 @@ const SlippageSetting = ({ rightComponent, tooltip, slippageInfo, slippage, alwa
   return (
     <div className={cn('flex w-full flex-col', gridCells && 'contents')} data-testid="slippage-setting">
       <div className={cn('flex items-center justify-between gap-1 text-subText', gridCells?.header)}>
-        <div className="flex items-center gap-1">
-          <TextDashed fontSize={12} fontWeight={500} className="flex h-fit items-center text-subText">
-            <MouseoverTooltip
-              placement="bottom"
-              text={
-                tooltip || (
-                  <span>
-                    <Trans>
-                      During your swap if the price changes by more than this %, your transaction will revert. Read more{' '}
-                      <ExternalLink
-                        href={
-                          'https://docs.kyberswap.com/getting-started/foundational-topics/decentralized-finance/slippage'
-                        }
-                      >
-                        here ↗
-                      </ExternalLink>
-                    </Trans>
-                  </span>
-                )
-              }
-            >
-              <Trans>Max Slippage</Trans>:
-            </MouseoverTooltip>
-          </TextDashed>
+        <div className="flex items-end gap-1">
+          <span className="text-xs font-medium text-subText">
+            <Trans>Max Slippage</Trans>:
+          </span>
+          <InfoHelper
+            clickOnly
+            margin={false}
+            placement="top"
+            text={
+              tooltip || (
+                <span>
+                  <Trans>
+                    During your swap if the price changes by more than this %, your transaction will revert. Read more{' '}
+                    <ExternalLink
+                      href={
+                        'https://docs.kyberswap.com/getting-started/foundational-topics/decentralized-finance/slippage'
+                      }
+                    >
+                      here ↗
+                    </ExternalLink>
+                  </Trans>
+                </span>
+              )
+            }
+          />
           <div
             role="button"
             onClick={() => setExpanded(e => !e)}

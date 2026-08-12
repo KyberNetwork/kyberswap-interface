@@ -35,7 +35,8 @@ type Props = {
   onClaimKs: () => Promise<void>
   onCompound?: () => void
   compoundable?: boolean
-  // Merkl bonus for the connected wallet on this chain (not scoped to the position)
+  // Merkl bonus for the connected wallet on the bonus' distribution chain, which may differ from
+  // `chainId` above. Wallet-wide on that chain, not scoped to the position.
   merklChainReward?: ChainRewardInfo
   onClaimMerkl?: (chainId: number) => Promise<string | undefined>
   merklSyncing?: boolean
@@ -75,9 +76,13 @@ export default function PositionClaimModal({
 
   const currentTotalValue = isBonus ? merklChainReward?.claimableUsdValue || 0 : ksTotalValue
 
+  // The bonus is claimed on Merkl's distribution chain, which is not necessarily the chain the
+  // position lives on, so the wallet has to be switched to that chain instead.
+  const claimChainId = isBonus ? merklChainReward?.chainId ?? chainId : chainId
+
   const handleClaim = useCallback(async () => {
-    if (walletChainId !== chainId || !account) {
-      if (walletChainId !== chainId) changeNetwork(chainId)
+    if (walletChainId !== claimChainId || !account) {
+      if (walletChainId !== claimChainId) changeNetwork(claimChainId)
       setAutoClaim(true)
       return
     }
@@ -85,21 +90,21 @@ export default function PositionClaimModal({
     setIsClaiming(true)
     try {
       if (isBonus) {
-        if (onClaimMerkl) await onClaimMerkl(chainId)
+        if (onClaimMerkl) await onClaimMerkl(claimChainId)
       } else {
         await onClaimKs()
       }
     } finally {
       setIsClaiming(false)
     }
-  }, [account, walletChainId, chainId, changeNetwork, isBonus, onClaimMerkl, onClaimKs])
+  }, [account, walletChainId, claimChainId, changeNetwork, isBonus, onClaimMerkl, onClaimKs])
 
   useEffect(() => {
-    if (autoClaim && walletChainId === chainId) {
+    if (autoClaim && walletChainId === claimChainId) {
       handleClaim()
       setAutoClaim(false)
     }
-  }, [autoClaim, walletChainId, chainId, handleClaim])
+  }, [autoClaim, walletChainId, claimChainId, handleClaim])
 
   const claimDisabled = isBonus
     ? isClaiming || !!merklSyncing || !!merklPendingTx || !merklChainReward?.claimableUsdValue

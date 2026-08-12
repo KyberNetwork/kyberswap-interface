@@ -1,5 +1,7 @@
 import { ChainId, Currency, Fraction } from '@kyberswap/ks-sdk-core'
+import { z } from 'zod'
 
+import { isSupportedChainId } from 'constants/networks'
 import type { BaseTradeInfo } from 'hooks/useBaseTradeInfo'
 
 export enum LimitOrderTab {
@@ -59,42 +61,63 @@ export type LimitOrder = {
   nativeOutput?: boolean
 }
 
-export type LimitOrderFromTokenPair = {
-  id: number
-  chainId: ChainId
-  signature: string
-  salt: string
-  makerAsset: string
-  takerAsset: string
-  maker: string
-  contractAddress: string
-  receiver: string
-  allowedSenders: string
-  makingAmount: string
-  takingAmount: string
-  filledMakingAmount: string
-  filledTakingAmount: string
-  feeConfig: string
-  feeRecipient: string
-  makerTokenFeePercent: string
-  isTakerAssetFee: boolean
-  makerAssetData: string
-  takerAssetData: string
-  getMakerAmount: string
-  getTakerAmount: string
-  predicate: string
-  permit: string
-  interaction: string
-  expiredAt: number
-  orderHash: string
-  availableMakingAmount: string
-  makerBalanceAllowance: string
-  makerAssetDecimals: number
-  takerAssetDecimals: number
-  makerAssetLogoURL?: string
-  takerAssetLogoURL?: string
-  nativeOutput?: boolean
-}
+const MAX_UINT256 = 2n ** 256n - 1n
+
+// Raw on-chain amounts arrive as decimal strings and are fed straight to JSBI, which throws on
+// anything else. The upper bound mirrors ks-sdk-core's `AMOUNT` invariant on CurrencyAmount.
+// The digit test guards BigInt inside the same predicate because zod keeps running a chained
+// refinement after an earlier check has failed, so BigInt must never see a non-numeric string.
+const isRawAmount = (value: string) => /^\d+$/.test(value) && BigInt(value) <= MAX_UINT256
+
+const rawAmountSchema = z.string().refine(isRawAmount)
+
+// Amounts that end up as a divisor when deriving the order rate: zero makes decimal.js-light throw.
+const divisorRawAmountSchema = z.string().refine(value => isRawAmount(value) && BigInt(value) > 0n)
+
+const addressSchema = z.string().regex(/^0x[0-9a-fA-F]{40}$/)
+
+// ks-sdk-core's BaseCurrency invariant: an integer in [0, 255).
+const decimalsSchema = z.number().int().min(0).max(254)
+
+export const limitOrderFromTokenPairSchema = z.object({
+  id: z.number(),
+  // The API serialises chainId as a string.
+  chainId: z.coerce.number().refine(isSupportedChainId),
+  signature: z.string(),
+  salt: z.string(),
+  makerAsset: addressSchema,
+  takerAsset: addressSchema,
+  maker: z.string(),
+  contractAddress: z.string(),
+  receiver: z.string(),
+  allowedSenders: z.string(),
+  makingAmount: divisorRawAmountSchema,
+  takingAmount: divisorRawAmountSchema,
+  filledMakingAmount: rawAmountSchema,
+  filledTakingAmount: rawAmountSchema,
+  feeConfig: z.string(),
+  feeRecipient: z.string(),
+  makerTokenFeePercent: z.string(),
+  isTakerAssetFee: z.boolean(),
+  makerAssetData: z.string(),
+  takerAssetData: z.string(),
+  getMakerAmount: z.string(),
+  getTakerAmount: z.string(),
+  predicate: z.string(),
+  permit: z.string(),
+  interaction: z.string(),
+  expiredAt: z.number(),
+  orderHash: z.string(),
+  availableMakingAmount: rawAmountSchema,
+  makerBalanceAllowance: z.string().optional(),
+  makerAssetDecimals: decimalsSchema,
+  takerAssetDecimals: decimalsSchema,
+  makerAssetLogoURL: z.string().optional(),
+  takerAssetLogoURL: z.string().optional(),
+  nativeOutput: z.boolean().optional(),
+})
+
+export type LimitOrderFromTokenPair = z.infer<typeof limitOrderFromTokenPairSchema>
 
 export type LimitOrderFromTokenPairFormatted = {
   id: number

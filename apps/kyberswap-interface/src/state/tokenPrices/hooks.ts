@@ -3,17 +3,13 @@ import { ChainId, Token, WETH } from '@kyberswap/ks-sdk-core'
 import { useQueryClient } from '@tanstack/react-query'
 import debounce from 'lodash.debounce'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { fetchTokenPrices } from 'services/tokenCatalog'
+import { fetchTokenPrices, getMidPrice } from 'services/tokenCatalog'
 
 import { useActiveWeb3React } from 'hooks'
 import { useAppDispatch, useAppSelector } from 'state/hooks'
 import { isAddressString } from 'utils/address'
 
 import { updatePrices } from '.'
-
-export enum PriceType {
-  Average = 'Average',
-}
 
 const chunkList = (list: string[], chunkSize: number) => {
   const chunks: string[][] = []
@@ -29,7 +25,6 @@ const NATIVE_TOKEN_PRICE_KEY = NATIVE_TOKEN_ADDRESS.toLowerCase()
 export const useTokenPricesWithLoading = (
   addresses: Array<string>,
   customChain?: ChainId,
-  priceType?: PriceType,
 ): {
   data: { [address: string]: number }
   loading: boolean
@@ -87,9 +82,9 @@ export const useTokenPricesWithLoading = (
         )
 
         const prices = responses.reduce<Record<string, number>>((acc, response) => {
-          Object.entries(response?.data?.[chainId] || {}).forEach(([address, price]) => {
-            acc[address.toLowerCase()] =
-              priceType === PriceType.Average ? (price.PriceBuy + price.PriceSell) / 2 : price.PriceBuy
+          Object.entries(response?.data?.[chainId] || {}).forEach(([address, entry]) => {
+            const price = getMidPrice(entry)
+            if (price !== null) acc[address.toLowerCase()] = price
           })
           return acc
         }, {})
@@ -118,7 +113,7 @@ export const useTokenPricesWithLoading = (
         setLoading(false)
       }
     },
-    [chainId, dispatch, priceType, queryClient],
+    [chainId, dispatch, queryClient],
   )
 
   useEffect(() => {
@@ -161,10 +156,9 @@ export const useTokenPricesWithLoading = (
 export const useTokenPrices = (
   addresses: Array<string>,
   chainId?: ChainId,
-  priceType?: PriceType,
 ): {
   [address: string]: number
 } => {
-  const { data } = useTokenPricesWithLoading(addresses, chainId, priceType)
+  const { data } = useTokenPricesWithLoading(addresses, chainId)
   return data
 }

@@ -1,5 +1,11 @@
 import { useEffect, useMemo } from "react";
-import { WalletClient, Address, custom, createPublicClient } from "viem";
+import {
+  WalletClient,
+  Address,
+  custom,
+  createPublicClient,
+  defineChain,
+} from "viem";
 import * as chains from "viem/chains";
 import { getRpcClient } from "@kyber/rpc-client";
 import { Theme, defaultTheme, lightTheme } from "@/theme";
@@ -13,7 +19,37 @@ import { PoolType, NetworkInfo } from "@/constants";
 import "./Widget.scss";
 import "../../globals.css";
 
+// Robinhood chain is absent from viem/chains, so it is defined locally.
+const robinhood = defineChain({
+  id: 4663,
+  name: "Robinhood",
+  nativeCurrency: {
+    decimals: 18,
+    name: "Ethereum",
+    symbol: "ETH",
+  },
+  rpcUrls: {
+    default: {
+      http: ["https://rpc.mainnet.chain.robinhood.com"],
+      webSocket: ["wss://feed.mainnet.chain.robinhood.com"],
+    },
+  },
+  blockExplorers: {
+    default: {
+      name: "Blockscout",
+      url: "https://robinhoodchain.blockscout.com",
+    },
+  },
+  contracts: {
+    multicall3: {
+      address: "0xcA11bde05977b3631167028862bE2a173976CA11",
+      blockCreated: 1,
+    },
+  },
+});
+
 const getChainById = (chainId: number) => {
+  if (chainId === robinhood.id) return robinhood;
   return Object.values(chains).find((chain) => chain.id === chainId);
 };
 
