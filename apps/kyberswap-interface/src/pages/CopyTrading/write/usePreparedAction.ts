@@ -13,6 +13,7 @@ import {
   isRetryableApiError,
   isUnauthorizedError,
   validatePreparedAction,
+  validatePreparedActionContinuation,
   wait,
 } from 'pages/CopyTrading/write/preparedAction'
 import type { Hash, Hex, Address as ViemAddress } from 'utils/viem'
@@ -73,7 +74,11 @@ export const usePreparedAction = ({
   }
 
   const requestPreparation = async ({ continuation = false, hash }: { continuation?: boolean; hash?: Hash } = {}) => {
-    setState({ phase: continuation ? 'syncing' : 'preparing', hash })
+    setState(current => ({
+      phase: continuation ? 'syncing' : 'preparing',
+      action: continuation ? current.action : undefined,
+      hash,
+    }))
 
     for (let attempt = 0; attempt < CONTINUATION_ATTEMPTS; attempt++) {
       let action: PreparedAction
@@ -85,7 +90,13 @@ export const usePreparedAction = ({
           continue
         }
 
-        setState({ phase: continuation ? 'sync_error' : 'error', error: getApiErrorMessage(error), hash })
+        setState(current => ({
+          phase: continuation ? 'sync_error' : 'error',
+          action: continuation ? current.action : undefined,
+          error: getApiErrorMessage(error),
+          hash,
+          retryStage: continuation ? 'sync' : undefined,
+        }))
         return
       }
 
@@ -123,6 +134,18 @@ export const usePreparedAction = ({
         action.status !== 'PREPARED_ACTION_STATUS_PARTIALLY_COMPLETED'
       ) {
         setState({ phase: 'error', action, error: 'The API returned an unsupported preparation status.', hash })
+        return
+      }
+
+      if (continuation) {
+        const continuationError = validatePreparedActionContinuation(action)
+        setState({
+          phase: 'sync_error',
+          action,
+          error: continuationError || 'The confirmed transaction returned an unsupported continuation state.',
+          hash,
+          retryStage: 'sync',
+        })
         return
       }
 
@@ -264,7 +287,7 @@ export const usePreparedAction = ({
       await wait(getReprepareDelay(state.action))
     }
 
-    await requestPreparation({ hash: state.hash })
+    await requestPreparation({ continuation: !!state.hash, hash: state.hash })
   }
 
   const reset = () => setState(DEFAULT_PREPARED_ACTION_STATE)

@@ -1,31 +1,34 @@
 # Copy Trading Implementation Status
 
-Last reviewed: 2026-08-04
+Last reviewed: 2026-08-12
 
 This document tracks the current frontend implementation and remaining product
 or UI work. Product entities and intended flows are documented in
-`Entities and Flows.md`; the HTTP contract is documented in `FE_API_Catalog.md`
-and `openapi.yaml`.
+`Entities and Flows.md`; the current HTTP contract is documented in
+`FE_API_Catalog.md` and the checked-in `openapi.yaml` snapshot fetched from the
+pre-release Swagger source on 2026-08-12.
 
-All 24 GET and 8 POST Copy Trading API operations are operational.
+All 25 GET and 8 POST Copy Trading API operations in the current catalog are
+declared in the frontend service.
 
 ## Implementation at a Glance
 
 | Layer              | Current status                                                                                                                                                |
 | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Checked-in OpenAPI | `IMPLEMENTED`: 32 public operations are documented.                                                                                                           |
-| RTK Query service  | `IMPLEMENTED`: all 24 GET and 8 POST operations are declared and typed.                                                                                       |
-| Read UI            | Partially implemented: 19 of 24 GET operations have a UI consumer; pending obligations are consumed by Manual Sell rather than a standalone read-only screen. |
+| BE API catalog     | `IMPLEMENTED`: 33 public operations are documented.                                                                                                           |
+| Checked-in OpenAPI | `IMPLEMENTED`: the 33-operation pre-release snapshot includes the latest Start request fields and cashback-policy route.                                      |
+| RTK Query service  | `IMPLEMENTED`: all 25 GET and 8 POST operations are declared and typed.                                                                                       |
+| Read UI            | Partially implemented: 17 of 25 GET operations have a UI consumer; pending obligations are consumed by Manual Sell rather than a standalone read-only screen. |
 | Write UX           | `IMPLEMENTED`: Start, Add, Stop, Withdraw, Manual Sell, and Close Position use the prepared-action workflow.                                                  |
 | Write integration  | `IMPLEMENTED`: exact API-prepared calls, receipt-success completion, Start stage continuation, wallet sessions, and asynchronous cache refresh are connected. |
-| API availability   | `OPERATIONAL`: all declared read, preparation, and wallet-session operations are working.                                                                     |
+| API availability   | Source contract exposes all 33 operations. The 2026-08-12 deployed smoke is limited to `/chains`, `/agents`, and `/docs`; it is not full-route verification.  |
 
 ## Contract and Service Coverage
 
-`services/copyTrading/index.ts` uses `fetchBaseQuery` and declares all 32 public
+`services/copyTrading/index.ts` uses `fetchBaseQuery` and declares all 33 public
 operations:
 
-- 24 GET queries.
+- 25 GET queries, including the run-scoped effective cashback policy.
 - Six transaction-preparation mutations:
   - Start Copy.
   - Add Capital.
@@ -69,9 +72,11 @@ The current UI consumes these 17 GET operations:
 - Pending sell obligations through the Manual Sell recovery modal. The complete
   cursor-backed FIFO is preparation input, not a user-selected sell ratio.
 
-The following seven GET operations are declared but have no dedicated Copy
+The following eight GET operations are declared but have no dedicated Copy
 Trading UI consumer:
 
+- Copy Run cashback policy. Its service contract is integrated, but no
+  fee/cashback product surface has been defined.
 - Agent discovery (`GET /agents`). The current Agent List uses the distinct
   qualification-ranked `GET /leaderboard` collection.
 - Agent position detail.
@@ -120,26 +125,29 @@ Current primary-screen read behavior:
 
 ## Accepted Product Decisions
 
-- Keep the five currently unowned GET operations documented without inventing
+- Keep the eight currently unowned GET operations documented without inventing
   routes or secondary tables.
 - Keep Agent and Copy Run performance at the first API page (`limit=100`).
 - Keep Sidebar Agents and Open Copies capped at 10 items.
 - Open and History membership remains owned by the server response.
-- Stop Copy trusts the Copy Run and loaded positions passed to the modal. Manual
-  Sell and Close Position trust the selected `PositionSummary`. These flows do
-  not reload their input entities before preparation; the preparation response
-  remains authoritative before any wallet submission.
-- Every Stop Copy entry point supplies open positions before opening the modal.
-  Copy Detail reuses its loaded position list; My Copies loads the complete
-  cursor chain at the table action boundary.
+- Stop Copy trusts the Copy Run passed by the entry point, then the modal loads
+  the complete open-position cursor chain. Manual Sell and Close Position trust
+  the selected `PositionSummary`. The preparation response remains authoritative
+  before any wallet submission.
+- The Stop Copy modal owns loading every open-position cursor page, including
+  loading, error, and Retry UI. An incomplete or invalid cursor chain prevents
+  preparation rather than presenting a partial position list.
 - Withdraw trusts the Copy Run and availability passed from Copy Detail or Smart
   Wallet. The modal does not reload either entity before preparation.
 - A write action is successful in the UI after its submitted transaction has a
   successful receipt. Cache invalidation runs asynchronously and the UI does not
   wait for backend indexing.
-- Start Copy is the only multi-stage exception: after the Create receipt it
-  re-prepares with the same UUID, target amount, and predicted Smart Wallet to
-  obtain and submit the Fund stage.
+- Start Copy explicitly uses `START_COPY_FUNDING_MODE_FUNDED` with no permit
+  data, so the create call carries the full target capital. It keeps the UUID,
+  target amount, funding intent, and predicted Smart Wallet stable, submits only
+  the create call, then re-prepares until `START_COPY_STAGE_COMPLETE`. Once a
+  transaction hash exists, Retry remains sync-only and rejects any new
+  executable preparation.
 
 ## Current Prepared-Action Write UI
 
@@ -159,15 +167,18 @@ The production write path is split by ownership:
 
 Implemented behavior:
 
-- Start Copy keeps one UUID, target amount, and predicted Smart Wallet across
-  `CREATE_REQUIRED -> FUNDING_REQUIRED -> COMPLETE`. Every stage validates the
-  response preview, request ID, account, predicted/copy-account identity, chain,
-  stage, and call kind before submission.
+- Start Copy keeps one UUID, target amount, explicit funded mode, absent permit
+  data, and predicted Smart Wallet across `CREATE_REQUIRED`,
+  `CREATE_CONFIRMING`, and `COMPLETE`. The funded create amount must equal the
+  full target. Only `PREPARED_CALL_KIND_START_COPY_CREATE` can reach wallet
+  submission; a separate Fund call fails closed.
 - Add Capital uses the fixed supported quote token for decimal-to-raw input,
   then reviews the API quote token, minimum, wallet balance, and resulting
   allocation.
-- Stop Copy uses the loaded positions passed to the modal, sends at most 32
-  selected `userPositionIds`, and permits an empty array.
+- Stop Copy fetches and renders the complete open-position list inside the modal.
+  The UI defaults at most 32 positions to selected, prevents selecting a 33rd,
+  and validates the final payload length before sending `userPositionIds`. An
+  empty array remains valid.
 - Withdraw is exposed only when the selected Copy Run status is `STOPPED`, then
   gated by `withdrawQuoteAvailability`. It sends `{}` to preparation and
   requires the prepared amount and connected-owner recipient.
@@ -190,15 +201,15 @@ Implemented behavior:
 
 ## Action Integration Matrix
 
-| Capability     | Current production UI                                                                                                                   |
-| -------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
-| Start Copy     | Reuses one UUID, target amount, and predicted account through Create, Fund, and Complete; each exact call waits for receipt.            |
-| Add Capital    | Reviews quote-token, minimum, balance, and allocation data, then submits the exact prepared call.                                       |
-| Stop Copy      | Trusts loaded position props, supports zero to 32 selected IDs, reviews recovery totals, and submits the exact prepared call.           |
-| Withdraw Quote | Only a `STOPPED` Copy Detail exposes the availability-gated CTA; amount and owner recipient are server-prepared and non-editable.       |
-| Wallet Session | Exact SIWE challenge/signature exchange with an owner/chain-scoped, expiring in-memory Bearer session; `401` forces re-authorization.   |
-| Manual Sell    | Trusts selected position props, requires the authoritative FIFO head ratio/count, then prepares through the wallet session.             |
-| Close Position | Trusts selected position props, requires the advertised full-recovery action, then prepares through the wallet session.                 |
+| Capability     | Current production UI                                                                                                                 |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| Start Copy     | Uses funded create for the full target, submits one Create transaction, then re-prepares the same UUID until Complete.                |
+| Add Capital    | Reviews quote-token, minimum, balance, and allocation data, then submits the exact prepared call.                                     |
+| Stop Copy      | Loads all open-position pages, supports zero to 32 selected IDs, validates the payload cap, and submits the exact prepared call.      |
+| Withdraw Quote | Only a `STOPPED` Copy Detail exposes the availability-gated CTA; amount and owner recipient are server-prepared and non-editable.     |
+| Wallet Session | Exact SIWE challenge/signature exchange with an owner/chain-scoped, expiring in-memory Bearer session; `401` forces re-authorization. |
+| Manual Sell    | Trusts selected position props, requires the authoritative FIFO head ratio/count, then prepares through the wallet session.           |
+| Close Position | Trusts selected position props, requires the advertised full-recovery action, then prepares through the wallet session.               |
 
 ## Implemented Write Invariants
 
@@ -213,7 +224,7 @@ read advisory availability
 → simulate and submit call.to / call.data / call.valueRaw unchanged
 → wait for a successful receipt
 → mark the action successful
-→ for Start Create only, re-prepare the same request and continue to Fund
+→ after the funded Start Create transaction, re-prepare until Complete; never submit a separate Fund call
 → invalidate affected RTK and TanStack reads asynchronously
 ```
 
@@ -239,21 +250,21 @@ expiry, owner/chain change, or an authorization failure.
 ## Remaining Work
 
 1. Add component/state-machine coverage for receipt timeout retry, account or
-   chain changes during review, `PENDING` retry timing, and the two-stage Start
-   continuation.
+   chain changes during review, `PENDING` retry timing, and funded Start
+   completion polling.
 2. Browser-test initial and next-page infinite-scroll errors, including Retry
    restarting from page one after a rejected or expired cursor.
 3. Browser-test Copy Detail and Open/History server-owned views across at least
    two cursor pages with a connected wallet and representative data.
 4. Complete browser validation for responsive layout, keyboard focus,
    accessible labels and disabled states, and modal accessibility.
-5. Assign UI ownership for the five remaining read-only discovery/drilldown
+5. Assign UI ownership for the eight remaining read-only discovery/drilldown
    operations.
 6. Render position-level stale valuation indication.
 
 ## Verification
 
-- The service surface contains 24 GET queries and 8 POST mutations.
+- The service surface contains 25 GET queries and 8 POST mutations.
 - All six preparation mutations and both wallet-session mutations have an owned
   UI flow.
 - The local ABI, mock signer, and mock transaction-hash path have been removed.

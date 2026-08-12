@@ -1,9 +1,14 @@
 # Copy Trade API — Frontend Integration Catalog
 
-Contract verified on **2026-08-10** against `origin/main` commit
-`dabc523032b32177e013fadb3a227277d6913e77` (2026-08-07).
+Contract verified on **2026-08-12** against `origin/main` commit
+`deea80135d82f942c6e922928a413ea4f4abfa0b` (PR #19), the checked-in
+protobuf sources, and the generated OpenAPI document. That revision pins
+`copy-trade-operator` at
+`v0.0.0-20260810170455-c2627d166ddc` for the beta-4 read/action contract.
 
-Live pre-release action-preparation smoke verified: **2026-07-30 07:56 UTC**
+Live pre-release public-read smoke verified: **2026-08-12 00:36 UTC**
+
+Historical pre-release action-preparation smoke: **2026-07-30 07:56 UTC**
 
 Pre-release origin:
 
@@ -21,20 +26,24 @@ This document describes the public HTTPS/JSON contract used by frontend
 applications. It intentionally excludes service architecture, storage, and
 deployment details.
 
-## Latest `origin/main` Status — 2026-08-07
+## Latest `origin/main` Status — 2026-08-12
 
-The public route count remains 32. The following frontend-visible semantics are
-merged on `origin/main`; this source status does not by itself prove that a
-particular environment is running the same image.
+The public HTTP surface contains **33 operations**: 25 GET reads, six
+transaction-preparation POSTs, and two wallet-session POSTs. The following
+frontend-visible semantics are merged on `origin/main`; source status does not
+by itself prove that a particular environment is running the same image.
 
 | Surface | `origin/main` status | Required FE behavior |
 | --- | --- | --- |
+| Explicit Start funding intent | `PrepareStartCopyRequest.fundingMode` is required and is either `START_COPY_FUNDING_MODE_UNFUNDED` or `START_COPY_FUNDING_MODE_FUNDED`. `createPermitData` is optional only for funded mode and is never echoed publicly. | Choose the mode explicitly for each attempt, keep it stable with the same `startRequestId`, and never infer the mode from the presence of permit bytes. |
 | Start Copy onboarding | `START_COPY_STAGE_CREATE_CONFIRMING` is implemented. It is returned with `PREPARED_ACTION_STATUS_PENDING`, `PREPARED_ACTION_REASON_SOURCE_COVERAGE_PENDING`, the predicted `copyAccount`, and no call. | Keep polling with the same `startRequestId` and target. Do not resubmit the create call and do not fund until `START_COPY_STAGE_FUNDING_REQUIRED`. |
 | Capital In | `CopyRunSummary.capitalInProjectionStatus` is implemented with `SYNCING`, `READY`, and `UNAVAILABLE`. | Render `capitalInUsd` only when the projection status is `READY`. A visible funding transaction does not make a provisional aggregate value authoritative. |
+| Account-effective cashback policy | `GET /users/{ownerAddress}/copy-runs/{copyRunId}/cashback-policy` returns the operator-authored policy for that exact follower account, including typed status, optional rates, scope, provenance times, and optional formula version. | Fetch it lazily for a selected run's fee/cashback panel. Branch on `status`; do not substitute an agent-level advertised rate, infer missing rates as zero, or hard-code a formula version. |
 | Pinned stable balance | The current-stable materializer reads exact quote-token balances from the operator at one canonical block anchor. A present row can use `balanceSource = "onchain_rpc"`; exact zero remains present. | Trust the row only when `pinnedStableBalance.status` is `PRESENT`. Preserve all other typed states as unavailable rather than converting them to zero. |
 | Action-log chain links | Valid mixed-case EVM addresses and hashes are canonicalized to lowercase. Invalid optional linkage claims are discarded while a safe narrative row remains renderable. | Treat `txHash`, `leaderPositionId`, `blockNumber`, and `tokenAddress` as optional links. Their absence is not an action failure and must not be reconstructed from narrative text. |
-| Copy lifecycle views | Open/History membership and current-stable eligibility use the canonical run/position lifecycle and are reorg-repairable. | A terminal run moves to History only when it has no active, closing, or leftover positions. Refresh from the server after lifecycle changes; do not pin local tab membership. |
-| Public HTTP surface | All 24 reads, six preparations, and two wallet-session operations have generated gateway mappings and concrete aggregate handlers. | Do not feature-gate a route as unimplemented. Treat typed product statuses separately from HTTP availability. |
+| Copy lifecycle views | `OPEN` contains admitted runs with status `COPY_RUN_STATUS_ACTIVE` or `COPY_RUN_STATUS_CLOSING`. `HISTORY` contains admitted or readable historical-generation runs with status `COPY_RUN_STATUS_STOPPED` or `COPY_RUN_STATUS_CLOSED`. Position history is a separate universe. | Refresh from the server after lifecycle changes; do not pin local tab membership or derive it from position counts. Use owner position routes for owner-wide closed-trade history. |
+| Historical-generation compatibility | Parentless child facts explicitly classified `HISTORICAL` by the operator are consumed without creating current/actionable projections. Missing `ADMITTED` or `QUARANTINED` parent identity still fails closed. | Historical or unavailable data must not be promoted into current dashboards or actions. Preserve typed unavailable states and direct/History reads; never infer missing values as zero. |
+| Public HTTP surface | All 25 reads, six preparations, and two wallet-session operations have generated gateway mappings and concrete aggregate handlers. | Do not feature-gate a route as unimplemented. Treat typed product statuses separately from HTTP availability. |
 
 ## Current FE Contract Notes
 
@@ -44,6 +53,9 @@ together.
 
 | Surface | Current contract | Required FE behavior |
 | --- | --- | --- |
+| Start Copy funding | `fundingMode` plus optional `createPermitData` | Send `START_COPY_FUNDING_MODE_UNFUNDED` with no permit, or `START_COPY_FUNDING_MODE_FUNDED` with an optional protobuf-JSON base64 byte string. The API uses `targetCapitalRaw` as the funded create amount. Permit format/capability remains operator-authoritative. |
+| Contract-generation routing | No public `generationId`, factory, controller, or contract-address request field | Do not hard-code or select deployment addresses. Start uses the currently create-enabled operator generation; existing-account actions derive generation from persisted account identity. Render `PREPARED_ACTION_REASON_UNSUPPORTED_ACCOUNT_GENERATION` as non-actionable product state. |
+| Copy-run cashback policy | `GET .../cashback-policy` | Use this run/account-specific policy for detailed fee/cashback presentation. `COPY_RUN_CASHBACK_POLICY_STATUS_AVAILABLE`, `..._NOT_CONFIGURED`, `..._INVALIDATED`, and `..._UNAVAILABLE` are distinct states; missing optional rates or `cashbackFormulaVersion` are not zero. |
 | Prepared Smart Wallet identity | `PreparedAction.copyAccount` | For every non-Start action, require it to equal the selected Smart Wallet. It is absent only for Start Copy creation; Start confirming, funding, and completion must equal `startCopy.predictedCopyAccount`. Do not confuse it with `call.to` or `expectedAccount`. |
 | Manual Sell / Close Position quote | `data.manualSell.swapQuote` or `data.closePosition.swapQuote` | Display `expectedQuote`, `minimumQuote`, and optional `effectiveSlippageBps`. Preserve metric status; unavailable is not zero. |
 | Stop Copy per-position quote | `data.stopCopy.positions[].swapQuote` | Render the expected/minimum quote for each selected position. These values belong only to the returned preparation. |
@@ -102,8 +114,8 @@ tab, chart, drawer, or drilldown is opened.
 | History — stopped-run summary | `GET /users/{ownerAddress}/copy-summary?view=OWNER_COPY_VIEW_HISTORY` | None | None |
 | History — stopped-run list | `GET /users/{ownerAddress}/copy-runs?view=OWNER_COPY_VIEW_HISTORY` | Load the next cursor page | Prepare Withdraw Quote when advisory availability allows it |
 | History — all closed positions/trades | `GET /users/{ownerAddress}/positions?view=POSITION_VIEW_CLOSED` | Filter by agent/chain, paginate, or group rows by `copyRunId` | None for an already closed position |
-| History — selected stopped run | `GET /users/{ownerAddress}/copy-runs/{copyRunId}` and `GET .../positions?view=POSITION_VIEW_CLOSED` | `GET .../performance`; owner activity filtered by `copyRunId` | Prepare Withdraw Quote when advertised |
-| Copy-run detail | `GET /users/{ownerAddress}/copy-runs/{copyRunId}` and `GET .../positions` | `GET .../performance`; owner activity filtered by `copyRunId` | Prepare Add Capital, Stop Copy, Withdraw Quote, Manual Sell, or Close Position as applicable |
+| History — selected stopped run | `GET /users/{ownerAddress}/copy-runs/{copyRunId}` and `GET .../positions?view=POSITION_VIEW_CLOSED` | `GET .../performance`; `GET .../cashback-policy` when the fee panel opens; owner activity filtered by `copyRunId` | Prepare Withdraw Quote only when advertised; historical-generation rows remain non-actionable |
+| Copy-run detail | `GET /users/{ownerAddress}/copy-runs/{copyRunId}` and `GET .../positions` | `GET .../performance`; `GET .../cashback-policy` when fee/cashback detail is visible; owner activity filtered by `copyRunId` | Prepare Add Capital, Stop Copy, Withdraw Quote, Manual Sell, or Close Position as applicable |
 | All owner positions | `GET /users/{ownerAddress}/positions` | Filter by agent, chain, view, or sort; load the next cursor page | Prepare Manual Sell or Close Position when advertised |
 | Leftover positions | Owner or copy-run positions with `view=POSITION_VIEW_LEFTOVER` | Copy-account drilldown and pending-sell obligations | Manual Sell or Close Position when advertised |
 | Owner activity feed | `GET /users/{ownerAddress}/activity` | Filter by `copyRunId`, `chainId`, exact `type`, or product `group` | None |
@@ -918,6 +930,7 @@ the related detail, while the point timestamp remains the chart order key.
 | GET | `/users/{ownerAddress}/copy-summary` | `view` **required**, `chainId?` | `OwnerCopySummary` |
 | GET | `/users/{ownerAddress}/copy-runs` | `view` **required**, `agentId?`, `chainId?`, `cursor?`, `limit?`, `sortBy?`, `sortOrder?` | `CopyRunSummary[]` |
 | GET | `/users/{ownerAddress}/copy-runs/{copyRunId}` | Path only | `CopyRunSummary` |
+| GET | `/users/{ownerAddress}/copy-runs/{copyRunId}/cashback-policy` | Path only | `CopyRunCashbackPolicy` |
 | GET | `/users/{ownerAddress}/copy-runs/{copyRunId}/positions` | `view?`, `cursor?`, `limit?`, `sortBy?`, `sortOrder?` | `PositionSummary[]` |
 | GET | `/users/{ownerAddress}/copy-runs/{copyRunId}/performance` | `series?`, `window?`, `interval?`, `cursor?`, `limit?` | `PerformancePoint[]` |
 | GET | `/users/{ownerAddress}/positions` | `agentId?`, `chainId?`, `view?`, `cursor?`, `limit?`, `sortBy?`, `sortOrder?` | `PositionSummary[]` |
@@ -940,11 +953,17 @@ universes, not direct aliases for one `CopyRunStatus`. Always pass the selected
 view and render the returned `status`. Do not filter the page client-side by
 status.
 
-`OPEN` contains active/closing runs and stopped runs that still have any active,
-closing, or leftover position. A stopped/closed run moves to `HISTORY`
-immediately after the authoritative projection reports none of those positions.
-There is no time-based grace period. A source reorg or reactivation may move the
-run back to `OPEN`.
+`OPEN` contains only source-admitted runs whose status is
+`COPY_RUN_STATUS_ACTIVE` or `COPY_RUN_STATUS_CLOSING`. `HISTORY` contains
+`COPY_RUN_STATUS_STOPPED` or `COPY_RUN_STATUS_CLOSED` runs, including terminal
+historical-generation rows that remain readable for audit/history. A stopped
+run does not remain in `OPEN` because it still has a closing or leftover
+position. An active historical-generation run is intentionally in neither
+list, although an exact direct lookup can remain readable.
+
+The server owns list membership. A source reorg or corrected lifecycle can
+move a run between the product universes, so refresh rather than retaining a
+client-side tab assignment.
 
 These run views do not define the owner-position universe. In particular,
 closed positions can belong to a run that remains in `OPEN` because the copy
@@ -987,6 +1006,74 @@ Key `CopyRunSummary` fields:
   non-ready states `capitalInUsd` is unavailable and never a provisional zero.
 - `addCapitalAvailability`, `stopCopyAvailability`,
   `withdrawQuoteAvailability`
+
+#### Account-effective cashback policy
+
+Fetch the policy only when the selected-run UI needs its fee/cashback detail:
+
+```text
+GET /users/{ownerAddress}/copy-runs/{copyRunId}/cashback-policy
+```
+
+This route is deliberately run/account-scoped. It is the effective policy
+assigned to that follower account, not the agent's current advertised policy.
+The `feePolicy` inside a Start Copy preview is create-time advertised policy;
+after the account exists, it is not a substitute for this endpoint.
+The response contains the exact `copyRunId`, `chainId`, `copyAccount`, and
+`agentId`, plus:
+
+| Field | FE meaning |
+| --- | --- |
+| `status` | Authoritative policy state: `COPY_RUN_CASHBACK_POLICY_STATUS_AVAILABLE`, `..._NOT_CONFIGURED`, `..._INVALIDATED`, or `..._UNAVAILABLE`. |
+| `scope` | `COPY_RUN_CASHBACK_POLICY_SCOPE_DEFAULT` or `..._EXTRA` when a policy is selected. Do not infer a scope when unspecified. |
+| `capCashbackRatioRaw`, `pnlRateRaw` | Optional 1e18-scaled raw ratios. They are present or absent together; absence is not zero. |
+| `selectionPolicyVersion` | Optional operator policy-selection version. Treat as opaque diagnostic/version identity. |
+| `cashbackFormulaVersion` | Optional positive formula identity. Do not infer it from scope, selection version, generation, or agent data. |
+| `selectedAt`, `invalidatedAt`, `fallbackAt` | Optional provenance times for the selected, invalidated, or default-fallback state. |
+| `unavailableReason` | Present for `..._STATUS_UNAVAILABLE`: `COPY_RUN_CASHBACK_POLICY_UNAVAILABLE_REASON_COVERAGE_PENDING`, `..._HISTORICAL_GENERATION_UNSUPPORTED`, or `..._POLICY_TRANSITION_PENDING`. |
+
+Frontend shape:
+
+```ts
+interface CopyRunCashbackPolicy {
+  copyRunId: string;
+  chainId: string;
+  copyAccount: `0x${string}`;
+  agentId: string;
+  capCashbackRatioRaw?: string;
+  pnlRateRaw?: string;
+  scope: string;
+  status: string;
+  selectionPolicyVersion?: string;
+  cashbackFormulaVersion?: number;
+  selectedAt?: string;
+  invalidatedAt?: string;
+  unavailableReason?: string;
+  fallbackAt?: string;
+}
+```
+
+The currently pinned operator emits `cashbackFormulaVersion = 2` for supported
+policy outcomes. Unsupported historical-generation policy can legitimately
+omit it. Treat the value as an explicit contract field, not a frontend
+constant, because formula identity is independent from policy scope and
+selection version.
+
+Use these rendering rules:
+
+- `COPY_RUN_CASHBACK_POLICY_STATUS_AVAILABLE`: render the returned rates and
+  scope.
+- `COPY_RUN_CASHBACK_POLICY_STATUS_NOT_CONFIGURED`: render the product's
+  no-policy state; do not show zero
+  rates.
+- `COPY_RUN_CASHBACK_POLICY_STATUS_INVALIDATED`: render the state as
+  invalidated, using `invalidatedAt` when present. Do not present the retained
+  rate pair as currently selectable.
+- `COPY_RUN_CASHBACK_POLICY_STATUS_UNAVAILABLE`: render an
+  unavailable/pending state from `unavailableReason`; do not reuse an
+  agent-level rate as a fallback.
+- Use the response `meta.status` independently. A stale, renderable policy is
+  not equivalent to a current policy.
 
 `OwnerCopySummary` is already scoped to the requested `view` and contains:
 
@@ -1250,14 +1337,42 @@ POST /users/{ownerAddress}/agents/{agentId}:prepareStartCopy
 {
   "chainId": "8453",
   "targetCapitalRaw": "50000000",
-  "startRequestId": "3d7d7b58-72b2-4b7c-bf19-4ee9db355490"
+  "startRequestId": "3d7d7b58-72b2-4b7c-bf19-4ee9db355490",
+  "fundingMode": "START_COPY_FUNDING_MODE_UNFUNDED"
 }
 ```
 
 `startRequestId` must be a UUIDv4. Keep the same ID while progressing one Start
-Copy attempt. Start Copy can be multi-stage: prepare, submit the returned call,
-wait for confirmation and refreshed reads, then prepare again until the response
-is complete.
+Copy attempt. `fundingMode` is required; omission/`UNSPECIFIED` is HTTP 400.
+Keep the target, funding mode, and permit intent stable while reusing that ID,
+because the canonical creation evidence is bound to the create amount and
+permit hash. Start Copy can be multi-stage: prepare, submit the returned call,
+wait for confirmation and refreshed reads, then prepare again until the
+response is complete.
+
+Funding modes:
+
+| Mode | Request contract | Create-stage behavior |
+| --- | --- | --- |
+| `START_COPY_FUNDING_MODE_UNFUNDED` | Omit `createPermitData`. | Creates the follower account without quote-token capital. A later preparation returns the separate funding call after canonical creation evidence is ready. |
+| `START_COPY_FUNDING_MODE_FUNDED` | The API uses the full `targetCapitalRaw` as the create amount. `createPermitData` is optional and, when supplied through protobuf JSON, is a base64 byte string with a maximum decoded length of 192 bytes. | Attempts account creation and full target funding in one call. Exact permit capability and format remain operator/token-policy decisions. |
+
+Funded example with permit transport:
+
+```json
+{
+  "chainId": "8453",
+  "targetCapitalRaw": "50000000",
+  "startRequestId": "3d7d7b58-72b2-4b7c-bf19-4ee9db355490",
+  "fundingMode": "START_COPY_FUNDING_MODE_FUNDED",
+  "createPermitData": "<base64-encoded-permit-bytes>"
+}
+```
+
+Do not hex-encode `createPermitData`, include it in unfunded mode, persist it,
+or expect it to be echoed in the response. A funded request can omit it when
+the wallet/token flow does not use permit; preparation remains authoritative
+for whether that request is executable.
 
 Stages:
 
@@ -1277,15 +1392,19 @@ this stage. Continue polling with the same UUID and target until
 `targetCapitalRaw` is a positive base-unit integer with at most 78 digits.
 `data.startCopy` includes the stage, request ID, predicted copy account, quote
 token, requested target, credited capital, remaining deficit, minimum initial
-capital, wallet quote balance, and current advertised upfront-fee policy.
+capital, wallet quote balance, current advertised upfront-fee policy, and
+optional `createAmountRaw`. `createAmountRaw` is present only for a create
+stage and is `"0"` for an explicitly unfunded create. Permit bytes are never
+returned.
 
 Recommended loop:
 
 1. Generate one UUIDv4 when the user starts the flow.
-2. Prepare using that UUID and requested target.
+2. Prepare using that UUID, requested target, and explicit funding mode.
 3. Validate `expectedAccount`, `chainId`, status, stage, and call kind.
 4. Submit the exact call and wait for a successful receipt.
-5. Refresh relevant reads, then prepare again with the same UUID and target.
+5. Refresh relevant reads, then prepare again with the same UUID, target,
+   funding mode, and permit intent.
    If the stage is `CREATE_CONFIRMING`, do not submit another transaction.
 6. Submit the funding call only after `FUNDING_REQUIRED` is returned.
 7. Finish only on `COMPLETED`/`START_COPY_STAGE_COMPLETE`.
@@ -1616,11 +1735,17 @@ Keep the loop bounded and offer a manual refresh if projection remains behind.
 
 ## Complete HTTP Operation Index
 
-The public HTTP surface contains 32 operations:
+The public HTTP surface contains 33 operations:
 
-- 24 GET reads;
+- 25 GET reads;
 - 6 transaction-preparation POSTs;
 - 2 wallet-session POSTs.
+
+The 25th read is the targeted account-effective policy route:
+
+```text
+GET /users/{ownerAddress}/copy-runs/{copyRunId}/cashback-policy
+```
 
 There is no generated HTTP mapping for private operator transaction
 preparation, wallet-proof, projector, or execution methods. Frontend clients
@@ -1629,10 +1754,10 @@ must use only the aggregate routes in this document.
 ## Current Availability and Verification Status
 
 At `origin/main` commit
-`dabc523032b32177e013fadb3a227277d6913e77`, the generated OpenAPI contract
-contains all 32 public HTTP operations:
+`deea80135d82f942c6e922928a413ea4f4abfa0b`, the generated OpenAPI contract
+contains all 33 public HTTP operations:
 
-- 24 GET read operations;
+- 25 GET read operations;
 - 6 transaction-preparation POST operations;
 - 2 wallet-session POST operations.
 
@@ -1642,11 +1767,32 @@ and dependencies. No transaction-preparation route should be feature-gated as
 “not implemented.” The preparation routes do not broadcast transactions; they
 return a typed product outcome and, only when executable, an exact wallet call.
 
-### Live pre-release action smoke
+PR #19 is a sync-correctness update and does not add another public route or
+JSON field. It allows explicitly historical parentless child facts to advance
+without current/actionable projection while preserving fail-closed handling
+for admitted or quarantined facts that lack authoritative parent identity.
+
+### Live pre-release public-read smoke
+
+At **2026-08-12 00:36 UTC**, the following non-mutating checks reached
+pre-release:
+
+| Route | HTTP/result |
+| --- | --- |
+| `GET /api/v1/chains` | 200 with Base (`chainId = "8453"`) and `meta.status = DATA_STATUS_CURRENT` |
+| `GET /api/v1/agents?limit=1` | 200 with a cursor-paginated row and `meta.status = DATA_STATUS_CURRENT` |
+| `GET /docs/` | 200 HTML Swagger UI |
+
+This proves those deployed entry points were reachable at that timestamp. It
+does not prove every materializer, account-specific row, preparation outcome,
+or dependency was healthy, and it does not replace the source contract above.
+
+### Historical pre-release action smoke
 
 This is dated deployment evidence from **2026-07-30 07:56 UTC**, not proof that
 pre-release currently runs the source baseline above. No returned call was
-submitted. Representative requests produced:
+submitted. It predates the required `fundingMode` field and must not be used as
+a current Start Copy payload example. Representative requests produced:
 
 | Route | HTTP/result |
 | --- | --- |
@@ -1665,7 +1811,7 @@ not an unavailable endpoint.
 
 ### Read integration status
 
-All 24 GET operations are implemented and exposed by the generated gateway.
+All 25 GET operations are implemented and exposed by the generated gateway.
 Returned rows and freshness statuses depend on the selected fixture and current
 materializer/source state; do not encode point-in-time row counts into the
 frontend.
@@ -1682,6 +1828,9 @@ Current integration rules that prevent known UI mismatches:
 - Use a run-scoped positions route only for a selected-run drilldown. A stopped
   run that never completed a trade correctly returns an empty closed-position
   page.
+- Fetch the run-scoped cashback-policy route only when the selected-run UI
+  needs effective fee/cashback details. Do not issue it once per list row or
+  replace it with the agent's advertised policy.
 - Use copy-account routes for one follower account's current inventory,
   positions, balances, obligations, and activity.
 - Render stale data according to its status. Never replace unavailable data

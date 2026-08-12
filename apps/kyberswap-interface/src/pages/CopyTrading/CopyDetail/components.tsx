@@ -1,6 +1,5 @@
-import { useEffect } from 'react'
 import copyTradingApi from 'services/copyTrading'
-import type { CopyRunSummary, PositionSummary } from 'services/copyTrading/types'
+import type { CopyRunSummary } from 'services/copyTrading/types'
 
 import { Center, HStack, Stack } from 'components/Stack'
 import useTab from 'hooks/useTab'
@@ -35,10 +34,6 @@ const copyDetailTabLabels: Record<CopyDetailTab, string> = {
 type CopyRunPanelProps = {
   enabled?: boolean
   run: CopyRunSummary
-}
-
-type OpenPositionsPanelProps = CopyRunPanelProps & {
-  onPositionsChange?: (positions: PositionSummary[]) => void
 }
 
 const getCopyRunStats = (run: CopyRunSummary): LeaderboardStat[] => {
@@ -112,7 +107,7 @@ export const CopyTimeline = ({ run }: CopyRunPanelProps) => {
   )
 }
 
-const OpenPositionsPanel = ({ enabled = true, run, onPositionsChange }: OpenPositionsPanelProps) => {
+const OpenPositionsPanel = ({ enabled = true, run }: CopyRunPanelProps) => {
   const { ownerAddress } = useCopyTradingContext()
   const [getCopyRunPositions] = copyTradingApi.useLazyGetCopyRunPositionsQuery()
   const {
@@ -131,10 +126,6 @@ const OpenPositionsPanel = ({ enabled = true, run, onPositionsChange }: OpenPosi
         limit: 100,
       }).unwrap(),
   })
-
-  useEffect(() => {
-    onPositionsChange?.(positions)
-  }, [onPositionsChange, positions])
 
   return (
     <CopyPositionsTable infiniteScroll={infiniteScroll} loading={isFetching && !positions.length} rows={positions} />
@@ -197,13 +188,11 @@ const ActionLogsPanel = ({ enabled = true, run }: CopyRunPanelProps) => {
 type CopyDetailTabsProps = CopyRunPanelProps & {
   defaultTab?: CopyDetailTab
   includeOpenPositions?: boolean
-  onOpenPositionsChange?: (positions: PositionSummary[]) => void
 }
 
 export const CopyDetailTabs = ({
   defaultTab = 'open-positions',
   includeOpenPositions = true,
-  onOpenPositionsChange,
   run,
 }: CopyDetailTabsProps) => {
   const tabs = includeOpenPositions ? copyDetailTabs : closedCopyDetailTabs
@@ -263,11 +252,7 @@ export const CopyDetailTabs = ({
 
       {includeOpenPositions && (
         <div className="relative min-h-20" hidden={currentTab !== 'open-positions'} role="tabpanel">
-          <OpenPositionsPanel
-            enabled={currentTab === 'open-positions' || keepOpenPositionsLoaded}
-            run={run}
-            onPositionsChange={onOpenPositionsChange}
-          />
+          <OpenPositionsPanel enabled={currentTab === 'open-positions' || keepOpenPositionsLoaded} run={run} />
         </div>
       )}
       <div className="relative min-h-20" hidden={currentTab !== 'closed-positions'} role="tabpanel">
