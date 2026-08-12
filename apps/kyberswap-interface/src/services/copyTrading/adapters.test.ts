@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { adaptCopyAccountBalancesResponse, adaptCopyRunResponse } from './adapters'
+import { adaptCopyAccountBalancesResponse, adaptCopyRunCashbackPolicyResponse, adaptCopyRunResponse } from './adapters'
 
 const currentCapital = {
   value: '12.34',
@@ -49,5 +49,36 @@ describe('adaptCopyAccountBalancesResponse', () => {
       amountDecimal: '0',
       balanceSource: 'onchain_rpc',
     })
+  })
+})
+
+describe('adaptCopyRunCashbackPolicyResponse', () => {
+  it.each([
+    'COPY_RUN_CASHBACK_POLICY_STATUS_AVAILABLE',
+    'COPY_RUN_CASHBACK_POLICY_STATUS_NOT_CONFIGURED',
+    'COPY_RUN_CASHBACK_POLICY_STATUS_INVALIDATED',
+    'COPY_RUN_CASHBACK_POLICY_STATUS_UNAVAILABLE',
+  ] as const)('preserves the typed %s policy state and response freshness', status => {
+    const response = adaptCopyRunCashbackPolicyResponse({
+      data: {
+        copyRunId: 'copy-run-1',
+        chainId: '8453',
+        copyAccount: '0x2222222222222222222222222222222222222222',
+        agentId: 'agent-1',
+        status,
+        scope: 'COPY_RUN_CASHBACK_POLICY_SCOPE_DEFAULT',
+      },
+      meta: { status: 'DATA_STATUS_STALE' },
+    })
+
+    expect(response.data).toMatchObject({
+      chainId: 8453,
+      status,
+      scope: 'COPY_RUN_CASHBACK_POLICY_SCOPE_DEFAULT',
+    })
+    expect(response.data.capCashbackRatioRaw).toBeUndefined()
+    expect(response.data.pnlRateRaw).toBeUndefined()
+    expect(response.data.cashbackFormulaVersion).toBeUndefined()
+    expect(response.meta?.status).toBe('DATA_STATUS_STALE')
   })
 })

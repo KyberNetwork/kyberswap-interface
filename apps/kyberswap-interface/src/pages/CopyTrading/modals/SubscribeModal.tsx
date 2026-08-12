@@ -41,10 +41,8 @@ type SubscribeModalProps = {
   agent: SubscribeTarget
 }
 
-const START_CALL_KINDS: PreparedCallKind[] = [
-  'PREPARED_CALL_KIND_START_COPY_CREATE',
-  'PREPARED_CALL_KIND_START_COPY_FUND',
-]
+const START_CALL_KINDS: PreparedCallKind[] = ['PREPARED_CALL_KIND_START_COPY_CREATE']
+const START_FUNDING_MODE = 'START_COPY_FUNDING_MODE_FUNDED' as const
 const CAPITAL_PERCENTAGES = [25, 50, 75, 100] as const
 
 const ReviewLabel = ({ label, tooltip }: { label: string; tooltip: string }) => (
@@ -137,7 +135,6 @@ const SubscribeModal = ({ isOpen, onDismiss, agent }: SubscribeModalProps) => {
       : 'Connect wallet'
   const startPreview = flowState.action?.startCopy
   const preparedToken = startPreview?.quoteToken
-  const callKind = flowState.action?.call?.kind
   const preparedWalletBalanceRaw = startPreview?.walletQuoteBalance?.valueRaw
   const requiredWalletBalanceRaw = startPreview?.remainingTargetDeficit?.valueRaw || targetCapitalRaw
   const preparedBalanceIsInsufficient =
@@ -156,6 +153,7 @@ const SubscribeModal = ({ isOpen, onDismiss, agent }: SubscribeModalProps) => {
       callKinds: START_CALL_KINDS,
       chainId: agent.chainId,
       preview: 'startCopy',
+      startCopyCreateAmountRaw: targetCapitalRaw,
       startCopyPredictedAccount: predictedCopyAccount,
       startCopyRequestId: startRequestId,
       startCopyTargetRaw: targetCapitalRaw,
@@ -171,6 +169,7 @@ const SubscribeModal = ({ isOpen, onDismiss, agent }: SubscribeModalProps) => {
         chainId: String(agent.chainId),
         targetCapitalRaw,
         startRequestId,
+        fundingMode: START_FUNDING_MODE,
       }).unwrap()
       if (
         [
@@ -190,9 +189,9 @@ const SubscribeModal = ({ isOpen, onDismiss, agent }: SubscribeModalProps) => {
       if (!predictedCopyAccount && nextPredictedCopyAccount) setPredictedCopyAccount(nextPredictedCopyAccount)
       return response.data
     },
-    afterReceipt: action => {
+    afterReceipt: () => {
       setAgreed(false)
-      return action.call?.kind === 'PREPARED_CALL_KIND_START_COPY_CREATE' ? 'reprepare' : 'complete'
+      return 'reprepare'
     },
     onComplete: refreshCopyTrading,
   })
@@ -233,8 +232,6 @@ const SubscribeModal = ({ isOpen, onDismiss, agent }: SubscribeModalProps) => {
     setAmount(preset.amount)
     setAgreed(false)
   }
-
-  const confirmLabel = callKind === 'PREPARED_CALL_KIND_START_COPY_FUND' ? 'Continue Start Copying' : 'Start Copying'
 
   const review = (
     <Stack className="gap-4">
@@ -301,7 +298,7 @@ const SubscribeModal = ({ isOpen, onDismiss, agent }: SubscribeModalProps) => {
       title={<AgentHeader agent={agent} />}
       review={review}
       showReviewWhilePreparing
-      confirmLabel={confirmLabel}
+      confirmLabel="Start Copying"
       confirmDisabled={!agreed || !!confirmBalanceError}
       onBack={flowState.hash ? undefined : editAmount}
       onConfirm={() => {

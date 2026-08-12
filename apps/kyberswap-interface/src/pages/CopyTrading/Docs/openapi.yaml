@@ -591,6 +591,33 @@ paths:
           type: string
       tags:
         - Owner Copies
+  /users/{ownerAddress}/copy-runs/{copyRunId}/cashback-policy:
+    get:
+      summary: |-
+        GetOwnerCopyRunCashbackPolicy returns the effective account-owned
+        cashback policy for exactly one persisted owner/copy-run identity.
+      operationId: getOwnerCopyRunCashbackPolicy
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1GetOwnerCopyRunCashbackPolicyResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: ownerAddress
+          description: Initial follower-account creation wallet filter; not current ownership or authorization evidence.
+          in: path
+          required: true
+          type: string
+        - name: copyRunId
+          in: path
+          required: true
+          type: string
+      tags:
+        - Owner Copies
   /users/{ownerAddress}/copy-runs/{copyRunId}/positions:
     get:
       summary: ListOwnerCopyRunPositions lists positions inside one copy run.
@@ -1397,6 +1424,14 @@ definitions:
         type: string
       startRequestId:
         type: string
+      fundingMode:
+        $ref: '#/definitions/v1StartCopyFundingMode'
+      createPermitData:
+        type: string
+        format: byte
+        description: |-
+          Optional opaque permit transport for FUNDED mode. Token-specific format
+          and capability checks remain operator-owned.
   TransactionPreparationServicePrepareStopCopyBody:
     type: object
     properties:
@@ -1809,6 +1844,23 @@ definitions:
       valueUsd:
         $ref: '#/definitions/v1DecimalMetric'
     description: CapitalActivityDetail contains typed copy-account capital movement context.
+  v1CapitalInProjectionStatus:
+    type: string
+    enum:
+      - CAPITAL_IN_PROJECTION_STATUS_UNSPECIFIED
+      - CAPITAL_IN_PROJECTION_STATUS_SYNCING
+      - CAPITAL_IN_PROJECTION_STATUS_READY
+      - CAPITAL_IN_PROJECTION_STATUS_UNAVAILABLE
+    default: CAPITAL_IN_PROJECTION_STATUS_UNSPECIFIED
+    description: |-
+      CapitalInProjectionStatus describes whether the immutable Capital In
+      projection for a copy run is still catching up or is safe to render.
+
+       - CAPITAL_IN_PROJECTION_STATUS_SYNCING: A canonical funding fact is visible, but immutable account-capital
+      coverage or the latest monetary recomputation has not completed yet.
+       - CAPITAL_IN_PROJECTION_STATUS_READY: The latest monetary work generation completed against proven immutable
+      account-capital coverage. capital_in_usd may legitimately be zero.
+       - CAPITAL_IN_PROJECTION_STATUS_UNAVAILABLE: Required source lineage or projection authority is unavailable.
   v1Chain:
     type: object
     properties:
@@ -1924,6 +1976,79 @@ definitions:
       afterStatus:
         type: string
     description: CopyLifecycleActivityDetail contains typed copy-run lifecycle context.
+  v1CopyRunCashbackPolicy:
+    type: object
+    properties:
+      copyRunId:
+        type: string
+      chainId:
+        type: string
+        format: int64
+      copyAccount:
+        type: string
+      agentId:
+        type: string
+      capCashbackRatioRaw:
+        type: string
+      pnlRateRaw:
+        type: string
+      scope:
+        $ref: '#/definitions/v1CopyRunCashbackPolicyScope'
+      status:
+        $ref: '#/definitions/v1CopyRunCashbackPolicyStatus'
+      selectionPolicyVersion:
+        type: string
+      selectedAt:
+        type: string
+        format: date-time
+      invalidatedAt:
+        type: string
+        format: date-time
+      unavailableReason:
+        $ref: '#/definitions/v1CopyRunCashbackPolicyUnavailableReason'
+      fallbackAt:
+        type: string
+        format: date-time
+      cashbackFormulaVersion:
+        type: integer
+        format: int64
+        description: |-
+          Formula identity is operator-authored and independent from policy selection.
+          Unsupported historical generations omit it; supported outcomes carry a positive version.
+    description: |-
+      CopyRunCashbackPolicy is the public effective cashback assignment for one
+      copy run. Optional raw rates preserve missing versus proven zero semantics.
+  v1CopyRunCashbackPolicyScope:
+    type: string
+    enum:
+      - COPY_RUN_CASHBACK_POLICY_SCOPE_UNSPECIFIED
+      - COPY_RUN_CASHBACK_POLICY_SCOPE_DEFAULT
+      - COPY_RUN_CASHBACK_POLICY_SCOPE_EXTRA
+    default: COPY_RUN_CASHBACK_POLICY_SCOPE_UNSPECIFIED
+    description: |-
+      CopyRunCashbackPolicyScope identifies the effective cashback tier selected
+      for one follower account.
+  v1CopyRunCashbackPolicyStatus:
+    type: string
+    enum:
+      - COPY_RUN_CASHBACK_POLICY_STATUS_UNSPECIFIED
+      - COPY_RUN_CASHBACK_POLICY_STATUS_AVAILABLE
+      - COPY_RUN_CASHBACK_POLICY_STATUS_NOT_CONFIGURED
+      - COPY_RUN_CASHBACK_POLICY_STATUS_INVALIDATED
+      - COPY_RUN_CASHBACK_POLICY_STATUS_UNAVAILABLE
+    default: COPY_RUN_CASHBACK_POLICY_STATUS_UNSPECIFIED
+    description: |-
+      CopyRunCashbackPolicyStatus describes the effective account-owned cashback
+      assignment at the operator's common covered boundary.
+  v1CopyRunCashbackPolicyUnavailableReason:
+    type: string
+    enum:
+      - COPY_RUN_CASHBACK_POLICY_UNAVAILABLE_REASON_UNSPECIFIED
+      - COPY_RUN_CASHBACK_POLICY_UNAVAILABLE_REASON_COVERAGE_PENDING
+      - COPY_RUN_CASHBACK_POLICY_UNAVAILABLE_REASON_HISTORICAL_GENERATION_UNSUPPORTED
+      - COPY_RUN_CASHBACK_POLICY_UNAVAILABLE_REASON_POLICY_TRANSITION_PENDING
+    default: COPY_RUN_CASHBACK_POLICY_UNAVAILABLE_REASON_UNSPECIFIED
+    description: CopyRunCashbackPolicyUnavailableReason explains typed policy unavailability.
   v1CopyRunStatus:
     type: string
     enum:
@@ -1999,6 +2124,8 @@ definitions:
         $ref: '#/definitions/v1AdvisoryActionAvailability'
       withdrawQuoteAvailability:
         $ref: '#/definitions/v1AdvisoryActionAvailability'
+      capitalInProjectionStatus:
+        $ref: '#/definitions/v1CapitalInProjectionStatus'
     description: CopyRunSummary contains one copy-run row.
   v1CountMetric:
     type: object
@@ -2195,6 +2322,14 @@ definitions:
       meta:
         $ref: '#/definitions/v1ResponseMeta'
     description: GetLeaderboardSummaryResponse is the leaderboard summary envelope.
+  v1GetOwnerCopyRunCashbackPolicyResponse:
+    type: object
+    properties:
+      data:
+        $ref: '#/definitions/v1CopyRunCashbackPolicy'
+      meta:
+        $ref: '#/definitions/v1ResponseMeta'
+    description: GetOwnerCopyRunCashbackPolicyResponse is the targeted policy envelope.
   v1GetOwnerCopyRunResponse:
     type: object
     properties:
@@ -2235,6 +2370,9 @@ definitions:
         $ref: '#/definitions/v1DecimalMetric'
       totalCopierCount:
         $ref: '#/definitions/v1CountMetric'
+        description: |-
+          Platform-wide lifetime distinct owner wallets across configured agents,
+          independent of leaderboard filters.
       lifetimeVolumeUsd:
         $ref: '#/definitions/v1DecimalMetric'
     description: LeaderboardSummary contains aggregate leaderboard totals.
@@ -3110,6 +3248,16 @@ definitions:
       - SORT_ORDER_DESC
     default: SORT_ORDER_UNSPECIFIED
     description: SortOrder controls the direction of a stable public order.
+  v1StartCopyFundingMode:
+    type: string
+    enum:
+      - START_COPY_FUNDING_MODE_UNSPECIFIED
+      - START_COPY_FUNDING_MODE_UNFUNDED
+      - START_COPY_FUNDING_MODE_FUNDED
+    default: START_COPY_FUNDING_MODE_UNSPECIFIED
+    description: |-
+      StartCopyFundingMode makes create-time quote funding explicit. The operator
+      remains authoritative for the configured quote token's permit capability.
   v1StartCopyPreview:
     type: object
     properties:
@@ -3133,6 +3281,11 @@ definitions:
         $ref: '#/definitions/v1RawAmountMetric'
       feePolicy:
         $ref: '#/definitions/v1FeePolicyPreview'
+      createAmountRaw:
+        type: string
+        description: |-
+          Create-time capital encoded into the create call. Present only when the
+          operator returns the create stage; "0" means explicitly unfunded.
     description: StartCopyPreview contains the deterministic create/fund state shown by the UI.
   v1StartCopyStage:
     type: string
@@ -3141,8 +3294,14 @@ definitions:
       - START_COPY_STAGE_CREATE_REQUIRED
       - START_COPY_STAGE_FUNDING_REQUIRED
       - START_COPY_STAGE_COMPLETE
+      - START_COPY_STAGE_CREATE_CONFIRMING
     default: START_COPY_STAGE_UNSPECIFIED
-    description: StartCopyStage identifies the current deterministic Start Copy stage.
+    description: |-
+      StartCopyStage identifies the current deterministic Start Copy stage.
+
+       - START_COPY_STAGE_CREATE_CONFIRMING: The predicted account exists at the action block, but canonical safe
+      creation history/opening allocation has not yet reached funding authority.
+      This stage never carries executable calldata.
   v1StopCopyPreview:
     type: object
     properties:

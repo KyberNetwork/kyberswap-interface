@@ -9,6 +9,7 @@ import {
   adaptCopyAccountBalancesResponse,
   adaptCopyAccountResponse,
   adaptCopyAccountsResponse,
+  adaptCopyRunCashbackPolicyResponse,
   adaptCopyRunResponse,
   adaptCopyRunsResponse,
   adaptLeaderboardResponse,
@@ -44,6 +45,7 @@ import type {
   CopyAccountPositionsResponse,
   CopyAccountQuery,
   CopyAccountResponse,
+  CopyRunCashbackPolicyResponse,
   CopyRunPerformanceQuery,
   CopyRunPerformanceResponse,
   CopyRunPositionsQuery,
@@ -349,6 +351,12 @@ const copyTradingApi = createApi({
     getCopyRun: builder.query<CopyRunResponse, CopyRunQuery>({
       query: ({ ownerAddress, copyRunId }) => `/users/${pathPart(ownerAddress)}/copy-runs/${pathPart(copyRunId)}`,
       transformResponse: adaptCopyRunResponse,
+      providesTags: ['CopyTrading'],
+    }),
+    getCopyRunCashbackPolicy: builder.query<CopyRunCashbackPolicyResponse, CopyRunQuery>({
+      query: ({ ownerAddress, copyRunId }) =>
+        `/users/${pathPart(ownerAddress)}/copy-runs/${pathPart(copyRunId)}/cashback-policy`,
+      transformResponse: adaptCopyRunCashbackPolicyResponse,
       providesTags: ['CopyTrading'],
     }),
     getCopyRunPositions: builder.query<CopyRunPositionsResponse, CopyRunPositionsQuery>({

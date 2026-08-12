@@ -137,11 +137,10 @@ const RemainingInWalletCard = ({
 
 type CopySidePanelProps = {
   agent: AgentProfile
-  positions: PositionSummary[]
   run: CopyRunSummary
 }
 
-const CopySidePanel = ({ agent, positions, run }: CopySidePanelProps) => {
+const CopySidePanel = ({ agent, run }: CopySidePanelProps) => {
   const { openAddCapital, openStopCopy, openWithdrawQuote } = useCopyTradeWrite()
   const accountQuery = { chainId: run.chainId, copyAccount: run.copyAccount }
   const skipCopyAccount = !run.copyAccount || !run.chainId
@@ -186,7 +185,7 @@ const CopySidePanel = ({ agent, positions, run }: CopySidePanelProps) => {
         )
       }
       onAddCapital={isTerminal ? undefined : () => openAddCapital(run, agent.displayName)}
-      onStopCopy={isTerminal ? undefined : () => openStopCopy(run, positions, agent.displayName)}
+      onStopCopy={isTerminal ? undefined : () => openStopCopy(run, agent.displayName)}
     />
   )
 

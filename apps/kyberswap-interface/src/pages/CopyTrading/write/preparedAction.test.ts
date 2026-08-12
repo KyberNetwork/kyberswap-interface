@@ -1,7 +1,11 @@
 import type { PreparedAction } from 'services/copyTrading/types'
 import { describe, expect, it } from 'vitest'
 
-import { type PreparedActionExpectation, validatePreparedAction } from './preparedAction'
+import {
+  type PreparedActionExpectation,
+  validatePreparedAction,
+  validatePreparedActionContinuation,
+} from './preparedAction'
 
 const account = '0x1111111111111111111111111111111111111111'
 const copyAccount = '0x2222222222222222222222222222222222222222'
@@ -11,9 +15,10 @@ const targetCapitalRaw = '1000000'
 
 const expected: PreparedActionExpectation = {
   account,
-  callKinds: ['PREPARED_CALL_KIND_START_COPY_CREATE', 'PREPARED_CALL_KIND_START_COPY_FUND'],
+  callKinds: ['PREPARED_CALL_KIND_START_COPY_CREATE'],
   chainId: 8453,
   preview: 'startCopy',
+  startCopyCreateAmountRaw: targetCapitalRaw,
   startCopyPredictedAccount: copyAccount,
   startCopyRequestId: startRequestId,
   startCopyTargetRaw: targetCapitalRaw,
@@ -75,6 +80,7 @@ describe('validatePreparedAction', () => {
       chainId: '8453',
       expectedAccount: account,
       startCopy: {
+        createAmountRaw: targetCapitalRaw,
         stage: 'START_COPY_STAGE_CREATE_REQUIRED',
         startRequestId,
         predictedCopyAccount: copyAccount,
@@ -88,6 +94,63 @@ describe('validatePreparedAction', () => {
       },
     }
 
-    expect(validatePreparedAction(action, expected)).toBeTruthy()
+    expect(validatePreparedAction(action, expected)).toBe('The preparation returned a non-zero call value.')
   })
+
+  it('rejects an unfunded create amount for a funded Start Copy attempt', () => {
+    const action: PreparedAction = {
+      status: 'PREPARED_ACTION_STATUS_READY',
+      chainId: '8453',
+      expectedAccount: account,
+      startCopy: {
+        stage: 'START_COPY_STAGE_CREATE_REQUIRED',
+        startRequestId,
+        predictedCopyAccount: copyAccount,
+        requestedTargetRaw: targetCapitalRaw,
+        createAmountRaw: '0',
+      },
+      call: {
+        kind: 'PREPARED_CALL_KIND_START_COPY_CREATE',
+        to: callTarget,
+        data: '0x',
+        valueRaw: '0',
+      },
+    }
+
+    expect(validatePreparedAction(action, expected)).toBe(
+      'The prepared Start Copy create amount does not match the selected funding mode.',
+    )
+  })
+
+  it('rejects a separate Fund call for a funded Start Copy attempt', () => {
+    const action: PreparedAction = {
+      status: 'PREPARED_ACTION_STATUS_PARTIALLY_COMPLETED',
+      chainId: '8453',
+      expectedAccount: account,
+      copyAccount,
+      startCopy: {
+        stage: 'START_COPY_STAGE_FUNDING_REQUIRED',
+        startRequestId,
+        predictedCopyAccount: copyAccount,
+        requestedTargetRaw: targetCapitalRaw,
+      },
+      call: {
+        kind: 'PREPARED_CALL_KIND_START_COPY_FUND',
+        to: callTarget,
+        data: '0x',
+        valueRaw: '0',
+      },
+    }
+
+    expect(validatePreparedAction(action, expected)).toBe('The preparation returned an unexpected call kind.')
+  })
+
+  it.each(['PREPARED_ACTION_STATUS_READY', 'PREPARED_ACTION_STATUS_PARTIALLY_COMPLETED'] as const)(
+    'rejects an executable %s response after the funded Create receipt',
+    status => {
+      expect(validatePreparedActionContinuation({ status })).toBe(
+        'The confirmed Start Copy transaction returned another executable preparation. Do not submit another transaction.',
+      )
+    },
+  )
 })
