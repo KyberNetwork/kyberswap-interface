@@ -13,7 +13,8 @@ import Skeleton from 'components/Skeleton'
 import { Center, HStack, Stack } from 'components/Stack'
 import { getDisplayTokenInfo } from 'components/TokenSelectorModal/PinnedTokens'
 import { Balance } from 'components/TokenSelectorModal/components'
-import { TokenRowExtra, TokenRowExtraMap, tokenRowKey } from 'components/TokenSelectorModal/types'
+import { BALANCE_COLUMN_CLASS, METRIC_COLUMN_CLASS } from 'components/TokenSelectorModal/constants'
+import { TokenMetricColumn, TokenRowExtra, TokenRowExtraMap, tokenRowKey } from 'components/TokenSelectorModal/types'
 import { getNeedsImport } from 'components/TokenSelectorModal/utils'
 import { useActiveWeb3React } from 'hooks'
 import useCopyClipboard from 'hooks/useCopyClipboard'
@@ -96,17 +97,19 @@ type TokenRowProps = {
   onShowTokenInfo?: (token: Token) => void
   priceUsd?: number
   priceChange24h?: number
-  volume24h?: number
+  /** USD value shown in the metric column — 24h volume or market cap, per the list's active metric. */
+  metricValue?: number
   addedAt?: number
   showAddress?: boolean
   usdValueClassName?: string
   /** Render the fixed-width price / 24h-change column. Kept tab-level (not data-driven) so rows stay aligned. */
   showPriceColumn?: boolean
   /**
-   * What the right column renders: the wallet 'balance' (default), 24h 'volume' (Trending), or an
-   * 'import' button for a not-yet-imported token (which also makes the whole row trigger import).
+   * What the right column renders: the wallet 'balance' (default), the 'metric' value — 24h volume or
+   * market cap (Trending / New) — or an 'import' button for a not-yet-imported token (which also makes
+   * the whole row trigger import).
    */
-  rightColumn?: 'balance' | 'volume' | 'import'
+  rightColumn?: 'balance' | 'metric' | 'import'
   /**
    * Non-whitelisted token shown as a normal row (with its metric column) rather than an Import button,
    * dimmed to 50%; clicking it opens the import flow. Used on the Trending / All tabs.
@@ -114,6 +117,8 @@ type TokenRowProps = {
   importOnClick?: boolean
   /** Start the import flow for a not-yet-imported token (via the Import button or an `importOnClick` row). */
   onImportToken?: (token: Token) => void
+  /** Width of the right-hand column, kept in sync with the list header so the two stay aligned. */
+  rightColumnClassName?: string
   /** Restricted in the user's jurisdiction: clicking the row reveals the inline notice instead of selecting. */
   restricted?: boolean
   /** Whether the inline "not available" notice is currently expanded for this row. */
@@ -142,12 +147,13 @@ export const TokenRow = ({
   onShowTokenInfo,
   priceUsd,
   priceChange24h,
-  volume24h,
+  metricValue,
   addedAt,
   showAddress,
   usdValueClassName = 'text-subText',
   showPriceColumn,
   rightColumn = 'balance',
+  rightColumnClassName = BALANCE_COLUMN_CLASS,
   importOnClick,
   onImportToken,
   restricted,
@@ -266,7 +272,7 @@ export const TokenRow = ({
         )}
 
         {isImport ? (
-          <Stack className="w-[72px] items-end overflow-hidden sm:w-[104px]">
+          <Stack className={cn('items-end overflow-hidden', rightColumnClassName)}>
             <ButtonPrimary
               data-testid="button-import-token"
               width="fit-content"
@@ -282,14 +288,15 @@ export const TokenRow = ({
               <Trans>Import</Trans>
             </ButtonPrimary>
           </Stack>
-        ) : rightColumn === 'volume' ? (
-          <Stack className="w-[72px] items-end overflow-hidden sm:w-[104px]">
-            <span className="max-w-full truncate text-xs text-text sm:text-sm" data-testid="token-volume">
-              {volume24h ? formatBigLiquidity(String(volume24h), 2, true) : '--'}
+        ) : rightColumn === 'metric' ? (
+          <Stack className={cn('items-end overflow-hidden', rightColumnClassName)}>
+            <span className="max-w-full truncate text-xs text-text sm:text-sm" data-testid="token-metric">
+              {/* Only a missing metric reads "--"; a real zero is data and renders as an amount. */}
+              {metricValue === undefined ? '--' : formatBigLiquidity(String(metricValue), 2, true)}
             </span>
           </Stack>
         ) : (
-          <Stack className="w-[72px] items-end gap-0.5 overflow-hidden sm:w-[104px]">
+          <Stack className={cn('items-end gap-0.5 overflow-hidden', rightColumnClassName)}>
             {customBalance !== undefined ? customBalance : renderBalance()}
             {!!usdBalance && !hideBalance && (
               <span className={cn('text-xs', usdValueClassName)} data-testid="token-usd-value">
@@ -397,7 +404,7 @@ type VirtualRowData = {
   itemStyle: CSSProperties
   showAddress?: boolean
   showPriceColumn?: boolean
-  showVolume?: boolean
+  metricColumn?: TokenMetricColumn
   importAsRow?: boolean
   importedAddressSet: Set<string>
   tokenPrices: { [address: string]: number }
@@ -436,7 +443,7 @@ const VirtualRow = memo(function VirtualRow({ index, style, data }: ListChildCom
   // stays normal — dimmed to 50% — and clicking it imports.
   const needsImport = getNeedsImport(currency, address => data.importedAddressSet.has(address), !!data.onImportToken)
   const importAsRow = needsImport && !!data.importAsRow
-  const rightColumn = needsImport && !data.importAsRow ? 'import' : data.showVolume ? 'volume' : 'balance'
+  const rightColumn = needsImport && !data.importAsRow ? 'import' : data.metricColumn ? 'metric' : 'balance'
 
   const isSelected = Boolean(data.selectedCurrency?.equals(currency))
   const otherSelected = Boolean(data.otherCurrency?.equals(currency))
@@ -479,11 +486,12 @@ const VirtualRow = memo(function VirtualRow({ index, style, data }: ListChildCom
         usdValueClassName="text-primary"
         priceUsd={extra?.price}
         priceChange24h={extra?.priceChange24h}
-        volume24h={extra?.volume24h}
+        metricValue={data.metricColumn ? extra?.[data.metricColumn] : undefined}
         addedAt={extra?.addedAt}
         showAddress={data.showAddress}
         showPriceColumn={data.showPriceColumn}
         rightColumn={rightColumn}
+        rightColumnClassName={data.metricColumn ? METRIC_COLUMN_CLASS : BALANCE_COLUMN_CLASS}
         importOnClick={importAsRow}
         onImportToken={data.onImportToken}
         restricted={restricted}
@@ -515,8 +523,8 @@ type TokenListProps = {
   showAddress?: boolean
   /** Render the price / 24h-change column (every tab except All). */
   showPriceColumn?: boolean
-  /** Right column shows 24h volume instead of balance (Trending). */
-  showVolume?: boolean
+  /** Right column shows this metric — 24h volume or market cap — instead of the balance (Trending / New). */
+  metricColumn?: TokenMetricColumn
   /** Render a not-yet-imported token as a normal row dimmed to 50% (click imports) instead of an Import button (Trending / All). */
   importAsRow?: boolean
 }
@@ -539,7 +547,7 @@ const TokenList = ({
   extras,
   showAddress,
   showPriceColumn,
-  showVolume,
+  metricColumn,
   importAsRow,
 }: TokenListProps) => {
   const { account } = useActiveWeb3React()
@@ -547,14 +555,14 @@ const TokenList = ({
   const tokenImports = useUserAddedTokens(customChainId)
 
   // Only the All tab derives USD sub-lines from Redux prices (the others read price from catalog
-  // extras), so skip the /prices fetch elsewhere. Trending shows volume, not balance, so skip its
-  // per-block balanceOf multicall entirely.
+  // extras), so skip the /prices fetch elsewhere. The metric tabs show volume / market cap, not
+  // balance, so skip their per-block balanceOf multicall entirely.
   const priceAddresses = useMemo(
     () => (showPriceColumn ? EMPTY_ADDRESSES : currencies.map(currency => currency.wrapped.address)),
     [showPriceColumn, currencies],
   )
   const tokenPrices = useTokenPrices(priceAddresses, customChainId)
-  const balanceCurrencies = showVolume ? EMPTY_CURRENCIES : currencies
+  const balanceCurrencies = metricColumn ? EMPTY_CURRENCIES : currencies
   const currencyBalances = useCurrencyBalances(balanceCurrencies, customChainId)
 
   // O(1) row-level membership checks (exact-case for imports to match the address equality used
@@ -613,7 +621,7 @@ const TokenList = ({
       itemStyle,
       showAddress,
       showPriceColumn,
-      showVolume,
+      metricColumn,
       importAsRow,
       importedAddressSet,
       tokenPrices,
@@ -638,7 +646,7 @@ const TokenList = ({
       itemStyle,
       showAddress,
       showPriceColumn,
-      showVolume,
+      metricColumn,
       importAsRow,
       importedAddressSet,
       tokenPrices,

@@ -43,3 +43,10 @@ export const TRENDING_PAGE_SIZE = 20
 
 /** Max rows fetched for the New list (whitelisted, newest-first). */
 export const NEW_TOKEN_MAX_DISPLAY = 20
+
+/**
+ * Widths of the list's right-hand column, shared by the header and the rows so the two stay aligned.
+ * Below `sm` the metric column is the wider of the two, to fit the VOL / MCAP switch in its header.
+ */
+export const METRIC_COLUMN_CLASS = 'w-[76px] sm:w-[104px]'
+export const BALANCE_COLUMN_CLASS = 'w-[72px] sm:w-[104px]'
