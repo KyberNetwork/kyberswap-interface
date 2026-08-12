@@ -142,18 +142,12 @@ interface AddRemoveFavoriteParams {
 }
 
 /**
- * A one-sided quote comes from a market the price service could only value on one leg, and can sit
- * orders of magnitude away from the tradable price, so both resolvers below treat it as no price.
+ * The single definition of a token's USD price across the app: the mid of the buy/sell spread, or
+ * `null` when either side is missing — a one-sided quote comes from a market the price service could
+ * only value on one leg and can sit orders of magnitude away from the tradable price.
  */
-const hasBothSides = (entry?: TokenPriceEntry): entry is { PriceBuy: number; PriceSell: number } =>
-  !!entry?.PriceBuy && !!entry?.PriceSell
-
-/** Mid price of a token, or `null` when either side of the spread is missing. */
 export const getMidPrice = (entry?: TokenPriceEntry): number | null =>
-  hasBothSides(entry) ? (entry.PriceBuy + entry.PriceSell) / 2 : null
-
-/** Buy-side price of a token, or `null` when either side of the spread is missing. */
-export const getBuyPrice = (entry?: TokenPriceEntry): number | null => (hasBothSides(entry) ? entry.PriceBuy : null)
+  entry?.PriceBuy && entry?.PriceSell ? (entry.PriceBuy + entry.PriceSell) / 2 : null
 
 /** Fetch buy/sell prices for one or more chains. */
 export const fetchTokenPrices = async (
