@@ -1,6 +1,5 @@
-import { type HTMLAttributes, useState } from 'react'
-import copyTradingApi from 'services/copyTrading'
-import type { CopyRunSummary, PositionSummary } from 'services/copyTrading/types'
+import { type HTMLAttributes } from 'react'
+import type { CopyRunSummary } from 'services/copyTrading/types'
 
 import { ButtonLight } from 'components/Button'
 import { Stack } from 'components/Stack'
@@ -10,7 +9,7 @@ import { CopyRunAgentCell, CopyRunStatusBadge } from 'pages/CopyTrading/componen
 import { copyTradingStatIconMap } from 'pages/CopyTrading/constants'
 import { compactUsd, formatCount, formatUsd, getAgentDisplayName, percent } from 'pages/CopyTrading/helpers'
 import { useCopyTradeWrite } from 'pages/CopyTrading/write/WriteContext'
-import { getApiErrorMessage, getPreparedReasonMessage, isActionAvailable } from 'pages/CopyTrading/write/preparedAction'
+import { getPreparedReasonMessage, isActionAvailable } from 'pages/CopyTrading/write/preparedAction'
 import { cn } from 'utils/cn'
 
 type ActiveSubscriptionsGridProps = HTMLAttributes<HTMLDivElement> & {
@@ -40,45 +39,6 @@ type ActiveSubscriptionsTableProps = {
 
 const ActiveSubscriptionsTable = ({ rows, loading, pagination, onOpenSubscription }: ActiveSubscriptionsTableProps) => {
   const { openStopCopy } = useCopyTradeWrite()
-  const [getCopyRunPositions] = copyTradingApi.useLazyGetCopyRunPositionsQuery()
-  const [loadingStopCopyRunId, setLoadingStopCopyRunId] = useState<string>()
-  const [stopCopyError, setStopCopyError] = useState<{ copyRunId: string; message: string }>()
-
-  const loadOpenPositions = async (subscription: CopyRunSummary) => {
-    const positions: PositionSummary[] = []
-    let cursor: string | undefined
-
-    while (true) {
-      const response = await getCopyRunPositions({
-        ownerAddress: subscription.ownerAddress,
-        copyRunId: subscription.copyRunId,
-        status: 'open',
-        cursor,
-        limit: 100,
-      }).unwrap()
-      positions.push(...response.data)
-
-      if (!response.pagination.hasMore) return positions
-      const nextCursor = response.pagination.nextCursor
-      if (!nextCursor || nextCursor === cursor) {
-        throw new Error('The positions response returned an invalid pagination cursor.')
-      }
-      cursor = nextCursor
-    }
-  }
-
-  const handleStopCopy = async (subscription: CopyRunSummary) => {
-    setLoadingStopCopyRunId(subscription.copyRunId)
-    setStopCopyError(undefined)
-    try {
-      const positions = await loadOpenPositions(subscription)
-      openStopCopy(subscription, positions, getAgentDisplayName(subscription.agentSnapshot))
-    } catch (error) {
-      setStopCopyError({ copyRunId: subscription.copyRunId, message: getApiErrorMessage(error) })
-    } finally {
-      setLoadingStopCopyRunId(undefined)
-    }
-  }
 
   return (
     <Stack className="overflow-hidden rounded-xl bg-buttonBlack-60">
@@ -103,8 +63,6 @@ const ActiveSubscriptionsTable = ({ rows, loading, pagination, onOpenSubscriptio
         >
           {rows.map(subscription => {
             const actionAvailable = isActionAvailable(subscription.stopCopyAvailability)
-            const loadingPositions = loadingStopCopyRunId === subscription.copyRunId
-            const actionError = stopCopyError?.copyRunId === subscription.copyRunId ? stopCopyError.message : undefined
 
             return (
               <ActiveSubscriptionsGrid
@@ -138,15 +96,13 @@ const ActiveSubscriptionsTable = ({ rows, loading, pagination, onOpenSubscriptio
                     type="button"
                     padding="8px 12px"
                     color="var(--ks-warning)"
-                    disabled={!actionAvailable || !!loadingStopCopyRunId}
+                    disabled={!actionAvailable}
                     title={
-                      !actionAvailable
-                        ? getPreparedReasonMessage(subscription.stopCopyAvailability?.reason)
-                        : actionError
+                      !actionAvailable ? getPreparedReasonMessage(subscription.stopCopyAvailability?.reason) : undefined
                     }
-                    onClick={() => void handleStopCopy(subscription)}
+                    onClick={() => openStopCopy(subscription, getAgentDisplayName(subscription.agentSnapshot))}
                   >
-                    {loadingPositions ? 'Loading positions…' : actionError ? 'Retry Stop Copying' : 'Stop Copying'}
+                    Stop Copying
                   </ButtonLight>
                 </TableCell>
               </ActiveSubscriptionsGrid>

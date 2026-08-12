@@ -66,8 +66,8 @@ const getProcessingCopy = (state: PreparedActionFlowState, fallback?: string) =>
     return { title: 'Transaction submitted', text: 'Waiting for an on-chain confirmation…' }
   }
   return {
-    title: 'Preparing next transaction',
-    text: 'Waiting until the required follow-up transaction can be prepared…',
+    title: 'Finalizing Start Copy',
+    text: 'Your transaction is confirmed. We’re updating your Copy Trading status…',
   }
 }
 
