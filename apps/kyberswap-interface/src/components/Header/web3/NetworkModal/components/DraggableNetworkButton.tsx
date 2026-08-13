@@ -241,6 +241,11 @@ const DraggableNetworkButton = ({
                 <Trans>New</Trans>
               </NewLabel>
             )}
+            {state === ChainState.PROVISIONAL && (
+              <NewLabel>
+                <Trans>Provisional</Trans>
+              </NewLabel>
+            )}
             {isMaintenance && (
               <MaintainLabel>
                 <Trans>Maintenance</Trans>
