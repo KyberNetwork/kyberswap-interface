@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 
 import { Trans, t } from '@lingui/macro';
 
@@ -12,6 +12,9 @@ import useZapRoute from '@/hooks/useZapRoute';
 import { useZapOutContext } from '@/stores';
 import { useZapOutUserState } from '@/stores/state';
 
+// How often the zap quote is re-priced while the form is open
+const ROUTE_REFRESH_INTERVAL = 15_000;
+
 export default function Estimated() {
   const { chainId, positionId, poolAddress, poolType, pool, theme, position } = useZapOutContext(s => s);
   const { slippage, fetchingRoute, fetchZapOutRoute, route, buildData, liquidityOut, tokenOut, mode } =
@@ -20,43 +23,36 @@ export default function Estimated() {
   const { earnedFee0, earnedFee1, feeValue0, feeValue1 } = earnedFee;
 
   const debounceLiquidityOut = useDebounce(liquidityOut, 500);
-  const abortControllerRef = useRef<AbortController | undefined>(undefined);
 
   useEffect(() => {
     if (buildData) return;
 
-    // Cancel previous request if exists
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort();
-    }
-
-    // Create new AbortController for this request
-    const abortController = new AbortController();
-    abortControllerRef.current = abortController;
-
-    fetchZapOutRoute({
-      chainId,
-      positionId,
-      poolAddress,
-      poolType,
-      signal: abortController.signal,
-    });
-
-    return () => {
-      abortController.abort();
-    };
+    fetchZapOutRoute({ chainId, positionId, poolAddress, poolType });
   }, [
     mode,
     buildData,
-    pool,
     fetchZapOutRoute,
     debounceLiquidityOut,
     tokenOut?.address,
+    slippage,
     chainId,
     positionId,
     poolAddress,
     poolType,
   ]);
+
+  // The effect above only reaches the network when the quote inputs actually change, so the
+  // time-sensitive part of the quote is re-priced on its own cadence
+  useEffect(() => {
+    if (buildData) return;
+
+    const interval = setInterval(
+      () => fetchZapOutRoute({ chainId, positionId, poolAddress, poolType, force: true }),
+      ROUTE_REFRESH_INTERVAL,
+    );
+
+    return () => clearInterval(interval);
+  }, [buildData, fetchZapOutRoute, chainId, positionId, poolAddress, poolType]);
 
   const color =
     zapImpact.level === PI_LEVEL.VERY_HIGH || zapImpact.level === PI_LEVEL.INVALID
