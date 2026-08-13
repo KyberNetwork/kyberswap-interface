@@ -167,10 +167,25 @@ const SortHeader = ({
 )
 
 // Copy for one of the switchable metrics. Built per render so the `t` macro picks up locale changes.
+// The labels carry their own casing — the period qualifier reads as "24h", not "24H". That qualifier
+// only fits from `sm` up; below it the wider column would leave the token name a few pixels.
 const metricCopy = (metric: TokenMetricColumn) =>
   metric === 'volume24h'
-    ? { label: <Trans>Vol</Trans>, show: t`Show 24h volume`, sort: t`Sort by 24h volume` }
-    : { label: <Trans>Mcap</Trans>, show: t`Show market cap`, sort: t`Sort by market cap` }
+    ? {
+        label: (
+          <>
+            <span className="sm:hidden">
+              <Trans>VOL</Trans>
+            </span>
+            <span className="hidden sm:inline">
+              <Trans>24h VOL</Trans>
+            </span>
+          </>
+        ),
+        show: t`Show 24h volume`,
+        sort: t`Sort by 24h volume`,
+      }
+    : { label: <Trans>MCAP</Trans>, show: t`Show market cap`, sort: t`Sort by market cap` }
 
 // The Trending / New tabs' third column header: a switch choosing which metric the rows show — 24h
 // volume or market cap — plus the sort control for whichever metric is active. The showing metric's
@@ -203,7 +218,7 @@ const MetricColumnHeader = ({
             data-testid={`metric-column-${option}`}
             onClick={() => (active ? onSort(option) : onMetricChange(option))}
             className={cn(
-              'min-w-0 truncate rounded px-[3px] py-0.5 text-[10px] font-medium uppercase transition-colors sm:px-1.5 sm:text-xs',
+              'min-w-0 truncate rounded px-[3px] py-0.5 text-[10px] font-medium transition-colors sm:px-1.5 sm:text-xs',
               active ? 'bg-buttonGray text-text' : 'text-gray hover:text-text',
             )}
           >
