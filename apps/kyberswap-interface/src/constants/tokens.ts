@@ -53,6 +53,7 @@ export const STABLE_COIN_ADDRESSES_TO_TAKE_FEE: Record<ChainId, string[]> = {
   [ChainId.MONAD]: [],
   [ChainId.MEGAETH]: [],
   [ChainId.ROBINHOOD]: [],
+  [ChainId.RISE]: [],
 }
 
 // This is basically the same as STABLE_COIN_ADDRESSES_TO_TAKE_FEE,
@@ -118,6 +119,7 @@ export const DEFAULT_OUTPUT_TOKENS: Partial<Record<ChainId, Token>> = {
     'USDG',
     'Global Dollar',
   ),
+  [ChainId.RISE]: new Token(ChainId.RISE, '0xe436820ba0C69702c1d3E601d421c0eF38262739', 6, 'USDC.e', 'USDC.e'),
 }
 
 export const PRICE_CHART_QUOTES: Partial<Record<ChainId, Token>> = {

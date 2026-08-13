@@ -22,6 +22,7 @@ import {
   optimism,
   plasma,
   polygon,
+  rise,
   ronin,
   scroll,
   sonic,
@@ -381,6 +382,7 @@ const wagmiChains: readonly [Chain, ...Chain[]] = [
   withKyberRpc(monad),
   withKyberRpc(megaeth),
   withKyberRpc(robinhood),
+  withKyberRpc(rise),
 ] as const
 
 // viem `fallback()` rotates through URLs on transport errors (network, 429, 5xx),
