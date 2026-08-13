@@ -2,9 +2,8 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import type { Firestore, collection, doc, onSnapshot, query } from 'firebase/firestore'
 
 import { PopupContentAnnouncement } from 'components/Announcement/type'
-import { LimitOrder } from 'components/swapv2/LimitOrder/type'
-import { ENV_KEY, ENV_LEVEL, FIREBASE } from 'constants/env'
-import { ENV_TYPE } from 'constants/type'
+import { LimitOrder } from 'components/LimitOrder/types'
+import { ENV_KEY, ENV_LEVEL, ENV_TYPE, FIREBASE } from 'constants/env'
 
 const { DEFAULT: FIREBASE_CONFIG_DEFAULT, LIMIT_ORDER: FIREBASE_CONFIG_LO } = FIREBASE[ENV_KEY]
 

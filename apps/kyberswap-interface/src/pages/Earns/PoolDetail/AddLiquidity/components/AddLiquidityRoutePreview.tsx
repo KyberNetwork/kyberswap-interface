@@ -12,6 +12,7 @@ import {
   getOutputTokenItems,
   getZapFeePercent,
 } from 'pages/Earns/PoolDetail/AddLiquidity/utils'
+import { ExternalLink } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
 
 type RouteTokenItem = {
@@ -97,13 +98,10 @@ const AddLiquidityRoutePreview = ({
             <div className="flex items-center justify-between gap-4">
               <TextHelper
                 tooltip={
-                  <div className="flex flex-col items-start gap-1 [&_a]:text-primary [&_a]:no-underline">
+                  <span>
                     Fees charged for automatically zapping into a liquidity pool. You still have to pay the standard gas
-                    fees.
-                    <a href={API_URLS.DOCUMENT.ZAP_FEE_MODEL} target="_blank" rel="noopener norefferer noreferrer">
-                      {'>'} More details
-                    </a>
-                  </div>
+                    fees. <ExternalLink href={API_URLS.DOCUMENT.ZAP_FEE_MODEL}>More details ↗</ExternalLink>
+                  </span>
                 }
                 placement="left"
                 color="var(--ks-subText)"

@@ -1,33 +1,29 @@
-import { Component, type ReactNode, forwardRef } from 'react'
+import { Component, type HTMLAttributes, type PropsWithChildren, type ReactNode, forwardRef } from 'react'
 
 import { ReactComponent as PriceChartEmptyIcon } from 'assets/svg/price-chart-empty.svg'
-import ProgressBar from 'components/ProgressBar'
+import Loader from 'components/Loader'
 import Skeleton from 'components/Skeleton'
-import { HStack, Stack } from 'components/Stack'
+import { Center, HStack, Stack } from 'components/Stack'
 import useTheme from 'hooks/useTheme'
 import { cn } from 'utils/cn'
 
 const DEFAULT_CHART_HEIGHT = 360
+type PoolChartSkeletonType = 'line' | 'bar' | 'candle'
 
-interface PoolChartWrapperProps extends React.HTMLAttributes<HTMLDivElement> {
-  $height?: number
-}
+export const PoolChartWrapper = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement> & { height?: number }>(
+  function PoolChartWrapper({ height, style, children, ...rest }, ref) {
+    return (
+      <div ref={ref} className="w-full" style={{ height: `${height ?? DEFAULT_CHART_HEIGHT}px`, ...style }} {...rest}>
+        {children}
+      </div>
+    )
+  },
+)
 
-export const PoolChartWrapper = forwardRef<HTMLDivElement, PoolChartWrapperProps>(function PoolChartWrapper(
-  { $height, style, children, ...rest },
-  ref,
-) {
-  return (
-    <div ref={ref} className="w-full" style={{ height: `${$height ?? DEFAULT_CHART_HEIGHT}px`, ...style }} {...rest}>
-      {children}
-    </div>
-  )
-})
-
-const SkeletonBar = ({ $height, children }: { $height: number; children?: ReactNode }) => (
+const SkeletonBar = ({ children, height }: PropsWithChildren<{ height: number }>) => (
   <div
     className="relative min-w-1 max-w-3 flex-1 overflow-hidden rounded-t bg-text/[0.04]"
-    style={{ height: `${$height}%` }}
+    style={{ height: `${height}%` }}
   >
     {children}
   </div>
@@ -43,42 +39,26 @@ const SkeletonBarShimmer = () => (
   />
 )
 
-type PoolChartSkeletonProps = {
-  height?: number
-  type?: 'line' | 'bar' | 'candle'
-}
-
-type PoolChartMessageProps = {
-  height?: number
-  message: string
-  showIcon?: boolean
-  textColor?: string
-  textWeight?: number
-}
-
-type PoolChartStateProps = {
-  children: ReactNode
-  emptyMessage?: string
-  errorMessage?: string
-  exclusiveType?: 'earning-chart' | 'liquidity-flow'
-  height?: number
-  isEmpty?: boolean
-  isError?: boolean
-  isFetching?: boolean
-  isLoading?: boolean
-  skeletonType?: PoolChartSkeletonProps['type']
-}
-
-const ChartFetchingOverlay = ({ children }: { children: ReactNode }) => (
-  <div className="pointer-events-none absolute inset-0 z-[1] bg-background/[0.06] pt-1 backdrop-blur">{children}</div>
+const ChartFetchingContent = ({ children, isFetching }: PropsWithChildren<{ isFetching?: boolean }>) => (
+  <div className="relative w-full">
+    {children}
+    {isFetching && (
+      <Center className="pointer-events-none absolute inset-0 z-[1] justify-start">
+        <Center className="relative top-[20%] rounded-full bg-background/80 p-2 text-primary shadow-sm">
+          <Loader size="24px" strokeWidth="2.5" />
+        </Center>
+      </Center>
+    )}
+  </div>
 )
 
+type PoolChartRenderBoundaryState = {
+  error: Error | null
+}
+
 class PoolChartRenderBoundary extends Component<
-  {
-    children: ReactNode
-    fallback: (error: Error) => ReactNode
-  },
-  { error: Error | null }
+  PropsWithChildren<{ fallback: (error: Error) => ReactNode }>,
+  PoolChartRenderBoundaryState
 > {
   state = { error: null }
 
@@ -95,15 +75,12 @@ class PoolChartRenderBoundary extends Component<
   }
 }
 
-const PoolChartStateLayout = ({
-  children,
-  gap,
-  height = DEFAULT_CHART_HEIGHT,
-}: {
-  children: ReactNode
+type PoolChartStateLayoutProps = PropsWithChildren<{
   gap: number
   height?: number
-}) => {
+}>
+
+const PoolChartStateLayout = ({ children, gap, height = DEFAULT_CHART_HEIGHT }: PoolChartStateLayoutProps) => {
   return (
     <Stack
       className="w-full items-center justify-center rounded-2xl border border-dashed border-border p-5 text-center"
@@ -148,7 +125,7 @@ const BarChartSkeleton = ({ height }: { height: number }) => {
     <div style={{ height: `${Math.max(height - 64, 0)}px`, width: '100%' }}>
       <HStack className="size-full items-end justify-center gap-2 p-2">
         {barHeights.map((barHeight, index) => (
-          <SkeletonBar $height={barHeight * 0.8} key={index}>
+          <SkeletonBar height={barHeight * 0.8} key={index}>
             <SkeletonBarShimmer />
           </SkeletonBar>
         ))}
@@ -240,6 +217,11 @@ const CandleChartSkeleton = ({ height }: { height: number }) => {
   )
 }
 
+type PoolChartSkeletonProps = {
+  height?: number
+  type?: PoolChartSkeletonType
+}
+
 export const PoolChartSkeleton = ({ height = DEFAULT_CHART_HEIGHT, type = 'line' }: PoolChartSkeletonProps) => {
   return (
     <PoolChartStateLayout gap={12} height={height}>
@@ -250,7 +232,7 @@ export const PoolChartSkeleton = ({ height = DEFAULT_CHART_HEIGHT, type = 'line'
   )
 }
 
-const LiquidityFlowChartSkeleton = ({ height = DEFAULT_CHART_HEIGHT }: PoolChartSkeletonProps) => {
+const LiquidityFlowChartSkeleton = ({ height = DEFAULT_CHART_HEIGHT }: { height?: number }) => {
   return (
     <Stack className="gap-3">
       <PoolChartSkeleton height={height} type="bar" />
@@ -265,7 +247,7 @@ const LiquidityFlowChartSkeleton = ({ height = DEFAULT_CHART_HEIGHT }: PoolChart
   )
 }
 
-const EarningChartSkeleton = ({ height = DEFAULT_CHART_HEIGHT }: PoolChartSkeletonProps) => {
+const EarningChartSkeleton = ({ height = DEFAULT_CHART_HEIGHT }: { height?: number }) => {
   const isCompact = height <= 240
   const breakdownChartSize = isCompact ? 160 : 180
 
@@ -289,13 +271,21 @@ const EarningChartSkeleton = ({ height = DEFAULT_CHART_HEIGHT }: PoolChartSkelet
   )
 }
 
+type PoolChartEmptyStateProps = {
+  height?: number
+  message: string
+  showIcon?: boolean
+  textColor?: string
+  textWeight?: number
+}
+
 const PoolChartEmptyState = ({
   height = DEFAULT_CHART_HEIGHT,
   message,
   showIcon = false,
   textColor,
   textWeight,
-}: PoolChartMessageProps) => {
+}: PoolChartEmptyStateProps) => {
   const theme = useTheme()
 
   return (
@@ -307,6 +297,18 @@ const PoolChartEmptyState = ({
     </PoolChartStateLayout>
   )
 }
+
+type PoolChartStateProps = PropsWithChildren<{
+  emptyMessage?: string
+  errorMessage?: string
+  exclusiveType?: 'earning-chart' | 'liquidity-flow'
+  height?: number
+  isEmpty?: boolean
+  isError?: boolean
+  isFetching?: boolean
+  isLoading?: boolean
+  skeletonType?: PoolChartSkeletonType
+}>
 
 const PoolChartState = ({
   children,
@@ -340,20 +342,9 @@ const PoolChartState = ({
     return <PoolChartEmptyState height={height} message={emptyMessage} showIcon />
   }
 
-  const content = isFetching ? (
-    <div className="relative w-full">
-      {children}
-      <ChartFetchingOverlay>
-        <ProgressBar loading height="3px" width="100%" />
-      </ChartFetchingOverlay>
-    </div>
-  ) : (
-    children
-  )
-
   return (
     <PoolChartRenderBoundary fallback={error => <PoolChartEmptyState height={height} message={error.message} />}>
-      {content}
+      <ChartFetchingContent isFetching={isFetching}>{children}</ChartFetchingContent>
     </PoolChartRenderBoundary>
   )
 }

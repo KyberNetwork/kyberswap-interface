@@ -1,4 +1,3 @@
-import dayjs from 'dayjs'
 import {
   CrosshairMode,
   LineStyle,
@@ -9,7 +8,8 @@ import {
 } from 'lightweight-charts'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useMedia } from 'react-use'
-import { type PoolAnalyticsWindow, usePoolPriceQuery } from 'services/zapEarn'
+import { usePoolPriceQuery } from 'services/earn'
+import type { PoolAnalyticsWindow } from 'services/earn/types'
 
 import { ReactComponent as RevertPriceIcon } from 'assets/svg/earn/ic_revert_price.svg'
 import SegmentedControl from 'components/SegmentedControl'
@@ -19,9 +19,11 @@ import TokenLogo from 'components/TokenLogo'
 import useTheme from 'hooks/useTheme'
 import {
   CHART_WINDOW_OPTIONS,
+  TimeLabelFormat,
   formatAxisTimeLabel,
   formatRate,
   formatSignedPercent,
+  formatTooltipTimeLabel,
 } from 'pages/Earns/PoolDetail/Information/utils'
 import PoolChartState, { PoolChartWrapper } from 'pages/Earns/PoolDetail/components/PoolChartState'
 import { usePoolDetailContext } from 'pages/Earns/PoolDetail/context'
@@ -48,9 +50,6 @@ type TooltipState = {
 }
 
 const invertPrice = (value: number) => (value === 0 ? 0 : 1 / value)
-
-const formatTooltipDate = (timestamp: number, window: PoolAnalyticsWindow) =>
-  dayjs.unix(timestamp).format(window === '30d' ? 'MMM D, YYYY' : 'MMM D, YYYY, HH:mm')
 
 const scheduleAfterNextPaint = (callback: () => void) => {
   let frameId = 0
@@ -86,6 +85,11 @@ const getUnixTimestampFromChartTime = (time: Time) => {
   return Math.floor(Date.UTC(time.year, time.month - 1, time.day) / 1000)
 }
 
+// Axis labels carry subscript digits (0.0₅28…) and Work Sans has no glyph for them, so the chart needs
+// the same symbol face the DOM uses — canvas text resolves its own font list, not the CSS stack.
+const SYMBOL_FONT = 'Inter Symbols'
+const CHART_FONT_FAMILY = `'Work Sans', '${SYMBOL_FONT}', sans-serif`
+
 const getChartOptions = ({
   chartHeight,
   crosshairColor,
@@ -102,7 +106,7 @@ const getChartOptions = ({
   height: chartHeight,
   layout: {
     background: { color: 'transparent' },
-    fontFamily: "'Work Sans', 'Inter', sans-serif",
+    fontFamily: CHART_FONT_FAMILY,
     textColor: subTextColor,
   },
   grid: {
@@ -217,7 +221,9 @@ const PriceChartTooltip = ({ tooltip, window }: { tooltip: TooltipState; window:
       className="pointer-events-none absolute z-[2] min-w-[220px] gap-3 rounded-xl border border-border bg-tableHeader/80 px-4 py-3"
       style={{ left, top, boxShadow: `0 12px 32px ${theme.shadow}` }}
     >
-      <span className="text-xs text-subText">{formatTooltipDate(candle.time, window)}</span>
+      <span className="text-xs text-subText">
+        {formatTooltipTimeLabel(candle.time, window, { format: TimeLabelFormat.DateTime })}
+      </span>
 
       <div className="grid grid-cols-[auto_auto] gap-x-4 gap-y-2">
         <span className="text-xs text-subText">Open</span>
@@ -284,12 +290,14 @@ const PoolPriceChart = ({ chainId, poolAddress }: PoolPriceChartProps) => {
   const {
     data: priceData,
     isError,
+    isFetching,
     isLoading,
   } = usePoolPriceQuery({
     chainId,
     address: poolAddress,
     window,
   })
+  const displayWindow = priceData?.window ?? window
 
   const displayedToken0 = revertPrice ? secondaryToken : primaryToken
   const displayedToken1 = revertPrice ? primaryToken : secondaryToken
@@ -319,9 +327,9 @@ const PoolPriceChart = ({ chainId, poolAddress }: PoolPriceChartProps) => {
         crosshairColor,
         gridColor,
         subTextColor,
-        window,
+        window: displayWindow,
       }),
-    [chartHeight, crosshairColor, gridColor, subTextColor, window],
+    [chartHeight, crosshairColor, displayWindow, gridColor, subTextColor],
   )
   const candlestickSeriesOptions = useMemo(
     () =>
@@ -468,6 +476,21 @@ const PoolPriceChart = ({ chainId, poolAddress }: PoolPriceChartProps) => {
     candlestickSeriesRef.current?.applyOptions(candlestickSeriesOptions)
   }, [candlestickSeriesOptions, chartOptions])
 
+  // Drawing to a canvas neither pulls a webfont in nor repaints once one arrives, so request the symbol
+  // face directly and redraw when it lands. Without this the labels can keep the system fallback's
+  // subscript digits, which sit below the baseline at a fraction of the size.
+  useEffect(() => {
+    let cancelled = false
+
+    document.fonts.load(`12px '${SYMBOL_FONT}'`, '₀').then(() => {
+      if (!cancelled) chartRef.current?.applyOptions(chartOptions)
+    })
+
+    return () => {
+      cancelled = true
+    }
+  }, [chartOptions])
+
   useEffect(() => {
     if (!chartRef.current || !candlestickSeriesRef.current || !volumeSeriesRef.current) return
 
@@ -485,7 +508,7 @@ const PoolPriceChart = ({ chainId, poolAddress }: PoolPriceChartProps) => {
     return scheduleAfterNextPaint(() => {
       chartRef.current?.timeScale().fitContent()
     })
-  }, [chartData, volumeDownColor, volumeUpColor, window])
+  }, [chartData, displayWindow, volumeDownColor, volumeUpColor])
 
   return (
     <Stack className="gap-4">
@@ -535,13 +558,14 @@ const PoolPriceChart = ({ chainId, poolAddress }: PoolPriceChartProps) => {
         height={chartHeight}
         isEmpty={!chartData.length}
         isError={isError}
+        isFetching={isFetching}
         isLoading={isLoading}
         skeletonType="candle"
       >
         <div className="relative w-full" style={{ height: chartHeight }}>
-          {tooltip ? <PriceChartTooltip tooltip={tooltip} window={window} /> : null}
+          {tooltip ? <PriceChartTooltip tooltip={tooltip} window={displayWindow} /> : null}
           <div className="box-border size-full pb-6 pl-6 pr-3">
-            <PoolChartWrapper $height={chartHeight - 12} ref={chartContainerRef} />
+            <PoolChartWrapper height={chartHeight - 12} ref={chartContainerRef} />
           </div>
         </div>
       </PoolChartState>

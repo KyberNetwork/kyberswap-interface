@@ -12,7 +12,7 @@ import SubscribeNotificationButton from 'components/SubscribeButton'
 import Toggle from 'components/Toggle'
 import Tutorial, { TutorialType } from 'components/Tutorial'
 import { APP_PATHS } from 'constants/index'
-import { VERSION } from 'constants/v2'
+import { LEGACY_POOL_VERSION } from 'constants/legacyPools'
 import { useActiveWeb3React } from 'hooks'
 import useDebounce from 'hooks/useDebounce'
 import useParsedQueryString from 'hooks/useParsedQueryString'
@@ -64,7 +64,7 @@ export default function ProAmmPool() {
   )
   const {
     search: searchValueInQs = '',
-    tab = VERSION.ELASTIC,
+    tab = LEGACY_POOL_VERSION.ELASTIC,
     nftId,
   } = useParsedQueryString<{
     search: string

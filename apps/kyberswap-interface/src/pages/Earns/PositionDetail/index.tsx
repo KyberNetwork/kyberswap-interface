@@ -5,16 +5,16 @@ import { readContract } from '@wagmi/core'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Share2 } from 'react-feather'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
+import { useUserPositionsQuery } from 'services/earn'
 import { useGetSmartExitOrdersQuery } from 'services/smartExit'
-import { useUserPositionsQuery } from 'services/zapEarn'
 
 import { ReactComponent as IconEarnNotFound } from 'assets/svg/earn/ic_earn_not_found.svg'
 import { ReactComponent as IconUserEarnPosition } from 'assets/svg/earn/ic_user_earn_position.svg'
 import { ReactComponent as RocketIcon } from 'assets/svg/rocket.svg'
+import { ListingPageNavigateButton, ListingPageWrapper } from 'components/Listing/Page'
 import { wagmiConfig } from 'components/Web3Provider'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
-import { NavigateButton } from 'pages/Earns/PoolExplorer/styles'
 import PositionDetailHeader from 'pages/Earns/PositionDetail/Header'
 import LeftSection from 'pages/Earns/PositionDetail/LeftSection'
 import { PositionDetailProvider } from 'pages/Earns/PositionDetail/PositionDetailContext'
@@ -25,13 +25,14 @@ import {
   ShareButtonWrapper,
 } from 'pages/Earns/PositionDetail/styles'
 import MigrationModal from 'pages/Earns/UserPositions/MigrationModal'
-import { EmptyPositionText, PositionPageWrapper } from 'pages/Earns/UserPositions/styles'
+import { EmptyPositionText } from 'pages/Earns/UserPositions/styles'
 import { EARN_DEXES, Exchange } from 'pages/Earns/constants'
 import { CoreProtocol } from 'pages/Earns/constants/coreProtocol'
 import useClosedPositions, { CheckClosedPositionParams } from 'pages/Earns/hooks/useClosedPositions'
 import useFarmingStablePools from 'pages/Earns/hooks/useFarmingStablePools'
 import useForceLoading from 'pages/Earns/hooks/useForceLoading'
 import useKemRewards from 'pages/Earns/hooks/useKemRewards'
+import useMerklRewards from 'pages/Earns/hooks/useMerklRewards'
 import useReduceFetchInterval from 'pages/Earns/hooks/useReduceFetchInterval'
 import useZapMigrationWidget from 'pages/Earns/hooks/useZapMigrationWidget'
 import { FeeInfo, OrderStatus, PAIR_CATEGORY, ParsedPosition, PositionStatus, SuggestedPool } from 'pages/Earns/types'
@@ -133,6 +134,14 @@ const PositionDetail = () => {
   }, [account, feeInfoFromRpc, userPositions, rewardInfoThisPosition, closedPositionsFromRpc, positionId])
 
   const farmingPoolsByChain = useFarmingStablePools({ chainIds: position ? [position.chain.id] : [] })
+
+  const { rewardsByPosition: merklRewardsByPosition } = useMerklRewards({
+    positions: position ? [position] : undefined,
+  })
+  // Merkl bonus (claimed + claimable) so the shared Total Earnings matches the reward card and the
+  // shared APR, which already folds in `bonusApr`.
+  const merklPositionRewards = position ? merklRewardsByPosition[position.positionId] : undefined
+  const merklEarningsUsd = (merklPositionRewards?.claimedUsdValue || 0) + (merklPositionRewards?.totalUsdValue || 0)
 
   const positionRef = useRef(position)
   positionRef.current = position
@@ -298,12 +307,16 @@ const PositionDetail = () => {
         <IconEarnNotFound />
         <span>{t`No position found!`}</span>
         <div className="mt-3 flex gap-2">
-          <NavigateButton
+          <ListingPageNavigateButton
             icon={<RocketIcon width={20} height={20} />}
             text={t`Explorer Pools`}
             to={APP_PATHS.EARN_POOLS}
           />
-          <NavigateButton icon={<IconUserEarnPosition />} text={t`My Positions`} to={APP_PATHS.EARN_POSITIONS} />
+          <ListingPageNavigateButton
+            icon={<IconUserEarnPosition />}
+            text={t`My Positions`}
+            to={APP_PATHS.EARN_POSITIONS}
+          />
         </div>
       </EmptyPositionText>
     ),
@@ -343,7 +356,7 @@ const PositionDetail = () => {
                 lm: position.kemLMApr[aprInterval],
               },
               createdTime: position.createdTime,
-              totalEarnings: position.rewards.totalUsdValue + position.earning.earned,
+              totalEarnings: position.rewards.totalUsdValue + position.earning.earned + merklEarningsUsd,
             },
           })
         }}
@@ -351,7 +364,7 @@ const PositionDetail = () => {
         <Share2 size={size || 16} className="text-primary" />
       </ShareButtonWrapper>
     ),
-    [position, aprInterval],
+    [position, aprInterval, merklEarningsUsd],
   )
 
   const shareModal = shareInfo ? <ShareModal {...shareInfo} /> : null
@@ -417,7 +430,7 @@ const PositionDetail = () => {
       {migrationModal}
 
       <PositionDetailProvider value={contextValue}>
-        <PositionPageWrapper>
+        <ListingPageWrapper>
           {!!position || initialLoading ? (
             <>
               <PositionDetailHeader />
@@ -458,7 +471,7 @@ const PositionDetail = () => {
           ) : (
             emptyPosition
           )}
-        </PositionPageWrapper>
+        </ListingPageWrapper>
       </PositionDetailProvider>
     </>
   )

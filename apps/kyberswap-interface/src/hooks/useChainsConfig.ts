@@ -12,10 +12,12 @@ export enum ChainState {
   MAINTENANCE = 'maintained',
 }
 
-export type ChainStateMap = { [chain in ChainId]: ChainState }
+export type ChainStateMap = {
+  [chain in ChainId]: ChainState
+}
 
 const cacheInfo: { [chain: string]: NetworkInfo } = {}
-// todo danh, when chain setting from admin ready, update all place use this
+
 export const NETWORKS_INFO = new Proxy(NETWORKS_INFO_HARDCODE, {
   get(target, p) {
     const prop = p as any as ChainId
@@ -31,7 +33,6 @@ export default function useChainsConfig() {
 
   return useMemo(() => {
     const hasBeConfig = !!data
-    // const chains: NetworkInfo[] = (data || defaultData).map(chain => {
     const chains: NetworkInfo[] = defaultData.map(chain => {
       const chainId = +chain.chainId as ChainId
       const chainState = hasBeConfig ? globalConfig?.chainStates?.[chainId] : ChainState.ACTIVE
@@ -46,9 +47,9 @@ export default function useChainsConfig() {
     })
 
     return {
-      activeChains: chains.filter(e => [ChainState.ACTIVE, ChainState.NEW].includes(e.state)),
-      supportedChains: chains.filter(e =>
-        [ChainState.ACTIVE, ChainState.NEW, ChainState.MAINTENANCE].includes(e.state),
+      activeChains: chains.filter(chain => [ChainState.ACTIVE, ChainState.NEW].includes(chain.state)),
+      supportedChains: chains.filter(chain =>
+        [ChainState.ACTIVE, ChainState.NEW, ChainState.MAINTENANCE].includes(chain.state),
       ),
       allChains: chains,
     }

@@ -10,6 +10,7 @@ import coingeckoApi from 'services/coingecko'
 import commonServiceApi from 'services/commonService'
 import contractQuery from 'services/contractQuery'
 import crosschainApi from 'services/crossChain'
+import earnServiceApi from 'services/earn'
 import externalApi from 'services/externalApi'
 import geckoTerminalApi from 'services/geckoTermial'
 import identifyApi from 'services/identity'
@@ -17,10 +18,10 @@ import ksSettingApi from 'services/ksSetting'
 import kyberDAO from 'services/kyberDAO'
 import kyberdataServiceApi from 'services/kyberdata'
 import limitOrderApi from 'services/limitOrder'
-import marketOverviewApi from 'services/marketOverview'
 import notificationApi from 'services/notification'
 import priceAlertApi from 'services/priceAlert'
 import referralApi from 'services/referral'
+import restrictedTokensApi from 'services/restrictedTokens'
 import rewardServiceApi from 'services/reward'
 import rewardMerklApi from 'services/rewardMerkl'
 import routeApi from 'services/route'
@@ -28,9 +29,9 @@ import smartExitApi from 'services/smartExit'
 import socialApi from 'services/social'
 import tipLinkApi from 'services/tipLink'
 import tokenApi from 'services/token'
+import tokenCatalogApi from 'services/tokenCatalog'
 import tokenChartApi from 'services/tokenChart'
 import zapApi from 'services/zap'
-import zapEarnServiceApi from 'services/zapEarn'
 
 import application from 'state/application/reducer'
 import authen from 'state/authen/reducer'
@@ -39,7 +40,6 @@ import burn from 'state/burn/reducer'
 import crossChainSwap from 'state/crossChainSwap'
 import customizeDexes from 'state/customizeDexes'
 import { updateVersion } from 'state/global/actions'
-import limit from 'state/limit/reducer'
 import lists from 'state/lists/reducer'
 import mintV2 from 'state/mint/proamm/reducer'
 import mint from 'state/mint/reducer'
@@ -58,7 +58,7 @@ const PERSISTED_KEYS: string[] = ['user', 'transactions', 'profile', 'crossChain
 // Client-only: read persisted state from localStorage and migrate from old version to
 // new version, preventing lost favorite tokens of user. Returns {} under SSR/prerender.
 function getClientPreloadedState(): Partial<AppState> {
-  if (typeof window === 'undefined') return {}
+  if (import.meta.env.SSR || typeof window === 'undefined') return {}
   const preloadedState: any = load({ states: PERSISTED_KEYS })
   if ('user' in preloadedState) {
     const userState: UserState = preloadedState.user
@@ -87,7 +87,6 @@ const rootReducer = combineReducers({
   transactions,
   crossChainSwap,
   swap,
-  limit,
   mint,
   mintV2,
   burn,
@@ -118,7 +117,7 @@ const rootReducer = combineReducers({
   [zapApi.reducerPath]: zapApi.reducer,
   [routeApi.reducerPath]: routeApi.reducer,
   [tokenApi.reducerPath]: tokenApi.reducer,
-  [zapEarnServiceApi.reducerPath]: zapEarnServiceApi.reducer,
+  [earnServiceApi.reducerPath]: earnServiceApi.reducer,
   [rewardServiceApi.reducerPath]: rewardServiceApi.reducer,
   [rewardMerklApi.reducerPath]: rewardMerklApi.reducer,
   [kyberdataServiceApi.reducerPath]: kyberdataServiceApi.reducer,
@@ -128,10 +127,11 @@ const rootReducer = combineReducers({
   [campaignApi.reducerPath]: campaignApi.reducer,
   [commonServiceApi.reducerPath]: commonServiceApi.reducer,
   [blackjackApi.reducerPath]: blackjackApi.reducer,
-  [marketOverviewApi.reducerPath]: marketOverviewApi.reducer,
   [smartExitApi.reducerPath]: smartExitApi.reducer,
   [tipLinkApi.reducerPath]: tipLinkApi.reducer,
+  [tokenCatalogApi.reducerPath]: tokenCatalogApi.reducer,
   [tokenChartApi.reducerPath]: tokenChartApi.reducer,
+  [restrictedTokensApi.reducerPath]: restrictedTokensApi.reducer,
 })
 
 export type AppState = ReturnType<typeof rootReducer>
@@ -155,7 +155,7 @@ const apiMiddlewares: Middleware[] = [
   socialApi,
   tokenApi,
   zapApi,
-  zapEarnServiceApi,
+  earnServiceApi,
   rewardServiceApi,
   rewardMerklApi,
   kyberdataServiceApi,
@@ -165,10 +165,11 @@ const apiMiddlewares: Middleware[] = [
   campaignApi,
   commonServiceApi,
   blackjackApi,
-  marketOverviewApi,
   smartExitApi,
   tipLinkApi,
+  tokenCatalogApi,
   tokenChartApi,
+  restrictedTokensApi,
 ].map(api => api.middleware as Middleware)
 
 export const makeStore = (preloadedState?: Partial<AppState>) =>
@@ -225,7 +226,7 @@ export const getClientStore = (): AppStore => {
 }
 
 // Default export: lazy client singleton in the browser; a fresh empty store under Node (prerender).
-const store: AppStore = typeof window !== 'undefined' ? getClientStore() : makeStore()
+const store: AppStore = !import.meta.env.SSR && typeof window !== 'undefined' ? getClientStore() : makeStore()
 export default store
 
 /**

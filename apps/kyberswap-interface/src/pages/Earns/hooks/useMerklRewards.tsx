@@ -4,11 +4,12 @@ import { useLazySearchTokensBySymbolQuery } from 'services/ksSetting'
 import { useGetMerklChainsQuery, useMerklRewardsQuery } from 'services/rewardMerkl'
 
 import { useActiveWeb3React } from 'hooks'
-import { fetchListTokenByAddresses } from 'hooks/Tokens'
 import useChainsConfig from 'hooks/useChainsConfig'
+import { fetchListTokenByAddresses } from 'hooks/useTokens'
 import useFilter from 'pages/Earns/UserPositions/useFilter'
 import { EarnChain } from 'pages/Earns/constants'
 import { ChainRewardInfo, ParsedPosition, TokenRewardInfo } from 'pages/Earns/types'
+import { isMerklReasonForPosition, parseMerklReason } from 'pages/Earns/utils/merkl'
 import uriToHttp from 'utils/uriToHttp'
 
 const EARN_CHAIN_IDS = new Set<number>(Object.values(EarnChain).filter((v): v is number => typeof v === 'number'))
@@ -61,21 +62,27 @@ const useMerklRewards = (options?: UseMerklRewardsProps) => {
     [positionsKey],
   )
 
+  // Consumers that pass a `positions` key are scoped to those positions, so the positions-list
+  // chain filter must not narrow their Merkl query: a position's bonus can be distributed on a
+  // chain other than the one the position lives on, and a filter set to the position's chain
+  // would drop that bonus from the response entirely. Keyed on the presence of the option rather
+  // than its value so the query args stay stable while the positions are still loading.
+  const isPositionScoped = !!options && 'positions' in options
+  const chainIdsToQuery = isPositionScoped ? merklEnabledChainIds : filters.chainIds || merklEnabledChainIds
+
   const resolvePositionsForBreakdown = useCallback(
     (reason: string) => {
       if (!positionsFilter?.length) return []
-      const [_, reasonPoolAddress, reasonTokenId] = reason.toLowerCase().split('_')
+      const { poolAddress: reasonPoolAddress, tokenId: reasonTokenId } = parseMerklReason(reason)
 
       return positionsFilter.filter(position => {
+        if (reasonTokenId) return isMerklReasonForPosition(reason, position)
+
+        // Only fall back to pool match when the reason lacks position id info, and only for a
+        // single position in scope — otherwise the pool's reward would be counted in full on
+        // every sibling position sharing that pool.
         const poolAddress = position.pool.address?.toLowerCase()
-        const positionTokenId = position.tokenId?.toLowerCase()
-
-        const matchByPositionId = reasonTokenId && reasonTokenId === positionTokenId
-        if (matchByPositionId) return true
-
-        // Only fall back to pool match when the reason lacks position id info
-        const matchByPool = poolAddress && reasonPoolAddress === poolAddress
-        return !reasonTokenId && matchByPool && positionsFilter.length === 1
+        return !!poolAddress && reasonPoolAddress === poolAddress && positionsFilter.length === 1
       })
     },
     [positionsFilter],
@@ -88,7 +95,7 @@ const useMerklRewards = (options?: UseMerklRewardsProps) => {
   } = useMerklRewardsQuery(
     {
       address: account || '',
-      chainId: filters.chainIds || merklEnabledChainIds,
+      chainId: chainIdsToQuery,
     },
     // Wait for the Merkl chains list to resolve so the very first call to /rewards already
     // has the right chainIds.
@@ -100,11 +107,14 @@ const useMerklRewards = (options?: UseMerklRewardsProps) => {
     rewardsByPosition,
   }: {
     baseRewards: TokenRewardInfo[]
-    rewardsByPosition: Record<string, { rewards: TokenRewardInfo[]; totalUsdValue: number }>
+    rewardsByPosition: Record<string, { rewards: TokenRewardInfo[]; totalUsdValue: number; claimedUsdValue: number }>
   } = useMemo(() => {
     if (!data) return { baseRewards: [], rewardsByPosition: {} }
 
     const perPositionRewards: Record<string, Record<string, TokenRewardInfo>> = {}
+    // USD already claimed on Merkl per position, tracked alongside `perPositionRewards` so the
+    // position card's "Claimed" row can reflect Merkl bonus, not just KEM farming rewards.
+    const perPositionClaimedUsd: Record<string, number> = {}
 
     const calculatedRewards = data.flatMap(chainRewards =>
       (chainRewards.rewards || []).map(reward => {
@@ -190,6 +200,8 @@ const useMerklRewards = (options?: UseMerklRewardsProps) => {
 
               perPositionRewards[key] = perPositionRewards[key] || {}
               perPositionRewards[key][tokenKey] = next
+              perPositionClaimedUsd[key] =
+                (perPositionClaimedUsd[key] || 0) + breakdownClaimedAmount * reward.token.price
             })
           })
         }
@@ -212,12 +224,16 @@ const useMerklRewards = (options?: UseMerklRewardsProps) => {
       })
 
     const baseRewards = Object.values(mergedByToken)
-    const mappedRewardsByPosition: Record<string, { rewards: TokenRewardInfo[]; totalUsdValue: number }> = {}
+    const mappedRewardsByPosition: Record<
+      string,
+      { rewards: TokenRewardInfo[]; totalUsdValue: number; claimedUsdValue: number }
+    > = {}
     Object.entries(perPositionRewards).forEach(([positionId, tokens]) => {
       const rewardsList = Object.values(tokens)
       mappedRewardsByPosition[positionId] = {
         rewards: rewardsList,
         totalUsdValue: rewardsList.reduce((sum, reward) => sum + reward.claimableUsdValue, 0),
+        claimedUsdValue: perPositionClaimedUsd[positionId] || 0,
       }
     })
 
@@ -377,12 +393,15 @@ const useMerklRewards = (options?: UseMerklRewardsProps) => {
     })
   }, [baseRewardsForReturn, tokenLogos])
 
-  const parsedRewardsByPosition = useMemo<Record<string, { rewards: TokenRewardInfo[]; totalUsdValue: number }>>(() => {
+  const parsedRewardsByPosition = useMemo<
+    Record<string, { rewards: TokenRewardInfo[]; totalUsdValue: number; claimedUsdValue: number }>
+  >(() => {
     if (!Object.keys(rewardsByPosition).length) return {}
-    const result: Record<string, { rewards: TokenRewardInfo[]; totalUsdValue: number }> = {}
+    const result: Record<string, { rewards: TokenRewardInfo[]; totalUsdValue: number; claimedUsdValue: number }> = {}
     Object.entries(rewardsByPosition).forEach(([positionId, value]) => {
       result[positionId] = {
         totalUsdValue: value.totalUsdValue,
+        claimedUsdValue: value.claimedUsdValue,
         rewards: value.rewards.map(reward => {
           const logoKey = `${reward.chainId}-${reward.address.toLowerCase()}`
           return {

@@ -32,7 +32,7 @@ export const Badge = ({
 }: React.HTMLAttributes<HTMLDivElement> & { isOverflow: boolean }) => (
   <div
     className={cn(
-      'absolute -top-1.5 z-[1] inline-flex h-5 min-w-[20px] items-center justify-center rounded-2xl bg-primary px-1 text-center font-medium leading-none',
+      'absolute -top-1.5 z-[1] inline-flex h-5 min-w-5 items-center justify-center rounded-2xl bg-primary px-1 text-center text-sm font-semibold',
       isOverflow ? '-right-4' : '-right-2.5',
       className,
     )}
@@ -111,7 +111,7 @@ export const HeaderTitle = ({ children, className, ...rest }: React.HTMLAttribut
 export const HeaderAction = ({ children, className, ...rest }: React.ButtonHTMLAttributes<HTMLButtonElement>) => (
   <button
     className={cn(
-      'inline-flex cursor-pointer gap-1 border-0 bg-transparent text-primary disabled:cursor-not-allowed disabled:opacity-60',
+      'inline-flex cursor-pointer items-center gap-1 border-0 bg-transparent text-primary disabled:cursor-not-allowed disabled:opacity-60',
       className,
     )}
     {...rest}

@@ -1,13 +1,12 @@
 import { Trans } from '@lingui/macro'
 import React, { useMemo, useState } from 'react'
-import { isMobile } from 'react-device-detect'
 import { Info } from 'react-feather'
 
 import FAQIcon from 'components/Icons/FAQIcon'
 import ForumIcon from 'components/Icons/ForumIcon'
 import History from 'components/Icons/History'
 import AnimateLoader from 'components/Loader/AnimatedLoader'
-import { RowBetween, RowFit } from 'components/Row'
+import { Center, HStack, Stack } from 'components/Stack'
 import { useActiveWeb3React } from 'hooks'
 import { useVotingInfo } from 'hooks/kyberdao'
 import { ProposalDetail, ProposalStatus } from 'hooks/kyberdao/types'
@@ -15,11 +14,9 @@ import YourTransactionsModal from 'pages/KyberDAO/StakeKNC/YourTransactionsModal
 import ProposalItem from 'pages/KyberDAO/Vote/ProposalItem'
 import SearchProposal from 'pages/KyberDAO/Vote/SearchProposal'
 import SelectProposalStatus from 'pages/KyberDAO/Vote/SelectProposalStatus'
+import { KyberDAOSectionTitle } from 'pages/KyberDAO/common'
 import { ApplicationModal } from 'state/application/actions'
 import { useToggleModal } from 'state/application/hooks'
-import { cn } from 'utils/cn'
-
-const TEXT_BUTTON_CLASS = 'flex cursor-pointer items-center gap-1 text-sm text-subText hover:!brightness-125'
 
 function ProposalListComponent({
   voteCallback,
@@ -53,26 +50,31 @@ function ProposalListComponent({
   const toggleYourTransactions = useToggleModal(ApplicationModal.YOUR_TRANSACTIONS_STAKE_KNC)
 
   return (
-    <div className="mt-2.5 flex flex-col items-stretch gap-3">
-      <RowBetween className="mb-2.5">
-        <div className="flex">
-          <span className="text-xl text-primary">
-            <Trans>KIPs</Trans>
-          </span>
-        </div>
-        <div className="flex gap-[30px]">
+    <Stack className="items-stretch gap-4">
+      <HStack className="items-center justify-between gap-4">
+        <KyberDAOSectionTitle className="text-primary">
+          <Trans>KIPs</Trans>
+        </KyberDAOSectionTitle>
+        <HStack className="gap-8">
           {account && (
-            <RowFit onClick={toggleYourTransactions} className={cn(TEXT_BUTTON_CLASS, 'justify-end')}>
+            <button
+              onClick={toggleYourTransactions}
+              className="flex cursor-pointer items-center gap-2 border-none bg-transparent text-sm text-subText hover:brightness-125"
+            >
               <History />
-              <span className="text-sm" hidden={isMobile}>
-                {' '}
+              <span className="max-sm:hidden">
                 <Trans>History</Trans>
               </span>
-            </RowFit>
+            </button>
           )}
-          <a href="https://gov.kyber.org/" target="_blank" rel="noreferrer" className={TEXT_BUTTON_CLASS}>
-            <ForumIcon />{' '}
-            <span hidden={isMobile}>
+          <a
+            href="https://gov.kyber.org/"
+            target="_blank"
+            rel="noreferrer"
+            className="flex items-center gap-2 text-sm text-subText hover:brightness-125"
+          >
+            <ForumIcon />
+            <span className="max-sm:hidden">
               <Trans>Forum</Trans>
             </span>
           </a>
@@ -80,47 +82,46 @@ function ProposalListComponent({
             href="https://docs.kyberswap.com/kyber-dao/kyber-dao-introduction"
             target="_blank"
             rel="noreferrer"
-            className={TEXT_BUTTON_CLASS}
+            className="flex items-center gap-2 text-sm text-subText hover:brightness-125"
           >
             <FAQIcon />
-            <span hidden={isMobile}>
+            <span className="max-sm:hidden">
               <Trans>FAQ</Trans>
             </span>
           </a>
-        </div>
-      </RowBetween>
-      <RowBetween>
+        </HStack>
+      </HStack>
+      <HStack className="items-center justify-between gap-4 max-sm:flex-col">
         <SelectProposalStatus status={status} setStatus={setStatus} />
         <SearchProposal search={search} setSearch={setSearch} />
-      </RowBetween>
+      </HStack>
       {proposals ? (
         filteredProposals.length > 0 ? (
-          filteredProposals.map((p: ProposalDetail, index: number) => {
+          filteredProposals.map((p: ProposalDetail) => {
             return (
               <ProposalItem
                 key={p.proposal_id.toString()}
                 proposal={p}
-                showByDefault={index === 0}
                 onBadgeClick={setStatus}
                 voteCallback={voteCallback}
               />
             )
           })
         ) : (
-          <div className="flex h-[200px] flex-col items-center justify-center gap-3 text-subText">
+          <Center className="h-52 gap-4 text-subText">
             <Info size={24} className="text-subText" />
             <span className="text-subText">
               <Trans>No proposal found</Trans>
             </span>
-          </div>
+          </Center>
         )
       ) : (
-        <div className="flex h-[200px] flex-col items-center justify-center gap-3 text-subText">
+        <Center className="h-52 gap-4 text-subText">
           <AnimateLoader />
-        </div>
+        </Center>
       )}
       <YourTransactionsModal />
-    </div>
+    </Stack>
   )
 }
 

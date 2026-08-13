@@ -4,12 +4,13 @@ import { ChevronDown, ChevronUp } from 'react-feather'
 import { formatUnits } from 'viem'
 
 import { Chain, SwapProvider } from 'pages/CrossChainSwap/adapters'
+import { isEvmChain } from 'pages/CrossChainSwap/adapters/types'
 import { registry } from 'pages/CrossChainSwap/hooks/useCrossChainSwap'
 import { Quote } from 'pages/CrossChainSwap/registry'
 import { getNetworkInfo } from 'pages/CrossChainSwap/utils'
-import { getNativeTokenLogo, getTokenLogoURL, isEvmChain } from 'utils'
 import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
+import { getNativeTokenLogo, getTokenLogoURL } from 'utils/tokenLogo'
 
 type KyberAcrossBridgeToken = {
   address: string
@@ -262,7 +263,13 @@ const QuoteStepCard = ({ step, stepToken, quoteSlippage, bridgeFeePct }: QuoteSt
   )
 }
 
-export default function QuoteSteps({ quote }: { quote?: Quote | null }) {
+type QuoteStepsProps = {
+  quote?: Quote | null
+  className?: string
+  visible?: boolean
+}
+
+const QuoteSteps = ({ quote, className, visible = true }: QuoteStepsProps) => {
   const rawQuote = quote?.quote?.rawQuote as KyberAcrossRawQuote | undefined
 
   const quoteSteps = useMemo((): QuoteStep[] => {
@@ -285,7 +292,7 @@ export default function QuoteSteps({ quote }: { quote?: Quote | null }) {
       .filter(step => !!step.adapter)
   }, [rawQuote])
 
-  if (quoteSteps.length === 0) return null
+  if (!visible || quoteSteps.length === 0) return null
 
   const quoteParams = quote?.quote?.quoteParams
   const quoteFromToken = getTokenInfoFromCurrency(quoteParams?.fromToken)
@@ -293,7 +300,7 @@ export default function QuoteSteps({ quote }: { quote?: Quote | null }) {
   const inputAmount = formatTokenAmount(quoteParams?.amount, quoteFromToken?.decimals)
 
   return (
-    <div className="mb-3 flex flex-wrap items-start justify-between gap-3 px-2 max-sm:flex-col">
+    <div className={cn('flex flex-wrap items-start justify-between gap-3 px-2 max-sm:flex-col', className)}>
       <QuoteTokenNode token={quoteFromToken} amount={inputAmount} />
       {quoteSteps.map((step, index) => {
         const isLastStep = index === quoteSteps.length - 1
@@ -325,3 +332,5 @@ export default function QuoteSteps({ quote }: { quote?: Quote | null }) {
     </div>
   )
 }
+
+export default QuoteSteps

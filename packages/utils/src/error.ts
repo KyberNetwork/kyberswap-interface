@@ -50,6 +50,73 @@ function capitalizeFirstLetter(str?: string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
+// Standard Solidity `Error(string)` revert selector: keccak256("Error(string)")[:4].
+const ERROR_STRING_SELECTOR = '08c379a0';
+
+// JSON-RPC error code geth/EIP-1474 returns for `execution reverted`.
+const EXECUTION_REVERTED_CODE = 3;
+
+// Recursively pull the first revert-data hex blob out of a JSON-RPC error's
+// `data` field. Providers nest it differently: a bare `0x…` string, `{ data }`,
+// or `{ originalError: { data } }`.
+function findRevertHex(data: unknown, depth = 0): string | undefined {
+  if (depth > 4 || data == null) return undefined;
+  if (typeof data === 'string') {
+    return /^0x[0-9a-f]{8,}$/i.test(data) ? data : undefined;
+  }
+  if (typeof data === 'object') {
+    const obj = data as Record<string, unknown>;
+    for (const key of ['data', 'originalError', 'error', 'cause']) {
+      const found = findRevertHex(obj[key], depth + 1);
+      if (found) return found;
+    }
+  }
+  return undefined;
+}
+
+// Decode a standard `Error(string)` revert payload into its reason text. Returns
+// undefined for empty data, custom errors, or Panic(uint256) — those carry no
+// human-readable string to surface.
+function decodeErrorString(hex: string): string | undefined {
+  const body = hex.slice(2).toLowerCase();
+  if (!body.startsWith(ERROR_STRING_SELECTOR)) return undefined;
+  try {
+    const args = body.slice(8);
+    const length = parseInt(args.slice(64, 128), 16);
+    if (!Number.isFinite(length) || length === 0) return undefined;
+    const strHex = args.slice(128, 128 + length * 2);
+    const bytes = new Uint8Array(length);
+    for (let i = 0; i < length; i++) {
+      bytes[i] = parseInt(strHex.slice(i * 2, i * 2 + 2), 16);
+    }
+    const reason = new TextDecoder().decode(bytes).trim();
+    return reason || undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+// Walk an error and its `cause` chain to recover the structured JSON-RPC revert
+// info the rotating RPC client attaches (code + raw revert data), instead of
+// regex-parsing the already-formatted message string. `execution reverted`
+// surfaces as JSON-RPC error code 3, and the original `RpcError` is nested under
+// `cause` once wrapped in a `TransactionError`.
+function extractRpcRevert(error: unknown): { isRevert: boolean; reason?: string } {
+  let current: unknown = error;
+  let isRevert = false;
+  let reason: string | undefined;
+  for (let depth = 0; current && typeof current === 'object' && depth < 5; depth++) {
+    const e = current as { code?: unknown; data?: unknown; cause?: unknown };
+    if (e.code === EXECUTION_REVERTED_CODE) isRevert = true;
+    if (!reason) {
+      const hex = findRevertHex(e.data);
+      if (hex) reason = decodeErrorString(hex);
+    }
+    current = e.cause;
+  }
+  return { isRevert, reason };
+}
+
 export const ERROR_MESSAGES = {
   REFRESH_AND_RETRY: 'An error occurred. Refresh the page and try again',
   REFRESH_PRICE_OR_SLIPPAGE: 'An error occurred. Try refreshing the price rate or increase max slippage',
@@ -130,6 +197,17 @@ export function friendlyError(error: Error | string): string {
 
   const knownPattern = parseKnownPattern(message);
   if (knownPattern) return knownPattern;
+
+  // Prefer the structured JSON-RPC revert info (code + revert data) the rotating
+  // RPC client attaches over regex-parsing the formatted message. A decoded
+  // reason can still map to a known bucket (e.g. slippage); otherwise an
+  // execution revert at gas estimation is dominated by stale quotes / price
+  // movement, so point the user at refreshing the rate or raising slippage.
+  if (typeof error !== 'string') {
+    const { isRevert, reason } = extractRpcRevert(error);
+    if (reason) return parseKnownPattern(reason) ?? capitalizeFirstLetter(reason);
+    if (isRevert) return ERROR_MESSAGES.REFRESH_PRICE_OR_SLIPPAGE;
+  }
 
   if (message.length < 100) return message;
   const knownRegexPattern = parseKnownRegexPattern(message);

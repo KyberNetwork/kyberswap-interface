@@ -14,14 +14,3 @@ export const LOCALE_INFO = {
 
 export type SupportedLocale = keyof typeof LOCALE_INFO
 export const DEFAULT_LOCALE: SupportedLocale = 'en-US'
-
-export const getLocaleLabel = (locale: SupportedLocale | null, codeOnly = false) => {
-  locale = locale || DEFAULT_LOCALE
-  const { name, flag } = LOCALE_INFO[locale] || LOCALE_INFO[DEFAULT_LOCALE]
-  return (
-    <>
-      <img src={flag} className="w-5 align-middle" /> &nbsp;
-      {codeOnly ? locale?.split('-')?.[0]?.toUpperCase() : name}
-    </>
-  )
-}

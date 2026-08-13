@@ -2,7 +2,7 @@ import { Trans, t } from '@lingui/macro'
 import { useState } from 'react'
 import { ChevronDown } from 'react-feather'
 
-import Input from 'components/NumericalInput'
+import NumericalInput from 'components/NumericalInput'
 import { DropdownIcon } from 'components/SwapForm/SlippageSetting'
 import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
 import { GAS_MULTIPLIER_PRESETS } from 'pages/Earns/components/SmartExit/constants'
@@ -110,7 +110,7 @@ export default function GasSetting({
             key="custom"
             className={cn('flex flex-1 items-center gap-1', customGasPercent && 'text-primary')}
           >
-            <Input
+            <NumericalInput
               value={customGasPercent}
               onUserInput={v => setCustomGasPercent(v)}
               placeholder={t`Custom`}

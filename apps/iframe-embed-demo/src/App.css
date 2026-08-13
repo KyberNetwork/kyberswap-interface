@@ -1,0 +1,24 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* KyberSwap theme tokens the @kyber/tailwind-config preset maps its color utilities onto.
+     They are normally injected by a widget package; this app has none, so define the few it uses. */
+  --ks-lw-accent: #31cb9e;
+  --ks-lw-text: #ffffff;
+  --ks-lw-subText: #a9a9a9;
+}
+
+#root {
+  min-height: 100vh;
+  background:
+    radial-gradient(1100px 420px at 50% -8%, rgba(49, 203, 158, 0.1), transparent 62%),
+    #0f0f0f;
+}
+
+body {
+  margin: 0;
+  font-family: "Geist", sans-serif;
+  color: #fafafa;
+}

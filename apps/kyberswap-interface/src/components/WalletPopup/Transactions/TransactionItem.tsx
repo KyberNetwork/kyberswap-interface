@@ -15,8 +15,8 @@ import PendingWarning from 'components/WalletPopup/Transactions/PendingWarning'
 import PoolFarmLink from 'components/WalletPopup/Transactions/PoolFarmLink'
 import Status from 'components/WalletPopup/Transactions/Status'
 import { isTxsPendingTooLong } from 'components/WalletPopup/Transactions/helper'
-import { CancellingOrderInfo } from 'components/swapv2/LimitOrder/useCancellingOrders'
-import { APP_PATHS, ETHER_ADDRESS } from 'constants/index'
+import { ETHER_ADDRESS } from 'constants/index'
+import { LEGACY_POOL_APP_PATHS } from 'constants/legacyPools'
 import {
   TRANSACTION_TYPE,
   TransactionDetails,
@@ -27,8 +27,9 @@ import {
   TransactionExtraInfoStakeFarm,
 } from 'state/transactions/type'
 import { ExternalLink, ExternalLinkIcon } from 'theme'
-import { getEtherscanLink, getNativeTokenLogo } from 'utils'
 import { cn } from 'utils/cn'
+import { getEtherscanLink } from 'utils/explorer'
+import { getNativeTokenLogo } from 'utils/tokenLogo'
 
 type PrimaryTextProps = React.HTMLAttributes<HTMLSpanElement> & { color?: string }
 
@@ -53,8 +54,16 @@ const Description1Token = (transaction: TransactionDetails) => {
 
 const Description2Token = (transaction: TransactionDetails) => {
   const { extraInfo = {}, type, chainId } = transaction
-  const { tokenAmountIn, tokenAmountOut, tokenSymbolIn, tokenSymbolOut, tokenAddressIn, tokenAddressOut } =
-    extraInfo as TransactionExtraInfo2Token
+  const {
+    tokenAmountIn,
+    tokenAmountInDisplay,
+    tokenAmountOut,
+    tokenAmountOutDisplay,
+    tokenSymbolIn,
+    tokenSymbolOut,
+    tokenAddressIn,
+    tokenAddressOut,
+  } = extraInfo as TransactionExtraInfo2Token
 
   const signTokenOut = ![
     TRANSACTION_TYPE.CLASSIC_ADD_LIQUIDITY,
@@ -76,14 +85,14 @@ const Description2Token = (transaction: TransactionDetails) => {
       <DeltaTokenAmount
         tokenAddress={tokenAddressOut}
         symbol={tokenSymbolOut}
-        amount={tokenAmountOut}
+        amount={tokenAmountOutDisplay || tokenAmountOut}
         plus={signTokenOut}
         logoURL={tokenAddressOut === ETHER_ADDRESS ? getNativeTokenLogo(chainId) : undefined}
       />
       <DeltaTokenAmount
         tokenAddress={tokenAddressIn}
         symbol={tokenSymbolIn}
-        amount={tokenAmountIn}
+        amount={tokenAmountInDisplay || tokenAmountIn}
         plus={signTokenIn}
         logoURL={tokenAddressIn === ETHER_ADDRESS ? getNativeTokenLogo(chainId) : undefined}
       />
@@ -125,7 +134,7 @@ const NftLink = ({
   )
   if (!canNavigate) return icon
   return (
-    <ExternalLink key={nftId} href={`${APP_PATHS.MY_POOLS}?nftId=${nftId}`} className="hover:no-underline">
+    <ExternalLink key={nftId} href={`${LEGACY_POOL_APP_PATHS.MY_POOLS}?nftId=${nftId}`} className="hover:no-underline">
       {icon}
     </ExternalLink>
   )
@@ -238,6 +247,7 @@ const DESCRIPTION_MAP: {
   [TRANSACTION_TYPE.SWAP]: Description2Token,
   [TRANSACTION_TYPE.KYBERDAO_MIGRATE]: Description2Token,
 
+  [TRANSACTION_TYPE.FILL_LIMIT_ORDER]: DescriptionLimitOrder,
   [TRANSACTION_TYPE.CANCEL_LIMIT_ORDER]: DescriptionLimitOrder,
 
   [TRANSACTION_TYPE.CLASSIC_CREATE_POOL]: DescriptionLiquidity,
@@ -266,11 +276,10 @@ type Prop = {
   transaction: TransactionDetails
   style: CSSProperties
   isMinimal: boolean
-  cancellingOrderInfo: CancellingOrderInfo
 }
 
 const TransactionItem = forwardRef<HTMLDivElement, Prop>(function TransactionItem(
-  { transaction, style, isMinimal, cancellingOrderInfo }: Prop,
+  { transaction, style, isMinimal }: Prop,
   ref,
 ) {
   const { type, addedTime, hash, chainId } = transaction
@@ -299,7 +308,7 @@ const TransactionItem = forwardRef<HTMLDivElement, Prop>(function TransactionIte
           <span className="text-sm text-text">{type}</span>
           <ExternalLinkIcon color="var(--ks-subText)" href={getEtherscanLink(chainId, hash, 'transaction')} />
         </Row>
-        <Status transaction={transaction} cancellingOrderInfo={cancellingOrderInfo} />
+        <Status transaction={transaction} />
       </div>
 
       <div className="flex justify-between">

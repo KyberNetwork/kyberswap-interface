@@ -9,7 +9,7 @@ import Card from 'components/Card'
 import TokenInfo from 'components/CurrencyInputPanel/TokenInfo'
 import CurrencyLogo from 'components/CurrencyLogo'
 import Wallet from 'components/Icons/Wallet'
-import { Input as NumericalInput } from 'components/NumericalInput'
+import NumericalInput from 'components/NumericalInput'
 import { RowFixed } from 'components/Row'
 import TokenSelectorModal from 'components/TokenSelectorModal'
 import { useActiveWeb3React } from 'hooks'
@@ -17,6 +17,7 @@ import { useCurrencyBalance } from 'state/wallet/hooks'
 import { cn } from 'utils/cn'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
 import { shortString } from 'utils/string'
+import { getCurrencyDisplaySymbol } from 'utils/tokenInfo'
 
 type CurrencySelectStyleProps = {
   tight?: boolean
@@ -43,10 +44,10 @@ export const CurrencySelect = forwardRef<
       className={cn(
         'flex min-h-[38px] select-none items-center rounded-full px-2 text-xl font-medium leading-[normal] outline-none',
         hideInput ? 'w-full bg-buttonBlack' : 'w-auto bg-background',
-        selected ? 'border border-transparent text-subText' : 'border border-primary text-primary',
+        selected ? 'border border-transparent text-subText' : 'border border-border-primary text-primary',
         !selected && 'shadow-[0px_6px_10px_rgba(0,0,0,0.075)]',
         isDisable ? 'cursor-default' : 'cursor-pointer',
-        !isDisable && 'hover:brightness-125 focus:brightness-125',
+        !isDisable && 'hover:brightness-110 focus:brightness-110',
         className,
       )}
     >
@@ -154,20 +155,19 @@ const BalanceRow = ({
   selectedCurrencyBalance,
 }: BalanceRowProps) => {
   const showTopActions = (onMax || onHalf) && positionMax === 'top' && currency && account
-  const balance = customBalanceText || selectedCurrencyBalance?.toSignificant(10) || 0
+  const balance = customBalanceText ?? selectedCurrencyBalance?.toSignificant(10) ?? 0
 
   return (
     <div className="flex min-h-5 items-center justify-between text-xs">
-      {label && positionLabel === 'in' ? (
-        label
-      ) : showTopActions ? (
+      {(label && positionLabel === 'in') || showTopActions ? (
         <div className="flex items-center gap-1">
-          {onMax && (
+          {label && positionLabel === 'in' && label}
+          {showTopActions && onMax && (
             <StyledBalanceMax onClick={onMax}>
               <Trans>Max</Trans>
             </StyledBalanceMax>
           )}
-          {onHalf && (
+          {showTopActions && onHalf && (
             <StyledBalanceMax onClick={onHalf}>
               <Trans>Half</Trans>
             </StyledBalanceMax>
@@ -267,10 +267,9 @@ const CurrencySelectContent = ({
   nativeCurrency,
   tight,
 }: CurrencySelectContentProps) => {
+  const currencySymbol = getCurrencyDisplaySymbol(nativeCurrency)
   const displaySymbol =
-    nativeCurrency?.symbol && maxCurrencySymbolLength
-      ? shortString(nativeCurrency.symbol, maxCurrencySymbolLength)
-      : nativeCurrency?.symbol
+    currencySymbol && maxCurrencySymbolLength ? shortString(currencySymbol, maxCurrencySymbolLength) : currencySymbol
   const tokenSymbol = displaySymbol || loadingText || <Trans>Select a token</Trans>
 
   return (
@@ -281,7 +280,7 @@ const CurrencySelectContent = ({
           tight={tight}
           className="token-symbol-container"
           data-testid="token-symbol-container"
-          active={Boolean(currency && currency.symbol)}
+          active={Boolean(currency && getCurrencyDisplaySymbol(currency))}
           fontSize={tight ? '14px' : fontSize}
         >
           {tokenSymbol}
@@ -336,6 +335,7 @@ interface CurrencyInputPanelProps {
   showPinnedTokens?: boolean
   customBalanceText?: string
   hideLogo?: boolean
+  highlightCurrencySelect?: boolean
   fontSize?: string
   customCurrencySelect?: ReactNode
   estimatedUsd?: string
@@ -379,6 +379,7 @@ export default function CurrencyInputPanel({
   showPinnedTokens,
   customBalanceText,
   hideLogo = false,
+  highlightCurrencySelect = false,
   fontSize,
   customCurrencySelect,
   estimatedUsd,
@@ -456,7 +457,11 @@ export default function CurrencyInputPanel({
                 isDisable={disableCurrencySelect}
                 hideInput={hideInput}
                 selected={!!currency}
-                className={cn('open-currency-select-button', selectClassName)}
+                className={cn(
+                  'open-currency-select-button',
+                  highlightCurrencySelect && '!border-blue !bg-blue/20',
+                  selectClassName,
+                )}
                 onClick={() => {
                   if (disableCurrencySelect) return
                   if (!isSwitchMode) {

@@ -4,7 +4,6 @@ import { useGetSafePalCampaignUserStatsQuery, useJoinSafePalCampaignMutation } f
 import { SiweMessage } from 'siwe'
 
 import { NotificationType } from 'components/Announcement/type'
-import { didUserReject } from 'constants/connectors/utils'
 import { ZERO_ADDRESS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { CampaignType, campaignConfig } from 'pages/Campaign/constants'
@@ -12,6 +11,7 @@ import { resolveSelectedCampaignWeek } from 'pages/Campaign/utils'
 import { useNotify, useWalletModalToggle } from 'state/application/hooks'
 import { Address } from 'utils/viem'
 import { getGatedWalletClient } from 'utils/walletClient'
+import { didUserReject } from 'utils/walletError'
 
 const SAFEPAL_JOINED_SESSION_KEY = 'safepal_joined_weeks'
 

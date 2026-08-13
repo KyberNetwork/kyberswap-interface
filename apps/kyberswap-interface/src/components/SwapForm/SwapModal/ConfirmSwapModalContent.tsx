@@ -1,14 +1,18 @@
 import { Currency, CurrencyAmount, Price } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Check, Info, Repeat } from 'react-feather'
 import { Link, useParams, useSearchParams } from 'react-router-dom'
-import { useGetListOrdersQuery, useGetTotalActiveMakingAmountQuery } from 'services/limitOrder'
+import { useGetTotalActiveMakingAmountQuery } from 'services/limitOrder'
 import { calculatePriceImpact } from 'services/route/utils'
 
 import { ButtonOutlined, ButtonPrimary } from 'components/Button'
+import IconButton from 'components/Button/IconButton'
 import Dots from 'components/Dots'
+import { ErrorWarning } from 'components/ErrorWarning'
+import { useHoneypotWarning } from 'components/HoneypotWarning'
 import InfoHelper from 'components/InfoHelper'
+import { LimitOrderStatus, LimitOrderTab } from 'components/LimitOrder/types'
 import Loader from 'components/Loader'
 import SlippageWarningNote from 'components/SlippageWarningNote'
 import { HStack, Stack } from 'components/Stack'
@@ -22,16 +26,12 @@ import SwapModalAreYouSure from 'components/SwapForm/SwapModal/SwapModalAreYouSu
 import { BuildRouteResult } from 'components/SwapForm/hooks/useBuildRoute'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { TransactionErrorContent } from 'components/TransactionConfirmationModal'
-import WarningNote from 'components/WarningNote'
-import { calcPercentFilledOrder } from 'components/swapv2/LimitOrder/helpers'
-import { LimitOrderStatus, LimitOrderTab } from 'components/swapv2/LimitOrder/type'
-import { StyledBalanceMaxMini } from 'components/swapv2/styleds'
-import { TOKEN_API_URL } from 'constants/env'
-import { APP_PATHS, PAIR_CATEGORY } from 'constants/index'
+import { APP_PATHS } from 'constants/index'
+import { PAIR_CATEGORY } from 'constants/trade'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
-import useCurrenciesByPage from 'pages/SwapV3/useCurrenciesByPage'
+import { useCurrenciesByPage } from 'pages/Swap/hooks/useCurrenciesByPage'
 import { useDefaultSlippageByPair, usePairCategory } from 'state/swap/hooks'
 import { useDegenModeManager, useSlippageSettingByPage } from 'state/user/hooks'
 import { useTokenBalance } from 'state/wallet/hooks'
@@ -44,6 +44,18 @@ import { checkPriceImpact } from 'utils/prices'
 const SHOW_ACCEPT_NEW_AMOUNT_THRESHOLD = -1
 const AMOUNT_OUT_FROM_BUILD_ERROR_THRESHOLD = -5
 const SHOW_CONFIRM_MODAL_AFTER_CLICK_SWAP_THRESHOLD = -10
+
+const ReservedOrderNotice = ({ symbol, to }: { symbol: string | undefined; to: string }) => (
+  <ErrorWarning
+    type="warn"
+    title={
+      <Trans>
+        <span className="text-text">Notice</span>: Some of your {symbol} is already reserved by an open Limit Order -
+        review it <Link to={to}>here</Link>.
+      </Trans>
+    }
+  />
+)
 
 function ExecutionPrice({
   executionPrice,
@@ -75,20 +87,13 @@ const PriceUpdateWarning = ({
   isAccepted: boolean
   level: 'warning' | 'error'
   children: React.ReactNode
-}) => (
-  <div
-    className={cn(
-      'flex items-center gap-2 rounded-2xl px-3 py-2 text-xs',
-      isAccepted
-        ? 'bg-subText/20 text-subText'
-        : level === 'warning'
-        ? 'bg-warning/30 text-text'
-        : 'bg-red/30 text-text',
-    )}
-  >
-    {children}
-  </div>
-)
+}) => {
+  if (!isAccepted) {
+    return <ErrorWarning type={level === 'error' ? 'error' : 'warn'} title={children} />
+  }
+
+  return <div className="flex items-center gap-2 rounded-2xl bg-subText/20 px-3 py-2 text-xs">{children}</div>
+}
 
 type Props = {
   buildResult: BuildRouteResult | undefined
@@ -123,19 +128,13 @@ export default function ConfirmSwapModalContent({
   const shouldDisableConfirmButton = isBuildingRoute || !!errorWhileBuildRoute
 
   const { currency: currencyParam } = useParams()
-  const { currencyIn } = useCurrenciesByPage()
+  const { currencyIn, currencyOut } = useCurrenciesByPage()
   const { chainId, account, networkInfo } = useActiveWeb3React()
-  const [honeypot, setHoneypot] = useState<{ isHoneypot: boolean; isFOT: boolean; tax: number } | null>(null)
-  useEffect(() => {
-    if (!currencyIn?.wrapped.address) return
-    fetch(
-      `${TOKEN_API_URL}/v1/public/tokens/honeypot-fot-info?address=${currencyIn.wrapped.address.toLowerCase()}&chainId=${chainId}`,
-    )
-      .then(res => res.json())
-      .then(res => {
-        setHoneypot(res.data)
-      })
-  }, [currencyIn?.wrapped.address, chainId])
+  const { honeypot } = useHoneypotWarning({
+    chainId,
+    tokenAddress: currencyIn?.wrapped.address,
+    tokenSymbol: currencyIn?.symbol,
+  })
 
   const isSlippageNotEnough =
     !!errorWhileBuildRoute &&
@@ -325,43 +324,26 @@ export default function ConfirmSwapModalContent({
 
   const [searchParams, setSearchParams] = useSearchParams()
   const { data: loActiveMakingAmount } = useGetTotalActiveMakingAmountQuery(
-    { chainId, tokenAddress: currencyIn?.wrapped.address ?? '', account: account ?? '' },
-    { skip: !currencyIn || !account || currencyIn.isNative },
-  )
-  const { data: { orders = [] } = {} } = useGetListOrdersQuery(
     {
       chainId,
-      maker: account,
-      status: LimitOrderStatus.ACTIVE,
-      query: currencyIn?.wrapped.address,
-      page: 1,
-      pageSize: 20,
+      makerAsset: currencyIn?.wrapped.address,
+      takerAsset: currencyOut?.wrapped.address,
+      account,
     },
-    { skip: !account || currencyIn?.isNative, refetchOnFocus: true },
+    { skip: !currencyIn || !currencyOut || !account || currencyIn.isNative },
   )
-
-  const ignoredOrders = useMemo(() => {
-    return orders.filter(order => {
-      const filledPercent = calcPercentFilledOrder(
-        order.filledTakingAmount,
-        order.takingAmount,
-        order.takerAssetDecimals,
-      )
-      return filledPercent === '99.99'
-    })
-  }, [orders])
-
-  const activeMakingAmount =
-    BigInt(loActiveMakingAmount || 0) -
-    ignoredOrders.reduce((acc, order) => {
-      return acc + BigInt(order.makingAmount) - BigInt(order.filledMakingAmount)
-    }, 0n)
+  const activeMakingAmount = BigInt(loActiveMakingAmount || 0)
 
   const balance = useTokenBalance(currencyIn?.wrapped)
 
   const remainAmount = BigInt(balance?.quotient.toString() || 0) - BigInt(buildResult?.data?.amountIn || 0)
 
   const showLOWwarning = currencyIn?.isNative ? false : !!loActiveMakingAmount && remainAmount < activeMakingAmount
+  const limitOrderSearch = new URLSearchParams({
+    tab: LimitOrderTab.MY_ORDER,
+    orderTab: LimitOrderStatus.ACTIVE,
+    search: `${currencyIn?.wrapped.symbol}/${currencyOut?.wrapped.symbol}`,
+  })
 
   const [showInverted, setShowInverted] = useState<boolean>(false)
   const [retry, setRetry] = useState(0)
@@ -442,7 +424,7 @@ export default function ConfirmSwapModalContent({
               isAccepted={hasAcceptedNewAmount}
             >
               {hasAcceptedNewAmount && <Check size={20} className="text-text" />}
-              <div className="flex-1 text-text">
+              <div className={cn('flex-1', hasAcceptedNewAmount && 'text-text')}>
                 {hasAcceptedNewAmount ? (
                   <Trans>New Amount Accepted</Trans>
                 ) : (
@@ -474,12 +456,13 @@ export default function ConfirmSwapModalContent({
                           executionPrice={getSwapDetailsProps().executionPrice}
                           showInverted={showInverted}
                         />
-                        <StyledBalanceMaxMini
+                        <IconButton
+                          variant="compact"
                           className="hover:brightness-[0.85]"
                           onClick={() => setShowInverted(!showInverted)}
                         >
-                          <Repeat size={14} className="text-text" />
-                        </StyledBalanceMaxMini>
+                          <Repeat size={12} className="text-text" />
+                        </IconButton>
                       </div>
                     ) : (
                       <p className="m-0 text-[12px] font-medium text-text">--</p>
@@ -511,17 +494,12 @@ export default function ConfirmSwapModalContent({
 
           <PriceImpactNote isDegenMode={isAdvancedMode} priceImpact={priceImpactFromBuild} />
 
-          {errorWhileBuildRoute && <WarningNote shortText={errorText} />}
+          {errorWhileBuildRoute && <ErrorWarning type="warn" title={errorText} />}
           {showLOWwarning && (
-            <span className="text-xs font-medium italic text-subText">
-              <span className="font-medium text-text">Notice</span>: Some of your {currencyIn?.symbol} is already
-              reserved by an open Limit Order—review it{' '}
-              <Link
-                to={`${APP_PATHS.LIMIT}/${networkInfo.route}/${currencyParam}?activeTab=${LimitOrderTab.MY_ORDER}&search=${currencyIn?.wrapped.address}&highlight=true`}
-              >
-                here.
-              </Link>
-            </span>
+            <ReservedOrderNotice
+              symbol={currencyIn?.symbol}
+              to={`${APP_PATHS.LIMIT}/${networkInfo.route}/${currencyParam}?${limitOrderSearch}`}
+            />
           )}
 
           {errorWhileBuildRoute ? (

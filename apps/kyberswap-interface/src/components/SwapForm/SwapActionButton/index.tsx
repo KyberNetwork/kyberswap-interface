@@ -9,11 +9,11 @@ import { AutoRow, RowBetween, RowFit } from 'components/Row'
 import Select from 'components/Select'
 import SwapOnlyButton, { Props as SwapOnlyButtonProps } from 'components/SwapForm/SwapActionButton/SwapOnlyButton'
 import { BuildRouteResult } from 'components/SwapForm/hooks/useBuildRoute'
-import { SwapCallbackError } from 'components/swapv2/styleds'
 import { useActiveWeb3React } from 'hooks'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import { PermitState, usePermit } from 'hooks/usePermit'
+import { restrictedTokenMessage, useIsTokenRestricted } from 'hooks/useRestrictedTokens'
 import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { WrapType } from 'hooks/useWrapCallback'
@@ -25,8 +25,6 @@ enum AllowanceType {
   EXACT = 'EXACT',
   INFINITE = 'INFINITE',
 }
-
-const CUSTOM_PRIMARY_BUTTON_CLASS = 'border-none font-medium disabled:border-none'
 
 type Props = {
   isDegenMode: boolean
@@ -79,10 +77,16 @@ const SwapActionButton: React.FC<Props> = ({
   const { changeNetwork } = useChangeNetwork()
   const { account, walletKey, chainId, networkInfo } = useActiveWeb3React()
   const { trackingHandler } = useTracking()
-  const [errorWhileSwap, setErrorWhileSwap] = useState('')
   const noRouteFound = routeSummary && !routeSummary.route
 
   const toggleWalletModal = useWalletModalToggle()
+
+  const isTokenRestricted = useIsTokenRestricted()
+  const restrictedCurrency = isTokenRestricted(currencyIn)
+    ? currencyIn
+    : isTokenRestricted(currencyOut)
+    ? currencyOut
+    : undefined
 
   const showWrap: boolean = wrapType !== WrapType.NOT_APPLICABLE
 
@@ -103,12 +107,11 @@ const SwapActionButton: React.FC<Props> = ({
     [trackingHandler, networkInfo?.name],
   )
 
-  const [approval, approveCallback, currentAllowance] = useApproveCallback(
-    parsedAmountFromTypedValue,
-    routeSummary?.routerAddress,
-    false,
-    handleApprovalError,
-  )
+  const [approval, approveCallback, currentAllowance] = useApproveCallback({
+    amount: parsedAmountFromTypedValue,
+    spender: routeSummary?.routerAddress,
+    onApprovalError: handleApprovalError,
+  })
 
   const [approvalSubmitted, setApprovalSubmitted] = useState<boolean>(false)
 
@@ -203,188 +206,176 @@ const SwapActionButton: React.FC<Props> = ({
       </Trans>
     )
   }
-  const renderButton = () => {
-    if (!account) {
-      return (
-        <ButtonLight onClick={toggleWalletModal}>
-          <Trans>Connect</Trans>
-        </ButtonLight>
-      )
-    }
-
-    if (customChainId && customChainId !== chainId) {
-      return (
-        <ButtonLight onClick={() => changeNetwork(customChainId)}>
-          <Trans>Switch to {NETWORKS_INFO[customChainId].name}</Trans>
-        </ButtonLight>
-      )
-    }
-
-    if (wrapInputError) {
-      return (
-        <ButtonPrimary id="swap-button" className={CUSTOM_PRIMARY_BUTTON_CLASS} disabled>
-          {wrapInputError}
-        </ButtonPrimary>
-      )
-    }
-
-    if (showWrap) {
-      return (
-        <ButtonPrimary id="swap-button" className={CUSTOM_PRIMARY_BUTTON_CLASS} onClick={onWrap}>
-          {wrapType === WrapType.WRAP ? <Trans>Wrap</Trans> : <Trans>Unwrap</Trans>}
-        </ButtonPrimary>
-      )
-    }
-
-    if (userHasSpecifiedInputOutput && noRouteFound) {
-      return (
-        <ButtonPrimary id="swap-button" className={CUSTOM_PRIMARY_BUTTON_CLASS} disabled>
-          <Trans>Insufficient liquidity for this trade</Trans>
-        </ButtonPrimary>
-      )
-    }
-
-    if (swapInputError) {
-      return (
-        <ButtonPrimary id="swap-button" className={CUSTOM_PRIMARY_BUTTON_CLASS} disabled>
-          {swapInputError}
-        </ButtonPrimary>
-      )
-    }
-
-    const swapOnlyButtonProps: SwapOnlyButtonProps = {
-      isDegenMode: isDegenMode,
-      routeSummary,
-      isGettingRoute,
-      isProcessingSwap,
-
-      currencyIn,
-      currencyOut,
-      balanceIn,
-      balanceOut,
-      parsedAmount: parsedAmountFromTypedValue,
-      isPermitSwap: permitState === PermitState.SIGNED,
-
-      setProcessingSwap,
-      setErrorWhileSwap,
-      buildRoute,
-
-      isApproved: approval === ApprovalState.APPROVED || permitState === PermitState.SIGNED,
-    }
-
-    const Approvebtn = permitState === PermitState.NOT_SIGNED ? ButtonLight : ButtonPrimary
-
-    if (showApproveFlow) {
-      return (
-        <div>
-          <RowBetween className="gap-4">
-            {permitState === PermitState.NOT_SIGNED && (
-              <ButtonConfirmed
-                disabled={loading || approval === ApprovalState.PENDING}
-                onClick={() => {
-                  trackingHandler(TRACKING_EVENT_TYPE.PERMIT_CLICK)
-                  setLoading(true)
-                  permitCallback().finally(() => setLoading(false))
-                }}
-                className="flex-1"
-              >
-                <RowFit className="gap-1">
-                  <InfoHelper
-                    className="text-textReverse"
-                    placement="top"
-                    text={
-                      <Trans>
-                        You need to first give a temporary 24H approval to KyberSwap&apos;s smart contract to use your{' '}
-                        {currencyIn?.symbol}. This doesn&apos;t require a gas fees.{' '}
-                        <a
-                          href="https://docs.kyberswap.com/reference/permitable-tokens"
-                          target="_blank"
-                          rel="noreferrer"
-                        >
-                          Read more ↗
-                        </a>
-                      </Trans>
-                    }
-                  />
-                  <Trans>Permit {currencyIn?.symbol}</Trans>
-                </RowFit>
-              </ButtonConfirmed>
-            )}
-
-            <Approvebtn
-              onClick={handleApproveClick}
-              disabled={loading || approval === ApprovalState.PENDING}
-              className="flex-1 border-none"
-            >
-              {approval === ApprovalState.PENDING ? (
-                <AutoRow className="justify-center gap-1.5">
-                  <Trans>Approving</Trans> <Loader className="text-border" />
-                </AutoRow>
-              ) : (
-                <RowFit className="gap-1">
-                  <InfoHelper
-                    color={!loading && permitState === PermitState.NOT_SIGNED ? theme.primary : theme.textReverse}
-                    placement="top"
-                    text={approveTooltipText()}
-                  />
-                  <Trans>Approve {currencyIn?.symbol}</Trans>
-                </RowFit>
-              )}
-            </Approvebtn>
-          </RowBetween>
-          <RowBetween>
-            <div />
-            <Select
-              value={approvalType}
-              className="mt-4 bg-transparent p-0 text-sm"
-              optionStyle={{ fontSize: '14px' }}
-              options={[
-                {
-                  value: AllowanceType.INFINITE,
-                  label: t`Infinite Allowance`,
-                  onSelect: () => setApprovalType(AllowanceType.INFINITE),
-                },
-                {
-                  value: AllowanceType.EXACT,
-                  label: t`Exact Allowance`,
-                  onSelect: () => setApprovalType(AllowanceType.EXACT),
-                },
-              ]}
-              activeRender={selected =>
-                selected ? (
-                  <div className="flex">
-                    {selected.label}{' '}
-                    <InfoHelper
-                      text={
-                        selected.value === AllowanceType.EXACT
-                          ? t`You wish to give KyberSwap permission to use the exact allowance token amount as the amount in for this transaction, Subsequent transactions will require your permission again.`
-                          : t`You wish to give KyberSwap permission to use the selected token for transactions without any limit. You do not need to give permission again unless revoke.`
-                      }
-                    />
-                  </div>
-                ) : null
-              }
-            />
-          </RowBetween>
-        </div>
-      )
-    }
-
-    return <SwapOnlyButton {...swapOnlyButtonProps} />
+  if (!account) {
+    return (
+      <ButtonLight onClick={toggleWalletModal}>
+        <Trans>Connect</Trans>
+      </ButtonLight>
+    )
   }
 
-  useEffect(() => {
-    setErrorWhileSwap('')
-  }, [typedValue])
+  if (customChainId && customChainId !== chainId) {
+    return (
+      <ButtonLight onClick={() => changeNetwork(customChainId)}>
+        <Trans>Switch to {NETWORKS_INFO[customChainId].name}</Trans>
+      </ButtonLight>
+    )
+  }
 
-  return (
-    <>
-      {renderButton()}
-      {isDegenMode && errorWhileSwap ? (
-        <SwapCallbackError style={{ margin: 0, zIndex: 'unset' }} error={errorWhileSwap} />
-      ) : null}
-    </>
-  )
+  if (restrictedCurrency) {
+    return (
+      <ButtonPrimary id="swap-button" disabled>
+        {restrictedTokenMessage(restrictedCurrency.symbol)}
+      </ButtonPrimary>
+    )
+  }
+
+  if (wrapInputError) {
+    return (
+      <ButtonPrimary id="swap-button" disabled>
+        {wrapInputError}
+      </ButtonPrimary>
+    )
+  }
+
+  if (showWrap) {
+    return (
+      <ButtonPrimary id="swap-button" onClick={onWrap}>
+        {wrapType === WrapType.WRAP ? <Trans>Wrap</Trans> : <Trans>Unwrap</Trans>}
+      </ButtonPrimary>
+    )
+  }
+
+  if (userHasSpecifiedInputOutput && noRouteFound) {
+    return (
+      <ButtonPrimary id="swap-button" disabled>
+        <Trans>Insufficient liquidity for this trade</Trans>
+      </ButtonPrimary>
+    )
+  }
+
+  if (swapInputError) {
+    return (
+      <ButtonPrimary id="swap-button" disabled>
+        {swapInputError}
+      </ButtonPrimary>
+    )
+  }
+
+  const swapOnlyButtonProps: SwapOnlyButtonProps = {
+    isDegenMode: isDegenMode,
+    routeSummary,
+    isGettingRoute,
+    isProcessingSwap,
+
+    currencyIn,
+    currencyOut,
+    balanceIn,
+    balanceOut,
+    parsedAmount: parsedAmountFromTypedValue,
+    isPermitSwap: permitState === PermitState.SIGNED,
+
+    setProcessingSwap,
+    buildRoute,
+
+    isApproved: approval === ApprovalState.APPROVED || permitState === PermitState.SIGNED,
+  }
+
+  const Approvebtn = permitState === PermitState.NOT_SIGNED ? ButtonLight : ButtonPrimary
+
+  if (showApproveFlow) {
+    return (
+      <div>
+        <RowBetween className="gap-4">
+          {permitState === PermitState.NOT_SIGNED && (
+            <ButtonConfirmed
+              disabled={loading || approval === ApprovalState.PENDING}
+              onClick={() => {
+                trackingHandler(TRACKING_EVENT_TYPE.PERMIT_CLICK)
+                setLoading(true)
+                permitCallback().finally(() => setLoading(false))
+              }}
+              className="flex-1"
+            >
+              <RowFit className="gap-1">
+                <InfoHelper
+                  className="text-textReverse"
+                  placement="top"
+                  text={
+                    <Trans>
+                      You need to first give a temporary 24H approval to KyberSwap&apos;s smart contract to use your{' '}
+                      {currencyIn?.symbol}. This doesn&apos;t require a gas fees.{' '}
+                      <a href="https://docs.kyberswap.com/reference/permitable-tokens" target="_blank" rel="noreferrer">
+                        Read more ↗
+                      </a>
+                    </Trans>
+                  }
+                />
+                <Trans>Permit {currencyIn?.symbol}</Trans>
+              </RowFit>
+            </ButtonConfirmed>
+          )}
+
+          <Approvebtn
+            onClick={handleApproveClick}
+            disabled={loading || approval === ApprovalState.PENDING}
+            className="flex-1 border-none"
+          >
+            {approval === ApprovalState.PENDING ? (
+              <AutoRow className="justify-center gap-1.5">
+                <Trans>Approving</Trans> <Loader className="text-border" />
+              </AutoRow>
+            ) : (
+              <RowFit className="gap-1">
+                <InfoHelper
+                  color={!loading && permitState === PermitState.NOT_SIGNED ? theme.primary : theme.textReverse}
+                  placement="top"
+                  text={approveTooltipText()}
+                />
+                <Trans>Approve {currencyIn?.symbol}</Trans>
+              </RowFit>
+            )}
+          </Approvebtn>
+        </RowBetween>
+        <RowBetween>
+          <div />
+          <Select
+            value={approvalType}
+            className="mt-4 bg-transparent p-0 text-sm"
+            optionStyle={{ fontSize: '14px' }}
+            options={[
+              {
+                value: AllowanceType.INFINITE,
+                label: t`Infinite Allowance`,
+                onSelect: () => setApprovalType(AllowanceType.INFINITE),
+              },
+              {
+                value: AllowanceType.EXACT,
+                label: t`Exact Allowance`,
+                onSelect: () => setApprovalType(AllowanceType.EXACT),
+              },
+            ]}
+            activeRender={selected =>
+              selected ? (
+                <div className="flex">
+                  {selected.label}{' '}
+                  <InfoHelper
+                    text={
+                      selected.value === AllowanceType.EXACT
+                        ? t`You wish to give KyberSwap permission to use the exact allowance token amount as the amount in for this transaction, Subsequent transactions will require your permission again.`
+                        : t`You wish to give KyberSwap permission to use the selected token for transactions without any limit. You do not need to give permission again unless revoke.`
+                    }
+                  />
+                </div>
+              ) : null
+            }
+          />
+        </RowBetween>
+      </div>
+    )
+  }
+
+  return <SwapOnlyButton {...swapOnlyButtonProps} />
 }
 
 export default SwapActionButton

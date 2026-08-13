@@ -16,6 +16,7 @@ import {
   blast,
   bsc,
   fantom,
+  hyperEvm,
   linea,
   mainnet,
   mantle,
@@ -30,8 +31,8 @@ import {
   zksync,
 } from 'viem/chains'
 
-import { hyperevm, wagmiConfig } from 'components/Web3Provider'
-import { CROSS_CHAIN_FEE_RECEIVER, ZERO_ADDRESS } from 'constants/index'
+import { robinhood, wagmiConfig } from 'components/Web3Provider'
+import { ZERO_ADDRESS } from 'constants/index'
 import {
   BaseSwapAdapter,
   Chain,
@@ -44,6 +45,7 @@ import {
 } from 'pages/CrossChainSwap/adapters/BaseSwapAdapter'
 import type { SolanaToken } from 'pages/CrossChainSwap/hooks/useSolanaTokens'
 import { Quote } from 'pages/CrossChainSwap/registry'
+import { CROSS_CHAIN_FEE_RECEIVER } from 'pages/CrossChainSwap/utils'
 
 const SolanaChainId = 792703809
 
@@ -78,9 +80,10 @@ export class RelayAdapter extends BaseSwapAdapter {
         zksync,
         ronin,
         unichain,
-        hyperevm,
+        hyperEvm,
         plasma,
         monad,
+        robinhood,
       ]
         .map(convertViemChainToRelayChain)
         .concat(solanaChain as any),
@@ -116,6 +119,7 @@ export class RelayAdapter extends BaseSwapAdapter {
       ChainId.HYPEREVM,
       ChainId.PLASMA,
       ChainId.MONAD,
+      ChainId.ROBINHOOD,
     ]
   }
 

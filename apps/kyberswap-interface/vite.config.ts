@@ -6,8 +6,10 @@ import { createRequire } from 'module'
 import path, { dirname, resolve } from 'path'
 import { defineConfig } from 'vite'
 import checker from 'vite-plugin-checker'
+import { compression, defineAlgorithm } from 'vite-plugin-compression2'
 import svgrPlugin from 'vite-plugin-svgr'
 import viteTsconfigPaths from 'vite-tsconfig-paths'
+import zlib from 'zlib'
 
 // Anchor `createRequire` at `connect-evm`'s real path so we can resolve
 // MetaMask SDK transitive deps that pnpm doesn't symlink into the app.
@@ -93,6 +95,24 @@ export default defineConfig(({ mode }) => ({
           ),
         ]
       : []),
+    // Precompress text assets to .br (brotli-11) and .gz so nginx can serve them with brotli_static /
+    // gzip_static — brotli-11's large window compresses these big bundles ~40% smaller than the on-the-fly
+    // gzip-6 nginx would otherwise produce. Skipped for the analyze and prerender passes; originals are
+    // kept as the fallback for clients that don't advertise `br`.
+    ...(!isSsrPrerender && !isAnalyze
+      ? [
+          compression({
+            include: /\.(?:js|mjs|css|html|json|svg|ico|txt|xml|wasm)$/i,
+            threshold: 1024,
+            skipIfLargerOrEqual: true,
+            deleteOriginalAssets: false,
+            algorithms: [
+              defineAlgorithm('brotliCompress', { params: { [zlib.constants.BROTLI_PARAM_QUALITY]: 11 } }),
+              defineAlgorithm('gzip', { level: 9 }),
+            ],
+          }),
+        ]
+      : []),
   ],
   define: {
     'process.env': process.env, // help libs dont break
@@ -108,6 +128,9 @@ export default defineConfig(({ mode }) => ({
     // dynamically imported by the SDK otherwise come back with undefined
     // named exports at runtime.
     include: [
+      // TradeRouting is lazy-loaded. Pre-bundle its CJS dependency up front so discovering it later
+      // does not invalidate the optimized dependency graph while the module is being imported.
+      'react-indiana-drag-scroll',
       '@metamask/mobile-wallet-protocol-core',
       '@metamask/mobile-wallet-protocol-dapp-client',
       '@metamask/connect-multichain',

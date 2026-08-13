@@ -1,14 +1,8 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { createReducer } from '@reduxjs/toolkit'
 
-import {
-  DEFAULT_DEADLINE_FROM_NOW,
-  DEFAULT_SLIPPAGE,
-  DEFAULT_SLIPPAGE_STABLE_PAIR_SWAP,
-  INITIAL_ALLOWED_SLIPPAGE,
-  MAX_NORMAL_SLIPPAGE_IN_BIPS,
-} from 'constants/index'
 import { SupportedLocale } from 'constants/locales'
+import { MAX_NORMAL_SLIPPAGE_IN_BIPS } from 'constants/trade'
 import { updateVersion } from 'state/global/actions'
 import {
   SerializedPair,
@@ -38,6 +32,11 @@ import {
   updateUserLocale,
   updateUserSlippageTolerance,
 } from 'state/user/actions'
+
+const INITIAL_ALLOWED_SLIPPAGE = 50
+const DEFAULT_DEADLINE_FROM_NOW = 60 * 20
+const DEFAULT_SLIPPAGE = 50
+const DEFAULT_SLIPPAGE_STABLE_PAIR_SWAP = 1
 
 const currentTimestamp = () => new Date().getTime()
 const AUTO_DISABLE_DEGEN_MODE_MINUTES = 30

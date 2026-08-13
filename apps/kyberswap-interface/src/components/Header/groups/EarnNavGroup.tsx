@@ -8,17 +8,17 @@ import { ReactComponent as PositionsIcon } from 'assets/svg/earn/ic_earn_positio
 import { ReactComponent as FarmingIcon } from 'assets/svg/earn/ic_farming.svg'
 import { ReactComponent as ListSmartExitIcon } from 'assets/svg/earn/ic_list_smart_exit.svg'
 import { ReactComponent as KemIcon } from 'assets/svg/kyber/kem.svg'
-import NavGroup from 'components/Header/groups/NavGroup'
-import { DropdownTextAnchor, StyledNavLink } from 'components/Header/styleds'
-import { NewLabel } from 'components/Menu'
+import NavGroup, { type DropdownAlign } from 'components/Header/groups/NavGroup'
+import { DropdownTextAnchor, NewLabel, StyledNavLink } from 'components/Header/styleds'
 import { APP_PATHS } from 'constants/index'
 import { FilterTag } from 'pages/Earns/PoolExplorer/Filter'
 import { MEDIA_WIDTHS } from 'theme'
 
-const EarnNavGroup = () => {
-  const upTo430 = useMedia('(max-width: 430px)')
-  const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
+type Props = {
+  dropdownAlign?: DropdownAlign
+}
 
+const EarnNavGroup = ({ dropdownAlign }: Props) => {
   const { pathname, search } = useLocation()
   const isActive = [
     APP_PATHS.EARN,
@@ -28,9 +28,11 @@ const EarnNavGroup = () => {
     APP_PATHS.EARN_SMART_EXIT,
   ].some(path => pathname.includes(path))
 
+  const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
+
   return (
     <NavGroup
-      dropdownAlign={upTo430 ? 'right' : 'left'}
+      dropdownAlign={dropdownAlign}
       isActive={isActive}
       anchor={
         <DropdownTextAnchor>

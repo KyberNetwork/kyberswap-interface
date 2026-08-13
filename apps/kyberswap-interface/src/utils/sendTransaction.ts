@@ -1,4 +1,4 @@
-import { getGasPrice, rpcFetch } from '@kyber/rpc-client'
+import { rpcFetch } from '@kyber/rpc-client'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 // eslint-disable-next-line no-restricted-imports
 import { getAccount, getPublicClient } from '@wagmi/core'
@@ -6,8 +6,8 @@ import blackjackApi from 'services/blackjack'
 
 import { CONNECTION, wagmiConfig } from 'components/Web3Provider'
 import store from 'state'
-import { calculateGasMarginBigInt } from 'utils'
 import { createAccessListIfEnabled } from 'utils/accessList'
+import { calculateGasMarginBigInt } from 'utils/transaction'
 import { BlacklistedWalletError, ErrorName, TransactionError } from 'utils/transactionError'
 import { Hex } from 'utils/viem'
 import { getGatedWalletClient } from 'utils/walletClient'
@@ -42,56 +42,9 @@ const NO_BUILDER_CODE_SELECTORS = new Set([
 // quickly instead of stalling the "Waiting For Confirmation" step. Only applied
 // when the chain's RpcClient is first created (the client is a per-chain singleton).
 const PRE_SIGN_RPC_TIMEOUT_MS = 6000
-// Priority fee used when a provider can't supply one (1.5 gwei).
-const DEFAULT_PRIORITY_FEE_WEI = 1_500_000_000n
 // Time-box the compliance check so a slow Blackjack service can't hold up the
 // wallet prompt — consistent with the existing fail-open policy on errors.
 const BLACKJACK_TIMEOUT_MS = 2000
-
-// EIP-1559 fee estimation routed through the rotating RPC client so a single
-// slow endpoint can't stall the flow before the wallet prompt. Mirrors viem's
-// default formula (maxFeePerGas = baseFee * 1.2 + tip). Returns undefined on
-// legacy chains or when the RPC is unreachable — the caller then leaves fees to
-// the wallet.
-async function estimateEip1559Fees(
-  chainId: number,
-): Promise<{ maxFeePerGas: bigint; maxPriorityFeePerGas: bigint } | undefined> {
-  let baseFeePerGas: bigint
-  try {
-    const block = await rpcFetch<{ baseFeePerGas?: string } | null>(
-      chainId,
-      'eth_getBlockByNumber',
-      ['latest', false],
-      { timeout: PRE_SIGN_RPC_TIMEOUT_MS },
-    )
-    if (!block?.baseFeePerGas) return undefined // legacy / non-EIP-1559 chain
-    baseFeePerGas = BigInt(block.baseFeePerGas)
-  } catch {
-    return undefined
-  }
-
-  let maxPriorityFeePerGas: bigint
-  try {
-    const tip = await rpcFetch<string>(chainId, 'eth_maxPriorityFeePerGas', [], {
-      timeout: PRE_SIGN_RPC_TIMEOUT_MS,
-    })
-    maxPriorityFeePerGas = BigInt(tip)
-  } catch {
-    // Not all providers expose eth_maxPriorityFeePerGas — derive the tip from
-    // gasPrice - baseFee, falling back to a sane default.
-    try {
-      const gasPrice = await getGasPrice(chainId, { timeout: PRE_SIGN_RPC_TIMEOUT_MS })
-      maxPriorityFeePerGas = gasPrice > baseFeePerGas ? gasPrice - baseFeePerGas : DEFAULT_PRIORITY_FEE_WEI
-    } catch {
-      maxPriorityFeePerGas = DEFAULT_PRIORITY_FEE_WEI
-    }
-  }
-
-  return {
-    maxFeePerGas: (baseFeePerGas * 12n) / 10n + maxPriorityFeePerGas,
-    maxPriorityFeePerGas,
-  }
-}
 
 // Pre-send security gate invoked by the gated walletClient on every signing method.
 // Fails open on network errors so an unreachable Blackjack service doesn't block the
@@ -123,6 +76,7 @@ export async function sendEVMTransaction({
   errorInfo,
   isSmartConnector,
   chainId,
+  gasLimitMarginBps,
   onRequestSignature,
 }: {
   account: string
@@ -135,6 +89,7 @@ export async function sendEVMTransaction({
   }
   isSmartConnector: boolean
   chainId: ChainId
+  gasLimitMarginBps?: number
   // Fired once the tx is fully prepared (gas + fees estimated) and we're about to
   // ask the wallet to sign — lets the UI switch from "preparing" to "awaiting
   // signature" instead of claiming the wallet is open while we're still estimating.
@@ -202,14 +157,13 @@ export async function sendEVMTransaction({
     )
   }
 
-  const gasLimit = calculateGasMarginBigInt(gasEstimate, chainId)
+  const gasLimit = calculateGasMarginBigInt(gasEstimate, chainId, gasLimitMarginBps)
 
-  // Build the full eth_sendTransaction payload ethers v5 used to populate
-  // (type, chainId, fees, gas). Hardware wallets like SafePal can't decode a
-  // minimal viem-style payload missing these fields and fail at the device
-  // with "(-104) show tx info failed". Software wallets auto-fill the gaps,
-  // so the regression only surfaces on hardware. We let the wallet pick
-  // `nonce` to avoid racing the device's own counter.
+  // Send an explicit `gas` and `chainId` — hardware wallets decode the raw
+  // eth_sendTransaction params and fail at the device ("(-104) show tx info
+  // failed") on a payload too sparse to render. Fees and `nonce` are left to
+  // the wallet: its fee oracle beats anything we can compute a block behind,
+  // and letting it pick the nonce avoids racing the device's own counter.
   const txParams: Record<string, unknown> = {
     from: account.toLowerCase(),
     to: contractAddress.toLowerCase(),
@@ -222,12 +176,6 @@ export async function sendEVMTransaction({
   }
   if (accessList) {
     txParams.accessList = accessList
-  }
-  const fees = await estimateEip1559Fees(chainId as number)
-  if (fees) {
-    txParams.type = '0x2'
-    txParams.maxFeePerGas = `0x${fees.maxFeePerGas.toString(16)}`
-    txParams.maxPriorityFeePerGas = `0x${fees.maxPriorityFeePerGas.toString(16)}`
   }
 
   // Tx is fully prepared; the wallet prompt opens next. Flip the UI out of the

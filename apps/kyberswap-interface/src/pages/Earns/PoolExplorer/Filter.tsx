@@ -3,7 +3,7 @@ import { useLingui } from '@lingui/react'
 import { useEffect, useMemo, useRef } from 'react'
 import { Plus, Star } from 'react-feather'
 import { useMedia } from 'react-use'
-import { PoolQueryParams } from 'services/zapEarn'
+import type { PoolQueryParams } from 'services/earn/types'
 
 import { ReactComponent as IconHighAprPool } from 'assets/svg/earn/ic_pool_high_apr.svg'
 import { ReactComponent as IconHighlightedPool } from 'assets/svg/earn/ic_pool_highlighted.svg'
@@ -12,15 +12,17 @@ import { ReactComponent as IconSolidEarningPool } from 'assets/svg/earn/ic_pool_
 import { ReactComponent as IconUserEarnPosition } from 'assets/svg/earn/ic_user_earn_position.svg'
 import { ReactComponent as IconFarmingPool } from 'assets/svg/kyber/kem.svg'
 import { ButtonOutlined } from 'components/Button'
+import DropdownMenu, { MenuOption } from 'components/DropdownMenu'
+import { default as MultiSelectDropdownMenu } from 'components/DropdownMenu/MultiSelect'
+import { ItemIcon } from 'components/DropdownMenu/styles'
+import { ListingPageNavigateButton } from 'components/Listing/Page'
+import { ListingFilterTag, ListingFilterTagContainer } from 'components/Listing/components'
 import Search from 'components/Search'
 import { HStack, Stack } from 'components/Stack'
 import { MouseoverTooltip, MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
-import { HeadSection, NavigateButton, Tag, TagContainer } from 'pages/Earns/PoolExplorer/styles'
-import DropdownMenu, { MenuOption } from 'pages/Earns/components/DropdownMenu'
-import { default as MultiSelectDropdownMenu } from 'pages/Earns/components/DropdownMenu/MultiSelect'
-import { ItemIcon } from 'pages/Earns/components/DropdownMenu/styles'
+import { HeadSection } from 'pages/Earns/PoolExplorer/styles'
 import useSupportedDexesAndChains, {
   AllChainsOption,
   AllProtocolsOption,
@@ -237,10 +239,9 @@ const Filter = ({
   return (
     <>
       <HeadSection>
-        <TagContainer>
-          <Tag
+        <ListingFilterTagContainer className="w-full">
+          <ListingFilterTag
             active={!filters.tag}
-            role="button"
             onClick={() => {
               pendingFilterTrackRef.current = {
                 eventType: TRACKING_EVENT_TYPE.POOL_CATEGORY_SELECTED,
@@ -254,11 +255,11 @@ const Filter = ({
             }}
           >
             {t`All pools`}
-          </Tag>
+          </ListingFilterTag>
           <MouseoverTooltip text={t`List of pools added as favorite`} placement="top" width="fit-content">
-            <Tag
+            <ListingFilterTag
               active={filters.tag === 'favorite'}
-              role="button"
+              aria-label="Favorite pools"
               onClick={() => {
                 pendingFilterTrackRef.current = {
                   eventType: TRACKING_EVENT_TYPE.POOL_CATEGORY_SELECTED,
@@ -272,7 +273,7 @@ const Filter = ({
               }}
             >
               <Star size={16} />
-            </Tag>
+            </ListingFilterTag>
           </MouseoverTooltip>
           {filterTagOptions.map((item, index) => {
             const handleTagClick = () => {
@@ -288,21 +289,25 @@ const Filter = ({
             }
             return !upToMedium ? (
               <MouseoverTooltipDesktopOnly text={item.tooltip} placement="top" key={index}>
-                <Tag active={filters.tag === item.value} key={item.value} role="button" onClick={handleTagClick}>
+                <ListingFilterTag active={filters.tag === item.value} key={item.value} onClick={handleTagClick}>
                   {item.icon}
                   {item.label}
-                </Tag>
+                </ListingFilterTag>
               </MouseoverTooltipDesktopOnly>
             ) : (
-              <Tag active={filters.tag === item.value} key={item.value} role="button" onClick={handleTagClick}>
+              <ListingFilterTag active={filters.tag === item.value} key={item.value} onClick={handleTagClick}>
                 {item.icon}
                 {item.label}
-              </Tag>
+              </ListingFilterTag>
             )
           })}
-        </TagContainer>
+        </ListingFilterTagContainer>
         {!upToLarge && (
-          <NavigateButton icon={<IconUserEarnPosition />} text={t`My Positions`} to={APP_PATHS.EARN_POSITIONS} />
+          <ListingPageNavigateButton
+            icon={<IconUserEarnPosition />}
+            text={t`My Positions`}
+            to={APP_PATHS.EARN_POSITIONS}
+          />
         )}
       </HeadSection>
       <Stack className="flex-row justify-between gap-4 max-md:flex-col">

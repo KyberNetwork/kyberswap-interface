@@ -1,6 +1,6 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 
-import { COMMON_SERVICE_API, TOKEN_API_URL } from 'constants/env'
+import { COMMON_SERVICE_API } from 'constants/env'
 
 // Recap API types
 export interface AggregatedVolumeResponse {
@@ -52,21 +52,6 @@ export interface TokenVolumeResponse {
   }
 }
 
-export interface TokenInfoResponse {
-  code: number
-  message: string
-  data: {
-    pagination: { totalItems: number }
-    tokens: Array<{
-      chainId: number
-      address: string
-      symbol: string
-      logoURI: string
-      name: string
-    }>
-  }
-}
-
 const commonServiceApi = createApi({
   reducerPath: 'commonServiceApi',
   baseQuery: fetchBaseQuery({
@@ -113,18 +98,6 @@ const commonServiceApi = createApi({
       query: walletAddress => ({
         url: `v1/users/${walletAddress}/token-volume/aggregated`,
       }),
-    }),
-
-    getTokenInfo: builder.query<TokenInfoResponse, { chainIds: string; addresses: string }>({
-      queryFn: async ({ chainIds, addresses }) => {
-        try {
-          const response = await fetch(`${TOKEN_API_URL}/v1/tokens?chainIds=${chainIds}&addresses=${addresses}`)
-          const data = await response.json()
-          return { data }
-        } catch (error) {
-          return { error: { status: 'CUSTOM_ERROR', error: String(error) } }
-        }
-      },
     }),
   }),
 })

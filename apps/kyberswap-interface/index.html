@@ -11,7 +11,7 @@
     <link rel="apple-touch-icon" type="image/png" href="/favicon.png?version=v1" />
     <link rel="icon" type="image/png" href="/favicon.png?version=v1" />
 
-    <!-- ssr-seo:start — title + per-route metadata; replaced at prerender time by scripts/prerender.mjs -->
+    <!-- ssr-seo:start — replaced for distinct static pages and shared product shells by scripts/prerender.mjs -->
     <title>KyberSwap - Limitless Access To DeFi</title>
 
     <!-- Default SEO metadata -->
@@ -42,8 +42,8 @@
     <meta name="twitter:image" content="https://kyberswap.com/kyberswap-og-image.png?version=2023" />
     <meta name="twitter:image:alt" content="KyberSwap - Limitless Access To DeFi" />
 
-    <!-- Structured data — id lets the client <RouteSeo> update THIS block in place on the (non-prerendered)
-         home route instead of appending a duplicate. Prerendered routes replace it via the ssr-seo markers. -->
+    <!-- Structured data — id lets the client <RouteSeo> update THIS block in place instead of appending
+         a duplicate. Static pages and product shells replace it via the ssr-seo markers. -->
     <script type="application/ld+json" id="kyberswap-structured-data">
       {
         "@context": "https://schema.org",
@@ -53,11 +53,7 @@
             "name": "KyberSwap",
             "url": "https://kyberswap.com/",
             "logo": "https://kyberswap.com/favicon.png?version=v1",
-            "sameAs": [
-              "https://t.me/kybernetwork",
-              "https://x.com/KyberNetwork",
-              "https://discord.gg/kyberswap"
-            ]
+            "sameAs": ["https://t.me/kybernetwork", "https://x.com/KyberNetwork", "https://discord.gg/kyberswap"]
           },
           {
             "@type": "WebSite",
@@ -93,17 +89,40 @@
     <link rel="dns-prefetch" href="https://common-service.kyberswap.com" />
 
     <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400;500;600&display=swap"
-      rel="preload"
-      as="style"
-    />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400;500;600&display=swap"
-      rel="stylesheet"
-    />
-    <link href="https://fonts.googleapis.com/css2?family=Antonio:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="preload" href="/fonts/work-sans/work-sans-latin.1dd49afc.woff2" as="font" type="font/woff2" crossorigin />
+    <style>
+      @font-face {
+        font-family: 'Work Sans';
+        font-style: normal;
+        font-weight: 300 600;
+        font-display: swap;
+        src: url('/fonts/work-sans/work-sans-latin.1dd49afc.woff2') format('woff2');
+        unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
+          U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+      }
+      @font-face {
+        font-family: 'Work Sans';
+        font-style: normal;
+        font-weight: 300 600;
+        font-display: swap;
+        src: url('/fonts/work-sans/work-sans-latin-ext.2aa17fc7.woff2') format('woff2');
+        unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329,
+          U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+      }
+      /* Work Sans ships no arrows, math signs or subscript digits, so the glyphs below come from Inter —
+         the same face that drew them when Inter was the app's second font. The unicode-range holds this
+         face to exactly those glyphs, so it never competes with Work Sans for letters and stays ~5KB.
+         Keep it in sync with the symbols the UI renders. */
+      @font-face {
+        font-family: 'Inter Symbols';
+        font-style: normal;
+        font-weight: 100 900;
+        font-display: swap;
+        src: url('/fonts/inter/inter-symbols.3571ae4c.woff2') format('woff2');
+        unicode-range: U+2080-2089, U+20AE, U+2190, U+2192, U+2194-2199, U+221E, U+2248, U+2264-2265, U+25B2, U+25BC,
+          U+25CF, U+2605, U+26A0, U+2713;
+      }
+    </style>
 
     <script>
       window.global = window
@@ -128,11 +147,12 @@
     <style type="text/css" class="preloadhtml-style">
       .preloadhtml {
         position: fixed;
+        z-index: 9999;
         top: 0;
         left: 0;
         right: 0;
         bottom: 0;
-        font-family: 'Work Sans', 'Inter var', sans-serif;
+        font-family: 'Work Sans', 'Inter Symbols', sans-serif;
       }
 
       .preloadhtml {
@@ -141,12 +161,21 @@
 
       .preloadhtml-header {
         display: flex;
+        align-items: center;
         gap: 12px;
         padding: 1rem;
         z-index: 2;
       }
 
       .preloadhtml-logo {
+        display: flex;
+        min-height: 48px;
+        align-items: center;
+
+        @media screen and (max-width: 768px) {
+          min-height: 36px;
+        }
+
         .kyber-logo {
           width: 140px;
           margin-top: -2px;
@@ -159,24 +188,29 @@
 
       .preloadhtml-header-link {
         display: flex;
+        flex-flow: row nowrap;
         gap: 4px;
         align-items: center;
+        justify-content: center;
+
+        @media screen and (max-width: 1200px) {
+          justify-content: flex-end;
+        }
 
         @media screen and (max-width: 992px) {
-          gap: 0px;
-          justify-content: flex-end;
           width: 100%;
-          height: 36px;
-          margin-top: 1px;
         }
       }
 
       .preloadhtml-header-link-item {
         font-size: 16px;
         font-weight: 500;
+        line-height: normal;
         display: flex;
         align-items: center;
         gap: 2px;
+        width: fit-content;
+        user-select: none;
       }
 
       .preloadhtml-header-link-item {
@@ -188,12 +222,27 @@
       }
 
       .preloadhtml-header-link-label {
-        display: flex;
+        display: inline-flex;
+        width: fit-content;
+        cursor: pointer;
         padding: 8px 12px;
 
         &:has(+ .preloadhtml-dropdown-icon) {
           padding: 8px 0px 8px 6px;
         }
+
+        @media screen and (max-width: 768px) {
+          &:not(:has(+ .preloadhtml-dropdown-icon)) {
+            padding-right: 6px;
+            padding-left: 6px;
+          }
+        }
+      }
+
+      .preloadhtml-earn-label {
+        display: flex;
+        align-items: center;
+        gap: 4px;
       }
 
       .preloadhtml-new-label {
@@ -202,8 +251,26 @@
         color: #ff537b;
       }
 
-      .mobile-hidden {
+      .hide-max-500 {
+        @media screen and (max-width: 500px) {
+          display: none;
+        }
+      }
+
+      .hide-max-576 {
+        @media screen and (max-width: 576px) {
+          display: none;
+        }
+      }
+
+      .hide-max-768 {
         @media screen and (max-width: 768px) {
+          display: none;
+        }
+      }
+
+      .hide-max-992 {
+        @media screen and (max-width: 992px) {
           display: none;
         }
       }
@@ -223,6 +290,16 @@
       }
     </style>
     <div class="preloadhtml">
+      <!-- Dropdown-arrow glyph inlined once (shared by the nav items below) so the cold-load header needs
+           no separate /icons/down.svg request to paint a complete first frame. -->
+      <svg width="0" height="0" style="position: absolute" aria-hidden="true">
+        <symbol id="ks-preload-down" viewBox="0 0 24 24">
+          <path
+            d="M8.71005 11.71L11.3001 14.3C11.6901 14.69 12.3201 14.69 12.7101 14.3L15.3001 11.71C15.9301 11.08 15.4801 10 14.5901 10H9.41005C8.52005 10 8.08005 11.08 8.71005 11.71Z"
+            fill="#a9a9a9"
+          />
+        </symbol>
+      </svg>
       <div class="preloadhtml-header">
         <div class="preloadhtml-logo">
           <img class="kyber-logo" src="/logo-dark.svg" alt="DmmLogo" />
@@ -230,33 +307,47 @@
         <div class="preloadhtml-header-link">
           <div class="preloadhtml-header-link-item active">
             <div class="preloadhtml-header-link-label">Trade</div>
-            <img class="preloadhtml-dropdown-icon" width="24px" src="/icons/down.svg" alt="downSvg" />
+            <svg class="preloadhtml-dropdown-icon" width="24" height="24" aria-hidden="true">
+              <use href="#ks-preload-down" xlink:href="#ks-preload-down" />
+            </svg>
           </div>
           <div class="preloadhtml-header-link-item">
-            <img width="20px" src="/icons/kem.svg" alt="kemSvg" style="margin-left: 6px; margin-right: -4px" />
-            <div class="preloadhtml-header-link-label">Earn</div>
-            <img class="preloadhtml-dropdown-icon" width="24px" src="/icons/down.svg" alt="downSvg" />
+            <div class="preloadhtml-header-link-label">
+              <span class="preloadhtml-earn-label">
+                <img width="20px" height="20px" src="/icons/kem.svg" alt="kemSvg" />
+                Earn
+              </span>
+            </div>
+            <svg class="preloadhtml-dropdown-icon" width="24" height="24" aria-hidden="true">
+              <use href="#ks-preload-down" xlink:href="#ks-preload-down" />
+            </svg>
           </div>
-          <div class="preloadhtml-header-link-item mobile-hidden">
+          <div class="preloadhtml-header-link-item hide-max-576">
             <div class="preloadhtml-header-link-label">Market</div>
           </div>
-          <div class="preloadhtml-header-link-item mobile-hidden">
+          <div class="preloadhtml-header-link-item hide-max-500">
             <div class="preloadhtml-header-link-label">
               Campaigns
               <!-- <span class="preloadhtml-new-label">New</span> -->
             </div>
-            <img class="preloadhtml-dropdown-icon" width="24px" src="/icons/down.svg" alt="downSvg" />
+            <svg class="preloadhtml-dropdown-icon" width="24" height="24" aria-hidden="true">
+              <use href="#ks-preload-down" xlink:href="#ks-preload-down" />
+            </svg>
           </div>
-          <div class="preloadhtml-header-link-item mobile-hidden">
+          <div class="preloadhtml-header-link-item hide-max-992">
             <div class="preloadhtml-header-link-label">KyberDAO</div>
-            <img class="preloadhtml-dropdown-icon" width="24px" src="/icons/down.svg" alt="downSvg" />
+            <svg class="preloadhtml-dropdown-icon" width="24" height="24" aria-hidden="true">
+              <use href="#ks-preload-down" xlink:href="#ks-preload-down" />
+            </svg>
           </div>
-          <div class="preloadhtml-header-link-item mobile-hidden">
+          <div class="preloadhtml-header-link-item hide-max-992">
             <div class="preloadhtml-header-link-label">Analytics</div>
           </div>
-          <div class="preloadhtml-header-link-item mobile-hidden">
+          <div class="preloadhtml-header-link-item hide-max-768">
             <div class="preloadhtml-header-link-label">About</div>
-            <img class="preloadhtml-dropdown-icon" width="24px" src="/icons/down.svg" alt="downSvg" />
+            <svg class="preloadhtml-dropdown-icon" width="24" height="24" aria-hidden="true">
+              <use href="#ks-preload-down" xlink:href="#ks-preload-down" />
+            </svg>
           </div>
         </div>
       </div>

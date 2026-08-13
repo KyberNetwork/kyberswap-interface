@@ -21,8 +21,8 @@ import {
 } from 'components/Announcement/PrivateAnnoucement/styled'
 import { AnnouncementTemplateLimitOrder } from 'components/Announcement/type'
 import { CheckCircle } from 'components/Icons'
+import { LimitOrderStatus } from 'components/LimitOrder/types'
 import { TokenLogoWithShadow } from 'components/Logo'
-import { LimitOrderStatus } from 'components/swapv2/LimitOrder/type'
 import { APP_PATHS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useNavigateToUrl } from 'utils/redirect'
@@ -135,7 +135,9 @@ function InboxItemLimitOrder({
   const navigate = useNavigateToUrl()
   const onClick = () => {
     const route = NETWORKS_INFO[chainId]?.route ?? NETWORKS_INFO[ChainId.MAINNET].route
-    navigate(`${APP_PATHS.LIMIT}/${route}?activeTab=my_order`, chainId)
+    const orderTab =
+      isFilled || isPartialFilled || isCancelled || status === LimitOrderStatus.EXPIRED ? 'closed' : 'active'
+    navigate(`${APP_PATHS.LIMIT}/${route}?tab=my_order&orderTab=${orderTab}`, chainId)
     onRead(announcement, statusMessage)
   }
 

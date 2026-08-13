@@ -19,7 +19,8 @@ import {
   zksync,
 } from 'viem/chains'
 
-import { CROSS_CHAIN_FEE_RECEIVER, ZERO_ADDRESS } from 'constants/index'
+import { robinhood } from 'components/Web3Provider'
+import { ZERO_ADDRESS } from 'constants/index'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import {
   BaseSwapAdapter,
@@ -32,10 +33,10 @@ import {
   QuoteParams,
   SwapStatus,
 } from 'pages/CrossChainSwap/adapters/BaseSwapAdapter'
+import { isEvmChain } from 'pages/CrossChainSwap/adapters/types'
 import type { SolanaToken } from 'pages/CrossChainSwap/hooks/useSolanaTokens'
 import { Quote } from 'pages/CrossChainSwap/registry'
-import { isNativeToken, isWrappedToken } from 'pages/CrossChainSwap/utils'
-import { isEvmChain } from 'utils'
+import { CROSS_CHAIN_FEE_RECEIVER, isNativeToken, isWrappedToken } from 'pages/CrossChainSwap/utils'
 
 const API_URL = 'https://app.across.to/api/suggested-fees'
 
@@ -46,7 +47,22 @@ export class AcrossAdapter extends BaseSwapAdapter {
     super()
     this.acrossClient = createAcrossClient({
       integratorId: `0x008a`,
-      chains: [mainnet, arbitrum, bsc, optimism, linea, polygon, zksync, base, scroll, blast, unichain, plasma, monad],
+      chains: [
+        mainnet,
+        arbitrum,
+        bsc,
+        optimism,
+        linea,
+        polygon,
+        zksync,
+        base,
+        scroll,
+        blast,
+        unichain,
+        plasma,
+        monad,
+        robinhood,
+      ],
       rpcUrls: [
         ChainId.MAINNET,
         ChainId.ARBITRUM,
@@ -60,6 +76,7 @@ export class AcrossAdapter extends BaseSwapAdapter {
         ChainId.BLAST,
         ChainId.UNICHAIN,
         ChainId.MONAD,
+        ChainId.ROBINHOOD,
       ].reduce((acc, cur) => {
         return { ...acc, [cur]: NETWORKS_INFO[cur].defaultRpcUrl }
       }, {}),
@@ -109,6 +126,7 @@ export class AcrossAdapter extends BaseSwapAdapter {
       ChainId.BSCMAINNET,
       ChainId.PLASMA,
       ChainId.MONAD,
+      ChainId.ROBINHOOD,
       // NonEvmChain.Solana,
     ]
   }

@@ -1,15 +1,14 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { useCallback } from 'react'
-import { X } from 'react-feather'
 
 import { ButtonPrimary } from 'components/Button'
-import { AutoColumn } from 'components/Column'
 import WarningIcon from 'components/Icons/WarningIcon'
 import Modal from 'components/Modal'
-import { AutoRow, RowBetween } from 'components/Row'
+import { HStack, Stack } from 'components/Stack'
 import { useActiveWeb3React } from 'hooks'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
+import { KyberDAOModalCloseButton } from 'pages/KyberDAO/common'
 import { ApplicationModal } from 'state/application/actions'
 import { useCloseModal, useModalOpen, useModalOpenParams, useToggleModal } from 'state/application/hooks'
 
@@ -20,13 +19,14 @@ export const useSwitchToEthereum = () => {
   return {
     switchToEthereum: useCallback(
       (featureText: string) =>
-        new Promise(async (resolve: any, reject: any) => {
+        new Promise<void>((resolve, reject) => {
           if ([ChainId.GÖRLI, ChainId.MAINNET].includes(chainId)) {
             resolve()
-          } else {
-            reject()
-            toggleSwitchEthereumModal({ featureText })
+            return
           }
+
+          toggleSwitchEthereumModal({ featureText })
+          reject()
         }),
       [chainId, toggleSwitchEthereumModal],
     ),
@@ -49,19 +49,17 @@ export default function SwitchToEthereumModal() {
   return (
     <Modal isOpen={modalOpen} onDismiss={closeModal} minHeight={false} maxHeight={90} maxWidth={500}>
       <div className="p-6">
-        <AutoColumn className="gap-5">
-          <RowBetween>
-            <AutoRow className="gap-0.5 text-primary">
+        <Stack className="gap-4">
+          <HStack className="items-center justify-between gap-4">
+            <HStack className="items-center gap-2 text-primary">
               <WarningIcon size="28px" />
               <span className="text-xl">
                 <Trans>Switch Network</Trans>
               </span>
-            </AutoRow>
-            <div role="button" onClick={closeModal} className="flex cursor-pointer">
-              <X onClick={closeModal} size={20} className="text-subText" />
-            </div>
-          </RowBetween>
-          <span className="text-sm leading-5">
+            </HStack>
+            <KyberDAOModalCloseButton onClick={closeModal} />
+          </HStack>
+          <span className="text-sm">
             <Trans>
               {params?.featureText || t`This action`} is only available on Ethereum chain. Please switch network to
               continue.
@@ -72,7 +70,7 @@ export default function SwitchToEthereumModal() {
               <Trans>Switch to Ethereum Network</Trans>
             </span>
           </ButtonPrimary>
-        </AutoColumn>
+        </Stack>
       </div>
     </Modal>
   )

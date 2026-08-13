@@ -1,14 +1,14 @@
 import { t } from '@lingui/macro'
 import { useMedia } from 'react-use'
-import { PoolQueryParams } from 'services/zapEarn'
+import type { PoolQueryParams } from 'services/earn/types'
 
-import { SortBy } from 'pages/Earns/PoolExplorer'
 import {
-  HeaderText,
-  SortableHeader,
   TableCell,
   TableHeader as TableHeaderComponent,
-} from 'pages/Earns/PoolExplorer/styles'
+  getPoolTableGridTemplateColumns,
+} from 'components/Listing/Table'
+import { SortBy } from 'pages/Earns/PoolExplorer'
+import { HeaderText, SortableHeader } from 'pages/Earns/PoolExplorer/styles'
 import SortIcon, { Direction } from 'pages/MarketOverview/SortIcon'
 import { MEDIA_WIDTHS } from 'theme'
 
@@ -26,41 +26,41 @@ const TableHeader = ({
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
 
   return !upToMedium ? (
-    <TableHeaderComponent showRewards={showRewards} showPoolPrice={showPoolPrice}>
-      <TableCell flexDirection="row">
+    <TableHeaderComponent style={{ gridTemplateColumns: getPoolTableGridTemplateColumns(showRewards, showPoolPrice) }}>
+      <TableCell className="flex-row">
         <HeaderText>{t`Pair`}</HeaderText>
       </TableCell>
-      <TableCell flexDirection="row">
+      <TableCell className="flex-row">
         <SortableHeader role="button" onClick={() => onSortChange(SortBy.APR)}>
           {t`APR`}
           <SortIcon sorted={filters.sortBy === SortBy.APR ? (filters.orderBy as Direction) : undefined} />
         </SortableHeader>
       </TableCell>
-      <TableCell flexDirection="row">
+      <TableCell className="flex-row">
         <SortableHeader role="button" onClick={() => onSortChange(SortBy.EARN_FEE)}>
           {t`Fee`}
           <SortIcon sorted={filters.sortBy === SortBy.EARN_FEE ? (filters.orderBy as Direction) : undefined} />
         </SortableHeader>
       </TableCell>
-      <TableCell flexDirection="row">
+      <TableCell className="flex-row">
         <SortableHeader role="button" onClick={() => onSortChange(SortBy.TVL)}>
           {t`TVL`}
           <SortIcon sorted={filters.sortBy === SortBy.TVL ? (filters.orderBy as Direction) : undefined} />
         </SortableHeader>
       </TableCell>
-      <TableCell flexDirection="row">
+      <TableCell className="flex-row">
         <SortableHeader role="button" onClick={() => onSortChange(SortBy.VOLUME)}>
           {t`Volume`}
           <SortIcon sorted={filters.sortBy === SortBy.VOLUME ? (filters.orderBy as Direction) : undefined} />
         </SortableHeader>
       </TableCell>
       {showRewards && (
-        <TableCell flexDirection="row">
+        <TableCell className="flex-row">
           <HeaderText>{t`Rewards`}</HeaderText>
         </TableCell>
       )}
       {showPoolPrice && (
-        <TableCell flexDirection="row">
+        <TableCell className="flex-row">
           <HeaderText>{t`Pool Price`}</HeaderText>
         </TableCell>
       )}

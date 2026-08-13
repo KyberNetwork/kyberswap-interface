@@ -19,6 +19,16 @@ export const isTokenNative = (currency: Currency | WrappedTokenInfo | undefined)
 export const getTokenAddress = (currency: Currency) =>
   currency.isNative ? ETHER_ADDRESS : currency?.wrapped.address ?? ''
 
+// Symbol to show for a currency, falling back to its name and then a shortened
+// address when both symbol and name are empty (some tokens legitimately have no
+// symbol/name, e.g. the "(Feather)" token).
+export const getCurrencyDisplaySymbol = (currency: Currency | undefined): string => {
+  if (!currency) return ''
+  const address = currency.isNative ? '' : currency.wrapped.address
+  const shortAddress = address ? `${address.substring(0, 6)}...${address.substring(address.length - 4)}` : ''
+  return currency.symbol || currency.name || shortAddress
+}
+
 export const getProxyTokenLogo = (logoUrl: string | undefined): string =>
   logoUrl ? (logoUrl.startsWith('data:') ? logoUrl : `https://proxy.kyberswap.com/token-logo?url=${logoUrl}`) : ''
 

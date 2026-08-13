@@ -1,15 +1,15 @@
 import { Currency as EvmCurrency } from '@kyberswap/ks-sdk-core'
-import { Trans, t } from '@lingui/macro'
+import { Trans } from '@lingui/macro'
 import { useWalletSelector } from '@near-wallet-selector/react-hook'
-import { ChangeEvent, memo, useCallback, useEffect, useRef, useState } from 'react'
-import { ChevronDown, ChevronUp, Repeat } from 'react-feather'
+import { memo, useCallback, useEffect, useRef, useState } from 'react'
+import { Repeat } from 'react-feather'
 import { useSearchParams } from 'react-router-dom'
 
-import { AddressInput } from 'components/AddressInputPanel'
-import { ButtonLight } from 'components/Button'
 import { AutoColumn } from 'components/Column'
+import { HoneypotWarning, useHoneypotWarning } from 'components/HoneypotWarning'
 import RefreshLoading from 'components/RefreshLoading'
 import Skeleton from 'components/Skeleton'
+import { Stack } from 'components/Stack'
 import ReverseTokenSelectionButton from 'components/SwapForm/ReverseTokenSelectionButton'
 import SlippageSetting from 'components/SwapForm/SlippageSetting'
 import { useBitcoinWallet } from 'components/Web3Provider/BitcoinProvider'
@@ -18,10 +18,12 @@ import { useActiveWeb3React } from 'hooks'
 import useDebounce from 'hooks/useDebounce'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { NonEvmChain } from 'pages/CrossChainSwap/adapters'
+import { isEvmChain } from 'pages/CrossChainSwap/adapters/types'
 import { BitcoinConnectModal } from 'pages/CrossChainSwap/components/BitcoinConnectModal'
 import { PiWarning } from 'pages/CrossChainSwap/components/PiWarning'
 import { QuoteProviderName } from 'pages/CrossChainSwap/components/QuoteProviderName'
 import { QuoteSelector } from 'pages/CrossChainSwap/components/QuoteSelector'
+import { RecipientPanel } from 'pages/CrossChainSwap/components/RecipientPanel'
 import { Summary } from 'pages/CrossChainSwap/components/Summary'
 import { SwapAction } from 'pages/CrossChainSwap/components/SwapAction'
 import { TokenLogoWithChain } from 'pages/CrossChainSwap/components/TokenLogoWithChain'
@@ -31,17 +33,14 @@ import { CrossChainSwapRegistryProvider, useCrossChainSwap } from 'pages/CrossCh
 import type { NearToken } from 'pages/CrossChainSwap/hooks/useNearTokens'
 import type { SolanaToken } from 'pages/CrossChainSwap/hooks/useSolanaTokens'
 import { Quote } from 'pages/CrossChainSwap/registry'
-import { isEvmChain } from 'utils'
 import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
-
-const Wrapper = ({ children }: { children: React.ReactNode }) => <div className="flex flex-col gap-4">{children}</div>
 
 type CrossChainSwapProps = {
   onQuoteChange?: (quote: Quote) => void
 }
 
-export function CrossChainSwap({ onQuoteChange }: CrossChainSwapProps) {
+const CrossChainSwapForm = ({ onQuoteChange }: CrossChainSwapProps) => {
   const {
     amount,
     setAmount,
@@ -67,6 +66,29 @@ export function CrossChainSwap({ onQuoteChange }: CrossChainSwapProps) {
   const [showBtcModal, setShowBtcConnect] = useState(false)
   const [showEvmRecipient, setShowEvmRecipient] = useState(false)
   const [revertPrice, setRevertPrice] = useState(false)
+  const getQuoteRef = useRef(getQuote)
+
+  useEffect(() => {
+    getQuoteRef.current = getQuote
+  }, [getQuote])
+
+  const handleRefresh = useCallback(() => {
+    getQuoteRef.current()
+  }, [])
+
+  useEffect(() => {
+    if (showPreview) return
+    if (disable) {
+      getQuote()
+      return
+    }
+
+    const timeout = setTimeout(() => {
+      getQuote()
+    }, 300)
+
+    return () => clearTimeout(timeout)
+  }, [disable, getQuote, showPreview])
 
   // Debounce recipient for tracking
   const debouncedRecipient = useDebounce(recipient, 1000)
@@ -109,11 +131,13 @@ export function CrossChainSwap({ onQuoteChange }: CrossChainSwapProps) {
 
   const showConnect = searchParams.get('showConnect')
 
-  const isToNear = toChainId === NonEvmChain.Near
-  const isToBtc = toChainId === NonEvmChain.Bitcoin
   const isToEvm = toChainId && isEvmChain(toChainId)
-  const isToSolana = toChainId === NonEvmChain.Solana
-  const networkName = isToNear ? 'NEAR' : isToBtc ? 'Bitcoin' : isToSolana ? 'Solana' : 'EVM'
+  const outputTokenAddress = isToEvm ? (currencyOut as EvmCurrency | undefined)?.wrapped.address : undefined
+  const { message: honeypotWarning } = useHoneypotWarning({
+    chainId: isToEvm ? Number(toChainId) : undefined,
+    tokenAddress: outputTokenAddress,
+    tokenSymbol: currencyOut?.symbol,
+  })
 
   useEffect(() => {
     if (selectedQuote) {
@@ -133,14 +157,6 @@ export function CrossChainSwap({ onQuoteChange }: CrossChainSwapProps) {
 
   const { termAndPolicyModal, onOpenWallet } = useAcceptTermAndPolicy()
 
-  const isDifferentRecipient = isToNear
-    ? nearWallet.signedAccountId && recipient !== nearWallet.signedAccountId
-    : isToEvm
-    ? account && recipient !== account
-    : isToBtc
-    ? btcAddress && btcAddress !== recipient
-    : false
-
   useEffect(() => {
     if (showConnect) {
       if (fromChainId === NonEvmChain.Bitcoin && !btcAddress) {
@@ -154,7 +170,7 @@ export function CrossChainSwap({ onQuoteChange }: CrossChainSwapProps) {
   }, [showConnect, searchParams, setSearchParams, fromChainId, btcAddress, nearWallet, onOpenWallet])
 
   return (
-    <Wrapper>
+    <Stack className="gap-4">
       {termAndPolicyModal}
 
       <AutoColumn className="gap-3">
@@ -188,11 +204,12 @@ export function CrossChainSwap({ onQuoteChange }: CrossChainSwapProps) {
             refetchLoading={allLoading}
             clickable
             disableRefresh={disable || showPreview}
-            onRefresh={getQuote}
+            refreshOnMount={false}
+            onRefresh={handleRefresh}
           />
 
-          <div className="flex flex-1 flex-wrap items-center gap-2 text-sm text-text">
-            <span className="font-medium text-subText">
+          <div className="flex flex-1 flex-wrap items-center gap-2 text-sm font-medium text-text">
+            <span className="text-subText">
               <Trans>Cross-chain rate:</Trans>
             </span>
             {loading ? (
@@ -200,7 +217,7 @@ export function CrossChainSwap({ onQuoteChange }: CrossChainSwapProps) {
             ) : selectedQuote && toChainId ? (
               <div
                 role="button"
-                className="flex cursor-pointer flex-wrap items-center gap-1"
+                className="flex cursor-pointer flex-wrap items-center gap-1 hover:brightness-[0.85]"
                 onClick={() => setRevertPrice(!revertPrice)}
               >
                 1{' '}
@@ -216,7 +233,7 @@ export function CrossChainSwap({ onQuoteChange }: CrossChainSwapProps) {
                   currency={revertPrice ? currencyIn : currencyOut}
                   chainId={revertPrice ? fromChainId : toChainId}
                 />
-                <Repeat size={12} className="text-subText" />
+                <Repeat size={14} className="text-subText" />
               </div>
             ) : (
               <Skeleton height={20} width={120} />
@@ -224,6 +241,7 @@ export function CrossChainSwap({ onQuoteChange }: CrossChainSwapProps) {
           </div>
 
           <ReverseTokenSelectionButton
+            className="size-6 bg-buttonGray p-0.5"
             onClick={() => {
               const cIn = currencyIn as EvmCurrency
               const cOut = currencyOut as EvmCurrency
@@ -279,65 +297,17 @@ export function CrossChainSwap({ onQuoteChange }: CrossChainSwapProps) {
       </AutoColumn>
 
       <AutoColumn className="gap-3">
-        <AutoColumn className="gap-2">
-          <div className="flex items-center justify-between px-2 text-xs text-subText">
-            <div
-              className="flex cursor-pointer items-center gap-1"
-              role="button"
-              onClick={() => {
-                if (isEvmChain(fromChainId) && isToEvm) {
-                  if (!showEvmRecipient) {
-                    setRecipient('')
-                  }
-                  setShowEvmRecipient(prev => !prev)
-                }
-              }}
-            >
-              <span>
-                {isEvmChain(fromChainId) && isToEvm ? (
-                  <Trans>Send to other wallet</Trans>
-                ) : (
-                  t`Recipient (${networkName} address)`
-                )}
-              </span>
-              {isEvmChain(fromChainId) &&
-                isToEvm &&
-                (showEvmRecipient ? <ChevronUp size={16} /> : <ChevronDown size={16} />)}
-            </div>
-
-            {toChainId && (isEvmChain(fromChainId) && isToEvm ? showEvmRecipient : true) && (
-              <div className="flex gap-1">
-                {isDifferentRecipient && (!isEvmChain(fromChainId) || !isToEvm) && (
-                  <ButtonLight
-                    padding="2px 8px"
-                    width="fit-content"
-                    style={{ fontSize: '12px' }}
-                    onClick={() => {
-                      let reci = ''
-                      if (isToEvm) reci = account || ''
-                      if (isToNear) reci = nearWallet.signedAccountId || ''
-                      if (isToBtc) reci = btcAddress || ''
-                      setRecipient(reci)
-                    }}
-                  >
-                    <Trans>Use my wallet</Trans>
-                  </ButtonLight>
-                )}
-              </div>
-            )}
-          </div>
-          {(isEvmChain(fromChainId) && isToEvm ? showEvmRecipient : true) && (
-            <AddressInput
-              placeholder={t`Enter ${networkName} receiving address`}
-              value={recipient}
-              onChange={(event: ChangeEvent<HTMLInputElement>) => {
-                const input = event.target.value
-                const withoutSpaces = input.replace(/\s+/g, '')
-                setRecipient(withoutSpaces)
-              }}
-            />
-          )}
-        </AutoColumn>
+        <RecipientPanel
+          account={account}
+          btcAddress={btcAddress}
+          fromChainId={fromChainId}
+          nearAccountId={nearWallet.signedAccountId}
+          recipient={recipient}
+          setRecipient={setRecipient}
+          setShowEvmRecipient={setShowEvmRecipient}
+          showEvmRecipient={showEvmRecipient}
+          toChainId={toChainId}
+        />
 
         <div className={cn('flex items-center', selectedQuote ? '' : 'min-h-7')}>
           <SlippageSetting
@@ -372,7 +342,12 @@ export function CrossChainSwap({ onQuoteChange }: CrossChainSwapProps) {
         <Skeleton height={16} width={140} />
       )}
 
-      <PiWarning />
+      {(honeypotWarning || warning?.priceImpaceInfo?.message) && (
+        <Stack className="gap-3">
+          <HoneypotWarning message={honeypotWarning} />
+          <PiWarning />
+        </Stack>
+      )}
 
       <SwapAction setShowBtcModal={setShowBtcConnect} />
 
@@ -382,23 +357,23 @@ export function CrossChainSwap({ onQuoteChange }: CrossChainSwapProps) {
           setShowBtcConnect(false)
         }}
       />
-    </Wrapper>
+    </Stack>
   )
 }
 
 // memo is load-bearing: this wrapper hosts the route-mounted non-EVM wallet providers (NonEvmProviders).
-// SwapV3 re-renders this on every quote tick (it holds selectedQuote in state), and its only prop
-// `onQuoteChange` is a stable setState setter — so memoizing here keeps SwapV3's re-renders from
+// The parent CrossChain route re-renders this on every quote tick (it holds selectedQuote in state), and its only prop
+// `onQuoteChange` is a stable setState setter — so memoizing here keeps the parent re-renders from
 // re-rendering the providers, which would otherwise churn the wallet contexts (e.g. Solana `connection`)
-// and refetch the cross-chain rate in a loop. The inner CrossChainSwap still re-renders on its own state.
-const CrossChainSwapPage = memo(function CrossChainSwapPage(props: CrossChainSwapProps) {
+// and refetch the cross-chain rate in a loop. The inner CrossChainSwapForm still re-renders on its own state.
+const CrossChainSwap = (props: CrossChainSwapProps) => {
   return (
     <NonEvmProviders>
       <CrossChainSwapRegistryProvider>
-        <CrossChainSwap {...props} />
+        <CrossChainSwapForm {...props} />
       </CrossChainSwapRegistryProvider>
     </NonEvmProviders>
   )
-})
+}
 
-export default CrossChainSwapPage
+export default memo(CrossChainSwap)

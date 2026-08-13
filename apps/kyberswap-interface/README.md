@@ -44,6 +44,11 @@ pnpm start-stg     # staging mode
 - Preview build: `pnpm preview`
 - Lint: `pnpm lint`
 
+## Architecture references
+
+- [SEO, sitemap, and OG-service contract](docs/seo-og-contract.md): route ownership, discovery inventory, static
+  artifact handoff, canonical/robots expectations, hydration marker, and paired release requirements.
+
 ## Contributions
 
 **Please open all pull requests against the `main` branch.**

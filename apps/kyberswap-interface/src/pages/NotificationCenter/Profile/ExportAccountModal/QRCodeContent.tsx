@@ -1,6 +1,6 @@
 import { Trans } from '@lingui/macro'
-import { useMemo, useRef } from 'react'
-import { QRCode, IProps as QRCodeProps } from 'react-qrcode-logo'
+import { ComponentProps, useMemo, useRef } from 'react'
+import { QRCode } from 'react-qrcode-logo'
 
 import KncLogo from 'assets/images/kyber_logo_for_qr.png'
 import { AddressInput } from 'components/AddressInputPanel'
@@ -9,6 +9,8 @@ import CopyHelper from 'components/Copy'
 import Deposit from 'components/Icons/Deposit'
 import { Label } from 'pages/NotificationCenter/Profile/ExportAccountModal/styled'
 import { ButtonExport } from 'pages/NotificationCenter/Profile/buttons'
+
+type QRCodeProps = ComponentProps<typeof QRCode>
 
 const QR_SIZE = 200
 const QR_ID = 'react-qrcode-logo'

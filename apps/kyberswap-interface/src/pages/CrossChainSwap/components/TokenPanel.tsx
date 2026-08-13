@@ -11,28 +11,29 @@ import UnknownToken from 'assets/svg/kyber/unknown-token.svg'
 import { Aligner, CurrencySelect, InputRow, StyledTokenName } from 'components/CurrencyInputPanel'
 import CurrencyLogo from 'components/CurrencyLogo'
 import Wallet from 'components/Icons/Wallet'
-import { Input as NumericalInput } from 'components/NumericalInput'
+import NumericalInput from 'components/NumericalInput'
 import { RowFixed } from 'components/Row'
 import Skeleton from 'components/Skeleton'
 import { Stack } from 'components/Stack'
 import TokenSelectorModal from 'components/TokenSelectorModal'
 import { useBitcoinWallet } from 'components/Web3Provider/BitcoinProvider'
 import { useSolanaTokenBalances } from 'components/Web3Provider/SolanaProvider'
-import { MAINNET_NETWORKS } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
+import useChainsConfig from 'hooks/useChainsConfig'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useToggle from 'hooks/useToggle'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import useDisconnectWallet from 'hooks/web3/useDisconnectWallet'
-import SelectNetwork from 'pages/Bridge/SelectNetwork'
 import { Chain, Currency, NonEvmChain } from 'pages/CrossChainSwap/adapters'
+import { isEvmChain } from 'pages/CrossChainSwap/adapters/types'
+import { SelectNetwork, type SelectNetworkRef } from 'pages/CrossChainSwap/components/SelectNetwork'
 import TokenSelectorNonEvmModal from 'pages/CrossChainSwap/components/TokenSelectorNonEvmModal'
 import useAcceptTermAndPolicy from 'pages/CrossChainSwap/hooks/useAcceptTermAndPolicy'
 import { useNearBalances } from 'pages/CrossChainSwap/hooks/useNearBalances'
 import { useSolanaConnectModal } from 'pages/CrossChainSwap/provider/SolanaConnectModalProvider'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { useCurrencyBalance } from 'state/wallet/hooks'
-import { isEvmChain, shortenHash } from 'utils'
+import { shortenHash } from 'utils/address'
 import { formatDisplayNumber } from 'utils/numbers'
 
 export const TokenPanel = ({
@@ -61,6 +62,7 @@ export const TokenPanel = ({
   loading?: boolean
 }) => {
   const { trackingHandler } = useTracking()
+  const { supportedChains } = useChainsConfig()
   const [modalOpen, setModalOpen] = useState(false)
   const isEvm = isEvmChain(selectedChain as Chain)
   const isSolana = selectedChain === NonEvmChain.Solana
@@ -88,7 +90,7 @@ export const TokenPanel = ({
   const toggleWalletModal = useWalletModalToggle()
   const disconnectWallet = useDisconnectWallet()
 
-  const ref = useRef<{ toggleNetworkModal: () => void }>(null)
+  const ref = useRef<SelectNetworkRef>(null)
   const node = useRef<HTMLDivElement | null>(null)
   const [autoToggleTokenSelector, setAutoToggleTokenSelector] = useState(false)
   const [showMenu, toggleShowMenu] = useToggle(false)
@@ -204,13 +206,18 @@ export const TokenPanel = ({
   )
 
   return (
-    <div className="rounded-2xl bg-buttonBlack p-4">
-      <Stack className="gap-2">
+    <div className="rounded-2xl border border-transparent bg-buttonBlack p-4">
+      <Stack className="gap-3">
         <div className="flex items-center justify-between">
           <SelectNetwork
             onSelectNetwork={onSelectNetwork}
             selectedChainId={selectedChain}
-            chainIds={[NonEvmChain.Solana, NonEvmChain.Bitcoin, NonEvmChain.Near, ...MAINNET_NETWORKS]}
+            chainIds={[
+              NonEvmChain.Solana,
+              NonEvmChain.Bitcoin,
+              NonEvmChain.Near,
+              ...supportedChains.map(chain => chain.chainId),
+            ]}
             ref={ref}
           />
 
@@ -220,7 +227,7 @@ export const TokenPanel = ({
             <div className="relative text-xs font-medium text-subText">
               <div
                 role="button"
-                className="flex cursor-pointer items-center gap-1 hover:brightness-125"
+                className="flex cursor-pointer items-end gap-1 hover:brightness-125"
                 onClick={handleWalletClick}
               >
                 {walletDisplayAddress}
@@ -336,6 +343,8 @@ export const TokenPanel = ({
           showPinnedTokens
           customChainId={selectedChain as ChainId}
           trackingSource="cross_chain"
+          showDiscoveryTabs={false}
+          onSelectChain={onSelectNetwork}
         />
       ) : (
         <TokenSelectorNonEvmModal

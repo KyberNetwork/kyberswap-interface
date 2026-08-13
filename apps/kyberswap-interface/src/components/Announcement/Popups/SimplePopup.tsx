@@ -7,7 +7,6 @@ import { AutoColumn } from 'components/Column'
 import { CheckCircle } from 'components/Icons'
 import IconFailure from 'components/Icons/Failed'
 import WarningIcon from 'components/Icons/WarningIcon'
-import { AutoRow } from 'components/Row'
 import useTheme from 'hooks/useTheme'
 import { cn } from 'utils/cn'
 
@@ -40,8 +39,8 @@ export default function SimplePopup({
     type === NotificationType.SUCCESS ? 'text-primary' : type === NotificationType.WARNING ? 'text-warning' : 'text-red'
   const mapIcon = {
     [NotificationType.SUCCESS]: <CheckCircle color={color} size={'20px'} />,
-    [NotificationType.WARNING]: <WarningIcon solid color={color} />,
-    [NotificationType.ERROR]: <IconFailure color={color} />,
+    [NotificationType.WARNING]: <WarningIcon solid color={color} size={20} />,
+    [NotificationType.ERROR]: <IconFailure color={color} size={20} />,
   }
 
   const navigate = useNavigate()
@@ -50,17 +49,20 @@ export default function SimplePopup({
     onRemove?.()
   }
   return (
-    <AutoRow className="flex-nowrap">
-      <div className="pr-2.5">{icon || mapIcon[type]}</div>
-      <AutoColumn className="gap-2">
+    <div className="grid min-w-0 grid-cols-[20px_minmax(0,1fr)] gap-x-4 gap-y-1">
+      <div className="pt-0.5">{icon || mapIcon[type]}</div>
+      <AutoColumn className="min-w-0 gap-1">
         <span className={cn('text-base font-medium', colorClass)}>{title}</span>
         {summary && <span className="text-sm font-normal text-text">{summary}</span>}
         {link && (
-          <span className={cn('cursor-pointer text-sm font-medium', colorClass)} onClick={onClickLink}>
+          <span
+            className={cn('w-fit cursor-pointer text-sm font-medium hover:brightness-110', colorClass)}
+            onClick={onClickLink}
+          >
             <Trans>See here</Trans>
           </span>
         )}
       </AutoColumn>
-    </AutoRow>
+    </div>
   )
 }

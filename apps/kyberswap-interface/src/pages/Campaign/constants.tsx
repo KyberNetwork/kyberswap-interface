@@ -30,12 +30,15 @@ const stipInfo = {
   program: 'stip' as const,
 }
 
+const baseKnc = KNC[ChainId.BASE]
+if (!baseKnc) throw new Error('Missing KNC configuration for Base')
+
 const rewardKNC = {
   chainId: ChainId.BASE,
   symbol: 'KNC',
   logo: 'https://s2.coinmarketcap.com/static/img/coins/64x64/9444.png',
-  address: KNC[ChainId.BASE].address,
-  decimals: KNC[ChainId.BASE].decimals,
+  address: baseKnc.address,
+  decimals: baseKnc.decimals,
 }
 
 export enum CampaignType {

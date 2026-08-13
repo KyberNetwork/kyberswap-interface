@@ -14,6 +14,7 @@ import {
 import { useActiveWeb3React } from 'hooks'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { permitError } from 'state/swap/actions'
+import { getCurrencyDisplaySymbol } from 'utils/tokenInfo'
 
 import ConfirmSwapModalContent from './ConfirmSwapModalContent'
 
@@ -48,15 +49,15 @@ const SwapModal: React.FC<Props> = props => {
     txHash: '',
   })
 
-  const { routeSummary } = useSwapFormContext()
+  const { routeSummary, displayTypedValue } = useSwapFormContext()
   const currencyIn = routeSummary?.parsedAmountIn?.currency
   const currencyOut = routeSummary?.parsedAmountOut?.currency
 
   const amountOut = currencyOut && CurrencyAmount.fromRawAmount(currencyOut, buildResult?.data?.amountOut || '0')
-  const amountInDisplay = routeSummary?.parsedAmountIn?.toSignificant(6)
-  const symbolIn = currencyIn?.symbol
+  const amountInDisplay = displayTypedValue || routeSummary?.parsedAmountIn?.toSignificant(6)
+  const symbolIn = getCurrencyDisplaySymbol(currencyIn)
   const amountOutDisplay = amountOut?.toSignificant(6)
-  const symbolOut = currencyOut?.symbol
+  const symbolOut = getCurrencyDisplaySymbol(currencyOut)
 
   // text to show while loading
   const pendingText = t`Swapping ${amountInDisplay} ${symbolIn} for ${amountOutDisplay} ${symbolOut}`
@@ -95,7 +96,7 @@ const SwapModal: React.FC<Props> = props => {
       from_token: currencyIn?.symbol,
       to_token: currencyOut?.symbol,
       pair: currencyIn?.symbol && currencyOut?.symbol ? `${currencyIn.symbol}/${currencyOut.symbol}` : undefined,
-      amount_in: routeSummary?.parsedAmountIn?.toSignificant(6),
+      amount_in: displayTypedValue || routeSummary?.parsedAmountIn?.toSignificant(6),
       amount_in_usd: routeSummary?.amountInUsd ? Number(routeSummary.amountInUsd) : undefined,
       error_type: isUserRejected ? 'user_rejected' : 'tx_failed',
       error_message: error,

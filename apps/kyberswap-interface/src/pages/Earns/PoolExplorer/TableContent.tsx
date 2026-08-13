@@ -1,13 +1,14 @@
 import { t } from '@lingui/macro'
 import { useMemo } from 'react'
 import { useMedia } from 'react-use'
-import { PoolQueryParams, usePoolsExplorerQuery } from 'services/zapEarn'
+import { usePoolsExplorerQuery } from 'services/earn'
+import type { PoolQueryParams } from 'services/earn/types'
 
 import RefetchIndicator from 'components/RefetchIndicator'
+import PoolListSkeleton from 'components/RouteFallback/PoolListSkeleton'
 import { Stack } from 'components/Stack'
 import DesktopTableRow from 'pages/Earns/PoolExplorer/DesktopTableRow'
 import MobileTableRow from 'pages/Earns/PoolExplorer/MobileTableRow'
-import PoolListSkeleton from 'pages/Earns/PoolExplorer/PoolListSkeleton'
 import useFavoritePool from 'pages/Earns/PoolExplorer/useFavoritePool'
 import { EARN_DEXES } from 'pages/Earns/constants'
 import { ZapInInfo } from 'pages/Earns/hooks/useZapInWidget'
@@ -97,7 +98,7 @@ const TableContent = ({ onOpenZapInWidget, filters, showRewards = true, showPool
   }
 
   return (
-    <>
+    <div className="relative">
       <RefetchIndicator visible={isFetching} />
 
       {upToMedium ? (
@@ -132,7 +133,7 @@ const TableContent = ({ onOpenZapInWidget, filters, showRewards = true, showPool
       {visibleChainIds.map(chainId => (
         <Updater key={chainId} customChainId={chainId} />
       ))}
-    </>
+    </div>
   )
 }
 

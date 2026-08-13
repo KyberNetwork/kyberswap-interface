@@ -5,18 +5,18 @@ import { t } from '@lingui/macro'
 import { useState } from 'react'
 import { Share2 } from 'react-feather'
 import { useNavigate } from 'react-router-dom'
-import { PoolDetailToken } from 'services/zapEarn'
+import type { PoolDetailToken } from 'services/earn/types'
 
 import { ReactComponent as RocketIcon } from 'assets/svg/rocket.svg'
 import IconButton from 'components/Button/IconButton'
 import CopyHelper from 'components/Copy'
 import InfoHelper from 'components/InfoHelper'
+import { ListingPageNavigateButton } from 'components/Listing/Page'
 import { Center, HStack, Stack } from 'components/Stack'
 import TokenLogo from 'components/TokenLogo'
 import { APP_PATHS } from 'constants/index'
 import { NetworkInfo } from 'constants/networks/type'
 import { usePoolDetailContext } from 'pages/Earns/PoolDetail/context'
-import { NavigateButton } from 'pages/Earns/PoolExplorer/styles'
 import { IconArrowLeft, ShareButtonWrapper } from 'pages/Earns/PositionDetail/styles'
 import { getPoolDetailUrl } from 'pages/Earns/utils/url'
 import { formatDisplayNumber } from 'utils/numbers'
@@ -43,7 +43,7 @@ const PoolHeaderPage = () => {
 
   const isFarming = Boolean(pool.programs?.includes('eg') || pool.programs?.includes('lm'))
   const poolStats = pool.poolStats
-  const hasActiveApr = poolStats?.activeApr !== undefined
+  const hasActiveApr = !!poolStats?.activeApr
   const bonusApr = poolStats?.bonusApr || 0
   const activeTotal = hasActiveApr ? (poolStats?.activeApr || 0) + bonusApr : undefined
 
@@ -127,7 +127,9 @@ const PoolHeaderPage = () => {
 
           <HStack className="items-center gap-2">
             <HStack className="min-h-8 items-center gap-2 whitespace-nowrap rounded-xl bg-buttonGray px-3 py-2">
-              <img alt={dexInfo.name} src={dexInfo.logo} className="size-4 flex-none object-contain" />
+              {dexInfo.logo ? (
+                <img alt={dexInfo.name} src={dexInfo.logo} className="size-4 flex-none object-contain" />
+              ) : null}
               <span className="text-sm font-medium text-text">{dexInfo.name}</span>
               <span className="text-sm font-medium text-subText">
                 | {formatDisplayNumber(pool.swapFee, { significantDigits: 4 })}%
@@ -143,7 +145,7 @@ const PoolHeaderPage = () => {
         </HStack>
       </HStack>
 
-      <NavigateButton
+      <ListingPageNavigateButton
         mobileFullWidth
         icon={<RocketIcon width={20} height={20} />}
         text={t`Explore Pools`}
@@ -170,7 +172,9 @@ const PoolHeaderReview = () => {
 
         <HStack className="flex-wrap items-center gap-2">
           <HStack className="items-center gap-1">
-            <img alt={dexInfo.name} src={dexInfo.logo} className="size-4 flex-none object-contain" />
+            {dexInfo.logo ? (
+              <img alt={dexInfo.name} src={dexInfo.logo} className="size-4 flex-none object-contain" />
+            ) : null}
             <span className="text-sm text-subText">{dexInfo.name}</span>
           </HStack>
 

@@ -20,7 +20,7 @@ export const PaginationItem = forwardRef<HTMLLIElement, PaginationItemProps>(
     <li
       ref={ref}
       className={cn(
-        'mx-0.5 my-auto flex min-w-9 items-center justify-center text-center text-xs',
+        'mx-0.5 my-auto flex min-w-9 items-center justify-center text-center text-xs font-medium',
         $selected ? 'pointer-events-none text-primary' : 'text-subText',
         $disabled && 'pointer-events-none opacity-50',
         className,

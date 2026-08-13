@@ -2,7 +2,7 @@ import { t } from '@lingui/macro'
 import { Placement } from '@popperjs/core'
 import { Portal } from '@reach/portal'
 import { AnimatePresence, motion } from 'framer-motion'
-import { CSSProperties, ReactNode, useEffect, useRef, useState } from 'react'
+import { CSSProperties, ReactNode, useEffect, useMemo, useRef, useState } from 'react'
 import { usePopper } from 'react-popper'
 
 import { DropdownArrowIcon } from 'components/ArrowRotate'
@@ -43,6 +43,7 @@ export type SelectProps = {
   placement?: Placement
   withSearch?: boolean
   onHideMenu?: () => void // hide without changes
+  matchMenuWidth?: boolean
 }
 
 export default function Select({
@@ -64,6 +65,7 @@ export default function Select({
   withSearch,
   placement = 'bottom',
   placeholder,
+  matchMenuWidth,
 }: SelectProps) {
   const hasPlaceholder = placeholder !== undefined && placeholder !== null
   const getInitialSelected = () => {
@@ -99,11 +101,17 @@ export default function Select({
   }, [selectedValue, options, hasPlaceholder])
 
   const ref = useRef<HTMLDivElement>(null)
+  const popperRef = useRef<HTMLDivElement | null>(null)
+  const outsideRefs = useMemo(() => [ref, popperRef], [])
 
-  useOnClickOutside(ref, () => {
-    setShowMenu(false)
-    onHideMenu?.()
-  })
+  useOnClickOutside(
+    outsideRefs,
+    () => {
+      setShowMenu(false)
+      onHideMenu?.()
+    },
+    { ignoreReachPortal: false },
+  )
   const selectedInfo = options.find(item => getOptionValue(item) === selected)
   const shouldShowPlaceholder =
     hasPlaceholder && (selectedValue === null || selectedValue === undefined) && !selectedInfo
@@ -136,11 +144,12 @@ export default function Select({
             onClick={onClick}
             style={optionStyle}
             className={cn(
-              'whitespace-nowrap rounded-lg p-2 text-xs',
-              item.disabled
-                ? 'cursor-not-allowed text-border opacity-50'
-                : 'cursor-pointer text-subText hover:bg-background',
-              isSelected ? 'font-medium' : 'font-normal',
+              'whitespace-nowrap rounded-lg p-2 text-sm transition-colors',
+              item.disabled && 'cursor-not-allowed text-border opacity-50',
+              !item.disabled &&
+                (isSelected
+                  ? 'cursor-pointer bg-primary-10 font-medium text-primary'
+                  : 'cursor-pointer text-subText hover:bg-white/[0.04] hover:text-text'),
             )}
           >
             {optionRender ? optionRender(item) : getOptionLabel(item)}
@@ -150,6 +159,10 @@ export default function Select({
   }
 
   const [popperElement, setPopperElement] = useState<HTMLDivElement | null>(null)
+  const setPopperRef = (node: HTMLDivElement | null) => {
+    popperRef.current = node
+    setPopperElement(node)
+  }
 
   const { styles } = usePopper(ref.current, popperElement, {
     placement: placement,
@@ -173,12 +186,12 @@ export default function Select({
       <div className="flex-1 select-none truncate">
         {shouldShowPlaceholder ? placeholder : activeRender ? activeRender(selectedInfo) : getOptionLabel(selectedInfo)}
       </div>
-      <DropdownArrowIcon rotate={showMenu} color={arrowColor} arrow={arrow} size={arrowSize} />
+      <DropdownArrowIcon rotate={showMenu} color={arrowColor} arrow={arrow} size={arrowSize} className="-mx-1" />
       <AnimatePresence>
         {showMenu && (
           <Portal>
             <div
-              ref={setPopperElement}
+              ref={setPopperRef}
               style={{
                 ...styles.popper,
                 ...(menuPlacementTop ? { bottom: 40, top: 'unset' } : {}),
@@ -190,13 +203,13 @@ export default function Select({
                 animate={{ y: 0, opacity: 1 }}
                 exit={{ y: -10, opacity: 0 }}
                 transition={{ duration: 0.1 }}
-                style={menuStyle}
-                className="z-[2] w-max overflow-hidden rounded-2xl bg-tabActive p-2 [filter:drop-shadow(0px_4px_12px_rgba(0,0,0,0.36))]"
+                style={{ ...(matchMenuWidth ? { width: ref.current?.offsetWidth } : {}), ...menuStyle }}
+                className="z-[2] w-max overflow-hidden rounded-2xl bg-background p-2 [filter:drop-shadow(0px_4px_12px_rgba(0,0,0,0.36))]"
               >
                 {withSearch && (
                   <div
                     onClick={e => e.stopPropagation()}
-                    className="relative mb-2 flex items-center justify-center rounded-lg bg-buttonGray text-subText [transition:background-color_0.1s_ease,color_0.1s_ease] focus-within:bg-buttonBlack focus-within:text-text hover:bg-buttonBlack hover:text-text"
+                    className="relative mb-2 flex items-center justify-center rounded-lg bg-white/[0.04] text-subText [transition:background-color_0.1s_ease,color_0.1s_ease] focus-within:bg-white/[0.08] focus-within:text-text hover:bg-white/[0.08] hover:text-text"
                   >
                     <span className="absolute left-2">
                       <Icon id="search" />
@@ -209,7 +222,9 @@ export default function Select({
                     />
                   </div>
                 )}
-                <div>{dropdownRender ? dropdownRender(renderMenu()) : renderMenu()}</div>
+                <div className="flex flex-col gap-1">
+                  {dropdownRender ? dropdownRender(renderMenu()) : renderMenu()}
+                </div>
               </motion.div>
             </div>
           </Portal>

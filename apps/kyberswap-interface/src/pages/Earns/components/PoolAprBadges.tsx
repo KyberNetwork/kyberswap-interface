@@ -31,6 +31,7 @@ const PoolAprBadges = ({ pool }: Props) => {
     <HStack className="flex-nowrap items-center gap-1">
       {showEgReward && (
         <MouseoverTooltipDesktopOnly
+          containerStyle={{ width: 'fit-content', flexShrink: 0 }}
           placement="bottom"
           width="fit-content"
           text={`${t`FairFlow EG Rewards`}: ${formatAprNumber(egApr)}%`}
@@ -43,6 +44,7 @@ const PoolAprBadges = ({ pool }: Props) => {
       )}
       {showLmReward && (
         <MouseoverTooltipDesktopOnly
+          containerStyle={{ width: 'fit-content', flexShrink: 0 }}
           placement="bottom"
           width="fit-content"
           text={`${t`LM Rewards`}: ${formatAprNumber(lmApr)}%`}
@@ -51,7 +53,7 @@ const PoolAprBadges = ({ pool }: Props) => {
             {lmRewardLogos.length > 0 ? (
               <HStack className="flex-nowrap items-center gap-0.5">
                 {lmRewardLogos.map((logo, index) => (
-                  <TokenLogo key={`${logo}-${index}`} src={logo} size={16} className="shrink-0" />
+                  <TokenLogo key={`${logo}-${index}`} src={logo} size={16} className="min-w-4 shrink-0" />
                 ))}
               </HStack>
             ) : (
@@ -63,6 +65,7 @@ const PoolAprBadges = ({ pool }: Props) => {
       )}
       {tokenReward && (
         <MouseoverTooltipDesktopOnly
+          containerStyle={{ width: 'fit-content', flexShrink: 0 }}
           placement="bottom"
           width="fit-content"
           text={`Merkl Bonus: ${formatAprNumber(merklOpportunity.apr)}%`}

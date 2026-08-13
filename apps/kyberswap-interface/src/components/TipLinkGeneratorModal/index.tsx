@@ -40,12 +40,12 @@ import {
 import { APP_PATHS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
-import { useAllTokens } from 'hooks/Tokens'
 import useChainsConfig from 'hooks/useChainsConfig'
+import { useAllTokens } from 'hooks/useTokens'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { useNotify, useWalletModalToggle } from 'state/application/hooks'
 import { ChargeFeeBy } from 'types/route'
-import { isAddress } from 'utils'
+import { isAddress } from 'utils/address'
 
 const makeFileName = (file?: File) => {
   const ext = file?.name?.split('.').pop()?.toLowerCase() || 'png'

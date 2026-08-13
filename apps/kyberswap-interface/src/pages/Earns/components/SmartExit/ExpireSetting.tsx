@@ -3,9 +3,9 @@ import dayjs from 'dayjs'
 import { useMemo, useRef, useState } from 'react'
 import { Sliders } from 'react-feather'
 
+import DateTimePicker from 'components/DateTimePicker'
 import { TextDashed } from 'components/Text'
 import { MouseoverTooltip } from 'components/Tooltip'
-import DateTimePicker from 'components/swapv2/LimitOrder/ExpirePicker'
 import { TIMES_IN_SECS } from 'constants/index'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import { EXPIRE_TIME_PRESETS, FOREVER_EXPIRE_TIME } from 'pages/Earns/components/SmartExit/constants'
@@ -62,7 +62,7 @@ export default function ExpireSetting({
 
       <SettingContainer ref={settingRef}>
         <div className="flex justify-end">
-          <SettingButton type="button" onClick={() => setOpenSetting(v => !v)} aria-label={t`Open settings`}>
+          <SettingButton type="button" onClick={() => setOpenSetting(v => !v)} aria-label="Open settings">
             <Sliders size={16} />
           </SettingButton>
         </div>

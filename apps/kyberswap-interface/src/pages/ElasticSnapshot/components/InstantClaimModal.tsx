@@ -10,14 +10,14 @@ import { ButtonEmpty, ButtonOutlined, ButtonPrimary } from 'components/Button'
 import CurrencyLogo from 'components/CurrencyLogo'
 import Divider from 'components/Divider'
 import Dots from 'components/Dots'
-import { TermAndCondition } from 'components/Header/web3/WalletModal'
+import { Terms } from 'components/Header/web3/WalletModal'
 import InfoHelper from 'components/InfoHelper'
 import Modal from 'components/Modal'
 import { wagmiConfig } from 'components/Web3Provider'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
-import { useAllTokens } from 'hooks/Tokens'
 import { useReadingContract } from 'hooks/useContract'
+import { useAllTokens } from 'hooks/useTokens'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import InstantAbi from 'pages/ElasticSnapshot/data/abis/instantClaimAbi.json'
 import avalanche from 'pages/ElasticSnapshot/data/instant/avalanche.json'
@@ -303,7 +303,7 @@ export default function InstantClaimModal({ onDismiss, phase }: { onDismiss: () 
               need to Sign a message to confirm that you have read and accepted before claiming your assets.
             </div>
 
-            <TermAndCondition onClick={() => setIsAcceptTerm(prev => !prev)} className="mt-6 !bg-transparent !p-0">
+            <Terms onClick={() => setIsAcceptTerm(prev => !prev)} className="mt-6 !bg-transparent !p-0">
               <input
                 type="checkbox"
                 checked={isAcceptTerm}
@@ -313,7 +313,7 @@ export default function InstantClaimModal({ onDismiss, phase }: { onDismiss: () 
               <div>
                 Accept <ExternalLink href={ipfsLink}>KyberSwap’s Terms and Conditions</ExternalLink>
               </div>
-            </TermAndCondition>
+            </Terms>
             <div className="mt-6 flex gap-4">
               <ButtonOutlined
                 onClick={() => {

@@ -9,7 +9,7 @@ import Skeleton from 'components/Skeleton'
 import { NETWORKS_INFO, isSupportedChainId } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { MEDIA_WIDTHS } from 'theme'
-import { shortenHash } from 'utils'
+import { shortenHash } from 'utils/address'
 import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
 

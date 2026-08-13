@@ -1,23 +1,15 @@
-import { NATIVE_TOKEN_ADDRESS, NETWORKS_INFO as SCHEMA_NETWORKS_INFO, ChainId as SchemaChainId } from '@kyber/schema'
-import { ChainId } from '@kyberswap/ks-sdk-core'
+import { NATIVE_TOKEN_ADDRESS } from '@kyber/schema'
+import { ChainId, Token, WETH } from '@kyberswap/ks-sdk-core'
 import { useQueryClient } from '@tanstack/react-query'
 import debounce from 'lodash.debounce'
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { fetchTokenPrices, getMidPrice } from 'services/tokenCatalog'
 
-import { TOKEN_API_URL } from 'constants/env'
 import { useActiveWeb3React } from 'hooks'
 import { useAppDispatch, useAppSelector } from 'state/hooks'
-import { isAddressString } from 'utils'
+import { isAddressString } from 'utils/address'
 
 import { updatePrices } from '.'
-
-export enum PriceType {
-  Average = 'Average',
-}
-
-interface PriceResponse {
-  data: { [chainId: string]: { [address: string]: { PriceBuy: number; PriceSell: number } } }
-}
 
 const chunkList = (list: string[], chunkSize: number) => {
   const chunks: string[][] = []
@@ -33,7 +25,6 @@ const NATIVE_TOKEN_PRICE_KEY = NATIVE_TOKEN_ADDRESS.toLowerCase()
 export const useTokenPricesWithLoading = (
   addresses: Array<string>,
   customChain?: ChainId,
-  priceType?: PriceType,
 ): {
   data: { [address: string]: number }
   loading: boolean
@@ -52,10 +43,7 @@ export const useTokenPricesWithLoading = (
     .map(x => x.toLowerCase())
     .join(',')
 
-  const wrappedNativeAddress = useMemo(
-    () => SCHEMA_NETWORKS_INFO[chainId as unknown as SchemaChainId]?.wrappedToken.address?.toLowerCase(),
-    [chainId],
-  )
+  const wrappedNativeAddress = useMemo(() => (WETH[chainId] as Token | undefined)?.address?.toLowerCase(), [chainId])
 
   const tokenList = useMemo(() => {
     const list = addressKeys.split(',').filter(Boolean)
@@ -83,54 +71,37 @@ export const useTokenPricesWithLoading = (
       try {
         setLoading(true)
         const chunks = chunkList(normalizedList, CHUNK_SIZE)
-        const responses = await Promise.all<PriceResponse>(
+        const responses = await Promise.all(
           chunks.map(chunk =>
             queryClient.fetchQuery({
               queryKey: ['tokenPrices', chainId, chunk],
-              queryFn: async () => {
-                return fetch(`${TOKEN_API_URL}/v1/public/tokens/prices`, {
-                  method: 'POST',
-                  body: JSON.stringify({
-                    [chainId]: chunk,
-                  }),
-                }).then(res => res.json())
-              },
+              queryFn: () => fetchTokenPrices({ [chainId]: chunk }),
               retry: false,
             }),
           ),
         )
 
-        const prices: { address: string; price: number }[] = responses.flatMap((r: PriceResponse) =>
-          Object.entries(r?.data?.[chainId] || {}).map(([address, price]) => {
-            return {
-              address,
-              price: priceType === PriceType.Average ? (price.PriceBuy + price.PriceSell) / 2 : price.PriceBuy,
-            }
-          }),
-        )
+        const prices = responses.reduce<Record<string, number>>((acc, response) => {
+          Object.entries(response?.data?.[chainId] || {}).forEach(([address, entry]) => {
+            const price = getMidPrice(entry)
+            if (price !== null) acc[address.toLowerCase()] = price
+          })
+          return acc
+        }, {})
 
-        const formattedPrices = normalizedList.map(address => {
-          const price = prices.find(
-            (p: { address: string; price: number }) => p.address.toLowerCase() === address.toLowerCase(),
-          )
-
-          return {
-            address,
-            chainId: chainId,
-            price: price?.price || 0,
-          }
-        })
+        const formattedPrices = normalizedList.map(address => ({
+          address,
+          chainId,
+          price: prices[address] || 0,
+        }))
 
         if (formattedPrices?.length) {
           dispatch(updatePrices(formattedPrices))
-          return formattedPrices.reduce(
-            (acc, cur) => ({
-              ...acc,
-              [cur.address]: cur.price,
-              [isAddressString(cur.address)]: cur.price,
-            }),
-            {},
-          )
+          return formattedPrices.reduce<Record<string, number>>((acc, cur) => {
+            acc[cur.address] = cur.price
+            acc[isAddressString(cur.address)] = cur.price
+            return acc
+          }, {})
         }
 
         return {}
@@ -142,7 +113,7 @@ export const useTokenPricesWithLoading = (
         setLoading(false)
       }
     },
-    [chainId, dispatch, priceType, queryClient],
+    [chainId, dispatch, queryClient],
   )
 
   useEffect(() => {
@@ -157,7 +128,7 @@ export const useTokenPricesWithLoading = (
   const data: {
     [address: string]: number
   } = useMemo(() => {
-    return tokenList.reduce((acc, address) => {
+    return tokenList.reduce<Record<string, number>>((acc, address) => {
       const key = `${address}_${chainId}`
       const wrappedNativeKey = `${wrappedNativeAddress}_${chainId}`
       const price =
@@ -165,24 +136,29 @@ export const useTokenPricesWithLoading = (
           ? tokenPrices[key] || tokenPrices[wrappedNativeKey] || 0
           : tokenPrices[key] || 0
 
-      return {
-        ...acc,
-        [address]: price,
-        [isAddressString(address)]: price,
-      }
+      acc[address] = price
+      acc[isAddressString(address)] = price
+      return acc
     }, {})
   }, [tokenList, chainId, tokenPrices, wrappedNativeAddress])
 
-  return { data, loading, fetchPrices, refetch }
+  // `data` is rebuilt with a fresh identity whenever the Redux tokenPrices slice changes — which is
+  // on every price poll anywhere in the app, even for tokens this caller never asked about. Cache it
+  // by a value signature over the requested prices so the reference only changes when a requested
+  // token's resolved price actually changes (mirrors the balance path's balanceResultCached).
+  const dataSignature = tokenList.map(address => `${address}:${data[address] ?? 0}`).join('|')
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const dataCached = useMemo(() => data, [dataSignature])
+
+  return { data: dataCached, loading, fetchPrices, refetch }
 }
 
 export const useTokenPrices = (
   addresses: Array<string>,
   chainId?: ChainId,
-  priceType?: PriceType,
 ): {
   [address: string]: number
 } => {
-  const { data } = useTokenPricesWithLoading(addresses, chainId, priceType)
+  const { data } = useTokenPricesWithLoading(addresses, chainId)
   return data
 }

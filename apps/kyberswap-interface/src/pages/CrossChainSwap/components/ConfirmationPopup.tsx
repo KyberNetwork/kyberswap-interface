@@ -3,13 +3,13 @@ import { Trans, t } from '@lingui/macro'
 import { useWalletSelector } from '@near-wallet-selector/react-hook'
 import { useConnection, useWallet } from '@solana/wallet-adapter-react'
 import { Transaction, VersionedTransaction } from '@solana/web3.js'
-import { useEffect, useState } from 'react'
-import { ArrowDown, X } from 'react-feather'
+import { useState } from 'react'
+import { ArrowDown } from 'react-feather'
 import { useSearchParams } from 'react-router-dom'
 import { useLazyCheckBlackjackQuery } from 'services/blackjack'
 import { formatUnits } from 'viem'
 
-import { ButtonEmpty, ButtonPrimary } from 'components/Button'
+import { ButtonPrimary } from 'components/Button'
 import CopyHelper from 'components/Copy'
 import CurrencyLogo from 'components/CurrencyLogo'
 import { getTipLinkAttribution } from 'components/TipLinkGeneratorModal/shared'
@@ -21,14 +21,18 @@ import { useGatedWalletClient } from 'hooks/useGatedWalletClient'
 import useTracking, { CROSS_CHAIN_MIXPANEL_TYPE, TRACKING_EVENT_TYPE, useCrossChainMixpanel } from 'hooks/useTracking'
 import { Chain, Currency, NonEvmChain, NonEvmChainInfo } from 'pages/CrossChainSwap/adapters'
 import { adaptRelaySolanaWallet } from 'pages/CrossChainSwap/adapters/RelayAdapter/relaySolanaWallet'
+import { isEvmChain } from 'pages/CrossChainSwap/adapters/types'
 import { PiWarning } from 'pages/CrossChainSwap/components/PiWarning'
 import { QuoteProviderName } from 'pages/CrossChainSwap/components/QuoteProviderName'
 import { Summary } from 'pages/CrossChainSwap/components/Summary'
 import { useCrossChainSwap } from 'pages/CrossChainSwap/hooks/useCrossChainSwap'
-import { getChainName } from 'pages/CrossChainSwap/utils'
+import { useRestoreMyNearWalletPendingTransaction } from 'pages/CrossChainSwap/hooks/useRestoreMyNearWalletPendingTransaction'
+import type { Quote } from 'pages/CrossChainSwap/registry'
+import { getChainName, isQuoteExecutable } from 'pages/CrossChainSwap/utils'
 import { useCrossChainTransactions } from 'state/crossChainSwap'
-import { ExternalLink } from 'theme'
-import { getEtherscanLink, isEvmChain, shortenHash } from 'utils'
+import { CloseIcon, ExternalLink } from 'theme'
+import { shortenHash } from 'utils/address'
+import { getEtherscanLink } from 'utils/explorer'
 import { formatDisplayNumber } from 'utils/numbers'
 
 const TokenBoxInfo = ({
@@ -72,50 +76,33 @@ const TokenBoxInfo = ({
   )
 }
 
-export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDismiss: () => void }) => {
+type ConfirmationPopupProps = {
+  quote: Quote | null
+  isOpen: boolean
+  onDismiss?: () => void
+}
+
+export const ConfirmationPopup = ({ quote: selectedQuote, isOpen, onDismiss }: ConfirmationPopupProps) => {
   const { crossChainMixpanelHandler } = useCrossChainMixpanel()
   const { trackingHandler } = useTracking()
-  const {
-    selectedQuote,
-    currencyIn,
-    currencyOut,
-    amountInWei,
-    fromChainId,
-    toChainId,
-    warning,
-    recipient,
-    sender,
-    receiver,
-  } = useCrossChainSwap()
   const { data: walletClient } = useGatedWalletClient()
+  const { currencyIn, currencyOut, amountInWei, fromChainId, toChainId, warning, recipient, sender, receiver } =
+    useCrossChainSwap()
+
+  const [searchParams] = useSearchParams()
   const [submittingTx, setSubmittingTx] = useState(false)
   const [txHash, setTxHash] = useState('')
   const [txError, setTxError] = useState('')
   const [transactions, setTransactions] = useCrossChainTransactions()
-  const [searchParams, setSearchParams] = useSearchParams()
-  const transactionHashes = searchParams.get('transactionHashes')
-  useEffect(() => {
-    try {
-      const tx = JSON.parse(localStorage.getItem('cross-chain-swap-my-near-wallet-tx') || '')
-      if (transactionHashes && tx) {
-        setTransactions([tx, ...transactions].slice(0, 30))
-        localStorage.removeItem('cross-chain-swap-my-near-wallet-tx')
-        searchParams.delete('transactionHashes')
-        setSearchParams(searchParams)
-      }
-    } catch {
-      // do nothing
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [transactionHashes])
+
+  useRestoreMyNearWalletPendingTransaction()
 
   const nearWallet = useWalletSelector()
-
+  const solanaWallet = useWallet()
   const { walletInfo, availableWallets } = useBitcoinWallet()
 
   const [checkBlackjack] = useLazyCheckBlackjackQuery()
 
-  const solanaWallet = useWallet()
   const { publicKey: solanaAddress, sendTransaction } = solanaWallet
   const { connection } = useConnection()
 
@@ -156,7 +143,17 @@ export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDi
   const amount = inputAmount?.toExact() || formatUnits(BigInt(amountInWei), currencyIn.decimals)
 
   const handleSwap = async () => {
-    if (isEvmChain(fromChainId) && !walletClient) return
+    if (isEvmChain(fromChainId) && !walletClient) {
+      setTxError(t`The route is outdated. Please refresh and try again.`)
+      return
+    }
+
+    const executionSender = isEvmChain(fromChainId) ? walletClient?.account.address : sender
+    if (!isQuoteExecutable(selectedQuote, executionSender, receiver)) {
+      setTxError(t`The route is outdated. Please refresh and try again.`)
+      return
+    }
+
     const adaptedWallet = adaptRelaySolanaWallet(
       solanaAddress?.toString() || '1nc1nerator11111111111111111111111111111111',
       792703809, //chain id that Relay uses to identify solana
@@ -247,7 +244,7 @@ export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDi
         recipient: receiver,
       }
 
-      setTransactions([enriched, ...transactions].slice(0, 30))
+      setTransactions([enriched, ...transactions])
 
       const swapDetails = {
         amount_in: amount,
@@ -323,7 +320,7 @@ export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDi
 
   const dismiss = () => {
     setSubmittingTx(false)
-    onDismiss()
+    onDismiss?.()
     setTxHash('')
     setSubmittingTx(false)
     setTxError('')
@@ -357,9 +354,7 @@ export const ConfirmationPopup = ({ isOpen, onDismiss }: { isOpen: boolean; onDi
           <div className="flex w-full flex-col p-4">
             <div className="mb-3 flex items-center justify-between">
               <span className="text-xl font-medium">{t`Confirm Swap Details`}</span>
-              <ButtonEmpty width="fit-content" padding="0" onClick={onDismiss}>
-                <X size={20} className="text-text" />
-              </ButtonEmpty>
+              <CloseIcon onClick={onDismiss} />
             </div>
             <span className="mb-4 text-xs text-subText">{t`Please review the details of your swap`}</span>
             <TokenBoxInfo

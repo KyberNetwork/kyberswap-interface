@@ -21,6 +21,7 @@ import {
   optimism,
   plasma,
   rise,
+  robinhood,
   ronin,
   scroll,
   sonic,
@@ -28,6 +29,8 @@ import {
   zksync,
 } from 'constants/networks/index'
 import { NetworkInfo } from 'constants/networks/type'
+
+import { ENV_KEY, type EnvKeys } from './env'
 
 type NETWORKS_INFO_CONFIG_TYPE = { [chainId in ChainId]: NetworkInfo }
 
@@ -55,6 +58,7 @@ const NETWORKS_INFO_CONFIG: NETWORKS_INFO_CONFIG_TYPE = {
   [ChainId.ETHERLINK]: etherlink,
   [ChainId.MONAD]: monad,
   [ChainId.MEGAETH]: megaeth,
+  [ChainId.ROBINHOOD]: robinhood,
   [ChainId.RISE]: rise,
 } as const
 
@@ -69,7 +73,13 @@ export const NETWORKS_INFO = new Proxy(NETWORKS_INFO_CONFIG, {
 
 export const SUPPORTED_NETWORKS: ChainId[] = Object.keys(NETWORKS_INFO).map(Number)
 
-export const MAINNET_NETWORKS = [
+export const isSupportLimitOrder = (chainId: ChainId, envKey: EnvKeys = ENV_KEY): boolean => {
+  if (!SUPPORTED_NETWORKS.includes(chainId)) return false
+  const limitOrder = NETWORKS_INFO[chainId].limitOrder
+  return limitOrder === '*' || (limitOrder || []).includes(envKey)
+}
+
+export const MAINNET_NETWORKS: ChainId[] = [
   ChainId.MAINNET,
   ChainId.ARBITRUM,
   ChainId.OPTIMISM,
@@ -92,22 +102,18 @@ export const MAINNET_NETWORKS = [
   ChainId.PLASMA,
   ChainId.MONAD,
   ChainId.MEGAETH,
+  ChainId.ROBINHOOD,
   ChainId.RISE,
-] as const
+]
 
 export function isSupportedChainId(chainId?: number): chainId is ChainId {
   if (!chainId) return false
   return !!(NETWORKS_INFO_CONFIG as any)[chainId]
 }
 
-export const FAUCET_NETWORKS = []
-
-export const CLAIM_REWARDS_DATA_URL: { [chainId: number]: string } = {
-  [ChainId.AVAXMAINNET]:
-    'https://raw.githubusercontent.com/KyberNetwork/avax-trading-contest-reward-distribution/develop/results/reward_proof.json',
-  [ChainId.MATIC]:
-    'https://raw.githubusercontent.com/KyberNetwork/zkyber-reward-distribution/main/results/latest_merkle_data.json',
-}
+export const FAUCET_NETWORKS: ChainId[] = [
+  //
+]
 
 export const ELASTIC_NOT_SUPPORTED: () => { [key: string]: string } = () => ({
   [ChainId.ZKSYNC]: t`Elastic will be available soon`,

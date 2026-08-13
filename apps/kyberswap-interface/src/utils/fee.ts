@@ -2,7 +2,7 @@ import { Currency, CurrencyAmount, Fraction } from '@kyberswap/ks-sdk-core'
 import JSBI from 'jsbi'
 import { BuildRouteData } from 'services/route/types/buildRoute'
 
-import { BIPS_BASE, RESERVE_USD_DECIMALS } from 'constants/index'
+import { BIPS_BASE, RESERVE_USD_DECIMALS } from 'constants/trade'
 import { ChargeFeeBy, DetailedRouteSummary } from 'types/route'
 import { formatDisplayNumber } from 'utils/numbers'
 import { parseUnits } from 'utils/viem'
@@ -43,7 +43,7 @@ export const calculateFeeFromBuildData = (
   const feeUsd = buildData.feeUsd
 
   return {
-    feeAmount: formatDisplayNumber(feeCurrencyAmount.toSignificant(RESERVE_USD_DECIMALS), { significantDigits: 10 }),
+    feeAmount: formatDisplayNumber(feeCurrencyAmount.toExact(), { significantDigits: 10 }),
     feeAmountUsd:
       feeUsd && feeUsd !== '0' ? formatDisplayNumber(feeUsd, { style: 'currency', significantDigits: 10 }) : '',
     currencyAmount: feeCurrencyAmount,

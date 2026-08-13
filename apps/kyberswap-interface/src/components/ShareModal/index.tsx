@@ -4,6 +4,7 @@ import { isMobile } from 'react-device-detect'
 import { Share2, X } from 'react-feather'
 
 import { ButtonPrimary } from 'components/Button'
+import IconButton from 'components/Button/IconButton'
 import { Telegram } from 'components/Icons'
 import Discord from 'components/Icons/Discord'
 import Facebook from 'components/Icons/Facebook'
@@ -11,7 +12,6 @@ import TwitterIcon from 'components/Icons/TwitterIcon'
 import Modal from 'components/Modal'
 import { RowBetween } from 'components/Row'
 import { MouseoverTooltip } from 'components/Tooltip'
-import { StyledActionButtonSwapForm } from 'components/swapv2/styleds'
 import useCopyClipboard from 'hooks/useCopyClipboard'
 import useTheme from 'hooks/useTheme'
 import { ApplicationModal } from 'state/application/actions'
@@ -206,11 +206,11 @@ export const ShareButtonWithModal: React.FC<Props> = ({ url, onShared, color, ti
 
   return (
     <>
-      <StyledActionButtonSwapForm onClick={toggle}>
+      <IconButton variant="action" onClick={toggle}>
         <MouseoverTooltip text={t`Share`} placement="top" width="fit-content" disableTooltip={isMobile}>
           <Share2 size={18} color={color || theme.subText} />
         </MouseoverTooltip>
-      </StyledActionButtonSwapForm>
+      </IconButton>
       <ShareModal url={url} onShared={onShared} title={title} />
     </>
   )

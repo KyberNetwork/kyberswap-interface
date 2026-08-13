@@ -1,16 +1,24 @@
+// PoolType is needed as a value by the DEX map below. The widget package only re-exports @kyber/schema's
+// enum, so taking it from the source keeps the exact same values without dragging the widget in with it.
+import { PoolType as ZapOutDex } from '@kyber/schema'
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { OnSuccessProps, ZapOut, ChainId as ZapOutChainId, PoolType as ZapOutDex } from '@kyberswap/zap-out-widgets'
+import type { OnSuccessProps, ChainId as ZapOutChainId } from '@kyberswap/zap-out-widgets'
+// Eager, not with the lazy JS below: the widget's status dialog is styled by utilities scoped under the
+// widget's own root class, which ship only in this stylesheet (the app's eager @kyber/ui styles use a
+// different scope and don't reach it). It must be present whenever the widget can open.
 import '@kyberswap/zap-out-widgets/dist/style.css'
-import { useCallback, useMemo, useState } from 'react'
+import { Suspense, lazy, useCallback, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { NotificationType } from 'components/Announcement/type'
+import LocalLoader from 'components/LocalLoader'
 import Modal from 'components/Modal'
 import { APP_PATHS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useActiveLocale } from 'hooks/useActiveLocale'
 import { useIsSmartAccount } from 'hooks/useIsSmartAccount'
+import { restrictedTokenMessage, useIsTokenAddressRestricted } from 'hooks/useRestrictedTokens'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { EARN_DEXES, Exchange } from 'pages/Earns/constants'
@@ -22,7 +30,7 @@ import { navigateToPoolDetail } from 'pages/Earns/utils/zap'
 import { useKyberSwapConfig, useNotify, useWalletModalToggle } from 'state/application/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
-import { getCookieValue } from 'utils'
+import { getCookieValue } from 'utils/cookie'
 import { friendlyError } from 'utils/errorMessage'
 import { Address } from 'utils/viem'
 import { signTypedDataRaw } from 'utils/walletClient'
@@ -33,6 +41,8 @@ export interface ZapOutInfo {
     chainId: number
     poolAddress: string
     id: string
+    // Pool tokens, used to block the zap-out (trade) path for geo-restricted tokens.
+    tokens?: { address: string; symbol?: string }[]
   }
 }
 
@@ -58,6 +68,10 @@ const zapOutDexMapping: Record<Exchange, ZapOutDex> = {
   [Exchange.DEX_AERODROMECL3]: ZapOutDex.DEX_AERODROMECL3,
 }
 
+// The widget only renders inside the modal below, so lazy-load its JS to keep it out of every /earn route
+// chunk that calls this hook.
+const ZapOut = lazy(() => import('@kyberswap/zap-out-widgets').then(widget => ({ default: widget.ZapOut })))
+
 const useZapOutWidget = (
   onRefreshPosition?: (props: CheckClosedPositionParams) => void,
   explorePoolsEnabled?: boolean,
@@ -72,6 +86,7 @@ const useZapOutWidget = (
   const { account, chainId } = useActiveWeb3React()
   const isSmartAccount = useIsSmartAccount()
   const { changeNetwork } = useChangeNetwork()
+  const isAddressRestricted = useIsTokenAddressRestricted()
 
   const [zapOutPureParams, setZapOutPureParams] = useState<{
     positionId: string
@@ -311,6 +326,15 @@ const useZapOutWidget = (
       return
     }
 
+    // Block the zap-out (trade) path for geo-restricted tokens; withdraw-only exits stay allowed.
+    if (mode !== 'withdrawOnly') {
+      const restrictedToken = position.tokens?.find(token => isAddressRestricted(position.chainId, token.address))
+      if (restrictedToken) {
+        notify({ title: restrictedTokenMessage(restrictedToken.symbol), type: NotificationType.WARNING }, 4_000)
+        return
+      }
+    }
+
     setZapOutPureParams({
       poolType,
       chainId: position.chainId as ZapOutChainId,
@@ -337,7 +361,9 @@ const useZapOutWidget = (
         clearTracking()
       }}
     >
-      <ZapOut {...zapOutParams} />
+      <Suspense fallback={<LocalLoader />}>
+        <ZapOut {...zapOutParams} />
+      </Suspense>
     </Modal>
   ) : null
 

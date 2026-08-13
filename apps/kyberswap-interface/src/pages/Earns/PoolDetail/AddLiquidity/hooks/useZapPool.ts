@@ -10,8 +10,8 @@ import {
 import { MAX_TICK, MIN_TICK, nearestUsableTick } from '@kyber/utils/uniswapv3'
 import { skipToken } from '@reduxjs/toolkit/query'
 import { useMemo } from 'react'
-import { useCheckPairQuery } from 'services/marketOverview'
-import { PoolDetail } from 'services/zapEarn'
+import type { PoolDetail } from 'services/earn/types'
+import { useCheckPairQuery } from 'services/tokenCatalog'
 
 import { isUniV3PoolType } from 'pages/Earns/PoolDetail/AddLiquidity/utils'
 
@@ -86,7 +86,14 @@ export const useZapPool = ({ chainId, pool: rawPool, poolType }: UseZapPoolProps
     const fee = Number(rawPool.swapFee || 0)
 
     if (isUniV3PoolType(poolType)) {
-      if (!rawPool.positionInfo) return null
+      const positionInfo = rawPool.positionInfo
+      const tickSpacing = Number(positionInfo?.tickSpacing)
+
+      // Two ways a pool reaches here without a usable tick grid: the API omits the
+      // concentrated-liquidity fields for protocols it has no tick data for, and protocols absent
+      // from ZAPIN_DEX_MAPPING fall back to the univ3 pool type. `nearestUsableTick` throws on a
+      // non-integer spacing, so screen it out here and let the caller show the unsupported state.
+      if (!positionInfo || !Number.isInteger(tickSpacing) || tickSpacing <= 0) return null
 
       const parsedPool = univ3PoolNormalize.safeParse({
         address: rawPool.address,
@@ -94,13 +101,13 @@ export const useZapPool = ({ chainId, pool: rawPool, poolType }: UseZapPoolProps
         token0,
         token1,
         fee,
-        tick: rawPool.positionInfo.tick,
-        liquidity: rawPool.positionInfo.liquidity,
-        sqrtPriceX96: rawPool.positionInfo.sqrtPriceX96,
-        tickSpacing: rawPool.positionInfo.tickSpacing,
-        ticks: rawPool.positionInfo.ticks || [],
-        minTick: nearestUsableTick(MIN_TICK, rawPool.positionInfo.tickSpacing),
-        maxTick: nearestUsableTick(MAX_TICK, rawPool.positionInfo.tickSpacing),
+        tick: positionInfo.tick,
+        liquidity: positionInfo.liquidity,
+        sqrtPriceX96: positionInfo.sqrtPriceX96,
+        tickSpacing,
+        ticks: positionInfo.ticks || [],
+        minTick: nearestUsableTick(MIN_TICK, tickSpacing),
+        maxTick: nearestUsableTick(MAX_TICK, tickSpacing),
         category,
         stats,
         isFarming,
@@ -128,7 +135,7 @@ export const useZapPool = ({ chainId, pool: rawPool, poolType }: UseZapPoolProps
   }, [pairCategoryData?.data?.category, pairCategoryLoading, poolType, rawPool])
 
   const loading = pairCategoryLoading
-  const error = !loading && !normalizedPool ? 'Failed to prepare pool data' : ''
+  const error = !loading && !normalizedPool ? 'Add liquidity is not available for this pool.' : ''
 
   return {
     data: normalizedPool,

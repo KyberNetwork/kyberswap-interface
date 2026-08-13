@@ -11,7 +11,7 @@ import {
 import { PI_LEVEL, getPoolPrice, getZapImpact } from '@kyber/utils'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { useMemo } from 'react'
-import { useGetHoneypotInfoQuery } from 'services/marketOverview'
+import { useGetHoneypotInfoQuery } from 'services/tokenCatalog'
 
 import { ZapState } from 'pages/Earns/PoolDetail/AddLiquidity/hooks/useZapState'
 import { getSecurityWarnings, isUniV2PoolType, isUniV3PoolType } from 'pages/Earns/PoolDetail/AddLiquidity/utils'

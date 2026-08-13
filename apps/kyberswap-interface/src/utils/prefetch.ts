@@ -1,24 +1,24 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
+import earnServiceApi from 'services/earn'
 import limitOrderApi from 'services/limitOrder'
-import zapEarnServiceApi from 'services/zapEarn'
 
-import { getInitialListOrdersArgs } from 'components/swapv2/LimitOrder/listOrdersArgs'
+import { getInitialListOrdersArgs } from 'components/LimitOrder/listOrdersArgs'
 import { APP_PATHS } from 'constants/index'
-import { isSupportedChainId } from 'constants/networks'
+import { NETWORKS_INFO, SUPPORTED_NETWORKS, isSupportedChainId } from 'constants/networks'
+import { loadCrossChainSwap } from 'pages/CrossChainSwap/loader'
 import { getInitialPositionQueryParams } from 'pages/Earns/UserPositions/positionsQuery'
 import store from 'state'
 
 type ChunkLoader = () => Promise<unknown>
 
-// Destination route → its lazy JS chunk, covering every header nav link. Each loader imports the SAME
-// module App.tsx lazy-loads, so Vite serves the identical chunk (dedup by resolved module id) —
-// prefetching never double-downloads. Order matters: list more specific path prefixes before their
-// parents (e.g. every `/earn/*` before `/earn`, `/campaigns/dashboard` before the `/campaigns` catch-all).
+// Destination route → its lazy JS chunk, covering every lazy header nav link. Trade page shells stay eager,
+// while the heavy CrossChain form has its own lazy boundary. Each loader imports the SAME module as its
+// corresponding lazy boundary, so Vite serves the identical chunk (dedup by resolved module id) — prefetching
+// never double-downloads. Order matters: list more specific path prefixes before their parents (e.g. every
+// `/earn/*` before `/earn`, `/campaigns/dashboard` before the `/campaigns` catch-all).
 const ROUTE_CHUNKS: { prefix: string; load: ChunkLoader }[] = [
-  // Trade — swap / limit / cross-chain all render from the SwapV3 chunk.
-  { prefix: APP_PATHS.SWAP, load: () => import('pages/SwapV3') },
-  { prefix: APP_PATHS.LIMIT, load: () => import('pages/SwapV3') },
-  { prefix: APP_PATHS.CROSS_CHAIN, load: () => import('pages/SwapV3') },
+  // Trade — the page shell is eager, but the heavy CrossChain form stays lazy.
+  { prefix: APP_PATHS.CROSS_CHAIN, load: loadCrossChainSwap },
   // Market
   { prefix: APP_PATHS.MARKET_OVERVIEW, load: () => import('pages/MarketOverview') },
   // Earn — specific /earn/* routes must precede the /earn landing.
@@ -48,30 +48,85 @@ export function prefetchRouteChunk(to: string) {
 
 // Bounded set of high-traffic, mostly-static destinations worth warming during browser idle time, so
 // navigating to them is instant by ANY means — keyboard, mobile tap, programmatic — not just on the
-// hover/focus that on-intent prefetch needs. Keep this SMALL: an unbounded list just rebuilds an eager
-// payload. Loaders come from ROUTE_CHUNKS so the import() identities match App.tsx exactly (one shared
-// chunk, never a duplicate).
-const EAGER_PRELOAD_PREFIXES: string[] = [`${APP_PATHS.ABOUT}/kyberswap`, `${APP_PATHS.ABOUT}/knc`, APP_PATHS.EARN]
+// hover/focus that on-intent prefetch needs. Keep this SMALL and CHEAP: an unbounded list just rebuilds an
+// eager payload, and every entry here is paid by visitors who never open the route. The About pages cost
+// ~12KB gz between them, which the instant nav is worth. `/earn` is deliberately NOT here: its Landing
+// chunk drags the zap-widget hooks behind it (~1.9MB gz), so hover/tap intent via prefetchRouteChunk is the
+// only sensible way to warm it.
+const EAGER_PRELOAD_PREFIXES: string[] = [`${APP_PATHS.ABOUT}/kyberswap`, `${APP_PATHS.ABOUT}/knc`]
 
-/**
- * Warm the EAGER_PRELOAD_PREFIXES chunks during browser idle time. Client-only (no-op under
- * SSR/prerender) and idle-gated so it never competes with the critical first-load resources. Idempotent
- * — `import()` caches the module — so it's safe to call once after the app boots.
- */
+// Skip the warm entirely on metered or very slow connections, where spending a visitor's data on a route
+// they may never open is the wrong trade. The Network Information API is Chromium-only; elsewhere this
+// reads as undefined and the warm proceeds.
+const shouldSkipPreload = () => {
+  const connection = (navigator as Navigator & { connection?: { saveData?: boolean; effectiveType?: string } })
+    .connection
+  if (!connection) return false
+  return Boolean(connection.saveData) || /(^|-)2g$/.test(connection.effectiveType ?? '')
+}
+
+/** Warm selected static routes one at a time, with a separate idle window between each chunk. */
 export function preloadStaticRouteChunks() {
   if (typeof window === 'undefined') return
-  for (const prefix of EAGER_PRELOAD_PREFIXES) {
+
+  const preloadNext = (index: number) => {
+    const prefix = EAGER_PRELOAD_PREFIXES[index]
+    if (!prefix) return
+
     const load = ROUTE_CHUNKS.find(route => route.prefix === prefix)?.load
-    if (!load) continue
-    // requestIdleCallback so it never competes with critical first-load work; the `timeout` guarantees it
-    // still fires on a perpetually-busy page (no idle window). setTimeout fallback (small ~200ms deferral to
-    // push the warm past first paint) for browsers lacking requestIdleCallback.
+    if (!load) {
+      preloadNext(index + 1)
+      return
+    }
+
+    const run = () => {
+      void load()
+        .catch(() => undefined)
+        .finally(() => preloadNext(index + 1))
+    }
+
     if (window.requestIdleCallback) {
-      window.requestIdleCallback(() => void load().catch(() => undefined), { timeout: 3000 })
+      window.requestIdleCallback(run)
     } else {
-      window.setTimeout(() => void load().catch(() => undefined), 200)
+      window.setTimeout(run, 5_000)
     }
   }
+
+  // requestIdleCallback only tracks the main thread, so on a network-bound cold load it fires while the
+  // app is still fetching its own chunks and the warm competes for bandwidth. Waiting for `load` keeps it
+  // strictly after the page has finished, which is the point of warming during idle in the first place.
+  const start = () => {
+    if (shouldSkipPreload()) return
+    preloadNext(0)
+  }
+
+  if (document.readyState === 'complete') start()
+  else window.addEventListener('load', start, { once: true })
+}
+
+/**
+ * Warm every supported chain's network icon so opening the chain switcher shows them instantly.
+ * Only the current chain's icon is visible at first paint, so the other ~two dozen icons (~200KB of
+ * SVGs) are pure speculation — kept off the critical load window and warmed during idle after `load`,
+ * mirroring `preloadStaticRouteChunks` (skips on save-data / 2g).
+ */
+export function preloadChainIcons() {
+  if (typeof window === 'undefined') return
+
+  const warm = () => {
+    if (shouldSkipPreload()) return
+    const run = () => {
+      for (const chainId of SUPPORTED_NETWORKS) {
+        const icon = NETWORKS_INFO[chainId]?.icon
+        if (icon) new Image().src = icon
+      }
+    }
+    if (window.requestIdleCallback) window.requestIdleCallback(run)
+    else window.setTimeout(run, 5_000)
+  }
+
+  if (document.readyState === 'complete') warm()
+  else window.addEventListener('load', warm, { once: true })
 }
 
 // Pool-detail prefetches already issued this session — avoids re-dispatching on every re-hover.
@@ -92,7 +147,7 @@ export function prefetchPoolDetail(chainId: number | undefined, address: string 
   if (prefetchedPoolDetail.has(key)) return
   prefetchedPoolDetail.add(key)
   store.dispatch(
-    zapEarnServiceApi.util.prefetch('poolDetail', { chainId, address: normalizedAddress }, { ifOlderThan: 60 }),
+    earnServiceApi.util.prefetch('poolDetail', { chainId, address: normalizedAddress }, { ifOlderThan: 60 }),
   )
 }
 
@@ -130,7 +185,7 @@ export function prefetchMyPositions(account: string | undefined) {
   if (prefetchedPositions.has(key)) return
   prefetchedPositions.add(key)
   store.dispatch(
-    zapEarnServiceApi.util.prefetch('userPositions', getInitialPositionQueryParams(account), { ifOlderThan: 30 }),
+    earnServiceApi.util.prefetch('userPositions', getInitialPositionQueryParams(account), { ifOlderThan: 30 }),
   )
 }
 

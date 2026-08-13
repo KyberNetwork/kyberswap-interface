@@ -3,7 +3,7 @@ import dayjs from 'dayjs'
 import { useMemo, useState } from 'react'
 import { Calendar } from 'react-feather'
 
-import DateTimePicker from 'components/swapv2/LimitOrder/ExpirePicker'
+import DateTimePicker from 'components/DateTimePicker'
 import useTheme from 'hooks/useTheme'
 import { DEFAULT_TIME_OPTIONS } from 'pages/Earns/components/SmartExit/ExpireSetting'
 import { HighlightWrapper } from 'pages/Earns/components/SmartExit/GuidedHighlight'

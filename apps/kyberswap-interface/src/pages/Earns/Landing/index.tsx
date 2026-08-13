@@ -2,7 +2,7 @@ import { t } from '@lingui/macro'
 import { useEffect } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
-import { useExplorerLandingQuery } from 'services/zapEarn'
+import { useExplorerLandingQuery } from 'services/earn'
 
 import FireIcon from 'assets/svg/earn/fire.svg'
 import LiquidityPoolIcon from 'assets/svg/earn/liquidity-pools.svg'

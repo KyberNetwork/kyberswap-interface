@@ -1,5 +1,5 @@
 import { ButtonPrimary } from 'components/Button'
-import Input from 'components/NumericalInput'
+import NumericalInput from 'components/NumericalInput'
 import Select from 'components/Select'
 import { cn } from 'utils/cn'
 
@@ -47,8 +47,8 @@ export const RightColumn = ({ children, className, ...rest }: React.HTMLAttribut
   </div>
 )
 
-export const StyledInputNumber = ({ className, ...rest }: React.ComponentProps<typeof Input>) => (
-  <Input className={cn(SHARE_INPUT_CLASS, 'w-[100px]', className)} {...rest} />
+export const StyledInputNumber = ({ className, ...rest }: React.ComponentProps<typeof NumericalInput>) => (
+  <NumericalInput className={cn(SHARE_INPUT_CLASS, 'w-[100px]', className)} {...rest} />
 )
 
 export const StyledInput = ({ className, ...rest }: React.TextareaHTMLAttributes<HTMLTextAreaElement>) => (

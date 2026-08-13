@@ -1,7 +1,6 @@
-import { t } from '@lingui/macro'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useUserPositionsQuery } from 'services/earn'
 import { useGetSmartExitOrdersQuery } from 'services/smartExit'
-import { useUserPositionsQuery } from 'services/zapEarn'
 
 import { SmartExitDexType } from 'pages/Earns/components/SmartExit/constants'
 import { EARN_DEXES, Exchange } from 'pages/Earns/constants'
@@ -14,7 +13,6 @@ import {
   UserPosition,
 } from 'pages/Earns/types'
 import { parsePosition } from 'pages/Earns/utils/position'
-import { friendlyError } from 'utils/errorMessage'
 
 /**
  * For executed orders, the position may be closed and `earningFeeYield` from position data
@@ -262,11 +260,6 @@ export function useSmartExitOrdersData({ account, filters, pageSize, updateFilte
     return lastEnrichedOrdersRef.current
   }, [enrichedOrders, isDataSynced])
 
-  const ordersEmptyMessage = useMemo(
-    () => (ordersError ? friendlyError(ordersError as unknown as Error) : t`No smart exit orders found`),
-    [ordersError],
-  )
-
   const shouldShowEmptyState = useMemo(
     () =>
       ordersError ||
@@ -310,12 +303,10 @@ export function useSmartExitOrdersData({ account, filters, pageSize, updateFilte
   return {
     currentPage: syncedCurrentPage,
     totalItems: syncedTotalItems,
-    ordersError,
     tableLoading,
     overlayLoading,
     renderedOrders,
     handlePageChange,
-    ordersEmptyMessage,
     shouldShowEmptyState,
   }
 }

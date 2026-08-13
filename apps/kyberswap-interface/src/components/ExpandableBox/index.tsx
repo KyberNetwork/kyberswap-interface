@@ -2,9 +2,7 @@ import { t } from '@lingui/macro'
 import { CSSProperties, ReactNode, useRef, useState } from 'react'
 
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
-import { AutoColumn } from 'components/Column'
-import Divider from 'components/Divider'
-import { RowBetween } from 'components/Row'
+import { HStack, Stack } from 'components/Stack'
 import { cn } from 'utils/cn'
 
 export default function ExpandableBox({
@@ -49,30 +47,30 @@ export default function ExpandableBox({
 
   const isExpanded = expandedProp !== undefined ? expandedProp : expanded
   return (
-    <AutoColumn
+    <Stack
       style={{
         backgroundColor: backgroundColor || 'black',
         border: border || 'none',
         borderRadius: borderRadius || '8px',
         overflow: 'hidden',
         color,
-        padding,
         ...style,
       }}
       className={cn('[&>*]:transition-all [&>*]:duration-300 [&>*]:ease-in-out', className)}
     >
-      <RowBetween
+      <HStack
         onClick={handleChange}
-        style={{ backgroundColor: backgroundColor || 'black' }}
-        className="z-[1] cursor-pointer"
+        style={{ backgroundColor: backgroundColor || 'black', padding }}
+        className="z-[1] cursor-pointer items-center justify-between gap-4"
       >
-        {headerContent || t`Header`} <DropdownSVG style={{ transform: isExpanded ? 'rotate(180deg)' : undefined }} />
-      </RowBetween>
+        {headerContent || t`Header`}{' '}
+        <DropdownSVG style={{ minWidth: 20, transform: isExpanded ? 'rotate(180deg)' : undefined }} />
+      </HStack>
 
-      <div ref={contentRef} className={cn('z-0 mt-0', isExpanded ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0')}>
-        {hasDivider && <Divider style={{ margin: '16px 0', opacity: isExpanded ? '1' : '0' }} />}
-        {expandContent}
+      <div ref={contentRef} className={cn('z-0', isExpanded ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0')}>
+        {hasDivider && <div className="h-px w-full bg-darkBorder" />}
+        <div style={{ padding }}>{expandContent}</div>
       </div>
-    </AutoColumn>
+    </Stack>
   )
 }

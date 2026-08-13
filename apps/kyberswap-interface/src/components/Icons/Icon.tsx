@@ -1,8 +1,62 @@
 import React from 'react'
 
 import sprite from 'assets/svg/sprite.svg'
-import { ICON_ID } from 'constants/index'
 import { cn } from 'utils/cn'
+
+const ICON_IDS = [
+  'truesight-v2',
+  'notification-2',
+  'bullish',
+  'bearish',
+  'trending-soon',
+  'flame',
+  'download',
+  'upload',
+  'coin-bag',
+  'check',
+  'pig',
+  'speaker',
+  'share',
+  'liquid-outline',
+  'refund',
+  'swap',
+  'copy',
+  'open-link',
+  'star',
+  'fullscreen',
+  'leaderboard',
+  'liquid',
+  'alarm',
+  'on-chain',
+  'technical-analysis',
+  'liquidity-analysis',
+  'news',
+  'arrow',
+  'chart',
+  'lightbulb',
+  'info',
+  'question',
+  'timer',
+  'search',
+  'devices',
+  'eth-mono',
+  'ava-mono',
+  'bnb-mono',
+  'matic-mono',
+  'fantom-mono',
+  'optimism-mono',
+  'arbitrum-mono',
+  'telegram',
+  'twitter',
+  'facebook',
+  'discord',
+  'assignment',
+  'drag-indicator',
+  'pencil',
+  'trash',
+] as const
+
+type IconId = (typeof ICON_IDS)[number]
 
 export default function Icon({
   id,
@@ -12,7 +66,7 @@ export default function Icon({
   className,
   ...rest
 }: {
-  id: ICON_ID
+  id: IconId
   size?: number | string
   color?: string
   style?: React.CSSProperties

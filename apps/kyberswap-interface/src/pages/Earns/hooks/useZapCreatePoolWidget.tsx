@@ -1,10 +1,13 @@
 import { POOL_CATEGORY, Token } from '@kyber/schema'
-import { LiquidityWidget } from '@kyberswap/liquidity-widgets'
-import { ZapCreateWidget as ZapWidget } from '@kyberswap/zap-create-widgets'
+// Eager, not with the lazy JS below: each widget's status dialog is styled by utilities scoped under the
+// widget's own root class, which ship only in these stylesheets (the app's eager @kyber/ui styles use a
+// different scope and don't reach them). They must be present whenever the widgets can open.
+import '@kyberswap/liquidity-widgets/dist/style.css'
 import '@kyberswap/zap-create-widgets/dist/style.css'
-import { useCallback, useMemo, useState } from 'react'
+import { Suspense, lazy, useCallback, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
+import LocalLoader from 'components/LocalLoader'
 import Modal from 'components/Modal'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useActiveLocale } from 'hooks/useActiveLocale'
@@ -19,6 +22,16 @@ import { useKyberSwapConfig, useWalletModalToggle } from 'state/application/hook
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { friendlyError } from 'utils/errorMessage'
+
+// Both widgets only render inside the modal below, so lazy-load their JS to keep them out of every /earn
+// route chunk that calls this hook.
+const ZapWidget = lazy(() =>
+  import('@kyberswap/zap-create-widgets').then(widget => ({ default: widget.ZapCreateWidget })),
+)
+
+const LiquidityWidget = lazy(() =>
+  import('@kyberswap/liquidity-widgets').then(widget => ({ default: widget.LiquidityWidget })),
+)
 
 type CreateConfig = {
   chainId: number
@@ -172,11 +185,13 @@ const useZapCreatePoolWidget = () => {
 
   const widget = widgetProps ? (
     <Modal isOpen mobileFullWidth maxWidth={900} width={'900px'} onDismiss={handleClose}>
-      {widgetProps.isCreate ? (
-        <ZapWidget {...widgetProps.baseProps} createPoolConfig={widgetProps.createPoolConfig} />
-      ) : (
-        <LiquidityWidget {...widgetProps.baseProps} fromCreatePoolFlow={true} />
-      )}
+      <Suspense fallback={<LocalLoader />}>
+        {widgetProps.isCreate ? (
+          <ZapWidget {...widgetProps.baseProps} createPoolConfig={widgetProps.createPoolConfig} />
+        ) : (
+          <LiquidityWidget {...widgetProps.baseProps} fromCreatePoolFlow={true} />
+        )}
+      </Suspense>
     </Modal>
   ) : null
 

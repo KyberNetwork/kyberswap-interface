@@ -1,4 +1,3 @@
-import { t } from '@lingui/macro'
 import React from 'react'
 
 import { SwapProvider } from 'pages/CrossChainSwap/adapters'
@@ -39,13 +38,11 @@ export const QuoteProviderName = ({ quote }: { quote: Quote }) => {
   }
 
   const adapterName = adapter.getName()
-  const isBeta = adapterName === 'Optimex'
 
   return (
     <>
       <img src={adapter.getIcon()} alt={adapterName} width={14} height={14} />
       <span className="ml-1">{adapterName}</span>
-      {isBeta && <span className="ml-1 rounded-full bg-subText-20 px-1.5 py-0.5 text-[10px] text-text">{t`Beta`}</span>}
     </>
   )
 }

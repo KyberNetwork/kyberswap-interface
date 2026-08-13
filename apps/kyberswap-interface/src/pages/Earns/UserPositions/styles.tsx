@@ -2,24 +2,8 @@ import { HTMLAttributes, forwardRef } from 'react'
 import { Link, LinkProps } from 'react-router-dom'
 
 import { ReactComponent as IconCurrentPrice } from 'assets/svg/earn/ic_position_current_price.svg'
-import { PoolPageWrapper, TableHeader, TableWrapper } from 'pages/Earns/PoolExplorer/styles'
+import { TableHeader, TableWrapper, getPositionTableGridTemplateColumns } from 'components/Listing/Table'
 import { cn } from 'utils/cn'
-
-export const POSITION_GRID = 'grid'
-// Inline gridTemplateColumns because Tailwind's arbitrary-value parser silently
-// drops the bare `24px` spacer column when it sits between `minmax(...)` entries,
-// resulting in 8 rendered columns instead of 9 and pushing the Actions cell
-// onto a second row.
-export const POSITION_GRID_TEMPLATE_COLUMNS =
-  'minmax(260px, 2.6fr) minmax(80px, 0.8fr) minmax(90px, 0.8fr) minmax(100px, 1fr) minmax(120px, 1fr) 24px minmax(150px, 0.4fr) minmax(160px, 1.8fr) minmax(75px, auto)'
-
-type PositionPageWrapperProps = React.ComponentProps<typeof PoolPageWrapper>
-export const PositionPageWrapper = forwardRef<HTMLDivElement, PositionPageWrapperProps>(
-  ({ className, ...rest }, ref) => (
-    <PoolPageWrapper ref={ref} className={cn('sm:px-12 min-[1921px]:px-6', className)} {...rest} />
-  ),
-)
-PositionPageWrapper.displayName = 'PositionPageWrapper'
 
 type PositionRowProps = LinkProps & {
   $isUnfinalized?: boolean
@@ -32,19 +16,21 @@ export const PositionRow = forwardRef<HTMLAnchorElement, PositionRowProps>(
       <Link
         ref={ref}
         className={cn(
-          POSITION_GRID,
-          'relative animate-[fadeInUp_0.3s_ease-out_both] grid-rows-[1fr] gap-y-2 px-7 py-4 !text-inherit no-underline',
-          'after:absolute after:inset-x-7 after:bottom-0 after:h-px after:bg-tableHeader after:content-[""]',
-          'last:mb-0 last:after:hidden',
+          'relative grid grid-rows-[1fr] items-center p-3 !text-inherit no-underline',
+          'animate-[fadeInUp_0.3s_ease-out_both] motion-reduce:animate-none',
           'hover:cursor-pointer hover:bg-primary-10',
-          $isUnfinalized ? 'bg-tableHeader/40' : 'bg-background',
-          'max-[1300px]:mb-4 max-[1300px]:!grid-cols-3 max-[1300px]:grid-rows-[1fr_1fr] max-[1300px]:justify-start max-[1300px]:rounded-[20px] max-[1300px]:after:hidden',
+          $isUnfinalized && 'bg-tableHeader/40',
+          'max-[1300px]:!grid-cols-3 max-[1300px]:grid-rows-none max-[1300px]:justify-start max-[1300px]:rounded-xl',
           $isUnfinalized ? 'max-[1300px]:bg-tableHeader/70' : 'max-[1300px]:bg-background/80',
-          'motion-reduce:animate-none max-sm:relative max-sm:!flex max-sm:flex-col max-sm:gap-y-4 max-sm:rounded-none max-sm:p-4 max-sm:after:inset-x-4 max-sm:after:block',
+          'max-sm:relative max-sm:!flex max-sm:flex-col max-sm:rounded-xl max-sm:p-2',
           $isUnfinalized ? 'max-sm:!bg-tableHeader/70' : 'max-sm:!bg-background/80',
           className,
         )}
-        style={{ gridTemplateColumns: POSITION_GRID_TEMPLATE_COLUMNS, animationDelay: `${delay}ms`, ...style }}
+        style={{
+          gridTemplateColumns: getPositionTableGridTemplateColumns(),
+          animationDelay: `${delay}ms`,
+          ...style,
+        }}
         {...rest}
       />
     )
@@ -53,7 +39,14 @@ export const PositionRow = forwardRef<HTMLAnchorElement, PositionRowProps>(
 PositionRow.displayName = 'PositionRow'
 
 export const PositionOverview = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
-  <div className={cn('flex flex-col gap-2 max-[1300px]:col-span-2', className)} {...rest} />
+  <div
+    className={cn(
+      'box-border flex h-full min-w-0 flex-col items-start justify-start gap-2 px-3 py-2',
+      'max-[1300px]:col-span-2 max-sm:w-full max-sm:p-2',
+      className,
+    )}
+    {...rest}
+  />
 )
 
 export const ImageContainer = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
@@ -89,34 +82,30 @@ export const PositionValueWrapper = ({
   ...rest
 }: HTMLAttributes<HTMLDivElement> & { align?: string }) => (
   <div
-    className={cn('flex min-w-0 items-start justify-start gap-2 pt-2 max-sm:justify-between max-sm:pt-0', className)}
+    className={cn(
+      'box-border flex h-full min-w-0 items-start justify-start gap-2 px-3 py-2',
+      'max-sm:w-full max-sm:!justify-between max-sm:p-2',
+      className,
+    )}
     style={{ ...(align ? { justifyContent: align } : {}), ...style }}
     {...rest}
   />
 )
 
-export const PositionActionWrapper = ({
-  align,
-  className,
-  style,
-  ...rest
-}: HTMLAttributes<HTMLDivElement> & { align?: string }) => (
+export const PositionActionWrapper = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
   <div
     className={cn(
-      'flex min-w-0 items-start justify-end gap-2 pt-2 max-sm:!absolute max-sm:right-4 max-sm:top-2.5',
+      'box-border flex h-full min-w-0 items-start justify-end gap-2 px-3 py-2',
+      'max-sm:!absolute max-sm:right-2 max-sm:top-2 max-sm:p-2',
       className,
     )}
-    style={{ ...(align ? { justifyContent: align } : {}), ...style }}
     {...rest}
   />
 )
 
 export const PositionValueLabel = ({ className, ...rest }: HTMLAttributes<HTMLParagraphElement>) => (
   <p
-    className={cn(
-      'relative top-px m-0 hidden text-sm text-subText max-[1300px]:block max-sm:top-0 max-sm:text-base',
-      className,
-    )}
+    className={cn('relative top-px m-0 hidden text-sm text-subText max-[1300px]:block max-sm:top-0', className)}
     {...rest}
   />
 )
@@ -151,8 +140,8 @@ export const BannerContainer = ({ className, ...rest }: HTMLAttributes<HTMLDivEl
 export const BannerWrapper = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
   <div
     className={cn(
-      'relative flex flex-wrap items-center justify-start gap-[26px] rounded-xl px-8 py-[32.5px] [background:linear-gradient(119.08deg,rgba(20,29,27,1)_-0.89%,rgba(14,14,14,1)_132.3%)]',
-      'max-sm:flex-col max-sm:items-start max-sm:gap-4 max-sm:p-4 min-[1200px]:max-[1330px]:gap-[18px]',
+      'relative grid grid-cols-[1fr_1fr_1.4fr] items-center rounded-xl px-6 py-3 [background:linear-gradient(119.08deg,rgba(20,29,27,1)_-0.89%,rgba(14,14,14,1)_132.3%)]',
+      'max-sm:flex max-sm:flex-col max-sm:items-start max-sm:gap-3 max-sm:p-4',
       className,
     )}
     {...rest}
@@ -160,27 +149,17 @@ export const BannerWrapper = ({ className, ...rest }: HTMLAttributes<HTMLDivElem
 )
 
 export const RewardBannerWrapper = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
-  <BannerWrapper className={cn('flex-col items-start gap-2 px-8 py-3.5', className)} {...rest} />
+  <BannerWrapper className={cn('flex flex-col items-start gap-2', className)} {...rest} />
 )
 
 export const RewardBannerDetailWrapper = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
-  <div
-    className={cn(
-      'flex flex-wrap items-center justify-start gap-x-8 gap-y-2 min-[1200px]:max-[1330px]:gap-[18px]',
-      className,
-    )}
-    {...rest}
-  />
-)
-
-export const BannerDivider = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
-  <div className={cn('h-[60px] w-px bg-tabActive max-sm:hidden', className)} {...rest} />
+  <div className={cn('grid w-full grid-cols-[0.8fr_1fr_1.6fr] items-stretch', className)} {...rest} />
 )
 
 export const BannerDataItem = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
   <div
     className={cn(
-      'z-[1] flex flex-col gap-2 max-sm:w-full max-sm:flex-row max-sm:items-center max-sm:justify-between',
+      'z-[1] flex min-w-0 flex-col gap-1 max-sm:w-full max-sm:flex-row max-sm:items-center max-sm:justify-between',
       className,
     )}
     {...rest}
@@ -188,48 +167,35 @@ export const BannerDataItem = ({ className, ...rest }: HTMLAttributes<HTMLDivEle
 )
 
 type PositionTableHeaderProps = React.ComponentProps<typeof TableHeader>
-export const PositionTableHeader = forwardRef<HTMLDivElement, PositionTableHeaderProps>(
-  ({ className, style, ...rest }, ref) => (
-    <TableHeader
-      ref={ref}
-      className={cn(
-        POSITION_GRID,
-        'relative overflow-visible rounded-t-[20px] border-b-0 bg-background px-7 py-4 text-xs font-medium uppercase text-subText',
-        'after:absolute after:inset-x-7 after:bottom-0 after:h-px after:bg-tableHeader after:content-[""]',
-        className,
-      )}
-      style={{ gridTemplateColumns: POSITION_GRID_TEMPLATE_COLUMNS, ...style }}
-      {...rest}
-    />
-  ),
+export const PositionTableHeader = ({ className, style, ...rest }: PositionTableHeaderProps) => (
+  <TableHeader
+    className={cn('relative grid overflow-visible bg-transparent', className)}
+    style={{ gridTemplateColumns: getPositionTableGridTemplateColumns(), ...style }}
+    {...rest}
+  />
 )
-PositionTableHeader.displayName = 'PositionTableHeader'
 
 export const PositionTableHeaderItem = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
-  <div className={cn('h-full', className)} {...rest} />
+  <div
+    className={cn('box-border flex h-full min-w-0 flex-col px-3 py-2 text-sm font-medium uppercase', className)}
+    {...rest}
+  />
 )
 
 export const PositionTableHeaderFlexItem = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
   <div
-    className={cn('flex w-fit flex-wrap items-center gap-1 self-start hover:[&_svg_path]:stroke-text', className)}
+    className={cn(
+      'flex w-fit cursor-pointer flex-wrap items-center gap-1 self-start hover:text-text hover:[&_svg_path]:stroke-text',
+      className,
+    )}
     {...rest}
   />
 )
 
 type PositionTableWrapperProps = React.ComponentProps<typeof TableWrapper>
-export const PositionTableWrapper = forwardRef<HTMLDivElement, PositionTableWrapperProps>(
-  ({ className, ...rest }, ref) => (
-    <TableWrapper
-      ref={ref}
-      className={cn(
-        'relative overflow-hidden rounded-[20px] bg-background max-[1300px]:rounded-none max-[1300px]:bg-transparent max-sm:-mx-4',
-        className,
-      )}
-      {...rest}
-    />
-  ),
+export const PositionTableWrapper = ({ className, ...rest }: PositionTableWrapperProps) => (
+  <TableWrapper className={cn('max-[1300px]:rounded-none max-[1300px]:bg-transparent', className)} {...rest} />
 )
-PositionTableWrapper.displayName = 'PositionTableWrapper'
 
 export const PriceRangeWrapper = ({
   outOfRange,

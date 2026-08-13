@@ -1,24 +1,18 @@
 import { t } from '@lingui/macro'
-import { Adapter, WalletReadyState } from '@solana/wallet-adapter-base'
+import { WalletReadyState } from '@solana/wallet-adapter-base'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { useStandardWalletAdapters } from '@solana/wallet-standard-wallet-adapter-react'
-import dayjs from 'dayjs'
 import { useCallback, useMemo } from 'react'
 
-import { ReactComponent as Close } from 'assets/images/x.svg'
-import { ContentWrapper, OptionGrid } from 'components/Header/web3/WalletModal'
-import { HeaderText, IconWrapper, OptionCardClickable, OptionCardLeft } from 'components/Header/web3/WalletModal/Option'
+import { Content, Header, Icon, OptionButton, Options, Section, Shell, Terms } from 'components/Header/web3/WalletModal'
 import Modal from 'components/Modal'
-import { RowBetween } from 'components/Row'
-import { TERM_FILES_PATH } from 'constants/index'
-import { CloseIcon, TermAndCondition, UpperSection, Wrapper } from 'pages/CrossChainSwap/components/TermAndPolicy'
 import { useSolanaConnectModal } from 'pages/CrossChainSwap/provider/SolanaConnectModalProvider'
 import { useIsAcceptedTerm } from 'state/user/hooks'
-import { ExternalLink } from 'theme'
 
 const SolanaConnectModal = () => {
   const { isOpen, setIsOpen } = useSolanaConnectModal()
   const [isAcceptedTerm, setIsAcceptedTerm] = useIsAcceptedTerm()
+  const { select } = useWallet()
 
   const adaptersWithStandardAdapters = useStandardWalletAdapters([])
 
@@ -43,79 +37,46 @@ const SolanaConnectModal = () => {
       bypassFocusLock
       zindex={99999}
     >
-      <Wrapper>
-        <UpperSection>
-          <RowBetween className="mb-[26px] gap-5">
-            <span>{t`Connect your Wallet`}</span>
-            <CloseIcon onClick={handleClose}>
-              <Close />
-            </CloseIcon>
-          </RowBetween>
-          <TermAndCondition onClick={() => setIsAcceptedTerm(!isAcceptedTerm)}>
-            <input
-              type="checkbox"
-              checked={isAcceptedTerm}
-              onChange={() => {}}
-              data-testid="accept-term"
-              style={{ marginRight: '12px', height: '14px', width: '14px', minWidth: '14px', cursor: 'pointer' }}
-            />
-            <span className="text-subText">
-              <span>{t`Accept`}</span>{' '}
-              <ExternalLink href={TERM_FILES_PATH.KYBERSWAP_TERMS} onClick={e => e.stopPropagation()}>
-                <span>{t`KyberSwap's Terms of Use`}</span>
-              </ExternalLink>{' '}
-              <span>{t`and`}</span>{' '}
-              <ExternalLink href={TERM_FILES_PATH.PRIVACY_POLICY} onClick={e => e.stopPropagation()}>
-                <span>{t`Privacy Policy`}</span>
-              </ExternalLink>
-              {'. '}
-              <span className="text-[10px]">
-                {t`Last updated:`} {dayjs(TERM_FILES_PATH.VERSION).format('DD MMM YYYY')}
-              </span>
-            </span>
-          </TermAndCondition>
-          <ContentWrapper>
-            <OptionGrid>
-              {listedWallets.map(w => (
-                <Option key={w.name} wallet={w} onCloseModal={handleClose} />
-              ))}
-            </OptionGrid>
-          </ContentWrapper>
-        </UpperSection>
-      </Wrapper>
+      <Shell>
+        <Section>
+          <Header title={t`Connect your Wallet`} onClose={handleClose} />
+          <div className="flex flex-col gap-4">
+            <Terms checked={isAcceptedTerm} onChange={setIsAcceptedTerm} />
+            <Content>
+              {listedWallets.length ? (
+                <Options>
+                  {listedWallets.map(({ name, icon }) => (
+                    <OptionButton
+                      key={name}
+                      role="button"
+                      id={`solana-connect-${name}`}
+                      onClick={() => {
+                        if (isAcceptedTerm) {
+                          select(name)
+                          handleClose()
+                        }
+                      }}
+                      connected={false}
+                      isDisabled={!isAcceptedTerm}
+                    >
+                      <Icon>
+                        <img src={icon} alt={'Icon'} />
+                      </Icon>
+                      <span>{name}</span>
+                    </OptionButton>
+                  ))}
+                </Options>
+              ) : (
+                <div className="rounded-2xl bg-buttonBlack/30 px-3 py-4 text-center text-sm font-medium text-subText">
+                  {t`No Solana wallet detected`}
+                </div>
+              )}
+            </Content>
+          </div>
+        </Section>
+      </Shell>
     </Modal>
   )
-}
-
-const Option = ({ wallet, onCloseModal }: { wallet: Adapter; onCloseModal: () => void }) => {
-  const [isAcceptedTerm] = useIsAcceptedTerm()
-  const { select } = useWallet()
-
-  const { name, icon } = wallet
-
-  const content = (
-    <OptionCardClickable
-      role="button"
-      id={`solana-connect-${name}`}
-      onClick={() => {
-        if (isAcceptedTerm) {
-          select(name)
-          onCloseModal()
-        }
-      }}
-      connected={false}
-      isDisabled={!isAcceptedTerm}
-    >
-      <IconWrapper>
-        <img src={icon} alt={'Icon'} />
-      </IconWrapper>
-      <OptionCardLeft>
-        <HeaderText>{name}</HeaderText>
-      </OptionCardLeft>
-    </OptionCardClickable>
-  )
-
-  return content
 }
 
 export default SolanaConnectModal

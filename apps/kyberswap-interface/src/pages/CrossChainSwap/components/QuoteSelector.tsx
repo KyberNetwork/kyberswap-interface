@@ -9,7 +9,6 @@ import Modal from 'components/Modal'
 import ScrollableWithSignal from 'components/ScrollableWithSignal'
 import Skeleton from 'components/Skeleton'
 import { HStack, Stack } from 'components/Stack'
-import { MouseoverTooltip } from 'components/Tooltip'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { CampaignType, campaignConfig } from 'pages/Campaign/constants'
 import { Currency } from 'pages/CrossChainSwap/adapters'
@@ -198,11 +197,7 @@ export const QuoteSelector = ({
   return (
     <MenuFlyout
       isOpen={show}
-      trigger={
-        <MouseoverTooltip text={t`More options`} width="fit-content" placement="top">
-          {trigger}
-        </MouseoverTooltip>
-      }
+      trigger={trigger}
       hasArrow={false}
       toggle={() => setShow(prev => !prev)}
       className="bg-background"

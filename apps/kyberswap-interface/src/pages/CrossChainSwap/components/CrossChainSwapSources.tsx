@@ -3,15 +3,25 @@ import { useEffect, useRef, useState } from 'react'
 
 import CheckBox from 'components/CheckBox'
 import { HStack, Stack } from 'components/Stack'
-import { BackIconWrapper, LiquiditySourceHeader, SourceList } from 'components/swapv2/LiquiditySourcesPanel'
-import SearchBar from 'components/swapv2/LiquiditySourcesPanel/SearchBar'
-import { ImageWrapper, Source, SourceName } from 'components/swapv2/LiquiditySourcesPanel/styles'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { CrossChainSwapFactory } from 'pages/CrossChainSwap/factory'
+import { SearchBar } from 'pages/Swap/components/LiquiditySourcesPanel/SearchBar'
+import {
+  BackIconWrapper,
+  ImageWrapper,
+  LiquiditySourceHeader,
+  Source,
+  SourceList,
+  SourceName,
+} from 'pages/Swap/components/LiquiditySourcesPanel/components'
 import { updateExcludedSources } from 'state/crossChainSwap'
 import { useAppDispatch, useAppSelector } from 'state/hooks'
 
-export const CrossChainSwapSources: React.FC<{ onBack: () => void }> = ({ onBack }) => {
+type Props = {
+  onBack?: () => void
+}
+
+const CrossChainSwapSources = ({ onBack }: Props) => {
   const { trackingHandler } = useTracking()
   const [searchText, setSearchText] = useState('')
 
@@ -54,7 +64,7 @@ export const CrossChainSwapSources: React.FC<{ onBack: () => void }> = ({ onBack
   }, [selectedSources.length, sources.length])
 
   return (
-    <Stack className="w-full gap-5">
+    <Stack className="w-full gap-4">
       <HStack className="items-center gap-1">
         <BackIconWrapper onClick={onBack} />
         <span className="text-lg font-medium text-text">
@@ -62,49 +72,55 @@ export const CrossChainSwapSources: React.FC<{ onBack: () => void }> = ({ onBack
         </span>
       </HStack>
 
-      <SearchBar text={searchText} setText={setSearchText} />
+      <Stack className="gap-3">
+        <SearchBar value={searchText} onChange={setSearchText} />
 
-      <LiquiditySourceHeader>
-        <HStack className="items-center gap-3">
-          <CheckBox
-            ref={checkAllRef}
-            className="cursor-pointer"
-            onChange={e => {
-              if (!e.currentTarget.checked) {
-                dispatch(updateExcludedSources(sources.map(item => item.getName())))
-              } else {
-                dispatch(updateExcludedSources([]))
-              }
-            }}
-          />
-          <span>
-            <Trans>Liquidity Sources</Trans>
-          </span>
-        </HStack>
-        <span className="text-subText">
-          {selectedSources.length}/{sources.length}
-        </span>
-      </LiquiditySourceHeader>
-
-      <SourceList>
-        {sources
-          ?.filter(item => item.getName().toLowerCase().includes(searchText.toLowerCase().trim()))
-          .map(item => (
-            <Source key={item.getName()} onClick={() => handleToggleSource(item.getName())}>
+        <Stack>
+          <LiquiditySourceHeader>
+            <HStack className="items-center gap-3">
               <CheckBox
-                checked={!excludedSources.includes(item.getName())}
-                onChange={() => handleToggleSource(item.getName())}
-                onClick={e => e.stopPropagation()}
+                ref={checkAllRef}
+                className="cursor-pointer"
+                onChange={e => {
+                  if (!e.currentTarget.checked) {
+                    dispatch(updateExcludedSources(sources.map(item => item.getName())))
+                  } else {
+                    dispatch(updateExcludedSources([]))
+                  }
+                }}
               />
+              <span>
+                <Trans>Liquidity Sources</Trans>
+              </span>
+            </HStack>
+            <span className="text-subText">
+              {selectedSources.length}/{sources.length}
+            </span>
+          </LiquiditySourceHeader>
 
-              <ImageWrapper>
-                <img src={item.getIcon()} alt="" />
-              </ImageWrapper>
+          <SourceList>
+            {sources
+              ?.filter(item => item.getName().toLowerCase().includes(searchText.toLowerCase().trim()))
+              .map(item => (
+                <Source key={item.getName()} onClick={() => handleToggleSource(item.getName())}>
+                  <CheckBox
+                    checked={!excludedSources.includes(item.getName())}
+                    onChange={() => handleToggleSource(item.getName())}
+                    onClick={e => e.stopPropagation()}
+                  />
 
-              <SourceName>{item.getName()}</SourceName>
-            </Source>
-          ))}
-      </SourceList>
+                  <ImageWrapper>
+                    <img src={item.getIcon()} alt="" />
+                  </ImageWrapper>
+
+                  <SourceName>{item.getName()}</SourceName>
+                </Source>
+              ))}
+          </SourceList>
+        </Stack>
+      </Stack>
     </Stack>
   )
 }
+
+export default CrossChainSwapSources

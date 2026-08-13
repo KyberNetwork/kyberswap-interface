@@ -313,29 +313,30 @@ const useLogin = (autoLogin = false) => {
   }
 }
 
+/**
+ * @deprecated OAuth/BFF profile auto bootstrap is no longer active. Keep explicit sign-in flows on `useLogin`.
+ */
 export const useAutoLogin = () => {
   const { signedMethod, signedAccount } = useSignedAccountInfo()
   const qs = useParsedQueryString()
   const { account } = useActiveWeb3React()
   const [isKeepCurrentProfile] = useIsKeepCurrentProfile()
-  const { signIn, checkSessionSignIn, signInAnonymous } = useLogin(true)
+  const { signIn, checkSessionSignIn } = useLogin(true)
+  const setLoading = useSetPendingAuthentication()
 
-  // auto try sign in when the first visit app, call once
+  // Complete the initial auth bootstrap without probing deprecated OAuth/BFF
+  // sessions on regular app loads.
   const isInit = useRef(false)
   useEffect(() => {
     if (isInit.current) return
     isInit.current = true
     if (qs.code) {
       // redirect from server
-      checkSessionSignIn(undefined)
+      checkSessionSignIn(undefined, false)
       return
     }
-    if (signedMethod === LoginMethod.ANONYMOUS) {
-      signInAnonymous(signedAccount)
-      return
-    }
-    checkSessionSignIn(signedAccount || undefined)
-  }, [checkSessionSignIn, signedAccount, signedMethod, signInAnonymous, qs.code])
+    setLoading(false)
+  }, [checkSessionSignIn, setLoading, qs.code])
 
   // auto sign in after connect wallet
   const [{ value: needSignInAfterConnectWallet, account: accountSignAfterConnectedWallet }, setAutoSignIn] =

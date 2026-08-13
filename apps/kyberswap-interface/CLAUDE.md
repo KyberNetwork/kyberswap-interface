@@ -25,7 +25,12 @@ src/
 
 ## Environment Variables
 
-See `.env.example` for required variables (`VITE_INFURA_KEY`, `VITE_ALCHEMY_KEY`, etc.)
+A single committed `.env` (production values) is the only env file — there are no per-mode
+`.env.dev` / `.env.stg` / `.env.production` files. Vite loads `.env` in every mode, so `pnpm dev`,
+`pnpm start`, and `pnpm build` all read the same values. All variables are `VITE_`-prefixed and
+therefore exposed to the client bundle — never put server-side secrets here.
+
+`constants/env.ts` hard-throws if a required `VITE_*` is missing.
 
 ## Styling
 

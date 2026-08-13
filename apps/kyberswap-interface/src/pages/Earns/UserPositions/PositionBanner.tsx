@@ -15,7 +15,6 @@ import { PositionAction, RewardLink, ShareButtonWrapper } from 'pages/Earns/Posi
 import {
   BannerContainer,
   BannerDataItem,
-  BannerDivider,
   BannerWrapper,
   HorizontalDivider,
   RewardBannerDetailWrapper,
@@ -56,6 +55,16 @@ export const BannerSkeleton = ({
   )
 }
 
+const BannerValueSlot = ({
+  children,
+  compact = false,
+  className,
+}: {
+  children: React.ReactNode
+  compact?: boolean
+  className?: string
+}) => <div className={cn('flex items-center', compact ? 'h-6' : 'h-7', className)}>{children}</div>
+
 export default function PositionBanner({
   positionsStats,
   initialLoading,
@@ -93,7 +102,6 @@ export default function PositionBanner({
   const totalClaimableUsdValue = claimableUsdValue + totalMerklUsdValue
 
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
-  const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
 
   const { totalValueUsd, totalEarnedFeeUsd, totalUnclaimedFeeUsd } = extractClaimedFeeStats(positionsStats)
 
@@ -106,7 +114,6 @@ export default function PositionBanner({
         mobileAutoWidth
         outline
         onClick={onOpenClaimAllRewards}
-        className="relative top-0.5"
       >
         <span>{t`Claim All`}</span>
       </PositionAction>
@@ -142,7 +149,7 @@ export default function PositionBanner({
           </span>
           <button
             type="button"
-            aria-label={t`Close`}
+            aria-label="Close"
             onClick={() => setShowTotalRewardModal(false)}
             className="flex size-6 cursor-pointer items-center justify-center border-0 bg-transparent p-0 text-subText hover:text-text"
           >
@@ -159,88 +166,96 @@ export default function PositionBanner({
       {shareModal}
       {totalRewardModal}
 
-      <div className={cn('flex items-center', !upToLarge ? 'flex-row gap-5' : 'flex-col gap-3')}>
-        <BannerContainer>
-          <BannerWrapper>
-            <BannerDataItem>
+      <div className="grid auto-rows-fr grid-cols-2 items-stretch gap-4 max-lg:grid-cols-1">
+        <BannerContainer className="h-full">
+          <BannerWrapper className="h-full">
+            <BannerDataItem className="pr-4 max-sm:p-0">
               <span className="text-subText">{t`Total Value`}</span>
 
-              {initialLoading ? (
-                <BannerSkeleton width={90} height={28} />
-              ) : (
-                <p
-                  className={cn(
-                    'max-w-[140px] text-[24px]',
-                    totalValueUsd && totalValueUsd > 0 ? 'text-primary' : 'text-text',
-                  )}
-                  style={LIMIT_TEXT_STYLES}
-                >
-                  <AnimatedNumber
-                    value={formatDisplayNumber(totalValueUsd, { style: 'currency', significantDigits: 4 })}
-                  />
-                </p>
-              )}
+              <BannerValueSlot>
+                {initialLoading ? (
+                  <BannerSkeleton width={90} height={28} />
+                ) : (
+                  <p
+                    className={cn(
+                      'max-w-[140px] text-2xl leading-7',
+                      totalValueUsd && totalValueUsd > 0 ? 'text-primary' : 'text-text',
+                    )}
+                    style={LIMIT_TEXT_STYLES}
+                  >
+                    <AnimatedNumber
+                      value={formatDisplayNumber(totalValueUsd, { style: 'currency', significantDigits: 4 })}
+                    />
+                  </p>
+                )}
+              </BannerValueSlot>
             </BannerDataItem>
-            <BannerDivider />
-            <BannerDataItem>
+            <BannerDataItem className="border-l-2 border-tabActive px-4 max-sm:border-0 max-sm:p-0">
               <span className="text-subText">{t`Earned Fees`}</span>
 
-              {initialLoading ? (
-                <BannerSkeleton width={90} height={28} />
-              ) : (
-                <p className="max-w-[140px] text-[24px]" style={LIMIT_TEXT_STYLES}>
-                  <AnimatedNumber
-                    value={formatDisplayNumber(totalEarnedFeeUsd, { style: 'currency', significantDigits: 4 })}
-                  />
-                </p>
-              )}
+              <BannerValueSlot>
+                {initialLoading ? (
+                  <BannerSkeleton width={90} height={28} />
+                ) : (
+                  <p className="max-w-[140px] text-2xl leading-7" style={LIMIT_TEXT_STYLES}>
+                    <AnimatedNumber
+                      value={formatDisplayNumber(totalEarnedFeeUsd, { style: 'currency', significantDigits: 4 })}
+                    />
+                  </p>
+                )}
+              </BannerValueSlot>
             </BannerDataItem>
-            <BannerDivider />
-            <BannerDataItem>
+            <BannerDataItem className="border-l-2 border-tabActive pl-4 max-sm:border-0 max-sm:p-0">
               <span className="text-subText">{t`Total Unclaimed Fees`}</span>
 
-              {initialLoading ? (
-                <BannerSkeleton width={90} height={28} />
-              ) : (
-                <p className="max-w-[140px] text-[24px]" style={LIMIT_TEXT_STYLES}>
-                  <AnimatedNumber
-                    value={formatDisplayNumber(totalUnclaimedFeeUsd, { style: 'currency', significantDigits: 4 })}
-                  />
-                </p>
-              )}
+              <BannerValueSlot>
+                {initialLoading ? (
+                  <BannerSkeleton width={90} height={28} />
+                ) : (
+                  <p className="max-w-[140px] text-2xl leading-7" style={LIMIT_TEXT_STYLES}>
+                    <AnimatedNumber
+                      value={formatDisplayNumber(totalUnclaimedFeeUsd, { style: 'currency', significantDigits: 4 })}
+                    />
+                  </p>
+                )}
+              </BannerValueSlot>
             </BannerDataItem>
             {upToSmall && (
               <>
-                <div className="flex w-full justify-between border-t border-solid border-white/[0.08] pt-4">
+                <div className="flex w-full items-center justify-between border-t border-solid border-white/[0.08] pt-3">
                   <div className="flex items-center gap-1">
                     <FarmingIcon width={KemImageSize} height={KemImageSize} />
                     <span className="mr-1 text-subText">{t`Total Rewards`}</span>
                     {shareBtn}
                   </div>
 
-                  {isLoadingKemRewards ? (
-                    <BannerSkeleton width={90} height={28} />
-                  ) : (
-                    <p className="text-[24px]">
-                      <AnimatedNumber
-                        value={formatDisplayNumber(totalUsdValue, { significantDigits: 4, style: 'currency' })}
-                      />
-                    </p>
-                  )}
-                </div>
-                <div className="-mt-2 flex w-full flex-col gap-3 pl-3">
-                  <BannerDataItem>
-                    <span className="text-[14px] text-subText">{t`Claimed`}</span>
-
+                  <BannerValueSlot className="justify-end">
                     {isLoadingKemRewards ? (
-                      <BannerSkeleton width={80} height={24} />
+                      <BannerSkeleton width={90} height={28} />
                     ) : (
-                      <p className="text-[20px]">
+                      <p className="text-2xl leading-7">
                         <AnimatedNumber
-                          value={formatDisplayNumber(claimedUsdValue, { style: 'currency', significantDigits: 4 })}
+                          value={formatDisplayNumber(totalUsdValue, { significantDigits: 4, style: 'currency' })}
                         />
                       </p>
                     )}
+                  </BannerValueSlot>
+                </div>
+                <div className="flex w-full flex-col gap-3">
+                  <BannerDataItem>
+                    <span className="text-[14px] text-subText">{t`Claimed`}</span>
+
+                    <BannerValueSlot compact>
+                      {isLoadingKemRewards ? (
+                        <BannerSkeleton width={80} height={24} />
+                      ) : (
+                        <p className="text-xl leading-6">
+                          <AnimatedNumber
+                            value={formatDisplayNumber(claimedUsdValue, { style: 'currency', significantDigits: 4 })}
+                          />
+                        </p>
+                      )}
+                    </BannerValueSlot>
                   </BannerDataItem>
 
                   <BannerDataItem>
@@ -259,33 +274,40 @@ export default function PositionBanner({
                       />
                     </div>
 
-                    {isLoadingKemRewards ? (
-                      <BannerSkeleton width={80} height={24} />
-                    ) : (
-                      <p className="text-[20px]">
-                        <AnimatedNumber
-                          value={formatDisplayNumber(inProgressUsdValue, { style: 'currency', significantDigits: 4 })}
-                        />
-                      </p>
-                    )}
-                  </BannerDataItem>
-
-                  <div className="flex items-end justify-between">
-                    <div className="flex flex-col items-start gap-2">
-                      <span className="text-[14px] text-subText">{t`Claimable`}</span>
-
+                    <BannerValueSlot compact>
                       {isLoadingKemRewards ? (
                         <BannerSkeleton width={80} height={24} />
                       ) : (
-                        <p className="text-[20px]">
+                        <p className="text-xl leading-6">
                           <AnimatedNumber
-                            value={formatDisplayNumber(totalClaimableUsdValue, {
-                              significantDigits: 4,
+                            value={formatDisplayNumber(inProgressUsdValue, {
                               style: 'currency',
+                              significantDigits: 4,
                             })}
                           />
                         </p>
                       )}
+                    </BannerValueSlot>
+                  </BannerDataItem>
+
+                  <div className="flex items-end justify-between">
+                    <div className="flex flex-col items-start gap-1">
+                      <span className="text-[14px] text-subText">{t`Claimable`}</span>
+
+                      <BannerValueSlot compact>
+                        {isLoadingKemRewards ? (
+                          <BannerSkeleton width={80} height={24} />
+                        ) : (
+                          <p className="text-xl leading-6">
+                            <AnimatedNumber
+                              value={formatDisplayNumber(totalClaimableUsdValue, {
+                                significantDigits: 4,
+                                style: 'currency',
+                              })}
+                            />
+                          </p>
+                        )}
+                      </BannerValueSlot>
                     </div>
                     {claimRewardButton}
                   </div>
@@ -296,51 +318,54 @@ export default function PositionBanner({
         </BannerContainer>
 
         {!upToSmall && (
-          <BannerContainer>
-            <RewardBannerWrapper>
+          <BannerContainer className="h-full">
+            <RewardBannerWrapper className="h-full gap-4">
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-2">
                   <FarmingIcon width={KemImageSize} height={KemImageSize} className="relative top-0.5" />
                   <span className="text-subText">{t`Total Rewards`}</span>
                 </div>
 
-                {isLoadingKemRewards ? (
-                  <BannerSkeleton width={110} height={28} />
-                ) : (
-                  <div className="flex items-center gap-1">
-                    <p className={upToSmall ? 'text-[20px]' : 'text-[24px]'}>
-                      <AnimatedNumber
-                        value={formatDisplayNumber(totalUsdValue, { significantDigits: 4, style: 'currency' })}
-                      />
-                    </p>
-                    <button
-                      type="button"
-                      aria-label={t`View total rewards details`}
-                      onClick={() => setShowTotalRewardModal(true)}
-                      className="mr-3 flex size-4 cursor-pointer items-center justify-center border-0 bg-transparent p-0 text-subText hover:text-text"
-                    >
-                      <Info size={16} />
-                    </button>
-                    {shareBtn}
-                  </div>
-                )}
+                <BannerValueSlot className="w-[148px] shrink-0">
+                  {isLoadingKemRewards ? (
+                    <BannerSkeleton width={110} height={28} />
+                  ) : (
+                    <div className="flex items-center gap-1">
+                      <p className="text-2xl leading-7">
+                        <AnimatedNumber
+                          value={formatDisplayNumber(totalUsdValue, { significantDigits: 4, style: 'currency' })}
+                        />
+                      </p>
+                      <button
+                        type="button"
+                        aria-label="View total rewards details"
+                        onClick={() => setShowTotalRewardModal(true)}
+                        className="mr-2 flex size-4 cursor-pointer items-center justify-center border-0 bg-transparent p-0 text-subText hover:text-text"
+                      >
+                        <Info size={16} />
+                      </button>
+                      {shareBtn}
+                    </div>
+                  )}
+                </BannerValueSlot>
               </div>
               <RewardBannerDetailWrapper>
-                <BannerDataItem>
+                <BannerDataItem className="pr-4">
                   <span className="text-[14px] text-subText">{t`Claimed`}</span>
 
-                  {isLoadingKemRewards ? (
-                    <BannerSkeleton width={80} height={24} />
-                  ) : (
-                    <p className="text-[20px]">
-                      <AnimatedNumber
-                        value={formatDisplayNumber(claimedUsdValue, { style: 'currency', significantDigits: 4 })}
-                      />
-                    </p>
-                  )}
+                  <BannerValueSlot compact>
+                    {isLoadingKemRewards ? (
+                      <BannerSkeleton width={80} height={24} />
+                    ) : (
+                      <p className="text-xl leading-6">
+                        <AnimatedNumber
+                          value={formatDisplayNumber(claimedUsdValue, { style: 'currency', significantDigits: 4 })}
+                        />
+                      </p>
+                    )}
+                  </BannerValueSlot>
                 </BannerDataItem>
-                <BannerDivider />
-                <BannerDataItem>
+                <BannerDataItem className="border-l-2 border-tabActive px-4">
                   <div className="flex items-center gap-0.5">
                     <span className="text-[14px] text-subText">{t`In-Progress`}</span>
                     <InfoHelper
@@ -356,35 +381,43 @@ export default function PositionBanner({
                     />
                   </div>
 
-                  {isLoadingKemRewards ? (
-                    <BannerSkeleton width={80} height={24} />
-                  ) : (
-                    <p className="text-[20px]">
-                      <AnimatedNumber
-                        value={formatDisplayNumber(inProgressUsdValue, { style: 'currency', significantDigits: 4 })}
-                      />
-                    </p>
-                  )}
+                  <BannerValueSlot compact>
+                    {isLoadingKemRewards ? (
+                      <BannerSkeleton width={80} height={24} />
+                    ) : (
+                      <p className="text-xl leading-6">
+                        <AnimatedNumber
+                          value={formatDisplayNumber(inProgressUsdValue, {
+                            style: 'currency',
+                            significantDigits: 4,
+                          })}
+                        />
+                      </p>
+                    )}
+                  </BannerValueSlot>
                 </BannerDataItem>
-                <BannerDivider />
-                <BannerDataItem>
-                  <span className="text-[14px] text-subText">{t`Claimable`}</span>
+                <div className="flex min-w-0 items-end justify-between gap-3 border-l-2 border-tabActive pl-4">
+                  <BannerDataItem>
+                    <span className="text-[14px] text-subText">{t`Claimable`}</span>
 
-                  {isLoadingKemRewards ? (
-                    <BannerSkeleton width={80} height={24} />
-                  ) : (
-                    <p className="text-[20px]">
-                      <AnimatedNumber
-                        value={formatDisplayNumber(totalClaimableUsdValue, {
-                          style: 'currency',
-                          significantDigits: 4,
-                        })}
-                      />
-                    </p>
-                  )}
-                </BannerDataItem>
+                    <BannerValueSlot compact>
+                      {isLoadingKemRewards ? (
+                        <BannerSkeleton width={80} height={24} />
+                      ) : (
+                        <p className="text-xl leading-6">
+                          <AnimatedNumber
+                            value={formatDisplayNumber(totalClaimableUsdValue, {
+                              style: 'currency',
+                              significantDigits: 4,
+                            })}
+                          />
+                        </p>
+                      )}
+                    </BannerValueSlot>
+                  </BannerDataItem>
 
-                {claimRewardButton}
+                  <div className="shrink-0">{claimRewardButton}</div>
+                </div>
               </RewardBannerDetailWrapper>
             </RewardBannerWrapper>
           </BannerContainer>

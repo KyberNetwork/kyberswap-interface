@@ -1,4 +1,4 @@
-import { CSSProperties, forwardRef } from 'react'
+import { type CSSProperties, type PropsWithChildren, forwardRef } from 'react'
 import { NavLink as BaseNavLink, NavLinkProps } from 'react-router-dom'
 
 import usePrefetchOnIntent from 'hooks/usePrefetchOnIntent'
@@ -16,8 +16,6 @@ interface Props extends NavLinkProps {
 // Base link styles shared by StyledNavLink and StyledNavExternalLink.
 const LINK_BASE_CLASS =
   'inline-flex w-fit flex-row flex-nowrap items-start rounded-[3rem] px-3 py-2 text-base font-medium text-subText no-underline outline-none cursor-pointer max-sm:px-1.5'
-
-const ACTIVE_CLASS = 'rounded-xl font-semibold !text-primary'
 
 // react-router v6 removed activeClassName/activeStyle from NavLink; we recreate it via the className function form.
 export const StyledNavLink = forwardRef<HTMLAnchorElement, Props>(
@@ -56,7 +54,7 @@ export const StyledNavLink = forwardRef<HTMLAnchorElement, Props>(
           cn(
             LINK_BASE_CLASS,
             'hover:brightness-90',
-            (customActive ? isCustomActive : isActive) && ACTIVE_CLASS,
+            (customActive ? isCustomActive : isActive) && '!text-primary',
             $disabled && 'pointer-events-none !text-border',
             className as string | undefined,
           )
@@ -83,7 +81,7 @@ export const StyledNavExternalLink = ({ className, customActive, isCustomActive,
       LINK_BASE_CLASS,
       'hover:!no-underline hover:brightness-90 focus:!text-subText focus:!no-underline',
       'max-xs:!hidden',
-      (customActive ? isCustomActive : false) && 'rounded-xl font-semibold',
+      (customActive ? isCustomActive : false) && '!text-primary',
       className,
     )}
   />
@@ -94,4 +92,8 @@ export const DropdownTextAnchor = ({ className, ...props }: React.HTMLAttributes
     className={cn('inline-block w-fit cursor-pointer px-1.5 py-2 pr-0 text-base font-medium', className)}
     {...props}
   />
+)
+
+export const NewLabel = ({ isNew, children }: PropsWithChildren<{ isNew?: boolean }>) => (
+  <span className={cn('ml-1 text-[10px]', isNew ? 'text-red' : 'text-subText')}>{children}</span>
 )

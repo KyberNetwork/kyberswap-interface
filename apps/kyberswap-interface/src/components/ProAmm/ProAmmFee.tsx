@@ -19,8 +19,9 @@ import useTransactionDeadline from 'hooks/useTransactionDeadline'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { useUserSlippageTolerance } from 'state/user/hooks'
-import { basisPointsToPercent, formattedNumLong } from 'utils'
+import { formatDisplayNumber } from 'utils/numbers'
 import { sendEVMTransaction } from 'utils/sendTransaction'
+import { basisPointsToPercent } from 'utils/slippage'
 import { ErrorName } from 'utils/transactionError'
 
 export default function ProAmmFee({
@@ -151,7 +152,9 @@ export default function ProAmmFee({
               <Trans>Total Fees Earned</Trans>
             </span>
             <RowFixed>
-              <span className="ml-1.5 text-xs font-medium">{formattedNumLong(totalFeeRewardUSD, true)}</span>
+              <span className="ml-1.5 text-xs font-medium">
+                {formatDisplayNumber(totalFeeRewardUSD, { style: 'currency', significantDigits: 4 })}
+              </span>
             </RowFixed>
           </RowBetween>
 
@@ -193,7 +196,9 @@ export default function ProAmmFee({
             </span>
           </div>
           <RowFixed>
-            <span className="text-xs font-medium">{formattedNumLong(totalFeeRewardUSD, true)}</span>
+            <span className="text-xs font-medium">
+              {formatDisplayNumber(totalFeeRewardUSD, { style: 'currency', significantDigits: 4 })}
+            </span>
           </RowFixed>
         </RowBetween>
 

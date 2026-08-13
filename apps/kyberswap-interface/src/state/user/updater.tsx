@@ -2,7 +2,7 @@ import { useCallback } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useInterval } from 'react-use'
 
-import { PAIR_CATEGORY } from 'constants/index'
+import { PAIR_CATEGORY } from 'constants/trade'
 import { AppDispatch, AppState } from 'state/index'
 import { usePairCategory } from 'state/swap/hooks'
 

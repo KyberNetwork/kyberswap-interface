@@ -28,6 +28,7 @@ const storage = {
 
 const noop = () => {}
 const g = globalThis as any
+const navigatorShim = { userAgent: 'node', language: 'en-US', languages: ['en-US'] }
 
 g.localStorage = g.localStorage || storage
 g.sessionStorage = g.sessionStorage || storage
@@ -44,6 +45,7 @@ const documentShim = {
   getElementsByClassName: () => [],
   getElementsByTagName: () => [],
   createElement: () => ({ style: {}, setAttribute: noop, appendChild: noop, classList: { add: noop, remove: noop } }),
+  createTextNode: () => ({}),
   createTreeWalker: () => ({ nextNode: () => null, currentNode: null }),
   addEventListener: noop,
   removeEventListener: noop,
@@ -63,7 +65,7 @@ const windowShim = {
     search: '',
   },
   history: { pushState: noop, replaceState: noop, go: noop, back: noop, forward: noop, length: 0, state: null },
-  navigator: { userAgent: 'node', language: 'en-US' },
+  navigator: navigatorShim,
   open: noop,
   addEventListener: noop,
   removeEventListener: noop,
@@ -113,9 +115,6 @@ for (const name of ['ResizeObserver', 'IntersectionObserver', 'MutationObserver'
   if (!g[name]) g[name] = ObserverStub
 }
 
-if (!g.navigator) {
-  Object.defineProperty(g, 'navigator', {
-    value: { userAgent: 'node', language: 'en-US', languages: ['en-US'] },
-    configurable: true,
-  })
-}
+// Node 21 exposes a configurable global Navigator object whose userAgent is undefined. Replace it
+// deterministically because React DOM reads navigator.userAgent during module evaluation.
+Object.defineProperty(g, 'navigator', { value: navigatorShim, configurable: true })

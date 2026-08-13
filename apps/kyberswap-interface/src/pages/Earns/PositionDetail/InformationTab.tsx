@@ -6,12 +6,13 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { ChevronDown, PlusCircle } from 'react-feather'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
-import { usePoolDetailQuery } from 'services/zapEarn'
+import { usePoolDetailQuery } from 'services/earn'
 
 import { ReactComponent as IconReposition } from 'assets/svg/earn/ic_reposition.svg'
 import { ReactComponent as RevertPriceIcon } from 'assets/svg/earn/ic_revert_price.svg'
 import { ReactComponent as FarmingIcon } from 'assets/svg/kyber/kem.svg'
 import { ReactComponent as FarmingLmIcon } from 'assets/svg/kyber/kemLm.svg'
+import DropdownMenuComponent from 'components/DropdownMenu'
 import { Loader2 } from 'components/Loader'
 import TokenLogo from 'components/TokenLogo'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
@@ -19,7 +20,7 @@ import { APP_PATHS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
-import { useStableCoins } from 'hooks/Tokens'
+import { useStableCoins } from 'hooks/useTokens'
 import { timings } from 'pages/Earns/PoolExplorer/Filter'
 import LiquidityChart, { LiquidityChartSkeleton } from 'pages/Earns/PositionDetail/LiquidityChart'
 import PositionAprTooltip from 'pages/Earns/PositionDetail/PositionAprTooltip'
@@ -44,7 +45,6 @@ import {
   VerticalDivider,
 } from 'pages/Earns/PositionDetail/styles'
 import AnimatedNumber from 'pages/Earns/components/AnimatedNumber'
-import DropdownMenuComponent from 'pages/Earns/components/DropdownMenu'
 import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
 import RewardSyncing from 'pages/Earns/components/RewardSyncing'
 import { SmartExit } from 'pages/Earns/components/SmartExit'
@@ -526,6 +526,10 @@ const InformationTab = () => {
                       chainId: position.chain.id,
                       poolAddress: position.pool.address,
                       id: isUniv2 ? account || '' : position.tokenId,
+                      tokens: [
+                        { address: position.token0.address, symbol: position.token0.symbol },
+                        { address: position.token1.address, symbol: position.token1.symbol },
+                      ],
                     },
                   })
                 }}

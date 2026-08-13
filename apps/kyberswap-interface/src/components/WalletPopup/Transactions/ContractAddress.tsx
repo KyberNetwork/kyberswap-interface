@@ -5,8 +5,8 @@ import { PrimaryText } from 'components/WalletPopup/Transactions/TransactionItem
 import { useActiveWeb3React } from 'hooks'
 import { TRANSACTION_TYPE, TransactionDetails } from 'state/transactions/type'
 import { ExternalLink } from 'theme'
-import { getEtherscanLink } from 'utils'
-import getShortenAddress from 'utils/getShortenAddress'
+import { getShortenAddress } from 'utils/address'
+import { getEtherscanLink } from 'utils/explorer'
 
 const ContractAddress = ({ transaction }: { transaction: TransactionDetails }) => {
   const { extraInfo = {}, type } = transaction
