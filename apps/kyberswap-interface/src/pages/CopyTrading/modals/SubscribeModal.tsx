@@ -1,8 +1,8 @@
 import { ChainId, Token } from '@kyberswap/ks-sdk-core'
-import { useMemo, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { Info } from 'react-feather'
 import { usePrepareStartCopyMutation } from 'services/copyTrading'
-import type { AgentCard, AgentProfile, PreparedCallKind } from 'services/copyTrading/types'
+import type { AgentCard, AgentProfile, PreparedAction, PreparedCallKind } from 'services/copyTrading/types'
 import { v4 as uuidv4 } from 'uuid'
 
 import verifiedIcon from 'assets/images/copy-trading/verified.svg'
@@ -10,6 +10,7 @@ import { ButtonPrimary } from 'components/Button'
 import Checkbox from 'components/CheckBox'
 import CopyHelper from 'components/Copy'
 import CurrencyInputPanel from 'components/CurrencyInputPanel'
+import Dots from 'components/Dots'
 import InfoHelper from 'components/InfoHelper'
 import { Center, HStack, Stack } from 'components/Stack'
 import { useActiveWeb3React } from 'hooks'
@@ -19,14 +20,18 @@ import { getAgentInitials } from 'pages/CopyTrading/helpers'
 import PreparedActionModal, { ReviewRow, ReviewSection } from 'pages/CopyTrading/write/PreparedActionModal'
 import { useCopyTradeWrite } from 'pages/CopyTrading/write/WriteContext'
 import {
+  type PreparedActionExpectation,
   formatPreparedAmount,
   formatWadPercent,
+  getApiErrorMessage,
   getInputQuoteToken,
   getPreparedReasonMessage,
   isActionAvailable,
   parsePreparedAmount,
+  validatePreparedAction,
 } from 'pages/CopyTrading/write/preparedAction'
 import { DEFAULT_PREPARED_ACTION_STATE, usePreparedAction } from 'pages/CopyTrading/write/usePreparedAction'
+import { useStartCopyAuthorization } from 'pages/CopyTrading/write/useStartCopyAuthorization'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { shortenAddress } from 'utils/address'
 import { cn } from 'utils/cn'
@@ -44,6 +49,30 @@ type SubscribeModalProps = {
 const START_CALL_KINDS: PreparedCallKind[] = ['PREPARED_CALL_KIND_START_COPY_CREATE']
 const START_FUNDING_MODE = 'START_COPY_FUNDING_MODE_FUNDED' as const
 const CAPITAL_PERCENTAGES = [25, 50, 75, 100] as const
+
+type StartCopyAttempt = {
+  agentId?: string
+  authorizationApplied: boolean
+  chainId?: number
+  createPermitData?: string
+  ownerAddress?: string
+  requestId: string
+  targetCapitalRaw?: string
+}
+
+const createStartCopyAttempt = (): StartCopyAttempt => ({
+  authorizationApplied: false,
+  requestId: uuidv4(),
+})
+
+type StartCopyAuthorizationAction = PreparedAction & {
+  reason: 'PREPARED_ACTION_REASON_INSUFFICIENT_QUOTE_ALLOWANCE'
+  status: 'PREPARED_ACTION_STATUS_UNAVAILABLE'
+}
+
+const requiresStartCopyAuthorization = (action?: PreparedAction): action is StartCopyAuthorizationAction =>
+  action?.status === 'PREPARED_ACTION_STATUS_UNAVAILABLE' &&
+  action.reason === 'PREPARED_ACTION_REASON_INSUFFICIENT_QUOTE_ALLOWANCE'
 
 const ReviewLabel = ({ label, tooltip }: { label: string; tooltip: string }) => (
   <span className="inline-flex items-center gap-1">
@@ -79,11 +108,19 @@ const SubscribeModal = ({ isOpen, onDismiss, agent }: SubscribeModalProps) => {
   const toggleWalletModal = useWalletModalToggle()
   const { refreshCopyTrading } = useCopyTradeWrite()
   const [prepareStartCopy] = usePrepareStartCopyMutation()
+  const authorizeStartCopy = useStartCopyAuthorization()
   const [flowState, setFlowState] = useState(DEFAULT_PREPARED_ACTION_STATE)
   const [amount, setAmount] = useState('')
   const [agreed, setAgreed] = useState(false)
   const [predictedCopyAccount, setPredictedCopyAccount] = useState<string>()
-  const [startRequestId, setStartRequestId] = useState(() => uuidv4())
+  const [authorizationMessage, setAuthorizationMessage] = useState<string>()
+  const startAttemptRef = useRef<StartCopyAttempt>(createStartCopyAttempt())
+  const expectedRef = useRef<PreparedActionExpectation>({
+    account: account || '',
+    callKinds: START_CALL_KINDS,
+    chainId: agent.chainId,
+    preview: 'startCopy',
+  })
 
   const quoteToken = getInputQuoteToken(agent.chainId)
   const quoteCurrency = useMemo(
@@ -145,32 +182,82 @@ const SubscribeModal = ({ isOpen, onDismiss, agent }: SubscribeModalProps) => {
     amountError ||
     (preparedBalanceIsInsufficient ? `Insufficient ${quoteToken?.symbol || 'quote token'} balance.` : undefined)
 
+  expectedRef.current.account = account || ''
+  expectedRef.current.chainId = agent.chainId
+  expectedRef.current.startCopyCreateAmountRaw = targetCapitalRaw
+  expectedRef.current.startCopyPredictedAccount = predictedCopyAccount
+  expectedRef.current.startCopyRequestId = startAttemptRef.current.requestId
+  expectedRef.current.startCopyTargetRaw = targetCapitalRaw
+
+  const resetStartAttempt = () => {
+    const nextAttempt = createStartCopyAttempt()
+    startAttemptRef.current = nextAttempt
+    expectedRef.current.startCopyRequestId = nextAttempt.requestId
+  }
+
+  const getScopedStartAttempt = (ownerAddress: string, targetRaw: string) => {
+    const currentAttempt = startAttemptRef.current
+    const scopeChanged =
+      (currentAttempt.ownerAddress && currentAttempt.ownerAddress !== ownerAddress.toLowerCase()) ||
+      (currentAttempt.agentId && currentAttempt.agentId !== agent.agentId) ||
+      (currentAttempt.chainId && currentAttempt.chainId !== agent.chainId) ||
+      (currentAttempt.targetCapitalRaw && currentAttempt.targetCapitalRaw !== targetRaw)
+    if (scopeChanged) {
+      resetStartAttempt()
+      expectedRef.current.startCopyPredictedAccount = undefined
+      setPredictedCopyAccount(undefined)
+    }
+
+    const scopedAttempt = {
+      ...startAttemptRef.current,
+      agentId: agent.agentId,
+      chainId: agent.chainId,
+      ownerAddress: ownerAddress.toLowerCase(),
+      targetCapitalRaw: targetRaw,
+    }
+    startAttemptRef.current = scopedAttempt
+    return scopedAttempt
+  }
+
+  const capturePredictedCopyAccount = (nextPredictedCopyAccount?: string) => {
+    const expectedPredictedCopyAccount = expectedRef.current.startCopyPredictedAccount
+    if (
+      expectedPredictedCopyAccount &&
+      nextPredictedCopyAccount?.toLowerCase() !== expectedPredictedCopyAccount.toLowerCase()
+    ) {
+      throw new Error('The prepared Start Copy Smart Wallet changed during this attempt.')
+    }
+    if (!expectedPredictedCopyAccount && nextPredictedCopyAccount) {
+      expectedRef.current.startCopyPredictedAccount = nextPredictedCopyAccount
+      setPredictedCopyAccount(nextPredictedCopyAccount)
+    }
+  }
+
+  const requestStartCopy = (attempt: StartCopyAttempt, ownerAddress: string, targetRaw: string) =>
+    prepareStartCopy({
+      ownerAddress: ownerAddress.toLowerCase(),
+      agentId: agent.agentId,
+      chainId: String(agent.chainId),
+      targetCapitalRaw: targetRaw,
+      startRequestId: attempt.requestId,
+      fundingMode: START_FUNDING_MODE,
+      ...(attempt.createPermitData ? { createPermitData: attempt.createPermitData } : {}),
+    }).unwrap()
+
   const flow = usePreparedAction({
     state: flowState,
     setState: setFlowState,
-    expected: {
-      account: account || '',
-      callKinds: START_CALL_KINDS,
-      chainId: agent.chainId,
-      preview: 'startCopy',
-      startCopyCreateAmountRaw: targetCapitalRaw,
-      startCopyPredictedAccount: predictedCopyAccount,
-      startCopyRequestId: startRequestId,
-      startCopyTargetRaw: targetCapitalRaw,
-    },
+    expected: expectedRef.current,
     prepare: async () => {
+      setAuthorizationMessage(undefined)
       if (!account || !quoteToken) throw new Error('Connect a supported wallet and network first.')
 
       if (!targetCapitalRaw) throw new Error('Enter an amount greater than zero.')
       if (amountError) throw new Error(amountError)
-      const response = await prepareStartCopy({
-        ownerAddress: account.toLowerCase(),
-        agentId: agent.agentId,
-        chainId: String(agent.chainId),
-        targetCapitalRaw,
-        startRequestId,
-        fundingMode: START_FUNDING_MODE,
-      }).unwrap()
+      const attempt = getScopedStartAttempt(account, targetCapitalRaw)
+      const response = await requestStartCopy(attempt, account, targetCapitalRaw)
+
+      setAuthorizationMessage(undefined)
       if (
         [
           'PREPARED_ACTION_STATUS_READY',
@@ -182,13 +269,13 @@ const SubscribeModal = ({ isOpen, onDismiss, agent }: SubscribeModalProps) => {
       ) {
         throw new Error('The prepared target does not match your requested capital amount.')
       }
-      const nextPredictedCopyAccount = response.data.startCopy?.predictedCopyAccount
-      if (predictedCopyAccount && nextPredictedCopyAccount?.toLowerCase() !== predictedCopyAccount.toLowerCase()) {
-        throw new Error('The prepared Start Copy Smart Wallet changed during this attempt.')
+      if (!requiresStartCopyAuthorization(response.data)) {
+        capturePredictedCopyAccount(response.data.startCopy?.predictedCopyAccount)
       }
-      if (!predictedCopyAccount && nextPredictedCopyAccount) setPredictedCopyAccount(nextPredictedCopyAccount)
       return response.data
     },
+    reviewUnavailable: action =>
+      requiresStartCopyAuthorization(action) && !startAttemptRef.current.authorizationApplied,
     afterReceipt: () => {
       setAgreed(false)
       return 'reprepare'
@@ -201,7 +288,8 @@ const SubscribeModal = ({ isOpen, onDismiss, agent }: SubscribeModalProps) => {
     setAmount('')
     setAgreed(false)
     setPredictedCopyAccount(undefined)
-    setStartRequestId(uuidv4())
+    setAuthorizationMessage(undefined)
+    resetStartAttempt()
     onDismiss()
   }
 
@@ -209,7 +297,8 @@ const SubscribeModal = ({ isOpen, onDismiss, agent }: SubscribeModalProps) => {
     flow.reset()
     setAgreed(false)
     setPredictedCopyAccount(undefined)
-    setStartRequestId(uuidv4())
+    setAuthorizationMessage(undefined)
+    resetStartAttempt()
   }
 
   const handlePrimaryAction = () => {
@@ -223,6 +312,88 @@ const SubscribeModal = ({ isOpen, onDismiss, agent }: SubscribeModalProps) => {
     }
     if (!amountIsValid) return
     void flow.prepare()
+  }
+
+  const confirmStartCopy = async () => {
+    if (!agreed || confirmBalanceError || authorizationMessage) return
+
+    const diagnosticAction = flowState.action
+    if (!requiresStartCopyAuthorization(diagnosticAction)) {
+      await flow.confirm()
+      return
+    }
+
+    if (!account || !quoteToken || !targetCapitalRaw) {
+      setFlowState({
+        phase: 'error',
+        action: diagnosticAction,
+        error: 'Connect a supported wallet and network first.',
+      })
+      return
+    }
+
+    try {
+      const validationError = validatePreparedAction(diagnosticAction, expectedRef.current, { requireCall: false })
+      if (validationError) throw new Error(validationError)
+
+      setAuthorizationMessage('Approving…')
+      const createPermitData = await authorizeStartCopy(diagnosticAction, {
+        onAwaitingSignature: (_action, kind) => {
+          setAuthorizationMessage(kind === 'permit' ? 'Sign Permit…' : 'Approve in Wallet…')
+        },
+        onConfirming: () => {
+          setAuthorizationMessage('Confirming Approval…')
+        },
+        onPreparing: () => {
+          setAuthorizationMessage('Preparing Start Copy…')
+        },
+      })
+      const authorizedAttempt: StartCopyAttempt = {
+        agentId: agent.agentId,
+        authorizationApplied: true,
+        chainId: agent.chainId,
+        createPermitData,
+        ownerAddress: account.toLowerCase(),
+        requestId: uuidv4(),
+        targetCapitalRaw,
+      }
+
+      // UUID A is diagnostic only; UUID B can legitimately predict a different Smart Wallet.
+      setPredictedCopyAccount(undefined)
+      expectedRef.current.startCopyPredictedAccount = undefined
+      startAttemptRef.current = authorizedAttempt
+      expectedRef.current.startCopyRequestId = authorizedAttempt.requestId
+
+      const response = await requestStartCopy(authorizedAttempt, account, targetCapitalRaw)
+      const action = response.data
+      if (action.startCopy?.requestedTargetRaw !== targetCapitalRaw) {
+        throw new Error('The prepared target does not match your requested capital amount.')
+      }
+      if (action.status !== 'PREPARED_ACTION_STATUS_READY') {
+        const nextValidationError = validatePreparedAction(action, expectedRef.current, { requireCall: false })
+        if (nextValidationError) throw new Error(nextValidationError)
+
+        setAuthorizationMessage(undefined)
+        setFlowState({
+          phase: action.status === 'PREPARED_ACTION_STATUS_UNAVAILABLE' ? 'unavailable' : 'error',
+          action,
+          error:
+            action.status === 'PREPARED_ACTION_STATUS_UNAVAILABLE'
+              ? getPreparedReasonMessage(action.reason)
+              : 'The authorized Start Copy preparation did not return a ready create call.',
+        })
+        return
+      }
+
+      const nextValidationError = validatePreparedAction(action, expectedRef.current)
+      if (nextValidationError) throw new Error(nextValidationError)
+      capturePredictedCopyAccount(action.startCopy?.predictedCopyAccount)
+      setAuthorizationMessage(undefined)
+      setFlowState({ phase: 'review', action })
+    } catch (error) {
+      setAuthorizationMessage(undefined)
+      setFlowState({ phase: 'error', action: diagnosticAction, error: getApiErrorMessage(error) })
+    }
   }
 
   const setPercentageAmount = (percentage: (typeof CAPITAL_PERCENTAGES)[number]) => {
@@ -262,7 +433,9 @@ const SubscribeModal = ({ isOpen, onDismiss, agent }: SubscribeModalProps) => {
               tooltip="The fee policy advertised by the latest preparation. It is checked again before every transaction stage."
             />
           }
-          value={startPreview ? formatWadPercent(startPreview.feePolicy?.advertisedUpfrontFeeRateRaw) : 'Checking…'}
+          value={
+            startPreview ? formatWadPercent(startPreview.feePolicy?.advertisedUpfrontFeeRateRaw) : <Dots>Checking</Dots>
+          }
         />
       </ReviewSection>
 
@@ -270,6 +443,7 @@ const SubscribeModal = ({ isOpen, onDismiss, agent }: SubscribeModalProps) => {
         <Checkbox
           borderStyle
           checked={agreed}
+          disabled={!!authorizationMessage}
           onChange={event => setAgreed(event.target.checked)}
           className="mt-0.5 size-4 shrink-0"
         />
@@ -290,6 +464,18 @@ const SubscribeModal = ({ isOpen, onDismiss, agent }: SubscribeModalProps) => {
     ? getPreparedReasonMessage(availability?.reason)
     : undefined
 
+  const retry = () => {
+    if (
+      flowState.phase === 'unavailable' &&
+      (flowState.action?.reason === 'PREPARED_ACTION_REASON_INSUFFICIENT_QUOTE_ALLOWANCE' ||
+        flowState.action?.reason === 'PREPARED_ACTION_REASON_SIGNER_POLICY_CHANGED')
+    ) {
+      resetStartAttempt()
+    }
+    setAuthorizationMessage(undefined)
+    void flow.retry()
+  }
+
   return (
     <PreparedActionModal
       isOpen={isOpen}
@@ -297,16 +483,16 @@ const SubscribeModal = ({ isOpen, onDismiss, agent }: SubscribeModalProps) => {
       state={flowState}
       title={<AgentHeader agent={agent} />}
       review={review}
-      showReviewWhilePreparing
-      confirmLabel="Start Copying"
+      showReviewWhilePreparing={!authorizationMessage}
+      confirmLabel={requiresStartCopyAuthorization(flowState.action) ? 'Approve' : 'Start Copying'}
+      confirmLoading={!!authorizationMessage}
+      confirmLoadingLabel={authorizationMessage}
       confirmDisabled={!agreed || !!confirmBalanceError}
       onBack={flowState.hash ? undefined : editAmount}
-      onConfirm={() => {
-        if (confirmBalanceError) return
-        void flow.confirm()
-      }}
-      onRetry={() => void flow.retry()}
+      onConfirm={() => void confirmStartCopy()}
+      onRetry={retry}
       pendingText="Checking the latest agent, balance and fee policy…"
+      processingText={authorizationMessage}
       successTitle={`You're now copying ${agent.displayName}`}
       successText={
         flowState.hash
