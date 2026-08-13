@@ -138,6 +138,15 @@ const defaultConfig = {
   smartExitDexType: undefined,
 }
 
+const SUPPORTED_EXCHANGES = new Set<string>(Object.values(Exchange))
+
+/**
+ * Whether the app knows this exchange. `EARN_DEXES` answers every lookup with a default entry, so an id
+ * that is not in the enum reads as an unnamed Uniswap V3 fork rather than as missing.
+ */
+export const isSupportedExchange = (exchange?: string): exchange is Exchange =>
+  !!exchange && SUPPORTED_EXCHANGES.has(exchange)
+
 // Proxy helps fallback undefined Exchange by default dex info
 export const EARN_DEXES = new Proxy(EARN_DEXES_CONFIG as any, {
   get(target, p) {

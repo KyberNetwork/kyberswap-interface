@@ -154,9 +154,11 @@ const InformationTab = () => {
   const isClosed = position?.status === PositionStatus.CLOSED
   const isOutRange = position?.status === PositionStatus.OUT_RANGE
 
-  const repositionDisabled = initialLoading || !position || isClosed
-  const increaseDisabled = initialLoading || (isUniV4 && isClosed)
-  const removeDisabled = initialLoading || isNotAccountOwner || isClosed || !position
+  // A placeholder has no indexed position behind it yet, so every action that would submit its id has to
+  // wait — the positions list already hides the same actions on an unfinalized row.
+  const repositionDisabled = initialLoading || !position || isClosed || isUnfinalized
+  const increaseDisabled = initialLoading || (isUniV4 && isClosed) || isUnfinalized
+  const removeDisabled = initialLoading || isNotAccountOwner || isClosed || !position || isUnfinalized
   const subActionDisabled = isClosed || (!isOutRange ? repositionDisabled : increaseDisabled)
 
   const isSmartExitSupported =

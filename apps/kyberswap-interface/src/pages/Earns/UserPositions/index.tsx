@@ -38,12 +38,13 @@ import useAccountChanged from 'pages/Earns/hooks/useAccountChanged'
 import useClosedPositions from 'pages/Earns/hooks/useClosedPositions'
 import useKemRewards from 'pages/Earns/hooks/useKemRewards'
 import useSupportedDexesAndChains, { AllChainsOption } from 'pages/Earns/hooks/useSupportedDexesAndChains'
+import useUnfinalizedPositions from 'pages/Earns/hooks/useUnfinalizedPositions'
 import useZapInWidget from 'pages/Earns/hooks/useZapInWidget'
 import useZapMigrationWidget from 'pages/Earns/hooks/useZapMigrationWidget'
 import useZapOutWidget from 'pages/Earns/hooks/useZapOutWidget'
 import { ParsedPosition, PositionStatus } from 'pages/Earns/types'
 import { parsePosition } from 'pages/Earns/utils/position'
-import { getUnfinalizedPositions } from 'pages/Earns/utils/unfinalizedPosition'
+import { getUnfinalizedPositionKeyFromPosition } from 'pages/Earns/utils/unfinalizedPosition'
 import SortIcon, { Direction } from 'pages/MarketOverview/SortIcon'
 
 const UserPositions = () => {
@@ -150,31 +151,48 @@ const UserPositions = () => {
     })
   }, [feeInfoFromRpc, rewardInfo?.nfts, userPositionsData, closedPositionsFromRpc])
 
+  const { placeholders, valueUpdatingKeys } = useUnfinalizedPositions({
+    owner: account || undefined,
+    positions: parsedPositions,
+  })
+
   const filteredPositions: Array<ParsedPosition> = useMemo(() => {
-    let unfinalizedPositions: ParsedPosition[] = []
-    const valueUpdatingTokenIds: Set<number> = new Set()
+    // Placeholders belong on the first page only; the later pages would duplicate rows the API returns.
+    if (filters.page !== 1) return parsedPositions
 
-    if (filters.page && filters.page === 1) {
-      const rawUnfinalizedPositions = getUnfinalizedPositions(parsedPositions, account || undefined)
-      const filtered = rawUnfinalizedPositions.filter(
-        position =>
-          (filters.chainIds ? filters.chainIds.split(',').includes(position.chain.id.toString()) : true) &&
-          (filters.protocols ? filters.protocols.split(',').includes(position.dex.id) : true) &&
-          (filters.statuses.includes(PositionStatus.IN_RANGE) || filters.statuses.includes(PositionStatus.OUT_RANGE)),
-      )
+    const chainIds = filters.chainIds ? filters.chainIds.split(',') : []
+    const protocols = filters.protocols ? filters.protocols.split(',') : []
+    const showsOpenPositions =
+      filters.statuses.includes(PositionStatus.IN_RANGE) || filters.statuses.includes(PositionStatus.OUT_RANGE)
 
-      // Separate truly new positions from increase-liquidity positions
-      unfinalizedPositions = filtered.filter(p => !p.isValueUpdating)
-      filtered.filter(p => p.isValueUpdating).forEach(p => valueUpdatingTokenIds.add(Number(p.tokenId)))
-    }
+    const visiblePlaceholders = showsOpenPositions
+      ? placeholders.filter(
+          position =>
+            (!chainIds.length || chainIds.includes(position.chain.id.toString())) &&
+            (!protocols.length || protocols.includes(position.dex.id)),
+        )
+      : []
 
-    // Mark API positions that just had liquidity increased
-    const mergedPositions = parsedPositions.map(p =>
-      valueUpdatingTokenIds.has(Number(p.tokenId)) ? { ...p, isValueUpdating: true } : p,
-    )
+    if (!visiblePlaceholders.length && !valueUpdatingKeys.size) return parsedPositions
 
-    return [...unfinalizedPositions, ...mergedPositions]
-  }, [account, filters.chainIds, filters.page, filters.protocols, filters.statuses, parsedPositions])
+    // A zap into an existing position already has a row: flag its value instead of prepending a placeholder.
+    return [
+      ...visiblePlaceholders,
+      ...parsedPositions.map(position =>
+        valueUpdatingKeys.has(getUnfinalizedPositionKeyFromPosition(position) ?? '')
+          ? { ...position, isValueUpdating: true }
+          : position,
+      ),
+    ]
+  }, [
+    filters.chainIds,
+    filters.page,
+    filters.protocols,
+    filters.statuses,
+    parsedPositions,
+    placeholders,
+    valueUpdatingKeys,
+  ])
 
   const onSortChange = useCallback(
     (sortBy: string) => {

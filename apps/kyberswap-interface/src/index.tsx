@@ -20,6 +20,7 @@ import Web3Provider from 'components/Web3Provider'
 import { ENV_LEVEL, ENV_TYPE, GTM_ID } from 'constants/env'
 import { useAffiliate } from 'hooks/useAffiliate'
 import App from 'pages/App'
+import UnfinalizedPositionUpdater from 'pages/Earns/components/UnfinalizedPositionUpdater'
 import store from 'state'
 import ApplicationUpdater from 'state/application/updater'
 import CustomizeDexesUpdater from 'state/customizeDexes/updater'
@@ -74,6 +75,7 @@ function Updaters() {
       <UserUpdater />
       <ApplicationUpdater />
       <TransactionUpdater />
+      <UnfinalizedPositionUpdater />
       <CustomizeDexesUpdater />
     </>
   )

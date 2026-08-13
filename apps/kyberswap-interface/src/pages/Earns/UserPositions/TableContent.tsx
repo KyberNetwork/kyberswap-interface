@@ -26,6 +26,7 @@ import { ZapMigrationInfo } from 'pages/Earns/hooks/useZapMigrationWidget'
 import { ZapOutInfo } from 'pages/Earns/hooks/useZapOutWidget'
 import { FeeInfo, OrderStatus, ParsedPosition, PositionStatus, SuggestedPool } from 'pages/Earns/types'
 import { getUnclaimedFeesInfo } from 'pages/Earns/utils/fees'
+import { getUnfinalizedPositionKeyFromPosition } from 'pages/Earns/utils/unfinalizedPosition'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import { cn } from 'utils/cn'
@@ -311,7 +312,7 @@ export default function TableContent({
         {account && positions && positions.length > 0
           ? positions.map((position, index) => (
               <PositionRowItem
-                key={`${position.tokenId}-${position.pool.address}-${index}`}
+                key={getUnfinalizedPositionKeyFromPosition(position) ?? position.positionId}
                 position={position}
                 index={index}
                 smartExitPosIds={smartExitPosIds}

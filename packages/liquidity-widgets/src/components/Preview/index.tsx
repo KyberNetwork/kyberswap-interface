@@ -25,6 +25,7 @@ import Warning from '@/components/Preview/Warning';
 import ZapInAmount from '@/components/Preview/ZapInAmount';
 import useOnSuccess from '@/components/Preview/useOnSuccess';
 import useTxStatus from '@/components/Preview/useTxStatus';
+import usePositionSnapshot from '@/hooks/usePositionSnapshot';
 import useZapRoute from '@/hooks/useZapRoute';
 import { useZapState } from '@/hooks/useZapState';
 import { usePoolStore } from '@/stores/usePoolStore';
@@ -68,9 +69,12 @@ export default function Preview({ onDismiss }: { onDismiss: () => void }) {
 
   const { success: isUniV3 } = univ3PoolNormalize.safeParse(pool);
 
+  const buildPositionSnapshot = usePositionSnapshot();
+
   useOnSuccess({
     txHash: displayTxHash,
     txStatus,
+    buildPositionSnapshot,
   });
 
   const handleClick = async () => {
@@ -110,6 +114,7 @@ export default function Preview({ onDismiss }: { onDismiss: () => void }) {
           tokensIn: parsedTokensIn,
           pool: `${pool.token0.symbol}/${pool.token1.symbol}`,
           dexLogo: DEXES_INFO[poolType].icon,
+          position: buildPositionSnapshot() ?? undefined,
         },
       );
       setTxHash(txHash);
