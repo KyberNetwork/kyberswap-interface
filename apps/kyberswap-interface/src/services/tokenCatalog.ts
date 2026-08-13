@@ -54,6 +54,8 @@ export type TokenCatalogMetrics = {
   priceChange24h?: number | null
   kyberScore?: number
   liquidityUsd?: number
+  /** Market capitalization in USD. Absent for tokens the catalog has no circulating supply for. */
+  marketCap?: number
   stats24h?: { volume24h?: number }
 }
 
