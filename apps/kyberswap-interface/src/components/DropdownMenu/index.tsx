@@ -34,6 +34,8 @@ type DropdownMenuProps = {
   mobileFullWidth?: boolean
   mobileHalfWidth?: boolean
   usePortal?: boolean
+  /** Names the trigger; each option becomes `${dataTestId}-option-${value}`. */
+  dataTestId?: string
   onChange: (value: string | number) => void
 }
 
@@ -49,6 +51,7 @@ const DropdownMenu = ({
   mobileFullWidth = false,
   mobileHalfWidth = false,
   usePortal = false,
+  dataTestId,
   onChange,
 }: DropdownMenuProps) => {
   const [open, setOpen] = useState(false)
@@ -130,7 +133,13 @@ const DropdownMenu = ({
   }
 
   const dropdownContent = (
-    <DropdownContentWrapper ref={contentRef} $usePortal={usePortal} style={usePortal ? position : undefined}>
+    <DropdownContentWrapper
+      ref={contentRef}
+      $usePortal={usePortal}
+      style={usePortal ? position : undefined}
+      // A portalled menu is not a descendant of its trigger, so options carry the trigger's name.
+      data-testid={dataTestId && `${dataTestId}-menu`}
+    >
       <ScrollIndicator $visible={canScrollUp} onClick={() => handleScrollClick('up')}>
         <ChevronUp size={16} />
       </ScrollIndicator>
@@ -139,6 +148,7 @@ const DropdownMenu = ({
           <DropdownContentItem
             key={option.value}
             onClick={() => handleSelectItem(option.value)}
+            data-testid={dataTestId && `${dataTestId}-option-${option.value}`}
             className={option.value === value ? 'selected' : ''}
           >
             {option.icon && <ItemIcon src={option.icon} alt={option.label} />}
@@ -165,6 +175,7 @@ const DropdownMenu = ({
           background={background}
           highlight={flatten && open}
           onClick={handleOpenChange}
+          data-testid={dataTestId}
         >
           <DropdownTitle justifyContent={alignItems} width={width} fullWidth={fullWidth && !width}>
             {optionValue?.icon && <ItemIcon src={optionValue.icon} alt={optionValue.label} />}

@@ -18,7 +18,7 @@ import { useDegenModeManager } from 'state/user/hooks'
 import { isAddress } from 'utils/address'
 import { Aggregator } from 'utils/aggregator'
 import { parseFraction } from 'utils/numbers'
-import { getSwapIntentFromPath, resolveSwapIntentPair } from 'utils/routes'
+import { getSwapIntentFromPath, getTradeProductPath, resolveSwapIntentPair } from 'utils/routes'
 
 interface ParsedUrlQuery {
   [key: string]: string | string[]
@@ -72,7 +72,7 @@ export function useSwapActionHandlers(): {
       const currentSearchParams = new URLSearchParams(window.location.search)
       const searchString = currentSearchParams.toString()
 
-      const newPath = `/${window.location.pathname.startsWith('/limit') ? 'limit' : 'swap'}/${
+      const newPath = `${getTradeProductPath(window.location.pathname)}/${
         NETWORKS_INFO[chainId].route
       }/${encodeURIComponent(f)}-to-${encodeURIComponent(to)}`
 
@@ -100,7 +100,7 @@ export function useSwapActionHandlers(): {
 
   const onSwitchTokens = useCallback(() => {
     navigate(
-      `/${window.location.pathname.startsWith('/limit') ? 'limit' : 'swap'}/${
+      `${getTradeProductPath(window.location.pathname)}/${
         NETWORKS_INFO[chainId].route
       }/${toCurrency}-to-${fromCurrency}`,
     )
@@ -108,7 +108,7 @@ export function useSwapActionHandlers(): {
 
   const onSwitchTokensV2 = useCallback(() => {
     navigate(
-      `/${window.location.pathname.startsWith('/limit') ? 'limit' : 'swap'}/${
+      `${getTradeProductPath(window.location.pathname)}/${
         NETWORKS_INFO[chainId].route
       }/${toCurrency}-to-${fromCurrency}`,
     )

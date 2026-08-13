@@ -321,6 +321,8 @@ interface CurrencyInputPanelProps {
   onClickSelect?: () => void
   positionMax?: 'inline' | 'top'
   label?: ReactNode
+  /** Rendered inside the panel, under the amount row — for a note that belongs to this field. */
+  footer?: ReactNode
   positionLabel?: 'in' | 'out'
   onCurrencySelect?: (currency: Currency) => void
   onSwitchCurrency?: () => void
@@ -363,6 +365,7 @@ export default function CurrencyInputPanel({
   onHalf,
   positionMax = 'inline',
   label = '',
+  footer,
   positionLabel = 'out',
   onCurrencySelect,
   onSwitchCurrency,
@@ -488,6 +491,8 @@ export default function CurrencyInputPanel({
               </CurrencySelect>
             )}
           </InputRow>
+
+          {footer}
         </Container>
         {!disableCurrencySelect && !isSwitchMode && onCurrencySelect && (
           <TokenSelectorModal

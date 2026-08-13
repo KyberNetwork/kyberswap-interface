@@ -10,6 +10,7 @@ export default function SearchInput({
   placeholder,
   style,
   className,
+  dataTestId,
 }: {
   maxLength?: number
   placeholder: string
@@ -17,6 +18,7 @@ export default function SearchInput({
   onChange: (val: string) => void
   style?: CSSProperties
   className?: string
+  dataTestId?: string
 }) {
   return (
     <div
@@ -31,10 +33,16 @@ export default function SearchInput({
         maxLength={maxLength}
         value={value}
         onChange={e => onChange(e.target.value)}
+        data-testid={dataTestId}
         className="max-w-[calc(100%-20px)] flex-1 truncate border-none bg-inherit text-[13.3px] text-text outline-none placeholder:text-text placeholder:opacity-40"
       />
       {value ? (
-        <X className="min-w-4 cursor-pointer text-subText" size={16} onClick={() => onChange('')} />
+        <X
+          className="min-w-4 cursor-pointer text-subText"
+          size={16}
+          onClick={() => onChange('')}
+          data-testid={dataTestId && `${dataTestId}-clear`}
+        />
       ) : (
         <Search className="min-w-4 text-subText" size={16} />
       )}

@@ -25,6 +25,7 @@ import {
   NETWORKS_INFO,
   SUPPORTED_NETWORKS,
   isSupportLimitOrder,
+  isSupportStopLoss,
 } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import usePageLocation from 'hooks/usePageLocation'
@@ -76,6 +77,8 @@ const EarnUserPositions = lazy(() => import('pages/Earns/UserPositions'))
 const EarnPositionDetail = lazy(() => import('pages/Earns/PositionDetail'))
 const SmartExit = lazy(() => import('pages/Earns/SmartExitOrders'))
 const PoolDetail = lazy(() => import('pages/Earns/PoolDetail'))
+
+const StopLossPage = lazy(() => import('pages/Swap/StopLossPage'))
 
 const Recap2025Redirect = lazy(() => import('pages/Recap2025Redirect'))
 
@@ -276,6 +279,18 @@ export default function App() {
                   element={
                     <NetworkSyncedPage>
                       <LimitPage />
+                    </NetworkSyncedPage>
+                  }
+                />
+              )}
+
+              <Route path={APP_PATHS.STOP_LOSS} element={<RedirectPathToTradeNetwork />} />
+              {isSupportStopLoss(chainId) && (
+                <Route
+                  path={`${APP_PATHS.STOP_LOSS}/:network/:currency?`}
+                  element={
+                    <NetworkSyncedPage>
+                      <StopLossPage />
                     </NetworkSyncedPage>
                   }
                 />

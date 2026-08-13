@@ -159,6 +159,16 @@ export enum TRACKING_EVENT_TYPE {
   ANNOUNCEMENT_CLICK_CTA_POPUP,
   ANNOUNCEMENT_CLICK_CLEAR_ALL_INBOXES,
 
+  // Stop Loss
+  SL_PAGE_VIEWED,
+  SL_TOKEN_SELECTED,
+  SL_REVIEW_OPENED,
+  SL_ORDER_PLACED,
+  SL_ORDER_CANCELLED,
+  SL_RECREATE_CLICKED,
+  SL_INELIGIBLE_TOKEN,
+  SL_EXIT_PRICE_ENTRY_CLICKED,
+
   // Limit Order
   LO_PAGE_VIEWED,
   LO_CLICK_PLACE_ORDER,
@@ -1203,6 +1213,38 @@ export default function useTracking(currencies?: { [field in Field]?: Currency }
         case TRACKING_EVENT_TYPE.GAS_REFUND_SOURCE_CLICK: {
           const { source } = payload
           formoTrack('Gas refund - KNC Utility source click', { source })
+          break
+        }
+        case TRACKING_EVENT_TYPE.SL_PAGE_VIEWED: {
+          formoTrack('Stop Loss - Sub Tab Opened', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.SL_TOKEN_SELECTED: {
+          formoTrack('Stop Loss - Token Selected', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.SL_REVIEW_OPENED: {
+          formoTrack('Stop Loss - Review Opened', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.SL_ORDER_PLACED: {
+          formoTrack('Stop Loss - Order Placed', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.SL_ORDER_CANCELLED: {
+          formoTrack('Stop Loss - Order Cancelled', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.SL_RECREATE_CLICKED: {
+          formoTrack('Stop Loss - Recreate Clicked', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.SL_INELIGIBLE_TOKEN: {
+          formoTrack('Stop Loss - Ineligible Token', payload)
+          break
+        }
+        case TRACKING_EVENT_TYPE.SL_EXIT_PRICE_ENTRY_CLICKED: {
+          formoTrack('Exit Price Entry Clicked', payload)
           break
         }
         case TRACKING_EVENT_TYPE.LO_PAGE_VIEWED: {

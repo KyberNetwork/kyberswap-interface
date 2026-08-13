@@ -112,6 +112,8 @@ type TransactionSubmittedContentProps = {
   scanLink?: string
   chainId: ChainId
   tokenAddToMetaMask?: Token
+  /** Optional follow-up offered above Close, e.g. protecting the token just bought. */
+  extraAction?: React.ReactNode
 }
 
 export function TransactionSubmittedContent({
@@ -120,6 +122,7 @@ export function TransactionSubmittedContent({
   hash,
   tokenAddToMetaMask,
   scanLink,
+  extraAction,
 }: TransactionSubmittedContentProps) {
   return (
     <div className="w-full overflow-y-auto">
@@ -145,6 +148,7 @@ export function TransactionSubmittedContent({
           </Stack>
           {tokenAddToMetaMask?.address && <AddTokenToInjectedWallet token={tokenAddToMetaMask} chainId={chainId} />}
           <Stack className="w-full items-center gap-2">
+            {extraAction}
             <ButtonPrimary onClick={onDismiss}>
               <Trans>Close</Trans>
             </ButtonPrimary>

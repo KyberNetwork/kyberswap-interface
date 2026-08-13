@@ -16,7 +16,10 @@ const matchesAnyRoute = (pathname: string, paths: string[]) => paths.some(path =
 const pickSkeleton = (rawPathname: string) => {
   const pathname = rawPathname.length > 1 ? rawPathname.replace(/\/+$/, '') : rawPathname
 
-  if (isSwapLikePath(pathname) || matchesAnyRoute(pathname, [APP_PATHS.LIMIT, APP_PATHS.CROSS_CHAIN])) {
+  if (
+    isSwapLikePath(pathname) ||
+    matchesAnyRoute(pathname, [APP_PATHS.LIMIT, APP_PATHS.STOP_LOSS, APP_PATHS.CROSS_CHAIN])
+  ) {
     return <SwapPageSkeleton />
   }
   if (matchesAnyRoute(pathname, [APP_PATHS.PARTNER_SWAP, APP_PATHS.USER_SWAP])) {

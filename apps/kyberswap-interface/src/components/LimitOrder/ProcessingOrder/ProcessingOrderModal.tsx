@@ -1,6 +1,6 @@
 import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { useEffect, useRef } from 'react'
+import { ReactNode, useEffect, useRef } from 'react'
 import { AlertCircle, RotateCw } from 'react-feather'
 
 import { ButtonLight, ButtonOutlined, ButtonPrimary } from 'components/Button'
@@ -30,12 +30,18 @@ type ProcessingController<Step extends ProcessingOrderStep> = {
   retryStep?: (step: Step) => void
 }
 
+/** Per-status copy for the signing step, which names the kind of order being placed. */
+export type FinalStepLabels = { idle: string; active: string; success: string }
+
 type ProcessingOrderModalProps<Step extends ProcessingOrderStep> = {
   processing: ProcessingController<Step>
   chainId?: ChainId
   currencyIn?: Currency
   onUserDismiss?: () => void
   onViewOrder?: () => void
+  title?: string
+  finalStepLabels?: FinalStepLabels
+  viewOrderLabel?: ReactNode
 }
 
 const getStepStatus = <Step extends ProcessingOrderStep>({
@@ -71,11 +77,13 @@ const getStepLabel = ({
   status,
   chainId,
   currencyIn,
+  finalStepLabels,
 }: {
   step: ProcessingOrderStep
   status: ProcessingStepStatus
   chainId: ChainId | undefined
   currencyIn: Currency | undefined
+  finalStepLabels?: FinalStepLabels
 }) => {
   if (step === 'wrap') {
     const nativeSymbol = chainId ? NativeCurrencies[chainId].symbol : t`token`
@@ -92,9 +100,9 @@ const getStepLabel = ({
   }
 
   if (step === 'create') {
-    if (status === 'active') return t`Signing order`
-    if (status === 'success') return t`Order successfully listed`
-    return t`Sign order`
+    if (status === 'active') return finalStepLabels?.active ?? t`Signing order`
+    if (status === 'success') return finalStepLabels?.success ?? t`Order successfully listed`
+    return finalStepLabels?.idle ?? t`Sign order`
   }
 
   if (status === 'active') return t`Filling order`
@@ -109,6 +117,7 @@ const ProcessingStepRow = <Step extends ProcessingOrderStep>({
   chainId,
   currencyIn,
   onRetryStep,
+  finalStepLabels,
 }: {
   index: number
   step: Step
@@ -116,8 +125,9 @@ const ProcessingStepRow = <Step extends ProcessingOrderStep>({
   chainId: ChainId | undefined
   currencyIn: Currency | undefined
   onRetryStep?: (step: Step) => void
+  finalStepLabels?: FinalStepLabels
 }) => (
-  <HStack className="min-h-8 w-full items-center gap-2">
+  <HStack className="min-h-8 w-full items-center gap-2" data-testid={`processing-step-${step}`} data-status={status}>
     <StepIcon index={index} status={status} />
     <span
       className={cn(
@@ -128,10 +138,15 @@ const ProcessingStepRow = <Step extends ProcessingOrderStep>({
         status === 'error' && 'text-red',
       )}
     >
-      {getStepLabel({ step, status, chainId, currencyIn })}
+      {getStepLabel({ step, status, chainId, currencyIn, finalStepLabels })}
     </span>
     {status === 'error' && (
-      <ButtonLight onClick={() => onRetryStep?.(step)} width="auto" className="gap-1 px-2 py-1 text-xs">
+      <ButtonLight
+        onClick={() => onRetryStep?.(step)}
+        width="auto"
+        className="gap-1 px-2 py-1 text-xs"
+        data-testid="processing-step-retry"
+      >
         <RotateCw size={14} />
         {t`Retry`}
       </ButtonLight>
@@ -145,6 +160,9 @@ const ProcessingOrderModal = <Step extends ProcessingOrderStep>({
   currencyIn,
   onUserDismiss,
   onViewOrder,
+  title,
+  finalStepLabels,
+  viewOrderLabel,
 }: ProcessingOrderModalProps<Step>) => {
   const { state, dismiss, retryStep } = processing
   const { account } = useActiveWeb3React()
@@ -179,10 +197,12 @@ const ProcessingOrderModal = <Step extends ProcessingOrderStep>({
 
   return (
     <Modal isOpen={state.show} onDismiss={handleDismiss} maxWidth={420} borderRadius={16}>
-      <Stack className="w-full gap-5 p-5">
+      <Stack className="w-full gap-5 p-5" data-testid="processing-order-modal">
         <HStack className="items-center justify-between gap-4">
-          <div className="text-xl font-medium text-text">{t`Processing Order`}</div>
-          <CloseIcon onClick={handleDismiss} />
+          <div className="text-xl font-medium text-text" data-testid="processing-order-title">
+            {title ?? t`Processing Order`}
+          </div>
+          <CloseIcon onClick={handleDismiss} data-testid="processing-order-close" />
         </HStack>
 
         <Stack className="gap-3">
@@ -203,18 +223,19 @@ const ProcessingOrderModal = <Step extends ProcessingOrderStep>({
                   chainId={chainId}
                   currencyIn={currencyIn}
                   onRetryStep={retryStep}
+                  finalStepLabels={finalStepLabels}
                 />
               )
             })}
           </Stack>
 
           {orderComplete && (
-            <HStack className="gap-3">
-              <ButtonOutlined onClick={handleDismiss} className="flex-1">
+            <HStack className="gap-3" data-testid="processing-order-complete">
+              <ButtonOutlined onClick={handleDismiss} className="flex-1" data-testid="processing-order-close-button">
                 <Trans>Close</Trans>
               </ButtonOutlined>
-              <ButtonPrimary onClick={handleViewOrder} className="flex-1">
-                <Trans>My Orders</Trans>
+              <ButtonPrimary onClick={handleViewOrder} className="flex-1" data-testid="processing-order-view-button">
+                {viewOrderLabel ?? <Trans>My Orders</Trans>}
               </ButtonPrimary>
             </HStack>
           )}
