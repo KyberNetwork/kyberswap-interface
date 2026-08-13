@@ -70,15 +70,27 @@ type ListingPageNavigateButtonProps = {
   text: React.ReactNode
   to: string
   mobileFullWidth?: boolean
+  'data-testid'?: string
 }
 
-export const ListingPageNavigateButton = ({ icon, text, to, mobileFullWidth }: ListingPageNavigateButtonProps) => {
+export const ListingPageNavigateButton = ({
+  icon,
+  text,
+  to,
+  mobileFullWidth,
+  'data-testid': dataTestId,
+}: ListingPageNavigateButtonProps) => {
   const navigate = useNavigate()
   const prefetchRoute = usePrefetchRoute()
   const intent = usePrefetchOnIntent(() => prefetchRoute(to))
 
   return (
-    <ListingPageActionButton mobileFullWidth={mobileFullWidth} onClick={() => navigate({ pathname: to })} {...intent}>
+    <ListingPageActionButton
+      mobileFullWidth={mobileFullWidth}
+      onClick={() => navigate({ pathname: to })}
+      data-testid={dataTestId}
+      {...intent}
+    >
       {icon}
       <span className="w-max">{text}</span>
     </ListingPageActionButton>

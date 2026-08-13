@@ -31,6 +31,10 @@ const PoolItem = ({ pool, rowIndex = 0 }: { pool: EarnPool; rowIndex?: number })
       className="animate-[fadeInUp_0.3s_ease-out_both] justify-between motion-reduce:animate-none"
       key={pool.address}
       role="button"
+      data-testid="earn-overview-pool-item"
+      data-pool-address={pool.address}
+      data-chain-id={pool.chainId}
+      data-exchange={pool.exchange}
       style={{ animationDelay: `${Math.min(rowIndex * 50, 300)}ms` }}
       onClick={e => {
         e.stopPropagation()
@@ -56,14 +60,18 @@ const PoolItem = ({ pool, rowIndex = 0 }: { pool: EarnPool; rowIndex?: number })
           className="relative top-px self-end"
         />
 
-        <span className="truncate text-left">
+        <span className="truncate text-left" data-testid="earn-overview-pool-item-pair">
           {pool.tokens?.[0].symbol} / <span className="text-subText">{pool.tokens?.[1].symbol}</span>
         </span>
-        <Tag>{formatDisplayNumber(pool.feeTier, { significantDigits: 4 })}%</Tag>
+        <Tag data-testid="earn-overview-pool-item-fee-tier">
+          {formatDisplayNumber(pool.feeTier, { significantDigits: 4 })}%
+        </Tag>
       </div>
 
       <div className="flex items-center gap-1">
-        <span className="text-primary">{formatAprNumber(pool.allApr)}%</span>
+        <span className="text-primary" data-testid="earn-overview-pool-item-apr">
+          {formatAprNumber(pool.allApr)}%
+        </span>
         {isFarming ? (
           <AprDetailTooltip feeApr={pool.lpApr} egApr={pool.kemEGApr} lmApr={pool.kemLMApr}>
             {isFarmingLm ? <FarmingLmIcon width={20} height={20} /> : <FarmingIcon width={20} height={20} />}

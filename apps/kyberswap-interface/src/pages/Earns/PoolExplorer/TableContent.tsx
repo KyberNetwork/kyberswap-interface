@@ -90,15 +90,19 @@ const TableContent = ({ onOpenZapInWidget, filters, showRewards = true, showPool
   }, [poolData?.data?.pools, dexLookupMap, getFavoriteStatus])
 
   if (isLoading) {
-    return <PoolListSkeleton showRewards={showRewards} showPoolPrice={showPoolPrice} />
+    return (
+      <div data-testid="earn-pool-table-skeleton">
+        <PoolListSkeleton showRewards={showRewards} showPoolPrice={showPoolPrice} />
+      </div>
+    )
   }
 
   if (poolData?.data?.pools.length === 0 || isError) {
-    return <p className="m-12 mt-16 text-center text-subText">{t`No data found`}</p>
+    return <p className="m-12 mt-16 text-center text-subText" data-testid="earn-pool-table-empty">{t`No data found`}</p>
   }
 
   return (
-    <div className="relative">
+    <div className="relative" data-testid="earn-pool-table-body" data-fetching={isFetching}>
       <RefetchIndicator visible={isFetching} />
 
       {upToMedium ? (

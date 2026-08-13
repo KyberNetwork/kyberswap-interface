@@ -28,6 +28,7 @@ type RewardWindow = keyof typeof REWARD_WINDOW_MULTIPLIER
 type Props = {
   pool: EarnPool
   showEstimate?: boolean
+  'data-testid'?: string
 }
 
 const getEffectiveRewardDays = ({
@@ -79,7 +80,7 @@ const RewardTooltipContent = ({
   )
 }
 
-const PoolRewardsInfo = ({ pool, showEstimate = true }: Props) => {
+const PoolRewardsInfo = ({ pool, showEstimate = true, 'data-testid': dataTestId }: Props) => {
   const { filters } = useFilter()
 
   const depositAmount = 1_000
@@ -166,17 +167,21 @@ const PoolRewardsInfo = ({ pool, showEstimate = true }: Props) => {
   const estWeeklyRewards = (depositAmount / (merklTvl + depositAmount)) * merklWeeklyRewards
 
   return (
-    <Stack className="gap-1">
+    <Stack className="gap-1" data-testid={dataTestId}>
       {totalRewards > 0 ? (
         <MouseoverTooltipDesktopOnly
           text={<RewardTooltipContent egRewards={egRewards} lmRewards={lmRewards} bonusRewards={bonusRewards} />}
           width="fit-content"
           placement="left"
         >
-          <span>{formatDisplayNumber(totalRewards, { style: 'currency', significantDigits: 4 })}</span>
+          <span data-testid={dataTestId ? `${dataTestId}-value` : undefined}>
+            {formatDisplayNumber(totalRewards, { style: 'currency', significantDigits: 4 })}
+          </span>
         </MouseoverTooltipDesktopOnly>
       ) : (
-        <span>{formatDisplayNumber(totalRewards, { style: 'currency', significantDigits: 4 })}</span>
+        <span data-testid={dataTestId ? `${dataTestId}-value` : undefined}>
+          {formatDisplayNumber(totalRewards, { style: 'currency', significantDigits: 4 })}
+        </span>
       )}
 
       {(merklRewardTokens.length > 0 || kemRewardTokens.length > 0) && (

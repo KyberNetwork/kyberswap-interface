@@ -75,6 +75,10 @@ const MobileTableRow = ({
       onClick={e => handleOpenZapInWidget(e)}
       className="animate-[fadeInUp_0.3s_ease-out_both] motion-reduce:animate-none"
       style={{ animationDelay }}
+      data-testid="earn-pool-row"
+      data-pool-address={pool.address}
+      data-chain-id={pool.chain?.id || pool.chainId}
+      data-exchange={pool.exchange}
       {...prefetchDetail}
     >
       <MobileTableCell alignItems="flex-start" justifyContent="space-between">
@@ -87,12 +91,14 @@ const MobileTableRow = ({
                 <TokenLogo src={pool.chain.logoUrl} size={12} translateLeft translateTop className="size-3" />
               )}
             </HStack>
-            <SymbolText>
+            <SymbolText data-testid="earn-pool-row-pair">
               {pool.tokens?.[0]?.symbol}/{pool.tokens?.[1]?.symbol}
             </SymbolText>
-            <FeeTier>{formatDisplayNumber(pool.feeTier, { significantDigits: 4 })}%</FeeTier>
+            <FeeTier data-testid="earn-pool-row-fee-tier">
+              {formatDisplayNumber(pool.feeTier, { significantDigits: 4 })}%
+            </FeeTier>
           </HStack>
-          <FeeTier>
+          <FeeTier data-testid="earn-pool-row-protocol">
             <TokenLogo src={pool.dexLogo} size={16} />
             {pool.dexName}
           </FeeTier>
@@ -105,19 +111,21 @@ const MobileTableRow = ({
           cursor="pointer"
           onClick={e => handleFavorite(e, pool)}
           aria-label={pool.favorite?.isFavorite ? t`Remove from favorites` : t`Add to favorites`}
+          data-testid="earn-pool-row-favorite"
+          data-favorite={!!pool.favorite?.isFavorite}
         />
       </MobileTableCell>
       <MobileTableBottomRow>
         <MobileTableCell alignItems="baseline" justifyContent="space-between" className="gap-1">
           <HeaderText className="text-subText">{t`APR`}</HeaderText>
-          <HStack className="items-center gap-1">
-            <PoolAprInfo pool={pool} />
+          <HStack className="items-center gap-1" data-testid="earn-pool-row-apr">
+            <PoolAprInfo pool={pool} data-testid="earn-pool-row-apr-value" />
             <PoolAprBadges pool={pool} />
           </HStack>
         </MobileTableCell>
         <MobileTableCell justifyContent="space-between" className="gap-1">
           <HeaderText className="text-subText">{t`Fee`}</HeaderText>
-          <span>
+          <span data-testid="earn-pool-row-fee">
             {formatDisplayNumber(pool.earnFee, {
               style: 'currency',
               significantDigits: 6,
@@ -126,19 +134,23 @@ const MobileTableRow = ({
         </MobileTableCell>
         <MobileTableCell justifyContent="space-between" className="gap-1">
           <HeaderText className="text-subText">{t`TVL`}</HeaderText>
-          <span>{formatDisplayNumber(pool.tvl, { style: 'currency', significantDigits: 6 })}</span>
+          <span data-testid="earn-pool-row-tvl">
+            {formatDisplayNumber(pool.tvl, { style: 'currency', significantDigits: 6 })}
+          </span>
         </MobileTableCell>
         <MobileTableCell justifyContent="space-between" className="gap-1">
           <HeaderText className="text-subText">{t`Volume`}</HeaderText>
-          <span>{formatDisplayNumber(pool.volume, { style: 'currency', significantDigits: 6 })}</span>
+          <span data-testid="earn-pool-row-volume">
+            {formatDisplayNumber(pool.volume, { style: 'currency', significantDigits: 6 })}
+          </span>
         </MobileTableCell>
         {showRewards && (
           <MobileTableCell justifyContent="space-between" alignItems="flex-start" className="gap-1">
             <HeaderText className="text-subText">{t`Rewards`}</HeaderText>
-            <PoolRewardsInfo pool={pool} showEstimate={false} />
+            <PoolRewardsInfo pool={pool} showEstimate={false} data-testid="earn-pool-row-rewards" />
           </MobileTableCell>
         )}
-        <MobileTableCell>
+        <MobileTableCell data-testid="earn-pool-row-price">
           <SparklineChart
             sparkline={pool.sparkline}
             shouldInvert={pool.sparklinePriceToken !== pool.tokens[1].address}

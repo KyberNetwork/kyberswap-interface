@@ -10,17 +10,19 @@ const Card = ({
   icon,
   desc,
   action,
+  'data-testid': dataTestId,
 }: {
   title: string
   icon: string
   desc: string
   action: { text: string; disabled?: boolean; onClick: () => void }
+  'data-testid'?: string
 }) => {
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
 
   return (
-    <BorderWrapper onClick={() => !action.disabled && action.onClick()}>
+    <BorderWrapper onClick={() => !action.disabled && action.onClick()} data-testid={dataTestId}>
       <CardWrapper>
         <div className={cn('flex flex-col items-center', upToSmall ? 'min-w-[unset]' : 'w-20')}>
           {!upToSmall && <div className="h-9 w-px bg-[#258166]" />}
@@ -32,11 +34,21 @@ const Card = ({
               the tallest card (whose text nearly fills the equal-height card); on mobile the button's own
               mt-5 handles spacing. */}
           <div className="sm:mb-6">
-            <p className={cn('text-lg font-medium', upToSmall ? 'mt-0' : 'mt-7')}>{title}</p>
+            <p
+              className={cn('text-lg font-medium', upToSmall ? 'mt-0' : 'mt-7')}
+              data-testid={dataTestId ? `${dataTestId}-title` : undefined}
+            >
+              {title}
+            </p>
             <p className={cn('mt-3 text-subText', upToMedium ? 'text-sm' : 'text-base')}>{desc}</p>
           </div>
           {(!upToSmall || !action.disabled) && (
-            <ButtonPrimaryStyled disabled={action.disabled}>{action.text}</ButtonPrimaryStyled>
+            <ButtonPrimaryStyled
+              disabled={action.disabled}
+              data-testid={dataTestId ? `${dataTestId}-action` : undefined}
+            >
+              {action.text}
+            </ButtonPrimaryStyled>
           )}
         </div>
       </CardWrapper>

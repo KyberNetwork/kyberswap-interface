@@ -18,6 +18,7 @@ const PoolSection = ({
   size = 'small',
   listPools,
   styles,
+  'data-testid': dataTestId,
 }: {
   title: string
   tooltip: string
@@ -27,6 +28,7 @@ const PoolSection = ({
   size?: 'small' | 'large'
   listPools: any[]
   styles?: React.CSSProperties
+  'data-testid'?: string
 }) => {
   const navigate = useNavigate()
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
@@ -39,7 +41,7 @@ const PoolSection = ({
   const skeletonCount = size === 'large' ? (upToSmall ? 5 : 9) : 5
 
   return (
-    <PoolWrapper style={styles}>
+    <PoolWrapper style={styles} data-testid={dataTestId} data-tag={tag}>
       <ListPoolWrapper
         role="button"
         onClick={() => {
@@ -52,7 +54,9 @@ const PoolSection = ({
         <div className="flex items-center gap-3">
           <Icon icon={icon} size="small" />
           <MouseoverTooltipDesktopOnly text={tooltip} placement="top">
-            <h2 className="text-xl">{title}</h2>
+            <h2 className="text-xl" data-testid={dataTestId ? `${dataTestId}-title` : undefined}>
+              {title}
+            </h2>
           </MouseoverTooltipDesktopOnly>
         </div>
         <div
@@ -60,13 +64,21 @@ const PoolSection = ({
           style={{ background: 'linear-gradient(90deg, #161A1C 0%, #49287F 29%, #111413 100%)' }}
         />
         {isLoading ? (
-          <div className={poolItemContainerClass} style={poolItemContainerStyle}>
+          <div
+            className={poolItemContainerClass}
+            style={poolItemContainerStyle}
+            data-testid={dataTestId ? `${dataTestId}-skeleton` : undefined}
+          >
             {Array.from({ length: skeletonCount }, (_, i) => (
               <PoolItemSkeleton key={i} />
             ))}
           </div>
         ) : (
-          <div className={poolItemContainerClass} style={poolItemContainerStyle}>
+          <div
+            className={poolItemContainerClass}
+            style={poolItemContainerStyle}
+            data-testid={dataTestId ? `${dataTestId}-list` : undefined}
+          >
             {listPools.map((pool, index) => (
               <PoolItem pool={pool} key={pool.address} rowIndex={index} />
             ))}
