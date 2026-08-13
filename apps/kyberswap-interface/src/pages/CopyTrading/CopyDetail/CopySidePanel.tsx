@@ -2,7 +2,7 @@ import { Token as CurrencyToken } from '@kyberswap/ks-sdk-core'
 import { useMemo } from 'react'
 import { CreditCard } from 'react-feather'
 import copyTradingApi from 'services/copyTrading'
-import type { AgentProfile, CopyRunSummary, PositionSummary, Token, WalletBalanceRow } from 'services/copyTrading/types'
+import type { AgentProfile, CopyRunSummary, Metric, Token, WalletBalanceRow } from 'services/copyTrading/types'
 
 import CurrencyLogo from 'components/CurrencyLogo'
 import Loader from 'components/Loader'
@@ -21,8 +21,6 @@ import { formatTokenAmount, formatUsd } from 'pages/CopyTrading/helpers'
 import { useCopyTradeWrite } from 'pages/CopyTrading/write/WriteContext'
 import { cn } from 'utils/cn'
 import { formatDateTime } from 'utils/time'
-
-const POSITION_ASSET_LIMIT = 10
 
 type AssetRowProps = {
   amount?: string
@@ -55,31 +53,28 @@ const AssetRow = ({ amount, chainId, token, tokenAddress, valueUsd }: AssetRowPr
 }
 
 type RemainingInWalletCardProps = SidePanelCardWrapperProps & {
+  assets: WalletBalanceRow[]
+  complete: boolean
   loading: boolean
-  positionAssets: PositionSummary[]
-  quoteBalance?: WalletBalanceRow
+  totalValueUsd?: Metric
 }
 
 const RemainingInWalletCard = ({
+  assets,
   bodyClassName,
   collapsible = true,
+  complete,
   headerRight,
   initialExpanded = false,
   loading,
-  positionAssets,
-  quoteBalance,
   title,
+  totalValueUsd,
   ...sidePanelCardProps
 }: RemainingInWalletCardProps) => {
-  const hasAssets = !!quoteBalance || !!positionAssets.length
+  const hasAssets = !!assets.length
   const hasContent = loading || hasAssets
-  const totalValueUsd = [quoteBalance?.valueUsd, ...positionAssets.map(position => position.valueUsd)].reduce(
-    (total, value) => {
-      const numericValue = Number(value)
-      return Number.isFinite(numericValue) ? total + numericValue : total
-    },
-    0,
-  )
+  const totalIsRenderable =
+    complete && (totalValueUsd?.status === 'METRIC_STATUS_CURRENT' || totalValueUsd?.status === 'METRIC_STATUS_STALE')
 
   return (
     <SidePanelCard
@@ -87,7 +82,18 @@ const RemainingInWalletCard = ({
       collapsible={collapsible && hasContent}
       bodyClassName={cn('max-h-[300px] gap-0 overflow-y-auto', bodyClassName)}
       headerRight={
-        headerRight ?? <span className="text-lg font-medium text-primary">{formatUsd(String(totalValueUsd))}</span>
+        headerRight ?? (
+          <HStack className="items-center gap-2">
+            <span className="text-lg font-medium text-primary">
+              {formatUsd(totalIsRenderable ? totalValueUsd.value : undefined)}
+            </span>
+            {totalIsRenderable && totalValueUsd.status === 'METRIC_STATUS_STALE' && (
+              <span className="rounded bg-warning-20 px-1.5 py-0.5 text-[10px] font-medium uppercase text-warning">
+                Stale
+              </span>
+            )}
+          </HStack>
+        )
       }
       initialExpanded={initialExpanded}
       title={
@@ -101,33 +107,21 @@ const RemainingInWalletCard = ({
     >
       {hasContent && (
         <>
-          {/* TODO(copy-trading): Replace this first-page positions + pinned quote-token approximation with the dedicated Remaining in Wallet API when BE provides it. */}
           {loading && !hasAssets ? (
             <Center className="min-h-20">
               <Loader />
             </Center>
           ) : (
-            <>
-              {quoteBalance && (
-                <AssetRow
-                  amount={quoteBalance.amountDecimal}
-                  chainId={quoteBalance.chainId}
-                  token={quoteBalance.token}
-                  tokenAddress={quoteBalance.tokenAddress}
-                  valueUsd={quoteBalance.valueUsd}
-                />
-              )}
-              {positionAssets.map(position => (
-                <AssetRow
-                  key={position.positionId}
-                  amount={position.amountDecimal}
-                  chainId={position.chainId}
-                  token={position.token}
-                  tokenAddress={position.token.address}
-                  valueUsd={position.valueUsd}
-                />
-              ))}
-            </>
+            assets.map(asset => (
+              <AssetRow
+                key={asset.tokenAddress}
+                amount={asset.amountDecimal}
+                chainId={asset.chainId}
+                token={asset.token}
+                tokenAddress={asset.tokenAddress}
+                valueUsd={asset.valueUsd}
+              />
+            ))
           )}
         </>
       )}
@@ -144,19 +138,22 @@ const CopySidePanel = ({ agent, run }: CopySidePanelProps) => {
   const { openAddCapital, openStopCopy, openWithdrawQuote } = useCopyTradeWrite()
   const accountQuery = { chainId: run.chainId, copyAccount: run.copyAccount }
   const skipCopyAccount = !run.copyAccount || !run.chainId
-  const { data: positionResponse, isFetching: isPositionsFetching } = copyTradingApi.useGetCopyAccountPositionsQuery(
-    { ...accountQuery, status: 'open', limit: POSITION_ASSET_LIMIT },
-    { skip: skipCopyAccount },
-  )
-  const { data: balanceResponse, isFetching: isBalanceFetching } = copyTradingApi.useGetCopyAccountBalancesQuery(
-    { ...accountQuery, limit: 1 },
-    { skip: skipCopyAccount },
-  )
-  const pinnedStableBalance = balanceResponse?.pinnedStableBalance
+  const { data: inventoryResponse, isFetching: isInventoryFetching } =
+    copyTradingApi.useGetCopyAccountWalletInventoryQuery(accountQuery, { skip: skipCopyAccount })
+  const pinnedStableBalance = inventoryResponse?.pinnedStableBalance
   const quoteBalance =
     pinnedStableBalance?.status === 'PINNED_STABLE_BALANCE_STATUS_PRESENT' ? pinnedStableBalance.balance : undefined
-  const positionAssets = positionResponse?.data || []
-  const assetsLoading = isPositionsFetching || isBalanceFetching
+  const walletAssets = useMemo(
+    () => [
+      ...(quoteBalance ? [quoteBalance] : []),
+      ...(inventoryResponse?.data || []).filter(
+        asset => !quoteBalance || asset.tokenAddress.toLowerCase() !== quoteBalance.tokenAddress.toLowerCase(),
+      ),
+    ],
+    [inventoryResponse?.data, quoteBalance],
+  )
+  const inventoryComplete =
+    inventoryResponse?.complete === true && pinnedStableBalance?.status === 'PINNED_STABLE_BALANCE_STATUS_PRESENT'
   const isTerminal = run.status === 'stopped' || run.status === 'closed'
 
   const capitalCard = (
@@ -190,7 +187,12 @@ const CopySidePanel = ({ agent, run }: CopySidePanelProps) => {
   )
 
   const remainingInWallet = (
-    <RemainingInWalletCard loading={assetsLoading} positionAssets={positionAssets} quoteBalance={quoteBalance} />
+    <RemainingInWalletCard
+      assets={walletAssets}
+      complete={inventoryComplete}
+      loading={isInventoryFetching}
+      totalValueUsd={inventoryResponse?.walletInventoryValueUsd}
+    />
   )
 
   if (isTerminal) {

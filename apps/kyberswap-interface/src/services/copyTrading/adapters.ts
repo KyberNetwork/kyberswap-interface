@@ -23,6 +23,7 @@ import type {
   CopyAccountResponse,
   CopyAccountStatus,
   CopyAccountSummary,
+  CopyAccountWalletInventoryResponse,
   CopyRunCashbackPolicy,
   CopyRunCashbackPolicyResponse,
   CopyRunPerformanceResponse,
@@ -431,6 +432,14 @@ type ApiBalancesResponse = ApiCursorResponse<ApiWalletBalance> & {
     status?: string
     balance?: ApiWalletBalance
   }
+}
+
+type ApiWalletInventoryResponse = {
+  data?: ApiWalletBalance[]
+  walletInventoryValueUsd?: ApiMetric
+  complete?: boolean
+  pinnedStableBalance?: ApiBalancesResponse['pinnedStableBalance']
+  meta?: ResponseMeta
 }
 
 const isMetricRenderable = (status?: MetricStatus) =>
@@ -1087,6 +1096,23 @@ export const adaptCopyAccountBalancesResponse = (response: ApiBalancesResponse):
           : undefined,
       }
     : undefined,
+})
+
+export const adaptCopyAccountWalletInventoryResponse = (
+  response: ApiWalletInventoryResponse,
+): CopyAccountWalletInventoryResponse => ({
+  data: (response.data || []).map(toWalletBalance),
+  walletInventoryValueUsd: response.walletInventoryValueUsd,
+  complete: response.complete === true,
+  pinnedStableBalance: response.pinnedStableBalance
+    ? {
+        status: response.pinnedStableBalance.status as PinnedStableBalanceStatus | undefined,
+        balance: response.pinnedStableBalance.balance
+          ? toWalletBalance(response.pinnedStableBalance.balance)
+          : undefined,
+      }
+    : undefined,
+  meta: response.meta,
 })
 
 export const adaptPendingSellObligationsResponse = (

@@ -1,10 +1,10 @@
 # Copy Trade API — Frontend Integration Catalog
 
-Contract verified on **2026-08-12** against `origin/main` commit
-`deea80135d82f942c6e922928a413ea4f4abfa0b` (PR #19), the checked-in
-protobuf sources, and the generated OpenAPI document. That revision pins
+Contract verified on **2026-08-13** against `origin/main` commit
+`1b0d9e27b60dc02e960f4557232727c50dcf724b`, the checked-in protobuf
+sources, and the generated OpenAPI document. That revision pins
 `copy-trade-operator` at
-`v0.0.0-20260810170455-c2627d166ddc` for the beta-4 read/action contract.
+`v0.0.0-20260813084007-e8a0e0149d68` for the current read/action contract.
 
 Live pre-release public-read smoke verified: **2026-08-12 00:36 UTC**
 
@@ -26,9 +26,9 @@ This document describes the public HTTPS/JSON contract used by frontend
 applications. It intentionally excludes service architecture, storage, and
 deployment details.
 
-## Latest `origin/main` Status — 2026-08-12
+## Latest `origin/main` status — 2026-08-13
 
-The public HTTP surface contains **33 operations**: 25 GET reads, six
+The public HTTP surface contains **34 operations**: 26 GET reads, six
 transaction-preparation POSTs, and two wallet-session POSTs. The following
 frontend-visible semantics are merged on `origin/main`; source status does not
 by itself prove that a particular environment is running the same image.
@@ -40,10 +40,11 @@ by itself prove that a particular environment is running the same image.
 | Capital In | `CopyRunSummary.capitalInProjectionStatus` is implemented with `SYNCING`, `READY`, and `UNAVAILABLE`. | Render `capitalInUsd` only when the projection status is `READY`. A visible funding transaction does not make a provisional aggregate value authoritative. |
 | Account-effective cashback policy | `GET /users/{ownerAddress}/copy-runs/{copyRunId}/cashback-policy` returns the operator-authored policy for that exact follower account, including typed status, optional rates, scope, provenance times, and optional formula version. | Fetch it lazily for a selected run's fee/cashback panel. Branch on `status`; do not substitute an agent-level advertised rate, infer missing rates as zero, or hard-code a formula version. |
 | Pinned stable balance | The current-stable materializer reads exact quote-token balances from the operator at one canonical block anchor. A present row can use `balanceSource = "onchain_rpc"`; exact zero remains present. | Trust the row only when `pinnedStableBalance.status` is `PRESENT`. Preserve all other typed states as unavailable rather than converting them to zero. |
+| Current wallet inventory | `GET /copy-accounts/{chainId}/{copyAccount}/wallet-inventory` returns bounded current wallet rows and an account-wide `walletInventoryValueUsd` only when the source proves the response is complete and every nonzero asset is valued. | Use this route for **Remaining in Wallet** on active and stopped copy runs. Never calculate the total from `/balances` pages or add the pinned stable row to the server total. |
 | Action-log chain links | Valid mixed-case EVM addresses and hashes are canonicalized to lowercase. Invalid optional linkage claims are discarded while a safe narrative row remains renderable. | Treat `txHash`, `leaderPositionId`, `blockNumber`, and `tokenAddress` as optional links. Their absence is not an action failure and must not be reconstructed from narrative text. |
 | Copy lifecycle views | `OPEN` contains admitted runs with status `COPY_RUN_STATUS_ACTIVE` or `COPY_RUN_STATUS_CLOSING`. `HISTORY` contains admitted or readable historical-generation runs with status `COPY_RUN_STATUS_STOPPED` or `COPY_RUN_STATUS_CLOSED`. Position history is a separate universe. | Refresh from the server after lifecycle changes; do not pin local tab membership or derive it from position counts. Use owner position routes for owner-wide closed-trade history. |
 | Historical-generation compatibility | Parentless child facts explicitly classified `HISTORICAL` by the operator are consumed without creating current/actionable projections. Missing `ADMITTED` or `QUARANTINED` parent identity still fails closed. | Historical or unavailable data must not be promoted into current dashboards or actions. Preserve typed unavailable states and direct/History reads; never infer missing values as zero. |
-| Public HTTP surface | All 25 reads, six preparations, and two wallet-session operations have generated gateway mappings and concrete aggregate handlers. | Do not feature-gate a route as unimplemented. Treat typed product statuses separately from HTTP availability. |
+| Public HTTP surface | All 26 reads, six preparations, and two wallet-session operations have generated gateway mappings and concrete aggregate handlers. | Do not feature-gate a route as unimplemented. Treat typed product statuses separately from HTTP availability. |
 
 ## Current FE Contract Notes
 
@@ -121,6 +122,7 @@ tab, chart, drawer, or drilldown is opened.
 | Owner activity feed | `GET /users/{ownerAddress}/activity` | Filter by `copyRunId`, `chainId`, exact `type`, or product `group` | None |
 | Owner copy-account list | `GET /users/{ownerAddress}/copy-accounts` | Load the next cursor page | None |
 | Copy-account overview | `GET /copy-accounts/{chainId}/{copyAccount}` | Balances, positions, and history routes below | Prepare Add Capital, Stop Copy, or Withdraw Quote through the associated copy run |
+| Copy Details — Remaining in Wallet | `GET /copy-accounts/{chainId}/{copyAccount}/wallet-inventory` | Use `/balances` only for a separately paginated asset explorer | None |
 | Copy-account balances | `GET /copy-accounts/{chainId}/{copyAccount}/balances` | Load the next cursor page | None |
 | Copy-account positions | `GET /copy-accounts/{chainId}/{copyAccount}/positions` | Pending-sell obligations for a selected `userPositionId` | Manual Sell or Close Position |
 | Copy-account history | `GET /copy-accounts/{chainId}/{copyAccount}/history` | Filter by exact `type` or product `group` | None |
@@ -1143,6 +1145,7 @@ There is no exact total-count contract—use `pagination.hasMore`.
 | --- | --- | --- | --- |
 | GET | `/copy-accounts/{chainId}/{copyAccount}` | Path only | `CopyAccountSummary` |
 | GET | `/copy-accounts/{chainId}/{copyAccount}/balances` | `cursor?`, `limit?` | `WalletBalanceRow[]`; response also includes `pinnedStableBalance` |
+| GET | `/copy-accounts/{chainId}/{copyAccount}/wallet-inventory` | Path only | Bounded `WalletBalanceRow[]`, `walletInventoryValueUsd`, `complete`, and `pinnedStableBalance` |
 | GET | `/copy-accounts/{chainId}/{copyAccount}/positions` | `view?`, `cursor?`, `limit?`, `sortBy?`, `sortOrder?` | `PositionSummary[]` |
 | GET | `/copy-accounts/{chainId}/{copyAccount}/positions/{userPositionId}/pending-sell-obligations` | `cursor?`, `limit?` | `PendingSellObligation[]` |
 | GET | `/copy-accounts/{chainId}/{copyAccount}/history` | `type?`, `group?`, `cursor?`, `limit?` | `ActivityRow[]` |
@@ -1184,6 +1187,92 @@ present row can therefore report `balanceSource = "onchain_rpc"`. A
 response-level `meta.status=DATA_STATUS_UNAVAILABLE` can coexist with usable
 rows; check row freshness, valuation status, and
 `pinnedStableBalance.status` separately.
+
+#### Current wallet inventory
+
+Use the following non-paginated endpoint for the **Remaining in Wallet** card
+on both active and stopped copy runs:
+
+```http
+GET /copy-accounts/{chainId}/{copyAccount}/wallet-inventory
+```
+
+The endpoint returns the current token rows held by the Smart Wallet and a
+server-calculated account-wide USD total. It does not include open-position
+valuation, and it is not a replacement for `portfolioValueUsd`.
+
+| Field | Frontend behavior |
+| --- | --- |
+| `data` | Render the returned wallet-token rows. Each row uses the existing `WalletBalanceRow` contract. |
+| `walletInventoryValueUsd` | Use this `DecimalMetric` as the **Remaining in Wallet** total. Do not calculate another total from `data`. |
+| `complete` | A value of `true` means the bounded operator request proved that all wallet rows fit in one response. A value of `false` means the rows may be rendered, but they are not a complete inventory. |
+| `pinnedStableBalance` | Render the stable row separately only when its status is `PRESENT`. The API already counts it exactly once in `walletInventoryValueUsd`. |
+| `meta` | Apply the normal response metadata rules independently from the total metric and row-level freshness. |
+
+An abbreviated complete response has the following shape:
+
+```json
+{
+  "data": [
+    {
+      "chainId": "8453",
+      "copyAccount": "0x1111111111111111111111111111111111111111",
+      "tokenAddress": "0x2222222222222222222222222222222222222222",
+      "amountDecimal": "2",
+      "freshnessStatus": "fresh",
+      "currentValuation": {
+        "valueUsd": "5",
+        "status": "DATA_STATUS_CURRENT"
+      }
+    }
+  ],
+  "walletInventoryValueUsd": {
+    "value": "1005",
+    "status": "METRIC_STATUS_CURRENT",
+    "asOf": "2026-08-13T06:45:00Z"
+  },
+  "complete": true,
+  "pinnedStableBalance": {
+    "status": "PINNED_STABLE_BALANCE_STATUS_PRESENT",
+    "balance": {
+      "chainId": "8453",
+      "copyAccount": "0x1111111111111111111111111111111111111111",
+      "tokenAddress": "0x3333333333333333333333333333333333333333",
+      "amountDecimal": "1000",
+      "freshnessStatus": "fresh",
+      "currentValuation": {
+        "valueUsd": "1000",
+        "status": "DATA_STATUS_CURRENT"
+      }
+    }
+  }
+}
+```
+
+Apply these rules when rendering the total:
+
+1. Render `walletInventoryValueUsd.value` only when its status is
+   `METRIC_STATUS_CURRENT` or `METRIC_STATUS_STALE`. Show the normal stale-data
+   treatment for `METRIC_STATUS_STALE`.
+2. When `complete` is `false` or the metric status is
+   `METRIC_STATUS_UNAVAILABLE`, show an unavailable state. Do not sum `data`,
+   crawl `/balances`, or treat omitted assets as zero.
+3. Do not add `pinnedStableBalance.balance` to `walletInventoryValueUsd`; the
+   server total already includes a present stable row exactly once.
+4. Preserve an explicit value of `"0"`. It is a valid complete inventory
+   result, not missing data.
+5. Do not add open-position valuation or `availableBalanceUsd`. Those fields
+   answer different product questions.
+6. Treat a non-`PRESENT` pinned stable status as unavailable, not zero. The
+   total also becomes unavailable when any nonzero wallet asset lacks a valid
+   USD valuation.
+7. The total becomes `METRIC_STATUS_STALE` when any included balance or price
+   is stale. Its `asOf` is the oldest effective valuation time included in the
+   total.
+
+Use the cursor-paginated `/balances` endpoint only when the UI needs a
+page-by-page asset browser. It cannot be used to derive a stable account-wide
+total because pages are independent current reads.
 
 Pending obligations are current operator authority, while `skippedAt` and
 public error fields are optional aggregate display evidence. Never size a sell
@@ -1310,6 +1399,7 @@ PREPARED_ACTION_REASON_REQUEST_ID_CONFLICT
 PREPARED_ACTION_REASON_UNSUPPORTED_ACCOUNT_GENERATION
 PREPARED_ACTION_REASON_NO_QUOTE_BALANCE
 PREPARED_ACTION_REASON_INSUFFICIENT_QUOTE_BALANCE
+PREPARED_ACTION_REASON_INSUFFICIENT_QUOTE_ALLOWANCE
 PREPARED_ACTION_REASON_CONTROLLER_PAUSED
 PREPARED_ACTION_REASON_COPY_RUN_STOPPED
 PREPARED_ACTION_REASON_UNSUPPORTED_QUOTE_TOKEN
@@ -1369,10 +1459,176 @@ Funded example with permit transport:
 }
 ```
 
-Do not hex-encode `createPermitData`, include it in unfunded mode, persist it,
-or expect it to be echoed in the response. A funded request can omit it when
-the wallet/token flow does not use permit; preparation remains authoritative
-for whether that request is executable.
+Do not hex-encode `createPermitData`, include it in unfunded mode, write it to
+durable browser storage or logs, or expect it to be echoed in the response. A
+funded request can omit it when the wallet/token flow does not use permit;
+preparation remains authoritative for whether that request is executable. A
+permit-backed attempt must retain the exact bytes in volatile flow state until
+the Start Copy attempt reaches completion because creation evidence is bound to
+their hash.
+
+#### Funded authorization flow
+
+When a funded request has enough quote-token balance but not enough factory
+allowance, preparation returns HTTP 200 with:
+
+```json
+{
+  "data": {
+    "status": "PREPARED_ACTION_STATUS_UNAVAILABLE",
+    "reason": "PREPARED_ACTION_REASON_INSUFFICIENT_QUOTE_ALLOWANCE",
+    "startCopy": {
+      "stage": "START_COPY_STAGE_CREATE_REQUIRED",
+      "createAmountRaw": "50000000",
+      "allowanceRequirement": {
+        "spenderAddress": "0x...generation-factory...",
+        "currentAllowanceRaw": "0",
+        "requiredAllowanceRaw": "50000000",
+        "approvalScheme": "START_COPY_APPROVAL_SCHEME_STANDARD",
+        "permitScheme": "START_COPY_PERMIT_SCHEME_ERC20_EIP2612",
+        "eip712DomainName": "USD Coin",
+        "eip712DomainVersion": "2",
+        "eip712DomainKind": "START_COPY_EIP712_DOMAIN_KIND_CHAIN_ID"
+      }
+    }
+  }
+}
+```
+
+`allowanceRequirement` is present only with this reason. It is an exact-block
+diagnostic, not authorization to submit a transaction. The UI must use the
+returned `spenderAddress`; never hardcode a factory or infer it from an older
+agent response. `requiredAllowanceRaw` equals `createAmountRaw`.
+
+`permitScheme` is the operator-authoritative encoding choice. `approvalScheme`
+is the operator-authoritative ERC-20 fallback behavior. Do not select either
+path from a token symbol or infer it from a byte length:
+
+- `START_COPY_PERMIT_SCHEME_ALLOWANCE_ONLY`: the token has no reviewed permit
+  path. The EIP-712 domain fields are absent. Use `approvalScheme` to approve
+  `spenderAddress`, then reprepare funded mode. This is how a USDT-like token
+  is handled when the returned scheme says it is allowance-only; its symbol is
+  not evidence of that behavior.
+- `START_COPY_PERMIT_SCHEME_ERC20_EIP2612`: sign the token's EIP-712 Permit and
+  encode the reviewed 160-byte payload below, using the returned domain fields
+  and `eip712DomainKind`.
+- `START_COPY_PERMIT_SCHEME_ERC20_DAI_LIKE`: use the reviewed DAI-like permit
+  flow and its 192-byte payload with the returned domain fields and
+  `eip712DomainKind`; do not reuse the EIP-2612 encoder.
+
+For allowance-only responses:
+
+- `START_COPY_APPROVAL_SCHEME_STANDARD`: submit one normal `approve` for the
+  required amount to `spenderAddress`.
+- `START_COPY_APPROVAL_SCHEME_ZERO_THEN_SET`: if the current allowance is
+  nonzero, submit `approve(spenderAddress, 0)` first; then submit the normal
+  required-amount approval. Track both transactions, await each receipt, and
+  verify the intermediate zero and final required allowance before
+  repreparing. Do not reuse the current best-effort approval fallback that
+  discovers this behavior only after failed approval attempts.
+
+The API deliberately does not expose permit payload length. The exact scheme,
+not a token symbol or a numeric length, selects the encoder.
+
+Implementation note for kyberswap-interface: reuse `signTypedDataRaw`, the
+existing chain-ID and chain-ID-as-salt EIP-712 domain builders, signature
+parsing, transaction submission, smart-account detection, and bounded
+allowance refresh. Do not reuse the swap `usePermit` result or its Redux cache:
+its saved `rawSignature` ABI-encodes `owner` and `spender` too, and its cache
+identity omits this flow's spender, scheme, and domain. Start Copy needs a
+small authorization adapter scoped by account, chain, token, spender, scheme,
+domain, amount, nonce, and deadline/expiry, and must build the payload described
+below from the parsed signature.
+
+Native token permits carry an EOA `v/r/s` signature. When the connected owner
+is a smart-contract account, skip these native permit branches and use the
+returned `approvalScheme` fallback instead; do not assume EIP-1271 support from
+an ERC-2612 or DAI-like response.
+
+For `START_COPY_PERMIT_SCHEME_ERC20_EIP2612`, `createPermitData` is the
+protobuf-JSON base64 encoding of these ABI bytes:
+
+```text
+abi.encode(uint256 value, uint256 deadline, uint8 v, bytes32 r, bytes32 s)
+```
+
+This is the five EIP-2612 arguments only: no function selector, owner, or
+spender is included in the 160 bytes. Sign the token's EIP-712 Permit with:
+
+```text
+owner             = connected owner wallet
+spender           = allowanceRequirement.spenderAddress
+value             = allowanceRequirement.requiredAllowanceRaw
+nonce             = current quote-token nonce for owner
+deadline          = a fresh UI-selected deadline
+chainId           = response chainId
+verifyingContract = response startCopy.quoteToken.address
+name              = allowanceRequirement.eip712DomainName
+version           = allowanceRequirement.eip712DomainVersion
+```
+
+The returned `eip712DomainKind` selects the EIP-712 domain type exactly:
+
+- `START_COPY_EIP712_DOMAIN_KIND_CHAIN_ID`: reuse `EIP712_DOMAIN_TYPE` with
+  the response chain ID.
+- `START_COPY_EIP712_DOMAIN_KIND_CHAIN_ID_SALT`: reuse
+  `EIP712_DOMAIN_TYPE_SALT`, setting `salt` to `bytes32(chainId)`.
+
+`ALLOWANCE_ONLY` responses carry `UNSPECIFIED` and no domain fields. Do not
+infer a domain shape from a token symbol, name, version, or chain.
+
+For the Base USDC example above, the operator response carries EIP-712 name
+`USD Coin` and version `2`; `v` is encoded as `27` or `28`. The returned
+domain fields and a current token nonce are signing authority. Do not replace
+them with token-symbol rules or hardcoded catalog data.
+
+For `START_COPY_PERMIT_SCHEME_ERC20_DAI_LIKE`, sign the DAI-style typed value:
+
+```text
+holder            = connected owner wallet
+spender           = allowanceRequirement.spenderAddress
+nonce             = current quote-token nonce for holder
+expiry            = a fresh UI-selected expiry
+allowed           = true
+chainId           = response chainId
+verifyingContract = response startCopy.quoteToken.address
+name              = allowanceRequirement.eip712DomainName
+version           = allowanceRequirement.eip712DomainVersion
+```
+
+Then send the protobuf-JSON base64 encoding of:
+
+```text
+abi.encode(uint256 nonce, uint256 expiry, bool allowed, uint8 v, bytes32 r, bytes32 s)
+```
+
+This is a different typed-data schema and grants the DAI-like allowance form;
+it is not an EIP-2612 amount permit.
+
+Recommended funded flow:
+
+1. Prepare funded mode without permit using diagnostic UUID A.
+2. If preparation is already `READY`, submit its create call; no permit is
+   needed.
+3. If the reason is `INSUFFICIENT_QUOTE_ALLOWANCE`, branch on the returned
+   `allowanceRequirement` schemes:
+   - `ALLOWANCE_ONLY`: perform the `STANDARD` or `ZERO_THEN_SET` approval
+     sequence required by `approvalScheme`, then generate a new UUID and
+     reprepare funded mode without permit bytes. This path requires one or two
+     approval transactions before the create transaction.
+   - `ERC20_EIP2612`: sign and ABI-encode the five values above into the
+     reviewed 160-byte payload, using the returned EIP-712 domain kind.
+   - `ERC20_DAI_LIKE`: use only the reviewed DAI-like 192-byte encoder and
+     its returned EIP-712 domain kind.
+4. For a permit-backed attempt, generate UUID B and reprepare the same target
+   in funded mode with base64 `createPermitData`. Keep UUID B, target, funding
+   mode, and exact permit bytes stable for that attempt.
+5. Submit only the operator-authored create call returned as `READY`. A
+   permit-backed attempt remains one blockchain transaction: create plus full
+   initial capital.
+
+A permit can become stale after its nonce is consumed or its deadline expires;
+discard the old preparation and create a new UUID/signature pair.
 
 Stages:
 
@@ -1735,16 +1991,18 @@ Keep the loop bounded and offer a manual refresh if projection remains behind.
 
 ## Complete HTTP Operation Index
 
-The public HTTP surface contains 33 operations:
+The public HTTP surface contains 34 operations:
 
-- 25 GET reads;
+- 26 GET reads;
 - 6 transaction-preparation POSTs;
 - 2 wallet-session POSTs.
 
-The 25th read is the targeted account-effective policy route:
+The two targeted copy-run/copy-account reads added after the original read
+surface are:
 
 ```text
 GET /users/{ownerAddress}/copy-runs/{copyRunId}/cashback-policy
+GET /copy-accounts/{chainId}/{copyAccount}/wallet-inventory
 ```
 
 There is no generated HTTP mapping for private operator transaction
@@ -1754,10 +2012,10 @@ must use only the aggregate routes in this document.
 ## Current Availability and Verification Status
 
 At `origin/main` commit
-`deea80135d82f942c6e922928a413ea4f4abfa0b`, the generated OpenAPI contract
-contains all 33 public HTTP operations:
+`1b0d9e27b60dc02e960f4557232727c50dcf724b`, the generated OpenAPI contract
+contains all 34 public HTTP operations:
 
-- 25 GET read operations;
+- 26 GET read operations;
 - 6 transaction-preparation POST operations;
 - 2 wallet-session POST operations.
 
@@ -1767,10 +2025,10 @@ and dependencies. No transaction-preparation route should be feature-gated as
 “not implemented.” The preparation routes do not broadcast transactions; they
 return a typed product outcome and, only when executable, an exact wallet call.
 
-PR #19 is a sync-correctness update and does not add another public route or
-JSON field. It allows explicitly historical parentless child facts to advance
-without current/actionable projection while preserving fail-closed handling
-for admitted or quarantined facts that lack authoritative parent identity.
+PR #21 adds the current wallet-inventory read used by the **Remaining in
+Wallet** card. It is merged on `origin/main`; the older live pre-release smoke
+below does not prove that a particular environment has deployed it. Verify the
+deployed image before enabling the UI integration in that environment.
 
 ### Live pre-release public-read smoke
 
@@ -1811,7 +2069,7 @@ not an unavailable endpoint.
 
 ### Read integration status
 
-All 25 GET operations are implemented and exposed by the generated gateway.
+All 26 GET operations are implemented and exposed by the generated gateway.
 Returned rows and freshness statuses depend on the selected fixture and current
 materializer/source state; do not encode point-in-time row counts into the
 frontend.

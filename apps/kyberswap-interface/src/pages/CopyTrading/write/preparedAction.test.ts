@@ -9,8 +9,10 @@ import {
 
 const account = '0x1111111111111111111111111111111111111111'
 const copyAccount = '0x2222222222222222222222222222222222222222'
+const authorizedCopyAccount = '0x4444444444444444444444444444444444444444'
 const callTarget = '0x3333333333333333333333333333333333333333'
 const startRequestId = '123e4567-e89b-42d3-a456-426614174000'
+const authorizedStartRequestId = '123e4567-e89b-42d3-a456-426614174001'
 const targetCapitalRaw = '1000000'
 
 const expected: PreparedActionExpectation = {
@@ -143,6 +145,37 @@ describe('validatePreparedAction', () => {
     }
 
     expect(validatePreparedAction(action, expected)).toBe('The preparation returned an unexpected call kind.')
+  })
+
+  it('accepts the authorized UUID predicted account after clearing the diagnostic UUID identity', () => {
+    const action: PreparedAction = {
+      status: 'PREPARED_ACTION_STATUS_READY',
+      chainId: '8453',
+      expectedAccount: account,
+      startCopy: {
+        stage: 'START_COPY_STAGE_CREATE_REQUIRED',
+        startRequestId: authorizedStartRequestId,
+        predictedCopyAccount: authorizedCopyAccount,
+        requestedTargetRaw: targetCapitalRaw,
+        createAmountRaw: targetCapitalRaw,
+      },
+      call: {
+        kind: 'PREPARED_CALL_KIND_START_COPY_CREATE',
+        to: callTarget,
+        data: '0x',
+        valueRaw: '0',
+      },
+    }
+    const authorizedExpected: PreparedActionExpectation = {
+      ...expected,
+      startCopyPredictedAccount: undefined,
+      startCopyRequestId: authorizedStartRequestId,
+    }
+
+    expect(validatePreparedAction(action, authorizedExpected)).toBeUndefined()
+    expect(validatePreparedAction(action, { ...authorizedExpected, startCopyPredictedAccount: copyAccount })).toBe(
+      'The prepared Start Copy Smart Wallet changed during this attempt.',
+    )
   })
 
   it.each(['PREPARED_ACTION_STATUS_READY', 'PREPARED_ACTION_STATUS_PARTIALLY_COMPLETED'] as const)(

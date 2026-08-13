@@ -1,6 +1,11 @@
 import { describe, expect, it } from 'vitest'
 
-import { adaptCopyAccountBalancesResponse, adaptCopyRunCashbackPolicyResponse, adaptCopyRunResponse } from './adapters'
+import {
+  adaptCopyAccountBalancesResponse,
+  adaptCopyAccountWalletInventoryResponse,
+  adaptCopyRunCashbackPolicyResponse,
+  adaptCopyRunResponse,
+} from './adapters'
 
 const currentCapital = {
   value: '12.34',
@@ -48,6 +53,40 @@ describe('adaptCopyAccountBalancesResponse', () => {
     expect(response.pinnedStableBalance?.balance).toMatchObject({
       amountDecimal: '0',
       balanceSource: 'onchain_rpc',
+    })
+  })
+})
+
+describe('adaptCopyAccountWalletInventoryResponse', () => {
+  it('preserves the authoritative total, completeness and pinned zero balance', () => {
+    const response = adaptCopyAccountWalletInventoryResponse({
+      data: [
+        {
+          amountDecimal: '2',
+          chainId: '8453',
+          copyAccount: '0x2222222222222222222222222222222222222222',
+          currentValuation: { status: 'DATA_STATUS_STALE', valueUsd: '5' },
+          tokenAddress: '0x3333333333333333333333333333333333333333',
+        },
+      ],
+      walletInventoryValueUsd: { status: 'METRIC_STATUS_STALE', value: '5' },
+      complete: true,
+      pinnedStableBalance: {
+        status: 'PINNED_STABLE_BALANCE_STATUS_PRESENT',
+        balance: {
+          amountDecimal: '0',
+          chainId: '8453',
+          copyAccount: '0x2222222222222222222222222222222222222222',
+          tokenAddress: '0x4444444444444444444444444444444444444444',
+        },
+      },
+    })
+
+    expect(response).toMatchObject({
+      complete: true,
+      walletInventoryValueUsd: { status: 'METRIC_STATUS_STALE', value: '5' },
+      data: [{ chainId: 8453, valueUsd: '5' }],
+      pinnedStableBalance: { balance: { amountDecimal: '0' } },
     })
   })
 })
