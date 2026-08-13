@@ -24,18 +24,25 @@ import { Exchange } from 'pages/Earns/constants'
 import { fetchExistingPoolAddress } from 'pages/Earns/utils/zap'
 import { useWalletModalToggle } from 'state/application/hooks'
 
-const Wrapper = ({ children }: { children: React.ReactNode }) => (
-  <div className="flex w-full flex-col gap-6 p-6">{children}</div>
+const Wrapper = ({ children, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
+  <div className="flex w-full flex-col gap-6 p-6" {...rest}>
+    {children}
+  </div>
 )
 
 const Title = ({ children }: { children: React.ReactNode }) => <h2 className="m-0 text-xl font-semibold">{children}</h2>
 
 const Section = ({ children }: { children: React.ReactNode }) => <div className="flex flex-col gap-3">{children}</div>
 
-const TokenSelectWrapper = ({ children, onClick }: { children: React.ReactNode; onClick: () => void }) => (
+const TokenSelectWrapper = ({
+  children,
+  onClick,
+  ...rest
+}: React.HTMLAttributes<HTMLDivElement> & { onClick: () => void }) => (
   <div
     onClick={onClick}
     className="flex w-full cursor-pointer items-center justify-between rounded-full bg-background px-3 py-1.5"
+    {...rest}
   >
     {children}
   </div>
@@ -262,7 +269,7 @@ const CreatePoolModal = ({ isOpen, filterChainId, onDismiss, onSubmit }: Props) 
   return (
     <>
       <Modal isOpen={isOpen} onDismiss={onDismiss} maxWidth={480} width="100%" bypassFocusLock={!!tokenSelectorTarget}>
-        <Wrapper>
+        <Wrapper data-testid="create-pool-modal">
           <Title>
             <Trans>Create Pool with Zap</Trans>
           </Title>
@@ -278,6 +285,7 @@ const CreatePoolModal = ({ isOpen, filterChainId, onDismiss, onSubmit }: Props) 
                 value={selectedChainId.toString()}
                 mobileFullWidth
                 onChange={value => setSelectedChainId(Number(value) as ChainId)}
+                data-testid="create-pool-chain"
               />
               <DropdownMenu
                 fullWidth
@@ -285,6 +293,7 @@ const CreatePoolModal = ({ isOpen, filterChainId, onDismiss, onSubmit }: Props) 
                 value={selectedProtocol}
                 mobileFullWidth
                 onChange={value => setSelectedProtocol(value as Exchange)}
+                data-testid="create-pool-protocol"
               />
             </Row>
           </Section>
@@ -294,7 +303,7 @@ const CreatePoolModal = ({ isOpen, filterChainId, onDismiss, onSubmit }: Props) 
               <Trans>Choose Pool Pair</Trans>
             </span>
             <Row className="gap-3">
-              <TokenSelectWrapper onClick={() => setTokenSelectorTarget('token0')}>
+              <TokenSelectWrapper onClick={() => setTokenSelectorTarget('token0')} data-testid="create-pool-token0">
                 <Row className="flex-1 gap-1.5">
                   {token0 && <TokenLogo src={token0.logo} size={20} />}
                   <span className="text-sm text-subText">{token0?.symbol || <Trans>Select Token</Trans>}</span>
@@ -302,7 +311,7 @@ const CreatePoolModal = ({ isOpen, filterChainId, onDismiss, onSubmit }: Props) 
                 <DropdownSVG className="text-subText" />
               </TokenSelectWrapper>
 
-              <TokenSelectWrapper onClick={() => setTokenSelectorTarget('token1')}>
+              <TokenSelectWrapper onClick={() => setTokenSelectorTarget('token1')} data-testid="create-pool-token1">
                 <Row className="flex-1 gap-1.5">
                   {token1 && <TokenLogo src={token1.logo} size={20} />}
                   <span className="text-sm text-subText">{token1?.symbol || <Trans>Select Token</Trans>}</span>
@@ -329,7 +338,7 @@ const CreatePoolModal = ({ isOpen, filterChainId, onDismiss, onSubmit }: Props) 
           </Section>
 
           <Footer>
-            <ButtonOutlined onClick={onDismiss} className="h-10 rounded-[20px]">
+            <ButtonOutlined onClick={onDismiss} className="h-10 rounded-[20px]" data-testid="create-pool-cancel">
               <Trans>Cancel</Trans>
             </ButtonOutlined>
             <ButtonPrimary
@@ -337,6 +346,7 @@ const CreatePoolModal = ({ isOpen, filterChainId, onDismiss, onSubmit }: Props) 
               disabled={!canSubmit || isLoading}
               altDisabledStyle
               className="h-10 rounded-[20px]"
+              data-testid="create-pool-confirm"
             >
               {isLoading ? (
                 <Loader className="text-textReverse" />

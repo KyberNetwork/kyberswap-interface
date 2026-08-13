@@ -75,6 +75,10 @@ const DesktopTableRow = ({
       onClick={e => handleOpenZapInWidget(e)}
       className="animate-[fadeInUp_0.3s_ease-out_both] cursor-pointer hover:bg-primary-10 motion-reduce:animate-none"
       style={{ gridTemplateColumns: getPoolTableGridTemplateColumns(showRewards, showPoolPrice), animationDelay }}
+      data-testid="earn-pool-row"
+      data-pool-address={pool.address}
+      data-chain-id={pool.chain?.id || pool.chainId}
+      data-exchange={pool.exchange}
       {...prefetchDetail}
     >
       <TableCell>
@@ -84,7 +88,7 @@ const DesktopTableRow = ({
             <TokenLogo src={pool.tokens?.[1]?.logoURI} translateLeft />
             {pool.chain?.logoUrl && <TokenLogo src={pool.chain.logoUrl} size={12} translateLeft translateTop />}
           </HStack>
-          <SymbolText>
+          <SymbolText data-testid="earn-pool-row-pair">
             {pool.tokens?.[0]?.symbol}/{pool.tokens?.[1]?.symbol}
           </SymbolText>
           <MouseoverTooltipDesktopOnly
@@ -96,20 +100,24 @@ const DesktopTableRow = ({
             width="fit-content"
             placement="bottom"
           >
-            <FeeTier>{formatDisplayNumber(pool.feeTier, { significantDigits: 4 })}%</FeeTier>
+            <FeeTier data-testid="earn-pool-row-fee-tier">
+              {formatDisplayNumber(pool.feeTier, { significantDigits: 4 })}%
+            </FeeTier>
           </MouseoverTooltipDesktopOnly>
         </HStack>
         <HStack className="items-center gap-1">
           <TokenLogo src={pool.dexLogo} size={18} />
-          <span className="text-sm text-subText">{pool.dexName}</span>
+          <span className="text-sm text-subText" data-testid="earn-pool-row-protocol">
+            {pool.dexName}
+          </span>
         </HStack>
       </TableCell>
-      <TableCell className="gap-1">
-        <PoolAprInfo pool={pool} />
+      <TableCell className="gap-1" data-testid="earn-pool-row-apr">
+        <PoolAprInfo pool={pool} data-testid="earn-pool-row-apr-value" />
         <PoolAprBadges pool={pool} />
       </TableCell>
       <TableCell>
-        <span>
+        <span data-testid="earn-pool-row-fee">
           {formatDisplayNumber(pool.earnFee, {
             style: 'currency',
             significantDigits: 6,
@@ -117,18 +125,22 @@ const DesktopTableRow = ({
         </span>
       </TableCell>
       <TableCell>
-        <span>{formatDisplayNumber(pool.tvl, { style: 'currency', significantDigits: 6 })}</span>
+        <span data-testid="earn-pool-row-tvl">
+          {formatDisplayNumber(pool.tvl, { style: 'currency', significantDigits: 6 })}
+        </span>
       </TableCell>
       <TableCell>
-        <span>{formatDisplayNumber(pool.volume, { style: 'currency', significantDigits: 6 })}</span>
+        <span data-testid="earn-pool-row-volume">
+          {formatDisplayNumber(pool.volume, { style: 'currency', significantDigits: 6 })}
+        </span>
       </TableCell>
       {showRewards && (
         <TableCell>
-          <PoolRewardsInfo pool={pool} />
+          <PoolRewardsInfo pool={pool} data-testid="earn-pool-row-rewards" />
         </TableCell>
       )}
       {showPoolPrice && (
-        <TableCell>
+        <TableCell data-testid="earn-pool-row-price">
           <SparklineChart
             sparkline={pool.sparkline}
             shouldInvert={pool.sparklinePriceToken !== pool.tokens[1].address}
@@ -146,6 +158,8 @@ const DesktopTableRow = ({
             role="button"
             cursor="pointer"
             onClick={e => handleFavorite(e, pool)}
+            data-testid="earn-pool-row-favorite"
+            data-favorite={!!pool.favorite?.isFavorite}
           />
         )}
       </TableCell>
