@@ -38,6 +38,8 @@ type PreparedActionModalProps = {
   children: ReactNode
   confirmDisabled?: boolean
   confirmLabel: string
+  confirmLoading?: boolean
+  confirmLoadingLabel?: string
   confirmVariant?: 'error' | 'primary' | 'warning'
   isOpen: boolean
   onBack?: () => void
@@ -45,6 +47,7 @@ type PreparedActionModalProps = {
   onDismiss: () => void
   onRetry: () => void
   pendingText?: string
+  processingText?: string
   review: ReactNode
   showReviewWhilePreparing?: boolean
   state: PreparedActionFlowState
@@ -75,6 +78,8 @@ const PreparedActionModal = ({
   children,
   confirmDisabled,
   confirmLabel,
+  confirmLoading = false,
+  confirmLoadingLabel,
   confirmVariant = 'primary',
   isOpen,
   onBack,
@@ -82,6 +87,7 @@ const PreparedActionModal = ({
   onDismiss,
   onRetry,
   pendingText,
+  processingText,
   review,
   showReviewWhilePreparing = false,
   state,
@@ -94,7 +100,9 @@ const PreparedActionModal = ({
   const scanLink = state.hash && chainId ? getEtherscanLink(chainId, state.hash, 'transaction') : undefined
   const processing = isProcessing(state)
   const preparingReview = showReviewWhilePreparing && state.phase === 'preparing'
-  const processingCopy = getProcessingCopy(state, pendingText)
+  const confirmButtonLoading = preparingReview || confirmLoading
+  const defaultProcessingCopy = getProcessingCopy(state, pendingText)
+  const processingCopy = processingText ? { ...defaultProcessingCopy, text: processingText } : defaultProcessingCopy
   const isRecoverable = ['pending', 'unavailable', 'error', 'sync_error'].includes(state.phase)
   const receiptConfirmationPending = state.phase === 'sync_error' && state.retryStage === 'receipt'
   const ConfirmButton = confirmVariant === 'primary' ? ButtonPrimary : ButtonLight
@@ -104,7 +112,7 @@ const PreparedActionModal = ({
   return (
     <Modal
       isOpen={isOpen}
-      onDismiss={processing ? undefined : onDismiss}
+      onDismiss={processing || confirmLoading ? undefined : onDismiss}
       maxWidth={width}
       width="calc(100vw - 32px)"
       borderRadius={16}
@@ -121,7 +129,12 @@ const PreparedActionModal = ({
               title
             )}
             {(!processing || preparingReview) && (
-              <ButtonText className="shrink-0" aria-label="Close" disabled={preparingReview} onClick={onDismiss}>
+              <ButtonText
+                className="shrink-0"
+                aria-label="Close"
+                disabled={preparingReview || confirmLoading}
+                onClick={onDismiss}
+              >
                 <CloseIcon />
               </ButtonText>
             )}
@@ -141,7 +154,12 @@ const PreparedActionModal = ({
               )}
               <HStack className="gap-3">
                 {onBack && (
-                  <ButtonOutlined type="button" className="flex-1" disabled={preparingReview} onClick={onBack}>
+                  <ButtonOutlined
+                    type="button"
+                    className="flex-1"
+                    disabled={preparingReview || confirmLoading}
+                    onClick={onBack}
+                  >
                     Back
                   </ButtonOutlined>
                 )}
@@ -149,13 +167,13 @@ const PreparedActionModal = ({
                   type="button"
                   className="flex-1"
                   color={confirmColor}
-                  disabled={preparingReview || confirmDisabled}
+                  disabled={confirmButtonLoading || confirmDisabled}
                   onClick={onConfirm}
                 >
-                  {preparingReview ? (
+                  {confirmButtonLoading ? (
                     <HStack className="items-center justify-center gap-2">
                       <Loader size="16px" className="text-border" />
-                      Preparing…
+                      {confirmLoading ? confirmLoadingLabel || `${confirmLabel}…` : 'Preparing…'}
                     </HStack>
                   ) : (
                     confirmLabel

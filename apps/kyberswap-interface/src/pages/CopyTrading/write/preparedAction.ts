@@ -56,6 +56,8 @@ const reasonMessages: Partial<Record<PreparedActionReason, string>> = {
   PREPARED_ACTION_REASON_UNSUPPORTED_ACCOUNT_GENERATION: 'This Smart Wallet generation is not supported.',
   PREPARED_ACTION_REASON_NO_QUOTE_BALANCE: 'There is no quote-token balance available to withdraw.',
   PREPARED_ACTION_REASON_INSUFFICIENT_QUOTE_BALANCE: 'Your wallet does not have enough quote-token balance.',
+  PREPARED_ACTION_REASON_INSUFFICIENT_QUOTE_ALLOWANCE:
+    'The quote token needs a fresh authorization before Start Copy can continue.',
   PREPARED_ACTION_REASON_CONTROLLER_PAUSED: 'Copy Trading actions are temporarily paused.',
   PREPARED_ACTION_REASON_COPY_RUN_STOPPED: 'This Copy Run has already stopped.',
   PREPARED_ACTION_REASON_UNSUPPORTED_QUOTE_TOKEN: 'The configured quote token is not supported.',

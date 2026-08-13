@@ -1,34 +1,35 @@
 # Copy Trading Implementation Status
 
-Last reviewed: 2026-08-12
+Last reviewed: 2026-08-13
 
 This document tracks the current frontend implementation and remaining product
 or UI work. Product entities and intended flows are documented in
 `Entities and Flows.md`; the current HTTP contract is documented in
-`FE_API_Catalog.md` and the checked-in `openapi.yaml` snapshot fetched from the
-pre-release Swagger source on 2026-08-12.
+`FE_API_Catalog.md`. The checked-in `openapi.yaml` is synchronized byte-for-byte
+with the pre-release Swagger contract fetched on 2026-08-13.
 
-All 25 GET and 8 POST Copy Trading API operations in the current catalog are
+All 26 GET and 8 POST Copy Trading API operations in the current catalog are
 declared in the frontend service.
 
 ## Implementation at a Glance
 
 | Layer              | Current status                                                                                                                                                |
 | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| BE API catalog     | `IMPLEMENTED`: 33 public operations are documented.                                                                                                           |
-| Checked-in OpenAPI | `IMPLEMENTED`: the 33-operation pre-release snapshot includes the latest Start request fields and cashback-policy route.                                      |
-| RTK Query service  | `IMPLEMENTED`: all 25 GET and 8 POST operations are declared and typed.                                                                                       |
-| Read UI            | Partially implemented: 17 of 25 GET operations have a UI consumer; pending obligations are consumed by Manual Sell rather than a standalone read-only screen. |
+| BE API catalog     | `IMPLEMENTED`: 34 public operations are documented.                                                                                                           |
+| Checked-in OpenAPI | `CURRENT`: synchronized with the live 34-operation pre-release Swagger contract, including wallet inventory and funded-authorization fields.             |
+| RTK Query service  | `IMPLEMENTED`: all 26 GET and 8 POST operations are declared and typed.                                                                                       |
+| Read UI            | Partially implemented: 16 of 26 GET operations have a UI consumer; pending obligations are consumed by Manual Sell rather than a standalone read-only screen. |
 | Write UX           | `IMPLEMENTED`: Start, Add, Stop, Withdraw, Manual Sell, and Close Position use the prepared-action workflow.                                                  |
 | Write integration  | `IMPLEMENTED`: exact API-prepared calls, receipt-success completion, Start stage continuation, wallet sessions, and asynchronous cache refresh are connected. |
-| API availability   | Source contract exposes all 33 operations. The 2026-08-12 deployed smoke is limited to `/chains`, `/agents`, and `/docs`; it is not full-route verification.  |
+| API availability   | Live Swagger exposes all 34 operations. `/chains` and `/agents` have dated read smoke; account-specific reads and write outcomes still require live E2E.       |
 
 ## Contract and Service Coverage
 
-`services/copyTrading/index.ts` uses `fetchBaseQuery` and declares all 33 public
+`services/copyTrading/index.ts` uses `fetchBaseQuery` and declares all 34 public
 operations:
 
-- 25 GET queries, including the run-scoped effective cashback policy.
+- 26 GET queries, including the run-scoped effective cashback policy and
+  copy-account wallet inventory.
 - Six transaction-preparation mutations:
   - Start Copy.
   - Add Capital.
@@ -59,7 +60,7 @@ Confirmed service behavior:
 
 ## Current UI Read Coverage
 
-The current UI consumes these 17 GET operations:
+The current UI consumes these 16 GET operations:
 
 - Chains.
 - Leaderboard summary and leaderboard rows.
@@ -67,12 +68,12 @@ The current UI consumes these 17 GET operations:
 - Owner copy summary and copy runs.
 - Copy Run detail, positions, and performance.
 - Owner activity.
-- One page of copy-account open positions and the pinned quote-token balance as
-  a temporary `Remaining in Wallet` approximation.
+- Copy-account wallet inventory for the `Remaining in Wallet` rows and
+  authoritative account-wide USD total.
 - Pending sell obligations through the Manual Sell recovery modal. The complete
   cursor-backed FIFO is preparation input, not a user-selected sell ratio.
 
-The following eight GET operations are declared but have no dedicated Copy
+The following ten GET operations are declared but have no dedicated Copy
 Trading UI consumer:
 
 - Copy Run cashback policy. Its service contract is integrated, but no
@@ -84,14 +85,17 @@ Trading UI consumer:
 - All owner positions.
 - Owner copy-account list.
 - Copy-account detail.
+- Copy-account balances.
+- Copy-account positions.
 - Copy-account history.
 
 These are product-surface gaps, not service gaps. They need an agreed route,
 tab, drawer, collection, or drilldown owner before implementation.
 
-`Remaining in Wallet` intentionally reads only the first page of open positions
-plus the pinned quote-token balance. A colocated TODO requires replacing this
-temporary approximation with the dedicated backend aggregate when available.
+`Remaining in Wallet` uses the non-paginated wallet-inventory endpoint. It
+renders the server total only when the response is complete, its pinned stable
+balance is present, and the metric is current or stale. It never sums rows,
+position valuations, balance pages, or the pinned stable sidecar locally.
 
 Current primary-screen read behavior:
 
@@ -125,7 +129,7 @@ Current primary-screen read behavior:
 
 ## Accepted Product Decisions
 
-- Keep the eight currently unowned GET operations documented without inventing
+- Keep the ten currently unowned GET operations documented without inventing
   routes or secondary tables.
 - Keep Agent and Copy Run performance at the first API page (`limit=100`).
 - Keep Sidebar Agents and Open Copies capped at 10 items.
@@ -142,12 +146,16 @@ Current primary-screen read behavior:
 - A write action is successful in the UI after its submitted transaction has a
   successful receipt. Cache invalidation runs asynchronously and the UI does not
   wait for backend indexing.
-- Start Copy explicitly uses `START_COPY_FUNDING_MODE_FUNDED` with no permit
-  data, so the create call carries the full target capital. It keeps the UUID,
-  target amount, funding intent, and predicted Smart Wallet stable, submits only
-  the create call, then re-prepares until `START_COPY_STAGE_COMPLETE`. Once a
-  transaction hash exists, Retry remains sync-only and rejects any new
-  executable preparation.
+- Start Copy explicitly uses `START_COPY_FUNDING_MODE_FUNDED`. When preparation
+  reports insufficient quote allowance, the checkbox-gated review exposes a
+  separate Approve action and keeps its loading state on that button. The UI
+  follows the returned permit, approval, spender, and EIP-712 domain schemes,
+  then starts a new UUID-bound attempt with the exact volatile permit bytes or
+  confirmed allowance. Once that attempt returns `READY`, the review exposes a
+  separate Start Copying action; approval never auto-submits Create. The UI
+  submits only the returned create call and re-prepares until
+  `START_COPY_STAGE_COMPLETE`. Once a create transaction hash exists, Retry
+  remains sync-only and rejects any new executable preparation.
 
 ## Current Prepared-Action Write UI
 
@@ -167,11 +175,18 @@ The production write path is split by ownership:
 
 Implemented behavior:
 
-- Start Copy keeps one UUID, target amount, explicit funded mode, absent permit
-  data, and predicted Smart Wallet across `CREATE_REQUIRED`,
-  `CREATE_CONFIRMING`, and `COMPLETE`. The funded create amount must equal the
-  full target. Only `PREPARED_CALL_KIND_START_COPY_CREATE` can reach wallet
-  submission; a separate Fund call fails closed.
+- Start Copy keeps one UUID, target amount, explicit funded mode, permit intent,
+  and predicted Smart Wallet stable within each attempt. A diagnostic
+  insufficient-allowance response does not bind its predicted Smart Wallet to
+  the authorized attempt. After the checkbox-gated Approve action completes the
+  exact operator-selected EIP-2612, DAI-like, standard approval, or zero-then-set
+  authorization, the UI creates UUID B, validates and captures UUID B's
+  predicted Smart Wallet, and returns to review. Permit bytes remain only in
+  volatile component state and are reused unchanged through completion. The
+  user must then press Start Copying to submit Create. The funded create amount
+  must equal the full target. Only
+  `PREPARED_CALL_KIND_START_COPY_CREATE` can reach wallet submission; a
+  separate Fund call fails closed.
 - Add Capital uses the fixed supported quote token for decimal-to-raw input,
   then reviews the API quote token, minimum, wallet balance, and resulting
   allocation.
@@ -201,15 +216,15 @@ Implemented behavior:
 
 ## Action Integration Matrix
 
-| Capability     | Current production UI                                                                                                                 |
-| -------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
-| Start Copy     | Uses funded create for the full target, submits one Create transaction, then re-prepares the same UUID until Complete.                |
-| Add Capital    | Reviews quote-token, minimum, balance, and allocation data, then submits the exact prepared call.                                     |
-| Stop Copy      | Loads all open-position pages, supports zero to 32 selected IDs, validates the payload cap, and submits the exact prepared call.      |
-| Withdraw Quote | Only a `STOPPED` Copy Detail exposes the availability-gated CTA; amount and owner recipient are server-prepared and non-editable.     |
-| Wallet Session | Exact SIWE challenge/signature exchange with an owner/chain-scoped, expiring in-memory Bearer session; `401` forces re-authorization. |
-| Manual Sell    | Trusts selected position props, requires the authoritative FIFO head ratio/count, then prepares through the wallet session.           |
-| Close Position | Trusts selected position props, requires the advertised full-recovery action, then prepares through the wallet session.               |
+| Capability     | Current production UI                                                                                                                   |
+| -------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| Start Copy     | Uses a separate checkbox-gated Approve step when required, then a separate Start Copying submit for the authorized funded Create call. |
+| Add Capital    | Reviews quote-token, minimum, balance, and allocation data, then submits the exact prepared call.                                       |
+| Stop Copy      | Loads all open-position pages, supports zero to 32 selected IDs, validates the payload cap, and submits the exact prepared call.        |
+| Withdraw Quote | Only a `STOPPED` Copy Detail exposes the availability-gated CTA; amount and owner recipient are server-prepared and non-editable.       |
+| Wallet Session | Exact SIWE challenge/signature exchange with an owner/chain-scoped, expiring in-memory Bearer session; `401` forces re-authorization.   |
+| Manual Sell    | Trusts selected position props, requires the authoritative FIFO head ratio/count, then prepares through the wallet session.             |
+| Close Position | Trusts selected position props, requires the advertised full-recovery action, then prepares through the wallet session.                 |
 
 ## Implemented Write Invariants
 
@@ -220,6 +235,8 @@ read advisory availability
 → collect the action-owned inputs
 → call the matching preparation endpoint
 → inspect status, reason, preview, evidence, and exact call
+→ for funded Start authorization, use a separate Approve action for the exact returned token/spender/scheme
+→ re-prepare with a new UUID and require a separate Start Copying action for the READY Create call
 → validate owner, chain, preview, Smart Wallet, call kind, target, value, and expiry
 → simulate and submit call.to / call.data / call.valueRaw unchanged
 → wait for a successful receipt
@@ -239,9 +256,11 @@ review values. Stop accepts an empty selection. Manual Sell has no arbitrary
 percentage input. Withdraw has no user-owned amount or recipient input.
 
 Prepared Smart Wallet identity is distinct from both `call.to` and
-`expectedAccount`. Start stores the predicted account returned by the first
-preparation and rejects any later stage that changes it. A review is discarded
-after `reprepareAfter` or `liquidationConfigDeadline`.
+`expectedAccount`. A diagnostic insufficient-allowance UUID does not bind the
+authorized UUID's predicted account. Start captures the authorized UUID's
+predicted account and rejects any later stage within that attempt that changes
+it. A review is discarded after `reprepareAfter` or
+`liquidationConfigDeadline`.
 
 Wallet-session challenge tokens, signatures, and access tokens are never
 persisted. The token is scoped to the signed owner/chain and retained only until
@@ -258,13 +277,15 @@ expiry, owner/chain change, or an authorization failure.
    two cursor pages with a connected wallet and representative data.
 4. Complete browser validation for responsive layout, keyboard focus,
    accessible labels and disabled states, and modal accessibility.
-5. Assign UI ownership for the eight remaining read-only discovery/drilldown
+5. Assign UI ownership for the ten remaining read-only discovery/drilldown
    operations.
 6. Render position-level stale valuation indication.
 
 ## Verification
 
-- The service surface contains 25 GET queries and 8 POST mutations.
+- The checked-in `openapi.yaml` matches the live pre-release Swagger contract
+  fetched on 2026-08-13: 34 paths and 134 definitions.
+- The service surface contains 26 GET queries and 8 POST mutations.
 - All six preparation mutations and both wallet-session mutations have an owned
   UI flow.
 - The local ABI, mock signer, and mock transaction-hash path have been removed.
