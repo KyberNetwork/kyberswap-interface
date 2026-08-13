@@ -1,10 +1,11 @@
 # Entities and Flows
 
-Lần cập nhật: 2026-08-03
+Lần cập nhật: 2026-08-13
 
 Tài liệu này là bản đọc nhanh để hiểu entity, lifecycle và user flow của Copy
-Trading. Chi tiết endpoint/schema nằm trong `FE_API_Catalog.md` và
-`openapi.yaml`; trạng thái code thực tế nằm trong `IMPLEMENTATION_STATUS.md`.
+Trading. Contract hiện tại nằm trong `FE_API_Catalog.md`; `openapi.yaml` đã
+được đồng bộ byte-for-byte từ Swagger pre-release ngày 2026-08-13. Trạng thái
+code thực tế nằm trong `IMPLEMENTATION_STATUS.md`.
 
 ## 1. Mental model
 
@@ -61,7 +62,7 @@ Các tab đọc dữ liệu theo selected Copy Run:
 ```text
 Open/Closed Positions → Copy Run positions + status filter
 Action Logs           → Owner activity + copyRunId filter
-Remaining in Wallet   → temporary first-page positions + pinned quote token; TODO dedicated BE API
+Remaining in Wallet   → bounded copy-account wallet inventory + authoritative server USD total
 ```
 
 Withdraw chỉ render khi direct Copy Run có status `STOPPED`, sau đó vẫn phải
@@ -109,21 +110,31 @@ Chọn Agent
 
 ### Start Copy
 
-Start Copy có thể cần hai transaction:
+Production UI dùng funded Start Copy. Khi wallet đã có đủ allowance, flow chỉ
+có một Create transaction mang toàn bộ target capital:
 
 ```text
 Tạo một UUIDv4 startRequestId
 → prepare: CREATE_REQUIRED
+→ nếu thiếu allowance, hiển thị review; checkbox gate nút Approve riêng
+→ follow permit/approval scheme và spender do API trả về
+→ tạo UUID mới cho authorized attempt; giữ nguyên target/mode/permit bytes trong memory
+→ prepare authorized UUID đến READY và quay lại review
+→ user bấm Start Copying riêng để ký Create transaction
 → gửi exact Create call
 → đợi receipt và API hội tụ
-→ prepare lại với cùng UUID và target: FUNDING_REQUIRED
-→ gửi exact Fund call
-→ đợi receipt và prepare lại
+→ prepare lại với cùng authorized UUID và target
 → COMPLETED / Copy Run ACTIVE
 ```
 
+Authorization có thể là EIP-2612, DAI-like, standard approval hoặc
+zero-then-set approval; FE không suy luận từ token symbol và không hardcode
+spender/domain. Smart account bỏ native permit và dùng approval fallback.
+Trong lúc authorize, review modal giữ nguyên và loading nằm trên nút Approve;
+FE không tự gửi Create call sau khi approval/permit hoàn tất.
 Minimum, quote token và wallet balance lấy từ response prepare. Một generation
-mới phải dùng UUID mới; không tái sử dụng Copy Run cũ.
+mới phải dùng UUID mới; không tái sử dụng Copy Run cũ. Funded production flow
+không gửi một Fund call riêng.
 
 ### Actions trên Copy Run
 
@@ -188,6 +199,8 @@ Read availability
 → Refresh direct entity/account/position
 → Gọi prepare endpoint
 → Kiểm tra status, reason, preview và exact call
+→ Với funded Start thiếu allowance, user xác nhận Approve riêng; authorize đúng token/spender/scheme
+→ Prepare lại bằng UUID mới; chỉ khi READY và user bấm Start Copying mới gửi Create call
 → Validate owner account, Smart Wallet, chain, call kind, target, value và deadline
 → Gửi call.to / call.data / call.valueRaw nguyên trạng
 → Đợi receipt thành công
@@ -195,13 +208,13 @@ Read availability
 → Refetch list, summary và detail liên quan
 ```
 
-| Prepared status       | Frontend behavior                                              |
-| --------------------- | -------------------------------------------------------------- |
-| `READY`               | Validate và gửi exact call.                                    |
-| `PARTIALLY_COMPLETED` | Gửi stage hiện tại của Start Copy, đợi hội tụ rồi prepare lại. |
-| `COMPLETED`           | Không gửi transaction; refresh reads và kết thúc flow.         |
-| `PENDING`             | Không gửi; chờ `reprepareAfter` rồi prepare lại.               |
-| `UNAVAILABLE`         | Không gửi; hiển thị typed reason.                              |
+| Prepared status       | Frontend behavior                                                                 |
+| --------------------- | --------------------------------------------------------------------------------- |
+| `READY`               | Validate và gửi exact call.                                                       |
+| `PARTIALLY_COMPLETED` | Chỉ hợp lệ cho multi-stage Start; funded production UI không gửi Fund call riêng. |
+| `COMPLETED`           | Không gửi transaction; refresh reads và kết thúc flow.                            |
+| `PENDING`             | Không gửi; chờ `reprepareAfter` rồi prepare lại.                                  |
+| `UNAVAILABLE`         | Không gửi; hiển thị typed reason.                                                 |
 
 Không ABI-encode, rebuild hoặc chỉnh sửa calldata từ preview. Wallet Session chỉ
 authorize preparation cho Manual Sell/Close Position; nó không submit
@@ -219,9 +232,9 @@ aggregate slippage; không average từ các position. Khi qua `reprepareAfter`,
 
 ## 7. Implementation boundary
 
-Service đã khai báo đủ read và prepare API, nhưng write UI hiện tại vẫn là mock
-prototype và chưa gọi mutation hook thật. Không được bật real mode chỉ bằng cách
-đổi mock flag.
+Service đã khai báo đủ read và prepare API. Production write UI gọi mutation
+thật, validate exact prepared call, submit qua connected wallet, đợi receipt và
+refresh read model; không còn mock signer hoặc mock transaction-hash path.
 
 Xem `IMPLEMENTATION_STATUS.md` để biết phần nào đã implement, E2E đã verify tới
 đâu và các concern khi tích hợp API.

@@ -8,6 +8,7 @@ import {
   adaptChainsResponse,
   adaptCopyAccountBalancesResponse,
   adaptCopyAccountResponse,
+  adaptCopyAccountWalletInventoryResponse,
   adaptCopyAccountsResponse,
   adaptCopyRunCashbackPolicyResponse,
   adaptCopyRunResponse,
@@ -45,6 +46,7 @@ import type {
   CopyAccountPositionsResponse,
   CopyAccountQuery,
   CopyAccountResponse,
+  CopyAccountWalletInventoryResponse,
   CopyRunCashbackPolicyResponse,
   CopyRunPerformanceQuery,
   CopyRunPerformanceResponse,
@@ -425,6 +427,12 @@ const copyTradingApi = createApi({
         params: cleanParams({ cursor, limit }),
       }),
       transformResponse: adaptCopyAccountBalancesResponse,
+      providesTags: ['CopyTrading'],
+    }),
+    getCopyAccountWalletInventory: builder.query<CopyAccountWalletInventoryResponse, CopyAccountQuery>({
+      query: ({ chainId, copyAccount }) =>
+        `/copy-accounts/${pathPart(chainId)}/${pathPart(copyAccount)}/wallet-inventory`,
+      transformResponse: adaptCopyAccountWalletInventoryResponse,
       providesTags: ['CopyTrading'],
     }),
     getCopyAccountPositions: builder.query<CopyAccountPositionsResponse, CopyAccountPositionsQuery>({

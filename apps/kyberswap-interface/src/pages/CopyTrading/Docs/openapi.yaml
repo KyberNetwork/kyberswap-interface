@@ -996,6 +996,35 @@ paths:
           format: int32
       tags:
         - Copy Accounts
+  /copy-accounts/{chainId}/{copyAccount}/wallet-inventory:
+    get:
+      summary: |-
+        GetCopyAccountWalletInventory returns the current wallet rows and an
+        account-wide USD total only when the bounded operator source proves that
+        all rows were returned from one request. An incomplete source remains
+        renderable but returns an unavailable total.
+      operationId: getCopyAccountWalletInventory
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1GetCopyAccountWalletInventoryResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: chainId
+          in: path
+          required: true
+          type: string
+          format: int64
+        - name: copyAccount
+          in: path
+          required: true
+          type: string
+      tags:
+        - Copy Accounts
   /copy-accounts/{chainId}/{copyAccount}/positions:
     get:
       summary: ListCopyAccountPositions lists positions for a copy account.
@@ -2126,6 +2155,12 @@ definitions:
         $ref: '#/definitions/v1AdvisoryActionAvailability'
       capitalInProjectionStatus:
         $ref: '#/definitions/v1CapitalInProjectionStatus'
+      observedCapitalInUsd:
+        $ref: '#/definitions/v1DecimalMetric'
+        description: |-
+          Query-time observed Capital In from active follower account-capital facts.
+          This value is reversible display data and does not drive sorting, totals,
+          performance, AUM, or action preparation.
     description: CopyRunSummary contains one copy-run row.
   v1CountMetric:
     type: object
@@ -2314,6 +2349,26 @@ definitions:
       meta:
         $ref: '#/definitions/v1ResponseMeta'
     description: GetCopyAccountSummaryResponse is the copy-account summary envelope.
+  v1GetCopyAccountWalletInventoryResponse:
+    type: object
+    properties:
+      data:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/v1WalletBalanceRow'
+      walletInventoryValueUsd:
+        $ref: '#/definitions/v1DecimalMetric'
+      meta:
+        $ref: '#/definitions/v1ResponseMeta'
+      complete:
+        type: boolean
+      pinnedStableBalance:
+        $ref: '#/definitions/v1PinnedStableBalance'
+    description: |-
+      GetCopyAccountWalletInventoryResponse is the current wallet inventory
+      envelope. The total is never a page subtotal and is unavailable when
+      complete is false or any nonzero asset cannot be valued authoritatively.
   v1GetLeaderboardSummaryResponse:
     type: object
     properties:
@@ -3138,6 +3193,7 @@ definitions:
       - PREPARED_ACTION_REASON_SELL_OBLIGATION_CHANGED
       - PREPARED_ACTION_REASON_POSITION_NOT_OPEN
       - PREPARED_ACTION_REASON_CLOSE_NOT_ELIGIBLE
+      - PREPARED_ACTION_REASON_INSUFFICIENT_QUOTE_ALLOWANCE
     default: PREPARED_ACTION_REASON_UNSPECIFIED
     description: PreparedActionReason is the shared stable action/preparation reason vocabulary.
   v1PreparedActionStatus:
@@ -3248,6 +3304,48 @@ definitions:
       - SORT_ORDER_DESC
     default: SORT_ORDER_UNSPECIFIED
     description: SortOrder controls the direction of a stable public order.
+  v1StartCopyAllowanceRequirement:
+    type: object
+    properties:
+      spenderAddress:
+        type: string
+      currentAllowanceRaw:
+        type: string
+      requiredAllowanceRaw:
+        type: string
+      approvalScheme:
+        $ref: '#/definitions/v1StartCopyApprovalScheme'
+      permitScheme:
+        $ref: '#/definitions/v1StartCopyPermitScheme'
+      eip712DomainName:
+        type: string
+      eip712DomainVersion:
+        type: string
+      eip712DomainKind:
+        $ref: '#/definitions/v1StartCopyEIP712DomainKind'
+    description: |-
+      StartCopyAllowanceRequirement provides the exact signer requirement for a
+      funded create that cannot proceed with the wallet's current allowance.
+  v1StartCopyApprovalScheme:
+    type: string
+    enum:
+      - START_COPY_APPROVAL_SCHEME_UNSPECIFIED
+      - START_COPY_APPROVAL_SCHEME_STANDARD
+      - START_COPY_APPROVAL_SCHEME_ZERO_THEN_SET
+    default: START_COPY_APPROVAL_SCHEME_UNSPECIFIED
+    description: |-
+      StartCopyApprovalScheme identifies the token's reviewed ERC-20 approval
+      behavior when a permit is unavailable.
+  v1StartCopyEIP712DomainKind:
+    type: string
+    enum:
+      - START_COPY_EIP712_DOMAIN_KIND_UNSPECIFIED
+      - START_COPY_EIP712_DOMAIN_KIND_CHAIN_ID
+      - START_COPY_EIP712_DOMAIN_KIND_CHAIN_ID_SALT
+    default: START_COPY_EIP712_DOMAIN_KIND_UNSPECIFIED
+    description: |-
+      StartCopyEIP712DomainKind identifies the reviewed EIP-712 domain shape for
+      a permit-backed funded create.
   v1StartCopyFundingMode:
     type: string
     enum:
@@ -3258,6 +3356,17 @@ definitions:
     description: |-
       StartCopyFundingMode makes create-time quote funding explicit. The operator
       remains authoritative for the configured quote token's permit capability.
+  v1StartCopyPermitScheme:
+    type: string
+    enum:
+      - START_COPY_PERMIT_SCHEME_UNSPECIFIED
+      - START_COPY_PERMIT_SCHEME_ALLOWANCE_ONLY
+      - START_COPY_PERMIT_SCHEME_ERC20_EIP2612
+      - START_COPY_PERMIT_SCHEME_ERC20_DAI_LIKE
+    default: START_COPY_PERMIT_SCHEME_UNSPECIFIED
+    description: |-
+      StartCopyPermitScheme identifies the reviewed permit encoding, independent
+      from the opaque permit bytes supplied by the wallet.
   v1StartCopyPreview:
     type: object
     properties:
@@ -3286,6 +3395,8 @@ definitions:
         description: |-
           Create-time capital encoded into the create call. Present only when the
           operator returns the create stage; "0" means explicitly unfunded.
+      allowanceRequirement:
+        $ref: '#/definitions/v1StartCopyAllowanceRequirement'
     description: StartCopyPreview contains the deterministic create/fund state shown by the UI.
   v1StartCopyStage:
     type: string

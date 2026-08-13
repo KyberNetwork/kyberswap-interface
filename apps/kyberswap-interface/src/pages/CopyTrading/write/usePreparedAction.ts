@@ -49,6 +49,7 @@ type UsePreparedActionProps = {
   setState: Dispatch<SetStateAction<PreparedActionFlowState>>
   expected: PreparedActionExpectation
   prepare: () => Promise<PreparedAction>
+  reviewUnavailable?: (action: PreparedAction) => boolean
   afterReceipt?: (
     action: PreparedAction,
     hash: Hash,
@@ -63,6 +64,7 @@ export const usePreparedAction = ({
   setState,
   expected,
   prepare,
+  reviewUnavailable,
   afterReceipt,
   onComplete,
 }: UsePreparedActionProps) => {
@@ -115,6 +117,15 @@ export const usePreparedAction = ({
       }
 
       if (action.status === 'PREPARED_ACTION_STATUS_UNAVAILABLE') {
+        if (!continuation && reviewUnavailable?.(action)) {
+          const validationError = validatePreparedAction(action, expected, { requireCall: false })
+          if (validationError) {
+            setState({ phase: 'error', action, error: validationError, hash })
+            return
+          }
+          setState({ phase: 'review', action, hash })
+          return
+        }
         setState({ phase: 'unavailable', action, error: getPreparedReasonMessage(action.reason), hash })
         return
       }

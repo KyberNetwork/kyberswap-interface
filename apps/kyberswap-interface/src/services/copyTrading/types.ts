@@ -772,6 +772,13 @@ export type CopyAccountResponse = SingleResponse<CopyAccountSummary>
 export type CopyAccountBalancesResponse = CursorResponse<WalletBalanceRow> & {
   pinnedStableBalance?: PinnedStableBalance
 }
+export type CopyAccountWalletInventoryResponse = {
+  data: WalletBalanceRow[]
+  walletInventoryValueUsd?: Metric
+  complete: boolean
+  pinnedStableBalance?: PinnedStableBalance
+  meta?: ResponseMeta
+}
 export type CopyAccountPositionsResponse = CursorResponse<PositionSummary>
 export type CopyAccountHistoryResponse = CursorResponse<ActivityRow>
 export type PendingSellObligationsResponse = CursorResponse<PendingSellObligation>
@@ -836,6 +843,7 @@ export type PreparedActionReason =
   | 'PREPARED_ACTION_REASON_UNSUPPORTED_ACCOUNT_GENERATION'
   | 'PREPARED_ACTION_REASON_NO_QUOTE_BALANCE'
   | 'PREPARED_ACTION_REASON_INSUFFICIENT_QUOTE_BALANCE'
+  | 'PREPARED_ACTION_REASON_INSUFFICIENT_QUOTE_ALLOWANCE'
   | 'PREPARED_ACTION_REASON_CONTROLLER_PAUSED'
   | 'PREPARED_ACTION_REASON_COPY_RUN_STOPPED'
   | 'PREPARED_ACTION_REASON_UNSUPPORTED_QUOTE_TOKEN'
@@ -895,6 +903,33 @@ export type StartCopyStage =
   | 'START_COPY_STAGE_FUNDING_REQUIRED'
   | 'START_COPY_STAGE_COMPLETE'
 
+export type StartCopyApprovalScheme =
+  | 'START_COPY_APPROVAL_SCHEME_UNSPECIFIED'
+  | 'START_COPY_APPROVAL_SCHEME_STANDARD'
+  | 'START_COPY_APPROVAL_SCHEME_ZERO_THEN_SET'
+
+export type StartCopyPermitScheme =
+  | 'START_COPY_PERMIT_SCHEME_UNSPECIFIED'
+  | 'START_COPY_PERMIT_SCHEME_ALLOWANCE_ONLY'
+  | 'START_COPY_PERMIT_SCHEME_ERC20_EIP2612'
+  | 'START_COPY_PERMIT_SCHEME_ERC20_DAI_LIKE'
+
+export type StartCopyEip712DomainKind =
+  | 'START_COPY_EIP712_DOMAIN_KIND_UNSPECIFIED'
+  | 'START_COPY_EIP712_DOMAIN_KIND_CHAIN_ID'
+  | 'START_COPY_EIP712_DOMAIN_KIND_CHAIN_ID_SALT'
+
+export type StartCopyAllowanceRequirement = {
+  spenderAddress?: Address
+  currentAllowanceRaw?: string
+  requiredAllowanceRaw?: string
+  approvalScheme?: LooseString<StartCopyApprovalScheme>
+  permitScheme?: LooseString<StartCopyPermitScheme>
+  eip712DomainName?: string
+  eip712DomainVersion?: string
+  eip712DomainKind?: LooseString<StartCopyEip712DomainKind>
+}
+
 export type StartCopyPreview = {
   stage?: StartCopyStage
   startRequestId?: string
@@ -907,6 +942,7 @@ export type StartCopyPreview = {
   minimumInitialCapitalRaw?: string
   walletQuoteBalance?: RawAmountMetric
   feePolicy?: FeePolicyPreview
+  allowanceRequirement?: StartCopyAllowanceRequirement
 }
 
 export type AddCapitalPreview = {
