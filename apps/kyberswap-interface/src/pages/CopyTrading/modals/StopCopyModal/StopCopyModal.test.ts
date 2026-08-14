@@ -1,7 +1,7 @@
 import type { CopyRunPositionsQuery, CopyRunPositionsResponse, PositionSummary } from 'services/copyTrading/types'
 import { describe, expect, it, vi } from 'vitest'
 
-import { getSelectedStopCopyPositionIds, loadAllOpenCopyRunPositions } from './StopCopyModal'
+import { getSelectedStopCopyPositionIds, loadAllOpenCopyRunPositions } from 'pages/CopyTrading/modals/StopCopyModal'
 
 const position = (id: string): PositionSummary =>
   ({

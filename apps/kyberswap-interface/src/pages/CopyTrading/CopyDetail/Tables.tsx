@@ -8,7 +8,7 @@ import { HeaderCell, TableBody, TableCell, TableHeader, TableRow } from 'pages/C
 import { PositionLifecycleBadge, ShortenedId } from 'pages/CopyTrading/components/common'
 import { copyTradingStatIconMap } from 'pages/CopyTrading/constants'
 import { formatApproximateUsd, formatUsd, getActivityLabel, signedPercent, signedUsd } from 'pages/CopyTrading/helpers'
-import { useCopyTradeWrite } from 'pages/CopyTrading/write/WriteContext'
+import { useCopyTradingModal } from 'pages/CopyTrading/modals/context'
 import { cn } from 'utils/cn'
 import { formatDateTime } from 'utils/time'
 
@@ -108,7 +108,7 @@ const actionLabels: Partial<Record<PositionActionKind, string>> = {
 }
 
 const PositionAction = ({ position }: { position: PositionSummary }) => {
-  const { openManagePosition } = useCopyTradeWrite()
+  const { openManagePosition } = useCopyTradingModal()
   const availableAction =
     position.actionKind && position.actionKind !== 'POSITION_ACTION_KIND_UNSPECIFIED'
       ? position.actionKind

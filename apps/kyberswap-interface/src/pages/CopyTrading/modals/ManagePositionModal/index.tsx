@@ -18,10 +18,17 @@ import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { ShortenedId } from 'pages/CopyTrading/components/common'
 import { useCopyTradingContext } from 'pages/CopyTrading/context'
 import { formatUsd } from 'pages/CopyTrading/helpers'
-import PreparedActionModal, { ReviewRow, ReviewSection } from 'pages/CopyTrading/write/PreparedActionModal'
-import { useCopyTradeWrite } from 'pages/CopyTrading/write/WriteContext'
-import { formatPreparedAmount, formatSlippage, formatWadPercent } from 'pages/CopyTrading/write/preparedAction'
-import { DEFAULT_PREPARED_ACTION_STATE, usePreparedAction } from 'pages/CopyTrading/write/usePreparedAction'
+import useRefreshCopyTrading from 'pages/CopyTrading/hooks/useRefreshCopyTrading'
+import PreparedActionModal, { ReviewRow, ReviewSection } from 'pages/CopyTrading/modals/PreparedActionModal'
+import {
+  formatPreparedAmount,
+  formatSlippage,
+  formatWadPercent,
+} from 'pages/CopyTrading/modals/PreparedActionModal/preparedAction'
+import {
+  DEFAULT_PREPARED_ACTION_STATE,
+  usePreparedAction,
+} from 'pages/CopyTrading/modals/PreparedActionModal/usePreparedAction'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { cn } from 'utils/cn'
 
@@ -96,7 +103,7 @@ const ManagePositionModal = ({ isOpen, onDismiss, position, mode }: ManagePositi
   const { ownerAddress } = useCopyTradingContext()
   const { changeNetwork } = useChangeNetwork()
   const toggleWalletModal = useWalletModalToggle()
-  const { refreshCopyTrading } = useCopyTradeWrite()
+  const refreshCopyTrading = useRefreshCopyTrading()
   const [prepareManualSell] = usePrepareManualSellMutation()
   const [prepareClosePosition] = usePrepareClosePositionMutation()
   const [getCopyAccountPositions] = copyTradingApi.useLazyGetCopyAccountPositionsQuery()

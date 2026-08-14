@@ -2,8 +2,12 @@ import type { Dispatch, SetStateAction } from 'react'
 import type { PreparedAction } from 'services/copyTrading/types'
 import { describe, expect, it, vi } from 'vitest'
 
-import type { PreparedActionExpectation } from './preparedAction'
-import { DEFAULT_PREPARED_ACTION_STATE, type PreparedActionFlowState, usePreparedAction } from './usePreparedAction'
+import type { PreparedActionExpectation } from 'pages/CopyTrading/modals/PreparedActionModal/preparedAction'
+import {
+  DEFAULT_PREPARED_ACTION_STATE,
+  type PreparedActionFlowState,
+  usePreparedAction,
+} from 'pages/CopyTrading/modals/PreparedActionModal/usePreparedAction'
 
 const account = '0x1111111111111111111111111111111111111111'
 const predictedCopyAccount = '0x2222222222222222222222222222222222222222'

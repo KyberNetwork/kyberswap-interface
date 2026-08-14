@@ -159,17 +159,19 @@ Current primary-screen read behavior:
 
 The production write path is split by ownership:
 
-- Each feature modal owns its editable input and action-specific preparation
-  inputs.
-- `write/usePreparedAction.ts` owns preparation status handling, safety
+- Each folder under `modals/` owns its modal UI, editable input, tests, and
+  action-specific preparation logic. `modals/StartCopyModal/` also owns its
+  Permit or Approve authorization and post-receipt completion polling.
+- `modals/PreparedActionModal/usePreparedAction.ts` owns preparation status handling, safety
   validation, exact wallet submission, receipt wait, receipt retry without
   rebroadcast, post-receipt read synchronization, and completion.
-- `write/PreparedActionModal.tsx` owns the shared idle, review, wallet,
+- `modals/PreparedActionModal/index.tsx` owns the shared idle, review, wallet,
   confirmation, syncing, unavailable, error, and success presentation.
-- `write/preparedAction.ts` owns pure parsing, formatting, typed reason copy,
-  preparation validation, and retry timing.
-- `write/WriteContext.tsx` owns modal routing and fire-and-forget RTK/TanStack
-  invalidation of active Copy Trading reads.
+- `modals/PreparedActionModal/preparedAction.ts` owns pure parsing, formatting,
+  preparation validation, and retry timing. `actionAvailability.ts` owns reason
+  copy and availability helpers shared with read screens.
+- `modals/context.tsx` owns only modal routing. `hooks/useRefreshCopyTrading.ts`
+  owns fire-and-forget RTK/TanStack invalidation of active Copy Trading reads.
 
 Implemented behavior:
 
