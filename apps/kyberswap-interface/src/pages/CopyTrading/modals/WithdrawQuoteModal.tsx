@@ -4,6 +4,7 @@ import { usePrepareWithdrawQuoteMutation } from 'services/copyTrading'
 import type { AdvisoryActionAvailability, CopyRunSummary, PreparedCallKind } from 'services/copyTrading/types'
 
 import { ButtonPrimary } from 'components/Button'
+import Dots from 'components/Dots'
 import { HStack, Stack } from 'components/Stack'
 import { useActiveWeb3React } from 'hooks'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
@@ -109,6 +110,13 @@ const WithdrawQuoteModal = ({ isOpen, onDismiss, copyRun, withdrawQuoteAvailabil
     : !isActionAvailable(availability)
     ? getPreparedReasonMessage(availability?.reason)
     : undefined
+  const primaryActionLabel = !account
+    ? 'Connect wallet'
+    : !onExpectedChain
+    ? 'Switch network'
+    : availabilityMessage
+    ? 'Withdraw unavailable'
+    : 'Review Withdrawal'
 
   return (
     <PreparedActionModal
@@ -121,7 +129,6 @@ const WithdrawQuoteModal = ({ isOpen, onDismiss, copyRun, withdrawQuoteAvailabil
       onBack={flow.reset}
       onConfirm={() => void flow.confirm()}
       onRetry={() => void flow.retry()}
-      pendingText="Checking the current quote balance and recipient…"
       successTitle="Withdrawal completed"
       successText="The transaction is confirmed on-chain. Copy Trading data will refresh in the background."
     >
@@ -135,17 +142,11 @@ const WithdrawQuoteModal = ({ isOpen, onDismiss, copyRun, withdrawQuoteAvailabil
         </HStack>
         <ButtonPrimary
           type="button"
-          disabled={!!account && onExpectedChain && !!availabilityMessage}
+          disabled={flowState.isPreparing || (!!account && onExpectedChain && !!availabilityMessage)}
           title={availabilityMessage}
           onClick={handlePrimaryAction}
         >
-          {!account
-            ? 'Connect wallet'
-            : !onExpectedChain
-            ? 'Switch network'
-            : availabilityMessage
-            ? 'Withdraw unavailable'
-            : 'Review Withdrawal'}
+          {flowState.isPreparing ? <Dots>{primaryActionLabel}</Dots> : primaryActionLabel}
         </ButtonPrimary>
       </Stack>
     </PreparedActionModal>

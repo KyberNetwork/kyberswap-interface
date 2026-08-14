@@ -6,6 +6,7 @@ import {
   buildStartCopyPermitTypedData,
   encodeStartCopyPermitData,
   getStartCopyAllowanceAuthorization,
+  getStartCopyAuthorizationKind,
 } from 'pages/CopyTrading/write/startCopyAuthorization'
 import { decodeAbiParameters, parseAbiParameters } from 'utils/viem'
 
@@ -61,6 +62,14 @@ describe('getStartCopyAllowanceAuthorization', () => {
     }
 
     expect(() => getStartCopyAllowanceAuthorization(action)).toThrow('inconsistent allowance amounts')
+  })
+
+  it('labels permit-capable EOAs as Permit and approval fallbacks as Approve', () => {
+    expect(getStartCopyAuthorizationKind(startCopyAction(), false)).toBe('permit')
+    expect(getStartCopyAuthorizationKind(startCopyAction(), true)).toBe('approve')
+    expect(getStartCopyAuthorizationKind(startCopyAction('START_COPY_PERMIT_SCHEME_ALLOWANCE_ONLY'), false)).toBe(
+      'approve',
+    )
   })
 })
 
