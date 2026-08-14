@@ -1,18 +1,25 @@
 import { type HTMLAttributes, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import copyTradingApi from 'services/copyTrading'
-import type { AgentCard, CopyRunSummary, LeaderboardSortBy, SortOrder } from 'services/copyTrading/types'
+import copyRunApi from 'services/copyTrading/api/endpoints/copyRuns'
+import type { AgentCard } from 'services/copyTrading/types/agents'
+import type { CopyRunSummary } from 'services/copyTrading/types/copyRuns'
+import type { LeaderboardSortBy, SortOrder } from 'services/copyTrading/types/primitives'
 
 import { ButtonPrimary } from 'components/Button'
 import { Stack } from 'components/Stack'
 import { APP_PATHS } from 'constants/index'
-import { getPreparedReasonMessage, isActionAvailable } from 'pages/CopyTrading/actionAvailability'
 import CursorPagination, { type CursorPaginationState } from 'pages/CopyTrading/components/CursorPagination'
 import { HeaderCell, TableBody, TableCell, TableHeader, TableRow } from 'pages/CopyTrading/components/Table'
-import { AgentCell } from 'pages/CopyTrading/components/common'
+import { AgentCell } from 'pages/CopyTrading/components/common/agentIdentity'
 import { copyTradingStatIconMap } from 'pages/CopyTrading/constants'
 import { useCopyTradingContext } from 'pages/CopyTrading/context'
-import { compactUsd, formatCount, percent } from 'pages/CopyTrading/helpers'
+import {
+  compactUsd,
+  formatCount,
+  getPreparedReasonMessage,
+  isActionAvailable,
+  percent,
+} from 'pages/CopyTrading/helpers'
 import { useCopyTradingModal } from 'pages/CopyTrading/modals/context'
 import { cn } from 'utils/cn'
 
@@ -48,7 +55,7 @@ const AgentTable = ({ agents, loading, pagination, sortBy, sortOrder, onSortChan
   const { ownerAddress } = useCopyTradingContext()
   const { openStartCopy } = useCopyTradingModal()
 
-  const { data: activeCopyRuns } = copyTradingApi.useGetCopyRunsQuery(
+  const { data: activeCopyRuns } = copyRunApi.useGetCopyRunsQuery(
     {
       ownerAddress: ownerAddress || '',
       view: 'open',

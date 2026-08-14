@@ -2,31 +2,36 @@
 
 Last reviewed: 2026-08-14
 
-This document tracks the current frontend implementation and remaining product
-or UI work. Product entities and intended flows are documented in
-`Entities and Flows.md`; the current HTTP contract is documented in
-`FE_API_Catalog.md`. The checked-in `openapi.yaml` is synchronized byte-for-byte
-with the pre-release Swagger contract fetched on 2026-08-14.
+This is the single frontend-owned record for current implementation, accepted
+product decisions, verification evidence, and remaining work. The current HTTP
+contract is documented in `FE_API_Catalog.md`; `openapi.yaml` is its
+machine-readable API source. Both contract files are backend-owned inputs. The
+checked-in `openapi.yaml` is synchronized byte-for-byte with the pre-release
+Swagger contract fetched on 2026-08-14.
 
 All 26 GET and 6 POST Copy Trading API operations in the current catalog are
 declared in the frontend service.
 
 ## Implementation at a Glance
 
-| Layer              | Current status                                                                                                                                                       |
-| ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| BE API catalog     | `IMPLEMENTED`: 32 public operations are documented.                                                                                                                  |
-| Checked-in OpenAPI | `CURRENT`: synchronized with the live 32-operation pre-release Swagger contract; wallet-session routes and Bearer security are removed.                              |
-| RTK Query service  | `IMPLEMENTED`: all 26 GET and 6 POST operations are declared and typed.                                                                                              |
-| Read UI            | Partially implemented: 17 of 26 GET operations have a UI consumer; position/FIFO refreshes are consumed by recovery actions rather than standalone screens.          |
-| Write UX           | `IMPLEMENTED`: Start, Add, Stop, Withdraw, Manual Sell, and Close Position use the prepared-action workflow.                                                         |
-| Write integration  | `IMPLEMENTED`: exact API-prepared calls, receipt-success completion, Start Copy list polling, stateless recovery preparation, and async cache refresh are connected. |
-| API availability   | Live Swagger exposes all 32 operations. `/chains` and `/agents` have dated read smoke; account-specific reads and write outcomes still require live E2E.             |
+| Layer              | Current status                                                                                                                                                         |
+| ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| BE API catalog     | `CURRENT INPUT`: 32 public operations are documented.                                                                                                                  |
+| Checked-in OpenAPI | `CURRENT INPUT`: synchronized with the live 32-operation pre-release Swagger contract; wallet-session routes and Bearer security are removed.                          |
+| RTK Query service  | `CODE-COMPLETE`: all 26 GET and 6 POST operations are declared and typed.                                                                                              |
+| Read UI            | `PARTIAL`: 17 of 26 GET operations have a UI consumer; position/FIFO refreshes are consumed by recovery actions rather than standalone screens.                        |
+| Write UX           | `CODE-COMPLETE`: Start, Add, Stop, Withdraw, Manual Sell, and Close Position use the prepared-action workflow.                                                         |
+| Write integration  | `CODE-COMPLETE`: exact API-prepared calls, receipt-success completion, Start Copy list polling, stateless recovery preparation, and async cache refresh are connected. |
+| Live evidence      | Swagger exposes all 32 operations. `/chains` and `/agents` have dated read smoke; account-specific reads and write outcomes still require live E2E.                    |
 
 ## Contract and Service Coverage
 
-`services/copyTrading/index.ts` uses `fetchBaseQuery` and declares all 32 public
-operations:
+`services/copyTrading/api/baseApi.ts` owns the shared `createApi` and
+`fetchBaseQuery` configuration, reducer, and middleware. Discovery, Agents,
+Copy Runs, Copy Accounts, and prepared actions each inject their endpoints
+directly into that shared API. Consumers import the endpoint group that owns
+the hook they use instead of relying on a later group as an endpoint superset.
+Together these endpoint groups declare all 32 public operations:
 
 - 26 GET queries, including the run-scoped effective cashback policy and
   copy-account wallet inventory.
@@ -38,8 +43,14 @@ operations:
   - Manual Sell.
   - Close Position.
 
-`services/copyTrading/adapters.ts` is the compatibility boundary between
-API-native envelopes/enums and the existing UI models.
+Domain files under `services/copyTrading/adapters/` and
+`services/copyTrading/types/` own the compatibility boundary between API-native
+envelopes/enums and the existing UI models. Consumers import those ownership
+files directly; there are no top-level adapter or type re-export barrels.
+Shared request parameter normalization stays in `api/queryParams.ts`. Prepared
+action response and request contracts stay together in
+`types/preparedActions.ts`; activity and Agent action-log normalization stay
+together in `adapters/activity.ts`.
 
 Confirmed service behavior:
 
@@ -168,15 +179,25 @@ The production write path is split by ownership:
 
 - Each folder under `modals/` owns its modal UI, editable input, tests, and
   action-specific preparation logic. `modals/StartCopyModal/` also owns its
-  Permit or Approve authorization and post-receipt completion polling.
-- `modals/PreparedActionModal/usePreparedAction.ts` owns preparation status handling, safety
-  validation, exact wallet submission, receipt wait, receipt retry without
-  rebroadcast, post-receipt read synchronization, and completion.
+  amount state, UUID-bound attempt identity, Permit or Approve authorization,
+  and post-receipt completion polling. Its shared target, capital-preset, and
+  completion-polling domain logic stays in `StartCopyModal/startCopy.ts`.
+- `modals/PreparedActionModal/requestPreparation.ts` owns preparation status
+  handling, bounded continuation polling, response validation, and transitions
+  into review, pending, unavailable, error, or completed states.
+- `modals/PreparedActionModal/usePreparedAction.ts` owns exact wallet
+  simulation/submission, receipt wait, receipt retry without rebroadcast,
+  action-specific post-receipt work, and completion notification.
 - `modals/PreparedActionModal/index.tsx` owns the shared idle, review, wallet,
   confirmation, syncing, unavailable, error, and success presentation.
-- `modals/PreparedActionModal/preparedAction.ts` owns pure parsing, formatting,
-  preparation validation, and retry timing. `actionAvailability.ts` owns reason
-  copy and availability helpers shared with read screens.
+- `modals/PreparedActionModal/preparedAction.ts` owns the shared phase shape,
+  superseded-request versioning, pure parsing, formatting, preparation
+  validation, and retry timing. `helpers.ts` owns stateless formatting, reason
+  copy, and availability helpers shared with read screens.
+- Within `modals/StartCopyModal/`, `authorization.ts` validates the API-selected
+  allowance scheme, `permit.ts` builds and encodes supported EIP-712 permits,
+  `useApproval.ts` owns standard and zero-then-set approval lifecycles, and
+  `useAuthorization.ts` dispatches the selected Permit or Approve path.
 - `modals/context.tsx` owns only modal routing. `hooks/useRefreshCopyTrading.ts`
   owns fire-and-forget RTK/TanStack invalidation of active Copy Trading reads.
 
@@ -185,13 +206,13 @@ Implemented behavior:
 - Start Copy keeps one UUID, target amount, explicit funded mode, permit intent,
   and predicted Smart Wallet stable within each attempt. A diagnostic
   insufficient-allowance response does not bind its predicted Smart Wallet to
-  the authorized attempt. After the checkbox-gated Permit or Approve action completes the
-  exact operator-selected EIP-2612, DAI-like, standard approval, or zero-then-set
-  authorization, the UI creates UUID B, validates and captures UUID B's
-  predicted Smart Wallet, and returns to review. Permit bytes remain only in
-  volatile component state and are reused unchanged through completion. The
-  user must then press Start Copying to submit Create. The funded create amount
-  must equal the full target. Only
+  the authorized attempt. After the checkbox-gated Permit or Approve action
+  completes the exact operator-selected EIP-2612, DAI-like, standard approval,
+  or zero-then-set authorization, the UI creates UUID B, validates and captures
+  UUID B's predicted Smart Wallet, and returns to review. Permit bytes remain
+  only in volatile component state and are reused unchanged through completion.
+  The user must then press Start Copying to submit Create. The funded create
+  amount must equal the full target. Only
   `PREPARED_CALL_KIND_START_COPY_CREATE` can reach wallet submission; a
   separate Fund call fails closed. After the Create receipt, the UI polls the
   open Copy Run list filtered by the exact Agent every two seconds for at most
@@ -250,7 +271,7 @@ read advisory availability
 → collect the action-owned inputs
 → call the matching preparation endpoint
 → inspect status, reason, preview, evidence, and exact call
-→ for funded Start authorization, use a separate Approve action for the exact returned token/spender/scheme
+→ for funded Start authorization, use a separate Permit or Approve action for the exact returned token/spender/scheme
 → re-prepare with a new UUID and require a separate Start Copying action for the READY Create call
 → validate owner, chain, preview, Smart Wallet, call kind, target, value, and expiry
 → simulate and submit call.to / call.data / call.valueRaw unchanged
@@ -288,9 +309,10 @@ submits the exact call and the follower-account contract enforces its caller.
 
 ## Remaining Work
 
-1. Add component/state-machine coverage for receipt timeout retry, account or
-   chain changes during review, `PENDING` retry timing, and funded Start
-   completion polling.
+1. Add component/state-machine integration coverage for receipt timeout retry,
+   account or chain changes during review, `PENDING` retry timing, and the full
+   funded Start authorization-to-completion handoff. Pure Start list polling is
+   already unit-tested.
 2. Browser-test initial and next-page infinite-scroll error presentation and
    recovery after refetch or remount.
 3. Browser-test Copy Detail and Open/History server-owned views across at least

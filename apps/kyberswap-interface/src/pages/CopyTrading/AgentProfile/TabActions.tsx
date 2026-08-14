@@ -1,13 +1,12 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import { type PropsWithChildren, useState } from 'react'
 import { ChevronDown, ChevronUp, ExternalLink as ExternalLinkIcon } from 'react-feather'
-import copyTradingApi from 'services/copyTrading'
-import { type CotLog } from 'services/copyTrading/types'
+import agentApi from 'services/copyTrading/api/endpoints/agents'
+import type { CotLog } from 'services/copyTrading/types/positions'
 
 import { HStack, Stack } from 'components/Stack'
 import { isSupportedChainId } from 'constants/networks'
-import InfiniteScroll from 'pages/CopyTrading/components/InfiniteScroll'
-import useInfiniteCursorQuery from 'pages/CopyTrading/components/InfiniteScroll/useInfiniteCursorQuery'
+import InfiniteScroll, { useInfiniteCursorQuery } from 'pages/CopyTrading/components/InfiniteScroll'
 import { TableBody } from 'pages/CopyTrading/components/Table'
 import { ExternalLink } from 'theme'
 import { shortenHash } from 'utils/address'
@@ -148,7 +147,7 @@ const ActionLogRow = ({ expanded, onToggle, row }: ActionLogRowProps) => {
 
 const TabActions = ({ agentId }: { agentId: string }) => {
   const [expandedIds, setExpandedIds] = useState<string[]>([])
-  const [getActionLogs] = copyTradingApi.useLazyGetAgentActionLogsQuery()
+  const [getActionLogs] = agentApi.useLazyGetAgentActionLogsQuery()
 
   const {
     infiniteScroll,
