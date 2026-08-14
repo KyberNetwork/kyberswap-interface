@@ -8,14 +8,14 @@ import Dots from 'components/Dots'
 import { HStack, Stack } from 'components/Stack'
 import { useActiveWeb3React } from 'hooks'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
-import PreparedActionModal, { ReviewRow, ReviewSection } from 'pages/CopyTrading/write/PreparedActionModal'
-import { useCopyTradeWrite } from 'pages/CopyTrading/write/WriteContext'
+import { getPreparedReasonMessage, isActionAvailable } from 'pages/CopyTrading/actionAvailability'
+import useRefreshCopyTrading from 'pages/CopyTrading/hooks/useRefreshCopyTrading'
+import PreparedActionModal, { ReviewRow, ReviewSection } from 'pages/CopyTrading/modals/PreparedActionModal'
+import { formatPreparedAmount } from 'pages/CopyTrading/modals/PreparedActionModal/preparedAction'
 import {
-  formatPreparedAmount,
-  getPreparedReasonMessage,
-  isActionAvailable,
-} from 'pages/CopyTrading/write/preparedAction'
-import { DEFAULT_PREPARED_ACTION_STATE, usePreparedAction } from 'pages/CopyTrading/write/usePreparedAction'
+  DEFAULT_PREPARED_ACTION_STATE,
+  usePreparedAction,
+} from 'pages/CopyTrading/modals/PreparedActionModal/usePreparedAction'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { shortenAddress } from 'utils/address'
 
@@ -32,7 +32,7 @@ const WithdrawQuoteModal = ({ isOpen, onDismiss, copyRun, withdrawQuoteAvailabil
   const { account, chainId } = useActiveWeb3React()
   const { changeNetwork } = useChangeNetwork()
   const toggleWalletModal = useWalletModalToggle()
-  const { refreshCopyTrading } = useCopyTradeWrite()
+  const refreshCopyTrading = useRefreshCopyTrading()
   const [prepareWithdrawQuote] = usePrepareWithdrawQuoteMutation()
   const [flowState, setFlowState] = useState(DEFAULT_PREPARED_ACTION_STATE)
 

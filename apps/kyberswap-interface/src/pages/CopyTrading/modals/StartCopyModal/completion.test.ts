@@ -1,7 +1,7 @@
 import type { CopyRunSummary, CopyRunsResponse } from 'services/copyTrading/types'
 import { describe, expect, it, vi } from 'vitest'
 
-import { pollStartCopyRun } from 'pages/CopyTrading/write/startCopyCompletion'
+import { pollStartCopyRun } from 'pages/CopyTrading/modals/StartCopyModal/completion'
 
 const ownerAddress = '0x1111111111111111111111111111111111111111'
 const agentId = 'agent-1'

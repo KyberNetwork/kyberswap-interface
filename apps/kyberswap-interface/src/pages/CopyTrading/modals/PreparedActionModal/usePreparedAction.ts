@@ -3,16 +3,16 @@ import type { Dispatch, SetStateAction } from 'react'
 import type { PreparedAction } from 'services/copyTrading/types'
 
 import { wagmiConfig } from 'components/Web3Provider'
+import { getPreparedReasonMessage } from 'pages/CopyTrading/actionAvailability'
 import {
   type PreparedActionExpectation,
   getApiErrorMessage,
-  getPreparedReasonMessage,
   getReprepareDelay,
   isRetryableApiError,
   validatePreparedAction,
   validatePreparedActionContinuation,
   wait,
-} from 'pages/CopyTrading/write/preparedAction'
+} from 'pages/CopyTrading/modals/PreparedActionModal/preparedAction'
 import type { Hash, Hex, Address as ViemAddress } from 'utils/viem'
 import { getGatedWalletClient } from 'utils/walletClient'
 

@@ -3,13 +3,13 @@ import type { CopyRunSummary } from 'services/copyTrading/types'
 
 import { ButtonLight } from 'components/Button'
 import { Stack } from 'components/Stack'
+import { getPreparedReasonMessage, isActionAvailable } from 'pages/CopyTrading/actionAvailability'
 import CursorPagination, { type CursorPaginationState } from 'pages/CopyTrading/components/CursorPagination'
 import { HeaderCell, TableBody, TableCell, TableHeader, TableRow } from 'pages/CopyTrading/components/Table'
 import { CopyRunAgentCell, CopyRunStatusBadge } from 'pages/CopyTrading/components/common'
 import { copyTradingStatIconMap } from 'pages/CopyTrading/constants'
 import { compactUsd, formatCount, formatUsd, getAgentDisplayName, percent } from 'pages/CopyTrading/helpers'
-import { useCopyTradeWrite } from 'pages/CopyTrading/write/WriteContext'
-import { getPreparedReasonMessage, isActionAvailable } from 'pages/CopyTrading/write/preparedAction'
+import { useCopyTradingModal } from 'pages/CopyTrading/modals/context'
 import { cn } from 'utils/cn'
 
 type ActiveSubscriptionsGridProps = HTMLAttributes<HTMLDivElement> & {
@@ -38,7 +38,7 @@ type ActiveSubscriptionsTableProps = {
 }
 
 const ActiveSubscriptionsTable = ({ rows, loading, pagination, onOpenSubscription }: ActiveSubscriptionsTableProps) => {
-  const { openStopCopy } = useCopyTradeWrite()
+  const { openStopCopy } = useCopyTradingModal()
 
   return (
     <Stack className="overflow-hidden rounded-xl bg-buttonBlack-60">

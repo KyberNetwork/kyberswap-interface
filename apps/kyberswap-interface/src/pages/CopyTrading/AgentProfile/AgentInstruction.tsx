@@ -6,6 +6,7 @@ import type { AdvisoryActionAvailability, AgentProfile } from 'services/copyTrad
 import { ButtonPrimary } from 'components/Button'
 import { HStack, Stack } from 'components/Stack'
 import { APP_PATHS } from 'constants/index'
+import { getPreparedReasonMessage, isActionAvailable } from 'pages/CopyTrading/actionAvailability'
 import {
   AgentRiskCard,
   CopyCapitalCard,
@@ -15,8 +16,7 @@ import {
 } from 'pages/CopyTrading/components/AgentSidebarCards'
 import { useCopyTradingContext } from 'pages/CopyTrading/context'
 import { formatUsd } from 'pages/CopyTrading/helpers'
-import { useCopyTradeWrite } from 'pages/CopyTrading/write/WriteContext'
-import { getPreparedReasonMessage, isActionAvailable } from 'pages/CopyTrading/write/preparedAction'
+import { useCopyTradingModal } from 'pages/CopyTrading/modals/context'
 
 const StartCopyCard = ({ availability, onCopy }: { availability?: AdvisoryActionAvailability; onCopy: () => void }) => {
   const disabled = !isActionAvailable(availability)
@@ -49,7 +49,7 @@ type AgentInstructionProps = {
 const AgentInstruction = ({ agent }: AgentInstructionProps) => {
   const navigate = useNavigate()
   const { ownerAddress } = useCopyTradingContext()
-  const { openSubscribe, openAddCapital } = useCopyTradeWrite()
+  const { openStartCopy, openAddCapital } = useCopyTradingModal()
   const { data: activeCopyRuns } = copyTradingApi.useGetCopyRunsQuery(
     {
       ownerAddress: ownerAddress || '',
@@ -71,7 +71,7 @@ const AgentInstruction = ({ agent }: AgentInstructionProps) => {
           onAddCapital={() => openAddCapital(activeCopyRun, agent.displayName)}
         />
       ) : (
-        <StartCopyCard availability={agent.startCopyAvailability} onCopy={() => openSubscribe(agent)} />
+        <StartCopyCard availability={agent.startCopyAvailability} onCopy={() => openStartCopy(agent)} />
       )}
       <AgentRiskCard agent={agent} />
       <StrategyExecutionCard items={agent.strategyExecutionItems} />

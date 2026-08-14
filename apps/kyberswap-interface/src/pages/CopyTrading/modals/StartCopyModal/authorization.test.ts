@@ -7,7 +7,7 @@ import {
   encodeStartCopyPermitData,
   getStartCopyAllowanceAuthorization,
   getStartCopyAuthorizationKind,
-} from 'pages/CopyTrading/write/startCopyAuthorization'
+} from 'pages/CopyTrading/modals/StartCopyModal/authorization'
 import { decodeAbiParameters, parseAbiParameters } from 'utils/viem'
 
 const OWNER = '0x1111111111111111111111111111111111111111'

@@ -6,14 +6,14 @@ import type { AgentCard, CopyRunSummary, LeaderboardSortBy, SortOrder } from 'se
 import { ButtonPrimary } from 'components/Button'
 import { Stack } from 'components/Stack'
 import { APP_PATHS } from 'constants/index'
+import { getPreparedReasonMessage, isActionAvailable } from 'pages/CopyTrading/actionAvailability'
 import CursorPagination, { type CursorPaginationState } from 'pages/CopyTrading/components/CursorPagination'
 import { HeaderCell, TableBody, TableCell, TableHeader, TableRow } from 'pages/CopyTrading/components/Table'
 import { AgentCell } from 'pages/CopyTrading/components/common'
 import { copyTradingStatIconMap } from 'pages/CopyTrading/constants'
 import { useCopyTradingContext } from 'pages/CopyTrading/context'
 import { compactUsd, formatCount, percent } from 'pages/CopyTrading/helpers'
-import { useCopyTradeWrite } from 'pages/CopyTrading/write/WriteContext'
-import { getPreparedReasonMessage, isActionAvailable } from 'pages/CopyTrading/write/preparedAction'
+import { useCopyTradingModal } from 'pages/CopyTrading/modals/context'
 import { cn } from 'utils/cn'
 
 type LeaderboardGridProps = HTMLAttributes<HTMLDivElement> & {
@@ -46,7 +46,7 @@ type AgentTableProps = {
 const AgentTable = ({ agents, loading, pagination, sortBy, sortOrder, onSortChange }: AgentTableProps) => {
   const navigate = useNavigate()
   const { ownerAddress } = useCopyTradingContext()
-  const { openSubscribe } = useCopyTradeWrite()
+  const { openStartCopy } = useCopyTradingModal()
 
   const { data: activeCopyRuns } = copyTradingApi.useGetCopyRunsQuery(
     {
@@ -171,7 +171,7 @@ const AgentTable = ({ agents, loading, pagination, sortBy, sortOrder, onSortChan
                         title={
                           !canStartCopy ? getPreparedReasonMessage(agent.startCopyAvailability?.reason) : undefined
                         }
-                        onClick={() => openSubscribe(agent)}
+                        onClick={() => openStartCopy(agent)}
                       >
                         Copy
                       </ButtonPrimary>

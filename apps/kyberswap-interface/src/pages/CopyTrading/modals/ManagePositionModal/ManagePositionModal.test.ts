@@ -1,7 +1,7 @@
 import type { CopyAccountPositionsResponse, PositionSummary } from 'services/copyTrading/types'
 import { describe, expect, it, vi } from 'vitest'
 
-import { loadCurrentCopyAccountPosition } from './ManagePositionModal'
+import { loadCurrentCopyAccountPosition } from 'pages/CopyTrading/modals/ManagePositionModal'
 
 const copyAccount = '0x1111111111111111111111111111111111111111'
 
