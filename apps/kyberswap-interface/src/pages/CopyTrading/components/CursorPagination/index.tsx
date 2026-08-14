@@ -1,6 +1,7 @@
 import { ChevronLeft, ChevronRight } from 'react-feather'
 
 import { ButtonLight } from 'components/Button'
+import Dots from 'components/Dots'
 import { HStack } from 'components/Stack'
 
 export type CursorPaginationState = {
@@ -45,7 +46,7 @@ const CursorPagination = ({
           disabled={navigating}
           onClick={() => void onRetry()}
         >
-          {navigating ? 'Retrying…' : 'Retry'}
+          {navigating ? <Dots>Retry</Dots> : 'Retry'}
         </ButtonLight>
       ) : (
         <ButtonLight

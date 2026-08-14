@@ -23,7 +23,7 @@ type CopyTradeWriteContextValue = {
   openStopCopy: (copyRun: CopyRunSummary, agentName?: string) => void
   openWithdrawQuote: (copyRun: CopyRunSummary, availability?: AdvisoryActionAvailability) => void
   openManagePosition: (position: PositionSummary, mode: ManagePositionMode) => void
-  refreshCopyTrading: () => Promise<void>
+  refreshCopyTrading: () => void
 }
 
 const CopyTradeWriteContext = createContext<CopyTradeWriteContextValue | undefined>(undefined)
@@ -33,9 +33,9 @@ export const CopyTradeWriteProvider = ({ children }: PropsWithChildren) => {
   const queryClient = useQueryClient()
   const [active, setActive] = useState<ActiveModal | null>(null)
 
-  const refreshCopyTrading = useCallback(async () => {
+  const refreshCopyTrading = useCallback(() => {
     dispatch(copyTradingApi.util.invalidateTags(['CopyTrading']))
-    await queryClient.invalidateQueries({ queryKey: ['copy-trading'] })
+    void queryClient.invalidateQueries({ queryKey: ['copy-trading'] })
   }, [dispatch, queryClient])
 
   const value = useMemo<CopyTradeWriteContextValue>(

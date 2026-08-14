@@ -77,6 +77,20 @@ export type StartCopyAllowanceAuthorization = {
   spenderAddress: Address
 }
 
+export type StartCopyAuthorizationKind = 'approve' | 'permit'
+
+export const getStartCopyAuthorizationKind = (
+  action: PreparedAction,
+  requiresApprovalFallback: boolean,
+): StartCopyAuthorizationKind => {
+  const permitScheme = action.startCopy?.allowanceRequirement?.permitScheme
+  const supportsPermit =
+    permitScheme === 'START_COPY_PERMIT_SCHEME_ERC20_EIP2612' ||
+    permitScheme === 'START_COPY_PERMIT_SCHEME_ERC20_DAI_LIKE'
+
+  return supportsPermit && !requiresApprovalFallback ? 'permit' : 'approve'
+}
+
 const isUint256String = (value?: string) => !!value && /^\d{1,78}$/.test(value) && BigInt(value) <= maxUint256
 
 export const getStartCopyAllowanceAuthorization = (action: PreparedAction): StartCopyAllowanceAuthorization => {

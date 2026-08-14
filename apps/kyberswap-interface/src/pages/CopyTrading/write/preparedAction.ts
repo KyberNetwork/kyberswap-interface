@@ -293,4 +293,4 @@ export const validatePreparedActionContinuation = (action: PreparedAction) =>
     ? 'The confirmed Start Copy transaction returned another executable preparation. Do not submit another transaction.'
     : undefined
 
-export const wait = (milliseconds: number) => new Promise(resolve => setTimeout(resolve, milliseconds))
+export const wait = (milliseconds: number) => new Promise<void>(resolve => setTimeout(resolve, milliseconds))

@@ -5,6 +5,7 @@ import type { CopyRunSummary, PreparedCallKind } from 'services/copyTrading/type
 
 import { ButtonPrimary } from 'components/Button'
 import CurrencyInputPanel from 'components/CurrencyInputPanel'
+import Dots from 'components/Dots'
 import { HStack, Stack } from 'components/Stack'
 import { useActiveWeb3React } from 'hooks'
 import useTokenBalance from 'hooks/useTokenBalance'
@@ -150,7 +151,7 @@ const AddCapitalModal = ({ isOpen, onDismiss, copyRun, agentName }: AddCapitalMo
 
   const setPercentageAmount = (percentage: (typeof CAPITAL_PERCENTAGES)[number]) => {
     const preset = presetAmounts?.find(item => item.percentage === percentage)
-    if (!presetsEnabled || !preset) return
+    if (flowState.isPreparing || !presetsEnabled || !preset) return
 
     setAmount(preset.amount)
   }
@@ -181,6 +182,13 @@ const AddCapitalModal = ({ isOpen, onDismiss, copyRun, agentName }: AddCapitalMo
     : !isActionAvailable(availability)
     ? getPreparedReasonMessage(availability?.reason)
     : undefined
+  const primaryActionLabel = !account
+    ? 'Connect wallet'
+    : !onExpectedChain
+    ? 'Switch network'
+    : availabilityMessage || !quoteToken
+    ? 'Add Capital unavailable'
+    : 'Review Add Capital'
 
   return (
     <PreparedActionModal
@@ -197,7 +205,6 @@ const AddCapitalModal = ({ isOpen, onDismiss, copyRun, agentName }: AddCapitalMo
         void flow.confirm()
       }}
       onRetry={() => void flow.retry()}
-      pendingText="Checking the latest balance, minimum and allocation…"
       successTitle="Capital added"
       successText="The transaction is confirmed on-chain. Copy Trading data will refresh in the background."
       width={520}
@@ -213,6 +220,7 @@ const AddCapitalModal = ({ isOpen, onDismiss, copyRun, agentName }: AddCapitalMo
             customBalanceText={walletBalanceText}
             customChainId={copyRun.chainId as ChainId}
             disableCurrencySelect
+            disabledInput={flowState.isPreparing}
             id="copy-trading-add-capital"
             dataTestId="copy-trading-add-capital"
             onBalanceClick={() => setPercentageAmount(100)}
@@ -226,7 +234,7 @@ const AddCapitalModal = ({ isOpen, onDismiss, copyRun, agentName }: AddCapitalMo
                     <button
                       key={percentage}
                       type="button"
-                      disabled={!presetsEnabled}
+                      disabled={flowState.isPreparing || !presetsEnabled}
                       onClick={() => setPercentageAmount(percentage)}
                       className={cn(
                         'rounded-full bg-subText-20 px-2 py-0.5 text-xs font-medium text-subText hover:text-text',
@@ -255,17 +263,13 @@ const AddCapitalModal = ({ isOpen, onDismiss, copyRun, agentName }: AddCapitalMo
         </p>
         <ButtonPrimary
           type="button"
-          disabled={!!account && onExpectedChain && (!amountIsValid || !!availabilityMessage)}
+          disabled={
+            flowState.isPreparing || (!!account && onExpectedChain && (!amountIsValid || !!availabilityMessage))
+          }
           title={amountError || availabilityMessage}
           onClick={handlePrimaryAction}
         >
-          {!account
-            ? 'Connect wallet'
-            : !onExpectedChain
-            ? 'Switch network'
-            : availabilityMessage || !quoteToken
-            ? 'Add Capital unavailable'
-            : 'Review Add Capital'}
+          {flowState.isPreparing ? <Dots>{primaryActionLabel}</Dots> : primaryActionLabel}
         </ButtonPrimary>
       </Stack>
     </PreparedActionModal>

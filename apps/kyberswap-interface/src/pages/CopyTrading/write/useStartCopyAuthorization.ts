@@ -10,6 +10,7 @@ import {
   buildStartCopyPermitTypedData,
   encodeStartCopyPermitData,
   getStartCopyAllowanceAuthorization,
+  getStartCopyAuthorizationKind,
 } from 'pages/CopyTrading/write/startCopyAuthorization'
 import { useAllTransactions, useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
@@ -27,12 +28,6 @@ const START_COPY_TOKEN_ABI = parseAbi([
 const PERMIT_VALIDITY_SECONDS = 24 * 60 * 60
 const ALLOWANCE_REFRESH_ATTEMPTS = 6
 const ALLOWANCE_REFRESH_DELAY_MS = 750
-
-type AuthorizationProgress = {
-  onAwaitingSignature: (action: PreparedAction, kind: 'approval' | 'permit') => void
-  onConfirming: (action: PreparedAction, hash: Hash) => void
-  onPreparing: (action: PreparedAction) => void
-}
 
 type PendingApproval = {
   chainId: number
@@ -58,6 +53,11 @@ export const useStartCopyAuthorization = () => {
   const addTransactionWithType = useTransactionAdder()
   const allTransactions = useAllTransactions()
   const pendingApprovalRef = useRef<PendingApproval | undefined>(undefined)
+  const requiresApprovalFallback = isSmartConnector || isSmartAccount
+  const getAuthorizationKind = useCallback(
+    (action: PreparedAction) => getStartCopyAuthorizationKind(action, requiresApprovalFallback),
+    [requiresApprovalFallback],
+  )
 
   const recoverPendingApproval = useCallback(
     (action: PreparedAction) => {
@@ -125,7 +125,7 @@ export const useStartCopyAuthorization = () => {
   )
 
   const confirmPendingApproval = useCallback(
-    async (action: PreparedAction, progress: AuthorizationProgress) => {
+    async (action: PreparedAction) => {
       const pending = pendingApprovalRef.current
       if (!pending) return
       if (pending.chainId !== Number(action.chainId) || pending.ownerAddress.toLowerCase() !== account?.toLowerCase()) {
@@ -134,7 +134,6 @@ export const useStartCopyAuthorization = () => {
 
       const publicClient = getPublicClient(wagmiConfig, { chainId: pending.chainId })
       if (!publicClient) throw new Error('The public client is unavailable for the selected chain.')
-      progress.onConfirming(action, pending.hash)
       const receipt = await publicClient.waitForTransactionReceipt({ hash: pending.hash })
       if (receipt.status !== 'success') {
         pendingApprovalRef.current = undefined
@@ -154,18 +153,19 @@ export const useStartCopyAuthorization = () => {
   )
 
   const authorize = useCallback(
-    async (action: PreparedAction, progress: AuthorizationProgress) => {
+    async (action: PreparedAction) => {
       if (!account || action.expectedAccount?.toLowerCase() !== account.toLowerCase()) {
         throw new Error('The Start Copy authorization sender does not match your wallet.')
       }
 
       const authorization = getStartCopyAllowanceAuthorization(action)
+      const authorizationKind = getAuthorizationKind(action)
       if (chainId !== authorization.chainId) {
         throw new Error('Switch to the prepared chain before authorizing the quote token.')
       }
 
       recoverPendingApproval(action)
-      await confirmPendingApproval(action, progress)
+      await confirmPendingApproval(action)
 
       const ownerAddress = account as Address
       const currentAllowance = await readAllowance(
@@ -175,14 +175,10 @@ export const useStartCopyAuthorization = () => {
       )
       const requiredAllowance = BigInt(authorization.requiredAllowanceRaw)
       if (currentAllowance >= requiredAllowance) {
-        progress.onPreparing(action)
         return undefined
       }
 
-      const useApproval =
-        authorization.permitScheme === 'START_COPY_PERMIT_SCHEME_ALLOWANCE_ONLY' || isSmartConnector || isSmartAccount
-
-      if (!useApproval) {
+      if (authorizationKind === 'permit') {
         const nonce = (await readContract(wagmiConfig, {
           address: authorization.quoteTokenAddress,
           abi: START_COPY_TOKEN_ABI,
@@ -198,7 +194,6 @@ export const useStartCopyAuthorization = () => {
           nonce,
         })
 
-        progress.onAwaitingSignature(action, 'permit')
         const rawSignature = await signTypedDataRaw({
           account: ownerAddress,
           chainId: authorization.chainId,
@@ -210,12 +205,10 @@ export const useStartCopyAuthorization = () => {
           nonce,
           rawSignature,
         })
-        progress.onPreparing(action)
         return createPermitData
       }
 
       const submitApproval = async (allowance: bigint) => {
-        progress.onAwaitingSignature(action, 'approval')
         const result = await sendEVMTransaction({
           account,
           contractAddress: authorization.quoteTokenAddress,
@@ -251,7 +244,7 @@ export const useStartCopyAuthorization = () => {
             arbitrary: { startCopyApprovalAmountRaw: allowance.toString() },
           },
         })
-        await confirmPendingApproval(action, progress)
+        await confirmPendingApproval(action)
       }
 
       if (authorization.approvalScheme === 'START_COPY_APPROVAL_SCHEME_ZERO_THEN_SET' && currentAllowance > 0n) {
@@ -265,7 +258,6 @@ export const useStartCopyAuthorization = () => {
       )
       if (refreshedAllowance < requiredAllowance) await submitApproval(requiredAllowance)
 
-      progress.onPreparing(action)
       return undefined
     },
     [
@@ -273,12 +265,12 @@ export const useStartCopyAuthorization = () => {
       addTransactionWithType,
       chainId,
       confirmPendingApproval,
-      isSmartAccount,
+      getAuthorizationKind,
       isSmartConnector,
       readAllowance,
       recoverPendingApproval,
     ],
   )
 
-  return authorize
+  return { authorize, getAuthorizationKind }
 }

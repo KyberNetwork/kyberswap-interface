@@ -11,6 +11,7 @@ import type {
 } from 'services/copyTrading/types'
 
 import { ButtonLight } from 'components/Button'
+import Dots from 'components/Dots'
 import { HStack, Stack } from 'components/Stack'
 import { useActiveWeb3React } from 'hooks'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
@@ -266,6 +267,14 @@ const ManagePositionModal = ({ isOpen, onDismiss, position, mode }: ManagePositi
   const unavailableMessage = !actionAdvertised
     ? `The selected position does not advertise ${isClose ? 'Close Position' : 'Manual Sell'}.`
     : undefined
+  const actionLabel = isClose ? 'Close Position' : 'Manual Sell'
+  const primaryActionLabel = !account
+    ? 'Connect wallet'
+    : !onExpectedChain
+    ? 'Switch network'
+    : unavailableMessage
+    ? `${actionLabel} unavailable`
+    : `Review ${actionLabel}`
 
   return (
     <PreparedActionModal
@@ -279,7 +288,6 @@ const ManagePositionModal = ({ isOpen, onDismiss, position, mode }: ManagePositi
       onBack={flow.reset}
       onConfirm={() => void flow.confirm()}
       onRetry={() => void flow.retry()}
-      pendingText="Preparing this recovery action…"
       successTitle={isClose ? 'Position closed' : 'Manual sell submitted'}
       successText={
         <>
@@ -303,9 +311,10 @@ const ManagePositionModal = ({ isOpen, onDismiss, position, mode }: ManagePositi
               <button
                 key={value}
                 type="button"
+                disabled={flowState.isPreparing}
                 onClick={() => setSlippage(value)}
                 className={cn(
-                  'flex-1 rounded-lg border px-3 py-2 text-sm font-medium',
+                  'flex-1 rounded-lg border px-3 py-2 text-sm font-medium disabled:cursor-not-allowed disabled:opacity-50',
                   slippage === value
                     ? 'border-primary bg-primary-12 text-primary'
                     : 'border-darkBorder text-subText hover:text-text',
@@ -320,17 +329,11 @@ const ManagePositionModal = ({ isOpen, onDismiss, position, mode }: ManagePositi
         <ButtonLight
           type="button"
           color={actionColor}
-          disabled={!!account && onExpectedChain && !!unavailableMessage}
+          disabled={flowState.isPreparing || (!!account && onExpectedChain && !!unavailableMessage)}
           title={unavailableMessage}
           onClick={handlePrimaryAction}
         >
-          {!account
-            ? 'Connect wallet'
-            : !onExpectedChain
-            ? 'Switch network'
-            : unavailableMessage
-            ? `${isClose ? 'Close Position' : 'Manual Sell'} unavailable`
-            : `Review ${isClose ? 'Close Position' : 'Manual Sell'}`}
+          {flowState.isPreparing ? <Dots>{primaryActionLabel}</Dots> : primaryActionLabel}
         </ButtonLight>
       </Stack>
     </PreparedActionModal>

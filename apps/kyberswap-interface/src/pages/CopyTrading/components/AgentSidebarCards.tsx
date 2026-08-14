@@ -238,16 +238,16 @@ export const StrategyExecutionCard = ({ items }: { items: AgentProfile['strategy
   )
 }
 
-type WishlistedTokensCardProps = {
+type WhitelistedTokensCardProps = {
   tokens: string[]
 }
 
-export const WishlistedTokensCard = ({ tokens }: WishlistedTokensCardProps) => {
+export const WhitelistedTokensCard = ({ tokens }: WhitelistedTokensCardProps) => {
   return (
     <SidePanelCard
       title={
         <HStack className="items-center gap-1">
-          Wishlisted Tokens
+          Whitelisted Tokens
           <InfoHelper margin={false} placement="top" size={14} text="Agent will trade within this list of tokens" />
         </HStack>
       }
@@ -263,7 +263,7 @@ export const WishlistedTokensCard = ({ tokens }: WishlistedTokensCardProps) => {
             </span>
           ))
         ) : (
-          <span className="text-sm font-medium text-subText">No wishlisted tokens</span>
+          <span className="text-sm font-medium text-subText">No whitelisted tokens</span>
         )}
       </HStack>
     </SidePanelCard>
