@@ -24,35 +24,37 @@ import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useTokenBalance from 'hooks/useTokenBalance'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
+import { getPreparedReasonMessage, isActionAvailable } from 'pages/CopyTrading/actionAvailability'
 import { getAgentInitials } from 'pages/CopyTrading/helpers'
-import PreparedActionModal, { ReviewRow, ReviewSection } from 'pages/CopyTrading/write/PreparedActionModal'
-import { useCopyTradeWrite } from 'pages/CopyTrading/write/WriteContext'
+import useRefreshCopyTrading from 'pages/CopyTrading/hooks/useRefreshCopyTrading'
+import PreparedActionModal, { ReviewRow, ReviewSection } from 'pages/CopyTrading/modals/PreparedActionModal'
 import {
   type PreparedActionExpectation,
   formatPreparedAmount,
   formatWadPercent,
   getApiErrorMessage,
   getInputQuoteToken,
-  getPreparedReasonMessage,
-  isActionAvailable,
   parsePreparedAmount,
   validatePreparedAction,
-} from 'pages/CopyTrading/write/preparedAction'
-import { pollStartCopyRun } from 'pages/CopyTrading/write/startCopyCompletion'
-import { DEFAULT_PREPARED_ACTION_STATE, usePreparedAction } from 'pages/CopyTrading/write/usePreparedAction'
-import { useStartCopyAuthorization } from 'pages/CopyTrading/write/useStartCopyAuthorization'
+} from 'pages/CopyTrading/modals/PreparedActionModal/preparedAction'
+import {
+  DEFAULT_PREPARED_ACTION_STATE,
+  usePreparedAction,
+} from 'pages/CopyTrading/modals/PreparedActionModal/usePreparedAction'
+import { pollStartCopyRun } from 'pages/CopyTrading/modals/StartCopyModal/completion'
+import { useStartCopyAuthorization } from 'pages/CopyTrading/modals/StartCopyModal/useAuthorization'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { shortenAddress } from 'utils/address'
 import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
 import { formatUnits } from 'utils/viem'
 
-export type SubscribeTarget = AgentCard | AgentProfile
+export type StartCopyTarget = AgentCard | AgentProfile
 
-type SubscribeModalProps = {
+type StartCopyModalProps = {
   isOpen: boolean
   onDismiss: () => void
-  agent: SubscribeTarget
+  agent: StartCopyTarget
 }
 
 const START_CALL_KINDS: PreparedCallKind[] = ['PREPARED_CALL_KIND_START_COPY_CREATE']
@@ -90,7 +92,7 @@ const ReviewLabel = ({ label, tooltip }: { label: string; tooltip: string }) => 
   </span>
 )
 
-const AgentHeader = ({ agent }: { agent: SubscribeTarget }) => (
+const AgentHeader = ({ agent }: { agent: StartCopyTarget }) => (
   <HStack className="min-w-0 flex-1 items-center gap-3">
     <Center className="size-12 shrink-0 rounded-full bg-buttonGray text-base font-medium text-subText">
       {getAgentInitials(agent.displayName)}
@@ -111,12 +113,12 @@ const AgentHeader = ({ agent }: { agent: SubscribeTarget }) => (
   </HStack>
 )
 
-const SubscribeModal = ({ isOpen, onDismiss, agent }: SubscribeModalProps) => {
+const StartCopyModal = ({ isOpen, onDismiss, agent }: StartCopyModalProps) => {
   const navigate = useNavigate()
   const { account, chainId } = useActiveWeb3React()
   const { changeNetwork } = useChangeNetwork()
   const toggleWalletModal = useWalletModalToggle()
-  const { refreshCopyTrading } = useCopyTradeWrite()
+  const refreshCopyTrading = useRefreshCopyTrading()
   const [prepareStartCopy] = usePrepareStartCopyMutation()
   const [getCopyRuns] = copyTradingApi.useLazyGetCopyRunsQuery()
   const { authorize: authorizeStartCopy, getAuthorizationKind } = useStartCopyAuthorization()
@@ -618,4 +620,4 @@ const SubscribeModal = ({ isOpen, onDismiss, agent }: SubscribeModalProps) => {
   )
 }
 
-export default SubscribeModal
+export default StartCopyModal

@@ -5,7 +5,7 @@ import {
   type PreparedActionExpectation,
   validatePreparedAction,
   validatePreparedActionContinuation,
-} from './preparedAction'
+} from 'pages/CopyTrading/modals/PreparedActionModal/preparedAction'
 
 const account = '0x1111111111111111111111111111111111111111'
 const copyAccount = '0x2222222222222222222222222222222222222222'

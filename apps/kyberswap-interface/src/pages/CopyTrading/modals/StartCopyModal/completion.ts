@@ -1,6 +1,6 @@
 import type { Address, CopyRunSummary, CopyRunsResponse } from 'services/copyTrading/types'
 
-import { isRetryableApiError, wait } from 'pages/CopyTrading/write/preparedAction'
+import { isRetryableApiError, wait } from 'pages/CopyTrading/modals/PreparedActionModal/preparedAction'
 
 const START_COPY_POLL_INTERVAL_MS = 2_000
 const START_COPY_POLL_TIMEOUT_MS = 20_000

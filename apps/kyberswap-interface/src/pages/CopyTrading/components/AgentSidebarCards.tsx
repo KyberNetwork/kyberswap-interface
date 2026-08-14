@@ -6,8 +6,8 @@ import type { AdvisoryActionAvailability, AgentProfile } from 'services/copyTrad
 import { ButtonLight, ButtonPrimary } from 'components/Button'
 import InfoHelper from 'components/InfoHelper'
 import { Center, HStack, Stack } from 'components/Stack'
+import { getPreparedReasonMessage, isActionAvailable } from 'pages/CopyTrading/actionAvailability'
 import { percent } from 'pages/CopyTrading/helpers'
-import { getPreparedReasonMessage, isActionAvailable } from 'pages/CopyTrading/write/preparedAction'
 import { cn } from 'utils/cn'
 
 export type SidePanelCardProps = PropsWithChildren<{

@@ -18,7 +18,7 @@ import {
 } from 'pages/CopyTrading/components/AgentSidebarCards'
 import { copyRunStatusTextClassName } from 'pages/CopyTrading/components/common'
 import { formatTokenAmount, formatUsd } from 'pages/CopyTrading/helpers'
-import { useCopyTradeWrite } from 'pages/CopyTrading/write/WriteContext'
+import { useCopyTradingModal } from 'pages/CopyTrading/modals/context'
 import { cn } from 'utils/cn'
 import { formatDateTime } from 'utils/time'
 
@@ -135,7 +135,7 @@ type CopySidePanelProps = {
 }
 
 const CopySidePanel = ({ agent, run }: CopySidePanelProps) => {
-  const { openAddCapital, openStopCopy, openWithdrawQuote } = useCopyTradeWrite()
+  const { openAddCapital, openStopCopy, openWithdrawQuote } = useCopyTradingModal()
   const accountQuery = { chainId: run.chainId, copyAccount: run.copyAccount }
   const skipCopyAccount = !run.copyAccount || !run.chainId
   const { data: inventoryResponse, isFetching: isInventoryFetching } =
