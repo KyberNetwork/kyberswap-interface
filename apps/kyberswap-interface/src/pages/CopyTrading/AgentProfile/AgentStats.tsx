@@ -45,9 +45,11 @@ type AgentStatsProps = {
 
 const AgentStats = ({ agentId }: AgentStatsProps) => {
   const [window, setWindow] = useState<PerformanceWindow>('30d')
+
   const interval = window === 'all' ? 'month' : 'day'
 
   const { data: agentStats } = copyTradingApi.useGetAgentStatsQuery({ agentId })
+
   const {
     data: portfolioPerformance,
     isError: isPortfolioError,
@@ -59,6 +61,7 @@ const AgentStats = ({ agentId }: AgentStatsProps) => {
     series: 'portfolio_value',
     window,
   })
+
   const {
     data: realizedPnlPerformance,
     isError: isRealizedPnlError,
@@ -70,11 +73,13 @@ const AgentStats = ({ agentId }: AgentStatsProps) => {
     series: 'cumulative_realized_pnl',
     window,
   })
+
   const stats = agentStats?.data
   const portfolioData = useMemo(
     () => (portfolioPerformance?.data || []).map(toPerformanceChartPoint),
     [portfolioPerformance?.data],
   )
+
   const realizedPnlData = useMemo(
     () => (realizedPnlPerformance?.data || []).map(toPerformanceChartPoint),
     [realizedPnlPerformance?.data],

@@ -11,6 +11,7 @@ import type {
 import { formatDisplayNumber } from 'utils/numbers'
 
 type NumericValue = DecimalString | number
+
 const METRIC_FALLBACK = 'N/A'
 
 const parseNumericValue = (value?: NumericValue) => {

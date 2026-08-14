@@ -17,6 +17,7 @@ const MyCopiesView = () => {
   const { ownerAddress } = useCopyTradingContext()
   const [getCopyRuns] = copyTradingApi.useLazyGetCopyRunsQuery()
   const [getOwnerActivity] = copyTradingApi.useLazyGetOwnerActivityQuery()
+
   const activeRunsPage = useCursorPageQuery({
     enabled: !!ownerAddress,
     queryKey: ['copy-trading', 'copy-runs', ownerAddress, 'open'],
@@ -28,7 +29,7 @@ const MyCopiesView = () => {
         limit: PAGE_SIZE,
       }).unwrap(),
   })
-  const activeRuns = activeRunsPage.items
+
   const {
     infiniteScroll: activityInfiniteScroll,
     isFetching: isActivityFetching,
@@ -43,6 +44,7 @@ const MyCopiesView = () => {
         limit: PAGE_SIZE,
       }).unwrap(),
   })
+
   const { data: ownerSummary } = copyTradingApi.useGetOwnerCopySummaryQuery(
     {
       ownerAddress: ownerAddress || '',
@@ -50,6 +52,8 @@ const MyCopiesView = () => {
     },
     { skip: !ownerAddress },
   )
+
+  const activeRuns = activeRunsPage.items
   const summary = ownerSummary?.data
 
   return (

@@ -11,6 +11,7 @@ import {
 
 const account = '0x1111111111111111111111111111111111111111'
 const predictedCopyAccount = '0x2222222222222222222222222222222222222222'
+const callTarget = '0x3333333333333333333333333333333333333333'
 const startRequestId = '123e4567-e89b-42d3-a456-426614174000'
 const targetCapitalRaw = '50000000'
 
@@ -49,6 +50,25 @@ const completedAction: PreparedAction = {
     predictedCopyAccount,
     requestedTargetRaw: targetCapitalRaw,
     createAmountRaw: targetCapitalRaw,
+  },
+}
+
+const readyAction: PreparedAction = {
+  status: 'PREPARED_ACTION_STATUS_READY',
+  chainId: '8453',
+  expectedAccount: account,
+  startCopy: {
+    stage: 'START_COPY_STAGE_CREATE_REQUIRED',
+    startRequestId,
+    predictedCopyAccount,
+    requestedTargetRaw: targetCapitalRaw,
+    createAmountRaw: targetCapitalRaw,
+  },
+  call: {
+    kind: 'PREPARED_CALL_KIND_START_COPY_CREATE',
+    to: callTarget,
+    data: '0x',
+    valueRaw: '0',
   },
 }
 
@@ -152,6 +172,29 @@ describe('usePreparedAction', () => {
       hash,
       retryStage: 'sync',
     })
+  })
+
+  it('prepares a fresh call when retrying after a reverted transaction', async () => {
+    const hash = `0x${'2'.repeat(64)}` as const
+    const harness = createStateHarness({
+      phase: 'error',
+      action: readyAction,
+      error: 'The transaction reverted on-chain. Prepare a new call before trying again.',
+      hash,
+    })
+    const prepare = vi.fn().mockResolvedValue(readyAction)
+    const flow = usePreparedAction({
+      state: harness.getState(),
+      setState: harness.setState,
+      expected,
+      prepare,
+    })
+
+    await flow.retry()
+
+    expect(prepare).toHaveBeenCalledOnce()
+    expect(harness.getState()).toMatchObject({ phase: 'review', action: readyAction })
+    expect(harness.getState().hash).toBeUndefined()
   })
 
   it('keeps other unavailable actions in the recovery state', async () => {

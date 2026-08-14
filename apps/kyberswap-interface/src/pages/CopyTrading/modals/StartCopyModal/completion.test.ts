@@ -79,11 +79,11 @@ describe('pollStartCopyRun', () => {
     expect(waitForNextAttempt).toHaveBeenCalledWith(2_000)
   })
 
-  it('retries transient list failures without accepting a different agent run', async () => {
+  it('continues bounded polling after any list failure without accepting a different agent run', async () => {
     const anotherRun = { ...copyRun, agentId: 'agent-2' }
     const fetchCopyRuns = vi
       .fn()
-      .mockRejectedValueOnce({ status: 503 })
+      .mockRejectedValueOnce(new Error('Network request failed.'))
       .mockResolvedValueOnce(response([anotherRun]))
       .mockResolvedValueOnce(response([copyRun]))
     const waitForNextAttempt = vi.fn().mockResolvedValue(undefined)

@@ -70,12 +70,13 @@ const AgentProfile = () => {
     skip: !agentCode,
   })
 
-  const profile = agent?.data
   const { activeTab: activeProfileTab, setActiveTab: setActiveProfileTab } = useTab<ProfileTab>({
     tabs: profileTabs,
     defaultTab: 'open-position',
     queryKey: 'profileTab',
   })
+
+  const profile = agent?.data
 
   if (!profile && (isAgentFetching || isAgentLoading || isAgentUninitialized)) {
     return (

@@ -8,7 +8,6 @@ import {
   type PreparedActionExpectation,
   getApiErrorMessage,
   getReprepareDelay,
-  isRetryableApiError,
   validatePreparedAction,
   validatePreparedActionContinuation,
   wait,
@@ -56,7 +55,9 @@ type PreparationRequestOptions = {
 }
 
 const CONTINUATION_ATTEMPTS = 6
+
 type PreparedActionStateSetter = Dispatch<SetStateAction<PreparedActionFlowState>>
+
 const preparationRequestVersions = new WeakMap<PreparedActionStateSetter, number>()
 
 const invalidatePreparationRequests = (setState: PreparedActionStateSetter) => {
@@ -115,12 +116,6 @@ export const usePreparedAction = ({
         action = await prepare()
       } catch (error) {
         if (!isCurrent()) return
-        if (continuation && attempt < CONTINUATION_ATTEMPTS - 1 && isRetryableApiError(error)) {
-          await wait(2_000)
-          if (!isCurrent()) return
-          continue
-        }
-
         setState(current => ({
           phase: continuation ? 'sync_error' : 'error',
           action: continuation ? current.action : undefined,
@@ -324,10 +319,11 @@ export const usePreparedAction = ({
       return
     }
 
+    const continuation = state.phase === 'pending' && !!state.hash
     await requestPreparation({
-      continuation: !!state.hash,
+      continuation,
       delay: state.phase === 'pending' && state.action ? getReprepareDelay(state.action) : 0,
-      hash: state.hash,
+      hash: continuation ? state.hash : undefined,
     })
   }
 

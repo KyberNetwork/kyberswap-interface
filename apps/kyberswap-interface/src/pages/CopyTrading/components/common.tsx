@@ -47,27 +47,6 @@ type ContentPanelProps = PropsWithChildren<{
   titleAddon?: ReactNode
 }>
 
-type AgentCellSize = 'sm' | 'lg'
-
-type AgentAvatarProps = {
-  avatarUrl?: string
-  chainId: number
-  displayName: string
-  size?: AgentCellSize
-}
-
-type AgentCellProps = {
-  agent: AgentCard | AgentProfile | AgentSnapshot
-  className?: string
-  nameExtension?: ReactNode
-  size?: AgentCellSize
-  subLineExtension?: ReactNode
-}
-
-const getLeaderAddress = (agent: AgentCard | AgentProfile | AgentSnapshot) => agent.leaderAddress
-
-const isVerifiedAgent = (agent: AgentCard | AgentProfile | AgentSnapshot) => agent.isVerified
-
 export const CopyTradingPage = ({ children, backTo, className }: CopyTradingPageProps) => {
   const navigate = useNavigate()
 
@@ -130,6 +109,27 @@ export const ShortenedId = ({ value }: { value?: string }) => (
   </span>
 )
 
+type AgentCellSize = 'sm' | 'lg'
+
+type AgentAvatarProps = {
+  avatarUrl?: string
+  chainId: number
+  displayName: string
+  size?: AgentCellSize
+}
+
+type AgentCellProps = {
+  agent: AgentCard | AgentProfile | AgentSnapshot
+  className?: string
+  nameExtension?: ReactNode
+  size?: AgentCellSize
+  subLineExtension?: ReactNode
+}
+
+const getLeaderAddress = (agent: AgentCard | AgentProfile | AgentSnapshot) => agent.leaderAddress
+
+const isVerifiedAgent = (agent: AgentCard | AgentProfile | AgentSnapshot) => agent.isVerified
+
 export const AgentAvatar = ({ avatarUrl, chainId, displayName, size = 'sm' }: AgentAvatarProps) => {
   const { chains } = useCopyTradingContext()
   const chain = chains.find(item => item.chainId === chainId)
@@ -187,35 +187,6 @@ export const AgentCell = ({ agent, className, nameExtension, size = 'sm', subLin
   )
 }
 
-export const AgentIdentity = ({ agent, status }: { agent: AgentCard | AgentProfile; status?: CopyRunStatus }) => (
-  <AgentCell
-    agent={agent}
-    nameExtension={status ? <CopyRunStatusBadge status={status} /> : undefined}
-    size="lg"
-    subLineExtension={
-      <HStack className="flex-wrap items-center gap-2 text-sm font-medium text-subText">
-        <span>•</span>
-        <span>{shortenAddress(agent.chainId, getLeaderAddress(agent))}</span>
-        <CopyHelper toCopy={getLeaderAddress(agent)} margin="0" size={13} className="text-subText" />
-        {'flatFeeRatePct' in agent && agent.flatFeeRatePct && (
-          <>
-            <span>•</span>
-            <span>Flat fee:</span>
-            <span className="text-text">{agent.flatFeeRatePct}%</span>
-          </>
-        )}
-        {'liveSince' in agent && (
-          <>
-            <span>•</span>
-            <span className="text-primary">Live since</span>
-            <span className="text-text">{formatDateTime(agent.liveSince)}</span>
-          </>
-        )}
-      </HStack>
-    }
-  />
-)
-
 type CopyRunAgentCellProps = {
   className?: string
   run: Pick<CopyRunSummary, 'agentId' | 'agentSnapshot' | 'chainId'>
@@ -271,6 +242,35 @@ export const CopyRunStatusBadge = ({ status }: { status: CopyRunStatus }) => (
   >
     {copyRunStatusLabel[status]}
   </span>
+)
+
+export const AgentIdentity = ({ agent, status }: { agent: AgentCard | AgentProfile; status?: CopyRunStatus }) => (
+  <AgentCell
+    agent={agent}
+    nameExtension={status ? <CopyRunStatusBadge status={status} /> : undefined}
+    size="lg"
+    subLineExtension={
+      <HStack className="flex-wrap items-center gap-2 text-sm font-medium text-subText">
+        <span>•</span>
+        <span>{shortenAddress(agent.chainId, getLeaderAddress(agent))}</span>
+        <CopyHelper toCopy={getLeaderAddress(agent)} margin="0" size={13} className="text-subText" />
+        {'flatFeeRatePct' in agent && agent.flatFeeRatePct && (
+          <>
+            <span>•</span>
+            <span>Flat fee:</span>
+            <span className="text-text">{agent.flatFeeRatePct}%</span>
+          </>
+        )}
+        {'liveSince' in agent && (
+          <>
+            <span>•</span>
+            <span className="text-primary">Live since</span>
+            <span className="text-text">{formatDateTime(agent.liveSince)}</span>
+          </>
+        )}
+      </HStack>
+    }
+  />
 )
 
 const positionLifecycleLabel: Record<PositionLifecycle, string> = {
