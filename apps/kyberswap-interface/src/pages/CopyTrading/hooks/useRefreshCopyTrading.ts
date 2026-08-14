@@ -1,6 +1,6 @@
 import { useQueryClient } from '@tanstack/react-query'
 import { useCallback } from 'react'
-import copyTradingApi from 'services/copyTrading'
+import copyTradingBaseApi from 'services/copyTrading/api/baseApi'
 
 import { useAppDispatch } from 'state/hooks'
 
@@ -9,7 +9,7 @@ const useRefreshCopyTrading = () => {
   const queryClient = useQueryClient()
 
   return useCallback(() => {
-    dispatch(copyTradingApi.util.invalidateTags(['CopyTrading']))
+    dispatch(copyTradingBaseApi.util.invalidateTags(['CopyTrading']))
     void queryClient.invalidateQueries({ queryKey: ['copy-trading'] })
   }, [dispatch, queryClient])
 }

@@ -1,4 +1,4 @@
-import type { PreparedAction } from 'services/copyTrading/types'
+import type { PreparedAction } from 'services/copyTrading/types/preparedActions'
 import { describe, expect, it } from 'vitest'
 
 import {

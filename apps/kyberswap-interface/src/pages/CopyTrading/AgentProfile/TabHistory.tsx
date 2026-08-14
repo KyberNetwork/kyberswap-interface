@@ -1,11 +1,10 @@
 import type { HTMLAttributes } from 'react'
-import copyTradingApi from 'services/copyTrading'
+import agentApi from 'services/copyTrading/api/endpoints/agents'
 
 import { Stack } from 'components/Stack'
-import InfiniteScroll from 'pages/CopyTrading/components/InfiniteScroll'
-import useInfiniteCursorQuery from 'pages/CopyTrading/components/InfiniteScroll/useInfiniteCursorQuery'
+import InfiniteScroll, { useInfiniteCursorQuery } from 'pages/CopyTrading/components/InfiniteScroll'
 import { HeaderCell, TableBody, TableCell, TableHeader, TableRow } from 'pages/CopyTrading/components/Table'
-import { ShortenedId } from 'pages/CopyTrading/components/common'
+import { ShortenedId } from 'pages/CopyTrading/components/common/layout'
 import { formatTokenAmount, formatUsd, signedUsd } from 'pages/CopyTrading/helpers'
 import { cn } from 'utils/cn'
 import { formatDateTime } from 'utils/time'
@@ -32,7 +31,7 @@ const TabHistoryGrid = ({ header, className, ...props }: TabHistoryGridProps) =>
 }
 
 const TabHistory = ({ agentId }: { agentId: string }) => {
-  const [getAgentPositions] = copyTradingApi.useLazyGetAgentPositionsQuery()
+  const [getAgentPositions] = agentApi.useLazyGetAgentPositionsQuery()
 
   const {
     infiniteScroll,

@@ -1,5 +1,5 @@
 import { type CSSProperties } from 'react'
-import type { MetricStatus } from 'services/copyTrading/types'
+import type { MetricStatus } from 'services/copyTrading/types/primitives'
 
 import { Center, HStack, Stack } from 'components/Stack'
 import { type StatIcon } from 'pages/CopyTrading/constants'

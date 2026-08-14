@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
-import copyTradingApi from 'services/copyTrading'
-import type { Address } from 'services/copyTrading/types'
+import discoveryApi from 'services/copyTrading/api/endpoints/discovery'
+import type { Address } from 'services/copyTrading/types/primitives'
 
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
@@ -20,7 +20,7 @@ const CopyTrading = () => {
   const { account } = useActiveWeb3React()
   const previousPathname = useRef(location.pathname)
 
-  const { data: chains, refetch: refetchChains } = copyTradingApi.useGetChainsQuery()
+  const { data: chains, refetch: refetchChains } = discoveryApi.useGetChainsQuery()
 
   const { pathname } = location
   const ownerAddress = account?.toLowerCase() as Address | undefined

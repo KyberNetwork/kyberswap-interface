@@ -1,36 +1,26 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { useCallback, useState } from 'react'
-import copyTradingApi, { usePrepareClosePositionMutation, usePrepareManualSellMutation } from 'services/copyTrading'
-import type {
-  CopyAccountPositionsQuery,
-  CopyAccountPositionsResponse,
-  PendingSellObligation,
-  PositionActionKind,
-  PositionSummary,
-  PreparedCallKind,
-} from 'services/copyTrading/types'
+import copyAccountApi from 'services/copyTrading/api/endpoints/copyAccounts'
+import preparedActionApi from 'services/copyTrading/api/endpoints/preparedActions'
+import type { PositionActionKind, PositionSummary } from 'services/copyTrading/types/positions'
+import type { PreparedCallKind } from 'services/copyTrading/types/preparedActions'
 
-import { ButtonLight } from 'components/Button'
-import Dots from 'components/Dots'
-import { HStack, Stack } from 'components/Stack'
 import { useActiveWeb3React } from 'hooks'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
-import { ShortenedId } from 'pages/CopyTrading/components/common'
+import { ShortenedId } from 'pages/CopyTrading/components/common/layout'
 import { useCopyTradingContext } from 'pages/CopyTrading/context'
-import { formatUsd } from 'pages/CopyTrading/helpers'
 import useRefreshCopyTrading from 'pages/CopyTrading/hooks/useRefreshCopyTrading'
-import PreparedActionModal, { ReviewRow, ReviewSection } from 'pages/CopyTrading/modals/PreparedActionModal'
+import { ManagePositionForm, ManagePositionReview } from 'pages/CopyTrading/modals/ManagePositionModal/components'
 import {
-  formatPreparedAmount,
-  formatSlippage,
-  formatWadPercent,
-} from 'pages/CopyTrading/modals/PreparedActionModal/preparedAction'
-import {
-  DEFAULT_PREPARED_ACTION_STATE,
-  usePreparedAction,
-} from 'pages/CopyTrading/modals/PreparedActionModal/usePreparedAction'
+  hasPositionAction,
+  isValidWadRatio,
+  loadCurrentCopyAccountPosition,
+  loadPendingSellObligations,
+} from 'pages/CopyTrading/modals/ManagePositionModal/positionData'
+import PreparedActionModal from 'pages/CopyTrading/modals/PreparedActionModal'
+import { DEFAULT_PREPARED_ACTION_STATE } from 'pages/CopyTrading/modals/PreparedActionModal/preparedAction'
+import { usePreparedAction } from 'pages/CopyTrading/modals/PreparedActionModal/usePreparedAction'
 import { useWalletModalToggle } from 'state/application/hooks'
-import { cn } from 'utils/cn'
 
 export type ManagePositionMode = 'sell' | 'close'
 
@@ -41,62 +31,8 @@ type ManagePositionModalProps = {
   mode: ManagePositionMode
 }
 
-const SLIPPAGE_OPTIONS = [0.5, 1, 2]
-const POSITIONS_PAGE_SIZE = 200
 const MANUAL_SELL_CALL_KINDS: PreparedCallKind[] = ['PREPARED_CALL_KIND_MANUAL_SELL']
 const CLOSE_POSITION_CALL_KINDS: PreparedCallKind[] = ['PREPARED_CALL_KIND_CLOSE_POSITION']
-
-const PositionValue = ({ symbol, tradeId }: { symbol?: string; tradeId: string }) => (
-  <>
-    {symbol || 'Token'} · <ShortenedId value={tradeId} />
-  </>
-)
-
-const hasPositionAction = (position: PositionSummary, action: PositionActionKind) =>
-  position.actionKind === action || position.availableActionKinds.includes(action)
-
-const isValidWadRatio = (value?: string) => {
-  if (!value || !/^\d+$/.test(value)) return false
-  const ratio = BigInt(value)
-  return ratio > 0n && ratio <= 10n ** 18n
-}
-
-type GetCopyAccountPositions = (query: CopyAccountPositionsQuery) => {
-  unwrap: () => Promise<CopyAccountPositionsResponse>
-}
-
-type CurrentPositionQuery = Pick<CopyAccountPositionsQuery, 'chainId' | 'copyAccount'> & {
-  userPositionId: string
-}
-
-export const loadCurrentCopyAccountPosition = async (
-  getCopyAccountPositions: GetCopyAccountPositions,
-  { chainId, copyAccount, userPositionId }: CurrentPositionQuery,
-) => {
-  const seenCursors = new Set<string>()
-  let cursor: string | undefined
-
-  while (true) {
-    const response = await getCopyAccountPositions({
-      chainId,
-      copyAccount,
-      cursor,
-      limit: POSITIONS_PAGE_SIZE,
-    }).unwrap()
-    const currentPosition = response.data.find(position => position.userPositionId === userPositionId)
-    if (currentPosition) return currentPosition
-    if (!response.pagination.hasMore) {
-      throw new Error('The selected position is no longer available in this Smart Wallet.')
-    }
-
-    const nextCursor = response.pagination.nextCursor
-    if (!nextCursor || seenCursors.has(nextCursor)) {
-      throw new Error('The positions response returned an invalid pagination cursor.')
-    }
-    seenCursors.add(nextCursor)
-    cursor = nextCursor
-  }
-}
 
 const ManagePositionModal = ({ isOpen, onDismiss, position, mode }: ManagePositionModalProps) => {
   const { account, chainId } = useActiveWeb3React()
@@ -104,16 +40,15 @@ const ManagePositionModal = ({ isOpen, onDismiss, position, mode }: ManagePositi
   const { changeNetwork } = useChangeNetwork()
   const toggleWalletModal = useWalletModalToggle()
   const refreshCopyTrading = useRefreshCopyTrading()
-  const [prepareManualSell] = usePrepareManualSellMutation()
-  const [prepareClosePosition] = usePrepareClosePositionMutation()
-  const [getCopyAccountPositions] = copyTradingApi.useLazyGetCopyAccountPositionsQuery()
-  const [getObligations] = copyTradingApi.useLazyGetPendingSellObligationsQuery()
+  const [prepareManualSell] = preparedActionApi.usePrepareManualSellMutation()
+  const [prepareClosePosition] = preparedActionApi.usePrepareClosePositionMutation()
+  const [getCopyAccountPositions] = copyAccountApi.useLazyGetCopyAccountPositionsQuery()
+  const [getObligations] = copyAccountApi.useLazyGetPendingSellObligationsQuery()
 
   const [flowState, setFlowState] = useState(DEFAULT_PREPARED_ACTION_STATE)
   const [slippage, setSlippage] = useState(0.5)
 
   const isClose = mode === 'close'
-  const actionColor = isClose ? 'var(--ks-red)' : 'var(--ks-warning)'
   const requiredAction: PositionActionKind = isClose
     ? 'POSITION_ACTION_KIND_CLOSE_POSITION'
     : 'POSITION_ACTION_KIND_MANUAL_SELL'
@@ -126,29 +61,16 @@ const ManagePositionModal = ({ isOpen, onDismiss, position, mode }: ManagePositi
   const fetchObligations = useCallback(async () => {
     if (!copyAccount || !userPositionId) throw new Error('This position is missing its Smart Wallet identity.')
 
-    const fifo: PendingSellObligation[] = []
-    let obligationCursor: string | undefined
-    while (true) {
-      const response = await getObligations({
-        chainId: position.chainId,
-        copyAccount,
-        userPositionId,
-        cursor: obligationCursor,
-        limit: 200,
-      }).unwrap()
-      fifo.push(...response.data)
-      if (!response.pagination.hasMore) break
-      const nextCursor = response.pagination.nextCursor
-      if (!nextCursor || nextCursor === obligationCursor) {
-        throw new Error('The pending obligations response returned an invalid pagination cursor.')
-      }
-      obligationCursor = nextCursor
-    }
-    return fifo
+    return loadPendingSellObligations(getObligations, {
+      chainId: position.chainId,
+      copyAccount,
+      userPositionId,
+    })
   }, [copyAccount, getObligations, position.chainId, userPositionId])
 
   const fetchCurrentPosition = useCallback(async () => {
     if (!copyAccount || !userPositionId) throw new Error('This position is missing its Smart Wallet identity.')
+
     return loadCurrentCopyAccountPosition(getCopyAccountPositions, {
       chainId: position.chainId,
       copyAccount,
@@ -199,6 +121,7 @@ const ManagePositionModal = ({ isOpen, onDismiss, position, mode }: ManagePositi
         ) {
           throw new Error('The prepared position does not match your selection.')
         }
+
         return response.data
       }
 
@@ -206,6 +129,7 @@ const ManagePositionModal = ({ isOpen, onDismiss, position, mode }: ManagePositi
       if (!isValidWadRatio(currentObligation?.currentRatioRaw) || !currentObligations.length) {
         throw new Error('There is no current pending sell obligation for this position.')
       }
+
       const response = await prepareManualSell({
         ownerAddress,
         copyRunId,
@@ -226,6 +150,7 @@ const ManagePositionModal = ({ isOpen, onDismiss, position, mode }: ManagePositi
           throw new Error('The prepared obligation count does not match the current FIFO.')
         }
       }
+
       return response.data
     },
     onComplete: refreshCopyTrading,
@@ -246,49 +171,30 @@ const ManagePositionModal = ({ isOpen, onDismiss, position, mode }: ManagePositi
       void changeNetwork(position.chainId as ChainId)
       return
     }
+
     void flow.prepare()
   }
 
   const actionLabel = isClose ? 'Close Position' : 'Manual Sell'
-  const unavailableMessage = !actionAdvertised ? `The selected position does not advertise ${actionLabel}.` : undefined
+  const unavailableMessage = !actionAdvertised
+    ? 'The selected position does not advertise ' + actionLabel + '.'
+    : undefined
   const primaryActionLabel = !account
     ? 'Connect wallet'
     : !onExpectedChain
     ? 'Switch network'
     : unavailableMessage
-    ? `${actionLabel} unavailable`
-    : `Review ${actionLabel}`
-
+    ? actionLabel + ' unavailable'
+    : 'Review ' + actionLabel
   const preview = isClose ? flowState.action?.closePosition : flowState.action?.manualSell
-  const review = (
-    <Stack className="gap-4">
-      <ReviewSection title={isClose ? 'Review full recovery' : 'Review pending sell recovery'}>
-        <ReviewRow
-          label="Position"
-          value={
-            <PositionValue symbol={preview?.baseToken?.symbol || position.token.symbol} tradeId={position.tradeId} />
-          }
-        />
-        {!isClose && <ReviewRow label="Required sell ratio" value={formatWadPercent(preview?.sellRatioRaw)} />}
-        {!isClose && <ReviewRow label="Pending obligations" value={preview?.unresolvedSkipCount} />}
-        <ReviewRow label="Sell amount" value={formatPreparedAmount(preview?.sellBase, preview?.baseToken)} />
-        <ReviewRow
-          label="Minimum received"
-          value={formatPreparedAmount(preview?.swapQuote?.minimumQuote, preview?.quoteToken)}
-        />
-        <ReviewRow label="Estimated cashback" value={formatPreparedAmount(preview?.cashback, preview?.baseToken)} />
-        <ReviewRow label="Effective slippage" value={formatSlippage(preview?.swapQuote?.effectiveSlippageBps)} />
-      </ReviewSection>
-    </Stack>
-  )
 
   return (
     <PreparedActionModal
       isOpen={isOpen}
       onDismiss={dismiss}
       state={flowState}
-      title={isClose ? 'Close Position' : 'Manual Sell'}
-      review={review}
+      title={actionLabel}
+      review={<ManagePositionReview isClose={isClose} position={position} preview={preview} />}
       confirmLabel={isClose ? 'Close Position' : 'Execute Manual Sell'}
       confirmVariant={isClose ? 'error' : 'warning'}
       onBack={flow.reset}
@@ -301,47 +207,17 @@ const ManagePositionModal = ({ isOpen, onDismiss, position, mode }: ManagePositi
         </>
       }
     >
-      <Stack className="gap-4">
-        <ReviewSection>
-          <ReviewRow
-            label="Position"
-            value={<PositionValue symbol={position.token.symbol} tradeId={position.tradeId} />}
-          />
-          <ReviewRow label="Current value" value={formatUsd(position.valueUsd)} />
-        </ReviewSection>
-
-        <Stack className="gap-2">
-          <span className="text-sm text-subText">Slippage tolerance</span>
-          <HStack className="gap-2">
-            {SLIPPAGE_OPTIONS.map(value => (
-              <button
-                key={value}
-                type="button"
-                disabled={flowState.isPreparing}
-                onClick={() => setSlippage(value)}
-                className={cn(
-                  'flex-1 rounded-lg border px-3 py-2 text-sm font-medium disabled:cursor-not-allowed disabled:opacity-50',
-                  slippage === value
-                    ? 'border-primary bg-primary-12 text-primary'
-                    : 'border-darkBorder text-subText hover:text-text',
-                )}
-              >
-                {formatSlippage(value * 100)}
-              </button>
-            ))}
-          </HStack>
-        </Stack>
-
-        <ButtonLight
-          type="button"
-          color={actionColor}
-          disabled={flowState.isPreparing || (!!account && onExpectedChain && !!unavailableMessage)}
-          title={unavailableMessage}
-          onClick={handlePrimaryAction}
-        >
-          {flowState.isPreparing ? <Dots>{primaryActionLabel}</Dots> : primaryActionLabel}
-        </ButtonLight>
-      </Stack>
+      <ManagePositionForm
+        actionColor={isClose ? 'var(--ks-red)' : 'var(--ks-warning)'}
+        isPreparing={flowState.isPreparing === true}
+        onPrimaryAction={handlePrimaryAction}
+        onSlippageChange={setSlippage}
+        position={position}
+        primaryActionDisabled={flowState.isPreparing || (!!account && onExpectedChain && !!unavailableMessage)}
+        primaryActionLabel={primaryActionLabel}
+        slippage={slippage}
+        unavailableMessage={unavailableMessage}
+      />
     </PreparedActionModal>
   )
 }

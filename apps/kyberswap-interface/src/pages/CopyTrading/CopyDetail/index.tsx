@@ -1,25 +1,99 @@
 import { Navigate, useParams } from 'react-router-dom'
-import copyTradingApi from 'services/copyTrading'
-import type { AgentProfile, CopyRunSummary } from 'services/copyTrading/types'
+import agentApi from 'services/copyTrading/api/endpoints/agents'
+import copyRunApi from 'services/copyTrading/api/endpoints/copyRuns'
+import type { AgentProfile } from 'services/copyTrading/types/agents'
+import type { CopyRunSummary } from 'services/copyTrading/types/copyRuns'
 
 import LocalLoader from 'components/LocalLoader'
-import { Stack } from 'components/Stack'
+import { Center, HStack, Stack } from 'components/Stack'
 import { APP_PATHS } from 'constants/index'
+import { CopyDetailTabs } from 'pages/CopyTrading/CopyDetail/CopyDetailTabs'
 import CopyRunPerformance from 'pages/CopyTrading/CopyDetail/CopyRunPerformance'
 import CopySidePanel from 'pages/CopyTrading/CopyDetail/CopySidePanel'
-import { CopyDetailTabs, CopyRunStats, CopyTimeline } from 'pages/CopyTrading/CopyDetail/components'
-import {
-  AgentIdentity,
-  CopyTradingPage,
-  OwnerWalletRequired,
-  StickySideColumn,
-} from 'pages/CopyTrading/components/common'
+import Leaderboard, { type LeaderboardStat } from 'pages/CopyTrading/components/Leaderboard'
+import { AgentIdentity } from 'pages/CopyTrading/components/common/agentIdentity'
+import { CopyTradingPage, StickySideColumn } from 'pages/CopyTrading/components/common/layout'
+import { OwnerWalletRequired } from 'pages/CopyTrading/components/common/status'
+import { copyTradingStatIconMap } from 'pages/CopyTrading/constants'
 import { useCopyTradingContext } from 'pages/CopyTrading/context'
+import { formatApproximateUsd, formatUsd, signedPercent, signedUsd, sumUsdValues } from 'pages/CopyTrading/helpers'
+import { formatDateTime } from 'utils/time'
 
 type CopyDetailContentProps = {
   agent: AgentProfile
   backPath: 'my-copies' | 'history'
   run: CopyRunSummary
+}
+
+const getCopyRunStats = (run: CopyRunSummary): LeaderboardStat[] => {
+  const totalPnlUsd = sumUsdValues(run.realizedPnlUsd, run.unrealizedPnlUsd)
+  const totalPnlStatus =
+    run.metrics.realizedPnlUsd?.status === 'METRIC_STATUS_STALE' ||
+    run.metrics.unrealizedPnlUsd?.status === 'METRIC_STATUS_STALE'
+      ? 'METRIC_STATUS_STALE'
+      : run.metrics.realizedPnlUsd?.status === 'METRIC_STATUS_CURRENT' &&
+        run.metrics.unrealizedPnlUsd?.status === 'METRIC_STATUS_CURRENT'
+      ? 'METRIC_STATUS_CURRENT'
+      : undefined
+
+  return [
+    {
+      label: 'Total P&L',
+      value: signedUsd(totalPnlUsd),
+      icon: copyTradingStatIconMap.money,
+      status: totalPnlStatus,
+    },
+    {
+      label: 'Realised P&L',
+      value: signedUsd(run.realizedPnlUsd),
+      icon: copyTradingStatIconMap.positionClose,
+      status: run.metrics.realizedPnlUsd?.status,
+    },
+    {
+      label: 'APR Since Copy',
+      value: signedPercent(run.myAprSinceCopyPct),
+      icon: copyTradingStatIconMap.positionOpen,
+      status: run.metrics.myAprSinceCopy?.status,
+    },
+    {
+      label: 'Fee Paid',
+      value: formatUsd(run.flatFeesCapturedUsd),
+      icon: copyTradingStatIconMap.volume,
+      status: run.metrics.flatFeesCapturedUsd?.status,
+    },
+    {
+      label: 'Est. Cashback Pending',
+      value: formatApproximateUsd(run.estimatedCashbackPendingUsd),
+      icon: copyTradingStatIconMap.money,
+      status: run.metrics.estimatedCashbackPendingUsd?.status,
+    },
+  ]
+}
+
+const CopyRunStats = ({ run }: { run: CopyRunSummary }) => <Leaderboard items={getCopyRunStats(run)} size="sm" />
+
+const CopyTimeline = ({ run }: { run: CopyRunSummary }) => {
+  return (
+    <HStack className="items-center justify-between gap-5 rounded-xl bg-buttonBlack p-6 max-md:flex-col max-md:items-stretch">
+      <HStack className="items-center gap-5">
+        <Center className="min-h-12 rounded-xl bg-primary-12 px-6 py-2 text-lg font-medium text-primary">
+          Started Copy
+        </Center>
+        <Stack>
+          <span className="text-sm text-subText">{formatDateTime(run.startedAt)}</span>
+          <span className="text-lg font-medium text-text">In: {formatUsd(run.capitalInUsd)}</span>
+        </Stack>
+      </HStack>
+      <div className="h-0.5 min-w-16 flex-1 bg-gradient-to-r from-primary to-red max-md:hidden" />
+      <HStack className="items-center justify-end gap-5 max-md:justify-start">
+        <Stack className="items-end max-md:items-start">
+          <span className="text-right text-sm text-subText">{formatDateTime(run.stoppedAt)}</span>
+          <span className="text-lg font-medium text-text">Out: {formatUsd(run.capitalOutUsd)}</span>
+        </Stack>
+        <Center className="min-h-12 rounded-xl bg-red-20 px-6 py-2 text-lg font-medium text-red">Stopped Copy</Center>
+      </HStack>
+    </HStack>
+  )
 }
 
 const CopyDetailContent = ({ agent, backPath, run }: CopyDetailContentProps) => {
@@ -67,13 +141,13 @@ const CopyDetailView = ({ backPath }: { backPath: 'my-copies' | 'history' }) => 
     isFetching,
     isLoading,
     isUninitialized,
-  } = copyTradingApi.useGetCopyRunQuery(copyRunQuery, { skip: !copyId || !ownerAddress })
+  } = copyRunApi.useGetCopyRunQuery(copyRunQuery, { skip: !copyId || !ownerAddress })
 
   const {
     data: agent,
     isFetching: isAgentFetching,
     isLoading: isAgentLoading,
-  } = copyTradingApi.useGetAgentQuery({ agentId: copyRun?.data.agentId || '' }, { skip: !copyRun?.data.agentId })
+  } = agentApi.useGetAgentQuery({ agentId: copyRun?.data.agentId || '' }, { skip: !copyRun?.data.agentId })
 
   const run = copyRun?.data
   const profile = agent?.data

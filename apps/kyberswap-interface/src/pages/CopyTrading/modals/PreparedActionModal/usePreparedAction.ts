@@ -1,73 +1,34 @@
 import { getPublicClient } from '@wagmi/core'
-import type { Dispatch, SetStateAction } from 'react'
-import type { PreparedAction } from 'services/copyTrading/types'
+import type { PreparedAction } from 'services/copyTrading/types/preparedActions'
 
 import { wagmiConfig } from 'components/Web3Provider'
-import { getPreparedReasonMessage } from 'pages/CopyTrading/actionAvailability'
 import {
+  DEFAULT_PREPARED_ACTION_STATE,
   type PreparedActionExpectation,
+  type PreparedActionFlowState,
+  type PreparedActionStateSetter,
   getApiErrorMessage,
   getReprepareDelay,
+  invalidatePreparationRequests,
+  isCurrentPreparationRequest,
   validatePreparedAction,
-  validatePreparedActionContinuation,
-  wait,
 } from 'pages/CopyTrading/modals/PreparedActionModal/preparedAction'
+import {
+  type PreparationRequestOptions,
+  requestPreparation,
+} from 'pages/CopyTrading/modals/PreparedActionModal/requestPreparation'
 import type { Hash, Hex, Address as ViemAddress } from 'utils/viem'
 import { getGatedWalletClient } from 'utils/walletClient'
 
-export type PreparedActionPhase =
-  | 'idle'
-  | 'review'
-  | 'awaiting_signature'
-  | 'confirming'
-  | 'syncing'
-  | 'pending'
-  | 'unavailable'
-  | 'success'
-  | 'error'
-  | 'sync_error'
-
-export type PreparedActionFlowState = {
-  phase: PreparedActionPhase
-  isPreparing?: boolean
-  action?: PreparedAction
-  error?: string
-  hash?: Hash
-  retryStage?: 'receipt' | 'sync'
-}
-
-export const DEFAULT_PREPARED_ACTION_STATE: PreparedActionFlowState = { phase: 'idle' }
-
 type UsePreparedActionProps = {
   state: PreparedActionFlowState
-  setState: Dispatch<SetStateAction<PreparedActionFlowState>>
+  setState: PreparedActionStateSetter
   expected: PreparedActionExpectation
   prepare: () => Promise<PreparedAction>
   reviewUnavailable?: (action: PreparedAction) => boolean
   afterReceipt?: (action: PreparedAction, hash: Hash) => Promise<void> | void
   onComplete?: () => Promise<void> | void
 }
-
-type PreparationRequestOptions = {
-  continuation?: boolean
-  delay?: number
-  hash?: Hash
-}
-
-const CONTINUATION_ATTEMPTS = 6
-
-type PreparedActionStateSetter = Dispatch<SetStateAction<PreparedActionFlowState>>
-
-const preparationRequestVersions = new WeakMap<PreparedActionStateSetter, number>()
-
-const invalidatePreparationRequests = (setState: PreparedActionStateSetter) => {
-  const nextVersion = (preparationRequestVersions.get(setState) || 0) + 1
-  preparationRequestVersions.set(setState, nextVersion)
-  return nextVersion
-}
-
-const isCurrentPreparationRequest = (setState: PreparedActionStateSetter, version: number) =>
-  preparationRequestVersions.get(setState) === version
 
 export const usePreparedAction = ({
   state,
@@ -92,110 +53,21 @@ export const usePreparedAction = ({
     if (preparationVersion !== undefined && !isCurrentPreparationRequest(setState, preparationVersion)) {
       return
     }
+
     setState({ phase: 'success', action, hash })
   }
 
-  const requestPreparation = async ({ continuation = false, delay = 0, hash }: PreparationRequestOptions = {}) => {
-    const preparationVersion = invalidatePreparationRequests(setState)
-    const isCurrent = () => isCurrentPreparationRequest(setState, preparationVersion)
-
-    setState(current =>
-      continuation
-        ? { phase: 'syncing', action: current.action, hash, isPreparing: true }
-        : { ...current, isPreparing: true },
+  const requestPreparedAction = (options?: PreparationRequestOptions) =>
+    requestPreparation(
+      {
+        expected,
+        finish,
+        prepare,
+        reviewUnavailable,
+        setState,
+      },
+      options,
     )
-
-    if (delay > 0) {
-      await wait(delay)
-      if (!isCurrent()) return
-    }
-
-    for (let attempt = 0; attempt < CONTINUATION_ATTEMPTS; attempt++) {
-      let action: PreparedAction
-      try {
-        action = await prepare()
-      } catch (error) {
-        if (!isCurrent()) return
-        setState(current => ({
-          phase: continuation ? 'sync_error' : 'error',
-          action: continuation ? current.action : undefined,
-          error: getApiErrorMessage(error),
-          hash,
-          retryStage: continuation ? 'sync' : undefined,
-        }))
-        return
-      }
-      if (!isCurrent()) return
-
-      if (action.status === 'PREPARED_ACTION_STATUS_PENDING') {
-        const validationError = validatePreparedAction(action, expected, { requireCall: false })
-        if (validationError) {
-          setState({ phase: 'error', action, error: validationError, hash })
-          return
-        }
-        if (continuation && attempt < CONTINUATION_ATTEMPTS - 1) {
-          await wait(getReprepareDelay(action))
-          if (!isCurrent()) return
-          continue
-        }
-        setState({ phase: 'pending', action, error: getPreparedReasonMessage(action.reason), hash })
-        return
-      }
-
-      if (action.status === 'PREPARED_ACTION_STATUS_UNAVAILABLE') {
-        if (!continuation && reviewUnavailable?.(action)) {
-          const validationError = validatePreparedAction(action, expected, { requireCall: false })
-          if (validationError) {
-            setState({ phase: 'error', action, error: validationError, hash })
-            return
-          }
-          setState({ phase: 'review', action, hash })
-          return
-        }
-        setState({ phase: 'unavailable', action, error: getPreparedReasonMessage(action.reason), hash })
-        return
-      }
-
-      if (action.status === 'PREPARED_ACTION_STATUS_COMPLETED') {
-        const validationError = validatePreparedAction(action, expected, { requireCall: false })
-        if (validationError) {
-          setState({ phase: 'error', action, error: validationError, hash })
-          return
-        }
-        finish(action, hash, preparationVersion)
-        return
-      }
-
-      if (
-        action.status !== 'PREPARED_ACTION_STATUS_READY' &&
-        action.status !== 'PREPARED_ACTION_STATUS_PARTIALLY_COMPLETED'
-      ) {
-        setState({ phase: 'error', action, error: 'The API returned an unsupported preparation status.', hash })
-        return
-      }
-
-      if (continuation) {
-        const continuationError = validatePreparedActionContinuation(action)
-        setState({
-          phase: 'sync_error',
-          action,
-          error: continuationError || 'The confirmed transaction returned an unsupported continuation state.',
-          hash,
-          retryStage: 'sync',
-        })
-        return
-      }
-
-      const validationError = validatePreparedAction(action, expected)
-      if (validationError) {
-        setState({ phase: 'error', action, error: validationError, hash })
-        return
-      }
-
-      setState({ phase: 'review', action, hash })
-      return
-    }
-  }
 
   const finishReceipt = async (action: PreparedAction, hash: Hash) => {
     setState({ phase: 'syncing', action, hash })
@@ -277,7 +149,7 @@ export const usePreparedAction = ({
         phase: hash ? 'sync_error' : 'error',
         action,
         error: hash
-          ? `The transaction was submitted, but its receipt could not be confirmed. ${getApiErrorMessage(error)}`
+          ? 'The transaction was submitted, but its receipt could not be confirmed. ' + getApiErrorMessage(error)
           : getApiErrorMessage(error),
         hash,
         retryStage: hash ? 'receipt' : undefined,
@@ -285,33 +157,40 @@ export const usePreparedAction = ({
     }
   }
 
+  const retryReceipt = async (action: PreparedAction, hash: Hash) => {
+    setState({ phase: 'confirming', action, hash })
+
+    try {
+      const publicClient = getPublicClient(wagmiConfig, { chainId: expected.chainId })
+      if (!publicClient) throw new Error('The public client is unavailable for the selected chain.')
+
+      const receipt = await publicClient.waitForTransactionReceipt({ hash })
+      if (receipt.status !== 'success') {
+        setState({
+          phase: 'error',
+          action,
+          error: 'The transaction reverted on-chain. Prepare a new call before trying again.',
+          hash,
+        })
+        return
+      }
+
+      await finishReceipt(action, hash)
+    } catch (error) {
+      setState({
+        phase: 'sync_error',
+        action,
+        error: getApiErrorMessage(error),
+        hash,
+        retryStage: 'receipt',
+      })
+    }
+  }
+
   const retry = async () => {
     if (state.phase === 'sync_error' && state.action && state.hash) {
       if (state.retryStage === 'receipt') {
-        setState({ phase: 'confirming', action: state.action, hash: state.hash })
-        try {
-          const publicClient = getPublicClient(wagmiConfig, { chainId: expected.chainId })
-          if (!publicClient) throw new Error('The public client is unavailable for the selected chain.')
-          const receipt = await publicClient.waitForTransactionReceipt({ hash: state.hash })
-          if (receipt.status !== 'success') {
-            setState({
-              phase: 'error',
-              action: state.action,
-              error: 'The transaction reverted on-chain. Prepare a new call before trying again.',
-              hash: state.hash,
-            })
-            return
-          }
-          await finishReceipt(state.action, state.hash)
-        } catch (error) {
-          setState({
-            phase: 'sync_error',
-            action: state.action,
-            error: getApiErrorMessage(error),
-            hash: state.hash,
-            retryStage: 'receipt',
-          })
-        }
+        await retryReceipt(state.action, state.hash)
         return
       }
 
@@ -320,7 +199,7 @@ export const usePreparedAction = ({
     }
 
     const continuation = state.phase === 'pending' && !!state.hash
-    await requestPreparation({
+    await requestPreparedAction({
       continuation,
       delay: state.phase === 'pending' && state.action ? getReprepareDelay(state.action) : 0,
       hash: continuation ? state.hash : undefined,
@@ -332,5 +211,5 @@ export const usePreparedAction = ({
     setState(DEFAULT_PREPARED_ACTION_STATE)
   }
 
-  return { confirm, prepare: requestPreparation, reset, retry }
+  return { confirm, prepare: requestPreparedAction, reset, retry }
 }

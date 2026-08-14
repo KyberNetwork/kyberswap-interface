@@ -1,20 +1,49 @@
 import { useNavigate } from 'react-router-dom'
-import copyTradingApi from 'services/copyTrading'
+import copyRunApi from 'services/copyTrading/api/endpoints/copyRuns'
+import type { OwnerCopySummary } from 'services/copyTrading/types/copyRuns'
 
 import { APP_PATHS } from 'constants/index'
 import ClosedSubscriptionsTable from 'pages/CopyTrading/CopyHistory/ClosedSubscriptionsTable'
-import { CopyHistorySummary } from 'pages/CopyTrading/CopyHistory/components'
 import CopyRunsPageHeading from 'pages/CopyTrading/components/CopyRunsPageHeading'
-import useCursorPageQuery from 'pages/CopyTrading/components/CursorPagination/useCursorPageQuery'
-import { CopyTradingPage, OwnerWalletRequired } from 'pages/CopyTrading/components/common'
+import { useCursorPageQuery } from 'pages/CopyTrading/components/CursorPagination'
+import Leaderboard, { type LeaderboardStat } from 'pages/CopyTrading/components/Leaderboard'
+import { CopyTradingPage } from 'pages/CopyTrading/components/common/layout'
+import { OwnerWalletRequired } from 'pages/CopyTrading/components/common/status'
+import { copyTradingStatIconMap } from 'pages/CopyTrading/constants'
 import { useCopyTradingContext } from 'pages/CopyTrading/context'
+import { formatCount, formatUsd, signedUsd } from 'pages/CopyTrading/helpers'
 
 const PAGE_SIZE = 5
+
+const CopyHistorySummary = ({ summary }: { summary?: OwnerCopySummary }) => {
+  const historyStats: LeaderboardStat[] = [
+    {
+      label: 'Realised P&L (All time)',
+      value: signedUsd(summary?.realizedPnlUsd),
+      icon: copyTradingStatIconMap.money,
+      status: summary?.metrics.realizedPnlUsd?.status,
+    },
+    {
+      label: 'Closed Positions in History Runs',
+      value: formatCount(summary?.closedPositions),
+      icon: copyTradingStatIconMap.positionClose,
+      status: summary?.metrics.closedPositionCount?.status,
+    },
+    {
+      label: 'Closed Capital (Returned)',
+      value: formatUsd(summary?.closedCapitalUsd),
+      icon: copyTradingStatIconMap.volume,
+      status: summary?.metrics.closedCapitalUsd?.status,
+    },
+  ]
+
+  return <Leaderboard items={historyStats} />
+}
 
 const CopyHistoryView = () => {
   const navigate = useNavigate()
   const { ownerAddress } = useCopyTradingContext()
-  const [getCopyRuns] = copyTradingApi.useLazyGetCopyRunsQuery()
+  const [getCopyRuns] = copyRunApi.useLazyGetCopyRunsQuery()
 
   const closedRunsPage = useCursorPageQuery({
     enabled: !!ownerAddress,
@@ -28,7 +57,7 @@ const CopyHistoryView = () => {
       }).unwrap(),
   })
 
-  const { data: ownerSummary } = copyTradingApi.useGetOwnerCopySummaryQuery(
+  const { data: ownerSummary } = copyRunApi.useGetOwnerCopySummaryQuery(
     {
       ownerAddress: ownerAddress || '',
       view: 'history',

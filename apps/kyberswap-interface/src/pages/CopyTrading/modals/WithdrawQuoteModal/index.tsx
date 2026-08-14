@@ -1,21 +1,23 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { useState } from 'react'
-import { usePrepareWithdrawQuoteMutation } from 'services/copyTrading'
-import type { AdvisoryActionAvailability, CopyRunSummary, PreparedCallKind } from 'services/copyTrading/types'
+import preparedActionApi from 'services/copyTrading/api/endpoints/preparedActions'
+import type { AdvisoryActionAvailability } from 'services/copyTrading/types/actionAvailability'
+import type { CopyRunSummary } from 'services/copyTrading/types/copyRuns'
+import type { PreparedCallKind } from 'services/copyTrading/types/preparedActions'
 
 import { ButtonPrimary } from 'components/Button'
 import Dots from 'components/Dots'
 import { HStack, Stack } from 'components/Stack'
 import { useActiveWeb3React } from 'hooks'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
-import { getPreparedReasonMessage, isActionAvailable } from 'pages/CopyTrading/actionAvailability'
+import { getPreparedReasonMessage, isActionAvailable } from 'pages/CopyTrading/helpers'
 import useRefreshCopyTrading from 'pages/CopyTrading/hooks/useRefreshCopyTrading'
 import PreparedActionModal, { ReviewRow, ReviewSection } from 'pages/CopyTrading/modals/PreparedActionModal'
-import { formatPreparedAmount } from 'pages/CopyTrading/modals/PreparedActionModal/preparedAction'
 import {
   DEFAULT_PREPARED_ACTION_STATE,
-  usePreparedAction,
-} from 'pages/CopyTrading/modals/PreparedActionModal/usePreparedAction'
+  formatPreparedAmount,
+} from 'pages/CopyTrading/modals/PreparedActionModal/preparedAction'
+import { usePreparedAction } from 'pages/CopyTrading/modals/PreparedActionModal/usePreparedAction'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { shortenAddress } from 'utils/address'
 
@@ -33,7 +35,7 @@ const WithdrawQuoteModal = ({ isOpen, onDismiss, copyRun, withdrawQuoteAvailabil
   const { changeNetwork } = useChangeNetwork()
   const toggleWalletModal = useWalletModalToggle()
   const refreshCopyTrading = useRefreshCopyTrading()
-  const [prepareWithdrawQuote] = usePrepareWithdrawQuoteMutation()
+  const [prepareWithdrawQuote] = preparedActionApi.usePrepareWithdrawQuoteMutation()
 
   const [flowState, setFlowState] = useState(DEFAULT_PREPARED_ACTION_STATE)
 

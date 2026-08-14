@@ -1,6 +1,6 @@
 import { type PropsWithChildren } from 'react'
 import { Navigate, useParams } from 'react-router-dom'
-import copyTradingApi from 'services/copyTrading'
+import agentApi from 'services/copyTrading/api/endpoints/agents'
 
 import LocalLoader from 'components/LocalLoader'
 import { HStack, Stack } from 'components/Stack'
@@ -11,7 +11,8 @@ import AgentStats from 'pages/CopyTrading/AgentProfile/AgentStats'
 import TabActions from 'pages/CopyTrading/AgentProfile/TabActions'
 import TabHistory from 'pages/CopyTrading/AgentProfile/TabHistory'
 import TabPositions from 'pages/CopyTrading/AgentProfile/TabPositions'
-import { AgentIdentity, CopyTradingPage, StickySideColumn } from 'pages/CopyTrading/components/common'
+import { AgentIdentity } from 'pages/CopyTrading/components/common/agentIdentity'
+import { CopyTradingPage, StickySideColumn } from 'pages/CopyTrading/components/common/layout'
 import { type ProfileTab, profileTabLabel, profileTabs } from 'pages/CopyTrading/constants'
 import { cn } from 'utils/cn'
 
@@ -66,7 +67,7 @@ const AgentProfile = () => {
     isFetching: isAgentFetching,
     isLoading: isAgentLoading,
     isUninitialized: isAgentUninitialized,
-  } = copyTradingApi.useGetAgentQuery(agentQuery, {
+  } = agentApi.useGetAgentQuery(agentQuery, {
     skip: !agentCode,
   })
 
