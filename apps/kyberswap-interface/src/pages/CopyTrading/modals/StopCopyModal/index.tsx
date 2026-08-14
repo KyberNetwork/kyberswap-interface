@@ -16,18 +16,20 @@ import Loader from 'components/Loader'
 import { Center, HStack, Stack } from 'components/Stack'
 import { useActiveWeb3React } from 'hooks'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
+import { getPreparedReasonMessage, isActionAvailable } from 'pages/CopyTrading/actionAvailability'
 import { ShortenedId } from 'pages/CopyTrading/components/common'
 import { formatUsd, signedUsd } from 'pages/CopyTrading/helpers'
-import PreparedActionModal, { ReviewRow, ReviewSection } from 'pages/CopyTrading/write/PreparedActionModal'
-import { useCopyTradeWrite } from 'pages/CopyTrading/write/WriteContext'
+import useRefreshCopyTrading from 'pages/CopyTrading/hooks/useRefreshCopyTrading'
+import PreparedActionModal, { ReviewRow, ReviewSection } from 'pages/CopyTrading/modals/PreparedActionModal'
 import {
   formatPreparedAmount,
   formatSlippage,
   getApiErrorMessage,
-  getPreparedReasonMessage,
-  isActionAvailable,
-} from 'pages/CopyTrading/write/preparedAction'
-import { DEFAULT_PREPARED_ACTION_STATE, usePreparedAction } from 'pages/CopyTrading/write/usePreparedAction'
+} from 'pages/CopyTrading/modals/PreparedActionModal/preparedAction'
+import {
+  DEFAULT_PREPARED_ACTION_STATE,
+  usePreparedAction,
+} from 'pages/CopyTrading/modals/PreparedActionModal/usePreparedAction'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { cn } from 'utils/cn'
 
@@ -99,7 +101,7 @@ const StopCopyModal = ({ isOpen, onDismiss, copyRun, agentName }: StopCopyModalP
   const { account, chainId } = useActiveWeb3React()
   const { changeNetwork } = useChangeNetwork()
   const toggleWalletModal = useWalletModalToggle()
-  const { refreshCopyTrading } = useCopyTradeWrite()
+  const refreshCopyTrading = useRefreshCopyTrading()
   const [prepareStopCopy] = usePrepareStopCopyMutation()
   const [getCopyRunPositions] = copyTradingApi.useLazyGetCopyRunPositionsQuery()
   const [flowState, setFlowState] = useState(DEFAULT_PREPARED_ACTION_STATE)

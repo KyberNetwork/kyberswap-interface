@@ -12,7 +12,7 @@ import CopyHistoryView from 'pages/CopyTrading/CopyHistory'
 import MyCopiesView from 'pages/CopyTrading/MyCopies'
 import Sidebar from 'pages/CopyTrading/components/Sidebar'
 import { CopyTradingProvider } from 'pages/CopyTrading/context'
-import { CopyTradeWriteProvider } from 'pages/CopyTrading/write/WriteContext'
+import { CopyTradingModalProvider } from 'pages/CopyTrading/modals/context'
 
 const SIDEBAR_ITEM_LIMIT = 10
 
@@ -56,7 +56,7 @@ const CopyTrading = () => {
 
   return (
     <CopyTradingProvider chains={chains?.data || []} ownerAddress={ownerAddress}>
-      <CopyTradeWriteProvider>
+      <CopyTradingModalProvider>
         <div className="flex min-h-screen w-full bg-black text-text max-lg:block">
           <Sidebar agents={agents} activeRuns={activeCopyRuns} chains={chains?.data || []} />
           <Routes>
@@ -69,7 +69,7 @@ const CopyTrading = () => {
             <Route path="*" element={<Navigate to={APP_PATHS.COPY_TRADING} replace />} />
           </Routes>
         </div>
-      </CopyTradeWriteProvider>
+      </CopyTradingModalProvider>
     </CopyTradingProvider>
   )
 }

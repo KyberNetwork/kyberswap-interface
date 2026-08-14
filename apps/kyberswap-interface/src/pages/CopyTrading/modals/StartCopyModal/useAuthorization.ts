@@ -11,7 +11,7 @@ import {
   encodeStartCopyPermitData,
   getStartCopyAllowanceAuthorization,
   getStartCopyAuthorizationKind,
-} from 'pages/CopyTrading/write/startCopyAuthorization'
+} from 'pages/CopyTrading/modals/StartCopyModal/authorization'
 import { useAllTransactions, useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { sendEVMTransaction } from 'utils/sendTransaction'
