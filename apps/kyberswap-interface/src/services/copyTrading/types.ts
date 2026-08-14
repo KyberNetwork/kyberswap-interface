@@ -1069,7 +1069,6 @@ export type PrepareWithdrawQuoteRequest = PrepareCopyRunRequest
 
 export type PreparePositionRequest = PrepareCopyRunRequest & {
   userPositionId: string
-  accessToken: string
   slippageBps: number
 }
 
@@ -1079,31 +1078,3 @@ export type PrepareManualSellRequest = PreparePositionRequest & {
 }
 
 export type PrepareClosePositionRequest = PreparePositionRequest
-
-export type CreateWalletSessionChallengeRequest = {
-  chainId: string
-  ownerAddress: Address
-}
-
-export type WalletSessionChallengeResponse = {
-  data: {
-    siweMessage: string
-    challengeToken: string
-    expiresAt: Timestamp
-  }
-}
-
-export type CreateWalletSessionRequest = {
-  challengeToken: string
-  signature: `0x${string}`
-}
-
-export type WalletSessionResponse = {
-  data: {
-    accessToken: string
-    tokenType: 'Bearer'
-    chainId: string
-    ownerAddress: Address
-    expiresAt: Timestamp
-  }
-}

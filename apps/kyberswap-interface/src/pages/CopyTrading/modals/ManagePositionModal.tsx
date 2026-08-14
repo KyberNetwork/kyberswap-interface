@@ -2,6 +2,8 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { useCallback, useState } from 'react'
 import copyTradingApi, { usePrepareClosePositionMutation, usePrepareManualSellMutation } from 'services/copyTrading'
 import type {
+  CopyAccountPositionsQuery,
+  CopyAccountPositionsResponse,
   PendingSellObligation,
   PositionActionKind,
   PositionSummary,
@@ -32,6 +34,7 @@ type ManagePositionModalProps = {
 }
 
 const SLIPPAGE_OPTIONS = [0.5, 1, 2]
+const POSITIONS_PAGE_SIZE = 200
 const MANUAL_SELL_CALL_KINDS: PreparedCallKind[] = ['PREPARED_CALL_KIND_MANUAL_SELL']
 const CLOSE_POSITION_CALL_KINDS: PreparedCallKind[] = ['PREPARED_CALL_KIND_CLOSE_POSITION']
 
@@ -50,14 +53,52 @@ const isValidWadRatio = (value?: string) => {
   return ratio > 0n && ratio <= 10n ** 18n
 }
 
+type GetCopyAccountPositions = (query: CopyAccountPositionsQuery) => {
+  unwrap: () => Promise<CopyAccountPositionsResponse>
+}
+
+type CurrentPositionQuery = Pick<CopyAccountPositionsQuery, 'chainId' | 'copyAccount'> & {
+  userPositionId: string
+}
+
+export const loadCurrentCopyAccountPosition = async (
+  getCopyAccountPositions: GetCopyAccountPositions,
+  { chainId, copyAccount, userPositionId }: CurrentPositionQuery,
+) => {
+  const seenCursors = new Set<string>()
+  let cursor: string | undefined
+
+  while (true) {
+    const response = await getCopyAccountPositions({
+      chainId,
+      copyAccount,
+      cursor,
+      limit: POSITIONS_PAGE_SIZE,
+    }).unwrap()
+    const currentPosition = response.data.find(position => position.userPositionId === userPositionId)
+    if (currentPosition) return currentPosition
+    if (!response.pagination.hasMore) {
+      throw new Error('The selected position is no longer available in this Smart Wallet.')
+    }
+
+    const nextCursor = response.pagination.nextCursor
+    if (!nextCursor || seenCursors.has(nextCursor)) {
+      throw new Error('The positions response returned an invalid pagination cursor.')
+    }
+    seenCursors.add(nextCursor)
+    cursor = nextCursor
+  }
+}
+
 const ManagePositionModal = ({ isOpen, onDismiss, position, mode }: ManagePositionModalProps) => {
   const { account, chainId } = useActiveWeb3React()
   const { ownerAddress } = useCopyTradingContext()
   const { changeNetwork } = useChangeNetwork()
   const toggleWalletModal = useWalletModalToggle()
-  const { refreshCopyTrading, withWalletSession } = useCopyTradeWrite()
+  const { refreshCopyTrading } = useCopyTradeWrite()
   const [prepareManualSell] = usePrepareManualSellMutation()
   const [prepareClosePosition] = usePrepareClosePositionMutation()
+  const [getCopyAccountPositions] = copyTradingApi.useLazyGetCopyAccountPositionsQuery()
   const [getObligations] = copyTradingApi.useLazyGetPendingSellObligationsQuery()
   const [flowState, setFlowState] = useState(DEFAULT_PREPARED_ACTION_STATE)
   const [slippage, setSlippage] = useState(0.5)
@@ -97,6 +138,15 @@ const ManagePositionModal = ({ isOpen, onDismiss, position, mode }: ManagePositi
     return fifo
   }, [copyAccount, getObligations, position.chainId, userPositionId])
 
+  const fetchCurrentPosition = useCallback(async () => {
+    if (!copyAccount || !userPositionId) throw new Error('This position is missing its Smart Wallet identity.')
+    return loadCurrentCopyAccountPosition(getCopyAccountPositions, {
+      chainId: position.chainId,
+      copyAccount,
+      userPositionId,
+    })
+  }, [copyAccount, getCopyAccountPositions, position.chainId, userPositionId])
+
   const flow = usePreparedAction({
     state: flowState,
     setState: setFlowState,
@@ -115,58 +165,59 @@ const ManagePositionModal = ({ isOpen, onDismiss, position, mode }: ManagePositi
         throw new Error('The selected position is not owned by the connected wallet.')
       }
 
-      if (!hasPositionAction(position, requiredAction)) {
-        throw new Error('The selected position does not advertise this recovery action.')
+      const [currentPosition, currentObligations] = await Promise.all([
+        fetchCurrentPosition(),
+        isClose ? Promise.resolve([]) : fetchObligations(),
+      ])
+      if (
+        currentPosition.copyRunId !== copyRunId ||
+        currentPosition.copyAccount?.toLowerCase() !== copyAccount.toLowerCase()
+      ) {
+        throw new Error('The refreshed position does not match the selected Copy Run.')
       }
 
-      const currentObligations = isClose ? [] : await fetchObligations()
-
-      return withWalletSession(ownerAddress, position.chainId, async accessToken => {
-        const slippageBps = Math.round(slippage * 100)
-        if (isClose) {
-          const response = await prepareClosePosition({
-            ownerAddress,
-            copyRunId,
-            userPositionId,
-            accessToken,
-            slippageBps,
-          }).unwrap()
-          if (
-            response.data.status === 'PREPARED_ACTION_STATUS_READY' &&
-            response.data.closePosition?.userPositionId !== userPositionId
-          ) {
-            throw new Error('The prepared position does not match your selection.')
-          }
-          return response.data
-        }
-
-        const currentObligation = currentObligations[0]
-        if (!isValidWadRatio(currentObligation?.currentRatioRaw) || !currentObligations.length) {
-          throw new Error('There is no current pending sell obligation for this position.')
-        }
-        const response = await prepareManualSell({
+      const slippageBps = Math.round(slippage * 100)
+      if (isClose) {
+        const response = await prepareClosePosition({
           ownerAddress,
           copyRunId,
           userPositionId,
-          accessToken,
           slippageBps,
-          expectedUnresolvedSkipCount: currentObligations.length,
-          expectedSellRatioRaw: currentObligation.currentRatioRaw,
         }).unwrap()
-        const preview = response.data.manualSell
-        if (response.data.status === 'PREPARED_ACTION_STATUS_READY') {
-          if (preview?.userPositionId !== userPositionId) {
-            throw new Error('The prepared position does not match your selection.')
-          }
-          if (preview.sellRatioRaw !== currentObligation.currentRatioRaw) {
-            throw new Error('The prepared sell ratio does not match the current FIFO obligation.')
-          }
-          if (preview.unresolvedSkipCount !== currentObligations.length) {
-            throw new Error('The prepared obligation count does not match the current FIFO.')
-          }
+        if (
+          response.data.status === 'PREPARED_ACTION_STATUS_READY' &&
+          response.data.closePosition?.userPositionId !== userPositionId
+        ) {
+          throw new Error('The prepared position does not match your selection.')
         }
         return response.data
-      })
+      }
+
+      const currentObligation = currentObligations[0]
+      if (!isValidWadRatio(currentObligation?.currentRatioRaw) || !currentObligations.length) {
+        throw new Error('There is no current pending sell obligation for this position.')
+      }
+      const response = await prepareManualSell({
+        ownerAddress,
+        copyRunId,
+        userPositionId,
+        slippageBps,
+        expectedUnresolvedSkipCount: currentObligations.length,
+        expectedSellRatioRaw: currentObligation.currentRatioRaw,
+      }).unwrap()
+      const preview = response.data.manualSell
+      if (response.data.status === 'PREPARED_ACTION_STATUS_READY') {
+        if (preview?.userPositionId !== userPositionId) {
+          throw new Error('The prepared position does not match your selection.')
+        }
+        if (preview.sellRatioRaw !== currentObligation.currentRatioRaw) {
+          throw new Error('The prepared sell ratio does not match the current FIFO obligation.')
+        }
+        if (preview.unresolvedSkipCount !== currentObligations.length) {
+          throw new Error('The prepared obligation count does not match the current FIFO.')
+        }
+      }
+      return response.data
     },
     onComplete: refreshCopyTrading,
   })

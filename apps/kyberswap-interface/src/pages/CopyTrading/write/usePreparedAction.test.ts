@@ -82,4 +82,33 @@ describe('usePreparedAction unavailable review', () => {
       error: 'Copy Trading actions are temporarily paused.',
     })
   })
+
+  it('discards a preparation response superseded by a newer request', async () => {
+    const harness = createStateHarness()
+    const firstAction = { ...allowanceDiagnostic, preparedAt: '2026-08-14T00:00:00Z' }
+    const secondAction = { ...allowanceDiagnostic, preparedAt: '2026-08-14T00:00:01Z' }
+    let resolveFirst: (action: PreparedAction) => void = () => undefined
+    let resolveSecond: (action: PreparedAction) => void = () => undefined
+    const prepare = vi
+      .fn<[], Promise<PreparedAction>>()
+      .mockImplementationOnce(() => new Promise(resolve => (resolveFirst = resolve)))
+      .mockImplementationOnce(() => new Promise(resolve => (resolveSecond = resolve)))
+    const flow = usePreparedAction({
+      state: harness.getState(),
+      setState: harness.setState,
+      expected,
+      prepare,
+      reviewUnavailable: action => action.reason === 'PREPARED_ACTION_REASON_INSUFFICIENT_QUOTE_ALLOWANCE',
+    })
+
+    const firstRequest = flow.prepare()
+    const secondRequest = flow.prepare()
+    resolveSecond(secondAction)
+    await secondRequest
+    expect(harness.getState()).toEqual({ phase: 'review', action: secondAction })
+
+    resolveFirst(firstAction)
+    await firstRequest
+    expect(harness.getState()).toEqual({ phase: 'review', action: secondAction })
+  })
 })
