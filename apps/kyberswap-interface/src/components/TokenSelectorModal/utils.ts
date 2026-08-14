@@ -278,10 +278,16 @@ export function useTokenComparator(
   const chainId = customChain || currentChain
   const balances = useAllTokenBalances(chainId, enabled)
   const ethBalance = useNativeBalance(chainId)
-  const tokenPriceAddresses = useMemo(
-    () => (enabled ? [...Object.keys(balances ?? EMPTY_BALANCE_MAP), NATIVE_TOKEN_ADDRESS] : EMPTY_PRICE_ADDRESSES),
-    [balances, enabled],
-  )
+  // Only held tokens can contribute a USD value to the sort — `usdValueOf` returns 0 for a zero
+  // balance whatever the price — so pricing the whole whitelist would be pure waste. The native
+  // sentinel is always included: its balance lives in `ethBalance`, not in this map.
+  const tokenPriceAddresses = useMemo(() => {
+    if (!enabled) return EMPTY_PRICE_ADDRESSES
+    const balanceMap = balances ?? EMPTY_BALANCE_MAP
+    const held = Object.keys(balanceMap).filter(address => balanceMap[address]?.greaterThan('0'))
+    held.push(NATIVE_TOKEN_ADDRESS)
+    return held
+  }, [balances, enabled])
   const tokenPrices = useTokenPrices(tokenPriceAddresses, chainId)
 
   return useMemo(() => {

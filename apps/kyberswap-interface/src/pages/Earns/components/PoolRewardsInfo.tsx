@@ -1,3 +1,4 @@
+import { ChainId } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { useMemo } from 'react'
 
@@ -116,7 +117,9 @@ const PoolRewardsInfo = ({ pool, showEstimate = true, 'data-testid': dataTestId 
 
   const kemRewardTokenPrices = useTokenPrices(
     useMemo(() => kemRewardTokens.map(token => token.address), [kemRewardTokens]),
-    pool.chainId,
+    // `chainId` is optional on the explorer's pool shape; falling back to the connected chain would
+    // file this pool's reward prices under the wrong chain in the shared price cache.
+    (pool.chain?.id || pool.chainId) as ChainId,
   )
 
   const lmRewardDays = getEffectiveRewardDays({

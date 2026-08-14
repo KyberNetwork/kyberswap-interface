@@ -24,6 +24,7 @@ import store from 'state'
 import ApplicationUpdater from 'state/application/updater'
 import CustomizeDexesUpdater from 'state/customizeDexes/updater'
 import ListsUpdater from 'state/lists/updater'
+import TokenPricesUpdater from 'state/tokenPrices/updater'
 import TransactionUpdater from 'state/transactions/updater'
 import UserUpdater from 'state/user/updater'
 import ThemeProvider from 'theme'
@@ -75,6 +76,7 @@ function Updaters() {
       <ApplicationUpdater />
       <TransactionUpdater />
       <CustomizeDexesUpdater />
+      <TokenPricesUpdater />
     </>
   )
 }

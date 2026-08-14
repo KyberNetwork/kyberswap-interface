@@ -140,7 +140,9 @@ export class DeBridgeAdapter extends BaseSwapAdapter {
     const fixFee = r.fixFee
 
     const wrappedAddress = NativeCurrencies[params.fromChain as ChainId].wrapped.address
-    const priceRes = await fetchTokenPrices({ [params.fromChain]: [wrappedAddress] })
+    // The quote is still usable without a native price — it only costs the protocol-fee USD figure —
+    // so a price outage must not take the whole route down with it.
+    const priceRes = await fetchTokenPrices({ [params.fromChain]: [wrappedAddress] }).catch(() => null)
     const nativePrice = getMidPrice(priceRes?.data?.[params.fromChain]?.[wrappedAddress]) ?? 0
 
     const nativeDecimals = params.fromChain === 'solana' ? 9 : NativeCurrencies[params.fromChain as ChainId].decimals

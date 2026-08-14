@@ -554,16 +554,25 @@ const TokenList = ({
   const { favoriteTokens } = useUserFavoriteTokens(customChainId)
   const tokenImports = useUserAddedTokens(customChainId)
 
-  // Only the All tab derives USD sub-lines from Redux prices (the others read price from catalog
-  // extras), so skip the /prices fetch elsewhere. The metric tabs show volume / market cap, not
-  // balance, so skip their per-block balanceOf multicall entirely.
-  const priceAddresses = useMemo(
-    () => (showPriceColumn ? EMPTY_ADDRESSES : currencies.map(currency => currency.wrapped.address)),
-    [showPriceColumn, currencies],
-  )
-  const tokenPrices = useTokenPrices(priceAddresses, customChainId)
+  // The metric tabs show volume / market cap, not balance, so skip their per-block balanceOf
+  // multicall entirely.
   const balanceCurrencies = metricColumn ? EMPTY_CURRENCIES : currencies
   const currencyBalances = useCurrencyBalances(balanceCurrencies, customChainId)
+
+  // Only the All tab derives USD sub-lines from Redux prices (the others read price from catalog
+  // extras), so skip the /prices subscription elsewhere. Within the All tab, only a row holding a
+  // non-zero balance can produce a non-zero USD value, so subscribe just those instead of the whole
+  // chain whitelist.
+  const priceAddresses = useMemo(() => {
+    if (showPriceColumn) return EMPTY_ADDRESSES
+    const held = currencies
+      .filter((_, index) => currencyBalances[index]?.greaterThan('0'))
+      .map(currency => currency.wrapped.address)
+    return held.length ? held : EMPTY_ADDRESSES
+  }, [showPriceColumn, currencies, currencyBalances])
+  // Live tier: this is the surface where a frozen price sits visibly next to a fresh one elsewhere,
+  // and the held-token narrowing above keeps the union to a single request.
+  const tokenPrices = useTokenPrices(priceAddresses, customChainId, { refresh: 'live' })
 
   // O(1) row-level membership checks (exact-case for imports to match the address equality used
   // elsewhere; lowercased for favorites, which can be stored in either case).
