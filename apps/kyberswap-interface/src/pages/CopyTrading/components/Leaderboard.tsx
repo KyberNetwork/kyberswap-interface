@@ -78,9 +78,9 @@ const LeaderboardCard = ({ item, size }: LeaderboardCardSelectorProps) =>
   size === 'sm' ? <SmallLeaderboardCard item={item} /> : <LargeLeaderboardCard item={item} />
 
 type LeaderboardProps = {
+  className?: string
   items: readonly LeaderboardStat[]
   size?: LeaderboardSize
-  className?: string
 }
 
 const Leaderboard = ({ items, size = 'lg', className }: LeaderboardProps) => {

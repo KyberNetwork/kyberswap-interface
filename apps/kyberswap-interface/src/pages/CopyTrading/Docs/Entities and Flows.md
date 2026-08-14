@@ -129,6 +129,9 @@ Tạo một UUIDv4 startRequestId
 → hiển thị Close / My Copy
 ```
 
+Mỗi lần poll Copy Run là một bounded attempt độc lập. FE bỏ qua lỗi request trong
+cửa sổ 20 giây và không phân loại lỗi retryable hoặc non-retryable.
+
 Authorization có thể là EIP-2612, DAI-like, standard approval hoặc
 zero-then-set approval; FE không suy luận từ token symbol và không hardcode
 spender/domain. Smart account bỏ native permit và dùng approval fallback.
@@ -141,16 +144,17 @@ không gửi một Fund call riêng.
 
 ### Actions trên Copy Run
 
-| Action         | Điều kiện/input chính                                     | Kết quả chính                                                   |
-| -------------- | --------------------------------------------------------- | --------------------------------------------------------------- |
-| Add Capital    | Run `ACTIVE`, amount và availability hợp lệ.              | Tăng allocated capital; không tạo lifecycle mới.                |
-| Stop Copy      | Run `ACTIVE`; refresh và gửi current `userPositionIds[]`. | Ngừng copy; position có thể qua `CLOSING`; quote vẫn ở account. |
-| Withdraw Quote | Account đã Stop, còn quote balance và prepare cho phép.   | Max-sweep quote token về recipient do API chuẩn bị.             |
+| Action         | Điều kiện/input chính                                                         | Kết quả chính                                                   |
+| -------------- | ----------------------------------------------------------------------------- | --------------------------------------------------------------- |
+| Add Capital    | Run `ACTIVE`, amount và availability hợp lệ.                                  | Tăng allocated capital; không tạo lifecycle mới.                |
+| Stop Copy      | Run `ACTIVE`; load position khi mở modal và gửi selected `userPositionIds[]`. | Ngừng copy; position có thể qua `CLOSING`; quote vẫn ở account. |
+| Withdraw Quote | Account đã Stop, còn quote balance và prepare cho phép.                       | Max-sweep quote token về recipient do API chuẩn bị.             |
 
-Stop Copy chấp nhận `userPositionIds = []` khi không có position cần xử lý. Nếu
-position set thay đổi trước khi ký, bỏ preparation cũ và prepare lại. Stop
-không tự chuyển quote balance về ví owner; Withdraw là action riêng và request
-body là `{}`.
+Stop Copy chấp nhận `userPositionIds = []` khi không có position cần xử lý. Modal
+load toàn bộ open-position cursor chain một lần khi mở và không fetch lại ngay
+trước prepare. Preparation response vẫn authoritative trước khi ký. Stop không
+tự chuyển quote balance về ví owner; Withdraw là action riêng và request body là
+`{}`.
 
 ### Position recovery
 

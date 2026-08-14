@@ -104,6 +104,7 @@ const StopCopyModal = ({ isOpen, onDismiss, copyRun, agentName }: StopCopyModalP
   const refreshCopyTrading = useRefreshCopyTrading()
   const [prepareStopCopy] = usePrepareStopCopyMutation()
   const [getCopyRunPositions] = copyTradingApi.useLazyGetCopyRunPositionsQuery()
+
   const [flowState, setFlowState] = useState(DEFAULT_PREPARED_ACTION_STATE)
   const [positions, setPositions] = useState<PositionSummary[]>()
   const [positionsError, setPositionsError] = useState<string>()
@@ -148,20 +149,13 @@ const StopCopyModal = ({ isOpen, onDismiss, copyRun, agentName }: StopCopyModalP
     () => (positions || []).filter(position => getUserPositionId(position)),
     [positions],
   )
+
   const isSelected = (position: PositionSummary, index: number) => {
     const positionId = getUserPositionId(position)
     return positionId ? selected[positionId] ?? index < MAX_STOP_POSITIONS : false
   }
+
   const selectedPositions = selectablePositions.filter(isSelected)
-
-  const togglePosition = (position: PositionSummary, index: number) => {
-    const positionId = getUserPositionId(position)
-    if (!positionId) return
-
-    const checked = isSelected(position, index)
-    if (!checked && selectedPositions.length >= MAX_STOP_POSITIONS) return
-    setSelected(current => ({ ...current, [positionId]: !checked }))
-  }
 
   const flow = usePreparedAction({
     state: flowState,
@@ -199,6 +193,16 @@ const StopCopyModal = ({ isOpen, onDismiss, copyRun, agentName }: StopCopyModalP
     onComplete: refreshCopyTrading,
   })
 
+  const togglePosition = (position: PositionSummary, index: number) => {
+    const positionId = getUserPositionId(position)
+    if (!positionId) return
+
+    const checked = isSelected(position, index)
+    if (!checked && selectedPositions.length >= MAX_STOP_POSITIONS) return
+
+    setSelected(current => ({ ...current, [positionId]: !checked }))
+  }
+
   const dismiss = () => {
     flow.reset()
     setSelected({})
@@ -217,6 +221,27 @@ const StopCopyModal = ({ isOpen, onDismiss, copyRun, agentName }: StopCopyModalP
     }
     void flow.prepare()
   }
+
+  const availabilityMessage = ownershipMessage
+    ? ownershipMessage
+    : !isActionAvailable(availability)
+    ? getPreparedReasonMessage(availability?.reason)
+    : undefined
+  const primaryActionLabel =
+    positions === undefined
+      ? positionsError
+        ? 'Positions unavailable'
+        : 'Loading positions'
+      : !account
+      ? 'Connect wallet'
+      : !onExpectedChain
+      ? 'Switch network'
+      : availabilityMessage
+      ? 'Stop Copy unavailable'
+      : selectedPositions.length
+      ? `Review Stop & Sell ${selectedPositions.length}`
+      : 'Review Stop Copy'
+  const primaryActionLoading = flowState.isPreparing || (positions === undefined && !positionsError)
 
   const preview = flowState.action?.stopCopy
   const review = (
@@ -247,27 +272,6 @@ const StopCopyModal = ({ isOpen, onDismiss, copyRun, agentName }: StopCopyModalP
       )}
     </Stack>
   )
-
-  const availabilityMessage = ownershipMessage
-    ? ownershipMessage
-    : !isActionAvailable(availability)
-    ? getPreparedReasonMessage(availability?.reason)
-    : undefined
-  const primaryActionLabel =
-    positions === undefined
-      ? positionsError
-        ? 'Positions unavailable'
-        : 'Loading positions'
-      : !account
-      ? 'Connect wallet'
-      : !onExpectedChain
-      ? 'Switch network'
-      : availabilityMessage
-      ? 'Stop Copy unavailable'
-      : selectedPositions.length
-      ? `Review Stop & Sell ${selectedPositions.length}`
-      : 'Review Stop Copy'
-  const primaryActionLoading = flowState.isPreparing || (positions === undefined && !positionsError)
 
   return (
     <PreparedActionModal

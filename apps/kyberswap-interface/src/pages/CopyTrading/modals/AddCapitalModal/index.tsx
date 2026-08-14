@@ -43,6 +43,7 @@ const AddCapitalModal = ({ isOpen, onDismiss, copyRun, agentName }: AddCapitalMo
   const toggleWalletModal = useWalletModalToggle()
   const refreshCopyTrading = useRefreshCopyTrading()
   const [prepareAddCapital] = usePrepareAddCapitalMutation()
+
   const [flowState, setFlowState] = useState(DEFAULT_PREPARED_ACTION_STATE)
   const [amount, setAmount] = useState('')
 
@@ -54,14 +55,10 @@ const AddCapitalModal = ({ isOpen, onDismiss, copyRun, agentName }: AddCapitalMo
         : undefined,
     [copyRun.chainId, quoteToken],
   )
-  const availability = copyRun.addCapitalAvailability
-  const onExpectedChain = chainId === copyRun.chainId
-  const ownershipMessage =
-    account && copyRun.ownerAddress.toLowerCase() !== account.toLowerCase()
-      ? 'The selected Copy Run is not owned by the connected wallet.'
-      : undefined
+
   const walletBalance = useTokenBalance(quoteToken?.address || '', copyRun.chainId as ChainId)
   const walletBalanceRaw = account && quoteToken ? walletBalance.value.toString() : undefined
+
   const presetAmounts = useMemo(() => {
     if (!quoteToken || !walletBalanceRaw) return undefined
 
@@ -70,6 +67,7 @@ const AddCapitalModal = ({ isOpen, onDismiss, copyRun, agentName }: AddCapitalMo
       amount: formatUnits((BigInt(walletBalanceRaw) * BigInt(percentage)) / 100n, quoteToken.decimals),
     }))
   }, [quoteToken, walletBalanceRaw])
+
   const amountRaw = useMemo(() => {
     if (!quoteToken) return undefined
     try {
@@ -78,6 +76,13 @@ const AddCapitalModal = ({ isOpen, onDismiss, copyRun, agentName }: AddCapitalMo
       return undefined
     }
   }, [amount, quoteToken])
+
+  const availability = copyRun.addCapitalAvailability
+  const onExpectedChain = chainId === copyRun.chainId
+  const ownershipMessage =
+    account && copyRun.ownerAddress.toLowerCase() !== account.toLowerCase()
+      ? 'The selected Copy Run is not owned by the connected wallet.'
+      : undefined
   const insufficientBalance = !!amountRaw && !!walletBalanceRaw && BigInt(amountRaw) > BigInt(walletBalanceRaw)
   const amountError =
     amount && insufficientBalance ? `Insufficient ${quoteToken?.symbol || 'quote token'} balance.` : undefined
@@ -89,6 +94,7 @@ const AddCapitalModal = ({ isOpen, onDismiss, copyRun, agentName }: AddCapitalMo
       : account
       ? '0'
       : 'Connect wallet'
+
   const preview = flowState.action?.addCapital
   const preparedWalletBalanceRaw = preview?.walletQuoteBalance?.valueRaw
   const preparedBalanceIsInsufficient =
@@ -158,6 +164,19 @@ const AddCapitalModal = ({ isOpen, onDismiss, copyRun, agentName }: AddCapitalMo
     setAmount(preset.amount)
   }
 
+  const availabilityMessage = ownershipMessage
+    ? ownershipMessage
+    : !isActionAvailable(availability)
+    ? getPreparedReasonMessage(availability?.reason)
+    : undefined
+  const primaryActionLabel = !account
+    ? 'Connect wallet'
+    : !onExpectedChain
+    ? 'Switch network'
+    : availabilityMessage || !quoteToken
+    ? 'Add Capital unavailable'
+    : 'Review Add Capital'
+
   const preparedToken = preview?.quoteToken
   const review = (
     <Stack className="gap-2">
@@ -178,19 +197,6 @@ const AddCapitalModal = ({ isOpen, onDismiss, copyRun, agentName }: AddCapitalMo
       )}
     </Stack>
   )
-
-  const availabilityMessage = ownershipMessage
-    ? ownershipMessage
-    : !isActionAvailable(availability)
-    ? getPreparedReasonMessage(availability?.reason)
-    : undefined
-  const primaryActionLabel = !account
-    ? 'Connect wallet'
-    : !onExpectedChain
-    ? 'Switch network'
-    : availabilityMessage || !quoteToken
-    ? 'Add Capital unavailable'
-    : 'Review Add Capital'
 
   return (
     <PreparedActionModal

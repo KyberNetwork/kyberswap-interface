@@ -60,6 +60,7 @@ const CopyDetailContent = ({ agent, backPath, run }: CopyDetailContentProps) => 
 const CopyDetailView = ({ backPath }: { backPath: 'my-copies' | 'history' }) => {
   const { copyId } = useParams()
   const { ownerAddress } = useCopyTradingContext()
+
   const copyRunQuery = { ownerAddress: ownerAddress || '', copyRunId: copyId || '' }
   const {
     data: copyRun,
@@ -67,6 +68,7 @@ const CopyDetailView = ({ backPath }: { backPath: 'my-copies' | 'history' }) => 
     isLoading,
     isUninitialized,
   } = copyTradingApi.useGetCopyRunQuery(copyRunQuery, { skip: !copyId || !ownerAddress })
+
   const {
     data: agent,
     isFetching: isAgentFetching,

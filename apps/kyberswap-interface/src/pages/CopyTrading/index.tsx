@@ -14,29 +14,17 @@ import Sidebar from 'pages/CopyTrading/components/Sidebar'
 import { CopyTradingProvider } from 'pages/CopyTrading/context'
 import { CopyTradingModalProvider } from 'pages/CopyTrading/modals/context'
 
-const SIDEBAR_ITEM_LIMIT = 10
-
 const CopyTrading = () => {
   const location = useLocation()
   const navigate = useNavigate()
-  const { pathname } = location
   const { account } = useActiveWeb3React()
-  const ownerAddress = account?.toLowerCase() as Address | undefined
-  const { data: leaderboard, refetch: refetchLeaderboard } = copyTradingApi.useGetLeaderboardQuery({
-    limit: SIDEBAR_ITEM_LIMIT,
-  })
+  const previousPathname = useRef(location.pathname)
+
   const { data: chains, refetch: refetchChains } = copyTradingApi.useGetChainsQuery()
-  const { data: activeRuns, refetch: refetchActiveRuns } = copyTradingApi.useGetCopyRunsQuery(
-    {
-      ownerAddress: ownerAddress || '',
-      view: 'open',
-      limit: SIDEBAR_ITEM_LIMIT,
-    },
-    { skip: !ownerAddress },
-  )
-  const agents = leaderboard?.data || []
-  const activeCopyRuns = activeRuns?.data || []
-  const previousPathname = useRef(pathname)
+
+  const { pathname } = location
+  const ownerAddress = account?.toLowerCase() as Address | undefined
+  const chainOptions = chains?.data || []
 
   useEffect(() => {
     if (!location.state?.scrollToCopyTrading) return
@@ -49,16 +37,14 @@ const CopyTrading = () => {
     if (previousPathname.current === pathname) return
     previousPathname.current = pathname
 
-    void refetchLeaderboard()
     void refetchChains()
-    if (ownerAddress) void refetchActiveRuns()
-  }, [ownerAddress, pathname, refetchActiveRuns, refetchChains, refetchLeaderboard])
+  }, [pathname, refetchChains])
 
   return (
-    <CopyTradingProvider chains={chains?.data || []} ownerAddress={ownerAddress}>
+    <CopyTradingProvider chains={chainOptions} ownerAddress={ownerAddress}>
       <CopyTradingModalProvider>
         <div className="flex min-h-screen w-full bg-black text-text max-lg:block">
-          <Sidebar agents={agents} activeRuns={activeCopyRuns} chains={chains?.data || []} />
+          <Sidebar />
           <Routes>
             <Route index element={<AgentList />} />
             <Route path="my-copies" element={<MyCopiesView />} />

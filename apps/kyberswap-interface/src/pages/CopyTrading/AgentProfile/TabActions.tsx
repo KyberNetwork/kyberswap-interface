@@ -41,6 +41,7 @@ const TxLink = ({ chainId, txHash }: { chainId: number; txHash?: string }) => {
   if (!txHash) {
     return <span className="italic text-subText">(No transaction)</span>
   }
+
   const displayHash = shortenHash(txHash, 4)
 
   return (
@@ -148,6 +149,7 @@ const ActionLogRow = ({ expanded, onToggle, row }: ActionLogRowProps) => {
 const TabActions = ({ agentId }: { agentId: string }) => {
   const [expandedIds, setExpandedIds] = useState<string[]>([])
   const [getActionLogs] = copyTradingApi.useLazyGetAgentActionLogsQuery()
+
   const {
     infiniteScroll,
     isFetching,

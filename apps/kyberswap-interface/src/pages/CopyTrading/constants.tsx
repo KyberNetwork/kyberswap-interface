@@ -35,6 +35,7 @@ export const copyTradingStatIconMap = {
 export type StatIcon = (typeof copyTradingStatIconMap)[keyof typeof copyTradingStatIconMap]
 
 export const profileTabs = ['open-position', 'trade-history', 'action-log'] as const
+
 export type ProfileTab = (typeof profileTabs)[number]
 
 export const profileTabLabel: Record<ProfileTab, string> = {

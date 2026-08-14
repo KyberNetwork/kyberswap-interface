@@ -34,6 +34,7 @@ const WithdrawQuoteModal = ({ isOpen, onDismiss, copyRun, withdrawQuoteAvailabil
   const toggleWalletModal = useWalletModalToggle()
   const refreshCopyTrading = useRefreshCopyTrading()
   const [prepareWithdrawQuote] = usePrepareWithdrawQuoteMutation()
+
   const [flowState, setFlowState] = useState(DEFAULT_PREPARED_ACTION_STATE)
 
   const availability = withdrawQuoteAvailability || copyRun.withdrawQuoteAvailability
@@ -93,18 +94,6 @@ const WithdrawQuoteModal = ({ isOpen, onDismiss, copyRun, withdrawQuoteAvailabil
     void flow.prepare()
   }
 
-  const preview = flowState.action?.withdrawQuote
-  const review = (
-    <ReviewSection title="Review withdrawal">
-      <ReviewRow label="Available balance" value={formatPreparedAmount(preview?.quoteBalance, preview?.quoteToken)} />
-      <ReviewRow label="Sweep amount" value={formatPreparedAmount(preview?.sweepAmountRaw, preview?.quoteToken)} />
-      <ReviewRow
-        label="Recipient"
-        value={preview?.recipientAddress ? shortenAddress(copyRun.chainId, preview.recipientAddress) : '—'}
-      />
-    </ReviewSection>
-  )
-
   const availabilityMessage = ownershipMessage
     ? ownershipMessage
     : !isActionAvailable(availability)
@@ -117,6 +106,18 @@ const WithdrawQuoteModal = ({ isOpen, onDismiss, copyRun, withdrawQuoteAvailabil
     : availabilityMessage
     ? 'Withdraw unavailable'
     : 'Review Withdrawal'
+
+  const preview = flowState.action?.withdrawQuote
+  const review = (
+    <ReviewSection title="Review withdrawal">
+      <ReviewRow label="Available balance" value={formatPreparedAmount(preview?.quoteBalance, preview?.quoteToken)} />
+      <ReviewRow label="Sweep amount" value={formatPreparedAmount(preview?.sweepAmountRaw, preview?.quoteToken)} />
+      <ReviewRow
+        label="Recipient"
+        value={preview?.recipientAddress ? shortenAddress(copyRun.chainId, preview.recipientAddress) : '—'}
+      />
+    </ReviewSection>
+  )
 
   return (
     <PreparedActionModal

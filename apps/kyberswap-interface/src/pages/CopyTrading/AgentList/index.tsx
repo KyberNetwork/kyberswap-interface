@@ -33,8 +33,9 @@ const AgentList = () => {
     queryKey: 'strategy',
   })
 
-  const selectedStrategy = toStrategyKey(activeTab || 'all')
   const debouncedSearch = useDebounce(search, 300)
+
+  const selectedStrategy = toStrategyKey(activeTab || 'all')
   const normalizedSearch = debouncedSearch.trim() || undefined
 
   const summaryQuery = useMemo(
@@ -59,6 +60,7 @@ const AgentList = () => {
         limit: PAGE_SIZE,
       }).unwrap(),
   })
+
   const agents = leaderboardPage.items
 
   const handleStrategyChange = (strategy: StrategyFilter) => {
