@@ -2,6 +2,7 @@ import { type ReactNode } from 'react'
 import { AlertCircle, CheckCircle, Clock, RotateCw } from 'react-feather'
 
 import { ButtonLight, ButtonOutlined, ButtonPrimary } from 'components/Button'
+import Dots from 'components/Dots'
 import Loader from 'components/Loader'
 import Modal from 'components/Modal'
 import { HStack, Stack } from 'components/Stack'
@@ -39,18 +40,15 @@ type PreparedActionModalProps = {
   confirmDisabled?: boolean
   confirmLabel: string
   confirmLoading?: boolean
-  confirmLoadingLabel?: string
   confirmVariant?: 'error' | 'primary' | 'warning'
   isOpen: boolean
   onBack?: () => void
   onConfirm: () => void
   onDismiss: () => void
   onRetry: () => void
-  pendingText?: string
-  processingText?: string
   review: ReactNode
-  showReviewWhilePreparing?: boolean
   state: PreparedActionFlowState
+  successActions?: ReactNode
   successText?: ReactNode
   successTitle?: string
   title: ReactNode
@@ -58,19 +56,18 @@ type PreparedActionModalProps = {
 }
 
 const isProcessing = (state: PreparedActionFlowState) =>
-  ['preparing', 'awaiting_signature', 'confirming', 'syncing'].includes(state.phase)
+  ['awaiting_signature', 'confirming', 'syncing'].includes(state.phase)
 
-const getProcessingCopy = (state: PreparedActionFlowState, fallback?: string) => {
-  if (state.phase === 'preparing') return { title: 'Preparing action', text: fallback || 'Checking the latest state…' }
+const getProcessingCopy = (state: PreparedActionFlowState) => {
   if (state.phase === 'awaiting_signature') {
     return { title: 'Confirm in your wallet', text: 'Review and approve the exact prepared transaction.' }
   }
   if (state.phase === 'confirming') {
-    return { title: 'Transaction submitted', text: 'Waiting for an on-chain confirmation…' }
+    return { title: 'Transaction submitted', text: 'Waiting for an on-chain confirmation.' }
   }
   return {
-    title: 'Finalizing Start Copy',
-    text: 'Your transaction is confirmed. We’re updating your Copy Trading status…',
+    title: 'Updating Copy Trading',
+    text: 'Your transaction is confirmed. We’re refreshing the latest data.',
   }
 }
 
@@ -79,18 +76,15 @@ const PreparedActionModal = ({
   confirmDisabled,
   confirmLabel,
   confirmLoading = false,
-  confirmLoadingLabel,
   confirmVariant = 'primary',
   isOpen,
   onBack,
   onConfirm,
   onDismiss,
   onRetry,
-  pendingText,
-  processingText,
   review,
-  showReviewWhilePreparing = false,
   state,
+  successActions,
   successText,
   successTitle = 'Action completed',
   title,
@@ -99,12 +93,14 @@ const PreparedActionModal = ({
   const chainId = Number(state.action?.chainId)
   const scanLink = state.hash && chainId ? getEtherscanLink(chainId, state.hash, 'transaction') : undefined
   const processing = isProcessing(state)
-  const preparingReview = showReviewWhilePreparing && state.phase === 'preparing'
-  const confirmButtonLoading = preparingReview || confirmLoading
-  const defaultProcessingCopy = getProcessingCopy(state, pendingText)
-  const processingCopy = processingText ? { ...defaultProcessingCopy, text: processingText } : defaultProcessingCopy
+  const processingCopy = getProcessingCopy(state)
   const isRecoverable = ['pending', 'unavailable', 'error', 'sync_error'].includes(state.phase)
   const receiptConfirmationPending = state.phase === 'sync_error' && state.retryStage === 'receipt'
+  const retryLabel = receiptConfirmationPending
+    ? 'Check confirmation'
+    : state.phase === 'sync_error'
+    ? 'Refresh status'
+    : 'Try again'
   const ConfirmButton = confirmVariant === 'primary' ? ButtonPrimary : ButtonLight
   const confirmColor =
     confirmVariant === 'error' ? 'var(--ks-red)' : confirmVariant === 'warning' ? 'var(--ks-warning)' : undefined
@@ -128,13 +124,8 @@ const PreparedActionModal = ({
             ) : (
               title
             )}
-            {(!processing || preparingReview) && (
-              <ButtonText
-                className="shrink-0"
-                aria-label="Close"
-                disabled={preparingReview || confirmLoading}
-                onClick={onDismiss}
-              >
+            {!processing && (
+              <ButtonText className="shrink-0" aria-label="Close" disabled={confirmLoading} onClick={onDismiss}>
                 <CloseIcon />
               </ButtonText>
             )}
@@ -142,7 +133,7 @@ const PreparedActionModal = ({
 
           {state.phase === 'idle' && children}
 
-          {(state.phase === 'review' || preparingReview) && (
+          {state.phase === 'review' && (
             <Stack className="gap-4">
               {review}
               {!!state.action?.warnings?.length && (
@@ -154,12 +145,7 @@ const PreparedActionModal = ({
               )}
               <HStack className="gap-3">
                 {onBack && (
-                  <ButtonOutlined
-                    type="button"
-                    className="flex-1"
-                    disabled={preparingReview || confirmLoading}
-                    onClick={onBack}
-                  >
+                  <ButtonOutlined type="button" className="flex-1" disabled={confirmLoading} onClick={onBack}>
                     Back
                   </ButtonOutlined>
                 )}
@@ -167,23 +153,16 @@ const PreparedActionModal = ({
                   type="button"
                   className="flex-1"
                   color={confirmColor}
-                  disabled={confirmButtonLoading || confirmDisabled}
+                  disabled={confirmLoading || confirmDisabled}
                   onClick={onConfirm}
                 >
-                  {confirmButtonLoading ? (
-                    <HStack className="items-center justify-center gap-2">
-                      <Loader size="16px" className="text-border" />
-                      {confirmLoading ? confirmLoadingLabel || `${confirmLabel}…` : 'Preparing…'}
-                    </HStack>
-                  ) : (
-                    confirmLabel
-                  )}
+                  {confirmLoading ? <Dots>{confirmLabel}</Dots> : confirmLabel}
                 </ConfirmButton>
               </HStack>
             </Stack>
           )}
 
-          {processing && !preparingReview && (
+          {processing && (
             <Stack className="items-center gap-4 text-center">
               <Loader size="48px" />
               <Stack className="items-center gap-1">
@@ -210,9 +189,11 @@ const PreparedActionModal = ({
                   View on explorer ↗
                 </ExternalLink>
               )}
-              <ButtonPrimary type="button" onClick={onDismiss}>
-                Done
-              </ButtonPrimary>
+              {successActions ?? (
+                <ButtonPrimary type="button" onClick={onDismiss}>
+                  Done
+                </ButtonPrimary>
+              )}
             </Stack>
           )}
 
@@ -249,15 +230,15 @@ const PreparedActionModal = ({
                 <ButtonLight type="button" className="flex-1" onClick={onDismiss}>
                   Close
                 </ButtonLight>
-                <ButtonPrimary type="button" className="flex-1" onClick={onRetry}>
-                  <HStack className="items-center justify-center gap-2">
-                    <RotateCw size={15} />
-                    {receiptConfirmationPending
-                      ? 'Check confirmation'
-                      : state.phase === 'sync_error'
-                      ? 'Refresh status'
-                      : 'Try again'}
-                  </HStack>
+                <ButtonPrimary type="button" className="flex-1" disabled={state.isPreparing} onClick={onRetry}>
+                  {state.isPreparing ? (
+                    <Dots>{retryLabel}</Dots>
+                  ) : (
+                    <HStack className="items-center justify-center gap-2">
+                      <RotateCw size={15} />
+                      {retryLabel}
+                    </HStack>
+                  )}
                 </ButtonPrimary>
               </HStack>
             </Stack>

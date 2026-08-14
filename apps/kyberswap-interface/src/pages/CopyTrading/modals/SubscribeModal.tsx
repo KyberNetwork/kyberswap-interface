@@ -1,18 +1,26 @@
 import { ChainId, Token } from '@kyberswap/ks-sdk-core'
 import { useMemo, useRef, useState } from 'react'
 import { Info } from 'react-feather'
-import { usePrepareStartCopyMutation } from 'services/copyTrading'
-import type { AgentCard, AgentProfile, PreparedAction, PreparedCallKind } from 'services/copyTrading/types'
+import { useNavigate } from 'react-router-dom'
+import copyTradingApi, { usePrepareStartCopyMutation } from 'services/copyTrading'
+import type {
+  AgentCard,
+  AgentProfile,
+  CopyRunSummary,
+  PreparedAction,
+  PreparedCallKind,
+} from 'services/copyTrading/types'
 import { v4 as uuidv4 } from 'uuid'
 
 import verifiedIcon from 'assets/images/copy-trading/verified.svg'
-import { ButtonPrimary } from 'components/Button'
+import { ButtonLight, ButtonPrimary } from 'components/Button'
 import Checkbox from 'components/CheckBox'
 import CopyHelper from 'components/Copy'
 import CurrencyInputPanel from 'components/CurrencyInputPanel'
 import Dots from 'components/Dots'
 import InfoHelper from 'components/InfoHelper'
 import { Center, HStack, Stack } from 'components/Stack'
+import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useTokenBalance from 'hooks/useTokenBalance'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
@@ -30,6 +38,7 @@ import {
   parsePreparedAmount,
   validatePreparedAction,
 } from 'pages/CopyTrading/write/preparedAction'
+import { pollStartCopyRun } from 'pages/CopyTrading/write/startCopyCompletion'
 import { DEFAULT_PREPARED_ACTION_STATE, usePreparedAction } from 'pages/CopyTrading/write/usePreparedAction'
 import { useStartCopyAuthorization } from 'pages/CopyTrading/write/useStartCopyAuthorization'
 import { useWalletModalToggle } from 'state/application/hooks'
@@ -103,17 +112,20 @@ const AgentHeader = ({ agent }: { agent: SubscribeTarget }) => (
 )
 
 const SubscribeModal = ({ isOpen, onDismiss, agent }: SubscribeModalProps) => {
+  const navigate = useNavigate()
   const { account, chainId } = useActiveWeb3React()
   const { changeNetwork } = useChangeNetwork()
   const toggleWalletModal = useWalletModalToggle()
   const { refreshCopyTrading } = useCopyTradeWrite()
   const [prepareStartCopy] = usePrepareStartCopyMutation()
-  const authorizeStartCopy = useStartCopyAuthorization()
+  const [getCopyRuns] = copyTradingApi.useLazyGetCopyRunsQuery()
+  const { authorize: authorizeStartCopy, getAuthorizationKind } = useStartCopyAuthorization()
   const [flowState, setFlowState] = useState(DEFAULT_PREPARED_ACTION_STATE)
   const [amount, setAmount] = useState('')
   const [agreed, setAgreed] = useState(false)
+  const [createdCopyRun, setCreatedCopyRun] = useState<CopyRunSummary>()
   const [predictedCopyAccount, setPredictedCopyAccount] = useState<string>()
-  const [authorizationMessage, setAuthorizationMessage] = useState<string>()
+  const [isAuthorizing, setIsAuthorizing] = useState(false)
   const startAttemptRef = useRef<StartCopyAttempt>(createStartCopyAttempt())
   const expectedRef = useRef<PreparedActionExpectation>({
     account: account || '',
@@ -171,6 +183,10 @@ const SubscribeModal = ({ isOpen, onDismiss, agent }: SubscribeModalProps) => {
       ? '0'
       : 'Connect wallet'
   const startPreview = flowState.action?.startCopy
+  const authorizationKind = requiresStartCopyAuthorization(flowState.action)
+    ? getAuthorizationKind(flowState.action)
+    : undefined
+  const authorizationLabel = authorizationKind === 'permit' ? 'Permit' : 'Approve'
   const preparedToken = startPreview?.quoteToken
   const preparedWalletBalanceRaw = startPreview?.walletQuoteBalance?.valueRaw
   const requiredWalletBalanceRaw = startPreview?.remainingTargetDeficit?.valueRaw || targetCapitalRaw
@@ -249,7 +265,6 @@ const SubscribeModal = ({ isOpen, onDismiss, agent }: SubscribeModalProps) => {
     setState: setFlowState,
     expected: expectedRef.current,
     prepare: async () => {
-      setAuthorizationMessage(undefined)
       if (!account || !quoteToken) throw new Error('Connect a supported wallet and network first.')
 
       if (!targetCapitalRaw) throw new Error('Enter an amount greater than zero.')
@@ -257,7 +272,6 @@ const SubscribeModal = ({ isOpen, onDismiss, agent }: SubscribeModalProps) => {
       const attempt = getScopedStartAttempt(account, targetCapitalRaw)
       const response = await requestStartCopy(attempt, account, targetCapitalRaw)
 
-      setAuthorizationMessage(undefined)
       if (
         [
           'PREPARED_ACTION_STATUS_READY',
@@ -276,9 +290,25 @@ const SubscribeModal = ({ isOpen, onDismiss, agent }: SubscribeModalProps) => {
     },
     reviewUnavailable: action =>
       requiresStartCopyAuthorization(action) && !startAttemptRef.current.authorizationApplied,
-    afterReceipt: () => {
+    afterReceipt: async action => {
       setAgreed(false)
-      return 'reprepare'
+      const ownerAddress = action.expectedAccount
+      if (!ownerAddress) throw new Error('The confirmed Start Copy action is missing its owner wallet.')
+
+      const copyRun = await pollStartCopyRun({
+        agentId: agent.agentId,
+        chainId: agent.chainId,
+        ownerAddress,
+        fetchCopyRuns: () =>
+          getCopyRuns({
+            ownerAddress,
+            view: 'open',
+            agentId: agent.agentId,
+            chainId: agent.chainId,
+            limit: 1,
+          }).unwrap(),
+      })
+      setCreatedCopyRun(copyRun)
     },
     onComplete: refreshCopyTrading,
   })
@@ -287,8 +317,9 @@ const SubscribeModal = ({ isOpen, onDismiss, agent }: SubscribeModalProps) => {
     flow.reset()
     setAmount('')
     setAgreed(false)
+    setCreatedCopyRun(undefined)
     setPredictedCopyAccount(undefined)
-    setAuthorizationMessage(undefined)
+    setIsAuthorizing(false)
     resetStartAttempt()
     onDismiss()
   }
@@ -296,8 +327,9 @@ const SubscribeModal = ({ isOpen, onDismiss, agent }: SubscribeModalProps) => {
   const editAmount = () => {
     flow.reset()
     setAgreed(false)
+    setCreatedCopyRun(undefined)
     setPredictedCopyAccount(undefined)
-    setAuthorizationMessage(undefined)
+    setIsAuthorizing(false)
     resetStartAttempt()
   }
 
@@ -315,7 +347,7 @@ const SubscribeModal = ({ isOpen, onDismiss, agent }: SubscribeModalProps) => {
   }
 
   const confirmStartCopy = async () => {
-    if (!agreed || confirmBalanceError || authorizationMessage) return
+    if (!agreed || confirmBalanceError || isAuthorizing) return
 
     const diagnosticAction = flowState.action
     if (!requiresStartCopyAuthorization(diagnosticAction)) {
@@ -333,21 +365,11 @@ const SubscribeModal = ({ isOpen, onDismiss, agent }: SubscribeModalProps) => {
     }
 
     try {
+      setIsAuthorizing(true)
       const validationError = validatePreparedAction(diagnosticAction, expectedRef.current, { requireCall: false })
       if (validationError) throw new Error(validationError)
 
-      setAuthorizationMessage('Approving…')
-      const createPermitData = await authorizeStartCopy(diagnosticAction, {
-        onAwaitingSignature: (_action, kind) => {
-          setAuthorizationMessage(kind === 'permit' ? 'Sign Permit…' : 'Approve in Wallet…')
-        },
-        onConfirming: () => {
-          setAuthorizationMessage('Confirming Approval…')
-        },
-        onPreparing: () => {
-          setAuthorizationMessage('Preparing Start Copy…')
-        },
-      })
+      const createPermitData = await authorizeStartCopy(diagnosticAction)
       const authorizedAttempt: StartCopyAttempt = {
         agentId: agent.agentId,
         authorizationApplied: true,
@@ -373,7 +395,6 @@ const SubscribeModal = ({ isOpen, onDismiss, agent }: SubscribeModalProps) => {
         const nextValidationError = validatePreparedAction(action, expectedRef.current, { requireCall: false })
         if (nextValidationError) throw new Error(nextValidationError)
 
-        setAuthorizationMessage(undefined)
         setFlowState({
           phase: action.status === 'PREPARED_ACTION_STATUS_UNAVAILABLE' ? 'unavailable' : 'error',
           action,
@@ -388,17 +409,17 @@ const SubscribeModal = ({ isOpen, onDismiss, agent }: SubscribeModalProps) => {
       const nextValidationError = validatePreparedAction(action, expectedRef.current)
       if (nextValidationError) throw new Error(nextValidationError)
       capturePredictedCopyAccount(action.startCopy?.predictedCopyAccount)
-      setAuthorizationMessage(undefined)
       setFlowState({ phase: 'review', action })
     } catch (error) {
-      setAuthorizationMessage(undefined)
       setFlowState({ phase: 'error', action: diagnosticAction, error: getApiErrorMessage(error) })
+    } finally {
+      setIsAuthorizing(false)
     }
   }
 
   const setPercentageAmount = (percentage: (typeof CAPITAL_PERCENTAGES)[number]) => {
     const preset = presetAmounts?.find(item => item.percentage === percentage)
-    if (!presetsEnabled || !preset) return
+    if (flowState.isPreparing || !presetsEnabled || !preset) return
 
     setAmount(preset.amount)
     setAgreed(false)
@@ -443,7 +464,7 @@ const SubscribeModal = ({ isOpen, onDismiss, agent }: SubscribeModalProps) => {
         <Checkbox
           borderStyle
           checked={agreed}
-          disabled={!!authorizationMessage}
+          disabled={isAuthorizing}
           onChange={event => setAgreed(event.target.checked)}
           className="mt-0.5 size-4 shrink-0"
         />
@@ -463,6 +484,13 @@ const SubscribeModal = ({ isOpen, onDismiss, agent }: SubscribeModalProps) => {
   const availabilityMessage = !isActionAvailable(availability)
     ? getPreparedReasonMessage(availability?.reason)
     : undefined
+  const primaryActionLabel = !account
+    ? 'Connect wallet'
+    : !onExpectedChain
+    ? 'Switch network'
+    : availabilityMessage || !quoteToken
+    ? 'Start Copy unavailable'
+    : 'Next'
 
   const retry = () => {
     if (
@@ -472,8 +500,15 @@ const SubscribeModal = ({ isOpen, onDismiss, agent }: SubscribeModalProps) => {
     ) {
       resetStartAttempt()
     }
-    setAuthorizationMessage(undefined)
+    setIsAuthorizing(false)
     void flow.retry()
+  }
+
+  const viewCreatedCopy = () => {
+    if (!createdCopyRun) return
+    const path = `${APP_PATHS.COPY_TRADING}/my-copies/${createdCopyRun.copyRunId}`
+    dismiss()
+    navigate(path)
   }
 
   return (
@@ -483,21 +518,25 @@ const SubscribeModal = ({ isOpen, onDismiss, agent }: SubscribeModalProps) => {
       state={flowState}
       title={<AgentHeader agent={agent} />}
       review={review}
-      showReviewWhilePreparing={!authorizationMessage}
-      confirmLabel={requiresStartCopyAuthorization(flowState.action) ? 'Approve' : 'Start Copying'}
-      confirmLoading={!!authorizationMessage}
-      confirmLoadingLabel={authorizationMessage}
+      confirmLabel={authorizationKind ? authorizationLabel : 'Start Copying'}
+      confirmLoading={isAuthorizing}
       confirmDisabled={!agreed || !!confirmBalanceError}
       onBack={flowState.hash ? undefined : editAmount}
       onConfirm={() => void confirmStartCopy()}
       onRetry={retry}
-      pendingText="Checking the latest agent, balance and fee policy…"
-      processingText={authorizationMessage}
       successTitle={`You're now copying ${agent.displayName}`}
-      successText={
-        flowState.hash
-          ? 'The transaction is confirmed on-chain. Copy Trading data will refresh in the background.'
-          : 'This Start Copy request is already complete.'
+      successText="The transaction is confirmed and your new Copy is ready."
+      successActions={
+        createdCopyRun ? (
+          <HStack className="w-full gap-3">
+            <ButtonLight type="button" className="flex-1" onClick={dismiss}>
+              Close
+            </ButtonLight>
+            <ButtonPrimary type="button" className="flex-1" onClick={viewCreatedCopy}>
+              My Copy
+            </ButtonPrimary>
+          </HStack>
+        ) : undefined
       }
       width={520}
     >
@@ -515,6 +554,7 @@ const SubscribeModal = ({ isOpen, onDismiss, agent }: SubscribeModalProps) => {
             customBalanceText={walletBalanceText}
             customChainId={agent.chainId as ChainId}
             disableCurrencySelect
+            disabledInput={flowState.isPreparing}
             id="copy-trading-start-capital"
             dataTestId="copy-trading-start-capital"
             onBalanceClick={() => setPercentageAmount(100)}
@@ -528,7 +568,7 @@ const SubscribeModal = ({ isOpen, onDismiss, agent }: SubscribeModalProps) => {
                     <button
                       key={percentage}
                       type="button"
-                      disabled={!presetsEnabled}
+                      disabled={flowState.isPreparing || !presetsEnabled}
                       onClick={() => setPercentageAmount(percentage)}
                       className={cn(
                         'rounded-full bg-subText-20 px-2 py-0.5 text-xs font-medium text-subText hover:text-text',
@@ -565,17 +605,13 @@ const SubscribeModal = ({ isOpen, onDismiss, agent }: SubscribeModalProps) => {
 
         <ButtonPrimary
           type="button"
-          disabled={!!account && onExpectedChain && (!amountIsValid || !!availabilityMessage)}
+          disabled={
+            flowState.isPreparing || (!!account && onExpectedChain && (!amountIsValid || !!availabilityMessage))
+          }
           title={amountError || availabilityMessage}
           onClick={handlePrimaryAction}
         >
-          {!account
-            ? 'Connect wallet'
-            : !onExpectedChain
-            ? 'Switch network'
-            : availabilityMessage || !quoteToken
-            ? 'Start Copy unavailable'
-            : 'Next →'}
+          {flowState.isPreparing ? <Dots>{primaryActionLabel}</Dots> : primaryActionLabel}
         </ButtonPrimary>
       </Stack>
     </PreparedActionModal>

@@ -13,7 +13,7 @@ import {
   SidePanelCard,
   type SidePanelCardWrapperProps,
   StrategyExecutionCard,
-  WishlistedTokensCard,
+  WhitelistedTokensCard,
   WithdrawQuoteCard,
 } from 'pages/CopyTrading/components/AgentSidebarCards'
 import { copyRunStatusTextClassName } from 'pages/CopyTrading/components/common'
@@ -216,7 +216,7 @@ const CopySidePanel = ({ agent, run }: CopySidePanelProps) => {
       {remainingInWallet}
       <AgentRiskCard agent={agent} />
       {run.status === 'active' && <StrategyExecutionCard items={agent.strategyExecutionItems} />}
-      <WishlistedTokensCard tokens={agent.whitelistedSymbols} />
+      <WhitelistedTokensCard tokens={agent.whitelistedSymbols} />
     </Stack>
   )
 }

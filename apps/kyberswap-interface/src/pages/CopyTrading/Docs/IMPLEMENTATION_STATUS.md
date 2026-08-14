@@ -13,15 +13,15 @@ declared in the frontend service.
 
 ## Implementation at a Glance
 
-| Layer              | Current status                                                                                                                                                |
-| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| BE API catalog     | `IMPLEMENTED`: 32 public operations are documented.                                                                                                           |
-| Checked-in OpenAPI | `CURRENT`: synchronized with the live 32-operation pre-release Swagger contract; wallet-session routes and Bearer security are removed.                      |
-| RTK Query service  | `IMPLEMENTED`: all 26 GET and 6 POST operations are declared and typed.                                                                                       |
-| Read UI            | Partially implemented: 17 of 26 GET operations have a UI consumer; position/FIFO refreshes are consumed by recovery actions rather than standalone screens.   |
-| Write UX           | `IMPLEMENTED`: Start, Add, Stop, Withdraw, Manual Sell, and Close Position use the prepared-action workflow.                                                  |
-| Write integration  | `IMPLEMENTED`: exact API-prepared calls, receipt-success completion, Start stage continuation, stateless recovery preparation, and async cache refresh are connected. |
-| API availability   | Live Swagger exposes all 32 operations. `/chains` and `/agents` have dated read smoke; account-specific reads and write outcomes still require live E2E.       |
+| Layer              | Current status                                                                                                                                                       |
+| ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| BE API catalog     | `IMPLEMENTED`: 32 public operations are documented.                                                                                                                  |
+| Checked-in OpenAPI | `CURRENT`: synchronized with the live 32-operation pre-release Swagger contract; wallet-session routes and Bearer security are removed.                              |
+| RTK Query service  | `IMPLEMENTED`: all 26 GET and 6 POST operations are declared and typed.                                                                                              |
+| Read UI            | Partially implemented: 17 of 26 GET operations have a UI consumer; position/FIFO refreshes are consumed by recovery actions rather than standalone screens.          |
+| Write UX           | `IMPLEMENTED`: Start, Add, Stop, Withdraw, Manual Sell, and Close Position use the prepared-action workflow.                                                         |
+| Write integration  | `IMPLEMENTED`: exact API-prepared calls, receipt-success completion, Start Copy list polling, stateless recovery preparation, and async cache refresh are connected. |
+| API availability   | Live Swagger exposes all 32 operations. `/chains` and `/agents` have dated read smoke; account-specific reads and write outcomes still require live E2E.             |
 
 ## Contract and Service Coverage
 
@@ -147,14 +147,13 @@ Current primary-screen read behavior:
   wait for backend indexing.
 - Start Copy explicitly uses `START_COPY_FUNDING_MODE_FUNDED`. When preparation
   reports insufficient quote allowance, the checkbox-gated review exposes a
-  separate Approve action and keeps its loading state on that button. The UI
-  follows the returned permit, approval, spender, and EIP-712 domain schemes,
-  then starts a new UUID-bound attempt with the exact volatile permit bytes or
-  confirmed allowance. Once that attempt returns `READY`, the review exposes a
-  separate Start Copying action; approval never auto-submits Create. The UI
-  submits only the returned create call and re-prepares until
-  `START_COPY_STAGE_COMPLETE`. Once a create transaction hash exists, Retry
-  remains sync-only and rejects any new executable preparation.
+  separate API-selected Permit or Approve action. Loading uses `Dots` without
+  changing that CTA label. The UI follows the returned permit, approval,
+  spender, and EIP-712 domain schemes, then starts a new UUID-bound attempt with
+  the exact volatile permit bytes or confirmed allowance. Once that attempt
+  returns `READY`, the review exposes a separate Start Copying action; approval
+  never auto-submits Create. The UI submits only the returned create call, then
+  polls the Agent-filtered open Copy list after its successful receipt.
 
 ## Current Prepared-Action Write UI
 
@@ -164,20 +163,20 @@ The production write path is split by ownership:
   inputs.
 - `write/usePreparedAction.ts` owns preparation status handling, safety
   validation, exact wallet submission, receipt wait, receipt retry without
-  rebroadcast, Start stage continuation, and completion.
+  rebroadcast, post-receipt read synchronization, and completion.
 - `write/PreparedActionModal.tsx` owns the shared idle, review, wallet,
   confirmation, syncing, unavailable, error, and success presentation.
 - `write/preparedAction.ts` owns pure parsing, formatting, typed reason copy,
   preparation validation, and retry timing.
-- `write/WriteContext.tsx` owns modal routing, RTK tag invalidation, and TanStack
-  cursor-query invalidation.
+- `write/WriteContext.tsx` owns modal routing and fire-and-forget RTK/TanStack
+  invalidation of active Copy Trading reads.
 
 Implemented behavior:
 
 - Start Copy keeps one UUID, target amount, explicit funded mode, permit intent,
   and predicted Smart Wallet stable within each attempt. A diagnostic
   insufficient-allowance response does not bind its predicted Smart Wallet to
-  the authorized attempt. After the checkbox-gated Approve action completes the
+  the authorized attempt. After the checkbox-gated Permit or Approve action completes the
   exact operator-selected EIP-2612, DAI-like, standard approval, or zero-then-set
   authorization, the UI creates UUID B, validates and captures UUID B's
   predicted Smart Wallet, and returns to review. Permit bytes remain only in
@@ -185,7 +184,10 @@ Implemented behavior:
   user must then press Start Copying to submit Create. The funded create amount
   must equal the full target. Only
   `PREPARED_CALL_KIND_START_COPY_CREATE` can reach wallet submission; a
-  separate Fund call fails closed.
+  separate Fund call fails closed. After the Create receipt, the UI polls the
+  open Copy Run list filtered by the exact Agent every two seconds for at most
+  twenty seconds; it does not call Start preparation again. Success exposes
+  Close and a direct My Copy link for that returned run.
 - Add Capital uses the fixed supported quote token for decimal-to-raw input,
   then reviews the API quote token, minimum, wallet balance, and resulting
   allocation.
@@ -210,19 +212,20 @@ Implemented behavior:
   prepared call again.
 - A submitted transaction is shown as confirmed only after a successful receipt.
 - A user retry from `PENDING` waits until `reprepareAfter` before preparing again.
-- Successful flows enter success state, then asynchronously invalidate the
-  shared Copy Trading RTK tag and TanStack cursor-query family.
+- Immediately after a successful receipt, flows invalidate active RTK and
+  TanStack Copy Trading reads so their network refetches start without blocking
+  post-receipt synchronization or success UI.
 
 ## Action Integration Matrix
 
-| Capability     | Current production UI                                                                                                                   |
-| -------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
-| Start Copy     | Uses a separate checkbox-gated Approve step when required, then a separate Start Copying submit for the authorized funded Create call. |
-| Add Capital    | Reviews quote-token, minimum, balance, and allocation data, then submits the exact prepared call.                                       |
-| Stop Copy      | Loads all open-position pages, supports zero to 32 selected IDs, validates the payload cap, and submits the exact prepared call.        |
-| Withdraw Quote | Only a `STOPPED` Copy Detail exposes the availability-gated CTA; amount and owner recipient are server-prepared and non-editable.       |
-| Manual Sell    | Refreshes the current position and authoritative FIFO head ratio/count, then prepares directly.                                     |
-| Close Position | Refreshes the current position after the advertised CTA is selected, then prepares directly.                                      |
+| Capability     | Current production UI                                                                                                                                 |
+| -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Start Copy     | Uses the API-selected Permit or Approve step, submits Create separately, then polls the Agent-filtered open Copy list and links the returned My Copy. |
+| Add Capital    | Reviews quote-token, minimum, balance, and allocation data, then submits the exact prepared call.                                                     |
+| Stop Copy      | Loads all open-position pages, supports zero to 32 selected IDs, validates the payload cap, and submits the exact prepared call.                      |
+| Withdraw Quote | Only a `STOPPED` Copy Detail exposes the availability-gated CTA; amount and owner recipient are server-prepared and non-editable.                     |
+| Manual Sell    | Refreshes the current position and authoritative FIFO head ratio/count, then prepares directly.                                                       |
+| Close Position | Refreshes the current position after the advertised CTA is selected, then prepares directly.                                                          |
 
 ## Implemented Write Invariants
 
@@ -239,7 +242,7 @@ read advisory availability
 → simulate and submit call.to / call.data / call.valueRaw unchanged
 → wait for a successful receipt
 → mark the action successful
-→ after the funded Start Create transaction, re-prepare until Complete; never submit a separate Fund call
+→ after the funded Start Create transaction, poll the Agent-filtered open Copy list every 2s for at most 20s
 → invalidate affected RTK and TanStack reads asynchronously
 ```
 
@@ -291,7 +294,7 @@ submits the exact call and the follower-account contract enforces its caller.
 - The service surface contains 26 GET queries and 6 POST mutations.
 - All six preparation mutations have an owned UI flow.
 - The local ABI, mock signer, and mock transaction-hash path have been removed.
-- All 36 Copy Trading unit tests pass.
+- All 44 Copy Trading unit tests pass.
 - App TypeScript, Copy Trading ESLint, Prettier for the changed implementation,
   Vite production build, and `git diff --check` pass.
 - Browser QA and positive live transaction E2E were not rerun for this contract
