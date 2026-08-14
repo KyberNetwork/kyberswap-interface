@@ -1,13 +1,15 @@
 import { Buffer } from 'buffer'
-import type { PreparedAction, StartCopyPermitScheme } from 'services/copyTrading/types'
+import type { PreparedAction, StartCopyPermitScheme } from 'services/copyTrading/types/preparedActions'
 import { describe, expect, it } from 'vitest'
 
 import {
-  buildStartCopyPermitTypedData,
-  encodeStartCopyPermitData,
   getStartCopyAllowanceAuthorization,
   getStartCopyAuthorizationKind,
 } from 'pages/CopyTrading/modals/StartCopyModal/authorization'
+import {
+  buildStartCopyPermitTypedData,
+  encodeStartCopyPermitData,
+} from 'pages/CopyTrading/modals/StartCopyModal/permit'
 import { decodeAbiParameters, parseAbiParameters } from 'utils/viem'
 
 const OWNER = '0x1111111111111111111111111111111111111111'

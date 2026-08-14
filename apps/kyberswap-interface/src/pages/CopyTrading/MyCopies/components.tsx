@@ -1,10 +1,11 @@
-import type { ActivityRow, OwnerCopySummary } from 'services/copyTrading/types'
+import type { ActivityRow, OwnerCopySummary } from 'services/copyTrading/types/copyRuns'
 
 import Dots from 'components/Dots'
 import { HStack, Stack } from 'components/Stack'
 import InfiniteScroll, { type InfiniteScrollState } from 'pages/CopyTrading/components/InfiniteScroll'
 import Leaderboard, { type LeaderboardStat } from 'pages/CopyTrading/components/Leaderboard'
-import { AgentAvatar, ContentPanel } from 'pages/CopyTrading/components/common'
+import { AgentAvatar } from 'pages/CopyTrading/components/common/agentIdentity'
+import { ContentPanel } from 'pages/CopyTrading/components/common/layout'
 import { copyTradingStatIconMap } from 'pages/CopyTrading/constants'
 import { formatCount, formatUsd, getActivityLabel, signedUsd } from 'pages/CopyTrading/helpers'
 import { cn } from 'utils/cn'

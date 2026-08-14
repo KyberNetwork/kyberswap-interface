@@ -1,7 +1,49 @@
-import type { PreparedAction, PreparedCallKind, PreparedToken, RawAmountMetric } from 'services/copyTrading/types'
+import type { Dispatch, SetStateAction } from 'react'
+import type {
+  PreparedAction,
+  PreparedCallKind,
+  PreparedToken,
+  RawAmountMetric,
+} from 'services/copyTrading/types/preparedActions'
 
 import { formatDisplayNumber } from 'utils/numbers'
-import { formatUnits, isAddress, parseUnits } from 'utils/viem'
+import { type Hash, formatUnits, isAddress, parseUnits } from 'utils/viem'
+
+export type PreparedActionPhase =
+  | 'idle'
+  | 'review'
+  | 'awaiting_signature'
+  | 'confirming'
+  | 'syncing'
+  | 'pending'
+  | 'unavailable'
+  | 'success'
+  | 'error'
+  | 'sync_error'
+
+export type PreparedActionFlowState = {
+  phase: PreparedActionPhase
+  isPreparing?: boolean
+  action?: PreparedAction
+  error?: string
+  hash?: Hash
+  retryStage?: 'receipt' | 'sync'
+}
+
+export const DEFAULT_PREPARED_ACTION_STATE: PreparedActionFlowState = { phase: 'idle' }
+
+export type PreparedActionStateSetter = Dispatch<SetStateAction<PreparedActionFlowState>>
+
+const preparationRequestVersions = new WeakMap<PreparedActionStateSetter, number>()
+
+export const invalidatePreparationRequests = (setState: PreparedActionStateSetter) => {
+  const nextVersion = (preparationRequestVersions.get(setState) || 0) + 1
+  preparationRequestVersions.set(setState, nextVersion)
+  return nextVersion
+}
+
+export const isCurrentPreparationRequest = (setState: PreparedActionStateSetter, version: number) =>
+  preparationRequestVersions.get(setState) === version
 
 export type PreparedActionExpectation = {
   account: string

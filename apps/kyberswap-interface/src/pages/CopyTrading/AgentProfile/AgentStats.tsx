@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
-import copyTradingApi from 'services/copyTrading'
-import type { AgentStats as AgentStatsData, PerformanceWindow } from 'services/copyTrading/types'
+import agentApi from 'services/copyTrading/api/endpoints/agents'
+import type { AgentStats as AgentStatsData } from 'services/copyTrading/types/agents'
+import type { PerformanceWindow } from 'services/copyTrading/types/primitives'
 
 import { Stack } from 'components/Stack'
 import Leaderboard, { type LeaderboardStat } from 'pages/CopyTrading/components/Leaderboard'
@@ -48,13 +49,13 @@ const AgentStats = ({ agentId }: AgentStatsProps) => {
 
   const interval = window === 'all' ? 'month' : 'day'
 
-  const { data: agentStats } = copyTradingApi.useGetAgentStatsQuery({ agentId })
+  const { data: agentStats } = agentApi.useGetAgentStatsQuery({ agentId })
 
   const {
     data: portfolioPerformance,
     isError: isPortfolioError,
     isFetching: isPortfolioFetching,
-  } = copyTradingApi.useGetAgentPerformanceQuery({
+  } = agentApi.useGetAgentPerformanceQuery({
     agentId,
     interval,
     limit: 100,
@@ -66,7 +67,7 @@ const AgentStats = ({ agentId }: AgentStatsProps) => {
     data: realizedPnlPerformance,
     isError: isRealizedPnlError,
     isFetching: isRealizedPnlFetching,
-  } = copyTradingApi.useGetAgentPerformanceQuery({
+  } = agentApi.useGetAgentPerformanceQuery({
     agentId,
     interval,
     limit: 100,

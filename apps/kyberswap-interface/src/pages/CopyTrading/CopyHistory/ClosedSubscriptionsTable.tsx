@@ -1,10 +1,11 @@
 import { type HTMLAttributes } from 'react'
-import type { CopyRunSummary } from 'services/copyTrading/types'
+import type { CopyRunSummary } from 'services/copyTrading/types/copyRuns'
 
 import { Stack } from 'components/Stack'
 import CursorPagination, { type CursorPaginationState } from 'pages/CopyTrading/components/CursorPagination'
 import { HeaderCell, TableBody, TableCell, TableHeader, TableRow } from 'pages/CopyTrading/components/Table'
-import { CopyRunAgentCell, CopyRunStatusBadge } from 'pages/CopyTrading/components/common'
+import { CopyRunAgentCell } from 'pages/CopyTrading/components/common/agentIdentity'
+import { CopyRunStatusBadge } from 'pages/CopyTrading/components/common/status'
 import { copyTradingStatIconMap } from 'pages/CopyTrading/constants'
 import { formatCount, formatUsd, signedUsd } from 'pages/CopyTrading/helpers'
 import { cn } from 'utils/cn'

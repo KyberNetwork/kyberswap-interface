@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
-import copyTradingApi from 'services/copyTrading'
-import type { LeaderboardSortBy, SortOrder } from 'services/copyTrading/types'
+import discoveryApi from 'services/copyTrading/api/endpoints/discovery'
+import type { LeaderboardSortBy, SortOrder } from 'services/copyTrading/types/primitives'
 
 import { HStack, Stack } from 'components/Stack'
 import useDebounce from 'hooks/useDebounce'
@@ -14,8 +14,8 @@ import {
   strategyTabs,
   toStrategyKey,
 } from 'pages/CopyTrading/AgentList/components'
-import useCursorPageQuery from 'pages/CopyTrading/components/CursorPagination/useCursorPageQuery'
-import { CopyTradingPage, CopyTradingPageHeading } from 'pages/CopyTrading/components/common'
+import { useCursorPageQuery } from 'pages/CopyTrading/components/CursorPagination'
+import { CopyTradingPage, CopyTradingPageHeading } from 'pages/CopyTrading/components/common/layout'
 import { useCopyTradingContext } from 'pages/CopyTrading/context'
 
 const PAGE_SIZE = 5
@@ -47,8 +47,8 @@ const AgentList = () => {
     [normalizedSearch, selectedChainId, selectedStrategy],
   )
 
-  const { data: leaderboardSummary } = copyTradingApi.useGetLeaderboardSummaryQuery(summaryQuery)
-  const [getLeaderboard] = copyTradingApi.useLazyGetLeaderboardQuery()
+  const { data: leaderboardSummary } = discoveryApi.useGetLeaderboardSummaryQuery(summaryQuery)
+  const [getLeaderboard] = discoveryApi.useLazyGetLeaderboardQuery()
   const leaderboardPage = useCursorPageQuery({
     queryKey: ['copy-trading', 'leaderboard', selectedChainId, selectedStrategy, normalizedSearch, sortBy, sortOrder],
     queryFn: cursor =>

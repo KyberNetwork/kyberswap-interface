@@ -1,5 +1,6 @@
 import { type PropsWithChildren, createContext, useContext, useEffect, useMemo, useState } from 'react'
-import type { Address, Chain } from 'services/copyTrading/types'
+import type { Chain } from 'services/copyTrading/types/agents'
+import type { Address } from 'services/copyTrading/types/primitives'
 
 type CopyTradingContextValue = {
   chains: Chain[]

@@ -1,6 +1,7 @@
 import { useRef } from 'react'
 import { Search, X } from 'react-feather'
-import type { LeaderboardSummary as LeaderboardSummaryData, StrategyKey } from 'services/copyTrading/types'
+import type { LeaderboardSummary as LeaderboardSummaryData } from 'services/copyTrading/types/agents'
+import type { StrategyKey } from 'services/copyTrading/types/primitives'
 
 import { ButtonEmpty } from 'components/Button'
 import { HStack, Stack } from 'components/Stack'

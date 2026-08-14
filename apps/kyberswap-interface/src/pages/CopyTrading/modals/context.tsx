@@ -1,9 +1,12 @@
 import { type PropsWithChildren, createContext, useContext, useMemo, useState } from 'react'
-import type { AdvisoryActionAvailability, CopyRunSummary, PositionSummary } from 'services/copyTrading/types'
+import type { AdvisoryActionAvailability } from 'services/copyTrading/types/actionAvailability'
+import type { CopyRunSummary } from 'services/copyTrading/types/copyRuns'
+import type { PositionSummary } from 'services/copyTrading/types/positions'
 
 import AddCapitalModal from 'pages/CopyTrading/modals/AddCapitalModal'
 import ManagePositionModal, { type ManagePositionMode } from 'pages/CopyTrading/modals/ManagePositionModal'
-import StartCopyModal, { type StartCopyTarget } from 'pages/CopyTrading/modals/StartCopyModal'
+import StartCopyModal from 'pages/CopyTrading/modals/StartCopyModal'
+import type { StartCopyTarget } from 'pages/CopyTrading/modals/StartCopyModal/startCopy'
 import StopCopyModal from 'pages/CopyTrading/modals/StopCopyModal'
 import WithdrawQuoteModal from 'pages/CopyTrading/modals/WithdrawQuoteModal'
 

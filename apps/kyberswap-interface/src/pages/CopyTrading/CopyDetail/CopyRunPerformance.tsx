@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
-import copyTradingApi from 'services/copyTrading'
-import type { CopyRunSummary, PerformanceWindow } from 'services/copyTrading/types'
+import copyRunApi from 'services/copyTrading/api/endpoints/copyRuns'
+import type { CopyRunSummary } from 'services/copyTrading/types/copyRuns'
+import type { PerformanceWindow } from 'services/copyTrading/types/primitives'
 
 import { Stack } from 'components/Stack'
 import {
@@ -27,7 +28,7 @@ const CopyRunPerformance = ({ copyRunId, status }: CopyRunPerformanceProps) => {
     data: portfolioPerformance,
     isError: isPortfolioError,
     isFetching: isPortfolioFetching,
-  } = copyTradingApi.useGetCopyRunPerformanceQuery(
+  } = copyRunApi.useGetCopyRunPerformanceQuery(
     {
       ownerAddress: ownerAddress || '',
       copyRunId,
@@ -43,7 +44,7 @@ const CopyRunPerformance = ({ copyRunId, status }: CopyRunPerformanceProps) => {
     data: realizedPnlPerformance,
     isError: isRealizedPnlError,
     isFetching: isRealizedPnlFetching,
-  } = copyTradingApi.useGetCopyRunPerformanceQuery(
+  } = copyRunApi.useGetCopyRunPerformanceQuery(
     {
       ownerAddress: ownerAddress || '',
       copyRunId,

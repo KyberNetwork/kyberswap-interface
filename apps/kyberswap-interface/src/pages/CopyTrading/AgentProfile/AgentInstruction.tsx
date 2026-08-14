@@ -1,21 +1,21 @@
 import { Zap } from 'react-feather'
 import { useNavigate } from 'react-router-dom'
-import copyTradingApi from 'services/copyTrading'
-import type { AdvisoryActionAvailability, AgentProfile } from 'services/copyTrading/types'
+import copyRunApi from 'services/copyTrading/api/endpoints/copyRuns'
+import type { AdvisoryActionAvailability } from 'services/copyTrading/types/actionAvailability'
+import type { AgentProfile } from 'services/copyTrading/types/agents'
 
 import { ButtonPrimary } from 'components/Button'
 import { HStack, Stack } from 'components/Stack'
 import { APP_PATHS } from 'constants/index'
-import { getPreparedReasonMessage, isActionAvailable } from 'pages/CopyTrading/actionAvailability'
 import {
   AgentRiskCard,
-  CopyCapitalCard,
-  SidePanelCard,
   StrategyExecutionCard,
   WhitelistedTokensCard,
-} from 'pages/CopyTrading/components/AgentSidebarCards'
+} from 'pages/CopyTrading/components/AgentSidebarCards/AgentProfileCards'
+import { CopyCapitalCard } from 'pages/CopyTrading/components/AgentSidebarCards/CopyActionCards'
+import { SidePanelCard } from 'pages/CopyTrading/components/AgentSidebarCards/SidePanelCard'
 import { useCopyTradingContext } from 'pages/CopyTrading/context'
-import { formatUsd } from 'pages/CopyTrading/helpers'
+import { formatUsd, getPreparedReasonMessage, isActionAvailable } from 'pages/CopyTrading/helpers'
 import { useCopyTradingModal } from 'pages/CopyTrading/modals/context'
 
 const StartCopyCard = ({ availability, onCopy }: { availability?: AdvisoryActionAvailability; onCopy: () => void }) => {
@@ -51,7 +51,7 @@ const AgentInstruction = ({ agent }: AgentInstructionProps) => {
   const { ownerAddress } = useCopyTradingContext()
   const { openStartCopy, openAddCapital } = useCopyTradingModal()
 
-  const { data: activeCopyRuns } = copyTradingApi.useGetCopyRunsQuery(
+  const { data: activeCopyRuns } = copyRunApi.useGetCopyRunsQuery(
     {
       ownerAddress: ownerAddress || '',
       view: 'open',

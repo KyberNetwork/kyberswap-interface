@@ -1,22 +1,25 @@
 import { Token as CurrencyToken } from '@kyberswap/ks-sdk-core'
 import { useMemo } from 'react'
 import { CreditCard } from 'react-feather'
-import copyTradingApi from 'services/copyTrading'
-import type { AgentProfile, CopyRunSummary, Metric, Token, WalletBalanceRow } from 'services/copyTrading/types'
+import copyAccountApi from 'services/copyTrading/api/endpoints/copyAccounts'
+import type { AgentProfile, Token } from 'services/copyTrading/types/agents'
+import type { CopyRunSummary, WalletBalanceRow } from 'services/copyTrading/types/copyRuns'
+import type { Metric } from 'services/copyTrading/types/primitives'
 
 import CurrencyLogo from 'components/CurrencyLogo'
 import Loader from 'components/Loader'
 import { Center, HStack, Stack } from 'components/Stack'
 import {
   AgentRiskCard,
-  CopyCapitalCard,
-  SidePanelCard,
-  type SidePanelCardWrapperProps,
   StrategyExecutionCard,
   WhitelistedTokensCard,
-  WithdrawQuoteCard,
-} from 'pages/CopyTrading/components/AgentSidebarCards'
-import { copyRunStatusTextClassName } from 'pages/CopyTrading/components/common'
+} from 'pages/CopyTrading/components/AgentSidebarCards/AgentProfileCards'
+import { CopyCapitalCard, WithdrawQuoteCard } from 'pages/CopyTrading/components/AgentSidebarCards/CopyActionCards'
+import {
+  SidePanelCard,
+  type SidePanelCardWrapperProps,
+} from 'pages/CopyTrading/components/AgentSidebarCards/SidePanelCard'
+import { copyRunStatusTextClassName } from 'pages/CopyTrading/components/common/status'
 import { formatTokenAmount, formatUsd } from 'pages/CopyTrading/helpers'
 import { useCopyTradingModal } from 'pages/CopyTrading/modals/context'
 import { cn } from 'utils/cn'
@@ -140,7 +143,7 @@ const CopySidePanel = ({ agent, run }: CopySidePanelProps) => {
   const copyAccountQuery = { chainId: run.chainId, copyAccount: run.copyAccount }
   const skipCopyAccount = !run.copyAccount || !run.chainId
   const { data: inventoryResponse, isFetching: isInventoryFetching } =
-    copyTradingApi.useGetCopyAccountWalletInventoryQuery(copyAccountQuery, { skip: skipCopyAccount })
+    copyAccountApi.useGetCopyAccountWalletInventoryQuery(copyAccountQuery, { skip: skipCopyAccount })
 
   const pinnedStableBalance = inventoryResponse?.pinnedStableBalance
   const quoteBalance =
