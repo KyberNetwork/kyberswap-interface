@@ -1,11 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
-import {
-  adaptCopyAccountBalancesResponse,
-  adaptCopyAccountWalletInventoryResponse,
-  adaptCopyRunCashbackPolicyResponse,
-  adaptCopyRunResponse,
-} from './adapters'
+import { adaptCopyAccountBalancesResponse, adaptCopyAccountWalletInventoryResponse } from './adapters/copyAccounts'
+import { adaptCopyRunCashbackPolicyResponse, adaptCopyRunResponse } from './adapters/copyRuns'
 
 const currentCapital = {
   value: '12.34',

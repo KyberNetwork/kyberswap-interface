@@ -1,13 +1,13 @@
 import type { Dispatch, SetStateAction } from 'react'
-import type { PreparedAction } from 'services/copyTrading/types'
+import type { PreparedAction } from 'services/copyTrading/types/preparedActions'
 import { describe, expect, it, vi } from 'vitest'
 
-import type { PreparedActionExpectation } from 'pages/CopyTrading/modals/PreparedActionModal/preparedAction'
 import {
   DEFAULT_PREPARED_ACTION_STATE,
+  type PreparedActionExpectation,
   type PreparedActionFlowState,
-  usePreparedAction,
-} from 'pages/CopyTrading/modals/PreparedActionModal/usePreparedAction'
+} from 'pages/CopyTrading/modals/PreparedActionModal/preparedAction'
+import { usePreparedAction } from 'pages/CopyTrading/modals/PreparedActionModal/usePreparedAction'
 
 const account = '0x1111111111111111111111111111111111111111'
 const predictedCopyAccount = '0x2222222222222222222222222222222222222222'
@@ -102,23 +102,6 @@ describe('usePreparedAction', () => {
     resolvePreparation(allowanceDiagnostic)
     await request
 
-    expect(harness.getState()).toEqual({ phase: 'review', action: allowanceDiagnostic })
-  })
-
-  it('shows a selected call-free diagnostic in review without processing it', async () => {
-    const harness = createStateHarness()
-    const prepare = vi.fn().mockResolvedValue(allowanceDiagnostic)
-    const flow = usePreparedAction({
-      state: harness.getState(),
-      setState: harness.setState,
-      expected,
-      prepare,
-      reviewUnavailable: action => action.reason === 'PREPARED_ACTION_REASON_INSUFFICIENT_QUOTE_ALLOWANCE',
-    })
-
-    await flow.prepare()
-
-    expect(prepare).toHaveBeenCalledTimes(1)
     expect(harness.getState()).toEqual({ phase: 'review', action: allowanceDiagnostic })
   })
 

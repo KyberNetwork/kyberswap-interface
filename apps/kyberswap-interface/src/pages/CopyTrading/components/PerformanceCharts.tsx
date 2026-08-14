@@ -1,6 +1,7 @@
 import { type PropsWithChildren } from 'react'
 import { Area, AreaChart, Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
-import type { PerformancePoint, PerformanceWindow } from 'services/copyTrading/types'
+import type { PerformancePoint } from 'services/copyTrading/types/agents'
+import type { PerformanceWindow } from 'services/copyTrading/types/primitives'
 
 import Dots from 'components/Dots'
 import Loader from 'components/Loader'

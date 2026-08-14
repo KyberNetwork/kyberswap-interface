@@ -1,14 +1,22 @@
 import { type HTMLAttributes } from 'react'
-import type { CopyRunSummary } from 'services/copyTrading/types'
+import type { CopyRunSummary } from 'services/copyTrading/types/copyRuns'
 
 import { ButtonLight } from 'components/Button'
 import { Stack } from 'components/Stack'
-import { getPreparedReasonMessage, isActionAvailable } from 'pages/CopyTrading/actionAvailability'
 import CursorPagination, { type CursorPaginationState } from 'pages/CopyTrading/components/CursorPagination'
 import { HeaderCell, TableBody, TableCell, TableHeader, TableRow } from 'pages/CopyTrading/components/Table'
-import { CopyRunAgentCell, CopyRunStatusBadge } from 'pages/CopyTrading/components/common'
+import { CopyRunAgentCell } from 'pages/CopyTrading/components/common/agentIdentity'
+import { CopyRunStatusBadge } from 'pages/CopyTrading/components/common/status'
 import { copyTradingStatIconMap } from 'pages/CopyTrading/constants'
-import { compactUsd, formatCount, formatUsd, getAgentDisplayName, percent } from 'pages/CopyTrading/helpers'
+import {
+  compactUsd,
+  formatCount,
+  formatUsd,
+  getAgentDisplayName,
+  getPreparedReasonMessage,
+  isActionAvailable,
+  percent,
+} from 'pages/CopyTrading/helpers'
 import { useCopyTradingModal } from 'pages/CopyTrading/modals/context'
 import { cn } from 'utils/cn'
 

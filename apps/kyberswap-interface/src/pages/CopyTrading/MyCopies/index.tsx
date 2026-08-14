@@ -1,13 +1,14 @@
 import { useNavigate } from 'react-router-dom'
-import copyTradingApi from 'services/copyTrading'
+import copyRunApi from 'services/copyTrading/api/endpoints/copyRuns'
 
 import { APP_PATHS } from 'constants/index'
 import ActiveSubscriptionsTable from 'pages/CopyTrading/MyCopies/ActiveSubscriptionsTable'
 import { AlertsFeed, OpenCopiesSummary } from 'pages/CopyTrading/MyCopies/components'
 import CopyRunsPageHeading from 'pages/CopyTrading/components/CopyRunsPageHeading'
-import useCursorPageQuery from 'pages/CopyTrading/components/CursorPagination/useCursorPageQuery'
-import useInfiniteCursorQuery from 'pages/CopyTrading/components/InfiniteScroll/useInfiniteCursorQuery'
-import { CopyTradingPage, OwnerWalletRequired } from 'pages/CopyTrading/components/common'
+import { useCursorPageQuery } from 'pages/CopyTrading/components/CursorPagination'
+import { useInfiniteCursorQuery } from 'pages/CopyTrading/components/InfiniteScroll'
+import { CopyTradingPage } from 'pages/CopyTrading/components/common/layout'
+import { OwnerWalletRequired } from 'pages/CopyTrading/components/common/status'
 import { useCopyTradingContext } from 'pages/CopyTrading/context'
 
 const PAGE_SIZE = 10
@@ -15,8 +16,8 @@ const PAGE_SIZE = 10
 const MyCopiesView = () => {
   const navigate = useNavigate()
   const { ownerAddress } = useCopyTradingContext()
-  const [getCopyRuns] = copyTradingApi.useLazyGetCopyRunsQuery()
-  const [getOwnerActivity] = copyTradingApi.useLazyGetOwnerActivityQuery()
+  const [getCopyRuns] = copyRunApi.useLazyGetCopyRunsQuery()
+  const [getOwnerActivity] = copyRunApi.useLazyGetOwnerActivityQuery()
 
   const activeRunsPage = useCursorPageQuery({
     enabled: !!ownerAddress,
@@ -45,7 +46,7 @@ const MyCopiesView = () => {
       }).unwrap(),
   })
 
-  const { data: ownerSummary } = copyTradingApi.useGetOwnerCopySummaryQuery(
+  const { data: ownerSummary } = copyRunApi.useGetOwnerCopySummaryQuery(
     {
       ownerAddress: ownerAddress || '',
       view: 'open',
