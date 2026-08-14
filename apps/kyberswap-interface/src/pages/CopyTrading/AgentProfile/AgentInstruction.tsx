@@ -50,6 +50,7 @@ const AgentInstruction = ({ agent }: AgentInstructionProps) => {
   const navigate = useNavigate()
   const { ownerAddress } = useCopyTradingContext()
   const { openStartCopy, openAddCapital } = useCopyTradingModal()
+
   const { data: activeCopyRuns } = copyTradingApi.useGetCopyRunsQuery(
     {
       ownerAddress: ownerAddress || '',
@@ -59,6 +60,7 @@ const AgentInstruction = ({ agent }: AgentInstructionProps) => {
     },
     { skip: !ownerAddress },
   )
+
   const activeCopyRun = activeCopyRuns?.data[0]
 
   return (

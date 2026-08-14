@@ -41,11 +41,13 @@ const useCursorPageQuery = <TResponse extends CursorResponse<unknown>>({
     queryFn: () => queryFn(cursor),
     retry: false,
   })
+
   const nextCursor = query.data?.pagination.nextCursor
   const hasNextPage = !!query.data?.pagination.hasMore && !!nextCursor
 
   const goToNextPage = () => {
     if (!nextCursor || !hasNextPage) return
+
     setPagination(current => ({
       ...current,
       currentPage: currentPage + 1,

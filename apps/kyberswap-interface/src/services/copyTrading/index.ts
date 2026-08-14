@@ -96,6 +96,7 @@ import type {
 type QueryParam = string | number | boolean
 type QueryParams = Record<string, QueryParam | undefined>
 
+// Query parameter serialization.
 const cleanParams = (params: QueryParams = {}) =>
   Object.fromEntries(Object.entries(params).filter(([, value]) => value !== undefined && value !== ''))
 
@@ -230,6 +231,7 @@ const copyTradingApi = createApi({
     },
   }),
   endpoints: builder => ({
+    // Discovery reads.
     getChains: builder.query<ChainsResponse, void>({
       query: () => '/chains',
       transformResponse: adaptChainsResponse,
@@ -262,6 +264,8 @@ const copyTradingApi = createApi({
       transformResponse: adaptLeaderboardResponse,
       providesTags: ['CopyTrading'],
     }),
+
+    // Agent reads.
     getAgents: builder.query<AgentsResponse, AgentsQuery | void>({
       query: query => ({
         url: '/agents',
@@ -286,6 +290,7 @@ const copyTradingApi = createApi({
         params: cleanParams({ window: window ? performanceWindowMap[window] : undefined }),
       }),
       transformResponse: adaptAgentStatsResponse,
+      providesTags: ['CopyTrading'],
     }),
     getAgentPerformance: builder.query<AgentPerformanceResponse, AgentPerformanceQuery>({
       query: query => ({
@@ -293,6 +298,7 @@ const copyTradingApi = createApi({
         params: performanceParams(query),
       }),
       transformResponse: adaptPerformanceResponse,
+      providesTags: ['CopyTrading'],
     }),
     getAgentPositions: builder.query<AgentPositionsResponse, AgentPositionsQuery>({
       query: query => ({
@@ -322,6 +328,8 @@ const copyTradingApi = createApi({
       }),
       transformResponse: adaptActionLogsResponse,
     }),
+
+    // Owner Copy Run reads.
     getOwnerCopySummary: builder.query<OwnerCopySummaryResponse, OwnerCopySummaryQuery>({
       query: ({ ownerAddress, view, chainId }) => ({
         url: `/users/${pathPart(ownerAddress)}/copy-summary`,
@@ -412,6 +420,8 @@ const copyTradingApi = createApi({
       transformResponse: adaptCopyAccountsResponse,
       providesTags: ['CopyTrading'],
     }),
+
+    // Copy Account reads.
     getCopyAccount: builder.query<CopyAccountResponse, CopyAccountQuery>({
       query: ({ chainId, copyAccount }) => `/copy-accounts/${pathPart(chainId)}/${pathPart(copyAccount)}`,
       transformResponse: adaptCopyAccountResponse,
@@ -462,6 +472,8 @@ const copyTradingApi = createApi({
       transformResponse: adaptActivityResponse,
       providesTags: ['CopyTrading'],
     }),
+
+    // Prepared write actions.
     prepareStartCopy: builder.mutation<PrepareStartCopyResponse, PrepareStartCopyRequest>({
       query: ({ ownerAddress, agentId, ...body }) => ({
         url: `/users/${pathPart(ownerAddress)}/agents/${pathPart(agentId)}:prepareStartCopy`,

@@ -17,6 +17,7 @@ export type SidePanelCardProps = PropsWithChildren<{
   initialExpanded?: boolean
   title?: ReactNode
 }>
+
 export type SidePanelCardWrapperProps = Omit<SidePanelCardProps, 'children'>
 
 export const SidePanelCard = ({

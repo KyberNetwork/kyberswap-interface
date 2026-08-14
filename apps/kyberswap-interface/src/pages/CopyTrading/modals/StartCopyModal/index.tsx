@@ -122,6 +122,7 @@ const StartCopyModal = ({ isOpen, onDismiss, agent }: StartCopyModalProps) => {
   const [prepareStartCopy] = usePrepareStartCopyMutation()
   const [getCopyRuns] = copyTradingApi.useLazyGetCopyRunsQuery()
   const { authorize: authorizeStartCopy, getAuthorizationKind } = useStartCopyAuthorization()
+
   const [flowState, setFlowState] = useState(DEFAULT_PREPARED_ACTION_STATE)
   const [amount, setAmount] = useState('')
   const [agreed, setAgreed] = useState(false)
@@ -144,8 +145,10 @@ const StartCopyModal = ({ isOpen, onDismiss, agent }: StartCopyModalProps) => {
         : undefined,
     [quoteToken, agent.chainId],
   )
+
   const walletBalance = useTokenBalance(quoteToken?.address || '', agent.chainId as ChainId)
   const walletBalanceRaw = account && quoteToken ? walletBalance.value.toString() : undefined
+
   const presetAmounts = useMemo(() => {
     if (!quoteToken || !walletBalanceRaw) return undefined
 
@@ -154,6 +157,7 @@ const StartCopyModal = ({ isOpen, onDismiss, agent }: StartCopyModalProps) => {
       amount: formatUnits((BigInt(walletBalanceRaw) * BigInt(percentage)) / 100n, quoteToken.decimals),
     }))
   }, [quoteToken, walletBalanceRaw])
+
   const targetCapitalRaw = useMemo(() => {
     if (!quoteToken) return undefined
     try {
@@ -162,6 +166,7 @@ const StartCopyModal = ({ isOpen, onDismiss, agent }: StartCopyModalProps) => {
       return undefined
     }
   }, [amount, quoteToken])
+
   const availability = agent.startCopyAvailability
   const amountBelowMinimum =
     !!targetCapitalRaw && !!quoteToken && BigInt(targetCapitalRaw) < BigInt(quoteToken.minimumStartCopyCapitalRaw)
@@ -184,6 +189,7 @@ const StartCopyModal = ({ isOpen, onDismiss, agent }: StartCopyModalProps) => {
       : account
       ? '0'
       : 'Connect wallet'
+
   const startPreview = flowState.action?.startCopy
   const authorizationKind = requiresStartCopyAuthorization(flowState.action)
     ? getAuthorizationKind(flowState.action)
@@ -196,6 +202,7 @@ const StartCopyModal = ({ isOpen, onDismiss, agent }: StartCopyModalProps) => {
     !!requiredWalletBalanceRaw &&
     !!preparedWalletBalanceRaw &&
     BigInt(requiredWalletBalanceRaw) > BigInt(preparedWalletBalanceRaw)
+
   const confirmBalanceError =
     amountError ||
     (preparedBalanceIsInsufficient ? `Insufficient ${quoteToken?.symbol || 'quote token'} balance.` : undefined)
@@ -220,6 +227,7 @@ const StartCopyModal = ({ isOpen, onDismiss, agent }: StartCopyModalProps) => {
       (currentAttempt.agentId && currentAttempt.agentId !== agent.agentId) ||
       (currentAttempt.chainId && currentAttempt.chainId !== agent.chainId) ||
       (currentAttempt.targetCapitalRaw && currentAttempt.targetCapitalRaw !== targetRaw)
+
     if (scopeChanged) {
       resetStartAttempt()
       expectedRef.current.startCopyPredictedAccount = undefined
@@ -245,6 +253,7 @@ const StartCopyModal = ({ isOpen, onDismiss, agent }: StartCopyModalProps) => {
     ) {
       throw new Error('The prepared Start Copy Smart Wallet changed during this attempt.')
     }
+
     if (!expectedPredictedCopyAccount && nextPredictedCopyAccount) {
       expectedRef.current.startCopyPredictedAccount = nextPredictedCopyAccount
       setPredictedCopyAccount(nextPredictedCopyAccount)
@@ -315,24 +324,23 @@ const StartCopyModal = ({ isOpen, onDismiss, agent }: StartCopyModalProps) => {
     onComplete: refreshCopyTrading,
   })
 
-  const dismiss = () => {
+  const resetPreparedState = () => {
     flow.reset()
-    setAmount('')
     setAgreed(false)
     setCreatedCopyRun(undefined)
     setPredictedCopyAccount(undefined)
     setIsAuthorizing(false)
     resetStartAttempt()
+  }
+
+  const dismiss = () => {
+    resetPreparedState()
+    setAmount('')
     onDismiss()
   }
 
   const editAmount = () => {
-    flow.reset()
-    setAgreed(false)
-    setCreatedCopyRun(undefined)
-    setPredictedCopyAccount(undefined)
-    setIsAuthorizing(false)
-    resetStartAttempt()
+    resetPreparedState()
   }
 
   const handlePrimaryAction = () => {
@@ -346,6 +354,14 @@ const StartCopyModal = ({ isOpen, onDismiss, agent }: StartCopyModalProps) => {
     }
     if (!amountIsValid) return
     void flow.prepare()
+  }
+
+  const setPercentageAmount = (percentage: (typeof CAPITAL_PERCENTAGES)[number]) => {
+    const preset = presetAmounts?.find(item => item.percentage === percentage)
+    if (flowState.isPreparing || !presetsEnabled || !preset) return
+
+    setAmount(preset.amount)
+    setAgreed(false)
   }
 
   const confirmStartCopy = async () => {
@@ -419,13 +435,37 @@ const StartCopyModal = ({ isOpen, onDismiss, agent }: StartCopyModalProps) => {
     }
   }
 
-  const setPercentageAmount = (percentage: (typeof CAPITAL_PERCENTAGES)[number]) => {
-    const preset = presetAmounts?.find(item => item.percentage === percentage)
-    if (flowState.isPreparing || !presetsEnabled || !preset) return
+  const retry = () => {
+    if (
+      flowState.phase === 'unavailable' &&
+      (flowState.action?.reason === 'PREPARED_ACTION_REASON_INSUFFICIENT_QUOTE_ALLOWANCE' ||
+        flowState.action?.reason === 'PREPARED_ACTION_REASON_SIGNER_POLICY_CHANGED')
+    ) {
+      resetStartAttempt()
+    }
 
-    setAmount(preset.amount)
-    setAgreed(false)
+    setIsAuthorizing(false)
+    void flow.retry()
   }
+
+  const viewCreatedCopy = () => {
+    if (!createdCopyRun) return
+
+    const path = `${APP_PATHS.COPY_TRADING}/my-copies/${createdCopyRun.copyRunId}`
+    dismiss()
+    navigate(path)
+  }
+
+  const availabilityMessage = !isActionAvailable(availability)
+    ? getPreparedReasonMessage(availability?.reason)
+    : undefined
+  const primaryActionLabel = !account
+    ? 'Connect wallet'
+    : !onExpectedChain
+    ? 'Switch network'
+    : availabilityMessage || !quoteToken
+    ? 'Start Copy unavailable'
+    : 'Next'
 
   const review = (
     <Stack className="gap-4">
@@ -482,36 +522,6 @@ const StartCopyModal = ({ isOpen, onDismiss, agent }: StartCopyModalProps) => {
       )}
     </Stack>
   )
-
-  const availabilityMessage = !isActionAvailable(availability)
-    ? getPreparedReasonMessage(availability?.reason)
-    : undefined
-  const primaryActionLabel = !account
-    ? 'Connect wallet'
-    : !onExpectedChain
-    ? 'Switch network'
-    : availabilityMessage || !quoteToken
-    ? 'Start Copy unavailable'
-    : 'Next'
-
-  const retry = () => {
-    if (
-      flowState.phase === 'unavailable' &&
-      (flowState.action?.reason === 'PREPARED_ACTION_REASON_INSUFFICIENT_QUOTE_ALLOWANCE' ||
-        flowState.action?.reason === 'PREPARED_ACTION_REASON_SIGNER_POLICY_CHANGED')
-    ) {
-      resetStartAttempt()
-    }
-    setIsAuthorizing(false)
-    void flow.retry()
-  }
-
-  const viewCreatedCopy = () => {
-    if (!createdCopyRun) return
-    const path = `${APP_PATHS.COPY_TRADING}/my-copies/${createdCopyRun.copyRunId}`
-    dismiss()
-    navigate(path)
-  }
 
   return (
     <PreparedActionModal

@@ -73,7 +73,7 @@ const getCopyRunStats = (run: CopyRunSummary): LeaderboardStat[] => {
       status: run.metrics.flatFeesCapturedUsd?.status,
     },
     {
-      label: 'Est. Rebase Pending',
+      label: 'Est. Cashback Pending',
       value: formatApproximateUsd(run.estimatedCashbackPendingUsd),
       icon: copyTradingStatIconMap.money,
       status: run.metrics.estimatedCashbackPendingUsd?.status,
@@ -110,6 +110,7 @@ export const CopyTimeline = ({ run }: CopyRunPanelProps) => {
 const OpenPositionsPanel = ({ enabled = true, run }: CopyRunPanelProps) => {
   const { ownerAddress } = useCopyTradingContext()
   const [getCopyRunPositions] = copyTradingApi.useLazyGetCopyRunPositionsQuery()
+
   const {
     infiniteScroll,
     isFetching,
@@ -135,6 +136,7 @@ const OpenPositionsPanel = ({ enabled = true, run }: CopyRunPanelProps) => {
 const ClosedPositionsPanel = ({ enabled = true, run }: CopyRunPanelProps) => {
   const { ownerAddress } = useCopyTradingContext()
   const [getCopyRunPositions] = copyTradingApi.useLazyGetCopyRunPositionsQuery()
+
   const {
     infiniteScroll,
     isFetching,
@@ -164,6 +166,7 @@ const ClosedPositionsPanel = ({ enabled = true, run }: CopyRunPanelProps) => {
 const ActionLogsPanel = ({ enabled = true, run }: CopyRunPanelProps) => {
   const { ownerAddress } = useCopyTradingContext()
   const [getOwnerActivity] = copyTradingApi.useLazyGetOwnerActivityQuery()
+
   const {
     infiniteScroll,
     isFetching,
@@ -201,6 +204,7 @@ export const CopyDetailTabs = ({
     defaultTab,
     queryKey: 'detailTab',
   })
+
   const currentTab = activeTab || defaultTab
   const keepOpenPositionsLoaded = includeOpenPositions && (run.status === 'active' || run.status === 'closing')
 

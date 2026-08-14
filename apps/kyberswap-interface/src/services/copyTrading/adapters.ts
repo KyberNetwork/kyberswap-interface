@@ -65,6 +65,7 @@ import type {
   WalletBalanceRow,
 } from 'services/copyTrading/types'
 
+// Wire response shapes kept private to the adapter boundary.
 type ApiMetric = Metric
 
 type ApiValuation = {
@@ -442,6 +443,7 @@ type ApiWalletInventoryResponse = {
   meta?: ResponseMeta
 }
 
+// Shared normalization helpers.
 const isMetricRenderable = (status?: MetricStatus) =>
   status === 'METRIC_STATUS_CURRENT' || status === 'METRIC_STATUS_STALE'
 
@@ -452,6 +454,19 @@ const isValuationRenderable = (valuation?: ApiValuation) =>
 
 const metricValue = (metric?: ApiMetric) => (isMetricRenderable(metric?.status) ? metric?.value : undefined)
 const chainIdNumber = (chainId?: string) => Number(chainId || 0)
+
+const performanceSeriesMap: Record<string, PerformanceSeries> = {
+  PERFORMANCE_SERIES_PORTFOLIO_EQUITY: 'portfolio_value',
+  PERFORMANCE_SERIES_CUMULATIVE_REALIZED_PNL: 'cumulative_realized_pnl',
+  PERFORMANCE_SERIES_PERIOD_REALIZED_PNL: 'period_realized_pnl',
+  PERFORMANCE_SERIES_PER_TRADE_REALIZED_PNL: 'per_trade_realized_pnl',
+}
+
+const performanceIntervalMap: Record<string, PerformanceInterval> = {
+  PERFORMANCE_INTERVAL_DAY: 'day',
+  PERFORMANCE_INTERVAL_WEEK: 'week',
+  PERFORMANCE_INTERVAL_MONTH: 'month',
+}
 
 const toToken = (token?: ApiToken): Token => ({
   chainId: chainIdNumber(token?.chainId),
@@ -648,22 +663,11 @@ const toPosition = (position: ApiPosition): PositionSummary => {
 const toPerformancePoint = (point: ApiPerformancePoint): PerformancePoint => {
   const value = metricValue(point.valueUsd)
   const isRealizedPnl = point.series !== 'PERFORMANCE_SERIES_PORTFOLIO_EQUITY'
-  const seriesMap: Record<string, PerformanceSeries> = {
-    PERFORMANCE_SERIES_PORTFOLIO_EQUITY: 'portfolio_value',
-    PERFORMANCE_SERIES_CUMULATIVE_REALIZED_PNL: 'cumulative_realized_pnl',
-    PERFORMANCE_SERIES_PERIOD_REALIZED_PNL: 'period_realized_pnl',
-    PERFORMANCE_SERIES_PER_TRADE_REALIZED_PNL: 'per_trade_realized_pnl',
-  }
-  const intervalMap: Record<string, PerformanceInterval> = {
-    PERFORMANCE_INTERVAL_DAY: 'day',
-    PERFORMANCE_INTERVAL_WEEK: 'week',
-    PERFORMANCE_INTERVAL_MONTH: 'month',
-  }
 
   return {
     timestamp: point.timestamp || '',
-    series: seriesMap[point.series || ''],
-    interval: intervalMap[point.interval || ''],
+    series: performanceSeriesMap[point.series || ''],
+    interval: performanceIntervalMap[point.interval || ''],
     portfolioValueUsd: isRealizedPnl ? undefined : value,
     realizedPnlUsd: isRealizedPnl ? value : undefined,
     tradeId: point.tradeId,
@@ -890,6 +894,7 @@ const cursorResponse = <ApiValue, Value>(
   meta: response.meta,
 })
 
+// Endpoint response adapters.
 export const adaptChainsResponse = (response: ApiSingleResponse<ApiChain[]>): ChainsResponse => ({
   data: (response.data || []).map(
     (chain): Chain => ({

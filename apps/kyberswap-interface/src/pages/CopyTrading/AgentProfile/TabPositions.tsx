@@ -33,6 +33,7 @@ const TabPositionsGrid = ({ header, className, ...props }: TabPositionsGridProps
 
 const TabPositions = ({ agentId }: { agentId: string }) => {
   const [getAgentPositions] = copyTradingApi.useLazyGetAgentPositionsQuery()
+
   const {
     infiniteScroll,
     isFetching,

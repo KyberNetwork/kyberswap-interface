@@ -54,12 +54,6 @@ export const getApiErrorMessage = (error: unknown) => {
   )
 }
 
-export const isRetryableApiError = (error: unknown) => {
-  if (!error || typeof error !== 'object' || !('status' in error)) return false
-  const status = (error as { status?: unknown }).status
-  return status === 429 || (typeof status === 'number' && status >= 500)
-}
-
 export const parsePreparedAmount = (amount: string, decimals: number) => {
   const normalized = amount.trim()
   if (!normalized || Number(normalized) <= 0) throw new Error('Enter an amount greater than zero.')

@@ -115,9 +115,10 @@ Current primary-screen read behavior:
   Positions, and owner activity filtered by `copyRunId`.
 - Agent and Copy Run performance charts intentionally request only the first
   page with `limit=100`.
-- Sidebar Agents and Open Copies are product-capped snapshots with `limit=10`.
-- Infinite-scroll Retry resets the exact TanStack query, discards the failed
-  cursor sequence, and restarts from page one with the current query key.
+- Sidebar Agents is a selected-chain snapshot with `limit=10`; Open Copies is
+  independently capped at `limit=10`.
+- Infinite-scroll collections intentionally have no manual Retry action. They
+  keep the error state until the query refetches or the surface remounts.
 - Copy-run rows use their `agentSnapshot`; My Copies and History do not issue a
   redundant agent collection request.
 - Activity details are typed and Alerts Feed does not parse display summary text
@@ -127,19 +128,23 @@ Current primary-screen read behavior:
 
 ## Accepted Product Decisions
 
-- Keep the ten currently unowned GET operations documented without inventing
+- Keep the nine currently unowned GET operations documented without inventing
   routes or secondary tables.
 - Keep Agent and Copy Run performance at the first API page (`limit=100`).
-- Keep Sidebar Agents and Open Copies capped at 10 items.
+- Keep Sidebar Agents capped at 10 items for the selected network and Open
+  Copies capped at 10 items independently.
 - Open and History membership remains owned by the server response.
-- Stop Copy trusts the Copy Run passed by the entry point, then the modal loads
-  the complete open-position cursor chain. Manual Sell and Close Position use
-  the selected `PositionSummary` only to open the modal, then refresh the current
+- Stop Copy trusts the Copy Run passed by the entry point and loads the complete
+  open-position cursor chain once when the modal opens. It does not refetch that
+  list immediately before preparation. Manual Sell and Close Position use the
+  selected `PositionSummary` only to open the modal, then refresh the current
   copy-account position before preparation. The preparation response remains
   authoritative before any wallet submission.
 - The Stop Copy modal owns loading every open-position cursor page, including
   loading, error, and Retry UI. An incomplete or invalid cursor chain prevents
   preparation rather than presenting a partial position list.
+- Infinite-scroll read surfaces show their error state without a manual Retry
+  button. Recovery is owned by a later query refetch or remount.
 - Withdraw trusts the Copy Run and availability passed from Copy Detail or Smart
   Wallet. The modal does not reload either entity before preparation.
 - A write action is successful in the UI after its submitted transaction has a
@@ -153,7 +158,9 @@ Current primary-screen read behavior:
   the exact volatile permit bytes or confirmed allowance. Once that attempt
   returns `READY`, the review exposes a separate Start Copying action; approval
   never auto-submits Create. The UI submits only the returned create call, then
-  polls the Agent-filtered open Copy list after its successful receipt.
+  polls the Agent-filtered open Copy list after its successful receipt. Every
+  list request is an independent bounded attempt; polling does not classify API
+  errors as retryable or non-retryable.
 
 ## Current Prepared-Action Write UI
 
@@ -194,9 +201,10 @@ Implemented behavior:
   then reviews the API quote token, minimum, wallet balance, and resulting
   allocation.
 - Stop Copy fetches and renders the complete open-position list inside the modal.
-  The UI defaults at most 32 positions to selected, prevents selecting a 33rd,
-  and validates the final payload length before sending `userPositionIds`. An
-  empty array remains valid.
+  It fetches once when the modal opens and does not refresh the list again before
+  preparation. The UI defaults at most 32 positions to selected, prevents
+  selecting a 33rd, and validates the final payload length before sending
+  `userPositionIds`. An empty array remains valid.
 - Withdraw is exposed only when the selected Copy Run status is `STOPPED`, then
   gated by `withdrawQuoteAvailability`. It sends `{}` to preparation and
   requires the prepared amount and connected-owner recipient.
@@ -212,11 +220,15 @@ Implemented behavior:
   unchanged through the gated wallet client.
 - A receipt retry waits for the already-submitted hash and never sends the
   prepared call again.
+- A reverted receipt keeps its hash for display, but Retry starts a fresh
+  preparation and does not treat the reverted transaction as post-receipt
+  continuation.
 - A submitted transaction is shown as confirmed only after a successful receipt.
 - A user retry from `PENDING` waits until `reprepareAfter` before preparing again.
 - Immediately after a successful receipt, flows invalidate active RTK and
   TanStack Copy Trading reads so their network refetches start without blocking
-  post-receipt synchronization or success UI.
+  post-receipt synchronization or success UI. Agent Stats and Agent Performance
+  participate in the same RTK invalidation.
 
 ## Action Integration Matrix
 
@@ -224,7 +236,7 @@ Implemented behavior:
 | -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Start Copy     | Uses the API-selected Permit or Approve step, submits Create separately, then polls the Agent-filtered open Copy list and links the returned My Copy. |
 | Add Capital    | Reviews quote-token, minimum, balance, and allocation data, then submits the exact prepared call.                                                     |
-| Stop Copy      | Loads all open-position pages, supports zero to 32 selected IDs, validates the payload cap, and submits the exact prepared call.                      |
+| Stop Copy      | Loads all open-position pages when opened, supports zero to 32 selected IDs, validates the payload cap, and submits the exact prepared call.          |
 | Withdraw Quote | Only a `STOPPED` Copy Detail exposes the availability-gated CTA; amount and owner recipient are server-prepared and non-editable.                     |
 | Manual Sell    | Refreshes the current position and authoritative FIFO head ratio/count, then prepares directly.                                                       |
 | Close Position | Refreshes the current position after the advertised CTA is selected, then prepares directly.                                                          |
@@ -243,9 +255,9 @@ read advisory availability
 → validate owner, chain, preview, Smart Wallet, call kind, target, value, and expiry
 → simulate and submit call.to / call.data / call.valueRaw unchanged
 → wait for a successful receipt
-→ mark the action successful
-→ after the funded Start Create transaction, poll the Agent-filtered open Copy list every 2s for at most 20s
 → invalidate affected RTK and TanStack reads asynchronously
+→ after the funded Start Create transaction, poll the Agent-filtered open Copy list every 2s for at most 20s
+→ mark the action successful after its action-specific completion work
 ```
 
 The implementation fails closed when advisory availability is missing,
@@ -279,8 +291,8 @@ submits the exact call and the follower-account contract enforces its caller.
 1. Add component/state-machine coverage for receipt timeout retry, account or
    chain changes during review, `PENDING` retry timing, and funded Start
    completion polling.
-2. Browser-test initial and next-page infinite-scroll errors, including Retry
-   restarting from page one after a rejected or expired cursor.
+2. Browser-test initial and next-page infinite-scroll error presentation and
+   recovery after refetch or remount.
 3. Browser-test Copy Detail and Open/History server-owned views across at least
    two cursor pages with a connected wallet and representative data.
 4. Complete browser validation for responsive layout, keyboard focus,
@@ -296,7 +308,7 @@ submits the exact call and the follower-account contract enforces its caller.
 - The service surface contains 26 GET queries and 6 POST mutations.
 - All six preparation mutations have an owned UI flow.
 - The local ABI, mock signer, and mock transaction-hash path have been removed.
-- All 44 Copy Trading unit tests pass.
+- All 45 Copy Trading unit tests pass.
 - App TypeScript, Copy Trading ESLint, Prettier for the changed implementation,
   Vite production build, and `git diff --check` pass.
 - Browser QA and positive live transaction E2E were not rerun for this contract

@@ -1,3 +1,4 @@
+// Shared API primitives and response metadata.
 export type LooseString<T extends string> = T | (string & Record<never, never>)
 export type DecimalString = string
 export type Timestamp = string
@@ -144,6 +145,7 @@ export type ActivityTypeFilter = 'all' | ActivityType
 export type LeaderboardSortBy = 'apr_30d_pct' | 'win_rate_pct' | 'volume_usd' | 'aum_usd' | 'copiers' | 'open_positions'
 export type PositionSortBy = 'opened_at' | 'closed_at' | 'value_usd'
 
+// Read models consumed by Copy Trading screens.
 export type Chain = {
   chainId: number
   slug: string
@@ -607,6 +609,7 @@ export type PinnedStableBalance = {
   balance?: WalletBalanceRow
 }
 
+// Read query contracts.
 export type CursorQuery = {
   cursor?: string
   limit?: number
@@ -748,6 +751,7 @@ export type PendingSellObligation = {
   publicErrorMessage?: string
 }
 
+// Read response contracts.
 export type ChainsResponse = SingleResponse<Chain[]>
 export type LeaderboardSummaryResponse = SingleResponse<LeaderboardSummary>
 export type LeaderboardResponse = CursorResponse<AgentCard>
@@ -772,6 +776,7 @@ export type CopyAccountResponse = SingleResponse<CopyAccountSummary>
 export type CopyAccountBalancesResponse = CursorResponse<WalletBalanceRow> & {
   pinnedStableBalance?: PinnedStableBalance
 }
+
 export type CopyAccountWalletInventoryResponse = {
   data: WalletBalanceRow[]
   walletInventoryValueUsd?: Metric
@@ -779,10 +784,12 @@ export type CopyAccountWalletInventoryResponse = {
   pinnedStableBalance?: PinnedStableBalance
   meta?: ResponseMeta
 }
+
 export type CopyAccountPositionsResponse = CursorResponse<PositionSummary>
 export type CopyAccountHistoryResponse = CursorResponse<ActivityRow>
 export type PendingSellObligationsResponse = CursorResponse<PendingSellObligation>
 
+// Prepared write action models.
 export type RawAmountMetric = Pick<Metric, 'valueRaw' | 'status' | 'asOf'>
 
 export type SwapQuotePreview = {
@@ -1027,6 +1034,7 @@ export type PreparedAction = {
   closePosition?: PositionSellPreview
 }
 
+// Prepared write response and request contracts.
 export type PreparedActionResponse = { data: PreparedAction }
 export type PrepareStartCopyResponse = PreparedActionResponse
 export type PrepareAddCapitalResponse = PreparedActionResponse

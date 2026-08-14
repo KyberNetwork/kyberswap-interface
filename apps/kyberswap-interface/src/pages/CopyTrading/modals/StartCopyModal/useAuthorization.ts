@@ -53,6 +53,7 @@ export const useStartCopyAuthorization = () => {
   const addTransactionWithType = useTransactionAdder()
   const allTransactions = useAllTransactions()
   const pendingApprovalRef = useRef<PendingApproval | undefined>(undefined)
+
   const requiresApprovalFallback = isSmartConnector || isSmartAccount
   const getAuthorizationKind = useCallback(
     (action: PreparedAction) => getStartCopyAuthorizationKind(action, requiresApprovalFallback),
@@ -62,6 +63,7 @@ export const useStartCopyAuthorization = () => {
   const recoverPendingApproval = useCallback(
     (action: PreparedAction) => {
       if (pendingApprovalRef.current || !account) return
+
       const authorization = getStartCopyAllowanceAuthorization(action)
       const candidate = Object.values(allTransactions || {})
         .flatMap(transactions => transactions || [])
@@ -79,6 +81,7 @@ export const useStartCopyAuthorization = () => {
             typeof extraInfo.arbitrary?.startCopyApprovalAmountRaw === 'string',
         )
         .sort((a, b) => b.transaction.addedTime - a.transaction.addedTime)[0]
+
       const expectedAllowanceRaw = candidate?.extraInfo?.arbitrary?.startCopyApprovalAmountRaw
       if (!candidate || typeof expectedAllowanceRaw !== 'string') return
 
@@ -134,6 +137,7 @@ export const useStartCopyAuthorization = () => {
 
       const publicClient = getPublicClient(wagmiConfig, { chainId: pending.chainId })
       if (!publicClient) throw new Error('The public client is unavailable for the selected chain.')
+
       const receipt = await publicClient.waitForTransactionReceipt({ hash: pending.hash })
       if (receipt.status !== 'success') {
         pendingApprovalRef.current = undefined
@@ -160,6 +164,7 @@ export const useStartCopyAuthorization = () => {
 
       const authorization = getStartCopyAllowanceAuthorization(action)
       const authorizationKind = getAuthorizationKind(action)
+
       if (chainId !== authorization.chainId) {
         throw new Error('Switch to the prepared chain before authorizing the quote token.')
       }
@@ -174,6 +179,7 @@ export const useStartCopyAuthorization = () => {
         authorization.spenderAddress,
       )
       const requiredAllowance = BigInt(authorization.requiredAllowanceRaw)
+
       if (currentAllowance >= requiredAllowance) {
         return undefined
       }
@@ -193,19 +199,18 @@ export const useStartCopyAuthorization = () => {
           deadline,
           nonce,
         })
-
         const rawSignature = await signTypedDataRaw({
           account: ownerAddress,
           chainId: authorization.chainId,
           typedData,
         })
-        const createPermitData = encodeStartCopyPermitData({
+
+        return encodeStartCopyPermitData({
           authorization,
           deadline,
           nonce,
           rawSignature,
         })
-        return createPermitData
       }
 
       const submitApproval = async (allowance: bigint) => {
@@ -225,6 +230,7 @@ export const useStartCopyAuthorization = () => {
         if (!result?.hash) throw new Error('The token approval was not submitted.')
 
         const hash = result.hash as Hash
+
         pendingApprovalRef.current = {
           chainId: authorization.chainId,
           expectedAllowanceRaw: allowance.toString(),
@@ -233,6 +239,7 @@ export const useStartCopyAuthorization = () => {
           spenderAddress: authorization.spenderAddress,
           tokenAddress: authorization.quoteTokenAddress,
         }
+
         void addTransactionWithType({
           hash,
           desiredChainId: authorization.chainId as ChainId,
@@ -244,6 +251,7 @@ export const useStartCopyAuthorization = () => {
             arbitrary: { startCopyApprovalAmountRaw: allowance.toString() },
           },
         })
+
         await confirmPendingApproval(action)
       }
 
@@ -256,6 +264,7 @@ export const useStartCopyAuthorization = () => {
         ownerAddress,
         authorization.spenderAddress,
       )
+
       if (refreshedAllowance < requiredAllowance) await submitApproval(requiredAllowance)
 
       return undefined

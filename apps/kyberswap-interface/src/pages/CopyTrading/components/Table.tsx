@@ -21,9 +21,9 @@ type TableCellProps = HTMLAttributes<HTMLSpanElement> & {
 }
 
 type EmptyStateProps = {
+  className?: string
   iconUrl?: string
   message: string
-  className?: string
 }
 
 type TableBodyProps = PropsWithChildren<{
