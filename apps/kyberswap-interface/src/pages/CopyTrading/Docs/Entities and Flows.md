@@ -1,10 +1,10 @@
 # Entities and Flows
 
-Lần cập nhật: 2026-08-13
+Lần cập nhật: 2026-08-14
 
 Tài liệu này là bản đọc nhanh để hiểu entity, lifecycle và user flow của Copy
 Trading. Contract hiện tại nằm trong `FE_API_Catalog.md`; `openapi.yaml` đã
-được đồng bộ byte-for-byte từ Swagger pre-release ngày 2026-08-13. Trạng thái
+được đồng bộ byte-for-byte từ Swagger pre-release ngày 2026-08-14. Trạng thái
 code thực tế nằm trong `IMPLEMENTATION_STATUS.md`.
 
 ## 1. Mental model
@@ -159,8 +159,9 @@ Manual Sell và Close Position không phải nút bán tùy ý:
 - **Close Position** chỉ xuất hiện khi position advertise `CLOSE_POSITION` cho
   full-position recovery. `UNAVAILABLE / CLOSE_NOT_ELIGIBLE` nghĩa là không
   được ép close bằng một call khác.
-- Cả hai flow cần Wallet Session: ký đúng SIWE message, đổi lấy access token và
-  chỉ giữ token trong memory.
+- Cả hai flow gọi preparation route trực tiếp sau khi refresh input hiện tại;
+  không có challenge, access token hoặc Bearer header. Owner wallet vẫn phải
+  submit exact prepared call và contract tiếp tục enforce quyền thực thi.
 
 ## 4. Action theo state
 
@@ -172,8 +173,8 @@ Manual Sell và Close Position không phải nút bán tùy ý:
 | Run hoặc Position `CLOSING`           | Không gửi lại action; chờ receipt/projector rồi prepare lại.     |
 | Run `STOPPED`, còn quote balance      | Withdraw nếu prepare cho phép.                                   |
 | Run `CLOSED`                          | Đọc History; chỉ Withdraw nếu availability/prepare vẫn cho phép. |
-| Có pending sell obligation            | Manual Sell nếu được advertise và Wallet Session hợp lệ.         |
-| Đủ điều kiện full recovery            | Close Position nếu được advertise và Wallet Session hợp lệ.      |
+| Có pending sell obligation            | Manual Sell nếu action được advertise và prepare cho phép.        |
+| Đủ điều kiện full recovery            | Close Position nếu action được advertise và prepare cho phép.     |
 | Position `CLOSED`                     | Không Manual Sell hoặc Close Position lần nữa.                   |
 
 Read availability dùng để enable UI. Kết quả prepare mới nhất mới là quyết định
@@ -216,9 +217,13 @@ Read availability
 | `PENDING`             | Không gửi; chờ `reprepareAfter` rồi prepare lại.                                  |
 | `UNAVAILABLE`         | Không gửi; hiển thị typed reason.                                                 |
 
-Không ABI-encode, rebuild hoặc chỉnh sửa calldata từ preview. Wallet Session chỉ
-authorize preparation cho Manual Sell/Close Position; nó không submit
-transaction.
+Các stateless preparation có thể được trả về đồng thời, nhưng FE chỉ giữ
+response của request mới nhất. Khi một transaction thay đổi state đã được gửi,
+mọi preparation cạnh tranh hoặc superseded phải bị bỏ và không được submit.
+
+Không ABI-encode, rebuild hoặc chỉnh sửa calldata từ preview. Preparation của
+Manual Sell/Close Position là stateless và không chứng minh quyền sở hữu;
+owner wallet vẫn là bên submit transaction và contract là boundary thực thi.
 
 `PreparedAction.copyAccount` là identity của Smart Wallet, không phải `call.to`.
 Với mọi action ngoài Start Copy, field này phải khớp Copy Account đang chọn;

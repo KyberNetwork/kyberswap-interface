@@ -1,14 +1,13 @@
 import { useQueryClient } from '@tanstack/react-query'
 import { type PropsWithChildren, createContext, useCallback, useContext, useMemo, useState } from 'react'
 import copyTradingApi from 'services/copyTrading'
-import type { Address, AdvisoryActionAvailability, CopyRunSummary, PositionSummary } from 'services/copyTrading/types'
+import type { AdvisoryActionAvailability, CopyRunSummary, PositionSummary } from 'services/copyTrading/types'
 
 import AddCapitalModal from 'pages/CopyTrading/modals/AddCapitalModal'
 import ManagePositionModal, { type ManagePositionMode } from 'pages/CopyTrading/modals/ManagePositionModal'
 import StopCopyModal from 'pages/CopyTrading/modals/StopCopyModal'
 import SubscribeModal, { type SubscribeTarget } from 'pages/CopyTrading/modals/SubscribeModal'
 import WithdrawQuoteModal from 'pages/CopyTrading/modals/WithdrawQuoteModal'
-import { useCopyTradingWalletSession } from 'pages/CopyTrading/write/usePreparedAction'
 import { useAppDispatch } from 'state/hooks'
 
 type ActiveModal =
@@ -18,12 +17,6 @@ type ActiveModal =
   | { type: 'withdrawQuote'; copyRun: CopyRunSummary; withdrawQuoteAvailability?: AdvisoryActionAvailability }
   | { type: 'managePosition'; position: PositionSummary; mode: ManagePositionMode }
 
-type WithWalletSession = <T>(
-  ownerAddress: Address,
-  chainId: number,
-  request: (accessToken: string) => Promise<T>,
-) => Promise<T>
-
 type CopyTradeWriteContextValue = {
   openSubscribe: (agent: SubscribeTarget) => void
   openAddCapital: (copyRun: CopyRunSummary, agentName?: string) => void
@@ -31,7 +24,6 @@ type CopyTradeWriteContextValue = {
   openWithdrawQuote: (copyRun: CopyRunSummary, availability?: AdvisoryActionAvailability) => void
   openManagePosition: (position: PositionSummary, mode: ManagePositionMode) => void
   refreshCopyTrading: () => Promise<void>
-  withWalletSession: WithWalletSession
 }
 
 const CopyTradeWriteContext = createContext<CopyTradeWriteContextValue | undefined>(undefined)
@@ -40,7 +32,6 @@ export const CopyTradeWriteProvider = ({ children }: PropsWithChildren) => {
   const dispatch = useAppDispatch()
   const queryClient = useQueryClient()
   const [active, setActive] = useState<ActiveModal | null>(null)
-  const { withAccessToken } = useCopyTradingWalletSession()
 
   const refreshCopyTrading = useCallback(async () => {
     dispatch(copyTradingApi.util.invalidateTags(['CopyTrading']))
@@ -56,9 +47,8 @@ export const CopyTradeWriteProvider = ({ children }: PropsWithChildren) => {
         setActive({ type: 'withdrawQuote', copyRun, withdrawQuoteAvailability }),
       openManagePosition: (position, mode) => setActive({ type: 'managePosition', position, mode }),
       refreshCopyTrading,
-      withWalletSession: withAccessToken,
     }),
-    [refreshCopyTrading, withAccessToken],
+    [refreshCopyTrading],
   )
 
   const close = () => setActive(null)
