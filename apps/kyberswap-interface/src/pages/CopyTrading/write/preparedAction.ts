@@ -51,7 +51,7 @@ const reasonMessages: Partial<Record<PreparedActionReason, string>> = {
   PREPARED_ACTION_REASON_SOURCE_COVERAGE_PENDING: 'The latest on-chain state is still being indexed.',
   PREPARED_ACTION_REASON_FACTORY_PAUSED: 'New Copy Trading accounts are temporarily paused.',
   PREPARED_ACTION_REASON_FEE_POLICY_CHANGED: 'The fee policy changed. Review the latest preparation.',
-  PREPARED_ACTION_REASON_SIGNER_POLICY_CHANGED: 'The authorization policy changed. Please authorize again.',
+  PREPARED_ACTION_REASON_SIGNER_POLICY_CHANGED: 'The execution signer policy changed. Please prepare again.',
   PREPARED_ACTION_REASON_REQUEST_ID_CONFLICT: 'This Start Copy request conflicts with an earlier attempt.',
   PREPARED_ACTION_REASON_UNSUPPORTED_ACCOUNT_GENERATION: 'This Smart Wallet generation is not supported.',
   PREPARED_ACTION_REASON_NO_QUOTE_BALANCE: 'There is no quote-token balance available to withdraw.',
@@ -101,9 +101,6 @@ export const getApiErrorMessage = (error: unknown) => {
     'The request could not be completed.'
   )
 }
-
-export const isUnauthorizedError = (error: unknown) =>
-  Boolean(error && typeof error === 'object' && 'status' in error && (error as { status?: unknown }).status === 401)
 
 export const isRetryableApiError = (error: unknown) => {
   if (!error || typeof error !== 'object' || !('status' in error)) return false

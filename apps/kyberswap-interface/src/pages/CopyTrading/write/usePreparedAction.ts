@@ -1,17 +1,14 @@
 import { getPublicClient } from '@wagmi/core'
-import { type Dispatch, type SetStateAction, useCallback, useEffect, useState } from 'react'
-import { useCreateWalletSessionChallengeMutation, useCreateWalletSessionMutation } from 'services/copyTrading'
-import type { Address, PreparedAction, WalletSessionResponse } from 'services/copyTrading/types'
+import type { Dispatch, SetStateAction } from 'react'
+import type { PreparedAction } from 'services/copyTrading/types'
 
 import { wagmiConfig } from 'components/Web3Provider'
-import { useActiveWeb3React } from 'hooks'
 import {
   type PreparedActionExpectation,
   getApiErrorMessage,
   getPreparedReasonMessage,
   getReprepareDelay,
   isRetryableApiError,
-  isUnauthorizedError,
   validatePreparedAction,
   validatePreparedActionContinuation,
   wait,
@@ -58,6 +55,17 @@ type UsePreparedActionProps = {
 }
 
 const CONTINUATION_ATTEMPTS = 6
+type PreparedActionStateSetter = Dispatch<SetStateAction<PreparedActionFlowState>>
+const preparationRequestVersions = new WeakMap<PreparedActionStateSetter, number>()
+
+const invalidatePreparationRequests = (setState: PreparedActionStateSetter) => {
+  const nextVersion = (preparationRequestVersions.get(setState) || 0) + 1
+  preparationRequestVersions.set(setState, nextVersion)
+  return nextVersion
+}
+
+const isCurrentPreparationRequest = (setState: PreparedActionStateSetter, version: number) =>
+  preparationRequestVersions.get(setState) === version
 
 export const usePreparedAction = ({
   state,
@@ -68,14 +76,25 @@ export const usePreparedAction = ({
   afterReceipt,
   onComplete,
 }: UsePreparedActionProps) => {
-  const finish = (action?: PreparedAction, hash?: Hash) => {
+  const finish = (action?: PreparedAction, hash?: Hash, preparationVersion?: number) => {
+    if (preparationVersion !== undefined && !isCurrentPreparationRequest(setState, preparationVersion)) {
+      return
+    }
     setState({ phase: 'success', action, hash })
     void Promise.resolve()
-      .then(() => onComplete?.())
+      .then(() => {
+        if (preparationVersion !== undefined && !isCurrentPreparationRequest(setState, preparationVersion)) {
+          return
+        }
+        return onComplete?.()
+      })
       .catch(() => undefined)
   }
 
   const requestPreparation = async ({ continuation = false, hash }: { continuation?: boolean; hash?: Hash } = {}) => {
+    const preparationVersion = invalidatePreparationRequests(setState)
+    const isCurrent = () => isCurrentPreparationRequest(setState, preparationVersion)
+
     setState(current => ({
       phase: continuation ? 'syncing' : 'preparing',
       action: continuation ? current.action : undefined,
@@ -87,8 +106,10 @@ export const usePreparedAction = ({
       try {
         action = await prepare()
       } catch (error) {
+        if (!isCurrent()) return
         if (continuation && attempt < CONTINUATION_ATTEMPTS - 1 && isRetryableApiError(error)) {
           await wait(2_000)
+          if (!isCurrent()) return
           continue
         }
 
@@ -101,6 +122,7 @@ export const usePreparedAction = ({
         }))
         return
       }
+      if (!isCurrent()) return
 
       if (action.status === 'PREPARED_ACTION_STATUS_PENDING') {
         const validationError = validatePreparedAction(action, expected, { requireCall: false })
@@ -110,6 +132,7 @@ export const usePreparedAction = ({
         }
         if (continuation && attempt < CONTINUATION_ATTEMPTS - 1) {
           await wait(getReprepareDelay(action))
+          if (!isCurrent()) return
           continue
         }
         setState({ phase: 'pending', action, error: getPreparedReasonMessage(action.reason), hash })
@@ -136,7 +159,7 @@ export const usePreparedAction = ({
           setState({ phase: 'error', action, error: validationError, hash })
           return
         }
-        finish(action, hash)
+        finish(action, hash, preparationVersion)
         return
       }
 
@@ -196,6 +219,7 @@ export const usePreparedAction = ({
   }
 
   const confirm = async () => {
+    invalidatePreparationRequests(setState)
     const action = state.action
     const call = action?.call
     if (!action || !call?.to || !call.data) {
@@ -301,81 +325,10 @@ export const usePreparedAction = ({
     await requestPreparation({ continuation: !!state.hash, hash: state.hash })
   }
 
-  const reset = () => setState(DEFAULT_PREPARED_ACTION_STATE)
+  const reset = () => {
+    invalidatePreparationRequests(setState)
+    setState(DEFAULT_PREPARED_ACTION_STATE)
+  }
 
   return { confirm, prepare: requestPreparation, reset, retry }
-}
-
-type WalletSession = WalletSessionResponse['data']
-
-export const useCopyTradingWalletSession = () => {
-  const { account, chainId: activeChainId } = useActiveWeb3React()
-  const [session, setSession] = useState<WalletSession>()
-  const [createChallenge] = useCreateWalletSessionChallengeMutation()
-  const [createSession] = useCreateWalletSessionMutation()
-
-  const clear = useCallback(() => setSession(undefined), [])
-
-  useEffect(() => {
-    clear()
-  }, [account, activeChainId, clear])
-
-  const getAccessToken = useCallback(
-    async (ownerAddress: Address, chainId: number, force = false) => {
-      const validUntil = session?.expiresAt ? Date.parse(session.expiresAt) : 0
-      if (
-        !force &&
-        session?.accessToken &&
-        session.ownerAddress.toLowerCase() === ownerAddress.toLowerCase() &&
-        Number(session.chainId) === chainId &&
-        validUntil > Date.now() + 30_000
-      ) {
-        return session.accessToken
-      }
-
-      const challenge = await createChallenge({ chainId: String(chainId), ownerAddress }).unwrap()
-      const walletClient = await getGatedWalletClient({ chainId })
-      if (!walletClient) throw new Error('Wallet client is unavailable for authorization.')
-
-      const signature = await walletClient.signMessage({
-        account: ownerAddress,
-        message: challenge.data.siweMessage,
-      })
-      const response = await createSession({
-        challengeToken: challenge.data.challengeToken,
-        signature,
-      }).unwrap()
-      const nextSession = response.data
-
-      if (
-        nextSession.tokenType !== 'Bearer' ||
-        nextSession.ownerAddress.toLowerCase() !== ownerAddress.toLowerCase() ||
-        Number(nextSession.chainId) !== chainId ||
-        Date.parse(nextSession.expiresAt) <= Date.now()
-      ) {
-        throw new Error('The wallet session response does not match the selected wallet and chain.')
-      }
-
-      setSession(nextSession)
-      return nextSession.accessToken
-    },
-    [createChallenge, createSession, session],
-  )
-
-  const withAccessToken = useCallback(
-    async <T>(ownerAddress: Address, chainId: number, request: (accessToken: string) => Promise<T>) => {
-      let accessToken = await getAccessToken(ownerAddress, chainId)
-      try {
-        return await request(accessToken)
-      } catch (error) {
-        if (!isUnauthorizedError(error)) throw error
-        clear()
-        accessToken = await getAccessToken(ownerAddress, chainId, true)
-        return request(accessToken)
-      }
-    },
-    [clear, getAccessToken],
-  )
-
-  return { clear, withAccessToken }
 }

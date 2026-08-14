@@ -1,31 +1,31 @@
 # Copy Trading Implementation Status
 
-Last reviewed: 2026-08-13
+Last reviewed: 2026-08-14
 
 This document tracks the current frontend implementation and remaining product
 or UI work. Product entities and intended flows are documented in
 `Entities and Flows.md`; the current HTTP contract is documented in
 `FE_API_Catalog.md`. The checked-in `openapi.yaml` is synchronized byte-for-byte
-with the pre-release Swagger contract fetched on 2026-08-13.
+with the pre-release Swagger contract fetched on 2026-08-14.
 
-All 26 GET and 8 POST Copy Trading API operations in the current catalog are
+All 26 GET and 6 POST Copy Trading API operations in the current catalog are
 declared in the frontend service.
 
 ## Implementation at a Glance
 
 | Layer              | Current status                                                                                                                                                |
 | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| BE API catalog     | `IMPLEMENTED`: 34 public operations are documented.                                                                                                           |
-| Checked-in OpenAPI | `CURRENT`: synchronized with the live 34-operation pre-release Swagger contract, including wallet inventory and funded-authorization fields.             |
-| RTK Query service  | `IMPLEMENTED`: all 26 GET and 8 POST operations are declared and typed.                                                                                       |
-| Read UI            | Partially implemented: 16 of 26 GET operations have a UI consumer; pending obligations are consumed by Manual Sell rather than a standalone read-only screen. |
+| BE API catalog     | `IMPLEMENTED`: 32 public operations are documented.                                                                                                           |
+| Checked-in OpenAPI | `CURRENT`: synchronized with the live 32-operation pre-release Swagger contract; wallet-session routes and Bearer security are removed.                      |
+| RTK Query service  | `IMPLEMENTED`: all 26 GET and 6 POST operations are declared and typed.                                                                                       |
+| Read UI            | Partially implemented: 17 of 26 GET operations have a UI consumer; position/FIFO refreshes are consumed by recovery actions rather than standalone screens.   |
 | Write UX           | `IMPLEMENTED`: Start, Add, Stop, Withdraw, Manual Sell, and Close Position use the prepared-action workflow.                                                  |
-| Write integration  | `IMPLEMENTED`: exact API-prepared calls, receipt-success completion, Start stage continuation, wallet sessions, and asynchronous cache refresh are connected. |
-| API availability   | Live Swagger exposes all 34 operations. `/chains` and `/agents` have dated read smoke; account-specific reads and write outcomes still require live E2E.       |
+| Write integration  | `IMPLEMENTED`: exact API-prepared calls, receipt-success completion, Start stage continuation, stateless recovery preparation, and async cache refresh are connected. |
+| API availability   | Live Swagger exposes all 32 operations. `/chains` and `/agents` have dated read smoke; account-specific reads and write outcomes still require live E2E.       |
 
 ## Contract and Service Coverage
 
-`services/copyTrading/index.ts` uses `fetchBaseQuery` and declares all 34 public
+`services/copyTrading/index.ts` uses `fetchBaseQuery` and declares all 32 public
 operations:
 
 - 26 GET queries, including the run-scoped effective cashback policy and
@@ -37,9 +37,6 @@ operations:
   - Withdraw Quote.
   - Manual Sell.
   - Close Position.
-- Two wallet-session mutations:
-  - Create Wallet Session Challenge.
-  - Create Wallet Session.
 
 `services/copyTrading/adapters.ts` is the compatibility boundary between
 API-native envelopes/enums and the existing UI models.
@@ -60,7 +57,7 @@ Confirmed service behavior:
 
 ## Current UI Read Coverage
 
-The current UI consumes these 16 GET operations:
+The current UI consumes these 17 GET operations:
 
 - Chains.
 - Leaderboard summary and leaderboard rows.
@@ -70,10 +67,12 @@ The current UI consumes these 16 GET operations:
 - Owner activity.
 - Copy-account wallet inventory for the `Remaining in Wallet` rows and
   authoritative account-wide USD total.
+- Copy-account positions to refresh the selected recovery position immediately
+  before Manual Sell or Close Position preparation.
 - Pending sell obligations through the Manual Sell recovery modal. The complete
   cursor-backed FIFO is preparation input, not a user-selected sell ratio.
 
-The following ten GET operations are declared but have no dedicated Copy
+The following nine GET operations are declared but have no dedicated Copy
 Trading UI consumer:
 
 - Copy Run cashback policy. Its service contract is integrated, but no
@@ -86,7 +85,6 @@ Trading UI consumer:
 - Owner copy-account list.
 - Copy-account detail.
 - Copy-account balances.
-- Copy-account positions.
 - Copy-account history.
 
 These are product-surface gaps, not service gaps. They need an agreed route,
@@ -135,9 +133,10 @@ Current primary-screen read behavior:
 - Keep Sidebar Agents and Open Copies capped at 10 items.
 - Open and History membership remains owned by the server response.
 - Stop Copy trusts the Copy Run passed by the entry point, then the modal loads
-  the complete open-position cursor chain. Manual Sell and Close Position trust
-  the selected `PositionSummary`. The preparation response remains authoritative
-  before any wallet submission.
+  the complete open-position cursor chain. Manual Sell and Close Position use
+  the selected `PositionSummary` only to open the modal, then refresh the current
+  copy-account position before preparation. The preparation response remains
+  authoritative before any wallet submission.
 - The Stop Copy modal owns loading every open-position cursor page, including
   loading, error, and Retry UI. An incomplete or invalid cursor chain prevents
   preparation rather than presenting a partial position list.
@@ -170,8 +169,8 @@ The production write path is split by ownership:
   confirmation, syncing, unavailable, error, and success presentation.
 - `write/preparedAction.ts` owns pure parsing, formatting, typed reason copy,
   preparation validation, and retry timing.
-- `write/WriteContext.tsx` owns modal routing, the in-memory wallet session, RTK
-  tag invalidation, and TanStack cursor-query invalidation.
+- `write/WriteContext.tsx` owns modal routing, RTK tag invalidation, and TanStack
+  cursor-query invalidation.
 
 Implemented behavior:
 
@@ -197,14 +196,14 @@ Implemented behavior:
 - Withdraw is exposed only when the selected Copy Run status is `STOPPED`, then
   gated by `withdrawQuoteAvailability`. It sends `{}` to preparation and
   requires the prepared amount and connected-owner recipient.
-- Manual Sell trusts the selected position props and reloads the complete
+- Manual Sell refreshes the selected copy-account position and complete
   pending-obligation cursor chain. It uses the FIFO head ratio and total
   unresolved FIFO count.
-- Close Position trusts the selected position props and is exposed only when
-  those props advertise the full-recovery action.
-- Manual Sell and Close Position sign the exact SIWE challenge, store the Bearer
-  session only in React memory, and clear/re-authorize it on owner/chain change,
-  expiry, or `401`.
+- Close Position refreshes the selected copy-account position before direct
+  preparation; the original row controls the initial CTA presentation only.
+- Manual Sell and Close Position call their preparation routes directly without
+  a challenge, access token, or Authorization header. The owner wallet still
+  simulates and submits the exact returned call.
 - `call.to`, `call.data`, and `call.valueRaw` are simulated and submitted
   unchanged through the gated wallet client.
 - A receipt retry waits for the already-submitted hash and never sends the
@@ -222,9 +221,8 @@ Implemented behavior:
 | Add Capital    | Reviews quote-token, minimum, balance, and allocation data, then submits the exact prepared call.                                       |
 | Stop Copy      | Loads all open-position pages, supports zero to 32 selected IDs, validates the payload cap, and submits the exact prepared call.        |
 | Withdraw Quote | Only a `STOPPED` Copy Detail exposes the availability-gated CTA; amount and owner recipient are server-prepared and non-editable.       |
-| Wallet Session | Exact SIWE challenge/signature exchange with an owner/chain-scoped, expiring in-memory Bearer session; `401` forces re-authorization.   |
-| Manual Sell    | Trusts selected position props, requires the authoritative FIFO head ratio/count, then prepares through the wallet session.             |
-| Close Position | Trusts selected position props, requires the advertised full-recovery action, then prepares through the wallet session.                 |
+| Manual Sell    | Refreshes the current position and authoritative FIFO head ratio/count, then prepares directly.                                     |
+| Close Position | Refreshes the current position after the advertised CTA is selected, then prepares directly.                                      |
 
 ## Implemented Write Invariants
 
@@ -262,9 +260,14 @@ predicted account and rejects any later stage within that attempt that changes
 it. A review is discarded after `reprepareAfter` or
 `liquidationConfigDeadline`.
 
-Wallet-session challenge tokens, signatures, and access tokens are never
-persisted. The token is scoped to the signed owner/chain and retained only until
-expiry, owner/chain change, or an authorization failure.
+Repeated stateless preparation calls are allowed, but the UI keeps only the
+latest request's response. An older response that resolves after a newer
+request is discarded, and starting wallet submission invalidates any competing
+preparation snapshot.
+
+Manual Sell and Close Position preparation is stateless. A returned preparation
+does not authorize execution by another wallet; the connected owner still
+submits the exact call and the follower-account contract enforces its caller.
 
 ## Remaining Work
 
@@ -277,18 +280,19 @@ expiry, owner/chain change, or an authorization failure.
    two cursor pages with a connected wallet and representative data.
 4. Complete browser validation for responsive layout, keyboard focus,
    accessible labels and disabled states, and modal accessibility.
-5. Assign UI ownership for the ten remaining read-only discovery/drilldown
+5. Assign UI ownership for the nine remaining read-only discovery/drilldown
    operations.
 6. Render position-level stale valuation indication.
 
 ## Verification
 
 - The checked-in `openapi.yaml` matches the live pre-release Swagger contract
-  fetched on 2026-08-13: 34 paths and 134 definitions.
-- The service surface contains 26 GET queries and 8 POST mutations.
-- All six preparation mutations and both wallet-session mutations have an owned
-  UI flow.
+  fetched on 2026-08-14: 32 paths and 128 definitions.
+- The service surface contains 26 GET queries and 6 POST mutations.
+- All six preparation mutations have an owned UI flow.
 - The local ABI, mock signer, and mock transaction-hash path have been removed.
-- Focused time tests pass.
+- All 36 Copy Trading unit tests pass.
 - App TypeScript, Copy Trading ESLint, Prettier for the changed implementation,
-  and `git diff --check` pass.
+  Vite production build, and `git diff --check` pass.
+- Browser QA and positive live transaction E2E were not rerun for this contract
+  migration.

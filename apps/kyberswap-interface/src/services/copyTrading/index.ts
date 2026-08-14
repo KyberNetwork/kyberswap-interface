@@ -58,8 +58,6 @@ import type {
   CopyRunsResponse,
   CotLogsQuery,
   CotLogsResponse,
-  CreateWalletSessionChallengeRequest,
-  CreateWalletSessionRequest,
   LeaderboardQuery,
   LeaderboardResponse,
   LeaderboardSortBy,
@@ -93,8 +91,6 @@ import type {
   PrepareWithdrawQuoteRequest,
   PrepareWithdrawQuoteResponse,
   SortOrder,
-  WalletSessionChallengeResponse,
-  WalletSessionResponse,
 } from 'services/copyTrading/types'
 
 type QueryParam = string | number | boolean
@@ -495,39 +491,28 @@ const copyTradingApi = createApi({
       }),
     }),
     prepareManualSell: builder.mutation<PrepareManualSellResponse, PrepareManualSellRequest>({
-      query: ({ ownerAddress, copyRunId, userPositionId, accessToken, ...body }) => ({
+      query: ({
+        ownerAddress,
+        copyRunId,
+        userPositionId,
+        slippageBps,
+        expectedUnresolvedSkipCount,
+        expectedSellRatioRaw,
+      }) => ({
         url: `/users/${pathPart(ownerAddress)}/copy-runs/${pathPart(copyRunId)}/positions/${pathPart(
           userPositionId,
         )}:prepareManualSell`,
         method: 'POST',
-        body,
-        headers: { Authorization: `Bearer ${accessToken}` },
+        body: { slippageBps, expectedUnresolvedSkipCount, expectedSellRatioRaw },
       }),
     }),
     prepareClosePosition: builder.mutation<PrepareClosePositionResponse, PrepareClosePositionRequest>({
-      query: ({ ownerAddress, copyRunId, userPositionId, accessToken, ...body }) => ({
+      query: ({ ownerAddress, copyRunId, userPositionId, slippageBps }) => ({
         url: `/users/${pathPart(ownerAddress)}/copy-runs/${pathPart(copyRunId)}/positions/${pathPart(
           userPositionId,
         )}:prepareClosePosition`,
         method: 'POST',
-        body,
-        headers: { Authorization: `Bearer ${accessToken}` },
-      }),
-    }),
-    createWalletSessionChallenge: builder.mutation<WalletSessionChallengeResponse, CreateWalletSessionChallengeRequest>(
-      {
-        query: body => ({
-          url: '/wallet-session-challenges',
-          method: 'POST',
-          body,
-        }),
-      },
-    ),
-    createWalletSession: builder.mutation<WalletSessionResponse, CreateWalletSessionRequest>({
-      query: body => ({
-        url: '/wallet-sessions',
-        method: 'POST',
-        body,
+        body: { slippageBps },
       }),
     }),
   }),
@@ -540,8 +525,6 @@ export const {
   usePrepareWithdrawQuoteMutation,
   usePrepareManualSellMutation,
   usePrepareClosePositionMutation,
-  useCreateWalletSessionChallengeMutation,
-  useCreateWalletSessionMutation,
 } = copyTradingApi
 
 export default copyTradingApi

@@ -16,8 +16,6 @@ tags:
     description: Chain-scoped copy account balances, positions, history, and summary reads.
   - name: Transaction Preparation
     description: Prepare authoritative Copy Trade contract calls for wallet-owned execution.
-  - name: Wallet Sessions
-    description: Create an ERC-4361 challenge and exchange its EOA or ERC-1271 wallet signature for a short-lived aggregate session.
 basePath: /api/v1
 schemes:
   - https
@@ -1343,8 +1341,6 @@ paths:
             $ref: '#/definitions/TransactionPreparationServicePrepareManualSellBody'
       tags:
         - Transaction Preparation
-      security:
-        - WalletSessionBearer: []
   /users/{ownerAddress}/copy-runs/{copyRunId}/positions/{userPositionId}:prepareClosePosition:
     post:
       summary: PrepareClosePosition prepares one eligible full-position recovery close.
@@ -1378,48 +1374,6 @@ paths:
             $ref: '#/definitions/TransactionPreparationServicePrepareClosePositionBody'
       tags:
         - Transaction Preparation
-      security:
-        - WalletSessionBearer: []
-  /wallet-session-challenges:
-    post:
-      operationId: createWalletSessionChallenge
-      responses:
-        "200":
-          description: A successful response.
-          schema:
-            $ref: '#/definitions/v1CreateWalletSessionChallengeResponse'
-        default:
-          description: An unexpected error response.
-          schema:
-            $ref: '#/definitions/rpcStatus'
-      parameters:
-        - name: body
-          in: body
-          required: true
-          schema:
-            $ref: '#/definitions/v1CreateWalletSessionChallengeRequest'
-      tags:
-        - Wallet Sessions
-  /wallet-sessions:
-    post:
-      operationId: createWalletSession
-      responses:
-        "200":
-          description: A successful response.
-          schema:
-            $ref: '#/definitions/v1CreateWalletSessionResponse'
-        default:
-          description: An unexpected error response.
-          schema:
-            $ref: '#/definitions/rpcStatus'
-      parameters:
-        - name: body
-          in: body
-          required: true
-          schema:
-            $ref: '#/definitions/v1CreateWalletSessionRequest'
-      tags:
-        - Wallet Sessions
 definitions:
   TransactionPreparationServicePrepareAddCapitalBody:
     type: object
@@ -2174,31 +2128,6 @@ definitions:
         type: string
         format: date-time
     description: CountMetric preserves an integer count and independent availability.
-  v1CreateWalletSessionChallengeRequest:
-    type: object
-    properties:
-      chainId:
-        type: string
-        format: int64
-      ownerAddress:
-        type: string
-  v1CreateWalletSessionChallengeResponse:
-    type: object
-    properties:
-      data:
-        $ref: '#/definitions/v1WalletSessionChallenge'
-  v1CreateWalletSessionRequest:
-    type: object
-    properties:
-      challengeToken:
-        type: string
-      signature:
-        type: string
-  v1CreateWalletSessionResponse:
-    type: object
-    properties:
-      data:
-        $ref: '#/definitions/v1WalletSession'
   v1CursorPagination:
     type: object
     properties:
@@ -3526,31 +3455,6 @@ definitions:
       currentValuation:
         $ref: '#/definitions/v1PositionValuation'
     description: WalletBalanceRow is a copy-account wallet inventory row.
-  v1WalletSession:
-    type: object
-    properties:
-      accessToken:
-        type: string
-      tokenType:
-        type: string
-      chainId:
-        type: string
-        format: int64
-      ownerAddress:
-        type: string
-      expiresAt:
-        type: string
-        format: date-time
-  v1WalletSessionChallenge:
-    type: object
-    properties:
-      siweMessage:
-        type: string
-      challengeToken:
-        type: string
-      expiresAt:
-        type: string
-        format: date-time
   v1Window:
     type: string
     enum:
@@ -3582,9 +3486,3 @@ definitions:
       recipientAddress:
         type: string
     description: WithdrawQuotePreview describes a repeatable max sweep to the owner snapshot at H.
-securityDefinitions:
-  WalletSessionBearer:
-    type: apiKey
-    description: 'Short-lived wallet session as: Bearer <access_token>. Required only for Manual Sell and Close Position preparation.'
-    name: Authorization
-    in: header
