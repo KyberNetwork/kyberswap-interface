@@ -11,6 +11,7 @@ import type {
 } from 'services/copyTrading/types'
 
 import { ButtonLight, ButtonWarning } from 'components/Button'
+import Dots from 'components/Dots'
 import Loader from 'components/Loader'
 import { Center, HStack, Stack } from 'components/Stack'
 import { useActiveWeb3React } from 'hooks'
@@ -250,6 +251,21 @@ const StopCopyModal = ({ isOpen, onDismiss, copyRun, agentName }: StopCopyModalP
     : !isActionAvailable(availability)
     ? getPreparedReasonMessage(availability?.reason)
     : undefined
+  const primaryActionLabel =
+    positions === undefined
+      ? positionsError
+        ? 'Positions unavailable'
+        : 'Loading positions'
+      : !account
+      ? 'Connect wallet'
+      : !onExpectedChain
+      ? 'Switch network'
+      : availabilityMessage
+      ? 'Stop Copy unavailable'
+      : selectedPositions.length
+      ? `Review Stop & Sell ${selectedPositions.length}`
+      : 'Review Stop Copy'
+  const primaryActionLoading = flowState.isPreparing || (positions === undefined && !positionsError)
 
   return (
     <PreparedActionModal
@@ -263,7 +279,6 @@ const StopCopyModal = ({ isOpen, onDismiss, copyRun, agentName }: StopCopyModalP
       onBack={flow.reset}
       onConfirm={() => void flow.confirm()}
       onRetry={() => void flow.retry()}
-      pendingText="Preparing Stop Copy…"
       successTitle="Copy stopped"
       successText="The transaction is confirmed on-chain. Copy Trading data will refresh in the background."
       width={480}
@@ -299,13 +314,13 @@ const StopCopyModal = ({ isOpen, onDismiss, copyRun, agentName }: StopCopyModalP
                   key={userPositionId}
                   className={cn(
                     'flex items-center gap-3 rounded-lg bg-white-04 px-3 py-2',
-                    selectionLimitReached ? 'cursor-not-allowed opacity-50' : 'cursor-pointer',
+                    flowState.isPreparing || selectionLimitReached ? 'cursor-not-allowed opacity-50' : 'cursor-pointer',
                   )}
                 >
                   <input
                     type="checkbox"
                     checked={checked}
-                    disabled={selectionLimitReached}
+                    disabled={flowState.isPreparing || selectionLimitReached}
                     onChange={() => togglePosition(position, index)}
                     className="size-4 shrink-0 accent-warning"
                   />
@@ -341,9 +356,10 @@ const StopCopyModal = ({ isOpen, onDismiss, copyRun, agentName }: StopCopyModalP
               <button
                 key={value}
                 type="button"
+                disabled={flowState.isPreparing}
                 onClick={() => setSlippage(value)}
                 className={cn(
-                  'rounded-lg border px-3 py-1.5 text-sm font-medium',
+                  'rounded-lg border px-3 py-1.5 text-sm font-medium disabled:cursor-not-allowed disabled:opacity-50',
                   slippage === value
                     ? 'border-primary bg-primary-12 text-primary'
                     : 'border-darkBorder text-subText hover:text-text',
@@ -358,24 +374,15 @@ const StopCopyModal = ({ isOpen, onDismiss, copyRun, agentName }: StopCopyModalP
         <ButtonWarning
           type="button"
           disabled={
-            positions === undefined || !!positionsError || (!!account && onExpectedChain && !!availabilityMessage)
+            flowState.isPreparing ||
+            positions === undefined ||
+            !!positionsError ||
+            (!!account && onExpectedChain && !!availabilityMessage)
           }
           title={availabilityMessage}
           onClick={handlePrimaryAction}
         >
-          {positions === undefined
-            ? positionsError
-              ? 'Positions unavailable'
-              : 'Loading positions…'
-            : !account
-            ? 'Connect wallet'
-            : !onExpectedChain
-            ? 'Switch network'
-            : availabilityMessage
-            ? 'Stop Copy unavailable'
-            : selectedPositions.length
-            ? `Review Stop & Sell ${selectedPositions.length}`
-            : 'Review Stop Copy'}
+          {primaryActionLoading ? <Dots>{primaryActionLabel}</Dots> : primaryActionLabel}
         </ButtonWarning>
       </Stack>
     </PreparedActionModal>

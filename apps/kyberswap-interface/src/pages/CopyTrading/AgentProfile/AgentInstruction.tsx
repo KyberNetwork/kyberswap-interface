@@ -11,7 +11,7 @@ import {
   CopyCapitalCard,
   SidePanelCard,
   StrategyExecutionCard,
-  WishlistedTokensCard,
+  WhitelistedTokensCard,
 } from 'pages/CopyTrading/components/AgentSidebarCards'
 import { useCopyTradingContext } from 'pages/CopyTrading/context'
 import { formatUsd } from 'pages/CopyTrading/helpers'
@@ -75,7 +75,7 @@ const AgentInstruction = ({ agent }: AgentInstructionProps) => {
       )}
       <AgentRiskCard agent={agent} />
       <StrategyExecutionCard items={agent.strategyExecutionItems} />
-      <WishlistedTokensCard tokens={agent.whitelistedSymbols} />
+      <WhitelistedTokensCard tokens={agent.whitelistedSymbols} />
     </Stack>
   )
 }

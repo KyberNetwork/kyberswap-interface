@@ -18,7 +18,6 @@ import { getGatedWalletClient } from 'utils/walletClient'
 
 export type PreparedActionPhase =
   | 'idle'
-  | 'preparing'
   | 'review'
   | 'awaiting_signature'
   | 'confirming'
@@ -31,6 +30,7 @@ export type PreparedActionPhase =
 
 export type PreparedActionFlowState = {
   phase: PreparedActionPhase
+  isPreparing?: boolean
   action?: PreparedAction
   error?: string
   hash?: Hash
@@ -39,19 +39,20 @@ export type PreparedActionFlowState = {
 
 export const DEFAULT_PREPARED_ACTION_STATE: PreparedActionFlowState = { phase: 'idle' }
 
-export type PreparedActionReceiptOutcome = 'complete' | 'reprepare'
-
 type UsePreparedActionProps = {
   state: PreparedActionFlowState
   setState: Dispatch<SetStateAction<PreparedActionFlowState>>
   expected: PreparedActionExpectation
   prepare: () => Promise<PreparedAction>
   reviewUnavailable?: (action: PreparedAction) => boolean
-  afterReceipt?: (
-    action: PreparedAction,
-    hash: Hash,
-  ) => PreparedActionReceiptOutcome | Promise<PreparedActionReceiptOutcome>
+  afterReceipt?: (action: PreparedAction, hash: Hash) => Promise<void> | void
   onComplete?: () => Promise<void> | void
+}
+
+type PreparationRequestOptions = {
+  continuation?: boolean
+  delay?: number
+  hash?: Hash
 }
 
 const CONTINUATION_ATTEMPTS = 6
@@ -76,30 +77,37 @@ export const usePreparedAction = ({
   afterReceipt,
   onComplete,
 }: UsePreparedActionProps) => {
-  const finish = (action?: PreparedAction, hash?: Hash, preparationVersion?: number) => {
+  const notifyComplete = () => {
+    try {
+      void Promise.resolve(onComplete?.()).catch(() => undefined)
+    } catch {}
+  }
+
+  const finish = (action?: PreparedAction, hash?: Hash, preparationVersion?: number, shouldNotifyComplete = true) => {
+    if (preparationVersion !== undefined && !isCurrentPreparationRequest(setState, preparationVersion)) {
+      return
+    }
+    if (shouldNotifyComplete) notifyComplete()
     if (preparationVersion !== undefined && !isCurrentPreparationRequest(setState, preparationVersion)) {
       return
     }
     setState({ phase: 'success', action, hash })
-    void Promise.resolve()
-      .then(() => {
-        if (preparationVersion !== undefined && !isCurrentPreparationRequest(setState, preparationVersion)) {
-          return
-        }
-        return onComplete?.()
-      })
-      .catch(() => undefined)
   }
 
-  const requestPreparation = async ({ continuation = false, hash }: { continuation?: boolean; hash?: Hash } = {}) => {
+  const requestPreparation = async ({ continuation = false, delay = 0, hash }: PreparationRequestOptions = {}) => {
     const preparationVersion = invalidatePreparationRequests(setState)
     const isCurrent = () => isCurrentPreparationRequest(setState, preparationVersion)
 
-    setState(current => ({
-      phase: continuation ? 'syncing' : 'preparing',
-      action: continuation ? current.action : undefined,
-      hash,
-    }))
+    setState(current =>
+      continuation
+        ? { phase: 'syncing', action: current.action, hash, isPreparing: true }
+        : { ...current, isPreparing: true },
+    )
+
+    if (delay > 0) {
+      await wait(delay)
+      if (!isCurrent()) return
+    }
 
     for (let attempt = 0; attempt < CONTINUATION_ATTEMPTS; attempt++) {
       let action: PreparedAction
@@ -195,18 +203,17 @@ export const usePreparedAction = ({
   }
 
   const finishReceipt = async (action: PreparedAction, hash: Hash) => {
+    setState({ phase: 'syncing', action, hash })
+    notifyComplete()
+
     if (!afterReceipt) {
-      finish(action, hash)
+      finish(action, hash, undefined, false)
       return
     }
 
     try {
-      const outcome = await afterReceipt(action, hash)
-      if (outcome === 'reprepare') {
-        await requestPreparation({ continuation: true, hash })
-        return
-      }
-      finish(action, hash)
+      await afterReceipt(action, hash)
+      finish(action, hash, undefined, false)
     } catch (error) {
       setState({
         phase: 'sync_error',
@@ -317,12 +324,11 @@ export const usePreparedAction = ({
       return
     }
 
-    if (state.phase === 'pending' && state.action) {
-      setState({ phase: 'preparing', action: state.action, hash: state.hash })
-      await wait(getReprepareDelay(state.action))
-    }
-
-    await requestPreparation({ continuation: !!state.hash, hash: state.hash })
+    await requestPreparation({
+      continuation: !!state.hash,
+      delay: state.phase === 'pending' && state.action ? getReprepareDelay(state.action) : 0,
+      hash: state.hash,
+    })
   }
 
   const reset = () => {

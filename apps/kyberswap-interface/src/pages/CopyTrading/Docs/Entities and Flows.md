@@ -116,22 +116,25 @@ có một Create transaction mang toàn bộ target capital:
 ```text
 Tạo một UUIDv4 startRequestId
 → prepare: CREATE_REQUIRED
-→ nếu thiếu allowance, hiển thị review; checkbox gate nút Approve riêng
+→ nếu thiếu allowance, hiển thị review; checkbox gate nút Permit/Approve riêng
 → follow permit/approval scheme và spender do API trả về
 → tạo UUID mới cho authorized attempt; giữ nguyên target/mode/permit bytes trong memory
 → prepare authorized UUID đến READY và quay lại review
 → user bấm Start Copying riêng để ký Create transaction
 → gửi exact Create call
-→ đợi receipt và API hội tụ
-→ prepare lại với cùng authorized UUID và target
-→ COMPLETED / Copy Run ACTIVE
+→ đợi receipt thành công
+→ invalidate các read đang active ngay, không chờ refetch hoàn tất
+→ poll GET copy-runs với view OPEN + agentId mỗi 2 giây, tối đa 20 giây; không gọi prepare lại
+→ tìm thấy Copy Run mới
+→ hiển thị Close / My Copy
 ```
 
 Authorization có thể là EIP-2612, DAI-like, standard approval hoặc
 zero-then-set approval; FE không suy luận từ token symbol và không hardcode
 spender/domain. Smart account bỏ native permit và dùng approval fallback.
-Trong lúc authorize, review modal giữ nguyên và loading nằm trên nút Approve;
-FE không tự gửi Create call sau khi approval/permit hoàn tất.
+Trong lúc authorize, review modal giữ nguyên; nút giữ nguyên label Permit/Approve
+và dùng `Dots` để thể hiện loading. FE không tự gửi Create call sau khi
+approval/permit hoàn tất.
 Minimum, quote token và wallet balance lấy từ response prepare. Một generation
 mới phải dùng UUID mới; không tái sử dụng Copy Run cũ. Funded production flow
 không gửi một Fund call riêng.
@@ -173,8 +176,8 @@ Manual Sell và Close Position không phải nút bán tùy ý:
 | Run hoặc Position `CLOSING`           | Không gửi lại action; chờ receipt/projector rồi prepare lại.     |
 | Run `STOPPED`, còn quote balance      | Withdraw nếu prepare cho phép.                                   |
 | Run `CLOSED`                          | Đọc History; chỉ Withdraw nếu availability/prepare vẫn cho phép. |
-| Có pending sell obligation            | Manual Sell nếu action được advertise và prepare cho phép.        |
-| Đủ điều kiện full recovery            | Close Position nếu action được advertise và prepare cho phép.     |
+| Có pending sell obligation            | Manual Sell nếu action được advertise và prepare cho phép.       |
+| Đủ điều kiện full recovery            | Close Position nếu action được advertise và prepare cho phép.    |
 | Position `CLOSED`                     | Không Manual Sell hoặc Close Position lần nữa.                   |
 
 Read availability dùng để enable UI. Kết quả prepare mới nhất mới là quyết định
@@ -200,13 +203,13 @@ Read availability
 → Refresh direct entity/account/position
 → Gọi prepare endpoint
 → Kiểm tra status, reason, preview và exact call
-→ Với funded Start thiếu allowance, user xác nhận Approve riêng; authorize đúng token/spender/scheme
+→ Với funded Start thiếu allowance, user xác nhận Permit/Approve riêng; authorize đúng token/spender/scheme
 → Prepare lại bằng UUID mới; chỉ khi READY và user bấm Start Copying mới gửi Create call
 → Validate owner account, Smart Wallet, chain, call kind, target, value và deadline
 → Gửi call.to / call.data / call.valueRaw nguyên trạng
 → Đợi receipt thành công
-→ Poll đến khi read model hội tụ
-→ Refetch list, summary và detail liên quan
+→ Invalidate list, summary và detail đang active ngay; không block modal để chờ refetch
+→ Với Start Copy, poll open Copy Run list theo agentId mỗi 2 giây, tối đa 20 giây
 ```
 
 | Prepared status       | Frontend behavior                                                                 |

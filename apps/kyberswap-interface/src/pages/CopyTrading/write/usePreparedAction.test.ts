@@ -34,15 +34,53 @@ const allowanceDiagnostic: PreparedAction = {
   },
 }
 
-const createStateHarness = () => {
-  let state: PreparedActionFlowState = DEFAULT_PREPARED_ACTION_STATE
+const completedAction: PreparedAction = {
+  status: 'PREPARED_ACTION_STATUS_COMPLETED',
+  chainId: '8453',
+  expectedAccount: account,
+  copyAccount: predictedCopyAccount,
+  startCopy: {
+    stage: 'START_COPY_STAGE_COMPLETE',
+    startRequestId,
+    predictedCopyAccount,
+    requestedTargetRaw: targetCapitalRaw,
+    createAmountRaw: targetCapitalRaw,
+  },
+}
+
+const createStateHarness = (initialState: PreparedActionFlowState = DEFAULT_PREPARED_ACTION_STATE) => {
+  let state = initialState
   const setState: Dispatch<SetStateAction<PreparedActionFlowState>> = update => {
     state = typeof update === 'function' ? update(state) : update
   }
   return { getState: () => state, setState }
 }
 
-describe('usePreparedAction unavailable review', () => {
+describe('usePreparedAction', () => {
+  it('keeps the current modal phase while the initial preparation is pending', async () => {
+    const harness = createStateHarness()
+    let resolvePreparation: (action: PreparedAction) => void = () => undefined
+    const prepare = vi
+      .fn<[], Promise<PreparedAction>>()
+      .mockImplementation(() => new Promise(resolve => (resolvePreparation = resolve)))
+    const flow = usePreparedAction({
+      state: harness.getState(),
+      setState: harness.setState,
+      expected,
+      prepare,
+      reviewUnavailable: action => action.reason === 'PREPARED_ACTION_REASON_INSUFFICIENT_QUOTE_ALLOWANCE',
+    })
+
+    const request = flow.prepare()
+
+    expect(harness.getState()).toEqual({ phase: 'idle', isPreparing: true })
+
+    resolvePreparation(allowanceDiagnostic)
+    await request
+
+    expect(harness.getState()).toEqual({ phase: 'review', action: allowanceDiagnostic })
+  })
+
   it('shows a selected call-free diagnostic in review without processing it', async () => {
     const harness = createStateHarness()
     const prepare = vi.fn().mockResolvedValue(allowanceDiagnostic)
@@ -58,6 +96,58 @@ describe('usePreparedAction unavailable review', () => {
 
     expect(prepare).toHaveBeenCalledTimes(1)
     expect(harness.getState()).toEqual({ phase: 'review', action: allowanceDiagnostic })
+  })
+
+  it('fires the data refresh without waiting to show success', async () => {
+    const harness = createStateHarness()
+    let resolveRefresh: () => void = () => undefined
+    const onComplete = vi.fn(() => new Promise<void>(resolve => (resolveRefresh = resolve)))
+    const flow = usePreparedAction({
+      state: harness.getState(),
+      setState: harness.setState,
+      expected,
+      prepare: vi.fn().mockResolvedValue(completedAction),
+      onComplete,
+    })
+
+    await flow.prepare()
+
+    expect(onComplete).toHaveBeenCalledOnce()
+    expect(harness.getState()).toEqual({ phase: 'success', action: completedAction })
+    resolveRefresh()
+  })
+
+  it('refreshes screen data when post-receipt synchronization is still pending', async () => {
+    const hash = `0x${'1'.repeat(64)}` as const
+    const harness = createStateHarness({ phase: 'sync_error', action: completedAction, hash, retryStage: 'sync' })
+    let rejectSynchronization: (error: Error) => void = () => undefined
+    const afterReceipt = vi.fn(() => new Promise<void>((_resolve, reject) => (rejectSynchronization = reject)))
+    const onComplete = vi.fn()
+    const flow = usePreparedAction({
+      state: harness.getState(),
+      setState: harness.setState,
+      expected,
+      prepare: vi.fn(),
+      afterReceipt,
+      onComplete,
+    })
+
+    const request = flow.retry()
+
+    expect(afterReceipt).toHaveBeenCalledWith(completedAction, hash)
+    expect(onComplete).toHaveBeenCalledOnce()
+    expect(harness.getState()).toEqual({ phase: 'syncing', action: completedAction, hash })
+
+    rejectSynchronization(new Error('The new Copy is not available yet.'))
+    await request
+
+    expect(harness.getState()).toEqual({
+      phase: 'sync_error',
+      action: completedAction,
+      error: 'The new Copy is not available yet.',
+      hash,
+      retryStage: 'sync',
+    })
   })
 
   it('keeps other unavailable actions in the recovery state', async () => {
