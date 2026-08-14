@@ -31,6 +31,7 @@ const useInfiniteCursorQuery = <TResponse extends CursorResponse<unknown>>({
     () => (query.data?.pages.flatMap(page => page.data) || []) as CursorItem<TResponse>[],
     [query.data?.pages],
   )
+
   const infiniteScroll: InfiniteScrollState = {
     error: query.isError,
     hasMore: !!query.hasNextPage,

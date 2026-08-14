@@ -108,6 +108,7 @@ const ManagePositionModal = ({ isOpen, onDismiss, position, mode }: ManagePositi
   const [prepareClosePosition] = usePrepareClosePositionMutation()
   const [getCopyAccountPositions] = copyTradingApi.useLazyGetCopyAccountPositionsQuery()
   const [getObligations] = copyTradingApi.useLazyGetPendingSellObligationsQuery()
+
   const [flowState, setFlowState] = useState(DEFAULT_PREPARED_ACTION_STATE)
   const [slippage, setSlippage] = useState(0.5)
 
@@ -248,6 +249,16 @@ const ManagePositionModal = ({ isOpen, onDismiss, position, mode }: ManagePositi
     void flow.prepare()
   }
 
+  const actionLabel = isClose ? 'Close Position' : 'Manual Sell'
+  const unavailableMessage = !actionAdvertised ? `The selected position does not advertise ${actionLabel}.` : undefined
+  const primaryActionLabel = !account
+    ? 'Connect wallet'
+    : !onExpectedChain
+    ? 'Switch network'
+    : unavailableMessage
+    ? `${actionLabel} unavailable`
+    : `Review ${actionLabel}`
+
   const preview = isClose ? flowState.action?.closePosition : flowState.action?.manualSell
   const review = (
     <Stack className="gap-4">
@@ -270,18 +281,6 @@ const ManagePositionModal = ({ isOpen, onDismiss, position, mode }: ManagePositi
       </ReviewSection>
     </Stack>
   )
-
-  const unavailableMessage = !actionAdvertised
-    ? `The selected position does not advertise ${isClose ? 'Close Position' : 'Manual Sell'}.`
-    : undefined
-  const actionLabel = isClose ? 'Close Position' : 'Manual Sell'
-  const primaryActionLabel = !account
-    ? 'Connect wallet'
-    : !onExpectedChain
-    ? 'Switch network'
-    : unavailableMessage
-    ? `${actionLabel} unavailable`
-    : `Review ${actionLabel}`
 
   return (
     <PreparedActionModal

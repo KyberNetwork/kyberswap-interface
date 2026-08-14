@@ -136,13 +136,16 @@ type CopySidePanelProps = {
 
 const CopySidePanel = ({ agent, run }: CopySidePanelProps) => {
   const { openAddCapital, openStopCopy, openWithdrawQuote } = useCopyTradingModal()
-  const accountQuery = { chainId: run.chainId, copyAccount: run.copyAccount }
+
+  const copyAccountQuery = { chainId: run.chainId, copyAccount: run.copyAccount }
   const skipCopyAccount = !run.copyAccount || !run.chainId
   const { data: inventoryResponse, isFetching: isInventoryFetching } =
-    copyTradingApi.useGetCopyAccountWalletInventoryQuery(accountQuery, { skip: skipCopyAccount })
+    copyTradingApi.useGetCopyAccountWalletInventoryQuery(copyAccountQuery, { skip: skipCopyAccount })
+
   const pinnedStableBalance = inventoryResponse?.pinnedStableBalance
   const quoteBalance =
     pinnedStableBalance?.status === 'PINNED_STABLE_BALANCE_STATUS_PRESENT' ? pinnedStableBalance.balance : undefined
+
   const walletAssets = useMemo(
     () => [
       ...(quoteBalance ? [quoteBalance] : []),
@@ -152,6 +155,7 @@ const CopySidePanel = ({ agent, run }: CopySidePanelProps) => {
     ],
     [inventoryResponse?.data, quoteBalance],
   )
+
   const inventoryComplete =
     inventoryResponse?.complete === true && pinnedStableBalance?.status === 'PINNED_STABLE_BALANCE_STATUS_PRESENT'
   const isTerminal = run.status === 'stopped' || run.status === 'closed'

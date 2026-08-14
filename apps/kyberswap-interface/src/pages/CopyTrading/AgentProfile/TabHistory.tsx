@@ -33,6 +33,7 @@ const TabHistoryGrid = ({ header, className, ...props }: TabHistoryGridProps) =>
 
 const TabHistory = ({ agentId }: { agentId: string }) => {
   const [getAgentPositions] = copyTradingApi.useLazyGetAgentPositionsQuery()
+
   const {
     infiniteScroll,
     isFetching,

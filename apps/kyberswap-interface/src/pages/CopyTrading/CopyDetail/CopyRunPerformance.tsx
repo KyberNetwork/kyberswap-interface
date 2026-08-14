@@ -18,9 +18,11 @@ type CopyRunPerformanceProps = {
 const CopyRunPerformance = ({ copyRunId, status }: CopyRunPerformanceProps) => {
   const { ownerAddress } = useCopyTradingContext()
   const [window, setWindow] = useState<PerformanceWindow>('30d')
+
   const isTerminal = status === 'stopped' || status === 'closed'
   const performanceWindow = isTerminal ? 'all' : window
   const interval = performanceWindow === 'all' ? 'month' : 'day'
+
   const {
     data: portfolioPerformance,
     isError: isPortfolioError,
@@ -36,6 +38,7 @@ const CopyRunPerformance = ({ copyRunId, status }: CopyRunPerformanceProps) => {
     },
     { skip: !ownerAddress || isTerminal },
   )
+
   const {
     data: realizedPnlPerformance,
     isError: isRealizedPnlError,
@@ -51,10 +54,12 @@ const CopyRunPerformance = ({ copyRunId, status }: CopyRunPerformanceProps) => {
     },
     { skip: !ownerAddress },
   )
+
   const portfolioData = useMemo(
     () => (portfolioPerformance?.data || []).map(toPerformanceChartPoint),
     [portfolioPerformance?.data],
   )
+
   const realizedPnlData = useMemo(
     () => (realizedPnlPerformance?.data || []).map(toPerformanceChartPoint),
     [realizedPnlPerformance?.data],

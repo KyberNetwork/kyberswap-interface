@@ -105,12 +105,14 @@ export const getStartCopyAllowanceAuthorization = (action: PreparedAction): Star
   const chainId = Number(action.chainId)
   const preview = action.startCopy
   const requirement = preview?.allowanceRequirement
+
   if (!Number.isSafeInteger(chainId) || chainId <= 0) {
     throw new Error('The Start Copy authorization returned an invalid chain.')
   }
   if (preview?.stage !== 'START_COPY_STAGE_CREATE_REQUIRED' || !requirement) {
     throw new Error('The Start Copy authorization returned an unexpected stage.')
   }
+
   const quoteTokenAddress = preview.quoteToken?.address
   if (!isAddress(quoteTokenAddress || '')) {
     throw new Error('The Start Copy authorization returned an invalid quote token.')
@@ -118,10 +120,12 @@ export const getStartCopyAllowanceAuthorization = (action: PreparedAction): Star
   if (preview.quoteToken?.chainId && Number(preview.quoteToken.chainId) !== chainId) {
     throw new Error('The Start Copy authorization quote token is on a different chain.')
   }
+
   const spenderAddress = requirement.spenderAddress
   if (!isAddress(spenderAddress || '')) {
     throw new Error('The Start Copy authorization returned an invalid spender.')
   }
+
   const createAmountRaw = preview.createAmountRaw
   const currentAllowanceRaw = requirement.currentAllowanceRaw
   const requiredAllowanceRaw = requirement.requiredAllowanceRaw
@@ -132,9 +136,11 @@ export const getStartCopyAllowanceAuthorization = (action: PreparedAction): Star
   ) {
     throw new Error('The Start Copy authorization returned inconsistent allowance amounts.')
   }
+
   const validatedCreateAmountRaw = createAmountRaw as string
   const validatedCurrentAllowanceRaw = currentAllowanceRaw as string
   const validatedRequiredAllowanceRaw = requiredAllowanceRaw as string
+
   if (BigInt(validatedRequiredAllowanceRaw) === 0n || validatedRequiredAllowanceRaw !== validatedCreateAmountRaw) {
     throw new Error('The Start Copy authorization returned inconsistent allowance amounts.')
   }
@@ -158,6 +164,7 @@ export const getStartCopyAllowanceAuthorization = (action: PreparedAction): Star
   ) {
     throw new Error('The Start Copy authorization returned an unsupported permit scheme.')
   }
+
   const validatedApprovalScheme = approvalScheme as SupportedApprovalScheme
   const validatedPermitScheme = permitScheme as SupportedPermitScheme
   const validatedQuoteTokenAddress = quoteTokenAddress as Address
@@ -193,6 +200,7 @@ export const getStartCopyAllowanceAuthorization = (action: PreparedAction): Star
   ) {
     throw new Error('The Start Copy permit authorization returned an unsupported EIP-712 domain.')
   }
+
   const domainKind = requirement.eip712DomainKind as PermitDomainKind
 
   return {
@@ -294,6 +302,7 @@ export const encodeStartCopyPermitData = ({
   } catch {
     throw new Error('Invalid Start Copy permit signature.')
   }
+
   const v = Number(signature.v ?? (signature.yParity === 0 ? 27 : 28))
   if (v !== 27 && v !== 28) throw new Error('Invalid Start Copy permit signature.')
 

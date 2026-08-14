@@ -72,13 +72,6 @@ type ActivityTableProps = {
   rows: ActivityRow[]
 }
 
-const activityColor = (activity: ActivityRow) => {
-  if (activity.activityType.includes('failed') || activity.activityType.includes('skipped')) return 'text-warning'
-  if (activity.activityType === 'copy_stopped') return 'text-red'
-  if (activity.activityType.includes('closed') || activity.activityType.includes('succeeded')) return 'text-primary'
-  return 'text-text'
-}
-
 const formatDuration = (durationSeconds?: string, openedAt?: string, closedAt?: string) => {
   const apiDuration = Number(durationSeconds)
   if (durationSeconds !== undefined && Number.isFinite(apiDuration)) {
@@ -133,6 +126,13 @@ const PositionAction = ({ position }: { position: PositionSummary }) => {
       {label}
     </ButtonLight>
   )
+}
+
+const activityColor = (activity: ActivityRow) => {
+  if (activity.activityType.includes('failed') || activity.activityType.includes('skipped')) return 'text-warning'
+  if (activity.activityType === 'copy_stopped') return 'text-red'
+  if (activity.activityType.includes('closed') || activity.activityType.includes('succeeded')) return 'text-primary'
+  return 'text-text'
 }
 
 export const TradeHistoryTable = ({ infiniteScroll, loading, rows }: PositionTableProps) => (

@@ -15,6 +15,7 @@ const CopyHistoryView = () => {
   const navigate = useNavigate()
   const { ownerAddress } = useCopyTradingContext()
   const [getCopyRuns] = copyTradingApi.useLazyGetCopyRunsQuery()
+
   const closedRunsPage = useCursorPageQuery({
     enabled: !!ownerAddress,
     queryKey: ['copy-trading', 'copy-runs', ownerAddress, 'history'],
@@ -26,7 +27,7 @@ const CopyHistoryView = () => {
         limit: PAGE_SIZE,
       }).unwrap(),
   })
-  const closedRuns = closedRunsPage.items
+
   const { data: ownerSummary } = copyTradingApi.useGetOwnerCopySummaryQuery(
     {
       ownerAddress: ownerAddress || '',
@@ -34,6 +35,8 @@ const CopyHistoryView = () => {
     },
     { skip: !ownerAddress },
   )
+
+  const closedRuns = closedRunsPage.items
 
   return (
     <CopyTradingPage>

@@ -1,6 +1,6 @@
 import type { Address, CopyRunSummary, CopyRunsResponse } from 'services/copyTrading/types'
 
-import { isRetryableApiError, wait } from 'pages/CopyTrading/modals/PreparedActionModal/preparedAction'
+import { wait } from 'pages/CopyTrading/modals/PreparedActionModal/preparedAction'
 
 const START_COPY_POLL_INTERVAL_MS = 2_000
 const START_COPY_POLL_TIMEOUT_MS = 20_000
@@ -38,9 +38,7 @@ export const pollStartCopyRun = async ({
           run.ownerAddress.toLowerCase() === ownerAddress.toLowerCase(),
       )
       if (copyRun) return copyRun
-    } catch (error) {
-      if (!isRetryableApiError(error) || attempt === attempts - 1) throw error
-    }
+    } catch {}
 
     if (attempt < attempts - 1) await waitForNextAttempt(pollIntervalMs)
   }
