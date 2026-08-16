@@ -5,9 +5,9 @@ import { Connector, useConnectors } from 'wagmi'
 import {
   CONNECTION,
   CONNECTION_ORDER,
+  HIDDEN_CONNECTOR_IDS,
   HardCodedConnectors,
   getConnectorWithId,
-  getSafepalProvider,
 } from 'components/Web3Provider'
 import { isInSafeApp } from 'utils/safeApp'
 
@@ -29,11 +29,8 @@ function getInjectedConnectors(connectors: readonly Connector[]) {
       return false
     }
 
-    // SafePal is always registered so its connect() can open the install page,
-    // but the wallet modal must only count it as an injected provider when the
-    // real EVM provider exists. Otherwise mobile in-wallet filtering can return
-    // only SafePal even in unrelated wallets.
-    if (c.id === CONNECTION.SAFEPAL && !getSafepalProvider()) {
+    // Connectors kept in wagmi for reconnect purposes only are never listed as a connect option.
+    if (HIDDEN_CONNECTOR_IDS.includes(c.id)) {
       return false
     }
 
