@@ -37,7 +37,7 @@ const CopyRunPerformance = ({ copyRunId, status }: CopyRunPerformanceProps) => {
       series: 'portfolio_value',
       window: performanceWindow,
     },
-    { skip: !ownerAddress || isTerminal },
+    { pollingInterval: 10_000, skip: !ownerAddress || isTerminal },
   )
 
   const {
@@ -53,7 +53,7 @@ const CopyRunPerformance = ({ copyRunId, status }: CopyRunPerformanceProps) => {
       series: 'cumulative_realized_pnl',
       window: performanceWindow,
     },
-    { skip: !ownerAddress },
+    { pollingInterval: 10_000, skip: !ownerAddress },
   )
 
   const portfolioData = useMemo(

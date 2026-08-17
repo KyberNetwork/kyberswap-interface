@@ -11,6 +11,7 @@ import {
   getReprepareDelay,
   invalidatePreparationRequests,
   isCurrentPreparationRequest,
+  isPreparationExpiredError,
   validatePreparedAction,
 } from 'pages/CopyTrading/modals/PreparedActionModal/preparedAction'
 import {
@@ -103,7 +104,11 @@ export const usePreparedAction = ({
 
     const validationError = validatePreparedAction(action, expected)
     if (validationError) {
-      setState({ phase: 'error', action, error: validationError })
+      setState({
+        phase: isPreparationExpiredError(validationError) ? 'expired' : 'error',
+        action,
+        error: validationError,
+      })
       return
     }
 
@@ -203,6 +208,7 @@ export const usePreparedAction = ({
       continuation,
       delay: state.phase === 'pending' && state.action ? getReprepareDelay(state.action) : 0,
       hash: continuation ? state.hash : undefined,
+      phaseWhilePreparing: state.phase === 'expired' || state.phase === 'error' ? 'review' : undefined,
     })
   }
 

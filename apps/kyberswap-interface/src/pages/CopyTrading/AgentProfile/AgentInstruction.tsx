@@ -63,7 +63,7 @@ const AgentInstruction = ({ agent }: AgentInstructionProps) => {
       agentId: agent.agentId,
       limit: 1,
     },
-    { skip: !ownerAddress },
+    { pollingInterval: 10_000, skip: !ownerAddress },
   )
 
   const activeCopyRun = activeCopyRuns?.data[0]

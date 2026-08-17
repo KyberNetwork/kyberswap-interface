@@ -68,6 +68,7 @@ const AgentProfile = () => {
     isLoading: isAgentLoading,
     isUninitialized: isAgentUninitialized,
   } = agentApi.useGetAgentQuery(agentQuery, {
+    pollingInterval: 10_000,
     skip: !agentCode,
   })
 

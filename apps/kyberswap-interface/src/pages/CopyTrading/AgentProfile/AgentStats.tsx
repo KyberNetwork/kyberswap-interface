@@ -58,31 +58,37 @@ const AgentStats = ({ agentId }: AgentStatsProps) => {
 
   const interval = window === 'all' ? 'month' : 'day'
 
-  const { data: agentStats } = agentApi.useGetAgentStatsQuery({ agentId })
+  const { data: agentStats } = agentApi.useGetAgentStatsQuery({ agentId }, { pollingInterval: 10_000 })
 
   const {
     data: portfolioPerformance,
     isError: isPortfolioError,
     isFetching: isPortfolioFetching,
-  } = agentApi.useGetAgentPerformanceQuery({
-    agentId,
-    interval,
-    limit: 100,
-    series: 'portfolio_value',
-    window,
-  })
+  } = agentApi.useGetAgentPerformanceQuery(
+    {
+      agentId,
+      interval,
+      limit: 100,
+      series: 'portfolio_value',
+      window,
+    },
+    { pollingInterval: 10_000 },
+  )
 
   const {
     data: realizedPnlPerformance,
     isError: isRealizedPnlError,
     isFetching: isRealizedPnlFetching,
-  } = agentApi.useGetAgentPerformanceQuery({
-    agentId,
-    interval,
-    limit: 100,
-    series: 'cumulative_realized_pnl',
-    window,
-  })
+  } = agentApi.useGetAgentPerformanceQuery(
+    {
+      agentId,
+      interval,
+      limit: 100,
+      series: 'cumulative_realized_pnl',
+      window,
+    },
+    { pollingInterval: 10_000 },
+  )
 
   const stats = agentStats?.data
   const portfolioData = useMemo(

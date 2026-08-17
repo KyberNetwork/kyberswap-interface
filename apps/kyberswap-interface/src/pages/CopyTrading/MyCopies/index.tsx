@@ -53,7 +53,7 @@ const MyCopiesView = () => {
       ownerAddress: ownerAddress || '',
       view: 'open',
     },
-    { skip: !ownerAddress },
+    { pollingInterval: 10_000, skip: !ownerAddress },
   )
 
   const activeRuns = activeRunsPage.items

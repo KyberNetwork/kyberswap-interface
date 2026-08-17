@@ -34,6 +34,7 @@ export const useInfiniteCursorQuery = <TResponse extends CursorResponse<unknown>
     queryFn: ({ pageParam }) => queryFn(pageParam || undefined),
     getNextPageParam: lastPage =>
       lastPage.pagination.hasMore && lastPage.pagination.nextCursor ? lastPage.pagination.nextCursor : undefined,
+    refetchInterval: 10_000,
     retry: false,
   })
 
