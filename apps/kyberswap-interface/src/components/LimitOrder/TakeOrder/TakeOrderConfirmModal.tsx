@@ -146,7 +146,7 @@ const TakeOrderConfirmModal = ({ isOpen, order, onDismiss }: Props) => {
 
   const walletBalance = balance?.currency.equals(context.payCurrency) ? balance : undefined
   const payTokenAddress = context.payCurrency.wrapped.address
-  const tokenPrices = useTokenPrices([payTokenAddress], context.order.chainId, { refresh: 'live' })
+  const tokenPrices = useTokenPrices([payTokenAddress], context.order.chainId)
 
   const orderRate = useMemo(
     () => (showInvertedRate ? formatInvertedRate(context) : formatRate(context)),

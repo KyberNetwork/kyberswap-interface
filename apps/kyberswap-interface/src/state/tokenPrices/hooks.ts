@@ -10,9 +10,9 @@ const EMPTY_CHAIN_PRICES: { [address: string]: number | null } = Object.freeze({
 
 export type TokenPricesOptions = {
   /**
-   * `'live'` keeps these addresses refreshed on the updater's TTL. Reserve it for surfaces where a
-   * stale price misinforms a decision (trade panels); everything else reads the same canonical entry
-   * without driving extra requests.
+   * Defaults to `'live'`, so a screen shows a current price for as long as it is open. Drop to
+   * `'once'` where a consumer is mounted per row of a list: there "the UI is open" no longer means
+   * "the user is watching this number", and the whole list would refresh on the TTL while they read.
    */
   refresh?: RefreshTier
 }
@@ -28,7 +28,7 @@ export const useTokenPricesWithLoading = (
 } => {
   const { chainId: currentChain } = useActiveWeb3React()
   const chainId = customChain || currentChain
-  const tier: RefreshTier = options?.refresh ?? 'once'
+  const tier: RefreshTier = options?.refresh ?? 'live'
 
   // Unmemoized on purpose: collapses any array identity — inline literals, per-block rebuilds — into
   // a primitive that every memo below and the subscription effect key on.

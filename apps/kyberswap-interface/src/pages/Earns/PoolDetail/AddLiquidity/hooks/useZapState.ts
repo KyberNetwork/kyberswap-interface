@@ -126,7 +126,7 @@ export const useZapState = ({
     [tokenInputState.tokensIn],
   )
 
-  const tokenPrices = useTokenPrices(tokenPriceAddresses, chainId as AppChainId, { refresh: 'live' })
+  const tokenPrices = useTokenPrices(tokenPriceAddresses, chainId as AppChainId)
   const tokenBalances = useMemo(
     () =>
       tokenInputState.tokensIn.reduce<Record<string, bigint>>((acc, token) => {

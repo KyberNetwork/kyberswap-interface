@@ -195,9 +195,7 @@ export default function SwapDetails({ isLoading, gasUsd, minimumAmountOut, price
   )
 
   const feeTokenAddress = currencyFromBuild?.wrapped.address
-  const tokenPrices = useTokenPrices(feeTokenAddress ? [feeTokenAddress] : [], currencyFromBuild?.chainId, {
-    refresh: 'live',
-  })
+  const tokenPrices = useTokenPrices(feeTokenAddress ? [feeTokenAddress] : [], currencyFromBuild?.chainId)
   const feeTokenPrice = feeTokenAddress ? tokenPrices[feeTokenAddress] : 0
   const feeAmountUsdText =
     feeCurrencyAmountFromBuild && feeTokenPrice

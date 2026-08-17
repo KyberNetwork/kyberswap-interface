@@ -98,7 +98,7 @@ const SwapFee: React.FC<{ isFeeTampered?: boolean }> = ({ isFeeTampered }) => {
 
   const { formattedAmount: feeAmount = '', currencyAmount, currency } = routeSummary?.fee || {}
   const feeTokenAddress = currency?.wrapped.address
-  const tokenPrices = useTokenPrices(feeTokenAddress ? [feeTokenAddress] : [], currency?.chainId, { refresh: 'live' })
+  const tokenPrices = useTokenPrices(feeTokenAddress ? [feeTokenAddress] : [], currency?.chainId)
   const feeTokenPrice = feeTokenAddress ? tokenPrices[feeTokenAddress] : 0
   const feeAmountUsdText =
     currencyAmount && feeTokenPrice

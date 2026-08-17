@@ -13,9 +13,15 @@
  */
 
 /**
- * `live` addresses are re-fetched once they pass the TTL. `once` addresses are fetched when a
- * consumer needs them and then left alone while it stays mounted — they refresh when something asks
- * for them again after a gap (see REMOUNT_REFRESH_MS) or on an explicit `refetch()`.
+ * `live` — the default — re-fetches an address once it passes the TTL, so an open screen keeps
+ * showing a current price. `once` fetches when a consumer needs the address and then leaves it alone
+ * while that consumer stays mounted; it refreshes when something asks again after a gap (see
+ * REMOUNT_REFRESH_MS) or on an explicit `refetch()`.
+ *
+ * Defaulting to `live` puts the cost of forgetting on requests rather than on correctness: a call
+ * site added without a thought refreshes a little too eagerly instead of silently displaying a stale
+ * price. Unmounting already stops the polling, so the tier only matters where a consumer is mounted
+ * per row of a list and "the UI is open" stops meaning "the user is watching this number".
  *
  * The tier decides who *drives* a refresh, not who reads the result — every consumer reads the same
  * slice entry, so a token kept fresh for one surface is simultaneously fresh everywhere else.

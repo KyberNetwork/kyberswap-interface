@@ -23,7 +23,7 @@ const SWEEP_INTERVAL_MS = 5_000
 /** Trailing debounce on registry changes, so a burst of mounts becomes one request. */
 const COALESCE_MS = 50
 const MAX_PARALLEL = 4
-const DEV_LIVE_UNION_WARN = 50
+const DEV_LIVE_UNION_WARN = 150
 /**
  * `fetch` has no timeout of its own, and every trigger funnels through one in-flight guard — so an
  * unbounded request would wedge price fetching for the whole app until the socket gave up.
@@ -195,7 +195,7 @@ export default function Updater(): null {
       })
       if (live > DEV_LIVE_UNION_WARN) {
         console.warn(
-          `[tokenPrices] chain ${chainId} has ${live} live-tier addresses; a list-sized subscription should use the default 'once' tier.`,
+          `[tokenPrices] chain ${chainId} has ${live} live-tier addresses; a whitelist-sized subscription should narrow what it asks for, or opt into the 'once' tier.`,
         )
       }
     })

@@ -56,7 +56,9 @@ export default function FarmLegacy({
     ),
   ]
 
-  const tokenPrices = useTokenPrices(addresses)
+  // Mounted once per row, so refreshing on the TTL would re-price the whole list while the user is
+  // only reading it.
+  const tokenPrices = useTokenPrices(addresses, undefined, { refresh: 'once' })
   const allTokens = useAllTokens(true)
 
   const unclaimedUSD = pendingRewards.reduce((total, item) => {

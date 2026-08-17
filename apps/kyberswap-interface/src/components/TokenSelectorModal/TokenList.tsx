@@ -590,7 +590,7 @@ const TokenList = ({
   }, [showPriceColumn, currencies, currencyBalances])
   // Live tier: this is the surface where a frozen price sits visibly next to a fresh one elsewhere,
   // and the held-token narrowing above keeps the union to a single request.
-  const tokenPrices = useTokenPrices(priceAddresses, customChainId, { refresh: 'live' })
+  const tokenPrices = useTokenPrices(priceAddresses, customChainId)
 
   // O(1) row-level membership checks (exact-case for imports to match the address equality used
   // elsewhere; lowercased for favorites, which can be stored in either case).

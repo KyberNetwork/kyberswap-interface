@@ -120,11 +120,16 @@ function PositionListItem({
   const currency0 = token0 ? unwrappedToken(token0) : undefined
   const currency1 = token1 ? unwrappedToken(token1) : undefined
 
-  const prices = useTokenPrices([
-    currency0?.wrapped.address || '',
-    currency1?.wrapped.address || '',
-    ...rewardTokens.map(item => item.wrapped.address),
-  ])
+  const prices = useTokenPrices(
+    [
+      currency0?.wrapped.address || '',
+      currency1?.wrapped.address || '',
+      ...rewardTokens.map(item => item.wrapped.address),
+    ],
+    undefined,
+    // Mounted once per position row; the TTL would re-price the whole list while it is only read.
+    { refresh: 'once' },
+  )
 
   const [, pool] = usePool(currency0 ?? undefined, currency1 ?? undefined, feeAmount)
 

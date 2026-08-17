@@ -26,7 +26,7 @@ function useBaseTradeInfo(currencyIn: Currency | undefined, currencyOut: Currenc
     return list.filter(Boolean) as string[]
   }, [currencyIn, currencyOut, chainId])
 
-  const { data: pricesUsd, loading, refetch } = useTokenPricesWithLoading(addresses, chainId, { refresh: 'live' })
+  const { data: pricesUsd, loading, refetch } = useTokenPricesWithLoading(addresses, chainId)
 
   const nativePriceUsd = pricesUsd[WETH[chainId].wrapped.address]
 
