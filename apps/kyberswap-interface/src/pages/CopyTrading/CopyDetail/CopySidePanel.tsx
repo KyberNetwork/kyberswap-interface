@@ -20,7 +20,7 @@ import {
   type SidePanelCardWrapperProps,
 } from 'pages/CopyTrading/components/AgentSidebarCards/SidePanelCard'
 import { copyRunStatusTextClassName } from 'pages/CopyTrading/components/common/status'
-import { formatTokenAmount, formatUsd } from 'pages/CopyTrading/helpers'
+import { formatTokenAmount, formatUsd, getDisplayCapitalInUsd } from 'pages/CopyTrading/helpers'
 import { useCopyTradingModal } from 'pages/CopyTrading/modals/context'
 import { cn } from 'utils/cn'
 import { formatDateTime } from 'utils/time'
@@ -166,7 +166,7 @@ const CopySidePanel = ({ agent, run }: CopySidePanelProps) => {
   const capitalCard = (
     <CopyCapitalCard
       addCapitalAvailability={run.addCapitalAvailability}
-      capital={formatUsd(run.capitalInUsd)}
+      capital={formatUsd(getDisplayCapitalInUsd(run))}
       headerRight={
         run.status === 'stopped' ? (
           <span className="text-sm font-normal text-subText">{formatDateTime(run.stoppedAt)}</span>

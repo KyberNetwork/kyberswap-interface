@@ -53,6 +53,7 @@ export type CopyRunSummary = {
   startedAt: Timestamp
   stoppedAt?: Timestamp
   capitalInUsd?: DecimalString
+  observedCapitalInUsd?: DecimalString
   capitalOutUsd?: DecimalString
   portfolioValueUsd?: DecimalString
   realizedPnlUsd?: DecimalString

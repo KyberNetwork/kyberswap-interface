@@ -69,6 +69,8 @@ export type AgentPositionEventsQuery = CursorQuery & AgentPositionQuery
 export type CotLogsQuery = CursorQuery &
   AgentQuery & {
     leaderPositionId?: string
+    type?: string
+    groupBy?: 'AGENT_ACTION_LOG_GROUP_BY_UNSPECIFIED' | 'AGENT_ACTION_LOG_GROUP_BY_SESSION_ID'
     from?: Timestamp
     to?: Timestamp
   }

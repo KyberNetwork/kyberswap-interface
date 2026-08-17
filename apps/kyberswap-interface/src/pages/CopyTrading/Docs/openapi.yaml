@@ -337,6 +337,25 @@ paths:
           required: false
           type: integer
           format: int32
+        - name: type
+          description: |-
+            Exact match against AgentActionLog.action. Filtering is applied before
+            grouping, so every returned row matches this value.
+          in: query
+          required: false
+          type: string
+        - name: groupBy
+          description: |-
+            Omitted/UNSPECIFIED currently defaults to SESSION_ID. The enum remains
+            explicit so future grouping modes can be added without changing the
+            response item type again.
+          in: query
+          required: false
+          type: string
+          enum:
+            - AGENT_ACTION_LOG_GROUP_BY_UNSPECIFIED
+            - AGENT_ACTION_LOG_GROUP_BY_SESSION_ID
+          default: AGENT_ACTION_LOG_GROUP_BY_UNSPECIFIED
       tags:
         - Agents
   /agents/{agentId}/positions:
@@ -1626,6 +1645,28 @@ definitions:
     description: |-
       AgentActionLog is one sanitized public decision-log narrative. Optional
       chain links are populated only from canonical operator-derived facts.
+  v1AgentActionLogGroupBy:
+    type: string
+    enum:
+      - AGENT_ACTION_LOG_GROUP_BY_UNSPECIFIED
+      - AGENT_ACTION_LOG_GROUP_BY_SESSION_ID
+    default: AGENT_ACTION_LOG_GROUP_BY_UNSPECIFIED
+    description: |-
+      AgentActionLogGroupBy selects the response collection shape for one action
+      log timeline. Unspecified currently defaults to whole session groups.
+  v1AgentActionLogSessionGroup:
+    type: object
+    properties:
+      sessionId:
+        type: string
+      logs:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/v1AgentActionLog'
+    description: |-
+      AgentActionLogSessionGroup contains all matching action logs from one
+      source session. Groups and their logs are ordered newest first.
   v1AgentCard:
     type: object
     properties:
@@ -2363,15 +2404,15 @@ definitions:
   v1ListAgentActionLogsResponse:
     type: object
     properties:
-      data:
-        type: array
-        items:
-          type: object
-          $ref: '#/definitions/v1AgentActionLog'
       pagination:
         $ref: '#/definitions/v1CursorPagination'
       meta:
         $ref: '#/definitions/v1ResponseMeta'
+      data:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/v1AgentActionLogSessionGroup'
     description: ListAgentActionLogsResponse is the sanitized action-log list envelope.
   v1ListAgentPerformanceResponse:
     type: object

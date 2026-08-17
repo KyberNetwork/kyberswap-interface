@@ -21,7 +21,7 @@ const TabHistoryGrid = ({ header, className, ...props }: TabHistoryGridProps) =>
   return (
     <Grid
       className={cn(
-        'min-w-[1120px] grid-cols-[minmax(0,1fr)_minmax(0,0.8fr)_minmax(0,1.1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1.2fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1.4fr)] gap-x-4',
+        'min-w-[900px] grid-cols-[minmax(0,1fr)_minmax(0,0.8fr)_minmax(0,1.1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1.2fr)_minmax(0,1.4fr)] gap-x-4',
         !header && 'px-4 py-1',
         className,
       )}
@@ -58,12 +58,10 @@ const TabHistory = ({ agentId }: { agentId: string }) => {
           <HeaderCell>Exit</HeaderCell>
           <HeaderCell>Amount</HeaderCell>
           <HeaderCell>Realised P&amp;L</HeaderCell>
-          <HeaderCell>Fee</HeaderCell>
-          <HeaderCell>Cash Back</HeaderCell>
           <HeaderCell>Closed</HeaderCell>
         </TabHistoryGrid>
         <TableBody
-          className="min-w-[1120px]"
+          className="min-w-[900px]"
           empty={!rows.length}
           emptyMessage="No trade history found"
           loading={isFetching && !rows.length}
@@ -81,8 +79,6 @@ const TabHistory = ({ agentId }: { agentId: string }) => {
                 <TableCell className={cn('whitespace-nowrap', getSignedMetricClassName(row.realizedPnlUsd))}>
                   {signedUsd(row.realizedPnlUsd)}
                 </TableCell>
-                <TableCell>{formatUsd(row.flatFeeCapturedUsd)}</TableCell>
-                <TableCell>{formatUsd(row.cashbackReceivedUsd)}</TableCell>
                 <TableCell className="text-subText">{formatDateTime(row.closedAt)}</TableCell>
               </TabHistoryGrid>
             )
