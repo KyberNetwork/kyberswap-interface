@@ -35,6 +35,7 @@ type ApiCopyRun = {
   startedAt?: string
   stoppedAt?: string
   capitalInUsd?: ApiMetric
+  observedCapitalInUsd?: ApiMetric
   capitalOutUsd?: ApiMetric
   portfolioValueUsd?: ApiMetric
   realizedPnlUsd?: ApiMetric
@@ -110,6 +111,7 @@ const toCapitalInProjectionStatus = (status?: string): CapitalInProjectionStatus
 
 const toCopyRun = (run: ApiCopyRun): CopyRunSummary => {
   const capitalInProjectionStatus = toCapitalInProjectionStatus(run.capitalInProjectionStatus)
+  const observedCapitalInUsd = metricValue(run.observedCapitalInUsd)
 
   return {
     copyRunId: run.copyRunId || '',
@@ -122,6 +124,7 @@ const toCopyRun = (run: ApiCopyRun): CopyRunSummary => {
     startedAt: run.startedAt || '',
     stoppedAt: run.stoppedAt,
     capitalInUsd: capitalInProjectionStatus === 'ready' ? metricValue(run.capitalInUsd) : undefined,
+    observedCapitalInUsd,
     capitalOutUsd: metricValue(run.capitalOutUsd),
     portfolioValueUsd: metricValue(run.portfolioValueUsd),
     realizedPnlUsd: metricValue(run.realizedPnlUsd),
@@ -142,6 +145,7 @@ const toCopyRun = (run: ApiCopyRun): CopyRunSummary => {
     withdrawQuoteAvailability: run.withdrawQuoteAvailability,
     metrics: {
       capitalInUsd: run.capitalInUsd,
+      observedCapitalInUsd: run.observedCapitalInUsd,
       capitalOutUsd: run.capitalOutUsd,
       portfolioValueUsd: run.portfolioValueUsd,
       realizedPnlUsd: run.realizedPnlUsd,

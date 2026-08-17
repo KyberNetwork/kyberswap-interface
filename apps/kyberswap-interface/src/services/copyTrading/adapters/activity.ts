@@ -109,6 +109,11 @@ type ApiAgentActionLog = {
   strategyVersion?: string
 }
 
+type ApiAgentActionLogSessionGroup = {
+  sessionId?: string
+  logs?: ApiAgentActionLog[]
+}
+
 const toPositionActivity = (detail: ApiActivity['position']): ActivityRow['position'] =>
   detail
     ? {
@@ -173,26 +178,33 @@ export const adaptActivityResponse = (
   response: ApiCursorResponse<ApiActivity>,
 ): OwnerActivityResponse | CopyAccountHistoryResponse => cursorResponse(response, toActivity)
 
-export const adaptActionLogsResponse = (response: ApiCursorResponse<ApiAgentActionLog>): CotLogsResponse =>
-  cursorResponse(
-    response,
-    (log): CotLog => ({
-      logId: log.actionLogId || '',
-      agentId: '',
-      chainId: chainIdNumber(log.chainId),
-      positionId: log.leaderPositionId,
-      trigger: log.trigger || '',
-      data: log.dataSummary || '',
-      reasoning: log.reasoningSummary || '',
-      action: log.actionSummary || log.action || '',
-      actionCode: log.action,
-      status: log.status || '',
-      summary: log.summary,
-      txHash: log.txHash,
-      blockNumber: log.blockNumber,
-      tokenAddress: log.tokenAddress as Address | undefined,
-      model: log.model,
-      strategyVersion: log.strategyVersion,
-      occurredAt: log.occurredAt || '',
-    }),
-  )
+const toActionLog = (log: ApiAgentActionLog): CotLog => ({
+  logId: log.actionLogId || '',
+  agentId: '',
+  chainId: chainIdNumber(log.chainId),
+  positionId: log.leaderPositionId,
+  trigger: log.trigger || '',
+  data: log.dataSummary || '',
+  reasoning: log.reasoningSummary || '',
+  action: log.actionSummary || log.action || '',
+  actionCode: log.action,
+  status: log.status || '',
+  summary: log.summary,
+  txHash: log.txHash,
+  blockNumber: log.blockNumber,
+  tokenAddress: log.tokenAddress as Address | undefined,
+  model: log.model,
+  strategyVersion: log.strategyVersion,
+  occurredAt: log.occurredAt || '',
+})
+
+export const adaptActionLogsResponse = (
+  response: ApiCursorResponse<ApiAgentActionLogSessionGroup>,
+): CotLogsResponse => {
+  const groupedResponse = cursorResponse(response, group => (group.logs || []).map(toActionLog))
+
+  return {
+    ...groupedResponse,
+    data: groupedResponse.data.flat(),
+  }
+}

@@ -13,6 +13,7 @@ import {
   formatCount,
   formatUsd,
   getAgentDisplayName,
+  getDisplayCapitalInUsd,
   getPreparedReasonMessage,
   getSignedMetricClassName,
   getWinRateClassName,
@@ -100,7 +101,7 @@ const ActiveSubscriptionsTable = ({ rows, loading, pagination, onOpenSubscriptio
                   {percent(subscription.agentStats.winRatePct)}
                 </TableCell>
                 <TableCell className="text-right">{compactUsd(subscription.agentStats.volumeUsd)}</TableCell>
-                <TableCell className="text-right">{formatUsd(subscription.capitalInUsd)}</TableCell>
+                <TableCell className="text-right">{formatUsd(getDisplayCapitalInUsd(subscription))}</TableCell>
                 <TableCell className="text-right">{formatCount(subscription.openPositionCount)}</TableCell>
                 <TableCell>
                   <CopyRunStatusBadge status={subscription.status} />
