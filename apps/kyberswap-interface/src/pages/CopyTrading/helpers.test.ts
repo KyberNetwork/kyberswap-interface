@@ -6,6 +6,9 @@ import {
   formatCount,
   formatTokenAmount,
   formatUsd,
+  getSignedMetricClassName,
+  getWinRateClassName,
+  getWinRateTone,
   percent,
   signedPercent,
   signedUsd,
@@ -30,6 +33,26 @@ describe('Copy Trading metric formatters', () => {
     expect(formatUsd('0')).not.toBe('N/A')
     expect(formatCount(0)).not.toBe('N/A')
     expect(percent('0')).not.toBe('N/A')
+  })
+
+  it('uses semantic colors only for signed metrics with a direction', () => {
+    expect(getSignedMetricClassName('12.5')).toBe('text-primary')
+    expect(getSignedMetricClassName('-0.1')).toBe('text-red')
+    expect(getSignedMetricClassName('0')).toBe('text-text')
+    expect(getSignedMetricClassName(undefined)).toBe('text-text')
+  })
+
+  it('colors win rates by performance range', () => {
+    expect(getWinRateClassName('60')).toBe('text-primary')
+    expect(getWinRateClassName('59.9')).toBe('text-warning')
+    expect(getWinRateClassName('30')).toBe('text-warning')
+    expect(getWinRateClassName('29.9')).toBe('text-red')
+    expect(getWinRateClassName(undefined)).toBe('text-text')
+    expect(getWinRateClassName('80', 'background')).toBe('bg-primary')
+    expect(getWinRateClassName('20', 'background')).toBe('bg-red1')
+    expect(getWinRateTone('60')).toBe('positive')
+    expect(getWinRateTone('30')).toBe('warning')
+    expect(getWinRateTone('20')).toBe('negative')
   })
 
   it('only prefixes approximate values when data is available', () => {

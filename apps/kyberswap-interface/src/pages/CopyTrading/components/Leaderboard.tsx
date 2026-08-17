@@ -12,6 +12,7 @@ export type LeaderboardStat = {
   value: string
   icon: StatIcon
   status?: MetricStatus
+  valueClassName?: string
 }
 
 const getMinCardWidth = (size: LeaderboardSize, itemCount: number) => {
@@ -25,8 +26,10 @@ type LeaderboardCardProps = {
 }
 
 const StatLabel = ({ item }: LeaderboardCardProps) => (
-  <HStack className="flex-wrap items-center gap-2">
-    <span className="break-words">{item.label}</span>
+  <HStack className="min-w-0 flex-nowrap items-center gap-2">
+    <span className="min-w-0 truncate" title={item.label}>
+      {item.label}
+    </span>
     {item.status === 'METRIC_STATUS_STALE' && (
       <span className="rounded bg-warning-20 px-1.5 py-0.5 text-[10px] font-medium uppercase text-warning">Stale</span>
     )}
@@ -41,9 +44,14 @@ const LargeLeaderboardCard = ({ item }: LeaderboardCardProps) => {
       <Center className={cn('size-12 shrink-0 rounded-full', backgroundColor)}>
         <img src={iconUrl} alt="" className="size-6" />
       </Center>
-      <Stack className="min-w-0 gap-1">
-        <span className="break-words text-2xl font-medium leading-8 text-text">{item.value}</span>
-        <div className="text-sm leading-5 text-subText">
+      <Stack className="min-w-0 flex-1 gap-1">
+        <span
+          className={cn('truncate text-2xl font-medium leading-8 text-text', item.valueClassName)}
+          title={item.value}
+        >
+          {item.value}
+        </span>
+        <div className="min-w-0 text-sm leading-5 text-subText">
           <StatLabel item={item} />
         </div>
       </Stack>
@@ -59,9 +67,14 @@ const SmallLeaderboardCard = ({ item }: LeaderboardCardProps) => {
       <Center className={cn('size-12 shrink-0 rounded-full', backgroundColor)}>
         <img src={iconUrl} alt="" className="size-6" />
       </Center>
-      <Stack className="min-w-0 gap-0.5">
-        <span className="break-words text-lg font-medium leading-6 text-primary">{item.value}</span>
-        <div className="text-sm leading-5 text-subText">
+      <Stack className="min-w-0 flex-1 gap-0.5">
+        <span
+          className={cn('truncate text-lg font-medium leading-6 text-primary', item.valueClassName)}
+          title={item.value}
+        >
+          {item.value}
+        </span>
+        <div className="min-w-0 text-sm leading-5 text-subText">
           <StatLabel item={item} />
         </div>
       </Stack>

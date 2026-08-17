@@ -17,6 +17,8 @@ import {
   compactUsd,
   formatCount,
   getPreparedReasonMessage,
+  getSignedMetricClassName,
+  getWinRateClassName,
   isActionAvailable,
   percent,
 } from 'pages/CopyTrading/helpers'
@@ -160,8 +162,12 @@ const AgentTable = ({ agents, loading, pagination, sortBy, sortOrder, onSortChan
                 }}
               >
                 <AgentCell agent={agent} className="px-3 py-2" />
-                <TableCell className="text-right text-primary">{percent(agent.stats.apr30dPct)}</TableCell>
-                <TableCell className="text-right">{percent(agent.stats.winRatePct)}</TableCell>
+                <TableCell className={cn('text-right', getSignedMetricClassName(agent.stats.apr30dPct))}>
+                  {percent(agent.stats.apr30dPct)}
+                </TableCell>
+                <TableCell className={cn('text-right', getWinRateClassName(agent.stats.winRatePct))}>
+                  {percent(agent.stats.winRatePct)}
+                </TableCell>
                 <TableCell className="text-right">{compactUsd(agent.stats.volumeUsd)}</TableCell>
                 <TableCell className="text-right">{formatCount(agent.stats.copiers)}</TableCell>
                 <TableCell className="text-right">{compactUsd(agent.stats.aumUsd)}</TableCell>
