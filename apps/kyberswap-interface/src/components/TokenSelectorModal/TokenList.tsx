@@ -7,6 +7,7 @@ import { ListChildComponentProps, VariableSizeList } from 'react-window'
 import InfiniteLoader from 'react-window-infinite-loader'
 
 import { ButtonPrimary } from 'components/Button'
+import CopyHelper from 'components/Copy'
 import CurrencyLogo from 'components/CurrencyLogo'
 import Loader from 'components/Loader'
 import Skeleton from 'components/Skeleton'
@@ -101,6 +102,8 @@ type TokenRowProps = {
   metricValue?: number
   addedAt?: number
   showAddress?: boolean
+  /** Show a copy-address icon next to the token name (tabs that have no room for the address text). */
+  showCopyAddress?: boolean
   usdValueClassName?: string
   /** Render the fixed-width price / 24h-change column. Kept tab-level (not data-driven) so rows stay aligned. */
   showPriceColumn?: boolean
@@ -150,6 +153,7 @@ export const TokenRow = ({
   metricValue,
   addedAt,
   showAddress,
+  showCopyAddress,
   usdValueClassName = 'text-subText',
   showPriceColumn,
   rightColumn = 'balance',
@@ -237,6 +241,15 @@ export const TokenRow = ({
             <span title={nativeCurrency?.name} className="truncate" data-testid="token-name">
               {nativeCurrency?.name}
             </span>
+            {showCopyAddress && !isTokenNative(currency) && (
+              <CopyHelper
+                toCopy={currency.wrapped.address}
+                size={14}
+                margin="0"
+                className="text-gray hover:text-text"
+                data-testid="copy-token-address"
+              />
+            )}
             {showAddress && (
               <>
                 <span className="shrink-0">•</span>
@@ -403,6 +416,7 @@ type VirtualRowData = {
   showFavoriteIcon?: boolean
   itemStyle: CSSProperties
   showAddress?: boolean
+  showCopyAddress?: boolean
   showPriceColumn?: boolean
   metricColumn?: TokenMetricColumn
   importAsRow?: boolean
@@ -489,6 +503,7 @@ const VirtualRow = memo(function VirtualRow({ index, style, data }: ListChildCom
         metricValue={data.metricColumn ? extra?.[data.metricColumn] : undefined}
         addedAt={extra?.addedAt}
         showAddress={data.showAddress}
+        showCopyAddress={data.showCopyAddress}
         showPriceColumn={data.showPriceColumn}
         rightColumn={rightColumn}
         rightColumnClassName={data.metricColumn ? METRIC_COLUMN_CLASS : BALANCE_COLUMN_CLASS}
@@ -521,6 +536,8 @@ type TokenListProps = {
   extras?: TokenRowExtraMap
   /** Show the shortened, click-to-copy token address next to each name (All tab). */
   showAddress?: boolean
+  /** Show a copy-address icon next to each token name (every tab except All, which shows the address itself). */
+  showCopyAddress?: boolean
   /** Render the price / 24h-change column (every tab except All). */
   showPriceColumn?: boolean
   /** Right column shows this metric — 24h volume or market cap — instead of the balance (Trending / New). */
@@ -546,6 +563,7 @@ const TokenList = ({
   onShowTokenInfo,
   extras,
   showAddress,
+  showCopyAddress,
   showPriceColumn,
   metricColumn,
   importAsRow,
@@ -620,6 +638,7 @@ const TokenList = ({
       showFavoriteIcon,
       itemStyle,
       showAddress,
+      showCopyAddress,
       showPriceColumn,
       metricColumn,
       importAsRow,
@@ -645,6 +664,7 @@ const TokenList = ({
       showFavoriteIcon,
       itemStyle,
       showAddress,
+      showCopyAddress,
       showPriceColumn,
       metricColumn,
       importAsRow,

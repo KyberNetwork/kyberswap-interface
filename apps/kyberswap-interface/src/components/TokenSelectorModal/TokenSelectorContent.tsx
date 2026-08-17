@@ -1101,6 +1101,7 @@ export const TokenSelectorContent = ({
               customChainId={primaryChainId}
               extras={listExtras}
               showAddress={isAllTab}
+              showCopyAddress={!isAllTab}
               showPriceColumn={!isAllTab}
               metricColumn={isTrendingTab || isNewTab ? metricColumn : undefined}
               // While searching, surface the Import button (not the dimmed row) for non-whitelisted hits.
