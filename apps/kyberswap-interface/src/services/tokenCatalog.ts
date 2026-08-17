@@ -162,6 +162,9 @@ export const fetchTokenPrices = async (
     body: JSON.stringify(body),
     signal: options?.signal,
   })
+  // Error replies carry a JSON envelope too, so without this check they parse into a response with
+  // no `data` and read back as "these tokens have no price" instead of as a failure to retry.
+  if (!res.ok) throw new Error(`Token prices request failed with status ${res.status}`)
   return res.json()
 }
 

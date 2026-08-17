@@ -240,7 +240,9 @@ export const useTokensHasBalance = (includesImportToken = false) => {
 
   // sort by usd
   const tokensHasBalanceSorted = useMemo(() => {
-    return (tokensHasBalance as Token[]).sort((a, b) => {
+    // Copy before sorting: `tokensHasBalance` is React state, and sorting it in place mutates the
+    // value other memos in this hook are already holding.
+    return [...(tokensHasBalance as Token[])].sort((a, b) => {
       const addressA = a.wrapped.address
       const addressB = b.wrapped.address
 
@@ -252,7 +254,9 @@ export const useTokensHasBalance = (includesImportToken = false) => {
 
       const usdA = parseFloat(tokenBalanceA ?? '0') * usdPriceA
       const usdB = parseFloat(tokenBalanceB ?? '0') * usdPriceB
-      return usdA > usdB ? -1 : 1
+      // Return 0 on a tie: an always-nonzero comparator is inconsistent, so equal-value rows would
+      // shuffle on every re-sort.
+      return usdB - usdA
     })
   }, [tokensHasBalance, tokensPrices, currencyBalances, ethBalance])
 

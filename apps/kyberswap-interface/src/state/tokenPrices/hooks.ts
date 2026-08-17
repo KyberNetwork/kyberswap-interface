@@ -1,46 +1,36 @@
-import { NATIVE_TOKEN_ADDRESS } from '@kyber/schema'
 import { ChainId, Token, WETH } from '@kyberswap/ks-sdk-core'
-import { useQueryClient } from '@tanstack/react-query'
-import debounce from 'lodash.debounce'
-import { useCallback, useEffect, useMemo, useState } from 'react'
-import { fetchTokenPrices, getMidPrice } from 'services/tokenCatalog'
+import { useCallback, useEffect, useMemo, useRef } from 'react'
 
 import { useActiveWeb3React } from 'hooks'
-import { useAppDispatch, useAppSelector } from 'state/hooks'
-import { isAddressString } from 'utils/address'
+import { useAppSelector } from 'state/hooks'
+import { NATIVE_TOKEN_PRICE_KEY, resolvePriceMap } from 'state/tokenPrices/priceMap'
+import { RefreshTier, expire, register, unregister } from 'state/tokenPrices/registry'
 
-import { updatePrices } from '.'
+const EMPTY_CHAIN_PRICES: { [address: string]: number | null } = Object.freeze({})
 
-const chunkList = (list: string[], chunkSize: number) => {
-  const chunks: string[][] = []
-  for (let i = 0; i < list.length; i += chunkSize) {
-    chunks.push(list.slice(i, i + chunkSize))
-  }
-  return chunks
+export type TokenPricesOptions = {
+  /** Defaults to `'live'`; see RefreshTier for when to drop to `'once'`. */
+  refresh?: RefreshTier
 }
-
-const CHUNK_SIZE = 100
-const NATIVE_TOKEN_PRICE_KEY = NATIVE_TOKEN_ADDRESS.toLowerCase()
 
 export const useTokenPricesWithLoading = (
   addresses: Array<string>,
   customChain?: ChainId,
+  options?: TokenPricesOptions,
 ): {
   data: { [address: string]: number }
   loading: boolean
-  fetchPrices: (value: string[]) => Promise<{ [key: string]: number | undefined }>
   refetch: () => void
 } => {
-  const dispatch = useAppDispatch()
-  const queryClient = useQueryClient()
-  const tokenPrices = useAppSelector(state => state.tokenPrices)
   const { chainId: currentChain } = useActiveWeb3React()
   const chainId = customChain || currentChain
+  const tier: RefreshTier = options?.refresh ?? 'live'
 
-  const [loading, setLoading] = useState(true)
+  // Unmemoized on purpose: collapses any array identity — inline literals, per-block rebuilds — into
+  // a primitive that every memo below and the subscription effect key on.
   const addressKeys = [...addresses]
+    .map(address => address.toLowerCase())
     .sort()
-    .map(x => x.toLowerCase())
     .join(',')
 
   const wrappedNativeAddress = useMemo(() => (WETH[chainId] as Token | undefined)?.address?.toLowerCase(), [chainId])
@@ -55,110 +45,52 @@ export const useTokenPricesWithLoading = (
     return Array.from(new Set(list))
   }, [addressKeys, wrappedNativeAddress])
 
-  const unknownPriceList = useMemo(() => {
-    return tokenList.filter(item => tokenPrices[`${item}_${chainId}`] === undefined)
-  }, [tokenList, chainId, tokenPrices])
-
-  const fetchPrices = useCallback(
-    async (list: string[]) => {
-      const normalizedList = Array.from(new Set(list.filter(Boolean).map(address => address.toLowerCase()))).sort()
-
-      if (!chainId || normalizedList.length === 0) {
-        setLoading(false)
-        return {}
-      }
-
-      try {
-        setLoading(true)
-        const chunks = chunkList(normalizedList, CHUNK_SIZE)
-        const responses = await Promise.all(
-          chunks.map(chunk =>
-            queryClient.fetchQuery({
-              queryKey: ['tokenPrices', chainId, chunk],
-              queryFn: () => fetchTokenPrices({ [chainId]: chunk }),
-              retry: false,
-            }),
-          ),
-        )
-
-        const prices = responses.reduce<Record<string, number>>((acc, response) => {
-          Object.entries(response?.data?.[chainId] || {}).forEach(([address, entry]) => {
-            const price = getMidPrice(entry)
-            if (price !== null) acc[address.toLowerCase()] = price
-          })
-          return acc
-        }, {})
-
-        const formattedPrices = normalizedList.map(address => ({
-          address,
-          chainId,
-          price: prices[address] || 0,
-        }))
-
-        if (formattedPrices?.length) {
-          dispatch(updatePrices(formattedPrices))
-          return formattedPrices.reduce<Record<string, number>>((acc, cur) => {
-            acc[cur.address] = cur.price
-            acc[isAddressString(cur.address)] = cur.price
-            return acc
-          }, {})
-        }
-
-        return {}
-      } catch (e) {
-        console.log(e)
-        // empty
-        return {}
-      } finally {
-        setLoading(false)
-      }
-    },
-    [chainId, dispatch, queryClient],
-  )
-
+  // Subscribing is the only way an address gets fetched; this hook never requests anything itself, so
+  // there is exactly one scheduler and no way for consumers to stampede the endpoint.
   useEffect(() => {
-    if (unknownPriceList.length) fetchPrices(unknownPriceList)
-    else {
-      setLoading(false)
-    }
-  }, [unknownPriceList, fetchPrices])
+    if (!chainId || !tokenList.length) return
+    register(chainId, tokenList, tier)
+    return () => unregister(chainId, tokenList, tier)
+  }, [chainId, tokenList, tier])
 
-  const refetch = useMemo(() => debounce(() => fetchPrices(tokenList), 300), [fetchPrices, tokenList])
+  const chainPrices = useAppSelector(state => state.tokenPrices[chainId] ?? EMPTY_CHAIN_PRICES)
 
   const data: {
     [address: string]: number
-  } = useMemo(() => {
-    return tokenList.reduce<Record<string, number>>((acc, address) => {
-      const key = `${address}_${chainId}`
-      const wrappedNativeKey = `${wrappedNativeAddress}_${chainId}`
-      const price =
-        address === NATIVE_TOKEN_PRICE_KEY && wrappedNativeAddress
-          ? tokenPrices[key] || tokenPrices[wrappedNativeKey] || 0
-          : tokenPrices[key] || 0
+  } = useMemo(
+    () => resolvePriceMap(tokenList, chainPrices, wrappedNativeAddress),
+    [tokenList, chainPrices, wrappedNativeAddress],
+  )
 
-      acc[address] = price
-      acc[isAddressString(address)] = price
-      return acc
-    }, {})
-  }, [tokenList, chainId, tokenPrices, wrappedNativeAddress])
-
-  // `data` is rebuilt with a fresh identity whenever the Redux tokenPrices slice changes — which is
-  // on every price poll anywhere in the app, even for tokens this caller never asked about. Cache it
-  // by a value signature over the requested prices so the reference only changes when a requested
-  // token's resolved price actually changes (mirrors the balance path's balanceResultCached).
+  // `data` is rebuilt whenever this chain's prices change, including for tokens this caller never
+  // asked about. Key it on the requested values so its reference only changes when one of them does.
   const dataSignature = tokenList.map(address => `${address}:${data[address] ?? 0}`).join('|')
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const dataCached = useMemo(() => data, [dataSignature])
 
-  return { data: dataCached, loading, fetchPrices, refetch }
+  // "At least one of my addresses has never resolved", not "a request is in flight": it falls false
+  // once and stays false, so a skeleton or a one-shot init gated on it never flickers or re-runs.
+  const loading = useMemo(() => tokenList.some(address => chainPrices[address] === undefined), [tokenList, chainPrices])
+
+  // Callers re-fire `refetch` whenever its identity changes, so it must stay stable for the hook's
+  // lifetime; read the current address list from a ref rather than closing over it.
+  const forceTargetRef = useRef({ chainId, tokenList })
+  forceTargetRef.current = { chainId, tokenList }
+  const refetch = useCallback(() => {
+    const { chainId: targetChain, tokenList: targetList } = forceTargetRef.current
+    if (targetChain) expire(targetChain, targetList)
+  }, [])
+
+  return { data: dataCached, loading, refetch }
 }
 
 export const useTokenPrices = (
   addresses: Array<string>,
   chainId?: ChainId,
+  options?: TokenPricesOptions,
 ): {
   [address: string]: number
 } => {
-  const { data } = useTokenPricesWithLoading(addresses, chainId)
+  const { data } = useTokenPricesWithLoading(addresses, chainId, options)
   return data
 }

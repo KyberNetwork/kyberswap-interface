@@ -39,7 +39,8 @@ export default function AllPositionLegacy({ positions }: { positions: SubgraphPo
 
   const addresses = [...new Set(positions.map(item => [item.token0.id, item.token1.id]).flat())]
 
-  const tokenPrices = useTokenPrices(addresses)
+  // One instance per row: the TTL would re-price the whole list while the user is only reading it.
+  const tokenPrices = useTokenPrices(addresses, undefined, { refresh: 'once' })
 
   const columnCount = upToSmall ? 1 : upToLarge ? 2 : 3
 
