@@ -86,10 +86,6 @@ export const CONNECTION_ORDER = [
   CONNECTION.PORTO,
 ]
 
-// Connectors that stay registered in wagmi — so sessions opened with them keep reconnecting —
-// but are never offered as a connect option in the wallet modal.
-export const HIDDEN_CONNECTOR_IDS: string[] = [CONNECTION.SAFEPAL, CONNECTION.SAFEPAL_RDNS]
-
 export const CONNECTOR_ICON_OVERRIDE_MAP: { [id in string]?: string } = {
   [CONNECTION.METAMASK_SDK_CONNECTOR_ID]: METAMASK_ICON,
   [CONNECTION.METAMASK_RDNS]: METAMASK_ICON,
