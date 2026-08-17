@@ -1,12 +1,18 @@
 import type { HTMLAttributes } from 'react'
 import agentApi from 'services/copyTrading/api/endpoints/agents'
 
-import { HStack, Stack } from 'components/Stack'
+import { Stack } from 'components/Stack'
 import InfiniteScroll, { useInfiniteCursorQuery } from 'pages/CopyTrading/components/InfiniteScroll'
 import { HeaderCell, TableBody, TableCell, TableHeader, TableRow } from 'pages/CopyTrading/components/Table'
 import { ShortenedId } from 'pages/CopyTrading/components/common/layout'
 import { PositionLifecycleBadge } from 'pages/CopyTrading/components/common/status'
-import { formatTokenAmount, formatUsd, signedPercent, signedUsd } from 'pages/CopyTrading/helpers'
+import {
+  formatTokenAmount,
+  formatUsd,
+  getSignedMetricClassName,
+  signedPercent,
+  signedUsd,
+} from 'pages/CopyTrading/helpers'
 import { cn } from 'utils/cn'
 import { formatDateTime } from 'utils/time'
 
@@ -71,7 +77,6 @@ const TabPositions = ({ agentId }: { agentId: string }) => {
         >
           {rows.map(row => {
             const pnl = row.unrealizedPnlUsd || row.realizedPnlUsd
-            const isNegative = Number(pnl || 0) < 0
 
             return (
               <TabPositionsGrid key={row.positionId}>
@@ -83,11 +88,11 @@ const TabPositions = ({ agentId }: { agentId: string }) => {
                 <TableCell>{formatUsd(row.currentPriceUsd)}</TableCell>
                 <TableCell>{formatTokenAmount(row.amountDecimal)}</TableCell>
                 <TableCell>{formatUsd(row.valueUsd)}</TableCell>
-                <TableCell className={cn(isNegative ? 'text-red' : 'text-primary')}>
-                  <HStack className="items-center gap-2">
-                    <span>{signedUsd(pnl)}</span>
-                    <span className="text-xs">{signedPercent(row.unrealizedPnlPct)}</span>
-                  </HStack>
+                <TableCell className={getSignedMetricClassName(pnl ?? row.unrealizedPnlPct)}>
+                  <Stack className="gap-0.5">
+                    <span className="whitespace-nowrap">{signedUsd(pnl)}</span>
+                    <span className="whitespace-nowrap text-xs">{signedPercent(row.unrealizedPnlPct)}</span>
+                  </Stack>
                 </TableCell>
                 <TableCell>
                   <PositionLifecycleBadge lifecycle={row.lifecycle} quantityState={row.quantityState} />

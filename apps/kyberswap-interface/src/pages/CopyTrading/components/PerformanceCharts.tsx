@@ -7,7 +7,7 @@ import Dots from 'components/Dots'
 import Loader from 'components/Loader'
 import SegmentedControl, { type SegmentedControlOption } from 'components/SegmentedControl'
 import { HStack, Stack } from 'components/Stack'
-import { compactUsd, formatUsd } from 'pages/CopyTrading/helpers'
+import { compactUsd, formatUsd, getSignedMetricClassName } from 'pages/CopyTrading/helpers'
 import { cn } from 'utils/cn'
 import { formatDateTime, formatShortDate } from 'utils/time'
 
@@ -24,10 +24,17 @@ type PerformanceChartPoint = {
   realizedPnlUsd?: number
 }
 
+const toChartNumber = (value?: string) => {
+  if (value === undefined) return undefined
+
+  const amount = Number(value)
+  return Number.isFinite(amount) ? amount : undefined
+}
+
 export const toPerformanceChartPoint = (point: PerformancePoint): PerformanceChartPoint => ({
   timestamp: new Date(point.timestamp).getTime(),
-  portfolioValueUsd: point.portfolioValueUsd === undefined ? undefined : Number(point.portfolioValueUsd),
-  realizedPnlUsd: point.realizedPnlUsd === undefined ? undefined : Number(point.realizedPnlUsd),
+  portfolioValueUsd: toChartNumber(point.portfolioValueUsd),
+  realizedPnlUsd: toChartNumber(point.realizedPnlUsd),
 })
 
 const getPnlGradientOffset = (data: PerformanceChartPoint[]) => {
@@ -73,13 +80,34 @@ const ChartTooltip = ({ active, payload }: ChartTooltipProps) => {
   return (
     <Stack className="gap-2 rounded-lg bg-background px-4 py-3 text-xs shadow-lg">
       <span className="text-subText">{formatDateTime(point.timestamp)}</span>
-      {payload.map(item => (
-        <span key={item.dataKey} className="font-medium" style={{ color: item.color }}>
-          {item.name}: {formatUsd(item.value === undefined ? undefined : String(item.value))}
-        </span>
-      ))}
+      {payload.map(item => {
+        const isPnl = item.dataKey === 'realizedPnlUsd'
+
+        return (
+          <span
+            key={item.dataKey}
+            className={cn('font-medium', isPnl && getSignedMetricClassName(item.value))}
+            style={isPnl ? undefined : { color: item.color }}
+          >
+            {item.name}: {formatUsd(item.value === undefined ? undefined : String(item.value))}
+          </span>
+        )
+      })}
     </Stack>
   )
+}
+
+type PnlActiveDotProps = {
+  cx?: number
+  cy?: number
+  payload?: PerformanceChartPoint
+}
+
+const PnlActiveDot = ({ cx, cy, payload }: PnlActiveDotProps) => {
+  const value = payload?.realizedPnlUsd
+  const fill = value === undefined || value === 0 ? 'var(--ks-text)' : value > 0 ? 'var(--ks-primary)' : 'var(--ks-red)'
+
+  return <circle cx={cx} cy={cy} fill={fill} r={4} stroke="var(--ks-buttonBlack)" strokeWidth={2} />
 }
 
 type ChartStateProps = PropsWithChildren<{
@@ -169,7 +197,7 @@ export const CumulativeRealisedPnlChart = ({
               />
               <Tooltip content={<ChartTooltip />} cursor={{ stroke: 'var(--ks-subText)', strokeDasharray: '4 4' }} />
               <Area
-                activeDot={{ fill: 'var(--ks-primary)', r: 4, stroke: 'var(--ks-buttonBlack)', strokeWidth: 2 }}
+                activeDot={<PnlActiveDot />}
                 dataKey="realizedPnlUsd"
                 dot={false}
                 fill="url(#realisedPnlFill)"
