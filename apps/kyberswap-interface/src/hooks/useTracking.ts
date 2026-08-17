@@ -455,8 +455,10 @@ export default function useTracking(currencies?: { [field in Field]?: Currency }
           formoTrack('Token Selector - Opened', payload)
           break
         }
+        // Shares the TOKEN_SEARCHED event name so token search from the trading surfaces and from the
+        // earn token selector roll up into a single Formo event.
         case TRACKING_EVENT_TYPE.TS_SEARCHED: {
-          formoTrack('Token Selector - Searched', payload)
+          formoTrack('Token Searched', payload)
           break
         }
         case TRACKING_EVENT_TYPE.TS_TAB_SELECTED: {
