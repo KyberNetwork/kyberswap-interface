@@ -6,6 +6,7 @@ import {
   formatCount,
   formatTokenAmount,
   formatUsd,
+  getDisplayCapitalInUsd,
   getSignedMetricClassName,
   getWinRateClassName,
   getWinRateTone,
@@ -63,5 +64,12 @@ describe('Copy Trading metric formatters', () => {
   it('only calculates combined USD metrics when every value is available', () => {
     expect(sumUsdValues('10.5', '-2')).toBe('8.5')
     expect(sumUsdValues('10.5', undefined)).toBeUndefined()
+  })
+
+  it('uses observed capital only when canonical capital is unavailable', () => {
+    expect(getDisplayCapitalInUsd({ capitalInUsd: '10', observedCapitalInUsd: '12' })).toBe('10')
+    expect(getDisplayCapitalInUsd({ capitalInUsd: '0', observedCapitalInUsd: '12' })).toBe('0')
+    expect(getDisplayCapitalInUsd({ observedCapitalInUsd: '12' })).toBe('12')
+    expect(getDisplayCapitalInUsd({})).toBeUndefined()
   })
 })

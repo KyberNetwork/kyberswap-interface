@@ -26,10 +26,10 @@ describe('loadCurrentCopyAccountPosition', () => {
     const getPositions = vi
       .fn()
       .mockReturnValueOnce({
-        unwrap: () => Promise.resolve(page([position('other')], { hasMore: true, limit: 200, nextCursor: 'page-2' })),
+        unwrap: () => Promise.resolve(page([position('other')], { hasMore: true, limit: 100, nextCursor: 'page-2' })),
       })
       .mockReturnValueOnce({
-        unwrap: () => Promise.resolve(page([position('selected')], { hasMore: false, limit: 200 })),
+        unwrap: () => Promise.resolve(page([position('selected')], { hasMore: false, limit: 100 })),
       })
 
     await expect(
@@ -43,13 +43,13 @@ describe('loadCurrentCopyAccountPosition', () => {
       chainId: 8453,
       copyAccount,
       cursor: 'page-2',
-      limit: 200,
+      limit: 100,
     })
   })
 
   it('rejects an incomplete cursor chain instead of trusting a stale position snapshot', async () => {
     const getPositions = vi.fn().mockReturnValue({
-      unwrap: () => Promise.resolve(page([], { hasMore: true, limit: 200, nextCursor: 'same-cursor' })),
+      unwrap: () => Promise.resolve(page([], { hasMore: true, limit: 100, nextCursor: 'same-cursor' })),
     })
 
     await expect(
@@ -83,8 +83,8 @@ describe('loadPendingSellObligations', () => {
     const getObligations = vi.fn((query: PendingSellObligationsQuery) => ({
       unwrap: async () =>
         query.cursor
-          ? obligationPage([obligation('event-2')], { hasMore: false, limit: 200 })
-          : obligationPage([obligation('event-1')], { hasMore: true, limit: 200, nextCursor: 'page-2' }),
+          ? obligationPage([obligation('event-2')], { hasMore: false, limit: 100 })
+          : obligationPage([obligation('event-1')], { hasMore: true, limit: 100, nextCursor: 'page-2' }),
     }))
 
     await expect(loadPendingSellObligations(getObligations, obligationQuery)).resolves.toEqual([
@@ -94,7 +94,7 @@ describe('loadPendingSellObligations', () => {
     expect(getObligations).toHaveBeenNthCalledWith(2, {
       ...obligationQuery,
       cursor: 'page-2',
-      limit: 200,
+      limit: 100,
     })
   })
 
@@ -103,7 +103,7 @@ describe('loadPendingSellObligations', () => {
       unwrap: async () =>
         obligationPage([], {
           hasMore: true,
-          limit: 200,
+          limit: 100,
           nextCursor: query.cursor === 'page-2' ? 'page-1' : query.cursor ? 'page-2' : 'page-1',
         }),
     }))

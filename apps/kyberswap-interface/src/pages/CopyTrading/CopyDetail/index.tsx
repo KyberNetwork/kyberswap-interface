@@ -19,6 +19,7 @@ import { useCopyTradingContext } from 'pages/CopyTrading/context'
 import {
   formatApproximateUsd,
   formatUsd,
+  getDisplayCapitalInUsd,
   getSignedMetricClassName,
   signedPercent,
   signedUsd,
@@ -91,7 +92,7 @@ const CopyTimeline = ({ run }: { run: CopyRunSummary }) => {
         </Center>
         <Stack>
           <span className="text-sm text-subText">{formatDateTime(run.startedAt)}</span>
-          <span className="text-lg font-medium text-text">In: {formatUsd(run.capitalInUsd)}</span>
+          <span className="text-lg font-medium text-text">In: {formatUsd(getDisplayCapitalInUsd(run))}</span>
         </Stack>
       </HStack>
       <div className="h-0.5 min-w-16 flex-1 bg-gradient-to-r from-primary to-red max-md:hidden" />
