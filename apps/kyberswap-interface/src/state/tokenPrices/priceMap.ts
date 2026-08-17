@@ -4,10 +4,7 @@ import { isAddressString } from 'utils/address'
 
 export const NATIVE_TOKEN_PRICE_KEY = NATIVE_TOKEN_ADDRESS.toLowerCase()
 
-/**
- * `isAddressString` builds a `Token` to checksum, which is far too slow to run per address on every
- * render of a long list. The mapping is pure, so cache it for the session.
- */
+/** `isAddressString` builds a `Token` to checksum — far too slow to run per row on every render. */
 const checksumCache = new Map<string, string>()
 
 export const checksum = (address: string) => {
@@ -19,9 +16,9 @@ export const checksum = (address: string) => {
 }
 
 /**
- * Build a consumer's price map: total over `tokenList`, `0`-filled, and emitted under both the
- * lowercased address and its checksummed alias because call sites index it either way — many with
- * bare arithmetic, so a missing key silently turns every USD figure into `$0`.
+ * A consumer's price map: total over `tokenList`, `0`-filled, and emitted under both the lowercased
+ * address and its checksummed alias because call sites index it either way — many with bare
+ * arithmetic, so dropping either half silently turns every USD figure into `$0`.
  */
 export const resolvePriceMap = (
   tokenList: string[],

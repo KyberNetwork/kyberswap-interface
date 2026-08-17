@@ -1,41 +1,30 @@
 /**
  * Which (chain, token) pairs currently have a mounted consumer, and when each was last fetched.
  *
- * This lives outside Redux on purpose. Membership changes whenever a consumer mounts, unmounts or
- * rebuilds its address list — which for the wallet and token-selector sorts happens roughly every
- * block — and routing that through `dispatch` would notify every `useAppSelector` in the app several
- * times a second. It is also not application state but a live view of what is mounted, so React
- * reaches it only through `useSyncExternalStore`.
- *
- * Fetch bookkeeping (`fetchedAt`, failures) deliberately lives here rather than in the price slice:
- * it changes on every sweep, and storing it in Redux would mint a new slice reference each tick even
+ * Kept out of Redux deliberately: membership changes whenever a consumer mounts or rebuilds its
+ * address list, which for the wallet and token-selector sorts is roughly every block, and each
+ * dispatch would notify every `useAppSelector` in the app. Fetch bookkeeping lives here for the same
+ * reason — it changes every sweep, and in Redux it would mint a new slice reference each tick even
  * when no price moved.
  */
 
 /**
- * `live` — the default — re-fetches an address once it passes the TTL, so an open screen keeps
- * showing a current price. `once` fetches when a consumer needs the address and then leaves it alone
- * while that consumer stays mounted; it refreshes when something asks again after a gap (see
- * REMOUNT_REFRESH_MS) or on an explicit `refetch()`.
- *
- * Defaulting to `live` puts the cost of forgetting on requests rather than on correctness: a call
- * site added without a thought refreshes a little too eagerly instead of silently displaying a stale
- * price. Unmounting already stops the polling, so the tier only matters where a consumer is mounted
- * per row of a list and "the UI is open" stops meaning "the user is watching this number".
+ * `live` — the default — re-fetches once past the TTL. `once` fetches when a consumer needs the
+ * address and then leaves it alone while that consumer stays mounted, refreshing only when something
+ * asks again after a gap (see REMOUNT_REFRESH_MS) or on an explicit `refetch()`. Drop to `once` for
+ * consumers mounted per row of a list, where an open screen no longer means the user is watching.
  *
  * The tier decides who *drives* a refresh, not who reads the result — every consumer reads the same
- * slice entry, so a token kept fresh for one surface is simultaneously fresh everywhere else.
+ * slice entry, so a token kept fresh for one surface is fresh everywhere else too.
  */
 export type RefreshTier = 'live' | 'once'
 
 /**
- * How stale a price may be before a consumer arriving at an address nobody was watching triggers a
- * re-fetch. This is what makes reopening a page show current numbers without polling for them in the
- * background: leaving KyberDAO open costs nothing, coming back to it costs one request.
+ * How stale a price may be before a consumer arriving at an unwatched address re-fetches it, which is
+ * what makes reopening a page show current numbers without polling in the background.
  *
- * The threshold matters because an address set can be rebuilt on a value that changes every block;
- * React runs the old cleanup before the new effect, so the address momentarily drops to no consumers
- * and would otherwise re-fetch on each block.
+ * A threshold is needed at all because an address set can be rebuilt on a per-block value: React runs
+ * the old cleanup before the new effect, so the address briefly drops to no consumers.
  */
 export const REMOUNT_REFRESH_MS = 30_000
 
@@ -89,8 +78,7 @@ export const register = (chainId: number, addresses: string[], tier: RefreshTier
     }
 
     chainEntries.set(address, { live: tier === 'live' ? 1 : 0, once: tier === 'once' ? 1 : 0 })
-    // Nobody was watching this address until now, so its price is as old as whenever the last
-    // consumer left. Refresh it if that was long enough ago to matter.
+    // Nobody was watching this address, so its price is as old as whenever the last consumer left.
     const entry = meta.get(metaKey(chainId, address))
     if (entry && now - entry.fetchedAt >= REMOUNT_REFRESH_MS) entry.forced = true
   })
@@ -105,9 +93,8 @@ export const unregister = (chainId: number, addresses: string[], tier: RefreshTi
     const counts = chainEntries.get(address)
     if (!counts) return
     counts[tier] = Math.max(0, counts[tier] - 1)
-    // Drop the entry from the registry only; the price stays in the slice and its `meta` stays here.
-    // The slice is a cache, so a modal closing or a route change must not discard prices that the
-    // next screen is about to ask for again.
+    // Registry only; the price and its `meta` stay. Closing a modal or changing route must not
+    // discard prices the next screen is about to ask for again.
     if (!counts.live && !counts.once) chainEntries.delete(address)
   })
   if (!chainEntries.size) registry.delete(chainId)
@@ -146,10 +133,7 @@ export const markFailed = (key: string) => {
   })
 }
 
-/**
- * Whether anything could still become due, so the updater can run no timer at all while every
- * subscribed address is settled `once` data.
- */
+/** Whether anything could still become due, so an app showing only settled `once` data runs no timer. */
 export const hasLiveOrPendingWork = () => {
   for (const [chainId, chainEntries] of registry) {
     for (const [address, counts] of chainEntries) {

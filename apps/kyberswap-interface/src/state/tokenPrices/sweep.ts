@@ -11,11 +11,9 @@ export const CHUNK_SIZE = 100
 export type DueSet = { [chainId: number]: string[] }
 
 /**
- * Which subscribed addresses the next request should cover.
- *
- * A cold or explicitly expired address is due regardless of tab visibility: consumers only subscribe,
- * so there is no other path to a first price and gating it would leave a background tab blank
- * forever. Everything else — TTL refreshes and failure retries — is visibility-gated.
+ * Which subscribed addresses the next request should cover. A cold or explicitly expired address is
+ * due regardless of tab visibility — consumers only subscribe, so there is no other path to a first
+ * price. TTL refreshes and failure retries are visibility-gated.
  */
 export const selectDue = (
   registry: Map<number, Map<string, RegistryCounts>>,
@@ -50,9 +48,9 @@ export const selectDue = (
 }
 
 /**
- * Split the due set into request bodies. The endpoint takes a multi-chain body and caps addresses
- * per chain, so chains pack into the same request for free; chunking a flat cross-chain union
- * instead would split one chain across bodies and mis-associate addresses.
+ * Split the due set into request bodies. The endpoint caps addresses per chain and accepts several
+ * chains at once, so they pack for free; chunking a flat cross-chain union would split one chain
+ * across bodies and mis-associate addresses.
  */
 export const packBodies = (due: DueSet, chunkSize = CHUNK_SIZE): TokenPricesBody[] => {
   const chainIds = Object.keys(due)

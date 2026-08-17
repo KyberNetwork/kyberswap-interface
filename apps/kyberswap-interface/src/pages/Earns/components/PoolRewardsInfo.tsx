@@ -120,8 +120,7 @@ const PoolRewardsInfo = ({ pool, showEstimate = true, 'data-testid': dataTestId 
     // `chainId` is optional on the explorer's pool shape; falling back to the connected chain would
     // file this pool's reward prices under the wrong chain in the shared price cache.
     (pool.chain?.id || pool.chainId) as ChainId,
-    // Mounted once per row of the pool explorer, so refreshing on the TTL would re-price the whole
-    // table while the user is only reading it.
+    // One instance per explorer row: the TTL would re-price the whole table while it is only read.
     { refresh: 'once' },
   )
 

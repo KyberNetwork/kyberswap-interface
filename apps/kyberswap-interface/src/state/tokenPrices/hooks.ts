@@ -9,11 +9,7 @@ import { RefreshTier, expire, register, unregister } from 'state/tokenPrices/reg
 const EMPTY_CHAIN_PRICES: { [address: string]: number | null } = Object.freeze({})
 
 export type TokenPricesOptions = {
-  /**
-   * Defaults to `'live'`, so a screen shows a current price for as long as it is open. Drop to
-   * `'once'` where a consumer is mounted per row of a list: there "the UI is open" no longer means
-   * "the user is watching this number", and the whole list would refresh on the TTL while they read.
-   */
+  /** Defaults to `'live'`; see RefreshTier for when to drop to `'once'`. */
   refresh?: RefreshTier
 }
 
@@ -49,8 +45,8 @@ export const useTokenPricesWithLoading = (
     return Array.from(new Set(list))
   }, [addressKeys, wrappedNativeAddress])
 
-  // Subscribing is what makes the updater fetch these addresses; this hook never requests anything
-  // itself, so there is exactly one scheduler and no way for consumers to stampede the endpoint.
+  // Subscribing is the only way an address gets fetched; this hook never requests anything itself, so
+  // there is exactly one scheduler and no way for consumers to stampede the endpoint.
   useEffect(() => {
     if (!chainId || !tokenList.length) return
     register(chainId, tokenList, tier)
@@ -66,20 +62,18 @@ export const useTokenPricesWithLoading = (
     [tokenList, chainPrices, wrappedNativeAddress],
   )
 
-  // `data` is rebuilt whenever this chain's prices change — including for tokens this caller never
-  // asked about. Cache it by a value signature over the requested prices so the reference only
-  // changes when a requested token's resolved price actually changes.
+  // `data` is rebuilt whenever this chain's prices change, including for tokens this caller never
+  // asked about. Key it on the requested values so its reference only changes when one of them does.
   const dataSignature = tokenList.map(address => `${address}:${data[address] ?? 0}`).join('|')
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const dataCached = useMemo(() => data, [dataSignature])
 
-  // "At least one of my addresses has never resolved" — not "a request is in flight". It falls false
-  // once and stays false through every background refresh, so consumers gating a skeleton or a
-  // one-shot initialization on it never flicker or re-run.
+  // "At least one of my addresses has never resolved", not "a request is in flight": it falls false
+  // once and stays false, so a skeleton or a one-shot init gated on it never flickers or re-runs.
   const loading = useMemo(() => tokenList.some(address => chainPrices[address] === undefined), [tokenList, chainPrices])
 
-  // Callers re-fire `refetch` whenever its identity changes, so it must be stable for the hook's
-  // lifetime; read the current address list from a ref instead of closing over it.
+  // Callers re-fire `refetch` whenever its identity changes, so it must stay stable for the hook's
+  // lifetime; read the current address list from a ref rather than closing over it.
   const forceTargetRef = useRef({ chainId, tokenList })
   forceTargetRef.current = { chainId, tokenList }
   const refetch = useCallback(() => {

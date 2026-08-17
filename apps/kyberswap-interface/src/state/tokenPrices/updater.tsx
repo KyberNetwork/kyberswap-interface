@@ -24,13 +24,11 @@ const SWEEP_INTERVAL_MS = 5_000
 const COALESCE_MS = 50
 const MAX_PARALLEL = 4
 const DEV_LIVE_UNION_WARN = 150
-/**
- * `fetch` has no timeout of its own, and every trigger funnels through one in-flight guard — so an
- * unbounded request would wedge price fetching for the whole app until the socket gave up.
- */
+/** `fetch` has no timeout, and every trigger funnels through one in-flight guard, so a stalled
+ * request would wedge price fetching app-wide until the socket gave up. */
 const REQUEST_TIMEOUT_MS = 10_000
 
-/** Abort signal that fires on the updater unmounting or on this request outliving its budget. */
+/** Aborts on the updater unmounting or on this request outliving its budget. */
 const withTimeout = (lifetime: AbortSignal | undefined) => {
   const controller = new AbortController()
   const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS)
@@ -47,17 +45,15 @@ const withTimeout = (lifetime: AbortSignal | undefined) => {
 }
 
 /**
- * Owns every request to the prices endpoint. Consumers only subscribe (see ./registry); this decides
- * what to fetch and when, which is what keeps one canonical price per token instead of each consumer
- * racing to define its own.
+ * Owns every request to the prices endpoint. Consumers only subscribe (see ./registry), which is what
+ * keeps one canonical price per token instead of each of them racing to define its own.
  */
 export default function Updater(): null {
   const dispatch = useAppDispatch()
   const store = useStore<AppState>()
   const windowVisible = useIsWindowVisible()
 
-  // Read the registry through useSyncExternalStore rather than state so a burst of mounts coalesces
-  // into a single sweep instead of one render each.
+  // useSyncExternalStore rather than state, so a burst of mounts coalesces into one sweep.
   const registryVersion = useSyncExternalStore(subscribeRegistry, getRegistryVersion, getRegistryVersion)
 
   const visibleRef = useRef(windowVisible)
@@ -94,8 +90,8 @@ export default function Updater(): null {
           }, {})
 
           requested.forEach(address => {
-            // Write a terminal value for every requested address, not just the returned ones — that
-            // is what lets `loading` fall false for a token the price service simply omits.
+            // Every requested address, not just the returned ones — that is what lets `loading` fall
+            // false for a token the price service simply omits.
             ;(payload[chainId] ||= {})[address] = getMidPrice(byLowercase[address])
             markFetched(metaKey(chainId, address))
           })
@@ -163,19 +159,18 @@ export default function Updater(): null {
   useEffect(() => {
     const controller = new AbortController()
     abortRef.current = controller
-    // Aborted only on unmount: a response for addresses that just unsubscribed is still worth
-    // storing, and modals remount within milliseconds.
+    // Unmount only: a response for addresses that just unsubscribed is still worth storing.
     return () => controller.abort()
   }, [])
 
-  // A newly mounted consumer gets its price about a frame later instead of waiting for the next tick,
-  // and a StrictMode or route-transition mount flap collapses into one request.
+  // Gets a newly mounted consumer its price a frame later rather than on the next tick, and collapses
+  // a StrictMode or route-transition mount flap into one request.
   useEffect(() => {
     const timer = setTimeout(() => void runSweep(), COALESCE_MS)
     return () => clearTimeout(timer)
   }, [registryVersion, runSweep])
 
-  // Only runs while something could actually become due, so an idle app polls nothing at all.
+  // Only runs while something could become due, so an idle app polls nothing at all.
   useEffect(() => {
     if (!hasLiveOrPendingWork()) return
     const interval = setInterval(() => void runSweep(), SWEEP_INTERVAL_MS)

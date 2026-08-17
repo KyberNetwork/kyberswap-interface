@@ -127,7 +127,7 @@ function PositionListItem({
       ...rewardTokens.map(item => item.wrapped.address),
     ],
     undefined,
-    // Mounted once per position row; the TTL would re-price the whole list while it is only read.
+    // One instance per position row: the TTL would re-price the whole list while it is only read.
     { refresh: 'once' },
   )
 

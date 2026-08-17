@@ -1,16 +1,11 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit'
 
 /**
- * The canonical USD price per (chain, lowercased address) for the whole app.
+ * The canonical USD price per (chain, lowercased address) for the whole app. `undefined` means never
+ * attempted, `null` means attempted without a trustworthy price, a number is the buy/sell mid.
  *
- *   undefined -> never attempted
- *   null      -> attempted, no trustworthy price (one-sided quote, omitted by the API, or a
- *                terminally failed fetch)
- *   number    -> mid of the buy/sell spread, per `getMidPrice` in services/tokenCatalog
- *
- * Leaf values stay primitive so immer's identity check makes a sweep that confirms unchanged prices
- * a genuine no-op; fetch bookkeeping lives in ./registry precisely so it cannot force a new slice
- * reference on every tick. Only the updater writes here, and it always lowercases addresses.
+ * Leaf values stay primitive so immer's identity check makes a sweep that confirms unchanged prices a
+ * genuine no-op — which is also why fetch bookkeeping lives in ./registry rather than here.
  */
 export interface TokenPricesState {
   [chainId: number]: { [address: string]: number | null }
