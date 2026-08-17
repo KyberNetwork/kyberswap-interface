@@ -13,12 +13,25 @@
  */
 
 /**
- * `live` addresses are re-fetched once they pass the TTL; `once` addresses are fetched when first
- * seen and then only on an explicit `refetch()`. The tier decides who *drives* a refresh, not who
- * reads the result — every consumer reads the same slice entry, so a token kept fresh for one
- * surface is simultaneously fresh everywhere else.
+ * `live` addresses are re-fetched once they pass the TTL. `once` addresses are fetched when a
+ * consumer needs them and then left alone while it stays mounted — they refresh when something asks
+ * for them again after a gap (see REMOUNT_REFRESH_MS) or on an explicit `refetch()`.
+ *
+ * The tier decides who *drives* a refresh, not who reads the result — every consumer reads the same
+ * slice entry, so a token kept fresh for one surface is simultaneously fresh everywhere else.
  */
 export type RefreshTier = 'live' | 'once'
+
+/**
+ * How stale a price may be before a consumer arriving at an address nobody was watching triggers a
+ * re-fetch. This is what makes reopening a page show current numbers without polling for them in the
+ * background: leaving KyberDAO open costs nothing, coming back to it costs one request.
+ *
+ * The threshold matters because an address set can be rebuilt on a value that changes every block;
+ * React runs the old cleanup before the new effect, so the address momentarily drops to no consumers
+ * and would otherwise re-fetch on each block.
+ */
+export const REMOUNT_REFRESH_MS = 30_000
 
 export type RegistryCounts = { live: number; once: number }
 
@@ -61,10 +74,19 @@ export const register = (chainId: number, addresses: string[], tier: RefreshTier
     chainEntries = new Map()
     registry.set(chainId, chainEntries)
   }
+  const now = Date.now()
   addresses.forEach(address => {
     const counts = chainEntries.get(address)
-    if (counts) counts[tier] += 1
-    else chainEntries.set(address, { live: tier === 'live' ? 1 : 0, once: tier === 'once' ? 1 : 0 })
+    if (counts) {
+      counts[tier] += 1
+      return
+    }
+
+    chainEntries.set(address, { live: tier === 'live' ? 1 : 0, once: tier === 'once' ? 1 : 0 })
+    // Nobody was watching this address until now, so its price is as old as whenever the last
+    // consumer left. Refresh it if that was long enough ago to matter.
+    const entry = meta.get(metaKey(chainId, address))
+    if (entry && now - entry.fetchedAt >= REMOUNT_REFRESH_MS) entry.forced = true
   })
   emit()
 }

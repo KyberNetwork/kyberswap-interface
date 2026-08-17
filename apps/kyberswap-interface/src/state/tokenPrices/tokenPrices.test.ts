@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it } from 'vitest'
 import reducer, { TokenPricesState, updatePrices } from 'state/tokenPrices'
 import { NATIVE_TOKEN_PRICE_KEY, resolvePriceMap } from 'state/tokenPrices/priceMap'
 import {
+  REMOUNT_REFRESH_MS,
   markFailed,
   markFetched,
   metaKey,
@@ -87,6 +88,30 @@ describe('registry', () => {
     expect(readMeta(metaKey(BASE, USDC))?.fetchedAt).toBeGreaterThan(0)
   })
 
+  it('refreshes a price whose last consumer left long enough ago', () => {
+    register(BASE, [USDC], 'once')
+    markFetched(metaKey(BASE, USDC))
+    unregister(BASE, [USDC], 'once')
+
+    // Pretend the user was away past the threshold, then came back to the page.
+    const entry = requireMeta(metaKey(BASE, USDC))
+    entry.fetchedAt = Date.now() - REMOUNT_REFRESH_MS
+    register(BASE, [USDC], 'once')
+
+    expect(selectDue(readRegistry(), readMeta, Date.now(), true)).toEqual({ [BASE]: [USDC] })
+  })
+
+  it('does not refresh when a consumer re-registers straight away', () => {
+    // An address set rebuilt on a per-block value unregisters and re-registers in the same commit;
+    // that must not turn the once tier into a per-block poll.
+    register(BASE, [USDC], 'once')
+    markFetched(metaKey(BASE, USDC))
+    unregister(BASE, [USDC], 'once')
+    register(BASE, [USDC], 'once')
+
+    expect(selectDue(readRegistry(), readMeta, Date.now(), true)).toEqual({})
+  })
+
   it('backs off further on each consecutive failure', () => {
     const key = metaKey(BASE, USDC)
     markFailed(key)
@@ -110,7 +135,7 @@ describe('selectDue', () => {
     expect(selectDue(readRegistry(), readMeta, now, false)).toEqual({ [BASE]: [USDC] })
   })
 
-  it('leaves a settled once-tier address alone forever', () => {
+  it('never re-fetches a once-tier address while its consumer stays mounted', () => {
     register(BASE, [USDC], 'once')
     markFetched(metaKey(BASE, USDC))
 
