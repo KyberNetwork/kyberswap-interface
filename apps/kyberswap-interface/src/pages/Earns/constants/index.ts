@@ -38,7 +38,6 @@ export interface EarnDexInfo {
   collectFeeSupported: boolean
   isForkFrom: CoreProtocol
   showVersion: boolean
-  farmingSupported: boolean
   smartExitDexType?: SmartExitDexType
 }
 
@@ -77,14 +76,12 @@ const EARN_DEXES_CONFIG: Record<Exchange, EarnDexInfo> = {
   [Exchange.DEX_UNISWAP_V4_FAIRFLOW]: {
     ...uniswapv4,
     name: 'Uniswap V4 FairFlow',
-    farmingSupported: true,
     smartExitDexType: SmartExitDexType.DexTypeUniswapV4FairFlow,
   },
   [Exchange.DEX_PANCAKE_INFINITY_CL]: pancakeinfinitycl,
   [Exchange.DEX_PANCAKE_INFINITY_CL_FAIRFLOW]: {
     ...pancakeinfinitycl,
     name: 'Pancake ∞ CL FairFlow',
-    farmingSupported: true,
     smartExitDexType: SmartExitDexType.DexTypePancakeInfinityCLFairFlow,
   },
   [Exchange.DEX_PANCAKE_INFINITY_CL_DYNAMIC]: {
@@ -134,7 +131,6 @@ const defaultConfig = {
   collectFeeSupported: false,
   isForkFrom: CoreProtocol.UniswapV3,
   showVersion: false,
-  farmingSupported: false,
   smartExitDexType: undefined,
 }
 
@@ -157,7 +153,6 @@ export const SMART_EXIT_DEX_TYPE_TO_EXCHANGE = Object.entries(EARN_DEXES).reduce
 // Chain info
 export interface EarnChainInfo {
   nativeAddress: string
-  farmingSupported: boolean
   smartExitSupported: boolean
   univ4StateViewContract: string | null
   logo: string
