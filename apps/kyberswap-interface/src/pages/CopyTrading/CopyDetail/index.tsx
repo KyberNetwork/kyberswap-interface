@@ -152,13 +152,16 @@ const CopyDetailView = ({ backPath }: { backPath: 'my-copies' | 'history' }) => 
     isFetching,
     isLoading,
     isUninitialized,
-  } = copyRunApi.useGetCopyRunQuery(copyRunQuery, { skip: !copyId || !ownerAddress })
+  } = copyRunApi.useGetCopyRunQuery(copyRunQuery, { pollingInterval: 10_000, skip: !copyId || !ownerAddress })
 
   const {
     data: agent,
     isFetching: isAgentFetching,
     isLoading: isAgentLoading,
-  } = agentApi.useGetAgentQuery({ agentId: copyRun?.data.agentId || '' }, { skip: !copyRun?.data.agentId })
+  } = agentApi.useGetAgentQuery(
+    { agentId: copyRun?.data.agentId || '' },
+    { pollingInterval: 10_000, skip: !copyRun?.data.agentId },
+  )
 
   const run = copyRun?.data
   const profile = agent?.data

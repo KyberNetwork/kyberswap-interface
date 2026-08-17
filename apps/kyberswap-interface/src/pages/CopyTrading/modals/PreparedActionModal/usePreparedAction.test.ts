@@ -72,6 +72,11 @@ const readyAction: PreparedAction = {
   },
 }
 
+const expiredAction: PreparedAction = {
+  ...readyAction,
+  reprepareAfter: '2020-01-01T00:00:00.000Z',
+}
+
 const createStateHarness = (initialState: PreparedActionFlowState = DEFAULT_PREPARED_ACTION_STATE) => {
   let state = initialState
   const setState: Dispatch<SetStateAction<PreparedActionFlowState>> = update => {
@@ -178,6 +183,72 @@ describe('usePreparedAction', () => {
     expect(prepare).toHaveBeenCalledOnce()
     expect(harness.getState()).toMatchObject({ phase: 'review', action: readyAction })
     expect(harness.getState().hash).toBeUndefined()
+  })
+
+  it('uses the expired recovery state for an expired preparation', async () => {
+    const harness = createStateHarness()
+    const flow = usePreparedAction({
+      state: harness.getState(),
+      setState: harness.setState,
+      expected,
+      prepare: vi.fn().mockResolvedValue(expiredAction),
+    })
+
+    await flow.prepare()
+
+    expect(harness.getState()).toEqual({
+      phase: 'expired',
+      action: expiredAction,
+      error: 'This preparation has expired. Please try again.',
+    })
+  })
+
+  it('uses the expired recovery state when the review expires before confirmation', async () => {
+    const harness = createStateHarness({ phase: 'review', action: expiredAction })
+    const flow = usePreparedAction({
+      state: harness.getState(),
+      setState: harness.setState,
+      expected,
+      prepare: vi.fn(),
+    })
+
+    await flow.confirm()
+
+    expect(harness.getState()).toEqual({
+      phase: 'expired',
+      action: expiredAction,
+      error: 'This preparation has expired. Please try again.',
+    })
+  })
+
+  it.each([
+    {
+      phase: 'expired' as const,
+      action: expiredAction,
+      error: 'This preparation has expired. Please try again.',
+    },
+    { phase: 'error' as const, error: 'The request could not be completed.' },
+  ])('returns to an empty review with loading while retrying a $phase state', async initialState => {
+    const harness = createStateHarness(initialState)
+    let resolvePreparation: (action: PreparedAction) => void = () => undefined
+    const prepare = vi
+      .fn<[], Promise<PreparedAction>>()
+      .mockImplementation(() => new Promise(resolve => (resolvePreparation = resolve)))
+    const flow = usePreparedAction({
+      state: harness.getState(),
+      setState: harness.setState,
+      expected,
+      prepare,
+    })
+
+    const request = flow.retry()
+
+    expect(harness.getState()).toEqual({ phase: 'review', isPreparing: true })
+
+    resolvePreparation(readyAction)
+    await request
+
+    expect(harness.getState()).toEqual({ phase: 'review', action: readyAction })
   })
 
   it('keeps other unavailable actions in the recovery state', async () => {

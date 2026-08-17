@@ -63,7 +63,7 @@ const AgentTable = ({ agents, loading, pagination, sortBy, sortOrder, onSortChan
       view: 'open',
       limit: 100,
     },
-    { skip: !ownerAddress },
+    { pollingInterval: 10_000, skip: !ownerAddress },
   )
 
   const copiedRunsByAgentId = useMemo(

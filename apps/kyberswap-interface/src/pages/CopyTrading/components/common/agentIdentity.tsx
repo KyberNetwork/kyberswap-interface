@@ -13,13 +13,13 @@ import { shortenAddress } from 'utils/address'
 import { cn } from 'utils/cn'
 import { formatDateTime } from 'utils/time'
 
-type BadgeColor = 'red' | 'blue' | 'primary' | 'gray'
+type BadgeColor = 'magenta' | 'blue' | 'primary' | 'gray'
 
 const Badge = ({ children, color }: PropsWithChildren<{ color: BadgeColor }>) => (
   <span
     className={cn(
       'inline-flex shrink-0 items-center justify-center whitespace-nowrap rounded-full px-2 py-0.5 text-xs font-medium',
-      color === 'red' && 'bg-red-20 text-red',
+      color === 'magenta' && 'bg-[rgb(35_16_29)] text-[#EF4A9F]',
       color === 'blue' && 'bg-blue/20 text-blue',
       color === 'primary' && 'bg-primary-12 text-primary',
       color === 'gray' && 'bg-subText-20 px-3 text-subText',
@@ -30,7 +30,7 @@ const Badge = ({ children, color }: PropsWithChildren<{ color: BadgeColor }>) =>
 )
 
 const getStrategyBadgeColor = (strategy: StrategyKey): BadgeColor =>
-  strategy === 'active' ? 'red' : strategy === 'diversified' ? 'blue' : strategy === 'focused' ? 'primary' : 'gray'
+  strategy === 'active' ? 'magenta' : strategy === 'diversified' ? 'blue' : strategy === 'focused' ? 'primary' : 'gray'
 
 const StrategyBadge = ({ strategy }: { strategy: StrategyKey }) => (
   <Badge color={getStrategyBadgeColor(strategy)}>{strategyLabel(strategy)}</Badge>
