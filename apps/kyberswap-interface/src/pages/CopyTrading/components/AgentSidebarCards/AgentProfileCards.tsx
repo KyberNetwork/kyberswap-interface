@@ -1,13 +1,25 @@
 import type { AgentProfile } from 'services/copyTrading/types/agents'
 
+import Badge, { BadgeVariant } from 'components/Badge'
 import InfoHelper from 'components/InfoHelper'
-import { Center, HStack, Stack } from 'components/Stack'
+import { HStack, Stack } from 'components/Stack'
 import { SidePanelCard } from 'pages/CopyTrading/components/AgentSidebarCards/SidePanelCard'
-import { percent } from 'pages/CopyTrading/helpers'
+import { getWinRateClassName, getWinRateTone, percent } from 'pages/CopyTrading/helpers'
+import { cn } from 'utils/cn'
 
 export const AgentRiskCard = ({ agent }: { agent: AgentProfile }) => {
   const winRatePct = agent.stats.winRatePct
   const winRate = Math.max(0, Math.min(100, Number(winRatePct || 0)))
+  const winRateBackgroundClassName = getWinRateClassName(winRatePct, 'background')
+  const winRateTone = getWinRateTone(winRatePct)
+  const winRateBadgeVariant =
+    winRateTone === 'positive'
+      ? BadgeVariant.PRIMARY
+      : winRateTone === 'warning'
+      ? BadgeVariant.WARNING
+      : winRateTone === 'negative'
+      ? BadgeVariant.NEGATIVE
+      : undefined
 
   return (
     <SidePanelCard>
@@ -15,17 +27,19 @@ export const AgentRiskCard = ({ agent }: { agent: AgentProfile }) => {
         <span className="shrink-0 text-sm font-medium text-subText">Win Rate</span>
         <div className="relative h-7 min-w-0 flex-1">
           <div className="absolute inset-x-0 top-1/2 h-2 -translate-y-1/2 overflow-hidden rounded-full bg-subText-20">
-            <div
-              className="h-full rounded-full bg-gradient-to-r from-blue to-primary"
-              style={{ width: winRate + '%' }}
-            />
+            <div className={cn('h-full rounded-full', winRateBackgroundClassName)} style={{ width: winRate + '%' }} />
           </div>
-          <Center
-            className="absolute top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-md bg-primary px-2 py-0.5 text-sm font-medium text-black shadow-sm ring-1"
+          <Badge
+            variant={winRateBadgeVariant}
+            className={cn(
+              'absolute top-1/2 -translate-x-1/2 -translate-y-1/2 whitespace-nowrap rounded-md py-0.5 text-sm shadow-[0_6px_14px_rgba(0,0,0,0.55)] ring-1 ring-white/20',
+              winRateBackgroundClassName,
+              winRateTone === 'negative' ? 'text-text' : 'text-black',
+            )}
             style={{ left: 'clamp(20px, ' + winRate + '%, calc(100% - 20px))' }}
           >
             {percent(winRatePct)}
-          </Center>
+          </Badge>
         </div>
       </HStack>
       <HStack className="items-center justify-between">

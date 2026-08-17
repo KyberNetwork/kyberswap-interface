@@ -5,7 +5,7 @@ import { Stack } from 'components/Stack'
 import InfiniteScroll, { useInfiniteCursorQuery } from 'pages/CopyTrading/components/InfiniteScroll'
 import { HeaderCell, TableBody, TableCell, TableHeader, TableRow } from 'pages/CopyTrading/components/Table'
 import { ShortenedId } from 'pages/CopyTrading/components/common/layout'
-import { formatTokenAmount, formatUsd, signedUsd } from 'pages/CopyTrading/helpers'
+import { formatTokenAmount, formatUsd, getSignedMetricClassName, signedUsd } from 'pages/CopyTrading/helpers'
 import { cn } from 'utils/cn'
 import { formatDateTime } from 'utils/time'
 
@@ -69,8 +69,6 @@ const TabHistory = ({ agentId }: { agentId: string }) => {
           loading={isFetching && !rows.length}
         >
           {rows.map(row => {
-            const isNegative = Number(row.realizedPnlUsd || 0) < 0
-
             return (
               <TabHistoryGrid key={row.positionId}>
                 <TableCell className="text-subText">
@@ -80,7 +78,7 @@ const TabHistory = ({ agentId }: { agentId: string }) => {
                 <TableCell>{formatUsd(row.entryPriceUsd)}</TableCell>
                 <TableCell>{formatUsd(row.exitPriceUsd || row.currentPriceUsd)}</TableCell>
                 <TableCell>{formatTokenAmount(row.amountDecimal)}</TableCell>
-                <TableCell className={cn(isNegative ? 'text-red' : 'text-primary')}>
+                <TableCell className={cn('whitespace-nowrap', getSignedMetricClassName(row.realizedPnlUsd))}>
                   {signedUsd(row.realizedPnlUsd)}
                 </TableCell>
                 <TableCell>{formatUsd(row.flatFeeCapturedUsd)}</TableCell>

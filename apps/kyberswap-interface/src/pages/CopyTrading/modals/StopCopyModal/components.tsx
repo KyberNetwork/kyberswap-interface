@@ -7,7 +7,7 @@ import Dots from 'components/Dots'
 import Loader from 'components/Loader'
 import { Center, HStack, Stack } from 'components/Stack'
 import { ShortenedId } from 'pages/CopyTrading/components/common/layout'
-import { formatUsd, signedUsd } from 'pages/CopyTrading/helpers'
+import { formatUsd, getSignedMetricClassName, signedUsd } from 'pages/CopyTrading/helpers'
 import { ReviewRow, ReviewSection } from 'pages/CopyTrading/modals/PreparedActionModal'
 import { formatPreparedAmount, formatSlippage } from 'pages/CopyTrading/modals/PreparedActionModal/preparedAction'
 import { MAX_STOP_POSITIONS, getUserPositionId } from 'pages/CopyTrading/modals/StopCopyModal/positions'
@@ -112,7 +112,6 @@ export const StopCopyForm = ({
         ) : positions.length ? (
           positions.map((position, index) => {
             const userPositionId = getUserPositionId(position) as string
-            const negative = Number(position.unrealizedPnlUsd || 0) < 0
             const checked = isSelected(position, index)
             const selectionLimitReached = !checked && selectedPositionCount >= MAX_STOP_POSITIONS
 
@@ -138,7 +137,12 @@ export const StopCopyForm = ({
                       <ShortenedId value={position.tradeId} />
                     </span>
                   </Stack>
-                  <span className={cn('shrink-0 text-sm font-medium', negative ? 'text-red' : 'text-primary')}>
+                  <span
+                    className={cn(
+                      'shrink-0 whitespace-nowrap text-sm font-medium',
+                      getSignedMetricClassName(position.unrealizedPnlUsd),
+                    )}
+                  >
                     {signedUsd(position.unrealizedPnlUsd)}
                   </span>
                 </HStack>

@@ -11,7 +11,7 @@ import { CopyTradingPage } from 'pages/CopyTrading/components/common/layout'
 import { OwnerWalletRequired } from 'pages/CopyTrading/components/common/status'
 import { copyTradingStatIconMap } from 'pages/CopyTrading/constants'
 import { useCopyTradingContext } from 'pages/CopyTrading/context'
-import { formatCount, formatUsd, signedUsd } from 'pages/CopyTrading/helpers'
+import { formatCount, formatUsd, getSignedMetricClassName, signedUsd } from 'pages/CopyTrading/helpers'
 
 const PAGE_SIZE = 5
 
@@ -20,6 +20,7 @@ const CopyHistorySummary = ({ summary }: { summary?: OwnerCopySummary }) => {
     {
       label: 'Realised P&L (All time)',
       value: signedUsd(summary?.realizedPnlUsd),
+      valueClassName: getSignedMetricClassName(summary?.realizedPnlUsd),
       icon: copyTradingStatIconMap.money,
       status: summary?.metrics.realizedPnlUsd?.status,
     },

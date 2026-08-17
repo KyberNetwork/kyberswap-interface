@@ -7,7 +7,7 @@ import { HeaderCell, TableBody, TableCell, TableHeader, TableRow } from 'pages/C
 import { CopyRunAgentCell } from 'pages/CopyTrading/components/common/agentIdentity'
 import { CopyRunStatusBadge } from 'pages/CopyTrading/components/common/status'
 import { copyTradingStatIconMap } from 'pages/CopyTrading/constants'
-import { formatCount, formatUsd, signedUsd } from 'pages/CopyTrading/helpers'
+import { formatCount, formatUsd, getSignedMetricClassName, signedUsd } from 'pages/CopyTrading/helpers'
 import { cn } from 'utils/cn'
 import { formatDateTime } from 'utils/time'
 
@@ -61,8 +61,6 @@ const ClosedSubscriptionsTable = ({ loading, onOpenSubscription, pagination, row
           loading={loading}
         >
           {rows.map(subscription => {
-            const realizedPnl = signedUsd(subscription.realizedPnlUsd)
-
             return (
               <ClosedSubscriptionsGrid
                 key={subscription.copyRunId}
@@ -85,8 +83,10 @@ const ClosedSubscriptionsTable = ({ loading, onOpenSubscription, pagination, row
                 <TableCell className="text-right text-subText">{formatDateTime(subscription.stoppedAt)}</TableCell>
                 <TableCell className="text-right">{formatUsd(subscription.capitalInUsd)}</TableCell>
                 <TableCell className="text-right">{formatUsd(subscription.capitalOutUsd)}</TableCell>
-                <TableCell className={cn('text-right', realizedPnl.startsWith('-') ? 'text-red' : 'text-primary')}>
-                  {realizedPnl}
+                <TableCell
+                  className={cn('whitespace-nowrap text-right', getSignedMetricClassName(subscription.realizedPnlUsd))}
+                >
+                  {signedUsd(subscription.realizedPnlUsd)}
                 </TableCell>
                 <TableCell className="text-right">{formatUsd(subscription.flatFeesCapturedUsd)}</TableCell>
                 <TableCell className="text-right">{formatUsd(subscription.cashbackReceivedUsd)}</TableCell>

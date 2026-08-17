@@ -8,7 +8,13 @@ import { HeaderCell, TableBody, TableCell, TableHeader, TableRow } from 'pages/C
 import { ShortenedId } from 'pages/CopyTrading/components/common/layout'
 import { PositionLifecycleBadge } from 'pages/CopyTrading/components/common/status'
 import { copyTradingStatIconMap } from 'pages/CopyTrading/constants'
-import { formatApproximateUsd, formatUsd, signedPercent, signedUsd } from 'pages/CopyTrading/helpers'
+import {
+  formatApproximateUsd,
+  formatUsd,
+  getSignedMetricClassName,
+  signedPercent,
+  signedUsd,
+} from 'pages/CopyTrading/helpers'
 import { useCopyTradingModal } from 'pages/CopyTrading/modals/context'
 import { cn } from 'utils/cn'
 import { formatDateTime } from 'utils/time'
@@ -94,8 +100,6 @@ export const CopyPositionsTable = ({ infiniteScroll, loading, rows }: PositionTa
           loading={loading}
         >
           {rows.map(row => {
-            const isNegative = Number(row.unrealizedPnlUsd || 0) < 0
-
             return (
               <CopyPositionsGrid key={row.positionId}>
                 <TableCell className="text-subText">
@@ -105,10 +109,10 @@ export const CopyPositionsTable = ({ infiniteScroll, loading, rows }: PositionTa
                 <TableCell>{formatUsd(row.entryPriceUsd)}</TableCell>
                 <TableCell>{formatUsd(row.currentPriceUsd)}</TableCell>
                 <TableCell>{formatUsd(row.valueUsd)}</TableCell>
-                <TableCell className={cn(isNegative ? 'text-red' : 'text-primary')}>
+                <TableCell className={getSignedMetricClassName(row.unrealizedPnlUsd ?? row.unrealizedPnlPct)}>
                   <Stack className="gap-0.5">
-                    <span>{signedUsd(row.unrealizedPnlUsd)}</span>
-                    <span className="text-xs">{signedPercent(row.unrealizedPnlPct)}</span>
+                    <span className="whitespace-nowrap">{signedUsd(row.unrealizedPnlUsd)}</span>
+                    <span className="whitespace-nowrap text-xs">{signedPercent(row.unrealizedPnlPct)}</span>
                   </Stack>
                 </TableCell>
                 <TableCell className="text-warning">{formatApproximateUsd(row.estimatedCashbackUsd)}</TableCell>

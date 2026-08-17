@@ -16,7 +16,14 @@ import { CopyTradingPage, StickySideColumn } from 'pages/CopyTrading/components/
 import { OwnerWalletRequired } from 'pages/CopyTrading/components/common/status'
 import { copyTradingStatIconMap } from 'pages/CopyTrading/constants'
 import { useCopyTradingContext } from 'pages/CopyTrading/context'
-import { formatApproximateUsd, formatUsd, signedPercent, signedUsd, sumUsdValues } from 'pages/CopyTrading/helpers'
+import {
+  formatApproximateUsd,
+  formatUsd,
+  getSignedMetricClassName,
+  signedPercent,
+  signedUsd,
+  sumUsdValues,
+} from 'pages/CopyTrading/helpers'
 import { formatDateTime } from 'utils/time'
 
 type CopyDetailContentProps = {
@@ -40,18 +47,21 @@ const getCopyRunStats = (run: CopyRunSummary): LeaderboardStat[] => {
     {
       label: 'Total P&L',
       value: signedUsd(totalPnlUsd),
+      valueClassName: getSignedMetricClassName(totalPnlUsd),
       icon: copyTradingStatIconMap.money,
       status: totalPnlStatus,
     },
     {
       label: 'Realised P&L',
       value: signedUsd(run.realizedPnlUsd),
+      valueClassName: getSignedMetricClassName(run.realizedPnlUsd),
       icon: copyTradingStatIconMap.positionClose,
       status: run.metrics.realizedPnlUsd?.status,
     },
     {
       label: 'APR Since Copy',
       value: signedPercent(run.myAprSinceCopyPct),
+      valueClassName: getSignedMetricClassName(run.myAprSinceCopyPct),
       icon: copyTradingStatIconMap.positionOpen,
       status: run.metrics.myAprSinceCopy?.status,
     },
