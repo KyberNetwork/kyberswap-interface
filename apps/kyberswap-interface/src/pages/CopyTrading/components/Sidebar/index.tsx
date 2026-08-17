@@ -188,7 +188,7 @@ const Sidebar = () => {
 
   const { data: leaderboard } = discoveryApi.useGetLeaderboardQuery(
     { chainId: selectedChainId, limit: SIDEBAR_ITEM_LIMIT },
-    { skip: selectedChainId === undefined },
+    { pollingInterval: 10_000, skip: selectedChainId === undefined },
   )
   const { data: openCopies, refetch: refetchOpenCopies } = copyRunApi.useGetCopyRunsQuery(
     {
@@ -196,7 +196,7 @@ const Sidebar = () => {
       view: 'open',
       limit: SIDEBAR_ITEM_LIMIT,
     },
-    { skip: !ownerAddress },
+    { pollingInterval: 10_000, skip: !ownerAddress },
   )
 
   useEffect(() => {

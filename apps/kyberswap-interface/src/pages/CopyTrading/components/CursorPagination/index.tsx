@@ -4,7 +4,6 @@ import { ChevronLeft, ChevronRight } from 'react-feather'
 import type { CursorResponse } from 'services/copyTrading/types/primitives'
 
 import { ButtonLight } from 'components/Button'
-import Dots from 'components/Dots'
 import { HStack } from 'components/Stack'
 
 type CursorPageQueryParams<TResponse extends CursorResponse<unknown>> = {
@@ -44,6 +43,7 @@ export const useCursorPageQuery = <TResponse extends CursorResponse<unknown>>({
     enabled: enabled && paginationReady,
     queryKey: [...queryKey, 'page', cursor || null],
     queryFn: () => queryFn(cursor),
+    refetchInterval: 10_000,
     retry: false,
   })
 
@@ -73,7 +73,6 @@ export const useCursorPageQuery = <TResponse extends CursorResponse<unknown>>({
     navigating: query.isFetching,
     onNextPage: goToNextPage,
     onPreviousPage: goToPreviousPage,
-    onRetry: query.refetch,
   }
 }
 
@@ -84,19 +83,16 @@ export type CursorPaginationState = {
   navigating?: boolean
   onNextPage: () => void
   onPreviousPage: () => void
-  onRetry: () => Promise<unknown> | void
 }
 
 const CursorPagination = ({
   currentPage,
-  error,
   hasNextPage,
   navigating,
   onNextPage,
   onPreviousPage,
-  onRetry,
 }: CursorPaginationState) => {
-  if (currentPage === 1 && !hasNextPage && !error) return null
+  if (currentPage === 1 && !hasNextPage) return null
 
   return (
     <HStack className="items-center justify-center gap-3 border-t border-tableHeader bg-background-60 px-6 py-3">
@@ -111,28 +107,16 @@ const CursorPagination = ({
         Previous
       </ButtonLight>
       <span className="min-w-16 text-center text-sm font-medium text-subText">Page {currentPage}</span>
-      {error ? (
-        <ButtonLight
-          type="button"
-          className="sm:w-auto"
-          padding="7px 12px"
-          disabled={navigating}
-          onClick={() => void onRetry()}
-        >
-          {navigating ? <Dots>Retry</Dots> : 'Retry'}
-        </ButtonLight>
-      ) : (
-        <ButtonLight
-          type="button"
-          className="gap-1 sm:w-auto"
-          padding="7px 12px"
-          disabled={!hasNextPage || navigating}
-          onClick={onNextPage}
-        >
-          Next
-          <ChevronRight size={16} aria-hidden />
-        </ButtonLight>
-      )}
+      <ButtonLight
+        type="button"
+        className="gap-1 sm:w-auto"
+        padding="7px 12px"
+        disabled={!hasNextPage || navigating}
+        onClick={onNextPage}
+      >
+        Next
+        <ChevronRight size={16} aria-hidden />
+      </ButtonLight>
     </HStack>
   )
 }

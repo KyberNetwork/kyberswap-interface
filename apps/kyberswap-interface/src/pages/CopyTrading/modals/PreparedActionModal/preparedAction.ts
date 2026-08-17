@@ -17,6 +17,7 @@ export type PreparedActionPhase =
   | 'syncing'
   | 'pending'
   | 'unavailable'
+  | 'expired'
   | 'success'
   | 'error'
   | 'sync_error'
@@ -139,6 +140,12 @@ export const formatSlippage = (slippageBps?: number) =>
     ? '—'
     : `${formatDisplayNumber(slippageBps / 100, { fractionDigits: 2, significantDigits: 15 })}%`
 
+export const PREPARATION_EXPIRED_ERROR = 'This preparation has expired. Please try again.'
+export const LIQUIDATION_QUOTE_EXPIRED_ERROR = 'The liquidation quote has expired. Please try again.'
+
+export const isPreparationExpiredError = (error?: string) =>
+  error === PREPARATION_EXPIRED_ERROR || error === LIQUIDATION_QUOTE_EXPIRED_ERROR
+
 const sameAddress = (a?: string, b?: string) => Boolean(a && b && a.toLowerCase() === b.toLowerCase())
 
 export const validatePreparedAction = (
@@ -225,7 +232,7 @@ export const validatePreparedAction = (
       const reprepareAfter = Date.parse(action.reprepareAfter)
       if (!Number.isFinite(reprepareAfter)) return 'The preparation returned an invalid expiry.'
       if (action.status !== 'PREPARED_ACTION_STATUS_PENDING' && reprepareAfter <= now) {
-        return 'This preparation has expired. Please try again.'
+        return PREPARATION_EXPIRED_ERROR
       }
     }
     if (action.liquidationConfigDeadline) {
@@ -233,7 +240,7 @@ export const validatePreparedAction = (
       if (!Number.isFinite(liquidationConfigDeadline)) {
         return 'The preparation returned an invalid liquidation deadline.'
       }
-      if (liquidationConfigDeadline <= now) return 'The liquidation quote has expired. Please try again.'
+      if (liquidationConfigDeadline <= now) return LIQUIDATION_QUOTE_EXPIRED_ERROR
     }
   }
 

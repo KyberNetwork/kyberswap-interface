@@ -20,7 +20,9 @@ const CopyTrading = () => {
   const { account } = useActiveWeb3React()
   const previousPathname = useRef(location.pathname)
 
-  const { data: chains, refetch: refetchChains } = discoveryApi.useGetChainsQuery()
+  const { data: chains, refetch: refetchChains } = discoveryApi.useGetChainsQuery(undefined, {
+    pollingInterval: 10_000,
+  })
 
   const { pathname } = location
   const ownerAddress = account?.toLowerCase() as Address | undefined

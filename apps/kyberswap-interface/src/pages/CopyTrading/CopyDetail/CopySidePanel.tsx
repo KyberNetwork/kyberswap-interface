@@ -143,7 +143,10 @@ const CopySidePanel = ({ agent, run }: CopySidePanelProps) => {
   const copyAccountQuery = { chainId: run.chainId, copyAccount: run.copyAccount }
   const skipCopyAccount = !run.copyAccount || !run.chainId
   const { data: inventoryResponse, isFetching: isInventoryFetching } =
-    copyAccountApi.useGetCopyAccountWalletInventoryQuery(copyAccountQuery, { skip: skipCopyAccount })
+    copyAccountApi.useGetCopyAccountWalletInventoryQuery(copyAccountQuery, {
+      pollingInterval: 10_000,
+      skip: skipCopyAccount,
+    })
 
   const pinnedStableBalance = inventoryResponse?.pinnedStableBalance
   const quoteBalance =

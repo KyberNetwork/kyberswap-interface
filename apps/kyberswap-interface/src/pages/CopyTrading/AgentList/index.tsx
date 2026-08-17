@@ -47,7 +47,9 @@ const AgentList = () => {
     [normalizedSearch, selectedChainId, selectedStrategy],
   )
 
-  const { data: leaderboardSummary } = discoveryApi.useGetLeaderboardSummaryQuery(summaryQuery)
+  const { data: leaderboardSummary } = discoveryApi.useGetLeaderboardSummaryQuery(summaryQuery, {
+    pollingInterval: 10_000,
+  })
   const [getLeaderboard] = discoveryApi.useLazyGetLeaderboardQuery()
   const leaderboardPage = useCursorPageQuery({
     queryKey: ['copy-trading', 'leaderboard', selectedChainId, selectedStrategy, normalizedSearch, sortBy, sortOrder],
