@@ -87,6 +87,36 @@ export const signedPercent = (value?: DecimalString) => {
   return `${amount > 0 ? '+' : ''}${percent(value)}`
 }
 
+export const getSignedMetricClassName = (value?: NumericValue) => {
+  const amount = parseNumericValue(value)
+
+  return amount === undefined || amount === 0 ? 'text-text' : amount > 0 ? 'text-primary' : 'text-red'
+}
+
+export type WinRateTone = 'positive' | 'warning' | 'negative' | 'neutral'
+
+export const getWinRateTone = (value?: NumericValue): WinRateTone => {
+  const amount = parseNumericValue(value)
+
+  if (amount === undefined) return 'neutral'
+  if (amount >= 60) return 'positive'
+  return amount >= 30 ? 'warning' : 'negative'
+}
+
+export const getWinRateClassName = (value?: NumericValue, variant: 'text' | 'background' = 'text') => {
+  const tone = getWinRateTone(value)
+
+  if (variant === 'background') {
+    if (tone === 'neutral') return 'bg-subText'
+    if (tone === 'positive') return 'bg-primary'
+    return tone === 'warning' ? 'bg-warning' : 'bg-red1'
+  }
+
+  if (tone === 'neutral') return 'text-text'
+  if (tone === 'positive') return 'text-primary'
+  return tone === 'warning' ? 'text-warning' : 'text-red'
+}
+
 export const formatApproximateUsd = (value?: DecimalString) => {
   const formattedValue = formatUsd(value)
   return formattedValue === METRIC_FALLBACK ? formattedValue : `~${formattedValue}`

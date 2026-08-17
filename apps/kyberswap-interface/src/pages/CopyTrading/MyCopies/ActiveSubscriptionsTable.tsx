@@ -14,6 +14,8 @@ import {
   formatUsd,
   getAgentDisplayName,
   getPreparedReasonMessage,
+  getSignedMetricClassName,
+  getWinRateClassName,
   isActionAvailable,
   percent,
 } from 'pages/CopyTrading/helpers'
@@ -30,7 +32,7 @@ const ActiveSubscriptionsGrid = ({ header, className, ...props }: ActiveSubscrip
   return (
     <Grid
       className={cn(
-        'min-w-[1120px] grid-cols-[minmax(0,2.4fr)_minmax(0,0.9fr)_minmax(0,1fr)_minmax(0,0.9fr)_minmax(0,1fr)_minmax(0,0.9fr)_minmax(0,0.8fr)_minmax(0,1.1fr)]',
+        'min-w-[1120px] grid-cols-[minmax(0,2.4fr)_minmax(0,0.9fr)_minmax(0,1fr)_minmax(0,0.9fr)_minmax(0,1fr)_minmax(0,0.9fr)_minmax(0,0.8fr)_minmax(132px,1.1fr)]',
         className,
       )}
       {...props}
@@ -91,8 +93,12 @@ const ActiveSubscriptionsTable = ({ rows, loading, pagination, onOpenSubscriptio
                 className="cursor-pointer"
               >
                 <CopyRunAgentCell run={subscription} className="px-3 py-2" />
-                <TableCell className="text-right text-primary">{percent(subscription.agentStats.apr30dPct)}</TableCell>
-                <TableCell className="text-right">{percent(subscription.agentStats.winRatePct)}</TableCell>
+                <TableCell className={cn('text-right', getSignedMetricClassName(subscription.agentStats.apr30dPct))}>
+                  {percent(subscription.agentStats.apr30dPct)}
+                </TableCell>
+                <TableCell className={cn('text-right', getWinRateClassName(subscription.agentStats.winRatePct))}>
+                  {percent(subscription.agentStats.winRatePct)}
+                </TableCell>
                 <TableCell className="text-right">{compactUsd(subscription.agentStats.volumeUsd)}</TableCell>
                 <TableCell className="text-right">{formatUsd(subscription.capitalInUsd)}</TableCell>
                 <TableCell className="text-right">{formatCount(subscription.openPositionCount)}</TableCell>
@@ -104,6 +110,7 @@ const ActiveSubscriptionsTable = ({ rows, loading, pagination, onOpenSubscriptio
                     type="button"
                     padding="8px 12px"
                     color="var(--ks-warning)"
+                    className="whitespace-nowrap"
                     disabled={!actionAvailable}
                     title={
                       !actionAvailable ? getPreparedReasonMessage(subscription.stopCopyAvailability?.reason) : undefined

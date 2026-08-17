@@ -7,7 +7,13 @@ import Leaderboard, { type LeaderboardStat } from 'pages/CopyTrading/components/
 import { AgentAvatar } from 'pages/CopyTrading/components/common/agentIdentity'
 import { ContentPanel } from 'pages/CopyTrading/components/common/layout'
 import { copyTradingStatIconMap } from 'pages/CopyTrading/constants'
-import { formatCount, formatUsd, getActivityLabel, signedUsd } from 'pages/CopyTrading/helpers'
+import {
+  formatCount,
+  formatUsd,
+  getActivityLabel,
+  getSignedMetricClassName,
+  signedUsd,
+} from 'pages/CopyTrading/helpers'
 import { cn } from 'utils/cn'
 import { formatDateTime } from 'utils/time'
 
@@ -27,6 +33,7 @@ export const OpenCopiesSummary = ({ fallbackActiveCopies, summary }: OpenCopiesS
     {
       label: 'Unrealised P&L',
       value: signedUsd(summary?.unrealizedPnlUsd),
+      valueClassName: getSignedMetricClassName(summary?.unrealizedPnlUsd),
       icon: copyTradingStatIconMap.money,
       status: summary?.metrics.unrealizedPnlUsd?.status,
     },
@@ -124,7 +131,9 @@ export const AlertsFeed = ({ infiniteScroll, loading, rows }: AlertsFeedProps) =
                       {realizedPnlUsd !== undefined && (
                         <span className="rounded-full bg-background-60 px-2 py-1 text-subText">
                           Realised P&amp;L:{' '}
-                          <span className={cn('font-medium', Number(realizedPnlUsd) < 0 ? 'text-red' : 'text-primary')}>
+                          <span
+                            className={cn('whitespace-nowrap font-medium', getSignedMetricClassName(realizedPnlUsd))}
+                          >
                             {signedUsd(realizedPnlUsd)}
                           </span>
                         </span>

@@ -11,12 +11,20 @@ import {
   toPerformanceChartPoint,
 } from 'pages/CopyTrading/components/PerformanceCharts'
 import { copyTradingStatIconMap } from 'pages/CopyTrading/constants'
-import { compactUsd, formatCount, percent, signedUsd } from 'pages/CopyTrading/helpers'
+import {
+  compactUsd,
+  formatCount,
+  getSignedMetricClassName,
+  getWinRateClassName,
+  percent,
+  signedUsd,
+} from 'pages/CopyTrading/helpers'
 
 const getProfileStats = (stats?: AgentStatsData): LeaderboardStat[] => [
   {
     label: 'Total Realised P&L',
     value: signedUsd(stats?.totalRealizedPnlUsd),
+    valueClassName: getSignedMetricClassName(stats?.totalRealizedPnlUsd),
     icon: copyTradingStatIconMap.money,
     status: stats?.metrics.totalRealizedPnlUsd?.status,
   },
@@ -29,6 +37,7 @@ const getProfileStats = (stats?: AgentStatsData): LeaderboardStat[] => [
   {
     label: 'Win Rate',
     value: percent(stats?.winRatePct),
+    valueClassName: getWinRateClassName(stats?.winRatePct),
     icon: copyTradingStatIconMap.positionOpen,
     status: stats?.metrics.winRatePct?.status,
   },
