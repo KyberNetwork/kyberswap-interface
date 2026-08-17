@@ -128,7 +128,7 @@ export default function PositionBanner({
           onClose: () => setShareInfo(undefined),
           reward: {
             total: totalUsdValue,
-            lm: totalLmUsdValue,
+            reward: totalLmUsdValue + totalMerklUsdValue,
             eg: totalEgUsdValue,
           },
         })

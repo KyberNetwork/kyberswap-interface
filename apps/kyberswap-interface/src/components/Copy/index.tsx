@@ -14,10 +14,11 @@ type Props = {
   text?: ReactNode
   color?: string
   className?: string
+  'data-testid'?: string
 }
 
 const CopyHelper = forwardRef<HTMLDivElement, Props>(function CopyHelper(
-  { toCopy, margin, style = {}, size = 14, text, color, className },
+  { toCopy, margin, style = {}, size = 14, text, color, className, 'data-testid': dataTestId },
   ref,
 ) {
   const [isCopied, setCopied] = useCopyClipboard(2000)
@@ -48,6 +49,7 @@ const CopyHelper = forwardRef<HTMLDivElement, Props>(function CopyHelper(
   return (
     <div
       ref={ref}
+      data-testid={dataTestId}
       onMouseDown={onCopy}
       onClick={e => {
         e.preventDefault()

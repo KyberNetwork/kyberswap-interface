@@ -353,7 +353,7 @@ const PositionDetail = () => {
               apr: {
                 total: position.apr[aprInterval] + position.bonusApr,
                 eg: position.kemEGApr[aprInterval],
-                lm: position.kemLMApr[aprInterval],
+                reward: position.kemLMApr[aprInterval] + position.bonusApr,
               },
               createdTime: position.createdTime,
               totalEarnings: position.rewards.totalUsdValue + position.earning.earned + merklEarningsUsd,
