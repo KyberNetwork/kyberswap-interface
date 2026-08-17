@@ -22,7 +22,6 @@ import { HiddenH1, HiddenH2 } from 'components/Seo/components'
 import { HStack } from 'components/Stack'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
-import { useAccount } from 'hooks/useAccount'
 import Filter from 'pages/Earns/UserPositions/Filter'
 import PositionBanner from 'pages/Earns/UserPositions/PositionBanner'
 import TableContent, { FeeInfoFromRpc } from 'pages/Earns/UserPositions/TableContent'
@@ -36,6 +35,7 @@ import {
 import useFilter, { SortBy } from 'pages/Earns/UserPositions/useFilter'
 import useAccountChanged from 'pages/Earns/hooks/useAccountChanged'
 import useClosedPositions from 'pages/Earns/hooks/useClosedPositions'
+import useIsWalletRestoring from 'pages/Earns/hooks/useIsWalletRestoring'
 import useKemRewards from 'pages/Earns/hooks/useKemRewards'
 import useSupportedDexesAndChains, { AllChainsOption } from 'pages/Earns/hooks/useSupportedDexesAndChains'
 import useZapInWidget from 'pages/Earns/hooks/useZapInWidget'
@@ -50,11 +50,10 @@ const UserPositions = () => {
   const navigate = useNavigate()
   const upToCustomLarge = useMedia(`(max-width: ${1300}px)`)
   const { account } = useActiveWeb3React()
-  const { status: walletStatus } = useAccount()
+  const isRestoringWallet = useIsWalletRestoring()
   const { filters, updateFilters } = useFilter()
   const { supportedDexes, supportedChains } = useSupportedDexesAndChains(filters)
 
-  const [hasPassedInitialRender, setHasPassedInitialRender] = useState(false)
   const [feeInfoFromRpc, setFeeInfoFromRpc] = useState<FeeInfoFromRpc[]>([])
 
   const { closedPositionsFromRpc, checkClosedPosition } = useClosedPositions()
@@ -76,8 +75,6 @@ const UserPositions = () => {
   })
 
   const positionsStats = userPositionsData?.stats
-  // TODO: Replace this local first-render/reconnect guard with an explicit wallet hydration signal.
-  const isRestoringWallet = !hasPassedInitialRender || walletStatus === 'connecting' || walletStatus === 'reconnecting'
   const hasStartedPositionsRequest = !isUninitialized
   const isInitialLoading = isRestoringWallet || (!!account && (!hasStartedPositionsRequest || isLoading))
 
@@ -111,10 +108,6 @@ const UserPositions = () => {
   useAccountChanged(() => {
     refetch()
   })
-
-  useEffect(() => {
-    setHasPassedInitialRender(true)
-  }, [])
 
   const selectedChainsLabel = useMemo(() => {
     const arrValue = filters.chainIds?.split(',').filter(Boolean)
