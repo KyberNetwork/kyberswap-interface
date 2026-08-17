@@ -3,7 +3,7 @@ import type { PositionActionKind, PositionSummary } from 'services/copyTrading/t
 import type { CopyAccountPositionsQuery, PendingSellObligationsQuery } from 'services/copyTrading/types/queries'
 import type { CopyAccountPositionsResponse, PendingSellObligationsResponse } from 'services/copyTrading/types/responses'
 
-const POSITIONS_PAGE_SIZE = 200
+const POSITIONS_PAGE_SIZE = 100
 
 export const hasPositionAction = (position: PositionSummary, action: PositionActionKind) =>
   position.actionKind === action || position.availableActionKinds.includes(action)
