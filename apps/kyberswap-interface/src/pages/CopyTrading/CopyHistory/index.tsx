@@ -65,7 +65,7 @@ const CopyHistoryView = () => {
       ownerAddress: ownerAddress || '',
       view: 'history',
     },
-    { skip: !ownerAddress },
+    { pollingInterval: 10_000, skip: !ownerAddress },
   )
 
   const closedRuns = closedRunsPage.items

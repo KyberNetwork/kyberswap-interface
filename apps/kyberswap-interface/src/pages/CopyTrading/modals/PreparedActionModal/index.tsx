@@ -1,20 +1,29 @@
-import { type ReactNode } from 'react'
+import { type ReactNode, useId, useState } from 'react'
 import { AlertCircle, CheckCircle, Clock, RotateCw } from 'react-feather'
 
 import { ButtonLight, ButtonOutlined, ButtonPrimary } from 'components/Button'
 import Dots from 'components/Dots'
 import Loader from 'components/Loader'
 import Modal from 'components/Modal'
+import Skeleton from 'components/Skeleton'
 import { HStack, Stack } from 'components/Stack'
 import type { PreparedActionFlowState } from 'pages/CopyTrading/modals/PreparedActionModal/preparedAction'
 import { ExternalLink } from 'theme'
 import { ButtonText, CloseIcon } from 'theme/components'
 import { cn } from 'utils/cn'
+import { friendlyError } from 'utils/errorMessage'
 import { getEtherscanLink } from 'utils/explorer'
 
-export const ReviewRow = ({ label, value }: { label: ReactNode; value: ReactNode }) => {
+type ReviewRowProps = {
+  isLoading?: boolean
+  label: ReactNode
+  value: ReactNode
+}
+
+export const ReviewRow = ({ isLoading = false, label, value }: ReviewRowProps) => {
+  const [skeletonWidth] = useState(() => 48 + Math.floor(Math.random() * 49))
   const labelTitle = typeof label === 'string' || typeof label === 'number' ? String(label) : undefined
-  const valueTitle = typeof value === 'string' || typeof value === 'number' ? String(value) : undefined
+  const valueTitle = !isLoading && (typeof value === 'string' || typeof value === 'number') ? String(value) : undefined
 
   return (
     <HStack className="min-w-0 items-start justify-between gap-4 text-sm">
@@ -22,7 +31,7 @@ export const ReviewRow = ({ label, value }: { label: ReactNode; value: ReactNode
         {label}
       </span>
       <span className="w-0 flex-1 truncate text-right font-medium text-text" title={valueTitle}>
-        {value}
+        {isLoading ? <Skeleton width={skeletonWidth} height={16} variant="darkSubtle" /> : value}
       </span>
     </HStack>
   )
@@ -90,17 +99,39 @@ const PreparedActionModal = ({
   title,
   width = 460,
 }: PreparedActionModalProps) => {
+  const [expandedError, setExpandedError] = useState<string>()
+  const errorDetailId = useId()
   const chainId = Number(state.action?.chainId)
   const scanLink = state.hash && chainId ? getEtherscanLink(chainId, state.hash, 'transaction') : undefined
   const processing = isProcessing(state)
   const processingCopy = getProcessingCopy(state)
-  const isRecoverable = ['pending', 'unavailable', 'error', 'sync_error'].includes(state.phase)
+  const isRecoverable = ['pending', 'unavailable', 'expired', 'error', 'sync_error'].includes(state.phase)
+  const reviewPreparing = state.phase === 'review' && state.isPreparing === true
+  const interactionLocked = confirmLoading || reviewPreparing
   const receiptConfirmationPending = state.phase === 'sync_error' && state.retryStage === 'receipt'
+  const recoveryError = state.error ? friendlyError(state.error) : undefined
+  const hasErrorDetail = state.phase === 'error' && !!state.error && recoveryError !== state.error
+  const showErrorDetail = hasErrorDetail && expandedError === state.error
+  const recoveryTitle =
+    state.phase === 'sync_error'
+      ? receiptConfirmationPending
+        ? 'Transaction submitted'
+        : 'Transaction confirmed'
+      : state.phase === 'pending'
+      ? 'State update pending'
+      : state.phase === 'unavailable'
+      ? 'Action unavailable'
+      : state.phase === 'expired'
+      ? 'Preparation expired'
+      : undefined
   const retryLabel = receiptConfirmationPending
     ? 'Check confirmation'
     : state.phase === 'sync_error'
     ? 'Refresh status'
     : 'Try again'
+  const showBackRecoveryAction = state.phase === 'expired' || state.phase === 'error'
+  const RecoveryBackButton = showBackRecoveryAction ? ButtonOutlined : ButtonLight
+  const RecoveryRetryButton = showBackRecoveryAction ? ButtonLight : ButtonPrimary
   const ConfirmButton = confirmVariant === 'primary' ? ButtonPrimary : ButtonLight
   const confirmColor =
     confirmVariant === 'error' ? 'var(--ks-red)' : confirmVariant === 'warning' ? 'var(--ks-warning)' : undefined
@@ -108,7 +139,7 @@ const PreparedActionModal = ({
   return (
     <Modal
       isOpen={isOpen}
-      onDismiss={processing || confirmLoading ? undefined : onDismiss}
+      onDismiss={processing || interactionLocked ? undefined : onDismiss}
       maxWidth={width}
       width="calc(100vw - 32px)"
       borderRadius={16}
@@ -125,7 +156,7 @@ const PreparedActionModal = ({
               title
             )}
             {!processing && (
-              <ButtonText className="shrink-0" aria-label="Close" disabled={confirmLoading} onClick={onDismiss}>
+              <ButtonText className="shrink-0" aria-label="Close" disabled={interactionLocked} onClick={onDismiss}>
                 <CloseIcon />
               </ButtonText>
             )}
@@ -145,7 +176,7 @@ const PreparedActionModal = ({
               )}
               <HStack className="gap-3">
                 {onBack && (
-                  <ButtonOutlined type="button" className="flex-1" disabled={confirmLoading} onClick={onBack}>
+                  <ButtonOutlined type="button" className="flex-1" disabled={interactionLocked} onClick={onBack}>
                     Back
                   </ButtonOutlined>
                 )}
@@ -153,10 +184,10 @@ const PreparedActionModal = ({
                   type="button"
                   className="flex-1"
                   color={confirmColor}
-                  disabled={confirmLoading || confirmDisabled}
+                  disabled={interactionLocked || confirmDisabled}
                   onClick={onConfirm}
                 >
-                  {confirmLoading ? <Dots>{confirmLabel}</Dots> : confirmLabel}
+                  {interactionLocked ? <Dots>{confirmLabel}</Dots> : confirmLabel}
                 </ConfirmButton>
               </HStack>
             </Stack>
@@ -207,19 +238,50 @@ const PreparedActionModal = ({
                   className={cn(state.phase === 'sync_error' ? 'text-warning' : 'fill-red text-red')}
                 />
               )}
-              <Stack className="items-center gap-1">
-                <span className="text-base font-medium text-text">
-                  {state.phase === 'sync_error'
-                    ? receiptConfirmationPending
-                      ? 'Transaction submitted'
-                      : 'Transaction confirmed'
-                    : state.phase === 'pending'
-                    ? 'State update pending'
-                    : state.phase === 'unavailable'
-                    ? 'Action unavailable'
-                    : 'Unable to continue'}
-                </span>
-                <span className="max-w-[360px] text-sm text-subText">{state.error}</span>
+              <Stack className="w-full items-center gap-1">
+                {state.phase === 'error' ? (
+                  <>
+                    {recoveryError && (
+                      <span className="max-w-[360px] text-base font-medium leading-6 text-red">{recoveryError}</span>
+                    )}
+                    {hasErrorDetail && (
+                      <Stack className="w-full items-center gap-0">
+                        <button
+                          type="button"
+                          className="text-sm font-medium text-primary hover:text-primary/80"
+                          aria-controls={errorDetailId}
+                          aria-expanded={showErrorDetail}
+                          onClick={() =>
+                            setExpandedError(current => (current === state.error ? undefined : state.error))
+                          }
+                        >
+                          {showErrorDetail ? 'Show less' : 'Show more'}
+                        </button>
+                        <div
+                          id={errorDetailId}
+                          aria-hidden={!showErrorDetail}
+                          className={cn(
+                            'grid w-full transition-[grid-template-rows,opacity] duration-200 ease-in-out',
+                            showErrorDetail ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0',
+                          )}
+                        >
+                          <div className="min-h-0 overflow-hidden">
+                            <div className="pt-2">
+                              <div className="max-h-[200px] w-full overflow-y-auto break-words rounded bg-buttonBlack/40 p-3 text-center text-[10px] leading-4 text-text">
+                                {state.error}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </Stack>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    <span className="text-base font-medium text-text">{recoveryTitle}</span>
+                    {recoveryError && <span className="max-w-[360px] text-sm text-subText">{recoveryError}</span>}
+                  </>
+                )}
               </Stack>
               {scanLink && (
                 <ExternalLink href={scanLink} className="text-sm text-primary">
@@ -227,10 +289,14 @@ const PreparedActionModal = ({
                 </ExternalLink>
               )}
               <HStack className="w-full gap-3">
-                <ButtonLight type="button" className="flex-1" onClick={onDismiss}>
-                  Close
-                </ButtonLight>
-                <ButtonPrimary type="button" className="flex-1" disabled={state.isPreparing} onClick={onRetry}>
+                <RecoveryBackButton
+                  type="button"
+                  className="flex-1"
+                  onClick={showBackRecoveryAction && onBack ? onBack : onDismiss}
+                >
+                  {showBackRecoveryAction ? 'Back' : 'Close'}
+                </RecoveryBackButton>
+                <RecoveryRetryButton type="button" className="flex-1" disabled={state.isPreparing} onClick={onRetry}>
                   {state.isPreparing ? (
                     <Dots>{retryLabel}</Dots>
                   ) : (
@@ -239,7 +305,7 @@ const PreparedActionModal = ({
                       {retryLabel}
                     </HStack>
                   )}
-                </ButtonPrimary>
+                </RecoveryRetryButton>
               </HStack>
             </Stack>
           )}

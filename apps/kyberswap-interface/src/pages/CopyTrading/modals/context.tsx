@@ -1,8 +1,9 @@
-import { type PropsWithChildren, createContext, useContext, useMemo, useState } from 'react'
+import { type PropsWithChildren, createContext, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import type { AdvisoryActionAvailability } from 'services/copyTrading/types/actionAvailability'
 import type { CopyRunSummary } from 'services/copyTrading/types/copyRuns'
 import type { PositionSummary } from 'services/copyTrading/types/positions'
 
+import { useActiveWeb3React } from 'hooks'
 import AddCapitalModal from 'pages/CopyTrading/modals/AddCapitalModal'
 import ManagePositionModal, { type ManagePositionMode } from 'pages/CopyTrading/modals/ManagePositionModal'
 import StartCopyModal from 'pages/CopyTrading/modals/StartCopyModal'
@@ -28,7 +29,17 @@ type CopyTradingModalContextValue = {
 const CopyTradingModalContext = createContext<CopyTradingModalContextValue | undefined>(undefined)
 
 export const CopyTradingModalProvider = ({ children }: PropsWithChildren) => {
+  const { account } = useActiveWeb3React()
   const [active, setActive] = useState<ActiveModal | null>(null)
+  const previousAccount = useRef(account)
+
+  useEffect(() => {
+    if (active && previousAccount.current && previousAccount.current !== account) {
+      setActive(null)
+    }
+
+    previousAccount.current = account
+  }, [account, active])
 
   const value = useMemo<CopyTradingModalContextValue>(
     () => ({

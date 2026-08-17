@@ -1,58 +1,62 @@
-import type { CopyRunSummary } from 'services/copyTrading/types/copyRuns'
 import type { PositionSummary } from 'services/copyTrading/types/positions'
 import type { StopCopyPreview } from 'services/copyTrading/types/preparedActions'
 
-import { ButtonLight, ButtonWarning } from 'components/Button'
+import { ButtonWarning } from 'components/Button'
+import CollapsiblePresetControl, { type CollapsiblePresetControlOption } from 'components/CollapsiblePresetControl'
 import Dots from 'components/Dots'
 import Loader from 'components/Loader'
 import ScrollableWithSignal from 'components/ScrollableWithSignal'
 import { Center, HStack, Stack } from 'components/Stack'
+import { DEFAULT_SLIPPAGES } from 'constants/trade'
 import { ShortenedId } from 'pages/CopyTrading/components/common/layout'
-import { formatUsd, getSignedMetricClassName, signedUsd } from 'pages/CopyTrading/helpers'
+import { formatApproximateUsd, formatUsd, getSignedMetricClassName, signedUsd } from 'pages/CopyTrading/helpers'
 import { ReviewRow, ReviewSection } from 'pages/CopyTrading/modals/PreparedActionModal'
 import { formatPreparedAmount, formatSlippage } from 'pages/CopyTrading/modals/PreparedActionModal/preparedAction'
 import { MAX_STOP_POSITIONS, getUserPositionId } from 'pages/CopyTrading/modals/StopCopyModal/positions'
 import { cn } from 'utils/cn'
 
-const SLIPPAGE_OPTIONS = [0.5, 1, 2]
+const SLIPPAGE_OPTIONS: CollapsiblePresetControlOption[] = DEFAULT_SLIPPAGES.map(value => ({
+  label: formatSlippage(value),
+  value: value / 100,
+}))
+const formatStopCopySlippage = (value: number) => formatSlippage(value * 100)
+const isStopCopySlippageAllowed = (value: number) => value >= 0 && value <= 100
+const withMetricFallback = (value: string) => (value === '—' ? 'N/A' : value)
 
 export const StopCopyReview = ({
-  agentName,
-  copyRun,
+  isLoading,
   preview,
+  totalPositionCount,
 }: {
-  agentName?: string
-  copyRun: CopyRunSummary
+  isLoading: boolean
   preview?: StopCopyPreview
+  totalPositionCount: number
 }) => {
-  return (
-    <Stack className="gap-4">
-      <ReviewSection title="Review Stop Copy">
-        <ReviewRow label="Agent" value={agentName || copyRun.agentSnapshot?.displayName || 'Copy Run'} />
-        <ReviewRow label="Positions to sell" value={preview?.positions?.length || 0} />
-        <ReviewRow label="Current value" value={formatUsd(preview?.totalCurrentValueUsd?.value)} />
-        <ReviewRow
-          label="Estimated cashback"
-          value={formatPreparedAmount(preview?.totalCashback, preview?.quoteToken)}
-        />
-        <ReviewRow
-          label="Minimum received"
-          value={formatPreparedAmount(preview?.totalSwapQuote?.minimumQuote, preview?.quoteToken)}
-        />
-      </ReviewSection>
+  const showSkeleton = isLoading && !preview
 
-      {!!preview?.positions?.length && (
-        <ReviewSection title="Prepared positions">
-          {preview.positions.map(position => (
-            <ReviewRow
-              key={position.userPositionId || position.tradeId}
-              label={position.baseToken?.symbol || <ShortenedId value={position.tradeId} />}
-              value={formatPreparedAmount(position.swapQuote?.minimumQuote, preview.quoteToken)}
-            />
-          ))}
-        </ReviewSection>
-      )}
-    </Stack>
+  return (
+    <ReviewSection title="Review Stop Copy">
+      <ReviewRow
+        isLoading={showSkeleton}
+        label="Positions to sell"
+        value={preview ? `${preview.positions?.length || 0}/${totalPositionCount}` : 'N/A'}
+      />
+      <ReviewRow
+        isLoading={showSkeleton}
+        label="Current value"
+        value={formatUsd(preview?.totalCurrentValueUsd?.value)}
+      />
+      <ReviewRow
+        isLoading={showSkeleton}
+        label="Estimated cashback"
+        value={withMetricFallback(formatPreparedAmount(preview?.totalCashback, preview?.quoteToken))}
+      />
+      <ReviewRow
+        isLoading={showSkeleton}
+        label="Minimum received"
+        value={withMetricFallback(formatPreparedAmount(preview?.totalSwapQuote?.minimumQuote, preview?.quoteToken))}
+      />
+    </ReviewSection>
   )
 }
 
@@ -61,7 +65,6 @@ type StopCopyFormProps = {
   isPreparing: boolean
   isSelected: (position: PositionSummary, index: number) => boolean
   onPrimaryAction: () => void
-  onRetryPositions: () => void
   onSlippageChange: (slippage: number) => void
   onTogglePosition: (position: PositionSummary, index: number) => void
   positions?: PositionSummary[]
@@ -78,7 +81,6 @@ export const StopCopyForm = ({
   isPreparing,
   isSelected,
   onPrimaryAction,
-  onRetryPositions,
   onSlippageChange,
   onTogglePosition,
   positions,
@@ -91,10 +93,12 @@ export const StopCopyForm = ({
 }: StopCopyFormProps) => {
   return (
     <Stack className="gap-4">
-      <span className="text-sm text-subText">
-        Select positions to sell while stopping. Leaving every position unchecked is valid and stops future copying
-        without requesting an exit.
-      </span>
+      <HStack className="items-center justify-between gap-3">
+        <span className="text-sm text-subText">Select positions to sell:</span>
+        <span className="shrink-0 text-sm font-medium text-text">
+          {positions ? `${selectedPositionCount}/${positions.length}` : ''}
+        </span>
+      </HStack>
 
       <ScrollableWithSignal
         data-open={positions?.length ? 'true' : 'false'}
@@ -102,18 +106,11 @@ export const StopCopyForm = ({
         className={cn('flex flex-col gap-1', !!positions?.length && 'ks-scrollbar max-h-[286px] overflow-y-auto pr-1')}
       >
         {positions === undefined ? (
-          positionsError ? (
-            <Center className="min-h-24 flex-col gap-3 rounded-lg bg-white-04 px-3 py-4 text-center">
-              <span className="text-sm text-red">{positionsError}</span>
-              <ButtonLight type="button" padding="8px 12px" onClick={onRetryPositions}>
-                Retry
-              </ButtonLight>
-            </Center>
-          ) : (
+          !positionsError ? (
             <Center className="min-h-24">
               <Loader />
             </Center>
-          )
+          ) : null
         ) : positions.length ? (
           positions.map((position, index) => {
             const userPositionId = getUserPositionId(position) as string
@@ -124,7 +121,7 @@ export const StopCopyForm = ({
               <label
                 key={userPositionId}
                 className={cn(
-                  'flex items-center gap-3 rounded-lg bg-white-04 px-3 py-2',
+                  'grid grid-cols-[16px_96px_minmax(124px,1fr)_104px] items-center gap-3 rounded-lg bg-white-04 px-3 py-2',
                   isPreparing || selectionLimitReached ? 'cursor-not-allowed opacity-50' : 'cursor-pointer',
                 )}
               >
@@ -135,22 +132,23 @@ export const StopCopyForm = ({
                   onChange={() => onTogglePosition(position, index)}
                   className="size-4 shrink-0 accent-warning"
                 />
-                <HStack className="min-w-0 flex-1 items-center justify-between gap-2">
-                  <Stack className="min-w-0 flex-1 gap-0.5">
-                    <span className="truncate text-sm font-medium text-text">{position.token.symbol}</span>
-                    <span className="text-xs text-subText">
-                      <ShortenedId value={position.tradeId} />
-                    </span>
-                  </Stack>
+                <Stack className="min-w-0 gap-0.5">
+                  <span className="truncate text-sm font-medium text-text">{position.token.symbol}</span>
+                  <span className="text-xs text-subText">
+                    <ShortenedId value={position.tradeId} />
+                  </span>
+                </Stack>
+                <HStack className="min-w-0 items-center gap-1">
+                  <span className="shrink-0 text-xs font-medium text-subText">P&amp;L</span>
                   <span
-                    className={cn(
-                      'shrink-0 whitespace-nowrap text-sm font-medium',
-                      getSignedMetricClassName(position.unrealizedPnlUsd),
-                    )}
+                    className={cn('truncate text-sm font-medium', getSignedMetricClassName(position.unrealizedPnlUsd))}
                   >
                     {signedUsd(position.unrealizedPnlUsd)}
                   </span>
                 </HStack>
+                <span className="truncate text-right text-sm font-medium text-text">
+                  {formatApproximateUsd(position.valueUsd)}
+                </span>
               </label>
             )
           })
@@ -165,27 +163,20 @@ export const StopCopyForm = ({
         </span>
       )}
 
-      <HStack className="items-center justify-between gap-3">
-        <span className="text-sm text-subText">Slippage tolerance</span>
-        <HStack className="gap-2">
-          {SLIPPAGE_OPTIONS.map(value => (
-            <button
-              key={value}
-              type="button"
-              disabled={isPreparing}
-              onClick={() => onSlippageChange(value)}
-              className={cn(
-                'rounded-lg border px-3 py-1.5 text-sm font-medium disabled:cursor-not-allowed disabled:opacity-50',
-                slippage === value
-                  ? 'border-primary bg-primary-12 text-primary'
-                  : 'border-darkBorder text-subText hover:text-text',
-              )}
-            >
-              {formatSlippage(value * 100)}
-            </button>
-          ))}
-        </HStack>
-      </HStack>
+      <CollapsiblePresetControl
+        collapseButtonAriaLabel="Toggle slippage tolerance options"
+        customInputAriaLabel="Custom slippage tolerance"
+        customSuffix="%"
+        disabled={isPreparing}
+        formatValue={formatStopCopySlippage}
+        isValueAllowed={isStopCopySlippageAllowed}
+        label="Slippage tolerance"
+        maxFractionDigits={2}
+        maxIntegerDigits={3}
+        onChange={onSlippageChange}
+        options={SLIPPAGE_OPTIONS}
+        value={slippage}
+      />
 
       <ButtonWarning
         type="button"

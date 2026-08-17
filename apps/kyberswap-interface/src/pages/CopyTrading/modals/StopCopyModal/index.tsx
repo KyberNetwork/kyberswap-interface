@@ -175,11 +175,16 @@ const StopCopyModal = ({ isOpen, onDismiss, copyRun, agentName }: StopCopyModalP
       ? 'Switch network'
       : availabilityMessage
       ? 'Stop Copy unavailable'
-      : selectedPositions.length
-      ? 'Review Stop & Sell ' + selectedPositions.length
       : 'Review Stop Copy'
   const primaryActionLoading = flowState.isPreparing || (positions === undefined && !positionsError)
-  const review = <StopCopyReview agentName={agentName} copyRun={copyRun} preview={flowState.action?.stopCopy} />
+  const reviewPreparing = flowState.phase === 'review' && flowState.isPreparing === true
+  const review = (
+    <StopCopyReview
+      isLoading={reviewPreparing}
+      preview={flowState.action?.stopCopy}
+      totalPositionCount={selectablePositions.length}
+    />
+  )
 
   return (
     <PreparedActionModal
@@ -188,7 +193,7 @@ const StopCopyModal = ({ isOpen, onDismiss, copyRun, agentName }: StopCopyModalP
       state={flowState}
       title={'Stop Copying' + (agentName ? ' ' + agentName : '')}
       review={review}
-      confirmLabel="Stop Copying"
+      confirmLabel={reviewPreparing ? 'Preparing' : 'Stop Copying'}
       confirmVariant="warning"
       onBack={flow.reset}
       onConfirm={() => void flow.confirm()}
@@ -202,7 +207,6 @@ const StopCopyModal = ({ isOpen, onDismiss, copyRun, agentName }: StopCopyModalP
         isPreparing={flowState.isPreparing === true}
         isSelected={isSelected}
         onPrimaryAction={handlePrimaryAction}
-        onRetryPositions={() => void loadPositions()}
         onSlippageChange={setSlippage}
         onTogglePosition={togglePosition}
         positions={positions === undefined ? undefined : selectablePositions}
