@@ -3,6 +3,7 @@ import copyRunApi from 'services/copyTrading/api/endpoints/copyRuns'
 import type { OwnerCopySummary } from 'services/copyTrading/types/copyRuns'
 
 import { APP_PATHS } from 'constants/index'
+import useIsWalletRestoring from 'hooks/useIsWalletRestoring'
 import ClosedSubscriptionsTable from 'pages/CopyTrading/CopyHistory/ClosedSubscriptionsTable'
 import CopyRunsPageHeading from 'pages/CopyTrading/components/CopyRunsPageHeading'
 import { useCursorPageQuery } from 'pages/CopyTrading/components/CursorPagination'
@@ -44,6 +45,7 @@ const CopyHistorySummary = ({ summary }: { summary?: OwnerCopySummary }) => {
 const CopyHistoryView = () => {
   const navigate = useNavigate()
   const { ownerAddress } = useCopyTradingContext()
+  const isRestoringWallet = useIsWalletRestoring()
   const [getCopyRuns] = copyRunApi.useLazyGetCopyRunsQuery()
 
   const closedRunsPage = useCursorPageQuery({
@@ -71,7 +73,7 @@ const CopyHistoryView = () => {
   return (
     <CopyTradingPage>
       <CopyRunsPageHeading activeView="history" />
-      {!ownerAddress ? (
+      {isRestoringWallet ? null : !ownerAddress ? (
         <OwnerWalletRequired />
       ) : (
         <>
