@@ -30,4 +30,4 @@ export {
 
 export { maxUint256, zeroAddress, zeroHash } from 'viem'
 
-export type { Abi, Address, Hash, Hex, PublicClient, WalletClient } from 'viem'
+export type { Abi, Address, Hash, Hex, Log, PublicClient, WalletClient } from 'viem'

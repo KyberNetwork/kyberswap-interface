@@ -4,7 +4,7 @@ import { t } from '@lingui/macro'
 import { readContract } from '@wagmi/core'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Share2 } from 'react-feather'
-import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { useUserPositionsQuery } from 'services/earn'
 import { useGetSmartExitOrdersQuery } from 'services/smartExit'
 
@@ -34,20 +34,27 @@ import useForceLoading from 'pages/Earns/hooks/useForceLoading'
 import useKemRewards from 'pages/Earns/hooks/useKemRewards'
 import useMerklRewards from 'pages/Earns/hooks/useMerklRewards'
 import useReduceFetchInterval from 'pages/Earns/hooks/useReduceFetchInterval'
+import useUnfinalizedPositions from 'pages/Earns/hooks/useUnfinalizedPositions'
 import useZapMigrationWidget from 'pages/Earns/hooks/useZapMigrationWidget'
 import { FeeInfo, OrderStatus, PAIR_CATEGORY, ParsedPosition, PositionStatus, SuggestedPool } from 'pages/Earns/types'
 import { getNftManagerContractAddress } from 'pages/Earns/utils'
 import { getUnclaimedFeesInfo } from 'pages/Earns/utils/fees'
 import { checkEarlyPosition, parsePosition } from 'pages/Earns/utils/position'
-import { getUnfinalizedPositions } from 'pages/Earns/utils/unfinalizedPosition'
+import {
+  getUnfinalizedPositionKeyFromPosition,
+  getUnfinalizedPositionKeyFromRoute,
+} from 'pages/Earns/utils/unfinalizedPosition'
 import { getPoolDetailUrl } from 'pages/Earns/utils/url'
 import { toString } from 'utils/numbers'
 import { type Address } from 'utils/viem'
 
+// Long enough to outlast the receipt lookup the placeholder write waits on, short enough that a zap whose
+// placeholder never lands still resolves to a real page state instead of spinning.
+const FORCE_LOADING_MAX_MS = 30_000
+
 const PositionDetail = () => {
   const firstLoading = useRef(false)
   const navigate = useNavigate()
-  const [searchParams, setSearchParams] = useSearchParams()
 
   const { account } = useActiveWeb3React()
   const { forceLoading, removeForceLoading } = useForceLoading()
@@ -95,6 +102,9 @@ const PositionDetail = () => {
   const hasActiveSmartExitOrder = !!smartExitOrders?.orders?.length && smartExitOrders.orders.length > 0
 
   const currentWalletAddress = useRef(account)
+  // Anchors the bound to mount: `removeForceLoading`'s identity changes with the URL.
+  const removeForceLoadingRef = useRef(removeForceLoading)
+  removeForceLoadingRef.current = removeForceLoading
   const [aprInterval, setAprInterval] = useState<'24h' | '7d'>('24h')
   const [feeInfoFromRpc, setFeeInfoFromRpc] = useState<FeeInfo | undefined>()
   const [shareInfo, setShareInfo] = useState<ShareModalProps | undefined>()
@@ -102,36 +112,51 @@ const PositionDetail = () => {
   const [positionOwnerAddress, setPositionOwnerAddress] = useState<string | null>(null)
 
   const loadingInterval = isFetching
-  const initialLoading = !!(forceLoading || (isLoading && !firstLoading.current))
 
-  const position: ParsedPosition | undefined = useMemo(() => {
-    const tokenId = positionId?.split('-')[1]
-    if (!userPositions || !userPositions.length) {
-      const unfinalizedPositions = getUnfinalizedPositions([], account || undefined)
-      if (unfinalizedPositions.length > 0 && Number(tokenId) === Number(unfinalizedPositions[0].tokenId))
-        return unfinalizedPositions[0]
-      return
-    }
+  const parsedPosition: ParsedPosition | undefined = useMemo(() => {
+    const positionFromApi = userPositions[0]
+    if (!positionFromApi) return undefined
 
-    const isClosedFromRpc = closedPositionsFromRpc.includes(userPositions[0].tokenId)
-
-    const parsedPosition = parsePosition({
-      position: userPositions[0],
+    return parsePosition({
+      position: positionFromApi,
       feeInfo: feeInfoFromRpc,
       nftRewardInfo: rewardInfoThisPosition,
-      isClosedFromRpc,
+      isClosedFromRpc: closedPositionsFromRpc.includes(positionFromApi.tokenId),
     })
+  }, [closedPositionsFromRpc, feeInfoFromRpc, rewardInfoThisPosition, userPositions])
 
-    const unfinalizedPositions = getUnfinalizedPositions([parsedPosition], account || undefined)
-    const matchedUnfinalized = unfinalizedPositions.find(p => Number(p.tokenId) === Number(tokenId))
+  const parsedPositions = useMemo(() => (parsedPosition ? [parsedPosition] : []), [parsedPosition])
+  const { placeholderByKey, valueUpdatingKeys } = useUnfinalizedPositions({
+    owner: account || undefined,
+    positions: parsedPositions,
+  })
 
-    if (matchedUnfinalized) {
-      if (matchedUnfinalized.isValueUpdating) return { ...parsedPosition, isValueUpdating: true }
-      return matchedUnfinalized
-    }
+  // The route carries the pool address for UniV2 pairs and `<nftManager>-<tokenId>` for NFT positions, so
+  // the cache can be addressed before the indexer has returned anything.
+  const routePositionKey = useMemo(
+    () => getUnfinalizedPositionKeyFromRoute({ chainId, dexId: exchange, positionId }),
+    [chainId, exchange, positionId],
+  )
 
-    return parsedPosition
-  }, [account, feeInfoFromRpc, userPositions, rewardInfoThisPosition, closedPositionsFromRpc, positionId])
+  // The positions query keeps serving the previously viewed position until a new set of arguments resolves,
+  // so a row that does not belong to this route is treated as not yet arrived. A row that cannot be
+  // addressed at all is trusted, since the query was already filtered by this route's position id.
+  const indexedPosition: ParsedPosition | undefined = useMemo(() => {
+    if (!parsedPosition) return undefined
+    const key = getUnfinalizedPositionKeyFromPosition(parsedPosition)
+    return key && routePositionKey && key !== routePositionKey ? undefined : parsedPosition
+  }, [parsedPosition, routePositionKey])
+
+  const position: ParsedPosition | undefined = useMemo(() => {
+    if (!routePositionKey) return indexedPosition
+    if (!indexedPosition) return placeholderByKey.get(routePositionKey)
+    // A zap into an existing position leaves the indexed row usable and only makes its value stale.
+    return valueUpdatingKeys.has(routePositionKey) ? { ...indexedPosition, isValueUpdating: true } : indexedPosition
+  }, [indexedPosition, placeholderByKey, routePositionKey, valueUpdatingKeys])
+
+  // A request in flight with nothing to show for this route means the position is still on its way, whether
+  // that is the first load or a move between two position pages; skeletons beat an empty state either way.
+  const initialLoading = !!(forceLoading || (isLoading && !firstLoading.current) || (!position && isFetching))
 
   const farmingPoolsByChain = useFarmingStablePools({ chainIds: position ? [position.chain.id] : [] })
 
@@ -251,13 +276,18 @@ const PositionDetail = () => {
     if (!account || account !== currentWalletAddress.current) navigate(APP_PATHS.EARN_POSITIONS)
   }, [account, navigate])
 
+  // `?forceLoading=true` is the hand-off from the zap flow: caching the placeholder needs the mined receipt,
+  // so the page holds its skeletons rather than flashing "No position found" in between. `position` is
+  // route-scoped, so anything rendering means the hand-off is done; the timer bounds the wait.
   useEffect(() => {
-    if (!position || !forceLoading) return
-    if (position.pool.isUniv2 ? position.positionId === positionId : position.tokenId === positionId?.split('-')[1]) {
-      removeForceLoading()
+    if (!forceLoading) return
+    if (position) {
+      removeForceLoadingRef.current()
+      return
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [forceLoading, position, searchParams, setSearchParams])
+    const timeout = setTimeout(() => removeForceLoadingRef.current(), FORCE_LOADING_MAX_MS)
+    return () => clearTimeout(timeout)
+  }, [forceLoading, position])
 
   const onRefreshPosition = useCallback(
     ({ tokenId, dex, poolAddress, chainId }: CheckClosedPositionParams) => {

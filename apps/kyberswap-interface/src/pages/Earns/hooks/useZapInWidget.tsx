@@ -23,16 +23,14 @@ import { useIsSmartAccount } from 'hooks/useIsSmartAccount'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { EARN_CHAINS, EARN_DEXES, EarnChain, Exchange } from 'pages/Earns/constants'
-import { CoreProtocol } from 'pages/Earns/constants/coreProtocol'
 import { ZAPIN_DEX_MAPPING } from 'pages/Earns/constants/dexMappings'
 import useAccountChanged from 'pages/Earns/hooks/useAccountChanged'
 import { SmartExitParams } from 'pages/Earns/hooks/useSmartExitWidget'
 import useTransactionReplacement from 'pages/Earns/hooks/useTransactionReplacement'
 import { ZapMigrationInfo } from 'pages/Earns/hooks/useZapMigrationWidget'
-import { DEFAULT_PARSED_POSITION, ParsedPosition } from 'pages/Earns/types'
-import { getNftManagerContractAddress, getTokenId, submitTransaction } from 'pages/Earns/utils'
-import { getDexVersion } from 'pages/Earns/utils/position'
-import { updateUnfinalizedPosition } from 'pages/Earns/utils/unfinalizedPosition'
+import { ParsedPosition } from 'pages/Earns/types'
+import { submitTransaction } from 'pages/Earns/utils'
+import { toUnfinalizedPositionSnapshot } from 'pages/Earns/utils/unfinalizedPosition'
 import { navigateToPoolDetail, navigateToPositionAfterZap } from 'pages/Earns/utils/zap'
 import { useKyberSwapConfig, useNotify, useWalletModalToggle } from 'state/application/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
@@ -123,9 +121,11 @@ const useZapInWidget = ({
 
   const handleNavigateToPosition = useCallback(
     async (txHash: string, chainId: number, dex: Exchange, poolId: string) => {
-      navigateToPositionAfterZap(txHash, chainId, dex, poolId, navigate)
+      // A sped-up zap confirms under a replacement hash, so resolve the minted position against the hash
+      // that actually landed — the same one the cached placeholder is keyed on.
+      navigateToPositionAfterZap(originalToCurrentHash[txHash] || txHash, chainId, dex, poolId, navigate)
     },
-    [navigate],
+    [navigate, originalToCurrentHash],
   )
 
   const handleOpenZapIn = ({ pool, positionId, initialTick }: ZapInInfo) => {
@@ -277,76 +277,8 @@ const useZapInWidget = ({
               }
             },
             onOpenZapMigration: handleOpenZapMigration,
-            onSuccess: async (data: OnSuccessProps) => {
+            onSuccess: (data: OnSuccessProps) => {
               const dex = addLiquidityPureParams.dexId
-              const isUniv2 = EARN_DEXES[dex as Exchange]?.isForkFrom === CoreProtocol.UniswapV2
-
-              const nftId =
-                data.position.positionId ||
-                (isUniv2 ? account || '' : ((await getTokenId(chainId, data.txHash, dex)) || '').toString())
-
-              const dexVersion = getDexVersion(dex)
-              const contract = getNftManagerContractAddress(dex, chainId)
-
-              updateUnfinalizedPosition(
-                {
-                  ...DEFAULT_PARSED_POSITION,
-                  positionId: !isUniv2 ? `${contract}-${nftId}` : data.position.pool.address,
-                  tokenId: !isUniv2 ? nftId : '-1',
-                  chain: {
-                    id: chainId,
-                    name: NETWORKS_INFO[chainId].name,
-                    logo: NETWORKS_INFO[chainId].icon,
-                  },
-                  dex: {
-                    id: dex,
-                    name: EARN_DEXES[dex].name,
-                    logo: data.position.dexLogo,
-                    version: dexVersion,
-                  },
-                  pool: {
-                    ...DEFAULT_PARSED_POSITION.pool,
-                    address: data.position.pool.address,
-                    fee: data.position.pool.fee,
-                    isUniv2: isUniv2,
-                  },
-                  token0: {
-                    ...DEFAULT_PARSED_POSITION.token0,
-                    address: data.position.token0.address,
-                    totalProvide: data.position.token0.amount,
-                    currentAmount: data.position.token0.amount,
-                    logo: data.position.token0.logo,
-                    symbol: data.position.token0.symbol,
-                  },
-                  token1: {
-                    ...DEFAULT_PARSED_POSITION.token1,
-                    address: data.position.token1.address,
-                    totalProvide: data.position.token1.amount,
-                    currentAmount: data.position.token1.amount,
-                    logo: data.position.token1.logo,
-                    symbol: data.position.token1.symbol,
-                  },
-                  totalValueTokens: [
-                    {
-                      address: data.position.token0.address,
-                      symbol: data.position.token0.symbol,
-                      amount: data.position.token0.amount,
-                    },
-                    {
-                      address: data.position.token1.address,
-                      symbol: data.position.token1.symbol,
-                      amount: data.position.token1.amount,
-                    },
-                  ],
-                  totalProvidedValue: data.position.value,
-                  totalValue: data.position.value,
-                  createdTime: data.position.createdAt,
-                  txHash: data.txHash,
-                  isUnfinalized: true,
-                  isValueUpdating: !!data.position.positionId,
-                },
-                account,
-              )
 
               trackingHandler(TRACKING_EVENT_TYPE.LIQ_ADD_COMPLETED, {
                 pool_pair: `${data.position.token0.symbol}/${data.position.token1.symbol}`,
@@ -370,6 +302,7 @@ const useZapInWidget = ({
                     tokensIn: Array<{ symbol: string; amount: string; logoUrl?: string }>
                     pool: string
                     dexLogo: string
+                    position?: OnSuccessProps['position']
                   }
                 | {
                     type: 'erc20_approval' | 'nft_approval' | 'nft_approval_all'
@@ -401,6 +334,7 @@ const useZapInWidget = ({
                     tokensIn: additionalInfo.tokensIn || [],
                     dexLogoUrl: additionalInfo.dexLogo,
                     dex,
+                    unfinalizedPosition: toUnfinalizedPositionSnapshot(dex, additionalInfo.position),
                   },
                 })
 
