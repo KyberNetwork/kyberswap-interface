@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom'
 import copyRunApi from 'services/copyTrading/api/endpoints/copyRuns'
 
 import { APP_PATHS } from 'constants/index'
+import useIsWalletRestoring from 'hooks/useIsWalletRestoring'
 import ActiveSubscriptionsTable from 'pages/CopyTrading/MyCopies/ActiveSubscriptionsTable'
 import { AlertsFeed, OpenCopiesSummary } from 'pages/CopyTrading/MyCopies/components'
 import CopyRunsPageHeading from 'pages/CopyTrading/components/CopyRunsPageHeading'
@@ -16,6 +17,7 @@ const PAGE_SIZE = 10
 const MyCopiesView = () => {
   const navigate = useNavigate()
   const { ownerAddress } = useCopyTradingContext()
+  const isRestoringWallet = useIsWalletRestoring()
   const [getCopyRuns] = copyRunApi.useLazyGetCopyRunsQuery()
   const [getOwnerActivity] = copyRunApi.useLazyGetOwnerActivityQuery()
 
@@ -60,7 +62,7 @@ const MyCopiesView = () => {
   return (
     <CopyTradingPage>
       <CopyRunsPageHeading activeView="open" />
-      {!ownerAddress ? (
+      {isRestoringWallet ? null : !ownerAddress ? (
         <OwnerWalletRequired />
       ) : (
         <>
