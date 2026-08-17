@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
+import { adaptActionLogsResponse } from './adapters/activity'
 import { adaptCopyAccountBalancesResponse, adaptCopyAccountWalletInventoryResponse } from './adapters/copyAccounts'
 import { adaptCopyRunCashbackPolicyResponse, adaptCopyRunResponse } from './adapters/copyRuns'
 
@@ -10,23 +11,81 @@ const currentCapital = {
 
 describe('adaptCopyRunResponse', () => {
   it.each([
-    ['CAPITAL_IN_PROJECTION_STATUS_READY', 'ready', '12.34'],
-    ['CAPITAL_IN_PROJECTION_STATUS_SYNCING', 'syncing', undefined],
-    ['CAPITAL_IN_PROJECTION_STATUS_UNAVAILABLE', 'unavailable', undefined],
+    ['CAPITAL_IN_PROJECTION_STATUS_READY', currentCapital, '56.78', 'ready', '12.34'],
+    [
+      'CAPITAL_IN_PROJECTION_STATUS_READY',
+      { value: '12.34', status: 'METRIC_STATUS_UNAVAILABLE' },
+      '56.78',
+      'ready',
+      undefined,
+    ],
+    ['CAPITAL_IN_PROJECTION_STATUS_SYNCING', currentCapital, '56.78', 'syncing', undefined],
+    ['CAPITAL_IN_PROJECTION_STATUS_UNAVAILABLE', currentCapital, '56.78', 'unavailable', undefined],
+    ['CAPITAL_IN_PROJECTION_STATUS_UNAVAILABLE', currentCapital, undefined, 'unavailable', undefined],
   ] as const)(
-    'maps %s and exposes capital in only when ready',
-    (capitalInProjectionStatus, expectedStatus, expectedCapitalInUsd) => {
+    'maps %s and keeps observed capital separate from canonical capital',
+    (capitalInProjectionStatus, capitalInUsd, observedValue, expectedStatus, expectedCapitalInUsd) => {
       const response = adaptCopyRunResponse({
         data: {
           capitalInProjectionStatus,
-          capitalInUsd: currentCapital,
+          capitalInUsd,
+          observedCapitalInUsd: observedValue ? { value: observedValue, status: 'METRIC_STATUS_CURRENT' } : undefined,
         },
       })
 
       expect(response.data.capitalInProjectionStatus).toBe(expectedStatus)
       expect(response.data.capitalInUsd).toBe(expectedCapitalInUsd)
+      expect(response.data.observedCapitalInUsd).toBe(observedValue)
     },
   )
+
+  it.each([
+    ['METRIC_STATUS_STALE', '56.78'],
+    ['METRIC_STATUS_UNAVAILABLE', undefined],
+  ] as const)('maps observed capital according to its %s metric status', (status, expectedObservedCapitalInUsd) => {
+    const response = adaptCopyRunResponse({
+      data: {
+        capitalInProjectionStatus: 'CAPITAL_IN_PROJECTION_STATUS_SYNCING',
+        observedCapitalInUsd: { value: '56.78', status },
+      },
+    })
+
+    expect(response.data.observedCapitalInUsd).toBe(expectedObservedCapitalInUsd)
+  })
+})
+
+describe('adaptActionLogsResponse', () => {
+  it('flattens session groups and adapts their nested action logs', () => {
+    const response = adaptActionLogsResponse({
+      data: [
+        {
+          sessionId: 'session-1',
+          logs: [
+            {
+              actionLogId: 'log-1',
+              action: 'buy',
+              actionSummary: 'Buy ETH',
+              chainId: '8453',
+              occurredAt: '2026-08-14T01:02:03Z',
+            },
+          ],
+        },
+      ],
+      pagination: { hasMore: true, limit: 10, nextCursor: 'next' },
+    })
+
+    expect(response).toMatchObject({
+      data: [
+        {
+          logId: 'log-1',
+          action: 'Buy ETH',
+          actionCode: 'buy',
+          chainId: 8453,
+        },
+      ],
+      pagination: { hasMore: true, limit: 10, nextCursor: 'next' },
+    })
+  })
 })
 
 describe('adaptCopyAccountBalancesResponse', () => {

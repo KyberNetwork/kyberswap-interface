@@ -92,9 +92,9 @@ const agentApi = copyTradingBaseApi.injectEndpoints({
       transformResponse: adaptPositionEventsResponse,
     }),
     getAgentActionLogs: builder.query<CotLogsResponse, CotLogsQuery>({
-      query: ({ agentId, leaderPositionId, from, to, cursor, limit }) => ({
+      query: ({ agentId, leaderPositionId, type, groupBy, from, to, cursor, limit }) => ({
         url: '/agents/' + pathPart(agentId) + '/action-logs',
-        params: cleanParams({ leaderPositionId, from, to, cursor, limit }),
+        params: cleanParams({ leaderPositionId, type, groupBy, from, to, cursor, limit }),
       }),
       transformResponse: adaptActionLogsResponse,
     }),
