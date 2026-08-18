@@ -44,6 +44,27 @@ export const ReviewSection = ({ children, title }: { children: ReactNode; title?
   </Stack>
 )
 
+type PreparedActionSuccessActionsProps = {
+  onClose: () => void
+  onPrimaryAction: () => void
+  primaryLabel: string
+}
+
+export const PreparedActionSuccessActions = ({
+  onClose,
+  onPrimaryAction,
+  primaryLabel,
+}: PreparedActionSuccessActionsProps) => (
+  <HStack className="w-full gap-3">
+    <ButtonOutlined type="button" className="flex-1" onClick={onClose}>
+      Close
+    </ButtonOutlined>
+    <ButtonPrimary type="button" className="flex-1" onClick={onPrimaryAction}>
+      {primaryLabel}
+    </ButtonPrimary>
+  </HStack>
+)
+
 type PreparedActionModalProps = {
   children: ReactNode
   confirmDisabled?: boolean

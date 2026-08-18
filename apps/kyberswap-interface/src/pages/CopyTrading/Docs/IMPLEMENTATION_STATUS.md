@@ -1,6 +1,6 @@
 # Copy Trading Implementation Status
 
-Last reviewed: 2026-08-14
+Last reviewed: 2026-08-18
 
 This is the single frontend-owned record for current implementation, accepted
 product decisions, verification evidence, and remaining work. The current HTTP
@@ -151,9 +151,11 @@ Current primary-screen read behavior:
   selected `PositionSummary` only to open the modal, then refresh the current
   copy-account position before preparation. The preparation response remains
   authoritative before any wallet submission.
-- The Stop Copy modal owns loading every open-position cursor page, including
-  loading, error, and Retry UI. An incomplete or invalid cursor chain prevents
-  preparation rather than presenting a partial position list.
+- The Stop Copy modal owns loading every open-position cursor page. An
+  incomplete or invalid cursor chain prevents preparation rather than
+  presenting a partial position list. Position-load failure has no separate
+  Retry control; the disabled action communicates that positions are
+  unavailable, consistent with other read-query error surfaces.
 - Infinite-scroll read surfaces show their error state without a manual Retry
   button. Recovery is owned by a later query refetch or remount.
 - Withdraw trusts the Copy Run and availability passed from Copy Detail or Smart
@@ -172,16 +174,38 @@ Current primary-screen read behavior:
   polls the Agent-filtered open Copy list after its successful receipt. Every
   list request is an independent bounded attempt; polling does not classify API
   errors as retryable or non-retryable.
+- Start Copy and Add Capital share only the capital-entry domain: the supported
+  quote-token configuration, action-specific minimums, 25/50/75/100 presets,
+  wallet balance, decimal parsing, minimum/balance validation, and input UI.
+  Each flow still owns its availability and network guards, preparation request
+  validation, review metrics, authorization or ownership rules, and navigation.
+- Start Copy, Add Capital, and Stop Copy use the same prepared-action
+  presentation primitives for review, recovery, and success actions. Error and
+  expired states expose an outlined Back action and a light Try again action;
+  retry re-prepares into the existing review state, whose server-owned values
+  render skeletons while loading and `N/A` when unavailable. Success keeps
+  Close outlined while the primary destination remains flow-owned: My Copies
+  for Start/Add and History for Stop.
+- Stop Copy keeps position loading, selection, selection-cap validation, and
+  slippage local to its flow. These concerns are not part of the shared capital
+  abstraction used by Start Copy and Add Capital.
 
 ## Current Prepared-Action Write UI
 
 The production write path is split by ownership:
 
-- Each folder under `modals/` owns its modal UI, editable input, tests, and
-  action-specific preparation logic. `modals/StartCopyModal/` also owns its
-  amount state, UUID-bound attempt identity, Permit or Approve authorization,
-  and post-receipt completion polling. Its shared target, capital-preset, and
+- Each action folder under `modals/` owns its modal composition, action-specific
+  guards, preparation request and response validation, review metrics, tests,
+  and destination navigation.
+- `modals/CapitalAmount/` owns the capital-entry state and UI shared by Start
+  Copy and Add Capital: fixed supported quote-token configuration,
+  action-specific minimums, wallet balance, presets, decimal parsing, and local
+  minimum/balance validation.
+- `modals/StartCopyModal/` owns UUID-bound attempt identity, Permit or Approve
+  authorization, and post-receipt completion polling. Its target and
   completion-polling domain logic stays in `StartCopyModal/startCopy.ts`.
+- `modals/StopCopyModal/` owns its complete open-position load, local selection,
+  32-position cap, slippage, and selected-ID payload validation.
 - `modals/PreparedActionModal/requestPreparation.ts` owns preparation status
   handling, bounded continuation polling, response validation, and transitions
   into review, pending, unavailable, error, or completed states.
@@ -189,7 +213,9 @@ The production write path is split by ownership:
   simulation/submission, receipt wait, receipt retry without rebroadcast,
   action-specific post-receipt work, and completion notification.
 - `modals/PreparedActionModal/index.tsx` owns the shared idle, review, wallet,
-  confirmation, syncing, unavailable, error, and success presentation.
+  confirmation, syncing, unavailable, error, and success presentation,
+  including review-row skeletons, recovery actions, and the reusable success
+  action layout. Flow-specific success destinations remain with each action.
 - `modals/PreparedActionModal/preparedAction.ts` owns the shared phase shape,
   superseded-request versioning, pure parsing, formatting, preparation
   validation, and retry timing. `helpers.ts` owns stateless formatting, reason
@@ -217,7 +243,7 @@ Implemented behavior:
   separate Fund call fails closed. After the Create receipt, the UI polls the
   open Copy Run list filtered by the exact Agent every two seconds for at most
   twenty seconds; it does not call Start preparation again. Success exposes
-  Close and a direct My Copy link for that returned run.
+  Close and the My Copies destination.
 - Add Capital uses the fixed supported quote token for decimal-to-raw input,
   then reviews the API quote token, minimum, wallet balance, and resulting
   allocation.
@@ -225,7 +251,13 @@ Implemented behavior:
   It fetches once when the modal opens and does not refresh the list again before
   preparation. The UI defaults at most 32 positions to selected, prevents
   selecting a 33rd, and validates the final payload length before sending
-  `userPositionIds`. An empty array remains valid.
+  `userPositionIds`. An empty array remains valid. A position-load failure
+  disables the review action without rendering a separate Retry control.
+- Start Copy, Add Capital, and Stop Copy use shared review rows and prepared
+  action recovery states. Server-owned review values use skeletons during
+  re-preparation; missing completed values use `N/A`. The Back action in error
+  and expired states returns to the editable flow state, while Try again starts
+  preparation and keeps the review in its loading presentation.
 - Withdraw is exposed only when the selected Copy Run status is `STOPPED`, then
   gated by `withdrawQuoteAvailability`. It sends `{}` to preparation and
   requires the prepared amount and connected-owner recipient.
@@ -330,7 +362,7 @@ submits the exact call and the follower-account contract enforces its caller.
 - The service surface contains 26 GET queries and 6 POST mutations.
 - All six preparation mutations have an owned UI flow.
 - The local ABI, mock signer, and mock transaction-hash path have been removed.
-- All 45 Copy Trading unit tests pass.
+- All 43 Copy Trading unit tests pass.
 - App TypeScript, Copy Trading ESLint, Prettier for the changed implementation,
   Vite production build, and `git diff --check` pass.
 - Browser QA and positive live transaction E2E were not rerun for this contract

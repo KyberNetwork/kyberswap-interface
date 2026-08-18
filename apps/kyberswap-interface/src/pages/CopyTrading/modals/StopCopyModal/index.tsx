@@ -1,16 +1,18 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import copyRunApi from 'services/copyTrading/api/endpoints/copyRuns'
 import preparedActionApi from 'services/copyTrading/api/endpoints/preparedActions'
 import type { CopyRunSummary } from 'services/copyTrading/types/copyRuns'
 import type { PositionSummary } from 'services/copyTrading/types/positions'
 import type { PreparedCallKind } from 'services/copyTrading/types/preparedActions'
 
+import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { getPreparedReasonMessage, isActionAvailable } from 'pages/CopyTrading/helpers'
 import useRefreshCopyTrading from 'pages/CopyTrading/hooks/useRefreshCopyTrading'
-import PreparedActionModal from 'pages/CopyTrading/modals/PreparedActionModal'
+import PreparedActionModal, { PreparedActionSuccessActions } from 'pages/CopyTrading/modals/PreparedActionModal'
 import {
   DEFAULT_PREPARED_ACTION_STATE,
   getApiErrorMessage,
@@ -35,6 +37,7 @@ type StopCopyModalProps = {
 const STOP_COPY_CALL_KINDS: PreparedCallKind[] = ['PREPARED_CALL_KIND_STOP_COPY']
 
 const StopCopyModal = ({ isOpen, onDismiss, copyRun, agentName }: StopCopyModalProps) => {
+  const navigate = useNavigate()
   const { account, chainId } = useActiveWeb3React()
   const { changeNetwork } = useChangeNetwork()
   const toggleWalletModal = useWalletModalToggle()
@@ -90,6 +93,7 @@ const StopCopyModal = ({ isOpen, onDismiss, copyRun, agentName }: StopCopyModalP
     const positionId = getUserPositionId(position)
     return positionId ? selected[positionId] ?? index < MAX_STOP_POSITIONS : false
   }
+
   const selectedPositions = selectablePositions.filter(isSelected)
 
   const flow = usePreparedAction({
@@ -159,6 +163,11 @@ const StopCopyModal = ({ isOpen, onDismiss, copyRun, agentName }: StopCopyModalP
     void flow.prepare()
   }
 
+  const viewHistory = () => {
+    dismiss()
+    navigate(APP_PATHS.COPY_TRADING + '/history')
+  }
+
   const availabilityMessage = ownershipMessage
     ? ownershipMessage
     : !isActionAvailable(copyRun.stopCopyAvailability)
@@ -176,14 +185,20 @@ const StopCopyModal = ({ isOpen, onDismiss, copyRun, agentName }: StopCopyModalP
       : availabilityMessage
       ? 'Stop Copy unavailable'
       : 'Review Stop Copy'
+
   const primaryActionLoading = flowState.isPreparing || (positions === undefined && !positionsError)
   const reviewPreparing = flowState.phase === 'review' && flowState.isPreparing === true
+
   const review = (
     <StopCopyReview
       isLoading={reviewPreparing}
       preview={flowState.action?.stopCopy}
       totalPositionCount={selectablePositions.length}
     />
+  )
+
+  const successActions = (
+    <PreparedActionSuccessActions onClose={dismiss} onPrimaryAction={viewHistory} primaryLabel="View History" />
   )
 
   return (
@@ -200,6 +215,7 @@ const StopCopyModal = ({ isOpen, onDismiss, copyRun, agentName }: StopCopyModalP
       onRetry={() => void flow.retry()}
       successTitle="Copy stopped"
       successText="The transaction is confirmed on-chain. Copy Trading data will refresh in the background."
+      successActions={successActions}
       width={480}
     >
       <StopCopyForm

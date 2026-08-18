@@ -3,40 +3,36 @@ import { useMemo, useState } from 'react'
 
 import useTokenBalance from 'hooks/useTokenBalance'
 import {
-  formatPreparedAmount,
-  getInputQuoteToken,
-  parsePreparedAmount,
-} from 'pages/CopyTrading/modals/PreparedActionModal/preparedAction'
-import {
   CAPITAL_PERCENTAGES,
+  type CapitalAction,
   type CapitalPercentage,
   type CapitalPreset,
-  type StartCopyTarget,
-} from 'pages/CopyTrading/modals/StartCopyModal/startCopy'
+  getCapitalInputQuoteToken,
+} from 'pages/CopyTrading/modals/CapitalAmount/capital'
+import { formatPreparedAmount, parsePreparedAmount } from 'pages/CopyTrading/modals/PreparedActionModal/preparedAction'
 import { formatDisplayNumber } from 'utils/numbers'
 import { formatUnits } from 'utils/viem'
 
-export const useStartCopyAmount = ({
-  account,
-  agent,
-  chainId,
-}: {
+type UseCapitalAmountProps = {
   account?: string
-  agent: StartCopyTarget
-  chainId?: number
-}) => {
+  action: CapitalAction
+  connectedChainId?: number
+  targetChainId: number
+}
+
+export const useCapitalAmount = ({ account, action, connectedChainId, targetChainId }: UseCapitalAmountProps) => {
   const [amount, setAmount] = useState('')
 
-  const quoteToken = getInputQuoteToken(agent.chainId)
+  const quoteToken = getCapitalInputQuoteToken(targetChainId)
   const quoteCurrency = useMemo(
     () =>
       quoteToken
-        ? new Token(agent.chainId, quoteToken.address, quoteToken.decimals, quoteToken.symbol, quoteToken.symbol)
+        ? new Token(targetChainId, quoteToken.address, quoteToken.decimals, quoteToken.symbol, quoteToken.symbol)
         : undefined,
-    [agent.chainId, quoteToken],
+    [quoteToken, targetChainId],
   )
 
-  const walletBalance = useTokenBalance(quoteToken?.address || '', agent.chainId as ChainId)
+  const walletBalance = useTokenBalance(quoteToken?.address || '', targetChainId as ChainId)
   const walletBalanceRaw = account && quoteToken ? walletBalance.value.toString() : undefined
 
   const presetAmounts = useMemo<CapitalPreset[] | undefined>(() => {
@@ -48,7 +44,7 @@ export const useStartCopyAmount = ({
     }))
   }, [quoteToken, walletBalanceRaw])
 
-  const targetCapitalRaw = useMemo(() => {
+  const amountRaw = useMemo(() => {
     if (!quoteToken) return undefined
 
     try {
@@ -58,21 +54,20 @@ export const useStartCopyAmount = ({
     }
   }, [amount, quoteToken])
 
-  const amountBelowMinimum =
-    !!targetCapitalRaw && !!quoteToken && BigInt(targetCapitalRaw) < BigInt(quoteToken.minimumStartCopyCapitalRaw)
-  const insufficientBalance =
-    !!targetCapitalRaw && !!walletBalanceRaw && BigInt(targetCapitalRaw) > BigInt(walletBalanceRaw)
+  const minimumAmountRaw = quoteToken?.minimumAmountRaw[action]
+  const amountBelowMinimum = !!amountRaw && !!minimumAmountRaw && BigInt(amountRaw) < BigInt(minimumAmountRaw)
+  const insufficientBalance = !!amountRaw && !!walletBalanceRaw && BigInt(amountRaw) > BigInt(walletBalanceRaw)
   const amountError =
-    !amount || !quoteToken
+    !amount || !quoteToken || !minimumAmountRaw
       ? undefined
-      : !targetCapitalRaw || amountBelowMinimum
-      ? `Minimum amount is ${formatPreparedAmount(quoteToken.minimumStartCopyCapitalRaw, quoteToken)}.`
+      : !amountRaw || amountBelowMinimum
+      ? `Minimum amount is ${formatPreparedAmount(minimumAmountRaw, quoteToken)}.`
       : insufficientBalance
       ? `Insufficient ${quoteToken.symbol} balance.`
       : undefined
+  const amountIsValid = !!amountRaw && !amountBelowMinimum && !insufficientBalance
 
-  const amountIsValid = !!targetCapitalRaw && !amountBelowMinimum && !insufficientBalance
-  const onExpectedChain = chainId === agent.chainId
+  const onExpectedChain = connectedChainId === targetChainId
   const presetsEnabled = !!account && onExpectedChain && !!walletBalanceRaw && BigInt(walletBalanceRaw) > 0n
   const walletBalanceText =
     walletBalanceRaw && quoteToken
@@ -87,6 +82,7 @@ export const useStartCopyAmount = ({
     amount,
     amountError,
     amountIsValid,
+    amountRaw,
     getPreset,
     onExpectedChain,
     presetAmounts,
@@ -94,7 +90,6 @@ export const useStartCopyAmount = ({
     quoteCurrency,
     quoteToken,
     setAmount,
-    targetCapitalRaw,
     walletBalanceText,
   }
 }

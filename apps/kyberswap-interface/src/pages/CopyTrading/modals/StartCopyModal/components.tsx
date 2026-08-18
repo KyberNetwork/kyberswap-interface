@@ -1,4 +1,4 @@
-import { ChainId, Token } from '@kyberswap/ks-sdk-core'
+import { Token } from '@kyberswap/ks-sdk-core'
 import { Info } from 'react-feather'
 import type { PreparedToken, StartCopyPreview } from 'services/copyTrading/types/preparedActions'
 
@@ -6,27 +6,16 @@ import verifiedIcon from 'assets/images/copy-trading/verified.svg'
 import { ButtonPrimary } from 'components/Button'
 import Checkbox from 'components/CheckBox'
 import CopyHelper from 'components/Copy'
-import CurrencyInputPanel from 'components/CurrencyInputPanel'
 import Dots from 'components/Dots'
 import InfoHelper from 'components/InfoHelper'
 import { Center, HStack, Stack } from 'components/Stack'
 import { getAgentInitials } from 'pages/CopyTrading/helpers'
+import CapitalAmountInput from 'pages/CopyTrading/modals/CapitalAmount'
+import { type CapitalPercentage, type CapitalPreset } from 'pages/CopyTrading/modals/CapitalAmount/capital'
 import { ReviewRow, ReviewSection } from 'pages/CopyTrading/modals/PreparedActionModal'
-import {
-  formatPreparedAmount,
-  formatWadPercent,
-  getInputQuoteToken,
-} from 'pages/CopyTrading/modals/PreparedActionModal/preparedAction'
-import {
-  CAPITAL_PERCENTAGES,
-  type CapitalPercentage,
-  type CapitalPreset,
-  type StartCopyTarget,
-} from 'pages/CopyTrading/modals/StartCopyModal/startCopy'
+import { formatPreparedAmount, formatWadPercent } from 'pages/CopyTrading/modals/PreparedActionModal/preparedAction'
+import { type StartCopyTarget } from 'pages/CopyTrading/modals/StartCopyModal/startCopy'
 import { shortenAddress } from 'utils/address'
-import { cn } from 'utils/cn'
-
-type InputQuoteToken = NonNullable<ReturnType<typeof getInputQuoteToken>>
 
 const ReviewLabel = ({ label, tooltip }: { label: string; tooltip: string }) => (
   <span className="inline-flex items-center gap-1">
@@ -62,9 +51,10 @@ type StartCopyReviewProps = {
   agreed: boolean
   confirmBalanceError?: string
   isAuthorizing: boolean
+  isLoading: boolean
   onAgreementChange: (agreed: boolean) => void
   preparedToken?: PreparedToken
-  quoteToken?: InputQuoteToken
+  quoteToken?: PreparedToken
   startPreview?: StartCopyPreview
   targetCapitalRaw?: string
 }
@@ -73,6 +63,7 @@ export const StartCopyReview = ({
   agreed,
   confirmBalanceError,
   isAuthorizing,
+  isLoading,
   onAgreementChange,
   preparedToken,
   quoteToken,
@@ -90,27 +81,14 @@ export const StartCopyReview = ({
           )}
         />
         <ReviewRow
-          label={
-            <ReviewLabel
-              label="Minimum Capital"
-              tooltip="The minimum initial capital currently accepted by the Start Copy preparation."
-            />
-          }
-          value={formatPreparedAmount(
-            startPreview?.minimumInitialCapitalRaw || quoteToken?.minimumStartCopyCapitalRaw,
-            preparedToken || quoteToken,
-          )}
-        />
-        <ReviewRow
+          isLoading={isLoading && !startPreview}
           label={
             <ReviewLabel
               label="Upfront Fee"
               tooltip="The fee policy advertised by the latest preparation. It is checked again before every transaction stage."
             />
           }
-          value={
-            startPreview ? formatWadPercent(startPreview.feePolicy?.advertisedUpfrontFeeRateRaw) : <Dots>Checking</Dots>
-          }
+          value={formatWadPercent(startPreview?.feePolicy?.advertisedUpfrontFeeRateRaw)}
         />
       </ReviewSection>
 
@@ -175,52 +153,20 @@ export const StartCopyForm = ({
 }: StartCopyFormProps) => {
   return (
     <Stack className="gap-4">
-      <Stack className="gap-2">
-        <span className="text-sm font-medium text-text">Allocate Capital</span>
-        <CurrencyInputPanel
-          value={amount}
-          onUserInput={onAmountChange}
-          error={!!amountError}
-          currency={quoteCurrency}
-          customBalanceText={walletBalanceText}
-          customChainId={agent.chainId as ChainId}
-          disableCurrencySelect
-          disabledInput={isPreparing}
-          id="copy-trading-start-capital"
-          dataTestId="copy-trading-start-capital"
-          onBalanceClick={() => onPercentageChange(100)}
-          balanceActions={
-            <HStack className="items-center gap-1">
-              {CAPITAL_PERCENTAGES.map(percentage => {
-                const preset = presetAmounts?.find(item => item.percentage === percentage)
-                const selected = !!preset && amount === preset.amount
-
-                return (
-                  <button
-                    key={percentage}
-                    type="button"
-                    disabled={isPreparing || !presetsEnabled}
-                    onClick={() => onPercentageChange(percentage)}
-                    className={cn(
-                      'rounded-full bg-subText-20 px-2 py-0.5 text-xs font-medium text-subText hover:text-text',
-                      selected && 'bg-background text-text',
-                      'disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:text-subText',
-                    )}
-                  >
-                    {percentage}%
-                  </button>
-                )
-              })}
-            </HStack>
-          }
-          positionMax="top"
-        />
-        {amountError && (
-          <span role="alert" className="px-1 text-xs text-red">
-            {amountError}
-          </span>
-        )}
-      </Stack>
+      <CapitalAmountInput
+        amount={amount}
+        amountError={amountError}
+        inputId="copy-trading-start-capital"
+        isPreparing={isPreparing}
+        label="Allocate Capital"
+        onAmountChange={onAmountChange}
+        onPercentageChange={onPercentageChange}
+        presetAmounts={presetAmounts}
+        presetsEnabled={presetsEnabled}
+        quoteCurrency={quoteCurrency}
+        selectedChainId={agent.chainId}
+        walletBalanceText={walletBalanceText}
+      />
 
       <p className="text-sm leading-5 text-text">
         You will follow new trades from this moment. Your P&amp;L may differ from the agent&apos;s stats until open

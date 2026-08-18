@@ -5,7 +5,6 @@ import { Stack } from 'components/Stack'
 import CursorPagination, { type CursorPaginationState } from 'pages/CopyTrading/components/CursorPagination'
 import { HeaderCell, TableBody, TableCell, TableHeader, TableRow } from 'pages/CopyTrading/components/Table'
 import { CopyRunAgentCell } from 'pages/CopyTrading/components/common/agentIdentity'
-import { CopyRunStatusBadge } from 'pages/CopyTrading/components/common/status'
 import { copyTradingStatIconMap } from 'pages/CopyTrading/constants'
 import {
   formatCount,
@@ -27,7 +26,7 @@ const ClosedSubscriptionsGrid = ({ header, className, ...props }: ClosedSubscrip
   return (
     <Grid
       className={cn(
-        'min-w-[1360px] grid-cols-[minmax(0,2.4fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1.15fr)_minmax(0,1.15fr)_minmax(0,1.2fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,0.8fr)]',
+        'min-w-[1200px] grid-cols-[minmax(0,2.4fr)_minmax(0,1fr)_minmax(0,1.5fr)_minmax(0,1.15fr)_minmax(0,1.15fr)_minmax(0,1.2fr)_minmax(0,1fr)_minmax(0,1fr)]',
         className,
       )}
       {...props}
@@ -49,18 +48,16 @@ const ClosedSubscriptionsTable = ({ loading, onOpenSubscription, pagination, row
         <ClosedSubscriptionsGrid header className="sticky top-0 z-[1]">
           <HeaderCell>Agent</HeaderCell>
           <HeaderCell className="justify-end text-right">Closed Trades</HeaderCell>
-          <HeaderCell className="justify-end text-right">Started</HeaderCell>
-          <HeaderCell className="justify-end text-right">Stopped</HeaderCell>
+          <HeaderCell className="justify-end text-right">Started &amp; Stopped Time</HeaderCell>
           <HeaderCell className="justify-end text-right">Capital In</HeaderCell>
-          <HeaderCell className="justify-end text-right">Capital Out</HeaderCell>
+          <HeaderCell className="justify-end text-right">Current Balance</HeaderCell>
           <HeaderCell className="justify-end text-right">Realised P&amp;L</HeaderCell>
           <HeaderCell className="justify-end text-right">Fees Paid</HeaderCell>
           <HeaderCell className="justify-end text-right">Rebates</HeaderCell>
-          <HeaderCell>Status</HeaderCell>
         </ClosedSubscriptionsGrid>
 
         <TableBody
-          className="min-w-[1360px]"
+          className="min-w-[1200px]"
           empty={!rows.length}
           emptyIconUrl={copyTradingStatIconMap.positionClose.iconUrl}
           emptyMessage={pagination.error ? 'Unable to load copy history' : 'No closed copies found'}
@@ -85,10 +82,12 @@ const ClosedSubscriptionsTable = ({ loading, onOpenSubscription, pagination, row
                 <TableCell className="text-right">
                   {formatCount(subscription.closedPositionCount ?? subscription.openPositionCount)}
                 </TableCell>
-                <TableCell className="text-right text-subText">{formatDateTime(subscription.startedAt)}</TableCell>
-                <TableCell className="text-right text-subText">{formatDateTime(subscription.stoppedAt)}</TableCell>
+                <TableCell className="flex flex-col text-right text-subText">
+                  <span>{formatDateTime(subscription.startedAt)}</span>
+                  <span>{formatDateTime(subscription.stoppedAt)}</span>
+                </TableCell>
                 <TableCell className="text-right">{formatUsd(getDisplayCapitalInUsd(subscription))}</TableCell>
-                <TableCell className="text-right">{formatUsd(subscription.capitalOutUsd)}</TableCell>
+                <TableCell className="text-right">{formatUsd(subscription.portfolioValueUsd)}</TableCell>
                 <TableCell
                   className={cn('whitespace-nowrap text-right', getSignedMetricClassName(subscription.realizedPnlUsd))}
                 >
@@ -96,9 +95,6 @@ const ClosedSubscriptionsTable = ({ loading, onOpenSubscription, pagination, row
                 </TableCell>
                 <TableCell className="text-right">{formatUsd(subscription.flatFeesCapturedUsd)}</TableCell>
                 <TableCell className="text-right">{formatUsd(subscription.cashbackReceivedUsd)}</TableCell>
-                <TableCell>
-                  <CopyRunStatusBadge status={subscription.status} />
-                </TableCell>
               </ClosedSubscriptionsGrid>
             )
           })}

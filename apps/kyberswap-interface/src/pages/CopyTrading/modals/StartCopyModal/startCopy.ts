@@ -7,15 +7,6 @@ import { wait } from 'pages/CopyTrading/modals/PreparedActionModal/preparedActio
 
 export type StartCopyTarget = AgentCard | AgentProfile
 
-export const CAPITAL_PERCENTAGES = [25, 50, 75, 100] as const
-
-export type CapitalPercentage = (typeof CAPITAL_PERCENTAGES)[number]
-
-export type CapitalPreset = {
-  amount: string
-  percentage: CapitalPercentage
-}
-
 const START_COPY_POLL_INTERVAL_MS = 2_000
 const START_COPY_POLL_TIMEOUT_MS = 20_000
 const START_COPY_POLL_ATTEMPTS = START_COPY_POLL_TIMEOUT_MS / START_COPY_POLL_INTERVAL_MS + 1
