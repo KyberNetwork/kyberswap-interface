@@ -2,25 +2,18 @@ import type { PositionSummary } from 'services/copyTrading/types/positions'
 import type { StopCopyPreview } from 'services/copyTrading/types/preparedActions'
 
 import { ButtonWarning } from 'components/Button'
-import CollapsiblePresetControl, { type CollapsiblePresetControlOption } from 'components/CollapsiblePresetControl'
 import Dots from 'components/Dots'
 import Loader from 'components/Loader'
 import ScrollableWithSignal from 'components/ScrollableWithSignal'
 import { Center, HStack, Stack } from 'components/Stack'
-import { DEFAULT_SLIPPAGES } from 'constants/trade'
 import { ShortenedId } from 'pages/CopyTrading/components/common/layout'
 import { formatApproximateUsd, formatUsd, getSignedMetricClassName, signedUsd } from 'pages/CopyTrading/helpers'
 import { ReviewRow, ReviewSection } from 'pages/CopyTrading/modals/PreparedActionModal'
-import { formatPreparedAmount, formatSlippage } from 'pages/CopyTrading/modals/PreparedActionModal/preparedAction'
+import PreparedActionSlippageControl from 'pages/CopyTrading/modals/PreparedActionModal/SlippageControl'
+import { formatPreparedAmount } from 'pages/CopyTrading/modals/PreparedActionModal/preparedAction'
 import { MAX_STOP_POSITIONS, getUserPositionId } from 'pages/CopyTrading/modals/StopCopyModal/positions'
 import { cn } from 'utils/cn'
 
-const SLIPPAGE_OPTIONS: CollapsiblePresetControlOption[] = DEFAULT_SLIPPAGES.map(value => ({
-  label: formatSlippage(value),
-  value: value / 100,
-}))
-const formatStopCopySlippage = (value: number) => formatSlippage(value * 100)
-const isStopCopySlippageAllowed = (value: number) => value >= 0 && value <= 100
 const withMetricFallback = (value: string) => (value === '—' ? 'N/A' : value)
 
 export const StopCopyReview = ({
@@ -43,13 +36,18 @@ export const StopCopyReview = ({
       />
       <ReviewRow
         isLoading={showSkeleton}
-        label="Current value"
+        label="Estimated position value"
         value={formatUsd(preview?.totalCurrentValueUsd?.value)}
       />
       <ReviewRow
         isLoading={showSkeleton}
         label="Estimated cashback"
         value={withMetricFallback(formatPreparedAmount(preview?.totalCashback, preview?.quoteToken))}
+      />
+      <ReviewRow
+        isLoading={showSkeleton}
+        label="Expected received"
+        value={withMetricFallback(formatPreparedAmount(preview?.totalSwapQuote?.expectedQuote, preview?.quoteToken))}
       />
       <ReviewRow
         isLoading={showSkeleton}
@@ -163,20 +161,7 @@ export const StopCopyForm = ({
         </span>
       )}
 
-      <CollapsiblePresetControl
-        collapseButtonAriaLabel="Toggle slippage tolerance options"
-        customInputAriaLabel="Custom slippage tolerance"
-        customSuffix="%"
-        disabled={isPreparing}
-        formatValue={formatStopCopySlippage}
-        isValueAllowed={isStopCopySlippageAllowed}
-        label="Slippage tolerance"
-        maxFractionDigits={2}
-        maxIntegerDigits={3}
-        onChange={onSlippageChange}
-        options={SLIPPAGE_OPTIONS}
-        value={slippage}
-      />
+      <PreparedActionSlippageControl disabled={isPreparing} onChange={onSlippageChange} value={slippage} />
 
       <ButtonWarning
         type="button"

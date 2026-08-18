@@ -116,7 +116,7 @@ const CollapsiblePresetControl = ({
   }
 
   return (
-    <Stack className={cn('gap-2', className)}>
+    <Stack className={className}>
       <div className="flex items-center justify-between gap-3">
         <span className="text-sm text-subText">{label}</span>
         <button
@@ -144,7 +144,7 @@ const CollapsiblePresetControl = ({
         )}
       >
         <div className="min-h-0 overflow-hidden">
-          <Stack className="gap-2">
+          <Stack className="gap-2 pt-2">
             <div className="flex items-stretch rounded-[20px] border border-border bg-background" role="group">
               {options.map(option => {
                 const active = !isCustom && option.value === currentValue

@@ -74,7 +74,7 @@ export const StartCopyReview = ({
     <Stack className="gap-4">
       <ReviewSection title="Review Details">
         <ReviewRow
-          label="Allocated Capital"
+          label="Allocated capital"
           value={formatPreparedAmount(
             startPreview?.requestedTargetRaw || targetCapitalRaw,
             preparedToken || quoteToken,
@@ -84,7 +84,7 @@ export const StartCopyReview = ({
           isLoading={isLoading && !startPreview}
           label={
             <ReviewLabel
-              label="Upfront Fee"
+              label="Upfront fee"
               tooltip="The fee policy advertised by the latest preparation. It is checked again before every transaction stage."
             />
           }
