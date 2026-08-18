@@ -1,6 +1,4 @@
-import { ButtonLight, ButtonPrimary } from 'components/Button'
-import { HStack } from 'components/Stack'
-import PreparedActionModal from 'pages/CopyTrading/modals/PreparedActionModal'
+import PreparedActionModal, { PreparedActionSuccessActions } from 'pages/CopyTrading/modals/PreparedActionModal'
 import { AgentHeader, StartCopyForm, StartCopyReview } from 'pages/CopyTrading/modals/StartCopyModal/components'
 import type { StartCopyTarget } from 'pages/CopyTrading/modals/StartCopyModal/startCopy'
 import { useStartCopyFlow } from 'pages/CopyTrading/modals/StartCopyModal/useStartCopyFlow'
@@ -14,28 +12,24 @@ type StartCopyModalProps = {
 const StartCopyModal = ({ isOpen, onDismiss, agent }: StartCopyModalProps) => {
   const flow = useStartCopyFlow({ agent, onDismiss })
 
+  const reviewPreparing = flow.flowState.phase === 'review' && flow.flowState.isPreparing === true
+
   const review = (
     <StartCopyReview
       agreed={flow.agreed}
       confirmBalanceError={flow.confirmBalanceError}
       isAuthorizing={flow.isAuthorizing}
+      isLoading={reviewPreparing}
       onAgreementChange={flow.setAgreed}
       preparedToken={flow.startPreview?.quoteToken}
       quoteToken={flow.capital.quoteToken}
       startPreview={flow.startPreview}
-      targetCapitalRaw={flow.capital.targetCapitalRaw}
+      targetCapitalRaw={flow.capital.amountRaw}
     />
   )
 
   const successActions = flow.createdCopyRun ? (
-    <HStack className="w-full gap-3">
-      <ButtonLight type="button" className="flex-1" onClick={flow.dismiss}>
-        Close
-      </ButtonLight>
-      <ButtonPrimary type="button" className="flex-1" onClick={flow.viewCreatedCopy}>
-        My Copy
-      </ButtonPrimary>
-    </HStack>
+    <PreparedActionSuccessActions onClose={flow.dismiss} onPrimaryAction={flow.viewMyCopies} primaryLabel="My Copies" />
   ) : undefined
 
   return (
@@ -45,7 +39,9 @@ const StartCopyModal = ({ isOpen, onDismiss, agent }: StartCopyModalProps) => {
       state={flow.flowState}
       title={<AgentHeader agent={agent} />}
       review={review}
-      confirmLabel={flow.authorizationRequired ? flow.authorizationLabel : 'Start Copying'}
+      confirmLabel={
+        reviewPreparing ? 'Preparing' : flow.authorizationRequired ? flow.authorizationLabel : 'Start Copying'
+      }
       confirmLoading={flow.isAuthorizing}
       confirmDisabled={!flow.agreed || !!flow.confirmBalanceError}
       onBack={flow.flowState.hash ? undefined : flow.editAmount}
