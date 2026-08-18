@@ -170,7 +170,6 @@ const AddCapitalModal = ({ isOpen, onDismiss, copyRun, agentName }: AddCapitalMo
       }}
       onRetry={() => void flow.retry()}
       successTitle="Capital added"
-      successText="The transaction is confirmed on-chain. Copy Trading data will refresh in the background."
       successActions={successActions}
       width={520}
     >

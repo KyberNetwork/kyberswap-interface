@@ -1,14 +1,14 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { useCallback, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import copyAccountApi from 'services/copyTrading/api/endpoints/copyAccounts'
 import preparedActionApi from 'services/copyTrading/api/endpoints/preparedActions'
 import type { PositionActionKind, PositionSummary } from 'services/copyTrading/types/positions'
 import type { PreparedCallKind } from 'services/copyTrading/types/preparedActions'
 
+import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
-import { ShortenedId } from 'pages/CopyTrading/components/common/layout'
-import { useCopyTradingContext } from 'pages/CopyTrading/context'
 import useRefreshCopyTrading from 'pages/CopyTrading/hooks/useRefreshCopyTrading'
 import { ManagePositionForm, ManagePositionReview } from 'pages/CopyTrading/modals/ManagePositionModal/components'
 import {
@@ -17,7 +17,8 @@ import {
   loadCurrentCopyAccountPosition,
   loadPendingSellObligations,
 } from 'pages/CopyTrading/modals/ManagePositionModal/positionData'
-import PreparedActionModal from 'pages/CopyTrading/modals/PreparedActionModal'
+import PreparedActionModal, { PreparedActionSuccessActions } from 'pages/CopyTrading/modals/PreparedActionModal'
+import { DEFAULT_PREPARED_ACTION_SLIPPAGE } from 'pages/CopyTrading/modals/PreparedActionModal/SlippageControl'
 import { DEFAULT_PREPARED_ACTION_STATE } from 'pages/CopyTrading/modals/PreparedActionModal/preparedAction'
 import { usePreparedAction } from 'pages/CopyTrading/modals/PreparedActionModal/usePreparedAction'
 import { useWalletModalToggle } from 'state/application/hooks'
@@ -35,8 +36,8 @@ const MANUAL_SELL_CALL_KINDS: PreparedCallKind[] = ['PREPARED_CALL_KIND_MANUAL_S
 const CLOSE_POSITION_CALL_KINDS: PreparedCallKind[] = ['PREPARED_CALL_KIND_CLOSE_POSITION']
 
 const ManagePositionModal = ({ isOpen, onDismiss, position, mode }: ManagePositionModalProps) => {
+  const navigate = useNavigate()
   const { account, chainId } = useActiveWeb3React()
-  const { ownerAddress } = useCopyTradingContext()
   const { changeNetwork } = useChangeNetwork()
   const toggleWalletModal = useWalletModalToggle()
   const refreshCopyTrading = useRefreshCopyTrading()
@@ -46,9 +47,10 @@ const ManagePositionModal = ({ isOpen, onDismiss, position, mode }: ManagePositi
   const [getObligations] = copyAccountApi.useLazyGetPendingSellObligationsQuery()
 
   const [flowState, setFlowState] = useState(DEFAULT_PREPARED_ACTION_STATE)
-  const [slippage, setSlippage] = useState(0.5)
+  const [slippage, setSlippage] = useState(DEFAULT_PREPARED_ACTION_SLIPPAGE)
 
   const isClose = mode === 'close'
+  const actionLabel = isClose ? 'Close Position' : 'Manual Sell'
   const requiredAction: PositionActionKind = isClose
     ? 'POSITION_ACTION_KIND_CLOSE_POSITION'
     : 'POSITION_ACTION_KIND_MANUAL_SELL'
@@ -89,28 +91,25 @@ const ManagePositionModal = ({ isOpen, onDismiss, position, mode }: ManagePositi
       preview: isClose ? 'closePosition' : 'manualSell',
     },
     prepare: async () => {
-      if (!account || !ownerAddress || !copyRunId || !copyAccount || !userPositionId) {
+      if (!account || !copyRunId || !copyAccount || !userPositionId) {
         throw new Error('The selected position is missing write-flow identity fields.')
-      }
-      if (ownerAddress.toLowerCase() !== account.toLowerCase()) {
-        throw new Error('The selected position is not owned by the connected wallet.')
       }
 
       const [currentPosition, currentObligations] = await Promise.all([
         fetchCurrentPosition(),
         isClose ? Promise.resolve([]) : fetchObligations(),
       ])
-      if (
-        currentPosition.copyRunId !== copyRunId ||
-        currentPosition.copyAccount?.toLowerCase() !== copyAccount.toLowerCase()
-      ) {
+      if (currentPosition.copyRunId !== copyRunId || currentPosition.copyAccount !== copyAccount) {
         throw new Error('The refreshed position does not match the selected Copy Run.')
+      }
+      if (!hasPositionAction(currentPosition, requiredAction)) {
+        throw new Error('The refreshed position no longer supports ' + actionLabel + '.')
       }
 
       const slippageBps = Math.round(slippage * 100)
       if (isClose) {
         const response = await prepareClosePosition({
-          ownerAddress,
+          ownerAddress: account,
           copyRunId,
           userPositionId,
           slippageBps,
@@ -131,7 +130,7 @@ const ManagePositionModal = ({ isOpen, onDismiss, position, mode }: ManagePositi
       }
 
       const response = await prepareManualSell({
-        ownerAddress,
+        ownerAddress: account,
         copyRunId,
         userPositionId,
         slippageBps,
@@ -158,7 +157,7 @@ const ManagePositionModal = ({ isOpen, onDismiss, position, mode }: ManagePositi
 
   const dismiss = () => {
     flow.reset()
-    setSlippage(0.5)
+    setSlippage(DEFAULT_PREPARED_ACTION_SLIPPAGE)
     onDismiss()
   }
 
@@ -175,7 +174,11 @@ const ManagePositionModal = ({ isOpen, onDismiss, position, mode }: ManagePositi
     void flow.prepare()
   }
 
-  const actionLabel = isClose ? 'Close Position' : 'Manual Sell'
+  const viewMyCopies = () => {
+    dismiss()
+    navigate(APP_PATHS.COPY_TRADING + '/my-copies')
+  }
+
   const unavailableMessage = !actionAdvertised
     ? 'The selected position does not advertise ' + actionLabel + '.'
     : undefined
@@ -187,6 +190,15 @@ const ManagePositionModal = ({ isOpen, onDismiss, position, mode }: ManagePositi
     ? actionLabel + ' unavailable'
     : 'Review ' + actionLabel
   const preview = isClose ? flowState.action?.closePosition : flowState.action?.manualSell
+  const reviewPreparing = flowState.phase === 'review' && flowState.isPreparing === true
+
+  const review = (
+    <ManagePositionReview isClose={isClose} isLoading={reviewPreparing} position={position} preview={preview} />
+  )
+
+  const successActions = (
+    <PreparedActionSuccessActions onClose={dismiss} onPrimaryAction={viewMyCopies} primaryLabel="My Copies" />
+  )
 
   return (
     <PreparedActionModal
@@ -194,18 +206,15 @@ const ManagePositionModal = ({ isOpen, onDismiss, position, mode }: ManagePositi
       onDismiss={dismiss}
       state={flowState}
       title={actionLabel}
-      review={<ManagePositionReview isClose={isClose} position={position} preview={preview} />}
-      confirmLabel={isClose ? 'Close Position' : 'Execute Manual Sell'}
+      review={review}
+      confirmLabel={reviewPreparing ? 'Preparing' : actionLabel}
       confirmVariant={isClose ? 'error' : 'warning'}
       onBack={flow.reset}
       onConfirm={() => void flow.confirm()}
       onRetry={() => void flow.retry()}
-      successTitle={isClose ? 'Position closed' : 'Manual sell submitted'}
-      successText={
-        <>
-          {position.token.symbol || 'Token'} · Trade <ShortenedId value={position.tradeId} />
-        </>
-      }
+      successTitle={isClose ? 'Position closed' : 'Manual sell completed'}
+      successActions={successActions}
+      width={520}
     >
       <ManagePositionForm
         actionColor={isClose ? 'var(--ks-red)' : 'var(--ks-warning)'}

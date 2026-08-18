@@ -90,14 +90,42 @@ const isProcessing = (state: PreparedActionFlowState) =>
 
 const getProcessingCopy = (state: PreparedActionFlowState) => {
   if (state.phase === 'awaiting_signature') {
-    return { title: 'Confirm in your wallet', text: 'Review and approve the exact prepared transaction.' }
+    return {
+      title: 'Confirm in your wallet',
+      text: 'Review and confirm this transaction in your wallet to continue.',
+    }
   }
   if (state.phase === 'confirming') {
-    return { title: 'Transaction submitted', text: 'Waiting for an on-chain confirmation.' }
+    return { title: 'Transaction submitted', text: 'Your transaction is waiting for on-chain confirmation.' }
   }
   return {
-    title: 'Updating Copy Trading',
-    text: 'Your transaction is confirmed. We’re refreshing the latest data.',
+    title: 'Transaction confirmed',
+    text: 'Updating your latest Copy Trading data.',
+  }
+}
+
+type RecoveryViewModel = {
+  retryLabel: string
+  showBackAction: boolean
+  title?: string
+}
+
+const getRecoveryViewModel = (state: PreparedActionFlowState): RecoveryViewModel | undefined => {
+  switch (state.phase) {
+    case 'pending':
+      return { retryLabel: 'Try again', showBackAction: false, title: 'Update in progress' }
+    case 'unavailable':
+      return { retryLabel: 'Try again', showBackAction: false, title: 'Action unavailable' }
+    case 'expired':
+      return { retryLabel: 'Try again', showBackAction: true, title: 'Review expired' }
+    case 'error':
+      return { retryLabel: 'Try again', showBackAction: true }
+    case 'sync_error':
+      return state.retryStage === 'receipt'
+        ? { retryLabel: 'Check confirmation', showBackAction: false, title: 'Transaction submitted' }
+        : { retryLabel: 'Refresh status', showBackAction: false, title: 'Transaction confirmed' }
+    default:
+      return undefined
   }
 }
 
@@ -115,7 +143,7 @@ const PreparedActionModal = ({
   review,
   state,
   successActions,
-  successText,
+  successText = 'The transaction is confirmed on-chain. Copy Trading data will refresh in the background.',
   successTitle = 'Action completed',
   title,
   width = 460,
@@ -126,36 +154,15 @@ const PreparedActionModal = ({
   const scanLink = state.hash && chainId ? getEtherscanLink(chainId, state.hash, 'transaction') : undefined
   const processing = isProcessing(state)
   const processingCopy = getProcessingCopy(state)
-  const isRecoverable = ['pending', 'unavailable', 'expired', 'error', 'sync_error'].includes(state.phase)
+  const recovery = getRecoveryViewModel(state)
   const reviewPreparing = state.phase === 'review' && state.isPreparing === true
   const interactionLocked = confirmLoading || reviewPreparing
-  const receiptConfirmationPending = state.phase === 'sync_error' && state.retryStage === 'receipt'
   const recoveryError = state.error ? friendlyError(state.error) : undefined
   const hasErrorDetail = state.phase === 'error' && !!state.error && recoveryError !== state.error
   const showErrorDetail = hasErrorDetail && expandedError === state.error
-  const recoveryTitle =
-    state.phase === 'sync_error'
-      ? receiptConfirmationPending
-        ? 'Transaction submitted'
-        : 'Transaction confirmed'
-      : state.phase === 'pending'
-      ? 'State update pending'
-      : state.phase === 'unavailable'
-      ? 'Action unavailable'
-      : state.phase === 'expired'
-      ? 'Preparation expired'
-      : undefined
-  const retryLabel = receiptConfirmationPending
-    ? 'Check confirmation'
-    : state.phase === 'sync_error'
-    ? 'Refresh status'
-    : 'Try again'
-  const showBackRecoveryAction = state.phase === 'expired' || state.phase === 'error'
-  const RecoveryBackButton = showBackRecoveryAction ? ButtonOutlined : ButtonLight
-  const RecoveryRetryButton = showBackRecoveryAction ? ButtonLight : ButtonPrimary
+  const RecoveryBackButton = recovery?.showBackAction ? ButtonOutlined : ButtonLight
+  const RecoveryRetryButton = recovery?.showBackAction ? ButtonLight : ButtonPrimary
   const ConfirmButton = confirmVariant === 'primary' ? ButtonPrimary : ButtonLight
-  const confirmColor =
-    confirmVariant === 'error' ? 'var(--ks-red)' : confirmVariant === 'warning' ? 'var(--ks-warning)' : undefined
 
   return (
     <Modal
@@ -204,7 +211,13 @@ const PreparedActionModal = ({
                 <ConfirmButton
                   type="button"
                   className="flex-1"
-                  color={confirmColor}
+                  color={
+                    confirmVariant === 'error'
+                      ? 'var(--ks-red)'
+                      : confirmVariant === 'warning'
+                      ? 'var(--ks-warning)'
+                      : undefined
+                  }
                   disabled={interactionLocked || confirmDisabled}
                   onClick={onConfirm}
                 >
@@ -249,7 +262,7 @@ const PreparedActionModal = ({
             </Stack>
           )}
 
-          {isRecoverable && (
+          {recovery && (
             <Stack className="items-center gap-4 text-center">
               {state.phase === 'pending' ? (
                 <Clock size={44} className="text-warning" />
@@ -299,7 +312,7 @@ const PreparedActionModal = ({
                   </>
                 ) : (
                   <>
-                    <span className="text-base font-medium text-text">{recoveryTitle}</span>
+                    <span className="text-base font-medium text-text">{recovery.title}</span>
                     {recoveryError && <span className="max-w-[360px] text-sm text-subText">{recoveryError}</span>}
                   </>
                 )}
@@ -313,17 +326,17 @@ const PreparedActionModal = ({
                 <RecoveryBackButton
                   type="button"
                   className="flex-1"
-                  onClick={showBackRecoveryAction && onBack ? onBack : onDismiss}
+                  onClick={recovery.showBackAction && onBack ? onBack : onDismiss}
                 >
-                  {showBackRecoveryAction ? 'Back' : 'Close'}
+                  {recovery.showBackAction ? 'Back' : 'Close'}
                 </RecoveryBackButton>
                 <RecoveryRetryButton type="button" className="flex-1" disabled={state.isPreparing} onClick={onRetry}>
                   {state.isPreparing ? (
-                    <Dots>{retryLabel}</Dots>
+                    <Dots>{recovery.retryLabel}</Dots>
                   ) : (
                     <HStack className="items-center justify-center gap-2">
                       <RotateCw size={15} />
-                      {retryLabel}
+                      {recovery.retryLabel}
                     </HStack>
                   )}
                 </RecoveryRetryButton>
