@@ -10,19 +10,16 @@ import { useActiveWeb3React } from 'hooks'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { getPreparedReasonMessage, isActionAvailable } from 'pages/CopyTrading/helpers'
 import useRefreshCopyTrading from 'pages/CopyTrading/hooks/useRefreshCopyTrading'
+import { type CapitalPercentage } from 'pages/CopyTrading/modals/CapitalAmount/capital'
+import { useCapitalAmount } from 'pages/CopyTrading/modals/CapitalAmount/useCapitalAmount'
 import {
   DEFAULT_PREPARED_ACTION_STATE,
   getApiErrorMessage,
   validatePreparedAction,
 } from 'pages/CopyTrading/modals/PreparedActionModal/preparedAction'
 import { usePreparedAction } from 'pages/CopyTrading/modals/PreparedActionModal/usePreparedAction'
-import {
-  type CapitalPercentage,
-  type StartCopyTarget,
-  pollStartCopyRun,
-} from 'pages/CopyTrading/modals/StartCopyModal/startCopy'
+import { type StartCopyTarget, pollStartCopyRun } from 'pages/CopyTrading/modals/StartCopyModal/startCopy'
 import { useStartCopyAuthorization } from 'pages/CopyTrading/modals/StartCopyModal/useAuthorization'
-import { useStartCopyAmount } from 'pages/CopyTrading/modals/StartCopyModal/useStartCopyAmount'
 import {
   requiresStartCopyAuthorization,
   useStartCopyAttempt,
@@ -44,16 +41,17 @@ export const useStartCopyFlow = ({ agent, onDismiss }: { agent: StartCopyTarget;
   const [createdCopyRun, setCreatedCopyRun] = useState<CopyRunSummary>()
   const [isAuthorizing, setIsAuthorizing] = useState(false)
 
-  const capital = useStartCopyAmount({
+  const capital = useCapitalAmount({
     account: account || undefined,
-    agent,
-    chainId,
+    action: 'startCopy',
+    connectedChainId: chainId,
+    targetChainId: agent.chainId,
   })
   const attempt = useStartCopyAttempt({
     account: account || undefined,
     agent,
     prepareStartCopy,
-    targetCapitalRaw: capital.targetCapitalRaw,
+    targetCapitalRaw: capital.amountRaw,
   })
 
   const flow = usePreparedAction({
@@ -62,11 +60,11 @@ export const useStartCopyFlow = ({ agent, onDismiss }: { agent: StartCopyTarget;
     expected: attempt.expected,
     prepare: async () => {
       if (!account || !capital.quoteToken) throw new Error('Connect a supported wallet and network first.')
-      if (!capital.targetCapitalRaw) throw new Error('Enter an amount greater than zero.')
+      if (!capital.amountRaw) throw new Error('Enter an amount greater than zero.')
       if (capital.amountError) throw new Error(capital.amountError)
 
-      const scopedAttempt = attempt.getScopedStartAttempt(account, capital.targetCapitalRaw)
-      const response = await attempt.requestStartCopy(scopedAttempt, account, capital.targetCapitalRaw)
+      const scopedAttempt = attempt.getScopedStartAttempt(account, capital.amountRaw)
+      const response = await attempt.requestStartCopy(scopedAttempt, account, capital.amountRaw)
       const action = response.data
 
       if (
@@ -76,7 +74,7 @@ export const useStartCopyFlow = ({ agent, onDismiss }: { agent: StartCopyTarget;
           'PREPARED_ACTION_STATUS_COMPLETED',
           'PREPARED_ACTION_STATUS_PENDING',
         ].includes(action.status || '') &&
-        action.startCopy?.requestedTargetRaw !== capital.targetCapitalRaw
+        action.startCopy?.requestedTargetRaw !== capital.amountRaw
       ) {
         throw new Error('The prepared target does not match your requested capital amount.')
       }
@@ -115,8 +113,9 @@ export const useStartCopyFlow = ({ agent, onDismiss }: { agent: StartCopyTarget;
   const authorizationKind = requiresStartCopyAuthorization(flowState.action)
     ? getAuthorizationKind(flowState.action)
     : undefined
+
   const preparedWalletBalanceRaw = startPreview?.walletQuoteBalance?.valueRaw
-  const requiredWalletBalanceRaw = startPreview?.remainingTargetDeficit?.valueRaw || capital.targetCapitalRaw
+  const requiredWalletBalanceRaw = startPreview?.remainingTargetDeficit?.valueRaw || capital.amountRaw
   const preparedBalanceIsInsufficient =
     !!requiredWalletBalanceRaw &&
     !!preparedWalletBalanceRaw &&
@@ -183,7 +182,7 @@ export const useStartCopyFlow = ({ agent, onDismiss }: { agent: StartCopyTarget;
       return
     }
 
-    if (!account || !capital.quoteToken || !capital.targetCapitalRaw) {
+    if (!account || !capital.quoteToken || !capital.amountRaw) {
       setFlowState({
         phase: 'error',
         action: diagnosticAction,
@@ -201,12 +200,12 @@ export const useStartCopyFlow = ({ agent, onDismiss }: { agent: StartCopyTarget;
       const authorizedAttempt = attempt.createAuthorizedAttempt({
         createPermitData,
         ownerAddress: account,
-        targetRaw: capital.targetCapitalRaw,
+        targetRaw: capital.amountRaw,
       })
-      const response = await attempt.requestStartCopy(authorizedAttempt, account, capital.targetCapitalRaw)
+      const response = await attempt.requestStartCopy(authorizedAttempt, account, capital.amountRaw)
       const action = response.data
 
-      if (action.startCopy?.requestedTargetRaw !== capital.targetCapitalRaw) {
+      if (action.startCopy?.requestedTargetRaw !== capital.amountRaw) {
         throw new Error('The prepared target does not match your requested capital amount.')
       }
       if (action.status !== 'PREPARED_ACTION_STATUS_READY') {
@@ -249,11 +248,9 @@ export const useStartCopyFlow = ({ agent, onDismiss }: { agent: StartCopyTarget;
     void flow.retry()
   }
 
-  const viewCreatedCopy = () => {
-    if (!createdCopyRun) return
-
+  const viewMyCopies = () => {
     dismiss()
-    navigate(APP_PATHS.COPY_TRADING + '/my-copies/' + createdCopyRun.copyRunId)
+    navigate(APP_PATHS.COPY_TRADING + '/my-copies')
   }
 
   return {
@@ -276,6 +273,6 @@ export const useStartCopyFlow = ({ agent, onDismiss }: { agent: StartCopyTarget;
     setAgreed,
     setPercentageAmount,
     startPreview,
-    viewCreatedCopy,
+    viewMyCopies,
   }
 }

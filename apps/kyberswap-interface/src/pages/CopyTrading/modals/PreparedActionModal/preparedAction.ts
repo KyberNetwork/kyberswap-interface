@@ -58,25 +58,6 @@ export type PreparedActionExpectation = {
   startCopyTargetRaw?: string
 }
 
-// The write contract currently supports Base USDC. The preparation response is
-// still authoritative for the token identity, balance, minimum and previews.
-// This metadata converts the first decimal input and applies the published
-// minimum before the preparation request.
-type InputQuoteToken = Required<Pick<PreparedToken, 'address' | 'decimals' | 'symbol'>> & {
-  minimumStartCopyCapitalRaw: string
-}
-
-const inputQuoteTokens: Record<number, InputQuoteToken> = {
-  8453: {
-    address: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
-    decimals: 6,
-    minimumStartCopyCapitalRaw: '1000000',
-    symbol: 'USDC',
-  },
-}
-
-export const getInputQuoteToken = (chainId: number) => inputQuoteTokens[chainId]
-
 export const getApiErrorMessage = (error: unknown) => {
   if (error instanceof Error) return error.message
   if (!error || typeof error !== 'object') return 'The request could not be completed.'
