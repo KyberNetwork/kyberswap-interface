@@ -36,6 +36,10 @@ describe('Copy Trading metric formatters', () => {
     expect(percent('0')).not.toBe('N/A')
   })
 
+  it('keeps a negative USD sign with its value when wrapping', () => {
+    expect(formatUsd('-10')).toMatch(/^-\u2060/)
+  })
+
   it('uses semantic colors only for signed metrics with a direction', () => {
     expect(getSignedMetricClassName('12.5')).toBe('text-primary')
     expect(getSignedMetricClassName('-0.1')).toBe('text-red')

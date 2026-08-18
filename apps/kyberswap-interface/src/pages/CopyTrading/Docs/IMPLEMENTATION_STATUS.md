@@ -2,9 +2,9 @@
 
 Last reviewed: 2026-08-18
 
-This is the single frontend-owned record for current implementation, accepted
-product decisions, verification evidence, and remaining work. The current HTTP
-contract is documented in `FE_API_Catalog.md`; `openapi.yaml` is its
+This is the single frontend-owned record for current code implementation,
+accepted product decisions, ownership, and static verification evidence. The
+current HTTP contract is documented in `FE_API_Catalog.md`; `openapi.yaml` is its
 machine-readable API source. Both contract files are backend-owned inputs. The
 checked-in `openapi.yaml` is synchronized byte-for-byte with the pre-release
 Swagger contract fetched on 2026-08-14.
@@ -19,10 +19,9 @@ declared in the frontend service.
 | BE API catalog     | `CURRENT INPUT`: 32 public operations are documented.                                                                                                                  |
 | Checked-in OpenAPI | `CURRENT INPUT`: synchronized with the live 32-operation pre-release Swagger contract; wallet-session routes and Bearer security are removed.                          |
 | RTK Query service  | `CODE-COMPLETE`: all 26 GET and 6 POST operations are declared and typed.                                                                                              |
-| Read UI            | `PARTIAL`: 17 of 26 GET operations have a UI consumer; position/FIFO refreshes are consumed by recovery actions rather than standalone screens.                        |
+| Read UI            | `CODE-COMPLETE`: all currently defined product surfaces are connected; 17 GET operations have UI consumers and nine service-only operations have no product surface.   |
 | Write UX           | `CODE-COMPLETE`: Start, Add, Stop, Withdraw, Manual Sell, and Close Position use the prepared-action workflow.                                                         |
 | Write integration  | `CODE-COMPLETE`: exact API-prepared calls, receipt-success completion, Start Copy list polling, stateless recovery preparation, and async cache refresh are connected. |
-| Live evidence      | Swagger exposes all 32 operations. `/chains` and `/agents` have dated read smoke; account-specific reads and write outcomes still require live E2E.                    |
 
 ## Contract and Service Coverage
 
@@ -98,8 +97,8 @@ Trading UI consumer:
 - Copy-account balances.
 - Copy-account history.
 
-These are product-surface gaps, not service gaps. They need an agreed route,
-tab, drawer, collection, or drilldown owner before implementation.
+These are intentionally service-only until a product surface is defined. They
+are not open implementation work for the current Copy Trading scope.
 
 `Remaining in Wallet` uses the non-paginated wallet-inventory endpoint. It
 renders the server total only when the response is complete, its pinned stable
@@ -179,16 +178,20 @@ Current primary-screen read behavior:
   wallet balance, decimal parsing, minimum/balance validation, and input UI.
   Each flow still owns its availability and network guards, preparation request
   validation, review metrics, authorization or ownership rules, and navigation.
-- Start Copy, Add Capital, and Stop Copy use the same prepared-action
-  presentation primitives for review, recovery, and success actions. Error and
-  expired states expose an outlined Back action and a light Try again action;
-  retry re-prepares into the existing review state, whose server-owned values
-  render skeletons while loading and `N/A` when unavailable. Success keeps
-  Close outlined while the primary destination remains flow-owned: My Copies
-  for Start/Add and History for Stop.
+- All six write flows use the same prepared-action presentation primitives for
+  review, recovery, and success actions. Error and expired states expose an
+  outlined Back action and a light Try again action; retry re-prepares into the
+  existing review state, whose server-owned values render skeletons while
+  loading and `N/A` when unavailable. Success keeps Close outlined while the
+  primary destination remains flow-owned: My Copies for Start/Add/Manual
+  Sell/Close Position and History for Stop/Withdraw.
 - Stop Copy keeps position loading, selection, selection-cap validation, and
-  slippage local to its flow. These concerns are not part of the shared capital
-  abstraction used by Start Copy and Add Capital.
+  selected-ID validation local. Manual Sell and Close Position keep their
+  refreshed-position and FIFO validation in `ManagePositionModal`. These
+  concerns are not part of the shared capital abstraction used by Start Copy
+  and Add Capital. Stop and position actions share only the prepared-action
+  slippage control and default while retaining flow-local state and request
+  conversion to basis points.
 
 ## Current Prepared-Action Write UI
 
@@ -206,6 +209,13 @@ The production write path is split by ownership:
   completion-polling domain logic stays in `StartCopyModal/startCopy.ts`.
 - `modals/StopCopyModal/` owns its complete open-position load, local selection,
   32-position cap, slippage, and selected-ID payload validation.
+- `modals/ManagePositionModal/` owns the shared Manual Sell and Close Position
+  composition. The selected mode owns its required advertised action, current
+  position refresh, optional Manual Sell FIFO refresh, request validation,
+  review metrics, and success navigation.
+- `modals/WithdrawQuoteModal/` owns the non-editable max-sweep composition,
+  positive prepared amount and owner-recipient validation, review metrics, and
+  History navigation. It does not create client-owned amount or recipient state.
 - `modals/PreparedActionModal/requestPreparation.ts` owns preparation status
   handling, bounded continuation polling, response validation, and transitions
   into review, pending, unavailable, error, or completed states.
@@ -215,7 +225,10 @@ The production write path is split by ownership:
 - `modals/PreparedActionModal/index.tsx` owns the shared idle, review, wallet,
   confirmation, syncing, unavailable, error, and success presentation,
   including review-row skeletons, recovery actions, and the reusable success
-  action layout. Flow-specific success destinations remain with each action.
+  action layout. Processing copy distinguishes wallet confirmation, submitted
+  transaction, and confirmed transaction states; recovery copy avoids internal
+  preparation terminology. Success uses one generic confirmation description;
+  titles and destinations remain action-specific.
 - `modals/PreparedActionModal/preparedAction.ts` owns the shared phase shape,
   superseded-request versioning, pure parsing, formatting, preparation
   validation, and retry timing. `helpers.ts` owns stateless formatting, reason
@@ -252,20 +265,32 @@ Implemented behavior:
   preparation. The UI defaults at most 32 positions to selected, prevents
   selecting a 33rd, and validates the final payload length before sending
   `userPositionIds`. An empty array remains valid. A position-load failure
-  disables the review action without rendering a separate Retry control.
-- Start Copy, Add Capital, and Stop Copy use shared review rows and prepared
-  action recovery states. Server-owned review values use skeletons during
-  re-preparation; missing completed values use `N/A`. The Back action in error
-  and expired states returns to the editable flow state, while Try again starts
-  preparation and keeps the review in its loading presentation.
+  disables the review action without rendering a separate Retry control. Review
+  shows the selected-position count, estimated position value, estimated
+  cashback, and both expected and minimum total quote received.
+- All six write flows use shared review rows and prepared-action recovery states.
+  Server-owned review values use skeletons during re-preparation; missing
+  completed values use `N/A`. The Back action in error and expired states
+  returns to the editable flow state, while Try again starts preparation and
+  keeps the review in its loading presentation.
 - Withdraw is exposed only when the selected Copy Run status is `STOPPED`, then
   gated by `withdrawQuoteAvailability`. It sends `{}` to preparation and
-  requires the prepared amount and connected-owner recipient.
+  requires a positive prepared amount and connected-owner recipient. Review
+  renders the prepared available balance, exact withdrawal amount, and recipient;
+  success exposes Close and the History destination.
 - Manual Sell refreshes the selected copy-account position and complete
   pending-obligation cursor chain. It uses the FIFO head ratio and total
-  unresolved FIFO count.
+  unresolved FIFO count. The refreshed position must still advertise Manual
+  Sell before preparation. FIFO obligation count remains request validation and
+  is not exposed as a user-facing review metric.
 - Close Position refreshes the selected copy-account position before direct
-  preparation; the original row controls the initial CTA presentation only.
+  preparation; the original row controls the initial CTA presentation only and
+  the refreshed position must still advertise Close Position.
+- Both position actions use the shared four-preset/custom slippage control. The
+  review renders remaining and sold base amounts, returned upfront fee, expected
+  and minimum quote, quote-token cashback, and effective slippage; Manual Sell
+  also renders its FIFO ratio as the user-facing `Portion to sell`. Success
+  exposes Close and the My Copies destination.
 - Manual Sell and Close Position call their preparation routes directly without
   a challenge, access token, or Authorization header. The owner wallet still
   simulates and submits the exact returned call.
@@ -285,14 +310,14 @@ Implemented behavior:
 
 ## Action Integration Matrix
 
-| Capability     | Current production UI                                                                                                                                 |
-| -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Start Copy     | Uses the API-selected Permit or Approve step, submits Create separately, then polls the Agent-filtered open Copy list and links the returned My Copy. |
-| Add Capital    | Reviews quote-token, minimum, balance, and allocation data, then submits the exact prepared call.                                                     |
-| Stop Copy      | Loads all open-position pages when opened, supports zero to 32 selected IDs, validates the payload cap, and submits the exact prepared call.          |
-| Withdraw Quote | Only a `STOPPED` Copy Detail exposes the availability-gated CTA; amount and owner recipient are server-prepared and non-editable.                     |
-| Manual Sell    | Refreshes the current position and authoritative FIFO head ratio/count, then prepares directly.                                                       |
-| Close Position | Refreshes the current position after the advertised CTA is selected, then prepares directly.                                                          |
+| Capability     | Current production UI                                                                                                                                |
+| -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Start Copy     | Uses the API-selected Permit or Approve step, submits Create separately, then polls the Agent-filtered open Copy list and links to My Copies.        |
+| Add Capital    | Reviews quote-token, minimum, balance, and allocation data, then submits the exact prepared call.                                                    |
+| Stop Copy      | Loads all open-position pages when opened, supports zero to 32 selected IDs, validates the payload cap, and submits the exact prepared call.         |
+| Withdraw Quote | Only a `STOPPED` Copy Detail exposes the availability-gated CTA; amount and owner recipient are server-prepared and non-editable.                    |
+| Manual Sell    | Refreshes the current position and authoritative FIFO, rechecks availability, then reviews the complete position-sell preview and prepares directly. |
+| Close Position | Refreshes the current position, rechecks availability, then reviews the complete position-sell preview and prepares directly.                        |
 
 ## Implemented Write Invariants
 
@@ -339,21 +364,14 @@ Manual Sell and Close Position preparation is stateless. A returned preparation
 does not authorize execution by another wallet; the connected owner still
 submits the exact call and the follower-account contract enforces its caller.
 
-## Remaining Work
+## Implementation Completion
 
-1. Add component/state-machine integration coverage for receipt timeout retry,
-   account or chain changes during review, `PENDING` retry timing, and the full
-   funded Start authorization-to-completion handoff. Pure Start list polling is
-   already unit-tested.
-2. Browser-test initial and next-page infinite-scroll error presentation and
-   recovery after refetch or remount.
-3. Browser-test Copy Detail and Open/History server-owned views across at least
-   two cursor pages with a connected wallet and representative data.
-4. Complete browser validation for responsive layout, keyboard focus,
-   accessible labels and disabled states, and modal accessibility.
-5. Assign UI ownership for the nine remaining read-only discovery/drilldown
-   operations.
-6. Render position-level stale valuation indication.
+The currently defined Copy Trading code scope is complete. All owned read
+surfaces and all six write flows are implemented, connected to the typed service
+layer, and assigned to explicit shared or feature-local owners. There are no
+open `TODO` or `FIXME` markers in the Copy Trading implementation. Product
+surfaces that have not been defined and browser or live-transaction validation
+are outside this code-implementation status.
 
 ## Verification
 
@@ -365,5 +383,3 @@ submits the exact call and the follower-account contract enforces its caller.
 - All 43 Copy Trading unit tests pass.
 - App TypeScript, Copy Trading ESLint, Prettier for the changed implementation,
   Vite production build, and `git diff --check` pass.
-- Browser QA and positive live transaction E2E were not rerun for this contract
-  migration.

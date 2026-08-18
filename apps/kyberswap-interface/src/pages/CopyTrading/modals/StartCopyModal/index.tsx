@@ -48,7 +48,6 @@ const StartCopyModal = ({ isOpen, onDismiss, agent }: StartCopyModalProps) => {
       onConfirm={() => void flow.confirmStartCopy()}
       onRetry={flow.retry}
       successTitle={"You're now copying " + agent.displayName}
-      successText="The transaction is confirmed and your new Copy is ready."
       successActions={successActions}
       width={520}
     >

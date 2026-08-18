@@ -29,12 +29,14 @@ export const formatUsd = (value?: DecimalString) => {
 
   const absoluteAmount = Math.abs(amount)
   const fractionDigits = absoluteAmount > 0 && absoluteAmount < 1 ? 6 : 2
-  return formatDisplayNumber(amount, {
+  const formattedValue = formatDisplayNumber(amount, {
     allowDisplayNegative: true,
     fractionDigits,
     significantDigits: 15,
     style: 'currency',
   })
+
+  return formattedValue.replace(/^-/, '-\u2060')
 }
 
 export const getDisplayCapitalInUsd = (run: Pick<CopyRunSummary, 'capitalInUsd' | 'observedCapitalInUsd'>) =>

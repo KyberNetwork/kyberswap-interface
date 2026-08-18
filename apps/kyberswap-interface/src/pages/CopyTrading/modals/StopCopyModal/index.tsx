@@ -13,6 +13,7 @@ import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { getPreparedReasonMessage, isActionAvailable } from 'pages/CopyTrading/helpers'
 import useRefreshCopyTrading from 'pages/CopyTrading/hooks/useRefreshCopyTrading'
 import PreparedActionModal, { PreparedActionSuccessActions } from 'pages/CopyTrading/modals/PreparedActionModal'
+import { DEFAULT_PREPARED_ACTION_SLIPPAGE } from 'pages/CopyTrading/modals/PreparedActionModal/SlippageControl'
 import {
   DEFAULT_PREPARED_ACTION_STATE,
   getApiErrorMessage,
@@ -49,7 +50,7 @@ const StopCopyModal = ({ isOpen, onDismiss, copyRun, agentName }: StopCopyModalP
   const [positions, setPositions] = useState<PositionSummary[]>()
   const [positionsError, setPositionsError] = useState<string>()
   const [selected, setSelected] = useState<Record<string, boolean>>({})
-  const [slippage, setSlippage] = useState(0.5)
+  const [slippage, setSlippage] = useState(DEFAULT_PREPARED_ACTION_SLIPPAGE)
   const positionsRequestId = useRef(0)
 
   const onExpectedChain = chainId === copyRun.chainId
@@ -146,7 +147,7 @@ const StopCopyModal = ({ isOpen, onDismiss, copyRun, agentName }: StopCopyModalP
   const dismiss = () => {
     flow.reset()
     setSelected({})
-    setSlippage(0.5)
+    setSlippage(DEFAULT_PREPARED_ACTION_SLIPPAGE)
     onDismiss()
   }
 
@@ -214,7 +215,6 @@ const StopCopyModal = ({ isOpen, onDismiss, copyRun, agentName }: StopCopyModalP
       onConfirm={() => void flow.confirm()}
       onRetry={() => void flow.retry()}
       successTitle="Copy stopped"
-      successText="The transaction is confirmed on-chain. Copy Trading data will refresh in the background."
       successActions={successActions}
       width={480}
     >
