@@ -309,11 +309,12 @@ const call = async <TData>(config: AxiosRequestConfig): Promise<SuccessResponse<
   return data
 }
 
-const getQuote = (data: QuoteRequest): Promise<QuoteResponse> =>
+const getQuote = (data: QuoteRequest, signal?: AbortSignal): Promise<QuoteResponse> =>
   call<QuoteResponseData>({
     method: 'POST',
     url: '/api/v1/quotes',
     data,
+    signal,
   })
 
 const build = (data: RoutePlan): Promise<BuildResponse> =>

@@ -65,7 +65,7 @@ export class KyberCrossAdapter extends BaseSwapAdapter {
     return []
   }
 
-  async getQuote(params: QuoteParams): Promise<NormalizedQuote> {
+  async getQuote(params: QuoteParams, signal?: AbortSignal): Promise<NormalizedQuote> {
     const request: QuoteRequest = {
       from_chain: getKyberCrossChainName(params.fromChain),
       from_token: getKyberCrossTokenAddress(params.fromToken as Currency),
@@ -87,7 +87,7 @@ export class KyberCrossAdapter extends BaseSwapAdapter {
       request.partner_fee_recipient = CROSS_CHAIN_FEE_RECEIVER as Address
     }
 
-    const quoteResponse = await kyberCrossApi.getQuote(request)
+    const quoteResponse = await kyberCrossApi.getQuote(request, signal)
     const routePlan = quoteResponse.data.route_plans[0]
 
     if (!routePlan) {

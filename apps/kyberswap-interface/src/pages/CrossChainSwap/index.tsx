@@ -203,6 +203,7 @@ const CrossChainSwapForm = ({ onQuoteChange }: CrossChainSwapProps) => {
           <RefreshLoading
             refetchLoading={allLoading}
             clickable
+            refreshTime={60}
             disableRefresh={disable || showPreview}
             refreshOnMount={false}
             onRefresh={handleRefresh}
