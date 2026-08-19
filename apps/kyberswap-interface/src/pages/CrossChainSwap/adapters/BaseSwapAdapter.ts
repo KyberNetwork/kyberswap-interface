@@ -40,7 +40,7 @@ export abstract class BaseSwapAdapter implements SwapProvider {
   /**
    * @deprecated Use the aggregator stream API for cross-chain quotes. Retained for same-chain KyberSwap quotes.
    */
-  abstract getQuote(params: QuoteParams): Promise<NormalizedQuote>
+  abstract getQuote(params: QuoteParams, signal?: AbortSignal): Promise<NormalizedQuote>
   abstract executeSwap(
     params: Quote,
     walletClient: WalletClient,
