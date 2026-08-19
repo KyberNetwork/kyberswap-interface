@@ -82,6 +82,7 @@ import {
   useUserAddedTokens,
   useUserFavoriteTokens,
 } from 'state/user/hooks'
+import { useNativeBalance, useTokenBalances } from 'state/wallet/hooks'
 import { CloseIcon, MEDIA_WIDTHS } from 'theme'
 import { isAddress } from 'utils/address'
 import { filterTruthy } from 'utils/array'
@@ -128,6 +129,8 @@ const SearchLoading = () => (
 
 // Stable empty list so `useTokensMetrics` doesn't refetch on tabs that don't need metrics.
 const EMPTY_CURRENCIES: Currency[] = []
+// Stable empty list so the tabs that show no balance column register no balanceOf multicall.
+const EMPTY_TOKENS: Token[] = []
 // Stable empty address list so `useTokenPrices` doesn't fetch on tabs that don't need it.
 const EMPTY_ADDRESSES: string[] = []
 // Stable empty extras so the All tab's `listExtras` keeps the same reference and doesn't re-render
@@ -352,17 +355,8 @@ export const TokenSelectorContent = ({
 
   const defaultTokens = useAllTokens(false, primaryChainId)
   const tokenImports = useUserAddedTokens(primaryChainId)
-  // Only the All (default order) and Imported tabs sort by wallet value; gate the comparator so the
-  // rest never register its whole-whitelist balanceOf multicall + /prices fetch.
-  const needsComparator = (isAllTab && !debouncedQuery) || isImportedTab
   // On the All tab, favorites float above non-favorites (but only after wallet value / balance).
   const favoriteAddressSet = useMemo(() => new Set(favoriteTokens ?? []), [favoriteTokens])
-  const tokenComparator = useTokenComparator(
-    false,
-    primaryChainId,
-    needsComparator,
-    isAllTab ? favoriteAddressSet : undefined,
-  )
 
   const {
     tokens: trendingTokens,
@@ -435,6 +429,52 @@ export const TokenSelectorContent = ({
     isFetchingTokenSearch,
     hasTokenSearchResults: !!tokenSearchResults.length,
   })
+
+  // One balanceOf multicall for the whole modal: the sort-by-wallet-value comparator and the list's
+  // balance column need the same tokens, and registering them apart doubles the RPC traffic. The set
+  // comes from each tab's *unsorted* source so it stays put while the rows re-sort on top of it, and
+  // it covers only the rows a tab actually shows — the Trending / New tabs render a metric column
+  // instead of a balance, so they read nothing.
+  const balanceTokens = useMemo<Token[]>(() => {
+    if (isTrendingTab || isNewTab) return EMPTY_TOKENS
+    const source: (Currency | undefined)[] = isImportedTab
+      ? tokenImports
+      : isFavoritesTab
+      ? pinnedTokens
+      : debouncedQuery
+      ? [...tokenSearchResults, currentChainRpcToken]
+      : Object.values(defaultTokens)
+    // Native balance comes from `getEthBalance`, not an ERC20 read; off-chain rows (a cross-chain
+    // search hit) have no balance to show here either.
+    return source.filter(
+      (token): token is Token => !!token && !isTokenNative(token) && token.chainId === primaryChainId,
+    )
+  }, [
+    isTrendingTab,
+    isNewTab,
+    isImportedTab,
+    isFavoritesTab,
+    debouncedQuery,
+    tokenImports,
+    pinnedTokens,
+    tokenSearchResults,
+    currentChainRpcToken,
+    defaultTokens,
+    primaryChainId,
+  ])
+  const balances = useTokenBalances(balanceTokens, primaryChainId)
+  const nativeBalance = useNativeBalance(primaryChainId)
+
+  // Only the All (default order) and Imported tabs sort by wallet value; gate the comparator so the
+  // rest never register its /prices fetch.
+  const needsComparator = (isAllTab && !debouncedQuery) || isImportedTab
+  const tokenComparator = useTokenComparator(
+    balances,
+    nativeBalance,
+    primaryChainId,
+    needsComparator,
+    isAllTab ? favoriteAddressSet : undefined,
+  )
 
   // All-tab dataset: API search results (with RPC fallback) when searching, else the sorted default
   // tokens. Only computed for the All tab — the other tabs never read it, so skip the whole-whitelist
@@ -1099,6 +1139,8 @@ export const TokenSelectorContent = ({
               loadMoreRows={handleLoadMore}
               hasMore={listHasMore}
               customChainId={primaryChainId}
+              balances={balances}
+              nativeBalance={nativeBalance}
               extras={listExtras}
               showAddress={isAllTab}
               showCopyAddress={!isAllTab}

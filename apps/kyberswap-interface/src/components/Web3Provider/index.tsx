@@ -385,15 +385,25 @@ const wagmiChains: readonly [Chain, ...Chain[]] = [
   withKyberRpc(rise),
 ] as const
 
+// JSON-RPC batching for the primary (KyberSwap) endpoint. viem sends one `eth_call` per multicall
+// chunk, so a sweep like the token selector's whole-whitelist `balanceOf` spans many calls that would
+// otherwise queue against the browser's per-host connection budget; batching folds them into a single
+// POST. Only the primary opts in — the public fallbacks are third-party endpoints whose batch support
+// we can't vouch for, and `batch.multicall.batchSize` keeps their call count in check on its own.
+const PRIMARY_HTTP_CONFIG = { batch: { batchSize: 50 } } as const
+
 // viem `fallback()` rotates through URLs on transport errors (network, 429, 5xx),
 // giving us true client-side RPC rotation for every wagmi-issued call (multicall,
 // useReadContract, polling). KyberSwap RPC sits first; public endpoints are tried
 // only when it errors. Connector-internal calls still use URL[0] of `rpcUrls.default`
 // (set by `withKyberRpc` above), which is the same KyberSwap RPC.
+
 const transports = Object.fromEntries(
   wagmiChains.map(c => {
+    const primaryUrl = NETWORKS_INFO[c.id as ChainId]?.defaultRpcUrl
     const urls = getRpcUrlsForChain(c.id)
-    const httpTransports = urls.length > 0 ? urls.map(url => http(url)) : [http()]
+    const httpTransports =
+      urls.length > 0 ? urls.map(url => (url === primaryUrl ? http(url, PRIMARY_HTTP_CONFIG) : http(url))) : [http()]
     return [c.id, fallback(httpTransports, { retryCount: 1 })]
   }),
 ) as Record<(typeof wagmiChains)[number]['id'], ReturnType<typeof fallback>>
@@ -434,7 +444,11 @@ const readRecentConnectorId = (): string | undefined => {
 export const wagmiConfig = createConfig({
   chains: wagmiChains,
   transports,
-  batch: { multicall: true },
+  // Multicall chunking is measured in calldata *bytes*: at viem's 1024-byte default a 36-byte
+  // `balanceOf(address)` fits only 28 calls per `aggregate3`, so a several-hundred-token sweep spans a
+  // dozen-plus eth_calls. 4096 quadruples the calls per chunk while staying well inside node eth_call
+  // gas caps for the heavier reads that share this path (pool state, positions).
+  batch: { multicall: { batchSize: 4096 } },
   pollingInterval: 12_000,
   connectors: [
     metaMask({
