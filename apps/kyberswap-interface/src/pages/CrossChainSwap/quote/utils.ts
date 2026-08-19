@@ -73,11 +73,6 @@ export const isStableCurrency = (currency: Currency | undefined, chain: Chain | 
   return false
 }
 
-export const createTimeoutPromise = (ms: number) =>
-  new Promise<never>((_, reject) => {
-    setTimeout(() => reject(new Error('Timeout')), ms)
-  })
-
 const getNetOutputAmount = (quote: NormalizedQuote): bigint => {
   const { outputAmount, protocolFee, quoteParams } = quote
   const { tokenOutUsd, toToken } = quoteParams
