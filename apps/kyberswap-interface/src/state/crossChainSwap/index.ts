@@ -4,7 +4,7 @@ import { useCallback } from 'react'
 import type { NormalizedTxResponse, SwapStatus } from 'pages/CrossChainSwap/adapters/types'
 import { useAppDispatch, useAppSelector } from 'state/hooks'
 
-const MAX_CROSS_CHAIN_TRANSACTIONS = 30
+const MAX_CROSS_CHAIN_TRANSACTIONS = 120
 
 export interface CrossChainSwapState {
   transactions: NormalizedTxResponse[]
