@@ -150,7 +150,7 @@ export interface SwapProvider {
   getAliases?(): SwapProviderAlias[]
   getSupportedChains(): Chain[]
   getSupportedTokens(sourceChain: Chain, destChain: Chain): Currency[]
-  getQuote(params: QuoteParams): Promise<NormalizedQuote>
+  getQuote(params: QuoteParams, signal?: AbortSignal): Promise<NormalizedQuote>
   executeSwap(
     quote: Quote,
     walletClient: WalletClient,

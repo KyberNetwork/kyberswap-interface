@@ -37,7 +37,7 @@ export abstract class BaseSwapAdapter implements SwapProvider {
   abstract getIcon(): string
   abstract getSupportedChains(): Chain[]
   abstract getSupportedTokens(sourceChain: Chain, destChain: Chain): Currency[]
-  abstract getQuote(params: QuoteParams): Promise<NormalizedQuote>
+  abstract getQuote(params: QuoteParams, signal?: AbortSignal): Promise<NormalizedQuote>
   abstract executeSwap(
     params: Quote,
     walletClient: WalletClient,

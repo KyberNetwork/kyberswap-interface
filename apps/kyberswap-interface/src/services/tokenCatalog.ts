@@ -169,8 +169,13 @@ export const fetchTokenPrices = async (
 }
 
 /** Fetch the category (stable/common/exotic/high-volatility) of one or more tokens on a chain. */
-export const fetchTokenCategories = async ({ chainId, tokens }: TokenCategoryParams): Promise<TokenCategoryItem[]> => {
-  const res = await fetch(`${TOKEN_API_URL}/v1/public/category/token?tokens=${tokens}&chainId=${chainId}`)
+export const fetchTokenCategories = async (
+  { chainId, tokens }: TokenCategoryParams,
+  options?: { signal?: AbortSignal },
+): Promise<TokenCategoryItem[]> => {
+  const res = await fetch(`${TOKEN_API_URL}/v1/public/category/token?tokens=${tokens}&chainId=${chainId}`, {
+    signal: options?.signal,
+  })
   const json = await res.json()
   return json?.data ?? []
 }
