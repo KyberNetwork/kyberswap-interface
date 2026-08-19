@@ -352,6 +352,8 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
   const abortControllerRef = useRef(new AbortController())
   const requestIdRef = useRef(0)
 
+  useEffect(() => () => abortControllerRef.current.abort(), [])
+
   // Quote ownership follows the active account. The gated client can resolve
   // later (or fail independently) and is only required when executing.
   const evmWalletAddress = account
@@ -395,30 +397,31 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
     abortControllerRef.current = new AbortController()
     const { signal } = abortControllerRef.current
 
-    const pairInfo = await getPairInfo({
-      currencyIn,
-      currencyOut,
-      fromChainId,
-      toChainId,
-      checkSameAsset: params => checkSameAsset(params, true),
-      signal,
-    })
-    if (!pairInfo || signal.aborted) return
-
-    setCategory(pairInfo.category)
     setLoading(true)
     setAllLoading(true)
 
-    const adaptedWallet = adaptRelaySolanaWallet(
-      solanaAddress?.toString() || CROSS_CHAIN_FEE_RECEIVER_SOLANA,
-      792703809, // chain id that Relay uses to identify Solana
-      connection,
-      async (transaction, options) => ({
-        signature: await (connection.sendTransaction as any)(transaction, options),
-      }),
-    )
-
     try {
+      const pairInfo = await getPairInfo({
+        currencyIn,
+        currencyOut,
+        fromChainId,
+        toChainId,
+        checkSameAsset: params => checkSameAsset(params, true),
+        signal,
+      })
+      if (!pairInfo || signal.aborted) return
+
+      setCategory(pairInfo.category)
+
+      const adaptedWallet = adaptRelaySolanaWallet(
+        solanaAddress?.toString() || CROSS_CHAIN_FEE_RECEIVER_SOLANA,
+        792703809, // chain id that Relay uses to identify Solana
+        connection,
+        async (transaction, options) => ({
+          signature: await (connection.sendTransaction as any)(transaction, options),
+        }),
+      )
+
       await getQuotes({
         params: {
           feeBps: pairInfo.feeBps,
@@ -447,7 +450,7 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
         onQuoteReady: () => setLoading(false),
       })
     } catch (error) {
-      if ((error as Error).message !== 'Cancelled') {
+      if (!signal.aborted && (error as Error).message !== 'Cancelled') {
         console.error('Error getting quotes:', error)
         setQuotes([])
       }
