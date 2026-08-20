@@ -57,7 +57,7 @@ const AgentTable = ({ agents, loading, pagination, sortBy, sortOrder, onSortChan
   const { ownerAddress } = useCopyTradingContext()
   const { openStartCopy } = useCopyTradingModal()
 
-  const { data: activeCopyRuns } = copyRunApi.useGetCopyRunsQuery(
+  const { currentData: activeCopyRuns } = copyRunApi.useGetCopyRunsQuery(
     {
       ownerAddress: ownerAddress || '',
       view: 'open',
