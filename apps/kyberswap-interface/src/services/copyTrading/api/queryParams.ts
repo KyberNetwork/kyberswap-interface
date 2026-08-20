@@ -1,4 +1,5 @@
 import type {
+  CopyRunSortBy,
   LeaderboardSortBy,
   PerformanceInterval,
   PerformanceSeries,
@@ -7,7 +8,6 @@ import type {
   PositionStatusFilter,
   SortOrder,
 } from 'services/copyTrading/types/primitives'
-import type { CopyRunsQuery } from 'services/copyTrading/types/queries'
 
 type QueryParam = string | number | boolean
 type QueryParams = Record<string, QueryParam | undefined>
@@ -71,7 +71,7 @@ export const activityGroupMap = {
   skipped: 'ACTIVITY_GROUP_SKIPPED',
 }
 
-export const copyRunSortMap: Record<NonNullable<CopyRunsQuery['sortBy']>, string> = {
+export const copyRunSortMap: Record<CopyRunSortBy, string> = {
   started_at: 'OWNER_COPY_RUN_SORT_FIELD_STARTED_AT',
   stopped_at: 'OWNER_COPY_RUN_SORT_FIELD_STOPPED_AT',
   agent_apr_30d: 'OWNER_COPY_RUN_SORT_FIELD_AGENT_APR_30D',

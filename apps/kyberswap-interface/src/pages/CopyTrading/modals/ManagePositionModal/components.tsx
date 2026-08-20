@@ -1,7 +1,7 @@
 import type { PositionSummary } from 'services/copyTrading/types/positions'
 import type { PositionSellPreview } from 'services/copyTrading/types/preparedActions'
 
-import { ButtonLight } from 'components/Button'
+import { ButtonPrimary } from 'components/Button'
 import Dots from 'components/Dots'
 import { Stack } from 'components/Stack'
 import { ShortenedId } from 'pages/CopyTrading/components/common/layout'
@@ -90,7 +90,6 @@ export const ManagePositionReview = ({
 }
 
 type ManagePositionFormProps = {
-  actionColor: string
   isPreparing: boolean
   onPrimaryAction: () => void
   onSlippageChange: (slippage: number) => void
@@ -102,7 +101,6 @@ type ManagePositionFormProps = {
 }
 
 export const ManagePositionForm = ({
-  actionColor,
   isPreparing,
   onPrimaryAction,
   onSlippageChange,
@@ -124,15 +122,14 @@ export const ManagePositionForm = ({
 
       <PreparedActionSlippageControl disabled={isPreparing} onChange={onSlippageChange} value={slippage} />
 
-      <ButtonLight
+      <ButtonPrimary
         type="button"
-        color={actionColor}
         disabled={primaryActionDisabled}
         title={unavailableMessage}
         onClick={onPrimaryAction}
       >
         {isPreparing ? <Dots>{primaryActionLabel}</Dots> : primaryActionLabel}
-      </ButtonLight>
+      </ButtonPrimary>
     </Stack>
   )
 }

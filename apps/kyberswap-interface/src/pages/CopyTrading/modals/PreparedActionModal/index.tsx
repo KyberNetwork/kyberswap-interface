@@ -70,7 +70,6 @@ type PreparedActionModalProps = {
   confirmDisabled?: boolean
   confirmLabel: string
   confirmLoading?: boolean
-  confirmVariant?: 'error' | 'primary' | 'warning'
   isOpen: boolean
   onBack?: () => void
   onConfirm: () => void
@@ -134,7 +133,6 @@ const PreparedActionModal = ({
   confirmDisabled,
   confirmLabel,
   confirmLoading = false,
-  confirmVariant = 'primary',
   isOpen,
   onBack,
   onConfirm,
@@ -162,8 +160,6 @@ const PreparedActionModal = ({
   const showErrorDetail = hasErrorDetail && expandedError === state.error
   const RecoveryBackButton = recovery?.showBackAction ? ButtonOutlined : ButtonLight
   const RecoveryRetryButton = recovery?.showBackAction ? ButtonLight : ButtonPrimary
-  const ConfirmButton = confirmVariant === 'primary' ? ButtonPrimary : ButtonLight
-
   return (
     <Modal
       isOpen={isOpen}
@@ -208,21 +204,14 @@ const PreparedActionModal = ({
                     Back
                   </ButtonOutlined>
                 )}
-                <ConfirmButton
+                <ButtonPrimary
                   type="button"
                   className="flex-1"
-                  color={
-                    confirmVariant === 'error'
-                      ? 'var(--ks-red)'
-                      : confirmVariant === 'warning'
-                      ? 'var(--ks-warning)'
-                      : undefined
-                  }
                   disabled={interactionLocked || confirmDisabled}
                   onClick={onConfirm}
                 >
                   {interactionLocked ? <Dots>{confirmLabel}</Dots> : confirmLabel}
-                </ConfirmButton>
+                </ButtonPrimary>
               </HStack>
             </Stack>
           )}
