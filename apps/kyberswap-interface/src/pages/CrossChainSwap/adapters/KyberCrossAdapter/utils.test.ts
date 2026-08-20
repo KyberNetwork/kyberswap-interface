@@ -2,7 +2,11 @@ import { type Address, type Hash } from 'viem'
 import { describe, expect, it } from 'vitest'
 
 import type { TrackingExecution } from 'pages/CrossChainSwap/adapters/KyberCrossAdapter/api'
-import { mapRouteStateToSwapStatus } from 'pages/CrossChainSwap/adapters/KyberCrossAdapter/utils'
+import {
+  getKyberCrossBridgeProviders,
+  mapRouteStateToSwapStatus,
+  normalizeProvider,
+} from 'pages/CrossChainSwap/adapters/KyberCrossAdapter/utils'
 
 const ADDRESS = '0x1111111111111111111111111111111111111111' as Address
 const SOURCE_TX_HASH = `0x${'1'.repeat(64)}` as Hash
@@ -23,6 +27,13 @@ const createTrackingExecution = (overrides: Partial<TrackingExecution> = {}): Tr
   route_state: 'BRIDGE_PENDING',
   data: {},
   ...overrides,
+})
+
+describe('KyberCross bridge providers', () => {
+  it('normalizes and maps the CCIP source to the KyberCross provider id', () => {
+    expect(normalizeProvider('CCIP')).toBe('ccip')
+    expect(getKyberCrossBridgeProviders(['CCIP'])).toEqual(['ccip'])
+  })
 })
 
 describe('mapRouteStateToSwapStatus', () => {

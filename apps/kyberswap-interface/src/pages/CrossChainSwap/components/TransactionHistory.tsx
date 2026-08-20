@@ -23,6 +23,7 @@ import {
   type NormalizedTxResponse,
 } from 'pages/CrossChainSwap/adapters/types'
 import { TokenLogoWithChain } from 'pages/CrossChainSwap/components/TokenLogoWithChain'
+import { CrossChainSwapFactory } from 'pages/CrossChainSwap/factory'
 import { registry } from 'pages/CrossChainSwap/hooks/useCrossChainSwap'
 import {
   type TransactionStatus,
@@ -111,14 +112,15 @@ const TransactionTime = ({ tx }: { tx: NormalizedTxResponse }) => {
   const adapterAlias = adapter?.getAliases?.().find(alias => normalizeAdapterName(alias.name) === normalizedAdapterName)
   const adapterName = adapterAlias?.name || adapter?.getName() || tx.adapter
   const adapterIcon = adapterAlias?.icon || adapter?.getIcon()
-  const bridgeProvider = registry.getAdapter(tx.bridgeProvider)
+  const bridgeProvider =
+    CrossChainSwapFactory.getKyberCrossBridgeSource(tx.bridgeProvider) || registry.getAdapter(tx.bridgeProvider)
   const txDate = new Date(tx.timestamp)
   const senderLabel = tx.sender?.includes('.near') ? tx.sender : shortenHash(tx.sender)
 
   return (
     <div className="flex min-w-0 flex-col gap-2">
       <div className="flex items-center gap-2 whitespace-nowrap">
-        <div className="flex items-center gap-1">
+        <div className="flex min-w-fit items-center gap-1">
           <img
             src={adapterIcon || UnknownToken}
             className="size-4 rounded-full"
@@ -127,7 +129,7 @@ const TransactionTime = ({ tx }: { tx: NormalizedTxResponse }) => {
             alt={adapterName}
             title={adapterName}
           />
-          {bridgeProvider && (
+          {bridgeProvider?.getIcon && (
             <img src={bridgeProvider.getIcon()} className="size-4 rounded-full" alt={bridgeProvider.getName()} />
           )}
         </div>
