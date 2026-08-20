@@ -94,7 +94,9 @@ const ClosedSubscriptionsTable = ({ loading, onOpenSubscription, pagination, row
                   {signedUsd(subscription.realizedPnlUsd)}
                 </TableCell>
                 <TableCell className="text-right">{formatUsd(subscription.flatFeesCapturedUsd)}</TableCell>
-                <TableCell className="text-right">{formatUsd(subscription.cashbackReceivedUsd)}</TableCell>
+                <TableCell className={cn('text-right', Number(subscription.cashbackReceivedUsd) > 0 && 'text-blue')}>
+                  {formatUsd(subscription.cashbackReceivedUsd)}
+                </TableCell>
               </ClosedSubscriptionsGrid>
             )
           })}

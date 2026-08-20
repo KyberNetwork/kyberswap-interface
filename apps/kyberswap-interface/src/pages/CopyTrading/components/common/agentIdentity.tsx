@@ -8,10 +8,16 @@ import CopyHelper from 'components/Copy'
 import { Center, HStack, Stack } from 'components/Stack'
 import { CopyRunStatusBadge } from 'pages/CopyTrading/components/common/status'
 import { useCopyTradingContext } from 'pages/CopyTrading/context'
-import { getAgentDisplayName, getAgentInitials, strategyCategoryKey, strategyLabel } from 'pages/CopyTrading/helpers'
+import {
+  getAgentDisplayName,
+  getAgentInitials,
+  percent,
+  strategyCategoryKey,
+  strategyLabel,
+} from 'pages/CopyTrading/helpers'
 import { shortenAddress } from 'utils/address'
 import { cn } from 'utils/cn'
-import { formatDateTime } from 'utils/time'
+import { formatShortDate } from 'utils/time'
 
 type BadgeColor = 'magenta' | 'blue' | 'primary' | 'gray'
 
@@ -153,15 +159,15 @@ export const AgentIdentity = ({ agent, status }: { agent: AgentCard | AgentProfi
         {'flatFeeRatePct' in agent && agent.flatFeeRatePct && (
           <>
             <span>•</span>
-            <span>Flat fee:</span>
-            <span className="text-text">{agent.flatFeeRatePct}%</span>
+            <span>Fee:</span>
+            <span className="text-text">{percent(agent.flatFeeRatePct)}</span>
           </>
         )}
         {'liveSince' in agent && (
           <>
             <span>•</span>
             <span className="text-primary">Live since</span>
-            <span className="text-text">{formatDateTime(agent.liveSince)}</span>
+            <span className="text-text">{formatShortDate(agent.liveSince)}</span>
           </>
         )}
       </HStack>

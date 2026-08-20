@@ -44,7 +44,7 @@ export const CopyCapitalCard = ({
               <ButtonLight
                 type="button"
                 padding="10px 12px"
-                color="var(--ks-warning)"
+                color="var(--ks-red)"
                 disabled={stopCopyDisabled}
                 title={stopCopyDisabled ? getPreparedReasonMessage(stopCopyAvailability?.reason) : undefined}
                 onClick={onStopCopy}
@@ -91,14 +91,14 @@ export const WithdrawQuoteCard = ({
   return (
     <SidePanelCard title="Advanced">
       <span className="text-sm text-subText">Withdraw available quote balance without selling positions.</span>
-      <ButtonPrimary
+      <ButtonLight
         type="button"
         disabled={disabled}
         title={disabled ? getPreparedReasonMessage(availability?.reason) : undefined}
         onClick={onWithdraw}
       >
         Withdraw
-      </ButtonPrimary>
+      </ButtonLight>
     </SidePanelCard>
   )
 }

@@ -4,6 +4,7 @@ import type {
   AgentPositionStatusFilter,
   AgentStatsWindow,
   CopyAccountStatusFilter,
+  CopyRunSortBy,
   CopyRunView,
   LeaderboardSortBy,
   PerformanceInterval,
@@ -88,7 +89,7 @@ export type CopyRunsQuery = CursorQuery &
   OwnerQuery & {
     view: CopyRunView
     agentId?: string
-    sortBy?: 'started_at' | 'stopped_at' | 'agent_apr_30d' | 'agent_win_rate' | 'agent_volume' | 'capital_in'
+    sortBy?: CopyRunSortBy
     sortOrder?: SortOrder
   }
 

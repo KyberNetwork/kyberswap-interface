@@ -1,7 +1,7 @@
 import type { PositionSummary } from 'services/copyTrading/types/positions'
 import type { StopCopyPreview } from 'services/copyTrading/types/preparedActions'
 
-import { ButtonWarning } from 'components/Button'
+import { ButtonPrimary } from 'components/Button'
 import Dots from 'components/Dots'
 import Loader from 'components/Loader'
 import ScrollableWithSignal from 'components/ScrollableWithSignal'
@@ -163,14 +163,14 @@ export const StopCopyForm = ({
 
       <PreparedActionSlippageControl disabled={isPreparing} onChange={onSlippageChange} value={slippage} />
 
-      <ButtonWarning
+      <ButtonPrimary
         type="button"
         disabled={primaryActionDisabled}
         title={availabilityMessage}
         onClick={onPrimaryAction}
       >
         {primaryActionLoading ? <Dots>{primaryActionLabel}</Dots> : primaryActionLabel}
-      </ButtonWarning>
+      </ButtonPrimary>
     </Stack>
   )
 }
