@@ -1,7 +1,7 @@
 import React from 'react'
 
-import { SwapProvider } from 'pages/CrossChainSwap/adapters'
 import type { KyberCrossRawQuote } from 'pages/CrossChainSwap/adapters/KyberCrossAdapter/types'
+import { CrossChainSource, CrossChainSwapFactory } from 'pages/CrossChainSwap/factory'
 import { registry } from 'pages/CrossChainSwap/hooks/useCrossChainSwap'
 import { Quote } from 'pages/CrossChainSwap/registry'
 
@@ -13,13 +13,14 @@ const getKyberCrossBridgeProviderName = (quote: Quote): string | undefined => {
   return rawQuote?.data?.route_plans?.[0]?.bridge?.provider
 }
 
-const getQuoteProviders = (quote: Quote): SwapProvider[] => {
+const getQuoteProviders = (quote: Quote): CrossChainSource[] => {
   const adapter = quote.adapter
   const adapterName = adapter.getName().toLowerCase()
 
   if (adapterName === KYBER_CROSS_ADAPTER_NAME) {
     const bridgeProviderName = getKyberCrossBridgeProviderName(quote)
-    const bridgeProvider = registry.getAdapter(bridgeProviderName)
+    const bridgeProvider =
+      CrossChainSwapFactory.getKyberCrossBridgeSource(bridgeProviderName) || registry.getAdapter(bridgeProviderName)
 
     return bridgeProvider ? [adapter, bridgeProvider] : [adapter]
   }
@@ -35,7 +36,7 @@ export const QuoteProviderName = ({ quote }: { quote: Quote }) => {
       {providers.map((provider, index) => (
         <React.Fragment key={`${provider.getName()}-${index}`}>
           {index > 0 && <span className="mx-1">x</span>}
-          <img src={provider.getIcon()} alt={provider.getName()} width={14} height={14} />
+          {provider.getIcon && <img src={provider.getIcon()} alt={provider.getName()} width={14} height={14} />}
           <span className="ml-1">{provider.getName()}</span>
         </React.Fragment>
       ))}
