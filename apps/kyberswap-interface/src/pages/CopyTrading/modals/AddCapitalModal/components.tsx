@@ -1,61 +1,26 @@
 import { Token } from '@kyberswap/ks-sdk-core'
-import type { AddCapitalPreview } from 'services/copyTrading/types/preparedActions'
 
 import { ButtonPrimary } from 'components/Button'
 import Dots from 'components/Dots'
-import { Stack } from 'components/Stack'
+import { HStack, Stack } from 'components/Stack'
 import CapitalAmountInput from 'pages/CopyTrading/modals/CapitalAmount'
 import { type CapitalPercentage, type CapitalPreset } from 'pages/CopyTrading/modals/CapitalAmount/capital'
-import { ReviewRow, ReviewSection } from 'pages/CopyTrading/modals/PreparedActionModal'
-import { formatPreparedAmount } from 'pages/CopyTrading/modals/PreparedActionModal/preparedAction'
 
-export const AddCapitalReview = ({
-  confirmBalanceError,
-  isLoading,
-  preview,
-}: {
-  confirmBalanceError?: string
-  isLoading: boolean
-  preview?: AddCapitalPreview
-}) => {
-  const preparedToken = preview?.quoteToken
-  const showSkeleton = isLoading && !preview
-
-  return (
-    <Stack className="gap-2">
-      <ReviewSection title="Review Add Capital">
-        <ReviewRow
-          isLoading={showSkeleton}
-          label="Capital to add"
-          value={formatPreparedAmount(preview?.addedCapitalRaw, preparedToken)}
-        />
-        <ReviewRow
-          isLoading={showSkeleton}
-          label="Current allocated capital"
-          value={formatPreparedAmount(preview?.currentAllocatedCapital, preparedToken)}
-        />
-        <ReviewRow
-          isLoading={showSkeleton}
-          label="New allocated capital"
-          value={formatPreparedAmount(preview?.newAllocatedCapital, preparedToken)}
-        />
-      </ReviewSection>
-      {confirmBalanceError && (
-        <span role="alert" className="text-xs text-red">
-          {confirmBalanceError}
-        </span>
-      )}
-    </Stack>
-  )
-}
+const CapitalSummaryRow = ({ label, value }: { label: string; value: string }) => (
+  <HStack className="items-center justify-between gap-4">
+    <span className="text-sm font-medium text-subText">{label}</span>
+    <span className="text-base font-medium text-text">{value}</span>
+  </HStack>
+)
 
 type AddCapitalFormProps = {
-  agentName?: string
   amount: string
   amountError?: string
   amountIsValid: boolean
   availabilityMessage?: string
+  currentAllocatedCapital: string
   isPreparing: boolean
+  newAllocatedCapital: string
   onAmountChange: (amount: string) => void
   onExpectedChain: boolean
   onPercentageChange: (percentage: CapitalPercentage) => void
@@ -65,18 +30,20 @@ type AddCapitalFormProps = {
   primaryActionLabel: string
   quoteCurrency?: Token
   selectedChainId: number
+  walletBalanceLoading?: boolean
   walletBalanceText: string
   accountConnected: boolean
 }
 
 export const AddCapitalForm = ({
   accountConnected,
-  agentName,
   amount,
   amountError,
   amountIsValid,
   availabilityMessage,
+  currentAllocatedCapital,
   isPreparing,
+  newAllocatedCapital,
   onAmountChange,
   onExpectedChain,
   onPercentageChange,
@@ -86,10 +53,13 @@ export const AddCapitalForm = ({
   primaryActionLabel,
   quoteCurrency,
   selectedChainId,
+  walletBalanceLoading,
   walletBalanceText,
 }: AddCapitalFormProps) => {
   return (
     <Stack className="gap-4">
+      <CapitalSummaryRow label="Currently allocated" value={currentAllocatedCapital} />
+
       <CapitalAmountInput
         amount={amount}
         amountError={amountError}
@@ -102,12 +72,14 @@ export const AddCapitalForm = ({
         presetsEnabled={presetsEnabled}
         quoteCurrency={quoteCurrency}
         selectedChainId={selectedChainId}
+        walletBalanceLoading={walletBalanceLoading}
         walletBalanceText={walletBalanceText}
       />
 
+      <CapitalSummaryRow label="New allocated capital" value={newAllocatedCapital} />
+
       <p className="text-sm text-subText">
-        Deposit more capital{agentName ? ' for ' + agentName : ''}. The API fixes the quote token and returns the
-        current minimum before your wallet is asked to confirm.
+        Capital will deploy on the agent&apos;s next trade. No immediate swaps. Existing settings apply.
       </p>
       <ButtonPrimary
         type="button"

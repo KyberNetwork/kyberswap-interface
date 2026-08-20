@@ -135,7 +135,7 @@ type BalanceRowProps = {
   account?: string | null
   balanceActions?: ReactNode
   currency?: Currency | null
-  customBalanceText?: string
+  customBalanceText?: ReactNode
   label?: ReactNode
   onBalanceClick?: () => void
   onHalf?: () => void
@@ -350,7 +350,7 @@ interface CurrencyInputPanelProps {
   id: string
   dataTestId?: string
   showPinnedTokens?: boolean
-  customBalanceText?: string
+  customBalanceText?: ReactNode
   hideLogo?: boolean
   highlightCurrencySelect?: boolean
   fontSize?: string

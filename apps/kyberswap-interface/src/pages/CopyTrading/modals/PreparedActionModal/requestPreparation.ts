@@ -21,6 +21,7 @@ export type PreparationRequestOptions = {
   continuation?: boolean
   delay?: number
   hash?: Hash
+  onReady?: (action: PreparedAction) => Promise<void> | void
   phaseWhilePreparing?: 'review'
 }
 
@@ -34,7 +35,7 @@ type RequestPreparationProps = {
 
 export const requestPreparation = async (
   { expected, finish, prepare, reviewUnavailable, setState }: RequestPreparationProps,
-  { continuation = false, delay = 0, hash, phaseWhilePreparing }: PreparationRequestOptions = {},
+  { continuation = false, delay = 0, hash, onReady, phaseWhilePreparing }: PreparationRequestOptions = {},
 ) => {
   const preparationVersion = invalidatePreparationRequests(setState)
   const isCurrent = () => isCurrentPreparationRequest(setState, preparationVersion)
@@ -155,6 +156,11 @@ export const requestPreparation = async (
         error: validationError,
         hash,
       })
+      return
+    }
+
+    if (onReady) {
+      await onReady(action)
       return
     }
 
