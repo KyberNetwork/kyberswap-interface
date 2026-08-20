@@ -70,6 +70,7 @@ const StartCopyModal = ({ isOpen, onDismiss, agent }: StartCopyModalProps) => {
         presetsEnabled={flow.capital.presetsEnabled}
         primaryActionLabel={flow.primaryActionLabel}
         quoteCurrency={flow.capital.quoteCurrency}
+        walletBalanceLoading={flow.capital.walletBalanceLoading}
         walletBalanceText={flow.capital.walletBalanceText}
       />
     </PreparedActionModal>
