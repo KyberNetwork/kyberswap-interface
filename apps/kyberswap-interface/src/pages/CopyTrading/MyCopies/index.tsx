@@ -1,5 +1,7 @@
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import copyRunApi from 'services/copyTrading/api/endpoints/copyRuns'
+import type { CopyRunSortBy, SortOrder } from 'services/copyTrading/types/primitives'
 
 import { APP_PATHS } from 'constants/index'
 import useIsWalletRestoring from 'hooks/useIsWalletRestoring'
@@ -18,16 +20,20 @@ const MyCopiesView = () => {
   const navigate = useNavigate()
   const { ownerAddress } = useCopyTradingContext()
   const isRestoringWallet = useIsWalletRestoring()
+  const [sortBy, setSortBy] = useState<CopyRunSortBy>()
+  const [sortOrder, setSortOrder] = useState<SortOrder>()
   const [getCopyRuns] = copyRunApi.useLazyGetCopyRunsQuery()
   const [getOwnerActivity] = copyRunApi.useLazyGetOwnerActivityQuery()
 
   const activeRunsPage = useCursorPageQuery({
     enabled: !!ownerAddress,
-    queryKey: ['copy-trading', 'copy-runs', ownerAddress, 'open'],
+    queryKey: ['copy-trading', 'copy-runs', ownerAddress, 'open', sortBy, sortOrder],
     queryFn: cursor =>
       getCopyRuns({
         ownerAddress: ownerAddress || '',
         view: 'open',
+        sortBy,
+        sortOrder,
         cursor,
         limit: PAGE_SIZE,
       }).unwrap(),
@@ -59,6 +65,20 @@ const MyCopiesView = () => {
   const activeRuns = activeRunsPage.items
   const summary = ownerSummary?.data
 
+  const handleSortChange = (nextSortBy: CopyRunSortBy) => {
+    if (sortBy !== nextSortBy) {
+      setSortBy(nextSortBy)
+      setSortOrder('desc')
+      return
+    }
+    if (sortOrder === 'desc') {
+      setSortOrder('asc')
+      return
+    }
+    setSortBy(undefined)
+    setSortOrder(undefined)
+  }
+
   return (
     <CopyTradingPage>
       <CopyRunsPageHeading activeView="open" />
@@ -71,6 +91,9 @@ const MyCopiesView = () => {
             loading={activeRunsPage.loading}
             pagination={activeRunsPage}
             rows={activeRuns}
+            sortBy={sortBy}
+            sortOrder={sortOrder}
+            onSortChange={handleSortChange}
             onOpenSubscription={subscription =>
               navigate(`${APP_PATHS.COPY_TRADING}/my-copies/${subscription.copyRunId}`)
             }

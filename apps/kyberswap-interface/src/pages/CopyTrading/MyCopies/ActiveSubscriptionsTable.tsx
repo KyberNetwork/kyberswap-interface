@@ -1,12 +1,12 @@
 import { type HTMLAttributes } from 'react'
 import type { CopyRunSummary } from 'services/copyTrading/types/copyRuns'
+import type { CopyRunSortBy, SortOrder } from 'services/copyTrading/types/primitives'
 
 import { ButtonLight } from 'components/Button'
 import { Stack } from 'components/Stack'
 import CursorPagination, { type CursorPaginationState } from 'pages/CopyTrading/components/CursorPagination'
 import { HeaderCell, TableBody, TableCell, TableHeader, TableRow } from 'pages/CopyTrading/components/Table'
 import { CopyRunAgentCell } from 'pages/CopyTrading/components/common/agentIdentity'
-import { CopyRunStatusBadge } from 'pages/CopyTrading/components/common/status'
 import { copyTradingStatIconMap } from 'pages/CopyTrading/constants'
 import {
   compactUsd,
@@ -33,7 +33,7 @@ const ActiveSubscriptionsGrid = ({ header, className, ...props }: ActiveSubscrip
   return (
     <Grid
       className={cn(
-        'min-w-[1120px] grid-cols-[minmax(0,2.4fr)_minmax(0,0.9fr)_minmax(0,1fr)_minmax(0,0.9fr)_minmax(0,1fr)_minmax(0,0.9fr)_minmax(0,0.8fr)_minmax(132px,1.1fr)]',
+        'min-w-[1120px] grid-cols-[minmax(0,2.4fr)_minmax(0,0.9fr)_minmax(0,1fr)_minmax(0,0.9fr)_minmax(0,1fr)_minmax(0,0.9fr)_minmax(132px,1.1fr)]',
         className,
       )}
       {...props}
@@ -45,10 +45,21 @@ type ActiveSubscriptionsTableProps = {
   loading?: boolean
   pagination: CursorPaginationState
   rows: CopyRunSummary[]
+  sortBy?: CopyRunSortBy
+  sortOrder?: SortOrder
+  onSortChange: (sortBy: CopyRunSortBy) => void
   onOpenSubscription: (subscription: CopyRunSummary) => void
 }
 
-const ActiveSubscriptionsTable = ({ rows, loading, pagination, onOpenSubscription }: ActiveSubscriptionsTableProps) => {
+const ActiveSubscriptionsTable = ({
+  rows,
+  loading,
+  pagination,
+  sortBy,
+  sortOrder,
+  onSortChange,
+  onOpenSubscription,
+}: ActiveSubscriptionsTableProps) => {
   const { openStopCopy } = useCopyTradingModal()
 
   return (
@@ -56,12 +67,43 @@ const ActiveSubscriptionsTable = ({ rows, loading, pagination, onOpenSubscriptio
       <div className="ks-scrollbar relative max-h-[480px] overflow-auto">
         <ActiveSubscriptionsGrid header className="sticky top-0 z-[1]">
           <HeaderCell>Agent</HeaderCell>
-          <HeaderCell className="justify-end text-right">Agent APR</HeaderCell>
-          <HeaderCell className="justify-end text-right">Win Rates</HeaderCell>
-          <HeaderCell className="justify-end text-right">Volume</HeaderCell>
-          <HeaderCell className="justify-end text-right">Capital In</HeaderCell>
+          <HeaderCell
+            activeSortBy={sortBy}
+            className="justify-end text-right"
+            onSortChange={onSortChange}
+            sortField="agent_apr_30d"
+            sortOrder={sortOrder}
+          >
+            Agent APR
+          </HeaderCell>
+          <HeaderCell
+            activeSortBy={sortBy}
+            className="justify-end text-right"
+            onSortChange={onSortChange}
+            sortField="agent_win_rate"
+            sortOrder={sortOrder}
+          >
+            Win Rates
+          </HeaderCell>
+          <HeaderCell
+            activeSortBy={sortBy}
+            className="justify-end text-right"
+            onSortChange={onSortChange}
+            sortField="agent_volume"
+            sortOrder={sortOrder}
+          >
+            Volume
+          </HeaderCell>
+          <HeaderCell
+            activeSortBy={sortBy}
+            className="justify-end text-right"
+            onSortChange={onSortChange}
+            sortField="capital_in"
+            sortOrder={sortOrder}
+          >
+            Capital In
+          </HeaderCell>
           <HeaderCell className="justify-end text-right">Positions</HeaderCell>
-          <HeaderCell>Status</HeaderCell>
           <TableCell />
         </ActiveSubscriptionsGrid>
 
@@ -103,14 +145,11 @@ const ActiveSubscriptionsTable = ({ rows, loading, pagination, onOpenSubscriptio
                 <TableCell className="text-right">{compactUsd(subscription.agentStats.volumeUsd)}</TableCell>
                 <TableCell className="text-right">{formatUsd(getDisplayCapitalInUsd(subscription))}</TableCell>
                 <TableCell className="text-right">{formatCount(subscription.openPositionCount)}</TableCell>
-                <TableCell>
-                  <CopyRunStatusBadge status={subscription.status} />
-                </TableCell>
                 <TableCell className="flex justify-end">
                   <ButtonLight
                     type="button"
                     padding="8px 12px"
-                    color="var(--ks-warning)"
+                    color="var(--ks-red)"
                     className="whitespace-nowrap"
                     disabled={!actionAvailable}
                     title={

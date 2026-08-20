@@ -210,7 +210,6 @@ const StopCopyModal = ({ isOpen, onDismiss, copyRun, agentName }: StopCopyModalP
       title={'Stop Copying' + (agentName ? ' ' + agentName : '')}
       review={review}
       confirmLabel={reviewPreparing ? 'Preparing' : 'Stop Copying'}
-      confirmVariant="warning"
       onBack={flow.reset}
       onConfirm={() => void flow.confirm()}
       onRetry={() => void flow.retry()}
