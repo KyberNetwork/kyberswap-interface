@@ -93,9 +93,9 @@ export const usePreparedAction = ({
     }
   }
 
-  const confirm = async () => {
+  const confirmPreparedAction = async (preparedAction?: PreparedAction) => {
     invalidatePreparationRequests(setState)
-    const action = state.action
+    const action = preparedAction || state.action
     const call = action?.call
     if (!action || !call?.to || !call.data) {
       setState({ phase: 'error', action, error: 'The prepared call is missing. Prepare the action again.' })
@@ -162,6 +162,9 @@ export const usePreparedAction = ({
     }
   }
 
+  const confirm = () => confirmPreparedAction()
+  const prepareAndConfirm = () => requestPreparedAction({ onReady: confirmPreparedAction })
+
   const retryReceipt = async (action: PreparedAction, hash: Hash) => {
     setState({ phase: 'confirming', action, hash })
 
@@ -192,7 +195,7 @@ export const usePreparedAction = ({
     }
   }
 
-  const retry = async () => {
+  const retryPreparedAction = async (onReady?: (action: PreparedAction) => Promise<void> | void) => {
     if (state.phase === 'sync_error' && state.action && state.hash) {
       if (state.retryStage === 'receipt') {
         await retryReceipt(state.action, state.hash)
@@ -208,14 +211,18 @@ export const usePreparedAction = ({
       continuation,
       delay: state.phase === 'pending' && state.action ? getReprepareDelay(state.action) : 0,
       hash: continuation ? state.hash : undefined,
-      phaseWhilePreparing: state.phase === 'expired' || state.phase === 'error' ? 'review' : undefined,
+      onReady: continuation ? undefined : onReady,
+      phaseWhilePreparing: !onReady && (state.phase === 'expired' || state.phase === 'error') ? 'review' : undefined,
     })
   }
+
+  const retry = () => retryPreparedAction()
+  const retryAndConfirm = () => retryPreparedAction(confirmPreparedAction)
 
   const reset = () => {
     invalidatePreparationRequests(setState)
     setState(DEFAULT_PREPARED_ACTION_STATE)
   }
 
-  return { confirm, prepare: requestPreparedAction, reset, retry }
+  return { confirm, prepare: requestPreparedAction, prepareAndConfirm, reset, retry, retryAndConfirm }
 }

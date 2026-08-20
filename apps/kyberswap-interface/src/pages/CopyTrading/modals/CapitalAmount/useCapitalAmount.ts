@@ -33,7 +33,8 @@ export const useCapitalAmount = ({ account, action, connectedChainId, targetChai
   )
 
   const walletBalance = useTokenBalance(quoteToken?.address || '', targetChainId as ChainId)
-  const walletBalanceRaw = account && quoteToken ? walletBalance.value.toString() : undefined
+  const walletBalanceLoading = !!account && !!quoteToken && walletBalance.isLoading
+  const walletBalanceRaw = account && quoteToken && !walletBalanceLoading ? walletBalance.value.toString() : undefined
 
   const presetAmounts = useMemo<CapitalPreset[] | undefined>(() => {
     if (!quoteToken || !walletBalanceRaw) return undefined
@@ -65,7 +66,7 @@ export const useCapitalAmount = ({ account, action, connectedChainId, targetChai
       : insufficientBalance
       ? `Insufficient ${quoteToken.symbol} balance.`
       : undefined
-  const amountIsValid = !!amountRaw && !amountBelowMinimum && !insufficientBalance
+  const amountIsValid = !!amountRaw && !amountBelowMinimum && !insufficientBalance && !walletBalanceLoading
 
   const onExpectedChain = connectedChainId === targetChainId
   const presetsEnabled = !!account && onExpectedChain && !!walletBalanceRaw && BigInt(walletBalanceRaw) > 0n
@@ -88,6 +89,7 @@ export const useCapitalAmount = ({ account, action, connectedChainId, targetChai
     quoteCurrency,
     quoteToken,
     setAmount,
+    walletBalanceLoading,
     walletBalanceText,
   }
 }

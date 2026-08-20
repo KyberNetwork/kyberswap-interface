@@ -1,6 +1,7 @@
 import { ChainId, Token } from '@kyberswap/ks-sdk-core'
 
 import CurrencyInputPanel from 'components/CurrencyInputPanel'
+import Loader from 'components/Loader'
 import { HStack, Stack } from 'components/Stack'
 import {
   CAPITAL_PERCENTAGES,
@@ -21,6 +22,7 @@ type CapitalAmountInputProps = {
   presetsEnabled: boolean
   quoteCurrency?: Token
   selectedChainId: number
+  walletBalanceLoading?: boolean
   walletBalanceText: string
 }
 
@@ -36,6 +38,7 @@ const CapitalAmountInput = ({
   presetsEnabled,
   quoteCurrency,
   selectedChainId,
+  walletBalanceLoading,
   walletBalanceText,
 }: CapitalAmountInputProps) => (
   <Stack className="gap-2">
@@ -45,7 +48,13 @@ const CapitalAmountInput = ({
       onUserInput={onAmountChange}
       error={!!amountError}
       currency={quoteCurrency}
-      customBalanceText={walletBalanceText}
+      customBalanceText={
+        walletBalanceLoading ? (
+          <Loader aria-label="Loading balance" className="text-subText" size="12px" />
+        ) : (
+          walletBalanceText
+        )
+      }
       customChainId={selectedChainId as ChainId}
       disableCurrencySelect
       disabledInput={isPreparing}

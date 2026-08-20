@@ -127,6 +127,7 @@ type StartCopyFormProps = {
   presetsEnabled: boolean
   primaryActionLabel: string
   quoteCurrency?: Token
+  walletBalanceLoading?: boolean
   walletBalanceText: string
   amountIsValid: boolean
   onExpectedChain: boolean
@@ -149,6 +150,7 @@ export const StartCopyForm = ({
   presetsEnabled,
   primaryActionLabel,
   quoteCurrency,
+  walletBalanceLoading,
   walletBalanceText,
 }: StartCopyFormProps) => {
   return (
@@ -165,10 +167,11 @@ export const StartCopyForm = ({
         presetsEnabled={presetsEnabled}
         quoteCurrency={quoteCurrency}
         selectedChainId={agent.chainId}
+        walletBalanceLoading={walletBalanceLoading}
         walletBalanceText={walletBalanceText}
       />
 
-      <p className="text-sm leading-5 text-text">
+      <p className="text-sm text-subText">
         You will follow new trades from this moment. Your P&amp;L may differ from the agent&apos;s stats until open
         positions close.
       </p>
