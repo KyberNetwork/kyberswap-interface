@@ -10,12 +10,10 @@ import { KS_SETTING_API } from 'constants/env'
 import { ETHER_ADDRESS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import type { NetworkInfo } from 'constants/networks/type'
-import { useActiveWeb3React } from 'hooks'
 import { fetchListTokenByAddresses, fetchTokenInfoFromRpc, formatAndCacheToken } from 'hooks/useTokens'
 import store from 'state'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
-import { useAllTokenBalances, useNativeBalance } from 'state/wallet/hooks'
 import { isAddress } from 'utils/address'
 import { filterTruthy } from 'utils/array'
 import { isTokenNative } from 'utils/tokenInfo'
@@ -24,7 +22,6 @@ export const TOKEN_SEARCH_PAGE_SIZE = 20
 
 const UNKNOWN_TOKEN_NAME = 'Unknown Token'
 const UNKNOWN_TOKEN_SYMBOL = 'UNKNOWN'
-const EMPTY_BALANCE_MAP = {}
 const EMPTY_PRICE_ADDRESSES: string[] = []
 
 type TokenBalanceMap = {
@@ -266,32 +263,30 @@ function getTokenComparator(
 }
 
 export function useTokenComparator(
-  inverted: boolean,
-  customChain?: ChainId,
-  // Only the tabs that sort by wallet value need this; when disabled it registers no whole-whitelist
-  // balanceOf multicall and no /prices fetch, and just falls back to a symbol sort.
+  // Balances for the tokens being sorted, plus the native balance, owned by the caller: the list's
+  // balance column reads the same tokens, and one shared multicall serves both.
+  balances: TokenBalanceMap,
+  ethBalance: CurrencyAmount<Currency> | undefined,
+  chainId: ChainId,
+  // Only the tabs that sort by wallet value need this; when disabled it registers no /prices fetch
+  // and just falls back to a symbol sort.
   enabled = true,
   // Lowercased favorite addresses to float above non-favorites once balance/value is a tie.
   favoriteAddresses?: Set<string>,
 ): (tokenA: Token, tokenB: Token) => number {
-  const { chainId: currentChain } = useActiveWeb3React()
-  const chainId = customChain || currentChain
-  const balances = useAllTokenBalances(chainId, enabled)
-  const ethBalance = useNativeBalance(chainId)
   // Only held tokens can contribute a USD value to the sort — `usdValueOf` returns 0 for a zero
   // balance whatever the price — so pricing the whole whitelist would be pure waste. The native
   // sentinel is always included: its balance lives in `ethBalance`, not in this map.
   const tokenPriceAddresses = useMemo(() => {
     if (!enabled) return EMPTY_PRICE_ADDRESSES
-    const balanceMap = balances ?? EMPTY_BALANCE_MAP
-    const held = Object.keys(balanceMap).filter(address => balanceMap[address]?.greaterThan('0'))
+    const held = Object.keys(balances).filter(address => balances[address]?.greaterThan('0'))
     held.push(NATIVE_TOKEN_ADDRESS)
     return held
   }, [balances, enabled])
   const tokenPrices = useTokenPrices(tokenPriceAddresses, chainId)
 
-  return useMemo(() => {
-    const comparator = getTokenComparator(balances ?? EMPTY_BALANCE_MAP, ethBalance, tokenPrices, favoriteAddresses)
-    return inverted ? (tokenA: Token, tokenB: Token) => comparator(tokenA, tokenB) * -1 : comparator
-  }, [balances, inverted, ethBalance, tokenPrices, favoriteAddresses])
+  return useMemo(
+    () => getTokenComparator(balances, ethBalance, tokenPrices, favoriteAddresses),
+    [balances, ethBalance, tokenPrices, favoriteAddresses],
+  )
 }

@@ -1,4 +1,4 @@
-import { ChainId, Currency, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
+import { ChainId, Currency, CurrencyAmount, Token, TokenAmount } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import React, { CSSProperties, ReactNode, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Info, Star, X } from 'react-feather'
@@ -23,7 +23,6 @@ import { useERC8056DisplayBalance, useERC8056TokenInfo } from 'hooks/useERC8056T
 import { restrictedTokenKey, restrictedTokenMessage, useIsTokenRestricted } from 'hooks/useRestrictedTokens'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { useUserAddedTokens, useUserFavoriteTokens } from 'state/user/hooks'
-import { useCurrencyBalances } from 'state/wallet/hooks'
 import { shortenAddress } from 'utils/address'
 import { cn } from 'utils/cn'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
@@ -40,8 +39,9 @@ const RESTRICTED_ITEM_SIZE = RESTRICTED_CONTENT_HEIGHT + 8 // 84px
 // Stable default so an omitted `itemStyle` prop doesn't mint a new object each render (which would
 // churn the row data bag and re-render every row).
 const EMPTY_ITEM_STYLE: CSSProperties = {}
-// Stable empties so gated balance/price subscriptions never allocate a fresh array to disable them.
-const EMPTY_CURRENCIES: Currency[] = []
+// Stable empties so a gated price subscription / balance column never allocates a fresh array to
+// disable itself.
+const EMPTY_BALANCES: (CurrencyAmount<Currency> | undefined)[] = []
 const EMPTY_ADDRESSES: string[] = []
 
 // Compact age badge for the New tab, counted from when the token was whitelisted: "NEW" under 12h,
@@ -531,6 +531,10 @@ type TokenListProps = {
   listTokenRef?: React.Ref<HTMLDivElement>
   itemStyle?: CSSProperties
   customChainId?: ChainId
+  /** Wallet balances keyed by token address, owned by the parent so one multicall serves the whole modal. */
+  balances?: { [tokenAddress: string]: TokenAmount | undefined }
+  /** Wallet balance of the chain's native currency, which lives outside the ERC20 `balances` map. */
+  nativeBalance?: CurrencyAmount<Currency>
   onShowTokenInfo?: (token: Token) => void
   /** Per-token price / 24h change / volume / added-at metadata keyed by `${chainId}-${address}`. */
   extras?: TokenRowExtraMap
@@ -560,6 +564,8 @@ const TokenList = ({
   showFavoriteIcon,
   itemStyle = EMPTY_ITEM_STYLE,
   customChainId,
+  balances,
+  nativeBalance,
   onShowTokenInfo,
   extras,
   showAddress,
@@ -572,10 +578,15 @@ const TokenList = ({
   const { favoriteTokens } = useUserFavoriteTokens(customChainId)
   const tokenImports = useUserAddedTokens(customChainId)
 
-  // The metric tabs show volume / market cap, not balance, so skip their per-block balanceOf
-  // multicall entirely.
-  const balanceCurrencies = metricColumn ? EMPTY_CURRENCIES : currencies
-  const currencyBalances = useCurrencyBalances(balanceCurrencies, customChainId)
+  // Row-aligned view of the shared balance map. The metric tabs show volume / market cap rather than
+  // a balance, so they read nothing.
+  const currencyBalances = useMemo(
+    () =>
+      metricColumn
+        ? EMPTY_BALANCES
+        : currencies.map(currency => (isTokenNative(currency) ? nativeBalance : balances?.[currency.wrapped.address])),
+    [metricColumn, currencies, balances, nativeBalance],
+  )
 
   // Only the All tab derives USD sub-lines from Redux prices (the others read price from catalog
   // extras), so skip the /prices subscription elsewhere. Within the All tab, only a row holding a
