@@ -48,7 +48,7 @@ const MyCopiesView = () => {
       }).unwrap(),
   })
 
-  const { data: ownerSummary } = copyRunApi.useGetOwnerCopySummaryQuery(
+  const { currentData: ownerSummary } = copyRunApi.useGetOwnerCopySummaryQuery(
     {
       ownerAddress: ownerAddress || '',
       view: 'open',

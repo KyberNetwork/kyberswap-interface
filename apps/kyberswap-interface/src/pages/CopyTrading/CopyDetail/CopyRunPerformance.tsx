@@ -25,7 +25,7 @@ const CopyRunPerformance = ({ copyRunId, status }: CopyRunPerformanceProps) => {
   const interval = performanceWindow === 'all' ? 'month' : 'day'
 
   const {
-    data: portfolioPerformance,
+    currentData: portfolioPerformance,
     isError: isPortfolioError,
     isFetching: isPortfolioFetching,
   } = copyRunApi.useGetCopyRunPerformanceQuery(
@@ -41,7 +41,7 @@ const CopyRunPerformance = ({ copyRunId, status }: CopyRunPerformanceProps) => {
   )
 
   const {
-    data: realizedPnlPerformance,
+    currentData: realizedPnlPerformance,
     isError: isRealizedPnlError,
     isFetching: isRealizedPnlFetching,
   } = copyRunApi.useGetCopyRunPerformanceQuery(
