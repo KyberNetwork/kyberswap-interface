@@ -7,6 +7,8 @@ import discoveryApi from 'services/copyTrading/api/endpoints/discovery'
 import type { AgentCard, Chain } from 'services/copyTrading/types/agents'
 import type { CopyRunSummary } from 'services/copyTrading/types/copyRuns'
 
+import { ReactComponent as HistoryIcon } from 'assets/images/copy-trading/ic_history.svg'
+import { ReactComponent as OpenCopiesIcon } from 'assets/images/copy-trading/ic_opens.svg'
 import { ButtonEmpty } from 'components/Button'
 import { Center, HStack, Stack } from 'components/Stack'
 import { APP_PATHS } from 'constants/index'
@@ -110,7 +112,10 @@ const MyCopiesSection = ({ agentById, route, runs }: MyCopiesSectionProps) => {
   return (
     <SidebarSection title="My Copies" active={route.isMyCopiesSectionActive}>
       <SidebarMenuItem to={APP_PATHS.COPY_TRADING + '/my-copies'} active={route.isCopiesPage} layout="between">
-        <span className={cn('text-sm', route.isCopiesPage ? 'text-primary' : 'text-subText')}>Open Copies</span>
+        <HStack className={cn('items-center gap-2 text-sm', route.isCopiesPage ? 'text-primary' : 'text-subText')}>
+          <OpenCopiesIcon className="size-4 shrink-0" aria-hidden />
+          <span>Open Copies</span>
+        </HStack>
         <Center className="size-6 rounded-full bg-primary-12 text-xs font-medium text-primary">{runs.length}</Center>
       </SidebarMenuItem>
 
@@ -140,8 +145,14 @@ const MyCopiesSection = ({ agentById, route, runs }: MyCopiesSectionProps) => {
         })}
       </Stack>
 
-      <SidebarMenuItem to={APP_PATHS.COPY_TRADING + '/history'} active={route.isHistorySectionActive} colorByActive>
-        History
+      <SidebarMenuItem
+        to={APP_PATHS.COPY_TRADING + '/history'}
+        active={route.isHistorySectionActive}
+        colorByActive
+        layout="row"
+      >
+        <HistoryIcon className="size-4 shrink-0" aria-hidden />
+        <span>History</span>
       </SidebarMenuItem>
     </SidebarSection>
   )
@@ -229,8 +240,9 @@ const Sidebar = () => {
       />
 
       <aside className="sticky top-0 h-screen w-60 flex-none overflow-y-auto px-8 py-6 max-lg:hidden">
-        <Stack className="gap-6">
+        <Stack className="gap-5">
           <MyCopiesSection agentById={agentById} route={route} runs={activeRuns} />
+          <div className="h-px bg-buttonGray" />
           <AgentsSection
             activeAgentCode={route.activeAgentCode}
             agents={agents}
@@ -238,6 +250,7 @@ const Sidebar = () => {
             isActive={route.isAgentsPage}
             onToggle={() => setExpandedAgents(value => !value)}
           />
+          <div className="h-px bg-buttonGray" />
           <NetworksSection chains={enabledChains} onSelectChain={selectChain} selectedChainId={selectedChainId} />
         </Stack>
       </aside>

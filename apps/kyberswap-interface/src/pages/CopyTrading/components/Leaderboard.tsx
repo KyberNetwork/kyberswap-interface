@@ -15,11 +15,7 @@ export type LeaderboardStat = {
   valueClassName?: string
 }
 
-const getMinCardWidth = (size: LeaderboardSize, itemCount: number) => {
-  if (size === 'lg') return itemCount > 3 ? 210 : 240
-
-  return itemCount > 4 ? 180 : 190
-}
+const getMinCardWidth = (size: LeaderboardSize) => (size === 'sm' ? 250 : 260)
 
 type LeaderboardCardProps = {
   item: LeaderboardStat
@@ -36,14 +32,24 @@ const StatLabel = ({ item }: LeaderboardCardProps) => (
   </HStack>
 )
 
-const LargeLeaderboardCard = ({ item }: LeaderboardCardProps) => {
-  const { iconUrl, backgroundColor } = item.icon
+const StatIconView = ({ icon }: Pick<LeaderboardStat, 'icon'>) => {
+  const { backgroundColor } = icon
 
   return (
-    <HStack className="min-h-24 items-center gap-4 rounded-xl bg-buttonBlack px-5 py-4">
-      <Center className={cn('size-12 shrink-0 rounded-full', backgroundColor)}>
-        <img src={iconUrl} alt="" className="size-6" />
-      </Center>
+    <Center className={cn('size-12 shrink-0 rounded-full', backgroundColor)}>
+      {'Icon' in icon ? (
+        <icon.Icon className={cn('size-6', icon.iconClassName)} />
+      ) : (
+        <img src={icon.iconUrl} alt="" className="size-6" />
+      )}
+    </Center>
+  )
+}
+
+const LargeLeaderboardCard = ({ item }: LeaderboardCardProps) => {
+  return (
+    <HStack className="h-full min-h-24 items-center gap-4 rounded-xl bg-buttonBlack px-5 py-4">
+      <StatIconView icon={item.icon} />
       <Stack className="min-w-0 flex-1 gap-1">
         <span
           className={cn('truncate text-2xl font-medium leading-8 text-text', item.valueClassName)}
@@ -60,13 +66,9 @@ const LargeLeaderboardCard = ({ item }: LeaderboardCardProps) => {
 }
 
 const SmallLeaderboardCard = ({ item }: LeaderboardCardProps) => {
-  const { iconUrl, backgroundColor } = item.icon
-
   return (
-    <HStack className="min-h-[72px] items-center gap-4 rounded-xl bg-buttonBlack px-6 py-3 max-sm:px-4">
-      <Center className={cn('size-12 shrink-0 rounded-full', backgroundColor)}>
-        <img src={iconUrl} alt="" className="size-6" />
-      </Center>
+    <HStack className="h-full min-h-[72px] items-center gap-4 rounded-xl bg-buttonBlack px-6 py-3 max-sm:px-4">
+      <StatIconView icon={item.icon} />
       <Stack className="min-w-0 flex-1 gap-0.5">
         <span
           className={cn('truncate text-lg font-medium leading-6 text-primary', item.valueClassName)}
@@ -97,9 +99,11 @@ type LeaderboardProps = {
 }
 
 const Leaderboard = ({ items, size = 'lg', className }: LeaderboardProps) => {
-  const minCardWidth = getMinCardWidth(size, items.length)
+  const minCardWidth = getMinCardWidth(size)
+  const itemCount = Math.max(items.length, 1)
+  const totalGap = (itemCount - 1) * 16
   const gridStyle: CSSProperties = {
-    gridTemplateColumns: `repeat(auto-fit, minmax(min(100%, ${minCardWidth}px), 1fr))`,
+    gridTemplateColumns: `repeat(auto-fill, minmax(max(min(100%, ${minCardWidth}px), calc((100% - ${totalGap}px) / ${itemCount})), 1fr))`,
   }
 
   return (

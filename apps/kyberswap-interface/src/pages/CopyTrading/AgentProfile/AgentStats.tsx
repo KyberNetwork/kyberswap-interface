@@ -25,7 +25,7 @@ const getProfileStats = (stats?: AgentStatsData): LeaderboardStat[] => [
     label: 'Total Realised P&L',
     value: signedUsd(stats?.totalRealizedPnlUsd),
     valueClassName: getSignedMetricClassName(stats?.totalRealizedPnlUsd),
-    icon: copyTradingStatIconMap.money,
+    icon: copyTradingStatIconMap.pnl,
     status: stats?.metrics.totalRealizedPnlUsd?.status,
   },
   {
@@ -38,13 +38,13 @@ const getProfileStats = (stats?: AgentStatsData): LeaderboardStat[] => [
     label: 'Win Rate',
     value: percent(stats?.winRatePct),
     valueClassName: getWinRateClassName(stats?.winRatePct),
-    icon: copyTradingStatIconMap.positionOpen,
+    icon: copyTradingStatIconMap.winRate,
     status: stats?.metrics.winRatePct?.status,
   },
   {
     label: 'AUM',
     value: compactUsd(stats?.aumUsd),
-    icon: copyTradingStatIconMap.volume,
+    icon: copyTradingStatIconMap.aum,
     status: stats?.metrics.aumUsd?.status,
   },
 ]
@@ -116,7 +116,7 @@ const AgentStats = ({ agentId }: AgentStatsProps) => {
           data={portfolioData}
           isError={isPortfolioError}
           isFetching={isPortfolioFetching}
-          title="Portfolio Equity ($)"
+          title="Assets Under Management ($)"
         />
       </Stack>
     </Stack>

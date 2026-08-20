@@ -26,16 +26,16 @@ const CopyHistorySummary = ({ summary }: { summary?: OwnerCopySummary }) => {
       status: summary?.metrics.realizedPnlUsd?.status,
     },
     {
-      label: 'Closed Positions in History Runs',
-      value: formatCount(summary?.closedPositions),
-      icon: copyTradingStatIconMap.positionClose,
-      status: summary?.metrics.closedPositionCount?.status,
-    },
-    {
       label: 'Closed Capital (Returned)',
       value: formatUsd(summary?.closedCapitalUsd),
       icon: copyTradingStatIconMap.volume,
       status: summary?.metrics.closedCapitalUsd?.status,
+    },
+    {
+      label: 'Closed Positions',
+      value: formatCount(summary?.closedPositions),
+      icon: copyTradingStatIconMap.positionClose,
+      status: summary?.metrics.closedPositionCount?.status,
     },
   ]
 

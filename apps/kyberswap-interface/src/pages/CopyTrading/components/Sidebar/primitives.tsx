@@ -42,15 +42,15 @@ export const SidebarSection = ({ title, active, count, children, onClick, to }: 
       {to ? (
         <div
           className={cn(
-            'h-9 rounded-lg hover:bg-primary-10',
-            active && 'border-l-2 border-primary bg-primary-12 text-primary',
+            'h-9 rounded-lg border-l-2 border-transparent hover:bg-primary-10',
+            active && 'border-primary bg-primary-12 text-primary',
           )}
         >
           <Link
             to={to}
             onClick={onClick}
             className={cn(
-              'flex size-full items-center justify-between px-4 text-left text-xs font-semibold uppercase no-underline hover:text-primary',
+              'flex size-full items-center justify-between pl-2.5 pr-3 text-left text-xs font-semibold uppercase no-underline hover:text-primary',
               active ? 'text-primary' : 'text-subText',
             )}
           >
@@ -63,8 +63,8 @@ export const SidebarSection = ({ title, active, count, children, onClick, to }: 
       ) : (
         <div
           className={cn(
-            'flex h-8 items-center justify-between rounded-lg px-4 text-xs font-semibold uppercase text-subText',
-            active && 'bg-buttonBlack',
+            'flex h-8 items-center justify-between rounded-lg border-l-2 border-transparent pl-2.5 pr-3 text-xs font-semibold uppercase text-subText',
+            active && 'bg-white-08',
           )}
         >
           <span>{title}</span>
@@ -97,7 +97,7 @@ export const SidebarMenuItem = ({
   colorByActive,
 }: SidebarMenuItemProps) => {
   const className = cn(
-    'flex size-full items-center px-2 text-left font-medium no-underline',
+    'flex size-full items-center pl-2.5 pr-3 text-left font-medium no-underline',
     layout === 'between' && 'justify-between',
     layout === 'row' && 'gap-3',
     colorByActive && 'text-sm hover:text-primary',
@@ -107,8 +107,8 @@ export const SidebarMenuItem = ({
   return (
     <div
       className={cn(
-        'h-9 rounded-lg hover:bg-primary-10',
-        active && activeStyle === 'surface' && 'border-l-2 border-primary bg-primary-12 text-primary',
+        'h-9 rounded-lg border-l-2 border-transparent hover:bg-primary-10',
+        active && activeStyle === 'surface' && 'border-primary bg-primary-12 text-primary',
         active && activeStyle === 'text' && 'text-primary',
       )}
     >
