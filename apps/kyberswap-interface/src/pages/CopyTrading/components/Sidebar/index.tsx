@@ -190,7 +190,7 @@ const Sidebar = () => {
     { chainId: selectedChainId, limit: SIDEBAR_ITEM_LIMIT },
     { pollingInterval: 10_000, skip: selectedChainId === undefined },
   )
-  const { data: openCopies, refetch: refetchOpenCopies } = copyRunApi.useGetCopyRunsQuery(
+  const { currentData: openCopies, refetch: refetchOpenCopies } = copyRunApi.useGetCopyRunsQuery(
     {
       ownerAddress: ownerAddress || '',
       view: 'open',
@@ -207,7 +207,7 @@ const Sidebar = () => {
   }, [location.pathname, ownerAddress, refetchOpenCopies])
 
   const agents = leaderboard?.data || []
-  const activeRuns = openCopies?.data || []
+  const activeRuns = ownerAddress ? openCopies?.data || [] : []
   const enabledChains = chains.filter(chain => chain.isEnabled)
   const agentById = new Map(agents.map(agent => [agent.agentId, agent]))
   const route = getSidebarRouteState(location.pathname)
