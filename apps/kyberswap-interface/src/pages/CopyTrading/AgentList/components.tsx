@@ -46,7 +46,7 @@ export const LeaderboardSummary = ({ summary, fallbackAgentCount }: LeaderboardS
     {
       label: 'Total Copiers',
       value: formatCount(summary?.totalCopiers),
-      icon: copyTradingStatIconMap.users,
+      icon: copyTradingStatIconMap.usersPurple,
       status: summary?.metrics.totalCopierCount?.status,
     },
     {
