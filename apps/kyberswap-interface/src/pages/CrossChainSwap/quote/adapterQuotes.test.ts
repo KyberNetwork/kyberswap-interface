@@ -235,6 +235,16 @@ const runFallbackQuotes = (adapter: SwapProvider, signal: AbortSignal) => {
   return { promise, onQuotes, onQuoteReady }
 }
 
+describe('CrossChainSwapFactory', () => {
+  it.each([
+    ['ccip', 'CCIP'],
+    ['cctp_v2', 'CCTP V2'],
+    ['cctp_v2_fast', 'CCTP V2 Fast'],
+  ])('resolves source-only KyberCross provider %s', (providerId, expectedName) => {
+    expect(CrossChainSwapFactory.getKyberCrossBridgeSource(providerId)?.getName()).toBe(expectedName)
+  })
+})
+
 describe('getFallbackQuotes', () => {
   it('accepts any adapter quote that resolves before the common ten-second timeout', async () => {
     vi.useFakeTimers()
