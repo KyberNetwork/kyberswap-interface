@@ -20,6 +20,7 @@ import { ENABLE_CROSS_CHAIN_STREAM_API, normalizeAdapterName } from './utils'
 export type CrossChainSource = Pick<SwapProvider, 'getName'> & Partial<Pick<SwapProvider, 'getIcon' | 'canSupport'>>
 
 const CCTP_ICON = 'https://cdn.prod.website-files.com/668c08d1b8a9330bd1d786ad/669a20df8ac2810a6dd50e67_favicon-256.svg'
+const CCIP_ICON = 'https://assets.coingecko.com/coins/images/877/small/chainlink-new-logo.png'
 
 const cctpV2Source: CrossChainSource = {
   getName: () => 'CCTP V2',
@@ -29,6 +30,11 @@ const cctpV2Source: CrossChainSource = {
 const cctpV2FastSource: CrossChainSource = {
   getName: () => 'CCTP V2 Fast',
   getIcon: () => CCTP_ICON,
+}
+
+const ccipSource: CrossChainSource = {
+  getName: () => 'CCIP',
+  getIcon: () => CCIP_ICON,
 }
 
 // Factory for creating swap provider instances
@@ -91,7 +97,17 @@ export class CrossChainSwapFactory {
       CrossChainSwapFactory.getOrCreateAdapter('mayan'),
       cctpV2Source,
       cctpV2FastSource,
+      ccipSource,
     ]
+  }
+
+  static getKyberCrossBridgeSource(name?: string): CrossChainSource | undefined {
+    const normalizedName = normalizeAdapterName(name)
+    if (!normalizedName) return undefined
+
+    return CrossChainSwapFactory.getKyberCrossBridgeSources().find(
+      source => normalizeAdapterName(source.getName()) === normalizedName,
+    )
   }
 
   static getSelectableSources(): CrossChainSource[] {
