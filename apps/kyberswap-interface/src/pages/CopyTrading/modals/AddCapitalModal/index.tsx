@@ -8,9 +8,15 @@ import type { PreparedCallKind } from 'services/copyTrading/types/preparedAction
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
-import { getPreparedReasonMessage, isActionAvailable } from 'pages/CopyTrading/helpers'
+import {
+  formatTokenAmount,
+  getDisplayCapitalInUsd,
+  getPreparedReasonMessage,
+  isActionAvailable,
+  sumUsdValues,
+} from 'pages/CopyTrading/helpers'
 import useRefreshCopyTrading from 'pages/CopyTrading/hooks/useRefreshCopyTrading'
-import { AddCapitalForm, AddCapitalReview } from 'pages/CopyTrading/modals/AddCapitalModal/components'
+import { AddCapitalForm } from 'pages/CopyTrading/modals/AddCapitalModal/components'
 import { type CapitalPercentage } from 'pages/CopyTrading/modals/CapitalAmount/capital'
 import { useCapitalAmount } from 'pages/CopyTrading/modals/CapitalAmount/useCapitalAmount'
 import PreparedActionModal, { PreparedActionSuccessActions } from 'pages/CopyTrading/modals/PreparedActionModal'
@@ -27,7 +33,7 @@ type AddCapitalModalProps = {
 
 const ADD_CAPITAL_CALL_KINDS: PreparedCallKind[] = ['PREPARED_CALL_KIND_ADD_CAPITAL']
 
-const AddCapitalModal = ({ isOpen, onDismiss, copyRun, agentName }: AddCapitalModalProps) => {
+const AddCapitalModal = ({ isOpen, onDismiss, copyRun }: AddCapitalModalProps) => {
   const navigate = useNavigate()
   const { account, chainId } = useActiveWeb3React()
   const { changeNetwork } = useChangeNetwork()
@@ -48,18 +54,17 @@ const AddCapitalModal = ({ isOpen, onDismiss, copyRun, agentName }: AddCapitalMo
       ? 'The selected Copy Run is not owned by the connected wallet.'
       : undefined
 
-  const preview = flowState.action?.addCapital
-
-  const preparedWalletBalanceRaw = preview?.walletQuoteBalance?.valueRaw
-  const preparedBalanceIsInsufficient =
-    !!preview?.addedCapitalRaw &&
-    !!preparedWalletBalanceRaw &&
-    BigInt(preview.addedCapitalRaw) > BigInt(preparedWalletBalanceRaw)
-  const confirmBalanceError =
-    capital.amountError ||
-    (preparedBalanceIsInsufficient
-      ? 'Insufficient ' + (capital.quoteToken?.symbol || 'quote token') + ' balance.'
-      : undefined)
+  const currentAllocatedCapitalUsd = getDisplayCapitalInUsd(copyRun)
+  const newAllocatedCapitalUsd =
+    currentAllocatedCapitalUsd !== undefined
+      ? sumUsdValues(currentAllocatedCapitalUsd, capital.amount || '0')
+      : undefined
+  const formatCapitalAmount = (value?: string) => {
+    const formattedAmount = formatTokenAmount(value)
+    return value !== undefined && capital.quoteToken?.symbol
+      ? `${formattedAmount} ${capital.quoteToken.symbol}`
+      : formattedAmount
+  }
 
   const flow = usePreparedAction({
     state: flowState,
@@ -118,7 +123,7 @@ const AddCapitalModal = ({ isOpen, onDismiss, copyRun, agentName }: AddCapitalMo
     }
     if (!capital.amountIsValid) return
 
-    void flow.prepare()
+    void flow.prepareAndConfirm()
   }
 
   const setPercentageAmount = (percentage: CapitalPercentage) => {
@@ -144,9 +149,7 @@ const AddCapitalModal = ({ isOpen, onDismiss, copyRun, agentName }: AddCapitalMo
     ? 'Switch network'
     : availabilityMessage || !capital.quoteToken
     ? 'Add Capital unavailable'
-    : 'Review Add Capital'
-
-  const reviewPreparing = flowState.phase === 'review' && flowState.isPreparing === true
+    : 'Add Capital'
 
   const successActions = (
     <PreparedActionSuccessActions onClose={dismiss} onPrimaryAction={viewMyCopies} primaryLabel="My Copies" />
@@ -158,29 +161,25 @@ const AddCapitalModal = ({ isOpen, onDismiss, copyRun, agentName }: AddCapitalMo
       onDismiss={dismiss}
       state={flowState}
       title="Add Capital"
-      review={
-        <AddCapitalReview confirmBalanceError={confirmBalanceError} isLoading={reviewPreparing} preview={preview} />
-      }
-      confirmLabel={reviewPreparing ? 'Preparing' : 'Add Capital'}
-      confirmDisabled={!!confirmBalanceError}
+      review={null}
+      confirmLabel="Add Capital"
+      confirmLoading={flowState.isPreparing === true}
       onBack={flow.reset}
-      onConfirm={() => {
-        if (confirmBalanceError) return
-        void flow.confirm()
-      }}
-      onRetry={() => void flow.retry()}
+      onConfirm={() => void flow.confirm()}
+      onRetry={() => void flow.retryAndConfirm()}
       successTitle="Capital added"
       successActions={successActions}
       width={520}
     >
       <AddCapitalForm
         accountConnected={!!account}
-        agentName={agentName}
         amount={capital.amount}
         amountError={capital.amountError}
         amountIsValid={capital.amountIsValid}
         availabilityMessage={availabilityMessage}
+        currentAllocatedCapital={formatCapitalAmount(currentAllocatedCapitalUsd)}
         isPreparing={flowState.isPreparing === true}
+        newAllocatedCapital={formatCapitalAmount(newAllocatedCapitalUsd)}
         onAmountChange={capital.setAmount}
         onExpectedChain={capital.onExpectedChain}
         onPercentageChange={setPercentageAmount}
@@ -190,6 +189,7 @@ const AddCapitalModal = ({ isOpen, onDismiss, copyRun, agentName }: AddCapitalMo
         primaryActionLabel={primaryActionLabel}
         quoteCurrency={capital.quoteCurrency}
         selectedChainId={copyRun.chainId}
+        walletBalanceLoading={capital.walletBalanceLoading}
         walletBalanceText={capital.walletBalanceText}
       />
     </PreparedActionModal>

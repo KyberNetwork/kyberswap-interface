@@ -1,6 +1,6 @@
 # Copy Trading Implementation Status
 
-Last reviewed: 2026-08-18
+Last reviewed: 2026-08-20
 
 This is the single frontend-owned record for current code implementation,
 accepted product decisions, ownership, and static verification evidence. The
@@ -20,8 +20,25 @@ declared in the frontend service.
 | Checked-in OpenAPI | `CURRENT INPUT`: synchronized with the live 32-operation pre-release Swagger contract; wallet-session routes and Bearer security are removed.                          |
 | RTK Query service  | `CODE-COMPLETE`: all 26 GET and 6 POST operations are declared and typed.                                                                                              |
 | Read UI            | `CODE-COMPLETE`: all currently defined product surfaces are connected; 17 GET operations have UI consumers and nine service-only operations have no product surface.   |
-| Write UX           | `CODE-COMPLETE`: Start, Add, Stop, Withdraw, Manual Sell, and Close Position use the prepared-action workflow.                                                         |
+| Write UX           | `CODE-COMPLETE`: all six actions use prepared-action validation; Add Capital submits directly after preparation while the other review-bearing flows retain review.   |
 | Write integration  | `CODE-COMPLETE`: exact API-prepared calls, receipt-success completion, Start Copy list polling, stateless recovery preparation, and async cache refresh are connected. |
+
+## Changes Included Since the Previous Review
+
+The 2026-08-20 review also includes the Copy Trading commits between the prior
+status update and the current working tree:
+
+- `155ac5ebd` scopes wallet- and argument-sensitive RTK reads to `currentData`.
+  Agent actions, owner summaries, Copy Run performance, and Sidebar Open Copies
+  no longer retain a previous wallet, chain, Copy Run, or performance-window
+  result while the next query is pending. Open Copies also clears immediately
+  when no owner wallet is available.
+- `e1b98c55e` updates KPI icons and terminology, card sizing, Sidebar hierarchy
+  and navigation visuals, and the capital-input empty balance display.
+- `128783f4d` adds server-backed sorting to My Copies, standardizes prepared-flow
+  CTA hierarchy, uses red secondary Stop actions and a secondary Withdraw
+  action, shortens Agent metadata presentation, and highlights positive History
+  cashback.
 
 ## Contract and Service Coverage
 
@@ -131,6 +148,13 @@ Current primary-screen read behavior:
   keep the error state until the query refetches or the surface remounts.
 - Copy-run rows use their `agentSnapshot`; My Copies and History do not issue a
   redundant agent collection request.
+- Wallet- and argument-sensitive RTK reads consume `currentData`, so a result
+  cached under previous query arguments is not rendered while the current
+  request is pending. Sidebar Open Copies also requires a current owner.
+- My Copies supports server-backed sorting by Agent APR, Agent Win Rate, Agent
+  Volume, and Capital In. Repeated header selection cycles descending,
+  ascending, then the server default; each sort state owns a separate cursor
+  query chain.
 - Activity details are typed and Alerts Feed does not parse display summary text
   for P&L direction.
 - Summary KPI cards identify `STALE` metrics; unavailable values remain `—`.
@@ -177,14 +201,20 @@ Current primary-screen read behavior:
   quote-token configuration, action-specific minimums, 25/50/75/100 presets,
   wallet balance, decimal parsing, minimum/balance validation, and input UI.
   Each flow still owns its availability and network guards, preparation request
-  validation, review metrics, authorization or ownership rules, and navigation.
-- All six write flows use the same prepared-action presentation primitives for
-  review, recovery, and success actions. Error and expired states expose an
-  outlined Back action and a light Try again action; retry re-prepares into the
-  existing review state, whose server-owned values render skeletons while
-  loading and `N/A` when unavailable. Success keeps Close outlined while the
-  primary destination remains flow-owned: My Copies for Start/Add/Manual
-  Sell/Close Position and History for Stop/Withdraw.
+  validation, authorization or ownership rules, and navigation. Add Capital
+  owns its inline current/new allocation summary and has no review step.
+- Add Capital displays current allocation above the amount panel and the
+  client-projected new allocation below it as token amounts (`x SYMBOL`). Its
+  current value uses the existing canonical `capitalInUsd` display value with
+  the observed fallback because Copy Run summary has no raw allocated-token
+  field. Its CTA prepares, validates, simulates, and submits the returned call
+  directly.
+- All six write flows use the same prepared-action recovery and success
+  primitives. Review-bearing flows also use the shared review presentation.
+  Error and expired states expose Back and Try again actions; Add Capital retry
+  keeps its direct prepare-and-submit behavior. Success keeps Close outlined
+  while the primary destination remains flow-owned: My Copies for
+  Start/Add/Manual Sell/Close Position and History for Stop/Withdraw.
 - Stop Copy keeps position loading, selection, selection-cap validation, and
   selected-ID validation local. Manual Sell and Close Position keep their
   refreshed-position and FIFO validation in `ManagePositionModal`. These
@@ -198,8 +228,8 @@ Current primary-screen read behavior:
 The production write path is split by ownership:
 
 - Each action folder under `modals/` owns its modal composition, action-specific
-  guards, preparation request and response validation, review metrics, tests,
-  and destination navigation.
+  guards, preparation request and response validation, review or inline summary
+  metrics where applicable, tests, and destination navigation.
 - `modals/CapitalAmount/` owns the capital-entry state and UI shared by Start
   Copy and Add Capital: fixed supported quote-token configuration,
   action-specific minimums, wallet balance, presets, decimal parsing, and local
@@ -218,7 +248,8 @@ The production write path is split by ownership:
   History navigation. It does not create client-owned amount or recipient state.
 - `modals/PreparedActionModal/requestPreparation.ts` owns preparation status
   handling, bounded continuation polling, response validation, and transitions
-  into review, pending, unavailable, error, or completed states.
+  into review, direct READY handoff, pending, unavailable, error, or
+  completed states.
 - `modals/PreparedActionModal/usePreparedAction.ts` owns exact wallet
   simulation/submission, receipt wait, receipt retry without rebroadcast,
   action-specific post-receipt work, and completion notification.
@@ -257,9 +288,12 @@ Implemented behavior:
   open Copy Run list filtered by the exact Agent every two seconds for at most
   twenty seconds; it does not call Start preparation again. Success exposes
   Close and the My Copies destination.
-- Add Capital uses the fixed supported quote token for decimal-to-raw input,
-  then reviews the API quote token, minimum, wallet balance, and resulting
-  allocation.
+- Add Capital shows current allocation above the capital panel and the
+  client-projected new allocation below it as token-denominated values. Wallet
+  balance has an explicit spinner while its RPC read is pending. The Add Capital
+  CTA converts the decimal input to raw units, prepares and validates the exact
+  amount/call, then proceeds directly to wallet simulation and submission with
+  no intermediate review step.
 - Stop Copy fetches and renders the complete open-position list inside the modal.
   It fetches once when the modal opens and does not refresh the list again before
   preparation. The UI defaults at most 32 positions to selected, prevents
@@ -268,11 +302,10 @@ Implemented behavior:
   disables the review action without rendering a separate Retry control. Review
   shows the selected-position count, estimated position value, estimated
   cashback, and both expected and minimum total quote received.
-- All six write flows use shared review rows and prepared-action recovery states.
-  Server-owned review values use skeletons during re-preparation; missing
-  completed values use `N/A`. The Back action in error and expired states
-  returns to the editable flow state, while Try again starts preparation and
-  keeps the review in its loading presentation.
+- All six write flows use shared prepared-action recovery states. Flows that
+  retain review use shared review rows and skeletons for server-owned values.
+  Add Capital remains on its editable inline-summary view during preparation
+  and proceeds directly to wallet submission when preparation returns READY.
 - Withdraw is exposed only when the selected Copy Run status is `STOPPED`, then
   gated by `withdrawQuoteAvailability`. It sends `{}` to preparation and
   requires a positive prepared amount and connected-owner recipient. Review
@@ -313,7 +346,7 @@ Implemented behavior:
 | Capability     | Current production UI                                                                                                                                |
 | -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Start Copy     | Uses the API-selected Permit or Approve step, submits Create separately, then polls the Agent-filtered open Copy list and links to My Copies.        |
-| Add Capital    | Reviews quote-token, minimum, balance, and allocation data, then submits the exact prepared call.                                                    |
+| Add Capital    | Shows current/new token allocation inline, then prepares, validates, simulates, and submits the exact call without a separate review step.            |
 | Stop Copy      | Loads all open-position pages when opened, supports zero to 32 selected IDs, validates the payload cap, and submits the exact prepared call.         |
 | Withdraw Quote | Only a `STOPPED` Copy Detail exposes the availability-gated CTA; amount and owner recipient are server-prepared and non-editable.                    |
 | Manual Sell    | Refreshes the current position and authoritative FIFO, rechecks availability, then reviews the complete position-sell preview and prepares directly. |
@@ -343,10 +376,12 @@ unspecified, pending, or unavailable. Preparation remains authoritative, and
 `PENDING`, `UNAVAILABLE`, expired results, unexpected previews/stages/call kinds,
 or mismatched ownership never reach wallet submission.
 
-Start and Add use the fixed supported quote token for user input conversion;
-the preparation response owns token identity, minimums, balances, fees, and
-review values. Stop accepts an empty selection. Manual Sell has no arbitrary
-percentage input. Withdraw has no user-owned amount or recipient input.
+Start and Add use the fixed supported quote token for user input conversion.
+Start renders its preparation-owned review values. Add renders its current/new
+allocation summary before preparation, then still requires a validated READY
+response before direct wallet submission. Stop accepts an empty selection.
+Manual Sell has no arbitrary percentage input. Withdraw has no user-owned amount
+or recipient input.
 
 Prepared Smart Wallet identity is distinct from both `call.to` and
 `expectedAccount`. A diagnostic insufficient-allowance UUID does not bind the
@@ -380,6 +415,10 @@ are outside this code-implementation status.
 - The service surface contains 26 GET queries and 6 POST mutations.
 - All six preparation mutations have an owned UI flow.
 - The local ABI, mock signer, and mock transaction-hash path have been removed.
-- All 43 Copy Trading unit tests pass.
-- App TypeScript, Copy Trading ESLint, Prettier for the changed implementation,
-  Vite production build, and `git diff --check` pass.
+- All 45 Copy Trading unit tests pass, including the direct READY handoff test.
+- Commit review for this status covers `155ac5ebd`, `e1b98c55e`, and
+  `128783f4d` in addition to the current staged and unstaged working-tree
+  changes.
+- For the 2026-08-20 Add Capital update, app TypeScript, targeted ESLint,
+  Prettier, and `git diff --check` pass. Browser QA, a production build, and a
+  positive Add Capital transaction E2E were not run for this update.
