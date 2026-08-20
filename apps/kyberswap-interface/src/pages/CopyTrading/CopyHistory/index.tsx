@@ -60,7 +60,7 @@ const CopyHistoryView = () => {
       }).unwrap(),
   })
 
-  const { data: ownerSummary } = copyRunApi.useGetOwnerCopySummaryQuery(
+  const { currentData: ownerSummary } = copyRunApi.useGetOwnerCopySummaryQuery(
     {
       ownerAddress: ownerAddress || '',
       view: 'history',
