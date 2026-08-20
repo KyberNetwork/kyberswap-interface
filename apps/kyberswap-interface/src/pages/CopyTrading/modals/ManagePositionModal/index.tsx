@@ -208,7 +208,6 @@ const ManagePositionModal = ({ isOpen, onDismiss, position, mode }: ManagePositi
       title={actionLabel}
       review={review}
       confirmLabel={reviewPreparing ? 'Preparing' : actionLabel}
-      confirmVariant={isClose ? 'error' : 'warning'}
       onBack={flow.reset}
       onConfirm={() => void flow.confirm()}
       onRetry={() => void flow.retry()}
@@ -217,7 +216,6 @@ const ManagePositionModal = ({ isOpen, onDismiss, position, mode }: ManagePositi
       width={520}
     >
       <ManagePositionForm
-        actionColor={isClose ? 'var(--ks-red)' : 'var(--ks-warning)'}
         isPreparing={flowState.isPreparing === true}
         onPrimaryAction={handlePrimaryAction}
         onSlippageChange={setSlippage}
