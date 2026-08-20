@@ -72,9 +72,7 @@ export const useCapitalAmount = ({ account, action, connectedChainId, targetChai
   const walletBalanceText =
     walletBalanceRaw && quoteToken
       ? formatDisplayNumber(formatUnits(BigInt(walletBalanceRaw), quoteToken.decimals), { significantDigits: 8 })
-      : account
-      ? '0'
-      : 'Connect wallet'
+      : '0'
 
   const getPreset = (percentage: CapitalPercentage) => presetAmounts?.find(item => item.percentage === percentage)
 
