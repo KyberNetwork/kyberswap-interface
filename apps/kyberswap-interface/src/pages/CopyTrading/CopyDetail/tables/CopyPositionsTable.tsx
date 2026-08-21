@@ -1,0 +1,133 @@
+import type { HTMLAttributes } from 'react'
+import type { PositionActionKind, PositionSummary } from 'services/copyTrading/types/positions'
+
+import { ButtonLight } from 'components/Button'
+import { Stack } from 'components/Stack'
+import InfiniteScroll, { type InfiniteScrollState } from 'pages/CopyTrading/components/InfiniteScroll'
+import { HeaderCell, TableBody, TableCell, TableHeader, TableRow } from 'pages/CopyTrading/components/Table'
+import { ShortenedId } from 'pages/CopyTrading/components/common/layout'
+import { PositionLifecycleBadge } from 'pages/CopyTrading/components/common/status'
+import { copyTradingStatIconMap } from 'pages/CopyTrading/constants'
+import {
+  formatApproximateUsd,
+  formatUsd,
+  getSignedMetricClassName,
+  signedPercent,
+  signedUsd,
+} from 'pages/CopyTrading/helpers'
+import { useCopyTradingModal } from 'pages/CopyTrading/modals/context'
+import { cn } from 'utils/cn'
+import { formatDateTime } from 'utils/time'
+
+type TableGridWrapperProps = HTMLAttributes<HTMLDivElement> & {
+  header?: boolean
+}
+
+type PositionTableProps = {
+  infiniteScroll: InfiniteScrollState
+  loading?: boolean
+  rows: PositionSummary[]
+}
+
+const actionLabels: Partial<Record<PositionActionKind, string>> = {
+  POSITION_ACTION_KIND_MANUAL_SELL: 'Manual Sell',
+  POSITION_ACTION_KIND_CLOSE_POSITION: 'Close position',
+}
+
+const PositionAction = ({ position }: { position: PositionSummary }) => {
+  const { openManagePosition } = useCopyTradingModal()
+  const availableAction =
+    position.actionKind && position.actionKind !== 'POSITION_ACTION_KIND_UNSPECIFIED'
+      ? position.actionKind
+      : position.availableActionKinds.find(kind => kind !== 'POSITION_ACTION_KIND_UNSPECIFIED')
+  const label = availableAction && actionLabels[availableAction]
+  if (!label) return null
+
+  const isClose = availableAction === 'POSITION_ACTION_KIND_CLOSE_POSITION'
+
+  return (
+    <ButtonLight
+      type="button"
+      padding="7px 12px"
+      color={isClose ? 'var(--ks-red)' : 'var(--ks-warning)'}
+      className="whitespace-nowrap"
+      onClick={event => {
+        event.stopPropagation()
+        openManagePosition(position, isClose ? 'close' : 'sell')
+      }}
+    >
+      {label}
+    </ButtonLight>
+  )
+}
+
+const CopyPositionsGrid = ({ header, className, ...props }: TableGridWrapperProps) => {
+  const Grid = header ? TableHeader : TableRow
+
+  return (
+    <Grid
+      className={cn(
+        'min-w-[1120px] grid-cols-[minmax(0,0.8fr)_minmax(0,0.7fr)_minmax(0,0.9fr)_minmax(0,0.9fr)_minmax(0,0.9fr)_minmax(0,1.25fr)_minmax(0,0.85fr)_minmax(0,1.2fr)_minmax(0,1fr)_minmax(144px,1.1fr)] gap-x-3',
+        !header && 'px-4 py-1',
+        className,
+      )}
+      {...props}
+    />
+  )
+}
+
+export const CopyPositionsTable = ({ infiniteScroll, loading, rows }: PositionTableProps) => {
+  return (
+    <Stack>
+      <InfiniteScroll {...infiniteScroll}>
+        <CopyPositionsGrid header className="sticky top-0 z-[1]">
+          <HeaderCell>Trade ID</HeaderCell>
+          <HeaderCell>Token</HeaderCell>
+          <HeaderCell>Entry Price</HeaderCell>
+          <HeaderCell>Current</HeaderCell>
+          <HeaderCell>Value</HeaderCell>
+          <HeaderCell>Unrealised P&amp;L</HeaderCell>
+          <HeaderCell>Est. Rebate</HeaderCell>
+          <HeaderCell>Open Since</HeaderCell>
+          <HeaderCell>Status</HeaderCell>
+          <HeaderCell>Action</HeaderCell>
+        </CopyPositionsGrid>
+        <TableBody
+          className="min-w-[1120px]"
+          empty={!rows.length}
+          emptyIconUrl={copyTradingStatIconMap.positionOpen.iconUrl}
+          emptyMessage="No open positions found"
+          loading={loading}
+        >
+          {rows.map(row => {
+            return (
+              <CopyPositionsGrid key={row.positionId}>
+                <TableCell className="text-subText">
+                  <ShortenedId value={row.tradeId} />
+                </TableCell>
+                <TableCell>{row.token.symbol || '—'}</TableCell>
+                <TableCell>{formatUsd(row.entryPriceUsd)}</TableCell>
+                <TableCell>{formatUsd(row.currentPriceUsd)}</TableCell>
+                <TableCell>{formatUsd(row.valueUsd)}</TableCell>
+                <TableCell className={getSignedMetricClassName(row.unrealizedPnlUsd ?? row.unrealizedPnlPct)}>
+                  <Stack className="gap-0.5">
+                    <span className="whitespace-nowrap">{signedUsd(row.unrealizedPnlUsd)}</span>
+                    <span className="whitespace-nowrap text-xs">{signedPercent(row.unrealizedPnlPct)}</span>
+                  </Stack>
+                </TableCell>
+                <TableCell className="text-warning">{formatApproximateUsd(row.estimatedCashbackUsd)}</TableCell>
+                <TableCell className="text-subText">{formatDateTime(row.openedAt)}</TableCell>
+                <TableCell>
+                  <PositionLifecycleBadge lifecycle={row.lifecycle} quantityState={row.quantityState} />
+                </TableCell>
+                <TableCell>
+                  <PositionAction position={row} />
+                </TableCell>
+              </CopyPositionsGrid>
+            )
+          })}
+        </TableBody>
+      </InfiniteScroll>
+    </Stack>
+  )
+}

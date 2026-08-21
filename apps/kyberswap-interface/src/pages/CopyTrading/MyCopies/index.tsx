@@ -1,0 +1,112 @@
+import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import copyRunApi from 'services/copyTrading/api/endpoints/copyRuns'
+import type { CopyRunSortBy, SortOrder } from 'services/copyTrading/types/primitives'
+
+import { APP_PATHS } from 'constants/index'
+import useIsWalletRestoring from 'hooks/useIsWalletRestoring'
+import ActiveSubscriptionsTable from 'pages/CopyTrading/MyCopies/ActiveSubscriptionsTable'
+import { AlertsFeed, OpenCopiesSummary } from 'pages/CopyTrading/MyCopies/components'
+import CopyRunsPageHeading from 'pages/CopyTrading/components/CopyRunsPageHeading'
+import { useCursorPageQuery } from 'pages/CopyTrading/components/CursorPagination'
+import { useInfiniteCursorQuery } from 'pages/CopyTrading/components/InfiniteScroll'
+import { CopyTradingPage } from 'pages/CopyTrading/components/common/layout'
+import { OwnerWalletRequired } from 'pages/CopyTrading/components/common/status'
+import { useCopyTradingContext } from 'pages/CopyTrading/context'
+
+const PAGE_SIZE = 10
+
+const MyCopiesView = () => {
+  const navigate = useNavigate()
+  const { ownerAddress } = useCopyTradingContext()
+  const isRestoringWallet = useIsWalletRestoring()
+  const [sortBy, setSortBy] = useState<CopyRunSortBy>()
+  const [sortOrder, setSortOrder] = useState<SortOrder>()
+  const [getCopyRuns] = copyRunApi.useLazyGetCopyRunsQuery()
+  const [getOwnerActivity] = copyRunApi.useLazyGetOwnerActivityQuery()
+
+  const activeRunsPage = useCursorPageQuery({
+    enabled: !!ownerAddress,
+    queryKey: ['copy-trading', 'copy-runs', ownerAddress, 'open', sortBy, sortOrder],
+    queryFn: cursor =>
+      getCopyRuns({
+        ownerAddress: ownerAddress || '',
+        view: 'open',
+        sortBy,
+        sortOrder,
+        cursor,
+        limit: PAGE_SIZE,
+      }).unwrap(),
+  })
+
+  const {
+    infiniteScroll: activityInfiniteScroll,
+    isFetching: isActivityFetching,
+    items: activityRows,
+  } = useInfiniteCursorQuery({
+    enabled: !!ownerAddress,
+    queryKey: ['copy-trading', 'owner-activity', ownerAddress],
+    queryFn: cursor =>
+      getOwnerActivity({
+        ownerAddress: ownerAddress || '',
+        cursor,
+        limit: PAGE_SIZE,
+      }).unwrap(),
+  })
+
+  const { currentData: ownerSummary } = copyRunApi.useGetOwnerCopySummaryQuery(
+    {
+      ownerAddress: ownerAddress || '',
+      view: 'open',
+    },
+    { pollingInterval: 10_000, skip: !ownerAddress },
+  )
+
+  const activeRuns = activeRunsPage.items
+  const summary = ownerSummary?.data
+
+  const handleSortChange = (nextSortBy: CopyRunSortBy) => {
+    if (sortBy !== nextSortBy) {
+      setSortBy(nextSortBy)
+      setSortOrder('desc')
+      return
+    }
+    if (sortOrder === 'desc') {
+      setSortOrder('asc')
+      return
+    }
+    setSortBy(undefined)
+    setSortOrder(undefined)
+  }
+
+  return (
+    <CopyTradingPage>
+      <CopyRunsPageHeading activeView="open" />
+      {isRestoringWallet ? null : !ownerAddress ? (
+        <OwnerWalletRequired />
+      ) : (
+        <>
+          <OpenCopiesSummary summary={summary} fallbackActiveCopies={activeRuns.length} />
+          <ActiveSubscriptionsTable
+            loading={activeRunsPage.loading}
+            pagination={activeRunsPage}
+            rows={activeRuns}
+            sortBy={sortBy}
+            sortOrder={sortOrder}
+            onSortChange={handleSortChange}
+            onOpenSubscription={subscription =>
+              navigate(`${APP_PATHS.COPY_TRADING}/my-copies/${subscription.copyRunId}`)
+            }
+          />
+          <AlertsFeed
+            infiniteScroll={activityInfiniteScroll}
+            loading={isActivityFetching && !activityRows.length}
+            rows={activityRows}
+          />
+        </>
+      )}
+    </CopyTradingPage>
+  )
+}
+
+export default MyCopiesView

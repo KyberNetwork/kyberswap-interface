@@ -133,9 +133,11 @@ const StyledBalanceMax = ({ className, ...props }: React.ButtonHTMLAttributes<HT
 
 type BalanceRowProps = {
   account?: string | null
+  balanceActions?: ReactNode
   currency?: Currency | null
-  customBalanceText?: string
+  customBalanceText?: ReactNode
   label?: ReactNode
+  onBalanceClick?: () => void
   onHalf?: () => void
   onMax?: () => void
   positionLabel: 'in' | 'out'
@@ -145,23 +147,27 @@ type BalanceRowProps = {
 
 const BalanceRow = ({
   account,
+  balanceActions,
   currency,
   customBalanceText,
   label,
+  onBalanceClick,
   onHalf,
   onMax,
   positionLabel,
   positionMax,
   selectedCurrencyBalance,
 }: BalanceRowProps) => {
-  const showTopActions = (onMax || onHalf) && positionMax === 'top' && currency && account
+  const showTopActions = (balanceActions || onMax || onHalf) && positionMax === 'top' && currency && account
   const balance = customBalanceText ?? selectedCurrencyBalance?.toSignificant(10) ?? 0
+  const handleBalanceClick = onBalanceClick || onMax
 
   return (
     <div className="flex min-h-5 items-center justify-between text-xs">
       {(label && positionLabel === 'in') || showTopActions ? (
         <div className="flex items-center gap-1">
           {label && positionLabel === 'in' && label}
+          {showTopActions && balanceActions}
           {showTopActions && onMax && (
             <StyledBalanceMax onClick={onMax}>
               <Trans>Max</Trans>
@@ -177,12 +183,21 @@ const BalanceRow = ({
         <div />
       )}
 
-      <div onClick={onMax} className={cn('group flex items-center gap-1', onMax && 'cursor-pointer')}>
+      <button
+        type="button"
+        aria-label={handleBalanceClick ? 'Use maximum balance' : undefined}
+        disabled={!handleBalanceClick}
+        onClick={handleBalanceClick}
+        className={cn(
+          'group flex items-center gap-1 border-none bg-transparent p-0 text-xs',
+          handleBalanceClick ? 'cursor-pointer' : 'cursor-default',
+        )}
+      >
         <Wallet className="text-subText group-hover:text-text" />
         <span className="font-medium text-subText group-hover:text-text" data-testid="balance">
           {balance}
         </span>
-      </div>
+      </button>
     </div>
   )
 }
@@ -314,6 +329,8 @@ const PoolLockContent = (
 
 interface CurrencyInputPanelProps {
   value: string
+  balanceActions?: ReactNode
+  onBalanceClick?: () => void
   onMax?: () => void
   onHalf?: () => void
   onUserInput?: (value: string) => void
@@ -333,7 +350,7 @@ interface CurrencyInputPanelProps {
   id: string
   dataTestId?: string
   showPinnedTokens?: boolean
-  customBalanceText?: string
+  customBalanceText?: ReactNode
   hideLogo?: boolean
   highlightCurrencySelect?: boolean
   fontSize?: string
@@ -357,6 +374,8 @@ interface CurrencyInputPanelProps {
 
 export default function CurrencyInputPanel({
   value,
+  balanceActions,
+  onBalanceClick,
   error,
   onUserInput,
   onMax,
@@ -423,9 +442,11 @@ export default function CurrencyInputPanel({
           {!hideBalance && (
             <BalanceRow
               account={account}
+              balanceActions={balanceActions}
               currency={currency}
               customBalanceText={customBalanceText}
               label={label}
+              onBalanceClick={onBalanceClick}
               onHalf={onHalf}
               onMax={onMax}
               positionLabel={positionLabel}
