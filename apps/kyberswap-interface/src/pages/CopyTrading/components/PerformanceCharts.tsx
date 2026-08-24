@@ -119,13 +119,13 @@ type ChartStateProps = PropsWithChildren<{
 
 const ChartState = ({ children, className, isError, isEmpty, isLoading }: ChartStateProps) => {
   const state = isError ? (
-    <span className="text-sm font-medium text-red">Unable to load chart data.</span>
+    <p className="text-sm font-medium text-red">Unable to load chart data.</p>
   ) : isLoading ? (
-    <div className="text-sm font-medium text-subText">
+    <p className="text-sm font-medium text-subText">
       <Dots>Loading</Dots>
-    </div>
+    </p>
   ) : isEmpty ? (
-    <span className="text-sm font-medium text-subText">No chart data available.</span>
+    <p className="text-sm font-medium text-subText">No chart data available.</p>
   ) : null
 
   return (

@@ -42,7 +42,7 @@ const EmptyState = ({ iconUrl, message, className }: EmptyStateProps) => (
   <TableGrid className={cn('min-h-[180px] grid-cols-1 p-3', className)}>
     <Center className="col-span-full gap-2 text-center">
       {iconUrl ? <img src={iconUrl} alt="" className="size-8 opacity-80" /> : null}
-      <span className="text-sm font-medium text-subText">{message}</span>
+      <p className="text-sm font-medium text-subText">{message}</p>
     </Center>
   </TableGrid>
 )

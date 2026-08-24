@@ -2,7 +2,7 @@ import type { WithdrawQuotePreview } from 'services/copyTrading/types/preparedAc
 
 import { ButtonPrimary } from 'components/Button'
 import Dots from 'components/Dots'
-import { HStack, Stack } from 'components/Stack'
+import { Stack } from 'components/Stack'
 import { ReviewRow, ReviewSection } from 'pages/CopyTrading/modals/PreparedActionModal'
 import { formatPreparedAmount } from 'pages/CopyTrading/modals/PreparedActionModal/preparedAction'
 import { shortenAddress } from 'utils/address'
@@ -59,9 +59,9 @@ export const WithdrawQuoteForm = ({
       Withdraw the prepared maximum quote-token balance to the current owner. The amount and recipient are fixed by the
       latest server evidence and cannot be edited.
     </p>
-    <HStack className="items-start gap-2 rounded-xl bg-white-04 px-4 py-3 text-sm text-subText">
+    <p className="rounded-xl bg-white-04 px-4 py-3 text-sm text-subText">
       Open positions are not sold by this action. Recover positions separately when the API advertises an action.
-    </HStack>
+    </p>
     <ButtonPrimary type="button" disabled={primaryActionDisabled} title={availabilityMessage} onClick={onPrimaryAction}>
       {isPreparing ? <Dots>{primaryActionLabel}</Dots> : primaryActionLabel}
     </ButtonPrimary>

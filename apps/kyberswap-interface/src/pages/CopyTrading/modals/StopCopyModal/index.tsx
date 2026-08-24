@@ -47,7 +47,9 @@ const StopCopyModal = ({ isOpen, onDismiss, copyRun, agentName }: StopCopyModalP
   const [getCopyRunPositions] = copyRunApi.useLazyGetCopyRunPositionsQuery()
 
   const [flowState, setFlowState] = useState(DEFAULT_PREPARED_ACTION_STATE)
-  const [positions, setPositions] = useState<PositionSummary[]>()
+  const [positions, setPositions] = useState<PositionSummary[] | undefined>(
+    Number(copyRun.openPositionCount) === 0 ? [] : undefined,
+  )
   const [positionsError, setPositionsError] = useState<string>()
   const [selected, setSelected] = useState<Record<string, boolean>>({})
   const [slippage, setSlippage] = useState(DEFAULT_PREPARED_ACTION_SLIPPAGE)
@@ -62,7 +64,6 @@ const StopCopyModal = ({ isOpen, onDismiss, copyRun, agentName }: StopCopyModalP
   const loadPositions = useCallback(async () => {
     const requestId = ++positionsRequestId.current
 
-    setPositions(undefined)
     setPositionsError(undefined)
     setSelected({})
 

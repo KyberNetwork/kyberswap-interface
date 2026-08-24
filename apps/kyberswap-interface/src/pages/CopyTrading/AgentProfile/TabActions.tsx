@@ -32,7 +32,7 @@ const statusClassName = (status: string) =>
 const DetailSection = ({ label, children }: PropsWithChildren<{ label: string }>) => (
   <Stack className="gap-1">
     <span className="text-xs font-medium uppercase text-primary">{label}</span>
-    <div className="whitespace-pre-line break-words text-sm text-subText">{children}</div>
+    <p className="whitespace-pre-line break-words text-sm text-subText">{children}</p>
   </Stack>
 )
 
@@ -98,7 +98,7 @@ const ActionLogRow = ({ expanded, onToggle, row }: ActionLogRowProps) => {
             {expanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
           </span>
         </HStack>
-        {showSummary && <span className="break-words text-sm text-subText">{summary}</span>}
+        {showSummary && <p className="break-words text-sm text-subText">{summary}</p>}
         {(row.trigger || row.reasoning) && (
           <Stack className="min-w-0 flex-wrap gap-y-1 text-xs text-subText">
             {row.trigger && (
