@@ -5,7 +5,7 @@ import type { PositionSummary } from 'services/copyTrading/types/positions'
 
 import { useActiveWeb3React } from 'hooks'
 import AddCapitalModal from 'pages/CopyTrading/modals/AddCapitalModal'
-import ManagePositionModal, { type ManagePositionMode } from 'pages/CopyTrading/modals/ManagePositionModal'
+import ManagePositionModal, { type ManagePositionFlow } from 'pages/CopyTrading/modals/ManagePositionModal'
 import StartCopyModal from 'pages/CopyTrading/modals/StartCopyModal'
 import type { StartCopyTarget } from 'pages/CopyTrading/modals/StartCopyModal/startCopy'
 import StopCopyModal from 'pages/CopyTrading/modals/StopCopyModal'
@@ -16,14 +16,14 @@ type ActiveModal =
   | { type: 'addCapital'; copyRun: CopyRunSummary; agentName?: string }
   | { type: 'stopCopy'; copyRun: CopyRunSummary; agentName?: string }
   | { type: 'withdrawQuote'; copyRun: CopyRunSummary; withdrawQuoteAvailability?: AdvisoryActionAvailability }
-  | { type: 'managePosition'; position: PositionSummary; mode: ManagePositionMode }
+  | { type: 'managePosition'; position: PositionSummary; flow: ManagePositionFlow }
 
 type CopyTradingModalContextValue = {
   openStartCopy: (agent: StartCopyTarget) => void
   openAddCapital: (copyRun: CopyRunSummary, agentName?: string) => void
   openStopCopy: (copyRun: CopyRunSummary, agentName?: string) => void
   openWithdrawQuote: (copyRun: CopyRunSummary, availability?: AdvisoryActionAvailability) => void
-  openManagePosition: (position: PositionSummary, mode: ManagePositionMode) => void
+  openManagePosition: (position: PositionSummary, flow: ManagePositionFlow) => void
 }
 
 const CopyTradingModalContext = createContext<CopyTradingModalContextValue | undefined>(undefined)
@@ -48,7 +48,7 @@ export const CopyTradingModalProvider = ({ children }: PropsWithChildren) => {
       openStopCopy: (copyRun, agentName) => setActive({ type: 'stopCopy', copyRun, agentName }),
       openWithdrawQuote: (copyRun, withdrawQuoteAvailability) =>
         setActive({ type: 'withdrawQuote', copyRun, withdrawQuoteAvailability }),
-      openManagePosition: (position, mode) => setActive({ type: 'managePosition', position, mode }),
+      openManagePosition: (position, flow) => setActive({ type: 'managePosition', position, flow }),
     }),
     [],
   )
@@ -74,7 +74,7 @@ export const CopyTradingModalProvider = ({ children }: PropsWithChildren) => {
         />
       )}
       {active?.type === 'managePosition' && (
-        <ManagePositionModal isOpen onDismiss={close} position={active.position} mode={active.mode} />
+        <ManagePositionModal isOpen onDismiss={close} position={active.position} flow={active.flow} />
       )}
     </CopyTradingModalContext.Provider>
   )
