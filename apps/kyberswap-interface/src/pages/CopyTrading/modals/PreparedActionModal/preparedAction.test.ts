@@ -178,6 +178,38 @@ describe('validatePreparedAction', () => {
     )
   })
 
+  it('keeps active recovery and stopped-Copy position sells in separate contexts', () => {
+    const closeAction: PreparedAction = {
+      status: 'PREPARED_ACTION_STATUS_READY',
+      chainId: '8453',
+      expectedAccount: account,
+      copyAccount,
+      closePosition: { context: 'POSITION_SELL_CONTEXT_STOP_COPY' },
+      call: {
+        kind: 'PREPARED_CALL_KIND_CLOSE_POSITION',
+        to: callTarget,
+        data: '0x',
+        valueRaw: '0',
+      },
+    }
+    const closeExpected: PreparedActionExpectation = {
+      account,
+      callKinds: ['PREPARED_CALL_KIND_CLOSE_POSITION'],
+      chainId: 8453,
+      copyAccount,
+      positionSellContext: 'POSITION_SELL_CONTEXT_STOP_COPY',
+      preview: 'closePosition',
+    }
+
+    expect(validatePreparedAction(closeAction, closeExpected)).toBeUndefined()
+    expect(
+      validatePreparedAction(closeAction, {
+        ...closeExpected,
+        positionSellContext: 'POSITION_SELL_CONTEXT_ALIGN_SKIP',
+      }),
+    ).toBe('The prepared position sell context does not match the selected recovery flow.')
+  })
+
   it.each(['PREPARED_ACTION_STATUS_READY', 'PREPARED_ACTION_STATUS_PARTIALLY_COMPLETED'] as const)(
     'rejects an executable %s response after the funded Create receipt',
     status => {

@@ -5,6 +5,8 @@ import type { CopyAccountPositionsResponse, PendingSellObligationsResponse } fro
 import { describe, expect, it, vi } from 'vitest'
 
 import {
+  getPositionRecoveryAction,
+  isFullWadRatio,
   loadCurrentCopyAccountPosition,
   loadPendingSellObligations,
 } from 'pages/CopyTrading/modals/ManagePositionModal/positionData'
@@ -59,6 +61,64 @@ describe('loadCurrentCopyAccountPosition', () => {
         userPositionId: 'selected',
       }),
     ).rejects.toThrow('invalid pagination cursor')
+  })
+
+  it('keeps the requested position view while following the cursor chain', async () => {
+    const getPositions = vi.fn().mockReturnValue({
+      unwrap: () => Promise.resolve(page([position('selected')], { hasMore: false, limit: 100 })),
+    })
+
+    await loadCurrentCopyAccountPosition(getPositions, {
+      chainId: 8453,
+      copyAccount,
+      status: 'leftover',
+      userPositionId: 'selected',
+    })
+
+    expect(getPositions).toHaveBeenCalledWith({
+      chainId: 8453,
+      copyAccount,
+      cursor: undefined,
+      limit: 100,
+      status: 'leftover',
+    })
+  })
+})
+
+describe('getPositionRecoveryAction', () => {
+  const recoveryPosition = (
+    actionKind: PositionSummary['actionKind'],
+    availableActionKinds: PositionSummary['availableActionKinds'] = [],
+  ) => ({ actionKind, availableActionKinds } as PositionSummary)
+
+  it('selects Manual Sell for an active partial Agent sell recovery', () => {
+    expect(getPositionRecoveryAction(recoveryPosition('POSITION_ACTION_KIND_MANUAL_SELL'), 'active')).toBe(
+      'POSITION_ACTION_KIND_MANUAL_SELL',
+    )
+  })
+
+  it('selects the internal Close Position preparation for the active Manual Sell 100% case', () => {
+    expect(getPositionRecoveryAction(recoveryPosition('POSITION_ACTION_KIND_CLOSE_POSITION'), 'active')).toBe(
+      'POSITION_ACTION_KIND_CLOSE_POSITION',
+    )
+  })
+
+  it('only exposes Close Position as a product flow for a stopped Copy leftover', () => {
+    expect(
+      getPositionRecoveryAction(
+        recoveryPosition('POSITION_ACTION_KIND_MANUAL_SELL', ['POSITION_ACTION_KIND_CLOSE_POSITION']),
+        'leftover',
+      ),
+    ).toBe('POSITION_ACTION_KIND_CLOSE_POSITION')
+    expect(getPositionRecoveryAction(recoveryPosition('POSITION_ACTION_KIND_MANUAL_SELL'), 'leftover')).toBeUndefined()
+  })
+})
+
+describe('isFullWadRatio', () => {
+  it('accepts only an exact 100% WAD ratio', () => {
+    expect(isFullWadRatio('1000000000000000000')).toBe(true)
+    expect(isFullWadRatio('999999999999999999')).toBe(false)
+    expect(isFullWadRatio(undefined)).toBe(false)
   })
 })
 

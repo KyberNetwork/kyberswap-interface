@@ -132,7 +132,10 @@ const CopyDetailContent = ({ agent, backPath, run }: CopyDetailContentProps) => 
 
       <div className="grid grid-cols-[minmax(0,1fr)_340px] gap-4 max-xl:grid-cols-1">
         <Stack className="min-w-0 gap-4">
-          <CopyDetailTabs defaultTab={backPath === 'history' ? 'closed-positions' : 'open-positions'} run={run} />
+          <CopyDetailTabs
+            defaultTab={run.status === 'stopped' || backPath !== 'history' ? 'open-positions' : 'closed-positions'}
+            run={run}
+          />
           <CopyRunPerformance copyRunId={run.copyRunId} status={run.status} />
         </Stack>
         <StickySideColumn>

@@ -23,12 +23,10 @@ export const PositionValue = ({ symbol, tradeId }: { symbol?: string; tradeId: s
 )
 
 export const ManagePositionReview = ({
-  isClose,
   isLoading,
   position,
   preview,
 }: {
-  isClose: boolean
   isLoading: boolean
   position: PositionSummary
   preview?: PositionSellPreview
@@ -36,20 +34,18 @@ export const ManagePositionReview = ({
   const showSkeleton = isLoading && !preview
 
   return (
-    <ReviewSection title={isClose ? 'Review Close Position' : 'Review Manual Sell'}>
+    <ReviewSection title="Review Position">
       <ReviewRow
         label="Position"
         value={
           <PositionValue symbol={preview?.baseToken?.symbol || position.token.symbol} tradeId={position.tradeId} />
         }
       />
-      {!isClose && (
-        <ReviewRow
-          isLoading={showSkeleton}
-          label="Portion to sell"
-          value={withMetricFallback(formatWadPercent(preview?.sellRatioRaw))}
-        />
-      )}
+      <ReviewRow
+        isLoading={showSkeleton}
+        label="Portion to sell"
+        value={withMetricFallback(formatWadPercent(preview?.sellRatioRaw))}
+      />
       <ReviewRow
         isLoading={showSkeleton}
         label="Current position amount"
@@ -90,6 +86,7 @@ export const ManagePositionReview = ({
 }
 
 type ManagePositionFormProps = {
+  description: string
   isPreparing: boolean
   onPrimaryAction: () => void
   onSlippageChange: (slippage: number) => void
@@ -101,6 +98,7 @@ type ManagePositionFormProps = {
 }
 
 export const ManagePositionForm = ({
+  description,
   isPreparing,
   onPrimaryAction,
   onSlippageChange,
@@ -112,6 +110,7 @@ export const ManagePositionForm = ({
 }: ManagePositionFormProps) => {
   return (
     <Stack className="gap-4">
+      <p className="text-sm text-subText">{description}</p>
       <ReviewSection>
         <ReviewRow
           label="Position"
