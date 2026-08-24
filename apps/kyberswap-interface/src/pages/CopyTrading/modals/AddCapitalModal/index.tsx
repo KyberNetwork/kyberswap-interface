@@ -184,7 +184,6 @@ const AddCapitalModal = ({ isOpen, onDismiss, copyRun }: AddCapitalModalProps) =
         onExpectedChain={capital.onExpectedChain}
         onPercentageChange={setPercentageAmount}
         onPrimaryAction={handlePrimaryAction}
-        presetAmounts={capital.presetAmounts}
         presetsEnabled={capital.presetsEnabled}
         primaryActionLabel={primaryActionLabel}
         quoteCurrency={capital.quoteCurrency}

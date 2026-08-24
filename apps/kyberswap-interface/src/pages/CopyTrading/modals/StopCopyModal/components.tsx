@@ -3,11 +3,11 @@ import type { StopCopyPreview } from 'services/copyTrading/types/preparedActions
 
 import { ButtonPrimary } from 'components/Button'
 import Dots from 'components/Dots'
-import Loader from 'components/Loader'
 import ScrollableWithSignal from 'components/ScrollableWithSignal'
-import { Center, HStack, Stack } from 'components/Stack'
-import { ShortenedId } from 'pages/CopyTrading/components/common/layout'
-import { formatApproximateUsd, formatUsd, getSignedMetricClassName, signedUsd } from 'pages/CopyTrading/helpers'
+import Skeleton from 'components/Skeleton'
+import TableCellSkeleton from 'components/Skeleton/TableCellSkeleton'
+import { HStack, Stack } from 'components/Stack'
+import { formatApproximateUsd, getSignedMetricClassName, signedUsd } from 'pages/CopyTrading/helpers'
 import { ReviewRow, ReviewSection } from 'pages/CopyTrading/modals/PreparedActionModal'
 import PreparedActionSlippageControl from 'pages/CopyTrading/modals/PreparedActionModal/SlippageControl'
 import { formatPreparedAmount } from 'pages/CopyTrading/modals/PreparedActionModal/preparedAction'
@@ -15,51 +15,60 @@ import { MAX_STOP_POSITIONS, getUserPositionId } from 'pages/CopyTrading/modals/
 import { cn } from 'utils/cn'
 
 const withMetricFallback = (value: string) => (value === '—' ? 'N/A' : value)
+const withApproximateMetricFallback = (value: string) => (value === '—' ? 'N/A' : `~${value}`)
 
-export const StopCopyReview = ({
-  isLoading,
-  preview,
-  totalPositionCount,
-}: {
-  isLoading: boolean
-  preview?: StopCopyPreview
-  totalPositionCount: number
-}) => {
+export const StopCopyReview = ({ isLoading, preview }: { isLoading: boolean; preview?: StopCopyPreview }) => {
   const showSkeleton = isLoading && !preview
 
   return (
-    <ReviewSection title="Review Stop Copy">
-      <ReviewRow
-        isLoading={showSkeleton}
-        label="Positions to sell"
-        value={preview ? `${preview.positions?.length || 0}/${totalPositionCount}` : 'N/A'}
-      />
-      <ReviewRow
-        isLoading={showSkeleton}
-        label="Estimated position value"
-        value={formatUsd(preview?.totalCurrentValueUsd?.value)}
-      />
-      <ReviewRow
-        isLoading={showSkeleton}
-        label="Estimated cashback"
-        value={withMetricFallback(formatPreparedAmount(preview?.totalCashback, preview?.quoteToken))}
-      />
-      <ReviewRow
-        isLoading={showSkeleton}
-        label="Expected received"
-        value={withMetricFallback(formatPreparedAmount(preview?.totalSwapQuote?.expectedQuote, preview?.quoteToken))}
-      />
-      <ReviewRow
-        isLoading={showSkeleton}
-        label="Minimum received"
-        value={withMetricFallback(formatPreparedAmount(preview?.totalSwapQuote?.minimumQuote, preview?.quoteToken))}
-      />
-    </ReviewSection>
+    <Stack className="gap-4">
+      <Stack className="gap-3 rounded-xl bg-white-04 px-4 py-3">
+        <div className="text-sm font-medium text-subText">Positions to sell</div>
+        {showSkeleton ? (
+          <Skeleton width={64} height={28} variant="darkSubtle" />
+        ) : (
+          <HStack className="flex-wrap gap-2">
+            {preview?.positions?.map(position => (
+              <span
+                key={position.userPositionId}
+                className="inline-flex min-w-16 items-center justify-center rounded-lg bg-white-08 px-3 py-1 text-sm font-medium text-text"
+              >
+                {position.baseToken?.symbol || 'Unknown'}
+              </span>
+            ))}
+          </HStack>
+        )}
+      </Stack>
+
+      <ReviewSection>
+        <ReviewRow
+          isLoading={showSkeleton}
+          label="Est. positions value"
+          value={formatApproximateUsd(preview?.totalCurrentValueUsd?.value)}
+        />
+        <ReviewRow
+          isLoading={showSkeleton}
+          label="Est. cashback"
+          value={withApproximateMetricFallback(formatPreparedAmount(preview?.totalCashback, preview?.quoteToken))}
+        />
+        <ReviewRow
+          isLoading={showSkeleton}
+          label="Expected received"
+          value={withMetricFallback(formatPreparedAmount(preview?.totalSwapQuote?.expectedQuote, preview?.quoteToken))}
+        />
+        <ReviewRow
+          isLoading={showSkeleton}
+          label="Minimum received"
+          value={withMetricFallback(formatPreparedAmount(preview?.totalSwapQuote?.minimumQuote, preview?.quoteToken))}
+        />
+      </ReviewSection>
+    </Stack>
   )
 }
 
 type StopCopyFormProps = {
   availabilityMessage?: string
+  expectedPositionCount?: number
   isPreparing: boolean
   isSelected: (position: PositionSummary, index: number) => boolean
   onPrimaryAction: () => void
@@ -71,11 +80,13 @@ type StopCopyFormProps = {
   primaryActionLabel: string
   primaryActionLoading: boolean
   selectedPositionCount: number
+  selectedPositionValueUsd?: string
   slippage: number
 }
 
 export const StopCopyForm = ({
   availabilityMessage,
+  expectedPositionCount,
   isPreparing,
   isSelected,
   onPrimaryAction,
@@ -87,73 +98,94 @@ export const StopCopyForm = ({
   primaryActionLabel,
   primaryActionLoading,
   selectedPositionCount,
+  selectedPositionValueUsd,
   slippage,
 }: StopCopyFormProps) => {
+  const loadingPositionCount = Math.min(6, positions === undefined && !positionsError ? expectedPositionCount ?? 1 : 0)
+  const displayedPositionCount = positions?.length ?? expectedPositionCount
+  const hasPositionRows = (positions?.length ?? loadingPositionCount) > 0
+
   return (
     <Stack className="gap-4">
-      <HStack className="items-center justify-between gap-3">
-        <span className="text-sm text-subText">Select positions to sell:</span>
-        <span className="shrink-0 text-sm font-medium text-text">
-          {positions ? `${selectedPositionCount}/${positions.length}` : ''}
-        </span>
-      </HStack>
+      <Stack className="gap-2">
+        <HStack className="items-center justify-between gap-3">
+          <span className="text-sm text-subText">Select positions to sell:</span>
+          <span className="shrink-0 text-sm font-medium text-subText">
+            {displayedPositionCount === undefined ? '' : `${selectedPositionCount}/${displayedPositionCount}`}
+          </span>
+        </HStack>
 
-      <ScrollableWithSignal
-        data-open={positions?.length ? 'true' : 'false'}
-        showArrow
-        className={cn('flex flex-col gap-1', !!positions?.length && 'ks-scrollbar max-h-[286px] overflow-y-auto pr-1')}
-      >
-        {positions === undefined ? (
-          !positionsError ? (
-            <Center className="min-h-24">
-              <Loader />
-            </Center>
-          ) : null
-        ) : positions.length ? (
-          positions.map((position, index) => {
-            const userPositionId = getUserPositionId(position) as string
-            const checked = isSelected(position, index)
-            const selectionLimitReached = !checked && selectedPositionCount >= MAX_STOP_POSITIONS
+        <ScrollableWithSignal
+          data-open={hasPositionRows ? 'true' : 'false'}
+          showArrow
+          className={cn(
+            'flex flex-col gap-1 rounded-xl bg-white-04  p-1',
+            hasPositionRows && 'ks-scrollbar max-h-[244px] overflow-y-auto',
+          )}
+        >
+          {positions === undefined ? (
+            !positionsError ? (
+              Array.from({ length: loadingPositionCount }, (_, index) => (
+                <div
+                  key={index}
+                  className="grid min-h-9 animate-pulse grid-cols-[16px_minmax(60px,1fr)_140px_120px] items-center gap-2 rounded-lg px-3 py-2"
+                >
+                  <TableCellSkeleton width={14} height={14} className="rounded-[3px]" />
+                  <TableCellSkeleton width={48} height={16} />
+                  <HStack className="items-center gap-1">
+                    <TableCellSkeleton width={28} height={14} />
+                    <TableCellSkeleton width={72} height={16} />
+                  </HStack>
+                  <TableCellSkeleton width={72} height={16} className="justify-self-end" />
+                </div>
+              ))
+            ) : null
+          ) : positions.length ? (
+            positions.map((position, index) => {
+              const userPositionId = getUserPositionId(position) as string
+              const checked = isSelected(position, index)
+              const selectionLimitReached = !checked && selectedPositionCount >= MAX_STOP_POSITIONS
 
-            return (
-              <label
-                key={userPositionId}
-                className={cn(
-                  'grid grid-cols-[16px_96px_minmax(124px,1fr)_104px] items-center gap-3 rounded-lg bg-white-04 px-3 py-2',
-                  isPreparing || selectionLimitReached ? 'cursor-not-allowed opacity-50' : 'cursor-pointer',
-                )}
-              >
-                <input
-                  type="checkbox"
-                  checked={checked}
-                  disabled={isPreparing || selectionLimitReached}
-                  onChange={() => onTogglePosition(position, index)}
-                  className="size-4 shrink-0 accent-warning"
-                />
-                <Stack className="min-w-0 gap-0.5">
+              return (
+                <label
+                  key={userPositionId}
+                  className={cn(
+                    'grid grid-cols-[16px_minmax(60px,1fr)_140px_120px] items-center gap-2 rounded-lg px-3 py-2 transition-colors',
+                    isPreparing || selectionLimitReached
+                      ? 'cursor-not-allowed opacity-50'
+                      : 'cursor-pointer hover:bg-white-04',
+                  )}
+                >
+                  <input
+                    type="checkbox"
+                    checked={checked}
+                    disabled={isPreparing || selectionLimitReached}
+                    onChange={() => onTogglePosition(position, index)}
+                    className="size-3.5 shrink-0 accent-primary"
+                  />
                   <span className="truncate text-sm font-medium text-text">{position.token.symbol}</span>
-                  <span className="text-xs text-subText">
-                    <ShortenedId value={position.tradeId} />
+                  <HStack className="min-w-0 items-center gap-1">
+                    <span className="shrink-0 text-xs font-medium text-subText">P&amp;L</span>
+                    <span
+                      className={cn(
+                        'truncate text-sm font-medium',
+                        getSignedMetricClassName(position.unrealizedPnlUsd),
+                      )}
+                    >
+                      {signedUsd(position.unrealizedPnlUsd)}
+                    </span>
+                  </HStack>
+                  <span className="truncate text-right text-sm font-medium text-text">
+                    {formatApproximateUsd(position.valueUsd)}
                   </span>
-                </Stack>
-                <HStack className="min-w-0 items-center gap-1">
-                  <span className="shrink-0 text-xs font-medium text-subText">P&amp;L</span>
-                  <span
-                    className={cn('truncate text-sm font-medium', getSignedMetricClassName(position.unrealizedPnlUsd))}
-                  >
-                    {signedUsd(position.unrealizedPnlUsd)}
-                  </span>
-                </HStack>
-                <span className="truncate text-right text-sm font-medium text-text">
-                  {formatApproximateUsd(position.valueUsd)}
-                </span>
-              </label>
-            )
-          })
-        ) : (
-          <span className="text-center text-sm text-subText">No open positions. You can still stop copying.</span>
-        )}
-      </ScrollableWithSignal>
+                </label>
+              )
+            })
+          ) : (
+            <span className="text-center text-sm text-subText">No open positions. You can still stop copying.</span>
+          )}
+        </ScrollableWithSignal>
+      </Stack>
 
       {!!positions && positions.length > MAX_STOP_POSITIONS && (
         <span className="text-xs text-warning">
@@ -161,7 +193,13 @@ export const StopCopyForm = ({
         </span>
       )}
 
-      <PreparedActionSlippageControl disabled={isPreparing} onChange={onSlippageChange} value={slippage} />
+      <Stack className="gap-2 rounded-xl border border-border px-4 py-3">
+        <HStack className="items-center justify-between gap-3 text-sm">
+          <span className="text-subText">Est. value selected</span>
+          <span className="font-medium text-text">{formatApproximateUsd(selectedPositionValueUsd)}</span>
+        </HStack>
+        <PreparedActionSlippageControl disabled={isPreparing} onChange={onSlippageChange} value={slippage} />
+      </Stack>
 
       <ButtonPrimary
         type="button"

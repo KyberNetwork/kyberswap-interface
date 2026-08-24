@@ -7,6 +7,7 @@ import type { CopyRunSummary } from 'services/copyTrading/types/copyRuns'
 import LocalLoader from 'components/LocalLoader'
 import { Center, HStack, Stack } from 'components/Stack'
 import { APP_PATHS } from 'constants/index'
+import useIsWalletRestoring from 'hooks/useIsWalletRestoring'
 import { CopyDetailTabs } from 'pages/CopyTrading/CopyDetail/CopyDetailTabs'
 import CopyRunPerformance from 'pages/CopyTrading/CopyDetail/CopyRunPerformance'
 import CopySidePanel from 'pages/CopyTrading/CopyDetail/CopySidePanel'
@@ -145,6 +146,7 @@ const CopyDetailContent = ({ agent, backPath, run }: CopyDetailContentProps) => 
 const CopyDetailView = ({ backPath }: { backPath: 'my-copies' | 'history' }) => {
   const { copyId } = useParams()
   const { ownerAddress } = useCopyTradingContext()
+  const isRestoringWallet = useIsWalletRestoring()
 
   const copyRunQuery = { ownerAddress: ownerAddress || '', copyRunId: copyId || '' }
   const {
@@ -166,6 +168,8 @@ const CopyDetailView = ({ backPath }: { backPath: 'my-copies' | 'history' }) => 
   const run = copyRun?.data
   const profile = agent?.data
   const backLabel = backPath === 'history' ? 'History' : 'My Copies'
+
+  if (isRestoringWallet) return null
 
   if (!ownerAddress) {
     return (
