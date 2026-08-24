@@ -1,4 +1,4 @@
-import type { PropsWithChildren, ReactNode } from 'react'
+import type { PropsWithChildren } from 'react'
 import type { AgentCard, AgentProfile, AgentSnapshot } from 'services/copyTrading/types/agents'
 import type { CopyRunSummary } from 'services/copyTrading/types/copyRuns'
 import type { CopyRunStatus, StrategyKey } from 'services/copyTrading/types/primitives'
@@ -17,7 +17,7 @@ import {
 } from 'pages/CopyTrading/helpers'
 import { shortenAddress } from 'utils/address'
 import { cn } from 'utils/cn'
-import { formatShortDate } from 'utils/time'
+import { formatDate } from 'utils/time'
 
 type BadgeColor = 'magenta' | 'blue' | 'primary' | 'gray'
 
@@ -54,14 +54,47 @@ type AgentAvatarProps = {
 type AgentCellProps = {
   agent: AgentCard | AgentProfile | AgentSnapshot
   className?: string
-  nameExtension?: ReactNode
-  size?: AgentCellSize
-  subLineExtension?: ReactNode
 }
 
-const getLeaderAddress = (agent: AgentCard | AgentProfile | AgentSnapshot) => agent.leaderAddress
+type Agent = AgentCard | AgentProfile | AgentSnapshot
 
-const isVerifiedAgent = (agent: AgentCard | AgentProfile | AgentSnapshot) => agent.isVerified
+const getAgentStrategies = (agent: Agent) => {
+  const strategies = Array.from(
+    new Set(agent.strategyCategories.map(strategyCategoryKey).filter(strategy => strategy !== 'unknown')),
+  )
+  return strategies.length ? strategies : [agent.strategy]
+}
+
+const AgentName = ({ agent, large }: { agent: Agent; large?: boolean }) => {
+  const displayName = getAgentDisplayName(agent)
+
+  return (
+    <HStack className="min-w-0 items-center gap-2">
+      {large ? (
+        <h1 className="truncate text-lg font-medium text-text sm:text-2xl">{displayName}</h1>
+      ) : (
+        <span className="truncate text-base font-medium text-text">{displayName}</span>
+      )}
+      {agent.isVerified && <img src={verifiedIcon} alt="Verified" className="size-5 shrink-0" />}
+      {'isTrending' in agent && agent.isTrending && <span className="text-sm">🔥</span>}
+    </HStack>
+  )
+}
+
+const AgentStrategies = ({ agent }: { agent: Agent }) => (
+  <>
+    {getAgentStrategies(agent).map(strategy => (
+      <StrategyBadge key={strategy} strategy={strategy} />
+    ))}
+  </>
+)
+
+const MetadataGroup = ({ children }: PropsWithChildren) => (
+  <HStack className="shrink-0 flex-nowrap items-center gap-2 whitespace-nowrap">
+    <span>•</span>
+    {children}
+  </HStack>
+)
 
 export const AgentAvatar = ({ avatarUrl, chainId, displayName, size = 'sm' }: AgentAvatarProps) => {
   const { chains } = useCopyTradingContext()
@@ -86,34 +119,16 @@ export const AgentAvatar = ({ avatarUrl, chainId, displayName, size = 'sm' }: Ag
   )
 }
 
-export const AgentCell = ({ agent, className, nameExtension, size = 'sm', subLineExtension }: AgentCellProps) => {
+export const AgentCell = ({ agent, className }: AgentCellProps) => {
   const displayName = getAgentDisplayName(agent)
-  const isLarge = size === 'lg'
-  const strategies = Array.from(
-    new Set(agent.strategyCategories.map(strategyCategoryKey).filter(strategy => strategy !== 'unknown')),
-  )
-  if (!strategies.length) strategies.push(agent.strategy)
 
   return (
     <HStack className={cn('min-w-0 items-center gap-4', className)}>
-      <AgentAvatar avatarUrl={agent.avatarUrl} chainId={agent.chainId} displayName={displayName} size={size} />
-      <Stack className={cn('min-w-0', isLarge ? 'gap-2' : 'gap-1')}>
-        <HStack className="min-w-0 items-center gap-2">
-          {isLarge ? (
-            <h1 className="truncate text-2xl font-medium text-text">{displayName}</h1>
-          ) : (
-            <span className="truncate text-base font-medium text-text">{displayName}</span>
-          )}
-          {isVerifiedAgent(agent) && <img src={verifiedIcon} alt="Verified" className="size-5 shrink-0" />}
-          {nameExtension}
-          {'isTrending' in agent && agent.isTrending && <span className="text-sm">🔥</span>}
-        </HStack>
-        <HStack className={cn('items-center gap-2', isLarge && 'flex-wrap')}>
-          {strategies.map(strategy => (
-            <StrategyBadge key={strategy} strategy={strategy} />
-          ))}
-          <Badge color="gray">{agent.modelName}</Badge>
-          {subLineExtension}
+      <AgentAvatar avatarUrl={agent.avatarUrl} chainId={agent.chainId} displayName={displayName} />
+      <Stack className="min-w-0 flex-1 gap-1">
+        <AgentName agent={agent} />
+        <HStack className="flex-wrap items-center gap-2">
+          <AgentStrategies agent={agent} />
         </HStack>
       </Stack>
     </HStack>
@@ -146,31 +161,36 @@ export const CopyRunAgentCell = ({ className, run }: CopyRunAgentCellProps) => {
   )
 }
 
-export const AgentIdentity = ({ agent, status }: { agent: AgentCard | AgentProfile; status?: CopyRunStatus }) => (
-  <AgentCell
-    agent={agent}
-    nameExtension={status ? <CopyRunStatusBadge status={status} /> : undefined}
-    size="lg"
-    subLineExtension={
-      <HStack className="flex-wrap items-center gap-2 text-sm font-medium text-subText">
-        <span>•</span>
-        <span>{shortenAddress(agent.chainId, getLeaderAddress(agent))}</span>
-        <CopyHelper toCopy={getLeaderAddress(agent)} margin="0" size={13} className="text-subText" />
-        {'flatFeeRatePct' in agent && agent.flatFeeRatePct && (
-          <>
-            <span>•</span>
-            <span>Fee:</span>
-            <span className="text-text">{percent(agent.flatFeeRatePct)}</span>
-          </>
-        )}
-        {'liveSince' in agent && (
-          <>
-            <span>•</span>
-            <span className="text-primary">Live since</span>
-            <span className="text-text">{formatShortDate(agent.liveSince)}</span>
-          </>
-        )}
-      </HStack>
-    }
-  />
-)
+export const AgentIdentity = ({ agent, status }: { agent: AgentCard | AgentProfile; status?: CopyRunStatus }) => {
+  const displayName = getAgentDisplayName(agent)
+
+  return (
+    <HStack className="min-w-0 items-center gap-4">
+      <AgentAvatar avatarUrl={agent.avatarUrl} chainId={agent.chainId} displayName={displayName} size="lg" />
+      <Stack className="min-w-0 flex-1 gap-2">
+        <AgentName agent={agent} large />
+        <HStack className="flex-wrap items-center gap-2 text-sm font-medium text-subText">
+          <AgentStrategies agent={agent} />
+          <Badge color="gray">{agent.modelName}</Badge>
+          {status && <CopyRunStatusBadge status={status} />}
+          <MetadataGroup>
+            <span>{shortenAddress(agent.chainId, agent.leaderAddress)}</span>
+            <CopyHelper toCopy={agent.leaderAddress} margin="0" size={13} className="text-subText" />
+          </MetadataGroup>
+          {'flatFeeRatePct' in agent && agent.flatFeeRatePct && (
+            <MetadataGroup>
+              <span>Fee:</span>
+              <span className="text-text">{percent(agent.flatFeeRatePct)}</span>
+            </MetadataGroup>
+          )}
+          {'liveSince' in agent && (
+            <MetadataGroup>
+              <span className="text-primary">Live since</span>
+              <span className="text-text">{formatDate(agent.liveSince)}</span>
+            </MetadataGroup>
+          )}
+        </HStack>
+      </Stack>
+    </HStack>
+  )
+}

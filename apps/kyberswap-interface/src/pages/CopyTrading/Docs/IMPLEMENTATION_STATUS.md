@@ -14,14 +14,15 @@ declared in the frontend service.
 
 ## Implementation at a Glance
 
-| Layer              | Current status                                                                                                                                                         |
-| ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| BE API catalog     | `CURRENT INPUT`: 32 public operations are documented.                                                                                                                  |
-| Checked-in OpenAPI | `CURRENT INPUT`: synchronized with the live 32-operation pre-release Swagger contract; wallet-session routes and Bearer security are removed.                          |
-| RTK Query service  | `CODE-COMPLETE`: all 26 GET and 6 POST operations are declared and typed.                                                                                              |
-| Read UI            | `CODE-COMPLETE`: all currently defined product surfaces are connected; 17 GET operations have UI consumers and nine service-only operations have no product surface.   |
-| Write UX           | `CODE-COMPLETE`: all six actions use prepared-action validation; Add Capital submits directly after preparation while the other review-bearing flows retain review.    |
-| Write integration  | `CODE-COMPLETE`: exact API-prepared calls, receipt-success completion, Start Copy list polling, stateless recovery preparation, and async cache refresh are connected. |
+| Layer              | Current status                                                                                                                                                          |
+| ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| BE API catalog     | `CURRENT INPUT`: 32 public operations are documented.                                                                                                                   |
+| Checked-in OpenAPI | `CURRENT INPUT`: synchronized with the live 32-operation pre-release Swagger contract; wallet-session routes and Bearer security are removed.                           |
+| RTK Query service  | `CODE-COMPLETE`: all 26 GET and 6 POST operations are declared and typed.                                                                                               |
+| Read UI            | `CODE-COMPLETE`: all currently defined product surfaces are connected; 17 GET operations have UI consumers and nine service-only operations have no product surface.    |
+| Write UX           | `CODE-COMPLETE`: all six actions use prepared-action validation; Add Capital submits directly after preparation while the other review-bearing flows retain review.     |
+| Write integration  | `CODE-COMPLETE`: exact API-prepared calls, receipt-success completion, Start Copy list polling, stateless recovery preparation, and async cache refresh are connected.  |
+| Responsive UI      | `PARTIAL`: shared navigation, Leaderboard, and Agent Profile are responsive; owner Copy lists and Copy Detail data tables retain horizontally scrollable table layouts. |
 
 ## Changes Included Since the Previous Review
 
@@ -51,6 +52,12 @@ status update and the current working tree:
   block semantics, form labels target their inputs, and heading content no
   longer nests block rows. Stop Copy uses the Copy Run open-position count to
   stabilize its initial empty state and contextual note.
+- The current working tree also adds the first responsive-layout pass. It adds
+  a mobile Sidebar drawer with a sticky, horizontally scrollable breadcrumb;
+  converts the Agent Leaderboard and the three Agent Profile data tabs to card
+  layouts below the table breakpoint; compacts KPI cards, Agent identity,
+  controls, and performance charts by content type; and keeps side-panel
+  layouts from squeezing their primary content.
 
 ## Contract and Service Coverage
 
@@ -174,6 +181,35 @@ Current primary-screen read behavior:
 - My Copies, History, and Copy Detail suppress their disconnected-wallet state
   while a persisted wallet connection is restoring, then show the dedicated
   state only when the wallet is genuinely disconnected.
+
+## Responsive Layout Coverage
+
+Responsive behavior follows the shared application breakpoints by content
+type. Tailwind minimum-width screens are configured one pixel above the
+inclusive `MEDIA_WIDTHS` values, so CSS variants and JavaScript media queries
+meet at the same boundaries:
+
+- Up to `768px` (`max-sm` / `MEDIA_WIDTHS.upToSmall`): long tab labels use
+  their short forms; Agent identity and chart titles use compact typography;
+  Agent Profile performance charts can collapse with animated height and
+  opacity; and the chart window control stays inside the collapsible content.
+- Up to `992px` (`max-md`): KPI collections use two columns, with an odd final
+  item spanning the row. Agent Profile performance cards use reduced padding,
+  square full-bleed mobile surfaces, and compact icons and gaps. Copy Detail's
+  start/stop timeline stacks vertically.
+- Up to `1200px` (`max-lg`): the desktop Sidebar becomes a drawer; the sticky
+  breadcrumb replaces page-local Back links; Copy Trading page padding is
+  reduced; and the Agent Leaderboard plus Agent Profile Positions, History,
+  and Action Logs use card-oriented layouts instead of wide tables.
+- Up to `1400px` (`max-xl`): primary-content and 340px side-panel grids stack
+  into one column, and the side panel stops using sticky positioning.
+
+The responsive pass is intentionally incremental. My Copies and Copy History
+collections, plus the three Copy Detail tab tables, still use their existing
+bounded horizontal-scroll table layouts on narrow screens. Copy Detail
+performance charts also retain their non-collapsible padded card presentation.
+These surfaces are functional but are not part of the completed responsive
+coverage above.
 
 ## Accepted Product Decisions
 
@@ -383,14 +419,14 @@ Implemented behavior:
 
 ## Action Integration Matrix
 
-| Capability     | Current production UI                                                                                                                                |
-| -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Start Copy     | Uses the API-selected Permit or Approve step, submits Create separately, then polls the Agent-filtered open Copy list and links to My Copies.        |
-| Add Capital    | Shows current/new token allocation inline, then prepares, validates, simulates, and submits the exact call without a separate review step.           |
-| Stop Copy      | Loads all open-position pages, supports zero to 32 selected IDs, shows selected-value/slippage guidance, and submits the exact prepared call.        |
-| Withdraw Quote | Only a `STOPPED` Copy Detail exposes the availability-gated CTA; amount and owner recipient are server-prepared and non-editable.                    |
+| Capability     | Current production UI                                                                                                                                                          |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Start Copy     | Uses the API-selected Permit or Approve step, submits Create separately, then polls the Agent-filtered open Copy list and links to My Copies.                                  |
+| Add Capital    | Shows current/new token allocation inline, then prepares, validates, simulates, and submits the exact call without a separate review step.                                     |
+| Stop Copy      | Loads all open-position pages, supports zero to 32 selected IDs, shows selected-value/slippage guidance, and submits the exact prepared call.                                  |
+| Withdraw Quote | Only a `STOPPED` Copy Detail exposes the availability-gated CTA; amount and owner recipient are server-prepared and non-editable.                                              |
 | Manual Sell    | Active-Copy skipped-sell recovery. Partial sells use FIFO-backed Manual Sell preparation; the 100% case uses Close Position preparation internally. Both require `ALIGN_SKIP`. |
-| Close Position | Stopped-Copy leftover close. Loads and refreshes `LEFTOVER`, requires explicit leftover state and `STOP_COPY`, then links success to History.                  |
+| Close Position | Stopped-Copy leftover close. Loads and refreshes `LEFTOVER`, requires explicit leftover state and `STOP_COPY`, then links success to History.                                  |
 
 ## Implemented Write Invariants
 
@@ -469,7 +505,9 @@ to the typed service layer, and assigned to explicit shared or feature-local
 owners. The two position-sell flows above remain TODO only for controlled
 positive live E2E validation; their frontend implementation and static
 verification are complete. Product surfaces that have not been defined remain
-outside this code-implementation status.
+outside this code-implementation status. Responsive implementation remains
+partial at the surface level described in `Responsive Layout Coverage`; this
+does not change the read/write integration completion status.
 
 ## Verification
 
@@ -488,6 +526,10 @@ outside this code-implementation status.
   ESLint, all 51 Copy Trading unit tests, and staged/unstaged `git diff --check`
   pass. Browser QA, a production build, and positive live-transaction E2E were
   not run for this update.
+- For the 2026-08-24 responsive update, app TypeScript, targeted ESLint,
+  Prettier, all 51 Copy Trading unit tests, and staged/unstaged
+  `git diff --check` pass. Responsive browser QA was intentionally left for
+  manual verification and is not claimed here.
 - Manual Sell, including its partial and 100% variants, and stopped-Copy Close
   Position positive live E2E remain deferred until controlled eligibility
   fixtures are available.

@@ -10,16 +10,22 @@ import { copyTradingStatIconMap } from 'pages/CopyTrading/constants'
 import { compactUsd, formatCount } from 'pages/CopyTrading/helpers'
 import { cn } from 'utils/cn'
 
-const strategyOptions = [
-  { label: 'All Strategies', value: 'all' },
+export const strategyTabs = ['all', 'focused', 'diversified', 'active'] as const
+
+export type StrategyFilter = (typeof strategyTabs)[number]
+
+type StrategyOption = {
+  label: string
+  shortLabel?: string
+  value: StrategyFilter
+}
+
+const strategyOptions: readonly StrategyOption[] = [
+  { label: 'All Strategies', shortLabel: 'All', value: 'all' },
   { label: 'Focused', value: 'focused' },
   { label: 'Diversified', value: 'diversified' },
   { label: 'Active', value: 'active' },
-] as const
-
-export type StrategyFilter = (typeof strategyOptions)[number]['value']
-
-export const strategyTabs = strategyOptions.map(option => option.value)
+]
 
 export const toStrategyKey = (strategy: StrategyFilter): StrategyKey | undefined =>
   strategy === 'all' ? undefined : (strategy as StrategyKey)
@@ -66,23 +72,9 @@ type StrategyFilterControlProps = {
 }
 
 export const StrategyFilterControl = ({ activeStrategy, onChange }: StrategyFilterControlProps) => {
-  const activeIndex = strategyOptions.findIndex(option => option.value === activeStrategy)
-  const optionCount = strategyOptions.length
-
   return (
-    <Stack className="max-w-full overflow-x-auto">
-      <div
-        className="relative grid min-w-[420px] gap-1 rounded-xl bg-buttonBlack p-1"
-        role="tablist"
-        style={{ gridTemplateColumns: `repeat(${optionCount}, minmax(0, 1fr))` }}
-      >
-        <div
-          className="pointer-events-none absolute inset-y-1 left-1 rounded-lg bg-primary-20 [transition:transform_200ms_ease]"
-          style={{
-            width: `calc((100% - 8px - ${4 * (optionCount - 1)}px) / ${optionCount})`,
-            transform: `translateX(calc((100% + 4px) * ${Math.max(activeIndex, 0)}))`,
-          }}
-        />
+    <Stack className="w-full max-w-full lg:w-auto">
+      <div className="grid w-full grid-cols-4 gap-1 rounded-xl bg-buttonBlack p-1 lg:min-w-[420px]" role="tablist">
         {strategyOptions.map(option => {
           const active = activeStrategy === option.value
 
@@ -90,13 +82,16 @@ export const StrategyFilterControl = ({ activeStrategy, onChange }: StrategyFilt
             <ButtonEmpty
               key={option.value}
               aria-selected={active}
-              className={cn('relative z-[1] rounded-lg', active ? 'text-primary' : 'text-subText hover:bg-primary-10')}
+              className={cn(
+                'whitespace-nowrap rounded-lg px-1 py-2 text-xs transition-colors sm:px-3 sm:text-sm',
+                active ? 'bg-primary-20 text-primary' : 'text-subText hover:bg-primary-10',
+              )}
               onClick={() => onChange(option.value)}
-              padding="8px 12px"
               role="tab"
               type="button"
             >
-              {option.label}
+              <span className="sm:hidden">{option.shortLabel || option.label}</span>
+              <span className="hidden sm:inline">{option.label}</span>
             </ButtonEmpty>
           )
         })}

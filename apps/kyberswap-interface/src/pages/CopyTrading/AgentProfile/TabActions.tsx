@@ -74,7 +74,7 @@ const ActionLogRow = ({ expanded, onToggle, row }: ActionLogRowProps) => {
   const showSummary = !!summary && summary.toLowerCase() !== row.action.trim().toLowerCase()
 
   return (
-    <Stack className="gap-1.5 p-3">
+    <Stack className="gap-1.5 rounded-xl bg-buttonBlack-60 p-3 lg:rounded-none lg:bg-transparent">
       <Stack
         role="button"
         tabIndex={0}
@@ -93,21 +93,22 @@ const ActionLogRow = ({ expanded, onToggle, row }: ActionLogRowProps) => {
             {formatStatus(row.status)}
           </span>
           <span className="min-w-0 flex-1 break-words font-medium text-text">{row.action}</span>
-          <span className="shrink-0 text-xs">{formatDateTime(row.occurredAt)}</span>
+          <span className="shrink-0 text-xs max-lg:hidden">{formatDateTime(row.occurredAt)}</span>
           <span aria-hidden className="flex size-6 shrink-0 items-center justify-center text-text">
             {expanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
           </span>
         </HStack>
+        <span className="text-xs text-subText lg:hidden">{formatDateTime(row.occurredAt)}</span>
         {showSummary && <p className="break-words text-sm text-subText">{summary}</p>}
         {(row.trigger || row.reasoning) && (
-          <Stack className="min-w-0 flex-wrap gap-y-1 text-xs text-subText">
+          <Stack className="min-w-0 gap-y-1 text-xs text-subText">
             {row.trigger && (
-              <span className="min-w-0 truncate">
+              <span className="min-w-0 break-words lg:truncate">
                 <span className="font-medium text-text">Trigger:</span> {row.trigger}
               </span>
             )}
             {row.reasoning && (
-              <span className="min-w-0 flex-1 truncate">
+              <span className="min-w-0 break-words lg:truncate">
                 <span className="font-medium text-text">Reasoning:</span> {row.reasoning}
               </span>
             )}
@@ -170,8 +171,13 @@ const TabActions = ({ agentId }: { agentId: string }) => {
   return (
     <Stack>
       <InfiniteScroll {...infiniteScroll}>
-        <TableBody empty={!rows.length} emptyMessage="No action logs found" loading={isFetching && !rows.length}>
-          <Stack className="gap-0 px-4 py-2">
+        <TableBody
+          className="bg-transparent lg:bg-buttonBlack-60"
+          empty={!rows.length}
+          emptyMessage="No action logs found"
+          loading={isFetching && !rows.length}
+        >
+          <Stack className="gap-2 py-2 lg:gap-0 lg:px-4">
             {rows.map(row => (
               <ActionLogRow
                 key={row.logId}

@@ -12,6 +12,8 @@ const parseDateTime = (value?: DateTimeValue) => {
 
 export const formatDateTime = (value?: DateTimeValue) => parseDateTime(value)?.format('YYYY-MM-DD HH:mm') || '-'
 
+export const formatDate = (value?: DateTimeValue) => parseDateTime(value)?.format('YYYY-MM-DD') || '-'
+
 export const formatShortDate = (value?: DateTimeValue) => parseDateTime(value)?.format('MMM D') || '-'
 
 export const isChristmasTime = () => {
