@@ -4,7 +4,7 @@ import { ButtonPrimary } from 'components/Button'
 import Dots from 'components/Dots'
 import { HStack, Stack } from 'components/Stack'
 import CapitalAmountInput from 'pages/CopyTrading/modals/CapitalAmount'
-import { type CapitalPercentage, type CapitalPreset } from 'pages/CopyTrading/modals/CapitalAmount/capital'
+import { type CapitalPercentage } from 'pages/CopyTrading/modals/CapitalAmount/capital'
 
 const CapitalSummaryRow = ({ label, value }: { label: string; value: string }) => (
   <HStack className="items-center justify-between gap-4">
@@ -25,7 +25,6 @@ type AddCapitalFormProps = {
   onExpectedChain: boolean
   onPercentageChange: (percentage: CapitalPercentage) => void
   onPrimaryAction: () => void
-  presetAmounts?: CapitalPreset[]
   presetsEnabled: boolean
   primaryActionLabel: string
   quoteCurrency?: Token
@@ -48,7 +47,6 @@ export const AddCapitalForm = ({
   onExpectedChain,
   onPercentageChange,
   onPrimaryAction,
-  presetAmounts,
   presetsEnabled,
   primaryActionLabel,
   quoteCurrency,
@@ -68,7 +66,6 @@ export const AddCapitalForm = ({
         label="Add Capital"
         onAmountChange={onAmountChange}
         onPercentageChange={onPercentageChange}
-        presetAmounts={presetAmounts}
         presetsEnabled={presetsEnabled}
         quoteCurrency={quoteCurrency}
         selectedChainId={selectedChainId}

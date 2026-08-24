@@ -66,7 +66,6 @@ const StartCopyModal = ({ isOpen, onDismiss, agent }: StartCopyModalProps) => {
         onExpectedChain={flow.capital.onExpectedChain}
         onPercentageChange={flow.setPercentageAmount}
         onPrimaryAction={flow.handlePrimaryAction}
-        presetAmounts={flow.capital.presetAmounts}
         presetsEnabled={flow.capital.presetsEnabled}
         primaryActionLabel={flow.primaryActionLabel}
         quoteCurrency={flow.capital.quoteCurrency}

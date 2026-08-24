@@ -62,9 +62,9 @@ export const useCapitalAmount = ({ account, action, connectedChainId, targetChai
     !amount || !quoteToken || !minimumAmountRaw
       ? undefined
       : !amountRaw || amountBelowMinimum
-      ? `Minimum amount is ${formatPreparedAmount(minimumAmountRaw, quoteToken)}.`
+      ? `Minimum amount is ${formatPreparedAmount(minimumAmountRaw, quoteToken)}`
       : insufficientBalance
-      ? `Insufficient ${quoteToken.symbol} balance.`
+      ? `Insufficient ${quoteToken.symbol} balance`
       : undefined
   const amountIsValid = !!amountRaw && !amountBelowMinimum && !insufficientBalance && !walletBalanceLoading
 
