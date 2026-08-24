@@ -11,7 +11,7 @@ import InfoHelper from 'components/InfoHelper'
 import { Center, HStack, Stack } from 'components/Stack'
 import { getAgentInitials } from 'pages/CopyTrading/helpers'
 import CapitalAmountInput from 'pages/CopyTrading/modals/CapitalAmount'
-import { type CapitalPercentage, type CapitalPreset } from 'pages/CopyTrading/modals/CapitalAmount/capital'
+import { type CapitalPercentage } from 'pages/CopyTrading/modals/CapitalAmount/capital'
 import { ReviewRow, ReviewSection } from 'pages/CopyTrading/modals/PreparedActionModal'
 import { formatPreparedAmount, formatWadPercent } from 'pages/CopyTrading/modals/PreparedActionModal/preparedAction'
 import { type StartCopyTarget } from 'pages/CopyTrading/modals/StartCopyModal/startCopy'
@@ -123,7 +123,6 @@ type StartCopyFormProps = {
   onAmountChange: (amount: string) => void
   onPercentageChange: (percentage: CapitalPercentage) => void
   onPrimaryAction: () => void
-  presetAmounts?: CapitalPreset[]
   presetsEnabled: boolean
   primaryActionLabel: string
   quoteCurrency?: Token
@@ -146,7 +145,6 @@ export const StartCopyForm = ({
   onExpectedChain,
   onPercentageChange,
   onPrimaryAction,
-  presetAmounts,
   presetsEnabled,
   primaryActionLabel,
   quoteCurrency,
@@ -163,7 +161,6 @@ export const StartCopyForm = ({
         label="Allocate Capital"
         onAmountChange={onAmountChange}
         onPercentageChange={onPercentageChange}
-        presetAmounts={presetAmounts}
         presetsEnabled={presetsEnabled}
         quoteCurrency={quoteCurrency}
         selectedChainId={agent.chainId}

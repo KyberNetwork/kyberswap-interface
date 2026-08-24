@@ -10,7 +10,7 @@ import type { PreparedCallKind } from 'services/copyTrading/types/preparedAction
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
-import { getPreparedReasonMessage, isActionAvailable } from 'pages/CopyTrading/helpers'
+import { getPreparedReasonMessage, isActionAvailable, sumUsdValues } from 'pages/CopyTrading/helpers'
 import useRefreshCopyTrading from 'pages/CopyTrading/hooks/useRefreshCopyTrading'
 import PreparedActionModal, { PreparedActionSuccessActions } from 'pages/CopyTrading/modals/PreparedActionModal'
 import { DEFAULT_PREPARED_ACTION_SLIPPAGE } from 'pages/CopyTrading/modals/PreparedActionModal/SlippageControl'
@@ -96,6 +96,7 @@ const StopCopyModal = ({ isOpen, onDismiss, copyRun, agentName }: StopCopyModalP
   }
 
   const selectedPositions = selectablePositions.filter(isSelected)
+  const selectedPositionValueUsd = sumUsdValues(...selectedPositions.map(position => position.valueUsd))
 
   const flow = usePreparedAction({
     state: flowState,
@@ -189,14 +190,9 @@ const StopCopyModal = ({ isOpen, onDismiss, copyRun, agentName }: StopCopyModalP
 
   const primaryActionLoading = flowState.isPreparing || (positions === undefined && !positionsError)
   const reviewPreparing = flowState.phase === 'review' && flowState.isPreparing === true
+  const expectedPositionCount = Number(copyRun.openPositionCount)
 
-  const review = (
-    <StopCopyReview
-      isLoading={reviewPreparing}
-      preview={flowState.action?.stopCopy}
-      totalPositionCount={selectablePositions.length}
-    />
-  )
+  const review = <StopCopyReview isLoading={reviewPreparing} preview={flowState.action?.stopCopy} />
 
   const successActions = (
     <PreparedActionSuccessActions onClose={dismiss} onPrimaryAction={viewHistory} primaryLabel="View History" />
@@ -219,6 +215,7 @@ const StopCopyModal = ({ isOpen, onDismiss, copyRun, agentName }: StopCopyModalP
     >
       <StopCopyForm
         availabilityMessage={availabilityMessage}
+        expectedPositionCount={expectedPositionCount}
         isPreparing={flowState.isPreparing === true}
         isSelected={isSelected}
         onPrimaryAction={handlePrimaryAction}
@@ -235,6 +232,7 @@ const StopCopyModal = ({ isOpen, onDismiss, copyRun, agentName }: StopCopyModalP
         primaryActionLabel={primaryActionLabel}
         primaryActionLoading={primaryActionLoading}
         selectedPositionCount={selectedPositions.length}
+        selectedPositionValueUsd={selectedPositionValueUsd}
         slippage={slippage}
       />
     </PreparedActionModal>

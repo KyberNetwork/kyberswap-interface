@@ -1,7 +1,7 @@
 import { type ReactNode, useId, useState } from 'react'
 import { AlertCircle, CheckCircle, Clock, RotateCw } from 'react-feather'
 
-import { ButtonLight, ButtonOutlined, ButtonPrimary } from 'components/Button'
+import { ButtonOutlined, ButtonPrimary } from 'components/Button'
 import Dots from 'components/Dots'
 import Loader from 'components/Loader'
 import Modal from 'components/Modal'
@@ -158,8 +158,6 @@ const PreparedActionModal = ({
   const recoveryError = state.error ? friendlyError(state.error) : undefined
   const hasErrorDetail = state.phase === 'error' && !!state.error && recoveryError !== state.error
   const showErrorDetail = hasErrorDetail && expandedError === state.error
-  const RecoveryBackButton = recovery?.showBackAction ? ButtonOutlined : ButtonLight
-  const RecoveryRetryButton = recovery?.showBackAction ? ButtonLight : ButtonPrimary
   return (
     <Modal
       isOpen={isOpen}
@@ -312,14 +310,14 @@ const PreparedActionModal = ({
                 </ExternalLink>
               )}
               <HStack className="w-full gap-3">
-                <RecoveryBackButton
+                <ButtonOutlined
                   type="button"
                   className="flex-1"
                   onClick={recovery.showBackAction && onBack ? onBack : onDismiss}
                 >
                   {recovery.showBackAction ? 'Back' : 'Close'}
-                </RecoveryBackButton>
-                <RecoveryRetryButton type="button" className="flex-1" disabled={state.isPreparing} onClick={onRetry}>
+                </ButtonOutlined>
+                <ButtonPrimary type="button" className="flex-1" disabled={state.isPreparing} onClick={onRetry}>
                   {state.isPreparing ? (
                     <Dots>{recovery.retryLabel}</Dots>
                   ) : (
@@ -328,7 +326,7 @@ const PreparedActionModal = ({
                       {recovery.retryLabel}
                     </HStack>
                   )}
-                </RecoveryRetryButton>
+                </ButtonPrimary>
               </HStack>
             </Stack>
           )}
