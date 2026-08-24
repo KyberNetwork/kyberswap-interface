@@ -83,3 +83,8 @@ export const profileTabLabel: Record<ProfileTab, string> = {
   'trade-history': 'TRADE HISTORY',
   'action-log': 'ACTION LOG',
 }
+
+export const profileTabShortLabel: Partial<Record<ProfileTab, string>> = {
+  'trade-history': 'HISTORY',
+  'action-log': 'LOGS',
+}

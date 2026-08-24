@@ -1,4 +1,4 @@
-import { type HTMLAttributes, useMemo } from 'react'
+import { type HTMLAttributes, type MouseEvent, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import copyRunApi from 'services/copyTrading/api/endpoints/copyRuns'
 import type { AgentCard } from 'services/copyTrading/types/agents'
@@ -9,7 +9,14 @@ import { ButtonPrimary } from 'components/Button'
 import { Stack } from 'components/Stack'
 import { APP_PATHS } from 'constants/index'
 import CursorPagination, { type CursorPaginationState } from 'pages/CopyTrading/components/CursorPagination'
-import { HeaderCell, TableBody, TableCell, TableHeader, TableRow } from 'pages/CopyTrading/components/Table'
+import {
+  HeaderCell,
+  TableBody,
+  TableCardField,
+  TableCell,
+  TableHeader,
+  TableRow,
+} from 'pages/CopyTrading/components/Table'
 import { AgentCell } from 'pages/CopyTrading/components/common/agentIdentity'
 import { copyTradingStatIconMap } from 'pages/CopyTrading/constants'
 import { useCopyTradingContext } from 'pages/CopyTrading/context'
@@ -29,6 +36,15 @@ type LeaderboardGridProps = HTMLAttributes<HTMLDivElement> & {
   header?: boolean
 }
 
+type AgentTableProps = {
+  agents: AgentCard[]
+  loading?: boolean
+  pagination: CursorPaginationState
+  sortBy?: LeaderboardSortBy
+  sortOrder?: SortOrder
+  onSortChange: (sortBy: LeaderboardSortBy) => void
+}
+
 const LeaderboardGrid = ({ header, className, ...props }: LeaderboardGridProps) => {
   const Grid = header ? TableHeader : TableRow
 
@@ -41,15 +57,6 @@ const LeaderboardGrid = ({ header, className, ...props }: LeaderboardGridProps) 
       {...props}
     />
   )
-}
-
-type AgentTableProps = {
-  agents: AgentCard[]
-  loading?: boolean
-  pagination: CursorPaginationState
-  sortBy?: LeaderboardSortBy
-  sortOrder?: SortOrder
-  onSortChange: (sortBy: LeaderboardSortBy) => void
 }
 
 const AgentTable = ({ agents, loading, pagination, sortBy, sortOrder, onSortChange }: AgentTableProps) => {
@@ -79,9 +86,14 @@ const AgentTable = ({ agents, loading, pagination, sortBy, sortOrder, onSortChan
     navigate(`${APP_PATHS.COPY_TRADING}/${agentId}`)
   }
 
+  const handleAgentRowClick = (event: MouseEvent<HTMLElement>, agentId: string) => {
+    if ((event.target as HTMLElement).closest('button')) return
+    openAgent(agentId)
+  }
+
   return (
-    <Stack className="overflow-hidden rounded-xl bg-buttonBlack-60">
-      <div className="ks-scrollbar relative max-h-[480px] overflow-auto">
+    <Stack className="gap-2 lg:gap-0 lg:overflow-hidden lg:rounded-xl lg:bg-buttonBlack-60">
+      <div className="ks-scrollbar relative hidden max-h-[480px] overflow-auto lg:block">
         <LeaderboardGrid header className="sticky top-0 z-[1]">
           <HeaderCell>Agent</HeaderCell>
           <HeaderCell
@@ -156,10 +168,7 @@ const AgentTable = ({ agents, loading, pagination, sortBy, sortOrder, onSortChan
               <LeaderboardGrid
                 key={agent.agentId}
                 role="button"
-                onClick={event => {
-                  if ((event.target as HTMLElement).closest('button')) return
-                  openAgent(agent.agentId)
-                }}
+                onClick={event => handleAgentRowClick(event, agent.agentId)}
               >
                 <AgentCell agent={agent} className="px-3 py-2" />
                 <TableCell className={cn('text-right', getSignedMetricClassName(agent.stats.apr30dPct))}>
@@ -196,7 +205,63 @@ const AgentTable = ({ agents, loading, pagination, sortBy, sortOrder, onSortChan
           })}
         </TableBody>
       </div>
-      <CursorPagination {...pagination} />
+
+      <TableBody
+        className="grid gap-2 bg-transparent lg:hidden"
+        empty={!agents.length}
+        emptyIconUrl={copyTradingStatIconMap.agents.iconUrl}
+        emptyMessage={pagination.error ? 'Unable to load agents' : 'No agents found'}
+        loading={loading}
+      >
+        {agents.map(agent => {
+          const copiedRun = copiedRunsByAgentId?.[agent.agentId]
+          const canStartCopy = isActionAvailable(agent.startCopyAvailability)
+
+          return (
+            <Stack
+              key={agent.agentId}
+              role="button"
+              className="gap-3 rounded-xl bg-buttonBlack-60 p-3 outline-none transition-colors hover:bg-primary-10"
+              onClick={event => handleAgentRowClick(event, agent.agentId)}
+            >
+              <AgentCell agent={agent} className="gap-3" />
+
+              <div className="grid grid-cols-2 gap-x-3 gap-y-2">
+                <TableCardField label="Agent APR 30D" valueClassName={getSignedMetricClassName(agent.stats.apr30dPct)}>
+                  {percent(agent.stats.apr30dPct)}
+                </TableCardField>
+                <TableCardField label="Win Rate" valueClassName={getWinRateClassName(agent.stats.winRatePct)}>
+                  {percent(agent.stats.winRatePct)}
+                </TableCardField>
+                <TableCardField label="Volume">{compactUsd(agent.stats.volumeUsd)}</TableCardField>
+                <TableCardField label="Copiers">{formatCount(agent.stats.copiers)}</TableCardField>
+                <TableCardField label="AUM">{compactUsd(agent.stats.aumUsd)}</TableCardField>
+                <TableCardField label="Positions">{formatCount(agent.stats.openPositions)}</TableCardField>
+              </div>
+
+              {copiedRun ? (
+                <span className="flex min-h-9 items-center justify-center text-sm font-medium text-primary">
+                  Copied
+                </span>
+              ) : (
+                <ButtonPrimary
+                  type="button"
+                  padding="6px 12px"
+                  disabled={!canStartCopy}
+                  title={!canStartCopy ? getPreparedReasonMessage(agent.startCopyAvailability?.reason) : undefined}
+                  onClick={() => openStartCopy(agent)}
+                >
+                  Copy
+                </ButtonPrimary>
+              )}
+            </Stack>
+          )
+        })}
+      </TableBody>
+
+      <div className="overflow-hidden rounded-xl lg:rounded-none">
+        <CursorPagination {...pagination} />
+      </div>
     </Stack>
   )
 }

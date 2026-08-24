@@ -35,9 +35,9 @@ export const CopyTradingPage = ({ children, backTo, className }: CopyTradingPage
   const navigate = useNavigate()
 
   return (
-    <Stack as="main" className={cn('w-full min-w-0 flex-1 gap-4 px-8 pb-20 pt-6 max-md:px-4 max-md:pt-8', className)}>
+    <Stack as="main" className={cn('w-full min-w-0 flex-1 gap-4 px-8 pb-20 pt-6 max-lg:px-4 max-lg:pt-4', className)}>
       {backTo && (
-        <div className="w-fit">
+        <div className="w-fit max-lg:hidden">
           <ButtonEmpty
             type="button"
             onClick={() => navigate(backTo.to)}

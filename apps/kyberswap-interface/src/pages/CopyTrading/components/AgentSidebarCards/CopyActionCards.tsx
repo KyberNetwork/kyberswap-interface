@@ -38,7 +38,7 @@ export const CopyCapitalCard = ({
         <span className="text-xl font-medium text-primary">{capital}</span>
       </HStack>
       {hasActions && (
-        <HStack className="gap-3 max-md:flex-col">
+        <HStack className="gap-3">
           {onStopCopy && (
             <div className="w-full flex-1">
               <ButtonLight

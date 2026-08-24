@@ -2,6 +2,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { useEffect, useRef, useState } from 'react'
 import { ChevronDown, ChevronUp } from 'react-feather'
 import { useLocation } from 'react-router-dom'
+import agentApi from 'services/copyTrading/api/endpoints/agents'
 import copyRunApi from 'services/copyTrading/api/endpoints/copyRuns'
 import discoveryApi from 'services/copyTrading/api/endpoints/discovery'
 import type { AgentCard, Chain } from 'services/copyTrading/types/agents'
@@ -12,7 +13,7 @@ import { ReactComponent as OpenCopiesIcon } from 'assets/images/copy-trading/ic_
 import { ButtonEmpty } from 'components/Button'
 import { Center, HStack, Stack } from 'components/Stack'
 import { APP_PATHS } from 'constants/index'
-import MobileNavigation from 'pages/CopyTrading/components/Sidebar/MobileNavigation'
+import MobileNavigation, { type BreadcrumbItem } from 'pages/CopyTrading/components/Sidebar/MobileNavigation'
 import {
   SidebarMenuItem,
   type SidebarRouteState,
@@ -26,6 +27,79 @@ import { cn } from 'utils/cn'
 const SIDEBAR_ITEM_LIMIT = 10
 const DEFAULT_VISIBLE_AGENTS = 5
 const ACTIVE_COPY_DOT_COLORS = ['bg-primary', 'bg-yellow1', 'bg-blue3', 'bg-lightGreen', 'bg-warning'] as const
+const MY_COPIES_PATH = APP_PATHS.COPY_TRADING + '/my-copies'
+const HISTORY_PATH = APP_PATHS.COPY_TRADING + '/history'
+
+type AgentsSectionProps = {
+  activeAgentCode: string
+  agents: AgentCard[]
+  expanded: boolean
+  isActive: boolean
+  onToggle: () => void
+}
+
+type MyCopiesSectionProps = {
+  agentById: Map<string, AgentCard>
+  runs: CopyRunSummary[]
+  route: SidebarRouteState
+}
+
+type NetworksSectionProps = {
+  chains: Chain[]
+  onSelectChain: (chainId: number) => void
+  selectedChainId?: number
+}
+
+type SidebarContentProps = {
+  activeRuns: CopyRunSummary[]
+  agentById: Map<string, AgentCard>
+  agents: AgentCard[]
+  chains: Chain[]
+  expandedAgents: boolean
+  onSelectChain: (chainId: number) => void
+  onToggleAgents: () => void
+  route: SidebarRouteState
+  selectedChainId?: number
+}
+
+const getActiveCopyDotColor = (copyRunId: string) => {
+  const colorIndex = Array.from(copyRunId).reduce((hash, character) => (hash * 31 + character.charCodeAt(0)) >>> 0, 0)
+  return ACTIVE_COPY_DOT_COLORS[colorIndex % ACTIVE_COPY_DOT_COLORS.length]
+}
+
+const getCopyStatusDotColor = (run: CopyRunSummary) => {
+  if (run.status === 'active') return getActiveCopyDotColor(run.copyRunId)
+  if (run.status === 'closing') return 'bg-blue'
+  if (run.status === 'stopped') return 'bg-red'
+  return 'bg-subText'
+}
+
+const getBreadcrumbs = (
+  route: SidebarRouteState,
+  detailAgentName: string,
+  profileAgentName: string,
+): BreadcrumbItem[] => {
+  const breadcrumbs: BreadcrumbItem[] = [{ label: 'Copy Trading', to: APP_PATHS.COPY_TRADING }]
+
+  if (route.isCopiesPage) {
+    breadcrumbs.push(route.activeCopyId ? { label: 'My Copies', to: MY_COPIES_PATH } : { label: 'My Copies' })
+    if (route.activeCopyId) breadcrumbs.push({ label: detailAgentName })
+    return breadcrumbs
+  }
+
+  if (route.isHistorySectionActive) {
+    breadcrumbs.push(route.activeCopyId ? { label: 'History', to: HISTORY_PATH } : { label: 'History' })
+    if (route.activeCopyId) breadcrumbs.push({ label: detailAgentName })
+    return breadcrumbs
+  }
+
+  breadcrumbs.push(
+    route.isAgentProfilePage ? { label: 'Leaderboard', to: APP_PATHS.COPY_TRADING } : { label: 'Leaderboard' },
+  )
+  if (route.isAgentProfilePage) breadcrumbs.push({ label: profileAgentName })
+
+  return breadcrumbs
+}
 
 const AgentItem = ({ activeAgentCode, agent }: { activeAgentCode: string; agent: AgentCard }) => {
   const active = activeAgentCode === agent.agentId
@@ -38,14 +112,6 @@ const AgentItem = ({ activeAgentCode, agent }: { activeAgentCode: string; agent:
       <span className={cn('text-sm', active ? 'text-primary' : 'text-subText')}>{agent.displayName}</span>
     </SidebarMenuItem>
   )
-}
-
-type AgentsSectionProps = {
-  activeAgentCode: string
-  agents: AgentCard[]
-  expanded: boolean
-  isActive: boolean
-  onToggle: () => void
 }
 
 const AgentsSection = ({ activeAgentCode, agents, expanded, isActive, onToggle }: AgentsSectionProps) => {
@@ -90,28 +156,10 @@ const AgentsSection = ({ activeAgentCode, agents, expanded, isActive, onToggle }
   )
 }
 
-const getActiveCopyDotColor = (copyRunId: string) => {
-  const colorIndex = Array.from(copyRunId).reduce((hash, character) => (hash * 31 + character.charCodeAt(0)) >>> 0, 0)
-  return ACTIVE_COPY_DOT_COLORS[colorIndex % ACTIVE_COPY_DOT_COLORS.length]
-}
-
-const getCopyStatusDotColor = (run: CopyRunSummary) => {
-  if (run.status === 'active') return getActiveCopyDotColor(run.copyRunId)
-  if (run.status === 'closing') return 'bg-blue'
-  if (run.status === 'stopped') return 'bg-red'
-  return 'bg-subText'
-}
-
-type MyCopiesSectionProps = {
-  agentById: Map<string, AgentCard>
-  runs: CopyRunSummary[]
-  route: SidebarRouteState
-}
-
 const MyCopiesSection = ({ agentById, route, runs }: MyCopiesSectionProps) => {
   return (
     <SidebarSection title="My Copies" active={route.isMyCopiesSectionActive}>
-      <SidebarMenuItem to={APP_PATHS.COPY_TRADING + '/my-copies'} active={route.isCopiesPage} layout="between">
+      <SidebarMenuItem to={MY_COPIES_PATH} active={route.isCopiesPage} layout="between">
         <HStack className={cn('items-center gap-2 text-sm', route.isCopiesPage ? 'text-primary' : 'text-subText')}>
           <OpenCopiesIcon className="size-4 shrink-0" aria-hidden />
           <span>Open Copies</span>
@@ -127,7 +175,7 @@ const MyCopiesSection = ({ agentById, route, runs }: MyCopiesSectionProps) => {
           return (
             <SidebarMenuItem
               key={run.copyRunId}
-              to={APP_PATHS.COPY_TRADING + '/my-copies/' + run.copyRunId}
+              to={MY_COPIES_PATH + '/' + run.copyRunId}
               active={active}
               activeStyle="text"
               layout="row"
@@ -145,12 +193,7 @@ const MyCopiesSection = ({ agentById, route, runs }: MyCopiesSectionProps) => {
         })}
       </Stack>
 
-      <SidebarMenuItem
-        to={APP_PATHS.COPY_TRADING + '/history'}
-        active={route.isHistorySectionActive}
-        colorByActive
-        layout="row"
-      >
+      <SidebarMenuItem to={HISTORY_PATH} active={route.isHistorySectionActive} colorByActive layout="row">
         <HistoryIcon className="size-4 shrink-0" aria-hidden />
         <span>History</span>
       </SidebarMenuItem>
@@ -158,15 +201,7 @@ const MyCopiesSection = ({ agentById, route, runs }: MyCopiesSectionProps) => {
   )
 }
 
-const NetworksSection = ({
-  chains,
-  onSelectChain,
-  selectedChainId,
-}: {
-  chains: Chain[]
-  onSelectChain: (chainId: number) => void
-  selectedChainId?: number
-}) => {
+const NetworksSection = ({ chains, onSelectChain, selectedChainId }: NetworksSectionProps) => {
   return (
     <SidebarSection title="Networks" count={chains.length}>
       <Stack className="gap-1">
@@ -191,11 +226,39 @@ const NetworksSection = ({
   )
 }
 
+const SidebarContent = ({
+  activeRuns,
+  agentById,
+  agents,
+  chains,
+  expandedAgents,
+  onSelectChain,
+  onToggleAgents,
+  route,
+  selectedChainId,
+}: SidebarContentProps) => (
+  <Stack className="gap-5">
+    <MyCopiesSection agentById={agentById} route={route} runs={activeRuns} />
+    <div className="h-px bg-buttonGray" />
+    <AgentsSection
+      activeAgentCode={route.activeAgentCode}
+      agents={agents}
+      expanded={expandedAgents}
+      isActive={route.isAgentsPage}
+      onToggle={onToggleAgents}
+    />
+    <div className="h-px bg-buttonGray" />
+    <NetworksSection chains={chains} onSelectChain={onSelectChain} selectedChainId={selectedChainId} />
+  </Stack>
+)
+
 const Sidebar = () => {
   const location = useLocation()
   const { chains, ownerAddress, selectedChainId, setSelectedChainId } = useCopyTradingContext()
   const [expandedAgents, setExpandedAgents] = useState(false)
+  const [mobileOpen, setMobileOpen] = useState(false)
   const previousPathname = useRef(location.pathname)
+  const route = getSidebarRouteState(location.pathname)
 
   const { data: leaderboard } = discoveryApi.useGetLeaderboardQuery(
     { chainId: selectedChainId, limit: SIDEBAR_ITEM_LIMIT },
@@ -209,6 +272,14 @@ const Sidebar = () => {
     },
     { pollingInterval: 10_000, skip: !ownerAddress },
   )
+  const { currentData: breadcrumbCopyRun } = copyRunApi.useGetCopyRunQuery(
+    { ownerAddress: ownerAddress || '', copyRunId: route.activeCopyId },
+    { skip: !ownerAddress || !route.activeCopyId },
+  )
+  const { currentData: breadcrumbAgent } = agentApi.useGetAgentQuery(
+    { agentId: route.activeAgentCode },
+    { skip: !route.isAgentProfilePage },
+  )
 
   useEffect(() => {
     if (previousPathname.current === location.pathname) return
@@ -221,38 +292,47 @@ const Sidebar = () => {
   const activeRuns = ownerAddress ? openCopies?.data || [] : []
   const enabledChains = chains.filter(chain => chain.isEnabled)
   const agentById = new Map(agents.map(agent => [agent.agentId, agent]))
-  const route = getSidebarRouteState(location.pathname)
+  const listedCopyRun = activeRuns.find(run => run.copyRunId === route.activeCopyId)
+  const detailAgentName =
+    listedCopyRun?.agentSnapshot?.displayName ||
+    breadcrumbCopyRun?.data.agentSnapshot?.displayName ||
+    agentById.get(breadcrumbCopyRun?.data.agentId || '')?.displayName ||
+    'Copy Details'
+  const profileAgentName =
+    breadcrumbAgent?.data.displayName || agentById.get(route.activeAgentCode)?.displayName || 'Agent Profile'
+  const breadcrumbs = getBreadcrumbs(route, detailAgentName, profileAgentName)
 
   const selectChain = (chainId: number) => {
     setSelectedChainId(chainId)
     setExpandedAgents(false)
+    setMobileOpen(false)
+  }
+
+  const sidebarContentProps: SidebarContentProps = {
+    activeRuns,
+    agentById,
+    agents,
+    chains: enabledChains,
+    expandedAgents,
+    onSelectChain: selectChain,
+    onToggleAgents: () => setExpandedAgents(value => !value),
+    route,
+    selectedChainId,
   }
 
   return (
     <>
       <MobileNavigation
-        agentsCount={agents.length}
-        chains={enabledChains}
-        copiesCount={activeRuns.length}
-        onSelectChain={selectChain}
-        route={route}
-        selectedChainId={selectedChainId}
-      />
+        breadcrumbs={breadcrumbs}
+        isOpen={mobileOpen}
+        onDismiss={() => setMobileOpen(false)}
+        onOpen={() => setMobileOpen(true)}
+      >
+        <SidebarContent {...sidebarContentProps} />
+      </MobileNavigation>
 
       <aside className="sticky top-0 h-screen w-60 flex-none overflow-y-auto px-8 py-6 max-lg:hidden">
-        <Stack className="gap-5">
-          <MyCopiesSection agentById={agentById} route={route} runs={activeRuns} />
-          <div className="h-px bg-buttonGray" />
-          <AgentsSection
-            activeAgentCode={route.activeAgentCode}
-            agents={agents}
-            expanded={expandedAgents}
-            isActive={route.isAgentsPage}
-            onToggle={() => setExpandedAgents(value => !value)}
-          />
-          <div className="h-px bg-buttonGray" />
-          <NetworksSection chains={enabledChains} onSelectChain={selectChain} selectedChainId={selectedChainId} />
-        </Stack>
+        <SidebarContent {...sidebarContentProps} />
       </aside>
     </>
   )

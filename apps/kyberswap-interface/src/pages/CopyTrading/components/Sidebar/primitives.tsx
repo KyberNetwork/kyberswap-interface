@@ -8,9 +8,10 @@ import { cn } from 'utils/cn'
 export const getSidebarRouteState = (pathname: string) => {
   const isLeaderboardPage = pathname === APP_PATHS.COPY_TRADING
   const isCopiesPage = pathname.startsWith(APP_PATHS.COPY_TRADING + '/my-copies')
-  const isCopyDetailPage = pathname.startsWith(APP_PATHS.COPY_TRADING + '/my-copies/')
+  const isMyCopiesDetailPage = pathname.startsWith(APP_PATHS.COPY_TRADING + '/my-copies/')
   const isHistoryPage = pathname === APP_PATHS.COPY_TRADING + '/history'
   const isHistoryDetailPage = pathname.startsWith(APP_PATHS.COPY_TRADING + '/history/')
+  const isCopyDetailPage = isMyCopiesDetailPage || isHistoryDetailPage
   const activeAgentCode = pathname.replace(APP_PATHS.COPY_TRADING + '/', '').split('/')[0]
   const isAgentProfilePage =
     pathname.startsWith(APP_PATHS.COPY_TRADING + '/') && !isCopiesPage && !isHistoryPage && !isHistoryDetailPage
@@ -19,6 +20,7 @@ export const getSidebarRouteState = (pathname: string) => {
     activeAgentCode,
     activeCopyId: isCopyDetailPage ? pathname.split('/').at(-1) || '' : '',
     isAgentsPage: isLeaderboardPage || isAgentProfilePage,
+    isAgentProfilePage,
     isCopiesPage,
     isHistoryPage,
     isHistorySectionActive: isHistoryPage || isHistoryDetailPage,

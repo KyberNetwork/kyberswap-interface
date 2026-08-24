@@ -13,7 +13,7 @@ import TabHistory from 'pages/CopyTrading/AgentProfile/TabHistory'
 import TabPositions from 'pages/CopyTrading/AgentProfile/TabPositions'
 import { AgentIdentity } from 'pages/CopyTrading/components/common/agentIdentity'
 import { CopyTradingPage, StickySideColumn } from 'pages/CopyTrading/components/common/layout'
-import { type ProfileTab, profileTabLabel, profileTabs } from 'pages/CopyTrading/constants'
+import { type ProfileTab, profileTabLabel, profileTabShortLabel, profileTabs } from 'pages/CopyTrading/constants'
 import { cn } from 'utils/cn'
 
 type AgentProfileTabsProps = PropsWithChildren<{
@@ -23,8 +23,8 @@ type AgentProfileTabsProps = PropsWithChildren<{
 
 const Tabs = ({ activeTab, onTabChange, children }: AgentProfileTabsProps) => {
   return (
-    <Stack className="overflow-hidden rounded-xl bg-buttonBlack-60">
-      <HStack className="items-center gap-3 border-b border-darkBorder bg-background pr-4">
+    <Stack className="overflow-hidden rounded-xl lg:bg-buttonBlack-60">
+      <HStack className="items-center border-b border-darkBorder bg-background">
         <div className="flex min-w-0 flex-1 items-stretch overflow-x-auto" role="tablist">
           {profileTabs.map((tab, index) => {
             const active = activeTab === tab
@@ -35,7 +35,7 @@ const Tabs = ({ activeTab, onTabChange, children }: AgentProfileTabsProps) => {
                 key={tab}
                 aria-selected={active}
                 className={cn(
-                  'relative flex min-h-10 shrink-0 cursor-pointer items-center border-0 px-4 py-2 text-sm font-medium',
+                  'relative flex min-h-10 min-w-0 flex-auto cursor-pointer items-center justify-center border-0 p-2 text-sm font-medium sm:flex-none sm:px-4',
                   !isLast && 'border-r border-darkBorder',
                   active
                     ? 'bg-primary-15 text-primary shadow-[inset_0_-2px_0_var(--ks-primary)] hover:bg-primary-20 hover:text-primary'
@@ -45,7 +45,10 @@ const Tabs = ({ activeTab, onTabChange, children }: AgentProfileTabsProps) => {
                 role="tab"
                 type="button"
               >
-                <span className="text-sm font-medium uppercase">{profileTabLabel[tab]}</span>
+                <span className="text-sm font-medium uppercase sm:hidden">
+                  {profileTabShortLabel[tab] || profileTabLabel[tab]}
+                </span>
+                <span className="hidden text-sm font-medium uppercase sm:inline">{profileTabLabel[tab]}</span>
               </button>
             )
           })}
