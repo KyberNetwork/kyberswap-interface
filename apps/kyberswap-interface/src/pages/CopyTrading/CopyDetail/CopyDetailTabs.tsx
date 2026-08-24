@@ -38,25 +38,31 @@ type CopyRunPanelProps = {
 const OpenPositionsPanel = ({ enabled = true, run }: CopyRunPanelProps) => {
   const { ownerAddress } = useCopyTradingContext()
   const [getCopyRunPositions] = copyRunApi.useLazyGetCopyRunPositionsQuery()
+  const positionContext = run.status === 'stopped' ? 'leftover' : 'active'
   const {
     infiniteScroll,
     isFetching,
     items: positions,
   } = useInfiniteCursorQuery({
     enabled: !!ownerAddress && enabled,
-    queryKey: ['copy-trading', 'copy-run-positions', ownerAddress, run.copyRunId, 'open'],
+    queryKey: ['copy-trading', 'copy-run-positions', ownerAddress, run.copyRunId, positionContext],
     queryFn: cursor =>
       getCopyRunPositions({
         ownerAddress: ownerAddress || '',
         copyRunId: run.copyRunId,
-        status: 'open',
+        status: positionContext === 'leftover' ? 'leftover' : 'open',
         cursor,
         limit: 100,
       }).unwrap(),
   })
 
   return (
-    <CopyPositionsTable infiniteScroll={infiniteScroll} loading={isFetching && !positions.length} rows={positions} />
+    <CopyPositionsTable
+      infiniteScroll={infiniteScroll}
+      loading={isFetching && !positions.length}
+      positionContext={positionContext}
+      rows={positions}
+    />
   )
 }
 
@@ -137,7 +143,9 @@ export const CopyDetailTabs = ({
             const isLast = index === tabs.length - 1
             const count =
               tab === 'open-positions'
-                ? run.openPositionCount
+                ? run.status === 'stopped'
+                  ? run.leftoverPositionCount
+                  : run.openPositionCount
                 : tab === 'closed-positions'
                 ? run.closedPositionCount
                 : undefined

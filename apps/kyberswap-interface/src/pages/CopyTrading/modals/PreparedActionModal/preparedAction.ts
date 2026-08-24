@@ -1,5 +1,6 @@
 import type { Dispatch, SetStateAction } from 'react'
 import type {
+  PositionSellContext,
   PreparedAction,
   PreparedCallKind,
   PreparedToken,
@@ -51,6 +52,7 @@ export type PreparedActionExpectation = {
   callKinds: readonly PreparedCallKind[]
   chainId: number
   copyAccount?: string
+  positionSellContext?: PositionSellContext
   preview: 'startCopy' | 'addCapital' | 'stopCopy' | 'withdrawQuote' | 'manualSell' | 'closePosition'
   startCopyPredictedAccount?: string
   startCopyCreateAmountRaw?: string
@@ -146,6 +148,21 @@ export const validatePreparedAction = (
   ).filter(key => action[key] !== undefined)
   if (previewKeys.length !== 1 || previewKeys[0] !== expected.preview) {
     return 'The preparation returned an unexpected action preview.'
+  }
+
+  if (expected.positionSellContext) {
+    const positionSellPreview =
+      expected.preview === 'manualSell'
+        ? action.manualSell
+        : expected.preview === 'closePosition'
+        ? action.closePosition
+        : undefined
+    if (
+      (positionSellPreview?.context && positionSellPreview.context !== expected.positionSellContext) ||
+      (requireCall && positionSellPreview?.context !== expected.positionSellContext)
+    ) {
+      return 'The prepared position sell context does not match the selected recovery flow.'
+    }
   }
 
   const call = action.call

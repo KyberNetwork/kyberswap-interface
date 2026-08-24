@@ -1,5 +1,5 @@
 import type { HTMLAttributes } from 'react'
-import type { PositionActionKind, PositionSummary } from 'services/copyTrading/types/positions'
+import type { PositionSummary } from 'services/copyTrading/types/positions'
 
 import { ButtonLight } from 'components/Button'
 import { Stack } from 'components/Stack'
@@ -15,6 +15,10 @@ import {
   signedPercent,
   signedUsd,
 } from 'pages/CopyTrading/helpers'
+import {
+  type PositionRecoveryContext,
+  getPositionRecoveryAction,
+} from 'pages/CopyTrading/modals/ManagePositionModal/positionData'
 import { useCopyTradingModal } from 'pages/CopyTrading/modals/context'
 import { cn } from 'utils/cn'
 import { formatDateTime } from 'utils/time'
@@ -26,34 +30,33 @@ type TableGridWrapperProps = HTMLAttributes<HTMLDivElement> & {
 type PositionTableProps = {
   infiniteScroll: InfiniteScrollState
   loading?: boolean
+  positionContext?: PositionRecoveryContext
   rows: PositionSummary[]
 }
 
-const actionLabels: Partial<Record<PositionActionKind, string>> = {
-  POSITION_ACTION_KIND_MANUAL_SELL: 'Manual Sell',
-  POSITION_ACTION_KIND_CLOSE_POSITION: 'Close position',
-}
-
-const PositionAction = ({ position }: { position: PositionSummary }) => {
+const PositionAction = ({
+  position,
+  positionContext,
+}: {
+  position: PositionSummary
+  positionContext: PositionRecoveryContext
+}) => {
   const { openManagePosition } = useCopyTradingModal()
-  const availableAction =
-    position.actionKind && position.actionKind !== 'POSITION_ACTION_KIND_UNSPECIFIED'
-      ? position.actionKind
-      : position.availableActionKinds.find(kind => kind !== 'POSITION_ACTION_KIND_UNSPECIFIED')
-  const label = availableAction && actionLabels[availableAction]
-  if (!label) return null
+  const availableAction = getPositionRecoveryAction(position, positionContext)
+  if (!availableAction) return null
 
-  const isClose = availableAction === 'POSITION_ACTION_KIND_CLOSE_POSITION'
+  const isStoppedClose = positionContext === 'leftover'
+  const label = isStoppedClose ? 'Close Position' : 'Manual Sell'
 
   return (
     <ButtonLight
       type="button"
       padding="7px 12px"
-      color={isClose ? 'var(--ks-red)' : 'var(--ks-warning)'}
+      color={isStoppedClose ? 'var(--ks-red)' : 'var(--ks-warning)'}
       className="whitespace-nowrap"
       onClick={event => {
         event.stopPropagation()
-        openManagePosition(position, isClose ? 'close' : 'sell')
+        openManagePosition(position, isStoppedClose ? 'closePosition' : 'manualSell')
       }}
     >
       {label}
@@ -76,7 +79,12 @@ const CopyPositionsGrid = ({ header, className, ...props }: TableGridWrapperProp
   )
 }
 
-export const CopyPositionsTable = ({ infiniteScroll, loading, rows }: PositionTableProps) => {
+export const CopyPositionsTable = ({
+  infiniteScroll,
+  loading,
+  positionContext = 'active',
+  rows,
+}: PositionTableProps) => {
   return (
     <Stack>
       <InfiniteScroll {...infiniteScroll}>
@@ -121,7 +129,7 @@ export const CopyPositionsTable = ({ infiniteScroll, loading, rows }: PositionTa
                   <PositionLifecycleBadge lifecycle={row.lifecycle} quantityState={row.quantityState} />
                 </TableCell>
                 <TableCell>
-                  <PositionAction position={row} />
+                  <PositionAction position={row} positionContext={positionContext} />
                 </TableCell>
               </CopyPositionsGrid>
             )
