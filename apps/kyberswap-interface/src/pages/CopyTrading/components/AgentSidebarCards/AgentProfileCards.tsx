@@ -62,7 +62,7 @@ export const StrategyExecutionCard = ({ items }: { items: AgentProfile['strategy
           ))}
         </Stack>
       ) : (
-        <span className="text-sm text-subText">No strategy or execution details available</span>
+        <p className="text-sm text-subText">No strategy or execution details available</p>
       )}
     </SidePanelCard>
   )
@@ -72,7 +72,7 @@ export const WhitelistedTokensCard = ({ tokens }: { tokens: string[] }) => {
   return (
     <SidePanelCard
       title={
-        <HStack className="items-center gap-1">
+        <HStack as="span" className="items-center gap-1">
           Whitelisted Tokens
           <InfoHelper margin={false} placement="top" size={14} text="Agent will trade within this list of tokens" />
         </HStack>
@@ -89,7 +89,7 @@ export const WhitelistedTokensCard = ({ tokens }: { tokens: string[] }) => {
             </span>
           ))
         ) : (
-          <span className="text-sm font-medium text-subText">No whitelisted tokens</span>
+          <p className="text-sm font-medium text-subText">No whitelisted tokens</p>
         )}
       </HStack>
     </SidePanelCard>

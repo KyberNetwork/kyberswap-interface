@@ -86,7 +86,7 @@ const RemainingInWalletCard = ({
       bodyClassName={cn('max-h-[300px] gap-0 overflow-y-auto', bodyClassName)}
       headerRight={
         headerRight ?? (
-          <HStack className="items-center gap-2">
+          <HStack as="span" className="items-center gap-2">
             <span className="text-lg font-medium text-primary">
               {formatUsd(totalIsRenderable ? totalValueUsd.value : undefined)}
             </span>
@@ -101,7 +101,7 @@ const RemainingInWalletCard = ({
       initialExpanded={initialExpanded}
       title={
         title ?? (
-          <HStack className="min-w-0 items-center gap-2">
+          <HStack as="span" className="min-w-0 items-center gap-2">
             <CreditCard size={18} className="shrink-0" />
             <span className="truncate">Remaining in Wallet</span>
           </HStack>
@@ -178,12 +178,12 @@ const CopySidePanel = ({ agent, run }: CopySidePanelProps) => {
       stopCopyAvailability={run.stopCopyAvailability}
       title={
         run.status === 'stopped' ? (
-          <HStack className={cn('items-center gap-2', copyRunStatusTextClassName.stopped)}>
+          <HStack as="span" className={cn('items-center gap-2', copyRunStatusTextClassName.stopped)}>
             <span className="size-4 shrink-0 rounded-full bg-current" aria-hidden />
             <span>Stopped Copy</span>
           </HStack>
         ) : run.status === 'closed' ? (
-          <HStack className={cn('items-center gap-2', copyRunStatusTextClassName.closed)}>
+          <HStack as="span" className={cn('items-center gap-2', copyRunStatusTextClassName.closed)}>
             <span className="size-4 shrink-0 rounded-full bg-current" aria-hidden />
             <span>Closed Copy</span>
           </HStack>

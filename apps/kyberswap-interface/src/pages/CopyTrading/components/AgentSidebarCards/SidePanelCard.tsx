@@ -73,7 +73,7 @@ export const SidePanelCard = ({
           )}
         >
           {headerRight ? (
-            <HStack className="items-center justify-between gap-4">
+            <HStack as="span" className="items-center justify-between gap-4">
               <span className="min-w-0">{title}</span>
               <span className="shrink-0">{headerRight}</span>
             </HStack>

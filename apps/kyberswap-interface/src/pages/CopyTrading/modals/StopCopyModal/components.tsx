@@ -4,9 +4,8 @@ import type { StopCopyPreview } from 'services/copyTrading/types/preparedActions
 import { ButtonPrimary } from 'components/Button'
 import Dots from 'components/Dots'
 import ScrollableWithSignal from 'components/ScrollableWithSignal'
-import Skeleton from 'components/Skeleton'
 import TableCellSkeleton from 'components/Skeleton/TableCellSkeleton'
-import { HStack, Stack } from 'components/Stack'
+import { Center, HStack, Stack } from 'components/Stack'
 import { formatApproximateUsd, getSignedMetricClassName, signedUsd } from 'pages/CopyTrading/helpers'
 import { ReviewRow, ReviewSection } from 'pages/CopyTrading/modals/PreparedActionModal'
 import PreparedActionSlippageControl from 'pages/CopyTrading/modals/PreparedActionModal/SlippageControl'
@@ -22,13 +21,11 @@ export const StopCopyReview = ({ isLoading, preview }: { isLoading: boolean; pre
 
   return (
     <Stack className="gap-4">
-      <Stack className="gap-3 rounded-xl bg-white-04 px-4 py-3">
-        <div className="text-sm font-medium text-subText">Positions to sell</div>
-        {showSkeleton ? (
-          <Skeleton width={64} height={28} variant="darkSubtle" />
-        ) : (
+      {!!preview?.positions?.length && (
+        <Stack className="gap-3 rounded-xl bg-white-04 px-4 py-3">
+          <h3 className="text-sm font-medium text-subText">Positions to sell</h3>
           <HStack className="flex-wrap gap-2">
-            {preview?.positions?.map(position => (
+            {preview.positions.map(position => (
               <span
                 key={position.userPositionId}
                 className="inline-flex min-w-16 items-center justify-center rounded-lg bg-white-08 px-3 py-1 text-sm font-medium text-text"
@@ -37,8 +34,8 @@ export const StopCopyReview = ({ isLoading, preview }: { isLoading: boolean; pre
               </span>
             ))}
           </HStack>
-        )}
-      </Stack>
+        </Stack>
+      )}
 
       <ReviewSection>
         <ReviewRow
@@ -101,7 +98,8 @@ export const StopCopyForm = ({
   selectedPositionValueUsd,
   slippage,
 }: StopCopyFormProps) => {
-  const loadingPositionCount = Math.min(6, positions === undefined && !positionsError ? expectedPositionCount ?? 1 : 0)
+  const loadingPositionCount =
+    positions === undefined && !positionsError ? Math.min(6, Math.max(1, expectedPositionCount ?? 1)) : 0
   const displayedPositionCount = positions?.length ?? expectedPositionCount
   const hasPositionRows = (positions?.length ?? loadingPositionCount) > 0
 
@@ -182,15 +180,17 @@ export const StopCopyForm = ({
               )
             })
           ) : (
-            <span className="text-center text-sm text-subText">No open positions. You can still stop copying.</span>
+            <Center className="min-h-9">
+              <p className="text-center text-sm text-subText">No open positions. You can still stop copying.</p>
+            </Center>
           )}
         </ScrollableWithSignal>
       </Stack>
 
       {!!positions && positions.length > MAX_STOP_POSITIONS && (
-        <span className="text-xs text-warning">
+        <p className="text-xs text-warning">
           Select up to {MAX_STOP_POSITIONS} positions to sell in this Stop Copy request.
-        </span>
+        </p>
       )}
 
       <Stack className="gap-2 rounded-xl border border-border px-4 py-3">
@@ -200,6 +200,12 @@ export const StopCopyForm = ({
         </HStack>
         <PreparedActionSlippageControl disabled={isPreparing} onChange={onSlippageChange} value={slippage} />
       </Stack>
+
+      {expectedPositionCount !== undefined && expectedPositionCount > 0 && (
+        <p className="text-sm italic text-subText/80">
+          Unchecked tokens stay in your wallet. You manage them manually after stopping.
+        </p>
+      )}
 
       <ButtonPrimary
         type="button"

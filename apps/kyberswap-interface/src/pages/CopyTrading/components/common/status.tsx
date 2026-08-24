@@ -77,8 +77,8 @@ export const PositionLifecycleBadge = ({
 export const OwnerWalletRequired = () => (
   <Center className="min-h-[240px] rounded-xl bg-buttonBlack-60 px-6 text-center">
     <Stack className="items-center gap-2">
-      <span className="text-base font-medium text-text">Connect your wallet</span>
-      <span className="text-sm text-subText">Connect a wallet to view your Copy Trading data.</span>
+      <p className="text-base font-medium text-text">Connect your wallet</p>
+      <p className="text-sm text-subText">Connect a wallet to view your Copy Trading data.</p>
     </Stack>
   </Center>
 )

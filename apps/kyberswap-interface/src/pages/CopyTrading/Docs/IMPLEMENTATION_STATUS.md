@@ -1,6 +1,6 @@
 # Copy Trading Implementation Status
 
-Last reviewed: 2026-08-20
+Last reviewed: 2026-08-24
 
 This is the single frontend-owned record for current code implementation,
 accepted product decisions, ownership, and static verification evidence. The
@@ -20,12 +20,12 @@ declared in the frontend service.
 | Checked-in OpenAPI | `CURRENT INPUT`: synchronized with the live 32-operation pre-release Swagger contract; wallet-session routes and Bearer security are removed.                          |
 | RTK Query service  | `CODE-COMPLETE`: all 26 GET and 6 POST operations are declared and typed.                                                                                              |
 | Read UI            | `CODE-COMPLETE`: all currently defined product surfaces are connected; 17 GET operations have UI consumers and nine service-only operations have no product surface.   |
-| Write UX           | `CODE-COMPLETE`: all six actions use prepared-action validation; Add Capital submits directly after preparation while the other review-bearing flows retain review.   |
+| Write UX           | `CODE-COMPLETE`: all six actions use prepared-action validation; Add Capital submits directly after preparation while the other review-bearing flows retain review.    |
 | Write integration  | `CODE-COMPLETE`: exact API-prepared calls, receipt-success completion, Start Copy list polling, stateless recovery preparation, and async cache refresh are connected. |
 
 ## Changes Included Since the Previous Review
 
-The 2026-08-20 review also includes the Copy Trading commits between the prior
+The 2026-08-24 review also includes the Copy Trading commits between the prior
 status update and the current working tree:
 
 - `155ac5ebd` scopes wallet- and argument-sensitive RTK reads to `currentData`.
@@ -39,6 +39,18 @@ status update and the current working tree:
   CTA hierarchy, uses red secondary Stop actions and a secondary Withdraw
   action, shortens Agent metadata presentation, and highlights positive History
   cashback.
+- `613a3757c` streamlines Add Capital into a direct prepare-and-submit flow,
+  adds explicit wallet-balance loading, and keeps the inline allocation summary
+  separate from backend-authoritative preparation values.
+- `8414b3601` prevents Copy Detail from flashing a disconnected state while the
+  wallet restores, makes Start Copy and Add Capital percentage presets
+  action-only, standardizes prepared-action recovery hierarchy, and refines the
+  Stop Copy selection and review presentation.
+- The current working tree completes the Copy Trading semantic-text pass and
+  Stop Copy empty/loading refinements. Standalone prose and status messages use
+  block semantics, form labels target their inputs, and heading content no
+  longer nests block rows. Stop Copy uses the Copy Run open-position count to
+  stabilize its initial empty state and contextual note.
 
 ## Contract and Service Coverage
 
@@ -158,7 +170,9 @@ Current primary-screen read behavior:
 - Activity details are typed and Alerts Feed does not parse display summary text
   for P&L direction.
 - Summary KPI cards identify `STALE` metrics; unavailable values remain `—`.
-- Owner screens show a dedicated disconnected-wallet state.
+- My Copies, History, and Copy Detail suppress their disconnected-wallet state
+  while a persisted wallet connection is restoring, then show the dedicated
+  state only when the wallet is genuinely disconnected.
 
 ## Accepted Product Decisions
 
@@ -200,6 +214,8 @@ Current primary-screen read behavior:
 - Start Copy and Add Capital share only the capital-entry domain: the supported
   quote-token configuration, action-specific minimums, 25/50/75/100 presets,
   wallet balance, decimal parsing, minimum/balance validation, and input UI.
+  Percentage presets are action-only controls and do not render a selected or
+  active state.
   Each flow still owns its availability and network guards, preparation request
   validation, authorization or ownership rules, and navigation. Add Capital
   owns its inline current/new allocation summary and has no review step.
@@ -211,9 +227,10 @@ Current primary-screen read behavior:
   directly.
 - All six write flows use the same prepared-action recovery and success
   primitives. Review-bearing flows also use the shared review presentation.
-  Error and expired states expose Back and Try again actions; Add Capital retry
-  keeps its direct prepare-and-submit behavior. Success keeps Close outlined
-  while the primary destination remains flow-owned: My Copies for
+  Paired recovery actions keep Back or Close outlined on the left and Retry as
+  the primary action on the right; Add Capital retry keeps its direct
+  prepare-and-submit behavior. Success keeps Close outlined while the primary
+  destination remains flow-owned: My Copies for
   Start/Add/Manual Sell/Close Position and History for Stop/Withdraw.
 - Stop Copy keeps position loading, selection, selection-cap validation, and
   selected-ID validation local. Manual Sell and Close Position keep their
@@ -238,7 +255,9 @@ The production write path is split by ownership:
   authorization, and post-receipt completion polling. Its target and
   completion-polling domain logic stays in `StartCopyModal/startCopy.ts`.
 - `modals/StopCopyModal/` owns its complete open-position load, local selection,
-  32-position cap, slippage, and selected-ID payload validation.
+  expected-count loading geometry, 32-position cap, slippage, selected-value
+  estimate, contextual unchecked-token note, and selected-ID payload
+  validation.
 - `modals/ManagePositionModal/` owns the shared Manual Sell and Close Position
   composition. The selected mode owns its required advertised action, current
   position refresh, optional Manual Sell FIFO refresh, request validation,
@@ -296,11 +315,17 @@ Implemented behavior:
   no intermediate review step.
 - Stop Copy fetches and renders the complete open-position list inside the modal.
   It fetches once when the modal opens and does not refresh the list again before
-  preparation. The UI defaults at most 32 positions to selected, prevents
-  selecting a 33rd, and validates the final payload length before sending
-  `userPositionIds`. An empty array remains valid. A position-load failure
-  disables the review action without rendering a separate Retry control. Review
-  shows the selected-position count, estimated position value, estimated
+  preparation. A Copy Run reporting zero open positions initializes directly to
+  the empty state while the request resolves, and loading reserves the expected
+  row geometry to avoid layout shift. The UI defaults at most 32 positions to
+  selected, prevents selecting a 33rd, shows the client-estimated selected USD
+  value beside slippage, and validates the final payload length before sending
+  `userPositionIds`. An empty array remains valid. When the Copy Run reports at
+  least one position, Step 1 explains that unchecked tokens remain in the Smart
+  Wallet for manual management after stopping. A position-load failure disables
+  the review action without rendering a separate Retry control. Step 2 renders
+  `Positions to sell` only when the prepared preview contains at least one
+  position, then shows backend-authoritative estimated position value, estimated
   cashback, and both expected and minimum total quote received.
 - All six write flows use shared prepared-action recovery states. Flows that
   retain review use shared review rows and skeletons for server-owned values.
@@ -346,8 +371,8 @@ Implemented behavior:
 | Capability     | Current production UI                                                                                                                                |
 | -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Start Copy     | Uses the API-selected Permit or Approve step, submits Create separately, then polls the Agent-filtered open Copy list and links to My Copies.        |
-| Add Capital    | Shows current/new token allocation inline, then prepares, validates, simulates, and submits the exact call without a separate review step.            |
-| Stop Copy      | Loads all open-position pages when opened, supports zero to 32 selected IDs, validates the payload cap, and submits the exact prepared call.         |
+| Add Capital    | Shows current/new token allocation inline, then prepares, validates, simulates, and submits the exact call without a separate review step.           |
+| Stop Copy      | Loads all open-position pages, supports zero to 32 selected IDs, shows selected-value/slippage guidance, and submits the exact prepared call.        |
 | Withdraw Quote | Only a `STOPPED` Copy Detail exposes the availability-gated CTA; amount and owner recipient are server-prepared and non-editable.                    |
 | Manual Sell    | Refreshes the current position and authoritative FIFO, rechecks availability, then reviews the complete position-sell preview and prepares directly. |
 | Close Position | Refreshes the current position, rechecks availability, then reviews the complete position-sell preview and prepares directly.                        |
@@ -416,9 +441,12 @@ are outside this code-implementation status.
 - All six preparation mutations have an owned UI flow.
 - The local ABI, mock signer, and mock transaction-hash path have been removed.
 - All 45 Copy Trading unit tests pass, including the direct READY handoff test.
-- Commit review for this status covers `155ac5ebd`, `e1b98c55e`, and
-  `128783f4d` in addition to the current staged and unstaged working-tree
-  changes.
+- Commit review for this status covers `155ac5ebd`, `e1b98c55e`, `128783f4d`,
+  `613a3757c`, and `8414b3601` in addition to the current working-tree changes.
 - For the 2026-08-20 Add Capital update, app TypeScript, targeted ESLint,
   Prettier, and `git diff --check` pass. Browser QA, a production build, and a
   positive Add Capital transaction E2E were not run for this update.
+- For the 2026-08-24 UI and Stop Copy update, app TypeScript, Copy Trading
+  ESLint, all 45 Copy Trading unit tests, and staged/unstaged `git diff --check`
+  pass. Browser QA, a production build, and positive live-transaction E2E were
+  not run for this update.

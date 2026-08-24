@@ -35,7 +35,9 @@ const CapitalAmountInput = ({
   walletBalanceText,
 }: CapitalAmountInputProps) => (
   <Stack className="gap-2">
-    <span className="text-sm font-medium text-text">{label}</span>
+    <label className="text-sm font-medium text-text" htmlFor={inputId}>
+      {label}
+    </label>
     <CurrencyInputPanel
       value={amount}
       onUserInput={onAmountChange}
@@ -72,9 +74,9 @@ const CapitalAmountInput = ({
       positionMax="top"
     />
     {amountError && (
-      <span role="alert" className="px-1 text-xs text-red">
+      <p role="alert" className="px-1 text-xs text-red">
         {amountError}
-      </span>
+      </p>
     )}
   </Stack>
 )

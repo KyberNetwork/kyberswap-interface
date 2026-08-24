@@ -90,7 +90,7 @@ export const WithdrawQuoteCard = ({
 
   return (
     <SidePanelCard title="Advanced">
-      <span className="text-sm text-subText">Withdraw available quote balance without selling positions.</span>
+      <p className="text-sm text-subText">Withdraw available quote balance without selling positions.</p>
       <ButtonLight
         type="button"
         disabled={disabled}
