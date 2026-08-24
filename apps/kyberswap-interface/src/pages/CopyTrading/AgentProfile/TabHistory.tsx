@@ -1,9 +1,16 @@
 import type { HTMLAttributes } from 'react'
 import agentApi from 'services/copyTrading/api/endpoints/agents'
 
-import { Stack } from 'components/Stack'
+import { HStack, Stack } from 'components/Stack'
 import InfiniteScroll, { useInfiniteCursorQuery } from 'pages/CopyTrading/components/InfiniteScroll'
-import { HeaderCell, TableBody, TableCell, TableHeader, TableRow } from 'pages/CopyTrading/components/Table'
+import {
+  HeaderCell,
+  TableBody,
+  TableCardField,
+  TableCell,
+  TableHeader,
+  TableRow,
+} from 'pages/CopyTrading/components/Table'
 import { ShortenedId } from 'pages/CopyTrading/components/common/layout'
 import { formatTokenAmount, formatUsd, getSignedMetricClassName, signedUsd } from 'pages/CopyTrading/helpers'
 import { cn } from 'utils/cn'
@@ -51,7 +58,7 @@ const TabHistory = ({ agentId }: { agentId: string }) => {
   return (
     <Stack>
       <InfiniteScroll {...infiniteScroll}>
-        <TabHistoryGrid header className="sticky top-0 z-[1]">
+        <TabHistoryGrid header className="sticky top-0 z-[1] hidden lg:grid">
           <HeaderCell>Trade ID</HeaderCell>
           <HeaderCell>Token</HeaderCell>
           <HeaderCell>Entry Price</HeaderCell>
@@ -61,14 +68,14 @@ const TabHistory = ({ agentId }: { agentId: string }) => {
           <HeaderCell>Closed</HeaderCell>
         </TabHistoryGrid>
         <TableBody
-          className="min-w-[900px]"
+          className="grid gap-2 bg-transparent lg:block lg:min-w-[900px] lg:bg-buttonBlack-60"
           empty={!rows.length}
           emptyMessage="No trade history found"
           loading={isFetching && !rows.length}
         >
-          {rows.map(row => {
-            return (
-              <TabHistoryGrid key={row.positionId}>
+          {rows.map(row => (
+            <div key={row.positionId}>
+              <TabHistoryGrid className="max-lg:hidden">
                 <TableCell className="text-subText">
                   <ShortenedId value={row.tradeId} />
                 </TableCell>
@@ -81,8 +88,32 @@ const TabHistory = ({ agentId }: { agentId: string }) => {
                 </TableCell>
                 <TableCell className="text-subText">{formatDateTime(row.closedAt)}</TableCell>
               </TabHistoryGrid>
-            )
-          })}
+
+              <Stack className="gap-3 rounded-xl bg-buttonBlack-60 p-3 lg:hidden">
+                <HStack className="items-start justify-between gap-3">
+                  <TableCardField label="Token">{row.token.symbol || '—'}</TableCardField>
+                  <TableCardField label="Closed" valueClassName="text-right text-subText">
+                    {formatDateTime(row.closedAt)}
+                  </TableCardField>
+                </HStack>
+
+                <div className="grid grid-cols-2 gap-x-3 gap-y-2">
+                  <TableCardField className="col-span-2" label="Trade ID">
+                    <ShortenedId value={row.tradeId} />
+                  </TableCardField>
+                  <TableCardField label="Entry Price">{formatUsd(row.entryPriceUsd)}</TableCardField>
+                  <TableCardField label="Exit">{formatUsd(row.exitPriceUsd || row.currentPriceUsd)}</TableCardField>
+                  <TableCardField label="Amount">{formatTokenAmount(row.amountDecimal)}</TableCardField>
+                  <TableCardField
+                    label="Realised P&amp;L"
+                    valueClassName={cn('whitespace-nowrap', getSignedMetricClassName(row.realizedPnlUsd))}
+                  >
+                    {signedUsd(row.realizedPnlUsd)}
+                  </TableCardField>
+                </div>
+              </Stack>
+            </div>
+          ))}
         </TableBody>
       </InfiniteScroll>
     </Stack>

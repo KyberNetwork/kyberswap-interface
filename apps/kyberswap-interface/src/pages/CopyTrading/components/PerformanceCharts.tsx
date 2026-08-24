@@ -1,13 +1,18 @@
-import { type PropsWithChildren } from 'react'
+import { AnimatePresence, motion } from 'framer-motion'
+import { type PropsWithChildren, type ReactNode, useState } from 'react'
+import { ChevronDown, ChevronUp } from 'react-feather'
+import { useMedia } from 'react-use'
 import { Area, AreaChart, Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import type { PerformancePoint } from 'services/copyTrading/types/agents'
 import type { PerformanceWindow } from 'services/copyTrading/types/primitives'
 
+import IconButton from 'components/Button/IconButton'
 import Dots from 'components/Dots'
 import Loader from 'components/Loader'
 import SegmentedControl, { type SegmentedControlOption } from 'components/SegmentedControl'
 import { HStack, Stack } from 'components/Stack'
 import { compactUsd, formatUsd, getSignedMetricClassName } from 'pages/CopyTrading/helpers'
+import { MEDIA_WIDTHS } from 'theme'
 import { cn } from 'utils/cn'
 import { formatDateTime, formatShortDate } from 'utils/time'
 
@@ -55,10 +60,64 @@ type ChartTitleProps = {
 
 const ChartTitle = ({ loading, title }: ChartTitleProps) => (
   <HStack className="items-center gap-2">
-    <h2 className="text-lg font-medium text-text">{title}</h2>
+    <h2 className="text-base font-medium text-text sm:text-lg">{title}</h2>
     {loading && <Loader className="text-primary" size="14px" />}
   </HStack>
 )
+
+type ChartSectionProps = PropsWithChildren<{
+  collapsible?: boolean
+  headerAside?: ReactNode
+  loading?: boolean
+  title: string
+}>
+
+const ChartSection = ({ children, collapsible, headerAside, loading, title }: ChartSectionProps) => {
+  const [expanded, setExpanded] = useState(true)
+  const isMobile = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
+  const mobileCollapsible = !!collapsible && isMobile
+  const showContent = !mobileCollapsible || expanded
+
+  return (
+    <Stack>
+      <HStack className="items-center justify-between gap-3">
+        <HStack className="min-w-0 flex-1 items-center justify-between gap-2">
+          <ChartTitle loading={loading} title={title} />
+          {mobileCollapsible && (
+            <IconButton
+              aria-expanded={expanded}
+              aria-label={`${expanded ? 'Collapse' : 'Expand'} ${title}`}
+              className="rounded-lg text-subText hover:bg-white-04 hover:text-text"
+              onClick={() => setExpanded(value => !value)}
+              size={24}
+              variant="compact"
+            >
+              {expanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+            </IconButton>
+          )}
+        </HStack>
+        {!mobileCollapsible && headerAside}
+      </HStack>
+      <AnimatePresence initial={false}>
+        {showContent && (
+          <motion.div
+            key="chart-content"
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.18, ease: 'easeInOut' }}
+            className="overflow-hidden"
+          >
+            <div className="pt-4">
+              {mobileCollapsible && headerAside && <div className="mb-4 w-fit">{headerAside}</div>}
+              {children}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </Stack>
+  )
+}
 
 type ChartTooltipProps = {
   active?: boolean
@@ -141,6 +200,7 @@ const ChartState = ({ children, className, isError, isEmpty, isLoading }: ChartS
 }
 
 type CumulativeRealisedPnlChartProps = {
+  collapsible?: boolean
   data: PerformanceChartPoint[]
   isError?: boolean
   isFetching?: boolean
@@ -149,6 +209,7 @@ type CumulativeRealisedPnlChartProps = {
 }
 
 export const CumulativeRealisedPnlChart = ({
+  collapsible,
   data,
   isError,
   isFetching,
@@ -156,15 +217,18 @@ export const CumulativeRealisedPnlChart = ({
   window,
 }: CumulativeRealisedPnlChartProps) => {
   const gradientOffset = getPnlGradientOffset(data)
+  const windowControl =
+    window && onWindowChange ? (
+      <SegmentedControl onChange={onWindowChange} options={chartWindowOptions} size="sm" value={window} />
+    ) : undefined
 
   return (
-    <Stack className="gap-4">
-      <HStack className="items-center justify-between gap-3 max-sm:flex-col max-sm:items-start">
-        <ChartTitle loading={isFetching} title="Cumulative Realised P&L" />
-        {window && onWindowChange && (
-          <SegmentedControl onChange={onWindowChange} options={chartWindowOptions} size="sm" value={window} />
-        )}
-      </HStack>
+    <ChartSection
+      collapsible={collapsible}
+      headerAside={windowControl}
+      loading={isFetching}
+      title="Cumulative Realised P&L"
+    >
       <ChartState isEmpty={!isFetching && !data.length} isError={isError} isLoading={isFetching && !data.length}>
         {!!data.length && (
           <ResponsiveContainer width="100%" height="100%">
@@ -210,22 +274,27 @@ export const CumulativeRealisedPnlChart = ({
           </ResponsiveContainer>
         )}
       </ChartState>
-    </Stack>
+    </ChartSection>
   )
 }
 
 type CapitalValueChartProps = {
+  collapsible?: boolean
   data: PerformanceChartPoint[]
   isError?: boolean
   isFetching?: boolean
   title?: string
 }
 
-export const CapitalValueChart = ({ data, isError, isFetching, title = 'Capital Value' }: CapitalValueChartProps) => {
+export const CapitalValueChart = ({
+  collapsible,
+  data,
+  isError,
+  isFetching,
+  title = 'Capital Value',
+}: CapitalValueChartProps) => {
   return (
-    <Stack className="gap-4">
-      <ChartTitle loading={isFetching} title={title} />
-
+    <ChartSection collapsible={collapsible} loading={isFetching} title={title}>
       <ChartState isEmpty={!isFetching && !data.length} isError={isError} isLoading={isFetching && !data.length}>
         {!!data.length && (
           <ResponsiveContainer width="100%" height="100%">
@@ -253,6 +322,6 @@ export const CapitalValueChart = ({ data, isError, isFetching, title = 'Capital 
           </ResponsiveContainer>
         )}
       </ChartState>
-    </Stack>
+    </ChartSection>
   )
 }

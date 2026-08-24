@@ -1,92 +1,90 @@
+import type { PropsWithChildren } from 'react'
+import { ChevronRight, Sidebar as SidebarIcon } from 'react-feather'
 import { Link } from 'react-router-dom'
-import type { Chain } from 'services/copyTrading/types/agents'
 
-import { Center } from 'components/Stack'
-import { APP_PATHS } from 'constants/index'
-import type { SidebarRouteState } from 'pages/CopyTrading/components/Sidebar/primitives'
+import IconButton from 'components/Button/IconButton'
+import Drawer from 'components/Modal/Drawer'
+import { HStack } from 'components/Stack'
 import { cn } from 'utils/cn'
 
-type MobileNavigationProps = {
-  agentsCount: number
-  chains: Chain[]
-  copiesCount: number
-  onSelectChain: (chainId: number) => void
-  route: SidebarRouteState
-  selectedChainId?: number
-}
+export type BreadcrumbItem = { label: string; to?: string }
 
-const MobileNavigation = ({
-  agentsCount,
-  chains,
-  copiesCount,
-  onSelectChain,
-  route,
-  selectedChainId,
-}: MobileNavigationProps) => {
-  const items = [
-    {
-      active: route.isAgentsPage,
-      count: agentsCount,
-      label: 'Agents',
-      to: APP_PATHS.COPY_TRADING,
-    },
-    {
-      active: route.isCopiesPage,
-      count: copiesCount,
-      label: 'Open Copies',
-      to: APP_PATHS.COPY_TRADING + '/my-copies',
-    },
-    {
-      active: route.isHistorySectionActive,
-      label: 'History',
-      to: APP_PATHS.COPY_TRADING + '/history',
-    },
-  ]
+type MobileNavigationProps = PropsWithChildren<{
+  breadcrumbs: BreadcrumbItem[]
+  isOpen: boolean
+  onDismiss: () => void
+  onOpen: () => void
+}>
 
-  return (
-    <nav aria-label="Copy Trading" className="hidden border-b border-darkBorder bg-black px-4 py-3 max-lg:block">
-      <div className="flex gap-2 overflow-x-auto">
-        {items.map(item => (
-          <Link
-            key={item.label}
-            to={item.to}
-            className={cn(
-              'flex h-9 shrink-0 items-center gap-2 rounded-lg bg-buttonBlack px-3 text-sm font-medium text-subText no-underline hover:bg-primary-10 hover:text-primary',
-              item.active && 'bg-primary-12 text-primary',
-            )}
+const Breadcrumbs = ({ items }: { items: BreadcrumbItem[] }) => (
+  <HStack
+    as="ol"
+    aria-label="Breadcrumb"
+    className="min-w-0 flex-1 items-center gap-1 overflow-x-auto text-sm font-medium"
+  >
+    {items.map(({ label, to }, index) => {
+      const current = index === items.length - 1
+      const clickable = !!to && !current
+      const labelClassName = cn(
+        'whitespace-nowrap no-underline',
+        current ? 'text-text' : 'text-subText',
+        clickable && 'hover:text-primary',
+      )
+
+      return (
+        <li key={`${label}-${index}`} className="flex shrink-0 items-center gap-1">
+          {index > 0 && <ChevronRight size={16} className="shrink-0 text-subText" aria-hidden />}
+          {clickable ? (
+            <Link to={to} className={labelClassName} title={label}>
+              {label}
+            </Link>
+          ) : (
+            <span className={labelClassName} title={label}>
+              {label}
+            </span>
+          )}
+        </li>
+      )
+    })}
+  </HStack>
+)
+
+const MobileNavigation = ({ breadcrumbs, children, isOpen, onDismiss, onOpen }: MobileNavigationProps) => (
+  <nav
+    aria-label="Copy Trading"
+    className="hidden bg-black px-4 py-2 max-lg:sticky max-lg:top-0 max-lg:z-[100] max-lg:block"
+  >
+    <HStack className="min-w-0 items-center gap-2.5">
+      <Drawer
+        title="Copy Trading"
+        trigger={
+          <IconButton
+            aria-expanded={isOpen}
+            aria-label="Open Copy Trading menu"
+            onClick={onOpen}
+            className="rounded-lg bg-buttonBlack text-subText hover:bg-primary-10 hover:text-primary"
+            variant="action"
           >
-            <span>{item.label}</span>
-            {typeof item.count === 'number' && (
-              <Center className="size-5 rounded-full bg-primary-12 text-xs text-primary">{item.count}</Center>
-            )}
-          </Link>
-        ))}
-      </div>
-
-      {!!chains.length && (
-        <div className="mt-2 flex gap-2 overflow-x-auto">
-          {chains.map(chain => {
-            const active = selectedChainId === chain.chainId
-
-            return (
-              <button
-                key={chain.chainId}
-                type="button"
-                onClick={() => onSelectChain(chain.chainId)}
-                className={cn(
-                  'flex h-9 shrink-0 items-center gap-2 rounded-lg px-3 text-sm font-medium text-subText hover:bg-primary-10 hover:text-primary',
-                  active && 'bg-primary-12 text-primary',
-                )}
-              >
-                <img src={chain.iconUrl} alt="" className="size-5 rounded-full" />
-                <span>{chain.name}</span>
-              </button>
-            )
-          })}
+            <SidebarIcon size={18} aria-hidden />
+          </IconButton>
+        }
+        isOpen={isOpen}
+        onDismiss={onDismiss}
+        width="min(320px, 85vw)"
+        className="!absolute !left-0 !top-0 !m-0 !h-dvh !max-h-none !overflow-y-auto !rounded-none !bg-background !p-4 !shadow-[10px_0_28px_rgba(0,0,0,0.5)]"
+      >
+        <div
+          onClick={event => {
+            if ((event.target as HTMLElement).closest('a')) onDismiss()
+          }}
+        >
+          {children}
         </div>
-      )}
-    </nav>
-  )
-}
+      </Drawer>
+
+      <Breadcrumbs items={breadcrumbs} />
+    </HStack>
+  </nav>
+)
 
 export default MobileNavigation

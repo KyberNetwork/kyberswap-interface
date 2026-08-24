@@ -104,8 +104,9 @@ const AgentStats = ({ agentId }: AgentStatsProps) => {
   return (
     <Stack className="min-w-0 gap-4">
       <Leaderboard items={getProfileStats(stats)} size="sm" />
-      <Stack className="gap-6 rounded-xl bg-buttonBlack p-6">
+      <Stack className="gap-6 rounded-xl bg-buttonBlack p-6 max-md:-mx-4 max-md:gap-4 max-md:rounded-none max-md:p-4">
         <CumulativeRealisedPnlChart
+          collapsible
           data={realizedPnlData}
           isError={isRealizedPnlError}
           isFetching={isRealizedPnlFetching}
@@ -113,10 +114,11 @@ const AgentStats = ({ agentId }: AgentStatsProps) => {
           window={window}
         />
         <CapitalValueChart
+          collapsible
           data={portfolioData}
           isError={isPortfolioError}
           isFetching={isPortfolioFetching}
-          title="Assets Under Management ($)"
+          title="Capital Value"
         />
       </Stack>
     </Stack>

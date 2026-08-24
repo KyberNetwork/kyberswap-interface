@@ -1,5 +1,6 @@
 import { ChainId, Token } from '@kyberswap/ks-sdk-core'
 
+import { ButtonEmpty } from 'components/Button'
 import CurrencyInputPanel from 'components/CurrencyInputPanel'
 import Loader from 'components/Loader'
 import { HStack, Stack } from 'components/Stack'
@@ -59,15 +60,16 @@ const CapitalAmountInput = ({
       balanceActions={
         <HStack className="items-center gap-1">
           {CAPITAL_PERCENTAGES.map(percentage => (
-            <button
+            <ButtonEmpty
               key={percentage}
               type="button"
               disabled={isPreparing || !presetsEnabled}
               onClick={() => onPercentageChange(percentage)}
-              className="rounded-full bg-subText-20 px-2 py-0.5 text-xs font-medium text-subText hover:text-text disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:text-subText"
+              padding="2px 8px"
+              className="w-fit bg-subText-20 text-xs text-subText hover:text-text disabled:opacity-40 disabled:hover:text-subText"
             >
               {percentage}%
-            </button>
+            </ButtonEmpty>
           ))}
         </HStack>
       }

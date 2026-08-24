@@ -1,4 +1,3 @@
-import { type CSSProperties } from 'react'
 import type { MetricStatus } from 'services/copyTrading/types/primitives'
 
 import { Center, HStack, Stack } from 'components/Stack'
@@ -15,14 +14,14 @@ export type LeaderboardStat = {
   valueClassName?: string
 }
 
-const getMinCardWidth = (size: LeaderboardSize) => (size === 'sm' ? 250 : 260)
-
 type LeaderboardCardProps = {
+  className?: string
   item: LeaderboardStat
+  size: LeaderboardSize
 }
 
-const StatLabel = ({ item }: LeaderboardCardProps) => (
-  <HStack className="min-w-0 flex-nowrap items-center gap-2">
+const StatLabel = ({ item }: Pick<LeaderboardCardProps, 'item'>) => (
+  <HStack className="min-w-0 flex-nowrap items-center gap-1 md:gap-2">
     <span className="min-w-0 truncate" title={item.label}>
       {item.label}
     </span>
@@ -36,61 +35,44 @@ const StatIconView = ({ icon }: Pick<LeaderboardStat, 'icon'>) => {
   const { backgroundColor } = icon
 
   return (
-    <Center className={cn('size-12 shrink-0 rounded-full', backgroundColor)}>
+    <Center className={cn('size-8 shrink-0 rounded-full md:size-12', backgroundColor)}>
       {'Icon' in icon ? (
-        <icon.Icon className={cn('size-6', icon.iconClassName)} />
+        <icon.Icon className={cn('size-4 md:size-6', icon.iconClassName)} />
       ) : (
-        <img src={icon.iconUrl} alt="" className="size-6" />
+        <img src={icon.iconUrl} alt="" className="size-4 md:size-6" />
       )}
     </Center>
   )
 }
 
-const LargeLeaderboardCard = ({ item }: LeaderboardCardProps) => {
+const LeaderboardCard = ({ className, item, size }: LeaderboardCardProps) => {
   return (
-    <HStack className="h-full min-h-24 items-center gap-4 rounded-xl bg-buttonBlack px-5 py-4">
+    <HStack
+      className={cn(
+        'h-full min-h-16 items-center gap-2 rounded-xl bg-buttonBlack px-3 py-2',
+        size === 'lg' ? 'md:min-h-24 md:gap-4 md:px-5 md:py-4' : 'md:min-h-[72px] md:gap-4 md:px-6 md:py-3',
+        className,
+      )}
+    >
       <StatIconView icon={item.icon} />
-      <Stack className="min-w-0 flex-1 gap-1">
+      <Stack className={cn('min-w-0 flex-1 gap-0', size === 'lg' ? 'md:gap-1' : 'md:gap-0.5')}>
         <span
-          className={cn('truncate text-2xl font-medium leading-8 text-text', item.valueClassName)}
+          className={cn(
+            'truncate text-base font-medium leading-5',
+            size === 'lg' ? 'text-text md:text-2xl md:leading-8' : 'text-primary md:text-lg md:leading-6',
+            item.valueClassName,
+          )}
           title={item.value}
         >
           {item.value}
         </span>
-        <div className="min-w-0 text-sm leading-5 text-subText">
+        <div className="min-w-0 text-xs leading-4 text-subText md:text-sm md:leading-5">
           <StatLabel item={item} />
         </div>
       </Stack>
     </HStack>
   )
 }
-
-const SmallLeaderboardCard = ({ item }: LeaderboardCardProps) => {
-  return (
-    <HStack className="h-full min-h-[72px] items-center gap-4 rounded-xl bg-buttonBlack px-6 py-3 max-sm:px-4">
-      <StatIconView icon={item.icon} />
-      <Stack className="min-w-0 flex-1 gap-0.5">
-        <span
-          className={cn('truncate text-lg font-medium leading-6 text-primary', item.valueClassName)}
-          title={item.value}
-        >
-          {item.value}
-        </span>
-        <div className="min-w-0 text-sm leading-5 text-subText">
-          <StatLabel item={item} />
-        </div>
-      </Stack>
-    </HStack>
-  )
-}
-
-type LeaderboardCardSelectorProps = {
-  item: LeaderboardStat
-  size: LeaderboardSize
-}
-
-const LeaderboardCard = ({ item, size }: LeaderboardCardSelectorProps) =>
-  size === 'sm' ? <SmallLeaderboardCard item={item} /> : <LargeLeaderboardCard item={item} />
 
 type LeaderboardProps = {
   className?: string
@@ -98,21 +80,17 @@ type LeaderboardProps = {
   size?: LeaderboardSize
 }
 
-const Leaderboard = ({ items, size = 'lg', className }: LeaderboardProps) => {
-  const minCardWidth = getMinCardWidth(size)
-  const itemCount = Math.max(items.length, 1)
-  const totalGap = (itemCount - 1) * 16
-  const gridStyle: CSSProperties = {
-    gridTemplateColumns: `repeat(auto-fill, minmax(max(min(100%, ${minCardWidth}px), calc((100% - ${totalGap}px) / ${itemCount})), 1fr))`,
-  }
-
-  return (
-    <div className={cn('grid gap-4', className)} style={gridStyle}>
-      {items.map(item => (
-        <LeaderboardCard key={item.label} item={item} size={size} />
-      ))}
-    </div>
-  )
-}
+const Leaderboard = ({ items, size = 'lg', className }: LeaderboardProps) => (
+  <div className={cn('grid grid-cols-2 gap-2 md:grid-cols-[repeat(auto-fit,minmax(250px,1fr))] md:gap-4', className)}>
+    {items.map((item, index) => (
+      <LeaderboardCard
+        key={item.label}
+        item={item}
+        size={size}
+        className={cn(items.length % 2 === 1 && index === items.length - 1 && 'max-md:col-span-2')}
+      />
+    ))}
+  </div>
+)
 
 export default Leaderboard

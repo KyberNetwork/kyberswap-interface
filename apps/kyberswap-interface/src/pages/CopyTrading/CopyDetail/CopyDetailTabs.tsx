@@ -24,6 +24,11 @@ const copyDetailTabLabels: Record<CopyDetailTab, string> = {
   'action-logs': 'Action Logs',
 }
 
+const copyDetailTabShortLabels: Partial<Record<CopyDetailTab, string>> = {
+  'closed-positions': 'History',
+  'action-logs': 'Logs',
+}
+
 type CopyDetailTabsProps = {
   defaultTab?: CopyDetailTab
   includeOpenPositions?: boolean
@@ -136,7 +141,7 @@ export const CopyDetailTabs = ({
 
   return (
     <Stack className="overflow-hidden rounded-xl bg-buttonBlack-60">
-      <HStack className="items-center gap-3 border-b border-darkBorder bg-background pr-4">
+      <HStack className="items-center border-b border-darkBorder bg-background">
         <div className="flex min-w-0 flex-1 items-stretch overflow-x-auto" role="tablist">
           {tabs.map((tab, index) => {
             const active = currentTab === tab
@@ -155,7 +160,7 @@ export const CopyDetailTabs = ({
                 key={tab}
                 aria-selected={active}
                 className={cn(
-                  'relative flex min-h-10 shrink-0 cursor-pointer items-center gap-2 border-0 px-4 py-2 text-sm font-medium',
+                  'relative flex min-h-10 min-w-0 flex-auto cursor-pointer items-center justify-center gap-1 border-0 p-2 text-sm font-medium sm:flex-none sm:gap-2 sm:px-4',
                   !isLast && 'border-r border-darkBorder',
                   active
                     ? 'bg-primary-15 text-primary shadow-[inset_0_-2px_0_var(--ks-primary)] hover:bg-primary-20 hover:text-primary'
@@ -165,7 +170,10 @@ export const CopyDetailTabs = ({
                 role="tab"
                 type="button"
               >
-                <span className="text-sm font-medium uppercase">{copyDetailTabLabels[tab]}</span>
+                <span className="text-sm font-medium uppercase sm:hidden">
+                  {copyDetailTabShortLabels[tab] || copyDetailTabLabels[tab]}
+                </span>
+                <span className="hidden text-sm font-medium uppercase sm:inline">{copyDetailTabLabels[tab]}</span>
                 {count !== undefined && (
                   <Center
                     className={cn(

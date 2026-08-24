@@ -267,8 +267,7 @@ const PreparedActionModal = ({
                     )}
                     {hasErrorDetail && (
                       <Stack className="w-full items-center gap-0">
-                        <button
-                          type="button"
+                        <ButtonText
                           className="text-sm font-medium text-primary hover:text-primary/80"
                           aria-controls={errorDetailId}
                           aria-expanded={showErrorDetail}
@@ -277,7 +276,7 @@ const PreparedActionModal = ({
                           }
                         >
                           {showErrorDetail ? 'Show less' : 'Show more'}
-                        </button>
+                        </ButtonText>
                         <div
                           id={errorDetailId}
                           aria-hidden={!showErrorDetail}

@@ -1,9 +1,16 @@
 import type { HTMLAttributes } from 'react'
 import agentApi from 'services/copyTrading/api/endpoints/agents'
 
-import { Stack } from 'components/Stack'
+import { HStack, Stack } from 'components/Stack'
 import InfiniteScroll, { useInfiniteCursorQuery } from 'pages/CopyTrading/components/InfiniteScroll'
-import { HeaderCell, TableBody, TableCell, TableHeader, TableRow } from 'pages/CopyTrading/components/Table'
+import {
+  HeaderCell,
+  TableBody,
+  TableCardField,
+  TableCell,
+  TableHeader,
+  TableRow,
+} from 'pages/CopyTrading/components/Table'
 import { ShortenedId } from 'pages/CopyTrading/components/common/layout'
 import { PositionLifecycleBadge } from 'pages/CopyTrading/components/common/status'
 import {
@@ -58,7 +65,7 @@ const TabPositions = ({ agentId }: { agentId: string }) => {
   return (
     <Stack>
       <InfiniteScroll {...infiniteScroll}>
-        <TabPositionsGrid header className="sticky top-0 z-[1]">
+        <TabPositionsGrid header className="sticky top-0 z-[1] hidden lg:grid">
           <HeaderCell>Trade ID</HeaderCell>
           <HeaderCell>Token</HeaderCell>
           <HeaderCell>Entry Price</HeaderCell>
@@ -70,7 +77,7 @@ const TabPositions = ({ agentId }: { agentId: string }) => {
           <HeaderCell>Open Since</HeaderCell>
         </TabPositionsGrid>
         <TableBody
-          className="min-w-[1120px]"
+          className="grid gap-2 bg-transparent lg:block lg:min-w-[1120px] lg:bg-buttonBlack-60"
           empty={!rows.length}
           emptyMessage="No open positions found"
           loading={isFetching && !rows.length}
@@ -79,26 +86,57 @@ const TabPositions = ({ agentId }: { agentId: string }) => {
             const pnl = row.unrealizedPnlUsd || row.realizedPnlUsd
 
             return (
-              <TabPositionsGrid key={row.positionId}>
-                <TableCell className="text-subText">
-                  <ShortenedId value={row.tradeId} />
-                </TableCell>
-                <TableCell>{row.token.symbol || '—'}</TableCell>
-                <TableCell>{formatUsd(row.entryPriceUsd)}</TableCell>
-                <TableCell>{formatUsd(row.currentPriceUsd)}</TableCell>
-                <TableCell>{formatTokenAmount(row.amountDecimal)}</TableCell>
-                <TableCell>{formatUsd(row.valueUsd)}</TableCell>
-                <TableCell className={getSignedMetricClassName(pnl ?? row.unrealizedPnlPct)}>
-                  <Stack className="gap-0.5">
-                    <span className="whitespace-nowrap">{signedUsd(pnl)}</span>
-                    <span className="whitespace-nowrap text-xs">{signedPercent(row.unrealizedPnlPct)}</span>
-                  </Stack>
-                </TableCell>
-                <TableCell>
-                  <PositionLifecycleBadge lifecycle={row.lifecycle} quantityState={row.quantityState} />
-                </TableCell>
-                <TableCell className="text-subText">{formatDateTime(row.openedAt)}</TableCell>
-              </TabPositionsGrid>
+              <div key={row.positionId}>
+                <TabPositionsGrid className="max-lg:hidden">
+                  <TableCell className="text-subText">
+                    <ShortenedId value={row.tradeId} />
+                  </TableCell>
+                  <TableCell>{row.token.symbol || '—'}</TableCell>
+                  <TableCell>{formatUsd(row.entryPriceUsd)}</TableCell>
+                  <TableCell>{formatUsd(row.currentPriceUsd)}</TableCell>
+                  <TableCell>{formatTokenAmount(row.amountDecimal)}</TableCell>
+                  <TableCell>{formatUsd(row.valueUsd)}</TableCell>
+                  <TableCell className={getSignedMetricClassName(pnl ?? row.unrealizedPnlPct)}>
+                    <Stack className="gap-0.5">
+                      <span className="whitespace-nowrap">{signedUsd(pnl)}</span>
+                      <span className="whitespace-nowrap text-xs">{signedPercent(row.unrealizedPnlPct)}</span>
+                    </Stack>
+                  </TableCell>
+                  <TableCell>
+                    <PositionLifecycleBadge lifecycle={row.lifecycle} quantityState={row.quantityState} />
+                  </TableCell>
+                  <TableCell className="text-subText">{formatDateTime(row.openedAt)}</TableCell>
+                </TabPositionsGrid>
+
+                <Stack className="gap-3 rounded-xl bg-buttonBlack-60 p-3 lg:hidden">
+                  <HStack className="items-start justify-between gap-3">
+                    <TableCardField label="Token">{row.token.symbol || '—'}</TableCardField>
+                    <PositionLifecycleBadge lifecycle={row.lifecycle} quantityState={row.quantityState} />
+                  </HStack>
+
+                  <div className="grid grid-cols-2 gap-x-3 gap-y-2">
+                    <TableCardField className="col-span-2" label="Trade ID">
+                      <ShortenedId value={row.tradeId} />
+                    </TableCardField>
+                    <TableCardField label="Entry Price">{formatUsd(row.entryPriceUsd)}</TableCardField>
+                    <TableCardField label="Current Price">{formatUsd(row.currentPriceUsd)}</TableCardField>
+                    <TableCardField label="Amount">{formatTokenAmount(row.amountDecimal)}</TableCardField>
+                    <TableCardField label="Value">{formatUsd(row.valueUsd)}</TableCardField>
+                    <TableCardField
+                      label="P&amp;L"
+                      valueClassName={getSignedMetricClassName(pnl ?? row.unrealizedPnlPct)}
+                    >
+                      <Stack className="gap-0.5">
+                        <span className="whitespace-nowrap">{signedUsd(pnl)}</span>
+                        <span className="whitespace-nowrap text-xs">{signedPercent(row.unrealizedPnlPct)}</span>
+                      </Stack>
+                    </TableCardField>
+                    <TableCardField label="Open Since" valueClassName="text-subText">
+                      {formatDateTime(row.openedAt)}
+                    </TableCardField>
+                  </div>
+                </Stack>
+              </div>
             )
           })}
         </TableBody>

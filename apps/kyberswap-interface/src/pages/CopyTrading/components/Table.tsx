@@ -3,7 +3,7 @@ import { ChevronDown, ChevronUp } from 'react-feather'
 
 import { ButtonEmpty } from 'components/Button'
 import RefetchIndicator from 'components/RefetchIndicator'
-import { Center, HStack } from 'components/Stack'
+import { Center, HStack, Stack } from 'components/Stack'
 import { cn } from 'utils/cn'
 
 type SortOrder = 'asc' | 'desc'
@@ -19,6 +19,12 @@ type HeaderCellProps<TSortField extends string> = PropsWithChildren<{
 type TableCellProps = HTMLAttributes<HTMLSpanElement> & {
   padding?: 'default' | 'none'
 }
+
+type TableCardFieldProps = PropsWithChildren<{
+  className?: string
+  label: string
+  valueClassName?: string
+}>
 
 type EmptyStateProps = {
   className?: string
@@ -104,4 +110,11 @@ export const TableRow = ({ className, ...props }: HTMLAttributes<HTMLDivElement>
 
 export const TableCell = ({ className, padding = 'default', ...rest }: TableCellProps) => (
   <span className={cn('min-w-0 break-words', padding === 'default' && 'px-3 py-2', className)} {...rest} />
+)
+
+export const TableCardField = ({ children, className, label, valueClassName }: TableCardFieldProps) => (
+  <Stack className={cn('min-w-0 gap-0.5', className)}>
+    <span className="text-xs font-medium uppercase text-subText">{label}</span>
+    <div className={cn('min-w-0 text-sm font-medium text-text', valueClassName)}>{children}</div>
+  </Stack>
 )

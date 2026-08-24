@@ -233,7 +233,48 @@
     border-bottom-right-radius: 24px;
   }
 
-  /* <Drawer> — only applies its layout on mobile (≤ 992px / md breakpoint). */
+  /* <Drawer> */
+  .ks-drawer-content[data-reach-dialog-content] {
+    animation: ks-drawer-slide-in 0.25s ease-out;
+  }
+  .ks-dialog-overlay[data-reach-dialog-overlay][data-drawer-state='closing'] {
+    animation: ks-dialog-fade-out 0.25s ease-in forwards;
+  }
+  .ks-drawer-content[data-reach-dialog-content][data-drawer-state='closing'] {
+    animation: ks-drawer-slide-out 0.25s ease-in forwards;
+  }
+  @keyframes ks-drawer-slide-in {
+    from {
+      transform: translateX(-100%);
+    }
+    to {
+      transform: translateX(0);
+    }
+  }
+  @keyframes ks-drawer-slide-out {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-100%);
+    }
+  }
+  @keyframes ks-dialog-fade-out {
+    from {
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .ks-dialog-overlay[data-reach-dialog-overlay][data-drawer-state],
+    .ks-drawer-content[data-reach-dialog-content][data-drawer-state] {
+      animation-duration: 0.01ms;
+    }
+  }
+
+  /* Drawer layout only applies on mobile (≤ 992px). */
   @media (max-width: 992px) {
     .ks-drawer-content[data-reach-dialog-content] {
       padding: 20px 16px;
