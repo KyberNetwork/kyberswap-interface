@@ -39,7 +39,7 @@ export const ReviewRow = ({ isLoading = false, label, value }: ReviewRowProps) =
 
 export const ReviewSection = ({ children, title }: { children: ReactNode; title?: string }) => (
   <Stack className="min-w-0 gap-2 rounded-xl bg-white-04 px-4 py-3">
-    {title && <span className="text-sm font-medium text-text">{title}</span>}
+    {title && <h3 className="text-sm font-medium text-text">{title}</h3>}
     {children}
   </Stack>
 )
@@ -78,7 +78,7 @@ type PreparedActionModalProps = {
   review: ReactNode
   state: PreparedActionFlowState
   successActions?: ReactNode
-  successText?: ReactNode
+  successText?: string
   successTitle?: string
   title: ReactNode
   width?: number
@@ -192,7 +192,7 @@ const PreparedActionModal = ({
               {!!state.action?.warnings?.length && (
                 <Stack className="gap-1 rounded-xl bg-warning-20 px-3 py-2 text-xs text-warning">
                   {state.action.warnings.map(warning => (
-                    <span key={warning}>{warning.replace('PREPARED_ACTION_WARNING_', '').replaceAll('_', ' ')}</span>
+                    <p key={warning}>{warning.replace('PREPARED_ACTION_WARNING_', '').replaceAll('_', ' ')}</p>
                   ))}
                 </Stack>
               )}
@@ -218,8 +218,8 @@ const PreparedActionModal = ({
             <Stack className="items-center gap-4 text-center">
               <Loader size="48px" />
               <Stack className="items-center gap-1">
-                <span className="text-base font-medium text-text">{processingCopy.title}</span>
-                <span className="max-w-[340px] text-sm text-subText">{processingCopy.text}</span>
+                <h3 className="text-base font-medium text-text">{processingCopy.title}</h3>
+                <p className="max-w-[340px] text-sm text-subText">{processingCopy.text}</p>
               </Stack>
               {scanLink && (
                 <ExternalLink href={scanLink} className="text-sm text-primary">
@@ -233,8 +233,8 @@ const PreparedActionModal = ({
             <Stack className="items-center gap-4 text-center">
               <CheckCircle size={48} className="text-primary" />
               <Stack className="items-center gap-1">
-                <span className="text-base font-medium text-text">{successTitle}</span>
-                {successText && <span className="max-w-[340px] text-sm text-subText">{successText}</span>}
+                <h3 className="text-base font-medium text-text">{successTitle}</h3>
+                {successText && <p className="max-w-[340px] text-sm text-subText">{successText}</p>}
               </Stack>
               {scanLink && (
                 <ExternalLink href={scanLink} className="text-sm text-primary">
@@ -263,7 +263,7 @@ const PreparedActionModal = ({
                 {state.phase === 'error' ? (
                   <>
                     {recoveryError && (
-                      <span className="max-w-[360px] text-base font-medium leading-6 text-red">{recoveryError}</span>
+                      <p className="max-w-[360px] text-base font-medium leading-6 text-red">{recoveryError}</p>
                     )}
                     {hasErrorDetail && (
                       <Stack className="w-full items-center gap-0">
@@ -299,8 +299,8 @@ const PreparedActionModal = ({
                   </>
                 ) : (
                   <>
-                    <span className="text-base font-medium text-text">{recovery.title}</span>
-                    {recoveryError && <span className="max-w-[360px] text-sm text-subText">{recoveryError}</span>}
+                    {recovery.title && <h3 className="text-base font-medium text-text">{recovery.title}</h3>}
+                    {recoveryError && <p className="max-w-[360px] text-sm text-subText">{recoveryError}</p>}
                   </>
                 )}
               </Stack>

@@ -106,9 +106,9 @@ export const StartCopyReview = ({
         </span>
       </label>
       {confirmBalanceError && (
-        <span role="alert" className="text-xs text-red">
+        <p role="alert" className="text-xs text-red">
           {confirmBalanceError}
-        </span>
+        </p>
       )}
     </Stack>
   )
@@ -175,9 +175,9 @@ export const StartCopyForm = ({
 
       <HStack className="items-start gap-2.5 rounded-xl bg-blue/[0.08] p-3 text-blue2">
         <Info size={16} className="mt-0.5 shrink-0" />
-        <span className="text-xs italic">
+        <p className="text-xs italic">
           Earlier subscribers get executed before later ones. Price may vary slightly across executions.
-        </span>
+        </p>
       </HStack>
 
       <ButtonPrimary

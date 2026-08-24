@@ -101,7 +101,7 @@ const InfiniteScroll = ({
           className={cn('items-center justify-center px-4 py-3 text-center', initialError && 'min-h-[180px]')}
           role="alert"
         >
-          <span className="text-sm font-medium text-subText">Unable to load data.</span>
+          <p className="text-sm font-medium text-subText">Unable to load data.</p>
         </Stack>
       )}
       {!error && hasMore && (

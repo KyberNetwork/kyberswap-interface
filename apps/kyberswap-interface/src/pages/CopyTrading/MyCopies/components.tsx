@@ -114,8 +114,8 @@ export const AlertsFeed = ({ infiniteScroll, loading, rows }: AlertsFeedProps) =
                     <span className="min-w-0 truncate text-sm text-subText">{agentName}</span>
                     <span className="ml-auto shrink-0 text-xs text-subText">{formatDateTime(item.occurredAt)}</span>
                   </HStack>
-                  {showSummary && <span className="break-words text-sm text-subText">{summary}</span>}
-                  {showPublicError && <span className="break-words text-xs text-warning">{publicError}</span>}
+                  {showSummary && <p className="break-words text-sm text-subText">{summary}</p>}
+                  {showPublicError && <p className="break-words text-xs text-warning">{publicError}</p>}
                   {(tokenSymbol || valueUsd !== undefined || realizedPnlUsd !== undefined) && (
                     <HStack className="flex-wrap items-center gap-2 text-xs">
                       {tokenSymbol && (
@@ -146,13 +146,11 @@ export const AlertsFeed = ({ infiniteScroll, loading, rows }: AlertsFeedProps) =
           })}
 
           {loading && !rows.length && (
-            <span className="text-sm font-medium text-subText">
+            <p className="text-sm font-medium text-subText">
               <Dots>Loading</Dots>
-            </span>
+            </p>
           )}
-          {!loading && !rows.length && (
-            <span className="text-sm font-medium text-subText">No recent activity found</span>
-          )}
+          {!loading && !rows.length && <p className="text-sm font-medium text-subText">No recent activity found</p>}
         </Stack>
       </InfiniteScroll>
     </ContentPanel>
