@@ -17,8 +17,8 @@ import { CopyRunAgentCell } from 'pages/CopyTrading/components/common/agentIdent
 import { copyTradingStatIconMap } from 'pages/CopyTrading/constants'
 import {
   formatCount,
+  formatDisplayCapitalInUsd,
   formatUsd,
-  getDisplayCapitalInUsd,
   getSignedMetricClassName,
   signedUsd,
 } from 'pages/CopyTrading/helpers'
@@ -96,7 +96,7 @@ const ClosedSubscriptionsTable = ({ loading, onOpenSubscription, pagination, row
                 <span>{formatDateTime(subscription.startedAt)}</span>
                 <span>{formatDateTime(subscription.stoppedAt)}</span>
               </TableCell>
-              <TableCell className="text-right">{formatUsd(getDisplayCapitalInUsd(subscription))}</TableCell>
+              <TableCell className="text-right">{formatDisplayCapitalInUsd(subscription)}</TableCell>
               <TableCell className="text-right">{formatUsd(subscription.portfolioValueUsd)}</TableCell>
               <TableCell
                 className={cn('whitespace-nowrap text-right', getSignedMetricClassName(subscription.realizedPnlUsd))}
@@ -135,7 +135,7 @@ const ClosedSubscriptionsTable = ({ loading, onOpenSubscription, pagination, row
                 {formatCount(subscription.closedPositionCount ?? subscription.openPositionCount)}
               </TableCardField>
               <TableCardField align="right" label="Capital In">
-                {formatUsd(getDisplayCapitalInUsd(subscription))}
+                {formatDisplayCapitalInUsd(subscription)}
               </TableCardField>
               <TableCardField label="Current Balance">{formatUsd(subscription.portfolioValueUsd)}</TableCardField>
               <TableCardField

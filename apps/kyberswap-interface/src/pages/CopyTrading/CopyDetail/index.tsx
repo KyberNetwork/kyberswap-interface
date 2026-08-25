@@ -25,8 +25,8 @@ import { copyTradingStatIconMap } from 'pages/CopyTrading/constants'
 import { useCopyTradingContext } from 'pages/CopyTrading/context'
 import {
   formatApproximateUsd,
+  formatDisplayCapitalInUsd,
   formatUsd,
-  getDisplayCapitalInUsd,
   getSignedMetricClassName,
   signedPercent,
   signedUsd,
@@ -100,7 +100,7 @@ const CopyTimeline = ({ run }: { run: CopyRunSummary }) => {
         <Stack className="min-w-0">
           <span className="text-sm text-subText">{formatDateTime(run.startedAt)}</span>
           <span className="break-words text-lg font-medium text-text max-sm:text-base">
-            In: {formatUsd(getDisplayCapitalInUsd(run))}
+            In: {formatDisplayCapitalInUsd(run)}
           </span>
         </Stack>
       </HStack>

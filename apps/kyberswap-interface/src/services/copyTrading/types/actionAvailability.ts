@@ -37,6 +37,7 @@ export type AdvisoryActionStatus =
   | 'ADVISORY_ACTION_STATUS_AVAILABLE'
   | 'ADVISORY_ACTION_STATUS_PENDING'
   | 'ADVISORY_ACTION_STATUS_UNAVAILABLE'
+  | 'ADVISORY_ACTION_STATUS_TRY_PREPARE'
 
 export type AdvisoryActionAvailability = {
   status?: AdvisoryActionStatus

@@ -21,8 +21,8 @@ import {
   type SidePanelCardWrapperProps,
 } from 'pages/CopyTrading/components/AgentSidebarCards/SidePanelCard'
 import { ResponsiveDetailContents, ResponsiveDetailItem } from 'pages/CopyTrading/components/common/layout'
-import { copyRunStatusTextClassName } from 'pages/CopyTrading/components/common/status'
-import { formatTokenAmount, formatUsd, getDisplayCapitalInUsd } from 'pages/CopyTrading/helpers'
+import { DataQualityStatusBadge, copyRunStatusTextClassName } from 'pages/CopyTrading/components/common/status'
+import { formatDisplayCapitalInUsd, formatTokenAmount, formatUsd } from 'pages/CopyTrading/helpers'
 import { useCopyTradingModal } from 'pages/CopyTrading/modals/context'
 import { cn } from 'utils/cn'
 import { formatDateTime } from 'utils/time'
@@ -93,9 +93,7 @@ const RemainingInWalletCard = ({
               {formatUsd(totalIsRenderable ? totalValueUsd.value : undefined)}
             </span>
             {totalIsRenderable && totalValueUsd.status === 'METRIC_STATUS_STALE' && (
-              <span className="rounded bg-warning-20 px-1.5 py-0.5 text-[10px] font-medium uppercase text-warning">
-                Stale
-              </span>
+              <DataQualityStatusBadge status={totalValueUsd.status} />
             )}
           </HStack>
         )
@@ -178,21 +176,13 @@ const CopySidePanel = ({ agent, run }: CopySidePanelProps) => {
     'Current Copying'
   )
 
-  const secondaryCard =
-    run.status === 'stopped' ? (
-      <WithdrawQuoteCard
-        availability={run.withdrawQuoteAvailability}
-        onWithdraw={() => openWithdrawQuote(run, run.withdrawQuoteAvailability)}
-      />
-    ) : run.status === 'active' ? (
-      <StrategyExecutionCard items={agent.strategyExecutionItems} />
-    ) : null
+  const secondaryCard = run.status === 'active' ? <StrategyExecutionCard items={agent.strategyExecutionItems} /> : null
 
   const capitalCard = (
     <ResponsiveDetailItem responsiveOrder={copyDetailResponsiveOrder.capital}>
       <CopyCapitalCard
         addCapitalAvailability={run.addCapitalAvailability}
-        capital={formatUsd(getDisplayCapitalInUsd(run))}
+        capital={formatDisplayCapitalInUsd(run)}
         headerRight={
           run.status === 'stopped' ? (
             <span className="text-sm font-normal text-subText">{formatDateTime(run.stoppedAt)}</span>
@@ -231,6 +221,14 @@ const CopySidePanel = ({ agent, run }: CopySidePanelProps) => {
       {secondaryCard && (
         <ResponsiveDetailItem responsiveOrder={copyDetailResponsiveOrder.secondary}>
           {secondaryCard}
+        </ResponsiveDetailItem>
+      )}
+      {run.withdrawQuoteAvailability && (
+        <ResponsiveDetailItem responsiveOrder={copyDetailResponsiveOrder.withdraw}>
+          <WithdrawQuoteCard
+            availability={run.withdrawQuoteAvailability}
+            onWithdraw={() => openWithdrawQuote(run, run.withdrawQuoteAvailability)}
+          />
         </ResponsiveDetailItem>
       )}
       {!isTerminal && (

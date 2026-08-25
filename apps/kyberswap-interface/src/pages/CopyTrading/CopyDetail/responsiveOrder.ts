@@ -5,7 +5,8 @@ export const copyDetailResponsiveOrder = {
   capital: 1,
   risk: 2,
   wallet: 3,
-  mainContent: 4,
-  secondary: 5,
-  tokens: 6,
+  withdraw: 4,
+  mainContent: 5,
+  secondary: 6,
+  tokens: 7,
 } as const

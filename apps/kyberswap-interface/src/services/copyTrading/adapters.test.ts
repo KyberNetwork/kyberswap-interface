@@ -11,20 +11,15 @@ const currentCapital = {
 
 describe('adaptCopyRunResponse', () => {
   it.each([
-    ['CAPITAL_IN_PROJECTION_STATUS_READY', currentCapital, '56.78', 'ready', '12.34'],
-    [
-      'CAPITAL_IN_PROJECTION_STATUS_READY',
-      { value: '12.34', status: 'METRIC_STATUS_UNAVAILABLE' },
-      '56.78',
-      'ready',
-      undefined,
-    ],
-    ['CAPITAL_IN_PROJECTION_STATUS_SYNCING', currentCapital, '56.78', 'syncing', undefined],
-    ['CAPITAL_IN_PROJECTION_STATUS_UNAVAILABLE', currentCapital, '56.78', 'unavailable', undefined],
-    ['CAPITAL_IN_PROJECTION_STATUS_UNAVAILABLE', currentCapital, undefined, 'unavailable', undefined],
+    ['CAPITAL_IN_PROJECTION_STATUS_READY', currentCapital, '56.78', '12.34'],
+    ['CAPITAL_IN_PROJECTION_STATUS_READY', { value: '12.34', status: 'METRIC_STATUS_UNAVAILABLE' }, '56.78', undefined],
+    ['CAPITAL_IN_PROJECTION_STATUS_SYNCING', currentCapital, '56.78', undefined],
+    ['CAPITAL_IN_PROJECTION_STATUS_SYNCING', { value: '12.34', status: 'METRIC_STATUS_STALE' }, '56.78', undefined],
+    ['CAPITAL_IN_PROJECTION_STATUS_UNAVAILABLE', currentCapital, '56.78', undefined],
+    ['CAPITAL_IN_PROJECTION_STATUS_UNAVAILABLE', currentCapital, undefined, undefined],
   ] as const)(
-    'maps %s and keeps observed capital separate from canonical capital',
-    (capitalInProjectionStatus, capitalInUsd, observedValue, expectedStatus, expectedCapitalInUsd) => {
+    'only exposes canonical Capital In when %s is ready',
+    (capitalInProjectionStatus, capitalInUsd, observedValue, expectedCapitalInUsd) => {
       const response = adaptCopyRunResponse({
         data: {
           capitalInProjectionStatus,
@@ -33,7 +28,6 @@ describe('adaptCopyRunResponse', () => {
         },
       })
 
-      expect(response.data.capitalInProjectionStatus).toBe(expectedStatus)
       expect(response.data.capitalInUsd).toBe(expectedCapitalInUsd)
       expect(response.data.observedCapitalInUsd).toBe(observedValue)
     },

@@ -1301,6 +1301,10 @@ paths:
         - Transaction Preparation
   /users/{ownerAddress}/copy-runs/{copyRunId}:prepareWithdrawQuote:
     post:
+      summary: |-
+        PrepareWithdrawQuote prepares an exact quote-token withdrawal while
+        copying, while stopping, or after copying has stopped. amount_raw equal
+        to uint256.max is the explicit full execution-time balance sentinel.
       operationId: prepareWithdrawQuote
       responses:
         "200":
@@ -1446,6 +1450,14 @@ definitions:
         format: int64
   TransactionPreparationServicePrepareWithdrawQuoteBody:
     type: object
+    properties:
+      amountRaw:
+        type: string
+        description: |-
+          Canonical positive uint256. Values below uint256.max withdraw that exact
+          amount; uint256.max withdraws the full quote balance at execution.
+    required:
+      - amountRaw
   protobufAny:
     type: object
     properties:
@@ -1601,10 +1613,15 @@ definitions:
       - ADVISORY_ACTION_STATUS_AVAILABLE
       - ADVISORY_ACTION_STATUS_PENDING
       - ADVISORY_ACTION_STATUS_UNAVAILABLE
+      - ADVISORY_ACTION_STATUS_TRY_PREPARE
     default: ADVISORY_ACTION_STATUS_UNSPECIFIED
     description: |-
       AdvisoryActionStatus is render-only aggregate availability. Live preparation
       remains authoritative and may return a different typed result.
+
+       - ADVISORY_ACTION_STATUS_PENDING: The aggregate lacks a current proof that covers the latest relevant fact.
+       - ADVISORY_ACTION_STATUS_TRY_PREPARE: Stale aggregate evidence covers every locally known relevant fact. The UI
+      may offer a live preparation attempt, but this is never action authority.
   v1AgentActionLog:
     type: object
     properties:
@@ -2156,6 +2173,11 @@ definitions:
           Query-time observed Capital In from active follower account-capital facts.
           This value is reversible display data and does not drive sorting, totals,
           performance, AUM, or action preparation.
+      stopCopyProgress:
+        $ref: '#/definitions/v1StopCopyProgress'
+        description: |-
+          Present only when the newest safely covered Stop parent is valid. Pending
+          includes selected positions whose child action has not been indexed yet.
     description: CopyRunSummary contains one copy-run row.
   v1CountMetric:
     type: object
@@ -2180,6 +2202,44 @@ definitions:
         type: integer
         format: int32
     description: CursorPagination describes opaque cursor pagination.
+  v1DataCompleteness:
+    type: string
+    enum:
+      - DATA_COMPLETENESS_UNSPECIFIED
+      - DATA_COMPLETENESS_COMPLETE
+      - DATA_COMPLETENESS_PARTIAL
+      - DATA_COMPLETENESS_PENDING
+    default: DATA_COMPLETENESS_UNSPECIFIED
+    description: |-
+      DataCompleteness describes whether every relevant input through a captured
+      target is included in one field group.
+  v1DataFinality:
+    type: string
+    enum:
+      - DATA_FINALITY_UNSPECIFIED
+      - DATA_FINALITY_PROVISIONAL
+      - DATA_FINALITY_FINAL
+    default: DATA_FINALITY_UNSPECIFIED
+    description: |-
+      DataFinality describes whether included source provenance is beyond its
+      configured reorg-safe boundary.
+  v1DataQualityReason:
+    type: string
+    enum:
+      - DATA_QUALITY_REASON_UNSPECIFIED
+      - DATA_QUALITY_REASON_SOURCE_LAG
+      - DATA_QUALITY_REASON_DEPENDENCY_PENDING
+      - DATA_QUALITY_REASON_OPERATOR_ACTION_PENDING
+      - DATA_QUALITY_REASON_SETTLEMENT_PENDING
+      - DATA_QUALITY_REASON_POLICY_TRANSITION_PENDING
+      - DATA_QUALITY_REASON_PRICE_PENDING
+      - DATA_QUALITY_REASON_REORG_REPAIR
+      - DATA_QUALITY_REASON_PENDING_USER_OPERATION
+      - DATA_QUALITY_REASON_PROVIDER_UNAVAILABLE
+    default: DATA_QUALITY_REASON_UNSPECIFIED
+    description: |-
+      DataQualityReason is the bounded public explanation for degraded field
+      quality. It never carries source cursors, subject IDs, or repair IDs.
   v1DataStatus:
     type: string
     enum:
@@ -2258,12 +2318,6 @@ definitions:
         type: string
       configDeadlineRaw:
         type: string
-      token:
-        $ref: '#/definitions/v1Token'
-      displayAmountRaw:
-        type: string
-      valueUsd:
-        $ref: '#/definitions/v1DecimalMetric'
     description: ExecutionActivityDetail contains typed action and exit lifecycle context.
   v1FeeActivityDetail:
     type: object
@@ -2287,6 +2341,49 @@ definitions:
     description: |-
       FeePolicyPreview exposes the controller rate used by the deployed beta-3
       account. It deliberately does not claim immutable per-account fee terms.
+  v1FieldGroup:
+    type: string
+    enum:
+      - FIELD_GROUP_UNSPECIFIED
+      - FIELD_GROUP_IDENTITY
+      - FIELD_GROUP_LIFECYCLE
+      - FIELD_GROUP_CAPITAL
+      - FIELD_GROUP_VALUATION
+      - FIELD_GROUP_PERFORMANCE
+      - FIELD_GROUP_POLICY
+      - FIELD_GROUP_ACTION_ADVISORY
+      - FIELD_GROUP_ACTIVITY
+      - FIELD_GROUP_TRADE_TOKEN_CONFIGURATION
+      - FIELD_GROUP_TOKEN_METADATA
+      - FIELD_GROUP_EXTERNAL_ENRICHMENT
+    default: FIELD_GROUP_UNSPECIFIED
+    description: FieldGroup identifies one coherent response field group.
+  v1FieldGroupQuality:
+    type: object
+    properties:
+      freshness:
+        $ref: '#/definitions/v1DataStatus'
+      completeness:
+        $ref: '#/definitions/v1DataCompleteness'
+      finality:
+        $ref: '#/definitions/v1DataFinality'
+      reason:
+        $ref: '#/definitions/v1DataQualityReason'
+      valueAsOf:
+        type: string
+        format: date-time
+      coverageAsOf:
+        type: string
+        format: date-time
+      computedAt:
+        type: string
+        format: date-time
+      group:
+        $ref: '#/definitions/v1FieldGroup'
+    description: |-
+      FieldGroupQuality keeps freshness, completeness, finality, and provenance
+      clocks independent. An unspecified dimension means the current producer did
+      not prove it; clients must not infer a positive state from that value.
   v1GetAgentPositionResponse:
     type: object
     properties:
@@ -3265,6 +3362,11 @@ definitions:
           $ref: '#/definitions/v1ChainFreshness'
       status:
         $ref: '#/definitions/v1DataStatus'
+      fieldQualities:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/v1FieldGroupQuality'
     description: ResponseMeta carries freshness metadata for public responses.
   v1SortOrder:
     type: string
@@ -3400,6 +3502,31 @@ definitions:
       totalSwapQuote:
         $ref: '#/definitions/v1SwapQuotePreview'
     description: StopCopyPreview contains the atomic Stop Copy selection and totals.
+  v1StopCopyProgress:
+    type: object
+    properties:
+      selectedPositionCount:
+        type: integer
+        format: int64
+      indexedPositionCount:
+        type: integer
+        format: int64
+      terminalPositionCount:
+        type: integer
+        format: int64
+      pendingPositionCount:
+        type: integer
+        format: int64
+      status:
+        $ref: '#/definitions/v1DataStatus'
+      asOf:
+        type: string
+        format: date-time
+    description: |-
+      StopCopyProgress reports bounded, source-proven wind-down progress for one
+      immutable Stop intent. Completed and skipped children are both terminal.
+      grpc-gateway omits zero-valued scalar counts from JSON; clients must treat an
+      absent count member in a present stop_copy_progress object as zero.
   v1StopPositionPreview:
     type: object
     properties:
@@ -3526,4 +3653,7 @@ definitions:
         type: string
       recipientAddress:
         type: string
-    description: WithdrawQuotePreview describes a repeatable max sweep to the owner snapshot at H.
+    description: |-
+      WithdrawQuotePreview describes the exact requested withdrawal to the owner
+      snapshot at H. sweep_amount_raw is the calldata amount and equals the request
+      for READY results; uint256.max means the full balance available at execution.

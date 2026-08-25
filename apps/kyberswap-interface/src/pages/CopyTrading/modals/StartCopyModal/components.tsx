@@ -15,6 +15,7 @@ import { type CapitalPercentage } from 'pages/CopyTrading/modals/CapitalAmount/c
 import { ReviewRow, ReviewSection } from 'pages/CopyTrading/modals/PreparedActionModal'
 import { formatPreparedAmount, formatWadPercent } from 'pages/CopyTrading/modals/PreparedActionModal/preparedAction'
 import { type StartCopyTarget } from 'pages/CopyTrading/modals/StartCopyModal/startCopy'
+import { isWritePrimaryActionDisabled } from 'pages/CopyTrading/modals/writeAction'
 import { shortenAddress } from 'utils/address'
 
 const ReviewLabel = ({ label, tooltip }: { label: string; tooltip: string }) => (
@@ -182,7 +183,13 @@ export const StartCopyForm = ({
 
       <ButtonPrimary
         type="button"
-        disabled={isPreparing || (accountConnected && onExpectedChain && (!amountIsValid || !!availabilityMessage))}
+        altDisabledStyle
+        disabled={isWritePrimaryActionDisabled({
+          accountConnected,
+          executionBlocked: !amountIsValid || !!availabilityMessage,
+          interactionLocked: isPreparing,
+          onExpectedChain,
+        })}
         title={amountError || availabilityMessage}
         onClick={onPrimaryAction}
       >

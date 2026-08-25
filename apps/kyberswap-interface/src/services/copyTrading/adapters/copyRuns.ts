@@ -111,6 +111,7 @@ const toCapitalInProjectionStatus = (status?: string): CapitalInProjectionStatus
 
 const toCopyRun = (run: ApiCopyRun): CopyRunSummary => {
   const capitalInProjectionStatus = toCapitalInProjectionStatus(run.capitalInProjectionStatus)
+  const canonicalCapitalInUsd = capitalInProjectionStatus === 'ready' ? metricValue(run.capitalInUsd) : undefined
   const observedCapitalInUsd = metricValue(run.observedCapitalInUsd)
 
   return {
@@ -120,10 +121,9 @@ const toCopyRun = (run: ApiCopyRun): CopyRunSummary => {
     chainId: chainIdNumber(run.chainId),
     copyAccount: (run.copyAccount || '') as Address,
     status: toCopyRunStatus(run.status),
-    capitalInProjectionStatus,
     startedAt: run.startedAt || '',
     stoppedAt: run.stoppedAt,
-    capitalInUsd: capitalInProjectionStatus === 'ready' ? metricValue(run.capitalInUsd) : undefined,
+    capitalInUsd: canonicalCapitalInUsd,
     observedCapitalInUsd,
     capitalOutUsd: metricValue(run.capitalOutUsd),
     portfolioValueUsd: metricValue(run.portfolioValueUsd),

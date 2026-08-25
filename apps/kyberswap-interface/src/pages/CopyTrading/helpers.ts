@@ -42,6 +42,9 @@ export const formatUsd = (value?: DecimalString) => {
 export const getDisplayCapitalInUsd = (run: Pick<CopyRunSummary, 'capitalInUsd' | 'observedCapitalInUsd'>) =>
   run.capitalInUsd ?? run.observedCapitalInUsd
 
+export const formatDisplayCapitalInUsd = (run: Pick<CopyRunSummary, 'capitalInUsd' | 'observedCapitalInUsd'>) =>
+  formatUsd(getDisplayCapitalInUsd(run))
+
 export const signedUsd = (value?: DecimalString) => {
   const amount = parseNumericValue(value)
   if (amount === undefined) return METRIC_FALLBACK
@@ -187,7 +190,7 @@ const reasonMessages: Partial<Record<PreparedActionReason, string>> = {
   PREPARED_ACTION_REASON_ALREADY_ACTIVE: 'You are already copying this agent.',
   PREPARED_ACTION_REASON_NOT_CURRENT_OWNER: 'The connected wallet is not the current owner.',
   PREPARED_ACTION_REASON_ACCOUNT_NOT_ACTIVE: 'This Smart Wallet is not active.',
-  PREPARED_ACTION_REASON_ACCOUNT_NOT_STOPPED: 'Stop copying before withdrawing from this Smart Wallet.',
+  PREPARED_ACTION_REASON_ACCOUNT_NOT_STOPPED: 'Withdrawal is temporarily unavailable. Please try again shortly.',
   PREPARED_ACTION_REASON_ACCOUNT_PERMANENTLY_PAUSED: 'This Smart Wallet is permanently paused.',
   PREPARED_ACTION_REASON_EXIT_IN_PROGRESS: 'A position exit is already in progress.',
   PREPARED_ACTION_REASON_EXIT_NOT_TERMINAL: 'The previous exit has not reached a terminal state yet.',
@@ -199,7 +202,8 @@ const reasonMessages: Partial<Record<PreparedActionReason, string>> = {
   PREPARED_ACTION_REASON_REQUEST_ID_CONFLICT: 'This Start Copy request conflicts with an earlier attempt.',
   PREPARED_ACTION_REASON_UNSUPPORTED_ACCOUNT_GENERATION: 'This Smart Wallet generation is not supported.',
   PREPARED_ACTION_REASON_NO_QUOTE_BALANCE: 'There is no quote-token balance available to withdraw.',
-  PREPARED_ACTION_REASON_INSUFFICIENT_QUOTE_BALANCE: 'Your wallet does not have enough quote-token balance.',
+  PREPARED_ACTION_REASON_INSUFFICIENT_QUOTE_BALANCE:
+    'The Smart Wallet does not have enough quote-token balance for this amount.',
   PREPARED_ACTION_REASON_INSUFFICIENT_QUOTE_ALLOWANCE:
     'The quote token needs a fresh authorization before Start Copy can continue.',
   PREPARED_ACTION_REASON_CONTROLLER_PAUSED: 'Copy Trading actions are temporarily paused.',
@@ -216,8 +220,9 @@ const reasonMessages: Partial<Record<PreparedActionReason, string>> = {
   PREPARED_ACTION_REASON_CLOSE_NOT_ELIGIBLE: 'This position is not eligible for full recovery.',
 }
 
-export const isActionAvailable = (availability?: AdvisoryActionAvailability) =>
-  availability?.status === 'ADVISORY_ACTION_STATUS_AVAILABLE'
+export const canAttemptPreparation = (availability?: AdvisoryActionAvailability) =>
+  availability?.status === 'ADVISORY_ACTION_STATUS_AVAILABLE' ||
+  availability?.status === 'ADVISORY_ACTION_STATUS_TRY_PREPARE'
 
 export const getPreparedReasonMessage = (reason?: PreparedActionReason) => {
   if (!reason || reason === 'PREPARED_ACTION_REASON_UNSPECIFIED') return 'This action is not available right now.'

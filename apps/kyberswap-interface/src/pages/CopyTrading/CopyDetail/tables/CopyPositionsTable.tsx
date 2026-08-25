@@ -96,7 +96,7 @@ export const CopyPositionsTable = ({
   return (
     <Stack>
       <InfiniteScroll {...infiniteScroll}>
-        <CopyPositionsGrid header className="sticky top-0 z-[1] hidden lg:grid">
+        <CopyPositionsGrid header className="sticky top-0 z-20 hidden lg:grid">
           <HeaderCell>Trade ID</HeaderCell>
           <HeaderCell>Token</HeaderCell>
           <HeaderCell>Entry Price</HeaderCell>

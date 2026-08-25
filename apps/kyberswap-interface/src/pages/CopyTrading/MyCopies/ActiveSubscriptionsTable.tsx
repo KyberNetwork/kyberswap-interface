@@ -18,15 +18,14 @@ import {
 import { CopyRunAgentCell } from 'pages/CopyTrading/components/common/agentIdentity'
 import { copyTradingStatIconMap } from 'pages/CopyTrading/constants'
 import {
+  canAttemptPreparation,
   compactUsd,
   formatCount,
-  formatUsd,
+  formatDisplayCapitalInUsd,
   getAgentDisplayName,
-  getDisplayCapitalInUsd,
   getPreparedReasonMessage,
   getSignedMetricClassName,
   getWinRateClassName,
-  isActionAvailable,
   percent,
 } from 'pages/CopyTrading/helpers'
 import { useCopyTradingModal } from 'pages/CopyTrading/modals/context'
@@ -85,7 +84,7 @@ const ActiveSubscriptionsTable = ({
   }
 
   const renderStopCopyButton = (subscription: CopyRunSummary) => {
-    const actionAvailable = isActionAvailable(subscription.stopCopyAvailability)
+    const actionAvailable = canAttemptPreparation(subscription.stopCopyAvailability)
 
     return (
       <ButtonLight
@@ -171,7 +170,7 @@ const ActiveSubscriptionsTable = ({
                 {percent(subscription.agentStats.winRatePct)}
               </TableCell>
               <TableCell className="text-right">{compactUsd(subscription.agentStats.volumeUsd)}</TableCell>
-              <TableCell className="text-right">{formatUsd(getDisplayCapitalInUsd(subscription))}</TableCell>
+              <TableCell className="text-right">{formatDisplayCapitalInUsd(subscription)}</TableCell>
               <TableCell className="text-right">{formatCount(subscription.openPositionCount)}</TableCell>
               <TableCell className="flex justify-end">{renderStopCopyButton(subscription)}</TableCell>
             </ActiveSubscriptionsGrid>
@@ -213,7 +212,7 @@ const ActiveSubscriptionsTable = ({
               </TableCardField>
               <TableCardField label="Volume">{compactUsd(subscription.agentStats.volumeUsd)}</TableCardField>
               <TableCardField align="right" label="Capital In">
-                {formatUsd(getDisplayCapitalInUsd(subscription))}
+                {formatDisplayCapitalInUsd(subscription)}
               </TableCardField>
               <TableCardField span="full" label="Positions">
                 {formatCount(subscription.openPositionCount)}

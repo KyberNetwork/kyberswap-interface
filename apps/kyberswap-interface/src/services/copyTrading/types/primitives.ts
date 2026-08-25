@@ -9,6 +9,40 @@ export type DataStatus =
   | 'DATA_STATUS_UNAVAILABLE'
   | 'DATA_STATUS_UNSPECIFIED'
 
+export type DataCompleteness =
+  | 'DATA_COMPLETENESS_UNSPECIFIED'
+  | 'DATA_COMPLETENESS_COMPLETE'
+  | 'DATA_COMPLETENESS_PARTIAL'
+  | 'DATA_COMPLETENESS_PENDING'
+
+export type DataFinality = 'DATA_FINALITY_UNSPECIFIED' | 'DATA_FINALITY_PROVISIONAL' | 'DATA_FINALITY_FINAL'
+
+export type DataQualityReason =
+  | 'DATA_QUALITY_REASON_UNSPECIFIED'
+  | 'DATA_QUALITY_REASON_SOURCE_LAG'
+  | 'DATA_QUALITY_REASON_DEPENDENCY_PENDING'
+  | 'DATA_QUALITY_REASON_OPERATOR_ACTION_PENDING'
+  | 'DATA_QUALITY_REASON_SETTLEMENT_PENDING'
+  | 'DATA_QUALITY_REASON_POLICY_TRANSITION_PENDING'
+  | 'DATA_QUALITY_REASON_PRICE_PENDING'
+  | 'DATA_QUALITY_REASON_REORG_REPAIR'
+  | 'DATA_QUALITY_REASON_PENDING_USER_OPERATION'
+  | 'DATA_QUALITY_REASON_PROVIDER_UNAVAILABLE'
+
+export type FieldGroup =
+  | 'FIELD_GROUP_UNSPECIFIED'
+  | 'FIELD_GROUP_IDENTITY'
+  | 'FIELD_GROUP_LIFECYCLE'
+  | 'FIELD_GROUP_CAPITAL'
+  | 'FIELD_GROUP_VALUATION'
+  | 'FIELD_GROUP_PERFORMANCE'
+  | 'FIELD_GROUP_POLICY'
+  | 'FIELD_GROUP_ACTION_ADVISORY'
+  | 'FIELD_GROUP_ACTIVITY'
+  | 'FIELD_GROUP_TRADE_TOKEN_CONFIGURATION'
+  | 'FIELD_GROUP_TOKEN_METADATA'
+  | 'FIELD_GROUP_EXTERNAL_ENRICHMENT'
+
 export type MetricStatus =
   | 'METRIC_STATUS_CURRENT'
   | 'METRIC_STATUS_STALE'
@@ -46,6 +80,17 @@ export type ChainFreshness = {
   status?: DataStatus
 }
 
+export type FieldGroupQuality = {
+  freshness?: DataStatus
+  completeness?: DataCompleteness
+  finality?: DataFinality
+  reason?: DataQualityReason
+  valueAsOf?: Timestamp
+  coverageAsOf?: Timestamp
+  computedAt?: Timestamp
+  group?: FieldGroup
+}
+
 export type ResponseMeta = {
   requestId?: string
   generatedAt?: Timestamp
@@ -53,6 +98,7 @@ export type ResponseMeta = {
   stalenessReason?: string
   asOfChains?: ChainFreshness[]
   status?: DataStatus
+  fieldQualities?: FieldGroupQuality[]
 }
 
 export type SingleResponse<T> = {

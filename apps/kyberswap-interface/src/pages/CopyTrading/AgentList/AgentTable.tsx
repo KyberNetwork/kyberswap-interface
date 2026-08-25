@@ -23,12 +23,12 @@ import { AgentCell } from 'pages/CopyTrading/components/common/agentIdentity'
 import { copyTradingStatIconMap } from 'pages/CopyTrading/constants'
 import { useCopyTradingContext } from 'pages/CopyTrading/context'
 import {
+  canAttemptPreparation,
   compactUsd,
   formatCount,
   getPreparedReasonMessage,
   getSignedMetricClassName,
   getWinRateClassName,
-  isActionAvailable,
   percent,
 } from 'pages/CopyTrading/helpers'
 import { useCopyTradingModal } from 'pages/CopyTrading/modals/context'
@@ -164,7 +164,7 @@ const AgentTable = ({ agents, loading, pagination, sortBy, sortOrder, onSortChan
         >
           {agents.map(agent => {
             const copiedRun = copiedRunsByAgentId?.[agent.agentId]
-            const canStartCopy = isActionAvailable(agent.startCopyAvailability)
+            const canStartCopy = canAttemptPreparation(agent.startCopyAvailability)
 
             return (
               <LeaderboardGrid
@@ -190,6 +190,7 @@ const AgentTable = ({ agents, loading, pagination, sortBy, sortOrder, onSortChan
                     <div>
                       <ButtonPrimary
                         type="button"
+                        altDisabledStyle
                         padding="6px 12px"
                         disabled={!canStartCopy}
                         title={
@@ -217,7 +218,7 @@ const AgentTable = ({ agents, loading, pagination, sortBy, sortOrder, onSortChan
       >
         {agents.map(agent => {
           const copiedRun = copiedRunsByAgentId?.[agent.agentId]
-          const canStartCopy = isActionAvailable(agent.startCopyAvailability)
+          const canStartCopy = canAttemptPreparation(agent.startCopyAvailability)
 
           return (
             <Stack
@@ -256,6 +257,7 @@ const AgentTable = ({ agents, loading, pagination, sortBy, sortOrder, onSortChan
               ) : (
                 <ButtonPrimary
                   type="button"
+                  altDisabledStyle
                   padding="6px 12px"
                   disabled={!canStartCopy}
                   title={!canStartCopy ? getPreparedReasonMessage(agent.startCopyAvailability?.reason) : undefined}

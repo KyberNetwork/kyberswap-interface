@@ -1,6 +1,7 @@
 import type { MetricStatus } from 'services/copyTrading/types/primitives'
 
 import { Center, HStack, Stack } from 'components/Stack'
+import { DataQualityStatusBadge } from 'pages/CopyTrading/components/common/status'
 import { type StatIcon } from 'pages/CopyTrading/constants'
 import { cn } from 'utils/cn'
 
@@ -25,9 +26,7 @@ const StatLabel = ({ item }: Pick<LeaderboardCardProps, 'item'>) => (
     <span className="min-w-0 truncate" title={item.label}>
       {item.label}
     </span>
-    {item.status === 'METRIC_STATUS_STALE' && (
-      <span className="rounded bg-warning-20 px-1.5 py-0.5 text-[10px] font-medium uppercase text-warning">Stale</span>
-    )}
+    {item.status === 'METRIC_STATUS_STALE' && <DataQualityStatusBadge status={item.status} />}
   </HStack>
 )
 

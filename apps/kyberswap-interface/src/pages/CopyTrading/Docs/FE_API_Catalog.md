@@ -7,9 +7,207 @@ newest documented behavior is already merged or deployed.
 
 ## Changelog
 
-### 2026-08-14 — Pending release: grouped agent action logs
+### 2026-08-24 — Withdraw Quote requires an explicit amount
 
-Status: implemented on `hung/action-log-group-filter`; not merged or deployed.
+Status: pending coordinated backend rollout; don't enable the frontend change
+until all operator replicas and then all aggregate API replicas are updated.
+
+- Adds the required `amountRaw` request field to Withdraw Quote. The API no
+  longer treats an omitted amount or `{}` as a request to withdraw everything.
+- Accepts a canonical positive decimal `uint256` string. Values from `1`
+  through `uint256.max - 1` withdraw that exact raw quote-token amount.
+- Reserves `uint256.max` as the only full-balance sentinel. It withdraws the
+  quote-token balance available when the transaction executes, which can
+  differ from the preparation preview.
+- Returns typed reason
+  `PREPARED_ACTION_REASON_INSUFFICIENT_QUOTE_BALANCE` when an exact requested
+  amount exceeds the positive balance at the preparation block. The
+  unavailable result doesn't contain a call, sweep amount, or recipient.
+- Keeps preparation fail-closed. The aggregate API and operator bind the
+  requested amount, current owner, exact-block balance, preview, recipient,
+  call selector, calldata, and preflight result before returning `READY`.
+
+Frontend migration:
+
+1. Regenerate the client so `amountRaw` is present on every Withdraw Quote
+   request. An omitted, empty, zero, signed, nondecimal, leading-zero, or
+   overflowing value is invalid.
+2. Send a value below `uint256.max` for an exact partial withdrawal. Send the
+   decimal `uint256.max` value only when the user chooses to withdraw the full
+   execution-time balance.
+3. For `READY`, require `data.withdrawQuote.sweepAmountRaw` to equal the
+   requested `amountRaw`, and submit the returned call unchanged.
+4. Handle `PREPARED_ACTION_REASON_INSUFFICIENT_QUOTE_BALANCE` as normal product
+   state. Refresh the balance and let the user enter a smaller amount or choose
+   the full-balance action.
+
+Rollout order: deploy every operator replica first, then every aggregate API
+replica, and only then enable frontend requests with `amountRaw`. This order
+creates a temporary preparation-availability gap instead of risking an old
+replica interpreting a new request as the former implicit maximum sweep.
+
+### 2026-08-22 — Backend verification addendum
+
+Status: backend/API contract only; no frontend implementation was performed.
+
+- Regenerated protobuf/OpenAPI outputs are the wire authority for these
+  backend changes in any target environment.
+- Chart/performance pages may include a provisional open-tail point. Treat
+  metric status and the `PERFORMANCE` field-quality group's `finality` as the
+  display contract: open/reorg-risk tails are `PROVISIONAL`; finalized covered
+  boundaries are `FINAL`. An empty array alone proves nothing. When the server
+  proves that the selected window/cursor is an empty subset of an active
+  future-scheduled projection, it returns complete current/stale quality with
+  `PROVISIONAL` finality; a completed stopped projection can return `FINAL`.
+  Missing required chart output remains unavailable. The backend audit repairs
+  wholly lost/zero output; exact producers and repair paths handle partial
+  suffix or per-trade gaps. Finality is based on rows remaining after lookahead
+  trimming.
+- Capital, realized PnL, flat fee, cashback, and net fee are independently
+  computed monetary groups. A prior same-identity monetary value may be
+  returned as `STALE` while its group is `SYNCING`; never render `UNAVAILABLE`
+  as zero or use stale/provisional display data to authorize an action.
+- Backend work wakes are now locally validated for faster convergence. At the
+  configured 40 notifications/s database budget, PostgreSQL 18.3 tests measured
+  41.48/s with two publishers and 6.02 ms p99, and 41.53/s with three
+  publishers and 6.88 ms p99; both observed zero notification queue usage.
+  This remains a backend hint path only; clients should continue to refresh
+  from normal read metadata and preparation responses.
+- The operator trade-token snapshot producer and a dormant aggregate importer
+  are implemented locally, but the current API operator pin does not contain
+  the generated RPCs. Until the operator revision is published, pinned, and a
+  complete READY universe has been imported, the existing request-time source
+  remains authoritative. No frontend cutover is included in this delivery.
+
+### 2026-08-21 — field quality and faster convergence
+
+- Adds a server-generated `meta.requestId` to read responses. The server
+  ignores and replaces a caller- or handler-supplied value. An entropy failure
+  can omit the ID, but doesn't fail an otherwise successful read.
+- Adds `meta.fieldQualities[]` to read responses. Each entry describes one
+  coherent field group by independent freshness, completeness, finality,
+  reason, and provenance clocks. The array can be empty while producer groups
+  migrate; absence doesn't prove that a group is current or complete.
+- Keeps advisory wire value `2` named `ADVISORY_ACTION_STATUS_PENDING` and adds
+  `ADVISORY_ACTION_STATUS_TRY_PREPARE` as wire value `4`.
+- Keeps live action preparation authoritative. `PENDING` means that the
+  aggregate lacks a current proof covering the latest relevant fact.
+  `TRY_PREPARE` means that stale aggregate evidence covers every locally known
+  relevant fact, so the UI may offer a preparation attempt, but must not claim
+  that the action is available.
+- Preserves a prior same-identity Capital In value as a `STALE` metric while
+  `capitalInProjectionStatus` is `SYNCING`. Never render the stale value as a
+  newly confirmed allocation.
+- Adds field-quality groups for agent trade-token configuration, token
+  metadata, and external enrichment. The staged Stage 1a target evaluates
+  `GetAgent.whitelistedSymbols` as a versioned chain/leader configuration
+  snapshot plus independently resolved token-symbol metadata; a proven empty
+  configuration is complete, while unresolved symbols degrade only the
+  token-metadata group. Until the published operator pin and READY import gate
+  described above, the existing request-time source remains authoritative.
+- Keeps allocation semantics deliberately asymmetric by scope. At run level,
+  `capitalInUsd` is the canonical indexed value and
+  `observedCapitalInUsd`/`capitalInProjectionStatus` is a display-only pending
+  overlay. Owner and copy-account totals remain canonical-only and become
+  unavailable rather than exposing a partial subtotal; no observed aggregate
+  fields were added.
+- Computes active and closing durations from the read request clock. Terminal
+  durations remain fixed at their terminal event time.
+- Adds optional `CopyRunSummary.stopCopyProgress` from the newest safely
+  covered, valid Stop intent. It reports selected, indexed, terminal, and
+  pending position counts without waiting for price, settlement, or PnL
+  materialization.
+- Removes the never-populated execution-activity `token`, `displayAmountRaw`,
+  and `valueUsd` fields. Their protobuf numbers and names are reserved. The
+  operator fact contract does not pin one executed amount or valuation source,
+  so clients must not infer these values from the latest position or price.
+- Enables backend post-commit work wakes for faster convergence. This is not a
+  new frontend transport contract: clients should keep using response metadata,
+  metric statuses, and normal refresh behavior rather than assuming every
+  backend commit produces a push event.
+- Doesn't add a generic response cache. Existing data remains sourced from the
+  aggregate read model and field-specific dependency behavior.
+
+Frontend migration:
+
+1. Keep existing handling for `ADVISORY_ACTION_STATUS_PENDING`. Regenerate or
+   update clients to add wire value `4` before enabling `TRY_PREPARE`
+   presentation.
+2. Use `meta.fieldQualities[]` only for the matching `group`. Don't apply one
+   degraded group to unrelated identity or lifecycle fields.
+3. Keep rendering a metric value when its metric status is `CURRENT` or
+   `STALE`. Use group completeness and reason to explain an in-progress
+   recomputation. Never render an `UNAVAILABLE` metric as zero.
+4. On `TRY_PREPARE`, describe the result as “check availability” or equivalent
+   and call the live preparation endpoint when the user confirms. Don't enable
+   an action solely from this advisory state.
+5. On `PENDING`, keep the action disabled and refresh the authoritative
+   read. Don't convert this state to a time-based optimistic action.
+6. Remove references to execution-activity `token`, `displayAmountRaw`, and
+   `valueUsd` when regenerating clients. Position, capital, and fee activity
+   details retain their own source-proven token and value fields.
+7. After the target environment activates the Stage 1a group, render
+   `GetAgent.whitelistedSymbols` when the trade-token configuration group is
+   complete. If the token-metadata group is partial or pending, keep the
+   configured address set/source identity visible where the design supports
+   it, but degrade unresolved labels/symbols instead of hiding the whole
+   profile. Before activation, follow that environment's existing generated
+   contract rather than inferring readiness from this catalog.
+
+### 2026-08-20 — Withdraw Quote at any copy lifecycle stage
+
+- Makes Withdraw Quote available while a copy run is active, stopping, or
+  stopped. The action no longer requires a Stop Copy intent, a permanently
+  paused account, terminal exits, or zero open positions.
+- Keeps the request and response schema unchanged.
+- Keeps preparation fail-closed. At one exact action block, the operator
+  verifies the account generation and quote token, reads the current owner and
+  quote-token balance, and preflights the exact call.
+- Encodes `uint256.max` as a repeatable sweep request. The contract transfers
+  the quote-token balance that exists when the transaction executes; the
+  preview's `quoteBalance` is the balance observed during preparation.
+- Returns a typed unavailable result when the connected wallet isn't the
+  current owner, the quote balance is zero, the account generation or quote
+  token is unsupported, or the exact call reverts during preflight.
+
+Frontend migration:
+
+1. Offer Withdraw Quote from both Open and History copy-run views when
+   `withdrawQuoteAvailability.status` is `ADVISORY_ACTION_STATUS_AVAILABLE`.
+   Don't require the user to stop copying first.
+2. Prepare again when the user confirms. Treat the preparation response as the
+   authoritative decision, even when the earlier advisory value was available.
+3. Display `data.withdrawQuote.quoteBalance` as the prepared balance preview.
+   Don't display `sweepAmountRaw` as the expected transferred amount because it
+   contains the max-uint sweep sentinel.
+4. Submit the returned call without modifying it, then refresh the copy-run and
+   copy-account reads after confirmation.
+
+Rollout order: deploy the operator change before the aggregate API change. If
+the API change reaches an environment first, an older operator can still return
+`PREPARED_ACTION_REASON_ACCOUNT_NOT_STOPPED` for an active run.
+
+### 2026-08-16 — AUM includes open-position value
+
+- Redefines `AgentMetrics.aumUsd` as approved-stable USD plus the current USD
+  valuation of remaining base inventory in open follower positions for
+  admitted active or closing copy runs.
+- Counts an approved-stable wallet balance once per copy account and excludes
+  stopped, closed, historical, and quarantined runs.
+- Returns `UNAVAILABLE` instead of a partial value when required run or
+  position coverage, token metadata, or a current price is unavailable.
+- Returns `STALE` when any accepted component is stale. The metric-level
+  `asOf` is the oldest contributing valuation timestamp and can differ from
+  response-level freshness metadata.
+- Applies the same component status and provenance semantics to
+  `LeaderboardSummary.totalAumUsd`. No endpoint or response-field shape
+  changes.
+
+Frontend migration: no payload migration is required. Continue branching on
+the metric status, render the value only for `CURRENT` or `STALE`, and show its
+own `asOf` when the UI displays valuation recency.
+
+### 2026-08-14 — grouped agent action logs
 
 - Changes `GET /agents/{agentId}/action-logs` so `data[]` always contains
   session groups with `sessionId` and `logs[]`, rather than flat action logs.
@@ -22,13 +220,7 @@ Frontend migration: read each `data[]` item as an
 `AgentActionLogSessionGroup` and render its nested `logs[]`. Do not continue
 decoding `data[]` as flat `AgentActionLog` objects.
 
-### 2026-08-13 — Pending release: stateless Manual Sell and Close Position
-
-Status: operator support merged in
-[`copy-trade-operator` PR #94](https://github.com/KyberNetwork/copy-trade-operator/pull/94)
-at `eb814dbb2f77bc73add3e1b407bbdb4285e4c729`; aggregate API support is in
-[`copy-trade-api` PR #24](https://github.com/KyberNetwork/copy-trade-api/pull/24).
-The coordinated release is not yet deployed.
+### 2026-08-13 — stateless Manual Sell and Close Position
 
 - Removes `POST /wallet-session-challenges` and `POST /wallet-sessions`.
 - Removes wallet-session bearer authentication from Manual Sell and Close
@@ -74,18 +266,18 @@ The following frontend-visible semantics are merged on `origin/main`; source
 status does not by itself prove that a particular environment is running the
 same image.
 
-| Surface | Merged contract | Required FE behavior |
-| --- | --- | --- |
-| Explicit Start funding intent | `PrepareStartCopyRequest.fundingMode` is required and is either `START_COPY_FUNDING_MODE_UNFUNDED` or `START_COPY_FUNDING_MODE_FUNDED`. `createPermitData` is optional only for funded mode and is never echoed publicly. | Choose the mode explicitly for each attempt, keep it stable with the same `startRequestId`, and never infer the mode from the presence of permit bytes. |
-| Start Copy onboarding | `START_COPY_STAGE_CREATE_CONFIRMING` is implemented. It is returned with `PREPARED_ACTION_STATUS_PENDING`, `PREPARED_ACTION_REASON_SOURCE_COVERAGE_PENDING`, the predicted `copyAccount`, and no call. | Keep polling with the same `startRequestId` and target. Do not resubmit the create call and do not fund until `START_COPY_STAGE_FUNDING_REQUIRED`. |
-| Capital In | `CopyRunSummary.capitalInProjectionStatus` is implemented with `SYNCING`, `READY`, and `UNAVAILABLE`. | Render `capitalInUsd` only when the projection status is `READY`. A visible funding transaction does not make a provisional aggregate value authoritative. |
-| Account-effective cashback policy | `GET /users/{ownerAddress}/copy-runs/{copyRunId}/cashback-policy` returns the operator-authored policy for that exact follower account, including typed status, optional rates, scope, provenance times, and optional formula version. | Fetch it lazily for a selected run's fee/cashback panel. Branch on `status`; do not substitute an agent-level advertised rate, infer missing rates as zero, or hard-code a formula version. |
-| Pinned stable balance | The current-stable materializer reads exact quote-token balances from the operator at one canonical block anchor. A present row can use `balanceSource = "onchain_rpc"`; exact zero remains present. | Trust the row only when `pinnedStableBalance.status` is `PRESENT`. Preserve all other typed states as unavailable rather than converting them to zero. |
-| Current wallet inventory | `GET /copy-accounts/{chainId}/{copyAccount}/wallet-inventory` returns bounded current wallet rows and an account-wide `walletInventoryValueUsd` only when the source proves the response is complete and every nonzero asset is valued. | Use this route for **Remaining in Wallet** on active and stopped copy runs. Never calculate the total from `/balances` pages or add the pinned stable row to the server total. |
-| Action-log chain links | Valid mixed-case EVM addresses and hashes are canonicalized to lowercase. Invalid optional linkage claims are discarded while a safe narrative row remains renderable. | Treat `txHash`, `leaderPositionId`, `blockNumber`, and `tokenAddress` as optional links. Their absence is not an action failure and must not be reconstructed from narrative text. |
-| Copy lifecycle views | `OPEN` contains admitted runs with status `COPY_RUN_STATUS_ACTIVE` or `COPY_RUN_STATUS_CLOSING`. `HISTORY` contains admitted or readable historical-generation runs with status `COPY_RUN_STATUS_STOPPED` or `COPY_RUN_STATUS_CLOSED`. Position history is a separate universe. | Refresh from the server after lifecycle changes; do not pin local tab membership or derive it from position counts. Use owner position routes for owner-wide closed-trade history. |
-| Historical-generation compatibility | Parentless child facts explicitly classified `HISTORICAL` by the operator are consumed without creating current/actionable projections. Missing `ADMITTED` or `QUARANTINED` parent identity still fails closed. | Historical or unavailable data must not be promoted into current dashboards or actions. Preserve typed unavailable states and direct/History reads; never infer missing values as zero. |
-| Public HTTP surface | All 26 reads and six preparations have generated gateway mappings and concrete aggregate handlers. The two wallet-session operations remain only in the merged baseline and are removed by the pending entry above. | Do not feature-gate a remaining route as unimplemented. Treat typed product statuses separately from HTTP availability. |
+| Surface                             | Merged contract                                                                                                                                                                                                                                                                 | Required FE behavior                                                                                                                                                                        |
+| ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Explicit Start funding intent       | `PrepareStartCopyRequest.fundingMode` is required and is either `START_COPY_FUNDING_MODE_UNFUNDED` or `START_COPY_FUNDING_MODE_FUNDED`. `createPermitData` is optional only for funded mode and is never echoed publicly.                                                       | Choose the mode explicitly for each attempt, keep it stable with the same `startRequestId`, and never infer the mode from the presence of permit bytes.                                     |
+| Start Copy onboarding               | `START_COPY_STAGE_CREATE_CONFIRMING` is implemented. It is returned with `PREPARED_ACTION_STATUS_PENDING`, `PREPARED_ACTION_REASON_SOURCE_COVERAGE_PENDING`, the predicted `copyAccount`, and no call.                                                                          | Keep polling with the same `startRequestId` and target. Do not resubmit the create call and do not fund until `START_COPY_STAGE_FUNDING_REQUIRED`.                                          |
+| Capital In                          | `CopyRunSummary.capitalInProjectionStatus` is implemented with `SYNCING`, `READY`, and `UNAVAILABLE`.                                                                                                                                                                           | Render `capitalInUsd` only when the projection status is `READY`. A visible funding transaction does not make a provisional aggregate value authoritative.                                  |
+| Account-effective cashback policy   | `GET /users/{ownerAddress}/copy-runs/{copyRunId}/cashback-policy` returns the operator-authored policy for that exact follower account, including typed status, optional rates, scope, provenance times, and optional formula version.                                          | Fetch it lazily for a selected run's fee/cashback panel. Branch on `status`; do not substitute an agent-level advertised rate, infer missing rates as zero, or hard-code a formula version. |
+| Pinned stable balance               | The current-stable materializer reads exact quote-token balances from the operator at one canonical block anchor. A present row can use `balanceSource = "onchain_rpc"`; exact zero remains present.                                                                            | Trust the row only when `pinnedStableBalance.status` is `PRESENT`. Preserve all other typed states as unavailable rather than converting them to zero.                                      |
+| Current wallet inventory            | `GET /copy-accounts/{chainId}/{copyAccount}/wallet-inventory` returns bounded current wallet rows and an account-wide `walletInventoryValueUsd` only when the source proves the response is complete and every nonzero asset is valued.                                         | Use this route for **Remaining in Wallet** on active and stopped copy runs. Never calculate the total from `/balances` pages or add the pinned stable row to the server total.              |
+| Action-log chain links              | Valid mixed-case EVM addresses and hashes are canonicalized to lowercase. Invalid optional linkage claims are discarded while a safe narrative row remains renderable.                                                                                                          | Treat `txHash`, `leaderPositionId`, `blockNumber`, and `tokenAddress` as optional links. Their absence is not an action failure and must not be reconstructed from narrative text.          |
+| Copy lifecycle views                | `OPEN` contains admitted runs with status `COPY_RUN_STATUS_ACTIVE` or `COPY_RUN_STATUS_CLOSING`. `HISTORY` contains admitted or readable historical-generation runs with status `COPY_RUN_STATUS_STOPPED` or `COPY_RUN_STATUS_CLOSED`. Position history is a separate universe. | Refresh from the server after lifecycle changes; do not pin local tab membership or derive it from position counts. Use owner position routes for owner-wide closed-trade history.          |
+| Historical-generation compatibility | Parentless child facts explicitly classified `HISTORICAL` by the operator are consumed without creating current/actionable projections. Missing `ADMITTED` or `QUARANTINED` parent identity still fails closed.                                                                 | Historical or unavailable data must not be promoted into current dashboards or actions. Preserve typed unavailable states and direct/History reads; never infer missing values as zero.     |
+| Public HTTP surface                 | All 26 reads and six preparations have generated gateway mappings and concrete aggregate handlers. The two wallet-session operations remain only in the merged baseline and are removed by the pending entry above.                                                             | Do not feature-gate a remaining route as unimplemented. Treat typed product statuses separately from HTTP availability.                                                                     |
 
 ### 2026-08-12 — Verified pre-release read smoke
 
@@ -119,18 +311,19 @@ The merged baseline and pending release add the following UI-facing behavior.
 Apply each row according to the environment status in the changelog, and update
 all affected action dialogs and Smart Wallet activity rendering together.
 
-| Surface | Contract | Required FE behavior |
-| --- | --- | --- |
-| Manual Sell / Close Position preparation | No wallet challenge, session exchange, bearer token, or issuance lease in the pending contract | Prepare directly from the latest authoritative read inputs. The owner wallet must still submit the exact returned call; preparation is not transaction authorization. |
-| Start Copy funding | `fundingMode` plus optional `createPermitData` | Send `START_COPY_FUNDING_MODE_UNFUNDED` with no permit, or `START_COPY_FUNDING_MODE_FUNDED` with an optional protobuf-JSON base64 byte string. The API uses `targetCapitalRaw` as the funded create amount. Permit format/capability remains operator-authoritative. |
-| Contract-generation routing | No public `generationId`, factory, controller, or contract-address request field | Do not hard-code or select deployment addresses. Start uses the currently create-enabled operator generation; existing-account actions derive generation from persisted account identity. Render `PREPARED_ACTION_REASON_UNSUPPORTED_ACCOUNT_GENERATION` as non-actionable product state. |
-| Copy-run cashback policy | `GET .../cashback-policy` | Use this run/account-specific policy for detailed fee/cashback presentation. `COPY_RUN_CASHBACK_POLICY_STATUS_AVAILABLE`, `..._NOT_CONFIGURED`, `..._INVALIDATED`, and `..._UNAVAILABLE` are distinct states; missing optional rates or `cashbackFormulaVersion` are not zero. |
-| Prepared Smart Wallet identity | `PreparedAction.copyAccount` | For every non-Start action, require it to equal the selected Smart Wallet. It is absent only for Start Copy creation; Start confirming, funding, and completion must equal `startCopy.predictedCopyAccount`. Do not confuse it with `call.to` or `expectedAccount`. |
-| Manual Sell / Close Position quote | `data.manualSell.swapQuote` or `data.closePosition.swapQuote` | Display `expectedQuote`, `minimumQuote`, and optional `effectiveSlippageBps`. Preserve metric status; unavailable is not zero. |
-| Stop Copy per-position quote | `data.stopCopy.positions[].swapQuote` | Render the expected/minimum quote for each selected position. These values belong only to the returned preparation. |
-| Stop Copy total quote | `data.stopCopy.totalSwapQuote` | Render total expected/minimum quote. There is intentionally no aggregate `effectiveSlippageBps`; do not average per-position slippage. |
-| Generic owner sell history | `position.actionType = "sell_unaligned"` and `PositionSummary.exitKind = POSITION_EXIT_KIND_UNSPECIFIED` | Label it **Owner Sell**. Do not infer Manual Sell or Close Position from sold amount, remaining amount, lifecycle, skipped obligations, or calldata shape. |
-| Stop Copy activity | One `ACTIVITY_TYPE_COPY_STOPPED` lifecycle row plus independent downstream position/execution rows | Render Stop Copy as an amount-less lifecycle row. Render each token-specific reduction, closure, or exit separately; do not attach one arbitrary token/amount/value to the lifecycle row. |
+| Surface                                  | Contract                                                                                                 | Required FE behavior                                                                                                                                                                                                                                                                      |
+| ---------------------------------------- | -------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Manual Sell / Close Position preparation | No wallet challenge, session exchange, bearer token, or issuance lease in the pending contract           | Prepare directly from the latest authoritative read inputs. The owner wallet must still submit the exact returned call; preparation is not transaction authorization.                                                                                                                     |
+| Withdraw Quote lifecycle and amount      | `withdrawQuoteAvailability` can be available at any copy lifecycle stage; preparation requires `amountRaw` after the pending coordinated rollout | Show the action according to advisory availability, not copy-run lifecycle. Send an exact partial amount or the explicit `uint256.max` full-balance sentinel, then prepare again on confirmation because the operator rechecks live state.                                         |
+| Start Copy funding                       | `fundingMode` plus optional `createPermitData`                                                           | Send `START_COPY_FUNDING_MODE_UNFUNDED` with no permit, or `START_COPY_FUNDING_MODE_FUNDED` with an optional protobuf-JSON base64 byte string. The API uses `targetCapitalRaw` as the funded create amount. Permit format/capability remains operator-authoritative.                      |
+| Contract-generation routing              | No public `generationId`, factory, controller, or contract-address request field                         | Do not hard-code or select deployment addresses. Start uses the currently create-enabled operator generation; existing-account actions derive generation from persisted account identity. Render `PREPARED_ACTION_REASON_UNSUPPORTED_ACCOUNT_GENERATION` as non-actionable product state. |
+| Copy-run cashback policy                 | `GET .../cashback-policy`                                                                                | Use this run/account-specific policy for detailed fee/cashback presentation. `COPY_RUN_CASHBACK_POLICY_STATUS_AVAILABLE`, `..._NOT_CONFIGURED`, `..._INVALIDATED`, and `..._UNAVAILABLE` are distinct states; missing optional rates or `cashbackFormulaVersion` are not zero.            |
+| Prepared Smart Wallet identity           | `PreparedAction.copyAccount`                                                                             | For every non-Start action, require it to equal the selected Smart Wallet. It is absent only for Start Copy creation; Start confirming, funding, and completion must equal `startCopy.predictedCopyAccount`. Do not confuse it with `call.to` or `expectedAccount`.                       |
+| Manual Sell / Close Position quote       | `data.manualSell.swapQuote` or `data.closePosition.swapQuote`                                            | Display `expectedQuote`, `minimumQuote`, and optional `effectiveSlippageBps`. Preserve metric status; unavailable is not zero.                                                                                                                                                            |
+| Stop Copy per-position quote             | `data.stopCopy.positions[].swapQuote`                                                                    | Render the expected/minimum quote for each selected position. These values belong only to the returned preparation.                                                                                                                                                                       |
+| Stop Copy total quote                    | `data.stopCopy.totalSwapQuote`                                                                           | Render total expected/minimum quote. There is intentionally no aggregate `effectiveSlippageBps`; do not average per-position slippage.                                                                                                                                                    |
+| Generic owner sell history               | `position.actionType = "sell_unaligned"` and `PositionSummary.exitKind = POSITION_EXIT_KIND_UNSPECIFIED` | Label it **Owner Sell**. Do not infer Manual Sell or Close Position from sold amount, remaining amount, lifecycle, skipped obligations, or calldata shape.                                                                                                                                |
+| Stop Copy activity                       | One `ACTIVITY_TYPE_COPY_STOPPED` lifecycle row plus independent downstream position/execution rows       | Render Stop Copy as an amount-less lifecycle row. Render each token-specific reduction, closure, or exit separately; do not attach one arbitrary token/amount/value to the lifecycle row.                                                                                                 |
 
 All quote-preview values expire with their parent preparation at
 `reprepareAfter` (and, when present, `liquidationConfigDeadline`). They are not
@@ -168,33 +361,33 @@ This is the recommended UI integration map. “Initial” calls are needed to
 render the main screen. “Lazy” calls should be issued only when the relevant
 tab, chart, drawer, or drilldown is opened.
 
-| Screen or UI region | Initial APIs | Lazy or drilldown APIs | Action APIs |
-| --- | --- | --- | --- |
-| App bootstrap / network selector | `GET /chains` | None | None |
-| Explore / leaderboard header | `GET /leaderboard/summary` | None | None |
-| Leaderboard table | `GET /leaderboard` | Load the next cursor page | `POST /users/{ownerAddress}/agents/{agentId}:prepareStartCopy` |
-| Agent discovery/search | `GET /agents` | Load the next cursor page | `POST /users/{ownerAddress}/agents/{agentId}:prepareStartCopy` |
-| Agent profile header and KPI cards | `GET /agents/{agentId}`, optionally `GET /agents/{agentId}/stats` | None | `POST /users/{ownerAddress}/agents/{agentId}:prepareStartCopy` |
-| Agent performance chart | `GET /agents/{agentId}/performance` | Additional cursor pages or a new request when series/window changes | None |
-| Agent action-log tab | `GET /agents/{agentId}/action-logs` | Filter by leader position, action `type`, or time range; group by `sessionId`; load the next cursor page | None |
-| Agent open/history positions tab | `GET /agents/{agentId}/positions` | `GET /agents/{agentId}/positions/{positionId}` and `/events` when a row is opened | None |
-| My Copies — Open summary | `GET /users/{ownerAddress}/copy-summary?view=OWNER_COPY_VIEW_OPEN` | None | None |
-| My Copies — Open rows | `GET /users/{ownerAddress}/copy-runs?view=OWNER_COPY_VIEW_OPEN` | Load the next cursor page; selected-run detail and positions | Prepare Add Capital, Stop Copy, or Withdraw Quote from the selected run |
-| History — stopped-run summary | `GET /users/{ownerAddress}/copy-summary?view=OWNER_COPY_VIEW_HISTORY` | None | None |
-| History — stopped-run list | `GET /users/{ownerAddress}/copy-runs?view=OWNER_COPY_VIEW_HISTORY` | Load the next cursor page | Prepare Withdraw Quote when advisory availability allows it |
-| History — all closed positions/trades | `GET /users/{ownerAddress}/positions?view=POSITION_VIEW_CLOSED` | Filter by agent/chain, paginate, or group rows by `copyRunId` | None for an already closed position |
-| History — selected stopped run | `GET /users/{ownerAddress}/copy-runs/{copyRunId}` and `GET .../positions?view=POSITION_VIEW_CLOSED` | `GET .../performance`; `GET .../cashback-policy` when the fee panel opens; owner activity filtered by `copyRunId` | Prepare Withdraw Quote only when advertised; historical-generation rows remain non-actionable |
-| Copy-run detail | `GET /users/{ownerAddress}/copy-runs/{copyRunId}` and `GET .../positions` | `GET .../performance`; `GET .../cashback-policy` when fee/cashback detail is visible; owner activity filtered by `copyRunId` | Prepare Add Capital, Stop Copy, Withdraw Quote, Manual Sell, or Close Position as applicable |
-| All owner positions | `GET /users/{ownerAddress}/positions` | Filter by agent, chain, view, or sort; load the next cursor page | Prepare Manual Sell or Close Position when advertised |
-| Leftover positions | Owner or copy-run positions with `view=POSITION_VIEW_LEFTOVER` | Copy-account drilldown and pending-sell obligations | Manual Sell or Close Position when advertised |
-| Owner activity feed | `GET /users/{ownerAddress}/activity` | Filter by `copyRunId`, `chainId`, exact `type`, or product `group` | None |
-| Owner copy-account list | `GET /users/{ownerAddress}/copy-accounts` | Load the next cursor page | None |
-| Copy-account overview | `GET /copy-accounts/{chainId}/{copyAccount}` | Balances, positions, and history routes below | Prepare Add Capital, Stop Copy, or Withdraw Quote through the associated copy run |
-| Copy Details — Remaining in Wallet | `GET /copy-accounts/{chainId}/{copyAccount}/wallet-inventory` | Use `/balances` only for a separately paginated asset explorer | None |
-| Copy-account balances | `GET /copy-accounts/{chainId}/{copyAccount}/balances` | Load the next cursor page | None |
-| Copy-account positions | `GET /copy-accounts/{chainId}/{copyAccount}/positions` | Pending-sell obligations for a selected `userPositionId` | Manual Sell or Close Position |
-| Copy-account history | `GET /copy-accounts/{chainId}/{copyAccount}/history` | Filter by exact `type` or product `group` | None |
-| Skipped-sell recovery drawer | Position row plus `GET .../pending-sell-obligations` | Refresh the FIFO immediately before preparation | Prepare Manual Sell or Close Position directly, then submit from the owner wallet |
+| Screen or UI region                   | Initial APIs                                                                                        | Lazy or drilldown APIs                                                                                                       | Action APIs                                                                                                        |
+| ------------------------------------- | --------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| App bootstrap / network selector      | `GET /chains`                                                                                       | None                                                                                                                         | None                                                                                                               |
+| Explore / leaderboard header          | `GET /leaderboard/summary`                                                                          | None                                                                                                                         | None                                                                                                               |
+| Leaderboard table                     | `GET /leaderboard`                                                                                  | Load the next cursor page                                                                                                    | `POST /users/{ownerAddress}/agents/{agentId}:prepareStartCopy`                                                     |
+| Agent discovery/search                | `GET /agents`                                                                                       | Load the next cursor page                                                                                                    | `POST /users/{ownerAddress}/agents/{agentId}:prepareStartCopy`                                                     |
+| Agent profile header and KPI cards    | `GET /agents/{agentId}`, optionally `GET /agents/{agentId}/stats`                                   | None                                                                                                                         | `POST /users/{ownerAddress}/agents/{agentId}:prepareStartCopy`                                                     |
+| Agent performance chart               | `GET /agents/{agentId}/performance`                                                                 | Additional cursor pages or a new request when series/window changes                                                          | None                                                                                                               |
+| Agent action-log tab                  | `GET /agents/{agentId}/action-logs`                                                                 | Filter by leader position, action `type`, or time range; group by `sessionId`; load the next cursor page                     | None                                                                                                               |
+| Agent open/history positions tab      | `GET /agents/{agentId}/positions`                                                                   | `GET /agents/{agentId}/positions/{positionId}` and `/events` when a row is opened                                            | None                                                                                                               |
+| My Copies — Open summary              | `GET /users/{ownerAddress}/copy-summary?view=OWNER_COPY_VIEW_OPEN`                                  | None                                                                                                                         | None                                                                                                               |
+| My Copies — Open rows                 | `GET /users/{ownerAddress}/copy-runs?view=OWNER_COPY_VIEW_OPEN`                                     | Load the next cursor page; selected-run detail and positions                                                                 | Prepare Add Capital, Stop Copy, or Withdraw Quote from the selected run. Withdraw doesn't require Stop Copy first. |
+| History — stopped-run summary         | `GET /users/{ownerAddress}/copy-summary?view=OWNER_COPY_VIEW_HISTORY`                               | None                                                                                                                         | None                                                                                                               |
+| History — stopped-run list            | `GET /users/{ownerAddress}/copy-runs?view=OWNER_COPY_VIEW_HISTORY`                                  | Load the next cursor page                                                                                                    | Prepare Withdraw Quote when advisory availability allows it                                                        |
+| History — all closed positions/trades | `GET /users/{ownerAddress}/positions?view=POSITION_VIEW_CLOSED`                                     | Filter by agent/chain, paginate, or group rows by `copyRunId`                                                                | None for an already closed position                                                                                |
+| History — selected stopped run        | `GET /users/{ownerAddress}/copy-runs/{copyRunId}` and `GET .../positions?view=POSITION_VIEW_CLOSED` | `GET .../performance`; `GET .../cashback-policy` when the fee panel opens; owner activity filtered by `copyRunId`            | Prepare Withdraw Quote only when advertised; historical-generation rows remain non-actionable                      |
+| Copy-run detail                       | `GET /users/{ownerAddress}/copy-runs/{copyRunId}` and `GET .../positions`                           | `GET .../performance`; `GET .../cashback-policy` when fee/cashback detail is visible; owner activity filtered by `copyRunId` | Prepare Add Capital, Stop Copy, Withdraw Quote, Manual Sell, or Close Position as applicable                       |
+| All owner positions                   | `GET /users/{ownerAddress}/positions`                                                               | Filter by agent, chain, view, or sort; load the next cursor page                                                             | Prepare Manual Sell or Close Position when advertised                                                              |
+| Leftover positions                    | Owner or copy-run positions with `view=POSITION_VIEW_LEFTOVER`                                      | Copy-account drilldown and pending-sell obligations                                                                          | Manual Sell or Close Position when advertised                                                                      |
+| Owner activity feed                   | `GET /users/{ownerAddress}/activity`                                                                | Filter by `copyRunId`, `chainId`, exact `type`, or product `group`                                                           | None                                                                                                               |
+| Owner copy-account list               | `GET /users/{ownerAddress}/copy-accounts`                                                           | Load the next cursor page                                                                                                    | None                                                                                                               |
+| Copy-account overview                 | `GET /copy-accounts/{chainId}/{copyAccount}`                                                        | Balances, positions, and history routes below                                                                                | Prepare Add Capital, Stop Copy, or Withdraw Quote through the associated copy run                                  |
+| Copy Details — Remaining in Wallet    | `GET /copy-accounts/{chainId}/{copyAccount}/wallet-inventory`                                       | Use `/balances` only for a separately paginated asset explorer                                                               | None                                                                                                               |
+| Copy-account balances                 | `GET /copy-accounts/{chainId}/{copyAccount}/balances`                                               | Load the next cursor page                                                                                                    | None                                                                                                               |
+| Copy-account positions                | `GET /copy-accounts/{chainId}/{copyAccount}/positions`                                              | Pending-sell obligations for a selected `userPositionId`                                                                     | Manual Sell or Close Position                                                                                      |
+| Copy-account history                  | `GET /copy-accounts/{chainId}/{copyAccount}/history`                                                | Filter by exact `type` or product `group`                                                                                    | None                                                                                                               |
+| Skipped-sell recovery drawer          | Position row plus `GET .../pending-sell-obligations`                                                | Refresh the FIFO immediately before preparation                                                                              | Prepare Manual Sell or Close Position directly, then submit from the owner wallet                                  |
 
 ### Critical History Scope Rule
 
@@ -238,14 +431,14 @@ is read-only with respect to the chain: the frontend must submit the returned
 wallet call. Environment availability still depends on the deployed image and
 its operator dependencies.
 
-| UI action | Read before enabling the control | Preparation route |
-| --- | --- | --- |
-| Start Copy | Agent card/profile `startCopyAvailability`; refresh the direct agent profile when opening the modal | `POST /users/{ownerAddress}/agents/{agentId}:prepareStartCopy` |
-| Add Capital | Direct copy-run or copy-account detail and `addCapitalAvailability` | `POST /users/{ownerAddress}/copy-runs/{copyRunId}:prepareAddCapital` |
-| Stop Copy | Direct copy-run detail plus its current open/leftover position selection and `stopCopyAvailability` | `POST /users/{ownerAddress}/copy-runs/{copyRunId}:prepareStopCopy` |
-| Withdraw Quote | Direct copy-run/copy-account detail and `withdrawQuoteAvailability` | `POST /users/{ownerAddress}/copy-runs/{copyRunId}:prepareWithdrawQuote` |
-| Manual Sell | Current position plus the latest pending-sell-obligation FIFO | `POST /users/{ownerAddress}/copy-runs/{copyRunId}/positions/{userPositionId}:prepareManualSell` |
-| Close Position | Current position and its advertised `availableActionKinds` | `POST /users/{ownerAddress}/copy-runs/{copyRunId}/positions/{userPositionId}:prepareClosePosition` |
+| UI action      | Read before enabling the control                                                                    | Preparation route                                                                                  |
+| -------------- | --------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| Start Copy     | Agent card/profile `startCopyAvailability`; refresh the direct agent profile when opening the modal | `POST /users/{ownerAddress}/agents/{agentId}:prepareStartCopy`                                     |
+| Add Capital    | Direct copy-run or copy-account detail and `addCapitalAvailability`                                 | `POST /users/{ownerAddress}/copy-runs/{copyRunId}:prepareAddCapital`                               |
+| Stop Copy      | Direct copy-run detail plus its current open/leftover position selection and `stopCopyAvailability` | `POST /users/{ownerAddress}/copy-runs/{copyRunId}:prepareStopCopy`                                 |
+| Withdraw Quote | Direct copy-run/copy-account detail and `withdrawQuoteAvailability`; don't wait for Stop Copy       | `POST /users/{ownerAddress}/copy-runs/{copyRunId}:prepareWithdrawQuote`                            |
+| Manual Sell    | Current position plus the latest pending-sell-obligation FIFO                                       | `POST /users/{ownerAddress}/copy-runs/{copyRunId}/positions/{userPositionId}:prepareManualSell`    |
+| Close Position | Current position and its advertised `availableActionKinds`                                          | `POST /users/{ownerAddress}/copy-runs/{copyRunId}/positions/{userPositionId}:prepareClosePosition` |
 
 Advisory availability controls presentation only. Always call the matching
 preparation route when the user confirms, and branch on its typed
@@ -265,7 +458,9 @@ route is missing.
   agent, chain, view, or route changes.
 - After a submitted transaction confirms, poll the relevant detail/list reads
   until their source metadata and lifecycle reflect the receipt. Then prepare
-  the next stage, if any. Do not locally predict aggregate state.
+  the next stage, if any. A submitted-operation overlay may show an explicitly
+  pending user delta, but it must remain separate from authoritative API data
+  and action availability.
 
 Common screen requests:
 
@@ -365,7 +560,8 @@ A single-resource **read** response:
     "generatedAt": "2026-07-27T08:57:00Z",
     "dataAsOf": "2026-07-27T08:56:30Z",
     "status": "DATA_STATUS_CURRENT",
-    "asOfChains": []
+    "asOfChains": [],
+    "fieldQualities": []
   }
 }
 ```
@@ -397,34 +593,35 @@ Prepared actions carry their own `preparedAt`, `reprepareAfter`, and
 
 ### Response Metadata
 
-| Field | Meaning |
-| --- | --- |
-| `requestId` | Server request correlation ID. Include it in bug reports, but do not use it as product identity. |
-| `generatedAt` | Time this response was assembled. It is not necessarily the source-data time. |
-| `dataAsOf` | Conservative time through which the response's aggregate data is known. |
-| `stalenessReason` | Optional sanitized reason when data is stale or unavailable. Treat it as diagnostic text, not a stable enum. |
-| `asOfChains[]` | Per-chain source coverage contributing to the response. |
-| `status` | Response-level `DataStatus`. Individual metrics and valuations can have more specific statuses. |
+| Field              | Meaning                                                                                                                                             |
+| ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `requestId`        | Server request correlation ID. Include it in bug reports, but do not use it as product identity.                                                    |
+| `generatedAt`      | Time this response was assembled. It is not necessarily the source-data time.                                                                       |
+| `dataAsOf`         | Conservative time through which the response's aggregate data is known.                                                                             |
+| `stalenessReason`  | Optional sanitized reason when data is stale or unavailable. Treat it as diagnostic text, not a stable enum.                                        |
+| `asOfChains[]`     | Per-chain source coverage contributing to the response.                                                                                             |
+| `status`           | Response-level `DataStatus`. Individual metrics and valuations can have more specific statuses.                                                     |
+| `fieldQualities[]` | Independent quality for coherent field groups. The array can be empty during producer migration; absence doesn't prove currentness or completeness. |
 
 Each `asOfChains[]` entry contains:
 
-| Field | Meaning |
-| --- | --- |
-| `chainId` | Chain to which this coverage applies. |
-| `dataAsOf` | Source-data time at the covered boundary. |
-| `asOfBlockNumber` | Highest covered block represented by the response. |
+| Field             | Meaning                                                                      |
+| ----------------- | ---------------------------------------------------------------------------- |
+| `chainId`         | Chain to which this coverage applies.                                        |
+| `dataAsOf`        | Source-data time at the covered boundary.                                    |
+| `asOfBlockNumber` | Highest covered block represented by the response.                           |
 | `safeBlockNumber` | Operator-configured reorg-safe boundary. This is **not** consensus finality. |
-| `syncedAt` | Time the source/materializer recorded the coverage. |
-| `status` | Per-chain `DataStatus`. |
+| `syncedAt`        | Time the source/materializer recorded the coverage.                          |
+| `status`          | Per-chain `DataStatus`.                                                      |
 
 ### Freshness
 
 Every successful read response includes `meta`.
 
-| Status | FE behavior |
-| --- | --- |
-| `DATA_STATUS_CURRENT` | Render normally. |
-| `DATA_STATUS_STALE` | Render the returned data and show a stale-data indication where appropriate. |
+| Status                    | FE behavior                                                                                        |
+| ------------------------- | -------------------------------------------------------------------------------------------------- |
+| `DATA_STATUS_CURRENT`     | Render normally.                                                                                   |
+| `DATA_STATUS_STALE`       | Render the returned data and show a stale-data indication where appropriate.                       |
 | `DATA_STATUS_UNAVAILABLE` | Do not invent missing values. A response may still contain independently usable fields or metrics. |
 
 `meta.asOfChains[]` can contain:
@@ -443,6 +640,33 @@ Do not require all timestamps in `meta` and `asOfChains[]` to be identical.
 Different dependencies are folded conservatively and can be synchronized in
 different rounds. The stable frontend invariants are the chain identity,
 coverage block, status, and nonzero timestamps.
+
+### Field-group quality
+
+`meta.fieldQualities[]` keeps independent dimensions separate:
+
+| Field          | Meaning                                                                                                                                                                                                                             |
+| -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `group`        | Bounded coherent field group, such as `FIELD_GROUP_CAPITAL`, `FIELD_GROUP_PERFORMANCE`, `FIELD_GROUP_ACTION_ADVISORY`, `FIELD_GROUP_TRADE_TOKEN_CONFIGURATION`, `FIELD_GROUP_TOKEN_METADATA`, or `FIELD_GROUP_EXTERNAL_ENRICHMENT`. |
+| `freshness`    | Whether the included value is current, stale, or unavailable.                                                                                                                                                                       |
+| `completeness` | Whether every required input through the captured target is complete, partial, or pending.                                                                                                                                          |
+| `finality`     | Whether the included provenance is provisional or past the service's configured reorg-safe boundary. This isn't chain consensus finality.                                                                                           |
+| `reason`       | Stable bounded reason for a degraded dimension. Don't parse `stalenessReason` to infer this value.                                                                                                                                  |
+| `valueAsOf`    | Latest included value-event time.                                                                                                                                                                                                   |
+| `coverageAsOf` | Conservative time through which all required inputs are proven.                                                                                                                                                                     |
+| `computedAt`   | Time the aggregate projection committed or the request-time derivation was computed.                                                                                                                                                |
+
+An unspecified dimension means that the producer didn't prove it. Don't infer
+`COMPLETE`, `FINAL`, or `CURRENT` from an unspecified value or a missing group.
+For blended owner, account, or cross-chain results, the group reports the worst
+contributing quality; clocks can therefore differ.
+
+Use a metric's own `status` to decide whether its value can render. Use the
+matching field-group quality to explain why the group is still catching up.
+For example, Capital In can carry a safe prior value with
+`METRIC_STATUS_STALE` while the capital group reports
+`DATA_COMPLETENESS_PENDING` and
+`DATA_QUALITY_REASON_DEPENDENCY_PENDING`.
 
 ### Metrics
 
@@ -500,16 +724,16 @@ recomputing APR in the browser.
 
 `PositionValuation` is independently status-bearing:
 
-| Field | Meaning |
-| --- | --- |
-| `valueUsd` | Position or asset value as an exact decimal string. |
-| `priceUsd` | Unit price used for the valuation. |
-| `priceSource` | Sanitized source label for display/debugging. |
-| `priceAsOf` | Observation time of the price. |
-| `asOf` | Time of the resulting valuation. |
-| `isEstimated` | Value is provisional or derived from a retained price. |
-| `isFinal` | Value belongs to a terminal/settled position and is final. |
-| `status` | `DATA_STATUS_CURRENT`, `STALE`, or `UNAVAILABLE`. |
+| Field         | Meaning                                                    |
+| ------------- | ---------------------------------------------------------- |
+| `valueUsd`    | Position or asset value as an exact decimal string.        |
+| `priceUsd`    | Unit price used for the valuation.                         |
+| `priceSource` | Sanitized source label for display/debugging.              |
+| `priceAsOf`   | Observation time of the price.                             |
+| `asOf`        | Time of the resulting valuation.                           |
+| `isEstimated` | Value is provisional or derived from a retained price.     |
+| `isFinal`     | Value belongs to a terminal/settled position and is final. |
+| `status`      | `DATA_STATUS_CURRENT`, `STALE`, or `UNAVAILABLE`.          |
 
 An unavailable valuation is not the same as a zero-valued asset. Never derive a
 USD value from missing fields.
@@ -523,12 +747,31 @@ state:
 ADVISORY_ACTION_STATUS_AVAILABLE
 ADVISORY_ACTION_STATUS_PENDING
 ADVISORY_ACTION_STATUS_UNAVAILABLE
+ADVISORY_ACTION_STATUS_TRY_PREPARE
 ```
 
 The object contains `status`, a typed `reason`, and optional `asOf`. Use it to
 render or disable controls. It is not authorization and must not be used to
 construct calldata. The matching POST preparation route always makes the final
 decision using current chain and source state.
+
+`PENDING` and `TRY_PREPARE` are intentionally different:
+
+- `PENDING`: The aggregate can't prove that its local evidence covers the
+  latest relevant fact. Keep the action disabled and refresh.
+- `TRY_PREPARE`: Stale aggregate evidence covers every locally known relevant
+  fact. The UI may offer a live check, but must not label the action available.
+  Call the matching preparation route when the user confirms.
+
+Wire value `2` remains `PENDING`; wire value `4` is `TRY_PREPARE`. Regenerate
+JSON/protobuf clients before enabling the new presentation. Never convert
+either status to `AVAILABLE` on a timer.
+
+For Withdraw Quote, advisory availability depends on safely covered account
+identity and generation capability, not copy lifecycle or a cached balance.
+An available advisory value doesn't prove that the connected wallet is still
+the owner or that the account still has a positive quote-token balance. The
+preparation route verifies both values at one exact action block.
 
 ### Numeric Values
 
@@ -570,10 +813,10 @@ Important distinctions:
 
 All list routes use opaque cursor pagination.
 
-| Parameter | Behavior |
-| --- | --- |
-| `limit` | Default `25`; valid range `0..100`, where `0` selects the default. |
-| `cursor` | Omit on the first request. Pass the exact returned `nextCursor` on the next request. |
+| Parameter | Behavior                                                                             |
+| --------- | ------------------------------------------------------------------------------------ |
+| `limit`   | Default `25`; valid range `0..100`, where `0` selects the default.                   |
+| `cursor`  | Omit on the first request. Pass the exact returned `nextCursor` on the next request. |
 
 The pending-sell-obligation FIFO is the one limit exception: it accepts
 `0..200`, with `0` still selecting the default `25`.
@@ -602,18 +845,18 @@ the safest client behavior is to keep it stable through one sequence.
 
 ### Stable Ordering
 
-| Collection | Default/effective order |
-| --- | --- |
-| Leaderboard | APR 30D descending, with stable identity tie-breakers |
-| Agent discovery | Display name ascending, nulls last |
-| Performance points | Timestamp ascending; per-trade series also uses trade ID |
-| Agent action-log session groups | Newest matching log in each session descending, then that log's `actionLogId` descending; logs inside each group use the same order |
-| Positions | `openedAt` descending unless explicitly changed |
-| Open copy runs | `startedAt` descending unless explicitly changed |
-| History copy runs | `stoppedAt` descending when `sortBy` is omitted |
-| Owner activity / copy-account history | `occurredAt` descending, then `activityId` descending |
-| Owner copy accounts | Chain and copy-account ascending |
-| Pending sell obligations | Operator-authoritative FIFO order; never re-sort client-side |
+| Collection                            | Default/effective order                                                                                                             |
+| ------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| Leaderboard                           | APR 30D descending, with stable identity tie-breakers                                                                               |
+| Agent discovery                       | Display name ascending, nulls last                                                                                                  |
+| Performance points                    | Timestamp ascending; per-trade series also uses trade ID                                                                            |
+| Agent action-log session groups       | Newest matching log in each session descending, then that log's `actionLogId` descending; logs inside each group use the same order |
+| Positions                             | `openedAt` descending unless explicitly changed                                                                                     |
+| Open copy runs                        | `startedAt` descending unless explicitly changed                                                                                    |
+| History copy runs                     | `stoppedAt` descending when `sortBy` is omitted                                                                                     |
+| Owner activity / copy-account history | `occurredAt` descending, then `activityId` descending                                                                               |
+| Owner copy accounts                   | Chain and copy-account ascending                                                                                                    |
+| Pending sell obligations              | Operator-authoritative FIFO order; never re-sort client-side                                                                        |
 
 `closedAt` and live `valueUsd` sorts place unavailable/null values last.
 
@@ -742,14 +985,14 @@ interval = PERFORMANCE_INTERVAL_DAY
 
 Supported combinations:
 
-| Series | Window | Interval |
-| --- | --- | --- |
-| `PERFORMANCE_SERIES_PORTFOLIO_EQUITY` | `WINDOW_7D`, `WINDOW_30D`, `WINDOW_90D` | `PERFORMANCE_INTERVAL_DAY` |
-| `PERFORMANCE_SERIES_PORTFOLIO_EQUITY` | `WINDOW_ALL` | `PERFORMANCE_INTERVAL_WEEK` or `PERFORMANCE_INTERVAL_MONTH` |
-| `PERFORMANCE_SERIES_CUMULATIVE_REALIZED_PNL` | `WINDOW_7D`, `WINDOW_30D`, `WINDOW_90D` | `PERFORMANCE_INTERVAL_DAY` |
-| `PERFORMANCE_SERIES_CUMULATIVE_REALIZED_PNL` | `WINDOW_ALL` | `PERFORMANCE_INTERVAL_WEEK` or `PERFORMANCE_INTERVAL_MONTH` |
-| `PERFORMANCE_SERIES_PERIOD_REALIZED_PNL` | Any supported window | `PERFORMANCE_INTERVAL_MONTH` |
-| `PERFORMANCE_SERIES_PER_TRADE_REALIZED_PNL` | Any supported window | Omit `interval` |
+| Series                                       | Window                                  | Interval                                                    |
+| -------------------------------------------- | --------------------------------------- | ----------------------------------------------------------- |
+| `PERFORMANCE_SERIES_PORTFOLIO_EQUITY`        | `WINDOW_7D`, `WINDOW_30D`, `WINDOW_90D` | `PERFORMANCE_INTERVAL_DAY`                                  |
+| `PERFORMANCE_SERIES_PORTFOLIO_EQUITY`        | `WINDOW_ALL`                            | `PERFORMANCE_INTERVAL_WEEK` or `PERFORMANCE_INTERVAL_MONTH` |
+| `PERFORMANCE_SERIES_CUMULATIVE_REALIZED_PNL` | `WINDOW_7D`, `WINDOW_30D`, `WINDOW_90D` | `PERFORMANCE_INTERVAL_DAY`                                  |
+| `PERFORMANCE_SERIES_CUMULATIVE_REALIZED_PNL` | `WINDOW_ALL`                            | `PERFORMANCE_INTERVAL_WEEK` or `PERFORMANCE_INTERVAL_MONTH` |
+| `PERFORMANCE_SERIES_PERIOD_REALIZED_PNL`     | Any supported window                    | `PERFORMANCE_INTERVAL_MONTH`                                |
+| `PERFORMANCE_SERIES_PER_TRADE_REALIZED_PNL`  | Any supported window                    | Omit `interval`                                             |
 
 Agent stats currently support `WINDOW_30D`; omitting `window` selects it.
 
@@ -764,12 +1007,12 @@ ACTIVITY_GROUP_SKIPPED
 
 Groups are stable product groupings, not aliases for every related activity:
 
-| Group | Included activity types |
-| --- | --- |
-| `ACTIVITY_GROUP_BUYS` | `ACTIVITY_TYPE_POSITION_OPENED` |
-| `ACTIVITY_GROUP_SELLS` | `ACTIVITY_TYPE_POSITION_CLOSED`, `ACTIVITY_TYPE_EXIT_SUCCEEDED`, `ACTIVITY_TYPE_POSITION_REDUCED` |
+| Group                                 | Included activity types                                                                                                                   |
+| ------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| `ACTIVITY_GROUP_BUYS`                 | `ACTIVITY_TYPE_POSITION_OPENED`                                                                                                           |
+| `ACTIVITY_GROUP_SELLS`                | `ACTIVITY_TYPE_POSITION_CLOSED`, `ACTIVITY_TYPE_EXIT_SUCCEEDED`, `ACTIVITY_TYPE_POSITION_REDUCED`                                         |
 | `ACTIVITY_GROUP_DEPOSITS_WITHDRAWALS` | `ACTIVITY_TYPE_CAPITAL_DEPOSITED`, `ACTIVITY_TYPE_CAPITAL_TOPPED_UP`, `ACTIVITY_TYPE_CAPITAL_WITHDRAWN`, `ACTIVITY_TYPE_CAPITAL_RETURNED` |
-| `ACTIVITY_GROUP_SKIPPED` | `ACTIVITY_TYPE_ALIGNED_TRADE_SKIPPED`, `ACTIVITY_TYPE_EXIT_SKIPPED` |
+| `ACTIVITY_GROUP_SKIPPED`              | `ACTIVITY_TYPE_ALIGNED_TRADE_SKIPPED`, `ACTIVITY_TYPE_EXIT_SKIPPED`                                                                       |
 
 In-progress and failed execution rows are intentionally available only through
 an exact `type` filter or the unfiltered feed. `type` and `group` are mutually
@@ -842,9 +1085,9 @@ operational/data states and must not be converted to a zero balance.
 
 ### Chain Metadata
 
-| Method | Path | Parameters | `data` |
-| --- | --- | --- | --- |
-| GET | `/chains` | None | `Chain[]` |
+| Method | Path      | Parameters | `data`    |
+| ------ | --------- | ---------- | --------- |
+| GET    | `/chains` | None       | `Chain[]` |
 
 A chain contains `chainId`, `slug`, `name`, `iconUrl`, and `isEnabled`.
 
@@ -853,11 +1096,11 @@ hard-code chain display names or icons from `chainId`.
 
 ### Leaderboard and Agent Discovery
 
-| Method | Path | Parameters | `data` |
-| --- | --- | --- | --- |
-| GET | `/leaderboard/summary` | `chainId?`, `search?`, `strategyCategory?` | `LeaderboardSummary` |
-| GET | `/leaderboard` | Previous filters plus `cursor?`, `limit?`, `sortBy?`, `sortOrder?` | `AgentCard[]` |
-| GET | `/agents` | `chainId?`, `search?`, `strategyCategory?`, `cursor?`, `limit?` | `AgentCard[]` |
+| Method | Path                   | Parameters                                                         | `data`               |
+| ------ | ---------------------- | ------------------------------------------------------------------ | -------------------- |
+| GET    | `/leaderboard/summary` | `chainId?`, `search?`, `strategyCategory?`                         | `LeaderboardSummary` |
+| GET    | `/leaderboard`         | Previous filters plus `cursor?`, `limit?`, `sortBy?`, `sortOrder?` | `AgentCard[]`        |
+| GET    | `/agents`              | `chainId?`, `search?`, `strategyCategory?`, `cursor?`, `limit?`    | `AgentCard[]`        |
 
 Leaderboard sort fields:
 
@@ -875,14 +1118,14 @@ stable display-name order.
 
 Filter behavior:
 
-| Parameter | Supported values and behavior |
-| --- | --- |
-| `chainId` | Optional positive chain ID. Omit for all configured chains. |
-| `search` | Optional, trimmed and case-insensitive, maximum 256 Unicode characters. |
+| Parameter          | Supported values and behavior                                                                                  |
+| ------------------ | -------------------------------------------------------------------------------------------------------------- |
+| `chainId`          | Optional positive chain ID. Omit for all configured chains.                                                    |
+| `search`           | Optional, trimmed and case-insensitive, maximum 256 Unicode characters.                                        |
 | `strategyCategory` | Optional `FOCUSED`, `DIVERSIFIED`, or `ACTIVE` enum. Categories overlap; an agent can appear in more than one. |
-| `sortBy` | Leaderboard only. Omit for APR 30D. |
-| `sortOrder` | Leaderboard only. Omit for descending. |
-| `limit`, `cursor` | Standard cursor pagination. |
+| `sortBy`           | Leaderboard only. Omit for APR 30D.                                                                            |
+| `sortOrder`        | Leaderboard only. Omit for descending.                                                                         |
+| `limit`, `cursor`  | Standard cursor pagination.                                                                                    |
 
 Key `AgentCard` fields:
 
@@ -895,21 +1138,28 @@ Key `AgentCard` fields:
 
 `AgentCard.metrics` contains:
 
-| Field | Meaning |
-| --- | --- |
-| `apr30d` | APR with its exact effective interval and status. |
-| `winRatePct` | Closed-position win rate. |
-| `lifetimeVolumeUsd` | Lifetime notional volume. |
-| `copiers` | Unique active copier count. |
-| `aumUsd` | Follower assets under management. |
-| `openPositions` | Current open-position count. |
-| `totalRealizedPnlUsd` | Lifetime realized P&L. |
-| `maxDrawdownPct` | Maximum drawdown percentage when available. |
-| `winningPositionCount`, `losingPositionCount`, `breakevenPositionCount`, `closedPositionCount` | Explicit terminal-position counts. |
+| Field                                                                                          | Meaning                                                                                                                                                                              |
+| ---------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `apr30d`                                                                                       | APR with its exact effective interval and status.                                                                                                                                    |
+| `winRatePct`                                                                                   | Closed-position win rate.                                                                                                                                                            |
+| `lifetimeVolumeUsd`                                                                            | Lifetime notional volume.                                                                                                                                                            |
+| `copiers`                                                                                      | Unique active copier count.                                                                                                                                                          |
+| `aumUsd`                                                                                       | Current follower assets under management: approved-stable USD plus the current USD valuation of remaining base inventory in open positions for admitted active or closing copy runs. |
+| `openPositions`                                                                                | Current open-position count.                                                                                                                                                         |
+| `totalRealizedPnlUsd`                                                                          | Lifetime realized P&L.                                                                                                                                                               |
+| `maxDrawdownPct`                                                                               | Maximum drawdown percentage when available.                                                                                                                                          |
+| `winningPositionCount`, `losingPositionCount`, `breakevenPositionCount`, `closedPositionCount` | Explicit terminal-position counts.                                                                                                                                                   |
 
 `LeaderboardSummary` contains status-bearing `agentCount`, `totalAumUsd`,
 `totalCopierCount`, and `lifetimeVolumeUsd`, plus `asOf`. `agentCount`,
 `totalAumUsd`, and `lifetimeVolumeUsd` use the supplied leaderboard filters.
+Each agent AUM counts an approved-stable wallet balance once per copy account,
+then adds valued open follower positions. It excludes stopped, closed,
+historical, and quarantined runs. AUM is `UNAVAILABLE` rather than partially
+summed when run or position coverage, token metadata, or a required current
+price is unavailable. It is `STALE` when any accepted input is stale. Its
+metric-level `asOf` is the oldest contributing valuation timestamp and can
+differ from the response-level `asOf`.
 `totalCopierCount` is different: it is the platform-wide lifetime count of
 distinct owner wallets across configured agents and intentionally ignores
 leaderboard filters, including `chainId`, search, and strategy category. Every
@@ -917,15 +1167,15 @@ metric still has its own status and can be unavailable independently.
 
 ### Agent Profile, Performance, and Positions
 
-| Method | Path | Parameters | `data` |
-| --- | --- | --- | --- |
-| GET | `/agents/{agentId}` | Path: `agentId` | `AgentProfile` |
-| GET | `/agents/{agentId}/stats` | `window?` | `AgentMetrics` |
-| GET | `/agents/{agentId}/performance` | `series?`, `window?`, `interval?`, `cursor?`, `limit?` | `PerformancePoint[]` |
-| GET | `/agents/{agentId}/action-logs` | `leaderPositionId?`, `type?`, `groupBy?`, `from?`, `to?`, `cursor?`, `limit?` | `AgentActionLogSessionGroup[]` |
-| GET | `/agents/{agentId}/positions` | `view?`, `token?`, `cursor?`, `limit?`, `sortBy?`, `sortOrder?` | `PositionSummary[]` |
-| GET | `/agents/{agentId}/positions/{positionId}` | Path: `agentId`, `positionId` | `PositionSummary` |
-| GET | `/agents/{agentId}/positions/{positionId}/events` | `cursor?`, `limit?` | `PositionEvent[]` |
+| Method | Path                                              | Parameters                                                                    | `data`                         |
+| ------ | ------------------------------------------------- | ----------------------------------------------------------------------------- | ------------------------------ |
+| GET    | `/agents/{agentId}`                               | Path: `agentId`                                                               | `AgentProfile`                 |
+| GET    | `/agents/{agentId}/stats`                         | `window?`                                                                     | `AgentMetrics`                 |
+| GET    | `/agents/{agentId}/performance`                   | `series?`, `window?`, `interval?`, `cursor?`, `limit?`                        | `PerformancePoint[]`           |
+| GET    | `/agents/{agentId}/action-logs`                   | `leaderPositionId?`, `type?`, `groupBy?`, `from?`, `to?`, `cursor?`, `limit?` | `AgentActionLogSessionGroup[]` |
+| GET    | `/agents/{agentId}/positions`                     | `view?`, `token?`, `cursor?`, `limit?`, `sortBy?`, `sortOrder?`               | `PositionSummary[]`            |
+| GET    | `/agents/{agentId}/positions/{positionId}`        | Path: `agentId`, `positionId`                                                 | `PositionSummary`              |
+| GET    | `/agents/{agentId}/positions/{positionId}/events` | `cursor?`, `limit?`                                                           | `PositionEvent[]`              |
 
 Action-log `from` and `to` are RFC3339 timestamps. When both are present,
 `from` must not be after `to`. `type` is an exact match against the existing
@@ -940,18 +1190,41 @@ logs incrementally where possible.
 
 Agent-route behavior:
 
-| Route | Defaults and constraints |
-| --- | --- |
-| Stats | Omitted `window` means `WINDOW_30D`; 30D is currently the only accepted stats window. |
-| Performance | Uses the performance defaults/combinations above and returns points in ascending time order. |
-| Action logs | Optional `leaderPositionId` is 1..256 characters; `type` is an exact 1..128-character action value; `groupBy` defaults to `SESSION_ID`; `from` and `to` are inclusive source-time bounds. Groups and their logs are newest first. |
-| Positions | Omitted view means `ALL`; `LEFTOVER` is rejected. Optional `token` is a token-address filter. |
-| Position events | Standard pagination; events preserve source lifecycle order for the selected position. |
+| Route           | Defaults and constraints                                                                                                                                                                                                          |
+| --------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Stats           | Omitted `window` means `WINDOW_30D`; 30D is currently the only accepted stats window.                                                                                                                                             |
+| Performance     | Uses the performance defaults/combinations above and returns points in ascending time order.                                                                                                                                      |
+| Action logs     | Optional `leaderPositionId` is 1..256 characters; `type` is an exact 1..128-character action value; `groupBy` defaults to `SESSION_ID`; `from` and `to` are inclusive source-time bounds. Groups and their logs are newest first. |
+| Positions       | Omitted view means `ALL`; `LEFTOVER` is rejected. Optional `token` is a token-address filter.                                                                                                                                     |
+| Position events | Standard pagination; events preserve source lifecycle order for the selected position.                                                                                                                                            |
 
 Key `AgentProfile` additions over a card:
 
 - `bio`, `liveSince`, `whitelistedSymbols`, `tags`
 - `strategyExecutionItems`
+
+`whitelistedSymbols` is a display view over the operator-owned current
+trade-token configuration for the agent's `(chainId, leaderAddress)`. Treat the
+configuration source and the token metadata used to label it as separate
+quality dimensions:
+
+- `FIELD_GROUP_TRADE_TOKEN_CONFIGURATION` describes whether the configured
+  address snapshot is proven complete, pending, or unavailable.
+- `FIELD_GROUP_TOKEN_METADATA` describes symbol/name/decimals resolution for
+  those addresses and for other token-bearing fields.
+- A proven empty configuration is a complete empty list, not a loading error.
+- Missing token metadata should degrade labels or valuation groups only; it
+  should not hide unrelated profile identity, metrics, or lifecycle fields.
+
+The new durable snapshot path is not a deployed wire claim yet. Its operator
+producer uses a target-pinned PRESENT-only full-universe walk: a registered
+leader with zero tradable tokens is an explicit empty configuration, while a
+deleted leader is absent from the next completed target. Partial, interrupted,
+advanced, reset, or not-ready walks never authorize deletion. Aggregate
+activation requires a published operator module, an exact API pin, the
+generated-client adapter, and one complete READY import per chain. Until then,
+continue to follow the target environment's generated schema and existing
+request-time behavior; do not infer tombstone objects or a new client field.
 
 `strategyExecutionItems[]` has `label` and `description` and is intended for
 the “Strategy & Execution” section of the profile. It is configured display
@@ -1016,17 +1289,17 @@ the related detail, while the point timestamp remains the chart order key.
 
 ### Owner Dashboard and Copy Runs
 
-| Method | Path | Parameters | `data` |
-| --- | --- | --- | --- |
-| GET | `/users/{ownerAddress}/copy-summary` | `view` **required**, `chainId?` | `OwnerCopySummary` |
-| GET | `/users/{ownerAddress}/copy-runs` | `view` **required**, `agentId?`, `chainId?`, `cursor?`, `limit?`, `sortBy?`, `sortOrder?` | `CopyRunSummary[]` |
-| GET | `/users/{ownerAddress}/copy-runs/{copyRunId}` | Path only | `CopyRunSummary` |
-| GET | `/users/{ownerAddress}/copy-runs/{copyRunId}/cashback-policy` | Path only | `CopyRunCashbackPolicy` |
-| GET | `/users/{ownerAddress}/copy-runs/{copyRunId}/positions` | `view?`, `cursor?`, `limit?`, `sortBy?`, `sortOrder?` | `PositionSummary[]` |
-| GET | `/users/{ownerAddress}/copy-runs/{copyRunId}/performance` | `series?`, `window?`, `interval?`, `cursor?`, `limit?` | `PerformancePoint[]` |
-| GET | `/users/{ownerAddress}/positions` | `agentId?`, `chainId?`, `view?`, `cursor?`, `limit?`, `sortBy?`, `sortOrder?` | `PositionSummary[]` |
-| GET | `/users/{ownerAddress}/activity` | `copyRunId?`, `chainId?`, `type?`, `group?`, `cursor?`, `limit?` | `ActivityRow[]` |
-| GET | `/users/{ownerAddress}/copy-accounts` | `chainId?`, `status?`, `cursor?`, `limit?` | `CopyAccountSummary[]` |
+| Method | Path                                                          | Parameters                                                                                | `data`                  |
+| ------ | ------------------------------------------------------------- | ----------------------------------------------------------------------------------------- | ----------------------- |
+| GET    | `/users/{ownerAddress}/copy-summary`                          | `view` **required**, `chainId?`                                                           | `OwnerCopySummary`      |
+| GET    | `/users/{ownerAddress}/copy-runs`                             | `view` **required**, `agentId?`, `chainId?`, `cursor?`, `limit?`, `sortBy?`, `sortOrder?` | `CopyRunSummary[]`      |
+| GET    | `/users/{ownerAddress}/copy-runs/{copyRunId}`                 | Path only                                                                                 | `CopyRunSummary`        |
+| GET    | `/users/{ownerAddress}/copy-runs/{copyRunId}/cashback-policy` | Path only                                                                                 | `CopyRunCashbackPolicy` |
+| GET    | `/users/{ownerAddress}/copy-runs/{copyRunId}/positions`       | `view?`, `cursor?`, `limit?`, `sortBy?`, `sortOrder?`                                     | `PositionSummary[]`     |
+| GET    | `/users/{ownerAddress}/copy-runs/{copyRunId}/performance`     | `series?`, `window?`, `interval?`, `cursor?`, `limit?`                                    | `PerformancePoint[]`    |
+| GET    | `/users/{ownerAddress}/positions`                             | `agentId?`, `chainId?`, `view?`, `cursor?`, `limit?`, `sortBy?`, `sortOrder?`             | `PositionSummary[]`     |
+| GET    | `/users/{ownerAddress}/activity`                              | `copyRunId?`, `chainId?`, `type?`, `group?`, `cursor?`, `limit?`                          | `ActivityRow[]`         |
+| GET    | `/users/{ownerAddress}/copy-accounts`                         | `chainId?`, `status?`, `cursor?`, `limit?`                                                | `CopyAccountSummary[]`  |
 
 Owner copy-run sort fields:
 
@@ -1066,14 +1339,14 @@ only for a selected-run drilldown.
 
 Copy-run list behavior:
 
-| Parameter | Behavior |
-| --- | --- |
-| `view` | Required: `OPEN` or `HISTORY`. |
-| `agentId` | Optional exact agent filter. |
-| `chainId` | Optional positive chain filter. |
-| `sortBy` | Open defaults to `OWNER_COPY_RUN_SORT_FIELD_STARTED_AT`; History defaults to `OWNER_COPY_RUN_SORT_FIELD_STOPPED_AT`. |
-| `sortOrder` | Defaults to descending. |
-| `limit`, `cursor` | Standard cursor pagination. |
+| Parameter         | Behavior                                                                                                             |
+| ----------------- | -------------------------------------------------------------------------------------------------------------------- |
+| `view`            | Required: `OPEN` or `HISTORY`.                                                                                       |
+| `agentId`         | Optional exact agent filter.                                                                                         |
+| `chainId`         | Optional positive chain filter.                                                                                      |
+| `sortBy`          | Open defaults to `OWNER_COPY_RUN_SORT_FIELD_STARTED_AT`; History defaults to `OWNER_COPY_RUN_SORT_FIELD_STOPPED_AT`. |
+| `sortOrder`       | Defaults to descending.                                                                                              |
+| `limit`, `cursor` | Standard cursor pagination.                                                                                          |
 
 Copy-account status filters:
 
@@ -1090,13 +1363,26 @@ Key `CopyRunSummary` fields:
 - `startedAt`, `stoppedAt`, `status`, `durationSeconds`
 - `agentSnapshot`
 - capital, portfolio, PnL, fee, cashback, position-count, and APR metrics
-- `capitalInProjectionStatus`, which must be `READY` before the UI renders a
-  numeric `capitalInUsd`. `SYNCING` means canonical funding is visible but the
-  immutable account-capital projection is still catching up; `UNAVAILABLE`
-  means its source or lineage cannot currently authorize a value. In both
-  non-ready states `capitalInUsd` is unavailable and never a provisional zero.
+- `capitalInProjectionStatus`. `READY` means `capitalInUsd` represents the
+  completed generation. In the 2026-08-21 pending contract, `SYNCING` can carry
+  a prior same-identity value with metric status `STALE`; render it only with a
+  syncing/stale indication and don't treat it as the newly confirmed amount.
+  `UNAVAILABLE` means source, identity, or lineage can't authorize a value and
+  must never be converted to zero.
+- When present, `observedCapitalInUsd` is a display-only run-level projection;
+  it does not replace canonical `capitalInUsd`, contribute to owner/account
+  totals, or authorize Add Capital. Owner and copy-account aggregate allocation
+  fields remain canonical-only and fail closed when the full contribution set
+  is not proven.
 - `addCapitalAvailability`, `stopCopyAvailability`,
   `withdrawQuoteAvailability`
+- optional `stopCopyProgress`. It is present only when the API can prove the
+  newest safely covered Stop intent. `pendingPositionCount` includes both
+  selected positions whose child action hasn't been indexed and indexed child
+  actions that aren't terminal yet. `status` can be `CURRENT` or `STALE`; an
+  omitted object means “progress not proven,” never zero progress. Within a
+  present object, treat an omitted JSON count as `0`; the gateway omits scalar
+  zero values.
 
 #### Account-effective cashback policy
 
@@ -1113,15 +1399,15 @@ after the account exists, it is not a substitute for this endpoint.
 The response contains the exact `copyRunId`, `chainId`, `copyAccount`, and
 `agentId`, plus:
 
-| Field | FE meaning |
-| --- | --- |
-| `status` | Authoritative policy state: `COPY_RUN_CASHBACK_POLICY_STATUS_AVAILABLE`, `..._NOT_CONFIGURED`, `..._INVALIDATED`, or `..._UNAVAILABLE`. |
-| `scope` | `COPY_RUN_CASHBACK_POLICY_SCOPE_DEFAULT` or `..._EXTRA` when a policy is selected. Do not infer a scope when unspecified. |
-| `capCashbackRatioRaw`, `pnlRateRaw` | Optional 1e18-scaled raw ratios. They are present or absent together; absence is not zero. |
-| `selectionPolicyVersion` | Optional operator policy-selection version. Treat as opaque diagnostic/version identity. |
-| `cashbackFormulaVersion` | Optional positive formula identity. Do not infer it from scope, selection version, generation, or agent data. |
-| `selectedAt`, `invalidatedAt`, `fallbackAt` | Optional provenance times for the selected, invalidated, or default-fallback state. |
-| `unavailableReason` | Present for `..._STATUS_UNAVAILABLE`: `COPY_RUN_CASHBACK_POLICY_UNAVAILABLE_REASON_COVERAGE_PENDING`, `..._HISTORICAL_GENERATION_UNSUPPORTED`, or `..._POLICY_TRANSITION_PENDING`. |
+| Field                                       | FE meaning                                                                                                                                                                         |
+| ------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `status`                                    | Authoritative policy state: `COPY_RUN_CASHBACK_POLICY_STATUS_AVAILABLE`, `..._NOT_CONFIGURED`, `..._INVALIDATED`, or `..._UNAVAILABLE`.                                            |
+| `scope`                                     | `COPY_RUN_CASHBACK_POLICY_SCOPE_DEFAULT` or `..._EXTRA` when a policy is selected. Do not infer a scope when unspecified.                                                          |
+| `capCashbackRatioRaw`, `pnlRateRaw`         | Optional 1e18-scaled raw ratios. They are present or absent together; absence is not zero.                                                                                         |
+| `selectionPolicyVersion`                    | Optional operator policy-selection version. Treat as opaque diagnostic/version identity.                                                                                           |
+| `cashbackFormulaVersion`                    | Optional positive formula identity. Do not infer it from scope, selection version, generation, or agent data.                                                                      |
+| `selectedAt`, `invalidatedAt`, `fallbackAt` | Optional provenance times for the selected, invalidated, or default-fallback state.                                                                                                |
+| `unavailableReason`                         | Present for `..._STATUS_UNAVAILABLE`: `COPY_RUN_CASHBACK_POLICY_UNAVAILABLE_REASON_COVERAGE_PENDING`, `..._HISTORICAL_GENERATION_UNSUPPORTED`, or `..._POLICY_TRANSITION_PENDING`. |
 
 Frontend shape:
 
@@ -1175,6 +1461,12 @@ Use these rendering rules:
 - flat fees captured, cashback received, net fee cost, and estimated pending
   cashback.
 
+These summary totals are canonical aggregates. The backend does not return an
+owner-level or copy-account-level observed/pending allocation subtotal. If the
+complete qualified contribution set is not proven, the affected metric is
+unavailable instead of presenting a partial subtotal as the total; independently
+complete metrics can still render.
+
 Fields that are not meaningful for the selected view can be
 `METRIC_STATUS_NOT_APPLICABLE`; do not merge the Open and History summary
 objects locally.
@@ -1184,13 +1476,13 @@ the activity: `copyLifecycle`, `position`, `capital`, `fee`, or `execution`.
 
 The detail variant has this shape:
 
-| Variant | Used for | Important fields |
-| --- | --- | --- |
-| `copyLifecycle` | Copy started/stopped | `eventId`, `eventType`, optional `beforeStatus`, `afterStatus` |
-| `position` | Open/close/reduce position | Tokens, raw base/quote accounting, settlement value, realized P&L, fee, cashback |
-| `capital` | Deposit/top-up/withdraw/return | `movementType`, exact raw amount, token, USD metric |
-| `fee` | Flat fee/cashback | Exact raw amount, token, USD metric |
-| `execution` | Skip/exit/failure lifecycle | Execution/action identifiers and statuses, public error, config index/rate/deadline, display amount/value |
+| Variant         | Used for                       | Important fields                                                                                                                                                                               |
+| --------------- | ------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `copyLifecycle` | Copy started/stopped           | `eventId`, `eventType`, optional `beforeStatus`, `afterStatus`                                                                                                                                 |
+| `position`      | Open/close/reduce position     | Tokens, raw base/quote accounting, settlement value, realized P&L, fee, cashback                                                                                                               |
+| `capital`       | Deposit/top-up/withdraw/return | `movementType`, exact raw amount, token, USD metric                                                                                                                                            |
+| `fee`           | Flat fee/cashback              | Exact raw amount, token, USD metric                                                                                                                                                            |
+| `execution`     | Skip/exit/failure lifecycle    | Execution/action identifiers and statuses, public error, config index/rate/deadline. It has no token, amount, or USD field because the source fact does not prove one common monetary meaning. |
 
 The top-level `summary` is display text. Business logic should switch on the
 typed `type` and oneof detail, not parse the summary.
@@ -1205,12 +1497,12 @@ Stop Copy is not one monetary trade. One request can initiate exits for zero,
 one, or many positions and tokens. The activity feed therefore exposes
 independent canonical facts:
 
-| Row | What it represents | Token / amount / value |
-| --- | --- | --- |
-| `ACTIVITY_TYPE_COPY_STOPPED` | The copy-account lifecycle transition to stopped/cancelled | None. Use `copyLifecycle` and the optional top-level `txHash`. |
-| `ACTIVITY_TYPE_EXIT_STARTED`, `ACTIVITY_TYPE_EXIT_SUCCEEDED`, `ACTIVITY_TYPE_EXIT_SKIPPED`, `ACTIVITY_TYPE_EXIT_FAILED` | One exit-action execution transition | Use `execution`; monetary display fields can be absent when no authoritative value exists. |
-| `ACTIVITY_TYPE_POSITION_REDUCED` | One completed sell that leaves base inventory | Use the token and exact raw accounting from `position`. |
-| `ACTIVITY_TYPE_POSITION_CLOSED` | One completed sell that closes the position | Use the token and exact raw accounting from `position`. |
+| Row                                                                                                                     | What it represents                                         | Token / amount / value                                                                                                 |
+| ----------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `ACTIVITY_TYPE_COPY_STOPPED`                                                                                            | The copy-account lifecycle transition to stopped/cancelled | None. Use `copyLifecycle` and the optional top-level `txHash`.                                                         |
+| `ACTIVITY_TYPE_EXIT_STARTED`, `ACTIVITY_TYPE_EXIT_SUCCEEDED`, `ACTIVITY_TYPE_EXIT_SKIPPED`, `ACTIVITY_TYPE_EXIT_FAILED` | One exit-action execution transition                       | Use `execution` for lifecycle only. Use the corresponding position activity for source-proven token, amount, or value. |
+| `ACTIVITY_TYPE_POSITION_REDUCED`                                                                                        | One completed sell that leaves base inventory              | Use the token and exact raw accounting from `position`.                                                                |
+| `ACTIVITY_TYPE_POSITION_CLOSED`                                                                                         | One completed sell that closes the position                | Use the token and exact raw accounting from `position`.                                                                |
 
 All such rows can share `copyRunId` and `copyAccount`. Position and execution
 rows can additionally carry `userPositionId`, `followerPositionId`, `tradeId`,
@@ -1219,6 +1511,22 @@ or `execution.exitActionId`. The public `ACTIVITY_TYPE_COPY_STOPPED` row does
 downstream exit.
 Do not group rows by timestamp proximity or assume that every nearby sell was
 caused by that Stop Copy.
+
+For a selected copy run, use `CopyRunSummary.stopCopyProgress` as the bounded
+wind-down summary:
+
+| Field                   | Meaning                                                               |
+| ----------------------- | --------------------------------------------------------------------- |
+| `selectedPositionCount` | Positions selected by the authoritative Stop parent.                  |
+| `indexedPositionCount`  | Selected child actions already imported by the aggregate.             |
+| `terminalPositionCount` | Imported children with terminal `COMPLETED` or `SKIPPED` outcomes.    |
+| `pendingPositionCount`  | Selected minus terminal. This includes not-yet-indexed children.      |
+| `status`, `asOf`        | Coverage quality and source coverage time for this progress snapshot. |
+
+Keep the History/closed-position membership terminal-only. Progress can move
+from 0/2 to 1/2 to 2/2 while the run remains in the Open/closing experience.
+Don't infer completion from a missing object, timestamps, or nearby activity
+rows.
 
 Render the lifecycle row and the token-specific rows separately. In
 particular, do not reproduce a mockup row such as “Stop Copy / ETH / 8.65 /
@@ -1230,14 +1538,14 @@ There is no exact total-count contract—use `pagination.hasMore`.
 
 ### Copy Accounts
 
-| Method | Path | Parameters | `data` |
-| --- | --- | --- | --- |
-| GET | `/copy-accounts/{chainId}/{copyAccount}` | Path only | `CopyAccountSummary` |
-| GET | `/copy-accounts/{chainId}/{copyAccount}/balances` | `cursor?`, `limit?` | `WalletBalanceRow[]`; response also includes `pinnedStableBalance` |
-| GET | `/copy-accounts/{chainId}/{copyAccount}/wallet-inventory` | Path only | Bounded `WalletBalanceRow[]`, `walletInventoryValueUsd`, `complete`, and `pinnedStableBalance` |
-| GET | `/copy-accounts/{chainId}/{copyAccount}/positions` | `view?`, `cursor?`, `limit?`, `sortBy?`, `sortOrder?` | `PositionSummary[]` |
-| GET | `/copy-accounts/{chainId}/{copyAccount}/positions/{userPositionId}/pending-sell-obligations` | `cursor?`, `limit?` | `PendingSellObligation[]` |
-| GET | `/copy-accounts/{chainId}/{copyAccount}/history` | `type?`, `group?`, `cursor?`, `limit?` | `ActivityRow[]` |
+| Method | Path                                                                                         | Parameters                                            | `data`                                                                                         |
+| ------ | -------------------------------------------------------------------------------------------- | ----------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| GET    | `/copy-accounts/{chainId}/{copyAccount}`                                                     | Path only                                             | `CopyAccountSummary`                                                                           |
+| GET    | `/copy-accounts/{chainId}/{copyAccount}/balances`                                            | `cursor?`, `limit?`                                   | `WalletBalanceRow[]`; response also includes `pinnedStableBalance`                             |
+| GET    | `/copy-accounts/{chainId}/{copyAccount}/wallet-inventory`                                    | Path only                                             | Bounded `WalletBalanceRow[]`, `walletInventoryValueUsd`, `complete`, and `pinnedStableBalance` |
+| GET    | `/copy-accounts/{chainId}/{copyAccount}/positions`                                           | `view?`, `cursor?`, `limit?`, `sortBy?`, `sortOrder?` | `PositionSummary[]`                                                                            |
+| GET    | `/copy-accounts/{chainId}/{copyAccount}/positions/{userPositionId}/pending-sell-obligations` | `cursor?`, `limit?`                                   | `PendingSellObligation[]`                                                                      |
+| GET    | `/copy-accounts/{chainId}/{copyAccount}/history`                                             | `type?`, `group?`, `cursor?`, `limit?`                | `ActivityRow[]`                                                                                |
 
 `CopyAccountSummary` contains chain/account/creation-owner identity, current
 copy run and agent snapshot, start/stop times, lifecycle status, capital and
@@ -1255,17 +1563,17 @@ Use the returned FIFO order and exact ratios when requesting Manual Sell.
 
 `WalletBalanceRow` contains:
 
-| Field | Meaning |
-| --- | --- |
-| `chainId`, `copyAccount`, `tokenAddress` | Exact inventory identity. |
-| `amountDecimal` | Human-unit decimal amount, not a base-unit `*Raw` integer. |
-| `balanceSource` | Sanitized upstream/source label. |
-| `freshnessStatus` | Source-specific freshness label. |
-| `balanceAsOfBlock` | Block at which the balance was read. |
-| `cachedAt` | Time the row was cached. |
-| `stalenessReason` | Optional diagnostic reason. |
-| `token` | Token metadata. |
-| `currentValuation` | Independently status-bearing USD valuation. |
+| Field                                    | Meaning                                                    |
+| ---------------------------------------- | ---------------------------------------------------------- |
+| `chainId`, `copyAccount`, `tokenAddress` | Exact inventory identity.                                  |
+| `amountDecimal`                          | Human-unit decimal amount, not a base-unit `*Raw` integer. |
+| `balanceSource`                          | Sanitized upstream/source label.                           |
+| `freshnessStatus`                        | Source-specific freshness label.                           |
+| `balanceAsOfBlock`                       | Block at which the balance was read.                       |
+| `cachedAt`                               | Time the row was cached.                                   |
+| `stalenessReason`                        | Optional diagnostic reason.                                |
+| `token`                                  | Token metadata.                                            |
+| `currentValuation`                       | Independently status-bearing USD valuation.                |
 
 The balance endpoint also returns `pinnedStableBalance`. This is separate from
 the ordinary page because the configured quote/stable token has action-critical
@@ -1290,13 +1598,13 @@ The endpoint returns the current token rows held by the Smart Wallet and a
 server-calculated account-wide USD total. It does not include open-position
 valuation, and it is not a replacement for `portfolioValueUsd`.
 
-| Field | Frontend behavior |
-| --- | --- |
-| `data` | Render the returned wallet-token rows. Each row uses the existing `WalletBalanceRow` contract. |
-| `walletInventoryValueUsd` | Use this `DecimalMetric` as the **Remaining in Wallet** total. Do not calculate another total from `data`. |
-| `complete` | A value of `true` means the bounded operator request proved that all wallet rows fit in one response. A value of `false` means the rows may be rendered, but they are not a complete inventory. |
-| `pinnedStableBalance` | Render the stable row separately only when its status is `PRESENT`. The API already counts it exactly once in `walletInventoryValueUsd`. |
-| `meta` | Apply the normal response metadata rules independently from the total metric and row-level freshness. |
+| Field                     | Frontend behavior                                                                                                                                                                               |
+| ------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `data`                    | Render the returned wallet-token rows. Each row uses the existing `WalletBalanceRow` contract.                                                                                                  |
+| `walletInventoryValueUsd` | Use this `DecimalMetric` as the **Remaining in Wallet** total. Do not calculate another total from `data`.                                                                                      |
+| `complete`                | A value of `true` means the bounded operator request proved that all wallet rows fit in one response. A value of `false` means the rows may be rendered, but they are not a complete inventory. |
+| `pinnedStableBalance`     | Render the stable row separately only when its status is `PRESENT`. The API already counts it exactly once in `walletInventoryValueUsd`.                                                        |
+| `meta`                    | Apply the normal response metadata rules independently from the total metric and row-level freshness.                                                                                           |
 
 An abbreviated complete response has the following shape:
 
@@ -1395,13 +1703,13 @@ PREPARED_ACTION_STATUS_PENDING
 PREPARED_ACTION_STATUS_UNAVAILABLE
 ```
 
-| Status | Call present? | FE behavior |
-| --- | --- | --- |
-| `READY` | Yes | Show the preview and request wallet submission of the exact call. |
-| `PARTIALLY_COMPLETED` | Yes, Start Copy only | The account exists and the next funding call is ready. Submit it, confirm, then prepare again. |
-| `COMPLETED` | No | The requested state is already complete. Refresh reads and close the action flow. |
-| `PENDING` | No | Current evidence is not yet sufficient or an earlier transaction is still converging. Honor `reprepareAfter` when present and retry preparation. |
-| `UNAVAILABLE` | No | The action cannot currently execute. Render the typed `reason`; do not submit anything. |
+| Status                | Call present?        | FE behavior                                                                                                                                      |
+| --------------------- | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `READY`               | Yes                  | Show the preview and request wallet submission of the exact call.                                                                                |
+| `PARTIALLY_COMPLETED` | Yes, Start Copy only | The account exists and the next funding call is ready. Submit it, confirm, then prepare again.                                                   |
+| `COMPLETED`           | No                   | The requested state is already complete. Refresh reads and close the action flow.                                                                |
+| `PENDING`             | No                   | Current evidence is not yet sufficient or an earlier transaction is still converging. Honor `reprepareAfter` when present and retry preparation. |
+| `UNAVAILABLE`         | No                   | The action cannot currently execute. Render the typed `reason`; do not submit anything.                                                          |
 
 Prepared call kinds:
 
@@ -1423,20 +1731,20 @@ empty states, but the corresponding preparation response is authoritative.
 
 ### Prepared Action Fields
 
-| Field | Meaning |
-| --- | --- |
-| `status` | Typed outcome described above. |
-| `chainId` | Chain on which the wallet call belongs. |
-| `expectedAccount` | Account expected to send the outer transaction. Compare it with the connected wallet/account. |
-| `copyAccount` | Optional Smart Wallet identity. It is absent only before a Start Copy account exists; it is not the call target. |
-| `preparedAt` | Time the preparation was produced. |
-| `reprepareAfter` | Only public expiry/retry boundary for the preparation. Discard the result after this time. |
-| `liquidationConfigDeadline` | Optional action-specific deadline. Do not submit after it. |
-| `call` | Exact reviewed EVM inner call, only when executable. |
-| `reason` | Stable typed reason for non-ready/advisory state. |
-| `warnings[]` | Allowlisted render-only qualifications. Warnings do not authorize changing calldata. |
-| `evidence` | Exact safely covered fact boundary and fresh action block used by preparation. |
-| one preview | Exactly one of `startCopy`, `addCapital`, `stopCopy`, `withdrawQuote`, `manualSell`, or `closePosition`. |
+| Field                       | Meaning                                                                                                          |
+| --------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| `status`                    | Typed outcome described above.                                                                                   |
+| `chainId`                   | Chain on which the wallet call belongs.                                                                          |
+| `expectedAccount`           | Account expected to send the outer transaction. Compare it with the connected wallet/account.                    |
+| `copyAccount`               | Optional Smart Wallet identity. It is absent only before a Start Copy account exists; it is not the call target. |
+| `preparedAt`                | Time the preparation was produced.                                                                               |
+| `reprepareAfter`            | Only public expiry/retry boundary for the preparation. Discard the result after this time.                       |
+| `liquidationConfigDeadline` | Optional action-specific deadline. Do not submit after it.                                                       |
+| `call`                      | Exact reviewed EVM inner call, only when executable.                                                             |
+| `reason`                    | Stable typed reason for non-ready/advisory state.                                                                |
+| `warnings[]`                | Allowlisted render-only qualifications. Warnings do not authorize changing calldata.                             |
+| `evidence`                  | Exact safely covered fact boundary and fresh action block used by preparation.                                   |
+| one preview                 | Exactly one of `startCopy`, `addCapital`, `stopCopy`, `withdrawQuote`, `manualSell`, or `closePosition`.         |
 
 Swap-producing previews use this nested shape:
 
@@ -1506,6 +1814,11 @@ PREPARED_ACTION_REASON_CLOSE_NOT_ELIGIBLE
 Treat reason names as localization keys. Do not display raw enum names to end
 users or infer an executable call from a reason.
 
+After the coordinated Withdraw Quote release,
+`PREPARED_ACTION_REASON_ACCOUNT_NOT_STOPPED` is no longer an expected Withdraw
+Quote result. Keep the localization key while older environments can still
+return it.
+
 ### Prepare Start Copy
 
 ```http
@@ -1531,10 +1844,10 @@ response is complete.
 
 Funding modes:
 
-| Mode | Request contract | Create-stage behavior |
-| --- | --- | --- |
-| `START_COPY_FUNDING_MODE_UNFUNDED` | Omit `createPermitData`. | Creates the follower account without quote-token capital. A later preparation returns the separate funding call after canonical creation evidence is ready. |
-| `START_COPY_FUNDING_MODE_FUNDED` | The API uses the full `targetCapitalRaw` as the create amount. `createPermitData` is optional and, when supplied through protobuf JSON, is a base64 byte string with a maximum decoded length of 192 bytes. | Attempts account creation and full target funding in one call. Exact permit capability and format remain operator/token-policy decisions. |
+| Mode                               | Request contract                                                                                                                                                                                            | Create-stage behavior                                                                                                                                       |
+| ---------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `START_COPY_FUNDING_MODE_UNFUNDED` | Omit `createPermitData`.                                                                                                                                                                                    | Creates the follower account without quote-token capital. A later preparation returns the separate funding call after canonical creation evidence is ready. |
+| `START_COPY_FUNDING_MODE_FUNDED`   | The API uses the full `targetCapitalRaw` as the create amount. `createPermitData` is optional and, when supplied through protobuf JSON, is a base64 byte string with a maximum decoded length of 192 bytes. | Attempts account creation and full target funding in one call. Exact permit capability and format remain operator/token-policy decisions.                   |
 
 Funded example with permit transport:
 
@@ -1803,12 +2116,67 @@ POST /users/{ownerAddress}/copy-runs/{copyRunId}:prepareWithdrawQuote
 ```
 
 ```json
-{}
+{
+  "amountRaw": "42000000"
+}
 ```
 
+Withdraw Quote is independent of copy lifecycle. The user can prepare it while
+the run is active, stopping, stopped, or closed. Don't require a Stop Copy
+transaction, terminal positions, or an empty position list before enabling the
+action.
+
+`amountRaw` is required after the pending coordinated rollout. It must be a
+canonical positive decimal `uint256` string without a sign, decimal point,
+whitespace, or leading zero. The API rejects an omitted or empty value, zero,
+and values greater than `uint256.max` before calling an operator.
+
+- Send a value from `1` through `uint256.max - 1` to withdraw that exact raw
+  quote-token amount.
+- Send
+  `115792089237316195423570985008687907853269984665640564039457584007913129639935`
+  (`uint256.max`) to withdraw the full balance available when the transaction
+  executes.
+
+There is no omitted-value default for a full-balance withdrawal.
+
 `data.withdrawQuote` contains the quote token, status-bearing quote balance,
-and optional exact sweep amount and recipient. This is a repeatable max sweep;
-the recipient is current prepared state, not a client-selected field.
+and optional sweep amount and recipient. For a ready response:
+
+- `quoteBalance` is the exact quote-token balance observed at the preparation's
+  `evidence.actionBlock`.
+- `sweepAmountRaw` equals the requested `amountRaw` and is the amount encoded in
+  calldata. For an exact partial withdrawal, it is the requested transfer
+  amount. For `uint256.max`, the follower-account contract interprets it as
+  “withdraw the current balance” when the transaction executes.
+- `recipientAddress` is the owner observed at the same action block. The
+  frontend can't select or replace it.
+- `call` contains the exact preflighted sweep. Submit it unchanged from
+  `expectedAccount` before `reprepareAfter`.
+- `warnings[]` contains
+  `PREPARED_ACTION_WARNING_OWNER_SNAPSHOT_REQUIRES_REFRESH`. Refresh and prepare
+  again if the connected account, owner state, balance, or preparation window
+  changes.
+
+Preparation can return `PREPARED_ACTION_STATUS_UNAVAILABLE` with these common
+reasons:
+
+| Reason                                                  | Frontend behavior                                                                     |
+| ------------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| `PREPARED_ACTION_REASON_NOT_CURRENT_OWNER`              | Refresh ownership and require the current owner wallet.                               |
+| `PREPARED_ACTION_REASON_NO_QUOTE_BALANCE`               | Show that no quote balance is available to withdraw. Don't treat the route as failed. |
+| `PREPARED_ACTION_REASON_INSUFFICIENT_QUOTE_BALANCE`      | Refresh the balance; let the user enter a smaller exact amount or choose full balance. |
+| `PREPARED_ACTION_REASON_UNSUPPORTED_ACCOUNT_GENERATION` | Disable the action for this account generation.                                       |
+| `PREPARED_ACTION_REASON_UNSUPPORTED_QUOTE_TOKEN`        | Disable the action for this account's quote token.                                    |
+| `PREPARED_ACTION_REASON_INNER_CALL_REVERTED`            | Don't submit the call. Refresh state before another preparation attempt.              |
+
+For an exact partial withdrawal, the call transfers only the requested amount
+and can revert if the balance falls below it before execution. For a
+`uint256.max` withdrawal, the contract reads the execution-time balance, so the
+transaction can withdraw a different amount than the preview if the balance
+changes after preparation. After the receipt succeeds, refresh the copy-run,
+copy-account, balance, wallet-inventory, and activity reads that are visible on
+the screen.
 
 ### Prepare Manual Sell
 
@@ -1902,15 +2270,15 @@ display/debug context.
 
 Common statuses observed or expected:
 
-| HTTP | Meaning |
-| --- | --- |
-| 400 | Invalid parameter, unsupported enum combination, or cursor mismatch |
-| 408 | Request was canceled |
-| 404 | Requested public resource not found |
-| 429 | Server action-preparation capacity is exhausted |
-| 500 | Internal request failure; the response is sanitized |
-| 503 | Temporarily unavailable; retry with bounded backoff |
-| 504 | Request deadline exceeded; retry with bounded backoff |
+| HTTP | Meaning                                                             |
+| ---- | ------------------------------------------------------------------- |
+| 400  | Invalid parameter, unsupported enum combination, or cursor mismatch |
+| 408  | Request was canceled                                                |
+| 404  | Requested public resource not found                                 |
+| 429  | Server action-preparation capacity is exhausted                     |
+| 500  | Internal request failure; the response is sanitized                 |
+| 503  | Temporarily unavailable; retry with bounded backoff                 |
+| 504  | Request deadline exceeded; retry with bounded backoff               |
 
 Some upstream failed-precondition responses also map to HTTP 400. Use the typed
 prepared-action `status` and `reason` for normal product state; HTTP errors are
@@ -1961,10 +2329,7 @@ stable ID as a defensive UI measure, but do not re-sort server pages.
 ### Render a status-bearing metric
 
 ```ts
-function metricText(metric?: {
-  value?: string;
-  status?: string;
-}): string {
+function metricText(metric?: { value?: string; status?: string }): string {
   if (!metric) return "—";
   switch (metric.status) {
     case "METRIC_STATUS_CURRENT":
@@ -2013,6 +2378,33 @@ the aggregate API has already projected the state:
    state has converged.
 
 Keep the loop bounded and offer a manual refresh if projection remains behind.
+
+### Submitted-operation overlay
+
+The UI may show a pending local delta after the wallet returns a transaction
+hash. This overlay improves continuity while the operator and aggregate API
+project the confirmed event; it is never canonical read data or action
+authority.
+
+- Create the overlay only after wallet submission returns a transaction hash.
+  Key it by chain, transaction hash, action kind, and exact target identity.
+- Keep independent pending operations as independent deltas. For example, two
+  Add Capital submissions of 1 USD and 2 USD must accumulate as two pending
+  deltas. Don't replace the first delta with the second preparation's
+  `newAllocatedCapital` preview.
+- Render the overlay with an explicit pending label. Don't merge it into the
+  server metric's status, `asOf`, sorting value, pagination cursor, summary
+  total, or action-availability decision.
+- Reconcile a delta only when an authoritative read exposes matching source
+  evidence or the exact operation outcome. A newer response timestamp alone
+  isn't proof that the event was included.
+- Remove or mark the overlay failed when the transaction fails, is replaced,
+  expires under the product policy, or is invalidated by a reorg.
+- A Stop Copy overlay can show “stopping” locally, but it must not move the run
+  between Open and History tabs. Server lifecycle remains the membership
+  authority.
+- Always call the live preparation endpoint for the next action. Never use an
+  overlay to bypass `PENDING`, `TRY_PREPARE`, or an unavailable result.
 
 ## Complete HTTP Operation Index
 
@@ -2066,11 +2458,11 @@ deployed image before enabling the UI integration in that environment.
 At **2026-08-12 00:36 UTC**, the following non-mutating checks reached
 pre-release:
 
-| Route | HTTP/result |
-| --- | --- |
-| `GET /api/v1/chains` | 200 with Base (`chainId = "8453"`) and `meta.status = DATA_STATUS_CURRENT` |
-| `GET /api/v1/agents?limit=1` | 200 with a cursor-paginated row and `meta.status = DATA_STATUS_CURRENT` |
-| `GET /docs/` | 200 HTML Swagger UI |
+| Route                        | HTTP/result                                                                |
+| ---------------------------- | -------------------------------------------------------------------------- |
+| `GET /api/v1/chains`         | 200 with Base (`chainId = "8453"`) and `meta.status = DATA_STATUS_CURRENT` |
+| `GET /api/v1/agents?limit=1` | 200 with a cursor-paginated row and `meta.status = DATA_STATUS_CURRENT`    |
+| `GET /docs/`                 | 200 HTML Swagger UI                                                        |
 
 This proves those deployed entry points were reachable at that timestamp. It
 does not prove every materializer, account-specific row, preparation outcome,
@@ -2083,20 +2475,22 @@ pre-release currently runs the source baseline above. No returned call was
 submitted. It predates the required `fundingMode` field and must not be used as
 a current Start Copy payload example. Representative requests produced:
 
-| Route | HTTP/result |
-| --- | --- |
-| `:prepareStartCopy` | 200 `READY`, `START_COPY_STAGE_CREATE_REQUIRED`, `PREPARED_CALL_KIND_START_COPY_CREATE` |
-| `:prepareAddCapital` | 200 `READY`, `PREPARED_CALL_KIND_ADD_CAPITAL` |
-| `:prepareStopCopy` | 200 `READY`, `PREPARED_CALL_KIND_STOP_COPY` |
-| `:prepareWithdrawQuote` | 200 typed `PREPARED_ACTION_STATUS_UNAVAILABLE` / `PREPARED_ACTION_REASON_ACCOUNT_NOT_STOPPED` for an active run |
-| `:prepareManualSell` | Historically available behind a wallet-session bearer token; the pending contract prepares directly |
-| `:prepareClosePosition` | Historically available behind a wallet-session bearer token; the pending contract prepares directly |
-| `/wallet-session-challenges` | Historical endpoint; removed by the pending contract |
-| `/wallet-sessions` | Historical endpoint; removed by the pending contract |
+| Route                        | HTTP/result                                                                                                                                                |
+| ---------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `:prepareStartCopy`          | 200 `READY`, `START_COPY_STAGE_CREATE_REQUIRED`, `PREPARED_CALL_KIND_START_COPY_CREATE`                                                                    |
+| `:prepareAddCapital`         | 200 `READY`, `PREPARED_CALL_KIND_ADD_CAPITAL`                                                                                                              |
+| `:prepareStopCopy`           | 200 `READY`, `PREPARED_CALL_KIND_STOP_COPY`                                                                                                                |
+| `:prepareWithdrawQuote`      | 200 typed `PREPARED_ACTION_STATUS_UNAVAILABLE` / `PREPARED_ACTION_REASON_ACCOUNT_NOT_STOPPED` for an active run under the historical stopped-only contract |
+| `:prepareManualSell`         | Historically available behind a wallet-session bearer token; the pending contract prepares directly                                                        |
+| `:prepareClosePosition`      | Historically available behind a wallet-session bearer token; the pending contract prepares directly                                                        |
+| `/wallet-session-challenges` | Historical endpoint; removed by the pending contract                                                                                                       |
+| `/wallet-sessions`           | Historical endpoint; removed by the pending contract                                                                                                       |
 
-The Withdraw result demonstrates an important integration rule: HTTP 200 with
-a typed `UNAVAILABLE`, `PENDING`, or `COMPLETED` result is normal product state,
-not an unavailable endpoint.
+The historical Withdraw result is superseded first by the pending any-lifecycle
+contract and then by the required-amount contract dated 2026-08-24. It still
+demonstrates an important integration rule: HTTP 200 with a typed
+`UNAVAILABLE`, `PENDING`, or `COMPLETED` result is normal product state, not an
+unavailable endpoint.
 
 ### Read integration status
 

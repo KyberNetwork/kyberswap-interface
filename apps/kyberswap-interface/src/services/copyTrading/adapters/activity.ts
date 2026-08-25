@@ -84,9 +84,6 @@ type ApiActivity = {
     configIndex?: number
     minBaseTokenRateRaw?: string
     configDeadlineRaw?: string
-    token?: ApiToken
-    displayAmountRaw?: string
-    valueUsd?: ApiMetric
   }
 }
 
@@ -144,12 +141,7 @@ const toFeeActivity = (detail: ApiActivity['fee']): ActivityRow['fee'] =>
     : undefined
 
 const toExecutionActivity = (detail: ApiActivity['execution']): ActivityRow['execution'] =>
-  detail
-    ? {
-        ...detail,
-        token: detail.token ? toToken(detail.token) : undefined,
-      }
-    : undefined
+  detail ? { ...detail } : undefined
 
 const toActivity = (activity: ApiActivity): ActivityRow => ({
   activityId: activity.activityId || '',

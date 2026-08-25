@@ -95,7 +95,7 @@ export const useCapitalAmount = ({ account, action, connectedChainId, targetChai
   const amountIsValid = !!amountRaw && !amountBelowMinimum && !insufficientBalance && !walletBalanceLoading
 
   const onExpectedChain = connectedChainId === targetChainId
-  const presetsEnabled = !!account && onExpectedChain && !!walletBalanceRaw && BigInt(walletBalanceRaw) > 0n
+  const presetsEnabled = !!account && !!walletBalanceRaw && BigInt(walletBalanceRaw) > 0n
   const walletBalanceText =
     walletBalanceRaw && quoteToken
       ? formatDisplayNumber(formatUnits(BigInt(walletBalanceRaw), quoteToken.decimals), { significantDigits: 8 })
