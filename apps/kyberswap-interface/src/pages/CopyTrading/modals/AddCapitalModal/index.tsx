@@ -28,7 +28,6 @@ type AddCapitalModalProps = {
   isOpen: boolean
   onDismiss: () => void
   copyRun: CopyRunSummary
-  agentName?: string
 }
 
 const ADD_CAPITAL_CALL_KINDS: PreparedCallKind[] = ['PREPARED_CALL_KIND_ADD_CAPITAL']

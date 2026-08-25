@@ -23,10 +23,11 @@ declared in the frontend service.
 | Write UX           | `CODE-COMPLETE`: all six actions use prepared-action validation; Add Capital submits directly after preparation while the other review-bearing flows retain review.                |
 | Write integration  | `CODE-COMPLETE`: exact API-prepared calls, receipt-success completion, Start Copy list polling, stateless recovery preparation, and async cache refresh are connected.             |
 | Responsive UI      | `CODE-COMPLETE`: all defined main Copy Trading pages use content-specific responsive navigation, aligned card metrics, opt-in scroll areas, tables, tabs, side panels, and charts. |
+| Code organization  | `REVIEWED`: all 80 TypeScript and TSX files under `pages/CopyTrading` were reviewed; shared presentation is centralized while query and prepared-action ownership stays local.     |
 
 ## Changes Included Since the Previous Review
 
-The 2026-08-24 review also includes the Copy Trading commits between the prior
+The 2026-08-25 review also includes the Copy Trading commits between the prior
 status update and the current working tree:
 
 - `155ac5ebd` scopes wallet- and argument-sensitive RTK reads to `currentData`.
@@ -47,30 +48,42 @@ status update and the current working tree:
   wallet restores, makes Start Copy and Add Capital percentage presets
   action-only, standardizes prepared-action recovery hierarchy, and refines the
   Stop Copy selection and review presentation.
-- The current working tree completes the Copy Trading semantic-text pass and
+- `0f638409e` completes the Copy Trading semantic-text pass and
   Stop Copy empty/loading refinements. Standalone prose and status messages use
   block semantics, form labels target their inputs, and heading content no
   longer nests block rows. Stop Copy uses the Copy Run open-position count to
   stabilize its initial empty state and contextual note.
-- The current working tree also adds the first responsive-layout pass. It adds
+- `d041bab8a` adds the first responsive-layout pass. It adds
   a mobile Sidebar drawer with a sticky, horizontally scrollable breadcrumb;
   converts the Agent Leaderboard and the three Agent Profile data tabs to card
   layouts below the table breakpoint; compacts KPI cards, Agent identity,
   controls, and performance charts by content type; and keeps side-panel
   layouts from squeezing their primary content.
+- `c527e3e48` completes responsive presentation for Open Copies, Copy History,
+  Copy Detail tables, side panels, timelines, and independently controlled
+  Agent and Copy Run performance charts.
 - `1bfda56bf` adds the reusable application-level `ScrollArea`. Copy Trading
   desktop tables opt into visible horizontal scrolling, while `InfiniteScroll`
   supports horizontal, vertical, or both axes and defaults to both. The shared
   component overrides the global hidden-scrollbar reset only where it is used,
   retains native browser track and thumb styling, and exposes `sm` and `md`
   thicknesses.
-- The current working tree standardizes responsive table-card content through
+- `877982db6` standardizes responsive table-card content through
   shared `TableCardGrid` and `TableCardField` primitives. Agent Leaderboard, My
   Copies, Copy History, Agent Positions and Trade History, and Copy Detail Open
   Positions, Trade History, and Action Logs use the same two-column rhythm.
   Right-column labels and values align together, full-width identifiers and
   details use an explicit span, status badges align with the Token value, and
-  long values remain bounded by the card.
+  long values remain bounded by the card. The same commit introduces shared
+  responsive-detail layout primitives and explicit Agent/Copy Detail ordering.
+- The current working tree completes a full readability audit of all 80
+  TypeScript and TSX files under `pages/CopyTrading`. Agent and Copy Detail now
+  share `DetailTabBar`; prepared-action review rows share their metric fallback;
+  strategy, status, and risk presentation use explicit mappings; capital amount
+  validation is separated from hook orchestration; and Stop Copy position
+  loading, row rendering, and selection-list composition are grouped locally.
+  Query keys, cursor ownership, API request payloads, authorization and permit
+  handling, and prepared-action lifecycle behavior are unchanged.
 
 ## Contract and Service Coverage
 
@@ -218,10 +231,12 @@ meet at the same boundaries:
   Copy History, and Copy Detail Open Positions use card-oriented layouts
   instead of wide tables.
 - Up to `1400px` (`max-xl`): primary-content and 340px side-panel grids stack
-  into one column, and Copy Detail reorders its content by priority: Capital
-  In, Win Rate when available, Remaining in Wallet, main tabs and performance,
-  then the remaining side cards. Copy Detail Trade History also uses cards
-  instead of its 1320px table.
+  into one column. Agent Detail keeps Leaderboard first, followed by Capital
+  In / Copy This Agent, performance charts, Positions / Trade History / Action
+  Log, Agent Risk, Strategy & Execution, and Whitelisted Tokens. Copy Detail
+  orders Capital In, Agent Risk, Remaining in Wallet, main tabs and performance,
+  then its secondary action/info and token cards. Copy Detail Trade History
+  also uses cards instead of its 1320px table.
 
 Responsive table cards follow one content hierarchy: identity or Token and
 status first; full-width Trade ID or Details next; paired performance, price,
@@ -538,7 +553,9 @@ verification are complete. Product surfaces that have not been defined remain
 outside this code-implementation status. Responsive implementation is
 code-complete for all currently defined main read surfaces at the surface level
 described in `Responsive Layout Coverage`; responsive browser QA remains
-deferred as documented below.
+deferred as documented below. The current page-layer source has also completed
+a full maintainability review without changing service or transaction-flow
+contracts.
 
 ## Verification
 
@@ -548,8 +565,9 @@ deferred as documented below.
 - All six preparation mutations have an owned UI flow.
 - The local ABI, mock signer, and mock transaction-hash path have been removed.
 - All 51 Copy Trading unit tests pass, including the direct READY handoff test.
-- Commit review for this status covers `155ac5ebd`, `e1b98c55e`, `128783f4d`,
-  `613a3757c`, and `8414b3601` in addition to the current working-tree changes.
+- Commit review for this status covers the Copy Trading sequence from
+  `155ac5ebd` through `877982db6` in addition to the current working-tree
+  readability changes.
 - For the 2026-08-20 Add Capital update, app TypeScript, targeted ESLint,
   Prettier, and `git diff --check` pass. Browser QA, a production build, and a
   positive Add Capital transaction E2E were not run for this update.
@@ -565,6 +583,11 @@ deferred as documented below.
   TypeScript, targeted ESLint, Prettier, all 51 Copy Trading unit tests, and
   `git diff --check` pass. Browser QA was unavailable in the current session;
   responsive visual verification remains manual and is not claimed here.
+- For the 2026-08-25 full-source readability audit, Copy Trading ESLint, app
+  TypeScript, Prettier, all 51 Copy Trading unit tests, and staged/unstaged
+  `git diff --check` pass. The audit covered all 80 TypeScript and TSX files in
+  `pages/CopyTrading`; no browser QA or positive live transaction E2E is claimed
+  by this code-organization pass.
 - Manual Sell, including its partial and 100% variants, and stopped-Copy Close
   Position positive live E2E remain deferred until controlled eligibility
   fixtures are available.

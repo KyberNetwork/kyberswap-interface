@@ -20,14 +20,13 @@ const formatStatus = (status: string) => {
   return status?.replace(/[-_]/g, ' ').replace(/\b\w/g, value => value.toUpperCase()) ?? '-'
 }
 
-const statusClassName = (status: string) =>
-  status === 'broadcast'
-    ? 'text-primary'
-    : status === 'failed'
-    ? 'text-red'
-    : status === 'skipped'
-    ? 'text-warning'
-    : 'text-subText'
+const statusClassNames: Record<string, string> = {
+  broadcast: 'text-primary',
+  failed: 'text-red',
+  skipped: 'text-warning',
+}
+
+const statusClassName = (status: string) => statusClassNames[status] || 'text-subText'
 
 const DetailSection = ({ label, children }: PropsWithChildren<{ label: string }>) => (
   <Stack className="gap-1">

@@ -162,11 +162,22 @@ type PnlActiveDotProps = {
   payload?: PerformanceChartPoint
 }
 
-const PnlActiveDot = ({ cx, cy, payload }: PnlActiveDotProps) => {
-  const value = payload?.realizedPnlUsd
-  const fill = value === undefined || value === 0 ? 'var(--ks-text)' : value > 0 ? 'var(--ks-primary)' : 'var(--ks-red)'
+const getPnlActiveDotFill = (value?: number) => {
+  if (value === undefined || value === 0) return 'var(--ks-text)'
+  return value > 0 ? 'var(--ks-primary)' : 'var(--ks-red)'
+}
 
-  return <circle cx={cx} cy={cy} fill={fill} r={4} stroke="var(--ks-buttonBlack)" strokeWidth={2} />
+const PnlActiveDot = ({ cx, cy, payload }: PnlActiveDotProps) => {
+  return (
+    <circle
+      cx={cx}
+      cy={cy}
+      fill={getPnlActiveDotFill(payload?.realizedPnlUsd)}
+      r={4}
+      stroke="var(--ks-buttonBlack)"
+      strokeWidth={2}
+    />
+  )
 }
 
 type ChartStateProps = PropsWithChildren<{

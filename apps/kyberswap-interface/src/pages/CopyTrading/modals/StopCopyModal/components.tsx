@@ -9,11 +9,10 @@ import { Center, HStack, Stack } from 'components/Stack'
 import { formatApproximateUsd, getSignedMetricClassName, signedUsd } from 'pages/CopyTrading/helpers'
 import { ReviewRow, ReviewSection } from 'pages/CopyTrading/modals/PreparedActionModal'
 import PreparedActionSlippageControl from 'pages/CopyTrading/modals/PreparedActionModal/SlippageControl'
-import { formatPreparedAmount } from 'pages/CopyTrading/modals/PreparedActionModal/preparedAction'
+import { formatPreparedAmount, withMetricFallback } from 'pages/CopyTrading/modals/PreparedActionModal/preparedAction'
 import { MAX_STOP_POSITIONS, getUserPositionId } from 'pages/CopyTrading/modals/StopCopyModal/positions'
 import { cn } from 'utils/cn'
 
-const withMetricFallback = (value: string) => (value === '—' ? 'N/A' : value)
 const withApproximateMetricFallback = (value: string) => (value === '—' ? 'N/A' : `~${value}`)
 
 export const StopCopyReview = ({ isLoading, preview }: { isLoading: boolean; preview?: StopCopyPreview }) => {
@@ -81,6 +80,139 @@ type StopCopyFormProps = {
   slippage: number
 }
 
+const StopCopyPositionSkeletons = ({ count }: { count: number }) => {
+  return (
+    <>
+      {Array.from({ length: count }, (_, index) => (
+        <div
+          key={index}
+          className="grid min-h-9 animate-pulse grid-cols-[16px_minmax(0,1fr)_auto] items-center gap-x-2 gap-y-1 rounded-lg px-3 py-2 sm:grid-cols-[16px_minmax(60px,1fr)_140px_120px] sm:gap-2"
+        >
+          <TableCellSkeleton width={14} height={14} className="rounded-[3px]" />
+          <TableCellSkeleton width={48} height={16} />
+          <HStack className="col-span-2 col-start-2 row-start-2 items-center gap-1 sm:col-auto sm:row-auto">
+            <TableCellSkeleton width={28} height={14} />
+            <TableCellSkeleton width={72} height={16} />
+          </HStack>
+          <TableCellSkeleton
+            width={72}
+            height={16}
+            className="col-start-3 row-start-1 justify-self-end sm:col-auto sm:row-auto"
+          />
+        </div>
+      ))}
+    </>
+  )
+}
+
+type StopCopyPositionRowProps = {
+  checked: boolean
+  disabled: boolean
+  onToggle: () => void
+  position: PositionSummary
+}
+
+const StopCopyPositionRow = ({ checked, disabled, onToggle, position }: StopCopyPositionRowProps) => (
+  <label
+    className={cn(
+      'grid grid-cols-[16px_minmax(0,1fr)_auto] items-center gap-x-2 gap-y-1 rounded-lg px-3 py-2 transition-colors sm:grid-cols-[16px_minmax(60px,1fr)_140px_120px] sm:gap-2',
+      disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer hover:bg-white-04',
+    )}
+  >
+    <input
+      type="checkbox"
+      checked={checked}
+      disabled={disabled}
+      onChange={onToggle}
+      className="size-3.5 shrink-0 accent-primary"
+    />
+    <span className="truncate text-sm font-medium text-text">{position.token.symbol}</span>
+    <HStack className="col-span-2 col-start-2 row-start-2 min-w-0 items-center gap-1 sm:col-auto sm:row-auto">
+      <span className="shrink-0 text-xs font-medium text-subText">P&amp;L</span>
+      <span className={cn('truncate text-sm font-medium', getSignedMetricClassName(position.unrealizedPnlUsd))}>
+        {signedUsd(position.unrealizedPnlUsd)}
+      </span>
+    </HStack>
+    <span className="col-start-3 row-start-1 truncate text-right text-sm font-medium text-text sm:col-auto sm:row-auto">
+      {formatApproximateUsd(position.valueUsd)}
+    </span>
+  </label>
+)
+
+type StopCopyPositionListProps = Pick<
+  StopCopyFormProps,
+  | 'expectedPositionCount'
+  | 'isPreparing'
+  | 'isSelected'
+  | 'onTogglePosition'
+  | 'positions'
+  | 'positionsError'
+  | 'selectedPositionCount'
+>
+
+const StopCopyPositionList = ({
+  expectedPositionCount,
+  isPreparing,
+  isSelected,
+  onTogglePosition,
+  positions,
+  positionsError,
+  selectedPositionCount,
+}: StopCopyPositionListProps) => {
+  const loadingPositionCount =
+    positions === undefined && !positionsError ? Math.min(6, Math.max(1, expectedPositionCount ?? 1)) : 0
+  const displayedPositionCount = positions?.length ?? expectedPositionCount
+  const hasPositionRows = (positions?.length ?? loadingPositionCount) > 0
+
+  let positionRows = null
+  if (positions === undefined && !positionsError) {
+    positionRows = <StopCopyPositionSkeletons count={loadingPositionCount} />
+  } else if (positions?.length) {
+    positionRows = positions.map((position, index) => {
+      const checked = isSelected(position, index)
+      const selectionLimitReached = !checked && selectedPositionCount >= MAX_STOP_POSITIONS
+
+      return (
+        <StopCopyPositionRow
+          key={getUserPositionId(position) as string}
+          checked={checked}
+          disabled={isPreparing || selectionLimitReached}
+          onToggle={() => onTogglePosition(position, index)}
+          position={position}
+        />
+      )
+    })
+  } else if (positions) {
+    positionRows = (
+      <Center className="min-h-9">
+        <p className="text-center text-sm text-subText">No open positions. You can still stop copying.</p>
+      </Center>
+    )
+  }
+
+  return (
+    <Stack className="gap-2">
+      <HStack className="items-center justify-between gap-3">
+        <span className="text-sm text-subText">Select positions to sell:</span>
+        <span className="shrink-0 text-sm font-medium text-subText">
+          {displayedPositionCount === undefined ? '' : `${selectedPositionCount}/${displayedPositionCount}`}
+        </span>
+      </HStack>
+
+      <ScrollableWithSignal
+        data-open={hasPositionRows ? 'true' : 'false'}
+        showArrow
+        className={cn(
+          'flex flex-col gap-1 rounded-xl bg-white-04 p-1',
+          hasPositionRows && 'ks-scrollbar max-h-[244px] overflow-y-auto',
+        )}
+      >
+        {positionRows}
+      </ScrollableWithSignal>
+    </Stack>
+  )
+}
+
 export const StopCopyForm = ({
   availabilityMessage,
   expectedPositionCount,
@@ -98,98 +230,17 @@ export const StopCopyForm = ({
   selectedPositionValueUsd,
   slippage,
 }: StopCopyFormProps) => {
-  const loadingPositionCount =
-    positions === undefined && !positionsError ? Math.min(6, Math.max(1, expectedPositionCount ?? 1)) : 0
-  const displayedPositionCount = positions?.length ?? expectedPositionCount
-  const hasPositionRows = (positions?.length ?? loadingPositionCount) > 0
-
   return (
     <Stack className="gap-4">
-      <Stack className="gap-2">
-        <HStack className="items-center justify-between gap-3">
-          <span className="text-sm text-subText">Select positions to sell:</span>
-          <span className="shrink-0 text-sm font-medium text-subText">
-            {displayedPositionCount === undefined ? '' : `${selectedPositionCount}/${displayedPositionCount}`}
-          </span>
-        </HStack>
-
-        <ScrollableWithSignal
-          data-open={hasPositionRows ? 'true' : 'false'}
-          showArrow
-          className={cn(
-            'flex flex-col gap-1 rounded-xl bg-white-04  p-1',
-            hasPositionRows && 'ks-scrollbar max-h-[244px] overflow-y-auto',
-          )}
-        >
-          {positions === undefined ? (
-            !positionsError ? (
-              Array.from({ length: loadingPositionCount }, (_, index) => (
-                <div
-                  key={index}
-                  className="grid min-h-9 animate-pulse grid-cols-[16px_minmax(0,1fr)_auto] items-center gap-x-2 gap-y-1 rounded-lg px-3 py-2 sm:grid-cols-[16px_minmax(60px,1fr)_140px_120px] sm:gap-2"
-                >
-                  <TableCellSkeleton width={14} height={14} className="rounded-[3px]" />
-                  <TableCellSkeleton width={48} height={16} />
-                  <HStack className="col-span-2 col-start-2 row-start-2 items-center gap-1 sm:col-auto sm:row-auto">
-                    <TableCellSkeleton width={28} height={14} />
-                    <TableCellSkeleton width={72} height={16} />
-                  </HStack>
-                  <TableCellSkeleton
-                    width={72}
-                    height={16}
-                    className="col-start-3 row-start-1 justify-self-end sm:col-auto sm:row-auto"
-                  />
-                </div>
-              ))
-            ) : null
-          ) : positions.length ? (
-            positions.map((position, index) => {
-              const userPositionId = getUserPositionId(position) as string
-              const checked = isSelected(position, index)
-              const selectionLimitReached = !checked && selectedPositionCount >= MAX_STOP_POSITIONS
-
-              return (
-                <label
-                  key={userPositionId}
-                  className={cn(
-                    'grid grid-cols-[16px_minmax(0,1fr)_auto] items-center gap-x-2 gap-y-1 rounded-lg px-3 py-2 transition-colors sm:grid-cols-[16px_minmax(60px,1fr)_140px_120px] sm:gap-2',
-                    isPreparing || selectionLimitReached
-                      ? 'cursor-not-allowed opacity-50'
-                      : 'cursor-pointer hover:bg-white-04',
-                  )}
-                >
-                  <input
-                    type="checkbox"
-                    checked={checked}
-                    disabled={isPreparing || selectionLimitReached}
-                    onChange={() => onTogglePosition(position, index)}
-                    className="size-3.5 shrink-0 accent-primary"
-                  />
-                  <span className="truncate text-sm font-medium text-text">{position.token.symbol}</span>
-                  <HStack className="col-span-2 col-start-2 row-start-2 min-w-0 items-center gap-1 sm:col-auto sm:row-auto">
-                    <span className="shrink-0 text-xs font-medium text-subText">P&amp;L</span>
-                    <span
-                      className={cn(
-                        'truncate text-sm font-medium',
-                        getSignedMetricClassName(position.unrealizedPnlUsd),
-                      )}
-                    >
-                      {signedUsd(position.unrealizedPnlUsd)}
-                    </span>
-                  </HStack>
-                  <span className="col-start-3 row-start-1 truncate text-right text-sm font-medium text-text sm:col-auto sm:row-auto">
-                    {formatApproximateUsd(position.valueUsd)}
-                  </span>
-                </label>
-              )
-            })
-          ) : (
-            <Center className="min-h-9">
-              <p className="text-center text-sm text-subText">No open positions. You can still stop copying.</p>
-            </Center>
-          )}
-        </ScrollableWithSignal>
-      </Stack>
+      <StopCopyPositionList
+        expectedPositionCount={expectedPositionCount}
+        isPreparing={isPreparing}
+        isSelected={isSelected}
+        onTogglePosition={onTogglePosition}
+        positions={positions}
+        positionsError={positionsError}
+        selectedPositionCount={selectedPositionCount}
+      />
 
       {!!positions && positions.length > MAX_STOP_POSITIONS && (
         <p className="text-xs text-warning">

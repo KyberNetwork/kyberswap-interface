@@ -114,12 +114,16 @@ export const TableCell = ({ className, padding = 'default', ...rest }: TableCell
   <span className={cn('min-w-0 break-words', padding === 'default' && 'px-3 py-2', className)} {...rest} />
 )
 
-/** Keeps responsive table-card metrics on the same two-column spacing rhythm. */
+/**
+ * Keeps responsive table-card metrics on the same two-column spacing rhythm.
+ */
 export const TableCardGrid = ({ className, ...props }: HTMLAttributes<HTMLDivElement>) => (
   <div className={cn('grid grid-cols-2 gap-x-3 gap-y-2', className)} {...props} />
 )
 
-/** Renders a label/value pair with card-safe wrapping and optional column alignment. */
+/**
+ * Renders a label/value pair with card-safe wrapping and optional column alignment.
+ */
 export const TableCardField = ({
   align = 'left',
   children,

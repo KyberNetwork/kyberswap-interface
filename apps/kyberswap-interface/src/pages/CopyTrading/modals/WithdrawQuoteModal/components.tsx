@@ -4,10 +4,8 @@ import { ButtonPrimary } from 'components/Button'
 import Dots from 'components/Dots'
 import { Stack } from 'components/Stack'
 import { ReviewRow, ReviewSection } from 'pages/CopyTrading/modals/PreparedActionModal'
-import { formatPreparedAmount } from 'pages/CopyTrading/modals/PreparedActionModal/preparedAction'
+import { formatPreparedAmount, withMetricFallback } from 'pages/CopyTrading/modals/PreparedActionModal/preparedAction'
 import { shortenAddress } from 'utils/address'
-
-const withMetricFallback = (value: string) => (value === '—' ? 'N/A' : value)
 
 type WithdrawQuoteReviewProps = {
   chainId: number

@@ -63,9 +63,13 @@ export const useInfiniteCursorQuery = <TResponse extends CursorResponse<unknown>
 export type InfiniteScrollProps = PropsWithChildren<
   InfiniteScrollState & {
     className?: string
-    /** Defaults to both axes so bounded lists and wide tables expose every available scroll direction. */
+    /**
+     * Defaults to both axes so bounded lists and wide tables expose every available scroll direction.
+     */
     scrollbar?: ScrollbarOrientation
-    /** Scrollbar thickness passed through to ScrollArea. Defaults to md. */
+    /**
+     * Scrollbar thickness passed through to ScrollArea. Defaults to sm.
+     */
     size?: ScrollbarSize
   }
 >

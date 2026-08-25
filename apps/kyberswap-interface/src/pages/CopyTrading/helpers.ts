@@ -95,7 +95,8 @@ export const signedPercent = (value?: DecimalString) => {
 export const getSignedMetricClassName = (value?: NumericValue) => {
   const amount = parseNumericValue(value)
 
-  return amount === undefined || amount === 0 ? 'text-text' : amount > 0 ? 'text-primary' : 'text-red'
+  if (amount === undefined || amount === 0) return 'text-text'
+  return amount > 0 ? 'text-primary' : 'text-red'
 }
 
 export type WinRateTone = 'positive' | 'warning' | 'negative' | 'neutral'
@@ -114,12 +115,14 @@ export const getWinRateClassName = (value?: NumericValue, variant: 'text' | 'bac
   if (variant === 'background') {
     if (tone === 'neutral') return 'bg-subText'
     if (tone === 'positive') return 'bg-primary'
-    return tone === 'warning' ? 'bg-warning' : 'bg-red1'
+    if (tone === 'warning') return 'bg-warning'
+    return 'bg-red1'
   }
 
   if (tone === 'neutral') return 'text-text'
   if (tone === 'positive') return 'text-primary'
-  return tone === 'warning' ? 'text-warning' : 'text-red'
+  if (tone === 'warning') return 'text-warning'
+  return 'text-red'
 }
 
 export const formatApproximateUsd = (value?: DecimalString) => {
@@ -135,23 +138,23 @@ export const getAgentInitials = (name: string) =>
     .slice(0, 2)
     .toUpperCase()
 
-export const strategyLabel = (strategy: StrategyKey) =>
-  strategy === 'active'
-    ? 'Active'
-    : strategy === 'diversified'
-    ? 'Diversified'
-    : strategy === 'focused'
-    ? 'Focused'
-    : 'Unknown'
+const strategyLabels: Record<StrategyKey, string> = {
+  active: 'Active',
+  diversified: 'Diversified',
+  focused: 'Focused',
+  unknown: 'Unknown',
+}
 
-export const strategyCategoryKey = (category: StrategyCategory): StrategyKey =>
-  category === 'STRATEGY_CATEGORY_ACTIVE'
-    ? 'active'
-    : category === 'STRATEGY_CATEGORY_DIVERSIFIED'
-    ? 'diversified'
-    : category === 'STRATEGY_CATEGORY_FOCUSED'
-    ? 'focused'
-    : 'unknown'
+const strategyCategoryKeys: Record<StrategyCategory, StrategyKey> = {
+  STRATEGY_CATEGORY_ACTIVE: 'active',
+  STRATEGY_CATEGORY_DIVERSIFIED: 'diversified',
+  STRATEGY_CATEGORY_FOCUSED: 'focused',
+  STRATEGY_CATEGORY_UNSPECIFIED: 'unknown',
+}
+
+export const strategyLabel = (strategy: StrategyKey) => strategyLabels[strategy]
+
+export const strategyCategoryKey = (category: StrategyCategory): StrategyKey => strategyCategoryKeys[category]
 
 export const getAgentDisplayName = (agent?: AgentCard | AgentProfile | AgentSnapshot) =>
   agent?.displayName || 'Unknown Agent'

@@ -12,9 +12,8 @@ import {
   formatPreparedAmount,
   formatSlippage,
   formatWadPercent,
+  withMetricFallback,
 } from 'pages/CopyTrading/modals/PreparedActionModal/preparedAction'
-
-const withMetricFallback = (value: string) => (value === '—' ? 'N/A' : value)
 
 export const PositionValue = ({ symbol, tradeId }: { symbol?: string; tradeId: string }) => (
   <>
