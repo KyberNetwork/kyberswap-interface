@@ -167,66 +167,85 @@ const CopySidePanel = ({ agent, run }: CopySidePanelProps) => {
   const isTerminal = run.status === 'stopped' || run.status === 'closed'
 
   const capitalCard = (
-    <CopyCapitalCard
-      addCapitalAvailability={run.addCapitalAvailability}
-      capital={formatUsd(getDisplayCapitalInUsd(run))}
-      headerRight={
-        run.status === 'stopped' ? (
-          <span className="text-sm font-normal text-subText">{formatDateTime(run.stoppedAt)}</span>
-        ) : undefined
-      }
-      stopCopyAvailability={run.stopCopyAvailability}
-      title={
-        run.status === 'stopped' ? (
-          <HStack as="span" className={cn('items-center gap-2', copyRunStatusTextClassName.stopped)}>
-            <span className="size-4 shrink-0 rounded-full bg-current" aria-hidden />
-            <span>Stopped Copy</span>
-          </HStack>
-        ) : run.status === 'closed' ? (
-          <HStack as="span" className={cn('items-center gap-2', copyRunStatusTextClassName.closed)}>
-            <span className="size-4 shrink-0 rounded-full bg-current" aria-hidden />
-            <span>Closed Copy</span>
-          </HStack>
-        ) : (
-          'Current Copying'
-        )
-      }
-      onAddCapital={isTerminal ? undefined : () => openAddCapital(run, agent.displayName)}
-      onStopCopy={isTerminal ? undefined : () => openStopCopy(run, agent.displayName)}
-    />
+    <div className="max-xl:order-1">
+      <CopyCapitalCard
+        addCapitalAvailability={run.addCapitalAvailability}
+        capital={formatUsd(getDisplayCapitalInUsd(run))}
+        headerRight={
+          run.status === 'stopped' ? (
+            <span className="text-sm font-normal text-subText">{formatDateTime(run.stoppedAt)}</span>
+          ) : undefined
+        }
+        stopCopyAvailability={run.stopCopyAvailability}
+        title={
+          run.status === 'stopped' ? (
+            <HStack as="span" className={cn('items-center gap-2', copyRunStatusTextClassName.stopped)}>
+              <span className="size-4 shrink-0 rounded-full bg-current" aria-hidden />
+              <span>Stopped Copy</span>
+            </HStack>
+          ) : run.status === 'closed' ? (
+            <HStack as="span" className={cn('items-center gap-2', copyRunStatusTextClassName.closed)}>
+              <span className="size-4 shrink-0 rounded-full bg-current" aria-hidden />
+              <span>Closed Copy</span>
+            </HStack>
+          ) : (
+            'Current Copying'
+          )
+        }
+        onAddCapital={isTerminal ? undefined : () => openAddCapital(run, agent.displayName)}
+        onStopCopy={isTerminal ? undefined : () => openStopCopy(run, agent.displayName)}
+      />
+    </div>
+  )
+
+  const agentRiskCard = (
+    <div className="max-xl:order-2">
+      <AgentRiskCard agent={agent} />
+    </div>
   )
 
   const remainingInWallet = (
-    <RemainingInWalletCard
-      assets={walletAssets}
-      complete={inventoryComplete}
-      loading={isInventoryFetching}
-      totalValueUsd={inventoryResponse?.walletInventoryValueUsd}
-    />
+    <div className="max-xl:order-3">
+      <RemainingInWalletCard
+        assets={walletAssets}
+        complete={inventoryComplete}
+        loading={isInventoryFetching}
+        totalValueUsd={inventoryResponse?.walletInventoryValueUsd}
+      />
+    </div>
   )
 
   if (isTerminal) {
     return (
-      <Stack className="gap-4">
+      <Stack className="gap-4 max-xl:contents">
         {capitalCard}
+        {agentRiskCard}
         {remainingInWallet}
         {run.status === 'stopped' && (
-          <WithdrawQuoteCard
-            availability={run.withdrawQuoteAvailability}
-            onWithdraw={() => openWithdrawQuote(run, run.withdrawQuoteAvailability)}
-          />
+          <div className="max-xl:order-5">
+            <WithdrawQuoteCard
+              availability={run.withdrawQuoteAvailability}
+              onWithdraw={() => openWithdrawQuote(run, run.withdrawQuoteAvailability)}
+            />
+          </div>
         )}
       </Stack>
     )
   }
 
   return (
-    <Stack className="gap-4">
+    <Stack className="gap-4 max-xl:contents">
       {capitalCard}
+      {agentRiskCard}
       {remainingInWallet}
-      <AgentRiskCard agent={agent} />
-      {run.status === 'active' && <StrategyExecutionCard items={agent.strategyExecutionItems} />}
-      <WhitelistedTokensCard tokens={agent.whitelistedSymbols} />
+      {run.status === 'active' && (
+        <div className="max-xl:order-5">
+          <StrategyExecutionCard items={agent.strategyExecutionItems} />
+        </div>
+      )}
+      <div className="max-xl:order-6">
+        <WhitelistedTokensCard tokens={agent.whitelistedSymbols} />
+      </div>
     </Stack>
   )
 }

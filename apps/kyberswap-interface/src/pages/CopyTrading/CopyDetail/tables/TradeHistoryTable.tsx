@@ -1,9 +1,16 @@
 import type { HTMLAttributes } from 'react'
 import type { PositionSummary } from 'services/copyTrading/types/positions'
 
-import { Stack } from 'components/Stack'
+import { HStack, Stack } from 'components/Stack'
 import InfiniteScroll, { type InfiniteScrollState } from 'pages/CopyTrading/components/InfiniteScroll'
-import { HeaderCell, TableBody, TableCell, TableHeader, TableRow } from 'pages/CopyTrading/components/Table'
+import {
+  HeaderCell,
+  TableBody,
+  TableCardField,
+  TableCell,
+  TableHeader,
+  TableRow,
+} from 'pages/CopyTrading/components/Table'
 import { ShortenedId } from 'pages/CopyTrading/components/common/layout'
 import { copyTradingStatIconMap } from 'pages/CopyTrading/constants'
 import { formatUsd, getSignedMetricClassName, signedUsd } from 'pages/CopyTrading/helpers'
@@ -61,7 +68,7 @@ export const TradeHistoryTable = ({ infiniteScroll, loading, rows }: PositionTab
   return (
     <Stack>
       <InfiniteScroll {...infiniteScroll}>
-        <TradeHistoryGrid header className="sticky top-0 z-[1]">
+        <TradeHistoryGrid header className="sticky top-0 z-[1] hidden xl:grid">
           <HeaderCell>Trade ID</HeaderCell>
           <HeaderCell>Token</HeaderCell>
           <HeaderCell>Entry Price</HeaderCell>
@@ -75,15 +82,15 @@ export const TradeHistoryTable = ({ infiniteScroll, loading, rows }: PositionTab
           <HeaderCell>Duration</HeaderCell>
         </TradeHistoryGrid>
         <TableBody
-          className="min-w-[1320px]"
+          className="grid gap-2 bg-transparent xl:block xl:min-w-[1320px] xl:bg-buttonBlack-60"
           empty={!rows.length}
           emptyIconUrl={copyTradingStatIconMap.positionClose.iconUrl}
           emptyMessage="No closed positions found"
           loading={loading}
         >
-          {rows.map(row => {
-            return (
-              <TradeHistoryGrid key={row.positionId}>
+          {rows.map(row => (
+            <div key={row.positionId}>
+              <TradeHistoryGrid className="max-xl:hidden">
                 <TableCell className="text-subText">
                   <ShortenedId value={row.tradeId} />
                 </TableCell>
@@ -102,8 +109,40 @@ export const TradeHistoryTable = ({ infiniteScroll, loading, rows }: PositionTab
                   {formatDuration(row.durationSeconds, row.openedAt, row.closedAt)}
                 </TableCell>
               </TradeHistoryGrid>
-            )
-          })}
+
+              <Stack className="gap-3 rounded-xl bg-buttonBlack-60 p-3 xl:hidden">
+                <HStack className="items-start justify-between gap-3">
+                  <TableCardField label="Token">{row.token.symbol || '—'}</TableCardField>
+                  <TableCardField label="Closed" valueClassName="text-right text-subText">
+                    {formatDateTime(row.closedAt)}
+                  </TableCardField>
+                </HStack>
+
+                <div className="grid grid-cols-2 gap-x-3 gap-y-2">
+                  <TableCardField className="col-span-2" label="Trade ID">
+                    <ShortenedId value={row.tradeId} />
+                  </TableCardField>
+                  <TableCardField label="Entry Price">{formatUsd(row.entryPriceUsd)}</TableCardField>
+                  <TableCardField label="Exit">{formatUsd(row.exitPriceUsd || row.currentPriceUsd)}</TableCardField>
+                  <TableCardField
+                    label="P&amp;L"
+                    valueClassName={cn('whitespace-nowrap', getSignedMetricClassName(row.realizedPnlUsd))}
+                  >
+                    {signedUsd(row.realizedPnlUsd)}
+                  </TableCardField>
+                  <TableCardField label="Duration" valueClassName="text-subText">
+                    {formatDuration(row.durationSeconds, row.openedAt, row.closedAt)}
+                  </TableCardField>
+                  <TableCardField label="Fee">{formatUsd(row.flatFeeCapturedUsd)}</TableCardField>
+                  <TableCardField label="Rebate">{formatUsd(row.cashbackReceivedUsd)}</TableCardField>
+                  <TableCardField label="Net Cost">{formatUsd(row.netFeeCostUsd)}</TableCardField>
+                  <TableCardField label="Opened" valueClassName="text-subText">
+                    {formatDateTime(row.openedAt)}
+                  </TableCardField>
+                </div>
+              </Stack>
+            </div>
+          ))}
         </TableBody>
       </InfiniteScroll>
     </Stack>

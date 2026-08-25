@@ -126,15 +126,19 @@ export const StopCopyForm = ({
               Array.from({ length: loadingPositionCount }, (_, index) => (
                 <div
                   key={index}
-                  className="grid min-h-9 animate-pulse grid-cols-[16px_minmax(60px,1fr)_140px_120px] items-center gap-2 rounded-lg px-3 py-2"
+                  className="grid min-h-9 animate-pulse grid-cols-[16px_minmax(0,1fr)_auto] items-center gap-x-2 gap-y-1 rounded-lg px-3 py-2 sm:grid-cols-[16px_minmax(60px,1fr)_140px_120px] sm:gap-2"
                 >
                   <TableCellSkeleton width={14} height={14} className="rounded-[3px]" />
                   <TableCellSkeleton width={48} height={16} />
-                  <HStack className="items-center gap-1">
+                  <HStack className="col-span-2 col-start-2 row-start-2 items-center gap-1 sm:col-auto sm:row-auto">
                     <TableCellSkeleton width={28} height={14} />
                     <TableCellSkeleton width={72} height={16} />
                   </HStack>
-                  <TableCellSkeleton width={72} height={16} className="justify-self-end" />
+                  <TableCellSkeleton
+                    width={72}
+                    height={16}
+                    className="col-start-3 row-start-1 justify-self-end sm:col-auto sm:row-auto"
+                  />
                 </div>
               ))
             ) : null
@@ -148,7 +152,7 @@ export const StopCopyForm = ({
                 <label
                   key={userPositionId}
                   className={cn(
-                    'grid grid-cols-[16px_minmax(60px,1fr)_140px_120px] items-center gap-2 rounded-lg px-3 py-2 transition-colors',
+                    'grid grid-cols-[16px_minmax(0,1fr)_auto] items-center gap-x-2 gap-y-1 rounded-lg px-3 py-2 transition-colors sm:grid-cols-[16px_minmax(60px,1fr)_140px_120px] sm:gap-2',
                     isPreparing || selectionLimitReached
                       ? 'cursor-not-allowed opacity-50'
                       : 'cursor-pointer hover:bg-white-04',
@@ -162,7 +166,7 @@ export const StopCopyForm = ({
                     className="size-3.5 shrink-0 accent-primary"
                   />
                   <span className="truncate text-sm font-medium text-text">{position.token.symbol}</span>
-                  <HStack className="min-w-0 items-center gap-1">
+                  <HStack className="col-span-2 col-start-2 row-start-2 min-w-0 items-center gap-1 sm:col-auto sm:row-auto">
                     <span className="shrink-0 text-xs font-medium text-subText">P&amp;L</span>
                     <span
                       className={cn(
@@ -173,7 +177,7 @@ export const StopCopyForm = ({
                       {signedUsd(position.unrealizedPnlUsd)}
                     </span>
                   </HStack>
-                  <span className="truncate text-right text-sm font-medium text-text">
+                  <span className="col-start-3 row-start-1 truncate text-right text-sm font-medium text-text sm:col-auto sm:row-auto">
                     {formatApproximateUsd(position.valueUsd)}
                   </span>
                 </label>

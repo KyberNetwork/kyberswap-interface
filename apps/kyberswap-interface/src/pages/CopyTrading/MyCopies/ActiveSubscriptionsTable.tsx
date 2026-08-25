@@ -1,11 +1,18 @@
-import { type HTMLAttributes } from 'react'
+import { type HTMLAttributes, type KeyboardEvent, type MouseEvent } from 'react'
 import type { CopyRunSummary } from 'services/copyTrading/types/copyRuns'
 import type { CopyRunSortBy, SortOrder } from 'services/copyTrading/types/primitives'
 
 import { ButtonLight } from 'components/Button'
 import { Stack } from 'components/Stack'
 import CursorPagination, { type CursorPaginationState } from 'pages/CopyTrading/components/CursorPagination'
-import { HeaderCell, TableBody, TableCell, TableHeader, TableRow } from 'pages/CopyTrading/components/Table'
+import {
+  HeaderCell,
+  TableBody,
+  TableCardField,
+  TableCell,
+  TableHeader,
+  TableRow,
+} from 'pages/CopyTrading/components/Table'
 import { CopyRunAgentCell } from 'pages/CopyTrading/components/common/agentIdentity'
 import { copyTradingStatIconMap } from 'pages/CopyTrading/constants'
 import {
@@ -62,9 +69,40 @@ const ActiveSubscriptionsTable = ({
 }: ActiveSubscriptionsTableProps) => {
   const { openStopCopy } = useCopyTradingModal()
 
+  const handleOpenSubscription = (event: MouseEvent<HTMLElement>, subscription: CopyRunSummary) => {
+    if ((event.target as HTMLElement).closest('button')) return
+    onOpenSubscription(subscription)
+  }
+
+  const handleOpenSubscriptionKeyDown = (event: KeyboardEvent<HTMLElement>, subscription: CopyRunSummary) => {
+    if ((event.target as HTMLElement).closest('button')) return
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault()
+      onOpenSubscription(subscription)
+    }
+  }
+
+  const renderStopCopyButton = (subscription: CopyRunSummary) => {
+    const actionAvailable = isActionAvailable(subscription.stopCopyAvailability)
+
+    return (
+      <ButtonLight
+        type="button"
+        padding="8px 12px"
+        color="var(--ks-red)"
+        className="whitespace-nowrap"
+        disabled={!actionAvailable}
+        title={!actionAvailable ? getPreparedReasonMessage(subscription.stopCopyAvailability?.reason) : undefined}
+        onClick={() => openStopCopy(subscription, getAgentDisplayName(subscription.agentSnapshot))}
+      >
+        Stop Copying
+      </ButtonLight>
+    )
+  }
+
   return (
-    <Stack className="overflow-hidden rounded-xl bg-buttonBlack-60">
-      <div className="ks-scrollbar relative max-h-[480px] overflow-auto">
+    <Stack className="gap-2 lg:gap-0 lg:overflow-hidden lg:rounded-xl lg:bg-buttonBlack-60">
+      <div className="ks-scrollbar relative hidden max-h-[480px] overflow-auto lg:block">
         <ActiveSubscriptionsGrid header className="sticky top-0 z-[1]">
           <HeaderCell>Agent</HeaderCell>
           <HeaderCell
@@ -114,58 +152,72 @@ const ActiveSubscriptionsTable = ({
           emptyMessage={pagination.error ? 'Unable to load active copies' : 'No active copies found'}
           loading={loading}
         >
-          {rows.map(subscription => {
-            const actionAvailable = isActionAvailable(subscription.stopCopyAvailability)
-
-            return (
-              <ActiveSubscriptionsGrid
-                key={subscription.copyRunId}
-                role="button"
-                tabIndex={0}
-                onClick={event => {
-                  if ((event.target as HTMLElement).closest('button')) return
-                  onOpenSubscription(subscription)
-                }}
-                onKeyDown={event => {
-                  if ((event.target as HTMLElement).closest('button')) return
-                  if (event.key === 'Enter' || event.key === ' ') {
-                    event.preventDefault()
-                    onOpenSubscription(subscription)
-                  }
-                }}
-                className="cursor-pointer"
-              >
-                <CopyRunAgentCell run={subscription} className="px-3 py-2" />
-                <TableCell className={cn('text-right', getSignedMetricClassName(subscription.agentStats.apr30dPct))}>
-                  {percent(subscription.agentStats.apr30dPct)}
-                </TableCell>
-                <TableCell className={cn('text-right', getWinRateClassName(subscription.agentStats.winRatePct))}>
-                  {percent(subscription.agentStats.winRatePct)}
-                </TableCell>
-                <TableCell className="text-right">{compactUsd(subscription.agentStats.volumeUsd)}</TableCell>
-                <TableCell className="text-right">{formatUsd(getDisplayCapitalInUsd(subscription))}</TableCell>
-                <TableCell className="text-right">{formatCount(subscription.openPositionCount)}</TableCell>
-                <TableCell className="flex justify-end">
-                  <ButtonLight
-                    type="button"
-                    padding="8px 12px"
-                    color="var(--ks-red)"
-                    className="whitespace-nowrap"
-                    disabled={!actionAvailable}
-                    title={
-                      !actionAvailable ? getPreparedReasonMessage(subscription.stopCopyAvailability?.reason) : undefined
-                    }
-                    onClick={() => openStopCopy(subscription, getAgentDisplayName(subscription.agentSnapshot))}
-                  >
-                    Stop Copying
-                  </ButtonLight>
-                </TableCell>
-              </ActiveSubscriptionsGrid>
-            )
-          })}
+          {rows.map(subscription => (
+            <ActiveSubscriptionsGrid
+              key={subscription.copyRunId}
+              role="button"
+              tabIndex={0}
+              onClick={event => handleOpenSubscription(event, subscription)}
+              onKeyDown={event => handleOpenSubscriptionKeyDown(event, subscription)}
+              className="cursor-pointer"
+            >
+              <CopyRunAgentCell run={subscription} className="px-3 py-2" />
+              <TableCell className={cn('text-right', getSignedMetricClassName(subscription.agentStats.apr30dPct))}>
+                {percent(subscription.agentStats.apr30dPct)}
+              </TableCell>
+              <TableCell className={cn('text-right', getWinRateClassName(subscription.agentStats.winRatePct))}>
+                {percent(subscription.agentStats.winRatePct)}
+              </TableCell>
+              <TableCell className="text-right">{compactUsd(subscription.agentStats.volumeUsd)}</TableCell>
+              <TableCell className="text-right">{formatUsd(getDisplayCapitalInUsd(subscription))}</TableCell>
+              <TableCell className="text-right">{formatCount(subscription.openPositionCount)}</TableCell>
+              <TableCell className="flex justify-end">{renderStopCopyButton(subscription)}</TableCell>
+            </ActiveSubscriptionsGrid>
+          ))}
         </TableBody>
       </div>
-      <CursorPagination {...pagination} />
+
+      <TableBody
+        className="grid gap-2 bg-transparent lg:hidden"
+        empty={!rows.length}
+        emptyIconUrl={copyTradingStatIconMap.agents.iconUrl}
+        emptyMessage={pagination.error ? 'Unable to load active copies' : 'No active copies found'}
+        loading={loading}
+      >
+        {rows.map(subscription => (
+          <Stack
+            key={subscription.copyRunId}
+            role="button"
+            tabIndex={0}
+            className="cursor-pointer gap-3 rounded-xl bg-buttonBlack-60 p-3 outline-none transition-colors hover:bg-primary-10"
+            onClick={event => handleOpenSubscription(event, subscription)}
+            onKeyDown={event => handleOpenSubscriptionKeyDown(event, subscription)}
+          >
+            <CopyRunAgentCell run={subscription} className="gap-3" />
+
+            <div className="grid grid-cols-2 gap-x-3 gap-y-2">
+              <TableCardField
+                label="Agent APR"
+                valueClassName={getSignedMetricClassName(subscription.agentStats.apr30dPct)}
+              >
+                {percent(subscription.agentStats.apr30dPct)}
+              </TableCardField>
+              <TableCardField label="Win Rate" valueClassName={getWinRateClassName(subscription.agentStats.winRatePct)}>
+                {percent(subscription.agentStats.winRatePct)}
+              </TableCardField>
+              <TableCardField label="Volume">{compactUsd(subscription.agentStats.volumeUsd)}</TableCardField>
+              <TableCardField label="Capital In">{formatUsd(getDisplayCapitalInUsd(subscription))}</TableCardField>
+              <TableCardField label="Positions">{formatCount(subscription.openPositionCount)}</TableCardField>
+            </div>
+
+            {renderStopCopyButton(subscription)}
+          </Stack>
+        ))}
+      </TableBody>
+
+      <div className="overflow-hidden rounded-xl lg:rounded-none">
+        <CursorPagination {...pagination} />
+      </div>
     </Stack>
   )
 }

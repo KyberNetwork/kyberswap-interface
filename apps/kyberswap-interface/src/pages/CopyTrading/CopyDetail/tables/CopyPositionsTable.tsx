@@ -2,9 +2,16 @@ import type { HTMLAttributes } from 'react'
 import type { PositionSummary } from 'services/copyTrading/types/positions'
 
 import { ButtonLight } from 'components/Button'
-import { Stack } from 'components/Stack'
+import { HStack, Stack } from 'components/Stack'
 import InfiniteScroll, { type InfiniteScrollState } from 'pages/CopyTrading/components/InfiniteScroll'
-import { HeaderCell, TableBody, TableCell, TableHeader, TableRow } from 'pages/CopyTrading/components/Table'
+import {
+  HeaderCell,
+  TableBody,
+  TableCardField,
+  TableCell,
+  TableHeader,
+  TableRow,
+} from 'pages/CopyTrading/components/Table'
 import { ShortenedId } from 'pages/CopyTrading/components/common/layout'
 import { PositionLifecycleBadge } from 'pages/CopyTrading/components/common/status'
 import { copyTradingStatIconMap } from 'pages/CopyTrading/constants'
@@ -88,7 +95,7 @@ export const CopyPositionsTable = ({
   return (
     <Stack>
       <InfiniteScroll {...infiniteScroll}>
-        <CopyPositionsGrid header className="sticky top-0 z-[1]">
+        <CopyPositionsGrid header className="sticky top-0 z-[1] hidden lg:grid">
           <HeaderCell>Trade ID</HeaderCell>
           <HeaderCell>Token</HeaderCell>
           <HeaderCell>Entry Price</HeaderCell>
@@ -101,15 +108,15 @@ export const CopyPositionsTable = ({
           <HeaderCell>Action</HeaderCell>
         </CopyPositionsGrid>
         <TableBody
-          className="min-w-[1120px]"
+          className="grid gap-2 bg-transparent lg:block lg:min-w-[1120px] lg:bg-buttonBlack-60"
           empty={!rows.length}
           emptyIconUrl={copyTradingStatIconMap.positionOpen.iconUrl}
           emptyMessage="No open positions found"
           loading={loading}
         >
-          {rows.map(row => {
-            return (
-              <CopyPositionsGrid key={row.positionId}>
+          {rows.map(row => (
+            <div key={row.positionId}>
+              <CopyPositionsGrid className="max-lg:hidden">
                 <TableCell className="text-subText">
                   <ShortenedId value={row.tradeId} />
                 </TableCell>
@@ -132,8 +139,41 @@ export const CopyPositionsTable = ({
                   <PositionAction position={row} positionContext={positionContext} />
                 </TableCell>
               </CopyPositionsGrid>
-            )
-          })}
+
+              <Stack className="gap-3 rounded-xl bg-buttonBlack-60 p-3 lg:hidden">
+                <HStack className="items-start justify-between gap-3">
+                  <TableCardField label="Token">{row.token.symbol || '—'}</TableCardField>
+                  <PositionLifecycleBadge lifecycle={row.lifecycle} quantityState={row.quantityState} />
+                </HStack>
+
+                <div className="grid grid-cols-2 gap-x-3 gap-y-2">
+                  <TableCardField className="col-span-2" label="Trade ID">
+                    <ShortenedId value={row.tradeId} />
+                  </TableCardField>
+                  <TableCardField label="Entry Price">{formatUsd(row.entryPriceUsd)}</TableCardField>
+                  <TableCardField label="Current">{formatUsd(row.currentPriceUsd)}</TableCardField>
+                  <TableCardField label="Value">{formatUsd(row.valueUsd)}</TableCardField>
+                  <TableCardField
+                    label="Unrealised P&amp;L"
+                    valueClassName={getSignedMetricClassName(row.unrealizedPnlUsd ?? row.unrealizedPnlPct)}
+                  >
+                    <Stack className="gap-0.5">
+                      <span className="whitespace-nowrap">{signedUsd(row.unrealizedPnlUsd)}</span>
+                      <span className="whitespace-nowrap text-xs">{signedPercent(row.unrealizedPnlPct)}</span>
+                    </Stack>
+                  </TableCardField>
+                  <TableCardField label="Est. Rebate" valueClassName="text-warning">
+                    {formatApproximateUsd(row.estimatedCashbackUsd)}
+                  </TableCardField>
+                  <TableCardField label="Open Since" valueClassName="text-subText">
+                    {formatDateTime(row.openedAt)}
+                  </TableCardField>
+                </div>
+
+                <PositionAction position={row} positionContext={positionContext} />
+              </Stack>
+            </div>
+          ))}
         </TableBody>
       </InfiniteScroll>
     </Stack>

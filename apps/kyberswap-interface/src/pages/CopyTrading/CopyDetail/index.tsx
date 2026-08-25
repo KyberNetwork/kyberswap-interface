@@ -86,23 +86,29 @@ const CopyRunStats = ({ run }: { run: CopyRunSummary }) => <Leaderboard items={g
 
 const CopyTimeline = ({ run }: { run: CopyRunSummary }) => {
   return (
-    <HStack className="items-center justify-between gap-5 rounded-xl bg-buttonBlack p-6 max-md:flex-col max-md:items-stretch">
-      <HStack className="items-center gap-5">
-        <Center className="min-h-12 rounded-xl bg-primary-12 px-6 py-2 text-lg font-medium text-primary">
+    <HStack className="items-center justify-between gap-5 rounded-xl bg-buttonBlack p-6 max-md:flex-col max-md:items-stretch max-sm:p-4">
+      <HStack className="items-center gap-5 max-sm:flex-col max-sm:items-stretch max-sm:gap-2">
+        <Center className="min-h-12 rounded-xl bg-primary-12 px-6 py-2 text-lg font-medium text-primary max-sm:min-h-10 max-sm:px-4 max-sm:text-base">
           Started Copy
         </Center>
-        <Stack>
+        <Stack className="min-w-0">
           <span className="text-sm text-subText">{formatDateTime(run.startedAt)}</span>
-          <span className="text-lg font-medium text-text">In: {formatUsd(getDisplayCapitalInUsd(run))}</span>
+          <span className="break-words text-lg font-medium text-text max-sm:text-base">
+            In: {formatUsd(getDisplayCapitalInUsd(run))}
+          </span>
         </Stack>
       </HStack>
       <div className="h-0.5 min-w-16 flex-1 bg-gradient-to-r from-primary to-red max-md:hidden" />
-      <HStack className="items-center justify-end gap-5 max-md:justify-start">
-        <Stack className="items-end max-md:items-start">
+      <HStack className="items-center justify-end gap-5 max-md:justify-start max-sm:flex-col-reverse max-sm:items-stretch max-sm:gap-2">
+        <Stack className="min-w-0 items-end max-md:items-start">
           <span className="text-right text-sm text-subText">{formatDateTime(run.stoppedAt)}</span>
-          <span className="text-lg font-medium text-text">Out: {formatUsd(run.capitalOutUsd)}</span>
+          <span className="break-words text-lg font-medium text-text max-sm:text-base">
+            Out: {formatUsd(run.capitalOutUsd)}
+          </span>
         </Stack>
-        <Center className="min-h-12 rounded-xl bg-red-20 px-6 py-2 text-lg font-medium text-red">Stopped Copy</Center>
+        <Center className="min-h-12 rounded-xl bg-red-20 px-6 py-2 text-lg font-medium text-red max-sm:min-h-10 max-sm:px-4 max-sm:text-base">
+          Stopped Copy
+        </Center>
       </HStack>
     </HStack>
   )
@@ -113,11 +119,11 @@ const CopyDetailContent = ({ agent, backPath, run }: CopyDetailContentProps) => 
     return (
       <>
         <div className="grid grid-cols-[minmax(0,1fr)_340px] gap-4 max-xl:grid-cols-1">
-          <Stack className="min-w-0 gap-4">
+          <Stack className="min-w-0 gap-4 max-xl:order-4">
             <CopyTimeline run={run} />
             <CopyRunPerformance copyRunId={run.copyRunId} status={run.status} />
           </Stack>
-          <StickySideColumn>
+          <StickySideColumn className="max-xl:contents">
             <CopySidePanel agent={agent} run={run} />
           </StickySideColumn>
         </div>
@@ -131,14 +137,14 @@ const CopyDetailContent = ({ agent, backPath, run }: CopyDetailContentProps) => 
       <CopyRunStats run={run} />
 
       <div className="grid grid-cols-[minmax(0,1fr)_340px] gap-4 max-xl:grid-cols-1">
-        <Stack className="min-w-0 gap-4">
+        <Stack className="min-w-0 gap-4 max-xl:order-4">
           <CopyDetailTabs
             defaultTab={run.status === 'stopped' || backPath !== 'history' ? 'open-positions' : 'closed-positions'}
             run={run}
           />
           <CopyRunPerformance copyRunId={run.copyRunId} status={run.status} />
         </Stack>
-        <StickySideColumn>
+        <StickySideColumn className="max-xl:contents">
           <CopySidePanel agent={agent} run={run} />
         </StickySideColumn>
       </div>
