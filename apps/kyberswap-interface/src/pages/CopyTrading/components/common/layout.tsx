@@ -63,8 +63,8 @@ export const CopyTradingPageHeading = ({ className, description, title }: CopyTr
   </Stack>
 )
 
-export const StickySideColumn = ({ children }: PropsWithChildren) => (
-  <aside className="sticky top-4 self-start max-xl:static">{children}</aside>
+export const StickySideColumn = ({ children, className }: PropsWithChildren<{ className?: string }>) => (
+  <aside className={cn('sticky top-4 self-start max-xl:static', className)}>{children}</aside>
 )
 
 export const ContentPanel = ({

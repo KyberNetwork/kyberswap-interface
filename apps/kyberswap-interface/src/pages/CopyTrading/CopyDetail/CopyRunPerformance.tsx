@@ -16,29 +16,12 @@ type CopyRunPerformanceProps = {
   status: CopyRunSummary['status']
 }
 
-const CopyRunPerformance = ({ copyRunId, status }: CopyRunPerformanceProps) => {
+const CopyRunCumulativeRealisedPnlChart = ({ copyRunId, status }: CopyRunPerformanceProps) => {
   const { ownerAddress } = useCopyTradingContext()
-  const [window, setWindow] = useState<PerformanceWindow>('30d')
-
+  const [realizedPnlWindow, setRealizedPnlWindow] = useState<PerformanceWindow>('30d')
   const isTerminal = status === 'stopped' || status === 'closed'
-  const performanceWindow = isTerminal ? 'all' : window
-  const interval = performanceWindow === 'all' ? 'month' : 'day'
-
-  const {
-    currentData: portfolioPerformance,
-    isError: isPortfolioError,
-    isFetching: isPortfolioFetching,
-  } = copyRunApi.useGetCopyRunPerformanceQuery(
-    {
-      ownerAddress: ownerAddress || '',
-      copyRunId,
-      interval,
-      limit: 100,
-      series: 'portfolio_value',
-      window: performanceWindow,
-    },
-    { pollingInterval: 10_000, skip: !ownerAddress || isTerminal },
-  )
+  const performanceRealizedPnlWindow = isTerminal ? 'all' : realizedPnlWindow
+  const realizedPnlInterval = performanceRealizedPnlWindow === 'all' ? 'month' : 'day'
 
   const {
     currentData: realizedPnlPerformance,
@@ -48,10 +31,50 @@ const CopyRunPerformance = ({ copyRunId, status }: CopyRunPerformanceProps) => {
     {
       ownerAddress: ownerAddress || '',
       copyRunId,
-      interval,
+      interval: realizedPnlInterval,
       limit: 100,
       series: 'cumulative_realized_pnl',
-      window: performanceWindow,
+      window: performanceRealizedPnlWindow,
+    },
+    { pollingInterval: 10_000, skip: !ownerAddress },
+  )
+
+  const realizedPnlData = useMemo(
+    () => (realizedPnlPerformance?.data || []).map(toPerformanceChartPoint),
+    [realizedPnlPerformance?.data],
+  )
+
+  return (
+    <CumulativeRealisedPnlChart
+      collapsible
+      data={realizedPnlData}
+      isError={isRealizedPnlError}
+      isFetching={isRealizedPnlFetching}
+      onWindowChange={isTerminal ? undefined : setRealizedPnlWindow}
+      window={isTerminal ? undefined : performanceRealizedPnlWindow}
+    />
+  )
+}
+
+type CopyRunCapitalValueChartProps = Pick<CopyRunPerformanceProps, 'copyRunId'>
+
+const CopyRunCapitalValueChart = ({ copyRunId }: CopyRunCapitalValueChartProps) => {
+  const { ownerAddress } = useCopyTradingContext()
+  const [capitalValueWindow, setCapitalValueWindow] = useState<PerformanceWindow>('30d')
+  const capitalValueInterval = capitalValueWindow === 'all' ? 'month' : 'day'
+
+  const {
+    currentData: portfolioPerformance,
+    isError: isPortfolioError,
+    isFetching: isPortfolioFetching,
+  } = copyRunApi.useGetCopyRunPerformanceQuery(
+    {
+      ownerAddress: ownerAddress || '',
+      copyRunId,
+      interval: capitalValueInterval,
+      limit: 100,
+      series: 'portfolio_value',
+      window: capitalValueWindow,
     },
     { pollingInterval: 10_000, skip: !ownerAddress },
   )
@@ -61,23 +84,25 @@ const CopyRunPerformance = ({ copyRunId, status }: CopyRunPerformanceProps) => {
     [portfolioPerformance?.data],
   )
 
-  const realizedPnlData = useMemo(
-    () => (realizedPnlPerformance?.data || []).map(toPerformanceChartPoint),
-    [realizedPnlPerformance?.data],
+  return (
+    <CapitalValueChart
+      collapsible
+      data={portfolioData}
+      isError={isPortfolioError}
+      isFetching={isPortfolioFetching}
+      onWindowChange={setCapitalValueWindow}
+      window={capitalValueWindow}
+    />
   )
+}
+
+const CopyRunPerformance = ({ copyRunId, status }: CopyRunPerformanceProps) => {
+  const isTerminal = status === 'stopped' || status === 'closed'
 
   return (
-    <Stack className="gap-6 rounded-xl bg-buttonBlack p-6">
-      <CumulativeRealisedPnlChart
-        data={realizedPnlData}
-        isError={isRealizedPnlError}
-        isFetching={isRealizedPnlFetching}
-        onWindowChange={isTerminal ? undefined : setWindow}
-        window={isTerminal ? undefined : performanceWindow}
-      />
-      {!isTerminal && (
-        <CapitalValueChart data={portfolioData} isError={isPortfolioError} isFetching={isPortfolioFetching} />
-      )}
+    <Stack className="gap-6 rounded-xl bg-buttonBlack p-6 max-md:-mx-4 max-md:gap-4 max-md:rounded-none max-md:p-4">
+      <CopyRunCumulativeRealisedPnlChart copyRunId={copyRunId} status={status} />
+      {!isTerminal && <CopyRunCapitalValueChart copyRunId={copyRunId} />}
     </Stack>
   )
 }

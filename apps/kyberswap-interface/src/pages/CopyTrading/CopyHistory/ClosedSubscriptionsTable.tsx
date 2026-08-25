@@ -1,9 +1,16 @@
-import { type HTMLAttributes } from 'react'
+import { type HTMLAttributes, type KeyboardEvent } from 'react'
 import type { CopyRunSummary } from 'services/copyTrading/types/copyRuns'
 
 import { Stack } from 'components/Stack'
 import CursorPagination, { type CursorPaginationState } from 'pages/CopyTrading/components/CursorPagination'
-import { HeaderCell, TableBody, TableCell, TableHeader, TableRow } from 'pages/CopyTrading/components/Table'
+import {
+  HeaderCell,
+  TableBody,
+  TableCardField,
+  TableCell,
+  TableHeader,
+  TableRow,
+} from 'pages/CopyTrading/components/Table'
 import { CopyRunAgentCell } from 'pages/CopyTrading/components/common/agentIdentity'
 import { copyTradingStatIconMap } from 'pages/CopyTrading/constants'
 import {
@@ -42,9 +49,16 @@ type ClosedSubscriptionsTableProps = {
 }
 
 const ClosedSubscriptionsTable = ({ loading, onOpenSubscription, pagination, rows }: ClosedSubscriptionsTableProps) => {
+  const handleOpenSubscriptionKeyDown = (event: KeyboardEvent<HTMLElement>, subscription: CopyRunSummary) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault()
+      onOpenSubscription(subscription)
+    }
+  }
+
   return (
-    <Stack className="overflow-hidden rounded-xl bg-buttonBlack-60">
-      <div className="ks-scrollbar relative max-h-[480px] overflow-auto">
+    <Stack className="gap-2 lg:gap-0 lg:overflow-hidden lg:rounded-xl lg:bg-buttonBlack-60">
+      <div className="ks-scrollbar relative hidden max-h-[480px] overflow-auto lg:block">
         <ClosedSubscriptionsGrid header className="sticky top-0 z-[1]">
           <HeaderCell>Agent</HeaderCell>
           <HeaderCell className="justify-end text-right">Closed Trades</HeaderCell>
@@ -63,46 +77,90 @@ const ClosedSubscriptionsTable = ({ loading, onOpenSubscription, pagination, row
           emptyMessage={pagination.error ? 'Unable to load copy history' : 'No closed copies found'}
           loading={loading}
         >
-          {rows.map(subscription => {
-            return (
-              <ClosedSubscriptionsGrid
-                key={subscription.copyRunId}
-                role="button"
-                tabIndex={0}
-                onClick={() => onOpenSubscription(subscription)}
-                onKeyDown={event => {
-                  if (event.key === 'Enter' || event.key === ' ') {
-                    event.preventDefault()
-                    onOpenSubscription(subscription)
-                  }
-                }}
-                className="cursor-pointer"
+          {rows.map(subscription => (
+            <ClosedSubscriptionsGrid
+              key={subscription.copyRunId}
+              role="button"
+              tabIndex={0}
+              onClick={() => onOpenSubscription(subscription)}
+              onKeyDown={event => handleOpenSubscriptionKeyDown(event, subscription)}
+              className="cursor-pointer"
+            >
+              <CopyRunAgentCell run={subscription} className="px-3 py-2" />
+              <TableCell className="text-right">
+                {formatCount(subscription.closedPositionCount ?? subscription.openPositionCount)}
+              </TableCell>
+              <TableCell className="flex flex-col text-right text-subText">
+                <span>{formatDateTime(subscription.startedAt)}</span>
+                <span>{formatDateTime(subscription.stoppedAt)}</span>
+              </TableCell>
+              <TableCell className="text-right">{formatUsd(getDisplayCapitalInUsd(subscription))}</TableCell>
+              <TableCell className="text-right">{formatUsd(subscription.portfolioValueUsd)}</TableCell>
+              <TableCell
+                className={cn('whitespace-nowrap text-right', getSignedMetricClassName(subscription.realizedPnlUsd))}
               >
-                <CopyRunAgentCell run={subscription} className="px-3 py-2" />
-                <TableCell className="text-right">
-                  {formatCount(subscription.closedPositionCount ?? subscription.openPositionCount)}
-                </TableCell>
-                <TableCell className="flex flex-col text-right text-subText">
-                  <span>{formatDateTime(subscription.startedAt)}</span>
-                  <span>{formatDateTime(subscription.stoppedAt)}</span>
-                </TableCell>
-                <TableCell className="text-right">{formatUsd(getDisplayCapitalInUsd(subscription))}</TableCell>
-                <TableCell className="text-right">{formatUsd(subscription.portfolioValueUsd)}</TableCell>
-                <TableCell
-                  className={cn('whitespace-nowrap text-right', getSignedMetricClassName(subscription.realizedPnlUsd))}
-                >
-                  {signedUsd(subscription.realizedPnlUsd)}
-                </TableCell>
-                <TableCell className="text-right">{formatUsd(subscription.flatFeesCapturedUsd)}</TableCell>
-                <TableCell className={cn('text-right', Number(subscription.cashbackReceivedUsd) > 0 && 'text-blue')}>
-                  {formatUsd(subscription.cashbackReceivedUsd)}
-                </TableCell>
-              </ClosedSubscriptionsGrid>
-            )
-          })}
+                {signedUsd(subscription.realizedPnlUsd)}
+              </TableCell>
+              <TableCell className="text-right">{formatUsd(subscription.flatFeesCapturedUsd)}</TableCell>
+              <TableCell className={cn('text-right', Number(subscription.cashbackReceivedUsd) > 0 && 'text-blue')}>
+                {formatUsd(subscription.cashbackReceivedUsd)}
+              </TableCell>
+            </ClosedSubscriptionsGrid>
+          ))}
         </TableBody>
       </div>
-      <CursorPagination {...pagination} />
+
+      <TableBody
+        className="grid gap-2 bg-transparent lg:hidden"
+        empty={!rows.length}
+        emptyIconUrl={copyTradingStatIconMap.positionClose.iconUrl}
+        emptyMessage={pagination.error ? 'Unable to load copy history' : 'No closed copies found'}
+        loading={loading}
+      >
+        {rows.map(subscription => (
+          <Stack
+            key={subscription.copyRunId}
+            role="button"
+            tabIndex={0}
+            className="cursor-pointer gap-3 rounded-xl bg-buttonBlack-60 p-3 outline-none transition-colors hover:bg-primary-10"
+            onClick={() => onOpenSubscription(subscription)}
+            onKeyDown={event => handleOpenSubscriptionKeyDown(event, subscription)}
+          >
+            <CopyRunAgentCell run={subscription} className="gap-3" />
+
+            <div className="grid grid-cols-2 gap-x-3 gap-y-2">
+              <TableCardField label="Closed Trades">
+                {formatCount(subscription.closedPositionCount ?? subscription.openPositionCount)}
+              </TableCardField>
+              <TableCardField label="Capital In">{formatUsd(getDisplayCapitalInUsd(subscription))}</TableCardField>
+              <TableCardField label="Current Balance">{formatUsd(subscription.portfolioValueUsd)}</TableCardField>
+              <TableCardField
+                label="Realised P&amp;L"
+                valueClassName={cn('whitespace-nowrap', getSignedMetricClassName(subscription.realizedPnlUsd))}
+              >
+                {signedUsd(subscription.realizedPnlUsd)}
+              </TableCardField>
+              <TableCardField label="Fees Paid">{formatUsd(subscription.flatFeesCapturedUsd)}</TableCardField>
+              <TableCardField
+                label="Rebates"
+                valueClassName={cn(Number(subscription.cashbackReceivedUsd) > 0 && 'text-blue')}
+              >
+                {formatUsd(subscription.cashbackReceivedUsd)}
+              </TableCardField>
+              <TableCardField label="Started" valueClassName="text-subText">
+                {formatDateTime(subscription.startedAt)}
+              </TableCardField>
+              <TableCardField label="Stopped" valueClassName="text-subText">
+                {formatDateTime(subscription.stoppedAt)}
+              </TableCardField>
+            </div>
+          </Stack>
+        ))}
+      </TableBody>
+
+      <div className="overflow-hidden rounded-xl lg:rounded-none">
+        <CursorPagination {...pagination} />
+      </div>
     </Stack>
   )
 }

@@ -3,7 +3,14 @@ import type { ActivityRow } from 'services/copyTrading/types/copyRuns'
 
 import { Stack } from 'components/Stack'
 import InfiniteScroll, { type InfiniteScrollState } from 'pages/CopyTrading/components/InfiniteScroll'
-import { HeaderCell, TableBody, TableCell, TableHeader, TableRow } from 'pages/CopyTrading/components/Table'
+import {
+  HeaderCell,
+  TableBody,
+  TableCardField,
+  TableCell,
+  TableHeader,
+  TableRow,
+} from 'pages/CopyTrading/components/Table'
 import { ShortenedId } from 'pages/CopyTrading/components/common/layout'
 import { getActivityLabel } from 'pages/CopyTrading/helpers'
 import { cn } from 'utils/cn'
@@ -46,26 +53,53 @@ export const ActionLogsTable = ({
   return (
     <Stack>
       <InfiniteScroll {...infiniteScroll}>
-        <ActivityGrid header className="sticky top-0 z-[1]">
+        <ActivityGrid header className="sticky top-0 z-[1] hidden md:grid">
           <HeaderCell>Trade ID</HeaderCell>
           <HeaderCell>Type</HeaderCell>
           <HeaderCell>Details</HeaderCell>
           <HeaderCell>Tx Hash</HeaderCell>
           <HeaderCell>Time</HeaderCell>
         </ActivityGrid>
-        <TableBody className="min-w-[900px]" empty={!rows.length} emptyMessage="No action logs found" loading={loading}>
+        <TableBody
+          className="grid gap-2 bg-transparent md:block md:min-w-[900px] md:bg-buttonBlack-60"
+          empty={!rows.length}
+          emptyMessage="No action logs found"
+          loading={loading}
+        >
           {rows.map(row => (
-            <ActivityGrid key={row.activityId}>
-              <TableCell className="text-subText">
-                <ShortenedId value={row.tradeId} />
-              </TableCell>
-              <TableCell className={activityColor(row)}>{getActivityLabel(row)}</TableCell>
-              <TableCell>{row.summary || '—'}</TableCell>
-              <TableCell className="text-subText">
-                <ShortenedId value={row.txHash} />
-              </TableCell>
-              <TableCell className="text-subText">{formatDateTime(row.occurredAt)}</TableCell>
-            </ActivityGrid>
+            <div key={row.activityId}>
+              <ActivityGrid className="max-md:hidden">
+                <TableCell className="text-subText">
+                  <ShortenedId value={row.tradeId} />
+                </TableCell>
+                <TableCell className={activityColor(row)}>{getActivityLabel(row)}</TableCell>
+                <TableCell>{row.summary || '—'}</TableCell>
+                <TableCell className="text-subText">
+                  <ShortenedId value={row.txHash} />
+                </TableCell>
+                <TableCell className="text-subText">{formatDateTime(row.occurredAt)}</TableCell>
+              </ActivityGrid>
+
+              <Stack className="gap-3 rounded-xl bg-buttonBlack-60 p-3 md:hidden">
+                <div className="grid grid-cols-2 gap-x-3 gap-y-2">
+                  <TableCardField label="Type" valueClassName={activityColor(row)}>
+                    {getActivityLabel(row)}
+                  </TableCardField>
+                  <TableCardField label="Time" valueClassName="text-right text-subText">
+                    {formatDateTime(row.occurredAt)}
+                  </TableCardField>
+                  <TableCardField label="Trade ID">
+                    <ShortenedId value={row.tradeId} />
+                  </TableCardField>
+                  <TableCardField label="Tx Hash" valueClassName="text-subText">
+                    <ShortenedId value={row.txHash} />
+                  </TableCardField>
+                  <TableCardField className="col-span-2" label="Details" valueClassName="break-words">
+                    {row.summary || '—'}
+                  </TableCardField>
+                </div>
+              </Stack>
+            </div>
           ))}
         </TableBody>
       </InfiniteScroll>
