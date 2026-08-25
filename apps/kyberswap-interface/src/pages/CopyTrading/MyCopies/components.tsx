@@ -87,9 +87,9 @@ const isSameActivityCopy = (left?: string, right?: string) =>
 
 export const AlertsFeed = ({ infiniteScroll, loading, rows }: AlertsFeedProps) => {
   return (
-    <ContentPanel bodyClassName="px-6 py-5" title="Alerts Feed">
-      <InfiniteScroll {...infiniteScroll} className="max-h-[360px] pr-2">
-        <Stack className="gap-5">
+    <ContentPanel title="Alerts Feed">
+      <InfiniteScroll {...infiniteScroll} className="max-h-[400px]" scrollbar="vertical">
+        <Stack className="gap-5 px-6 py-5">
           {rows.map(item => {
             const agentName = getActivityAgentName(item)
             const activityLabel = getActivityLabel(item)
