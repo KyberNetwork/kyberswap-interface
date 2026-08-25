@@ -11,7 +11,6 @@ import type {
 import type {
   ActivityType,
   Address,
-  CapitalInProjectionStatus,
   CopyAccountStatus,
   CopyRunStatus,
   CopyRunView,
@@ -49,7 +48,6 @@ export type CopyRunSummary = {
   chainId: number
   copyAccount: Address
   status: CopyRunStatus
-  capitalInProjectionStatus: CapitalInProjectionStatus
   startedAt: Timestamp
   stoppedAt?: Timestamp
   capitalInUsd?: DecimalString

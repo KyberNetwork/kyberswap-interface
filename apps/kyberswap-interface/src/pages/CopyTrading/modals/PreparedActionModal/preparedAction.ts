@@ -58,6 +58,7 @@ export type PreparedActionExpectation = {
   startCopyCreateAmountRaw?: string
   startCopyRequestId?: string
   startCopyTargetRaw?: string
+  withdrawAmountRaw?: string
 }
 
 export const getApiErrorMessage = (error: unknown) => {
@@ -227,6 +228,15 @@ export const validatePreparedAction = (
         return 'The completed Start Copy action is missing its Smart Wallet identity.'
       }
     }
+  }
+
+  if (
+    expected.preview === 'withdrawQuote' &&
+    expected.withdrawAmountRaw &&
+    action.status === 'PREPARED_ACTION_STATUS_READY' &&
+    action.withdrawQuote?.sweepAmountRaw !== expected.withdrawAmountRaw
+  ) {
+    return 'The prepared withdrawal amount does not match the requested amount.'
   }
 
   if (requireCall || action.status === 'PREPARED_ACTION_STATUS_PENDING') {

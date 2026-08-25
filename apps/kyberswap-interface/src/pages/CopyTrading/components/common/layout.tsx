@@ -31,7 +31,7 @@ type ContentPanelProps = PropsWithChildren<{
   titleAddon?: ReactNode
 }>
 
-type ResponsiveDetailOrder = 1 | 2 | 3 | 4 | 5 | 6
+type ResponsiveDetailOrder = 1 | 2 | 3 | 4 | 5 | 6 | 7
 
 type ResponsiveDetailItemProps = HTMLAttributes<HTMLDivElement> & {
   fullWidth?: boolean
@@ -45,6 +45,7 @@ const responsiveDetailOrderClassName: Record<ResponsiveDetailOrder, string> = {
   4: 'max-xl:order-4',
   5: 'max-xl:order-5',
   6: 'max-xl:order-6',
+  7: 'max-xl:order-7',
 }
 
 export const CopyTradingPage = ({ children, backTo, className }: CopyTradingPageProps) => {

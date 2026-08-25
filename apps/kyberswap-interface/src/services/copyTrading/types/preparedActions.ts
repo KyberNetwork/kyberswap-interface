@@ -253,7 +253,9 @@ export type PrepareStopCopyRequest = PrepareCopyRunRequest & {
   slippageBps: number
 }
 
-export type PrepareWithdrawQuoteRequest = PrepareCopyRunRequest
+export type PrepareWithdrawQuoteRequest = PrepareCopyRunRequest & {
+  amountRaw: string
+}
 
 export type PreparePositionRequest = PrepareCopyRunRequest & {
   userPositionId: string

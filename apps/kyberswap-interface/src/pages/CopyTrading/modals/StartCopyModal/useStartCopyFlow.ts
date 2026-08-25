@@ -8,7 +8,7 @@ import type { CopyRunSummary } from 'services/copyTrading/types/copyRuns'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
-import { getPreparedReasonMessage, isActionAvailable } from 'pages/CopyTrading/helpers'
+import { canAttemptPreparation, getPreparedReasonMessage } from 'pages/CopyTrading/helpers'
 import useRefreshCopyTrading from 'pages/CopyTrading/hooks/useRefreshCopyTrading'
 import { type CapitalPercentage } from 'pages/CopyTrading/modals/CapitalAmount/capital'
 import { useCapitalAmount } from 'pages/CopyTrading/modals/CapitalAmount/useCapitalAmount'
@@ -116,17 +116,14 @@ export const useStartCopyFlow = ({ agent, onDismiss }: { agent: StartCopyTarget;
 
   const preparedWalletBalanceRaw = startPreview?.walletQuoteBalance?.valueRaw
   const requiredWalletBalanceRaw = startPreview?.remainingTargetDeficit?.valueRaw || capital.amountRaw
-  const preparedBalanceIsInsufficient =
-    !!requiredWalletBalanceRaw &&
-    !!preparedWalletBalanceRaw &&
-    BigInt(requiredWalletBalanceRaw) > BigInt(preparedWalletBalanceRaw)
   const confirmBalanceError =
-    capital.amountError ||
-    (preparedBalanceIsInsufficient
+    requiredWalletBalanceRaw &&
+    preparedWalletBalanceRaw &&
+    BigInt(requiredWalletBalanceRaw) > BigInt(preparedWalletBalanceRaw)
       ? 'Insufficient ' + (capital.quoteToken?.symbol || 'quote token') + ' balance.'
-      : undefined)
+      : undefined
 
-  const availabilityMessage = !isActionAvailable(agent.startCopyAvailability)
+  const availabilityMessage = !canAttemptPreparation(agent.startCopyAvailability)
     ? getPreparedReasonMessage(agent.startCopyAvailability?.reason)
     : undefined
   const primaryActionLabel = !account
@@ -212,11 +209,13 @@ export const useStartCopyFlow = ({ agent, onDismiss }: { agent: StartCopyTarget;
         const nextValidationError = validatePreparedAction(action, attempt.expected, { requireCall: false })
         if (nextValidationError) throw new Error(nextValidationError)
 
+        const unavailable = action.status === 'PREPARED_ACTION_STATUS_UNAVAILABLE'
+        const pending = action.status === 'PREPARED_ACTION_STATUS_PENDING'
         setFlowState({
-          phase: action.status === 'PREPARED_ACTION_STATUS_UNAVAILABLE' ? 'unavailable' : 'error',
+          phase: unavailable ? 'unavailable' : pending ? 'pending' : 'error',
           action,
           error:
-            action.status === 'PREPARED_ACTION_STATUS_UNAVAILABLE'
+            unavailable || pending
               ? getPreparedReasonMessage(action.reason)
               : 'The authorized Start Copy preparation did not return a ready create call.',
         })
