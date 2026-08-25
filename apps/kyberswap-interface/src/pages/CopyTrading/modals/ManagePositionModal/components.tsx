@@ -122,6 +122,7 @@ export const ManagePositionForm = ({
 
       <ButtonPrimary
         type="button"
+        altDisabledStyle
         disabled={primaryActionDisabled}
         title={unavailableMessage}
         onClick={onPrimaryAction}

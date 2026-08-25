@@ -160,9 +160,6 @@ export type ExecutionActivityDetail = {
   configIndex?: number
   minBaseTokenRateRaw?: string
   configDeadlineRaw?: string
-  token?: Token
-  displayAmountRaw?: string
-  valueUsd?: Metric
 }
 
 export type PositionEvent = {

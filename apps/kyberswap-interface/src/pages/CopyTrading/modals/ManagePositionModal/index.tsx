@@ -23,6 +23,7 @@ import PreparedActionModal, { PreparedActionSuccessActions } from 'pages/CopyTra
 import { DEFAULT_PREPARED_ACTION_SLIPPAGE } from 'pages/CopyTrading/modals/PreparedActionModal/SlippageControl'
 import { DEFAULT_PREPARED_ACTION_STATE } from 'pages/CopyTrading/modals/PreparedActionModal/preparedAction'
 import { usePreparedAction } from 'pages/CopyTrading/modals/PreparedActionModal/usePreparedAction'
+import { isWritePrimaryActionDisabled } from 'pages/CopyTrading/modals/writeAction'
 import { useWalletModalToggle } from 'state/application/hooks'
 
 export type ManagePositionFlow = 'manualSell' | 'closePosition'
@@ -221,7 +222,13 @@ const ManagePositionModal = ({ isOpen, onDismiss, position, flow: positionFlow }
     navigate(flowConfig.destination)
   }
 
-  const unavailableMessage = !actionAdvertised
+  const identityMessage =
+    !copyRunId || !copyAccount || !userPositionId
+      ? 'The selected position is missing write-flow identity fields.'
+      : undefined
+  const unavailableMessage = identityMessage
+    ? identityMessage
+    : !actionAdvertised
     ? 'The selected position does not advertise ' + flowConfig.actionLabel + '.'
     : undefined
   const primaryActionLabel = !account
@@ -265,7 +272,12 @@ const ManagePositionModal = ({ isOpen, onDismiss, position, flow: positionFlow }
         onPrimaryAction={handlePrimaryAction}
         onSlippageChange={setSlippage}
         position={position}
-        primaryActionDisabled={flowState.isPreparing || (!!account && onExpectedChain && !!unavailableMessage)}
+        primaryActionDisabled={isWritePrimaryActionDisabled({
+          accountConnected: !!account,
+          executionBlocked: !!unavailableMessage,
+          interactionLocked: flowState.isPreparing === true,
+          onExpectedChain,
+        })}
         primaryActionLabel={primaryActionLabel}
         slippage={slippage}
         unavailableMessage={unavailableMessage}

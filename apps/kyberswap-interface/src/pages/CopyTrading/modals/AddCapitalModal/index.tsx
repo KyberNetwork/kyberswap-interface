@@ -9,10 +9,10 @@ import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import {
+  canAttemptPreparation,
   formatTokenAmount,
   getDisplayCapitalInUsd,
   getPreparedReasonMessage,
-  isActionAvailable,
   sumUsdValues,
 } from 'pages/CopyTrading/helpers'
 import useRefreshCopyTrading from 'pages/CopyTrading/hooks/useRefreshCopyTrading'
@@ -139,7 +139,7 @@ const AddCapitalModal = ({ isOpen, onDismiss, copyRun }: AddCapitalModalProps) =
 
   const availabilityMessage = ownershipMessage
     ? ownershipMessage
-    : !isActionAvailable(copyRun.addCapitalAvailability)
+    : !canAttemptPreparation(copyRun.addCapitalAvailability)
     ? getPreparedReasonMessage(copyRun.addCapitalAvailability?.reason)
     : undefined
   const primaryActionLabel = !account

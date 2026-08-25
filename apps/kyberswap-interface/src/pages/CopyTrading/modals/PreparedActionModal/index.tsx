@@ -81,6 +81,7 @@ type PreparedActionModalProps = {
   successText?: string
   successTitle?: string
   title: ReactNode
+  unavailableShowBackAction?: boolean
   width?: number
 }
 
@@ -144,6 +145,7 @@ const PreparedActionModal = ({
   successText = 'The transaction is confirmed on-chain. Copy Trading data will refresh in the background.',
   successTitle = 'Action completed',
   title,
+  unavailableShowBackAction = false,
   width = 460,
 }: PreparedActionModalProps) => {
   const [expandedError, setExpandedError] = useState<string>()
@@ -152,7 +154,11 @@ const PreparedActionModal = ({
   const scanLink = state.hash && chainId ? getEtherscanLink(chainId, state.hash, 'transaction') : undefined
   const processing = isProcessing(state)
   const processingCopy = getProcessingCopy(state)
-  const recovery = getRecoveryViewModel(state)
+  const defaultRecovery = getRecoveryViewModel(state)
+  const recovery =
+    defaultRecovery && state.phase === 'unavailable' && unavailableShowBackAction
+      ? { ...defaultRecovery, showBackAction: true }
+      : defaultRecovery
   const reviewPreparing = state.phase === 'review' && state.isPreparing === true
   const interactionLocked = confirmLoading || reviewPreparing
   const recoveryError = state.error ? friendlyError(state.error) : undefined
@@ -189,13 +195,6 @@ const PreparedActionModal = ({
           {state.phase === 'review' && (
             <Stack className="gap-4">
               {review}
-              {!!state.action?.warnings?.length && (
-                <Stack className="gap-1 rounded-xl bg-warning-20 px-3 py-2 text-xs text-warning">
-                  {state.action.warnings.map(warning => (
-                    <p key={warning}>{warning.replace('PREPARED_ACTION_WARNING_', '').replaceAll('_', ' ')}</p>
-                  ))}
-                </Stack>
-              )}
               <HStack className="gap-3">
                 {onBack && (
                   <ButtonOutlined type="button" className="flex-1" disabled={interactionLocked} onClick={onBack}>
@@ -205,6 +204,7 @@ const PreparedActionModal = ({
                 <ButtonPrimary
                   type="button"
                   className="flex-1"
+                  altDisabledStyle
                   disabled={interactionLocked || confirmDisabled}
                   onClick={onConfirm}
                 >
@@ -316,7 +316,13 @@ const PreparedActionModal = ({
                 >
                   {recovery.showBackAction ? 'Back' : 'Close'}
                 </ButtonOutlined>
-                <ButtonPrimary type="button" className="flex-1" disabled={state.isPreparing} onClick={onRetry}>
+                <ButtonPrimary
+                  type="button"
+                  className="flex-1"
+                  altDisabledStyle
+                  disabled={state.isPreparing}
+                  onClick={onRetry}
+                >
                   {state.isPreparing ? (
                     <Dots>{recovery.retryLabel}</Dots>
                   ) : (

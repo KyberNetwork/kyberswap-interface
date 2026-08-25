@@ -40,10 +40,10 @@ const preparedActionApi = copyTradingBaseApi.injectEndpoints({
       }),
     }),
     prepareWithdrawQuote: builder.mutation<PrepareWithdrawQuoteResponse, PrepareWithdrawQuoteRequest>({
-      query: ({ ownerAddress, copyRunId }) => ({
+      query: ({ ownerAddress, copyRunId, amountRaw }) => ({
         url: '/users/' + pathPart(ownerAddress) + '/copy-runs/' + pathPart(copyRunId) + ':prepareWithdrawQuote',
         method: 'POST',
-        body: {},
+        body: { amountRaw },
       }),
     }),
     prepareManualSell: builder.mutation<PrepareManualSellResponse, PrepareManualSellRequest>({

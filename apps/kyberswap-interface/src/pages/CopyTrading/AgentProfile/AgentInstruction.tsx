@@ -17,16 +17,11 @@ import { CopyCapitalCard } from 'pages/CopyTrading/components/AgentSidebarCards/
 import { SidePanelCard } from 'pages/CopyTrading/components/AgentSidebarCards/SidePanelCard'
 import { ResponsiveDetailContents, ResponsiveDetailItem } from 'pages/CopyTrading/components/common/layout'
 import { useCopyTradingContext } from 'pages/CopyTrading/context'
-import {
-  formatUsd,
-  getDisplayCapitalInUsd,
-  getPreparedReasonMessage,
-  isActionAvailable,
-} from 'pages/CopyTrading/helpers'
+import { canAttemptPreparation, formatDisplayCapitalInUsd, getPreparedReasonMessage } from 'pages/CopyTrading/helpers'
 import { useCopyTradingModal } from 'pages/CopyTrading/modals/context'
 
 const StartCopyCard = ({ availability, onCopy }: { availability?: AdvisoryActionAvailability; onCopy: () => void }) => {
-  const disabled = !isActionAvailable(availability)
+  const disabled = !canAttemptPreparation(availability)
 
   return (
     <SidePanelCard title="Copy This Agent">
@@ -35,6 +30,7 @@ const StartCopyCard = ({ availability, onCopy }: { availability?: AdvisoryAction
       </p>
       <ButtonPrimary
         type="button"
+        altDisabledStyle
         padding="10px 12px"
         disabled={disabled}
         title={disabled ? getPreparedReasonMessage(availability?.reason) : undefined}
@@ -72,7 +68,7 @@ const AgentInstruction = ({ agent }: AgentInstructionProps) => {
   const copyActionCard = activeCopyRun ? (
     <CopyCapitalCard
       addCapitalAvailability={activeCopyRun.addCapitalAvailability}
-      capital={formatUsd(getDisplayCapitalInUsd(activeCopyRun))}
+      capital={formatDisplayCapitalInUsd(activeCopyRun)}
       onView={() => navigate(`${APP_PATHS.COPY_TRADING}/my-copies/${activeCopyRun.copyRunId}`)}
       onAddCapital={() => openAddCapital(activeCopyRun)}
     />

@@ -64,16 +64,10 @@ const getActivityAgentName = (activity: ActivityRow) =>
   activity.agentDisplayName || activity.agentId.replace(/[-_]/g, ' ') || 'Unknown Agent'
 
 const getActivityTokenSymbol = (activity: ActivityRow) =>
-  activity.position?.baseToken?.symbol ||
-  activity.capital?.token?.symbol ||
-  activity.fee?.token?.symbol ||
-  activity.execution?.token?.symbol
+  activity.position?.baseToken?.symbol || activity.capital?.token?.symbol || activity.fee?.token?.symbol
 
 const getActivityValueUsd = (activity: ActivityRow) =>
-  activity.position?.settlementValueUsd?.value ||
-  activity.capital?.valueUsd?.value ||
-  activity.fee?.valueUsd?.value ||
-  activity.execution?.valueUsd?.value
+  activity.position?.settlementValueUsd?.value || activity.capital?.valueUsd?.value || activity.fee?.valueUsd?.value
 
 const normalizeActivityCopy = (value?: string) =>
   value

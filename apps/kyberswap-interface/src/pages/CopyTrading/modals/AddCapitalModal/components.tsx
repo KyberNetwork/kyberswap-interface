@@ -5,6 +5,7 @@ import Dots from 'components/Dots'
 import { HStack, Stack } from 'components/Stack'
 import CapitalAmountInput from 'pages/CopyTrading/modals/CapitalAmount'
 import { type CapitalPercentage } from 'pages/CopyTrading/modals/CapitalAmount/capital'
+import { isWritePrimaryActionDisabled } from 'pages/CopyTrading/modals/writeAction'
 
 const CapitalSummaryRow = ({ label, value }: { label: string; value: string }) => (
   <HStack className="items-center justify-between gap-4">
@@ -80,7 +81,13 @@ export const AddCapitalForm = ({
       </p>
       <ButtonPrimary
         type="button"
-        disabled={isPreparing || (accountConnected && onExpectedChain && (!amountIsValid || !!availabilityMessage))}
+        altDisabledStyle
+        disabled={isWritePrimaryActionDisabled({
+          accountConnected,
+          executionBlocked: !amountIsValid || !!availabilityMessage,
+          interactionLocked: isPreparing,
+          onExpectedChain,
+        })}
         title={amountError || availabilityMessage}
         onClick={onPrimaryAction}
       >

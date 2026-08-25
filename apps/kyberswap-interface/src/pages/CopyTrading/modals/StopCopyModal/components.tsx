@@ -264,6 +264,7 @@ export const StopCopyForm = ({
 
       <ButtonPrimary
         type="button"
+        altDisabledStyle
         disabled={primaryActionDisabled}
         title={availabilityMessage}
         onClick={onPrimaryAction}

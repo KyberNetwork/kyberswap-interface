@@ -6,7 +6,7 @@ import {
   SidePanelCard,
   type SidePanelCardWrapperProps,
 } from 'pages/CopyTrading/components/AgentSidebarCards/SidePanelCard'
-import { getPreparedReasonMessage, isActionAvailable } from 'pages/CopyTrading/helpers'
+import { canAttemptPreparation, getPreparedReasonMessage } from 'pages/CopyTrading/helpers'
 
 type CopyCapitalCardProps = SidePanelCardWrapperProps & {
   addCapitalAvailability?: AdvisoryActionAvailability
@@ -27,8 +27,8 @@ export const CopyCapitalCard = ({
   onStopCopy,
   ...sidePanelCardProps
 }: CopyCapitalCardProps) => {
-  const addCapitalDisabled = !isActionAvailable(addCapitalAvailability)
-  const stopCopyDisabled = !isActionAvailable(stopCopyAvailability)
+  const addCapitalDisabled = !canAttemptPreparation(addCapitalAvailability)
+  const stopCopyDisabled = !canAttemptPreparation(stopCopyAvailability)
   const hasActions = !!onStopCopy || !!onView || !!onAddCapital
 
   return (
@@ -64,6 +64,7 @@ export const CopyCapitalCard = ({
             <div className="w-full flex-1">
               <ButtonPrimary
                 type="button"
+                altDisabledStyle
                 padding="10px 12px"
                 disabled={addCapitalDisabled}
                 title={addCapitalDisabled ? getPreparedReasonMessage(addCapitalAvailability?.reason) : undefined}
@@ -86,7 +87,7 @@ export const WithdrawQuoteCard = ({
   availability?: AdvisoryActionAvailability
   onWithdraw: () => void
 }) => {
-  const disabled = !isActionAvailable(availability)
+  const disabled = !canAttemptPreparation(availability)
 
   return (
     <SidePanelCard title="Advanced">

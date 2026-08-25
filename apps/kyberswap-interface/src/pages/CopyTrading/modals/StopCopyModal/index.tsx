@@ -10,7 +10,7 @@ import type { PreparedCallKind } from 'services/copyTrading/types/preparedAction
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
-import { getPreparedReasonMessage, isActionAvailable, sumUsdValues } from 'pages/CopyTrading/helpers'
+import { canAttemptPreparation, getPreparedReasonMessage, sumUsdValues } from 'pages/CopyTrading/helpers'
 import useRefreshCopyTrading from 'pages/CopyTrading/hooks/useRefreshCopyTrading'
 import PreparedActionModal, { PreparedActionSuccessActions } from 'pages/CopyTrading/modals/PreparedActionModal'
 import { DEFAULT_PREPARED_ACTION_SLIPPAGE } from 'pages/CopyTrading/modals/PreparedActionModal/SlippageControl'
@@ -26,6 +26,7 @@ import {
   getUserPositionId,
   loadAllOpenCopyRunPositions,
 } from 'pages/CopyTrading/modals/StopCopyModal/positions'
+import { isWritePrimaryActionDisabled } from 'pages/CopyTrading/modals/writeAction'
 import { useWalletModalToggle } from 'state/application/hooks'
 
 type StopCopyModalProps = {
@@ -173,23 +174,23 @@ const StopCopyModal = ({ isOpen, onDismiss, copyRun, agentName }: StopCopyModalP
 
   const availabilityMessage = ownershipMessage
     ? ownershipMessage
-    : !isActionAvailable(copyRun.stopCopyAvailability)
+    : !canAttemptPreparation(copyRun.stopCopyAvailability)
     ? getPreparedReasonMessage(copyRun.stopCopyAvailability?.reason)
     : undefined
-  const primaryActionLabel =
-    positions === undefined
-      ? positionsError
-        ? 'Positions unavailable'
-        : 'Loading positions'
-      : !account
-      ? 'Connect wallet'
-      : !onExpectedChain
-      ? 'Switch network'
-      : availabilityMessage
-      ? 'Stop Copy unavailable'
-      : 'Review Stop Copy'
+  const primaryActionLabel = !account
+    ? 'Connect wallet'
+    : !onExpectedChain
+    ? 'Switch network'
+    : positions === undefined
+    ? positionsError
+      ? 'Positions unavailable'
+      : 'Loading positions'
+    : availabilityMessage
+    ? 'Stop Copy unavailable'
+    : 'Review Stop Copy'
 
-  const primaryActionLoading = flowState.isPreparing || (positions === undefined && !positionsError)
+  const primaryActionLoading =
+    flowState.isPreparing || (!!account && onExpectedChain && positions === undefined && !positionsError)
   const reviewPreparing = flowState.phase === 'review' && flowState.isPreparing === true
   const expectedPositionCount = Number(copyRun.openPositionCount)
 
@@ -224,12 +225,12 @@ const StopCopyModal = ({ isOpen, onDismiss, copyRun, agentName }: StopCopyModalP
         onTogglePosition={togglePosition}
         positions={positions === undefined ? undefined : selectablePositions}
         positionsError={positionsError}
-        primaryActionDisabled={
-          flowState.isPreparing ||
-          positions === undefined ||
-          !!positionsError ||
-          (!!account && onExpectedChain && !!availabilityMessage)
-        }
+        primaryActionDisabled={isWritePrimaryActionDisabled({
+          accountConnected: !!account,
+          executionBlocked: positions === undefined || !!positionsError || !!availabilityMessage,
+          interactionLocked: flowState.isPreparing === true,
+          onExpectedChain,
+        })}
         primaryActionLabel={primaryActionLabel}
         primaryActionLoading={primaryActionLoading}
         selectedPositionCount={selectedPositions.length}

@@ -13,7 +13,9 @@ type CapitalAmountInputProps = {
   isPreparing: boolean
   label: string
   onAmountChange: (amount: string) => void
-  onPercentageChange: (percentage: CapitalPercentage) => void
+  onBalanceClick?: () => void
+  onPercentageChange?: (percentage: CapitalPercentage) => void
+  presetActions?: readonly { disabled?: boolean; label: string; onClick: () => void }[]
   presetsEnabled: boolean
   quoteCurrency?: Token
   selectedChainId: number
@@ -28,7 +30,9 @@ const CapitalAmountInput = ({
   isPreparing,
   label,
   onAmountChange,
+  onBalanceClick,
   onPercentageChange,
+  presetActions,
   presetsEnabled,
   quoteCurrency,
   selectedChainId,
@@ -56,21 +60,34 @@ const CapitalAmountInput = ({
       disabledInput={isPreparing}
       id={inputId}
       dataTestId={inputId}
-      onBalanceClick={() => onPercentageChange(100)}
+      onBalanceClick={onBalanceClick || (onPercentageChange ? () => onPercentageChange(100) : undefined)}
       balanceActions={
         <HStack className="items-center gap-1">
-          {CAPITAL_PERCENTAGES.map(percentage => (
-            <ButtonEmpty
-              key={percentage}
-              type="button"
-              disabled={isPreparing || !presetsEnabled}
-              onClick={() => onPercentageChange(percentage)}
-              padding="2px 8px"
-              className="w-fit bg-subText-20 text-xs text-subText hover:text-text disabled:opacity-40 disabled:hover:text-subText"
-            >
-              {percentage}%
-            </ButtonEmpty>
-          ))}
+          {presetActions
+            ? presetActions.map(action => (
+                <ButtonEmpty
+                  key={action.label}
+                  type="button"
+                  disabled={isPreparing || !presetsEnabled || action.disabled}
+                  onClick={action.onClick}
+                  padding="2px 8px"
+                  className="w-fit bg-subText-20 text-xs text-subText hover:text-text disabled:opacity-40 disabled:hover:text-subText"
+                >
+                  {action.label}
+                </ButtonEmpty>
+              ))
+            : CAPITAL_PERCENTAGES.map(percentage => (
+                <ButtonEmpty
+                  key={percentage}
+                  type="button"
+                  disabled={isPreparing || !presetsEnabled}
+                  onClick={() => onPercentageChange?.(percentage)}
+                  padding="2px 8px"
+                  className="w-fit bg-subText-20 text-xs text-subText hover:text-text disabled:opacity-40 disabled:hover:text-subText"
+                >
+                  {percentage}%
+                </ButtonEmpty>
+              ))}
         </HStack>
       }
       positionMax="top"
