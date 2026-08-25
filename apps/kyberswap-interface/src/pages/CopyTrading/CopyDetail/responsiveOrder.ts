@@ -1,4 +1,6 @@
-/** Visual priority when Copy Detail collapses into one column below xl. */
+/**
+ * Visual priority when Copy Detail collapses into one column below xl.
+ */
 export const copyDetailResponsiveOrder = {
   capital: 1,
   risk: 2,

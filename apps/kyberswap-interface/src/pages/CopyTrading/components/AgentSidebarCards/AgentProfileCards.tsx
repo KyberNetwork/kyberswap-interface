@@ -7,19 +7,19 @@ import { SidePanelCard } from 'pages/CopyTrading/components/AgentSidebarCards/Si
 import { getWinRateClassName, getWinRateTone, percent } from 'pages/CopyTrading/helpers'
 import { cn } from 'utils/cn'
 
+const winRateBadgeVariants = {
+  positive: BadgeVariant.PRIMARY,
+  warning: BadgeVariant.WARNING,
+  negative: BadgeVariant.NEGATIVE,
+  neutral: undefined,
+} as const
+
 export const AgentRiskCard = ({ agent }: { agent: AgentProfile }) => {
   const winRatePct = agent.stats.winRatePct
   const winRate = Math.max(0, Math.min(100, Number(winRatePct || 0)))
   const winRateBackgroundClassName = getWinRateClassName(winRatePct, 'background')
   const winRateTone = getWinRateTone(winRatePct)
-  const winRateBadgeVariant =
-    winRateTone === 'positive'
-      ? BadgeVariant.PRIMARY
-      : winRateTone === 'warning'
-      ? BadgeVariant.WARNING
-      : winRateTone === 'negative'
-      ? BadgeVariant.NEGATIVE
-      : undefined
+  const winRateBadgeVariant = winRateBadgeVariants[winRateTone]
 
   return (
     <SidePanelCard>

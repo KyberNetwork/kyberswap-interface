@@ -1,4 +1,6 @@
-/** Visual priority when Agent Detail collapses into one column below xl. */
+/**
+ * Visual priority when Agent Detail collapses into one column below xl.
+ */
 export const agentProfileResponsiveOrder = {
   copyAction: 1,
   performance: 2,

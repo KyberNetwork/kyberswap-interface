@@ -1,15 +1,15 @@
 import copyRunApi from 'services/copyTrading/api/endpoints/copyRuns'
 import type { CopyRunSummary } from 'services/copyTrading/types/copyRuns'
 
-import { Center, HStack, Stack } from 'components/Stack'
+import { Stack } from 'components/Stack'
 import useTab from 'hooks/useTab'
 import { ActionLogsTable } from 'pages/CopyTrading/CopyDetail/tables/ActionLogsTable'
 import { CopyPositionsTable } from 'pages/CopyTrading/CopyDetail/tables/CopyPositionsTable'
 import { TradeHistoryTable } from 'pages/CopyTrading/CopyDetail/tables/TradeHistoryTable'
 import { useInfiniteCursorQuery } from 'pages/CopyTrading/components/InfiniteScroll'
+import { DetailTabBar, type DetailTabOption } from 'pages/CopyTrading/components/common/DetailTabBar'
 import { useCopyTradingContext } from 'pages/CopyTrading/context'
 import { formatCount } from 'pages/CopyTrading/helpers'
-import { cn } from 'utils/cn'
 
 const PAGE_SIZE = 10
 
@@ -27,6 +27,13 @@ const copyDetailTabLabels: Record<CopyDetailTab, string> = {
 const copyDetailTabShortLabels: Partial<Record<CopyDetailTab, string>> = {
   'closed-positions': 'History',
   'action-logs': 'Logs',
+}
+
+const getCopyDetailTabCount = (tab: CopyDetailTab, run: CopyRunSummary) => {
+  if (tab === 'closed-positions') return run.closedPositionCount
+  if (tab !== 'open-positions') return undefined
+
+  return run.status === 'stopped' ? run.leftoverPositionCount : run.openPositionCount
 }
 
 type CopyDetailTabsProps = {
@@ -138,57 +145,20 @@ export const CopyDetailTabs = ({
 
   const currentTab = activeTab || defaultTab
   const keepOpenPositionsLoaded = includeOpenPositions && (run.status === 'active' || run.status === 'closing')
+  const tabOptions: DetailTabOption<CopyDetailTab>[] = tabs.map(tab => {
+    const count = getCopyDetailTabCount(tab, run)
+
+    return {
+      badge: count === undefined ? undefined : formatCount(count),
+      label: copyDetailTabLabels[tab],
+      shortLabel: copyDetailTabShortLabels[tab],
+      value: tab,
+    }
+  })
 
   return (
     <Stack className="overflow-hidden rounded-xl bg-buttonBlack-60">
-      <HStack className="items-center border-b border-darkBorder bg-background">
-        <div className="flex min-w-0 flex-1 items-stretch overflow-x-auto" role="tablist">
-          {tabs.map((tab, index) => {
-            const active = currentTab === tab
-            const isLast = index === tabs.length - 1
-            const count =
-              tab === 'open-positions'
-                ? run.status === 'stopped'
-                  ? run.leftoverPositionCount
-                  : run.openPositionCount
-                : tab === 'closed-positions'
-                ? run.closedPositionCount
-                : undefined
-
-            return (
-              <button
-                key={tab}
-                aria-selected={active}
-                className={cn(
-                  'relative flex min-h-10 min-w-0 flex-auto cursor-pointer items-center justify-center gap-1 border-0 p-2 text-sm font-medium sm:flex-none sm:gap-2 sm:px-4',
-                  !isLast && 'border-r border-darkBorder',
-                  active
-                    ? 'bg-primary-15 text-primary shadow-[inset_0_-2px_0_var(--ks-primary)] hover:bg-primary-20 hover:text-primary'
-                    : 'bg-transparent text-subText hover:bg-tabActive-80 hover:text-text',
-                )}
-                onClick={() => setActiveTab(tab)}
-                role="tab"
-                type="button"
-              >
-                <span className="text-sm font-medium uppercase sm:hidden">
-                  {copyDetailTabShortLabels[tab] || copyDetailTabLabels[tab]}
-                </span>
-                <span className="hidden text-sm font-medium uppercase sm:inline">{copyDetailTabLabels[tab]}</span>
-                {count !== undefined && (
-                  <Center
-                    className={cn(
-                      'h-5 min-w-5 rounded-full px-1.5 text-xs',
-                      active ? 'bg-primary-20' : 'bg-subText-20',
-                    )}
-                  >
-                    {formatCount(count)}
-                  </Center>
-                )}
-              </button>
-            )
-          })}
-        </div>
-      </HStack>
+      <DetailTabBar activeTab={currentTab} onChange={setActiveTab} options={tabOptions} />
 
       {includeOpenPositions && (
         <div className="relative min-h-20" hidden={currentTab !== 'open-positions'} role="tabpanel">
