@@ -5,6 +5,7 @@ import useTokenBalance from 'hooks/useTokenBalance'
 import {
   CAPITAL_PERCENTAGES,
   type CapitalAction,
+  type CapitalInputQuoteToken,
   type CapitalPercentage,
   type CapitalPreset,
   getCapitalInputQuoteToken,
@@ -18,6 +19,31 @@ type UseCapitalAmountProps = {
   action: CapitalAction
   connectedChainId?: number
   targetChainId: number
+}
+
+type CapitalAmountErrorParams = {
+  amount: string
+  amountBelowMinimum: boolean
+  amountRaw?: string
+  insufficientBalance: boolean
+  minimumAmountRaw?: string
+  quoteToken?: CapitalInputQuoteToken
+}
+
+const getCapitalAmountError = ({
+  amount,
+  amountBelowMinimum,
+  amountRaw,
+  insufficientBalance,
+  minimumAmountRaw,
+  quoteToken,
+}: CapitalAmountErrorParams) => {
+  if (!amount || !quoteToken || !minimumAmountRaw) return undefined
+  if (!amountRaw || amountBelowMinimum) {
+    return `Minimum amount is ${formatPreparedAmount(minimumAmountRaw, quoteToken)}`
+  }
+  if (insufficientBalance) return `Insufficient ${quoteToken.symbol} balance`
+  return undefined
 }
 
 export const useCapitalAmount = ({ account, action, connectedChainId, targetChainId }: UseCapitalAmountProps) => {
@@ -58,14 +84,14 @@ export const useCapitalAmount = ({ account, action, connectedChainId, targetChai
   const minimumAmountRaw = quoteToken?.minimumAmountRaw[action]
   const amountBelowMinimum = !!amountRaw && !!minimumAmountRaw && BigInt(amountRaw) < BigInt(minimumAmountRaw)
   const insufficientBalance = !!amountRaw && !!walletBalanceRaw && BigInt(amountRaw) > BigInt(walletBalanceRaw)
-  const amountError =
-    !amount || !quoteToken || !minimumAmountRaw
-      ? undefined
-      : !amountRaw || amountBelowMinimum
-      ? `Minimum amount is ${formatPreparedAmount(minimumAmountRaw, quoteToken)}`
-      : insufficientBalance
-      ? `Insufficient ${quoteToken.symbol} balance`
-      : undefined
+  const amountError = getCapitalAmountError({
+    amount,
+    amountBelowMinimum,
+    amountRaw,
+    insufficientBalance,
+    minimumAmountRaw,
+    quoteToken,
+  })
   const amountIsValid = !!amountRaw && !amountBelowMinimum && !insufficientBalance && !walletBalanceLoading
 
   const onExpectedChain = connectedChainId === targetChainId

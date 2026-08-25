@@ -13,14 +13,14 @@ import WithdrawQuoteModal from 'pages/CopyTrading/modals/WithdrawQuoteModal'
 
 type ActiveModal =
   | { type: 'startCopy'; agent: StartCopyTarget }
-  | { type: 'addCapital'; copyRun: CopyRunSummary; agentName?: string }
+  | { type: 'addCapital'; copyRun: CopyRunSummary }
   | { type: 'stopCopy'; copyRun: CopyRunSummary; agentName?: string }
   | { type: 'withdrawQuote'; copyRun: CopyRunSummary; withdrawQuoteAvailability?: AdvisoryActionAvailability }
   | { type: 'managePosition'; position: PositionSummary; flow: ManagePositionFlow }
 
 type CopyTradingModalContextValue = {
   openStartCopy: (agent: StartCopyTarget) => void
-  openAddCapital: (copyRun: CopyRunSummary, agentName?: string) => void
+  openAddCapital: (copyRun: CopyRunSummary) => void
   openStopCopy: (copyRun: CopyRunSummary, agentName?: string) => void
   openWithdrawQuote: (copyRun: CopyRunSummary, availability?: AdvisoryActionAvailability) => void
   openManagePosition: (position: PositionSummary, flow: ManagePositionFlow) => void
@@ -44,7 +44,7 @@ export const CopyTradingModalProvider = ({ children }: PropsWithChildren) => {
   const value = useMemo<CopyTradingModalContextValue>(
     () => ({
       openStartCopy: agent => setActive({ type: 'startCopy', agent }),
-      openAddCapital: (copyRun, agentName) => setActive({ type: 'addCapital', copyRun, agentName }),
+      openAddCapital: copyRun => setActive({ type: 'addCapital', copyRun }),
       openStopCopy: (copyRun, agentName) => setActive({ type: 'stopCopy', copyRun, agentName }),
       openWithdrawQuote: (copyRun, withdrawQuoteAvailability) =>
         setActive({ type: 'withdrawQuote', copyRun, withdrawQuoteAvailability }),
@@ -59,9 +59,7 @@ export const CopyTradingModalProvider = ({ children }: PropsWithChildren) => {
     <CopyTradingModalContext.Provider value={value}>
       {children}
       {active?.type === 'startCopy' && <StartCopyModal isOpen onDismiss={close} agent={active.agent} />}
-      {active?.type === 'addCapital' && (
-        <AddCapitalModal isOpen onDismiss={close} copyRun={active.copyRun} agentName={active.agentName} />
-      )}
+      {active?.type === 'addCapital' && <AddCapitalModal isOpen onDismiss={close} copyRun={active.copyRun} />}
       {active?.type === 'stopCopy' && (
         <StopCopyModal isOpen onDismiss={close} copyRun={active.copyRun} agentName={active.agentName} />
       )}

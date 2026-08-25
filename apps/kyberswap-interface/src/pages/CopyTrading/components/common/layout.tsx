@@ -79,17 +79,23 @@ export const CopyTradingPageHeading = ({ className, description, title }: CopyTr
   </Stack>
 )
 
-/** Two-column detail layout that stacks and supports content reordering below xl. */
+/**
+ * Two-column detail layout that stacks and supports content reordering below xl.
+ */
 export const ResponsiveDetailGrid = ({ className, ...props }: HTMLAttributes<HTMLDivElement>) => (
   <div className={cn('grid grid-cols-[minmax(0,1fr)_340px] gap-4 max-xl:grid-cols-1', className)} {...props} />
 )
 
-/** Removes a grouping wrapper below xl so its items can participate in the parent grid order. */
+/**
+ * Removes a grouping wrapper below xl so its items can participate in the parent grid order.
+ */
 export const ResponsiveDetailContents = ({ className, ...props }: StackProps) => (
   <Stack className={cn('gap-4 max-xl:contents', className)} {...props} />
 )
 
-/** Owns responsive ordering while keeping each screen's content priority explicit. */
+/**
+ * Owns responsive ordering while keeping each screen's content priority explicit.
+ */
 export const ResponsiveDetailItem = ({
   className,
   fullWidth = false,

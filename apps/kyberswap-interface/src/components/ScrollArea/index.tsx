@@ -8,9 +8,13 @@ export type ScrollbarOrientation = 'both' | 'horizontal' | 'vertical'
 export type ScrollbarSize = 'md' | 'sm'
 
 export type ScrollAreaProps = HTMLAttributes<HTMLDivElement> & {
-  /** Scrollbar thickness. Defaults to sm; use md for a wider scrollbar. */
+  /**
+   * Scrollbar thickness. Defaults to sm; use md for a wider scrollbar.
+   */
   size?: ScrollbarSize
-  /** Visible scrollbar axis. Defaults to horizontal for wide content such as tables. */
+  /**
+   * Visible scrollbar axis. Defaults to horizontal for wide content such as tables.
+   */
   scrollbar?: ScrollbarOrientation
 }
 

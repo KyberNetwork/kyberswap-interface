@@ -21,6 +21,13 @@ import { formatDate } from 'utils/time'
 
 type BadgeColor = 'magenta' | 'blue' | 'primary' | 'gray'
 
+const strategyBadgeColors: Record<StrategyKey, BadgeColor> = {
+  active: 'magenta',
+  diversified: 'blue',
+  focused: 'primary',
+  unknown: 'gray',
+}
+
 const Badge = ({ children, color }: PropsWithChildren<{ color: BadgeColor }>) => (
   <span
     className={cn(
@@ -35,11 +42,8 @@ const Badge = ({ children, color }: PropsWithChildren<{ color: BadgeColor }>) =>
   </span>
 )
 
-const getStrategyBadgeColor = (strategy: StrategyKey): BadgeColor =>
-  strategy === 'active' ? 'magenta' : strategy === 'diversified' ? 'blue' : strategy === 'focused' ? 'primary' : 'gray'
-
 const StrategyBadge = ({ strategy }: { strategy: StrategyKey }) => (
-  <Badge color={getStrategyBadgeColor(strategy)}>{strategyLabel(strategy)}</Badge>
+  <Badge color={strategyBadgeColors[strategy]}>{strategyLabel(strategy)}</Badge>
 )
 
 type AgentCellSize = 'sm' | 'lg'
