@@ -208,11 +208,16 @@ export function useAllTokenBalances(
 }
 
 // return list token has balance
-export const useTokensHasBalance = (includesImportToken = false) => {
+// `enabled=false` skips the per-block balanceOf multicall over the whole token map (for callers that
+// have another balance source) while keeping the return shape stable.
+export const useTokensHasBalance = (includesImportToken = false, enabled = true) => {
   const { chainId } = useActiveWeb3React()
   const whitelistTokens = useAllTokens()
 
-  const currencies: Token[] = useMemo(() => Object.values(whitelistTokens), [whitelistTokens])
+  const currencies: Token[] = useMemo(
+    () => (enabled ? Object.values(whitelistTokens) : (EMPTY_ARRAY as Token[])),
+    [whitelistTokens, enabled],
+  )
   const [currencyBalances, loadingBalance] = useTokenBalancesWithLoadingIndicator(currencies)
 
   const ethBalance = useNativeBalance()
@@ -221,6 +226,12 @@ export const useTokensHasBalance = (includesImportToken = false) => {
   const tokensHasBalanceAddresses = useMemo(() => tokensHasBalance.map(e => e.wrapped.address), [tokensHasBalance])
 
   useEffect(() => {
+    // Disabled means another source owns this surface: hold no list at all, so nothing here
+    // subscribes to prices and the null total-guard below still holds when the hook is re-enabled.
+    if (!enabled) {
+      setTokensHasBalance(EMPTY_ARRAY as Currency[])
+      return
+    }
     if (!loadingBalance && ethBalance) {
       // call once per chain
       const list: Currency[] = currencies.filter(currency => {
@@ -235,7 +246,7 @@ export const useTokensHasBalance = (includesImportToken = false) => {
       }
       setTokensHasBalance(list)
     }
-  }, [loadingBalance, currencies, currencyBalances, ethBalance, chainId, includesImportToken])
+  }, [enabled, loadingBalance, currencies, currencyBalances, ethBalance, chainId, includesImportToken])
 
   const tokensPrices = useTokenPrices(tokensHasBalanceAddresses)
 

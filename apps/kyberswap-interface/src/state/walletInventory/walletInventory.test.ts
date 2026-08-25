@@ -2,11 +2,12 @@ import { ChainId, Token } from '@kyberswap/ks-sdk-core'
 import { InventoryRow, adaptRow, parseRawAmount } from 'services/walletInventory'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { computeInventoryDiscoveries } from 'components/TokenSelectorModal/hooks/useInventoryDiscoveries'
 import { mergeHeldSearchResults } from 'components/TokenSelectorModal/utils'
 import { ETHER_ADDRESS } from 'constants/index'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
+import { isTokenListReady, rankWalletHoldings, selectWalletHoldings } from 'state/walletInventory/assets'
 import { INVENTORY_CATCHUP_INTERVAL_MS, INVENTORY_TTL_MS } from 'state/walletInventory/constants'
+import { computeInventoryDiscoveries } from 'state/walletInventory/discoveries'
 import { buildInventoryBalanceMap, resolveInventory } from 'state/walletInventory/resolve'
 import {
   InventoryEntry,
@@ -401,10 +402,101 @@ describe('computeInventoryDiscoveries', () => {
     expect(impersonators.size).toBe(0)
   })
 
+  it('hands back the same token instance for the same row across recomputes', () => {
+    const first = computeInventoryDiscoveries(activeInventory([heldRow(NOVEL, 'NOV')]), {}, [], ChainId.MAINNET)
+    const second = computeInventoryDiscoveries(activeInventory([heldRow(NOVEL, 'NOV')]), {}, [], ChainId.MAINNET)
+    // A native-balance tick rebuilds the inventory; the discovery rows must not be rebuilt with it.
+    expect(first.tokens[0]).toBe(second.tokens[0])
+  })
+
+  it('replaces a cached token when the indexer corrects its metadata, instead of keeping both', () => {
+    const before = computeInventoryDiscoveries(activeInventory([heldRow(NOVEL, '')]), {}, [], ChainId.MAINNET)
+    const after = computeInventoryDiscoveries(activeInventory([heldRow(NOVEL, 'NOV')]), {}, [], ChainId.MAINNET)
+    expect(before.tokens[0]).not.toBe(after.tokens[0])
+    expect(after.tokens[0].symbol).toBe('NOV')
+    // And the corrected instance is now the stable one.
+    const again = computeInventoryDiscoveries(activeInventory([heldRow(NOVEL, 'NOV')]), {}, [], ChainId.MAINNET)
+    expect(again.tokens[0]).toBe(after.tokens[0])
+  })
+
   it('drops rows without decimals rather than guessing an amount scale', () => {
     const bare: InventoryRow = { address: NOVEL, rawBalance: 5n, blockNumber: 1 }
     const { tokens } = computeInventoryDiscoveries(activeInventory([bare]), {}, [], ChainId.MAINNET)
     expect(tokens).toHaveLength(0)
+  })
+})
+
+describe('wallet assets', () => {
+  const DAI = '0x6B175474E89094C44Da98b954EedeAC495271d0F'
+  const FAKE = '0x1000000000000000000000000000000000000001'
+  const NOVEL = '0x2000000000000000000000000000000000000002'
+  const WETH_MAINNET = '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2'
+
+  const wrapped = (address: string, symbol: string, decimals: number, isWhitelisted?: boolean) =>
+    new WrappedTokenInfo({ chainId: ChainId.MAINNET, address, decimals, symbol, name: symbol, isWhitelisted })
+  const held = (address: string, rawBalance: bigint, symbol?: string, decimals?: number): InventoryRow => ({
+    address,
+    rawBalance,
+    blockNumber: 1,
+    symbol,
+    decimals,
+  })
+
+  // Whitelist: USDT (held), DAI (not held). Imports: FAKE (not held). Also held: native + unknown NOVEL.
+  const defaultTokens = {
+    [USDT_CHECKSUM]: wrapped(USDT_CHECKSUM, 'USDT', 6, true),
+    [DAI]: wrapped(DAI, 'DAI', 18, true),
+    [FAKE]: wrapped(FAKE, 'FAKE', 18),
+  }
+  const imports = [new Token(ChainId.MAINNET, FAKE, 18, 'FAKE')]
+  const inventory = {
+    rows: Object.fromEntries(
+      [held(USDT_CHECKSUM, 5_000_000n, 'USDT', 6), held(ETHER_ADDRESS, 10n ** 18n), held(NOVEL, 9n, 'NOV', 18)].map(
+        r => [r.address, r],
+      ),
+    ),
+    active: true,
+    settled: true,
+    pending: false,
+  }
+
+  it('reports the token list as not ready while the map holds nothing but imports', () => {
+    expect(isTokenListReady({}, [])).toBe(false)
+    expect(isTokenListReady({ [FAKE]: defaultTokens[FAKE] }, imports)).toBe(false)
+    expect(isTokenListReady(defaultTokens, imports)).toBe(true)
+  })
+
+  it('does no work and keeps one identity while the legacy hook owns the popup', () => {
+    const inactive = { rows: {}, active: false, settled: false, pending: false }
+    const first = selectWalletHoldings(inactive, defaultTokens, imports, ChainId.MAINNET)
+    const second = selectWalletHoldings(inactive, defaultTokens, imports, ChainId.MAINNET)
+    expect(first).toBe(second)
+    expect(first.vetted).toHaveLength(0)
+  })
+
+  it('vets held whitelisted tokens, imports even at zero, and the native currency', () => {
+    const holdings = selectWalletHoldings(inventory, defaultTokens, imports, ChainId.MAINNET)
+    const addresses = holdings.vetted.map(c => (c.isNative ? 'native' : c.wrapped.address))
+    expect(addresses).toEqual(expect.arrayContaining([USDT_CHECKSUM, FAKE, 'native']))
+    expect(addresses).not.toContain(DAI)
+    // The imported token the wallet does not hold shows as an explicit zero.
+    expect(holdings.currencyBalances[FAKE]?.quotient.toString()).toBe('0')
+    expect(holdings.currencyBalances[USDT_CHECKSUM]?.quotient.toString()).toBe('5000000')
+  })
+
+  it('keeps unvetted holdings in the hidden group, with their balance', () => {
+    const holdings = selectWalletHoldings(inventory, defaultTokens, imports, ChainId.MAINNET)
+    expect(holdings.hidden.map(t => t.address)).toEqual([NOVEL])
+    expect(holdings.currencyBalances[NOVEL]?.quotient.toString()).toBe('9')
+  })
+
+  it('ranks by USD value and totals only the vetted holdings', () => {
+    const holdings = selectWalletHoldings(inventory, defaultTokens, imports, ChainId.MAINNET)
+    // A price for the hidden token must not leak into the total.
+    const prices = { [USDT_CHECKSUM]: 1, [WETH_MAINNET]: 2000, [NOVEL]: 1_000_000 }
+    const ranked = rankWalletHoldings(holdings, inventory, ChainId.MAINNET, prices)
+    expect(ranked.currencies.map(c => (c.isNative ? 'native' : c.symbol))).toEqual(['native', 'USDT', 'FAKE'])
+    expect(ranked.totalBalanceInUsd).toBeCloseTo(2005, 6)
   })
 })
 

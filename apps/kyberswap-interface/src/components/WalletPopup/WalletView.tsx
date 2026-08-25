@@ -14,13 +14,13 @@ import ReceiveToken from 'components/WalletPopup/ReceiveToken'
 import RewardCenter from 'components/WalletPopup/RewardCenter'
 import SendToken from 'components/WalletPopup/SendToken'
 import ListTransaction from 'components/WalletPopup/Transactions'
+import { useWalletAssets } from 'components/WalletPopup/hooks/useWalletAssets'
 import { View as getView } from 'components/WalletPopup/type'
 import { CONNECTOR_ICON_OVERRIDE_MAP } from 'components/Web3Provider'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import useDisconnectWallet from 'hooks/web3/useDisconnectWallet'
-import { useTokensHasBalance } from 'state/wallet/hooks'
 import { ExternalLinkIcon } from 'theme'
 import { shortenAddress } from 'utils/address'
 import { cn } from 'utils/cn'
@@ -66,11 +66,19 @@ export default function WalletView({
     currencyBalances,
     totalBalanceInUsd,
     usdBalances,
-  } = useTokensHasBalance(true)
+    hiddenTokens,
+    impersonators,
+  } = useWalletAssets()
 
   const [hasNetworkIssue, setHasNetworkIssue] = useState(false)
   useEffect(() => {
-    const timeout = setTimeout(() => setHasNetworkIssue(loadingTokens), 10_000)
+    // Loading that finished must clear the notice at once — arming another 10s timer here would
+    // leave "network is slow" on screen over a list that has already arrived.
+    if (!loadingTokens) {
+      setHasNetworkIssue(false)
+      return
+    }
+    const timeout = setTimeout(() => setHasNetworkIssue(true), 10_000)
     return () => clearTimeout(timeout)
   }, [loadingTokens])
 
@@ -159,12 +167,17 @@ export default function WalletView({
             {renderAccountInfo()}
             {underTab}
             <MyAssets
+              // Every piece of per-wallet UI state (expanded hidden section, its paging, an open
+              // import) belongs to one (chain, account); remounting on a switch resets all of it.
+              key={`${chainId}-${account}`}
               hideBalance={!showBalance}
               hasNetworkIssue={hasNetworkIssue}
               loadingTokens={loadingTokens}
               tokens={currencies}
               usdBalances={usdBalances}
               currencyBalances={currencyBalances}
+              hiddenTokens={hiddenTokens}
+              impersonators={impersonators}
             />
           </div>
         )
