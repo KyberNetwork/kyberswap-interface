@@ -1,6 +1,6 @@
 # Copy Trading Implementation Status
 
-Last reviewed: 2026-08-24
+Last reviewed: 2026-08-25
 
 This is the single frontend-owned record for current code implementation,
 accepted product decisions, ownership, and static verification evidence. The
@@ -14,15 +14,15 @@ declared in the frontend service.
 
 ## Implementation at a Glance
 
-| Layer              | Current status                                                                                                                                                         |
-| ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| BE API catalog     | `CURRENT INPUT`: 32 public operations are documented.                                                                                                                  |
-| Checked-in OpenAPI | `CURRENT INPUT`: synchronized with the live 32-operation pre-release Swagger contract; wallet-session routes and Bearer security are removed.                          |
-| RTK Query service  | `CODE-COMPLETE`: all 26 GET and 6 POST operations are declared and typed.                                                                                              |
-| Read UI            | `CODE-COMPLETE`: all currently defined product surfaces are connected; 17 GET operations have UI consumers and nine service-only operations have no product surface.   |
-| Write UX           | `CODE-COMPLETE`: all six actions use prepared-action validation; Add Capital submits directly after preparation while the other review-bearing flows retain review.    |
-| Write integration  | `CODE-COMPLETE`: exact API-prepared calls, receipt-success completion, Start Copy list polling, stateless recovery preparation, and async cache refresh are connected. |
-| Responsive UI      | `CODE-COMPLETE`: all defined main Copy Trading pages use content-specific responsive navigation, cards, tables, metrics, tabs, side panels, and charts.                |
+| Layer              | Current status                                                                                                                                                                     |
+| ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| BE API catalog     | `CURRENT INPUT`: 32 public operations are documented.                                                                                                                              |
+| Checked-in OpenAPI | `CURRENT INPUT`: synchronized with the live 32-operation pre-release Swagger contract; wallet-session routes and Bearer security are removed.                                      |
+| RTK Query service  | `CODE-COMPLETE`: all 26 GET and 6 POST operations are declared and typed.                                                                                                          |
+| Read UI            | `CODE-COMPLETE`: all currently defined product surfaces are connected; 17 GET operations have UI consumers and nine service-only operations have no product surface.               |
+| Write UX           | `CODE-COMPLETE`: all six actions use prepared-action validation; Add Capital submits directly after preparation while the other review-bearing flows retain review.                |
+| Write integration  | `CODE-COMPLETE`: exact API-prepared calls, receipt-success completion, Start Copy list polling, stateless recovery preparation, and async cache refresh are connected.             |
+| Responsive UI      | `CODE-COMPLETE`: all defined main Copy Trading pages use content-specific responsive navigation, aligned card metrics, opt-in scroll areas, tables, tabs, side panels, and charts. |
 
 ## Changes Included Since the Previous Review
 
@@ -58,6 +58,19 @@ status update and the current working tree:
   layouts below the table breakpoint; compacts KPI cards, Agent identity,
   controls, and performance charts by content type; and keeps side-panel
   layouts from squeezing their primary content.
+- `1bfda56bf` adds the reusable application-level `ScrollArea`. Copy Trading
+  desktop tables opt into visible horizontal scrolling, while `InfiniteScroll`
+  supports horizontal, vertical, or both axes and defaults to both. The shared
+  component overrides the global hidden-scrollbar reset only where it is used,
+  retains native browser track and thumb styling, and exposes `sm` and `md`
+  thicknesses.
+- The current working tree standardizes responsive table-card content through
+  shared `TableCardGrid` and `TableCardField` primitives. Agent Leaderboard, My
+  Copies, Copy History, Agent Positions and Trade History, and Copy Detail Open
+  Positions, Trade History, and Action Logs use the same two-column rhythm.
+  Right-column labels and values align together, full-width identifiers and
+  details use an explicit span, status badges align with the Token value, and
+  long values remain bounded by the card.
 
 ## Contract and Service Coverage
 
@@ -209,6 +222,19 @@ meet at the same boundaries:
   In, Win Rate when available, Remaining in Wallet, main tabs and performance,
   then the remaining side cards. Copy Detail Trade History also uses cards
   instead of its 1320px table.
+
+Responsive table cards follow one content hierarchy: identity or Token and
+status first; full-width Trade ID or Details next; paired performance, price,
+balance, P&L, fee, and time metrics after that; and row actions last. The left
+column aligns left and the right column aligns right. My Copies intentionally
+lets its unmatched final Positions metric span the full row instead of leaving
+an empty half-row.
+
+Scrollable table surfaces use the generic `ScrollArea` instead of feature-
+specific scrollbar classes. Desktop table wrappers request horizontal
+scrolling; bounded `InfiniteScroll` collections retain both-axis overflow by
+default. Scrollbars keep the browser-native colors and appear only on surfaces
+that opt into the shared component.
 
 All defined main read surfaces now have responsive presentation. Desktop table
 layouts and their bounded horizontal scrolling remain unchanged above each
@@ -535,6 +561,10 @@ deferred as documented below.
   Prettier, all 51 Copy Trading unit tests, and staged/unstaged
   `git diff --check` pass. Responsive browser QA was intentionally left for
   manual verification and is not claimed here.
+- For the 2026-08-25 scroll-area and responsive card-alignment updates, app
+  TypeScript, targeted ESLint, Prettier, all 51 Copy Trading unit tests, and
+  `git diff --check` pass. Browser QA was unavailable in the current session;
+  responsive visual verification remains manual and is not claimed here.
 - Manual Sell, including its partial and 100% variants, and stopped-Copy Close
   Position positive live E2E remain deferred until controlled eligibility
   fixtures are available.

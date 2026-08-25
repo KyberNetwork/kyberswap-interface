@@ -21,8 +21,10 @@ type TableCellProps = HTMLAttributes<HTMLSpanElement> & {
 }
 
 type TableCardFieldProps = PropsWithChildren<{
+  align?: 'left' | 'right'
   className?: string
   label: string
+  span?: 'single' | 'full'
   valueClassName?: string
 }>
 
@@ -112,9 +114,29 @@ export const TableCell = ({ className, padding = 'default', ...rest }: TableCell
   <span className={cn('min-w-0 break-words', padding === 'default' && 'px-3 py-2', className)} {...rest} />
 )
 
-export const TableCardField = ({ children, className, label, valueClassName }: TableCardFieldProps) => (
-  <Stack className={cn('min-w-0 gap-0.5', className)}>
+/** Keeps responsive table-card metrics on the same two-column spacing rhythm. */
+export const TableCardGrid = ({ className, ...props }: HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('grid grid-cols-2 gap-x-3 gap-y-2', className)} {...props} />
+)
+
+/** Renders a label/value pair with card-safe wrapping and optional column alignment. */
+export const TableCardField = ({
+  align = 'left',
+  children,
+  className,
+  label,
+  span = 'single',
+  valueClassName,
+}: TableCardFieldProps) => (
+  <Stack
+    className={cn(
+      'min-w-0 gap-0.5',
+      span === 'full' && 'col-span-full',
+      align === 'right' && 'items-end text-right',
+      className,
+    )}
+  >
     <span className="text-xs font-medium uppercase text-subText">{label}</span>
-    <div className={cn('min-w-0 text-sm font-medium text-text', valueClassName)}>{children}</div>
+    <div className={cn('min-w-0 max-w-full text-sm font-medium text-text', valueClassName)}>{children}</div>
   </Stack>
 )

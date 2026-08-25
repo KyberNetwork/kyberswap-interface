@@ -14,6 +14,7 @@ import {
   HeaderCell,
   TableBody,
   TableCardField,
+  TableCardGrid,
   TableCell,
   TableHeader,
   TableRow,
@@ -227,18 +228,26 @@ const AgentTable = ({ agents, loading, pagination, sortBy, sortOrder, onSortChan
             >
               <AgentCell agent={agent} className="gap-3" />
 
-              <div className="grid grid-cols-2 gap-x-3 gap-y-2">
+              <TableCardGrid>
                 <TableCardField label="Agent APR 30D" valueClassName={getSignedMetricClassName(agent.stats.apr30dPct)}>
                   {percent(agent.stats.apr30dPct)}
                 </TableCardField>
-                <TableCardField label="Win Rate" valueClassName={getWinRateClassName(agent.stats.winRatePct)}>
+                <TableCardField
+                  align="right"
+                  label="Win Rate"
+                  valueClassName={getWinRateClassName(agent.stats.winRatePct)}
+                >
                   {percent(agent.stats.winRatePct)}
                 </TableCardField>
                 <TableCardField label="Volume">{compactUsd(agent.stats.volumeUsd)}</TableCardField>
-                <TableCardField label="Copiers">{formatCount(agent.stats.copiers)}</TableCardField>
+                <TableCardField align="right" label="Copiers">
+                  {formatCount(agent.stats.copiers)}
+                </TableCardField>
                 <TableCardField label="AUM">{compactUsd(agent.stats.aumUsd)}</TableCardField>
-                <TableCardField label="Positions">{formatCount(agent.stats.openPositions)}</TableCardField>
-              </div>
+                <TableCardField align="right" label="Positions">
+                  {formatCount(agent.stats.openPositions)}
+                </TableCardField>
+              </TableCardGrid>
 
               {copiedRun ? (
                 <span className="flex min-h-9 items-center justify-center text-sm font-medium text-primary">
