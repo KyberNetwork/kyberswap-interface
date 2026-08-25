@@ -297,9 +297,8 @@ const Sidebar = () => {
     listedCopyRun?.agentSnapshot?.displayName ||
     breadcrumbCopyRun?.data.agentSnapshot?.displayName ||
     agentById.get(breadcrumbCopyRun?.data.agentId || '')?.displayName ||
-    'Copy Details'
-  const profileAgentName =
-    breadcrumbAgent?.data.displayName || agentById.get(route.activeAgentCode)?.displayName || 'Agent Profile'
+    '' // Copy Details
+  const profileAgentName = breadcrumbAgent?.data.displayName || agentById.get(route.activeAgentCode)?.displayName || '' // Agent Profile
   const breadcrumbs = getBreadcrumbs(route, detailAgentName, profileAgentName)
 
   const selectChain = (chainId: number) => {

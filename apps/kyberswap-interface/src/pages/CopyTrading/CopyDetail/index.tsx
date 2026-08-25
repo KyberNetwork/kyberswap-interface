@@ -11,9 +11,15 @@ import useIsWalletRestoring from 'hooks/useIsWalletRestoring'
 import { CopyDetailTabs } from 'pages/CopyTrading/CopyDetail/CopyDetailTabs'
 import CopyRunPerformance from 'pages/CopyTrading/CopyDetail/CopyRunPerformance'
 import CopySidePanel from 'pages/CopyTrading/CopyDetail/CopySidePanel'
+import { copyDetailResponsiveOrder } from 'pages/CopyTrading/CopyDetail/responsiveOrder'
 import Leaderboard, { type LeaderboardStat } from 'pages/CopyTrading/components/Leaderboard'
 import { AgentIdentity } from 'pages/CopyTrading/components/common/agentIdentity'
-import { CopyTradingPage, StickySideColumn } from 'pages/CopyTrading/components/common/layout'
+import {
+  CopyTradingPage,
+  ResponsiveDetailGrid,
+  ResponsiveDetailItem,
+  StickySideColumn,
+} from 'pages/CopyTrading/components/common/layout'
 import { OwnerWalletRequired } from 'pages/CopyTrading/components/common/status'
 import { copyTradingStatIconMap } from 'pages/CopyTrading/constants'
 import { useCopyTradingContext } from 'pages/CopyTrading/context'
@@ -115,39 +121,26 @@ const CopyTimeline = ({ run }: { run: CopyRunSummary }) => {
 }
 
 const CopyDetailContent = ({ agent, backPath, run }: CopyDetailContentProps) => {
-  if (run.status === 'closed') {
-    return (
-      <>
-        <div className="grid grid-cols-[minmax(0,1fr)_340px] gap-4 max-xl:grid-cols-1">
-          <Stack className="min-w-0 gap-4 max-xl:order-4">
-            <CopyTimeline run={run} />
-            <CopyRunPerformance copyRunId={run.copyRunId} status={run.status} />
-          </Stack>
-          <StickySideColumn className="max-xl:contents">
-            <CopySidePanel agent={agent} run={run} />
-          </StickySideColumn>
-        </div>
-        <CopyDetailTabs defaultTab="closed-positions" includeOpenPositions={false} run={run} />
-      </>
-    )
-  }
+  const isClosed = run.status === 'closed'
+  const defaultTab = run.status === 'stopped' || backPath !== 'history' ? 'open-positions' : 'closed-positions'
 
   return (
     <>
-      <CopyRunStats run={run} />
+      {!isClosed && <CopyRunStats run={run} />}
 
-      <div className="grid grid-cols-[minmax(0,1fr)_340px] gap-4 max-xl:grid-cols-1">
-        <Stack className="min-w-0 gap-4 max-xl:order-4">
-          <CopyDetailTabs
-            defaultTab={run.status === 'stopped' || backPath !== 'history' ? 'open-positions' : 'closed-positions'}
-            run={run}
-          />
-          <CopyRunPerformance copyRunId={run.copyRunId} status={run.status} />
-        </Stack>
-        <StickySideColumn className="max-xl:contents">
+      <ResponsiveDetailGrid>
+        <ResponsiveDetailItem responsiveOrder={copyDetailResponsiveOrder.mainContent}>
+          <Stack className="gap-4">
+            {isClosed ? <CopyTimeline run={run} /> : <CopyDetailTabs defaultTab={defaultTab} run={run} />}
+            <CopyRunPerformance copyRunId={run.copyRunId} status={run.status} />
+          </Stack>
+        </ResponsiveDetailItem>
+        <StickySideColumn>
           <CopySidePanel agent={agent} run={run} />
         </StickySideColumn>
-      </div>
+      </ResponsiveDetailGrid>
+
+      {isClosed && <CopyDetailTabs defaultTab="closed-positions" includeOpenPositions={false} run={run} />}
     </>
   )
 }

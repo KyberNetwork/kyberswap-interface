@@ -11,8 +11,14 @@ import AgentStats from 'pages/CopyTrading/AgentProfile/AgentStats'
 import TabActions from 'pages/CopyTrading/AgentProfile/TabActions'
 import TabHistory from 'pages/CopyTrading/AgentProfile/TabHistory'
 import TabPositions from 'pages/CopyTrading/AgentProfile/TabPositions'
+import { agentProfileResponsiveOrder } from 'pages/CopyTrading/AgentProfile/responsiveOrder'
 import { AgentIdentity } from 'pages/CopyTrading/components/common/agentIdentity'
-import { CopyTradingPage, StickySideColumn } from 'pages/CopyTrading/components/common/layout'
+import {
+  CopyTradingPage,
+  ResponsiveDetailGrid,
+  ResponsiveDetailItem,
+  StickySideColumn,
+} from 'pages/CopyTrading/components/common/layout'
 import { type ProfileTab, profileTabLabel, profileTabShortLabel, profileTabs } from 'pages/CopyTrading/constants'
 import { cn } from 'utils/cn'
 
@@ -98,18 +104,20 @@ const AgentProfile = () => {
     <CopyTradingPage backTo={{ label: 'Leaderboard', to: APP_PATHS.COPY_TRADING }}>
       <AgentIdentity agent={profile} />
 
-      <div className="grid grid-cols-[minmax(0,1fr)_340px] gap-4 max-xl:grid-cols-1">
+      <ResponsiveDetailGrid>
         <AgentStats agentId={profile.agentId} />
         <StickySideColumn>
           <AgentInstruction agent={profile} />
         </StickySideColumn>
-      </div>
 
-      <Tabs activeTab={currentProfileTab} onTabChange={setActiveProfileTab}>
-        {currentProfileTab === 'open-position' && <TabPositions agentId={profile.agentId} />}
-        {currentProfileTab === 'trade-history' && <TabHistory agentId={profile.agentId} />}
-        {currentProfileTab === 'action-log' && <TabActions agentId={profile.agentId} />}
-      </Tabs>
+        <ResponsiveDetailItem fullWidth responsiveOrder={agentProfileResponsiveOrder.activity}>
+          <Tabs activeTab={currentProfileTab} onTabChange={setActiveProfileTab}>
+            {currentProfileTab === 'open-position' && <TabPositions agentId={profile.agentId} />}
+            {currentProfileTab === 'trade-history' && <TabHistory agentId={profile.agentId} />}
+            {currentProfileTab === 'action-log' && <TabActions agentId={profile.agentId} />}
+          </Tabs>
+        </ResponsiveDetailItem>
+      </ResponsiveDetailGrid>
     </CopyTradingPage>
   )
 }

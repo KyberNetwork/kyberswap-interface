@@ -10,6 +10,7 @@ import {
   HeaderCell,
   TableBody,
   TableCardField,
+  TableCardGrid,
   TableCell,
   TableHeader,
   TableRow,
@@ -196,20 +197,28 @@ const ActiveSubscriptionsTable = ({
           >
             <CopyRunAgentCell run={subscription} className="gap-3" />
 
-            <div className="grid grid-cols-2 gap-x-3 gap-y-2">
+            <TableCardGrid>
               <TableCardField
                 label="Agent APR"
                 valueClassName={getSignedMetricClassName(subscription.agentStats.apr30dPct)}
               >
                 {percent(subscription.agentStats.apr30dPct)}
               </TableCardField>
-              <TableCardField label="Win Rate" valueClassName={getWinRateClassName(subscription.agentStats.winRatePct)}>
+              <TableCardField
+                align="right"
+                label="Win Rate"
+                valueClassName={getWinRateClassName(subscription.agentStats.winRatePct)}
+              >
                 {percent(subscription.agentStats.winRatePct)}
               </TableCardField>
               <TableCardField label="Volume">{compactUsd(subscription.agentStats.volumeUsd)}</TableCardField>
-              <TableCardField label="Capital In">{formatUsd(getDisplayCapitalInUsd(subscription))}</TableCardField>
-              <TableCardField label="Positions">{formatCount(subscription.openPositionCount)}</TableCardField>
-            </div>
+              <TableCardField align="right" label="Capital In">
+                {formatUsd(getDisplayCapitalInUsd(subscription))}
+              </TableCardField>
+              <TableCardField span="full" label="Positions">
+                {formatCount(subscription.openPositionCount)}
+              </TableCardField>
+            </TableCardGrid>
 
             {renderStopCopyButton(subscription)}
           </Stack>

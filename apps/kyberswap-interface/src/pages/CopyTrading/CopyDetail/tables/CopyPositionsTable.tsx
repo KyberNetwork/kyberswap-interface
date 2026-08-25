@@ -8,6 +8,7 @@ import {
   HeaderCell,
   TableBody,
   TableCardField,
+  TableCardGrid,
   TableCell,
   TableHeader,
   TableRow,
@@ -141,19 +142,22 @@ export const CopyPositionsTable = ({
               </CopyPositionsGrid>
 
               <Stack className="gap-3 rounded-xl bg-buttonBlack-60 p-3 lg:hidden">
-                <HStack className="items-start justify-between gap-3">
+                <HStack className="items-end justify-between gap-3">
                   <TableCardField label="Token">{row.token.symbol || '—'}</TableCardField>
                   <PositionLifecycleBadge lifecycle={row.lifecycle} quantityState={row.quantityState} />
                 </HStack>
 
-                <div className="grid grid-cols-2 gap-x-3 gap-y-2">
-                  <TableCardField className="col-span-2" label="Trade ID">
+                <TableCardGrid>
+                  <TableCardField span="full" label="Trade ID">
                     <ShortenedId value={row.tradeId} />
                   </TableCardField>
                   <TableCardField label="Entry Price">{formatUsd(row.entryPriceUsd)}</TableCardField>
-                  <TableCardField label="Current">{formatUsd(row.currentPriceUsd)}</TableCardField>
+                  <TableCardField align="right" label="Current">
+                    {formatUsd(row.currentPriceUsd)}
+                  </TableCardField>
                   <TableCardField label="Value">{formatUsd(row.valueUsd)}</TableCardField>
                   <TableCardField
+                    align="right"
                     label="Unrealised P&amp;L"
                     valueClassName={getSignedMetricClassName(row.unrealizedPnlUsd ?? row.unrealizedPnlPct)}
                   >
@@ -165,10 +169,10 @@ export const CopyPositionsTable = ({
                   <TableCardField label="Est. Rebate" valueClassName="text-warning">
                     {formatApproximateUsd(row.estimatedCashbackUsd)}
                   </TableCardField>
-                  <TableCardField label="Open Since" valueClassName="text-subText">
+                  <TableCardField align="right" label="Open Since" valueClassName="text-subText">
                     {formatDateTime(row.openedAt)}
                   </TableCardField>
-                </div>
+                </TableCardGrid>
 
                 <PositionAction position={row} positionContext={positionContext} />
               </Stack>

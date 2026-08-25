@@ -7,6 +7,7 @@ import {
   HeaderCell,
   TableBody,
   TableCardField,
+  TableCardGrid,
   TableCell,
   TableHeader,
   TableRow,
@@ -109,19 +110,23 @@ const TabPositions = ({ agentId }: { agentId: string }) => {
                 </TabPositionsGrid>
 
                 <Stack className="gap-3 rounded-xl bg-buttonBlack-60 p-3 lg:hidden">
-                  <HStack className="items-start justify-between gap-3">
+                  <HStack className="items-end justify-between gap-3">
                     <TableCardField label="Token">{row.token.symbol || '—'}</TableCardField>
                     <PositionLifecycleBadge lifecycle={row.lifecycle} quantityState={row.quantityState} />
                   </HStack>
 
-                  <div className="grid grid-cols-2 gap-x-3 gap-y-2">
-                    <TableCardField className="col-span-2" label="Trade ID">
+                  <TableCardGrid>
+                    <TableCardField span="full" label="Trade ID">
                       <ShortenedId value={row.tradeId} />
                     </TableCardField>
                     <TableCardField label="Entry Price">{formatUsd(row.entryPriceUsd)}</TableCardField>
-                    <TableCardField label="Current Price">{formatUsd(row.currentPriceUsd)}</TableCardField>
+                    <TableCardField align="right" label="Current Price">
+                      {formatUsd(row.currentPriceUsd)}
+                    </TableCardField>
                     <TableCardField label="Amount">{formatTokenAmount(row.amountDecimal)}</TableCardField>
-                    <TableCardField label="Value">{formatUsd(row.valueUsd)}</TableCardField>
+                    <TableCardField align="right" label="Value">
+                      {formatUsd(row.valueUsd)}
+                    </TableCardField>
                     <TableCardField
                       label="P&amp;L"
                       valueClassName={getSignedMetricClassName(pnl ?? row.unrealizedPnlPct)}
@@ -131,10 +136,10 @@ const TabPositions = ({ agentId }: { agentId: string }) => {
                         <span className="whitespace-nowrap text-xs">{signedPercent(row.unrealizedPnlPct)}</span>
                       </Stack>
                     </TableCardField>
-                    <TableCardField label="Open Since" valueClassName="text-subText">
+                    <TableCardField align="right" label="Open Since" valueClassName="text-subText">
                       {formatDateTime(row.openedAt)}
                     </TableCardField>
-                  </div>
+                  </TableCardGrid>
                 </Stack>
               </div>
             )
