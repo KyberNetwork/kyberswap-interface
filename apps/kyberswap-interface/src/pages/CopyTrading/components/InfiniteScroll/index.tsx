@@ -3,6 +3,7 @@ import { type PropsWithChildren, useEffect, useMemo, useRef } from 'react'
 import type { CursorResponse } from 'services/copyTrading/types/primitives'
 
 import Loader from 'components/Loader'
+import ScrollArea, { type ScrollbarOrientation, type ScrollbarSize } from 'components/ScrollArea'
 import { Center, Stack } from 'components/Stack'
 import { cn } from 'utils/cn'
 
@@ -59,12 +60,20 @@ export const useInfiniteCursorQuery = <TResponse extends CursorResponse<unknown>
   }
 }
 
-type InfiniteScrollProps = PropsWithChildren<
+export type InfiniteScrollProps = PropsWithChildren<
   InfiniteScrollState & {
     className?: string
+    /** Defaults to both axes so bounded lists and wide tables expose every available scroll direction. */
+    scrollbar?: ScrollbarOrientation
+    /** Scrollbar thickness passed through to ScrollArea. Defaults to md. */
+    size?: ScrollbarSize
   }
 >
 
+/**
+ * Bounded scroll container that requests the next cursor page as its bottom sentinel approaches.
+ * Query ownership stays with the caller; this component only owns scroll observation and shared states.
+ */
 const InfiniteScroll = ({
   children,
   className,
@@ -73,6 +82,8 @@ const InfiniteScroll = ({
   initialError,
   loadingMore,
   onLoadMore,
+  scrollbar = 'both',
+  size,
 }: InfiniteScrollProps) => {
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const loadMoreRef = useRef<HTMLDivElement>(null)
@@ -94,7 +105,12 @@ const InfiniteScroll = ({
   }, [error, hasMore, loadingMore, onLoadMore])
 
   return (
-    <div ref={scrollContainerRef} className={cn('ks-scrollbar relative max-h-[480px] overflow-auto', className)}>
+    <ScrollArea
+      ref={scrollContainerRef}
+      className={cn('relative max-h-[480px]', className)}
+      scrollbar={scrollbar}
+      size={size}
+    >
       {!initialError && children}
       {error && (
         <Stack
@@ -109,7 +125,7 @@ const InfiniteScroll = ({
           {loadingMore && <Loader />}
         </Center>
       )}
-    </div>
+    </ScrollArea>
   )
 }
 

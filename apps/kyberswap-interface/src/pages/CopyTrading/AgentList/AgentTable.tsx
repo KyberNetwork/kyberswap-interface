@@ -6,6 +6,7 @@ import type { CopyRunSummary } from 'services/copyTrading/types/copyRuns'
 import type { LeaderboardSortBy, SortOrder } from 'services/copyTrading/types/primitives'
 
 import { ButtonPrimary } from 'components/Button'
+import ScrollArea from 'components/ScrollArea'
 import { Stack } from 'components/Stack'
 import { APP_PATHS } from 'constants/index'
 import CursorPagination, { type CursorPaginationState } from 'pages/CopyTrading/components/CursorPagination'
@@ -93,7 +94,7 @@ const AgentTable = ({ agents, loading, pagination, sortBy, sortOrder, onSortChan
 
   return (
     <Stack className="gap-2 lg:gap-0 lg:overflow-hidden lg:rounded-xl lg:bg-buttonBlack-60">
-      <div className="ks-scrollbar relative hidden max-h-[480px] overflow-auto lg:block">
+      <ScrollArea className="relative hidden max-h-[480px] lg:block">
         <LeaderboardGrid header className="sticky top-0 z-[1]">
           <HeaderCell>Agent</HeaderCell>
           <HeaderCell
@@ -204,7 +205,7 @@ const AgentTable = ({ agents, loading, pagination, sortBy, sortOrder, onSortChan
             )
           })}
         </TableBody>
-      </div>
+      </ScrollArea>
 
       <TableBody
         className="grid gap-2 bg-transparent lg:hidden"
