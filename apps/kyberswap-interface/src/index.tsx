@@ -28,6 +28,7 @@ import ListsUpdater from 'state/lists/updater'
 import TokenPricesUpdater from 'state/tokenPrices/updater'
 import TransactionUpdater from 'state/transactions/updater'
 import UserUpdater from 'state/user/updater'
+import WalletInventoryUpdater from 'state/walletInventory/updater'
 import ThemeProvider from 'theme'
 import { preloadChainIcons, preloadStaticRouteChunks } from 'utils/prefetch'
 
@@ -79,6 +80,7 @@ function Updaters() {
       <UnfinalizedPositionUpdater />
       <CustomizeDexesUpdater />
       <TokenPricesUpdater />
+      <WalletInventoryUpdater />
     </>
   )
 }

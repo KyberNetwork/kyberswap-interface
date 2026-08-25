@@ -25,6 +25,7 @@ import {
   TransactionDetails,
   TransactionExtraInfo1Token,
 } from 'state/transactions/type'
+import { expireInventory } from 'state/walletInventory/store'
 import { findTx } from 'utils/transaction'
 import { Address, Hash, decodeEventLog, formatUnits, keccak256, parseAbi, toBytes } from 'utils/viem'
 
@@ -199,6 +200,18 @@ export default function Updater(): null {
         account: accountRef.current ?? '',
       })
       if (numericStatus === 1) {
+        // The sender's balances just changed, but the inventory indexer runs a minute or so behind the
+        // chain — keyed on the transaction's own sender, since the connected account can have switched
+        // while the transaction was pending. The mined block makes the inventory poll fast until it
+        // catches up; a receipt without one (the Safe path) still forces a refetch, just without a
+        // block to chase — chasing the observed head instead would overshoot the execution block and
+        // poll until the timeout for nothing.
+        expireInventory(
+          chainId,
+          transaction.from,
+          receipt.blockNumber !== undefined ? Number(receipt.blockNumber) : undefined,
+        )
+
         // Swapped (address sender, address srcToken, address dstToken, address dstReceiver, uint256 spentAmount, uint256 returnAmount)
         const swapEventTopic = keccak256(toBytes('Swapped(address,address,address,address,uint256,uint256)'))
         const swapLogs = receipt.logs.filter((log: any) => log.topics[0] === swapEventTopic)

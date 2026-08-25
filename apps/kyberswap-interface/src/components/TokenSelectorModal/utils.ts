@@ -16,7 +16,7 @@ import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { isAddress } from 'utils/address'
 import { filterTruthy } from 'utils/array'
-import { isTokenNative } from 'utils/tokenInfo'
+import { getTokenAddress, isTokenNative } from 'utils/tokenInfo'
 
 export const TOKEN_SEARCH_PAGE_SIZE = 20
 
@@ -108,6 +108,26 @@ export const getNeedsImport = (
   !isTokenNative(currency) &&
   !(currency as WrappedTokenInfo)?.isWhitelisted &&
   !isImported(currency.wrapped.address)
+
+/**
+ * Search results with the wallet's own holdings pulled to the front: held matches the catalog search
+ * missed are added (de-duplicated by address, catalog rows win since they carry logo and name), then
+ * the list is stably partitioned so every held token leads. Someone typing the symbol of a token they
+ * hold is almost always looking for that one, whatever the catalog ranked first.
+ */
+export const mergeHeldSearchResults = (
+  results: Currency[],
+  heldMatches: Currency[],
+  heldAddresses: Set<string> | undefined,
+): Currency[] => {
+  if (!heldAddresses?.size) return results
+  const seen = new Set(results.map(getTokenAddress))
+  const merged = results.concat(heldMatches.filter(token => !seen.has(getTokenAddress(token))))
+  const held: Currency[] = []
+  const rest: Currency[] = []
+  merged.forEach(token => (heldAddresses.has(getTokenAddress(token)) ? held : rest).push(token))
+  return held.concat(rest)
+}
 
 const getRpcSearchChainIds = (chainId: ChainId, supportedChains: NetworkInfo[]) => {
   const otherChainIds = supportedChains

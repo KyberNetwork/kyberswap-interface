@@ -1,7 +1,7 @@
 import { ChainId, Currency, CurrencyAmount, Token, TokenAmount } from '@kyberswap/ks-sdk-core'
-import { Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import React, { CSSProperties, ReactNode, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Info, Star, X } from 'react-feather'
+import { AlertTriangle, Info, Star, X } from 'react-feather'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { ListChildComponentProps, VariableSizeList } from 'react-window'
 import InfiniteLoader from 'react-window-infinite-loader'
@@ -17,6 +17,7 @@ import { Balance } from 'components/TokenSelectorModal/components'
 import { BALANCE_COLUMN_CLASS, METRIC_COLUMN_CLASS } from 'components/TokenSelectorModal/constants'
 import { TokenMetricColumn, TokenRowExtra, TokenRowExtraMap, tokenRowKey } from 'components/TokenSelectorModal/types'
 import { getNeedsImport } from 'components/TokenSelectorModal/utils'
+import { MouseoverTooltip } from 'components/Tooltip'
 import { useActiveWeb3React } from 'hooks'
 import useCopyClipboard from 'hooks/useCopyClipboard'
 import { useERC8056DisplayBalance, useERC8056TokenInfo } from 'hooks/useERC8056Token'
@@ -128,6 +129,13 @@ type TokenRowProps = {
   warned?: boolean
   /** Reveal the inline restricted notice (called on a restricted row's click). */
   onRestrictedClick?: () => void
+  /**
+   * Held token whose symbol belongs to a whitelisted token at a different address — the shape an
+   * airdropped impersonation takes. Flagged so a fake cannot pass for the token it names.
+   */
+  impersonator?: boolean
+  /** The connected wallet holds this token; shown as a badge while searching. */
+  held?: boolean
 }
 
 export const TokenRow = ({
@@ -163,6 +171,8 @@ export const TokenRow = ({
   restricted,
   warned,
   onRestrictedClick,
+  impersonator,
+  held,
 }: TokenRowProps) => {
   const isImport = rightColumn === 'import'
   const nativeCurrency = useCurrencyConvertedToNative(currency || undefined)
@@ -235,6 +245,22 @@ export const TokenRow = ({
               >
                 {ageBadge}
               </span>
+            )}
+            {held && (
+              <span
+                className="shrink-0 rounded bg-primary-20 px-1 text-[10px] font-medium leading-4 text-primary"
+                data-testid="token-held-badge"
+              >
+                <Trans>In wallet</Trans>
+              </span>
+            )}
+            {impersonator && (
+              <MouseoverTooltip
+                placement="top"
+                text={t`This token uses the symbol of a verified token but a different contract address. Check the address before selecting it.`}
+              >
+                <AlertTriangle size={14} className="shrink-0 text-warning" data-testid="token-impersonator-warning" />
+              </MouseoverTooltip>
             )}
           </HStack>
           <HStack className="min-w-0 items-center gap-1 text-xs text-gray">
@@ -428,6 +454,8 @@ type VirtualRowData = {
   isTokenRestricted: (currency?: Currency | null) => boolean
   warnedKeys: Set<string>
   onWarnRestricted: (key: string) => void
+  impersonators?: Set<string>
+  heldAddresses?: Set<string>
 }
 
 const SelectedTokenBalance = ({ currency, balance }: { currency: Currency; balance: CurrencyAmount<Currency> }) => {
@@ -456,8 +484,11 @@ const VirtualRow = memo(function VirtualRow({ index, style, data }: ListChildCom
   // right column becomes an Import button; with `importAsRow` (Trending / All, not searching) the row
   // stays normal — dimmed to 50% — and clicking it imports.
   const needsImport = getNeedsImport(currency, address => data.importedAddressSet.has(address), !!data.onImportToken)
-  const importAsRow = needsImport && !!data.importAsRow
-  const rightColumn = needsImport && !data.importAsRow ? 'import' : data.metricColumn ? 'metric' : 'balance'
+  // A held token found by search keeps its balance column (dimmed, click imports) rather than turning
+  // into an Import button: the balance is the very thing that tells the user this is the one they own.
+  const held = !!data.heldAddresses?.has(getTokenAddress(currency))
+  const importAsRow = needsImport && (!!data.importAsRow || held)
+  const rightColumn = needsImport && !importAsRow ? 'import' : data.metricColumn ? 'metric' : 'balance'
 
   const isSelected = Boolean(data.selectedCurrency?.equals(currency))
   const otherSelected = Boolean(data.otherCurrency?.equals(currency))
@@ -512,6 +543,8 @@ const VirtualRow = memo(function VirtualRow({ index, style, data }: ListChildCom
         restricted={restricted}
         warned={warned}
         onRestrictedClick={() => data.onWarnRestricted(restrictedKey)}
+        impersonator={data.impersonators?.has(token.address)}
+        held={held}
       />
     </div>
   )
@@ -548,6 +581,10 @@ type TokenListProps = {
   metricColumn?: TokenMetricColumn
   /** Render a not-yet-imported token as a normal row dimmed to 50% (click imports) instead of an Import button (Trending / All). */
   importAsRow?: boolean
+  /** Addresses to flag as borrowing a whitelisted token's symbol; see `TokenRowProps.impersonator`. */
+  impersonators?: Set<string>
+  /** Addresses the wallet holds; only passed while searching, see `TokenRowProps.held`. */
+  heldAddresses?: Set<string>
 }
 
 const TokenList = ({
@@ -573,6 +610,8 @@ const TokenList = ({
   showPriceColumn,
   metricColumn,
   importAsRow,
+  impersonators,
+  heldAddresses,
 }: TokenListProps) => {
   const { account } = useActiveWeb3React()
   const { favoriteTokens } = useUserFavoriteTokens(customChainId)
@@ -670,6 +709,8 @@ const TokenList = ({
       isTokenRestricted,
       warnedKeys,
       onWarnRestricted,
+      impersonators,
+      heldAddresses,
     }),
     [
       currencies,
@@ -696,6 +737,8 @@ const TokenList = ({
       isTokenRestricted,
       warnedKeys,
       onWarnRestricted,
+      impersonators,
+      heldAddresses,
     ],
   )
 
