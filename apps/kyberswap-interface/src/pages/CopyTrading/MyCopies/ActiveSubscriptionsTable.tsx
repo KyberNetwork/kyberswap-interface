@@ -3,6 +3,7 @@ import type { CopyRunSummary } from 'services/copyTrading/types/copyRuns'
 import type { CopyRunSortBy, SortOrder } from 'services/copyTrading/types/primitives'
 
 import { ButtonLight } from 'components/Button'
+import ScrollArea from 'components/ScrollArea'
 import { Stack } from 'components/Stack'
 import CursorPagination, { type CursorPaginationState } from 'pages/CopyTrading/components/CursorPagination'
 import {
@@ -102,7 +103,7 @@ const ActiveSubscriptionsTable = ({
 
   return (
     <Stack className="gap-2 lg:gap-0 lg:overflow-hidden lg:rounded-xl lg:bg-buttonBlack-60">
-      <div className="ks-scrollbar relative hidden max-h-[480px] overflow-auto lg:block">
+      <ScrollArea className="relative hidden max-h-[480px] lg:block">
         <ActiveSubscriptionsGrid header className="sticky top-0 z-[1]">
           <HeaderCell>Agent</HeaderCell>
           <HeaderCell
@@ -175,7 +176,7 @@ const ActiveSubscriptionsTable = ({
             </ActiveSubscriptionsGrid>
           ))}
         </TableBody>
-      </div>
+      </ScrollArea>
 
       <TableBody
         className="grid gap-2 bg-transparent lg:hidden"
