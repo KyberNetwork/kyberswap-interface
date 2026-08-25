@@ -4,12 +4,14 @@ import type { AgentStats as AgentStatsData } from 'services/copyTrading/types/ag
 import type { PerformanceWindow } from 'services/copyTrading/types/primitives'
 
 import { Stack } from 'components/Stack'
+import { agentProfileResponsiveOrder } from 'pages/CopyTrading/AgentProfile/responsiveOrder'
 import Leaderboard, { type LeaderboardStat } from 'pages/CopyTrading/components/Leaderboard'
 import {
   CapitalValueChart,
   CumulativeRealisedPnlChart,
   toPerformanceChartPoint,
 } from 'pages/CopyTrading/components/PerformanceCharts'
+import { ResponsiveDetailContents, ResponsiveDetailItem } from 'pages/CopyTrading/components/common/layout'
 import { copyTradingStatIconMap } from 'pages/CopyTrading/constants'
 import {
   compactUsd,
@@ -131,13 +133,17 @@ const AgentStats = ({ agentId }: AgentStatsProps) => {
   const stats = agentStats?.data
 
   return (
-    <Stack className="min-w-0 gap-4">
-      <Leaderboard items={getProfileStats(stats)} size="sm" />
-      <Stack className="gap-6 rounded-xl bg-buttonBlack p-6 max-md:-mx-4 max-md:gap-4 max-md:rounded-none max-md:p-4">
-        <AgentCumulativeRealisedPnlChart agentId={agentId} />
-        <AgentCapitalValueChart agentId={agentId} />
-      </Stack>
-    </Stack>
+    <ResponsiveDetailContents className="min-w-0">
+      <ResponsiveDetailItem>
+        <Leaderboard items={getProfileStats(stats)} size="sm" />
+      </ResponsiveDetailItem>
+      <ResponsiveDetailItem responsiveOrder={agentProfileResponsiveOrder.performance}>
+        <Stack className="gap-6 rounded-xl bg-buttonBlack p-6 max-md:-mx-4 max-md:gap-4 max-md:rounded-none max-md:p-4">
+          <AgentCumulativeRealisedPnlChart agentId={agentId} />
+          <AgentCapitalValueChart agentId={agentId} />
+        </Stack>
+      </ResponsiveDetailItem>
+    </ResponsiveDetailContents>
   )
 }
 

@@ -5,8 +5,9 @@ import type { AdvisoryActionAvailability } from 'services/copyTrading/types/acti
 import type { AgentProfile } from 'services/copyTrading/types/agents'
 
 import { ButtonPrimary } from 'components/Button'
-import { HStack, Stack } from 'components/Stack'
+import { HStack } from 'components/Stack'
 import { APP_PATHS } from 'constants/index'
+import { agentProfileResponsiveOrder } from 'pages/CopyTrading/AgentProfile/responsiveOrder'
 import {
   AgentRiskCard,
   StrategyExecutionCard,
@@ -14,6 +15,7 @@ import {
 } from 'pages/CopyTrading/components/AgentSidebarCards/AgentProfileCards'
 import { CopyCapitalCard } from 'pages/CopyTrading/components/AgentSidebarCards/CopyActionCards'
 import { SidePanelCard } from 'pages/CopyTrading/components/AgentSidebarCards/SidePanelCard'
+import { ResponsiveDetailContents, ResponsiveDetailItem } from 'pages/CopyTrading/components/common/layout'
 import { useCopyTradingContext } from 'pages/CopyTrading/context'
 import {
   formatUsd,
@@ -67,23 +69,32 @@ const AgentInstruction = ({ agent }: AgentInstructionProps) => {
   )
 
   const activeCopyRun = activeCopyRuns?.data[0]
+  const copyActionCard = activeCopyRun ? (
+    <CopyCapitalCard
+      addCapitalAvailability={activeCopyRun.addCapitalAvailability}
+      capital={formatUsd(getDisplayCapitalInUsd(activeCopyRun))}
+      onView={() => navigate(`${APP_PATHS.COPY_TRADING}/my-copies/${activeCopyRun.copyRunId}`)}
+      onAddCapital={() => openAddCapital(activeCopyRun, agent.displayName)}
+    />
+  ) : (
+    <StartCopyCard availability={agent.startCopyAvailability} onCopy={() => openStartCopy(agent)} />
+  )
 
   return (
-    <Stack className="gap-4">
-      {activeCopyRun ? (
-        <CopyCapitalCard
-          addCapitalAvailability={activeCopyRun.addCapitalAvailability}
-          capital={formatUsd(getDisplayCapitalInUsd(activeCopyRun))}
-          onView={() => navigate(`${APP_PATHS.COPY_TRADING}/my-copies/${activeCopyRun.copyRunId}`)}
-          onAddCapital={() => openAddCapital(activeCopyRun, agent.displayName)}
-        />
-      ) : (
-        <StartCopyCard availability={agent.startCopyAvailability} onCopy={() => openStartCopy(agent)} />
-      )}
-      <AgentRiskCard agent={agent} />
-      <StrategyExecutionCard items={agent.strategyExecutionItems} />
-      <WhitelistedTokensCard tokens={agent.whitelistedSymbols} />
-    </Stack>
+    <ResponsiveDetailContents>
+      <ResponsiveDetailItem responsiveOrder={agentProfileResponsiveOrder.copyAction}>
+        {copyActionCard}
+      </ResponsiveDetailItem>
+      <ResponsiveDetailItem responsiveOrder={agentProfileResponsiveOrder.risk}>
+        <AgentRiskCard agent={agent} />
+      </ResponsiveDetailItem>
+      <ResponsiveDetailItem responsiveOrder={agentProfileResponsiveOrder.strategy}>
+        <StrategyExecutionCard items={agent.strategyExecutionItems} />
+      </ResponsiveDetailItem>
+      <ResponsiveDetailItem responsiveOrder={agentProfileResponsiveOrder.tokens}>
+        <WhitelistedTokensCard tokens={agent.whitelistedSymbols} />
+      </ResponsiveDetailItem>
+    </ResponsiveDetailContents>
   )
 }
 

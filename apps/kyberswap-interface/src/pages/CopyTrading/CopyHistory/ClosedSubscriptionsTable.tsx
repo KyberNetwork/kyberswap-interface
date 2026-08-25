@@ -8,6 +8,7 @@ import {
   HeaderCell,
   TableBody,
   TableCardField,
+  TableCardGrid,
   TableCell,
   TableHeader,
   TableRow,
@@ -129,13 +130,16 @@ const ClosedSubscriptionsTable = ({ loading, onOpenSubscription, pagination, row
           >
             <CopyRunAgentCell run={subscription} className="gap-3" />
 
-            <div className="grid grid-cols-2 gap-x-3 gap-y-2">
+            <TableCardGrid>
               <TableCardField label="Closed Trades">
                 {formatCount(subscription.closedPositionCount ?? subscription.openPositionCount)}
               </TableCardField>
-              <TableCardField label="Capital In">{formatUsd(getDisplayCapitalInUsd(subscription))}</TableCardField>
+              <TableCardField align="right" label="Capital In">
+                {formatUsd(getDisplayCapitalInUsd(subscription))}
+              </TableCardField>
               <TableCardField label="Current Balance">{formatUsd(subscription.portfolioValueUsd)}</TableCardField>
               <TableCardField
+                align="right"
                 label="Realised P&amp;L"
                 valueClassName={cn('whitespace-nowrap', getSignedMetricClassName(subscription.realizedPnlUsd))}
               >
@@ -143,6 +147,7 @@ const ClosedSubscriptionsTable = ({ loading, onOpenSubscription, pagination, row
               </TableCardField>
               <TableCardField label="Fees Paid">{formatUsd(subscription.flatFeesCapturedUsd)}</TableCardField>
               <TableCardField
+                align="right"
                 label="Rebates"
                 valueClassName={cn(Number(subscription.cashbackReceivedUsd) > 0 && 'text-blue')}
               >
@@ -151,10 +156,10 @@ const ClosedSubscriptionsTable = ({ loading, onOpenSubscription, pagination, row
               <TableCardField label="Started" valueClassName="text-subText">
                 {formatDateTime(subscription.startedAt)}
               </TableCardField>
-              <TableCardField label="Stopped" valueClassName="text-subText">
+              <TableCardField align="right" label="Stopped" valueClassName="text-subText">
                 {formatDateTime(subscription.stoppedAt)}
               </TableCardField>
-            </div>
+            </TableCardGrid>
           </Stack>
         ))}
       </TableBody>

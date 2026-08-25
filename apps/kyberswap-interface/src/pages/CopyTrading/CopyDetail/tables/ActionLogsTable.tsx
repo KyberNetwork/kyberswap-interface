@@ -7,6 +7,7 @@ import {
   HeaderCell,
   TableBody,
   TableCardField,
+  TableCardGrid,
   TableCell,
   TableHeader,
   TableRow,
@@ -81,23 +82,23 @@ export const ActionLogsTable = ({
               </ActivityGrid>
 
               <Stack className="gap-3 rounded-xl bg-buttonBlack-60 p-3 md:hidden">
-                <div className="grid grid-cols-2 gap-x-3 gap-y-2">
+                <TableCardGrid>
                   <TableCardField label="Type" valueClassName={activityColor(row)}>
                     {getActivityLabel(row)}
                   </TableCardField>
-                  <TableCardField label="Time" valueClassName="text-right text-subText">
+                  <TableCardField align="right" label="Time" valueClassName="text-subText">
                     {formatDateTime(row.occurredAt)}
                   </TableCardField>
                   <TableCardField label="Trade ID">
                     <ShortenedId value={row.tradeId} />
                   </TableCardField>
-                  <TableCardField label="Tx Hash" valueClassName="text-subText">
+                  <TableCardField align="right" label="Tx Hash" valueClassName="text-subText">
                     <ShortenedId value={row.txHash} />
                   </TableCardField>
-                  <TableCardField className="col-span-2" label="Details" valueClassName="break-words">
+                  <TableCardField span="full" label="Details" valueClassName="break-words">
                     {row.summary || '—'}
                   </TableCardField>
-                </div>
+                </TableCardGrid>
               </Stack>
             </div>
           ))}

@@ -7,6 +7,7 @@ import {
   HeaderCell,
   TableBody,
   TableCardField,
+  TableCardGrid,
   TableCell,
   TableHeader,
   TableRow,
@@ -92,25 +93,28 @@ const TabHistory = ({ agentId }: { agentId: string }) => {
               <Stack className="gap-3 rounded-xl bg-buttonBlack-60 p-3 lg:hidden">
                 <HStack className="items-start justify-between gap-3">
                   <TableCardField label="Token">{row.token.symbol || '—'}</TableCardField>
-                  <TableCardField label="Closed" valueClassName="text-right text-subText">
+                  <TableCardField align="right" label="Closed" valueClassName="text-subText">
                     {formatDateTime(row.closedAt)}
                   </TableCardField>
                 </HStack>
 
-                <div className="grid grid-cols-2 gap-x-3 gap-y-2">
-                  <TableCardField className="col-span-2" label="Trade ID">
+                <TableCardGrid>
+                  <TableCardField span="full" label="Trade ID">
                     <ShortenedId value={row.tradeId} />
                   </TableCardField>
                   <TableCardField label="Entry Price">{formatUsd(row.entryPriceUsd)}</TableCardField>
-                  <TableCardField label="Exit">{formatUsd(row.exitPriceUsd || row.currentPriceUsd)}</TableCardField>
+                  <TableCardField align="right" label="Exit">
+                    {formatUsd(row.exitPriceUsd || row.currentPriceUsd)}
+                  </TableCardField>
                   <TableCardField label="Amount">{formatTokenAmount(row.amountDecimal)}</TableCardField>
                   <TableCardField
+                    align="right"
                     label="Realised P&amp;L"
                     valueClassName={cn('whitespace-nowrap', getSignedMetricClassName(row.realizedPnlUsd))}
                   >
                     {signedUsd(row.realizedPnlUsd)}
                   </TableCardField>
-                </div>
+                </TableCardGrid>
               </Stack>
             </div>
           ))}
