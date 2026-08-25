@@ -283,7 +283,9 @@ type CapitalValueChartProps = {
   data: PerformanceChartPoint[]
   isError?: boolean
   isFetching?: boolean
+  onWindowChange?: (window: PerformanceWindow) => void
   title?: string
+  window?: PerformanceWindow
 }
 
 export const CapitalValueChart = ({
@@ -291,10 +293,17 @@ export const CapitalValueChart = ({
   data,
   isError,
   isFetching,
+  onWindowChange,
   title = 'Capital Value',
+  window,
 }: CapitalValueChartProps) => {
+  const windowControl =
+    window && onWindowChange ? (
+      <SegmentedControl onChange={onWindowChange} options={chartWindowOptions} size="sm" value={window} />
+    ) : undefined
+
   return (
-    <ChartSection collapsible={collapsible} loading={isFetching} title={title}>
+    <ChartSection collapsible={collapsible} headerAside={windowControl} loading={isFetching} title={title}>
       <ChartState isEmpty={!isFetching && !data.length} isError={isError} isLoading={isFetching && !data.length}>
         {!!data.length && (
           <ResponsiveContainer width="100%" height="100%">

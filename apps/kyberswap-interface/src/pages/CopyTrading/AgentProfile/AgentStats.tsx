@@ -53,27 +53,9 @@ type AgentStatsProps = {
   agentId: string
 }
 
-const AgentStats = ({ agentId }: AgentStatsProps) => {
-  const [window, setWindow] = useState<PerformanceWindow>('30d')
-
-  const interval = window === 'all' ? 'month' : 'day'
-
-  const { data: agentStats } = agentApi.useGetAgentStatsQuery({ agentId }, { pollingInterval: 10_000 })
-
-  const {
-    data: portfolioPerformance,
-    isError: isPortfolioError,
-    isFetching: isPortfolioFetching,
-  } = agentApi.useGetAgentPerformanceQuery(
-    {
-      agentId,
-      interval,
-      limit: 100,
-      series: 'portfolio_value',
-      window,
-    },
-    { pollingInterval: 10_000 },
-  )
+const AgentCumulativeRealisedPnlChart = ({ agentId }: AgentStatsProps) => {
+  const [realizedPnlWindow, setRealizedPnlWindow] = useState<PerformanceWindow>('30d')
+  const realizedPnlInterval = realizedPnlWindow === 'all' ? 'month' : 'day'
 
   const {
     data: realizedPnlPerformance,
@@ -82,18 +64,12 @@ const AgentStats = ({ agentId }: AgentStatsProps) => {
   } = agentApi.useGetAgentPerformanceQuery(
     {
       agentId,
-      interval,
+      interval: realizedPnlInterval,
       limit: 100,
       series: 'cumulative_realized_pnl',
-      window,
+      window: realizedPnlWindow,
     },
     { pollingInterval: 10_000 },
-  )
-
-  const stats = agentStats?.data
-  const portfolioData = useMemo(
-    () => (portfolioPerformance?.data || []).map(toPerformanceChartPoint),
-    [portfolioPerformance?.data],
   )
 
   const realizedPnlData = useMemo(
@@ -102,24 +78,64 @@ const AgentStats = ({ agentId }: AgentStatsProps) => {
   )
 
   return (
+    <CumulativeRealisedPnlChart
+      collapsible
+      data={realizedPnlData}
+      isError={isRealizedPnlError}
+      isFetching={isRealizedPnlFetching}
+      onWindowChange={setRealizedPnlWindow}
+      window={realizedPnlWindow}
+    />
+  )
+}
+
+const AgentCapitalValueChart = ({ agentId }: AgentStatsProps) => {
+  const [capitalValueWindow, setCapitalValueWindow] = useState<PerformanceWindow>('30d')
+  const capitalValueInterval = capitalValueWindow === 'all' ? 'month' : 'day'
+
+  const {
+    data: portfolioPerformance,
+    isError: isPortfolioError,
+    isFetching: isPortfolioFetching,
+  } = agentApi.useGetAgentPerformanceQuery(
+    {
+      agentId,
+      interval: capitalValueInterval,
+      limit: 100,
+      series: 'portfolio_value',
+      window: capitalValueWindow,
+    },
+    { pollingInterval: 10_000 },
+  )
+
+  const portfolioData = useMemo(
+    () => (portfolioPerformance?.data || []).map(toPerformanceChartPoint),
+    [portfolioPerformance?.data],
+  )
+
+  return (
+    <CapitalValueChart
+      collapsible
+      data={portfolioData}
+      isError={isPortfolioError}
+      isFetching={isPortfolioFetching}
+      onWindowChange={setCapitalValueWindow}
+      title="Capital Value"
+      window={capitalValueWindow}
+    />
+  )
+}
+
+const AgentStats = ({ agentId }: AgentStatsProps) => {
+  const { data: agentStats } = agentApi.useGetAgentStatsQuery({ agentId }, { pollingInterval: 10_000 })
+  const stats = agentStats?.data
+
+  return (
     <Stack className="min-w-0 gap-4">
       <Leaderboard items={getProfileStats(stats)} size="sm" />
       <Stack className="gap-6 rounded-xl bg-buttonBlack p-6 max-md:-mx-4 max-md:gap-4 max-md:rounded-none max-md:p-4">
-        <CumulativeRealisedPnlChart
-          collapsible
-          data={realizedPnlData}
-          isError={isRealizedPnlError}
-          isFetching={isRealizedPnlFetching}
-          onWindowChange={setWindow}
-          window={window}
-        />
-        <CapitalValueChart
-          collapsible
-          data={portfolioData}
-          isError={isPortfolioError}
-          isFetching={isPortfolioFetching}
-          title="Capital Value"
-        />
+        <AgentCumulativeRealisedPnlChart agentId={agentId} />
+        <AgentCapitalValueChart agentId={agentId} />
       </Stack>
     </Stack>
   )

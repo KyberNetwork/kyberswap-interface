@@ -14,15 +14,15 @@ declared in the frontend service.
 
 ## Implementation at a Glance
 
-| Layer              | Current status                                                                                                                                                          |
-| ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| BE API catalog     | `CURRENT INPUT`: 32 public operations are documented.                                                                                                                   |
-| Checked-in OpenAPI | `CURRENT INPUT`: synchronized with the live 32-operation pre-release Swagger contract; wallet-session routes and Bearer security are removed.                           |
-| RTK Query service  | `CODE-COMPLETE`: all 26 GET and 6 POST operations are declared and typed.                                                                                               |
-| Read UI            | `CODE-COMPLETE`: all currently defined product surfaces are connected; 17 GET operations have UI consumers and nine service-only operations have no product surface.    |
-| Write UX           | `CODE-COMPLETE`: all six actions use prepared-action validation; Add Capital submits directly after preparation while the other review-bearing flows retain review.     |
-| Write integration  | `CODE-COMPLETE`: exact API-prepared calls, receipt-success completion, Start Copy list polling, stateless recovery preparation, and async cache refresh are connected.  |
-| Responsive UI      | `PARTIAL`: shared navigation, Leaderboard, and Agent Profile are responsive; owner Copy lists and Copy Detail data tables retain horizontally scrollable table layouts. |
+| Layer              | Current status                                                                                                                                                         |
+| ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| BE API catalog     | `CURRENT INPUT`: 32 public operations are documented.                                                                                                                  |
+| Checked-in OpenAPI | `CURRENT INPUT`: synchronized with the live 32-operation pre-release Swagger contract; wallet-session routes and Bearer security are removed.                          |
+| RTK Query service  | `CODE-COMPLETE`: all 26 GET and 6 POST operations are declared and typed.                                                                                              |
+| Read UI            | `CODE-COMPLETE`: all currently defined product surfaces are connected; 17 GET operations have UI consumers and nine service-only operations have no product surface.   |
+| Write UX           | `CODE-COMPLETE`: all six actions use prepared-action validation; Add Capital submits directly after preparation while the other review-bearing flows retain review.    |
+| Write integration  | `CODE-COMPLETE`: exact API-prepared calls, receipt-success completion, Start Copy list polling, stateless recovery preparation, and async cache refresh are connected. |
+| Responsive UI      | `CODE-COMPLETE`: all defined main Copy Trading pages use content-specific responsive navigation, cards, tables, metrics, tabs, side panels, and charts.                |
 
 ## Changes Included Since the Previous Review
 
@@ -191,25 +191,29 @@ meet at the same boundaries:
 
 - Up to `768px` (`max-sm` / `MEDIA_WIDTHS.upToSmall`): long tab labels use
   their short forms; Agent identity and chart titles use compact typography;
-  Agent Profile performance charts can collapse with animated height and
-  opacity; and the chart window control stays inside the collapsible content.
+  Agent Profile and Copy Detail performance charts can collapse with animated
+  height and opacity; and the chart window control stays inside the collapsible
+  content.
 - Up to `992px` (`max-md`): KPI collections use two columns, with an odd final
-  item spanning the row. Agent Profile performance cards use reduced padding,
-  square full-bleed mobile surfaces, and compact icons and gaps. Copy Detail's
-  start/stop timeline stacks vertically.
+  item spanning the row. Agent Profile and Copy Detail performance cards use
+  reduced padding, square full-bleed mobile surfaces, and compact icons and
+  gaps. Copy Detail's start/stop timeline stacks vertically, and its Action
+  Logs use cards instead of the 900px table.
 - Up to `1200px` (`max-lg`): the desktop Sidebar becomes a drawer; the sticky
   breadcrumb replaces page-local Back links; Copy Trading page padding is
-  reduced; and the Agent Leaderboard plus Agent Profile Positions, History,
-  and Action Logs use card-oriented layouts instead of wide tables.
+  reduced; and the Agent Leaderboard, Agent Profile data tabs, Open Copies,
+  Copy History, and Copy Detail Open Positions use card-oriented layouts
+  instead of wide tables.
 - Up to `1400px` (`max-xl`): primary-content and 340px side-panel grids stack
-  into one column, and the side panel stops using sticky positioning.
+  into one column, and Copy Detail reorders its content by priority: Capital
+  In, Win Rate when available, Remaining in Wallet, main tabs and performance,
+  then the remaining side cards. Copy Detail Trade History also uses cards
+  instead of its 1320px table.
 
-The responsive pass is intentionally incremental. My Copies and Copy History
-collections, plus the three Copy Detail tab tables, still use their existing
-bounded horizontal-scroll table layouts on narrow screens. Copy Detail
-performance charts also retain their non-collapsible padded card presentation.
-These surfaces are functional but are not part of the completed responsive
-coverage above.
+All defined main read surfaces now have responsive presentation. Desktop table
+layouts and their bounded horizontal scrolling remain unchanged above each
+content-specific card breakpoint. Responsive browser QA is still intentionally
+left for manual verification and is not claimed here.
 
 ## Accepted Product Decisions
 
@@ -505,9 +509,10 @@ to the typed service layer, and assigned to explicit shared or feature-local
 owners. The two position-sell flows above remain TODO only for controlled
 positive live E2E validation; their frontend implementation and static
 verification are complete. Product surfaces that have not been defined remain
-outside this code-implementation status. Responsive implementation remains
-partial at the surface level described in `Responsive Layout Coverage`; this
-does not change the read/write integration completion status.
+outside this code-implementation status. Responsive implementation is
+code-complete for all currently defined main read surfaces at the surface level
+described in `Responsive Layout Coverage`; responsive browser QA remains
+deferred as documented below.
 
 ## Verification
 
@@ -526,7 +531,7 @@ does not change the read/write integration completion status.
   ESLint, all 51 Copy Trading unit tests, and staged/unstaged `git diff --check`
   pass. Browser QA, a production build, and positive live-transaction E2E were
   not run for this update.
-- For the 2026-08-24 responsive update, app TypeScript, targeted ESLint,
+- For the 2026-08-24 responsive updates, app TypeScript, targeted ESLint,
   Prettier, all 51 Copy Trading unit tests, and staged/unstaged
   `git diff --check` pass. Responsive browser QA was intentionally left for
   manual verification and is not claimed here.
