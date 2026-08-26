@@ -1,11 +1,9 @@
 import { Token } from '@kyberswap/ks-sdk-core'
 import type { WithdrawQuotePreview } from 'services/copyTrading/types/preparedActions'
 
-import { ButtonPrimary } from 'components/Button'
-import Dots from 'components/Dots'
 import { Stack } from 'components/Stack'
 import CapitalAmountInput from 'pages/CopyTrading/modals/CapitalAmount'
-import { ReviewRow, ReviewSection } from 'pages/CopyTrading/modals/PreparedActionModal'
+import { PreparedActionFormActions, ReviewRow, ReviewSection } from 'pages/CopyTrading/modals/PreparedActionModal'
 import { formatPreparedAmount, withMetricFallback } from 'pages/CopyTrading/modals/PreparedActionModal/preparedAction'
 import { UINT256_MAX_RAW } from 'pages/CopyTrading/modals/WithdrawQuoteModal/withdrawQuote'
 import { shortenAddress } from 'utils/address'
@@ -48,6 +46,7 @@ type WithdrawQuoteFormProps = {
   availabilityMessage?: string
   isPreparing: boolean
   onAmountChange: (amount: string) => void
+  onCancel: () => void
   onHalf: () => void
   onMax: () => void
   onPrimaryAction: () => void
@@ -66,6 +65,7 @@ export const WithdrawQuoteForm = ({
   availabilityMessage,
   isPreparing,
   onAmountChange,
+  onCancel,
   onHalf,
   onMax,
   onPrimaryAction,
@@ -97,14 +97,14 @@ export const WithdrawQuoteForm = ({
       walletBalanceLoading={walletBalanceLoading}
       walletBalanceText={walletBalanceText}
     />
-    <ButtonPrimary
-      type="button"
-      altDisabledStyle
-      disabled={primaryActionDisabled}
-      title={amountError || availabilityMessage}
-      onClick={onPrimaryAction}
-    >
-      {isPreparing ? <Dots>{primaryActionLabel}</Dots> : primaryActionLabel}
-    </ButtonPrimary>
+    <PreparedActionFormActions
+      cancelDisabled={isPreparing}
+      onCancel={onCancel}
+      onPrimaryAction={onPrimaryAction}
+      primaryActionDisabled={primaryActionDisabled}
+      primaryActionLabel={primaryActionLabel}
+      primaryActionLoading={isPreparing}
+      primaryActionTitle={amountError || availabilityMessage}
+    />
   </Stack>
 )

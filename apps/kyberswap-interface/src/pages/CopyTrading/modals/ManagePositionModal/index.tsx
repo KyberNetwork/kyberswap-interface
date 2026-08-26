@@ -269,6 +269,7 @@ const ManagePositionModal = ({ isOpen, onDismiss, position, flow: positionFlow }
       <ManagePositionForm
         description={flowConfig.description}
         isPreparing={flowState.isPreparing === true}
+        onCancel={dismiss}
         onPrimaryAction={handlePrimaryAction}
         onSlippageChange={setSlippage}
         position={position}

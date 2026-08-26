@@ -3,16 +3,14 @@ import { Info } from 'react-feather'
 import type { PreparedToken, StartCopyPreview } from 'services/copyTrading/types/preparedActions'
 
 import verifiedIcon from 'assets/images/copy-trading/verified.svg'
-import { ButtonPrimary } from 'components/Button'
 import Checkbox from 'components/CheckBox'
 import CopyHelper from 'components/Copy'
-import Dots from 'components/Dots'
 import InfoHelper from 'components/InfoHelper'
 import { Center, HStack, Stack } from 'components/Stack'
 import { getAgentInitials } from 'pages/CopyTrading/helpers'
 import CapitalAmountInput from 'pages/CopyTrading/modals/CapitalAmount'
 import { type CapitalPercentage } from 'pages/CopyTrading/modals/CapitalAmount/capital'
-import { ReviewRow, ReviewSection } from 'pages/CopyTrading/modals/PreparedActionModal'
+import { PreparedActionFormActions, ReviewRow, ReviewSection } from 'pages/CopyTrading/modals/PreparedActionModal'
 import { formatPreparedAmount, formatWadPercent } from 'pages/CopyTrading/modals/PreparedActionModal/preparedAction'
 import { type StartCopyTarget } from 'pages/CopyTrading/modals/StartCopyModal/startCopy'
 import { isWritePrimaryActionDisabled } from 'pages/CopyTrading/modals/writeAction'
@@ -122,6 +120,7 @@ type StartCopyFormProps = {
   availabilityMessage?: string
   isPreparing: boolean
   onAmountChange: (amount: string) => void
+  onCancel: () => void
   onPercentageChange: (percentage: CapitalPercentage) => void
   onPrimaryAction: () => void
   presetsEnabled: boolean
@@ -143,6 +142,7 @@ export const StartCopyForm = ({
   availabilityMessage,
   isPreparing,
   onAmountChange,
+  onCancel,
   onExpectedChain,
   onPercentageChange,
   onPrimaryAction,
@@ -181,20 +181,20 @@ export const StartCopyForm = ({
         </p>
       </HStack>
 
-      <ButtonPrimary
-        type="button"
-        altDisabledStyle
-        disabled={isWritePrimaryActionDisabled({
+      <PreparedActionFormActions
+        cancelDisabled={isPreparing}
+        onCancel={onCancel}
+        onPrimaryAction={onPrimaryAction}
+        primaryActionDisabled={isWritePrimaryActionDisabled({
           accountConnected,
           executionBlocked: !amountIsValid || !!availabilityMessage,
           interactionLocked: isPreparing,
           onExpectedChain,
         })}
-        title={amountError || availabilityMessage}
-        onClick={onPrimaryAction}
-      >
-        {isPreparing ? <Dots>{primaryActionLabel}</Dots> : primaryActionLabel}
-      </ButtonPrimary>
+        primaryActionLabel={primaryActionLabel}
+        primaryActionLoading={isPreparing}
+        primaryActionTitle={amountError || availabilityMessage}
+      />
     </Stack>
   )
 }
