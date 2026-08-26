@@ -4,11 +4,12 @@ import { useNavigate } from 'react-router-dom'
 import copyRunApi from 'services/copyTrading/api/endpoints/copyRuns'
 import preparedActionApi from 'services/copyTrading/api/endpoints/preparedActions'
 import type { CopyRunSummary } from 'services/copyTrading/types/copyRuns'
+import type { PreparedActionStatus } from 'services/copyTrading/types/preparedActions'
 
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
-import { canAttemptPreparation, getPreparedReasonMessage } from 'pages/CopyTrading/helpers'
+import { getPreparedReasonMessage } from 'pages/CopyTrading/helpers'
 import useRefreshCopyTrading from 'pages/CopyTrading/hooks/useRefreshCopyTrading'
 import { type CapitalPercentage } from 'pages/CopyTrading/modals/CapitalAmount/capital'
 import { useCapitalAmount } from 'pages/CopyTrading/modals/CapitalAmount/useCapitalAmount'
@@ -24,7 +25,18 @@ import {
   requiresStartCopyAuthorization,
   useStartCopyAttempt,
 } from 'pages/CopyTrading/modals/StartCopyModal/useStartCopyAttempt'
+import {
+  getWriteAvailabilityMessage,
+  getWritePrimaryActionLabel,
+  isWritePrimaryActionDisabled,
+} from 'pages/CopyTrading/modals/writeAction'
 import { useWalletModalToggle } from 'state/application/hooks'
+
+const getNonReadyPhase = (status?: PreparedActionStatus) => {
+  if (status === 'PREPARED_ACTION_STATUS_UNAVAILABLE') return 'unavailable'
+  if (status === 'PREPARED_ACTION_STATUS_PENDING') return 'pending'
+  return 'error'
+}
 
 export const useStartCopyFlow = ({ agent, onDismiss }: { agent: StartCopyTarget; onDismiss: () => void }) => {
   const navigate = useNavigate()
@@ -123,16 +135,22 @@ export const useStartCopyFlow = ({ agent, onDismiss }: { agent: StartCopyTarget;
       ? 'Insufficient ' + (capital.quoteToken?.symbol || 'quote token') + ' balance.'
       : undefined
 
-  const availabilityMessage = !canAttemptPreparation(agent.startCopyAvailability)
-    ? getPreparedReasonMessage(agent.startCopyAvailability?.reason)
-    : undefined
-  const primaryActionLabel = !account
-    ? 'Connect wallet'
-    : !capital.onExpectedChain
-    ? 'Switch network'
-    : availabilityMessage || !capital.quoteToken
-    ? 'Start Copy unavailable'
-    : 'Next'
+  const accountConnected = !!account
+  const isPreparing = flowState.isPreparing === true
+  const availabilityMessage = getWriteAvailabilityMessage(agent.startCopyAvailability)
+  const primaryActionLabel = getWritePrimaryActionLabel({
+    accountConnected,
+    onExpectedChain: capital.onExpectedChain,
+    readyLabel: 'Next',
+    unavailable: !!availabilityMessage || !capital.quoteToken,
+    unavailableLabel: 'Start Copy unavailable',
+  })
+  const primaryActionDisabled = isWritePrimaryActionDisabled({
+    accountConnected,
+    executionBlocked: !capital.amountIsValid || !!availabilityMessage,
+    interactionLocked: isPreparing,
+    onExpectedChain: capital.onExpectedChain,
+  })
 
   const resetPreparedState = () => {
     flow.reset()
@@ -209,15 +227,14 @@ export const useStartCopyFlow = ({ agent, onDismiss }: { agent: StartCopyTarget;
         const nextValidationError = validatePreparedAction(action, attempt.expected, { requireCall: false })
         if (nextValidationError) throw new Error(nextValidationError)
 
-        const unavailable = action.status === 'PREPARED_ACTION_STATUS_UNAVAILABLE'
-        const pending = action.status === 'PREPARED_ACTION_STATUS_PENDING'
+        const phase = getNonReadyPhase(action.status)
         setFlowState({
-          phase: unavailable ? 'unavailable' : pending ? 'pending' : 'error',
+          phase,
           action,
           error:
-            unavailable || pending
-              ? getPreparedReasonMessage(action.reason)
-              : 'The authorized Start Copy preparation did not return a ready create call.',
+            phase === 'error'
+              ? 'The authorized Start Copy preparation did not return a ready create call.'
+              : getPreparedReasonMessage(action.reason),
         })
         return
       }
@@ -253,7 +270,6 @@ export const useStartCopyFlow = ({ agent, onDismiss }: { agent: StartCopyTarget;
   }
 
   return {
-    accountConnected: !!account,
     agreed,
     authorizationLabel: authorizationKind === 'permit' ? 'Permit' : 'Approve',
     authorizationRequired: !!authorizationKind,
@@ -268,6 +284,7 @@ export const useStartCopyFlow = ({ agent, onDismiss }: { agent: StartCopyTarget;
     handlePrimaryAction,
     isAuthorizing,
     primaryActionLabel,
+    primaryActionDisabled,
     retry,
     setAgreed,
     setPercentageAmount,

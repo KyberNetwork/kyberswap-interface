@@ -24,9 +24,10 @@ import {
   signedUsd,
 } from 'pages/CopyTrading/helpers'
 import {
+  POSITION_SELL_FLOW_CONFIG,
   type PositionRecoveryContext,
-  getPositionRecoveryAction,
-} from 'pages/CopyTrading/modals/ManagePositionModal/positionData'
+  getPositionRecoveryFlow,
+} from 'pages/CopyTrading/modals/ManagePositionModal/positionSellFlow'
 import { useCopyTradingModal } from 'pages/CopyTrading/modals/context'
 import { cn } from 'utils/cn'
 import { formatDateTime } from 'utils/time'
@@ -50,24 +51,23 @@ const PositionAction = ({
   positionContext: PositionRecoveryContext
 }) => {
   const { openManagePosition } = useCopyTradingModal()
-  const availableAction = getPositionRecoveryAction(position, positionContext)
-  if (!availableAction) return null
+  const recoveryFlow = getPositionRecoveryFlow(position, positionContext)
+  if (!recoveryFlow) return null
 
-  const isStoppedClose = positionContext === 'leftover'
-  const label = isStoppedClose ? 'Close Position' : 'Manual Sell'
+  const flowConfig = POSITION_SELL_FLOW_CONFIG[recoveryFlow]
 
   return (
     <ButtonLight
       type="button"
       padding="7px 12px"
-      color={isStoppedClose ? 'var(--ks-red)' : 'var(--ks-warning)'}
+      color={flowConfig.positionContext === 'leftover' ? 'var(--ks-red)' : 'var(--ks-warning)'}
       className="whitespace-nowrap"
       onClick={event => {
         event.stopPropagation()
-        openManagePosition(position, isStoppedClose ? 'closePosition' : 'manualSell')
+        openManagePosition(position, recoveryFlow)
       }}
     >
-      {label}
+      {flowConfig.actionLabel}
     </ButtonLight>
   )
 }

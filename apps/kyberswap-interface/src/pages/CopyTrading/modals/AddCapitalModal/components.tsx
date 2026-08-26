@@ -4,7 +4,6 @@ import { HStack, Stack } from 'components/Stack'
 import CapitalAmountInput from 'pages/CopyTrading/modals/CapitalAmount'
 import { type CapitalPercentage } from 'pages/CopyTrading/modals/CapitalAmount/capital'
 import { PreparedActionFormActions } from 'pages/CopyTrading/modals/PreparedActionModal'
-import { isWritePrimaryActionDisabled } from 'pages/CopyTrading/modals/writeAction'
 
 const CapitalSummaryRow = ({ label, value }: { label: string; value: string }) => (
   <HStack className="items-center justify-between gap-4">
@@ -16,40 +15,36 @@ const CapitalSummaryRow = ({ label, value }: { label: string; value: string }) =
 type AddCapitalFormProps = {
   amount: string
   amountError?: string
-  amountIsValid: boolean
   availabilityMessage?: string
   currentAllocatedCapital: string
   isPreparing: boolean
   newAllocatedCapital: string
   onAmountChange: (amount: string) => void
   onCancel: () => void
-  onExpectedChain: boolean
   onPercentageChange: (percentage: CapitalPercentage) => void
   onPrimaryAction: () => void
   presetsEnabled: boolean
+  primaryActionDisabled: boolean
   primaryActionLabel: string
   quoteCurrency?: Token
   selectedChainId: number
   walletBalanceLoading?: boolean
   walletBalanceText: string
-  accountConnected: boolean
 }
 
 export const AddCapitalForm = ({
-  accountConnected,
   amount,
   amountError,
-  amountIsValid,
   availabilityMessage,
   currentAllocatedCapital,
   isPreparing,
   newAllocatedCapital,
   onAmountChange,
   onCancel,
-  onExpectedChain,
   onPercentageChange,
   onPrimaryAction,
   presetsEnabled,
+  primaryActionDisabled,
   primaryActionLabel,
   quoteCurrency,
   selectedChainId,
@@ -84,12 +79,7 @@ export const AddCapitalForm = ({
         cancelDisabled={isPreparing}
         onCancel={onCancel}
         onPrimaryAction={onPrimaryAction}
-        primaryActionDisabled={isWritePrimaryActionDisabled({
-          accountConnected,
-          executionBlocked: !amountIsValid || !!availabilityMessage,
-          interactionLocked: isPreparing,
-          onExpectedChain,
-        })}
+        primaryActionDisabled={primaryActionDisabled}
         primaryActionLabel={primaryActionLabel}
         primaryActionLoading={isPreparing}
         primaryActionTitle={amountError || availabilityMessage}

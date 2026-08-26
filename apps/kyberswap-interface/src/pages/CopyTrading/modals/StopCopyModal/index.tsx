@@ -10,7 +10,7 @@ import type { PreparedCallKind } from 'services/copyTrading/types/preparedAction
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
-import { canAttemptPreparation, getPreparedReasonMessage, sumUsdValues } from 'pages/CopyTrading/helpers'
+import { sumUsdValues } from 'pages/CopyTrading/helpers'
 import useRefreshCopyTrading from 'pages/CopyTrading/hooks/useRefreshCopyTrading'
 import PreparedActionModal, { PreparedActionSuccessActions } from 'pages/CopyTrading/modals/PreparedActionModal'
 import { DEFAULT_PREPARED_ACTION_SLIPPAGE } from 'pages/CopyTrading/modals/PreparedActionModal/SlippageControl'
@@ -22,11 +22,17 @@ import { usePreparedAction } from 'pages/CopyTrading/modals/PreparedActionModal/
 import { StopCopyForm, StopCopyReview } from 'pages/CopyTrading/modals/StopCopyModal/components'
 import {
   MAX_STOP_POSITIONS,
+  type SelectableStopCopyPosition,
   getSelectedStopCopyPositionIds,
-  getUserPositionId,
+  hasUserPositionId,
   loadAllOpenCopyRunPositions,
 } from 'pages/CopyTrading/modals/StopCopyModal/positions'
-import { isWritePrimaryActionDisabled } from 'pages/CopyTrading/modals/writeAction'
+import {
+  getCopyRunOwnershipMessage,
+  getWriteAvailabilityMessage,
+  getWritePrimaryActionLabel,
+  isWritePrimaryActionDisabled,
+} from 'pages/CopyTrading/modals/writeAction'
 import { useWalletModalToggle } from 'state/application/hooks'
 
 type StopCopyModalProps = {
@@ -56,10 +62,7 @@ const StopCopyModal = ({ isOpen, onDismiss, copyRun }: StopCopyModalProps) => {
   const positionsRequestId = useRef(0)
 
   const onExpectedChain = chainId === copyRun.chainId
-  const ownershipMessage =
-    account && copyRun.ownerAddress.toLowerCase() !== account.toLowerCase()
-      ? 'The selected Copy Run is not owned by the connected wallet.'
-      : undefined
+  const ownershipMessage = getCopyRunOwnershipMessage(copyRun.ownerAddress, account)
 
   const loadPositions = useCallback(async () => {
     const requestId = ++positionsRequestId.current
@@ -87,14 +90,9 @@ const StopCopyModal = ({ isOpen, onDismiss, copyRun }: StopCopyModalProps) => {
     }
   }, [isOpen, loadPositions])
 
-  const selectablePositions = useMemo(
-    () => (positions || []).filter(position => getUserPositionId(position)),
-    [positions],
-  )
-  const isSelected = (position: PositionSummary, index: number) => {
-    const positionId = getUserPositionId(position)
-    return positionId ? selected[positionId] ?? index < MAX_STOP_POSITIONS : false
-  }
+  const selectablePositions = useMemo(() => (positions || []).filter(hasUserPositionId), [positions])
+  const isSelected = (position: SelectableStopCopyPosition, index: number) =>
+    selected[position.userPositionId] ?? index < MAX_STOP_POSITIONS
 
   const selectedPositions = selectablePositions.filter(isSelected)
   const selectedPositionValueUsd = sumUsdValues(...selectedPositions.map(position => position.valueUsd))
@@ -112,9 +110,7 @@ const StopCopyModal = ({ isOpen, onDismiss, copyRun }: StopCopyModalProps) => {
     prepare: async () => {
       if (!account) throw new Error('Connect your wallet first.')
       if (positions === undefined) throw new Error('Wait for all open positions to finish loading.')
-      if (copyRun.ownerAddress.toLowerCase() !== account.toLowerCase()) {
-        throw new Error('The selected Copy Run is not owned by the connected wallet.')
-      }
+      if (ownershipMessage) throw new Error(ownershipMessage)
 
       const currentPositionIds = getSelectedStopCopyPositionIds(selectablePositions, isSelected)
       const response = await prepareStopCopy({
@@ -136,10 +132,8 @@ const StopCopyModal = ({ isOpen, onDismiss, copyRun }: StopCopyModalProps) => {
     onComplete: refreshCopyTrading,
   })
 
-  const togglePosition = (position: PositionSummary, index: number) => {
-    const positionId = getUserPositionId(position)
-    if (!positionId) return
-
+  const togglePosition = (position: SelectableStopCopyPosition, index: number) => {
+    const positionId = position.userPositionId
     const checked = isSelected(position, index)
     if (!checked && selectedPositions.length >= MAX_STOP_POSITIONS) return
 
@@ -171,26 +165,28 @@ const StopCopyModal = ({ isOpen, onDismiss, copyRun }: StopCopyModalProps) => {
     navigate(APP_PATHS.COPY_TRADING + '/history')
   }
 
-  const availabilityMessage = ownershipMessage
-    ? ownershipMessage
-    : !canAttemptPreparation(copyRun.stopCopyAvailability)
-    ? getPreparedReasonMessage(copyRun.stopCopyAvailability?.reason)
-    : undefined
-  const primaryActionLabel = !account
-    ? 'Connect wallet'
-    : !onExpectedChain
-    ? 'Switch network'
-    : positions === undefined
-    ? positionsError
-      ? 'Positions unavailable'
-      : 'Loading positions'
-    : availabilityMessage
-    ? 'Stop Copy unavailable'
-    : 'Review Stop Copy'
-
-  const primaryActionLoading =
-    flowState.isPreparing || (!!account && onExpectedChain && positions === undefined && !positionsError)
-  const reviewPreparing = flowState.phase === 'review' && flowState.isPreparing === true
+  const accountConnected = !!account
+  const isPreparing = flowState.isPreparing === true
+  const positionsLoading = positions === undefined && !positionsError
+  const positionsUnavailable = positions === undefined && !!positionsError
+  const availabilityMessage = getWriteAvailabilityMessage(copyRun.stopCopyAvailability, ownershipMessage)
+  const primaryActionLabel = getWritePrimaryActionLabel({
+    accountConnected,
+    loading: positionsLoading,
+    loadingLabel: 'Loading positions',
+    onExpectedChain,
+    readyLabel: 'Review Stop Copy',
+    unavailable: positionsUnavailable || !!availabilityMessage,
+    unavailableLabel: positionsUnavailable ? 'Positions unavailable' : 'Stop Copy unavailable',
+  })
+  const primaryActionLoading = isPreparing || (accountConnected && onExpectedChain && positionsLoading)
+  const primaryActionDisabled = isWritePrimaryActionDisabled({
+    accountConnected,
+    executionBlocked: positions === undefined || !!positionsError || !!availabilityMessage,
+    interactionLocked: isPreparing,
+    onExpectedChain,
+  })
+  const reviewPreparing = flowState.phase === 'review' && isPreparing
   const expectedPositionCount = Number(copyRun.openPositionCount)
 
   const review = <StopCopyReview isLoading={reviewPreparing} preview={flowState.action?.stopCopy} />
@@ -217,7 +213,7 @@ const StopCopyModal = ({ isOpen, onDismiss, copyRun }: StopCopyModalProps) => {
       <StopCopyForm
         availabilityMessage={availabilityMessage}
         expectedPositionCount={expectedPositionCount}
-        isPreparing={flowState.isPreparing === true}
+        isPreparing={isPreparing}
         isSelected={isSelected}
         onCancel={dismiss}
         onPrimaryAction={handlePrimaryAction}
@@ -225,12 +221,7 @@ const StopCopyModal = ({ isOpen, onDismiss, copyRun }: StopCopyModalProps) => {
         onTogglePosition={togglePosition}
         positions={positions === undefined ? undefined : selectablePositions}
         positionsError={positionsError}
-        primaryActionDisabled={isWritePrimaryActionDisabled({
-          accountConnected: !!account,
-          executionBlocked: positions === undefined || !!positionsError || !!availabilityMessage,
-          interactionLocked: flowState.isPreparing === true,
-          onExpectedChain,
-        })}
+        primaryActionDisabled={primaryActionDisabled}
         primaryActionLabel={primaryActionLabel}
         primaryActionLoading={primaryActionLoading}
         selectedPositionCount={selectedPositions.length}

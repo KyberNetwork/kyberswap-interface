@@ -1,3 +1,4 @@
+import { Fraction } from '@kyberswap/ks-sdk-core'
 import type { Dispatch, SetStateAction } from 'react'
 import type {
   PositionSellContext,
@@ -58,7 +59,6 @@ export type PreparedActionExpectation = {
   startCopyCreateAmountRaw?: string
   startCopyRequestId?: string
   startCopyTargetRaw?: string
-  withdrawAmountRaw?: string
 }
 
 export const getApiErrorMessage = (error: unknown) => {
@@ -98,6 +98,15 @@ export const formatPreparedAmount = (
   token?: PreparedToken,
   maximumFractionDigits = 6,
 ) => {
+  const formatted = formatPreparedAmountValue(value, token, maximumFractionDigits)
+  return formatted === '—' ? formatted : `${formatted} ${token?.symbol || ''}`.trim()
+}
+
+export const formatPreparedAmountValue = (
+  value: string | RawAmountMetric | undefined,
+  token?: PreparedToken,
+  maximumFractionDigits = 6,
+) => {
   const valueRaw = typeof value === 'string' ? value : value?.valueRaw
   if ((typeof value !== 'string' && isUnavailableMetric(value)) || !valueRaw || token?.decimals === undefined)
     return '—'
@@ -108,7 +117,38 @@ export const formatPreparedAmount = (
     fractionDigits: maximumFractionDigits,
     significantDigits: 15,
   })
-  return `${formatted} ${token.symbol || ''}`.trim()
+  return formatted
+}
+
+export const formatPreparedRate = (
+  input?: RawAmountMetric,
+  inputToken?: PreparedToken,
+  output?: RawAmountMetric,
+  outputToken?: PreparedToken,
+) => {
+  const inputRaw = input?.valueRaw
+  const outputRaw = output?.valueRaw
+  if (
+    isUnavailableMetric(input) ||
+    isUnavailableMetric(output) ||
+    !inputRaw ||
+    !outputRaw ||
+    !/^\d+$/.test(inputRaw) ||
+    !/^\d+$/.test(outputRaw) ||
+    inputToken?.decimals === undefined ||
+    outputToken?.decimals === undefined ||
+    !inputToken.symbol ||
+    !outputToken.symbol ||
+    inputRaw === '0'
+  ) {
+    return '—'
+  }
+
+  const numerator = BigInt(outputRaw) * 10n ** BigInt(inputToken.decimals)
+  const denominator = BigInt(inputRaw) * 10n ** BigInt(outputToken.decimals)
+  const rate = new Fraction(numerator.toString(), denominator.toString())
+
+  return `1 ${inputToken.symbol} = ${formatDisplayNumber(rate, { significantDigits: 8 })} ${outputToken.symbol}`
 }
 
 /**
@@ -228,15 +268,6 @@ export const validatePreparedAction = (
         return 'The completed Start Copy action is missing its Smart Wallet identity.'
       }
     }
-  }
-
-  if (
-    expected.preview === 'withdrawQuote' &&
-    expected.withdrawAmountRaw &&
-    action.status === 'PREPARED_ACTION_STATUS_READY' &&
-    action.withdrawQuote?.sweepAmountRaw !== expected.withdrawAmountRaw
-  ) {
-    return 'The prepared withdrawal amount does not match the requested amount.'
   }
 
   if (requireCall || action.status === 'PREPARED_ACTION_STATUS_PENDING') {

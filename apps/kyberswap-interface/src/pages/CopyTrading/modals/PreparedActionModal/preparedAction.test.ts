@@ -3,6 +3,9 @@ import { describe, expect, it } from 'vitest'
 
 import {
   type PreparedActionExpectation,
+  formatPreparedAmount,
+  formatPreparedAmountValue,
+  formatPreparedRate,
   validatePreparedAction,
   validatePreparedActionContinuation,
 } from 'pages/CopyTrading/modals/PreparedActionModal/preparedAction'
@@ -218,4 +221,45 @@ describe('validatePreparedAction', () => {
       )
     },
   )
+})
+
+describe('prepared amount formatting', () => {
+  const token = { decimals: 6, symbol: 'USDC' }
+  const amount = { valueRaw: '1234567', status: 'METRIC_STATUS_CURRENT' as const }
+
+  it('formats panel values without repeating the token symbol', () => {
+    expect(formatPreparedAmountValue(amount, token)).toBe('1.234567')
+    expect(formatPreparedAmount(amount, token)).toBe('1.234567 USDC')
+  })
+
+  it('preserves unavailable metric fallbacks', () => {
+    expect(formatPreparedAmountValue({ valueRaw: '1234567', status: 'METRIC_STATUS_UNAVAILABLE' }, token)).toBe('—')
+  })
+})
+
+describe('prepared rate formatting', () => {
+  const baseToken = { decimals: 18, symbol: 'A' }
+  const quoteToken = { decimals: 6, symbol: 'B' }
+
+  it('derives a decimal-aware output rate from the prepared sell and expected receive amounts', () => {
+    expect(
+      formatPreparedRate(
+        { valueRaw: '2000000000000000000', status: 'METRIC_STATUS_CURRENT' },
+        baseToken,
+        { valueRaw: '5000000', status: 'METRIC_STATUS_CURRENT' },
+        quoteToken,
+      ),
+    ).toBe('1 A = 2.5 B')
+  })
+
+  it('does not display a rate without usable prepared amounts', () => {
+    expect(
+      formatPreparedRate(
+        { valueRaw: '0', status: 'METRIC_STATUS_CURRENT' },
+        baseToken,
+        { valueRaw: '5000000', status: 'METRIC_STATUS_CURRENT' },
+        quoteToken,
+      ),
+    ).toBe('—')
+  })
 })
