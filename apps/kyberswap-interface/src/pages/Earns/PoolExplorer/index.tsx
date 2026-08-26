@@ -28,9 +28,8 @@ import useFilter from 'pages/Earns/PoolExplorer/useFilter'
 import { Exchange } from 'pages/Earns/constants'
 import useSmartExitWidget from 'pages/Earns/hooks/useSmartExitWidget'
 import useZapCreatePoolWidget from 'pages/Earns/hooks/useZapCreatePoolWidget'
-import useZapInWidget, { ZapInInfo } from 'pages/Earns/hooks/useZapInWidget'
+import useZapInWidget from 'pages/Earns/hooks/useZapInWidget'
 import useZapMigrationWidget from 'pages/Earns/hooks/useZapMigrationWidget'
-import { getPoolDetailUrl } from 'pages/Earns/utils/url'
 import { Direction } from 'pages/MarketOverview/SortIcon'
 import { useNotify } from 'state/application/hooks'
 import { MEDIA_WIDTHS } from 'theme'
@@ -117,21 +116,6 @@ const PoolExplorer = () => {
       return
     }
   }
-
-  const handleNavigateToAddLiquidity = useCallback(
-    ({ pool, initialTick }: ZapInInfo) => {
-      const pathname = getPoolDetailUrl(pool.chainId, pool.dex, pool.address)
-      // tickLower/tickUpper are passed as optional query params: currently unread by the detail page,
-      // but preserved so a future zap-migration reader can still pick them up.
-      const params = new URLSearchParams()
-      if (initialTick?.tickLower !== undefined) params.set('tickLower', initialTick.tickLower.toString())
-      if (initialTick?.tickUpper !== undefined) params.set('tickUpper', initialTick.tickUpper.toString())
-      const search = params.toString()
-
-      navigate(search ? { pathname, search: `?${search}` } : pathname)
-    },
-    [navigate],
-  )
 
   const handleRemoveUrlParams = useCallback(() => {
     searchParams.delete('exchange')
@@ -265,12 +249,7 @@ const PoolExplorer = () => {
             showRewards={showRewards}
             showPoolPrice={showPoolPrice}
           />
-          <TableContent
-            onOpenZapInWidget={handleNavigateToAddLiquidity}
-            filters={filters}
-            showRewards={showRewards}
-            showPoolPrice={showPoolPrice}
-          />
+          <TableContent filters={filters} showRewards={showRewards} showPoolPrice={showPoolPrice} />
         </div>
         {!isError && (
           <Pagination

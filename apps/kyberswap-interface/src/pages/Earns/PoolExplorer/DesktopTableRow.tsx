@@ -1,7 +1,7 @@
 import { t } from '@lingui/macro'
 import { Star } from 'react-feather'
 
-import { TableCell, TableRow, getPoolTableGridTemplateColumns } from 'components/Listing/Table'
+import { TableCell, TableRowLink, getPoolTableGridTemplateColumns } from 'components/Listing/Table'
 import Loader from 'components/Loader'
 import { HStack } from 'components/Stack'
 import TokenLogo from 'components/TokenLogo'
@@ -14,8 +14,8 @@ import { FeeTier, SymbolText } from 'pages/Earns/PoolExplorer/styles'
 import PoolAprBadges from 'pages/Earns/components/PoolAprBadges'
 import PoolAprInfo from 'pages/Earns/components/PoolAprInfo'
 import PoolRewardsInfo from 'pages/Earns/components/PoolRewardsInfo'
-import { ZapInInfo } from 'pages/Earns/hooks/useZapInWidget'
 import { ParsedEarnPool } from 'pages/Earns/types'
+import { getPoolDetailUrl } from 'pages/Earns/utils/url'
 import { formatDisplayNumber } from 'utils/numbers'
 import { prefetchPoolDetail } from 'utils/prefetch'
 
@@ -24,7 +24,6 @@ const DesktopTableRow = ({
   showRewards = true,
   showPoolPrice = true,
   rowIndex,
-  onOpenZapInWidget,
   handleFavorite,
   favoriteLoading,
 }: {
@@ -33,7 +32,6 @@ const DesktopTableRow = ({
   showPoolPrice?: boolean
   /** 0-based position within the current page — drives the staggered fade-in delay. */
   rowIndex: number
-  onOpenZapInWidget: ({ pool, initialTick }: ZapInInfo) => void
   handleFavorite: (e: React.MouseEvent<SVGElement, MouseEvent>, pool: ParsedEarnPool) => Promise<void>
   favoriteLoading: string[]
 }) => {
@@ -43,15 +41,15 @@ const DesktopTableRow = ({
   // Stagger each row's fade-in by 50ms (capped at 300ms), matching the My Positions list.
   const animationDelay = `${Math.min(rowIndex * 50, 300)}ms`
 
-  // The parent wires this row's onClick (onOpenZapInWidget) to open the pool's detail page, so warm
-  // that page's chunk + its poolDetail query on hover.
+  const poolDetailUrl = getPoolDetailUrl((pool.chain?.id || pool.chainId) as number, pool.exchange, pool.address)
+
+  // Warm the detail page's chunk + poolDetail query on hover before the link is opened.
   const prefetchDetail = usePrefetchOnIntent(
     () => prefetchPoolDetail((pool.chain?.id || pool.chainId) as number, pool.address),
     { delay: 120 },
   )
 
-  const handleOpenZapInWidget = (e: React.MouseEvent<HTMLDivElement>) => {
-    e.stopPropagation()
+  const handlePoolClick = () => {
     trackingHandler(TRACKING_EVENT_TYPE.LIQ_POOL_SELECTED, {
       pool_pair: `${pool.tokens?.[0]?.symbol}/${pool.tokens?.[1]?.symbol}`,
       pool_protocol: pool.dexName,
@@ -61,18 +59,12 @@ const DesktopTableRow = ({
       pool_apr: pool.allApr,
       chain: pool.chain?.name,
     })
-    onOpenZapInWidget({
-      pool: {
-        dex: pool.exchange,
-        chainId: (pool.chain?.id || pool.chainId) as number,
-        address: pool.address,
-      },
-    })
   }
 
   return (
-    <TableRow
-      onClick={e => handleOpenZapInWidget(e)}
+    <TableRowLink
+      to={poolDetailUrl}
+      onClick={handlePoolClick}
       className="animate-[fadeInUp_0.3s_ease-out_both] cursor-pointer hover:bg-primary-10 motion-reduce:animate-none"
       style={{ gridTemplateColumns: getPoolTableGridTemplateColumns(showRewards, showPoolPrice), animationDelay }}
       data-testid="earn-pool-row"
@@ -163,7 +155,7 @@ const DesktopTableRow = ({
           />
         )}
       </TableCell>
-    </TableRow>
+    </TableRowLink>
   )
 }
 

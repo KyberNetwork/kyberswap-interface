@@ -1,4 +1,5 @@
-import { CSSProperties, HTMLAttributes } from 'react'
+import { CSSProperties, HTMLAttributes, forwardRef } from 'react'
+import { Link, LinkProps } from 'react-router-dom'
 
 import { cn } from 'utils/cn'
 
@@ -47,3 +48,8 @@ export const TableCell = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>
 export const TableRow = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
   <div className={cn('grid items-center p-3 text-subText', className)} {...rest} />
 )
+
+export const TableRowLink = forwardRef<HTMLAnchorElement, LinkProps>(({ className, ...rest }, ref) => (
+  <Link ref={ref} className={cn('grid items-center p-3 text-subText no-underline', className)} {...rest} />
+))
+TableRowLink.displayName = 'TableRowLink'

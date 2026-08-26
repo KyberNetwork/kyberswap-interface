@@ -1,6 +1,7 @@
 import { CSSProperties, HTMLAttributes, forwardRef } from 'react'
+import { LinkProps } from 'react-router-dom'
 
-import { TableWrapper } from 'components/Listing/Table'
+import { TableRowLink, TableWrapper } from 'components/Listing/Table'
 import { cn } from 'utils/cn'
 
 export const HeadSection = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(({ className, ...rest }, ref) => (
@@ -136,6 +137,15 @@ export const MobileTableRow = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivE
   ),
 )
 MobileTableRow.displayName = 'MobileTableRow'
+
+export const MobileTableRowLink = forwardRef<HTMLAnchorElement, LinkProps>(({ className, ...rest }, ref) => (
+  <TableRowLink
+    ref={ref}
+    className={cn('block cursor-pointer rounded-xl bg-background p-2 text-inherit hover:bg-buttonGray', className)}
+    {...rest}
+  />
+))
+MobileTableRowLink.displayName = 'MobileTableRowLink'
 
 type MobileTableCellProps = HTMLAttributes<HTMLDivElement> & {
   alignItems?: CSSProperties['alignItems']

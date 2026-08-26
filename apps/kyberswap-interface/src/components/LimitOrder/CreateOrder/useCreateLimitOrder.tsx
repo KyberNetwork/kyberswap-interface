@@ -68,8 +68,6 @@ export const useCreateLimitOrder = ({
     wrapAmount: nativeWrapAmount,
   })
 
-  const maxAmountInput = maxAmountSpend(balance)
-
   const inputCurrencySymbol = currencyIn?.symbol
   const insufficientBalanceText = insufficientBalance ? t`Insufficient ${inputCurrencySymbol} balance` : undefined
 
@@ -103,6 +101,17 @@ export const useCreateLimitOrder = ({
     } catch (error) {}
     return undefined
   }, [approvalCurrency, activeOrderMakingAmount])
+
+  const availableMakingAmount = useMemo(() => {
+    if (!balance || currencyIn?.isNative || !parsedActiveOrderMakingAmount) return balance
+    if (!balance.currency.equals(parsedActiveOrderMakingAmount.currency)) return undefined
+
+    const remainingAmount = JSBI.subtract(balance.quotient, parsedActiveOrderMakingAmount.quotient)
+    return TokenAmount.fromRawAmount(
+      balance.currency,
+      JSBI.greaterThan(remainingAmount, JSBI.BigInt(0)) ? remainingAmount : JSBI.BigInt(0),
+    )
+  }, [balance, currencyIn, parsedActiveOrderMakingAmount])
 
   // Allowance is checked inside the processing approve step so the modal can show the step even when it passes.
   const [approval, approveCallback] = useApproveCallback({
@@ -173,6 +182,7 @@ export const useCreateLimitOrder = ({
   })
 
   const handleMaxInput = () => {
+    const maxAmountInput = maxAmountSpend(availableMakingAmount)
     if (!maxAmountInput) return
     try {
       onSetInput?.(maxAmountInput.toExact())
@@ -180,7 +190,7 @@ export const useCreateLimitOrder = ({
   }
 
   const handleHalfInput = () => {
-    const halfAmountInput = halfAmountSpend(balance)
+    const halfAmountInput = halfAmountSpend(availableMakingAmount)
     if (!halfAmountInput) return
     try {
       onSetInput?.(halfAmountInput.toExact())
