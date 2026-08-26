@@ -218,17 +218,17 @@ const CopySidePanel = ({ agent, run }: CopySidePanelProps) => {
       {capitalCard}
       {agentRiskCard}
       {remainingInWallet}
-      {secondaryCard && (
-        <ResponsiveDetailItem responsiveOrder={copyDetailResponsiveOrder.secondary}>
-          {secondaryCard}
-        </ResponsiveDetailItem>
-      )}
       {run.withdrawQuoteAvailability && (
         <ResponsiveDetailItem responsiveOrder={copyDetailResponsiveOrder.withdraw}>
           <WithdrawQuoteCard
             availability={run.withdrawQuoteAvailability}
             onWithdraw={() => openWithdrawQuote(run, run.withdrawQuoteAvailability)}
           />
+        </ResponsiveDetailItem>
+      )}
+      {secondaryCard && (
+        <ResponsiveDetailItem responsiveOrder={copyDetailResponsiveOrder.secondary}>
+          {secondaryCard}
         </ResponsiveDetailItem>
       )}
       {!isTerminal && (

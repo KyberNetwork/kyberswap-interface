@@ -142,7 +142,7 @@ const ActiveSubscriptionsTable = ({
             Capital In
           </HeaderCell>
           <HeaderCell className="justify-end text-right">Positions</HeaderCell>
-          <TableCell />
+          <HeaderCell className="justify-end text-right" />
         </ActiveSubscriptionsGrid>
 
         <TableBody
