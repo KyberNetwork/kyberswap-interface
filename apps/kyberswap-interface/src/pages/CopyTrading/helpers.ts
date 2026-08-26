@@ -23,15 +23,15 @@ export const compactUsd = (value?: DecimalString) => {
     : formatDisplayNumber(amount, { allowDisplayNegative: true, significantDigits: 3, style: 'currency' })
 }
 
-export const formatUsd = (value?: DecimalString) => {
+export const formatUsd = (value?: DecimalString, fractionDigits?: number) => {
   const amount = parseNumericValue(value)
   if (amount === undefined) return METRIC_FALLBACK
 
   const absoluteAmount = Math.abs(amount)
-  const fractionDigits = absoluteAmount > 0 && absoluteAmount < 1 ? 6 : 2
+  const resolvedFractionDigits = fractionDigits ?? (absoluteAmount > 0 && absoluteAmount < 1 ? 6 : 2)
   const formattedValue = formatDisplayNumber(amount, {
     allowDisplayNegative: true,
-    fractionDigits,
+    fractionDigits: resolvedFractionDigits,
     significantDigits: 15,
     style: 'currency',
   })
@@ -45,11 +45,11 @@ export const getDisplayCapitalInUsd = (run: Pick<CopyRunSummary, 'capitalInUsd' 
 export const formatDisplayCapitalInUsd = (run: Pick<CopyRunSummary, 'capitalInUsd' | 'observedCapitalInUsd'>) =>
   formatUsd(getDisplayCapitalInUsd(run))
 
-export const signedUsd = (value?: DecimalString) => {
+export const signedUsd = (value?: DecimalString, fractionDigits?: number) => {
   const amount = parseNumericValue(value)
   if (amount === undefined) return METRIC_FALLBACK
 
-  return `${amount > 0 ? '+' : amount < 0 ? '-' : ''}${formatUsd(String(Math.abs(amount)))}`
+  return `${amount > 0 ? '+' : amount < 0 ? '-' : ''}${formatUsd(String(Math.abs(amount)), fractionDigits)}`
 }
 
 export const sumUsdValues = (...values: Array<DecimalString | undefined>) => {
@@ -128,8 +128,8 @@ export const getWinRateClassName = (value?: NumericValue, variant: 'text' | 'bac
   return 'text-red'
 }
 
-export const formatApproximateUsd = (value?: DecimalString) => {
-  const formattedValue = formatUsd(value)
+export const formatApproximateUsd = (value?: DecimalString, fractionDigits?: number) => {
+  const formattedValue = formatUsd(value, fractionDigits)
   return formattedValue === METRIC_FALLBACK ? formattedValue : `~${formattedValue}`
 }
 

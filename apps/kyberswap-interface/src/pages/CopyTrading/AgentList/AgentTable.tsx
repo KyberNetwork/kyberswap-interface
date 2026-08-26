@@ -152,7 +152,7 @@ const AgentTable = ({ agents, loading, pagination, sortBy, sortOrder, onSortChan
           >
             Position
           </HeaderCell>
-          <TableCell />
+          <HeaderCell className="justify-end text-right" />
         </LeaderboardGrid>
 
         <TableBody
@@ -183,7 +183,7 @@ const AgentTable = ({ agents, loading, pagination, sortBy, sortOrder, onSortChan
                 <TableCell className="text-right">{formatCount(agent.stats.copiers)}</TableCell>
                 <TableCell className="text-right">{compactUsd(agent.stats.aumUsd)}</TableCell>
                 <TableCell className="text-right">{formatCount(agent.stats.openPositions)}</TableCell>
-                <TableCell className="flex justify-center">
+                <TableCell className="flex justify-end">
                   {copiedRun ? (
                     <span className="text-sm font-medium text-primary">Copied</span>
                   ) : (

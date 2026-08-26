@@ -36,6 +36,10 @@ describe('Copy Trading metric formatters', () => {
     expect(percent('0')).not.toBe('N/A')
   })
 
+  it('supports a shorter USD precision for compact table cells', () => {
+    expect(formatUsd('0.366334', 2)).toBe('$0.36')
+  })
+
   it('keeps a negative USD sign with its value when wrapping', () => {
     expect(formatUsd('-10')).toMatch(/^-\u2060/)
   })
