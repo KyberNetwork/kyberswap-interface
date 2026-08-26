@@ -146,12 +146,15 @@ type RecoveryViewModel = {
   title?: string
 }
 
-const getRecoveryViewModel = (state: PreparedActionFlowState): RecoveryViewModel | undefined => {
+const getRecoveryViewModel = (
+  state: PreparedActionFlowState,
+  unavailableShowBackAction: boolean,
+): RecoveryViewModel | undefined => {
   switch (state.phase) {
     case 'pending':
       return { retryLabel: 'Try again', showBackAction: false, title: 'Update in progress' }
     case 'unavailable':
-      return { retryLabel: 'Try again', showBackAction: false, title: 'Action unavailable' }
+      return { retryLabel: 'Try again', showBackAction: unavailableShowBackAction, title: 'Action unavailable' }
     case 'expired':
       return { retryLabel: 'Try again', showBackAction: true, title: 'Review expired' }
     case 'error':
@@ -190,11 +193,7 @@ const PreparedActionModal = ({
   const scanLink = state.hash && chainId ? getEtherscanLink(chainId, state.hash, 'transaction') : undefined
   const processing = isProcessing(state)
   const processingCopy = getProcessingCopy(state)
-  const defaultRecovery = getRecoveryViewModel(state)
-  const recovery =
-    defaultRecovery && state.phase === 'unavailable' && unavailableShowBackAction
-      ? { ...defaultRecovery, showBackAction: true }
-      : defaultRecovery
+  const recovery = getRecoveryViewModel(state, unavailableShowBackAction)
   const reviewPreparing = state.phase === 'review' && state.isPreparing === true
   const interactionLocked = confirmLoading || reviewPreparing
   const recoveryError = state.error ? friendlyError(state.error) : undefined

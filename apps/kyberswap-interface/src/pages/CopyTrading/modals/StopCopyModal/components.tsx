@@ -1,4 +1,3 @@
-import type { PositionSummary } from 'services/copyTrading/types/positions'
 import type { StopCopyPreview } from 'services/copyTrading/types/preparedActions'
 
 import ScrollableWithSignal from 'components/ScrollableWithSignal'
@@ -8,7 +7,7 @@ import { formatApproximateUsd, getSignedMetricClassName, signedUsd } from 'pages
 import { PreparedActionFormActions, ReviewRow, ReviewSection } from 'pages/CopyTrading/modals/PreparedActionModal'
 import PreparedActionSlippageControl from 'pages/CopyTrading/modals/PreparedActionModal/SlippageControl'
 import { formatPreparedAmount, withMetricFallback } from 'pages/CopyTrading/modals/PreparedActionModal/preparedAction'
-import { MAX_STOP_POSITIONS, getUserPositionId } from 'pages/CopyTrading/modals/StopCopyModal/positions'
+import { MAX_STOP_POSITIONS, type SelectableStopCopyPosition } from 'pages/CopyTrading/modals/StopCopyModal/positions'
 import { cn } from 'utils/cn'
 
 const withApproximateMetricFallback = (value: string) => (value === '—' ? 'N/A' : `~${value}`)
@@ -91,12 +90,12 @@ type StopCopyFormProps = {
   availabilityMessage?: string
   expectedPositionCount?: number
   isPreparing: boolean
-  isSelected: (position: PositionSummary, index: number) => boolean
+  isSelected: (position: SelectableStopCopyPosition, index: number) => boolean
   onCancel: () => void
   onPrimaryAction: () => void
   onSlippageChange: (slippage: number) => void
-  onTogglePosition: (position: PositionSummary, index: number) => void
-  positions?: PositionSummary[]
+  onTogglePosition: (position: SelectableStopCopyPosition, index: number) => void
+  positions?: SelectableStopCopyPosition[]
   positionsError?: string
   primaryActionDisabled: boolean
   primaryActionLabel: string
@@ -135,7 +134,7 @@ type StopCopyPositionRowProps = {
   checked: boolean
   disabled: boolean
   onToggle: () => void
-  position: PositionSummary
+  position: SelectableStopCopyPosition
 }
 
 const StopCopyPositionRow = ({ checked, disabled, onToggle, position }: StopCopyPositionRowProps) => (
@@ -200,7 +199,7 @@ const StopCopyPositionList = ({
 
       return (
         <StopCopyPositionRow
-          key={getUserPositionId(position) as string}
+          key={position.userPositionId}
           checked={checked}
           disabled={isPreparing || selectionLimitReached}
           onToggle={() => onTogglePosition(position, index)}

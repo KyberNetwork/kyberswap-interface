@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import {
   UINT256_MAX_RAW,
+  getWithdrawAmountError,
   getWithdrawRequestAmountRaw,
   validateWithdrawAmountRaw,
   validateWithdrawPreview,
@@ -19,6 +20,15 @@ describe('withdraw quote request', () => {
   it('uses uint256.max only after the Max preset is selected', () => {
     expect(getWithdrawRequestAmountRaw('42', false)).toBe('42')
     expect(getWithdrawRequestAmountRaw('42', true)).toBe(UINT256_MAX_RAW)
+  })
+
+  it('validates the displayed amount against currency and Smart Wallet balance', () => {
+    const input = { amount: '2', amountRaw: '2', hasQuoteCurrency: true, walletBalanceRaw: '1', withdrawAll: false }
+
+    expect(getWithdrawAmountError({ ...input, amount: '' })).toBeUndefined()
+    expect(getWithdrawAmountError({ ...input, hasQuoteCurrency: false })).toBe('Enter a valid quote-token amount.')
+    expect(getWithdrawAmountError(input)).toBe('The Smart Wallet does not have enough quote-token balance.')
+    expect(getWithdrawAmountError({ ...input, withdrawAll: true })).toBeUndefined()
   })
 
   it('requires a ready preview to remain bound to the exact request', () => {

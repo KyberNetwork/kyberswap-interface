@@ -52,11 +52,9 @@ const StartCopyModal = ({ isOpen, onDismiss, agent }: StartCopyModalProps) => {
       width={520}
     >
       <StartCopyForm
-        accountConnected={flow.accountConnected}
         agent={agent}
         amount={flow.capital.amount}
         amountError={flow.capital.amountError}
-        amountIsValid={flow.capital.amountIsValid}
         availabilityMessage={flow.availabilityMessage}
         isPreparing={flow.flowState.isPreparing === true}
         onAmountChange={value => {
@@ -64,10 +62,10 @@ const StartCopyModal = ({ isOpen, onDismiss, agent }: StartCopyModalProps) => {
           flow.setAgreed(false)
         }}
         onCancel={flow.dismiss}
-        onExpectedChain={flow.capital.onExpectedChain}
         onPercentageChange={flow.setPercentageAmount}
         onPrimaryAction={flow.handlePrimaryAction}
         presetsEnabled={flow.capital.presetsEnabled}
+        primaryActionDisabled={flow.primaryActionDisabled}
         primaryActionLabel={flow.primaryActionLabel}
         quoteCurrency={flow.capital.quoteCurrency}
         walletBalanceLoading={flow.capital.walletBalanceLoading}

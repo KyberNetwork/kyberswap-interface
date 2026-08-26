@@ -5,7 +5,10 @@ import type { CopyRunPositionsResponse } from 'services/copyTrading/types/respon
 export const MAX_STOP_POSITIONS = 32
 const POSITIONS_PAGE_SIZE = 100
 
-export const getUserPositionId = (position: PositionSummary) => position.userPositionId
+export type SelectableStopCopyPosition = PositionSummary & { userPositionId: string }
+
+export const hasUserPositionId = (position: PositionSummary): position is SelectableStopCopyPosition =>
+  !!position.userPositionId
 
 type GetCopyRunPositions = (query: CopyRunPositionsQuery) => {
   unwrap: () => Promise<CopyRunPositionsResponse>
@@ -46,13 +49,10 @@ export const loadAllOpenCopyRunPositions = async (getCopyRunPositions: GetCopyRu
 }
 
 export const getSelectedStopCopyPositionIds = (
-  positions: PositionSummary[],
-  isSelected: (position: PositionSummary, index: number) => boolean,
+  positions: SelectableStopCopyPosition[],
+  isSelected: (position: SelectableStopCopyPosition, index: number) => boolean,
 ) => {
-  const positionIds = positions
-    .filter(isSelected)
-    .map(getUserPositionId)
-    .filter((positionId): positionId is string => !!positionId)
+  const positionIds = positions.filter(isSelected).map(position => position.userPositionId)
 
   if (positionIds.length > MAX_STOP_POSITIONS) {
     throw new Error('Select at most ' + MAX_STOP_POSITIONS + ' positions before continuing.')

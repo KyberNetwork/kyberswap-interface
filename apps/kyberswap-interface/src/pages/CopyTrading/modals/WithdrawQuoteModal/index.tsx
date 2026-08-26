@@ -11,7 +11,6 @@ import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useCurrencyV2 } from 'hooks/useTokens'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
-import { canAttemptPreparation, getPreparedReasonMessage } from 'pages/CopyTrading/helpers'
 import useRefreshCopyTrading from 'pages/CopyTrading/hooks/useRefreshCopyTrading'
 import { getCapitalInputQuoteToken } from 'pages/CopyTrading/modals/CapitalAmount/capital'
 import PreparedActionModal, { PreparedActionSuccessActions } from 'pages/CopyTrading/modals/PreparedActionModal'
@@ -23,11 +22,17 @@ import { usePreparedAction } from 'pages/CopyTrading/modals/PreparedActionModal/
 import { WithdrawQuoteForm, WithdrawQuoteReview } from 'pages/CopyTrading/modals/WithdrawQuoteModal/components'
 import {
   UINT256_MAX_RAW,
+  getWithdrawAmountError,
   getWithdrawPresetAmountRaw,
   getWithdrawRequestAmountRaw,
   validateWithdrawPreview,
 } from 'pages/CopyTrading/modals/WithdrawQuoteModal/withdrawQuote'
-import { isWritePrimaryActionDisabled } from 'pages/CopyTrading/modals/writeAction'
+import {
+  getCopyRunOwnershipMessage,
+  getWriteAvailabilityMessage,
+  getWritePrimaryActionLabel,
+  isWritePrimaryActionDisabled,
+} from 'pages/CopyTrading/modals/writeAction'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { formatDisplayNumber } from 'utils/numbers'
 import { formatUnits, parseUnits } from 'utils/viem'
@@ -55,10 +60,7 @@ const WithdrawQuoteModal = ({ isOpen, onDismiss, copyRun, withdrawQuoteAvailabil
 
   const availability = withdrawQuoteAvailability || copyRun.withdrawQuoteAvailability
   const onExpectedChain = chainId === copyRun.chainId
-  const ownershipMessage =
-    account && copyRun.ownerAddress.toLowerCase() !== account.toLowerCase()
-      ? 'The selected Copy Run is not owned by the connected wallet.'
-      : undefined
+  const ownershipMessage = getCopyRunOwnershipMessage(copyRun.ownerAddress, account)
 
   const inventoryQuery = copyAccountApi.endpoints.getCopyAccountWalletInventory.useQueryState(
     { chainId: copyRun.chainId, copyAccount: copyRun.copyAccount },
@@ -95,15 +97,13 @@ const WithdrawQuoteModal = ({ isOpen, onDismiss, copyRun, withdrawQuoteAvailabil
       return undefined
     }
   }, [amount, quoteToken])
-  const amountError = !amount
-    ? undefined
-    : !quoteCurrency || !amountRaw
-    ? 'Enter a valid quote-token amount.'
-    : BigInt(amountRaw) >= BigInt(UINT256_MAX_RAW)
-    ? 'The withdrawal amount is too large.'
-    : !withdrawAll && walletBalanceRaw !== undefined && BigInt(amountRaw) > BigInt(walletBalanceRaw)
-    ? 'The Smart Wallet does not have enough quote-token balance.'
-    : undefined
+  const amountError = getWithdrawAmountError({
+    amount,
+    amountRaw,
+    hasQuoteCurrency: !!quoteCurrency,
+    walletBalanceRaw,
+    withdrawAll,
+  })
   const amountIsValid =
     !!amountRaw &&
     BigInt(amountRaw) < BigInt(UINT256_MAX_RAW) &&
@@ -125,13 +125,10 @@ const WithdrawQuoteModal = ({ isOpen, onDismiss, copyRun, withdrawQuoteAvailabil
       chainId: copyRun.chainId,
       copyAccount: copyRun.copyAccount,
       preview: 'withdrawQuote',
-      withdrawAmountRaw: requestAmountRaw,
     },
     prepare: async () => {
       if (!account) throw new Error('Connect your wallet first.')
-      if (copyRun.ownerAddress.toLowerCase() !== account.toLowerCase()) {
-        throw new Error('The selected Copy Run is not owned by the connected wallet.')
-      }
+      if (ownershipMessage) throw new Error(ownershipMessage)
       if (!requestAmountRaw) throw new Error('Enter a valid withdrawal amount.')
       const response = await prepareWithdrawQuote({
         ownerAddress: account.toLowerCase(),
@@ -190,21 +187,24 @@ const WithdrawQuoteModal = ({ isOpen, onDismiss, copyRun, withdrawQuoteAvailabil
     navigate(APP_PATHS.COPY_TRADING + (terminal ? '/history' : '/my-copies'))
   }
 
-  const availabilityMessage = ownershipMessage
-    ? ownershipMessage
-    : !canAttemptPreparation(availability)
-    ? getPreparedReasonMessage(availability?.reason)
-    : undefined
-  const primaryActionLabel = !account
-    ? 'Connect wallet'
-    : !onExpectedChain
-    ? 'Switch network'
-    : availabilityMessage
-    ? 'Withdraw unavailable'
-    : 'Review Withdrawal'
-
+  const accountConnected = !!account
+  const isPreparing = flowState.isPreparing === true
+  const availabilityMessage = getWriteAvailabilityMessage(availability, ownershipMessage)
+  const primaryActionLabel = getWritePrimaryActionLabel({
+    accountConnected,
+    onExpectedChain,
+    readyLabel: 'Review Withdrawal',
+    unavailable: !!availabilityMessage,
+    unavailableLabel: 'Withdraw unavailable',
+  })
+  const primaryActionDisabled = isWritePrimaryActionDisabled({
+    accountConnected,
+    executionBlocked: !!availabilityMessage || !amountIsValid,
+    interactionLocked: isPreparing,
+    onExpectedChain,
+  })
   const preview = flowState.action?.withdrawQuote
-  const reviewPreparing = flowState.phase === 'review' && flowState.isPreparing === true
+  const reviewPreparing = flowState.phase === 'review' && isPreparing
   const review = <WithdrawQuoteReview chainId={copyRun.chainId} isLoading={reviewPreparing} preview={preview} />
   const successActions = (
     <PreparedActionSuccessActions
@@ -234,19 +234,14 @@ const WithdrawQuoteModal = ({ isOpen, onDismiss, copyRun, withdrawQuoteAvailabil
         amount={amount}
         amountError={amountError}
         availabilityMessage={availabilityMessage}
-        isPreparing={flowState.isPreparing === true}
+        isPreparing={isPreparing}
         onAmountChange={handleAmountChange}
         onCancel={dismiss}
         onHalf={() => setPresetAmount(50)}
         onMax={() => setPresetAmount(100)}
         onPrimaryAction={handlePrimaryAction}
         presetsEnabled={presetsEnabled}
-        primaryActionDisabled={isWritePrimaryActionDisabled({
-          accountConnected: !!account,
-          executionBlocked: !!availabilityMessage || !amountIsValid,
-          interactionLocked: flowState.isPreparing === true,
-          onExpectedChain,
-        })}
+        primaryActionDisabled={primaryActionDisabled}
         primaryActionLabel={primaryActionLabel}
         quoteCurrency={quoteCurrency}
         selectedChainId={copyRun.chainId}

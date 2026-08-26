@@ -8,13 +8,7 @@ import type { PreparedCallKind } from 'services/copyTrading/types/preparedAction
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
-import {
-  canAttemptPreparation,
-  formatTokenAmount,
-  getDisplayCapitalInUsd,
-  getPreparedReasonMessage,
-  sumUsdValues,
-} from 'pages/CopyTrading/helpers'
+import { formatTokenAmount, getDisplayCapitalInUsd, sumUsdValues } from 'pages/CopyTrading/helpers'
 import useRefreshCopyTrading from 'pages/CopyTrading/hooks/useRefreshCopyTrading'
 import { AddCapitalForm } from 'pages/CopyTrading/modals/AddCapitalModal/components'
 import { type CapitalPercentage } from 'pages/CopyTrading/modals/CapitalAmount/capital'
@@ -22,6 +16,12 @@ import { useCapitalAmount } from 'pages/CopyTrading/modals/CapitalAmount/useCapi
 import PreparedActionModal, { PreparedActionSuccessActions } from 'pages/CopyTrading/modals/PreparedActionModal'
 import { DEFAULT_PREPARED_ACTION_STATE } from 'pages/CopyTrading/modals/PreparedActionModal/preparedAction'
 import { usePreparedAction } from 'pages/CopyTrading/modals/PreparedActionModal/usePreparedAction'
+import {
+  getCopyRunOwnershipMessage,
+  getWriteAvailabilityMessage,
+  getWritePrimaryActionLabel,
+  isWritePrimaryActionDisabled,
+} from 'pages/CopyTrading/modals/writeAction'
 import { useWalletModalToggle } from 'state/application/hooks'
 
 type AddCapitalModalProps = {
@@ -48,10 +48,7 @@ const AddCapitalModal = ({ isOpen, onDismiss, copyRun }: AddCapitalModalProps) =
     targetChainId: copyRun.chainId,
   })
 
-  const ownershipMessage =
-    account && copyRun.ownerAddress.toLowerCase() !== account.toLowerCase()
-      ? 'The selected Copy Run is not owned by the connected wallet.'
-      : undefined
+  const ownershipMessage = getCopyRunOwnershipMessage(copyRun.ownerAddress, account)
 
   const currentAllocatedCapitalUsd = getDisplayCapitalInUsd(copyRun)
   const newAllocatedCapitalUsd =
@@ -77,9 +74,7 @@ const AddCapitalModal = ({ isOpen, onDismiss, copyRun }: AddCapitalModalProps) =
     },
     prepare: async () => {
       if (!account || !capital.quoteToken) throw new Error('Connect a supported wallet and network first.')
-      if (copyRun.ownerAddress.toLowerCase() !== account.toLowerCase()) {
-        throw new Error('The selected Copy Run is not owned by the connected wallet.')
-      }
+      if (ownershipMessage) throw new Error(ownershipMessage)
       if (!capital.amountRaw) throw new Error('Enter an amount greater than zero.')
       if (capital.amountError) throw new Error(capital.amountError)
 
@@ -137,18 +132,23 @@ const AddCapitalModal = ({ isOpen, onDismiss, copyRun }: AddCapitalModalProps) =
     navigate(APP_PATHS.COPY_TRADING + '/my-copies')
   }
 
-  const availabilityMessage = ownershipMessage
-    ? ownershipMessage
-    : !canAttemptPreparation(copyRun.addCapitalAvailability)
-    ? getPreparedReasonMessage(copyRun.addCapitalAvailability?.reason)
-    : undefined
-  const primaryActionLabel = !account
-    ? 'Connect wallet'
-    : !capital.onExpectedChain
-    ? 'Switch network'
-    : availabilityMessage || !capital.quoteToken
-    ? 'Add Capital unavailable'
-    : 'Add Capital'
+  const accountConnected = !!account
+  const isPreparing = flowState.isPreparing === true
+  const availabilityMessage = getWriteAvailabilityMessage(copyRun.addCapitalAvailability, ownershipMessage)
+  const unavailable = !!availabilityMessage || !capital.quoteToken
+  const primaryActionLabel = getWritePrimaryActionLabel({
+    accountConnected,
+    onExpectedChain: capital.onExpectedChain,
+    readyLabel: 'Add Capital',
+    unavailable,
+    unavailableLabel: 'Add Capital unavailable',
+  })
+  const primaryActionDisabled = isWritePrimaryActionDisabled({
+    accountConnected,
+    executionBlocked: !capital.amountIsValid || !!availabilityMessage,
+    interactionLocked: isPreparing,
+    onExpectedChain: capital.onExpectedChain,
+  })
 
   const successActions = (
     <PreparedActionSuccessActions onClose={dismiss} onPrimaryAction={viewMyCopies} primaryLabel="My Copies" />
@@ -162,7 +162,7 @@ const AddCapitalModal = ({ isOpen, onDismiss, copyRun }: AddCapitalModalProps) =
       title={`Add Capital - ${copyRun.agentSnapshot?.displayName}`}
       review={null}
       confirmLabel="Add Capital"
-      confirmLoading={flowState.isPreparing === true}
+      confirmLoading={isPreparing}
       onBack={flow.reset}
       onConfirm={() => void flow.confirm()}
       onRetry={() => void flow.retryAndConfirm()}
@@ -171,20 +171,18 @@ const AddCapitalModal = ({ isOpen, onDismiss, copyRun }: AddCapitalModalProps) =
       width={520}
     >
       <AddCapitalForm
-        accountConnected={!!account}
         amount={capital.amount}
         amountError={capital.amountError}
-        amountIsValid={capital.amountIsValid}
         availabilityMessage={availabilityMessage}
         currentAllocatedCapital={formatCapitalAmount(currentAllocatedCapitalUsd)}
-        isPreparing={flowState.isPreparing === true}
+        isPreparing={isPreparing}
         newAllocatedCapital={formatCapitalAmount(newAllocatedCapitalUsd)}
         onAmountChange={capital.setAmount}
         onCancel={dismiss}
-        onExpectedChain={capital.onExpectedChain}
         onPercentageChange={setPercentageAmount}
         onPrimaryAction={handlePrimaryAction}
         presetsEnabled={capital.presetsEnabled}
+        primaryActionDisabled={primaryActionDisabled}
         primaryActionLabel={primaryActionLabel}
         quoteCurrency={capital.quoteCurrency}
         selectedChainId={copyRun.chainId}

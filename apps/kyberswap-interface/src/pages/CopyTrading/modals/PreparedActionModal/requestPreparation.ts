@@ -39,14 +39,23 @@ export const requestPreparation = async (
 ) => {
   const preparationVersion = invalidatePreparationRequests(setState)
   const isCurrent = () => isCurrentPreparationRequest(setState, preparationVersion)
+  const failValidation = (action: PreparedAction, error?: string) => {
+    if (!error) return false
 
-  setState(current =>
-    continuation
-      ? { phase: 'syncing', action: current.action, hash, isPreparing: true }
-      : phaseWhilePreparing === 'review'
-      ? { phase: 'review', isPreparing: true }
-      : { ...current, isPreparing: true },
-  )
+    setState({
+      phase: isPreparationExpiredError(error) ? 'expired' : 'error',
+      action,
+      error,
+      hash,
+    })
+    return true
+  }
+
+  setState(current => {
+    if (continuation) return { phase: 'syncing', action: current.action, hash, isPreparing: true }
+    if (phaseWhilePreparing === 'review') return { phase: 'review', isPreparing: true }
+    return { ...current, isPreparing: true }
+  })
 
   if (delay > 0) {
     await wait(delay)
@@ -71,16 +80,7 @@ export const requestPreparation = async (
     if (!isCurrent()) return
 
     if (action.status === 'PREPARED_ACTION_STATUS_PENDING') {
-      const validationError = validatePreparedAction(action, expected, { requireCall: false })
-      if (validationError) {
-        setState({
-          phase: isPreparationExpiredError(validationError) ? 'expired' : 'error',
-          action,
-          error: validationError,
-          hash,
-        })
-        return
-      }
+      if (failValidation(action, validatePreparedAction(action, expected, { requireCall: false }))) return
       if (continuation && attempt < CONTINUATION_ATTEMPTS - 1) {
         await wait(getReprepareDelay(action))
         if (!isCurrent()) return
@@ -93,16 +93,7 @@ export const requestPreparation = async (
 
     if (action.status === 'PREPARED_ACTION_STATUS_UNAVAILABLE') {
       if (!continuation && reviewUnavailable?.(action)) {
-        const validationError = validatePreparedAction(action, expected, { requireCall: false })
-        if (validationError) {
-          setState({
-            phase: isPreparationExpiredError(validationError) ? 'expired' : 'error',
-            action,
-            error: validationError,
-            hash,
-          })
-          return
-        }
+        if (failValidation(action, validatePreparedAction(action, expected, { requireCall: false }))) return
 
         setState({ phase: 'review', action, hash })
         return
@@ -113,16 +104,7 @@ export const requestPreparation = async (
     }
 
     if (action.status === 'PREPARED_ACTION_STATUS_COMPLETED') {
-      const validationError = validatePreparedAction(action, expected, { requireCall: false })
-      if (validationError) {
-        setState({
-          phase: isPreparationExpiredError(validationError) ? 'expired' : 'error',
-          action,
-          error: validationError,
-          hash,
-        })
-        return
-      }
+      if (failValidation(action, validatePreparedAction(action, expected, { requireCall: false }))) return
 
       finish(action, hash, preparationVersion)
       return
@@ -148,16 +130,7 @@ export const requestPreparation = async (
       return
     }
 
-    const validationError = validatePreparedAction(action, expected)
-    if (validationError) {
-      setState({
-        phase: isPreparationExpiredError(validationError) ? 'expired' : 'error',
-        action,
-        error: validationError,
-        hash,
-      })
-      return
-    }
+    if (failValidation(action, validatePreparedAction(action, expected))) return
 
     if (onReady) {
       await onReady(action)
