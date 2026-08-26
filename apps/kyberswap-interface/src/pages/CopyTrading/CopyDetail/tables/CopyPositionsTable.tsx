@@ -78,7 +78,7 @@ const CopyPositionsGrid = ({ header, className, ...props }: TableGridWrapperProp
   return (
     <Grid
       className={cn(
-        'min-w-[1200px] grid-cols-[minmax(84px,0.8fr)_minmax(72px,0.7fr)_repeat(2,minmax(108px,0.9fr))_minmax(96px,0.9fr)_minmax(128px,1.25fr)_minmax(96px,0.85fr)_minmax(104px,0.9fr)_minmax(96px,0.8fr)_minmax(144px,1.1fr)] gap-x-3 whitespace-nowrap',
+        'min-w-[1100px] grid-cols-[minmax(84px,0.8fr)_minmax(72px,0.7fr)_repeat(2,minmax(108px,0.9fr))_minmax(96px,0.9fr)_minmax(128px,1.25fr)_minmax(96px,0.85fr)_minmax(104px,0.9fr)_minmax(144px,1.1fr)] gap-x-3 whitespace-nowrap',
         !header && 'py-1',
         className,
       )}
@@ -105,11 +105,10 @@ export const CopyPositionsTable = ({
           <HeaderCell className="justify-end text-right">Unrealised P&amp;L</HeaderCell>
           <HeaderCell className="justify-end text-right">Est. Rebate</HeaderCell>
           <HeaderCell className="justify-end text-right">Open Since</HeaderCell>
-          <HeaderCell>Status</HeaderCell>
           <HeaderCell className="justify-end text-right">Action</HeaderCell>
         </CopyPositionsGrid>
         <TableBody
-          className="grid gap-2 bg-transparent lg:block lg:min-w-[1200px] lg:bg-buttonBlack-60"
+          className="grid gap-2 bg-transparent lg:block lg:min-w-[1100px] lg:bg-buttonBlack-60"
           empty={!rows.length}
           emptyIconUrl={copyTradingStatIconMap.positionOpen.iconUrl}
           emptyMessage="No open positions found"
@@ -138,9 +137,6 @@ export const CopyPositionsTable = ({
                 </TableCell>
                 <TableCell className="whitespace-normal text-right text-subText">
                   {formatDateTime(row.openedAt)}
-                </TableCell>
-                <TableCell>
-                  <PositionLifecycleBadge lifecycle={row.lifecycle} quantityState={row.quantityState} />
                 </TableCell>
                 <TableCell className="flex justify-end">
                   <PositionAction position={row} positionContext={positionContext} />
