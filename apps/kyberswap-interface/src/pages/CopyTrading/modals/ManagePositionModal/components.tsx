@@ -4,10 +4,10 @@ import type { PositionSummary } from 'services/copyTrading/types/positions'
 import type { PositionSellPreview, PreparedToken, RawAmountMetric } from 'services/copyTrading/types/preparedActions'
 import type { Metric } from 'services/copyTrading/types/primitives'
 
-import Logo from 'components/Logo'
 import Skeleton from 'components/Skeleton'
 import TextSkeleton from 'components/Skeleton/TextSkeleton'
 import { Stack } from 'components/Stack'
+import CopyTradingTokenLogo from 'pages/CopyTrading/components/common/TokenLogo'
 import { ShortenedId } from 'pages/CopyTrading/components/common/layout'
 import { formatApproximateUsd } from 'pages/CopyTrading/helpers'
 import type { PositionRecoveryContext } from 'pages/CopyTrading/modals/ManagePositionModal/positionSellFlow'
@@ -39,12 +39,13 @@ const formatSkipReason = (value?: string) =>
 
 type TokenAmountPanelProps = {
   amount?: RawAmountMetric
+  chainId: number
   isLoading: boolean
   label: string
   token?: PreparedToken
 }
 
-const TokenAmountPanel = ({ amount, isLoading, label, token }: TokenAmountPanelProps) => (
+const TokenAmountPanel = ({ amount, chainId, isLoading, label, token }: TokenAmountPanelProps) => (
   <Stack className="gap-2 rounded-xl bg-white-04 p-3">
     <span className="text-sm font-medium text-subText">{label}</span>
     <div className="flex min-w-0 items-center justify-between gap-4">
@@ -56,16 +57,21 @@ const TokenAmountPanel = ({ amount, isLoading, label, token }: TokenAmountPanelP
         )}
       </span>
       <div className="flex max-w-[45%] shrink-0 items-center gap-1.5 rounded-full bg-white-08 py-1 pl-1.5 pr-2.5">
-        <Logo
-          srcs={token?.logoUrl ? [token.logoUrl] : []}
-          alt={`${token?.symbol || 'Token'} logo`}
-          className="size-5 rounded-full object-contain"
-        />
+        <CopyTradingTokenLogo fallbackChainId={chainId} token={token} />
         <span className="truncate text-sm font-medium text-text">{token?.symbol || 'Token'}</span>
       </div>
     </div>
   </Stack>
 )
+
+const getPreparedBaseToken = (position: PositionSummary, token?: PreparedToken): PreparedToken => ({
+  address: token?.address ?? position.token.address,
+  chainId: token?.chainId ?? String(position.chainId),
+  decimals: token?.decimals ?? position.token.decimals,
+  logoUrl: token?.logoUrl ?? position.token.iconUrl,
+  name: token?.name ?? position.token.name,
+  symbol: token?.symbol ?? position.token.symbol,
+})
 
 export const ManagePositionReview = ({
   isLoading,
@@ -77,35 +83,27 @@ export const ManagePositionReview = ({
   preview?: PositionSellPreview
 }) => {
   const showSkeleton = isLoading && !preview
-  const baseToken =
-    preview?.baseToken ??
-    ({
-      decimals: position.token.decimals,
-      logoUrl: position.token.iconUrl,
-      symbol: position.token.symbol,
-    } as PreparedToken)
+  const baseToken = getPreparedBaseToken(position, preview?.baseToken)
   const rate = withMetricFallback(
-    formatPreparedRate(preview?.sellBase, preview?.baseToken, preview?.swapQuote?.expectedQuote, preview?.quoteToken),
+    formatPreparedRate(preview?.sellBase, baseToken, preview?.swapQuote?.expectedQuote, preview?.quoteToken),
   )
 
   return (
     <Stack className="gap-3">
-      <div className="flex items-center gap-2 text-sm">
-        <span className="text-subText">Rate:</span>
-        {showSkeleton ? (
-          <TextSkeleton className="animate-pulse" width={96} size="sm" />
-        ) : (
-          <span className="font-medium text-text">{rate}</span>
-        )}
-      </div>
-
       <Stack className="relative gap-1">
-        <TokenAmountPanel amount={preview?.sellBase} isLoading={showSkeleton} label="You sell" token={baseToken} />
+        <TokenAmountPanel
+          amount={preview?.sellBase}
+          chainId={position.chainId}
+          isLoading={showSkeleton}
+          label="You sell"
+          token={baseToken}
+        />
         <div className="absolute left-1/2 top-1/2 z-[1] flex size-8 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-lg border-4 border-tableHeader bg-white-08 text-subText">
           <ArrowDown size={14} />
         </div>
         <TokenAmountPanel
           amount={preview?.swapQuote?.expectedQuote}
+          chainId={position.chainId}
           isLoading={showSkeleton}
           label="You receive"
           token={preview?.quoteToken}
@@ -118,6 +116,7 @@ export const ManagePositionReview = ({
           label="Portion to sell"
           value={withMetricFallback(formatWadPercent(preview?.sellRatioRaw))}
         />
+        <ReviewRow isLoading={showSkeleton} label="Rate" value={rate} />
         <ReviewRow
           isLoading={showSkeleton}
           label="Minimum received"
@@ -126,7 +125,7 @@ export const ManagePositionReview = ({
         <ReviewRow
           isLoading={showSkeleton}
           label="Upfront fee returned"
-          value={withMetricFallback(formatPreparedAmount(preview?.upfrontFeeReleasedBase, preview?.baseToken))}
+          value={withMetricFallback(formatPreparedAmount(preview?.upfrontFeeReleasedBase, baseToken))}
         />
         <ReviewRow
           isLoading={showSkeleton}
