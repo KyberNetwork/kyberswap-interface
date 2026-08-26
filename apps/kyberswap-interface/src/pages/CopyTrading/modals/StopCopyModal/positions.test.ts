@@ -4,15 +4,16 @@ import type { CopyRunPositionsResponse } from 'services/copyTrading/types/respon
 import { describe, expect, it, vi } from 'vitest'
 
 import {
+  type SelectableStopCopyPosition,
   getSelectedStopCopyPositionIds,
   loadAllOpenCopyRunPositions,
 } from 'pages/CopyTrading/modals/StopCopyModal/positions'
 
-const position = (id: string): PositionSummary =>
+const position = (id: string): SelectableStopCopyPosition =>
   ({
     positionId: id,
     userPositionId: id,
-  } as PositionSummary)
+  } as SelectableStopCopyPosition)
 
 const response = (
   data: PositionSummary[],

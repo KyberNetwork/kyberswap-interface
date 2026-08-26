@@ -132,7 +132,7 @@ Confirmed service behavior:
 
 ## Current UI Read Coverage
 
-The current UI consumes these 17 GET operations:
+The current UI consumes these 16 GET operations:
 
 - Chains.
 - Leaderboard summary and leaderboard rows.
@@ -142,13 +142,11 @@ The current UI consumes these 17 GET operations:
 - Owner activity.
 - Copy-account wallet inventory for the `Remaining in Wallet` rows and
   authoritative account-wide USD total.
-- Copy-account positions to refresh the selected active recovery position with
-  `OPEN`, or a stopped Copy residue with `LEFTOVER`, immediately before
-  position-sell preparation.
-- Pending sell obligations through the Manual Sell recovery modal. The complete
-  cursor-backed FIFO is preparation input, not a user-selected sell ratio.
+- Pending sell obligations when an active position-recovery Step 1 opens. The
+  complete cursor-backed FIFO is displayed by both partial and full recovery;
+  partial Manual Sell also reuses it as preparation input.
 
-The following nine GET operations are declared but have no dedicated Copy
+The following ten GET operations are declared but have no dedicated Copy
 Trading UI consumer:
 
 - Copy Run cashback policy. Its service contract is integrated, but no
@@ -161,6 +159,7 @@ Trading UI consumer:
 - Owner copy-account list.
 - Copy-account detail.
 - Copy-account balances.
+- Copy-account positions.
 - Copy-account history.
 
 These are intentionally service-only until a product surface is defined. They
@@ -269,11 +268,11 @@ left for manual verification and is not claimed here.
 - Open and History membership remains owned by the server response.
 - Stop Copy trusts the Copy Run passed by the entry point and loads the complete
   open-position cursor chain once when the modal opens. It does not refetch that
-  list immediately before preparation. Manual Sell refreshes the selected
-  active position from `POSITION_VIEW_OPEN`; its partial and 100% variants use
-  the preparation kind advertised by the backend. Close Position refreshes a
-  stopped-Copy residue from `POSITION_VIEW_LEFTOVER`. The preparation response
-  remains authoritative before any wallet submission.
+  list immediately before preparation. Both active recovery variants similarly
+  load their complete pending-sell FIFO once when Step 1 opens; partial Manual
+  Sell reuses that snapshot as preparation input. Stopped Close Position
+  performs no modal-owned read before preparation. The preparation response
+  remains authoritative before wallet submission.
 - The Stop Copy modal owns loading every open-position cursor page. An
   incomplete or invalid cursor chain prevents preparation rather than
   presenting a partial position list. Position-load failure has no separate
@@ -325,13 +324,14 @@ left for manual verification and is not claimed here.
   active or closing Withdraw; History for Stop/Close Position and a stopped or
   closed Withdraw.
 - Stop Copy keeps position loading, selection, selection-cap validation, and
-  selected-ID validation local. `ManagePositionModal` owns both position-sell
-  flows: active Manual Sell, including its 100% special case, and stopped-Copy
-  Close Position. Step 1 owns the flow-specific reason and source validation;
-  Step 2, submission, and recovery are shared. These concerns are not part of
-  the shared capital abstraction used by Start Copy and Add Capital. Stop and
-  position actions share only the prepared-action slippage control and default
-  while retaining flow-local state and request conversion to basis points.
+  selected-ID validation local. `ManagePositionModal` owns three position-sell
+  Step 1 contexts: active partial Manual Sell, active full-recovery Close
+  Position, and stopped-Copy leftover Close Position. Step 1 owns their distinct
+  reason and source validation; Step 2, submission, and recovery use the same
+  token-sell review composition. These concerns are not part of the shared
+  capital abstraction used by Start Copy and Add Capital. Stop and position
+  actions share only the prepared-action slippage control and default while
+  retaining flow-local state and request conversion to basis points.
 
 ## Current Prepared-Action Write UI
 
@@ -351,14 +351,16 @@ The production write path is split by ownership:
   expected-count loading geometry, 32-position cap, slippage, selected-value
   estimate, contextual unchecked-token note, and selected-ID payload
   validation.
-- `modals/ManagePositionModal/` owns both position-sell product flows. Its Step
-  1 variant explains either a skipped Agent sell on an active Copy or a
-  user-initiated leftover close after stopping. Active Manual Sell refreshes
-  `OPEN` and selects the API preparation from the advertised action: partial
-  recovery uses `prepareManualSell`, while the 100% special case uses
-  `prepareClosePosition`. Stopped-Copy Close Position refreshes `LEFTOVER` and
-  uses `prepareClosePosition`. Both variants share the same Step 2 review,
-  prepared-action submission, and recovery composition.
+- `modals/ManagePositionModal/` owns three position-sell Step 1 contexts. Active
+  partial and full recovery share one pending-sell FIFO load and display path.
+  Partial recovery uses that snapshot with `prepareManualSell`; active full
+  recovery and stopped leftover recovery use `prepareClosePosition`.
+  All three contexts share the same Step 2 token-sell review, prepared-action
+  submission, and recovery composition. `positionSellFlow.ts` keeps their
+  labels, source contexts, destinations, and Step 1 variants in one typed flow
+  map, with the two backend preparation contracts in a separate typed map.
+  Remaining amount uses `displayBaseRaw` rather than substituting a gross or
+  net field.
 - `modals/WithdrawQuoteModal/` owns an Add Capital-style amount panel with
   action-only `Half` and `Max` presets. Typed and Half amounts use a canonical
   positive raw amount below `uint256.max`; Max displays the current balance in
@@ -460,20 +462,19 @@ Implemented behavior:
   transaction execution. Form/advisory validation blocks the action CTA only
   after those prerequisites are met. Balance presets depend only on their
   balance source, and in-flight preparation independently locks interaction.
-- Manual Sell refreshes the selected copy-account position and complete
-  pending-obligation cursor chain. It uses the FIFO head ratio and total
-  unresolved FIFO count. The refreshed position must still advertise Manual
-  Sell before preparation. FIFO obligation count remains request validation and
-  is not exposed as a user-facing review metric.
+- Both active recovery variants load the complete pending-obligation cursor
+  chain when Step 1 opens and display every skipped sell action. Partial Manual
+  Sell uses the same FIFO head ratio and unresolved count for preparation
+  without another read.
 - Manual Sell owns every active-Copy skipped-sell recovery. Partial recovery
   uses the FIFO-backed Manual Sell preparation; a backend-advertised full close
   is the 100% special case and uses Close Position preparation internally. Both
-  refresh `POSITION_VIEW_OPEN`, present the action as Manual Sell, and require
+  present the action as Manual Sell and require
   `POSITION_SELL_CONTEXT_ALIGN_SKIP` in executable previews.
 - Close Position is reserved for stopped-Copy leftover inventory. The stopped
-  Copy detail loads `POSITION_VIEW_LEFTOVER`, refreshes that same view before
-  preparation, and requires explicit leftover state, Close Position
-  availability, and `POSITION_SELL_CONTEXT_STOP_COPY`.
+  Copy detail loads `POSITION_VIEW_LEFTOVER`; preparation then requires Close
+  Position availability plus
+  `POSITION_SELL_CONTEXT_STOP_COPY`.
 - Both position actions use the shared four-preset/custom slippage control. The
   review renders remaining and sold base amounts, returned upfront fee, expected
   and minimum quote, quote-token cashback, effective slippage, and the prepared
@@ -505,7 +506,7 @@ Implemented behavior:
 | Stop Copy      | Loads all open-position pages, supports zero to 32 selected IDs, shows selected-value/slippage guidance, and submits the exact prepared call.                                                                                                                                                                                         |
 | Withdraw Quote | Copy Detail exposes the advisory-gated CTA across active, closing, stopped, and closed runs. Its amount panel offers action-only Half and Max presets; Max sends the explicit full-balance sentinel internally while review shows the prepared quote balance as a normal amount. The prepared recipient and call remain server-owned. |
 | Manual Sell    | Active-Copy skipped-sell recovery. Partial sells use FIFO-backed Manual Sell preparation; the 100% case uses Close Position preparation internally. Both require `ALIGN_SKIP`.                                                                                                                                                        |
-| Close Position | Stopped-Copy leftover close. Loads and refreshes `LEFTOVER`, requires explicit leftover state and `STOP_COPY`, then links success to History.                                                                                                                                                                                         |
+| Close Position | Stopped-Copy leftover close. Loads and refreshes `LEFTOVER`, requires Close Position availability and `STOP_COPY`, then links success to History.                                                                                                                                                                            |
 
 ## Implemented Write Invariants
 
@@ -564,11 +565,11 @@ positive live E2E validation for now:
   The partial case requires a remaining on-chain follower balance, a non-empty
   pending-sell-obligation FIFO, advertised Manual Sell, and an executable
   `POSITION_SELL_CONTEXT_ALIGN_SKIP` preparation. The 100% special case requires
-  advertised Close Position and the same `ALIGN_SKIP` context for the full
-  remaining position.
-- Close Position on a stopped Copy with leftover inventory requires
-  `POSITION_VIEW_LEFTOVER`, explicit `isLeftover`, advertised Close Position,
-  and an executable `POSITION_SELL_CONTEXT_STOP_COPY` preparation.
+  the same FIFO display evidence, advertised Close Position, and the same
+  `ALIGN_SKIP` context for the full remaining position.
+- Close Position on a stopped Copy with leftover inventory is loaded through
+  `POSITION_VIEW_LEFTOVER`, requires advertised Close Position, and uses an
+  executable `POSITION_SELL_CONTEXT_STOP_COPY` preparation.
 
 These states cannot be created deterministically from the frontend. A stable
 positive E2E needs a controlled Agent position plus an Operator-side scoped

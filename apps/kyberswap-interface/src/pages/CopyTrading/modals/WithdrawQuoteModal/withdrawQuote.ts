@@ -14,6 +14,28 @@ export const getWithdrawRequestAmountRaw = (amountRaw: string | undefined, withd
 export const getWithdrawPresetAmountRaw = (balanceRaw: string, percentage: 50 | 100) =>
   ((BigInt(balanceRaw) * BigInt(percentage)) / 100n).toString()
 
+export const getWithdrawAmountError = ({
+  amount,
+  amountRaw,
+  hasQuoteCurrency,
+  walletBalanceRaw,
+  withdrawAll,
+}: {
+  amount: string
+  amountRaw?: string
+  hasQuoteCurrency: boolean
+  walletBalanceRaw?: string
+  withdrawAll: boolean
+}) => {
+  if (!amount) return undefined
+  if (!hasQuoteCurrency || !amountRaw) return 'Enter a valid quote-token amount.'
+  if (BigInt(amountRaw) >= BigInt(UINT256_MAX_RAW)) return 'The withdrawal amount is too large.'
+  if (!withdrawAll && walletBalanceRaw !== undefined && BigInt(amountRaw) > BigInt(walletBalanceRaw)) {
+    return 'The Smart Wallet does not have enough quote-token balance.'
+  }
+  return undefined
+}
+
 export const validateWithdrawPreview = ({
   amountRaw,
   expectedQuoteToken,
