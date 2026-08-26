@@ -1,3 +1,4 @@
+import { UnsupportedChainError, isChainUnsupported, walkWalletInventory } from '@kyber/hooks'
 import { ChainId, Token } from '@kyberswap/ks-sdk-core'
 import { InventoryRow, adaptRow, parseRawAmount } from 'services/walletInventory'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -38,6 +39,67 @@ const row = (address: string, rawBalance: bigint, blockNumber: number): Inventor
 beforeEach(() => resetInventoryStore())
 afterEach(() => {
   vi.useRealTimers()
+})
+
+describe('walkWalletInventory (shared client)', () => {
+  const page = (rows: unknown[]) => ({
+    ok: true,
+    status: 200,
+    json: async () => ({ code: 0, data: { balances: rows } }),
+  })
+  const address = (i: number) => `0x${i.toString(16).padStart(40, '0')}`
+  afterEach(() => {
+    vi.unstubAllGlobals()
+  })
+
+  it("disables a chain only on the service's own 'unsupported chain' answer", async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => ({
+        ok: false,
+        status: 400,
+        json: async () => ({ code: 400, message: 'unsupported chain: 99999' }),
+      })),
+    )
+    await expect(
+      walkWalletInventory({ baseUrl: 'http://kd', chainId: 99999, account: ACCOUNT }),
+    ).rejects.toBeInstanceOf(UnsupportedChainError)
+    expect(isChainUnsupported(99999)).toBe(true)
+  })
+
+  it('treats any other 400 as a failure of this request alone', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => ({ ok: false, status: 400, json: async () => ({ code: 400, message: 'invalid cursor' }) })),
+    )
+    await expect(walkWalletInventory({ baseUrl: 'http://kd', chainId: 99998, account: ACCOUNT })).rejects.toThrow(
+      /rejected/,
+    )
+    expect(isChainUnsupported(99998)).toBe(false)
+  })
+
+  it('walks a second page from the last row and keeps the highest block per address', async () => {
+    const first = Array.from({ length: 1000 }, (_, i) => ({
+      tokenAddress: address(i + 1),
+      rawAmount: '0x01',
+      blockNumber: i,
+    }))
+    // Page two re-reports address 1 at a later block (it changed mid-walk) plus a new token.
+    const second = [
+      { tokenAddress: address(1), rawAmount: '0x02', blockNumber: 5000 },
+      { tokenAddress: address(2000), rawAmount: '0x03', blockNumber: 5001 },
+    ]
+    const fetchMock = vi.fn(async (url: string) => (url.includes('sinceBlockNumber') ? page(second) : page(first)))
+    vi.stubGlobal('fetch', fetchMock)
+
+    const { rows, complete } = await walkWalletInventory({ baseUrl: 'http://kd', chainId: 1, account: ACCOUNT })
+    expect(complete).toBe(true)
+    expect(rows).toHaveLength(1001)
+    expect(rows.find(r => r.tokenAddress === address(1))?.rawAmount).toBe('0x02')
+    const secondUrl = String(fetchMock.mock.calls[1][0])
+    expect(secondUrl).toContain('sinceBlockNumber=999')
+    expect(secondUrl).toContain(`lastTokenAddr=${address(1000)}`)
+  })
 })
 
 describe('parseRawAmount', () => {

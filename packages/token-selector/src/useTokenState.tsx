@@ -9,13 +9,15 @@ import {
   useState,
 } from "react";
 
-import { useTokenBalances } from "@kyber/hooks";
+import { useTokenBalances, useWalletInventory } from "@kyber/hooks";
 import { API_URLS, Token } from "@kyber/schema";
 import { fetchTokenInfo } from "@kyber/utils";
 
 import { getCachedTokens, setCachedTokens } from "@/tokenCache";
 
 const TOKEN_API = `${API_URLS.KYBERSWAP_SETTING_API}/v1/tokens`;
+const EMPTY_ADDRESSES: string[] = [];
+const EMPTY_BALANCES: { [key: string]: bigint } = {};
 const IMPORTED_TOKENS_KEY = "@kyber/token-selector:importedTokens";
 
 interface TokenState {
@@ -46,12 +48,15 @@ export const TokenContextProvider = ({
   account,
   additionalTokenAddresses,
   externalTokenBalances,
+  enableWalletInventory = false,
 }: {
   children: ReactNode;
   chainId?: number; // Optional - when not provided (e.g., positionsOnly mode), tokens and balances won't be fetched
   account?: string;
   additionalTokenAddresses?: string;
   externalTokenBalances?: { [key: string]: bigint };
+  /** Opt in to the wallet-inventory balance source; see TokenSelectorModalProps. */
+  enableWalletInventory?: boolean;
 }) => {
   const [importedTokens, setImportedTokens] = useState<Token[]>([]);
   const [tokens, setTokens] = useState<Token[]>([]);
@@ -61,18 +66,40 @@ export const TokenContextProvider = ({
     promise: Promise<void>;
   } | null>(null);
 
-  // Use external balances if provided, otherwise fetch internally
-  // Skip fetching balances when chainId is not provided (positionsOnly mode)
+  // Balance source, in order: balances handed in from outside; the wallet inventory while it owns
+  // the wallet (its first fetch in flight, or ready); otherwise the balanceOf multicall over the list.
+  // The multicall is handed no addresses and no account while the inventory owns the wallet, so it
+  // neither polls nor fires a request whose result would be thrown away.
+  const inventory = useWalletInventory(
+    chainId,
+    account,
+    enableWalletInventory && !externalTokenBalances && !!chainId,
+  );
+  const inventoryOwns =
+    inventory.status === "loading" || inventory.status === "ready";
+  const useMulticall = !externalTokenBalances && !!chainId && !inventoryOwns;
+  const multicallAddresses = useMemo(
+    () =>
+      useMulticall
+        ? [...tokens, ...importedTokens].map((item) => item.address)
+        : EMPTY_ADDRESSES,
+    [useMulticall, tokens, importedTokens],
+  );
   const { balances: internalBalances, loading: tokenBalancesLoading } =
     useTokenBalances(
       chainId as number,
-      externalTokenBalances || !chainId
-        ? []
-        : [...tokens, ...importedTokens].map((item) => item.address),
-      externalTokenBalances || !chainId ? undefined : account,
+      multicallAddresses,
+      useMulticall ? account : undefined,
     );
 
-  const tokenBalances = externalTokenBalances || internalBalances;
+  // While the inventory is loading nothing is known yet, and that is stated as an empty map rather
+  // than whatever the idle multicall hook last held.
+  const tokenBalances =
+    externalTokenBalances ||
+    inventory.balances ||
+    (inventoryOwns ? EMPTY_BALANCES : internalBalances);
+  const balancesLoading =
+    inventory.status === "loading" || (useMulticall && tokenBalancesLoading);
 
   const fetchImportedTokens = useCallback(() => {
     if (typeof window !== "undefined") {
@@ -263,7 +290,7 @@ export const TokenContextProvider = ({
   }, [fetchTokens]);
 
   const isLoadingFinal =
-    isLoading || (!externalTokenBalances && tokenBalancesLoading);
+    isLoading || (!externalTokenBalances && balancesLoading);
 
   const contextValue = useMemo(
     () => ({

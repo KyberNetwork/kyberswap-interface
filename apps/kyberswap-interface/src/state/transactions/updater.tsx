@@ -1,3 +1,4 @@
+import { expireWalletInventory } from '@kyber/hooks'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import SafeAppsSDK, { TransactionStatus as SafeTransactionStatus } from '@safe-global/safe-apps-sdk'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
@@ -211,6 +212,8 @@ export default function Updater(): null {
           transaction.from,
           receipt.blockNumber !== undefined ? Number(receipt.blockNumber) : undefined,
         )
+        // The widget selectors keep their own inventory in `@kyber/hooks`; it refreshes on the same cue.
+        expireWalletInventory(chainId, transaction.from)
 
         // Swapped (address sender, address srcToken, address dstToken, address dstReceiver, uint256 spentAmount, uint256 returnAmount)
         const swapEventTopic = keccak256(toBytes('Swapped(address,address,address,address,uint256,uint256)'))

@@ -1,12 +1,5 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
-
-/**
- * Chains kd-api indexes wallet balances for. Treated as optimistic rather than authoritative: the
- * service answers 400 for a chain it does not index, which sticky-disables that chain for the session
- * (see the store), so this list drifting ahead of the backend degrades to the multicall path instead
- * of breaking. Chains missing here keep the legacy path and are never probed.
- */
-export const KD_INVENTORY_CHAINS: ChainId[] = [ChainId.MAINNET, ChainId.BASE, ChainId.BSCMAINNET]
+// The indexed-chain list is `WALLET_INVENTORY_CHAINS` in `@kyber/hooks`, shared with the widget
+// selectors so the two can never drift; the store gates on it through `isWalletInventoryChain`.
 
 /** How stale an inventory may get before a mounted consumer refetches it. */
 export const INVENTORY_TTL_MS = 30_000

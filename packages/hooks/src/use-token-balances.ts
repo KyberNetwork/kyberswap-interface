@@ -3,28 +3,37 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { ChainId } from '@kyber/schema';
 import { getTokenBalances } from '@kyber/utils/crypto';
 
+const EMPTY: { [address: string]: bigint } = {};
+
 export const useTokenBalances = (chainId: ChainId, tokenAddresses: string[], account?: string) => {
-  const [balances, setBalances] = useState<{ [address: string]: bigint }>({});
-  const [loading, setLoading] = useState(false);
+  const [balances, setBalances] = useState<{ [address: string]: bigint }>(EMPTY);
+  const [fetching, setFetching] = useState(false);
+  // Which (chain, account, list) the balances on hand answer for; `loading` stays true until the
+  // current one has landed, so a caller never reads a previous request's map as this one's.
+  const [settledKey, setSettledKey] = useState('');
   const fetchIdRef = useRef(0);
   const prevAccountRef = useRef(account);
 
   // Clear stale balances immediately when account changes
   if (prevAccountRef.current !== account) {
     prevAccountRef.current = account;
-    setBalances({});
+    setBalances(EMPTY);
   }
 
   const tokenAddressesKey = JSON.stringify(tokenAddresses);
+  const requestKey = `${chainId}:${account ?? ''}:${tokenAddressesKey}`;
+  const active = !!account && tokenAddresses.length > 0;
 
   const fetchBalances = useCallback(async () => {
-    if (!account) {
-      setBalances({});
+    if (!active || !account) {
+      // Retire any request still in flight so its result cannot land after the caller stopped asking.
+      fetchIdRef.current += 1;
+      setBalances(previous => (Object.keys(previous).length ? EMPTY : previous));
       return;
     }
 
     const currentFetchId = ++fetchIdRef.current;
-    setLoading(true);
+    setFetching(true);
 
     try {
       const balancesMap = await getTokenBalances({
@@ -42,24 +51,29 @@ export const useTokenBalances = (chainId: ChainId, tokenAddresses: string[], acc
       console.error('Failed to fetch balances:', error);
     } finally {
       if (currentFetchId === fetchIdRef.current) {
-        setLoading(false);
+        setFetching(false);
+        // An attempt settles the key whatever its outcome: a failed poll leaves the previous map
+        // on screen rather than a loader that nothing would ever clear.
+        setSettledKey(requestKey);
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [chainId, account, tokenAddressesKey]);
+  }, [chainId, account, tokenAddressesKey, active]);
 
   useEffect(() => {
     fetchBalances();
+    // Nothing to poll for without an account or a list.
+    if (!active) return;
 
     const interval = setInterval(() => {
       fetchBalances();
     }, 15_000);
 
     return () => clearInterval(interval);
-  }, [fetchBalances]);
+  }, [fetchBalances, active]);
 
   return {
-    loading,
+    loading: active && (fetching || settledKey !== requestKey),
     balances,
     refetch: fetchBalances,
   };

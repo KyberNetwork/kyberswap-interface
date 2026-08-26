@@ -1,4 +1,8 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
+import {
+  isChainUnsupported,
+  isWalletInventoryChain,
+  markChainUnsupported as markUnsupportedForEveryone,
+} from '@kyber/hooks'
 import { InventoryRow, WalletInventoryResult } from 'services/walletInventory'
 
 import { KD_API_URL } from 'constants/env'
@@ -6,7 +10,6 @@ import {
   INVENTORY_CATCHUP_TIMEOUT_MS,
   INVENTORY_RETRY_BACKOFF_MS,
   INVENTORY_RETRY_JITTER,
-  KD_INVENTORY_CHAINS,
 } from 'state/walletInventory/constants'
 
 /**
@@ -41,9 +44,9 @@ type Meta = {
   /** Set by `expireInventory`; makes the next sweep pick this entry up whatever its TTL says. */
   forced: boolean
   /**
-   * Block of a transaction the user just made. Until the inventory reaches it, results are refused
-   * rather than committed — otherwise a refetch inside the indexing lag would overwrite the screen
-   * with pre-transaction balances and stamp them as fresh.
+   * Block of a transaction the user just made. While the inventory's block is behind it the sweep
+   * polls at the catch-up cadence instead of the TTL; the watch retires by itself once caught up or
+   * on timeout.
    */
   awaitingBlock?: number
   awaitingUntil?: number
@@ -54,8 +57,6 @@ const EMPTY_ROWS: Record<string, InventoryRow> = {}
 const subscriptions = new Map<string, number>()
 const entries = new Map<string, InventoryEntry>()
 const meta = new Map<string, Meta>()
-/** Chains the service answered 400 for; never probed again this session. */
-const unsupportedChains = new Set<number>()
 
 let version = 0
 const listeners = new Set<() => void>()
@@ -76,13 +77,16 @@ export const getStoreVersion = () => version
 
 export const inventoryKey = (chainId: number, account: string) => `${chainId}:${account.toLowerCase()}`
 
-/** Whether the inventory layer can serve this chain at all — env configured, indexed, not disabled. */
-export const isInventoryChain = (chainId: ChainId): boolean =>
-  !!KD_API_URL && KD_INVENTORY_CHAINS.includes(chainId) && !unsupportedChains.has(chainId)
+/**
+ * Whether the inventory layer can serve this chain at all — env configured, indexed, not disabled.
+ * The chain list and the "unsupported" set live in `@kyber/hooks`, shared with the widget selectors,
+ * so a chain either side learns is unindexed is off for both.
+ */
+export const isInventoryChain = (chainId: number): boolean => !!KD_API_URL && isWalletInventoryChain(chainId)
 
 export const markChainUnsupported = (chainId: number) => {
-  if (unsupportedChains.has(chainId)) return
-  unsupportedChains.add(chainId)
+  if (isChainUnsupported(chainId)) return
+  markUnsupportedForEveryone(chainId)
   // Drop what was collected for the chain so nothing renders from a source we will never refresh.
   Array.from(entries.keys()).forEach(key => {
     if (key.startsWith(`${chainId}:`)) entries.delete(key)
@@ -216,7 +220,6 @@ export const resetInventoryStore = () => {
   subscriptions.clear()
   entries.clear()
   meta.clear()
-  unsupportedChains.clear()
   version = 0
   listeners.clear()
 }

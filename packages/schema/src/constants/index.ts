@@ -16,6 +16,7 @@ export const API_URLS = {
   ZAP_EARN_API: 'https://earn-service.kyberswap.com/api',
   // ZAP_EARN_API: 'https://pre-zap-earn-service.kyberengineering.io/api',
   TOKEN_API: 'https://token-api.kyberswap.com/api',
+  KD_API: 'https://kd-api.kyberswap.com/api',
   DOCUMENT: {
     ZAP_FEE_MODEL: 'https://docs.kyberswap.com/kyberswap-solutions/kyberswap-zap-as-a-service/zap-fee-model',
   },
