@@ -1,5 +1,6 @@
 import { type HTMLAttributes, type PropsWithChildren } from 'react'
 import { ChevronDown, ChevronUp } from 'react-feather'
+import { Link } from 'react-router-dom'
 
 import { ButtonEmpty } from 'components/Button'
 import RefetchIndicator from 'components/RefetchIndicator'
@@ -41,6 +42,11 @@ type TableBodyProps = PropsWithChildren<{
   emptyMessage: string
   loading?: boolean
 }>
+
+type TableRowLinkProps = {
+  label: string
+  to: string
+}
 
 const TableGrid = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
   <div className={cn('grid w-full items-center', className)} {...rest} />
@@ -108,6 +114,14 @@ export const TableBody = ({ children, className, empty, emptyIconUrl, emptyMessa
 
 export const TableRow = ({ className, ...props }: HTMLAttributes<HTMLDivElement>) => (
   <TableGrid className={cn('px-3 py-2 text-sm text-text outline-none hover:bg-primary-10', className)} {...props} />
+)
+
+export const TableRowLink = ({ label, to }: TableRowLinkProps) => (
+  <Link
+    aria-label={label}
+    className="absolute inset-0 z-[1] rounded-[inherit] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary/40"
+    to={to}
+  />
 )
 
 export const TableCell = ({ className, padding = 'default', ...rest }: TableCellProps) => (

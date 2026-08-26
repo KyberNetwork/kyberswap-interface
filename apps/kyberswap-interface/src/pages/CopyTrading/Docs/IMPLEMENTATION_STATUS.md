@@ -1,6 +1,6 @@
 # Copy Trading Implementation Status
 
-Last reviewed: 2026-08-25
+Last reviewed: 2026-08-26
 
 This is the single frontend-owned record for current code implementation,
 accepted product decisions, ownership, and static verification evidence. The
@@ -14,16 +14,16 @@ declared in the frontend service.
 
 ## Implementation at a Glance
 
-| Layer              | Current status                                                                                                                                                                     |
-| ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| BE API catalog     | `CURRENT INPUT`: 32 public operations are documented.                                                                                                                              |
-| Checked-in OpenAPI | `CURRENT INPUT`: synchronized with the live 32-operation pre-release Swagger contract; wallet-session routes and Bearer security are removed.                                      |
-| RTK Query service  | `CODE-COMPLETE`: all 26 GET and 6 POST operations are declared and typed.                                                                                                          |
-| Read UI            | `CODE-COMPLETE`: all currently defined product surfaces are connected; 17 GET operations have UI consumers and nine service-only operations have no product surface.               |
-| Write UX           | `CODE-COMPLETE`: all six actions use prepared-action validation; Add Capital submits directly after preparation while the other review-bearing flows retain review.                |
-| Write integration  | `CODE-COMPLETE`: exact API-prepared calls, receipt-success completion, Start Copy list polling, stateless recovery preparation, and async cache refresh are connected.             |
-| Responsive UI      | `CODE-COMPLETE`: all defined main Copy Trading pages use content-specific responsive navigation, aligned card metrics, opt-in scroll areas, tables, tabs, side panels, and charts. |
-| Code organization  | `REVIEWED`: all 83 TypeScript and TSX files under `pages/CopyTrading` were reviewed; shared presentation is centralized while query and prepared-action ownership stays local.     |
+| Layer              | Current status                                                                                                                                                                         |
+| ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| BE API catalog     | `CURRENT INPUT`: 32 public operations are documented.                                                                                                                                  |
+| Checked-in OpenAPI | `CURRENT INPUT`: synchronized with the live 32-operation pre-release Swagger contract; wallet-session routes and Bearer security are removed.                                          |
+| RTK Query service  | `CODE-COMPLETE`: all 26 GET and 6 POST operations are declared and typed.                                                                                                              |
+| Read UI            | `CODE-COMPLETE`: all currently defined product surfaces are connected; owner-scoped navigation, copied-Agent actions, token logos, and table presentation use shared UI patterns.      |
+| Write UX           | `CODE-COMPLETE`: all six actions use prepared-action validation; Add Capital submits directly after preparation while the other review-bearing flows retain review.                    |
+| Write integration  | `CODE-COMPLETE`: exact API-prepared calls, receipt-success completion, Start Copy list polling, stateless recovery preparation, and async cache refresh are connected.                 |
+| Responsive UI      | `CODE-COMPLETE`: all defined main Copy Trading pages use content-specific responsive navigation, aligned card metrics, opt-in scroll areas, tables, tabs, side panels, and charts.     |
+| Code organization  | `REVIEWED`: all 85 TypeScript and TSX files under `pages/CopyTrading` follow the reviewed ownership boundaries; shared presentation is centralized while queries and flows stay local. |
 
 ## Changes Included Since the Previous Review
 
@@ -76,7 +76,20 @@ status update and the current working tree:
   details use an explicit span, status badges align with the Token value, and
   long values remain bounded by the card. The same commit introduces shared
   responsive-detail layout primitives and explicit Agent/Copy Detail ordering.
-- The current working tree extends the completed readability audit to all 83
+- `b74aa9a73` refines desktop position-table geometry for a Full HD baseline,
+  keeps numeric values unbroken, aligns headers with body cells, combines paired
+  Opened/Closed timestamps, and keeps the Agent Profile side column sticky only
+  while the two-column layout is active.
+- `43d955d8b` removes the redundant Status column from open-position tables,
+  moves History Current Balance to the final column, places the Manual Sell rate
+  below Portion to sell, and introduces the shared Copy Trading token-logo
+  fallback used by Manual Sell and Remaining in Wallet.
+- The current 2026-08-26 UI follow-up derives copied-Agent state from the current
+  owner's selected-chain Open Copy Runs, replaces passive `Copied` text with a
+  compact `My Copy` link, and gives Leaderboard, My Copies, and Copy History rows
+  native links on both desktop and mobile. Row links support browser new-tab
+  behavior while independent action buttons remain outside the link hit target.
+- The current code extends the completed readability audit to all 85
   TypeScript and TSX files under `pages/CopyTrading`. Agent and Copy Detail now
   share `DetailTabBar`; prepared-action review rows share their metric fallback;
   strategy, lifecycle status, data-quality status, and risk presentation use
@@ -178,14 +191,15 @@ Current primary-screen read behavior:
 - Position lifecycle and quantity state render independently from typed fields.
 - Open and History remain server-owned Copy Run views. The frontend does not
   locally move rows between them.
-- Agent Positions, Agent History, Action Logs, My Copies, Copy Run detail tabs,
-  and Alerts Feed cursor collections use infinite scroll
-  inside bounded scroll containers.
-- Copy History uses cursor-backed Previous / Page N / Next pagination with 5
-  rows per page. The API does not expose a total count, so the UI does not
-  invent numbered last-page navigation.
-- Cursor lists use TanStack `useInfiniteQuery` for the page/cursor chain and
-  invoke the existing RTK lazy query trigger from `queryFn`.
+- Agent Positions, Agent History, Action Logs, Copy Run detail tabs, and Alerts
+  Feed cursor collections use infinite scroll inside bounded scroll containers.
+- Leaderboard, My Copies, and Copy History use cursor-backed Previous / Page N /
+  Next pagination with 5, 10, and 5 rows per page respectively. The API does
+  not expose a total count, so the UI does not invent numbered last-page
+  navigation.
+- Infinite-scroll lists use TanStack `useInfiniteQuery`; paged Leaderboard, My
+  Copies, and Copy History use `useCursorPageQuery`. Both invoke the existing
+  RTK lazy query trigger from `queryFn` and pass opaque cursors unchanged.
 - Copy Detail owns independent cursor chains for Open Positions, Closed
   Positions, and owner activity filtered by `copyRunId`.
 - Agent and Copy Run performance charts intentionally request only the first
@@ -196,6 +210,12 @@ Current primary-screen read behavior:
   keep the error state until the query refetches or the surface remounts.
 - Copy-run rows use their `agentSnapshot`; My Copies and History do not issue a
   redundant agent collection request.
+- Leaderboard copied state comes from the current owner's selected-chain Open
+  Copy Runs. An existing run exposes a compact `My Copy` link to its detail;
+  otherwise the advisory-gated `Copy` action remains available.
+- Navigable Leaderboard, My Copies, and Copy History desktop rows and mobile
+  cards use native links. Ctrl/Cmd-click, middle-click, and browser context-menu
+  new-tab behavior work without nesting row links around action buttons.
 - Wallet- and argument-sensitive RTK reads consume `currentData`, so a result
   cached under previous query arguments is not rendered while the current
   request is pending. Sidebar Open Copies also requires a current owner.
@@ -236,9 +256,14 @@ meet at the same boundaries:
   into one column. Agent Detail keeps Leaderboard first, followed by Capital
   In / Copy This Agent, performance charts, Positions / Trade History / Action
   Log, Agent Risk, Strategy & Execution, and Whitelisted Tokens. Copy Detail
-  orders Capital In, Agent Risk, Remaining in Wallet, main tabs and performance,
-  then its secondary action/info and token cards. Copy Detail Trade History
-  also uses cards instead of its 1320px table.
+  orders Capital In, Agent Risk, Remaining in Wallet, Withdraw when available,
+  main tabs and performance, then Strategy & Execution and Whitelisted Tokens.
+  Copy Detail Trade History also uses cards instead of its 1320px table.
+
+Above `1400px`, Agent and Copy Detail retain independent two-column sticky side
+columns. The side column uses `top-4 self-start` and does not continue scrolling
+past its own content; below that breakpoint its grouping wrapper becomes
+`contents` so every card participates in the explicit single-column priority.
 
 Responsive table cards follow one content hierarchy: identity or Token and
 status first; full-width Trade ID or Details next; paired performance, price,
@@ -252,6 +277,13 @@ specific scrollbar classes. Desktop table wrappers request horizontal
 scrolling; bounded `InfiniteScroll` collections retain both-axis overflow by
 default. Scrollbars keep the browser-native colors and appear only on surfaces
 that opt into the shared component.
+
+Desktop position tables use Full HD-oriented minimum widths and explicit local
+column tracks. Numeric and identifier values remain unbroken; only intentional
+time columns may wrap or stack. Header and body alignment follow the same rule:
+identity/text left, numeric values right, and dedicated action columns centered
+or right-aligned by their local table definition. Open-position tables omit the
+redundant always-active Status column.
 
 All defined main read surfaces now have responsive presentation. Desktop table
 layouts and their bounded horizontal scrolling remain unchanged above each
@@ -340,6 +372,12 @@ The production write path is split by ownership:
 - Each action folder under `modals/` owns its modal composition, action-specific
   guards, preparation request and response validation, review or inline summary
   metrics where applicable, tests, and destination navigation.
+- `components/common/TokenLogo.tsx` owns Copy Trading token-logo normalization.
+  It preserves API `logoUrl` metadata, then lets the shared `CurrencyLogo`
+  derive a chain/address URL, and finally falls back to the unknown-token image.
+  It performs no per-row token-service request. Manual Sell and Remaining in
+  Wallet use this shared path; capital inputs continue through
+  `CurrencyInputPanel` and its existing `CurrencyLogo` integration.
 - `modals/CapitalAmount/` owns the capital-entry state and UI shared by Start
   Copy and Add Capital: fixed supported quote-token configuration,
   action-specific minimums, wallet balance, presets, decimal parsing, and local
@@ -478,8 +516,11 @@ Implemented behavior:
 - Both position actions use the shared four-preset/custom slippage control. The
   review renders remaining and sold base amounts, returned upfront fee, expected
   and minimum quote, quote-token cashback, effective slippage, and the prepared
-  portion. Step 2 is identical for Manual Sell and Close Position. Manual Sell
-  success targets My Copies, while Close Position targets History.
+  portion. Rate is grouped immediately below Portion to sell. Prepared base-token
+  metadata is merged with the position snapshot once and reused for the sell
+  amount, rate, returned upfront fee, symbol, decimals, and logo. Step 2 is
+  identical for Manual Sell and Close Position. Manual Sell success targets My
+  Copies, while Close Position targets History.
 - Manual Sell and Close Position call their preparation routes directly without
   a challenge, access token, or Authorization header. The owner wallet still
   simulates and submits the exact returned call.
@@ -506,7 +547,7 @@ Implemented behavior:
 | Stop Copy      | Loads all open-position pages, supports zero to 32 selected IDs, shows selected-value/slippage guidance, and submits the exact prepared call.                                                                                                                                                                                         |
 | Withdraw Quote | Copy Detail exposes the advisory-gated CTA across active, closing, stopped, and closed runs. Its amount panel offers action-only Half and Max presets; Max sends the explicit full-balance sentinel internally while review shows the prepared quote balance as a normal amount. The prepared recipient and call remain server-owned. |
 | Manual Sell    | Active-Copy skipped-sell recovery. Partial sells use FIFO-backed Manual Sell preparation; the 100% case uses Close Position preparation internally. Both require `ALIGN_SKIP`.                                                                                                                                                        |
-| Close Position | Stopped-Copy leftover close. Loads and refreshes `LEFTOVER`, requires Close Position availability and `STOP_COPY`, then links success to History.                                                                                                                                                                            |
+| Close Position | Stopped-Copy leftover close. Loads and refreshes `LEFTOVER`, requires Close Position availability and `STOP_COPY`, then links success to History.                                                                                                                                                                                     |
 
 ## Implemented Write Invariants
 
@@ -635,6 +676,11 @@ contracts.
   warnings transparent, and aligned CTA/preset ownership across all write
   flows. Browser QA, production build, and a positive typed/Half/Max Withdraw
   Quote transaction E2E were not run.
+- For the 2026-08-26 position-display, shared token-logo, Leaderboard action,
+  and native row-link updates, app TypeScript, targeted Copy Trading ESLint, and
+  `git diff --check` pass. These checks cover code structure and types only;
+  responsive/browser visual QA, context-menu and modified-click browser QA, a
+  production build, and positive live-transaction E2E were not run.
 - Manual Sell, including its partial and 100% variants, and stopped-Copy Close
   Position positive live E2E remain deferred until controlled eligibility
   fixtures are available.

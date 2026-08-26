@@ -1,8 +1,6 @@
-import { useNavigate } from 'react-router-dom'
 import copyRunApi from 'services/copyTrading/api/endpoints/copyRuns'
 import type { OwnerCopySummary } from 'services/copyTrading/types/copyRuns'
 
-import { APP_PATHS } from 'constants/index'
 import useIsWalletRestoring from 'hooks/useIsWalletRestoring'
 import ClosedSubscriptionsTable from 'pages/CopyTrading/CopyHistory/ClosedSubscriptionsTable'
 import CopyRunsPageHeading from 'pages/CopyTrading/components/CopyRunsPageHeading'
@@ -43,7 +41,6 @@ const CopyHistorySummary = ({ summary }: { summary?: OwnerCopySummary }) => {
 }
 
 const CopyHistoryView = () => {
-  const navigate = useNavigate()
   const { ownerAddress } = useCopyTradingContext()
   const isRestoringWallet = useIsWalletRestoring()
   const [getCopyRuns] = copyRunApi.useLazyGetCopyRunsQuery()
@@ -78,12 +75,7 @@ const CopyHistoryView = () => {
       ) : (
         <>
           <CopyHistorySummary summary={ownerSummary?.data} />
-          <ClosedSubscriptionsTable
-            loading={closedRunsPage.loading}
-            pagination={closedRunsPage}
-            rows={closedRuns}
-            onOpenSubscription={subscription => navigate(`${APP_PATHS.COPY_TRADING}/history/${subscription.copyRunId}`)}
-          />
+          <ClosedSubscriptionsTable loading={closedRunsPage.loading} pagination={closedRunsPage} rows={closedRuns} />
         </>
       )}
     </CopyTradingPage>
