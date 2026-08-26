@@ -33,12 +33,11 @@ type StopCopyModalProps = {
   isOpen: boolean
   onDismiss: () => void
   copyRun: CopyRunSummary
-  agentName?: string
 }
 
 const STOP_COPY_CALL_KINDS: PreparedCallKind[] = ['PREPARED_CALL_KIND_STOP_COPY']
 
-const StopCopyModal = ({ isOpen, onDismiss, copyRun, agentName }: StopCopyModalProps) => {
+const StopCopyModal = ({ isOpen, onDismiss, copyRun }: StopCopyModalProps) => {
   const navigate = useNavigate()
   const { account, chainId } = useActiveWeb3React()
   const { changeNetwork } = useChangeNetwork()
@@ -205,7 +204,7 @@ const StopCopyModal = ({ isOpen, onDismiss, copyRun, agentName }: StopCopyModalP
       isOpen={isOpen}
       onDismiss={dismiss}
       state={flowState}
-      title={'Stop Copying' + (agentName ? ' ' + agentName : '')}
+      title={`Stop Copying - ${copyRun.agentSnapshot?.displayName}`}
       review={review}
       confirmLabel={reviewPreparing ? 'Preparing' : 'Stop Copying'}
       onBack={flow.reset}
@@ -220,6 +219,7 @@ const StopCopyModal = ({ isOpen, onDismiss, copyRun, agentName }: StopCopyModalP
         expectedPositionCount={expectedPositionCount}
         isPreparing={flowState.isPreparing === true}
         isSelected={isSelected}
+        onCancel={dismiss}
         onPrimaryAction={handlePrimaryAction}
         onSlippageChange={setSlippage}
         onTogglePosition={togglePosition}

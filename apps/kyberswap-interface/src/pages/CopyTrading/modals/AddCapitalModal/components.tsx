@@ -1,10 +1,9 @@
 import { Token } from '@kyberswap/ks-sdk-core'
 
-import { ButtonPrimary } from 'components/Button'
-import Dots from 'components/Dots'
 import { HStack, Stack } from 'components/Stack'
 import CapitalAmountInput from 'pages/CopyTrading/modals/CapitalAmount'
 import { type CapitalPercentage } from 'pages/CopyTrading/modals/CapitalAmount/capital'
+import { PreparedActionFormActions } from 'pages/CopyTrading/modals/PreparedActionModal'
 import { isWritePrimaryActionDisabled } from 'pages/CopyTrading/modals/writeAction'
 
 const CapitalSummaryRow = ({ label, value }: { label: string; value: string }) => (
@@ -23,6 +22,7 @@ type AddCapitalFormProps = {
   isPreparing: boolean
   newAllocatedCapital: string
   onAmountChange: (amount: string) => void
+  onCancel: () => void
   onExpectedChain: boolean
   onPercentageChange: (percentage: CapitalPercentage) => void
   onPrimaryAction: () => void
@@ -45,6 +45,7 @@ export const AddCapitalForm = ({
   isPreparing,
   newAllocatedCapital,
   onAmountChange,
+  onCancel,
   onExpectedChain,
   onPercentageChange,
   onPrimaryAction,
@@ -64,7 +65,7 @@ export const AddCapitalForm = ({
         amountError={amountError}
         inputId="copy-trading-add-capital"
         isPreparing={isPreparing}
-        label="Add Capital"
+        label="Amount to add"
         onAmountChange={onAmountChange}
         onPercentageChange={onPercentageChange}
         presetsEnabled={presetsEnabled}
@@ -74,25 +75,25 @@ export const AddCapitalForm = ({
         walletBalanceText={walletBalanceText}
       />
 
-      <CapitalSummaryRow label="New allocated capital" value={newAllocatedCapital} />
+      <CapitalSummaryRow label="New Total" value={newAllocatedCapital} />
 
       <p className="text-sm text-subText">
         Capital will deploy on the agent&apos;s next trade. No immediate swaps. Existing settings apply.
       </p>
-      <ButtonPrimary
-        type="button"
-        altDisabledStyle
-        disabled={isWritePrimaryActionDisabled({
+      <PreparedActionFormActions
+        cancelDisabled={isPreparing}
+        onCancel={onCancel}
+        onPrimaryAction={onPrimaryAction}
+        primaryActionDisabled={isWritePrimaryActionDisabled({
           accountConnected,
           executionBlocked: !amountIsValid || !!availabilityMessage,
           interactionLocked: isPreparing,
           onExpectedChain,
         })}
-        title={amountError || availabilityMessage}
-        onClick={onPrimaryAction}
-      >
-        {isPreparing ? <Dots>{primaryActionLabel}</Dots> : primaryActionLabel}
-      </ButtonPrimary>
+        primaryActionLabel={primaryActionLabel}
+        primaryActionLoading={isPreparing}
+        primaryActionTitle={amountError || availabilityMessage}
+      />
     </Stack>
   )
 }

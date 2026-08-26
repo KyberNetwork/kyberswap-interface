@@ -1,12 +1,10 @@
 import type { PositionSummary } from 'services/copyTrading/types/positions'
 import type { PositionSellPreview } from 'services/copyTrading/types/preparedActions'
 
-import { ButtonPrimary } from 'components/Button'
-import Dots from 'components/Dots'
 import { Stack } from 'components/Stack'
 import { ShortenedId } from 'pages/CopyTrading/components/common/layout'
 import { formatApproximateUsd } from 'pages/CopyTrading/helpers'
-import { ReviewRow, ReviewSection } from 'pages/CopyTrading/modals/PreparedActionModal'
+import { PreparedActionFormActions, ReviewRow, ReviewSection } from 'pages/CopyTrading/modals/PreparedActionModal'
 import PreparedActionSlippageControl from 'pages/CopyTrading/modals/PreparedActionModal/SlippageControl'
 import {
   formatPreparedAmount,
@@ -87,6 +85,7 @@ export const ManagePositionReview = ({
 type ManagePositionFormProps = {
   description: string
   isPreparing: boolean
+  onCancel: () => void
   onPrimaryAction: () => void
   onSlippageChange: (slippage: number) => void
   position: PositionSummary
@@ -99,6 +98,7 @@ type ManagePositionFormProps = {
 export const ManagePositionForm = ({
   description,
   isPreparing,
+  onCancel,
   onPrimaryAction,
   onSlippageChange,
   position,
@@ -120,15 +120,15 @@ export const ManagePositionForm = ({
 
       <PreparedActionSlippageControl disabled={isPreparing} onChange={onSlippageChange} value={slippage} />
 
-      <ButtonPrimary
-        type="button"
-        altDisabledStyle
-        disabled={primaryActionDisabled}
-        title={unavailableMessage}
-        onClick={onPrimaryAction}
-      >
-        {isPreparing ? <Dots>{primaryActionLabel}</Dots> : primaryActionLabel}
-      </ButtonPrimary>
+      <PreparedActionFormActions
+        cancelDisabled={isPreparing}
+        onCancel={onCancel}
+        onPrimaryAction={onPrimaryAction}
+        primaryActionDisabled={primaryActionDisabled}
+        primaryActionLabel={primaryActionLabel}
+        primaryActionLoading={isPreparing}
+        primaryActionTitle={unavailableMessage}
+      />
     </Stack>
   )
 }

@@ -191,7 +191,7 @@ const CopySidePanel = ({ agent, run }: CopySidePanelProps) => {
         stopCopyAvailability={run.stopCopyAvailability}
         title={capitalCardTitle}
         onAddCapital={isTerminal ? undefined : () => openAddCapital(run)}
-        onStopCopy={isTerminal ? undefined : () => openStopCopy(run, agent.displayName)}
+        onStopCopy={isTerminal ? undefined : () => openStopCopy(run)}
       />
     </ResponsiveDetailItem>
   )

@@ -1,13 +1,11 @@
 import type { PositionSummary } from 'services/copyTrading/types/positions'
 import type { StopCopyPreview } from 'services/copyTrading/types/preparedActions'
 
-import { ButtonPrimary } from 'components/Button'
-import Dots from 'components/Dots'
 import ScrollableWithSignal from 'components/ScrollableWithSignal'
 import TableCellSkeleton from 'components/Skeleton/TableCellSkeleton'
 import { Center, HStack, Stack } from 'components/Stack'
 import { formatApproximateUsd, getSignedMetricClassName, signedUsd } from 'pages/CopyTrading/helpers'
-import { ReviewRow, ReviewSection } from 'pages/CopyTrading/modals/PreparedActionModal'
+import { PreparedActionFormActions, ReviewRow, ReviewSection } from 'pages/CopyTrading/modals/PreparedActionModal'
 import PreparedActionSlippageControl from 'pages/CopyTrading/modals/PreparedActionModal/SlippageControl'
 import { formatPreparedAmount, withMetricFallback } from 'pages/CopyTrading/modals/PreparedActionModal/preparedAction'
 import { MAX_STOP_POSITIONS, getUserPositionId } from 'pages/CopyTrading/modals/StopCopyModal/positions'
@@ -15,21 +13,48 @@ import { cn } from 'utils/cn'
 
 const withApproximateMetricFallback = (value: string) => (value === '—' ? 'N/A' : `~${value}`)
 
+const groupStopCopyPositionsByToken = (positions: NonNullable<StopCopyPreview['positions']>) => {
+  const groups = new Map<string, { count: number; label: string }>()
+
+  positions.forEach((position, index) => {
+    const address = position.baseToken?.address?.toLowerCase()
+    const symbol = position.baseToken?.symbol
+    const key = address || (symbol ? `symbol:${symbol.toLowerCase()}` : `unknown:${position.userPositionId || index}`)
+    const current = groups.get(key)
+
+    groups.set(key, {
+      count: (current?.count || 0) + 1,
+      label: current?.label || symbol || 'Unknown',
+    })
+  })
+
+  return Array.from(groups, ([key, group]) => ({ key, ...group }))
+}
+
 export const StopCopyReview = ({ isLoading, preview }: { isLoading: boolean; preview?: StopCopyPreview }) => {
   const showSkeleton = isLoading && !preview
+  const tokenGroups = groupStopCopyPositionsByToken(preview?.positions || [])
 
   return (
     <Stack className="gap-4">
       {!!preview?.positions?.length && (
         <Stack className="gap-3 rounded-xl bg-white-04 px-4 py-3">
-          <h3 className="text-sm font-medium text-subText">Positions to sell</h3>
+          <HStack className="items-center justify-between gap-3 text-sm font-medium text-subText">
+            <h3>Positions to sell:</h3>
+            <span>{preview.positions.length}</span>
+          </HStack>
           <HStack className="flex-wrap gap-2">
-            {preview.positions.map(position => (
+            {tokenGroups.map(token => (
               <span
-                key={position.userPositionId}
-                className="inline-flex min-w-16 items-center justify-center rounded-lg bg-white-08 px-3 py-1 text-sm font-medium text-text"
+                key={token.key}
+                className="relative inline-flex min-w-16 items-center justify-center rounded-lg bg-white-08 px-3 py-1 text-sm font-medium text-text"
               >
-                {position.baseToken?.symbol || 'Unknown'}
+                {token.label}
+                {token.count > 1 && (
+                  <span className="absolute -right-1.5 -top-1.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[11px] text-darkText">
+                    {token.count}
+                  </span>
+                )}
               </span>
             ))}
           </HStack>
@@ -39,22 +64,22 @@ export const StopCopyReview = ({ isLoading, preview }: { isLoading: boolean; pre
       <ReviewSection>
         <ReviewRow
           isLoading={showSkeleton}
-          label="Est. positions value"
+          label="Est. Positions Value"
           value={formatApproximateUsd(preview?.totalCurrentValueUsd?.value)}
         />
         <ReviewRow
           isLoading={showSkeleton}
-          label="Est. cashback"
+          label="Est. Cashback"
           value={withApproximateMetricFallback(formatPreparedAmount(preview?.totalCashback, preview?.quoteToken))}
         />
         <ReviewRow
           isLoading={showSkeleton}
-          label="Expected received"
+          label="Expected Received"
           value={withMetricFallback(formatPreparedAmount(preview?.totalSwapQuote?.expectedQuote, preview?.quoteToken))}
         />
         <ReviewRow
           isLoading={showSkeleton}
-          label="Minimum received"
+          label="Minimum Received"
           value={withMetricFallback(formatPreparedAmount(preview?.totalSwapQuote?.minimumQuote, preview?.quoteToken))}
         />
       </ReviewSection>
@@ -67,6 +92,7 @@ type StopCopyFormProps = {
   expectedPositionCount?: number
   isPreparing: boolean
   isSelected: (position: PositionSummary, index: number) => boolean
+  onCancel: () => void
   onPrimaryAction: () => void
   onSlippageChange: (slippage: number) => void
   onTogglePosition: (position: PositionSummary, index: number) => void
@@ -218,6 +244,7 @@ export const StopCopyForm = ({
   expectedPositionCount,
   isPreparing,
   isSelected,
+  onCancel,
   onPrimaryAction,
   onSlippageChange,
   onTogglePosition,
@@ -250,7 +277,7 @@ export const StopCopyForm = ({
 
       <Stack className="gap-2 rounded-xl border border-border px-4 py-3">
         <HStack className="items-center justify-between gap-3 text-sm">
-          <span className="text-subText">Est. value selected</span>
+          <span className="text-subText">Est. Value Selected</span>
           <span className="font-medium text-text">{formatApproximateUsd(selectedPositionValueUsd)}</span>
         </HStack>
         <PreparedActionSlippageControl disabled={isPreparing} onChange={onSlippageChange} value={slippage} />
@@ -262,15 +289,15 @@ export const StopCopyForm = ({
         </p>
       )}
 
-      <ButtonPrimary
-        type="button"
-        altDisabledStyle
-        disabled={primaryActionDisabled}
-        title={availabilityMessage}
-        onClick={onPrimaryAction}
-      >
-        {primaryActionLoading ? <Dots>{primaryActionLabel}</Dots> : primaryActionLabel}
-      </ButtonPrimary>
+      <PreparedActionFormActions
+        cancelDisabled={isPreparing}
+        onCancel={onCancel}
+        onPrimaryAction={onPrimaryAction}
+        primaryActionDisabled={primaryActionDisabled}
+        primaryActionLabel={primaryActionLabel}
+        primaryActionLoading={primaryActionLoading}
+        primaryActionTitle={availabilityMessage}
+      />
     </Stack>
   )
 }
