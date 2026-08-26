@@ -22,7 +22,6 @@ import {
   compactUsd,
   formatCount,
   formatDisplayCapitalInUsd,
-  getAgentDisplayName,
   getPreparedReasonMessage,
   getSignedMetricClassName,
   getWinRateClassName,
@@ -94,7 +93,7 @@ const ActiveSubscriptionsTable = ({
         className="whitespace-nowrap"
         disabled={!actionAvailable}
         title={!actionAvailable ? getPreparedReasonMessage(subscription.stopCopyAvailability?.reason) : undefined}
-        onClick={() => openStopCopy(subscription, getAgentDisplayName(subscription.agentSnapshot))}
+        onClick={() => openStopCopy(subscription)}
       >
         Stop Copying
       </ButtonLight>

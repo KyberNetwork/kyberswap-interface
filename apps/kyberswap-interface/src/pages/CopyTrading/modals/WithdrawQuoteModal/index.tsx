@@ -236,6 +236,7 @@ const WithdrawQuoteModal = ({ isOpen, onDismiss, copyRun, withdrawQuoteAvailabil
         availabilityMessage={availabilityMessage}
         isPreparing={flowState.isPreparing === true}
         onAmountChange={handleAmountChange}
+        onCancel={dismiss}
         onHalf={() => setPresetAmount(50)}
         onMax={() => setPresetAmount(100)}
         onPrimaryAction={handlePrimaryAction}

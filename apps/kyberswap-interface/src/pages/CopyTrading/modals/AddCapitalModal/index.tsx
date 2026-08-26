@@ -159,7 +159,7 @@ const AddCapitalModal = ({ isOpen, onDismiss, copyRun }: AddCapitalModalProps) =
       isOpen={isOpen}
       onDismiss={dismiss}
       state={flowState}
-      title="Add Capital"
+      title={`Add Capital - ${copyRun.agentSnapshot?.displayName}`}
       review={null}
       confirmLabel="Add Capital"
       confirmLoading={flowState.isPreparing === true}
@@ -180,6 +180,7 @@ const AddCapitalModal = ({ isOpen, onDismiss, copyRun }: AddCapitalModalProps) =
         isPreparing={flowState.isPreparing === true}
         newAllocatedCapital={formatCapitalAmount(newAllocatedCapitalUsd)}
         onAmountChange={capital.setAmount}
+        onCancel={dismiss}
         onExpectedChain={capital.onExpectedChain}
         onPercentageChange={setPercentageAmount}
         onPrimaryAction={handlePrimaryAction}

@@ -65,6 +65,42 @@ export const PreparedActionSuccessActions = ({
   </HStack>
 )
 
+type PreparedActionFormActionsProps = {
+  cancelDisabled?: boolean
+  onCancel: () => void
+  onPrimaryAction: () => void
+  primaryActionDisabled?: boolean
+  primaryActionLabel: string
+  primaryActionLoading?: boolean
+  primaryActionTitle?: string
+}
+
+export const PreparedActionFormActions = ({
+  cancelDisabled = false,
+  onCancel,
+  onPrimaryAction,
+  primaryActionDisabled = false,
+  primaryActionLabel,
+  primaryActionLoading = false,
+  primaryActionTitle,
+}: PreparedActionFormActionsProps) => (
+  <HStack className="w-full gap-3">
+    <ButtonOutlined type="button" className="flex-1" disabled={cancelDisabled} onClick={onCancel}>
+      Cancel
+    </ButtonOutlined>
+    <ButtonPrimary
+      type="button"
+      className="flex-1"
+      altDisabledStyle
+      disabled={primaryActionDisabled}
+      title={primaryActionTitle}
+      onClick={onPrimaryAction}
+    >
+      {primaryActionLoading ? <Dots>{primaryActionLabel}</Dots> : primaryActionLabel}
+    </ButtonPrimary>
+  </HStack>
+)
+
 type PreparedActionModalProps = {
   children: ReactNode
   confirmDisabled?: boolean

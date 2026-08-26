@@ -63,6 +63,7 @@ const StartCopyModal = ({ isOpen, onDismiss, agent }: StartCopyModalProps) => {
           flow.capital.setAmount(value)
           flow.setAgreed(false)
         }}
+        onCancel={flow.dismiss}
         onExpectedChain={flow.capital.onExpectedChain}
         onPercentageChange={flow.setPercentageAmount}
         onPrimaryAction={flow.handlePrimaryAction}
