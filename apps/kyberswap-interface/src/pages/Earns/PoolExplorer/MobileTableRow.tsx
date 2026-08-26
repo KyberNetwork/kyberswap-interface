@@ -12,14 +12,14 @@ import {
   HeaderText,
   MobileTableBottomRow,
   MobileTableCell,
-  MobileTableRow as MobileTableRowComponent,
+  MobileTableRowLink,
   SymbolText,
 } from 'pages/Earns/PoolExplorer/styles'
 import PoolAprBadges from 'pages/Earns/components/PoolAprBadges'
 import PoolAprInfo from 'pages/Earns/components/PoolAprInfo'
 import PoolRewardsInfo from 'pages/Earns/components/PoolRewardsInfo'
-import { ZapInInfo } from 'pages/Earns/hooks/useZapInWidget'
 import { ParsedEarnPool } from 'pages/Earns/types'
+import { getPoolDetailUrl } from 'pages/Earns/utils/url'
 import { formatDisplayNumber } from 'utils/numbers'
 import { prefetchPoolDetail } from 'utils/prefetch'
 
@@ -27,14 +27,12 @@ const MobileTableRow = ({
   pool,
   showRewards = true,
   rowIndex,
-  onOpenZapInWidget,
   handleFavorite,
 }: {
   pool: ParsedEarnPool
   showRewards?: boolean
   /** 0-based position within the current page — drives the staggered fade-in delay. */
   rowIndex: number
-  onOpenZapInWidget: ({ pool, initialTick }: ZapInInfo) => void
   handleFavorite: (e: React.MouseEvent<SVGElement, MouseEvent>, pool: ParsedEarnPool) => Promise<void>
 }) => {
   const theme = useTheme()
@@ -43,15 +41,15 @@ const MobileTableRow = ({
   // Stagger each row's fade-in by 50ms (capped at 300ms), matching the My Positions list.
   const animationDelay = `${Math.min(rowIndex * 50, 300)}ms`
 
-  // Same as the desktop row: the row's onClick opens the pool's detail page, so warm that page's chunk +
-  // poolDetail query on touch-intent (onTouchStart is the only practically-relevant trigger on mobile).
+  const poolDetailUrl = getPoolDetailUrl((pool.chain?.id || pool.chainId) as number, pool.exchange, pool.address)
+
+  // Same as the desktop row: warm the detail page on touch intent before the link is opened.
   const prefetchDetail = usePrefetchOnIntent(
     () => prefetchPoolDetail((pool.chain?.id || pool.chainId) as number, pool.address),
     { delay: 120 },
   )
 
-  const handleOpenZapInWidget = (e: React.MouseEvent<HTMLDivElement>) => {
-    e.stopPropagation()
+  const handlePoolClick = () => {
     trackingHandler(TRACKING_EVENT_TYPE.LIQ_POOL_SELECTED, {
       pool_pair: `${pool.tokens?.[0]?.symbol}/${pool.tokens?.[1]?.symbol}`,
       pool_protocol: pool.dexName,
@@ -61,18 +59,12 @@ const MobileTableRow = ({
       pool_apr: pool.allApr,
       chain: pool.chain?.name,
     })
-    onOpenZapInWidget({
-      pool: {
-        dex: pool.exchange,
-        chainId: (pool.chain?.id || pool.chainId) as number,
-        address: pool.address,
-      },
-    })
   }
 
   return (
-    <MobileTableRowComponent
-      onClick={e => handleOpenZapInWidget(e)}
+    <MobileTableRowLink
+      to={poolDetailUrl}
+      onClick={handlePoolClick}
       className="animate-[fadeInUp_0.3s_ease-out_both] motion-reduce:animate-none"
       style={{ animationDelay }}
       data-testid="earn-pool-row"
@@ -158,7 +150,7 @@ const MobileTableRow = ({
           />
         </MobileTableCell>
       </MobileTableBottomRow>
-    </MobileTableRowComponent>
+    </MobileTableRowLink>
   )
 }
 

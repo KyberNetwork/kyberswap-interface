@@ -92,6 +92,7 @@ const useFavoritePool = ({ refetch }: { refetch?: () => void }) => {
 
   const handleFavorite = async (e: React.MouseEvent<SVGElement, MouseEvent>, pool: ParsedEarnPool) => {
     e.stopPropagation()
+    e.preventDefault()
     if (favoriteLoading.includes(pool.address) || delayFavorite) return
 
     const isPoolFavorite = !!pool.favorite?.isFavorite

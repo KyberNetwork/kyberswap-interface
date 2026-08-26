@@ -11,7 +11,6 @@ import DesktopTableRow from 'pages/Earns/PoolExplorer/DesktopTableRow'
 import MobileTableRow from 'pages/Earns/PoolExplorer/MobileTableRow'
 import useFavoritePool from 'pages/Earns/PoolExplorer/useFavoritePool'
 import { EARN_DEXES } from 'pages/Earns/constants'
-import { ZapInInfo } from 'pages/Earns/hooks/useZapInWidget'
 import Updater from 'state/customizeDexes/updater'
 import { useAppSelector } from 'state/hooks'
 import { MEDIA_WIDTHS } from 'theme'
@@ -24,13 +23,12 @@ export const dexKeyMapping: { [key: string]: string } = {
 const POLLING_INTERVAL_MS = 5 * 60_000
 
 type Props = {
-  onOpenZapInWidget: ({ pool }: ZapInInfo) => void
   filters: PoolQueryParams
   showRewards?: boolean
   showPoolPrice?: boolean
 }
 
-const TableContent = ({ onOpenZapInWidget, filters, showRewards = true, showPoolPrice = true }: Props) => {
+const TableContent = ({ filters, showRewards = true, showPoolPrice = true }: Props) => {
   const allDexes = useAppSelector(state => state.customizeDexes.allDexes)
   const {
     data: poolData,
@@ -113,7 +111,6 @@ const TableContent = ({ onOpenZapInWidget, filters, showRewards = true, showPool
               pool={pool}
               rowIndex={index}
               showRewards={showRewards}
-              onOpenZapInWidget={onOpenZapInWidget}
               handleFavorite={handleFavorite}
             />
           ))}
@@ -126,7 +123,6 @@ const TableContent = ({ onOpenZapInWidget, filters, showRewards = true, showPool
             rowIndex={index}
             showRewards={showRewards}
             showPoolPrice={showPoolPrice}
-            onOpenZapInWidget={onOpenZapInWidget}
             handleFavorite={handleFavorite}
             favoriteLoading={favoriteLoading}
           />

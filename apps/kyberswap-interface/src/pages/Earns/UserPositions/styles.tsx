@@ -1,8 +1,8 @@
 import { HTMLAttributes, forwardRef } from 'react'
-import { Link, LinkProps } from 'react-router-dom'
+import { LinkProps } from 'react-router-dom'
 
 import { ReactComponent as IconCurrentPrice } from 'assets/svg/earn/ic_position_current_price.svg'
-import { TableHeader, TableWrapper, getPositionTableGridTemplateColumns } from 'components/Listing/Table'
+import { TableHeader, TableRowLink, TableWrapper, getPositionTableGridTemplateColumns } from 'components/Listing/Table'
 import { cn } from 'utils/cn'
 
 type PositionRowProps = LinkProps & {
@@ -13,10 +13,10 @@ export const PositionRow = forwardRef<HTMLAnchorElement, PositionRowProps>(
   ({ $isUnfinalized, $index, className, style, ...rest }, ref) => {
     const delay = Math.min(($index || 0) * 50, 300)
     return (
-      <Link
+      <TableRowLink
         ref={ref}
         className={cn(
-          'relative grid grid-rows-[1fr] items-center p-3 !text-inherit no-underline',
+          'relative grid-rows-[1fr] !text-inherit',
           'animate-[fadeInUp_0.3s_ease-out_both] motion-reduce:animate-none',
           'hover:cursor-pointer hover:bg-primary-10',
           $isUnfinalized && 'bg-tableHeader/40',
