@@ -1,10 +1,11 @@
-import { type HTMLAttributes, type KeyboardEvent, type MouseEvent } from 'react'
+import { type HTMLAttributes } from 'react'
 import type { CopyRunSummary } from 'services/copyTrading/types/copyRuns'
 import type { CopyRunSortBy, SortOrder } from 'services/copyTrading/types/primitives'
 
 import { ButtonLight } from 'components/Button'
 import ScrollArea from 'components/ScrollArea'
 import { Stack } from 'components/Stack'
+import { APP_PATHS } from 'constants/index'
 import CursorPagination, { type CursorPaginationState } from 'pages/CopyTrading/components/CursorPagination'
 import {
   HeaderCell,
@@ -14,6 +15,7 @@ import {
   TableCell,
   TableHeader,
   TableRow,
+  TableRowLink,
 } from 'pages/CopyTrading/components/Table'
 import { CopyRunAgentCell } from 'pages/CopyTrading/components/common/agentIdentity'
 import { copyTradingStatIconMap } from 'pages/CopyTrading/constants'
@@ -55,7 +57,6 @@ type ActiveSubscriptionsTableProps = {
   sortBy?: CopyRunSortBy
   sortOrder?: SortOrder
   onSortChange: (sortBy: CopyRunSortBy) => void
-  onOpenSubscription: (subscription: CopyRunSummary) => void
 }
 
 const ActiveSubscriptionsTable = ({
@@ -65,22 +66,8 @@ const ActiveSubscriptionsTable = ({
   sortBy,
   sortOrder,
   onSortChange,
-  onOpenSubscription,
 }: ActiveSubscriptionsTableProps) => {
   const { openStopCopy } = useCopyTradingModal()
-
-  const handleOpenSubscription = (event: MouseEvent<HTMLElement>, subscription: CopyRunSummary) => {
-    if ((event.target as HTMLElement).closest('button')) return
-    onOpenSubscription(subscription)
-  }
-
-  const handleOpenSubscriptionKeyDown = (event: KeyboardEvent<HTMLElement>, subscription: CopyRunSummary) => {
-    if ((event.target as HTMLElement).closest('button')) return
-    if (event.key === 'Enter' || event.key === ' ') {
-      event.preventDefault()
-      onOpenSubscription(subscription)
-    }
-  }
 
   const renderStopCopyButton = (subscription: CopyRunSummary) => {
     const actionAvailable = canAttemptPreparation(subscription.stopCopyAvailability)
@@ -153,14 +140,11 @@ const ActiveSubscriptionsTable = ({
           loading={loading}
         >
           {rows.map(subscription => (
-            <ActiveSubscriptionsGrid
-              key={subscription.copyRunId}
-              role="button"
-              tabIndex={0}
-              onClick={event => handleOpenSubscription(event, subscription)}
-              onKeyDown={event => handleOpenSubscriptionKeyDown(event, subscription)}
-              className="cursor-pointer"
-            >
+            <ActiveSubscriptionsGrid key={subscription.copyRunId} className="relative cursor-pointer">
+              <TableRowLink
+                label={`View copy for ${subscription.agentSnapshot?.displayName || 'agent'}`}
+                to={`${APP_PATHS.COPY_TRADING}/my-copies/${subscription.copyRunId}`}
+              />
               <CopyRunAgentCell run={subscription} className="px-3 py-2" />
               <TableCell className={cn('text-right', getSignedMetricClassName(subscription.agentStats.apr30dPct))}>
                 {percent(subscription.agentStats.apr30dPct)}
@@ -187,12 +171,12 @@ const ActiveSubscriptionsTable = ({
         {rows.map(subscription => (
           <Stack
             key={subscription.copyRunId}
-            role="button"
-            tabIndex={0}
-            className="cursor-pointer gap-3 rounded-xl bg-buttonBlack-60 p-3 outline-none transition-colors hover:bg-primary-10"
-            onClick={event => handleOpenSubscription(event, subscription)}
-            onKeyDown={event => handleOpenSubscriptionKeyDown(event, subscription)}
+            className="relative cursor-pointer gap-3 rounded-xl bg-buttonBlack-60 p-3 outline-none transition-colors hover:bg-primary-10"
           >
+            <TableRowLink
+              label={`View copy for ${subscription.agentSnapshot?.displayName || 'agent'}`}
+              to={`${APP_PATHS.COPY_TRADING}/my-copies/${subscription.copyRunId}`}
+            />
             <CopyRunAgentCell run={subscription} className="gap-3" />
 
             <TableCardGrid>

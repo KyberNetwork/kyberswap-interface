@@ -1,9 +1,7 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import copyRunApi from 'services/copyTrading/api/endpoints/copyRuns'
 import type { CopyRunSortBy, SortOrder } from 'services/copyTrading/types/primitives'
 
-import { APP_PATHS } from 'constants/index'
 import useIsWalletRestoring from 'hooks/useIsWalletRestoring'
 import ActiveSubscriptionsTable from 'pages/CopyTrading/MyCopies/ActiveSubscriptionsTable'
 import { AlertsFeed, OpenCopiesSummary } from 'pages/CopyTrading/MyCopies/components'
@@ -17,7 +15,6 @@ import { useCopyTradingContext } from 'pages/CopyTrading/context'
 const PAGE_SIZE = 10
 
 const MyCopiesView = () => {
-  const navigate = useNavigate()
   const { ownerAddress } = useCopyTradingContext()
   const isRestoringWallet = useIsWalletRestoring()
   const [sortBy, setSortBy] = useState<CopyRunSortBy>()
@@ -94,9 +91,6 @@ const MyCopiesView = () => {
             sortBy={sortBy}
             sortOrder={sortOrder}
             onSortChange={handleSortChange}
-            onOpenSubscription={subscription =>
-              navigate(`${APP_PATHS.COPY_TRADING}/my-copies/${subscription.copyRunId}`)
-            }
           />
           <AlertsFeed
             infiniteScroll={activityInfiniteScroll}

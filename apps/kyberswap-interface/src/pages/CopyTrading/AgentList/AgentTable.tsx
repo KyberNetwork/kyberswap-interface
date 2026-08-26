@@ -1,11 +1,11 @@
-import { type HTMLAttributes, type MouseEvent, useMemo } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { type HTMLAttributes, useMemo } from 'react'
+import { Link } from 'react-router-dom'
 import copyRunApi from 'services/copyTrading/api/endpoints/copyRuns'
 import type { AgentCard } from 'services/copyTrading/types/agents'
 import type { CopyRunSummary } from 'services/copyTrading/types/copyRuns'
 import type { LeaderboardSortBy, SortOrder } from 'services/copyTrading/types/primitives'
 
-import { ButtonPrimary } from 'components/Button'
+import { ButtonLight, ButtonPrimary } from 'components/Button'
 import ScrollArea from 'components/ScrollArea'
 import { Stack } from 'components/Stack'
 import { APP_PATHS } from 'constants/index'
@@ -18,6 +18,7 @@ import {
   TableCell,
   TableHeader,
   TableRow,
+  TableRowLink,
 } from 'pages/CopyTrading/components/Table'
 import { AgentCell } from 'pages/CopyTrading/components/common/agentIdentity'
 import { copyTradingStatIconMap } from 'pages/CopyTrading/constants'
@@ -62,14 +63,14 @@ const LeaderboardGrid = ({ header, className, ...props }: LeaderboardGridProps) 
 }
 
 const AgentTable = ({ agents, loading, pagination, sortBy, sortOrder, onSortChange }: AgentTableProps) => {
-  const navigate = useNavigate()
-  const { ownerAddress } = useCopyTradingContext()
+  const { ownerAddress, selectedChainId } = useCopyTradingContext()
   const { openStartCopy } = useCopyTradingModal()
 
   const { currentData: activeCopyRuns } = copyRunApi.useGetCopyRunsQuery(
     {
       ownerAddress: ownerAddress || '',
       view: 'open',
+      chainId: selectedChainId,
       limit: 100,
     },
     { pollingInterval: 10_000, skip: !ownerAddress },
@@ -83,15 +84,6 @@ const AgentTable = ({ agents, loading, pagination, sortBy, sortOrder, onSortChan
       }, {}),
     [activeCopyRuns?.data],
   )
-
-  const openAgent = (agentId: string) => {
-    navigate(`${APP_PATHS.COPY_TRADING}/${agentId}`)
-  }
-
-  const handleAgentRowClick = (event: MouseEvent<HTMLElement>, agentId: string) => {
-    if ((event.target as HTMLElement).closest('button')) return
-    openAgent(agentId)
-  }
 
   return (
     <Stack className="gap-2 lg:gap-0 lg:overflow-hidden lg:rounded-xl lg:bg-buttonBlack-60">
@@ -167,11 +159,8 @@ const AgentTable = ({ agents, loading, pagination, sortBy, sortOrder, onSortChan
             const canStartCopy = canAttemptPreparation(agent.startCopyAvailability)
 
             return (
-              <LeaderboardGrid
-                key={agent.agentId}
-                role="button"
-                onClick={event => handleAgentRowClick(event, agent.agentId)}
-              >
+              <LeaderboardGrid key={agent.agentId} className="relative cursor-pointer">
+                <TableRowLink label={`View ${agent.displayName}`} to={`${APP_PATHS.COPY_TRADING}/${agent.agentId}`} />
                 <AgentCell agent={agent} className="px-3 py-2" />
                 <TableCell className={cn('text-right', getSignedMetricClassName(agent.stats.apr30dPct))}>
                   {percent(agent.stats.apr30dPct)}
@@ -183,9 +172,16 @@ const AgentTable = ({ agents, loading, pagination, sortBy, sortOrder, onSortChan
                 <TableCell className="text-right">{formatCount(agent.stats.copiers)}</TableCell>
                 <TableCell className="text-right">{compactUsd(agent.stats.aumUsd)}</TableCell>
                 <TableCell className="text-right">{formatCount(agent.stats.openPositions)}</TableCell>
-                <TableCell className="flex justify-end">
+                <TableCell className="flex items-center justify-center">
                   {copiedRun ? (
-                    <span className="text-sm font-medium text-primary">Copied</span>
+                    <ButtonLight
+                      as={Link}
+                      to={`${APP_PATHS.COPY_TRADING}/my-copies/${copiedRun.copyRunId}`}
+                      padding="6px 12px"
+                      className="w-fit whitespace-nowrap"
+                    >
+                      My Copy
+                    </ButtonLight>
                   ) : (
                     <div>
                       <ButtonPrimary
@@ -223,10 +219,9 @@ const AgentTable = ({ agents, loading, pagination, sortBy, sortOrder, onSortChan
           return (
             <Stack
               key={agent.agentId}
-              role="button"
-              className="gap-3 rounded-xl bg-buttonBlack-60 p-3 outline-none transition-colors hover:bg-primary-10"
-              onClick={event => handleAgentRowClick(event, agent.agentId)}
+              className="relative cursor-pointer gap-3 rounded-xl bg-buttonBlack-60 p-3 outline-none transition-colors hover:bg-primary-10"
             >
+              <TableRowLink label={`View ${agent.displayName}`} to={`${APP_PATHS.COPY_TRADING}/${agent.agentId}`} />
               <AgentCell agent={agent} className="gap-3" />
 
               <TableCardGrid>
@@ -251,9 +246,14 @@ const AgentTable = ({ agents, loading, pagination, sortBy, sortOrder, onSortChan
               </TableCardGrid>
 
               {copiedRun ? (
-                <span className="flex min-h-9 items-center justify-center text-sm font-medium text-primary">
-                  Copied
-                </span>
+                <ButtonLight
+                  as={Link}
+                  to={`${APP_PATHS.COPY_TRADING}/my-copies/${copiedRun.copyRunId}`}
+                  padding="6px 12px"
+                  className="w-fit self-end whitespace-nowrap"
+                >
+                  My Copy
+                </ButtonLight>
               ) : (
                 <ButtonPrimary
                   type="button"
