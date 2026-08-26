@@ -36,7 +36,7 @@ const TabPositionsGrid = ({ header, className, ...props }: TabPositionsGridProps
   return (
     <Grid
       className={cn(
-        'min-w-[1120px] grid-cols-[minmax(0,1fr)_minmax(0,0.8fr)_minmax(0,1.1fr)_minmax(0,1.1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1.1fr)_minmax(0,1fr)_minmax(0,1.4fr)] gap-x-4',
+        'min-w-[1024px] grid-cols-[minmax(0,1fr)_minmax(0,0.8fr)_minmax(0,1.1fr)_minmax(0,1.1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1.1fr)_minmax(0,1.4fr)] gap-x-4',
         !header && 'py-1',
         className,
       )}
@@ -74,11 +74,10 @@ const TabPositions = ({ agentId }: { agentId: string }) => {
           <HeaderCell className="justify-end text-right">Amount</HeaderCell>
           <HeaderCell className="justify-end text-right">Value</HeaderCell>
           <HeaderCell className="justify-end text-right">P&amp;L</HeaderCell>
-          <HeaderCell>Status</HeaderCell>
           <HeaderCell>Open Since</HeaderCell>
         </TabPositionsGrid>
         <TableBody
-          className="grid gap-2 bg-transparent lg:block lg:min-w-[1120px] lg:bg-buttonBlack-60"
+          className="grid gap-2 bg-transparent lg:block lg:min-w-[1024px] lg:bg-buttonBlack-60"
           empty={!rows.length}
           emptyMessage="No open positions found"
           loading={isFetching && !rows.length}
@@ -102,9 +101,6 @@ const TabPositions = ({ agentId }: { agentId: string }) => {
                       <span className="whitespace-nowrap">{signedUsd(pnl)}</span>
                       <span className="whitespace-nowrap text-xs">{signedPercent(row.unrealizedPnlPct)}</span>
                     </Stack>
-                  </TableCell>
-                  <TableCell>
-                    <PositionLifecycleBadge lifecycle={row.lifecycle} quantityState={row.quantityState} />
                   </TableCell>
                   <TableCell className="text-subText">{formatDateTime(row.openedAt)}</TableCell>
                 </TabPositionsGrid>

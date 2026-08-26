@@ -66,10 +66,10 @@ const ClosedSubscriptionsTable = ({ loading, onOpenSubscription, pagination, row
           <HeaderCell className="justify-end text-right">Closed Trades</HeaderCell>
           <HeaderCell className="justify-end text-right">Started &amp; Stopped Time</HeaderCell>
           <HeaderCell className="justify-end text-right">Capital In</HeaderCell>
-          <HeaderCell className="justify-end text-right">Current Balance</HeaderCell>
           <HeaderCell className="justify-end text-right">Realised P&amp;L</HeaderCell>
           <HeaderCell className="justify-end text-right">Fees Paid</HeaderCell>
           <HeaderCell className="justify-end text-right">Rebates</HeaderCell>
+          <HeaderCell className="justify-end text-right">Current Balance</HeaderCell>
         </ClosedSubscriptionsGrid>
 
         <TableBody
@@ -97,7 +97,6 @@ const ClosedSubscriptionsTable = ({ loading, onOpenSubscription, pagination, row
                 <span>{formatDateTime(subscription.stoppedAt)}</span>
               </TableCell>
               <TableCell className="text-right">{formatDisplayCapitalInUsd(subscription)}</TableCell>
-              <TableCell className="text-right">{formatUsd(subscription.portfolioValueUsd)}</TableCell>
               <TableCell
                 className={cn('whitespace-nowrap text-right', getSignedMetricClassName(subscription.realizedPnlUsd))}
               >
@@ -107,6 +106,7 @@ const ClosedSubscriptionsTable = ({ loading, onOpenSubscription, pagination, row
               <TableCell className={cn('text-right', Number(subscription.cashbackReceivedUsd) > 0 && 'text-blue')}>
                 {formatUsd(subscription.cashbackReceivedUsd)}
               </TableCell>
+              <TableCell className="text-right">{formatUsd(subscription.portfolioValueUsd)}</TableCell>
             </ClosedSubscriptionsGrid>
           ))}
         </TableBody>

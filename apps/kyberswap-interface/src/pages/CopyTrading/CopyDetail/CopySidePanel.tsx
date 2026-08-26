@@ -1,4 +1,3 @@
-import { Token as CurrencyToken } from '@kyberswap/ks-sdk-core'
 import { useMemo } from 'react'
 import { CreditCard } from 'react-feather'
 import copyAccountApi from 'services/copyTrading/api/endpoints/copyAccounts'
@@ -6,7 +5,6 @@ import type { AgentProfile, Token } from 'services/copyTrading/types/agents'
 import type { CopyRunSummary, WalletBalanceRow } from 'services/copyTrading/types/copyRuns'
 import type { Metric } from 'services/copyTrading/types/primitives'
 
-import CurrencyLogo from 'components/CurrencyLogo'
 import Loader from 'components/Loader'
 import { Center, HStack } from 'components/Stack'
 import { copyDetailResponsiveOrder } from 'pages/CopyTrading/CopyDetail/responsiveOrder'
@@ -20,6 +18,7 @@ import {
   SidePanelCard,
   type SidePanelCardWrapperProps,
 } from 'pages/CopyTrading/components/AgentSidebarCards/SidePanelCard'
+import CopyTradingTokenLogo from 'pages/CopyTrading/components/common/TokenLogo'
 import { ResponsiveDetailContents, ResponsiveDetailItem } from 'pages/CopyTrading/components/common/layout'
 import { DataQualityStatusBadge, copyRunStatusTextClassName } from 'pages/CopyTrading/components/common/status'
 import { formatDisplayCapitalInUsd, formatTokenAmount, formatUsd } from 'pages/CopyTrading/helpers'
@@ -35,27 +34,27 @@ type AssetRowProps = {
   valueUsd?: string
 }
 
-const AssetRow = ({ amount, chainId, token, tokenAddress, valueUsd }: AssetRowProps) => {
-  const currency = useMemo(() => {
-    try {
-      return new CurrencyToken(chainId, tokenAddress, token?.decimals ?? 0, token?.symbol, token?.name)
-    } catch {
-      return undefined
-    }
-  }, [chainId, token?.decimals, token?.name, token?.symbol, tokenAddress])
-
-  return (
-    <HStack className="items-center justify-between gap-3 py-2">
-      <HStack className="min-w-0 items-center gap-2">
-        <CurrencyLogo currency={currency} size="20px" />
-        <span className="truncate text-base text-text">
-          {formatTokenAmount(amount)} {token?.symbol || 'Unknown token'}
-        </span>
-      </HStack>
-      <span className="shrink-0 text-base text-subText">{formatUsd(valueUsd)}</span>
+const AssetRow = ({ amount, chainId, token, tokenAddress, valueUsd }: AssetRowProps) => (
+  <HStack className="items-center justify-between gap-3 py-2">
+    <HStack className="min-w-0 items-center gap-2">
+      <CopyTradingTokenLogo
+        fallbackChainId={chainId}
+        token={{
+          address: tokenAddress,
+          chainId: token?.chainId,
+          decimals: token?.decimals,
+          logoUrl: token?.iconUrl,
+          name: token?.name,
+          symbol: token?.symbol,
+        }}
+      />
+      <span className="truncate text-base text-text">
+        {formatTokenAmount(amount)} {token?.symbol || 'Unknown token'}
+      </span>
     </HStack>
-  )
-}
+    <span className="shrink-0 text-base text-subText">{formatUsd(valueUsd)}</span>
+  </HStack>
+)
 
 type RemainingInWalletCardProps = SidePanelCardWrapperProps & {
   assets: WalletBalanceRow[]
