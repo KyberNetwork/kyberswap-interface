@@ -81,20 +81,22 @@ const AgentProfile = () => {
     <CopyTradingPage backTo={{ label: 'Leaderboard', to: APP_PATHS.COPY_TRADING }}>
       <AgentIdentity agent={profile} />
 
-      <ResponsiveDetailGrid>
-        <AgentStats agentId={profile.agentId} />
-        <StickySideColumn>
-          <AgentInstruction agent={profile} />
-        </StickySideColumn>
+      <div className="grid gap-4">
+        <ResponsiveDetailGrid className="max-xl:contents">
+          <AgentStats agentId={profile.agentId} />
+          <StickySideColumn>
+            <AgentInstruction agent={profile} />
+          </StickySideColumn>
+        </ResponsiveDetailGrid>
 
-        <ResponsiveDetailItem fullWidth responsiveOrder={agentProfileResponsiveOrder.activity}>
+        <ResponsiveDetailItem responsiveOrder={agentProfileResponsiveOrder.activity}>
           <Tabs activeTab={currentProfileTab} onTabChange={setActiveProfileTab}>
             {currentProfileTab === 'open-position' && <TabPositions agentId={profile.agentId} />}
             {currentProfileTab === 'trade-history' && <TabHistory agentId={profile.agentId} />}
             {currentProfileTab === 'action-log' && <TabActions agentId={profile.agentId} />}
           </Tabs>
         </ResponsiveDetailItem>
-      </ResponsiveDetailGrid>
+      </div>
     </CopyTradingPage>
   )
 }

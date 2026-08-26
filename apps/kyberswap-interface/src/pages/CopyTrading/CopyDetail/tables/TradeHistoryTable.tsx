@@ -56,8 +56,8 @@ const TradeHistoryGrid = ({ header, className, ...props }: TableGridWrapperProps
   return (
     <Grid
       className={cn(
-        'min-w-[1320px] grid-cols-[minmax(0,0.9fr)_minmax(0,0.75fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,0.8fr)_minmax(0,0.8fr)_minmax(0,0.9fr)_minmax(0,1.25fr)_minmax(0,1.25fr)_minmax(0,0.8fr)] gap-x-4',
-        !header && 'px-4 py-1',
+        'min-w-[1120px] grid-cols-[minmax(80px,0.9fr)_minmax(68px,0.75fr)_repeat(2,minmax(104px,1fr))_minmax(120px,1fr)_repeat(2,minmax(88px,0.8fr))_minmax(100px,0.9fr)_minmax(168px,1.25fr)_minmax(84px,0.8fr)] gap-x-2 whitespace-nowrap',
+        !header && 'py-1',
         className,
       )}
       {...props}
@@ -72,18 +72,17 @@ export const TradeHistoryTable = ({ infiniteScroll, loading, rows }: PositionTab
         <TradeHistoryGrid header className="sticky top-0 z-[1] hidden xl:grid">
           <HeaderCell>Trade ID</HeaderCell>
           <HeaderCell>Token</HeaderCell>
-          <HeaderCell>Entry Price</HeaderCell>
-          <HeaderCell>Exit</HeaderCell>
-          <HeaderCell>P&amp;L</HeaderCell>
-          <HeaderCell>Fee</HeaderCell>
-          <HeaderCell>Rebate</HeaderCell>
-          <HeaderCell>Net Cost</HeaderCell>
-          <HeaderCell>Opened</HeaderCell>
-          <HeaderCell>Closed</HeaderCell>
-          <HeaderCell>Duration</HeaderCell>
+          <HeaderCell className="justify-end text-right">Entry Price</HeaderCell>
+          <HeaderCell className="justify-end text-right">Exit</HeaderCell>
+          <HeaderCell className="justify-end text-right">P&amp;L</HeaderCell>
+          <HeaderCell className="justify-end text-right">Fee</HeaderCell>
+          <HeaderCell className="justify-end text-right">Rebate</HeaderCell>
+          <HeaderCell className="justify-end text-right">Net Cost</HeaderCell>
+          <HeaderCell className="justify-end text-right">Opened &amp; Closed</HeaderCell>
+          <HeaderCell className="justify-end text-right">Duration</HeaderCell>
         </TradeHistoryGrid>
         <TableBody
-          className="grid gap-2 bg-transparent xl:block xl:min-w-[1320px] xl:bg-buttonBlack-60"
+          className="grid gap-2 bg-transparent xl:block xl:min-w-[1120px] xl:bg-buttonBlack-60"
           empty={!rows.length}
           emptyIconUrl={copyTradingStatIconMap.positionClose.iconUrl}
           emptyMessage="No closed positions found"
@@ -96,17 +95,19 @@ export const TradeHistoryTable = ({ infiniteScroll, loading, rows }: PositionTab
                   <ShortenedId value={row.tradeId} />
                 </TableCell>
                 <TableCell>{row.token.symbol || '—'}</TableCell>
-                <TableCell>{formatUsd(row.entryPriceUsd)}</TableCell>
-                <TableCell>{formatUsd(row.exitPriceUsd || row.currentPriceUsd)}</TableCell>
-                <TableCell className={cn('whitespace-nowrap', getSignedMetricClassName(row.realizedPnlUsd))}>
-                  {signedUsd(row.realizedPnlUsd)}
+                <TableCell className="text-right">{formatUsd(row.entryPriceUsd, 2)}</TableCell>
+                <TableCell className="text-right">{formatUsd(row.exitPriceUsd || row.currentPriceUsd, 2)}</TableCell>
+                <TableCell className={cn('whitespace-nowrap text-right', getSignedMetricClassName(row.realizedPnlUsd))}>
+                  {signedUsd(row.realizedPnlUsd, 2)}
                 </TableCell>
-                <TableCell>{formatUsd(row.flatFeeCapturedUsd)}</TableCell>
-                <TableCell>{formatUsd(row.cashbackReceivedUsd)}</TableCell>
-                <TableCell>{formatUsd(row.netFeeCostUsd)}</TableCell>
-                <TableCell className="text-subText">{formatDateTime(row.openedAt)}</TableCell>
-                <TableCell className="text-subText">{formatDateTime(row.closedAt)}</TableCell>
-                <TableCell className="text-subText">
+                <TableCell className="text-right">{formatUsd(row.flatFeeCapturedUsd, 2)}</TableCell>
+                <TableCell className="text-right">{formatUsd(row.cashbackReceivedUsd, 2)}</TableCell>
+                <TableCell className="text-right">{formatUsd(row.netFeeCostUsd, 2)}</TableCell>
+                <TableCell className="flex flex-col text-right text-subText">
+                  <span>{formatDateTime(row.openedAt)}</span>
+                  <span>{formatDateTime(row.closedAt)}</span>
+                </TableCell>
+                <TableCell className="text-right text-subText">
                   {formatDuration(row.durationSeconds, row.openedAt, row.closedAt)}
                 </TableCell>
               </TradeHistoryGrid>
@@ -123,24 +124,24 @@ export const TradeHistoryTable = ({ infiniteScroll, loading, rows }: PositionTab
                   <TableCardField span="full" label="Trade ID">
                     <ShortenedId value={row.tradeId} />
                   </TableCardField>
-                  <TableCardField label="Entry Price">{formatUsd(row.entryPriceUsd)}</TableCardField>
+                  <TableCardField label="Entry Price">{formatUsd(row.entryPriceUsd, 2)}</TableCardField>
                   <TableCardField align="right" label="Exit">
-                    {formatUsd(row.exitPriceUsd || row.currentPriceUsd)}
+                    {formatUsd(row.exitPriceUsd || row.currentPriceUsd, 2)}
                   </TableCardField>
                   <TableCardField
                     label="P&amp;L"
                     valueClassName={cn('whitespace-nowrap', getSignedMetricClassName(row.realizedPnlUsd))}
                   >
-                    {signedUsd(row.realizedPnlUsd)}
+                    {signedUsd(row.realizedPnlUsd, 2)}
                   </TableCardField>
                   <TableCardField align="right" label="Duration" valueClassName="text-subText">
                     {formatDuration(row.durationSeconds, row.openedAt, row.closedAt)}
                   </TableCardField>
-                  <TableCardField label="Fee">{formatUsd(row.flatFeeCapturedUsd)}</TableCardField>
+                  <TableCardField label="Fee">{formatUsd(row.flatFeeCapturedUsd, 2)}</TableCardField>
                   <TableCardField align="right" label="Rebate">
-                    {formatUsd(row.cashbackReceivedUsd)}
+                    {formatUsd(row.cashbackReceivedUsd, 2)}
                   </TableCardField>
-                  <TableCardField label="Net Cost">{formatUsd(row.netFeeCostUsd)}</TableCardField>
+                  <TableCardField label="Net Cost">{formatUsd(row.netFeeCostUsd, 2)}</TableCardField>
                   <TableCardField align="right" label="Opened" valueClassName="text-subText">
                     {formatDateTime(row.openedAt)}
                   </TableCardField>

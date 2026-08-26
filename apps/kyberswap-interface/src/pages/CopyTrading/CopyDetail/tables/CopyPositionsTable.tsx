@@ -78,8 +78,8 @@ const CopyPositionsGrid = ({ header, className, ...props }: TableGridWrapperProp
   return (
     <Grid
       className={cn(
-        'min-w-[1120px] grid-cols-[minmax(0,0.8fr)_minmax(0,0.7fr)_minmax(0,0.9fr)_minmax(0,0.9fr)_minmax(0,0.9fr)_minmax(0,1.25fr)_minmax(0,0.85fr)_minmax(0,1.2fr)_minmax(0,1fr)_minmax(144px,1.1fr)] gap-x-3',
-        !header && 'px-4 py-1',
+        'min-w-[1200px] grid-cols-[minmax(84px,0.8fr)_minmax(72px,0.7fr)_repeat(2,minmax(108px,0.9fr))_minmax(96px,0.9fr)_minmax(128px,1.25fr)_minmax(96px,0.85fr)_minmax(104px,0.9fr)_minmax(96px,0.8fr)_minmax(144px,1.1fr)] gap-x-3 whitespace-nowrap',
+        !header && 'py-1',
         className,
       )}
       {...props}
@@ -99,17 +99,17 @@ export const CopyPositionsTable = ({
         <CopyPositionsGrid header className="sticky top-0 z-20 hidden lg:grid">
           <HeaderCell>Trade ID</HeaderCell>
           <HeaderCell>Token</HeaderCell>
-          <HeaderCell>Entry Price</HeaderCell>
-          <HeaderCell>Current</HeaderCell>
-          <HeaderCell>Value</HeaderCell>
-          <HeaderCell>Unrealised P&amp;L</HeaderCell>
-          <HeaderCell>Est. Rebate</HeaderCell>
-          <HeaderCell>Open Since</HeaderCell>
+          <HeaderCell className="justify-end text-right">Entry Price</HeaderCell>
+          <HeaderCell className="justify-end text-right">Current</HeaderCell>
+          <HeaderCell className="justify-end text-right">Value</HeaderCell>
+          <HeaderCell className="justify-end text-right">Unrealised P&amp;L</HeaderCell>
+          <HeaderCell className="justify-end text-right">Est. Rebate</HeaderCell>
+          <HeaderCell className="justify-end text-right">Open Since</HeaderCell>
           <HeaderCell>Status</HeaderCell>
-          <HeaderCell>Action</HeaderCell>
+          <HeaderCell className="justify-end text-right">Action</HeaderCell>
         </CopyPositionsGrid>
         <TableBody
-          className="grid gap-2 bg-transparent lg:block lg:min-w-[1120px] lg:bg-buttonBlack-60"
+          className="grid gap-2 bg-transparent lg:block lg:min-w-[1200px] lg:bg-buttonBlack-60"
           empty={!rows.length}
           emptyIconUrl={copyTradingStatIconMap.positionOpen.iconUrl}
           emptyMessage="No open positions found"
@@ -122,21 +122,27 @@ export const CopyPositionsTable = ({
                   <ShortenedId value={row.tradeId} />
                 </TableCell>
                 <TableCell>{row.token.symbol || '—'}</TableCell>
-                <TableCell>{formatUsd(row.entryPriceUsd)}</TableCell>
-                <TableCell>{formatUsd(row.currentPriceUsd)}</TableCell>
-                <TableCell>{formatUsd(row.valueUsd)}</TableCell>
-                <TableCell className={getSignedMetricClassName(row.unrealizedPnlUsd ?? row.unrealizedPnlPct)}>
-                  <Stack className="gap-0.5">
-                    <span className="whitespace-nowrap">{signedUsd(row.unrealizedPnlUsd)}</span>
+                <TableCell className="text-right">{formatUsd(row.entryPriceUsd, 2)}</TableCell>
+                <TableCell className="text-right">{formatUsd(row.currentPriceUsd, 2)}</TableCell>
+                <TableCell className="text-right">{formatUsd(row.valueUsd, 2)}</TableCell>
+                <TableCell
+                  className={cn('text-right', getSignedMetricClassName(row.unrealizedPnlUsd ?? row.unrealizedPnlPct))}
+                >
+                  <Stack className="items-end gap-0.5">
+                    <span className="whitespace-nowrap">{signedUsd(row.unrealizedPnlUsd, 2)}</span>
                     <span className="whitespace-nowrap text-xs">{signedPercent(row.unrealizedPnlPct)}</span>
                   </Stack>
                 </TableCell>
-                <TableCell className="text-warning">{formatApproximateUsd(row.estimatedCashbackUsd)}</TableCell>
-                <TableCell className="text-subText">{formatDateTime(row.openedAt)}</TableCell>
+                <TableCell className="text-right text-warning">
+                  {formatApproximateUsd(row.estimatedCashbackUsd, 2)}
+                </TableCell>
+                <TableCell className="whitespace-normal text-right text-subText">
+                  {formatDateTime(row.openedAt)}
+                </TableCell>
                 <TableCell>
                   <PositionLifecycleBadge lifecycle={row.lifecycle} quantityState={row.quantityState} />
                 </TableCell>
-                <TableCell>
+                <TableCell className="flex justify-end">
                   <PositionAction position={row} positionContext={positionContext} />
                 </TableCell>
               </CopyPositionsGrid>
@@ -151,23 +157,23 @@ export const CopyPositionsTable = ({
                   <TableCardField span="full" label="Trade ID">
                     <ShortenedId value={row.tradeId} />
                   </TableCardField>
-                  <TableCardField label="Entry Price">{formatUsd(row.entryPriceUsd)}</TableCardField>
+                  <TableCardField label="Entry Price">{formatUsd(row.entryPriceUsd, 2)}</TableCardField>
                   <TableCardField align="right" label="Current">
-                    {formatUsd(row.currentPriceUsd)}
+                    {formatUsd(row.currentPriceUsd, 2)}
                   </TableCardField>
-                  <TableCardField label="Value">{formatUsd(row.valueUsd)}</TableCardField>
+                  <TableCardField label="Value">{formatUsd(row.valueUsd, 2)}</TableCardField>
                   <TableCardField
                     align="right"
                     label="Unrealised P&amp;L"
                     valueClassName={getSignedMetricClassName(row.unrealizedPnlUsd ?? row.unrealizedPnlPct)}
                   >
                     <Stack className="gap-0.5">
-                      <span className="whitespace-nowrap">{signedUsd(row.unrealizedPnlUsd)}</span>
+                      <span className="whitespace-nowrap">{signedUsd(row.unrealizedPnlUsd, 2)}</span>
                       <span className="whitespace-nowrap text-xs">{signedPercent(row.unrealizedPnlPct)}</span>
                     </Stack>
                   </TableCardField>
                   <TableCardField label="Est. Rebate" valueClassName="text-warning">
-                    {formatApproximateUsd(row.estimatedCashbackUsd)}
+                    {formatApproximateUsd(row.estimatedCashbackUsd, 2)}
                   </TableCardField>
                   <TableCardField align="right" label="Open Since" valueClassName="text-subText">
                     {formatDateTime(row.openedAt)}

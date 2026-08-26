@@ -37,7 +37,7 @@ const TabPositionsGrid = ({ header, className, ...props }: TabPositionsGridProps
     <Grid
       className={cn(
         'min-w-[1120px] grid-cols-[minmax(0,1fr)_minmax(0,0.8fr)_minmax(0,1.1fr)_minmax(0,1.1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1.1fr)_minmax(0,1fr)_minmax(0,1.4fr)] gap-x-4',
-        !header && 'px-4 py-1',
+        !header && 'py-1',
         className,
       )}
       {...props}
@@ -69,11 +69,11 @@ const TabPositions = ({ agentId }: { agentId: string }) => {
         <TabPositionsGrid header className="sticky top-0 z-[1] hidden lg:grid">
           <HeaderCell>Trade ID</HeaderCell>
           <HeaderCell>Token</HeaderCell>
-          <HeaderCell>Entry Price</HeaderCell>
-          <HeaderCell>Current Price</HeaderCell>
-          <HeaderCell>Amount</HeaderCell>
-          <HeaderCell>Value</HeaderCell>
-          <HeaderCell>P&amp;L</HeaderCell>
+          <HeaderCell className="justify-end text-right">Entry Price</HeaderCell>
+          <HeaderCell className="justify-end text-right">Current Price</HeaderCell>
+          <HeaderCell className="justify-end text-right">Amount</HeaderCell>
+          <HeaderCell className="justify-end text-right">Value</HeaderCell>
+          <HeaderCell className="justify-end text-right">P&amp;L</HeaderCell>
           <HeaderCell>Status</HeaderCell>
           <HeaderCell>Open Since</HeaderCell>
         </TabPositionsGrid>
@@ -93,12 +93,12 @@ const TabPositions = ({ agentId }: { agentId: string }) => {
                     <ShortenedId value={row.tradeId} />
                   </TableCell>
                   <TableCell>{row.token.symbol || '—'}</TableCell>
-                  <TableCell>{formatUsd(row.entryPriceUsd)}</TableCell>
-                  <TableCell>{formatUsd(row.currentPriceUsd)}</TableCell>
-                  <TableCell>{formatTokenAmount(row.amountDecimal)}</TableCell>
-                  <TableCell>{formatUsd(row.valueUsd)}</TableCell>
-                  <TableCell className={getSignedMetricClassName(pnl ?? row.unrealizedPnlPct)}>
-                    <Stack className="gap-0.5">
+                  <TableCell className="text-right">{formatUsd(row.entryPriceUsd)}</TableCell>
+                  <TableCell className="text-right">{formatUsd(row.currentPriceUsd)}</TableCell>
+                  <TableCell className="text-right">{formatTokenAmount(row.amountDecimal)}</TableCell>
+                  <TableCell className="text-right">{formatUsd(row.valueUsd)}</TableCell>
+                  <TableCell className={cn('text-right', getSignedMetricClassName(pnl ?? row.unrealizedPnlPct))}>
+                    <Stack className="items-end gap-0.5">
                       <span className="whitespace-nowrap">{signedUsd(pnl)}</span>
                       <span className="whitespace-nowrap text-xs">{signedPercent(row.unrealizedPnlPct)}</span>
                     </Stack>

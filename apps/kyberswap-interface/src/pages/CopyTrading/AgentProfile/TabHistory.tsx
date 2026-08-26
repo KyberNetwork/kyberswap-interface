@@ -30,7 +30,7 @@ const TabHistoryGrid = ({ header, className, ...props }: TabHistoryGridProps) =>
     <Grid
       className={cn(
         'min-w-[900px] grid-cols-[minmax(0,1fr)_minmax(0,0.8fr)_minmax(0,1.1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1.2fr)_minmax(0,1.4fr)] gap-x-4',
-        !header && 'px-4 py-1',
+        !header && 'py-1',
         className,
       )}
       {...props}
@@ -62,10 +62,10 @@ const TabHistory = ({ agentId }: { agentId: string }) => {
         <TabHistoryGrid header className="sticky top-0 z-[1] hidden lg:grid">
           <HeaderCell>Trade ID</HeaderCell>
           <HeaderCell>Token</HeaderCell>
-          <HeaderCell>Entry Price</HeaderCell>
-          <HeaderCell>Exit</HeaderCell>
-          <HeaderCell>Amount</HeaderCell>
-          <HeaderCell>Realised P&amp;L</HeaderCell>
+          <HeaderCell className="justify-end text-right">Entry Price</HeaderCell>
+          <HeaderCell className="justify-end text-right">Exit</HeaderCell>
+          <HeaderCell className="justify-end text-right">Amount</HeaderCell>
+          <HeaderCell className="justify-end text-right">Realised P&amp;L</HeaderCell>
           <HeaderCell>Closed</HeaderCell>
         </TabHistoryGrid>
         <TableBody
@@ -81,10 +81,10 @@ const TabHistory = ({ agentId }: { agentId: string }) => {
                   <ShortenedId value={row.tradeId} />
                 </TableCell>
                 <TableCell>{row.token.symbol || '—'}</TableCell>
-                <TableCell>{formatUsd(row.entryPriceUsd)}</TableCell>
-                <TableCell>{formatUsd(row.exitPriceUsd || row.currentPriceUsd)}</TableCell>
-                <TableCell>{formatTokenAmount(row.amountDecimal)}</TableCell>
-                <TableCell className={cn('whitespace-nowrap', getSignedMetricClassName(row.realizedPnlUsd))}>
+                <TableCell className="text-right">{formatUsd(row.entryPriceUsd)}</TableCell>
+                <TableCell className="text-right">{formatUsd(row.exitPriceUsd || row.currentPriceUsd)}</TableCell>
+                <TableCell className="text-right">{formatTokenAmount(row.amountDecimal)}</TableCell>
+                <TableCell className={cn('whitespace-nowrap text-right', getSignedMetricClassName(row.realizedPnlUsd))}>
                   {signedUsd(row.realizedPnlUsd)}
                 </TableCell>
                 <TableCell className="text-subText">{formatDateTime(row.closedAt)}</TableCell>
