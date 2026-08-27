@@ -3,6 +3,7 @@ import { ChainId, Token } from '@kyberswap/ks-sdk-core'
 import { ETHER_ADDRESS } from 'constants/index'
 import { TokenMap } from 'hooks/useTokens'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
+import { TokenMetadata, readTokenMetadata } from 'state/walletInventory/metadata'
 import { WalletInventory } from 'state/walletInventory/resolve'
 
 export type InventoryDiscoveries = {
@@ -25,13 +26,56 @@ export const EMPTY_DISCOVERIES: InventoryDiscoveries = { tokens: [], impersonato
 // rather than adding a second one.
 const discoveryTokens = new Map<string, WrappedTokenInfo>()
 
-const discoveryToken = (chainId: ChainId, address: string, decimals: number, symbol: string) => {
+const EMPTY_METADATA: TokenMetadata = new Map()
+
+/**
+ * The token a discovery row renders and, on import, saves. Decimals are the chain's (the indexer
+ * read them on-chain); name, logo and symbol come from the catalog when it knows the address and
+ * agrees on decimals, so the row and the swap form — which resolves the same address from the
+ * catalog — show one and the same token. The instance is built here rather than taken from the
+ * catalog verbatim: a discovery is by definition not on the list this session works from, whatever
+ * the catalog's own whitelist flag says, and it must keep the import affordance.
+ */
+export const discoveryToken = (
+  chainId: ChainId,
+  address: string,
+  decimals: number,
+  symbol: string,
+  metadata: TokenMetadata = EMPTY_METADATA,
+): WrappedTokenInfo => {
+  const known = readTokenMetadata(metadata, chainId, address)
+  const catalog = known && known.decimals === decimals ? known : undefined
+  const info = {
+    symbol: catalog?.symbol || symbol,
+    name: catalog?.name || catalog?.symbol || symbol,
+    logoURI: catalog?.logoURI,
+  }
+
   const key = `${chainId}:${address}`
   const cached = discoveryTokens.get(key)
-  if (cached && cached.decimals === decimals && cached.symbol === symbol) return cached
-  const token = new WrappedTokenInfo({ chainId, address, decimals, symbol, name: symbol })
+  if (
+    cached &&
+    cached.decimals === decimals &&
+    cached.symbol === info.symbol &&
+    cached.name === info.name &&
+    cached.logoURI === info.logoURI
+  ) {
+    return cached
+  }
+  const token = new WrappedTokenInfo({ chainId, address, decimals, ...info })
   discoveryTokens.set(key, token)
   return token
+}
+
+/**
+ * The token an import should save for a token the user picked: a catalog-described discovery when
+ * the catalog knows the address, else the token as picked. Tokens that already carry catalog
+ * metadata (search results) pass through untouched.
+ */
+export const resolveImportToken = (token: Token, metadata: TokenMetadata): Token => {
+  if (token instanceof WrappedTokenInfo && token.logoURI) return token
+  if (!readTokenMetadata(metadata, token.chainId, token.address)) return token
+  return discoveryToken(token.chainId, token.address, token.decimals, token.symbol || '', metadata)
 }
 
 type WhitelistIndex = {
@@ -79,6 +123,7 @@ export const computeInventoryDiscoveries = (
   defaultTokens: TokenMap,
   tokenImports: Token[],
   chainId: ChainId,
+  metadata: TokenMetadata = EMPTY_METADATA,
 ): InventoryDiscoveries => {
   if (!inventory.active) return EMPTY_DISCOVERIES
 
@@ -105,12 +150,15 @@ export const computeInventoryDiscoveries = (
 
   Object.values(inventory.rows).forEach(row => {
     if (row.address === ETHER_ADDRESS || known.has(row.address) || row.decimals === undefined) return
+    let token: WrappedTokenInfo
     try {
-      tokens.push(discoveryToken(chainId, row.address, row.decimals, row.symbol || ''))
+      token = discoveryToken(chainId, row.address, row.decimals, row.symbol || '', metadata)
     } catch {
       return
     }
-    if (impersonates(row.symbol, row.address)) impersonators.add(row.address)
+    tokens.push(token)
+    // Judged on the symbol the row displays, which is the catalog's when it has one.
+    if (impersonates(token.symbol, row.address)) impersonators.add(row.address)
   })
 
   // Alphabetical rather than by balance: airdropped impersonations are minted with enormous supplies,

@@ -3,6 +3,12 @@ import { useEffect, useMemo, useSyncExternalStore } from 'react'
 
 import { useActiveWeb3React } from 'hooks'
 import { useNativeBalance } from 'state/wallet/hooks'
+import {
+  TokenMetadata,
+  ensureTokenMetadata,
+  getTokenMetadata,
+  subscribeTokenMetadata,
+} from 'state/walletInventory/metadata'
 import { WalletInventory, buildInventoryBalanceMap, resolveInventory } from 'state/walletInventory/resolve'
 import {
   getStoreVersion,
@@ -53,6 +59,24 @@ export const useWalletInventory = (chainId?: ChainId, enabled = true): WalletInv
     () => resolveInventory(entry, subscribed, nativeRawBalance, live),
     [entry, subscribed, nativeRawBalance, live],
   )
+}
+
+/**
+ * The catalog metadata snapshot; a new map whenever a batch adds tokens, so anything deriving
+ * discovery tokens from it re-derives exactly then.
+ */
+export const useTokenMetadata = (): TokenMetadata =>
+  useSyncExternalStore(subscribeTokenMetadata, getTokenMetadata, getTokenMetadata)
+
+/** Requests catalog metadata for the given tokens; addresses already answered cost a lookup. */
+export const useEnsureTokenMetadata = (chainId: ChainId, tokens: readonly { address: string }[]) => {
+  useEffect(() => {
+    if (!tokens.length) return
+    void ensureTokenMetadata(
+      chainId,
+      tokens.map(token => token.address),
+    )
+  }, [chainId, tokens])
 }
 
 /** Inventory balances in the same shape as the `useTokenBalances` multicall map. */

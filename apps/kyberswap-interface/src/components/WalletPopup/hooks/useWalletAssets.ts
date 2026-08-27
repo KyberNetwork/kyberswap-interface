@@ -9,7 +9,7 @@ import { useUserAddedTokens } from 'state/user/hooks'
 import { useTokensHasBalance } from 'state/wallet/hooks'
 import { isTokenListReady, rankWalletHoldings, selectWalletHoldings } from 'state/walletInventory/assets'
 import { EMPTY_DISCOVERIES } from 'state/walletInventory/discoveries'
-import { useWalletInventory } from 'state/walletInventory/hooks'
+import { useTokenMetadata, useWalletInventory } from 'state/walletInventory/hooks'
 import { INACTIVE_INVENTORY } from 'state/walletInventory/resolve'
 
 const EMPTY_ADDRESSES: string[] = []
@@ -48,12 +48,13 @@ export const useWalletAssets = (): WalletAssets => {
   // unvetted. Treated as loading rather than rendered.
   const tokenListReady = isTokenListReady(defaultTokens, tokenImports)
 
+  const metadata = useTokenMetadata()
   const holdings = useMemo(
     () =>
       tokenListReady
-        ? selectWalletHoldings(inventory, defaultTokens, tokenImports, chainId)
-        : selectWalletHoldings(INACTIVE_INVENTORY, defaultTokens, tokenImports, chainId),
-    [tokenListReady, inventory, defaultTokens, tokenImports, chainId],
+        ? selectWalletHoldings(inventory, defaultTokens, tokenImports, chainId, metadata)
+        : selectWalletHoldings(INACTIVE_INVENTORY, defaultTokens, tokenImports, chainId, metadata),
+    [tokenListReady, inventory, defaultTokens, tokenImports, chainId, metadata],
   )
 
   // Only the vetted holdings are priced. Hidden tokens are the wallet's spam surface — pricing them

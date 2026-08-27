@@ -5,6 +5,7 @@ import { NativeCurrencies } from 'constants/tokens'
 import { TokenMap } from 'hooks/useTokens'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { computeInventoryDiscoveries } from 'state/walletInventory/discoveries'
+import { TokenMetadata } from 'state/walletInventory/metadata'
 import { WalletInventory, buildInventoryBalanceMap } from 'state/walletInventory/resolve'
 
 /**
@@ -31,12 +32,19 @@ export const selectWalletHoldings = (
   defaultTokens: TokenMap,
   tokenImports: Token[],
   chainId: ChainId,
+  metadata?: TokenMetadata,
 ): WalletHoldings => {
   // Off the inventory path the legacy hook answers; scanning the whitelist here would be wasted work
   // and would hand consumers a fresh object to re-render on for nothing.
   if (!inventory.active) return EMPTY_HOLDINGS
 
-  const { tokens: hidden, impersonators } = computeInventoryDiscoveries(inventory, defaultTokens, tokenImports, chainId)
+  const { tokens: hidden, impersonators } = computeInventoryDiscoveries(
+    inventory,
+    defaultTokens,
+    tokenImports,
+    chainId,
+    metadata,
+  )
 
   // Walk the wallet's rows and look each up in the token map — proportional to what the wallet holds,
   // not to the size of the whitelist, which matters because every native-balance move rebuilds the

@@ -9,6 +9,14 @@ import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { isTokenListReady, rankWalletHoldings, selectWalletHoldings } from 'state/walletInventory/assets'
 import { INVENTORY_CATCHUP_INTERVAL_MS, INVENTORY_TTL_MS } from 'state/walletInventory/constants'
 import { computeInventoryDiscoveries } from 'state/walletInventory/discoveries'
+import {
+  TokenMetadata,
+  ensureTokenMetadata,
+  getTokenMetadata,
+  readTokenMetadata,
+  resetTokenMetadata,
+  subscribeTokenMetadata,
+} from 'state/walletInventory/metadata'
 import { buildInventoryBalanceMap, resolveInventory } from 'state/walletInventory/resolve'
 import {
   InventoryEntry,
@@ -26,6 +34,12 @@ import {
   resetInventoryStore,
 } from 'state/walletInventory/store'
 import { selectDue } from 'state/walletInventory/updater'
+
+const fetchListTokenByAddresses = vi.hoisted(() => vi.fn())
+vi.mock('hooks/useTokens', async importOriginal => ({
+  ...(await importOriginal<typeof import('hooks/useTokens')>()),
+  fetchListTokenByAddresses,
+}))
 
 const ACCOUNT = '0x28c6c06298d514db089934071355e5743bf21d60'
 const USDT_LOWER = '0xdac17f958d2ee523a2206206994597c13d831ec7'
@@ -665,6 +679,135 @@ describe('publishLiveBalances', () => {
   it('ignores chains the inventory does not serve', () => {
     publishLiveBalances(ChainId.MATIC, ACCOUNT, 100, [{ address: USDT_CHECKSUM, rawBalance: 5n }])
     expect(readLiveBalances(inventoryKey(ChainId.MATIC, ACCOUNT))).toBeUndefined()
+  })
+})
+
+describe('token metadata', () => {
+  const NOVEL = '0x2000000000000000000000000000000000000002'
+  const catalogToken = new WrappedTokenInfo({
+    chainId: ChainId.MAINNET,
+    address: USDT_LOWER,
+    decimals: 6,
+    symbol: 'usdt',
+    name: 'Tether USD',
+    logoURI: 'https://example.com/usdt.png',
+    isWhitelisted: true,
+  })
+  const activeInventory = (rows: InventoryRow[]) => ({
+    rows: Object.fromEntries(rows.map(r => [r.address, r])),
+    active: true,
+    settled: true,
+    pending: false,
+  })
+
+  beforeEach(() => {
+    resetTokenMetadata()
+    fetchListTokenByAddresses.mockReset()
+  })
+  afterEach(() => {
+    resetTokenMetadata()
+    vi.useRealTimers()
+  })
+
+  it('asks the catalog once per address, deduplicated by case, and remembers tokens it does not know', async () => {
+    fetchListTokenByAddresses.mockResolvedValue([catalogToken])
+    const listener = vi.fn()
+    subscribeTokenMetadata(listener)
+    const before = getTokenMetadata()
+
+    await ensureTokenMetadata(ChainId.MAINNET, [USDT_CHECKSUM, USDT_LOWER, NOVEL])
+    expect(fetchListTokenByAddresses).toHaveBeenCalledTimes(1)
+    expect(fetchListTokenByAddresses.mock.calls[0][0]).toEqual([USDT_CHECKSUM, NOVEL])
+    const after = getTokenMetadata()
+    expect(after).not.toBe(before)
+    expect(readTokenMetadata(after, ChainId.MAINNET, USDT_CHECKSUM)).toBe(catalogToken)
+    expect(readTokenMetadata(after, ChainId.MAINNET, NOVEL)).toBeUndefined()
+    expect(listener).toHaveBeenCalledTimes(1)
+
+    await ensureTokenMetadata(ChainId.MAINNET, [USDT_CHECKSUM, NOVEL])
+    expect(fetchListTokenByAddresses).toHaveBeenCalledTimes(1)
+    expect(getTokenMetadata()).toBe(after)
+  })
+
+  it('does not notify for a batch the catalog knows nothing in', async () => {
+    fetchListTokenByAddresses.mockResolvedValue([])
+    const listener = vi.fn()
+    subscribeTokenMetadata(listener)
+    await ensureTokenMetadata(ChainId.MAINNET, [NOVEL])
+    expect(listener).not.toHaveBeenCalled()
+    await ensureTokenMetadata(ChainId.MAINNET, [NOVEL])
+    expect(fetchListTokenByAddresses).toHaveBeenCalledTimes(1)
+  })
+
+  it('shares one request between concurrent callers and waits out a failure before retrying', async () => {
+    vi.useFakeTimers()
+    fetchListTokenByAddresses.mockRejectedValueOnce(new Error('down')).mockResolvedValue([catalogToken])
+    await Promise.all([
+      ensureTokenMetadata(ChainId.MAINNET, [USDT_CHECKSUM]),
+      ensureTokenMetadata(ChainId.MAINNET, [USDT_CHECKSUM]),
+    ])
+    expect(fetchListTokenByAddresses).toHaveBeenCalledTimes(1)
+    expect(readTokenMetadata(getTokenMetadata(), ChainId.MAINNET, USDT_CHECKSUM)).toBeUndefined()
+
+    // Straight after the failure the address is left alone.
+    await ensureTokenMetadata(ChainId.MAINNET, [USDT_CHECKSUM])
+    expect(fetchListTokenByAddresses).toHaveBeenCalledTimes(1)
+
+    vi.advanceTimersByTime(31_000)
+    await ensureTokenMetadata(ChainId.MAINNET, [USDT_CHECKSUM])
+    expect(fetchListTokenByAddresses).toHaveBeenCalledTimes(2)
+    expect(readTokenMetadata(getTokenMetadata(), ChainId.MAINNET, USDT_CHECKSUM)).toBe(catalogToken)
+  })
+
+  it('describes a discovery with the catalog name, logo and symbol while keeping it importable', () => {
+    const inventory = activeInventory([{ ...row(USDT_CHECKSUM, 5n, 100), decimals: 6, symbol: 'USDT' }])
+    const bare = computeInventoryDiscoveries(inventory, {}, [], ChainId.MAINNET).tokens[0]
+    expect(bare.symbol).toBe('USDT')
+    expect(bare.logoURI).toBeUndefined()
+
+    const metadata: TokenMetadata = new Map([[`${ChainId.MAINNET}:${USDT_LOWER}`, catalogToken]])
+    const described = computeInventoryDiscoveries(inventory, {}, [], ChainId.MAINNET, metadata).tokens[0]
+    expect(described).not.toBe(catalogToken)
+    expect(described.symbol).toBe('usdt')
+    expect(described.name).toBe('Tether USD')
+    expect(described.logoURI).toBe(catalogToken.logoURI)
+    expect(described.decimals).toBe(6)
+    // The catalog's whitelist flag does not travel: the row stays a discovery that imports on click.
+    expect(described.isWhitelisted).toBe(false)
+    // Same instance while nothing about it changes.
+    expect(computeInventoryDiscoveries(inventory, {}, [], ChainId.MAINNET, metadata).tokens[0]).toBe(described)
+  })
+
+  it('keeps the chain decimals when the catalog disagrees, and flags impersonation on the shown symbol', () => {
+    const stale = new WrappedTokenInfo({
+      chainId: ChainId.MAINNET,
+      address: NOVEL,
+      decimals: 18,
+      symbol: 'USDT',
+      name: 'Fake',
+    })
+    const metadata: TokenMetadata = new Map([[`${ChainId.MAINNET}:${NOVEL}`, stale]])
+    const whitelist = {
+      [USDT_CHECKSUM]: new WrappedTokenInfo({
+        chainId: ChainId.MAINNET,
+        address: USDT_CHECKSUM,
+        decimals: 6,
+        symbol: 'USDT',
+        name: 'Tether USD',
+        isWhitelisted: true,
+      }),
+    }
+    // Catalog says 18 decimals, the chain says 9: the catalog description is ignored.
+    const mismatch = activeInventory([{ ...row(NOVEL, 5n, 100), decimals: 9, symbol: 'NOV' }])
+    const kept = computeInventoryDiscoveries(mismatch, whitelist, [], ChainId.MAINNET, metadata)
+    expect(kept.tokens[0].symbol).toBe('NOV')
+    expect(kept.impersonators.has(NOVEL)).toBe(false)
+
+    // Decimals agree: the row shows the catalog symbol, which borrows a whitelisted one.
+    const agree = activeInventory([{ ...row(NOVEL, 5n, 100), decimals: 18, symbol: 'NOV' }])
+    const flagged = computeInventoryDiscoveries(agree, whitelist, [], ChainId.MAINNET, metadata)
+    expect(flagged.tokens[0].symbol).toBe('USDT')
+    expect(flagged.impersonators.has(NOVEL)).toBe(true)
   })
 })
 

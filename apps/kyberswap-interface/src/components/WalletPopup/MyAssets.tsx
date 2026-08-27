@@ -1,6 +1,6 @@
 import { Currency, CurrencyAmount, Token, TokenAmount } from '@kyberswap/ks-sdk-core'
 import { Plural, Trans, t } from '@lingui/macro'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { AlertTriangle, Info } from 'react-feather'
 import { useNavigate } from 'react-router-dom'
 import AutoSizer from 'react-virtualized-auto-sizer'
@@ -19,6 +19,7 @@ import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { useNativeBalance } from 'state/wallet/hooks'
+import { useEnsureTokenMetadata } from 'state/walletInventory/hooks'
 import { cn } from 'utils/cn'
 import { currencyId } from 'utils/currencyId'
 
@@ -69,12 +70,16 @@ export default function MyAssets({
   // through the same warning screen the token selector uses, and the import itself moves the token
   // into the vetted list above.
   const [hiddenShown, setHiddenShown] = useState(HIDDEN_PAGE_SIZE)
+  const { chainId, account } = useActiveWeb3React()
+  // Catalog names and logos are fetched for the hidden rows on screen, not for a spam-heavy wallet's
+  // whole hidden list.
+  const visibleHidden = useMemo(() => hiddenTokens.slice(0, hiddenShown), [hiddenTokens, hiddenShown])
+  useEnsureTokenMetadata(chainId, visibleHidden)
   const [importTarget, setImportTarget] = useState<Token | null>(null)
   const closeImport = () => setImportTarget(null)
   const nativeBalance = useNativeBalance()
   const navigate = useNavigate()
   const qs = useParsedQueryString()
-  const { chainId, account } = useActiveWeb3React()
 
   if (hasNetworkIssue)
     return (
@@ -141,7 +146,7 @@ export default function MyAssets({
                 />
               )
             })}
-            {hiddenTokens.slice(0, hiddenShown).map(token => (
+            {visibleHidden.map(token => (
               <TokenRow
                 key={token.address}
                 isSelected={false}
