@@ -91,6 +91,8 @@ const useFavoritePool = ({ refetch }: { refetch?: () => void }) => {
   )
 
   const handleFavorite = async (e: React.MouseEvent<SVGElement, MouseEvent>, pool: ParsedEarnPool) => {
+    // The star sits inside the row's `a`, so cancel the link navigation as well as the row's onClick.
+    e.preventDefault()
     e.stopPropagation()
     if (favoriteLoading.includes(pool.address) || delayFavorite) return
 

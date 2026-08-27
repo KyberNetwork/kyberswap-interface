@@ -1,4 +1,4 @@
-import { CSSProperties, HTMLAttributes } from 'react'
+import { AnchorHTMLAttributes, CSSProperties, HTMLAttributes, createElement } from 'react'
 
 import { cn } from 'utils/cn'
 
@@ -44,6 +44,15 @@ export const TableCell = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>
   />
 )
 
-export const TableRow = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
-  <div className={cn('grid items-center p-3 text-subText', className)} {...rest} />
-)
+type TableRowProps = HTMLAttributes<HTMLElement> &
+  Pick<AnchorHTMLAttributes<HTMLAnchorElement>, 'href' | 'target' | 'rel'> & {
+    /** Render as a different element — pass `a` together with `href` to make the whole row a real link. */
+    as?: keyof React.JSX.IntrinsicElements
+  }
+
+export const TableRow = ({ as = 'div', className, ...rest }: TableRowProps) =>
+  createElement(as, {
+    // An `a` row must keep the row's own text color instead of the global link color/hover.
+    className: cn('grid items-center p-3 text-subText', as === 'a' && 'hover:text-subText', className),
+    ...rest,
+  })
