@@ -427,8 +427,12 @@ const transports = Object.fromEntries(
 
 // Porto's connector id, spelled out rather than imported so reading it cannot pull the Porto SDK back into
 // the entry chunk. registerPortoConnector() matches on the live `connector.id`, so if this ever drifts from
-// upstream the only cost is the mount effect falling back to wagmi's full walk again.
+// upstream the only cost is the mount effect waiting out its timeout before Porto registers itself.
 const PORTO_CONNECTOR_ID = 'xyz.ithaca.porto'
+
+// How long the boot restore waits for an EIP-6963 wallet to announce itself. Extensions announce within a
+// few frames of the page loading; past this, the wallet is treated as gone rather than kept waiting on.
+const CONNECTOR_ANNOUNCE_TIMEOUT = 2_000
 
 /** The connector a returning visitor last connected with, as wagmi persists it (JSON-encoded). */
 const readRecentConnectorId = (): string | undefined => {
@@ -574,20 +578,48 @@ export default function Web3Provider({ children }: { children: ReactNode }) {
   // `disconnect()` — hence the persisted-connection check first, which is what tells a visitor who left
   // connected apart from one who disconnected and never came back.
   //
-  // Runs on mount rather than at idle so a returning visitor's wallet reconnects as promptly as before. If
-  // the stored id names a connector we cannot resolve yet — EIP-6963 wallets announce asynchronously, so a
-  // discovered connector may not be registered at this point — fall back to wagmi's full walk rather than
-  // leave that visitor disconnected. Porto is the one exception: it is knowingly absent until
-  // registerPortoConnector() runs, which reconnects it itself, so the full walk here would only load every
-  // other wallet's SDK for nothing.
+  // Runs on mount rather than at idle so a returning visitor's wallet reconnects promptly. EIP-6963 wallets
+  // announce asynchronously, so the connector the stored id names may not be registered at this point —
+  // wait for it to arrive rather than falling back to wagmi's full walk. A walk restores whichever
+  // connector authorizes first, and the targetless injected one resolves whatever holds `window.ethereum`;
+  // with more than one extension installed that is not necessarily the wallet the visitor chose, and coming
+  // back as a different account is worse than coming back disconnected. Porto is excluded because it is
+  // knowingly absent until registerPortoConnector() runs, which reconnects it itself.
   useEffect(() => {
     if (!hasPersistedConnection()) return
 
     const recentConnectorId = readRecentConnectorId()
     if (!recentConnectorId || recentConnectorId === PORTO_CONNECTOR_ID) return
 
-    const recentConnector = wagmiConfig.connectors.find(connector => connector.id === recentConnectorId)
-    reconnect(wagmiConfig, recentConnector ? { connectors: [recentConnector] } : undefined).catch(() => {})
+    const findRecentConnector = () => wagmiConfig.connectors.find(connector => connector.id === recentConnectorId)
+    const restore = (connector: Connector) => {
+      reconnect(wagmiConfig, { connectors: [connector] }).catch(() => {})
+    }
+
+    const registeredConnector = findRecentConnector()
+    if (registeredConnector) {
+      restore(registeredConnector)
+      return
+    }
+
+    let unsubscribe: (() => void) | undefined
+    let timeout: ReturnType<typeof setTimeout> | undefined
+    const stopWaiting = () => {
+      if (timeout) clearTimeout(timeout)
+      unsubscribe?.()
+      timeout = undefined
+      unsubscribe = undefined
+    }
+
+    timeout = setTimeout(stopWaiting, CONNECTOR_ANNOUNCE_TIMEOUT)
+    unsubscribe = wagmiConfig._internal.connectors.subscribe(() => {
+      const announcedConnector = findRecentConnector()
+      if (!announcedConnector) return
+      stopWaiting()
+      restore(announcedConnector)
+    })
+
+    return stopWaiting
   }, [])
 
   // SafePal reconnect recovery. The extension lazy-attaches its EVM provider
@@ -597,11 +629,12 @@ export default function Web3Provider({ children }: { children: ReactNode }) {
   // via `connector.getProvider()`, and gives up without ever reaching
   // `isAuthorized()` (where the shim lives). Poll for the bootstrap object and,
   // once it lands, re-trigger reconnect so the custom safepalConnector finds it.
-  // Guarded so it only runs while no other connector is current, and only for a visitor who left
-  // connected — recovering a session nobody had would walk every connector for nothing.
+  // Guarded so it only runs while no other connector is current, and only for a visitor who left connected
+  // on SafePal — this recovers that one session, so it reconnects that one connector.
   useEffect(() => {
     if (typeof window === 'undefined') return
     if (!hasPersistedConnection()) return
+    if (readRecentConnectorId() !== CONNECTION.SAFEPAL) return
 
     let triggered = false
     let pollHandle: ReturnType<typeof setInterval> | null = null
@@ -610,6 +643,8 @@ export default function Web3Provider({ children }: { children: ReactNode }) {
       if (triggered) return
       if (!getSafepalProvider()) return
       if (wagmiConfig.state.current) return
+      const safepalConnector = wagmiConfig.connectors.find(connector => connector.id === CONNECTION.SAFEPAL)
+      if (!safepalConnector) return
       // Status `reconnecting`/`connecting` means wagmi is still iterating
       // connectors; calling reconnect() now hits its `isReconnecting` re-entry
       // guard and no-ops. Defer to the next poll tick.
@@ -617,7 +652,7 @@ export default function Web3Provider({ children }: { children: ReactNode }) {
       if (status === 'reconnecting' || status === 'connecting') return
       triggered = true
       if (pollHandle) clearInterval(pollHandle)
-      reconnect(wagmiConfig).catch(() => {})
+      reconnect(wagmiConfig, { connectors: [safepalConnector] }).catch(() => {})
     }
 
     let pollCount = 0
