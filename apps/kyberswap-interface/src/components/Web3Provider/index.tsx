@@ -463,6 +463,11 @@ export const hasPersistedConnection = (): boolean => {
   }
 }
 
+// Captured before `createConfig()` runs. wagmi rehydrates its persisted store asynchronously and writes
+// the empty pre-hydration state back to `wagmi.store` while it does, so a read taken any later in the same
+// tick reports no session for a visitor who has one.
+const hadPersistedConnectionAtBoot = hasPersistedConnection()
+
 export const wagmiConfig = createConfig({
   chains: wagmiChains,
   transports,
@@ -507,6 +512,38 @@ export const wagmiConfig = createConfig({
     ...HardCodedConnectors.map(connector => createPriorityConnector(connector)),
   ],
 })
+
+// wagmi turns a connector's own `connect` event straight into "this is the current connection", with no
+// authorization check and no regard for which wallet was last used — the hook that lets a wallet attach
+// itself when someone connects the site from inside the extension. Extensions fire that event while
+// announcing themselves on page load too, so with more than one installed, whichever fires first claims
+// the session: a visitor connected on one wallet comes back as another.
+//
+// While there is a session on record, leave the hook attached to that wallet alone. A visitor with no
+// session keeps every connector's hook and can still attach one from inside their extension, and picking
+// a wallet from the modal goes through `connect()`, which never consults it.
+//
+// Runs at module scope rather than from an effect because connectors are set up inside `createConfig()`,
+// so a wallet can claim the session before React has mounted.
+const restrictSelfConnectToRecordedWallet = () => {
+  if (!hadPersistedConnectionAtBoot) return
+
+  const recentConnectorId = readRecentConnectorId()
+  if (!recentConnectorId) return
+
+  const detachOthers = () => {
+    for (const connector of wagmiConfig.connectors) {
+      if (connector.id === recentConnectorId) continue
+      connector.emitter.off('connect', wagmiConfig._internal.events.connect)
+    }
+  }
+
+  detachOthers()
+  // EIP-6963 wallets register after this runs, so re-apply as they arrive.
+  wagmiConfig._internal.connectors.subscribe(detachOthers)
+}
+
+restrictSelfConnectToRecordedWallet()
 
 // Porto ships ~620KB of JS (the SDK plus its `ox` dependency) and is one wallet choice among many, so
 // importing it at module scope put all of it in the entry chunk that gates the app's first render for every
