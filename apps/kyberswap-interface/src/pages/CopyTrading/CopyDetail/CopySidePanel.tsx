@@ -21,7 +21,7 @@ import {
 } from 'pages/CopyTrading/components/AgentSidebarCards/SidePanelCard'
 import CopyTradingTokenLogo from 'pages/CopyTrading/components/common/TokenLogo'
 import { ResponsiveDetailContents, ResponsiveDetailItem } from 'pages/CopyTrading/components/common/layout'
-import { DataQualityStatusBadge, copyRunStatusTextClassName } from 'pages/CopyTrading/components/common/status'
+import { copyRunStatusTextClassName } from 'pages/CopyTrading/components/common/status'
 import { formatDisplayCapitalInUsd, formatTokenAmount, formatUsd } from 'pages/CopyTrading/helpers'
 import { useCopyTradingModal } from 'pages/CopyTrading/modals/context'
 import { cn } from 'utils/cn'
@@ -95,9 +95,6 @@ const RemainingInWalletCard = ({
               <span className="text-lg font-medium text-primary">
                 {formatUsd(totalIsRenderable ? totalValueUsd.value : undefined)}
               </span>
-            )}
-            {totalIsRenderable && totalValueUsd.status === 'METRIC_STATUS_STALE' && (
-              <DataQualityStatusBadge status={totalValueUsd.status} />
             )}
           </HStack>
         )
@@ -177,9 +174,9 @@ const CopySidePanel = ({ agent, run }: CopySidePanelProps) => {
       <span>{terminalStatus === 'stopped' ? 'Stopped Copy' : 'Closed Copy'}</span>
     </HStack>
   ) : run.status === 'closing' ? (
-    <HStack as="span" className={cn('items-center gap-2', copyRunStatusTextClassName.closing)}>
+    <HStack as="span" className={cn('items-center gap-2', copyRunStatusTextClassName.stopped)}>
       <span className="size-4 shrink-0 rounded-full bg-current" aria-hidden />
-      <span>Closing Copy</span>
+      <span>Stopped Copy</span>
     </HStack>
   ) : (
     'Current Copying'
@@ -193,7 +190,7 @@ const CopySidePanel = ({ agent, run }: CopySidePanelProps) => {
         addCapitalAvailability={run.addCapitalAvailability}
         capital={formatDisplayCapitalInUsd(run)}
         headerRight={
-          run.status === 'stopped' ? (
+          run.status === 'closing' || run.status === 'stopped' ? (
             <span className="text-sm font-normal text-subText">{formatDateTime(run.stoppedAt)}</span>
           ) : undefined
         }

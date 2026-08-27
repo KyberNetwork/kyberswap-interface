@@ -31,26 +31,22 @@ const getProfileStats = (stats?: AgentStatsData): LeaderboardStat[] => [
     value: signedUsd(stats?.totalRealizedPnlUsd),
     valueClassName: getSignedMetricClassName(stats?.totalRealizedPnlUsd),
     icon: copyTradingStatIconMap.pnl,
-    status: stats?.metrics.totalRealizedPnlUsd?.status,
   },
   {
     label: 'Copiers',
     value: formatCount(stats?.copiers),
     icon: copyTradingStatIconMap.users,
-    status: stats?.metrics.copiers?.status,
   },
   {
     label: 'Win Rate',
     value: percent(stats?.winRatePct),
     valueClassName: getWinRateClassName(stats?.winRatePct),
     icon: copyTradingStatIconMap.winRate,
-    status: stats?.metrics.winRatePct?.status,
   },
   {
     label: 'AUM',
     value: compactUsd(stats?.aumUsd),
     icon: copyTradingStatIconMap.aum,
-    status: stats?.metrics.aumUsd?.status,
   },
 ]
 

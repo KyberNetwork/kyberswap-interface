@@ -41,25 +41,21 @@ export const LeaderboardSummary = ({ summary, loading }: LeaderboardSummaryProps
       label: 'Total Agents',
       value: formatCount(summary?.totalAgents),
       icon: copyTradingStatIconMap.agents,
-      status: summary?.metrics.agentCount?.status,
     },
     {
       label: 'Total AUM',
       value: compactUsd(summary?.totalAumUsd),
       icon: copyTradingStatIconMap.money,
-      status: summary?.metrics.totalAumUsd?.status,
     },
     {
       label: 'Total Copiers',
       value: formatCount(summary?.totalCopiers),
       icon: copyTradingStatIconMap.usersPurple,
-      status: summary?.metrics.totalCopierCount?.status,
     },
     {
       label: 'Total Volume',
       value: compactUsd(summary?.totalVolumeUsd),
       icon: copyTradingStatIconMap.volume,
-      status: summary?.metrics.lifetimeVolumeUsd?.status,
     },
   ]
 

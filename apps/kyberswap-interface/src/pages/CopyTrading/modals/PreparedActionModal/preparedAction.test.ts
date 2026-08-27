@@ -5,6 +5,7 @@ import {
   type PreparedActionExpectation,
   formatPreparedAmount,
   formatPreparedAmountValue,
+  formatPreparedExactAmountValue,
   formatPreparedRate,
   validatePreparedAction,
   validatePreparedActionContinuation,
@@ -232,8 +233,20 @@ describe('prepared amount formatting', () => {
     expect(formatPreparedAmount(amount, token)).toBe('1.234567 USDC')
   })
 
+  it('formats exact panel values from raw token units without rounding', () => {
+    expect(
+      formatPreparedExactAmountValue(
+        { valueRaw: '1234567890123456789', status: 'METRIC_STATUS_CURRENT' },
+        { decimals: 18, symbol: 'TOKEN' },
+      ),
+    ).toBe('1.234567890123456789')
+  })
+
   it('preserves unavailable metric fallbacks', () => {
     expect(formatPreparedAmountValue({ valueRaw: '1234567', status: 'METRIC_STATUS_UNAVAILABLE' }, token)).toBe('—')
+    expect(formatPreparedExactAmountValue({ valueRaw: '1234567', status: 'METRIC_STATUS_UNAVAILABLE' }, token)).toBe(
+      '—',
+    )
   })
 })
 

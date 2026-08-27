@@ -102,30 +102,10 @@ export const getSignedMetricClassName = (value?: NumericValue) => {
   return amount > 0 ? 'text-primary' : 'text-red'
 }
 
-export type WinRateTone = 'positive' | 'warning' | 'negative' | 'neutral'
-
-export const getWinRateTone = (value?: NumericValue): WinRateTone => {
-  const amount = parseNumericValue(value)
-
-  if (amount === undefined) return 'neutral'
-  if (amount >= 60) return 'positive'
-  return amount >= 30 ? 'warning' : 'negative'
-}
-
 export const getWinRateClassName = (value?: NumericValue, variant: 'text' | 'background' = 'text') => {
-  const tone = getWinRateTone(value)
-
-  if (variant === 'background') {
-    if (tone === 'neutral') return 'bg-subText'
-    if (tone === 'positive') return 'bg-primary'
-    if (tone === 'warning') return 'bg-warning'
-    return 'bg-red1'
-  }
-
-  if (tone === 'neutral') return 'text-text'
-  if (tone === 'positive') return 'text-primary'
-  if (tone === 'warning') return 'text-warning'
-  return 'text-red'
+  const available = parseNumericValue(value) !== undefined
+  if (variant === 'background') return available ? 'bg-primary' : 'bg-buttonGray'
+  return available ? 'text-primary' : 'text-text'
 }
 
 export const formatApproximateUsd = (value?: DecimalString, fractionDigits?: number) => {

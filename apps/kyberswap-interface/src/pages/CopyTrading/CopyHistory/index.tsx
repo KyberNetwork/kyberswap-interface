@@ -23,19 +23,16 @@ const CopyHistorySummary = ({ loading, summary }: { loading?: boolean; summary?:
       value: signedUsd(summary?.realizedPnlUsd),
       valueClassName: getSignedMetricClassName(summary?.realizedPnlUsd),
       icon: copyTradingStatIconMap.money,
-      status: summary?.metrics.realizedPnlUsd?.status,
     },
     {
       label: 'Closed Capital (Returned)',
       value: formatUsd(summary?.closedCapitalUsd),
       icon: copyTradingStatIconMap.volume,
-      status: summary?.metrics.closedCapitalUsd?.status,
     },
     {
       label: 'Closed Positions',
       value: formatCount(summary?.closedPositions),
       icon: copyTradingStatIconMap.positionClose,
-      status: summary?.metrics.closedPositionCount?.status,
     },
   ]
 
