@@ -9,6 +9,7 @@ import {
   inventoryKey,
   isInventoryChain,
   readEntry,
+  readLiveBalances,
   register,
   subscribeStore,
   unregister,
@@ -36,18 +37,22 @@ export const useWalletInventory = (chainId?: ChainId, enabled = true): WalletInv
   }, [subscribed, resolvedChain, account])
 
   const storeVersion = useSyncExternalStore(subscribeStore, getStoreVersion, getStoreVersion)
-  const entry = useMemo(
-    () => (subscribed && account ? readEntry(inventoryKey(resolvedChain, account)) : undefined),
-    // `storeVersion` is what makes this re-read when the store changes.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [subscribed, account, resolvedChain, storeVersion],
-  )
+  const key = subscribed && account ? inventoryKey(resolvedChain, account) : undefined
+  // `storeVersion` is what makes these re-read when the store changes; both return stable references
+  // while their data holds, so the resolver below only re-runs on a real change.
+  /* eslint-disable react-hooks/exhaustive-deps */
+  const entry = useMemo(() => (key ? readEntry(key) : undefined), [key, storeVersion])
+  const live = useMemo(() => (key ? readLiveBalances(key) : undefined), [key, storeVersion])
+  /* eslint-enable react-hooks/exhaustive-deps */
 
   // Read live per block. Identity changes every block even when the value does not, so the resolver is
   // keyed on the value to avoid rebuilding rows for a balance that did not move.
   const nativeRawBalance = useNativeBalance(resolvedChain)?.quotient.toString()
 
-  return useMemo(() => resolveInventory(entry, subscribed, nativeRawBalance), [entry, subscribed, nativeRawBalance])
+  return useMemo(
+    () => resolveInventory(entry, subscribed, nativeRawBalance, live),
+    [entry, subscribed, nativeRawBalance, live],
+  )
 }
 
 /** Inventory balances in the same shape as the `useTokenBalances` multicall map. */

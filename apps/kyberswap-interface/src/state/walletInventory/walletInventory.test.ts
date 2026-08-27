@@ -18,7 +18,9 @@ import {
   getStoreVersion,
   inventoryKey,
   isAwaitingBlock,
+  publishLiveBalances,
   readEntry,
+  readLiveBalances,
   readMeta,
   register,
   resetInventoryStore,
@@ -599,6 +601,70 @@ describe('getTokenComparator with unlisted holdings', () => {
       new Set([scam.address]),
     )
     expect([usdt, scam].sort(compare).map(t => t.address)).toEqual([scam.address, usdt.address])
+  })
+})
+
+describe('resolveInventory with live reads', () => {
+  const DAI = '0x6B175474E89094C44Da98b954EedeAC495271d0F'
+  const settled = (rows: InventoryRow[]): InventoryEntry => ({
+    rows: Object.fromEntries(rows.map(r => [r.address, r])),
+    status: 'settled',
+    blockNumber: 100,
+    fetchedAt: 1,
+  })
+  const funded = [row(ETHER_ADDRESS, 10n, 90), row(USDT_CHECKSUM, 5n, 100)]
+
+  it('lets a read observed past the row block correct the indexed amount', () => {
+    const live = new Map([[USDT_CHECKSUM, { rawBalance: 7n, blockNumber: 101 }]])
+    const resolved = resolveInventory(settled(funded), true, '10', live)
+    expect(resolved.rows[USDT_CHECKSUM].rawBalance).toBe(7n)
+    expect(resolved.rows[USDT_CHECKSUM].blockNumber).toBe(101)
+  })
+
+  it('keeps the indexed row when the read is not strictly newer', () => {
+    const live = new Map([[USDT_CHECKSUM, { rawBalance: 7n, blockNumber: 100 }]])
+    expect(resolveInventory(settled(funded), true, '10', live).rows[USDT_CHECKSUM].rawBalance).toBe(5n)
+  })
+
+  it('adds a token the indexer has not listed yet and drops one read as drained', () => {
+    const live = new Map([
+      [DAI, { rawBalance: 3n, blockNumber: 101 }],
+      [USDT_CHECKSUM, { rawBalance: 0n, blockNumber: 101 }],
+    ])
+    const resolved = resolveInventory(settled(funded), true, '10', live)
+    expect(resolved.rows[DAI].rawBalance).toBe(3n)
+    expect(resolved.rows[USDT_CHECKSUM]).toBeUndefined()
+  })
+
+  it('returns the same rows object when no read changes anything', () => {
+    const entry = settled(funded)
+    const live = new Map([[USDT_CHECKSUM, { rawBalance: 5n, blockNumber: 101 }]])
+    expect(resolveInventory(entry, true, undefined, live).rows).toBe(entry.rows)
+  })
+
+  it('never overlays the native row, which the live native read already owns', () => {
+    const live = new Map([[ETHER_ADDRESS, { rawBalance: 1n, blockNumber: 101 }]])
+    expect(resolveInventory(settled(funded), true, '10', live).rows[ETHER_ADDRESS].rawBalance).toBe(10n)
+  })
+})
+
+describe('publishLiveBalances', () => {
+  it('stores a read once and keeps its block while the value holds', () => {
+    publishLiveBalances(ChainId.MAINNET, ACCOUNT, 100, [{ address: USDT_CHECKSUM, rawBalance: 5n }])
+    const first = readLiveBalances(KEY)
+    expect(first?.get(USDT_CHECKSUM)).toEqual({ rawBalance: 5n, blockNumber: 100 })
+    const before = getStoreVersion()
+    publishLiveBalances(ChainId.MAINNET, ACCOUNT, 101, [{ address: USDT_CHECKSUM, rawBalance: 5n }])
+    expect(readLiveBalances(KEY)).toBe(first)
+    expect(getStoreVersion()).toBe(before)
+    publishLiveBalances(ChainId.MAINNET, ACCOUNT, 102, [{ address: USDT_CHECKSUM, rawBalance: 6n }])
+    expect(readLiveBalances(KEY)?.get(USDT_CHECKSUM)).toEqual({ rawBalance: 6n, blockNumber: 102 })
+    expect(getStoreVersion()).toBe(before + 1)
+  })
+
+  it('ignores chains the inventory does not serve', () => {
+    publishLiveBalances(ChainId.MATIC, ACCOUNT, 100, [{ address: USDT_CHECKSUM, rawBalance: 5n }])
+    expect(readLiveBalances(inventoryKey(ChainId.MATIC, ACCOUNT))).toBeUndefined()
   })
 })
 

@@ -9,9 +9,11 @@ import { useActiveWeb3React } from 'hooks'
 import { useEthBalanceOfAnotherChain, useTokensBalanceOfAnotherChain } from 'hooks/bridge'
 import { useMulticallContract } from 'hooks/useContract'
 import { useAllTokens } from 'hooks/useTokens'
+import { useBlockNumberFor } from 'state/application/hooks'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { useMultipleContractSingleData, useSingleCallResult } from 'state/multicall/hooks'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
+import { publishLiveBalances } from 'state/walletInventory/store'
 import { isAddress } from 'utils/address'
 import { isTokenNative } from 'utils/tokenInfo'
 
@@ -174,6 +176,19 @@ export function useCurrencyBalances(
 
   const tokenBalances = useTokenBalances(tokens, chainId)
   const ethBalance = useNativeBalance(chainId)
+
+  // The tokens a form transacts with are the ones the wallet inventory is most likely to be behind on
+  // right after a transaction; hand it these per-block reads so it can correct itself meanwhile.
+  const blockNumber = useBlockNumberFor(chainId)
+  useEffect(() => {
+    if (!account || chainId !== currentChain || blockNumber === undefined) return
+    const reads = tokens.flatMap(token => {
+      const amount = tokenBalances[token.address]
+      return amount ? [{ address: token.address, rawBalance: BigInt(amount.quotient.toString()) }] : []
+    })
+    publishLiveBalances(chainId, account, blockNumber, reads)
+  }, [account, chainId, currentChain, blockNumber, tokens, tokenBalances])
+
   return useMemo(
     () =>
       currencies?.map(currency => {
