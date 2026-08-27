@@ -603,22 +603,23 @@ export const TokenSelectorContent = ({
     : EMPTY_CURRENCIES
   const metricsExtras = useTokensMetrics(metricsSource, primaryChainId)
 
-  // Favorites take their price from the live prices endpoint (buy/sell mid — the same source as the
-  // USD balance), while 24h change / volume / market cap stay from the tokens-list metrics.
-  const favoritePriceAddresses = useMemo(
-    () => (isFavoritesTab ? favoriteCurrenciesBase.map(currency => currency.wrapped.address) : EMPTY_ADDRESSES),
-    [isFavoritesTab, favoriteCurrenciesBase],
+  // Imported and Favorites take their price from the live prices endpoint (buy/sell mid — the same
+  // source the All tab and the wallet-value sort use, so a token reads the same on every tab), while
+  // 24h change / volume / market cap stay from the tokens-list metrics.
+  const localPriceAddresses = useMemo(
+    () => (metricsSource.length ? metricsSource.map(currency => currency.wrapped.address) : EMPTY_ADDRESSES),
+    [metricsSource],
   )
-  const favoritePrices = useTokenPrices(favoritePriceAddresses, primaryChainId)
-  const favoriteExtras = useMemo<TokenRowExtraMap>(() => {
+  const localPrices = useTokenPrices(localPriceAddresses, primaryChainId)
+  const localExtras = useMemo<TokenRowExtraMap>(() => {
     const result: TokenRowExtraMap = {}
-    favoriteCurrenciesBase.forEach(currency => {
+    metricsSource.forEach(currency => {
       const key = tokenRowKey(currency.chainId, currency.wrapped.address)
-      const livePrice = favoritePrices[currency.wrapped.address.toLowerCase()]
+      const livePrice = localPrices[currency.wrapped.address.toLowerCase()]
       result[key] = { ...metricsExtras[key], price: livePrice || metricsExtras[key]?.price }
     })
     return result
-  }, [favoriteCurrenciesBase, favoritePrices, metricsExtras])
+  }, [metricsSource, localPrices, metricsExtras])
 
   // Both catalog-sourced tabs can come back short of `metrics.price` (Robinhood especially), so top
   // their rows up from the live prices endpoint — on Trending only while TRENDING_PRICE_FALLBACK_ENABLED.
@@ -633,19 +634,9 @@ export const TokenSelectorContent = ({
   const listExtras: TokenRowExtraMap = useMemo(() => {
     if (isTrendingTab) return trendingExtrasWithPrice
     if (isNewTab) return newExtrasWithPrice
-    if (isImportedTab) return metricsExtras
-    if (isFavoritesTab) return favoriteExtras
+    if (isImportedTab || isFavoritesTab) return localExtras
     return EMPTY_EXTRAS
-  }, [
-    isTrendingTab,
-    isNewTab,
-    isImportedTab,
-    isFavoritesTab,
-    trendingExtrasWithPrice,
-    newExtrasWithPrice,
-    metricsExtras,
-    favoriteExtras,
-  ])
+  }, [isTrendingTab, isNewTab, isImportedTab, isFavoritesTab, trendingExtrasWithPrice, newExtrasWithPrice, localExtras])
 
   // In-memory metric sort for the Imported / Favorites tabs, whose only sortable column is "Price &
   // 24h change" (Trending and New sort server-side). Rows are tiered so those missing the sorted
