@@ -431,7 +431,7 @@ const transports = Object.fromEntries(
 const PORTO_CONNECTOR_ID = 'xyz.ithaca.porto'
 
 /** The connector a returning visitor last connected with, as wagmi persists it (JSON-encoded). */
-const readRecentConnectorId = (): string | undefined => {
+export const readRecentConnectorId = (): string | undefined => {
   if (typeof window === 'undefined' || !window.localStorage) return undefined
   try {
     const raw = window.localStorage.getItem('wagmi.recentConnectorId')
