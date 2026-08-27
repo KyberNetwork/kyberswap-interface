@@ -143,25 +143,26 @@ const ChartTooltip = ({ active, payload }: ChartTooltipProps) => {
   if (!point) return null
 
   return (
-    <Stack className="gap-2 rounded-lg bg-background px-4 py-3 text-xs shadow-lg">
+    <Stack className="min-w-[220px] gap-3 rounded-xl border border-border bg-tableHeader/80 px-4 py-3 text-xs shadow-[0_12px_32px_var(--ks-shadow)]">
       <span className="text-subText">{formatDateTime(point.timestamp)}</span>
-      {payload.map(item => {
-        const isPnl = item.dataKey === 'totalPnlUsd' || item.dataKey === 'valuePct'
-        const formattedValue =
-          item.dataKey === 'valuePct'
-            ? percent(item.value === undefined ? undefined : String(item.value))
-            : formatUsd(item.value === undefined ? undefined : String(item.value))
+      <div className="grid grid-cols-[auto_auto] gap-x-4 gap-y-2">
+        {payload.map(item => {
+          const isPnl = item.dataKey === 'totalPnlUsd' || item.dataKey === 'valuePct'
+          const formattedValue =
+            item.dataKey === 'valuePct'
+              ? percent(item.value === undefined ? undefined : String(item.value))
+              : formatUsd(item.value === undefined ? undefined : String(item.value))
 
-        return (
-          <span
-            key={item.dataKey}
-            className={cn('font-medium', isPnl && getSignedMetricClassName(item.value))}
-            style={isPnl ? undefined : { color: item.color }}
-          >
-            {item.name}: {formattedValue}
-          </span>
-        )
-      })}
+          return (
+            <div key={item.dataKey} className="contents">
+              <span className="text-subText">{item.name}</span>
+              <span className={cn('text-right font-medium text-text', isPnl && getSignedMetricClassName(item.value))}>
+                {formattedValue}
+              </span>
+            </div>
+          )
+        })}
+      </div>
     </Stack>
   )
 }
@@ -280,7 +281,7 @@ export const CumulativeTotalPnlChart = ({
                   <stop offset={gradientOffset} stopColor="var(--ks-red)" stopOpacity={0.16} />
                 </linearGradient>
               </defs>
-              <CartesianGrid stroke="var(--ks-border)" vertical={false} />
+              <CartesianGrid stroke="var(--ks-text-06)" vertical={false} />
               <XAxis
                 axisLine={false}
                 dataKey="timestamp"
@@ -296,7 +297,7 @@ export const CumulativeTotalPnlChart = ({
                 tickLine={false}
                 width={72}
               />
-              <Tooltip content={<ChartTooltip />} cursor={{ stroke: 'var(--ks-subText)', strokeDasharray: '4 4' }} />
+              <Tooltip content={<ChartTooltip />} cursor={{ stroke: 'var(--ks-text-12)', strokeDasharray: '4 4' }} />
               <Area
                 activeDot={<PnlActiveDot dataKey={dataKey} />}
                 dataKey={dataKey}
@@ -345,7 +346,7 @@ export const CapitalValueChart = ({
         {!!data.length && (
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={data} margin={{ top: 16, right: 0, bottom: 8, left: 0 }}>
-              <CartesianGrid stroke="var(--ks-border)" vertical={false} />
+              <CartesianGrid stroke="var(--ks-text-06)" vertical={false} />
               <XAxis
                 axisLine={false}
                 dataKey="timestamp"

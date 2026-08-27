@@ -36,7 +36,7 @@ type PoolEarningChartProps = {
 }
 
 const TooltipCard = ({ children }: { children: React.ReactNode }) => (
-  <div className="flex min-w-[220px] flex-col gap-3 rounded-xl border border-border bg-tableHeader/80 px-4 py-3 shadow-[0_12px_32px_rgba(0,0,0,0.2)]">
+  <div className="flex min-w-[220px] flex-col gap-3 rounded-xl border border-border bg-tableHeader/80 px-4 py-3 shadow-[0_12px_32px_var(--ks-shadow)]">
     {children}
   </div>
 )
@@ -137,7 +137,7 @@ const PoolEarningChart = ({ chainId, poolAddress, positionId }: PoolEarningChart
   const chartHeight = upToSmall ? 240 : 320
   const breakdownChartSize = upToSmall ? 160 : 180
   const cursorColor = 'var(--ks-text-12)'
-  const gridColor = 'rgba(255,255,255,0.06)'
+  const gridColor = 'var(--ks-text-06)'
   const isPositionChart = !!positionId
 
   const poolEarningsQuery = usePoolEarningsQuery(
