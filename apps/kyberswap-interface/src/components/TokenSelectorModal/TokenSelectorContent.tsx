@@ -21,7 +21,6 @@ import InfoHelper from 'components/InfoHelper'
 import Loader from 'components/Loader'
 import { HStack, Stack } from 'components/Stack'
 import { ChainSelector } from 'components/TokenSelectorModal/ChainSelector'
-import { InventoryDiscoveryBanner } from 'components/TokenSelectorModal/InventoryDiscoveryBanner'
 import { OtherChainTokens } from 'components/TokenSelectorModal/OtherChainTokens'
 import { PinnedTokens } from 'components/TokenSelectorModal/PinnedTokens'
 import { SwitchChainModal } from 'components/TokenSelectorModal/SwitchChainModal'
@@ -439,8 +438,9 @@ export const TokenSelectorContent = ({
   // tokens, so the unused one registers no work; chains without inventory keep the multicall.
   const inventory = useWalletInventory(primaryChainId, isOpen)
 
-  // Held tokens the app would otherwise never list. Browsing the All tab offers them behind a collapsed
-  // group; searching matches them directly, since someone typing a symbol they hold is looking for it.
+  // Held tokens on no list. They sit in the All tab alongside everything else — dimmed, with an
+  // import icon — and search matches them directly, since someone typing a symbol they hold is
+  // looking for it.
   const { tokens: discoveryTokens, impersonators } = useInventoryDiscoveries(
     inventory,
     defaultTokens,
@@ -448,7 +448,10 @@ export const TokenSelectorContent = ({
     primaryChainId,
   )
   const showDiscoveries = isAllTab && !debouncedQuery && discoveryTokens.length > 0
-  const [discoveriesExpanded, setDiscoveriesExpanded] = useState(false)
+  const unlistedAddresses = useMemo(
+    () => (discoveryTokens.length ? new Set(discoveryTokens.map(token => token.address)) : undefined),
+    [discoveryTokens],
+  )
 
   const searchDiscoveryMatches = useMemo<Currency[]>(
     () =>
@@ -500,8 +503,8 @@ export const TokenSelectorContent = ({
 
   // Discovery rows need balances too, so they join the set the balance source is asked for.
   const balanceTokensWithDiscoveries = useMemo(
-    () => (showDiscoveries && discoveriesExpanded ? [...balanceTokens, ...discoveryTokens] : balanceTokens),
-    [showDiscoveries, discoveriesExpanded, balanceTokens, discoveryTokens],
+    () => (showDiscoveries ? [...balanceTokens, ...discoveryTokens] : balanceTokens),
+    [showDiscoveries, balanceTokens, discoveryTokens],
   )
 
   // `pending` counts as inventory-owned too: starting the multicall during the first fetch would run
@@ -522,6 +525,7 @@ export const TokenSelectorContent = ({
     primaryChainId,
     needsComparator,
     isAllTab ? favoriteAddressSet : undefined,
+    isAllTab ? unlistedAddresses : undefined,
   )
 
   // All-tab dataset: API search results (with RPC fallback) when searching, else the sorted default
@@ -536,7 +540,7 @@ export const TokenSelectorContent = ({
         heldAddresses,
       ).filter(filterWrapFunc)
     }
-    return Object.values(defaultTokens).sort(tokenComparator).filter(filterWrapFunc)
+    return Object.values(defaultTokens).concat(discoveryTokens).sort(tokenComparator).filter(filterWrapFunc)
   }, [
     isAllTab,
     debouncedQuery,
@@ -545,6 +549,7 @@ export const TokenSelectorContent = ({
     searchDiscoveryMatches,
     heldAddresses,
     defaultTokens,
+    discoveryTokens,
     tokenComparator,
     filterWrapFunc,
   ])
@@ -703,9 +708,7 @@ export const TokenSelectorContent = ({
         return sort ? sortByMetric(favoriteCurrenciesBase) : sortByMarketCap(favoriteCurrenciesBase)
       case TokenSelectorTab.All:
       default:
-        // Discoveries lead the list only once the user has opened the group, which is the point at
-        // which they asked to see unvetted holdings. Collapsed, the verified list is untouched.
-        return showDiscoveries && discoveriesExpanded ? [...discoveryTokens, ...allTabTokens] : allTabTokens
+        return allTabTokens
     }
   }, [
     activeTab,
@@ -717,9 +720,6 @@ export const TokenSelectorContent = ({
     sort,
     sortByMetric,
     sortByMarketCap,
-    showDiscoveries,
-    discoveriesExpanded,
-    discoveryTokens,
   ])
 
   // Show skeleton rows while a tab's whole list is loading from the API.
@@ -989,11 +989,7 @@ export const TokenSelectorContent = ({
   useEffect(() => {
     setSort(null)
     pendingSortAnim.current = false
-    // The discovery group is per-wallet-per-chain, and opening it is a deliberate act; carrying that
-    // choice across a chain or account switch would drop someone else's unvetted holdings on the user
-    // already expanded, which is exactly the consent this collapsed-by-default group exists to ask for.
-    setDiscoveriesExpanded(false)
-  }, [activeTab, primaryChainId, account])
+  }, [activeTab, primaryChainId])
 
   // Reset scroll to the top of the list on a deliberate context switch (tab or chain change).
   // Sort-driven scroll resets happen in the crossfade effect below, timed to the re-sorted rows.
@@ -1186,14 +1182,6 @@ export const TokenSelectorContent = ({
           </HStack>
         )}
 
-        {showDiscoveries && (
-          <InventoryDiscoveryBanner
-            count={discoveryTokens.length}
-            expanded={discoveriesExpanded}
-            onToggle={() => setDiscoveriesExpanded(value => !value)}
-          />
-        )}
-
         <motion.div initial={{ opacity: 1 }} animate={listAnimation} className="flex min-h-0 flex-1 flex-col">
           {isListLoading ? (
             <TokenListSkeleton />
@@ -1221,6 +1209,7 @@ export const TokenSelectorContent = ({
               importAsRow={(isTrendingTab || isAllTab) && !debouncedQuery}
               impersonators={impersonators}
               heldAddresses={heldAddresses}
+              importIcon={isAllTab}
               onShowTokenInfo={onShowTokenInfo}
             />
           ) : (

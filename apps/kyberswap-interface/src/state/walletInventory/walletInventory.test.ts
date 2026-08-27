@@ -1,9 +1,9 @@
 import { UnsupportedChainError, isChainUnsupported, walkWalletInventory } from '@kyber/hooks'
-import { ChainId, Token } from '@kyberswap/ks-sdk-core'
+import { ChainId, Token, TokenAmount } from '@kyberswap/ks-sdk-core'
 import { InventoryRow, adaptRow, parseRawAmount } from 'services/walletInventory'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { mergeHeldSearchResults } from 'components/TokenSelectorModal/utils'
+import { getTokenComparator, mergeHeldSearchResults } from 'components/TokenSelectorModal/utils'
 import { ETHER_ADDRESS } from 'constants/index'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { isTokenListReady, rankWalletHoldings, selectWalletHoldings } from 'state/walletInventory/assets'
@@ -559,6 +559,46 @@ describe('wallet assets', () => {
     const ranked = rankWalletHoldings(holdings, inventory, ChainId.MAINNET, prices)
     expect(ranked.currencies.map(c => (c.isNative ? 'native' : c.symbol))).toEqual(['native', 'USDT', 'FAKE'])
     expect(ranked.totalBalanceInUsd).toBeCloseTo(2005, 6)
+  })
+})
+
+describe('getTokenComparator with unlisted holdings', () => {
+  const usdt = new Token(ChainId.MAINNET, USDT_CHECKSUM, 6, 'USDT')
+  const scam = new Token(ChainId.MAINNET, '0x1000000000000000000000000000000000000001', 18, 'USDT')
+
+  it('never lets an unpriced unlisted token outrank a listed holding on raw amount', () => {
+    // The airdrop is minted with an enormous supply; the real holding is 5 USDT, neither is priced.
+    const balances = {
+      [usdt.address]: TokenAmount.fromRawAmount(usdt, '5000000'),
+      [scam.address]: TokenAmount.fromRawAmount(scam, '1000000000000000000000000000'),
+    }
+    const compare = getTokenComparator(balances, undefined, {}, undefined, new Set([scam.address]))
+    expect([scam, usdt].sort(compare).map(t => t.address)).toEqual([usdt.address, scam.address])
+  })
+
+  it('ranks a held unlisted token above a listed token the wallet does not hold', () => {
+    const dai = new Token(ChainId.MAINNET, '0x6B175474E89094C44Da98b954EedeAC495271d0F', 18, 'DAI')
+    const balances = {
+      [dai.address]: TokenAmount.fromRawAmount(dai, '0'),
+      [scam.address]: TokenAmount.fromRawAmount(scam, '1000000000000000000'),
+    }
+    const compare = getTokenComparator(balances, undefined, {}, undefined, new Set([scam.address]))
+    expect([dai, scam].sort(compare).map(t => t.address)).toEqual([scam.address, dai.address])
+  })
+
+  it('still ranks an unlisted token by USD value when it has one', () => {
+    const balances = {
+      [usdt.address]: TokenAmount.fromRawAmount(usdt, '5000000'),
+      [scam.address]: TokenAmount.fromRawAmount(scam, '1000000000000000000'),
+    }
+    const compare = getTokenComparator(
+      balances,
+      undefined,
+      { [usdt.address]: 1, [scam.address]: 100 },
+      undefined,
+      new Set([scam.address]),
+    )
+    expect([usdt, scam].sort(compare).map(t => t.address)).toEqual([scam.address, usdt.address])
   })
 })
 

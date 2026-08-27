@@ -1,7 +1,7 @@
 import { Currency, CurrencyAmount, Token, TokenAmount } from '@kyberswap/ks-sdk-core'
 import { Plural, Trans, t } from '@lingui/macro'
 import { useState } from 'react'
-import { AlertTriangle, ChevronDown, Info } from 'react-feather'
+import { AlertTriangle, Info } from 'react-feather'
 import { useNavigate } from 'react-router-dom'
 import AutoSizer from 'react-virtualized-auto-sizer'
 
@@ -25,7 +25,7 @@ import { currencyId } from 'utils/currencyId'
 const tokenItemStyle = { paddingLeft: 8, paddingRight: 8 }
 
 // Hidden rows are not virtualized (the list is plain flow inside a scrolling wrapper), and a spam-heavy
-// wallet can hold hundreds of them; mounting those in pages keeps expanding the section instant.
+// wallet can hold hundreds of them; mounting those in pages keeps the popup instant.
 const HIDDEN_PAGE_SIZE = 50
 
 const WRAPPER_CLASS =
@@ -47,7 +47,7 @@ export default function MyAssets({
   usdBalances: { [address: string]: number }
   currencyBalances: { [address: string]: TokenAmount | undefined }
   hideBalance: boolean
-  /** Held tokens that are neither whitelisted nor imported; listed on request, balance only. */
+  /** Held tokens that are neither whitelisted nor imported; listed after the vetted ones, balance only. */
   hiddenTokens: WrappedTokenInfo[]
   /** Hidden tokens whose symbol belongs to a whitelisted token at another address. */
   impersonators: Set<string>
@@ -65,10 +65,9 @@ export default function MyAssets({
     })
   }
   const hideModal = () => setModalOpen(false)
-  // Collapsed by default: this is the wallet's unvetted surface, and a wallet of any age carries
-  // airdropped junk. Importing goes through the same warning screen the token selector uses, and the
-  // import itself moves the token into the vetted list above.
-  const [hiddenExpanded, setHiddenExpanded] = useState(false)
+  // Unvetted holdings follow the vetted list as dimmed rows with an import button. Importing goes
+  // through the same warning screen the token selector uses, and the import itself moves the token
+  // into the vetted list above.
   const [hiddenShown, setHiddenShown] = useState(HIDDEN_PAGE_SIZE)
   const [importTarget, setImportTarget] = useState<Token | null>(null)
   const closeImport = () => setImportTarget(null)
@@ -142,65 +141,32 @@ export default function MyAssets({
                 />
               )
             })}
-            {hiddenTokens.length > 0 && (
-              <>
-                <button
-                  type="button"
-                  onClick={() => setHiddenExpanded(value => !value)}
-                  aria-expanded={hiddenExpanded}
-                  data-testid="wallet-hidden-tokens-toggle"
-                  className={cn(
-                    'mx-2 mt-2 flex w-[calc(100%-16px)] items-center justify-between gap-2 rounded-xl border border-border bg-buttonBlack px-3 py-2',
-                    'text-left transition-colors hover:border-subText-20 hover:bg-buttonGray',
-                  )}
-                >
-                  <Column className="min-w-0 gap-0.5">
-                    <span className="text-xs font-medium text-text sm:text-sm">
-                      <Plural value={hiddenTokens.length} one="# hidden token" other="# hidden tokens" />
-                    </span>
-                    <span className="truncate text-xs text-subText">
-                      <Trans>Not on the verified list — not counted in your balance</Trans>
-                    </span>
-                  </Column>
-                  <ChevronDown
-                    size={18}
-                    className={cn(
-                      'shrink-0 text-subText transition-transform motion-reduce:transition-none',
-                      hiddenExpanded && 'rotate-180',
-                    )}
-                    aria-hidden="true"
-                  />
-                </button>
-                {hiddenExpanded &&
-                  hiddenTokens
-                    .slice(0, hiddenShown)
-                    .map(token => (
-                      <TokenRow
-                        key={token.address}
-                        isSelected={false}
-                        style={tokenItemStyle}
-                        currency={token}
-                        currencyBalance={currencyBalances[token.address]}
-                        hideBalance={hideBalance}
-                        showFavoriteIcon={false}
-                        showLoading
-                        hoverColor={theme.bg3}
-                        importOnClick
-                        onImportToken={setImportTarget}
-                        impersonator={impersonators.has(token.address)}
-                      />
-                    ))}
-                {hiddenExpanded && hiddenTokens.length > hiddenShown && (
-                  <button
-                    type="button"
-                    onClick={() => setHiddenShown(count => count + HIDDEN_PAGE_SIZE)}
-                    data-testid="wallet-hidden-tokens-more"
-                    className="mx-auto mt-1 cursor-pointer text-xs font-medium text-primary hover:brightness-110"
-                  >
-                    <Plural value={hiddenTokens.length - hiddenShown} one="Show # more" other="Show # more" />
-                  </button>
-                )}
-              </>
+            {hiddenTokens.slice(0, hiddenShown).map(token => (
+              <TokenRow
+                key={token.address}
+                isSelected={false}
+                style={tokenItemStyle}
+                currency={token}
+                currencyBalance={currencyBalances[token.address]}
+                hideBalance={hideBalance}
+                showFavoriteIcon={false}
+                showLoading
+                hoverColor={theme.bg3}
+                importOnClick
+                trailing="import"
+                onImportToken={setImportTarget}
+                impersonator={impersonators.has(token.address)}
+              />
+            ))}
+            {hiddenTokens.length > hiddenShown && (
+              <button
+                type="button"
+                onClick={() => setHiddenShown(count => count + HIDDEN_PAGE_SIZE)}
+                data-testid="wallet-hidden-tokens-more"
+                className="mx-auto mt-1 flex cursor-pointer text-xs font-medium text-primary hover:brightness-110"
+              >
+                <Plural value={hiddenTokens.length - hiddenShown} one="Show # more" other="Show # more" />
+              </button>
             )}
             <Column
               className={cn(

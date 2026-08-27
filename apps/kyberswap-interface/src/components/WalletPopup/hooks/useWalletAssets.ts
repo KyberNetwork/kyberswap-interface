@@ -24,7 +24,7 @@ export type WalletAssets = {
   usdBalances: { [address: string]: number }
   /** `null` while nothing is known yet, so the header can show a placeholder rather than $0. */
   totalBalanceInUsd: number | null
-  /** Held but unvetted tokens, offered behind a collapsed section; empty off the inventory path. */
+  /** Held but unvetted tokens, listed after the vetted ones; empty off the inventory path. */
   hiddenTokens: WrappedTokenInfo[]
   impersonators: Set<string>
 }

@@ -243,12 +243,16 @@ function usdValueOf(balance: TokenAmount | CurrencyAmount<Currency> | undefined,
   return amount * price
 }
 
-function getTokenComparator(
+export function getTokenComparator(
   balances: TokenBalanceMap,
   ethBalance: CurrencyAmount<Currency> | undefined,
   tokenPrices: TokenPriceMap,
   // Addresses (lowercased) to float above non-favorites once balance/value is a tie.
   favoriteAddresses?: Set<string>,
+  // Held tokens that are on no list (checksummed). With no USD value to rank on, these sort below
+  // every listed holding but above tokens the wallet does not hold: airdropped impersonations are
+  // minted with enormous supplies, and letting raw amount decide would hand them the top of the list.
+  unlistedAddresses?: Set<string>,
 ): (tokenA: Token, tokenB: Token) => number {
   const favoriteKey = (token: Token) => (isTokenNative(token) ? ETHER_ADDRESS : token.address).toLowerCase()
   return function sortTokens(tokenA: Token, tokenB: Token): number {
@@ -262,6 +266,17 @@ function getTokenComparator(
 
     if (usdBalanceA > 0 || usdBalanceB > 0) {
       if (usdBalanceA !== usdBalanceB) return usdBalanceB - usdBalanceA
+    }
+
+    // Anything held ranks above anything not held, priced or not.
+    const heldA = !!balanceA?.greaterThan('0')
+    const heldB = !!balanceB?.greaterThan('0')
+    if (heldA !== heldB) return heldA ? -1 : 1
+
+    if (heldA && unlistedAddresses?.size) {
+      const unlistedA = unlistedAddresses.has(tokenA.address)
+      const unlistedB = unlistedAddresses.has(tokenB.address)
+      if (unlistedA !== unlistedB) return unlistedA ? 1 : -1
     }
 
     const balanceComp = balanceComparator(balanceA, balanceB)
@@ -293,6 +308,8 @@ export function useTokenComparator(
   enabled = true,
   // Lowercased favorite addresses to float above non-favorites once balance/value is a tie.
   favoriteAddresses?: Set<string>,
+  // Checksummed addresses of held tokens on no list; see `getTokenComparator`.
+  unlistedAddresses?: Set<string>,
 ): (tokenA: Token, tokenB: Token) => number {
   // Only held tokens can contribute a USD value to the sort — `usdValueOf` returns 0 for a zero
   // balance whatever the price — so pricing the whole whitelist would be pure waste. The native
@@ -306,7 +323,7 @@ export function useTokenComparator(
   const tokenPrices = useTokenPrices(tokenPriceAddresses, chainId)
 
   return useMemo(
-    () => getTokenComparator(balances, ethBalance, tokenPrices, favoriteAddresses),
-    [balances, ethBalance, tokenPrices, favoriteAddresses],
+    () => getTokenComparator(balances, ethBalance, tokenPrices, favoriteAddresses, unlistedAddresses),
+    [balances, ethBalance, tokenPrices, favoriteAddresses, unlistedAddresses],
   )
 }
