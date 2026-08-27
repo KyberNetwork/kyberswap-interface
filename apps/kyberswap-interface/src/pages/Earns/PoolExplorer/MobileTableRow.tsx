@@ -20,6 +20,7 @@ import PoolAprInfo from 'pages/Earns/components/PoolAprInfo'
 import PoolRewardsInfo from 'pages/Earns/components/PoolRewardsInfo'
 import { ZapInInfo } from 'pages/Earns/hooks/useZapInWidget'
 import { ParsedEarnPool } from 'pages/Earns/types'
+import { getPoolDetailUrl } from 'pages/Earns/utils/url'
 import { formatDisplayNumber } from 'utils/numbers'
 import { prefetchPoolDetail } from 'utils/prefetch'
 
@@ -40,17 +41,20 @@ const MobileTableRow = ({
   const theme = useTheme()
   const { trackingHandler } = useTracking()
 
+  const poolChainId = (pool.chain?.id || pool.chainId) as number
+
   // Stagger each row's fade-in by 50ms (capped at 300ms), matching the My Positions list.
   const animationDelay = `${Math.min(rowIndex * 50, 300)}ms`
 
   // Same as the desktop row: the row's onClick opens the pool's detail page, so warm that page's chunk +
   // poolDetail query on touch-intent (onTouchStart is the only practically-relevant trigger on mobile).
-  const prefetchDetail = usePrefetchOnIntent(
-    () => prefetchPoolDetail((pool.chain?.id || pool.chainId) as number, pool.address),
-    { delay: 120 },
-  )
+  const prefetchDetail = usePrefetchOnIntent(() => prefetchPoolDetail(poolChainId, pool.address), { delay: 120 })
 
-  const handleOpenZapInWidget = (e: React.MouseEvent<HTMLDivElement>) => {
+  const handleOpenZapInWidget = (e: React.MouseEvent<HTMLElement>) => {
+    // Modified clicks (cmd/ctrl/shift/alt or a non-primary button) belong to the browser so the row's
+    // href can open in a new tab or window; only a plain click routes in-app.
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return
+    e.preventDefault()
     e.stopPropagation()
     trackingHandler(TRACKING_EVENT_TYPE.LIQ_POOL_SELECTED, {
       pool_pair: `${pool.tokens?.[0]?.symbol}/${pool.tokens?.[1]?.symbol}`,
@@ -64,7 +68,7 @@ const MobileTableRow = ({
     onOpenZapInWidget({
       pool: {
         dex: pool.exchange,
-        chainId: (pool.chain?.id || pool.chainId) as number,
+        chainId: poolChainId,
         address: pool.address,
       },
     })
@@ -72,9 +76,15 @@ const MobileTableRow = ({
 
   return (
     <MobileTableRowComponent
+      as="a"
+      href={getPoolDetailUrl(poolChainId, pool.exchange, pool.address)}
       onClick={e => handleOpenZapInWidget(e)}
       className="animate-[fadeInUp_0.3s_ease-out_both] motion-reduce:animate-none"
       style={{ animationDelay }}
+      data-testid="earn-pool-row"
+      data-pool-address={pool.address}
+      data-chain-id={poolChainId}
+      data-exchange={pool.exchange}
       {...prefetchDetail}
     >
       <MobileTableCell alignItems="flex-start" justifyContent="space-between">
@@ -87,12 +97,14 @@ const MobileTableRow = ({
                 <TokenLogo src={pool.chain.logoUrl} size={12} translateLeft translateTop className="size-3" />
               )}
             </HStack>
-            <SymbolText>
+            <SymbolText data-testid="earn-pool-row-pair">
               {pool.tokens?.[0]?.symbol}/{pool.tokens?.[1]?.symbol}
             </SymbolText>
-            <FeeTier>{formatDisplayNumber(pool.feeTier, { significantDigits: 4 })}%</FeeTier>
+            <FeeTier data-testid="earn-pool-row-fee-tier">
+              {formatDisplayNumber(pool.feeTier, { significantDigits: 4 })}%
+            </FeeTier>
           </HStack>
-          <FeeTier>
+          <FeeTier data-testid="earn-pool-row-protocol">
             <TokenLogo src={pool.dexLogo} size={16} />
             {pool.dexName}
           </FeeTier>
@@ -105,19 +117,21 @@ const MobileTableRow = ({
           cursor="pointer"
           onClick={e => handleFavorite(e, pool)}
           aria-label={pool.favorite?.isFavorite ? t`Remove from favorites` : t`Add to favorites`}
+          data-testid="earn-pool-row-favorite"
+          data-favorite={!!pool.favorite?.isFavorite}
         />
       </MobileTableCell>
       <MobileTableBottomRow>
         <MobileTableCell alignItems="baseline" justifyContent="space-between" className="gap-1">
           <HeaderText className="text-subText">{t`APR`}</HeaderText>
-          <HStack className="items-center gap-1">
-            <PoolAprInfo pool={pool} />
+          <HStack className="items-center gap-1" data-testid="earn-pool-row-apr">
+            <PoolAprInfo pool={pool} data-testid="earn-pool-row-apr-value" />
             <PoolAprBadges pool={pool} />
           </HStack>
         </MobileTableCell>
         <MobileTableCell justifyContent="space-between" className="gap-1">
           <HeaderText className="text-subText">{t`Fee`}</HeaderText>
-          <span>
+          <span data-testid="earn-pool-row-fee">
             {formatDisplayNumber(pool.earnFee, {
               style: 'currency',
               significantDigits: 6,
@@ -126,19 +140,23 @@ const MobileTableRow = ({
         </MobileTableCell>
         <MobileTableCell justifyContent="space-between" className="gap-1">
           <HeaderText className="text-subText">{t`TVL`}</HeaderText>
-          <span>{formatDisplayNumber(pool.tvl, { style: 'currency', significantDigits: 6 })}</span>
+          <span data-testid="earn-pool-row-tvl">
+            {formatDisplayNumber(pool.tvl, { style: 'currency', significantDigits: 6 })}
+          </span>
         </MobileTableCell>
         <MobileTableCell justifyContent="space-between" className="gap-1">
           <HeaderText className="text-subText">{t`Volume`}</HeaderText>
-          <span>{formatDisplayNumber(pool.volume, { style: 'currency', significantDigits: 6 })}</span>
+          <span data-testid="earn-pool-row-volume">
+            {formatDisplayNumber(pool.volume, { style: 'currency', significantDigits: 6 })}
+          </span>
         </MobileTableCell>
         {showRewards && (
           <MobileTableCell justifyContent="space-between" alignItems="flex-start" className="gap-1">
             <HeaderText className="text-subText">{t`Rewards`}</HeaderText>
-            <PoolRewardsInfo pool={pool} showEstimate={false} />
+            <PoolRewardsInfo pool={pool} showEstimate={false} data-testid="earn-pool-row-rewards" />
           </MobileTableCell>
         )}
-        <MobileTableCell>
+        <MobileTableCell data-testid="earn-pool-row-price">
           <SparklineChart
             sparkline={pool.sparkline}
             shouldInvert={pool.sparklinePriceToken !== pool.tokens[1].address}

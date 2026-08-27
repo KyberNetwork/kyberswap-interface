@@ -27,6 +27,11 @@ type MultiSelectProps = {
   showOnlyButton?: boolean
   emptyValueOnClear?: string
   onChange: (value: string | number) => void
+  /**
+   * When set, the trigger and each option get `<testid>-trigger` / `<testid>-option` (+ `data-value`),
+   * and each option's "Only" shortcut gets `<testid>-option-only`.
+   */
+  'data-testid'?: string
 }
 
 const MultiSelect = ({
@@ -41,6 +46,7 @@ const MultiSelect = ({
   showOnlyButton = false,
   emptyValueOnClear,
   onChange,
+  'data-testid': dataTestId,
 }: MultiSelectProps) => {
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
@@ -96,8 +102,17 @@ const MultiSelect = ({
   }, [ref])
 
   return (
-    <DropdownWrapper mobileFullWidth={mobileFullWidth} mobileHalfWidth={mobileHalfWidth} ref={ref}>
-      <DropdownTitleWrapper highlight={highlightOnSelect && value !== AllOptionValue} onClick={handleOpenChange}>
+    <DropdownWrapper
+      mobileFullWidth={mobileFullWidth}
+      mobileHalfWidth={mobileHalfWidth}
+      ref={ref}
+      data-testid={dataTestId}
+    >
+      <DropdownTitleWrapper
+        highlight={highlightOnSelect && value !== AllOptionValue}
+        onClick={handleOpenChange}
+        data-testid={dataTestId ? `${dataTestId}-trigger` : undefined}
+      >
         <DropdownTitle width={width}>{label}</DropdownTitle>
         <DropdownIcon open={open} />
       </DropdownTitleWrapper>
@@ -108,6 +123,8 @@ const MultiSelect = ({
               key={option.value}
               className={showOnlyButton ? 'group w-full' : undefined}
               onClick={() => handleSelectItem(option.value)}
+              data-testid={dataTestId ? `${dataTestId}-option` : undefined}
+              data-value={option.value}
             >
               {showOnlyButton ? (
                 <>
@@ -121,6 +138,8 @@ const MultiSelect = ({
                         type="button"
                         className="pointer-events-none rounded-full bg-primary-20 px-2 py-1.5 text-xs font-medium leading-none text-primary opacity-0 transition-opacity hover:bg-primary-30 group-hover:pointer-events-auto group-hover:opacity-100"
                         onClick={event => handleSelectOnly(event, option.value)}
+                        data-testid={dataTestId ? `${dataTestId}-option-only` : undefined}
+                        data-value={option.value}
                       >
                         {t`Only`}
                       </button>

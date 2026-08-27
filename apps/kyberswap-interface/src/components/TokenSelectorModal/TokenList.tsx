@@ -1,4 +1,4 @@
-import { ChainId, Currency, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
+import { ChainId, Currency, CurrencyAmount, Token, TokenAmount } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import React, { CSSProperties, ReactNode, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Info, Star, X } from 'react-feather'
@@ -7,13 +7,15 @@ import { ListChildComponentProps, VariableSizeList } from 'react-window'
 import InfiniteLoader from 'react-window-infinite-loader'
 
 import { ButtonPrimary } from 'components/Button'
+import CopyHelper from 'components/Copy'
 import CurrencyLogo from 'components/CurrencyLogo'
 import Loader from 'components/Loader'
 import Skeleton from 'components/Skeleton'
 import { Center, HStack, Stack } from 'components/Stack'
 import { getDisplayTokenInfo } from 'components/TokenSelectorModal/PinnedTokens'
 import { Balance } from 'components/TokenSelectorModal/components'
-import { TokenRowExtra, TokenRowExtraMap, tokenRowKey } from 'components/TokenSelectorModal/types'
+import { BALANCE_COLUMN_CLASS, METRIC_COLUMN_CLASS } from 'components/TokenSelectorModal/constants'
+import { TokenMetricColumn, TokenRowExtra, TokenRowExtraMap, tokenRowKey } from 'components/TokenSelectorModal/types'
 import { getNeedsImport } from 'components/TokenSelectorModal/utils'
 import { useActiveWeb3React } from 'hooks'
 import useCopyClipboard from 'hooks/useCopyClipboard'
@@ -21,7 +23,6 @@ import { useERC8056DisplayBalance, useERC8056TokenInfo } from 'hooks/useERC8056T
 import { restrictedTokenKey, restrictedTokenMessage, useIsTokenRestricted } from 'hooks/useRestrictedTokens'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { useUserAddedTokens, useUserFavoriteTokens } from 'state/user/hooks'
-import { useCurrencyBalances } from 'state/wallet/hooks'
 import { shortenAddress } from 'utils/address'
 import { cn } from 'utils/cn'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
@@ -38,8 +39,9 @@ const RESTRICTED_ITEM_SIZE = RESTRICTED_CONTENT_HEIGHT + 8 // 84px
 // Stable default so an omitted `itemStyle` prop doesn't mint a new object each render (which would
 // churn the row data bag and re-render every row).
 const EMPTY_ITEM_STYLE: CSSProperties = {}
-// Stable empties so gated balance/price subscriptions never allocate a fresh array to disable them.
-const EMPTY_CURRENCIES: Currency[] = []
+// Stable empties so a gated price subscription / balance column never allocates a fresh array to
+// disable itself.
+const EMPTY_BALANCES: (CurrencyAmount<Currency> | undefined)[] = []
 const EMPTY_ADDRESSES: string[] = []
 
 // Compact age badge for the New tab, counted from when the token was whitelisted: "NEW" under 12h,
@@ -96,17 +98,21 @@ type TokenRowProps = {
   onShowTokenInfo?: (token: Token) => void
   priceUsd?: number
   priceChange24h?: number
-  volume24h?: number
+  /** USD value shown in the metric column — 24h volume or market cap, per the list's active metric. */
+  metricValue?: number
   addedAt?: number
   showAddress?: boolean
+  /** Show a copy-address icon next to the token name (tabs that have no room for the address text). */
+  showCopyAddress?: boolean
   usdValueClassName?: string
   /** Render the fixed-width price / 24h-change column. Kept tab-level (not data-driven) so rows stay aligned. */
   showPriceColumn?: boolean
   /**
-   * What the right column renders: the wallet 'balance' (default), 24h 'volume' (Trending), or an
-   * 'import' button for a not-yet-imported token (which also makes the whole row trigger import).
+   * What the right column renders: the wallet 'balance' (default), the 'metric' value — 24h volume or
+   * market cap (Trending / New) — or an 'import' button for a not-yet-imported token (which also makes
+   * the whole row trigger import).
    */
-  rightColumn?: 'balance' | 'volume' | 'import'
+  rightColumn?: 'balance' | 'metric' | 'import'
   /**
    * Non-whitelisted token shown as a normal row (with its metric column) rather than an Import button,
    * dimmed to 50%; clicking it opens the import flow. Used on the Trending / All tabs.
@@ -114,6 +120,8 @@ type TokenRowProps = {
   importOnClick?: boolean
   /** Start the import flow for a not-yet-imported token (via the Import button or an `importOnClick` row). */
   onImportToken?: (token: Token) => void
+  /** Width of the right-hand column, kept in sync with the list header so the two stay aligned. */
+  rightColumnClassName?: string
   /** Restricted in the user's jurisdiction: clicking the row reveals the inline notice instead of selecting. */
   restricted?: boolean
   /** Whether the inline "not available" notice is currently expanded for this row. */
@@ -142,12 +150,14 @@ export const TokenRow = ({
   onShowTokenInfo,
   priceUsd,
   priceChange24h,
-  volume24h,
+  metricValue,
   addedAt,
   showAddress,
+  showCopyAddress,
   usdValueClassName = 'text-subText',
   showPriceColumn,
   rightColumn = 'balance',
+  rightColumnClassName = BALANCE_COLUMN_CLASS,
   importOnClick,
   onImportToken,
   restricted,
@@ -231,6 +241,15 @@ export const TokenRow = ({
             <span title={nativeCurrency?.name} className="truncate" data-testid="token-name">
               {nativeCurrency?.name}
             </span>
+            {showCopyAddress && !isTokenNative(currency) && (
+              <CopyHelper
+                toCopy={currency.wrapped.address}
+                size={14}
+                margin="0"
+                className="text-gray hover:text-text"
+                data-testid="copy-token-address"
+              />
+            )}
             {showAddress && (
               <>
                 <span className="shrink-0">•</span>
@@ -266,7 +285,7 @@ export const TokenRow = ({
         )}
 
         {isImport ? (
-          <Stack className="w-[72px] items-end overflow-hidden sm:w-[104px]">
+          <Stack className={cn('items-end overflow-hidden', rightColumnClassName)}>
             <ButtonPrimary
               data-testid="button-import-token"
               width="fit-content"
@@ -282,14 +301,15 @@ export const TokenRow = ({
               <Trans>Import</Trans>
             </ButtonPrimary>
           </Stack>
-        ) : rightColumn === 'volume' ? (
-          <Stack className="w-[72px] items-end overflow-hidden sm:w-[104px]">
-            <span className="max-w-full truncate text-xs text-text sm:text-sm" data-testid="token-volume">
-              {volume24h ? formatBigLiquidity(String(volume24h), 2, true) : '--'}
+        ) : rightColumn === 'metric' ? (
+          <Stack className={cn('items-end overflow-hidden', rightColumnClassName)}>
+            <span className="max-w-full truncate text-xs text-text sm:text-sm" data-testid="token-metric">
+              {/* Only a missing metric reads "--"; a real zero is data and renders as an amount. */}
+              {metricValue === undefined ? '--' : formatBigLiquidity(String(metricValue), 2, true)}
             </span>
           </Stack>
         ) : (
-          <Stack className="w-[72px] items-end gap-0.5 overflow-hidden sm:w-[104px]">
+          <Stack className={cn('items-end gap-0.5 overflow-hidden', rightColumnClassName)}>
             {customBalance !== undefined ? customBalance : renderBalance()}
             {!!usdBalance && !hideBalance && (
               <span className={cn('text-xs', usdValueClassName)} data-testid="token-usd-value">
@@ -396,8 +416,9 @@ type VirtualRowData = {
   showFavoriteIcon?: boolean
   itemStyle: CSSProperties
   showAddress?: boolean
+  showCopyAddress?: boolean
   showPriceColumn?: boolean
-  showVolume?: boolean
+  metricColumn?: TokenMetricColumn
   importAsRow?: boolean
   importedAddressSet: Set<string>
   tokenPrices: { [address: string]: number }
@@ -436,7 +457,7 @@ const VirtualRow = memo(function VirtualRow({ index, style, data }: ListChildCom
   // stays normal — dimmed to 50% — and clicking it imports.
   const needsImport = getNeedsImport(currency, address => data.importedAddressSet.has(address), !!data.onImportToken)
   const importAsRow = needsImport && !!data.importAsRow
-  const rightColumn = needsImport && !data.importAsRow ? 'import' : data.showVolume ? 'volume' : 'balance'
+  const rightColumn = needsImport && !data.importAsRow ? 'import' : data.metricColumn ? 'metric' : 'balance'
 
   const isSelected = Boolean(data.selectedCurrency?.equals(currency))
   const otherSelected = Boolean(data.otherCurrency?.equals(currency))
@@ -479,11 +500,13 @@ const VirtualRow = memo(function VirtualRow({ index, style, data }: ListChildCom
         usdValueClassName="text-primary"
         priceUsd={extra?.price}
         priceChange24h={extra?.priceChange24h}
-        volume24h={extra?.volume24h}
+        metricValue={data.metricColumn ? extra?.[data.metricColumn] : undefined}
         addedAt={extra?.addedAt}
         showAddress={data.showAddress}
+        showCopyAddress={data.showCopyAddress}
         showPriceColumn={data.showPriceColumn}
         rightColumn={rightColumn}
+        rightColumnClassName={data.metricColumn ? METRIC_COLUMN_CLASS : BALANCE_COLUMN_CLASS}
         importOnClick={importAsRow}
         onImportToken={data.onImportToken}
         restricted={restricted}
@@ -508,15 +531,21 @@ type TokenListProps = {
   listTokenRef?: React.Ref<HTMLDivElement>
   itemStyle?: CSSProperties
   customChainId?: ChainId
+  /** Wallet balances keyed by token address, owned by the parent so one multicall serves the whole modal. */
+  balances?: { [tokenAddress: string]: TokenAmount | undefined }
+  /** Wallet balance of the chain's native currency, which lives outside the ERC20 `balances` map. */
+  nativeBalance?: CurrencyAmount<Currency>
   onShowTokenInfo?: (token: Token) => void
   /** Per-token price / 24h change / volume / added-at metadata keyed by `${chainId}-${address}`. */
   extras?: TokenRowExtraMap
   /** Show the shortened, click-to-copy token address next to each name (All tab). */
   showAddress?: boolean
+  /** Show a copy-address icon next to each token name (every tab except All, which shows the address itself). */
+  showCopyAddress?: boolean
   /** Render the price / 24h-change column (every tab except All). */
   showPriceColumn?: boolean
-  /** Right column shows 24h volume instead of balance (Trending). */
-  showVolume?: boolean
+  /** Right column shows this metric — 24h volume or market cap — instead of the balance (Trending / New). */
+  metricColumn?: TokenMetricColumn
   /** Render a not-yet-imported token as a normal row dimmed to 50% (click imports) instead of an Import button (Trending / All). */
   importAsRow?: boolean
 }
@@ -535,27 +564,44 @@ const TokenList = ({
   showFavoriteIcon,
   itemStyle = EMPTY_ITEM_STYLE,
   customChainId,
+  balances,
+  nativeBalance,
   onShowTokenInfo,
   extras,
   showAddress,
+  showCopyAddress,
   showPriceColumn,
-  showVolume,
+  metricColumn,
   importAsRow,
 }: TokenListProps) => {
   const { account } = useActiveWeb3React()
   const { favoriteTokens } = useUserFavoriteTokens(customChainId)
   const tokenImports = useUserAddedTokens(customChainId)
 
-  // Only the All tab derives USD sub-lines from Redux prices (the others read price from catalog
-  // extras), so skip the /prices fetch elsewhere. Trending shows volume, not balance, so skip its
-  // per-block balanceOf multicall entirely.
-  const priceAddresses = useMemo(
-    () => (showPriceColumn ? EMPTY_ADDRESSES : currencies.map(currency => currency.wrapped.address)),
-    [showPriceColumn, currencies],
+  // Row-aligned view of the shared balance map. The metric tabs show volume / market cap rather than
+  // a balance, so they read nothing.
+  const currencyBalances = useMemo(
+    () =>
+      metricColumn
+        ? EMPTY_BALANCES
+        : currencies.map(currency => (isTokenNative(currency) ? nativeBalance : balances?.[currency.wrapped.address])),
+    [metricColumn, currencies, balances, nativeBalance],
   )
+
+  // Only the All tab derives USD sub-lines from Redux prices (the others read price from catalog
+  // extras), so skip the /prices subscription elsewhere. Within the All tab, only a row holding a
+  // non-zero balance can produce a non-zero USD value, so subscribe just those instead of the whole
+  // chain whitelist.
+  const priceAddresses = useMemo(() => {
+    if (showPriceColumn) return EMPTY_ADDRESSES
+    const held = currencies
+      .filter((_, index) => currencyBalances[index]?.greaterThan('0'))
+      .map(currency => currency.wrapped.address)
+    return held.length ? held : EMPTY_ADDRESSES
+  }, [showPriceColumn, currencies, currencyBalances])
+  // Live tier: this is the surface where a frozen price sits visibly next to a fresh one elsewhere,
+  // and the held-token narrowing above keeps the union to a single request.
   const tokenPrices = useTokenPrices(priceAddresses, customChainId)
-  const balanceCurrencies = showVolume ? EMPTY_CURRENCIES : currencies
-  const currencyBalances = useCurrencyBalances(balanceCurrencies, customChainId)
 
   // O(1) row-level membership checks (exact-case for imports to match the address equality used
   // elsewhere; lowercased for favorites, which can be stored in either case).
@@ -612,8 +658,9 @@ const TokenList = ({
       showFavoriteIcon,
       itemStyle,
       showAddress,
+      showCopyAddress,
       showPriceColumn,
-      showVolume,
+      metricColumn,
       importAsRow,
       importedAddressSet,
       tokenPrices,
@@ -637,8 +684,9 @@ const TokenList = ({
       showFavoriteIcon,
       itemStyle,
       showAddress,
+      showCopyAddress,
       showPriceColumn,
-      showVolume,
+      metricColumn,
       importAsRow,
       importedAddressSet,
       tokenPrices,

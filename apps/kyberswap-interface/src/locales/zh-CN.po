@@ -2601,8 +2601,8 @@ msgid "Create a new pool"
 msgstr "创建新资金池"
 
 #: src/components/SingaporeWarningPopup/index.tsx
-msgid "Neither Kyber Network nor any entity affiliated therewith"
-msgstr "Kyber Network 及其关联实体均不"
+msgid "Neither KyberSwap nor any entity affiliated therewith"
+msgstr "KyberSwap 及其关联实体均不"
 
 #: src/components/Announcement/Popups/TransactionPopup.tsx
 msgid "Error {summary}."

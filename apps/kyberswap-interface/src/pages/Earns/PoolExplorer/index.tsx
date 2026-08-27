@@ -213,7 +213,7 @@ const PoolExplorer = () => {
   }, [])
 
   return (
-    <ListingPageWrapper>
+    <ListingPageWrapper data-testid="earn-pool-explorer-page">
       {zapInWidget}
       {zapMigrationWidget}
       {zapCreatePoolWidget}
@@ -224,7 +224,12 @@ const PoolExplorer = () => {
         Trading volume, TVL, and pool performance across networks - all from one interface without switching apps.
       </HiddenH2>
       <Stack className="gap-2">
-        <ListingPageTitle backLabel="Go back" onBack={() => navigate(-1)} titleAs="span">
+        <ListingPageTitle
+          backLabel="Go back"
+          onBack={() => navigate(-1)}
+          titleAs="span"
+          data-testid="earn-pool-explorer-title"
+        >
           {t`Earning with Smart Liquidity Providing`}
         </ListingPageTitle>
         <span className="italic text-subText">
@@ -248,10 +253,11 @@ const PoolExplorer = () => {
           icon={<IconUserEarnPosition />}
           text={t`My Positions`}
           to={APP_PATHS.EARN_POSITIONS}
+          data-testid="earn-pool-my-positions"
         />
       )}
 
-      <PoolTableWrapper>
+      <PoolTableWrapper data-testid="earn-pool-table">
         <div>
           <TableHeader
             onSortChange={onSortChange}
@@ -272,6 +278,7 @@ const PoolExplorer = () => {
             totalCount={poolData?.data?.pagination?.totalItems || 0}
             currentPage={filters.page || 1}
             pageSize={filters.limit || 10}
+            data-testid="earn-pool-pagination"
           />
         )}
       </PoolTableWrapper>

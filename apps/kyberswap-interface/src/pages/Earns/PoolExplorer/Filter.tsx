@@ -239,9 +239,10 @@ const Filter = ({
   return (
     <>
       <HeadSection>
-        <ListingFilterTagContainer className="w-full">
+        <ListingFilterTagContainer className="w-full" data-testid="earn-pool-categories">
           <ListingFilterTag
             active={!filters.tag}
+            data-testid="earn-pool-category-all"
             onClick={() => {
               pendingFilterTrackRef.current = {
                 eventType: TRACKING_EVENT_TYPE.POOL_CATEGORY_SELECTED,
@@ -260,6 +261,7 @@ const Filter = ({
             <ListingFilterTag
               active={filters.tag === 'favorite'}
               aria-label="Favorite pools"
+              data-testid="earn-pool-category-favorite"
               onClick={() => {
                 pendingFilterTrackRef.current = {
                   eventType: TRACKING_EVENT_TYPE.POOL_CATEGORY_SELECTED,
@@ -287,15 +289,26 @@ const Filter = ({
               }
               updateFilters('tag', item.value)
             }
+            const tagTestId = `earn-pool-category-${item.value}`
             return !upToMedium ? (
               <MouseoverTooltipDesktopOnly text={item.tooltip} placement="top" key={index}>
-                <ListingFilterTag active={filters.tag === item.value} key={item.value} onClick={handleTagClick}>
+                <ListingFilterTag
+                  active={filters.tag === item.value}
+                  key={item.value}
+                  onClick={handleTagClick}
+                  data-testid={tagTestId}
+                >
                   {item.icon}
                   {item.label}
                 </ListingFilterTag>
               </MouseoverTooltipDesktopOnly>
             ) : (
-              <ListingFilterTag active={filters.tag === item.value} key={item.value} onClick={handleTagClick}>
+              <ListingFilterTag
+                active={filters.tag === item.value}
+                key={item.value}
+                onClick={handleTagClick}
+                data-testid={tagTestId}
+              >
                 {item.icon}
                 {item.label}
               </ListingFilterTag>
@@ -307,6 +320,7 @@ const Filter = ({
             icon={<IconUserEarnPosition />}
             text={t`My Positions`}
             to={APP_PATHS.EARN_POSITIONS}
+            data-testid="earn-pool-my-positions"
           />
         )}
       </HeadSection>
@@ -319,6 +333,7 @@ const Filter = ({
             options={supportedChains.length ? supportedChains : [AllChainsOption]}
             value={filters.chainIds || ''}
             onChange={value => onChainChange(value)}
+            data-testid="earn-pool-filter-chain"
           />
           <MultiSelectDropdownMenu
             highlightOnSelect
@@ -327,11 +342,23 @@ const Filter = ({
             options={supportedDexes}
             value={filters.protocol}
             onChange={value => onProtocolChange(value)}
+            data-testid="earn-pool-filter-protocol"
           />
           {isFarmingFiltered && (
-            <DropdownMenu options={rewardTypeOptions} value={selectedRewardTypeValue} onChange={onRewardTypeChange} />
+            <DropdownMenu
+              options={rewardTypeOptions}
+              value={selectedRewardTypeValue}
+              onChange={onRewardTypeChange}
+              data-testid="earn-pool-filter-reward-type"
+            />
           )}
-          <DropdownMenu width={30} options={timings} value={filters.interval || '24h'} onChange={onIntervalChange} />
+          <DropdownMenu
+            width={30}
+            options={timings}
+            value={filters.interval || '24h'}
+            onChange={onIntervalChange}
+            data-testid="earn-pool-filter-interval"
+          />
         </HStack>
         <HStack className="flex-wrap items-center gap-3 max-md:items-stretch">
           <Search
@@ -346,6 +373,7 @@ const Filter = ({
             className="gap-1 px-4 py-0"
             borderRadius="16px"
             height="32px"
+            data-testid="earn-pool-create-button"
             onClick={() => {
               trackingHandler(TRACKING_EVENT_TYPE.CREATE_POOL_CLICKED, {
                 chain: filters.chainIds,

@@ -21,10 +21,10 @@ export interface Pool {
   apr?: {
     fees: number;
     eg: number;
-    lm: number;
+    reward: number;
     activeTotal?: number;
     activeEg?: number;
-    activeLm?: number;
+    activeReward?: number;
   };
 }
 
@@ -32,7 +32,7 @@ interface Position {
   apr: {
     total: number;
     eg: number;
-    lm: number;
+    reward: number;
   };
   createdTime: number;
   totalEarnings: number;
@@ -40,7 +40,7 @@ interface Position {
 
 interface Reward {
   total: number;
-  lm: number;
+  reward: number;
   eg: number;
 }
 
@@ -135,11 +135,11 @@ export const getValueByOption = ({
     const useActive = selectedOptions?.has(ShareOption.ACTIVE_APR);
     switch (option) {
       case ShareOption.TOTAL_APR:
-        return `${formatAprNumber((pool?.apr?.fees || 0) + (pool?.apr?.eg || 0) + (pool?.apr?.lm || 0))}%`;
+        return `${formatAprNumber((pool?.apr?.fees || 0) + (pool?.apr?.eg || 0) + (pool?.apr?.reward || 0))}%`;
       case ShareOption.ACTIVE_APR:
         return `${formatAprNumber(pool?.apr?.activeTotal || 0)}%`;
-      case ShareOption.LM_APR:
-        return `${formatAprNumber((useActive ? pool?.apr?.activeLm : pool?.apr?.lm) || 0)}%`;
+      case ShareOption.REWARD_APR:
+        return `${formatAprNumber((useActive ? pool?.apr?.activeReward : pool?.apr?.reward) || 0)}%`;
       case ShareOption.EG_APR:
         return `${formatAprNumber((useActive ? pool?.apr?.activeEg : pool?.apr?.eg) || 0)}%`;
       default:
@@ -154,8 +154,8 @@ export const getValueByOption = ({
         });
       case ShareOption.TOTAL_APR:
         return `${formatAprNumber(position?.apr?.total || 0)}%`;
-      case ShareOption.LM_APR:
-        return `${formatAprNumber(position?.apr?.lm || 0)}%`;
+      case ShareOption.REWARD_APR:
+        return `${formatAprNumber(position?.apr?.reward || 0)}%`;
       case ShareOption.EG_APR:
         return `${formatAprNumber(position?.apr?.eg || 0)}%`;
       default:
@@ -168,8 +168,8 @@ export const getValueByOption = ({
           significantDigits: 4,
           style: 'currency',
         });
-      case ShareOption.LM_REWARD:
-        return formatDisplayNumber(reward?.lm || 0, {
+      case ShareOption.REWARD:
+        return formatDisplayNumber(reward?.reward || 0, {
           significantDigits: 4,
           style: 'currency',
         });
@@ -228,16 +228,16 @@ export const getShareOptionLabel = (i18n: I18n, option: ShareOption): string => 
       return i18n._('Total APR');
     case ShareOption.ACTIVE_APR:
       return i18n._('Active APR');
-    case ShareOption.LM_APR:
-      return i18n._('Liquidity Mining APR');
+    case ShareOption.REWARD_APR:
+      return i18n._('Reward APR');
     case ShareOption.EG_APR:
       return i18n._('EG Sharing APR');
     case ShareOption.TOTAL_EARNINGS:
       return i18n._('Total Earnings');
     case ShareOption.TOTAL_REWARD:
       return i18n._('Total Rewards');
-    case ShareOption.LM_REWARD:
-      return i18n._('Liquidity Mining rewards');
+    case ShareOption.REWARD:
+      return i18n._('Reward');
     case ShareOption.EG_REWARD:
       return i18n._('EG Sharing rewards');
     default:

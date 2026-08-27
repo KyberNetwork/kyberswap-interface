@@ -8,6 +8,7 @@ import { useKyberswapGlobalConfig } from 'hooks/useKyberSwapConfig'
 
 export enum ChainState {
   NEW = 'new',
+  PROVISIONAL = 'provisional',
   ACTIVE = 'active',
   MAINTENANCE = 'maintained',
 }
@@ -47,9 +48,11 @@ export default function useChainsConfig() {
     })
 
     return {
-      activeChains: chains.filter(chain => [ChainState.ACTIVE, ChainState.NEW].includes(chain.state)),
+      activeChains: chains.filter(chain =>
+        [ChainState.ACTIVE, ChainState.NEW, ChainState.PROVISIONAL].includes(chain.state),
+      ),
       supportedChains: chains.filter(chain =>
-        [ChainState.ACTIVE, ChainState.NEW, ChainState.MAINTENANCE].includes(chain.state),
+        [ChainState.ACTIVE, ChainState.NEW, ChainState.PROVISIONAL, ChainState.MAINTENANCE].includes(chain.state),
       ),
       allChains: chains,
     }

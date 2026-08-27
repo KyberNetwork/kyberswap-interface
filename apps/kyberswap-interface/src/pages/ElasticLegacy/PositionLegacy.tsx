@@ -30,7 +30,8 @@ const TABLE_GRID = 'grid grid-cols-[0.75fr_2fr_1fr_1.5fr_1fr] items-center p-4 f
 export default function PositionLegacy({ positions }: { positions: SubgraphPosition[] }) {
   const addresses = [...new Set(positions.map(item => [item.token0.id, item.token1.id]).flat())]
 
-  const tokenPrices = useTokenPrices(addresses)
+  // One instance per row: the TTL would re-price the whole list while the user is only reading it.
+  const tokenPrices = useTokenPrices(addresses, undefined, { refresh: 'once' })
 
   const feeRewards = usePositionFees(positions)
 

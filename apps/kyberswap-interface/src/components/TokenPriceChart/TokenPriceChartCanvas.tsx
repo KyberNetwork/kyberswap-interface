@@ -51,7 +51,7 @@ type TokenPriceChartCanvasProps = {
   timeFrame: TokenChartTimeFrame
 }
 
-const DEFAULT_VISIBLE_CANDLES = 60
+const DEFAULT_VISIBLE_CANDLES = 40
 const LOAD_MORE_THRESHOLD = 20
 
 const formatAxisTimeLabel = (timestamp: number, timeFrame: TokenChartTimeFrame) => {
@@ -559,9 +559,11 @@ const TokenPriceChartCanvas = ({
       if (!chartRef.current || hasInitializedViewRef.current) return
 
       const lastCandleIndex = chartData.length - 1
+      const visibleCandleCount = Math.min(chartData.length, DEFAULT_VISIBLE_CANDLES)
+      const sidePadding = (DEFAULT_VISIBLE_CANDLES - visibleCandleCount) / 2
       chartRef.current.timeScale().setVisibleLogicalRange({
-        from: Math.max(lastCandleIndex - (DEFAULT_VISIBLE_CANDLES - 1), 0),
-        to: lastCandleIndex + 0.5,
+        from: Math.max(lastCandleIndex - (DEFAULT_VISIBLE_CANDLES - 1), 0) - sidePadding,
+        to: lastCandleIndex + sidePadding + 0.5,
       })
       hasInitializedViewRef.current = true
       setIsViewportReady(true)

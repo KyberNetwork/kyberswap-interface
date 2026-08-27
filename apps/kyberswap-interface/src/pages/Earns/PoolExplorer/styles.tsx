@@ -1,4 +1,4 @@
-import { CSSProperties, HTMLAttributes, forwardRef } from 'react'
+import { AnchorHTMLAttributes, CSSProperties, HTMLAttributes, createElement, forwardRef } from 'react'
 
 import { TableWrapper } from 'components/Listing/Table'
 import { cn } from 'utils/cn'
@@ -126,14 +126,24 @@ export const Apr = forwardRef<HTMLDivElement, AprProps>(({ className, value, ...
 ))
 Apr.displayName = 'Apr'
 
-export const MobileTableRow = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
-  ({ className, ...rest }, ref) => (
-    <div
-      ref={ref}
-      className={cn('cursor-pointer rounded-xl bg-background p-2 hover:bg-buttonGray', className)}
-      {...rest}
-    />
-  ),
+type MobileTableRowProps = HTMLAttributes<HTMLElement> &
+  Pick<AnchorHTMLAttributes<HTMLAnchorElement>, 'href' | 'target' | 'rel'> & {
+    /** Render as a different element — pass `a` together with `href` to make the whole row a real link. */
+    as?: keyof React.JSX.IntrinsicElements
+  }
+
+export const MobileTableRow = forwardRef<HTMLElement, MobileTableRowProps>(({ as = 'div', className, ...rest }, ref) =>
+  createElement(as, {
+    ref,
+    // An `a` row stays block-level and inherits the surrounding text color instead of taking the
+    // global link color/hover.
+    className: cn(
+      'cursor-pointer rounded-xl bg-background p-2 hover:bg-buttonGray',
+      as === 'a' && 'block text-inherit hover:text-inherit',
+      className,
+    ),
+    ...rest,
+  }),
 )
 MobileTableRow.displayName = 'MobileTableRow'
 

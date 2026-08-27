@@ -87,8 +87,20 @@ export function useTokenBalancesWithLoadingIndicator(
   const { account, chainId: currentChain } = useActiveWeb3React()
   const chainId = customChain || currentChain
 
+  // Issue the calls in address order, de-duplicated: wagmi keys the multicall query on the contracts
+  // array, so a caller that re-orders its token list (the token selector re-sorts its rows as balances
+  // land) re-keys the query and refetches every chunk. The result is an address map, so the order the
+  // calls go out in is invisible to callers.
   const tokens = useMemo(() => {
-    return tokenParams?.[0]?.chainId === chainId ? tokenParams : EMPTY_ARRAY
+    if (tokenParams?.[0]?.chainId !== chainId) return EMPTY_ARRAY as Token[]
+    const seen = new Set<string>()
+    return tokenParams
+      .filter(token => {
+        if (!token || seen.has(token.address)) return false
+        seen.add(token.address)
+        return true
+      })
+      .sort((tokenA, tokenB) => (tokenA.address < tokenB.address ? -1 : tokenA.address > tokenB.address ? 1 : 0))
   }, [tokenParams, chainId])
 
   const isFetchOtherChain = chainId !== currentChain
@@ -240,7 +252,9 @@ export const useTokensHasBalance = (includesImportToken = false) => {
 
   // sort by usd
   const tokensHasBalanceSorted = useMemo(() => {
-    return (tokensHasBalance as Token[]).sort((a, b) => {
+    // Copy before sorting: `tokensHasBalance` is React state, and sorting it in place mutates the
+    // value other memos in this hook are already holding.
+    return [...(tokensHasBalance as Token[])].sort((a, b) => {
       const addressA = a.wrapped.address
       const addressB = b.wrapped.address
 
@@ -252,7 +266,9 @@ export const useTokensHasBalance = (includesImportToken = false) => {
 
       const usdA = parseFloat(tokenBalanceA ?? '0') * usdPriceA
       const usdB = parseFloat(tokenBalanceB ?? '0') * usdPriceB
-      return usdA > usdB ? -1 : 1
+      // Return 0 on a tie: an always-nonzero comparator is inconsistent, so equal-value rows would
+      // shuffle on every re-sort.
+      return usdB - usdA
     })
   }, [tokensHasBalance, tokensPrices, currencyBalances, ethBalance])
 

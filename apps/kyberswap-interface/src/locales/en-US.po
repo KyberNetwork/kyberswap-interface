@@ -2601,8 +2601,8 @@ msgid "Create a new pool"
 msgstr "Create a new pool"
 
 #: src/components/SingaporeWarningPopup/index.tsx
-msgid "Neither Kyber Network nor any entity affiliated therewith"
-msgstr "Neither Kyber Network nor any entity affiliated therewith"
+msgid "Neither KyberSwap nor any entity affiliated therewith"
+msgstr "Neither KyberSwap nor any entity affiliated therewith"
 
 #: src/components/Announcement/Popups/TransactionPopup.tsx
 msgid "Error {summary}."

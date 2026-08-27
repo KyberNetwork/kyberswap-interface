@@ -34,6 +34,7 @@ import useSmartExitFilter from 'pages/Earns/SmartExitOrders/useSmartExitFilter'
 import { useSmartExitOrdersData } from 'pages/Earns/SmartExitOrders/useSmartExitOrdersData'
 import { SmartExit as SmartExitModal } from 'pages/Earns/components/SmartExit'
 import { SMART_EXIT_SUPPORTED_CHAINS, SMART_EXIT_SUPPORTED_EXCHANGES } from 'pages/Earns/constants'
+import useIsWalletRestoring from 'pages/Earns/hooks/useIsWalletRestoring'
 import { OrderStatus, ParsedPosition, SmartExitOrder, UserPosition } from 'pages/Earns/types'
 import { parsePosition } from 'pages/Earns/utils/position'
 import { useNotify, useWalletModalToggle } from 'state/application/hooks'
@@ -52,6 +53,7 @@ const SMART_EXIT_ORDERS_PAGE_SIZE = 10
 const SmartExit = () => {
   const navigate = useNavigate()
   const { account, chainId } = useActiveWeb3React()
+  const isRestoringWallet = useIsWalletRestoring()
   const notify = useNotify()
   const toggleWalletModal = useWalletModalToggle()
 
@@ -132,6 +134,7 @@ const SmartExit = () => {
     handlePageChange,
     shouldShowEmptyState,
   } = useSmartExitOrdersData({ account, filters, pageSize: SMART_EXIT_ORDERS_PAGE_SIZE, updateFilters })
+  const isInitialLoading = isRestoringWallet || tableLoading
   const upToMedium = useMedia(`(max-width: ${MEDIA_WIDTHS.upToMedium}px)`)
 
   // Fetch all active orders to get position IDs that should be excluded from position selector
@@ -234,9 +237,9 @@ const SmartExit = () => {
         )}
 
         <div className="relative">
-          <RefetchIndicator visible={overlayLoading} />
+          <RefetchIndicator visible={overlayLoading && !isInitialLoading} />
 
-          {tableLoading ? (
+          {isInitialLoading ? (
             <SmartExitListSkeleton />
           ) : shouldShowEmptyState ? (
             <div className="flex flex-col items-center justify-center gap-4 px-4 py-16">
@@ -280,7 +283,7 @@ const SmartExit = () => {
 
         <Pagination
           onPageChange={handlePageChange}
-          totalCount={tableLoading ? 0 : totalItems}
+          totalCount={isInitialLoading ? 0 : totalItems}
           currentPage={currentPage}
           pageSize={SMART_EXIT_ORDERS_PAGE_SIZE}
         />

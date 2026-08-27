@@ -16,7 +16,7 @@ import MigrationModal from 'pages/Earns/UserPositions/MigrationModal'
 import PositionRowItem from 'pages/Earns/UserPositions/PositionRowItem'
 import { EmptyPositionText } from 'pages/Earns/UserPositions/styles'
 import { SmartExit } from 'pages/Earns/components/SmartExit'
-import { EARN_CHAINS, EARN_DEXES, EarnChain } from 'pages/Earns/constants'
+import { EARN_DEXES } from 'pages/Earns/constants'
 import { CoreProtocol } from 'pages/Earns/constants/coreProtocol'
 import useCollectFees from 'pages/Earns/hooks/useCollectFees'
 import useFarmingStablePools from 'pages/Earns/hooks/useFarmingStablePools'
@@ -26,6 +26,7 @@ import { ZapMigrationInfo } from 'pages/Earns/hooks/useZapMigrationWidget'
 import { ZapOutInfo } from 'pages/Earns/hooks/useZapOutWidget'
 import { FeeInfo, OrderStatus, ParsedPosition, PositionStatus, SuggestedPool } from 'pages/Earns/types'
 import { getUnclaimedFeesInfo } from 'pages/Earns/utils/fees'
+import { getUnfinalizedPositionKeyFromPosition } from 'pages/Earns/utils/unfinalizedPosition'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import { cn } from 'utils/cn'
@@ -94,15 +95,12 @@ export default function TableContent({
 
   const { rewardsByPosition } = useMerklRewards({ positions })
 
-  const uniqueFarmingChainIds = useMemo(() => {
+  const uniqueChainIds = useMemo(() => {
     if (!positions || positions.length === 0) return []
-    const chainIds = positions
-      .map(position => position.chain.id)
-      .filter(chainId => !!EARN_CHAINS[chainId as EarnChain]?.farmingSupported)
-    return [...new Set(chainIds)]
+    return [...new Set(positions.map(position => position.chain.id))]
   }, [positions])
 
-  const farmingPoolsByChain = useFarmingStablePools({ chainIds: uniqueFarmingChainIds })
+  const farmingPoolsByChain = useFarmingStablePools({ chainIds: uniqueChainIds })
 
   const handleFetchUnclaimedFee = useCallback(
     async (position: ParsedPosition | null) => {
@@ -308,10 +306,10 @@ export default function TableContent({
       {smartExitPosition && <SmartExit position={smartExitPosition} onDismiss={() => setSmartExitPosition(null)} />}
 
       <div className="max-[1300px]:flex max-[1300px]:flex-col max-[1300px]:gap-4">
-        {account && positions && positions.length > 0
+        {positions && positions.length > 0
           ? positions.map((position, index) => (
               <PositionRowItem
-                key={`${position.tokenId}-${position.pool.address}-${index}`}
+                key={getUnfinalizedPositionKeyFromPosition(position) ?? position.positionId}
                 position={position}
                 index={index}
                 smartExitPosIds={smartExitPosIds}

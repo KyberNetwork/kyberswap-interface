@@ -1,7 +1,14 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
+import { z } from 'zod'
 
-import { CancelOrderResponse, LimitOrder, LimitOrderFromTokenPair, LimitOrderStatus } from 'components/LimitOrder/types'
+import {
+  CancelOrderResponse,
+  LimitOrder,
+  LimitOrderFromTokenPair,
+  LimitOrderStatus,
+  limitOrderFromTokenPairSchema,
+} from 'components/LimitOrder/types'
 import { LIMIT_ORDER_API } from 'constants/env'
 import { RTK_QUERY_TAGS } from 'constants/index'
 import { isSupportedChainId } from 'constants/networks'
@@ -49,7 +56,10 @@ export type ListOrdersParams = {
 }
 
 type TokenPairOrdersResponse = {
-  orders?: LimitOrderFromTokenPair[]
+  // Unvalidated wire payload: limitOrderFromTokenPairSchema is what turns these into
+  // LimitOrderFromTokenPair. Declaring that type here would assert a shape the API can drop
+  // fields from, which is how an undefined raw amount reaches the SDK.
+  orders?: unknown[]
 }
 
 type NumberOfInsufficientFundOrdersResponse = {
@@ -193,10 +203,26 @@ const limitOrderApi = createApi({
         params,
       }),
       transformResponse: ({ data }: ApiEnvelope<TokenPairOrdersResponse>) => {
-        data.orders?.forEach(order => {
-          order.chainId = Number(order.chainId) as ChainId
+        const rawOrders = data?.orders || []
+        const orders: LimitOrderFromTokenPair[] = []
+        let firstIssues: z.ZodIssue[] | undefined
+
+        rawOrders.forEach(rawOrder => {
+          const result = limitOrderFromTokenPairSchema.safeParse(rawOrder)
+          if (result.success) orders.push(result.data)
+          else firstIssues = firstIssues || result.error.issues
         })
-        return { orders: data?.orders || [] }
+
+        // An order that fails validation is dropped instead of rendered, so log it: otherwise a
+        // backend contract change reads as a legitimately empty order book.
+        if (orders.length < rawOrders.length) {
+          console.error(
+            `[limitOrder] dropped ${rawOrders.length - orders.length}/${rawOrders.length} orders failing validation`,
+            firstIssues,
+          )
+        }
+
+        return { orders }
       },
       providesTags: [RTK_QUERY_TAGS.GET_LIMIT_ORDER_BOOK],
     }),

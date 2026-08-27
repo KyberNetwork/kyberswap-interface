@@ -35,6 +35,8 @@ import {
   SearchWrapper,
 } from 'components/TokenSelectorModal/components'
 import {
+  BALANCE_COLUMN_CLASS,
+  METRIC_COLUMN_CLASS,
   TOKEN_SELECTOR_TAB_ORDER,
   TRENDING_PRICE_FALLBACK_ENABLED,
   TokenSelectorTab,
@@ -46,7 +48,14 @@ import { useNewTokens } from 'components/TokenSelectorModal/hooks/useNewTokens'
 import { usePendingCrossChainSelect } from 'components/TokenSelectorModal/hooks/usePendingCrossChainSelect'
 import { useTokensMetrics } from 'components/TokenSelectorModal/hooks/useTokensMetrics'
 import { useTrendingTokens } from 'components/TokenSelectorModal/hooks/useTrendingTokens'
-import { TokenRowExtraMap, TokenSort, TokenSortField, tokenRowKey } from 'components/TokenSelectorModal/types'
+import {
+  TOKEN_METRIC_COLUMNS,
+  TokenMetricColumn,
+  TokenRowExtraMap,
+  TokenSort,
+  TokenSortField,
+  tokenRowKey,
+} from 'components/TokenSelectorModal/types'
 import {
   TOKEN_SEARCH_PAGE_SIZE,
   fetchTokens,
@@ -73,6 +82,7 @@ import {
   useUserAddedTokens,
   useUserFavoriteTokens,
 } from 'state/user/hooks'
+import { useNativeBalance, useTokenBalances } from 'state/wallet/hooks'
 import { CloseIcon, MEDIA_WIDTHS } from 'theme'
 import { isAddress } from 'utils/address'
 import { filterTruthy } from 'utils/array'
@@ -119,6 +129,8 @@ const SearchLoading = () => (
 
 // Stable empty list so `useTokensMetrics` doesn't refetch on tabs that don't need metrics.
 const EMPTY_CURRENCIES: Currency[] = []
+// Stable empty list so the tabs that show no balance column register no balanceOf multicall.
+const EMPTY_TOKENS: Token[] = []
 // Stable empty address list so `useTokenPrices` doesn't fetch on tabs that don't need it.
 const EMPTY_ADDRESSES: string[] = []
 // Stable empty extras so the All tab's `listExtras` keeps the same reference and doesn't re-render
@@ -128,7 +140,7 @@ const EMPTY_EXTRAS: TokenRowExtraMap = {}
 // Map the internal sort direction to the shared SortIcon's Direction enum.
 const toDirection = (dir: 'asc' | 'desc'): Direction => (dir === 'asc' ? Direction.ASC : Direction.DESC)
 
-// A clickable, sortable column header (Price & 24h change, Volume) with the shared pool-list sort arrows.
+// A clickable, sortable column header (Price & 24h change) with the shared pool-list sort arrows.
 const SortHeader = ({
   label,
   field,
@@ -140,7 +152,8 @@ const SortHeader = ({
   field: TokenSortField
   sort: TokenSort | null
   onSort: (field: TokenSortField) => void
-  className?: string
+  /** Column width, matching the width the rows give the same column. */
+  className: string
 }) => (
   <button
     type="button"
@@ -148,12 +161,88 @@ const SortHeader = ({
     onClick={() => onSort(field)}
     className={cn(
       'flex shrink-0 items-center justify-end gap-1 whitespace-nowrap uppercase transition-colors hover:text-text',
-      className ?? 'w-[72px] sm:w-[104px]',
+      className,
     )}
   >
     {label}
     <SortIcon sorted={sort?.field === field ? toDirection(sort.dir) : undefined} />
   </button>
+)
+
+// Copy for one of the switchable metrics. Built per render so the `t` macro picks up locale changes.
+// The labels carry their own casing — the period qualifier reads as "24h", not "24H". That qualifier
+// only fits from `sm` up; below it the wider column would leave the token name a few pixels.
+const metricCopy = (metric: TokenMetricColumn) =>
+  metric === 'volume24h'
+    ? {
+        label: (
+          <>
+            <span className="sm:hidden">
+              <Trans>VOL</Trans>
+            </span>
+            <span className="hidden sm:inline">
+              <Trans>24h VOL</Trans>
+            </span>
+          </>
+        ),
+        show: t`Show 24h volume`,
+        sort: t`Sort by 24h volume`,
+      }
+    : { label: <Trans>MCAP</Trans>, show: t`Show market cap`, sort: t`Sort by market cap` }
+
+// The Trending / New tabs' third column header: a switch choosing which metric the rows show — 24h
+// volume or market cap — plus the sort control for whichever metric is active. The showing metric's
+// own button doubles as a sort target, so the sort stays reachable without aiming at the small arrows.
+const MetricColumnHeader = ({
+  metric,
+  onMetricChange,
+  sort,
+  onSort,
+}: {
+  metric: TokenMetricColumn
+  onMetricChange: (metric: TokenMetricColumn) => void
+  sort: TokenSort | null
+  onSort: (field: TokenSortField) => void
+}) => (
+  <HStack className={cn('shrink-0 items-center justify-end gap-0.5 sm:gap-1', METRIC_COLUMN_CLASS)}>
+    {/* The column is a fixed width the rows match, and the labels are translatable — so the switch
+        shrinks and its labels ellipsize rather than spilling left over the Price column. English
+        needs less than the column holds, so it only bites in locales that translate longer. */}
+    <div className="flex min-w-0 items-center rounded-md bg-buttonBlack p-0.5" role="group" aria-label={t`Metric`}>
+      {TOKEN_METRIC_COLUMNS.map(option => {
+        const active = option === metric
+        const copy = metricCopy(option)
+        return (
+          <button
+            key={option}
+            type="button"
+            aria-pressed={active}
+            aria-label={active ? copy.sort : copy.show}
+            data-testid={`metric-column-${option}`}
+            onClick={() => (active ? onSort(option) : onMetricChange(option))}
+            className={cn(
+              'min-w-0 truncate rounded px-[3px] py-0.5 text-[10px] font-medium transition-colors sm:px-1.5 sm:text-xs',
+              active ? 'bg-buttonGray text-text' : 'text-gray hover:text-text',
+            )}
+          >
+            {copy.label}
+          </button>
+        )
+      })}
+    </div>
+    {/* The arrows are only 8px wide, so a pseudo-element grows the tap target past the WCAG minimum
+        without widening the column. It stops at the pill's edge and at the header's own padding so it
+        can't swallow clicks meant for the other metric or the first row. */}
+    <button
+      type="button"
+      data-testid={`sort-header-${metric}`}
+      aria-label={metricCopy(metric).sort}
+      onClick={() => onSort(metric)}
+      className="relative flex shrink-0 items-center after:absolute after:-inset-y-2 after:-right-2 after:left-0 after:content-['']"
+    >
+      <SortIcon sorted={sort?.field === metric ? toDirection(sort.dir) : undefined} />
+    </button>
+  </HStack>
 )
 
 // How a token pick was initiated, reported on the Token Selected event so the discovery funnel can
@@ -248,19 +337,26 @@ export const TokenSelectorContent = ({
     })
   }, [])
 
+  // Which metric the Trending / New tabs' third column shows. A view preference, so it survives tab
+  // and chain changes (unlike the sort, which resets to each tab's natural order).
+  const [metricColumn, setMetricColumn] = useState<TokenMetricColumn>('volume24h')
+  const changeMetricColumn = useCallback(
+    (metric: TokenMetricColumn) => {
+      setMetricColumn(metric)
+      // Carry an active metric sort over to the newly shown metric so the list stays sorted by what
+      // it displays; a price sort (or no sort) is left alone, and so is a no-op re-pick.
+      if (sort && sort.field !== 'priceChange24h' && sort.field !== metric) {
+        pendingSortAnim.current = true
+        setSort({ field: metric, dir: sort.dir })
+      }
+    },
+    [sort],
+  )
+
   const defaultTokens = useAllTokens(false, primaryChainId)
   const tokenImports = useUserAddedTokens(primaryChainId)
-  // Only the All (default order) and Imported tabs sort by wallet value; gate the comparator so the
-  // rest never register its whole-whitelist balanceOf multicall + /prices fetch.
-  const needsComparator = (isAllTab && !debouncedQuery) || isImportedTab
   // On the All tab, favorites float above non-favorites (but only after wallet value / balance).
   const favoriteAddressSet = useMemo(() => new Set(favoriteTokens ?? []), [favoriteTokens])
-  const tokenComparator = useTokenComparator(
-    false,
-    primaryChainId,
-    needsComparator,
-    isAllTab ? favoriteAddressSet : undefined,
-  )
 
   const {
     tokens: trendingTokens,
@@ -333,6 +429,52 @@ export const TokenSelectorContent = ({
     isFetchingTokenSearch,
     hasTokenSearchResults: !!tokenSearchResults.length,
   })
+
+  // One balanceOf multicall for the whole modal: the sort-by-wallet-value comparator and the list's
+  // balance column need the same tokens, and registering them apart doubles the RPC traffic. The set
+  // comes from each tab's *unsorted* source so it stays put while the rows re-sort on top of it, and
+  // it covers only the rows a tab actually shows — the Trending / New tabs render a metric column
+  // instead of a balance, so they read nothing.
+  const balanceTokens = useMemo<Token[]>(() => {
+    if (isTrendingTab || isNewTab) return EMPTY_TOKENS
+    const source: (Currency | undefined)[] = isImportedTab
+      ? tokenImports
+      : isFavoritesTab
+      ? pinnedTokens
+      : debouncedQuery
+      ? [...tokenSearchResults, currentChainRpcToken]
+      : Object.values(defaultTokens)
+    // Native balance comes from `getEthBalance`, not an ERC20 read; off-chain rows (a cross-chain
+    // search hit) have no balance to show here either.
+    return source.filter(
+      (token): token is Token => !!token && !isTokenNative(token) && token.chainId === primaryChainId,
+    )
+  }, [
+    isTrendingTab,
+    isNewTab,
+    isImportedTab,
+    isFavoritesTab,
+    debouncedQuery,
+    tokenImports,
+    pinnedTokens,
+    tokenSearchResults,
+    currentChainRpcToken,
+    defaultTokens,
+    primaryChainId,
+  ])
+  const balances = useTokenBalances(balanceTokens, primaryChainId)
+  const nativeBalance = useNativeBalance(primaryChainId)
+
+  // Only the All (default order) and Imported tabs sort by wallet value; gate the comparator so the
+  // rest never register its /prices fetch.
+  const needsComparator = (isAllTab && !debouncedQuery) || isImportedTab
+  const tokenComparator = useTokenComparator(
+    balances,
+    nativeBalance,
+    primaryChainId,
+    needsComparator,
+    isAllTab ? favoriteAddressSet : undefined,
+  )
 
   // All-tab dataset: API search results (with RPC fallback) when searching, else the sorted default
   // tokens. Only computed for the All tab — the other tabs never read it, so skip the whole-whitelist
@@ -446,8 +588,8 @@ export const TokenSelectorContent = ({
     favoriteExtras,
   ])
 
-  // In-memory metric sort for the Imported / Favorites tabs, whose "Price & 24h change" column sorts
-  // by 24h change (Trending and New sort server-side). Rows are tiered so those missing the sorted
+  // In-memory metric sort for the Imported / Favorites tabs, whose only sortable column is "Price &
+  // 24h change" (Trending and New sort server-side). Rows are tiered so those missing the sorted
   // metric always sink to the very bottom regardless of direction; for 24h change, priced-but-no-change
   // rows sit above no-price rows.
   const sortByMetric = useCallback(
@@ -458,7 +600,7 @@ export const TokenSelectorContent = ({
       const extraOf = (currency: Currency) => listExtras[tokenRowKey(currency.chainId, currency.wrapped.address)]
       const rankOf = (currency: Currency): number => {
         const extra = extraOf(currency)
-        if (field === 'volume24h') return extra?.volume24h !== undefined ? 0 : 1
+        if (field !== 'priceChange24h') return extra?.[field] !== undefined ? 0 : 1
         if (extra?.priceChange24h !== undefined) return 0
         if (extra?.price) return 1
         return 2
@@ -964,9 +1106,14 @@ export const TokenSelectorContent = ({
                 </MouseoverTooltip>
               )}
               {isTrendingTab || isNewTab ? (
-                <SortHeader label={<Trans>Volume</Trans>} field="volume24h" sort={sort} onSort={cycleSort} />
+                <MetricColumnHeader
+                  metric={metricColumn}
+                  onMetricChange={changeMetricColumn}
+                  sort={sort}
+                  onSort={cycleSort}
+                />
               ) : (
-                <span className="flex w-[72px] items-center justify-end sm:w-[104px]">
+                <span className={cn('flex items-center justify-end', BALANCE_COLUMN_CLASS)}>
                   <Trans>Balance</Trans>
                 </span>
               )}
@@ -992,10 +1139,13 @@ export const TokenSelectorContent = ({
               loadMoreRows={handleLoadMore}
               hasMore={listHasMore}
               customChainId={primaryChainId}
+              balances={balances}
+              nativeBalance={nativeBalance}
               extras={listExtras}
               showAddress={isAllTab}
+              showCopyAddress={!isAllTab}
               showPriceColumn={!isAllTab}
-              showVolume={isTrendingTab || isNewTab}
+              metricColumn={isTrendingTab || isNewTab ? metricColumn : undefined}
               // While searching, surface the Import button (not the dimmed row) for non-whitelisted hits.
               importAsRow={(isTrendingTab || isAllTab) && !debouncedQuery}
               onShowTokenInfo={onShowTokenInfo}

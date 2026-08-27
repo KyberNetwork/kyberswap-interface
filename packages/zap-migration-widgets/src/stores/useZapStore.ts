@@ -25,7 +25,7 @@ interface ZapState {
 
   route: ZapRouteDetail | null;
   fetchingRoute: boolean;
-  fetchZapRoute: (chainId: ChainId, client: string, account: string) => Promise<void>;
+  fetchZapRoute: (chainId: ChainId, client: string, account: string, options?: { force?: boolean }) => Promise<void>;
 
   buildData: BuildDataWithGas | undefined;
   setBuildData: (buildData: BuildDataWithGas | undefined) => void;
@@ -59,10 +59,20 @@ const initState = {
 
 let abortController: AbortController | null = null;
 let latestRequestId = 0;
+// Query of the most recently issued route request, so callers re-running on unrelated state
+// changes don't re-ask for a quote the store already has. Cleared whenever the answer it
+// stands for stops being reusable.
+let lastQuery = '';
 
 const useZapRawStore = create<ZapState>((set, get) => ({
   ...initState,
-  reset: () => set(initState),
+  reset: () => {
+    abortController?.abort();
+    abortController = null;
+    latestRequestId++;
+    lastQuery = '';
+    set(initState);
+  },
   setTtl: (value: number) => set({ ttl: value }),
   toggleSetting: (highlightDegenMode?: boolean) => {
     set(state => ({
@@ -77,11 +87,16 @@ const useZapRawStore = create<ZapState>((set, get) => ({
   },
   toggleDegenMode: () => set(state => ({ degenMode: !state.degenMode })),
   setSlippage: (value: number) => set({ slippage: value }),
-  setBuildData: (buildData: BuildDataWithGas | undefined) => set({ buildData }),
+  setBuildData: (buildData: BuildDataWithGas | undefined) => {
+    // Leaving the preview goes back to a quote that has been sitting untouched — drop the cached
+    // query so the next fetch re-prices it instead of being deduped away
+    if (!buildData) lastQuery = '';
+    set({ buildData });
+  },
   setLiquidityOut: (liquidityOut: bigint) => set({ liquidityOut }),
   setTickLower: (tickLower: number) => set({ tickLower }),
   setTickUpper: (tickUpper: number) => set({ tickUpper }),
-  fetchZapRoute: async (chainId: ChainId, client: string, account: string) => {
+  fetchZapRoute: async (chainId: ChainId, client: string, account: string, options?: { force?: boolean }) => {
     const { liquidityOut, tickLower: lower, tickUpper: upper, slippage } = get();
     const { sourcePool, targetPool } = usePoolRawStore.getState();
     const { sourcePosition, targetPosition, sourcePositionId, targetPositionId } = usePositionRawStore.getState();
@@ -106,17 +121,10 @@ const useZapRawStore = create<ZapState>((set, get) => ({
       // Invalid input → clear info and abort any in-flight request
       abortController?.abort();
       abortController = null;
+      lastQuery = '';
       set({ route: null, fetchingRoute: false });
       return;
     }
-
-    // Abort previous request and prepare a new controller
-    abortController?.abort();
-    const controller = new AbortController();
-    abortController = controller;
-    const requestId = ++latestRequestId;
-
-    set({ fetchingRoute: true });
 
     const params: {
       [key: string]: string | number | boolean | undefined | null;
@@ -147,6 +155,20 @@ const useZapRawStore = create<ZapState>((set, get) => ({
       if (params[key] !== undefined && params[key] !== null) tmp = `${tmp}&${key}=${params[key]}`;
     });
 
+    const query = `${chainId}${tmp}`;
+    // Nothing that feeds the quote has moved, so the in-flight (or last) request already answers
+    // this call — re-issuing it would only cancel a request that was about to resolve
+    if (!options?.force && query === lastQuery) return;
+    lastQuery = query;
+
+    // Abort previous request and prepare a new controller
+    abortController?.abort();
+    const controller = new AbortController();
+    abortController = controller;
+    const requestId = ++latestRequestId;
+
+    set({ fetchingRoute: true });
+
     try {
       const res = await fetch(
         `${API_URLS.ZAP_API}/${CHAIN_ID_TO_CHAIN[chainId]}/api/v1/migrate/route?${tmp.slice(1)}`,
@@ -161,12 +183,16 @@ const useZapRawStore = create<ZapState>((set, get) => ({
       // Only update state if this is the latest request
       if (requestId !== latestRequestId) return;
 
-      set({ route: res.data, fetchingRoute: false });
+      // A response carrying no route leaves nothing to reuse — let the same params be asked again
+      if (!res.data) lastQuery = '';
+
+      set({ route: res.data || null, fetchingRoute: false });
     } catch (e: any) {
       // Ignore abort errors and stale requests
       if (requestId !== latestRequestId) return;
       if (e?.name === 'AbortError') return;
       console.log(e);
+      lastQuery = '';
       set({ fetchingRoute: false, route: null });
     }
   },

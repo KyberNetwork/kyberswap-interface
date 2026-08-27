@@ -75,8 +75,11 @@ const EarnLanding = () => {
       {zapMigrationWidget}
       {smartExitWidget}
 
-      <Container>
-        <h1 className="text-4xl font-medium">{t`Maximize Your Earnings in DeFi`}</h1>
+      <Container data-testid="earn-overview-page">
+        <h1
+          className="text-4xl font-medium"
+          data-testid="earn-overview-heading"
+        >{t`Maximize Your Earnings in DeFi`}</h1>
         <p className="mx-auto mb-8 mt-4 max-w-[800px] text-base leading-6 text-subText">
           {t`Unlock the full potential of your assets. Offering data, tools, and utilities—centered around Zap
             technology—to help you maximize earnings from your liquidity across various DeFi protocols.`}
@@ -96,6 +99,7 @@ const EarnLanding = () => {
                 text: t`Explore Pools`,
                 onClick: () => navigate({ pathname: APP_PATHS.EARN_POOLS }),
               }}
+              data-testid="earn-overview-card-pools"
             />
           </RevealOnScroll>
           <RevealOnScroll delay={0.2} className="sm:h-full">
@@ -107,6 +111,7 @@ const EarnLanding = () => {
                 text: t`My positions`,
                 onClick: () => navigate({ pathname: APP_PATHS.EARN_POSITIONS }),
               }}
+              data-testid="earn-overview-card-positions"
             />
           </RevealOnScroll>
           <RevealOnScroll delay={0.3} className="sm:h-full">
@@ -119,6 +124,7 @@ const EarnLanding = () => {
                 onClick: () => {},
                 disabled: true,
               }}
+              data-testid="earn-overview-card-staking"
             />
           </RevealOnScroll>
         </OverviewWrapper>
@@ -133,6 +139,7 @@ const EarnLanding = () => {
             listPools={farmingPools}
             size="large"
             styles={{ marginTop: upToSmall ? '40px' : '64px' }}
+            data-testid={`earn-overview-section-${FilterTag.FARMING_POOL}`}
           />
         </RevealOnScroll>
 
@@ -146,6 +153,7 @@ const EarnLanding = () => {
             listPools={highlightedPools}
             size="large"
             styles={{ marginTop: upToSmall ? '16px' : '40px' }}
+            data-testid={`earn-overview-section-${FilterTag.HIGHLIGHTED_POOL}`}
           />
         </RevealOnScroll>
 
@@ -165,6 +173,7 @@ const EarnLanding = () => {
               tag={FilterTag.HIGH_APR}
               isLoading={isLoading}
               listPools={highAprPool}
+              data-testid={`earn-overview-section-${FilterTag.HIGH_APR}`}
             />
           </RevealOnScroll>
 
@@ -176,6 +185,7 @@ const EarnLanding = () => {
               tag={FilterTag.LOW_VOLATILITY}
               isLoading={isLoading}
               listPools={lowVolatilityPool}
+              data-testid={`earn-overview-section-${FilterTag.LOW_VOLATILITY}`}
             />
           </RevealOnScroll>
 
@@ -187,6 +197,7 @@ const EarnLanding = () => {
               tag={FilterTag.SOLID_EARNING}
               isLoading={isLoading}
               listPools={solidEarningPool}
+              data-testid={`earn-overview-section-${FilterTag.SOLID_EARNING}`}
             />
           </RevealOnScroll>
         </div>
@@ -199,6 +210,7 @@ const EarnLanding = () => {
                 pathname: APP_PATHS.EARN_POOLS,
               })
             }}
+            data-testid="earn-overview-explore-pools"
             className="mx-auto mt-10 flex h-14 w-fit cursor-pointer items-center rounded-full border border-primary bg-primary/20 px-8 py-4 text-base font-medium text-primary hover:bg-primary/[0.25]"
           >
             {t`EXPLORE POOLS`}

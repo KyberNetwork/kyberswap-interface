@@ -15,6 +15,7 @@ export default function Pagination({
   style = {},
   haveBg = true,
   className,
+  'data-testid': dataTestId,
 }: {
   onPageChange: (newPage: number) => void
   totalCount: number
@@ -24,6 +25,8 @@ export default function Pagination({
   style?: CSSProperties
   haveBg?: boolean
   className?: string
+  /** When set, the container plus the `-first` / `-prev` / `-page` / `-next` / `-last` controls get test ids. */
+  'data-testid'?: string
 }) {
   const upToExtraSmall = useMedia('(max-width: 576px)')
 
@@ -61,19 +64,22 @@ export default function Pagination({
     }
   }
 
+  const testId = (suffix: string) => (dataTestId ? `${dataTestId}-${suffix}` : undefined)
+
   if (upToExtraSmall) {
     return (
       <PaginationContainer
         className={className}
         style={{ columnGap: '4px', background: haveBg ? undefined : 'transparent', ...style }}
+        data-testid={dataTestId}
       >
-        <PaginationItem $disabled={currentPage === 1} onClick={handleClickToFirstPage}>
+        <PaginationItem $disabled={currentPage === 1} onClick={handleClickToFirstPage} data-testid={testId('first')}>
           <PaginationButton haveBg={haveBg}>
             <ChevronsLeft width={16} className="text-subText" />
           </PaginationButton>
         </PaginationItem>
 
-        <PaginationItem $disabled={currentPage === 1} onClick={onPrevious}>
+        <PaginationItem $disabled={currentPage === 1} onClick={onPrevious} data-testid={testId('prev')}>
           <PaginationButton haveBg={haveBg}>
             <ChevronLeft width={16} className="text-subText" />
           </PaginationButton>
@@ -81,13 +87,17 @@ export default function Pagination({
 
         <PaginationInputOnMobile page={currentPage} lastPage={lastPage} setPage={onPageChange} />
 
-        <PaginationItem $disabled={currentPage === lastPage} onClick={onNext}>
+        <PaginationItem $disabled={currentPage === lastPage} onClick={onNext} data-testid={testId('next')}>
           <PaginationButton haveBg={haveBg}>
             <ChevronRight width={16} className="text-subText" />
           </PaginationButton>
         </PaginationItem>
 
-        <PaginationItem $disabled={currentPage === lastPage} onClick={handleClickToLastPage}>
+        <PaginationItem
+          $disabled={currentPage === lastPage}
+          onClick={handleClickToLastPage}
+          data-testid={testId('last')}
+        >
           <PaginationButton haveBg={haveBg}>
             <ChevronsRight width={16} className="text-subText" />
           </PaginationButton>
@@ -97,8 +107,12 @@ export default function Pagination({
   }
 
   return (
-    <PaginationContainer className={className} style={{ background: haveBg ? undefined : 'transparent', ...style }}>
-      <PaginationItem $disabled={currentPage === 1} onClick={onPrevious}>
+    <PaginationContainer
+      className={className}
+      style={{ background: haveBg ? undefined : 'transparent', ...style }}
+      data-testid={dataTestId}
+    >
+      <PaginationItem $disabled={currentPage === 1} onClick={onPrevious} data-testid={testId('prev')}>
         <PaginationButton haveBg={haveBg}>
           <ChevronLeft width={16} className="text-subText" />
         </PaginationButton>
@@ -112,6 +126,9 @@ export default function Pagination({
             key={index.toString()}
             $selected={pageNumber === currentPage}
             onClick={() => onPageChange(pageNumber as number)}
+            data-testid={testId('page')}
+            data-page={pageNumber}
+            data-selected={pageNumber === currentPage}
           >
             <PaginationButton haveBg={haveBg} active={pageNumber === currentPage}>
               {pageNumber}
@@ -119,7 +136,7 @@ export default function Pagination({
           </PaginationItem>
         )
       })}
-      <PaginationItem $disabled={currentPage === lastPage} onClick={onNext}>
+      <PaginationItem $disabled={currentPage === lastPage} onClick={onNext} data-testid={testId('next')}>
         <PaginationButton haveBg={haveBg}>
           <ChevronRight width={16} className="text-subText" />
         </PaginationButton>

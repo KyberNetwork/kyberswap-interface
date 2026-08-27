@@ -65,6 +65,24 @@ export type TransactionExtraBaseInfo = {
   contract?: string // recipient, contract, spender, ...
 }
 
+/**
+ * Everything the placeholder row for a submitted-but-not-yet-indexed zap needs. It is captured when the
+ * transaction is submitted and rides along on the transaction, so dismissing the zap widget, navigating
+ * away, or reloading cannot lose it — the numbers live only in the widget's own route state.
+ */
+export type UnfinalizedPositionSnapshot = {
+  chainId: number
+  dex: Exchange
+  dexLogo: string
+  /** Set only when zapping into a position that already exists. */
+  positionId?: string
+  pool: { address: string; fee: number }
+  token0: { address: string; symbol: string; logo: string; amount: number; decimals?: number }
+  token1: { address: string; symbol: string; logo: string; amount: number; decimals?: number }
+  value: number
+  createdAt: number
+}
+
 export type EarnAddLiquidityExtraInfo = {
   pool: string
   dexLogoUrl?: string
@@ -75,6 +93,7 @@ export type EarnAddLiquidityExtraInfo = {
     amount: string
     symbol: string
   }>
+  unfinalizedPosition?: UnfinalizedPositionSnapshot
   contract?: string
 }
 
@@ -99,6 +118,7 @@ export type EarnMigrateLiquidityExtraInfo = {
   destinationDexLogoUrl?: string
   destinationDex: Exchange
   positionId: string
+  unfinalizedPosition?: UnfinalizedPositionSnapshot
   contract?: string
 }
 

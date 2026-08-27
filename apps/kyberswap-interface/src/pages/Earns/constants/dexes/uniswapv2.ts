@@ -11,6 +11,5 @@ export default {
   collectFeeSupported: false,
   isForkFrom: CoreProtocol.UniswapV2,
   showVersion: true,
-  farmingSupported: false,
   smartExitDexType: undefined,
 }

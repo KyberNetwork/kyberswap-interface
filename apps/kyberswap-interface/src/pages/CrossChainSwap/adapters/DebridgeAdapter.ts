@@ -2,7 +2,7 @@ import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
 import { useWalletSelector } from '@near-wallet-selector/react-hook'
 import { WalletAdapterProps } from '@solana/wallet-adapter-base'
 import { Connection, Transaction, VersionedTransaction } from '@solana/web3.js'
-import { fetchTokenPrices } from 'services/tokenCatalog'
+import { fetchTokenPrices, getMidPrice } from 'services/tokenCatalog'
 import { WalletClient, formatUnits } from 'viem'
 
 import { ZERO_ADDRESS } from 'constants/index'
@@ -140,8 +140,10 @@ export class DeBridgeAdapter extends BaseSwapAdapter {
     const fixFee = r.fixFee
 
     const wrappedAddress = NativeCurrencies[params.fromChain as ChainId].wrapped.address
-    const priceRes = await fetchTokenPrices({ [params.fromChain]: [wrappedAddress] })
-    const nativePrice = priceRes?.data?.[params.fromChain]?.[wrappedAddress]?.PriceBuy || 0
+    // The quote is still usable without a native price — it only costs the protocol-fee USD figure —
+    // so a price outage must not take the whole route down with it.
+    const priceRes = await fetchTokenPrices({ [params.fromChain]: [wrappedAddress] }).catch(() => null)
+    const nativePrice = getMidPrice(priceRes?.data?.[params.fromChain]?.[wrappedAddress]) ?? 0
 
     const nativeDecimals = params.fromChain === 'solana' ? 9 : NativeCurrencies[params.fromChain as ChainId].decimals
     const protocolFee = Number(nativePrice) * (Number(fixFee) / 10 ** nativeDecimals)

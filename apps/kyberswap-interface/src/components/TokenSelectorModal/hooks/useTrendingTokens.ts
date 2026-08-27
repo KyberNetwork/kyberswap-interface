@@ -22,9 +22,9 @@ type UseTrendingTokensResult = {
 /**
  * Trending tokens for a chain, ranked by KyberScore, from the public token-catalog list endpoint
  * (`tag=kyberscore`), paginated for infinite scroll. Sorting is server-side — the default KyberScore
- * order, or `priceChange24h` / `volume24h` when the user sorts a column; changing the sort restarts
- * pagination from page 1 (the sort param is part of the query key). Price / 24h-change / volume come
- * straight from each token's `metrics`.
+ * order, or `priceChange24h` / `volume24h` / `marketCap` when the user sorts a column; changing the
+ * sort restarts pagination from page 1 (the sort param is part of the query key). Price / 24h-change
+ * / volume / market cap come straight from each token's `metrics`.
  */
 export const useTrendingTokens = (chainId: ChainId, sort: TokenSort | null, active = true): UseTrendingTokensResult => {
   const sortParam = toSortParam(sort)

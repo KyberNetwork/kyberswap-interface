@@ -13,9 +13,9 @@ const toSortParam = (sort: TokenSort | null): string | undefined => (sort ? `${s
 
 /**
  * Recently whitelisted tokens for the selected chains from the public token-catalog `tag=new`
- * endpoint (newest-first by default). Sorting by 24h change / volume is resolved server-side via the
- * `sort` param — the API supports both columns — so consumers don't sort these in memory. Price /
- * 24h change / volume come from each token's `metrics`.
+ * endpoint (newest-first by default). Sorting by 24h change / volume / market cap is resolved
+ * server-side via the `sort` param — the API supports all three columns — so consumers don't sort
+ * these in memory. Price / 24h change / volume / market cap come from each token's `metrics`.
  */
 export const useNewTokens = (
   chainIds: ChainId[],
