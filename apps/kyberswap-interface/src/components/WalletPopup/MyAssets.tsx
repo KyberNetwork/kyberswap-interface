@@ -65,7 +65,7 @@ export default function MyAssets({
     })
   }
   const hideModal = () => setModalOpen(false)
-  // Unvetted holdings follow the vetted list as dimmed rows with an import button. Importing goes
+  // Unvetted holdings follow the vetted list as dimmed rows; clicking one imports it. Importing goes
   // through the same warning screen the token selector uses, and the import itself moves the token
   // into the vetted list above.
   const [hiddenShown, setHiddenShown] = useState(HIDDEN_PAGE_SIZE)
@@ -153,7 +153,6 @@ export default function MyAssets({
                 showLoading
                 hoverColor={theme.bg3}
                 importOnClick
-                trailing="import"
                 onImportToken={setImportTarget}
                 impersonator={impersonators.has(token.address)}
               />

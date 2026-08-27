@@ -1,7 +1,7 @@
 import { ChainId, Currency, CurrencyAmount, Token, TokenAmount } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import React, { CSSProperties, ReactNode, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { AlertTriangle, Download, Info, Star, X } from 'react-feather'
+import { AlertTriangle, Info, Star, X } from 'react-feather'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { ListChildComponentProps, VariableSizeList } from 'react-window'
 import InfiniteLoader from 'react-window-infinite-loader'
@@ -141,7 +141,6 @@ type TokenRowProps = {
    * on the list, or an equally wide spacer so every row's balance stays aligned with the ones that
    * have the icon. The Imported tab's remove button lives in the same slot.
    */
-  trailing?: 'import'
 }
 
 export const TokenRow = ({
@@ -179,7 +178,6 @@ export const TokenRow = ({
   onRestrictedClick,
   impersonator,
   held,
-  trailing,
 }: TokenRowProps) => {
   const isImport = rightColumn === 'import'
   const nativeCurrency = useCurrencyConvertedToNative(currency || undefined)
@@ -360,21 +358,6 @@ export const TokenRow = ({
             />
           </div>
         )}
-        {trailing === 'import' && (
-          <button
-            type="button"
-            aria-label={t`Import token`}
-            title={t`Import token`}
-            data-testid="button-import-token-icon"
-            onClick={e => {
-              e.stopPropagation()
-              onImportToken?.(currency.wrapped)
-            }}
-            className="flex size-6 shrink-0 items-center justify-center rounded-md bg-primary text-textReverse transition hover:brightness-110"
-          >
-            <Download className="size-3.5 shrink-0" />
-          </button>
-        )}
       </HStack>
     </>
   )
@@ -478,8 +461,6 @@ type VirtualRowData = {
   onWarnRestricted: (key: string) => void
   impersonators?: Set<string>
   heldAddresses?: Set<string>
-  /** Show an icon-only import button after the balance on rows that still need importing. */
-  importIcon?: boolean
 }
 
 const SelectedTokenBalance = ({ currency, balance }: { currency: Currency; balance: CurrencyAmount<Currency> }) => {
@@ -512,7 +493,6 @@ const VirtualRow = memo(function VirtualRow({ index, style, data }: ListChildCom
   // into an Import button: the balance is the very thing that tells the user this is the one they own.
   const held = !!data.heldAddresses?.has(getTokenAddress(currency))
   const importAsRow = needsImport && (!!data.importAsRow || held)
-  const trailing = data.importIcon && needsImport ? 'import' : undefined
   const rightColumn = needsImport && !importAsRow ? 'import' : data.metricColumn ? 'metric' : 'balance'
 
   const isSelected = Boolean(data.selectedCurrency?.equals(currency))
@@ -570,7 +550,6 @@ const VirtualRow = memo(function VirtualRow({ index, style, data }: ListChildCom
         onRestrictedClick={() => data.onWarnRestricted(restrictedKey)}
         impersonator={data.impersonators?.has(token.address)}
         held={held}
-        trailing={trailing}
       />
     </div>
   )
@@ -611,8 +590,6 @@ type TokenListProps = {
   impersonators?: Set<string>
   /** Addresses the wallet holds; only passed while searching, see `TokenRowProps.held`. */
   heldAddresses?: Set<string>
-  /** Icon-only import button on rows that need importing; see `VirtualRowData.importIcon`. */
-  importIcon?: boolean
 }
 
 const TokenList = ({
@@ -640,7 +617,6 @@ const TokenList = ({
   importAsRow,
   impersonators,
   heldAddresses,
-  importIcon,
 }: TokenListProps) => {
   const { account } = useActiveWeb3React()
   const { favoriteTokens } = useUserFavoriteTokens(customChainId)
@@ -740,7 +716,6 @@ const TokenList = ({
       onWarnRestricted,
       impersonators,
       heldAddresses,
-      importIcon,
     }),
     [
       currencies,
@@ -769,7 +744,6 @@ const TokenList = ({
       onWarnRestricted,
       impersonators,
       heldAddresses,
-      importIcon,
     ],
   )
 

@@ -1209,7 +1209,6 @@ export const TokenSelectorContent = ({
               importAsRow={(isTrendingTab || isAllTab) && !debouncedQuery}
               impersonators={impersonators}
               heldAddresses={heldAddresses}
-              importIcon={isAllTab}
               onShowTokenInfo={onShowTokenInfo}
             />
           ) : (
