@@ -14,8 +14,9 @@ const winRateBadgeVariants = {
   neutral: undefined,
 } as const
 
-export const AgentRiskCard = ({ agent }: { agent: AgentProfile }) => {
-  const winRatePct = agent.stats.winRatePct
+type RiskCardProps = Pick<AgentProfile['stats'], 'maxDrawdownPct' | 'winRatePct'>
+
+export const RiskCard = ({ maxDrawdownPct, winRatePct }: RiskCardProps) => {
   const winRate = Math.max(0, Math.min(100, Number(winRatePct || 0)))
   const winRateBackgroundClassName = getWinRateClassName(winRatePct, 'background')
   const winRateTone = getWinRateTone(winRatePct)
@@ -44,7 +45,7 @@ export const AgentRiskCard = ({ agent }: { agent: AgentProfile }) => {
       </HStack>
       <HStack className="items-center justify-between">
         <span className="text-sm font-medium text-subText">Max Drawdown</span>
-        <span className="text-sm text-text">{percent(agent.stats.maxDrawdownPct)}</span>
+        <span className="text-sm text-text">{percent(maxDrawdownPct)}</span>
       </HStack>
     </SidePanelCard>
   )

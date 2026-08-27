@@ -1,10 +1,11 @@
 import { type QueryKey, useInfiniteQuery } from '@tanstack/react-query'
-import { type PropsWithChildren, useEffect, useMemo, useRef } from 'react'
+import { type PropsWithChildren, useEffect, useMemo, useRef, useState } from 'react'
 import type { CursorResponse } from 'services/copyTrading/types/primitives'
 
 import Loader from 'components/Loader'
 import ScrollArea, { type ScrollbarOrientation, type ScrollbarSize } from 'components/ScrollArea'
 import { Center, Stack } from 'components/Stack'
+import { CursorResetError, shouldResetCursor } from 'pages/CopyTrading/components/cursorError'
 import { cn } from 'utils/cn'
 
 export type InfiniteScrollState = {
@@ -28,16 +29,30 @@ export const useInfiniteCursorQuery = <TResponse extends CursorResponse<unknown>
   queryFn,
   queryKey,
 }: InfiniteCursorQueryParams<TResponse>) => {
+  const [restartGeneration, setRestartGeneration] = useState(0)
   const query = useInfiniteQuery({
     enabled,
     initialPageParam: null as string | null,
-    queryKey,
-    queryFn: ({ pageParam }) => queryFn(pageParam || undefined),
+    queryKey: [...queryKey, 'restart', restartGeneration],
+    queryFn: async ({ pageParam }) => {
+      const cursor = pageParam || undefined
+      try {
+        return await queryFn(cursor)
+      } catch (error) {
+        throw cursor && shouldResetCursor(error) ? new CursorResetError(error) : error
+      }
+    },
     getNextPageParam: lastPage =>
       lastPage.pagination.hasMore && lastPage.pagination.nextCursor ? lastPage.pagination.nextCursor : undefined,
     refetchInterval: 10_000,
     retry: false,
   })
+
+  useEffect(() => {
+    if (query.error instanceof CursorResetError) {
+      setRestartGeneration(generation => generation + 1)
+    }
+  }, [query.error])
 
   const items = useMemo<CursorItem<TResponse>[]>(
     () => (query.data?.pages.flatMap(page => page.data) || []) as CursorItem<TResponse>[],
@@ -45,7 +60,7 @@ export const useInfiniteCursorQuery = <TResponse extends CursorResponse<unknown>
   )
 
   const infiniteScroll: InfiniteScrollState = {
-    error: query.isError,
+    error: query.isError || query.isFetchNextPageError,
     hasMore: !!query.hasNextPage,
     initialError: query.isError && !items.length,
     loadingMore: query.isFetchingNextPage,

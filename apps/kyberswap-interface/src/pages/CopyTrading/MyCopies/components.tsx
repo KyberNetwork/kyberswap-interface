@@ -18,11 +18,11 @@ import { cn } from 'utils/cn'
 import { formatDateTime } from 'utils/time'
 
 type OpenCopiesSummaryProps = {
-  fallbackActiveCopies?: number
+  loading?: boolean
   summary?: OwnerCopySummary
 }
 
-export const OpenCopiesSummary = ({ fallbackActiveCopies, summary }: OpenCopiesSummaryProps) => {
+export const OpenCopiesSummary = ({ loading, summary }: OpenCopiesSummaryProps) => {
   const stats: LeaderboardStat[] = [
     {
       label: 'Total Allocated',
@@ -45,13 +45,13 @@ export const OpenCopiesSummary = ({ fallbackActiveCopies, summary }: OpenCopiesS
     },
     {
       label: 'Active Copies',
-      value: formatCount(summary?.activeCopies ?? fallbackActiveCopies),
+      value: formatCount(summary?.activeCopies),
       icon: copyTradingStatIconMap.agents,
       status: summary?.metrics.activeCopyRuns?.status,
     },
   ]
 
-  return <Leaderboard items={stats} />
+  return <Leaderboard items={stats} loading={loading} />
 }
 
 type AlertsFeedProps = {

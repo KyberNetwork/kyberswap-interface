@@ -195,7 +195,7 @@ const WithdrawQuoteModal = ({ isOpen, onDismiss, copyRun, withdrawQuoteAvailabil
     onExpectedChain,
     readyLabel: 'Review Withdrawal',
     unavailable: !!availabilityMessage,
-    unavailableLabel: 'Withdraw unavailable',
+    unavailableLabel: 'Withdraw Unavailable',
   })
   const primaryActionDisabled = isWritePrimaryActionDisabled({
     accountConnected,

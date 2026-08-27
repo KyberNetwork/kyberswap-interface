@@ -6,52 +6,55 @@ import type { PerformanceWindow } from 'services/copyTrading/types/primitives'
 import { Stack } from 'components/Stack'
 import {
   CapitalValueChart,
-  CumulativeRealisedPnlChart,
+  CumulativeTotalPnlChart,
   toPerformanceChartPoint,
 } from 'pages/CopyTrading/components/PerformanceCharts'
 import { useCopyTradingContext } from 'pages/CopyTrading/context'
+
+// Product decision: performance charts intentionally use only page 1 and do not follow pagination cursors.
+const PERFORMANCE_CHART_LIMIT = 100
 
 type CopyRunPerformanceProps = {
   copyRunId: string
   status: CopyRunSummary['status']
 }
 
-const CopyRunCumulativeRealisedPnlChart = ({ copyRunId, status }: CopyRunPerformanceProps) => {
+const CopyRunCumulativeTotalPnlChart = ({ copyRunId, status }: CopyRunPerformanceProps) => {
   const { ownerAddress } = useCopyTradingContext()
-  const [realizedPnlWindow, setRealizedPnlWindow] = useState<PerformanceWindow>('30d')
+  const [totalPnlWindow, setTotalPnlWindow] = useState<PerformanceWindow>('30d')
   const isTerminal = status === 'stopped' || status === 'closed'
-  const performanceRealizedPnlWindow = isTerminal ? 'all' : realizedPnlWindow
-  const realizedPnlInterval = performanceRealizedPnlWindow === 'all' ? 'month' : 'day'
+  const performanceTotalPnlWindow = isTerminal ? 'all' : totalPnlWindow
+  const totalPnlInterval = performanceTotalPnlWindow === 'all' ? 'month' : 'day'
 
   const {
-    currentData: realizedPnlPerformance,
-    isError: isRealizedPnlError,
-    isFetching: isRealizedPnlFetching,
+    data: totalPnlPerformance,
+    isError: isTotalPnlError,
+    isFetching: isTotalPnlFetching,
   } = copyRunApi.useGetCopyRunPerformanceQuery(
     {
       ownerAddress: ownerAddress || '',
       copyRunId,
-      interval: realizedPnlInterval,
-      limit: 100,
-      series: 'cumulative_realized_pnl',
-      window: performanceRealizedPnlWindow,
+      interval: totalPnlInterval,
+      limit: PERFORMANCE_CHART_LIMIT,
+      series: 'cumulative_total_pnl',
+      window: performanceTotalPnlWindow,
     },
     { pollingInterval: 10_000, skip: !ownerAddress },
   )
 
-  const realizedPnlData = useMemo(
-    () => (realizedPnlPerformance?.data || []).map(toPerformanceChartPoint),
-    [realizedPnlPerformance?.data],
+  const totalPnlData = useMemo(
+    () => (totalPnlPerformance?.data || []).map(toPerformanceChartPoint),
+    [totalPnlPerformance?.data],
   )
 
   return (
-    <CumulativeRealisedPnlChart
+    <CumulativeTotalPnlChart
       collapsible
-      data={realizedPnlData}
-      isError={isRealizedPnlError}
-      isFetching={isRealizedPnlFetching}
-      onWindowChange={isTerminal ? undefined : setRealizedPnlWindow}
-      window={isTerminal ? undefined : performanceRealizedPnlWindow}
+      data={totalPnlData}
+      isError={isTotalPnlError}
+      isFetching={isTotalPnlFetching}
+      onWindowChange={isTerminal ? undefined : setTotalPnlWindow}
+      window={isTerminal ? undefined : performanceTotalPnlWindow}
     />
   )
 }
@@ -64,7 +67,7 @@ const CopyRunCapitalValueChart = ({ copyRunId }: CopyRunCapitalValueChartProps) 
   const capitalValueInterval = capitalValueWindow === 'all' ? 'month' : 'day'
 
   const {
-    currentData: portfolioPerformance,
+    data: portfolioPerformance,
     isError: isPortfolioError,
     isFetching: isPortfolioFetching,
   } = copyRunApi.useGetCopyRunPerformanceQuery(
@@ -72,7 +75,7 @@ const CopyRunCapitalValueChart = ({ copyRunId }: CopyRunCapitalValueChartProps) 
       ownerAddress: ownerAddress || '',
       copyRunId,
       interval: capitalValueInterval,
-      limit: 100,
+      limit: PERFORMANCE_CHART_LIMIT,
       series: 'portfolio_value',
       window: capitalValueWindow,
     },
@@ -101,7 +104,7 @@ const CopyRunPerformance = ({ copyRunId, status }: CopyRunPerformanceProps) => {
 
   return (
     <Stack className="gap-6 rounded-xl bg-buttonBlack p-6 max-md:-mx-4 max-md:gap-4 max-md:rounded-none max-md:p-4">
-      <CopyRunCumulativeRealisedPnlChart copyRunId={copyRunId} status={status} />
+      <CopyRunCumulativeTotalPnlChart copyRunId={copyRunId} status={status} />
       {!isTerminal && <CopyRunCapitalValueChart copyRunId={copyRunId} />}
     </Stack>
   )

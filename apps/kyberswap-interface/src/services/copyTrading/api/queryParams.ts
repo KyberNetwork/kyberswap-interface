@@ -47,6 +47,7 @@ const positionViewMap: Record<PositionStatusFilter, string | undefined> = {
 const performanceSeriesMap: Record<PerformanceSeries, string> = {
   portfolio_value: 'PERFORMANCE_SERIES_PORTFOLIO_EQUITY',
   cumulative_realized_pnl: 'PERFORMANCE_SERIES_CUMULATIVE_REALIZED_PNL',
+  cumulative_total_pnl: 'PERFORMANCE_SERIES_CUMULATIVE_TOTAL_PNL',
   period_realized_pnl: 'PERFORMANCE_SERIES_PERIOD_REALIZED_PNL',
   per_trade_realized_pnl: 'PERFORMANCE_SERIES_PER_TRADE_REALIZED_PNL',
 }
@@ -78,7 +79,32 @@ export const copyRunSortMap: Record<CopyRunSortBy, string> = {
   agent_win_rate: 'OWNER_COPY_RUN_SORT_FIELD_AGENT_WIN_RATE',
   agent_volume: 'OWNER_COPY_RUN_SORT_FIELD_AGENT_LIFETIME_VOLUME',
   capital_in: 'OWNER_COPY_RUN_SORT_FIELD_CAPITAL_IN',
+  current_balance: 'OWNER_COPY_RUN_SORT_FIELD_CURRENT_BALANCE',
 }
+
+export const activitySurfaceMap = {
+  copy_run_log: 'ACTIVITY_SURFACE_COPY_RUN_LOG',
+  alert_feed: 'ACTIVITY_SURFACE_ALERT_FEED',
+} as const
+
+export const activityCategoryMap = {
+  trade: 'ACTIVITY_CATEGORY_TRADE',
+  capital: 'ACTIVITY_CATEGORY_CAPITAL',
+  failed_action: 'ACTIVITY_CATEGORY_FAILED_ACTION',
+  fee_rebate: 'ACTIVITY_CATEGORY_FEE_REBATE',
+} as const
+
+export const activitySubtypeMap = {
+  buy: 'ACTIVITY_SUBTYPE_BUY',
+  sell: 'ACTIVITY_SUBTYPE_SELL',
+  deposited: 'ACTIVITY_SUBTYPE_DEPOSITED',
+  capital_topped_up: 'ACTIVITY_SUBTYPE_CAPITAL_TOPPED_UP',
+  capital_withdrawn: 'ACTIVITY_SUBTYPE_CAPITAL_WITHDRAWN',
+  skipped_buy: 'ACTIVITY_SUBTYPE_SKIPPED_BUY',
+  skipped_sell: 'ACTIVITY_SUBTYPE_SKIPPED_SELL',
+  flat_fee_captured: 'ACTIVITY_SUBTYPE_FLAT_FEE_CAPTURED',
+  rebate_received: 'ACTIVITY_SUBTYPE_REBATE_RECEIVED',
+} as const
 
 export const ownerViewMap = {
   open: 'OWNER_COPY_VIEW_OPEN',
@@ -119,12 +145,16 @@ export const positionParams = ({
   sortOrder,
   cursor,
   limit,
+  includeClosedExecutions,
+  closedExecutionsLimit,
 }: {
   status?: PositionStatusFilter
   sortBy?: PositionSortBy
   sortOrder?: SortOrder
   cursor?: string
   limit?: number
+  includeClosedExecutions?: boolean
+  closedExecutionsLimit?: number
 }) =>
   cleanParams({
     view: status ? positionViewMap[status] : undefined,
@@ -132,4 +162,6 @@ export const positionParams = ({
     sortOrder: sortOrder ? sortOrderMap[sortOrder] : undefined,
     cursor,
     limit,
+    includeClosedExecutions,
+    closedExecutionsLimit,
   })

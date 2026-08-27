@@ -27,10 +27,10 @@ export const WithdrawQuoteReview = ({ chainId, isLoading, preview }: WithdrawQuo
     <ReviewSection title="Review Withdrawal">
       <ReviewRow
         isLoading={showSkeleton}
-        label="Prepared balance"
+        label="Prepared Balance"
         value={withMetricFallback(formatPreparedAmount(preview?.quoteBalance, preview?.quoteToken))}
       />
-      <ReviewRow isLoading={showSkeleton} label="Withdrawal amount" value={withdrawalAmount} />
+      <ReviewRow isLoading={showSkeleton} label="Withdrawal Amount" value={withdrawalAmount} />
       <ReviewRow
         isLoading={showSkeleton}
         label="Recipient"
@@ -84,7 +84,7 @@ export const WithdrawQuoteForm = ({
       amountError={amountError}
       inputId="copy-trading-withdraw-quote"
       isPreparing={isPreparing}
-      label="Withdrawal amount"
+      label="Withdrawal Amount"
       onAmountChange={onAmountChange}
       onBalanceClick={onMax}
       presetActions={[

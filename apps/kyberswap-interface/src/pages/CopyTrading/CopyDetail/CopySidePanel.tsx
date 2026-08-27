@@ -6,10 +6,11 @@ import type { CopyRunSummary, WalletBalanceRow } from 'services/copyTrading/type
 import type { Metric } from 'services/copyTrading/types/primitives'
 
 import Loader from 'components/Loader'
+import TextSkeleton from 'components/Skeleton/TextSkeleton'
 import { Center, HStack } from 'components/Stack'
 import { copyDetailResponsiveOrder } from 'pages/CopyTrading/CopyDetail/responsiveOrder'
 import {
-  AgentRiskCard,
+  RiskCard,
   StrategyExecutionCard,
   WhitelistedTokensCard,
 } from 'pages/CopyTrading/components/AgentSidebarCards/AgentProfileCards'
@@ -88,9 +89,13 @@ const RemainingInWalletCard = ({
       headerRight={
         headerRight ?? (
           <HStack as="span" className="items-center gap-2">
-            <span className="text-lg font-medium text-primary">
-              {formatUsd(totalIsRenderable ? totalValueUsd.value : undefined)}
-            </span>
+            {loading && !totalIsRenderable ? (
+              <TextSkeleton size="lg" width={60} />
+            ) : (
+              <span className="text-lg font-medium text-primary">
+                {formatUsd(totalIsRenderable ? totalValueUsd.value : undefined)}
+              </span>
+            )}
             {totalIsRenderable && totalValueUsd.status === 'METRIC_STATUS_STALE' && (
               <DataQualityStatusBadge status={totalValueUsd.status} />
             )}
@@ -141,7 +146,7 @@ const CopySidePanel = ({ agent, run }: CopySidePanelProps) => {
 
   const copyAccountQuery = { chainId: run.chainId, copyAccount: run.copyAccount }
   const skipCopyAccount = !run.copyAccount || !run.chainId
-  const { data: inventoryResponse, isFetching: isInventoryFetching } =
+  const { currentData: inventoryResponse, isFetching: isInventoryFetching } =
     copyAccountApi.useGetCopyAccountWalletInventoryQuery(copyAccountQuery, {
       pollingInterval: 10_000,
       skip: skipCopyAccount,
@@ -171,6 +176,11 @@ const CopySidePanel = ({ agent, run }: CopySidePanelProps) => {
       <span className="size-4 shrink-0 rounded-full bg-current" aria-hidden />
       <span>{terminalStatus === 'stopped' ? 'Stopped Copy' : 'Closed Copy'}</span>
     </HStack>
+  ) : run.status === 'closing' ? (
+    <HStack as="span" className={cn('items-center gap-2', copyRunStatusTextClassName.closing)}>
+      <span className="size-4 shrink-0 rounded-full bg-current" aria-hidden />
+      <span>Closing Copy</span>
+    </HStack>
   ) : (
     'Current Copying'
   )
@@ -189,15 +199,15 @@ const CopySidePanel = ({ agent, run }: CopySidePanelProps) => {
         }
         stopCopyAvailability={run.stopCopyAvailability}
         title={capitalCardTitle}
-        onAddCapital={isTerminal ? undefined : () => openAddCapital(run)}
-        onStopCopy={isTerminal ? undefined : () => openStopCopy(run)}
+        onAddCapital={run.status === 'active' ? () => openAddCapital(run) : undefined}
+        onStopCopy={run.status === 'active' ? () => openStopCopy(run) : undefined}
       />
     </ResponsiveDetailItem>
   )
 
   const agentRiskCard = (
     <ResponsiveDetailItem responsiveOrder={copyDetailResponsiveOrder.risk}>
-      <AgentRiskCard agent={agent} />
+      <RiskCard maxDrawdownPct={agent.stats.maxDrawdownPct} winRatePct={run.copyRunWinRatePct} />
     </ResponsiveDetailItem>
   )
 
@@ -206,7 +216,7 @@ const CopySidePanel = ({ agent, run }: CopySidePanelProps) => {
       <RemainingInWalletCard
         assets={walletAssets}
         complete={inventoryComplete}
-        loading={isInventoryFetching}
+        loading={!inventoryResponse && isInventoryFetching}
         totalValueUsd={inventoryResponse?.walletInventoryValueUsd}
       />
     </ResponsiveDetailItem>

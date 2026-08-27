@@ -32,14 +32,14 @@ export const toStrategyKey = (strategy: StrategyFilter): StrategyKey | undefined
 
 type LeaderboardSummaryProps = {
   summary?: LeaderboardSummaryData
-  fallbackAgentCount?: number
+  loading?: boolean
 }
 
-export const LeaderboardSummary = ({ summary, fallbackAgentCount }: LeaderboardSummaryProps) => {
+export const LeaderboardSummary = ({ summary, loading }: LeaderboardSummaryProps) => {
   const stats: LeaderboardStat[] = [
     {
       label: 'Total Agents',
-      value: formatCount(summary?.totalAgents ?? fallbackAgentCount),
+      value: formatCount(summary?.totalAgents),
       icon: copyTradingStatIconMap.agents,
       status: summary?.metrics.agentCount?.status,
     },
@@ -63,7 +63,7 @@ export const LeaderboardSummary = ({ summary, fallbackAgentCount }: LeaderboardS
     },
   ]
 
-  return <Leaderboard items={stats} />
+  return <Leaderboard items={stats} loading={loading} />
 }
 
 type StrategyFilterControlProps = {

@@ -9,15 +9,20 @@ import type {
   PositionValuation,
 } from './positions'
 import type {
+  ActivityCategory,
+  ActivitySubtype,
   ActivityType,
   Address,
   CopyAccountStatus,
   CopyRunStatus,
   CopyRunView,
+  DataCompleteness,
+  DataFinality,
   DecimalString,
   LooseString,
   Metric,
   Timestamp,
+  TradeSide,
 } from './primitives'
 
 export type OwnerCopySummary = {
@@ -37,7 +42,6 @@ export type OwnerCopySummary = {
   flatFeesCapturedUsd?: DecimalString
   cashbackReceivedUsd?: DecimalString
   netFeeCostUsd?: DecimalString
-  estimatedCashbackPendingUsd?: DecimalString
   metrics: Record<string, Metric | undefined>
 }
 
@@ -64,7 +68,11 @@ export type CopyRunSummary = {
   flatFeesCapturedUsd?: DecimalString
   cashbackReceivedUsd?: DecimalString
   netFeeCostUsd?: DecimalString
-  estimatedCashbackPendingUsd?: DecimalString
+  currentBalanceUsd?: DecimalString
+  totalPnlUsd?: DecimalString
+  totalPnlPct?: DecimalString
+  copyRunWinRatePct?: DecimalString
+  copyRunClassifiedClosedPositionCount?: DecimalString
   durationSeconds?: DecimalString
   durationAsOf?: Timestamp
   addCapitalAvailability?: AdvisoryActionAvailability
@@ -128,7 +136,6 @@ export type CopyAccountSummary = {
   flatFeesCapturedUsd?: DecimalString
   cashbackReceivedUsd?: DecimalString
   netFeeCostUsd?: DecimalString
-  estimatedCashbackPendingUsd?: DecimalString
   copyRunId?: string
   startedAt?: Timestamp
   stoppedAt?: Timestamp
@@ -147,6 +154,8 @@ export type ActivityRow = {
   copyRunId?: string
   copyAccount?: Address
   activityType: LooseString<ActivityType>
+  category?: LooseString<ActivityCategory>
+  subtype?: LooseString<ActivitySubtype>
   summary: string
   occurredAt: Timestamp
   userPositionId?: string
@@ -160,6 +169,45 @@ export type ActivityRow = {
   capital?: CapitalActivityDetail
   fee?: FeeActivityDetail
   execution?: ExecutionActivityDetail
+  alert?: AlertFeedContext
+}
+
+export type AlertLeaderContextStatus = 'present' | 'not_applicable' | 'unavailable' | 'unknown'
+export type AlertOutcomeStatus = 'pending' | 'succeeded' | 'skipped' | 'effect_observed_incomplete' | 'unknown'
+
+export type AlertLeaderActionContext = {
+  side: TradeSide
+  leaderPositionId?: string
+  leaderPositionEventId?: string
+  baseToken?: Token
+  quoteToken?: Token
+  baseAmountRaw?: string
+  quoteAmountRaw?: string
+  canonicalLeaderTxHash?: string
+  occurredAt?: Timestamp
+}
+
+export type AlertUserOutcome = {
+  side: TradeSide
+  status: AlertOutcomeStatus
+  baseAmountRaw?: string
+  quoteAmountRaw?: string
+  attemptedTxHash?: string
+  canonicalFollowerTxHash?: string
+  publicErrorCode?: string
+  publicErrorMessage?: string
+  completeness?: DataCompleteness
+  finality?: DataFinality
+  quotePerBasePrice?: Metric
+}
+
+export type AlertFeedContext = {
+  alertId: string
+  leaderContextStatus: AlertLeaderContextStatus
+  leader?: AlertLeaderActionContext
+  user?: AlertUserOutcome
+  fallbackAgentSummaryEn?: string
+  fallbackUserSummaryEn?: string
 }
 
 export type WalletBalanceRow = {

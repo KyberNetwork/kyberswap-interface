@@ -47,9 +47,10 @@ const AgentList = () => {
     [normalizedSearch, selectedChainId, selectedStrategy],
   )
 
-  const { data: leaderboardSummary } = discoveryApi.useGetLeaderboardSummaryQuery(summaryQuery, {
-    pollingInterval: 10_000,
-  })
+  const { currentData: leaderboardSummary, isFetching: isLeaderboardSummaryFetching } =
+    discoveryApi.useGetLeaderboardSummaryQuery(summaryQuery, {
+      pollingInterval: 10_000,
+    })
   const [getLeaderboard] = discoveryApi.useLazyGetLeaderboardQuery()
   const leaderboardPage = useCursorPageQuery({
     queryKey: ['copy-trading', 'leaderboard', selectedChainId, selectedStrategy, normalizedSearch, sortBy, sortOrder],
@@ -98,7 +99,10 @@ const AgentList = () => {
         description="Automatically delegate to top on-chain AI agents. Maintain full custody of your assets with transparent fees and cashback."
       />
 
-      <LeaderboardSummary summary={leaderboardSummary?.data} fallbackAgentCount={agents.length} />
+      <LeaderboardSummary
+        loading={!leaderboardSummary && isLeaderboardSummaryFetching}
+        summary={leaderboardSummary?.data}
+      />
 
       <Stack className="gap-4">
         <HStack className="flex-wrap items-center justify-between gap-4">

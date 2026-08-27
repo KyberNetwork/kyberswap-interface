@@ -53,14 +53,14 @@ export const AddCapitalForm = ({
 }: AddCapitalFormProps) => {
   return (
     <Stack className="gap-4">
-      <CapitalSummaryRow label="Currently allocated" value={currentAllocatedCapital} />
+      <CapitalSummaryRow label="Currently Allocated" value={currentAllocatedCapital} />
 
       <CapitalAmountInput
         amount={amount}
         amountError={amountError}
         inputId="copy-trading-add-capital"
         isPreparing={isPreparing}
-        label="Amount to add"
+        label="Amount To Add"
         onAmountChange={onAmountChange}
         onPercentageChange={onPercentageChange}
         presetsEnabled={presetsEnabled}

@@ -39,7 +39,7 @@ export const StopCopyReview = ({ isLoading, preview }: { isLoading: boolean; pre
       {!!preview?.positions?.length && (
         <Stack className="gap-3 rounded-xl bg-white-04 px-4 py-3">
           <HStack className="items-center justify-between gap-3 text-sm font-medium text-subText">
-            <h3>Positions to sell:</h3>
+            <h3>Positions To Sell:</h3>
             <span>{preview.positions.length}</span>
           </HStack>
           <HStack className="flex-wrap gap-2">
@@ -218,7 +218,7 @@ const StopCopyPositionList = ({
   return (
     <Stack className="gap-2">
       <HStack className="items-center justify-between gap-3">
-        <span className="text-sm text-subText">Select positions to sell:</span>
+        <span className="text-sm text-subText">Select Positions To Sell:</span>
         <span className="shrink-0 text-sm font-medium text-subText">
           {displayedPositionCount === undefined ? '' : `${selectedPositionCount}/${displayedPositionCount}`}
         </span>

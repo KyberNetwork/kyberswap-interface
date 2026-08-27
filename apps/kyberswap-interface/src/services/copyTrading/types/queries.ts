@@ -1,4 +1,7 @@
 import type {
+  ActivityCategory,
+  ActivitySubtype,
+  ActivitySurface,
   ActivityTypeFilter,
   Address,
   AgentPositionStatusFilter,
@@ -70,7 +73,8 @@ export type AgentPositionEventsQuery = CursorQuery & AgentPositionQuery
 export type CotLogsQuery = CursorQuery &
   AgentQuery & {
     leaderPositionId?: string
-    type?: string
+    type?: 'open' | 'close_partial' | 'close_full'
+    side?: 'buy' | 'sell'
     groupBy?: 'AGENT_ACTION_LOG_GROUP_BY_UNSPECIFIED' | 'AGENT_ACTION_LOG_GROUP_BY_SESSION_ID'
     from?: Timestamp
     to?: Timestamp
@@ -103,6 +107,13 @@ export type CopyRunPositionsQuery = CursorQuery &
     status?: PositionStatusFilter
     sortBy?: PositionSortBy
     sortOrder?: SortOrder
+    includeClosedExecutions?: boolean
+    closedExecutionsLimit?: number
+  }
+
+export type CopyRunPositionClosedExecutionsQuery = CursorQuery &
+  CopyRunQuery & {
+    positionId: string
   }
 
 export type CopyRunPerformanceQuery = CursorQuery & CopyRunQuery & PerformanceQuery
@@ -120,6 +131,9 @@ export type OwnerActivityQuery = CursorQuery &
     copyRunId?: string
     activityType?: ActivityTypeFilter
     group?: 'buys' | 'sells' | 'deposits_withdrawals' | 'skipped'
+    activitySurface?: ActivitySurface
+    category?: ActivityCategory
+    subtype?: ActivitySubtype
   }
 
 export type OwnerCopyAccountsQuery = CursorQuery &

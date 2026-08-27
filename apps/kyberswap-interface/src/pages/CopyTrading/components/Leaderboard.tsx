@@ -1,5 +1,6 @@
 import type { MetricStatus } from 'services/copyTrading/types/primitives'
 
+import TextSkeleton from 'components/Skeleton/TextSkeleton'
 import { Center, HStack, Stack } from 'components/Stack'
 import { DataQualityStatusBadge } from 'pages/CopyTrading/components/common/status'
 import { type StatIcon } from 'pages/CopyTrading/constants'
@@ -18,6 +19,7 @@ export type LeaderboardStat = {
 type LeaderboardCardProps = {
   className?: string
   item: LeaderboardStat
+  loading?: boolean
   size: LeaderboardSize
 }
 
@@ -44,7 +46,18 @@ const StatIconView = ({ icon }: Pick<LeaderboardStat, 'icon'>) => {
   )
 }
 
-const LeaderboardCard = ({ className, item, size }: LeaderboardCardProps) => {
+const StatValueSkeleton = ({ size }: Pick<LeaderboardCardProps, 'size'>) => (
+  <div>
+    <div className="md:hidden">
+      <TextSkeleton size="base" width={80} />
+    </div>
+    <div className="hidden md:block">
+      <TextSkeleton size={size === 'lg' ? '2xl' : 'lg'} width={size === 'lg' ? 112 : 80} />
+    </div>
+  </div>
+)
+
+const LeaderboardCard = ({ className, item, loading, size }: LeaderboardCardProps) => {
   return (
     <HStack
       className={cn(
@@ -55,17 +68,21 @@ const LeaderboardCard = ({ className, item, size }: LeaderboardCardProps) => {
     >
       <StatIconView icon={item.icon} />
       <Stack className={cn('min-w-0 flex-1 gap-0', size === 'lg' ? 'md:gap-1' : 'md:gap-0.5')}>
-        <span
-          className={cn(
-            'truncate text-base font-medium leading-5',
-            size === 'lg' ? 'text-text md:text-2xl md:leading-8' : 'text-primary md:text-lg md:leading-6',
-            item.valueClassName,
-          )}
-          title={item.value}
-        >
-          {item.value}
-        </span>
-        <div className="min-w-0 text-xs leading-4 text-subText md:text-sm md:leading-5">
+        {loading ? (
+          <StatValueSkeleton size={size} />
+        ) : (
+          <span
+            className={cn(
+              'truncate text-base font-medium',
+              size === 'lg' ? 'text-text md:text-2xl' : 'text-primary md:text-lg',
+              item.valueClassName,
+            )}
+            title={item.value}
+          >
+            {item.value}
+          </span>
+        )}
+        <div className="min-w-0 text-xs text-subText md:text-sm">
           <StatLabel item={item} />
         </div>
       </Stack>
@@ -76,15 +93,17 @@ const LeaderboardCard = ({ className, item, size }: LeaderboardCardProps) => {
 type LeaderboardProps = {
   className?: string
   items: readonly LeaderboardStat[]
+  loading?: boolean
   size?: LeaderboardSize
 }
 
-const Leaderboard = ({ items, size = 'lg', className }: LeaderboardProps) => (
+const Leaderboard = ({ items, loading, size = 'lg', className }: LeaderboardProps) => (
   <div className={cn('grid grid-cols-2 gap-2 md:grid-cols-[repeat(auto-fit,minmax(250px,1fr))] md:gap-4', className)}>
     {items.map((item, index) => (
       <LeaderboardCard
         key={item.label}
         item={item}
+        loading={loading}
         size={size}
         className={cn(items.length % 2 === 1 && index === items.length - 1 && 'max-md:col-span-2')}
       />

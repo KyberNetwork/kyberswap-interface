@@ -123,12 +123,15 @@ export type LeaderboardSummary = {
 
 export type PerformancePoint = {
   timestamp: Timestamp
-  series: PerformanceSeries
+  series?: PerformanceSeries
   interval?: PerformanceInterval
   portfolioValueUsd?: DecimalString
   realizedPnlUsd?: DecimalString
+  totalPnlUsd?: DecimalString
+  valuePct?: DecimalString
   tradeId?: string
   positionId?: string
   token?: Token
   metric: Metric
+  percentageMetric?: Metric
 }

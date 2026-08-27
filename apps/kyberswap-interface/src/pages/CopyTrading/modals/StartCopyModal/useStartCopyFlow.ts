@@ -113,6 +113,8 @@ export const useStartCopyFlow = ({ agent, onDismiss }: { agent: StartCopyTarget;
             view: 'open',
             agentId: agent.agentId,
             chainId: agent.chainId,
+            sortBy: 'started_at',
+            sortOrder: 'desc',
             limit: 1,
           }).unwrap(),
       })
@@ -141,9 +143,9 @@ export const useStartCopyFlow = ({ agent, onDismiss }: { agent: StartCopyTarget;
   const primaryActionLabel = getWritePrimaryActionLabel({
     accountConnected,
     onExpectedChain: capital.onExpectedChain,
-    readyLabel: 'Next',
+    readyLabel: 'Review Start Copy',
     unavailable: !!availabilityMessage || !capital.quoteToken,
-    unavailableLabel: 'Start Copy unavailable',
+    unavailableLabel: 'Start Copy Unavailable',
   })
   const primaryActionDisabled = isWritePrimaryActionDisabled({
     accountConnected,

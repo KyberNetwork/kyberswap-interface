@@ -1,5 +1,6 @@
 import { type HTMLAttributes } from 'react'
 import type { CopyRunSummary } from 'services/copyTrading/types/copyRuns'
+import type { CopyRunSortBy, SortOrder } from 'services/copyTrading/types/primitives'
 
 import ScrollArea from 'components/ScrollArea'
 import { Stack } from 'components/Stack'
@@ -49,9 +50,19 @@ type ClosedSubscriptionsTableProps = {
   loading?: boolean
   pagination: CursorPaginationState
   rows: CopyRunSummary[]
+  sortBy?: CopyRunSortBy
+  sortOrder?: SortOrder
+  onSortChange: (sortBy: CopyRunSortBy) => void
 }
 
-const ClosedSubscriptionsTable = ({ loading, pagination, rows }: ClosedSubscriptionsTableProps) => {
+const ClosedSubscriptionsTable = ({
+  loading,
+  onSortChange,
+  pagination,
+  rows,
+  sortBy,
+  sortOrder,
+}: ClosedSubscriptionsTableProps) => {
   return (
     <Stack className="gap-2 lg:gap-0 lg:overflow-hidden lg:rounded-xl lg:bg-buttonBlack-60">
       <ScrollArea className="relative hidden max-h-[480px] lg:block">
@@ -63,7 +74,15 @@ const ClosedSubscriptionsTable = ({ loading, pagination, rows }: ClosedSubscript
           <HeaderCell className="justify-end text-right">Realised P&amp;L</HeaderCell>
           <HeaderCell className="justify-end text-right">Fees Paid</HeaderCell>
           <HeaderCell className="justify-end text-right">Rebates</HeaderCell>
-          <HeaderCell className="justify-end text-right">Current Balance</HeaderCell>
+          <HeaderCell
+            activeSortBy={sortBy}
+            className="justify-end text-right"
+            onSortChange={onSortChange}
+            sortField="current_balance"
+            sortOrder={sortOrder}
+          >
+            Current Balance
+          </HeaderCell>
         </ClosedSubscriptionsGrid>
 
         <TableBody
@@ -93,11 +112,13 @@ const ClosedSubscriptionsTable = ({ loading, pagination, rows }: ClosedSubscript
               >
                 {signedUsd(subscription.realizedPnlUsd)}
               </TableCell>
-              <TableCell className="text-right">{formatUsd(subscription.flatFeesCapturedUsd)}</TableCell>
+              <TableCell className={cn('text-right', getSignedMetricClassName(subscription.netFeeCostUsd))}>
+                {signedUsd(subscription.netFeeCostUsd)}
+              </TableCell>
               <TableCell className={cn('text-right', Number(subscription.cashbackReceivedUsd) > 0 && 'text-blue')}>
                 {formatUsd(subscription.cashbackReceivedUsd)}
               </TableCell>
-              <TableCell className="text-right">{formatUsd(subscription.portfolioValueUsd)}</TableCell>
+              <TableCell className="text-right">{formatUsd(subscription.currentBalanceUsd)}</TableCell>
             </ClosedSubscriptionsGrid>
           ))}
         </TableBody>
@@ -128,7 +149,7 @@ const ClosedSubscriptionsTable = ({ loading, pagination, rows }: ClosedSubscript
               <TableCardField align="right" label="Capital In">
                 {formatDisplayCapitalInUsd(subscription)}
               </TableCardField>
-              <TableCardField label="Current Balance">{formatUsd(subscription.portfolioValueUsd)}</TableCardField>
+              <TableCardField label="Current Balance">{formatUsd(subscription.currentBalanceUsd)}</TableCardField>
               <TableCardField
                 align="right"
                 label="Realised P&amp;L"
@@ -136,7 +157,9 @@ const ClosedSubscriptionsTable = ({ loading, pagination, rows }: ClosedSubscript
               >
                 {signedUsd(subscription.realizedPnlUsd)}
               </TableCardField>
-              <TableCardField label="Fees Paid">{formatUsd(subscription.flatFeesCapturedUsd)}</TableCardField>
+              <TableCardField label="Fees Paid" valueClassName={getSignedMetricClassName(subscription.netFeeCostUsd)}>
+                {signedUsd(subscription.netFeeCostUsd)}
+              </TableCardField>
               <TableCardField
                 align="right"
                 label="Rebates"
