@@ -45,33 +45,28 @@ const getCopyRunStats = (run: CopyRunSummary): LeaderboardStat[] => {
       value: signedUsd(run.totalPnlUsd),
       valueClassName: getSignedMetricClassName(run.totalPnlUsd),
       icon: copyTradingStatIconMap.pnl,
-      status: run.metrics.totalPnlUsd?.status,
     },
     {
       label: 'Realised P&L',
       value: signedUsd(run.realizedPnlUsd),
       valueClassName: getSignedMetricClassName(run.realizedPnlUsd),
       icon: copyTradingStatIconMap.cash,
-      status: run.metrics.realizedPnlUsd?.status,
     },
     {
       label: 'APR Since Copy',
       value: signedPercent(run.myAprSinceCopyPct),
       valueClassName: getSignedMetricClassName(run.myAprSinceCopyPct),
       icon: copyTradingStatIconMap.winRate,
-      status: run.metrics.myAprSinceCopy?.status,
     },
     {
       label: 'Fee',
       value: formatUsd(run.flatFeesCapturedUsd),
       icon: copyTradingStatIconMap.volumePrimary,
-      status: run.metrics.flatFeesCapturedUsd?.status,
     },
     {
       label: 'Rebate',
       value: formatUsd(run.cashbackReceivedUsd),
       icon: copyTradingStatIconMap.moneyPrimary,
-      status: run.metrics.cashbackReceivedUsd?.status,
     },
   ]
 }
@@ -150,6 +145,7 @@ const CopyDetailView = ({ backPath }: { backPath: 'my-copies' | 'history' }) => 
     currentData: agent,
     isFetching: isAgentFetching,
     isLoading: isAgentLoading,
+    isUninitialized: isAgentUninitialized,
   } = agentApi.useGetAgentQuery(
     { agentId: copyRun?.data.agentId || '' },
     { pollingInterval: 10_000, skip: !copyRun?.data.agentId },
@@ -158,8 +154,16 @@ const CopyDetailView = ({ backPath }: { backPath: 'my-copies' | 'history' }) => 
   const run = copyRun?.data
   const profile = agent?.data
   const backLabel = backPath === 'history' ? 'History' : 'My Copies'
+  const copyRunPending = !run && (isFetching || isLoading || isUninitialized)
+  const agentPending = !!run && !profile && (isAgentFetching || isAgentLoading || isAgentUninitialized)
 
-  if (isRestoringWallet) return null
+  if (isRestoringWallet) {
+    return (
+      <CopyTradingPage>
+        <LocalLoader />
+      </CopyTradingPage>
+    )
+  }
 
   if (!ownerAddress) {
     return (
@@ -169,13 +173,14 @@ const CopyDetailView = ({ backPath }: { backPath: 'my-copies' | 'history' }) => 
     )
   }
 
-  if ((!run || !profile) && (isFetching || isLoading || isUninitialized || isAgentFetching || isAgentLoading)) {
+  if (copyRunPending || agentPending) {
     return (
       <CopyTradingPage>
         <LocalLoader />
       </CopyTradingPage>
     )
   }
+
   if (!run || !profile) return <Navigate to={`${APP_PATHS.COPY_TRADING}/${backPath}`} replace />
 
   return (

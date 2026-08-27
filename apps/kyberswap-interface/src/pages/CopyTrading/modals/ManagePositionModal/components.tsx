@@ -14,7 +14,7 @@ import { PreparedActionFormActions, ReviewRow, ReviewSection } from 'pages/CopyT
 import PreparedActionSlippageControl from 'pages/CopyTrading/modals/PreparedActionModal/SlippageControl'
 import {
   formatPreparedAmount,
-  formatPreparedAmountValue,
+  formatPreparedExactAmountValue,
   formatPreparedRate,
   formatSlippage,
   formatWadPercent,
@@ -44,24 +44,24 @@ type TokenAmountPanelProps = {
   token?: PreparedToken
 }
 
-const TokenAmountPanel = ({ amount, chainId, isLoading, label, token }: TokenAmountPanelProps) => (
-  <Stack className="gap-2 rounded-xl bg-white-04 p-3">
-    <span className="text-sm font-medium text-subText">{label}</span>
-    <div className="flex min-w-0 items-center justify-between gap-4">
-      <span className="min-w-0 flex-1 truncate text-xl font-medium text-text">
-        {isLoading ? (
-          <Skeleton width={112} height={28} variant="darkSubtle" />
-        ) : (
-          withMetricFallback(formatPreparedAmountValue(amount, token))
-        )}
-      </span>
-      <div className="flex max-w-[45%] shrink-0 items-center gap-1.5 rounded-full bg-white-08 py-1 pl-1.5 pr-2.5">
-        <CopyTradingTokenLogo fallbackChainId={chainId} token={token} />
-        <span className="truncate text-sm font-medium text-text">{token?.symbol || 'Token'}</span>
+const TokenAmountPanel = ({ amount, chainId, isLoading, label, token }: TokenAmountPanelProps) => {
+  const value = withMetricFallback(formatPreparedExactAmountValue(amount, token))
+
+  return (
+    <Stack className="gap-2 rounded-xl bg-white-04 p-3">
+      <span className="text-sm font-medium text-subText">{label}</span>
+      <div className="flex min-w-0 items-center justify-between gap-4">
+        <span className="min-w-0 flex-1 truncate text-xl font-medium text-text" title={isLoading ? undefined : value}>
+          {isLoading ? <Skeleton width={112} height={28} variant="darkSubtle" /> : value}
+        </span>
+        <div className="flex max-w-[45%] shrink-0 items-center gap-1.5 rounded-full bg-white-08 py-1 pl-1.5 pr-2.5">
+          <CopyTradingTokenLogo fallbackChainId={chainId} token={token} />
+          <span className="truncate text-sm font-medium text-text">{token?.symbol || 'Token'}</span>
+        </div>
       </div>
-    </div>
-  </Stack>
-)
+    </Stack>
+  )
+}
 
 const getPreparedBaseToken = (position: PositionSummary, token?: PreparedToken): PreparedToken => ({
   address: token?.address ?? position.token.address,
@@ -109,13 +109,19 @@ export const ManagePositionReview = ({
         />
       </Stack>
 
+      <div className="flex min-w-0 items-center gap-1 text-sm">
+        <span className="shrink-0 font-medium text-subText">Rate:</span>
+        <span className="truncate font-medium text-text">
+          {showSkeleton ? <Skeleton width={96} height={16} variant="darkSubtle" /> : rate}
+        </span>
+      </div>
+
       <ReviewSection>
         <ReviewRow
           isLoading={showSkeleton}
           label="Portion To Sell"
           value={withMetricFallback(formatWadPercent(preview?.sellRatioRaw))}
         />
-        <ReviewRow isLoading={showSkeleton} label="Rate" value={rate} />
         <ReviewRow
           isLoading={showSkeleton}
           label="Minimum Received"

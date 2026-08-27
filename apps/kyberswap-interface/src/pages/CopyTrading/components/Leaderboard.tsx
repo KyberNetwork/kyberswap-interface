@@ -1,8 +1,5 @@
-import type { MetricStatus } from 'services/copyTrading/types/primitives'
-
 import TextSkeleton from 'components/Skeleton/TextSkeleton'
 import { Center, HStack, Stack } from 'components/Stack'
-import { DataQualityStatusBadge } from 'pages/CopyTrading/components/common/status'
 import { type StatIcon } from 'pages/CopyTrading/constants'
 import { cn } from 'utils/cn'
 
@@ -12,7 +9,6 @@ export type LeaderboardStat = {
   label: string
   value: string
   icon: StatIcon
-  status?: MetricStatus
   valueClassName?: string
 }
 
@@ -22,15 +18,6 @@ type LeaderboardCardProps = {
   loading?: boolean
   size: LeaderboardSize
 }
-
-const StatLabel = ({ item }: Pick<LeaderboardCardProps, 'item'>) => (
-  <HStack className="min-w-0 flex-nowrap items-center gap-1 md:gap-2">
-    <span className="min-w-0 truncate" title={item.label}>
-      {item.label}
-    </span>
-    {item.status === 'METRIC_STATUS_STALE' && <DataQualityStatusBadge status={item.status} />}
-  </HStack>
-)
 
 const StatIconView = ({ icon }: Pick<LeaderboardStat, 'icon'>) => {
   const { backgroundColor } = icon
@@ -83,7 +70,9 @@ const LeaderboardCard = ({ className, item, loading, size }: LeaderboardCardProp
           </span>
         )}
         <div className="min-w-0 text-xs text-subText md:text-sm">
-          <StatLabel item={item} />
+          <span className="block truncate" title={item.label}>
+            {item.label}
+          </span>
         </div>
       </Stack>
     </HStack>

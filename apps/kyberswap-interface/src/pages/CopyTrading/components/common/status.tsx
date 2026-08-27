@@ -1,37 +1,7 @@
-import type {
-  CopyRunStatus,
-  DataStatus,
-  MetricStatus,
-  PositionLifecycle,
-  PositionQuantityState,
-} from 'services/copyTrading/types/primitives'
+import type { CopyRunStatus, PositionLifecycle, PositionQuantityState } from 'services/copyTrading/types/primitives'
 
 import { Center, Stack } from 'components/Stack'
 import { cn } from 'utils/cn'
-
-type DataQualityStatus = DataStatus | MetricStatus
-
-const dataQualityStatusPresentation: Record<DataQualityStatus, { className: string; label: string }> = {
-  DATA_STATUS_CURRENT: { className: 'bg-primary-12 text-primary', label: 'Current' },
-  DATA_STATUS_STALE: { className: 'bg-warning-20 text-warning', label: 'Stale' },
-  DATA_STATUS_UNAVAILABLE: { className: 'bg-red-20 text-red', label: 'Unavailable' },
-  DATA_STATUS_UNSPECIFIED: { className: 'bg-subText-20 text-subText', label: 'Unknown' },
-  METRIC_STATUS_CURRENT: { className: 'bg-primary-12 text-primary', label: 'Current' },
-  METRIC_STATUS_STALE: { className: 'bg-warning-20 text-warning', label: 'Stale' },
-  METRIC_STATUS_UNAVAILABLE: { className: 'bg-red-20 text-red', label: 'Unavailable' },
-  METRIC_STATUS_NOT_APPLICABLE: { className: 'bg-subText-20 text-subText', label: 'N/A' },
-  METRIC_STATUS_UNSPECIFIED: { className: 'bg-subText-20 text-subText', label: 'Unknown' },
-}
-
-export const DataQualityStatusBadge = ({ status }: { status: DataQualityStatus }) => {
-  const presentation = dataQualityStatusPresentation[status]
-
-  return (
-    <span className={cn('inline-flex rounded px-1.5 py-0 text-[10px] font-medium uppercase', presentation.className)}>
-      {presentation.label}
-    </span>
-  )
-}
 
 const copyRunStatusLabel: Record<CopyRunStatus, string> = {
   active: 'Active',

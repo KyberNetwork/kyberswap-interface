@@ -96,7 +96,7 @@ export const PreparedActionFormActions = ({
       title={primaryActionTitle}
       onClick={onPrimaryAction}
     >
-      {primaryActionLoading ? <Dots>{primaryActionLabel}</Dots> : primaryActionLabel}
+      {primaryActionLoading ? <Dots absolute>{primaryActionLabel}</Dots> : primaryActionLabel}
     </ButtonPrimary>
   </HStack>
 )
@@ -243,7 +243,7 @@ const PreparedActionModal = ({
                   disabled={interactionLocked || confirmDisabled}
                   onClick={onConfirm}
                 >
-                  {interactionLocked ? <Dots>{confirmLabel}</Dots> : confirmLabel}
+                  {interactionLocked ? <Dots absolute>{confirmLabel}</Dots> : confirmLabel}
                 </ButtonPrimary>
               </HStack>
             </Stack>
@@ -357,7 +357,7 @@ const PreparedActionModal = ({
                   onClick={onRetry}
                 >
                   {state.isPreparing ? (
-                    <Dots>{recovery.retryLabel}</Dots>
+                    <Dots absolute>{recovery.retryLabel}</Dots>
                   ) : (
                     <HStack className="items-center justify-center gap-2">
                       <RotateCw size={15} />

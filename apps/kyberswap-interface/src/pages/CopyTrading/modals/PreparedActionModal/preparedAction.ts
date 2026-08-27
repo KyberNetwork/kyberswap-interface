@@ -102,6 +102,14 @@ export const formatPreparedAmount = (
   return formatted === '—' ? formatted : `${formatted} ${token?.symbol || ''}`.trim()
 }
 
+export const formatPreparedExactAmountValue = (value: string | RawAmountMetric | undefined, token?: PreparedToken) => {
+  const valueRaw = typeof value === 'string' ? value : value?.valueRaw
+  if ((typeof value !== 'string' && isUnavailableMetric(value)) || !valueRaw || token?.decimals === undefined)
+    return '—'
+
+  return formatUnits(BigInt(valueRaw), token.decimals)
+}
+
 export const formatPreparedAmountValue = (
   value: string | RawAmountMetric | undefined,
   token?: PreparedToken,
