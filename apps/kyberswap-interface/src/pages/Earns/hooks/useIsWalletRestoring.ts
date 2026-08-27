@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 
-import { readRecentConnectorId } from 'components/Web3Provider'
+import { hasPersistedConnection } from 'components/Web3Provider'
 import { useAccount } from 'hooks/useAccount'
 
 // wagmi's boot walk has no timeout of its own: it awaits `connector.isAuthorized()` for each candidate,
@@ -20,8 +20,8 @@ export default function useIsWalletRestoring() {
   const hasStartedRestore = useRef(false)
 
   useEffect(() => {
-    // Nothing was ever connected from this browser, so no restore will run at all.
-    if (!readRecentConnectorId()) {
+    // The visitor left disconnected, so no restore will run and there is nothing to wait for.
+    if (!hasPersistedConnection()) {
       setIsRestoring(false)
       return
     }
@@ -31,6 +31,11 @@ export default function useIsWalletRestoring() {
   }, [])
 
   useEffect(() => {
+    // A wallet already in hand needs no restoring: this page was reached after one finished.
+    if (status === 'connected') {
+      setIsRestoring(false)
+      return
+    }
     // The restore starts in a Web3Provider effect, which React runs after this one, so `disconnected`
     // here means "not started yet" until the status has been seen in flight at least once.
     if (status === 'connecting' || status === 'reconnecting') hasStartedRestore.current = true
