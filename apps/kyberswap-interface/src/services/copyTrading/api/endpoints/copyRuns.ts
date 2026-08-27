@@ -7,9 +7,10 @@ import {
   adaptCopyRunsResponse,
   adaptOwnerCopySummaryResponse,
 } from 'services/copyTrading/adapters/copyRuns'
-import { adaptPositionsResponse } from 'services/copyTrading/adapters/positions'
+import { adaptClosedPositionExecutionsResponse, adaptPositionsResponse } from 'services/copyTrading/adapters/positions'
 import type {
   CopyRunPerformanceQuery,
+  CopyRunPositionClosedExecutionsQuery,
   CopyRunPositionsQuery,
   CopyRunQuery,
   CopyRunsQuery,
@@ -21,6 +22,7 @@ import type {
 import type {
   CopyRunCashbackPolicyResponse,
   CopyRunPerformanceResponse,
+  CopyRunPositionClosedExecutionsResponse,
   CopyRunPositionsResponse,
   CopyRunResponse,
   CopyRunsResponse,
@@ -32,7 +34,10 @@ import type {
 
 import copyTradingBaseApi from '../baseApi'
 import {
+  activityCategoryMap,
   activityGroupMap,
+  activitySubtypeMap,
+  activitySurfaceMap,
   cleanParams,
   copyAccountStatusMap,
   copyRunSortMap,
@@ -88,6 +93,24 @@ const copyRunApi = copyTradingBaseApi.injectEndpoints({
       transformResponse: adaptPositionsResponse,
       providesTags: ['CopyTrading'],
     }),
+    getCopyRunPositionClosedExecutions: builder.query<
+      CopyRunPositionClosedExecutionsResponse,
+      CopyRunPositionClosedExecutionsQuery
+    >({
+      query: ({ ownerAddress, copyRunId, positionId, cursor, limit }) => ({
+        url:
+          '/users/' +
+          pathPart(ownerAddress) +
+          '/copy-runs/' +
+          pathPart(copyRunId) +
+          '/positions/' +
+          pathPart(positionId) +
+          '/closed-executions',
+        params: cleanParams({ cursor, limit }),
+      }),
+      transformResponse: adaptClosedPositionExecutionsResponse,
+      providesTags: ['CopyTrading'],
+    }),
     getCopyRunPerformance: builder.query<CopyRunPerformanceResponse, CopyRunPerformanceQuery>({
       query: query => ({
         url: '/users/' + pathPart(query.ownerAddress) + '/copy-runs/' + pathPart(query.copyRunId) + '/performance',
@@ -108,13 +131,27 @@ const copyRunApi = copyTradingBaseApi.injectEndpoints({
       providesTags: ['CopyTrading'],
     }),
     getOwnerActivity: builder.query<OwnerActivityResponse, OwnerActivityQuery>({
-      query: ({ ownerAddress, copyRunId, chainId, activityType, group, cursor, limit }) => ({
+      query: ({
+        ownerAddress,
+        copyRunId,
+        chainId,
+        activityType,
+        group,
+        activitySurface,
+        category,
+        subtype,
+        cursor,
+        limit,
+      }) => ({
         url: '/users/' + pathPart(ownerAddress) + '/activity',
         params: cleanParams({
           copyRunId,
           chainId,
           type: activityType && activityType !== 'all' ? 'ACTIVITY_TYPE_' + activityType.toUpperCase() : undefined,
           group: group ? activityGroupMap[group] : undefined,
+          activitySurface: activitySurface ? activitySurfaceMap[activitySurface] : undefined,
+          category: category ? activityCategoryMap[category] : undefined,
+          subtype: subtype ? activitySubtypeMap[subtype] : undefined,
           cursor,
           limit,
         }),

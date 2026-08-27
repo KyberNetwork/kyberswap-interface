@@ -11,7 +11,7 @@ import Dots from 'components/Dots'
 import Loader from 'components/Loader'
 import SegmentedControl, { type SegmentedControlOption } from 'components/SegmentedControl'
 import { HStack, Stack } from 'components/Stack'
-import { compactUsd, formatUsd, getSignedMetricClassName } from 'pages/CopyTrading/helpers'
+import { compactUsd, formatUsd, getSignedMetricClassName, percent } from 'pages/CopyTrading/helpers'
 import { MEDIA_WIDTHS } from 'theme'
 import { cn } from 'utils/cn'
 import { formatDateTime, formatShortDate } from 'utils/time'
@@ -27,6 +27,8 @@ type PerformanceChartPoint = {
   timestamp: number
   portfolioValueUsd?: number
   realizedPnlUsd?: number
+  totalPnlUsd?: number
+  valuePct?: number
 }
 
 const toChartNumber = (value?: string) => {
@@ -40,10 +42,14 @@ export const toPerformanceChartPoint = (point: PerformancePoint): PerformanceCha
   timestamp: new Date(point.timestamp).getTime(),
   portfolioValueUsd: toChartNumber(point.portfolioValueUsd),
   realizedPnlUsd: toChartNumber(point.realizedPnlUsd),
+  totalPnlUsd: toChartNumber(point.totalPnlUsd),
+  valuePct: toChartNumber(point.valuePct),
 })
 
-const getPnlGradientOffset = (data: PerformanceChartPoint[]) => {
-  const values = data.map(point => point.realizedPnlUsd).filter(value => value !== undefined)
+type PnlDataKey = 'totalPnlUsd' | 'valuePct'
+
+const getPnlGradientOffset = (data: PerformanceChartPoint[], dataKey: PnlDataKey) => {
+  const values = data.map(point => point[dataKey]).filter(value => value !== undefined)
   if (!values.length) return 1
   const maximum = Math.max(...values)
   const minimum = Math.min(...values)
@@ -140,7 +146,11 @@ const ChartTooltip = ({ active, payload }: ChartTooltipProps) => {
     <Stack className="gap-2 rounded-lg bg-background px-4 py-3 text-xs shadow-lg">
       <span className="text-subText">{formatDateTime(point.timestamp)}</span>
       {payload.map(item => {
-        const isPnl = item.dataKey === 'realizedPnlUsd'
+        const isPnl = item.dataKey === 'totalPnlUsd' || item.dataKey === 'valuePct'
+        const formattedValue =
+          item.dataKey === 'valuePct'
+            ? percent(item.value === undefined ? undefined : String(item.value))
+            : formatUsd(item.value === undefined ? undefined : String(item.value))
 
         return (
           <span
@@ -148,7 +158,7 @@ const ChartTooltip = ({ active, payload }: ChartTooltipProps) => {
             className={cn('font-medium', isPnl && getSignedMetricClassName(item.value))}
             style={isPnl ? undefined : { color: item.color }}
           >
-            {item.name}: {formatUsd(item.value === undefined ? undefined : String(item.value))}
+            {item.name}: {formattedValue}
           </span>
         )
       })}
@@ -160,6 +170,7 @@ type PnlActiveDotProps = {
   cx?: number
   cy?: number
   payload?: PerformanceChartPoint
+  dataKey: PnlDataKey
 }
 
 const getPnlActiveDotFill = (value?: number) => {
@@ -167,12 +178,12 @@ const getPnlActiveDotFill = (value?: number) => {
   return value > 0 ? 'var(--ks-primary)' : 'var(--ks-red)'
 }
 
-const PnlActiveDot = ({ cx, cy, payload }: PnlActiveDotProps) => {
+const PnlActiveDot = ({ cx, cy, dataKey, payload }: PnlActiveDotProps) => {
   return (
     <circle
       cx={cx}
       cy={cy}
-      fill={getPnlActiveDotFill(payload?.realizedPnlUsd)}
+      fill={getPnlActiveDotFill(payload?.[dataKey])}
       r={4}
       stroke="var(--ks-buttonBlack)"
       strokeWidth={2}
@@ -210,7 +221,7 @@ const ChartState = ({ children, className, isError, isEmpty, isLoading }: ChartS
   )
 }
 
-type CumulativeRealisedPnlChartProps = {
+type CumulativeTotalPnlChartProps = {
   collapsible?: boolean
   data: PerformanceChartPoint[]
   isError?: boolean
@@ -219,37 +230,52 @@ type CumulativeRealisedPnlChartProps = {
   window?: PerformanceWindow
 }
 
-export const CumulativeRealisedPnlChart = ({
+export const CumulativeTotalPnlChart = ({
   collapsible,
   data,
   isError,
   isFetching,
   onWindowChange,
   window,
-}: CumulativeRealisedPnlChartProps) => {
-  const gradientOffset = getPnlGradientOffset(data)
-  const windowControl =
-    window && onWindowChange ? (
-      <SegmentedControl onChange={onWindowChange} options={chartWindowOptions} size="sm" value={window} />
-    ) : undefined
+}: CumulativeTotalPnlChartProps) => {
+  const [metric, setMetric] = useState<'usd' | 'return'>('usd')
+  const dataKey: PnlDataKey = metric === 'usd' ? 'totalPnlUsd' : 'valuePct'
+  const gradientOffset = getPnlGradientOffset(data, dataKey)
+  const hasSelectedMetric = data.some(point => point[dataKey] !== undefined)
+  const chartControls = (
+    <HStack className="items-center gap-2">
+      <SegmentedControl
+        onChange={setMetric}
+        options={[
+          { label: '$', value: 'usd' },
+          { label: '%', value: 'return' },
+        ]}
+        size="sm"
+        value={metric}
+      />
+      {window && onWindowChange && (
+        <SegmentedControl onChange={onWindowChange} options={chartWindowOptions} size="sm" value={window} />
+      )}
+    </HStack>
+  )
 
   return (
     <ChartSection
       collapsible={collapsible}
-      headerAside={windowControl}
+      headerAside={chartControls}
       loading={isFetching}
-      title="Cumulative Realised P&L"
+      title="Cumulative Total P&L"
     >
-      <ChartState isEmpty={!isFetching && !data.length} isError={isError} isLoading={isFetching && !data.length}>
-        {!!data.length && (
+      <ChartState isEmpty={!isFetching && !hasSelectedMetric} isError={isError} isLoading={isFetching && !data.length}>
+        {hasSelectedMetric && (
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={data} margin={{ top: 16, right: 0, bottom: 8, left: 0 }}>
               <defs>
-                <linearGradient id="realisedPnlStroke" x1="0" y1="0" x2="0" y2="1">
+                <linearGradient id="totalPnlStroke" x1="0" y1="0" x2="0" y2="1">
                   <stop offset={gradientOffset} stopColor="var(--ks-primary)" />
                   <stop offset={gradientOffset} stopColor="var(--ks-red)" />
                 </linearGradient>
-                <linearGradient id="realisedPnlFill" x1="0" y1="0" x2="0" y2="1">
+                <linearGradient id="totalPnlFill" x1="0" y1="0" x2="0" y2="1">
                   <stop offset={gradientOffset} stopColor="var(--ks-primary)" stopOpacity={0.16} />
                   <stop offset={gradientOffset} stopColor="var(--ks-red)" stopOpacity={0.16} />
                 </linearGradient>
@@ -266,18 +292,18 @@ export const CumulativeRealisedPnlChart = ({
               <YAxis
                 axisLine={false}
                 tick={{ fill: 'var(--ks-subText)', fontSize: 12 }}
-                tickFormatter={value => compactUsd(String(value))}
+                tickFormatter={value => (metric === 'return' ? percent(String(value)) : compactUsd(String(value)))}
                 tickLine={false}
                 width={72}
               />
               <Tooltip content={<ChartTooltip />} cursor={{ stroke: 'var(--ks-subText)', strokeDasharray: '4 4' }} />
               <Area
-                activeDot={<PnlActiveDot />}
-                dataKey="realizedPnlUsd"
+                activeDot={<PnlActiveDot dataKey={dataKey} />}
+                dataKey={dataKey}
                 dot={false}
-                fill="url(#realisedPnlFill)"
-                name="Realised P&L"
-                stroke="url(#realisedPnlStroke)"
+                fill="url(#totalPnlFill)"
+                name={metric === 'return' ? 'Holding-period return' : 'Total P&L'}
+                stroke="url(#totalPnlStroke)"
                 strokeWidth={3}
                 type="monotone"
               />

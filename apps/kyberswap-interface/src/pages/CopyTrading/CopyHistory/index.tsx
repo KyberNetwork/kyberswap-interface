@@ -1,5 +1,7 @@
+import { useState } from 'react'
 import copyRunApi from 'services/copyTrading/api/endpoints/copyRuns'
 import type { OwnerCopySummary } from 'services/copyTrading/types/copyRuns'
+import type { CopyRunSortBy, SortOrder } from 'services/copyTrading/types/primitives'
 
 import useIsWalletRestoring from 'hooks/useIsWalletRestoring'
 import ClosedSubscriptionsTable from 'pages/CopyTrading/CopyHistory/ClosedSubscriptionsTable'
@@ -14,7 +16,7 @@ import { formatCount, formatUsd, getSignedMetricClassName, signedUsd } from 'pag
 
 const PAGE_SIZE = 5
 
-const CopyHistorySummary = ({ summary }: { summary?: OwnerCopySummary }) => {
+const CopyHistorySummary = ({ loading, summary }: { loading?: boolean; summary?: OwnerCopySummary }) => {
   const historyStats: LeaderboardStat[] = [
     {
       label: 'Realised P&L (All time)',
@@ -37,27 +39,31 @@ const CopyHistorySummary = ({ summary }: { summary?: OwnerCopySummary }) => {
     },
   ]
 
-  return <Leaderboard items={historyStats} />
+  return <Leaderboard items={historyStats} loading={loading} />
 }
 
 const CopyHistoryView = () => {
   const { ownerAddress } = useCopyTradingContext()
   const isRestoringWallet = useIsWalletRestoring()
+  const [sortBy, setSortBy] = useState<CopyRunSortBy>()
+  const [sortOrder, setSortOrder] = useState<SortOrder>()
   const [getCopyRuns] = copyRunApi.useLazyGetCopyRunsQuery()
 
   const closedRunsPage = useCursorPageQuery({
     enabled: !!ownerAddress,
-    queryKey: ['copy-trading', 'copy-runs', ownerAddress, 'history'],
+    queryKey: ['copy-trading', 'copy-runs', ownerAddress, 'history', sortBy, sortOrder],
     queryFn: cursor =>
       getCopyRuns({
         ownerAddress: ownerAddress || '',
         view: 'history',
+        sortBy,
+        sortOrder,
         cursor,
         limit: PAGE_SIZE,
       }).unwrap(),
   })
 
-  const { currentData: ownerSummary } = copyRunApi.useGetOwnerCopySummaryQuery(
+  const { currentData: ownerSummary, isFetching: isOwnerSummaryFetching } = copyRunApi.useGetOwnerCopySummaryQuery(
     {
       ownerAddress: ownerAddress || '',
       view: 'history',
@@ -67,6 +73,20 @@ const CopyHistoryView = () => {
 
   const closedRuns = closedRunsPage.items
 
+  const handleSortChange = (nextSortBy: CopyRunSortBy) => {
+    if (sortBy !== nextSortBy) {
+      setSortBy(nextSortBy)
+      setSortOrder('desc')
+      return
+    }
+    if (sortOrder === 'desc') {
+      setSortOrder('asc')
+      return
+    }
+    setSortBy(undefined)
+    setSortOrder(undefined)
+  }
+
   return (
     <CopyTradingPage>
       <CopyRunsPageHeading activeView="history" />
@@ -74,8 +94,15 @@ const CopyHistoryView = () => {
         <OwnerWalletRequired />
       ) : (
         <>
-          <CopyHistorySummary summary={ownerSummary?.data} />
-          <ClosedSubscriptionsTable loading={closedRunsPage.loading} pagination={closedRunsPage} rows={closedRuns} />
+          <CopyHistorySummary loading={!ownerSummary && isOwnerSummaryFetching} summary={ownerSummary?.data} />
+          <ClosedSubscriptionsTable
+            loading={closedRunsPage.loading}
+            onSortChange={handleSortChange}
+            pagination={closedRunsPage}
+            rows={closedRuns}
+            sortBy={sortBy}
+            sortOrder={sortOrder}
+          />
         </>
       )}
     </CopyTradingPage>

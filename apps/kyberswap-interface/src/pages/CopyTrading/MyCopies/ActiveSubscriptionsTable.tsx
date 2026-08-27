@@ -18,6 +18,7 @@ import {
   TableRowLink,
 } from 'pages/CopyTrading/components/Table'
 import { CopyRunAgentCell } from 'pages/CopyTrading/components/common/agentIdentity'
+import { CopyRunStatusBadge } from 'pages/CopyTrading/components/common/status'
 import { copyTradingStatIconMap } from 'pages/CopyTrading/constants'
 import {
   canAttemptPreparation,
@@ -42,7 +43,7 @@ const ActiveSubscriptionsGrid = ({ header, className, ...props }: ActiveSubscrip
   return (
     <Grid
       className={cn(
-        'min-w-[1120px] grid-cols-[minmax(0,2.4fr)_minmax(0,0.9fr)_minmax(0,1fr)_minmax(0,0.9fr)_minmax(0,1fr)_minmax(0,0.9fr)_minmax(132px,1.1fr)]',
+        'min-w-[1200px] grid-cols-[minmax(0,2.2fr)_minmax(0,0.9fr)_minmax(0,1fr)_minmax(0,0.9fr)_minmax(0,1fr)_minmax(0,0.9fr)_minmax(88px,0.8fr)_minmax(120px,0.8fr)]',
         className,
       )}
       {...props}
@@ -70,6 +71,8 @@ const ActiveSubscriptionsTable = ({
   const { openStopCopy } = useCopyTradingModal()
 
   const renderStopCopyButton = (subscription: CopyRunSummary) => {
+    if (subscription.status !== 'active') return null
+
     const actionAvailable = canAttemptPreparation(subscription.stopCopyAvailability)
 
     return (
@@ -90,7 +93,7 @@ const ActiveSubscriptionsTable = ({
   return (
     <Stack className="gap-2 lg:gap-0 lg:overflow-hidden lg:rounded-xl lg:bg-buttonBlack-60">
       <ScrollArea className="relative hidden max-h-[480px] lg:block">
-        <ActiveSubscriptionsGrid header className="sticky top-0 z-[1]">
+        <ActiveSubscriptionsGrid header className="sticky top-0 z-20">
           <HeaderCell>Agent</HeaderCell>
           <HeaderCell
             activeSortBy={sortBy}
@@ -108,7 +111,7 @@ const ActiveSubscriptionsTable = ({
             sortField="agent_win_rate"
             sortOrder={sortOrder}
           >
-            Win Rates
+            Agent Win Rate
           </HeaderCell>
           <HeaderCell
             activeSortBy={sortBy}
@@ -129,11 +132,12 @@ const ActiveSubscriptionsTable = ({
             Capital In
           </HeaderCell>
           <HeaderCell className="justify-end text-right">Positions</HeaderCell>
+          <HeaderCell className="justify-center text-center">Status</HeaderCell>
           <HeaderCell className="justify-end text-right" />
         </ActiveSubscriptionsGrid>
 
         <TableBody
-          className="min-w-[1120px]"
+          className="min-w-[1200px]"
           empty={!rows.length}
           emptyIconUrl={copyTradingStatIconMap.agents.iconUrl}
           emptyMessage={pagination.error ? 'Unable to load active copies' : 'No active copies found'}
@@ -155,6 +159,9 @@ const ActiveSubscriptionsTable = ({
               <TableCell className="text-right">{compactUsd(subscription.agentStats.volumeUsd)}</TableCell>
               <TableCell className="text-right">{formatDisplayCapitalInUsd(subscription)}</TableCell>
               <TableCell className="text-right">{formatCount(subscription.openPositionCount)}</TableCell>
+              <TableCell className="justify-center text-center">
+                <CopyRunStatusBadge status={subscription.status} />
+              </TableCell>
               <TableCell className="flex justify-end">{renderStopCopyButton(subscription)}</TableCell>
             </ActiveSubscriptionsGrid>
           ))}
@@ -188,7 +195,7 @@ const ActiveSubscriptionsTable = ({
               </TableCardField>
               <TableCardField
                 align="right"
-                label="Win Rate"
+                label="Agent Win Rate"
                 valueClassName={getWinRateClassName(subscription.agentStats.winRatePct)}
               >
                 {percent(subscription.agentStats.winRatePct)}
@@ -197,8 +204,9 @@ const ActiveSubscriptionsTable = ({
               <TableCardField align="right" label="Capital In">
                 {formatDisplayCapitalInUsd(subscription)}
               </TableCardField>
-              <TableCardField span="full" label="Positions">
-                {formatCount(subscription.openPositionCount)}
+              <TableCardField label="Positions">{formatCount(subscription.openPositionCount)}</TableCardField>
+              <TableCardField align="right" label="Status">
+                <CopyRunStatusBadge status={subscription.status} />
               </TableCardField>
             </TableCardGrid>
 

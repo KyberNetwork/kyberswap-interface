@@ -7,7 +7,7 @@ import Checkbox from 'components/CheckBox'
 import CopyHelper from 'components/Copy'
 import InfoHelper from 'components/InfoHelper'
 import { Center, HStack, Stack } from 'components/Stack'
-import { getAgentInitials } from 'pages/CopyTrading/helpers'
+import { getAgentInitials, percent } from 'pages/CopyTrading/helpers'
 import CapitalAmountInput from 'pages/CopyTrading/modals/CapitalAmount'
 import { type CapitalPercentage } from 'pages/CopyTrading/modals/CapitalAmount/capital'
 import { PreparedActionFormActions, ReviewRow, ReviewSection } from 'pages/CopyTrading/modals/PreparedActionModal'
@@ -18,7 +18,7 @@ import { shortenAddress } from 'utils/address'
 const ReviewLabel = ({ label, tooltip }: { label: string; tooltip: string }) => (
   <span className="inline-flex items-center gap-1">
     {label}
-    <InfoHelper text={tooltip} margin={false} placement="top" size={13} />
+    <InfoHelper text={tooltip} margin={false} placement="top" width="320px" size={13} />
   </span>
 )
 
@@ -68,11 +68,17 @@ export const StartCopyReview = ({
   startPreview,
   targetCapitalRaw,
 }: StartCopyReviewProps) => {
+  const performanceFee = formatWadPercent(startPreview?.feePolicy?.advertisedUpfrontFeeRateRaw)
+  const minPriceDeviation = percent(startPreview?.copyConfirmPolicy?.minPriceDeviationPct)
+  const maxPriceDeviation = percent(startPreview?.copyConfirmPolicy?.maxPriceDeviationPct)
+  const priceDeviation =
+    minPriceDeviation === maxPriceDeviation ? minPriceDeviation : `${minPriceDeviation} – ${maxPriceDeviation}`
+
   return (
     <Stack className="gap-4">
       <ReviewSection title="Review Details">
         <ReviewRow
-          label="Allocated capital"
+          label="Allocated Capital"
           value={formatPreparedAmount(
             startPreview?.requestedTargetRaw || targetCapitalRaw,
             preparedToken || quoteToken,
@@ -82,11 +88,26 @@ export const StartCopyReview = ({
           isLoading={isLoading && !startPreview}
           label={
             <ReviewLabel
-              label="Upfront fee"
-              tooltip="The fee policy advertised by the latest preparation. It is checked again before every transaction stage."
+              label="Max Price Deviation"
+              tooltip="Each token pair has its own max price deviation set by KyberSwap. If the market moves beyond this threshold between the agent's trade and yours, your copy trade will be skipped to protect you from unfavorable entry."
             />
           }
-          value={formatWadPercent(startPreview?.feePolicy?.advertisedUpfrontFeeRateRaw)}
+          value={
+            startPreview?.copyConfirmPolicy?.priceDeviationStatus === 'METRIC_STATUS_CURRENT' ||
+            startPreview?.copyConfirmPolicy?.priceDeviationStatus === 'METRIC_STATUS_STALE'
+              ? priceDeviation
+              : 'N/A'
+          }
+        />
+        <ReviewRow
+          isLoading={isLoading && !startPreview}
+          label={
+            <ReviewLabel
+              label="Performance Fee"
+              tooltip={`A fee of ${performanceFee} is charged when your position opens. A small portion is retained to cover operational costs, including gas fees. Fee refunds, if any, are subject to applicable promotional programs or fee policies in effect from time to time.`}
+            />
+          }
+          value={performanceFee}
         />
       </ReviewSection>
 

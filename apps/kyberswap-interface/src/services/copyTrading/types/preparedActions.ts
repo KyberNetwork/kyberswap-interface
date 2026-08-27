@@ -117,6 +117,19 @@ export type StartCopyAllowanceRequirement = {
   eip712DomainKind?: LooseString<StartCopyEip712DomainKind>
 }
 
+export type CopyConfirmPolicy = {
+  minPriceDeviationBps?: number
+  maxPriceDeviationBps?: number
+  priceDeviationStatus?: MetricStatus
+  configurationGeneration?: string
+  configurationRevision?: string
+  configurationAsOf?: Timestamp
+  minPriceDeviationRaw?: string
+  maxPriceDeviationRaw?: string
+  minPriceDeviationPct?: string
+  maxPriceDeviationPct?: string
+}
+
 export type StartCopyPreview = {
   stage?: StartCopyStage
   startRequestId?: string
@@ -130,6 +143,7 @@ export type StartCopyPreview = {
   walletQuoteBalance?: RawAmountMetric
   feePolicy?: FeePolicyPreview
   allowanceRequirement?: StartCopyAllowanceRequirement
+  copyConfirmPolicy?: CopyConfirmPolicy
 }
 
 export type AddCapitalPreview = {

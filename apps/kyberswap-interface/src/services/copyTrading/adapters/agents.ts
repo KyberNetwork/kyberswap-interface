@@ -103,14 +103,16 @@ type ApiPerformancePoint = {
   series?: string
   interval?: string
   valueUsd?: ApiMetric
+  valuePct?: ApiMetric
   tradeId?: string
   positionId?: string
   token?: ApiToken
 }
 
-const performanceSeriesMap: Record<string, PerformanceSeries> = {
+const performanceSeriesMap: Partial<Record<string, PerformanceSeries>> = {
   PERFORMANCE_SERIES_PORTFOLIO_EQUITY: 'portfolio_value',
   PERFORMANCE_SERIES_CUMULATIVE_REALIZED_PNL: 'cumulative_realized_pnl',
+  PERFORMANCE_SERIES_CUMULATIVE_TOTAL_PNL: 'cumulative_total_pnl',
   PERFORMANCE_SERIES_PERIOD_REALIZED_PNL: 'period_realized_pnl',
   PERFORMANCE_SERIES_PER_TRADE_REALIZED_PNL: 'per_trade_realized_pnl',
 }
@@ -195,18 +197,24 @@ const toAgentProfile = (agent: ApiAgentProfile): AgentProfile => ({
 
 const toPerformancePoint = (point: ApiPerformancePoint): PerformancePoint => {
   const value = metricValue(point.valueUsd)
-  const isRealizedPnl = point.series !== 'PERFORMANCE_SERIES_PORTFOLIO_EQUITY'
+  const series = performanceSeriesMap[point.series || '']
 
   return {
     timestamp: point.timestamp || '',
-    series: performanceSeriesMap[point.series || ''],
+    series,
     interval: performanceIntervalMap[point.interval || ''],
-    portfolioValueUsd: isRealizedPnl ? undefined : value,
-    realizedPnlUsd: isRealizedPnl ? value : undefined,
+    portfolioValueUsd: series === 'portfolio_value' ? value : undefined,
+    realizedPnlUsd:
+      series === 'cumulative_realized_pnl' || series === 'period_realized_pnl' || series === 'per_trade_realized_pnl'
+        ? value
+        : undefined,
+    totalPnlUsd: series === 'cumulative_total_pnl' ? value : undefined,
+    valuePct: metricValue(point.valuePct),
     tradeId: point.tradeId,
     positionId: point.positionId,
     token: point.token ? toToken(point.token) : undefined,
     metric: point.valueUsd || {},
+    percentageMetric: point.valuePct,
   }
 }
 
@@ -259,5 +267,9 @@ export const adaptAgentStatsResponse = (response: ApiSingleResponse<ApiAgentMetr
   singleResponse(response, toAgentStats)
 
 export const adaptPerformanceResponse = (
-  response: ApiCursorResponse<ApiPerformancePoint>,
-): AgentPerformanceResponse | CopyRunPerformanceResponse => cursorResponse(response, toPerformancePoint)
+  response: ApiCursorResponse<ApiPerformancePoint> & { effectiveWindowStart?: string; evaluationAt?: string },
+): AgentPerformanceResponse | CopyRunPerformanceResponse => ({
+  ...cursorResponse(response, toPerformancePoint),
+  effectiveWindowStart: response.effectiveWindowStart,
+  evaluationAt: response.evaluationAt,
+})

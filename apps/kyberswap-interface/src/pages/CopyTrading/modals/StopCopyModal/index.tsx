@@ -173,11 +173,11 @@ const StopCopyModal = ({ isOpen, onDismiss, copyRun }: StopCopyModalProps) => {
   const primaryActionLabel = getWritePrimaryActionLabel({
     accountConnected,
     loading: positionsLoading,
-    loadingLabel: 'Loading positions',
+    loadingLabel: 'Loading Positions',
     onExpectedChain,
     readyLabel: 'Review Stop Copy',
     unavailable: positionsUnavailable || !!availabilityMessage,
-    unavailableLabel: positionsUnavailable ? 'Positions unavailable' : 'Stop Copy unavailable',
+    unavailableLabel: positionsUnavailable ? 'Positions Unavailable' : 'Stop Copy Unavailable',
   })
   const primaryActionLoading = isPreparing || (accountConnected && onExpectedChain && positionsLoading)
   const primaryActionDisabled = isWritePrimaryActionDisabled({

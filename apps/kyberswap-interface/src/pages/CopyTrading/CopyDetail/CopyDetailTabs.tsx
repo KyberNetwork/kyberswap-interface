@@ -13,27 +13,28 @@ import { formatCount } from 'pages/CopyTrading/helpers'
 
 const PAGE_SIZE = 10
 
-const copyDetailTabs = ['open-positions', 'closed-positions', 'action-logs'] as const
+const copyDetailTabs = ['open-positions', 'leftover-positions', 'closed-positions', 'action-logs'] as const
 const closedCopyDetailTabs = ['closed-positions', 'action-logs'] as const
 
 type CopyDetailTab = (typeof copyDetailTabs)[number]
 
 const copyDetailTabLabels: Record<CopyDetailTab, string> = {
   'open-positions': 'Open Positions',
+  'leftover-positions': 'Leftover Positions',
   'closed-positions': 'Closed Positions',
   'action-logs': 'Action Logs',
 }
 
 const copyDetailTabShortLabels: Partial<Record<CopyDetailTab, string>> = {
+  'leftover-positions': 'Leftovers',
   'closed-positions': 'History',
   'action-logs': 'Logs',
 }
 
 const getCopyDetailTabCount = (tab: CopyDetailTab, run: CopyRunSummary) => {
   if (tab === 'closed-positions') return run.closedPositionCount
-  if (tab !== 'open-positions') return undefined
-
-  return run.status === 'stopped' ? run.leftoverPositionCount : run.openPositionCount
+  if (tab === 'leftover-positions') return run.leftoverPositionCount
+  return tab === 'open-positions' ? run.openPositionCount : undefined
 }
 
 type CopyDetailTabsProps = {
@@ -47,10 +48,13 @@ type CopyRunPanelProps = {
   run: CopyRunSummary
 }
 
-const OpenPositionsPanel = ({ enabled = true, run }: CopyRunPanelProps) => {
+const PositionsPanel = ({
+  enabled = true,
+  positionContext,
+  run,
+}: CopyRunPanelProps & { positionContext: 'active' | 'leftover' }) => {
   const { ownerAddress } = useCopyTradingContext()
   const [getCopyRunPositions] = copyRunApi.useLazyGetCopyRunPositionsQuery()
-  const positionContext = run.status === 'stopped' ? 'leftover' : 'active'
   const {
     infiniteScroll,
     isFetching,
@@ -116,11 +120,12 @@ const ActionLogsPanel = ({ enabled = true, run }: CopyRunPanelProps) => {
     items: activities,
   } = useInfiniteCursorQuery({
     enabled: !!ownerAddress && enabled,
-    queryKey: ['copy-trading', 'owner-activity', ownerAddress, run.copyRunId],
+    queryKey: ['copy-trading', 'owner-activity', ownerAddress, run.copyRunId, 'copy_run_log'],
     queryFn: cursor =>
       getOwnerActivity({
         ownerAddress: ownerAddress || '',
         copyRunId: run.copyRunId,
+        activitySurface: 'copy_run_log',
         cursor,
         limit: PAGE_SIZE,
       }).unwrap(),
@@ -136,7 +141,10 @@ export const CopyDetailTabs = ({
   includeOpenPositions = true,
   run,
 }: CopyDetailTabsProps) => {
-  const tabs = includeOpenPositions ? copyDetailTabs : closedCopyDetailTabs
+  const showLeftoverPositions = includeOpenPositions && Number(run.leftoverPositionCount || 0) > 0
+  const tabs = includeOpenPositions
+    ? copyDetailTabs.filter(tab => tab !== 'leftover-positions' || showLeftoverPositions)
+    : closedCopyDetailTabs
   const { activeTab, setActiveTab } = useTab<CopyDetailTab>({
     tabs,
     defaultTab,
@@ -144,7 +152,6 @@ export const CopyDetailTabs = ({
   })
 
   const currentTab = activeTab || defaultTab
-  const keepOpenPositionsLoaded = includeOpenPositions && (run.status === 'active' || run.status === 'closing')
   const tabOptions: DetailTabOption<CopyDetailTab>[] = tabs.map(tab => {
     const count = getCopyDetailTabCount(tab, run)
 
@@ -162,7 +169,12 @@ export const CopyDetailTabs = ({
 
       {includeOpenPositions && (
         <div className="relative min-h-20" hidden={currentTab !== 'open-positions'} role="tabpanel">
-          <OpenPositionsPanel enabled={currentTab === 'open-positions' || keepOpenPositionsLoaded} run={run} />
+          <PositionsPanel enabled={currentTab === 'open-positions'} positionContext="active" run={run} />
+        </div>
+      )}
+      {showLeftoverPositions && (
+        <div className="relative min-h-20" hidden={currentTab !== 'leftover-positions'} role="tabpanel">
+          <PositionsPanel enabled={currentTab === 'leftover-positions'} positionContext="leftover" run={run} />
         </div>
       )}
       <div className="relative min-h-20" hidden={currentTab !== 'closed-positions'} role="tabpanel">

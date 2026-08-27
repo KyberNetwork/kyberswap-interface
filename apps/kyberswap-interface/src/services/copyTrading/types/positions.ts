@@ -2,6 +2,7 @@ import type { Token } from './agents'
 import type {
   ActivityType,
   Address,
+  CursorPagination,
   DataStatus,
   DecimalString,
   LooseString,
@@ -10,6 +11,7 @@ import type {
   PositionQuantityState,
   PositionStatus,
   Timestamp,
+  TradeSide,
 } from './primitives'
 
 export type PositionActionKind =
@@ -95,6 +97,39 @@ export type PositionSummary = {
   durationAsOf?: Timestamp
   openedAt: Timestamp
   closedAt?: Timestamp
+  openedTxHash?: string
+  latestTxHash?: string
+  totalBaseSoldRaw?: string
+  totalQuoteReceivedRaw?: string
+  quoteToken?: Token
+  totalBaseSoldDecimal?: DecimalString
+  totalQuoteReceivedDecimal?: DecimalString
+  totalQuoteReceivedValueUsd?: DecimalString
+  closedExecutionPage?: ClosedPositionExecutionPage
+}
+
+export type ClosedPositionExecution = {
+  positionEventId: string
+  positionId: string
+  baseToken?: Token
+  baseAmountSoldRaw?: string
+  baseAmountSoldDecimal?: DecimalString
+  quoteToken?: Token
+  quoteAmountReceivedRaw?: string
+  quoteAmountReceivedDecimal?: DecimalString
+  quoteAmountReceivedValueUsd?: DecimalString
+  txHash?: string
+  occurredAt?: Timestamp
+  isFinalClose?: boolean
+  realizedPnlUsd?: DecimalString
+  realizedPnlPct?: DecimalString
+  quotePerBasePrice?: DecimalString
+  metrics: Record<string, Metric | undefined>
+}
+
+export type ClosedPositionExecutionPage = {
+  data: ClosedPositionExecution[]
+  pagination: CursorPagination
 }
 
 export type CopyLifecycleActivityDetail = {
@@ -189,6 +224,8 @@ export type CotLog = {
   txHash?: string
   blockNumber?: string
   tokenAddress?: Address
+  token?: Token
+  side?: TradeSide
   model?: string
   strategyVersion?: string
   occurredAt: Timestamp

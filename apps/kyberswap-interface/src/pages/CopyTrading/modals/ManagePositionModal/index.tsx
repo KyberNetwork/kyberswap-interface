@@ -211,11 +211,11 @@ const ManagePositionModal = ({ isOpen, onDismiss, position, flow: positionFlow }
   const primaryActionLabel = getWritePrimaryActionLabel({
     accountConnected,
     loading: obligationsLoading,
-    loadingLabel: 'Loading sell actions',
+    loadingLabel: 'Loading Sell Actions',
     onExpectedChain,
     readyLabel: 'Review ' + flowConfig.actionLabel,
     unavailable: Boolean(unavailableMessage),
-    unavailableLabel: flowConfig.actionLabel + ' unavailable',
+    unavailableLabel: flowConfig.actionLabel + ' Unavailable',
   })
   const preview = flowState.action?.[preparationConfig.preview]
   const reviewPreparing = flowState.phase === 'review' && isPreparing

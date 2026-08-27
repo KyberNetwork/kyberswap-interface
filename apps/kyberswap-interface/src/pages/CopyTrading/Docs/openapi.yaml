@@ -263,6 +263,9 @@ paths:
           type: integer
           format: int32
         - name: series
+          description: |2-
+             - PERFORMANCE_SERIES_CUMULATIVE_TOTAL_PNL: Cumulative realised plus unrealised PnL. value_usd is window-relative and
+            value_pct is the matching non-annualized, cash-flow-neutral TWR value.
           in: query
           required: false
           type: string
@@ -272,6 +275,7 @@ paths:
             - PERFORMANCE_SERIES_CUMULATIVE_REALIZED_PNL
             - PERFORMANCE_SERIES_PERIOD_REALIZED_PNL
             - PERFORMANCE_SERIES_PER_TRADE_REALIZED_PNL
+            - PERFORMANCE_SERIES_CUMULATIVE_TOTAL_PNL
           default: PERFORMANCE_SERIES_UNSPECIFIED
         - name: window
           in: query
@@ -356,6 +360,15 @@ paths:
             - AGENT_ACTION_LOG_GROUP_BY_UNSPECIFIED
             - AGENT_ACTION_LOG_GROUP_BY_SESSION_ID
           default: AGENT_ACTION_LOG_GROUP_BY_UNSPECIFIED
+        - name: side
+          in: query
+          required: false
+          type: string
+          enum:
+            - TRADE_SIDE_UNSPECIFIED
+            - TRADE_SIDE_BUY
+            - TRADE_SIDE_SELL
+          default: TRADE_SIDE_UNSPECIFIED
       tags:
         - Agents
   /agents/{agentId}/positions:
@@ -571,6 +584,7 @@ paths:
             - OWNER_COPY_RUN_SORT_FIELD_AGENT_WIN_RATE
             - OWNER_COPY_RUN_SORT_FIELD_AGENT_LIFETIME_VOLUME
             - OWNER_COPY_RUN_SORT_FIELD_CAPITAL_IN
+            - OWNER_COPY_RUN_SORT_FIELD_CURRENT_BALANCE
           default: OWNER_COPY_RUN_SORT_FIELD_UNSPECIFIED
         - name: sortOrder
           in: query
@@ -697,6 +711,60 @@ paths:
             - SORT_ORDER_ASC
             - SORT_ORDER_DESC
           default: SORT_ORDER_UNSPECIFIED
+        - name: includeClosedExecutions
+          description: Expands the first bounded sell-execution page for CLOSED positions only.
+          in: query
+          required: false
+          type: boolean
+        - name: closedExecutionsLimit
+          description: |-
+            Applies only when include_closed_executions is true. The normalized parent
+            limit multiplied by this limit cannot exceed 100 nested executions.
+          in: query
+          required: false
+          type: integer
+          format: int32
+      tags:
+        - Owner Copies
+  /users/{ownerAddress}/copy-runs/{copyRunId}/positions/{positionId}/closed-executions:
+    get:
+      summary: |-
+        ListOwnerCopyRunPositionClosedExecutions lists canonical sell executions
+        for one copied position. It is an explicit continuation route for the
+        bounded Closed tab expansion.
+      operationId: listOwnerCopyRunPositionClosedExecutions
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1ListOwnerCopyRunPositionClosedExecutionsResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: ownerAddress
+          description: Initial follower-account creation wallet filter; not current ownership or authorization evidence.
+          in: path
+          required: true
+          type: string
+        - name: copyRunId
+          in: path
+          required: true
+          type: string
+        - name: positionId
+          in: path
+          required: true
+          type: string
+        - name: cursor
+          in: query
+          required: false
+          type: string
+        - name: limit
+          in: query
+          required: false
+          type: integer
+          format: int32
       tags:
         - Owner Copies
   /users/{ownerAddress}/copy-runs/{copyRunId}/performance:
@@ -732,6 +800,9 @@ paths:
           type: integer
           format: int32
         - name: series
+          description: |2-
+             - PERFORMANCE_SERIES_CUMULATIVE_TOTAL_PNL: Cumulative realised plus unrealised PnL. value_usd is window-relative and
+            value_pct is the matching non-annualized, cash-flow-neutral TWR value.
           in: query
           required: false
           type: string
@@ -741,6 +812,7 @@ paths:
             - PERFORMANCE_SERIES_CUMULATIVE_REALIZED_PNL
             - PERFORMANCE_SERIES_PERIOD_REALIZED_PNL
             - PERFORMANCE_SERIES_PER_TRADE_REALIZED_PNL
+            - PERFORMANCE_SERIES_CUMULATIVE_TOTAL_PNL
           default: PERFORMANCE_SERIES_UNSPECIFIED
         - name: window
           in: query
@@ -906,6 +978,42 @@ paths:
             - ACTIVITY_GROUP_DEPOSITS_WITHDRAWALS
             - ACTIVITY_GROUP_SKIPPED
           default: ACTIVITY_GROUP_UNSPECIFIED
+        - name: activitySurface
+          in: query
+          required: false
+          type: string
+          enum:
+            - ACTIVITY_SURFACE_UNSPECIFIED
+            - ACTIVITY_SURFACE_COPY_RUN_LOG
+            - ACTIVITY_SURFACE_ALERT_FEED
+          default: ACTIVITY_SURFACE_UNSPECIFIED
+        - name: category
+          in: query
+          required: false
+          type: string
+          enum:
+            - ACTIVITY_CATEGORY_UNSPECIFIED
+            - ACTIVITY_CATEGORY_TRADE
+            - ACTIVITY_CATEGORY_CAPITAL
+            - ACTIVITY_CATEGORY_FAILED_ACTION
+            - ACTIVITY_CATEGORY_FEE_REBATE
+          default: ACTIVITY_CATEGORY_UNSPECIFIED
+        - name: subtype
+          in: query
+          required: false
+          type: string
+          enum:
+            - ACTIVITY_SUBTYPE_UNSPECIFIED
+            - ACTIVITY_SUBTYPE_BUY
+            - ACTIVITY_SUBTYPE_SELL
+            - ACTIVITY_SUBTYPE_DEPOSITED
+            - ACTIVITY_SUBTYPE_CAPITAL_TOPPED_UP
+            - ACTIVITY_SUBTYPE_CAPITAL_WITHDRAWN
+            - ACTIVITY_SUBTYPE_SKIPPED_BUY
+            - ACTIVITY_SUBTYPE_SKIPPED_SELL
+            - ACTIVITY_SUBTYPE_FLAT_FEE_CAPTURED
+            - ACTIVITY_SUBTYPE_REBATE_RECEIVED
+          default: ACTIVITY_SUBTYPE_UNSPECIFIED
       tags:
         - Owner Copies
   /users/{ownerAddress}/copy-accounts:
@@ -1499,6 +1607,18 @@ definitions:
       ActionEvidence exposes the fact and mutable-state boundaries used to prepare
       the call. Operator-owned route clocks remain internal; reprepare_after is the
       only client expiry boundary.
+  v1ActivityCategory:
+    type: string
+    enum:
+      - ACTIVITY_CATEGORY_UNSPECIFIED
+      - ACTIVITY_CATEGORY_TRADE
+      - ACTIVITY_CATEGORY_CAPITAL
+      - ACTIVITY_CATEGORY_FAILED_ACTION
+      - ACTIVITY_CATEGORY_FEE_REBATE
+    default: ACTIVITY_CATEGORY_UNSPECIFIED
+    description: |-
+      ActivityCategory is the stable grouped vocabulary for copy-run logs and
+      owner alert feed rows.
   v1ActivityGroup:
     type: string
     enum:
@@ -1545,6 +1665,10 @@ definitions:
         type: string
       agentAvatarUrl:
         type: string
+      category:
+        $ref: '#/definitions/v1ActivityCategory'
+      subtype:
+        $ref: '#/definitions/v1ActivitySubtype'
       copyLifecycle:
         $ref: '#/definitions/v1CopyLifecycleActivityDetail'
       position:
@@ -1555,7 +1679,36 @@ definitions:
         $ref: '#/definitions/v1FeeActivityDetail'
       execution:
         $ref: '#/definitions/v1ExecutionActivityDetail'
+      alert:
+        $ref: '#/definitions/v1AlertFeedContext'
     description: ActivityRow is a public owner or copy-account timeline row.
+  v1ActivitySubtype:
+    type: string
+    enum:
+      - ACTIVITY_SUBTYPE_UNSPECIFIED
+      - ACTIVITY_SUBTYPE_BUY
+      - ACTIVITY_SUBTYPE_SELL
+      - ACTIVITY_SUBTYPE_DEPOSITED
+      - ACTIVITY_SUBTYPE_CAPITAL_TOPPED_UP
+      - ACTIVITY_SUBTYPE_CAPITAL_WITHDRAWN
+      - ACTIVITY_SUBTYPE_SKIPPED_BUY
+      - ACTIVITY_SUBTYPE_SKIPPED_SELL
+      - ACTIVITY_SUBTYPE_FLAT_FEE_CAPTURED
+      - ACTIVITY_SUBTYPE_REBATE_RECEIVED
+    default: ACTIVITY_SUBTYPE_UNSPECIFIED
+    description: |-
+      ActivitySubtype is the stable leaf vocabulary for copy-run logs and owner
+      alert feed rows.
+  v1ActivitySurface:
+    type: string
+    enum:
+      - ACTIVITY_SURFACE_UNSPECIFIED
+      - ACTIVITY_SURFACE_COPY_RUN_LOG
+      - ACTIVITY_SURFACE_ALERT_FEED
+    default: ACTIVITY_SURFACE_UNSPECIFIED
+    description: |-
+      ActivitySurface selects the public owner activity vocabulary. Unspecified
+      preserves the complete legacy owner timeline.
   v1ActivityType:
     type: string
     enum:
@@ -1659,6 +1812,10 @@ definitions:
         type: string
       strategyVersion:
         type: string
+      side:
+        $ref: '#/definitions/v1TradeSide'
+      token:
+        $ref: '#/definitions/v1Token'
     description: |-
       AgentActionLog is one sanitized public decision-log narrative. Optional
       chain links are populated only from canonical operator-derived facts.
@@ -1670,7 +1827,7 @@ definitions:
     default: AGENT_ACTION_LOG_GROUP_BY_UNSPECIFIED
     description: |-
       AgentActionLogGroupBy selects the response collection shape for one action
-      log timeline. Unspecified currently defaults to whole session groups.
+      log timeline. Unspecified currently groups the bounded row page by session.
   v1AgentActionLogSessionGroup:
     type: object
     properties:
@@ -1682,8 +1839,9 @@ definitions:
           type: object
           $ref: '#/definitions/v1AgentActionLog'
     description: |-
-      AgentActionLogSessionGroup contains all matching action logs from one
-      source session. Groups and their logs are ordered newest first.
+      AgentActionLogSessionGroup contains the matching action logs from one source
+      session that fall inside this row-bounded page. A source session can span
+      pages. Groups and their logs are ordered newest first.
   v1AgentCard:
     type: object
     properties:
@@ -1844,6 +2002,97 @@ definitions:
       lifetimeVolumeUsd:
         $ref: '#/definitions/v1DecimalMetric'
     description: AgentSnapshotMetrics contains only metrics required on copy-run rows.
+  v1AlertFeedContext:
+    type: object
+    properties:
+      alertId:
+        type: string
+      leaderContextStatus:
+        $ref: '#/definitions/v1AlertLeaderContextStatus'
+      leader:
+        $ref: '#/definitions/v1AlertLeaderActionContext'
+      user:
+        $ref: '#/definitions/v1AlertUserOutcome'
+      fallbackAgentSummaryEn:
+        type: string
+      fallbackUserSummaryEn:
+        type: string
+    description: |-
+      AlertFeedContext pairs an optional leader action with the user's copy
+      outcome. English fallback strings are derived only from these structured
+      fields and approved public errors.
+  v1AlertLeaderActionContext:
+    type: object
+    properties:
+      side:
+        $ref: '#/definitions/v1TradeSide'
+      leaderPositionId:
+        type: string
+      leaderPositionEventId:
+        type: string
+      baseToken:
+        $ref: '#/definitions/v1Token'
+      quoteToken:
+        $ref: '#/definitions/v1Token'
+      baseAmountRaw:
+        type: string
+      quoteAmountRaw:
+        type: string
+      canonicalLeaderTxHash:
+        type: string
+      occurredAt:
+        type: string
+        format: date-time
+    description: |-
+      AlertLeaderActionContext contains canonical leader-side context for an owner
+      alert. It is omitted when leader context is not applicable or unavailable.
+  v1AlertLeaderContextStatus:
+    type: string
+    enum:
+      - ALERT_LEADER_CONTEXT_STATUS_UNSPECIFIED
+      - ALERT_LEADER_CONTEXT_STATUS_PRESENT
+      - ALERT_LEADER_CONTEXT_STATUS_NOT_APPLICABLE
+      - ALERT_LEADER_CONTEXT_STATUS_UNAVAILABLE
+    default: ALERT_LEADER_CONTEXT_STATUS_UNSPECIFIED
+    description: |-
+      AlertLeaderContextStatus describes whether an alert has provable leader-side
+      context.
+  v1AlertOutcomeStatus:
+    type: string
+    enum:
+      - ALERT_OUTCOME_STATUS_UNSPECIFIED
+      - ALERT_OUTCOME_STATUS_PENDING
+      - ALERT_OUTCOME_STATUS_SUCCEEDED
+      - ALERT_OUTCOME_STATUS_SKIPPED
+      - ALERT_OUTCOME_STATUS_EFFECT_OBSERVED_INCOMPLETE
+    default: ALERT_OUTCOME_STATUS_UNSPECIFIED
+    description: AlertOutcomeStatus describes the authoritative user outcome for an alert.
+  v1AlertUserOutcome:
+    type: object
+    properties:
+      side:
+        $ref: '#/definitions/v1TradeSide'
+      status:
+        $ref: '#/definitions/v1AlertOutcomeStatus'
+      baseAmountRaw:
+        type: string
+      quoteAmountRaw:
+        type: string
+      attemptedTxHash:
+        type: string
+      canonicalFollowerTxHash:
+        type: string
+      publicErrorCode:
+        type: string
+      publicErrorMessage:
+        type: string
+      completeness:
+        $ref: '#/definitions/v1DataCompleteness'
+      finality:
+        $ref: '#/definitions/v1DataFinality'
+      quotePerBasePrice:
+        $ref: '#/definitions/v1DecimalMetric'
+    description: AlertUserOutcome contains the canonical follower/user outcome for one alert.
   v1AprMetric:
     type: object
     properties:
@@ -1937,6 +2186,65 @@ definitions:
       status:
         $ref: '#/definitions/v1DataStatus'
     description: ChainFreshness describes source freshness for one chain.
+  v1ClosedPositionExecutionPage:
+    type: object
+    properties:
+      data:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/v1ClosedPositionExecutionSummary'
+      pagination:
+        $ref: '#/definitions/v1CursorPagination'
+    description: |-
+      ClosedPositionExecutionPage is a bounded execution page nested under a
+      position or returned by the position-scoped continuation endpoint.
+  v1ClosedPositionExecutionSummary:
+    type: object
+    properties:
+      positionEventId:
+        type: string
+      positionId:
+        type: string
+      baseToken:
+        $ref: '#/definitions/v1Token'
+        description: |-
+          Repeated execution rows carry only address, symbol, and decimals. Full
+          token name/logo metadata remains on the parent position.
+      baseAmountSoldRaw:
+        type: string
+      baseAmountSoldDecimal:
+        $ref: '#/definitions/v1DecimalMetric'
+      quoteToken:
+        $ref: '#/definitions/v1Token'
+        description: |-
+          Repeated execution rows carry only address, symbol, and decimals. Full
+          token name/logo metadata remains on the parent position.
+      quoteAmountReceivedRaw:
+        type: string
+      quoteAmountReceivedDecimal:
+        $ref: '#/definitions/v1DecimalMetric'
+      quoteAmountReceivedValueUsd:
+        $ref: '#/definitions/v1DecimalMetric'
+      txHash:
+        type: string
+        description: |-
+          tx_hash is the canonical follower-account sell transaction for this
+          partial or final close execution.
+      occurredAt:
+        type: string
+        format: date-time
+      isFinalClose:
+        type: boolean
+      realizedPnlUsd:
+        $ref: '#/definitions/v1DecimalMetric'
+      realizedPnlPct:
+        $ref: '#/definitions/v1DecimalMetric'
+      quotePerBasePrice:
+        $ref: '#/definitions/v1DecimalMetric'
+    description: |-
+      ClosedPositionExecutionSummary is one canonical partial or final follower
+      sell execution for a closed-position detail expansion.
   v1CopyAccountStatus:
     type: string
     enum:
@@ -1984,8 +2292,6 @@ definitions:
         $ref: '#/definitions/v1DecimalMetric'
       netFeeCostUsd:
         $ref: '#/definitions/v1DecimalMetric'
-      estimatedCashbackPendingUsd:
-        $ref: '#/definitions/v1DecimalMetric'
       status:
         $ref: '#/definitions/v1CopyAccountStatus'
       copyRunId:
@@ -2005,6 +2311,37 @@ definitions:
       withdrawQuoteAvailability:
         $ref: '#/definitions/v1AdvisoryActionAvailability'
     description: CopyAccountSummary contains chain-scoped copy-account totals.
+  v1CopyConfirmPolicy:
+    type: object
+    properties:
+      minPriceDeviationBps:
+        type: integer
+        format: int64
+      maxPriceDeviationBps:
+        type: integer
+        format: int64
+      priceDeviationStatus:
+        $ref: '#/definitions/v1MetricStatus'
+      configurationGeneration:
+        type: string
+      configurationRevision:
+        type: string
+      configurationAsOf:
+        type: string
+        format: date-time
+      minPriceDeviationRaw:
+        type: string
+      maxPriceDeviationRaw:
+        type: string
+      minPriceDeviationPct:
+        type: string
+      maxPriceDeviationPct:
+        type: string
+    description: |-
+      CopyConfirmPolicy exposes local aggregate-read copy-confirm policy metadata.
+      Price-deviation values come from target-fenced operator trade-token
+      configuration imported into aggregate storage. Arbitrary-token withdrawal is
+      intentionally not exposed by this API.
   v1CopyLifecycleActivityDetail:
     type: object
     properties:
@@ -2153,10 +2490,15 @@ definitions:
         $ref: '#/definitions/v1DecimalMetric'
       cashbackReceivedUsd:
         $ref: '#/definitions/v1DecimalMetric'
+        description: |-
+          Cumulative canonical cashback/rebate actually received across all follower
+          positions in this copy run through the metric as-of boundary, including
+          partial sells while a position remains open and excluding future estimates.
       netFeeCostUsd:
         $ref: '#/definitions/v1DecimalMetric'
-      estimatedCashbackPendingUsd:
-        $ref: '#/definitions/v1DecimalMetric'
+        description: |-
+          Signed all-position lifetime fee cost: flat_fees_captured_usd minus
+          cashback_received_usd. Negative values are valid rebate credit.
       status:
         $ref: '#/definitions/v1CopyRunStatus'
       addCapitalAvailability:
@@ -2178,6 +2520,30 @@ definitions:
         description: |-
           Present only when the newest safely covered Stop parent is valid. Pending
           includes selected positions whose child action has not been indexed yet.
+      currentBalanceUsd:
+        $ref: '#/definitions/v1DecimalMetric'
+        description: |-
+          Current account equity for the selected copy-run row. Historical rows map
+          this from the latest exact current stable balance while it satisfies the
+          configured freshness policy; open/closing rows map from current portfolio
+          value when every component is current. Current-balance list ordering is a
+          live mutable sort, not a frozen snapshot across cursor pages.
+      totalPnlUsd:
+        $ref: '#/definitions/v1DecimalMetric'
+        description: |-
+          Window-independent total PnL equals realised plus unrealised PnL. Fees and
+          rebates are already included in net execution economics and must not be
+          applied again.
+      totalPnlPct:
+        $ref: '#/definitions/v1DecimalMetric'
+        description: |-
+          Copy-run percentage return using the same cash-flow-neutral TWR semantics
+          as the cumulative total PnL chart.
+      copyRunWinRatePct:
+        $ref: '#/definitions/v1DecimalMetric'
+        description: Copy-run-specific win rate over classified closed follower positions.
+      copyRunClassifiedClosedPositionCount:
+        $ref: '#/definitions/v1CountMetric'
     description: CopyRunSummary contains one copy-run row.
   v1CountMetric:
     type: object
@@ -2523,6 +2889,12 @@ definitions:
         $ref: '#/definitions/v1CursorPagination'
       meta:
         $ref: '#/definitions/v1ResponseMeta'
+      effectiveWindowStart:
+        type: string
+        format: date-time
+      evaluationAt:
+        type: string
+        format: date-time
     description: ListAgentPerformanceResponse is the agent performance list envelope.
   v1ListAgentPositionEventsResponse:
     type: object
@@ -2681,7 +3053,28 @@ definitions:
         $ref: '#/definitions/v1CursorPagination'
       meta:
         $ref: '#/definitions/v1ResponseMeta'
+      effectiveWindowStart:
+        type: string
+        format: date-time
+      evaluationAt:
+        type: string
+        format: date-time
     description: ListOwnerCopyRunPerformanceResponse is the copy-run performance list envelope.
+  v1ListOwnerCopyRunPositionClosedExecutionsResponse:
+    type: object
+    properties:
+      data:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/v1ClosedPositionExecutionSummary'
+      pagination:
+        $ref: '#/definitions/v1CursorPagination'
+      meta:
+        $ref: '#/definitions/v1ResponseMeta'
+    description: |-
+      ListOwnerCopyRunPositionClosedExecutionsResponse is the position-scoped
+      canonical closed execution continuation page.
   v1ListOwnerCopyRunPositionsResponse:
     type: object
     properties:
@@ -2743,6 +3136,7 @@ definitions:
       - OWNER_COPY_RUN_SORT_FIELD_AGENT_WIN_RATE
       - OWNER_COPY_RUN_SORT_FIELD_AGENT_LIFETIME_VOLUME
       - OWNER_COPY_RUN_SORT_FIELD_CAPITAL_IN
+      - OWNER_COPY_RUN_SORT_FIELD_CURRENT_BALANCE
     default: OWNER_COPY_RUN_SORT_FIELD_UNSPECIFIED
     description: OwnerCopyRunSortField selects a public owner copy-run order.
   v1OwnerCopySummary:
@@ -2777,10 +3171,14 @@ definitions:
         $ref: '#/definitions/v1DecimalMetric'
       cashbackReceivedUsd:
         $ref: '#/definitions/v1DecimalMetric'
+        description: |-
+          Cumulative canonical cashback/rebate actually received across all follower
+          positions through the metric as-of boundary. This excludes future estimates.
       netFeeCostUsd:
         $ref: '#/definitions/v1DecimalMetric'
-      estimatedCashbackPendingUsd:
-        $ref: '#/definitions/v1DecimalMetric'
+        description: |-
+          Signed fee attribution: flat_fees_captured_usd minus cashback_received_usd.
+          Negative values are valid when rebates exceed captured fees.
       view:
         $ref: '#/definitions/v1OwnerCopyView'
     description: OwnerCopySummary contains public owner dashboard totals.
@@ -2840,6 +3238,11 @@ definitions:
         type: string
       token:
         $ref: '#/definitions/v1Token'
+      valuePct:
+        $ref: '#/definitions/v1DecimalMetric'
+        description: |-
+          Non-annualized percentage return for cumulative total PnL. Legacy series
+          return this metric with status UNAVAILABLE.
     description: PerformancePoint is a chart point.
   v1PerformanceSeries:
     type: string
@@ -2849,8 +3252,13 @@ definitions:
       - PERFORMANCE_SERIES_CUMULATIVE_REALIZED_PNL
       - PERFORMANCE_SERIES_PERIOD_REALIZED_PNL
       - PERFORMANCE_SERIES_PER_TRADE_REALIZED_PNL
+      - PERFORMANCE_SERIES_CUMULATIVE_TOTAL_PNL
     default: PERFORMANCE_SERIES_UNSPECIFIED
-    description: PerformanceSeries selects a public chart series.
+    description: |-
+      PerformanceSeries selects a public chart series.
+
+       - PERFORMANCE_SERIES_CUMULATIVE_TOTAL_PNL: Cumulative realised plus unrealised PnL. value_usd is window-relative and
+      value_pct is the matching non-annualized, cash-flow-neutral TWR value.
   v1PinnedStableBalance:
     type: object
     properties:
@@ -3121,6 +3529,31 @@ definitions:
         type: array
         items:
           $ref: '#/definitions/v1PositionActionKind'
+      openedTxHash:
+        type: string
+        description: |-
+          opened_tx_hash is the canonical opening position-event transaction on the
+          row's own side: leader transaction for an agent position and follower
+          account transaction for a copied position.
+      latestTxHash:
+        type: string
+        description: |-
+          latest_tx_hash is the latest canonical position-event transaction on the
+          same side. For a closed position, this is the final close transaction.
+      totalBaseSoldRaw:
+        type: string
+      totalQuoteReceivedRaw:
+        type: string
+      quoteToken:
+        $ref: '#/definitions/v1Token'
+      totalBaseSoldDecimal:
+        $ref: '#/definitions/v1DecimalMetric'
+      totalQuoteReceivedDecimal:
+        $ref: '#/definitions/v1DecimalMetric'
+      totalQuoteReceivedValueUsd:
+        $ref: '#/definitions/v1DecimalMetric'
+      closedExecutionPage:
+        $ref: '#/definitions/v1ClosedPositionExecutionPage'
     description: PositionSummary is a public position row.
   v1PositionValuation:
     type: object
@@ -3469,6 +3902,8 @@ definitions:
           operator returns the create stage; "0" means explicitly unfunded.
       allowanceRequirement:
         $ref: '#/definitions/v1StartCopyAllowanceRequirement'
+      copyConfirmPolicy:
+        $ref: '#/definitions/v1CopyConfirmPolicy'
     description: StartCopyPreview contains the deterministic create/fund state shown by the UI.
   v1StartCopyStage:
     type: string
@@ -3595,6 +4030,16 @@ definitions:
       logoUrl:
         type: string
     description: Token describes public token display metadata.
+  v1TradeSide:
+    type: string
+    enum:
+      - TRADE_SIDE_UNSPECIFIED
+      - TRADE_SIDE_BUY
+      - TRADE_SIDE_SELL
+    default: TRADE_SIDE_UNSPECIFIED
+    description: |-
+      TradeSide identifies an immutable trade direction in structured activity
+      and alert-feed contexts.
   v1WalletBalanceRow:
     type: object
     properties:

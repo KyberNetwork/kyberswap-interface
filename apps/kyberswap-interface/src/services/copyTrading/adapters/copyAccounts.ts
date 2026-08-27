@@ -47,7 +47,6 @@ type ApiCopyAccount = {
   flatFeesCapturedUsd?: ApiMetric
   cashbackReceivedUsd?: ApiMetric
   netFeeCostUsd?: ApiMetric
-  estimatedCashbackPendingUsd?: ApiMetric
   agentSnapshot?: ApiAgentSnapshot
   copyRunId?: string
   startedAt?: string
@@ -111,7 +110,6 @@ const toCopyAccount = (account: ApiCopyAccount): CopyAccountSummary => ({
   flatFeesCapturedUsd: metricValue(account.flatFeesCapturedUsd),
   cashbackReceivedUsd: metricValue(account.cashbackReceivedUsd),
   netFeeCostUsd: metricValue(account.netFeeCostUsd),
-  estimatedCashbackPendingUsd: metricValue(account.estimatedCashbackPendingUsd),
   copyRunId: account.copyRunId,
   startedAt: account.startedAt,
   stoppedAt: account.stoppedAt,
@@ -132,7 +130,6 @@ const toCopyAccount = (account: ApiCopyAccount): CopyAccountSummary => ({
     flatFeesCapturedUsd: account.flatFeesCapturedUsd,
     cashbackReceivedUsd: account.cashbackReceivedUsd,
     netFeeCostUsd: account.netFeeCostUsd,
-    estimatedCashbackPendingUsd: account.estimatedCashbackPendingUsd,
   },
   agentSnapshot: account.agentSnapshot ? toAgentSnapshot(account.agentSnapshot) : undefined,
 })

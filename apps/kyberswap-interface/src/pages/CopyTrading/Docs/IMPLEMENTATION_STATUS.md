@@ -1,29 +1,29 @@
 # Copy Trading Implementation Status
 
-Last reviewed: 2026-08-26
+Last reviewed: 2026-08-27
 
 This is the single frontend-owned record for current code implementation,
 accepted product decisions, ownership, and static verification evidence. The
 current HTTP contract is documented in `FE_API_Catalog.md`; `openapi.yaml` is its
 machine-readable API source. Both contract files are backend-owned inputs. The
-checked-in `openapi.yaml` is synchronized byte-for-byte with the pre-release
-Swagger contract fetched on 2026-08-25.
+checked-in `openapi.yaml` is synchronized byte-for-byte with the live Swagger
+contract fetched on 2026-08-27.
 
-All 26 GET and 6 POST Copy Trading API operations in the current catalog are
+All 27 GET and 6 POST Copy Trading API operations in the current catalog are
 declared in the frontend service.
 
 ## Implementation at a Glance
 
 | Layer              | Current status                                                                                                                                                                         |
 | ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| BE API catalog     | `CURRENT INPUT`: 32 public operations are documented.                                                                                                                                  |
-| Checked-in OpenAPI | `CURRENT INPUT`: synchronized with the live 32-operation pre-release Swagger contract; wallet-session routes and Bearer security are removed.                                          |
-| RTK Query service  | `CODE-COMPLETE`: all 26 GET and 6 POST operations are declared and typed.                                                                                                              |
-| Read UI            | `CODE-COMPLETE`: all currently defined product surfaces are connected; owner-scoped navigation, copied-Agent actions, token logos, and table presentation use shared UI patterns.      |
+| BE API catalog     | `CURRENT INPUT`: 33 public operations are documented.                                                                                                                                  |
+| Checked-in OpenAPI | `CURRENT INPUT`: synchronized with the live 33-operation Swagger contract; wallet-session routes and Bearer security are removed.                                                      |
+| RTK Query service  | `CODE-COMPLETE`: all 27 GET and 6 POST operations are declared and typed.                                                                                                              |
+| Read UI            | `CODE-COMPLETE` for currently defined designs. The activity structured fields and Closed Position execution details below are API-only and remain pending Figma review before UI work. |
 | Write UX           | `CODE-COMPLETE`: all six actions use prepared-action validation; Add Capital submits directly after preparation while the other review-bearing flows retain review.                    |
 | Write integration  | `CODE-COMPLETE`: exact API-prepared calls, receipt-success completion, Start Copy list polling, stateless recovery preparation, and async cache refresh are connected.                 |
 | Responsive UI      | `CODE-COMPLETE`: all defined main Copy Trading pages use content-specific responsive navigation, aligned card metrics, opt-in scroll areas, tables, tabs, side panels, and charts.     |
-| Code organization  | `REVIEWED`: all 85 TypeScript and TSX files under `pages/CopyTrading` follow the reviewed ownership boundaries; shared presentation is centralized while queries and flows stay local. |
+| Code organization  | `REVIEWED`: all 87 TypeScript and TSX files under `pages/CopyTrading` follow the reviewed ownership boundaries; shared presentation is centralized while queries and flows stay local. |
 
 ## Changes Included Since the Previous Review
 
@@ -31,10 +31,10 @@ The 2026-08-25 review also includes the Copy Trading commits between the prior
 status update and the current working tree:
 
 - `155ac5ebd` scopes wallet- and argument-sensitive RTK reads to `currentData`.
-  Agent actions, owner summaries, Copy Run performance, and Sidebar Open Copies
-  no longer retain a previous wallet, chain, Copy Run, or performance-window
-  result while the next query is pending. Open Copies also clears immediately
-  when no owner wallet is available.
+  Agent actions, owner summaries, and Sidebar Open Copies do not retain a
+  previous wallet, chain, or Copy Run result while the next query is pending.
+  Performance charts intentionally retain their last data while a new window
+  loads. Open Copies clears immediately when no owner wallet is available.
 - `e1b98c55e` updates KPI icons and terminology, card sizing, Sidebar hierarchy
   and navigation visuals, and the capital-input empty balance display.
 - `128783f4d` adds server-backed sorting to My Copies, standardizes prepared-flow
@@ -89,7 +89,7 @@ status update and the current working tree:
   compact `My Copy` link, and gives Leaderboard, My Copies, and Copy History rows
   native links on both desktop and mobile. Row links support browser new-tab
   behavior while independent action buttons remain outside the link hit target.
-- The current code extends the completed readability audit to all 85
+- The current code extends the completed readability audit to all 87
   TypeScript and TSX files under `pages/CopyTrading`. Agent and Copy Detail now
   share `DetailTabBar`; prepared-action review rows share their metric fallback;
   strategy, lifecycle status, data-quality status, and risk presentation use
@@ -106,10 +106,10 @@ status update and the current working tree:
 Copy Runs, Copy Accounts, and prepared actions each inject their endpoints
 directly into that shared API. Consumers import the endpoint group that owns
 the hook they use instead of relying on a later group as an endpoint superset.
-Together these endpoint groups declare all 32 public operations:
+Together these endpoint groups declare all 33 public operations:
 
-- 26 GET queries, including the run-scoped effective cashback policy and
-  copy-account wallet inventory.
+- 27 GET queries, including the run-scoped effective cashback policy,
+  copy-account wallet inventory, and position-scoped closed executions.
 - Six transaction-preparation mutations:
   - Start Copy.
   - Add Capital.
@@ -143,6 +143,26 @@ Confirmed service behavior:
 - Position `ACTIVE` and `CLOSING` both map to compatibility `status: "open"`;
   exact API lifecycle is preserved separately in `lifecycle`.
 
+## API-Only Updates Pending Figma Review
+
+The following contract changes are integrated through query parameters, types,
+adapters, endpoints, and focused service tests. Their existing UI presentation
+is intentionally unchanged. Review the corresponding Figma designs before
+adding, removing, or rearranging any user-facing content:
+
+- **Alerts Feed and Copy Run Logs:** existing consumers send the appropriate
+  `activitySurface` (`ALERT_FEED` or `COPY_RUN_LOG`). The service layer maps the
+  stable `category`, `subtype`, `alertId`, leader context, user outcome, and
+  structured alert summaries. The UI does not yet use those new fields to
+  change row identity, labels, details, colors, or Pending/Succeeded/Skipped
+  presentation.
+- **Closed Positions:** cumulative base sold, cumulative quote received, final
+  transaction hash, the optional bounded `closedExecutionPage`, and the
+  cursor-backed position-scoped `closed-executions` endpoint are typed and
+  adapted. The existing Closed Positions table does not yet expose these
+  fields or an execution-detail expansion. Its columns, responsive layout,
+  interaction, loading, and pagination presentation require Figma review first.
+
 ## Current UI Read Coverage
 
 The current UI consumes these 16 GET operations:
@@ -159,11 +179,13 @@ The current UI consumes these 16 GET operations:
   complete cursor-backed FIFO is displayed by both partial and full recovery;
   partial Manual Sell also reuses it as preparation input.
 
-The following ten GET operations are declared but have no dedicated Copy
+The following eleven GET operations are declared but have no dedicated Copy
 Trading UI consumer:
 
 - Copy Run cashback policy. Its service contract is integrated, but no
   fee/cashback product surface has been defined.
+- Copy Run position closed executions. Its service contract is integrated, but
+  execution-detail UI remains pending Figma review.
 - Agent discovery (`GET /agents`). The current Agent List uses the distinct
   qualification-ranked `GET /leaderboard` collection.
 - Agent position detail.
@@ -200,8 +222,10 @@ Current primary-screen read behavior:
 - Infinite-scroll lists use TanStack `useInfiniteQuery`; paged Leaderboard, My
   Copies, and Copy History use `useCursorPageQuery`. Both invoke the existing
   RTK lazy query trigger from `queryFn` and pass opaque cursors unchanged.
-- Copy Detail owns independent cursor chains for Open Positions, Closed
-  Positions, and owner activity filtered by `copyRunId`.
+- Copy Detail owns independent cursor chains for Open Positions, Leftover
+  Positions, Closed Positions, and owner activity filtered by `copyRunId`.
+- A rejected or expired non-initial cursor resets that collection to page one;
+  cursorless HTTP 400 requests remain normal request errors.
 - Agent and Copy Run performance charts intentionally request only the first
   page with `limit=100`.
 - Sidebar Agents is a selected-chain snapshot with `limit=10`; Open Copies is
@@ -216,9 +240,11 @@ Current primary-screen read behavior:
 - Navigable Leaderboard, My Copies, and Copy History desktop rows and mobile
   cards use native links. Ctrl/Cmd-click, middle-click, and browser context-menu
   new-tab behavior work without nesting row links around action buttons.
-- Wallet- and argument-sensitive RTK reads consume `currentData`, so a result
-  cached under previous query arguments is not rendered while the current
-  request is pending. Sidebar Open Copies also requires a current owner.
+- Wallet- and argument-sensitive non-chart RTK reads consume `currentData`, so
+  a result cached under previous query arguments is not rendered while the
+  current request is pending. Performance charts use `data` by product decision
+  to keep the previous chart visible during a window change. Sidebar Open
+  Copies also requires a current owner.
 - My Copies supports server-backed sorting by Agent APR, Agent Win Rate, Agent
   Volume, and Capital In. Repeated header selection cycles descending,
   ascending, then the server default; each sort state owns a separate cursor
@@ -292,7 +318,7 @@ left for manual verification and is not claimed here.
 
 ## Accepted Product Decisions
 
-- Keep the nine currently unowned GET operations documented without inventing
+- Keep the eleven currently unowned GET operations documented without inventing
   routes or secondary tables.
 - Keep Agent and Copy Run performance at the first API page (`limit=100`).
 - Keep Sidebar Agents capped at 10 items for the selected network and Open
@@ -635,12 +661,13 @@ contracts.
 
 ## Verification
 
-- The checked-in `openapi.yaml` matches the live pre-release Swagger contract
-  fetched on 2026-08-25: 32 paths and 136 definitions.
-- The service surface contains 26 GET queries and 6 POST mutations.
+- The checked-in `openapi.yaml` matches the live Swagger contract fetched on
+  2026-08-27: 33 paths and 149 definitions.
+- The service surface contains 27 GET queries and 6 POST mutations.
 - All six preparation mutations have an owned UI flow.
 - The local ABI, mock signer, and mock transaction-hash path have been removed.
-- All 80 Copy Trading unit tests pass, including the direct READY handoff and
+- All 87 Copy Trading unit tests pass, including cursor recovery, API contract
+  adaptation, the direct READY handoff, and
   explicit Withdraw Quote amount-binding tests.
 - Commit review for this status covers the Copy Trading sequence from
   `155ac5ebd` through `877982db6` in addition to the current working-tree
@@ -680,6 +707,10 @@ contracts.
   and native row-link updates, app TypeScript, targeted Copy Trading ESLint, and
   `git diff --check` pass. These checks cover code structure and types only;
   responsive/browser visual QA, context-menu and modified-click browser QA, a
+  production build, and positive live-transaction E2E were not run.
+- For the 2026-08-27 contract integration and maintainability review, app
+  TypeScript, full Copy Trading ESLint, all 87 Copy Trading unit tests, focused
+  formatting, and staged/unstaged `git diff --check` pass. Browser QA, a
   production build, and positive live-transaction E2E were not run.
 - Manual Sell, including its partial and 100% variants, and stopped-Copy Close
   Position positive live E2E remain deferred until controlled eligibility

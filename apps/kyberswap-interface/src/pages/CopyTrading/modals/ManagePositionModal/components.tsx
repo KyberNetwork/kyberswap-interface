@@ -5,7 +5,6 @@ import type { PositionSellPreview, PreparedToken, RawAmountMetric } from 'servic
 import type { Metric } from 'services/copyTrading/types/primitives'
 
 import Skeleton from 'components/Skeleton'
-import TextSkeleton from 'components/Skeleton/TextSkeleton'
 import { Stack } from 'components/Stack'
 import CopyTradingTokenLogo from 'pages/CopyTrading/components/common/TokenLogo'
 import { ShortenedId } from 'pages/CopyTrading/components/common/layout'
@@ -95,7 +94,7 @@ export const ManagePositionReview = ({
           amount={preview?.sellBase}
           chainId={position.chainId}
           isLoading={showSkeleton}
-          label="You sell"
+          label="You Sell"
           token={baseToken}
         />
         <div className="absolute left-1/2 top-1/2 z-[1] flex size-8 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-lg border-4 border-tableHeader bg-white-08 text-subText">
@@ -105,7 +104,7 @@ export const ManagePositionReview = ({
           amount={preview?.swapQuote?.expectedQuote}
           chainId={position.chainId}
           isLoading={showSkeleton}
-          label="You receive"
+          label="You Receive"
           token={preview?.quoteToken}
         />
       </Stack>
@@ -113,28 +112,28 @@ export const ManagePositionReview = ({
       <ReviewSection>
         <ReviewRow
           isLoading={showSkeleton}
-          label="Portion to sell"
+          label="Portion To Sell"
           value={withMetricFallback(formatWadPercent(preview?.sellRatioRaw))}
         />
         <ReviewRow isLoading={showSkeleton} label="Rate" value={rate} />
         <ReviewRow
           isLoading={showSkeleton}
-          label="Minimum received"
+          label="Minimum Received"
           value={withMetricFallback(formatPreparedAmount(preview?.swapQuote?.minimumQuote, preview?.quoteToken))}
         />
         <ReviewRow
           isLoading={showSkeleton}
-          label="Upfront fee returned"
+          label="Upfront Fee Returned"
           value={withMetricFallback(formatPreparedAmount(preview?.upfrontFeeReleasedBase, baseToken))}
         />
         <ReviewRow
           isLoading={showSkeleton}
-          label="Estimated cashback"
+          label="Estimated Cashback"
           value={withMetricFallback(formatPreparedAmount(preview?.cashback, preview?.quoteToken))}
         />
         <ReviewRow
           isLoading={showSkeleton}
-          label="Effective slippage"
+          label="Effective Slippage"
           value={withMetricFallback(formatSlippage(preview?.swapQuote?.effectiveSlippageBps))}
         />
       </ReviewSection>
@@ -174,8 +173,8 @@ export const ManagePositionTitle = ({
   return (
     <div className="flex min-w-0 flex-1 items-center gap-2">
       <AlertTriangle size={20} className="shrink-0 text-warning" />
-      <h2 className="truncate text-xl font-medium leading-tight text-text" title="Sell actions skipped">
-        Sell actions skipped
+      <h2 className="truncate text-xl font-medium text-text" title="Sell Actions Skipped">
+        Sell Actions Skipped
       </h2>
     </div>
   )
@@ -222,8 +221,8 @@ const PositionSellSummary = ({
       <Stack className="gap-2 rounded-xl bg-white-04 p-4">
         <PositionTrade position={position} />
         <Stack className="gap-2">
-          <span className="text-sm font-medium text-text">Stopped Copy position:</span>
-          <ReviewRow label="Portion to close" value="100%" />
+          <span className="text-sm font-medium text-text">Stopped Copy Position:</span>
+          <ReviewRow label="Portion To Close" value="100%" />
           <ReviewRow label="Remaining" value={remaining} />
         </Stack>
       </Stack>
@@ -232,21 +231,13 @@ const PositionSellSummary = ({
 
   const usesPendingSellActions =
     pendingSellObligationsLoading || pendingSellObligations !== undefined || pendingSellObligationsError !== undefined
-  const loadingActionCount = pendingSellObligationsLoading ? Number(position.metrics.skippedSellCount?.value || 0) : 0
 
   return (
     <Stack className="gap-3">
       <Stack className="gap-2 rounded-xl bg-white-04 p-4">
         <PositionTrade position={position} />
         <Stack className="gap-2">
-          <span className="text-sm font-medium text-text">Skipped actions:</span>
-          {Array.from({ length: loadingActionCount }, (_, index) => (
-            <ReviewRow
-              key={index}
-              label={<TextSkeleton className="animate-pulse" width={112} size="sm" />}
-              value={<TextSkeleton className="ml-auto animate-pulse" width={80} size="sm" />}
-            />
-          ))}
+          <span className="text-sm font-medium text-text">Skipped Actions:</span>
           {pendingSellObligations?.map((obligation, index) => (
             <ReviewRow
               key={obligation.leaderPositionEventId || index}
@@ -262,7 +253,7 @@ const PositionSellSummary = ({
             />
           ))}
           {!usesPendingSellActions && (
-            <ReviewRow label="Latest reason" value={formatSkipReason(position.latestSkipPublicErrorCode)} />
+            <ReviewRow label="Latest Reason" value={formatSkipReason(position.latestSkipPublicErrorCode)} />
           )}
           {pendingSellObligationsError && (
             <p className="text-sm text-red" role="alert">

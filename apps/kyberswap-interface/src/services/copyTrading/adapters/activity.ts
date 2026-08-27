@@ -1,6 +1,18 @@
-import type { ActivityRow } from 'services/copyTrading/types/copyRuns'
+import type {
+  ActivityRow,
+  AlertFeedContext,
+  AlertLeaderActionContext,
+  AlertOutcomeStatus,
+  AlertUserOutcome,
+} from 'services/copyTrading/types/copyRuns'
 import type { CotLog } from 'services/copyTrading/types/positions'
-import type { ActivityType, Address } from 'services/copyTrading/types/primitives'
+import type {
+  ActivityCategory,
+  ActivitySubtype,
+  ActivityType,
+  Address,
+  TradeSide,
+} from 'services/copyTrading/types/primitives'
 import type {
   CopyAccountHistoryResponse,
   CotLogsResponse,
@@ -17,6 +29,8 @@ type ApiActivity = {
   copyRunId?: string
   copyAccount?: string
   type?: string
+  category?: string
+  subtype?: string
   summary?: string
   occurredAt?: string
   userPositionId?: string
@@ -85,7 +99,41 @@ type ApiActivity = {
     minBaseTokenRateRaw?: string
     configDeadlineRaw?: string
   }
+  alert?: {
+    alertId?: string
+    leaderContextStatus?: string
+    leader?: {
+      side?: string
+      leaderPositionId?: string
+      leaderPositionEventId?: string
+      baseToken?: ApiToken
+      quoteToken?: ApiToken
+      baseAmountRaw?: string
+      quoteAmountRaw?: string
+      canonicalLeaderTxHash?: string
+      occurredAt?: string
+    }
+    user?: {
+      side?: string
+      status?: string
+      baseAmountRaw?: string
+      quoteAmountRaw?: string
+      attemptedTxHash?: string
+      canonicalFollowerTxHash?: string
+      publicErrorCode?: string
+      publicErrorMessage?: string
+      completeness?: AlertUserOutcome['completeness']
+      finality?: AlertUserOutcome['finality']
+      quotePerBasePrice?: ApiMetric
+    }
+    fallbackAgentSummaryEn?: string
+    fallbackUserSummaryEn?: string
+  }
 }
+
+type ApiAlert = NonNullable<ApiActivity['alert']>
+type ApiAlertLeader = NonNullable<ApiAlert['leader']>
+type ApiAlertUser = NonNullable<ApiAlert['user']>
 
 type ApiAgentActionLog = {
   actionLogId?: string
@@ -102,8 +150,77 @@ type ApiAgentActionLog = {
   summary?: string
   blockNumber?: string
   tokenAddress?: string
+  token?: ApiToken
+  side?: string
   model?: string
   strategyVersion?: string
+}
+
+const enumValue = (value: string | undefined, prefix: string) =>
+  value?.startsWith(prefix) ? value.slice(prefix.length).toLowerCase() : undefined
+
+const toAlertOutcomeStatus = (status?: string): AlertOutcomeStatus => {
+  const value = enumValue(status, 'ALERT_OUTCOME_STATUS_')
+  switch (value) {
+    case 'pending':
+    case 'succeeded':
+    case 'skipped':
+    case 'effect_observed_incomplete':
+      return value
+    default:
+      return 'unknown'
+  }
+}
+
+const toAlertLeaderContextStatus = (status?: string): AlertFeedContext['leaderContextStatus'] => {
+  const value = enumValue(status, 'ALERT_LEADER_CONTEXT_STATUS_')
+  switch (value) {
+    case 'present':
+    case 'not_applicable':
+    case 'unavailable':
+      return value
+    default:
+      return 'unknown'
+  }
+}
+
+const toTradeSide = (side?: string): TradeSide => {
+  const value = enumValue(side, 'TRADE_SIDE_')
+  return value === 'buy' || value === 'sell' ? value : 'unknown'
+}
+
+const toAlertLeader = (leader?: ApiAlertLeader): AlertLeaderActionContext | undefined =>
+  leader
+    ? {
+        ...leader,
+        side: toTradeSide(leader.side),
+        baseToken: leader.baseToken ? toToken(leader.baseToken) : undefined,
+        quoteToken: leader.quoteToken ? toToken(leader.quoteToken) : undefined,
+      }
+    : undefined
+
+const toAlertUser = (user?: ApiAlertUser): AlertUserOutcome | undefined => {
+  if (!user) return undefined
+
+  return {
+    ...user,
+    side: toTradeSide(user.side),
+    status: toAlertOutcomeStatus(user.status),
+    quotePerBasePrice: user.quotePerBasePrice,
+  }
+}
+
+const toAlert = (alert?: ApiActivity['alert']): AlertFeedContext | undefined => {
+  if (!alert) return undefined
+
+  return {
+    alertId: alert.alertId || '',
+    leaderContextStatus: toAlertLeaderContextStatus(alert.leaderContextStatus),
+    leader: toAlertLeader(alert.leader),
+    user: toAlertUser(alert.user),
+    fallbackAgentSummaryEn: alert.fallbackAgentSummaryEn,
+    fallbackUserSummaryEn: alert.fallbackUserSummaryEn,
+  }
 }
 
 type ApiAgentActionLogSessionGroup = {
@@ -150,7 +267,9 @@ const toActivity = (activity: ApiActivity): ActivityRow => ({
   chainId: chainIdNumber(activity.chainId),
   copyRunId: activity.copyRunId,
   copyAccount: activity.copyAccount as Address | undefined,
-  activityType: (activity.type?.replace('ACTIVITY_TYPE_', '').toLowerCase() || 'unknown') as ActivityType,
+  activityType: (enumValue(activity.type, 'ACTIVITY_TYPE_') || 'unknown') as ActivityType,
+  category: enumValue(activity.category, 'ACTIVITY_CATEGORY_') as ActivityCategory | undefined,
+  subtype: enumValue(activity.subtype, 'ACTIVITY_SUBTYPE_') as ActivitySubtype | undefined,
   summary: activity.summary || '',
   occurredAt: activity.occurredAt || '',
   userPositionId: activity.userPositionId,
@@ -164,6 +283,7 @@ const toActivity = (activity: ApiActivity): ActivityRow => ({
   capital: toCapitalActivity(activity.capital),
   fee: toFeeActivity(activity.fee),
   execution: toExecutionActivity(activity.execution),
+  alert: toAlert(activity.alert),
 })
 
 export const adaptActivityResponse = (
@@ -185,6 +305,8 @@ const toActionLog = (log: ApiAgentActionLog): CotLog => ({
   txHash: log.txHash,
   blockNumber: log.blockNumber,
   tokenAddress: log.tokenAddress as Address | undefined,
+  token: log.token ? toToken(log.token) : undefined,
+  side: toTradeSide(log.side),
   model: log.model,
   strategyVersion: log.strategyVersion,
   occurredAt: log.occurredAt || '',

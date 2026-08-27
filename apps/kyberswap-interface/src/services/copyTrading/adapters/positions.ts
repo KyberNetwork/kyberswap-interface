@@ -1,10 +1,17 @@
-import type { PositionEvent, PositionExitKind, PositionSummary } from 'services/copyTrading/types/positions'
+import type {
+  ClosedPositionExecution,
+  ClosedPositionExecutionPage,
+  PositionEvent,
+  PositionExitKind,
+  PositionSummary,
+} from 'services/copyTrading/types/positions'
 import type { Address, PositionLifecycle, PositionQuantityState } from 'services/copyTrading/types/primitives'
 import type {
   AgentPositionEventsResponse,
   AgentPositionResponse,
   AgentPositionsResponse,
   CopyAccountPositionsResponse,
+  CopyRunPositionClosedExecutionsResponse,
   CopyRunPositionsResponse,
   OwnerPositionsResponse,
 } from 'services/copyTrading/types/responses'
@@ -68,7 +75,79 @@ type ApiPosition = {
   durationAsOf?: string
   openedAt?: string
   closedAt?: string
+  openedTxHash?: string
+  latestTxHash?: string
+  totalBaseSoldRaw?: string
+  totalQuoteReceivedRaw?: string
+  quoteToken?: ApiToken
+  totalBaseSoldDecimal?: ApiMetric
+  totalQuoteReceivedDecimal?: ApiMetric
+  totalQuoteReceivedValueUsd?: ApiMetric
+  closedExecutionPage?: ApiClosedPositionExecutionPage
 }
+
+type ApiClosedPositionExecution = {
+  positionEventId?: string
+  positionId?: string
+  baseToken?: ApiToken
+  baseAmountSoldRaw?: string
+  baseAmountSoldDecimal?: ApiMetric
+  quoteToken?: ApiToken
+  quoteAmountReceivedRaw?: string
+  quoteAmountReceivedDecimal?: ApiMetric
+  quoteAmountReceivedValueUsd?: ApiMetric
+  txHash?: string
+  occurredAt?: string
+  isFinalClose?: boolean
+  realizedPnlUsd?: ApiMetric
+  realizedPnlPct?: ApiMetric
+  quotePerBasePrice?: ApiMetric
+}
+
+type ApiClosedPositionExecutionPage = {
+  data?: ApiClosedPositionExecution[]
+  pagination?: ApiCursorResponse<unknown>['pagination']
+}
+
+const toClosedPositionExecution = (execution: ApiClosedPositionExecution): ClosedPositionExecution => ({
+  positionEventId: execution.positionEventId || '',
+  positionId: execution.positionId || '',
+  baseToken: execution.baseToken ? toToken(execution.baseToken) : undefined,
+  baseAmountSoldRaw: execution.baseAmountSoldRaw,
+  baseAmountSoldDecimal: metricValue(execution.baseAmountSoldDecimal),
+  quoteToken: execution.quoteToken ? toToken(execution.quoteToken) : undefined,
+  quoteAmountReceivedRaw: execution.quoteAmountReceivedRaw,
+  quoteAmountReceivedDecimal: metricValue(execution.quoteAmountReceivedDecimal),
+  quoteAmountReceivedValueUsd: metricValue(execution.quoteAmountReceivedValueUsd),
+  txHash: execution.txHash,
+  occurredAt: execution.occurredAt,
+  isFinalClose: execution.isFinalClose,
+  realizedPnlUsd: metricValue(execution.realizedPnlUsd),
+  realizedPnlPct: metricValue(execution.realizedPnlPct),
+  quotePerBasePrice: metricValue(execution.quotePerBasePrice),
+  metrics: {
+    baseAmountSoldDecimal: execution.baseAmountSoldDecimal,
+    quoteAmountReceivedDecimal: execution.quoteAmountReceivedDecimal,
+    quoteAmountReceivedValueUsd: execution.quoteAmountReceivedValueUsd,
+    realizedPnlUsd: execution.realizedPnlUsd,
+    realizedPnlPct: execution.realizedPnlPct,
+    quotePerBasePrice: execution.quotePerBasePrice,
+  },
+})
+
+const toClosedPositionExecutionPage = (
+  page?: ApiClosedPositionExecutionPage,
+): ClosedPositionExecutionPage | undefined =>
+  page?.pagination
+    ? {
+        data: (page.data || []).map(toClosedPositionExecution),
+        pagination: {
+          nextCursor: page.pagination.nextCursor,
+          hasMore: page.pagination.hasMore === true,
+          limit: page.pagination.limit || 10,
+        },
+      }
+    : undefined
 
 const toPositionLifecycle = (lifecycle?: string): PositionLifecycle => {
   const value = lifecycle?.replace('POSITION_LIFECYCLE_', '').toLowerCase()
@@ -168,6 +247,15 @@ const toPosition = (position: ApiPosition): PositionSummary => {
     durationAsOf: position.durationAsOf,
     openedAt: position.openedAt || '',
     closedAt: position.closedAt,
+    openedTxHash: position.openedTxHash,
+    latestTxHash: position.latestTxHash,
+    totalBaseSoldRaw: position.totalBaseSoldRaw,
+    totalQuoteReceivedRaw: position.totalQuoteReceivedRaw,
+    quoteToken: position.quoteToken ? toToken(position.quoteToken) : undefined,
+    totalBaseSoldDecimal: metricValue(position.totalBaseSoldDecimal),
+    totalQuoteReceivedDecimal: metricValue(position.totalQuoteReceivedDecimal),
+    totalQuoteReceivedValueUsd: metricValue(position.totalQuoteReceivedValueUsd),
+    closedExecutionPage: toClosedPositionExecutionPage(position.closedExecutionPage),
   }
 }
 
@@ -178,6 +266,10 @@ export const adaptPositionsResponse = (
 
 export const adaptPositionResponse = (response: ApiSingleResponse<ApiPosition>): AgentPositionResponse =>
   singleResponse(response, toPosition)
+
+export const adaptClosedPositionExecutionsResponse = (
+  response: ApiCursorResponse<ApiClosedPositionExecution>,
+): CopyRunPositionClosedExecutionsResponse => cursorResponse(response, toClosedPositionExecution)
 
 export const adaptPositionEventsResponse = (
   response: ApiCursorResponse<{
