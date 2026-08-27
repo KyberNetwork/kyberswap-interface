@@ -42,8 +42,6 @@ type ApiCopyAccount = {
   unrealizedPnlUsd?: ApiMetric
   openPositionCount?: ApiMetric
   closedPositionCount?: ApiMetric
-  leftoverPositionCount?: ApiMetric
-  leftoverValueUsd?: ApiMetric
   flatFeesCapturedUsd?: ApiMetric
   cashbackReceivedUsd?: ApiMetric
   netFeeCostUsd?: ApiMetric
@@ -105,8 +103,6 @@ const toCopyAccount = (account: ApiCopyAccount): CopyAccountSummary => ({
   unrealizedPnlUsd: metricValue(account.unrealizedPnlUsd),
   openPositionCount: metricValue(account.openPositionCount),
   closedPositionCount: metricValue(account.closedPositionCount),
-  leftoverPositionCount: metricValue(account.leftoverPositionCount),
-  leftoverValueUsd: metricValue(account.leftoverValueUsd),
   flatFeesCapturedUsd: metricValue(account.flatFeesCapturedUsd),
   cashbackReceivedUsd: metricValue(account.cashbackReceivedUsd),
   netFeeCostUsd: metricValue(account.netFeeCostUsd),
@@ -125,8 +121,6 @@ const toCopyAccount = (account: ApiCopyAccount): CopyAccountSummary => ({
     unrealizedPnlUsd: account.unrealizedPnlUsd,
     openPositionCount: account.openPositionCount,
     closedPositionCount: account.closedPositionCount,
-    leftoverPositionCount: account.leftoverPositionCount,
-    leftoverValueUsd: account.leftoverValueUsd,
     flatFeesCapturedUsd: account.flatFeesCapturedUsd,
     cashbackReceivedUsd: account.cashbackReceivedUsd,
     netFeeCostUsd: account.netFeeCostUsd,

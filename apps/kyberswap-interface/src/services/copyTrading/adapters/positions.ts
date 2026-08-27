@@ -67,9 +67,6 @@ type ApiPosition = {
   exitKind?: string
   actionKind?: string
   availableActionKinds?: string[]
-  isLeftover?: boolean
-  leftoverReason?: string
-  leftoverValuation?: ApiValuation
   latestSkipPublicErrorCode?: string
   durationSeconds?: string
   durationAsOf?: string
@@ -239,9 +236,6 @@ const toPosition = (position: ApiPosition): PositionSummary => {
     exitKind: toPositionExitKind(position.exitKind),
     actionKind: position.actionKind as PositionSummary['actionKind'],
     availableActionKinds: (position.availableActionKinds || []) as PositionSummary['availableActionKinds'],
-    isLeftover: position.isLeftover,
-    leftoverReason: position.leftoverReason,
-    leftoverValuation: position.leftoverValuation,
     latestSkipPublicErrorCode: position.latestSkipPublicErrorCode,
     durationSeconds: position.durationSeconds,
     durationAsOf: position.durationAsOf,

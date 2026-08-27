@@ -89,9 +89,6 @@ export type PositionSummary = {
   exitKind?: PositionExitKind
   actionKind?: PositionActionKind
   availableActionKinds: PositionActionKind[]
-  isLeftover?: boolean
-  leftoverReason?: string
-  leftoverValuation?: PositionValuation
   latestSkipPublicErrorCode?: string
   durationSeconds?: DecimalString
   durationAsOf?: Timestamp

@@ -110,14 +110,7 @@ const CopyTimeline = ({ run }: { run: CopyRunSummary }) => {
 
 const CopyDetailContent = ({ agent, backPath, run }: CopyDetailContentProps) => {
   const isTerminal = run.status === 'stopped' || run.status === 'closed'
-  const hasOnlyLeftoverPositions =
-    run.status === 'closing' && Number(run.openPositionCount || 0) === 0 && Number(run.leftoverPositionCount || 0) > 0
-  const defaultTab =
-    isTerminal && backPath === 'history'
-      ? 'closed-positions'
-      : hasOnlyLeftoverPositions
-      ? 'leftover-positions'
-      : 'open-positions'
+  const defaultTab = isTerminal && backPath === 'history' ? 'closed-positions' : 'open-positions'
 
   return (
     <>

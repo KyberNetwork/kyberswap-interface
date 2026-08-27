@@ -1,5 +1,6 @@
 import type { HTMLAttributes } from 'react'
 import type { PositionSummary } from 'services/copyTrading/types/positions'
+import type { CopyRunStatus } from 'services/copyTrading/types/primitives'
 
 import { ButtonLight } from 'components/Button'
 import { HStack, Stack } from 'components/Stack'
@@ -25,7 +26,6 @@ import {
 } from 'pages/CopyTrading/helpers'
 import {
   POSITION_SELL_FLOW_CONFIG,
-  type PositionRecoveryContext,
   getPositionRecoveryFlow,
 } from 'pages/CopyTrading/modals/ManagePositionModal/positionSellFlow'
 import { useCopyTradingModal } from 'pages/CopyTrading/modals/context'
@@ -37,21 +37,15 @@ type TableGridWrapperProps = HTMLAttributes<HTMLDivElement> & {
 }
 
 type PositionTableProps = {
+  copyRunStatus: CopyRunStatus
   infiniteScroll: InfiniteScrollState
   loading?: boolean
-  positionContext?: PositionRecoveryContext
   rows: PositionSummary[]
 }
 
-const PositionAction = ({
-  position,
-  positionContext,
-}: {
-  position: PositionSummary
-  positionContext: PositionRecoveryContext
-}) => {
+const PositionAction = ({ copyRunStatus, position }: { copyRunStatus: CopyRunStatus; position: PositionSummary }) => {
   const { openManagePosition } = useCopyTradingModal()
-  const recoveryFlow = getPositionRecoveryFlow(position, positionContext)
+  const recoveryFlow = getPositionRecoveryFlow(position, copyRunStatus)
   if (!recoveryFlow) return null
 
   const flowConfig = POSITION_SELL_FLOW_CONFIG[recoveryFlow]
@@ -60,7 +54,7 @@ const PositionAction = ({
     <ButtonLight
       type="button"
       padding="7px 12px"
-      color={flowConfig.positionContext === 'leftover' ? 'var(--ks-red)' : 'var(--ks-warning)'}
+      color={flowConfig.sellContext === 'POSITION_SELL_CONTEXT_STOP_COPY' ? 'var(--ks-red)' : 'var(--ks-warning)'}
       className="whitespace-nowrap"
       onClick={event => {
         event.stopPropagation()
@@ -87,12 +81,7 @@ const CopyPositionsGrid = ({ header, className, ...props }: TableGridWrapperProp
   )
 }
 
-export const CopyPositionsTable = ({
-  infiniteScroll,
-  loading,
-  positionContext = 'active',
-  rows,
-}: PositionTableProps) => {
+export const CopyPositionsTable = ({ copyRunStatus, infiniteScroll, loading, rows }: PositionTableProps) => {
   return (
     <Stack>
       <InfiniteScroll {...infiniteScroll}>
@@ -139,7 +128,7 @@ export const CopyPositionsTable = ({
                   {formatDateTime(row.openedAt)}
                 </TableCell>
                 <TableCell className="flex justify-end">
-                  <PositionAction position={row} positionContext={positionContext} />
+                  <PositionAction copyRunStatus={copyRunStatus} position={row} />
                 </TableCell>
               </CopyPositionsGrid>
 
@@ -176,7 +165,7 @@ export const CopyPositionsTable = ({
                   </TableCardField>
                 </TableCardGrid>
 
-                <PositionAction position={row} positionContext={positionContext} />
+                <PositionAction copyRunStatus={copyRunStatus} position={row} />
               </Stack>
             </div>
           ))}
