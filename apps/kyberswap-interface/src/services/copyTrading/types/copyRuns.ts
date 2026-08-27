@@ -37,8 +37,6 @@ export type OwnerCopySummary = {
   closedPositions?: DecimalString
   closedCapitalUsd?: DecimalString
   portfolioValueUsd?: DecimalString
-  leftoverPositions?: DecimalString
-  leftoverValueUsd?: DecimalString
   flatFeesCapturedUsd?: DecimalString
   cashbackReceivedUsd?: DecimalString
   netFeeCostUsd?: DecimalString
@@ -63,8 +61,6 @@ export type CopyRunSummary = {
   myAprSinceCopyPct?: DecimalString
   openPositionCount?: DecimalString
   closedPositionCount?: DecimalString
-  leftoverPositionCount?: DecimalString
-  leftoverValueUsd?: DecimalString
   flatFeesCapturedUsd?: DecimalString
   cashbackReceivedUsd?: DecimalString
   netFeeCostUsd?: DecimalString
@@ -131,8 +127,6 @@ export type CopyAccountSummary = {
   unrealizedPnlUsd?: DecimalString
   openPositionCount?: DecimalString
   closedPositionCount?: DecimalString
-  leftoverPositionCount?: DecimalString
-  leftoverValueUsd?: DecimalString
   flatFeesCapturedUsd?: DecimalString
   cashbackReceivedUsd?: DecimalString
   netFeeCostUsd?: DecimalString
