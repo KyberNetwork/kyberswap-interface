@@ -62,8 +62,8 @@ const ManagePositionModal = ({ isOpen, onDismiss, position, flow: positionFlow }
 
   const flowConfig = POSITION_SELL_FLOW_CONFIG[positionFlow]
   const preparationConfig = POSITION_SELL_PREPARATION_CONFIG[flowConfig.preparation]
-  const expectsLeftover = flowConfig.positionContext === 'leftover'
-  const requiresObligations = !expectsLeftover
+  const usesStopCopyContext = flowConfig.sellContext === 'POSITION_SELL_CONTEXT_STOP_COPY'
+  const requiresObligations = !usesStopCopyContext
   const usesClosePreparation = flowConfig.preparation === 'closePosition'
   const userPositionId = position.userPositionId
   const copyRunId = position.copyRunId
@@ -230,7 +230,7 @@ const ManagePositionModal = ({ isOpen, onDismiss, position, flow: positionFlow }
     <ManagePositionTitle
       actionLabel={flowConfig.actionLabel}
       isReview={flowState.phase === 'review'}
-      showSkippedActions={flowState.phase === 'idle' && !expectsLeftover}
+      showSkippedActions={flowState.phase === 'idle' && requiresObligations}
     />
   )
 
@@ -268,11 +268,11 @@ const ManagePositionModal = ({ isOpen, onDismiss, position, flow: positionFlow }
         primaryActionDisabled={primaryActionDisabled}
         primaryActionLabel={primaryActionLabel}
         primaryActionLoading={primaryActionLoading}
+        showClosePositionSummary={usesStopCopyContext}
         pendingSellObligations={requiresObligations ? obligations : undefined}
         pendingSellObligationsError={requiresObligations ? obligationsError : undefined}
         pendingSellObligationsLoading={obligationsLoading}
         slippage={slippage}
-        positionContext={flowConfig.positionContext}
         unavailableMessage={unavailableMessage}
       />
     </PreparedActionModal>

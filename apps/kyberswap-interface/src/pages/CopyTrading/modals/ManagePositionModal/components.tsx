@@ -5,11 +5,11 @@ import type { PositionSellPreview, PreparedToken, RawAmountMetric } from 'servic
 import type { Metric } from 'services/copyTrading/types/primitives'
 
 import Skeleton from 'components/Skeleton'
+import TextSkeleton from 'components/Skeleton/TextSkeleton'
 import { Stack } from 'components/Stack'
 import CopyTradingTokenLogo from 'pages/CopyTrading/components/common/TokenLogo'
 import { ShortenedId } from 'pages/CopyTrading/components/common/layout'
 import { formatApproximateUsd } from 'pages/CopyTrading/helpers'
-import type { PositionRecoveryContext } from 'pages/CopyTrading/modals/ManagePositionModal/positionSellFlow'
 import { PreparedActionFormActions, ReviewRow, ReviewSection } from 'pages/CopyTrading/modals/PreparedActionModal'
 import PreparedActionSlippageControl from 'pages/CopyTrading/modals/PreparedActionModal/SlippageControl'
 import {
@@ -147,13 +147,13 @@ type ManagePositionFormProps = {
   onPrimaryAction: () => void
   onSlippageChange: (slippage: number) => void
   position: PositionSummary
-  positionContext: PositionRecoveryContext
   pendingSellObligations?: PendingSellObligation[]
   pendingSellObligationsError?: string
   pendingSellObligationsLoading: boolean
   primaryActionDisabled: boolean
   primaryActionLabel: string
   primaryActionLoading: boolean
+  showClosePositionSummary: boolean
   slippage: number
   unavailableMessage?: string
 }
@@ -194,14 +194,14 @@ const PositionSellSummary = ({
   pendingSellObligationsError,
   pendingSellObligationsLoading,
   position,
-  positionContext,
+  showClosePositionSummary,
 }: Pick<
   ManagePositionFormProps,
   | 'pendingSellObligations'
   | 'pendingSellObligationsError'
   | 'pendingSellObligationsLoading'
   | 'position'
-  | 'positionContext'
+  | 'showClosePositionSummary'
 >) => {
   const token: PreparedToken = {
     decimals: position.token.decimals,
@@ -216,7 +216,7 @@ const PositionSellSummary = ({
     </>
   )
 
-  if (positionContext === 'leftover') {
+  if (showClosePositionSummary) {
     return (
       <Stack className="gap-2 rounded-xl bg-white-04 p-4">
         <PositionTrade position={position} />
@@ -231,6 +231,7 @@ const PositionSellSummary = ({
 
   const usesPendingSellActions =
     pendingSellObligationsLoading || pendingSellObligations !== undefined || pendingSellObligationsError !== undefined
+  const expectedSkippedActionCount = Number(position.metrics.skippedSellCount?.value)
 
   return (
     <Stack className="gap-3">
@@ -238,6 +239,14 @@ const PositionSellSummary = ({
         <PositionTrade position={position} />
         <Stack className="gap-2">
           <span className="text-sm font-medium text-text">Skipped Actions:</span>
+          {pendingSellObligationsLoading &&
+            Array.from({ length: expectedSkippedActionCount }, (_, index) => (
+              <ReviewRow
+                key={index}
+                label={<TextSkeleton width={112} size="sm" />}
+                value={<TextSkeleton className="ml-auto" width={80} size="sm" />}
+              />
+            ))}
           {pendingSellObligations?.map((obligation, index) => (
             <ReviewRow
               key={obligation.leaderPositionEventId || index}
@@ -277,13 +286,13 @@ export const ManagePositionForm = ({
   onPrimaryAction,
   onSlippageChange,
   position,
-  positionContext,
   pendingSellObligations,
   pendingSellObligationsError,
   pendingSellObligationsLoading,
   primaryActionDisabled,
   primaryActionLabel,
   primaryActionLoading,
+  showClosePositionSummary,
   slippage,
   unavailableMessage,
 }: ManagePositionFormProps) => (
@@ -293,7 +302,7 @@ export const ManagePositionForm = ({
       pendingSellObligationsError={pendingSellObligationsError}
       pendingSellObligationsLoading={pendingSellObligationsLoading}
       position={position}
-      positionContext={positionContext}
+      showClosePositionSummary={showClosePositionSummary}
     />
 
     <PreparedActionSlippageControl disabled={isPreparing} onChange={onSlippageChange} value={slippage} />

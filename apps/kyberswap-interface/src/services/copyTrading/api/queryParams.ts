@@ -41,7 +41,6 @@ const positionViewMap: Record<PositionStatusFilter, string | undefined> = {
   all: undefined,
   open: 'POSITION_VIEW_OPEN',
   closed: 'POSITION_VIEW_CLOSED',
-  leftover: 'POSITION_VIEW_LEFTOVER',
 }
 
 const performanceSeriesMap: Record<PerformanceSeries, string> = {

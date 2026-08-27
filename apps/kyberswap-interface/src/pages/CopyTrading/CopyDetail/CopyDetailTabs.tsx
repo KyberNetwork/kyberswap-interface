@@ -13,27 +13,24 @@ import { formatCount } from 'pages/CopyTrading/helpers'
 
 const PAGE_SIZE = 10
 
-const copyDetailTabs = ['open-positions', 'leftover-positions', 'closed-positions', 'action-logs'] as const
+const copyDetailTabs = ['open-positions', 'closed-positions', 'action-logs'] as const
 const closedCopyDetailTabs = ['closed-positions', 'action-logs'] as const
 
 type CopyDetailTab = (typeof copyDetailTabs)[number]
 
 const copyDetailTabLabels: Record<CopyDetailTab, string> = {
   'open-positions': 'Open Positions',
-  'leftover-positions': 'Leftover Positions',
   'closed-positions': 'Closed Positions',
   'action-logs': 'Action Logs',
 }
 
 const copyDetailTabShortLabels: Partial<Record<CopyDetailTab, string>> = {
-  'leftover-positions': 'Leftovers',
   'closed-positions': 'History',
   'action-logs': 'Logs',
 }
 
 const getCopyDetailTabCount = (tab: CopyDetailTab, run: CopyRunSummary) => {
   if (tab === 'closed-positions') return run.closedPositionCount
-  if (tab === 'leftover-positions') return run.leftoverPositionCount
   return tab === 'open-positions' ? run.openPositionCount : undefined
 }
 
@@ -48,11 +45,7 @@ type CopyRunPanelProps = {
   run: CopyRunSummary
 }
 
-const PositionsPanel = ({
-  enabled = true,
-  positionContext,
-  run,
-}: CopyRunPanelProps & { positionContext: 'active' | 'leftover' }) => {
+const PositionsPanel = ({ enabled = true, run }: CopyRunPanelProps) => {
   const { ownerAddress } = useCopyTradingContext()
   const [getCopyRunPositions] = copyRunApi.useLazyGetCopyRunPositionsQuery()
   const {
@@ -61,12 +54,12 @@ const PositionsPanel = ({
     items: positions,
   } = useInfiniteCursorQuery({
     enabled: !!ownerAddress && enabled,
-    queryKey: ['copy-trading', 'copy-run-positions', ownerAddress, run.copyRunId, positionContext],
+    queryKey: ['copy-trading', 'copy-run-positions', ownerAddress, run.copyRunId, 'open'],
     queryFn: cursor =>
       getCopyRunPositions({
         ownerAddress: ownerAddress || '',
         copyRunId: run.copyRunId,
-        status: positionContext === 'leftover' ? 'leftover' : 'open',
+        status: 'open',
         cursor,
         limit: 100,
       }).unwrap(),
@@ -76,7 +69,7 @@ const PositionsPanel = ({
     <CopyPositionsTable
       infiniteScroll={infiniteScroll}
       loading={isFetching && !positions.length}
-      positionContext={positionContext}
+      copyRunStatus={run.status}
       rows={positions}
     />
   )
@@ -141,10 +134,7 @@ export const CopyDetailTabs = ({
   includeOpenPositions = true,
   run,
 }: CopyDetailTabsProps) => {
-  const showLeftoverPositions = includeOpenPositions && Number(run.leftoverPositionCount || 0) > 0
-  const tabs = includeOpenPositions
-    ? copyDetailTabs.filter(tab => tab !== 'leftover-positions' || showLeftoverPositions)
-    : closedCopyDetailTabs
+  const tabs = includeOpenPositions ? copyDetailTabs : closedCopyDetailTabs
   const { activeTab, setActiveTab } = useTab<CopyDetailTab>({
     tabs,
     defaultTab,
@@ -169,12 +159,7 @@ export const CopyDetailTabs = ({
 
       {includeOpenPositions && (
         <div className="relative min-h-20" hidden={currentTab !== 'open-positions'} role="tabpanel">
-          <PositionsPanel enabled={currentTab === 'open-positions'} positionContext="active" run={run} />
-        </div>
-      )}
-      {showLeftoverPositions && (
-        <div className="relative min-h-20" hidden={currentTab !== 'leftover-positions'} role="tabpanel">
-          <PositionsPanel enabled={currentTab === 'leftover-positions'} positionContext="leftover" run={run} />
+          <PositionsPanel enabled={currentTab === 'open-positions'} run={run} />
         </div>
       )}
       <div className="relative min-h-20" hidden={currentTab !== 'closed-positions'} role="tabpanel">

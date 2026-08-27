@@ -43,8 +43,6 @@ type ApiCopyRun = {
   myAprSinceCopy?: ApiMetric
   openPositionCount?: ApiMetric
   closedPositionCount?: ApiMetric
-  leftoverPositionCount?: ApiMetric
-  leftoverValueUsd?: ApiMetric
   durationSeconds?: string
   durationAsOf?: string
   flatFeesCapturedUsd?: ApiMetric
@@ -90,8 +88,6 @@ type ApiOwnerCopySummary = {
   closedCopyRuns?: ApiMetric
   closedPositionCount?: ApiMetric
   closedCapitalUsd?: ApiMetric
-  leftoverPositionCount?: ApiMetric
-  leftoverValueUsd?: ApiMetric
   flatFeesCapturedUsd?: ApiMetric
   cashbackReceivedUsd?: ApiMetric
   netFeeCostUsd?: ApiMetric
@@ -135,8 +131,6 @@ const toCopyRun = (run: ApiCopyRun): CopyRunSummary => {
     myAprSinceCopyPct: metricValue(run.myAprSinceCopy),
     openPositionCount: metricValue(run.openPositionCount),
     closedPositionCount: metricValue(run.closedPositionCount),
-    leftoverPositionCount: metricValue(run.leftoverPositionCount),
-    leftoverValueUsd: metricValue(run.leftoverValueUsd),
     flatFeesCapturedUsd: metricValue(run.flatFeesCapturedUsd),
     cashbackReceivedUsd: metricValue(run.cashbackReceivedUsd),
     netFeeCostUsd: metricValue(run.netFeeCostUsd),
@@ -160,8 +154,6 @@ const toCopyRun = (run: ApiCopyRun): CopyRunSummary => {
       myAprSinceCopy: run.myAprSinceCopy,
       openPositionCount: run.openPositionCount,
       closedPositionCount: run.closedPositionCount,
-      leftoverPositionCount: run.leftoverPositionCount,
-      leftoverValueUsd: run.leftoverValueUsd,
       flatFeesCapturedUsd: run.flatFeesCapturedUsd,
       cashbackReceivedUsd: run.cashbackReceivedUsd,
       netFeeCostUsd: run.netFeeCostUsd,
@@ -193,8 +185,6 @@ export const adaptOwnerCopySummaryResponse = (
       closedCopies: metricValue(summary.closedCopyRuns),
       closedPositions: metricValue(summary.closedPositionCount),
       closedCapitalUsd: metricValue(summary.closedCapitalUsd),
-      leftoverPositions: metricValue(summary.leftoverPositionCount),
-      leftoverValueUsd: metricValue(summary.leftoverValueUsd),
       flatFeesCapturedUsd: metricValue(summary.flatFeesCapturedUsd),
       cashbackReceivedUsd: metricValue(summary.cashbackReceivedUsd),
       netFeeCostUsd: metricValue(summary.netFeeCostUsd),
@@ -208,8 +198,6 @@ export const adaptOwnerCopySummaryResponse = (
         closedCopyRuns: summary.closedCopyRuns,
         closedPositionCount: summary.closedPositionCount,
         closedCapitalUsd: summary.closedCapitalUsd,
-        leftoverPositionCount: summary.leftoverPositionCount,
-        leftoverValueUsd: summary.leftoverValueUsd,
         flatFeesCapturedUsd: summary.flatFeesCapturedUsd,
         cashbackReceivedUsd: summary.cashbackReceivedUsd,
         netFeeCostUsd: summary.netFeeCostUsd,
