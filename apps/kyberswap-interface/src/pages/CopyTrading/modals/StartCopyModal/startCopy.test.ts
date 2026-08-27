@@ -13,6 +13,7 @@ const copyRun = {
   ownerAddress,
   agentId,
   chainId,
+  status: 'active',
 } as CopyRunSummary
 
 const response = (data: CopyRunSummary[]): CopyRunsResponse => ({ data, pagination })

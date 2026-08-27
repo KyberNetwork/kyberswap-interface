@@ -8,7 +8,7 @@ import { agentProfileResponsiveOrder } from 'pages/CopyTrading/AgentProfile/resp
 import Leaderboard, { type LeaderboardStat } from 'pages/CopyTrading/components/Leaderboard'
 import {
   CapitalValueChart,
-  CumulativeRealisedPnlChart,
+  CumulativeTotalPnlChart,
   toPerformanceChartPoint,
 } from 'pages/CopyTrading/components/PerformanceCharts'
 import { ResponsiveDetailContents, ResponsiveDetailItem } from 'pages/CopyTrading/components/common/layout'
@@ -21,6 +21,9 @@ import {
   percent,
   signedUsd,
 } from 'pages/CopyTrading/helpers'
+
+// Product decision: performance charts intentionally use only page 1 and do not follow pagination cursors.
+const PERFORMANCE_CHART_LIMIT = 100
 
 const getProfileStats = (stats?: AgentStatsData): LeaderboardStat[] => [
   {
@@ -55,38 +58,38 @@ type AgentStatsProps = {
   agentId: string
 }
 
-const AgentCumulativeRealisedPnlChart = ({ agentId }: AgentStatsProps) => {
-  const [realizedPnlWindow, setRealizedPnlWindow] = useState<PerformanceWindow>('30d')
-  const realizedPnlInterval = realizedPnlWindow === 'all' ? 'month' : 'day'
+const AgentCumulativeTotalPnlChart = ({ agentId }: AgentStatsProps) => {
+  const [totalPnlWindow, setTotalPnlWindow] = useState<PerformanceWindow>('30d')
+  const totalPnlInterval = totalPnlWindow === 'all' ? 'month' : 'day'
 
   const {
-    data: realizedPnlPerformance,
-    isError: isRealizedPnlError,
-    isFetching: isRealizedPnlFetching,
+    data: totalPnlPerformance,
+    isError: isTotalPnlError,
+    isFetching: isTotalPnlFetching,
   } = agentApi.useGetAgentPerformanceQuery(
     {
       agentId,
-      interval: realizedPnlInterval,
-      limit: 100,
-      series: 'cumulative_realized_pnl',
-      window: realizedPnlWindow,
+      interval: totalPnlInterval,
+      limit: PERFORMANCE_CHART_LIMIT,
+      series: 'cumulative_total_pnl',
+      window: totalPnlWindow,
     },
     { pollingInterval: 10_000 },
   )
 
-  const realizedPnlData = useMemo(
-    () => (realizedPnlPerformance?.data || []).map(toPerformanceChartPoint),
-    [realizedPnlPerformance?.data],
+  const totalPnlData = useMemo(
+    () => (totalPnlPerformance?.data || []).map(toPerformanceChartPoint),
+    [totalPnlPerformance?.data],
   )
 
   return (
-    <CumulativeRealisedPnlChart
+    <CumulativeTotalPnlChart
       collapsible
-      data={realizedPnlData}
-      isError={isRealizedPnlError}
-      isFetching={isRealizedPnlFetching}
-      onWindowChange={setRealizedPnlWindow}
-      window={realizedPnlWindow}
+      data={totalPnlData}
+      isError={isTotalPnlError}
+      isFetching={isTotalPnlFetching}
+      onWindowChange={setTotalPnlWindow}
+      window={totalPnlWindow}
     />
   )
 }
@@ -103,7 +106,7 @@ const AgentCapitalValueChart = ({ agentId }: AgentStatsProps) => {
     {
       agentId,
       interval: capitalValueInterval,
-      limit: 100,
+      limit: PERFORMANCE_CHART_LIMIT,
       series: 'portfolio_value',
       window: capitalValueWindow,
     },
@@ -129,17 +132,20 @@ const AgentCapitalValueChart = ({ agentId }: AgentStatsProps) => {
 }
 
 const AgentStats = ({ agentId }: AgentStatsProps) => {
-  const { data: agentStats } = agentApi.useGetAgentStatsQuery({ agentId }, { pollingInterval: 10_000 })
+  const { currentData: agentStats, isFetching: isAgentStatsFetching } = agentApi.useGetAgentStatsQuery(
+    { agentId },
+    { pollingInterval: 10_000 },
+  )
   const stats = agentStats?.data
 
   return (
     <ResponsiveDetailContents className="min-w-0">
       <ResponsiveDetailItem>
-        <Leaderboard items={getProfileStats(stats)} size="sm" />
+        <Leaderboard items={getProfileStats(stats)} loading={!agentStats && isAgentStatsFetching} size="sm" />
       </ResponsiveDetailItem>
       <ResponsiveDetailItem responsiveOrder={agentProfileResponsiveOrder.performance}>
         <Stack className="gap-6 rounded-xl bg-buttonBlack p-6 max-md:-mx-4 max-md:gap-4 max-md:rounded-none max-md:p-4">
-          <AgentCumulativeRealisedPnlChart agentId={agentId} />
+          <AgentCumulativeTotalPnlChart agentId={agentId} />
           <AgentCapitalValueChart agentId={agentId} />
         </Stack>
       </ResponsiveDetailItem>

@@ -212,7 +212,7 @@ const PreparedActionModal = ({
         <Stack className="ks-scrollbar min-h-0 gap-5 overflow-y-auto">
           <HStack className="min-w-0 items-start justify-between gap-4">
             {typeof title === 'string' ? (
-              <h2 className="min-w-0 flex-1 truncate text-xl font-medium leading-tight text-text" title={title}>
+              <h2 className="min-w-0 flex-1 truncate text-xl font-medium text-text" title={title}>
                 {title}
               </h2>
             ) : (
@@ -297,9 +297,7 @@ const PreparedActionModal = ({
               <Stack className="w-full items-center gap-1">
                 {state.phase === 'error' ? (
                   <>
-                    {recoveryError && (
-                      <p className="max-w-[360px] text-base font-medium leading-6 text-red">{recoveryError}</p>
-                    )}
+                    {recoveryError && <p className="max-w-[360px] text-base font-medium text-red">{recoveryError}</p>}
                     {hasErrorDetail && (
                       <Stack className="w-full items-center gap-0">
                         <ButtonText
@@ -322,7 +320,7 @@ const PreparedActionModal = ({
                         >
                           <div className="min-h-0 overflow-hidden">
                             <div className="pt-2">
-                              <div className="max-h-[200px] w-full overflow-y-auto break-words rounded bg-buttonBlack/40 p-3 text-center text-[10px] leading-4 text-text">
+                              <div className="max-h-[200px] w-full overflow-y-auto break-words rounded bg-buttonBlack/40 p-3 text-center text-[10px] text-text">
                                 {state.error}
                               </div>
                             </div>

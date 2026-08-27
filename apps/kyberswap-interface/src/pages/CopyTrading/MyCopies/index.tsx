@@ -42,16 +42,17 @@ const MyCopiesView = () => {
     items: activityRows,
   } = useInfiniteCursorQuery({
     enabled: !!ownerAddress,
-    queryKey: ['copy-trading', 'owner-activity', ownerAddress],
+    queryKey: ['copy-trading', 'owner-activity', ownerAddress, 'alert_feed'],
     queryFn: cursor =>
       getOwnerActivity({
         ownerAddress: ownerAddress || '',
+        activitySurface: 'alert_feed',
         cursor,
         limit: PAGE_SIZE,
       }).unwrap(),
   })
 
-  const { currentData: ownerSummary } = copyRunApi.useGetOwnerCopySummaryQuery(
+  const { currentData: ownerSummary, isFetching: isOwnerSummaryFetching } = copyRunApi.useGetOwnerCopySummaryQuery(
     {
       ownerAddress: ownerAddress || '',
       view: 'open',
@@ -59,7 +60,7 @@ const MyCopiesView = () => {
     { pollingInterval: 10_000, skip: !ownerAddress },
   )
 
-  const activeRuns = activeRunsPage.items
+  const openRuns = activeRunsPage.items
   const summary = ownerSummary?.data
 
   const handleSortChange = (nextSortBy: CopyRunSortBy) => {
@@ -83,11 +84,11 @@ const MyCopiesView = () => {
         <OwnerWalletRequired />
       ) : (
         <>
-          <OpenCopiesSummary summary={summary} fallbackActiveCopies={activeRuns.length} />
+          <OpenCopiesSummary loading={!ownerSummary && isOwnerSummaryFetching} summary={summary} />
           <ActiveSubscriptionsTable
             loading={activeRunsPage.loading}
             pagination={activeRunsPage}
-            rows={activeRuns}
+            rows={openRuns}
             sortBy={sortBy}
             sortOrder={sortOrder}
             onSortChange={handleSortChange}

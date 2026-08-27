@@ -44,8 +44,8 @@ export const getWritePrimaryActionLabel = ({
   unavailable,
   unavailableLabel,
 }: WritePrimaryActionLabelParams) => {
-  if (!accountConnected) return 'Connect wallet'
-  if (!onExpectedChain) return 'Switch network'
+  if (!accountConnected) return 'Connect Wallet'
+  if (!onExpectedChain) return 'Switch Network'
   if (loading) return loadingLabel || readyLabel
   return unavailable ? unavailableLabel : readyLabel
 }

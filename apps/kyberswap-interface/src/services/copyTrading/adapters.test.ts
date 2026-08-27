@@ -1,8 +1,10 @@
 import { describe, expect, it } from 'vitest'
 
-import { adaptActionLogsResponse } from './adapters/activity'
+import { adaptActionLogsResponse, adaptActivityResponse } from './adapters/activity'
+import { adaptPerformanceResponse } from './adapters/agents'
 import { adaptCopyAccountBalancesResponse, adaptCopyAccountWalletInventoryResponse } from './adapters/copyAccounts'
 import { adaptCopyRunCashbackPolicyResponse, adaptCopyRunResponse } from './adapters/copyRuns'
+import { adaptClosedPositionExecutionsResponse, adaptPositionsResponse } from './adapters/positions'
 
 const currentCapital = {
   value: '12.34',
@@ -46,6 +48,56 @@ describe('adaptCopyRunResponse', () => {
 
     expect(response.data.observedCapitalInUsd).toBe(expectedObservedCapitalInUsd)
   })
+
+  it('maps server-owned total, balance, fee and detail-only win-rate metrics independently', () => {
+    const response = adaptCopyRunResponse({
+      data: {
+        status: 'COPY_RUN_STATUS_CLOSING',
+        stoppedAt: '2026-08-27T01:00:00Z',
+        currentBalanceUsd: { value: '105', status: 'METRIC_STATUS_STALE' },
+        totalPnlUsd: { value: '5', status: 'METRIC_STATUS_CURRENT' },
+        totalPnlPct: { value: '4.8', status: 'METRIC_STATUS_CURRENT' },
+        netFeeCostUsd: { value: '-1.2', status: 'METRIC_STATUS_CURRENT' },
+        copyRunWinRatePct: { value: '60', status: 'METRIC_STATUS_CURRENT' },
+        copyRunClassifiedClosedPositionCount: { value: '5', status: 'METRIC_STATUS_CURRENT' },
+      },
+    })
+
+    expect(response.data).toMatchObject({
+      status: 'closing',
+      currentBalanceUsd: '105',
+      totalPnlUsd: '5',
+      totalPnlPct: '4.8',
+      netFeeCostUsd: '-1.2',
+      copyRunWinRatePct: '60',
+      copyRunClassifiedClosedPositionCount: '5',
+    })
+    expect(response.data).not.toHaveProperty('estimatedCashbackPendingUsd')
+  })
+})
+
+describe('adaptPerformanceResponse', () => {
+  it('keeps total PnL USD and holding-period return statuses independent', () => {
+    const response = adaptPerformanceResponse({
+      data: [
+        {
+          timestamp: '2026-08-27T00:00:00Z',
+          series: 'PERFORMANCE_SERIES_CUMULATIVE_TOTAL_PNL',
+          valueUsd: { value: '12', status: 'METRIC_STATUS_STALE' },
+          valuePct: { value: '3', status: 'METRIC_STATUS_UNAVAILABLE' },
+        },
+      ],
+      pagination: { hasMore: false, limit: 100 },
+      effectiveWindowStart: '2026-07-27T00:00:00Z',
+      evaluationAt: '2026-08-27T00:00:00Z',
+    })
+
+    expect(response.data[0]).toMatchObject({ series: 'cumulative_total_pnl', totalPnlUsd: '12' })
+    expect(response.data[0].valuePct).toBeUndefined()
+    expect(response.data[0].percentageMetric?.status).toBe('METRIC_STATUS_UNAVAILABLE')
+    expect(response.effectiveWindowStart).toBe('2026-07-27T00:00:00Z')
+    expect(response.evaluationAt).toBe('2026-08-27T00:00:00Z')
+  })
 })
 
 describe('adaptActionLogsResponse', () => {
@@ -61,6 +113,8 @@ describe('adaptActionLogsResponse', () => {
               actionSummary: 'Buy ETH',
               chainId: '8453',
               occurredAt: '2026-08-14T01:02:03Z',
+              side: 'TRADE_SIDE_BUY',
+              token: { chainId: '8453', address: '0x1111111111111111111111111111111111111111', symbol: 'ETH' },
             },
           ],
         },
@@ -75,9 +129,99 @@ describe('adaptActionLogsResponse', () => {
           action: 'Buy ETH',
           actionCode: 'buy',
           chainId: 8453,
+          side: 'buy',
+          token: { symbol: 'ETH' },
         },
       ],
       pagination: { hasMore: true, limit: 10, nextCursor: 'next' },
+    })
+  })
+})
+
+describe('adaptActivityResponse', () => {
+  it('preserves the stable alert identity and structured pending context', () => {
+    const response = adaptActivityResponse({
+      data: [
+        {
+          activityId: 'activity-1',
+          category: 'ACTIVITY_CATEGORY_TRADE',
+          subtype: 'ACTIVITY_SUBTYPE_BUY',
+          alert: {
+            alertId: 'alert-1',
+            leaderContextStatus: 'ALERT_LEADER_CONTEXT_STATUS_PRESENT',
+            leader: {
+              side: 'TRADE_SIDE_BUY',
+              baseToken: { chainId: '8453', address: '0x1111111111111111111111111111111111111111', symbol: 'ETH' },
+              canonicalLeaderTxHash: '0xleader',
+            },
+            user: {
+              side: 'TRADE_SIDE_BUY',
+              status: 'ALERT_OUTCOME_STATUS_PENDING',
+              completeness: 'DATA_COMPLETENESS_PENDING',
+              finality: 'DATA_FINALITY_PROVISIONAL',
+            },
+          },
+        },
+      ],
+      pagination: { hasMore: false, limit: 10 },
+    })
+
+    expect(response.data[0]).toMatchObject({
+      category: 'trade',
+      subtype: 'buy',
+      alert: {
+        alertId: 'alert-1',
+        leaderContextStatus: 'present',
+        leader: { side: 'buy', baseToken: { symbol: 'ETH' }, canonicalLeaderTxHash: '0xleader' },
+        user: { side: 'buy', status: 'pending' },
+      },
+    })
+  })
+})
+
+describe('closed position executions', () => {
+  it('maps cumulative receipt fields and canonical execution pages', () => {
+    const positions = adaptPositionsResponse({
+      data: [
+        {
+          positionId: 'position-1',
+          lifecycle: 'POSITION_LIFECYCLE_CLOSED',
+          totalBaseSoldRaw: '1000000',
+          totalBaseSoldDecimal: { value: '1', status: 'METRIC_STATUS_CURRENT' },
+          totalQuoteReceivedRaw: '2500000',
+          totalQuoteReceivedDecimal: { value: '2.5', status: 'METRIC_STATUS_CURRENT' },
+          latestTxHash: '0xfinal',
+        },
+      ],
+      pagination: { hasMore: false, limit: 10 },
+    })
+    const executions = adaptClosedPositionExecutionsResponse({
+      data: [
+        {
+          positionEventId: 'event-1',
+          positionId: 'position-1',
+          baseAmountSoldDecimal: { value: '1', status: 'METRIC_STATUS_CURRENT' },
+          quoteAmountReceivedDecimal: { value: '2.5', status: 'METRIC_STATUS_CURRENT' },
+          txHash: '0xfinal',
+          isFinalClose: true,
+        },
+      ],
+      pagination: { hasMore: false, limit: 10 },
+    })
+
+    expect(positions.data[0]).toMatchObject({
+      totalBaseSoldRaw: '1000000',
+      totalBaseSoldDecimal: '1',
+      totalQuoteReceivedRaw: '2500000',
+      totalQuoteReceivedDecimal: '2.5',
+      latestTxHash: '0xfinal',
+    })
+    expect(executions.data[0]).toMatchObject({
+      positionEventId: 'event-1',
+      baseAmountSoldDecimal: '1',
+      quoteAmountReceivedDecimal: '2.5',
+      txHash: '0xfinal',
+      isFinalClose: true,
     })
   })
 })

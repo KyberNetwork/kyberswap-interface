@@ -141,7 +141,7 @@ const AddCapitalModal = ({ isOpen, onDismiss, copyRun }: AddCapitalModalProps) =
     onExpectedChain: capital.onExpectedChain,
     readyLabel: 'Add Capital',
     unavailable,
-    unavailableLabel: 'Add Capital unavailable',
+    unavailableLabel: 'Add Capital Unavailable',
   })
   const primaryActionDisabled = isWritePrimaryActionDisabled({
     accountConnected,

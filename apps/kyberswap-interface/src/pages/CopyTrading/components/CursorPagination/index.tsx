@@ -5,6 +5,7 @@ import type { CursorResponse } from 'services/copyTrading/types/primitives'
 
 import { ButtonLight } from 'components/Button'
 import { HStack } from 'components/Stack'
+import { shouldResetCursor } from 'pages/CopyTrading/components/cursorError'
 
 type CursorPageQueryParams<TResponse extends CursorResponse<unknown>> = {
   enabled?: boolean
@@ -46,6 +47,12 @@ export const useCursorPageQuery = <TResponse extends CursorResponse<unknown>>({
     refetchInterval: 10_000,
     retry: false,
   })
+
+  useEffect(() => {
+    if (cursor && query.isError && shouldResetCursor(query.error)) {
+      setPagination({ currentPage: 1, cursors: [undefined], scopeKey })
+    }
+  }, [cursor, query.error, query.isError, scopeKey])
 
   const nextCursor = query.data?.pagination.nextCursor
   const hasNextPage = !!query.data?.pagination.hasMore && !!nextCursor

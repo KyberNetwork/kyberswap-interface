@@ -27,7 +27,7 @@ export const DataQualityStatusBadge = ({ status }: { status: DataQualityStatus }
   const presentation = dataQualityStatusPresentation[status]
 
   return (
-    <span className={cn('inline-flex rounded px-1.5 py-0.5 text-[10px] font-medium uppercase', presentation.className)}>
+    <span className={cn('inline-flex rounded px-1.5 py-0 text-[10px] font-medium uppercase', presentation.className)}>
       {presentation.label}
     </span>
   )

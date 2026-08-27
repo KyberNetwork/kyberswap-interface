@@ -50,7 +50,11 @@ type ApiCopyRun = {
   flatFeesCapturedUsd?: ApiMetric
   cashbackReceivedUsd?: ApiMetric
   netFeeCostUsd?: ApiMetric
-  estimatedCashbackPendingUsd?: ApiMetric
+  currentBalanceUsd?: ApiMetric
+  totalPnlUsd?: ApiMetric
+  totalPnlPct?: ApiMetric
+  copyRunWinRatePct?: ApiMetric
+  copyRunClassifiedClosedPositionCount?: ApiMetric
   agentSnapshot?: ApiAgentSnapshot
   addCapitalAvailability?: AdvisoryActionAvailability
   stopCopyAvailability?: AdvisoryActionAvailability
@@ -91,7 +95,6 @@ type ApiOwnerCopySummary = {
   flatFeesCapturedUsd?: ApiMetric
   cashbackReceivedUsd?: ApiMetric
   netFeeCostUsd?: ApiMetric
-  estimatedCashbackPendingUsd?: ApiMetric
 }
 
 const toCopyRunStatus = (status?: string): CopyRunStatus => {
@@ -137,7 +140,11 @@ const toCopyRun = (run: ApiCopyRun): CopyRunSummary => {
     flatFeesCapturedUsd: metricValue(run.flatFeesCapturedUsd),
     cashbackReceivedUsd: metricValue(run.cashbackReceivedUsd),
     netFeeCostUsd: metricValue(run.netFeeCostUsd),
-    estimatedCashbackPendingUsd: metricValue(run.estimatedCashbackPendingUsd),
+    currentBalanceUsd: metricValue(run.currentBalanceUsd),
+    totalPnlUsd: metricValue(run.totalPnlUsd),
+    totalPnlPct: metricValue(run.totalPnlPct),
+    copyRunWinRatePct: metricValue(run.copyRunWinRatePct),
+    copyRunClassifiedClosedPositionCount: metricValue(run.copyRunClassifiedClosedPositionCount),
     durationSeconds: run.durationSeconds,
     durationAsOf: run.durationAsOf,
     addCapitalAvailability: run.addCapitalAvailability,
@@ -158,7 +165,11 @@ const toCopyRun = (run: ApiCopyRun): CopyRunSummary => {
       flatFeesCapturedUsd: run.flatFeesCapturedUsd,
       cashbackReceivedUsd: run.cashbackReceivedUsd,
       netFeeCostUsd: run.netFeeCostUsd,
-      estimatedCashbackPendingUsd: run.estimatedCashbackPendingUsd,
+      currentBalanceUsd: run.currentBalanceUsd,
+      totalPnlUsd: run.totalPnlUsd,
+      totalPnlPct: run.totalPnlPct,
+      copyRunWinRatePct: run.copyRunWinRatePct,
+      copyRunClassifiedClosedPositionCount: run.copyRunClassifiedClosedPositionCount,
     },
     agentSnapshot: run.agentSnapshot ? toAgentSnapshot(run.agentSnapshot) : undefined,
     agentStats: toAgentStats(run.agentSnapshot?.metrics as ApiAgentMetrics | undefined),
@@ -187,7 +198,6 @@ export const adaptOwnerCopySummaryResponse = (
       flatFeesCapturedUsd: metricValue(summary.flatFeesCapturedUsd),
       cashbackReceivedUsd: metricValue(summary.cashbackReceivedUsd),
       netFeeCostUsd: metricValue(summary.netFeeCostUsd),
-      estimatedCashbackPendingUsd: metricValue(summary.estimatedCashbackPendingUsd),
       metrics: {
         totalAllocatedUsd: summary.totalAllocatedUsd,
         portfolioValueUsd: summary.portfolioValueUsd,
@@ -203,7 +213,6 @@ export const adaptOwnerCopySummaryResponse = (
         flatFeesCapturedUsd: summary.flatFeesCapturedUsd,
         cashbackReceivedUsd: summary.cashbackReceivedUsd,
         netFeeCostUsd: summary.netFeeCostUsd,
-        estimatedCashbackPendingUsd: summary.estimatedCashbackPendingUsd,
       },
     }),
   )

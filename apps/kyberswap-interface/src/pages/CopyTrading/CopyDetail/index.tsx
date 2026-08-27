@@ -24,13 +24,11 @@ import { OwnerWalletRequired } from 'pages/CopyTrading/components/common/status'
 import { copyTradingStatIconMap } from 'pages/CopyTrading/constants'
 import { useCopyTradingContext } from 'pages/CopyTrading/context'
 import {
-  formatApproximateUsd,
   formatDisplayCapitalInUsd,
   formatUsd,
   getSignedMetricClassName,
   signedPercent,
   signedUsd,
-  sumUsdValues,
 } from 'pages/CopyTrading/helpers'
 import { formatDateTime } from 'utils/time'
 
@@ -41,23 +39,13 @@ type CopyDetailContentProps = {
 }
 
 const getCopyRunStats = (run: CopyRunSummary): LeaderboardStat[] => {
-  const totalPnlUsd = sumUsdValues(run.realizedPnlUsd, run.unrealizedPnlUsd)
-  const totalPnlStatus =
-    run.metrics.realizedPnlUsd?.status === 'METRIC_STATUS_STALE' ||
-    run.metrics.unrealizedPnlUsd?.status === 'METRIC_STATUS_STALE'
-      ? 'METRIC_STATUS_STALE'
-      : run.metrics.realizedPnlUsd?.status === 'METRIC_STATUS_CURRENT' &&
-        run.metrics.unrealizedPnlUsd?.status === 'METRIC_STATUS_CURRENT'
-      ? 'METRIC_STATUS_CURRENT'
-      : undefined
-
   return [
     {
       label: 'Total P&L',
-      value: signedUsd(totalPnlUsd),
-      valueClassName: getSignedMetricClassName(totalPnlUsd),
+      value: signedUsd(run.totalPnlUsd),
+      valueClassName: getSignedMetricClassName(run.totalPnlUsd),
       icon: copyTradingStatIconMap.pnl,
-      status: totalPnlStatus,
+      status: run.metrics.totalPnlUsd?.status,
     },
     {
       label: 'Realised P&L',
@@ -74,16 +62,16 @@ const getCopyRunStats = (run: CopyRunSummary): LeaderboardStat[] => {
       status: run.metrics.myAprSinceCopy?.status,
     },
     {
-      label: 'Fee Paid',
+      label: 'Fee',
       value: formatUsd(run.flatFeesCapturedUsd),
       icon: copyTradingStatIconMap.volumePrimary,
       status: run.metrics.flatFeesCapturedUsd?.status,
     },
     {
-      label: 'Est. Cashback Pending',
-      value: formatApproximateUsd(run.estimatedCashbackPendingUsd),
+      label: 'Rebate',
+      value: formatUsd(run.cashbackReceivedUsd),
       icon: copyTradingStatIconMap.moneyPrimary,
-      status: run.metrics.estimatedCashbackPendingUsd?.status,
+      status: run.metrics.cashbackReceivedUsd?.status,
     },
   ]
 }
@@ -113,7 +101,7 @@ const CopyTimeline = ({ run }: { run: CopyRunSummary }) => {
           </span>
         </Stack>
         <Center className="min-h-12 rounded-xl bg-red-20 px-6 py-2 text-lg font-medium text-red max-sm:min-h-10 max-sm:px-4 max-sm:text-base">
-          Stopped Copy
+          {run.status === 'closed' ? 'Closed Copy' : 'Stopped Copy'}
         </Center>
       </HStack>
     </HStack>
@@ -121,17 +109,24 @@ const CopyTimeline = ({ run }: { run: CopyRunSummary }) => {
 }
 
 const CopyDetailContent = ({ agent, backPath, run }: CopyDetailContentProps) => {
-  const isClosed = run.status === 'closed'
-  const defaultTab = run.status === 'stopped' || backPath !== 'history' ? 'open-positions' : 'closed-positions'
+  const isTerminal = run.status === 'stopped' || run.status === 'closed'
+  const hasOnlyLeftoverPositions =
+    run.status === 'closing' && Number(run.openPositionCount || 0) === 0 && Number(run.leftoverPositionCount || 0) > 0
+  const defaultTab =
+    isTerminal && backPath === 'history'
+      ? 'closed-positions'
+      : hasOnlyLeftoverPositions
+      ? 'leftover-positions'
+      : 'open-positions'
 
   return (
     <>
-      {!isClosed && <CopyRunStats run={run} />}
+      <CopyRunStats run={run} />
 
       <ResponsiveDetailGrid>
         <ResponsiveDetailItem responsiveOrder={copyDetailResponsiveOrder.mainContent}>
           <Stack className="gap-4">
-            {isClosed ? <CopyTimeline run={run} /> : <CopyDetailTabs defaultTab={defaultTab} run={run} />}
+            {isTerminal ? <CopyTimeline run={run} /> : <CopyDetailTabs defaultTab={defaultTab} run={run} />}
             <CopyRunPerformance copyRunId={run.copyRunId} status={run.status} />
           </Stack>
         </ResponsiveDetailItem>
@@ -140,7 +135,7 @@ const CopyDetailContent = ({ agent, backPath, run }: CopyDetailContentProps) => 
         </StickySideColumn>
       </ResponsiveDetailGrid>
 
-      {isClosed && <CopyDetailTabs defaultTab="closed-positions" includeOpenPositions={false} run={run} />}
+      {isTerminal && <CopyDetailTabs defaultTab="closed-positions" includeOpenPositions={false} run={run} />}
     </>
   )
 }
@@ -192,7 +187,7 @@ const CopyDetailView = ({ backPath }: { backPath: 'my-copies' | 'history' }) => 
 
   return (
     <CopyTradingPage backTo={{ label: backLabel, to: `${APP_PATHS.COPY_TRADING}/${backPath}` }}>
-      <AgentIdentity agent={profile} status={run.status} />
+      <AgentIdentity agent={profile} />
       <CopyDetailContent key={run.copyRunId} agent={profile} backPath={backPath} run={run} />
     </CopyTradingPage>
   )

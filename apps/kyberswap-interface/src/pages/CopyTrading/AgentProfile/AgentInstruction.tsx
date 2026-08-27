@@ -9,7 +9,7 @@ import { HStack } from 'components/Stack'
 import { APP_PATHS } from 'constants/index'
 import { agentProfileResponsiveOrder } from 'pages/CopyTrading/AgentProfile/responsiveOrder'
 import {
-  AgentRiskCard,
+  RiskCard,
   StrategyExecutionCard,
   WhitelistedTokensCard,
 } from 'pages/CopyTrading/components/AgentSidebarCards/AgentProfileCards'
@@ -54,17 +54,17 @@ const AgentInstruction = ({ agent }: AgentInstructionProps) => {
   const { ownerAddress } = useCopyTradingContext()
   const { openStartCopy, openAddCapital } = useCopyTradingModal()
 
-  const { currentData: activeCopyRuns } = copyRunApi.useGetCopyRunsQuery(
+  const { currentData: openCopyRuns } = copyRunApi.useGetCopyRunsQuery(
     {
       ownerAddress: ownerAddress || '',
       view: 'open',
       agentId: agent.agentId,
-      limit: 1,
+      limit: 100,
     },
     { pollingInterval: 10_000, skip: !ownerAddress },
   )
 
-  const activeCopyRun = activeCopyRuns?.data[0]
+  const activeCopyRun = openCopyRuns?.data.find(copyRun => copyRun.status === 'active')
   const copyActionCard = activeCopyRun ? (
     <CopyCapitalCard
       addCapitalAvailability={activeCopyRun.addCapitalAvailability}
@@ -82,7 +82,7 @@ const AgentInstruction = ({ agent }: AgentInstructionProps) => {
         {copyActionCard}
       </ResponsiveDetailItem>
       <ResponsiveDetailItem responsiveOrder={agentProfileResponsiveOrder.risk}>
-        <AgentRiskCard agent={agent} />
+        <RiskCard maxDrawdownPct={agent.stats.maxDrawdownPct} winRatePct={agent.stats.winRatePct} />
       </ResponsiveDetailItem>
       <ResponsiveDetailItem responsiveOrder={agentProfileResponsiveOrder.strategy}>
         <StrategyExecutionCard items={agent.strategyExecutionItems} />

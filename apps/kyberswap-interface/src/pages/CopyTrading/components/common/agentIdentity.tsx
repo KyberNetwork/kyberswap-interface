@@ -1,12 +1,11 @@
 import type { PropsWithChildren } from 'react'
 import type { AgentCard, AgentProfile, AgentSnapshot } from 'services/copyTrading/types/agents'
 import type { CopyRunSummary } from 'services/copyTrading/types/copyRuns'
-import type { CopyRunStatus, StrategyKey } from 'services/copyTrading/types/primitives'
+import type { StrategyKey } from 'services/copyTrading/types/primitives'
 
 import verifiedIcon from 'assets/images/copy-trading/verified.svg'
 import CopyHelper from 'components/Copy'
 import { Center, HStack, Stack } from 'components/Stack'
-import { CopyRunStatusBadge } from 'pages/CopyTrading/components/common/status'
 import { useCopyTradingContext } from 'pages/CopyTrading/context'
 import {
   getAgentDisplayName,
@@ -165,7 +164,7 @@ export const CopyRunAgentCell = ({ className, run }: CopyRunAgentCellProps) => {
   )
 }
 
-export const AgentIdentity = ({ agent, status }: { agent: AgentCard | AgentProfile; status?: CopyRunStatus }) => {
+export const AgentIdentity = ({ agent }: { agent: AgentCard | AgentProfile }) => {
   const displayName = getAgentDisplayName(agent)
 
   return (
@@ -176,7 +175,6 @@ export const AgentIdentity = ({ agent, status }: { agent: AgentCard | AgentProfi
         <HStack className="flex-wrap items-center gap-2 text-sm font-medium text-subText">
           <AgentStrategies agent={agent} />
           <Badge color="gray">{agent.modelName}</Badge>
-          {status && <CopyRunStatusBadge status={status} />}
           <MetadataGroup>
             <span>{shortenAddress(agent.chainId, agent.leaderAddress)}</span>
             <CopyHelper toCopy={agent.leaderAddress} margin="0" size={13} className="text-subText" />

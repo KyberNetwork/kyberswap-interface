@@ -38,6 +38,7 @@ export const pollStartCopyRun = async ({
       const copyRun = response.data.find(
         run =>
           !!run.copyRunId &&
+          run.status === 'active' &&
           run.agentId === agentId &&
           run.chainId === chainId &&
           run.ownerAddress.toLowerCase() === ownerAddress.toLowerCase(),
