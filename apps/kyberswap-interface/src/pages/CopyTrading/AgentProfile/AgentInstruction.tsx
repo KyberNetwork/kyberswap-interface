@@ -1,8 +1,8 @@
 import { Zap } from 'react-feather'
 import { useNavigate } from 'react-router-dom'
-import copyRunApi from 'services/copyTrading/api/endpoints/copyRuns'
 import type { AdvisoryActionAvailability } from 'services/copyTrading/types/actionAvailability'
 import type { AgentProfile } from 'services/copyTrading/types/agents'
+import type { CopyRunSummary } from 'services/copyTrading/types/copyRuns'
 
 import { ButtonPrimary } from 'components/Button'
 import { HStack } from 'components/Stack'
@@ -16,7 +16,6 @@ import {
 import { CopyCapitalCard } from 'pages/CopyTrading/components/AgentSidebarCards/CopyActionCards'
 import { SidePanelCard } from 'pages/CopyTrading/components/AgentSidebarCards/SidePanelCard'
 import { ResponsiveDetailContents, ResponsiveDetailItem } from 'pages/CopyTrading/components/common/layout'
-import { useCopyTradingContext } from 'pages/CopyTrading/context'
 import { canAttemptPreparation, formatDisplayCapitalInUsd, getPreparedReasonMessage } from 'pages/CopyTrading/helpers'
 import { useCopyTradingModal } from 'pages/CopyTrading/modals/context'
 
@@ -46,25 +45,14 @@ const StartCopyCard = ({ availability, onCopy }: { availability?: AdvisoryAction
 }
 
 type AgentInstructionProps = {
+  activeCopyRun?: CopyRunSummary
   agent: AgentProfile
 }
 
-const AgentInstruction = ({ agent }: AgentInstructionProps) => {
+const AgentInstruction = ({ activeCopyRun, agent }: AgentInstructionProps) => {
   const navigate = useNavigate()
-  const { ownerAddress } = useCopyTradingContext()
   const { openStartCopy, openAddCapital } = useCopyTradingModal()
 
-  const { currentData: openCopyRuns } = copyRunApi.useGetCopyRunsQuery(
-    {
-      ownerAddress: ownerAddress || '',
-      view: 'open',
-      agentId: agent.agentId,
-      limit: 100,
-    },
-    { pollingInterval: 10_000, skip: !ownerAddress },
-  )
-
-  const activeCopyRun = openCopyRuns?.data.find(copyRun => copyRun.status === 'active')
   const copyActionCard = activeCopyRun ? (
     <CopyCapitalCard
       addCapitalAvailability={activeCopyRun.addCapitalAvailability}

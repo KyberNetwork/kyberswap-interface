@@ -28,26 +28,22 @@ export const OpenCopiesSummary = ({ loading, summary }: OpenCopiesSummaryProps) 
       label: 'Total Allocated',
       value: formatUsd(summary?.totalAllocatedUsd),
       icon: copyTradingStatIconMap.volume,
-      status: summary?.metrics.totalAllocatedUsd?.status,
     },
     {
       label: 'Unrealised P&L',
       value: signedUsd(summary?.unrealizedPnlUsd),
       valueClassName: getSignedMetricClassName(summary?.unrealizedPnlUsd),
       icon: copyTradingStatIconMap.money,
-      status: summary?.metrics.unrealizedPnlUsd?.status,
     },
     {
       label: 'Open Positions',
       value: formatCount(summary?.openPositions),
       icon: copyTradingStatIconMap.positionOpen,
-      status: summary?.metrics.openPositionCount?.status,
     },
     {
       label: 'Active Copies',
       value: formatCount(summary?.activeCopies),
       icon: copyTradingStatIconMap.agents,
-      status: summary?.metrics.activeCopyRuns?.status,
     },
   ]
 

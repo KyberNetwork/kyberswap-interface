@@ -4,23 +4,16 @@ import Badge, { BadgeVariant } from 'components/Badge'
 import InfoHelper from 'components/InfoHelper'
 import { HStack, Stack } from 'components/Stack'
 import { SidePanelCard } from 'pages/CopyTrading/components/AgentSidebarCards/SidePanelCard'
-import { getWinRateClassName, getWinRateTone, percent } from 'pages/CopyTrading/helpers'
+import { getWinRateClassName, percent } from 'pages/CopyTrading/helpers'
 import { cn } from 'utils/cn'
-
-const winRateBadgeVariants = {
-  positive: BadgeVariant.PRIMARY,
-  warning: BadgeVariant.WARNING,
-  negative: BadgeVariant.NEGATIVE,
-  neutral: undefined,
-} as const
 
 type RiskCardProps = Pick<AgentProfile['stats'], 'maxDrawdownPct' | 'winRatePct'>
 
 export const RiskCard = ({ maxDrawdownPct, winRatePct }: RiskCardProps) => {
   const winRate = Math.max(0, Math.min(100, Number(winRatePct || 0)))
+  const winRateLabel = percent(winRatePct)
+  const winRateUnavailable = winRateLabel === 'N/A'
   const winRateBackgroundClassName = getWinRateClassName(winRatePct, 'background')
-  const winRateTone = getWinRateTone(winRatePct)
-  const winRateBadgeVariant = winRateBadgeVariants[winRateTone]
 
   return (
     <SidePanelCard>
@@ -31,15 +24,15 @@ export const RiskCard = ({ maxDrawdownPct, winRatePct }: RiskCardProps) => {
             <div className={cn('h-full rounded-full', winRateBackgroundClassName)} style={{ width: winRate + '%' }} />
           </div>
           <Badge
-            variant={winRateBadgeVariant}
+            variant={winRateUnavailable ? undefined : BadgeVariant.PRIMARY}
             className={cn(
               'absolute top-1/2 -translate-x-1/2 -translate-y-1/2 whitespace-nowrap rounded-md py-0.5 text-sm shadow-[0_6px_14px_rgba(0,0,0,0.55)] ring-1 ring-white/20',
               winRateBackgroundClassName,
-              winRateTone === 'negative' ? 'text-text' : 'text-black',
+              winRateUnavailable ? 'text-text' : 'text-black',
             )}
             style={{ left: 'clamp(20px, ' + winRate + '%, calc(100% - 20px))' }}
           >
-            {percent(winRatePct)}
+            {winRateLabel}
           </Badge>
         </div>
       </HStack>

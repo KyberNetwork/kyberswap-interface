@@ -66,23 +66,25 @@ const AgentTable = ({ agents, loading, pagination, sortBy, sortOrder, onSortChan
   const { ownerAddress, selectedChainId } = useCopyTradingContext()
   const { openStartCopy } = useCopyTradingModal()
 
-  const { currentData: activeCopyRuns } = copyRunApi.useGetCopyRunsQuery(
+  const { currentData: openCopyRuns } = copyRunApi.useGetCopyRunsQuery(
     {
       ownerAddress: ownerAddress || '',
       view: 'open',
       chainId: selectedChainId,
+      sortBy: 'started_at',
+      sortOrder: 'desc',
       limit: 100,
     },
     { pollingInterval: 10_000, skip: !ownerAddress },
   )
 
-  const copiedRunsByAgentId = useMemo(
+  const latestRunsByAgentId = useMemo(
     () =>
-      (activeCopyRuns?.data || []).reduce<Record<string, CopyRunSummary>>((acc, run) => {
-        acc[run.agentId] = run
-        return acc
+      (openCopyRuns?.data || []).reduce<Record<string, CopyRunSummary>>((latestRuns, run) => {
+        if (!latestRuns[run.agentId]) latestRuns[run.agentId] = run
+        return latestRuns
       }, {}),
-    [activeCopyRuns?.data],
+    [openCopyRuns?.data],
   )
 
   return (
@@ -155,7 +157,8 @@ const AgentTable = ({ agents, loading, pagination, sortBy, sortOrder, onSortChan
           loading={loading}
         >
           {agents.map(agent => {
-            const copiedRun = copiedRunsByAgentId?.[agent.agentId]
+            const latestRun = latestRunsByAgentId[agent.agentId]
+            const copiedRun = latestRun?.status === 'active' ? latestRun : undefined
             const canStartCopy = canAttemptPreparation(agent.startCopyAvailability)
 
             return (
@@ -213,7 +216,8 @@ const AgentTable = ({ agents, loading, pagination, sortBy, sortOrder, onSortChan
         loading={loading}
       >
         {agents.map(agent => {
-          const copiedRun = copiedRunsByAgentId?.[agent.agentId]
+          const latestRun = latestRunsByAgentId[agent.agentId]
+          const copiedRun = latestRun?.status === 'active' ? latestRun : undefined
           const canStartCopy = canAttemptPreparation(agent.startCopyAvailability)
 
           return (
