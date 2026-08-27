@@ -306,7 +306,7 @@ export default function TableContent({
       {smartExitPosition && <SmartExit position={smartExitPosition} onDismiss={() => setSmartExitPosition(null)} />}
 
       <div className="max-[1300px]:flex max-[1300px]:flex-col max-[1300px]:gap-4">
-        {account && positions && positions.length > 0
+        {positions && positions.length > 0
           ? positions.map((position, index) => (
               <PositionRowItem
                 key={getUnfinalizedPositionKeyFromPosition(position) ?? position.positionId}
