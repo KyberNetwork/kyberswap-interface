@@ -64,7 +64,7 @@ const UserPositions = () => {
   }, [account, filters])
 
   const {
-    data: userPositionsData,
+    data: userPositionsResult,
     isUninitialized,
     isLoading,
     isFetching,
@@ -74,6 +74,10 @@ const UserPositions = () => {
     skip: !account,
     pollingInterval: 15_000,
   })
+
+  // RTK Query holds on to the last result once a query is skipped, so disconnecting would otherwise leave
+  // the previous wallet's rows, table header and pagination on screen beside an empty list.
+  const userPositionsData = account ? userPositionsResult : undefined
 
   const positionsStats = userPositionsData?.stats
   const hasStartedPositionsRequest = !isUninitialized

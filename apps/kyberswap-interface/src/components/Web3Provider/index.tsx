@@ -441,6 +441,24 @@ const readRecentConnectorId = (): string | undefined => {
   }
 }
 
+/**
+ * Whether wagmi persisted a live connection, i.e. whether there is a session worth restoring at boot.
+ *
+ * `recentConnectorId` cannot answer this: wagmi leaves it in place through `disconnect()`, so it only
+ * says which wallet was picked last, not whether it is still connected. `state.current` does — wagmi
+ * clears it the moment the last connection goes away, and persists that.
+ */
+export const hasPersistedConnection = (): boolean => {
+  if (typeof window === 'undefined' || !window.localStorage) return false
+  try {
+    const raw = window.localStorage.getItem('wagmi.store')
+    if (!raw) return false
+    return !!(JSON.parse(raw) as { state?: { current?: string | null } }).state?.current
+  } catch {
+    return false
+  }
+}
+
 export const wagmiConfig = createConfig({
   chains: wagmiChains,
   transports,
@@ -552,6 +570,10 @@ export default function Web3Provider({ children }: { children: ReactNode }) {
   // learn they have no session. Scoping the walk to the connector they actually last used skips all of it:
   // with no stored id there is nothing to restore, so no SDK loads at all.
   //
+  // The stored id alone is not enough to decide there is something to restore, since it outlives
+  // `disconnect()` — hence the persisted-connection check first, which is what tells a visitor who left
+  // connected apart from one who disconnected and never came back.
+  //
   // Runs on mount rather than at idle so a returning visitor's wallet reconnects as promptly as before. If
   // the stored id names a connector we cannot resolve yet — EIP-6963 wallets announce asynchronously, so a
   // discovered connector may not be registered at this point — fall back to wagmi's full walk rather than
@@ -559,6 +581,8 @@ export default function Web3Provider({ children }: { children: ReactNode }) {
   // registerPortoConnector() runs, which reconnects it itself, so the full walk here would only load every
   // other wallet's SDK for nothing.
   useEffect(() => {
+    if (!hasPersistedConnection()) return
+
     const recentConnectorId = readRecentConnectorId()
     if (!recentConnectorId || recentConnectorId === PORTO_CONNECTOR_ID) return
 
@@ -573,9 +597,11 @@ export default function Web3Provider({ children }: { children: ReactNode }) {
   // via `connector.getProvider()`, and gives up without ever reaching
   // `isAuthorized()` (where the shim lives). Poll for the bootstrap object and,
   // once it lands, re-trigger reconnect so the custom safepalConnector finds it.
-  // Guarded so it only runs while no other connector is current.
+  // Guarded so it only runs while no other connector is current, and only for a visitor who left
+  // connected — recovering a session nobody had would walk every connector for nothing.
   useEffect(() => {
     if (typeof window === 'undefined') return
+    if (!hasPersistedConnection()) return
 
     let triggered = false
     let pollHandle: ReturnType<typeof setInterval> | null = null

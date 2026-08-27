@@ -31,6 +31,7 @@ import { CoreProtocol } from 'pages/Earns/constants/coreProtocol'
 import useClosedPositions, { CheckClosedPositionParams } from 'pages/Earns/hooks/useClosedPositions'
 import useFarmingStablePools from 'pages/Earns/hooks/useFarmingStablePools'
 import useForceLoading from 'pages/Earns/hooks/useForceLoading'
+import useIsWalletRestoring from 'pages/Earns/hooks/useIsWalletRestoring'
 import useKemRewards from 'pages/Earns/hooks/useKemRewards'
 import useMerklRewards from 'pages/Earns/hooks/useMerklRewards'
 import useReduceFetchInterval from 'pages/Earns/hooks/useReduceFetchInterval'
@@ -57,6 +58,7 @@ const PositionDetail = () => {
   const navigate = useNavigate()
 
   const { account } = useActiveWeb3React()
+  const isRestoringWallet = useIsWalletRestoring()
   const { forceLoading, removeForceLoading } = useForceLoading()
   const { positionId, chainId, exchange } = useParams()
   const { widget: zapMigrationWidget, handleOpenZapMigration, triggerClose, setTriggerClose } = useZapMigrationWidget()
@@ -156,7 +158,14 @@ const PositionDetail = () => {
 
   // A request in flight with nothing to show for this route means the position is still on its way, whether
   // that is the first load or a move between two position pages; skeletons beat an empty state either way.
-  const initialLoading = !!(forceLoading || (isLoading && !firstLoading.current) || (!position && isFetching))
+  // A wallet still being restored counts too: the query is skipped until it lands, so nothing is in flight
+  // yet and "No position found" would be answering a question that has not been asked.
+  const initialLoading = !!(
+    forceLoading ||
+    isRestoringWallet ||
+    (isLoading && !firstLoading.current) ||
+    (!position && isFetching)
+  )
 
   const farmingPoolsByChain = useFarmingStablePools({ chainIds: position ? [position.chain.id] : [] })
 
@@ -272,9 +281,21 @@ const PositionDetail = () => {
     if (!firstLoading.current && !isLoading) firstLoading.current = true
   }, [isLoading])
 
+  // Sends the visitor back to the list once this page no longer belongs to the wallet in hand.
+  //
+  // Opening a position in a new tab lands here before the wallet has been restored, so `account` is
+  // briefly undefined through no fault of the visitor: waiting for the restore is what keeps that cold
+  // load on the page instead of bouncing it straight back to the list. The wallet that arrives is then
+  // the one this page belongs to — `currentWalletAddress` is seeded at mount, which a cold load reaches
+  // before there is anything to seed it with.
   useEffect(() => {
+    if (isRestoringWallet) return
+    if (account && !currentWalletAddress.current) {
+      currentWalletAddress.current = account
+      return
+    }
     if (!account || account !== currentWalletAddress.current) navigate(APP_PATHS.EARN_POSITIONS)
-  }, [account, navigate])
+  }, [account, isRestoringWallet, navigate])
 
   // `?forceLoading=true` is the hand-off from the zap flow: caching the placeholder needs the mined receipt,
   // so the page holds its skeletons rather than flashing "No position found" in between. `position` is

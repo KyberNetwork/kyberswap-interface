@@ -16,6 +16,7 @@ import PoolAprInfo from 'pages/Earns/components/PoolAprInfo'
 import PoolRewardsInfo from 'pages/Earns/components/PoolRewardsInfo'
 import { ZapInInfo } from 'pages/Earns/hooks/useZapInWidget'
 import { ParsedEarnPool } from 'pages/Earns/types'
+import { getPoolDetailUrl } from 'pages/Earns/utils/url'
 import { formatDisplayNumber } from 'utils/numbers'
 import { prefetchPoolDetail } from 'utils/prefetch'
 
@@ -40,17 +41,20 @@ const DesktopTableRow = ({
   const theme = useTheme()
   const { trackingHandler } = useTracking()
 
+  const poolChainId = (pool.chain?.id || pool.chainId) as number
+
   // Stagger each row's fade-in by 50ms (capped at 300ms), matching the My Positions list.
   const animationDelay = `${Math.min(rowIndex * 50, 300)}ms`
 
   // The parent wires this row's onClick (onOpenZapInWidget) to open the pool's detail page, so warm
   // that page's chunk + its poolDetail query on hover.
-  const prefetchDetail = usePrefetchOnIntent(
-    () => prefetchPoolDetail((pool.chain?.id || pool.chainId) as number, pool.address),
-    { delay: 120 },
-  )
+  const prefetchDetail = usePrefetchOnIntent(() => prefetchPoolDetail(poolChainId, pool.address), { delay: 120 })
 
-  const handleOpenZapInWidget = (e: React.MouseEvent<HTMLDivElement>) => {
+  const handleOpenZapInWidget = (e: React.MouseEvent<HTMLElement>) => {
+    // Modified clicks (cmd/ctrl/shift/alt or a non-primary button) belong to the browser so the row's
+    // href can open in a new tab or window; only a plain click routes in-app.
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return
+    e.preventDefault()
     e.stopPropagation()
     trackingHandler(TRACKING_EVENT_TYPE.LIQ_POOL_SELECTED, {
       pool_pair: `${pool.tokens?.[0]?.symbol}/${pool.tokens?.[1]?.symbol}`,
@@ -64,7 +68,7 @@ const DesktopTableRow = ({
     onOpenZapInWidget({
       pool: {
         dex: pool.exchange,
-        chainId: (pool.chain?.id || pool.chainId) as number,
+        chainId: poolChainId,
         address: pool.address,
       },
     })
@@ -72,12 +76,14 @@ const DesktopTableRow = ({
 
   return (
     <TableRow
+      as="a"
+      href={getPoolDetailUrl(poolChainId, pool.exchange, pool.address)}
       onClick={e => handleOpenZapInWidget(e)}
       className="animate-[fadeInUp_0.3s_ease-out_both] cursor-pointer hover:bg-primary-10 motion-reduce:animate-none"
       style={{ gridTemplateColumns: getPoolTableGridTemplateColumns(showRewards, showPoolPrice), animationDelay }}
       data-testid="earn-pool-row"
       data-pool-address={pool.address}
-      data-chain-id={pool.chain?.id || pool.chainId}
+      data-chain-id={poolChainId}
       data-exchange={pool.exchange}
       {...prefetchDetail}
     >
