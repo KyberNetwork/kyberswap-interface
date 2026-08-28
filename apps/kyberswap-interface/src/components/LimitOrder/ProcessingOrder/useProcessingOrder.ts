@@ -91,7 +91,7 @@ export const useProcessingOrder = ({
   }
 
   const waitForManualApproval = async () => {
-    for (let attempt = 0; attempt < 8; attempt++) {
+    for (let attempt = 0; attempt < 10; attempt++) {
       const hasEnoughAllowance = await checkApprovalManually()
       if (hasEnoughAllowance) return true
       await sleep(3000)
