@@ -94,7 +94,7 @@ export const useProcessingOrder = ({
     for (let attempt = 0; attempt < 8; attempt++) {
       const hasEnoughAllowance = await checkApprovalManually()
       if (hasEnoughAllowance) return true
-      await sleep(2000)
+      await sleep(3000)
     }
 
     return false
