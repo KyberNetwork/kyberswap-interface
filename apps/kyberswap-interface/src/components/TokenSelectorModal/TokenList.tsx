@@ -34,6 +34,10 @@ import { getTokenAddress, isTokenNative } from 'utils/tokenInfo'
 // Virtualized row heights. A restricted row the user clicked grows to fit the "not available" notice.
 const ROW_CONTENT_HEIGHT = 12 * 4 // 48px
 const NORMAL_ITEM_SIZE = ROW_CONTENT_HEIGHT + 8 // 56px (content + row gap)
+// Rows on either side of the viewport included in `onRowsRendered`, so a scroll lands on rows whose
+// data was already asked for; the debounce turns a fling into one report.
+const ROWS_RENDERED_MARGIN = 40
+const ROWS_RENDERED_DEBOUNCE_MS = 150
 const RESTRICTED_CONTENT_HEIGHT = ROW_CONTENT_HEIGHT + 28 // 76px
 const RESTRICTED_ITEM_SIZE = RESTRICTED_CONTENT_HEIGHT + 8 // 84px
 
@@ -569,6 +573,11 @@ type TokenListProps = {
   onToggleFavorite?: (event: React.MouseEvent, currency: Currency) => void
   onRemoveImportedToken?: (token: Token) => void
   loadMoreRows?: () => Promise<void>
+  /**
+   * Called, debounced, with the currencies in and just around the viewport whenever it moves, so a
+   * caller can fetch per-row data (catalog metadata) for what is about to be looked at only.
+   */
+  onRowsRendered?: (currencies: Currency[]) => void
   listTokenRef?: React.Ref<HTMLDivElement>
   itemStyle?: CSSProperties
   customChainId?: ChainId
@@ -604,6 +613,7 @@ const TokenList = ({
   onToggleFavorite,
   onRemoveImportedToken,
   loadMoreRows,
+  onRowsRendered,
   hasMore,
   listTokenRef,
   showFavoriteIcon,
@@ -754,6 +764,20 @@ const TokenList = ({
   const itemCount = hasMore ? currencies.length + 1 : currencies.length // If there are more items to be loaded then add an extra row to hold a loading indicator.
   const isItemLoaded = (index: number) => !hasMore || index < currencies.length
 
+  const rowsRenderedTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
+  const handleItemsRendered = useCallback(
+    (range: { visibleStartIndex: number; visibleStopIndex: number }) => {
+      if (!onRowsRendered) return
+      if (rowsRenderedTimer.current) clearTimeout(rowsRenderedTimer.current)
+      rowsRenderedTimer.current = setTimeout(() => {
+        const start = Math.max(0, range.visibleStartIndex - ROWS_RENDERED_MARGIN)
+        onRowsRendered(currencies.slice(start, range.visibleStopIndex + ROWS_RENDERED_MARGIN + 1))
+      }, ROWS_RENDERED_DEBOUNCE_MS)
+    },
+    [onRowsRendered, currencies],
+  )
+  useEffect(() => () => clearTimeout(rowsRenderedTimer.current), [])
+
   return (
     <div className="flex-1 pb-2" data-testid="token-list">
       <AutoSizer>
@@ -767,7 +791,10 @@ const TokenList = ({
                 itemSize={getItemSize}
                 estimatedItemSize={NORMAL_ITEM_SIZE}
                 itemData={itemData}
-                onItemsRendered={onItemsRendered}
+                onItemsRendered={range => {
+                  onItemsRendered(range)
+                  handleItemsRendered(range)
+                }}
                 ref={node => {
                   ref(node)
                   listRef.current = node

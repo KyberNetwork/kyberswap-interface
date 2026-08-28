@@ -764,6 +764,24 @@ describe('token metadata', () => {
     expect(fetchListTokenByAddresses).toHaveBeenCalledTimes(1)
   })
 
+  it('asks page by page, and a failed page defers only its own addresses', async () => {
+    const addresses = Array.from({ length: 150 }, (_, i) => `0x${(i + 1).toString(16).padStart(40, '0')}`)
+    fetchListTokenByAddresses.mockImplementation(async (page: string[]) => {
+      if (page.length === 100) throw new Error('down')
+      return [
+        new WrappedTokenInfo({ chainId: ChainId.MAINNET, address: page[0], decimals: 18, symbol: 'P2', name: 'P2' }),
+      ]
+    })
+    await ensureTokenMetadata(ChainId.MAINNET, addresses)
+    expect(fetchListTokenByAddresses).toHaveBeenCalledTimes(2)
+    const metadata = getTokenMetadata()
+    // The second page (50 addresses) answered: its first address is known, the rest recorded as unknown.
+    expect(readTokenMetadata(metadata, ChainId.MAINNET, addresses[100])?.symbol).toBe('P2')
+    expect(metadata.has(`${ChainId.MAINNET}:${addresses[101]}`)).toBe(true)
+    // The first page failed: its addresses stay unanswered instead of being recorded as unknown.
+    expect(metadata.has(`${ChainId.MAINNET}:${addresses[0]}`)).toBe(false)
+  })
+
   it('shares one request between concurrent callers and waits out a failure before retrying', async () => {
     vi.useFakeTimers()
     fetchListTokenByAddresses.mockRejectedValueOnce(new Error('down')).mockResolvedValue([catalogToken])
@@ -850,6 +868,12 @@ describe('mergeHeldSearchResults', () => {
   it('leads with held tokens while keeping the catalog order within each group', () => {
     const merged = mergeHeldSearchResults([usdt, dai, novel], [], new Set([novel.address, dai.address]))
     expect(merged.map(t => t.symbol)).toEqual(['DAI', 'NOV', 'USDT'])
+  })
+
+  it('never leads with a held token that borrows a whitelisted symbol', () => {
+    const scam = new Token(ChainId.MAINNET, novel.address, 18, 'USDT')
+    const merged = mergeHeldSearchResults([usdt], [scam], new Set([scam.address]), new Set([scam.address]))
+    expect(merged.map(t => t.wrapped.address)).toEqual([usdt.address, scam.address])
   })
 
   it('adds held matches the catalog missed, without duplicating ones it found', () => {

@@ -119,13 +119,20 @@ export const mergeHeldSearchResults = (
   results: Currency[],
   heldMatches: Currency[],
   heldAddresses: Set<string> | undefined,
+  // Held tokens borrowing a whitelisted symbol stay where the catalog ranked them: a search for that
+  // symbol must lead with the genuine token, not with the airdrop that impersonates it.
+  impersonators?: Set<string>,
 ): Currency[] => {
   if (!heldAddresses?.size) return results
   const seen = new Set(results.map(getTokenAddress))
   const merged = results.concat(heldMatches.filter(token => !seen.has(getTokenAddress(token))))
   const held: Currency[] = []
   const rest: Currency[] = []
-  merged.forEach(token => (heldAddresses.has(getTokenAddress(token)) ? held : rest).push(token))
+  merged.forEach(token => {
+    const address = getTokenAddress(token)
+    const leads = heldAddresses.has(address) && !impersonators?.has(address)
+    ;(leads ? held : rest).push(token)
+  })
   return held.concat(rest)
 }
 

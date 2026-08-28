@@ -2,6 +2,7 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 
 import { fetchListTokenByAddresses } from 'hooks/useTokens'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
+import { chunk } from 'utils/array'
 
 /**
  * Catalog metadata (name, logo, canonical symbol) for tokens the wallet holds off any list. The
@@ -19,6 +20,8 @@ export type TokenMetadata = ReadonlyMap<string, WrappedTokenInfo | null>
 
 /** A failed lookup is left alone for this long before a consumer may ask for it again. */
 const METADATA_RETRY_MS = 30_000
+/** Addresses per catalog request — the catalog's own page cap. */
+const LOOKUP_PAGE_SIZE = 100
 
 let resolved: Map<string, WrappedTokenInfo | null> = new Map()
 const inflight = new Map<string, Promise<void>>()
@@ -91,11 +94,14 @@ export const ensureTokenMetadata = async (chainId: ChainId, addresses: readonly 
     batch.set(key, address)
   })
 
-  if (batch.size) {
-    const request = lookup(chainId, batch)
-    batch.forEach((_, key) => inflight.set(key, request))
+  // One lookup per page, each on its own: a page that fails only defers its own addresses, and the
+  // pages that answered are kept.
+  chunk(Array.from(batch), LOOKUP_PAGE_SIZE).forEach(page => {
+    const pageBatch = new Map(page)
+    const request = lookup(chainId, pageBatch)
+    pageBatch.forEach((_, key) => inflight.set(key, request))
     waits.push(request)
-  }
+  })
 
   await Promise.all(waits)
 }

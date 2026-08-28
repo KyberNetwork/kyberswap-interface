@@ -85,7 +85,9 @@ import {
   useUserFavoriteTokens,
 } from 'state/user/hooks'
 import { useNativeBalance, useTokenBalances } from 'state/wallet/hooks'
+import { isTokenListReady } from 'state/walletInventory/assets'
 import { useInventoryTokenBalances, useWalletInventory } from 'state/walletInventory/hooks'
+import { ensureTokenMetadata } from 'state/walletInventory/metadata'
 import { CloseIcon, MEDIA_WIDTHS } from 'theme'
 import { isAddress } from 'utils/address'
 import { filterTruthy } from 'utils/array'
@@ -535,6 +537,7 @@ export const TokenSelectorContent = ({
         tokenSearchResults.concat(filterTruthy([currentChainRpcToken])),
         searchDiscoveryMatches,
         heldAddresses,
+        impersonators,
       ).filter(filterWrapFunc)
     }
     return Object.values(defaultTokens).concat(discoveryTokens).sort(tokenComparator).filter(filterWrapFunc)
@@ -549,6 +552,7 @@ export const TokenSelectorContent = ({
     discoveryTokens,
     tokenComparator,
     filterWrapFunc,
+    impersonators,
   ])
 
   // Client-side search filter for the non-All tabs (their datasets are already in memory).
@@ -850,6 +854,20 @@ export const TokenSelectorContent = ({
     [primaryChainId],
   )
 
+  // Catalog metadata (name, logo) for the unlisted holdings being looked at, and only those: a
+  // spam-heavy wallet can hold hundreds, and the modal should not spend its opening on them. Before
+  // the chain's list lands every held token classifies as unlisted, so the ask waits for it.
+  const handleRowsRendered = useCallback(
+    (rows: Currency[]) => {
+      if (!unlistedAddresses?.size || !isTokenListReady(defaultTokens, tokenImports)) return
+      const addresses = rows.flatMap(currency =>
+        currency.isToken && unlistedAddresses.has(currency.address) ? [currency.address] : [],
+      )
+      if (addresses.length) void ensureTokenMetadata(primaryChainId, addresses)
+    },
+    [unlistedAddresses, defaultTokens, tokenImports, primaryChainId],
+  )
+
   const handleEnter = useCallback(
     (e: KeyboardEvent<HTMLInputElement>) => {
       if (e.key !== 'Enter') return
@@ -862,6 +880,9 @@ export const TokenSelectorContent = ({
       const totalToken = visibleCurrencies.length
       if (totalToken && (visibleCurrencies[0].symbol?.toLowerCase() === s || totalToken === 1)) {
         const candidate = visibleCurrencies[0]
+        // A token flagged as borrowing a whitelisted symbol is never picked blind: its row carries
+        // the warning, so it has to be clicked with that in view.
+        if (candidate.isToken && impersonators.has(candidate.address)) return
         // Honor the same import gate the row click enforces: a non-whitelisted result opens the
         // import-warning screen instead of being selected directly.
         if (
@@ -873,7 +894,7 @@ export const TokenSelectorContent = ({
         handleCurrencySelect(candidate)
       }
     },
-    [visibleCurrencies, handleCurrencySelect, searchQuery, primaryChainId, tokenImports, onImportToken],
+    [visibleCurrencies, handleCurrencySelect, searchQuery, primaryChainId, tokenImports, onImportToken, impersonators],
   )
 
   const handleClickFavorite = useCallback(
@@ -1176,6 +1197,7 @@ export const TokenSelectorContent = ({
           ) : visibleCurrencies?.length > 0 ? (
             <TokenList
               listTokenRef={listTokenRef}
+              onRowsRendered={handleRowsRendered}
               onRemoveImportedToken={isImportedTab ? removeImportedToken : undefined}
               currencies={visibleCurrencies}
               onToggleFavorite={handleClickFavorite}

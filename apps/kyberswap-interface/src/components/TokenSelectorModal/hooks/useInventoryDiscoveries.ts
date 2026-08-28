@@ -2,18 +2,14 @@ import { ChainId, Token } from '@kyberswap/ks-sdk-core'
 import { useMemo } from 'react'
 
 import { TokenMap } from 'hooks/useTokens'
-import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
-import { isTokenListReady } from 'state/walletInventory/assets'
 import { InventoryDiscoveries, computeInventoryDiscoveries } from 'state/walletInventory/discoveries'
-import { WalletInventory, useEnsureTokenMetadata, useTokenMetadata } from 'state/walletInventory/hooks'
+import { WalletInventory, useTokenMetadata } from 'state/walletInventory/hooks'
 
 export type { InventoryDiscoveries }
 
-const NO_TOKENS: WrappedTokenInfo[] = []
-
 /**
- * Memoized `computeInventoryDiscoveries` (see that function for what it surfaces and why), with the
- * catalog metadata for the surfaced tokens requested so their rows carry a real name and logo.
+ * Memoized `computeInventoryDiscoveries` (see that function for what it surfaces and why). Catalog
+ * metadata for the surfaced tokens is requested by the list as their rows come into view.
  */
 export const useInventoryDiscoveries = (
   inventory: WalletInventory,
@@ -22,12 +18,8 @@ export const useInventoryDiscoveries = (
   chainId: ChainId,
 ): InventoryDiscoveries => {
   const metadata = useTokenMetadata()
-  const discoveries = useMemo(
+  return useMemo(
     () => computeInventoryDiscoveries(inventory, defaultTokens, tokenImports, chainId, metadata),
     [inventory, defaultTokens, tokenImports, chainId, metadata],
   )
-  // Before the chain's list lands every held token classifies as a discovery; asking the catalog
-  // about the whole wallet then would spend a request on tokens the list is about to describe.
-  useEnsureTokenMetadata(chainId, isTokenListReady(defaultTokens, tokenImports) ? discoveries.tokens : NO_TOKENS)
-  return discoveries
 }
