@@ -23,13 +23,7 @@ import {
 import { OwnerWalletRequired } from 'pages/CopyTrading/components/common/status'
 import { copyTradingStatIconMap } from 'pages/CopyTrading/constants'
 import { useCopyTradingContext } from 'pages/CopyTrading/context'
-import {
-  formatDisplayCapitalInUsd,
-  formatUsd,
-  getSignedMetricClassName,
-  signedPercent,
-  signedUsd,
-} from 'pages/CopyTrading/helpers'
+import { formatUsd, getSignedMetricClassName, signedPercent, signedUsd } from 'pages/CopyTrading/helpers'
 import { formatDateTime } from 'utils/time'
 
 type CopyDetailContentProps = {
@@ -48,8 +42,8 @@ const getCopyRunStats = (run: CopyRunSummary): LeaderboardStat[] => {
     },
     {
       label: 'Realised P&L',
-      value: signedUsd(run.realizedPnlUsd),
-      valueClassName: getSignedMetricClassName(run.realizedPnlUsd),
+      value: signedUsd(run.portfolioPnlUsd),
+      valueClassName: getSignedMetricClassName(run.portfolioPnlUsd),
       icon: copyTradingStatIconMap.cash,
     },
     {
@@ -60,12 +54,12 @@ const getCopyRunStats = (run: CopyRunSummary): LeaderboardStat[] => {
     },
     {
       label: 'Fee',
-      value: formatUsd(run.flatFeesCapturedUsd),
+      value: formatUsd(run.feeBreakdown?.feeChargedUsd),
       icon: copyTradingStatIconMap.volumePrimary,
     },
     {
       label: 'Rebate',
-      value: formatUsd(run.cashbackReceivedUsd),
+      value: formatUsd(run.feeBreakdown?.rebatesUsd),
       icon: copyTradingStatIconMap.moneyPrimary,
     },
   ]
@@ -83,7 +77,7 @@ const CopyTimeline = ({ run }: { run: CopyRunSummary }) => {
         <Stack className="min-w-0">
           <span className="text-sm text-subText">{formatDateTime(run.startedAt)}</span>
           <span className="break-words text-lg font-medium text-text max-sm:text-base">
-            In: {formatDisplayCapitalInUsd(run)}
+            In: {formatUsd(run.capitalInUsd)}
           </span>
         </Stack>
       </HStack>

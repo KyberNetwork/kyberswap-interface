@@ -1,5 +1,12 @@
 import type { AdvisoryActionAvailability } from 'services/copyTrading/types/actionAvailability'
-import type { CopyRunCashbackPolicy, CopyRunSummary, OwnerCopySummary } from 'services/copyTrading/types/copyRuns'
+import type {
+  CopyRunCashbackPolicy,
+  CopyRunFeeBreakdown,
+  CopyRunListItem,
+  CopyRunSummary,
+  OwnerCopySummary,
+  StopCopyProgress,
+} from 'services/copyTrading/types/copyRuns'
 import type {
   Address,
   CapitalInProjectionStatus,
@@ -24,7 +31,9 @@ import {
   singleResponse,
 } from './shared'
 
-type ApiCopyRun = {
+type ApiStopCopyProgress = Partial<StopCopyProgress>
+
+type ApiCopyRunListItem = {
   copyRunId?: string
   ownerAddress?: string
   agentId?: string
@@ -35,28 +44,37 @@ type ApiCopyRun = {
   startedAt?: string
   stoppedAt?: string
   capitalInUsd?: ApiMetric
-  observedCapitalInUsd?: ApiMetric
   capitalOutUsd?: ApiMetric
   portfolioValueUsd?: ApiMetric
-  realizedPnlUsd?: ApiMetric
   unrealizedPnlUsd?: ApiMetric
   myAprSinceCopy?: ApiMetric
   openPositionCount?: ApiMetric
   closedPositionCount?: ApiMetric
+  leftoverPositionCount?: ApiMetric
+  leftoverValueUsd?: ApiMetric
   durationSeconds?: string
   durationAsOf?: string
-  flatFeesCapturedUsd?: ApiMetric
-  cashbackReceivedUsd?: ApiMetric
-  netFeeCostUsd?: ApiMetric
   currentBalanceUsd?: ApiMetric
   totalPnlUsd?: ApiMetric
   totalPnlPct?: ApiMetric
-  copyRunWinRatePct?: ApiMetric
-  copyRunClassifiedClosedPositionCount?: ApiMetric
+  stopCopyProgress?: ApiStopCopyProgress
   agentSnapshot?: ApiAgentSnapshot
   addCapitalAvailability?: AdvisoryActionAvailability
   stopCopyAvailability?: AdvisoryActionAvailability
   withdrawQuoteAvailability?: AdvisoryActionAvailability
+}
+
+type ApiCopyRunFeeBreakdown = {
+  feeChargedUsd?: ApiMetric
+  rebatesUsd?: ApiMetric
+  netFeesUsd?: ApiMetric
+}
+
+type ApiCopyRunSummary = ApiCopyRunListItem & {
+  portfolioPnlUsd?: ApiMetric
+  feeBreakdown?: ApiCopyRunFeeBreakdown
+  copyRunWinRatePct?: ApiMetric
+  copyRunClassifiedClosedPositionCount?: ApiMetric
 }
 
 type ApiCopyRunCashbackPolicy = {
@@ -108,10 +126,20 @@ const toCapitalInProjectionStatus = (status?: string): CapitalInProjectionStatus
   return value === 'syncing' || value === 'ready' || value === 'unavailable' ? value : 'unknown'
 }
 
-const toCopyRun = (run: ApiCopyRun): CopyRunSummary => {
+const toStopCopyProgress = (progress?: ApiStopCopyProgress): StopCopyProgress | undefined =>
+  progress
+    ? {
+        selectedPositionCount: progress.selectedPositionCount || 0,
+        indexedPositionCount: progress.indexedPositionCount || 0,
+        terminalPositionCount: progress.terminalPositionCount || 0,
+        pendingPositionCount: progress.pendingPositionCount || 0,
+        status: progress.status,
+        asOf: progress.asOf,
+      }
+    : undefined
+
+const toCopyRunListItem = (run: ApiCopyRunListItem): CopyRunListItem => {
   const capitalInProjectionStatus = toCapitalInProjectionStatus(run.capitalInProjectionStatus)
-  const canonicalCapitalInUsd = capitalInProjectionStatus === 'ready' ? metricValue(run.capitalInUsd) : undefined
-  const observedCapitalInUsd = metricValue(run.observedCapitalInUsd)
 
   return {
     copyRunId: run.copyRunId || '',
@@ -122,49 +150,73 @@ const toCopyRun = (run: ApiCopyRun): CopyRunSummary => {
     status: toCopyRunStatus(run.status),
     startedAt: run.startedAt || '',
     stoppedAt: run.stoppedAt,
-    capitalInUsd: canonicalCapitalInUsd,
-    observedCapitalInUsd,
+    capitalInUsd: metricValue(run.capitalInUsd),
+    capitalInProjectionStatus,
     capitalOutUsd: metricValue(run.capitalOutUsd),
     portfolioValueUsd: metricValue(run.portfolioValueUsd),
-    realizedPnlUsd: metricValue(run.realizedPnlUsd),
     unrealizedPnlUsd: metricValue(run.unrealizedPnlUsd),
     myAprSinceCopyPct: metricValue(run.myAprSinceCopy),
     openPositionCount: metricValue(run.openPositionCount),
     closedPositionCount: metricValue(run.closedPositionCount),
-    flatFeesCapturedUsd: metricValue(run.flatFeesCapturedUsd),
-    cashbackReceivedUsd: metricValue(run.cashbackReceivedUsd),
-    netFeeCostUsd: metricValue(run.netFeeCostUsd),
+    leftoverPositionCount: metricValue(run.leftoverPositionCount),
+    leftoverValueUsd: metricValue(run.leftoverValueUsd),
     currentBalanceUsd: metricValue(run.currentBalanceUsd),
     totalPnlUsd: metricValue(run.totalPnlUsd),
     totalPnlPct: metricValue(run.totalPnlPct),
-    copyRunWinRatePct: metricValue(run.copyRunWinRatePct),
-    copyRunClassifiedClosedPositionCount: metricValue(run.copyRunClassifiedClosedPositionCount),
     durationSeconds: run.durationSeconds,
     durationAsOf: run.durationAsOf,
     addCapitalAvailability: run.addCapitalAvailability,
     stopCopyAvailability: run.stopCopyAvailability,
     withdrawQuoteAvailability: run.withdrawQuoteAvailability,
+    stopCopyProgress: toStopCopyProgress(run.stopCopyProgress),
     metrics: {
       capitalInUsd: run.capitalInUsd,
-      observedCapitalInUsd: run.observedCapitalInUsd,
       capitalOutUsd: run.capitalOutUsd,
       portfolioValueUsd: run.portfolioValueUsd,
-      realizedPnlUsd: run.realizedPnlUsd,
       unrealizedPnlUsd: run.unrealizedPnlUsd,
       myAprSinceCopy: run.myAprSinceCopy,
       openPositionCount: run.openPositionCount,
       closedPositionCount: run.closedPositionCount,
-      flatFeesCapturedUsd: run.flatFeesCapturedUsd,
-      cashbackReceivedUsd: run.cashbackReceivedUsd,
-      netFeeCostUsd: run.netFeeCostUsd,
+      leftoverPositionCount: run.leftoverPositionCount,
+      leftoverValueUsd: run.leftoverValueUsd,
       currentBalanceUsd: run.currentBalanceUsd,
       totalPnlUsd: run.totalPnlUsd,
       totalPnlPct: run.totalPnlPct,
-      copyRunWinRatePct: run.copyRunWinRatePct,
-      copyRunClassifiedClosedPositionCount: run.copyRunClassifiedClosedPositionCount,
     },
     agentSnapshot: run.agentSnapshot ? toAgentSnapshot(run.agentSnapshot) : undefined,
     agentStats: toAgentStats(run.agentSnapshot?.metrics as ApiAgentMetrics | undefined),
+  }
+}
+
+const toCopyRunFeeBreakdown = (fees?: ApiCopyRunFeeBreakdown): CopyRunFeeBreakdown | undefined =>
+  fees
+    ? {
+        feeChargedUsd: metricValue(fees.feeChargedUsd),
+        rebatesUsd: metricValue(fees.rebatesUsd),
+        netFeesUsd: metricValue(fees.netFeesUsd),
+        metrics: {
+          feeChargedUsd: fees.feeChargedUsd,
+          rebatesUsd: fees.rebatesUsd,
+          netFeesUsd: fees.netFeesUsd,
+        },
+      }
+    : undefined
+
+const toCopyRunSummary = (run: ApiCopyRunSummary): CopyRunSummary => {
+  const item = toCopyRunListItem(run)
+
+  return {
+    ...item,
+    portfolioPnlUsd: metricValue(run.portfolioPnlUsd),
+    feeBreakdown: toCopyRunFeeBreakdown(run.feeBreakdown),
+    copyRunWinRatePct: metricValue(run.copyRunWinRatePct),
+    copyRunClassifiedClosedPositionCount: metricValue(run.copyRunClassifiedClosedPositionCount),
+    metrics: {
+      ...item.metrics,
+      portfolioPnlUsd: run.portfolioPnlUsd,
+      copyRunWinRatePct: run.copyRunWinRatePct,
+      copyRunClassifiedClosedPositionCount: run.copyRunClassifiedClosedPositionCount,
+    },
   }
 }
 
@@ -205,11 +257,11 @@ export const adaptOwnerCopySummaryResponse = (
     }),
   )
 
-export const adaptCopyRunsResponse = (response: ApiCursorResponse<ApiCopyRun>): CopyRunsResponse =>
-  cursorResponse(response, toCopyRun)
+export const adaptCopyRunsResponse = (response: ApiCursorResponse<ApiCopyRunListItem>): CopyRunsResponse =>
+  cursorResponse(response, toCopyRunListItem)
 
-export const adaptCopyRunResponse = (response: ApiSingleResponse<ApiCopyRun>): CopyRunResponse =>
-  singleResponse(response, toCopyRun)
+export const adaptCopyRunResponse = (response: ApiSingleResponse<ApiCopyRunSummary>): CopyRunResponse =>
+  singleResponse(response, toCopyRunSummary)
 
 export const adaptCopyRunCashbackPolicyResponse = (
   response: ApiSingleResponse<ApiCopyRunCashbackPolicy>,

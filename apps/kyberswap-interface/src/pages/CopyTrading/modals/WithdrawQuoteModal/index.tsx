@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import copyAccountApi from 'services/copyTrading/api/endpoints/copyAccounts'
 import preparedActionApi from 'services/copyTrading/api/endpoints/preparedActions'
 import type { AdvisoryActionAvailability } from 'services/copyTrading/types/actionAvailability'
-import type { CopyRunSummary } from 'services/copyTrading/types/copyRuns'
+import type { CopyRunListItem } from 'services/copyTrading/types/copyRuns'
 import type { PreparedCallKind } from 'services/copyTrading/types/preparedActions'
 
 import { APP_PATHS } from 'constants/index'
@@ -40,7 +40,7 @@ import { formatUnits, parseUnits } from 'utils/viem'
 type WithdrawQuoteModalProps = {
   isOpen: boolean
   onDismiss: () => void
-  copyRun: CopyRunSummary
+  copyRun: CopyRunListItem
   withdrawQuoteAvailability?: AdvisoryActionAvailability
 }
 

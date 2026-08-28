@@ -1,7 +1,22 @@
+import type { CopyRunListItem } from 'services/copyTrading/types/copyRuns'
 import type { CopyRunStatus, PositionLifecycle, PositionQuantityState } from 'services/copyTrading/types/primitives'
 
-import { Center, Stack } from 'components/Stack'
+import { Center, HStack, Stack } from 'components/Stack'
+import { formatUsd } from 'pages/CopyTrading/helpers'
 import { cn } from 'utils/cn'
+
+const MetricStatusBadge = ({ children }: { children: string }) => (
+  <span className="inline-flex whitespace-nowrap rounded-full bg-warning-20 px-2 py-0.5 text-[10px] font-medium text-warning">
+    {children}
+  </span>
+)
+
+export const CapitalInCardValue = ({ run }: { run: CopyRunListItem }) => (
+  <HStack className="items-center justify-end gap-1.5">
+    <span>{formatUsd(run.capitalInUsd)}</span>
+    {run.capitalInProjectionStatus === 'syncing' && <MetricStatusBadge>Syncing</MetricStatusBadge>}
+  </HStack>
+)
 
 const copyRunStatusLabel: Record<CopyRunStatus, string> = {
   active: 'Active',

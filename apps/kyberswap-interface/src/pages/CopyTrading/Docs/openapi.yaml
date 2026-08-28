@@ -1596,6 +1596,35 @@ definitions:
         type: string
         format: date-time
     description: ActionBlock is the fresh canonical mutable-state and preflight block H.
+  v1ActionDisplayEnrichment:
+    type: object
+    properties:
+      status:
+        $ref: '#/definitions/v1ActionDisplayEnrichmentStatus'
+      unavailableReason:
+        $ref: '#/definitions/v1ActionDisplayEnrichmentUnavailableReason'
+    description: ActionDisplayEnrichment reports the atomic render-only enrichment outcome.
+  v1ActionDisplayEnrichmentStatus:
+    type: string
+    enum:
+      - ACTION_DISPLAY_ENRICHMENT_STATUS_UNSPECIFIED
+      - ACTION_DISPLAY_ENRICHMENT_STATUS_NOT_APPLICABLE
+      - ACTION_DISPLAY_ENRICHMENT_STATUS_COMPLETE
+      - ACTION_DISPLAY_ENRICHMENT_STATUS_UNAVAILABLE
+    default: ACTION_DISPLAY_ENRICHMENT_STATUS_UNSPECIFIED
+    description: |-
+      ActionDisplayEnrichmentStatus describes only aggregate-owned, render-only
+      preview enrichment. It does not change action readiness or calldata validity.
+  v1ActionDisplayEnrichmentUnavailableReason:
+    type: string
+    enum:
+      - ACTION_DISPLAY_ENRICHMENT_UNAVAILABLE_REASON_UNSPECIFIED
+      - ACTION_DISPLAY_ENRICHMENT_UNAVAILABLE_REASON_SOURCE_UNAVAILABLE
+      - ACTION_DISPLAY_ENRICHMENT_UNAVAILABLE_REASON_BUDGET_EXHAUSTED
+    default: ACTION_DISPLAY_ENRICHMENT_UNAVAILABLE_REASON_UNSPECIFIED
+    description: |-
+      ActionDisplayEnrichmentUnavailableReason is the bounded safe reason exposed
+      when render-only preview enrichment could not be completed.
   v1ActionEvidence:
     type: object
     properties:
@@ -1908,6 +1937,66 @@ definitions:
       closedPositionCount:
         $ref: '#/definitions/v1CountMetric'
     description: AgentMetrics contains canonical public agent metrics.
+  v1AgentPositionSummary:
+    type: object
+    properties:
+      positionId:
+        type: string
+      agentId:
+        type: string
+      chainId:
+        type: string
+        format: int64
+      tradeId:
+        type: string
+      token:
+        $ref: '#/definitions/v1Token'
+      openedAt:
+        type: string
+        format: date-time
+      closedAt:
+        type: string
+        format: date-time
+      lifecycle:
+        $ref: '#/definitions/v1PositionLifecycle'
+      remainingBaseRaw:
+        type: string
+      entryValuation:
+        $ref: '#/definitions/v1PositionValuation'
+      currentValuation:
+        $ref: '#/definitions/v1PositionValuation'
+      exitValuation:
+        $ref: '#/definitions/v1PositionValuation'
+      realizedPnlUsd:
+        $ref: '#/definitions/v1DecimalMetric'
+      unrealizedPnlUsd:
+        $ref: '#/definitions/v1DecimalMetric'
+      unrealizedPnlPct:
+        $ref: '#/definitions/v1DecimalMetric'
+      durationSeconds:
+        type: string
+        format: int64
+      durationAsOf:
+        type: string
+        format: date-time
+      totalGrossBaseBoughtRaw:
+        type: string
+      totalGrossBaseSoldRaw:
+        type: string
+      displayBaseRaw:
+        type: string
+      quantityState:
+        $ref: '#/definitions/v1PositionQuantityState'
+      exitKind:
+        $ref: '#/definitions/v1PositionExitKind'
+      openedTxHash:
+        type: string
+        description: |-
+          Leader-side canonical position-event hashes. These deliberately remain
+          distinct from follower receipt and closed-execution fields.
+      latestTxHash:
+        type: string
+    description: AgentPositionSummary is a leader position row for agent list/detail APIs.
   v1AgentProfile:
     type: object
     properties:
@@ -2427,6 +2516,94 @@ definitions:
       - COPY_RUN_CASHBACK_POLICY_UNAVAILABLE_REASON_POLICY_TRANSITION_PENDING
     default: COPY_RUN_CASHBACK_POLICY_UNAVAILABLE_REASON_UNSPECIFIED
     description: CopyRunCashbackPolicyUnavailableReason explains typed policy unavailability.
+  v1CopyRunFeeBreakdown:
+    type: object
+    properties:
+      feeChargedUsd:
+        $ref: '#/definitions/v1DecimalMetric'
+        description: Total upfront flat fee collected across open and closed positions.
+      rebatesUsd:
+        $ref: '#/definitions/v1DecimalMetric'
+        description: |-
+          Actual rebates for closed positions plus estimated rebates for open
+          positions at the current market price.
+      netFeesUsd:
+        $ref: '#/definitions/v1DecimalMetric'
+        description: Real cost to the user after rebates. This value can be negative.
+    description: |-
+      CopyRunFeeBreakdown contains the Net Fees headline and tooltip inputs for a
+      specific copy run.
+  v1CopyRunListItem:
+    type: object
+    properties:
+      copyRunId:
+        type: string
+      ownerAddress:
+        type: string
+        description: Initial follower-account creation wallet; not current ownership or authorization evidence.
+      agentId:
+        type: string
+      chainId:
+        type: string
+        format: int64
+      copyAccount:
+        type: string
+      startedAt:
+        type: string
+        format: date-time
+      stoppedAt:
+        type: string
+        format: date-time
+      agentSnapshot:
+        $ref: '#/definitions/v1AgentSnapshot'
+      capitalInUsd:
+        $ref: '#/definitions/v1DecimalMetric'
+      capitalOutUsd:
+        $ref: '#/definitions/v1DecimalMetric'
+      portfolioValueUsd:
+        $ref: '#/definitions/v1DecimalMetric'
+      unrealizedPnlUsd:
+        $ref: '#/definitions/v1DecimalMetric'
+      myAprSinceCopy:
+        $ref: '#/definitions/v1AprMetric'
+      openPositionCount:
+        $ref: '#/definitions/v1CountMetric'
+      closedPositionCount:
+        $ref: '#/definitions/v1CountMetric'
+      leftoverPositionCount:
+        $ref: '#/definitions/v1CountMetric'
+      leftoverValueUsd:
+        $ref: '#/definitions/v1DecimalMetric'
+      durationSeconds:
+        type: string
+        format: int64
+      durationAsOf:
+        type: string
+        format: date-time
+      status:
+        $ref: '#/definitions/v1CopyRunStatus'
+      addCapitalAvailability:
+        $ref: '#/definitions/v1AdvisoryActionAvailability'
+      stopCopyAvailability:
+        $ref: '#/definitions/v1AdvisoryActionAvailability'
+      withdrawQuoteAvailability:
+        $ref: '#/definitions/v1AdvisoryActionAvailability'
+      capitalInProjectionStatus:
+        $ref: '#/definitions/v1CapitalInProjectionStatus'
+      stopCopyProgress:
+        $ref: '#/definitions/v1StopCopyProgress'
+        description: |-
+          Present only when the newest safely covered Stop parent is valid. Pending
+          includes selected positions whose child action has not been indexed yet.
+      currentBalanceUsd:
+        $ref: '#/definitions/v1DecimalMetric'
+      totalPnlUsd:
+        $ref: '#/definitions/v1DecimalMetric'
+      totalPnlPct:
+        $ref: '#/definitions/v1DecimalMetric'
+    description: |-
+      CopyRunListItem contains one copy-run row for owner copy-run lists. It omits
+      detail-only fee and Portfolio P&L fields.
   v1CopyRunStatus:
     type: string
     enum:
@@ -2466,8 +2643,6 @@ definitions:
         $ref: '#/definitions/v1DecimalMetric'
       portfolioValueUsd:
         $ref: '#/definitions/v1DecimalMetric'
-      realizedPnlUsd:
-        $ref: '#/definitions/v1DecimalMetric'
       unrealizedPnlUsd:
         $ref: '#/definitions/v1DecimalMetric'
       myAprSinceCopy:
@@ -2486,19 +2661,6 @@ definitions:
       durationAsOf:
         type: string
         format: date-time
-      flatFeesCapturedUsd:
-        $ref: '#/definitions/v1DecimalMetric'
-      cashbackReceivedUsd:
-        $ref: '#/definitions/v1DecimalMetric'
-        description: |-
-          Cumulative canonical cashback/rebate actually received across all follower
-          positions in this copy run through the metric as-of boundary, including
-          partial sells while a position remains open and excluding future estimates.
-      netFeeCostUsd:
-        $ref: '#/definitions/v1DecimalMetric'
-        description: |-
-          Signed all-position lifetime fee cost: flat_fees_captured_usd minus
-          cashback_received_usd. Negative values are valid rebate credit.
       status:
         $ref: '#/definitions/v1CopyRunStatus'
       addCapitalAvailability:
@@ -2509,12 +2671,6 @@ definitions:
         $ref: '#/definitions/v1AdvisoryActionAvailability'
       capitalInProjectionStatus:
         $ref: '#/definitions/v1CapitalInProjectionStatus'
-      observedCapitalInUsd:
-        $ref: '#/definitions/v1DecimalMetric'
-        description: |-
-          Query-time observed Capital In from active follower account-capital facts.
-          This value is reversible display data and does not drive sorting, totals,
-          performance, AUM, or action preparation.
       stopCopyProgress:
         $ref: '#/definitions/v1StopCopyProgress'
         description: |-
@@ -2526,14 +2682,12 @@ definitions:
           Current account equity for the selected copy-run row. Historical rows map
           this from the latest exact current stable balance while it satisfies the
           configured freshness policy; open/closing rows map from current portfolio
-          value when every component is current. Current-balance list ordering is a
-          live mutable sort, not a frozen snapshot across cursor pages.
+          value when every component is current.
       totalPnlUsd:
         $ref: '#/definitions/v1DecimalMetric'
         description: |-
           Window-independent total PnL equals realised plus unrealised PnL. Fees and
-          rebates are already included in net execution economics and must not be
-          applied again.
+          rebates are already included in net execution economics.
       totalPnlPct:
         $ref: '#/definitions/v1DecimalMetric'
         description: |-
@@ -2544,6 +2698,15 @@ definitions:
         description: Copy-run-specific win rate over classified closed follower positions.
       copyRunClassifiedClosedPositionCount:
         $ref: '#/definitions/v1CountMetric'
+      portfolioPnlUsd:
+        $ref: '#/definitions/v1DecimalMetric'
+        description: |-
+          Closed-position-only P&L for this copy run. Partial realized gains or
+          losses from positions that remain open stay in charts and APR inputs, not
+          this headline metric.
+      feeBreakdown:
+        $ref: '#/definitions/v1CopyRunFeeBreakdown'
+        description: Product-facing fee headline and tooltip fields.
     description: CopyRunSummary contains one copy-run row.
   v1CountMetric:
     type: object
@@ -2722,6 +2885,7 @@ definitions:
       - FIELD_GROUP_TRADE_TOKEN_CONFIGURATION
       - FIELD_GROUP_TOKEN_METADATA
       - FIELD_GROUP_EXTERNAL_ENRICHMENT
+      - FIELD_GROUP_FEES
     default: FIELD_GROUP_UNSPECIFIED
     description: FieldGroup identifies one coherent response field group.
   v1FieldGroupQuality:
@@ -2754,7 +2918,7 @@ definitions:
     type: object
     properties:
       data:
-        $ref: '#/definitions/v1PositionSummary'
+        $ref: '#/definitions/v1AgentPositionSummary'
       meta:
         $ref: '#/definitions/v1ResponseMeta'
     description: GetAgentPositionResponse is the agent position detail envelope.
@@ -2916,7 +3080,7 @@ definitions:
         type: array
         items:
           type: object
-          $ref: '#/definitions/v1PositionSummary'
+          $ref: '#/definitions/v1AgentPositionSummary'
       pagination:
         $ref: '#/definitions/v1CursorPagination'
       meta:
@@ -3095,7 +3259,7 @@ definitions:
         type: array
         items:
           type: object
-          $ref: '#/definitions/v1CopyRunSummary'
+          $ref: '#/definitions/v1CopyRunListItem'
       pagination:
         $ref: '#/definitions/v1CursorPagination'
       meta:
@@ -3533,13 +3697,12 @@ definitions:
         type: string
         description: |-
           opened_tx_hash is the canonical opening position-event transaction on the
-          row's own side: leader transaction for an agent position and follower
-          account transaction for a copied position.
+          follower account.
       latestTxHash:
         type: string
         description: |-
           latest_tx_hash is the latest canonical position-event transaction on the
-          same side. For a closed position, this is the final close transaction.
+          follower account. For a closed position, this is the final close transaction.
       totalBaseSoldRaw:
         type: string
       totalQuoteReceivedRaw:
@@ -3554,7 +3717,13 @@ definitions:
         $ref: '#/definitions/v1DecimalMetric'
       closedExecutionPage:
         $ref: '#/definitions/v1ClosedPositionExecutionPage'
-    description: PositionSummary is a public position row.
+      positionPnlUsd:
+        $ref: '#/definitions/v1DecimalMetric'
+        description: |-
+          Server-computed follower Position P&L: realized P&L to date plus marked
+          unrealized P&L and the remaining-cashback estimate for active or closing
+          inventory.
+    description: PositionSummary is a follower position row.
   v1PositionValuation:
     type: object
     properties:
@@ -3648,6 +3817,8 @@ definitions:
         $ref: '#/definitions/v1ActionEvidence'
       copyAccount:
         type: string
+      displayEnrichment:
+        $ref: '#/definitions/v1ActionDisplayEnrichment'
       startCopy:
         $ref: '#/definitions/v1StartCopyPreview'
       addCapital:

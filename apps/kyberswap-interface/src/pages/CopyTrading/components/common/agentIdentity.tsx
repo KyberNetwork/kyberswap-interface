@@ -1,6 +1,6 @@
 import type { PropsWithChildren } from 'react'
 import type { AgentCard, AgentProfile, AgentSnapshot } from 'services/copyTrading/types/agents'
-import type { CopyRunSummary } from 'services/copyTrading/types/copyRuns'
+import type { CopyRunListItem } from 'services/copyTrading/types/copyRuns'
 import type { StrategyKey } from 'services/copyTrading/types/primitives'
 
 import verifiedIcon from 'assets/images/copy-trading/verified.svg'
@@ -140,7 +140,7 @@ export const AgentCell = ({ agent, className }: AgentCellProps) => {
 
 type CopyRunAgentCellProps = {
   className?: string
-  run: Pick<CopyRunSummary, 'agentId' | 'agentSnapshot' | 'chainId'>
+  run: Pick<CopyRunListItem, 'agentId' | 'agentSnapshot' | 'chainId'>
 }
 
 export const CopyRunAgentCell = ({ className, run }: CopyRunAgentCellProps) => {

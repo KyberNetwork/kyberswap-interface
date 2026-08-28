@@ -1,6 +1,6 @@
 # Copy Trading Implementation Status
 
-Last reviewed: 2026-08-27
+Last reviewed: 2026-08-28
 
 This file is the frontend snapshot for the current Copy Trading implementation.
 It records only current ownership, accepted product decisions, remaining gaps,
@@ -9,14 +9,14 @@ FE_API_Catalog.md and openapi.yaml.
 
 ## Current Snapshot
 
-| Area              | Status                                                                                                  |
-| ----------------- | ------------------------------------------------------------------------------------------------------- |
-| Backend contract  | Current input: checked-in OpenAPI matches the 33-operation live Swagger snapshot fetched on 2026-08-27. |
-| RTK Query service | Code-complete: 27 GET queries and 6 preparation mutations are declared and typed.                       |
-| Read UI           | Code-complete for all currently defined product surfaces.                                               |
-| Write UI          | Code-complete for Start Copy, Add Capital, Stop Copy, Withdraw Quote, Manual Sell, and Close Position.  |
-| Responsive UI     | Code-complete for the defined pages; browser QA remains manual.                                         |
-| Live validation   | Positive controlled E2E remains deferred for the position-recovery cases listed below.                  |
+| Area              | Status                                                                                                         |
+| ----------------- | -------------------------------------------------------------------------------------------------------------- |
+| Backend contract  | Current input: checked-in OpenAPI byte-matches the live 33-path, 155-definition Swagger fetched on 2026-08-28. |
+| RTK Query service | Code-complete: 27 GET queries and 6 preparation mutations are declared and typed.                              |
+| Read UI           | Code-complete for all currently defined product surfaces.                                                      |
+| Write UI          | Code-complete for Start Copy, Add Capital, Stop Copy, Withdraw Quote, Manual Sell, and Close Position.         |
+| Responsive UI     | Code-complete for the defined pages; browser QA remains manual.                                                |
+| Live validation   | Positive controlled E2E remains deferred for the position-recovery cases listed below.                         |
 
 ## Contract and Ownership
 
@@ -25,6 +25,12 @@ FE_API_Catalog.md and openapi.yaml.
   actions. Shared query-parameter mapping stays in api/queryParams.ts.
 - adapters and types are the compatibility boundary between API-native
   envelopes/enums and UI models.
+- Copy Run list endpoints map to CopyRunListItem. The Copy Run detail endpoint
+  maps to CopyRunSummary and owns detail-only Portfolio P&L, fee-breakdown, and
+  Copy-specific Win Rate fields.
+- Agent position endpoints map to AgentPositionSummary. Follower Copy Run and
+  owner position endpoints map to PositionSummary; follower accounting and
+  recovery actions must not leak into leader-position models.
 - Prepared-action request and response contracts stay together in
   types/preparedActions.ts.
 - Owner views map to OWNER_COPY_VIEW_OPEN and OWNER_COPY_VIEW_HISTORY.
@@ -34,6 +40,8 @@ FE_API_Catalog.md and openapi.yaml.
 - Position lifecycle and quantity state remain separate typed fields.
 - Renderable metric values include CURRENT and STALE. UNAVAILABLE remains
   non-renderable and continues to participate in validation.
+- Cursor-paginated requests restart from page one when a non-initial cursor is
+  rejected with HTTP 400/code 10 or HTTP 409.
 
 The following service support is intentionally API-only until product designs
 exist:
@@ -45,6 +53,43 @@ exist:
   Copy Account list/detail/balance/position/history screens.
 
 ## Current Read and Navigation Decisions
+
+### Product UI guardrails
+
+These are accepted product decisions. A future API/OpenAPI sync must preserve
+them unless product explicitly approves a UI change:
+
+- The production UI is already decided. API-only fields, statuses, enrichment,
+  recovery, and retry behavior stay transparent when they do not require user
+  input. A contract addition is not by itself authorization to add labels,
+  cards, banners, buttons, or modal steps.
+- The frontend targets the currently deployed schema. Do not add compatibility
+  fallback for the retired schema unless deployment ordering changes and
+  product explicitly requests it.
+- Copy Detail keeps the existing labels. **Realised P&L** reads
+  portfolioPnlUsd, **Fee** reads feeBreakdown.feeChargedUsd, and **Rebate**
+  reads feeBreakdown.rebatesUsd. Do not add a **Net Fees** card.
+- Capital In reads capitalInUsd directly. Only the Capital In value inside the
+  Agent Profile and Copy Detail capital cards shows a **Syncing** badge when
+  capitalInProjectionStatus is SYNCING. Tables, timelines, and modal summaries
+  render the value as normal flat text.
+- Capital In metric STALE is presentation-transparent; do not branch on it or
+  add a stale badge. Current Balance also renders as a normal value with no
+  stale-specific component or badge.
+- Position recovery presents exactly one action. Use actionKind when it is a
+  recommendation; otherwise use availableActionKinds[0] in API order. Do not
+  scan, reorder, or filter the response to prefer a hard-coded action.
+- Prepared Action keeps the existing modal and review UI. displayEnrichment is
+  modeled for contract completeness but does not add a warning banner, preview
+  state, cancellation copy, or extra user step. Preparation readiness and the
+  exact prepared call remain authoritative.
+- TRY_PREPARE uses the existing action CTA and calls the preparation endpoint
+  normally. A successful preparation continues the existing flow; an
+  unavailable preparation displays the existing preparation error. Do not add
+  a separate availability-check action or label.
+- HTTP 409 cursor recovery and preparation transport/retry details remain
+  transparent. They must not introduce new product UI unless recovery requires
+  a user decision.
 
 ### Agent ownership and Copy CTA
 
@@ -81,6 +126,8 @@ exist:
 ### Metrics and lifecycle presentation
 
 - CURRENT and STALE values render identically; stale badges are not shown.
+- The sole status exception is the Capital-card **Syncing** badge driven by
+  capitalInProjectionStatus, not by the Capital In metric status.
 - UNAVAILABLE values remain N/A or — and continue to block actions where the
   action contract requires availability.
 - Every available Win Rate uses the primary color. N/A remains neutral.
@@ -119,8 +166,12 @@ exist:
 Cross-flow decisions:
 
 - AVAILABLE and TRY_PREPARE expose the normal product action.
+- TRY_PREPARE calls the normal preparation route; it does not expose a separate
+  Check availability UI.
 - PENDING, UNAVAILABLE, expired, mismatched, or unexpected prepared responses
   fail closed and never reach wallet submission.
+- displayEnrichment is render-only contract metadata and intentionally does not
+  change the current Prepared Action UI.
 - Preparation is authoritative for owner, chain, Smart Wallet, preview, call
   kind, target, value, amount, and expiry.
 - Wallet submission uses call.to, call.data, and call.valueRaw unchanged.
@@ -153,6 +204,8 @@ Cross-flow decisions:
 - Unchecked tokens remain in the Smart Wallet for manual management after Stop.
 - Manual Sell, active full recovery, and CLOSING recovery have distinct Step 1
   source validation but share the same Step 2 sell review and submission flow.
+- Each position renders only the API-recommended action, or the first advertised
+  action when no recommendation is present.
 - Active partial recovery calls prepareManualSell.
 - Active full recovery and CLOSING recovery call prepareClosePosition.
 - CLOSING recovery uses the position already loaded by Copy Detail.
@@ -196,7 +249,9 @@ Latest checks for the current working tree:
 
 - App TypeScript passed.
 - Targeted Copy Trading ESLint passed.
-- All 68 currently discovered Copy Trading unit tests passed.
+- All 90 currently discovered Copy Trading unit tests across 13 files passed.
 - Focused formatting passed.
-- git diff --check passed.
+- git diff --cached --check passed.
+- The checked-in OpenAPI byte-matched the live 33-path, 155-definition schema;
+  SHA-256: b763fcec14aef8f43e78386597b4a8d2842a1b2c69d89ae994f79b1969795933.
 - Browser QA, production build, and positive live transaction E2E were not run.

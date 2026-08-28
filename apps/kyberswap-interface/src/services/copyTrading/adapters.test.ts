@@ -4,7 +4,11 @@ import { adaptActionLogsResponse, adaptActivityResponse } from './adapters/activ
 import { adaptPerformanceResponse } from './adapters/agents'
 import { adaptCopyAccountBalancesResponse, adaptCopyAccountWalletInventoryResponse } from './adapters/copyAccounts'
 import { adaptCopyRunCashbackPolicyResponse, adaptCopyRunResponse } from './adapters/copyRuns'
-import { adaptClosedPositionExecutionsResponse, adaptPositionsResponse } from './adapters/positions'
+import {
+  adaptAgentPositionsResponse,
+  adaptClosedPositionExecutionsResponse,
+  adaptPositionsResponse,
+} from './adapters/positions'
 
 const currentCapital = {
   value: '12.34',
@@ -13,43 +17,29 @@ const currentCapital = {
 
 describe('adaptCopyRunResponse', () => {
   it.each([
-    ['CAPITAL_IN_PROJECTION_STATUS_READY', currentCapital, '56.78', '12.34'],
-    ['CAPITAL_IN_PROJECTION_STATUS_READY', { value: '12.34', status: 'METRIC_STATUS_UNAVAILABLE' }, '56.78', undefined],
-    ['CAPITAL_IN_PROJECTION_STATUS_SYNCING', currentCapital, '56.78', undefined],
-    ['CAPITAL_IN_PROJECTION_STATUS_SYNCING', { value: '12.34', status: 'METRIC_STATUS_STALE' }, '56.78', undefined],
-    ['CAPITAL_IN_PROJECTION_STATUS_UNAVAILABLE', currentCapital, '56.78', undefined],
-    ['CAPITAL_IN_PROJECTION_STATUS_UNAVAILABLE', currentCapital, undefined, undefined],
+    ['CAPITAL_IN_PROJECTION_STATUS_READY', currentCapital, '12.34'],
+    ['CAPITAL_IN_PROJECTION_STATUS_READY', { value: '12.34', status: 'METRIC_STATUS_UNAVAILABLE' }, undefined],
+    ['CAPITAL_IN_PROJECTION_STATUS_SYNCING', currentCapital, '12.34'],
+    ['CAPITAL_IN_PROJECTION_STATUS_SYNCING', { value: '12.34', status: 'METRIC_STATUS_STALE' }, '12.34'],
+    ['CAPITAL_IN_PROJECTION_STATUS_UNAVAILABLE', { status: 'METRIC_STATUS_UNAVAILABLE' }, undefined],
   ] as const)(
-    'only exposes canonical Capital In when %s is ready',
-    (capitalInProjectionStatus, capitalInUsd, observedValue, expectedCapitalInUsd) => {
+    'maps Capital In independently from its projection badge when %s',
+    (capitalInProjectionStatus, capitalInUsd, expectedCapitalInUsd) => {
       const response = adaptCopyRunResponse({
         data: {
           capitalInProjectionStatus,
           capitalInUsd,
-          observedCapitalInUsd: observedValue ? { value: observedValue, status: 'METRIC_STATUS_CURRENT' } : undefined,
         },
       })
 
       expect(response.data.capitalInUsd).toBe(expectedCapitalInUsd)
-      expect(response.data.observedCapitalInUsd).toBe(observedValue)
+      expect(response.data.capitalInProjectionStatus).toBe(
+        capitalInProjectionStatus.replace('CAPITAL_IN_PROJECTION_STATUS_', '').toLowerCase(),
+      )
     },
   )
 
-  it.each([
-    ['METRIC_STATUS_STALE', '56.78'],
-    ['METRIC_STATUS_UNAVAILABLE', undefined],
-  ] as const)('maps observed capital according to its %s metric status', (status, expectedObservedCapitalInUsd) => {
-    const response = adaptCopyRunResponse({
-      data: {
-        capitalInProjectionStatus: 'CAPITAL_IN_PROJECTION_STATUS_SYNCING',
-        observedCapitalInUsd: { value: '56.78', status },
-      },
-    })
-
-    expect(response.data.observedCapitalInUsd).toBe(expectedObservedCapitalInUsd)
-  })
-
-  it('maps server-owned total, balance, fee and detail-only win-rate metrics independently', () => {
+  it('maps server-owned detail metrics and preserves a stale Current Balance for labeled display', () => {
     const response = adaptCopyRunResponse({
       data: {
         status: 'COPY_RUN_STATUS_CLOSING',
@@ -57,7 +47,12 @@ describe('adaptCopyRunResponse', () => {
         currentBalanceUsd: { value: '105', status: 'METRIC_STATUS_STALE' },
         totalPnlUsd: { value: '5', status: 'METRIC_STATUS_CURRENT' },
         totalPnlPct: { value: '4.8', status: 'METRIC_STATUS_CURRENT' },
-        netFeeCostUsd: { value: '-1.2', status: 'METRIC_STATUS_CURRENT' },
+        portfolioPnlUsd: { value: '2.5', status: 'METRIC_STATUS_CURRENT' },
+        feeBreakdown: {
+          feeChargedUsd: { value: '2', status: 'METRIC_STATUS_CURRENT' },
+          rebatesUsd: { value: '3.2', status: 'METRIC_STATUS_CURRENT' },
+          netFeesUsd: { value: '-1.2', status: 'METRIC_STATUS_CURRENT' },
+        },
         copyRunWinRatePct: { value: '60', status: 'METRIC_STATUS_CURRENT' },
         copyRunClassifiedClosedPositionCount: { value: '5', status: 'METRIC_STATUS_CURRENT' },
       },
@@ -65,14 +60,17 @@ describe('adaptCopyRunResponse', () => {
 
     expect(response.data).toMatchObject({
       status: 'closing',
-      currentBalanceUsd: '105',
       totalPnlUsd: '5',
       totalPnlPct: '4.8',
-      netFeeCostUsd: '-1.2',
+      portfolioPnlUsd: '2.5',
+      feeBreakdown: { feeChargedUsd: '2', rebatesUsd: '3.2', netFeesUsd: '-1.2' },
       copyRunWinRatePct: '60',
       copyRunClassifiedClosedPositionCount: '5',
     })
-    expect(response.data).not.toHaveProperty('estimatedCashbackPendingUsd')
+    expect(response.data.currentBalanceUsd).toBe('105')
+    expect(response.data.metrics.currentBalanceUsd?.status).toBe('METRIC_STATUS_STALE')
+    expect(response.data).not.toHaveProperty('observedCapitalInUsd')
+    expect(response.data).not.toHaveProperty('netFeeCostUsd')
   })
 })
 
@@ -223,6 +221,47 @@ describe('closed position executions', () => {
       txHash: '0xfinal',
       isFinalClose: true,
     })
+  })
+})
+
+describe('position model boundaries', () => {
+  it('uses server Position P&L for follower positions', () => {
+    const response = adaptPositionsResponse({
+      data: [
+        {
+          positionId: 'position-1',
+          lifecycle: 'POSITION_LIFECYCLE_ACTIVE',
+          positionPnlUsd: { value: '4.2', status: 'METRIC_STATUS_CURRENT' },
+          realizedPnlUsd: { value: '1', status: 'METRIC_STATUS_CURRENT' },
+          unrealizedPnlUsd: { value: '2', status: 'METRIC_STATUS_CURRENT' },
+          estimatedCashbackUsd: { value: '1.2', status: 'METRIC_STATUS_CURRENT' },
+        },
+      ],
+      pagination: { hasMore: false, limit: 10 },
+    })
+
+    expect(response.data[0].positionPnlUsd).toBe('4.2')
+    expect(response.data[0].metrics.positionPnlUsd?.value).toBe('4.2')
+  })
+
+  it('keeps leader positions free of follower accounting and action fields', () => {
+    const response = adaptAgentPositionsResponse({
+      data: [
+        {
+          positionId: 'leader-position-1',
+          agentId: 'agent-1',
+          lifecycle: 'POSITION_LIFECYCLE_ACTIVE',
+          userPositionId: 'follower-position-1',
+          positionPnlUsd: { value: '4.2', status: 'METRIC_STATUS_CURRENT' },
+          actionKind: 'POSITION_ACTION_KIND_MANUAL_SELL',
+        },
+      ],
+      pagination: { hasMore: false, limit: 10 },
+    })
+
+    expect(response.data[0]).not.toHaveProperty('userPositionId')
+    expect(response.data[0]).not.toHaveProperty('positionPnlUsd')
+    expect(response.data[0]).not.toHaveProperty('actionKind')
   })
 })
 

@@ -50,6 +50,22 @@ export type PreparedActionWarning =
   | 'PREPARED_ACTION_WARNING_INVALID_STOP_INTENT_RECOVERED'
   | 'PREPARED_ACTION_WARNING_OWNER_SNAPSHOT_REQUIRES_REFRESH'
 
+export type ActionDisplayEnrichmentStatus =
+  | 'ACTION_DISPLAY_ENRICHMENT_STATUS_UNSPECIFIED'
+  | 'ACTION_DISPLAY_ENRICHMENT_STATUS_NOT_APPLICABLE'
+  | 'ACTION_DISPLAY_ENRICHMENT_STATUS_COMPLETE'
+  | 'ACTION_DISPLAY_ENRICHMENT_STATUS_UNAVAILABLE'
+
+export type ActionDisplayEnrichmentUnavailableReason =
+  | 'ACTION_DISPLAY_ENRICHMENT_UNAVAILABLE_REASON_UNSPECIFIED'
+  | 'ACTION_DISPLAY_ENRICHMENT_UNAVAILABLE_REASON_SOURCE_UNAVAILABLE'
+  | 'ACTION_DISPLAY_ENRICHMENT_UNAVAILABLE_REASON_BUDGET_EXHAUSTED'
+
+export type ActionDisplayEnrichment = {
+  status: ActionDisplayEnrichmentStatus
+  unavailableReason?: ActionDisplayEnrichmentUnavailableReason
+}
+
 export type ProjectorCoverage = {
   projector?: string
   completedThroughBlockNumber?: string
@@ -220,6 +236,7 @@ export type PreparedAction = {
   reason?: PreparedActionReason
   warnings?: PreparedActionWarning[]
   evidence?: ActionEvidence
+  displayEnrichment: ActionDisplayEnrichment
   startCopy?: StartCopyPreview
   addCapital?: AddCapitalPreview
   stopCopy?: StopCopyPreview
