@@ -81,7 +81,7 @@ export const ActionLogsTable = ({
                 <TableCell className="text-subText">{formatDateTime(row.occurredAt)}</TableCell>
               </ActivityGrid>
 
-              <Stack className="gap-3 rounded-xl bg-buttonBlack-60 p-3 md:hidden">
+              <Stack className="gap-3 rounded-xl bg-buttonBlack p-3 md:hidden">
                 <TableCardGrid>
                   <TableCardField label="Type" valueClassName={activityColor(row)}>
                     {getActivityLabel(row)}

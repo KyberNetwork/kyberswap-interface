@@ -73,7 +73,7 @@ const ActionLogRow = ({ expanded, onToggle, row }: ActionLogRowProps) => {
   const showSummary = !!summary && summary.toLowerCase() !== row.action.trim().toLowerCase()
 
   return (
-    <Stack className="gap-1.5 rounded-xl bg-buttonBlack-60 p-3 lg:rounded-none lg:bg-transparent">
+    <Stack className="gap-1.5 rounded-xl bg-buttonBlack p-3 lg:rounded-none lg:bg-transparent">
       <Stack
         role="button"
         tabIndex={0}
