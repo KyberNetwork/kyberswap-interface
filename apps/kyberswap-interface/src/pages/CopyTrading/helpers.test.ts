@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest'
 
 import {
+  canAttemptPreparation,
   compactUsd,
   formatApproximateUsd,
   formatCount,
   formatTokenAmount,
   formatUsd,
-  getDisplayCapitalInUsd,
   getSignedMetricClassName,
   getWinRateClassName,
   percent,
@@ -68,10 +68,9 @@ describe('Copy Trading metric formatters', () => {
     expect(sumUsdValues('10.5', undefined)).toBeUndefined()
   })
 
-  it('uses observed capital only when canonical capital is unavailable', () => {
-    expect(getDisplayCapitalInUsd({ capitalInUsd: '10', observedCapitalInUsd: '12' })).toBe('10')
-    expect(getDisplayCapitalInUsd({ capitalInUsd: '0', observedCapitalInUsd: '12' })).toBe('0')
-    expect(getDisplayCapitalInUsd({ observedCapitalInUsd: '12' })).toBe('12')
-    expect(getDisplayCapitalInUsd({})).toBeUndefined()
+  it('allows TRY_PREPARE to call the authoritative preparation flow', () => {
+    expect(canAttemptPreparation({ status: 'ADVISORY_ACTION_STATUS_TRY_PREPARE' })).toBe(true)
+    expect(canAttemptPreparation({ status: 'ADVISORY_ACTION_STATUS_AVAILABLE' })).toBe(true)
+    expect(canAttemptPreparation({ status: 'ADVISORY_ACTION_STATUS_UNAVAILABLE' })).toBe(false)
   })
 })

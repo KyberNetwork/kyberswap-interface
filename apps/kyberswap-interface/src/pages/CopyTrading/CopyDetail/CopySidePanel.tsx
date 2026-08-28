@@ -21,8 +21,8 @@ import {
 } from 'pages/CopyTrading/components/AgentSidebarCards/SidePanelCard'
 import CopyTradingTokenLogo from 'pages/CopyTrading/components/common/TokenLogo'
 import { ResponsiveDetailContents, ResponsiveDetailItem } from 'pages/CopyTrading/components/common/layout'
-import { copyRunStatusTextClassName } from 'pages/CopyTrading/components/common/status'
-import { formatDisplayCapitalInUsd, formatTokenAmount, formatUsd } from 'pages/CopyTrading/helpers'
+import { CapitalInCardValue, copyRunStatusTextClassName } from 'pages/CopyTrading/components/common/status'
+import { formatTokenAmount, formatUsd } from 'pages/CopyTrading/helpers'
 import { useCopyTradingModal } from 'pages/CopyTrading/modals/context'
 import { cn } from 'utils/cn'
 import { formatDateTime } from 'utils/time'
@@ -188,7 +188,7 @@ const CopySidePanel = ({ agent, run }: CopySidePanelProps) => {
     <ResponsiveDetailItem responsiveOrder={copyDetailResponsiveOrder.capital}>
       <CopyCapitalCard
         addCapitalAvailability={run.addCapitalAvailability}
-        capital={formatDisplayCapitalInUsd(run)}
+        capital={<CapitalInCardValue run={run} />}
         headerRight={
           run.status === 'closing' || run.status === 'stopped' ? (
             <span className="text-sm font-normal text-subText">{formatDateTime(run.stoppedAt)}</span>

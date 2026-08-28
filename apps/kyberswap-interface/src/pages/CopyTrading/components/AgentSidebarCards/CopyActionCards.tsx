@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import type { AdvisoryActionAvailability } from 'services/copyTrading/types/actionAvailability'
 
 import { ButtonLight, ButtonPrimary } from 'components/Button'
@@ -10,7 +11,7 @@ import { canAttemptPreparation, getPreparedReasonMessage } from 'pages/CopyTradi
 
 type CopyCapitalCardProps = SidePanelCardWrapperProps & {
   addCapitalAvailability?: AdvisoryActionAvailability
-  capital: string
+  capital: ReactNode
   stopCopyAvailability?: AdvisoryActionAvailability
   onView?: () => void
   onAddCapital?: () => void
@@ -35,7 +36,7 @@ export const CopyCapitalCard = ({
     <SidePanelCard {...sidePanelCardProps} title={title}>
       <HStack className="items-center justify-between">
         <span className="text-subText">Capital In</span>
-        <span className="text-xl font-medium text-primary">{capital}</span>
+        <div className="text-xl font-medium text-primary">{capital}</div>
       </HStack>
       {hasActions && (
         <HStack className="gap-3">

@@ -6,7 +6,7 @@ import agentApi from 'services/copyTrading/api/endpoints/agents'
 import copyRunApi from 'services/copyTrading/api/endpoints/copyRuns'
 import discoveryApi from 'services/copyTrading/api/endpoints/discovery'
 import type { AgentCard, Chain } from 'services/copyTrading/types/agents'
-import type { CopyRunSummary } from 'services/copyTrading/types/copyRuns'
+import type { CopyRunListItem } from 'services/copyTrading/types/copyRuns'
 
 import { ReactComponent as HistoryIcon } from 'assets/images/copy-trading/ic_history.svg'
 import { ReactComponent as OpenCopiesIcon } from 'assets/images/copy-trading/ic_opens.svg'
@@ -40,7 +40,7 @@ type AgentsSectionProps = {
 
 type MyCopiesSectionProps = {
   agentById: Map<string, AgentCard>
-  runs: CopyRunSummary[]
+  runs: CopyRunListItem[]
   route: SidebarRouteState
 }
 
@@ -51,7 +51,7 @@ type NetworksSectionProps = {
 }
 
 type SidebarContentProps = {
-  activeRuns: CopyRunSummary[]
+  activeRuns: CopyRunListItem[]
   agentById: Map<string, AgentCard>
   agents: AgentCard[]
   chains: Chain[]
@@ -67,7 +67,7 @@ const getActiveCopyDotColor = (copyRunId: string) => {
   return ACTIVE_COPY_DOT_COLORS[colorIndex % ACTIVE_COPY_DOT_COLORS.length]
 }
 
-const getCopyStatusDotColor = (run: CopyRunSummary) => {
+const getCopyStatusDotColor = (run: CopyRunListItem) => {
   if (run.status === 'active') return getActiveCopyDotColor(run.copyRunId)
   if (run.status === 'closing') return 'bg-blue'
   if (run.status === 'stopped') return 'bg-red'

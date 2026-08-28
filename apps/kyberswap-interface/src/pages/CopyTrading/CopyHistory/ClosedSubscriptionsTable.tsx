@@ -1,5 +1,5 @@
 import { type HTMLAttributes } from 'react'
-import type { CopyRunSummary } from 'services/copyTrading/types/copyRuns'
+import type { CopyRunListItem } from 'services/copyTrading/types/copyRuns'
 import type { CopyRunSortBy, SortOrder } from 'services/copyTrading/types/primitives'
 
 import ScrollArea from 'components/ScrollArea'
@@ -18,13 +18,7 @@ import {
 } from 'pages/CopyTrading/components/Table'
 import { CopyRunAgentCell } from 'pages/CopyTrading/components/common/agentIdentity'
 import { copyTradingStatIconMap } from 'pages/CopyTrading/constants'
-import {
-  formatCount,
-  formatDisplayCapitalInUsd,
-  formatUsd,
-  getSignedMetricClassName,
-  signedUsd,
-} from 'pages/CopyTrading/helpers'
+import { formatCount, formatUsd, getSignedMetricClassName, signedPercent, signedUsd } from 'pages/CopyTrading/helpers'
 import { cn } from 'utils/cn'
 import { formatDateTime } from 'utils/time'
 
@@ -38,7 +32,7 @@ const ClosedSubscriptionsGrid = ({ header, className, ...props }: ClosedSubscrip
   return (
     <Grid
       className={cn(
-        'min-w-[1200px] grid-cols-[minmax(0,2.4fr)_minmax(0,1fr)_minmax(0,1.5fr)_minmax(0,1.15fr)_minmax(0,1.15fr)_minmax(0,1.2fr)_minmax(0,1fr)_minmax(0,1fr)]',
+        'min-w-[1100px] grid-cols-[minmax(0,2.4fr)_minmax(0,1fr)_minmax(0,1.5fr)_minmax(0,1.15fr)_minmax(0,1.15fr)_minmax(0,1fr)_minmax(0,1fr)]',
         className,
       )}
       {...props}
@@ -49,7 +43,7 @@ const ClosedSubscriptionsGrid = ({ header, className, ...props }: ClosedSubscrip
 type ClosedSubscriptionsTableProps = {
   loading?: boolean
   pagination: CursorPaginationState
-  rows: CopyRunSummary[]
+  rows: CopyRunListItem[]
   sortBy?: CopyRunSortBy
   sortOrder?: SortOrder
   onSortChange: (sortBy: CopyRunSortBy) => void
@@ -71,9 +65,8 @@ const ClosedSubscriptionsTable = ({
           <HeaderCell className="justify-end text-right">Closed Trades</HeaderCell>
           <HeaderCell className="justify-end text-right">Started &amp; Stopped Time</HeaderCell>
           <HeaderCell className="justify-end text-right">Capital In</HeaderCell>
-          <HeaderCell className="justify-end text-right">Realised P&amp;L</HeaderCell>
-          <HeaderCell className="justify-end text-right">Fees Paid</HeaderCell>
-          <HeaderCell className="justify-end text-right">Rebates</HeaderCell>
+          <HeaderCell className="justify-end text-right">Total P&amp;L</HeaderCell>
+          <HeaderCell className="justify-end text-right">Total Return</HeaderCell>
           <HeaderCell
             activeSortBy={sortBy}
             className="justify-end text-right"
@@ -86,7 +79,7 @@ const ClosedSubscriptionsTable = ({
         </ClosedSubscriptionsGrid>
 
         <TableBody
-          className="min-w-[1200px]"
+          className="min-w-[1100px]"
           empty={!rows.length}
           emptyIconUrl={copyTradingStatIconMap.positionClose.iconUrl}
           emptyMessage={pagination.error ? 'Unable to load copy history' : 'No closed copies found'}
@@ -106,17 +99,14 @@ const ClosedSubscriptionsTable = ({
                 <span>{formatDateTime(subscription.startedAt)}</span>
                 <span>{formatDateTime(subscription.stoppedAt)}</span>
               </TableCell>
-              <TableCell className="text-right">{formatDisplayCapitalInUsd(subscription)}</TableCell>
+              <TableCell className="text-right">{formatUsd(subscription.capitalInUsd)}</TableCell>
               <TableCell
-                className={cn('whitespace-nowrap text-right', getSignedMetricClassName(subscription.realizedPnlUsd))}
+                className={cn('whitespace-nowrap text-right', getSignedMetricClassName(subscription.totalPnlUsd))}
               >
-                {signedUsd(subscription.realizedPnlUsd)}
+                {signedUsd(subscription.totalPnlUsd)}
               </TableCell>
-              <TableCell className={cn('text-right', getSignedMetricClassName(subscription.netFeeCostUsd))}>
-                {signedUsd(subscription.netFeeCostUsd)}
-              </TableCell>
-              <TableCell className={cn('text-right', Number(subscription.cashbackReceivedUsd) > 0 && 'text-blue')}>
-                {formatUsd(subscription.cashbackReceivedUsd)}
+              <TableCell className={cn('text-right', getSignedMetricClassName(subscription.totalPnlPct))}>
+                {signedPercent(subscription.totalPnlPct)}
               </TableCell>
               <TableCell className="text-right">{formatUsd(subscription.currentBalanceUsd)}</TableCell>
             </ClosedSubscriptionsGrid>
@@ -147,25 +137,22 @@ const ClosedSubscriptionsTable = ({
                 {formatCount(subscription.closedPositionCount ?? subscription.openPositionCount)}
               </TableCardField>
               <TableCardField align="right" label="Capital In">
-                {formatDisplayCapitalInUsd(subscription)}
+                {formatUsd(subscription.capitalInUsd)}
               </TableCardField>
               <TableCardField label="Current Balance">{formatUsd(subscription.currentBalanceUsd)}</TableCardField>
               <TableCardField
                 align="right"
-                label="Realised P&amp;L"
-                valueClassName={cn('whitespace-nowrap', getSignedMetricClassName(subscription.realizedPnlUsd))}
+                label="Total P&amp;L"
+                valueClassName={cn('whitespace-nowrap', getSignedMetricClassName(subscription.totalPnlUsd))}
               >
-                {signedUsd(subscription.realizedPnlUsd)}
-              </TableCardField>
-              <TableCardField label="Fees Paid" valueClassName={getSignedMetricClassName(subscription.netFeeCostUsd)}>
-                {signedUsd(subscription.netFeeCostUsd)}
+                {signedUsd(subscription.totalPnlUsd)}
               </TableCardField>
               <TableCardField
                 align="right"
-                label="Rebates"
-                valueClassName={cn(Number(subscription.cashbackReceivedUsd) > 0 && 'text-blue')}
+                label="Total Return"
+                valueClassName={getSignedMetricClassName(subscription.totalPnlPct)}
               >
-                {formatUsd(subscription.cashbackReceivedUsd)}
+                {signedPercent(subscription.totalPnlPct)}
               </TableCardField>
               <TableCardField label="Started" valueClassName="text-subText">
                 {formatDateTime(subscription.startedAt)}

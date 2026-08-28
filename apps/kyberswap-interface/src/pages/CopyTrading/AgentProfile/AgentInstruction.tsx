@@ -2,7 +2,7 @@ import { Zap } from 'react-feather'
 import { useNavigate } from 'react-router-dom'
 import type { AdvisoryActionAvailability } from 'services/copyTrading/types/actionAvailability'
 import type { AgentProfile } from 'services/copyTrading/types/agents'
-import type { CopyRunSummary } from 'services/copyTrading/types/copyRuns'
+import type { CopyRunListItem } from 'services/copyTrading/types/copyRuns'
 
 import { ButtonPrimary } from 'components/Button'
 import { HStack } from 'components/Stack'
@@ -16,7 +16,8 @@ import {
 import { CopyCapitalCard } from 'pages/CopyTrading/components/AgentSidebarCards/CopyActionCards'
 import { SidePanelCard } from 'pages/CopyTrading/components/AgentSidebarCards/SidePanelCard'
 import { ResponsiveDetailContents, ResponsiveDetailItem } from 'pages/CopyTrading/components/common/layout'
-import { canAttemptPreparation, formatDisplayCapitalInUsd, getPreparedReasonMessage } from 'pages/CopyTrading/helpers'
+import { CapitalInCardValue } from 'pages/CopyTrading/components/common/status'
+import { canAttemptPreparation, getPreparedReasonMessage } from 'pages/CopyTrading/helpers'
 import { useCopyTradingModal } from 'pages/CopyTrading/modals/context'
 
 const StartCopyCard = ({ availability, onCopy }: { availability?: AdvisoryActionAvailability; onCopy: () => void }) => {
@@ -45,7 +46,7 @@ const StartCopyCard = ({ availability, onCopy }: { availability?: AdvisoryAction
 }
 
 type AgentInstructionProps = {
-  activeCopyRun?: CopyRunSummary
+  activeCopyRun?: CopyRunListItem
   agent: AgentProfile
 }
 
@@ -56,7 +57,7 @@ const AgentInstruction = ({ activeCopyRun, agent }: AgentInstructionProps) => {
   const copyActionCard = activeCopyRun ? (
     <CopyCapitalCard
       addCapitalAvailability={activeCopyRun.addCapitalAvailability}
-      capital={formatDisplayCapitalInUsd(activeCopyRun)}
+      capital={<CapitalInCardValue run={activeCopyRun} />}
       onView={() => navigate(`${APP_PATHS.COPY_TRADING}/my-copies/${activeCopyRun.copyRunId}`)}
       onAddCapital={() => openAddCapital(activeCopyRun)}
     />

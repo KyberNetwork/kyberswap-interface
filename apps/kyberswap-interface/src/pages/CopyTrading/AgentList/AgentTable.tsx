@@ -2,7 +2,7 @@ import { type HTMLAttributes, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import copyRunApi from 'services/copyTrading/api/endpoints/copyRuns'
 import type { AgentCard } from 'services/copyTrading/types/agents'
-import type { CopyRunSummary } from 'services/copyTrading/types/copyRuns'
+import type { CopyRunListItem } from 'services/copyTrading/types/copyRuns'
 import type { LeaderboardSortBy, SortOrder } from 'services/copyTrading/types/primitives'
 
 import { ButtonLight, ButtonPrimary } from 'components/Button'
@@ -80,7 +80,7 @@ const AgentTable = ({ agents, loading, pagination, sortBy, sortOrder, onSortChan
 
   const latestRunsByAgentId = useMemo(
     () =>
-      (openCopyRuns?.data || []).reduce<Record<string, CopyRunSummary>>((latestRuns, run) => {
+      (openCopyRuns?.data || []).reduce<Record<string, CopyRunListItem>>((latestRuns, run) => {
         if (!latestRuns[run.agentId]) latestRuns[run.agentId] = run
         return latestRuns
       }, {}),

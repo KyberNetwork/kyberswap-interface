@@ -2,13 +2,13 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import preparedActionApi from 'services/copyTrading/api/endpoints/preparedActions'
-import type { CopyRunSummary } from 'services/copyTrading/types/copyRuns'
+import type { CopyRunListItem } from 'services/copyTrading/types/copyRuns'
 import type { PreparedCallKind } from 'services/copyTrading/types/preparedActions'
 
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
-import { formatTokenAmount, getDisplayCapitalInUsd, sumUsdValues } from 'pages/CopyTrading/helpers'
+import { formatTokenAmount, sumUsdValues } from 'pages/CopyTrading/helpers'
 import useRefreshCopyTrading from 'pages/CopyTrading/hooks/useRefreshCopyTrading'
 import { AddCapitalForm } from 'pages/CopyTrading/modals/AddCapitalModal/components'
 import { type CapitalPercentage } from 'pages/CopyTrading/modals/CapitalAmount/capital'
@@ -27,7 +27,7 @@ import { useWalletModalToggle } from 'state/application/hooks'
 type AddCapitalModalProps = {
   isOpen: boolean
   onDismiss: () => void
-  copyRun: CopyRunSummary
+  copyRun: CopyRunListItem
 }
 
 const ADD_CAPITAL_CALL_KINDS: PreparedCallKind[] = ['PREPARED_CALL_KIND_ADD_CAPITAL']
@@ -50,7 +50,7 @@ const AddCapitalModal = ({ isOpen, onDismiss, copyRun }: AddCapitalModalProps) =
 
   const ownershipMessage = getCopyRunOwnershipMessage(copyRun.ownerAddress, account)
 
-  const currentAllocatedCapitalUsd = getDisplayCapitalInUsd(copyRun)
+  const currentAllocatedCapitalUsd = copyRun.capitalInUsd
   const newAllocatedCapitalUsd =
     currentAllocatedCapitalUsd !== undefined
       ? sumUsdValues(currentAllocatedCapitalUsd, capital.amount || '0')

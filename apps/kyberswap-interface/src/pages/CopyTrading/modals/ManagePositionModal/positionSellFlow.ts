@@ -66,20 +66,23 @@ export const POSITION_SELL_FLOW_CONFIG: Record<ManagePositionFlow, PositionSellF
 export const hasPositionAction = (position: PositionSummary, action: PositionActionKind) =>
   position.actionKind === action || position.availableActionKinds.includes(action)
 
-export const getPositionRecoveryAction = (position: PositionSummary) => {
-  const advertisedActions = [position.actionKind, ...position.availableActionKinds]
-  return advertisedActions.find(
-    action => action === 'POSITION_ACTION_KIND_MANUAL_SELL' || action === 'POSITION_ACTION_KIND_CLOSE_POSITION',
-  )
+const POSITION_RECOVERY_FLOW_BY_ACTION: Partial<
+  Record<PositionActionKind, (copyRunStatus: CopyRunStatus) => ManagePositionFlow>
+> = {
+  POSITION_ACTION_KIND_MANUAL_SELL: () => 'manualSell',
+  POSITION_ACTION_KIND_CLOSE_POSITION: copyRunStatus =>
+    copyRunStatus === 'closing' ? 'stopCopyClosePosition' : 'activeClosePosition',
 }
+
+export const getPositionRecoveryAction = (position: PositionSummary) =>
+  position.actionKind && position.actionKind !== 'POSITION_ACTION_KIND_UNSPECIFIED'
+    ? position.actionKind
+    : position.availableActionKinds[0]
 
 export const getPositionRecoveryFlow = (
   position: PositionSummary,
   copyRunStatus: CopyRunStatus,
 ): ManagePositionFlow | undefined => {
   const action = getPositionRecoveryAction(position)
-  if (!action) return undefined
-  if (action === 'POSITION_ACTION_KIND_MANUAL_SELL') return 'manualSell'
-
-  return copyRunStatus === 'closing' ? 'stopCopyClosePosition' : 'activeClosePosition'
+  return action ? POSITION_RECOVERY_FLOW_BY_ACTION[action]?.(copyRunStatus) : undefined
 }

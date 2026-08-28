@@ -17,13 +17,7 @@ import {
 import { ShortenedId } from 'pages/CopyTrading/components/common/layout'
 import { PositionLifecycleBadge } from 'pages/CopyTrading/components/common/status'
 import { copyTradingStatIconMap } from 'pages/CopyTrading/constants'
-import {
-  formatApproximateUsd,
-  formatUsd,
-  getSignedMetricClassName,
-  signedPercent,
-  signedUsd,
-} from 'pages/CopyTrading/helpers'
+import { formatApproximateUsd, formatUsd, getSignedMetricClassName, signedUsd } from 'pages/CopyTrading/helpers'
 import {
   POSITION_SELL_FLOW_CONFIG,
   getPositionRecoveryFlow,
@@ -91,7 +85,7 @@ export const CopyPositionsTable = ({ copyRunStatus, infiniteScroll, loading, row
           <HeaderCell className="justify-end text-right">Entry Price</HeaderCell>
           <HeaderCell className="justify-end text-right">Current</HeaderCell>
           <HeaderCell className="justify-end text-right">Value</HeaderCell>
-          <HeaderCell className="justify-end text-right">Unrealised P&amp;L</HeaderCell>
+          <HeaderCell className="justify-end text-right">Position P&amp;L</HeaderCell>
           <HeaderCell className="justify-end text-right">Est. Rebate</HeaderCell>
           <HeaderCell className="justify-end text-right">Open Since</HeaderCell>
           <HeaderCell className="justify-end text-right">Action</HeaderCell>
@@ -113,13 +107,8 @@ export const CopyPositionsTable = ({ copyRunStatus, infiniteScroll, loading, row
                 <TableCell className="text-right">{formatUsd(row.entryPriceUsd, 2)}</TableCell>
                 <TableCell className="text-right">{formatUsd(row.currentPriceUsd, 2)}</TableCell>
                 <TableCell className="text-right">{formatUsd(row.valueUsd, 2)}</TableCell>
-                <TableCell
-                  className={cn('text-right', getSignedMetricClassName(row.unrealizedPnlUsd ?? row.unrealizedPnlPct))}
-                >
-                  <Stack className="items-end gap-0.5">
-                    <span className="whitespace-nowrap">{signedUsd(row.unrealizedPnlUsd, 2)}</span>
-                    <span className="whitespace-nowrap text-xs">{signedPercent(row.unrealizedPnlPct)}</span>
-                  </Stack>
+                <TableCell className={cn('text-right', getSignedMetricClassName(row.positionPnlUsd))}>
+                  <span className="whitespace-nowrap">{signedUsd(row.positionPnlUsd, 2)}</span>
                 </TableCell>
                 <TableCell className="text-right text-warning">
                   {formatApproximateUsd(row.estimatedCashbackUsd, 2)}
@@ -149,13 +138,10 @@ export const CopyPositionsTable = ({ copyRunStatus, infiniteScroll, loading, row
                   <TableCardField label="Value">{formatUsd(row.valueUsd, 2)}</TableCardField>
                   <TableCardField
                     align="right"
-                    label="Unrealised P&amp;L"
-                    valueClassName={getSignedMetricClassName(row.unrealizedPnlUsd ?? row.unrealizedPnlPct)}
+                    label="Position P&amp;L"
+                    valueClassName={getSignedMetricClassName(row.positionPnlUsd)}
                   >
-                    <Stack className="gap-0.5">
-                      <span className="whitespace-nowrap">{signedUsd(row.unrealizedPnlUsd, 2)}</span>
-                      <span className="whitespace-nowrap text-xs">{signedPercent(row.unrealizedPnlPct)}</span>
-                    </Stack>
+                    <span className="whitespace-nowrap">{signedUsd(row.positionPnlUsd, 2)}</span>
                   </TableCardField>
                   <TableCardField label="Est. Rebate" valueClassName="text-warning">
                     {formatApproximateUsd(row.estimatedCashbackUsd, 2)}

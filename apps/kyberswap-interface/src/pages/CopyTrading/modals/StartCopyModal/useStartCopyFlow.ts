@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import copyRunApi from 'services/copyTrading/api/endpoints/copyRuns'
 import preparedActionApi from 'services/copyTrading/api/endpoints/preparedActions'
-import type { CopyRunSummary } from 'services/copyTrading/types/copyRuns'
+import type { CopyRunListItem } from 'services/copyTrading/types/copyRuns'
 import type { PreparedActionStatus } from 'services/copyTrading/types/preparedActions'
 
 import { APP_PATHS } from 'constants/index'
@@ -50,7 +50,7 @@ export const useStartCopyFlow = ({ agent, onDismiss }: { agent: StartCopyTarget;
 
   const [flowState, setFlowState] = useState(DEFAULT_PREPARED_ACTION_STATE)
   const [agreed, setAgreed] = useState(false)
-  const [createdCopyRun, setCreatedCopyRun] = useState<CopyRunSummary>()
+  const [createdCopyRun, setCreatedCopyRun] = useState<CopyRunListItem>()
   const [isAuthorizing, setIsAuthorizing] = useState(false)
 
   const capital = useCapitalAmount({

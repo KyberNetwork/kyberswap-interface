@@ -36,6 +36,7 @@ export type PositionValuation = {
 }
 
 export type PositionMetrics = {
+  positionPnlUsd?: Metric
   realizedPnlUsd?: Metric
   unrealizedPnlUsd?: Metric
   unrealizedPnlPct?: Metric
@@ -48,14 +49,10 @@ export type PositionMetrics = {
   cumulativeSkippedRatio?: Metric
 }
 
-export type PositionSummary = {
+export type AgentPositionSummary = {
   positionId: string
-  userPositionId?: string
-  agentPositionId?: string
-  copyRunId?: string
   agentId: string
   chainId: number
-  copyAccount?: Address
   tradeId: string
   token: Token
   status: LooseString<PositionStatus>
@@ -65,10 +62,6 @@ export type PositionSummary = {
   remainingBaseRaw?: string
   totalGrossBaseBoughtRaw?: string
   totalGrossBaseSoldRaw?: string
-  upfrontFeeCapturedBaseRaw?: string
-  upfrontFeeReleasedBaseRaw?: string
-  netBaseReceivedRaw?: string
-  remainingNetBaseRaw?: string
   displayBaseRaw?: string
   entryValuation?: PositionValuation
   currentValuation?: PositionValuation
@@ -80,22 +73,35 @@ export type PositionSummary = {
   realizedPnlUsd?: DecimalString
   unrealizedPnlUsd?: DecimalString
   unrealizedPnlPct?: DecimalString
-  flatFeeCapturedUsd?: DecimalString
-  cashbackReceivedUsd?: DecimalString
-  netFeeCostUsd?: DecimalString
-  estimatedCashbackUsd?: DecimalString
-  metrics: PositionMetrics
+  metrics: Pick<PositionMetrics, 'realizedPnlUsd' | 'unrealizedPnlUsd' | 'unrealizedPnlPct'>
   quantityState: PositionQuantityState
   exitKind?: PositionExitKind
-  actionKind?: PositionActionKind
-  availableActionKinds: PositionActionKind[]
-  latestSkipPublicErrorCode?: string
   durationSeconds?: DecimalString
   durationAsOf?: Timestamp
   openedAt: Timestamp
   closedAt?: Timestamp
   openedTxHash?: string
   latestTxHash?: string
+}
+
+export type PositionSummary = AgentPositionSummary & {
+  userPositionId?: string
+  agentPositionId?: string
+  copyRunId?: string
+  copyAccount?: Address
+  upfrontFeeCapturedBaseRaw?: string
+  upfrontFeeReleasedBaseRaw?: string
+  netBaseReceivedRaw?: string
+  remainingNetBaseRaw?: string
+  positionPnlUsd?: DecimalString
+  flatFeeCapturedUsd?: DecimalString
+  cashbackReceivedUsd?: DecimalString
+  netFeeCostUsd?: DecimalString
+  estimatedCashbackUsd?: DecimalString
+  metrics: PositionMetrics
+  actionKind?: PositionActionKind
+  availableActionKinds: PositionActionKind[]
+  latestSkipPublicErrorCode?: string
   totalBaseSoldRaw?: string
   totalQuoteReceivedRaw?: string
   quoteToken?: Token

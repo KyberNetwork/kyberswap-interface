@@ -154,8 +154,8 @@ const StopCopyPositionRow = ({ checked, disabled, onToggle, position }: StopCopy
     <span className="truncate text-sm font-medium text-text">{position.token.symbol}</span>
     <HStack className="col-span-2 col-start-2 row-start-2 min-w-0 items-center gap-1 sm:col-auto sm:row-auto">
       <span className="shrink-0 text-xs font-medium text-subText">P&amp;L</span>
-      <span className={cn('truncate text-sm font-medium', getSignedMetricClassName(position.unrealizedPnlUsd))}>
-        {signedUsd(position.unrealizedPnlUsd)}
+      <span className={cn('truncate text-sm font-medium', getSignedMetricClassName(position.positionPnlUsd))}>
+        {signedUsd(position.positionPnlUsd)}
       </span>
     </HStack>
     <span className="col-start-3 row-start-1 truncate text-right text-sm font-medium text-text sm:col-auto sm:row-auto">
