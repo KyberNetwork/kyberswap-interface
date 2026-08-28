@@ -62,7 +62,6 @@ export const useTokenBalances = (chainId: ChainId, tokenAddresses: string[], acc
 
   useEffect(() => {
     fetchBalances();
-    // Nothing to poll for without an account or a list.
     if (!active) return;
 
     const interval = setInterval(() => {

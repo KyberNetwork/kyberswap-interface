@@ -438,9 +438,9 @@ export const TokenSelectorContent = ({
   // tokens, so the unused one registers no work; chains without inventory keep the multicall.
   const inventory = useWalletInventory(primaryChainId, isOpen)
 
-  // Held tokens on no list. They sit in the All tab alongside everything else — dimmed, with an
-  // import icon — and search matches them directly, since someone typing a symbol they hold is
-  // looking for it.
+  // Held tokens on no list. They sit in the All tab alongside everything else as dimmed rows that
+  // import on click, and search matches them directly: someone typing a symbol they hold is looking
+  // for it.
   const { tokens: discoveryTokens, impersonators } = useInventoryDiscoveries(
     inventory,
     defaultTokens,
@@ -460,8 +460,7 @@ export const TokenSelectorContent = ({
         : EMPTY_CURRENCIES,
     [isAllTab, debouncedQuery, discoveryTokens, primaryChainId],
   )
-  // Every address the wallet holds, used while searching to lead with held matches and badge them.
-  // Undefined outside a search so browse rows render exactly as before.
+  // Every address the wallet holds; only set while searching, to lead with held matches and badge them.
   const heldAddresses = useMemo(
     () => (isAllTab && debouncedQuery && inventory.active ? new Set(Object.keys(inventory.rows)) : undefined),
     [isAllTab, debouncedQuery, inventory],
@@ -501,7 +500,6 @@ export const TokenSelectorContent = ({
     primaryChainId,
   ])
 
-  // Discovery rows need balances too, so they join the set the balance source is asked for.
   const balanceTokensWithDiscoveries = useMemo(
     () => (showDiscoveries ? [...balanceTokens, ...discoveryTokens] : balanceTokens),
     [showDiscoveries, balanceTokens, discoveryTokens],
@@ -511,7 +509,6 @@ export const TokenSelectorContent = ({
   // the very sweep this replaces and then throw it away a few hundred milliseconds later.
   const multicallTokens = inventory.active || inventory.pending ? EMPTY_TOKENS : balanceTokensWithDiscoveries
   const multicallBalances = useTokenBalances(multicallTokens, primaryChainId)
-  // No token gate needed here: the map builder returns empty on an inactive inventory by itself.
   const inventoryBalances = useInventoryTokenBalances(balanceTokensWithDiscoveries, inventory)
   const balances = inventory.active ? inventoryBalances : multicallBalances
   const nativeBalance = useNativeBalance(primaryChainId)

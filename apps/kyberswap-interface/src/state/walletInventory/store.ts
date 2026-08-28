@@ -91,9 +91,9 @@ export const getStoreVersion = () => version
 export const inventoryKey = (chainId: number, account: string) => `${chainId}:${account.toLowerCase()}`
 
 /**
- * Whether the inventory layer can serve this chain at all — env configured, indexed, not disabled.
- * The chain list and the "unsupported" set live in `@kyber/hooks`, shared with the widget selectors,
- * so a chain either side learns is unindexed is off for both.
+ * Whether the inventory layer can serve this chain: a host is configured and the service has not
+ * answered "unsupported chain" for it. That set lives in `@kyber/hooks`, shared with the widget
+ * selectors, so a chain either side learns is unsupported is off for both.
  */
 export const isInventoryChain = (chainId: number): boolean => !!KD_API_URL && isWalletInventoryChain(chainId)
 

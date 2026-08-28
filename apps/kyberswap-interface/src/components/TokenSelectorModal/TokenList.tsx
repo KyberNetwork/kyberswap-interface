@@ -136,11 +136,6 @@ type TokenRowProps = {
   impersonator?: boolean
   /** The connected wallet holds this token; shown as a badge while searching. */
   held?: boolean
-  /**
-   * What the slot after the balance column holds: an import icon for a held token that is not yet
-   * on the list, or an equally wide spacer so every row's balance stays aligned with the ones that
-   * have the icon. The Imported tab's remove button lives in the same slot.
-   */
 }
 
 export const TokenRow = ({
