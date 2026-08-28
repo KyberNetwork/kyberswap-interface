@@ -1,6 +1,6 @@
 import { type PropsWithChildren, createContext, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import type { AdvisoryActionAvailability } from 'services/copyTrading/types/actionAvailability'
-import type { CopyRunSummary } from 'services/copyTrading/types/copyRuns'
+import type { CopyRunListItem } from 'services/copyTrading/types/copyRuns'
 import type { PositionSummary } from 'services/copyTrading/types/positions'
 
 import { useActiveWeb3React } from 'hooks'
@@ -14,16 +14,16 @@ import WithdrawQuoteModal from 'pages/CopyTrading/modals/WithdrawQuoteModal'
 
 type ActiveModal =
   | { type: 'startCopy'; agent: StartCopyTarget }
-  | { type: 'addCapital'; copyRun: CopyRunSummary }
-  | { type: 'stopCopy'; copyRun: CopyRunSummary }
-  | { type: 'withdrawQuote'; copyRun: CopyRunSummary; withdrawQuoteAvailability?: AdvisoryActionAvailability }
+  | { type: 'addCapital'; copyRun: CopyRunListItem }
+  | { type: 'stopCopy'; copyRun: CopyRunListItem }
+  | { type: 'withdrawQuote'; copyRun: CopyRunListItem; withdrawQuoteAvailability?: AdvisoryActionAvailability }
   | { type: 'managePosition'; position: PositionSummary; flow: ManagePositionFlow }
 
 type CopyTradingModalContextValue = {
   openStartCopy: (agent: StartCopyTarget) => void
-  openAddCapital: (copyRun: CopyRunSummary) => void
-  openStopCopy: (copyRun: CopyRunSummary) => void
-  openWithdrawQuote: (copyRun: CopyRunSummary, availability?: AdvisoryActionAvailability) => void
+  openAddCapital: (copyRun: CopyRunListItem) => void
+  openStopCopy: (copyRun: CopyRunListItem) => void
+  openWithdrawQuote: (copyRun: CopyRunListItem, availability?: AdvisoryActionAvailability) => void
   openManagePosition: (position: PositionSummary, flow: ManagePositionFlow) => void
 }
 

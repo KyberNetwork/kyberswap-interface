@@ -7,11 +7,299 @@ newest documented behavior is already merged or deployed.
 
 ## Changelog
 
+### 2026-08-28 — Post-redesign availability hardening
+
+Status: merged on `origin/main` through commit
+`464df89d77680feede66cfc9e8d569bde26a35e5`. Deployment remains
+environment-specific.
+
+This release doesn't add or remove an HTTP path, but it changes response
+schemas and enum vocabulary. Treat it as a frontend model migration and
+regenerate the API client from the current OpenAPI or protobuf contract. Don't
+reuse a client generated before this release.
+
+#### Copy-run list and detail models
+
+The copy-run list and detail routes now return different data types:
+
+| Route | `data` type | Detail-only fields |
+| --- | --- | --- |
+| `GET /users/{ownerAddress}/copy-runs` | `CopyRunListItem[]` | None |
+| `GET /users/{ownerAddress}/copy-runs/{copyRunId}` | `CopyRunSummary` | `portfolioPnlUsd`, `feeBreakdown`, `copyRunWinRatePct`, and `copyRunClassifiedClosedPositionCount` |
+
+Both types continue to include `currentBalanceUsd`, `totalPnlUsd`,
+`totalPnlPct`, action-advisory fields, and copy-run lifecycle fields. Don't cast
+a list item to `CopyRunSummary`. Fetch the detail route when the selected-run
+screen needs Portfolio P&L, Net Fees, or copy-run win rate.
+
+Shared monetary fields have these semantics:
+
+- `capitalInUsd` is the canonical Capital In projection. Use
+  `capitalInProjectionStatus`: `READY` identifies the completed generation,
+  `SYNCING` can carry a prior value whose metric status is `STALE`, and
+  `UNAVAILABLE` authorizes no value. `capitalInUsd` can legitimately be zero
+  when the projection is `READY`.
+- `currentBalanceUsd` is either current or unavailable. Don't retain and label
+  an older numeric balance as safely stale.
+- `totalPnlUsd` is realized plus unrealized P&L. Execution economics already
+  include fees and rebates, so don't subtract Net Fees again.
+- `totalPnlPct` is the server-computed, cash-flow-neutral time-weighted return.
+  Don't derive it as simple ROI, APR, or APY.
+
+The following legacy copy-run fields are removed and reserved in both models:
+
+```text
+realizedPnlUsd
+flatFeesCapturedUsd
+cashbackReceivedUsd
+netFeeCostUsd
+estimatedCashbackPendingUsd
+observedCapitalInUsd
+```
+
+Remove generated accessors and UI fallbacks for these fields. In particular,
+don't substitute `observedCapitalInUsd` for `capitalInUsd` or
+`totalAllocatedUsd`. `totalAllocatedUsd` remains a separate status-bearing
+summary metric. `portfolioPnlUsd` isn't a rename or drop-in replacement for
+the removed `realizedPnlUsd`.
+
+The detail-only fields have these semantics:
+
+- `portfolioPnlUsd` contains P&L from closed positions only. Partial realized
+  gains or losses from positions that remain open stay in chart and APR inputs;
+  they don't enter this headline. When there are no closed positions, the
+  server returns a current zero. If any required closed-position contribution
+  is unavailable, the whole metric is unavailable rather than a partial total.
+- `feeBreakdown.feeChargedUsd` is the total upfront flat fee collected across
+  open and closed positions.
+- `feeBreakdown.rebatesUsd` combines actual rebates for closed positions with
+  estimated rebates for open positions at current market prices. While a
+  position remains open, refresh copy-run detail to receive price-driven
+  updates; don't label the combined value **Rebates received**. After all
+  positions close, this value contains actual rebates only.
+- `feeBreakdown.netFeesUsd` equals `feeChargedUsd - rebatesUsd`. A negative
+  value is valid and represents net rebate credit.
+- `copyRunWinRatePct` is wins divided by all classified closed positions.
+  Break-even positions remain in the denominator as non-wins.
+- `copyRunClassifiedClosedPositionCount` is the denominator used by the win-rate
+  metric.
+
+Each monetary or count field remains a status-bearing metric. Use the returned
+value only when that metric's own status permits it. Don't calculate Portfolio
+P&L, Net Fees, total P&L, return percentage, or win rate in the client.
+`feeChargedUsd` can remain current while an unavailable rebate estimate makes
+`rebatesUsd` and `netFeesUsd` unavailable; render each component independently.
+
+#### Agent and follower position models
+
+The agent position routes now return `AgentPositionSummary`:
+
+```text
+GET /agents/{agentId}/positions
+GET /agents/{agentId}/positions/{positionId}
+```
+
+`AgentPositionSummary` is leader-side data. It deliberately omits follower
+identity and accounting fields, including `userPositionId`, `copyRunId`,
+`copyAccount`, fee and rebate fields, skipped-sell and leftover state, follower
+action recommendations, and `positionPnlUsd`. Use its `openedTxHash` and
+`latestTxHash` only as leader-side transaction hashes.
+
+Follower position routes continue to return `PositionSummary`:
+
+```text
+GET /users/{ownerAddress}/copy-runs/{copyRunId}/positions
+GET /users/{ownerAddress}/positions
+GET /copy-accounts/{chainId}/{copyAccount}/positions
+```
+
+`PositionSummary` adds `positionPnlUsd`:
+
+- For active or closing inventory, it is realized P&L to date plus marked
+  unrealized P&L plus estimated remaining cashback.
+- For a closed position, it is realized P&L only.
+- The metric is all-or-nothing. If any required component is unavailable, the
+  headline is unavailable rather than a partial sum. If any required component
+  is stale, the headline is stale and uses the oldest contributing `asOf`.
+
+Use `positionPnlUsd` for the follower Trade ID headline. Don't cast
+`AgentPositionSummary` to `PositionSummary`, combine the follower P&L
+components in the client, or substitute leader transaction hashes for follower
+receipts.
+
+#### Prepared-action display enrichment
+
+Every successful response from all six preparation routes now includes the
+required `data.displayEnrichment` object:
+
+```text
+POST /users/{ownerAddress}/agents/{agentId}:prepareStartCopy
+POST /users/{ownerAddress}/copy-runs/{copyRunId}:prepareAddCapital
+POST /users/{ownerAddress}/copy-runs/{copyRunId}:prepareStopCopy
+POST /users/{ownerAddress}/copy-runs/{copyRunId}:prepareWithdrawQuote
+POST /users/{ownerAddress}/copy-runs/{copyRunId}/positions/{userPositionId}:prepareManualSell
+POST /users/{ownerAddress}/copy-runs/{copyRunId}/positions/{userPositionId}:prepareClosePosition
+```
+
+Handle these enrichment statuses:
+
+```text
+ACTION_DISPLAY_ENRICHMENT_STATUS_NOT_APPLICABLE
+ACTION_DISPLAY_ENRICHMENT_STATUS_COMPLETE
+ACTION_DISPLAY_ENRICHMENT_STATUS_UNAVAILABLE
+```
+
+When the status is `UNAVAILABLE`, handle one of these reasons:
+
+```text
+ACTION_DISPLAY_ENRICHMENT_UNAVAILABLE_REASON_SOURCE_UNAVAILABLE
+ACTION_DISPLAY_ENRICHMENT_UNAVAILABLE_REASON_BUDGET_EXHAUSTED
+```
+
+Interpret the status as follows:
+
+| Status | Frontend behavior |
+| --- | --- |
+| `NOT_APPLICABLE` | No optional aggregate enrichment is needed for this preparation. Continue from the top-level action status. |
+| `COMPLETE` | Render available optional preview fields according to each field's own metric or policy status. |
+| `UNAVAILABLE` | Omit or degrade only the optional preview. Use `unavailableReason` for bounded diagnostics. |
+
+Display enrichment is render-only. An unavailable enrichment doesn't change an
+executable top-level status, invalidate `data.call`, or change calldata. Submit
+only when both conditions are true:
+
+- `call` is present.
+- The top-level status is `READY`, or, for Start Copy only,
+  `PARTIALLY_COMPLETED`.
+
+These conditions remain authoritative when the optional preview can't be
+rendered. Degrade the preview UI instead of blocking the transaction.
+
+Allocation and preview-price degradation now use `displayEnrichment`. The
+generated enum still contains `PREPARED_ACTION_WARNING_ALLOCATION_STALE` for
+wire compatibility, so tolerate it when decoding, but the current aggregate
+server doesn't emit it. The warnings currently emitted by this server are:
+
+```text
+PREPARED_ACTION_WARNING_INVALID_STOP_INTENT_RECOVERED
+PREPARED_ACTION_WARNING_OWNER_SNAPSHOT_REQUIRES_REFRESH
+```
+
+For Start Copy, apply the same rule to `startCopy.copyConfirmPolicy`. Render
+the price-deviation bounds only when `priceDeviationStatus` permits a value.
+Never hard-code fallback bounds. An unavailable policy can make
+`displayEnrichment` unavailable without invalidating an otherwise executable
+operator-authored call.
+
+#### Metric quality and action availability
+
+`FIELD_GROUP_FEES` is added for `CopyRunSummary.feeBreakdown`. Freshness,
+completeness, and finality remain independent dimensions. For example,
+`CURRENT` with `PROVISIONAL` and `STALE` with `FINAL` are both valid
+combinations. `PROVISIONAL` doesn't hide an otherwise current metric, and
+`FINAL` doesn't upgrade a stale metric to current.
+
+Handle each metric status as follows:
+
+| Metric status | Frontend behavior |
+| --- | --- |
+| `METRIC_STATUS_CURRENT` | Render the value normally, then apply any separate provisional-finality indication required by the product. |
+| `METRIC_STATUS_STALE` | Render the value with a stale indication when the product surface allows stale presentation. |
+| `METRIC_STATUS_UNAVAILABLE` | Render no number. Don't substitute zero or a value from another field. |
+| `METRIC_STATUS_NOT_APPLICABLE` | Render no number or error. Hide the metric or label it **N/A**, as appropriate for the surface. |
+
+Apply these rendering rules:
+
+1. Apply each `meta.fieldQualities[]` entry only to the fields in its matching
+   `group`. Don't blank a page or card because an unrelated group is stale.
+2. Don't replace a valid leaf value with a loading placeholder solely because
+   broad `meta.status` is stale.
+3. Read Add Capital, Stop Copy, and Withdraw Quote state from the matching
+   leaf `AdvisoryActionAvailability`. Read position actions from `actionKind`
+   and `availableActionKinds`. Unrelated projector lag no longer suppresses
+   these leaves when their exact relevant evidence is ready.
+4. For positions, treat `actionKind` as the recommended action and
+   `availableActionKinds[]` as the complete advisory set. Don't hide a second
+   allowed action just because it isn't the recommendation.
+5. Treat every read-side state as advisory. Always call the matching live
+   preparation route before enabling wallet submission.
+
+Handle the four advisory statuses as follows:
+
+| Status | Frontend behavior |
+| --- | --- |
+| `ADVISORY_ACTION_STATUS_AVAILABLE` | Offer the control. Call live preparation when the user confirms; don't treat the read as transaction authorization. |
+| `ADVISORY_ACTION_STATUS_TRY_PREPARE` | Label the control **Check availability** or equivalent. Call live preparation on confirmation, but don't claim the action is available yet. |
+| `ADVISORY_ACTION_STATUS_PENDING` | Disable the control and refresh using the normal policy. Don't convert it to available after a client-side timeout. |
+| `ADVISORY_ACTION_STATUS_UNAVAILABLE` | Disable the control and display the typed reason where useful. Don't construct or submit a call. |
+
+If the optional action-advisory lookup is temporarily unavailable, the API
+keeps the base read renderable and marks the action-advisory group unavailable
+or pending. Keep displaying the non-action data; disable only the affected
+advisory control until a refreshed read proves it. A distinct retry affordance
+can request a refresh, but it must not submit or reuse calldata.
+
+#### Formula publication and cursor restart
+
+The currently applied formula generation stays readable while a replacement
+generation builds and validates. The API switches to the replacement
+atomically; it doesn't expose a partially rebuilt generation.
+
+After an atomic formula switch or another mutable page-target change, a
+continuation request can return HTTP 409. The diagnostic message depends on the
+surface. Current messages include:
+
+```text
+page target advanced; restart from the first page
+pending sell obligation state changed; restart from the first page
+performance projection changed; restart from the first page
+closed execution history changed; restart from the first page
+```
+
+Handle any HTTP 409 from a cursor-paginated surface as a restartable result:
+discard the full page chain, clear the cursor, and request page one with the
+same filters and sort. Don't merge pages from the old and new targets. The
+corresponding gRPC code is `ABORTED`. Branch on HTTP status or gRPC code; never
+match the diagnostic message.
+
+An HTTP 499 means the client canceled the request. Don't classify it as a
+server timeout. A preparation dependency failure can return HTTP 503; discard
+any earlier prepared call and request a new preparation instead of submitting
+cached calldata.
+
+#### Action logs and polling
+
+The action-log importer now drops legitimate non-public operator entries, such
+as HOLD and narrative-only decisions, without failing or stalling the public
+page. The frontend receives only renderable public actions. Don't create
+placeholder rows for missing sequence entries or infer actions from pagination
+gaps.
+
+This release reduces backend convergence delay. It doesn't require faster
+frontend polling. Keep the existing polling policy, render returned stale data
+according to its status, and don't reconstruct server formulas while waiting
+for a newer generation.
+
+Frontend migration checklist:
+
+1. Regenerate the API client from the current contract.
+2. Split copy-run list and detail view models.
+3. Split agent and follower position view models.
+4. Remove every reserved copy-run field listed above.
+5. Add `displayEnrichment`, `FIELD_GROUP_FEES`, and the new enum handlers.
+6. Make metric and field-group rendering independent.
+7. Handle HTTP 409 by restarting pagination from page one.
+8. Keep live preparation as the final transaction authority.
+
 ### 2026-08-26 — UI read-model contract cutover
 
-Status: implemented in isolated backend worktrees; not yet committed,
-published, or deployed. Do not enable these frontend changes until the rollout
-gates at the end of this entry pass.
+Status: merged on `origin/main` in PR #48. Deployment remains
+environment-specific; confirm that the target environment runs a compatible
+image before enabling these frontend changes.
+
+The 2026-08-28 release supersedes this release's copy-run fee and P&L fields
+and its shared agent/follower position model. Integrate those surfaces from the
+latest changelog entry above.
 
 #### Performance charts
 
@@ -24,8 +312,8 @@ gates at the end of this entry pass.
   cash-flow-neutral time-weighted return, not simple ROI, APR, or APY. Legacy
   series return `valuePct.status = METRIC_STATUS_UNAVAILABLE`.
 - Performance responses add `effectiveWindowStart` and `evaluationAt`.
-  Pagination pins both values. A projection change returns retryable gRPC
-  `ABORTED`; restart from the first page with no cursor.
+  Pagination pins both values. A projection change returns HTTP 409 (gRPC code
+  `ABORTED`); restart from the first page with no cursor.
 - `WINDOW_ALL` defaults to weekly points when `interval` is unspecified. It
   also accepts monthly points for cumulative equity, realized PnL, and total
   PnL. The shorter windows use daily points.
@@ -41,7 +329,7 @@ Frontend migration:
    a second request or derive percentage from USD points.
 4. Label percentage as holding-period return. Don't label or annualize it as
    APR or APY.
-5. On `ABORTED`, discard the cursor and reload the first page.
+5. On HTTP 409, discard the cursor and reload the first page.
 
 #### Copy-run lifecycle, History, and balances
 
@@ -54,8 +342,10 @@ Frontend migration:
 - `ListOwnerCopyRuns.sortBy` adds
   `OWNER_COPY_RUN_SORT_FIELD_CURRENT_BALANCE`. Both ascending and descending
   orders are supported.
-- A readiness change between current-balance pages returns `ABORTED`. A stale
-  or missing balance is never sorted as a numeric zero.
+- The cursor pins the freshness threshold, but Current Balance remains a live
+  mutable sort: a newly refreshed balance can move across the keyset boundary
+  between pages. A stale or missing balance is never sorted as numeric zero;
+  it follows valued rows with an unavailable metric.
 - Copy-run list and detail responses expose `totalPnlUsd` and `totalPnlPct`.
   List responses also continue to expose `unrealizedPnlUsd` with its own
   status.
@@ -65,30 +355,11 @@ Frontend migration:
 1. Use server `status` and view membership. Don't move a run to History from a
    local stop timestamp.
 2. Render History **Current Balance** from `currentBalanceUsd` only when its
-   status is current or stale as allowed by the field contract.
+   status is current.
 3. Send the current-balance sort enum instead of sorting loaded pages in the
    browser.
-4. Restart from the first page on `ABORTED`.
-
-#### Fees and rebates
-
-- `CopyRunSummary.netFeeCostUsd` is the signed all-position lifetime value:
-
-  ```text
-  flatFeesCapturedUsd - cashbackReceivedUsd
-  ```
-
-- `CopyRunSummary.cashbackReceivedUsd` is the total canonical cashback or
-  rebate actually received for the run. It includes canonical partial-sell
-  cashback while a position remains open.
-- `estimatedCashbackPendingUsd` is removed and reserved on owner, copy-run,
-  and copy-account summaries. There is no replacement estimate field.
-- `PositionSummary.estimatedCashbackUsd` remains position-scoped and separate
-  from actual received cashback.
-
-Frontend migration: map **Fee Paid** to `netFeeCostUsd` and **Total
-Rebates/Cashback** to `cashbackReceivedUsd`. Accept negative net fee as rebate
-credit. Remove summary-level pending-cashback UI and generated accessors.
+4. Restart from the first page when the user requests a fully current ordering;
+   don't merge independently refreshed pages into a frozen client-side sort.
 
 #### Public action logs
 
@@ -147,7 +418,7 @@ success or failure after a client-side timeout.
   reduces it to fit that product cap; an explicit oversized combination is
   invalid.
 - Use `ListOwnerCopyRunPositionClosedExecutions` for additional execution
-  pages. A canonical sell-set change returns `ABORTED`; reload that position's
+  pages. A canonical sell-set change returns HTTP 409; reload that position's
   execution list.
 - Nested execution tokens contain address, symbol, and decimals only; use the
   parent position for token name and logo. Expanded and continuation responses
@@ -191,8 +462,9 @@ and net quote received; don't reinterpret gross accounting values.
 
 ### 2026-08-24 — Withdraw Quote requires an explicit amount
 
-Status: pending coordinated backend rollout; don't enable the frontend change
-until all operator replicas and then all aggregate API replicas are updated.
+Status: merged on `origin/main`. Don't enable the frontend change in an
+environment until all operator replicas and then all aggregate API replicas
+are updated.
 
 - Adds the required `amountRaw` request field to Withdraw Quote. The API no
   longer treats an omitted amount or `{}` as a request to withdraw everything.
@@ -230,7 +502,7 @@ replica interpreting a new request as the former implicit maximum sweep.
 
 ### 2026-08-22 — Backend verification addendum
 
-Status: backend/API contract only; no frontend implementation was performed.
+Status: merged backend/API contract; no frontend implementation was performed.
 
 - Regenerated protobuf/OpenAPI outputs are the wire authority for these
   backend changes in any target environment.
@@ -287,12 +559,11 @@ Status: backend/API contract only; no frontend implementation was performed.
   configuration is complete, while unresolved symbols degrade only the
   token-metadata group. Until the published operator pin and READY import gate
   described above, the existing request-time source remains authoritative.
-- Keeps allocation semantics deliberately asymmetric by scope. At run level,
-  `capitalInUsd` is the canonical indexed value and
-  `observedCapitalInUsd`/`capitalInProjectionStatus` is a display-only pending
-  overlay. Owner and copy-account totals remain canonical-only and become
-  unavailable rather than exposing a partial subtotal; no observed aggregate
-  fields were added.
+- Keeps allocation semantics deliberately asymmetric by scope. This entry's
+  temporary run-level `observedCapitalInUsd` overlay is superseded by the
+  2026-08-26 contract and is now removed and reserved. Use canonical
+  `capitalInUsd` with `capitalInProjectionStatus`; owner and copy-account totals
+  remain canonical-only.
 - Computes active and closing durations from the read request clock. Terminal
   durations remain fixed at their terminal event time.
 - Adds optional `CopyRunSummary.stopCopyProgress` from the newest safely
@@ -437,9 +708,9 @@ Rollout order: deploy and drain the new aggregate API before removing the
 operator wallet-proof RPC. The new API remains compatible with an older
 operator; an older API cannot create sessions after the proof RPC is removed.
 
-### 2026-08-13 — Merged on `origin/main`
+### 2026-08-13 — Historical `origin/main` baseline
 
-Baseline verified against `origin/main` commit
+This historical baseline was verified against `origin/main` commit
 `1b0d9e27b60dc02e960f4557232727c50dcf724b`, the checked-in protobuf
 sources, and the generated OpenAPI document. That revision pins
 `copy-trade-operator` at
@@ -453,14 +724,14 @@ same image.
 | ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Explicit Start funding intent       | `PrepareStartCopyRequest.fundingMode` is required and is either `START_COPY_FUNDING_MODE_UNFUNDED` or `START_COPY_FUNDING_MODE_FUNDED`. `createPermitData` is optional only for funded mode and is never echoed publicly.                                                       | Choose the mode explicitly for each attempt, keep it stable with the same `startRequestId`, and never infer the mode from the presence of permit bytes.                                     |
 | Start Copy onboarding               | `START_COPY_STAGE_CREATE_CONFIRMING` is implemented. It is returned with `PREPARED_ACTION_STATUS_PENDING`, `PREPARED_ACTION_REASON_SOURCE_COVERAGE_PENDING`, the predicted `copyAccount`, and no call.                                                                          | Keep polling with the same `startRequestId` and target. Do not resubmit the create call and do not fund until `START_COPY_STAGE_FUNDING_REQUIRED`.                                          |
-| Capital In                          | `CopyRunSummary.capitalInProjectionStatus` is implemented with `SYNCING`, `READY`, and `UNAVAILABLE`.                                                                                                                                                                           | Render `capitalInUsd` only when the projection status is `READY`. A visible funding transaction does not make a provisional aggregate value authoritative.                                  |
+| Capital In                          | `CopyRunSummary.capitalInProjectionStatus` is implemented with `SYNCING`, `READY`, and `UNAVAILABLE`.                                                                                                                                                                           | Render the completed value normally when the projection is `READY`. A `SYNCING` projection can carry a prior same-identity `STALE` metric; render it only with a stale/syncing indication. `UNAVAILABLE` authorizes no number. A visible funding transaction alone doesn't make a provisional value authoritative. |
 | Account-effective cashback policy   | `GET /users/{ownerAddress}/copy-runs/{copyRunId}/cashback-policy` returns the operator-authored policy for that exact follower account, including typed status, optional rates, scope, provenance times, and optional formula version.                                          | Fetch it lazily for a selected run's fee/cashback panel. Branch on `status`; do not substitute an agent-level advertised rate, infer missing rates as zero, or hard-code a formula version. |
 | Pinned stable balance               | The current-stable materializer reads exact quote-token balances from the operator at one canonical block anchor. A present row can use `balanceSource = "onchain_rpc"`; exact zero remains present.                                                                            | Trust the row only when `pinnedStableBalance.status` is `PRESENT`. Preserve all other typed states as unavailable rather than converting them to zero.                                      |
 | Current wallet inventory            | `GET /copy-accounts/{chainId}/{copyAccount}/wallet-inventory` returns bounded current wallet rows and an account-wide `walletInventoryValueUsd` only when the source proves the response is complete and every nonzero asset is valued.                                         | Use this route for **Remaining in Wallet** on active and stopped copy runs. Never calculate the total from `/balances` pages or add the pinned stable row to the server total.              |
 | Action-log chain links              | Valid mixed-case EVM addresses and hashes are canonicalized to lowercase. Invalid optional linkage claims are discarded while a safe narrative row remains renderable.                                                                                                          | Treat `txHash`, `leaderPositionId`, `blockNumber`, and `tokenAddress` as optional links. Their absence is not an action failure and must not be reconstructed from narrative text.          |
 | Copy lifecycle views                | `OPEN` contains admitted runs with status `COPY_RUN_STATUS_ACTIVE` or `COPY_RUN_STATUS_CLOSING`. `HISTORY` contains admitted or readable historical-generation runs with status `COPY_RUN_STATUS_STOPPED` or `COPY_RUN_STATUS_CLOSED`. Position history is a separate universe. | Refresh from the server after lifecycle changes; do not pin local tab membership or derive it from position counts. Use owner position routes for owner-wide closed-trade history.          |
 | Historical-generation compatibility | Parentless child facts explicitly classified `HISTORICAL` by the operator are consumed without creating current/actionable projections. Missing `ADMITTED` or `QUARANTINED` parent identity still fails closed.                                                                 | Historical or unavailable data must not be promoted into current dashboards or actions. Preserve typed unavailable states and direct/History reads; never infer missing values as zero.     |
-| Public HTTP surface                 | All 26 reads and six preparations have generated gateway mappings and concrete aggregate handlers. The two wallet-session operations remain only in the merged baseline and are removed by the pending entry above.                                                             | Do not feature-gate a remaining route as unimplemented. Treat typed product statuses separately from HTTP availability.                                                                     |
+| Public HTTP surface                 | This historical baseline had 26 reads, six preparations, and two wallet-session operations. The current contract removes both session operations and adds the closed-execution read. See the current operation index below.                                                    | Do not feature-gate a current route as unimplemented. Treat typed product statuses separately from HTTP availability.                                                                        |
 
 ### 2026-08-12 — Verified pre-release read smoke
 
@@ -470,8 +741,8 @@ for the exact observations and limitations.
 
 ### 2026-07-30 — Historical pre-release action smoke
 
-This evidence predates required Start funding intent and the pending removal
-of wallet sessions. It is retained only as historical deployment evidence; do
+This evidence predates required Start funding intent and the removal of wallet
+sessions. It is retained only as historical deployment evidence; do
 not use it as the current payload or authentication contract.
 
 ## API Endpoint
@@ -490,14 +761,14 @@ https://pre-copy-trade-api.kyberengineering.io/api/v1
 
 ## Frontend Contract Notes
 
-The merged baseline and pending release add the following UI-facing behavior.
-Apply each row according to the environment status in the changelog, and update
+The current source contract defines the following UI-facing behavior. Apply
+each row according to the environment status in the changelog, and update
 all affected action dialogs and Smart Wallet activity rendering together.
 
 | Surface                                  | Contract                                                                                                                                         | Required FE behavior                                                                                                                                                                                                                                                                      |
 | ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Manual Sell / Close Position preparation | No wallet challenge, session exchange, bearer token, or issuance lease in the pending contract                                                   | Prepare directly from the latest authoritative read inputs. The owner wallet must still submit the exact returned call; preparation is not transaction authorization.                                                                                                                     |
-| Withdraw Quote lifecycle and amount      | `withdrawQuoteAvailability` can be available at any copy lifecycle stage; preparation requires `amountRaw` after the pending coordinated rollout | Show the action according to advisory availability, not copy-run lifecycle. Send an exact partial amount or the explicit `uint256.max` full-balance sentinel, then prepare again on confirmation because the operator rechecks live state.                                                |
+| Manual Sell / Close Position preparation | No wallet challenge, session exchange, bearer token, or issuance lease                                                                          | Prepare directly from the latest authoritative read inputs. The owner wallet must still submit the exact returned call; preparation is not transaction authorization.                                                                                                                     |
+| Withdraw Quote lifecycle and amount      | `withdrawQuoteAvailability` can be available at any copy lifecycle stage; preparation requires `amountRaw`                                      | Show the action according to advisory availability, not copy-run lifecycle. Send an exact partial amount or the explicit `uint256.max` full-balance sentinel, then prepare again on confirmation because the operator rechecks live state.                                                |
 | Start Copy funding                       | `fundingMode` plus optional `createPermitData`                                                                                                   | Send `START_COPY_FUNDING_MODE_UNFUNDED` with no permit, or `START_COPY_FUNDING_MODE_FUNDED` with an optional protobuf-JSON base64 byte string. The API uses `targetCapitalRaw` as the funded create amount. Permit format/capability remains operator-authoritative.                      |
 | Contract-generation routing              | No public `generationId`, factory, controller, or contract-address request field                                                                 | Do not hard-code or select deployment addresses. Start uses the currently create-enabled operator generation; existing-account actions derive generation from persisted account identity. Render `PREPARED_ACTION_REASON_UNSUPPORTED_ACCOUNT_GENERATION` as non-actionable product state. |
 | Copy-run cashback policy                 | `GET .../cashback-policy`                                                                                                                        | Use this run/account-specific policy for detailed fee/cashback presentation. `COPY_RUN_CASHBACK_POLICY_STATUS_AVAILABLE`, `..._NOT_CONFIGURED`, `..._INVALIDATED`, and `..._UNAVAILABLE` are distinct states; missing optional rates or `cashbackFormulaVersion` are not zero.            |
@@ -721,7 +992,7 @@ Omit optional query parameters instead of sending an empty enum string,
 protobuf `int64` values as decimal strings when they appear in JSON.
 
 No transaction-preparation route requires a wallet-session bearer token in the
-pending contract. Do not add an `Authorization` header solely for Copy Trade
+current contract. Do not add an `Authorization` header solely for Copy Trade
 preparation.
 
 All transaction-preparation responses are emitted with `Cache-Control:
@@ -830,7 +1101,7 @@ coverage block, status, and nonzero timestamps.
 
 | Field          | Meaning                                                                                                                                                                                                                             |
 | -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `group`        | Bounded coherent field group, such as `FIELD_GROUP_CAPITAL`, `FIELD_GROUP_PERFORMANCE`, `FIELD_GROUP_ACTION_ADVISORY`, `FIELD_GROUP_TRADE_TOKEN_CONFIGURATION`, `FIELD_GROUP_TOKEN_METADATA`, or `FIELD_GROUP_EXTERNAL_ENRICHMENT`. |
+| `group`        | Bounded coherent field group, such as `FIELD_GROUP_CAPITAL`, `FIELD_GROUP_PERFORMANCE`, `FIELD_GROUP_ACTION_ADVISORY`, `FIELD_GROUP_FEES`, `FIELD_GROUP_TRADE_TOKEN_CONFIGURATION`, `FIELD_GROUP_TOKEN_METADATA`, or `FIELD_GROUP_EXTERNAL_ENRICHMENT`. |
 | `freshness`    | Whether the included value is current, stale, or unavailable.                                                                                                                                                                       |
 | `completeness` | Whether every required input through the captured target is complete, partial, or pending.                                                                                                                                          |
 | `finality`     | Whether the included provenance is provisional or past the service's configured reorg-safe boundary. This isn't chain consensus finality.                                                                                           |
@@ -846,6 +1117,8 @@ contributing quality; clocks can therefore differ.
 
 Use a metric's own `status` to decide whether its value can render. Use the
 matching field-group quality to explain why the group is still catching up.
+Metric freshness and group finality are independent: `CURRENT` with
+`PROVISIONAL` finality and `STALE` with `FINAL` finality are both valid.
 For example, Capital In can carry a safe prior value with
 `METRIC_STATUS_STALE` while the capital group reports
 `DATA_COMPLETENESS_PENDING` and
@@ -938,6 +1211,11 @@ render or disable controls. It is not authorization and must not be used to
 construct calldata. The matching POST preparation route always makes the final
 decision using current chain and source state.
 
+Use the leaf advisory object even when broad response `meta.status` is
+`DATA_STATUS_STALE`. An unrelated lagging field group doesn't suppress an
+action whose relevant evidence is ready. The live preparation response remains
+authoritative in every case.
+
 `PENDING` and `TRY_PREPARE` are intentionally different:
 
 - `PENDING`: The aggregate can't prove that its local evidence covers the
@@ -1009,9 +1287,14 @@ Cursor rules:
 - Treat cursors as opaque.
 - Reuse a cursor only with the same route, filters, and sort values.
 - Ordinary cursors expire after 72 hours.
-- Position pages sorted by current USD value use a shorter five-minute cursor
-  because their ordering depends on changing prices.
+- Five-minute cursors apply to `/leaderboard`, `/agents`, owner copy-run lists,
+  owner copy-account lists, copy-account balance lists, and position pages
+  sorted by current USD value. These pages pin mutable formula, balance, or
+  price targets.
 - If a cursor is rejected or expired, restart from the first page.
+- If a pinned mutable target advances, the API returns HTTP 409. Discard the
+  cursor and reload the first page; don't handle this as a malformed-cursor
+  400.
 
 The cursor is signed and scoped to the normalized request. The following all
 invalidate an existing cursor:
@@ -1364,8 +1647,8 @@ metric still has its own status and can be unavailable independently.
 | GET    | `/agents/{agentId}/stats`                         | `window?`                                                                     | `AgentMetrics`                 |
 | GET    | `/agents/{agentId}/performance`                   | `series?`, `window?`, `interval?`, `cursor?`, `limit?`                        | `PerformancePoint[]`           |
 | GET    | `/agents/{agentId}/action-logs`                   | `leaderPositionId?`, `type?`, `groupBy?`, `from?`, `to?`, `cursor?`, `limit?` | `AgentActionLogSessionGroup[]` |
-| GET    | `/agents/{agentId}/positions`                     | `view?`, `token?`, `cursor?`, `limit?`, `sortBy?`, `sortOrder?`               | `PositionSummary[]`            |
-| GET    | `/agents/{agentId}/positions/{positionId}`        | Path: `agentId`, `positionId`                                                 | `PositionSummary`              |
+| GET    | `/agents/{agentId}/positions`                     | `view?`, `token?`, `cursor?`, `limit?`, `sortBy?`, `sortOrder?`               | `AgentPositionSummary[]`       |
+| GET    | `/agents/{agentId}/positions/{positionId}`        | Path: `agentId`, `positionId`                                                 | `AgentPositionSummary`         |
 | GET    | `/agents/{agentId}/positions/{positionId}/events` | `cursor?`, `limit?`                                                           | `PositionEvent[]`              |
 
 Action-log `from` and `to` are RFC3339 timestamps. When both are present,
@@ -1420,7 +1703,21 @@ request-time behavior; do not infer tombstone objects or a new client field.
 the “Strategy & Execution” section of the profile. It is configured display
 content, not a machine-readable trading rule.
 
-Key `PositionSummary` fields:
+Key `AgentPositionSummary` fields:
+
+- identity and routing: `positionId`, `agentId`, `chainId`, `tradeId`, `token`
+- lifecycle: `lifecycle`, `quantityState`, `exitKind`, `openedAt`, `closedAt`
+- amount and value: `remainingBaseRaw`, optional leader gross amounts,
+  `entryValuation`, `currentValuation`, `exitValuation`
+- metrics: realized and unrealized PnL
+- canonical leader-side `openedTxHash` and `latestTxHash`
+
+This agent shape deliberately omits follower account identity, fee and rebate
+accounting, skipped-sell state, leftovers, recovery actions, closed executions,
+and `positionPnlUsd`. Don't cast it to the follower position type or fill those
+fields from another route.
+
+Key follower `PositionSummary` fields:
 
 - identity: `positionId`, optional `userPositionId`, optional
   `agentPositionId`, optional `copyRunId`
@@ -1429,7 +1726,8 @@ Key `PositionSummary` fields:
 - lifecycle: `lifecycle`, `quantityState`, `exitKind`, `openedAt`, `closedAt`
 - amount: `remainingBaseRaw` and optional gross/net accounting fields
 - value: `entryValuation`, `currentValuation`, `exitValuation`
-- metrics: realized/unrealized PnL, fees, cashback, skip counts and ratios
+- metrics: `positionPnlUsd`, realized/unrealized PnL, fees, cashback, skip
+  counts, and ratios
 - recovery UI: `actionKind`, `availableActionKinds`
 
 Position rendering rules:
@@ -1444,6 +1742,10 @@ Position rendering rules:
   `availableActionKinds[]` is the complete advisory set.
 - A position's three valuations can have different statuses. Closed-position
   `exitValuation` can remain final even when a current price is unavailable.
+- Render follower Position P&L from `positionPnlUsd`. For active or closing
+  inventory, it includes realized P&L to date, marked unrealized P&L, and
+  estimated remaining cashback. For a closed position, it contains realized
+  P&L only. Don't reconstruct it from the component fields in the client.
 - `POSITION_EXIT_KIND_MANUAL` is reserved for an explicitly proven manual
   exit.
   Generic owner-directed `sell_unaligned` history projects as
@@ -1483,7 +1785,7 @@ the related detail, while the point timestamp remains the chart order key.
 | Method | Path                                                                                   | Parameters                                                                                                  | `data`                  |
 | ------ | -------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- | ----------------------- |
 | GET    | `/users/{ownerAddress}/copy-summary`                                                   | `view` **required**, `chainId?`                                                                             | `OwnerCopySummary`      |
-| GET    | `/users/{ownerAddress}/copy-runs`                                                      | `view` **required**, `agentId?`, `chainId?`, `cursor?`, `limit?`, `sortBy?`, `sortOrder?`                   | `CopyRunSummary[]`      |
+| GET    | `/users/{ownerAddress}/copy-runs`                                                      | `view` **required**, `agentId?`, `chainId?`, `cursor?`, `limit?`, `sortBy?`, `sortOrder?`                   | `CopyRunListItem[]`     |
 | GET    | `/users/{ownerAddress}/copy-runs/{copyRunId}`                                          | Path only                                                                                                   | `CopyRunSummary`        |
 | GET    | `/users/{ownerAddress}/copy-runs/{copyRunId}/cashback-policy`                          | Path only                                                                                                   | `CopyRunCashbackPolicy` |
 | GET    | `/users/{ownerAddress}/copy-runs/{copyRunId}/positions`                                | `view?`, `includeClosedExecutions?`, `closedExecutionsLimit?`, `cursor?`, `limit?`, `sortBy?`, `sortOrder?` | `PositionSummary[]`     |
@@ -1551,30 +1853,28 @@ COPY_ACCOUNT_STATUS_CLOSING
 COPY_ACCOUNT_STATUS_STOPPED
 ```
 
-Key `CopyRunSummary` fields:
+Shared `CopyRunListItem` and `CopyRunSummary` fields:
 
 - `copyRunId`, `ownerAddress`, `agentId`, `chainId`, `copyAccount`
 - `startedAt`, `stoppedAt`, `status`, `durationSeconds`
 - `agentSnapshot`
-- capital, portfolio, PnL, fee, cashback, position-count, and APR metrics
+- capital, portfolio-value, PnL, position-count, and APR metrics
 - `currentBalanceUsd`, for History account value and Open/Closing portfolio
-  value when current or safely stale
+  value when current. Stale, expired, or incomplete inputs make this metric
+  `UNAVAILABLE`.
 - `totalPnlUsd`, `totalPnlPct`, and `unrealizedPnlUsd`, each with its own
   metric status
-- `netFeeCostUsd = flatFeesCapturedUsd - cashbackReceivedUsd`;
-  `cashbackReceivedUsd` is actual received lifetime cashback/rebates, not an
-  estimate
+- `totalPnlUsd` is realized plus unrealized P&L; fees and rebates are already
+  included in the net execution economics. Don't subtract Net Fees again.
+  `totalPnlPct` uses the same cash-flow-neutral time-weighted-return semantics
+  as the cumulative-total-PnL chart. Don't recompute either metric in the
+  client.
 - `capitalInProjectionStatus`. `READY` means `capitalInUsd` represents the
-  completed generation. In the 2026-08-21 pending contract, `SYNCING` can carry
+  completed generation. In the current contract, `SYNCING` can carry
   a prior same-identity value with metric status `STALE`; render it only with a
   syncing/stale indication and don't treat it as the newly confirmed amount.
   `UNAVAILABLE` means source, identity, or lineage can't authorize a value and
   must never be converted to zero.
-- When present, `observedCapitalInUsd` is a display-only run-level projection;
-  it does not replace canonical `capitalInUsd`, contribute to owner/account
-  totals, or authorize Add Capital. Owner and copy-account aggregate allocation
-  fields remain canonical-only and fail closed when the full contribution set
-  is not proven.
 - `addCapitalAvailability`, `stopCopyAvailability`,
   `withdrawQuoteAvailability`
 - optional `stopCopyProgress`. It is present only when the API can prove the
@@ -1584,6 +1884,21 @@ Key `CopyRunSummary` fields:
   omitted object means “progress not proven,” never zero progress. Within a
   present object, treat an omitted JSON count as `0`; the gateway omits scalar
   zero values.
+
+`CopyRunSummary` is the detail shape. It additionally contains:
+
+- `portfolioPnlUsd`, the closed-position-only Portfolio P&L headline. Partial
+  realized P&L from positions that remain open stays in charts and APR inputs.
+- `feeBreakdown.feeChargedUsd`, `feeBreakdown.rebatesUsd`, and
+  `feeBreakdown.netFeesUsd`. Use `FIELD_GROUP_FEES` for the breakdown's group
+  quality and each metric's own status for rendering.
+- `copyRunWinRatePct` and `copyRunClassifiedClosedPositionCount`.
+
+`CopyRunListItem` deliberately omits these detail-only fields. Fetch
+`GetOwnerCopyRun` when the selected-run screen needs them. Both shapes remove
+and reserve `realizedPnlUsd`, `flatFeesCapturedUsd`, `cashbackReceivedUsd`,
+`netFeeCostUsd`, `estimatedCashbackPendingUsd`, and `observedCapitalInUsd`.
+Regenerate clients and don't use legacy accessors or synthesize replacements.
 
 #### Account-effective cashback policy
 
@@ -1946,8 +2261,16 @@ empty states, but the corresponding preparation response is authoritative.
 | `call`                      | Exact reviewed EVM inner call, only when executable.                                                             |
 | `reason`                    | Stable typed reason for non-ready/advisory state.                                                                |
 | `warnings[]`                | Allowlisted render-only qualifications. Warnings do not authorize changing calldata.                             |
+| `displayEnrichment`         | Required render-only enrichment outcome. It never changes action readiness, call validity, or calldata.          |
 | `evidence`                  | Exact safely covered fact boundary and fresh action block used by preparation.                                   |
 | one preview                 | Exactly one of `startCopy`, `addCapital`, `stopCopy`, `withdrawQuote`, `manualSell`, or `closePosition`.         |
+
+`displayEnrichment.status` is `NOT_APPLICABLE`, `COMPLETE`, or `UNAVAILABLE`.
+An unavailable result includes reason `SOURCE_UNAVAILABLE` or
+`BUDGET_EXHAUSTED`. Continue to branch transaction submission on the top-level
+prepared-action `status` and `call`: a `READY` action remains executable when
+render-only enrichment is unavailable. Degrade only the optional preview UI
+and never change the returned call.
 
 Swap-producing previews use this nested shape:
 
@@ -1975,10 +2298,13 @@ product explicitly labels the operator-configured safe boundary that way.
 Warnings currently supported:
 
 ```text
-PREPARED_ACTION_WARNING_ALLOCATION_STALE
 PREPARED_ACTION_WARNING_INVALID_STOP_INTENT_RECOVERED
 PREPARED_ACTION_WARNING_OWNER_SNAPSHOT_REQUIRES_REFRESH
 ```
+
+Allocation and preview-price degradation are represented by
+`displayEnrichment`; don't expect `PREPARED_ACTION_WARNING_ALLOCATION_STALE`
+from the aggregate API.
 
 Typed reasons currently supported:
 
@@ -2329,7 +2655,7 @@ the run is active, stopping, stopped, or closed. Don't require a Stop Copy
 transaction, terminal positions, or an empty position list before enabling the
 action.
 
-`amountRaw` is required after the pending coordinated rollout. It must be a
+`amountRaw` is required by the current source contract. It must be a
 canonical positive decimal `uint256` string without a sign, decimal point,
 whitespace, or leading zero. The API rejects an omitted or empty value, zero,
 and values greater than `uint256.max` before calling an operator.
@@ -2425,7 +2751,7 @@ generic sell endpoint.
 
 ## Preparation Authorization and Submission
 
-The pending contract has no wallet challenge or session endpoints. A successful
+The current contract has no wallet challenge or session endpoints. A successful
 preparation does not prove that the caller controls `ownerAddress`, does not
 authorize another wallet, and does not submit a transaction.
 
@@ -2476,9 +2802,10 @@ Common statuses observed or expected:
 | HTTP | Meaning                                                             |
 | ---- | ------------------------------------------------------------------- |
 | 400  | Invalid parameter, unsupported enum combination, or cursor mismatch |
-| 408  | Request was canceled                                                |
 | 404  | Requested public resource not found                                 |
+| 409  | Pinned page target changed; restart from the first page             |
 | 429  | Server action-preparation capacity is exhausted                     |
+| 499  | Client closed or canceled the request                              |
 | 500  | Internal request failure; the response is sanitized                 |
 | 503  | Temporarily unavailable; retry with bounded backoff                 |
 | 504  | Request deadline exceeded; retry with bounded backoff               |
@@ -2497,8 +2824,11 @@ Retry guidance:
 - A timed-out preparation request did not submit a chain transaction. It is
   safe to request a fresh preparation, but never submit stale calldata merely
   because the first HTTP response was lost.
-- If a list cursor receives 400, discard it and restart at page one with the
-  current filters.
+- If a list cursor receives 400, it is malformed, expired, or mismatched.
+  Discard it and restart at page one with the current filters.
+- If a list cursor receives 409, its pinned mutable target advanced. Discard
+  the cursor and any accumulated pages, then reload page one. Don't retry the
+  same cursor.
 
 ## Frontend Integration Patterns
 
@@ -2611,45 +2941,39 @@ authority.
 
 ## Complete HTTP Operation Index
 
-The pending public HTTP surface contains **32 operations**:
+The current public HTTP surface contains **33 operations**:
 
-- 26 GET reads;
+- 27 GET reads;
 - 6 transaction-preparation POSTs.
 
-The two targeted copy-run/copy-account reads added after the original read
-surface are:
+Targeted reads added after the original read surface include:
 
 ```text
 GET /users/{ownerAddress}/copy-runs/{copyRunId}/cashback-policy
+GET /users/{ownerAddress}/copy-runs/{copyRunId}/positions/{positionId}/closed-executions
 GET /copy-accounts/{chainId}/{copyAccount}/wallet-inventory
 ```
 
 There is no generated HTTP mapping for private operator transaction
-preparation, projector, or execution methods. The pending operator contract
-removes wallet-proof verification entirely. Frontend clients must use only the
+preparation, projector, or execution methods. The operator contract has no
+public wallet-proof verification flow. Frontend clients must use only the
 aggregate routes in this document.
 
 ## Current Availability and Verification Status
 
 At `origin/main` commit
-`1b0d9e27b60dc02e960f4557232727c50dcf724b`, the generated OpenAPI contract
-still contains 34 public HTTP operations:
+`464df89d77680feede66cfc9e8d569bde26a35e5`, the generated OpenAPI contract
+contains 33 public HTTP operations:
 
-- 26 GET read operations;
+- 27 GET read operations;
 - 6 transaction-preparation POST operations;
-- 2 wallet-session POST operations.
 
-The pending release removes the two wallet-session operations, leaving the 32
-operations in the index above. All remaining operations have concrete aggregate
-handlers. No remaining transaction-preparation route should be feature-gated as
-“not implemented.” Preparation routes do not broadcast transactions; they
-return a typed product outcome and, only when executable, an exact wallet call.
-
-Until the pending release is deployed, an environment may still expose the two
-historical session routes and require their bearer token for Manual Sell and
-Close Position. Frontend rollout must therefore be coordinated with the API
-deployment; do not infer the environment contract solely from this catalog's
-newest entry.
+All operations have concrete aggregate handlers. No transaction-preparation
+route should be feature-gated as “not implemented.” Preparation routes don't
+broadcast transactions; they return a typed product outcome and, only when
+executable, an exact wallet call. A target environment can still run an older
+image, so verify its deployed OpenAPI document before enabling a newly merged
+frontend integration.
 
 PR #21 adds the current wallet-inventory read used by the **Remaining in
 Wallet** card. It is merged on `origin/main`; the older live pre-release smoke
@@ -2684,12 +3008,12 @@ a current Start Copy payload example. Representative requests produced:
 | `:prepareAddCapital`         | 200 `READY`, `PREPARED_CALL_KIND_ADD_CAPITAL`                                                                                                              |
 | `:prepareStopCopy`           | 200 `READY`, `PREPARED_CALL_KIND_STOP_COPY`                                                                                                                |
 | `:prepareWithdrawQuote`      | 200 typed `PREPARED_ACTION_STATUS_UNAVAILABLE` / `PREPARED_ACTION_REASON_ACCOUNT_NOT_STOPPED` for an active run under the historical stopped-only contract |
-| `:prepareManualSell`         | Historically available behind a wallet-session bearer token; the pending contract prepares directly                                                        |
-| `:prepareClosePosition`      | Historically available behind a wallet-session bearer token; the pending contract prepares directly                                                        |
-| `/wallet-session-challenges` | Historical endpoint; removed by the pending contract                                                                                                       |
-| `/wallet-sessions`           | Historical endpoint; removed by the pending contract                                                                                                       |
+| `:prepareManualSell`         | Historically available behind a wallet-session bearer token; the current contract prepares directly                                                        |
+| `:prepareClosePosition`      | Historically available behind a wallet-session bearer token; the current contract prepares directly                                                        |
+| `/wallet-session-challenges` | Historical endpoint; removed from the current contract                                                                                                      |
+| `/wallet-sessions`           | Historical endpoint; removed from the current contract                                                                                                      |
 
-The historical Withdraw result is superseded first by the pending any-lifecycle
+The historical Withdraw result is superseded first by the any-lifecycle
 contract and then by the required-amount contract dated 2026-08-24. It still
 demonstrates an important integration rule: HTTP 200 with a typed
 `UNAVAILABLE`, `PENDING`, or `COMPLETED` result is normal product state, not an
@@ -2697,7 +3021,7 @@ unavailable endpoint.
 
 ### Read integration status
 
-All 26 GET operations are implemented and exposed by the generated gateway.
+All 27 GET operations are implemented and exposed by the generated gateway.
 Returned rows and freshness statuses depend on the selected fixture and current
 materializer/source state; do not encode point-in-time row counts into the
 frontend.

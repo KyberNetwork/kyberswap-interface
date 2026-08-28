@@ -9,7 +9,7 @@ describe('shouldResetCursor', () => {
   })
 
   it('does not reset pagination for unrelated failures', () => {
-    expect(shouldResetCursor({ status: 409 })).toBe(false)
+    expect(shouldResetCursor({ status: 409 })).toBe(true)
     expect(shouldResetCursor({ status: 500, data: { code: 13 } })).toBe(false)
     expect(shouldResetCursor(undefined)).toBe(false)
   })

@@ -1,5 +1,5 @@
 import { type HTMLAttributes } from 'react'
-import type { CopyRunSummary } from 'services/copyTrading/types/copyRuns'
+import type { CopyRunListItem } from 'services/copyTrading/types/copyRuns'
 import type { CopyRunSortBy, SortOrder } from 'services/copyTrading/types/primitives'
 
 import { ButtonLight } from 'components/Button'
@@ -24,7 +24,7 @@ import {
   canAttemptPreparation,
   compactUsd,
   formatCount,
-  formatDisplayCapitalInUsd,
+  formatUsd,
   getPreparedReasonMessage,
   getSignedMetricClassName,
   getWinRateClassName,
@@ -54,7 +54,7 @@ const ActiveSubscriptionsGrid = ({ header, className, ...props }: ActiveSubscrip
 type ActiveSubscriptionsTableProps = {
   loading?: boolean
   pagination: CursorPaginationState
-  rows: CopyRunSummary[]
+  rows: CopyRunListItem[]
   sortBy?: CopyRunSortBy
   sortOrder?: SortOrder
   onSortChange: (sortBy: CopyRunSortBy) => void
@@ -70,7 +70,7 @@ const ActiveSubscriptionsTable = ({
 }: ActiveSubscriptionsTableProps) => {
   const { openStopCopy } = useCopyTradingModal()
 
-  const renderStopCopyButton = (subscription: CopyRunSummary) => {
+  const renderStopCopyButton = (subscription: CopyRunListItem) => {
     if (subscription.status !== 'active') return null
 
     const actionAvailable = canAttemptPreparation(subscription.stopCopyAvailability)
@@ -157,7 +157,7 @@ const ActiveSubscriptionsTable = ({
                 {percent(subscription.agentStats.winRatePct)}
               </TableCell>
               <TableCell className="text-right">{compactUsd(subscription.agentStats.volumeUsd)}</TableCell>
-              <TableCell className="text-right">{formatDisplayCapitalInUsd(subscription)}</TableCell>
+              <TableCell className="text-right">{formatUsd(subscription.capitalInUsd)}</TableCell>
               <TableCell className="text-right">{formatCount(subscription.openPositionCount)}</TableCell>
               <TableCell className="justify-center text-center">
                 <CopyRunStatusBadge status={subscription.status} />
@@ -202,7 +202,7 @@ const ActiveSubscriptionsTable = ({
               </TableCardField>
               <TableCardField label="Volume">{compactUsd(subscription.agentStats.volumeUsd)}</TableCardField>
               <TableCardField align="right" label="Capital In">
-                {formatDisplayCapitalInUsd(subscription)}
+                {formatUsd(subscription.capitalInUsd)}
               </TableCardField>
               <TableCardField label="Positions">{formatCount(subscription.openPositionCount)}</TableCardField>
               <TableCardField align="right" label="Status">

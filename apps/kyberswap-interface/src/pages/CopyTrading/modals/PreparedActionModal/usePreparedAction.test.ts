@@ -14,6 +14,7 @@ const predictedCopyAccount = '0x2222222222222222222222222222222222222222'
 const callTarget = '0x3333333333333333333333333333333333333333'
 const startRequestId = '123e4567-e89b-42d3-a456-426614174000'
 const targetCapitalRaw = '50000000'
+const displayEnrichment = { status: 'ACTION_DISPLAY_ENRICHMENT_STATUS_NOT_APPLICABLE' as const }
 
 const expected: PreparedActionExpectation = {
   account,
@@ -26,6 +27,7 @@ const expected: PreparedActionExpectation = {
 }
 
 const allowanceDiagnostic: PreparedAction = {
+  displayEnrichment,
   status: 'PREPARED_ACTION_STATUS_UNAVAILABLE',
   reason: 'PREPARED_ACTION_REASON_INSUFFICIENT_QUOTE_ALLOWANCE',
   chainId: '8453',
@@ -40,6 +42,7 @@ const allowanceDiagnostic: PreparedAction = {
 }
 
 const completedAction: PreparedAction = {
+  displayEnrichment,
   status: 'PREPARED_ACTION_STATUS_COMPLETED',
   chainId: '8453',
   expectedAccount: account,
@@ -54,6 +57,7 @@ const completedAction: PreparedAction = {
 }
 
 const readyAction: PreparedAction = {
+  displayEnrichment,
   status: 'PREPARED_ACTION_STATUS_READY',
   chainId: '8453',
   expectedAccount: account,

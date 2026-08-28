@@ -3,13 +3,14 @@ import type {
   ActivityRow,
   CopyAccountSummary,
   CopyRunCashbackPolicy,
+  CopyRunListItem,
   CopyRunSummary,
   OwnerCopySummary,
   PendingSellObligation,
   PinnedStableBalance,
   WalletBalanceRow,
 } from './copyRuns'
-import type { ClosedPositionExecution, CotLog, PositionEvent, PositionSummary } from './positions'
+import type { AgentPositionSummary, ClosedPositionExecution, CotLog, PositionEvent, PositionSummary } from './positions'
 import type { CursorResponse, Metric, ResponseMeta, SingleResponse, Timestamp } from './primitives'
 
 export type ChainsResponse = SingleResponse<Chain[]>
@@ -23,12 +24,12 @@ export type PerformanceResponse = CursorResponse<PerformancePoint> & {
   evaluationAt?: Timestamp
 }
 export type AgentPerformanceResponse = PerformanceResponse
-export type AgentPositionsResponse = CursorResponse<PositionSummary>
-export type AgentPositionResponse = SingleResponse<PositionSummary>
+export type AgentPositionsResponse = CursorResponse<AgentPositionSummary>
+export type AgentPositionResponse = SingleResponse<AgentPositionSummary>
 export type AgentPositionEventsResponse = CursorResponse<PositionEvent>
 export type CotLogsResponse = CursorResponse<CotLog>
 export type OwnerCopySummaryResponse = SingleResponse<OwnerCopySummary>
-export type CopyRunsResponse = CursorResponse<CopyRunSummary>
+export type CopyRunsResponse = CursorResponse<CopyRunListItem>
 export type CopyRunResponse = SingleResponse<CopyRunSummary>
 export type CopyRunCashbackPolicyResponse = SingleResponse<CopyRunCashbackPolicy>
 export type CopyRunPositionsResponse = CursorResponse<PositionSummary>

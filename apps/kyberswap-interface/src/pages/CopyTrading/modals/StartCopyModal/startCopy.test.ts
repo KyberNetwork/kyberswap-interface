@@ -1,4 +1,4 @@
-import type { CopyRunSummary } from 'services/copyTrading/types/copyRuns'
+import type { CopyRunListItem } from 'services/copyTrading/types/copyRuns'
 import type { CopyRunsResponse } from 'services/copyTrading/types/responses'
 import { describe, expect, it, vi } from 'vitest'
 
@@ -14,9 +14,9 @@ const copyRun = {
   agentId,
   chainId,
   status: 'active',
-} as CopyRunSummary
+} as CopyRunListItem
 
-const response = (data: CopyRunSummary[]): CopyRunsResponse => ({ data, pagination })
+const response = (data: CopyRunListItem[]): CopyRunsResponse => ({ data, pagination })
 
 describe('pollStartCopyRun', () => {
   it('polls the agent-filtered Copy list until the new run is available', async () => {

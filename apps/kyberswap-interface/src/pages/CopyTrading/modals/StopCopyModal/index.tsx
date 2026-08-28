@@ -3,7 +3,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import copyRunApi from 'services/copyTrading/api/endpoints/copyRuns'
 import preparedActionApi from 'services/copyTrading/api/endpoints/preparedActions'
-import type { CopyRunSummary } from 'services/copyTrading/types/copyRuns'
+import type { CopyRunListItem } from 'services/copyTrading/types/copyRuns'
 import type { PositionSummary } from 'services/copyTrading/types/positions'
 import type { PreparedCallKind } from 'services/copyTrading/types/preparedActions'
 
@@ -38,7 +38,7 @@ import { useWalletModalToggle } from 'state/application/hooks'
 type StopCopyModalProps = {
   isOpen: boolean
   onDismiss: () => void
-  copyRun: CopyRunSummary
+  copyRun: CopyRunListItem
 }
 
 const STOP_COPY_CALL_KINDS: PreparedCallKind[] = ['PREPARED_CALL_KIND_STOP_COPY']

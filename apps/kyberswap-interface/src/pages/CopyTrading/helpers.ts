@@ -1,6 +1,6 @@
 import type { AdvisoryActionAvailability, PreparedActionReason } from 'services/copyTrading/types/actionAvailability'
 import type { AgentCard, AgentProfile, AgentSnapshot, StrategyCategory } from 'services/copyTrading/types/agents'
-import type { ActivityRow, CopyRunSummary } from 'services/copyTrading/types/copyRuns'
+import type { ActivityRow } from 'services/copyTrading/types/copyRuns'
 import type { DecimalString, StrategyKey } from 'services/copyTrading/types/primitives'
 
 import { formatDisplayNumber } from 'utils/numbers'
@@ -38,12 +38,6 @@ export const formatUsd = (value?: DecimalString, fractionDigits?: number) => {
 
   return formattedValue.replace(/^-/, '-\u2060')
 }
-
-export const getDisplayCapitalInUsd = (run: Pick<CopyRunSummary, 'capitalInUsd' | 'observedCapitalInUsd'>) =>
-  run.capitalInUsd ?? run.observedCapitalInUsd
-
-export const formatDisplayCapitalInUsd = (run: Pick<CopyRunSummary, 'capitalInUsd' | 'observedCapitalInUsd'>) =>
-  formatUsd(getDisplayCapitalInUsd(run))
 
 export const signedUsd = (value?: DecimalString, fractionDigits?: number) => {
   const amount = parseNumericValue(value)

@@ -1,4 +1,5 @@
 import type {
+  AgentPositionSummary,
   ClosedPositionExecution,
   ClosedPositionExecutionPage,
   PositionEvent,
@@ -53,6 +54,7 @@ type ApiPosition = {
   entryValuation?: ApiValuation
   currentValuation?: ApiValuation
   exitValuation?: ApiValuation
+  positionPnlUsd?: ApiMetric
   realizedPnlUsd?: ApiMetric
   unrealizedPnlUsd?: ApiMetric
   unrealizedPnlPct?: ApiMetric
@@ -175,19 +177,15 @@ const toPositionExitKind = (exitKind?: string): PositionExitKind | undefined => 
   return undefined
 }
 
-const toPosition = (position: ApiPosition): PositionSummary => {
+const toAgentPosition = (position: ApiPosition): AgentPositionSummary => {
   const token = toToken(position.token)
   const amountRaw = position.displayBaseRaw || position.remainingBaseRaw || '0'
   const lifecycle = toPositionLifecycle(position.lifecycle)
 
   return {
     positionId: position.positionId || '',
-    userPositionId: position.userPositionId,
-    agentPositionId: position.agentPositionId,
-    copyRunId: position.copyRunId,
     agentId: position.agentId || '',
     chainId: chainIdNumber(position.chainId),
-    copyAccount: position.copyAccount as Address | undefined,
     tradeId: position.tradeId || '',
     token,
     status: toPositionStatus(lifecycle),
@@ -197,10 +195,6 @@ const toPosition = (position: ApiPosition): PositionSummary => {
     remainingBaseRaw: position.remainingBaseRaw,
     totalGrossBaseBoughtRaw: position.totalGrossBaseBoughtRaw,
     totalGrossBaseSoldRaw: position.totalGrossBaseSoldRaw,
-    upfrontFeeCapturedBaseRaw: position.upfrontFeeCapturedBaseRaw,
-    upfrontFeeReleasedBaseRaw: position.upfrontFeeReleasedBaseRaw,
-    netBaseReceivedRaw: position.netBaseReceivedRaw,
-    remainingNetBaseRaw: position.remainingNetBaseRaw,
     displayBaseRaw: position.displayBaseRaw,
     entryValuation: position.entryValuation,
     currentValuation: position.currentValuation,
@@ -216,14 +210,43 @@ const toPosition = (position: ApiPosition): PositionSummary => {
     realizedPnlUsd: metricValue(position.realizedPnlUsd),
     unrealizedPnlUsd: metricValue(position.unrealizedPnlUsd),
     unrealizedPnlPct: metricValue(position.unrealizedPnlPct),
+    metrics: {
+      realizedPnlUsd: position.realizedPnlUsd,
+      unrealizedPnlUsd: position.unrealizedPnlUsd,
+      unrealizedPnlPct: position.unrealizedPnlPct,
+    },
+    quantityState: toPositionQuantityState(position.quantityState),
+    exitKind: toPositionExitKind(position.exitKind),
+    durationSeconds: position.durationSeconds,
+    durationAsOf: position.durationAsOf,
+    openedAt: position.openedAt || '',
+    closedAt: position.closedAt,
+    openedTxHash: position.openedTxHash,
+    latestTxHash: position.latestTxHash,
+  }
+}
+
+const toPosition = (position: ApiPosition): PositionSummary => {
+  const agentPosition = toAgentPosition(position)
+
+  return {
+    ...agentPosition,
+    userPositionId: position.userPositionId,
+    agentPositionId: position.agentPositionId,
+    copyRunId: position.copyRunId,
+    copyAccount: position.copyAccount as Address | undefined,
+    upfrontFeeCapturedBaseRaw: position.upfrontFeeCapturedBaseRaw,
+    upfrontFeeReleasedBaseRaw: position.upfrontFeeReleasedBaseRaw,
+    netBaseReceivedRaw: position.netBaseReceivedRaw,
+    remainingNetBaseRaw: position.remainingNetBaseRaw,
+    positionPnlUsd: metricValue(position.positionPnlUsd),
     flatFeeCapturedUsd: metricValue(position.flatFeeCapturedUsd),
     cashbackReceivedUsd: metricValue(position.cashbackReceivedUsd),
     netFeeCostUsd: metricValue(position.netFeeCostUsd),
     estimatedCashbackUsd: metricValue(position.estimatedCashbackUsd),
     metrics: {
-      realizedPnlUsd: position.realizedPnlUsd,
-      unrealizedPnlUsd: position.unrealizedPnlUsd,
-      unrealizedPnlPct: position.unrealizedPnlPct,
+      ...agentPosition.metrics,
+      positionPnlUsd: position.positionPnlUsd,
       flatFeeCapturedUsd: position.flatFeeCapturedUsd,
       cashbackReceivedUsd: position.cashbackReceivedUsd,
       netFeeCostUsd: position.netFeeCostUsd,
@@ -232,17 +255,9 @@ const toPosition = (position: ApiPosition): PositionSummary => {
       latestSkippedRatio: position.latestSkippedRatio,
       cumulativeSkippedRatio: position.cumulativeSkippedRatio,
     },
-    quantityState: toPositionQuantityState(position.quantityState),
-    exitKind: toPositionExitKind(position.exitKind),
     actionKind: position.actionKind as PositionSummary['actionKind'],
     availableActionKinds: (position.availableActionKinds || []) as PositionSummary['availableActionKinds'],
     latestSkipPublicErrorCode: position.latestSkipPublicErrorCode,
-    durationSeconds: position.durationSeconds,
-    durationAsOf: position.durationAsOf,
-    openedAt: position.openedAt || '',
-    closedAt: position.closedAt,
-    openedTxHash: position.openedTxHash,
-    latestTxHash: position.latestTxHash,
     totalBaseSoldRaw: position.totalBaseSoldRaw,
     totalQuoteReceivedRaw: position.totalQuoteReceivedRaw,
     quoteToken: position.quoteToken ? toToken(position.quoteToken) : undefined,
@@ -255,11 +270,14 @@ const toPosition = (position: ApiPosition): PositionSummary => {
 
 export const adaptPositionsResponse = (
   response: ApiCursorResponse<ApiPosition>,
-): AgentPositionsResponse | CopyRunPositionsResponse | OwnerPositionsResponse | CopyAccountPositionsResponse =>
+): CopyRunPositionsResponse | OwnerPositionsResponse | CopyAccountPositionsResponse =>
   cursorResponse(response, toPosition)
 
-export const adaptPositionResponse = (response: ApiSingleResponse<ApiPosition>): AgentPositionResponse =>
-  singleResponse(response, toPosition)
+export const adaptAgentPositionsResponse = (response: ApiCursorResponse<ApiPosition>): AgentPositionsResponse =>
+  cursorResponse(response, toAgentPosition)
+
+export const adaptAgentPositionResponse = (response: ApiSingleResponse<ApiPosition>): AgentPositionResponse =>
+  singleResponse(response, toAgentPosition)
 
 export const adaptClosedPositionExecutionsResponse = (
   response: ApiCursorResponse<ApiClosedPositionExecution>,

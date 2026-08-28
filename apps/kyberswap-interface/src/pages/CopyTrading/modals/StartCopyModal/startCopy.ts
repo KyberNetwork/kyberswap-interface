@@ -1,5 +1,5 @@
 import type { AgentCard, AgentProfile } from 'services/copyTrading/types/agents'
-import type { CopyRunSummary } from 'services/copyTrading/types/copyRuns'
+import type { CopyRunListItem } from 'services/copyTrading/types/copyRuns'
 import type { Address } from 'services/copyTrading/types/primitives'
 import type { CopyRunsResponse } from 'services/copyTrading/types/responses'
 
@@ -29,7 +29,7 @@ export const pollStartCopyRun = async ({
   ownerAddress,
   pollIntervalMs = START_COPY_POLL_INTERVAL_MS,
   waitForNextAttempt = wait,
-}: PollStartCopyRunParams): Promise<CopyRunSummary> => {
+}: PollStartCopyRunParams): Promise<CopyRunListItem> => {
   const attempts = Math.max(1, maxAttempts)
 
   for (let attempt = 0; attempt < attempts; attempt++) {

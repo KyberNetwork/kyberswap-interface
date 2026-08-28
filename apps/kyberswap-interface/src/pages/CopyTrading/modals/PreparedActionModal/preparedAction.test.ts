@@ -18,6 +18,7 @@ const callTarget = '0x3333333333333333333333333333333333333333'
 const startRequestId = '123e4567-e89b-42d3-a456-426614174000'
 const authorizedStartRequestId = '123e4567-e89b-42d3-a456-426614174001'
 const targetCapitalRaw = '1000000'
+const displayEnrichment = { status: 'ACTION_DISPLAY_ENRICHMENT_STATUS_NOT_APPLICABLE' as const }
 
 const expected: PreparedActionExpectation = {
   account,
@@ -43,6 +44,7 @@ const confirmingAction = (overrides: Partial<PreparedAction> = {}): PreparedActi
     requestedTargetRaw: targetCapitalRaw,
   },
   ...overrides,
+  displayEnrichment: overrides.displayEnrichment ?? displayEnrichment,
 })
 
 const unsafeConfirmingCases: Array<{ name: string; overrides: Partial<PreparedAction> }> = [
@@ -82,6 +84,7 @@ describe('validatePreparedAction', () => {
 
   it('rejects a non-zero prepared call value', () => {
     const action: PreparedAction = {
+      displayEnrichment,
       status: 'PREPARED_ACTION_STATUS_READY',
       chainId: '8453',
       expectedAccount: account,
@@ -105,6 +108,7 @@ describe('validatePreparedAction', () => {
 
   it('rejects an unfunded create amount for a funded Start Copy attempt', () => {
     const action: PreparedAction = {
+      displayEnrichment,
       status: 'PREPARED_ACTION_STATUS_READY',
       chainId: '8453',
       expectedAccount: account,
@@ -130,6 +134,7 @@ describe('validatePreparedAction', () => {
 
   it('rejects a separate Fund call for a funded Start Copy attempt', () => {
     const action: PreparedAction = {
+      displayEnrichment,
       status: 'PREPARED_ACTION_STATUS_PARTIALLY_COMPLETED',
       chainId: '8453',
       expectedAccount: account,
@@ -153,6 +158,7 @@ describe('validatePreparedAction', () => {
 
   it('accepts the authorized UUID predicted account after clearing the diagnostic UUID identity', () => {
     const action: PreparedAction = {
+      displayEnrichment,
       status: 'PREPARED_ACTION_STATUS_READY',
       chainId: '8453',
       expectedAccount: account,
@@ -184,6 +190,7 @@ describe('validatePreparedAction', () => {
 
   it('keeps active recovery and stopped-Copy position sells in separate contexts', () => {
     const closeAction: PreparedAction = {
+      displayEnrichment,
       status: 'PREPARED_ACTION_STATUS_READY',
       chainId: '8453',
       expectedAccount: account,
@@ -217,7 +224,7 @@ describe('validatePreparedAction', () => {
   it.each(['PREPARED_ACTION_STATUS_READY', 'PREPARED_ACTION_STATUS_PARTIALLY_COMPLETED'] as const)(
     'rejects an executable %s response after the funded Create receipt',
     status => {
-      expect(validatePreparedActionContinuation({ status })).toBe(
+      expect(validatePreparedActionContinuation({ status, displayEnrichment })).toBe(
         'The confirmed Start Copy transaction returned another executable preparation. Do not submit another transaction.',
       )
     },

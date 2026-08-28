@@ -97,8 +97,8 @@ export const TradeHistoryTable = ({ infiniteScroll, loading, rows }: PositionTab
                 <TableCell>{row.token.symbol || '—'}</TableCell>
                 <TableCell className="text-right">{formatUsd(row.entryPriceUsd, 2)}</TableCell>
                 <TableCell className="text-right">{formatUsd(row.exitPriceUsd || row.currentPriceUsd, 2)}</TableCell>
-                <TableCell className={cn('whitespace-nowrap text-right', getSignedMetricClassName(row.realizedPnlUsd))}>
-                  {signedUsd(row.realizedPnlUsd, 2)}
+                <TableCell className={cn('whitespace-nowrap text-right', getSignedMetricClassName(row.positionPnlUsd))}>
+                  {signedUsd(row.positionPnlUsd, 2)}
                 </TableCell>
                 <TableCell className="text-right">{formatUsd(row.flatFeeCapturedUsd, 2)}</TableCell>
                 <TableCell className="text-right">{formatUsd(row.cashbackReceivedUsd, 2)}</TableCell>
@@ -130,9 +130,9 @@ export const TradeHistoryTable = ({ infiniteScroll, loading, rows }: PositionTab
                   </TableCardField>
                   <TableCardField
                     label="P&amp;L"
-                    valueClassName={cn('whitespace-nowrap', getSignedMetricClassName(row.realizedPnlUsd))}
+                    valueClassName={cn('whitespace-nowrap', getSignedMetricClassName(row.positionPnlUsd))}
                   >
-                    {signedUsd(row.realizedPnlUsd, 2)}
+                    {signedUsd(row.positionPnlUsd, 2)}
                   </TableCardField>
                   <TableCardField align="right" label="Duration" valueClassName="text-subText">
                     {formatDuration(row.durationSeconds, row.openedAt, row.closedAt)}

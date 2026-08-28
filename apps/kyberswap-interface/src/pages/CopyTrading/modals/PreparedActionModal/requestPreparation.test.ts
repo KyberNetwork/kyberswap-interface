@@ -11,6 +11,7 @@ import { requestPreparation } from 'pages/CopyTrading/modals/PreparedActionModal
 
 const account = '0x1111111111111111111111111111111111111111'
 const copyAccount = '0x2222222222222222222222222222222222222222'
+const displayEnrichment = { status: 'ACTION_DISPLAY_ENRICHMENT_STATUS_NOT_APPLICABLE' as const }
 
 const expected: PreparedActionExpectation = {
   account,
@@ -21,6 +22,7 @@ const expected: PreparedActionExpectation = {
 }
 
 const readyAction: PreparedAction = {
+  displayEnrichment,
   status: 'PREPARED_ACTION_STATUS_READY',
   chainId: '8453',
   expectedAccount: account,

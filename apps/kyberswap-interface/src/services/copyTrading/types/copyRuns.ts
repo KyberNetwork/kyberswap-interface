@@ -13,11 +13,13 @@ import type {
   ActivitySubtype,
   ActivityType,
   Address,
+  CapitalInProjectionStatus,
   CopyAccountStatus,
   CopyRunStatus,
   CopyRunView,
   DataCompleteness,
   DataFinality,
+  DataStatus,
   DecimalString,
   LooseString,
   Metric,
@@ -43,7 +45,16 @@ export type OwnerCopySummary = {
   metrics: Record<string, Metric | undefined>
 }
 
-export type CopyRunSummary = {
+export type StopCopyProgress = {
+  selectedPositionCount: number
+  indexedPositionCount: number
+  terminalPositionCount: number
+  pendingPositionCount: number
+  status?: DataStatus
+  asOf?: Timestamp
+}
+
+export type CopyRunListItem = {
   copyRunId: string
   ownerAddress: Address
   agentId: string
@@ -53,30 +64,45 @@ export type CopyRunSummary = {
   startedAt: Timestamp
   stoppedAt?: Timestamp
   capitalInUsd?: DecimalString
-  observedCapitalInUsd?: DecimalString
+  capitalInProjectionStatus: CapitalInProjectionStatus
   capitalOutUsd?: DecimalString
   portfolioValueUsd?: DecimalString
-  realizedPnlUsd?: DecimalString
   unrealizedPnlUsd?: DecimalString
   myAprSinceCopyPct?: DecimalString
   openPositionCount?: DecimalString
   closedPositionCount?: DecimalString
-  flatFeesCapturedUsd?: DecimalString
-  cashbackReceivedUsd?: DecimalString
-  netFeeCostUsd?: DecimalString
+  leftoverPositionCount?: DecimalString
+  leftoverValueUsd?: DecimalString
   currentBalanceUsd?: DecimalString
   totalPnlUsd?: DecimalString
   totalPnlPct?: DecimalString
-  copyRunWinRatePct?: DecimalString
-  copyRunClassifiedClosedPositionCount?: DecimalString
   durationSeconds?: DecimalString
   durationAsOf?: Timestamp
   addCapitalAvailability?: AdvisoryActionAvailability
   stopCopyAvailability?: AdvisoryActionAvailability
   withdrawQuoteAvailability?: AdvisoryActionAvailability
+  stopCopyProgress?: StopCopyProgress
   metrics: Record<string, Metric | undefined>
   agentSnapshot?: AgentSnapshot
   agentStats: AgentStats
+}
+
+export type CopyRunFeeBreakdown = {
+  feeChargedUsd?: DecimalString
+  rebatesUsd?: DecimalString
+  netFeesUsd?: DecimalString
+  metrics: {
+    feeChargedUsd?: Metric
+    rebatesUsd?: Metric
+    netFeesUsd?: Metric
+  }
+}
+
+export type CopyRunSummary = CopyRunListItem & {
+  portfolioPnlUsd?: DecimalString
+  feeBreakdown?: CopyRunFeeBreakdown
+  copyRunWinRatePct?: DecimalString
+  copyRunClassifiedClosedPositionCount?: DecimalString
 }
 
 export type CopyRunCashbackPolicyScope =
