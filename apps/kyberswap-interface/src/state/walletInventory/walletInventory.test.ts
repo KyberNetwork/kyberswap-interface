@@ -602,7 +602,7 @@ describe('getTokenComparator with unlisted holdings', () => {
     expect([dai, scam].sort(compare).map(t => t.address)).toEqual([scam.address, dai.address])
   })
 
-  it('still ranks an unlisted token by USD value when it has one', () => {
+  it('keeps a priced unlisted token below every listed holding, however much it is worth', () => {
     const balances = {
       [usdt.address]: TokenAmount.fromRawAmount(usdt, '5000000'),
       [scam.address]: TokenAmount.fromRawAmount(scam, '1000000000000000000'),
@@ -614,7 +614,7 @@ describe('getTokenComparator with unlisted holdings', () => {
       undefined,
       new Set([scam.address]),
     )
-    expect([usdt, scam].sort(compare).map(t => t.address)).toEqual([scam.address, usdt.address])
+    expect([scam, usdt].sort(compare).map(t => t.address)).toEqual([usdt.address, scam.address])
   })
 })
 

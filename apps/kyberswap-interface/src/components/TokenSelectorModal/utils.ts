@@ -249,9 +249,9 @@ export function getTokenComparator(
   tokenPrices: TokenPriceMap,
   // Addresses (lowercased) to float above non-favorites once balance/value is a tie.
   favoriteAddresses?: Set<string>,
-  // Held tokens that are on no list (checksummed). With no USD value to rank on, these sort below
-  // every listed holding but above tokens the wallet does not hold: airdropped impersonations are
-  // minted with enormous supplies, and letting raw amount decide would hand them the top of the list.
+  // Held tokens that are on no list (checksummed). These sort below every listed holding, whatever
+  // either side is worth, and above tokens the wallet does not hold: an airdropped impersonation is
+  // minted with an enormous supply and may even carry a quote, and neither may hand it the top.
   unlistedAddresses?: Set<string>,
 ): (tokenA: Token, tokenB: Token) => number {
   const favoriteKey = (token: Token) => (isTokenNative(token) ? ETHER_ADDRESS : token.address).toLowerCase()
@@ -263,21 +263,22 @@ export function getTokenComparator(
     const priceB = tokenPrices[tokenB.address?.toLowerCase()] ?? tokenPrices[tokenB.address]
     const usdBalanceA = usdValueOf(balanceA, priceA)
     const usdBalanceB = usdValueOf(balanceB, priceB)
+    const heldA = !!balanceA?.greaterThan('0')
+    const heldB = !!balanceB?.greaterThan('0')
+
+    // A listed holding ranks above any unlisted one before value is even looked at.
+    if (unlistedAddresses?.size) {
+      const listedHeldA = heldA && !unlistedAddresses.has(tokenA.address)
+      const listedHeldB = heldB && !unlistedAddresses.has(tokenB.address)
+      if (listedHeldA !== listedHeldB) return listedHeldA ? -1 : 1
+    }
 
     if (usdBalanceA > 0 || usdBalanceB > 0) {
       if (usdBalanceA !== usdBalanceB) return usdBalanceB - usdBalanceA
     }
 
     // Anything held ranks above anything not held, priced or not.
-    const heldA = !!balanceA?.greaterThan('0')
-    const heldB = !!balanceB?.greaterThan('0')
     if (heldA !== heldB) return heldA ? -1 : 1
-
-    if (heldA && unlistedAddresses?.size) {
-      const unlistedA = unlistedAddresses.has(tokenA.address)
-      const unlistedB = unlistedAddresses.has(tokenB.address)
-      if (unlistedA !== unlistedB) return unlistedA ? 1 : -1
-    }
 
     const balanceComp = balanceComparator(balanceA, balanceB)
     if (balanceComp !== 0) return balanceComp
