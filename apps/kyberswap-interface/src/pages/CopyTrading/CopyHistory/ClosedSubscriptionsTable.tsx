@@ -124,7 +124,7 @@ const ClosedSubscriptionsTable = ({
         {rows.map(subscription => (
           <Stack
             key={subscription.copyRunId}
-            className="relative cursor-pointer gap-3 rounded-xl bg-buttonBlack-60 p-3 outline-none transition-colors hover:bg-primary-10"
+            className="relative cursor-pointer gap-3 rounded-xl bg-buttonBlack p-3 outline-none transition-colors hover:bg-primary-10"
           >
             <TableRowLink
               label={`View copy history for ${subscription.agentSnapshot?.displayName || 'agent'}`}
@@ -139,9 +139,7 @@ const ClosedSubscriptionsTable = ({
               <TableCardField align="right" label="Capital In">
                 {formatUsd(subscription.capitalInUsd)}
               </TableCardField>
-              <TableCardField label="Current Balance">{formatUsd(subscription.currentBalanceUsd)}</TableCardField>
               <TableCardField
-                align="right"
                 label="Total P&amp;L"
                 valueClassName={cn('whitespace-nowrap', getSignedMetricClassName(subscription.totalPnlUsd))}
               >
@@ -160,6 +158,7 @@ const ClosedSubscriptionsTable = ({
               <TableCardField align="right" label="Stopped" valueClassName="text-subText">
                 {formatDateTime(subscription.stoppedAt)}
               </TableCardField>
+              <TableCardField label="Current Balance">{formatUsd(subscription.currentBalanceUsd)}</TableCardField>
             </TableCardGrid>
           </Stack>
         ))}

@@ -9,6 +9,7 @@ export type LeaderboardStat = {
   label: string
   value: string
   icon: StatIcon
+  mobileSpan?: 1 | 2
   valueClassName?: string
 }
 
@@ -86,18 +87,25 @@ type LeaderboardProps = {
   size?: LeaderboardSize
 }
 
-const Leaderboard = ({ items, loading, size = 'lg', className }: LeaderboardProps) => (
-  <div className={cn('grid grid-cols-2 gap-2 md:grid-cols-[repeat(auto-fit,minmax(250px,1fr))] md:gap-4', className)}>
-    {items.map((item, index) => (
-      <LeaderboardCard
-        key={item.label}
-        item={item}
-        loading={loading}
-        size={size}
-        className={cn(items.length % 2 === 1 && index === items.length - 1 && 'max-md:col-span-2')}
-      />
-    ))}
-  </div>
-)
+const Leaderboard = ({ items, loading, size = 'lg', className }: LeaderboardProps) => {
+  const hasExplicitMobileSpan = items.some(item => item.mobileSpan !== undefined)
+
+  return (
+    <div className={cn('grid grid-cols-2 gap-2 md:grid-cols-[repeat(auto-fit,minmax(250px,1fr))] md:gap-4', className)}>
+      {items.map((item, index) => (
+        <LeaderboardCard
+          key={item.label}
+          item={item}
+          loading={loading}
+          size={size}
+          className={cn(
+            item.mobileSpan === 2 && 'max-md:col-span-2',
+            !hasExplicitMobileSpan && items.length % 2 === 1 && index === items.length - 1 && 'max-md:col-span-2',
+          )}
+        />
+      ))}
+    </div>
+  )
+}
 
 export default Leaderboard

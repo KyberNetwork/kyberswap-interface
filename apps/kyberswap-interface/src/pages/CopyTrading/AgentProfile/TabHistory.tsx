@@ -90,7 +90,7 @@ const TabHistory = ({ agentId }: { agentId: string }) => {
                 <TableCell className="text-subText">{formatDateTime(row.closedAt)}</TableCell>
               </TabHistoryGrid>
 
-              <Stack className="gap-3 rounded-xl bg-buttonBlack-60 p-3 lg:hidden">
+              <Stack className="gap-3 rounded-xl bg-buttonBlack p-3 lg:hidden">
                 <HStack className="items-start justify-between gap-3">
                   <TableCardField label="Token">{row.token.symbol || '—'}</TableCardField>
                   <TableCardField align="right" label="Closed" valueClassName="text-subText">

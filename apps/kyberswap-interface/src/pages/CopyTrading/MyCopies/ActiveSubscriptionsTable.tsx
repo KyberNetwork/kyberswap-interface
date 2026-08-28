@@ -178,7 +178,7 @@ const ActiveSubscriptionsTable = ({
         {rows.map(subscription => (
           <Stack
             key={subscription.copyRunId}
-            className="relative cursor-pointer gap-3 rounded-xl bg-buttonBlack-60 p-3 outline-none transition-colors hover:bg-primary-10"
+            className="relative cursor-pointer gap-3 rounded-xl bg-buttonBlack p-3 outline-none transition-colors hover:bg-primary-10"
           >
             <TableRowLink
               label={`View copy for ${subscription.agentSnapshot?.displayName || 'agent'}`}
