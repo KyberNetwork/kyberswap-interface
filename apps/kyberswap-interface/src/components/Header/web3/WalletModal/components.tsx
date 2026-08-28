@@ -7,7 +7,7 @@ import { Connector, useConnect, useSwitchChain } from 'wagmi'
 import { NotificationType } from 'components/Announcement/type'
 import { RowBetween } from 'components/Row'
 import { CONNECTION, CONNECTOR_ICON_OVERRIDE_MAP } from 'components/Web3Provider'
-import { TERM_FILES_PATH } from 'constants/index'
+import { PRIVACY_POLICY_PATH, getActiveTermsOfUse } from 'constants/index'
 import { NETWORKS_INFO, isSupportedChainId } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { useCloseModal, useNotify } from 'state/application/hooks'
@@ -86,16 +86,16 @@ export const Terms = (props: TermsProps) => {
           />
           <span className="text-subText">
             <Trans>Accept </Trans>{' '}
-            <ExternalLink href={TERM_FILES_PATH.KYBERSWAP_TERMS} onClick={e => e.stopPropagation()}>
+            <ExternalLink href={getActiveTermsOfUse().file} onClick={e => e.stopPropagation()}>
               <Trans>KyberSwap&lsquo;s Terms of Use</Trans>
             </ExternalLink>{' '}
             <Trans>and</Trans>{' '}
-            <ExternalLink href={TERM_FILES_PATH.PRIVACY_POLICY} onClick={e => e.stopPropagation()}>
+            <ExternalLink href={PRIVACY_POLICY_PATH} onClick={e => e.stopPropagation()}>
               <Trans>Privacy Policy</Trans>
             </ExternalLink>
             {'. '}
             <span className="text-[10px]">
-              <Trans>Last updated: {dayjs(TERM_FILES_PATH.VERSION).format('DD MMM YYYY')}</Trans>
+              <Trans>Last updated: {dayjs.utc(getActiveTermsOfUse().publishedAt).format('DD MMM YYYY')}</Trans>
             </span>
           </span>
         </>

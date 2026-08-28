@@ -103,7 +103,11 @@ export interface UserState {
   >
   readonly chainId: ChainId
   acceptedTermVersion: number | null
-  safeAppAcceptedTermOfUse: boolean | null
+  /**
+   * Version of the terms acknowledged inside Safe App. Some persisted state carries a plain `true`
+   * here rather than a version, so reads normalise both shapes.
+   */
+  safeAppAcceptedTermOfUse: number | boolean | null
   viewMode: VIEW_MODE
   holidayMode: boolean
   isSlippageControlPinned: boolean
@@ -143,7 +147,7 @@ const initialState: UserState = {
   favoriteTokensByChainIdv2: {},
   chainId: ChainId.MAINNET,
   acceptedTermVersion: null,
-  safeAppAcceptedTermOfUse: false,
+  safeAppAcceptedTermOfUse: null,
   viewMode: VIEW_MODE.GRID,
   holidayMode: true,
   isSlippageControlPinned: true,
@@ -287,7 +291,7 @@ export default createReducer(initialState, builder =>
       state.acceptedTermVersion = acceptedTermVersion
     })
     .addCase(updateSafeAppAcceptedTermOfUse, (state, { payload }) => {
-      state.safeAppAcceptedTermOfUse = !!payload
+      state.safeAppAcceptedTermOfUse = payload
     })
     .addCase(changeViewMode, (state, { payload: viewType }) => {
       state.viewMode = viewType
