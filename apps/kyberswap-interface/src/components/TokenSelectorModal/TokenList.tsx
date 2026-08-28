@@ -268,13 +268,21 @@ export const TokenRow = ({
               {nativeCurrency?.name}
             </span>
             {showCopyAddress && !isTokenNative(currency) && (
-              <CopyHelper
-                toCopy={currency.wrapped.address}
-                size={14}
-                margin="0"
-                className="text-gray hover:text-text"
-                data-testid="copy-token-address"
-              />
+              <span className="group relative flex shrink-0 items-center">
+                <CopyHelper
+                  toCopy={currency.wrapped.address}
+                  size={14}
+                  margin="0"
+                  className="text-gray hover:text-text"
+                  data-testid="copy-token-address"
+                />
+                <span
+                  role="tooltip"
+                  className="pointer-events-none absolute bottom-[calc(100%+4px)] left-0 z-10 hidden whitespace-nowrap rounded bg-tableHeader px-1.5 py-0.5 font-mono text-[10px] font-medium text-text shadow-[0px_2px_8px_rgba(0,0,0,0.4)] group-hover:block"
+                >
+                  {currency.wrapped.address}
+                </span>
+              </span>
             )}
             {showAddress && (
               <>
