@@ -11,7 +11,8 @@ import { getSourceFilters, streamQuotes } from 'pages/CrossChainSwap/quote/strea
 import { PairCategory, sortQuotesByNetOutput } from 'pages/CrossChainSwap/quote/utils'
 import { CrossChainSwapAdapterRegistry, Quote } from 'pages/CrossChainSwap/registry'
 
-const QUOTE_TIMEOUT_MS = 10_000
+const DEFAULT_QUOTE_TIMEOUT_MS = 10_000
+const KYBERCROSS_QUOTE_TIMEOUT_MS = 60_000
 
 type QuoteRunnerParams = {
   params: QuoteParams | NearQuoteParams
@@ -29,6 +30,7 @@ type QuoteRunnerParams = {
 const getAdapterQuote = async (adapter: SwapProvider, params: QuoteParams | NearQuoteParams, signal: AbortSignal) => {
   if (signal.aborted) throw new Error('Cancelled')
 
+  const quoteTimeoutMs = adapter.getName() === 'KyberCross' ? KYBERCROSS_QUOTE_TIMEOUT_MS : DEFAULT_QUOTE_TIMEOUT_MS
   const requestController = new AbortController()
   let timeoutId: ReturnType<typeof setTimeout> | undefined
   let handleAbort: (() => void) | undefined
@@ -43,7 +45,7 @@ const getAdapterQuote = async (adapter: SwapProvider, params: QuoteParams | Near
     timeoutId = setTimeout(() => {
       reject(new Error('Timeout'))
       requestController.abort()
-    }, QUOTE_TIMEOUT_MS)
+    }, quoteTimeoutMs)
   })
 
   try {

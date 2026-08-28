@@ -137,6 +137,59 @@ describe('getFallbackQuotes', () => {
     expect(onQuoteReady).not.toHaveBeenCalled()
   })
 
+  it('allows KyberCross quotes up to the sixty-second timeout', async () => {
+    vi.useFakeTimers()
+    const adapter = createAdapter(
+      vi.fn(
+        () =>
+          new Promise(resolve => {
+            setTimeout(() => resolve(normalizedQuote), 59_500)
+          }),
+      ),
+    )
+    const controller = new AbortController()
+    const { promise, onQuotes, onQuoteReady } = runFallbackQuotes(adapter, controller.signal)
+
+    await vi.advanceTimersByTimeAsync(59_000)
+    expect(onQuotes).not.toHaveBeenCalled()
+
+    await vi.advanceTimersByTimeAsync(500)
+    await promise
+
+    expect(onQuotes).toHaveBeenCalledWith([{ adapter, quote: normalizedQuote, isReadOnly: false }])
+    expect(onQuoteReady).toHaveBeenCalledOnce()
+  })
+
+  it('times out and aborts KyberCross quotes after sixty seconds', async () => {
+    vi.useFakeTimers()
+    vi.spyOn(console, 'error').mockImplementation(() => undefined)
+    let requestSignal: AbortSignal | undefined
+    const getQuote = vi.fn((_params: QuoteParams, signal?: AbortSignal) => {
+      requestSignal = signal
+      return new Promise<NormalizedQuote>((_resolve, reject) => {
+        signal?.addEventListener('abort', () => reject(new DOMException('Aborted', 'AbortError')), { once: true })
+      })
+    })
+    const adapter = createAdapter(getQuote)
+    const controller = new AbortController()
+    const { promise, onQuotes, onQuoteReady } = runFallbackQuotes(adapter, controller.signal)
+    const timeoutExpectation = expect(promise).rejects.toThrow('No valid quotes found')
+
+    await vi.advanceTimersByTimeAsync(59_999)
+    expect(requestSignal?.aborted).toBe(false)
+
+    await vi.advanceTimersByTimeAsync(1)
+    await timeoutExpectation
+
+    expect(requestSignal?.aborted).toBe(true)
+    expect(console.error).toHaveBeenCalledWith(
+      'Failed to get quote from KyberCross:',
+      expect.objectContaining({ message: 'Timeout' }),
+    )
+    expect(onQuotes).not.toHaveBeenCalled()
+    expect(onQuoteReady).not.toHaveBeenCalled()
+  })
+
   it('forwards cancellation to the adapter and never commits the stale quote', async () => {
     let requestSignal: AbortSignal | undefined
     const getQuote = vi.fn((_params: QuoteParams, signal?: AbortSignal) => {
