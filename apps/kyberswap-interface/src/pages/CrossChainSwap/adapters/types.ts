@@ -70,6 +70,8 @@ export interface QuoteParams {
   sender: string
   recipient: string
   publicKey?: string
+  includedSources?: string[]
+  excludedSources?: string[]
 }
 
 export interface EvmQuoteParams extends QuoteParams {
@@ -119,6 +121,8 @@ export interface NormalizedTxResponse {
   targetTxHash?: string
   timestamp: number
   status?: 'Processing' | 'Success' | 'Failed' | 'Refunded'
+  bridgeProvider?: string
+  routeId?: string
   // Enriched fields for data analysis
   amountInUsd: number
   amountOutUsd: number
@@ -146,7 +150,7 @@ export interface SwapProvider {
   getAliases?(): SwapProviderAlias[]
   getSupportedChains(): Chain[]
   getSupportedTokens(sourceChain: Chain, destChain: Chain): Currency[]
-  getQuote(params: QuoteParams): Promise<NormalizedQuote>
+  getQuote(params: QuoteParams, signal?: AbortSignal): Promise<NormalizedQuote>
   executeSwap(
     quote: Quote,
     walletClient: WalletClient,
