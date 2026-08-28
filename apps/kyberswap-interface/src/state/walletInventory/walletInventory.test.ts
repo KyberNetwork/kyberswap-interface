@@ -577,6 +577,23 @@ describe('wallet assets', () => {
     expect(holdings.currencyBalances[NOVEL]?.quotient.toString()).toBe('9')
   })
 
+  it('ranks hidden holdings by USD value, then by amount when unpriced', () => {
+    const CHEAP = '0x3000000000000000000000000000000000000003'
+    const BIG = '0x4000000000000000000000000000000000000004'
+    const withMore = {
+      ...inventory,
+      rows: {
+        ...inventory.rows,
+        [CHEAP]: { ...held(CHEAP, 1_000_000_000_000_000_000n, 'CHEAP', 18) },
+        [BIG]: { ...held(BIG, 5_000_000_000_000_000_000n, 'BIG', 18) },
+      },
+    }
+    const holdings = selectWalletHoldings(withMore, defaultTokens, imports, ChainId.MAINNET)
+    const ranked = rankWalletHoldings(holdings, withMore, ChainId.MAINNET, { [CHEAP]: 3 })
+    // CHEAP is worth $3; NOVEL and BIG are unpriced, so the larger amount leads.
+    expect(ranked.hidden.map(t => t.address)).toEqual([CHEAP, BIG, NOVEL])
+  })
+
   it('ranks by USD value and totals only the vetted holdings', () => {
     const holdings = selectWalletHoldings(inventory, defaultTokens, imports, ChainId.MAINNET)
     // A price for the hidden token must not leak into the total.

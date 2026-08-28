@@ -24,7 +24,7 @@ export type WalletAssets = {
   usdBalances: { [address: string]: number }
   /** `null` while nothing is known yet, so the header can show a placeholder rather than $0. */
   totalBalanceInUsd: number | null
-  /** Held but unvetted tokens, listed after the vetted ones; empty off the inventory path. */
+  /** Held but unvetted tokens, listed after the vetted ones by value; empty off the inventory path. */
   hiddenTokens: WrappedTokenInfo[]
   impersonators: Set<string>
 }
@@ -57,11 +57,13 @@ export const useWalletAssets = (): WalletAssets => {
     [tokenListReady, inventory, defaultTokens, tokenImports, chainId, metadata],
   )
 
-  // Only the vetted holdings are priced. Hidden tokens are the wallet's spam surface — pricing them
-  // would turn every airdrop into a price lookup and let a fake with a quote leak into the total.
+  // Hidden holdings are priced too, for their order and USD line; only the vetted ones are totalled.
   const priceAddresses = useMemo(
-    () => (inventory.active ? holdings.vetted.map(currency => currency.wrapped.address) : EMPTY_ADDRESSES),
-    [inventory.active, holdings.vetted],
+    () =>
+      inventory.active
+        ? [...holdings.vetted, ...holdings.hidden].map(currency => currency.wrapped.address)
+        : EMPTY_ADDRESSES,
+    [inventory.active, holdings.vetted, holdings.hidden],
   )
   const { data: prices, loading: pricesLoading } = useTokenPricesWithLoading(priceAddresses)
 
@@ -104,7 +106,7 @@ export const useWalletAssets = (): WalletAssets => {
       // Null while prices are still on their way, so the header keeps its placeholder instead of
       // printing $0 and then jumping.
       totalBalanceInUsd: pricesLoading && holdings.vetted.length ? null : ranked.totalBalanceInUsd,
-      hiddenTokens: holdings.hidden,
+      hiddenTokens: ranked.hidden,
       impersonators: holdings.impersonators,
     }
   }, [

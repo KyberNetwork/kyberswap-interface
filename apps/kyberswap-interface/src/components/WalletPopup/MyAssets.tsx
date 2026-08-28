@@ -48,7 +48,7 @@ export default function MyAssets({
   usdBalances: { [address: string]: number }
   currencyBalances: { [address: string]: TokenAmount | undefined }
   hideBalance: boolean
-  /** Held tokens that are neither whitelisted nor imported; listed after the vetted ones, balance only. */
+  /** Held tokens that are neither whitelisted nor imported; listed after the vetted ones, not totalled. */
   hiddenTokens: WrappedTokenInfo[]
   /** Hidden tokens whose symbol belongs to a whitelisted token at another address. */
   impersonators: Set<string>
@@ -153,6 +153,11 @@ export default function MyAssets({
                 style={tokenItemStyle}
                 currency={token}
                 currencyBalance={currencyBalances[token.address]}
+                usdBalance={
+                  currencyBalances[token.address] && usdBalances[token.address]
+                    ? usdBalances[token.address] * parseFloat(currencyBalances[token.address]?.toExact() ?? '0')
+                    : undefined
+                }
                 hideBalance={hideBalance}
                 showFavoriteIcon={false}
                 showLoading

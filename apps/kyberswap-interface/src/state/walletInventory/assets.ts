@@ -13,9 +13,8 @@ import { WalletInventory, buildInventoryBalanceMap } from 'state/walletInventory
  *
  * Holdings split by trust: `vetted` is what the popup lists and totals — whitelisted tokens the
  * wallet holds, plus every imported token (at zero too, since the user asked to track it), plus the
- * native currency when held. `hidden` is everything else the wallet holds: unvetted, shown on request
- * with a balance only — never priced, never counted, so a spam airdrop can neither inflate the total
- * nor drive hundreds of price lookups.
+ * native currency when held. `hidden` is everything else the wallet holds: unvetted, listed after the
+ * vetted ones and never counted in the total, so a spam airdrop with a quote cannot inflate it.
  */
 export type WalletHoldings = {
   vetted: Currency[]
@@ -83,13 +82,16 @@ export const isTokenListReady = (defaultTokens: TokenMap, tokenImports: Token[])
 export type RankedWalletHoldings = {
   /** Vetted holdings, highest USD value first. */
   currencies: Currency[]
+  /** Hidden holdings: highest USD value first, then the largest amount among the unpriced. */
+  hidden: WrappedTokenInfo[]
   /** USD value of the vetted holdings; unpriced tokens contribute nothing. */
   totalBalanceInUsd: number
 }
 
 /**
- * Orders the vetted holdings by USD value. Prices are keyed by wrapped address, which is also how
- * the native currency is priced (through its wrapped token) — matching the popup's own lookups.
+ * Orders both groups by USD value, falling back to the amount in token units and then the symbol.
+ * Prices are keyed by wrapped address, which is also how the native currency is priced (through its
+ * wrapped token) — matching the popup's own lookups.
  */
 export const rankWalletHoldings = (
   holdings: WalletHoldings,
@@ -97,22 +99,29 @@ export const rankWalletHoldings = (
   chainId: ChainId,
   prices: { [address: string]: number },
 ): RankedWalletHoldings => {
-  const usdOf = (currency: Currency): number => {
-    const price = prices[currency.wrapped.address] ?? 0
-    if (!price) return 0
+  const amountOf = (currency: Currency): number => {
     const raw = currency.isNative
       ? inventory.rows[ETHER_ADDRESS]?.rawBalance
       : holdings.currencyBalances[currency.wrapped.address]?.quotient
-    if (!raw) return 0
-    return (Number(raw) / 10 ** currency.decimals) * price
+    return raw ? Number(raw) / 10 ** currency.decimals : 0
+  }
+  const rank = <T extends Currency>(currencies: T[]) => {
+    const valued = currencies.map(currency => {
+      const amount = amountOf(currency)
+      return { currency, amount, usd: amount * (prices[currency.wrapped.address] ?? 0) }
+    })
+    // Ties return 0: an always-nonzero comparator would shuffle equal-value rows on every re-sort.
+    valued.sort(
+      (a, b) =>
+        b.usd - a.usd || b.amount - a.amount || (a.currency.symbol ?? '').localeCompare(b.currency.symbol ?? ''),
+    )
+    return valued
   }
 
-  const valued = holdings.vetted.map(currency => ({ currency, usd: usdOf(currency) }))
-  // Ties return 0: an always-nonzero comparator would shuffle equal-value rows on every re-sort.
-  valued.sort((a, b) => b.usd - a.usd)
-
+  const vetted = rank(holdings.vetted)
   return {
-    currencies: valued.map(entry => entry.currency),
-    totalBalanceInUsd: valued.reduce((total, entry) => total + entry.usd, 0),
+    currencies: vetted.map(entry => entry.currency),
+    hidden: rank(holdings.hidden).map(entry => entry.currency),
+    totalBalanceInUsd: vetted.reduce((total, entry) => total + entry.usd, 0),
   }
 }
