@@ -13,6 +13,7 @@ import { useTokenBalances, useWalletInventory } from "@kyber/hooks";
 import { API_URLS, Token } from "@kyber/schema";
 import { fetchTokenInfo } from "@kyber/utils";
 
+import { useDiscoveredTokens } from "@/discoveredTokens";
 import { getCachedTokens, setCachedTokens } from "@/tokenCache";
 
 const TOKEN_API = `${API_URLS.KYBERSWAP_SETTING_API}/v1/tokens`;
@@ -23,6 +24,8 @@ const IMPORTED_TOKENS_KEY = "@kyber/token-selector:importedTokens";
 interface TokenState {
   tokens: Token[];
   importedTokens: Token[];
+  /** Held tokens on neither the list nor the imports; only with the wallet inventory enabled. */
+  discoveredTokens: Token[];
   tokenBalances: { [key: string]: bigint };
   isLoading: boolean;
   importToken: (token: Token) => void;
@@ -33,6 +36,7 @@ interface TokenState {
 const initState: TokenState = {
   tokens: [],
   importedTokens: [],
+  discoveredTokens: [],
   tokenBalances: {},
   isLoading: false,
   importToken: () => {},
@@ -100,6 +104,13 @@ export const TokenContextProvider = ({
     (inventoryOwns ? EMPTY_BALANCES : internalBalances);
   const balancesLoading =
     inventory.status === "loading" || (useMulticall && tokenBalancesLoading);
+
+  const discoveredTokens = useDiscoveredTokens({
+    chainId,
+    holdings: inventory.holdings,
+    tokens,
+    importedTokens,
+  });
 
   const fetchImportedTokens = useCallback(() => {
     if (typeof window !== "undefined") {
@@ -296,6 +307,7 @@ export const TokenContextProvider = ({
     () => ({
       tokens,
       importedTokens,
+      discoveredTokens,
       tokenBalances,
       isLoading: isLoadingFinal,
       importToken,
@@ -305,6 +317,7 @@ export const TokenContextProvider = ({
     [
       tokens,
       importedTokens,
+      discoveredTokens,
       tokenBalances,
       isLoadingFinal,
       importToken,

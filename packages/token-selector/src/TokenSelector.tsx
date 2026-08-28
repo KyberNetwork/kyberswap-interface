@@ -112,6 +112,7 @@ interface TokenRowData {
   modalTokensInAddress: Set<string>;
   onClickToken: (token: CustomizeToken) => void;
   onRemoveImportedToken: (e: React.MouseEvent, token: Token) => void;
+  onImportToken: (token: Token) => void;
   onShowTokenInfo: (e: React.MouseEvent, token: Token) => void;
   isTokenRestricted?: (token: Token) => boolean;
   warnedAddresses: Set<string>;
@@ -131,6 +132,7 @@ const TokenRow = memo(function TokenRow({
     modalTokensInAddress,
     onClickToken,
     onRemoveImportedToken,
+    onImportToken,
     onShowTokenInfo,
     warnedAddresses,
     i18n,
@@ -138,6 +140,9 @@ const TokenRow = memo(function TokenRow({
 
   const token = tokens[index];
   if (!token) return null;
+
+  // A discovered token is not on the list yet: the row is dimmed and clicking it starts the import.
+  const discovered = !!token.discovered;
 
   const isSelected =
     mode === TOKEN_SELECT_MODE.SELECT &&
@@ -176,9 +181,15 @@ const TokenRow = memo(function TokenRow({
       className={`flex cursor-pointer items-center justify-between px-6 py-2 hover:bg-[#0f0f0f] ${
         isSelected ? "bg-[#1d7a5f26]" : ""
       } ${token.disabled ? "!bg-stroke !cursor-not-allowed brightness-50" : ""}`}
-      onClick={() => !token.disabled && onClickToken(token)}
+      onClick={() => {
+        if (token.disabled) return;
+        if (discovered) onImportToken(token);
+        else onClickToken(token);
+      }}
     >
-      <div className="flex items-center gap-3">
+      <div
+        className={`flex items-center gap-3 ${discovered ? "opacity-50" : ""}`}
+      >
         {mode === TOKEN_SELECT_MODE.ADD && (
           <div
             className={`w-4 h-4 rounded-[4px] flex items-center justify-center cursor-pointer ${
@@ -208,7 +219,9 @@ const TokenRow = memo(function TokenRow({
       </div>
       <div className="flex items-center gap-2 justify-end">
         {tabSelected === TOKEN_TAB.ALL ? (
-          <span>{token.balance}</span>
+          <span className={discovered ? "opacity-50" : ""}>
+            {token.balance}
+          </span>
         ) : (
           <TrashIcon
             className="w-[18px] text-subText hover:text-text !cursor-pointer"
@@ -260,15 +273,20 @@ export default function TokenSelector({
   const { i18n } = useLingui();
   const {
     importedTokens,
+    discoveredTokens,
     tokens,
     removeImportedToken,
     tokenBalances,
     isLoading,
   } = useTokenState();
 
+  const discoveredAddresses = useMemo(
+    () => new Set(discoveredTokens.map((token) => token.address.toLowerCase())),
+    [discoveredTokens],
+  );
   const allTokens = useMemo(
-    () => [...tokens, ...importedTokens],
-    [tokens, importedTokens],
+    () => [...tokens, ...importedTokens, ...discoveredTokens],
+    [tokens, importedTokens, discoveredTokens],
   );
 
   const [searchTerm, setSearchTerm] = useState<string>("");
@@ -335,6 +353,7 @@ export default function TokenSelector({
         return {
           ...token,
           balance: formatUnits(balanceInWei, token?.decimals, 8),
+          discovered: discoveredAddresses.has(tokenAddrLower),
           disabled:
             mode === TOKEN_SELECT_MODE.ADD ||
             !isInTokensIn ||
@@ -382,13 +401,23 @@ export default function TokenSelector({
           return bSelectedPriority - aSelectedPriority;
         }
         if (b.inPair !== a.inPair) return b.inPair - a.inPair;
-        return parseFloat(b.balance) - parseFloat(a.balance);
+        // Held tokens lead; among them the listed ones lead the discovered ones whatever the amounts,
+        // since an airdropped impersonation is minted large on purpose.
+        const aBalance = parseFloat(a.balance);
+        const bBalance = parseFloat(b.balance);
+        const aHeld = aBalance > 0;
+        const bHeld = bBalance > 0;
+        if (aHeld !== bHeld) return aHeld ? -1 : 1;
+        if (aHeld && !!a.discovered !== !!b.discovered)
+          return a.discovered ? 1 : -1;
+        return bBalance - aBalance;
       });
   }, [
     modalTabSelected,
     tabSelected,
     allTokens,
     importedTokens,
+    discoveredAddresses,
     tokensIn,
     tokenBalances,
     mode,
@@ -570,9 +599,12 @@ export default function TokenSelector({
     [setTokenToShow],
   );
 
-  const handleImportToken = (token: Token) => {
-    setTokenToImport(token);
-  };
+  const handleImportToken = useCallback(
+    (token: Token) => {
+      setTokenToImport(token);
+    },
+    [setTokenToImport],
+  );
 
   // Memoized data for virtualized token list
   const tokenListData = useMemo<TokenRowData>(
@@ -584,6 +616,7 @@ export default function TokenSelector({
       modalTokensInAddress,
       onClickToken: handleClickToken,
       onRemoveImportedToken: handleRemoveImportedToken,
+      onImportToken: handleImportToken,
       onShowTokenInfo: handleShowTokenInfo,
       isTokenRestricted,
       warnedAddresses: warnedRestricted,
@@ -597,6 +630,7 @@ export default function TokenSelector({
       modalTokensInAddress,
       handleClickToken,
       handleRemoveImportedToken,
+      handleImportToken,
       handleShowTokenInfo,
       isTokenRestricted,
       warnedRestricted,

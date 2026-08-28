@@ -247,6 +247,8 @@ export interface CustomizeToken extends Token {
   selected: number;
   inPair: number;
   disabled: boolean;
+  /** Held but on neither the list nor the imports; rendered dimmed, imports on click. */
+  discovered?: boolean;
   // Pre-normalized fields for efficient search filtering
   _searchName?: string;
   _searchSymbol?: string;

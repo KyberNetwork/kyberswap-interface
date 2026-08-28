@@ -25,6 +25,15 @@ export type { InventoryRawRow } from './wallet-inventory-client';
 /** Balances by lowercased token address; the native currency sits under the lowercased sentinel. */
 export type WalletInventoryBalances = { [address: string]: bigint };
 
+/** One token the wallet holds, with the metadata the indexer carries for it (absent for unknown tokens). */
+export type WalletInventoryHolding = {
+  /** Lowercased; the native currency uses the lowercased sentinel. */
+  address: string;
+  rawBalance: bigint;
+  decimals?: number;
+  symbol?: string;
+};
+
 export type WalletInventoryStatus =
   /** Not enabled, not an indexed chain, no account: the caller's own balance source applies. */
   | 'idle'
@@ -35,7 +44,12 @@ export type WalletInventoryStatus =
   /** The service cannot answer for this wallet right now; the caller's own source applies. */
   | 'unavailable';
 
-export type WalletInventory = { balances: WalletInventoryBalances | null; status: WalletInventoryStatus };
+export type WalletInventory = {
+  balances: WalletInventoryBalances | null;
+  /** Every non-zero holding, sorted by address; null whenever `balances` is. */
+  holdings: WalletInventoryHolding[] | null;
+  status: WalletInventoryStatus;
+};
 
 /** Matches the cadence of the multicall balance hook it stands in for. */
 const POLL_INTERVAL_MS = 15_000;
@@ -52,16 +66,17 @@ const STALE_MAX_MS = 120_000;
 const KEEP_IDLE_ENTRIES = 8;
 const NATIVE_KEY = NATIVE_TOKEN_ADDRESS.toLowerCase();
 
-const IDLE: WalletInventory = { balances: null, status: 'idle' };
-const LOADING: WalletInventory = { balances: null, status: 'loading' };
+const IDLE: WalletInventory = { balances: null, holdings: null, status: 'idle' };
+const LOADING: WalletInventory = { balances: null, holdings: null, status: 'loading' };
 
 type Entry = {
   key: string;
   chainId: number;
   account: string;
   balances: WalletInventoryBalances | null;
+  holdings: WalletInventoryHolding[] | null;
   status: WalletInventoryStatus;
-  /** What subscribers read; replaced only when `balances` or `status` change, so identity is stable. */
+  /** What subscribers read; replaced only when the data or `status` change, so identity is stable. */
   view: WalletInventory;
   fetchedAt: number;
   failures: number;
@@ -89,16 +104,42 @@ const balancesEqual = (a: WalletInventoryBalances, b: WalletInventoryBalances): 
   return aKeys.every(key => b[key] === a[key]);
 };
 
-const commit = (entry: Entry, balances: WalletInventoryBalances | null, status: WalletInventoryStatus) => {
-  // Keep the previous object when nothing changed: a fresh one would re-map and re-sort the whole
+const holdingsEqual = (a: WalletInventoryHolding[], b: WalletInventoryHolding[]): boolean =>
+  a.length === b.length &&
+  a.every((holding, index) => {
+    const other = b[index];
+    return (
+      holding.address === other.address &&
+      holding.rawBalance === other.rawBalance &&
+      holding.decimals === other.decimals &&
+      holding.symbol === other.symbol
+    );
+  });
+
+type Snapshot = { balances: WalletInventoryBalances; holdings: WalletInventoryHolding[] };
+
+const commit = (entry: Entry, snapshot: Snapshot | null, status: WalletInventoryStatus) => {
+  // Keep the previous objects when nothing changed: fresh ones would re-map and re-sort the whole
   // token list on every poll for a screen that has not moved.
-  const kept = balances && entry.balances && balancesEqual(entry.balances, balances) ? entry.balances : balances;
-  if (kept === entry.balances && status === entry.status) return;
-  entry.balances = kept;
+  const unchanged =
+    !!snapshot &&
+    !!entry.balances &&
+    !!entry.holdings &&
+    balancesEqual(entry.balances, snapshot.balances) &&
+    holdingsEqual(entry.holdings, snapshot.holdings);
+  const balances = unchanged ? entry.balances : (snapshot?.balances ?? null);
+  const holdings = unchanged ? entry.holdings : (snapshot?.holdings ?? null);
+  if (balances === entry.balances && holdings === entry.holdings && status === entry.status) return;
+  entry.balances = balances;
+  entry.holdings = holdings;
   entry.status = status;
-  entry.view = { balances: kept, status };
+  entry.view = { balances, holdings, status };
   entry.listeners.forEach(listener => listener());
 };
+
+/** The entry's own data as a snapshot, for a commit that keeps what is on screen. */
+const current = (entry: Entry): Snapshot | null =>
+  entry.balances && entry.holdings ? { balances: entry.balances, holdings: entry.holdings } : null;
 
 const clearTimer = (entry: Entry) => {
   if (entry.timer) clearTimeout(entry.timer);
@@ -143,10 +184,16 @@ const run = async (entry: Entry) => {
     }
 
     const balances: WalletInventoryBalances = {};
+    const holdings: WalletInventoryHolding[] = [];
     rows.forEach(row => {
       const amount = parseRawAmount(row.rawAmount);
-      if (amount > 0n) balances[row.tokenAddress.toLowerCase()] = amount;
+      if (amount <= 0n) return;
+      const address = row.tokenAddress.toLowerCase();
+      balances[address] = amount;
+      holdings.push({ address, rawBalance: amount, decimals: row.decimals, symbol: row.symbol || undefined });
     });
+    // Sorted so two walks over an unchanged wallet compare equal whatever order the service listed them in.
+    holdings.sort((a, b) => (a.address < b.address ? -1 : a.address > b.address ? 1 : 0));
 
     // The service returns no rows both for an empty wallet and for one it has never indexed. A wallet
     // that holds native currency but has no native row is the latter, and its "zeros" are not to be
@@ -163,7 +210,7 @@ const run = async (entry: Entry) => {
 
     entry.failures = 0;
     entry.fetchedAt = Date.now();
-    commit(entry, balances, 'ready');
+    commit(entry, { balances, holdings }, 'ready');
   } catch (error) {
     if (controller.signal.aborted) return;
     if (error instanceof UnsupportedChainError) {
@@ -174,7 +221,7 @@ const run = async (entry: Entry) => {
     // Stale-while-revalidate, bounded: data already on screen stays through a hiccup, but not
     // through an outage — past the limit the caller's own source takes over.
     const stale = Date.now() - entry.fetchedAt > STALE_MAX_MS;
-    commit(entry, stale ? null : entry.balances, entry.balances && !stale ? 'ready' : 'unavailable');
+    commit(entry, stale ? null : current(entry), entry.balances && !stale ? 'ready' : 'unavailable');
   } finally {
     entry.controller = undefined;
     if (!controller.signal.aborted && entry.listeners.size && !entry.terminal && !isChainUnsupported(entry.chainId)) {
@@ -214,6 +261,7 @@ const subscribe = (chainId: number, account: string, listener: () => void) => {
     chainId,
     account,
     balances: null,
+    holdings: null,
     status: 'loading',
     view: LOADING,
     fetchedAt: 0,
