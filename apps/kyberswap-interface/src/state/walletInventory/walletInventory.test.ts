@@ -1,4 +1,4 @@
-import { UnsupportedChainError, isChainUnsupported, walkWalletInventory } from '@kyber/hooks'
+import { UnsupportedChainError, isChainUnsupported, markChainUnsupported, walkWalletInventory } from '@kyber/hooks'
 import { ChainId, Token, TokenAmount } from '@kyberswap/ks-sdk-core'
 import { InventoryRow, adaptRow, parseRawAmount } from 'services/walletInventory'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -267,7 +267,8 @@ describe('post-transaction catch-up', () => {
     expect(readEntry(KEY)?.rows[USDT_CHECKSUM]?.rawBalance).toBe(2n)
   })
 
-  it('ignores transactions on chains the inventory does not serve', () => {
+  it('ignores transactions on chains the service reported as unsupported', () => {
+    markChainUnsupported(ChainId.LINEA)
     expireInventory(ChainId.LINEA, ACCOUNT, 120)
     expect(readMeta(inventoryKey(ChainId.LINEA, ACCOUNT))).toBeUndefined()
   })
@@ -684,7 +685,8 @@ describe('publishLiveBalances', () => {
     expect(getStoreVersion()).toBe(before + 1)
   })
 
-  it('ignores chains the inventory does not serve', () => {
+  it('ignores chains the service reported as unsupported', () => {
+    markChainUnsupported(ChainId.MATIC)
     publishLiveBalances(ChainId.MATIC, ACCOUNT, 100, [{ address: USDT_CHECKSUM, rawBalance: 5n }])
     expect(readLiveBalances(inventoryKey(ChainId.MATIC, ACCOUNT))).toBeUndefined()
   })
@@ -863,7 +865,8 @@ describe('selectDue', () => {
     expect(selectDue(later, true)).toHaveLength(1)
   })
 
-  it('ignores chains the service does not index', () => {
+  it('ignores chains the service reported as unsupported', () => {
+    markChainUnsupported(ChainId.LINEA)
     register(ChainId.LINEA, ACCOUNT)
     expect(selectDue(now, true)).toHaveLength(0)
   })

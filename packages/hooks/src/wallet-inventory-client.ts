@@ -1,13 +1,3 @@
-import { ChainId } from '@kyber/schema';
-
-/**
- * Chains the wallet-inventory service indexes. Optimistic rather than authoritative: a chain the
- * service reports as unsupported is disabled for the session (see `isWalletInventoryChain`), so this
- * list drifting ahead of the backend degrades to the caller's own balance source rather than failing.
- * Both the app and the widget packages read this one list.
- */
-export const WALLET_INVENTORY_CHAINS: ChainId[] = [ChainId.Ethereum, ChainId.Base, ChainId.Bsc];
-
 /** The service answered that it does not index this chain. */
 export class UnsupportedChainError extends Error {
   constructor(chainId: number) {
@@ -44,8 +34,13 @@ export const markChainUnsupported = (chainId: number) => {
 
 export const isChainUnsupported = (chainId: number): boolean => unsupportedChains.has(chainId);
 
-export const isWalletInventoryChain = (chainId: number): boolean =>
-  WALLET_INVENTORY_CHAINS.some(chain => chain === chainId) && !unsupportedChains.has(chainId);
+/**
+ * Whether the inventory may be asked about a chain. The service itself is the authority on which
+ * chains it indexes: every chain is tried once, and one it answers "unsupported chain" for is left
+ * to the caller's own balance source for the rest of the session. Nothing is listed ahead of time,
+ * so a chain the service starts indexing lights up without a release.
+ */
+export const isWalletInventoryChain = (chainId: number): boolean => !unsupportedChains.has(chainId);
 
 const PAGE_SIZE = 1000;
 /** Safety stop for the cursor walk; a wallet past this is left to the caller's own balance source. */

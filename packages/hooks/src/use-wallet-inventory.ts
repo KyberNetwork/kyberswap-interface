@@ -13,7 +13,6 @@ import {
 
 export {
   UnsupportedChainError,
-  WALLET_INVENTORY_CHAINS,
   isChainUnsupported,
   isWalletInventoryChain,
   markChainUnsupported,
