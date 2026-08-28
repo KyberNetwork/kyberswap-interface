@@ -66,12 +66,49 @@ export const APP_PATHS = {
   RECAP_2025: '/2025-journey',
 } as const
 
-export const TERM_FILES_PATH = {
-  KYBERSWAP_TERMS: '/files/Kyber - Terms of Use - 17 April 2025.pdf',
-  PRIVACY_POLICY: '/files/Kyber - Privacy Policy - 20 November 2023.pdf',
-  // Timestamp of changed date, update this to latest timestamp whenever change any above files. This also used to check on client side for updated to force user to disconnect and re-accept terms.
-  VERSION: 1744873065000,
+export const PRIVACY_POLICY_PATH = '/files/Kyber - Privacy Policy - 20 November 2023.pdf'
+
+export type TermsOfUse = {
+  /**
+   * The instant the document takes effect, and at the same time its identity: it is compared against
+   * the version the user has accepted, so a user holding an older one is asked to accept again.
+   */
+  version: number
+  /**
+   * The date the document is published under, shown as its "Last updated" label. Held apart from
+   * `version` because a document can take effect at an hour that falls on a different calendar day.
+   * Read in UTC so every viewer sees the one date the label is written for.
+   */
+  publishedAt: number
+  file: string
 }
+
+/** Ordered by `version` ascending. Publishing a new document means appending one entry. */
+export const TERMS_OF_USE: TermsOfUse[] = [
+  {
+    version: 1744873065000,
+    publishedAt: Date.UTC(2025, 3, 17),
+    file: '/files/Kyber - Terms of Use - 17 April 2025.pdf',
+  },
+  {
+    // 2026-08-31T20:00:00Z — 3am 1 September 2026, Vietnam time.
+    version: 1788206400000,
+    publishedAt: Date.UTC(2026, 8, 1),
+    file: '/files/KyberSwap - Terms of Use - 31 August 2026.pdf',
+  },
+]
+
+export const resolveTermsOfUseAt = (now: number): TermsOfUse =>
+  TERMS_OF_USE.filter(terms => now >= terms.version).at(-1) ?? TERMS_OF_USE[0]
+
+let activeTermsOfUse: TermsOfUse | undefined
+
+/**
+ * Resolved once per page load rather than per render, so a session that is open while a new document
+ * takes effect keeps the one it started under and only switches on the next reload. That keeps the
+ * switchover off the critical path of a swap someone is in the middle of.
+ */
+export const getActiveTermsOfUse = (): TermsOfUse => (activeTermsOfUse ??= resolveTermsOfUseAt(Date.now()))
 
 export const EIP712Domain = [
   { name: 'name', type: 'string' },

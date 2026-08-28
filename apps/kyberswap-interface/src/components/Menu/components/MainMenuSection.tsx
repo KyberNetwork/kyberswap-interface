@@ -12,7 +12,7 @@ import Faucet from 'components/Icons/Faucet'
 import VoteIcon from 'components/Icons/Vote'
 import { MenuItem, MenuItemContent, MenuItemLink, MenuSection, Title } from 'components/Menu/MenuItems'
 import NavDropDown from 'components/Menu/NavDropDown'
-import { AGGREGATOR_ANALYTICS_URL, APP_PATHS, TERM_FILES_PATH } from 'constants/index'
+import { AGGREGATOR_ANALYTICS_URL, APP_PATHS, PRIVACY_POLICY_PATH, getActiveTermsOfUse } from 'constants/index'
 import { FAUCET_NETWORKS } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
@@ -227,13 +227,13 @@ export const MainMenuSection = ({ openTipLinkGenerator, toggle }: MainMenuSectio
       <MenuItem>
         <MenuItemLink>
           <ExternalLink
-            href={TERM_FILES_PATH.KYBERSWAP_TERMS}
+            href={getActiveTermsOfUse().file}
             onClick={() => {
               toggle?.()
               handleMenuClickMixpanel('Terms')
               trackingHandler(TRACKING_EVENT_TYPE.MENU_LINK_CLICKED, {
                 item_label: 'Terms',
-                item_url: TERM_FILES_PATH.KYBERSWAP_TERMS,
+                item_url: getActiveTermsOfUse().file,
                 is_external: true,
               })
             }}
@@ -246,13 +246,13 @@ export const MainMenuSection = ({ openTipLinkGenerator, toggle }: MainMenuSectio
       <MenuItem>
         <MenuItemLink>
           <ExternalLink
-            href={TERM_FILES_PATH.PRIVACY_POLICY}
+            href={PRIVACY_POLICY_PATH}
             onClick={() => {
               toggle?.()
               handleMenuClickMixpanel('Privacy Policy')
               trackingHandler(TRACKING_EVENT_TYPE.MENU_LINK_CLICKED, {
                 item_label: 'Privacy Policy',
-                item_url: TERM_FILES_PATH.PRIVACY_POLICY,
+                item_url: PRIVACY_POLICY_PATH,
                 is_external: true,
               })
             }}
