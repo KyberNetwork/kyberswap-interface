@@ -44,6 +44,7 @@ import {
 } from 'components/TokenSelectorModal/constants'
 import { useCatalogPriceFallback } from 'components/TokenSelectorModal/hooks/useCatalogPriceFallback'
 import { useChainsVolume } from 'components/TokenSelectorModal/hooks/useChainsVolume'
+import { useInventoryDiscoveries } from 'components/TokenSelectorModal/hooks/useInventoryDiscoveries'
 import { useNewTokens } from 'components/TokenSelectorModal/hooks/useNewTokens'
 import { usePendingCrossChainSelect } from 'components/TokenSelectorModal/hooks/usePendingCrossChainSelect'
 import { useTokensMetrics } from 'components/TokenSelectorModal/hooks/useTokensMetrics'
@@ -60,6 +61,7 @@ import {
   TOKEN_SEARCH_PAGE_SIZE,
   fetchTokens,
   getNeedsImport,
+  mergeHeldSearchResults,
   useAddressRpcTokenSearch,
   useTokenComparator,
 } from 'components/TokenSelectorModal/utils'
@@ -83,6 +85,9 @@ import {
   useUserFavoriteTokens,
 } from 'state/user/hooks'
 import { useNativeBalance, useTokenBalances } from 'state/wallet/hooks'
+import { isTokenListReady } from 'state/walletInventory/assets'
+import { useInventoryTokenBalances, useWalletInventory } from 'state/walletInventory/hooks'
+import { ensureTokenMetadata } from 'state/walletInventory/metadata'
 import { CloseIcon, MEDIA_WIDTHS } from 'theme'
 import { isAddress } from 'utils/address'
 import { filterTruthy } from 'utils/array'
@@ -430,6 +435,39 @@ export const TokenSelectorContent = ({
     hasTokenSearchResults: !!tokenSearchResults.length,
   })
 
+  // On chains kd-api indexes, one request returns every token the wallet holds, which replaces the
+  // per-block balanceOf multicall over the whole visible set. Only one of the two paths is ever fed
+  // tokens, so the unused one registers no work; chains without inventory keep the multicall.
+  const inventory = useWalletInventory(primaryChainId, isOpen)
+
+  // Held tokens on no list. They sit in the All tab alongside everything else as dimmed rows that
+  // import on click, and search matches them directly: someone typing a symbol they hold is looking
+  // for it.
+  const { tokens: discoveryTokens, impersonators } = useInventoryDiscoveries(
+    inventory,
+    defaultTokens,
+    tokenImports,
+    primaryChainId,
+  )
+  const showDiscoveries = isAllTab && !debouncedQuery && discoveryTokens.length > 0
+  const unlistedAddresses = useMemo(
+    () => (discoveryTokens.length ? new Set(discoveryTokens.map(token => token.address)) : undefined),
+    [discoveryTokens],
+  )
+
+  const searchDiscoveryMatches = useMemo<Currency[]>(
+    () =>
+      isAllTab && debouncedQuery && discoveryTokens.length
+        ? filterTokens(primaryChainId, discoveryTokens, debouncedQuery)
+        : EMPTY_CURRENCIES,
+    [isAllTab, debouncedQuery, discoveryTokens, primaryChainId],
+  )
+  // Every address the wallet holds; only set while searching, to lead with held matches and badge them.
+  const heldAddresses = useMemo(
+    () => (isAllTab && debouncedQuery && inventory.active ? new Set(Object.keys(inventory.rows)) : undefined),
+    [isAllTab, debouncedQuery, inventory],
+  )
+
   // One balanceOf multicall for the whole modal: the sort-by-wallet-value comparator and the list's
   // balance column need the same tokens, and registering them apart doubles the RPC traffic. The set
   // comes from each tab's *unsorted* source so it stays put while the rows re-sort on top of it, and
@@ -442,7 +480,7 @@ export const TokenSelectorContent = ({
       : isFavoritesTab
       ? pinnedTokens
       : debouncedQuery
-      ? [...tokenSearchResults, currentChainRpcToken]
+      ? [...tokenSearchResults, currentChainRpcToken, ...searchDiscoveryMatches]
       : Object.values(defaultTokens)
     // Native balance comes from `getEthBalance`, not an ERC20 read; off-chain rows (a cross-chain
     // search hit) have no balance to show here either.
@@ -459,10 +497,22 @@ export const TokenSelectorContent = ({
     pinnedTokens,
     tokenSearchResults,
     currentChainRpcToken,
+    searchDiscoveryMatches,
     defaultTokens,
     primaryChainId,
   ])
-  const balances = useTokenBalances(balanceTokens, primaryChainId)
+
+  const balanceTokensWithDiscoveries = useMemo(
+    () => (showDiscoveries ? [...balanceTokens, ...discoveryTokens] : balanceTokens),
+    [showDiscoveries, balanceTokens, discoveryTokens],
+  )
+
+  // `pending` counts as inventory-owned too: starting the multicall during the first fetch would run
+  // the very sweep this replaces and then throw it away a few hundred milliseconds later.
+  const multicallTokens = inventory.active || inventory.pending ? EMPTY_TOKENS : balanceTokensWithDiscoveries
+  const multicallBalances = useTokenBalances(multicallTokens, primaryChainId)
+  const inventoryBalances = useInventoryTokenBalances(balanceTokensWithDiscoveries, inventory)
+  const balances = inventory.active ? inventoryBalances : multicallBalances
   const nativeBalance = useNativeBalance(primaryChainId)
 
   // Only the All (default order) and Imported tabs sort by wallet value; gate the comparator so the
@@ -474,6 +524,7 @@ export const TokenSelectorContent = ({
     primaryChainId,
     needsComparator,
     isAllTab ? favoriteAddressSet : undefined,
+    isAllTab ? unlistedAddresses : undefined,
   )
 
   // All-tab dataset: API search results (with RPC fallback) when searching, else the sorted default
@@ -482,17 +533,26 @@ export const TokenSelectorContent = ({
   const allTabTokens: Currency[] = useMemo(() => {
     if (!isAllTab) return EMPTY_CURRENCIES
     if (debouncedQuery) {
-      return tokenSearchResults.concat(filterTruthy([currentChainRpcToken])).filter(filterWrapFunc)
+      return mergeHeldSearchResults(
+        tokenSearchResults.concat(filterTruthy([currentChainRpcToken])),
+        searchDiscoveryMatches,
+        heldAddresses,
+        impersonators,
+      ).filter(filterWrapFunc)
     }
-    return Object.values(defaultTokens).sort(tokenComparator).filter(filterWrapFunc)
+    return Object.values(defaultTokens).concat(discoveryTokens).sort(tokenComparator).filter(filterWrapFunc)
   }, [
     isAllTab,
     debouncedQuery,
     tokenSearchResults,
     currentChainRpcToken,
+    searchDiscoveryMatches,
+    heldAddresses,
     defaultTokens,
+    discoveryTokens,
     tokenComparator,
     filterWrapFunc,
+    impersonators,
   ])
 
   // Client-side search filter for the non-All tabs (their datasets are already in memory).
@@ -544,22 +604,23 @@ export const TokenSelectorContent = ({
     : EMPTY_CURRENCIES
   const metricsExtras = useTokensMetrics(metricsSource, primaryChainId)
 
-  // Favorites take their price from the live prices endpoint (buy/sell mid — the same source as the
-  // USD balance), while 24h change / volume / market cap stay from the tokens-list metrics.
-  const favoritePriceAddresses = useMemo(
-    () => (isFavoritesTab ? favoriteCurrenciesBase.map(currency => currency.wrapped.address) : EMPTY_ADDRESSES),
-    [isFavoritesTab, favoriteCurrenciesBase],
+  // Imported and Favorites take their price from the live prices endpoint (buy/sell mid — the same
+  // source the All tab and the wallet-value sort use, so a token reads the same on every tab), while
+  // 24h change / volume / market cap stay from the tokens-list metrics.
+  const localPriceAddresses = useMemo(
+    () => (metricsSource.length ? metricsSource.map(currency => currency.wrapped.address) : EMPTY_ADDRESSES),
+    [metricsSource],
   )
-  const favoritePrices = useTokenPrices(favoritePriceAddresses, primaryChainId)
-  const favoriteExtras = useMemo<TokenRowExtraMap>(() => {
+  const localPrices = useTokenPrices(localPriceAddresses, primaryChainId)
+  const localExtras = useMemo<TokenRowExtraMap>(() => {
     const result: TokenRowExtraMap = {}
-    favoriteCurrenciesBase.forEach(currency => {
+    metricsSource.forEach(currency => {
       const key = tokenRowKey(currency.chainId, currency.wrapped.address)
-      const livePrice = favoritePrices[currency.wrapped.address.toLowerCase()]
+      const livePrice = localPrices[currency.wrapped.address.toLowerCase()]
       result[key] = { ...metricsExtras[key], price: livePrice || metricsExtras[key]?.price }
     })
     return result
-  }, [favoriteCurrenciesBase, favoritePrices, metricsExtras])
+  }, [metricsSource, localPrices, metricsExtras])
 
   // Both catalog-sourced tabs can come back short of `metrics.price` (Robinhood especially), so top
   // their rows up from the live prices endpoint — on Trending only while TRENDING_PRICE_FALLBACK_ENABLED.
@@ -574,19 +635,9 @@ export const TokenSelectorContent = ({
   const listExtras: TokenRowExtraMap = useMemo(() => {
     if (isTrendingTab) return trendingExtrasWithPrice
     if (isNewTab) return newExtrasWithPrice
-    if (isImportedTab) return metricsExtras
-    if (isFavoritesTab) return favoriteExtras
+    if (isImportedTab || isFavoritesTab) return localExtras
     return EMPTY_EXTRAS
-  }, [
-    isTrendingTab,
-    isNewTab,
-    isImportedTab,
-    isFavoritesTab,
-    trendingExtrasWithPrice,
-    newExtrasWithPrice,
-    metricsExtras,
-    favoriteExtras,
-  ])
+  }, [isTrendingTab, isNewTab, isImportedTab, isFavoritesTab, trendingExtrasWithPrice, newExtrasWithPrice, localExtras])
 
   // In-memory metric sort for the Imported / Favorites tabs, whose only sortable column is "Price &
   // 24h change" (Trending and New sort server-side). Rows are tiered so those missing the sorted
@@ -803,6 +854,20 @@ export const TokenSelectorContent = ({
     [primaryChainId],
   )
 
+  // Catalog metadata (name, logo) for the unlisted holdings being looked at, and only those: a
+  // spam-heavy wallet can hold hundreds, and the modal should not spend its opening on them. Before
+  // the chain's list lands every held token classifies as unlisted, so the ask waits for it.
+  const handleRowsRendered = useCallback(
+    (rows: Currency[]) => {
+      if (!unlistedAddresses?.size || !isTokenListReady(defaultTokens, tokenImports)) return
+      const addresses = rows.flatMap(currency =>
+        currency.isToken && unlistedAddresses.has(currency.address) ? [currency.address] : [],
+      )
+      if (addresses.length) void ensureTokenMetadata(primaryChainId, addresses)
+    },
+    [unlistedAddresses, defaultTokens, tokenImports, primaryChainId],
+  )
+
   const handleEnter = useCallback(
     (e: KeyboardEvent<HTMLInputElement>) => {
       if (e.key !== 'Enter') return
@@ -815,6 +880,9 @@ export const TokenSelectorContent = ({
       const totalToken = visibleCurrencies.length
       if (totalToken && (visibleCurrencies[0].symbol?.toLowerCase() === s || totalToken === 1)) {
         const candidate = visibleCurrencies[0]
+        // A token flagged as borrowing a whitelisted symbol is never picked blind: its row carries
+        // the warning, so it has to be clicked with that in view.
+        if (candidate.isToken && impersonators.has(candidate.address)) return
         // Honor the same import gate the row click enforces: a non-whitelisted result opens the
         // import-warning screen instead of being selected directly.
         if (
@@ -826,7 +894,7 @@ export const TokenSelectorContent = ({
         handleCurrencySelect(candidate)
       }
     },
-    [visibleCurrencies, handleCurrencySelect, searchQuery, primaryChainId, tokenImports, onImportToken],
+    [visibleCurrencies, handleCurrencySelect, searchQuery, primaryChainId, tokenImports, onImportToken, impersonators],
   )
 
   const handleClickFavorite = useCallback(
@@ -1129,6 +1197,7 @@ export const TokenSelectorContent = ({
           ) : visibleCurrencies?.length > 0 ? (
             <TokenList
               listTokenRef={listTokenRef}
+              onRowsRendered={handleRowsRendered}
               onRemoveImportedToken={isImportedTab ? removeImportedToken : undefined}
               currencies={visibleCurrencies}
               onToggleFavorite={handleClickFavorite}
@@ -1148,6 +1217,8 @@ export const TokenSelectorContent = ({
               metricColumn={isTrendingTab || isNewTab ? metricColumn : undefined}
               // While searching, surface the Import button (not the dimmed row) for non-whitelisted hits.
               importAsRow={(isTrendingTab || isAllTab) && !debouncedQuery}
+              impersonators={impersonators}
+              heldAddresses={heldAddresses}
               onShowTokenInfo={onShowTokenInfo}
             />
           ) : (

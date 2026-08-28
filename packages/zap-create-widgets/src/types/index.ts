@@ -21,6 +21,11 @@ export interface WidgetProps {
   createPoolConfig: CreatePoolConfig;
   source: string;
   connectedAccount: { address?: string | undefined; chainId: number };
+  /**
+   * Use KyberSwap's wallet-inventory service as the token selector's balance source on the chains it
+   * indexes; a balanceOf multicall serves the rest. Off by default.
+   */
+  enableWalletInventory?: boolean;
   txStatus?: Record<string, TxStatus>;
   txHashMapping?: Record<string, string>;
   locale?: SupportedLocale;

@@ -9,9 +9,11 @@ import { useActiveWeb3React } from 'hooks'
 import { useEthBalanceOfAnotherChain, useTokensBalanceOfAnotherChain } from 'hooks/bridge'
 import { useMulticallContract } from 'hooks/useContract'
 import { useAllTokens } from 'hooks/useTokens'
+import { useBlockNumberFor } from 'state/application/hooks'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { useMultipleContractSingleData, useSingleCallResult } from 'state/multicall/hooks'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
+import { publishLiveBalances } from 'state/walletInventory/store'
 import { isAddress } from 'utils/address'
 import { isTokenNative } from 'utils/tokenInfo'
 
@@ -174,6 +176,19 @@ export function useCurrencyBalances(
 
   const tokenBalances = useTokenBalances(tokens, chainId)
   const ethBalance = useNativeBalance(chainId)
+
+  // The tokens a form transacts with are the ones the wallet inventory is most likely to be behind on
+  // right after a transaction; hand it these per-block reads so it can correct itself meanwhile.
+  const blockNumber = useBlockNumberFor(chainId)
+  useEffect(() => {
+    if (!account || chainId !== currentChain || blockNumber === undefined) return
+    const reads = tokens.flatMap(token => {
+      const amount = tokenBalances[token.address]
+      return amount ? [{ address: token.address, rawBalance: BigInt(amount.quotient.toString()) }] : []
+    })
+    publishLiveBalances(chainId, account, blockNumber, reads)
+  }, [account, chainId, currentChain, blockNumber, tokens, tokenBalances])
+
   return useMemo(
     () =>
       currencies?.map(currency => {
@@ -208,11 +223,16 @@ export function useAllTokenBalances(
 }
 
 // return list token has balance
-export const useTokensHasBalance = (includesImportToken = false) => {
+// `enabled=false` skips the per-block balanceOf multicall over the whole token map (for callers that
+// have another balance source) while keeping the return shape stable.
+export const useTokensHasBalance = (includesImportToken = false, enabled = true) => {
   const { chainId } = useActiveWeb3React()
   const whitelistTokens = useAllTokens()
 
-  const currencies: Token[] = useMemo(() => Object.values(whitelistTokens), [whitelistTokens])
+  const currencies: Token[] = useMemo(
+    () => (enabled ? Object.values(whitelistTokens) : (EMPTY_ARRAY as Token[])),
+    [whitelistTokens, enabled],
+  )
   const [currencyBalances, loadingBalance] = useTokenBalancesWithLoadingIndicator(currencies)
 
   const ethBalance = useNativeBalance()
@@ -221,6 +241,12 @@ export const useTokensHasBalance = (includesImportToken = false) => {
   const tokensHasBalanceAddresses = useMemo(() => tokensHasBalance.map(e => e.wrapped.address), [tokensHasBalance])
 
   useEffect(() => {
+    // Disabled means another source owns this surface: hold no list at all, so nothing here
+    // subscribes to prices and the null total-guard below still holds when the hook is re-enabled.
+    if (!enabled) {
+      setTokensHasBalance(EMPTY_ARRAY as Currency[])
+      return
+    }
     if (!loadingBalance && ethBalance) {
       // call once per chain
       const list: Currency[] = currencies.filter(currency => {
@@ -235,7 +261,7 @@ export const useTokensHasBalance = (includesImportToken = false) => {
       }
       setTokensHasBalance(list)
     }
-  }, [loadingBalance, currencies, currencyBalances, ethBalance, chainId, includesImportToken])
+  }, [enabled, loadingBalance, currencies, currencyBalances, ethBalance, chainId, includesImportToken])
 
   const tokensPrices = useTokenPrices(tokensHasBalanceAddresses)
 

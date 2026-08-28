@@ -35,6 +35,7 @@ import { navigateToPoolDetail, navigateToPositionAfterZap } from 'pages/Earns/ut
 import { useKyberSwapConfig, useNotify, useWalletModalToggle } from 'state/application/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
+import { isInventoryChain } from 'state/walletInventory/store'
 import { getCookieValue } from 'utils/cookie'
 import { friendlyError } from 'utils/errorMessage'
 import { Address } from 'utils/viem'
@@ -245,6 +246,7 @@ const useZapInWidget = ({
               address: account,
               chainId: chainId,
             },
+            enableWalletInventory: isInventoryChain(addLiquidityPureParams.chainId),
             onClose: () => {
               handleCloseZapInWidget()
               onRefreshPosition?.()

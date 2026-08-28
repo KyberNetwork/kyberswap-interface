@@ -23,6 +23,7 @@ import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { Exchange } from 'pages/Earns/constants'
 import { fetchExistingPoolAddress } from 'pages/Earns/utils/zap'
 import { useWalletModalToggle } from 'state/application/hooks'
+import { isInventoryChain } from 'state/walletInventory/store'
 
 const Wrapper = ({ children, ...rest }: React.HTMLAttributes<HTMLDivElement>) => (
   <div className="flex w-full flex-col gap-6 p-6" {...rest}>
@@ -367,6 +368,7 @@ const CreatePoolModal = ({ isOpen, filterChainId, onDismiss, onSubmit }: Props) 
         <Portal>
           <TokenSelectorModal
             chainId={selectedChainId}
+            enableWalletInventory={isInventoryChain(selectedChainId)}
             title={t`Select a token`}
             onClose={() => setTokenSelectorTarget(null)}
             wallet={{

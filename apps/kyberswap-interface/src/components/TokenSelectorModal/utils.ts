@@ -16,7 +16,7 @@ import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { isAddress } from 'utils/address'
 import { filterTruthy } from 'utils/array'
-import { isTokenNative } from 'utils/tokenInfo'
+import { getTokenAddress, isTokenNative } from 'utils/tokenInfo'
 
 export const TOKEN_SEARCH_PAGE_SIZE = 20
 
@@ -108,6 +108,33 @@ export const getNeedsImport = (
   !isTokenNative(currency) &&
   !(currency as WrappedTokenInfo)?.isWhitelisted &&
   !isImported(currency.wrapped.address)
+
+/**
+ * Search results with the wallet's own holdings pulled to the front: held matches the catalog search
+ * missed are added (de-duplicated by address, catalog rows win since they carry logo and name), then
+ * the list is stably partitioned so every held token leads. Someone typing the symbol of a token they
+ * hold is almost always looking for that one, whatever the catalog ranked first.
+ */
+export const mergeHeldSearchResults = (
+  results: Currency[],
+  heldMatches: Currency[],
+  heldAddresses: Set<string> | undefined,
+  // Held tokens borrowing a whitelisted symbol stay where the catalog ranked them: a search for that
+  // symbol must lead with the genuine token, not with the airdrop that impersonates it.
+  impersonators?: Set<string>,
+): Currency[] => {
+  if (!heldAddresses?.size) return results
+  const seen = new Set(results.map(getTokenAddress))
+  const merged = results.concat(heldMatches.filter(token => !seen.has(getTokenAddress(token))))
+  const held: Currency[] = []
+  const rest: Currency[] = []
+  merged.forEach(token => {
+    const address = getTokenAddress(token)
+    const leads = heldAddresses.has(address) && !impersonators?.has(address)
+    ;(leads ? held : rest).push(token)
+  })
+  return held.concat(rest)
+}
 
 const getRpcSearchChainIds = (chainId: ChainId, supportedChains: NetworkInfo[]) => {
   const otherChainIds = supportedChains
@@ -223,12 +250,16 @@ function usdValueOf(balance: TokenAmount | CurrencyAmount<Currency> | undefined,
   return amount * price
 }
 
-function getTokenComparator(
+export function getTokenComparator(
   balances: TokenBalanceMap,
   ethBalance: CurrencyAmount<Currency> | undefined,
   tokenPrices: TokenPriceMap,
   // Addresses (lowercased) to float above non-favorites once balance/value is a tie.
   favoriteAddresses?: Set<string>,
+  // Held tokens that are on no list (checksummed). These sort below every listed holding, whatever
+  // either side is worth, and above tokens the wallet does not hold: an airdropped impersonation is
+  // minted with an enormous supply and may even carry a quote, and neither may hand it the top.
+  unlistedAddresses?: Set<string>,
 ): (tokenA: Token, tokenB: Token) => number {
   const favoriteKey = (token: Token) => (isTokenNative(token) ? ETHER_ADDRESS : token.address).toLowerCase()
   return function sortTokens(tokenA: Token, tokenB: Token): number {
@@ -239,10 +270,22 @@ function getTokenComparator(
     const priceB = tokenPrices[tokenB.address?.toLowerCase()] ?? tokenPrices[tokenB.address]
     const usdBalanceA = usdValueOf(balanceA, priceA)
     const usdBalanceB = usdValueOf(balanceB, priceB)
+    const heldA = !!balanceA?.greaterThan('0')
+    const heldB = !!balanceB?.greaterThan('0')
+
+    // A listed holding ranks above any unlisted one before value is even looked at.
+    if (unlistedAddresses?.size) {
+      const listedHeldA = heldA && !unlistedAddresses.has(tokenA.address)
+      const listedHeldB = heldB && !unlistedAddresses.has(tokenB.address)
+      if (listedHeldA !== listedHeldB) return listedHeldA ? -1 : 1
+    }
 
     if (usdBalanceA > 0 || usdBalanceB > 0) {
       if (usdBalanceA !== usdBalanceB) return usdBalanceB - usdBalanceA
     }
+
+    // Anything held ranks above anything not held, priced or not.
+    if (heldA !== heldB) return heldA ? -1 : 1
 
     const balanceComp = balanceComparator(balanceA, balanceB)
     if (balanceComp !== 0) return balanceComp
@@ -273,6 +316,8 @@ export function useTokenComparator(
   enabled = true,
   // Lowercased favorite addresses to float above non-favorites once balance/value is a tie.
   favoriteAddresses?: Set<string>,
+  // Checksummed addresses of held tokens on no list; see `getTokenComparator`.
+  unlistedAddresses?: Set<string>,
 ): (tokenA: Token, tokenB: Token) => number {
   // Only held tokens can contribute a USD value to the sort — `usdValueOf` returns 0 for a zero
   // balance whatever the price — so pricing the whole whitelist would be pure waste. The native
@@ -286,7 +331,7 @@ export function useTokenComparator(
   const tokenPrices = useTokenPrices(tokenPriceAddresses, chainId)
 
   return useMemo(
-    () => getTokenComparator(balances, ethBalance, tokenPrices, favoriteAddresses),
-    [balances, ethBalance, tokenPrices, favoriteAddresses],
+    () => getTokenComparator(balances, ethBalance, tokenPrices, favoriteAddresses, unlistedAddresses),
+    [balances, ethBalance, tokenPrices, favoriteAddresses, unlistedAddresses],
   )
 }

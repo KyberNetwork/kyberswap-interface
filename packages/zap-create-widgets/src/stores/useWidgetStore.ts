@@ -25,6 +25,7 @@ interface WidgetState extends WidgetProps {
 }
 
 const initState = {
+  enableWalletInventory: undefined,
   theme: defaultTheme,
   chainId: ChainId.Ethereum,
   rpcUrl: NETWORKS_INFO[ChainId.Ethereum].defaultRpc,

@@ -1,6 +1,6 @@
 import { Currency, Token } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
-import { useCallback, useEffect } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { AlertTriangle, ArrowLeft } from 'react-feather'
 
 import { ButtonPrimary } from 'components/Button'
@@ -10,6 +10,8 @@ import CurrencyLogo from 'components/CurrencyLogo'
 import { HStack, Stack } from 'components/Stack'
 import { PaddedColumn } from 'components/TokenSelectorModal/components'
 import { useAddUserToken } from 'state/user/hooks'
+import { resolveImportToken } from 'state/walletInventory/discoveries'
+import { useTokenMetadata } from 'state/walletInventory/hooks'
 import { CloseIcon } from 'theme'
 import { ExternalLinkIcon } from 'theme/components'
 import { shortenAddress } from 'utils/address'
@@ -32,10 +34,16 @@ export const ImportTokenView = ({
 }: ImportTokenViewProps) => {
   const addToken = useAddUserToken()
 
+  // What the card shows is what gets saved: the catalog-described token where the catalog knows the
+  // address (name and logo, and the same token the swap form resolves it to), else the token as
+  // picked.
+  const metadata = useTokenMetadata()
+  const importTokens = useMemo(() => tokens.map(token => resolveImportToken(token, metadata)), [tokens, metadata])
+
   const onClickImport = useCallback(() => {
-    tokens.forEach(addToken)
-    onCurrencySelect?.(tokens)
-  }, [tokens, addToken, onCurrencySelect])
+    importTokens.forEach(addToken)
+    onCurrencySelect?.(importTokens)
+  }, [importTokens, addToken, onCurrencySelect])
 
   useEffect(() => {
     const onKeydown = (event: KeyboardEvent) => {
@@ -80,7 +88,7 @@ export const ImportTokenView = ({
             </span>
           </HStack>
         </Card>
-        {tokens.map(token => {
+        {importTokens.map(token => {
           return (
             <Card className="bg-buttonBlack p-6" key={token.address}>
               <HStack className="gap-2.5">
