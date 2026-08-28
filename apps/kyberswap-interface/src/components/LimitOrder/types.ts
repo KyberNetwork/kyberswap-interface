@@ -174,6 +174,7 @@ export type CreateOrderParams = {
   outputAmount: string
   expiredAt: number
   referral?: string
+  clientId?: string | null
 }
 
 export type LimitOrderCreateContext = {
