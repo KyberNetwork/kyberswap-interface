@@ -141,6 +141,7 @@ const TokenModal = ({
       const clonedTokensIn = [...tokensIn];
       clonedTokensIn.push(tokenToImport);
       setTokensIn(clonedTokensIn);
+      setSelectedTokens(clonedTokensIn);
       setAmountsIn(`${amountsIn},`);
     }
     setTokenToImport(null);

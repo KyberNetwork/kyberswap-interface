@@ -719,8 +719,14 @@ export default function TokenSelector({
   useEffect(() => {
     const search = debouncedSearchTerm.toLowerCase().trim();
 
+    // A list match that lands after the address lookup (the wallet's holdings, the chain's list)
+    // takes the address lookup's place.
+    if (filteredTokens.length) {
+      setUnImportedTokens((prev) => (prev.length ? [] : prev));
+      return;
+    }
     // Skip fetching unimported tokens when chainId is not provided (positionsOnly mode)
-    if (!filteredTokens.length && isAddress(search) && chainId) {
+    if (isAddress(search) && chainId) {
       fetchTokenInfo(search, chainId).then((res) => {
         setUnImportedTokens(res);
       });

@@ -64,16 +64,9 @@ const lookup = async (
   batch: Map<string, string>,
 ): Promise<void> => {
   const keys = Array.from(batch.keys());
-  const addresses = Array.from(batch.values());
   let tokens: CatalogToken[];
   try {
-    const pages: string[][] = [];
-    for (let start = 0; start < addresses.length; start += CATALOG_PAGE_SIZE) {
-      pages.push(addresses.slice(start, start + CATALOG_PAGE_SIZE));
-    }
-    tokens = (
-      await Promise.all(pages.map((page) => fetchCatalogPage(chainId, page)))
-    ).flat();
+    tokens = await fetchCatalogPage(chainId, Array.from(batch.values()));
   } catch {
     const until = Date.now() + CATALOG_RETRY_MS;
     keys.forEach((key) => retryAt.set(key, until));
@@ -116,9 +109,12 @@ const ensureMetadata = async (
     if ((retryAt.get(key) ?? 0) > now) return;
     batch.set(key, address);
   });
-  if (batch.size) {
-    const request = lookup(chainId, batch);
-    batch.forEach((_, key) => inflight.set(key, request));
+  // One lookup per page, each on its own: a page that fails only defers its own addresses.
+  const entries = Array.from(batch);
+  for (let start = 0; start < entries.length; start += CATALOG_PAGE_SIZE) {
+    const pageBatch = new Map(entries.slice(start, start + CATALOG_PAGE_SIZE));
+    const request = lookup(chainId, pageBatch);
+    pageBatch.forEach((_, key) => inflight.set(key, request));
     waits.push(request);
   }
   await Promise.all(waits);
