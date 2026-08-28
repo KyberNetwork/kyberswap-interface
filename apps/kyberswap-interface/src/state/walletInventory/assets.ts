@@ -51,7 +51,10 @@ export const selectWalletHoldings = (
   // inventory. Imports join regardless of balance (the user asked to track them).
   const vettedTokens: Token[] = []
   const seen = new Set<string>()
+  // The native currency joins below as itself; the token list carries it under the native sentinel
+  // address too, and taking that entry here would list it twice.
   Object.keys(inventory.rows).forEach(address => {
+    if (address === ETHER_ADDRESS) return
     const token = defaultTokens[address]
     if (token) {
       vettedTokens.push(token)
@@ -59,7 +62,7 @@ export const selectWalletHoldings = (
     }
   })
   tokenImports.forEach(token => {
-    if (!seen.has(token.address)) vettedTokens.push(token)
+    if (token.address !== ETHER_ADDRESS && !seen.has(token.address)) vettedTokens.push(token)
   })
   const currencyBalances = buildInventoryBalanceMap([...vettedTokens, ...hidden], inventory)
 

@@ -562,6 +562,14 @@ describe('wallet assets', () => {
     expect(holdings.currencyBalances[USDT_CHECKSUM]?.quotient.toString()).toBe('5000000')
   })
 
+  it('lists the native currency once even though the token list carries the native sentinel', () => {
+    const withNativeEntry = { ...defaultTokens, [ETHER_ADDRESS]: wrapped(ETHER_ADDRESS, 'ETH', 18, true) }
+    const holdings = selectWalletHoldings(inventory, withNativeEntry, imports, ChainId.MAINNET)
+    const natives = holdings.vetted.filter(c => c.isNative || c.wrapped.address === ETHER_ADDRESS)
+    expect(natives).toHaveLength(1)
+    expect(natives[0].isNative).toBe(true)
+  })
+
   it('keeps unvetted holdings in the hidden group, with their balance', () => {
     const holdings = selectWalletHoldings(inventory, defaultTokens, imports, ChainId.MAINNET)
     expect(holdings.hidden.map(t => t.address)).toEqual([NOVEL])
