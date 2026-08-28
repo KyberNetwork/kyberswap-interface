@@ -1,3 +1,14 @@
+import { ChainId } from '@kyber/schema';
+
+/**
+ * Chains the inventory is allowed to serve. A release gate as much as a list: the service may index
+ * a chain ahead of time for testing, and nothing here reads it until this list says so. A chain the
+ * service reports as unsupported is additionally disabled for the session (see
+ * `isWalletInventoryChain`), so the list drifting ahead of the backend degrades to the caller's own
+ * balance source rather than failing. Both the app and the widget packages read this one list.
+ */
+export const WALLET_INVENTORY_CHAINS: ChainId[] = [ChainId.Ethereum, ChainId.Base, ChainId.Bsc];
+
 /** The service answered that it does not index this chain. */
 export class UnsupportedChainError extends Error {
   constructor(chainId: number) {
@@ -34,13 +45,9 @@ export const markChainUnsupported = (chainId: number) => {
 
 export const isChainUnsupported = (chainId: number): boolean => unsupportedChains.has(chainId);
 
-/**
- * Whether the inventory may be asked about a chain. The service itself is the authority on which
- * chains it indexes: every chain is tried once, and one it answers "unsupported chain" for is left
- * to the caller's own balance source for the rest of the session. Nothing is listed ahead of time,
- * so a chain the service starts indexing lights up without a release.
- */
-export const isWalletInventoryChain = (chainId: number): boolean => !unsupportedChains.has(chainId);
+/** Whether the inventory may be asked about a chain: on the list, and not disabled for the session. */
+export const isWalletInventoryChain = (chainId: number): boolean =>
+  WALLET_INVENTORY_CHAINS.some(chain => chain === chainId) && !unsupportedChains.has(chainId);
 
 const PAGE_SIZE = 1000;
 /** Safety stop for the cursor walk; a wallet past this is left to the caller's own balance source. */

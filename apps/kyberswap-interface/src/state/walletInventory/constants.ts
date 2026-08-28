@@ -1,5 +1,5 @@
-// Which chains the inventory serves is learned from the service at runtime (see
-// `isWalletInventoryChain` in `@kyber/hooks`, shared with the widget selectors); nothing is listed here.
+// The served-chain list is `WALLET_INVENTORY_CHAINS` in `@kyber/hooks`, shared with the widget
+// selectors so the two can never drift; the store gates on it through `isWalletInventoryChain`.
 
 /** How stale an inventory may get before a mounted consumer refetches it. */
 export const INVENTORY_TTL_MS = 30_000

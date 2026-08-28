@@ -14,6 +14,7 @@ import {
 export {
   UnsupportedChainError,
   isChainUnsupported,
+  WALLET_INVENTORY_CHAINS,
   isWalletInventoryChain,
   markChainUnsupported,
   parseRawAmount,
@@ -34,7 +35,7 @@ export type WalletInventoryHolding = {
 };
 
 export type WalletInventoryStatus =
-  /** Not enabled, chain unsupported, or no account: the caller's own balance source applies. */
+  /** Not enabled, chain not served, or no account: the caller's own balance source applies. */
   | 'idle'
   /** First fetch in flight — hold the fallback rather than start work that will be discarded. */
   | 'loading'
