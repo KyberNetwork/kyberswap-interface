@@ -132,7 +132,7 @@ export const TableCell = ({ className, padding = 'default', ...rest }: TableCell
  * Keeps responsive table-card metrics on the same two-column spacing rhythm.
  */
 export const TableCardGrid = ({ className, ...props }: HTMLAttributes<HTMLDivElement>) => (
-  <div className={cn('grid grid-cols-2 gap-x-3 gap-y-2', className)} {...props} />
+  <div className={cn('grid grid-cols-2 gap-3', className)} {...props} />
 )
 
 /**

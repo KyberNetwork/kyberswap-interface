@@ -23,6 +23,7 @@ const CopyHistorySummary = ({ loading, summary }: { loading?: boolean; summary?:
       value: signedUsd(summary?.realizedPnlUsd),
       valueClassName: getSignedMetricClassName(summary?.realizedPnlUsd),
       icon: copyTradingStatIconMap.money,
+      mobileSpan: 2,
     },
     {
       label: 'Closed Capital (Returned)',

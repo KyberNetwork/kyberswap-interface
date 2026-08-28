@@ -112,7 +112,7 @@ export const TradeHistoryTable = ({ infiniteScroll, loading, rows }: PositionTab
                 </TableCell>
               </TradeHistoryGrid>
 
-              <Stack className="gap-3 rounded-xl bg-buttonBlack-60 p-3 xl:hidden">
+              <Stack className="gap-3 rounded-xl bg-buttonBlack p-3 xl:hidden">
                 <HStack className="items-start justify-between gap-3">
                   <TableCardField label="Token">{row.token.symbol || '—'}</TableCardField>
                   <TableCardField align="right" label="Closed" valueClassName="text-subText">

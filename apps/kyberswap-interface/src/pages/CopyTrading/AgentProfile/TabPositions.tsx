@@ -105,7 +105,7 @@ const TabPositions = ({ agentId }: { agentId: string }) => {
                   <TableCell className="text-subText">{formatDateTime(row.openedAt)}</TableCell>
                 </TabPositionsGrid>
 
-                <Stack className="gap-3 rounded-xl bg-buttonBlack-60 p-3 lg:hidden">
+                <Stack className="gap-3 rounded-xl bg-buttonBlack p-3 lg:hidden">
                   <HStack className="items-end justify-between gap-3">
                     <TableCardField label="Token">{row.token.symbol || '—'}</TableCardField>
                     <PositionLifecycleBadge lifecycle={row.lifecycle} quantityState={row.quantityState} />

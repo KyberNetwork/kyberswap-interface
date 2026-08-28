@@ -223,12 +223,36 @@ const AgentTable = ({ agents, loading, pagination, sortBy, sortOrder, onSortChan
           return (
             <Stack
               key={agent.agentId}
-              className="relative cursor-pointer gap-3 rounded-xl bg-buttonBlack-60 p-3 outline-none transition-colors hover:bg-primary-10"
+              className="relative cursor-pointer gap-0 overflow-hidden rounded-xl bg-buttonBlack outline-none transition-colors hover:bg-primary-10"
             >
               <TableRowLink label={`View ${agent.displayName}`} to={`${APP_PATHS.COPY_TRADING}/${agent.agentId}`} />
-              <AgentCell agent={agent} className="gap-3" />
+              <div className="flex items-center gap-3 p-3">
+                <AgentCell agent={agent} className="flex-1 gap-3" />
+                {copiedRun ? (
+                  <ButtonLight
+                    as={Link}
+                    to={`${APP_PATHS.COPY_TRADING}/my-copies/${copiedRun.copyRunId}`}
+                    padding="6px 12px"
+                    className="w-fit shrink-0 whitespace-nowrap"
+                  >
+                    My Copy
+                  </ButtonLight>
+                ) : (
+                  <ButtonPrimary
+                    type="button"
+                    altDisabledStyle
+                    padding="6px 12px"
+                    className="w-fit shrink-0 whitespace-nowrap"
+                    disabled={!canStartCopy}
+                    title={!canStartCopy ? getPreparedReasonMessage(agent.startCopyAvailability?.reason) : undefined}
+                    onClick={() => openStartCopy(agent)}
+                  >
+                    Copy
+                  </ButtonPrimary>
+                )}
+              </div>
 
-              <TableCardGrid>
+              <TableCardGrid className="border-t border-tableHeader p-3">
                 <TableCardField label="Agent APR 30D" valueClassName={getSignedMetricClassName(agent.stats.apr30dPct)}>
                   {percent(agent.stats.apr30dPct)}
                 </TableCardField>
@@ -248,28 +272,6 @@ const AgentTable = ({ agents, loading, pagination, sortBy, sortOrder, onSortChan
                   {formatCount(agent.stats.openPositions)}
                 </TableCardField>
               </TableCardGrid>
-
-              {copiedRun ? (
-                <ButtonLight
-                  as={Link}
-                  to={`${APP_PATHS.COPY_TRADING}/my-copies/${copiedRun.copyRunId}`}
-                  padding="6px 12px"
-                  className="w-fit self-end whitespace-nowrap"
-                >
-                  My Copy
-                </ButtonLight>
-              ) : (
-                <ButtonPrimary
-                  type="button"
-                  altDisabledStyle
-                  padding="6px 12px"
-                  disabled={!canStartCopy}
-                  title={!canStartCopy ? getPreparedReasonMessage(agent.startCopyAvailability?.reason) : undefined}
-                  onClick={() => openStartCopy(agent)}
-                >
-                  Copy
-                </ButtonPrimary>
-              )}
             </Stack>
           )
         })}
