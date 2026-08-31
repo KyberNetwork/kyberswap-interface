@@ -13,7 +13,7 @@ import { useBlockNumberFor } from 'state/application/hooks'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { useMultipleContractSingleData, useSingleCallResult } from 'state/multicall/hooks'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
-import { publishLiveBalances } from 'state/walletInventory/store'
+import { publishLiveBalances, retireLiveBalances } from 'state/walletInventory/store'
 import { isAddress } from 'utils/address'
 import { isTokenNative } from 'utils/tokenInfo'
 
@@ -188,6 +188,13 @@ export function useCurrencyBalances(
     })
     publishLiveBalances(chainId, account, blockNumber, reads)
   }, [account, chainId, currentChain, blockNumber, tokens, tokenBalances])
+  // The reads go with the tokens: once this form stops reading a token, its last read must not
+  // linger and outlive the balance it described.
+  useEffect(() => {
+    if (!account || chainId !== currentChain) return
+    const addresses = tokens.map(token => token.address)
+    return () => retireLiveBalances(chainId, account, addresses)
+  }, [account, chainId, currentChain, tokens])
 
   return useMemo(
     () =>
