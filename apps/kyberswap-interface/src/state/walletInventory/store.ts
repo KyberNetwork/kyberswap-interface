@@ -159,6 +159,27 @@ export const publishLiveBalances = (
   emit()
 }
 
+/**
+ * Drops the live reads for tokens a form has stopped reading. A read only means something while its
+ * source refreshes it every block; left behind, it would keep restating a balance the wallet may
+ * since have sold off entirely — an emptied token has no inventory row to outrank it.
+ */
+export const retireLiveBalances = (chainId: number, account: string, addresses: readonly string[]) => {
+  const key = inventoryKey(chainId, account)
+  const previous = liveBalances.get(key)
+  if (!previous) return
+  let next: Map<string, LiveBalance> | undefined
+  addresses.forEach(address => {
+    if (!(next ?? previous).has(address)) return
+    next ??= new Map(previous)
+    next.delete(address)
+  })
+  if (!next) return
+  if (next.size) liveBalances.set(key, next)
+  else liveBalances.delete(key)
+  emit()
+}
+
 /** Marks the wallet's inventory due on the next sweep, e.g. after a transaction of theirs confirms. */
 export const expireInventory = (chainId: number, account: string, awaitingBlock?: number) => {
   // Confirmed transactions arrive from every chain the app serves; only the indexed ones have an

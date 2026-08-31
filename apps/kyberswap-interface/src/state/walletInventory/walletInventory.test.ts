@@ -32,6 +32,7 @@ import {
   readMeta,
   register,
   resetInventoryStore,
+  retireLiveBalances,
 } from 'state/walletInventory/store'
 import { selectDue } from 'state/walletInventory/updater'
 
@@ -699,6 +700,21 @@ describe('publishLiveBalances', () => {
     publishLiveBalances(ChainId.MAINNET, ACCOUNT, 102, [{ address: USDT_CHECKSUM, rawBalance: 6n }])
     expect(readLiveBalances(KEY)?.get(USDT_CHECKSUM)).toEqual({ rawBalance: 6n, blockNumber: 102 })
     expect(getStoreVersion()).toBe(before + 1)
+  })
+
+  it('drops retired reads so a sold-off token is not restated from a stale read', () => {
+    // The swap form read 5 USDT, then the user moved on to another token and sold the USDT off.
+    publishLiveBalances(ChainId.MAINNET, ACCOUNT, 100, [{ address: USDT_CHECKSUM, rawBalance: 5n }])
+    retireLiveBalances(ChainId.MAINNET, ACCOUNT, [USDT_CHECKSUM])
+    expect(readLiveBalances(KEY)).toBeUndefined()
+
+    const soldOff: InventoryEntry = {
+      rows: { [ETHER_ADDRESS]: row(ETHER_ADDRESS, 10n, 120) },
+      status: 'settled',
+      blockNumber: 120,
+      fetchedAt: 1,
+    }
+    expect(resolveInventory(soldOff, true, '10', readLiveBalances(KEY)).rows[USDT_CHECKSUM]).toBeUndefined()
   })
 
   it('ignores chains off the served list', () => {
