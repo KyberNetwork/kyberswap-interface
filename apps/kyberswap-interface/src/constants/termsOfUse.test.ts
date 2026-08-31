@@ -1,14 +1,24 @@
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
+import { existsSync } from 'fs'
 import { describe, expect, it } from 'vitest'
 
-import { TERMS_OF_USE, resolveTermsOfUseAt } from './index'
+import { PRIVACY_POLICY_PATH, TERMS_OF_USE, resolveTermsOfUseAt } from './index'
 
 dayjs.extend(utc)
 
 const [PREVIOUS, LATEST] = TERMS_OF_USE
 
 describe('terms of use', () => {
+  // A path that does not resolve serves a 404 in place of the document the user is agreeing to.
+  it('points every document at a file that ships in public/', () => {
+    const publicDir = new URL('../../public', import.meta.url)
+
+    ;[...TERMS_OF_USE.map(terms => terms.file), PRIVACY_POLICY_PATH].forEach(path => {
+      expect(existsSync(new URL(`.${path}`, `${publicDir}/`))).toBe(true)
+    })
+  })
+
   it('is ordered by version ascending', () => {
     const versions = TERMS_OF_USE.map(terms => terms.version)
     expect(versions).toEqual([...versions].sort((a, b) => a - b))
