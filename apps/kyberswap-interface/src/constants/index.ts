@@ -94,7 +94,7 @@ export const TERMS_OF_USE: TermsOfUse[] = [
     // 2026-08-31T20:00:00Z — 3am 1 September 2026, Vietnam time.
     version: 1788206400000,
     publishedAt: Date.UTC(2026, 8, 1),
-    file: '/files/KyberSwap - Terms of Use - 31 August 2026.pdf',
+    file: '/files/KyberSwap - Terms of Use - 01 September 2026.pdf',
   },
 ]
 
