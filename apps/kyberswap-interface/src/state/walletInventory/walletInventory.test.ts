@@ -30,6 +30,7 @@ import {
   readEntry,
   readLiveBalances,
   readMeta,
+  readTouchedTokens,
   register,
   resetInventoryStore,
   retireLiveBalances,
@@ -266,6 +267,23 @@ describe('post-transaction catch-up', () => {
     commitResult(KEY, { rows: [row(USDT_CHECKSUM, 2n, 125)], complete: true, blockNumber: 125 })
     commitResult(KEY, { rows: [row(USDT_CHECKSUM, 5n, 110)], complete: true, blockNumber: 110 })
     expect(readEntry(KEY)?.rows[USDT_CHECKSUM]?.rawBalance).toBe(2n)
+  })
+
+  it('names the tokens a watched transaction moved, until the inventory catches up', () => {
+    const DAI = '0x6B175474E89094C44Da98b954EedeAC495271d0F'
+    register(ChainId.MAINNET, ACCOUNT)
+    commitResult(KEY, { rows: [row(ETHER_ADDRESS, 10n, 100)], complete: true, blockNumber: 100 })
+    expireInventory(ChainId.MAINNET, ACCOUNT, 120, [USDT_CHECKSUM])
+    const first = readTouchedTokens(KEY, Date.now())
+    expect(first).toEqual([USDT_CHECKSUM])
+    // A second transaction in the same watch adds to the set; an address already there does not.
+    expireInventory(ChainId.MAINNET, ACCOUNT, 121, [USDT_CHECKSUM, DAI])
+    expect(readTouchedTokens(KEY, Date.now())).toEqual([USDT_CHECKSUM, DAI])
+    expireInventory(ChainId.MAINNET, ACCOUNT, 122, [DAI])
+    expect(readTouchedTokens(KEY, Date.now())).toBe(readTouchedTokens(KEY, Date.now()))
+    // Once a walk lands at or past the transaction's block, nothing is read live any more.
+    commitResult(KEY, { rows: [row(ETHER_ADDRESS, 10n, 125)], complete: true, blockNumber: 125 })
+    expect(readTouchedTokens(KEY, Date.now())).toEqual([])
   })
 
   it('ignores transactions on chains off the served list', () => {

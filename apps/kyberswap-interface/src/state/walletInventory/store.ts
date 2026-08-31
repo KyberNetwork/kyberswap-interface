@@ -50,7 +50,15 @@ type Meta = {
    */
   awaitingBlock?: number
   awaitingUntil?: number
+  /**
+   * Tokens the watched transactions moved (checksummed). While the watch is on, consumers read
+   * these straight from the chain and overlay the result, so the indexer's lag is not on screen for
+   * exactly the balances that just changed.
+   */
+  touched?: string[]
 }
+
+const NO_ADDRESSES: string[] = []
 
 const EMPTY_ROWS: Record<string, InventoryRow> = {}
 
@@ -180,23 +188,40 @@ export const retireLiveBalances = (chainId: number, account: string, addresses: 
   emit()
 }
 
-/** Marks the wallet's inventory due on the next sweep, e.g. after a transaction of theirs confirms. */
-export const expireInventory = (chainId: number, account: string, awaitingBlock?: number) => {
+/**
+ * Marks the wallet's inventory due on the next sweep, e.g. after a transaction of theirs confirms.
+ * `touched` names the tokens that transaction moved; they are read live while the watch is on.
+ */
+export const expireInventory = (
+  chainId: number,
+  account: string,
+  awaitingBlock?: number,
+  touched: readonly string[] = NO_ADDRESSES,
+) => {
   // Confirmed transactions arrive from every chain the app serves; only the indexed ones have an
   // inventory to refresh, and writing meta for the rest would accrete dead keys and wake subscribers
   // over data no sweep will ever fetch.
   if (!isInventoryChain(chainId)) return
   const key = inventoryKey(chainId, account)
   const entry = meta.get(key)
+  // Touched tokens accumulate across the transactions of one watch; the array only changes when a
+  // new address joins, so consumers keyed on it do not re-subscribe for nothing.
+  const previousTouched = entry?.touched ?? NO_ADDRESSES
+  const added = touched.filter(address => !previousTouched.includes(address))
   meta.set(key, {
     failures: entry?.failures ?? 0,
     nextRetryAt: 0,
     forced: true,
     awaitingBlock: awaitingBlock ?? entry?.awaitingBlock,
     awaitingUntil: awaitingBlock ? Date.now() + INVENTORY_CATCHUP_TIMEOUT_MS : entry?.awaitingUntil,
+    touched: added.length ? [...previousTouched, ...added] : entry?.touched,
   })
   emit()
 }
+
+/** Tokens to read live for this wallet: those its watched transactions moved, while the watch is on. */
+export const readTouchedTokens = (key: string, now: number): string[] =>
+  isAwaitingBlock(key, now) ? meta.get(key)?.touched ?? NO_ADDRESSES : NO_ADDRESSES
 
 /** True while we are still chasing a transaction's block for this wallet. */
 export const isAwaitingBlock = (key: string, now: number): boolean => {
