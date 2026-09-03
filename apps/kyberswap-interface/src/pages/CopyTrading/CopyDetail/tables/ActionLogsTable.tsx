@@ -17,6 +17,7 @@ import {
   TableRow,
 } from 'pages/CopyTrading/components/Table'
 import { TxHashLink } from 'pages/CopyTrading/components/common/TxHashLink'
+import { ShortenedId } from 'pages/CopyTrading/components/common/layout'
 import { formatTokenAmount } from 'pages/CopyTrading/helpers'
 import { cn } from 'utils/cn'
 import { formatDateTime } from 'utils/time'
@@ -64,7 +65,7 @@ const ActivityGrid = ({ header, className, ...props }: TableGridWrapperProps) =>
   return (
     <Grid
       className={cn(
-        'min-w-[800px] grid-cols-[minmax(80px,0.8fr)_minmax(160px,1fr)_minmax(120px,1fr)_minmax(160px,1.3fr)_minmax(104px,0.9fr)] gap-x-3 whitespace-nowrap',
+        'min-w-[900px] grid-cols-[minmax(84px,0.8fr)_minmax(80px,0.8fr)_minmax(160px,1fr)_minmax(120px,1fr)_minmax(160px,1.3fr)_minmax(104px,0.9fr)] gap-x-3 whitespace-nowrap',
         className,
       )}
       {...props}
@@ -118,6 +119,7 @@ export const ActionLogsTable = ({
     <Stack>
       <InfiniteScroll {...infiniteScroll}>
         <ActivityGrid header className="sticky top-0 z-[1] hidden md:grid">
+          <HeaderCell>Trade ID</HeaderCell>
           <HeaderCell>Token</HeaderCell>
           <HeaderCell className="p-0">
             <Select
@@ -141,7 +143,7 @@ export const ActionLogsTable = ({
           <HeaderCell className="justify-end text-right">Tx Hash</HeaderCell>
         </ActivityGrid>
         <TableBody
-          className="grid gap-2 bg-transparent md:block md:min-w-[800px] md:bg-buttonBlack-60"
+          className="grid gap-2 bg-transparent md:block md:min-w-[900px] md:bg-buttonBlack-60"
           empty={!rows.length}
           emptyMessage="No action logs found"
           loading={loading}
@@ -154,6 +156,9 @@ export const ActionLogsTable = ({
             return (
               <div key={row.activityId}>
                 <ActivityGrid className="max-md:hidden">
+                  <TableCell className="text-subText">
+                    <ShortenedId value={row.tradeId} />
+                  </TableCell>
                   <TableCell>{token?.symbol || 'N/A'}</TableCell>
                   <TableCell className={type.colorClassName}>{type.label}</TableCell>
                   <TableCell className="text-right">{amount}</TableCell>
@@ -165,6 +170,12 @@ export const ActionLogsTable = ({
 
                 <Stack className="gap-3 rounded-xl bg-buttonBlack p-3 md:hidden">
                   <TableCardGrid>
+                    <TableCardField label="Trade ID">
+                      <ShortenedId value={row.tradeId} />
+                    </TableCardField>
+                    <TableCardField align="right" label="Tx Hash" valueClassName="text-subText">
+                      {row.txHash && <TxHashLink chainId={row.chainId} txHash={row.txHash} />}
+                    </TableCardField>
                     <TableCardField label="Token">{token?.symbol || 'N/A'}</TableCardField>
                     <TableCardField align="right" label="Type" valueClassName={type.colorClassName}>
                       {type.label}
@@ -172,9 +183,6 @@ export const ActionLogsTable = ({
                     <TableCardField label="Amount">{amount}</TableCardField>
                     <TableCardField align="right" label="Closed Time" valueClassName="text-subText">
                       {formatDateTime(row.occurredAt)}
-                    </TableCardField>
-                    <TableCardField span="full" label="Tx Hash" valueClassName="text-subText">
-                      {row.txHash && <TxHashLink chainId={row.chainId} txHash={row.txHash} />}
                     </TableCardField>
                   </TableCardGrid>
                 </Stack>

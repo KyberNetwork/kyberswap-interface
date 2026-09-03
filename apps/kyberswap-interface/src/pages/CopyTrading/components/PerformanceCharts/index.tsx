@@ -1,9 +1,8 @@
 import { AnimatePresence, motion } from 'framer-motion'
-import { type PropsWithChildren, type ReactNode, useState } from 'react'
+import { type PropsWithChildren, type ReactNode, useMemo, useState } from 'react'
 import { ChevronDown, ChevronUp } from 'react-feather'
 import { useMedia } from 'react-use'
 import { Area, AreaChart, Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
-import type { PerformancePoint } from 'services/copyTrading/types/agents'
 import type { PerformanceWindow } from 'services/copyTrading/types/primitives'
 
 import IconButton from 'components/Button/IconButton'
@@ -14,8 +13,20 @@ import { HStack, Stack } from 'components/Stack'
 import { formatUsd, getSignedMetricClassName, percent } from 'pages/CopyTrading/helpers'
 import { MEDIA_WIDTHS } from 'theme'
 import { cn } from 'utils/cn'
-import { formatDisplayNumber } from 'utils/numbers'
 import { formatDateTime, formatShortDate } from 'utils/time'
+
+import {
+  type PerformanceChartPoint,
+  type PnlDataKey,
+  Y_AXIS_WIDTH,
+  compactAxisUsd,
+  formatPnlAxisTick,
+  getPnlGradientOffset,
+  getRoundedYAxisScale,
+  toPerformanceChartPoint,
+} from './utils'
+
+export { toPerformanceChartPoint }
 
 const chartWindowOptions: readonly SegmentedControlOption<PerformanceWindow>[] = [
   { label: '7D', value: '7d' },
@@ -23,53 +34,6 @@ const chartWindowOptions: readonly SegmentedControlOption<PerformanceWindow>[] =
   { label: '3M', value: '90d' },
   { label: 'All', value: 'all' },
 ]
-
-const Y_AXIS_WIDTH = 48
-
-const compactAxisUsd = (value: number) =>
-  formatDisplayNumber(value, { allowDisplayNegative: true, significantDigits: 2, style: 'currency' })
-
-const compactAxisPercent = (value: number) =>
-  `${formatDisplayNumber(value, { allowDisplayNegative: true, significantDigits: 2 })}%`
-
-const formatPnlAxisTick = (value: number, metric: 'usd' | 'return') =>
-  metric === 'return' ? compactAxisPercent(value) : compactAxisUsd(value)
-
-type PerformanceChartPoint = {
-  timestamp: number
-  portfolioValueUsd?: number
-  realizedPnlUsd?: number
-  totalPnlUsd?: number
-  valuePct?: number
-}
-
-const toChartNumber = (value?: string) => {
-  if (value === undefined) return undefined
-
-  const amount = Number(value)
-  return Number.isFinite(amount) ? amount : undefined
-}
-
-export const toPerformanceChartPoint = (point: PerformancePoint): PerformanceChartPoint => ({
-  timestamp: new Date(point.timestamp).getTime(),
-  portfolioValueUsd: toChartNumber(point.portfolioValueUsd),
-  realizedPnlUsd: toChartNumber(point.realizedPnlUsd),
-  totalPnlUsd: toChartNumber(point.totalPnlUsd),
-  valuePct: toChartNumber(point.valuePct),
-})
-
-type PnlDataKey = 'totalPnlUsd' | 'valuePct'
-
-const getPnlGradientOffset = (data: PerformanceChartPoint[], dataKey: PnlDataKey) => {
-  const values = data.map(point => point[dataKey]).filter(value => value !== undefined)
-  if (!values.length) return 1
-  const maximum = Math.max(...values)
-  const minimum = Math.min(...values)
-
-  if (maximum <= 0) return 0
-  if (minimum >= 0) return 1
-  return maximum / (maximum - minimum)
-}
 
 type ChartTitleProps = {
   loading?: boolean
@@ -191,18 +155,16 @@ const getPnlActiveDotFill = (value?: number) => {
   return value > 0 ? 'var(--ks-primary)' : 'var(--ks-red)'
 }
 
-const PnlActiveDot = ({ cx, cy, dataKey, payload }: PnlActiveDotProps) => {
-  return (
-    <circle
-      cx={cx}
-      cy={cy}
-      fill={getPnlActiveDotFill(payload?.[dataKey])}
-      r={4}
-      stroke="var(--ks-buttonBlack)"
-      strokeWidth={2}
-    />
-  )
-}
+const PnlActiveDot = ({ cx, cy, dataKey, payload }: PnlActiveDotProps) => (
+  <circle
+    cx={cx}
+    cy={cy}
+    fill={getPnlActiveDotFill(payload?.[dataKey])}
+    r={4}
+    stroke="var(--ks-buttonBlack)"
+    strokeWidth={2}
+  />
+)
 
 type ChartStateProps = PropsWithChildren<{
   className?: string
@@ -255,6 +217,7 @@ export const CumulativeTotalPnlChart = ({
   const dataKey: PnlDataKey = metric === 'usd' ? 'totalPnlUsd' : 'valuePct'
   const gradientOffset = getPnlGradientOffset(data, dataKey)
   const hasSelectedMetric = data.some(point => point[dataKey] !== undefined)
+  const yAxisScale = useMemo(() => getRoundedYAxisScale(data.map(point => point[dataKey])), [data, dataKey])
   const chartControls = (
     <HStack className="items-center gap-2">
       <SegmentedControl
@@ -304,9 +267,11 @@ export const CumulativeTotalPnlChart = ({
               />
               <YAxis
                 axisLine={false}
+                domain={yAxisScale?.domain}
                 tick={{ fill: 'var(--ks-subText)', fontSize: 12 }}
                 tickFormatter={value => formatPnlAxisTick(value, metric)}
                 tickLine={false}
+                ticks={yAxisScale?.ticks}
                 width={Y_AXIS_WIDTH}
               />
               <Tooltip content={<ChartTooltip />} cursor={{ stroke: 'var(--ks-text-12)', strokeDasharray: '4 4' }} />
@@ -347,6 +312,7 @@ export const CapitalValueChart = ({
   title = 'Capital Value',
   window,
 }: CapitalValueChartProps) => {
+  const yAxisScale = useMemo(() => getRoundedYAxisScale(data.map(point => point.portfolioValueUsd)), [data])
   const windowControl =
     window && onWindowChange ? (
       <SegmentedControl onChange={onWindowChange} options={chartWindowOptions} size="sm" value={window} />
@@ -369,10 +335,12 @@ export const CapitalValueChart = ({
               />
               <YAxis
                 axisLine={false}
+                domain={yAxisScale?.domain}
                 orientation="right"
                 tick={{ fill: 'var(--ks-subText)', fontSize: 12 }}
                 tickFormatter={compactAxisUsd}
                 tickLine={false}
+                ticks={yAxisScale?.ticks}
                 width={Y_AXIS_WIDTH}
               />
               <Tooltip content={<ChartTooltip />} cursor={{ fill: 'var(--ks-primary-12)' }} />

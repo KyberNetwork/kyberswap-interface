@@ -97,7 +97,7 @@ export const ManagePositionReview = ({
           label="You Sell"
           token={baseToken}
         />
-        <div className="absolute left-1/2 top-1/2 z-[1] flex size-8 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-lg border-4 border-tableHeader bg-white-08 text-subText">
+        <div className="absolute left-1/2 top-1/2 z-[1] flex size-8 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-lg border-4 border-tableHeader bg-[#3a3a3a] text-subText">
           <ArrowDown size={14} />
         </div>
         <TokenAmountPanel
