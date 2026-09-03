@@ -4,8 +4,8 @@
 export const agentProfileResponsiveOrder = {
   copyAction: 1,
   performance: 2,
-  activity: 3,
-  risk: 4,
-  strategy: 5,
-  tokens: 6,
+  risk: 3,
+  strategy: 4,
+  tokens: 5,
+  activity: 6,
 } as const
