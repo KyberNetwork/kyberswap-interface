@@ -7,7 +7,7 @@ import kyberDao1 from 'assets/images/gas-refund/kyberdao-1.png'
 import kyberDao2 from 'assets/images/gas-refund/kyberdao-2.png'
 import { ButtonLight } from 'components/Button'
 import { HStack, Stack } from 'components/Stack'
-import { APP_PATHS, getActiveTermsOfUse } from 'constants/index'
+import { APP_PATHS, TERMS_OF_USE } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useStakingInfo } from 'hooks/kyberdao'
 import FAQ from 'pages/KyberDAO/KNCUtility/FAQ'
@@ -178,7 +178,7 @@ export default function KNCUtility() {
             <li>
               <Trans>
                 These Terms and Conditions should be read in conjunction with the KyberSwap{' '}
-                <ExternalLink href={getActiveTermsOfUse().file}>Terms of Use</ExternalLink>, which lay out the terms and
+                <ExternalLink href={TERMS_OF_USE.file}>Terms of Use</ExternalLink>, which lay out the terms and
                 conditions that apply to all KyberSwap activities.
               </Trans>
             </li>
@@ -186,7 +186,7 @@ export default function KNCUtility() {
               <Trans>
                 By visiting KyberSwap and participating in the program, the User is deemed to have read, understood, and
                 agreed to these Terms and Conditions and the KyberSwap{' '}
-                <ExternalLink href={getActiveTermsOfUse().file}>Terms of Use</ExternalLink>.
+                <ExternalLink href={TERMS_OF_USE.file}>Terms of Use</ExternalLink>.
               </Trans>
             </li>
             <li>
@@ -198,9 +198,9 @@ export default function KNCUtility() {
             <li>
               <Trans>
                 KyberSwap maintains the right, at its sole discretion, to take action or remove rewards against the User
-                who violates the KyberSwap <ExternalLink href={getActiveTermsOfUse().file}>Terms of Use</ExternalLink>{' '}
-                and/or violates, cheats, or exploits the program, including but not limited to, any suspicious
-                activities, or any attempts to circumvent these Terms and Conditions.
+                who violates the KyberSwap <ExternalLink href={TERMS_OF_USE.file}>Terms of Use</ExternalLink> and/or
+                violates, cheats, or exploits the program, including but not limited to, any suspicious activities, or
+                any attempts to circumvent these Terms and Conditions.
               </Trans>
             </li>
             <li>

@@ -12,7 +12,7 @@ import Faucet from 'components/Icons/Faucet'
 import VoteIcon from 'components/Icons/Vote'
 import { MenuItem, MenuItemContent, MenuItemLink, MenuSection, Title } from 'components/Menu/MenuItems'
 import NavDropDown from 'components/Menu/NavDropDown'
-import { AGGREGATOR_ANALYTICS_URL, APP_PATHS, PRIVACY_POLICY_PATH, getActiveTermsOfUse } from 'constants/index'
+import { AGGREGATOR_ANALYTICS_URL, APP_PATHS, PRIVACY_POLICY_PATH, TERMS_OF_USE } from 'constants/index'
 import { FAUCET_NETWORKS } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
@@ -227,13 +227,13 @@ export const MainMenuSection = ({ openTipLinkGenerator, toggle }: MainMenuSectio
       <MenuItem>
         <MenuItemLink>
           <ExternalLink
-            href={getActiveTermsOfUse().file}
+            href={TERMS_OF_USE.file}
             onClick={() => {
               toggle?.()
               handleMenuClickMixpanel('Terms')
               trackingHandler(TRACKING_EVENT_TYPE.MENU_LINK_CLICKED, {
                 item_label: 'Terms',
-                item_url: getActiveTermsOfUse().file,
+                item_url: TERMS_OF_USE.file,
                 is_external: true,
               })
             }}

@@ -1,4 +1,4 @@
-import { SUPPORTED_NETWORKS } from './networks'
+import { SUPPORTED_NETWORKS } from 'constants/networks'
 
 export const KYBERSWAP_DOMAIN = 'kyberswap.com'
 /** Canonical production base URL (no trailing slash). Use this instead of hardcoding the domain. */
@@ -68,47 +68,20 @@ export const APP_PATHS = {
 
 export const PRIVACY_POLICY_PATH = '/files/Kyber - Privacy Policy - 20 November 2023.pdf'
 
-export type TermsOfUse = {
+export const TERMS_OF_USE = {
+  file: '/files/KyberSwap - Terms of Use - 01 September 2026.pdf',
   /**
-   * The instant the document takes effect, and at the same time its identity: it is compared against
-   * the version the user has accepted, so a user holding an older one is asked to accept again.
+   * Identity of the published document, compared against the version the user has accepted. Bumping
+   * it asks every user to accept again, so it changes only when a new document is published.
    */
-  version: number
+  version: 1788206400000,
   /**
    * The date the document is published under, shown as its "Last updated" label. Held apart from
-   * `version` because a document can take effect at an hour that falls on a different calendar day.
-   * Read in UTC so every viewer sees the one date the label is written for.
+   * `version`, which lands on a different calendar day. Read in UTC so every viewer sees the one
+   * date the label is written for.
    */
-  publishedAt: number
-  file: string
+  publishedAt: Date.UTC(2026, 8, 1),
 }
-
-/** Ordered by `version` ascending. Publishing a new document means appending one entry. */
-export const TERMS_OF_USE: TermsOfUse[] = [
-  {
-    version: 1744873065000,
-    publishedAt: Date.UTC(2025, 3, 17),
-    file: '/files/Kyber - Terms of Use - 17 April 2025.pdf',
-  },
-  {
-    // 2026-08-31T20:00:00Z — 3am 1 September 2026, Vietnam time.
-    version: 1788206400000,
-    publishedAt: Date.UTC(2026, 8, 1),
-    file: '/files/KyberSwap - Terms of Use - 01 September 2026.pdf',
-  },
-]
-
-export const resolveTermsOfUseAt = (now: number): TermsOfUse =>
-  TERMS_OF_USE.filter(terms => now >= terms.version).at(-1) ?? TERMS_OF_USE[0]
-
-let activeTermsOfUse: TermsOfUse | undefined
-
-/**
- * Resolved once per page load rather than per render, so a session that is open while a new document
- * takes effect keeps the one it started under and only switches on the next reload. That keeps the
- * switchover off the critical path of a swap someone is in the middle of.
- */
-export const getActiveTermsOfUse = (): TermsOfUse => (activeTermsOfUse ??= resolveTermsOfUseAt(Date.now()))
 
 export const EIP712Domain = [
   { name: 'name', type: 'string' },

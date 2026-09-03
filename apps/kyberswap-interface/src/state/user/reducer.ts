@@ -105,7 +105,7 @@ export interface UserState {
   acceptedTermVersion: number | null
   /**
    * Version of the terms acknowledged inside Safe App. Some persisted state carries a plain `true`
-   * here rather than a version, so reads normalise both shapes.
+   * here rather than a version, which reads as not yet acknowledged.
    */
   safeAppAcceptedTermOfUse: number | boolean | null
   viewMode: VIEW_MODE
