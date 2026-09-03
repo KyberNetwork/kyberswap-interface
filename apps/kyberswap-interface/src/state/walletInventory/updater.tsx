@@ -8,12 +8,13 @@ import {
   commitFailure,
   commitResult,
   getStoreVersion,
-  isAwaitingBlock,
+  isCatchingUp,
   isInventoryChain,
   markChainUnsupported,
   readEntry,
   readMeta,
   readSubscriptions,
+  readTouchedTokens,
   subscribeStore,
 } from 'state/walletInventory/store'
 
@@ -64,8 +65,9 @@ export const selectDue = (now: number, windowVisible: boolean): DueTarget[] => {
 
     if (!windowVisible) return
 
-    // Chasing a just-confirmed transaction: poll faster than the TTL until the indexer catches up.
-    if (isAwaitingBlock(key, now)) {
+    // Chasing a just-confirmed transaction: poll faster than the TTL until the index catches up (or,
+    // with no block to chase, until the window runs out).
+    if (isCatchingUp(key, now)) {
       if (now - entry.fetchedAt >= INVENTORY_CATCHUP_INTERVAL_MS) due.push({ key, chainId, account })
       return
     }
@@ -108,7 +110,10 @@ export default function Updater(): null {
     try {
       const runTarget = async ({ key, chainId, account }: DueTarget) => {
         try {
-          commitResult(key, await fetchWalletInventory({ chainId, account, signal }))
+          // Tokens a just-confirmed transaction moved are asked for as live reads, so the answer
+          // carries their balance at the head block instead of the indexer's lagging one.
+          const liveAddrs = readTouchedTokens(key, Date.now())
+          commitResult(key, await fetchWalletInventory({ chainId, account, signal, liveAddrs }))
         } catch (error) {
           // An unindexed chain is a permanent answer, not a transient failure: disable it for the
           // session so consumers settle on the multicall path instead of retrying forever.

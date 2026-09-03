@@ -12,7 +12,7 @@ export { UnsupportedChainError, parseRawAmount }
 export type InventoryRow = {
   /** Checksummed. The API's native sentinel is normalized to `ETHER_ADDRESS`. */
   address: string
-  /** On-chain units. Divide by the token's real `decimals` only at display time. */
+  /** On-chain units; zero when a live read found the token emptied. Divide by `decimals` only at display time. */
   rawBalance: bigint
   /** Block at which this token's balance last changed — per token, not a snapshot of the response. */
   blockNumber: number
@@ -28,7 +28,11 @@ export type WalletInventoryResult = {
    * be read as "every other token is zero" — it only proves the tokens it does list are held.
    */
   complete: boolean
-  /** Highest `blockNumber` seen, i.e. how far this inventory has caught up to the chain. */
+  /**
+   * How far the index has caught up to the chain. Live reads are excluded on purpose: they are
+   * stamped at the head, and a caller waiting out the indexer's lag would otherwise stop waiting the
+   * moment it asked for one.
+   */
   blockNumber: number
 }
 
@@ -67,30 +71,40 @@ export const adaptRow = (chainId: ChainId, raw: InventoryRawRow): InventoryRow |
 /**
  * Every token the wallet holds on one chain, walked to completion by the shared client and adapted
  * to the app's checksummed row shape. Rows the service returns malformed are dropped rather than
- * poisoning the map; zero rows (tombstones) are dropped too, since for a full walk "gone" simply means
- * "not in the result".
+ * poisoning the map. Zero rows are kept: a live read reporting a token emptied is a fact stamped at
+ * the head, and the store needs it to outrank the index's lagging amount until the index catches up.
  */
 export const fetchWalletInventory = async ({
   chainId,
   account,
   signal,
+  liveAddrs,
 }: {
   chainId: ChainId
   account: string
   signal?: AbortSignal
+  /** Tokens the service should read from the node as it answers; see `walkWalletInventory`. */
+  liveAddrs?: readonly string[]
 }): Promise<WalletInventoryResult> => {
   if (!KD_API_URL) throw new Error('wallet inventory host is not configured')
-  const { rows: raw, complete } = await walkWalletInventory({ baseUrl: KD_API_URL, chainId, account, signal })
+  const {
+    rows: raw,
+    complete,
+    indexedBlock,
+  } = await walkWalletInventory({
+    baseUrl: KD_API_URL,
+    chainId,
+    account,
+    signal,
+    liveAddrs,
+  })
 
   const rows: InventoryRow[] = []
-  let blockNumber = 0
   raw.forEach(candidate => {
     if (!rowSchema.safeParse(candidate).success) return
     const row = adaptRow(chainId, candidate)
-    if (!row) return
-    blockNumber = Math.max(blockNumber, row.blockNumber)
-    if (row.rawBalance > 0n) rows.push(row)
+    if (row) rows.push(row)
   })
 
-  return { rows, complete, blockNumber }
+  return { rows, complete, blockNumber: indexedBlock }
 }
