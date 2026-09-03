@@ -12,7 +12,7 @@ export { UnsupportedChainError, parseRawAmount }
 export type InventoryRow = {
   /** Checksummed. The API's native sentinel is normalized to `ETHER_ADDRESS`. */
   address: string
-  /** On-chain units. Divide by the token's real `decimals` only at display time. */
+  /** On-chain units; zero when a live read found the token emptied. Divide by `decimals` only at display time. */
   rawBalance: bigint
   /** Block at which this token's balance last changed — per token, not a snapshot of the response. */
   blockNumber: number
@@ -71,8 +71,8 @@ export const adaptRow = (chainId: ChainId, raw: InventoryRawRow): InventoryRow |
 /**
  * Every token the wallet holds on one chain, walked to completion by the shared client and adapted
  * to the app's checksummed row shape. Rows the service returns malformed are dropped rather than
- * poisoning the map; zero rows (tombstones) are dropped too, since for a full walk "gone" simply means
- * "not in the result".
+ * poisoning the map. Zero rows are kept: a live read reporting a token emptied is a fact stamped at
+ * the head, and the store needs it to outrank the index's lagging amount until the index catches up.
  */
 export const fetchWalletInventory = async ({
   chainId,
@@ -103,8 +103,7 @@ export const fetchWalletInventory = async ({
   raw.forEach(candidate => {
     if (!rowSchema.safeParse(candidate).success) return
     const row = adaptRow(chainId, candidate)
-    if (!row) return
-    if (row.rawBalance > 0n) rows.push(row)
+    if (row) rows.push(row)
   })
 
   return { rows, complete, blockNumber: indexedBlock }

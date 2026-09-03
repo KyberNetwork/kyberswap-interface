@@ -97,9 +97,10 @@ export const useWalletAssets = (): WalletAssets => {
       }
     }
     return {
-      // Not settled means the trust check is still waiting on the native read: the list could be
-      // handed back to multicall a block later, so it is not shown yet.
-      loading: !tokenListReady || !inventory.settled,
+      // Rows the index does list are shown as soon as they are known. What waits on the native read
+      // is only an inventory that lists nothing: that is either a wallet with no tokens or one the
+      // index has never seen, and the read is what tells the two apart.
+      loading: !tokenListReady || (!inventory.settled && !holdings.vetted.length && !holdings.hidden.length),
       currencies: ranked.currencies,
       currencyBalances: holdings.currencyBalances,
       usdBalances: prices,

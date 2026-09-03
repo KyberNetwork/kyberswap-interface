@@ -30,7 +30,11 @@ export type InventoryStatus =
   | 'error'
 
 export type InventoryEntry = {
-  /** Checksummed token address → row. Only tokens with a non-zero balance. */
+  /**
+   * Checksummed token address → row, as merged across walks. Includes zero rows a live read
+   * established (tombstones): they hold their place against the index's lagging amount until it
+   * catches up. Readers take them as absent; see `resolveInventory`.
+   */
   rows: Record<string, InventoryRow>
   status: InventoryStatus
   /** How far this inventory has caught up to the chain. */
@@ -44,19 +48,20 @@ type Meta = {
   /** Set by `expireInventory`; makes the next sweep pick this entry up whatever its TTL says. */
   forced: boolean
   /**
-   * Block of a transaction the user just made. While the inventory's block is behind it the sweep
-   * polls at the catch-up cadence instead of the TTL; the watch retires by itself once caught up or
-   * on timeout.
+   * The catch-up watch opened by a transaction the user just made. While it is on, the sweep polls
+   * at the catch-up cadence and asks the service to read `touched` from the node (`liveAddrs`), so
+   * the balances that just changed are right before the index has caught up. It retires when the
+   * index reaches `awaitingBlock`, or at `awaitingUntil` when there is no block to chase (a Safe
+   * receipt carries none).
    */
   awaitingBlock?: number
   awaitingUntil?: number
-  /**
-   * Tokens the watched transactions moved (checksummed). While the watch is on, consumers read
-   * these straight from the chain and overlay the result, so the indexer's lag is not on screen for
-   * exactly the balances that just changed.
-   */
+  /** Checksummed tokens the watched transactions moved. */
   touched?: string[]
 }
+
+/** Live reads per catch-up poll are node reads on the service; a session of trading must not pile up. */
+const TOUCHED_CAP = 32
 
 const NO_ADDRESSES: string[] = []
 
@@ -135,36 +140,45 @@ export const expireInventory = (
   // inventory to refresh, and writing meta for the rest would accrete dead keys and wake subscribers
   // over data no sweep will ever fetch.
   if (!isInventoryChain(chainId)) return
+  const now = Date.now()
   const key = inventoryKey(chainId, account)
   const entry = meta.get(key)
-  // Touched tokens accumulate across the transactions of one watch; the array only changes when a
-  // new address joins, so consumers keyed on it do not re-subscribe for nothing.
-  const previousTouched = entry?.touched ?? NO_ADDRESSES
-  const added = touched.filter(address => !previousTouched.includes(address))
+  // Tokens accumulate across the transactions of one watch and are dropped with it: the list is the
+  // current transactions', not the session's. It only changes when an address joins, so consumers
+  // keyed on it do not re-subscribe for nothing.
+  const carried = entry && isCatchingUp(key, now) ? entry.touched ?? NO_ADDRESSES : NO_ADDRESSES
+  const added = touched.filter(address => !carried.includes(address))
+  const carriedBlock = carried.length ? entry?.awaitingBlock : undefined
   meta.set(key, {
     failures: entry?.failures ?? 0,
     nextRetryAt: 0,
     forced: true,
-    awaitingBlock: awaitingBlock ?? entry?.awaitingBlock,
-    awaitingUntil: awaitingBlock ? Date.now() + INVENTORY_CATCHUP_TIMEOUT_MS : entry?.awaitingUntil,
-    touched: added.length ? [...previousTouched, ...added] : entry?.touched,
+    awaitingBlock: awaitingBlock !== undefined ? Math.max(awaitingBlock, carriedBlock ?? 0) : carriedBlock,
+    awaitingUntil: now + INVENTORY_CATCHUP_TIMEOUT_MS,
+    touched: added.length ? [...carried, ...added].slice(-TOUCHED_CAP) : carried.length ? entry?.touched : undefined,
   })
   emit()
 }
 
-/** Tokens to read live for this wallet: those its watched transactions moved, while the watch is on. */
-export const readTouchedTokens = (key: string, now: number): string[] =>
-  isAwaitingBlock(key, now) ? meta.get(key)?.touched ?? NO_ADDRESSES : NO_ADDRESSES
-
-/** True while we are still chasing a transaction's block for this wallet. */
-export const isAwaitingBlock = (key: string, now: number): boolean => {
+/**
+ * True while the inventory is still chasing a transaction of this wallet's: until the index reaches
+ * the transaction's block, or, when the receipt carried none, until the window runs out.
+ */
+export const isCatchingUp = (key: string, now: number): boolean => {
   const entry = meta.get(key)
-  if (!entry?.awaitingBlock) return false
-  if (entry.awaitingUntil && now > entry.awaitingUntil) return false
-  return (entries.get(key)?.blockNumber ?? 0) < entry.awaitingBlock
+  if (!entry?.awaitingUntil || now > entry.awaitingUntil) return false
+  return entry.awaitingBlock === undefined || (entries.get(key)?.blockNumber ?? 0) < entry.awaitingBlock
 }
 
-/** Field-level equality for the render-relevant parts of two row maps. */
+/** Tokens to read live for this wallet: those its watched transactions moved, while the watch is on. */
+export const readTouchedTokens = (key: string, now: number): string[] =>
+  isCatchingUp(key, now) ? meta.get(key)?.touched ?? NO_ADDRESSES : NO_ADDRESSES
+
+/**
+ * Field-level equality for the rendered parts of two row maps. The block stamp is bookkeeping, not
+ * rendered: a live read re-stamped at every catch-up poll must not wake every consumer over a
+ * balance that did not move.
+ */
 const rowsEqual = (a: Record<string, InventoryRow>, b: Record<string, InventoryRow>): boolean => {
   const aKeys = Object.keys(a)
   if (aKeys.length !== Object.keys(b).length) return false
@@ -172,8 +186,7 @@ const rowsEqual = (a: Record<string, InventoryRow>, b: Record<string, InventoryR
     const x = a[key]
     const y = b[key]
     if (!y) return false
-    if (x.rawBalance !== y.rawBalance || x.blockNumber !== y.blockNumber) return false
-    if (x.decimals !== y.decimals || x.symbol !== y.symbol) return false
+    if (x.rawBalance !== y.rawBalance || x.decimals !== y.decimals || x.symbol !== y.symbol) return false
   }
   return true
 }
@@ -192,8 +205,25 @@ export const commitResult = (key: string, result: WalletInventoryResult) => {
   const rows: Record<string, InventoryRow> = {}
   result.rows.forEach(row => {
     const existing = previous?.rows[row.address]
-    rows[row.address] = existing && existing.blockNumber > row.blockNumber ? existing : row
+    if (existing && existing.blockNumber > row.blockNumber) {
+      rows[row.address] = existing
+      return
+    }
+    // The catalog description travels with the token whichever row wins: a live read may carry none.
+    rows[row.address] =
+      existing && (row.decimals === undefined || row.symbol === undefined)
+        ? { ...row, decimals: row.decimals ?? existing.decimals, symbol: row.symbol ?? existing.symbol }
+        : row
   })
+  // A walk only retires rows its index is authoritative about. Anything it did not list but that was
+  // stamped past what its index knows — a live read, a token bought or emptied at the head — is
+  // carried forward, so the index catching up later cannot restate a balance the node has already
+  // contradicted.
+  if (previous) {
+    Object.values(previous.rows).forEach(row => {
+      if (!rows[row.address] && row.blockNumber > result.blockNumber) rows[row.address] = row
+    })
+  }
 
   // The steady-state poll usually returns exactly what is already on screen. Committing it as a new
   // object would ripple identity changes all the way to a full re-sort of the token list every TTL

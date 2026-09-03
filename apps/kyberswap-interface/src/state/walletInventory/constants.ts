@@ -1,3 +1,5 @@
+import { INDEXER_CATCHUP_WINDOW_MS } from '@kyber/hooks'
+
 // The served-chain list is `WALLET_INVENTORY_CHAINS` in `@kyber/hooks`, shared with the widget
 // selectors so the two can never drift; the store gates on it through `isWalletInventoryChain`.
 
@@ -11,10 +13,10 @@ export const INVENTORY_TTL_MS = 30_000
 export const INVENTORY_CATCHUP_INTERVAL_MS = 5_000
 
 /**
- * How long to keep chasing the indexer for a transaction's block before giving up and returning to
- * the normal TTL. Comfortably past the observed 15–70s indexing lag.
+ * How long after a transaction its tokens are read live and the inventory polled at the catch-up
+ * cadence, unless the index reaches the transaction's block first. Shared with the widget store.
  */
-export const INVENTORY_CATCHUP_TIMEOUT_MS = 150_000
+export const INVENTORY_CATCHUP_TIMEOUT_MS = INDEXER_CATCHUP_WINDOW_MS
 
 /** Backoff after consecutive failures. The last entry is the ceiling; retries never stop. */
 export const INVENTORY_RETRY_BACKOFF_MS = [5_000, 15_000, 45_000, 120_000]

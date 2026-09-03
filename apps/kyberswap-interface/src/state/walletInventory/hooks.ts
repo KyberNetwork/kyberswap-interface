@@ -1,5 +1,5 @@
 import { ChainId, Token, TokenAmount } from '@kyberswap/ks-sdk-core'
-import { useEffect, useMemo, useState, useSyncExternalStore } from 'react'
+import { useEffect, useMemo, useSyncExternalStore } from 'react'
 
 import { useActiveWeb3React } from 'hooks'
 import { useNativeBalance } from 'state/wallet/hooks'
@@ -22,9 +22,14 @@ import {
 
 export type { WalletInventory }
 
-/** How long the trust check waits for the live native read before handing the wallet back to multicall. */
-const NATIVE_READ_TIMEOUT_MS = 10_000
-
+/**
+ * Subscribes to the wallet's token inventory on a chain. Every consumer sharing a (chain, account)
+ * shares one poll, so the selector, the token list and the wallet popup cost a single request between
+ * them.
+ *
+ * Pass `enabled: false` for surfaces that are mounted but not showing balances (a closed modal), so
+ * they register no traffic.
+ */
 export const useWalletInventory = (chainId?: ChainId, enabled = true): WalletInventory => {
   const { chainId: currentChain, account } = useActiveWeb3React()
   const resolvedChain = chainId || currentChain
@@ -48,22 +53,7 @@ export const useWalletInventory = (chainId?: ChainId, enabled = true): WalletInv
   // keyed on the value to avoid rebuilding rows for a balance that did not move.
   const nativeRawBalance = useNativeBalance(resolvedChain)?.quotient.toString()
 
-  // A read that never arrives would hold the trust check open for good, and every consumer on a
-  // loader with it. Past the deadline the wallet goes back to the caller's own balance source.
-  const [nativeReadTimedOut, setNativeReadTimedOut] = useState(false)
-  useEffect(() => {
-    if (!subscribed || nativeRawBalance !== undefined) {
-      setNativeReadTimedOut(false)
-      return
-    }
-    const timer = setTimeout(() => setNativeReadTimedOut(true), NATIVE_READ_TIMEOUT_MS)
-    return () => clearTimeout(timer)
-  }, [subscribed, nativeRawBalance, resolvedChain, account])
-
-  return useMemo(
-    () => resolveInventory(entry, subscribed, nativeRawBalance, nativeReadTimedOut),
-    [entry, subscribed, nativeRawBalance, nativeReadTimedOut],
-  )
+  return useMemo(() => resolveInventory(entry, subscribed, nativeRawBalance), [entry, subscribed, nativeRawBalance])
 }
 
 /**

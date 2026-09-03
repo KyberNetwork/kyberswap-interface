@@ -12,7 +12,7 @@ import { InventoryEntry } from 'state/walletInventory/store'
 const EMPTY_ROWS: Record<string, InventoryRow> = {}
 
 export type WalletInventory = {
-  /** Checksummed token address → row, for tokens with a non-zero balance. */
+  /** Checksummed token address → row, for tokens the wallet holds. */
   rows: Record<string, InventoryRow>
   /**
    * Whether consumers should read balances from here at all. False means the chain is not indexed,
@@ -55,18 +55,11 @@ const PENDING_INVENTORY: WalletInventory = { ...INACTIVE_INVENTORY, pending: tru
  * no native holding is not to be believed, and the caller falls back to multicall. It is also an
  * overlay, since having paid for that read already it may as well win over the indexed native row,
  * which is the balance users watch most closely.
-
  */
 export const resolveInventory = (
   entry: InventoryEntry | undefined,
   subscribed: boolean,
   nativeRawBalance?: string,
-  /**
-   * The live native read has had long enough and never arrived. Without it the trust check below can
-   * never run, so rather than hold every consumer on a loader for good, the caller's own balance
-   * source takes over.
-   */
-  nativeReadTimedOut = false,
 ): WalletInventory => {
   if (!subscribed) return INACTIVE_INVENTORY
   // Subscribed with nothing stored yet: the first fetch is on its way, so hold the fallback back.
@@ -76,15 +69,15 @@ export const resolveInventory = (
   // list, which is most of what the selector renders — multicall answers those in one block instead.
   if (entry.status !== 'settled') return INACTIVE_INVENTORY
 
-  const nativeRow = entry.rows[ETHER_ADDRESS]
+  const held = withoutTombstones(entry.rows)
+  const nativeRow = held[ETHER_ADDRESS]
   if (!nativeRow) {
     // Funded wallet the inventory failed to account for: the data is not to be believed.
     if (nativeRawBalance && nativeRawBalance !== '0') return INACTIVE_INVENTORY
     // The trust check cannot run until the native read lands. Serve the rows, but withhold `settled`
     // so no zeros are synthesized off data that may be about to fail the check.
     if (nativeRawBalance === undefined) {
-      if (nativeReadTimedOut) return INACTIVE_INVENTORY
-      return { rows: entry.rows, active: true, settled: false, pending: false }
+      return { rows: held, active: true, settled: false, pending: false }
     }
   }
 
@@ -93,10 +86,24 @@ export const resolveInventory = (
   // pre-transaction amount for the length of its lag.
   const rows =
     nativeRawBalance !== undefined && nativeRow
-      ? { ...entry.rows, [ETHER_ADDRESS]: { ...nativeRow, rawBalance: BigInt(nativeRawBalance) } }
-      : entry.rows
+      ? { ...held, [ETHER_ADDRESS]: { ...nativeRow, rawBalance: BigInt(nativeRawBalance) } }
+      : held
 
   return { rows, active: true, settled: true, pending: false }
+}
+
+/**
+ * The store keeps zero rows so a live read's "emptied" outranks the index's lagging amount; to a
+ * reader such a token is simply not held. Same object back when there is nothing to drop.
+ */
+const withoutTombstones = (rows: Record<string, InventoryRow>): Record<string, InventoryRow> => {
+  let next: Record<string, InventoryRow> | undefined
+  Object.values(rows).forEach(row => {
+    if (row.rawBalance !== 0n) return
+    next ??= { ...rows }
+    delete next[row.address]
+  })
+  return next ?? rows
 }
 
 // One zero per Token: a settled inventory synthesizes zeros for most of the whitelist, and rebuilding
