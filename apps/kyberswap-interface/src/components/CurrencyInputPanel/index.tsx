@@ -264,6 +264,7 @@ type CurrencySelectContentProps = {
   disableCurrencySelect: boolean
   fontSize?: string
   hideLogo: boolean
+  hideTokenInfo: boolean
   isSwitchMode: boolean
   loadingText?: string
   maxCurrencySymbolLength?: number
@@ -276,6 +277,7 @@ const CurrencySelectContent = ({
   disableCurrencySelect,
   fontSize,
   hideLogo,
+  hideTokenInfo,
   isSwitchMode,
   loadingText,
   maxCurrencySymbolLength,
@@ -302,7 +304,9 @@ const CurrencySelectContent = ({
         </StyledTokenName>
       </RowFixed>
 
-      {!!nativeCurrency && <TokenInfo token={nativeCurrency.wrapped} isNativeToken={nativeCurrency.isNative} />}
+      {!!nativeCurrency && !hideTokenInfo && (
+        <TokenInfo token={nativeCurrency.wrapped} isNativeToken={nativeCurrency.isNative} />
+      )}
       {!disableCurrencySelect && !isSwitchMode && <DropdownSVG className="-mx-1" />}
       {!disableCurrencySelect && isSwitchMode && (
         <SwitchIcon className={cn('h-[35%] [&_path]:stroke-current', currency ? 'text-subText' : 'text-primary')} />
@@ -352,6 +356,7 @@ interface CurrencyInputPanelProps {
   showPinnedTokens?: boolean
   customBalanceText?: ReactNode
   hideLogo?: boolean
+  hideTokenInfo?: boolean
   highlightCurrencySelect?: boolean
   fontSize?: string
   customCurrencySelect?: ReactNode
@@ -398,6 +403,7 @@ export default function CurrencyInputPanel({
   showPinnedTokens,
   customBalanceText,
   hideLogo = false,
+  hideTokenInfo = false,
   highlightCurrencySelect = false,
   fontSize,
   customCurrencySelect,
@@ -500,6 +506,7 @@ export default function CurrencyInputPanel({
                   disableCurrencySelect={disableCurrencySelect}
                   fontSize={fontSize}
                   hideLogo={hideLogo}
+                  hideTokenInfo={hideTokenInfo}
                   isSwitchMode={isSwitchMode}
                   loadingText={loadingText}
                   maxCurrencySymbolLength={maxCurrencySymbolLength}

@@ -48,6 +48,7 @@ const CapitalAmountInput = ({
       onUserInput={onAmountChange}
       error={!!amountError}
       currency={quoteCurrency}
+      hideTokenInfo
       customBalanceText={
         walletBalanceLoading ? (
           <Loader aria-label="Loading balance" className="text-subText" size="12px" />

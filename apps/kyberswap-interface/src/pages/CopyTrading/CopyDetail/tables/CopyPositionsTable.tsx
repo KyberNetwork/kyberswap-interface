@@ -14,6 +14,7 @@ import {
   TableHeader,
   TableRow,
 } from 'pages/CopyTrading/components/Table'
+import { ShortenedId } from 'pages/CopyTrading/components/common/layout'
 import { PositionLifecycleBadge } from 'pages/CopyTrading/components/common/status'
 import { copyTradingStatIconMap } from 'pages/CopyTrading/constants'
 import {
@@ -71,7 +72,7 @@ const CopyPositionsGrid = ({ header, className, ...props }: TableGridWrapperProp
   return (
     <Grid
       className={cn(
-        'min-w-[1000px] grid-cols-[minmax(72px,0.7fr)_repeat(2,minmax(108px,0.9fr))_minmax(96px,0.9fr)_minmax(128px,1.25fr)_minmax(96px,0.85fr)_minmax(110px,0.9fr)_minmax(144px,1.1fr)] gap-x-3 whitespace-nowrap',
+        'min-w-[1100px] grid-cols-[minmax(84px,0.8fr)_minmax(72px,0.7fr)_repeat(2,minmax(108px,0.9fr))_minmax(96px,0.9fr)_minmax(128px,1.25fr)_minmax(96px,0.85fr)_minmax(110px,0.9fr)_minmax(144px,1.1fr)] gap-x-3 whitespace-nowrap',
         !header && 'py-1',
         className,
       )}
@@ -85,6 +86,7 @@ export const CopyPositionsTable = ({ copyRunStatus, infiniteScroll, loading, row
     <Stack>
       <InfiniteScroll {...infiniteScroll}>
         <CopyPositionsGrid header className="sticky top-0 z-20 hidden lg:grid">
+          <HeaderCell>Trade ID</HeaderCell>
           <HeaderCell>Token</HeaderCell>
           <HeaderCell className="justify-end text-right">Entry Price</HeaderCell>
           <HeaderCell className="justify-end text-right">Current</HeaderCell>
@@ -95,7 +97,7 @@ export const CopyPositionsTable = ({ copyRunStatus, infiniteScroll, loading, row
           <HeaderCell className="justify-center text-center">Action</HeaderCell>
         </CopyPositionsGrid>
         <TableBody
-          className="grid gap-2 bg-transparent lg:block lg:min-w-[1000px] lg:bg-buttonBlack-60"
+          className="grid gap-2 bg-transparent lg:block lg:min-w-[1100px] lg:bg-buttonBlack-60"
           empty={!rows.length}
           emptyIconUrl={copyTradingStatIconMap.positionOpen.iconUrl}
           emptyMessage="No open positions found"
@@ -104,6 +106,9 @@ export const CopyPositionsTable = ({ copyRunStatus, infiniteScroll, loading, row
           {rows.map(row => (
             <div key={row.positionId}>
               <CopyPositionsGrid className="max-lg:hidden">
+                <TableCell className="text-subText">
+                  <ShortenedId value={row.tradeId} />
+                </TableCell>
                 <TableCell>{row.token.symbol || '—'}</TableCell>
                 <TableCell className="text-right">{formatUsd(row.entryPriceUsd, 2)}</TableCell>
                 <TableCell className="text-right">{formatUsd(row.currentPriceUsd, 2)}</TableCell>
@@ -136,6 +141,9 @@ export const CopyPositionsTable = ({ copyRunStatus, infiniteScroll, loading, row
                 </HStack>
 
                 <TableCardGrid>
+                  <TableCardField span="full" label="Trade ID">
+                    <ShortenedId value={row.tradeId} />
+                  </TableCardField>
                   <TableCardField label="Entry Price">{formatUsd(row.entryPriceUsd, 2)}</TableCardField>
                   <TableCardField align="right" label="Current">
                     {formatUsd(row.currentPriceUsd, 2)}
