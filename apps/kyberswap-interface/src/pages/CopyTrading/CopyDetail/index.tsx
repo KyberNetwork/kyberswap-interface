@@ -28,7 +28,6 @@ import { formatDateTime } from 'utils/time'
 
 type CopyDetailContentProps = {
   agent: AgentProfile
-  backPath: 'my-copies' | 'history'
   run: CopyRunSummary
 }
 
@@ -97,9 +96,8 @@ const CopyTimeline = ({ run }: { run: CopyRunSummary }) => {
   )
 }
 
-const CopyDetailContent = ({ agent, backPath, run }: CopyDetailContentProps) => {
+const CopyDetailContent = ({ agent, run }: CopyDetailContentProps) => {
   const isTerminal = run.status === 'stopped' || run.status === 'closed'
-  const defaultTab = isTerminal && backPath === 'history' ? 'closed-positions' : 'open-positions'
 
   return (
     <>
@@ -108,7 +106,7 @@ const CopyDetailContent = ({ agent, backPath, run }: CopyDetailContentProps) => 
       <ResponsiveDetailGrid>
         <ResponsiveDetailItem responsiveOrder={copyDetailResponsiveOrder.mainContent}>
           <Stack className="gap-4">
-            {isTerminal ? <CopyTimeline run={run} /> : <CopyDetailTabs defaultTab={defaultTab} run={run} />}
+            {isTerminal ? <CopyTimeline run={run} /> : <CopyDetailTabs run={run} />}
             <CopyRunPerformance copyRunId={run.copyRunId} status={run.status} />
           </Stack>
         </ResponsiveDetailItem>
@@ -180,7 +178,7 @@ const CopyDetailView = ({ backPath }: { backPath: 'my-copies' | 'history' }) => 
   return (
     <CopyTradingPage backTo={{ label: backLabel, to: `${APP_PATHS.COPY_TRADING}/${backPath}` }}>
       <AgentIdentity agent={profile} />
-      <CopyDetailContent key={run.copyRunId} agent={profile} backPath={backPath} run={run} />
+      <CopyDetailContent key={run.copyRunId} agent={profile} run={run} />
     </CopyTradingPage>
   )
 }

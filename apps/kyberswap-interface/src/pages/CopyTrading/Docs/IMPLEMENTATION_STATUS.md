@@ -1,6 +1,6 @@
 # Copy Trading Implementation Status
 
-Last reviewed: 2026-08-28
+Last reviewed: 2026-09-03
 
 This file is the frontend snapshot for the current Copy Trading implementation.
 It records only current ownership, accepted product decisions, remaining gaps,
@@ -15,7 +15,7 @@ FE_API_Catalog.md and openapi.yaml.
 | RTK Query service | Code-complete: 27 GET queries and 6 preparation mutations are declared and typed.                              |
 | Read UI           | Code-complete for all currently defined product surfaces.                                                      |
 | Write UI          | Code-complete for Start Copy, Add Capital, Stop Copy, Withdraw Quote, Manual Sell, and Close Position.         |
-| Responsive UI     | Code-complete for the defined pages; browser QA remains manual.                                                |
+| Responsive UI     | Code-complete for the defined layouts; Action Logs mobile filter remains a product decision.                   |
 | Live validation   | Positive controlled E2E remains deferred for the position-recovery cases listed below.                         |
 
 ## Contract and Ownership
@@ -35,7 +35,8 @@ FE_API_Catalog.md and openapi.yaml.
   types/preparedActions.ts.
 - Owner views map to OWNER_COPY_VIEW_OPEN and OWNER_COPY_VIEW_HISTORY.
 - Position views map to POSITION_VIEW_OPEN and POSITION_VIEW_CLOSED.
-- Agent action logs use /action-logs.
+- Agent action logs use /action-logs. Copy Detail logs use the owner activity
+  endpoint scoped by copyRunId and ACTIVITY_SURFACE_COPY_RUN_LOG.
 - Copy Run lifecycle preserves ACTIVE, CLOSING, STOPPED, and CLOSED.
 - Position lifecycle and quantity state remain separate typed fields.
 - Renderable metric values include CURRENT and STALE. UNAVAILABLE remains
@@ -139,6 +140,26 @@ them unless product explicitly approves a UI change:
 - Copy Run rows use agentSnapshot; My Copies and History do not request a
   redundant Agent collection.
 
+### Copy Detail tables
+
+- Open Positions displays Token, Entry Price, Current, Value, Unrealised P&L,
+  Est. Rebate, Open Since, and Action. Unrealised P&L reads only
+  unrealizedPnlUsd and unrealizedPnlPct, with USD above percentage.
+- Closed Positions displays Token, Closed Price, Amount, P&L, Fee, Rebate,
+  Received, and Tx Hash. Its P&L reads realizedPnlUsd.
+- Action Logs displays Token, Type, Amount, Closed Time, and Tx Hash. Token is
+  resolved from the position, capital, or fee detail and uses N/A when absent;
+  Amount uses the matching raw amount and token decimals without cross-field
+  fallback.
+- The Action Logs Type control is server-backed. Buy and Sell send subtype;
+  Capital Events, Failed Actions, and Fee/Rebates send category; All Type Logs
+  omits both parameters. The filter value participates in the infinite-query
+  key so changing it restarts the cursor chain.
+- Transaction hashes are shortened, use neutral styling, include an external
+  link icon, and open the matching chain explorer when supported.
+- The Open Positions Action header is centered. Other numeric headers and cells
+  remain right-aligned.
+
 ### Lists and responsive behavior
 
 - Leaderboard, My Copies, and History use cursor pagination. Infinite lists keep
@@ -149,6 +170,9 @@ them unless product explicitly approves a UI change:
   context-menu, and new-tab behavior. Independent action buttons remain outside
   the row-link hit target.
 - Main tables use content-specific responsive cards and the shared ScrollArea.
+- Copy Detail switches Action Logs to cards below md, Open Positions below lg,
+  and Closed Positions below xl. Desktop headers stay inside the horizontal
+  scroll region so they remain aligned with their table rows.
 - Agent Profile and Copy Detail use the shared responsive detail grid, tab bar,
   sticky desktop side column, and explicit mobile ordering.
 
@@ -237,6 +261,8 @@ is validation or product-definition work:
 - Controlled positive E2E for Close Position on a CLOSING Copy.
 - Browser QA for responsive layouts, loading transitions, modified-click/new-tab
   behavior, and the final modal presentation.
+- Product decision for exposing the Action Logs Type filter below md; the
+  current control is owned by the desktop table header.
 - Product design before exposing the API-only surfaces listed above.
 
 The position-recovery E2E cases require controlled Agent positions and
@@ -248,10 +274,10 @@ from the frontend.
 Latest checks for the current working tree:
 
 - App TypeScript passed.
-- Targeted Copy Trading ESLint passed.
-- All 90 currently discovered Copy Trading unit tests across 13 files passed.
+- Targeted Copy Detail ESLint passed.
+- All 99 currently discovered Copy Trading unit tests across 14 files passed.
 - Focused formatting passed.
-- git diff --cached --check passed.
+- git diff --check and git diff --cached --check passed.
 - The checked-in OpenAPI byte-matched the live 33-path, 155-definition schema;
   SHA-256: b763fcec14aef8f43e78386597b4a8d2842a1b2c69d89ae994f79b1969795933.
 - Browser QA, production build, and positive live transaction E2E were not run.

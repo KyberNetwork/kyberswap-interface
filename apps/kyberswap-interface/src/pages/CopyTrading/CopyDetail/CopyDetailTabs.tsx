@@ -1,9 +1,10 @@
+import { useState } from 'react'
 import copyRunApi from 'services/copyTrading/api/endpoints/copyRuns'
 import type { CopyRunSummary } from 'services/copyTrading/types/copyRuns'
 
 import { Stack } from 'components/Stack'
 import useTab from 'hooks/useTab'
-import { ActionLogsTable } from 'pages/CopyTrading/CopyDetail/tables/ActionLogsTable'
+import { ActionLogsTable, type ActivityLogTypeFilter } from 'pages/CopyTrading/CopyDetail/tables/ActionLogsTable'
 import { CopyPositionsTable } from 'pages/CopyTrading/CopyDetail/tables/CopyPositionsTable'
 import { TradeHistoryTable } from 'pages/CopyTrading/CopyDetail/tables/TradeHistoryTable'
 import { useInfiniteCursorQuery } from 'pages/CopyTrading/components/InfiniteScroll'
@@ -45,7 +46,7 @@ type CopyRunPanelProps = {
   run: CopyRunSummary
 }
 
-const PositionsPanel = ({ enabled = true, run }: CopyRunPanelProps) => {
+const OpenPositionsPanel = ({ enabled = true, run }: CopyRunPanelProps) => {
   const { ownerAddress } = useCopyTradingContext()
   const [getCopyRunPositions] = copyRunApi.useLazyGetCopyRunPositionsQuery()
   const {
@@ -106,26 +107,39 @@ const ClosedPositionsPanel = ({ enabled = true, run }: CopyRunPanelProps) => {
 
 const ActionLogsPanel = ({ enabled = true, run }: CopyRunPanelProps) => {
   const { ownerAddress } = useCopyTradingContext()
+  const [typeFilter, setTypeFilter] = useState<ActivityLogTypeFilter>('')
   const [getOwnerActivity] = copyRunApi.useLazyGetOwnerActivityQuery()
+  const categoryFilter =
+    typeFilter === 'capital' || typeFilter === 'failed_action' || typeFilter === 'fee_rebate' ? typeFilter : undefined
+  const subtypeFilter = typeFilter === 'buy' || typeFilter === 'sell' ? typeFilter : undefined
+
   const {
     infiniteScroll,
     isFetching,
     items: activities,
   } = useInfiniteCursorQuery({
     enabled: !!ownerAddress && enabled,
-    queryKey: ['copy-trading', 'owner-activity', ownerAddress, run.copyRunId, 'copy_run_log'],
+    queryKey: ['copy-trading', 'owner-activity', ownerAddress, run.copyRunId, 'copy_run_log', typeFilter],
     queryFn: cursor =>
       getOwnerActivity({
         ownerAddress: ownerAddress || '',
         copyRunId: run.copyRunId,
         activitySurface: 'copy_run_log',
+        category: categoryFilter,
+        subtype: subtypeFilter,
         cursor,
         limit: PAGE_SIZE,
       }).unwrap(),
   })
 
   return (
-    <ActionLogsTable infiniteScroll={infiniteScroll} loading={isFetching && !activities.length} rows={activities} />
+    <ActionLogsTable
+      infiniteScroll={infiniteScroll}
+      loading={isFetching && !activities.length}
+      onTypeFilterChange={setTypeFilter}
+      rows={activities}
+      typeFilter={typeFilter}
+    />
   )
 }
 
@@ -159,7 +173,7 @@ export const CopyDetailTabs = ({
 
       {includeOpenPositions && (
         <div className="relative min-h-20" hidden={currentTab !== 'open-positions'} role="tabpanel">
-          <PositionsPanel enabled={currentTab === 'open-positions'} run={run} />
+          <OpenPositionsPanel enabled={currentTab === 'open-positions'} run={run} />
         </div>
       )}
       <div className="relative min-h-20" hidden={currentTab !== 'closed-positions'} role="tabpanel">
