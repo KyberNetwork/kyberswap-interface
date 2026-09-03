@@ -68,27 +68,30 @@ const CopyRunStats = ({ run }: { run: CopyRunSummary }) => <Leaderboard items={g
 
 const CopyTimeline = ({ run }: { run: CopyRunSummary }) => {
   return (
-    <HStack className="items-center justify-between gap-5 rounded-xl bg-buttonBlack p-6 max-md:flex-col max-md:items-stretch max-sm:p-4">
-      <HStack className="items-center gap-5 max-sm:flex-col max-sm:items-stretch max-sm:gap-2">
-        <Center className="min-h-12 rounded-xl bg-primary-12 px-6 py-2 text-lg font-medium text-primary max-sm:min-h-10 max-sm:px-4 max-sm:text-base">
+    <HStack className="items-center justify-between gap-5 rounded-xl bg-buttonBlack p-6 max-sm:grid max-sm:grid-cols-2 max-sm:gap-x-4 max-sm:gap-y-0 max-sm:p-4">
+      <HStack className="items-center gap-5 max-sm:contents">
+        <Center className="min-h-12 rounded-xl bg-primary-12 px-6 py-2 text-lg font-medium text-primary max-sm:col-start-1 max-sm:row-start-1 max-sm:min-h-14 max-sm:px-4 max-sm:text-base">
           Started Copy
         </Center>
-        <Stack className="min-w-0">
-          <span className="text-sm text-subText">{formatDateTime(run.startedAt)}</span>
+        <Stack className="min-w-0 max-sm:col-start-2 max-sm:row-start-1 max-sm:justify-center">
+          <span className="text-sm text-subText max-sm:text-base">{formatDateTime(run.startedAt)}</span>
           <span className="break-words text-lg font-medium text-text max-sm:text-base">
             In: {formatUsd(run.capitalInUsd)}
           </span>
         </Stack>
       </HStack>
-      <div className="h-0.5 min-w-16 flex-1 bg-gradient-to-r from-primary to-red max-md:hidden" />
-      <HStack className="items-center justify-end gap-5 max-md:justify-start max-sm:flex-col-reverse max-sm:items-stretch max-sm:gap-2">
-        <Stack className="min-w-0 items-end max-md:items-start">
-          <span className="text-right text-sm text-subText">{formatDateTime(run.stoppedAt)}</span>
+      <div className="h-0.5 min-w-16 flex-1 bg-gradient-to-r from-primary to-red max-sm:hidden" />
+      <div className="col-start-1 row-start-2 my-2 hidden h-10 w-0.5 justify-self-center bg-gradient-to-b from-primary to-red max-sm:block" />
+      <HStack className="items-center justify-end gap-5 max-sm:contents">
+        <Stack className="min-w-0 items-end max-sm:col-start-2 max-sm:row-start-3 max-sm:items-start max-sm:justify-center">
+          <span className="text-right text-sm text-subText max-sm:text-left max-sm:text-base">
+            {formatDateTime(run.stoppedAt)}
+          </span>
           <span className="break-words text-lg font-medium text-text max-sm:text-base">
             Out: {formatUsd(run.capitalOutUsd)}
           </span>
         </Stack>
-        <Center className="min-h-12 rounded-xl bg-red-20 px-6 py-2 text-lg font-medium text-red max-sm:min-h-10 max-sm:px-4 max-sm:text-base">
+        <Center className="min-h-12 rounded-xl bg-red-20 px-6 py-2 text-lg font-medium text-red max-sm:col-start-1 max-sm:row-start-3 max-sm:min-h-14 max-sm:px-4 max-sm:text-base">
           {run.status === 'closed' ? 'Closed Copy' : 'Stopped Copy'}
         </Center>
       </HStack>
@@ -104,11 +107,25 @@ const CopyDetailContent = ({ agent, run }: CopyDetailContentProps) => {
       <CopyRunStats run={run} />
 
       <ResponsiveDetailGrid>
-        <ResponsiveDetailItem responsiveOrder={copyDetailResponsiveOrder.mainContent}>
-          <Stack className="gap-4">
-            {isTerminal ? <CopyTimeline run={run} /> : <CopyDetailTabs run={run} />}
-            <CopyRunPerformance copyRunId={run.copyRunId} status={run.status} />
-          </Stack>
+        <ResponsiveDetailItem
+          className={isTerminal ? 'max-xl:contents' : undefined}
+          responsiveOrder={copyDetailResponsiveOrder.mainContent}
+        >
+          {isTerminal ? (
+            <Stack className="gap-4 max-xl:contents">
+              <ResponsiveDetailItem className="max-xl:order-first">
+                <CopyTimeline run={run} />
+              </ResponsiveDetailItem>
+              <ResponsiveDetailItem responsiveOrder={copyDetailResponsiveOrder.mainContent}>
+                <CopyRunPerformance copyRunId={run.copyRunId} status={run.status} />
+              </ResponsiveDetailItem>
+            </Stack>
+          ) : (
+            <Stack className="gap-4">
+              <CopyDetailTabs run={run} />
+              <CopyRunPerformance copyRunId={run.copyRunId} status={run.status} />
+            </Stack>
+          )}
         </ResponsiveDetailItem>
         <StickySideColumn>
           <CopySidePanel agent={agent} run={run} />
@@ -177,7 +194,7 @@ const CopyDetailView = ({ backPath }: { backPath: 'my-copies' | 'history' }) => 
 
   return (
     <CopyTradingPage backTo={{ label: backLabel, to: `${APP_PATHS.COPY_TRADING}/${backPath}` }}>
-      <AgentIdentity agent={profile} />
+      <AgentIdentity agent={profile} copyStatus={run.status === 'active' ? undefined : run.status} />
       <CopyDetailContent key={run.copyRunId} agent={profile} run={run} />
     </CopyTradingPage>
   )

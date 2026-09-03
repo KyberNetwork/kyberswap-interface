@@ -1,11 +1,12 @@
 import type { PropsWithChildren } from 'react'
 import type { AgentCard, AgentProfile, AgentSnapshot } from 'services/copyTrading/types/agents'
 import type { CopyRunListItem } from 'services/copyTrading/types/copyRuns'
-import type { StrategyKey } from 'services/copyTrading/types/primitives'
+import type { CopyRunStatus, StrategyKey } from 'services/copyTrading/types/primitives'
 
 import verifiedIcon from 'assets/images/copy-trading/verified.svg'
 import CopyHelper from 'components/Copy'
 import { Center, HStack, Stack } from 'components/Stack'
+import { CopyRunStatusBadge } from 'pages/CopyTrading/components/common/status'
 import { useCopyTradingContext } from 'pages/CopyTrading/context'
 import {
   getAgentDisplayName,
@@ -164,14 +165,23 @@ export const CopyRunAgentCell = ({ className, run }: CopyRunAgentCellProps) => {
   )
 }
 
-export const AgentIdentity = ({ agent }: { agent: AgentCard | AgentProfile }) => {
+export const AgentIdentity = ({
+  agent,
+  copyStatus,
+}: {
+  agent: AgentCard | AgentProfile
+  copyStatus?: CopyRunStatus
+}) => {
   const displayName = getAgentDisplayName(agent)
 
   return (
     <HStack className="min-w-0 items-center gap-4">
       <AgentAvatar avatarUrl={agent.avatarUrl} chainId={agent.chainId} displayName={displayName} size="lg" />
       <Stack className="min-w-0 flex-1 gap-2">
-        <AgentName agent={agent} large />
+        <HStack className="min-w-0 items-center gap-2">
+          <AgentName agent={agent} large />
+          {copyStatus && <CopyRunStatusBadge status={copyStatus} />}
+        </HStack>
         <HStack className="flex-wrap items-center gap-2 text-sm font-medium text-subText">
           <AgentStrategies agent={agent} />
           <Badge color="gray">{agent.modelName}</Badge>

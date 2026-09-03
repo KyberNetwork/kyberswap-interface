@@ -107,7 +107,14 @@ export const StartCopyReview = ({
               tooltip={`A fee of ${performanceFee} is charged when your position opens. A small portion is retained to cover operational costs, including gas fees. Fee refunds, if any, are subject to applicable promotional programs or fee policies in effect from time to time.`}
             />
           }
-          value={performanceFee}
+          value={
+            <span className="flex flex-col items-end gap-0.5">
+              <span>{performanceFee}</span>
+              <span className="whitespace-normal text-right text-xs text-subText">
+                Charged at entry • Rebate based on performance
+              </span>
+            </span>
+          }
         />
       </ReviewSection>
 

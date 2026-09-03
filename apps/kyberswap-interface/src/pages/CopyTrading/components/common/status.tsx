@@ -1,12 +1,14 @@
+import { PropsWithChildren } from 'react'
 import type { CopyRunListItem } from 'services/copyTrading/types/copyRuns'
 import type { CopyRunStatus, PositionLifecycle, PositionQuantityState } from 'services/copyTrading/types/primitives'
 
+import Dots from 'components/Dots'
 import { Center, HStack, Stack } from 'components/Stack'
 import { formatUsd } from 'pages/CopyTrading/helpers'
 import { cn } from 'utils/cn'
 
-const MetricStatusBadge = ({ children }: { children: string }) => (
-  <span className="inline-flex whitespace-nowrap rounded-full bg-warning-20 px-2 py-0.5 text-[10px] font-medium text-warning">
+const MetricStatusBadge = ({ children }: PropsWithChildren) => (
+  <span className="inline-flex whitespace-nowrap rounded-full bg-warning-20 px-2 py-1 text-[10px] font-medium leading-4 text-warning">
     {children}
   </span>
 )
@@ -14,7 +16,11 @@ const MetricStatusBadge = ({ children }: { children: string }) => (
 export const CapitalInCardValue = ({ run }: { run: CopyRunListItem }) => (
   <HStack className="items-center justify-end gap-1.5">
     <span>{formatUsd(run.capitalInUsd)}</span>
-    {run.capitalInProjectionStatus === 'syncing' && <MetricStatusBadge>Syncing</MetricStatusBadge>}
+    {run.capitalInProjectionStatus === 'syncing' && (
+      <MetricStatusBadge>
+        <Dots>Syncing</Dots>
+      </MetricStatusBadge>
+    )}
   </HStack>
 )
 
