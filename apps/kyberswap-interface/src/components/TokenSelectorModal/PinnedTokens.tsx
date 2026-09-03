@@ -50,16 +50,19 @@ export const PinnedTokens = ({ onSelect, selectedCurrency, tokens = [], onToggle
               >
                 {symbol}
               </div>
-              <XCircle
-                className={cn(
-                  'absolute right-[-5px] top-[-5px] z-10 hidden rounded-full bg-buttonGray text-subText',
-                  '[@media(hover:hover)]:hover:text-text',
-                  isEditMode ? 'block' : '[@media(hover:hover)]:group-hover/pinned-token:block',
-                )}
-                data-testid="close-btn"
-                size={16}
-                onClick={event => onToggleFavorite?.(event, token)}
-              />
+              {/* The native pill always leads the row and cannot be removed, so it offers no remove control. */}
+              {!isTokenNative(token) && (
+                <XCircle
+                  className={cn(
+                    'absolute right-[-5px] top-[-5px] z-10 hidden rounded-full bg-buttonGray text-subText',
+                    '[@media(hover:hover)]:hover:text-text',
+                    isEditMode ? 'block' : '[@media(hover:hover)]:group-hover/pinned-token:block',
+                  )}
+                  data-testid="close-btn"
+                  size={16}
+                  onClick={event => onToggleFavorite?.(event, token)}
+                />
+              )}
             </HStack>
           )
         })}

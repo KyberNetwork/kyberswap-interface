@@ -66,6 +66,7 @@ import {
   useTokenComparator,
 } from 'components/TokenSelectorModal/utils'
 import { MouseoverTooltip } from 'components/Tooltip'
+import { ETHER_ADDRESS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import { Z_INDEXS } from 'constants/styles'
 import { NativeCurrencies } from 'constants/tokens'
@@ -900,7 +901,9 @@ export const TokenSelectorContent = ({
   const handleClickFavorite = useCallback(
     (event: MouseEvent, currency: Currency) => {
       event.stopPropagation()
-      const address = currency.wrapped.address
+      // The native currency is favorited under its sentinel address. Its wrapped address is a real,
+      // different token: toggling that would add or remove the wrapped token's own pin.
+      const address = isTokenNative(currency) ? ETHER_ADDRESS : currency.wrapped.address
       if (!address) return
       toggleFavoriteToken({ chainId: currency.chainId, address })
     },
