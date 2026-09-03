@@ -1,3 +1,4 @@
+import { expireWalletInventory } from '@kyber/hooks'
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import SafeAppsSDK, { TransactionStatus as SafeTransactionStatus } from '@safe-global/safe-apps-sdk'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
@@ -7,6 +8,7 @@ import { usePublicClient } from 'wagmi'
 
 import { NotificationType } from 'components/Announcement/type'
 import { CONNECTION } from 'components/Web3Provider'
+import { ETHER_ADDRESS } from 'constants/index'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import useTracking, { NEED_CHECK_SUBGRAPH_TRANSACTION_TYPES, TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { AppDispatch, AppState } from 'state'
@@ -23,8 +25,11 @@ import {
   SerializableTransactionReceipt,
   TRANSACTION_TYPE,
   TransactionDetails,
+  TransactionExtraInfo,
   TransactionExtraInfo1Token,
 } from 'state/transactions/type'
+import { expireInventory } from 'state/walletInventory/store'
+import { isAddress } from 'utils/address'
 import { findTx } from 'utils/transaction'
 import { Address, Hash, decodeEventLog, formatUnits, keccak256, parseAbi, toBytes } from 'utils/viem'
 
@@ -109,6 +114,15 @@ function shouldCheck(
     // otherwise every block
     return true
   }
+}
+
+/** The ERC-20 tokens a confirmed transaction moved, checksummed; the native currency is read live already. */
+const touchedTokens = (chainId: ChainId, extraInfo: TransactionExtraInfo | undefined): string[] => {
+  const info = extraInfo as { tokenAddressIn?: string; tokenAddressOut?: string } | undefined
+  return [info?.tokenAddressIn, info?.tokenAddressOut].flatMap(address => {
+    const checksummed = address ? isAddress(chainId, address) : false
+    return checksummed && checksummed !== ETHER_ADDRESS ? [checksummed] : []
+  })
 }
 
 export default function Updater(): null {
@@ -199,6 +213,21 @@ export default function Updater(): null {
         account: accountRef.current ?? '',
       })
       if (numericStatus === 1) {
+        // The sender's balances just changed, but the inventory indexer runs a minute or so behind the
+        // chain — keyed on the transaction's own sender, since the connected account can have switched
+        // while the transaction was pending. The mined block makes the inventory poll fast until it
+        // catches up; a receipt without one (the Safe path) still forces a refetch, just without a
+        // block to chase — chasing the observed head instead would overshoot the execution block and
+        // poll until the timeout for nothing.
+        expireInventory(
+          chainId,
+          transaction.from,
+          receipt.blockNumber !== undefined ? Number(receipt.blockNumber) : undefined,
+          touchedTokens(chainId, transaction.extraInfo),
+        )
+        // The widget selectors keep their own inventory in `@kyber/hooks`; it refreshes on the same cue.
+        expireWalletInventory(chainId, transaction.from)
+
         // Swapped (address sender, address srcToken, address dstToken, address dstReceiver, uint256 spentAmount, uint256 returnAmount)
         const swapEventTopic = keccak256(toBytes('Swapped(address,address,address,address,uint256,uint256)'))
         const swapLogs = receipt.logs.filter((log: any) => log.topics[0] === swapEventTopic)

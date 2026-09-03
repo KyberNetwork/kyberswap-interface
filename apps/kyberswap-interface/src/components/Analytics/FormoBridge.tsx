@@ -1,6 +1,7 @@
 import { FormoAnalyticsProvider, type IFormoAnalytics, useFormo as useRealFormo } from '@formo/analytics'
 import { useEffect } from 'react'
 
+import { queryClient, wagmiConfig } from 'components/Web3Provider'
 import { FORMO_WRITE_KEY } from 'constants/env'
 
 // This module is loaded ONLY via the deferred dynamic import in DeferredFormoProvider, so it (and the heavy
@@ -23,6 +24,7 @@ export default function FormoBridge({ onReady }: { onReady: (analytics: IFormoAn
   return (
     <FormoAnalyticsProvider
       writeKey={FORMO_WRITE_KEY}
+      options={{ wagmi: { config: wagmiConfig, queryClient, eip1193Fallback: true } }}
       disabled={typeof window !== 'undefined' && window.location.hostname.endsWith('.pr.kyberengineering.io')}
     >
       <ReportInstance onReady={onReady} />

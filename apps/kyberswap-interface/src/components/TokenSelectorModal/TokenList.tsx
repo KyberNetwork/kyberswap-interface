@@ -1,7 +1,7 @@
 import { ChainId, Currency, CurrencyAmount, Token, TokenAmount } from '@kyberswap/ks-sdk-core'
-import { Trans } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import React, { CSSProperties, ReactNode, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Info, Star, X } from 'react-feather'
+import { AlertTriangle, Info, Star, X } from 'react-feather'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { ListChildComponentProps, VariableSizeList } from 'react-window'
 import InfiniteLoader from 'react-window-infinite-loader'
@@ -17,6 +17,7 @@ import { Balance } from 'components/TokenSelectorModal/components'
 import { BALANCE_COLUMN_CLASS, METRIC_COLUMN_CLASS } from 'components/TokenSelectorModal/constants'
 import { TokenMetricColumn, TokenRowExtra, TokenRowExtraMap, tokenRowKey } from 'components/TokenSelectorModal/types'
 import { getNeedsImport } from 'components/TokenSelectorModal/utils'
+import { MouseoverTooltip } from 'components/Tooltip'
 import { useActiveWeb3React } from 'hooks'
 import useCopyClipboard from 'hooks/useCopyClipboard'
 import { useERC8056DisplayBalance, useERC8056TokenInfo } from 'hooks/useERC8056Token'
@@ -33,6 +34,10 @@ import { getTokenAddress, isTokenNative } from 'utils/tokenInfo'
 // Virtualized row heights. A restricted row the user clicked grows to fit the "not available" notice.
 const ROW_CONTENT_HEIGHT = 12 * 4 // 48px
 const NORMAL_ITEM_SIZE = ROW_CONTENT_HEIGHT + 8 // 56px (content + row gap)
+// Rows on either side of the viewport included in `onRowsRendered`, so a scroll lands on rows whose
+// data was already asked for; the debounce turns a fling into one report.
+const ROWS_RENDERED_MARGIN = 40
+const ROWS_RENDERED_DEBOUNCE_MS = 150
 const RESTRICTED_CONTENT_HEIGHT = ROW_CONTENT_HEIGHT + 28 // 76px
 const RESTRICTED_ITEM_SIZE = RESTRICTED_CONTENT_HEIGHT + 8 // 84px
 
@@ -128,6 +133,13 @@ type TokenRowProps = {
   warned?: boolean
   /** Reveal the inline restricted notice (called on a restricted row's click). */
   onRestrictedClick?: () => void
+  /**
+   * Held token whose symbol belongs to a whitelisted token at a different address — the shape an
+   * airdropped impersonation takes. Flagged so a fake cannot pass for the token it names.
+   */
+  impersonator?: boolean
+  /** The connected wallet holds this token; shown as a badge while searching. */
+  held?: boolean
 }
 
 export const TokenRow = ({
@@ -163,6 +175,8 @@ export const TokenRow = ({
   restricted,
   warned,
   onRestrictedClick,
+  impersonator,
+  held,
 }: TokenRowProps) => {
   const isImport = rightColumn === 'import'
   const nativeCurrency = useCurrencyConvertedToNative(currency || undefined)
@@ -236,19 +250,43 @@ export const TokenRow = ({
                 {ageBadge}
               </span>
             )}
+            {held && (
+              <span
+                className="shrink-0 rounded bg-primary-20 px-1 text-[10px] font-medium leading-4 text-primary"
+                data-testid="token-held-badge"
+              >
+                <Trans>In wallet</Trans>
+              </span>
+            )}
+            {impersonator && (
+              <MouseoverTooltip
+                placement="top"
+                text={t`This token uses the symbol of a verified token but a different contract address. Check the address before selecting it.`}
+              >
+                <AlertTriangle size={14} className="shrink-0 text-warning" data-testid="token-impersonator-warning" />
+              </MouseoverTooltip>
+            )}
           </HStack>
           <HStack className="min-w-0 items-center gap-1 text-xs text-gray">
             <span title={nativeCurrency?.name} className="truncate" data-testid="token-name">
               {nativeCurrency?.name}
             </span>
             {showCopyAddress && !isTokenNative(currency) && (
-              <CopyHelper
-                toCopy={currency.wrapped.address}
-                size={14}
-                margin="0"
-                className="text-gray hover:text-text"
-                data-testid="copy-token-address"
-              />
+              <span className="group relative flex shrink-0 items-center">
+                <CopyHelper
+                  toCopy={currency.wrapped.address}
+                  size={14}
+                  margin="0"
+                  className="text-gray hover:text-text"
+                  data-testid="copy-token-address"
+                />
+                <span
+                  role="tooltip"
+                  className="pointer-events-none absolute bottom-[calc(100%+4px)] left-0 z-10 hidden whitespace-nowrap rounded bg-tableHeader px-1.5 py-0.5 font-mono text-[10px] font-medium text-text shadow-[0px_2px_8px_rgba(0,0,0,0.4)] group-hover:block"
+                >
+                  {currency.wrapped.address}
+                </span>
+              </span>
             )}
             {showAddress && (
               <>
@@ -428,6 +466,8 @@ type VirtualRowData = {
   isTokenRestricted: (currency?: Currency | null) => boolean
   warnedKeys: Set<string>
   onWarnRestricted: (key: string) => void
+  impersonators?: Set<string>
+  heldAddresses?: Set<string>
 }
 
 const SelectedTokenBalance = ({ currency, balance }: { currency: Currency; balance: CurrencyAmount<Currency> }) => {
@@ -456,8 +496,11 @@ const VirtualRow = memo(function VirtualRow({ index, style, data }: ListChildCom
   // right column becomes an Import button; with `importAsRow` (Trending / All, not searching) the row
   // stays normal — dimmed to 50% — and clicking it imports.
   const needsImport = getNeedsImport(currency, address => data.importedAddressSet.has(address), !!data.onImportToken)
-  const importAsRow = needsImport && !!data.importAsRow
-  const rightColumn = needsImport && !data.importAsRow ? 'import' : data.metricColumn ? 'metric' : 'balance'
+  // A held token found by search keeps its balance column (dimmed, click imports) rather than turning
+  // into an Import button: the balance is the very thing that tells the user this is the one they own.
+  const held = !!data.heldAddresses?.has(getTokenAddress(currency))
+  const importAsRow = needsImport && (!!data.importAsRow || held)
+  const rightColumn = needsImport && !importAsRow ? 'import' : data.metricColumn ? 'metric' : 'balance'
 
   const isSelected = Boolean(data.selectedCurrency?.equals(currency))
   const otherSelected = Boolean(data.otherCurrency?.equals(currency))
@@ -512,6 +555,8 @@ const VirtualRow = memo(function VirtualRow({ index, style, data }: ListChildCom
         restricted={restricted}
         warned={warned}
         onRestrictedClick={() => data.onWarnRestricted(restrictedKey)}
+        impersonator={data.impersonators?.has(token.address)}
+        held={held}
       />
     </div>
   )
@@ -528,6 +573,11 @@ type TokenListProps = {
   onToggleFavorite?: (event: React.MouseEvent, currency: Currency) => void
   onRemoveImportedToken?: (token: Token) => void
   loadMoreRows?: () => Promise<void>
+  /**
+   * Called, debounced, with the currencies in and just around the viewport whenever it moves, so a
+   * caller can fetch per-row data (catalog metadata) for what is about to be looked at only.
+   */
+  onRowsRendered?: (currencies: Currency[]) => void
   listTokenRef?: React.Ref<HTMLDivElement>
   itemStyle?: CSSProperties
   customChainId?: ChainId
@@ -548,6 +598,10 @@ type TokenListProps = {
   metricColumn?: TokenMetricColumn
   /** Render a not-yet-imported token as a normal row dimmed to 50% (click imports) instead of an Import button (Trending / All). */
   importAsRow?: boolean
+  /** Addresses to flag as borrowing a whitelisted token's symbol; see `TokenRowProps.impersonator`. */
+  impersonators?: Set<string>
+  /** Addresses the wallet holds; only passed while searching, see `TokenRowProps.held`. */
+  heldAddresses?: Set<string>
 }
 
 const TokenList = ({
@@ -559,6 +613,7 @@ const TokenList = ({
   onToggleFavorite,
   onRemoveImportedToken,
   loadMoreRows,
+  onRowsRendered,
   hasMore,
   listTokenRef,
   showFavoriteIcon,
@@ -573,6 +628,8 @@ const TokenList = ({
   showPriceColumn,
   metricColumn,
   importAsRow,
+  impersonators,
+  heldAddresses,
 }: TokenListProps) => {
   const { account } = useActiveWeb3React()
   const { favoriteTokens } = useUserFavoriteTokens(customChainId)
@@ -670,6 +727,8 @@ const TokenList = ({
       isTokenRestricted,
       warnedKeys,
       onWarnRestricted,
+      impersonators,
+      heldAddresses,
     }),
     [
       currencies,
@@ -696,12 +755,28 @@ const TokenList = ({
       isTokenRestricted,
       warnedKeys,
       onWarnRestricted,
+      impersonators,
+      heldAddresses,
     ],
   )
 
   const loadMoreItems = useCallback(() => loadMoreRows?.(), [loadMoreRows])
   const itemCount = hasMore ? currencies.length + 1 : currencies.length // If there are more items to be loaded then add an extra row to hold a loading indicator.
   const isItemLoaded = (index: number) => !hasMore || index < currencies.length
+
+  const rowsRenderedTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
+  const handleItemsRendered = useCallback(
+    (range: { visibleStartIndex: number; visibleStopIndex: number }) => {
+      if (!onRowsRendered) return
+      if (rowsRenderedTimer.current) clearTimeout(rowsRenderedTimer.current)
+      rowsRenderedTimer.current = setTimeout(() => {
+        const start = Math.max(0, range.visibleStartIndex - ROWS_RENDERED_MARGIN)
+        onRowsRendered(currencies.slice(start, range.visibleStopIndex + ROWS_RENDERED_MARGIN + 1))
+      }, ROWS_RENDERED_DEBOUNCE_MS)
+    },
+    [onRowsRendered, currencies],
+  )
+  useEffect(() => () => clearTimeout(rowsRenderedTimer.current), [])
 
   return (
     <div className="flex-1 pb-2" data-testid="token-list">
@@ -716,7 +791,10 @@ const TokenList = ({
                 itemSize={getItemSize}
                 estimatedItemSize={NORMAL_ITEM_SIZE}
                 itemData={itemData}
-                onItemsRendered={onItemsRendered}
+                onItemsRendered={range => {
+                  onItemsRendered(range)
+                  handleItemsRendered(range)
+                }}
                 ref={node => {
                   ref(node)
                   listRef.current = node

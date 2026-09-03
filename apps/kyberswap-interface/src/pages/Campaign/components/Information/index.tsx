@@ -5,7 +5,7 @@ import { useMedia } from 'react-use'
 
 import Divider from 'components/Divider'
 import { ButtonIcon } from 'components/PageWrappers'
-import { TERM_FILES_PATH } from 'constants/index'
+import { getActiveTermsOfUse } from 'constants/index'
 import { campaignInfos } from 'pages/Campaign/components/Information/info'
 import { CampaignType } from 'pages/Campaign/constants'
 import { ExternalLink } from 'theme'
@@ -162,7 +162,7 @@ export default function Information({ type, selectedWeek }: { type: CampaignType
       >
         <li>
           <Trans>
-            These Terms and Conditions <ExternalLink href={TERM_FILES_PATH.KYBERSWAP_TERMS}>({'"Terms"'})</ExternalLink>{' '}
+            These Terms and Conditions <ExternalLink href={getActiveTermsOfUse().file}>({'"Terms"'})</ExternalLink>{' '}
             should be read in conjunction with the KyberSwap Terms of Use, which lay out the terms and conditions that
             apply to all KyberSwap promotional activities ({'"Campaign"'}).
           </Trans>

@@ -3,7 +3,7 @@ import { useCallback, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useGetKyberswapConfigurationQuery } from 'services/ksSetting'
 
-import { TERM_FILES_PATH } from 'constants/index'
+import { TERMS_OF_USE, getActiveTermsOfUse } from 'constants/index'
 import { LOCALE_INFO, SupportedLocale } from 'constants/locales'
 import { useActiveWeb3React } from 'hooks'
 import {
@@ -35,6 +35,7 @@ import {
   updateAcceptedTermVersion,
   updateFavoriteChains,
   updatePoolDegenMode,
+  updateSafeAppAcceptedTermOfUse,
   updateUserDeadline,
   updateUserDegenMode,
   updateUserLocale,
@@ -104,16 +105,37 @@ export function useIsAcceptedTerm(): [boolean, (isAcceptedTerm: boolean) => void
     state => state.user.acceptedTermVersion,
   )
 
-  const isAcceptedTerm = !!acceptedTermVersion && acceptedTermVersion === TERM_FILES_PATH.VERSION
+  const { version } = getActiveTermsOfUse()
+  const isAcceptedTerm = acceptedTermVersion === version
 
   const setIsAcceptedTerm = useCallback(
     (isAcceptedTerm: boolean) => {
-      dispatch(updateAcceptedTermVersion(isAcceptedTerm ? TERM_FILES_PATH.VERSION : null))
+      dispatch(updateAcceptedTermVersion(isAcceptedTerm ? version : null))
     },
-    [dispatch],
+    [dispatch, version],
   )
 
   return [isAcceptedTerm, setIsAcceptedTerm]
+}
+
+/**
+ * Safe App has its own acknowledgement: the wallet is supplied by the host app, so the shared flow's
+ * disconnect-on-stale-terms cannot apply and users confirm through a dialog instead. Persisted state
+ * holding a plain `true` counts as acceptance of the first published document, so those sessions are
+ * asked again only once the next one takes effect.
+ */
+export function useIsSafeAppAcceptedTerm(): [boolean, () => void] {
+  const dispatch = useAppDispatch()
+  const stored = useAppSelector(state => state.user.safeAppAcceptedTermOfUse)
+
+  const { version } = getActiveTermsOfUse()
+  const acceptedVersion = typeof stored === 'boolean' ? (stored ? TERMS_OF_USE[0].version : null) : stored
+
+  const acceptTerm = useCallback(() => {
+    dispatch(updateSafeAppAcceptedTermOfUse(version))
+  }, [dispatch, version])
+
+  return [acceptedVersion === version, acceptTerm]
 }
 
 export function useDegenModeManager(): [boolean, () => void] {

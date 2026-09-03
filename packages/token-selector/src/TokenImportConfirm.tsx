@@ -37,8 +37,8 @@ const TokenImportConfirm = ({
   };
 
   return (
-    <div className="h-full w-full overflow-y-auto text-white">
-      <div className="flex items-center justify-between p-4 pb-2 border-b border-[#40444f]">
+    <div className="h-full w-full overflow-y-auto text-text">
+      <div className="flex items-center justify-between p-4 pb-2 border-b border-stroke">
         <IconBack
           className="w-6 h-6 cursor-pointer hover:text-subText"
           onClick={onGoBack}

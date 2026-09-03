@@ -59,6 +59,10 @@ export const CAMPAIGN_URL = required('CAMPAIGN_URL')
 export const TELEGRAM_BOT_URL = optional('TELEGRAM_BOT_URL')
 export const REFERRAL_URL = required('REFERRAL_URL')
 export const TOKEN_API_URL = required('TOKEN_API_URL')
+// The wallet-inventory endpoints live on the same kd-api service the chain-volume data comes from, so
+// that host is the default. Optional on purpose: with no host resolved the inventory layer stays off
+// and every surface keeps its multicall balance path, so a missing value degrades instead of breaking.
+export const KD_API_URL = optional('KD_API_URL') || optional('KYBER_AI_API_URL')
 export const AFFILIATE_SERVICE_URL = required('AFFILIATE_SERVICE')
 export const SOLANA_RPC = required('SOLANA_RPC')
 export const SMART_EXIT_API_URL = required('SMART_EXIT_API_URL')

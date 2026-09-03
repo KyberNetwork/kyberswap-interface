@@ -37,7 +37,7 @@
     "@coinbase/wallet-sdk": "^4.3.7",
     "@defuse-protocol/one-click-sdk-typescript": "^0.1.2",
     "@esbuild-plugins/node-globals-polyfill": "^0.2.3",
-    "@formo/analytics": "^1.27.0",
+    "@formo/analytics": "^1.38.0",
     "@kyber/hooks": "workspace:^",
     "@kyber/rpc-client": "workspace:*",
     "@kyber/schema": "workspace:^",

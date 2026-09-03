@@ -30,6 +30,7 @@ import { navigateToPoolDetail } from 'pages/Earns/utils/zap'
 import { useKyberSwapConfig, useNotify, useWalletModalToggle } from 'state/application/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
+import { isInventoryChain } from 'state/walletInventory/store'
 import { getCookieValue } from 'utils/cookie'
 import { friendlyError } from 'utils/errorMessage'
 import { Address } from 'utils/viem'
@@ -158,6 +159,7 @@ const useZapOutWidget = (
               address: account,
               chainId: chainId as unknown as ZapOutChainId,
             },
+            enableWalletInventory: isInventoryChain(zapOutPureParams.chainId),
             txStatus,
             txHashMapping: originalToCurrentHash,
             locale,

@@ -237,6 +237,12 @@ export interface TokenSelectorModalProps {
   positionOptions?: PositionOptions;
   /** Optional analytics callback (e.g. for TOKEN_SEARCHED events) */
   onTrackEvent?: (eventName: string, data?: Record<string, unknown>) => void;
+  /**
+   * Use KyberSwap's wallet-inventory service (one request for everything the wallet holds) as the
+   * balance source on the chains it indexes; a balanceOf multicall over the token list serves the
+   * rest. Off by default. Ignored when `tokenOptions.tokenBalances` supplies balances from outside.
+   */
+  enableWalletInventory?: boolean;
 }
 
 // Internal token with additional UI state
@@ -245,6 +251,8 @@ export interface CustomizeToken extends Token {
   selected: number;
   inPair: number;
   disabled: boolean;
+  /** Held but on neither the list nor the imports; rendered dimmed, imports on click. */
+  discovered?: boolean;
   // Pre-normalized fields for efficient search filtering
   _searchName?: string;
   _searchSymbol?: string;
