@@ -14,6 +14,11 @@ export const getWithdrawRequestAmountRaw = (amountRaw: string | undefined, withd
 export const getWithdrawPresetAmountRaw = (balanceRaw: string, percentage: 50 | 100) =>
   ((BigInt(balanceRaw) * BigInt(percentage)) / 100n).toString()
 
+export const getPreparedQuoteBalanceRaw = (preview?: WithdrawQuotePreview) => {
+  const balanceRaw = preview?.quoteBalance?.valueRaw
+  return balanceRaw && /^\d+$/.test(balanceRaw) ? balanceRaw : undefined
+}
+
 export const getWithdrawAmountError = ({
   amount,
   amountRaw,
