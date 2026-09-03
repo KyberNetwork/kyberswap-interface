@@ -801,19 +801,24 @@ export const TokenSelectorContent = ({
   }, [switchChainToken, switchChainAndSelect, trackTokenSelected])
 
   // A hit in the "other chains" group is other-chain only relative to the chain selector, which the
-  // wallet need not be on — so the token can well sit on the app's own chain. Aim the selector at it
-  // and hand off to the row select path, which gates on the app chain and so asks for a network switch
-  // only when one is really needed.
+  // wallet need not be on — so the token can well sit on the app's own chain. Hand off to the row select
+  // path, which gates on the app chain and so asks for a network switch only when one is really needed.
   const handleOtherChainSelect = useCallback(
     (token: WrappedTokenInfo) => {
-      setSelectedChainId(token.chainId)
       if (getNeedsImport(token, address => isTokenImported(token.chainId, address), !!onImportToken)) {
+        setSelectedChainId(token.chainId)
         onImportToken?.(token.wrapped)
         return
       }
+      // A pick that still has to clear the Switch Chain confirm leaves the selector where it is: aiming it
+      // at the token's chain up front strands the row in that chain's list — Switch Chain button gone —
+      // as soon as the user cancels. Confirming closes the whole modal, so it never needs the aim either.
+      if (token.chainId === anchorChainId || onSelectChain) {
+        setSelectedChainId(token.chainId)
+      }
       handleCurrencySelect(token)
     },
-    [handleCurrencySelect, isTokenImported, onImportToken],
+    [anchorChainId, handleCurrencySelect, isTokenImported, onImportToken, onSelectChain],
   )
 
   const handleTabChange = useCallback(
