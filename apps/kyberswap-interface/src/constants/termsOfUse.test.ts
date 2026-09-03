@@ -3,7 +3,7 @@ import utc from 'dayjs/plugin/utc'
 import { existsSync } from 'fs'
 import { describe, expect, it } from 'vitest'
 
-import { PRIVACY_POLICY_PATH, TERMS_OF_USE } from './index'
+import { PRIVACY_POLICY_PATH, TERMS_OF_USE } from 'constants/index'
 
 dayjs.extend(utc)
 

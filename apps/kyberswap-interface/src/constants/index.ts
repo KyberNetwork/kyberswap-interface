@@ -1,4 +1,4 @@
-import { SUPPORTED_NETWORKS } from './networks'
+import { SUPPORTED_NETWORKS } from 'constants/networks'
 
 export const KYBERSWAP_DOMAIN = 'kyberswap.com'
 /** Canonical production base URL (no trailing slash). Use this instead of hardcoding the domain. */
