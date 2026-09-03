@@ -55,9 +55,17 @@ const MAX_PAGES = 10;
 /** Per request, so a wallet that needs several pages is not aborted for the sum of them. */
 const REQUEST_TIMEOUT_MS = 8_000;
 
-type PageResponse = { code?: number; message?: string; data?: { balances?: InventoryRawRow[] | null } | null };
+type PageResponse = {
+  code?: number;
+  message?: string;
+  data?: { balances?: InventoryRawRow[] | null; liveBalances?: InventoryRawRow[] | null } | null;
+};
 
-const fetchPage = async (url: string, chainId: number, lifetime?: AbortSignal): Promise<InventoryRawRow[]> => {
+const fetchPage = async (
+  url: string,
+  chainId: number,
+  lifetime?: AbortSignal,
+): Promise<{ balances: InventoryRawRow[]; live: InventoryRawRow[] }> => {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
   const onAbort = () => controller.abort();
@@ -77,7 +85,7 @@ const fetchPage = async (url: string, chainId: number, lifetime?: AbortSignal): 
     if (!response.ok) throw new Error(`wallet inventory responded ${response.status}`);
     const json = (await response.json()) as PageResponse;
     if (json.code !== 0) throw new Error(json.message || 'wallet inventory returned an error code');
-    return json.data?.balances ?? [];
+    return { balances: json.data?.balances ?? [], live: json.data?.liveBalances ?? [] };
   } finally {
     clearTimeout(timer);
     lifetime?.removeEventListener('abort', onAbort);
@@ -98,18 +106,33 @@ export const walkWalletInventory = async ({
   chainId,
   account,
   signal,
+  liveAddrs,
 }: {
   baseUrl: string;
   chainId: number;
   account: string;
   signal?: AbortSignal;
-}): Promise<{ rows: InventoryRawRow[]; complete: boolean }> => {
+  /**
+   * Tokens to have the service read from the node as it answers, rather than from its index. Their
+   * rows come back stamped at the head block, so they outrank the indexed rows for the same tokens —
+   * which is how a balance that just changed is right on screen before the indexer has caught up.
+   * Asked for once per walk: the reads are a point in time, not per page.
+   */
+  liveAddrs?: readonly string[];
+  /**
+   * `indexedBlock` is how far the *index* has come, live reads excluded — a caller waiting for the
+   * indexer to catch up with a transaction must not be fooled by a live row stamped at the head.
+   */
+}): Promise<{ rows: InventoryRawRow[]; complete: boolean; indexedBlock: number }> => {
   const byAddress = new Map<string, InventoryRawRow>();
   let cursor: { block: number; address: string } | undefined;
   let complete = false;
+  let indexedBlock = 0;
 
   for (let page = 0; page < MAX_PAGES; page++) {
     const params = new URLSearchParams({ limit: String(PAGE_SIZE) });
+    // The service reads one node value per address given here, so only the first page asks.
+    if (page === 0) liveAddrs?.forEach(addressToRead => params.append('liveAddrs', addressToRead));
     if (cursor) {
       params.set('sinceBlockNumber', String(cursor.block));
       // Echoed exactly as received: the server compares this cursor as a string.
@@ -121,20 +144,25 @@ export const walkWalletInventory = async ({
       signal,
     );
 
-    batch.forEach(row => {
+    // Live reads share the block-monotonic merge: stamped at the head, they win over the indexed row
+    // for the same token, including when they report it emptied.
+    batch.balances.forEach(row => {
+      indexedBlock = Math.max(indexedBlock, row.blockNumber);
+    });
+    [...batch.balances, ...batch.live].forEach(row => {
       const key = row.tokenAddress.toLowerCase();
       const existing = byAddress.get(key);
       if (!existing || row.blockNumber >= existing.blockNumber) byAddress.set(key, row);
     });
 
-    // A short page is the only end-of-data signal the service gives.
-    if (batch.length < PAGE_SIZE) {
+    // A short page is the only end-of-data signal the service gives; live rows are extra to it.
+    if (batch.balances.length < PAGE_SIZE) {
       complete = true;
       break;
     }
-    const last = batch[batch.length - 1];
+    const last = batch.balances[batch.balances.length - 1];
     cursor = { block: last.blockNumber, address: last.tokenAddress };
   }
 
-  return { rows: Array.from(byAddress.values()), complete };
+  return { rows: Array.from(byAddress.values()), complete, indexedBlock };
 };

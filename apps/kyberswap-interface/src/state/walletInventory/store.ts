@@ -66,19 +66,6 @@ const subscriptions = new Map<string, number>()
 const entries = new Map<string, InventoryEntry>()
 const meta = new Map<string, Meta>()
 
-/** A balance read straight from the chain, with the block it was observed at. */
-export type LiveBalance = { rawBalance: bigint; blockNumber: number }
-export type LiveBalanceMap = ReadonlyMap<string, LiveBalance>
-
-/**
- * Per wallet, the latest live reads for the tokens the user is transacting with (the swap pair, a
- * limit order's maker token, a send). These come from the per-block multicall that those forms run
- * anyway, so between a transaction confirming and the indexer catching up the inventory can be
- * corrected for exactly the tokens that just moved without paying for any extra request.
- */
-const liveBalances = new Map<string, LiveBalanceMap>()
-const LIVE_BALANCES_PER_WALLET = 64
-
 let version = 0
 const listeners = new Set<() => void>()
 
@@ -133,60 +120,6 @@ export const unregister = (chainId: number, account: string) => {
 export const readSubscriptions = () => subscriptions
 export const readEntry = (key: string) => entries.get(key)
 export const readMeta = (key: string) => meta.get(key)
-export const readLiveBalances = (key: string) => liveBalances.get(key)
-
-/**
- * Records live reads for a wallet. A read is stored the first time its value is seen, stamped with the
- * block it was observed at, and left alone while the value holds — the stamp advancing every block
- * would wake every inventory consumer per block over a balance that did not move.
- */
-export const publishLiveBalances = (
-  chainId: number,
-  account: string,
-  blockNumber: number,
-  reads: { address: string; rawBalance: bigint }[],
-) => {
-  if (!isInventoryChain(chainId) || !reads.length) return
-  const key = inventoryKey(chainId, account)
-  const previous = liveBalances.get(key)
-  let next: Map<string, LiveBalance> | undefined
-  reads.forEach(({ address, rawBalance }) => {
-    if (previous?.get(address)?.rawBalance === rawBalance) return
-    next ??= new Map(previous)
-    // Re-insert so the map stays in last-changed order for the size cap below.
-    next.delete(address)
-    next.set(address, { rawBalance, blockNumber })
-  })
-  if (!next) return
-  while (next.size > LIVE_BALANCES_PER_WALLET) {
-    const oldest = next.keys().next().value
-    if (oldest === undefined) break
-    next.delete(oldest)
-  }
-  liveBalances.set(key, next)
-  emit()
-}
-
-/**
- * Drops the live reads for tokens a form has stopped reading. A read only means something while its
- * source refreshes it every block; left behind, it would keep restating a balance the wallet may
- * since have sold off entirely — an emptied token has no inventory row to outrank it.
- */
-export const retireLiveBalances = (chainId: number, account: string, addresses: readonly string[]) => {
-  const key = inventoryKey(chainId, account)
-  const previous = liveBalances.get(key)
-  if (!previous) return
-  let next: Map<string, LiveBalance> | undefined
-  addresses.forEach(address => {
-    if (!(next ?? previous).has(address)) return
-    next ??= new Map(previous)
-    next.delete(address)
-  })
-  if (!next) return
-  if (next.size) liveBalances.set(key, next)
-  else liveBalances.delete(key)
-  emit()
-}
 
 /**
  * Marks the wallet's inventory due on the next sweep, e.g. after a transaction of theirs confirms.
@@ -312,7 +245,6 @@ export const resetInventoryStore = () => {
   subscriptions.clear()
   entries.clear()
   meta.clear()
-  liveBalances.clear()
   version = 0
   listeners.clear()
 }

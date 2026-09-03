@@ -62,6 +62,12 @@ const RETRY_BACKOFF_MS = [POLL_INTERVAL_MS, 30_000, 60_000, 120_000];
 const RETRY_JITTER = 0.4;
 /** Data older than this is dropped once a refresh fails, so an outage cannot freeze a screen for good. */
 const STALE_MAX_MS = 120_000;
+/**
+ * How long after a transaction the service is asked to read that transaction's tokens from the node.
+ * Comfortably past the indexing lag, after which the indexed rows are current on their own.
+ */
+const LIVE_READ_WINDOW_MS = 150_000;
+
 /** Inventories kept for wallets no one is looking at, so a reopened selector paints at once. */
 const KEEP_IDLE_ENTRIES = 8;
 const NATIVE_KEY = NATIVE_TOKEN_ADDRESS.toLowerCase();
@@ -82,6 +88,14 @@ type Entry = {
   failures: number;
   /** A walk past the page cap is a property of the wallet, so it is never walked again. */
   terminal: boolean;
+  /**
+   * Tokens a just-confirmed transaction moved. The next walk asks the service to read these from the
+   * node as it answers, so their balances are right straight away rather than after the indexer has
+   * caught up. Cleared once that walk has used them.
+   */
+  live: string[];
+  /** Until when those live reads are worth asking for — the indexer's lag, generously covered. */
+  liveUntil: number;
   /** An expiry arrived while a walk was in flight; the next walk follows at once, not after the poll. */
   dirty: boolean;
   listeners: Set<() => void>;
@@ -170,11 +184,19 @@ const run = async (entry: Entry) => {
   const controller = new AbortController();
   entry.controller = controller;
   try {
+    // Asked for on every poll until the window closes: a single live answer would be overwritten by
+    // the next walk's still-lagging indexed rows.
+    if (entry.liveUntil && Date.now() > entry.liveUntil) {
+      entry.live = [];
+      entry.liveUntil = 0;
+    }
+    const live = entry.live;
     const { rows, complete } = await walkWalletInventory({
       baseUrl: API_URLS.KD_API,
       chainId: entry.chainId,
       account: entry.account,
       signal: controller.signal,
+      liveAddrs: live,
     });
     if (controller.signal.aborted) return;
     if (!complete) {
@@ -268,6 +290,8 @@ const subscribe = (chainId: number, account: string, listener: () => void) => {
     failures: 0,
     terminal: false,
     dirty: false,
+    live: [],
+    liveUntil: 0,
     listeners: new Set(),
   };
   // Registered before pruning: an entry with a listener is never an eviction candidate, and a brand
@@ -297,11 +321,18 @@ const subscribe = (chainId: number, account: string, listener: () => void) => {
  * Marks a wallet's inventory stale, e.g. after a transaction of its own confirms: a watched inventory
  * refetches at once, an unwatched one on its next subscriber. Stale data stays on screen meanwhile.
  */
-export const expireWalletInventory = (chainId: number, account: string) => {
+export const expireWalletInventory = (chainId: number, account: string, touched: readonly string[] = []) => {
   const entry = entries.get(keyOf(chainId, account));
   if (!entry || entry.terminal) return;
   entry.fetchedAt = 0;
   entry.failures = 0;
+  if (touched.length) {
+    touched.forEach(address => {
+      const lower = address.toLowerCase();
+      if (!entry.live.includes(lower)) entry.live.push(lower);
+    });
+    entry.liveUntil = Date.now() + LIVE_READ_WINDOW_MS;
+  }
   // A walk already in flight started before the transaction confirmed and cannot see its effect;
   // flag it so its completion is followed by another walk immediately rather than after the poll.
   entry.dirty = true;

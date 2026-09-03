@@ -26,16 +26,13 @@ import {
   getStoreVersion,
   inventoryKey,
   isAwaitingBlock,
-  publishLiveBalances,
   readEntry,
-  readLiveBalances,
   readMeta,
   readTouchedTokens,
   register,
   resetInventoryStore,
-  retireLiveBalances,
 } from 'state/walletInventory/store'
-import { selectDue } from 'state/walletInventory/updater'
+import { selectDue, withDeadline } from 'state/walletInventory/updater'
 
 const fetchListTokenByAddresses = vi.hoisted(() => vi.fn())
 vi.mock('hooks/useTokens', async importOriginal => ({
@@ -117,6 +114,110 @@ describe('walkWalletInventory (shared client)', () => {
     const secondUrl = String(fetchMock.mock.calls[1][0])
     expect(secondUrl).toContain('sinceBlockNumber=999')
     expect(secondUrl).toContain(`lastTokenAddr=${address(1000)}`)
+  })
+})
+
+describe('walkWalletInventory with live reads', () => {
+  const address = (i: number) => `0x${i.toString(16).padStart(40, '0')}`
+  const row = (addr: string, rawAmount: string, blockNumber: number) => ({
+    tokenAddress: addr,
+    rawAmount,
+    blockNumber,
+    decimals: 18,
+    symbol: 'TKN',
+  })
+  afterEach(() => {
+    vi.unstubAllGlobals()
+  })
+
+  it('asks for the live tokens once, and their head-block rows outrank the indexed ones', async () => {
+    const held = address(1)
+    const soldOff = address(2)
+    const urls: string[] = []
+    const fetchMock = vi.fn(async (url: string) => {
+      urls.push(url)
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({
+          code: 0,
+          data: {
+            // The indexer still has yesterday's picture of both tokens.
+            balances: [row(held, '0x0a', 100), row(soldOff, '0x64', 100)],
+            // The node read, at the head: one grew, the other was sold off entirely.
+            liveBalances: [row(held, '0x1e', 500), row(soldOff, '0x', 500)],
+          },
+        }),
+      }
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    const { rows, complete } = await walkWalletInventory({
+      baseUrl: 'http://kd',
+      chainId: 1,
+      account: ACCOUNT,
+      liveAddrs: [held, soldOff],
+    })
+
+    expect(complete).toBe(true)
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+    // Repeated params, not a comma-separated list — the service ignores the latter.
+    expect(urls[0]).toContain(`liveAddrs=${held}&liveAddrs=${soldOff}`)
+
+    const byAddress = Object.fromEntries(rows.map(r => [r.tokenAddress, r]))
+    expect(byAddress[held].rawAmount).toBe('0x1e')
+    expect(byAddress[held].blockNumber).toBe(500)
+    // A token read as emptied comes back as an explicit zero, which the adapter drops — so it leaves
+    // the map entirely rather than lingering at its indexed amount.
+    expect(byAddress[soldOff].rawAmount).toBe('0x')
+    expect(parseRawAmount(byAddress[soldOff].rawAmount)).toBe(0n)
+  })
+
+  it('reports how far the index has come, not where the live reads were taken', async () => {
+    const held = address(1)
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => ({
+        ok: true,
+        status: 200,
+        json: async () => ({
+          code: 0,
+          data: { balances: [row(held, '0x0a', 100)], liveBalances: [row(held, '0x1e', 500)] },
+        }),
+      })),
+    )
+
+    const { indexedBlock } = await walkWalletInventory({
+      baseUrl: 'http://kd',
+      chainId: 1,
+      account: ACCOUNT,
+      liveAddrs: [held],
+    })
+
+    // 500 is the head the node was read at; the caller waits for the index, which is still at 100 —
+    // otherwise it would stop asking for live reads while the indexed rows were still stale.
+    expect(indexedBlock).toBe(100)
+  })
+
+  it('does not repeat the live read on later pages', async () => {
+    const urls: string[] = []
+    const full = Array.from({ length: 1000 }, (_, i) => row(address(i + 10), '0x01', 100))
+    const fetchMock = vi.fn(async (url: string) => {
+      urls.push(url)
+      const first = urls.length === 1
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({ code: 0, data: { balances: first ? full : [row(address(9999), '0x01', 101)] } }),
+      }
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    await walkWalletInventory({ baseUrl: 'http://kd', chainId: 1, account: ACCOUNT, liveAddrs: [address(1)] })
+
+    expect(urls.length).toBe(2)
+    expect(urls[0]).toContain('liveAddrs=')
+    expect(urls[1]).not.toContain('liveAddrs=')
   })
 })
 
@@ -384,6 +485,27 @@ describe('resolveInventory', () => {
     // Max-send just mined: the per-block read says 0 while the indexer still reports the old 5.
     const resolved = resolveInventory(entry([row(ETHER_ADDRESS, 5n, 100)], 'settled'), true, '0')
     expect(resolved.rows[ETHER_ADDRESS].rawBalance).toBe(0n)
+  })
+})
+
+describe('resolveInventory native-read deadline', () => {
+  const settledWithoutNative: InventoryEntry = {
+    rows: { [USDT_CHECKSUM]: row(USDT_CHECKSUM, 5n, 100) },
+    status: 'settled',
+    blockNumber: 100,
+    fetchedAt: 1,
+  }
+
+  it('serves the rows while the native read is on its way, without settling', () => {
+    const resolved = resolveInventory(settledWithoutNative, true, undefined)
+    expect(resolved.active).toBe(true)
+    expect(resolved.settled).toBe(false)
+  })
+
+  it('hands the wallet back to multicall once the read has had long enough', () => {
+    const resolved = resolveInventory(settledWithoutNative, true, undefined, true)
+    expect(resolved.active).toBe(false)
+    expect(resolved.pending).toBe(false)
   })
 })
 
@@ -662,82 +784,24 @@ describe('getTokenComparator with unlisted holdings', () => {
   })
 })
 
-describe('resolveInventory with live reads', () => {
-  const DAI = '0x6B175474E89094C44Da98b954EedeAC495271d0F'
-  const settled = (rows: InventoryRow[]): InventoryEntry => ({
-    rows: Object.fromEntries(rows.map(r => [r.address, r])),
-    status: 'settled',
-    blockNumber: 100,
-    fetchedAt: 1,
-  })
-  const funded = [row(ETHER_ADDRESS, 10n, 90), row(USDT_CHECKSUM, 5n, 100)]
-
-  it('lets a read observed past the row block correct the indexed amount', () => {
-    const live = new Map([[USDT_CHECKSUM, { rawBalance: 7n, blockNumber: 101 }]])
-    const resolved = resolveInventory(settled(funded), true, '10', live)
-    expect(resolved.rows[USDT_CHECKSUM].rawBalance).toBe(7n)
-    expect(resolved.rows[USDT_CHECKSUM].blockNumber).toBe(101)
+describe('withDeadline', () => {
+  afterEach(() => {
+    vi.useRealTimers()
   })
 
-  it('keeps the indexed row when the read is not strictly newer', () => {
-    const live = new Map([[USDT_CHECKSUM, { rawBalance: 7n, blockNumber: 100 }]])
-    expect(resolveInventory(settled(funded), true, '10', live).rows[USDT_CHECKSUM].rawBalance).toBe(5n)
+  it('settles a walk the environment never settles, so the sweep is never wedged', async () => {
+    vi.useFakeTimers()
+    const hung = withDeadline(new Promise(() => undefined))
+    const outcome = hung.then(
+      () => 'resolved',
+      () => 'rejected',
+    )
+    await vi.advanceTimersByTimeAsync(16_000)
+    expect(await outcome).toBe('rejected')
   })
 
-  it('adds a token the indexer has not listed yet and drops one read as drained', () => {
-    const live = new Map([
-      [DAI, { rawBalance: 3n, blockNumber: 101 }],
-      [USDT_CHECKSUM, { rawBalance: 0n, blockNumber: 101 }],
-    ])
-    const resolved = resolveInventory(settled(funded), true, '10', live)
-    expect(resolved.rows[DAI].rawBalance).toBe(3n)
-    expect(resolved.rows[USDT_CHECKSUM]).toBeUndefined()
-  })
-
-  it('returns the same rows object when no read changes anything', () => {
-    const entry = settled(funded)
-    const live = new Map([[USDT_CHECKSUM, { rawBalance: 5n, blockNumber: 101 }]])
-    expect(resolveInventory(entry, true, undefined, live).rows).toBe(entry.rows)
-  })
-
-  it('never overlays the native row, which the live native read already owns', () => {
-    const live = new Map([[ETHER_ADDRESS, { rawBalance: 1n, blockNumber: 101 }]])
-    expect(resolveInventory(settled(funded), true, '10', live).rows[ETHER_ADDRESS].rawBalance).toBe(10n)
-  })
-})
-
-describe('publishLiveBalances', () => {
-  it('stores a read once and keeps its block while the value holds', () => {
-    publishLiveBalances(ChainId.MAINNET, ACCOUNT, 100, [{ address: USDT_CHECKSUM, rawBalance: 5n }])
-    const first = readLiveBalances(KEY)
-    expect(first?.get(USDT_CHECKSUM)).toEqual({ rawBalance: 5n, blockNumber: 100 })
-    const before = getStoreVersion()
-    publishLiveBalances(ChainId.MAINNET, ACCOUNT, 101, [{ address: USDT_CHECKSUM, rawBalance: 5n }])
-    expect(readLiveBalances(KEY)).toBe(first)
-    expect(getStoreVersion()).toBe(before)
-    publishLiveBalances(ChainId.MAINNET, ACCOUNT, 102, [{ address: USDT_CHECKSUM, rawBalance: 6n }])
-    expect(readLiveBalances(KEY)?.get(USDT_CHECKSUM)).toEqual({ rawBalance: 6n, blockNumber: 102 })
-    expect(getStoreVersion()).toBe(before + 1)
-  })
-
-  it('drops retired reads so a sold-off token is not restated from a stale read', () => {
-    // The swap form read 5 USDT, then the user moved on to another token and sold the USDT off.
-    publishLiveBalances(ChainId.MAINNET, ACCOUNT, 100, [{ address: USDT_CHECKSUM, rawBalance: 5n }])
-    retireLiveBalances(ChainId.MAINNET, ACCOUNT, [USDT_CHECKSUM])
-    expect(readLiveBalances(KEY)).toBeUndefined()
-
-    const soldOff: InventoryEntry = {
-      rows: { [ETHER_ADDRESS]: row(ETHER_ADDRESS, 10n, 120) },
-      status: 'settled',
-      blockNumber: 120,
-      fetchedAt: 1,
-    }
-    expect(resolveInventory(soldOff, true, '10', readLiveBalances(KEY)).rows[USDT_CHECKSUM]).toBeUndefined()
-  })
-
-  it('ignores chains off the served list', () => {
-    publishLiveBalances(ChainId.MATIC, ACCOUNT, 100, [{ address: USDT_CHECKSUM, rawBalance: 5n }])
-    expect(readLiveBalances(inventoryKey(ChainId.MATIC, ACCOUNT))).toBeUndefined()
+  it('passes a walk that answers straight through', async () => {
+    await expect(withDeadline(Promise.resolve('done'))).resolves.toBe('done')
   })
 })
 

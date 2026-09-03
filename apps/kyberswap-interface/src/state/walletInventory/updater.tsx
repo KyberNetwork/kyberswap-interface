@@ -14,6 +14,7 @@ import {
   readEntry,
   readMeta,
   readSubscriptions,
+  readTouchedTokens,
   subscribeStore,
 } from 'state/walletInventory/store'
 
@@ -80,6 +81,28 @@ export const selectDue = (now: number, windowVisible: boolean): DueTarget[] => {
  * Owns every request to the wallet-balances endpoint. Consumers only subscribe (see ./store), so one
  * poll serves the selector, the token list and the wallet popup at once rather than each racing.
  */
+/**
+ * Outer deadline for one wallet's walk. The client aborts its own requests, but an abort the
+ * environment ignores — a mobile in-app browser, a tab the system froze — would leave the sweep's
+ * in-flight flag raised and every wallet unfetched from then on. This settles the walk regardless,
+ * so the wallet falls back to multicall instead of the screen waiting for good.
+ */
+const WALK_DEADLINE_MS = 15_000
+
+export const withDeadline = async <T,>(work: Promise<T>): Promise<T> => {
+  let timer: ReturnType<typeof setTimeout> | undefined
+  try {
+    return await Promise.race([
+      work,
+      new Promise<never>((_, reject) => {
+        timer = setTimeout(() => reject(new Error('wallet inventory walk timed out')), WALK_DEADLINE_MS)
+      }),
+    ])
+  } finally {
+    clearTimeout(timer)
+  }
+}
+
 export default function Updater(): null {
   const windowVisible = useIsWindowVisible()
 
@@ -108,7 +131,10 @@ export default function Updater(): null {
     try {
       const runTarget = async ({ key, chainId, account }: DueTarget) => {
         try {
-          commitResult(key, await fetchWalletInventory({ chainId, account, signal }))
+          // Tokens a just-confirmed transaction moved are asked for as live reads, so the answer
+          // carries their balance at the head block instead of the indexer's lagging one.
+          const liveAddrs = readTouchedTokens(key, Date.now())
+          commitResult(key, await withDeadline(fetchWalletInventory({ chainId, account, signal, liveAddrs })))
         } catch (error) {
           // An unindexed chain is a permanent answer, not a transient failure: disable it for the
           // session so consumers settle on the multicall path instead of retrying forever.

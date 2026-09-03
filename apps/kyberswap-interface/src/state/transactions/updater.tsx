@@ -219,14 +219,15 @@ export default function Updater(): null {
         // catches up; a receipt without one (the Safe path) still forces a refetch, just without a
         // block to chase — chasing the observed head instead would overshoot the execution block and
         // poll until the timeout for nothing.
+        const touched = touchedTokens(chainId, transaction.extraInfo)
         expireInventory(
           chainId,
           transaction.from,
           receipt.blockNumber !== undefined ? Number(receipt.blockNumber) : undefined,
-          touchedTokens(chainId, transaction.extraInfo),
+          touched,
         )
         // The widget selectors keep their own inventory in `@kyber/hooks`; it refreshes on the same cue.
-        expireWalletInventory(chainId, transaction.from)
+        expireWalletInventory(chainId, transaction.from, touched)
 
         // Swapped (address sender, address srcToken, address dstToken, address dstReceiver, uint256 spentAmount, uint256 returnAmount)
         const swapEventTopic = keccak256(toBytes('Swapped(address,address,address,address,uint256,uint256)'))

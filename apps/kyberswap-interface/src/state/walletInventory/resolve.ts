@@ -2,7 +2,7 @@ import { Token, TokenAmount } from '@kyberswap/ks-sdk-core'
 import { InventoryRow } from 'services/walletInventory'
 
 import { ETHER_ADDRESS } from 'constants/index'
-import { InventoryEntry, LiveBalanceMap } from 'state/walletInventory/store'
+import { InventoryEntry } from 'state/walletInventory/store'
 
 /**
  * The decision layer between the raw store entry and what consumers render, kept free of React so the
@@ -55,18 +55,18 @@ const PENDING_INVENTORY: WalletInventory = { ...INACTIVE_INVENTORY, pending: tru
  * no native holding is not to be believed, and the caller falls back to multicall. It is also an
  * overlay, since having paid for that read already it may as well win over the indexed native row,
  * which is the balance users watch most closely.
- *
- * `live` carries per-block reads for the tokens the user is transacting with. A read observed at a
- * block past a row's last-change block is at least as current as the row and wins; the indexer's lag
- * after a transaction is exactly the window in which that matters. The comparison is strict because a
- * read can be stamped one block ahead of the state it reflects (the previous block's data is kept on
- * screen while the next block's query is in flight).
+
  */
 export const resolveInventory = (
   entry: InventoryEntry | undefined,
   subscribed: boolean,
   nativeRawBalance?: string,
-  live?: LiveBalanceMap,
+  /**
+   * The live native read has had long enough and never arrived. Without it the trust check below can
+   * never run, so rather than hold every consumer on a loader for good, the caller's own balance
+   * source takes over.
+   */
+  nativeReadTimedOut = false,
 ): WalletInventory => {
   if (!subscribed) return INACTIVE_INVENTORY
   // Subscribed with nothing stored yet: the first fetch is on its way, so hold the fallback back.
@@ -83,6 +83,7 @@ export const resolveInventory = (
     // The trust check cannot run until the native read lands. Serve the rows, but withhold `settled`
     // so no zeros are synthesized off data that may be about to fail the check.
     if (nativeRawBalance === undefined) {
+      if (nativeReadTimedOut) return INACTIVE_INVENTORY
       return { rows: entry.rows, active: true, settled: false, pending: false }
     }
   }
@@ -90,38 +91,12 @@ export const resolveInventory = (
   // Compared against undefined, not truthiness: a live balance of exactly '0' is the case the overlay
   // matters most for — a wallet just drained by a max-send must not keep showing the indexer's stale
   // pre-transaction amount for the length of its lag.
-  let rows =
+  const rows =
     nativeRawBalance !== undefined && nativeRow
       ? { ...entry.rows, [ETHER_ADDRESS]: { ...nativeRow, rawBalance: BigInt(nativeRawBalance) } }
       : entry.rows
 
-  rows = overlayLiveBalances(rows, live)
-
   return { rows, active: true, settled: true, pending: false }
-}
-
-/**
- * Applies the live reads that are newer than what the inventory holds. Returns the same object when
- * nothing changes, so an unchanged inventory keeps its identity through every block tick.
- */
-const overlayLiveBalances = (
-  rows: Record<string, InventoryRow>,
-  live: LiveBalanceMap | undefined,
-): Record<string, InventoryRow> => {
-  if (!live?.size) return rows
-  let next: Record<string, InventoryRow> | undefined
-  live.forEach((read, address) => {
-    if (address === ETHER_ADDRESS) return
-    const row = rows[address]
-    if (row && read.blockNumber <= row.blockNumber) return
-    if ((row?.rawBalance ?? 0n) === read.rawBalance) return
-    next ??= { ...rows }
-    // Rows only ever describe non-zero holdings; a token read as drained leaves the map, so
-    // consumers see it exactly as the indexer will report it once caught up.
-    if (read.rawBalance === 0n) delete next[address]
-    else next[address] = { ...row, address, rawBalance: read.rawBalance, blockNumber: read.blockNumber }
-  })
-  return next ?? rows
 }
 
 // One zero per Token: a settled inventory synthesizes zeros for most of the whitelist, and rebuilding
