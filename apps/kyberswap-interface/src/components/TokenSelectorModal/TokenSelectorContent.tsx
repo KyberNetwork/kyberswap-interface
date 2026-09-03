@@ -606,11 +606,8 @@ export const TokenSelectorContent = ({
   const metricsExtras = useTokensMetrics(metricsSource, primaryChainId)
 
   // Imported and Favorites take their price from the live prices endpoint (buy/sell mid — the same
-  // source the swap box, the All tab and the wallet-value sort use, so a token reads the same
-  // everywhere), while 24h change / volume / market cap stay from the tokens-list metrics. Imported
-  // holds arbitrary user-added tokens, so it prices strictly from that endpoint and shows `--` when
-  // it has no quote rather than a catalog price the swap can't honour; Favorites, a whitelisted set,
-  // still tops up from the catalog metrics.
+  // source the All tab and the wallet-value sort use, so a token reads the same on every tab), while
+  // 24h change / volume / market cap stay from the tokens-list metrics.
   const localPriceAddresses = useMemo(
     () => (metricsSource.length ? metricsSource.map(currency => currency.wrapped.address) : EMPTY_ADDRESSES),
     [metricsSource],
@@ -621,13 +618,10 @@ export const TokenSelectorContent = ({
     metricsSource.forEach(currency => {
       const key = tokenRowKey(currency.chainId, currency.wrapped.address)
       const livePrice = localPrices[currency.wrapped.address.toLowerCase()]
-      result[key] = {
-        ...metricsExtras[key],
-        price: isImportedTab ? livePrice : livePrice || metricsExtras[key]?.price,
-      }
+      result[key] = { ...metricsExtras[key], price: livePrice || metricsExtras[key]?.price }
     })
     return result
-  }, [metricsSource, localPrices, metricsExtras, isImportedTab])
+  }, [metricsSource, localPrices, metricsExtras])
 
   // Both catalog-sourced tabs can come back short of `metrics.price` (Robinhood especially), so top
   // their rows up from the live prices endpoint — on Trending only while TRENDING_PRICE_FALLBACK_ENABLED.

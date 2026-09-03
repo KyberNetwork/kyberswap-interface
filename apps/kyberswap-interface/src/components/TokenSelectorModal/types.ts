@@ -2,10 +2,7 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 
 /** Extra per-row metadata shown next to a token depending on the active tab. */
 export type TokenRowExtra = {
-  /**
-   * Current USD price. The catalog-sourced tabs read the token-catalog `metrics.price` field; the
-   * local-sourced tabs read the live buy/sell mid from the prices endpoint.
-   */
+  /** Current USD price, from the token-catalog `metrics.price` field. */
   price?: number
   /** 24h price change, as a percentage (e.g. 1.25 = +1.25%), from `metrics.priceChange24h`. */
   priceChange24h?: number
