@@ -789,9 +789,36 @@ export const TokenSelectorContent = ({
     ],
   )
 
+  // Once the switch lands the app sits on the token's chain, so the selector follows it there and an
+  // unlisted token still has to clear the import gate before it can be picked.
+  const importAfterSwitchRef = useRef(false)
+  const handleSelectAfterSwitch = useCallback(
+    (token: Currency) => {
+      setSelectedChainId(token.chainId)
+      if (getNeedsImport(token, address => isTokenImported(token.chainId, address), !!onImportToken)) {
+        importAfterSwitchRef.current = true
+        onImportToken?.(token.wrapped)
+        return
+      }
+      onCurrencySelect?.(token)
+    },
+    [isTokenImported, onCurrencySelect, onImportToken],
+  )
+  // The import view lives inside this same modal, so a hand-off to it keeps the modal open.
+  const handleDismissAfterSwitch = useCallback(() => {
+    if (importAfterSwitchRef.current) {
+      importAfterSwitchRef.current = false
+      return
+    }
+    onDismiss?.()
+  }, [onDismiss])
+
   // On confirm, switch to the token's chain and select it once the switch lands (see the hook — it
   // defers the selection past the network-param sync that would otherwise reset the pair to defaults).
-  const { switchChainAndSelect, resetPending } = usePendingCrossChainSelect(onCurrencySelect, onDismiss)
+  const { switchChainAndSelect, resetPending } = usePendingCrossChainSelect(
+    handleSelectAfterSwitch,
+    handleDismissAfterSwitch,
+  )
   const confirmSwitchChain = useCallback(() => {
     if (!switchChainToken) return
     const token = switchChainToken
@@ -805,16 +832,17 @@ export const TokenSelectorContent = ({
   // path, which gates on the app chain and so asks for a network switch only when one is really needed.
   const handleOtherChainSelect = useCallback(
     (token: WrappedTokenInfo) => {
-      if (getNeedsImport(token, address => isTokenImported(token.chainId, address), !!onImportToken)) {
-        setSelectedChainId(token.chainId)
-        onImportToken?.(token.wrapped)
+      // A pick that needs the app on another chain answers the Switch Chain confirm first — the import
+      // gate belongs to the chain the app lands on, and nothing here moves until the user agrees: aiming
+      // the selector early would strand the row in that chain's list with its Switch Chain button gone.
+      if (token.chainId !== anchorChainId && !onSelectChain) {
+        handleCurrencySelect(token)
         return
       }
-      // A pick that still has to clear the Switch Chain confirm leaves the selector where it is: aiming it
-      // at the token's chain up front strands the row in that chain's list — Switch Chain button gone —
-      // as soon as the user cancels. Confirming closes the whole modal, so it never needs the aim either.
-      if (token.chainId === anchorChainId || onSelectChain) {
-        setSelectedChainId(token.chainId)
+      setSelectedChainId(token.chainId)
+      if (getNeedsImport(token, address => isTokenImported(token.chainId, address), !!onImportToken)) {
+        onImportToken?.(token.wrapped)
+        return
       }
       handleCurrencySelect(token)
     },
