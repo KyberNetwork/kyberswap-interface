@@ -43,7 +43,7 @@ const ActiveSubscriptionsGrid = ({ header, className, ...props }: ActiveSubscrip
   return (
     <Grid
       className={cn(
-        'min-w-[1200px] grid-cols-[minmax(0,2.2fr)_minmax(0,0.9fr)_minmax(0,1fr)_minmax(0,0.9fr)_minmax(0,1fr)_minmax(0,0.9fr)_minmax(88px,0.8fr)_minmax(120px,0.8fr)]',
+        'min-w-[1200px] grid-cols-[minmax(0,2.2fr)_minmax(0,0.9fr)_minmax(0,1fr)_minmax(0,0.9fr)_minmax(0,1fr)_minmax(0,0.9fr)_minmax(88px,0.8fr)_minmax(140px,0.8fr)]',
         className,
       )}
       {...props}
@@ -80,7 +80,7 @@ const ActiveSubscriptionsTable = ({
         type="button"
         padding="8px 12px"
         color="var(--ks-red)"
-        className="whitespace-nowrap"
+        className="whitespace-nowrap lg:w-fit lg:shrink-0"
         disabled={!actionAvailable}
         title={!actionAvailable ? getPreparedReasonMessage(subscription.stopCopyAvailability?.reason) : undefined}
         onClick={() => openStopCopy(subscription)}

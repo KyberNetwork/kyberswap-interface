@@ -11,9 +11,10 @@ import Dots from 'components/Dots'
 import Loader from 'components/Loader'
 import SegmentedControl, { type SegmentedControlOption } from 'components/SegmentedControl'
 import { HStack, Stack } from 'components/Stack'
-import { compactUsd, formatUsd, getSignedMetricClassName, percent } from 'pages/CopyTrading/helpers'
+import { formatUsd, getSignedMetricClassName, percent } from 'pages/CopyTrading/helpers'
 import { MEDIA_WIDTHS } from 'theme'
 import { cn } from 'utils/cn'
+import { formatDisplayNumber } from 'utils/numbers'
 import { formatDateTime, formatShortDate } from 'utils/time'
 
 const chartWindowOptions: readonly SegmentedControlOption<PerformanceWindow>[] = [
@@ -22,6 +23,17 @@ const chartWindowOptions: readonly SegmentedControlOption<PerformanceWindow>[] =
   { label: '3M', value: '90d' },
   { label: 'All', value: 'all' },
 ]
+
+const Y_AXIS_WIDTH = 48
+
+const compactAxisUsd = (value: number) =>
+  formatDisplayNumber(value, { allowDisplayNegative: true, significantDigits: 2, style: 'currency' })
+
+const compactAxisPercent = (value: number) =>
+  `${formatDisplayNumber(value, { allowDisplayNegative: true, significantDigits: 2 })}%`
+
+const formatPnlAxisTick = (value: number, metric: 'usd' | 'return') =>
+  metric === 'return' ? compactAxisPercent(value) : compactAxisUsd(value)
 
 type PerformanceChartPoint = {
   timestamp: number
@@ -293,9 +305,9 @@ export const CumulativeTotalPnlChart = ({
               <YAxis
                 axisLine={false}
                 tick={{ fill: 'var(--ks-subText)', fontSize: 12 }}
-                tickFormatter={value => (metric === 'return' ? percent(String(value)) : compactUsd(String(value)))}
+                tickFormatter={value => formatPnlAxisTick(value, metric)}
                 tickLine={false}
-                width={72}
+                width={Y_AXIS_WIDTH}
               />
               <Tooltip content={<ChartTooltip />} cursor={{ stroke: 'var(--ks-text-12)', strokeDasharray: '4 4' }} />
               <Area
@@ -359,9 +371,9 @@ export const CapitalValueChart = ({
                 axisLine={false}
                 orientation="right"
                 tick={{ fill: 'var(--ks-subText)', fontSize: 12 }}
-                tickFormatter={value => compactUsd(String(value))}
+                tickFormatter={compactAxisUsd}
                 tickLine={false}
-                width={72}
+                width={Y_AXIS_WIDTH}
               />
               <Tooltip content={<ChartTooltip />} cursor={{ fill: 'var(--ks-primary-12)' }} />
               <Bar dataKey="portfolioValueUsd" fill="var(--ks-blue)" name="Capital Value" radius={[4, 4, 0, 0]} />
