@@ -15,6 +15,10 @@ import useRefreshCopyTrading from 'pages/CopyTrading/hooks/useRefreshCopyTrading
 import PreparedActionModal, { PreparedActionSuccessActions } from 'pages/CopyTrading/modals/PreparedActionModal'
 import { DEFAULT_PREPARED_ACTION_SLIPPAGE } from 'pages/CopyTrading/modals/PreparedActionModal/SlippageControl'
 import {
+  hasCopyTradingChainCoveredBlock,
+  pollCopyTradingProjection,
+} from 'pages/CopyTrading/modals/PreparedActionModal/postReceipt'
+import {
   DEFAULT_PREPARED_ACTION_STATE,
   getApiErrorMessage,
 } from 'pages/CopyTrading/modals/PreparedActionModal/preparedAction'
@@ -51,6 +55,7 @@ const StopCopyModal = ({ isOpen, onDismiss, copyRun }: StopCopyModalProps) => {
   const refreshCopyTrading = useRefreshCopyTrading()
   const [prepareStopCopy] = preparedActionApi.usePrepareStopCopyMutation()
   const [getCopyRunPositions] = copyRunApi.useLazyGetCopyRunPositionsQuery()
+  const [getCopyRun] = copyRunApi.useLazyGetCopyRunQuery()
 
   const [flowState, setFlowState] = useState(DEFAULT_PREPARED_ACTION_STATE)
   const [positions, setPositions] = useState<PositionSummary[] | undefined>(
@@ -59,6 +64,7 @@ const StopCopyModal = ({ isOpen, onDismiss, copyRun }: StopCopyModalProps) => {
   const [positionsError, setPositionsError] = useState<string>()
   const [selected, setSelected] = useState<Record<string, boolean>>({})
   const [slippage, setSlippage] = useState(DEFAULT_PREPARED_ACTION_SLIPPAGE)
+  const [completedCopyRun, setCompletedCopyRun] = useState<CopyRunListItem>()
   const positionsRequestId = useRef(0)
 
   const onExpectedChain = chainId === copyRun.chainId
@@ -129,6 +135,19 @@ const StopCopyModal = ({ isOpen, onDismiss, copyRun }: StopCopyModalProps) => {
 
       return response.data
     },
+    afterReceipt: async (_action, _hash, receiptBlockNumber) => {
+      const response = await pollCopyTradingProjection({
+        errorMessage:
+          'Your transaction is confirmed, but the latest Copy status is not available yet. Refresh status to try again.',
+        fetch: () => getCopyRun({ ownerAddress: copyRun.ownerAddress, copyRunId: copyRun.copyRunId }).unwrap(),
+        isConverged: result =>
+          hasCopyTradingChainCoveredBlock(result.meta, copyRun.chainId, receiptBlockNumber) &&
+          result.data.status !== 'active' &&
+          result.data.status !== 'unknown',
+      })
+      setCompletedCopyRun(response.data)
+      refreshCopyTrading()
+    },
     onComplete: refreshCopyTrading,
   })
 
@@ -144,6 +163,7 @@ const StopCopyModal = ({ isOpen, onDismiss, copyRun }: StopCopyModalProps) => {
     flow.reset()
     setSelected({})
     setSlippage(DEFAULT_PREPARED_ACTION_SLIPPAGE)
+    setCompletedCopyRun(undefined)
     onDismiss()
   }
 
@@ -160,9 +180,10 @@ const StopCopyModal = ({ isOpen, onDismiss, copyRun }: StopCopyModalProps) => {
     void flow.prepare()
   }
 
-  const viewHistory = () => {
+  const viewCopies = () => {
     dismiss()
-    navigate(APP_PATHS.COPY_TRADING + '/history')
+    const terminal = completedCopyRun?.status === 'stopped' || completedCopyRun?.status === 'closed'
+    navigate(APP_PATHS.COPY_TRADING + (terminal ? '/history' : '/my-copies'))
   }
 
   const accountConnected = !!account
@@ -192,7 +213,13 @@ const StopCopyModal = ({ isOpen, onDismiss, copyRun }: StopCopyModalProps) => {
   const review = <StopCopyReview isLoading={reviewPreparing} preview={flowState.action?.stopCopy} />
 
   const successActions = (
-    <PreparedActionSuccessActions onClose={dismiss} onPrimaryAction={viewHistory} primaryLabel="View History" />
+    <PreparedActionSuccessActions
+      onClose={dismiss}
+      onPrimaryAction={viewCopies}
+      primaryLabel={
+        completedCopyRun?.status === 'stopped' || completedCopyRun?.status === 'closed' ? 'View History' : 'My Copies'
+      }
+    />
   )
 
   return (

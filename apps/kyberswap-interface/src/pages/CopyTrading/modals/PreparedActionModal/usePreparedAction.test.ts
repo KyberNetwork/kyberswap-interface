@@ -135,7 +135,14 @@ describe('usePreparedAction', () => {
 
   it('refreshes screen data when post-receipt synchronization is still pending', async () => {
     const hash = `0x${'1'.repeat(64)}` as const
-    const harness = createStateHarness({ phase: 'sync_error', action: completedAction, hash, retryStage: 'sync' })
+    const receiptBlockNumber = 123n
+    const harness = createStateHarness({
+      phase: 'sync_error',
+      action: completedAction,
+      hash,
+      receiptBlockNumber,
+      retryStage: 'sync',
+    })
     let rejectSynchronization: (error: Error) => void = () => undefined
     const afterReceipt = vi.fn(() => new Promise<void>((_resolve, reject) => (rejectSynchronization = reject)))
     const onComplete = vi.fn()
@@ -150,9 +157,9 @@ describe('usePreparedAction', () => {
 
     const request = flow.retry()
 
-    expect(afterReceipt).toHaveBeenCalledWith(completedAction, hash)
+    expect(afterReceipt).toHaveBeenCalledWith(completedAction, hash, receiptBlockNumber)
     expect(onComplete).toHaveBeenCalledOnce()
-    expect(harness.getState()).toEqual({ phase: 'syncing', action: completedAction, hash })
+    expect(harness.getState()).toEqual({ phase: 'syncing', action: completedAction, hash, receiptBlockNumber })
 
     rejectSynchronization(new Error('The new Copy is not available yet.'))
     await request
@@ -162,6 +169,7 @@ describe('usePreparedAction', () => {
       action: completedAction,
       error: 'The new Copy is not available yet.',
       hash,
+      receiptBlockNumber,
       retryStage: 'sync',
     })
   })

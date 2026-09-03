@@ -16,7 +16,7 @@ FE_API_Catalog.md and openapi.yaml.
 | Read UI           | Code-complete for all currently defined product surfaces.                                                      |
 | Write UI          | Code-complete for Start Copy, Add Capital, Stop Copy, Withdraw Quote, Manual Sell, and Close Position.         |
 | Responsive UI     | Code-complete for the defined layouts; Action Logs mobile filter remains a product decision.                   |
-| Live validation   | Positive controlled E2E remains deferred for the position-recovery cases listed below.                         |
+| Live validation   | Positive controlled E2E remains deferred for the post-receipt convergence and position-recovery cases below.   |
 
 ## Contract and Ownership
 
@@ -44,10 +44,11 @@ FE_API_Catalog.md and openapi.yaml.
 - Cursor-paginated requests restart from page one when a non-initial cursor is
   rejected with HTTP 400/code 10 or HTTP 409.
 
-The following service support is intentionally API-only until product designs
+The following API surfaces remain without standalone product UI until designs
 exist:
 
-- Closed-position execution details and the closed-executions endpoint.
+- Closed-position execution details. The closed-executions endpoint is consumed
+  internally for Manual Sell and Close Position post-receipt convergence.
 - Structured Alerts Feed and Copy Run Log fields beyond the current rows.
 - Copy Run cashback policy.
 - Agent discovery, Agent position detail/events, owner-wide positions, and
@@ -202,8 +203,19 @@ Cross-flow decisions:
 - A transaction is successful only after a successful receipt.
 - Receipt retry waits for the existing hash and never rebroadcasts.
 - A reverted receipt starts a new preparation on Retry.
-- Cache invalidation starts asynchronously after receipt success; UI success
-  does not wait for backend projection convergence.
+- Add Capital, Stop Copy, Withdraw Quote, Manual Sell, and Close Position keep
+  the modal in its syncing phase after receipt success and poll one direct API
+  read per attempt for up to 20 seconds. Add Capital requires the exact Copy
+  Detail Capital In to increase; Stop Copy requires its lifecycle to leave
+  Active; Withdraw Quote requires Remaining in Wallet to differ from its
+  prepared snapshot; and position sells require a closed execution with the
+  submitted transaction hash. Projection-backed checks also require
+  source-block receipt coverage. A timeout remains recoverable through Refresh
+  status.
+- For the five non-Start actions, cache invalidation starts after receipt
+  success and runs again after the action-specific direct read converges so
+  containing lists and summaries refetch from the new projection. Start Copy
+  invalidates after receipt and retains its existing Agent-filtered polling.
 - Paired modal actions keep the outlined secondary action on the left and the
   primary action on the right.
 - Loading Dots are absolutely positioned so modal CTA labels do not shift.
@@ -256,6 +268,8 @@ Cross-flow decisions:
 Frontend implementation is complete for the current scope. The remaining work
 is validation or product-definition work:
 
+- Controlled positive E2E for Add Capital, Stop Copy, and Withdraw Quote
+  post-receipt convergence.
 - Controlled positive E2E for active Manual Sell after an Operator skip.
 - Controlled positive E2E for active 100% recovery.
 - Controlled positive E2E for Close Position on a CLOSING Copy.
@@ -274,8 +288,8 @@ from the frontend.
 Latest checks for the current working tree:
 
 - App TypeScript passed.
-- Targeted Copy Detail ESLint passed.
-- All 99 currently discovered Copy Trading unit tests across 14 files passed.
+- Targeted Copy Trading modal ESLint passed.
+- All 87 currently discovered Copy Trading unit tests across 13 files passed.
 - Focused formatting passed.
 - git diff --check and git diff --cached --check passed.
 - The checked-in OpenAPI byte-matched the live 33-path, 155-definition schema;
