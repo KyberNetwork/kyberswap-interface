@@ -1,11 +1,19 @@
+import { AlertTriangle } from 'react-feather'
+import { Link } from 'react-router-dom'
 import type { ActivityRow, OwnerCopySummary } from 'services/copyTrading/types/copyRuns'
 
 import Dots from 'components/Dots'
 import { HStack, Stack } from 'components/Stack'
+import { APP_PATHS } from 'constants/index'
+import {
+  type AlertFeedTone,
+  formatAlertFeedTime,
+  getAlertFeedItemViewModel,
+  getLegacyAlertFeedLabel,
+} from 'pages/CopyTrading/MyCopies/alertFeed'
 import InfiniteScroll, { type InfiniteScrollState } from 'pages/CopyTrading/components/InfiniteScroll'
 import Leaderboard, { type LeaderboardStat } from 'pages/CopyTrading/components/Leaderboard'
-import { AgentAvatar } from 'pages/CopyTrading/components/common/agentIdentity'
-import { ContentPanel } from 'pages/CopyTrading/components/common/layout'
+import { ContentPanel, ShortenedId } from 'pages/CopyTrading/components/common/layout'
 import { copyTradingStatIconMap } from 'pages/CopyTrading/constants'
 import {
   formatCount,
@@ -15,7 +23,6 @@ import {
   signedUsd,
 } from 'pages/CopyTrading/helpers'
 import { cn } from 'utils/cn'
-import { formatDateTime } from 'utils/time'
 
 type OpenCopiesSummaryProps = {
   loading?: boolean
@@ -56,15 +63,6 @@ type AlertsFeedProps = {
   rows: ActivityRow[]
 }
 
-const getActivityAgentName = (activity: ActivityRow) =>
-  activity.agentDisplayName || activity.agentId.replace(/[-_]/g, ' ') || 'Unknown Agent'
-
-const getActivityTokenSymbol = (activity: ActivityRow) =>
-  activity.position?.baseToken?.symbol || activity.capital?.token?.symbol || activity.fee?.token?.symbol
-
-const getActivityValueUsd = (activity: ActivityRow) =>
-  activity.position?.settlementValueUsd?.value || activity.capital?.valueUsd?.value || activity.fee?.valueUsd?.value
-
 const normalizeActivityCopy = (value?: string) =>
   value
     ?.trim()
@@ -75,61 +73,105 @@ const normalizeActivityCopy = (value?: string) =>
 const isSameActivityCopy = (left?: string, right?: string) =>
   !!left && !!right && normalizeActivityCopy(left) === normalizeActivityCopy(right)
 
+const alertToneClassName: Record<AlertFeedTone, string> = {
+  buy: 'text-primary',
+  sell: 'text-red',
+  warning: 'text-warning',
+  neutral: 'text-subText',
+}
+
+const AlertStatusIcon = ({ tone }: { tone: AlertFeedTone }) => {
+  if (tone === 'warning') return <AlertTriangle aria-hidden size={14} className="mt-1 shrink-0 text-warning" />
+
+  return (
+    <span
+      aria-hidden
+      className={cn(
+        'mt-1 size-3 shrink-0 rounded-full',
+        tone === 'buy' && 'bg-primary shadow-[0_0_8px_var(--ks-primary)]',
+        tone === 'sell' && 'bg-red shadow-[0_0_8px_var(--ks-red)]',
+        tone === 'neutral' && 'bg-subText',
+      )}
+    />
+  )
+}
+
 export const AlertsFeed = ({ infiniteScroll, loading, rows }: AlertsFeedProps) => {
   return (
     <ContentPanel title="Alerts Feed">
       <InfiniteScroll {...infiniteScroll} className="max-h-[400px]" scrollbar="vertical">
-        <Stack className="gap-5 px-6 py-5">
+        <Stack className="gap-4 px-6 py-4">
           {rows.map(item => {
-            const agentName = getActivityAgentName(item)
+            const alert = getAlertFeedItemViewModel(item)
             const activityLabel = getActivityLabel(item)
-            const tokenSymbol = getActivityTokenSymbol(item)
-            const valueUsd = getActivityValueUsd(item)
-            const realizedPnlUsd = item.position?.realizedPnlUsd?.value
-            const publicError = item.execution?.publicErrorMessage
             const summary = item.summary.trim()
             const showSummary = !!summary && !isSameActivityCopy(summary, activityLabel)
-            const showPublicError =
-              !!publicError &&
-              !isSameActivityCopy(publicError, summary) &&
-              !isSameActivityCopy(publicError, activityLabel)
+            const legacyLabel = getLegacyAlertFeedLabel(item)
 
             return (
-              <HStack key={item.activityId} className="items-start gap-3.5">
-                <AgentAvatar avatarUrl={item.agentAvatarUrl} chainId={item.chainId} displayName={agentName} />
-                <Stack className="min-w-0 flex-1 gap-1.5">
-                  <HStack className="min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
-                    <span className="text-sm font-medium text-text">{activityLabel}</span>
-                    <span className="text-xs text-subText">•</span>
-                    <span className="min-w-0 truncate text-sm text-subText">{agentName}</span>
-                    <span className="ml-auto shrink-0 text-xs text-subText">{formatDateTime(item.occurredAt)}</span>
-                  </HStack>
-                  {showSummary && <p className="break-words text-sm text-subText">{summary}</p>}
-                  {showPublicError && <p className="break-words text-xs text-warning">{publicError}</p>}
-                  {(tokenSymbol || valueUsd !== undefined || realizedPnlUsd !== undefined) && (
-                    <HStack className="flex-wrap items-center gap-2 text-xs">
-                      {tokenSymbol && (
-                        <span className="rounded-full bg-background-60 px-2 py-1 text-subText">
-                          Token: <span className="font-medium text-text">{tokenSymbol}</span>
-                        </span>
-                      )}
-                      {valueUsd !== undefined && (
-                        <span className="rounded-full bg-background-60 px-2 py-1 text-subText">
-                          Value: <span className="font-medium text-text">{formatUsd(valueUsd)}</span>
-                        </span>
-                      )}
-                      {realizedPnlUsd !== undefined && (
-                        <span className="rounded-full bg-background-60 px-2 py-1 text-subText">
-                          Realised P&amp;L:{' '}
-                          <span
-                            className={cn('whitespace-nowrap font-medium', getSignedMetricClassName(realizedPnlUsd))}
-                          >
-                            {signedUsd(realizedPnlUsd)}
+              <HStack key={alert.key} className="items-start gap-3">
+                <AlertStatusIcon tone={alert.indicatorTone} />
+                <Stack className="min-w-0 flex-1 gap-0.5">
+                  <p className="min-w-0 break-words text-sm text-text">
+                    {alert.agentAction && alert.agentTokenSymbol ? (
+                      <>
+                        {alert.agentName}{' '}
+                        <span className={alertToneClassName[alert.agentAction === 'bought' ? 'buy' : 'sell']}>
+                          {alert.agentAction}
+                        </span>{' '}
+                        {alert.agentTokenSymbol}
+                        {alert.referenceId && (
+                          <span className="text-subText">
+                            {' '}
+                            · <ShortenedId value={alert.referenceId} />
                           </span>
-                        </span>
+                        )}
+                      </>
+                    ) : (
+                      alert.agentFallback || legacyLabel
+                    )}
+                  </p>
+
+                  {alert.userAction ? (
+                    <p className="break-words text-sm text-subText">
+                      Your Copy:{' '}
+                      <span
+                        className={cn(
+                          alertToneClassName[alert.userTone],
+                          alert.userAction === 'skipped' && 'text-text',
+                        )}
+                      >
+                        {alert.userAction}
+                      </span>
+                      {alert.userAction === 'completed' && ' - details syncing'}
+                      {(alert.userAction === 'bought' || alert.userAction === 'sold') && (
+                        <>
+                          {' '}
+                          <span className="text-text">
+                            {alert.userAmount} {alert.userTokenSymbol} at {alert.userPrice} {alert.userQuoteTokenSymbol}
+                          </span>
+                        </>
                       )}
-                    </HStack>
+                      {alert.userReason && <span> - {alert.userReason}</span>}
+                      {alert.manualSellCopyRunId && (
+                        <>
+                          {' '}
+                          <Link
+                            className="text-red no-underline hover:text-red hover:underline"
+                            to={`${APP_PATHS.COPY_TRADING}/my-copies/${alert.manualSellCopyRunId}`}
+                          >
+                            [Manual sell]
+                          </Link>
+                        </>
+                      )}
+                    </p>
+                  ) : alert.userFallback ? (
+                    <p className="break-words text-sm text-subText">{alert.userFallback}</p>
+                  ) : (
+                    showSummary && <p className="break-words text-sm text-subText">{summary}</p>
                   )}
+
+                  <span className="text-sm text-subText">{formatAlertFeedTime(alert.occurredAt)}</span>
                 </Stack>
               </HStack>
             )

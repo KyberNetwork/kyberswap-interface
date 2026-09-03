@@ -50,7 +50,9 @@ const LeaderboardCard = ({ className, item, loading, size }: LeaderboardCardProp
     <HStack
       className={cn(
         'h-full min-h-16 items-center gap-2 rounded-xl bg-buttonBlack px-3 py-2',
-        size === 'lg' ? 'md:min-h-24 md:gap-4 md:px-5 md:py-4' : 'md:min-h-[72px] md:gap-4 md:px-6 md:py-3',
+        size === 'lg'
+          ? 'md:min-h-24 md:gap-4 md:px-5 md:py-4'
+          : 'md:min-h-[72px] md:gap-3 md:px-4 md:py-3 xl:gap-4 xl:px-6',
         className,
       )}
     >
@@ -70,8 +72,8 @@ const LeaderboardCard = ({ className, item, loading, size }: LeaderboardCardProp
             {item.value}
           </span>
         )}
-        <div className="min-w-0 text-xs text-subText md:text-sm">
-          <span className="block truncate" title={item.label}>
+        <div className="min-w-0 text-sm text-subText">
+          <span className="block whitespace-normal md:truncate" title={item.label}>
             {item.label}
           </span>
         </div>
@@ -91,7 +93,15 @@ const Leaderboard = ({ items, loading, size = 'lg', className }: LeaderboardProp
   const hasExplicitMobileSpan = items.some(item => item.mobileSpan !== undefined)
 
   return (
-    <div className={cn('grid grid-cols-2 gap-2 md:grid-cols-[repeat(auto-fit,minmax(250px,1fr))] md:gap-4', className)}>
+    <div
+      className={cn(
+        'grid grid-cols-2 gap-2 md:gap-4',
+        size === 'lg'
+          ? 'md:grid-cols-[repeat(auto-fit,minmax(240px,1fr))]'
+          : 'md:grid-cols-[repeat(auto-fit,minmax(180px,1fr))]',
+        className,
+      )}
+    >
       {items.map((item, index) => (
         <LeaderboardCard
           key={item.label}
