@@ -2,6 +2,7 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import copyAccountApi from 'services/copyTrading/api/endpoints/copyAccounts'
+import copyRunApi from 'services/copyTrading/api/endpoints/copyRuns'
 import preparedActionApi from 'services/copyTrading/api/endpoints/preparedActions'
 import type { PendingSellObligation } from 'services/copyTrading/types/copyRuns'
 import type { PositionSummary } from 'services/copyTrading/types/positions'
@@ -26,6 +27,10 @@ import {
 } from 'pages/CopyTrading/modals/ManagePositionModal/positionSellFlow'
 import PreparedActionModal, { PreparedActionSuccessActions } from 'pages/CopyTrading/modals/PreparedActionModal'
 import { DEFAULT_PREPARED_ACTION_SLIPPAGE } from 'pages/CopyTrading/modals/PreparedActionModal/SlippageControl'
+import {
+  isSameTransactionHash,
+  pollCopyTradingProjection,
+} from 'pages/CopyTrading/modals/PreparedActionModal/postReceipt'
 import {
   DEFAULT_PREPARED_ACTION_STATE,
   getApiErrorMessage,
@@ -53,6 +58,7 @@ const ManagePositionModal = ({ isOpen, onDismiss, position, flow: positionFlow }
   const [prepareManualSell] = preparedActionApi.usePrepareManualSellMutation()
   const [prepareClosePosition] = preparedActionApi.usePrepareClosePositionMutation()
   const [getObligations] = copyAccountApi.useLazyGetPendingSellObligationsQuery()
+  const [getClosedExecutions] = copyRunApi.useLazyGetCopyRunPositionClosedExecutionsQuery()
 
   const [flowState, setFlowState] = useState(DEFAULT_PREPARED_ACTION_STATE)
   const [obligations, setObligations] = useState<PendingSellObligation[]>()
@@ -66,6 +72,7 @@ const ManagePositionModal = ({ isOpen, onDismiss, position, flow: positionFlow }
   const requiresObligations = !usesStopCopyContext
   const usesClosePreparation = flowConfig.preparation === 'closePosition'
   const userPositionId = position.userPositionId
+  const positionId = position.positionId
   const copyRunId = position.copyRunId
   const copyAccount = position.copyAccount
   const onExpectedChain = chainId === position.chainId
@@ -171,6 +178,23 @@ const ManagePositionModal = ({ isOpen, onDismiss, position, flow: positionFlow }
       preview: preparationConfig.preview,
     },
     prepare: preparePositionSell,
+    afterReceipt: async (_action, hash) => {
+      if (!account || !copyRunId || !positionId) throw new Error(MISSING_IDENTITY_MESSAGE)
+
+      await pollCopyTradingProjection({
+        errorMessage:
+          'Your transaction is confirmed, but the latest position execution is not available yet. Refresh status to try again.',
+        fetch: () =>
+          getClosedExecutions({
+            ownerAddress: account.toLowerCase(),
+            copyRunId,
+            positionId,
+            limit: 20,
+          }).unwrap(),
+        isConverged: response => response.data.some(execution => isSameTransactionHash(execution.txHash, hash)),
+      })
+      refreshCopyTrading()
+    },
     onComplete: refreshCopyTrading,
   })
 
@@ -200,7 +224,7 @@ const ManagePositionModal = ({ isOpen, onDismiss, position, flow: positionFlow }
 
   const accountConnected = !!account
   const isPreparing = flowState.isPreparing === true
-  const identityMissing = !copyRunId || !userPositionId || (requiresObligations && !copyAccount)
+  const identityMissing = !copyRunId || !positionId || !userPositionId || (requiresObligations && !copyAccount)
   const obligationsLoading = requiresObligations && obligations === undefined && !obligationsError
   const obligationsUnavailable =
     requiresObligations && obligations !== undefined && !isValidWadRatio(obligations[0]?.currentRatioRaw)

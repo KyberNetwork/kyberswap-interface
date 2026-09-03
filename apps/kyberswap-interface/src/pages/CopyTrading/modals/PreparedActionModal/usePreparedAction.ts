@@ -27,7 +27,7 @@ type UsePreparedActionProps = {
   expected: PreparedActionExpectation
   prepare: () => Promise<PreparedAction>
   reviewUnavailable?: (action: PreparedAction) => boolean
-  afterReceipt?: (action: PreparedAction, hash: Hash) => Promise<void> | void
+  afterReceipt?: (action: PreparedAction, hash: Hash, receiptBlockNumber?: bigint) => Promise<void> | void
   onComplete?: () => Promise<void> | void
 }
 
@@ -70,8 +70,9 @@ export const usePreparedAction = ({
       options,
     )
 
-  const finishReceipt = async (action: PreparedAction, hash: Hash) => {
-    setState({ phase: 'syncing', action, hash })
+  const finishReceipt = async (action: PreparedAction, hash: Hash, receiptBlockNumber?: bigint) => {
+    const receiptState = receiptBlockNumber === undefined ? {} : { receiptBlockNumber }
+    setState({ phase: 'syncing', action, hash, ...receiptState })
     notifyComplete()
 
     if (!afterReceipt) {
@@ -80,7 +81,7 @@ export const usePreparedAction = ({
     }
 
     try {
-      await afterReceipt(action, hash)
+      await afterReceipt(action, hash, receiptBlockNumber)
       finish(action, hash, undefined, false)
     } catch (error) {
       setState({
@@ -88,6 +89,7 @@ export const usePreparedAction = ({
         action,
         error: getApiErrorMessage(error),
         hash,
+        ...receiptState,
         retryStage: 'sync',
       })
     }
@@ -148,7 +150,7 @@ export const usePreparedAction = ({
         return
       }
 
-      await finishReceipt(action, submittedHash)
+      await finishReceipt(action, submittedHash, receipt.blockNumber)
     } catch (error) {
       setState({
         phase: hash ? 'sync_error' : 'error',
@@ -183,7 +185,7 @@ export const usePreparedAction = ({
         return
       }
 
-      await finishReceipt(action, hash)
+      await finishReceipt(action, hash, receipt.blockNumber)
     } catch (error) {
       setState({
         phase: 'sync_error',
@@ -202,7 +204,7 @@ export const usePreparedAction = ({
         return
       }
 
-      await finishReceipt(state.action, state.hash)
+      await finishReceipt(state.action, state.hash, state.receiptBlockNumber)
       return
     }
 

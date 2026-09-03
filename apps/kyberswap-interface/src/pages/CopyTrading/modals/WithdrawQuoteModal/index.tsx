@@ -14,6 +14,7 @@ import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import useRefreshCopyTrading from 'pages/CopyTrading/hooks/useRefreshCopyTrading'
 import { getCapitalInputQuoteToken } from 'pages/CopyTrading/modals/CapitalAmount/capital'
 import PreparedActionModal, { PreparedActionSuccessActions } from 'pages/CopyTrading/modals/PreparedActionModal'
+import { pollCopyTradingProjection } from 'pages/CopyTrading/modals/PreparedActionModal/postReceipt'
 import {
   DEFAULT_PREPARED_ACTION_STATE,
   parsePreparedAmount,
@@ -22,6 +23,7 @@ import { usePreparedAction } from 'pages/CopyTrading/modals/PreparedActionModal/
 import { WithdrawQuoteForm, WithdrawQuoteReview } from 'pages/CopyTrading/modals/WithdrawQuoteModal/components'
 import {
   UINT256_MAX_RAW,
+  getPreparedQuoteBalanceRaw,
   getWithdrawAmountError,
   getWithdrawPresetAmountRaw,
   getWithdrawRequestAmountRaw,
@@ -53,6 +55,7 @@ const WithdrawQuoteModal = ({ isOpen, onDismiss, copyRun, withdrawQuoteAvailabil
   const toggleWalletModal = useWalletModalToggle()
   const refreshCopyTrading = useRefreshCopyTrading()
   const [prepareWithdrawQuote] = preparedActionApi.usePrepareWithdrawQuoteMutation()
+  const [getWalletInventory] = copyAccountApi.useLazyGetCopyAccountWalletInventoryQuery()
 
   const [flowState, setFlowState] = useState(DEFAULT_PREPARED_ACTION_STATE)
   const [amount, setAmount] = useState('')
@@ -145,6 +148,37 @@ const WithdrawQuoteModal = ({ isOpen, onDismiss, copyRun, withdrawQuoteAvailabil
         if (validationError) throw new Error(validationError)
       }
       return response.data
+    },
+    afterReceipt: async (action, _hash, receiptBlockNumber) => {
+      const previousBalanceRaw = getPreparedQuoteBalanceRaw(action.withdrawQuote)
+      if (previousBalanceRaw === undefined || !quoteToken) {
+        throw new Error('The confirmed withdrawal is missing its previous Remaining in Wallet balance.')
+      }
+
+      await pollCopyTradingProjection({
+        errorMessage:
+          'Your transaction is confirmed, but the updated quote balance is not available yet. Refresh status to try again.',
+        fetch: () => getWalletInventory({ chainId: copyRun.chainId, copyAccount: copyRun.copyAccount }).unwrap(),
+        isConverged: response => {
+          const balance = response.pinnedStableBalance?.balance
+          if (
+            receiptBlockNumber === undefined ||
+            !balance?.balanceAsOfBlock ||
+            !/^\d+$/.test(balance.balanceAsOfBlock)
+          ) {
+            return false
+          }
+
+          return (
+            response.complete === true &&
+            response.pinnedStableBalance?.status === 'PINNED_STABLE_BALANCE_STATUS_PRESENT' &&
+            balance.tokenAddress.toLowerCase() === quoteToken?.address.toLowerCase() &&
+            BigInt(balance.balanceAsOfBlock) >= receiptBlockNumber &&
+            parseUnits(balance.amountDecimal, quoteToken.decimals).toString() !== previousBalanceRaw
+          )
+        },
+      })
+      refreshCopyTrading()
     },
     onComplete: refreshCopyTrading,
   })

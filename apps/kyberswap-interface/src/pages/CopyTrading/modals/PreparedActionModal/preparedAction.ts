@@ -30,6 +30,7 @@ export type PreparedActionFlowState = {
   action?: PreparedAction
   error?: string
   hash?: Hash
+  receiptBlockNumber?: bigint
   retryStage?: 'receipt' | 'sync'
 }
 
