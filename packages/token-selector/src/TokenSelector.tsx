@@ -17,11 +17,13 @@ import {
 
 import { useLingui } from "@lingui/react";
 
-import { Exchange, NATIVE_TOKEN_ADDRESS, Token } from "@kyber/schema";
+import { TokenPriceMap, useTokenPrices } from "@kyber/hooks";
+import { ChainId, Exchange, NATIVE_TOKEN_ADDRESS, Token } from "@kyber/schema";
 import { Button, Input, TokenLogo, TokenSymbol } from "@kyber/ui";
 import { fetchTokenInfo } from "@kyber/utils";
 import { isAddress } from "@kyber/utils/crypto";
-import { formatUnits } from "@kyber/utils/number";
+import { formatDisplayNumber, formatUnits } from "@kyber/utils/number";
+import { cn } from "@kyber/utils/tailwind-helpers";
 
 import Check from "@/assets/check.svg?react";
 import Info from "@/assets/info.svg?react";
@@ -35,6 +37,7 @@ import {
   TOKEN_SELECT_MODE,
   TokenSelectorVariant,
 } from "@/types";
+import { getNetworkInfo } from "@/TokenInfo/utils";
 import UserPositions, { TokenLoader } from "@/UserPositions";
 import { useTokenState } from "@/useTokenState";
 
@@ -100,6 +103,12 @@ interface TokenSelectorProps {
 
 const normalizeSpecialCharacters = (value: string) => value.replace(/₮/g, "T");
 
+const NATIVE_TOKEN_LOWER = NATIVE_TOKEN_ADDRESS.toLowerCase();
+const EMPTY_ADDRESSES: string[] = [];
+
+const formatUsdValue = (value: number) =>
+  formatDisplayNumber(value, { style: "currency", significantDigits: 4 });
+
 const TOKEN_ROW_HEIGHT = 52;
 // Restricted rows are taller to fit the "not available in your jurisdiction" line.
 const RESTRICTED_TOKEN_ROW_HEIGHT = 88;
@@ -116,6 +125,10 @@ interface TokenRowData {
   onShowTokenInfo: (e: React.MouseEvent, token: Token) => void;
   isTokenRestricted?: (token: Token) => boolean;
   warnedAddresses: Set<string>;
+  /** USD mid price per lowercased address; only held tokens are priced. */
+  tokenPrices: TokenPriceMap;
+  /** The native token is priced through its wrapped counterpart when it has no entry of its own. */
+  wrappedNativeAddress?: string;
   i18n: ReturnType<typeof useLingui>["i18n"];
 }
 
@@ -135,11 +148,22 @@ const TokenRow = memo(function TokenRow({
     onImportToken,
     onShowTokenInfo,
     warnedAddresses,
+    tokenPrices,
+    wrappedNativeAddress,
     i18n,
   } = data;
 
   const token = tokens[index];
   if (!token) return null;
+
+  const tokenAddrLower = token.address?.toLowerCase();
+  const price =
+    tokenPrices[tokenAddrLower] ||
+    (tokenAddrLower === NATIVE_TOKEN_LOWER && wrappedNativeAddress
+      ? tokenPrices[wrappedNativeAddress]
+      : 0) ||
+    0;
+  const usdValue = price * parseFloat(token.balance);
 
   // A discovered token is not on the list yet: the row is dimmed and clicking it starts the import.
   const discovered = !!token.discovered;
@@ -188,11 +212,14 @@ const TokenRow = memo(function TokenRow({
       }}
     >
       <div
-        className={`flex items-center gap-3 ${discovered ? "opacity-50" : ""}`}
+        className={cn(
+          "flex min-w-0 items-center gap-3",
+          discovered && "opacity-50",
+        )}
       >
         {mode === TOKEN_SELECT_MODE.ADD && (
           <div
-            className={`w-4 h-4 rounded-[4px] flex items-center justify-center cursor-pointer ${
+            className={`w-4 h-4 shrink-0 rounded-[4px] flex items-center justify-center cursor-pointer ${
               modalTokensInAddress.has(token.address?.toLowerCase())
                 ? "bg-accent"
                 : "bg-stroke"
@@ -204,24 +231,43 @@ const TokenRow = memo(function TokenRow({
           </div>
         )}
         <TokenLogo src={token.logo} size={24} />
-        <div>
+        <div className="min-w-0">
           <TokenSymbol
             className="leading-6"
             symbol={token.symbol}
             maxWidth={120}
           />
           <p
-            className={`${tabSelected === TOKEN_TAB.ALL ? "text-xs" : ""} text-subText`}
+            className={cn(
+              "truncate text-subText",
+              tabSelected === TOKEN_TAB.ALL && "text-xs",
+            )}
+            title={tabSelected === TOKEN_TAB.ALL ? token.name : undefined}
           >
             {tabSelected === TOKEN_TAB.ALL ? token.name : token.balance}
+            {tabSelected === TOKEN_TAB.IMPORTED && usdValue > 0 && (
+              <span className="ml-1 text-xs text-accent">
+                {formatUsdValue(usdValue)}
+              </span>
+            )}
           </p>
         </div>
       </div>
-      <div className="flex items-center gap-2 justify-end">
+      <div className="flex shrink-0 items-center justify-end gap-2">
         {tabSelected === TOKEN_TAB.ALL ? (
-          <span className={discovered ? "opacity-50" : ""}>
-            {token.balance}
-          </span>
+          <div
+            className={cn(
+              "flex flex-col items-end",
+              discovered && "opacity-50",
+            )}
+          >
+            <span>{token.balance}</span>
+            {usdValue > 0 && (
+              <span className="text-xs text-accent">
+                {formatUsdValue(usdValue)}
+              </span>
+            )}
+          </div>
         ) : (
           <TrashIcon
             className="w-[18px] text-subText hover:text-text !cursor-pointer"
@@ -288,6 +334,30 @@ export default function TokenSelector({
     () => [...tokens, ...importedTokens, ...discoveredTokens],
     [tokens, importedTokens, discoveredTokens],
   );
+
+  const wrappedNativeAddress = chainId
+    ? getNetworkInfo(chainId as ChainId)?.wrappedToken.address.toLowerCase()
+    : undefined;
+
+  // Only a held token can show a non-zero USD value, so only those are priced rather than the whole
+  // list. The wrapped native token rides along whenever the native one is held (see TokenRowData).
+  const heldAddresses = useMemo(() => {
+    const held = allTokens
+      .map((token) => token.address.toLowerCase())
+      .filter((address) => (tokenBalances[address] ?? 0n) > 0n);
+    if (
+      wrappedNativeAddress &&
+      held.includes(NATIVE_TOKEN_LOWER) &&
+      !held.includes(wrappedNativeAddress)
+    ) {
+      held.push(wrappedNativeAddress);
+    }
+    return held.length ? held : EMPTY_ADDRESSES;
+  }, [allTokens, tokenBalances, wrappedNativeAddress]);
+  const { prices: tokenPrices } = useTokenPrices({
+    chainId,
+    addresses: heldAddresses,
+  });
 
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState<string>("");
@@ -620,6 +690,8 @@ export default function TokenSelector({
       onShowTokenInfo: handleShowTokenInfo,
       isTokenRestricted,
       warnedAddresses: warnedRestricted,
+      tokenPrices,
+      wrappedNativeAddress,
       i18n,
     }),
     [
@@ -634,6 +706,8 @@ export default function TokenSelector({
       handleShowTokenInfo,
       isTokenRestricted,
       warnedRestricted,
+      tokenPrices,
+      wrappedNativeAddress,
       i18n,
     ],
   );

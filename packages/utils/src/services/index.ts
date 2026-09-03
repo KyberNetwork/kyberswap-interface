@@ -44,6 +44,28 @@ interface PriceResponse {
   };
 }
 
+/** Either side can be absent when the price service cannot value that leg of the market. */
+export interface TokenPriceEntry {
+  PriceBuy?: number;
+  PriceSell?: number;
+}
+
+/** A buy/sell spread at or beyond this ratio is not a market, and its mid is not a price. */
+const MAX_PRICE_SPREAD_RATIO = 2;
+
+/**
+ * A token's USD price as the mid of its buy/sell spread, or `null` when either side is missing or the
+ * two sides are too far apart — a one-sided or wildly split quote comes from a market the price
+ * service could only value on one leg and can sit orders of magnitude away from the tradable price.
+ */
+export const getMidPrice = (entry?: TokenPriceEntry): number | null => {
+  if (!entry?.PriceBuy || !entry?.PriceSell) return null;
+  const [low, high] =
+    entry.PriceBuy < entry.PriceSell ? [entry.PriceBuy, entry.PriceSell] : [entry.PriceSell, entry.PriceBuy];
+  if (high >= low * MAX_PRICE_SPREAD_RATIO) return null;
+  return (low + high) / 2;
+};
+
 export const fetchTokenPrice = async ({ addresses, chainId }: { addresses: string[]; chainId: number }) => {
   const priceResponse: PriceResponse = await fetch(`${API_URLS.TOKEN_API}/v1/public/tokens/prices`, {
     method: 'POST',
