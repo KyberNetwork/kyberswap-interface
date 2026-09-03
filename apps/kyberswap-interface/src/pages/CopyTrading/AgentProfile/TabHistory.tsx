@@ -12,7 +12,6 @@ import {
   TableHeader,
   TableRow,
 } from 'pages/CopyTrading/components/Table'
-import { ShortenedId } from 'pages/CopyTrading/components/common/layout'
 import { formatTokenAmount, formatUsd, getSignedMetricClassName, signedUsd } from 'pages/CopyTrading/helpers'
 import { cn } from 'utils/cn'
 import { formatDateTime } from 'utils/time'
@@ -29,7 +28,7 @@ const TabHistoryGrid = ({ header, className, ...props }: TabHistoryGridProps) =>
   return (
     <Grid
       className={cn(
-        'min-w-[900px] grid-cols-[minmax(0,1fr)_minmax(0,0.8fr)_minmax(0,1.1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1.2fr)_minmax(0,1.4fr)] gap-x-4',
+        'min-w-[780px] grid-cols-[minmax(0,0.8fr)_minmax(0,1.1fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1.2fr)_minmax(0,1.4fr)] gap-x-4',
         !header && 'py-1',
         className,
       )}
@@ -60,7 +59,6 @@ const TabHistory = ({ agentId }: { agentId: string }) => {
     <Stack>
       <InfiniteScroll {...infiniteScroll}>
         <TabHistoryGrid header className="sticky top-0 z-[1] hidden lg:grid">
-          <HeaderCell>Trade ID</HeaderCell>
           <HeaderCell>Token</HeaderCell>
           <HeaderCell className="justify-end text-right">Entry Price</HeaderCell>
           <HeaderCell className="justify-end text-right">Exit</HeaderCell>
@@ -69,7 +67,7 @@ const TabHistory = ({ agentId }: { agentId: string }) => {
           <HeaderCell>Closed</HeaderCell>
         </TabHistoryGrid>
         <TableBody
-          className="grid gap-2 bg-transparent lg:block lg:min-w-[900px] lg:bg-buttonBlack-60"
+          className="grid gap-2 bg-transparent lg:block lg:min-w-[780px] lg:bg-buttonBlack-60"
           empty={!rows.length}
           emptyMessage="No trade history found"
           loading={isFetching && !rows.length}
@@ -77,9 +75,6 @@ const TabHistory = ({ agentId }: { agentId: string }) => {
           {rows.map(row => (
             <div key={row.positionId}>
               <TabHistoryGrid className="max-lg:hidden">
-                <TableCell className="text-subText">
-                  <ShortenedId value={row.tradeId} />
-                </TableCell>
                 <TableCell>{row.token.symbol || '—'}</TableCell>
                 <TableCell className="text-right">{formatUsd(row.entryPriceUsd)}</TableCell>
                 <TableCell className="text-right">{formatUsd(row.exitPriceUsd || row.currentPriceUsd)}</TableCell>
@@ -99,9 +94,6 @@ const TabHistory = ({ agentId }: { agentId: string }) => {
                 </HStack>
 
                 <TableCardGrid>
-                  <TableCardField span="full" label="Trade ID">
-                    <ShortenedId value={row.tradeId} />
-                  </TableCardField>
                   <TableCardField label="Entry Price">{formatUsd(row.entryPriceUsd)}</TableCardField>
                   <TableCardField align="right" label="Exit">
                     {formatUsd(row.exitPriceUsd || row.currentPriceUsd)}
