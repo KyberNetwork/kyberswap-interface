@@ -61,8 +61,8 @@ export default function AccountInfo({
         <div
           className={cn('relative z-[2] flex size-full flex-col justify-between gap-1 px-4 py-3', isMinimal && 'p-3')}
         >
-          <div className="flex items-center justify-between">
-            <div className="flex flex-col gap-1">
+          <div className="flex min-w-0 items-center justify-between">
+            <div className="flex min-w-0 flex-col gap-1">
               <div
                 className="flex w-fit cursor-pointer gap-1"
                 onClick={() => {
@@ -84,10 +84,17 @@ export default function AccountInfo({
                 )}
               </div>
 
-              <span className={cn('truncate text-4xl font-medium', isMinimal && 'text-xl')}>
+              <span className={cn('max-w-full truncate text-4xl font-medium', isMinimal && 'text-xl')}>
                 {typeof totalBalanceInUsd === 'number' ? (
                   showBalance ? (
-                    `$${formatDisplayNumber(totalBalanceInUsd, { fractionDigits: 8 })}`
+                    // Cents are enough on a real total, and every digit stays on screen — a compact
+                    // "$10.9M" hides amounts that matter at this size. The long tail only matters
+                    // under a dollar. The wide significantDigits keeps the formatter off its compact
+                    // notation until far beyond any real total.
+                    `$${formatDisplayNumber(
+                      totalBalanceInUsd,
+                      totalBalanceInUsd >= 1 ? { fractionDigits: 2, significantDigits: 15 } : { fractionDigits: 8 },
+                    )}`
                   ) : (
                     '******'
                   )

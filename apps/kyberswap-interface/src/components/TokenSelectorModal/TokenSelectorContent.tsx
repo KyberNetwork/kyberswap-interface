@@ -66,6 +66,7 @@ import {
   useTokenComparator,
 } from 'components/TokenSelectorModal/utils'
 import { MouseoverTooltip } from 'components/Tooltip'
+import { ETHER_ADDRESS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import { Z_INDEXS } from 'constants/styles'
 import { NativeCurrencies } from 'constants/tokens'
@@ -788,9 +789,36 @@ export const TokenSelectorContent = ({
     ],
   )
 
+  // Once the switch lands the app sits on the token's chain, so the selector follows it there and an
+  // unlisted token still has to clear the import gate before it can be picked.
+  const importAfterSwitchRef = useRef(false)
+  const handleSelectAfterSwitch = useCallback(
+    (token: Currency) => {
+      setSelectedChainId(token.chainId)
+      if (getNeedsImport(token, address => isTokenImported(token.chainId, address), !!onImportToken)) {
+        importAfterSwitchRef.current = true
+        onImportToken?.(token.wrapped)
+        return
+      }
+      onCurrencySelect?.(token)
+    },
+    [isTokenImported, onCurrencySelect, onImportToken],
+  )
+  // The import view lives inside this same modal, so a hand-off to it keeps the modal open.
+  const handleDismissAfterSwitch = useCallback(() => {
+    if (importAfterSwitchRef.current) {
+      importAfterSwitchRef.current = false
+      return
+    }
+    onDismiss?.()
+  }, [onDismiss])
+
   // On confirm, switch to the token's chain and select it once the switch lands (see the hook — it
   // defers the selection past the network-param sync that would otherwise reset the pair to defaults).
-  const { switchChainAndSelect, resetPending } = usePendingCrossChainSelect(onCurrencySelect, onDismiss)
+  const { switchChainAndSelect, resetPending } = usePendingCrossChainSelect(
+    handleSelectAfterSwitch,
+    handleDismissAfterSwitch,
+  )
   const confirmSwitchChain = useCallback(() => {
     if (!switchChainToken) return
     const token = switchChainToken
@@ -800,11 +828,17 @@ export const TokenSelectorContent = ({
   }, [switchChainToken, switchChainAndSelect, trackTokenSelected])
 
   // A hit in the "other chains" group is other-chain only relative to the chain selector, which the
-  // wallet need not be on — so the token can well sit on the app's own chain. Aim the selector at it
-  // and hand off to the row select path, which gates on the app chain and so asks for a network switch
-  // only when one is really needed.
+  // wallet need not be on — so the token can well sit on the app's own chain. Hand off to the row select
+  // path, which gates on the app chain and so asks for a network switch only when one is really needed.
   const handleOtherChainSelect = useCallback(
     (token: WrappedTokenInfo) => {
+      // A pick that needs the app on another chain answers the Switch Chain confirm first — the import
+      // gate belongs to the chain the app lands on, and nothing here moves until the user agrees: aiming
+      // the selector early would strand the row in that chain's list with its Switch Chain button gone.
+      if (token.chainId !== anchorChainId && !onSelectChain) {
+        handleCurrencySelect(token)
+        return
+      }
       setSelectedChainId(token.chainId)
       if (getNeedsImport(token, address => isTokenImported(token.chainId, address), !!onImportToken)) {
         onImportToken?.(token.wrapped)
@@ -812,7 +846,7 @@ export const TokenSelectorContent = ({
       }
       handleCurrencySelect(token)
     },
-    [handleCurrencySelect, isTokenImported, onImportToken],
+    [anchorChainId, handleCurrencySelect, isTokenImported, onImportToken, onSelectChain],
   )
 
   const handleTabChange = useCallback(
@@ -900,7 +934,9 @@ export const TokenSelectorContent = ({
   const handleClickFavorite = useCallback(
     (event: MouseEvent, currency: Currency) => {
       event.stopPropagation()
-      const address = currency.wrapped.address
+      // The native currency is favorited under its sentinel address. Its wrapped address is a real,
+      // different token: toggling that would add or remove the wrapped token's own pin.
+      const address = isTokenNative(currency) ? ETHER_ADDRESS : currency.wrapped.address
       if (!address) return
       toggleFavoriteToken({ chainId: currency.chainId, address })
     },

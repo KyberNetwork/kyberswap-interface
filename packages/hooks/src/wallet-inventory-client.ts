@@ -7,7 +7,7 @@ import { ChainId } from '@kyber/schema';
  * `isWalletInventoryChain`), so the list drifting ahead of the backend degrades to the caller's own
  * balance source rather than failing. Both the app and the widget packages read this one list.
  */
-export const WALLET_INVENTORY_CHAINS: ChainId[] = [ChainId.Ethereum, ChainId.Base, ChainId.Bsc];
+export const WALLET_INVENTORY_CHAINS: ChainId[] = [ChainId.Ethereum, ChainId.Base, ChainId.Bsc, ChainId.Arbitrum];
 
 /** The service answered that it does not index this chain. */
 export class UnsupportedChainError extends Error {
