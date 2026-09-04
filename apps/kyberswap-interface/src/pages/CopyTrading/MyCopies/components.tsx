@@ -5,20 +5,17 @@ import type { ActivityRow, OwnerCopySummary } from 'services/copyTrading/types/c
 import Dots from 'components/Dots'
 import { HStack, Stack } from 'components/Stack'
 import { APP_PATHS } from 'constants/index'
-import {
-  type AlertFeedTone,
-  formatAlertFeedTime,
-  getAlertFeedItemViewModel,
-  getLegacyAlertFeedLabel,
-} from 'pages/CopyTrading/MyCopies/alertFeed'
+import { formatAlertFeedTime, getAlertFeedItemViewModel } from 'pages/CopyTrading/MyCopies/alertFeed'
 import InfiniteScroll, { type InfiniteScrollState } from 'pages/CopyTrading/components/InfiniteScroll'
 import Leaderboard, { type LeaderboardStat } from 'pages/CopyTrading/components/Leaderboard'
 import { ContentPanel, ShortenedId } from 'pages/CopyTrading/components/common/layout'
 import { copyTradingStatIconMap } from 'pages/CopyTrading/constants'
 import {
+  type ActivityTone,
   formatCount,
   formatUsd,
   getActivityLabel,
+  getActivityToneClassName,
   getSignedMetricClassName,
   signedUsd,
 } from 'pages/CopyTrading/helpers'
@@ -73,14 +70,7 @@ const normalizeActivityCopy = (value?: string) =>
 const isSameActivityCopy = (left?: string, right?: string) =>
   !!left && !!right && normalizeActivityCopy(left) === normalizeActivityCopy(right)
 
-const alertToneClassName: Record<AlertFeedTone, string> = {
-  buy: 'text-primary',
-  sell: 'text-red',
-  warning: 'text-warning',
-  neutral: 'text-subText',
-}
-
-const AlertStatusIcon = ({ tone }: { tone: AlertFeedTone }) => {
+const AlertStatusIcon = ({ tone }: { tone: ActivityTone }) => {
   if (tone === 'warning') return <AlertTriangle aria-hidden size={14} className="mt-1 shrink-0 text-warning" />
 
   return (
@@ -88,8 +78,9 @@ const AlertStatusIcon = ({ tone }: { tone: AlertFeedTone }) => {
       aria-hidden
       className={cn(
         'mt-1 size-3 shrink-0 rounded-full',
-        tone === 'buy' && 'bg-primary shadow-[0_0_8px_var(--ks-primary)]',
+        (tone === 'buy' || tone === 'capital') && 'bg-primary shadow-[0_0_8px_var(--ks-primary)]',
         tone === 'sell' && 'bg-red shadow-[0_0_8px_var(--ks-red)]',
+        tone === 'fee' && 'bg-blue shadow-[0_0_8px_var(--ks-blue)]',
         tone === 'neutral' && 'bg-subText',
       )}
     />
@@ -106,7 +97,6 @@ export const AlertsFeed = ({ infiniteScroll, loading, rows }: AlertsFeedProps) =
             const activityLabel = getActivityLabel(item)
             const summary = item.summary.trim()
             const showSummary = !!summary && !isSameActivityCopy(summary, activityLabel)
-            const legacyLabel = getLegacyAlertFeedLabel(item)
 
             return (
               <HStack key={alert.key} className="items-start gap-3">
@@ -116,7 +106,7 @@ export const AlertsFeed = ({ infiniteScroll, loading, rows }: AlertsFeedProps) =
                     {alert.agentAction && alert.agentTokenSymbol ? (
                       <>
                         {alert.agentName}{' '}
-                        <span className={alertToneClassName[alert.agentAction === 'bought' ? 'buy' : 'sell']}>
+                        <span className={getActivityToneClassName(alert.agentAction === 'bought' ? 'buy' : 'sell')}>
                           {alert.agentAction}
                         </span>{' '}
                         {alert.agentTokenSymbol}
@@ -127,8 +117,15 @@ export const AlertsFeed = ({ infiniteScroll, loading, rows }: AlertsFeedProps) =
                           </span>
                         )}
                       </>
+                    ) : alert.agentFallback ? (
+                      alert.agentFallback
+                    ) : alert.activityTone !== 'neutral' ? (
+                      <>
+                        {alert.agentName}{' '}
+                        <span className={getActivityToneClassName(alert.activityTone)}>{activityLabel}</span>
+                      </>
                     ) : (
-                      alert.agentFallback || legacyLabel
+                      `${alert.agentName} ${activityLabel}`
                     )}
                   </p>
 
@@ -137,7 +134,7 @@ export const AlertsFeed = ({ infiniteScroll, loading, rows }: AlertsFeedProps) =
                       Your Copy:{' '}
                       <span
                         className={cn(
-                          alertToneClassName[alert.userTone],
+                          getActivityToneClassName(alert.userTone),
                           alert.userAction === 'skipped' && 'text-text',
                         )}
                       >
