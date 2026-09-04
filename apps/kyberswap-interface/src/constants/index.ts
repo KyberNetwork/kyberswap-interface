@@ -31,6 +31,7 @@ export const APP_PATHS = {
   POOL_DETAIL: '/pools/:chain/:protocol/:address',
   DISCOVER: '/discover',
   CROSS_CHAIN: '/cross-chain',
+  COPY_TRADING: '/copy-trading',
   KYBERDAO: '/kyberdao',
   KYBERDAO_STAKE: '/kyberdao/stake-knc',
   KYBERDAO_VOTE: '/kyberdao/vote',
