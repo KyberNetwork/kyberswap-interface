@@ -168,7 +168,7 @@ export const CopyDetailTabs = ({
   })
 
   return (
-    <Stack className="overflow-hidden rounded-xl bg-buttonBlack-60">
+    <Stack className="gap-2 overflow-hidden rounded-xl lg:gap-0 lg:bg-buttonBlack-60">
       <DetailTabBar activeTab={currentTab} onChange={setActiveTab} options={tabOptions} />
 
       {includeOpenPositions && (

@@ -1,16 +1,18 @@
 import type { HTMLAttributes } from 'react'
 import agentApi from 'services/copyTrading/api/endpoints/agents'
 
-import { HStack, Stack } from 'components/Stack'
+import { Stack } from 'components/Stack'
 import InfiniteScroll, { useInfiniteCursorQuery } from 'pages/CopyTrading/components/InfiniteScroll'
 import {
   HeaderCell,
   TableBody,
   TableCardField,
   TableCardGrid,
+  TableCardValueFallback,
   TableCell,
   TableHeader,
   TableRow,
+  TradeCardHeader,
 } from 'pages/CopyTrading/components/Table'
 import { ShortenedId } from 'pages/CopyTrading/components/common/layout'
 import { formatTokenAmount, formatUsd, getSignedMetricClassName, signedUsd } from 'pages/CopyTrading/helpers'
@@ -90,29 +92,28 @@ const TabHistory = ({ agentId }: { agentId: string }) => {
                 <TableCell className="text-subText">{formatDateTime(row.closedAt)}</TableCell>
               </TabHistoryGrid>
 
-              <Stack className="gap-3 rounded-xl bg-buttonBlack p-3 lg:hidden">
-                <HStack className="items-start justify-between gap-3">
-                  <TableCardField label="Token">{row.token.symbol || '—'}</TableCardField>
-                  <TableCardField align="right" label="Closed" valueClassName="text-subText">
-                    {formatDateTime(row.closedAt)}
-                  </TableCardField>
-                </HStack>
+              <Stack className="gap-0 overflow-hidden rounded-xl bg-white-08 lg:hidden">
+                <TradeCardHeader
+                  metric={
+                    <span className={cn('whitespace-nowrap', getSignedMetricClassName(row.realizedPnlUsd))}>
+                      {signedUsd(row.realizedPnlUsd)}
+                    </span>
+                  }
+                  metricLabel="Realised P&amp;L"
+                  tokenSymbol={row.token.symbol}
+                  tradeId={row.tradeId}
+                />
 
-                <TableCardGrid>
-                  <TableCardField span="full" label="Trade ID">
-                    <ShortenedId value={row.tradeId} />
-                  </TableCardField>
+                <TableCardGrid className="border-t border-tableHeader p-3">
                   <TableCardField label="Entry Price">{formatUsd(row.entryPriceUsd)}</TableCardField>
                   <TableCardField align="right" label="Exit">
                     {formatUsd(row.exitPriceUsd || row.currentPriceUsd)}
                   </TableCardField>
-                  <TableCardField label="Amount">{formatTokenAmount(row.amountDecimal)}</TableCardField>
-                  <TableCardField
-                    align="right"
-                    label="Realised P&amp;L"
-                    valueClassName={cn('whitespace-nowrap', getSignedMetricClassName(row.realizedPnlUsd))}
-                  >
-                    {signedUsd(row.realizedPnlUsd)}
+                  <TableCardField label="Amount">
+                    {row.amountDecimal?.trim() ? formatTokenAmount(row.amountDecimal) : <TableCardValueFallback />}
+                  </TableCardField>
+                  <TableCardField align="right" label="Closed" valueClassName="text-subText">
+                    {formatDateTime(row.closedAt)}
                   </TableCardField>
                 </TableCardGrid>
               </Stack>

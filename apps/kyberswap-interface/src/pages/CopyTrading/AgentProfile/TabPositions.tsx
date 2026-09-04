@@ -8,12 +8,13 @@ import {
   TableBody,
   TableCardField,
   TableCardGrid,
+  TableCardValueFallback,
   TableCell,
   TableHeader,
   TableRow,
+  TradeCardHeader,
 } from 'pages/CopyTrading/components/Table'
 import { ShortenedId } from 'pages/CopyTrading/components/common/layout'
-import { PositionLifecycleBadge } from 'pages/CopyTrading/components/common/status'
 import {
   formatTokenAmount,
   formatUsd,
@@ -106,35 +107,35 @@ const TabPositions = ({ agentId }: { agentId: string }) => {
                 <TableCell className="text-subText">{formatDateTime(row.openedAt)}</TableCell>
               </TabPositionsGrid>
 
-              <Stack className="gap-3 rounded-xl bg-buttonBlack p-3 lg:hidden">
-                <HStack className="items-end justify-between gap-3">
-                  <TableCardField label="Token">{row.token.symbol || '—'}</TableCardField>
-                  <PositionLifecycleBadge lifecycle={row.lifecycle} quantityState={row.quantityState} />
-                </HStack>
+              <Stack className="gap-0 overflow-hidden rounded-xl bg-white-08 lg:hidden">
+                <TradeCardHeader
+                  metric={
+                    <HStack className="items-baseline justify-end gap-1 whitespace-nowrap">
+                      <span className={getSignedMetricClassName(row.unrealizedPnlUsd)}>
+                        {signedUsd(row.unrealizedPnlUsd)}
+                      </span>
+                      <span className={cn('text-xs', getSignedMetricClassName(row.unrealizedPnlPct))}>
+                        {signedPercent(row.unrealizedPnlPct)}
+                      </span>
+                    </HStack>
+                  }
+                  metricLabel="P&amp;L"
+                  tokenSymbol={row.token.symbol}
+                  tradeId={row.tradeId}
+                />
 
-                <TableCardGrid>
-                  <TableCardField span="full" label="Trade ID">
-                    <ShortenedId value={row.tradeId} />
-                  </TableCardField>
+                <TableCardGrid className="border-t border-tableHeader p-3">
                   <TableCardField label="Entry Price">{formatUsd(row.entryPriceUsd)}</TableCardField>
                   <TableCardField align="right" label="Current Price">
                     {formatUsd(row.currentPriceUsd)}
                   </TableCardField>
-                  <TableCardField label="Amount">{formatTokenAmount(row.amountDecimal)}</TableCardField>
+                  <TableCardField label="Amount">
+                    {row.amountDecimal?.trim() ? formatTokenAmount(row.amountDecimal) : <TableCardValueFallback />}
+                  </TableCardField>
                   <TableCardField align="right" label="Value">
                     {formatUsd(row.valueUsd)}
                   </TableCardField>
-                  <TableCardField label="P&amp;L">
-                    <Stack className="gap-0.5">
-                      <span className={cn('whitespace-nowrap', getSignedMetricClassName(row.unrealizedPnlUsd))}>
-                        {signedUsd(row.unrealizedPnlUsd)}
-                      </span>
-                      <span className={cn('whitespace-nowrap text-xs', getSignedMetricClassName(row.unrealizedPnlPct))}>
-                        {signedPercent(row.unrealizedPnlPct)}
-                      </span>
-                    </Stack>
-                  </TableCardField>
-                  <TableCardField align="right" label="Open Since" valueClassName="text-subText">
+                  <TableCardField label="Open Since" valueClassName="text-subText">
                     {formatDateTime(row.openedAt)}
                   </TableCardField>
                 </TableCardGrid>

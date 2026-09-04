@@ -1,10 +1,11 @@
-import { type HTMLAttributes, type PropsWithChildren } from 'react'
+import { type HTMLAttributes, type PropsWithChildren, type ReactNode } from 'react'
 import { ChevronDown, ChevronUp } from 'react-feather'
 import { Link } from 'react-router-dom'
 
 import { ButtonEmpty } from 'components/Button'
 import RefetchIndicator from 'components/RefetchIndicator'
 import { Center, HStack, Stack } from 'components/Stack'
+import { ShortenedId } from 'pages/CopyTrading/components/common/layout'
 import { cn } from 'utils/cn'
 
 type SortOrder = 'asc' | 'desc'
@@ -28,6 +29,13 @@ type TableCardFieldProps = PropsWithChildren<{
   span?: 'single' | 'full'
   valueClassName?: string
 }>
+
+type TradeCardHeaderProps = {
+  metric: ReactNode
+  metricLabel: string
+  tokenSymbol?: string
+  tradeId?: string
+}
 
 type EmptyStateProps = {
   className?: string
@@ -158,3 +166,30 @@ export const TableCardField = ({
     <div className={cn('min-w-0 max-w-full text-sm font-medium text-text', valueClassName)}>{children}</div>
   </Stack>
 )
+
+const TokenChip = ({ symbol }: { symbol: string }) => (
+  <span className="inline-flex shrink-0 rounded-md bg-subText-20 px-2 py-0.5 text-xs font-medium text-text">
+    {symbol}
+  </span>
+)
+
+export const TableCardValueFallback = () => <span className="text-subText">—</span>
+
+export const TradeCardHeader = ({ metric, metricLabel, tokenSymbol, tradeId }: TradeCardHeaderProps) => {
+  const normalizedTradeId = tradeId?.trim()
+  const normalizedTokenSymbol = tokenSymbol?.trim()
+
+  return (
+    <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3 p-3">
+      <TableCardField label="Trade ID">
+        <HStack className="min-w-0 items-center gap-2">
+          {normalizedTradeId ? <ShortenedId value={normalizedTradeId} /> : <TableCardValueFallback />}
+          {normalizedTokenSymbol && <TokenChip symbol={normalizedTokenSymbol} />}
+        </HStack>
+      </TableCardField>
+      <TableCardField align="right" label={metricLabel}>
+        {metric}
+      </TableCardField>
+    </div>
+  )
+}

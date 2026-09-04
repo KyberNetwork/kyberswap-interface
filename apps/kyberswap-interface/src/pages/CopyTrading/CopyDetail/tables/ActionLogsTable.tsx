@@ -12,9 +12,11 @@ import {
   TableBody,
   TableCardField,
   TableCardGrid,
+  TableCardValueFallback,
   TableCell,
   TableHeader,
   TableRow,
+  TradeCardHeader,
 } from 'pages/CopyTrading/components/Table'
 import { TxHashLink } from 'pages/CopyTrading/components/common/TxHashLink'
 import { ShortenedId } from 'pages/CopyTrading/components/common/layout'
@@ -118,7 +120,7 @@ export const ActionLogsTable = ({
   return (
     <Stack>
       <InfiniteScroll {...infiniteScroll}>
-        <ActivityGrid header className="sticky top-0 z-[1] hidden md:grid">
+        <ActivityGrid header className="sticky top-0 z-[1] hidden lg:grid">
           <HeaderCell>Trade ID</HeaderCell>
           <HeaderCell>Token</HeaderCell>
           <HeaderCell className="p-0">
@@ -143,7 +145,7 @@ export const ActionLogsTable = ({
           <HeaderCell className="justify-end text-right">Tx Hash</HeaderCell>
         </ActivityGrid>
         <TableBody
-          className="grid gap-2 bg-transparent md:block md:min-w-[900px] md:bg-buttonBlack-60"
+          className="grid gap-2 bg-transparent lg:block lg:min-w-[900px] lg:bg-buttonBlack-60"
           empty={!rows.length}
           emptyMessage="No action logs found"
           loading={loading}
@@ -152,10 +154,11 @@ export const ActionLogsTable = ({
             const { amountRaw, token } = getActivityAsset(row)
             const amount = formatActivityAmount(amountRaw, token?.decimals)
             const type = getActivityTypeView(row)
+            const txHash = row.txHash?.trim()
 
             return (
               <div key={row.activityId}>
-                <ActivityGrid className="max-md:hidden">
+                <ActivityGrid className="max-lg:hidden">
                   <TableCell className="text-subText">
                     <ShortenedId value={row.tradeId} />
                   </TableCell>
@@ -168,22 +171,24 @@ export const ActionLogsTable = ({
                   </TableCell>
                 </ActivityGrid>
 
-                <Stack className="gap-3 rounded-xl bg-buttonBlack p-3 md:hidden">
-                  <TableCardGrid>
-                    <TableCardField label="Trade ID">
-                      <ShortenedId value={row.tradeId} />
-                    </TableCardField>
-                    <TableCardField align="right" label="Tx Hash" valueClassName="text-subText">
-                      {row.txHash && <TxHashLink chainId={row.chainId} txHash={row.txHash} />}
-                    </TableCardField>
-                    <TableCardField label="Token">{token?.symbol || 'N/A'}</TableCardField>
-                    <TableCardField align="right" label="Type" valueClassName={type.colorClassName}>
-                      {type.label}
-                    </TableCardField>
-                    <TableCardField label="Amount">{amount}</TableCardField>
+                <Stack className="gap-0 overflow-hidden rounded-xl bg-white-08 lg:hidden">
+                  <TradeCardHeader
+                    metric={<span className={type.colorClassName}>{type.label}</span>}
+                    metricLabel="Type"
+                    tokenSymbol={token?.symbol}
+                    tradeId={row.tradeId}
+                  />
+
+                  <TableCardGrid className="border-t border-tableHeader p-3">
+                    <TableCardField label="Amount">{amount || <TableCardValueFallback />}</TableCardField>
                     <TableCardField align="right" label="Closed Time" valueClassName="text-subText">
                       {formatDateTime(row.occurredAt)}
                     </TableCardField>
+                    {txHash && (
+                      <TableCardField span="full" label="Tx Hash" valueClassName="text-subText">
+                        <TxHashLink chainId={row.chainId} txHash={txHash} />
+                      </TableCardField>
+                    )}
                   </TableCardGrid>
                 </Stack>
               </div>
