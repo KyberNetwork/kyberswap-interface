@@ -3,16 +3,15 @@ import type { ActivityRow } from 'services/copyTrading/types/copyRuns'
 import type { TradeSide } from 'services/copyTrading/types/primitives'
 import { formatUnits } from 'viem'
 
-import { formatTokenAmount, getActivityLabel } from 'pages/CopyTrading/helpers'
-
-export type AlertFeedTone = 'buy' | 'sell' | 'warning' | 'neutral'
+import { type ActivityTone, formatTokenAmount, getActivityTone } from 'pages/CopyTrading/helpers'
 
 export type AlertFeedItemViewModel = {
   agentAction?: 'bought' | 'sold'
   agentFallback?: string
   agentName: string
   agentTokenSymbol?: string
-  indicatorTone: AlertFeedTone
+  activityTone: ActivityTone
+  indicatorTone: ActivityTone
   key: string
   manualSellCopyRunId?: string
   occurredAt: string
@@ -23,7 +22,7 @@ export type AlertFeedItemViewModel = {
   userPrice?: string
   userReason?: string
   userTokenSymbol?: string
-  userTone: AlertFeedTone
+  userTone: ActivityTone
   userQuoteTokenSymbol?: string
 }
 
@@ -33,7 +32,7 @@ const actionFromSide = (side?: TradeSide) => {
   return undefined
 }
 
-const toneFromSide = (side?: TradeSide): AlertFeedTone => {
+const toneFromSide = (side?: TradeSide): ActivityTone => {
   if (side === 'buy') return 'buy'
   if (side === 'sell') return 'sell'
   return 'neutral'
@@ -61,6 +60,7 @@ export const getAlertFeedItemViewModel = (activity: ActivityRow): AlertFeedItemV
   const userAction = actionFromSide(userSide)
   const userAmount = formatRawTokenAmount(user?.baseAmountRaw, leader?.baseToken?.decimals)
   const userPrice = user?.quotePerBasePrice?.value ? formatTokenAmount(user.quotePerBasePrice.value) : undefined
+  const activityTone = getActivityTone(activity.subtype)
   const canRenderSucceededOutcome =
     !!userAction && !!userAmount && !!leader?.baseToken?.symbol && !!userPrice && !!leader.quoteToken?.symbol
 
@@ -85,14 +85,16 @@ export const getAlertFeedItemViewModel = (activity: ActivityRow): AlertFeedItemV
       userFallback = alert?.fallbackUserSummaryEn || activity.summary.trim() || undefined
   }
 
-  const indicatorTone: AlertFeedTone =
-    user?.status === 'skipped' || user?.status === 'effect_observed_incomplete'
-      ? 'warning'
-      : user?.status === 'succeeded'
-      ? toneFromSide(userSide)
-      : 'neutral'
+  let indicatorTone = activityTone
+  if (user?.status === 'pending') indicatorTone = 'neutral'
+  else if (user?.status === 'skipped' || user?.status === 'effect_observed_incomplete') indicatorTone = 'warning'
+  else if (user?.status === 'succeeded') {
+    const sideTone = toneFromSide(userSide)
+    if (sideTone !== 'neutral') indicatorTone = sideTone
+  }
 
   return {
+    activityTone,
     agentAction: leaderAction,
     agentFallback: leaderAction && leader?.baseToken?.symbol ? undefined : alert?.fallbackAgentSummaryEn,
     agentName: getAgentName(activity),
@@ -112,9 +114,6 @@ export const getAlertFeedItemViewModel = (activity: ActivityRow): AlertFeedItemV
     userQuoteTokenSymbol: leader?.quoteToken?.symbol,
   }
 }
-
-export const getLegacyAlertFeedLabel = (activity: ActivityRow) =>
-  `${getAgentName(activity)} ${getActivityLabel(activity)}`
 
 export const formatAlertFeedTime = (value?: string, now: string | number | Date = Date.now()) => {
   const occurredAt = dayjs(value)

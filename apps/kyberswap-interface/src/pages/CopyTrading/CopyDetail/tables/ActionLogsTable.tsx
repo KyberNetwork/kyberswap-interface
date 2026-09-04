@@ -20,7 +20,7 @@ import {
 } from 'pages/CopyTrading/components/Table'
 import { TxHashLink } from 'pages/CopyTrading/components/common/TxHashLink'
 import { ShortenedId } from 'pages/CopyTrading/components/common/layout'
-import { formatTokenAmount } from 'pages/CopyTrading/helpers'
+import { formatTokenAmount, getActivityTone, getActivityToneClassName } from 'pages/CopyTrading/helpers'
 import { cn } from 'utils/cn'
 import { formatDateTime } from 'utils/time'
 
@@ -29,7 +29,6 @@ type TableGridWrapperProps = HTMLAttributes<HTMLDivElement> & {
 }
 
 type ActivityTypeView = {
-  colorClassName: string
   label: string
   value: ActivitySubtype
 }
@@ -41,15 +40,15 @@ type ActivityTypeFilterOption = Omit<SelectOption, 'value'> & {
 }
 
 const activityTypeViews: ActivityTypeView[] = [
-  { colorClassName: 'text-primary', label: 'Buy', value: 'buy' },
-  { colorClassName: 'text-red', label: 'Sell', value: 'sell' },
-  { colorClassName: 'text-primary', label: 'Deposited', value: 'deposited' },
-  { colorClassName: 'text-primary', label: 'Capital Topped Up', value: 'capital_topped_up' },
-  { colorClassName: 'text-primary', label: 'Capital Withdrawn', value: 'capital_withdrawn' },
-  { colorClassName: 'text-warning', label: 'Skipped Buy', value: 'skipped_buy' },
-  { colorClassName: 'text-warning', label: 'Skipped Sell', value: 'skipped_sell' },
-  { colorClassName: 'text-blue', label: 'Flat Fee Captured', value: 'flat_fee_captured' },
-  { colorClassName: 'text-blue', label: 'Rebate Received', value: 'rebate_received' },
+  { label: 'Buy', value: 'buy' },
+  { label: 'Sell', value: 'sell' },
+  { label: 'Deposited', value: 'deposited' },
+  { label: 'Capital Topped Up', value: 'capital_topped_up' },
+  { label: 'Capital Withdrawn', value: 'capital_withdrawn' },
+  { label: 'Skipped Buy', value: 'skipped_buy' },
+  { label: 'Skipped Sell', value: 'skipped_sell' },
+  { label: 'Flat Fee Captured', value: 'flat_fee_captured' },
+  { label: 'Rebate Received', value: 'rebate_received' },
 ]
 
 const activityTypeFilterOptions: ActivityTypeFilterOption[] = [
@@ -96,12 +95,10 @@ const formatActivityAmount = (amountRaw?: string, decimals?: number) => {
 }
 
 const getActivityTypeView = (activity: ActivityRow) => {
-  return (
-    activityTypeViews.find(type => type.value === activity.subtype) || {
-      colorClassName: 'text-subText',
-      label: '',
-    }
-  )
+  return {
+    colorClassName: getActivityToneClassName(getActivityTone(activity.subtype)),
+    label: activityTypeViews.find(type => type.value === activity.subtype)?.label || '',
+  }
 }
 
 export const ActionLogsTable = ({

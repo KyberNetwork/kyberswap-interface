@@ -1,11 +1,13 @@
 import type { AdvisoryActionAvailability, PreparedActionReason } from 'services/copyTrading/types/actionAvailability'
 import type { AgentCard, AgentProfile, AgentSnapshot, StrategyCategory } from 'services/copyTrading/types/agents'
 import type { ActivityRow } from 'services/copyTrading/types/copyRuns'
-import type { DecimalString, StrategyKey } from 'services/copyTrading/types/primitives'
+import type { ActivitySubtype, DecimalString, LooseString, StrategyKey } from 'services/copyTrading/types/primitives'
 
 import { formatDisplayNumber } from 'utils/numbers'
 
 type NumericValue = DecimalString | number
+
+export type ActivityTone = 'buy' | 'sell' | 'capital' | 'warning' | 'fee' | 'neutral'
 
 const METRIC_FALLBACK = 'N/A'
 
@@ -159,6 +161,38 @@ export const getActivityLabel = (activity: Pick<ActivityRow, 'activityType' | 'p
         .join(' ')
   }
 }
+
+export const getActivityTone = (subtype?: LooseString<ActivitySubtype>): ActivityTone => {
+  switch (subtype) {
+    case 'buy':
+      return 'buy'
+    case 'sell':
+      return 'sell'
+    case 'deposited':
+    case 'capital_topped_up':
+    case 'capital_withdrawn':
+      return 'capital'
+    case 'skipped_buy':
+    case 'skipped_sell':
+      return 'warning'
+    case 'flat_fee_captured':
+    case 'rebate_received':
+      return 'fee'
+    default:
+      return 'neutral'
+  }
+}
+
+const activityToneClassNames: Record<ActivityTone, string> = {
+  buy: 'text-primary',
+  sell: 'text-red',
+  capital: 'text-primary',
+  warning: 'text-warning',
+  fee: 'text-blue',
+  neutral: 'text-subText',
+}
+
+export const getActivityToneClassName = (tone: ActivityTone) => activityToneClassNames[tone]
 
 const reasonMessages: Partial<Record<PreparedActionReason, string>> = {
   PREPARED_ACTION_REASON_ALREADY_ACTIVE: 'You are already copying this agent.',

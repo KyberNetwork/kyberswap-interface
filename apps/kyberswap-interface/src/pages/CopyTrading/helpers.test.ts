@@ -7,6 +7,8 @@ import {
   formatCount,
   formatTokenAmount,
   formatUsd,
+  getActivityTone,
+  getActivityToneClassName,
   getSignedMetricClassName,
   getWinRateClassName,
   percent,
@@ -56,6 +58,24 @@ describe('Copy Trading metric formatters', () => {
     expect(getWinRateClassName(undefined)).toBe('text-text')
     expect(getWinRateClassName('20', 'background')).toBe('bg-primary')
     expect(getWinRateClassName(undefined, 'background')).toBe('bg-buttonGray')
+  })
+
+  it.each([
+    ['buy', 'buy', 'text-primary'],
+    ['sell', 'sell', 'text-red'],
+    ['deposited', 'capital', 'text-primary'],
+    ['capital_topped_up', 'capital', 'text-primary'],
+    ['capital_withdrawn', 'capital', 'text-primary'],
+    ['skipped_buy', 'warning', 'text-warning'],
+    ['skipped_sell', 'warning', 'text-warning'],
+    ['flat_fee_captured', 'fee', 'text-blue'],
+    ['rebate_received', 'fee', 'text-blue'],
+    [undefined, 'neutral', 'text-subText'],
+  ] as const)('maps the %s activity subtype to its shared tone', (subtype, expectedTone, expectedClassName) => {
+    const tone = getActivityTone(subtype)
+
+    expect(tone).toBe(expectedTone)
+    expect(getActivityToneClassName(tone)).toBe(expectedClassName)
   })
 
   it('only prefixes approximate values when data is available', () => {
