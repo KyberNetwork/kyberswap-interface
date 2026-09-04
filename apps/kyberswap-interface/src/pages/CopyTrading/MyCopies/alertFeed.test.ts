@@ -114,6 +114,32 @@ describe('getAlertFeedItemViewModel', () => {
 
     expect(result.manualSellCopyRunId).toBeUndefined()
   })
+
+  it.each([
+    ['cashback_received', 'rebate_received'],
+    ['flat_fee_captured', 'flat_fee_captured'],
+  ] as const)('uses the fee tone for %s alerts', (activityType, subtype) => {
+    const result = getAlertFeedItemViewModel({
+      ...baseActivity,
+      activityType,
+      category: 'fee_rebate',
+      subtype,
+    })
+
+    expect(result.indicatorTone).toBe('fee')
+  })
+
+  it.each([
+    ['buy', 'buy'],
+    ['sell', 'sell'],
+    ['capital_topped_up', 'capital'],
+    ['skipped_buy', 'warning'],
+  ] as const)('falls back to the shared %s subtype tone without alert context', (subtype, expectedTone) => {
+    const result = getAlertFeedItemViewModel({ ...baseActivity, subtype })
+
+    expect(result.activityTone).toBe(expectedTone)
+    expect(result.indicatorTone).toBe(expectedTone)
+  })
 })
 
 describe('formatAlertFeedTime', () => {
