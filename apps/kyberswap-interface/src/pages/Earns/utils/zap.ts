@@ -19,12 +19,26 @@ export const sortTokensByAddress = (tokenA: Token, tokenB: Token): [Token, Token
   return addressA < addressB ? [tokenA, tokenB] : [tokenB, tokenA]
 }
 
-const getConfigHooksAddress = (poolType?: PoolType): string | undefined => {
+// FairFlow hook contracts differ per chain; the zap service rejects a create
+// request whose hook does not match its configured allowlist for that chain.
+// Keep in sync with packages/zap-create-widgets/src/constants/index.ts.
+const UNISWAP_V4_FAIRFLOW_HOOKS: Partial<Record<ChainId, string>> = {
+  [ChainId.Ethereum]: '0x4440854B2d02C57A0Dc5c58b7A884562D875c0c4',
+  [ChainId.Arbitrum]: '0x4440854B2d02C57A0Dc5c58b7A884562D875c0c4',
+  [ChainId.Base]: '0x4440854B2d02C57A0Dc5c58b7A884562D875c0c4',
+  [ChainId.Robinhood]: '0x4445520306c9c70952bdfec28f3989f53d9f80c4',
+}
+
+const PANCAKE_INFINITY_CL_FAIRFLOW_HOOKS: Partial<Record<ChainId, string>> = {
+  [ChainId.Bsc]: '0x44428C6ce391915D51F963C0Dd395Cd0f95fdFD2',
+}
+
+const getConfigHooksAddress = (chainId: ChainId, poolType?: PoolType): string | undefined => {
   if (poolType === PoolType.DEX_UNISWAP_V4_FAIRFLOW) {
-    return '0x4440854B2d02C57A0Dc5c58b7A884562D875c0c4'
+    return UNISWAP_V4_FAIRFLOW_HOOKS[chainId]
   }
   if (poolType === PoolType.DEX_PANCAKE_INFINITY_CL_FAIRFLOW) {
-    return '0x44428C6ce391915D51F963C0Dd395Cd0f95fdFD2'
+    return PANCAKE_INFINITY_CL_FAIRFLOW_HOOKS[chainId]
   }
   return undefined
 }
@@ -52,7 +66,7 @@ export const fetchExistingPoolAddress = async (input: {
         'zap_in.position.tick_upper': tickSpacing * 10,
         'zap_in.tokens_in': token0.address,
         'zap_in.amounts_in': 10 ** (token0.decimals - 1),
-        'pool.uniswap_v4_config.hooks': getConfigHooksAddress(poolType),
+        'pool.uniswap_v4_config.hooks': getConfigHooksAddress(input.chainId as ChainId, poolType),
       },
     })
     .then(() => undefined)

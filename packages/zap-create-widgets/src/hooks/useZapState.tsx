@@ -236,7 +236,7 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
       'pool.uniswap_v4_config.fee': feeAmount,
       'pool.uniswap_v4_config.sqrt_p': sqrtPriceX96,
       'pool.uniswap_v4_config.tick_spacing': tickSpacing,
-      'pool.uniswap_v4_config.hooks': getConfigHooksAddress(poolType),
+      'pool.uniswap_v4_config.hooks': getConfigHooksAddress(chainId, poolType),
       'zap_in.position.tick_upper': debounceTickUpper ?? 0,
       'zap_in.position.tick_lower': debounceTickLower ?? 0,
       'zap_in.tokens_in': validTokenInAddresses,
