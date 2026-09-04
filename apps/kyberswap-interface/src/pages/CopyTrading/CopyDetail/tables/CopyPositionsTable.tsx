@@ -13,9 +13,9 @@ import {
   TableCell,
   TableHeader,
   TableRow,
+  TradeCardHeader,
 } from 'pages/CopyTrading/components/Table'
 import { ShortenedId } from 'pages/CopyTrading/components/common/layout'
-import { PositionLifecycleBadge } from 'pages/CopyTrading/components/common/status'
 import { copyTradingStatIconMap } from 'pages/CopyTrading/constants'
 import {
   formatApproximateUsd,
@@ -134,40 +134,40 @@ export const CopyPositionsTable = ({ copyRunStatus, infiniteScroll, loading, row
                 </TableCell>
               </CopyPositionsGrid>
 
-              <Stack className="gap-3 rounded-xl bg-buttonBlack p-3 lg:hidden">
-                <HStack className="items-end justify-between gap-3">
-                  <TableCardField label="Token">{row.token.symbol || '—'}</TableCardField>
-                  <PositionLifecycleBadge lifecycle={row.lifecycle} quantityState={row.quantityState} />
-                </HStack>
-
-                <TableCardGrid>
-                  <TableCardField span="full" label="Trade ID">
-                    <ShortenedId value={row.tradeId} />
-                  </TableCardField>
-                  <TableCardField label="Entry Price">{formatUsd(row.entryPriceUsd, 2)}</TableCardField>
-                  <TableCardField align="right" label="Current">
-                    {formatUsd(row.currentPriceUsd, 2)}
-                  </TableCardField>
-                  <TableCardField label="Value">{formatUsd(row.valueUsd, 2)}</TableCardField>
-                  <TableCardField align="right" label="Unrealised P&amp;L">
-                    <Stack className="items-end gap-0.5">
-                      <span className={cn('whitespace-nowrap', getSignedMetricClassName(row.unrealizedPnlUsd))}>
+              <Stack className="gap-0 overflow-hidden rounded-xl bg-white-08 lg:hidden">
+                <TradeCardHeader
+                  metric={
+                    <HStack className="items-baseline justify-end gap-1 whitespace-nowrap">
+                      <span className={getSignedMetricClassName(row.unrealizedPnlUsd)}>
                         {signedUsd(row.unrealizedPnlUsd, 2)}
                       </span>
-                      <span className={cn('whitespace-nowrap text-xs', getSignedMetricClassName(row.unrealizedPnlPct))}>
+                      <span className={cn('text-xs', getSignedMetricClassName(row.unrealizedPnlPct))}>
                         {signedPercent(row.unrealizedPnlPct)}
                       </span>
-                    </Stack>
-                  </TableCardField>
-                  <TableCardField label="Est. Rebate" valueClassName="text-blue">
-                    {formatApproximateUsd(row.estimatedCashbackUsd, 2)}
-                  </TableCardField>
-                  <TableCardField align="right" label="Open Since" valueClassName="text-subText">
-                    {formatDateTime(row.openedAt)}
-                  </TableCardField>
-                </TableCardGrid>
+                    </HStack>
+                  }
+                  metricLabel="Unrealised P&amp;L"
+                  tokenSymbol={row.token.symbol}
+                  tradeId={row.tradeId}
+                />
 
-                <PositionAction copyRunStatus={copyRunStatus} position={row} />
+                <Stack className="gap-3 border-t border-tableHeader p-3">
+                  <TableCardGrid>
+                    <TableCardField label="Entry Price">{formatUsd(row.entryPriceUsd, 2)}</TableCardField>
+                    <TableCardField align="right" label="Current">
+                      {formatUsd(row.currentPriceUsd, 2)}
+                    </TableCardField>
+                    <TableCardField label="Value">{formatUsd(row.valueUsd, 2)}</TableCardField>
+                    <TableCardField align="right" label="Est. Rebate" valueClassName="text-blue">
+                      {formatApproximateUsd(row.estimatedCashbackUsd, 2)}
+                    </TableCardField>
+                    <TableCardField label="Open Since" valueClassName="text-subText">
+                      {formatDateTime(row.openedAt)}
+                    </TableCardField>
+                  </TableCardGrid>
+
+                  <PositionAction copyRunStatus={copyRunStatus} position={row} />
+                </Stack>
               </Stack>
             </div>
           ))}

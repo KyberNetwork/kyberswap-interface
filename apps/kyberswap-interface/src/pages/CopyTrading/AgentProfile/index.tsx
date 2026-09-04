@@ -38,7 +38,7 @@ type AgentProfileTabsProps = PropsWithChildren<{
 
 const Tabs = ({ activeTab, onTabChange, children }: AgentProfileTabsProps) => {
   return (
-    <Stack className="overflow-hidden rounded-xl lg:bg-buttonBlack-60">
+    <Stack className="gap-2 overflow-hidden rounded-xl lg:gap-0 lg:bg-buttonBlack-60">
       <DetailTabBar activeTab={activeTab} onChange={onTabChange} options={profileTabOptions} />
 
       <div className="relative min-h-20">{children}</div>
