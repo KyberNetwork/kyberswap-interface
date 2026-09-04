@@ -30,6 +30,7 @@ import { useActiveWeb3React } from 'hooks'
 import usePageLocation from 'hooks/usePageLocation'
 import useSessionExpiredGlobal from 'hooks/useSessionExpire'
 import { useGlobalTrackingEvents } from 'hooks/useTracking'
+import useDisconnectOnStaleTerms from 'hooks/web3/useDisconnectOnStaleTerms'
 import { useSyncNetworkParamWithStore } from 'hooks/web3/useSyncNetworkParamWithStore'
 import { getPoolDetailUrl } from 'pages/Earns/utils/url'
 import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
@@ -200,6 +201,7 @@ const RoutesWithNetworkPrefix = () => {
 
 export default function App() {
   const { chainId } = useActiveWeb3React()
+  useDisconnectOnStaleTerms()
   const { pathname } = useLocation()
   const { isEmbeddedSwap } = usePageLocation()
   const [safeAppAcceptedTermOfUse, acceptSafeAppTermOfUse] = useIsSafeAppAcceptedTerm()
