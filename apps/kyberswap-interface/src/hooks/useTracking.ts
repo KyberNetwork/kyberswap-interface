@@ -1895,9 +1895,6 @@ export const useGlobalTrackingEvents = () => {
   useEffect(() => {
     if (!analytics || !account || !isAddress(account, { strict: false })) return
     analytics.identify({ address: account })
-    return () => {
-      analytics.reset()
-    }
   }, [account, analytics])
 
   useEffect(() => {
