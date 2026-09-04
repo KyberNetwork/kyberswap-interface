@@ -533,47 +533,47 @@ describe('resolveInventory', () => {
   })
 
   it('stays inactive without a subscription', () => {
-    const resolved = resolveInventory(entry([], 'settled'), false)
-    expect(resolved.active).toBe(false)
-    expect(resolved.pending).toBe(false)
+    expect(resolveInventory(entry([], 'settled'), false).active).toBe(false)
   })
 
-  it('reports pending before the first fetch lands, so the caller holds its multicall fallback', () => {
-    const resolved = resolveInventory(undefined, true)
-    expect(resolved.active).toBe(false)
-    expect(resolved.pending).toBe(true)
+  it('stays inactive before the first fetch lands, so the caller reads its own source meanwhile', () => {
+    expect(resolveInventory(undefined, true).active).toBe(false)
   })
 
-  it('drops pending once a fetch fails, so the fallback takes over instead of hanging', () => {
+  it('stays inactive after a fetch fails', () => {
     const failed = { ...entry([], 'error'), status: 'error' as const }
-    expect(resolveInventory(failed, true).pending).toBe(false)
-  })
-
-  it('distrusts a settled inventory that misses a funded wallet native balance', () => {
-    // The API returns no rows both for a wallet it never indexed and for an empty one. A funded
-    // wallet with no native row therefore means the data is not to be believed.
-    const resolved = resolveInventory(entry([row(USDT_CHECKSUM, 5n, 100)], 'settled'), true, '1000')
-    expect(resolved.active).toBe(false)
+    expect(resolveInventory(failed, true).active).toBe(false)
   })
 
   it('hands a partial inventory back to multicall — a capped walk is not authoritative', () => {
-    const resolved = resolveInventory(entry([row(USDT_CHECKSUM, 5n, 100)], 'partial'), true, '1000')
-    expect(resolved.active).toBe(false)
-    expect(resolved.pending).toBe(false)
+    expect(resolveInventory(entry([row(USDT_CHECKSUM, 5n, 100)], 'partial'), true, '1000').active).toBe(false)
   })
 
-  it('withholds settled until the native read lands, so no zeros are asserted prematurely', () => {
-    // Settled-but-empty response, native balance still loading: this is the exact window where an
-    // un-indexed funded wallet would otherwise flash "0" on every token before the trust check runs.
-    const resolved = resolveInventory(entry([], 'settled'), true, undefined)
-    expect(resolved.active).toBe(true)
-    expect(resolved.settled).toBe(false)
+  it('does not answer for a wallet the chain says holds native the index has not listed', () => {
+    // The service lists every non-zero holding, native included, so this answer is missing at least
+    // one of them — and what it leaves out elsewhere cannot be told from what the wallet does not hold.
+    expect(resolveInventory(entry([row(USDT_CHECKSUM, 5n, 100)], 'settled'), true, '1000').active).toBe(false)
+    expect(resolveInventory(entry([], 'settled'), true, '1000').active).toBe(false)
   })
 
-  it('accepts a settled inventory with no native row when the wallet holds no native balance', () => {
-    const resolved = resolveInventory(entry([row(USDT_CHECKSUM, 5n, 100)], 'settled'), true, '0')
+  it('does not answer until the chain has said what a missing native row means', () => {
+    // The read is still on its way: the same answer fits a wallet holding no native and one the
+    // index has not covered, and the caller keeps reading its own source until they can be told apart.
+    expect(resolveInventory(entry([row(USDT_CHECKSUM, 5n, 100)], 'settled'), true, undefined).active).toBe(false)
+    expect(resolveInventory(entry([], 'settled'), true, undefined).active).toBe(false)
+  })
+
+  it('answers for a wallet holding no native currency, listed or empty', () => {
+    const withTokens = resolveInventory(entry([row(USDT_CHECKSUM, 5n, 100)], 'settled'), true, '0')
+    expect(withTokens.active).toBe(true)
+    expect(withTokens.rows[USDT_CHECKSUM].rawBalance).toBe(5n)
+    expect(resolveInventory(entry([], 'settled'), true, '0').active).toBe(true)
+  })
+
+  it('answers with the indexed native row while the chain read is still on its way', () => {
+    const resolved = resolveInventory(entry([row(ETHER_ADDRESS, 5n, 100)], 'settled'), true, undefined)
     expect(resolved.active).toBe(true)
-    expect(resolved.settled).toBe(true)
+    expect(resolved.rows[ETHER_ADDRESS].rawBalance).toBe(5n)
   })
 
   it('overlays the live native balance over the indexed one', () => {
@@ -581,10 +581,12 @@ describe('resolveInventory', () => {
     expect(resolved.rows[ETHER_ADDRESS].rawBalance).toBe(999n)
   })
 
-  it('overlays a live native balance of exactly zero — a drained wallet must not show its stale amount', () => {
-    // Max-send just mined: the per-block read says 0 while the indexer still reports the old 5.
+  it('drops the native row on a live read of zero — a drained wallet must not show its stale amount', () => {
+    // Max-send just mined: the chain says 0 while the index still reports the old 5. A token held at
+    // zero is a token the wallet does not hold, so the row goes rather than reading back as zero.
     const resolved = resolveInventory(entry([row(ETHER_ADDRESS, 5n, 100)], 'settled'), true, '0')
-    expect(resolved.rows[ETHER_ADDRESS].rawBalance).toBe(0n)
+    expect(resolved.rows[ETHER_ADDRESS]).toBeUndefined()
+    expect(resolved.active).toBe(true)
   })
 })
 
@@ -603,14 +605,7 @@ describe('resolveInventory tombstones', () => {
     const withTombstone = entry([row(ETHER_ADDRESS, 10n, 90), row(USDT_CHECKSUM, 0n, 500)])
     const resolved = resolveInventory(withTombstone, true, '10')
     expect(resolved.rows[USDT_CHECKSUM]).toBeUndefined()
-    expect(resolved.settled).toBe(true)
-  })
-
-  it('serves the rows the index lists while the native read is still on its way', () => {
-    const resolved = resolveInventory(entry([row(USDT_CHECKSUM, 5n, 100)]), true, undefined)
     expect(resolved.active).toBe(true)
-    expect(resolved.settled).toBe(false)
-    expect(resolved.rows[USDT_CHECKSUM].rawBalance).toBe(5n)
   })
 })
 
@@ -618,33 +613,26 @@ describe('buildInventoryBalanceMap', () => {
   const token = new Token(ChainId.MAINNET, USDT_CHECKSUM, 6, 'USDT')
   const other = new Token(ChainId.MAINNET, '0x6B175474E89094C44Da98b954EedeAC495271d0F', 18, 'DAI')
 
-  const inventory = (rows: InventoryRow[], settled: boolean) => ({
+  const inventory = (rows: InventoryRow[]) => ({
     rows: Object.fromEntries(rows.map(r => [r.address, r])),
     active: true,
-    settled,
-    pending: false,
   })
 
-  it('synthesizes an explicit zero for unlisted tokens once settled', () => {
-    const map = buildInventoryBalanceMap([token, other], inventory([row(USDT_CHECKSUM, 5n, 1)], true))
+  it('synthesizes an explicit zero for tokens an active inventory does not list', () => {
+    const map = buildInventoryBalanceMap([token, other], inventory([row(USDT_CHECKSUM, 5n, 1)]))
     expect(map[USDT_CHECKSUM]?.quotient.toString()).toBe('5')
-    // The API omits zero balances, so "absent from a settled walk" is the only way a zero arrives.
+    // The API omits zero balances, so "absent from a complete walk" is the only way a zero arrives.
     expect(map[other.address]?.quotient.toString()).toBe('0')
   })
 
-  it('leaves unlisted tokens undefined while the walk is incomplete, so the UI keeps loading', () => {
-    const map = buildInventoryBalanceMap([token, other], inventory([row(USDT_CHECKSUM, 5n, 1)], false))
-    expect(map[other.address]).toBeUndefined()
-  })
-
   it('returns nothing at all when the inventory is inactive', () => {
-    const map = buildInventoryBalanceMap([token], { rows: {}, active: false, settled: false, pending: false })
+    const map = buildInventoryBalanceMap([token], { rows: {}, active: false })
     expect(Object.keys(map)).toHaveLength(0)
   })
 
   it('reuses one zero amount per token across rebuilds', () => {
-    const first = buildInventoryBalanceMap([token, other], inventory([row(USDT_CHECKSUM, 5n, 1)], true))
-    const second = buildInventoryBalanceMap([token, other], inventory([row(USDT_CHECKSUM, 5n, 2)], true))
+    const first = buildInventoryBalanceMap([token, other], inventory([row(USDT_CHECKSUM, 5n, 1)]))
+    const second = buildInventoryBalanceMap([token, other], inventory([row(USDT_CHECKSUM, 5n, 2)]))
     expect(first[other.address]).toBe(second[other.address])
   })
 })
@@ -660,8 +648,6 @@ describe('computeInventoryDiscoveries', () => {
   const activeInventory = (rows: InventoryRow[]) => ({
     rows: Object.fromEntries(rows.map(r => [r.address, r])),
     active: true,
-    settled: true,
-    pending: false,
   })
 
   const heldRow = (address: string, symbol: string): InventoryRow => ({
@@ -780,8 +766,6 @@ describe('wallet assets', () => {
       ),
     ),
     active: true,
-    settled: true,
-    pending: false,
   }
 
   it('reports the token list as not ready while the map holds nothing but imports', () => {
@@ -791,7 +775,7 @@ describe('wallet assets', () => {
   })
 
   it('does no work and keeps one identity while the legacy hook owns the popup', () => {
-    const inactive = { rows: {}, active: false, settled: false, pending: false }
+    const inactive = { rows: {}, active: false }
     const first = selectWalletHoldings(inactive, defaultTokens, imports, ChainId.MAINNET)
     const second = selectWalletHoldings(inactive, defaultTokens, imports, ChainId.MAINNET)
     expect(first).toBe(second)
@@ -903,8 +887,6 @@ describe('token metadata', () => {
   const activeInventory = (rows: InventoryRow[]) => ({
     rows: Object.fromEntries(rows.map(r => [r.address, r])),
     active: true,
-    settled: true,
-    pending: false,
   })
 
   beforeEach(() => {

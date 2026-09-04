@@ -267,8 +267,12 @@ const run = async (entry: Entry) => {
         () => undefined,
       );
       if (controller.signal.aborted) return;
-      if (!balances[NATIVE_KEY] && native !== undefined && native > 0n) {
-        entry.failures += 1;
+      // No native row means either a wallet that holds none or one the index has not covered, and
+      // only the chain tells them apart. Until it does, or if it says the wallet is funded, the
+      // answer is missing a holding and the caller reads its own source instead. A read that did not
+      // answer is not the service's fault, so it does not count against the backoff.
+      if (!balances[NATIVE_KEY] && (native === undefined || native > 0n)) {
+        if (native !== undefined) entry.failures += 1;
         commit(entry, null, 'unavailable');
         return;
       }

@@ -71,6 +71,7 @@ import { NETWORKS_INFO } from 'constants/networks'
 import { Z_INDEXS } from 'constants/styles'
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
+import { useBalanceWait } from 'hooks/useBalanceWait'
 import useChainsConfig from 'hooks/useChainsConfig'
 import useDebounce from 'hooks/useDebounce'
 import { useIsTokenRestricted, useNotifyRestrictedToken } from 'hooks/useRestrictedTokens'
@@ -508,12 +509,16 @@ export const TokenSelectorContent = ({
     [showDiscoveries, balanceTokens, discoveryTokens],
   )
 
-  // `pending` counts as inventory-owned too: starting the multicall during the first fetch would run
-  // the very sweep this replaces and then throw it away a few hundred milliseconds later.
-  const multicallTokens = inventory.active || inventory.pending ? EMPTY_TOKENS : balanceTokensWithDiscoveries
+  // The multicall answers until the inventory can. Its cost is one sweep per open, ended the moment a
+  // walk lands; what the inventory saves is the per-block repeat of that sweep, which is the expensive
+  // part. A wallet is walked page by page, and no screen waits on that to show a balance.
+  const multicallTokens = inventory.active ? EMPTY_TOKENS : balanceTokensWithDiscoveries
   const multicallBalances = useTokenBalances(multicallTokens, primaryChainId)
   const inventoryBalances = useInventoryTokenBalances(balanceTokensWithDiscoveries, inventory)
   const balances = inventory.active ? inventoryBalances : multicallBalances
+  // Whichever source answers, a balance it never delivers stops reading as "loading": every new map
+  // restarts the wait, so a source still working keeps its rows on a loader and a stalled one does not.
+  const waitingForBalances = useBalanceWait(balances, !!account)
   const nativeBalance = useNativeBalance(primaryChainId)
 
   // Only the All (default order) and Imported tabs sort by wallet value; gate the comparator so the
@@ -1234,6 +1239,7 @@ export const TokenSelectorContent = ({
             <TokenList
               listTokenRef={listTokenRef}
               onRowsRendered={handleRowsRendered}
+              waitingForBalances={waitingForBalances}
               onRemoveImportedToken={isImportedTab ? removeImportedToken : undefined}
               currencies={visibleCurrencies}
               onToggleFavorite={handleClickFavorite}
