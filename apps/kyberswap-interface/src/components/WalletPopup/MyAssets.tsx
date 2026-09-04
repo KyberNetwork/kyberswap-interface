@@ -14,6 +14,7 @@ import { ImportTokenView } from 'components/TokenSelectorModal/ImportTokenView'
 import { TokenRow } from 'components/TokenSelectorModal/TokenList'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
+import { useBalanceWait } from 'hooks/useBalanceWait'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import useTheme from 'hooks/useTheme'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
@@ -78,6 +79,9 @@ export default function MyAssets({
   const [importTarget, setImportTarget] = useState<Token | null>(null)
   const closeImport = () => setImportTarget(null)
   const nativeBalance = useNativeBalance()
+  // The native row is displayed off the live per-block read; bound the wait so a read that never
+  // lands leaves the row reading as unknown rather than on a loader for good.
+  const waitingForNative = useBalanceWait(nativeBalance, !!account)
   const navigate = useNavigate()
   const qs = useParsedQueryString()
 
@@ -136,7 +140,8 @@ export default function MyAssets({
                   hideBalance={hideBalance}
                   // The native row is listed off the inventory but displayed off the live per-block
                   // read; until that first read lands it shows a skeleton, not a false zero.
-                  showLoading={token.isNative && !nativeBalance}
+                  showLoading={token.isNative && !nativeBalance && waitingForNative}
+                  balanceUnknown={token.isNative}
                   showFavoriteIcon={false}
                   usdBalance={usdBalance}
                   hoverColor={theme.bg3}
