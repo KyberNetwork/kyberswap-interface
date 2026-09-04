@@ -479,6 +479,9 @@ export const wagmiConfig = createConfig({
         url: typeof window !== 'undefined' ? window.location.origin : KYBERSWAP_URL,
         iconUrl: `${KYBERSWAP_URL}/favicon.svg`,
       },
+      // The SDK reports dapp-side usage to its own endpoint by default. The app ships no analytics,
+      // so opt out here too; this only silences that reporting and leaves the connection flow alone.
+      analytics: { enabled: false },
       // The SDK calls this on a native mobile browser with the `metamask://connect/mwp?...`
       // deep link, asynchronously after the relay handshake. We surface it to the wallet modal
       // rather than opening it here, so the user launches MetaMask with a real tap — a genuine

@@ -31,10 +31,6 @@ export const COMMON_SERVICE_API = required('COMMON_SERVICE_API')
 export const BLACKJACK_API = required('BLACKJACK_API')
 export const AGGREGATOR_STATS_API = required('AGGREGATOR_STATS_API')
 export const NOTIFICATION_API = required('NOTIFICATION_API')
-export const MIXPANEL_PROJECT_TOKEN = required('MIXPANEL_PROJECT_TOKEN')
-export const MIXPANEL_CROSS_CHAIN_PROJECT_TOKEN = optional('MIXPANEL_CROSS_CHAIN_PROJECT_TOKEN')
-export const FORMO_WRITE_KEY = required('FORMO_WRITE_KEY')
-export const GTM_ID = import.meta.env.VITE_GTM_ID
 export const TAG = import.meta.env.VITE_TAG || 'localhost'
 export const ENV_LEVEL = !import.meta.env.VITE_TAG
   ? ENV_TYPE.LOCAL
