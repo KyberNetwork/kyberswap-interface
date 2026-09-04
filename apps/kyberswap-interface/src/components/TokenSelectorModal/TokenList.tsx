@@ -99,6 +99,8 @@ type TokenRowProps = {
   hoverColor?: string
   hideBalance?: boolean
   showLoading?: boolean
+  /** A balance the wallet may hold that no source produced; it reads as unknown rather than as zero. */
+  balanceUnknown?: boolean
   isFavorite?: boolean
   onShowTokenInfo?: (token: Token) => void
   priceUsd?: number
@@ -158,6 +160,7 @@ export const TokenRow = ({
   hoverColor,
   hideBalance,
   showLoading,
+  balanceUnknown,
   isFavorite,
   onShowTokenInfo,
   priceUsd,
@@ -190,14 +193,14 @@ export const TokenRow = ({
 
   const renderBalance = () => {
     if (hideBalance) return <span className="max-w-full truncate text-xs text-text sm:text-sm">******</span>
-    // Connected wallet: show the balance (a zero balance renders as "0"). With no wallet, currencyBalance
-    // is undefined and showLoading is false, so it falls through to "0".
+    // A zero balance is an amount like any other and renders as "0".
     if (currencyBalance) return <Balance balance={currencyBalance} />
     if (showLoading)
       return <Skeleton width={balanceSkeletonWidth} height={18} className="my-[3px]" variant="darkSubtle" />
     return (
       <span className="max-w-full truncate text-xs text-text sm:text-sm" data-testid="token-balance">
-        0
+        {/* No wallet, nothing to hold; a wallet whose balance never arrived, nothing to claim. */}
+        {balanceUnknown ? '--' : '0'}
       </span>
     )
   }
@@ -468,6 +471,8 @@ type VirtualRowData = {
   onWarnRestricted: (key: string) => void
   impersonators?: Set<string>
   heldAddresses?: Set<string>
+  /** Whether a balance still missing is worth showing as loading; see `useBalanceWait`. */
+  waitingForBalances?: boolean
 }
 
 const SelectedTokenBalance = ({ currency, balance }: { currency: Currency; balance: CurrencyAmount<Currency> }) => {
@@ -527,7 +532,8 @@ const VirtualRow = memo(function VirtualRow({ index, style, data }: ListChildCom
     <div className="px-2 pt-2" style={style}>
       <TokenRow
         isFavorite={isFavorite}
-        showLoading={!!data.account}
+        showLoading={!!data.account && !!data.waitingForBalances}
+        balanceUnknown={!!data.account}
         onToggleFavorite={data.onToggleFavorite}
         onRemoveImportedToken={data.onRemoveImportedToken}
         style={rowStyle}
@@ -602,6 +608,8 @@ type TokenListProps = {
   impersonators?: Set<string>
   /** Addresses the wallet holds; only passed while searching, see `TokenRowProps.held`. */
   heldAddresses?: Set<string>
+  /** Whether a balance still missing is worth showing as loading; see `useBalanceWait`. */
+  waitingForBalances?: boolean
 }
 
 const TokenList = ({
@@ -630,6 +638,7 @@ const TokenList = ({
   importAsRow,
   impersonators,
   heldAddresses,
+  waitingForBalances,
 }: TokenListProps) => {
   const { account } = useActiveWeb3React()
   const { favoriteTokens } = useUserFavoriteTokens(customChainId)
@@ -729,6 +738,7 @@ const TokenList = ({
       onWarnRestricted,
       impersonators,
       heldAddresses,
+      waitingForBalances,
     }),
     [
       currencies,
@@ -757,6 +767,7 @@ const TokenList = ({
       onWarnRestricted,
       impersonators,
       heldAddresses,
+      waitingForBalances,
     ],
   )
 

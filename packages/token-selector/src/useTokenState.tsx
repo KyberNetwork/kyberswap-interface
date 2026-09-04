@@ -18,7 +18,6 @@ import { getCachedTokens, setCachedTokens } from "@/tokenCache";
 
 const TOKEN_API = `${API_URLS.KYBERSWAP_SETTING_API}/v1/tokens`;
 const EMPTY_ADDRESSES: string[] = [];
-const EMPTY_BALANCES: { [key: string]: bigint } = {};
 const IMPORTED_TOKENS_KEY = "@kyber/token-selector:importedTokens";
 
 interface TokenState {
@@ -70,17 +69,18 @@ export const TokenContextProvider = ({
     promise: Promise<void>;
   } | null>(null);
 
-  // Balance source, in order: balances handed in from outside; the wallet inventory while it owns
-  // the wallet (its first fetch in flight, or ready); otherwise the balanceOf multicall over the list.
-  // The multicall is handed no addresses and no account while the inventory owns the wallet, so it
-  // neither polls nor fires a request whose result would be thrown away.
+  // Balance source, in order: balances handed in from outside; the wallet inventory once it can
+  // answer for the wallet; otherwise the balanceOf multicall over the list. The multicall is handed
+  // no addresses and no account while the inventory answers, so it neither polls nor fires a request
+  // whose result would be thrown away.
   const inventory = useWalletInventory(
     chainId,
     account,
     enableWalletInventory && !externalTokenBalances && !!chainId,
   );
-  const inventoryOwns =
-    inventory.status === "loading" || inventory.status === "ready";
+  // A walk in flight does not retire the multicall: the wallet is walked page by page, and no row
+  // waits on that to show a balance.
+  const inventoryOwns = inventory.status === "ready";
   const useMulticall = !externalTokenBalances && !!chainId && !inventoryOwns;
   const multicallAddresses = useMemo(
     () =>
@@ -96,14 +96,9 @@ export const TokenContextProvider = ({
       useMulticall ? account : undefined,
     );
 
-  // While the inventory is loading nothing is known yet, and that is stated as an empty map rather
-  // than whatever the idle multicall hook last held.
   const tokenBalances =
-    externalTokenBalances ||
-    inventory.balances ||
-    (inventoryOwns ? EMPTY_BALANCES : internalBalances);
-  const balancesLoading =
-    inventory.status === "loading" || (useMulticall && tokenBalancesLoading);
+    externalTokenBalances || inventory.balances || internalBalances;
+  const balancesLoading = useMulticall && tokenBalancesLoading;
 
   const discoveredTokens = useDiscoveredTokens({
     chainId,
@@ -300,8 +295,7 @@ export const TokenContextProvider = ({
     fetchTokens();
   }, [fetchTokens]);
 
-  const isLoadingFinal =
-    isLoading || (!externalTokenBalances && balancesLoading);
+  const isLoadingFinal = isLoading || balancesLoading;
 
   const contextValue = useMemo(
     () => ({

@@ -7,7 +7,7 @@ import { Connector, useConnect, useSwitchChain } from 'wagmi'
 import { NotificationType } from 'components/Announcement/type'
 import { RowBetween } from 'components/Row'
 import { CONNECTION, CONNECTOR_ICON_OVERRIDE_MAP } from 'components/Web3Provider'
-import { PRIVACY_POLICY_PATH, getActiveTermsOfUse } from 'constants/index'
+import { PRIVACY_POLICY_PATH, TERMS_OF_USE } from 'constants/index'
 import { NETWORKS_INFO, isSupportedChainId } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { useCloseModal, useNotify } from 'state/application/hooks'
@@ -86,7 +86,7 @@ export const Terms = (props: TermsProps) => {
           />
           <span className="text-subText">
             <Trans>Accept </Trans>{' '}
-            <ExternalLink href={getActiveTermsOfUse().file} onClick={e => e.stopPropagation()}>
+            <ExternalLink href={TERMS_OF_USE.file} onClick={e => e.stopPropagation()}>
               <Trans>KyberSwap&lsquo;s Terms of Use</Trans>
             </ExternalLink>{' '}
             <Trans>and</Trans>{' '}
@@ -95,7 +95,7 @@ export const Terms = (props: TermsProps) => {
             </ExternalLink>
             {'. '}
             <span className="text-[10px]">
-              <Trans>Last updated: {dayjs.utc(getActiveTermsOfUse().publishedAt).format('DD MMM YYYY')}</Trans>
+              <Trans>Last updated: {dayjs.utc(TERMS_OF_USE.publishedAt).format('DD MMM YYYY')}</Trans>
             </span>
           </span>
         </>

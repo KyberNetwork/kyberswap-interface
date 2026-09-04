@@ -52,8 +52,6 @@ export interface TokenOptions {
   tokenBalances?: { [key: string]: bigint };
   /** Override the maximum number of tokens selectable in ADD mode (default: MAX_TOKENS). */
   maxTokens?: number;
-  /** USD price per token, keyed by lowercase address. When present, the modal renders the USD value of each row's balance. */
-  tokenPrices?: { [key: string]: number };
   /** Returns true if the token is geo-restricted and must not be selectable */
   isTokenRestricted?: (token: Token) => boolean;
   /** Called when a restricted token is clicked (e.g. to show a warning); selection is aborted */

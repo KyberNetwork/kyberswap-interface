@@ -37,10 +37,9 @@ export type WalletAssets = {
 export const useWalletAssets = (): WalletAssets => {
   const { chainId } = useActiveWeb3React()
   const inventory = useWalletInventory()
-  // `pending` counts as inventory-owned: starting the multicall during the first fetch would sweep
-  // the whitelist only to throw the result away a moment later.
-  const inventoryOwned = inventory.active || inventory.pending
-  const legacy = useTokensHasBalance(true, !inventoryOwned)
+  // The multicall hook answers until the inventory can. A wallet is walked page by page, and the
+  // popup shows balances from the first read rather than from the end of that walk.
+  const legacy = useTokensHasBalance(true, !inventory.active)
 
   const defaultTokens = useAllTokens()
   const tokenImports = useUserAddedTokens()
@@ -85,21 +84,19 @@ export const useWalletAssets = (): WalletAssets => {
   return useMemo(() => {
     if (!inventory.active) {
       return {
-        loading: legacyLoading || inventory.pending,
+        // The multicall hook reports nothing to load before the token list lands, and a total of $0
+        // with it; the header shows its placeholder until there is a figure to show.
+        loading: legacyLoading || !tokenListReady,
         currencies: legacyCurrencies,
         currencyBalances: legacyBalances,
         usdBalances: legacyUsd,
-        // While the first inventory fetch is in flight the legacy hook is idle and would report $0;
-        // null keeps the header on its placeholder until a real figure exists.
-        totalBalanceInUsd: inventory.pending ? null : legacyTotal,
+        totalBalanceInUsd: legacyLoading || !tokenListReady ? null : legacyTotal,
         hiddenTokens: EMPTY_HIDDEN,
         impersonators: EMPTY_DISCOVERIES.impersonators,
       }
     }
     return {
-      // Not settled means the trust check is still waiting on the native read: the list could be
-      // handed back to multicall a block later, so it is not shown yet.
-      loading: !tokenListReady || !inventory.settled,
+      loading: !tokenListReady,
       currencies: ranked.currencies,
       currencyBalances: holdings.currencyBalances,
       usdBalances: prices,
@@ -111,8 +108,6 @@ export const useWalletAssets = (): WalletAssets => {
     }
   }, [
     inventory.active,
-    inventory.pending,
-    inventory.settled,
     tokenListReady,
     pricesLoading,
     legacyLoading,

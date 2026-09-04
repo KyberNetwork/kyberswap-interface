@@ -313,7 +313,6 @@ const TokenMultiSelector = () => {
               setTokensIn: onTokensChanged,
               setAmountsIn: onAmountsChanged,
               maxTokens: DUST_MAX_INPUTS_TOTAL,
-              tokenPrices,
             }}
           />,
           document.body,

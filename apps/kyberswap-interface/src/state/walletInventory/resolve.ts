@@ -2,7 +2,7 @@ import { Token, TokenAmount } from '@kyberswap/ks-sdk-core'
 import { InventoryRow } from 'services/walletInventory'
 
 import { ETHER_ADDRESS } from 'constants/index'
-import { InventoryEntry, LiveBalanceMap } from 'state/walletInventory/store'
+import { InventoryEntry } from 'state/walletInventory/store'
 
 /**
  * The decision layer between the raw store entry and what consumers render, kept free of React so the
@@ -12,119 +12,88 @@ import { InventoryEntry, LiveBalanceMap } from 'state/walletInventory/store'
 const EMPTY_ROWS: Record<string, InventoryRow> = {}
 
 export type WalletInventory = {
-  /** Checksummed token address → row, for tokens with a non-zero balance. */
+  /** Checksummed token address → row, for tokens the wallet holds. */
   rows: Record<string, InventoryRow>
   /**
-   * Whether consumers should read balances from here at all. False means the chain is not indexed,
-   * no wallet is connected, the walk could not cover the wallet, or the data failed a trust check —
-   * all of which mean "use multicall".
+   * Whether this answers for the wallet completely: every token it holds is listed, so an address
+   * absent from `rows` is held at zero. There is no half-trusted state — an answer that cannot be
+   * relied on for one token cannot be relied on for the silence about the others either, and a
+   * caller reads its own source instead.
    */
   active: boolean
-  /**
-   * Whether an address missing from `rows` can be read as a zero balance. Only true once a complete
-   * walk has landed and survived the trust check; anything less proves nothing about what it does
-   * not list.
-   */
-  settled: boolean
-  /**
-   * The first fetch for this wallet is still in flight. Callers should hold off on starting the
-   * multicall fallback: firing it here would run the whole-whitelist balanceOf sweep that this layer
-   * exists to remove, only to discard it a moment later. A failed fetch clears this and turns
-   * `active` off, so a service that never answers still falls back rather than hanging on a skeleton.
-   */
-  pending: boolean
 }
 
-export const INACTIVE_INVENTORY: WalletInventory = {
-  rows: EMPTY_ROWS,
-  active: false,
-  settled: false,
-  pending: false,
-}
-
-// Module constant, not built per call: the pending window overlaps the modal's opening renders, and a
-// fresh object here would ripple a new balance map (and a list re-sort) out of every one of them.
-const PENDING_INVENTORY: WalletInventory = { ...INACTIVE_INVENTORY, pending: true }
+// Module constant, not built per call: a caller sees it on every render until a walk lands, and a
+// fresh object would ripple a new balance map (and a list re-sort) out of every one of them.
+export const INACTIVE_INVENTORY: WalletInventory = { rows: EMPTY_ROWS, active: false }
 
 /**
  * Turns a store entry into what consumers should read.
  *
  * `nativeRawBalance` is the live per-block native balance (undefined while its first read is still in
- * flight), and it serves two purposes. It is the trust check: the API cannot tell a wallet it never
- * indexed from an empty one — both come back with no rows — so a funded wallet whose inventory lists
- * no native holding is not to be believed, and the caller falls back to multicall. It is also an
- * overlay, since having paid for that read already it may as well win over the indexed native row,
- * which is the balance users watch most closely.
+ * flight). The service lists every non-zero holding, the native currency included, so an answer
+ * without a native row is complete only for a wallet that holds none — and the chain is what says so.
+ * The same read then supplies the native balance itself, which the index lags and users watch most
+ * closely.
  *
- * `live` carries per-block reads for the tokens the user is transacting with. A read observed at a
- * block past a row's last-change block is at least as current as the row and wins; the indexer's lag
- * after a transaction is exactly the window in which that matters. The comparison is strict because a
- * read can be stamped one block ahead of the state it reflects (the previous block's data is kept on
- * screen while the next block's query is in flight).
+ * Anything this cannot vouch for reads as inactive rather than as a half-answer: the caller has its
+ * own balance source and reads it, which is what keeps a screen from waiting on this one.
  */
 export const resolveInventory = (
   entry: InventoryEntry | undefined,
   subscribed: boolean,
   nativeRawBalance?: string,
-  live?: LiveBalanceMap,
 ): WalletInventory => {
   if (!subscribed) return INACTIVE_INVENTORY
-  // Subscribed with nothing stored yet: the first fetch is on its way, so hold the fallback back.
-  if (!entry) return PENDING_INVENTORY
+  if (!entry) return INACTIVE_INVENTORY
   if (entry.status === 'error') return INACTIVE_INVENTORY
   // A partial walk (wallet larger than the page cap) is not authoritative about anything it did not
   // list, which is most of what the selector renders — multicall answers those in one block instead.
   if (entry.status !== 'settled') return INACTIVE_INVENTORY
 
-  const nativeRow = entry.rows[ETHER_ADDRESS]
-  if (!nativeRow) {
-    // Funded wallet the inventory failed to account for: the data is not to be believed.
-    if (nativeRawBalance && nativeRawBalance !== '0') return INACTIVE_INVENTORY
-    // The trust check cannot run until the native read lands. Serve the rows, but withhold `settled`
-    // so no zeros are synthesized off data that may be about to fail the check.
-    if (nativeRawBalance === undefined) {
-      return { rows: entry.rows, active: true, settled: false, pending: false }
-    }
-  }
+  const held = withoutTombstones(entry.rows)
+  const nativeRead = nativeRawBalance !== undefined ? BigInt(nativeRawBalance) : undefined
+  const nativeRow = held[ETHER_ADDRESS]
 
-  // Compared against undefined, not truthiness: a live balance of exactly '0' is the case the overlay
-  // matters most for — a wallet just drained by a max-send must not keep showing the indexer's stale
-  // pre-transaction amount for the length of its lag.
-  let rows =
-    nativeRawBalance !== undefined && nativeRow
-      ? { ...entry.rows, [ETHER_ADDRESS]: { ...nativeRow, rawBalance: BigInt(nativeRawBalance) } }
-      : entry.rows
+  // No native row means either a wallet that holds none or one the index has not covered — the two
+  // are the same answer here, and only the chain tells them apart. Until it does, or if it says the
+  // wallet is funded, this answer is missing at least one holding and is not relied on.
+  if (!nativeRow && (nativeRead === undefined || nativeRead > 0n)) return INACTIVE_INVENTORY
 
-  rows = overlayLiveBalances(rows, live)
+  // The chain owns the native balance: the index lags it, and it is the number users watch most
+  // closely. Read as zero, the wallet holds none — a max-send just mined must not keep showing the
+  // index's pre-transaction amount, and a token held at zero is a token absent from the rows.
+  const rows =
+    nativeRead === undefined || !nativeRow
+      ? held
+      : nativeRead === 0n
+      ? withoutNative(held)
+      : { ...held, [ETHER_ADDRESS]: { ...nativeRow, rawBalance: nativeRead } }
 
-  return { rows, active: true, settled: true, pending: false }
+  return { rows, active: true }
+}
+
+const withoutNative = (rows: Record<string, InventoryRow>): Record<string, InventoryRow> => {
+  const next = { ...rows }
+  delete next[ETHER_ADDRESS]
+  return next
 }
 
 /**
- * Applies the live reads that are newer than what the inventory holds. Returns the same object when
- * nothing changes, so an unchanged inventory keeps its identity through every block tick.
+ * The store keeps zero rows so a live read's "emptied" outranks the index's lagging amount; to a
+ * reader such a token is simply not held. Same object back when there is nothing to drop.
  */
-const overlayLiveBalances = (
-  rows: Record<string, InventoryRow>,
-  live: LiveBalanceMap | undefined,
-): Record<string, InventoryRow> => {
-  if (!live?.size) return rows
+const withoutTombstones = (rows: Record<string, InventoryRow>): Record<string, InventoryRow> => {
   let next: Record<string, InventoryRow> | undefined
-  live.forEach((read, address) => {
-    if (address === ETHER_ADDRESS) return
-    const row = rows[address]
-    if (row && read.blockNumber <= row.blockNumber) return
-    if ((row?.rawBalance ?? 0n) === read.rawBalance) return
+  Object.values(rows).forEach(row => {
+    if (row.rawBalance !== 0n) return
     next ??= { ...rows }
-    // Rows only ever describe non-zero holdings; a token read as drained leaves the map, so
-    // consumers see it exactly as the indexer will report it once caught up.
-    if (read.rawBalance === 0n) delete next[address]
-    else next[address] = { ...row, address, rawBalance: read.rawBalance, blockNumber: read.blockNumber }
+    delete next[row.address]
   })
   return next ?? rows
 }
 
-// One zero per Token: a settled inventory synthesizes zeros for most of the whitelist, and rebuilding
+// One zero per Token: an active inventory synthesizes zeros for most of the whitelist, and rebuilding
 // hundreds of identical JSBI-backed amounts on every inventory change is pure allocation churn.
 const zeroAmounts = new WeakMap<Token, TokenAmount>()
 const zeroAmountFor = (token: Token): TokenAmount => {
@@ -140,10 +109,9 @@ const zeroAmountFor = (token: Token): TokenAmount => {
  * Balances keyed by checksummed token address, shaped exactly like the `useTokenBalances` multicall
  * map so a caller can swap sources without touching its consumers.
  *
- * A settled inventory synthesizes an explicit zero for tokens it does not list — that is what tracking
- * `settled` buys us, since the API omits zero balances rather than reporting them. While the inventory
- * is not yet settled those stay undefined, so the UI keeps its loading state instead of asserting a
- * zero it cannot back up.
+ * An active inventory answers for the whole wallet, so a token it does not list is held at zero and
+ * is mapped as such — the service omits zero balances rather than reporting them. An inactive one
+ * maps nothing at all, leaving the caller's own source to answer.
  */
 export const buildInventoryBalanceMap = (
   tokens: Token[],
@@ -153,8 +121,7 @@ export const buildInventoryBalanceMap = (
   if (!inventory.active) return map
   tokens.forEach(token => {
     const row = inventory.rows[token.address]
-    if (row) map[token.address] = TokenAmount.fromRawAmount(token, row.rawBalance.toString())
-    else if (inventory.settled) map[token.address] = zeroAmountFor(token)
+    map[token.address] = row ? TokenAmount.fromRawAmount(token, row.rawBalance.toString()) : zeroAmountFor(token)
   })
   return map
 }

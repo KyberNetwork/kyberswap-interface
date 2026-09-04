@@ -17,7 +17,7 @@ import RouteFallback from 'components/RouteFallback'
 import RouteSeo from 'components/Seo/RouteSeo'
 import SingaporeWarningPopup from 'components/SingaporeWarningPopup'
 import SupportButton from 'components/SupportButton'
-import { APP_PATHS, CHAINS_SUPPORT_CROSS_CHAIN, PRIVACY_POLICY_PATH, getActiveTermsOfUse } from 'constants/index'
+import { APP_PATHS, CHAINS_SUPPORT_CROSS_CHAIN, PRIVACY_POLICY_PATH, TERMS_OF_USE } from 'constants/index'
 import { LEGACY_POOL_APP_PATHS } from 'constants/legacyPools'
 import {
   CLASSIC_NOT_SUPPORTED,
@@ -30,6 +30,7 @@ import { useActiveWeb3React } from 'hooks'
 import usePageLocation from 'hooks/usePageLocation'
 import useSessionExpiredGlobal from 'hooks/useSessionExpire'
 import { useGlobalTrackingEvents } from 'hooks/useTracking'
+import useDisconnectOnStaleTerms from 'hooks/web3/useDisconnectOnStaleTerms'
 import { useSyncNetworkParamWithStore } from 'hooks/web3/useSyncNetworkParamWithStore'
 import { getPoolDetailUrl } from 'pages/Earns/utils/url'
 import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
@@ -201,6 +202,7 @@ const RoutesWithNetworkPrefix = () => {
 
 export default function App() {
   const { chainId } = useActiveWeb3React()
+  useDisconnectOnStaleTerms()
   const { pathname } = useLocation()
   const { isEmbeddedSwap } = usePageLocation()
   const [safeAppAcceptedTermOfUse, acceptSafeAppTermOfUse] = useIsSafeAppAcceptedTerm()
@@ -230,7 +232,7 @@ export default function App() {
                 <div className="flex w-full flex-col items-center gap-6 px-6 py-8">
                   <span className="text-center text-base leading-6">
                     By clicking Continue, you accept the{' '}
-                    <ExternalLink href={getActiveTermsOfUse().file} onClick={e => e.stopPropagation()}>
+                    <ExternalLink href={TERMS_OF_USE.file} onClick={e => e.stopPropagation()}>
                       KyberSwap&lsquo;s Terms of Use
                     </ExternalLink>{' '}
                     and{' '}

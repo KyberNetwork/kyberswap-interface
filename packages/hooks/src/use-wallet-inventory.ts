@@ -4,6 +4,7 @@ import { getBalance } from '@kyber/rpc-client';
 import { API_URLS, NATIVE_TOKEN_ADDRESS } from '@kyber/schema';
 
 import {
+  INDEXER_CATCHUP_WINDOW_MS,
   UnsupportedChainError,
   isChainUnsupported,
   isWalletInventoryChain,
@@ -19,6 +20,7 @@ export {
   markChainUnsupported,
   parseRawAmount,
   walkWalletInventory,
+  INDEXER_CATCHUP_WINDOW_MS,
 } from './wallet-inventory-client';
 export type { InventoryRawRow } from './wallet-inventory-client';
 
@@ -30,6 +32,8 @@ export type WalletInventoryHolding = {
   /** Lowercased; the native currency uses the lowercased sentinel. */
   address: string;
   rawBalance: bigint;
+  /** Block at which this balance last changed, or the head block for a value read live. */
+  blockNumber: number;
   decimals?: number;
   symbol?: string;
 };
@@ -82,6 +86,16 @@ type Entry = {
   failures: number;
   /** A walk past the page cap is a property of the wallet, so it is never walked again. */
   terminal: boolean;
+  /**
+   * Every row merged across walks, keyed by lowercased address, zero rows included: a live read
+   * that found a token emptied holds its place against the index's lagging amount until the index
+   * catches up. `balances`/`holdings` are the readers' view of this, without the zeros.
+   */
+  rows: Map<string, WalletInventoryHolding>;
+  /** How far the index has come, live reads excluded. */
+  indexedBlock: number;
+  /** The catch-up watch opened by a transaction; see `expireWalletInventory`. */
+  live?: LiveWatch;
   /** An expiry arrived while a walk was in flight; the next walk follows at once, not after the poll. */
   dirty: boolean;
   listeners: Set<() => void>;
@@ -90,10 +104,30 @@ type Entry = {
 };
 
 /**
+ * Tokens a just-confirmed transaction moved, read live from the node on every poll until the index
+ * has reached the transaction's block or the window has run out (a Safe receipt carries no block).
+ */
+type LiveWatch = { addresses: Set<string>; until: number; block?: number };
+
+/**
  * One poller per (chain, account), whatever number of selectors are open for it: every hook instance
  * subscribes to the same entry, so N modals cost one walk and one timer.
  */
 const entries = new Map<string, Entry>();
+
+/** Watches for wallets no selector has opened yet; picked up by the entry when one does. */
+const pendingWatches = new Map<string, LiveWatch>();
+
+const watchStillOn = (watch: LiveWatch | undefined, indexedBlock: number, now: number): watch is LiveWatch =>
+  !!watch && now <= watch.until && (watch.block === undefined || indexedBlock < watch.block);
+
+/** A node read the environment never settles must not hold the poller; the walk has the same guard. */
+const withTimeout = <T>(work: Promise<T>, ms: number): Promise<T> =>
+  new Promise<T>((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error('timed out')), ms);
+    work.then(resolve, reject).finally(() => clearTimeout(timer));
+  });
+const NATIVE_READ_TIMEOUT_MS = 8_000;
 
 const keyOf = (chainId: number, account: string) => `${chainId}:${account.toLowerCase()}`;
 
@@ -170,11 +204,16 @@ const run = async (entry: Entry) => {
   const controller = new AbortController();
   entry.controller = controller;
   try {
-    const { rows, complete } = await walkWalletInventory({
+    // Asked for on every poll while the watch is on: a single live answer would be overwritten by
+    // the next walk's still-lagging indexed rows.
+    const watch = watchStillOn(entry.live, entry.indexedBlock, Date.now()) ? entry.live : undefined;
+    if (!watch) entry.live = undefined;
+    const { rows, complete, indexedBlock } = await walkWalletInventory({
       baseUrl: API_URLS.KD_API,
       chainId: entry.chainId,
       account: entry.account,
       signal: controller.signal,
+      liveAddrs: watch ? Array.from(watch.addresses) : undefined,
     });
     if (controller.signal.aborted) return;
     if (!complete) {
@@ -183,28 +222,66 @@ const run = async (entry: Entry) => {
       return;
     }
 
+    // Per-address block monotonicity across walks: a live row stamped at the head keeps its place
+    // over the index's lagging row, and a walk only retires rows its index is authoritative about —
+    // anything stamped past `indexedBlock` that it did not list is carried forward.
+    const merged = new Map<string, WalletInventoryHolding>();
+    rows.forEach(row => {
+      const address = row.tokenAddress.toLowerCase();
+      const existing = entry.rows.get(address);
+      if (existing && existing.blockNumber > row.blockNumber) {
+        merged.set(address, existing);
+        return;
+      }
+      merged.set(address, {
+        address,
+        rawBalance: parseRawAmount(row.rawAmount),
+        blockNumber: row.blockNumber,
+        decimals: row.decimals ?? existing?.decimals,
+        symbol: row.symbol || existing?.symbol,
+      });
+    });
+    entry.rows.forEach((row, address) => {
+      if (!merged.has(address) && row.blockNumber > indexedBlock) merged.set(address, row);
+    });
+    entry.rows = merged;
+    entry.indexedBlock = Math.max(entry.indexedBlock, indexedBlock);
+
     const balances: WalletInventoryBalances = {};
     const holdings: WalletInventoryHolding[] = [];
-    rows.forEach(row => {
-      const amount = parseRawAmount(row.rawAmount);
-      if (amount <= 0n) return;
-      const address = row.tokenAddress.toLowerCase();
-      balances[address] = amount;
-      holdings.push({ address, rawBalance: amount, decimals: row.decimals, symbol: row.symbol || undefined });
+    merged.forEach(row => {
+      if (row.rawBalance <= 0n) return;
+      balances[row.address] = row.rawBalance;
+      holdings.push(row);
     });
     // Sorted so two walks over an unchanged wallet compare equal whatever order the service listed them in.
     holdings.sort((a, b) => (a.address < b.address ? -1 : a.address > b.address ? 1 : 0));
 
     // The service returns no rows both for an empty wallet and for one it has never indexed. A wallet
     // that holds native currency but has no native row is the latter, and its "zeros" are not to be
-    // believed; it is retried on the backoff schedule in case the indexer catches up.
-    if (!balances[NATIVE_KEY]) {
-      const native = await getBalance(entry.chainId, entry.account).catch(() => 0n);
+    // believed; it is retried on the backoff schedule in case the indexer catches up. The native
+    // currency is not read live through the service — its row is this trust check, which must stay
+    // independent of the node — so while a watch is on the same chain read stands in for it on screen.
+    if (!balances[NATIVE_KEY] || watch) {
+      const native = await withTimeout(getBalance(entry.chainId, entry.account), NATIVE_READ_TIMEOUT_MS).catch(
+        () => undefined,
+      );
       if (controller.signal.aborted) return;
-      if (native > 0n) {
-        entry.failures += 1;
+      // No native row means either a wallet that holds none or one the index has not covered, and
+      // only the chain tells them apart. Until it does, or if it says the wallet is funded, the
+      // answer is missing a holding and the caller reads its own source instead. A read that did not
+      // answer is not the service's fault, so it does not count against the backoff.
+      if (!balances[NATIVE_KEY] && (native === undefined || native > 0n)) {
+        if (native !== undefined) entry.failures += 1;
         commit(entry, null, 'unavailable');
         return;
+      }
+      if (watch && native !== undefined && native > 0n) {
+        balances[NATIVE_KEY] = native;
+        const index = holdings.findIndex(h => h.address === NATIVE_KEY);
+        const live = { address: NATIVE_KEY, rawBalance: native, blockNumber: indexedBlock };
+        if (index >= 0) holdings[index] = { ...holdings[index], rawBalance: native };
+        else holdings.push(live);
       }
     }
 
@@ -268,8 +345,12 @@ const subscribe = (chainId: number, account: string, listener: () => void) => {
     failures: 0,
     terminal: false,
     dirty: false,
+    rows: new Map(),
+    indexedBlock: 0,
+    live: pendingWatches.get(key),
     listeners: new Set(),
   };
+  pendingWatches.delete(key);
   // Registered before pruning: an entry with a listener is never an eviction candidate, and a brand
   // new one (fetchedAt 0) would otherwise sort as the oldest idle entry and evict itself.
   entry.listeners.add(listener);
@@ -296,10 +377,35 @@ const subscribe = (chainId: number, account: string, listener: () => void) => {
 /**
  * Marks a wallet's inventory stale, e.g. after a transaction of its own confirms: a watched inventory
  * refetches at once, an unwatched one on its next subscriber. Stale data stays on screen meanwhile.
+ *
+ * `touched` names the tokens the transaction moved; they are read live from the node on every poll
+ * until the index has reached `block` — or, when the receipt carried none, until the catch-up window
+ * has run out. A wallet no selector has opened yet keeps the watch for when one does.
  */
-export const expireWalletInventory = (chainId: number, account: string) => {
-  const entry = entries.get(keyOf(chainId, account));
-  if (!entry || entry.terminal) return;
+export const expireWalletInventory = (
+  chainId: number,
+  account: string,
+  touched: readonly string[] = [],
+  block?: number,
+) => {
+  const key = keyOf(chainId, account);
+  const now = Date.now();
+  const entry = entries.get(key);
+  if (entry?.terminal) return;
+  if (touched.length) {
+    const previous = entry ? entry.live : pendingWatches.get(key);
+    const carried = watchStillOn(previous, entry?.indexedBlock ?? 0, now) ? previous : undefined;
+    const addresses = new Set(carried?.addresses);
+    touched.forEach(address => addresses.add(address.toLowerCase()));
+    const watch: LiveWatch = {
+      addresses,
+      until: now + INDEXER_CATCHUP_WINDOW_MS,
+      block: block !== undefined ? Math.max(block, carried?.block ?? 0) : carried?.block,
+    };
+    if (entry) entry.live = watch;
+    else pendingWatches.set(key, watch);
+  }
+  if (!entry) return;
   entry.fetchedAt = 0;
   entry.failures = 0;
   // A walk already in flight started before the transaction confirmed and cannot see its effect;

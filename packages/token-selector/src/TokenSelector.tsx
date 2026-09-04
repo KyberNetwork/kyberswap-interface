@@ -17,11 +17,13 @@ import {
 
 import { useLingui } from "@lingui/react";
 
-import { Exchange, NATIVE_TOKEN_ADDRESS, Token } from "@kyber/schema";
+import { TokenPriceMap, useTokenPrices } from "@kyber/hooks";
+import { ChainId, Exchange, NATIVE_TOKEN_ADDRESS, Token } from "@kyber/schema";
 import { Button, Input, TokenLogo, TokenSymbol } from "@kyber/ui";
 import { fetchTokenInfo } from "@kyber/utils";
 import { isAddress } from "@kyber/utils/crypto";
-import { formatUnits } from "@kyber/utils/number";
+import { formatDisplayNumber, formatUnits } from "@kyber/utils/number";
+import { cn } from "@kyber/utils/tailwind-helpers";
 
 import Check from "@/assets/check.svg?react";
 import Info from "@/assets/info.svg?react";
@@ -35,6 +37,7 @@ import {
   TOKEN_SELECT_MODE,
   TokenSelectorVariant,
 } from "@/types";
+import { getNetworkInfo } from "@/TokenInfo/utils";
 import UserPositions, { TokenLoader } from "@/UserPositions";
 import { useTokenState } from "@/useTokenState";
 
@@ -76,7 +79,6 @@ interface TokenSelectorProps {
   token0Address: string;
   token1Address: string;
   maxTokens?: number;
-  tokenPrices?: { [key: string]: number };
 
   // Position features
   showUserPositions: boolean;
@@ -102,6 +104,24 @@ interface TokenSelectorProps {
 
 const normalizeSpecialCharacters = (value: string) => value.replace(/₮/g, "T");
 
+const NATIVE_TOKEN_LOWER = NATIVE_TOKEN_ADDRESS.toLowerCase();
+const EMPTY_ADDRESSES: string[] = [];
+
+const formatUsdValue = (value: number) =>
+  formatDisplayNumber(value, { style: "currency", significantDigits: 4 });
+
+/** The native token is priced through its wrapped counterpart when it has no entry of its own. */
+const getTokenPrice = (
+  tokenPrices: TokenPriceMap,
+  addressLower: string,
+  wrappedNativeAddress?: string,
+) =>
+  tokenPrices[addressLower] ||
+  (addressLower === NATIVE_TOKEN_LOWER && wrappedNativeAddress
+    ? tokenPrices[wrappedNativeAddress]
+    : 0) ||
+  0;
+
 const TOKEN_ROW_HEIGHT = 52;
 // Restricted rows are taller to fit the "not available in your jurisdiction" line.
 const RESTRICTED_TOKEN_ROW_HEIGHT = 88;
@@ -112,13 +132,16 @@ interface TokenRowData {
   tabSelected: TOKEN_TAB;
   selectedTokenAddress?: string;
   modalTokensInAddress: Set<string>;
-  tokenPrices?: { [key: string]: number };
   onClickToken: (token: CustomizeToken) => void;
   onRemoveImportedToken: (e: React.MouseEvent, token: Token) => void;
   onImportToken: (token: Token) => void;
   onShowTokenInfo: (e: React.MouseEvent, token: Token) => void;
   isTokenRestricted?: (token: Token) => boolean;
   warnedAddresses: Set<string>;
+  /** USD mid price per lowercased address; only held tokens are priced. */
+  tokenPrices: TokenPriceMap;
+  /** The native token is priced through its wrapped counterpart when it has no entry of its own. */
+  wrappedNativeAddress?: string;
   i18n: ReturnType<typeof useLingui>["i18n"];
 }
 
@@ -133,17 +156,23 @@ const TokenRow = memo(function TokenRow({
     tabSelected,
     selectedTokenAddress,
     modalTokensInAddress,
-    tokenPrices,
     onClickToken,
     onRemoveImportedToken,
     onImportToken,
     onShowTokenInfo,
     warnedAddresses,
+    tokenPrices,
+    wrappedNativeAddress,
     i18n,
   } = data;
 
   const token = tokens[index];
   if (!token) return null;
+
+  const tokenAddrLower = token.address?.toLowerCase();
+  const usdValue =
+    getTokenPrice(tokenPrices, tokenAddrLower, wrappedNativeAddress) *
+    parseFloat(token.balance);
 
   // A discovered token is not on the list yet: the row is dimmed and clicking it starts the import.
   const discovered = !!token.discovered;
@@ -179,24 +208,12 @@ const TokenRow = memo(function TokenRow({
     );
   }
 
-  const price = tokenPrices?.[token.address?.toLowerCase()];
-  const balanceNumeric = parseFloat(token.balance ?? "0");
-  const usdValue =
-    typeof price === "number" && price > 0 && Number.isFinite(balanceNumeric) && balanceNumeric > 0
-      ? balanceNumeric * price
-      : undefined;
-  const usdDisplay =
-    usdValue !== undefined
-      ? usdValue >= 0.01
-        ? `$${usdValue.toLocaleString(undefined, { maximumFractionDigits: usdValue >= 1000 ? 0 : 2 })}`
-        : "<$0.01"
-      : null;
-
   return (
     <div
       style={style}
-      className={`flex cursor-pointer items-center justify-between px-6 py-2 hover:bg-accent-100 ${isSelected ? "bg-accent-200" : ""
-        } ${token.disabled ? "!bg-stroke !cursor-not-allowed brightness-50" : ""}`}
+      className={`flex cursor-pointer items-center justify-between px-6 py-2 hover:bg-accent-100 ${
+        isSelected ? "bg-accent-200" : ""
+      } ${token.disabled ? "!bg-stroke !cursor-not-allowed brightness-50" : ""}`}
       onClick={() => {
         if (token.disabled) return;
         if (discovered) onImportToken(token);
@@ -204,14 +221,18 @@ const TokenRow = memo(function TokenRow({
       }}
     >
       <div
-        className={`flex items-center gap-3 ${discovered ? "opacity-50" : ""}`}
+        className={cn(
+          "flex min-w-0 items-center gap-3",
+          discovered && "opacity-50",
+        )}
       >
         {mode === TOKEN_SELECT_MODE.ADD && (
           <div
-            className={`w-4 h-4 rounded-[4px] flex items-center justify-center cursor-pointer ${modalTokensInAddress.has(token.address?.toLowerCase())
-              ? "bg-accent"
-              : "bg-stroke"
-              }`}
+            className={`w-4 h-4 shrink-0 rounded-[4px] flex items-center justify-center cursor-pointer ${
+              modalTokensInAddress.has(token.address?.toLowerCase())
+                ? "bg-accent"
+                : "bg-stroke"
+            }`}
           >
             {modalTokensInAddress.has(token.address?.toLowerCase()) && (
               <Check className="h-3 w-3 text-black" />
@@ -219,25 +240,41 @@ const TokenRow = memo(function TokenRow({
           </div>
         )}
         <TokenLogo src={token.logo} size={24} />
-        <div>
+        <div className="min-w-0">
           <TokenSymbol
             className="leading-6"
             symbol={token.symbol}
             maxWidth={120}
           />
           <p
-            className={`${tabSelected === TOKEN_TAB.ALL ? "text-xs" : ""} text-subText`}
+            className={cn(
+              "truncate text-subText",
+              tabSelected === TOKEN_TAB.ALL && "text-xs",
+            )}
+            title={tabSelected === TOKEN_TAB.ALL ? token.name : undefined}
           >
             {tabSelected === TOKEN_TAB.ALL ? token.name : token.balance}
+            {tabSelected === TOKEN_TAB.IMPORTED && usdValue > 0 && (
+              <span className="ml-1 text-xs text-accent">
+                {formatUsdValue(usdValue)}
+              </span>
+            )}
           </p>
         </div>
       </div>
-      <div className="flex items-center gap-2 justify-end">
+      <div className="flex shrink-0 items-center justify-end gap-2">
         {tabSelected === TOKEN_TAB.ALL ? (
-          <div className="flex flex-col items-end">
+          <div
+            className={cn(
+              "flex flex-col items-end",
+              discovered && "opacity-50",
+            )}
+          >
             <span>{token.balance}</span>
-            {usdDisplay && (
-              <span className="text-xs text-subText">{usdDisplay}</span>
+            {usdValue > 0 && (
+              <span className="text-xs text-accent">
+                {formatUsdValue(usdValue)}
+              </span>
             )}
           </div>
         ) : (
@@ -268,7 +305,6 @@ export default function TokenSelector({
   token0Address = "",
   token1Address = "",
   maxTokens = MAX_TOKENS,
-  tokenPrices,
   showUserPositions = false,
   positionsOnly = false,
   excludePositionIds,
@@ -308,6 +344,30 @@ export default function TokenSelector({
     () => [...tokens, ...importedTokens, ...discoveredTokens],
     [tokens, importedTokens, discoveredTokens],
   );
+
+  const wrappedNativeAddress = chainId
+    ? getNetworkInfo(chainId as ChainId)?.wrappedToken.address.toLowerCase()
+    : undefined;
+
+  // Only a held token can show a non-zero USD value, so only those are priced rather than the whole
+  // list. The wrapped native token rides along whenever the native one is held (see TokenRowData).
+  const heldAddresses = useMemo(() => {
+    const held = allTokens
+      .map((token) => token.address.toLowerCase())
+      .filter((address) => (tokenBalances[address] ?? 0n) > 0n);
+    if (
+      wrappedNativeAddress &&
+      held.includes(NATIVE_TOKEN_LOWER) &&
+      !held.includes(wrappedNativeAddress)
+    ) {
+      held.push(wrappedNativeAddress);
+    }
+    return held.length ? held : EMPTY_ADDRESSES;
+  }, [allTokens, tokenBalances, wrappedNativeAddress]);
+  const { prices: tokenPrices } = useTokenPrices({
+    chainId,
+    addresses: heldAddresses,
+  });
 
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState<string>("");
@@ -376,8 +436,8 @@ export default function TokenSelector({
           discovered: discoveredAddresses.has(tokenAddrLower),
           disabled:
             mode === TOKEN_SELECT_MODE.ADD ||
-              !isInTokensIn ||
-              tokenAddrLower === selectedTokenLower
+            !isInTokensIn ||
+            tokenAddrLower === selectedTokenLower
               ? false
               : true,
           selected:
@@ -422,18 +482,6 @@ export default function TokenSelector({
           return bSelectedPriority - aSelectedPriority;
         }
         if (b.inPair !== a.inPair) return b.inPair - a.inPair;
-<<<<<<< HEAD
-
-        const aBalance = parseFloat(a.balance);
-        const bBalance = parseFloat(b.balance);
-        const aPrice = tokenPrices?.[a.address.toLowerCase()] ?? 0;
-        const bPrice = tokenPrices?.[b.address.toLowerCase()] ?? 0;
-        const aUsd = aPrice > 0 ? aBalance * aPrice : 0;
-        const bUsd = bPrice > 0 ? bBalance * bPrice : 0;
-        // Sort priced tokens by USD value first; unpriced tokens fall back to
-        // raw-balance comparison among themselves.
-        if (aUsd > 0 || bUsd > 0) return bUsd - aUsd;
-=======
         // Held tokens lead; among them the listed ones lead the discovered ones whatever the amounts,
         // since an airdropped impersonation is minted large on purpose.
         const aBalance = parseFloat(a.balance);
@@ -443,7 +491,23 @@ export default function TokenSelector({
         if (aHeld !== bHeld) return aHeld ? -1 : 1;
         if (aHeld && !!a.discovered !== !!b.discovered)
           return a.discovered ? 1 : -1;
->>>>>>> eff1fc6ad8a9f074e81617bedbcd3035a2519275
+        const aUsd =
+          aBalance *
+          getTokenPrice(
+            tokenPrices,
+            a.address.toLowerCase(),
+            wrappedNativeAddress,
+          );
+        const bUsd =
+          bBalance *
+          getTokenPrice(
+            tokenPrices,
+            b.address.toLowerCase(),
+            wrappedNativeAddress,
+          );
+        // Priced tokens are ranked by USD value and lead the unpriced ones, which
+        // fall back to a raw-balance comparison among themselves.
+        if (aUsd > 0 || bUsd > 0) return bUsd - aUsd;
         return bBalance - aBalance;
       });
   }, [
@@ -455,6 +519,7 @@ export default function TokenSelector({
     tokensIn,
     tokenBalances,
     tokenPrices,
+    wrappedNativeAddress,
     mode,
     selectedTokenAddress,
     selectedTokens,
@@ -650,13 +715,14 @@ export default function TokenSelector({
       tabSelected,
       selectedTokenAddress,
       modalTokensInAddress,
-      tokenPrices,
       onClickToken: handleClickToken,
       onRemoveImportedToken: handleRemoveImportedToken,
       onImportToken: handleImportToken,
       onShowTokenInfo: handleShowTokenInfo,
       isTokenRestricted,
       warnedAddresses: warnedRestricted,
+      tokenPrices,
+      wrappedNativeAddress,
       i18n,
     }),
     [
@@ -665,13 +731,14 @@ export default function TokenSelector({
       tabSelected,
       selectedTokenAddress,
       modalTokensInAddress,
-      tokenPrices,
       handleClickToken,
       handleRemoveImportedToken,
       handleImportToken,
       handleShowTokenInfo,
       isTokenRestricted,
       warnedRestricted,
+      tokenPrices,
+      wrappedNativeAddress,
       i18n,
     ],
   );
@@ -811,8 +878,9 @@ export default function TokenSelector({
         {showTabs && (
           <div className="flex gap-1 rounded-full border border-icon-200 p-1 text-sm">
             <div
-              className={`rounded-full w-full text-center py-2 cursor-pointer hover:bg-[#ffffff33] ${modalTabSelected === MODAL_TAB.TOKENS ? "bg-[#ffffff33]" : ""
-                }`}
+              className={`rounded-full w-full text-center py-2 cursor-pointer hover:bg-[#ffffff33] ${
+                modalTabSelected === MODAL_TAB.TOKENS ? "bg-[#ffffff33]" : ""
+              }`}
               onClick={() =>
                 startTransition(() => setModalTabSelected(MODAL_TAB.TOKENS))
               }
@@ -820,8 +888,9 @@ export default function TokenSelector({
               {i18n._("Token(s)")}
             </div>
             <div
-              className={`rounded-full w-full text-center py-2 cursor-pointer hover:bg-[#ffffff33] ${modalTabSelected === MODAL_TAB.POSITIONS ? "bg-[#ffffff33]" : ""
-                }`}
+              className={`rounded-full w-full text-center py-2 cursor-pointer hover:bg-[#ffffff33] ${
+                modalTabSelected === MODAL_TAB.POSITIONS ? "bg-[#ffffff33]" : ""
+              }`}
               onClick={() =>
                 startTransition(() => setModalTabSelected(MODAL_TAB.POSITIONS))
               }

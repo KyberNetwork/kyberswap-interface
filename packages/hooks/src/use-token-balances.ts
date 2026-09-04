@@ -7,9 +7,9 @@ const EMPTY: { [address: string]: bigint } = {};
 
 export const useTokenBalances = (chainId: ChainId, tokenAddresses: string[], account?: string) => {
   const [balances, setBalances] = useState<{ [address: string]: bigint }>(EMPTY);
-  const [fetching, setFetching] = useState(false);
   // Which (chain, account, list) the balances on hand answer for; `loading` stays true until the
-  // current one has landed, so a caller never reads a previous request's map as this one's.
+  // current one has landed, so a caller never reads a previous request's map as this one's. A
+  // periodic refresh of an already-settled key is not loading: the map on screen stays valid.
   const [settledKey, setSettledKey] = useState('');
   const fetchIdRef = useRef(0);
   const prevAccountRef = useRef(account);
@@ -33,7 +33,6 @@ export const useTokenBalances = (chainId: ChainId, tokenAddresses: string[], acc
     }
 
     const currentFetchId = ++fetchIdRef.current;
-    setFetching(true);
 
     try {
       const balancesMap = await getTokenBalances({
@@ -51,7 +50,6 @@ export const useTokenBalances = (chainId: ChainId, tokenAddresses: string[], acc
       console.error('Failed to fetch balances:', error);
     } finally {
       if (currentFetchId === fetchIdRef.current) {
-        setFetching(false);
         // An attempt settles the key whatever its outcome: a failed poll leaves the previous map
         // on screen rather than a loader that nothing would ever clear.
         setSettledKey(requestKey);
@@ -72,7 +70,7 @@ export const useTokenBalances = (chainId: ChainId, tokenAddresses: string[], acc
   }, [fetchBalances, active]);
 
   return {
-    loading: active && (fetching || settledKey !== requestKey),
+    loading: active && settledKey !== requestKey,
     balances,
     refetch: fetchBalances,
   };
