@@ -1,16 +1,18 @@
 import type { HTMLAttributes } from 'react'
 import type { PositionSummary } from 'services/copyTrading/types/positions'
 
-import { HStack, Stack } from 'components/Stack'
+import { Stack } from 'components/Stack'
 import InfiniteScroll, { type InfiniteScrollState } from 'pages/CopyTrading/components/InfiniteScroll'
 import {
   HeaderCell,
   TableBody,
   TableCardField,
   TableCardGrid,
+  TableCardValueFallback,
   TableCell,
   TableHeader,
   TableRow,
+  TradeCardHeader,
 } from 'pages/CopyTrading/components/Table'
 import { TxHashLink } from 'pages/CopyTrading/components/common/TxHashLink'
 import { ShortenedId } from 'pages/CopyTrading/components/common/layout'
@@ -52,7 +54,7 @@ export const TradeHistoryTable = ({ infiniteScroll, loading, rows }: PositionTab
   return (
     <Stack>
       <InfiniteScroll {...infiniteScroll}>
-        <TradeHistoryGrid header className="sticky top-0 z-[1] hidden xl:grid">
+        <TradeHistoryGrid header className="sticky top-0 z-[1] hidden lg:grid">
           <HeaderCell>Trade ID</HeaderCell>
           <HeaderCell>Token</HeaderCell>
           <HeaderCell className="justify-end text-right">Entry Price</HeaderCell>
@@ -65,7 +67,7 @@ export const TradeHistoryTable = ({ infiniteScroll, loading, rows }: PositionTab
           <HeaderCell className="justify-end text-right">Tx Hash</HeaderCell>
         </TradeHistoryGrid>
         <TableBody
-          className="grid gap-2 bg-transparent xl:block xl:min-w-[1120px] xl:bg-buttonBlack-60"
+          className="grid gap-2 bg-transparent lg:block lg:min-w-[1120px] lg:bg-buttonBlack-60"
           empty={!rows.length}
           emptyIconUrl={copyTradingStatIconMap.positionClose.iconUrl}
           emptyMessage="No closed positions found"
@@ -73,7 +75,7 @@ export const TradeHistoryTable = ({ infiniteScroll, loading, rows }: PositionTab
         >
           {rows.map(row => (
             <div key={row.positionId}>
-              <TradeHistoryGrid className="max-xl:hidden">
+              <TradeHistoryGrid className="max-lg:hidden">
                 <TableCell className="text-subText">
                   <ShortenedId value={row.tradeId} />
                 </TableCell>
@@ -94,37 +96,42 @@ export const TradeHistoryTable = ({ infiniteScroll, loading, rows }: PositionTab
                 </TableCell>
               </TradeHistoryGrid>
 
-              <Stack className="gap-3 rounded-xl bg-buttonBlack p-3 xl:hidden">
-                <HStack className="items-start justify-between gap-3">
-                  <TableCardField label="Token">{row.token.symbol || '—'}</TableCardField>
-                  <TableCardField align="right" label="Tx Hash" valueClassName="text-subText">
-                    <TxHashLink chainId={row.chainId} txHash={row.latestTxHash} />
-                  </TableCardField>
-                </HStack>
+              <Stack className="gap-0 overflow-hidden rounded-xl bg-white-08 lg:hidden">
+                <TradeCardHeader
+                  metric={
+                    <span className={cn('whitespace-nowrap', getSignedMetricClassName(row.realizedPnlUsd))}>
+                      {signedUsd(row.realizedPnlUsd, 2)}
+                    </span>
+                  }
+                  metricLabel="P&amp;L"
+                  tokenSymbol={row.token.symbol}
+                  tradeId={row.tradeId}
+                />
 
-                <TableCardGrid>
-                  <TableCardField span="full" label="Trade ID">
-                    <ShortenedId value={row.tradeId} />
-                  </TableCardField>
+                <TableCardGrid className="border-t border-tableHeader p-3">
                   <TableCardField label="Entry Price">{formatUsd(row.entryPriceUsd, 2)}</TableCardField>
                   <TableCardField align="right" label="Closed Price">
                     {formatUsd(row.exitPriceUsd, 2)}
                   </TableCardField>
-                  <TableCardField label="Amount">{formatTokenAmount(row.totalBaseSoldDecimal)}</TableCardField>
-                  <TableCardField
-                    align="right"
-                    label="P&amp;L"
-                    valueClassName={cn('whitespace-nowrap', getSignedMetricClassName(row.realizedPnlUsd))}
-                  >
-                    {signedUsd(row.realizedPnlUsd, 2)}
+                  <TableCardField label="Amount">
+                    {row.totalBaseSoldDecimal?.trim() ? (
+                      formatTokenAmount(row.totalBaseSoldDecimal)
+                    ) : (
+                      <TableCardValueFallback />
+                    )}
+                  </TableCardField>
+                  <TableCardField align="right" label="Received" valueClassName="break-words">
+                    {formatTokenValue(row.totalQuoteReceivedDecimal, row.quoteToken?.symbol)}
                   </TableCardField>
                   <TableCardField label="Fee">{formatUsd(row.flatFeeCapturedUsd, 2)}</TableCardField>
                   <TableCardField align="right" label="Rebate" valueClassName="text-blue">
                     {formatUsd(row.cashbackReceivedUsd, 2)}
                   </TableCardField>
-                  <TableCardField span="full" label="Received" valueClassName="whitespace-nowrap">
-                    {formatTokenValue(row.totalQuoteReceivedDecimal, row.quoteToken?.symbol)}
-                  </TableCardField>
+                  {row.latestTxHash?.trim() && (
+                    <TableCardField span="full" label="Tx Hash" valueClassName="text-subText">
+                      <TxHashLink chainId={row.chainId} txHash={row.latestTxHash.trim()} />
+                    </TableCardField>
+                  )}
                 </TableCardGrid>
               </Stack>
             </div>

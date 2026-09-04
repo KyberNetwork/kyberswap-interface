@@ -176,7 +176,7 @@ const TabActions = ({ agentId }: { agentId: string }) => {
           emptyMessage="No action logs found"
           loading={isFetching && !rows.length}
         >
-          <Stack className="gap-2 py-2 lg:gap-0 lg:px-4">
+          <Stack className="gap-2 lg:gap-0">
             {rows.map(row => (
               <ActionLogRow
                 key={row.logId}
