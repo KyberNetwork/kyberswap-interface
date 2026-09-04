@@ -68,6 +68,7 @@ const PROTOCOL_ALLOWLIST: Partial<Record<ChainId, Exchange[]>> = {
   [ChainId.Base]: [Exchange.DEX_UNISWAP_V4_FAIRFLOW, Exchange.DEX_UNISWAP_V4],
   [ChainId.Ethereum]: [Exchange.DEX_UNISWAP_V4_FAIRFLOW, Exchange.DEX_UNISWAP_V4],
   [ChainId.Arbitrum]: [Exchange.DEX_UNISWAP_V4_FAIRFLOW, Exchange.DEX_UNISWAP_V4],
+  [ChainId.Robinhood]: [Exchange.DEX_UNISWAP_V4_FAIRFLOW, Exchange.DEX_UNISWAP_V4],
 }
 
 const availableChains: ChainId[] = Object.keys(PROTOCOL_ALLOWLIST).map(Number)
