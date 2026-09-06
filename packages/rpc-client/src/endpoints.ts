@@ -12,17 +12,23 @@ const MEGAETH = 4326;
 const UNICHAIN = 130;
 const ROBINHOOD = 4663;
 
+/**
+ * Public endpoints tried, in order, when the KyberSwap RPC fails. An endpoint earns its place by
+ * serving the app's real calls — an `eth_call` the size of a multicall balance sweep — not by
+ * answering `eth_blockNumber`: free tiers that reject `eth_call` or cap the request body fail every
+ * such call and cost a hop for nothing. Endpoints that answer but consistently take two to three
+ * times longer than the rest sit last, so a walk reaches them only once the faster ones are out.
+ */
 export const PUBLIC_RPC_ENDPOINTS: Record<number, string[]> = {
   [ChainId.Ethereum]: [
     'https://eth.blockrazor.xyz',
-    'https://eth.drpc.org',
-    'https://api.zan.top/eth-mainnet',
     'https://ethereum-rpc.publicnode.com',
     'https://mainnet.rpc.sentio.xyz',
     'https://ethereum-public.nodies.app',
     'https://mainnet.gateway.tenderly.co',
     'https://eth-mainnet.public.blastapi.io',
     'https://ethereum.public.blockpi.network/v1/rpc/public',
+    'https://eth.drpc.org',
     'https://0xrpc.io/eth',
   ],
   [ChainId.Bsc]: [
@@ -40,7 +46,6 @@ export const PUBLIC_RPC_ENDPOINTS: Record<number, string[]> = {
   [ChainId.PolygonPos]: [
     'https://polygon.drpc.org',
     'https://polygon-bor-rpc.publicnode.com',
-    'https://api.zan.top/polygon-mainnet',
     'https://polygon-public.nodies.app',
     'https://rpc.satelink.network/rpc/polygon',
     'https://polygon.gateway.tenderly.co',
@@ -50,19 +55,15 @@ export const PUBLIC_RPC_ENDPOINTS: Record<number, string[]> = {
   ],
   [ChainId.Arbitrum]: [
     'https://arbitrum-one-rpc.publicnode.com',
-    'https://api.zan.top/arb-one',
-    'https://arbitrum.drpc.org',
     'https://arbitrum-one-public.nodies.app',
     'https://arbitrum.gateway.tenderly.co',
     'https://arbitrum-one.public.blastapi.io',
     'https://arb1.arbitrum.io/rpc',
     'https://arb-one.api.pocket.network',
-    'https://public-arb-mainnet.fastnode.io',
   ],
   [ChainId.Avalanche]: [
     'https://avalanche-c-chain-rpc.publicnode.com',
     'https://avalanche.drpc.org',
-    'https://api.zan.top/avax-mainnet/ext/bc/C/rpc',
     'https://avalanche.rpc.sentio.xyz',
     'https://avalanche.api.onfinality.io/public/ext/bc/C/rpc',
     'https://api.avax.network/ext/bc/C/rpc',
@@ -70,7 +71,6 @@ export const PUBLIC_RPC_ENDPOINTS: Record<number, string[]> = {
   ],
   [ChainId.Base]: [
     'https://base-rpc.publicnode.com',
-    'https://api.zan.top/base-mainnet',
     'https://base.gateway.tenderly.co',
     'https://base-mainnet.public.blastapi.io',
     'https://mainnet.base.org',
@@ -81,14 +81,12 @@ export const PUBLIC_RPC_ENDPOINTS: Record<number, string[]> = {
   ],
   [ChainId.Optimism]: [
     'https://optimism-rpc.publicnode.com',
-    'https://api.zan.top/opt-mainnet',
     'https://optimism.rpc.sentio.xyz',
     'https://optimism-public.nodies.app',
     'https://optimism.gateway.tenderly.co',
     'https://optimism.api.onfinality.io/public',
     'https://mainnet.optimism.io',
     'https://optimism.public.blockpi.network/v1/rpc/public',
-    'https://public-op-mainnet.fastnode.io',
   ],
   [ChainId.Fantom]: [
     'https://fantom.api.onfinality.io/public',
@@ -107,7 +105,6 @@ export const PUBLIC_RPC_ENDPOINTS: Record<number, string[]> = {
   ],
   [ChainId.ZkSync]: [
     'https://rpc.ankr.com/zksync_era',
-    'https://api.zan.top/zksync-mainnet',
     'https://zksync.drpc.org',
     'https://zksync-era.rpc.sentio.xyz',
     'https://mainnet.era.zksync.io',
@@ -122,7 +119,6 @@ export const PUBLIC_RPC_ENDPOINTS: Record<number, string[]> = {
     'https://blast.api.pocket.network',
   ],
   [ChainId.Mantle]: [
-    'https://api.zan.top/mantle-mainnet',
     'https://rpc.mantle.xyz',
     'https://mantle-rpc.publicnode.com',
     'https://mantle.drpc.org',
