@@ -385,26 +385,39 @@ const wagmiChains: readonly [Chain, ...Chain[]] = [
   withKyberRpc(rise),
 ] as const
 
+// One endpoint's share of the wait. `fallback()` walks its URLs in order and moves on only once the
+// current one has failed or run out of time, so a hop that hangs costs every call this long before
+// the next endpoint is tried. A healthy endpoint answers in well under a second; three seconds is
+// generous for one and still keeps a walk over the whole list to tens of seconds.
+const HOP_TIMEOUT_MS = 3_000
+const PUBLIC_HTTP_CONFIG = { timeout: HOP_TIMEOUT_MS } as const
+
 // JSON-RPC batching for the primary (KyberSwap) endpoint. viem sends one `eth_call` per multicall
 // chunk, so a sweep like the token selector's whole-whitelist `balanceOf` spans many calls that would
 // otherwise queue against the browser's per-host connection budget; batching folds them into a single
 // POST. Only the primary opts in — the public fallbacks are third-party endpoints whose batch support
 // we can't vouch for, and `batch.multicall.batchSize` keeps their call count in check on its own.
-const PRIMARY_HTTP_CONFIG = { batch: { batchSize: 50 } } as const
+const PRIMARY_HTTP_CONFIG = { ...PUBLIC_HTTP_CONFIG, batch: { batchSize: 50 } } as const
 
 // viem `fallback()` rotates through URLs on transport errors (network, 429, 5xx),
 // giving us true client-side RPC rotation for every wagmi-issued call (multicall,
 // useReadContract, polling). KyberSwap RPC sits first; public endpoints are tried
 // only when it errors. Connector-internal calls still use URL[0] of `rpcUrls.default`
 // (set by `withKyberRpc` above), which is the same KyberSwap RPC.
+//
+// One pass over the list, never two: a call every endpoint has just refused is not going to be
+// answered by the same endpoints a moment later, and the second pass doubles both the wait and the
+// load on endpoints that are already rate-limiting the user.
 
 const transports = Object.fromEntries(
   wagmiChains.map(c => {
     const primaryUrl = NETWORKS_INFO[c.id as ChainId]?.defaultRpcUrl
     const urls = getRpcUrlsForChain(c.id)
     const httpTransports =
-      urls.length > 0 ? urls.map(url => (url === primaryUrl ? http(url, PRIMARY_HTTP_CONFIG) : http(url))) : [http()]
-    return [c.id, fallback(httpTransports, { retryCount: 1 })]
+      urls.length > 0
+        ? urls.map(url => (url === primaryUrl ? http(url, PRIMARY_HTTP_CONFIG) : http(url, PUBLIC_HTTP_CONFIG)))
+        : [http(undefined, PUBLIC_HTTP_CONFIG)]
+    return [c.id, fallback(httpTransports, { retryCount: 0 })]
   }),
 ) as Record<(typeof wagmiChains)[number]['id'], ReturnType<typeof fallback>>
 
