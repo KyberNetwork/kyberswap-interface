@@ -81,7 +81,7 @@ export interface RpcClientConfig {
   /** Whether to use Kyber RPC as fallback (default: true) */
   useKyberFallback?: boolean;
 
-  /** Request timeout in milliseconds (default: 10000) */
+  /** Time one endpoint gets to answer before rotation moves on, in milliseconds (default: 3000) */
   timeout?: number;
 
   /** Maximum retries per endpoint before moving to next (default: 1) */
@@ -99,8 +99,18 @@ export interface RpcClientConfig {
   /** Max block lag allowed before marking an endpoint as stale (default: 50) */
   maxBlockLag?: number;
 
-  /** Interval in ms between background block freshness probes (default: 60000). Set to 0 to disable. */
+  /**
+   * Interval in ms between block freshness probes while the client is in use (default: 60000).
+   * Probing starts with the first call and stops after five minutes without one. Set to 0 to disable.
+   */
   probeIntervalMs?: number;
+
+  /**
+   * Which shared instance `getRpcClient` returns for the chain (default: 'default'). Callers on the
+   * same chain and scope share one instance and its health tracking; a caller that needs its own
+   * configuration names its own scope, so it does not depend on being the first to ask.
+   */
+  scope?: string;
 }
 
 /**

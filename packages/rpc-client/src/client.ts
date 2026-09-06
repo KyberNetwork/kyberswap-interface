@@ -12,11 +12,22 @@ import {
   RpcEventHandlers,
 } from './types';
 
-const DEFAULT_TIMEOUT = 10000;
+/**
+ * One endpoint's share of the wait. Rotation only moves on once the current endpoint has failed or
+ * run out of time, so a hop that hangs costs the whole call this long. A healthy endpoint answers a
+ * multicall-sized `eth_call` in well under two seconds; three is generous for one and keeps a walk
+ * over a full list to tens of seconds rather than minutes.
+ */
+const DEFAULT_TIMEOUT = 3000;
 const DEFAULT_MAX_RETRIES_PER_ENDPOINT = 1;
 const DEFAULT_ENDPOINT_COOLDOWN_MS = 60000; // 1 minute
 const DEFAULT_MAX_BLOCK_LAG = 50;
 const DEFAULT_PROBE_INTERVAL_MS = 60000; // 1 minute
+/**
+ * A probe loop follows traffic: it starts with the first call and stops once no call has been made
+ * for this long, so a client held for a chain nobody is reading costs the endpoints nothing.
+ */
+const DEFAULT_PROBE_IDLE_STOP_MS = 5 * 60000;
 
 /**
  * JSON-RPC error codes that every healthy node answers identically, so rotating
@@ -90,7 +101,7 @@ function normalizeRpcError(error: unknown): { code: number; message: string; dat
  *
  * Features:
  * - Round-robin rotation through public endpoints, sorted by probe latency
- * - Background block freshness probing to detect stale/slow endpoints
+ * - Block freshness probing while the client is in use, to detect stale/slow endpoints
  * - Health tracking with cooldown for failed endpoints
  * - Kyber RPC fallback when all public endpoints fail
  * - Optional telemetry hooks for monitoring
@@ -122,6 +133,7 @@ export class RpcClient {
   private requestId = 1;
   private probeTimer: ReturnType<typeof setInterval> | undefined;
   private isProbing = false;
+  private lastCallAt = 0;
 
   constructor(config: RpcClientConfig) {
     this.chainId = config.chainId;
@@ -146,12 +158,24 @@ export class RpcClient {
         isHealthy: true,
       });
     }
+  }
 
-    // Start background probing
-    if (this.endpoints.length > 1 && this.probeIntervalMs > 0) {
+  /**
+   * Probing follows traffic. Constructing a client sends nothing — an app builds one per chain it
+   * serves, most of which the user never reads — and the loop starts with the first call and ends
+   * once calls stop, so it never outlives the code that needed it.
+   */
+  private ensureProbing(): void {
+    this.lastCallAt = Date.now();
+    if (this.probeTimer || this.endpoints.length <= 1 || this.probeIntervalMs <= 0) return;
+    this.probeEndpoints();
+    this.probeTimer = setInterval(() => {
+      if (Date.now() - this.lastCallAt >= DEFAULT_PROBE_IDLE_STOP_MS) {
+        this.destroy();
+        return;
+      }
       this.probeEndpoints();
-      this.probeTimer = setInterval(() => this.probeEndpoints(), this.probeIntervalMs);
-    }
+    }, this.probeIntervalMs);
   }
 
   getChainId(): number {
@@ -166,6 +190,7 @@ export class RpcClient {
    * Non-retryable errors (e.g. execution reverted) are thrown immediately.
    */
   async call<T>(method: string, params: unknown[] = []): Promise<T> {
+    this.ensureProbing();
     const errors: Array<{ endpoint: string; error: Error }> = [];
 
     // Try all public endpoints via rotation
@@ -213,6 +238,7 @@ export class RpcClient {
    * Make an RPC call and return result with metadata.
    */
   async callWithMetadata<T>(method: string, params: unknown[] = []): Promise<RpcCallResult<T>> {
+    this.ensureProbing();
     const errors: Array<{ endpoint: string; error: Error }> = [];
 
     for (let i = 0; i < this.endpoints.length; i++) {
@@ -254,6 +280,7 @@ export class RpcClient {
    * Make a batch RPC call.
    */
   async batchCall<T extends unknown[]>(calls: Array<{ method: string; params?: unknown[] }>): Promise<T> {
+    this.ensureProbing();
     const errors: Array<{ endpoint: string; error: Error }> = [];
 
     for (let i = 0; i < this.endpoints.length; i++) {
@@ -345,7 +372,7 @@ export class RpcClient {
   }
 
   /**
-   * Stop background probing. Call this when the client is no longer needed.
+   * Stop probing. The next call starts it again, so this is safe to call at any time.
    */
   destroy(): void {
     if (this.probeTimer) {
@@ -536,6 +563,25 @@ export class RpcClient {
 
   // ─── Fetch helpers ───────────────────────────────────────────────────
 
+  /**
+   * A request's budget. The abort is the polite cancel; the rejection is the guarantee. An
+   * environment that leaves an aborted fetch pending — a mobile in-app browser, a frozen tab — must
+   * not hold the call, and with it the rotation, for good; racing the fetch and the body read against
+   * `deadline` settles them regardless.
+   */
+  private deadlineFor(endpoint: string, method: string, timeoutMs: number) {
+    const controller = new AbortController();
+    let expire: (() => void) | undefined;
+    const deadline = new Promise<never>((_, reject) => {
+      expire = () => {
+        controller.abort();
+        reject(new RpcError(-1, buildRpcErrorMessage(endpoint, method, `Request timeout after ${timeoutMs}ms`)));
+      };
+    });
+    const timeoutId = setTimeout(() => expire?.(), timeoutMs);
+    return { controller, deadline, timeoutId };
+  }
+
   private async fetchRpc<T>(
     endpoint: string,
     method: string,
@@ -552,19 +598,21 @@ export class RpcClient {
       params,
     };
 
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), effectiveTimeout);
+    const { controller, deadline, timeoutId } = this.deadlineFor(endpoint, method, effectiveTimeout);
 
     try {
-      const response = await fetch(endpoint, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...this.headers,
-        },
-        body: JSON.stringify(request),
-        signal: controller.signal,
-      });
+      const response = await Promise.race([
+        fetch(endpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...this.headers,
+          },
+          body: JSON.stringify(request),
+          signal: controller.signal,
+        }),
+        deadline,
+      ]);
 
       clearTimeout(timeoutId);
 
@@ -588,7 +636,7 @@ export class RpcClient {
         );
       }
 
-      const data = (await response.json()) as JsonRpcResponse<T>;
+      const data = (await Promise.race([response.json(), deadline])) as JsonRpcResponse<T>;
 
       if (data.error) {
         const { code, message, data: errData } = normalizeRpcError(data.error);
@@ -634,19 +682,21 @@ export class RpcClient {
       params: call.params ?? [],
     }));
 
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), this.timeout);
+    const { controller, deadline, timeoutId } = this.deadlineFor(endpoint, 'batch', this.timeout);
 
     try {
-      const response = await fetch(endpoint, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...this.headers,
-        },
-        body: JSON.stringify(requests),
-        signal: controller.signal,
-      });
+      const response = await Promise.race([
+        fetch(endpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...this.headers,
+          },
+          body: JSON.stringify(requests),
+          signal: controller.signal,
+        }),
+        deadline,
+      ]);
 
       clearTimeout(timeoutId);
 
@@ -670,7 +720,7 @@ export class RpcClient {
         );
       }
 
-      const data = (await response.json()) as JsonRpcResponse[];
+      const data = (await Promise.race([response.json(), deadline])) as JsonRpcResponse[];
 
       // Sort by id to maintain order
       const sortedData = [...data].sort((a, b) => Number(a.id) - Number(b.id));
@@ -891,18 +941,20 @@ export class RpcClient {
   }
 }
 
-// Singleton instances per chain - keyed by chainId only for proper health tracking sharing
-const clientInstances: Map<number, RpcClient> = new Map();
+// One instance per chain and scope, so callers share health tracking within a scope.
+const clientInstances: Map<string, RpcClient> = new Map();
 
 /**
- * Get or create an RpcClient instance for a chain.
+ * Get or create the RpcClient for a chain.
  *
- * Uses singleton pattern to reuse health tracking across calls.
- * Note: Only chainId is used as cache key, so custom config is only applied on first creation.
+ * Instances are shared per chain within a `scope`, so callers on the same chain pool their health
+ * tracking. Configuration is applied when an instance is first created; a caller that needs its own
+ * settings — a different endpoint list, timeout or telemetry — asks for its own scope rather than
+ * depending on being first. `configRpcEndpoint` is the one setting applied to an existing instance.
  *
  * @param chainId - The chain ID to get client for
- * @param config - Optional configuration (only applied on first creation for this chainId)
- * @returns RpcClient instance for the chain
+ * @param config - Optional configuration; see `RpcClientConfig.scope`
+ * @returns RpcClient instance for the chain and scope
  *
  * @example
  * ```typescript
@@ -911,10 +963,11 @@ const clientInstances: Map<number, RpcClient> = new Map();
  * ```
  */
 export function getRpcClient(chainId: number, config?: Partial<RpcClientConfig>): RpcClient {
-  let client = clientInstances.get(chainId);
+  const key = `${chainId}:${config?.scope ?? 'default'}`;
+  let client = clientInstances.get(key);
   if (!client) {
     client = new RpcClient({ chainId, ...config });
-    clientInstances.set(chainId, client);
+    clientInstances.set(key, client);
   } else if (config?.configRpcEndpoint) {
     client.updateConfigEndpoint(config.configRpcEndpoint);
   }
