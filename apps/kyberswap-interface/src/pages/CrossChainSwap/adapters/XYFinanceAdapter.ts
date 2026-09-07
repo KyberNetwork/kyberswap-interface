@@ -4,7 +4,7 @@ import { WalletClient, formatUnits } from 'viem'
 
 import { wagmiConfig } from 'components/Web3Provider'
 import { ETHER_ADDRESS } from 'constants/index'
-import { CROSS_CHAIN_FEE_RECEIVER } from 'pages/CrossChainSwap/constants'
+import { CROSS_CHAIN_FEE_RECEIVER } from 'pages/CrossChainSwap/utils'
 
 import { Quote } from '../registry'
 import {

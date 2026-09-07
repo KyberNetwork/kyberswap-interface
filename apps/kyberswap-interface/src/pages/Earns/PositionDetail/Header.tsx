@@ -8,12 +8,12 @@ import { ReactComponent as ListSmartExitIcon } from 'assets/svg/earn/ic_list_sma
 import { ReactComponent as IconUserEarnPosition } from 'assets/svg/earn/ic_user_earn_position.svg'
 import { ButtonLight } from 'components/Button'
 import CopyHelper from 'components/Copy'
+import { ListingPageNavigateButton } from 'components/Listing/Page'
 import Loader from 'components/Loader'
 import TokenLogo from 'components/TokenLogo'
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import { TELEGRAM_BOT_URL } from 'constants/env'
 import { APP_PATHS } from 'constants/index'
-import { NavigateButton } from 'pages/Earns/PoolExplorer/styles'
 import { usePositionDetailContext } from 'pages/Earns/PositionDetail/PositionDetailContext'
 import { DexInfoBadge, IconArrowLeft } from 'pages/Earns/PositionDetail/styles'
 import { Badge, BadgeType, ImageContainer } from 'pages/Earns/UserPositions/styles'
@@ -240,7 +240,7 @@ const PositionDetailHeader = () => {
             <IconAlert />
           </ButtonLight>
         </MouseoverTooltipDesktopOnly>
-        <NavigateButton
+        <ListingPageNavigateButton
           mobileFullWidth
           icon={<IconUserEarnPosition />}
           text={t`My Positions`}

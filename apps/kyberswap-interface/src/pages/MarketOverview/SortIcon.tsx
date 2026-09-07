@@ -1,3 +1,4 @@
+import { Stack } from 'components/Stack'
 import useTheme from 'hooks/useTheme'
 
 export enum Direction {
@@ -8,7 +9,7 @@ export enum Direction {
 export default function SortIcon({ sorted, style }: { sorted?: Direction; style?: React.CSSProperties }) {
   const theme = useTheme()
   return (
-    <div className="flex flex-col gap-[2px]" style={style}>
+    <Stack className="gap-0.5" style={style}>
       <svg width="8" height="5" viewBox="0 0 8 5" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path
           d="M1.33333 3.91667L3.99999 1.25L6.66666 3.91667"
@@ -28,6 +29,6 @@ export default function SortIcon({ sorted, style }: { sorted?: Direction; style?
           strokeLinejoin="round"
         />
       </svg>
-    </div>
+    </Stack>
   )
 }

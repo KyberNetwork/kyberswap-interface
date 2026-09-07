@@ -51,6 +51,10 @@ const PoolItem = ({
       <LargePoolRow
         variant={variant === 'large-farming' ? 'farming' : 'default'}
         role="button"
+        data-testid="earn-overview-pool-item"
+        data-pool-address={pool.address}
+        data-chain-id={pool.chainId}
+        data-exchange={pool.exchange}
         tabIndex={0}
         onClick={handleClick}
         onKeyDown={handleKeyDown}
@@ -66,11 +70,13 @@ const PoolItem = ({
               className="relative top-px self-end"
             />
 
-            <span className="ml-1 min-w-0 truncate text-base">
+            <span className="ml-1 min-w-0 truncate text-base" data-testid="earn-overview-pool-item-pair">
               {pool.tokens?.[0]?.symbol}
               <span className="text-subText">/{pool.tokens?.[1]?.symbol}</span>
             </span>
-            <Tag>{formatDisplayNumber(pool.feeTier, { significantDigits: 4 })}%</Tag>
+            <Tag data-testid="earn-overview-pool-item-fee-tier">
+              {formatDisplayNumber(pool.feeTier, { significantDigits: 4 })}%
+            </Tag>
           </div>
 
           {dexInfo?.logo || dexInfo?.name ? (
@@ -84,7 +90,9 @@ const PoolItem = ({
         <div className="flex w-full items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="text-base text-subText">APR</span>
-            <span className="text-lg font-semibold text-primary">{formatAprNumber(pool.allApr)}%</span>
+            <span className="text-lg font-semibold text-primary" data-testid="earn-overview-pool-item-apr">
+              {formatAprNumber(pool.allApr)}%
+            </span>
             {isFarming ? (
               <AprDetailTooltip feeApr={pool.lpApr} egApr={pool.kemEGApr} lmApr={pool.kemLMApr}>
                 {isFarmingLm ? <FarmingLmIcon width={20} height={20} /> : <FarmingIcon width={20} height={20} />}
@@ -110,6 +118,10 @@ const PoolItem = ({
     <SmallPoolRow
       variant={isStable ? 'stable' : 'default'}
       role="button"
+      data-testid="earn-overview-pool-item"
+      data-pool-address={pool.address}
+      data-chain-id={pool.chainId}
+      data-exchange={pool.exchange}
       tabIndex={0}
       onClick={handleClick}
       onKeyDown={handleKeyDown}
@@ -124,15 +136,20 @@ const PoolItem = ({
           className="relative top-px self-end"
         />
 
-        <span className="ml-1 min-w-0 truncate">
+        <span className="ml-1 min-w-0 truncate" data-testid="earn-overview-pool-item-pair">
           {pool.tokens?.[0]?.symbol}
           <span className="text-subText">/{pool.tokens?.[1]?.symbol}</span>
         </span>
-        <Tag>{formatDisplayNumber(pool.feeTier, { significantDigits: 4 })}%</Tag>
+        <Tag data-testid="earn-overview-pool-item-fee-tier">
+          {formatDisplayNumber(pool.feeTier, { significantDigits: 4 })}%
+        </Tag>
       </div>
 
       <div className="flex items-center gap-1">
-        <span className={cn('text-base font-semibold', isStable ? 'text-blue3' : 'text-primary')}>
+        <span
+          className={cn('text-base font-semibold', isStable ? 'text-blue3' : 'text-primary')}
+          data-testid="earn-overview-pool-item-apr"
+        >
           {isStable ? '💎 ' : getFireEmoji(pool.allApr)}
           {formatAprNumber(pool.allApr)}%
         </span>

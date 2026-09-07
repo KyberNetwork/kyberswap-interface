@@ -1,5 +1,5 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { useEffect, useMemo } from 'react'
+import { useMemo } from 'react'
 import { useSelector } from 'react-redux'
 import { useSearchParams } from 'react-router-dom'
 import { useAccount as useAccountWagmi } from 'wagmi'
@@ -10,10 +10,7 @@ import { isSupportedChainId } from 'constants/networks'
 import { NetworkInfo } from 'constants/networks/type'
 import { useAccount } from 'hooks/useAccount'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
-import useDisconnectWallet from 'hooks/web3/useDisconnectWallet'
 import { AppState } from 'state'
-import { useIsAcceptedTerm } from 'state/user/hooks'
-import { isInSafeApp } from 'utils/safeApp'
 
 export function useActiveWeb3React(): {
   chainId: ChainId
@@ -49,15 +46,6 @@ export function useActiveWeb3React(): {
 
 export function useWeb3React() {
   const account = useAccount()
-  const [isAcceptedTerm] = useIsAcceptedTerm()
-
-  const disconnect = useDisconnectWallet()
-  useEffect(() => {
-    // disconnect if the user is not accepted terms, dont apply to safe app
-    if (account.connector && !isAcceptedTerm && !isInSafeApp) {
-      disconnect()
-    }
-  }, [isAcceptedTerm, account.connector, disconnect])
 
   return useMemo(
     () => ({

@@ -35,6 +35,8 @@ type DropdownMenuProps = {
   mobileHalfWidth?: boolean
   usePortal?: boolean
   onChange: (value: string | number) => void
+  /** When set, the trigger and each option get `<testid>-trigger` / `<testid>-option` (+ `data-value`). */
+  'data-testid'?: string
 }
 
 const DropdownMenu = ({
@@ -50,6 +52,7 @@ const DropdownMenu = ({
   mobileHalfWidth = false,
   usePortal = false,
   onChange,
+  'data-testid': dataTestId,
 }: DropdownMenuProps) => {
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
@@ -140,6 +143,8 @@ const DropdownMenu = ({
             key={option.value}
             onClick={() => handleSelectItem(option.value)}
             className={option.value === value ? 'selected' : ''}
+            data-testid={dataTestId ? `${dataTestId}-option` : undefined}
+            data-value={option.value}
           >
             {option.icon && <ItemIcon src={option.icon} alt={option.label} />}
             {option.label}
@@ -158,6 +163,7 @@ const DropdownMenu = ({
       mobileHalfWidth={mobileHalfWidth}
       fullWidth={fullWidth}
       ref={ref}
+      data-testid={dataTestId}
     >
       <MouseoverTooltipDesktopOnly text={!open && tooltip} placement="top" width="260px">
         <DropdownTitleWrapper
@@ -165,6 +171,7 @@ const DropdownMenu = ({
           background={background}
           highlight={flatten && open}
           onClick={handleOpenChange}
+          data-testid={dataTestId ? `${dataTestId}-trigger` : undefined}
         >
           <DropdownTitle justifyContent={alignItems} width={width} fullWidth={fullWidth && !width}>
             {optionValue?.icon && <ItemIcon src={optionValue.icon} alt={optionValue.label} />}

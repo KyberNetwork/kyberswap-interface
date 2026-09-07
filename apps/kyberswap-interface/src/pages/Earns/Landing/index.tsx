@@ -105,11 +105,14 @@ const EarnLanding = () => {
       {zapMigrationWidget}
       {smartExitWidget}
 
-      <PageGrid>
+      <PageGrid data-testid="earn-overview-page">
         {/* Hero */}
         <HeroSection>
           <HeroTitle>
-            <h1 className={cn('font-normal', upToSmall ? 'text-[28px] leading-9' : 'text-4xl leading-[48px]')}>
+            <h1
+              className={cn('font-normal', upToSmall ? 'text-[28px] leading-9' : 'text-4xl leading-[48px]')}
+              data-testid="earn-overview-heading"
+            >
               {t`Maximize Your Earnings in DeFi`}
             </h1>
             <p className={cn('leading-6 text-subText', upToSmall ? 'text-sm' : 'text-base')}>
@@ -126,6 +129,7 @@ const EarnLanding = () => {
             role="button"
             tabIndex={0}
             clickable
+            data-testid="earn-overview-card-pools"
             onClick={() => navigate(APP_PATHS.EARN_POOLS)}
             onKeyDown={e => {
               if (e.key === 'Enter' || e.key === ' ') {
@@ -184,6 +188,7 @@ const EarnLanding = () => {
             role="button"
             tabIndex={0}
             clickable
+            data-testid="earn-overview-card-vaults"
             onClick={() => navigate(APP_PATHS.EARN_VAULTS)}
             onKeyDown={e => {
               if (e.key === 'Enter' || e.key === ' ') {
@@ -250,7 +255,7 @@ const EarnLanding = () => {
 
         {/* CTA */}
         <ExplorePoolsWrapper>
-          <ExplorePoolsButton to={APP_PATHS.EARN_POOLS}>
+          <ExplorePoolsButton to={APP_PATHS.EARN_POOLS} data-testid="earn-overview-explore-pools">
             <span className="text-base font-medium uppercase text-primary">{t`Explore Pools`}</span>
             <img src={PlayIcon} alt="play" width={28} height={28} />
           </ExplorePoolsButton>

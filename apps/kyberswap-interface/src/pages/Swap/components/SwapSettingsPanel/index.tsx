@@ -94,7 +94,7 @@ const SwapSettingsPanel = ({
     <Stack className="w-full gap-4" id={TutorialIds.TRADING_SETTING_CONTENT}>
       <HStack className="items-center gap-1">
         <IconButton
-          aria-label={t`Back`}
+          aria-label="Back"
           onClick={() => {
             if (isCrossChainPage) {
               trackingHandler(TRACKING_EVENT_TYPE.CC_SETTINGS_SAVED, {

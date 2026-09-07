@@ -50,7 +50,7 @@ export default function OptionButton({
             placement="top"
             width="fit-content"
           >
-            <RowFit className="gap-[5px] overflow-hidden break-words text-xs">
+            <RowFit className="gap-2 overflow-hidden break-words text-xs">
               <div className="w-[18px] [&>svg]:block">
                 {isCheckBox ? (
                   checked ? (

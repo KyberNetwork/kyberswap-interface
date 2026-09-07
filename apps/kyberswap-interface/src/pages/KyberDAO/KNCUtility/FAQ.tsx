@@ -3,8 +3,9 @@ import { ReactNode, useState } from 'react'
 import { ChevronDown } from 'react-feather'
 import { NavLink } from 'react-router-dom'
 
+import { HStack, Stack } from 'components/Stack'
 import { APP_PATHS } from 'constants/index'
-import useTheme from 'hooks/useTheme'
+import { KyberDAOCardDivider } from 'pages/KyberDAO/common'
 import { ExternalLink } from 'theme'
 import { cn } from 'utils/cn'
 
@@ -27,31 +28,28 @@ type PanelProps = {
   content: ReactNode
 }
 
-const DetailPanel: React.FC<PanelProps> = ({ isExpanded, title, content, toggleExpand }) => {
+const DetailPanel = ({ isExpanded, title, content, toggleExpand }: PanelProps) => {
   return (
-    <>
-      <div role="button" onClick={toggleExpand} className="flex h-14 cursor-pointer items-center justify-between">
-        <span className="max-w-[calc(100%-20px-8px)] text-base font-medium leading-5 text-text">{title}</span>
+    <Stack className="px-6 py-3">
+      <HStack
+        as="button"
+        type="button"
+        onClick={toggleExpand}
+        className="cursor-pointer items-center justify-between gap-4 border-none bg-transparent text-left"
+      >
+        <span className="text-base font-medium text-text-60">{title}</span>
 
-        <div
-          role="button"
-          onClick={toggleExpand}
-          className={cn(
-            'flex size-5 cursor-pointer transition-all duration-150 ease-linear',
-            isExpanded && 'rotate-180',
-          )}
-        >
+        <div className={cn('flex size-5 shrink-0 transition-all duration-150 ease-linear', isExpanded && 'rotate-180')}>
           <ChevronDown size="20" className="text-text" />
         </div>
-      </div>
+      </HStack>
 
-      {isExpanded && <div className="mb-4 text-sm leading-5 text-text">{content}</div>}
-    </>
+      {isExpanded && <div className="pt-4 text-sm text-subText">{content}</div>}
+    </Stack>
   )
 }
 
-const FAQ: React.FC = () => {
-  const theme = useTheme()
+const FAQ = () => {
   const [expandedPanel, setExpandedPanel] = useState<Panel | undefined>()
 
   const handleToggleExpand = (panel?: Panel) => {
@@ -62,10 +60,8 @@ const FAQ: React.FC = () => {
     }
   }
 
-  const Separator = () => <div className="my-2 h-0 w-full border-b border-solid border-border" />
-
   return (
-    <div className="flex h-fit flex-col rounded-[20px] px-6 py-4" style={{ background: `${theme.background}cc` }}>
+    <Stack className="h-fit overflow-hidden rounded-2xl bg-background/80">
       <DetailPanel
         toggleExpand={() => handleToggleExpand(Panel.Q_Join)}
         isExpanded={expandedPanel === Panel.Q_Join}
@@ -78,7 +74,7 @@ const FAQ: React.FC = () => {
           </Trans>
         }
       />
-      <Separator />
+      <KyberDAOCardDivider />
       <DetailPanel
         toggleExpand={() => handleToggleExpand(Panel.Q_Chain)}
         isExpanded={expandedPanel === Panel.Q_Chain}
@@ -90,7 +86,7 @@ const FAQ: React.FC = () => {
           </Trans>
         }
       />
-      <Separator />
+      <KyberDAOCardDivider />
       <DetailPanel
         toggleExpand={() => handleToggleExpand(Panel.Q_When)}
         isExpanded={expandedPanel === Panel.Q_When}
@@ -103,7 +99,7 @@ const FAQ: React.FC = () => {
           </Trans>
         }
       />
-      <Separator />
+      <KyberDAOCardDivider />
       <DetailPanel
         toggleExpand={() => handleToggleExpand(Panel.Q_Deadline)}
         isExpanded={expandedPanel === Panel.Q_Deadline}
@@ -115,7 +111,7 @@ const FAQ: React.FC = () => {
           </Trans>
         }
       />
-      <Separator />
+      <KyberDAOCardDivider />
       <DetailPanel
         toggleExpand={() => handleToggleExpand(Panel.Q_LimitOrder)}
         isExpanded={expandedPanel === Panel.Q_LimitOrder}
@@ -127,7 +123,7 @@ const FAQ: React.FC = () => {
           </Trans>
         }
       />
-      <Separator />
+      <KyberDAOCardDivider />
       <DetailPanel
         toggleExpand={() => handleToggleExpand(Panel.Q_Vote)}
         isExpanded={expandedPanel === Panel.Q_Vote}
@@ -145,7 +141,7 @@ const FAQ: React.FC = () => {
           </Trans>
         }
       />
-      <Separator />
+      <KyberDAOCardDivider />
       <DetailPanel
         toggleExpand={() => handleToggleExpand(Panel.Q_Limit)}
         isExpanded={expandedPanel === Panel.Q_Limit}
@@ -154,7 +150,7 @@ const FAQ: React.FC = () => {
           <Trans>Each user wallet address is eligible for gas refund of up to $200 within two epoch cycles.</Trans>
         }
       />
-    </div>
+    </Stack>
   )
 }
 

@@ -21,7 +21,7 @@ import { TokenInfo, WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { NEVER_RELOAD, useSingleCallResult } from 'state/multicall/hooks'
 import { useUserAddedTokens } from 'state/user/hooks'
 import { isAddress } from 'utils/address'
-import { filterTruthy } from 'utils/array'
+import { chunk, filterTruthy } from 'utils/array'
 import { escapeQuoteString, getFormattedAddress } from 'utils/tokenInfo'
 import { Address, hexToString, toBytes } from 'utils/viem'
 
@@ -311,13 +311,32 @@ export const findCacheToken = (address: string, chainId?: ChainId) => {
   return cachedToken
 }
 
-export const fetchListTokenByAddresses = async (address: string[], chainId: ChainId) => {
-  const cached = filterTruthy(address.map(addr => findCacheToken(addr, chainId)))
-  if (cached.length === address.length) return cached
+// The catalog pages this endpoint (10 per page by default, 100 at most), so addresses are asked
+// for in pages of that size with the page size stated explicitly; otherwise a list past the default
+// silently comes back short.
+const TOKEN_LOOKUP_PAGE_SIZE = 100
 
-  const response = await axios.get(`${KS_SETTING_API}/v1/tokens?addresses=${address}&chainIds=${chainId}`)
-  const tokens = response?.data?.data?.tokens ?? []
-  return filterTruthy(tokens.map(formatAndCacheToken)) as WrappedTokenInfo[]
+/**
+ * Catalog tokens for a list of addresses: those already looked up this session come from the cache,
+ * the rest from the catalog. Throws when the catalog replies without a token list, so a failure never
+ * reads as "these addresses are unknown".
+ */
+export const fetchListTokenByAddresses = async (address: string[], chainId: ChainId): Promise<WrappedTokenInfo[]> => {
+  const cached = filterTruthy(address.map(addr => findCacheToken(addr, chainId)))
+  const missing = address.filter(addr => !findCacheToken(addr, chainId))
+  if (!missing.length) return cached
+
+  const pages = await Promise.all(
+    chunk(missing, TOKEN_LOOKUP_PAGE_SIZE).map(async page => {
+      const response = await axios.get(
+        `${KS_SETTING_API}/v1/tokens?addresses=${page}&chainIds=${chainId}&page=1&pageSize=${TOKEN_LOOKUP_PAGE_SIZE}`,
+      )
+      const tokens = response?.data?.data?.tokens
+      if (!Array.isArray(tokens)) throw new Error('token catalog replied without a token list')
+      return filterTruthy(tokens.map(formatAndCacheToken)) as WrappedTokenInfo[]
+    }),
+  )
+  return [...cached, ...pages.flat()]
 }
 
 export const formatAndCacheToken = (rawTokenResponse: TokenInfo) => {

@@ -7,11 +7,11 @@ export enum ShareType {
 export enum ShareOption {
   TOTAL_APR = 'Total APR',
   ACTIVE_APR = 'Active APR',
-  LM_APR = 'Liquidity Mining APR',
+  REWARD_APR = 'Reward APR',
   EG_APR = 'EG Sharing APR',
   TOTAL_EARNINGS = 'Total Earnings',
   TOTAL_REWARD = 'Total Rewards',
-  LM_REWARD = 'Liquidity Mining rewards',
+  REWARD = 'Reward',
   EG_REWARD = 'EG Sharing rewards',
 }
 
@@ -41,24 +41,28 @@ export interface ShareModalProps {
     apr?: {
       fees: number;
       eg: number;
-      lm: number;
+      /** Farming LM APR plus external campaign (Merkl) bonus APR. */
+      reward: number;
       activeTotal?: number;
       activeEg?: number;
-      activeLm?: number;
+      /** Active-liquidity counterpart of `reward`. */
+      activeReward?: number;
     };
   };
   position?: {
     apr: {
       total: number;
       eg: number;
-      lm: number;
+      /** Farming LM APR plus external campaign (Merkl) bonus APR. */
+      reward: number;
     };
     createdTime: number;
     totalEarnings: number;
   };
   reward?: {
     total: number;
-    lm: number;
+    /** Farming LM rewards plus external campaign (Merkl) rewards, in USD. */
+    reward: number;
     eg: number;
   };
   onClose: () => void;

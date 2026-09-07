@@ -32,6 +32,8 @@ interface TokenSelectorModalProps {
   trackingSource?: string
   /** Show the discovery tab bar (Trending / New / …). Off for a plain search + list (cross-chain). */
   showDiscoveryTabs?: boolean
+  /** Select a different chain in the owning form instead of switching the connected app/wallet chain. */
+  onSelectChain?: (chainId: ChainId) => void
 }
 
 enum TokenSelectorModalView {
@@ -53,6 +55,7 @@ const TokenSelectorModal = ({
   customChainId,
   trackingSource,
   showDiscoveryTabs,
+  onSelectChain,
 }: TokenSelectorModalProps) => {
   const [modalView, setModalView] = useState<TokenSelectorModalView>(TokenSelectorModalView.search)
   // A cross-chain token confirmed from the import flow, pending its Switch-Chain confirm.
@@ -88,13 +91,19 @@ const TokenSelectorModal = ({
       // directly, so its Switch-Chain confirm is shown here, after the import, rather than before it).
       // Row selections arrive already on the right chain, so this branch no-ops for them.
       if (picked.chainId !== anchorChainId) {
+        if (onSelectChain) {
+          onSelectChain(picked.chainId)
+          onCurrencySelect?.(picked)
+          onDismiss?.()
+          return
+        }
         setSwitchChainToken(picked)
         return
       }
       onCurrencySelect?.(picked)
       onDismiss?.()
     },
-    [onDismiss, onCurrencySelect, isTokenRestricted, notifyRestrictedToken, anchorChainId],
+    [onDismiss, onCurrencySelect, isTokenRestricted, notifyRestrictedToken, anchorChainId, onSelectChain],
   )
 
   // for token import view
@@ -166,6 +175,7 @@ const TokenSelectorModal = ({
             trackingSource={trackingSource}
             onShowTokenInfo={setTokenToShowInfo}
             showDiscoveryTabs={showDiscoveryTabs}
+            onSelectChain={onSelectChain}
           />
         </div>
         {modalView === TokenSelectorModalView.importToken && importToken && !tokenToShowInfo ? (

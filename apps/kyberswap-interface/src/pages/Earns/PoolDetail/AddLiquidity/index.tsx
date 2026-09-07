@@ -21,6 +21,7 @@ import { useFeedback } from 'pages/Earns/PoolDetail/AddLiquidity/hooks/useFeedba
 import { useZapPool } from 'pages/Earns/PoolDetail/AddLiquidity/hooks/useZapPool'
 import { type ZapState, useZapState } from 'pages/Earns/PoolDetail/AddLiquidity/hooks/useZapState'
 import { usePoolDetailContext } from 'pages/Earns/PoolDetail/context'
+import { NoteCard } from 'pages/Earns/PoolDetail/styled'
 import { EARN_DEXES, Exchange } from 'pages/Earns/constants'
 import { ZAPIN_DEX_MAPPING } from 'pages/Earns/constants/dexMappings'
 import useTransactionReplacement from 'pages/Earns/hooks/useTransactionReplacement'
@@ -396,7 +397,11 @@ const AddLiquidity = ({ children }: AddLiquidityProps) => {
           </PoolInformationColumn>
 
           <AddLiquidityColumn>
-            <AddLiquidityWidgetSkeleton />
+            {normalizedPool.error ? (
+              <NoteCard $tone="error">{normalizedPool.error}</NoteCard>
+            ) : (
+              <AddLiquidityWidgetSkeleton />
+            )}
           </AddLiquidityColumn>
         </HStack>
       ) : (

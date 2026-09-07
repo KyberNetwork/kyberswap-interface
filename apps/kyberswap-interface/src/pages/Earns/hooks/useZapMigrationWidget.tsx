@@ -21,14 +21,11 @@ import { useActiveLocale } from 'hooks/useActiveLocale'
 import { useIsSmartAccount } from 'hooks/useIsSmartAccount'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
-import { EARN_DEXES, Exchange } from 'pages/Earns/constants'
-import { CoreProtocol } from 'pages/Earns/constants/coreProtocol'
+import { Exchange } from 'pages/Earns/constants'
 import useAccountChanged from 'pages/Earns/hooks/useAccountChanged'
 import useTransactionReplacement from 'pages/Earns/hooks/useTransactionReplacement'
-import { DEFAULT_PARSED_POSITION } from 'pages/Earns/types'
-import { getNftManagerContractAddress, getTokenId, submitTransaction } from 'pages/Earns/utils'
-import { getDexVersion } from 'pages/Earns/utils/position'
-import { updateUnfinalizedPosition } from 'pages/Earns/utils/unfinalizedPosition'
+import { submitTransaction } from 'pages/Earns/utils'
+import { toUnfinalizedPositionSnapshot } from 'pages/Earns/utils/unfinalizedPosition'
 import { navigateToPoolDetail, navigateToPositionAfterZap } from 'pages/Earns/utils/zap'
 import { useKyberSwapConfig, useNotify, useWalletModalToggle } from 'state/application/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
@@ -142,9 +139,11 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
 
   const handleNavigateToPosition = useCallback(
     async (txHash: string, chainId: number, dex: Exchange, targetPoolId: string) => {
-      navigateToPositionAfterZap(txHash, chainId, dex, targetPoolId, navigate)
+      // A sped-up zap confirms under a replacement hash, so resolve the minted position against the hash
+      // that actually landed — the same one the cached placeholder is keyed on.
+      navigateToPositionAfterZap(originalToCurrentHash[txHash] || txHash, chainId, dex, targetPoolId, navigate)
     },
-    [navigate],
+    [navigate, originalToCurrentHash],
   )
 
   const handleCloseMigration = useCallback(() => {
@@ -269,6 +268,7 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
                     sourceDexLogo: string
                     destinationPool: string
                     destinationDexLogo: string
+                    position?: OnSuccessProps['position']
                   }
                 | {
                     type: 'erc20_approval' | 'nft_approval' | 'nft_approval_all'
@@ -315,6 +315,7 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
                     destinationDexLogoUrl: additionalInfo.destinationDexLogo,
                     destinationDex: destinationDex,
                     positionId: migrateLiquidityPureParams.from.positionId,
+                    unfinalizedPosition: toUnfinalizedPositionSnapshot(destinationDex, additionalInfo.position),
                   },
                 })
 
@@ -362,7 +363,7 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
             onExplorePools: () => {
               navigate(APP_PATHS.EARN_POOLS)
             },
-            onSuccess: async (data: OnSuccessProps) => {
+            onSuccess: (data: OnSuccessProps) => {
               const isReposition = migrateLiquidityPureParams.rePositionMode
               const tokenPair = `${data.position.token0.symbol}/${data.position.token1.symbol}`
               trackingHandler(
@@ -382,75 +383,6 @@ const useZapMigrationWidget = (onRefreshPosition?: () => void) => {
                         source_pool_address: migrateLiquidityPureParams.from.poolAddress,
                       }),
                 },
-              )
-
-              const dex = migrateLiquidityPureParams.to?.dexId || migrateLiquidityPureParams.from.dexId
-              const isUniv2 = EARN_DEXES[dex as Exchange]?.isForkFrom === CoreProtocol.UniswapV2
-
-              const nftId =
-                data.position.positionId ||
-                (isUniv2 ? account || '' : ((await getTokenId(chainId, data.txHash, dex)) || '').toString())
-
-              const dexVersion = getDexVersion(dex)
-              const contract = getNftManagerContractAddress(dex, chainId)
-
-              updateUnfinalizedPosition(
-                {
-                  ...DEFAULT_PARSED_POSITION,
-                  positionId: !isUniv2 ? `${contract}-${nftId}` : data.position.pool.address,
-                  tokenId: data.position.positionId || '',
-                  chain: {
-                    id: chainId,
-                    name: NETWORKS_INFO[chainId].name,
-                    logo: NETWORKS_INFO[chainId].icon,
-                  },
-                  dex: {
-                    id: dex,
-                    name: EARN_DEXES[dex].name,
-                    logo: data.position.dexLogo,
-                    version: dexVersion,
-                  },
-                  pool: {
-                    ...DEFAULT_PARSED_POSITION.pool,
-                    address: data.position.pool.address,
-                    fee: data.position.pool.fee,
-                  },
-                  token0: {
-                    ...DEFAULT_PARSED_POSITION.token0,
-                    address: data.position.token0.address,
-                    totalProvide: data.position.token0.amount,
-                    currentAmount: data.position.token0.amount,
-                    logo: data.position.token0.logo,
-                    symbol: data.position.token0.symbol,
-                  },
-                  token1: {
-                    ...DEFAULT_PARSED_POSITION.token1,
-                    address: data.position.token1.address,
-                    totalProvide: data.position.token1.amount,
-                    currentAmount: data.position.token1.amount,
-                    logo: data.position.token1.logo,
-                    symbol: data.position.token1.symbol,
-                  },
-                  totalValueTokens: [
-                    {
-                      address: data.position.token0.address,
-                      symbol: data.position.token0.symbol,
-                      amount: data.position.token0.amount,
-                    },
-                    {
-                      address: data.position.token1.address,
-                      symbol: data.position.token1.symbol,
-                      amount: data.position.token1.amount,
-                    },
-                  ],
-                  totalProvidedValue: data.position.value,
-                  totalValue: data.position.value,
-                  createdTime: data.position.createdAt,
-                  txHash: data.txHash,
-                  isUnfinalized: true,
-                  isValueUpdating: !!migrateLiquidityPureParams.to?.positionId,
-                },
-                account,
               )
             },
           }

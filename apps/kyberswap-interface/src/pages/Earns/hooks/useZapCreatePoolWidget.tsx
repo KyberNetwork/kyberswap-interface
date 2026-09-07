@@ -21,6 +21,7 @@ import { fetchExistingPoolAddress, navigateToPositionAfterZap, sortTokensByAddre
 import { useKyberSwapConfig, useWalletModalToggle } from 'state/application/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
+import { isInventoryChain } from 'state/walletInventory/store'
 import { friendlyError } from 'utils/errorMessage'
 
 // Both widgets only render inside the modal below, so lazy-load their JS to keep them out of every /earn
@@ -87,6 +88,8 @@ const useZapCreatePoolWidget = () => {
       baseProps: {
         chainId: config.chainId,
         poolType,
+        // Gated on the pool's chain, which is the chain the widget's selector reads balances for.
+        enableWalletInventory: isInventoryChain(config.chainId),
         connectedAccount: {
           address: account,
           chainId: connectedChainId ?? config.chainId,

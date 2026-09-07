@@ -6,6 +6,7 @@ import useTheme from 'hooks/useTheme'
 type SkeletonVariant = 'light' | 'dark' | 'darkSubtle'
 
 export type SkeletonProps = ComponentProps<typeof LoadingSkeleton> & {
+  rounded?: boolean
   variant?: SkeletonVariant
 }
 
@@ -22,6 +23,7 @@ const Skeleton = ({
   borderRadius,
   containerClassName,
   highlightColor,
+  rounded = false,
   variant = 'light',
   ...props
 }: SkeletonProps) => {
@@ -51,7 +53,7 @@ const Skeleton = ({
     <LoadingSkeleton
       {...props}
       baseColor={baseColor ?? colors.baseColor}
-      borderRadius={borderRadius ?? 12}
+      borderRadius={rounded ? 999 : borderRadius ?? 12}
       containerClassName={mergedContainerClassName}
       highlightColor={highlightColor ?? colors.highlightColor}
     />

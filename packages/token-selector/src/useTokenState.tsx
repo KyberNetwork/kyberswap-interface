@@ -9,18 +9,22 @@ import {
   useState,
 } from "react";
 
-import { useTokenBalances } from "@kyber/hooks";
+import { useTokenBalances, useWalletInventory } from "@kyber/hooks";
 import { API_URLS, Token } from "@kyber/schema";
 import { fetchTokenInfo } from "@kyber/utils";
 
+import { useDiscoveredTokens } from "@/discoveredTokens";
 import { getCachedTokens, setCachedTokens } from "@/tokenCache";
 
 const TOKEN_API = `${API_URLS.KYBERSWAP_SETTING_API}/v1/tokens`;
+const EMPTY_ADDRESSES: string[] = [];
 const IMPORTED_TOKENS_KEY = "@kyber/token-selector:importedTokens";
 
 interface TokenState {
   tokens: Token[];
   importedTokens: Token[];
+  /** Held tokens on neither the list nor the imports; only with the wallet inventory enabled. */
+  discoveredTokens: Token[];
   tokenBalances: { [key: string]: bigint };
   isLoading: boolean;
   importToken: (token: Token) => void;
@@ -31,6 +35,7 @@ interface TokenState {
 const initState: TokenState = {
   tokens: [],
   importedTokens: [],
+  discoveredTokens: [],
   tokenBalances: {},
   isLoading: false,
   importToken: () => {},
@@ -46,12 +51,15 @@ export const TokenContextProvider = ({
   account,
   additionalTokenAddresses,
   externalTokenBalances,
+  enableWalletInventory = false,
 }: {
   children: ReactNode;
   chainId?: number; // Optional - when not provided (e.g., positionsOnly mode), tokens and balances won't be fetched
   account?: string;
   additionalTokenAddresses?: string;
   externalTokenBalances?: { [key: string]: bigint };
+  /** Opt in to the wallet-inventory balance source; see TokenSelectorModalProps. */
+  enableWalletInventory?: boolean;
 }) => {
   const [importedTokens, setImportedTokens] = useState<Token[]>([]);
   const [tokens, setTokens] = useState<Token[]>([]);
@@ -61,18 +69,43 @@ export const TokenContextProvider = ({
     promise: Promise<void>;
   } | null>(null);
 
-  // Use external balances if provided, otherwise fetch internally
-  // Skip fetching balances when chainId is not provided (positionsOnly mode)
+  // Balance source, in order: balances handed in from outside; the wallet inventory once it can
+  // answer for the wallet; otherwise the balanceOf multicall over the list. The multicall is handed
+  // no addresses and no account while the inventory answers, so it neither polls nor fires a request
+  // whose result would be thrown away.
+  const inventory = useWalletInventory(
+    chainId,
+    account,
+    enableWalletInventory && !externalTokenBalances && !!chainId,
+  );
+  // A walk in flight does not retire the multicall: the wallet is walked page by page, and no row
+  // waits on that to show a balance.
+  const inventoryOwns = inventory.status === "ready";
+  const useMulticall = !externalTokenBalances && !!chainId && !inventoryOwns;
+  const multicallAddresses = useMemo(
+    () =>
+      useMulticall
+        ? [...tokens, ...importedTokens].map((item) => item.address)
+        : EMPTY_ADDRESSES,
+    [useMulticall, tokens, importedTokens],
+  );
   const { balances: internalBalances, loading: tokenBalancesLoading } =
     useTokenBalances(
       chainId as number,
-      externalTokenBalances || !chainId
-        ? []
-        : [...tokens, ...importedTokens].map((item) => item.address),
-      externalTokenBalances || !chainId ? undefined : account,
+      multicallAddresses,
+      useMulticall ? account : undefined,
     );
 
-  const tokenBalances = externalTokenBalances || internalBalances;
+  const tokenBalances =
+    externalTokenBalances || inventory.balances || internalBalances;
+  const balancesLoading = useMulticall && tokenBalancesLoading;
+
+  const discoveredTokens = useDiscoveredTokens({
+    chainId,
+    holdings: inventory.holdings,
+    tokens,
+    importedTokens,
+  });
 
   const fetchImportedTokens = useCallback(() => {
     if (typeof window !== "undefined") {
@@ -262,13 +295,13 @@ export const TokenContextProvider = ({
     fetchTokens();
   }, [fetchTokens]);
 
-  const isLoadingFinal =
-    isLoading || (!externalTokenBalances && tokenBalancesLoading);
+  const isLoadingFinal = isLoading || balancesLoading;
 
   const contextValue = useMemo(
     () => ({
       tokens,
       importedTokens,
+      discoveredTokens,
       tokenBalances,
       isLoading: isLoadingFinal,
       importToken,
@@ -278,6 +311,7 @@ export const TokenContextProvider = ({
     [
       tokens,
       importedTokens,
+      discoveredTokens,
       tokenBalances,
       isLoadingFinal,
       importToken,

@@ -344,6 +344,7 @@ export const TokenPanel = ({
           customChainId={selectedChain as ChainId}
           trackingSource="cross_chain"
           showDiscoveryTabs={false}
+          onSelectChain={onSelectNetwork}
         />
       ) : (
         <TokenSelectorNonEvmModal

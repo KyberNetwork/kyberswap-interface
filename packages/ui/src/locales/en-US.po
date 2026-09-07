@@ -211,13 +211,13 @@ msgstr "Overall zap price impact is higher than expected. Click 'Zap Anyway' if 
 
 #. js-lingui-explicit-id
 #: src/components/ShareModal/utils.tsx
-msgid "Liquidity Mining APR"
-msgstr "Liquidity Mining APR"
+msgid "Reward APR"
+msgstr "Reward APR"
 
 #. js-lingui-explicit-id
 #: src/components/ShareModal/utils.tsx
-msgid "Liquidity Mining rewards"
-msgstr "Liquidity Mining rewards"
+msgid "Reward"
+msgstr "Reward"
 
 #. js-lingui-explicit-id
 #: src/components/TokenSelectorModal/TokenInfo/utils.ts

@@ -64,7 +64,7 @@ export interface TokenSelectorProps extends TokenSelectorModalProps {}
  * ```
  */
 const TokenSelectorModal = (props: TokenSelectorProps) => {
-  const { chainId, wallet, tokenOptions } = props;
+  const { chainId, wallet, tokenOptions, enableWalletInventory } = props;
 
   const token0Address = tokenOptions?.token0Address;
   const token1Address = tokenOptions?.token1Address;
@@ -82,6 +82,7 @@ const TokenSelectorModal = (props: TokenSelectorProps) => {
       account={account}
       additionalTokenAddresses={additionalTokenAddresses}
       externalTokenBalances={tokenBalances}
+      enableWalletInventory={enableWalletInventory}
     >
       <TokenModal {...props} />
     </TokenContextProvider>

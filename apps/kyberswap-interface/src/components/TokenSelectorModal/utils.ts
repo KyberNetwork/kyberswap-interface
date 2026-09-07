@@ -10,21 +10,18 @@ import { KS_SETTING_API } from 'constants/env'
 import { ETHER_ADDRESS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import type { NetworkInfo } from 'constants/networks/type'
-import { useActiveWeb3React } from 'hooks'
 import { fetchListTokenByAddresses, fetchTokenInfoFromRpc, formatAndCacheToken } from 'hooks/useTokens'
 import store from 'state'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
-import { useAllTokenBalances, useNativeBalance } from 'state/wallet/hooks'
 import { isAddress } from 'utils/address'
 import { filterTruthy } from 'utils/array'
-import { isTokenNative } from 'utils/tokenInfo'
+import { getTokenAddress, isTokenNative } from 'utils/tokenInfo'
 
 export const TOKEN_SEARCH_PAGE_SIZE = 20
 
 const UNKNOWN_TOKEN_NAME = 'Unknown Token'
 const UNKNOWN_TOKEN_SYMBOL = 'UNKNOWN'
-const EMPTY_BALANCE_MAP = {}
 const EMPTY_PRICE_ADDRESSES: string[] = []
 
 type TokenBalanceMap = {
@@ -111,6 +108,33 @@ export const getNeedsImport = (
   !isTokenNative(currency) &&
   !(currency as WrappedTokenInfo)?.isWhitelisted &&
   !isImported(currency.wrapped.address)
+
+/**
+ * Search results with the wallet's own holdings pulled to the front: held matches the catalog search
+ * missed are added (de-duplicated by address, catalog rows win since they carry logo and name), then
+ * the list is stably partitioned so every held token leads. Someone typing the symbol of a token they
+ * hold is almost always looking for that one, whatever the catalog ranked first.
+ */
+export const mergeHeldSearchResults = (
+  results: Currency[],
+  heldMatches: Currency[],
+  heldAddresses: Set<string> | undefined,
+  // Held tokens borrowing a whitelisted symbol stay where the catalog ranked them: a search for that
+  // symbol must lead with the genuine token, not with the airdrop that impersonates it.
+  impersonators?: Set<string>,
+): Currency[] => {
+  if (!heldAddresses?.size) return results
+  const seen = new Set(results.map(getTokenAddress))
+  const merged = results.concat(heldMatches.filter(token => !seen.has(getTokenAddress(token))))
+  const held: Currency[] = []
+  const rest: Currency[] = []
+  merged.forEach(token => {
+    const address = getTokenAddress(token)
+    const leads = heldAddresses.has(address) && !impersonators?.has(address)
+    ;(leads ? held : rest).push(token)
+  })
+  return held.concat(rest)
+}
 
 const getRpcSearchChainIds = (chainId: ChainId, supportedChains: NetworkInfo[]) => {
   const otherChainIds = supportedChains
@@ -226,12 +250,16 @@ function usdValueOf(balance: TokenAmount | CurrencyAmount<Currency> | undefined,
   return amount * price
 }
 
-function getTokenComparator(
+export function getTokenComparator(
   balances: TokenBalanceMap,
   ethBalance: CurrencyAmount<Currency> | undefined,
   tokenPrices: TokenPriceMap,
   // Addresses (lowercased) to float above non-favorites once balance/value is a tie.
   favoriteAddresses?: Set<string>,
+  // Held tokens that are on no list (checksummed). These sort below every listed holding, whatever
+  // either side is worth, and above tokens the wallet does not hold: an airdropped impersonation is
+  // minted with an enormous supply and may even carry a quote, and neither may hand it the top.
+  unlistedAddresses?: Set<string>,
 ): (tokenA: Token, tokenB: Token) => number {
   const favoriteKey = (token: Token) => (isTokenNative(token) ? ETHER_ADDRESS : token.address).toLowerCase()
   return function sortTokens(tokenA: Token, tokenB: Token): number {
@@ -242,10 +270,22 @@ function getTokenComparator(
     const priceB = tokenPrices[tokenB.address?.toLowerCase()] ?? tokenPrices[tokenB.address]
     const usdBalanceA = usdValueOf(balanceA, priceA)
     const usdBalanceB = usdValueOf(balanceB, priceB)
+    const heldA = !!balanceA?.greaterThan('0')
+    const heldB = !!balanceB?.greaterThan('0')
+
+    // A listed holding ranks above any unlisted one before value is even looked at.
+    if (unlistedAddresses?.size) {
+      const listedHeldA = heldA && !unlistedAddresses.has(tokenA.address)
+      const listedHeldB = heldB && !unlistedAddresses.has(tokenB.address)
+      if (listedHeldA !== listedHeldB) return listedHeldA ? -1 : 1
+    }
 
     if (usdBalanceA > 0 || usdBalanceB > 0) {
       if (usdBalanceA !== usdBalanceB) return usdBalanceB - usdBalanceA
     }
+
+    // Anything held ranks above anything not held, priced or not.
+    if (heldA !== heldB) return heldA ? -1 : 1
 
     const balanceComp = balanceComparator(balanceA, balanceB)
     if (balanceComp !== 0) return balanceComp
@@ -266,26 +306,32 @@ function getTokenComparator(
 }
 
 export function useTokenComparator(
-  inverted: boolean,
-  customChain?: ChainId,
-  // Only the tabs that sort by wallet value need this; when disabled it registers no whole-whitelist
-  // balanceOf multicall and no /prices fetch, and just falls back to a symbol sort.
+  // Balances for the tokens being sorted, plus the native balance, owned by the caller: the list's
+  // balance column reads the same tokens, and one shared multicall serves both.
+  balances: TokenBalanceMap,
+  ethBalance: CurrencyAmount<Currency> | undefined,
+  chainId: ChainId,
+  // Only the tabs that sort by wallet value need this; when disabled it registers no /prices fetch
+  // and just falls back to a symbol sort.
   enabled = true,
   // Lowercased favorite addresses to float above non-favorites once balance/value is a tie.
   favoriteAddresses?: Set<string>,
+  // Checksummed addresses of held tokens on no list; see `getTokenComparator`.
+  unlistedAddresses?: Set<string>,
 ): (tokenA: Token, tokenB: Token) => number {
-  const { chainId: currentChain } = useActiveWeb3React()
-  const chainId = customChain || currentChain
-  const balances = useAllTokenBalances(chainId, enabled)
-  const ethBalance = useNativeBalance(chainId)
-  const tokenPriceAddresses = useMemo(
-    () => (enabled ? [...Object.keys(balances ?? EMPTY_BALANCE_MAP), NATIVE_TOKEN_ADDRESS] : EMPTY_PRICE_ADDRESSES),
-    [balances, enabled],
-  )
+  // Only held tokens can contribute a USD value to the sort — `usdValueOf` returns 0 for a zero
+  // balance whatever the price — so pricing the whole whitelist would be pure waste. The native
+  // sentinel is always included: its balance lives in `ethBalance`, not in this map.
+  const tokenPriceAddresses = useMemo(() => {
+    if (!enabled) return EMPTY_PRICE_ADDRESSES
+    const held = Object.keys(balances).filter(address => balances[address]?.greaterThan('0'))
+    held.push(NATIVE_TOKEN_ADDRESS)
+    return held
+  }, [balances, enabled])
   const tokenPrices = useTokenPrices(tokenPriceAddresses, chainId)
 
-  return useMemo(() => {
-    const comparator = getTokenComparator(balances ?? EMPTY_BALANCE_MAP, ethBalance, tokenPrices, favoriteAddresses)
-    return inverted ? (tokenA: Token, tokenB: Token) => comparator(tokenA, tokenB) * -1 : comparator
-  }, [balances, inverted, ethBalance, tokenPrices, favoriteAddresses])
+  return useMemo(
+    () => getTokenComparator(balances, ethBalance, tokenPrices, favoriteAddresses, unlistedAddresses),
+    [balances, ethBalance, tokenPrices, favoriteAddresses, unlistedAddresses],
+  )
 }

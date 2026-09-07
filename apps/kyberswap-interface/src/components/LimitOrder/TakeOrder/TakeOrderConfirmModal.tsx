@@ -34,7 +34,7 @@ import { HStack, Stack } from 'components/Stack'
 import { APP_PATHS } from 'constants/index'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import { useLimitState } from 'state/limit/hooks'
-import { PriceType, useTokenPrices } from 'state/tokenPrices/hooks'
+import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { CloseIcon } from 'theme/components'
 import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
@@ -146,7 +146,7 @@ const TakeOrderConfirmModal = ({ isOpen, order, onDismiss }: Props) => {
 
   const walletBalance = balance?.currency.equals(context.payCurrency) ? balance : undefined
   const payTokenAddress = context.payCurrency.wrapped.address
-  const tokenPrices = useTokenPrices([payTokenAddress], context.order.chainId, PriceType.Average)
+  const tokenPrices = useTokenPrices([payTokenAddress], context.order.chainId)
 
   const orderRate = useMemo(
     () => (showInvertedRate ? formatInvertedRate(context) : formatRate(context)),

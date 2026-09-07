@@ -2,7 +2,7 @@ import { Placement } from '@popperjs/core'
 import { CSSProperties, ReactNode, useCallback, useState } from 'react'
 import { Info } from 'react-feather'
 
-import Tooltip, { MouseoverTooltip } from 'components/Tooltip'
+import Tooltip, { ClickTooltip, MouseoverTooltip } from 'components/Tooltip'
 import { Z_INDEXS } from 'constants/styles'
 import { cn } from 'utils/cn'
 
@@ -19,6 +19,7 @@ export default function InfoHelper({
   zIndexTooltip = Z_INDEXS.POPOVER_CONTAINER,
   noArrow = false,
   margin = true,
+  clickOnly = false,
 }: {
   text: string | ReactNode
   size?: number
@@ -32,11 +33,45 @@ export default function InfoHelper({
   zIndexTooltip?: number
   noArrow?: boolean
   margin?: boolean
+  clickOnly?: boolean
 }) {
   const [show, setShow] = useState<boolean>(false)
 
   const open = useCallback(() => setShow(true), [setShow])
   const close = useCallback(() => setShow(false), [setShow])
+
+  const icon = (
+    <div
+      className={cn(
+        'flex items-center justify-center rounded-[36px] border-none bg-transparent outline-none hover:opacity-70 focus:opacity-70',
+        clickOnly ? 'cursor-pointer' : 'cursor-default',
+        isActive ? 'text-textReverse' : 'text-subText',
+        className,
+      )}
+    >
+      <Info size={size || 12} color={color || 'currentcolor'} />
+    </div>
+  )
+
+  if (clickOnly) {
+    return (
+      <span
+        style={style}
+        className={cn('inline-flex items-center justify-center align-middle leading-none', margin ? 'ml-1' : 'ml-0')}
+      >
+        <ClickTooltip
+          text={text}
+          placement={placement}
+          width={width}
+          size={fontSize || size}
+          style={{ zIndex: zIndexTooltip }}
+          noArrow={noArrow}
+        >
+          {icon}
+        </ClickTooltip>
+      </span>
+    )
+  }
 
   return (
     <span
@@ -58,15 +93,7 @@ export default function InfoHelper({
         style={{ zIndex: zIndexTooltip }}
         noArrow={noArrow}
       >
-        <div
-          className={cn(
-            'flex cursor-default items-center justify-center rounded-[36px] border-none bg-transparent outline-none hover:opacity-70 focus:opacity-70',
-            isActive ? 'text-textReverse' : 'text-subText',
-            className,
-          )}
-        >
-          <Info size={size || 12} color={color || 'currentcolor'} />
-        </div>
+        {icon}
       </Tooltip>
     </span>
   )

@@ -17,7 +17,7 @@ type Props = {
 
 const KyberDAONavGroup = ({ dropdownAlign }: Props) => {
   const { pathname } = useLocation()
-  const isActive = pathname.includes(APP_PATHS.KYBERDAO_STAKE)
+  const isActive = pathname.startsWith(APP_PATHS.KYBERDAO)
 
   const { trackingHandler } = useTracking()
 

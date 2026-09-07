@@ -5,6 +5,7 @@ import { PropsWithChildren, ReactNode, useEffect, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { useGetTotalActiveMakingAmountQuery } from 'services/limitOrder'
 
+import { useHoneypotWarning } from 'components/HoneypotWarning'
 import { DeltaRateLimitOrder, LimitOrderStatus, LimitOrderTab } from 'components/LimitOrder/types'
 import { useActiveWeb3React } from 'hooks'
 import { useCurrencyBalance } from 'state/wallet/hooks'
@@ -24,15 +25,13 @@ type ReservedBalanceNoticeProps = {
 }
 
 const ReservedBalanceNotice = ({ tokenIn, tokenOut, to, onReviewClick }: ReservedBalanceNoticeProps) => (
-  <span className="text-xs font-medium italic text-subText">
-    <Trans>
-      Your {tokenIn} balance is fully used by existing {tokenIn}/{tokenOut} orders. Cancel or reduce an order to free up
-      balance.{' '}
-      <Link to={to} onClick={onReviewClick}>
-        Review orders
-      </Link>
-    </Trans>
-  </span>
+  <Trans>
+    Your {tokenIn} balance is fully used by existing {tokenIn}/{tokenOut} orders. Cancel or reduce an order to free up
+    balance.{' '}
+    <Link to={to} onClick={onReviewClick}>
+      Review orders
+    </Link>
+  </Trans>
 )
 
 export const WORSE_PRICE_DIFF_THRESHOLD = -5
@@ -61,6 +60,12 @@ export const useWarningCreateOrder = ({
   parsedInputAmount,
 }: UseWarningCreateOrderProps) => {
   const { account } = useActiveWeb3React()
+
+  const { message: honeypotWarning } = useHoneypotWarning({
+    chainId,
+    tokenAddress: currencyOut?.wrapped.address,
+    tokenSymbol: currencyOut?.symbol,
+  })
 
   const makingCurrency = useMemo(() => {
     if (!currencyIn) return undefined
@@ -141,22 +146,17 @@ export const useWarningCreateOrder = ({
 
     if (isSameTokenPair) {
       shouldDisableAction = true
-      addWarning(
-        <div className="text-xs font-medium italic text-subText">
-          <Trans>Token in and token out must be different.</Trans>
-        </div>,
-        { type: 'warn' },
-      )
+      addWarning(<Trans>Token in and token out must be different.</Trans>, { type: 'warn' })
     }
+
+    if (honeypotWarning) addWarning(honeypotWarning)
 
     if (hasPercent && rawPercent >= BETTER_PRICE_DIFF_THRESHOLD) {
       addWarning(
-        <div className="text-xs font-medium italic text-subText">
-          <Trans>
-            Limit order price is <AprHighlight>{displayPercent}</AprHighlight> higher than the market. We just want to
-            make sure this is correct.
-          </Trans>
-        </div>,
+        <Trans>
+          Limit order price is <AprHighlight>{displayPercent}</AprHighlight> higher than the market. We just want to
+          make sure this is correct.
+        </Trans>,
         { type: 'info' },
       )
     }
@@ -164,12 +164,10 @@ export const useWarningCreateOrder = ({
     if (hasPercent && rawPercent <= WORSE_PRICE_DIFF_THRESHOLD && rawPercent > -100) {
       shouldWarningAction = true
       addWarning(
-        <div className="text-xs font-medium italic text-subText">
-          <Trans>
-            Limit order price is <WarningHighlight>{displayPercent}</WarningHighlight> lower than the market. You will
-            be selling your {currencyIn?.symbol} exceedingly cheap.
-          </Trans>
-        </div>,
+        <Trans>
+          Limit order price is <WarningHighlight>{displayPercent}</WarningHighlight> lower than the market. You will be
+          selling your {currencyIn?.symbol} exceedingly cheap.
+        </Trans>,
         { type: 'warn' },
       )
     }
@@ -207,6 +205,7 @@ export const useWarningCreateOrder = ({
     currencyOut,
     deltaRate.percent,
     deltaRate.rawPercent,
+    honeypotWarning,
     isSameTokenPair,
     onSharedBalanceReview,
     showReservedOrderNotice,

@@ -1,11 +1,9 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans } from '@lingui/macro'
 import dayjs from 'dayjs'
-import { ReactNode, useMemo, useState } from 'react'
-import { X } from 'react-feather'
+import { HTMLAttributes, ReactNode, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 
-import { AutoColumn } from 'components/Column'
 import CopyHelper from 'components/Copy'
 import CopyIcon from 'components/Icons/CopyIcon'
 import LaunchIcon from 'components/Icons/LaunchIcon'
@@ -14,6 +12,7 @@ import { NetworkLogo } from 'components/Logo'
 import Modal from 'components/Modal'
 import Pagination from 'components/Pagination'
 import Row, { RowBetween, RowFit } from 'components/Row'
+import { Stack } from 'components/Stack'
 import { KNC_ADDRESS } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { useStakingInfo, useVotingInfo } from 'hooks/kyberdao'
@@ -21,24 +20,35 @@ import { ActionType, StakerAction } from 'hooks/kyberdao/types'
 import useCopyClipboard from 'hooks/useCopyClipboard'
 import { useWindowSize } from 'hooks/useWindowSize'
 import { ApplicationModal } from 'state/application/actions'
-import { useModalOpen, useToggleModal } from 'state/application/hooks'
-import { ExternalLink } from 'theme'
+import { useCloseModal, useModalOpen } from 'state/application/hooks'
+import { CloseIcon, ExternalLink } from 'theme'
 import { cn } from 'utils/cn'
 import { getEtherscanLink } from 'utils/explorer'
 import { getTokenLogoURL } from 'utils/tokenLogo'
 
-const gridCols = 'grid-cols-[5fr_3fr_3fr_3fr]'
-const gridColsMobile = 'max-sm:grid-cols-[1fr_1fr]'
-const tableCellClass =
-  'flex items-center gap-1 px-4 py-2.5 text-sm text-text [&_svg]:h-4 [&_svg]:w-4 [&_svg]:text-subText max-sm:flex-col max-sm:justify-between max-sm:px-0 max-sm:py-3 max-sm:[&>*]:flex-1'
+const TransactionGrid = ({ children, className, ...props }: HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('grid grid-cols-[5fr_3fr_3fr_3fr] max-sm:grid-cols-[1fr_1fr]', className)} {...props}>
+    {children}
+  </div>
+)
+
+const TransactionCell = ({ children, className, ...props }: HTMLAttributes<HTMLDivElement>) => (
+  <div
+    className={cn(
+      'flex items-center gap-2 px-4 py-3 text-sm text-text max-sm:flex-col max-sm:justify-between max-sm:px-0 max-sm:[&>*]:flex-1 [&_svg]:size-4 [&_svg]:text-subText',
+      className,
+    )}
+    {...props}
+  >
+    {children}
+  </div>
+)
 
 const formatAmount = (amount: number) => (amount > 0 && amount < 0.001 ? '<0.001' : amount?.toLocaleString())
 
-export default function YourTransactionsModal() {
+const YourTransactionsModalContent = ({ onDismiss }: { onDismiss: () => void }) => {
   const { chainId } = useActiveWeb3React()
   const { proposals, calculateVotingPower } = useVotingInfo()
-  const modalOpen = useModalOpen(ApplicationModal.YOUR_TRANSACTIONS_STAKE_KNC)
-  const toggleModal = useToggleModal(ApplicationModal.YOUR_TRANSACTIONS_STAKE_KNC)
   const windowSize = useWindowSize()
   const isMobile = windowSize.width && windowSize.width < 768
   const [page, setPage] = useState(1)
@@ -123,25 +133,17 @@ export default function YourTransactionsModal() {
   )
   const [, setCopied] = useCopyClipboard()
   return (
-    <Modal isOpen={modalOpen} onDismiss={toggleModal} maxHeight={750} maxWidth={800} width="70vw">
+    <Modal isOpen onDismiss={onDismiss} maxHeight={750} maxWidth={800} width="70vw">
       <div className="w-full p-5">
-        <div className="flex min-h-[500px] flex-col gap-5">
+        <Stack className="min-h-[500px] gap-4">
           <RowBetween>
             <span className="text-xl">
               <Trans>Your transactions</Trans>
             </span>
-            <div className="flex cursor-pointer" role="button" onClick={toggleModal}>
-              <X onClick={toggleModal} size={20} className="text-subText" />
-            </div>
+            <CloseIcon onClick={onDismiss} />
           </RowBetween>
           <div className="flex flex-1 flex-col">
-            <div
-              className={cn(
-                'grid',
-                gridCols,
-                'rounded-t-lg bg-background shadow-[0px_4px_16px_rgba(0,0,0,0.08)] max-sm:hidden',
-              )}
-            >
+            <TransactionGrid className="rounded-t-lg bg-background shadow-[0px_4px_16px_rgba(0,0,0,0.08)] max-sm:hidden">
               <div className="p-4 text-xs uppercase text-subText">
                 <Trans>TXN HASH</Trans>
               </div>
@@ -154,22 +156,14 @@ export default function YourTransactionsModal() {
               <div className="p-4 text-right text-xs uppercase text-subText">
                 <Trans>Amount</Trans>
               </div>
-            </div>
+            </TransactionGrid>
             {formattedActions.length > 0 ? (
               !isMobile ? (
                 <>
                   {formattedActions.map((action: StakerAction & { hashText: string; description: ReactNode }) => {
                     return (
-                      <div
-                        className={cn(
-                          'grid',
-                          gridCols,
-                          gridColsMobile,
-                          'h-[55px] border-b border-border max-sm:h-[76px]',
-                        )}
-                        key={action.tx_hash}
-                      >
-                        <div className={tableCellClass}>
+                      <TransactionGrid className="h-[55px] border-b border-border max-sm:h-[76px]" key={action.tx_hash}>
+                        <TransactionCell>
                           <NetworkLogo style={{ width: 16, height: 16 }} chainId={ChainId.MAINNET} />
                           <span>{action.hashText}</span>
                           <div className="cursor-pointer" onClick={() => setCopied(action.tx_hash)}>
@@ -184,20 +178,20 @@ export default function YourTransactionsModal() {
                           >
                             <LaunchIcon />
                           </ExternalLink>
-                        </div>
-                        <div className={tableCellClass}>
+                        </TransactionCell>
+                        <TransactionCell>
                           <span>{action.type}</span>
-                        </div>
-                        <div className={tableCellClass}>
-                          <AutoColumn>
+                        </TransactionCell>
+                        <TransactionCell>
+                          <Stack>
                             <span className="text-text">{dayjs(action.timestamp * 1000).format('DD/MM/YYYY')}</span>
                             <span className="text-subText">{dayjs(action.timestamp * 1000).format('hh:mm:ss A')}</span>
-                          </AutoColumn>
-                        </div>
-                        <div className={tableCellClass}>
-                          <AutoColumn className="w-full justify-end gap-1 text-text">{action.description}</AutoColumn>
-                        </div>
-                      </div>
+                          </Stack>
+                        </TransactionCell>
+                        <TransactionCell>
+                          <Stack className="w-full justify-end gap-2 text-text">{action.description}</Stack>
+                        </TransactionCell>
+                      </TransactionGrid>
                     )
                   })}
                 </>
@@ -205,17 +199,9 @@ export default function YourTransactionsModal() {
                 <>
                   {formattedActions.map((action: StakerAction & { hashText: string; description: ReactNode }) => {
                     return (
-                      <div
-                        className={cn(
-                          'grid',
-                          gridCols,
-                          gridColsMobile,
-                          'h-[55px] border-b border-border max-sm:h-[76px]',
-                        )}
-                        key={action.tx_hash}
-                      >
-                        <div className={tableCellClass}>
-                          <Row className="gap-1">
+                      <TransactionGrid className="h-[55px] border-b border-border max-sm:h-[76px]" key={action.tx_hash}>
+                        <TransactionCell>
+                          <Row className="gap-2">
                             <img
                               src={`${getTokenLogoURL(KNC_ADDRESS, ChainId.MAINNET)}`}
                               alt="knc-logo"
@@ -230,34 +216,34 @@ export default function YourTransactionsModal() {
                               <LaunchIcon />
                             </ExternalLink>
                           </Row>
-                          <Row className="gap-1">
+                          <Row className="gap-2">
                             <span className="text-text">{dayjs(action.timestamp).format('MM/DD/YYYY')}</span>
                             <span className="text-subText">{dayjs(action.timestamp).format('hh:mm:ss')}</span>
                           </Row>
-                        </div>
-                        <div className={tableCellClass}>
-                          <AutoColumn className="w-full justify-end">{action.description}</AutoColumn>
-                        </div>
-                      </div>
+                        </TransactionCell>
+                        <TransactionCell>
+                          <Stack className="w-full justify-end">{action.description}</Stack>
+                        </TransactionCell>
+                      </TransactionGrid>
                     )
                   })}
                 </>
               )
             ) : (
-              <div className="flex flex-1 flex-col items-center justify-center gap-2.5">
+              <Stack className="flex-1 items-center justify-center gap-2">
                 <CircleInfoIcon></CircleInfoIcon>
                 <span>
-                  <Trans>You have no Transaction History.</Trans>
+                  <Trans>You have no Transaction History</Trans>
                 </span>
                 <span>
                   <Trans>
                     Go to{' '}
-                    <Link to="/kyberdao/stake-knc" onClick={() => toggleModal()}>
+                    <Link to="/kyberdao/stake-knc" onClick={onDismiss}>
                       Stake
                     </Link>
                   </Trans>
                 </span>
-              </div>
+              </Stack>
             )}
             <Pagination
               currentPage={page}
@@ -267,8 +253,15 @@ export default function YourTransactionsModal() {
               haveBg={false}
             />
           </div>
-        </div>
+        </Stack>
       </div>
     </Modal>
   )
+}
+
+export default function YourTransactionsModal() {
+  const modalOpen = useModalOpen(ApplicationModal.YOUR_TRANSACTIONS_STAKE_KNC)
+  const closeModal = useCloseModal(ApplicationModal.YOUR_TRANSACTIONS_STAKE_KNC)
+
+  return modalOpen ? <YourTransactionsModalContent onDismiss={closeModal} /> : null
 }

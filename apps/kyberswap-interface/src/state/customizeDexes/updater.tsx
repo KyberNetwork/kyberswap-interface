@@ -5,9 +5,8 @@ import ksSettingApi, { Dex as ApiDex } from 'services/ksSetting'
 
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
+import { Dex, updateAllDexes } from 'state/customizeDexes'
 import store, { AppDispatch } from 'state/index'
-
-import { Dex, updateAllDexes } from '.'
 
 export default function Updater({ customChainId }: { customChainId?: ChainId }): null {
   const dispatch = useDispatch<AppDispatch>()

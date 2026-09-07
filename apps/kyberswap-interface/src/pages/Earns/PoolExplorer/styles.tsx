@@ -1,106 +1,16 @@
-import { ButtonHTMLAttributes, CSSProperties, HTMLAttributes, forwardRef } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { AnchorHTMLAttributes, CSSProperties, HTMLAttributes, createElement, forwardRef } from 'react'
 
-import usePrefetchOnIntent from 'hooks/usePrefetchOnIntent'
-import usePrefetchRoute from 'hooks/usePrefetchRoute'
+import { TableWrapper } from 'components/Listing/Table'
 import { cn } from 'utils/cn'
-
-// Page width and padding are owned by EarnLayout's content area, so the wrapper only
-// stretches to fill it.
-export const PoolPageWrapper = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
-  ({ className, ...rest }, ref) => (
-    <div ref={ref} className={cn('flex w-full flex-1 flex-col gap-4', className)} {...rest} />
-  ),
-)
-PoolPageWrapper.displayName = 'PoolPageWrapper'
 
 export const HeadSection = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(({ className, ...rest }, ref) => (
   <div ref={ref} className={cn('flex w-full items-center justify-between', className)} {...rest} />
 ))
 HeadSection.displayName = 'HeadSection'
 
-export const TagContainer = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
-  ({ className, ...rest }, ref) => (
-    <div ref={ref} className={cn('flex w-full flex-wrap gap-4 max-sm:gap-3', className)} {...rest} />
-  ),
+export const PoolTableWrapper = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
+  <TableWrapper className={cn('max-md:bg-transparent', className)} {...rest} />
 )
-TagContainer.displayName = 'TagContainer'
-
-type TagProps = HTMLAttributes<HTMLDivElement> & { active: boolean; height?: number }
-
-export const Tag = forwardRef<HTMLDivElement, TagProps>(({ className, active, height, style, ...rest }, ref) => (
-  <div
-    ref={ref}
-    data-active={active}
-    className={cn(
-      'flex h-[42px] shrink-0 cursor-pointer items-center gap-2 rounded-xl border border-transparent px-4 py-1 text-sm leading-7 text-subText transition-colors duration-200 max-md:h-[38px]',
-      active && 'border-primary bg-primary-20 font-medium text-text',
-      !active && 'bg-background',
-      'data-[active=true]:[&[role=button]:hover]:border-primary data-[active=true]:[&[role=button]:hover]:bg-primary-30',
-      'data-[active=false]:[&[role=button]:hover]:bg-primary-10',
-      className,
-    )}
-    style={{ ...(height ? { height: `${height}px` } : {}), ...style }}
-    {...rest}
-  />
-))
-Tag.displayName = 'Tag'
-
-type StyledNavigateButtonProps = HTMLAttributes<HTMLDivElement> & { mobileFullWidth?: boolean }
-
-export const StyledNavigateButton = forwardRef<HTMLDivElement, StyledNavigateButtonProps>(
-  ({ className, mobileFullWidth, ...rest }, ref) => (
-    <div
-      ref={ref}
-      className={cn(
-        'flex w-max cursor-pointer items-center justify-center gap-2.5 rounded-xl bg-primary-20 px-4 py-2 text-sm font-medium text-text hover:brightness-125',
-        mobileFullWidth && 'max-sm:w-full',
-        className,
-      )}
-      {...rest}
-    />
-  ),
-)
-StyledNavigateButton.displayName = 'StyledNavigateButton'
-
-interface NavigateButtonProps {
-  icon: React.ReactNode
-  text: string
-  to: string
-  mobileFullWidth?: boolean
-}
-
-export const NavigateButton: React.FC<NavigateButtonProps> = ({ icon, text, to, mobileFullWidth }) => {
-  const navigate = useNavigate()
-  // Warm the destination route's chunk + data on hover/focus, since clicking navigates there.
-  const prefetchRoute = usePrefetchRoute()
-  const intent = usePrefetchOnIntent(() => prefetchRoute(to))
-
-  return (
-    <StyledNavigateButton mobileFullWidth={mobileFullWidth} onClick={() => navigate({ pathname: to })} {...intent}>
-      {icon}
-      <span className="w-max">{text}</span>
-    </StyledNavigateButton>
-  )
-}
-
-export const TableWrapper = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
-  ({ className, ...rest }, ref) => (
-    <div ref={ref} className={cn('relative overflow-hidden rounded-2xl bg-background/80', className)} {...rest} />
-  ),
-)
-TableWrapper.displayName = 'TableWrapper'
-
-export const PoolTableWrapper = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
-  ({ className, ...rest }, ref) => (
-    <div
-      ref={ref}
-      className={cn('relative overflow-hidden rounded-2xl bg-background/80 max-md:bg-transparent', className)}
-      {...rest}
-    />
-  ),
-)
-PoolTableWrapper.displayName = 'PoolTableWrapper'
 
 export const MigrateTableWrapper = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
   ({ className, ...rest }, ref) => (
@@ -113,79 +23,12 @@ export const MigrateTableWrapper = forwardRef<HTMLDivElement, HTMLAttributes<HTM
 )
 MigrateTableWrapper.displayName = 'MigrateTableWrapper'
 
-export const ContentWrapper = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
-  ({ className, ...rest }, ref) => <div ref={ref} className={className} {...rest} />,
-)
-ContentWrapper.displayName = 'ContentWrapper'
-
-export const BackButton = forwardRef<HTMLButtonElement, ButtonHTMLAttributes<HTMLButtonElement>>(
-  ({ className, ...rest }, ref) => (
-    <button
-      ref={ref}
-      className={cn(
-        'flex size-9 cursor-pointer items-center justify-center rounded-full border-0 bg-transparent p-0 text-text hover:bg-tabActive',
-        className,
-      )}
-      {...rest}
-    />
-  ),
-)
-BackButton.displayName = 'BackButton'
-
-const getTableHeaderColumns = (showRewards: boolean, showPoolPrice: boolean) => {
-  if (showRewards && showPoolPrice) return '1.7fr 0.8fr 0.9fr 0.9fr 1fr 1fr 156px 40px'
-  if (showRewards) return '1.7fr 0.8fr 0.9fr 0.9fr 1fr 1fr 40px'
-  if (showPoolPrice) return '1.7fr 0.8fr 0.9fr 0.9fr 1fr 176px 40px'
-  return '1.7fr 0.8fr 0.9fr 0.9fr 1fr 40px'
-}
-
-type TableHeaderProps = HTMLAttributes<HTMLDivElement> & { showRewards?: boolean; showPoolPrice?: boolean }
-
-export const TableHeader = forwardRef<HTMLDivElement, TableHeaderProps>(
-  ({ className, showRewards = true, showPoolPrice = true, style, ...rest }, ref) => (
-    <div
-      ref={ref}
-      className={cn('grid items-center border-b border-tableHeader p-3 text-subText', className)}
-      style={{ gridTemplateColumns: getTableHeaderColumns(showRewards, showPoolPrice), ...style }}
-      {...rest}
-    />
-  ),
-)
-TableHeader.displayName = 'TableHeader'
-
-type TableCellProps = HTMLAttributes<HTMLDivElement> & {
-  justifyContent?: CSSProperties['justifyContent']
-  alignItems?: CSSProperties['alignItems']
-  gap?: string
-  flexDirection?: CSSProperties['flexDirection']
-  pt?: number
-}
-
-export const TableCell = forwardRef<HTMLDivElement, TableCellProps>(
-  ({ className, justifyContent, alignItems, gap, flexDirection, pt, style, ...rest }, ref) => (
-    <div
-      ref={ref}
-      className={cn('box-border flex h-full min-w-0 flex-col px-3 py-2', className)}
-      style={{
-        justifyContent: justifyContent || 'flex-start',
-        alignItems: alignItems || 'flex-start',
-        gap: gap || '8px',
-        ...(flexDirection ? { flexDirection } : {}),
-        ...(pt !== undefined ? { paddingTop: `${pt}px` } : {}),
-        ...style,
-      }}
-      {...rest}
-    />
-  ),
-)
-TableCell.displayName = 'TableCell'
-
 export const SortableHeader = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
   ({ className, ...rest }, ref) => (
     <div
       ref={ref}
       className={cn(
-        'flex w-fit cursor-pointer items-center gap-1 text-sm font-medium uppercase hover:[&_svg_path]:stroke-text',
+        'flex w-fit cursor-pointer items-center gap-1 text-sm font-medium uppercase hover:text-text hover:[&_svg_path]:stroke-text',
         className,
       )}
       {...rest}
@@ -226,20 +69,6 @@ export const MigrateTableBody = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDi
   ),
 )
 MigrateTableBody.displayName = 'MigrateTableBody'
-
-type TableRowProps = HTMLAttributes<HTMLDivElement> & { showRewards?: boolean; showPoolPrice?: boolean }
-
-export const TableRow = forwardRef<HTMLDivElement, TableRowProps>(
-  ({ className, showRewards = true, showPoolPrice = true, style, ...rest }, ref) => (
-    <div
-      ref={ref}
-      className={cn('grid items-center p-3 text-subText hover:cursor-pointer hover:bg-primary-10', className)}
-      style={{ gridTemplateColumns: getTableHeaderColumns(showRewards, showPoolPrice), ...style }}
-      {...rest}
-    />
-  ),
-)
-TableRow.displayName = 'TableRow'
 
 export const MigrateTableRow = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
   ({ className, style, ...rest }, ref) => (
@@ -297,14 +126,24 @@ export const Apr = forwardRef<HTMLDivElement, AprProps>(({ className, value, ...
 ))
 Apr.displayName = 'Apr'
 
-export const MobileTableRow = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
-  ({ className, ...rest }, ref) => (
-    <div
-      ref={ref}
-      className={cn('cursor-pointer rounded-xl bg-background p-2 hover:bg-buttonGray', className)}
-      {...rest}
-    />
-  ),
+type MobileTableRowProps = HTMLAttributes<HTMLElement> &
+  Pick<AnchorHTMLAttributes<HTMLAnchorElement>, 'href' | 'target' | 'rel'> & {
+    /** Render as a different element — pass `a` together with `href` to make the whole row a real link. */
+    as?: keyof React.JSX.IntrinsicElements
+  }
+
+export const MobileTableRow = forwardRef<HTMLElement, MobileTableRowProps>(({ as = 'div', className, ...rest }, ref) =>
+  createElement(as, {
+    ref,
+    // An `a` row stays block-level and inherits the surrounding text color instead of taking the
+    // global link color/hover.
+    className: cn(
+      'cursor-pointer rounded-xl bg-background p-2 hover:bg-buttonGray',
+      as === 'a' && 'block text-inherit hover:text-inherit',
+      className,
+    ),
+    ...rest,
+  }),
 )
 MobileTableRow.displayName = 'MobileTableRow'
 
@@ -333,8 +172,3 @@ export const MobileTableBottomRow = forwardRef<HTMLDivElement, HTMLAttributes<HT
   ({ className, ...rest }, ref) => <div ref={ref} className={cn('flex flex-col', className)} {...rest} />,
 )
 MobileTableBottomRow.displayName = 'MobileTableBottomRow'
-
-export const Disclaimer = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(({ className, ...rest }, ref) => (
-  <div ref={ref} className={cn('mt-auto w-full pt-6 text-center text-sm italic text-gray', className)} {...rest} />
-))
-Disclaimer.displayName = 'Disclaimer'

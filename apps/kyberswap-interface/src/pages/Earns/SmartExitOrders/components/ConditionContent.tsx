@@ -1,14 +1,12 @@
 import { Trans, t } from '@lingui/macro'
 import dayjs from 'dayjs'
 import React from 'react'
-import { useMedia } from 'react-use'
 
 import FeeYieldProgress from 'pages/Earns/SmartExitOrders/components/FeeYieldProgress'
 import PoolPriceChart from 'pages/Earns/SmartExitOrders/components/PoolPriceChart'
 import { MAX_VALID_TIMESTAMP } from 'pages/Earns/SmartExitOrders/constants'
 import type { ParsedSmartExitOrder } from 'pages/Earns/SmartExitOrders/useSmartExitOrdersData'
 import { ConditionType, OrderStatus, SmartExitLogReason, SmartExitOrder } from 'pages/Earns/types'
-import { MEDIA_WIDTHS } from 'theme'
 import { cn } from 'utils/cn'
 
 /**
@@ -102,21 +100,20 @@ type ConditionContentProps = {
 
 const ConditionContent = ({ logical, position, status, logs }: ConditionContentProps) => {
   const { conditions, op } = logical
-  const upToLarge = useMedia(`(max-width: ${MEDIA_WIDTHS.upToLarge}px)`)
 
   const cancelReasonMessage = status === OrderStatus.OrderStatusCancelled ? getCancelReasonMessage(logs || []) : null
 
   if (conditions.length > 1) {
     return (
       <div className="flex flex-col gap-2">
-        <div className={cn('flex gap-3 text-sm', upToLarge ? 'flex-col items-stretch' : 'flex-row items-center')}>
+        <div className="flex flex-col items-stretch gap-2 text-sm lg:flex-row lg:items-center">
           {conditions.map((c, i) => (
             <React.Fragment key={`${c.field.type}-${i}`}>
               <div className="flex min-w-0 flex-1">
                 <ConditionItem condition={c} position={position} />
               </div>
               {i !== conditions.length - 1 && (
-                <div className={cn('rounded-lg bg-white/[0.04] px-2 py-1', upToLarge ? 'self-start' : 'self-center')}>
+                <div className="self-start rounded-lg bg-white/[0.04] px-2 py-1 lg:self-center">
                   <span className="shrink-0 text-xs font-medium text-text">
                     {op === ConditionType.And ? 'AND' : 'OR'}
                   </span>
@@ -126,7 +123,7 @@ const ConditionContent = ({ logical, position, status, logs }: ConditionContentP
           ))}
         </div>
         {cancelReasonMessage && (
-          <span className="mt-1 text-xs italic" style={{ color: '#D67300' }}>
+          <span className="text-xs italic" style={{ color: '#D67300' }}>
             {cancelReasonMessage}
           </span>
         )}
@@ -137,11 +134,9 @@ const ConditionContent = ({ logical, position, status, logs }: ConditionContentP
   const singleCondition = conditions[0]
   const isTimeCondition = singleCondition?.field.type === 'time'
 
-  const conditionWidth = upToLarge || isTimeCondition ? 'auto' : 'calc(50% - 36px)'
-
   return (
     <div className="flex flex-col gap-2 text-sm">
-      <div className="flex" style={{ width: conditionWidth }}>
+      <div className={cn('flex w-auto', !isTimeCondition && 'lg:w-[calc(50%_-_36px)]')}>
         {conditions.map((c, i) => (
           <ConditionItem key={`${c.field.type}-${i}`} condition={c} position={position} />
         ))}

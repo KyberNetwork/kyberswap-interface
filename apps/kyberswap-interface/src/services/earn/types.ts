@@ -75,12 +75,14 @@ export interface PoolDetailTick {
   liquidityNet: string
 }
 
+// Concentrated-liquidity fields the pool API only fills in for protocols it indexes tick data
+// for; non-CL protocols come back with `positionInfo` present but these members missing.
 export interface PoolDetailPositionInfo {
-  liquidity: string
-  sqrtPriceX96: string
-  tickSpacing: number
-  tick: number
-  ticks: Array<PoolDetailTick>
+  liquidity?: string
+  sqrtPriceX96?: string
+  tickSpacing?: number
+  tick?: number
+  ticks?: Array<PoolDetailTick>
 }
 
 export interface PoolAprStats {
@@ -141,7 +143,7 @@ export interface PoolDetail {
   egUsd?: number
   kemReward?: KemReward
   merklOpportunity?: MerklOpportunity
-  positionInfo: PoolDetailPositionInfo
+  positionInfo?: PoolDetailPositionInfo
 
   type?: string
   programs?: string[]

@@ -16,12 +16,14 @@ export interface OnSuccessProps {
       symbol: string;
       logo: string;
       amount: number;
+      decimals?: number;
     };
     token1: {
       address: string;
       symbol: string;
       logo: string;
       amount: number;
+      decimals?: number;
     };
     pool: {
       address: string;
@@ -85,6 +87,8 @@ export interface ZapMigrationProps {
           sourceDexLogo: string;
           destinationPool: string;
           destinationDexLogo: string;
+          /** The position this migration produces, so a host can show it before the transaction is indexed. */
+          position?: OnSuccessProps['position'];
         }
       | ApprovalAdditionalInfo,
   ) => Promise<string>;

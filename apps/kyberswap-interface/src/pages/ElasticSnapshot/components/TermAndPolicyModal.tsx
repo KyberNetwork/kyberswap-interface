@@ -5,7 +5,7 @@ import { X } from 'react-feather'
 import { ButtonEmpty, ButtonOutlined, ButtonPrimary } from 'components/Button'
 import CheckBox from 'components/CheckBox'
 import Modal from 'components/Modal'
-import { TERM_FILES_PATH } from 'constants/index'
+import { PRIVACY_POLICY_PATH } from 'constants/index'
 import { ExternalLink } from 'theme'
 
 export default function TermAndPolicyModal({
@@ -61,9 +61,9 @@ export default function TermAndPolicyModal({
           <CheckBox checked={accept3} />
           <p className="-mt-1">
             I acknowledge I have read and agree to the{' '}
-            <ExternalLink href={TERM_FILES_PATH.PRIVACY_POLICY}>KyberSwap Privacy Policy</ExternalLink> which I agree
-            will apply to any personal data provided by me in connection with the above mentioned KYC screening and my
-            participation in the Grant Program.
+            <ExternalLink href={PRIVACY_POLICY_PATH}>KyberSwap Privacy Policy</ExternalLink> which I agree will apply to
+            any personal data provided by me in connection with the above mentioned KYC screening and my participation
+            in the Grant Program.
           </p>
         </div>
 

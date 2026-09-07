@@ -19,6 +19,7 @@ export default function WidgetError() {
         positionId,
         poolAddress,
         poolType,
+        force: true,
       });
     }
   };

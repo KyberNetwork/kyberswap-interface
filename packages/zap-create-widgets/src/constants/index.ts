@@ -1,7 +1,7 @@
 import type { MessageDescriptor } from '@lingui/core';
 import { msg } from '@lingui/macro';
 
-import { PoolType } from '@kyber/schema';
+import { ChainId, PoolType } from '@kyber/schema';
 
 import { i18n } from '@/lingui';
 
@@ -49,12 +49,25 @@ export const getSlippageStorageKey = (
   return `kyber_zap_create_widget_slippage_${sortedSymbols[0]}_${sortedSymbols[1]}_${chainId}_${feeTier}`;
 };
 
-export const getConfigHooksAddress = (poolType?: PoolType): string | undefined => {
+// FairFlow hook contracts differ per chain; the zap service rejects a create
+// request whose hook does not match its configured allowlist for that chain.
+const UNISWAP_V4_FAIRFLOW_HOOKS: Partial<Record<ChainId, string>> = {
+  [ChainId.Ethereum]: '0x4440854B2d02C57A0Dc5c58b7A884562D875c0c4',
+  [ChainId.Arbitrum]: '0x4440854B2d02C57A0Dc5c58b7A884562D875c0c4',
+  [ChainId.Base]: '0x4440854B2d02C57A0Dc5c58b7A884562D875c0c4',
+  [ChainId.Robinhood]: '0x4445520306c9c70952bdfec28f3989f53d9f80c4',
+};
+
+const PANCAKE_INFINITY_CL_FAIRFLOW_HOOKS: Partial<Record<ChainId, string>> = {
+  [ChainId.Bsc]: '0x44428C6ce391915D51F963C0Dd395Cd0f95fdFD2',
+};
+
+export const getConfigHooksAddress = (chainId: ChainId, poolType?: PoolType): string | undefined => {
   if (poolType === PoolType.DEX_UNISWAP_V4_FAIRFLOW) {
-    return '0x4440854B2d02C57A0Dc5c58b7A884562D875c0c4';
+    return UNISWAP_V4_FAIRFLOW_HOOKS[chainId];
   }
   if (poolType === PoolType.DEX_PANCAKE_INFINITY_CL_FAIRFLOW) {
-    return '0x44428C6ce391915D51F963C0Dd395Cd0f95fdFD2';
+    return PANCAKE_INFINITY_CL_FAIRFLOW_HOOKS[chainId];
   }
   return undefined;
 };

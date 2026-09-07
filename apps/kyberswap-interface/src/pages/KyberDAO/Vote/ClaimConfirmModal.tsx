@@ -1,10 +1,10 @@
 import { Trans } from '@lingui/macro'
-import { X } from 'react-feather'
 
 import { ButtonPrimary } from 'components/Button'
 import Modal from 'components/Modal'
-import { AutoRow, RowBetween, RowFit } from 'components/Row'
+import { HStack, Stack } from 'components/Stack'
 import { useActiveWeb3React } from 'hooks'
+import { KyberDAOBodyText, KyberDAOModalCloseButton, KyberDAOSectionTitle, KyberDAOValue } from 'pages/KyberDAO/common'
 import KNCLogo from 'pages/KyberDAO/kncLogo'
 import { ApplicationModal } from 'state/application/actions'
 import { useModalOpen, useToggleModal } from 'state/application/hooks'
@@ -15,31 +15,27 @@ export default function ClaimConfirmModal({ amount, onConfirmClaim }: { amount: 
   const toggleModal = useToggleModal(ApplicationModal.KYBER_DAO_CLAIM)
   return (
     <Modal isOpen={modalOpen} onDismiss={toggleModal}>
-      <div className="flex flex-col gap-5 p-6">
-        <RowBetween>
-          <AutoRow className="gap-0.5">
-            <span className="text-xl">
-              <Trans>Claim your KNC rewards</Trans>
-            </span>
-          </AutoRow>
-          <div role="button" onClick={toggleModal} className="flex cursor-pointer">
-            <X onClick={toggleModal} size={20} className="text-subText" />
-          </div>
-        </RowBetween>
-        <div className="flex flex-col gap-3.5 rounded-lg border-0 bg-buttonBlack px-3 py-2.5 text-sm text-subText outline-none">
+      <Stack className="gap-4 p-6">
+        <HStack className="items-center justify-between gap-4">
+          <KyberDAOSectionTitle>
+            <Trans>Claim your KNC rewards</Trans>
+          </KyberDAOSectionTitle>
+          <KyberDAOModalCloseButton onClick={toggleModal} />
+        </HStack>
+        <Stack className="gap-2 rounded-lg border-0 bg-buttonBlack p-3 text-sm text-subText outline-none">
           <span className="text-xs">
             <Trans>Your wallet address</Trans>
           </span>
           <span className="text-border">{account}</span>
-        </div>
-        <span className="text-base font-normal leading-6 text-text">
+        </Stack>
+        <KyberDAOBodyText>
           <Trans>If your wallet is eligible, you will be able to claim your reward below:</Trans>
-        </span>
-        <RowFit className="gap-2.5">
-          <KNCLogo size={28} /> <span className="text-[32px]">{amount} KNC</span>
-        </RowFit>
+        </KyberDAOBodyText>
+        <HStack className="items-center gap-2">
+          <KNCLogo size={28} /> <KyberDAOValue className="text-2xl">{amount} KNC</KyberDAOValue>
+        </HStack>
         <ButtonPrimary onClick={onConfirmClaim}>Claim</ButtonPrimary>
-      </div>
+      </Stack>
     </Modal>
   )
 }

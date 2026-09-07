@@ -211,13 +211,13 @@ msgstr "整体zap价格影响高于预期。如果您希望以Degen模式继续�
 
 #. js-lingui-explicit-id
 #: src/components/ShareModal/utils.tsx
-msgid "Liquidity Mining APR"
-msgstr "流动性挖矿年化收益率"
+msgid "Reward APR"
+msgstr "奖励年化收益率"
 
 #. js-lingui-explicit-id
 #: src/components/ShareModal/utils.tsx
-msgid "Liquidity Mining rewards"
-msgstr "流动性挖矿奖励"
+msgid "Reward"
+msgstr "奖励"
 
 #. js-lingui-explicit-id
 #: src/components/TokenSelectorModal/TokenInfo/utils.ts

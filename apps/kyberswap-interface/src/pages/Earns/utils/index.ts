@@ -1,13 +1,13 @@
 import { Token } from '@kyber/schema'
 import { ChainId, WETH } from '@kyberswap/ks-sdk-core'
-import { getPublicClient } from '@wagmi/core'
+import { getPublicClient, waitForTransactionReceipt } from '@wagmi/core'
 
 import { wagmiConfig } from 'components/Web3Provider'
 import { EARN_CHAINS, EARN_DEXES, EarnChain, Exchange } from 'pages/Earns/constants'
 import { CoreProtocol } from 'pages/Earns/constants/coreProtocol'
 import { sendEVMTransaction } from 'utils/sendTransaction'
 import { BlacklistedWalletError, ErrorName } from 'utils/transactionError'
-import { Hash, keccak256, toBytes } from 'utils/viem'
+import { Hash, Log, keccak256, toBytes } from 'utils/viem'
 
 type LegacyTransactionRequest = {
   from?: string
@@ -17,46 +17,109 @@ type LegacyTransactionRequest = {
   gasLimit?: string | number | bigint
 }
 
-export const getTokenId = async (chainId: number, txHash: string, exchange: Exchange) => {
-  try {
-    const publicClient = getPublicClient(wagmiConfig, { chainId })
-    if (!publicClient) return
+// A zap resolves its minted id from two places at once — the placeholder cache write and the "View
+// position" navigation — so the in-flight lookup is shared: one round trip, and both read the same id.
+// Failed lookups are evicted so a later attempt can retry, and the map is capped because a long-lived tab
+// would otherwise retain every receipt's logs.
+const receiptLogsByTx = new Map<string, Promise<readonly Log[] | undefined>>()
+const RECEIPT_CACHE_LIMIT = 32
 
-    const receipt = await publicClient.getTransactionReceipt({ hash: txHash as Hash })
-    if (!receipt || !receipt.logs) return
+// Waiting is only worth it for a zap that was just mined, where a fallback RPC may not have caught up with
+// the block yet. Callers describing an arbitrary past transaction ask for a single lookup instead, so a
+// pending or foreign-chain hash resolves to nothing immediately rather than holding a poll open.
+const RECEIPT_TIMEOUT_MS = 20_000
+const RECEIPT_POLLING_INTERVAL_MS = 2_000
+const RECEIPT_RETRY_COUNT = 3
 
-    const isUniV4 = EARN_DEXES[exchange].isForkFrom === CoreProtocol.UniswapV4
-
-    let hexTokenId
-    if (!isUniV4) {
-      const isQuickSwapV3 = exchange === Exchange.DEX_QUICKSWAPV3ALGEBRA
-      const increaseLidEventTopic = keccak256(
-        toBytes(
-          !isQuickSwapV3
-            ? 'IncreaseLiquidity(uint256,uint128,uint256,uint256)'
-            : 'IncreaseLiquidity(uint256,uint128,uint128,uint256,uint256,address)',
-        ),
-      )
-      const increaseLidLogs = receipt.logs.filter((log: any) => log.topics[0] === increaseLidEventTopic)
-      const increaseLidEvent = increaseLidLogs?.length ? increaseLidLogs[0] : undefined
-      hexTokenId = increaseLidEvent?.topics?.[1]
-    } else {
-      const transferEventTopic = keccak256(toBytes('Transfer(address,address,uint256)'))
-      const transferLogsWithTokenId = receipt.logs.filter(
-        (log: any) => log.topics[0] === transferEventTopic && log.topics.length === 4,
-      )
-      hexTokenId = !transferLogsWithTokenId.length
-        ? undefined
-        : transferLogsWithTokenId[transferLogsWithTokenId.length - 1].topics[3]
-    }
-    if (!hexTokenId) return
-    // Use BigInt to preserve precision past 2^53. Callers stringify immediately
-    // (e.g. `getTokenId(...).toString()`), so returning a numeric string is safe.
-    return BigInt(hexTokenId).toString()
-  } catch (error) {
-    console.log('getTokenId error', error)
-    return
+const readReceiptLogs = async (chainId: number, txHash: string, waitForMined: boolean) => {
+  const client = getPublicClient(wagmiConfig, { chainId })
+  if (!waitForMined) {
+    if (!client) return undefined
+    const receipt = await client.getTransactionReceipt({ hash: txHash as Hash })
+    return receipt.logs as readonly Log[]
   }
+
+  const receipt = await waitForTransactionReceipt(wagmiConfig, {
+    chainId: chainId as (typeof wagmiConfig)['chains'][number]['id'],
+    hash: txHash as Hash,
+    pollingInterval: RECEIPT_POLLING_INTERVAL_MS,
+    retryCount: RECEIPT_RETRY_COUNT,
+    timeout: RECEIPT_TIMEOUT_MS,
+  })
+  return receipt.logs as readonly Log[]
+}
+
+const getReceiptLogs = (
+  chainId: number,
+  txHash: string,
+  waitForMined: boolean,
+): Promise<readonly Log[] | undefined> => {
+  // The two modes are cached apart so a single lookup that missed cannot satisfy a caller that is willing
+  // to wait for the block to land.
+  const cacheKey = `${chainId}:${txHash.toLowerCase()}:${waitForMined ? 'wait' : 'once'}`
+  const cached = receiptLogsByTx.get(cacheKey)
+  if (cached) return cached
+
+  const pending = readReceiptLogs(chainId, txHash, waitForMined).catch(error => {
+    console.error('Failed to read transaction receipt', error)
+    receiptLogsByTx.delete(cacheKey)
+    return undefined
+  })
+
+  if (receiptLogsByTx.size >= RECEIPT_CACHE_LIMIT) {
+    const oldest = receiptLogsByTx.keys().next().value
+    if (oldest) receiptLogsByTx.delete(oldest)
+  }
+  receiptLogsByTx.set(cacheKey, pending)
+  return pending
+}
+
+const increaseLiquidityTopic = keccak256(toBytes('IncreaseLiquidity(uint256,uint128,uint256,uint256)'))
+// Algebra position managers (QuickSwap V3, Thena, Camelot V3) widen the event with actualLiquidity + pool.
+const algebraIncreaseLiquidityTopic = keccak256(
+  toBytes('IncreaseLiquidity(uint256,uint128,uint128,uint256,uint256,address)'),
+)
+const transferTopic = keccak256(toBytes('Transfer(address,address,uint256)'))
+
+/**
+ * The NFT id minted by a position-opening transaction. Pass `waitForMined` for a transaction that was just
+ * sent, to ride out an RPC that has not seen the block yet.
+ */
+export const getTokenId = async (
+  chainId: number,
+  txHash: string,
+  exchange: Exchange,
+  { waitForMined = false }: { waitForMined?: boolean } = {},
+) => {
+  const logs = await getReceiptLogs(chainId, txHash, waitForMined)
+  if (!logs) return
+
+  const { isForkFrom } = EARN_DEXES[exchange]
+  // Only the position manager mints the position NFT, so same-shaped events from the zap router, a hook or
+  // a farming contract in the same receipt are ignored. A configured address that does not match any
+  // emitter tells us nothing, so fall back to scanning the whole receipt rather than reporting no id.
+  const nftManager = getNftManagerContractAddress(exchange, chainId)?.toLowerCase()
+  const managerLogs = nftManager ? logs.filter(log => log.address.toLowerCase() === nftManager) : []
+  const nftManagerLogs = managerLogs.length ? managerLogs : logs
+
+  let hexTokenId: string | undefined
+  if (isForkFrom === CoreProtocol.UniswapV4) {
+    // V4-style managers emit no IncreaseLiquidity; the mint is the ERC-721 Transfer whose indexed tokenId
+    // is topics[3].
+    const transferLogs = nftManagerLogs.filter(log => log.topics[0] === transferTopic && log.topics.length === 4)
+    hexTokenId = transferLogs[transferLogs.length - 1]?.topics[3]
+  } else {
+    const topic =
+      isForkFrom === CoreProtocol.AlgebraV1 || isForkFrom === CoreProtocol.AlgebraV19
+        ? algebraIncreaseLiquidityTopic
+        : increaseLiquidityTopic
+    hexTokenId = nftManagerLogs.find(log => log.topics[0] === topic)?.topics[1]
+  }
+  if (!hexTokenId) return
+
+  // Use BigInt to preserve precision past 2^53. Callers stringify immediately
+  // (e.g. `getTokenId(...).toString()`), so returning a numeric string is safe.
+  return BigInt(hexTokenId).toString()
 }
 
 export const isNativeToken = (tokenAddress: string, chainId: keyof typeof WETH) =>

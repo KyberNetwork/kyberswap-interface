@@ -10,6 +10,7 @@ import ethereum from 'pages/Earns/constants/chains/ethereum'
 import matic from 'pages/Earns/constants/chains/matic'
 import monad from 'pages/Earns/constants/chains/monad'
 import optimism from 'pages/Earns/constants/chains/optimism'
+import robinhood from 'pages/Earns/constants/chains/robinhood'
 import { CoreProtocol } from 'pages/Earns/constants/coreProtocol'
 import aerodrome from 'pages/Earns/constants/dexes/aerodrome'
 import camelotv3 from 'pages/Earns/constants/dexes/camelotv3'
@@ -37,7 +38,6 @@ export interface EarnDexInfo {
   collectFeeSupported: boolean
   isForkFrom: CoreProtocol
   showVersion: boolean
-  farmingSupported: boolean
   smartExitDexType?: SmartExitDexType
 }
 
@@ -76,14 +76,12 @@ const EARN_DEXES_CONFIG: Record<Exchange, EarnDexInfo> = {
   [Exchange.DEX_UNISWAP_V4_FAIRFLOW]: {
     ...uniswapv4,
     name: 'Uniswap V4 FairFlow',
-    farmingSupported: true,
     smartExitDexType: SmartExitDexType.DexTypeUniswapV4FairFlow,
   },
   [Exchange.DEX_PANCAKE_INFINITY_CL]: pancakeinfinitycl,
   [Exchange.DEX_PANCAKE_INFINITY_CL_FAIRFLOW]: {
     ...pancakeinfinitycl,
     name: 'Pancake ∞ CL FairFlow',
-    farmingSupported: true,
     smartExitDexType: SmartExitDexType.DexTypePancakeInfinityCLFairFlow,
   },
   [Exchange.DEX_PANCAKE_INFINITY_CL_DYNAMIC]: {
@@ -133,9 +131,17 @@ const defaultConfig = {
   collectFeeSupported: false,
   isForkFrom: CoreProtocol.UniswapV3,
   showVersion: false,
-  farmingSupported: false,
   smartExitDexType: undefined,
 }
+
+const SUPPORTED_EXCHANGES = new Set<string>(Object.values(Exchange))
+
+/**
+ * Whether the app knows this exchange. `EARN_DEXES` answers every lookup with a default entry, so an id
+ * that is not in the enum reads as an unnamed Uniswap V3 fork rather than as missing.
+ */
+export const isSupportedExchange = (exchange?: string): exchange is Exchange =>
+  !!exchange && SUPPORTED_EXCHANGES.has(exchange)
 
 // Proxy helps fallback undefined Exchange by default dex info
 export const EARN_DEXES = new Proxy(EARN_DEXES_CONFIG as any, {
@@ -156,7 +162,6 @@ export const SMART_EXIT_DEX_TYPE_TO_EXCHANGE = Object.entries(EARN_DEXES).reduce
 // Chain info
 export interface EarnChainInfo {
   nativeAddress: string
-  farmingSupported: boolean
   smartExitSupported: boolean
   univ4StateViewContract: string | null
   logo: string
@@ -172,6 +177,7 @@ export enum EarnChain {
   MATIC = ChainId.MATIC,
   BERA = ChainId.BERA,
   MONAD = ChainId.MONAD,
+  ROBINHOOD = ChainId.ROBINHOOD,
 }
 
 export const EARN_CHAINS: Record<EarnChain, EarnChainInfo> = {
@@ -184,6 +190,7 @@ export const EARN_CHAINS: Record<EarnChain, EarnChainInfo> = {
   [EarnChain.MATIC]: matic,
   [EarnChain.BERA]: bera,
   [EarnChain.MONAD]: monad,
+  [EarnChain.ROBINHOOD]: robinhood,
 }
 
 export const LIMIT_TEXT_STYLES = {

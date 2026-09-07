@@ -3,12 +3,12 @@ import { ReactNode, useEffect, useMemo, useState } from 'react'
 import { ChevronDown } from 'react-feather'
 import { useSearchParams } from 'react-router-dom'
 
+import { ErrorWarning } from 'components/ErrorWarning'
+import InfoHelper from 'components/InfoHelper'
 import SlippageControl from 'components/SlippageControl'
 import SlippageWarningNote from 'components/SlippageWarningNote'
 import { Stack } from 'components/Stack'
-import { TextDashed } from 'components/Text'
 import { MouseoverTooltip } from 'components/Tooltip'
-import WarningNote from 'components/WarningNote'
 import { DEFAULT_SLIPPAGES, DEFAULT_SLIPPAGES_HIGH_VOLATILITY } from 'constants/trade'
 import { useDefaultSlippageByPair, usePairCategory } from 'state/swap/hooks'
 import { useDegenModeManager, useSlippageSettingByPage } from 'state/user/hooks'
@@ -107,30 +107,31 @@ const SlippageSetting = ({ rightComponent, tooltip, slippageInfo }: Props) => {
   return (
     <div className="flex w-full flex-col">
       <div className="flex items-center justify-between gap-1 text-subText">
-        <div className="flex items-center gap-1">
-          <TextDashed fontSize={12} fontWeight={500} className="flex h-fit items-center text-subText">
-            <MouseoverTooltip
-              placement="bottom"
-              text={
-                tooltip || (
-                  <span>
-                    <Trans>
-                      During your swap if the price changes by more than this %, your transaction will revert. Read more{' '}
-                      <ExternalLink
-                        href={
-                          'https://docs.kyberswap.com/getting-started/foundational-topics/decentralized-finance/slippage'
-                        }
-                      >
-                        here ↗
-                      </ExternalLink>
-                    </Trans>
-                  </span>
-                )
-              }
-            >
-              <Trans>Max Slippage</Trans>:
-            </MouseoverTooltip>
-          </TextDashed>
+        <div className="flex items-end gap-1">
+          <span className="text-xs font-medium text-subText">
+            <Trans>Max Slippage</Trans>:
+          </span>
+          <InfoHelper
+            clickOnly
+            margin={false}
+            placement="top"
+            text={
+              tooltip || (
+                <span>
+                  <Trans>
+                    During your swap if the price changes by more than this %, your transaction will revert. Read more{' '}
+                    <ExternalLink
+                      href={
+                        'https://docs.kyberswap.com/getting-started/foundational-topics/decentralized-finance/slippage'
+                      }
+                    >
+                      here ↗
+                    </ExternalLink>
+                  </Trans>
+                </span>
+              )
+            }
+          />
           <div
             role="button"
             onClick={() => setExpanded(e => !e)}
@@ -170,7 +171,7 @@ const SlippageSetting = ({ rightComponent, tooltip, slippageInfo }: Props) => {
                 options={options}
               />
               {isDegenMode && expanded && (
-                <span className="px-1.5 py-1 text-xs font-medium text-subText">
+                <span className="px-1 text-xs font-medium text-subText">
                   <Trans>Maximum slippage allowed for Degen mode is 50%</Trans>
                 </span>
               )}
@@ -190,7 +191,11 @@ const SlippageSetting = ({ rightComponent, tooltip, slippageInfo }: Props) => {
               )}
             </Stack>
 
-            {slippageInfo ? msg && <WarningNote shortText={msg} /> : <SlippageWarningNote rawSlippage={rawSlippage} />}
+            {slippageInfo ? (
+              msg && <ErrorWarning type="warn" title={msg} />
+            ) : (
+              <SlippageWarningNote rawSlippage={rawSlippage} />
+            )}
           </Stack>
         </div>
       </div>

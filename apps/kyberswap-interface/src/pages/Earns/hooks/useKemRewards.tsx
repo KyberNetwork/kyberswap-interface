@@ -14,13 +14,14 @@ import ClaimAllModal, { RewardTabType } from 'pages/Earns/components/ClaimAllMod
 import { ClaimInfo } from 'pages/Earns/components/ClaimModal'
 import PositionClaimModal from 'pages/Earns/components/PositionClaimModal'
 import { PositionStatus } from 'pages/Earns/components/PositionStatusControl'
-import { EARN_CHAINS, EarnChain, Exchange } from 'pages/Earns/constants'
+import { EarnChain, Exchange } from 'pages/Earns/constants'
 import useAccountChanged from 'pages/Earns/hooks/useAccountChanged'
 import useClaimMerklRewards from 'pages/Earns/hooks/useClaimMerklRewards'
 import useCompounding from 'pages/Earns/hooks/useCompounding'
 import useMerklRewards from 'pages/Earns/hooks/useMerklRewards'
 import { ParsedPosition, RewardInfo, TokenInfo } from 'pages/Earns/types'
 import { getNftManagerContractAddress, submitTransaction } from 'pages/Earns/utils'
+import { isMerklReasonForPosition } from 'pages/Earns/utils/merkl'
 import { parseReward } from 'pages/Earns/utils/reward'
 import { useNotify } from 'state/application/hooks'
 import { useAllTransactions, useTransactionAdder } from 'state/transactions/hooks'
@@ -177,14 +178,6 @@ const useKemRewards = (props?: UseKemRewardsProps) => {
   }, [account])
 
   const handleClaim = useCallback(async () => {
-    if (!EARN_CHAINS[chainId as unknown as EarnChain]?.farmingSupported) {
-      notify({
-        title: t`Error`,
-        type: NotificationType.ERROR,
-        summary: t`Farming is not supported on this chain`,
-      })
-      return
-    }
     if (!account || !claimInfo || !claimInfo.dex) return
 
     const positionManagerContract = getNftManagerContractAddress(claimInfo.dex, chainId)
@@ -255,7 +248,7 @@ const useKemRewards = (props?: UseKemRewardsProps) => {
   }, [account, addTransactionWithType, chainId, claimEncodeData, claimInfo, isSmartConnector, notify])
 
   const handleClaimAll = useCallback(async () => {
-    if (!account || !chainId || !EARN_CHAINS[chainId as unknown as EarnChain]?.farmingSupported) return
+    if (!account || !chainId) return
 
     const encodeData = await batchClaimEncodeData({
       owner: account,
@@ -586,11 +579,27 @@ const useKemRewards = (props?: UseKemRewardsProps) => {
     [claimMerklRewards, merklRawData],
   )
 
-  // Merkl bonus for the connected wallet on this position's chain (wallet-wide, not per position),
-  // mirroring how the Claim-All modal claims Merkl by chain.
-  const merklChainForPosition = position
-    ? merklChainRewards.find(chain => chain.chainId === position.chain.id)
-    : undefined
+  // Chain the position's Merkl bonus is distributed on. Merkl computes a campaign on one chain
+  // and can distribute it on another (a pool on a side chain paying out on Ethereum, say), so the
+  // chain is resolved from the reward breakdowns that reference this position rather than from the
+  // position itself. When Merkl has nothing attributable to the position, the position's own chain
+  // still surfaces whatever wallet-wide bonus sits there.
+  const merklDistributionChainId = useMemo(() => {
+    if (!position) return undefined
+    const chainWithPositionReward = merklRawData?.find(chainRewards =>
+      (chainRewards.rewards || []).some(reward =>
+        (reward.breakdowns || []).some(breakdown => isMerklReasonForPosition(breakdown.reason, position)),
+      ),
+    )
+    return chainWithPositionReward?.chain.id ?? position.chain.id
+  }, [position, merklRawData])
+
+  // Merkl bonus for the connected wallet on that chain (wallet-wide, not per position), mirroring
+  // how the Claim-All modal claims Merkl by chain.
+  const merklChainForPosition =
+    merklDistributionChainId === undefined
+      ? undefined
+      : merklChainRewards.find(chain => chain.chainId === merklDistributionChainId)
   const claimModal =
     openClaimModal && position ? (
       <>
@@ -605,8 +614,8 @@ const useKemRewards = (props?: UseKemRewardsProps) => {
           compoundable
           merklChainReward={merklChainForPosition}
           onClaimMerkl={handleClaimMerkl}
-          merklSyncing={merklSyncingChainIds.includes(position.chain.id)}
-          merklPendingTx={merklPendingTxChainIds.includes(position.chain.id)}
+          merklSyncing={merklSyncingChainIds.includes(merklDistributionChainId ?? position.chain.id)}
+          merklPendingTx={merklPendingTxChainIds.includes(merklDistributionChainId ?? position.chain.id)}
           onClose={onCloseClaim}
         />
         {compoundingWidget}

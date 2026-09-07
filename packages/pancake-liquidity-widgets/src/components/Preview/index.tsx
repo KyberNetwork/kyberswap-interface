@@ -60,6 +60,7 @@ export interface ZapState {
   slippage: number;
   tickLower: number;
   tickUpper: number;
+  permitData?: string;
 }
 
 export interface PreviewProps {
@@ -79,6 +80,7 @@ export default function Preview({
     slippage,
     tickLower,
     tickUpper,
+    permitData,
   },
   onDismiss,
   onTxSubmit,
@@ -238,6 +240,9 @@ export default function Preview({
         route: zapInfo.route,
         deadline,
         source,
+        ...(positionId && permitData
+          ? { permits: { [positionId]: permitData } }
+          : {}),
       }),
     })
       .then((res) => res.json())
@@ -273,7 +278,16 @@ export default function Preview({
           }
         }
       });
-  }, [account, chainId, deadline, publicClient, source, zapInfo.route]);
+  }, [
+    account,
+    chainId,
+    deadline,
+    publicClient,
+    source,
+    zapInfo.route,
+    permitData,
+    positionId,
+  ]);
 
   const handleClick = async () => {
     if (!publicClient || !account || !walletClient) {
@@ -292,6 +306,9 @@ export default function Preview({
         route: zapInfo.route,
         deadline,
         source,
+        ...(positionId && permitData
+          ? { permits: { [positionId]: permitData } }
+          : {}),
       }),
     })
       .then((res) => res.json())

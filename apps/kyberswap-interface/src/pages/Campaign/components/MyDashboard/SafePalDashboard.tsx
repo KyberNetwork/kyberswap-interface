@@ -110,7 +110,7 @@ const SafePalDashboardSkeleton = ({ rows = 5, upToSmall }: { rows?: number; upTo
             </div>
             <div className="mt-3 flex items-center justify-between">
               <Skeleton width={56} height={14} />
-              <Skeleton width={88} height={24} borderRadius={999} />
+              <Skeleton width={88} height={24} rounded />
             </div>
           </div>
         ))
@@ -124,7 +124,7 @@ const SafePalDashboardSkeleton = ({ rows = 5, upToSmall }: { rows?: number; upTo
               <Skeleton width={48} height={16} />
             </div>
             <div className="flex justify-center">
-              <Skeleton width={88} height={24} borderRadius={999} />
+              <Skeleton width={88} height={24} rounded />
             </div>
           </div>
         ))}

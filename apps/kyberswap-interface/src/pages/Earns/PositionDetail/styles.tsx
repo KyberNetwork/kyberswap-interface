@@ -249,18 +249,16 @@ PositionActionWrapper.displayName = 'PositionActionWrapper'
 type PositionActionProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   outline?: boolean
   outlineDefault?: boolean
-  small?: boolean
   load?: boolean
   mobileAutoWidth?: boolean
 }
 export const PositionAction = forwardRef<HTMLButtonElement, PositionActionProps>(
-  ({ className, outline, outlineDefault, small, load, mobileAutoWidth, disabled, ...rest }, ref) => (
+  ({ className, outline, outlineDefault, load, mobileAutoWidth, disabled, ...rest }, ref) => (
     <button
       ref={ref}
       disabled={disabled}
       className={cn(
-        'flex cursor-pointer items-center gap-1.5 rounded-xl border border-primary bg-primary px-[18px] py-2.5 text-black',
-        small && '!px-4 !py-1.5',
+        'flex cursor-pointer items-center gap-1.5 rounded-xl border border-border-primary bg-primary px-4 py-1.5 font-medium text-black',
         (outline || outlineDefault) && 'bg-transparent',
         outline && 'text-primary',
         outlineDefault && 'border-white/70 text-white/70',
@@ -312,7 +310,7 @@ export const ShareButtonWrapper = forwardRef<HTMLDivElement, HTMLAttributes<HTML
     <div
       ref={ref}
       className={cn(
-        'flex cursor-pointer items-center justify-center rounded-full bg-primary/20 py-1.5 pl-1.5 pr-2 transition-all duration-100 ease-in-out hover:brightness-125 active:brightness-105',
+        'flex cursor-pointer items-center justify-center rounded-full bg-primary/20 py-1.5 pl-[5px] pr-[7px] transition-all duration-100 ease-in-out hover:brightness-125 active:brightness-105',
         className,
       )}
       {...rest}

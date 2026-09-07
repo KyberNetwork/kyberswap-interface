@@ -13,3 +13,4 @@ export * from './use-previous';
 export * from './use-copy';
 export * from './use-pair-honeypot';
 export * from './use-permit-nft';
+export * from './use-wallet-inventory';

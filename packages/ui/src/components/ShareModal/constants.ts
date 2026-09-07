@@ -1,14 +1,14 @@
 import { ShareOption, ShareType } from '@/components/ShareModal/types';
 
 export const shareOptions: Record<ShareType, ShareOption[]> = {
-  [ShareType.POOL_INFO]: [ShareOption.ACTIVE_APR, ShareOption.TOTAL_APR, ShareOption.LM_APR, ShareOption.EG_APR],
+  [ShareType.POOL_INFO]: [ShareOption.ACTIVE_APR, ShareOption.TOTAL_APR, ShareOption.REWARD_APR, ShareOption.EG_APR],
   [ShareType.POSITION_INFO]: [
     ShareOption.TOTAL_APR,
-    ShareOption.LM_APR,
+    ShareOption.REWARD_APR,
     ShareOption.EG_APR,
     ShareOption.TOTAL_EARNINGS,
   ],
-  [ShareType.REWARD_INFO]: [ShareOption.TOTAL_REWARD, ShareOption.LM_REWARD, ShareOption.EG_REWARD],
+  [ShareType.REWARD_INFO]: [ShareOption.TOTAL_REWARD, ShareOption.REWARD, ShareOption.EG_REWARD],
 };
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -18,9 +18,9 @@ export const conflictOptions: Record<ShareType, { [key in ShareOption]?: ShareOp
     [ShareOption.ACTIVE_APR]: [ShareOption.TOTAL_APR],
   },
   [ShareType.POSITION_INFO]: {
-    [ShareOption.LM_APR]: [ShareOption.TOTAL_EARNINGS],
+    [ShareOption.REWARD_APR]: [ShareOption.TOTAL_EARNINGS],
     [ShareOption.EG_APR]: [ShareOption.TOTAL_EARNINGS],
-    [ShareOption.TOTAL_EARNINGS]: [ShareOption.LM_APR, ShareOption.EG_APR],
+    [ShareOption.TOTAL_EARNINGS]: [ShareOption.REWARD_APR, ShareOption.EG_APR],
   },
   [ShareType.REWARD_INFO]: {},
 };
@@ -32,10 +32,10 @@ export const DEFAULT_SHARE_OPTION: Record<ShareType, ShareOption[]> = {
 };
 
 export const NON_FARMING_EXCLUDED_OPTIONS = [
-  ShareOption.LM_APR,
+  ShareOption.REWARD_APR,
   ShareOption.EG_APR,
   ShareOption.TOTAL_REWARD,
-  ShareOption.LM_REWARD,
+  ShareOption.REWARD,
   ShareOption.EG_REWARD,
 ];
 

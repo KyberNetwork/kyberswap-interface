@@ -43,24 +43,24 @@ const TitleContent = ({ order, tokenId }: TitleContentProps) => {
     const dexVersion = dexMapping ? getDexVersion(dexMapping.exchange) : ''
 
     return (
-      <>
-        <div className="flex flex-wrap items-center opacity-60">
-          <ImageContainer>
+      <div className="flex min-w-0 flex-col gap-2 opacity-60">
+        <div className="flex min-w-0 flex-wrap items-center gap-2">
+          <ImageContainer className="shrink-0">
             <TokenLogo src={UnknownToken} size={24} className="opacity-60" />
             <TokenLogo src={UnknownToken} size={24} translateLeft className="opacity-60" />
             {chainInfo?.icon && (
               <TokenLogo src={chainInfo.icon} size={12} translateLeft translateTop className="opacity-60" />
             )}
           </ImageContainer>
-          <span className="mr-2 italic text-subText">
+          <span className="min-w-0 truncate italic text-subText">
             <Trans>Position</Trans> #{tokenId}
           </span>
         </div>
-        <div className="ml-4 mt-1 flex flex-wrap items-center gap-1 opacity-60">
+        <div className="flex min-w-0 flex-wrap items-center gap-1">
           {dexMapping?.dexInfo.logo && <TokenLogo src={dexMapping.dexInfo.logo} size={14} className="opacity-60" />}
           {dexVersion && <span className="text-xs italic text-subText">{dexVersion}</span>}
         </div>
-      </>
+      </div>
     )
   }
 
@@ -74,26 +74,27 @@ const TitleContent = ({ order, tokenId }: TitleContentProps) => {
     .replace(':exchange', posDetail.dex.id)
 
   return (
-    <>
-      <div className="flex flex-wrap items-center">
-        <ImageContainer>
+    <div className="flex min-w-0 flex-col gap-2">
+      <div className="flex min-w-0 flex-wrap items-center gap-2">
+        <ImageContainer className="shrink-0">
           <TokenLogo src={posDetail.token0.logo} />
           <TokenLogo src={posDetail.token1.logo} translateLeft />
           <TokenLogo src={posDetail.chain.logo} size={12} translateLeft translateTop />
         </ImageContainer>
-        <Link to={positionDetailUrl} className="text-inherit no-underline">
-          <span className="mr-2 cursor-pointer hover:opacity-80">
+        <Link to={positionDetailUrl} className="min-w-0 text-inherit no-underline hover:text-text">
+          <span className="block max-w-[140px] cursor-pointer truncate">
             {posDetail.token0.symbol}/{posDetail.token1.symbol}
           </span>
         </Link>
-        <Badge>Fee {posDetail.poolFee}%</Badge>
+        <Badge className="shrink-0">Fee {posDetail.poolFee}%</Badge>
       </div>
-      <div className="ml-4 mt-1 flex flex-wrap items-center gap-1">
+      <div className="flex min-w-0 flex-wrap items-center gap-1">
         <TokenLogo src={posDetail.dex.logo} size={14} />
         <span className="text-xs text-subText">
           {protocol} #{tokenId}
         </span>
         <Badge
+          className="shrink-0"
           type={
             posStatus === PositionStatus.IN_RANGE
               ? BadgeType.PRIMARY
@@ -110,7 +111,7 @@ const TitleContent = ({ order, tokenId }: TitleContentProps) => {
             : t`Closed`}
         </Badge>
       </div>
-    </>
+    </div>
   )
 }
 

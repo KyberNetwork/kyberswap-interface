@@ -45,8 +45,22 @@ const SectionLabel = ({ color, label, symbol }: { color: string; label: React.Re
   </>
 )
 
-const OrderSide = ({ children, reverse }: { children: React.ReactNode; reverse?: boolean }) => {
-  return <div className={cn('max-h-[336px] overflow-y-auto', reverse && 'flex flex-col-reverse')}>{children}</div>
+const OrderSide = ({
+  children,
+  hasOrders,
+  reverse,
+}: {
+  children: React.ReactNode
+  hasOrders: boolean
+  reverse?: boolean
+}) => {
+  return (
+    <div
+      className={cn('max-h-[336px] overflow-y-auto', !hasOrders && 'min-h-[120px]', reverse && 'flex flex-col-reverse')}
+    >
+      {children}
+    </div>
+  )
 }
 
 const OrderBook = () => {
@@ -185,7 +199,7 @@ const OrderBook = () => {
       </div>
       <SectionLabel color="var(--ks-red)" label={<Trans>SELLING</Trans>} symbol={makerCurrency?.wrapped.symbol} />
 
-      <OrderSide reverse>
+      <OrderSide reverse hasOrders={visibleSellOrders.length > 0}>
         {visibleSellOrders.length > 0
           ? visibleSellOrders.map(order => (
               <OrderRow key={order.id} order={order} showInvertedRate={showInvertedRate} onTake={handleTakeOrder} />
@@ -221,7 +235,7 @@ const OrderBook = () => {
 
       <SectionLabel color="var(--ks-primary)" label={<Trans>BUYING</Trans>} symbol={makerCurrency?.wrapped.symbol} />
 
-      <OrderSide>
+      <OrderSide hasOrders={visibleBuyOrders.length > 0}>
         {visibleBuyOrders.length > 0
           ? visibleBuyOrders.map(order => (
               <OrderRow

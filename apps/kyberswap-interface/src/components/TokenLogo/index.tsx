@@ -41,6 +41,8 @@ const TokenLogo = ({
     className={cn('rounded-full', translateLeft && '-ml-2', translateTop && 'relative top-0.5', className)}
     style={{
       filter: boxShadowColor ? `drop-shadow(0px 4px 8px ${boxShadowColor})` : undefined,
+      width: size,
+      height: size,
       ...style,
     }}
   />

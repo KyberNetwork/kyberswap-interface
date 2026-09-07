@@ -17,7 +17,7 @@ import RouteFallback from 'components/RouteFallback'
 import RouteSeo from 'components/Seo/RouteSeo'
 import SingaporeWarningPopup from 'components/SingaporeWarningPopup'
 import SupportButton from 'components/SupportButton'
-import { APP_PATHS, CHAINS_SUPPORT_CROSS_CHAIN, TERM_FILES_PATH } from 'constants/index'
+import { APP_PATHS, CHAINS_SUPPORT_CROSS_CHAIN, PRIVACY_POLICY_PATH, TERMS_OF_USE } from 'constants/index'
 import { LEGACY_POOL_APP_PATHS } from 'constants/legacyPools'
 import {
   CLASSIC_NOT_SUPPORTED,
@@ -30,6 +30,7 @@ import { useActiveWeb3React } from 'hooks'
 import usePageLocation from 'hooks/usePageLocation'
 import useSessionExpiredGlobal from 'hooks/useSessionExpire'
 import { useGlobalTrackingEvents } from 'hooks/useTracking'
+import useDisconnectOnStaleTerms from 'hooks/web3/useDisconnectOnStaleTerms'
 import { useSyncNetworkParamWithStore } from 'hooks/web3/useSyncNetworkParamWithStore'
 import { getPoolDetailUrl } from 'pages/Earns/utils/url'
 import { PROFILE_MANAGE_ROUTES } from 'pages/NotificationCenter/const'
@@ -38,8 +39,7 @@ import LimitPage from 'pages/Swap/LimitPage'
 import SwapPage from 'pages/Swap/SwapPage'
 import { RedirectPathToTradeNetwork, SwapIntentRedirect } from 'pages/Swap/redirects'
 import VerifyAuth from 'pages/Verify/VerifyAuth'
-import { useAppDispatch, useAppSelector } from 'state/hooks'
-import { updateSafeAppAcceptedTermOfUse } from 'state/user/actions'
+import { useIsSafeAppAcceptedTerm } from 'state/user/hooks'
 import { ExternalLink } from 'theme'
 import { SwapIntent } from 'utils/routes'
 import { isInSafeApp } from 'utils/safeApp'
@@ -205,10 +205,10 @@ const RoutesWithNetworkPrefix = () => {
 
 export default function App() {
   const { chainId } = useActiveWeb3React()
+  useDisconnectOnStaleTerms()
   const { pathname } = useLocation()
   const { isEmbeddedSwap } = usePageLocation()
-  const dispatch = useAppDispatch()
-  const safeAppAcceptedTermOfUse = useAppSelector(state => state.user.safeAppAcceptedTermOfUse)
+  const [safeAppAcceptedTermOfUse, acceptSafeAppTermOfUse] = useIsSafeAppAcceptedTerm()
 
   useSessionExpiredGlobal()
   useGlobalTrackingEvents()
@@ -235,21 +235,15 @@ export default function App() {
                 <div className="flex w-full flex-col items-center gap-6 px-6 py-8">
                   <span className="text-center text-base leading-6">
                     By clicking Continue, you accept the{' '}
-                    <ExternalLink href={TERM_FILES_PATH.KYBERSWAP_TERMS} onClick={e => e.stopPropagation()}>
+                    <ExternalLink href={TERMS_OF_USE.file} onClick={e => e.stopPropagation()}>
                       KyberSwap&lsquo;s Terms of Use
                     </ExternalLink>{' '}
                     and{' '}
-                    <ExternalLink href={TERM_FILES_PATH.PRIVACY_POLICY} onClick={e => e.stopPropagation()}>
+                    <ExternalLink href={PRIVACY_POLICY_PATH} onClick={e => e.stopPropagation()}>
                       Privacy Policy
                     </ExternalLink>
                   </span>
-                  <ButtonPrimary
-                    onClick={() => {
-                      dispatch(updateSafeAppAcceptedTermOfUse(true))
-                    }}
-                  >
-                    Continue
-                  </ButtonPrimary>
+                  <ButtonPrimary onClick={acceptSafeAppTermOfUse}>Continue</ButtonPrimary>
                 </div>
               </Modal>
             )}

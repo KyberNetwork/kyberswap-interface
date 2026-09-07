@@ -17,6 +17,11 @@ export interface WidgetProps {
     address?: string | undefined;
     chainId: number;
   };
+  /**
+   * Use KyberSwap's wallet-inventory service as the token selector's balance source on the chains it
+   * indexes; a balanceOf multicall serves the rest. Off by default.
+   */
+  enableWalletInventory?: boolean;
   initDepositTokens?: string;
   initAmounts?: string;
   source: string;
@@ -55,6 +60,8 @@ export interface WidgetProps {
           tokensIn: Array<{ symbol: string; amount: string; logoUrl?: string }>;
           pool: string;
           dexLogo: string;
+          /** The position this zap produces, so a host can show it before the transaction is indexed. */
+          position?: OnSuccessProps['position'];
         }
       | ApprovalAdditionalInfo,
   ) => Promise<string>;
@@ -76,12 +83,14 @@ export interface OnSuccessProps {
       symbol: string;
       logo: string;
       amount: number;
+      decimals?: number;
     };
     token1: {
       address: string;
       symbol: string;
       logo: string;
       amount: number;
+      decimals?: number;
     };
     pool: {
       address: string;

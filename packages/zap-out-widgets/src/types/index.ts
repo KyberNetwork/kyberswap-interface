@@ -38,6 +38,11 @@ export interface ZapOutProps {
     address?: string | undefined;
     chainId: number;
   };
+  /**
+   * Use KyberSwap's wallet-inventory service as the token selector's balance source on the chains it
+   * indexes; a balanceOf multicall serves the rest. Off by default.
+   */
+  enableWalletInventory?: boolean;
   source: string;
   referral?: string;
   txStatus?: Record<string, TxStatus>;

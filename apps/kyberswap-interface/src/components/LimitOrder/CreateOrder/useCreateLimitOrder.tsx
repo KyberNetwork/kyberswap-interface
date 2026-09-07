@@ -209,7 +209,7 @@ export const useCreateLimitOrder = ({
 
       const refCode = getCookieValue('refCode')
       const clientId = searchParams.get('clientId')
-      const { signature, salt } = await signOrder({ ...params, referral: refCode })
+      const { signature, salt } = await signOrder({ ...params, referral: refCode, clientId })
       const payload = getPayloadCreateOrder(params)
       const response = await submitOrder({
         ...payload,

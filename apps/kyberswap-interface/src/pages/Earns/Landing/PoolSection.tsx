@@ -17,7 +17,7 @@ import { cn } from 'utils/cn'
 type Variant = 'inner' | 'inner-stable' | 'highlighted' | 'farming'
 
 const SmallSkeleton = () => (
-  <div className="flex items-center justify-between px-4 py-3">
+  <div className="flex items-center justify-between px-4 py-3" data-testid="earn-overview-pool-item-skeleton">
     <div className="flex items-center gap-1">
       <PositionSkeleton width={24} height={24} style={{ borderRadius: '50%' }} />
       <PositionSkeleton width={24} height={24} style={{ borderRadius: '50%', marginLeft: '-8px' }} />
@@ -29,7 +29,7 @@ const SmallSkeleton = () => (
 )
 
 const LargeSkeleton = () => (
-  <div className="rounded-xl bg-white-04 p-4">
+  <div className="rounded-xl bg-white-04 p-4" data-testid="earn-overview-pool-item-skeleton">
     <div className="mb-3 flex items-center justify-between">
       <div className="flex items-center gap-1">
         <PositionSkeleton width={24} height={24} style={{ borderRadius: '50%' }} />
@@ -87,6 +87,10 @@ const PoolSection = ({
     }
   }
 
+  // e2e selectors are keyed off the section's filter tag, so they stay stable
+  // regardless of how the section is laid out.
+  const testId = tag ? `earn-overview-section-${tag}` : undefined
+
   const renderIcon = () => {
     if (!icon) return null
     if (typeof icon === 'string') return <img src={icon} alt={title} width={20} height={20} />
@@ -96,10 +100,14 @@ const PoolSection = ({
   const renderTitle = () =>
     tooltip ? (
       <MouseoverTooltipDesktopOnly text={tooltip} placement="top">
-        <span className="text-xl font-medium">{title}</span>
+        <span className="text-xl font-medium" data-testid={testId ? `${testId}-title` : undefined}>
+          {title}
+        </span>
       </MouseoverTooltipDesktopOnly>
     ) : (
-      <span className="text-xl font-medium">{title}</span>
+      <span className="text-xl font-medium" data-testid={testId ? `${testId}-title` : undefined}>
+        {title}
+      </span>
     )
 
   if (variant === 'highlighted' || variant === 'farming') {
@@ -114,12 +122,14 @@ const PoolSection = ({
         onClick={handleSectionClick}
         onKeyDown={handleSectionKeyDown}
         className={cn(tag ? 'cursor-pointer' : 'cursor-default')}
+        data-testid={testId}
+        data-tag={tag}
       >
         <SimpleSectionHeader>
           {renderIcon()}
           {renderTitle()}
         </SimpleSectionHeader>
-        <ItemContainer>
+        <ItemContainer data-testid={testId ? `${testId}-list` : undefined}>
           {isLoading
             ? Array.from({ length: count }).map((_, i) => <LargeSkeleton key={i} />)
             : listPools.map(pool => (
@@ -145,9 +155,11 @@ const PoolSection = ({
       onClick={handleSectionClick}
       onKeyDown={handleSectionKeyDown}
       className={cn(tag ? 'cursor-pointer' : 'cursor-default')}
+      data-testid={testId}
+      data-tag={tag}
     >
       <InnerSectionTitle>{renderTitle()}</InnerSectionTitle>
-      <InnerListContainer>
+      <InnerListContainer data-testid={testId ? `${testId}-list` : undefined}>
         {isLoading
           ? Array.from({ length: count }).map((_, i) => <SmallSkeleton key={i} />)
           : listPools.map(pool => (

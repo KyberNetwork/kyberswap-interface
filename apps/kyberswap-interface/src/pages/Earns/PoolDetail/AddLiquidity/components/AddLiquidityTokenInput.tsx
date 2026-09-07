@@ -11,6 +11,7 @@ import useTheme from 'hooks/useTheme'
 import TokenAmountInput, {
   TokenAmountInputSkeleton,
 } from 'pages/Earns/PoolDetail/AddLiquidity/components/TokenAmountInput'
+import { isInventoryChain } from 'state/walletInventory/store'
 import { formatDisplayNumber } from 'utils/numbers'
 
 const EMPTY_TOKENS: Token[] = []
@@ -235,6 +236,7 @@ const AddLiquidityTokenInput = ({
         createPortal(
           <TokenSelectorModal
             chainId={chainId}
+            enableWalletInventory={isInventoryChain(chainId)}
             onClose={onCloseTokenSelectModal}
             wallet={{
               account: wallet?.address,

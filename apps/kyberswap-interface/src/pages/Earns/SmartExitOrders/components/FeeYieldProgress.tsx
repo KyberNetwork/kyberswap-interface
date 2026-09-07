@@ -11,11 +11,11 @@ const FeeYieldProgress = ({ targetYield, currentYield }: FeeYieldProgressProps) 
   const progress = isFinite(rawProgress) ? rawProgress : 0
 
   return (
-    <div className="flex w-full flex-col gap-[6.5px]">
+    <div className="flex w-full flex-col gap-1.5">
       <span className="text-right text-xs text-subText">
         The <span className="text-text">fee yield ≥ {formatDisplayNumber(targetYield, { significantDigits: 4 })}%</span>
       </span>
-      <span className="mt-[3px] text-right text-xs text-subText">
+      <span className="text-right text-xs text-subText">
         <span className="text-text">{formatDisplayNumber(currentYield, { significantDigits: 4 })}%</span> /{' '}
         {formatDisplayNumber(targetYield, { significantDigits: 4 })}%
       </span>

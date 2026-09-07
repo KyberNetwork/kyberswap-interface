@@ -26,8 +26,7 @@ import {
   isProcessingTransactionStatus,
   useTransactionHistory,
 } from 'pages/CrossChainSwap/hooks/useTransactionHistory'
-import { normalizeAdapterName } from 'pages/CrossChainSwap/registry'
-import { getChainName } from 'pages/CrossChainSwap/utils'
+import { getChainName, normalizeAdapterName } from 'pages/CrossChainSwap/utils'
 import { ExternalLinkIcon, MEDIA_WIDTHS } from 'theme'
 import { shortenHash } from 'utils/address'
 import { cn } from 'utils/cn'

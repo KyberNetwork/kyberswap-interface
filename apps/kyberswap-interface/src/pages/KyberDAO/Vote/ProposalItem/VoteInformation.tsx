@@ -4,15 +4,16 @@ import dayjs from 'dayjs'
 import JSBI from 'jsbi'
 import { useMemo } from 'react'
 
-import Divider from 'components/Divider'
 import WarningIcon from 'components/Icons/WarningIcon'
 import InfoHelper from 'components/InfoHelper'
 import Row, { RowBetween } from 'components/Row'
+import { Stack } from 'components/Stack'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { BIPS_BASE } from 'constants/trade'
 import { useActiveWeb3React } from 'hooks'
 import { useVotingInfo } from 'hooks/kyberdao'
 import { ProposalDetail } from 'hooks/kyberdao/types'
+import { KyberDAOCardDivider, KyberDAOCardTitle } from 'pages/KyberDAO/common'
 
 function getEpochInformation(
   epochPeriodInSeconds: number,
@@ -52,88 +53,90 @@ export default function VoteInformation({ proposal }: { proposal: ProposalDetail
   )
 
   return (
-    <div className="mb-5 rounded-[20px] border border-solid border-border bg-buttonBlack px-4 py-3">
-      <div>
+    <Stack className="overflow-hidden rounded-2xl border border-border bg-buttonBlack">
+      <KyberDAOCardTitle className="p-4">
         <Trans>Vote Information</Trans>
-      </div>
-      <Divider className="my-2.5" />
-      <InfoRow>
-        <span className="text-subText">
-          <Trans>Voting System</Trans>
-        </span>
-        <span className="text-text">{proposal.proposal_type}</span>
-      </InfoRow>
-      <InfoRow>
-        <span className="text-subText">
-          <Trans>Start Date</Trans>
-        </span>
-        <span className="text-text">{dayjs(proposal.start_timestamp * 1000).format('DD MMMM YYYY')}</span>
-      </InfoRow>
-      <InfoRow>
-        <span className="text-subText">
-          <Trans>End Date</Trans>
-        </span>
-        <span className="text-text">{dayjs(proposal.end_timestamp * 1000).format('DD MMMM YYYY')}</span>
-      </InfoRow>
-      <InfoRow>
-        <span className="text-subText">
-          <Trans>Total Addresses</Trans>
-        </span>
-        <span className="text-text">{proposal.vote_stats.total_address_count}</span>
-      </InfoRow>
-      <InfoRow>
-        <span className="text-subText">
-          <Trans>KNC Amount</Trans>
-        </span>
-        <span className="text-text">{Math.floor(proposal.vote_stats.total_vote_count).toLocaleString()}</span>
-      </InfoRow>
-      <InfoRow>
-        <span className="text-subText">
-          <Trans>Epoch {epochNumber} Start Date</Trans>
-        </span>
-        <span className="text-text">{dayjs(epochStartTimestamp * 1000).format('DD MMMM YYYY')}</span>
-      </InfoRow>
-      <InfoRow>
-        <span className="text-subText">
-          <Trans>Quorum Status</Trans>
-        </span>
-        {proposal.vote_stats.quorum_status === 1 ? (
-          <span className="text-text">
-            <Trans>Reached</Trans>
+      </KyberDAOCardTitle>
+      <KyberDAOCardDivider />
+      <Stack className="px-4 py-3">
+        <InfoRow>
+          <span className="text-subText">
+            <Trans>Voting System</Trans>
           </span>
-        ) : (
-          <MouseoverTooltip
-            text={`Total amount required: ${Math.floor(+totalAmountRequired.toFixed(0)).toLocaleString()} KNC`}
-            placement="bottom"
-            width="fit-content"
-          >
-            <Row className="w-fit gap-1.5 text-warning">
-              <WarningIcon size="16" solid />
-              <span className="font-medium text-warning">
-                <Trans>Not Reached</Trans>
-              </span>
-            </Row>
-          </MouseoverTooltip>
-        )}
-      </InfoRow>
-      <InfoRow>
-        <span className="text-subText">
-          <Trans>Your KIP Voting Power</Trans>{' '}
-          <InfoHelper
-            placement="top"
-            text="Your KIP Voting Power is calculated by
+          <span className="text-text">{proposal.proposal_type}</span>
+        </InfoRow>
+        <InfoRow>
+          <span className="text-subText">
+            <Trans>Start Date</Trans>
+          </span>
+          <span className="text-text">{dayjs(proposal.start_timestamp * 1000).format('DD MMMM YYYY')}</span>
+        </InfoRow>
+        <InfoRow>
+          <span className="text-subText">
+            <Trans>End Date</Trans>
+          </span>
+          <span className="text-text">{dayjs(proposal.end_timestamp * 1000).format('DD MMMM YYYY')}</span>
+        </InfoRow>
+        <InfoRow>
+          <span className="text-subText">
+            <Trans>Total Addresses</Trans>
+          </span>
+          <span className="text-text">{proposal.vote_stats.total_address_count}</span>
+        </InfoRow>
+        <InfoRow>
+          <span className="text-subText">
+            <Trans>KNC Amount</Trans>
+          </span>
+          <span className="text-text">{Math.floor(proposal.vote_stats.total_vote_count).toLocaleString()}</span>
+        </InfoRow>
+        <InfoRow>
+          <span className="text-subText">
+            <Trans>Epoch {epochNumber} Start Date</Trans>
+          </span>
+          <span className="text-text">{dayjs(epochStartTimestamp * 1000).format('DD MMMM YYYY')}</span>
+        </InfoRow>
+        <InfoRow>
+          <span className="text-subText">
+            <Trans>Quorum Status</Trans>
+          </span>
+          {proposal.vote_stats.quorum_status === 1 ? (
+            <span className="text-text">
+              <Trans>Reached</Trans>
+            </span>
+          ) : (
+            <MouseoverTooltip
+              text={`Total amount required: ${Math.floor(+totalAmountRequired.toFixed(0)).toLocaleString()} KNC`}
+              placement="bottom"
+              width="fit-content"
+            >
+              <Row className="w-fit gap-2 text-warning">
+                <WarningIcon size="16" solid />
+                <span className="font-medium text-warning">
+                  <Trans>Not Reached</Trans>
+                </span>
+              </Row>
+            </MouseoverTooltip>
+          )}
+        </InfoRow>
+        <InfoRow>
+          <span className="text-subText">
+            <Trans>Your KIP Voting Power</Trans>{' '}
+            <InfoHelper
+              placement="top"
+              text="Your KIP Voting Power is calculated by
             [Your Staked KNC] / [Total Voted KNC in this KIP] * 100%."
-          />
-        </span>
-        <span className="text-text">
-          {votePowerAmount > 0 && proposal.vote_stats.total_vote_count > 0
-            ? +((votePowerAmount / proposal.vote_stats.total_vote_count) * 100).toPrecision(4)
-            : proposal.vote_stats.total_vote_count === 0
-            ? 100
-            : 0}
-          %
-        </span>
-      </InfoRow>
-    </div>
+            />
+          </span>
+          <span className="text-text">
+            {votePowerAmount > 0 && proposal.vote_stats.total_vote_count > 0
+              ? +((votePowerAmount / proposal.vote_stats.total_vote_count) * 100).toPrecision(4)
+              : proposal.vote_stats.total_vote_count === 0
+              ? 100
+              : 0}
+            %
+          </span>
+        </InfoRow>
+      </Stack>
+    </Stack>
   )
 }

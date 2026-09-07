@@ -17,6 +17,5 @@ export default {
   collectFeeSupported: true,
   isForkFrom: CoreProtocol.UniswapV4,
   showVersion: true,
-  farmingSupported: false,
   smartExitDexType: SmartExitDexType.DexTypePancakeInfinityCL,
 }

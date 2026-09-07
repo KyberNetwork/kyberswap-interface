@@ -44,6 +44,7 @@ type SwapTradeRouteProps = {
   outputAmount: CurrencyAmount<Currency> | undefined
   isSmartSettlement?: boolean
   scrollOnExpand?: boolean
+  onExpand?: () => void
 }
 
 const SwapTradeRoute = ({
@@ -55,6 +56,7 @@ const SwapTradeRoute = ({
   outputAmount,
   isSmartSettlement = false,
   scrollOnExpand = true,
+  onExpand,
 }: SwapTradeRouteProps) => {
   const panelRef = useRef<HTMLDivElement>(null)
 
@@ -95,7 +97,11 @@ const SwapTradeRoute = ({
     const nextExpanded = !isExpanded
     setIsExpanded(nextExpanded)
 
-    if (!nextExpanded || !scrollOnExpand) return
+    if (!nextExpanded) return
+
+    onExpand?.()
+
+    if (!scrollOnExpand) return
 
     globalThis.requestAnimationFrame(() => {
       globalThis.requestAnimationFrame(() => {

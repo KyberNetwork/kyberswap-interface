@@ -9,6 +9,7 @@ import { fetchListTokenByAddresses } from 'hooks/useTokens'
 import useFilter from 'pages/Earns/UserPositions/useFilter'
 import { EarnChain } from 'pages/Earns/constants'
 import { ChainRewardInfo, ParsedPosition, TokenRewardInfo } from 'pages/Earns/types'
+import { isMerklReasonForPosition, parseMerklReason } from 'pages/Earns/utils/merkl'
 import uriToHttp from 'utils/uriToHttp'
 
 const EARN_CHAIN_IDS = new Set<number>(Object.values(EarnChain).filter((v): v is number => typeof v === 'number'))
@@ -61,21 +62,27 @@ const useMerklRewards = (options?: UseMerklRewardsProps) => {
     [positionsKey],
   )
 
+  // Consumers that pass a `positions` key are scoped to those positions, so the positions-list
+  // chain filter must not narrow their Merkl query: a position's bonus can be distributed on a
+  // chain other than the one the position lives on, and a filter set to the position's chain
+  // would drop that bonus from the response entirely. Keyed on the presence of the option rather
+  // than its value so the query args stay stable while the positions are still loading.
+  const isPositionScoped = !!options && 'positions' in options
+  const chainIdsToQuery = isPositionScoped ? merklEnabledChainIds : filters.chainIds || merklEnabledChainIds
+
   const resolvePositionsForBreakdown = useCallback(
     (reason: string) => {
       if (!positionsFilter?.length) return []
-      const [_, reasonPoolAddress, reasonTokenId] = reason.toLowerCase().split('_')
+      const { poolAddress: reasonPoolAddress, tokenId: reasonTokenId } = parseMerklReason(reason)
 
       return positionsFilter.filter(position => {
+        if (reasonTokenId) return isMerklReasonForPosition(reason, position)
+
+        // Only fall back to pool match when the reason lacks position id info, and only for a
+        // single position in scope — otherwise the pool's reward would be counted in full on
+        // every sibling position sharing that pool.
         const poolAddress = position.pool.address?.toLowerCase()
-        const positionTokenId = position.tokenId?.toLowerCase()
-
-        const matchByPositionId = reasonTokenId && reasonTokenId === positionTokenId
-        if (matchByPositionId) return true
-
-        // Only fall back to pool match when the reason lacks position id info
-        const matchByPool = poolAddress && reasonPoolAddress === poolAddress
-        return !reasonTokenId && matchByPool && positionsFilter.length === 1
+        return !!poolAddress && reasonPoolAddress === poolAddress && positionsFilter.length === 1
       })
     },
     [positionsFilter],
@@ -88,7 +95,7 @@ const useMerklRewards = (options?: UseMerklRewardsProps) => {
   } = useMerklRewardsQuery(
     {
       address: account || '',
-      chainId: filters.chainIds || merklEnabledChainIds,
+      chainId: chainIdsToQuery,
     },
     // Wait for the Merkl chains list to resolve so the very first call to /rewards already
     // has the right chainIds.

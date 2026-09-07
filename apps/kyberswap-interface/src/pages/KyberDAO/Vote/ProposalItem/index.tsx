@@ -1,13 +1,12 @@
 import { Trans, t } from '@lingui/macro'
 import dayjs from 'dayjs'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { isMobile } from 'react-device-detect'
 import { ChevronDown } from 'react-feather'
 
 import { ButtonLight, ButtonPrimary } from 'components/Button'
-import Column from 'components/Column'
 import LaunchIcon from 'components/Icons/LaunchIcon'
-import Row, { RowBetween, RowFit } from 'components/Row'
+import { RowBetween } from 'components/Row'
+import { Center, HStack, Stack } from 'components/Stack'
 import { useActiveWeb3React } from 'hooks'
 import { useVotingInfo } from 'hooks/kyberdao'
 import { ProposalDetail, ProposalStatus, ProposalType } from 'hooks/kyberdao/types'
@@ -24,18 +23,20 @@ import { cn } from 'utils/cn'
 import { hexAlpha } from 'utils/colorAlpha'
 import { escapeScriptHtml } from 'utils/string'
 
-const BADGE_BASE = 'flex h-5 items-center justify-center rounded-[10px] px-3.5 py-0.5 text-xs'
+const Badge = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('flex h-5 items-center justify-center rounded-lg px-3 py-1 text-xs', className)} {...props} />
+)
 
 const StatusBadged = ({ color, className, ...rest }: React.HTMLAttributes<HTMLDivElement> & { color?: string }) => (
-  <div
-    className={cn(BADGE_BASE, 'cursor-pointer hover:brightness-75', !color && 'bg-buttonBlack text-subText', className)}
+  <Badge
+    className={cn('cursor-pointer hover:brightness-75', !color && 'bg-buttonBlack text-subText', className)}
     style={color ? { color, backgroundColor: hexAlpha(color, 0.2) } : undefined}
     {...rest}
   />
 )
 
 const IDBadged = ({ children }: { children: React.ReactNode }) => (
-  <div className={cn(BADGE_BASE, 'bg-buttonBlack text-subText')}>{children}</div>
+  <Badge className="bg-buttonBlack text-subText">{children}</Badge>
 )
 
 const VoteButton = ({
@@ -65,26 +66,29 @@ const VoteButton = ({
     <>
       {status === ProposalStatus.Active ? (
         account ? (
-          <ButtonPrimary
-            width={isMobile ? '100%' : 'fit-content'}
-            minWidth={'200px'}
-            fontWeight={500}
-            fontSize="14px"
-            onClick={onVoteClick}
-            disabled={onLoad.current || !!errorMessage}
-          >
-            {errorMessage && !onLoad.current ? (
-              errorMessage
-            ) : voted ? (
-              <Trans>Update Vote</Trans>
-            ) : (
-              <Trans>Vote now</Trans>
-            )}
-          </ButtonPrimary>
+          <div className="w-full sm:w-52">
+            <ButtonPrimary
+              width="100%"
+              fontWeight={500}
+              fontSize="14px"
+              onClick={onVoteClick}
+              disabled={onLoad.current || !!errorMessage}
+            >
+              {errorMessage && !onLoad.current ? (
+                errorMessage
+              ) : voted ? (
+                <Trans>Update Vote</Trans>
+              ) : (
+                <Trans>Vote now</Trans>
+              )}
+            </ButtonPrimary>
+          </div>
         ) : (
-          <ButtonLight width={isMobile ? '100%' : '200px'} onClick={toggleWalletModal}>
-            <Trans>Connect</Trans>
-          </ButtonLight>
+          <div className="w-full sm:w-52">
+            <ButtonLight width="100%" onClick={toggleWalletModal}>
+              <Trans>Connect</Trans>
+            </ButtonLight>
+          </div>
         )
       ) : (
         <></>
@@ -97,12 +101,10 @@ const FORCED_TO_BINARY_OPTION_PROPOSALS = [14, 15, 17, 18, 19, 20, 22]
 
 function ProposalItem({
   proposal,
-  showByDefault,
   onBadgeClick,
   voteCallback,
 }: {
   proposal: ProposalDetail
-  showByDefault?: boolean
   onBadgeClick?: (name: string) => void
   voteCallback?: (proposal_id: number, option: number) => Promise<boolean>
 }) {
@@ -116,10 +118,11 @@ function ProposalItem({
 
   const isDelegated = !!stakerInfo && stakerInfo.delegate.toLowerCase() !== account?.toLowerCase()
 
-  const [show, setShow] = useState(!!showByDefault)
+  const [show, setShow] = useState(false)
   const [selectedOptions, setSelectedOptions] = useState<number[]>([])
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [showConfirmModal, setShowConfirmModal] = useState(false)
+
   useEffect(() => {
     if (isDelegated) {
       setErrorMessage(t`You already delegated your Voting power`)
@@ -132,7 +135,6 @@ function ProposalItem({
     }
   }, [selectedOptions.length, stakerInfo?.stake_amount, isDelegated, totalVotePowerAmount])
 
-  const contentRef = useRef<any>(null)
   const tagColor = () => {
     switch (proposal.status) {
       case ProposalStatus.Pending:
@@ -151,9 +153,11 @@ function ProposalItem({
   }
   const { switchToEthereum } = useSwitchToEthereum()
   const handleVote = useCallback(() => {
-    switchToEthereum(t`This action`).then(() => {
-      selectedOptions.length > 0 && setShowConfirmModal(true)
-    })
+    switchToEthereum(t`This action`)
+      .then(() => {
+        if (selectedOptions.length > 0) setShowConfirmModal(true)
+      })
+      .catch(() => undefined)
   }, [switchToEthereum, setShowConfirmModal, selectedOptions])
 
   const handleVoteConfirm = useCallback(() => {
@@ -209,13 +213,7 @@ function ProposalItem({
   const renderVotes = useMemo(() => {
     const manyOptions = proposal.options.length > 2
     return (
-      <RowBetween
-        className={cn(
-          isMobile ? 'flex-col gap-4' : 'flex-row gap-5',
-          manyOptions &&
-            'flex-wrap !justify-start [&>*]:w-[calc(33.33%-40px/3)] [&>*]:max-md:w-[calc(50%-10px)] [&>*]:max-sm:w-full',
-        )}
-      >
+      <div className={cn('grid grid-cols-1 gap-4', manyOptions ? 'sm:grid-cols-2 lg:grid-cols-3' : 'md:grid-cols-2')}>
         {proposal.options.map((option: string, index: number) => {
           const voted = votedOfCurrentProposal?.options?.includes(index) || false
           const voteStat = proposal?.vote_stats?.options?.find(o => o.option === index)
@@ -242,132 +240,99 @@ function ProposalItem({
             />
           )
         })}
-      </RowBetween>
+      </div>
     )
   }, [proposal, selectedOptions, votedOfCurrentProposal?.options, handleOptionClick, isActive, isForcedBinaryOption])
 
   return (
-    <div
-      className={cn(
-        'overflow-hidden rounded-[20px] bg-background shadow-[0px_2px_34px_rgba(0,0,0,0.0467931)]',
-        isMobile ? 'p-4' : 'px-6 py-5',
-      )}
+    <Stack
+      className="gap-4 overflow-hidden rounded-2xl bg-background p-4 shadow-[0px_2px_34px_rgba(0,0,0,0.0467931)] sm:p-6"
       style={{ contentVisibility: 'auto', containIntrinsicSize: '60px' } as React.CSSProperties}
     >
-      <div
-        className={cn(
-          'z-[1] flex flex-col bg-background [&>*:first-child]:cursor-pointer',
-          isMobile ? 'gap-4' : 'gap-5',
-        )}
-      >
-        <RowBetween onClick={() => setShow(s => !s)}>
+      <Stack className="z-[1] gap-4 bg-background">
+        <RowBetween>
           <span>{proposal.title}</span>
-          <div className="flex cursor-pointer items-center justify-center rounded-full bg-subText-20 text-subText">
+          <Center
+            className="size-6 cursor-pointer rounded-full bg-subText-20 text-subText hover:bg-subText-40"
+            onClick={() => setShow(v => !v)}
+          >
             <ChevronDown
-              size={24}
+              size={20}
               style={{ transition: 'all 0.2s ease', transform: show ? 'rotate(180deg)' : undefined }}
             />
-          </div>
+          </Center>
         </RowBetween>
-        {(show || isActive) && isMobile && (
-          <RowBetween>
-            <RowFit className="flex-wrap gap-2">
-              <StatusBadged color={tagColor()} onClick={() => onBadgeClick?.(proposal.status)}>
-                {proposal.status}
-              </StatusBadged>
-              <IDBadged>ID #{proposal.proposal_id}</IDBadged>
-            </RowFit>
-            {isActive && (
-              <RowFit className="shrink-0 gap-1">
-                <span className="text-xs text-subText">
-                  <Trans>Voting ends in: </Trans>
-                </span>
-                <TimerCountdown endTime={proposal.end_timestamp} />
-              </RowFit>
-            )}
-          </RowBetween>
-        )}
+
+        <HStack className="items-center justify-between gap-4 max-sm:flex-col max-sm:items-start">
+          <HStack className="flex-wrap gap-2">
+            <StatusBadged color={tagColor()} onClick={() => onBadgeClick?.(proposal.status)}>
+              {proposal.status}
+            </StatusBadged>
+            <IDBadged>ID #{proposal.proposal_id}</IDBadged>
+          </HStack>
+          {isActive && (
+            <HStack className="shrink-0 items-center gap-2">
+              <span className="text-xs text-subText">
+                <Trans>Voting ends in: </Trans>
+              </span>
+              <TimerCountdown endTime={proposal.end_timestamp} />
+            </HStack>
+          )}
+        </HStack>
+
         {(show || isActive) && renderVotes}
-        <RowBetween>
+
+        <HStack className="items-center justify-between gap-4 max-sm:flex-col max-sm:items-start">
           {isActive ? (
-            <Column className="gap-1">
-              <VoteButton
-                status={proposal.status}
-                onVoteClick={handleVote}
-                errorMessage={errorMessage}
-                voted={!!votedOfCurrentProposal?.options && votedOfCurrentProposal.options.length > 0}
-              />
-            </Column>
+            <VoteButton
+              status={proposal.status}
+              onVoteClick={handleVote}
+              errorMessage={errorMessage}
+              voted={!!votedOfCurrentProposal?.options && votedOfCurrentProposal.options.length > 0}
+            />
           ) : proposal.status === ProposalStatus.Pending ? (
-            <RowFit className="gap-1">
+            <HStack className="items-center gap-2">
               <span className="text-xs text-subText">
                 <Trans>Voting starts in: </Trans>
               </span>
               <TimerCountdown endTime={proposal.start_timestamp} />
-            </RowFit>
+            </HStack>
           ) : (
             <span className="text-xs text-subText">
               Ended {dayjs(proposal.end_timestamp * 1000).format('DD MMM YYYY')}
             </span>
           )}
-          {!((show || isActive) && isMobile) && (
-            <Column className="gap-2">
-              <Row className="justify-end gap-2">
-                <StatusBadged color={tagColor()} onClick={() => onBadgeClick?.(proposal.status)}>
-                  {proposal.status}
-                </StatusBadged>
-                <IDBadged>ID #{proposal.proposal_id}</IDBadged>
-              </Row>
-              {isActive && (
-                <Row className="gap-1">
-                  <span className="text-xs text-subText">
-                    <Trans>Voting ends in: </Trans>
-                  </span>
-                  <TimerCountdown endTime={proposal.end_timestamp} />
-                </Row>
-              )}
-            </Column>
-          )}
-        </RowBetween>
-      </div>
+        </HStack>
+      </Stack>
+
       {show && (
-        <div ref={contentRef as any} className="z-0 flex flex-col gap-5 py-6 transition-all duration-200">
-          <Row className="items-start gap-4">
-            <div className="flex-1">
+        <Stack className="z-0 gap-8 pt-4 transition-all duration-200">
+          <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_368px]">
+            <Stack className="gap-4">
               {proposal?.link && proposal.link !== '0x0' && (
                 <a
                   href={proposal.link?.startsWith('http') ? proposal.link : 'http://' + proposal.link}
-                  className="mb-3 w-fit"
+                  className="flex w-fit items-center gap-2 text-sm"
                   target="_blank"
                   rel="noreferrer"
                 >
-                  <span className="mr-1">
-                    <LaunchIcon size={14} />
-                  </span>
-                  <span className="align-top text-sm">
+                  <LaunchIcon size={14} />
+                  <span>
                     <Trans>Github</Trans>
                   </span>
                 </a>
               )}
               <p
-                className={cn(
-                  'mb-5 break-words text-subText',
-                  isMobile ? 'text-sm leading-[18px]' : 'text-base leading-[22px]',
-                )}
+                className="break-words text-base text-subText"
                 dangerouslySetInnerHTML={{
                   __html: escapeScriptHtml(proposal.desc.replaceAll('\\n', '').replaceAll('\\r', '')),
                 }}
-              ></p>
-              {isMobile && <VoteInformation proposal={proposal} />}
-            </div>
-            {!isMobile && (
-              <div className="w-[368px]">
-                <VoteInformation proposal={proposal} />
-              </div>
-            )}
-          </Row>
+              />
+            </Stack>
+            <VoteInformation proposal={proposal} />
+          </div>
           <Participants proposalId={proposal.proposal_id} />
-        </div>
+        </Stack>
       )}
       {proposal.status === ProposalStatus.Active && (
         <VoteConfirmModal
@@ -384,7 +349,7 @@ function ProposalItem({
           onVoteConfirm={handleVoteConfirm}
         />
       )}
-    </div>
+    </Stack>
   )
 }
 export default React.memo(ProposalItem)

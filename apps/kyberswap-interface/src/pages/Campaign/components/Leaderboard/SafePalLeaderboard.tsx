@@ -87,7 +87,7 @@ const SafePalRowsSkeleton = ({
               <Skeleton width={48} height={16} />
             </div>
             <div className={cn('flex flex-col', upToSmall ? 'w-full items-start' : 'w-[120px] items-end')}>
-              <Skeleton width={88} height={24} borderRadius={999} />
+              <Skeleton width={88} height={24} rounded />
             </div>
           </>
         )}

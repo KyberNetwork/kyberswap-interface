@@ -16,7 +16,7 @@ export const useSignOrder = () => {
     if (!currencyIn || !currencyOut || !account) return { signature: '', salt: '' }
 
     const payload = getPayloadCreateOrder(params)
-    const messagePayload = await getMessageSignature(payload).unwrap()
+    const messagePayload = await getMessageSignature({ ...payload, clientId: params.clientId }).unwrap()
 
     const rawSignature = await signTypedDataRaw({
       chainId: chainId,

@@ -8,8 +8,8 @@ import { WalletClient, formatUnits } from 'viem'
 import { wagmiConfig } from 'components/Web3Provider'
 import { ZERO_ADDRESS } from 'constants/index'
 import { MAINNET_NETWORKS } from 'constants/networks'
-import { CROSS_CHAIN_FEE_RECEIVER, CROSS_CHAIN_FEE_RECEIVER_SOLANA } from 'pages/CrossChainSwap/constants'
 import type { SolanaToken } from 'pages/CrossChainSwap/hooks/useSolanaTokens'
+import { CROSS_CHAIN_FEE_RECEIVER, CROSS_CHAIN_FEE_RECEIVER_SOLANA } from 'pages/CrossChainSwap/utils'
 
 import { Quote } from '../registry'
 import {

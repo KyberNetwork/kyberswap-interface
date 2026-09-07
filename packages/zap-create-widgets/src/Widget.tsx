@@ -24,8 +24,9 @@ import { useWidgetStore } from '@/stores/useWidgetStore';
 import { PriceType, ZapSnapshotState } from '@/types/index';
 
 export default function Widget() {
-  const { chainId, connectedAccount, onClose, onConnectWallet } = useWidgetStore([
+  const { chainId, connectedAccount, onClose, onConnectWallet, enableWalletInventory } = useWidgetStore([
     'chainId',
+    'enableWalletInventory',
     'poolType',
     'connectedAccount',
     'onClose',
@@ -84,6 +85,7 @@ export default function Widget() {
       {openTokenSelectModal && (
         <TokenSelectorModal
           chainId={chainId}
+          enableWalletInventory={enableWalletInventory}
           onClose={onCloseTokenSelectModal}
           wallet={{
             account: connectedAccount?.address,

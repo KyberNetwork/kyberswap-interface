@@ -35,6 +35,7 @@ import {
   CoreProtocol,
 } from "@/constants";
 import { sqrtToPrice } from "@kyber/utils/uniswapv3";
+import { usePermitNft, PermitNftState } from "@kyber/hooks";
 import { useNftApproval } from "@/hooks/useNftApproval";
 
 export default function Content({
@@ -72,7 +73,7 @@ export default function Content({
     onOpenTokenSelectModal,
     poolType,
   } = useWidgetInfo();
-  const { account, chainId } = useWeb3Provider();
+  const { account, chainId, walletClient } = useWeb3Provider();
 
   const [clickedApprove, setClickedLoading] = useState(false);
   const [snapshotState, setSnapshotState] = useState<ZapState | null>(null);
@@ -94,55 +95,95 @@ export default function Content({
     spender: zapInfo?.routerAddress,
   });
 
+  const signTypedData = useCallback(
+    async (signer: string, typedData: string): Promise<string> => {
+      if (!walletClient) throw new Error("Wallet not connected");
+      // usePermitNft builds the EIP-712 payload as a raw JSON string; viem's
+      // typed request schema doesn't cover eth_signTypedData_v4 with that shape.
+      return (await walletClient.request({
+        method: "eth_signTypedData_v4",
+        params: [signer as `0x${string}`, typedData],
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } as any)) as string;
+    },
+    [walletClient],
+  );
+
+  const {
+    permitState,
+    signPermitNft,
+    permitData: permitResult,
+  } = usePermitNft({
+    nftManagerContract,
+    tokenId: positionId,
+    spender: zapInfo?.routerAddress,
+    account,
+    chainId,
+    signTypedData,
+  });
+
   const isPancakeInfinityCL = isForkFrom(
     poolType,
-    CoreProtocol.PancakeInfinityCL
+    CoreProtocol.PancakeInfinityCL,
   );
+  // ZapRouter v2 keeps the legacy flow (only Pancake Infinity CL positions need
+  // NFT authorization); v3 requires it for every concentrated-liquidity position.
+  const isZapV2 =
+    zapInfo?.routerAddress?.toLowerCase() ===
+    "0x0e97c887b61ccd952a53578b04763e7134429e05";
+  const requiresNftAuth = Boolean(
+    positionId && (!isZapV2 || isPancakeInfinityCL),
+  );
+
+  const canPermit =
+    !isZapV2 &&
+    (permitState != PermitNftState.SIGNED);
+  const nftAuthorized = nftApproved || permitState === PermitNftState.SIGNED;
 
   const amountsInWei: string[] = useMemo(
     () =>
       !amountsIn
         ? []
         : amountsIn
-            .split(",")
-            .map((amount, index) =>
-              parseUnits(amount || "0", tokensIn[index]?.decimals).toString()
-            ),
-    [tokensIn, amountsIn]
+          .split(",")
+          .map((amount, index) =>
+            parseUnits(amount || "0", tokensIn[index]?.decimals).toString(),
+          ),
+    [tokensIn, amountsIn],
   );
 
   const { loading, approvalStates, addressToApprove, approve } = useApprovals(
     amountsInWei,
     tokensIn.map((token) => token?.address || ""),
-    zapInfo?.routerAddress || ""
+    zapInfo?.routerAddress || "",
   );
 
   const notApprove = useMemo(
     () =>
       tokensIn.find(
         (item) =>
-          approvalStates[item?.address || ""] === APPROVAL_STATE.NOT_APPROVED
+          approvalStates[item?.address || ""] === APPROVAL_STATE.NOT_APPROVED,
       ),
-    [approvalStates, tokensIn]
+    [approvalStates, tokensIn],
   );
 
   const pi = useMemo(() => {
     const aggregatorSwapInfo = zapInfo?.zapDetails.actions.find(
-      (item) => item.type === ZapAction.AGGREGATOR_SWAP
+      (item) => item.type === ZapAction.AGGREGATOR_SWAP,
     ) as AggregatorSwapAction | undefined;
 
     const poolSwapInfo = zapInfo?.zapDetails.actions.find(
-      (item) => item.type === ZapAction.POOL_SWAP
+      (item) => item.type === ZapAction.POOL_SWAP,
     ) as PoolSwapAction | null;
 
     const feeInfo = zapInfo?.zapDetails.actions.find(
-      (item) => item.type === ZapAction.PROTOCOL_FEE
+      (item) => item.type === ZapAction.PROTOCOL_FEE,
     ) as ProtocolFeeAction | undefined;
 
     const piRes = getPriceImpact(
       zapInfo?.zapDetails.priceImpact,
       ImpactType.ZAP,
-      feeInfo
+      feeInfo,
     );
 
     const aggregatorSwapPi =
@@ -182,38 +223,66 @@ export default function Content({
     return { piVeryHigh, piHigh };
   }, [zapInfo]);
 
+  const isInNftApprovalStep = Boolean(
+    requiresNftAuth &&
+    !nftAuthorized &&
+    !notApprove &&
+    !addressToApprove &&
+    !error &&
+    !zapLoading &&
+    !loading,
+  );
+
+  const onPermitNft = () => {
+    setClickedLoading(true);
+    const date = new Date();
+    date.setMinutes(date.getMinutes() + (ttl || 20));
+    signPermitNft(Math.floor(date.getTime() / 1000)).finally(() =>
+      setClickedLoading(false),
+    );
+  };
+
+  const onApproveNft = () => {
+    setClickedLoading(true);
+    approveNft().finally(() => setClickedLoading(false));
+  };
+
   const btnText = useMemo(() => {
     if (error) return error;
     if (zapLoading) return "Loading...";
     if (loading) return "Checking Allowance";
     if (addressToApprove || pendingTxNft) return "Approving";
     if (notApprove) return `Approve ${notApprove.symbol}`;
-    if (isPancakeInfinityCL && positionId && !nftApproved) return "Approve NFT";
+    if (requiresNftAuth && !nftAuthorized)
+      return canPermit ? "Permit NFT" : "Approve NFT";
     if (pi.piVeryHigh) return "Zap anyway";
 
     return "Preview";
   }, [
     addressToApprove,
     error,
-    isPancakeInfinityCL,
     loading,
-    nftApproved,
+    nftAuthorized,
+    canPermit,
     notApprove,
     pendingTxNft,
     pi.piVeryHigh,
-    positionId,
+    requiresNftAuth,
     zapLoading,
   ]);
 
   const disabled = useMemo(
     () =>
       clickedApprove ||
-      (isPancakeInfinityCL && positionId && (pendingTxNft || isChecking)) ||
+      (requiresNftAuth &&
+        (pendingTxNft ||
+          isChecking ||
+          permitState === PermitNftState.SIGNING)) ||
       loading ||
       zapLoading ||
       !!error ||
       Object.values(approvalStates).some(
-        (item) => item === APPROVAL_STATE.PENDING
+        (item) => item === APPROVAL_STATE.PENDING,
       ) ||
       (pi.piVeryHigh && !degenMode),
     [
@@ -222,22 +291,30 @@ export default function Content({
       degenMode,
       error,
       isChecking,
-      isPancakeInfinityCL,
       loading,
       pendingTxNft,
+      permitState,
       pi.piVeryHigh,
-      positionId,
+      requiresNftAuth,
       zapLoading,
-    ]
+    ],
   );
 
   const hanldeClick = () => {
     if (notApprove) {
       setClickedLoading(true);
       approve(notApprove.address).finally(() => setClickedLoading(false));
-    } else if (isPancakeInfinityCL && positionId && !nftApproved) {
+    } else if (requiresNftAuth && !nftAuthorized) {
       setClickedLoading(true);
-      approveNft().finally(() => setClickedLoading(false));
+      if (canPermit) {
+        const date = new Date();
+        date.setMinutes(date.getMinutes() + (ttl || 20));
+        signPermitNft(Math.floor(date.getTime() / 1000)).finally(() =>
+          setClickedLoading(false),
+        );
+      } else {
+        approveNft().finally(() => setClickedLoading(false));
+      }
     } else if (
       pool &&
       amountsIn &&
@@ -263,6 +340,7 @@ export default function Content({
         slippage,
         tickUpper,
         tickLower,
+        permitData: permitResult?.permitData,
       });
       onTogglePreview?.(true);
     }
@@ -276,11 +354,11 @@ export default function Content({
 
   const currentPoolPrice = pool
     ? sqrtToPrice(
-        BigInt(pool.sqrtRatioX96 || 0),
-        pool.token0.decimals,
-        pool.token1.decimals,
-        revertPrice
-      )
+      BigInt(pool.sqrtRatioX96 || 0),
+      pool.token0.decimals,
+      pool.token1.decimals,
+      revertPrice,
+    )
     : undefined;
 
   const selectPriceRange = useCallback(
@@ -304,7 +382,7 @@ export default function Content({
         setTick,
       });
     },
-    [currentPoolPrice, pool, revertPrice, setTick]
+    [currentPoolPrice, pool, revertPrice, setTick],
   );
 
   useEffect(() => {
@@ -364,9 +442,8 @@ export default function Content({
           ))}
 
           <div
-            className={`mt-4 text-primary cursor-pointer w-fit text-sm ${
-              tokensIn.length >= MAX_ZAP_IN_TOKENS ? "opacity-50" : ""
-            }`}
+            className={`mt-4 text-primary cursor-pointer w-fit text-sm ${tokensIn.length >= MAX_ZAP_IN_TOKENS ? "opacity-50" : ""
+              }`}
             onClick={() =>
               tokensIn.length < MAX_ZAP_IN_TOKENS && onOpenTokenSelectModal()
             }
@@ -422,11 +499,11 @@ export default function Content({
                     if (!pool) return;
                     setTick(
                       Type.PriceLower,
-                      revertPrice ? pool.maxTick : pool.minTick
+                      revertPrice ? pool.maxTick : pool.minTick,
                     );
                     setTick(
                       Type.PriceUpper,
-                      revertPrice ? pool.minTick : pool.maxTick
+                      revertPrice ? pool.minTick : pool.maxTick,
                     );
                   }}
                 >
@@ -444,13 +521,35 @@ export default function Content({
       </div>
 
       <div className="flex gap-6 p-6">
-        <button className="pcs-outline-btn flex-1" onClick={onDismiss}>
-          Cancel
-        </button>
+        {isInNftApprovalStep && canPermit ? (
+          <button
+            className="pcs-primary-btn flex-1"
+            disabled={clickedApprove || permitState === PermitNftState.SIGNING}
+            onClick={onPermitNft}
+          >
+            {permitState === PermitNftState.SIGNING
+              ? "Signing..."
+              : "Permit NFT"}
+          </button>
+        ) : (
+          <button className="pcs-outline-btn flex-1" onClick={onDismiss}>
+            Cancel
+          </button>
+        )}
 
         {!account ? (
           <button className="pcs-primary-btn flex-1" onClick={onConnectWallet}>
             Connect Wallet
+          </button>
+        ) : isInNftApprovalStep ? (
+          <button
+            className={
+              canPermit ? "pcs-outline-btn flex-1" : "pcs-primary-btn flex-1"
+            }
+            disabled={clickedApprove || !!pendingTxNft || isChecking}
+            onClick={onApproveNft}
+          >
+            {pendingTxNft ? "Approving..." : "Approve NFT"}
           </button>
         ) : (
           <button
@@ -459,24 +558,24 @@ export default function Content({
             onClick={hanldeClick}
             style={
               !disabled &&
-              Object.values(approvalStates).some(
-                (item) => item !== APPROVAL_STATE.NOT_APPROVED
-              )
+                Object.values(approvalStates).some(
+                  (item) => item !== APPROVAL_STATE.NOT_APPROVED,
+                )
                 ? {
-                    background:
-                      pi.piVeryHigh && degenMode
-                        ? theme.error
-                        : pi.piHigh
-                          ? theme.warning
-                          : undefined,
-                    border:
-                      pi.piVeryHigh && degenMode
-                        ? `1px solid ${theme.error}`
-                        : pi.piHigh
-                          ? theme.warning
-                          : undefined,
-                    color: pi.piVeryHigh && degenMode ? "fff" : undefined,
-                  }
+                  background:
+                    pi.piVeryHigh && degenMode
+                      ? theme.error
+                      : pi.piHigh
+                        ? theme.warning
+                        : undefined,
+                  border:
+                    pi.piVeryHigh && degenMode
+                      ? `1px solid ${theme.error}`
+                      : pi.piHigh
+                        ? theme.warning
+                        : undefined,
+                  color: pi.piVeryHigh && degenMode ? "fff" : undefined,
+                }
                 : {}
             }
           >

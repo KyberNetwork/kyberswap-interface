@@ -156,6 +156,29 @@ export const useReviewTransaction = ({
           tokensIn,
           dexLogoUrl: EARN_DEXES[exchange].logo,
           dex: exchange,
+          // The page only ever opens a brand-new position, so the placeholder never carries a position id.
+          unfinalizedPosition: {
+            chainId,
+            dex: exchange,
+            dexLogo: EARN_DEXES[exchange].logo,
+            pool: { address: poolAddress, fee: pool.fee },
+            token0: {
+              address: pool.token0.address,
+              symbol: pool.token0.symbol,
+              logo: pool.token0.logo || '',
+              decimals: pool.token0.decimals,
+              amount: outputTokenItems[0]?.amount || 0,
+            },
+            token1: {
+              address: pool.token1.address,
+              symbol: pool.token1.symbol,
+              logo: pool.token1.logo || '',
+              decimals: pool.token1.decimals,
+              amount: outputTokenItems[1]?.amount || 0,
+            },
+            value: Number(route.zapDetails.initialAmountUsd || 0),
+            createdAt: Date.now(),
+          },
         },
       })
       onTrackEvent?.('LIQ_ADDED', {
@@ -196,8 +219,10 @@ export const useReviewTransaction = ({
     onAddTrackedTxHash,
     onAddTransactionWithType,
     onTrackEvent,
+    outputTokenItems,
     pool,
     poolAddress,
+    route,
     tokensIn,
   ])
 

@@ -6,6 +6,7 @@ import { Repeat } from 'react-feather'
 import { useSearchParams } from 'react-router-dom'
 
 import { AutoColumn } from 'components/Column'
+import { HoneypotWarning, useHoneypotWarning } from 'components/HoneypotWarning'
 import RefreshLoading from 'components/RefreshLoading'
 import Skeleton from 'components/Skeleton'
 import { Stack } from 'components/Stack'
@@ -131,6 +132,12 @@ const CrossChainSwapForm = ({ onQuoteChange }: CrossChainSwapProps) => {
   const showConnect = searchParams.get('showConnect')
 
   const isToEvm = toChainId && isEvmChain(toChainId)
+  const outputTokenAddress = isToEvm ? (currencyOut as EvmCurrency | undefined)?.wrapped.address : undefined
+  const { message: honeypotWarning } = useHoneypotWarning({
+    chainId: isToEvm ? Number(toChainId) : undefined,
+    tokenAddress: outputTokenAddress,
+    tokenSymbol: currencyOut?.symbol,
+  })
 
   useEffect(() => {
     if (selectedQuote) {
@@ -335,7 +342,12 @@ const CrossChainSwapForm = ({ onQuoteChange }: CrossChainSwapProps) => {
         <Skeleton height={16} width={140} />
       )}
 
-      <PiWarning />
+      {(honeypotWarning || warning?.priceImpaceInfo?.message) && (
+        <Stack className="gap-3">
+          <HoneypotWarning message={honeypotWarning} />
+          <PiWarning />
+        </Stack>
+      )}
 
       <SwapAction setShowBtcModal={setShowBtcConnect} />
 

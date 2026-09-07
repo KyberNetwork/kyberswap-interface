@@ -1,4 +1,3 @@
-import { ChainId } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { motion, useAnimationControls, useDragControls } from 'framer-motion'
 import { RefObject, useEffect, useRef, useState } from 'react'
@@ -50,9 +49,6 @@ const MaintainLabel = ({
 const CircleGreen = () => (
   <div className="ml-auto size-4 rounded-lg border-2 border-primary/30 bg-primary bg-clip-content" />
 )
-
-// Chains not yet fully production-ready — flagged with a red "Provisional" label in the chain selector.
-const PROVISIONAL_CHAINS: Chain[] = [ChainId.ROBINHOOD]
 
 const DraggableNetworkButton = ({
   networkInfo,
@@ -245,7 +241,7 @@ const DraggableNetworkButton = ({
                 <Trans>New</Trans>
               </NewLabel>
             )}
-            {PROVISIONAL_CHAINS.includes(chainId) && (
+            {state === ChainState.PROVISIONAL && (
               <NewLabel>
                 <Trans>Provisional</Trans>
               </NewLabel>

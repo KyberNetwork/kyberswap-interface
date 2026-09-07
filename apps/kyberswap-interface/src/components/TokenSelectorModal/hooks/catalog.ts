@@ -23,12 +23,12 @@ export const catalogTokenToWrapped = (t: TokenCatalogListToken): WrappedTokenInf
   }
 }
 
-/** Pull the price / 24h-change / volume row metadata out of a catalog token's `metrics`. */
+/** Pull the price / 24h-change / volume / market-cap row metadata out of a catalog token's `metrics`. */
 export const catalogMetricsToExtra = (t: TokenCatalogListToken): TokenRowExtra => ({
   price: t.metrics?.price,
   priceChange24h: t.metrics?.priceChange24h ?? undefined,
   volume24h: t.metrics?.stats24h?.volume24h,
-  marketCap: t.marketCap,
+  marketCap: t.metrics?.marketCap ?? t.marketCap,
 })
 
 /**

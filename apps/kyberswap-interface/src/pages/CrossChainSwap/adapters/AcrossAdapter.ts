@@ -34,10 +34,9 @@ import {
   SwapStatus,
 } from 'pages/CrossChainSwap/adapters/BaseSwapAdapter'
 import { isEvmChain } from 'pages/CrossChainSwap/adapters/types'
-import { CROSS_CHAIN_FEE_RECEIVER } from 'pages/CrossChainSwap/constants'
 import type { SolanaToken } from 'pages/CrossChainSwap/hooks/useSolanaTokens'
 import { Quote } from 'pages/CrossChainSwap/registry'
-import { isNativeToken, isWrappedToken } from 'pages/CrossChainSwap/utils'
+import { CROSS_CHAIN_FEE_RECEIVER, isNativeToken, isWrappedToken } from 'pages/CrossChainSwap/utils'
 
 const API_URL = 'https://app.across.to/api/suggested-fees'
 

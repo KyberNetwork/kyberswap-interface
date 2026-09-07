@@ -8,7 +8,6 @@ import Modal from 'components/Modal'
 import TokenLogo from 'components/TokenLogo'
 import {
   Apr,
-  ContentWrapper,
   FeeTier,
   MigrateTableBody,
   MigrateTableHeader,
@@ -39,7 +38,7 @@ export default function MigrationModal({
   return (
     <Modal isOpen width="768px" maxWidth={1000} onDismiss={onClose}>
       <MigrateTableWrapper>
-        <ContentWrapper>
+        <div>
           {!upToSmall && (
             <MigrateTableHeader>
               <span>{t`Pair`}</span>
@@ -174,7 +173,7 @@ export default function MigrationModal({
                 )
               })}
           </MigrateTableBody>
-        </ContentWrapper>
+        </div>
       </MigrateTableWrapper>
     </Modal>
   )

@@ -20,6 +20,7 @@ import { Preview } from '@/components/Preview';
 import RangeInput from '@/components/RangeInput';
 import TargetPosition from '@/components/TargetPosition';
 import Warning from '@/components/Warning';
+import { ROUTE_REFRESH_INTERVAL } from '@/constants';
 import useInitWidget from '@/hooks/useInitWidget';
 import { WidgetI18nProvider } from '@/i18n';
 import '@/index.css';
@@ -71,13 +72,14 @@ export const ZapMigration = (widgetProps: ZapMigrationProps) => {
     error: positionError,
     reset: resetPositionStore,
   } = usePositionStore(['sourcePosition', 'targetPosition', 'targetPositionId', 'error', 'reset']);
-  const { reset, buildData, fetchZapRoute, liquidityOut, tickUpper, tickLower } = useZapStore([
+  const { reset, buildData, fetchZapRoute, liquidityOut, tickUpper, tickLower, slippage } = useZapStore([
     'reset',
     'buildData',
     'fetchZapRoute',
     'liquidityOut',
     'tickUpper',
     'tickLower',
+    'slippage',
   ]);
 
   useInitWidget(widgetProps);
@@ -86,9 +88,11 @@ export const ZapMigration = (widgetProps: ZapMigrationProps) => {
   const debouncedTickUpper = useDebounce(tickUpper, 500);
   const debouncedTickLower = useDebounce(tickLower, 500);
 
+  const account = connectedAccount?.address || ZERO_ADDRESS;
+
   useEffect(() => {
     if (buildData) return;
-    fetchZapRoute(chainId, client, connectedAccount?.address || ZERO_ADDRESS);
+    fetchZapRoute(chainId, client, account);
   }, [
     sourcePool,
     targetPool,
@@ -99,10 +103,24 @@ export const ZapMigration = (widgetProps: ZapMigrationProps) => {
     debouncedTickLower,
     debounceLiquidityOut,
     buildData,
-    connectedAccount?.address,
+    account,
     chainId,
     client,
+    slippage,
   ]);
+
+  // The effect above only reaches the network when the quote inputs actually change, so the
+  // time-sensitive part of the quote is re-priced on its own cadence
+  useEffect(() => {
+    if (buildData) return;
+
+    const interval = setInterval(
+      () => fetchZapRoute(chainId, client, account, { force: true }),
+      ROUTE_REFRESH_INTERVAL,
+    );
+
+    return () => clearInterval(interval);
+  }, [buildData, fetchZapRoute, chainId, client, account]);
 
   const onClose = () => {
     resetWidgetStore();
@@ -116,7 +134,7 @@ export const ZapMigration = (widgetProps: ZapMigrationProps) => {
     if (poolError || positionError) onClose();
     else {
       setWidgetError('');
-      fetchZapRoute(chainId, client, connectedAccount?.address || ZERO_ADDRESS);
+      fetchZapRoute(chainId, client, account, { force: true });
     }
   };
 

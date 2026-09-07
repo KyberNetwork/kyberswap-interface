@@ -1,4 +1,3 @@
-import { t } from '@lingui/macro'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useUserPositionsQuery } from 'services/earn'
 import { useGetSmartExitOrdersQuery } from 'services/smartExit'
@@ -14,7 +13,6 @@ import {
   UserPosition,
 } from 'pages/Earns/types'
 import { parsePosition } from 'pages/Earns/utils/position'
-import { friendlyError } from 'utils/errorMessage'
 
 /**
  * For executed orders, the position may be closed and `earningFeeYield` from position data
@@ -71,6 +69,8 @@ export type ParsedSmartExitOrder = SmartExitOrder & {
   }
 }
 
+const EMPTY_ORDERS: ParsedSmartExitOrder[] = []
+
 type UseSmartExitOrdersDataParams = {
   account?: string | null
   filters: SmartExitFilter
@@ -88,7 +88,7 @@ export function useSmartExitOrdersData({ account, filters, pageSize, updateFilte
   const lastCurrentPageRef = useRef<number>(1)
 
   const {
-    data: ordersData,
+    data: ordersResult,
     isLoading: smartExitLoading,
     isFetching: smartExitFetching,
     error: ordersError,
@@ -106,6 +106,10 @@ export function useSmartExitOrdersData({ account, filters, pageSize, updateFilte
       pollingInterval: 30000,
     },
   )
+
+  // RTK Query holds on to the last result once a query is skipped, so disconnecting would otherwise leave
+  // the previous wallet's orders and pagination on screen.
+  const ordersData = account ? ordersResult : undefined
 
   const orders = useMemo(() => ordersData?.orders || [], [ordersData])
   const totalItemsFromAPI = ordersData?.totalItems || 0
@@ -253,19 +257,17 @@ export function useSmartExitOrdersData({ account, filters, pageSize, updateFilte
     }
   }, [enrichedOrders, isDataSynced, totalItemsFromAPI, currentPage])
 
-  // Only show new orders when data is synced, otherwise keep showing cached orders
+  // Only show new orders when data is synced, otherwise keep showing cached orders. The cache exists to
+  // ride out a page change; with no wallet there is nothing to ride out and it holds orders belonging to
+  // the wallet that just went away.
   const renderedOrders = useMemo(() => {
+    if (!account) return EMPTY_ORDERS
     if (isDataSynced) {
       return enrichedOrders
     }
     // Keep showing cached orders while syncing
     return lastEnrichedOrdersRef.current
-  }, [enrichedOrders, isDataSynced])
-
-  const ordersEmptyMessage = useMemo(
-    () => (ordersError ? friendlyError(ordersError as unknown as Error) : t`No smart exit orders found`),
-    [ordersError],
-  )
+  }, [account, enrichedOrders, isDataSynced])
 
   const shouldShowEmptyState = useMemo(
     () =>
@@ -294,11 +296,12 @@ export function useSmartExitOrdersData({ account, filters, pageSize, updateFilte
   // Sync pagination with table data - update when fetch is complete
   // Use isFetchComplete (not isDataSynced) to handle empty results correctly
   const syncedTotalItems = useMemo(() => {
+    if (!account) return 0
     if (isFetchComplete) {
       return totalItemsFromAPI
     }
     return lastTotalItemsRef.current
-  }, [isFetchComplete, totalItemsFromAPI])
+  }, [account, isFetchComplete, totalItemsFromAPI])
 
   const syncedCurrentPage = useMemo(() => {
     if (isFetchComplete) {
@@ -310,12 +313,10 @@ export function useSmartExitOrdersData({ account, filters, pageSize, updateFilte
   return {
     currentPage: syncedCurrentPage,
     totalItems: syncedTotalItems,
-    ordersError,
     tableLoading,
     overlayLoading,
     renderedOrders,
     handlePageChange,
-    ordersEmptyMessage,
     shouldShowEmptyState,
   }
 }

@@ -10,17 +10,18 @@ export type SegmentedControlOption<T extends string = string> = {
 type SegmentedControlProps<T extends string> = {
   onChange?: (value: T) => void
   options?: readonly SegmentedControlOption<T>[]
-  size?: 'sm' | 'md'
+  size?: 'xs' | 'sm' | 'md'
   value?: T
 }
 
 const segment = cva(
-  'relative z-[1] min-w-12 cursor-pointer rounded-full border-0 bg-transparent text-sm font-medium [transition:color_200ms_ease,background_200ms_ease] disabled:cursor-not-allowed disabled:opacity-50',
+  'relative z-[1] cursor-pointer rounded-full border-0 bg-transparent font-medium [transition:color_200ms_ease,background_200ms_ease] disabled:cursor-not-allowed disabled:opacity-50',
   {
     variants: {
       size: {
-        sm: 'px-2 py-1',
-        md: 'px-3 py-2',
+        xs: 'min-w-0 px-2 py-1 text-xs',
+        sm: 'min-w-12 px-2 py-1 text-sm',
+        md: 'min-w-12 px-3 py-2 text-sm',
       },
       active: {
         true: 'text-text',
