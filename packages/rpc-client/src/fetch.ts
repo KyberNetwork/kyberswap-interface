@@ -1,4 +1,4 @@
-import { buildRpcErrorMessage, getRpcClient } from './client';
+import { buildRpcErrorMessage, getRpcClient, postJsonRpc } from './client';
 import { JsonRpcResponse, RpcClientConfig, RpcError } from './types';
 
 /**
@@ -97,7 +97,8 @@ export async function rpcBatchFetch<T extends unknown[]>(
 
 /**
  * Direct RPC fetch without rotation (for when you have a specific URL).
- * Still includes timeout and error handling.
+ * Still includes timeout and error handling. With nowhere to rotate to, the budget is a generous
+ * one: cutting a lone endpoint short only turns a slow answer into no answer.
  */
 async function fetchDirectRpc<T>(
   rpcUrl: string,
@@ -105,66 +106,26 @@ async function fetchDirectRpc<T>(
   params: unknown[],
   timeout: number = 10000,
 ): Promise<T> {
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), timeout);
-
-  try {
-    const response = await fetch(rpcUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        jsonrpc: '2.0',
-        id: 1,
-        method,
-        params,
-      }),
-      signal: controller.signal,
-    });
-
-    clearTimeout(timeoutId);
-
-    if (!response.ok) {
-      throw new RpcError(
-        response.status,
-        buildRpcErrorMessage(rpcUrl, method, `HTTP error ${response.status} ${response.statusText}`),
-      );
-    }
-
-    const data = (await response.json()) as JsonRpcResponse<T>;
-
-    if (data.error) {
-      throw new RpcError(
-        data.error.code,
-        buildRpcErrorMessage(
-          rpcUrl,
-          method,
-          `JSON-RPC error ${data.error.code}: ${data.error.message}`,
-          data.error.code,
-        ),
-        data.error.data,
-      );
-    }
-
-    if (data.result === undefined) {
-      throw new RpcError(-1, buildRpcErrorMessage(rpcUrl, method, 'No result in response'));
-    }
-
-    return data.result;
-  } catch (error) {
-    clearTimeout(timeoutId);
-
-    if (error instanceof RpcError) {
-      throw error;
-    }
-
-    if ((error as Error).name === 'AbortError') {
-      throw new RpcError(-1, buildRpcErrorMessage(rpcUrl, method, `Request timeout after ${timeout}ms`));
-    }
-
-    throw new RpcError(-1, buildRpcErrorMessage(rpcUrl, method, (error as Error).message || 'Network error'));
+  const data = await postJsonRpc<JsonRpcResponse<T>>(
+    rpcUrl,
+    method,
+    { jsonrpc: '2.0', id: 1, method, params },
+    timeout,
+  );
+  if (data.error) {
+    throw new RpcError(
+      data.error.code,
+      buildRpcErrorMessage(rpcUrl, method, `JSON-RPC error ${data.error.code}: ${data.error.message}`, data.error.code),
+      data.error.data,
+      { kind: 'rpc', nodeMessage: data.error.message },
+    );
   }
+  if (data.result === undefined) {
+    throw new RpcError(-1, buildRpcErrorMessage(rpcUrl, method, 'No result in response'), undefined, {
+      kind: 'network',
+    });
+  }
+  return data.result;
 }
 
 // ============================================================================

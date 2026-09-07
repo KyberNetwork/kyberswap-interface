@@ -81,7 +81,7 @@ export interface RpcClientConfig {
   /** Whether to use Kyber RPC as fallback (default: true) */
   useKyberFallback?: boolean;
 
-  /** Request timeout in milliseconds (default: 10000) */
+  /** Time one endpoint gets to answer before rotation moves on, in milliseconds (default: 3000) */
   timeout?: number;
 
   /** Maximum retries per endpoint before moving to next (default: 1) */
@@ -96,10 +96,16 @@ export interface RpcClientConfig {
   /** Event handlers for telemetry and monitoring */
   eventHandlers?: RpcEventHandlers;
 
-  /** Max block lag allowed before marking an endpoint as stale (default: 50) */
+  /**
+   * Blocks an endpoint may trail the freshest one before it is benched as stale (default: 50).
+   * `getRpcClient` applies it to an existing instance too, so the value is not first-caller's.
+   */
   maxBlockLag?: number;
 
-  /** Interval in ms between background block freshness probes (default: 60000). Set to 0 to disable. */
+  /**
+   * Interval in ms between block freshness probes while the client is in use (default: 60000).
+   * Probing starts with the first call and stops after five minutes without one. Set to 0 to disable.
+   */
   probeIntervalMs?: number;
 }
 
@@ -143,15 +149,30 @@ export class AllEndpointsFailedError extends Error {
 }
 
 /**
- * Error thrown when RPC returns an error response
+ * Where an RPC failure came from. Only `rpc` is the node answering — with a JSON-RPC error whose
+ * `code` and `data` are the node's own; the rest are the endpoint failing to answer, and mean
+ * nothing about the request.
+ */
+export type RpcErrorKind = 'rpc' | 'http' | 'timeout' | 'network';
+
+/**
+ * Error thrown when a request fails. `message` is composed for logs and tags infrastructure
+ * failures with the endpoint; `nodeMessage` is the node's own text when the node answered, which is
+ * what a caller matching on it (a revert reason, viem's decoder) needs untouched.
  */
 export class RpcError extends Error {
+  readonly kind: RpcErrorKind;
+  readonly nodeMessage?: string;
+
   constructor(
     public readonly code: number,
     message: string,
     public readonly data?: unknown,
+    options: { kind?: RpcErrorKind; nodeMessage?: string } = {},
   ) {
     super(message);
     this.name = 'RpcError';
+    this.kind = options.kind ?? 'rpc';
+    this.nodeMessage = options.nodeMessage;
   }
 }

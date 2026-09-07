@@ -12,11 +12,28 @@ import {
   RpcEventHandlers,
 } from './types';
 
-const DEFAULT_TIMEOUT = 10000;
+/**
+ * One endpoint's share of the wait. Rotation only moves on once the current endpoint has failed or
+ * run out of time, so a hop that hangs costs the whole call this long. A healthy endpoint answers a
+ * multicall-sized `eth_call` in well under two seconds; three is generous for one and keeps a walk
+ * over a full list to tens of seconds rather than minutes.
+ */
+const DEFAULT_TIMEOUT = 3000;
+/**
+ * Methods the node itself works on for a while — gas estimation searches for the limit — get a
+ * longer budget than a read: giving them a read's three seconds would cut off every honest answer.
+ */
+const SLOW_METHOD_TIMEOUT_MS = 10000;
+const SLOW_METHODS = new Set(['eth_estimateGas']);
 const DEFAULT_MAX_RETRIES_PER_ENDPOINT = 1;
 const DEFAULT_ENDPOINT_COOLDOWN_MS = 60000; // 1 minute
 const DEFAULT_MAX_BLOCK_LAG = 50;
 const DEFAULT_PROBE_INTERVAL_MS = 60000; // 1 minute
+/**
+ * A probe loop follows traffic: it starts with the first call and stops once no call has been made
+ * for this long, so a client held for a chain nobody is reading costs the endpoints nothing.
+ */
+const DEFAULT_PROBE_IDLE_STOP_MS = 5 * 60000;
 
 /**
  * JSON-RPC error codes that every healthy node answers identically, so rotating
@@ -86,11 +103,74 @@ function normalizeRpcError(error: unknown): { code: number; message: string; dat
 }
 
 /**
+ * One JSON-RPC POST with a real budget. The abort is the polite cancel; the rejection is the
+ * guarantee: the fetch and the body read both race the deadline, and the timer lives until the body
+ * is parsed, so an endpoint that sends headers and then stalls — or an environment that leaves an
+ * aborted fetch pending — cannot hold the call. Every failure is an `RpcError` whose `kind` says
+ * whether the endpoint failed (`http`, `timeout`, `network`) or answered; the caller reads the
+ * answer's own error out of the parsed body.
+ */
+export async function postJsonRpc<R>(
+  endpoint: string,
+  method: string,
+  payload: unknown,
+  timeoutMs: number,
+  headers: Record<string, string> = {},
+): Promise<R> {
+  const controller = new AbortController();
+  let timeoutId: ReturnType<typeof setTimeout> | undefined;
+  const deadline = new Promise<never>((_, reject) => {
+    timeoutId = setTimeout(() => {
+      controller.abort();
+      reject(
+        new RpcError(-1, buildRpcErrorMessage(endpoint, method, `Request timeout after ${timeoutMs}ms`), undefined, {
+          kind: 'timeout',
+        }),
+      );
+    }, timeoutMs);
+  });
+  const race = <T>(work: Promise<T>) => Promise.race([work, deadline]);
+
+  try {
+    const response = await race(
+      fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...headers },
+        body: JSON.stringify(payload),
+        signal: controller.signal,
+      }),
+    );
+    if (!response.ok) {
+      const detail =
+        response.status === 429 || response.status === 402
+          ? 'Rate limit exceeded'
+          : response.status >= 500
+            ? `Provider unavailable (HTTP ${response.status} ${response.statusText})`
+            : `HTTP error ${response.status} ${response.statusText}`;
+      throw new RpcError(response.status, buildRpcErrorMessage(endpoint, method, detail), undefined, { kind: 'http' });
+    }
+    return (await race(response.json())) as R;
+  } catch (error) {
+    if (error instanceof RpcError) throw error;
+    throw new RpcError(
+      -1,
+      buildRpcErrorMessage(endpoint, method, (error as Error).message || 'Network error'),
+      undefined,
+      {
+        kind: 'network',
+      },
+    );
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
+/**
  * RPC Client with automatic endpoint rotation, health probing, and fallback.
  *
  * Features:
  * - Round-robin rotation through public endpoints, sorted by probe latency
- * - Background block freshness probing to detect stale/slow endpoints
+ * - Block freshness probing while the client is in use, to detect stale/slow endpoints
  * - Health tracking with cooldown for failed endpoints
  * - Kyber RPC fallback when all public endpoints fail
  * - Optional telemetry hooks for monitoring
@@ -103,7 +183,7 @@ function normalizeRpcError(error: unknown): { code: number; message: string; dat
  */
 export class RpcClient {
   private readonly chainId: number;
-  private readonly endpoints: string[];
+  private endpoints: string[];
   private readonly kyberEndpoint: string | undefined;
   private readonly defaultRpcEndpoint: string | undefined;
   private configRpcEndpoint: string | undefined;
@@ -113,7 +193,7 @@ export class RpcClient {
   private readonly endpointCooldownMs: number;
   private readonly headers: Record<string, string>;
   private readonly eventHandlers: RpcEventHandlers;
-  private readonly maxBlockLag: number;
+  maxBlockLag: number;
   private readonly probeIntervalMs: number;
 
   private currentIndex = 0;
@@ -122,10 +202,11 @@ export class RpcClient {
   private requestId = 1;
   private probeTimer: ReturnType<typeof setInterval> | undefined;
   private isProbing = false;
+  private lastCallAt = 0;
 
   constructor(config: RpcClientConfig) {
     this.chainId = config.chainId;
-    this.endpoints = config.customEndpoints?.length ? config.customEndpoints : getRpcEndpoints(config.chainId);
+    this.endpoints = [...(config.customEndpoints?.length ? config.customEndpoints : getRpcEndpoints(config.chainId))];
     this.kyberEndpoint = getKyberRpcEndpoint(config.chainId);
     this.defaultRpcEndpoint = NETWORKS_INFO[config.chainId as ChainId]?.defaultRpc;
     this.configRpcEndpoint = config.configRpcEndpoint;
@@ -146,12 +227,23 @@ export class RpcClient {
         isHealthy: true,
       });
     }
+  }
 
-    // Start background probing
-    if (this.endpoints.length > 1 && this.probeIntervalMs > 0) {
+  /**
+   * Probing follows traffic: the loop starts with the first call and ends once calls stop, so a
+   * client nobody is reading through — or nobody remembered to destroy — costs the endpoints nothing.
+   */
+  private ensureProbing(): void {
+    this.lastCallAt = Date.now();
+    if (this.probeTimer || this.endpoints.length <= 1 || this.probeIntervalMs <= 0) return;
+    this.probeEndpoints();
+    this.probeTimer = setInterval(() => {
+      if (Date.now() - this.lastCallAt >= DEFAULT_PROBE_IDLE_STOP_MS) {
+        this.destroy();
+        return;
+      }
       this.probeEndpoints();
-      this.probeTimer = setInterval(() => this.probeEndpoints(), this.probeIntervalMs);
-    }
+    }, this.probeIntervalMs);
   }
 
   getChainId(): number {
@@ -161,24 +253,62 @@ export class RpcClient {
   /**
    * Make an RPC call with automatic rotation and fallback.
    *
-   * Tries healthy public endpoints in round-robin order (sorted by probe latency),
-   * then falls back to Kyber/config/default RPC if all public endpoints fail.
-   * Non-retryable errors (e.g. execution reverted) are thrown immediately.
+   * Public endpoints are tried round-robin, sorted by probe latency, then the KyberSwap, config and
+   * default endpoints as last resorts. A deterministic node answer (an execution revert) is thrown
+   * at once: rotating cannot change it.
    */
   async call<T>(method: string, params: unknown[] = []): Promise<T> {
-    const errors: Array<{ endpoint: string; error: Error }> = [];
+    return (await this.callWithMetadata<T>(method, params)).result;
+  }
 
-    // Try all public endpoints via rotation
-    for (let i = 0; i < this.endpoints.length; i++) {
-      const endpoint = this.getNextHealthyEndpoint();
-      if (!endpoint) break;
+  /**
+   * Make an RPC call and return result with metadata.
+   */
+  async callWithMetadata<T>(method: string, params: unknown[] = []): Promise<RpcCallResult<T>> {
+    return this.walk(method, endpoint => this.fetchRpc<T>(endpoint, method, params));
+  }
+
+  /**
+   * Make a batch RPC call.
+   */
+  async batchCall<T extends unknown[]>(calls: Array<{ method: string; params?: unknown[] }>): Promise<T> {
+    return (await this.walk('batch', endpoint => this.fetchBatchRpc<T>(endpoint, calls))).result;
+  }
+
+  /**
+   * One pass over the public endpoints, then the last resorts.
+   *
+   * The pass walks the order the client holds when it starts: a re-ranking that lands mid-pass
+   * replaces the array rather than reordering it, so the pass neither revisits nor skips an
+   * endpoint. An endpoint that fails to answer, or answers with a rate limit, is benched and the
+   * pass moves on; one that answers with a deterministic error ends the call, since no other node
+   * would answer differently. With every endpoint benched the first is knocked on once — it may
+   * have recovered — and the pass goes straight to the last resorts rather than knocking on the
+   * same benched door once per slot.
+   */
+  private async walk<T>(
+    method: string,
+    attempt: (endpoint: string) => Promise<RpcCallResult<T>>,
+  ): Promise<RpcCallResult<T>> {
+    this.ensureProbing();
+    const errors: Array<{ endpoint: string; error: Error }> = [];
+    const order = this.endpoints;
+    let knockedOnBenched = false;
+
+    for (let i = 0; i < order.length; i++) {
+      let endpoint = this.nextHealthy(order);
+      if (!endpoint) {
+        if (knockedOnBenched) break;
+        knockedOnBenched = true;
+        endpoint = order[0];
+      }
 
       for (let retry = 0; retry < this.maxRetriesPerEndpoint; retry++) {
         try {
-          const result = await this.fetchRpc<T>(endpoint, method, params);
+          const result = await attempt(endpoint);
           this.markEndpointHealthy(endpoint);
           this.eventHandlers.onSuccess?.(this.chainId, endpoint, method, result.latencyMs);
-          return result.result;
+          return result;
         } catch (error) {
           const err = error as Error;
           this.eventHandlers.onError?.(this.chainId, endpoint, method, err);
@@ -187,57 +317,9 @@ export class RpcClient {
             this.markEndpointFailed(endpoint);
             this.eventHandlers.onRateLimit?.(this.chainId, endpoint);
             errors.push({ endpoint, error: err });
-            break; // Move to next endpoint immediately on rate limit
-          }
-
-          if (!this.isRetryableError(err)) {
-            // Deterministic error (e.g. execution reverted) — throw immediately,
-            // rotating to other endpoints won't help
-            throw err;
-          }
-
-          if (retry >= this.maxRetriesPerEndpoint - 1) {
-            this.markEndpointFailed(endpoint);
-            errors.push({ endpoint, error: err });
-            break; // Move to next endpoint
-          }
-        }
-      }
-    }
-
-    // Fallback chain
-    return this.fallbackCall<T>(method, params, errors);
-  }
-
-  /**
-   * Make an RPC call and return result with metadata.
-   */
-  async callWithMetadata<T>(method: string, params: unknown[] = []): Promise<RpcCallResult<T>> {
-    const errors: Array<{ endpoint: string; error: Error }> = [];
-
-    for (let i = 0; i < this.endpoints.length; i++) {
-      const endpoint = this.getNextHealthyEndpoint();
-      if (!endpoint) break;
-
-      for (let retry = 0; retry < this.maxRetriesPerEndpoint; retry++) {
-        try {
-          const result = await this.fetchRpc<T>(endpoint, method, params);
-          this.markEndpointHealthy(endpoint);
-          return result;
-        } catch (error) {
-          const err = error as Error;
-          this.eventHandlers.onError?.(this.chainId, endpoint, method, err);
-
-          if (this.isRateLimitError(err)) {
-            this.markEndpointFailed(endpoint);
-            errors.push({ endpoint, error: err });
             break;
           }
-
-          if (!this.isRetryableError(err)) {
-            throw err;
-          }
-
+          if (!this.isRetryableError(err)) throw err;
           if (retry >= this.maxRetriesPerEndpoint - 1) {
             this.markEndpointFailed(endpoint);
             errors.push({ endpoint, error: err });
@@ -247,43 +329,40 @@ export class RpcClient {
       }
     }
 
-    return this.fallbackCallWithMetadata<T>(method, params, errors);
+    return this.lastResorts(method, attempt, errors);
   }
 
   /**
-   * Make a batch RPC call.
+   * The endpoints tried once the public ones are out, in order: KyberSwap, the one the runtime
+   * config named, the chain's default — each only if it is not already one of the others.
    */
-  async batchCall<T extends unknown[]>(calls: Array<{ method: string; params?: unknown[] }>): Promise<T> {
-    const errors: Array<{ endpoint: string; error: Error }> = [];
+  private async lastResorts<T>(
+    method: string,
+    attempt: (endpoint: string) => Promise<RpcCallResult<T>>,
+    errors: Array<{ endpoint: string; error: Error }>,
+  ): Promise<RpcCallResult<T>> {
+    const configFallback = this.getConfigFallbackEndpoint();
+    const candidates = [
+      this.useKyberFallback ? this.kyberEndpoint : undefined,
+      configFallback,
+      this.getDefaultFallbackEndpoint(configFallback),
+    ].filter((endpoint): endpoint is string => !!endpoint);
 
-    for (let i = 0; i < this.endpoints.length; i++) {
-      const endpoint = this.getNextHealthyEndpoint();
-      if (!endpoint) break;
-
+    for (const endpoint of candidates) {
       try {
-        const result = await this.fetchBatchRpc<T>(endpoint, calls);
-        this.markEndpointHealthy(endpoint);
+        if (endpoint === this.kyberEndpoint) this.eventHandlers.onFallback?.(this.chainId, endpoint);
+        const result = await attempt(endpoint);
+        this.eventHandlers.onSuccess?.(this.chainId, endpoint, method, result.latencyMs);
         return result;
       } catch (error) {
         const err = error as Error;
-        this.eventHandlers.onError?.(this.chainId, endpoint, 'batch', err);
-
-        if (this.isRateLimitError(err)) {
-          this.markEndpointFailed(endpoint);
-          errors.push({ endpoint, error: err });
-          continue; // next endpoint
-        }
-
-        if (!this.isRetryableError(err)) {
-          throw err; // don't mark failed for non-retryable
-        }
-
-        this.markEndpointFailed(endpoint);
+        this.eventHandlers.onError?.(this.chainId, endpoint, method, err);
+        if (!this.isRetryableError(err) && !this.isRateLimitError(err)) throw err;
         errors.push({ endpoint, error: err });
       }
     }
 
-    return this.fallbackBatchCall<T>(calls, errors);
+    throw new AllEndpointsFailedError(this.chainId, errors);
   }
 
   /**
@@ -295,10 +374,9 @@ export class RpcClient {
     this.isProbing = true;
 
     try {
-      const probeTimeout = 5000;
       const results = await Promise.allSettled(
         this.endpoints.map(async endpoint => {
-          const result = await this.fetchRpc<string>(endpoint, 'eth_blockNumber', [], probeTimeout);
+          const result = await this.fetchRpc<string>(endpoint, 'eth_blockNumber', [], this.timeout);
           const block = parseInt(result.result, 16);
           if (!Number.isFinite(block)) throw new Error('Invalid block number');
           return { endpoint, block, latency: result.latencyMs };
@@ -345,7 +423,7 @@ export class RpcClient {
   }
 
   /**
-   * Stop background probing. Call this when the client is no longer needed.
+   * Stop probing. The next call starts it again, so this is safe to call at any time.
    */
   destroy(): void {
     if (this.probeTimer) {
@@ -393,148 +471,12 @@ export class RpcClient {
 
   // ─── Fallback chain ──────────────────────────────────────────────────
 
-  private async fallbackCall<T>(
-    method: string,
-    params: unknown[],
-    errors: Array<{ endpoint: string; error: Error }>,
-  ): Promise<T> {
-    // Fallback to Kyber RPC
-    if (this.useKyberFallback && this.kyberEndpoint) {
-      try {
-        this.eventHandlers.onFallback?.(this.chainId, this.kyberEndpoint);
-        const result = await this.fetchRpc<T>(this.kyberEndpoint, method, params);
-        this.eventHandlers.onSuccess?.(this.chainId, this.kyberEndpoint, method, result.latencyMs);
-        return result.result;
-      } catch (error) {
-        this.eventHandlers.onError?.(this.chainId, this.kyberEndpoint, method, error as Error);
-        if (!this.isRetryableError(error as Error) && !this.isRateLimitError(error as Error)) {
-          throw error; // Non-retryable (e.g. execution reverted), no point trying next fallback
-        }
-        errors.push({ endpoint: this.kyberEndpoint, error: error as Error });
-      }
-    }
-
-    // Fallback to config RPC (from ks-setting API)
-    const configFallback = this.getConfigFallbackEndpoint();
-    if (configFallback) {
-      try {
-        const result = await this.fetchRpc<T>(configFallback, method, params);
-        return result.result;
-      } catch (error) {
-        if (!this.isRetryableError(error as Error) && !this.isRateLimitError(error as Error)) {
-          throw error;
-        }
-        errors.push({ endpoint: configFallback, error: error as Error });
-      }
-    }
-
-    // Final fallback to defaultRpc from NETWORKS_INFO
-    const defaultFallback = this.getDefaultFallbackEndpoint(configFallback);
-    if (defaultFallback) {
-      try {
-        const result = await this.fetchRpc<T>(defaultFallback, method, params);
-        return result.result;
-      } catch (error) {
-        if (!this.isRetryableError(error as Error) && !this.isRateLimitError(error as Error)) {
-          throw error;
-        }
-        errors.push({ endpoint: defaultFallback, error: error as Error });
-      }
-    }
-
-    throw new AllEndpointsFailedError(this.chainId, errors);
-  }
-
-  private async fallbackCallWithMetadata<T>(
-    method: string,
-    params: unknown[],
-    errors: Array<{ endpoint: string; error: Error }>,
-  ): Promise<RpcCallResult<T>> {
-    if (this.useKyberFallback && this.kyberEndpoint) {
-      try {
-        this.eventHandlers.onFallback?.(this.chainId, this.kyberEndpoint);
-        const result = await this.fetchRpc<T>(this.kyberEndpoint, method, params);
-        this.eventHandlers.onSuccess?.(this.chainId, this.kyberEndpoint, method, result.latencyMs);
-        return result;
-      } catch (error) {
-        if (!this.isRetryableError(error as Error) && !this.isRateLimitError(error as Error)) {
-          throw error;
-        }
-        errors.push({ endpoint: this.kyberEndpoint, error: error as Error });
-      }
-    }
-
-    const configFallback = this.getConfigFallbackEndpoint();
-    if (configFallback) {
-      try {
-        return await this.fetchRpc<T>(configFallback, method, params);
-      } catch (error) {
-        if (!this.isRetryableError(error as Error) && !this.isRateLimitError(error as Error)) {
-          throw error;
-        }
-        errors.push({ endpoint: configFallback, error: error as Error });
-      }
-    }
-
-    const defaultFallback = this.getDefaultFallbackEndpoint(configFallback);
-    if (defaultFallback) {
-      try {
-        return await this.fetchRpc<T>(defaultFallback, method, params);
-      } catch (error) {
-        if (!this.isRetryableError(error as Error) && !this.isRateLimitError(error as Error)) {
-          throw error;
-        }
-        errors.push({ endpoint: defaultFallback, error: error as Error });
-      }
-    }
-
-    throw new AllEndpointsFailedError(this.chainId, errors);
-  }
-
-  private async fallbackBatchCall<T extends unknown[]>(
-    calls: Array<{ method: string; params?: unknown[] }>,
-    errors: Array<{ endpoint: string; error: Error }>,
-  ): Promise<T> {
-    if (this.useKyberFallback && this.kyberEndpoint) {
-      try {
-        this.eventHandlers.onFallback?.(this.chainId, this.kyberEndpoint);
-        return await this.fetchBatchRpc<T>(this.kyberEndpoint, calls);
-      } catch (error) {
-        if (!this.isRetryableError(error as Error) && !this.isRateLimitError(error as Error)) {
-          throw error;
-        }
-        errors.push({ endpoint: this.kyberEndpoint, error: error as Error });
-      }
-    }
-
-    const configFallback = this.getConfigFallbackEndpoint();
-    if (configFallback) {
-      try {
-        return await this.fetchBatchRpc<T>(configFallback, calls);
-      } catch (error) {
-        if (!this.isRetryableError(error as Error) && !this.isRateLimitError(error as Error)) {
-          throw error;
-        }
-        errors.push({ endpoint: configFallback, error: error as Error });
-      }
-    }
-
-    const defaultFallback = this.getDefaultFallbackEndpoint(configFallback);
-    if (defaultFallback) {
-      try {
-        return await this.fetchBatchRpc<T>(defaultFallback, calls);
-      } catch (error) {
-        if (!this.isRetryableError(error as Error) && !this.isRateLimitError(error as Error)) {
-          throw error;
-        }
-        errors.push({ endpoint: defaultFallback, error: error as Error });
-      }
-    }
-
-    throw new AllEndpointsFailedError(this.chainId, errors);
-  }
-
   // ─── Fetch helpers ───────────────────────────────────────────────────
+
+  /** A read's budget, or a slow method's. */
+  private budgetFor(method: string): number {
+    return SLOW_METHODS.has(method) ? Math.max(this.timeout, SLOW_METHOD_TIMEOUT_MS) : this.timeout;
+  }
 
   private async fetchRpc<T>(
     endpoint: string,
@@ -543,204 +485,95 @@ export class RpcClient {
     timeoutOverride?: number,
   ): Promise<RpcCallResult<T>> {
     const startTime = Date.now();
-    const effectiveTimeout = timeoutOverride ?? this.timeout;
-
-    const request: JsonRpcRequest = {
-      jsonrpc: '2.0',
-      id: this.requestId++,
+    const request: JsonRpcRequest = { jsonrpc: '2.0', id: this.requestId++, method, params };
+    const data = await postJsonRpc<JsonRpcResponse<T>>(
+      endpoint,
       method,
-      params,
-    };
+      request,
+      timeoutOverride ?? this.budgetFor(method),
+      this.headers,
+    );
 
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), effectiveTimeout);
-
-    try {
-      const response = await fetch(endpoint, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...this.headers,
+    if (data.error) {
+      const { code, message, data: errData } = normalizeRpcError(data.error);
+      throw new RpcError(
+        code,
+        buildRpcErrorMessage(endpoint, method, `JSON-RPC error ${code}: ${message}`, code),
+        errData,
+        {
+          kind: 'rpc',
+          nodeMessage: message,
         },
-        body: JSON.stringify(request),
-        signal: controller.signal,
-      });
-
-      clearTimeout(timeoutId);
-
-      if (!response.ok) {
-        if (response.status === 429 || response.status === 402) {
-          throw new RpcError(429, buildRpcErrorMessage(endpoint, method, 'Rate limit exceeded'));
-        }
-        if (response.status === 500 || response.status === 502 || response.status === 503 || response.status === 504) {
-          throw new RpcError(
-            response.status,
-            buildRpcErrorMessage(
-              endpoint,
-              method,
-              `Provider unavailable (HTTP ${response.status} ${response.statusText})`,
-            ),
-          );
-        }
-        throw new RpcError(
-          response.status,
-          buildRpcErrorMessage(endpoint, method, `HTTP error ${response.status} ${response.statusText}`),
-        );
-      }
-
-      const data = (await response.json()) as JsonRpcResponse<T>;
-
-      if (data.error) {
-        const { code, message, data: errData } = normalizeRpcError(data.error);
-        throw new RpcError(
-          code,
-          buildRpcErrorMessage(endpoint, method, `JSON-RPC error ${code}: ${message}`, code),
-          errData,
-        );
-      }
-
-      if (data.result === undefined) {
-        throw new RpcError(-1, buildRpcErrorMessage(endpoint, method, 'No result in response'));
-      }
-
-      return {
-        result: data.result,
-        endpoint,
-        latencyMs: Date.now() - startTime,
-      };
-    } catch (error) {
-      clearTimeout(timeoutId);
-
-      if (error instanceof RpcError) {
-        throw error;
-      }
-
-      if ((error as Error).name === 'AbortError') {
-        throw new RpcError(-1, buildRpcErrorMessage(endpoint, method, `Request timeout after ${effectiveTimeout}ms`));
-      }
-
-      throw new RpcError(-1, buildRpcErrorMessage(endpoint, method, (error as Error).message || 'Network error'));
+      );
     }
+    if (data.result === undefined) {
+      throw new RpcError(-1, buildRpcErrorMessage(endpoint, method, 'No result in response'), undefined, {
+        kind: 'network',
+      });
+    }
+    return { result: data.result, endpoint, latencyMs: Date.now() - startTime };
   }
 
   private async fetchBatchRpc<T extends unknown[]>(
     endpoint: string,
     calls: Array<{ method: string; params?: unknown[] }>,
-  ): Promise<T> {
+  ): Promise<RpcCallResult<T>> {
+    const startTime = Date.now();
     const requests: JsonRpcRequest[] = calls.map((call, index) => ({
       jsonrpc: '2.0',
       id: index + 1,
       method: call.method,
       params: call.params ?? [],
     }));
+    const budget = Math.max(...calls.map(call => this.budgetFor(call.method)));
+    const data = await postJsonRpc<JsonRpcResponse[]>(endpoint, 'batch', requests, budget, this.headers);
 
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), this.timeout);
-
-    try {
-      const response = await fetch(endpoint, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...this.headers,
-        },
-        body: JSON.stringify(requests),
-        signal: controller.signal,
-      });
-
-      clearTimeout(timeoutId);
-
-      if (!response.ok) {
-        if (response.status === 429 || response.status === 402) {
-          throw new RpcError(429, buildRpcErrorMessage(endpoint, 'batch', 'Rate limit exceeded'));
-        }
-        if (response.status === 500 || response.status === 502 || response.status === 503 || response.status === 504) {
-          throw new RpcError(
-            response.status,
-            buildRpcErrorMessage(
-              endpoint,
-              'batch',
-              `Provider unavailable (HTTP ${response.status} ${response.statusText})`,
-            ),
-          );
-        }
+    // Sort by id to maintain order
+    const sortedData = [...data].sort((a, b) => Number(a.id) - Number(b.id));
+    const results: unknown[] = [];
+    for (const item of sortedData) {
+      if (item.error) {
+        // Requests are sent with 1-indexed numeric ids (see `requests` above), but
+        // a non-compliant provider could echo back a string or null id — guard
+        // against NaN/out-of-range lookups so we always surface the error even
+        // if the method tag falls back to "batch".
+        const rawId = Number(item.id);
+        const idx = Number.isFinite(rawId) ? rawId - 1 : -1;
+        const failedMethod = calls[idx]?.method ?? 'batch';
+        const { code, message, data: errData } = normalizeRpcError(item.error);
         throw new RpcError(
-          response.status,
-          buildRpcErrorMessage(endpoint, 'batch', `HTTP error ${response.status} ${response.statusText}`),
+          code,
+          buildRpcErrorMessage(endpoint, failedMethod, `JSON-RPC error ${code}: ${message}`, code),
+          errData,
+          { kind: 'rpc', nodeMessage: message },
         );
       }
-
-      const data = (await response.json()) as JsonRpcResponse[];
-
-      // Sort by id to maintain order
-      const sortedData = [...data].sort((a, b) => Number(a.id) - Number(b.id));
-
-      const results: unknown[] = [];
-      for (const item of sortedData) {
-        if (item.error) {
-          // Requests are sent with 1-indexed numeric ids (see `requests` above), but
-          // a non-compliant provider could echo back a string or null id — guard
-          // against NaN/out-of-range lookups so we always surface the error even
-          // if the method tag falls back to "batch".
-          const rawId = Number(item.id);
-          const idx = Number.isFinite(rawId) ? rawId - 1 : -1;
-          const failedMethod = calls[idx]?.method ?? 'batch';
-          const { code, message, data: errData } = normalizeRpcError(item.error);
-          throw new RpcError(
-            code,
-            buildRpcErrorMessage(endpoint, failedMethod, `JSON-RPC error ${code}: ${message}`, code),
-            errData,
-          );
-        }
-        results.push(item.result);
-      }
-
-      return results as T;
-    } catch (error) {
-      clearTimeout(timeoutId);
-
-      if (error instanceof RpcError) {
-        throw error;
-      }
-
-      if ((error as Error).name === 'AbortError') {
-        throw new RpcError(-1, buildRpcErrorMessage(endpoint, 'batch', `Request timeout after ${this.timeout}ms`));
-      }
-
-      throw new RpcError(-1, buildRpcErrorMessage(endpoint, 'batch', (error as Error).message || 'Network error'));
+      results.push(item.result);
     }
+    return { result: results as T, endpoint, latencyMs: Date.now() - startTime };
   }
 
   // ─── Health tracking & rotation ────────────────────────────────────
 
-  private getNextHealthyEndpoint(): string | undefined {
+  /**
+   * The next endpoint in `order` that is not benched, advancing the shared rotation cursor; an
+   * endpoint whose cooldown has run out is welcomed back on the way. Undefined once every endpoint
+   * is benched — the caller decides what one more knock is worth.
+   */
+  private nextHealthy(order: string[]): string | undefined {
     const now = Date.now();
-    const startIndex = this.currentIndex;
-
-    // Try to find a healthy endpoint
-    do {
-      const endpoint = this.endpoints[this.currentIndex];
+    for (let step = 0; step < order.length; step++) {
+      const endpoint = order[this.currentIndex % order.length];
+      this.currentIndex = (this.currentIndex + 1) % order.length;
       const health = this.endpointHealth.get(endpoint);
-
-      // Check if endpoint has recovered from cooldown
-      if (health && !health.isHealthy && health.failedAt) {
-        if (now - health.failedAt >= this.endpointCooldownMs) {
-          health.isHealthy = true;
-          health.consecutiveFailures = 0;
-          health.failedAt = undefined;
-        }
+      if (health && !health.isHealthy && health.failedAt && now - health.failedAt >= this.endpointCooldownMs) {
+        health.isHealthy = true;
+        health.consecutiveFailures = 0;
+        health.failedAt = undefined;
       }
-
-      this.currentIndex = (this.currentIndex + 1) % this.endpoints.length;
-
-      if (health?.isHealthy) {
-        return endpoint;
-      }
-    } while (this.currentIndex !== startIndex);
-
-    // All endpoints are unhealthy, return the first one anyway
-    // (it might have recovered)
-    return this.endpoints[0];
+      if (health?.isHealthy) return endpoint;
+    }
+    return undefined;
   }
 
   /**
@@ -765,17 +598,9 @@ export class RpcClient {
 
     withLatency.sort((a, b) => a.latency - b.latency);
 
-    // Rebuild endpoints array in-place
-    let idx = 0;
-    for (const item of withLatency) {
-      this.endpoints[idx++] = item.endpoint;
-    }
-    for (const ep of withoutLatency) {
-      this.endpoints[idx++] = ep;
-    }
-
-    // Don't reset currentIndex — an in-progress call() loop may be mid-rotation.
-    // The new order will be picked up naturally on the next rotation cycle.
+    // A new array, not a reorder in place: a walk in progress holds the old one and finishes over
+    // it; the next walk picks this one up. The cursor carries across, which is all round-robin needs.
+    this.endpoints = [...withLatency.map(item => item.endpoint), ...withoutLatency];
   }
 
   private markEndpointFailed(endpoint: string): void {
@@ -802,6 +627,7 @@ export class RpcClient {
 
   private isRateLimitError(error: Error): boolean {
     if (error instanceof RpcError) {
+      if (error.kind === 'http' && (error.code === 429 || error.code === 402)) return true;
       // JSON-RPC error codes that indicate rate limiting / quota
       const rateLimitCodes = [
         429, // Non-standard but widely used (Alchemy, QuickNode, GetBlock)
@@ -837,25 +663,17 @@ export class RpcClient {
     // instead of the actual revert.
     if (/execution reverted/i.test(error.message)) return false;
     if (error instanceof RpcError) {
-      // Retryable RPC error codes (non-deterministic server-side errors).
-      // HTTP 4xx codes here cover provider-side quirks (e.g. drpc.org returning
-      // 400 for soft throttling or payload rejection) — true deterministic errors
-      // like execution-reverted come back as HTTP 200 with a JSON-RPC error code,
-      // not via this path.
+      // Anything but the node answering is the endpoint failing — an HTTP status of any kind, a
+      // timeout, a dropped connection — and says nothing about the request; another endpoint may
+      // well answer it. A geo-block's 403 or a body cap's 413 is as much this endpoint's problem
+      // as a 503.
+      if (error.kind !== 'rpc') return true;
+      // Of the node's own answers, these are the non-deterministic ones.
       const retryableCodes = [
         -32000, // Server error
         -32601, // Method not found — this endpoint lacks the method; another may serve it
         -32602, // Invalid params — some gateways reject requests the canonical nodes accept
         -32603, // Internal error
-        -1, // Timeout
-        400, // Bad request (provider quirk, e.g. drpc soft-throttle)
-        408, // Request timeout
-        409, // Conflict
-        425, // Too early
-        500, // Internal server error
-        502, // Bad gateway
-        503, // Service unavailable
-        504, // Gateway timeout
       ];
       return retryableCodes.includes(error.code);
     }
@@ -891,17 +709,18 @@ export class RpcClient {
   }
 }
 
-// Singleton instances per chain - keyed by chainId only for proper health tracking sharing
+// One instance per chain, so every caller on it shares the health tracking.
 const clientInstances: Map<number, RpcClient> = new Map();
 
 /**
- * Get or create an RpcClient instance for a chain.
+ * Get or create the RpcClient for a chain.
  *
- * Uses singleton pattern to reuse health tracking across calls.
- * Note: Only chainId is used as cache key, so custom config is only applied on first creation.
+ * Most configuration is applied when the instance is created; `configRpcEndpoint` and
+ * `maxBlockLag` are applied to an existing instance too, so a caller can set them without
+ * depending on being the first to ask.
  *
  * @param chainId - The chain ID to get client for
- * @param config - Optional configuration (only applied on first creation for this chainId)
+ * @param config - Optional configuration
  * @returns RpcClient instance for the chain
  *
  * @example
@@ -915,8 +734,9 @@ export function getRpcClient(chainId: number, config?: Partial<RpcClientConfig>)
   if (!client) {
     client = new RpcClient({ chainId, ...config });
     clientInstances.set(chainId, client);
-  } else if (config?.configRpcEndpoint) {
-    client.updateConfigEndpoint(config.configRpcEndpoint);
+  } else {
+    if (config?.configRpcEndpoint) client.updateConfigEndpoint(config.configRpcEndpoint);
+    if (config?.maxBlockLag !== undefined) client.maxBlockLag = config.maxBlockLag;
   }
 
   return client;
