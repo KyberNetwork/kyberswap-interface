@@ -37,11 +37,6 @@ const NO_BUILDER_CODE_SELECTORS = new Set([
   '0xa22cb465', // setApprovalForAll
 ])
 
-// Per-request timeout for the pre-signature RPC reads (gas + fee estimation).
-// Tighter than the rotating client's 10s default so a slow endpoint fails over
-// quickly instead of stalling the "Waiting For Confirmation" step. Only applied
-// when the chain's RpcClient is first created (the client is a per-chain singleton).
-const PRE_SIGN_RPC_TIMEOUT_MS = 6000
 // Time-box the compliance check so a slow Blackjack service can't hold up the
 // wallet prompt — consistent with the existing fail-open policy on errors.
 const BLACKJACK_TIMEOUT_MS = 2000
@@ -131,20 +126,15 @@ export async function sendEVMTransaction({
     // Route gas estimation through the rotating RPC client (round-robin across
     // healthy public endpoints, per-request timeout, Kyber RPC fallback) so a
     // single slow/overloaded RPC can't stall the flow before the wallet prompt.
-    const gasHex = await rpcFetch<string>(
-      chainId as number,
-      'eth_estimateGas',
-      [
-        {
-          from: account,
-          to: contractAddress,
-          data: callData,
-          ...(txValue !== undefined ? { value: `0x${txValue.toString(16)}` } : {}),
-          ...(accessList ? { accessList } : {}),
-        },
-      ],
-      { timeout: PRE_SIGN_RPC_TIMEOUT_MS },
-    )
+    const gasHex = await rpcFetch<string>(chainId as number, 'eth_estimateGas', [
+      {
+        from: account,
+        to: contractAddress,
+        data: callData,
+        ...(txValue !== undefined ? { value: `0x${txValue.toString(16)}` } : {}),
+        ...(accessList ? { accessList } : {}),
+      },
+    ])
     gasEstimate = BigInt(gasHex)
   } catch (error) {
     throw new TransactionError(

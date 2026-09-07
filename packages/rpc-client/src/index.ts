@@ -35,5 +35,6 @@ export type {
   RpcEventHandlers,
   EndpointHealth,
   RpcCallResult,
+  RpcErrorKind,
 } from './types';
 export { AllEndpointsFailedError, RpcError } from './types';

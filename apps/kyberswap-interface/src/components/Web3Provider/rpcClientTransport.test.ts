@@ -39,8 +39,8 @@ const stubFetch = () =>
     return reply(answer.error ? { error: answer.error } : { result: answer.result ?? '0x1' }, answer.status)
   })
 
-const transport = (retryCount = 0) => rpcClientTransport(CHAIN)({ chain: undefined, retryCount } as never)
-const request = (method = 'eth_chainId', params: unknown[] = []) => transport().request({ method, params } as never)
+const transport = rpcClientTransport(CHAIN)({ chain: undefined, retryCount: 3 } as never)
+const request = (method = 'eth_chainId', params: unknown[] = []) => transport.request({ method, params } as never)
 
 describe('rpcClientTransport', () => {
   beforeEach(() => {
@@ -53,8 +53,8 @@ describe('rpcClientTransport', () => {
     vi.useRealTimers()
   })
 
-  it('builds a transport that does not retry on its own', () => {
-    expect(transport(3).config.retryCount).toBe(0)
+  it('does not retry on its own, whatever the client asks for', () => {
+    expect(transport.config.retryCount).toBe(0)
   })
 
   it('reads a public endpoint first and answers with the node value', async () => {
@@ -64,13 +64,18 @@ describe('rpcClientTransport', () => {
     expect(hits).not.toContain(KYBER)
   })
 
-  it('hands a revert to viem with its code and data, without rotating', async () => {
+  it('hands a revert to viem as the node said it, without rotating', async () => {
     const data = '0x08c379a0'
-    answers = () => ({ error: { code: 3, message: 'execution reverted: Foo()', data } })
+    answers = () => ({ error: { code: -32000, message: 'execution reverted', data } })
     const error = await request('eth_call', [{ to: '0x1', data: '0x' }, 'latest']).catch(e => e)
-    expect(error).toBeInstanceOf(RpcRequestError)
-    expect(error.code).toBe(3)
-    expect(error.data).toBe(data)
+    // viem types the node's code for its callers and keeps the node's answer underneath, which is
+    // where its revert decoder looks — for the code, the data, and details that are exactly the
+    // node's words.
+    expect(error.code).toBe(-32000)
+    const node = error.walk((e: unknown) => e instanceof RpcRequestError)
+    expect(node).toBeInstanceOf(RpcRequestError)
+    expect(node.data).toBe(data)
+    expect(node.details).toBe('execution reverted')
     // A revert is the node's answer; asking another node cannot change it.
     expect(hits).toHaveLength(1)
   })
@@ -84,10 +89,25 @@ describe('rpcClientTransport', () => {
     expect(new Set(hits.slice(0, -1))).toEqual(new Set(PUBLICS))
   })
 
+  it('treats a refusal from one endpoint as that endpoint failing, and moves on', async () => {
+    // A geo-block answers 403; the request is fine and the next endpoint serves it.
+    let refused: string | undefined
+    answers = url => {
+      refused ??= url
+      return url === refused ? { status: 403 } : { result: '0x5' }
+    }
+    await expect(request()).resolves.toBe('0x5')
+    expect(hits).toHaveLength(2)
+    expect(hits[0]).toBe(refused)
+  })
+
   it('reports a transport failure as one when every endpoint refuses', async () => {
     answers = () => ({ status: 503 })
     const error = await request().catch(e => e)
     expect(error).toBeInstanceOf(HttpRequestError)
+    // It gave up only after the whole list and the last resort had refused.
+    expect(hits).toHaveLength(PUBLICS.length + 1)
+    expect(hits.at(-1)).toBe(KYBER)
   })
 
   it('gives a hanging endpoint three seconds, then moves on', async () => {

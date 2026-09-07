@@ -96,7 +96,10 @@ export interface RpcClientConfig {
   /** Event handlers for telemetry and monitoring */
   eventHandlers?: RpcEventHandlers;
 
-  /** Max block lag allowed before marking an endpoint as stale (default: 50) */
+  /**
+   * Blocks an endpoint may trail the freshest one before it is benched as stale (default: 50).
+   * `getRpcClient` applies it to an existing instance too, so the value is not first-caller's.
+   */
   maxBlockLag?: number;
 
   /**
@@ -104,13 +107,6 @@ export interface RpcClientConfig {
    * Probing starts with the first call and stops after five minutes without one. Set to 0 to disable.
    */
   probeIntervalMs?: number;
-
-  /**
-   * Which shared instance `getRpcClient` returns for the chain (default: 'default'). Callers on the
-   * same chain and scope share one instance and its health tracking; a caller that needs its own
-   * configuration names its own scope, so it does not depend on being the first to ask.
-   */
-  scope?: string;
 }
 
 /**
@@ -153,15 +149,30 @@ export class AllEndpointsFailedError extends Error {
 }
 
 /**
- * Error thrown when RPC returns an error response
+ * Where an RPC failure came from. Only `rpc` is the node answering — with a JSON-RPC error whose
+ * `code` and `data` are the node's own; the rest are the endpoint failing to answer, and mean
+ * nothing about the request.
+ */
+export type RpcErrorKind = 'rpc' | 'http' | 'timeout' | 'network';
+
+/**
+ * Error thrown when a request fails. `message` is composed for logs and tags infrastructure
+ * failures with the endpoint; `nodeMessage` is the node's own text when the node answered, which is
+ * what a caller matching on it (a revert reason, viem's decoder) needs untouched.
  */
 export class RpcError extends Error {
+  readonly kind: RpcErrorKind;
+  readonly nodeMessage?: string;
+
   constructor(
     public readonly code: number,
     message: string,
     public readonly data?: unknown,
+    options: { kind?: RpcErrorKind; nodeMessage?: string } = {},
   ) {
     super(message);
     this.name = 'RpcError';
+    this.kind = options.kind ?? 'rpc';
+    this.nodeMessage = options.nodeMessage;
   }
 }
