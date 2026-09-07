@@ -3,7 +3,7 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { reconnect, watchChainId } from '@wagmi/core'
 import { ReactNode, useEffect } from 'react'
-import { type Chain, defineChain, fallback, http } from 'viem'
+import { type Chain, type Transport, defineChain, fallback, http } from 'viem'
 import {
   arbitrum,
   avalanche,
@@ -44,6 +44,7 @@ import SAFEPAL_ICON from 'assets/wallets-connect/safepal.svg'
 import WALLET_CONNECT_ICON from 'assets/wallets-connect/wallet-connect.svg'
 import INJECTED_DARK_ICON from 'assets/wallets/browser-wallet-dark.svg'
 import { setMetaMaskMobileLink } from 'components/Web3Provider/metamaskMobileLink'
+import { RPC_CLIENT_CHAINS, rpcClientTransport } from 'components/Web3Provider/rpcClientTransport'
 import { WALLETCONNECT_PROJECT_ID } from 'constants/env'
 import { KYBERSWAP_URL } from 'constants/index'
 import { NETWORKS_INFO, isSupportedChainId } from 'constants/networks'
@@ -392,21 +393,23 @@ const wagmiChains: readonly [Chain, ...Chain[]] = [
 // we can't vouch for, and `batch.multicall.batchSize` keeps their call count in check on its own.
 const PRIMARY_HTTP_CONFIG = { batch: { batchSize: 50 } } as const
 
-// viem `fallback()` rotates through URLs on transport errors (network, 429, 5xx),
-// giving us true client-side RPC rotation for every wagmi-issued call (multicall,
-// useReadContract, polling). KyberSwap RPC sits first; public endpoints are tried
-// only when it errors. Connector-internal calls still use URL[0] of `rpcUrls.default`
-// (set by `withKyberRpc` above), which is the same KyberSwap RPC.
+// Two transports, chosen per chain. Chains in `RPC_CLIENT_CHAINS` read through `@kyber/rpc-client`
+// (see ./rpcClientTransport). The rest use viem `fallback()`, which rotates through URLs on
+// transport errors (network, 429, 5xx) for every wagmi-issued call (multicall, useReadContract,
+// polling); KyberSwap RPC sits first there, and public endpoints are tried only when it errors.
+// Connector-internal calls still use URL[0] of `rpcUrls.default` (set by `withKyberRpc` above),
+// which is the KyberSwap RPC, on every chain.
 
 const transports = Object.fromEntries(
   wagmiChains.map(c => {
+    if (RPC_CLIENT_CHAINS.has(c.id)) return [c.id, rpcClientTransport(c.id)]
     const primaryUrl = NETWORKS_INFO[c.id as ChainId]?.defaultRpcUrl
     const urls = getRpcUrlsForChain(c.id)
     const httpTransports =
       urls.length > 0 ? urls.map(url => (url === primaryUrl ? http(url, PRIMARY_HTTP_CONFIG) : http(url))) : [http()]
     return [c.id, fallback(httpTransports, { retryCount: 1 })]
   }),
-) as Record<(typeof wagmiChains)[number]['id'], ReturnType<typeof fallback>>
+) as Record<(typeof wagmiChains)[number]['id'], Transport>
 
 // Migrate localStorage's recent-connector hint from the EIP-6963 io.metamask id (used by the
 // pre-PR injected connector) to the metaMaskSDK id (the new SDK connector). wagmi auto-resets
