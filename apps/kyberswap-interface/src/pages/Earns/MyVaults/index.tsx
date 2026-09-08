@@ -85,10 +85,13 @@ const MyVaultCard = ({
   vault,
   onDeposit,
   onWithdraw,
+  revealIndex,
 }: {
   vault: UserVaultPosition
   onDeposit: (vault: UserVaultPosition) => void
   onWithdraw: (vault: UserVaultPosition) => void
+  /** Position in the list, used to stagger the entrance; omitted when the card should just appear. */
+  revealIndex?: number
 }) => {
   const theme = useTheme()
   // The oldest request the queue can still fill is the one the user is waiting on. An expired one
@@ -103,7 +106,7 @@ const MyVaultCard = ({
   const otherRequestCount = vault.withdrawRequests.length - 1
 
   return (
-    <VaultCard $clickable>
+    <VaultCard $clickable $revealIndex={revealIndex}>
       <CardHeader>
         <CardTitleLink to={buildVaultDetailPath(vault.chainId, vault.id)} className="flex items-center gap-1">
           <TokenIconWrapper>
@@ -330,8 +333,14 @@ const MyVaults = () => {
         <VaultCardsGrid>
           {isLoading
             ? Array.from({ length: 3 }).map((_, i) => <MyVaultCardSkeleton key={i} />)
-            : filteredVaults.map(vault => (
-                <MyVaultCard key={vault.id} vault={vault} onDeposit={setDepositVault} onWithdraw={setWithdrawVault} />
+            : filteredVaults.map((vault, index) => (
+                <MyVaultCard
+                  key={vault.id}
+                  vault={vault}
+                  onDeposit={setDepositVault}
+                  onWithdraw={setWithdrawVault}
+                  revealIndex={index}
+                />
               ))}
         </VaultCardsGrid>
       )}

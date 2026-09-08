@@ -86,7 +86,13 @@ const SORT_FIELD_BY_KEY: Record<VaultSortBy, string> = {
   [VaultSortBy.TVL]: 'tvlUsd',
 }
 
-type VaultItemProps = { vault: VaultInfo; hasPosition: boolean; onDeposit: (vault: VaultInfo) => void }
+type VaultItemProps = {
+  vault: VaultInfo
+  hasPosition: boolean
+  onDeposit: (vault: VaultInfo) => void
+  /** Position in the list, used to stagger the entrance; omitted when the item should just appear. */
+  revealIndex?: number
+}
 
 const VaultIdentity = ({ vault }: { vault: VaultInfo }) => (
   <div className="flex items-center gap-1">
@@ -104,12 +110,12 @@ const VaultIdentity = ({ vault }: { vault: VaultInfo }) => (
   </div>
 )
 
-const ExploreVaultCard = ({ vault, hasPosition, onDeposit }: VaultItemProps) => {
+const ExploreVaultCard = ({ vault, hasPosition, onDeposit, revealIndex }: VaultItemProps) => {
   const navigate = useNavigate()
   const detailPath = buildVaultDetailPath(vault.chainId, vault.id)
 
   return (
-    <VaultCard $clickable={!vault.disabled} $disabled={vault.disabled}>
+    <VaultCard $clickable={!vault.disabled} $disabled={vault.disabled} $revealIndex={revealIndex}>
       <CardHeader>
         {vault.disabled ? (
           <VaultIdentity vault={vault} />
@@ -172,7 +178,7 @@ const ExploreVaultCard = ({ vault, hasPosition, onDeposit }: VaultItemProps) => 
   )
 }
 
-const ExploreVaultListItem = ({ vault, hasPosition, onDeposit }: VaultItemProps) => {
+const ExploreVaultListItem = ({ vault, hasPosition, onDeposit, revealIndex }: VaultItemProps) => {
   const navigate = useNavigate()
   const detailPath = buildVaultDetailPath(vault.chainId, vault.id)
 
@@ -195,7 +201,11 @@ const ExploreVaultListItem = ({ vault, hasPosition, onDeposit }: VaultItemProps)
   )
 
   return (
-    <VaultListRow $disabled={vault.disabled} className={cn(!vault.disabled && 'cursor-pointer')}>
+    <VaultListRow
+      $disabled={vault.disabled}
+      $revealIndex={revealIndex}
+      className={cn(!vault.disabled && 'cursor-pointer')}
+    >
       <VaultListRowMain>
         {vault.disabled ? (
           identity
@@ -457,28 +467,30 @@ const ExploreVaults = () => {
       ) : (
         <div className="ks-vault-results">
           {effectiveViewMode === VaultViewMode.GRID ? (
-            <VaultCardsGrid $stagger={view.stagger}>
+            <VaultCardsGrid>
               {isLoading
                 ? Array.from({ length: SKELETON_COUNT }).map((_, i) => <ExploreVaultCardSkeleton key={i} />)
-                : vaults.map(vault => (
+                : vaults.map((vault, index) => (
                     <ExploreVaultCard
                       key={vault.id}
                       vault={vault}
                       hasPosition={userVaultIds.has(vault.id)}
                       onDeposit={setDepositVault}
+                      revealIndex={view.stagger ? index : undefined}
                     />
                   ))}
             </VaultCardsGrid>
           ) : (
-            <VaultList $stagger={view.stagger}>
+            <VaultList>
               {isLoading
                 ? Array.from({ length: SKELETON_COUNT }).map((_, i) => <ExploreVaultListItemSkeleton key={i} />)
-                : vaults.map(vault => (
+                : vaults.map((vault, index) => (
                     <ExploreVaultListItem
                       key={vault.id}
                       vault={vault}
                       hasPosition={userVaultIds.has(vault.id)}
                       onDeposit={setDepositVault}
+                      revealIndex={view.stagger ? index : undefined}
                     />
                   ))}
             </VaultList>

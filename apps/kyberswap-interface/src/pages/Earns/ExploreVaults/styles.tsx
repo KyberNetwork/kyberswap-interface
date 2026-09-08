@@ -59,13 +59,10 @@ export const ViewToggleButton = ({ $active, className, ...rest }: ViewToggleButt
   />
 )
 
-type RevealableProps = HTMLAttributes<HTMLDivElement> & { $stagger?: boolean }
-
-export const VaultCardsGrid = ({ $stagger = true, className, ...rest }: RevealableProps) => (
+export const VaultCardsGrid = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
   <div
     className={cn(
-      'grid grid-cols-3 gap-x-10 gap-y-8 [--ks-stagger-step:60ms]',
-      $stagger && 'ks-vault-stagger',
+      'grid grid-cols-3 gap-x-10 gap-y-8',
       'max-lg:grid-cols-2 max-lg:gap-6',
       'max-sm:grid-cols-1 max-sm:gap-4',
       className,
@@ -74,19 +71,43 @@ export const VaultCardsGrid = ({ $stagger = true, className, ...rest }: Revealab
   />
 )
 
-type VaultCardProps = HTMLAttributes<HTMLDivElement> & { $clickable?: boolean; $disabled?: boolean }
-export const VaultCard = ({ $clickable, $disabled, className, ...rest }: VaultCardProps) => (
-  <div
-    className={cn(
-      'relative flex flex-col rounded-xl bg-background p-4 transition-[background,transform,box-shadow] duration-200',
-      'hover:bg-background/85',
-      $disabled ? 'cursor-not-allowed' : $clickable ? 'cursor-pointer' : 'cursor-default',
-      $clickable && !$disabled && 'hover:-translate-y-px hover:shadow-[0_4px_16px_rgba(0,0,0,0.2)]',
-      className,
-    )}
-    {...rest}
-  />
-)
+type VaultCardProps = HTMLAttributes<HTMLDivElement> & {
+  $clickable?: boolean
+  $disabled?: boolean
+  $revealIndex?: number
+}
+/**
+ * Per-item entrance, matching the pool and position tables: a 4px lift over 0.3s, each item 50ms
+ * behind the previous one and capped at 300ms so a long list does not trail. Pass `undefined` to
+ * skip it, which the gallery/list switch does: the cross-fade already carries that change.
+ */
+const revealProps = (index: number | undefined) =>
+  index === undefined
+    ? { className: undefined, style: undefined }
+    : {
+        className: 'animate-[fadeInUp_0.3s_ease-out_both] motion-reduce:animate-none',
+        style: { animationDelay: `${Math.min(index * 50, 300)}ms` },
+      }
+
+export const VaultCard = ({ $clickable, $disabled, $revealIndex, className, style, ...rest }: VaultCardProps) => {
+  const reveal = revealProps($revealIndex)
+  return (
+    <div
+      className={cn(
+        // `duration-200` would also set animation-duration and swallow the entrance's own timing.
+        'relative flex flex-col rounded-xl bg-background p-4',
+        'transition-[background,transform,box-shadow] [transition-duration:200ms]',
+        'hover:bg-background/85',
+        $disabled ? 'cursor-not-allowed' : $clickable ? 'cursor-pointer' : 'cursor-default',
+        $clickable && !$disabled && 'hover:-translate-y-px hover:shadow-[0_4px_16px_rgba(0,0,0,0.2)]',
+        reveal.className,
+        className,
+      )}
+      style={{ ...reveal.style, ...style }}
+      {...rest}
+    />
+  )
+}
 
 /**
  * The card's one navigation control. Its ::after stretches over the whole card, so a click anywhere
@@ -261,11 +282,8 @@ export const TxLink = ({ className, ...rest }: HTMLAttributes<HTMLSpanElement>) 
   <span className={cn('cursor-pointer text-sm text-blue3 hover:underline', className)} {...rest} />
 )
 
-export const VaultList = ({ $stagger = true, className, ...rest }: RevealableProps) => (
-  <div
-    className={cn('flex flex-col gap-3 [--ks-stagger-step:40ms]', $stagger && 'ks-vault-stagger', className)}
-    {...rest}
-  />
+export const VaultList = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('flex flex-col gap-3', className)} {...rest} />
 )
 
 // Flexible tracks (minmax) so the grid fits at a 1201px viewport with the EarnLayout
@@ -274,20 +292,24 @@ export const VaultList = ({ $stagger = true, className, ...rest }: RevealablePro
 // distributes the remainder so columns align across rows at every size.
 const VAULT_LIST_ROW_COLUMNS = 'minmax(320px, 1fr) minmax(175px, 200px) minmax(175px, 200px) minmax(210px, 230px)'
 
-type VaultListRowProps = HTMLAttributes<HTMLDivElement> & { $disabled?: boolean }
-export const VaultListRow = ({ $disabled, className, style, ...rest }: VaultListRowProps) => (
-  <div
-    className={cn(
-      'relative grid items-center justify-between gap-6 rounded-xl bg-background p-4',
-      'transition-[background,transform,box-shadow] duration-200',
-      'hover:-translate-y-px hover:bg-background/85 hover:shadow-[0_4px_16px_rgba(0,0,0,0.2)]',
-      $disabled ? 'opacity-60' : 'opacity-100',
-      className,
-    )}
-    style={{ gridTemplateColumns: VAULT_LIST_ROW_COLUMNS, ...style }}
-    {...rest}
-  />
-)
+type VaultListRowProps = HTMLAttributes<HTMLDivElement> & { $disabled?: boolean; $revealIndex?: number }
+export const VaultListRow = ({ $disabled, $revealIndex, className, style, ...rest }: VaultListRowProps) => {
+  const reveal = revealProps($revealIndex)
+  return (
+    <div
+      className={cn(
+        'relative grid items-center justify-between gap-6 rounded-xl bg-background p-4',
+        'transition-[background,transform,box-shadow] [transition-duration:200ms]',
+        'hover:-translate-y-px hover:bg-background/85 hover:shadow-[0_4px_16px_rgba(0,0,0,0.2)]',
+        $disabled ? 'opacity-60' : 'opacity-100',
+        reveal.className,
+        className,
+      )}
+      style={{ gridTemplateColumns: VAULT_LIST_ROW_COLUMNS, ...reveal.style, ...style }}
+      {...rest}
+    />
+  )
+}
 
 export const VaultListRowMain = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
   <div className={cn('flex min-w-0 items-center gap-2', className)} {...rest} />
