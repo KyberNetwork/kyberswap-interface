@@ -1,8 +1,8 @@
 import { t } from '@lingui/macro'
-import { useEffect, useMemo, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useMemo, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { useMedia } from 'react-use'
-import { useVaultPositionsQuery } from 'services/vault'
+import { VaultWithdrawRequestStatus, useVaultPositionsQuery } from 'services/vault'
 
 import { ReactComponent as IconEarnNotFound } from 'assets/svg/earn/ic_earn_not_found.svg'
 import MultiSelectDropdownMenu from 'components/DropdownMenu/MultiSelect'
@@ -11,11 +11,12 @@ import TokenLogo from 'components/TokenLogo'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import useTheme from 'hooks/useTheme'
-import { VAULT_CHAIN_OPTIONS } from 'pages/Earns/ExploreVaults/sampleData'
 import {
   ApyTvlRow,
+  CardActions,
   CardFooterRow,
   CardHeader,
+  CardTitleLink,
   DepositButton,
   Disclaimer,
   EmptyStateLink,
@@ -42,15 +43,26 @@ import {
   VaultPageWrapper,
   WithdrawButton,
 } from 'pages/Earns/ExploreVaults/styles'
-import { UserVaultPosition, WithdrawalStatus } from 'pages/Earns/ExploreVaults/types'
+import { UserVaultPosition } from 'pages/Earns/ExploreVaults/types'
 import { PositionAction as PositionActionBtn } from 'pages/Earns/PositionDetail/styles'
 import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
-import { toUserVaultPosition } from 'pages/Earns/utils/vault'
+import VaultDepositModal from 'pages/Earns/components/VaultDeposit/VaultDepositModal'
+import VaultWithdrawModal from 'pages/Earns/components/VaultWithdraw/VaultWithdrawModal'
+import useCountdown from 'pages/Earns/hooks/useCountdown'
+import { useRefreshOnVaultTx } from 'pages/Earns/hooks/useRefreshOnVaultTx'
+import useVaultChainOptions from 'pages/Earns/hooks/useVaultChainOptions'
+import {
+  buildVaultDetailPath,
+  getWithdrawRequestMaturityAt,
+  safeBigInt,
+  toUserVaultPosition,
+} from 'pages/Earns/utils/vault'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import { Colors } from 'theme/color'
 import { shortenHash } from 'utils/address'
 import { formatDisplayNumber } from 'utils/numbers'
+import { formatUnits } from 'utils/viem'
 
 const formatTvl = (value: number) => formatDisplayNumber(value, { style: 'decimal', significantDigits: 3 })
 
@@ -59,75 +71,41 @@ const formatUsd = (value: number) => formatDisplayNumber(value, { style: 'curren
 const formatBalance = (value: number, token: string) =>
   `${formatDisplayNumber(value, { style: 'decimal', significantDigits: 4 })} ${token}`
 
-const getStatusConfig = (theme: Colors): Record<WithdrawalStatus, { label: string; color: string } | null> => ({
-  [WithdrawalStatus.NONE]: null,
-  [WithdrawalStatus.REQUESTED]: { label: 'Requested', color: theme.blue3 },
-  [WithdrawalStatus.PENDING]: { label: 'Pending', color: theme.warning },
-  [WithdrawalStatus.COMPLETED]: { label: 'Completed', color: theme.primary },
+const getStatusConfig = (
+  theme: Colors,
+): Record<VaultWithdrawRequestStatus, { label: string; color: string } | null> => ({
+  [VaultWithdrawRequestStatus.PENDING]: { label: 'Requested', color: theme.blue3 },
+  [VaultWithdrawRequestStatus.MATURED]: { label: 'Pending', color: theme.warning },
+  [VaultWithdrawRequestStatus.EXPIRED]: { label: 'Expired', color: theme.red },
+  [VaultWithdrawRequestStatus.SOLVED]: { label: 'Completed', color: theme.subText },
+  [VaultWithdrawRequestStatus.CANCELLED]: null,
 })
 
-const useCountdown = (totalSeconds: number) => {
-  const [remaining, setRemaining] = useState(totalSeconds)
-
-  useEffect(() => {
-    if (totalSeconds <= 0) return
-    setRemaining(totalSeconds)
-    const interval = setInterval(() => {
-      setRemaining(prev => {
-        if (prev <= 1) {
-          clearInterval(interval)
-          return 0
-        }
-        return prev - 1
-      })
-    }, 1000)
-    return () => clearInterval(interval)
-  }, [totalSeconds])
-
-  if (totalSeconds <= 0 || remaining <= 0) return '--'
-
-  const d = Math.floor(remaining / 86400)
-  const h = Math.floor((remaining % 86400) / 3600)
-  const m = Math.floor((remaining % 3600) / 60)
-  const s = remaining % 60
-
-  const parts: string[] = []
-  if (d > 0) parts.push(`${d}d`)
-  if (h > 0 || d > 0) parts.push(`${h}h`)
-  parts.push(`${m}m`)
-  parts.push(`${s}s`)
-
-  return parts.join(' : ')
-}
-
-const isWithdrawDisabled = (status: WithdrawalStatus) =>
-  status === WithdrawalStatus.REQUESTED || status === WithdrawalStatus.PENDING
-
-const MyVaultCard = ({ vault }: { vault: UserVaultPosition }) => {
+const MyVaultCard = ({
+  vault,
+  onDeposit,
+  onWithdraw,
+}: {
+  vault: UserVaultPosition
+  onDeposit: (vault: UserVaultPosition) => void
+  onWithdraw: (vault: UserVaultPosition) => void
+}) => {
   const theme = useTheme()
-  const navigate = useNavigate()
-  const countdown = useCountdown(vault.processingTimeSeconds)
-  const statusConfig = getStatusConfig(theme)[vault.withdrawalStatus]
-  const isCompleted = vault.withdrawalStatus === WithdrawalStatus.COMPLETED
-
-  const goToDetail = () =>
-    navigate(APP_PATHS.EARN_VAULT_DETAIL.replace(':chainId', String(vault.chainId)).replace(':vaultId', vault.id))
+  // The oldest request the queue can still fill is the one the user is waiting on. An expired one
+  // only surfaces when nothing live is left, so a stale row cannot hide a running countdown.
+  const activeRequest =
+    vault.withdrawRequests.find(request => request.status !== VaultWithdrawRequestStatus.EXPIRED) ??
+    vault.withdrawRequests[0]
+  const { remaining, label: countdown } = useCountdown(
+    activeRequest ? getWithdrawRequestMaturityAt(activeRequest) : undefined,
+  )
+  const statusConfig = activeRequest ? getStatusConfig(theme)[activeRequest.status] : null
+  const otherRequestCount = vault.withdrawRequests.length - 1
 
   return (
-    <VaultCard
-      role="button"
-      tabIndex={0}
-      $clickable
-      onClick={goToDetail}
-      onKeyDown={e => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault()
-          goToDetail()
-        }
-      }}
-    >
+    <VaultCard $clickable>
       <CardHeader>
-        <div className="flex items-center gap-1">
+        <CardTitleLink to={buildVaultDetailPath(vault.chainId, vault.id)} className="flex items-center gap-1">
           <TokenIconWrapper>
             <TokenLogo src={vault.tokenIcon} alt={vault.token} size={24} />
             <TokenLogo
@@ -139,30 +117,21 @@ const MyVaultCard = ({ vault }: { vault: UserVaultPosition }) => {
           </TokenIconWrapper>
           <span className="ml-1 text-base text-white2">{vault.token}</span>
           <span className="text-base text-gray">{vault.label}</span>
-        </div>
+        </CardTitleLink>
 
-        <div className="flex items-center gap-3">
+        <CardActions>
           <WithdrawButton
             type="button"
-            $disabled={isWithdrawDisabled(vault.withdrawalStatus)}
-            disabled={isWithdrawDisabled(vault.withdrawalStatus)}
-            onClick={e => {
-              e.stopPropagation()
-              goToDetail()
-            }}
+            $disabled={vault.balance <= 0}
+            disabled={vault.balance <= 0}
+            onClick={() => onWithdraw(vault)}
           >
             {t`Withdraw`}
           </WithdrawButton>
-          <DepositButton
-            type="button"
-            onClick={e => {
-              e.stopPropagation()
-              goToDetail()
-            }}
-          >
+          <DepositButton type="button" onClick={() => onDeposit(vault)}>
             {t`+ Deposit`}
           </DepositButton>
-        </div>
+        </CardActions>
       </CardHeader>
 
       <MyVaultCardBody>
@@ -188,32 +157,40 @@ const MyVaultCard = ({ vault }: { vault: UserVaultPosition }) => {
           </InfoValue>
         </InfoRow>
 
-        {isCompleted ? (
+        {activeRequest ? (
           <>
-            {vault.completedAt && (
-              <InfoRow>
-                <InfoLabel>{t`Timestamp`}</InfoLabel>
-                <InfoValue>
-                  <InfoValuePrimary>{vault.completedAt}</InfoValuePrimary>
-                </InfoValue>
-              </InfoRow>
-            )}
-            {vault.txHash && (
+            <InfoRow>
+              <InfoLabel>{t`Withdrawing`}</InfoLabel>
+              <InfoValue>
+                <InfoValuePrimary>
+                  {formatDisplayNumber(
+                    formatUnits(safeBigInt(activeRequest.amountOfAssets), activeRequest.assetOut.decimals),
+                    {
+                      significantDigits: 4,
+                    },
+                  )}{' '}
+                  {activeRequest.assetOut.symbol}
+                </InfoValuePrimary>
+                {otherRequestCount > 0 ? (
+                  <InfoValueSecondary>{t`+${otherRequestCount} more`}</InfoValueSecondary>
+                ) : null}
+              </InfoValue>
+            </InfoRow>
+            <InfoRow>
+              <InfoLabel>{remaining > 0 ? t`Ready in` : t`Status`}</InfoLabel>
+              <InfoValue>
+                <InfoValuePrimary>{remaining > 0 ? countdown : statusConfig?.label}</InfoValuePrimary>
+              </InfoValue>
+            </InfoRow>
+            {activeRequest.requestTxHash ? (
               <InfoRow>
                 <InfoLabel>{t`Txn`}</InfoLabel>
                 <InfoValue>
-                  <TxLink>{shortenHash(vault.txHash)}</TxLink>
+                  <TxLink>{shortenHash(activeRequest.requestTxHash)}</TxLink>
                 </InfoValue>
               </InfoRow>
-            )}
+            ) : null}
           </>
-        ) : vault.processingTimeSeconds > 0 ? (
-          <InfoRow>
-            <InfoLabel>{t`Processing Time`}</InfoLabel>
-            <InfoValue>
-              <InfoValuePrimary>{countdown}</InfoValuePrimary>
-            </InfoValue>
-          </InfoRow>
         ) : null}
       </MyVaultCardBody>
 
@@ -231,7 +208,9 @@ const MyVaultCard = ({ vault }: { vault: UserVaultPosition }) => {
 
         <CardFooterRow>
           <ProtocolTag>
-            <img src={vault.partnerLogo} alt={vault.partner} width={16} height={16} style={{ borderRadius: '50%' }} />
+            {vault.partnerLogo ? (
+              <img src={vault.partnerLogo} alt={vault.partner} width={16} height={16} style={{ borderRadius: '50%' }} />
+            ) : null}
             <span>
               {t`managed by`} {vault.partner}
             </span>
@@ -286,8 +265,11 @@ const MyVaults = () => {
   const [search, setSearch] = useState('')
   const [selectedChain, setSelectedChain] = useState('')
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
+  const vaultChainOptions = useVaultChainOptions()
+  const [depositVault, setDepositVault] = useState<UserVaultPosition | null>(null)
+  const [withdrawVault, setWithdrawVault] = useState<UserVaultPosition | null>(null)
 
-  const { data, isLoading } = useVaultPositionsQuery(
+  const { data, isLoading, refetch } = useVaultPositionsQuery(
     {
       userAddress: (account || '').toLowerCase(),
       chainIds: selectedChain || undefined,
@@ -302,10 +284,13 @@ const MyVaults = () => {
     [data?.positions],
   )
 
+  // Balances and requests only move once a vault transaction is mined.
+  useRefreshOnVaultTx(refetch)
+
   const chainLabel = useMemo(() => {
-    const selected = VAULT_CHAIN_OPTIONS.find(c => c.value === selectedChain)
-    return selected?.label || VAULT_CHAIN_OPTIONS[0].label
-  }, [selectedChain])
+    const selected = vaultChainOptions.find(c => c.value === selectedChain)
+    return selected?.label || vaultChainOptions[0].label
+  }, [selectedChain, vaultChainOptions])
 
   const showEmptyState = !account || (!isLoading && filteredVaults.length === 0)
 
@@ -318,7 +303,7 @@ const MyVaults = () => {
           alignItems="flex-start"
           highlightOnSelect
           label={chainLabel}
-          options={VAULT_CHAIN_OPTIONS}
+          options={vaultChainOptions}
           value={selectedChain}
           onChange={value => setSelectedChain(value.toString())}
         />
@@ -346,11 +331,25 @@ const MyVaults = () => {
         <VaultCardsGrid>
           {isLoading
             ? Array.from({ length: 3 }).map((_, i) => <MyVaultCardSkeleton key={i} />)
-            : filteredVaults.map(vault => <MyVaultCard key={vault.id} vault={vault} />)}
+            : filteredVaults.map(vault => (
+                <MyVaultCard key={vault.id} vault={vault} onDeposit={setDepositVault} onWithdraw={setWithdrawVault} />
+              ))}
         </VaultCardsGrid>
       )}
 
       <Disclaimer>{t`Partner-managed vaults. Auto-compounding. Native withdrawals are not instant.`}</Disclaimer>
+
+      <VaultDepositModal
+        target={depositVault ? { chainId: depositVault.chainId, vaultId: depositVault.vaultId } : null}
+        onClose={() => setDepositVault(null)}
+        onDeposited={refetch}
+      />
+
+      <VaultWithdrawModal
+        target={withdrawVault ? { chainId: withdrawVault.chainId, vaultId: withdrawVault.vaultId } : null}
+        onClose={() => setWithdrawVault(null)}
+        onWithdrawn={refetch}
+      />
     </VaultPageWrapper>
   )
 }

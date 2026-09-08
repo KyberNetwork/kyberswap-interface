@@ -1,6 +1,6 @@
 import { t } from '@lingui/macro'
 import { useCallback, useEffect } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { useExplorerLandingQuery } from 'services/earn'
 
@@ -34,6 +34,7 @@ import {
   SectionDivider,
   SectionHeader,
   SectionInner,
+  SectionTitleLink,
   TopSectionsRow,
   TwoColumnGrid,
 } from 'pages/Earns/Landing/styles'
@@ -48,7 +49,6 @@ import { cn } from 'utils/cn'
 const PARTNER_VAULTS_ACCENT = '#8165f5'
 
 const EarnLanding = () => {
-  const navigate = useNavigate()
   const theme = useTheme()
   const [searchParams, setSearchParams] = useSearchParams()
   const { account } = useActiveWeb3React()
@@ -124,20 +124,7 @@ const EarnLanding = () => {
 
         {/* Top Row: Liquidity Pools + Partner Vaults */}
         <TopSectionsRow>
-          <SectionContainer
-            accentColor={theme.primary}
-            role="button"
-            tabIndex={0}
-            clickable
-            data-testid="earn-overview-card-pools"
-            onClick={() => navigate(APP_PATHS.EARN_POOLS)}
-            onKeyDown={e => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault()
-                navigate(APP_PATHS.EARN_POOLS)
-              }
-            }}
-          >
+          <SectionContainer accentColor={theme.primary} data-testid="earn-overview-card-pools">
             <SectionInner accentColor={theme.primary}>
               <SectionHeader>
                 <HeaderIconWrapper>
@@ -147,7 +134,7 @@ const EarnLanding = () => {
                   </HeaderIconCircle>
                 </HeaderIconWrapper>
                 <HeaderTextBlock>
-                  <span className="text-lg font-medium text-text">{t`Liquidity Pools`}</span>
+                  <SectionTitleLink to={APP_PATHS.EARN_POOLS}>{t`Liquidity Pools`}</SectionTitleLink>
                   <span className="text-sm leading-5 text-subText">
                     {t`Explore and instantly add liquidity to high-APY pools the easy way with Zap Technology.`}
                   </span>
@@ -183,20 +170,7 @@ const EarnLanding = () => {
             </SectionInner>
           </SectionContainer>
 
-          <SectionContainer
-            accentColor={PARTNER_VAULTS_ACCENT}
-            role="button"
-            tabIndex={0}
-            clickable
-            data-testid="earn-overview-card-vaults"
-            onClick={() => navigate(APP_PATHS.EARN_VAULTS)}
-            onKeyDown={e => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault()
-                navigate(APP_PATHS.EARN_VAULTS)
-              }
-            }}
-          >
+          <SectionContainer accentColor={PARTNER_VAULTS_ACCENT} data-testid="earn-overview-card-vaults">
             <SectionInner accentColor={PARTNER_VAULTS_ACCENT}>
               <SectionHeader>
                 <HeaderIconWrapper>
@@ -206,7 +180,7 @@ const EarnLanding = () => {
                   </HeaderIconCircle>
                 </HeaderIconWrapper>
                 <HeaderTextBlock>
-                  <span className="text-lg font-medium text-text">{t`Partner Vaults`}</span>
+                  <SectionTitleLink to={APP_PATHS.EARN_VAULTS}>{t`Partner Vaults`}</SectionTitleLink>
                   <span className="text-sm leading-5 text-subText">
                     {t`Auto-compounding, single-asset strategies managed by partners (starting with ether.fi).`}
                   </span>

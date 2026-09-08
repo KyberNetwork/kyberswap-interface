@@ -5,6 +5,11 @@ import { cn } from 'utils/cn'
 
 const REDUCED_MOTION = 'motion-reduce:!animate-none motion-reduce:!transition-none'
 
+/** Shared panel chrome for the page's two columns. */
+const Card = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('flex w-full flex-col rounded-xl bg-background', className)} {...rest} />
+)
+
 export const PageWrapper = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
   <div
     className={cn(
@@ -87,8 +92,8 @@ export const ContentGrid = ({ className, ...rest }: HTMLAttributes<HTMLDivElemen
   />
 )
 
-export const Card = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
-  <div className={cn('flex w-full flex-col rounded-xl bg-background', className)} {...rest} />
+export const ChartsColumn = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('flex min-w-0 flex-col gap-3', className)} {...rest} />
 )
 
 export const ChartsCard = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
@@ -218,10 +223,13 @@ export const ActionTabs = ({ className, ...rest }: HTMLAttributes<HTMLDivElement
 export const ActionTab = ({ $active, className, ...rest }: TabProps) => (
   <button
     className={cn(
-      'h-12 flex-1 cursor-pointer border-b-2 border-solid bg-transparent px-5 py-3',
+      'flex h-12 w-[148px] shrink-0 cursor-pointer items-center justify-center gap-1 border-b-2 border-solid px-5 py-3',
       'text-sm font-medium uppercase leading-6 tracking-[0.02em]',
-      'transition-[color,border-color,background-color] [transition-duration:250ms] hover:bg-white/[0.02] hover:text-text',
-      $active ? 'border-b-primary text-primary' : 'border-b-transparent text-subText',
+      'transition-[color,border-color,background-color] [transition-duration:250ms]',
+      $active
+        ? 'border-b-primary bg-primary/10 text-primary'
+        : 'border-b-transparent bg-transparent text-subText hover:bg-white/[0.02] hover:text-text',
+      'max-xxs:w-auto max-xxs:flex-1',
       REDUCED_MOTION,
       className,
     )}
@@ -233,13 +241,53 @@ export const ActionTabDivider = ({ className, ...rest }: HTMLAttributes<HTMLDivE
   <div className={cn('h-5 w-px bg-white-08', className)} {...rest} />
 )
 
-export const ActionPlaceholder = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
+export const ActionBody = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
   <div
     className={cn(
-      'flex min-h-[320px] flex-1 items-center justify-center p-6 text-center text-sm italic leading-5 text-gray',
+      'flex flex-1 flex-col gap-4 p-5',
       '[animation:fadeIn_0.25s_ease-out_both]',
-      'max-lg:min-h-[220px]',
-      'max-xxs:min-h-[180px] max-xxs:px-4 max-xxs:py-5',
+      'max-xxs:gap-3 max-xxs:p-4',
+      REDUCED_MOTION,
+      className,
+    )}
+    {...rest}
+  />
+)
+
+export const DetailRow = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('flex items-center justify-between gap-3 text-sm leading-5', className)} {...rest} />
+)
+
+export const DetailLabel = ({ className, ...rest }: HTMLAttributes<HTMLSpanElement>) => (
+  <span className={cn('text-subText', className)} {...rest} />
+)
+
+export const DetailValue = ({ className, ...rest }: HTMLAttributes<HTMLSpanElement>) => (
+  <span className={cn('text-right text-text', className)} {...rest} />
+)
+
+export const RequestList = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('flex flex-col gap-2', className)} {...rest} />
+)
+
+export const RequestCard = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('flex flex-col gap-2 rounded-xl border border-white-08 bg-white-04 p-3', className)} {...rest} />
+)
+
+export const RequestStatusBadge = ({ className, ...rest }: HTMLAttributes<HTMLSpanElement>) => (
+  <span
+    className={cn('shrink-0 rounded-full px-2 py-0.5 text-xs font-medium leading-4 tracking-[0.02em]', className)}
+    {...rest}
+  />
+)
+
+export const CancelRequestButton = ({ className, ...rest }: ButtonHTMLAttributes<HTMLButtonElement>) => (
+  <button
+    type="button"
+    className={cn(
+      'shrink-0 rounded-full border border-red-30 bg-transparent px-3 py-1 text-xs font-medium text-red',
+      'transition-colors duration-200 hover:bg-red-20',
+      'disabled:cursor-not-allowed disabled:opacity-50',
       REDUCED_MOTION,
       className,
     )}

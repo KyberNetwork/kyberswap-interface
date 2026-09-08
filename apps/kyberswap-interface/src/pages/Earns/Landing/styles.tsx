@@ -90,16 +90,14 @@ export const BottomRightCol = ({ className, ...rest }: HTMLAttributes<HTMLDivEle
 
 type SectionContainerProps = HTMLAttributes<HTMLDivElement> & {
   accentColor?: string
-  clickable?: boolean
 }
-export const SectionContainer = ({ accentColor, clickable, className, style, ...rest }: SectionContainerProps) => {
+export const SectionContainer = ({ accentColor, className, style, ...rest }: SectionContainerProps) => {
   const theme = useTheme()
   const accent = accentColor || theme.primary
   return (
     <div
       className={cn(
         'relative overflow-hidden rounded-[20px] bg-clip-padding p-px transition-transform duration-200',
-        clickable && 'cursor-pointer',
         "before:pointer-events-none before:absolute before:inset-0 before:z-0 before:rounded-[20px] before:p-px before:content-['']",
         'before:[--border-angle:0deg] before:[background:var(--ks-section-border)]',
         'before:[-webkit-mask-composite:xor] before:[-webkit-mask:linear-gradient(#fff_0_0)_content-box,linear-gradient(#fff_0_0)]',
@@ -211,6 +209,15 @@ export const HeaderIconCircle = ({ accentColor, className, style, ...rest }: Acc
 
 export const HeaderTextBlock = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
   <div className={cn('flex min-w-0 flex-1 flex-col gap-2 pt-8 max-xs:pt-5', className)} {...rest} />
+)
+
+/** A section's heading is its navigation control, so the panel around it stays non-interactive and
+ *  the pools and vaults inside keep their own single focus stop. */
+export const SectionTitleLink = ({ className, ...rest }: LinkProps) => (
+  <Link
+    className={cn('w-fit text-lg font-medium text-text no-underline hover:text-primary hover:underline', className)}
+    {...rest}
+  />
 )
 
 export const SectionDivider = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (

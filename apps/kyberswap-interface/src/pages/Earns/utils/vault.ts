@@ -3,11 +3,13 @@ import {
   VaultApiListItem,
   VaultApiMetricPoint,
   VaultApiMetrics,
-  VaultPendingWithdrawalSummary,
   VaultPositionItem,
+  VaultWithdrawRequest,
+  VaultWithdrawRequestStatus,
 } from 'services/vault'
 
-import { ChartDataPoint, UserVaultPosition, VaultInfo, WithdrawalStatus } from 'pages/Earns/ExploreVaults/types'
+import { APP_PATHS } from 'constants/index'
+import { ChartDataPoint, UserVaultPosition, VaultInfo } from 'pages/Earns/ExploreVaults/types'
 
 const toChartDataPoints = (points?: VaultApiMetricPoint[]): ChartDataPoint[] =>
   (points || []).map(p => ({ value: Number(p.value) || 0 }))
@@ -50,22 +52,6 @@ export const toVaultInfoFromDetail = (detail: VaultApiDetailItem, metrics?: Vaul
   tvlHistory: toChartDataPoints(metrics?.tvl),
 })
 
-const mapWithdrawalStatus = (pending?: VaultPendingWithdrawalSummary): WithdrawalStatus => {
-  if (!pending) return WithdrawalStatus.NONE
-  const status = (pending.latestStatus || '').toLowerCase()
-  if (status === 'completed' || status === 'ready' || status === 'claimable') return WithdrawalStatus.COMPLETED
-  if (status === 'requested' || status === 'queued') return WithdrawalStatus.REQUESTED
-  return WithdrawalStatus.PENDING
-}
-
-const computeProcessingSeconds = (etaExpectedAt?: string): number => {
-  if (!etaExpectedAt) return -1
-  const eta = new Date(etaExpectedAt).getTime()
-  if (Number.isNaN(eta)) return -1
-  const diff = Math.floor((eta - Date.now()) / 1000)
-  return diff > 0 ? diff : 0
-}
-
 export const toUserVaultPosition = (item: VaultPositionItem): UserVaultPosition => {
   const v = item.vault
   const balance = Number(item.underlyingEquivalent) || 0
@@ -73,10 +59,12 @@ export const toUserVaultPosition = (item: VaultPositionItem): UserVaultPosition 
   const earnedUsd = Number(item.earnedUsd) || 0
   const pricePerToken = balance > 0 ? balanceUsd / balance : 0
   const earned = pricePerToken > 0 ? earnedUsd / pricePerToken : 0
-  const pending = item.pendingWithdrawalSummary
-
   return {
     id: v.id,
+    vaultId: v.id,
+    shareBalanceRaw: item.shareBalanceRaw || '0',
+    shareDecimals: v.shareToken?.decimals ?? 18,
+    shareSymbol: v.shareToken?.symbol || '',
     token: v.underlyingToken?.symbol || '',
     tokenIcon: v.underlyingToken?.logo || '',
     chainId: item.chain?.id || 0,
@@ -93,7 +81,40 @@ export const toUserVaultPosition = (item: VaultPositionItem): UserVaultPosition 
     balanceUsd,
     earned,
     earnedUsd,
-    processingTimeSeconds: computeProcessingSeconds(pending?.etaExpectedAt),
-    withdrawalStatus: mapWithdrawalStatus(pending),
+    withdrawRequests: getOpenWithdrawRequests(item.withdrawRequests),
   }
+}
+
+/** API amounts arrive as strings and an incomplete record would otherwise throw mid-render, taking
+ *  the whole page down with it — there is a single error boundary around the routed body. */
+export const safeBigInt = (value: string | number | null | undefined, fallback = 0n): bigint => {
+  if (value === null || value === undefined || value === '') return fallback
+  try {
+    return BigInt(value)
+  } catch {
+    return fallback
+  }
+}
+
+/** Requests the queue is still holding shares for — the only ones the user can act on. */
+export const isOpenWithdrawRequest = (request: VaultWithdrawRequest) =>
+  request.status === VaultWithdrawRequestStatus.PENDING ||
+  request.status === VaultWithdrawRequestStatus.MATURED ||
+  request.status === VaultWithdrawRequestStatus.EXPIRED
+
+/** Oldest first: the request the user has been waiting on longest is the one to show and act on. */
+export const getOpenWithdrawRequests = (requests?: VaultWithdrawRequest[]) =>
+  (requests || []).filter(isOpenWithdrawRequest).sort((a, b) => a.creationTime - b.creationTime)
+
+export const getWithdrawRequestMaturityAt = (request: VaultWithdrawRequest) =>
+  request.creationTime + request.secondsToMaturity
+
+export const getWithdrawRequestExpiryAt = (request: VaultWithdrawRequest) =>
+  request.creationTime + request.secondsToMaturity + request.secondsToDeadline
+
+export type VaultDetailTab = 'deposit' | 'withdraw'
+
+export const buildVaultDetailPath = (chainId: number, vaultId: string, tab?: VaultDetailTab) => {
+  const path = APP_PATHS.EARN_VAULT_DETAIL.replace(':chainId', String(chainId)).replace(':vaultId', vaultId)
+  return tab ? `${path}?tab=${tab}` : path
 }

@@ -1,10 +1,9 @@
 import { t } from '@lingui/macro'
-import { useMemo } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useMemo, useState } from 'react'
 import { useVaultListQuery } from 'services/vault'
 
 import TokenLogo from 'components/TokenLogo'
-import { APP_PATHS } from 'constants/index'
+import { CardTitleLink } from 'pages/Earns/ExploreVaults/styles'
 import {
   PartnerVaultsList,
   VaultCard,
@@ -12,7 +11,8 @@ import {
   VaultProtocolTag,
 } from 'pages/Earns/Landing/FeaturedPartnerVaults/styles'
 import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
-import { toVaultInfo } from 'pages/Earns/utils/vault'
+import VaultDepositModal from 'pages/Earns/components/VaultDeposit/VaultDepositModal'
+import { buildVaultDetailPath, toVaultInfo } from 'pages/Earns/utils/vault'
 import { formatDisplayNumber } from 'utils/numbers'
 
 const FEATURED_COUNT = 3
@@ -35,7 +35,7 @@ const VaultItemSkeleton = () => (
 )
 
 const FeaturedPartnerVaults = ({ isLoading: parentLoading }: { isLoading?: boolean }) => {
-  const navigate = useNavigate()
+  const [depositVault, setDepositVault] = useState<{ chainId: number; vaultId: string } | null>(null)
 
   const { data, isLoading } = useVaultListQuery({
     pageSize: FEATURED_COUNT,
@@ -49,56 +49,49 @@ const FeaturedPartnerVaults = ({ isLoading: parentLoading }: { isLoading?: boole
   if (!loading && vaults.length === 0) return null
 
   return (
-    <PartnerVaultsList>
-      {loading
-        ? Array.from({ length: FEATURED_COUNT }).map((_, i) => <VaultItemSkeleton key={i} />)
-        : vaults.map(vault => {
-            const goToDetail = () =>
-              navigate(
-                APP_PATHS.EARN_VAULT_DETAIL.replace(':chainId', String(vault.chainId)).replace(':vaultId', vault.id),
+    <>
+      <PartnerVaultsList>
+        {loading
+          ? Array.from({ length: FEATURED_COUNT }).map((_, i) => <VaultItemSkeleton key={i} />)
+          : vaults.map(vault => {
+              return (
+                <VaultCard key={vault.id} className="cursor-pointer">
+                  <div className="flex w-full items-start justify-between">
+                    <CardTitleLink
+                      to={buildVaultDetailPath(vault.chainId, vault.id)}
+                      className="flex items-center gap-1"
+                    >
+                      <TokenLogo src={vault.tokenIcon} alt={vault.token} size={24} />
+                      <span className="text-base text-text">{vault.token}</span>
+                      <span className="text-base text-subText">{vault.label}</span>
+                    </CardTitleLink>
+
+                    <div className="flex items-center gap-2">
+                      <span className="text-base text-subText">{t`APY`}</span>
+                      <span className="text-lg font-medium leading-6 text-primary">
+                        {formatDisplayNumber(vault.apy, { style: 'decimal', fractionDigits: 2 })}%
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="flex w-full items-center justify-between">
+                    <VaultProtocolTag>
+                      <TokenLogo src={vault.partnerLogo} alt={vault.partner} size={12} />
+                      <span className="text-xs text-subText">
+                        {t`managed by`} {vault.partner}
+                      </span>
+                    </VaultProtocolTag>
+                    <VaultDepositButton onClick={() => setDepositVault({ chainId: vault.chainId, vaultId: vault.id })}>
+                      {t`+ Deposit`}
+                    </VaultDepositButton>
+                  </div>
+                </VaultCard>
               )
-            return (
-              <VaultCard
-                key={vault.id}
-                role="button"
-                tabIndex={0}
-                onClick={goToDetail}
-                onKeyDown={e => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault()
-                    goToDetail()
-                  }
-                }}
-                className="cursor-pointer"
-              >
-                <div className="flex w-full items-start justify-between">
-                  <div className="flex items-center gap-1">
-                    <TokenLogo src={vault.tokenIcon} alt={vault.token} size={24} />
-                    <span className="text-base text-text">{vault.token}</span>
-                    <span className="text-base text-subText">{vault.label}</span>
-                  </div>
+            })}
+      </PartnerVaultsList>
 
-                  <div className="flex items-center gap-2">
-                    <span className="text-base text-subText">{t`APY`}</span>
-                    <span className="text-lg font-medium leading-6 text-primary">
-                      {formatDisplayNumber(vault.apy, { style: 'decimal', fractionDigits: 2 })}%
-                    </span>
-                  </div>
-                </div>
-
-                <div className="flex w-full items-center justify-between">
-                  <VaultProtocolTag>
-                    <TokenLogo src={vault.partnerLogo} alt={vault.partner} size={12} />
-                    <span className="text-xs text-subText">
-                      {t`managed by`} {vault.partner}
-                    </span>
-                  </VaultProtocolTag>
-                  <VaultDepositButton onClick={e => e.stopPropagation()}>{t`+ Deposit`}</VaultDepositButton>
-                </div>
-              </VaultCard>
-            )
-          })}
-    </PartnerVaultsList>
+      <VaultDepositModal target={depositVault} onClose={() => setDepositVault(null)} />
+    </>
   )
 }
 

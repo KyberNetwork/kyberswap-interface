@@ -712,6 +712,20 @@
     border-radius: var(--ks-scrollbar-radius, 0);
   }
 
+  /* Earn section reveal, referenced through arbitrary `[animation:earn-fade-in-up_...]` values.
+     Tailwind only emits a keyframes block from its config when a matching `animate-*` utility is
+     used, so the definition lives here instead. */
+  @keyframes earn-fade-in-up {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
   /* PositionDetail enter animations (rendered with arbitrary `animate-[ks-pd-*]` values). */
   @keyframes ks-pd-fade-in {
     from {
@@ -918,6 +932,12 @@
       transform: translateY(0);
     }
   }
+  /* Switching the vault list between gallery and list swaps one layout for another. Naming the
+     container lets the browser cross-fade the two snapshots instead of cutting to the new one. */
+  .ks-vault-results {
+    view-transition-name: earn-vault-results;
+  }
+
   .ks-vault-stagger > * {
     opacity: 0;
     animation: ks-vault-fade-in-up 0.4s ease-out forwards;
@@ -1373,4 +1393,18 @@
     --ks-gray-rgb: 115 115 115;
     --ks-blue-rgb: 8 161 231;
   }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(earn-vault-results),
+  ::view-transition-old(earn-vault-results),
+  ::view-transition-new(earn-vault-results) {
+    animation: none;
+  }
+}
+
+::view-transition-old(earn-vault-results),
+::view-transition-new(earn-vault-results) {
+  animation-duration: 180ms;
+  animation-timing-function: ease-out;
 }

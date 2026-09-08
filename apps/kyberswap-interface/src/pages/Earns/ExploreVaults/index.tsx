@@ -1,5 +1,6 @@
 import { t } from '@lingui/macro'
-import { useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { flushSync } from 'react-dom'
 import { useNavigate } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { useVaultListQuery, useVaultPositionsQuery } from 'services/vault'
@@ -11,15 +12,15 @@ import DropdownMenu from 'components/DropdownMenu'
 import MultiSelectDropdownMenu from 'components/DropdownMenu/MultiSelect'
 import Search from 'components/Search'
 import TokenLogo from 'components/TokenLogo'
-import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { ApyBarChart, TvlLineChart } from 'pages/Earns/ExploreVaults/MiniCharts'
-import { VAULT_CHAIN_OPTIONS } from 'pages/Earns/ExploreVaults/sampleData'
 import {
   ApyValue,
+  CardActions,
   CardBody,
   CardFooter,
   CardHeader,
+  CardTitleLink,
   ChartWrapper,
   DepositButton,
   Disclaimer,
@@ -54,8 +55,12 @@ import {
 } from 'pages/Earns/ExploreVaults/styles'
 import { VaultInfo, VaultSortBy, VaultViewMode } from 'pages/Earns/ExploreVaults/types'
 import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
-import { toVaultInfo } from 'pages/Earns/utils/vault'
+import VaultDepositModal from 'pages/Earns/components/VaultDeposit/VaultDepositModal'
+import useVaultChainOptions from 'pages/Earns/hooks/useVaultChainOptions'
+import useVaultProtocolOptions from 'pages/Earns/hooks/useVaultProtocolOptions'
+import { buildVaultDetailPath, toVaultInfo } from 'pages/Earns/utils/vault'
 import { MEDIA_WIDTHS } from 'theme'
+import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
 
 const formatTvl = (value: number) => formatDisplayNumber(value, { style: 'currency', significantDigits: 3 })
@@ -65,61 +70,59 @@ const SORT_BY_OPTIONS = [
   { label: 'TVL', value: VaultSortBy.TVL },
 ]
 
+const VAULT_VIEW_MODE_KEY = 'earn-vaults-view-mode'
+
+const readStoredViewMode = (): VaultViewMode => {
+  try {
+    return window.localStorage.getItem(VAULT_VIEW_MODE_KEY) === VaultViewMode.LIST
+      ? VaultViewMode.LIST
+      : VaultViewMode.GRID
+  } catch {
+    return VaultViewMode.GRID
+  }
+}
+
 const SORT_FIELD_BY_KEY: Record<VaultSortBy, string> = {
   [VaultSortBy.APY]: 'apy7d',
   [VaultSortBy.TVL]: 'tvlUsd',
 }
 
-const buildVaultDetailPath = (chainId: number, vaultId: string) =>
-  APP_PATHS.EARN_VAULT_DETAIL.replace(':chainId', String(chainId)).replace(':vaultId', vaultId)
+type VaultItemProps = { vault: VaultInfo; hasPosition: boolean; onDeposit: (vault: VaultInfo) => void }
 
-const ExploreVaultCard = ({ vault, hasPosition }: { vault: VaultInfo; hasPosition: boolean }) => {
+const VaultIdentity = ({ vault }: { vault: VaultInfo }) => (
+  <div className="flex items-center gap-1">
+    <TokenIconWrapper>
+      <TokenLogo src={vault.tokenIcon} alt={vault.token} size={24} />
+      <TokenLogo
+        src={vault.chainIcon}
+        alt={vault.chainName}
+        size={12}
+        style={{ position: 'absolute', bottom: -2, right: -4 }}
+      />
+    </TokenIconWrapper>
+    <span className="ml-1 text-base text-white2">{vault.token}</span>
+    <span className="text-base text-gray">{vault.label}</span>
+  </div>
+)
+
+const ExploreVaultCard = ({ vault, hasPosition, onDeposit }: VaultItemProps) => {
   const navigate = useNavigate()
-
-  const goToDetail = () => {
-    if (vault.disabled) return
-    navigate(buildVaultDetailPath(vault.chainId, vault.id))
-  }
+  const detailPath = buildVaultDetailPath(vault.chainId, vault.id)
 
   return (
-    <VaultCard
-      role="button"
-      tabIndex={vault.disabled ? -1 : 0}
-      aria-disabled={vault.disabled || undefined}
-      $clickable
-      $disabled={vault.disabled}
-      onClick={goToDetail}
-      onKeyDown={e => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault()
-          goToDetail()
-        }
-      }}
-    >
+    <VaultCard $clickable={!vault.disabled} $disabled={vault.disabled}>
       <CardHeader>
-        <div className="flex items-center gap-1">
-          <TokenIconWrapper>
-            <TokenLogo src={vault.tokenIcon} alt={vault.token} size={24} />
-            <TokenLogo
-              src={vault.chainIcon}
-              alt={vault.chainName}
-              size={12}
-              style={{ position: 'absolute', bottom: -2, right: -4 }}
-            />
-          </TokenIconWrapper>
-          <span className="ml-1 text-base text-white2">{vault.token}</span>
-          <span className="text-base text-gray">{vault.label}</span>
-        </div>
+        {vault.disabled ? (
+          <VaultIdentity vault={vault} />
+        ) : (
+          <CardTitleLink to={detailPath}>
+            <VaultIdentity vault={vault} />
+          </CardTitleLink>
+        )}
 
-        <div className="flex items-center gap-3">
+        <CardActions>
           {hasPosition && (
-            <ViewPositionButton
-              type="button"
-              onClick={e => {
-                e.stopPropagation()
-                goToDetail()
-              }}
-            >
+            <ViewPositionButton type="button" onClick={() => navigate(detailPath)}>
               {t`View Position`}
             </ViewPositionButton>
           )}
@@ -127,14 +130,11 @@ const ExploreVaultCard = ({ vault, hasPosition }: { vault: VaultInfo; hasPositio
             type="button"
             $disabled={vault.disabled}
             disabled={vault.disabled}
-            onClick={e => {
-              e.stopPropagation()
-              goToDetail()
-            }}
+            onClick={() => onDeposit(vault)}
           >
             {t`+ Deposit`}
           </DepositButton>
-        </div>
+        </CardActions>
       </CardHeader>
 
       <CardBody>
@@ -160,7 +160,9 @@ const ExploreVaultCard = ({ vault, hasPosition }: { vault: VaultInfo; hasPositio
 
         <CardFooter>
           <ProtocolTag>
-            <img src={vault.partnerLogo} alt={vault.partner} width={16} height={16} style={{ borderRadius: '50%' }} />
+            {vault.partnerLogo ? (
+              <img src={vault.partnerLogo} alt={vault.partner} width={16} height={16} style={{ borderRadius: '50%' }} />
+            ) : null}
             <span>
               {t`managed by`} {vault.partner}
             </span>
@@ -171,23 +173,42 @@ const ExploreVaultCard = ({ vault, hasPosition }: { vault: VaultInfo; hasPositio
   )
 }
 
-const ExploreVaultListItem = ({ vault, hasPosition }: { vault: VaultInfo; hasPosition: boolean }) => {
+const ExploreVaultListItem = ({ vault, hasPosition, onDeposit }: VaultItemProps) => {
+  const navigate = useNavigate()
+  const detailPath = buildVaultDetailPath(vault.chainId, vault.id)
+
+  const identity = (
+    <>
+      <TokenIconWrapper>
+        <TokenLogo src={vault.tokenIcon} alt={vault.token} size={24} />
+        <TokenLogo
+          src={vault.chainIcon}
+          alt={vault.chainName}
+          size={12}
+          style={{ position: 'absolute', bottom: -2, right: -4 }}
+        />
+      </TokenIconWrapper>
+      <span className="ml-1 shrink-0 text-base text-white2">{vault.token}</span>
+      <span className="truncate text-base text-gray" title={vault.label}>
+        {vault.label}
+      </span>
+    </>
+  )
+
   return (
-    <VaultListRow $disabled={vault.disabled}>
+    <VaultListRow $disabled={vault.disabled} className={cn(!vault.disabled && 'cursor-pointer')}>
       <VaultListRowMain>
-        <TokenIconWrapper>
-          <TokenLogo src={vault.tokenIcon} alt={vault.token} size={24} />
-          <TokenLogo
-            src={vault.chainIcon}
-            alt={vault.chainName}
-            size={12}
-            style={{ position: 'absolute', bottom: -2, right: -4 }}
-          />
-        </TokenIconWrapper>
-        <span className="ml-1 text-base text-white2">{vault.token}</span>
-        <span className="text-base text-gray">{vault.label}</span>
-        <ProtocolTag className="ml-1">
-          <img src={vault.partnerLogo} alt={vault.partner} width={16} height={16} style={{ borderRadius: '50%' }} />
+        {vault.disabled ? (
+          identity
+        ) : (
+          <CardTitleLink to={detailPath} className="flex min-w-0 items-center gap-2">
+            {identity}
+          </CardTitleLink>
+        )}
+        <ProtocolTag className="relative z-[1] ml-1 shrink-0">
+          {vault.partnerLogo ? (
+            <img src={vault.partnerLogo} alt={vault.partner} width={16} height={16} style={{ borderRadius: '50%' }} />
+          ) : null}
           <span>{`managed by ${vault.partner}`}</span>
         </ProtocolTag>
       </VaultListRowMain>
@@ -212,9 +233,20 @@ const ExploreVaultListItem = ({ vault, hasPosition }: { vault: VaultInfo; hasPos
         </VaultListChartWrapper>
       </VaultListMetric>
 
-      <VaultListActions>
-        {hasPosition && <ViewPositionButton>{t`View Position`}</ViewPositionButton>}
-        <DepositButton $disabled={vault.disabled}>{t`+ Deposit`}</DepositButton>
+      <VaultListActions className="relative z-[1]">
+        {hasPosition && (
+          <ViewPositionButton type="button" onClick={() => navigate(detailPath)}>
+            {t`View Position`}
+          </ViewPositionButton>
+        )}
+        <DepositButton
+          type="button"
+          $disabled={vault.disabled}
+          disabled={vault.disabled}
+          onClick={() => onDeposit(vault)}
+        >
+          {t`+ Deposit`}
+        </DepositButton>
       </VaultListActions>
     </VaultListRow>
   )
@@ -270,10 +302,20 @@ const ExploreVaultCardSkeleton = () => (
 
 const ExploreVaults = () => {
   const { account } = useActiveWeb3React()
+  const vaultChainOptions = useVaultChainOptions()
+  const vaultProtocolOptions = useVaultProtocolOptions()
+  const [depositVault, setDepositVault] = useState<VaultInfo | null>(null)
   const [search, setSearch] = useState('')
   const [selectedChain, setSelectedChain] = useState('')
+  const [selectedProtocol, setSelectedProtocol] = useState('')
   const [sortBy, setSortBy] = useState<VaultSortBy>(VaultSortBy.APY)
-  const [viewMode, setViewMode] = useState<VaultViewMode>(VaultViewMode.GRID)
+  // `stagger` travels with the mode so it is fixed for the life of a rendered list: a list that
+  // arrives through the cross-fade never reveals itself a second time.
+  const [view, setView] = useState<{ mode: VaultViewMode; stagger: boolean }>(() => ({
+    mode: readStoredViewMode(),
+    stagger: true,
+  }))
+  const viewMode = view.mode
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   /* list layout needs ~900px of horizontal space; below upToLarge we always show gallery
      (matches the gallery's own 3 -> 2 column transition at the same breakpoint) */
@@ -281,6 +323,7 @@ const ExploreVaults = () => {
 
   const { data: vaultListData, isLoading } = useVaultListQuery({
     chainIds: selectedChain || undefined,
+    providers: selectedProtocol || undefined,
     keyword: search.trim() || undefined,
     sorts: `${SORT_FIELD_BY_KEY[sortBy]}:desc`,
     pageSize: 100,
@@ -293,6 +336,12 @@ const ExploreVaults = () => {
 
   const vaults = useMemo<VaultInfo[]>(() => (vaultListData?.vaults || []).map(toVaultInfo), [vaultListData?.vaults])
 
+  // Only the cross-fade suppresses the stagger, and only for the list it hands over: a result set
+  // fetched under new filters is a fresh arrival and animates in like any other.
+  useEffect(() => {
+    setView(current => (current.stagger ? current : { ...current, stagger: true }))
+  }, [selectedChain, selectedProtocol, sortBy, search])
+
   const userVaultIds = useMemo(() => {
     const set = new Set<string>()
     positionsData?.positions?.forEach(p => {
@@ -302,9 +351,33 @@ const ExploreVaults = () => {
   }, [positionsData?.positions])
 
   const chainLabel = useMemo(() => {
-    const selected = VAULT_CHAIN_OPTIONS.find(c => c.value === selectedChain)
-    return selected?.label || VAULT_CHAIN_OPTIONS[0].label
-  }, [selectedChain])
+    const selected = vaultChainOptions.find(c => c.value === selectedChain)
+    return selected?.label || vaultChainOptions[0].label
+  }, [selectedChain, vaultChainOptions])
+
+  const protocolLabel = useMemo(() => {
+    const selected = vaultProtocolOptions.find(p => p.value === selectedProtocol)
+    return selected?.label || vaultProtocolOptions[0].label
+  }, [selectedProtocol, vaultProtocolOptions])
+
+  const selectViewMode = useCallback((next: VaultViewMode) => {
+    try {
+      window.localStorage.setItem(VAULT_VIEW_MODE_KEY, next)
+    } catch {
+      /* ignore write errors (private mode / quota) */
+    }
+
+    // A view transition cross-fades the outgoing layout; browsers without support swap instantly.
+    const startViewTransition = document.startViewTransition?.bind(document)
+    if (!startViewTransition) {
+      setView({ mode: next, stagger: false })
+      return
+    }
+
+    startViewTransition(() => {
+      flushSync(() => setView({ mode: next, stagger: false }))
+    })
+  }, [])
 
   const effectiveViewMode = upToLarge ? VaultViewMode.GRID : viewMode
 
@@ -318,9 +391,18 @@ const ExploreVaults = () => {
             alignItems="flex-start"
             highlightOnSelect
             label={chainLabel}
-            options={VAULT_CHAIN_OPTIONS}
+            options={vaultChainOptions}
             value={selectedChain}
             onChange={value => setSelectedChain(value.toString())}
+          />
+
+          <MultiSelectDropdownMenu
+            alignItems="flex-start"
+            highlightOnSelect
+            label={protocolLabel}
+            options={vaultProtocolOptions}
+            value={selectedProtocol}
+            onChange={value => setSelectedProtocol(value.toString())}
           />
 
           <SortByGroup>
@@ -340,7 +422,7 @@ const ExploreVaults = () => {
               aria-label={t`List view`}
               aria-pressed={viewMode === VaultViewMode.LIST}
               $active={viewMode === VaultViewMode.LIST}
-              onClick={() => setViewMode(VaultViewMode.LIST)}
+              onClick={() => selectViewMode(VaultViewMode.LIST)}
             >
               <ListViewIcon />
             </ViewToggleButton>
@@ -349,7 +431,7 @@ const ExploreVaults = () => {
               aria-label={t`Gallery view`}
               aria-pressed={viewMode === VaultViewMode.GRID}
               $active={viewMode === VaultViewMode.GRID}
-              onClick={() => setViewMode(VaultViewMode.GRID)}
+              onClick={() => selectViewMode(VaultViewMode.GRID)}
             >
               <GridViewIcon />
             </ViewToggleButton>
@@ -372,25 +454,44 @@ const ExploreVaults = () => {
             <span>{t`Try adjusting your filters or search keyword.`}</span>
           </EmptyStateSubtitle>
         </EmptyStateWrapper>
-      ) : effectiveViewMode === VaultViewMode.GRID ? (
-        <VaultCardsGrid>
-          {isLoading
-            ? Array.from({ length: 6 }).map((_, i) => <ExploreVaultCardSkeleton key={i} />)
-            : vaults.map(vault => (
-                <ExploreVaultCard key={vault.id} vault={vault} hasPosition={userVaultIds.has(vault.id)} />
-              ))}
-        </VaultCardsGrid>
       ) : (
-        <VaultList>
-          {isLoading
-            ? Array.from({ length: 6 }).map((_, i) => <ExploreVaultListItemSkeleton key={i} />)
-            : vaults.map(vault => (
-                <ExploreVaultListItem key={vault.id} vault={vault} hasPosition={userVaultIds.has(vault.id)} />
-              ))}
-        </VaultList>
+        <div className="ks-vault-results">
+          {effectiveViewMode === VaultViewMode.GRID ? (
+            <VaultCardsGrid $stagger={view.stagger}>
+              {isLoading
+                ? Array.from({ length: 6 }).map((_, i) => <ExploreVaultCardSkeleton key={i} />)
+                : vaults.map(vault => (
+                    <ExploreVaultCard
+                      key={vault.id}
+                      vault={vault}
+                      hasPosition={userVaultIds.has(vault.id)}
+                      onDeposit={setDepositVault}
+                    />
+                  ))}
+            </VaultCardsGrid>
+          ) : (
+            <VaultList $stagger={view.stagger}>
+              {isLoading
+                ? Array.from({ length: 6 }).map((_, i) => <ExploreVaultListItemSkeleton key={i} />)
+                : vaults.map(vault => (
+                    <ExploreVaultListItem
+                      key={vault.id}
+                      vault={vault}
+                      hasPosition={userVaultIds.has(vault.id)}
+                      onDeposit={setDepositVault}
+                    />
+                  ))}
+            </VaultList>
+          )}
+        </div>
       )}
 
       <Disclaimer>{t`Partner-managed vaults. Auto-compounding. Native withdrawals are not instant.`}</Disclaimer>
+
+      <VaultDepositModal
+        target={depositVault ? { chainId: depositVault.chainId, vaultId: depositVault.id } : null}
+        onClose={() => setDepositVault(null)}
+      />
     </VaultPageWrapper>
   )
 }

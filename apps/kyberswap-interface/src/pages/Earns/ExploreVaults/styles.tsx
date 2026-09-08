@@ -1,4 +1,5 @@
 import { AnchorHTMLAttributes, ButtonHTMLAttributes, ElementType, HTMLAttributes } from 'react'
+import { Link, LinkProps } from 'react-router-dom'
 
 import { cn } from 'utils/cn'
 import { hexAlpha } from 'utils/colorAlpha'
@@ -58,10 +59,13 @@ export const ViewToggleButton = ({ $active, className, ...rest }: ViewToggleButt
   />
 )
 
-export const VaultCardsGrid = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
+type RevealableProps = HTMLAttributes<HTMLDivElement> & { $stagger?: boolean }
+
+export const VaultCardsGrid = ({ $stagger = true, className, ...rest }: RevealableProps) => (
   <div
     className={cn(
-      'ks-vault-stagger grid grid-cols-3 gap-x-10 gap-y-8 [--ks-stagger-step:60ms]',
+      'grid grid-cols-3 gap-x-10 gap-y-8 [--ks-stagger-step:60ms]',
+      $stagger && 'ks-vault-stagger',
       'max-lg:grid-cols-2 max-lg:gap-6',
       'max-sm:grid-cols-1 max-sm:gap-4',
       className,
@@ -74,14 +78,37 @@ type VaultCardProps = HTMLAttributes<HTMLDivElement> & { $clickable?: boolean; $
 export const VaultCard = ({ $clickable, $disabled, className, ...rest }: VaultCardProps) => (
   <div
     className={cn(
-      'flex flex-col rounded-xl bg-background p-4 transition-[background,transform,box-shadow] duration-200',
-      'hover:bg-background/85 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary',
+      'relative flex flex-col rounded-xl bg-background p-4 transition-[background,transform,box-shadow] duration-200',
+      'hover:bg-background/85',
       $disabled ? 'cursor-not-allowed' : $clickable ? 'cursor-pointer' : 'cursor-default',
       $clickable && !$disabled && 'hover:-translate-y-px hover:shadow-[0_4px_16px_rgba(0,0,0,0.2)]',
       className,
     )}
     {...rest}
   />
+)
+
+/**
+ * The card's one navigation control. Its ::after stretches over the whole card, so a click anywhere
+ * opens the vault while the keyboard gets a single stop — the action buttons sit above it on their
+ * own stacking context and keep their own.
+ */
+export const CardTitleLink = ({ className, ...rest }: LinkProps) => (
+  <Link
+    className={cn(
+      'text-inherit no-underline outline-none hover:text-inherit',
+      'after:absolute after:inset-0 after:rounded-xl after:content-[""]',
+      'focus-visible:after:outline focus-visible:after:outline-2 focus-visible:after:outline-offset-2',
+      'focus-visible:after:outline-primary',
+      className,
+    )}
+    {...rest}
+  />
+)
+
+/** Sits above the title link's overlay so the buttons stay independently clickable. */
+export const CardActions = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('relative z-[1] flex items-center gap-3', className)} {...rest} />
 )
 
 export const CardHeader = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
@@ -234,21 +261,24 @@ export const TxLink = ({ className, ...rest }: HTMLAttributes<HTMLSpanElement>) 
   <span className={cn('cursor-pointer text-sm text-blue3 hover:underline', className)} {...rest} />
 )
 
-export const VaultList = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
-  <div className={cn('ks-vault-stagger flex flex-col gap-3 [--ks-stagger-step:40ms]', className)} {...rest} />
+export const VaultList = ({ $stagger = true, className, ...rest }: RevealableProps) => (
+  <div
+    className={cn('flex flex-col gap-3 [--ks-stagger-step:40ms]', $stagger && 'ks-vault-stagger', className)}
+    {...rest}
+  />
 )
 
 // Flexible tracks (minmax) so the grid fits at a 1201px viewport with the EarnLayout
 // sidebar expanded (~909px of content area) up to the 1600px max content width. Tracks
 // sit at their min on tight screens and expand to max on wide ones; space-between
 // distributes the remainder so columns align across rows at every size.
-const VAULT_LIST_ROW_COLUMNS = 'minmax(260px, 300px) minmax(175px, 200px) minmax(175px, 200px) minmax(210px, 230px)'
+const VAULT_LIST_ROW_COLUMNS = 'minmax(320px, 1fr) minmax(175px, 200px) minmax(175px, 200px) minmax(210px, 230px)'
 
 type VaultListRowProps = HTMLAttributes<HTMLDivElement> & { $disabled?: boolean }
 export const VaultListRow = ({ $disabled, className, style, ...rest }: VaultListRowProps) => (
   <div
     className={cn(
-      'grid items-center justify-between gap-6 rounded-xl bg-background p-4',
+      'relative grid items-center justify-between gap-6 rounded-xl bg-background p-4',
       'transition-[background,transform,box-shadow] duration-200',
       'hover:-translate-y-px hover:bg-background/85 hover:shadow-[0_4px_16px_rgba(0,0,0,0.2)]',
       $disabled ? 'opacity-60' : 'opacity-100',

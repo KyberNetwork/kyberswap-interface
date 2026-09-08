@@ -59,6 +59,7 @@ export interface VaultApiDetailItem {
   underlyingToken: VaultApiToken
   assetGroup: string
   stats: VaultApiStats
+  contracts?: VaultContracts
 }
 
 export interface VaultApiPagination {
@@ -88,6 +89,45 @@ export interface VaultPendingWithdrawalSummary {
   requestId: string
 }
 
+export interface VaultContracts {
+  teller: string
+  accountant: string
+  withdrawQueue: string
+}
+
+export enum VaultWithdrawRequestStatus {
+  PENDING = 'pending',
+  MATURED = 'matured',
+  EXPIRED = 'expired',
+  SOLVED = 'solved',
+  CANCELLED = 'cancelled',
+}
+
+/** The eight fields of the on-chain `OnChainWithdraw` struct, returned verbatim so they can be
+ *  passed straight back to `cancelOnChainWithdraw`, which re-hashes the whole struct to find
+ *  the request. */
+export interface VaultWithdrawRequestOnChain {
+  nonce: string
+  user: string
+  assetOut: VaultApiToken
+  amountOfShares: string
+  amountOfAssets: string
+  creationTime: number
+  secondsToMaturity: number
+  secondsToDeadline: number
+}
+
+export interface VaultWithdrawRequest extends VaultWithdrawRequestOnChain {
+  requestId: string
+  queueAddress: string
+  status: VaultWithdrawRequestStatus
+  requestTxHash?: string
+  solvedAt?: number | null
+  solvedTxHash?: string | null
+  cancelledAt?: number | null
+  cancelledTxHash?: string | null
+}
+
 export interface VaultPositionVault {
   id: string
   address: string
@@ -112,6 +152,7 @@ export interface VaultPositionItem {
   earnedUsd: string
   lastBalanceChangeAt: number
   pendingWithdrawalSummary?: VaultPendingWithdrawalSummary
+  withdrawRequests?: VaultWithdrawRequest[]
 }
 
 export interface VaultPositionListResponseData {

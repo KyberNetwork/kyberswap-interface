@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom'
+import { Link, LinkProps } from 'react-router-dom'
 
 import { MouseoverTooltipDesktopOnly } from 'components/Tooltip'
 import { APP_PATHS } from 'constants/index'
@@ -12,7 +12,6 @@ import {
 } from 'pages/Earns/Landing/styles'
 import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
 import { EarnPool } from 'pages/Earns/types'
-import { cn } from 'utils/cn'
 
 type Variant = 'inner' | 'inner-stable' | 'highlighted' | 'farming'
 
@@ -46,6 +45,16 @@ const LargeSkeleton = () => (
   </div>
 )
 
+const SectionLink = ({ to, testId, children }: { to: LinkProps['to']; testId?: string; children: React.ReactNode }) => (
+  <Link
+    to={to}
+    className="w-fit text-xl font-medium text-text no-underline hover:text-primary hover:underline"
+    data-testid={testId ? `${testId}-title` : undefined}
+  >
+    {children}
+  </Link>
+)
+
 const PoolSection = ({
   title,
   tooltip,
@@ -67,26 +76,6 @@ const PoolSection = ({
   skeletonCount?: number
   onPoolClick: (pool: EarnPool) => void
 }) => {
-  const navigate = useNavigate()
-
-  const handleSectionClick = (e?: React.MouseEvent) => {
-    if (!tag) return
-    e?.stopPropagation()
-    navigate({
-      pathname: APP_PATHS.EARN_POOLS,
-      search: `tag=${tag}`,
-    })
-  }
-
-  const handleSectionKeyDown = (e: React.KeyboardEvent) => {
-    if (!tag) return
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault()
-      e.stopPropagation()
-      handleSectionClick()
-    }
-  }
-
   // e2e selectors are keyed off the section's filter tag, so they stay stable
   // regardless of how the section is laid out.
   const testId = tag ? `earn-overview-section-${tag}` : undefined
@@ -97,17 +86,23 @@ const PoolSection = ({
     return icon
   }
 
+  const titleText = tag ? (
+    <SectionLink to={{ pathname: APP_PATHS.EARN_POOLS, search: `tag=${tag}` }} testId={testId}>
+      {title}
+    </SectionLink>
+  ) : (
+    <span className="text-xl font-medium" data-testid={testId ? `${testId}-title` : undefined}>
+      {title}
+    </span>
+  )
+
   const renderTitle = () =>
     tooltip ? (
       <MouseoverTooltipDesktopOnly text={tooltip} placement="top">
-        <span className="text-xl font-medium" data-testid={testId ? `${testId}-title` : undefined}>
-          {title}
-        </span>
+        {titleText}
       </MouseoverTooltipDesktopOnly>
     ) : (
-      <span className="text-xl font-medium" data-testid={testId ? `${testId}-title` : undefined}>
-        {title}
-      </span>
+      titleText
     )
 
   if (variant === 'highlighted' || variant === 'farming') {
@@ -116,15 +111,7 @@ const PoolSection = ({
     const count = skeletonCount ?? (isFarming ? 3 : 6)
 
     return (
-      <div
-        role={tag ? 'button' : undefined}
-        tabIndex={tag ? 0 : undefined}
-        onClick={handleSectionClick}
-        onKeyDown={handleSectionKeyDown}
-        className={cn(tag ? 'cursor-pointer' : 'cursor-default')}
-        data-testid={testId}
-        data-tag={tag}
-      >
+      <div data-testid={testId} data-tag={tag}>
         <SimpleSectionHeader>
           {renderIcon()}
           {renderTitle()}
@@ -149,15 +136,7 @@ const PoolSection = ({
   const count = skeletonCount ?? 4
 
   return (
-    <div
-      role={tag ? 'button' : undefined}
-      tabIndex={tag ? 0 : undefined}
-      onClick={handleSectionClick}
-      onKeyDown={handleSectionKeyDown}
-      className={cn(tag ? 'cursor-pointer' : 'cursor-default')}
-      data-testid={testId}
-      data-tag={tag}
-    >
+    <div data-testid={testId} data-tag={tag}>
       <InnerSectionTitle>{renderTitle()}</InnerSectionTitle>
       <InnerListContainer data-testid={testId ? `${testId}-list` : undefined}>
         {isLoading

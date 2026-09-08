@@ -84,6 +84,10 @@ msgstr "未成交订单"
 msgid "KyberSwap may modify the campaign mechanics, eligibility, or rewards at any time without prior notice."
 msgstr "KyberSwap可在不事先通知的情况下，随时修改本活动的机制、参与资格或奖励内容"
 
+#: src/components/HoneypotWarning/index.tsx
+msgid "Our simulation detects that {tokenSymbol} token can not be sold immediately or has an extremely high sell fee after being bought, please check further before buying!"
+msgstr ""
+
 #: src/pages/CrossChainSwap/components/BitcoinConnectModal.tsx
 msgid "Select Derivation Path"
 msgstr "选择派生路径"
@@ -206,7 +210,6 @@ msgstr "回到区间内"
 msgid "Farming rewards"
 msgstr "流动性挖矿奖励"
 
-#: src/components/TokenSelectorModal/TokenSelectorContent.tsx
 #: src/pages/Earns/PoolExplorer/MobileTableRow.tsx
 #: src/pages/Earns/PoolExplorer/TableHeader.tsx
 #: src/pages/Earns/UserPositions/MigrationModal.tsx
@@ -261,8 +264,8 @@ msgid "These bonus rewards are funded & distributed by a third party via Merkl. 
 msgstr ""
 
 #: src/components/SwapForm/index.tsx
-msgid "Our simulation detects that {0} token can not be sold immediately or has an extremely high sell fee after being bought, please check further before buying!"
-msgstr "我们的模拟检测发现，{0} 代币在购买后可能无法立即卖出，或存在极高的卖出手续费，请在购买前进一步确认！"
+#~ msgid "Our simulation detects that {0} token can not be sold immediately or has an extremely high sell fee after being bought, please check further before buying!"
+#~ msgstr "我们的模拟检测发现，{0} 代币在购买后可能无法立即卖出，或存在极高的卖出手续费，请在购买前进一步确认！"
 
 #: src/pages/Earns/PositionDetail/AnalyticTab.tsx
 msgid "Removed Liquidity"
@@ -315,8 +318,8 @@ msgstr "在 kyberswap.com 进行兑换"
 #~ msgstr "仓位 {0}"
 
 #: src/pages/Earns/UserPositions/PositionBanner.tsx
-msgid "View total rewards details"
-msgstr ""
+#~ msgid "View total rewards details"
+#~ msgstr ""
 
 #: src/components/EarnBanner/FarmingPoolBanner.tsx
 msgid "FARMING POOLS"
@@ -343,9 +346,14 @@ msgstr "限价单活动"
 msgid "Bridge via"
 msgstr ""
 
-#: src/pages/Earns/SmartExitOrders/index.tsx
-msgid "Received <0/> amount"
+#: src/pages/Earns/components/VaultDeposit/DepositFields.tsx
+#: src/pages/Earns/components/VaultWithdraw/WithdrawFields.tsx
+msgid "Select token"
 msgstr ""
+
+#: src/pages/Earns/SmartExitOrders/index.tsx
+#~ msgid "Received <0/> amount"
+#~ msgstr ""
 
 #: src/pages/Earns/PositionDetail/index.tsx
 msgid "No position found!"
@@ -380,6 +388,10 @@ msgstr ""
 #: src/pages/ProAmmPool/index.tsx
 msgid "My Farming Positions"
 msgstr "我的挖矿仓位"
+
+#: src/pages/About/AboutKNC.tsx
+msgid "KNC token holders can benefit from our flagship product KyberSwap. Holders can stake their KNC & vote on initiatives to receive trading fees generated on KyberSwap! More trades on KyberSwap can generate more rewards for KNC holders!"
+msgstr ""
 
 #: src/components/LimitOrder/ProcessingOrder/ProcessingOrderModal.tsx
 msgid "token"
@@ -472,9 +484,17 @@ msgstr "切换至 {0}"
 #~ msgid "Your Share of Pool"
 #~ msgstr "您的资金池占比"
 
+#: src/pages/Earns/VaultDetail/WithdrawTab.tsx
+#~ msgid "Request withdrawal"
+#~ msgstr ""
+
 #: src/utils/time.ts
 msgid "{min} {formatM} ago"
 msgstr "{min} {formatM} 前"
+
+#: src/pages/Earns/components/VaultDeposit/SlippageSelect.tsx
+msgid "Applied to the swap this deposit or withdrawal routes through. A higher tolerance helps the transaction succeed, but you may get a worse price."
+msgstr ""
 
 #: src/components/SwapForm/SwapModal/SwapDetails/index.tsx
 msgid "L1 fee that pays for rolls up cost"
@@ -532,6 +552,11 @@ msgstr "发送方："
 msgid "When"
 msgstr ""
 
+#: src/pages/Earns/components/VaultDeposit/VaultDepositModal.tsx
+#: src/pages/Earns/VaultDetail/DepositTab.tsx
+msgid "Finding best route"
+msgstr ""
+
 #: src/pages/Campaign/components/Information/info/nearIntents.tsx
 msgid "Stable Pairs:"
 msgstr "稳定交易对："
@@ -552,6 +577,10 @@ msgstr "委托投票权：{0}"
 msgid "Add Custom RPC Endpoint"
 msgstr "添加自定义 RPC 节点"
 
+#: src/pages/Earns/components/VaultWithdraw/ConfirmWithdraw.tsx
+msgid "Confirm Withdraw"
+msgstr ""
+
 #: src/components/Header/groups/EarnNavGroup.tsx
 msgid "All Pools"
 msgstr "所有资金池"
@@ -563,6 +592,10 @@ msgstr "预估处理时间"
 #: src/pages/ElasticSnapshot/components/Vesting.tsx
 msgid "Wallet Address:"
 msgstr "钱包地址："
+
+#: src/pages/Earns/components/VaultWithdraw/ConfirmWithdraw.tsx
+msgid "Then swap:"
+msgstr ""
 
 #: src/pages/Campaign/components/Leaderboard/SafePalLeaderboard.tsx
 #: src/pages/Campaign/components/MyDashboard/SafePalDashboard.tsx
@@ -667,6 +700,10 @@ msgstr ""
 msgid "TOTAL AMOUNT (USD)"
 msgstr "总金额（美元）"
 
+#: src/pages/Earns/VaultDetail/WithdrawRequestList.tsx
+msgid "Cancel & reclaim"
+msgstr ""
+
 #: src/components/LimitOrder/CreateOrder/CreateOrderConfirmModal.tsx
 msgid "Review your order"
 msgstr "检查您的订单"
@@ -719,6 +756,13 @@ msgstr "该流动性仓位的所有者为 {0}"
 
 #: src/pages/Earns/MyVaults/index.tsx
 msgid "Your Balance"
+msgstr ""
+
+#: src/pages/Earns/components/VaultDeposit/ConfirmDeposit.tsx
+#: src/pages/Earns/components/VaultDeposit/DepositFields.tsx
+#: src/pages/Earns/components/VaultWithdraw/ConfirmWithdraw.tsx
+#: src/pages/Earns/components/VaultWithdraw/WithdrawFields.tsx
+msgid "Est. Gas Fee"
 msgstr ""
 
 #: src/components/TipLinkGeneratorModal/index.tsx
@@ -806,6 +850,10 @@ msgstr "领取奖励的截止时间是什么时候？"
 msgid "Users can freely choose pairs and routes to optimize their points within the $50,000 volume cap in Week 2. For example:"
 msgstr "用户可以在第 2 周 5 万美元的交易量上限内自由选择交易对和路径以优化积分。例如："
 
+#: src/pages/Earns/components/VaultWithdraw/WithdrawFields.tsx
+msgid "Native withdraw"
+msgstr ""
+
 #: src/pages/CrossChainSwap/components/QuoteSelector.tsx
 #~ msgid "More options"
 #~ msgstr "更多选项"
@@ -890,8 +938,8 @@ msgid "Increase liquidity"
 msgstr "增加流动性"
 
 #: src/pages/Earns/hooks/useKemRewards.tsx
-msgid "Farming is not supported on this chain"
-msgstr ""
+#~ msgid "Farming is not supported on this chain"
+#~ msgstr ""
 
 #: src/components/ProAmm/ProAmmFee.tsx
 #: src/components/ProAmm/ProAmmFee.tsx
@@ -1012,8 +1060,8 @@ msgid "Rewards"
 msgstr ""
 
 #: src/pages/Earns/SmartExitOrders/useSmartExitOrdersData.ts
-msgid "No smart exit orders found"
-msgstr ""
+#~ msgid "No smart exit orders found"
+#~ msgstr ""
 
 #: src/components/Announcement/Popups/TransactionPopup.tsx
 msgid "You have successfully transferred {postFix}"
@@ -1061,6 +1109,10 @@ msgstr "如何挖矿教程"
 #~ msgid "1 minute"
 #~ msgstr "1 分钟"
 
+#: src/pages/Earns/VaultDetail/WithdrawTab.tsx
+#~ msgid "Withdrawals are queued. Your shares are held until a solver fills the request, then the assets arrive in your wallet — no claim needed."
+#~ msgstr ""
+
 #: src/pages/ProAmmPool/index.tsx
 msgid "Search by token or pool address"
 msgstr "按代币或池地址搜索"
@@ -1081,7 +1133,7 @@ msgstr "历史最低价"
 msgid "Search by token name or pool address"
 msgstr "按代币名称或池地址搜索"
 
-#: src/pages/About/KyberSwapGeneralIntro.tsx
+#: src/pages/About/AboutKyberSwap.tsx
 msgid "KyberSwap is a decentralized platform. We provide our traders with <0>superior token prices</0> by analyzing rates across thousands of exchanges instantly!"
 msgstr "KyberSwap 是一个去中心化平台，通过即时分析数千个交易所的报价，为交易者提供 <0>更优的代币价格</0>！"
 
@@ -1095,8 +1147,8 @@ msgid "Transactions"
 msgstr "交易记录"
 
 #: src/pages/Earns/VaultDetail/index.tsx
-msgid "Withdraw flow coming soon."
-msgstr ""
+#~ msgid "Withdraw flow coming soon."
+#~ msgstr ""
 
 #: src/components/Announcement/PrivateAnnoucement/index.tsx
 #: src/components/ConfirmModal.tsx
@@ -1188,6 +1240,10 @@ msgstr "您已成功导入该配置文件，并以访客账号登录"
 #~ msgid "Estimated network fee for your transaction"
 #~ msgstr "本次交易的预估网络手续费"
 
+#: src/pages/Earns/VaultDetail/WithdrawRequestList.tsx
+msgid "Awaiting solver"
+msgstr ""
+
 #: src/pages/Earns/UserPositions/index.tsx
 msgid "Automatically remove liquidity from this position when your pre-set rice, time, or fee yield condition(s)."
 msgstr ""
@@ -1264,6 +1320,10 @@ msgstr "概览"
 msgid "{walletName} does not support {chainName} yet. Please switch chain or try a different wallet."
 msgstr ""
 
+#: src/components/HoneypotWarning/index.tsx
+msgid "Our simulation detects that {tokenSymbol} has {0}% fee on transfer, please check further before buying."
+msgstr ""
+
 #: src/pages/NotificationCenter/Profile/ImportAccountModal/UserEnterPasscodeContent.tsx
 msgid "Your QR code is invalid, please try another one"
 msgstr "您的二维码无效，请尝试其他"
@@ -1331,7 +1391,7 @@ msgstr ""
 msgid "My Orders"
 msgstr ""
 
-#: src/pages/About/AboutKyberSwap/index.tsx
+#: src/pages/About/AboutKyberSwap.tsx
 msgid "Tokens"
 msgstr "代币"
 
@@ -1351,12 +1411,17 @@ msgstr ""
 msgid "Choose Pool Pair"
 msgstr "选择池交易对"
 
+#: src/pages/Earns/components/VaultDeposit/VaultDepositModal.tsx
+#: src/pages/Earns/VaultDetail/DepositTab.tsx
+msgid "Insufficient {currencySymbol} balance"
+msgstr ""
+
 #: src/components/DateTimePicker/index.tsx
 msgid "Hour"
 msgstr "小时"
 
-#: src/pages/MarketOverview/index.tsx
 #: src/pages/MarketOverview/TableContent.tsx
+#: src/pages/MarketOverview/TableHeader.tsx
 msgid "Name"
 msgstr "名称"
 
@@ -1368,7 +1433,7 @@ msgstr "您的昵称"
 msgid "Voting power"
 msgstr "投票权"
 
-#: src/pages/MarketOverview/index.tsx
+#: src/pages/MarketOverview/TableHeader.tsx
 msgid "Market cap"
 msgstr "市值"
 
@@ -1437,11 +1502,14 @@ msgid "Within 48 hours after each week ends, KyberSwap will publish the claim po
 msgstr ""
 
 #: src/components/Menu/components/MainMenuSection.tsx
-#: src/pages/About/AboutKNC.tsx
-#: src/pages/About/AboutKyberSwap/index.tsx
+#: src/pages/About/AboutFooter.tsx
 #: src/pages/KyberDAO/Vote/ProposalListComponent.tsx
 msgid "Forum"
 msgstr "论坛"
+
+#: src/components/SingaporeWarningPopup/index.tsx
+msgid "Neither KyberSwap nor any entity affiliated therewith"
+msgstr "KyberSwap 及其关联实体均不"
 
 #: src/components/WalletPopup/Transactions/Status.tsx
 #: src/pages/CrossChainSwap/components/TransactionHistory.tsx
@@ -1458,6 +1526,10 @@ msgstr "KNC 奖励将于 6 月 9 日 00:00 UTC 起可在“我的仪表板”页
 
 #: src/pages/Campaign/components/Information/info/safepal.tsx
 msgid "How do I claim my SafePal X1 Hardware Wallet?"
+msgstr ""
+
+#: src/pages/CrossChainSwap/components/SwapAction.tsx
+msgid "Refreshing route"
 msgstr ""
 
 #: src/pages/CrossChainSwap/components/TransactionHistory.tsx
@@ -1616,6 +1688,11 @@ msgstr "这些条款与细则 <0>(“条款”)</0> 应与 KyberSwap 使用条�
 #~ msgid "Your current allowance is insufficient. Approve an additional {0} {1} to proceed."
 #~ msgstr "当前授权额度不足，请额外授权 {0} {1}"
 
+#: src/pages/Earns/components/VaultWithdraw/ConfirmWithdraw.tsx
+#: src/pages/Earns/VaultDetail/WithdrawRequestList.tsx
+msgid "You receive"
+msgstr ""
+
 #: src/pages/AddLiquidityV2/constants.ts
 #~ msgid "Full Range"
 #~ msgstr "全区间"
@@ -1671,8 +1748,8 @@ msgid "You are <0>not eligible</0> for this campaign"
 msgstr "您<0>不符合</0>本次活动资格"
 
 #: src/pages/Earns/MyVaults/index.tsx
-msgid "Timestamp"
-msgstr ""
+#~ msgid "Timestamp"
+#~ msgstr ""
 
 #: src/components/Header/groups/AboutNavGroup.tsx
 msgid "KyberSwap"
@@ -1682,6 +1759,7 @@ msgstr "KyberSwap"
 #: src/components/LimitOrder/Form/LimitOrderRateSection.tsx
 #: src/components/SlippageControl/CustomSlippageInput.tsx
 #: src/pages/Earns/components/SmartExit/GasSetting.tsx
+#: src/pages/Earns/components/VaultDeposit/SlippageSelect.tsx
 msgid "Custom"
 msgstr "自定义"
 
@@ -1734,7 +1812,6 @@ msgstr "对当前 Epoch 提案投票以获得完整奖励"
 #~ msgid "LM Reward"
 #~ msgstr "挖矿奖励"
 
-#: src/pages/KyberDAO/Vote/ProposalItem/index.tsx
 #: src/pages/KyberDAO/Vote/ProposalItem/index.tsx
 msgid "Voting ends in:"
 msgstr "投票结束于："
@@ -1827,6 +1904,11 @@ msgstr "<0>注意</0>：推荐奖金仅适用于聚合器交易活动期间在 K
 msgid "You will receive at least this amount or your transaction will revert."
 msgstr "您至少会收到该金额，否则交易将回退"
 
+#: src/pages/Earns/components/VaultDeposit/VaultDepositModal.tsx
+#: src/pages/Earns/VaultDetail/DepositTab.tsx
+msgid "Approve {currencySymbol}"
+msgstr ""
+
 #: src/components/Header/web3/WalletModal/index.tsx
 msgid "Open MetaMask"
 msgstr ""
@@ -1840,6 +1922,10 @@ msgstr "配置文件更新失败"
 #: src/pages/ElasticLegacy/PositionLegacy.tsx
 msgid "Fee {0}%"
 msgstr "手续费 {0}%"
+
+#: src/pages/About/AboutKNC.tsx
+msgid "KNC token is dynamic - it can be upgraded, minted or burned by KyberDAO to better support liquidity and growth."
+msgstr ""
 
 #: src/pages/Campaign/MyDashboard.tsx
 msgid "My claim-able rewards"
@@ -2288,8 +2374,12 @@ msgstr "奖励将根据积分排行榜发放——积分越多，排名越高，
 #: src/pages/Campaign/components/MyDashboard/NearIntentDashboard.tsx
 #: src/pages/Campaign/MyDashboard.tsx
 #: src/pages/CrossChainSwap/components/SwapAction.tsx
+#: src/pages/Earns/components/VaultDeposit/VaultDepositModal.tsx
+#: src/pages/Earns/components/VaultWithdraw/VaultWithdrawModal.tsx
 #: src/pages/Earns/MyVaults/index.tsx
 #: src/pages/Earns/UserPositions/TableContent.tsx
+#: src/pages/Earns/VaultDetail/DepositTab.tsx
+#: src/pages/Earns/VaultDetail/WithdrawTab.tsx
 msgid "Connect Wallet"
 msgstr "连接钱包"
 
@@ -2456,6 +2546,11 @@ msgstr "您当前正在领取"
 msgid "Rethink"
 msgstr "重新考虑"
 
+#: src/pages/Earns/components/VaultWithdraw/VaultWithdrawModal.tsx
+#: src/pages/Earns/VaultDetail/WithdrawTab.tsx
+msgid "No asset can be withdrawn from this vault right now."
+msgstr ""
+
 #: src/components/SwapForm/MultichainKNCNote.tsx
 msgid "Multichain team ceased operations, and we discourage user interaction with the deployed Wrapped KNC token contracts on various chains. See more <0>here</0>"
 msgstr "Multichain 团队已停止运营，请避免与 Wrapped KNC 合约交互 <0>了解更多</0>"
@@ -2500,7 +2595,7 @@ msgstr "领取阈值"
 #~ msgid "Est. Market Price:"
 #~ msgstr "预估市场价："
 
-#: src/pages/About/AboutKyberSwap/index.tsx
+#: src/pages/About/AboutKyberSwap.tsx
 msgid "Total Trading Volume"
 msgstr "总交易量"
 
@@ -2515,6 +2610,10 @@ msgstr ""
 #: src/components/SubscribeButton/index.tsx
 msgid "Subscribe"
 msgstr "订阅"
+
+#: src/pages/Earns/components/VaultWithdraw/WithdrawFields.tsx
+msgid "Expected time: Starts ~3 days; may extend (3–10 days) depending on strategies."
+msgstr ""
 
 #: src/components/Announcement/Popups/TransactionPopup.tsx
 msgid "Stake liquidity into farm"
@@ -2551,9 +2650,18 @@ msgstr "复制链接"
 msgid "And receive"
 msgstr ""
 
+#: src/pages/Earns/VaultDetail/hooks/useVaultWithdraw.ts
+msgid "Cancellation failed"
+msgstr ""
+
 #: src/components/LiveChart/index.tsx
 #~ msgid "You can swap {0} for {1} (and vice versa)"
 #~ msgstr "您可以将 {0} 兑换为 {1}（反之亦然）"
+
+#: src/pages/CrossChainSwap/components/ConfirmationPopup.tsx
+#: src/pages/CrossChainSwap/components/ConfirmationPopup.tsx
+msgid "The route is outdated. Please refresh and try again."
+msgstr ""
 
 #: src/pages/Campaign/components/Information/info/raffle.tsx
 msgid "Full hash #2: 0x...D345555 → last 4 hex digits = 5555"
@@ -2568,6 +2676,10 @@ msgstr ""
 #: src/pages/Campaign/components/Information/info/stipReferrals.tsx
 msgid "Please note that KyberSwap reserves the rights to change the rules & conditions at its sole discretion."
 msgstr "请注意，KyberSwap 保留自行调整规则与条件的权利。"
+
+#: src/pages/Earns/VaultDetail/WithdrawTab.tsx
+#~ msgid "Cancel before"
+#~ msgstr ""
 
 #: src/pages/Campaign/components/Information/info/nearIntents.tsx
 msgid "Both tokens must be stablecoins (e.g., USDC-USDC, USDT-USDT, USDC-USDT…)"
@@ -2724,9 +2836,17 @@ msgstr "本活动为营销推广，旨在奖励用户参与，不构成任何司
 #~ msgid "HISTORY"
 #~ msgstr "历史"
 
+#: src/components/TokenSelectorModal/TokenSelectorContent.tsx
+msgid "Sort by market cap"
+msgstr ""
+
 #: src/pages/Earns/UserPositions/index.tsx
 msgid "<0>Unclaimed</0><1><2>fees</2><3/></1>"
 msgstr "<0>未领取</0><1><2>手续费</2><3/></1>"
+
+#: src/pages/Earns/components/VaultDeposit/ConfirmDeposit.tsx
+msgid "You are swapping:"
+msgstr ""
 
 #: src/components/TokenInfo/utils.ts
 msgid "Self-destruct"
@@ -2759,8 +2879,8 @@ msgid "Final fill:"
 msgstr "最终成交："
 
 #: src/pages/Earns/SmartExitOrders/index.tsx
-msgid "Est. liquidity & <0/> earned fee"
-msgstr ""
+#~ msgid "Est. liquidity & <0/> earned fee"
+#~ msgstr ""
 
 #: src/components/Announcement/helpers.ts
 msgid "Smart Exit executed"
@@ -2806,10 +2926,6 @@ msgstr "Zap 取出"
 #: src/components/NavigationTabs/index.tsx
 msgid "Create a new pool"
 msgstr "创建新资金池"
-
-#: src/components/SingaporeWarningPopup/index.tsx
-msgid "Neither KyberSwap nor any entity affiliated therewith"
-msgstr "KyberSwap 及其关联实体均不"
 
 #: src/components/Announcement/Popups/TransactionPopup.tsx
 msgid "Error {summary}."
@@ -2872,6 +2988,10 @@ msgstr ""
 #: src/components/TokenInfo/utils.ts
 msgid "Anti Whale"
 msgstr "防鲸鱼机制"
+
+#: src/pages/Earns/VaultDetail/WithdrawTab.tsx
+#~ msgid "Requesting"
+#~ msgstr ""
 
 #: src/components/Announcement/PrivateAnnoucement/NotificationCenter/LimitOrder.tsx
 msgid "successfully filled"
@@ -2947,8 +3067,8 @@ msgid "Search by chain name"
 msgstr "按链名称搜索"
 
 #: src/pages/KyberDAO/KNCUtility/index.tsx
-msgid "Step 1 - Stake KNC on KyberDAO<0/>Step 2 - Trade on KyberSwap"
-msgstr "步骤 1：在 KyberDAO 质押 KNC / 步骤 2：在 KyberSwap 交易"
+#~ msgid "Step 1 - Stake KNC on KyberDAO<0/>Step 2 - Trade on KyberSwap"
+#~ msgstr "步骤 1：在 KyberDAO 质押 KNC / 步骤 2：在 KyberSwap 交易"
 
 #: src/components/Header/web3/SelectWallet.tsx
 #~ msgid "You are not signed in with this wallet address. If you wish, you can <0>sign-in</0> to link your wallet to a profile. This will allow us to offer you a better experience."
@@ -3009,8 +3129,8 @@ msgstr ""
 #: src/pages/MarketOverview/index.tsx
 #: src/pages/MarketOverview/index.tsx
 #: src/pages/MarketOverview/TableContent.tsx
-msgid "1H"
-msgstr "1 小时"
+#~ msgid "1H"
+#~ msgstr "1 小时"
 
 #: src/pages/Earns/PoolExplorer/TableHeader.tsx
 #~ msgid "Max APR is the highest active position APR in this pool recently. Click to the apr number to open the pre-filled same price range"
@@ -3020,7 +3140,7 @@ msgstr "1 小时"
 msgid "The campaign takes place on 6 chains: Ethereum, BNB Chain, Base, Arbitrum, Polygon, Avalanche."
 msgstr ""
 
-#: src/pages/About/AboutKyberSwap/index.tsx
+#: src/pages/About/AboutKyberSwap.tsx
 msgid "Superior price guaranteed"
 msgstr "最优价格保障"
 
@@ -3031,6 +3151,10 @@ msgstr "示例"
 #: src/pages/Campaign/hooks/useRaffleCampaignJoin.ts
 msgid "Joined Weekly Rewards"
 msgstr "已加入每周奖励"
+
+#: src/pages/Earns/VaultDetail/WithdrawTab.tsx
+#~ msgid "Processing time"
+#~ msgstr ""
 
 #: src/components/Announcement/PrivateAnnoucement/InboxItemEarnPosition.tsx
 msgid "Removed:"
@@ -3368,11 +3492,22 @@ msgstr "无法委托给自己的钱包地址"
 msgid "Fee estimation failed"
 msgstr ""
 
+#: src/pages/Earns/components/VaultDeposit/ConfirmDeposit.tsx
+#: src/pages/Earns/components/VaultDeposit/DepositFields.tsx
+#: src/pages/Earns/components/VaultWithdraw/ConfirmWithdraw.tsx
+#: src/pages/Earns/components/VaultWithdraw/WithdrawFields.tsx
+msgid "Estimated network fee for this transaction. What you actually pay depends on network conditions."
+msgstr ""
+
 #: src/components/WalletPopup/AccountInfo/ActionButtonGroup.tsx
 #: src/components/WalletPopup/SendToken/index.tsx
 #: src/components/WalletPopup/type.ts
 msgid "Send"
 msgstr "发送"
+
+#: src/pages/Earns/components/VaultDeposit/DepositFields.tsx
+msgid "Deposit token"
+msgstr ""
 
 #: src/pages/KyberDAO/StakeKNC/StakeKNCComponent.tsx
 msgid "Staking KNC"
@@ -3445,6 +3580,10 @@ msgstr "您卖出"
 #~ msgid "FILLED % | STATUS"
 #~ msgstr "成交率 | 状态"
 
+#: src/pages/Earns/components/VaultWithdraw/useWithdrawForm.ts
+msgid "Withdrawal failed"
+msgstr ""
+
 #: src/pages/CrossChainSwap/components/SelectNetwork.tsx
 msgid "The token cannot be bridged to this chain"
 msgstr "该代币无法桥接至此链"
@@ -3453,7 +3592,7 @@ msgstr "该代币无法桥接至此链"
 msgid "This program is limited to the jurisdictions listed in <0>SafePal shipping countries and regions</0>. Users from countries or territories outside this list are not eligible to receive rewards."
 msgstr ""
 
-#: src/pages/About/AboutKyberSwap/index.tsx
+#: src/pages/About/AboutKyberSwap.tsx
 msgid "24H Trading Volume"
 msgstr "24 小时交易量"
 
@@ -3543,8 +3682,8 @@ msgid "Max Price of your range is {maxPrice} {token0Symbol} per {token1Symbol}"
 msgstr "您价格区间的最高价为 {maxPrice} {token0Symbol}/{token1Symbol}"
 
 #: src/pages/Earns/VaultDetail/index.tsx
-msgid "Deposit flow coming soon."
-msgstr ""
+#~ msgid "Deposit flow coming soon."
+#~ msgstr ""
 
 #: src/components/Announcement/PrivateAnnoucement/InboxItemLimitOrder.tsx
 msgid "{filledPercentLabel} Filled"
@@ -3571,8 +3710,8 @@ msgstr "本次兑换将收取 {feePercent} 手续费（{feeAmountText}），预�
 msgid "Do I have to pay any fee to claim the rewards?"
 msgstr "领取奖励需要支付费用吗？"
 
-#: src/pages/MarketOverview/index.tsx
-#: src/pages/MarketOverview/index.tsx
+#: src/pages/MarketOverview/TableHeader.tsx
+#: src/pages/MarketOverview/TableHeader.tsx
 msgid "Market cap & 24h volume data sourced from Coingecko"
 msgstr "市值与 24h 数据来自 Coingecko"
 
@@ -3661,6 +3800,10 @@ msgstr "稳定币对成交的订单每兑换 1 美元可获得 0.5 积分。"
 msgid "ESTIMATED REWARDS"
 msgstr "预计奖励"
 
+#: src/pages/KyberDAO/KNCUtility/index.tsx
+msgid "Step 1 - Stake KNC on KyberDAO"
+msgstr ""
+
 #: src/pages/CrossChainSwap/components/SwapAction.tsx
 msgid "Review the Cross-chain Swap"
 msgstr "审查跨链兑换"
@@ -3671,6 +3814,7 @@ msgstr "审查跨链兑换"
 
 #: src/components/Announcement/PrivateAnnoucement/InboxItemLimitOrder.tsx
 #: src/components/LimitOrder/MyOrders/utils.ts
+#: src/pages/Earns/VaultDetail/WithdrawRequestList.tsx
 msgid "Expired"
 msgstr "已过期"
 
@@ -3807,6 +3951,10 @@ msgstr ""
 #~ msgid "My Total Earnings"
 #~ msgstr "我的总收益"
 
+#: src/pages/Earns/VaultDetail/WithdrawTab.tsx
+#~ msgid "Receive as"
+#~ msgstr ""
+
 #: src/pages/ElasticLegacy/PositionLegacy.tsx
 msgid "My fees earned"
 msgstr "我赚取的手续费"
@@ -3864,8 +4012,8 @@ msgid "Send to other wallet"
 msgstr "发送到其他钱包"
 
 #: src/pages/About/AboutKNC.tsx
-msgid "KNC token holders can benefit from our flagship product KyberSwap. Holders can stake their KNC & vote on initiatives to receive trading fees generated on KyberSwap! More trades on KyberSwap can generate more rewards for KNC holders!<0/><1/>KNC token is dynamic - it can be upgraded, minted or burned by KyberDAO to better support liquidity and growth."
-msgstr "KNC 持有者可通过 KyberSwap 获益。质押 KNC 并参与投票即可获得 KyberSwap 产生的交易手续费！KyberSwap 交易量越高，KNC 持有者奖励越多！<0/><1/>KNC 为动态代币，可由 KyberDAO 进行升级、增发或销毁，以更好地支持流动性与生态增长"
+#~ msgid "KNC token holders can benefit from our flagship product KyberSwap. Holders can stake their KNC & vote on initiatives to receive trading fees generated on KyberSwap! More trades on KyberSwap can generate more rewards for KNC holders!<0/><1/>KNC token is dynamic - it can be upgraded, minted or burned by KyberDAO to better support liquidity and growth."
+#~ msgstr "KNC 持有者可通过 KyberSwap 获益。质押 KNC 并参与投票即可获得 KyberSwap 产生的交易手续费！KyberSwap 交易量越高，KNC 持有者奖励越多！<0/><1/>KNC 为动态代币，可由 KyberDAO 进行升级、增发或销毁，以更好地支持流动性与生态增长"
 
 #: src/pages/CrossChainSwap/components/SwapAction.tsx
 msgid "Insufficient Balance"
@@ -3874,7 +4022,7 @@ msgstr "余额不足"
 #: src/components/TokenSelectorModal/TabBar.tsx
 #: src/components/WalletPopup/Transactions/index.tsx
 #: src/pages/KyberDAO/Vote/SelectProposalStatus.tsx
-#: src/pages/MarketOverview/index.tsx
+#: src/pages/MarketOverview/Filter.tsx
 msgid "All"
 msgstr "全部"
 
@@ -4026,7 +4174,7 @@ msgstr "添加流动性"
 msgid "here"
 msgstr "这里"
 
-#: src/pages/About/AboutKyberSwap/index.tsx
+#: src/pages/About/AboutKyberSwap.tsx
 msgid "Find out more"
 msgstr "了解更多"
 
@@ -4121,6 +4269,10 @@ msgstr ""
 msgid "Total Earned"
 msgstr ""
 
+#: src/pages/Earns/VaultDetail/WithdrawRequestList.tsx
+msgid "Expired on"
+msgstr ""
+
 #: src/components/SwapForm/PriceImpactNote.tsx
 #~ msgid "<0>Price Impact</0> is very high. You will lose funds! {0}"
 #~ msgstr "<0>价格影响</0> 极高，您将损失资金！{0}"
@@ -4160,8 +4312,12 @@ msgstr "授权 <0>{0}</0> 需大于 <1>{1} {2}</1>，了解更多 <2>这里</2>"
 msgid "Cancel Order"
 msgstr "取消订单"
 
+#: src/pages/Earns/components/VaultWithdraw/ConfirmWithdraw.tsx
+#: src/pages/Earns/components/VaultWithdraw/VaultWithdrawModal.tsx
+#: src/pages/Earns/components/VaultWithdraw/VaultWithdrawModal.tsx
 #: src/pages/Earns/MyVaults/index.tsx
 #: src/pages/Earns/VaultDetail/index.tsx
+#: src/pages/Earns/VaultDetail/WithdrawTab.tsx
 msgid "Withdraw"
 msgstr "提现"
 
@@ -4197,6 +4353,10 @@ msgstr "表示您所有流动性集中的价格区间。当市场价格超出该
 #: src/components/Menu/components/PreferencesSection.tsx
 msgid "Notification Center"
 msgstr "通知中心"
+
+#: src/pages/Earns/VaultDetail/DepositTab.tsx
+msgid "Deposit {currencySymbol}"
+msgstr ""
 
 #: src/pages/NotificationCenter/GeneralAnnouncement/index.tsx
 #: src/pages/NotificationCenter/PrivateAnnouncement.tsx
@@ -4415,6 +4575,11 @@ msgstr "有新内容可用"
 msgid "<0>Notice</0>: Some of your {symbol} is already reserved by an open Limit Order - review it <1>here</1>."
 msgstr ""
 
+#: src/pages/Earns/MyVaults/index.tsx
+#: src/pages/Earns/VaultDetail/WithdrawRequestList.tsx
+msgid "Ready in"
+msgstr ""
+
 #: src/utils/errorMessage.ts
 msgid "Your current balance falls short of covering the required gas fee."
 msgstr "当前余额不足以支付所需 Gas 费"
@@ -4447,6 +4612,10 @@ msgstr "使用建议滑点"
 #: src/components/Announcement/Popups/TransactionPopup.tsx
 msgid "Unstake liquidity from farm."
 msgstr "从 Farm 农场中解除流动性质押"
+
+#: src/pages/Earns/components/VaultWithdraw/ConfirmWithdraw.tsx
+msgid "You are withdrawing:"
+msgstr ""
 
 #: src/pages/ElasticSnapshot/components/SelectTreasuryGrant.tsx
 msgid "Verified"
@@ -4491,6 +4660,11 @@ msgstr "以该价格买入 {symbol}"
 #~ msgid "Exchange rate is always 1 to 1."
 #~ msgstr "兑换比例始终为 1:1"
 
+#: src/pages/Earns/components/VaultWithdraw/ConfirmWithdraw.tsx
+#: src/pages/Earns/MyVaults/index.tsx
+msgid "Withdrawing"
+msgstr ""
+
 #: src/pages/Earns/UserPositions/Filter.tsx
 msgid "Position status"
 msgstr "仓位状态"
@@ -4532,6 +4706,10 @@ msgstr "当前无法投票"
 msgid "POSITION LIQUIDITY (USD)"
 msgstr "仓位流动性（美元）"
 
+#: src/pages/Earns/components/VaultWithdraw/ConfirmWithdraw.tsx
+msgid "Quoted by the vault's withdrawal queue and locked into the request when you submit it."
+msgstr ""
+
 #: src/pages/Campaign/components/Information/info/safepal.tsx
 msgid "Points are earned from eligible trading activity using Swap, Zap, Cross-Chain Swap, Limit Order and Smart Exit Orders on kyberswap.com"
 msgstr ""
@@ -4567,6 +4745,10 @@ msgstr ""
 #: src/pages/Campaign/components/Information/info/raffle.tsx
 msgid "You must click \"Join Now\" first. Only eligible transactions made after you click \"Join Now\" will be counted."
 msgstr "您必须先点击“Join Now”。只有在点击“Join Now”之后产生的合格交易才会被计入。"
+
+#: src/pages/Earns/hooks/useVaultChainOptions.ts
+msgid "All Networks"
+msgstr ""
 
 #: src/components/ClassicElasticTab.tsx
 #: src/components/ClassicElasticTab.tsx
@@ -4683,6 +4865,15 @@ msgstr "未看到您的代币"
 msgid "Username (Optional)"
 msgstr "用户名（可选）"
 
+#: src/pages/Earns/components/VaultDeposit/ConfirmDeposit.tsx
+msgid "Please review the details of your deposit:"
+msgstr ""
+
+#: src/pages/Earns/components/VaultWithdraw/VaultWithdrawModal.tsx
+#: src/pages/Earns/VaultDetail/WithdrawTab.tsx
+msgid "Withdrawals are unavailable for this vault right now."
+msgstr ""
+
 #: src/pages/KyberDAO/StakeKNC/SwitchToEthereumModal.tsx
 msgid "Switch to Ethereum Network"
 msgstr "切换至以太坊网络"
@@ -4787,6 +4978,10 @@ msgstr "选择手续费档位"
 #~ msgid "Please reconnect your wallet and try again."
 #~ msgstr "请重新连接钱包后再试。"
 
+#: src/pages/KyberDAO/KNCUtility/index.tsx
+msgid "Step 2 - Trade on KyberSwap"
+msgstr ""
+
 #: src/components/Tutorial/TutorialSwap/constant.ts
 #~ msgid "View our KyberSwap Guide again"
 #~ msgstr "再次查看 KyberSwap 指南"
@@ -4811,6 +5006,10 @@ msgstr "领取所有可用的农场奖励"
 #: src/pages/Campaign/components/Information/info/stipLimitOrder.tsx
 msgid "ARB filled orders will give 10 Points per USD. It can be paired with any eligible tokens from the list, except plsARB that falls in Category 3."
 msgstr "ARB 成交的订单每兑换 1 美元可获得 10 积分，可与名单上的任意合资格代币交易，但不包括归入第 3 类的 plsARB。"
+
+#: src/pages/Earns/components/VaultDeposit/SlippageSelect.tsx
+#~ msgid "Max slippage"
+#~ msgstr ""
 
 #: src/components/SwapForm/SwapActionButton/index.tsx
 msgid "Permit {0}"
@@ -4840,7 +5039,6 @@ msgstr "在区块浏览器中查看"
 #: src/pages/Earns/hooks/useCollectFees.tsx
 #: src/pages/Earns/hooks/useCollectFees.tsx
 #: src/pages/Earns/hooks/useCollectFees.tsx
-#: src/pages/Earns/hooks/useKemRewards.tsx
 #: src/pages/Earns/hooks/useKemRewards.tsx
 #: src/pages/Earns/hooks/useKemRewards.tsx
 #: src/pages/Earns/hooks/useKemRewards.tsx
@@ -4885,12 +5083,16 @@ msgstr "头像"
 #: src/components/SwapForm/SwapModal/SwapDetails/index.tsx
 #: src/components/SwapForm/TradeSummary.tsx
 #: src/pages/CrossChainSwap/components/Summary.tsx
+#: src/pages/Earns/components/VaultDeposit/ConfirmDeposit.tsx
+#: src/pages/Earns/components/VaultDeposit/DepositFields.tsx
+#: src/pages/Earns/components/VaultWithdraw/ConfirmWithdraw.tsx
+#: src/pages/Earns/components/VaultWithdraw/WithdrawFields.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 msgid "Price Impact"
 msgstr "价格影响"
 
-#: src/pages/About/AboutKyberSwap/index.tsx
+#: src/pages/About/AboutKyberSwap.tsx
 msgid "DEXs"
 msgstr "去中心化交易所（DEX）"
 
@@ -4995,8 +5197,7 @@ msgid "More information about KNC is available on:"
 msgstr "关于 KNC 的更多信息请见："
 
 #: src/components/Menu/components/MainMenuSection.tsx
-#: src/pages/About/AboutKNC.tsx
-#: src/pages/About/AboutKyberSwap/index.tsx
+#: src/pages/About/AboutFooter.tsx
 msgid "Docs"
 msgstr "文档"
 
@@ -5070,6 +5271,10 @@ msgstr ""
 
 #: src/components/TipLinkGeneratorModal/index.tsx
 msgid "Please try again in a moment."
+msgstr ""
+
+#: src/pages/Earns/VaultDetail/ZapRouteStrip.tsx
+msgid "Withdraw from"
 msgstr ""
 
 #: src/pages/KyberDAO/Vote/ProposalItem/VoteInformation.tsx
@@ -5159,7 +5364,7 @@ msgstr "我的流动性余额"
 msgid "You will receive 3 points for swapping these derivatives pairs."
 msgstr "兑换这些衍生品交易对可获得 3 积分。"
 
-#: src/pages/About/AboutKyberSwap/index.tsx
+#: src/pages/About/AboutKyberSwap.tsx
 msgid "With our Dynamic Trade Routing technology, we aggregate liquidity from multiple DEXs and identify superior trade routes for you."
 msgstr "通过动态交易路由技术，我们聚合多个 DEX 的流动性并为您识别更优交易路径"
 
@@ -5174,6 +5379,7 @@ msgstr "第 2 类"
 
 #: src/components/WalletPopup/Transactions/Status.tsx
 #: src/pages/Earns/PositionDetail/RewardSection.tsx
+#: src/pages/Earns/VaultDetail/WithdrawRequestList.tsx
 #: src/pages/KyberDAO/KNCUtility/GasRefundBox.tsx
 msgid "Pending"
 msgstr "处理中"
@@ -5232,7 +5438,6 @@ msgid "<0>EVM, Near L1, Solana L1 winning wallets</0> will receive the airdrop <
 msgstr "<0>EVM、Near L1、Solana L1</0> 获奖钱包在奖励价值 <1>≥ 5 美元</1> 时将获得空投，奖励以 <2>USDT</2> 发放。EVM 钱包的奖励将在 Base 链上发送。"
 
 #: src/components/WalletPopup/Transactions/index.tsx
-#: src/pages/KyberDAO/StakeKNC/YourTransactionsModal.tsx
 msgid "You have no Transaction History."
 msgstr "您暂无交易记录"
 
@@ -5250,6 +5455,11 @@ msgstr "阶段 3"
 
 #: src/pages/Earns/components/SmartExit/Metrics/FeeYieldInput.tsx
 msgid "Exit when fee yield"
+msgstr ""
+
+#: src/pages/Earns/components/VaultWithdraw/VaultWithdrawModal.tsx
+#: src/pages/Earns/VaultDetail/WithdrawTab.tsx
+msgid "Insufficient {shareSymbol} balance"
 msgstr ""
 
 #: src/components/Header/groups/CampaignNavGroup.tsx
@@ -5272,8 +5482,8 @@ msgid "Total final rewards that you can claim for the campaign."
 msgstr "此活动您可领取的最终奖励总额。"
 
 #: src/components/TokenSelectorModal/TokenSelectorContent.tsx
-msgid "Clear search"
-msgstr ""
+#~ msgid "Clear search"
+#~ msgstr ""
 
 #: src/components/SingaporeWarningPopup/index.tsx
 msgid "(i) is regulated by MAS; or"
@@ -5402,6 +5612,10 @@ msgstr "您用于支付 {mainMsg} 的订单已成交 {filledPercent}%"
 #: src/components/WalletPopup/SendToken/WarningBrave.tsx
 msgid "Contract Address"
 msgstr "合约地址"
+
+#: src/pages/Earns/components/VaultDeposit/ConfirmDeposit.tsx
+msgid "You are depositing:"
+msgstr ""
 
 #: src/pages/KyberDAO/StakeKNC/index.tsx
 msgid "Note: Staking KNC is only available on Ethereum chain."
@@ -5823,13 +6037,24 @@ msgstr "使用钱包登录"
 msgid "Suggestion"
 msgstr "建议"
 
-#: src/pages/Earns/components/SmartExit/ExpireSetting.tsx
-msgid "Open settings"
+#: src/pages/Earns/components/VaultDeposit/ConfirmDeposit.tsx
+#: src/pages/Earns/components/VaultDeposit/DepositFields.tsx
+#: src/pages/Earns/components/VaultWithdraw/ConfirmWithdraw.tsx
+#: src/pages/Earns/components/VaultWithdraw/WithdrawFields.tsx
+msgid "How far this trade moves the price of the pools it routes through. A large impact means thin liquidity."
 msgstr ""
+
+#: src/pages/Earns/components/SmartExit/ExpireSetting.tsx
+#~ msgid "Open settings"
+#~ msgstr ""
 
 #: src/pages/Earns/PositionDetail/AnalyticTab.tsx
 msgid "Position History"
 msgstr "仓位历史"
+
+#: src/pages/Earns/VaultDetail/WithdrawRequestList.tsx
+msgid "Requested"
+msgstr ""
 
 #: src/components/Tutorial/TutorialSwap/index.tsx
 #~ msgid "You can repeat these instructions anytime by clicking on the \"View\" button under Preferences."
@@ -5939,6 +6164,10 @@ msgstr ""
 msgid "This will likely execute immediately."
 msgstr ""
 
+#: src/components/TokenSelectorModal/TokenList.tsx
+msgid "In wallet"
+msgstr ""
+
 #: src/pages/Campaign/components/MyDashboard/SafePalDashboard.tsx
 #: src/pages/Campaign/MyDashboard.tsx
 msgid "Please connect wallet to view your Dashboard"
@@ -6023,6 +6252,12 @@ msgstr "添加失败"
 msgid "Select Wallet"
 msgstr "选择钱包"
 
+#: src/pages/Earns/components/VaultWithdraw/WithdrawFields.tsx
+#: src/pages/Earns/components/VaultWithdraw/WithdrawFields.tsx
+msgid "Receive token"
+msgstr ""
+
+#: src/pages/Earns/hooks/useVaultProtocolOptions.ts
 #: src/pages/Earns/PoolExplorer/Filter.tsx
 msgid "All Protocols"
 msgstr "所有协议"
@@ -6168,10 +6403,18 @@ msgstr "合格交易"
 #~ msgid "Off"
 #~ msgstr "关闭"
 
+#: src/pages/Earns/VaultDetail/ZapRouteStrip.tsx
+msgid "Kyber Zap"
+msgstr ""
+
 #: src/components/PoolPriceBar/index.tsx
 #: src/components/PoolPriceBar/index.tsx
 #~ msgid "per"
 #~ msgstr "每"
+
+#: src/pages/Earns/VaultDetail/WithdrawRequestList.tsx
+msgid "Pending withdrawals"
+msgstr ""
 
 #: src/pages/NotificationCenter/PriceAlerts/Header.tsx
 msgid "Alerts History"
@@ -6207,8 +6450,8 @@ msgstr "输入金额"
 #: src/pages/MarketOverview/index.tsx
 #: src/pages/MarketOverview/index.tsx
 #: src/pages/MarketOverview/TableContent.tsx
-msgid "7D"
-msgstr "7 天"
+#~ msgid "7D"
+#~ msgstr "7 天"
 
 #: src/pages/NotificationCenter/Profile/index.tsx
 msgid "Your profile has been successfully updated"
@@ -6222,7 +6465,7 @@ msgstr "退出登录"
 msgid "{0} is only available on Ethereum chain. Please switch network to continue."
 msgstr "{0} 仅支持以太坊链，请切换网络继续"
 
-#: src/pages/About/AboutKyberSwap/index.tsx
+#: src/pages/About/AboutKyberSwap.tsx
 msgid "Kyber Network Crystal (KNC)"
 msgstr "Kyber网络水晶（KNC）"
 
@@ -6356,6 +6599,10 @@ msgstr "搜索流动性来源"
 msgid "Order will trigger on"
 msgstr ""
 
+#: src/pages/Earns/MyVaults/index.tsx
+msgid "+{otherRequestCount} more"
+msgstr ""
+
 #: src/components/LimitOrder/ListOrder/TableHeader.tsx
 #: src/components/LimitOrder/ListOrder/TableHeader.tsx
 #~ msgid "LIMIT ORDER(S)"
@@ -6439,6 +6686,10 @@ msgstr "步骤"
 #: src/components/LimitOrder/CancelOrder/CancelOrderModal.tsx
 msgid "Cancel an order"
 msgstr "取消订单"
+
+#: src/pages/Earns/VaultDetail/WithdrawRequestList.tsx
+msgid "Ready"
+msgstr ""
 
 #: src/pages/NotificationCenter/PriceAlerts/DeleteSingleAlertButton.tsx
 msgid "Delete"
@@ -6533,11 +6784,20 @@ msgstr "确认"
 #: src/pages/Earns/components/PositionClaimModal/index.tsx
 #: src/pages/Earns/components/SmartExit/Actions.tsx
 #: src/pages/Earns/components/SmartExit/Confirmation/Success.tsx
+#: src/pages/Earns/components/VaultDeposit/ConfirmDeposit.tsx
+#: src/pages/Earns/components/VaultDeposit/VaultDepositModal.tsx
+#: src/pages/Earns/components/VaultWithdraw/ConfirmWithdraw.tsx
+#: src/pages/Earns/components/VaultWithdraw/VaultWithdrawModal.tsx
 #: src/pages/Earns/SmartExitOrders/index.tsx
+#: src/pages/Earns/VaultDetail/WithdrawRequestList.tsx
 #: src/pages/ElasticSnapshot/components/TermAndPolicyModal.tsx
 #: src/pages/KyberDAO/StakeKNC/DelegateConfirmModal.tsx
 msgid "Cancel"
 msgstr "取消"
+
+#: src/components/WalletPopup/MyAssets.tsx
+msgid "{0, plural, one {Show # more} other {Show # more}}"
+msgstr ""
 
 #: src/pages/About/AboutKNC.tsx
 msgid "KNC is an ERC-20 token, so it can be stored in many Web3 wallets you control. Below are some examples."
@@ -6641,7 +6901,7 @@ msgstr "未找到数据"
 msgid "Price Alerts"
 msgstr "价格提醒"
 
-#: src/pages/About/AboutKyberSwap/index.tsx
+#: src/pages/About/AboutKyberSwap.tsx
 msgid "Swap your tokens at superior rates. No limits"
 msgstr "以更优价格兑换代币，无限制"
 
@@ -6683,6 +6943,10 @@ msgstr "经典池"
 #~ msgid "Your currently existing order is {filledPercent}% filled."
 #~ msgstr "您当前的订单已成交 {filledPercent}%"
 
+#: src/components/TokenSelectorModal/TokenSelectorContent.tsx
+msgid "Metric"
+msgstr ""
+
 #: src/pages/Campaign/components/Information/info/stipAggregator.tsx
 #: src/pages/Campaign/components/Information/info/stipLimitOrder.tsx
 #: src/pages/Campaign/components/Information/info/stipReferrals.tsx
@@ -6708,6 +6972,15 @@ msgstr ""
 #: src/components/SwapForm/SwapModal/index.tsx
 msgid "Estimating gas & network fees…"
 msgstr ""
+
+#: src/pages/Earns/components/VaultWithdraw/ConfirmWithdraw.tsx
+#: src/pages/Earns/components/VaultWithdraw/WithdrawFields.tsx
+msgid "When completed, tokens are automatically sent to your wallet, no need to claim."
+msgstr ""
+
+#: src/pages/Earns/VaultDetail/DepositTab.tsx
+#~ msgid "Any token works — it is swapped and deposited into the vault in a single transaction."
+#~ msgstr ""
 
 #: src/pages/Campaign/components/Information/info/stipAggregator.tsx
 #: src/pages/Campaign/components/Information/info/stipLimitOrder.tsx
@@ -6737,6 +7010,11 @@ msgstr ""
 #: src/components/TokenInfo/utils.ts
 msgid "External Call"
 msgstr "外部调用"
+
+#: src/pages/Earns/components/VaultDeposit/DepositFields.tsx
+#: src/pages/Earns/components/VaultWithdraw/WithdrawFields.tsx
+msgid "Est. Min Received"
+msgstr ""
 
 #: src/components/DateTimePicker/index.tsx
 msgid "Min"
@@ -6848,6 +7126,10 @@ msgstr "要在 {name} 上启用 MEV 保护，您需在钱包中更改 RPC 端点
 msgid "Your passcode"
 msgstr "您的密码"
 
+#: src/pages/Earns/VaultDetail/WithdrawTab.tsx
+#~ msgid "Balance: {shareBalanceText}"
+#~ msgstr ""
+
 #: src/pages/Earns/components/SmartExit/PositionLiquidity.tsx
 #: src/pages/Earns/components/SmartExit/PositionLiquidity.tsx
 msgid "Your Position Liquidity"
@@ -6898,6 +7180,13 @@ msgstr "我的池子"
 #: src/constants/index.ts
 #~ msgid "Stands for amplification factor. Each pool can have its own AMP. Pools with a higher AMP provide higher capital efficiency within a particular price range."
 #~ msgstr "AMP 表示放大系数。每个池子有不同 AMP，AMP 越高，在特定价格区间内资本效率越高"
+
+#: src/pages/Earns/components/VaultDeposit/VaultDepositModal.tsx
+#: src/pages/Earns/components/VaultWithdraw/VaultWithdrawModal.tsx
+#: src/pages/Earns/VaultDetail/DepositTab.tsx
+#: src/pages/Earns/VaultDetail/WithdrawTab.tsx
+msgid "Switch to {chainName}"
+msgstr ""
 
 #: src/components/SwapForm/SwapActionButton/index.tsx
 msgid "Approve {0}"
@@ -6972,7 +7261,7 @@ msgid "Sound"
 msgstr ""
 
 #: src/components/TokenInfo/index.tsx
-#: src/pages/About/AboutKyberSwap/index.tsx
+#: src/pages/About/AboutKyberSwap.tsx
 msgid "Powered by"
 msgstr "技术支持"
 
@@ -7053,7 +7342,7 @@ msgstr "发生错误，<0/>请重试"
 msgid "TX HASH"
 msgstr "交易哈希"
 
-#: src/pages/About/AboutKyberSwap/index.tsx
+#: src/pages/About/AboutKyberSwap.tsx
 msgid "Chains"
 msgstr "区块链网络"
 
@@ -7283,6 +7572,10 @@ msgstr "资金不足"
 msgid "Email Address"
 msgstr "邮箱地址"
 
+#: src/pages/Earns/VaultDetail/hooks/useVaultDeposit.ts
+msgid "Deposit failed"
+msgstr ""
+
 #: src/components/Announcement/PrivateAnnoucement/InboxItemLimitOrder.tsx
 #: src/components/LimitOrder/hooks/useNotificationLimitOrder.tsx
 msgid "Order Expired"
@@ -7351,14 +7644,18 @@ msgstr "通知"
 #~ msgstr "无法访问钱包"
 
 #: src/pages/Swap/components/SwapSettingsPanel/index.tsx
-msgid "Back"
-msgstr "返回"
+#~ msgid "Back"
+#~ msgstr "返回"
+
+#: src/pages/Earns/VaultDetail/index.tsx
+#~ msgid "Position Balance: {amount} {symbol}"
+#~ msgstr ""
 
 #: src/components/WalletPopup/Transactions/Status.tsx
 #~ msgid "Checking"
 #~ msgstr "检查中"
 
-#: src/pages/About/AboutKyberSwap/index.tsx
+#: src/pages/About/AboutKyberSwap.tsx
 msgid "TVL From DEXs"
 msgstr "来自 DEX 的 TVL"
 
@@ -7382,6 +7679,10 @@ msgstr ""
 #: src/components/SwapForm/hooks/useGetInputError.tsx
 #: src/hooks/useWrapCallback.ts
 #: src/hooks/useWrapCallback.ts
+#: src/pages/Earns/components/VaultDeposit/VaultDepositModal.tsx
+#: src/pages/Earns/components/VaultWithdraw/VaultWithdrawModal.tsx
+#: src/pages/Earns/VaultDetail/DepositTab.tsx
+#: src/pages/Earns/VaultDetail/WithdrawTab.tsx
 #: src/state/burn/hooks.ts
 #: src/state/burn/hooks.ts
 msgid "Enter an amount"
@@ -7507,6 +7808,10 @@ msgstr "委托仅支持以太坊链"
 #~ msgid "Exit when {0}/{1}"
 #~ msgstr ""
 
+#: src/pages/Earns/VaultDetail/DepositTab.tsx
+#~ msgid "Balance: {balanceText}"
+#~ msgstr ""
+
 #: src/components/SwapForm/SwapActionButton/index.tsx
 #: src/pages/CrossChainSwap/components/SwapAction.tsx
 #: src/pages/RemoveLiquidity/TokenPair.tsx
@@ -7514,8 +7819,7 @@ msgstr "委托仅支持以太坊链"
 msgid "Approving"
 msgstr "授权中"
 
-#: src/pages/About/AboutKNC.tsx
-#: src/pages/About/AboutKyberSwap/index.tsx
+#: src/pages/About/AboutFooter.tsx
 #: src/pages/KyberDAO/Vote/ProposalItem/index.tsx
 msgid "Github"
 msgstr "Github"
@@ -7590,6 +7894,10 @@ msgstr "连接钱包以查看您的流动性"
 msgid "How can I claim my reward?"
 msgstr "我该如何领取奖励？"
 
+#: src/pages/Earns/VaultDetail/hooks/useVaultWithdraw.ts
+msgid "Withdrawal request failed"
+msgstr ""
+
 #: src/pages/NotificationCenter/Profile/ImportAccountModal/index.tsx
 msgid "Imported successfully"
 msgstr "导入成功"
@@ -7638,8 +7946,8 @@ msgstr "移除失败"
 #~ msgstr "Gas 费用极高，您将损失资金"
 
 #: src/pages/MarketOverview/index.tsx
-#: src/pages/MarketOverview/index.tsx
-#: src/pages/MarketOverview/index.tsx
+#: src/pages/MarketOverview/TableHeader.tsx
+#: src/pages/MarketOverview/TableHeader.tsx
 msgid "Market Overview"
 msgstr "市场概览"
 
@@ -7662,6 +7970,10 @@ msgstr "审核订单"
 #: src/pages/Earns/UserPositions/Filter.tsx
 msgid "Search by token symbol or address"
 msgstr "按代币符号或地址搜索"
+
+#: src/components/TokenSelectorModal/TokenList.tsx
+msgid "This token uses the symbol of a verified token but a different contract address. Check the address before selecting it."
+msgstr ""
 
 #: src/pages/Campaign/components/JoinReferral.tsx
 msgid "Copy and share your link/code with your network."
@@ -7696,6 +8008,10 @@ msgstr "查看这里"
 msgid "Order will be automatically cancelled in"
 msgstr "订单将自动取消于"
 
+#: src/pages/Earns/VaultDetail/DepositTab.tsx
+#~ msgid "Price impact"
+#~ msgstr ""
+
 #: src/pages/Campaign/components/Information/info/raffle.tsx
 msgid "Step 2:"
 msgstr "步骤 2："
@@ -7703,6 +8019,10 @@ msgstr "步骤 2："
 #: src/components/EarningAreaChart/TooltipContent.tsx
 #~ msgid "Pool Fees"
 #~ msgstr "池手续费"
+
+#: src/components/TokenSelectorModal/TokenSelectorContent.tsx
+msgid "Show 24h volume"
+msgstr ""
 
 #: src/components/LimitOrder/useWarningCreateOrder.tsx
 #~ msgid "We suggest you increase the value of your limit order to at least <0>${threshold}</0>. This will increase the odds of your order being filled."
@@ -7741,6 +8061,9 @@ msgstr ""
 msgid "My position"
 msgstr "我的仓位"
 
+#: src/pages/Earns/components/VaultDeposit/ConfirmDeposit.tsx
+#: src/pages/Earns/components/VaultDeposit/VaultDepositModal.tsx
+#: src/pages/Earns/components/VaultDeposit/VaultDepositModal.tsx
 #: src/pages/Earns/VaultDetail/index.tsx
 msgid "Deposit"
 msgstr "存入"
@@ -7879,6 +8202,8 @@ msgid "Due to a potential issue with our legacy <0>Elastic protocol</0>, we have
 msgstr "由于旧版 <0>Elastic 协议</0> 存在潜在问题，我们已永久暂停 <1>Elastic {0}（Legacy）</1>，请使用全新并已审计的 <2>Elastic {2}</2>"
 
 #: src/components/SwapForm/SwapModal/SwapDetails/index.tsx
+#: src/pages/Earns/components/VaultDeposit/ConfirmDeposit.tsx
+#: src/pages/Earns/components/VaultWithdraw/ConfirmWithdraw.tsx
 msgid "Minimum Receiving"
 msgstr "最小接收量"
 
@@ -7952,7 +8277,8 @@ msgstr ""
 msgid "Order Cancel Failed"
 msgstr "取消订单失败"
 
-#: src/pages/Earns/MyVaults/index.tsx
+#: src/pages/Earns/components/VaultWithdraw/ConfirmWithdraw.tsx
+#: src/pages/Earns/components/VaultWithdraw/WithdrawFields.tsx
 msgid "Processing Time"
 msgstr ""
 
@@ -8045,6 +8371,17 @@ msgstr ""
 msgid "Which tokens can referees trade to be eligible for the rewards?"
 msgstr "被推荐人需要交易哪些代币才能符合奖励资格？"
 
+#: src/pages/Earns/VaultDetail/WithdrawTab.tsx
+#~ msgid "{selectedAssetSymbol} cannot be withdrawn from this vault."
+#~ msgstr ""
+
+#: src/pages/Earns/components/VaultDeposit/ConfirmDeposit.tsx
+#: src/pages/Earns/components/VaultDeposit/DepositFields.tsx
+#: src/pages/Earns/components/VaultWithdraw/ConfirmWithdraw.tsx
+#: src/pages/Earns/components/VaultWithdraw/WithdrawFields.tsx
+msgid "The least you will receive if the price moves against you by the full slippage tolerance."
+msgstr ""
+
 #: src/pages/CrossChainSwap/components/RecipientPanel.tsx
 msgid "Use my wallet"
 msgstr "使用我的钱包"
@@ -8070,8 +8407,8 @@ msgid "You have chosen option C for KyberSwap Elastic Exploit Treasury Grant Pro
 msgstr "您已选择 KyberSwap Elastic 漏洞国库资助计划的选项 C"
 
 #: src/pages/MarketOverview/DetailModal.tsx
-#: src/pages/MarketOverview/index.tsx
-#: src/pages/MarketOverview/index.tsx
+#: src/pages/MarketOverview/TableHeader.tsx
+#: src/pages/MarketOverview/TableHeader.tsx
 msgid "On-chain Price"
 msgstr "链上价格"
 
@@ -8080,8 +8417,8 @@ msgstr "链上价格"
 #~ msgstr "若您接受该金额，请在下方输入“confirm” 一词以接受此新金额"
 
 #: src/components/SwapForm/index.tsx
-msgid "Our simulation detects that {0} has {1}% fee on transfer, please check further before buying."
-msgstr "模拟检测到 {0} 存在 {1}% 转账手续费，请谨慎交易"
+#~ msgid "Our simulation detects that {0} has {1}% fee on transfer, please check further before buying."
+#~ msgstr "模拟检测到 {0} 存在 {1}% 转账手续费，请谨慎交易"
 
 #: src/components/LimitOrder/TakeOrder/useTakeOrderValidation.tsx
 msgid "Insufficient {0} balance"
@@ -8231,7 +8568,7 @@ msgstr "已检测"
 msgid "Ethereum Address"
 msgstr "以太坊地址"
 
-#: src/pages/About/AboutKyberSwap/index.tsx
+#: src/pages/About/AboutKyberSwap.tsx
 msgid "Lowest possible slippage"
 msgstr "最低可用滑点"
 
@@ -8259,9 +8596,18 @@ msgstr ""
 msgid "Zap will include DEX aggregator to find the best price."
 msgstr "Zap 将集成 DEX 聚合器以获取最优价格"
 
+#: src/pages/Earns/components/VaultDeposit/ConfirmDeposit.tsx
+msgid "Depositing"
+msgstr ""
+
 #: src/pages/ElasticLegacy/FarmLegacy.tsx
 msgid "You still have <0>{numberOfPosition}</0> liquidity positions that you haven't withdrawn from the Elastic farms yet, please withdraw and remove your funds on Elastic as soon as possible."
 msgstr "您仍有 <0>{numberOfPosition}</0> 个 Elastic 农场中的流动性仓位未提取，请尽快移除资金"
+
+#: src/pages/Earns/hooks/useZapSwap.ts
+#: src/pages/Earns/hooks/useZapSwap.ts
+msgid "Could not find a route for this token."
+msgstr ""
 
 #: src/pages/Earns/components/SmartExit/Actions.tsx
 msgid "Loading position..."
@@ -8350,7 +8696,7 @@ msgstr ""
 msgid "On-Going Campaign"
 msgstr "进行中的活动"
 
-#: src/pages/About/AboutKyberSwap/index.tsx
+#: src/pages/About/AboutKyberSwap.tsx
 msgid "<0>Swap</0> Tokens at Superior Rates"
 msgstr "<0>以最优价格兑换</0>代币"
 
@@ -8392,8 +8738,8 @@ msgstr "选择交易路径"
 #: src/pages/MarketOverview/index.tsx
 #: src/pages/MarketOverview/index.tsx
 #: src/pages/MarketOverview/TableContent.tsx
-msgid "24H"
-msgstr "24 小时"
+#~ msgid "24H"
+#~ msgstr "24 小时"
 
 #: src/components/SwapForm/SwapModal/SwapDetails/UpdatedBadge.tsx
 msgid "We got you a higher amount. The initial output amount was {output}"
@@ -8473,6 +8819,10 @@ msgstr "第 {0} 周："
 msgid "Please review the details of your swap"
 msgstr "请确认您的兑换详情"
 
+#: src/components/TokenSelectorModal/TokenSelectorContent.tsx
+msgid "MCAP"
+msgstr ""
+
 #: src/components/Header/groups/KyberDaoGroup.tsx
 #: src/components/Menu/components/MainMenuSection.tsx
 #: src/pages/KyberDAO/KNCUtility/index.tsx
@@ -8550,9 +8900,13 @@ msgstr ""
 msgid "Connected successfully with Guest Profile."
 msgstr "已成功以访客配置文件连接"
 
+#: src/pages/Earns/SmartExitOrders/index.tsx
+msgid "<0>Received</0><1>amount</1>"
+msgstr ""
+
 #: src/pages/MarketOverview/DetailModal.tsx
-#: src/pages/MarketOverview/index.tsx
 #: src/pages/MarketOverview/TableContent.tsx
+#: src/pages/MarketOverview/TableHeader.tsx
 msgid "Sell Price"
 msgstr "卖出价格"
 
@@ -8696,6 +9050,10 @@ msgstr "点击 <0>Route Options</0> 并选择 <1>NEAR Intents</1>。"
 msgid "Tnx Hash"
 msgstr "交易哈希"
 
+#: src/pages/Earns/components/VaultWithdraw/WithdrawFields.tsx
+msgid "Your shares are sold on the market and settle in one transaction."
+msgstr ""
+
 #: src/pages/Campaign/components/Information/info/safepal.tsx
 msgid "Data on the campaign site may take up to 10 minutes to update after a transaction is made."
 msgstr ""
@@ -8736,8 +9094,8 @@ msgid "Finding the best route"
 msgstr ""
 
 #: src/pages/MarketOverview/DetailModal.tsx
-#: src/pages/MarketOverview/index.tsx
 #: src/pages/MarketOverview/TableContent.tsx
+#: src/pages/MarketOverview/TableHeader.tsx
 msgid "Buy Price"
 msgstr "买入价格"
 
@@ -8784,6 +9142,10 @@ msgstr ""
 msgid "Buy"
 msgstr "买入"
 
+#: src/pages/Earns/components/VaultDeposit/ConfirmDeposit.tsx
+msgid "Confirm Deposit"
+msgstr ""
+
 #: src/pages/Earns/UserPositions/PositionBanner.tsx
 #: src/pages/Earns/UserPositions/PositionBanner.tsx
 #: src/pages/Earns/UserPositions/PositionBanner.tsx
@@ -8806,8 +9168,13 @@ msgid "Note that adding the RPC endpoint automatically is only available via the
 msgstr "注意：自动添加 RPC 仅支持 MetaMask，其他钱包需手动配置"
 
 #: src/components/WalletPopup/Transactions/Status.tsx
+#: src/pages/Earns/VaultDetail/WithdrawRequestList.tsx
 msgid "Completed"
 msgstr "已完成"
+
+#: src/pages/KyberDAO/StakeKNC/YourTransactionsModal.tsx
+msgid "You have no Transaction History"
+msgstr ""
 
 #: src/pages/ProAmmPool/index.tsx
 msgid "Subscribe to receive emails on your Elastic liquidity positions across all chains. Whenever a position goes<0>out-of-range</0> or comes back <1>in-range</1>, you will receive an email."
@@ -8838,7 +9205,7 @@ msgstr ""
 msgid "Fill Order"
 msgstr ""
 
-#: src/pages/About/AboutKyberSwap/index.tsx
+#: src/pages/About/AboutKyberSwap.tsx
 msgid "ABOUT KNC"
 msgstr "关于 KNC"
 
@@ -8854,7 +9221,7 @@ msgstr "冷却期：<0>{0}</0>"
 msgid "Claming {amount} KNC"
 msgstr "领取 {amount} KNC"
 
-#: src/pages/MarketOverview/index.tsx
+#: src/pages/MarketOverview/Filter.tsx
 msgid "Search by token name, symbol or address"
 msgstr "按代币名称、符号或地址搜索"
 
@@ -8888,6 +9255,11 @@ msgstr ""
 
 #: src/pages/Campaign/components/Information/info/safepal.tsx
 msgid "Yes, the wallet is free, and participants only need to pay the shipping fee, which varies by location."
+msgstr ""
+
+#: src/pages/Earns/components/VaultWithdraw/VaultWithdrawModal.tsx
+#: src/pages/Earns/VaultDetail/WithdrawTab.tsx
+msgid "{nativeAssetSymbol} cannot be withdrawn from this vault."
 msgstr ""
 
 #: src/components/Announcement/Popups/DetailAnnouncementPopup.tsx
@@ -8950,7 +9322,7 @@ msgstr ""
 msgid "If your wallet is eligible, you will be able to request for some {tokenSymbol} tokens for free below. Each wallet can only request for the tokens once. You can claim:"
 msgstr "若钱包符合条件，可在下方免费领取 {tokenSymbol}，每个钱包仅限一次"
 
-#: src/pages/About/AboutKyberSwap/index.tsx
+#: src/pages/About/AboutKyberSwap.tsx
 msgid "Save time & effort"
 msgstr "节省时间与精力"
 
@@ -8998,6 +9370,11 @@ msgstr "已过期订单"
 #: src/pages/Earns/UserPositions/PositionRowItem.tsx
 msgid "Value is updating"
 msgstr "数值更新中"
+
+#: src/pages/Earns/components/VaultWithdraw/VaultWithdrawModal.tsx
+#: src/pages/Earns/VaultDetail/WithdrawTab.tsx
+msgid "Approve {shareSymbol}"
+msgstr ""
 
 #: src/hooks/usePermitNft.ts
 msgid "NFT Permit Error"
@@ -9374,6 +9751,7 @@ msgstr ""
 
 #: src/components/LimitOrder/MyOrders/TableHeader.tsx
 #: src/pages/CrossChainSwap/components/TransactionHistory.tsx
+#: src/pages/Earns/MyVaults/index.tsx
 #: src/pages/Earns/SmartExitOrders/index.tsx
 msgid "Status"
 msgstr ""
@@ -9567,6 +9945,10 @@ msgstr "KyberSwap Elastic 漏洞国库资助计划（“计划”）将支持在
 msgid "Attention Item"
 msgstr "注意事项"
 
+#: src/components/TokenSelectorModal/TokenSelectorContent.tsx
+msgid "Sort by 24h volume"
+msgstr ""
+
 #: src/components/Header/web3/SignWallet/ConfirmModal.tsx
 #~ msgid "Since you have chosen to keep your current profile connected, we will keep it active whenever you switch wallets. If you ever wish to modify this setting, you can do so in your <0>user profile</0>."
 #~ msgstr "由于您选择保留当前配置文件，在切换钱包时该配置将持续生效，可在 <0>用户配置</0> 中修改"
@@ -9583,8 +9965,16 @@ msgstr "区间内"
 msgid "Earning per <0>Active TVL <1/></0>"
 msgstr ""
 
+#: src/components/TokenSelectorModal/TokenSelectorContent.tsx
+msgid "24h VOL"
+msgstr ""
+
 #: src/pages/Earns/components/SmartExit/Confirmation/Success.tsx
 msgid "Your Smart Exit condition has been created successfully."
+msgstr ""
+
+#: src/components/TokenSelectorModal/TokenSelectorContent.tsx
+msgid "VOL"
 msgstr ""
 
 #: src/pages/ElasticLegacy/FarmLegacy.tsx
@@ -9613,7 +10003,7 @@ msgstr "推荐"
 msgid "There was an issue while trying to confirm your price. Please try to swap again."
 msgstr "确认价格时出现问题，请重新尝试兑换"
 
-#: src/pages/About/AboutKyberSwap/index.tsx
+#: src/pages/About/AboutKyberSwap.tsx
 msgid "FOR TRADERS"
 msgstr "面向交易者"
 
@@ -9656,6 +10046,7 @@ msgid "Imported Guest"
 msgstr "已导入访客"
 
 #: src/components/LimitOrder/MyOrders/utils.ts
+#: src/pages/Earns/VaultDetail/WithdrawRequestList.tsx
 msgid "Cancelled"
 msgstr ""
 
@@ -9668,6 +10059,7 @@ msgid "You have to stake KNC to be able to vote and earn voting reward."
 msgstr "您需质押 KNC 才能投票并获得投票奖励"
 
 #: src/pages/CrossChainSwap/components/QuoteSteps.tsx
+#: src/pages/Earns/VaultDetail/ZapRouteStrip.tsx
 msgid "Swap via"
 msgstr ""
 
@@ -9682,6 +10074,11 @@ msgstr "余额不足，无法完成交易"
 #: src/pages/NotificationCenter/Profile/ImportAccountModal/index.tsx
 msgid "Import Profile"
 msgstr "导入配置文件"
+
+#: src/pages/Earns/components/VaultWithdraw/VaultWithdrawModal.tsx
+#: src/pages/Earns/VaultDetail/WithdrawTab.tsx
+msgid "Amount below the queue minimum"
+msgstr ""
 
 #: src/components/WalletPopup/Transactions/index.tsx
 msgid "Are you sure you want to clear all pending transactions? This will remove them from your list but will not affect their status on-chain."
@@ -9714,6 +10111,11 @@ msgstr "在 kyberswap.com 点击 <0>Join Now</0> 参与。"
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 msgid "Price impact is too high"
 msgstr "价格影响过高"
+
+#: src/pages/Earns/components/VaultWithdraw/ConfirmWithdraw.tsx
+#: src/pages/Earns/components/VaultWithdraw/WithdrawFields.tsx
+msgid "How long the vault's withdrawal queue waits before a solver can fill your request."
+msgstr ""
 
 #: src/pages/Earns/PositionDetail/AnalyticTab.tsx
 #: src/pages/Earns/PositionDetail/AnalyticTab.tsx
@@ -9789,8 +10191,8 @@ msgid "How can I be eligible to the Referral Program?"
 msgstr "我如何获得推荐计划的参与资格？"
 
 #: src/pages/MarketOverview/DetailModal.tsx
-#: src/pages/MarketOverview/index.tsx
 #: src/pages/MarketOverview/TableContent.tsx
+#: src/pages/MarketOverview/TableHeader.tsx
 msgid "24h Volume"
 msgstr "24 小时成交量"
 
@@ -9827,11 +10229,18 @@ msgstr "由 {clientId} 收取的兑换手续费"
 msgid "In order to join the Referral Program, users can generate their own referral link and share it with other users to be eligible to the referrer reward. Referrers get 10% of their referee ARB allocation. Referees will get a 5% bonus based on their initial ARB allocation for the week once they have been referred by other users. Note that only trades made on <0>KyberSwap.com</0> are eligible, trades on other platforms are not eligible for this Referral Program."
 msgstr "要加入推荐计划，用户可以生成自己的推荐链接并分享给他人，以获得推荐人奖励。推荐人可获得被推荐人 ARB 分配的 10%；被推荐人在某周被他人推荐后，可基于当周初始 ARB 分配再获得 5% 奖金。请注意，只有在 <0>KyberSwap.com</0> 上完成的交易才符合此推荐计划的资格，其他平台的交易不在范围内。"
 
+#: src/pages/Earns/components/VaultWithdraw/WithdrawFields.tsx
+msgid "Withdraw to any token"
+msgstr ""
+
 #: src/components/SwapForm/SlippageSetting.tsx
 #: src/components/SwapForm/SwapModal/SwapDetails/index.tsx
 #: src/components/TransactionSettings/SlippageSetting.tsx
 #: src/pages/CrossChainSwap/components/QuoteSteps.tsx
 #: src/pages/CrossChainSwap/components/Summary.tsx
+#: src/pages/Earns/components/VaultDeposit/ConfirmDeposit.tsx
+#: src/pages/Earns/components/VaultDeposit/SlippageSelect.tsx
+#: src/pages/Earns/components/VaultWithdraw/ConfirmWithdraw.tsx
 #: src/pages/RemoveLiquidityProAmm/index.tsx
 msgid "Max Slippage"
 msgstr "最大滑点"
@@ -9919,6 +10328,7 @@ msgid "Grant Plan: USD stablecoins equivalent of {0} of Reference Value of Affec
 msgstr "资助方案：按受影响资产参考价值 {0} 的等值美元稳定币，分 {1} 个月线性归属。"
 
 #: src/components/LimitOrder/MyOrders/TableHeader.tsx
+#: src/pages/MarketOverview/Filter.tsx
 msgid "Chain"
 msgstr ""
 
@@ -9980,6 +10390,10 @@ msgstr "使用包装代币"
 msgid "Top 100 highest TVL Pools consisting of stable coins or correlated pairs"
 msgstr "TVL 最高的前 100 个稳定币或相关交易对池"
 
+#: src/pages/Earns/SmartExitOrders/index.tsx
+msgid "<0>Est. liquidity &</0><1>earned fee</1>"
+msgstr ""
+
 #: src/components/LimitOrder/MyOrders/utils.ts
 msgid "Cancelling"
 msgstr ""
@@ -10014,6 +10428,10 @@ msgstr "推荐码"
 #: src/pages/Earns/UserPositions/index.tsx
 msgid "Claim your claimable farming rewards from a position."
 msgstr "从仓位中领取可领取的农场奖励"
+
+#: src/pages/Earns/VaultDetail/index.tsx
+msgid "Your balance: {amount} {symbol}"
+msgstr ""
 
 #: src/pages/PoolFinder/index.tsx
 msgid "Loading"
@@ -10074,7 +10492,7 @@ msgstr ""
 #: src/components/LimitOrder/ProcessingOrder/ProcessingOrderModal.tsx
 #: src/components/TransactionConfirmationModal/index.tsx
 #: src/pages/Campaign/components/RaffleRewardModal.tsx
-#: src/pages/Earns/UserPositions/PositionBanner.tsx
+#: src/pages/Earns/components/VaultDeposit/ConfirmDeposit.tsx
 #: src/pages/ElasticSnapshot/components/ChooseGrantModal.tsx
 msgid "Close"
 msgstr "关闭"
@@ -10090,6 +10508,10 @@ msgstr ""
 #: src/pages/Campaign/components/Information/info/raffle.tsx
 msgid "Hash 2 difference: |5555 - 6B5E| = 0x1609 = 5,641 (decimal)"
 msgstr "哈希 2 差值：|5555 - 6B5E| = 0x1609 = 5,641（十进制）"
+
+#: src/pages/Earns/VaultDetail/DepositTab.tsx
+#~ msgid "Est. gas fee"
+#~ msgstr ""
 
 #: src/pages/NotificationCenter/NotificationPreference/index.tsx
 msgid "Your notification preferences have been saved successfully"
@@ -10119,7 +10541,7 @@ msgstr "发现池子！"
 msgid "You dont have Voting power"
 msgstr "您没有投票权"
 
-#: src/pages/About/AboutKyberSwap/index.tsx
+#: src/pages/About/AboutKyberSwap.tsx
 msgid "KNC is a utility and governance token, and an integral part of Kyber Network and its flagship product KyberSwap. It is the glue that connects different stakeholders in Kyber's ecosystem."
 msgstr "KNC 是 Kyber Network 及其旗舰产品 KyberSwap 的实用与治理代币，是连接 Kyber 生态各方的重要纽带。"
 
@@ -10146,14 +10568,18 @@ msgid "Filled"
 msgstr "已成交"
 
 #: src/pages/About/AboutKNC.tsx
-#: src/pages/About/AboutKyberSwap/index.tsx
-#: src/pages/About/AboutKyberSwap/index.tsx
-#: src/pages/About/KyberSwapGeneralIntro.tsx
+#: src/pages/About/AboutKyberSwap.tsx
+#: src/pages/About/AboutKyberSwap.tsx
+#: src/pages/About/AboutKyberSwap.tsx
 msgid "Swap Now"
 msgstr "立即兑换"
 
 #: src/components/TokenPriceChart/index.tsx
 msgid "Learn more about KyberSwap Settlement Prices"
+msgstr ""
+
+#: src/components/TokenSelectorModal/TokenSelectorContent.tsx
+msgid "Show market cap"
 msgstr ""
 
 #: src/pages/RemoveLiquidity/index.tsx
