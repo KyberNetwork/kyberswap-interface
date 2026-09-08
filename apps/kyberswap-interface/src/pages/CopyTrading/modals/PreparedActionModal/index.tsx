@@ -144,6 +144,7 @@ type RecoveryViewModel = {
   retryLabel: string
   showBackAction: boolean
   title?: string
+  text?: string
 }
 
 const getRecoveryViewModel = (
@@ -161,8 +162,18 @@ const getRecoveryViewModel = (
       return { retryLabel: 'Try again', showBackAction: true }
     case 'sync_error':
       return state.retryStage === 'receipt'
-        ? { retryLabel: 'Check confirmation', showBackAction: false, title: 'Transaction submitted' }
-        : { retryLabel: 'Refresh status', showBackAction: false, title: 'Transaction confirmed' }
+        ? {
+            retryLabel: 'Check confirmation',
+            showBackAction: false,
+            title: 'Transaction submitted',
+            text: 'We could not confirm your transaction yet. Check its confirmation status to continue.',
+          }
+        : {
+            retryLabel: 'Refresh status',
+            showBackAction: false,
+            title: 'Transaction confirmed',
+            text: 'Your transaction was successful. Data is still updating, so refresh status to check again shortly.',
+          }
     default:
       return undefined
   }
@@ -196,7 +207,7 @@ const PreparedActionModal = ({
   const recovery = getRecoveryViewModel(state, unavailableShowBackAction)
   const reviewPreparing = state.phase === 'review' && state.isPreparing === true
   const interactionLocked = confirmLoading || reviewPreparing
-  const recoveryError = state.error ? friendlyError(state.error) : undefined
+  const recoveryError = recovery?.text ?? (state.error ? friendlyError(state.error) : undefined)
   const hasErrorDetail = state.phase === 'error' && !!state.error && recoveryError !== state.error
   const showErrorDetail = hasErrorDetail && expandedError === state.error
   return (
@@ -286,13 +297,10 @@ const PreparedActionModal = ({
 
           {recovery && (
             <Stack className="items-center gap-4 text-center">
-              {state.phase === 'pending' ? (
+              {state.phase === 'pending' || state.phase === 'sync_error' ? (
                 <Clock size={44} className="text-warning" />
               ) : (
-                <AlertCircle
-                  size={44}
-                  className={cn(state.phase === 'sync_error' ? 'text-warning' : 'fill-red text-red')}
-                />
+                <AlertCircle size={44} className="fill-red text-red" />
               )}
               <Stack className="w-full items-center gap-1">
                 {state.phase === 'error' ? (
