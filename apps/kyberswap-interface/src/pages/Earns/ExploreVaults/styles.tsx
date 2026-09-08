@@ -23,6 +23,11 @@ export const FilterControls = ({ className, ...rest }: HTMLAttributes<HTMLDivEle
   <div className={cn('flex flex-wrap items-center gap-3 max-sm:w-full', className)} {...rest} />
 )
 
+/** Search sits at the end of the filter row with the layout toggle to its right. */
+export const SearchGroup = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('flex items-center gap-3 max-sm:w-full', className)} {...rest} />
+)
+
 export const SortByLabel = ({ className, ...rest }: HTMLAttributes<HTMLSpanElement>) => (
   <span className={cn('whitespace-nowrap text-sm text-subText', className)} {...rest} />
 )

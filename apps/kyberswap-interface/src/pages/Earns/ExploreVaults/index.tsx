@@ -32,6 +32,7 @@ import {
   MetricLabel,
   MetricRow,
   ProtocolTag,
+  SearchGroup,
   SortByGroup,
   SortByLabel,
   TokenIconWrapper,
@@ -425,6 +426,15 @@ const ExploreVaults = () => {
               onChange={value => setSortBy(value as VaultSortBy)}
             />
           </SortByGroup>
+        </FilterControls>
+
+        <SearchGroup>
+          <Search
+            placeholder={t`Search by token or vaults`}
+            searchValue={search}
+            onSearch={setSearch}
+            style={{ height: '36px', width: upToSmall ? '100%' : '400px' }}
+          />
 
           <ViewToggleGroup role="group" aria-label={t`Layout`}>
             <ViewToggleButton
@@ -446,14 +456,7 @@ const ExploreVaults = () => {
               <GridViewIcon />
             </ViewToggleButton>
           </ViewToggleGroup>
-        </FilterControls>
-
-        <Search
-          placeholder={t`Search by token or vaults`}
-          searchValue={search}
-          onSearch={setSearch}
-          style={{ height: '36px', width: upToSmall ? '100%' : '400px' }}
-        />
+        </SearchGroup>
       </FilterRow>
 
       {!isLoading && vaults.length === 0 ? (
