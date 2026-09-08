@@ -109,6 +109,10 @@ them unless product explicitly approves a UI change:
 
 ### Loading, cache, and failure behavior
 
+- Prepared-action sync recovery uses a waiting icon and explicit confirmation
+  copy instead of a generic transaction error. Post-receipt timeouts explain
+  that the transaction succeeded and offer Refresh status without resubmission;
+  unconfirmed receipts retain Transaction submitted and Check confirmation.
 - Wallet- and argument-sensitive reads use currentData so a previous wallet,
   Agent, Copy, or query argument is never rendered as the current entity.
 - Agent Profile and Copy Detail show one page-level LocalLoader during wallet
