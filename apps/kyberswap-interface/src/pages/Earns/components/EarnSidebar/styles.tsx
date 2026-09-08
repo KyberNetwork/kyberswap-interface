@@ -1,10 +1,8 @@
 import { HTMLMotionProps, motion } from 'framer-motion'
 import { ButtonHTMLAttributes, ElementType, HTMLAttributes } from 'react'
 
+import { SIDEBAR_WIDTH_COLLAPSED, SIDEBAR_WIDTH_EXPANDED } from 'pages/Earns/components/EarnLayout/constants'
 import { cn } from 'utils/cn'
-
-export const SIDEBAR_WIDTH_EXPANDED = 220
-export const SIDEBAR_WIDTH_COLLAPSED = 64
 
 type SidebarContainerProps = HTMLAttributes<HTMLElement> & {
   as?: ElementType

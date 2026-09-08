@@ -4,23 +4,14 @@ import { createPortal } from 'react-dom'
 import { Outlet, useLocation } from 'react-router-dom'
 import { useMedia } from 'react-use'
 
+import { EARN_SIDEBAR_COLLAPSED_KEY, readStoredSidebarCollapsed } from 'pages/Earns/components/EarnLayout/constants'
 import { EarnContentArea, EarnLayoutContainer } from 'pages/Earns/components/EarnLayout/styles'
 import EarnSidebar, { EarnBreadcrumbs } from 'pages/Earns/components/EarnSidebar'
 import { MobileDrawerOverlay, MobileDrawerPanel } from 'pages/Earns/components/EarnSidebar/styles'
 
-const EARN_SIDEBAR_COLLAPSED_KEY = 'earn-sidebar-collapsed'
-
-const readStoredCollapsed = (): boolean => {
-  try {
-    return window.localStorage.getItem(EARN_SIDEBAR_COLLAPSED_KEY) === 'true'
-  } catch {
-    return false
-  }
-}
-
 const EarnLayout = ({ children }: { children?: ReactNode }) => {
   const isMobile = useMedia('(max-width: 992px)')
-  const [collapsed, setCollapsed] = useState<boolean>(readStoredCollapsed)
+  const [collapsed, setCollapsed] = useState<boolean>(readStoredSidebarCollapsed)
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [mounted, setMounted] = useState(false)
   const { pathname } = useLocation()

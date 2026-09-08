@@ -10,6 +10,7 @@ import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { ApyBarChart, TvlLineChart } from 'pages/Earns/ExploreVaults/MiniCharts'
 import DepositTab from 'pages/Earns/VaultDetail/DepositTab'
+import VaultDetailPageSkeleton from 'pages/Earns/VaultDetail/PageSkeleton'
 import WithdrawTab from 'pages/Earns/VaultDetail/WithdrawTab'
 import ZapRouteStrip, { VaultRouteSummary } from 'pages/Earns/VaultDetail/ZapRouteStrip'
 import {
@@ -139,20 +140,7 @@ const VaultDetail = () => {
   }
 
   if (isDetailLoading || !detail || !vault) {
-    return (
-      <PageWrapper>
-        <HeaderRow>
-          <BackArrow
-            role="button"
-            tabIndex={0}
-            aria-label={t`Go back`}
-            onClick={handleBack}
-            onKeyDown={handleBackKey}
-          />
-          <HeaderTitle>{t`Loading...`}</HeaderTitle>
-        </HeaderRow>
-      </PageWrapper>
-    )
+    return <VaultDetailPageSkeleton />
   }
 
   return (
