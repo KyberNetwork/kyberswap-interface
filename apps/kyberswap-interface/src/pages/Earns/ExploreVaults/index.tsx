@@ -251,6 +251,9 @@ const ExploreVaultListItem = ({ vault, hasPosition, onDeposit }: VaultItemProps)
   )
 }
 
+/** Placeholder rows while the list loads — the API serves three vaults today. */
+const SKELETON_COUNT = 3
+
 const ExploreVaultListItemSkeleton = () => (
   <VaultListRow>
     <VaultListRowMain>
@@ -456,7 +459,7 @@ const ExploreVaults = () => {
           {effectiveViewMode === VaultViewMode.GRID ? (
             <VaultCardsGrid $stagger={view.stagger}>
               {isLoading
-                ? Array.from({ length: 6 }).map((_, i) => <ExploreVaultCardSkeleton key={i} />)
+                ? Array.from({ length: SKELETON_COUNT }).map((_, i) => <ExploreVaultCardSkeleton key={i} />)
                 : vaults.map(vault => (
                     <ExploreVaultCard
                       key={vault.id}
@@ -469,7 +472,7 @@ const ExploreVaults = () => {
           ) : (
             <VaultList $stagger={view.stagger}>
               {isLoading
-                ? Array.from({ length: 6 }).map((_, i) => <ExploreVaultListItemSkeleton key={i} />)
+                ? Array.from({ length: SKELETON_COUNT }).map((_, i) => <ExploreVaultListItemSkeleton key={i} />)
                 : vaults.map(vault => (
                     <ExploreVaultListItem
                       key={vault.id}
