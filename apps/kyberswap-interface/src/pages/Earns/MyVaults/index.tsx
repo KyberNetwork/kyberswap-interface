@@ -48,9 +48,9 @@ import { PositionAction as PositionActionBtn } from 'pages/Earns/PositionDetail/
 import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
 import VaultDepositModal from 'pages/Earns/components/VaultDeposit/VaultDepositModal'
 import VaultWithdrawModal from 'pages/Earns/components/VaultWithdraw/VaultWithdrawModal'
+import { VAULT_CHAIN_OPTIONS } from 'pages/Earns/constants/vaultFilters'
 import useCountdown from 'pages/Earns/hooks/useCountdown'
 import { useRefreshOnVaultTx } from 'pages/Earns/hooks/useRefreshOnVaultTx'
-import useVaultChainOptions from 'pages/Earns/hooks/useVaultChainOptions'
 import {
   buildVaultDetailPath,
   getWithdrawRequestMaturityAt,
@@ -265,7 +265,6 @@ const MyVaults = () => {
   const [search, setSearch] = useState('')
   const [selectedChain, setSelectedChain] = useState('')
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
-  const vaultChainOptions = useVaultChainOptions()
   const [depositVault, setDepositVault] = useState<UserVaultPosition | null>(null)
   const [withdrawVault, setWithdrawVault] = useState<UserVaultPosition | null>(null)
 
@@ -288,9 +287,9 @@ const MyVaults = () => {
   useRefreshOnVaultTx(refetch)
 
   const chainLabel = useMemo(() => {
-    const selected = vaultChainOptions.find(c => c.value === selectedChain)
-    return selected?.label || vaultChainOptions[0].label
-  }, [selectedChain, vaultChainOptions])
+    const selected = VAULT_CHAIN_OPTIONS.find(c => c.value === selectedChain)
+    return selected?.label || VAULT_CHAIN_OPTIONS[0].label
+  }, [selectedChain])
 
   const showEmptyState = !account || (!isLoading && filteredVaults.length === 0)
 
@@ -303,7 +302,7 @@ const MyVaults = () => {
           alignItems="flex-start"
           highlightOnSelect
           label={chainLabel}
-          options={vaultChainOptions}
+          options={VAULT_CHAIN_OPTIONS}
           value={selectedChain}
           onChange={value => setSelectedChain(value.toString())}
         />

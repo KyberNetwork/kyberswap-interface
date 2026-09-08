@@ -56,8 +56,7 @@ import {
 import { VaultInfo, VaultSortBy, VaultViewMode } from 'pages/Earns/ExploreVaults/types'
 import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
 import VaultDepositModal from 'pages/Earns/components/VaultDeposit/VaultDepositModal'
-import useVaultChainOptions from 'pages/Earns/hooks/useVaultChainOptions'
-import useVaultProtocolOptions from 'pages/Earns/hooks/useVaultProtocolOptions'
+import { VAULT_CHAIN_OPTIONS, VAULT_PROTOCOL_OPTIONS } from 'pages/Earns/constants/vaultFilters'
 import { buildVaultDetailPath, toVaultInfo } from 'pages/Earns/utils/vault'
 import { MEDIA_WIDTHS } from 'theme'
 import { cn } from 'utils/cn'
@@ -302,8 +301,6 @@ const ExploreVaultCardSkeleton = () => (
 
 const ExploreVaults = () => {
   const { account } = useActiveWeb3React()
-  const vaultChainOptions = useVaultChainOptions()
-  const vaultProtocolOptions = useVaultProtocolOptions()
   const [depositVault, setDepositVault] = useState<VaultInfo | null>(null)
   const [search, setSearch] = useState('')
   const [selectedChain, setSelectedChain] = useState('')
@@ -351,14 +348,14 @@ const ExploreVaults = () => {
   }, [positionsData?.positions])
 
   const chainLabel = useMemo(() => {
-    const selected = vaultChainOptions.find(c => c.value === selectedChain)
-    return selected?.label || vaultChainOptions[0].label
-  }, [selectedChain, vaultChainOptions])
+    const selected = VAULT_CHAIN_OPTIONS.find(c => c.value === selectedChain)
+    return selected?.label || VAULT_CHAIN_OPTIONS[0].label
+  }, [selectedChain])
 
   const protocolLabel = useMemo(() => {
-    const selected = vaultProtocolOptions.find(p => p.value === selectedProtocol)
-    return selected?.label || vaultProtocolOptions[0].label
-  }, [selectedProtocol, vaultProtocolOptions])
+    const selected = VAULT_PROTOCOL_OPTIONS.find(p => p.value === selectedProtocol)
+    return selected?.label || VAULT_PROTOCOL_OPTIONS[0].label
+  }, [selectedProtocol])
 
   const selectViewMode = useCallback((next: VaultViewMode) => {
     try {
@@ -391,7 +388,7 @@ const ExploreVaults = () => {
             alignItems="flex-start"
             highlightOnSelect
             label={chainLabel}
-            options={vaultChainOptions}
+            options={VAULT_CHAIN_OPTIONS}
             value={selectedChain}
             onChange={value => setSelectedChain(value.toString())}
           />
@@ -400,7 +397,7 @@ const ExploreVaults = () => {
             alignItems="flex-start"
             highlightOnSelect
             label={protocolLabel}
-            options={vaultProtocolOptions}
+            options={VAULT_PROTOCOL_OPTIONS}
             value={selectedProtocol}
             onChange={value => setSelectedProtocol(value.toString())}
           />

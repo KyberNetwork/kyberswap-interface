@@ -4750,8 +4750,8 @@ msgid "You must click \"Join Now\" first. Only eligible transactions made after 
 msgstr "You must click \"Join Now\" first. Only eligible transactions made after you click \"Join Now\" will be counted."
 
 #: src/pages/Earns/hooks/useVaultChainOptions.ts
-msgid "All Networks"
-msgstr "All Networks"
+#~ msgid "All Networks"
+#~ msgstr "All Networks"
 
 #: src/components/ClassicElasticTab.tsx
 #: src/components/ClassicElasticTab.tsx
@@ -6260,7 +6260,6 @@ msgstr "Select Wallet"
 msgid "Receive token"
 msgstr "Receive token"
 
-#: src/pages/Earns/hooks/useVaultProtocolOptions.ts
 #: src/pages/Earns/PoolExplorer/Filter.tsx
 msgid "All Protocols"
 msgstr "All Protocols"
