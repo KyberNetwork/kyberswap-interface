@@ -20,7 +20,8 @@ import { chainIdToChain, NATIVE_TOKEN_ADDRESS, NetworkInfo } from "@/constants";
 import { ZapRouteDetail, Type, PancakeTokenAdvanced } from "@/types/zapInTypes";
 import { fetchTokenPrice } from "@kyber/utils";
 
-export const ZAP_URL = "https://zap-api.kyberswap.com";
+// export const ZAP_URL = "https://zap-api.kyberswap.com";
+export const ZAP_URL = "https://pre-zap-api.kyberengineering.io";
 
 const ERROR_MESSAGE = {
   WRONG_NETWORK: "Wrong network",
@@ -68,26 +69,26 @@ const ZapContext = createContext<{
   tickUpper: null,
   tokensIn: [],
   amountsIn: "",
-  setAmountsIn: () => {},
-  toggleRevertPrice: () => {},
-  setTick: () => {},
+  setAmountsIn: () => { },
+  toggleRevertPrice: () => { },
+  setTick: () => { },
   error: "",
   zapInfo: null,
   loading: false,
   priceLower: null,
   priceUpper: null,
   slippage: 10,
-  setSlippage: () => {},
+  setSlippage: () => { },
   ttl: 20, // 20min
-  setTtl: () => {},
-  toggleSetting: () => {},
-  setShowSeting: () => {},
+  setTtl: () => { },
+  toggleSetting: () => { },
+  setShowSeting: () => { },
   showSetting: false,
   degenMode: false,
-  setDegenMode: () => {},
+  setDegenMode: () => { },
   marketPrice: undefined,
   source: "",
-  getZapRoute: () => {},
+  getZapRoute: () => { },
 });
 
 export const ZapContextProvider = ({
