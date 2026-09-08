@@ -1689,6 +1689,7 @@ msgstr "These Terms and Conditions <0>(\"Terms\")</0> should be read in conjunct
 #~ msgstr "Your current allowance is insufficient. Approve an additional {0} {1} to proceed."
 
 #: src/pages/Earns/components/VaultWithdraw/ConfirmWithdraw.tsx
+#: src/pages/Earns/components/VaultWithdraw/WithdrawFields.tsx
 #: src/pages/Earns/VaultDetail/WithdrawRequestList.tsx
 msgid "You receive"
 msgstr "You receive"
@@ -1979,7 +1980,6 @@ msgid "Open Limit Orders"
 msgstr "Open Limit Orders"
 
 #: src/components/LimitOrder/components.tsx
-#: src/components/LimitOrder/Form/LimitOrderForm.tsx
 msgid "Market Price"
 msgstr "Market Price"
 
@@ -2070,8 +2070,8 @@ msgid "(ii) holds a licence issued by MAS for the provision of, or is authorised
 msgstr "(ii) holds a licence issued by MAS for the provision of, or is authorised by MAS to provide, any service relating to tokens (whether digital payment tokens under the Payment Services Act of Singapore or digital tokens under the Financial Markets Services Act of Singapore)."
 
 #: src/components/LimitOrder/Form/LimitOrderRateSection.tsx
-msgid "Sell {symbol} at rate"
-msgstr "Sell {symbol} at rate"
+#~ msgid "Sell {symbol} at rate"
+#~ msgstr "Sell {symbol} at rate"
 
 #: src/pages/Earns/PoolExplorer/TableHeader.tsx
 #: src/pages/Earns/UserPositions/MigrationModal.tsx
@@ -4575,6 +4575,8 @@ msgstr "New contents are available."
 msgid "<0>Notice</0>: Some of your {symbol} is already reserved by an open Limit Order - review it <1>here</1>."
 msgstr "<0>Notice</0>: Some of your {symbol} is already reserved by an open Limit Order - review it <1>here</1>."
 
+#: src/pages/Earns/components/VaultWithdraw/ConfirmWithdraw.tsx
+#: src/pages/Earns/components/VaultWithdraw/WithdrawFields.tsx
 #: src/pages/Earns/MyVaults/index.tsx
 #: src/pages/Earns/VaultDetail/WithdrawRequestList.tsx
 msgid "Ready in"
@@ -4653,8 +4655,8 @@ msgstr "Approve Error"
 #~ msgstr "empty"
 
 #: src/components/LimitOrder/Form/LimitOrderRateSection.tsx
-msgid "Buy {symbol} at rate"
-msgstr "Buy {symbol} at rate"
+#~ msgid "Buy {symbol} at rate"
+#~ msgstr "Buy {symbol} at rate"
 
 #: src/components/LiveChart/index.tsx
 #~ msgid "Exchange rate is always 1 to 1."
@@ -4707,6 +4709,7 @@ msgid "POSITION LIQUIDITY (USD)"
 msgstr "POSITION LIQUIDITY (USD)"
 
 #: src/pages/Earns/components/VaultWithdraw/ConfirmWithdraw.tsx
+#: src/pages/Earns/components/VaultWithdraw/WithdrawFields.tsx
 msgid "Quoted by the vault's withdrawal queue and locked into the request when you submit it."
 msgstr "Quoted by the vault's withdrawal queue and locked into the request when you submit it."
 
@@ -7222,6 +7225,7 @@ msgstr "reverted {increasedFilledPercent}"
 msgid "Trigger time must be in the future. Adjust the time settings accordingly."
 msgstr "Trigger time must be in the future. Adjust the time settings accordingly."
 
+#: src/components/LimitOrder/Form/LimitOrderRateSection.tsx
 #: src/components/LimitOrder/MyOrders/TableHeader.tsx
 #: src/components/LimitOrder/OrderBook/TableHeader.tsx
 #: src/components/SwapForm/TradeSummary.tsx
@@ -8279,8 +8283,8 @@ msgstr "Order Cancel Failed"
 
 #: src/pages/Earns/components/VaultWithdraw/ConfirmWithdraw.tsx
 #: src/pages/Earns/components/VaultWithdraw/WithdrawFields.tsx
-msgid "Processing Time"
-msgstr "Processing Time"
+#~ msgid "Processing Time"
+#~ msgstr "Processing Time"
 
 #: src/components/TransactionSettings/index.tsx
 #: src/pages/Swap/layout/HeaderRightMenu.tsx

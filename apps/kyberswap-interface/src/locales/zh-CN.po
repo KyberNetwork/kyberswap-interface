@@ -1689,6 +1689,7 @@ msgstr "这些条款与细则 <0>(“条款”)</0> 应与 KyberSwap 使用条�
 #~ msgstr "当前授权额度不足，请额外授权 {0} {1}"
 
 #: src/pages/Earns/components/VaultWithdraw/ConfirmWithdraw.tsx
+#: src/pages/Earns/components/VaultWithdraw/WithdrawFields.tsx
 #: src/pages/Earns/VaultDetail/WithdrawRequestList.tsx
 msgid "You receive"
 msgstr ""
@@ -1979,7 +1980,6 @@ msgid "Open Limit Orders"
 msgstr "开放的限价单"
 
 #: src/components/LimitOrder/components.tsx
-#: src/components/LimitOrder/Form/LimitOrderForm.tsx
 msgid "Market Price"
 msgstr ""
 
@@ -2070,8 +2070,8 @@ msgid "(ii) holds a licence issued by MAS for the provision of, or is authorised
 msgstr "（ii）持有或获 MAS 授权提供代币相关服务"
 
 #: src/components/LimitOrder/Form/LimitOrderRateSection.tsx
-msgid "Sell {symbol} at rate"
-msgstr "按汇率卖出 {symbol}"
+#~ msgid "Sell {symbol} at rate"
+#~ msgstr "按汇率卖出 {symbol}"
 
 #: src/pages/Earns/PoolExplorer/TableHeader.tsx
 #: src/pages/Earns/UserPositions/MigrationModal.tsx
@@ -4575,6 +4575,8 @@ msgstr "有新内容可用"
 msgid "<0>Notice</0>: Some of your {symbol} is already reserved by an open Limit Order - review it <1>here</1>."
 msgstr ""
 
+#: src/pages/Earns/components/VaultWithdraw/ConfirmWithdraw.tsx
+#: src/pages/Earns/components/VaultWithdraw/WithdrawFields.tsx
 #: src/pages/Earns/MyVaults/index.tsx
 #: src/pages/Earns/VaultDetail/WithdrawRequestList.tsx
 msgid "Ready in"
@@ -4653,8 +4655,8 @@ msgstr "授权错误"
 #~ msgstr "空"
 
 #: src/components/LimitOrder/Form/LimitOrderRateSection.tsx
-msgid "Buy {symbol} at rate"
-msgstr "以该价格买入 {symbol}"
+#~ msgid "Buy {symbol} at rate"
+#~ msgstr "以该价格买入 {symbol}"
 
 #: src/components/LiveChart/index.tsx
 #~ msgid "Exchange rate is always 1 to 1."
@@ -4707,6 +4709,7 @@ msgid "POSITION LIQUIDITY (USD)"
 msgstr "仓位流动性（美元）"
 
 #: src/pages/Earns/components/VaultWithdraw/ConfirmWithdraw.tsx
+#: src/pages/Earns/components/VaultWithdraw/WithdrawFields.tsx
 msgid "Quoted by the vault's withdrawal queue and locked into the request when you submit it."
 msgstr ""
 
@@ -7222,6 +7225,7 @@ msgstr "已回滚 {increasedFilledPercent}"
 msgid "Trigger time must be in the future. Adjust the time settings accordingly."
 msgstr ""
 
+#: src/components/LimitOrder/Form/LimitOrderRateSection.tsx
 #: src/components/LimitOrder/MyOrders/TableHeader.tsx
 #: src/components/LimitOrder/OrderBook/TableHeader.tsx
 #: src/components/SwapForm/TradeSummary.tsx
@@ -8279,8 +8283,8 @@ msgstr "取消订单失败"
 
 #: src/pages/Earns/components/VaultWithdraw/ConfirmWithdraw.tsx
 #: src/pages/Earns/components/VaultWithdraw/WithdrawFields.tsx
-msgid "Processing Time"
-msgstr ""
+#~ msgid "Processing Time"
+#~ msgstr ""
 
 #: src/components/TransactionSettings/index.tsx
 #: src/pages/Swap/layout/HeaderRightMenu.tsx

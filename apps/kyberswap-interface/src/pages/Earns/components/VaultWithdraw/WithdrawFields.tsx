@@ -173,8 +173,16 @@ const WithdrawFields = ({ vault, form }: { vault: VaultApiDetailItem; form: With
       <InfoList>
         <InfoRow>
           <InfoLabel
-            tooltip={t`The least you will receive if the price moves against you by the full slippage tolerance.`}
-          >{t`Est. Min Received`}</InfoLabel>
+            tooltip={
+              form.isNative
+                ? t`Quoted by the vault's withdrawal queue and locked into the request when you submit it.`
+                : t`The least you will receive if the price moves against you by the full slippage tolerance.`
+            }
+          >
+            {/* The queue prices the redemption exactly and freezes it into the request, so there is
+                no slippage floor to describe on that path — only the aggregator route has one. */}
+            {form.isNative ? t`You receive` : t`Est. Min Received`}
+          </InfoLabel>
           <InfoValue>
             {form.isNative ? (
               form.isLoadingPreview && !nativeOut ? (
@@ -194,7 +202,7 @@ const WithdrawFields = ({ vault, form }: { vault: VaultApiDetailItem; form: With
           <InfoRow>
             <InfoLabel
               tooltip={t`How long the vault's withdrawal queue waits before a solver can fill your request.`}
-            >{t`Processing Time`}</InfoLabel>
+            >{t`Ready in`}</InfoLabel>
             <InfoValue>{form.queueConfig ? formatDuration(form.queueConfig.secondsToMaturity) : '--'}</InfoValue>
           </InfoRow>
         ) : (

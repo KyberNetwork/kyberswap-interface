@@ -119,7 +119,7 @@ const ConfirmWithdraw = ({
             <InfoRow>
               <InfoLabel
                 tooltip={t`How long the vault's withdrawal queue waits before a solver can fill your request.`}
-              >{t`Processing Time`}</InfoLabel>
+              >{t`Ready in`}</InfoLabel>
               <InfoValue>{form.queueConfig ? formatDuration(form.queueConfig.secondsToMaturity) : '--'}</InfoValue>
             </InfoRow>
           </>
