@@ -902,6 +902,16 @@
     }
   }
 
+  /* 1px gradient ring drawn on ::before: the padding box is masked out so only the border shows.
+     The four declarations must stay in one rule and in this order — the `mask` shorthand resets
+     `mask-composite`, so a composite declared before it is thrown away. */
+  .ks-gradient-ring::before {
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+  }
+
   /* Earns Landing — BorderWrapper spin & RewardsNavigateButton border angle. */
   @keyframes ks-earn-spin {
     from {

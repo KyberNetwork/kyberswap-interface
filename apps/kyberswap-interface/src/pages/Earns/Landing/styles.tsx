@@ -99,11 +99,15 @@ export const SectionContainer = ({ accentColor, className, style, ...rest }: Sec
       className={cn(
         'relative overflow-hidden rounded-[20px] bg-clip-padding p-px transition-transform duration-200',
         "before:pointer-events-none before:absolute before:inset-0 before:z-0 before:rounded-[20px] before:p-px before:content-['']",
-        'before:[--border-angle:0deg] before:[background:var(--ks-section-border)]',
-        'before:[-webkit-mask-composite:xor] before:[-webkit-mask:linear-gradient(#fff_0_0)_content-box,linear-gradient(#fff_0_0)]',
-        'before:[mask-composite:exclude] before:[mask:linear-gradient(#fff_0_0)_content-box,linear-gradient(#fff_0_0)]',
-        'hover:-translate-y-0.5',
-        'hover:before:[animation:ks-earn-border-rotate_3s_linear_infinite] hover:before:[background:var(--ks-section-border-hover)]',
+        'before:[background:var(--ks-section-border)]',
+        // Confines the gradient above to the 1px ring; see `.ks-gradient-ring` in tailwind.css.
+        'ks-gradient-ring',
+        // The rotating border runs here rather than on ::before: --ks-section-border-hover is
+        // declared on this element, so its `from var(--border-angle)` is substituted against this
+        // element's angle. Animating the pseudo-element's own copy would leave the gradient frozen.
+        '[--border-angle:0deg] motion-reduce:!animate-none',
+        'hover:-translate-y-0.5 hover:[animation:ks-earn-border-rotate_3s_linear_infinite]',
+        'hover:before:[background:var(--ks-section-border-hover)]',
         // Full-bleed on the smallest screens: card chrome is dropped and the section
         // spans the content area's horizontal padding.
         'max-xs:-mx-4 max-xs:rounded-none max-xs:bg-none max-xs:p-0',
