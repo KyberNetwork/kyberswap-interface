@@ -1,4 +1,5 @@
 import { type HTMLAttributes } from 'react'
+import { Upload } from 'react-feather'
 import type { CopyRunListItem } from 'services/copyTrading/types/copyRuns'
 import type { CopyRunSortBy, SortOrder } from 'services/copyTrading/types/primitives'
 
@@ -19,6 +20,7 @@ import {
 import { CopyRunAgentCell } from 'pages/CopyTrading/components/common/agentIdentity'
 import { copyTradingStatIconMap } from 'pages/CopyTrading/constants'
 import { formatCount, formatUsd, getSignedMetricClassName, signedPercent, signedUsd } from 'pages/CopyTrading/helpers'
+import { useCopyTradingModal } from 'pages/CopyTrading/modals/context'
 import { cn } from 'utils/cn'
 import { formatDateTime } from 'utils/time'
 
@@ -37,6 +39,30 @@ const ClosedSubscriptionsGrid = ({ header, className, ...props }: ClosedSubscrip
       )}
       {...props}
     />
+  )
+}
+
+const HistoryCurrentBalance = ({ copyRun }: { copyRun: CopyRunListItem }) => {
+  const { openWithdraw } = useCopyTradingModal()
+  const balance = Number(copyRun.currentBalanceUsd)
+  return (
+    <span className="inline-flex items-center gap-2 whitespace-nowrap">
+      {formatUsd(copyRun.currentBalanceUsd)}
+      {Number.isFinite(balance) && balance > 0 && (
+        <button
+          type="button"
+          aria-label="Withdraw"
+          title="Withdraw"
+          className="relative z-[2] inline-flex shrink-0 items-center justify-center rounded p-1 text-red transition-colors hover:bg-red/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red"
+          onClick={event => {
+            event.stopPropagation()
+            openWithdraw(copyRun)
+          }}
+        >
+          <Upload size={20} strokeWidth={1.5} />
+        </button>
+      )}
+    </span>
   )
 }
 
@@ -62,9 +88,33 @@ const ClosedSubscriptionsTable = ({
       <ScrollArea className="relative hidden max-h-[480px] lg:block">
         <ClosedSubscriptionsGrid header className="sticky top-0 z-[1]">
           <HeaderCell>Agent</HeaderCell>
-          <HeaderCell className="justify-end text-right">Closed Trades</HeaderCell>
-          <HeaderCell className="justify-end text-right">Started &amp; Stopped Time</HeaderCell>
-          <HeaderCell className="justify-end text-right">Capital In</HeaderCell>
+          <HeaderCell
+            activeSortBy={sortBy}
+            className="justify-end text-right"
+            onSortChange={onSortChange}
+            sortField="closed_trades"
+            sortOrder={sortOrder}
+          >
+            Closed Trades
+          </HeaderCell>
+          <HeaderCell
+            activeSortBy={sortBy}
+            className="justify-end text-right"
+            onSortChange={onSortChange}
+            sortField="stopped_at"
+            sortOrder={sortOrder}
+          >
+            Started &amp; Stopped Time
+          </HeaderCell>
+          <HeaderCell
+            activeSortBy={sortBy}
+            className="justify-end text-right"
+            onSortChange={onSortChange}
+            sortField="capital_in"
+            sortOrder={sortOrder}
+          >
+            Capital In
+          </HeaderCell>
           <HeaderCell className="justify-end text-right">Total P&amp;L</HeaderCell>
           <HeaderCell className="justify-end text-right">Total Return</HeaderCell>
           <HeaderCell
@@ -92,9 +142,7 @@ const ClosedSubscriptionsTable = ({
                 to={`${APP_PATHS.COPY_TRADING}/history/${subscription.copyRunId}`}
               />
               <CopyRunAgentCell run={subscription} className="px-3 py-2" />
-              <TableCell className="text-right">
-                {formatCount(subscription.closedPositionCount ?? subscription.openPositionCount)}
-              </TableCell>
+              <TableCell className="text-right">{formatCount(subscription.closedPositionCount)}</TableCell>
               <TableCell className="flex flex-col text-right text-subText">
                 <span>{formatDateTime(subscription.startedAt)}</span>
                 <span>{formatDateTime(subscription.stoppedAt)}</span>
@@ -108,7 +156,9 @@ const ClosedSubscriptionsTable = ({
               <TableCell className={cn('text-right', getSignedMetricClassName(subscription.totalPnlPct))}>
                 {signedPercent(subscription.totalPnlPct)}
               </TableCell>
-              <TableCell className="text-right">{formatUsd(subscription.currentBalanceUsd)}</TableCell>
+              <TableCell className="text-right">
+                <HistoryCurrentBalance copyRun={subscription} />
+              </TableCell>
             </ClosedSubscriptionsGrid>
           ))}
         </TableBody>
@@ -133,9 +183,7 @@ const ClosedSubscriptionsTable = ({
             <CopyRunAgentCell run={subscription} className="gap-3" />
 
             <TableCardGrid>
-              <TableCardField label="Closed Trades">
-                {formatCount(subscription.closedPositionCount ?? subscription.openPositionCount)}
-              </TableCardField>
+              <TableCardField label="Closed Trades">{formatCount(subscription.closedPositionCount)}</TableCardField>
               <TableCardField align="right" label="Capital In">
                 {formatUsd(subscription.capitalInUsd)}
               </TableCardField>
@@ -158,7 +206,9 @@ const ClosedSubscriptionsTable = ({
               <TableCardField align="right" label="Stopped" valueClassName="text-subText">
                 {formatDateTime(subscription.stoppedAt)}
               </TableCardField>
-              <TableCardField label="Current Balance">{formatUsd(subscription.currentBalanceUsd)}</TableCardField>
+              <TableCardField label="Current Balance">
+                <HistoryCurrentBalance copyRun={subscription} />
+              </TableCardField>
             </TableCardGrid>
           </Stack>
         ))}

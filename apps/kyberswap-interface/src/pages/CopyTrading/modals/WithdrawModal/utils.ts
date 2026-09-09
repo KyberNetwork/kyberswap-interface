@@ -1,4 +1,6 @@
-import type { WithdrawQuotePreview } from 'services/copyTrading/types/preparedActions'
+import type { WithdrawQuotePreview, WithdrawTokensPreview } from 'services/copyTrading/types/preparedActions'
+
+import { getWritePrimaryActionLabel, isWritePrimaryActionDisabled } from 'pages/CopyTrading/modals/writeAction'
 
 export const UINT256_MAX_RAW = '115792089237316195423570985008687907853269984665640564039457584007913129639935'
 
@@ -83,3 +85,58 @@ export const validateWithdrawPreview = ({
   }
   return undefined
 }
+
+export const validateWithdrawTokensPreview = (preview: WithdrawTokensPreview | undefined, owner: string) => {
+  if (preview?.selection !== 'WITHDRAW_TOKEN_SELECTION_ALL_INDEXED_TOKENS')
+    return 'The withdrawal selection does not match All Tokens.'
+  if (preview.recipientAddress?.toLowerCase() !== owner.toLowerCase())
+    return 'The withdrawal recipient does not match your wallet.'
+  if (!preview.tokens?.length || preview.tokens.length > 32) return 'The prepared token selection is invalid.'
+  const addresses = preview.tokens.map(item => item.token?.address?.toLowerCase())
+  if (
+    addresses.some(address => !address || !/^0x[0-9a-f]{40}$/.test(address)) ||
+    new Set(addresses).size !== addresses.length
+  )
+    return 'The prepared token selection is invalid.'
+  if (!preview.quoteToken?.address || !addresses.includes(preview.quoteToken.address.toLowerCase()))
+    return 'The prepared selection is missing the quote token.'
+  if (
+    preview.tokens.some(
+      ({ balance }) =>
+        balance?.status !== 'METRIC_STATUS_CURRENT' || !balance.valueRaw || !/^\d+$/.test(balance.valueRaw),
+    )
+  )
+    return 'The prepared token balances are unavailable. Prepare again.'
+  return undefined
+}
+
+export const getWithdrawalPrimaryAction = ({
+  accountConnected,
+  onExpectedChain,
+  isPreparing,
+  executionBlocked,
+  availabilityMessage,
+  previewError,
+}: {
+  accountConnected: boolean
+  onExpectedChain: boolean
+  isPreparing: boolean
+  executionBlocked: boolean
+  availabilityMessage?: string
+  previewError?: string
+}) => ({
+  label: getWritePrimaryActionLabel({
+    accountConnected,
+    onExpectedChain,
+    readyLabel: 'Withdraw',
+    unavailable: !!availabilityMessage || !!previewError,
+    unavailableLabel: 'Withdraw Unavailable',
+  }),
+  disabled: isWritePrimaryActionDisabled({
+    accountConnected,
+    onExpectedChain,
+    interactionLocked: isPreparing,
+    executionBlocked,
+  }),
+  title: accountConnected && onExpectedChain ? previewError || availabilityMessage : undefined,
+})

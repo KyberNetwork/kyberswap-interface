@@ -283,3 +283,30 @@ describe('prepared rate formatting', () => {
     ).toBe('—')
   })
 })
+
+it('keeps All Tokens distinct from quote withdrawal even when display enrichment is unavailable', () => {
+  const withdrawalExpected: PreparedActionExpectation = {
+    account,
+    chainId: 8453,
+    copyAccount,
+    callKinds: ['PREPARED_CALL_KIND_WITHDRAW_TOKENS'],
+    preview: 'withdrawTokens',
+  }
+  const action: PreparedAction = {
+    status: 'PREPARED_ACTION_STATUS_READY',
+    expectedAccount: account,
+    chainId: '8453',
+    copyAccount,
+    displayEnrichment: { status: 'ACTION_DISPLAY_ENRICHMENT_STATUS_UNAVAILABLE' },
+    withdrawTokens: { selection: 'WITHDRAW_TOKEN_SELECTION_ALL_INDEXED_TOKENS' },
+    call: { kind: 'PREPARED_CALL_KIND_WITHDRAW_TOKENS', to: callTarget, data: '0x', valueRaw: '0' },
+  }
+  expect(validatePreparedAction(action, withdrawalExpected)).toBeUndefined()
+  expect(
+    validatePreparedAction(
+      { ...action, call: { ...action.call, kind: 'PREPARED_CALL_KIND_WITHDRAW_QUOTE' } },
+      withdrawalExpected,
+    ),
+  ).toBeTruthy()
+  expect(validatePreparedAction({ ...action, withdrawQuote: {} }, withdrawalExpected)).toBeTruthy()
+})

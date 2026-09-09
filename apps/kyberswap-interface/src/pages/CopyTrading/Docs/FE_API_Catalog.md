@@ -7,7 +7,125 @@ newest documented behavior is already merged or deployed.
 
 ## Changelog
 
+### 2026-09-08 — Token withdrawal, History, and recovery updates
+
+Source baseline: local `main` at
+`93021d4177e1aa418caf0befbd6afda3104c0732`, including
+[token withdrawal #62](https://github.com/KyberNetwork/copy-trade-api/pull/62),
+[advisory/recovery fixes #64](https://github.com/KyberNetwork/copy-trade-api/pull/64),
+[sync recovery #61](https://github.com/KyberNetwork/copy-trade-api/pull/61), and
+[capital/withdrawal recovery #65](https://github.com/KyberNetwork/copy-trade-api/pull/65).
+This is source-contract verification, not a new deployment smoke test.
+
+#### Required UI changes
+
+1. Regenerate the client from the current OpenAPI. There are now **34 HTTP
+   operations: 27 GET reads and 7 preparation POSTs**.
+2. Separate the two withdrawal choices. **Withdraw Stable only** continues to
+   call `:prepareWithdrawQuote` with `amountRaw`; it preserves the account's
+   existing pause state. **All Tokens** calls `:prepareWithdrawTokens` with
+   `selection: "WITHDRAW_TOKEN_SELECTION_ALL_INDEXED_TOKENS"`; the submitted
+   transaction permanently stops copying. Explain that effect before signing,
+   including when the selected balances are all zero. Neither action is an
+   alias for the other.
+3. Read `withdrawTokensAvailability` on copy-run list/detail and copy-account
+   summaries for the new button. Keep `withdrawQuoteAvailability` for stable
+   withdrawal. Use the matching live preparation response for execution.
+4. Add the History row metrics and server-side sorts below. Don't reuse the
+   detail rebate estimate for a History **Rebates received** column.
+5. Use server lifecycle/view membership after Stop or withdrawal. Full
+   withdrawal can close a run while its underlying positions remain open;
+   don't synthesize closed trades or reset Capital In.
+6. Refresh detail, inventory, activity, lists/summaries, and visible performance
+   after receipts. A receipt does not prove aggregate convergence. Restart a
+   rejected cursor from page one after lifecycle/withdrawal evidence changes.
+
+#### History columns and sorting
+
+`CopyRunListItem` adds three status-bearing metrics. They are separate from the
+detail-only `CopyRunSummary.feeBreakdown` and `portfolioPnlUsd` fields.
+
+| History column | List field | `sortBy` |
+| --- | --- | --- |
+| Closed trades | `closedPositionCount` (existing) | `OWNER_COPY_RUN_SORT_FIELD_CLOSED_TRADES` |
+| Realized P&L | `netRealizedPnlUsd` — closed-position-only net realized P&L | `OWNER_COPY_RUN_SORT_FIELD_REALIZED_PNL` |
+| Fee paid | `feeChargedUsd` — upfront flat fees across the run | `OWNER_COPY_RUN_SORT_FIELD_FEE_PAID` |
+| Rebates received | `rebatesUsd` — actual closed-position rebates, not pending estimates | `OWNER_COPY_RUN_SORT_FIELD_REBATES` |
+
+These four sorts require `view=OWNER_COPY_VIEW_HISTORY`; using them with Open
+is an invalid request. The existing `OWNER_COPY_RUN_SORT_FIELD_CURRENT_BALANCE`
+is also History-only. Both sort directions are supported. Keep status-bearing
+unavailable values unavailable, not zero, and let the server order the page.
+
+#### Withdrawal-aware lifecycle and accounting
+
+A stopped run stays `COPY_RUN_STATUS_CLOSING` until either position-based
+closure is covered or a full-withdrawal zero-balance proof is valid, with no
+relevant active repair. It then becomes `COPY_RUN_STATUS_CLOSED` and enters
+History. The full-withdrawal proof covers the quote token and all canonical
+run base tokens, including tokens from closed positions; it does not require
+discovery of every unsolicited wallet token.
+
+The zero observation is at a canonical covered block at or after Stop, not
+necessarily the withdrawal transaction's block. Ordinary subsequent feed
+progress or a later direct deposit does not reopen the run. A reorg or late
+fact that invalidates its closure evidence can return it to Closing. Position
+lifecycle and raw quantities remain independent and are not rewritten.
+
+- Capital In remains gross opening/deposit/top-up contributions; withdrawals
+  no longer subtract from it. Continue using `capitalInProjectionStatus` and
+  the metric status while corrected values publish.
+- For withdrawn unsold holdings, copy-run Total P&L and Return use historical
+  valuation at the first Stop once the corresponding chart generation is
+  published. Later live prices do not change that historical endpoint.
+  Dollar P&L can be available while Return lacks capital-denominator evidence.
+- Residual follower `positionPnlUsd` similarly uses canonical state and a
+  historical mark at the first Stop, excluding later trades and estimated
+  rebates. Price corrections can revise it; live price changes cannot.
+- Withdrawn base holdings no longer contribute to live portfolio value,
+  leftovers, unrealized P&L, or pending rebate estimates. Position current and
+  leftover values are zero at the proven observation; unrealized P&L and
+  estimated rebates are `NOT_APPLICABLE`. Actual realized P&L, fees, received
+  rebates, and trade counts remain independent. Current quote balance can
+  still include later deposits.
+
+See [Withdraw Tokens](withdraw_tokens_api.md) for the maintained lifecycle and
+valuation contract. Never use these display values to construct withdrawal
+amounts; the preparation owns the token set and raw balances.
+
+#### Activity and recovery behavior
+
+`ExecutionActivityDetail` adds optional `baseTokenAddress` and
+`quoteTokenAddress`, plus `baseToken` and `quoteToken` metadata. Use these for
+skipped-sell token identity when present; absence is not an empty token or zero
+amount. These fields do not add an execution amount or USD valuation.
+
+The recovery fixes restore account-level action advisories without requiring
+position-level evidence, preserve quote-balance publication when optional
+closure checks stall, and allow capital/performance projections to catch up.
+They don't add an FE retry endpoint or authorize optimistic numeric defaults.
+Continue rendering each metric/advisory independently and use bounded polling.
+
+Capital In can now be `SYNCING` with either a server-published `CURRENT`
+provisional candidate or a retained `STALE` value. Render the metric according
+to its status, with syncing/provisional context from `FIELD_GROUP_CAPITAL`;
+don't require `READY` to display every number. `UNAVAILABLE` still authorizes
+no number. USD P&L/chart values can remain usable while percentage/APR inputs
+are unavailable; don't hide the dollar series or derive the percentage locally.
+
+Invalid/unavailable optional action-advisory evidence degrades that field group
+instead of failing the independent base row. Preserve the row and use the
+returned advisory status for controls. No new recovery-specific enum is added.
+
+Agent `whitelistedSymbols` now reads the applied aggregate trade-token
+configuration. A proven empty configuration is a valid empty list; missing
+symbol metadata degrades labels separately. No new FE endpoint or fallback to
+an operator request is required. This supersedes the older staged-import notes.
+
 ### 2026-08-28 — Post-redesign availability hardening
+
+Historical release entry. The 2026-09-08 entry supersedes its preparation-route
+count and extends the list model, lifecycle, and withdrawal accounting rules.
 
 Status: merged on `origin/main` through commit
 `464df89d77680feede66cfc9e8d569bde26a35e5`. Deployment remains
@@ -333,6 +451,9 @@ Frontend migration:
 
 #### Copy-run lifecycle, History, and balances
 
+The zero-position-count membership rule below describes this historical
+release; the 2026-09-08 withdrawal-aware closure rules supersede it.
+
 - A stopped or closed source run with an open or leftover position is exposed
   as `COPY_RUN_STATUS_CLOSING` and remains in the Open view. It doesn't enter
   History until both counts are zero.
@@ -452,6 +573,8 @@ and net quote received; don't reinterpret gross accounting values.
 
 #### Arbitrary-token withdrawal
 
+Superseded by the 2026-09-08 contract and [Prepare Withdraw Tokens](#prepare-withdraw-tokens).
+
 - This release still exposes `PrepareWithdrawQuote` only.
 - Do not expose an **Other Tokens** withdrawal action. The contract's generic
   admin multicall permanently pauses the follower account and lacks the typed
@@ -527,11 +650,9 @@ Status: merged backend/API contract; no frontend implementation was performed.
   publishers and 6.88 ms p99; both observed zero notification queue usage.
   This remains a backend hint path only; clients should continue to refresh
   from normal read metadata and preparation responses.
-- The operator trade-token snapshot producer and a dormant aggregate importer
-  are implemented locally, but the current API operator pin does not contain
-  the generated RPCs. Until the operator revision is published, pinned, and a
-  complete READY universe has been imported, the existing request-time source
-  remains authoritative. No frontend cutover is included in this delivery.
+- Historical staging note: this release had a dormant aggregate trade-token
+  importer. That limitation is superseded: the current source reads the
+  applied aggregate configuration as described in the 2026-09-08 entry.
 
 ### 2026-08-21 — field quality and faster convergence
 
@@ -557,8 +678,8 @@ Status: merged backend/API contract; no frontend implementation was performed.
   `GetAgent.whitelistedSymbols` as a versioned chain/leader configuration
   snapshot plus independently resolved token-symbol metadata; a proven empty
   configuration is complete, while unresolved symbols degrade only the
-  token-metadata group. Until the published operator pin and READY import gate
-  described above, the existing request-time source remains authoritative.
+  token-metadata group. The staged request-time source described by this old
+  release has since been replaced by the applied aggregate configuration.
 - Keeps allocation semantics deliberately asymmetric by scope. This entry's
   temporary run-level `observedCapitalInUsd` overlay is superseded by the
   2026-08-26 contract and is now removed and reserved. Use canonical
@@ -769,6 +890,7 @@ all affected action dialogs and Smart Wallet activity rendering together.
 | ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Manual Sell / Close Position preparation | No wallet challenge, session exchange, bearer token, or issuance lease                                                                          | Prepare directly from the latest authoritative read inputs. The owner wallet must still submit the exact returned call; preparation is not transaction authorization.                                                                                                                     |
 | Withdraw Quote lifecycle and amount      | `withdrawQuoteAvailability` can be available at any copy lifecycle stage; preparation requires `amountRaw`                                      | Show the action according to advisory availability, not copy-run lifecycle. Send an exact partial amount or the explicit `uint256.max` full-balance sentinel, then prepare again on confirmation because the operator rechecks live state.                                                |
+| All Tokens withdrawal | `withdrawTokensAvailability` and `:prepareWithdrawTokens` with `ALL_INDEXED_TOKENS` | Explain that submitting the transaction permanently stops copying. Do not route stable-only withdrawal here or build a token list in the client. |
 | Start Copy funding                       | `fundingMode` plus optional `createPermitData`                                                                                                   | Send `START_COPY_FUNDING_MODE_UNFUNDED` with no permit, or `START_COPY_FUNDING_MODE_FUNDED` with an optional protobuf-JSON base64 byte string. The API uses `targetCapitalRaw` as the funded create amount. Permit format/capability remains operator-authoritative.                      |
 | Contract-generation routing              | No public `generationId`, factory, controller, or contract-address request field                                                                 | Do not hard-code or select deployment addresses. Start uses the currently create-enabled operator generation; existing-account actions derive generation from persisted account identity. Render `PREPARED_ACTION_REASON_UNSUPPORTED_ACCOUNT_GENERATION` as non-actionable product state. |
 | Copy-run cashback policy                 | `GET .../cashback-policy`                                                                                                                        | Use this run/account-specific policy for detailed fee/cashback presentation. `COPY_RUN_CASHBACK_POLICY_STATUS_AVAILABLE`, `..._NOT_CONFIGURED`, `..._INVALIDATED`, and `..._UNAVAILABLE` are distinct states; missing optional rates or `cashbackFormulaVersion` are not zero.            |
@@ -826,17 +948,17 @@ tab, chart, drawer, or drilldown is opened.
 | Agent action-log tab                  | `GET /agents/{agentId}/action-logs`                                                                 | Filter by leader position, action `type`, or time range; group by `sessionId`; load the next cursor page                     | None                                                                                                               |
 | Agent open/history positions tab      | `GET /agents/{agentId}/positions`                                                                   | `GET /agents/{agentId}/positions/{positionId}` and `/events` when a row is opened                                            | None                                                                                                               |
 | My Copies — Open summary              | `GET /users/{ownerAddress}/copy-summary?view=OWNER_COPY_VIEW_OPEN`                                  | None                                                                                                                         | None                                                                                                               |
-| My Copies — Open rows                 | `GET /users/{ownerAddress}/copy-runs?view=OWNER_COPY_VIEW_OPEN`                                     | Load the next cursor page; selected-run detail and positions                                                                 | Prepare Add Capital, Stop Copy, or Withdraw Quote from the selected run. Withdraw doesn't require Stop Copy first. |
+| My Copies — Open rows                 | `GET /users/{ownerAddress}/copy-runs?view=OWNER_COPY_VIEW_OPEN`                                     | Load the next cursor page; selected-run detail and positions                                                                 | Prepare Add Capital, Stop Copy, Withdraw Quote, or Withdraw Tokens. Stable-only preserves pause state; All Tokens permanently stops copying. |
 | History — stopped-run summary         | `GET /users/{ownerAddress}/copy-summary?view=OWNER_COPY_VIEW_HISTORY`                               | None                                                                                                                         | None                                                                                                               |
-| History — stopped-run list            | `GET /users/{ownerAddress}/copy-runs?view=OWNER_COPY_VIEW_HISTORY`                                  | Load the next cursor page                                                                                                    | Prepare Withdraw Quote when advisory availability allows it                                                        |
+| History — stopped-run list            | `GET /users/{ownerAddress}/copy-runs?view=OWNER_COPY_VIEW_HISTORY`                                  | Load the next cursor page; use History column sorts                                                                          | Prepare Withdraw Quote or Withdraw Tokens according to the matching advisory                                       |
 | History — all closed positions/trades | `GET /users/{ownerAddress}/positions?view=POSITION_VIEW_CLOSED`                                     | Filter by agent/chain, paginate, or group rows by `copyRunId`                                                                | None for an already closed position                                                                                |
-| History — selected stopped run        | `GET /users/{ownerAddress}/copy-runs/{copyRunId}` and `GET .../positions?view=POSITION_VIEW_CLOSED` | `GET .../performance`; `GET .../cashback-policy` when the fee panel opens; owner activity filtered by `copyRunId`            | Prepare Withdraw Quote only when advertised; historical-generation rows remain non-actionable                      |
-| Copy-run detail                       | `GET /users/{ownerAddress}/copy-runs/{copyRunId}` and `GET .../positions`                           | `GET .../performance`; `GET .../cashback-policy` when fee/cashback detail is visible; owner activity filtered by `copyRunId` | Prepare Add Capital, Stop Copy, Withdraw Quote, Manual Sell, or Close Position as applicable                       |
+| History — selected stopped run        | `GET /users/{ownerAddress}/copy-runs/{copyRunId}` and `GET .../positions` | Choose `POSITION_VIEW_CLOSED` only for closed trades; load performance, cashback policy, and activity as needed | Prepare Withdraw Quote or Withdraw Tokens only when advertised; historical-generation rows remain non-actionable |
+| Copy-run detail                       | `GET /users/{ownerAddress}/copy-runs/{copyRunId}` and `GET .../positions`                           | `GET .../performance`; `GET .../cashback-policy` when fee/cashback detail is visible; owner activity filtered by `copyRunId` | Prepare Add Capital, Stop Copy, Withdraw Quote, Withdraw Tokens, Manual Sell, or Close Position as applicable |
 | All owner positions                   | `GET /users/{ownerAddress}/positions`                                                               | Filter by agent, chain, view, or sort; load the next cursor page                                                             | Prepare Manual Sell or Close Position when advertised                                                              |
 | Leftover positions                    | Owner or copy-run positions with `view=POSITION_VIEW_LEFTOVER`                                      | Copy-account drilldown and pending-sell obligations                                                                          | Manual Sell or Close Position when advertised                                                                      |
 | Owner activity feed                   | `GET /users/{ownerAddress}/activity`                                                                | Filter by `copyRunId`, `chainId`, exact `type`, or product `group`                                                           | None                                                                                                               |
 | Owner copy-account list               | `GET /users/{ownerAddress}/copy-accounts`                                                           | Load the next cursor page                                                                                                    | None                                                                                                               |
-| Copy-account overview                 | `GET /copy-accounts/{chainId}/{copyAccount}`                                                        | Balances, positions, and history routes below                                                                                | Prepare Add Capital, Stop Copy, or Withdraw Quote through the associated copy run                                  |
+| Copy-account overview                 | `GET /copy-accounts/{chainId}/{copyAccount}`                                                        | Balances, positions, and history routes below                                                                                | Prepare Add Capital, Stop Copy, Withdraw Quote, or Withdraw Tokens through the associated copy run |
 | Copy Details — Remaining in Wallet    | `GET /copy-accounts/{chainId}/{copyAccount}/wallet-inventory`                                       | Use `/balances` only for a separately paginated asset explorer                                                               | None                                                                                                               |
 | Copy-account balances                 | `GET /copy-accounts/{chainId}/{copyAccount}/balances`                                               | Load the next cursor page                                                                                                    | None                                                                                                               |
 | Copy-account positions                | `GET /copy-accounts/{chainId}/{copyAccount}/positions`                                              | Pending-sell obligations for a selected `userPositionId`                                                                     | Manual Sell or Close Position                                                                                      |
@@ -848,7 +970,8 @@ tab, chart, drawer, or drilldown is opened.
 Copy-run lifecycle and position lifecycle are independent:
 
 - `OWNER_COPY_VIEW_HISTORY` returns terminal copy runs. A stopped run can have
-  zero closed positions.
+  zero closed positions. A fully withdrawn run can enter History while its
+  underlying position records remain open; withdrawal is not a sale.
 - `POSITION_VIEW_CLOSED` returns closed positions. A still-active copy run can
   already contain many closed positions.
 
@@ -880,7 +1003,7 @@ History-view summary.
 
 ### Action Screen Map
 
-All six preparation routes are implemented in the source baseline. Preparation
+All seven preparation routes are implemented in the source baseline. Preparation
 is read-only with respect to the chain: the frontend must submit the returned
 wallet call. Environment availability still depends on the deployed image and
 its operator dependencies.
@@ -891,6 +1014,7 @@ its operator dependencies.
 | Add Capital    | Direct copy-run or copy-account detail and `addCapitalAvailability`                                 | `POST /users/{ownerAddress}/copy-runs/{copyRunId}:prepareAddCapital`                               |
 | Stop Copy      | Direct copy-run detail plus its current open/leftover position selection and `stopCopyAvailability` | `POST /users/{ownerAddress}/copy-runs/{copyRunId}:prepareStopCopy`                                 |
 | Withdraw Quote | Direct copy-run/copy-account detail and `withdrawQuoteAvailability`; don't wait for Stop Copy       | `POST /users/{ownerAddress}/copy-runs/{copyRunId}:prepareWithdrawQuote`                            |
+| Withdraw Tokens | Direct copy-run/copy-account detail and `withdrawTokensAvailability`; explain permanent Stop | `POST /users/{ownerAddress}/copy-runs/{copyRunId}:prepareWithdrawTokens` |
 | Manual Sell    | Current position plus the latest pending-sell-obligation FIFO                                       | `POST /users/{ownerAddress}/copy-runs/{copyRunId}/positions/{userPositionId}:prepareManualSell`    |
 | Close Position | Current position and its advertised `availableActionKinds`                                          | `POST /users/{ownerAddress}/copy-runs/{copyRunId}/positions/{userPositionId}:prepareClosePosition` |
 
@@ -1123,6 +1247,11 @@ For example, Capital In can carry a safe prior value with
 `METRIC_STATUS_STALE` while the capital group reports
 `DATA_COMPLETENESS_PENDING` and
 `DATA_QUALITY_REASON_DEPENDENCY_PENDING`.
+It can also carry `METRIC_STATUS_CURRENT` while
+`capitalInProjectionStatus` is `SYNCING` and capital finality is
+`DATA_FINALITY_PROVISIONAL`. This is a server-published candidate, not a
+client-side funding overlay. Keep the syncing/provisional indication rather
+than hiding the number or relabeling it as a completed generation.
 
 ### Metrics
 
@@ -1233,6 +1362,13 @@ identity and generation capability, not copy lifecycle or a cached balance.
 An available advisory value doesn't prove that the connected wallet is still
 the owner or that the account still has a positive quote-token balance. The
 preparation route verifies both values at one exact action block.
+
+`withdrawTokensAvailability` is a separate capability advisory. It does not
+prove that all wallet tokens were discovered or that any selected balance is
+positive. Live token withdrawal can be ready with all-zero balances because
+the transaction still permanently stops the account. Add Capital is unavailable
+after permanent Stop/closure; do not offer a deposit merely because the wallet
+still holds tokens.
 
 ### Numeric Values
 
@@ -1689,15 +1825,12 @@ quality dimensions:
 - Missing token metadata should degrade labels or valuation groups only; it
   should not hide unrelated profile identity, metrics, or lifecycle fields.
 
-The new durable snapshot path is not a deployed wire claim yet. Its operator
-producer uses a target-pinned PRESENT-only full-universe walk: a registered
-leader with zero tradable tokens is an explicit empty configuration, while a
-deleted leader is absent from the next completed target. Partial, interrupted,
-advanced, reset, or not-ready walks never authorize deletion. Aggregate
-activation requires a published operator module, an exact API pin, the
-generated-client adapter, and one complete READY import per chain. Until then,
-continue to follow the target environment's generated schema and existing
-request-time behavior; do not infer tombstone objects or a new client field.
+The current public API reads the applied local aggregate configuration, not a
+request-time operator lookup. A registered leader with zero tradable tokens is
+an explicit empty configuration; a deleted leader is absent from the next
+completed target. Partial/not-ready imports do not authorize deletion. Follow
+the returned trade-token and metadata quality groups; don't infer a new client
+field, tombstone object, or a complete empty list from unavailable evidence.
 
 `strategyExecutionItems[]` has `label` and `description` and is intended for
 the “Strategy & Execution” section of the profile. It is configured display
@@ -1805,6 +1938,10 @@ OWNER_COPY_RUN_SORT_FIELD_AGENT_WIN_RATE
 OWNER_COPY_RUN_SORT_FIELD_AGENT_LIFETIME_VOLUME
 OWNER_COPY_RUN_SORT_FIELD_CAPITAL_IN
 OWNER_COPY_RUN_SORT_FIELD_CURRENT_BALANCE
+OWNER_COPY_RUN_SORT_FIELD_CLOSED_TRADES
+OWNER_COPY_RUN_SORT_FIELD_REALIZED_PNL
+OWNER_COPY_RUN_SORT_FIELD_FEE_PAID
+OWNER_COPY_RUN_SORT_FIELD_REBATES
 ```
 
 `OWNER_COPY_VIEW_OPEN` and `OWNER_COPY_VIEW_HISTORY` are server-defined product
@@ -1812,14 +1949,14 @@ universes, not direct aliases for one `CopyRunStatus`. Always pass the selected
 view and render the returned `status`. Do not filter the page client-side by
 status.
 
-`OPEN` contains source-admitted runs that are active or still have open or
-leftover positions. A stopped or closed source run with remaining open or
-leftover inventory is exposed as `COPY_RUN_STATUS_CLOSING` and stays in
-`OPEN`. `HISTORY` contains `COPY_RUN_STATUS_STOPPED` or
-`COPY_RUN_STATUS_CLOSED` runs only after both counts are zero, plus terminal
-historical-generation rows that remain readable for audit/history. An active
-historical-generation run is intentionally in neither list, although an exact
-direct lookup can remain readable.
+`OPEN` contains admitted active/closing runs and stopped runs whose closure is
+not yet proven. A stopped run is exposed as `COPY_RUN_STATUS_CLOSING` until
+either its covered Stop has no residual position work or full withdrawal has
+valid zero-balance evidence, with no relevant active repair. It then becomes
+`COPY_RUN_STATUS_CLOSED` and enters `HISTORY`, even if withdrawn positions
+remain open in the operator records. Readable historical-generation terminal
+runs follow the same closure gate. Active historical-generation runs remain
+outside both lists, although direct lookup can remain readable.
 
 The server owns list membership. A source reorg or corrected lifecycle can
 move a run between the product universes, so refresh rather than retaining a
@@ -1840,7 +1977,7 @@ Copy-run list behavior:
 | `view`            | Required: `OPEN` or `HISTORY`.                                                                                                                                                          |
 | `agentId`         | Optional exact agent filter.                                                                                                                                                            |
 | `chainId`         | Optional positive chain filter.                                                                                                                                                         |
-| `sortBy`          | Open defaults to `OWNER_COPY_RUN_SORT_FIELD_STARTED_AT`; History defaults to `OWNER_COPY_RUN_SORT_FIELD_STOPPED_AT`. History also supports `OWNER_COPY_RUN_SORT_FIELD_CURRENT_BALANCE`. |
+| `sortBy`          | Open defaults to `OWNER_COPY_RUN_SORT_FIELD_STARTED_AT`; History defaults to `OWNER_COPY_RUN_SORT_FIELD_STOPPED_AT`. `CURRENT_BALANCE`, `CLOSED_TRADES`, `REALIZED_PNL`, `FEE_PAID`, and `REBATES` are History-only; Open requests using them fail validation. |
 | `sortOrder`       | Defaults to descending.                                                                                                                                                                 |
 | `limit`, `cursor` | Standard cursor pagination.                                                                                                                                                             |
 
@@ -1870,13 +2007,14 @@ Shared `CopyRunListItem` and `CopyRunSummary` fields:
   as the cumulative-total-PnL chart. Don't recompute either metric in the
   client.
 - `capitalInProjectionStatus`. `READY` means `capitalInUsd` represents the
-  completed generation. In the current contract, `SYNCING` can carry
-  a prior same-identity value with metric status `STALE`; render it only with a
-  syncing/stale indication and don't treat it as the newly confirmed amount.
+  completed generation. `SYNCING` can carry a server-published `CURRENT`
+  provisional candidate or a prior same-identity `STALE` value. Render using
+  the metric status and capital-group finality, with a syncing/provisional or
+  stale indication; don't label either as the completed generation.
   `UNAVAILABLE` means source, identity, or lineage can't authorize a value and
   must never be converted to zero.
 - `addCapitalAvailability`, `stopCopyAvailability`,
-  `withdrawQuoteAvailability`
+  `withdrawQuoteAvailability`, `withdrawTokensAvailability`
 - optional `stopCopyProgress`. It is present only when the API can prove the
   newest safely covered Stop intent. `pendingPositionCount` includes both
   selected positions whose child action hasn't been indexed and indexed child
@@ -1895,7 +2033,11 @@ Shared `CopyRunListItem` and `CopyRunSummary` fields:
 - `copyRunWinRatePct` and `copyRunClassifiedClosedPositionCount`.
 
 `CopyRunListItem` deliberately omits these detail-only fields. Fetch
-`GetOwnerCopyRun` when the selected-run screen needs them. Both shapes remove
+`GetOwnerCopyRun` when the selected-run screen needs them. The list instead
+adds `netRealizedPnlUsd` (closed-position-only), `feeChargedUsd` (upfront fees),
+and `rebatesUsd` (actual closed-position rebates). Render their own statuses;
+list `rebatesUsd` is not the detail breakdown's actual-plus-estimated value.
+Both shapes remove
 and reserve `realizedPnlUsd`, `flatFeesCapturedUsd`, `cashbackReceivedUsd`,
 `netFeeCostUsd`, `estimatedCashbackPendingUsd`, and `observedCapitalInUsd`.
 Regenerate clients and don't use legacy accessors or synthesize replacements.
@@ -1998,7 +2140,7 @@ The detail variant has this shape:
 | `position`      | Open/close/reduce position     | Tokens, raw base/quote accounting, settlement value, realized P&L, fee, cashback                                                                                                               |
 | `capital`       | Deposit/top-up/withdraw/return | `movementType`, exact raw amount, token, USD metric                                                                                                                                            |
 | `fee`           | Flat fee/cashback              | Exact raw amount, token, USD metric                                                                                                                                                            |
-| `execution`     | Skip/exit/failure lifecycle    | Execution/action identifiers and statuses, public error, config index/rate/deadline. It has no token, amount, or USD field because the source fact does not prove one common monetary meaning. |
+| `execution`     | Skip/exit/failure lifecycle    | Execution/action identifiers and statuses, public error, config index/rate/deadline; optional `baseTokenAddress`, `quoteTokenAddress`, `baseToken`, and `quoteToken` for token identity. No generic amount or USD value. |
 
 The top-level `summary` is display text. Business logic should switch on the
 typed `type` and oneof detail, not parse the summary.
@@ -2237,6 +2379,7 @@ PREPARED_CALL_KIND_START_COPY_FUND
 PREPARED_CALL_KIND_ADD_CAPITAL
 PREPARED_CALL_KIND_STOP_COPY
 PREPARED_CALL_KIND_WITHDRAW_QUOTE
+PREPARED_CALL_KIND_WITHDRAW_TOKENS
 PREPARED_CALL_KIND_MANUAL_SELL
 PREPARED_CALL_KIND_CLOSE_POSITION
 ```
@@ -2263,7 +2406,7 @@ empty states, but the corresponding preparation response is authoritative.
 | `warnings[]`                | Allowlisted render-only qualifications. Warnings do not authorize changing calldata.                             |
 | `displayEnrichment`         | Required render-only enrichment outcome. It never changes action readiness, call validity, or calldata.          |
 | `evidence`                  | Exact safely covered fact boundary and fresh action block used by preparation.                                   |
-| one preview                 | Exactly one of `startCopy`, `addCapital`, `stopCopy`, `withdrawQuote`, `manualSell`, or `closePosition`.         |
+| one preview                 | Exactly one of `startCopy`, `addCapital`, `stopCopy`, `withdrawQuote`, `withdrawTokens`, `manualSell`, or `closePosition`. |
 
 `displayEnrichment.status` is `NOT_APPLICABLE`, `COMPLETE`, or `UNAVAILABLE`.
 An unavailable result includes reason `SOURCE_UNAVAILABLE` or
@@ -2271,6 +2414,10 @@ An unavailable result includes reason `SOURCE_UNAVAILABLE` or
 prepared-action `status` and `call`: a `READY` action remains executable when
 render-only enrichment is unavailable. Degrade only the optional preview UI
 and never change the returned call.
+
+The enrichment summary is not atomic field availability: a current or stale
+preview field remains usable even when another field makes the summary
+`UNAVAILABLE`. Always inspect each display metric's own status.
 
 Swap-producing previews use this nested shape:
 
@@ -2338,6 +2485,8 @@ PREPARED_ACTION_REASON_NO_PENDING_SELL_OBLIGATION
 PREPARED_ACTION_REASON_SELL_OBLIGATION_CHANGED
 PREPARED_ACTION_REASON_POSITION_NOT_OPEN
 PREPARED_ACTION_REASON_CLOSE_NOT_ELIGIBLE
+PREPARED_ACTION_REASON_TOKEN_INVENTORY_TOO_LARGE
+PREPARED_ACTION_REASON_TOKEN_TRANSFER_NOT_ACKNOWLEDGED
 ```
 
 Treat reason names as localization keys. Do not display raw enum names to end
@@ -2669,6 +2818,10 @@ and values greater than `uint256.max` before calling an operator.
 
 There is no omitted-value default for a full-balance withdrawal.
 
+This is the **Withdraw Stable only** flow. It preserves the existing pause
+state; it neither stops an active run nor resumes a stopped one. Even a full
+quote sweep is not the All Tokens action.
+
 `data.withdrawQuote` contains the quote token, status-bearing quote balance,
 and optional sweep amount and recipient. For a ready response:
 
@@ -2706,6 +2859,73 @@ transaction can withdraw a different amount than the preview if the balance
 changes after preparation. After the receipt succeeds, refresh the copy-run,
 copy-account, balance, wallet-inventory, and activity reads that are visible on
 the screen.
+
+### Prepare Withdraw Tokens
+
+```http
+POST /users/{ownerAddress}/copy-runs/{copyRunId}:prepareWithdrawTokens
+```
+
+```json
+{
+  "selection": "WITHDRAW_TOKEN_SELECTION_ALL_INDEXED_TOKENS"
+}
+```
+
+This is the **All Tokens** flow. Submission permanently stops copying in the
+same transaction, even with open positions or all-zero selected balances.
+Preparation itself does not submit or stop anything. Require
+`PREPARED_CALL_KIND_WITHDRAW_TOKENS`; do not accept a quote-withdrawal call kind.
+
+`selection` is required. Only `WITHDRAW_TOKEN_SELECTION_ALL_INDEXED_TOKENS` is
+accepted. Unspecified, unknown, and retired `WITHDRAW_TOKEN_SELECTION_STABLE_ONLY`
+are rejected. Do not send token addresses, amounts, or a recipient; selection
+is the bounded operator-indexed ERC-20 snapshot plus the configured quote token,
+not a promise to discover every token in the wallet. Native assets are excluded;
+wrapped native tokens are ordinary ERC-20s.
+
+`data.withdrawTokens` contains:
+
+| Field | FE use |
+| --- | --- |
+| `selection` | Echo of the supported indexed selection. |
+| `tokens[]` | Up to 32 selected tokens; each has `token`, exact action-block `balance`, and display-only `currentValuation`. Authoritative zeros may be included. |
+| `quoteToken` | Identifies the quote token within the selection. |
+| `balanceSetRevision` | Opaque indexed-inventory revision; not a chain watermark or proof of complete wallet discovery. It can remain present on a non-executable result. |
+| `recipientAddress` | Current owner at the action block, present only when executable. Never replace it. |
+| `totalCurrentValueUsd` | Selected-token display value, with its own metric status. All-zero selected balances yield current zero. |
+| `cashbackForfeitedUsd` | Estimated rebate at risk for positively held selected nonquote tokens; not a guaranteed on-chain loss. Proven quote-only/zero-nonquote inventory yields current zero. |
+
+The token list is nonempty, sorted by canonical token address, and unique.
+Unavailable balances must not be displayed as zero.
+
+Render available preview fields independently of `displayEnrichment.status`.
+Missing price/rebate enrichment does not invalidate a `READY` call. Explain
+that withdrawal can forfeit pending rebates; it does not erase rebate escrow
+or prove the final rebate amount.
+
+| Typed reason | FE behavior |
+| --- | --- |
+| `PREPARED_ACTION_REASON_TOKEN_INVENTORY_TOO_LARGE` | Explain that the indexed selection exceeds the bounded 32-token preparation. Do not invent a partial selection. |
+| `PREPARED_ACTION_REASON_TOKEN_TRANSFER_NOT_ACKNOWLEDGED` | Preflight found an ERC-20 transfer returning false or malformed nonempty data. Do not submit. |
+| `PREPARED_ACTION_REASON_INNER_CALL_REVERTED` | Do not submit; refresh state before preparing again. |
+| `PREPARED_ACTION_REASON_SOURCE_COVERAGE_PENDING` / `..._SOURCE_STALE` | Follow the returned top-level status and retry boundary; do not fabricate balances. |
+
+The quote token sweeps its execution-time full balance; positive nonquote
+amounts are pinned to the preparation block. Fee-on-transfer/rebasing tokens
+can deliver a different amount to the owner. Do not label the balance preview
+as a guaranteed amount received. Estimate gas for the exact returned outer
+call with the wallet/provider.
+
+`reprepareAfter` is at most 30 seconds after preparation. Reprepare after
+expiry, a relevant state change, or a failed submission. After a successful
+receipt, discard the old call, refresh wallet inventory and copy-run reads,
+and prepare anew only if another withdrawal is needed. A late/newly indexed
+token is not permission to replay the previous call. Responses are no-store.
+
+See [Withdraw Tokens API](withdraw_tokens_api.md) for exact execution and
+closure semantics; use [Prepare Withdraw Quote](#prepare-withdraw-quote) for
+stable-only withdrawal without changing pause state.
 
 ### Prepare Manual Sell
 
@@ -2910,6 +3130,12 @@ the aggregate API has already projected the state:
 5. For multi-stage Start Copy, request a new preparation only after the detail
    state has converged.
 
+After Withdraw Tokens, also refresh the indexed wallet inventory and visible
+performance/History data. Do not wait for position records to become closed:
+full withdrawal closes the copy run independently. Discard invalidated list
+and position cursors and restart at page one; never reuse a successfully
+submitted preparation.
+
 Keep the loop bounded and offer a manual refresh if projection remains behind.
 
 ### Submitted-operation overlay
@@ -2941,10 +3167,10 @@ authority.
 
 ## Complete HTTP Operation Index
 
-The current public HTTP surface contains **33 operations**:
+The current public HTTP surface contains **34 operations**:
 
 - 27 GET reads;
-- 6 transaction-preparation POSTs.
+- 7 transaction-preparation POSTs, including `:prepareWithdrawTokens`.
 
 Targeted reads added after the original read surface include:
 
@@ -2961,12 +3187,12 @@ aggregate routes in this document.
 
 ## Current Availability and Verification Status
 
-At `origin/main` commit
-`464df89d77680feede66cfc9e8d569bde26a35e5`, the generated OpenAPI contract
-contains 33 public HTTP operations:
+At local `main` commit
+`93021d4177e1aa418caf0befbd6afda3104c0732`, the generated OpenAPI contract
+contains 34 public HTTP operations:
 
 - 27 GET read operations;
-- 6 transaction-preparation POST operations;
+- 7 transaction-preparation POST operations.
 
 All operations have concrete aggregate handlers. No transaction-preparation
 route should be feature-gated as “not implemented.” Preparation routes don't

@@ -129,9 +129,20 @@ export const usePreparedAction = ({
         value,
       })
 
+      const gas =
+        expected.preview === 'withdrawTokens'
+          ? await publicClient.estimateGas({
+              account: expected.account as ViemAddress,
+              to: call.to as ViemAddress,
+              data: call.data as Hex,
+              value,
+            })
+          : undefined
+
       const submittedHash = await walletClient.sendTransaction({
         account: expected.account as ViemAddress,
         chain: undefined,
+        ...(gas === undefined ? {} : { gas }),
         to: call.to as ViemAddress,
         data: call.data as Hex,
         value,

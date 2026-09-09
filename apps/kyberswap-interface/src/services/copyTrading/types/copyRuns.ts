@@ -74,12 +74,16 @@ export type CopyRunListItem = {
   leftoverPositionCount?: DecimalString
   leftoverValueUsd?: DecimalString
   currentBalanceUsd?: DecimalString
+  netRealizedPnlUsd?: DecimalString
+  feeChargedUsd?: DecimalString
+  rebatesUsd?: DecimalString
   totalPnlUsd?: DecimalString
   totalPnlPct?: DecimalString
   durationSeconds?: DecimalString
   durationAsOf?: Timestamp
   addCapitalAvailability?: AdvisoryActionAvailability
   stopCopyAvailability?: AdvisoryActionAvailability
+  withdrawTokensAvailability?: AdvisoryActionAvailability
   withdrawQuoteAvailability?: AdvisoryActionAvailability
   stopCopyProgress?: StopCopyProgress
   metrics: Record<string, Metric | undefined>
@@ -161,6 +165,7 @@ export type CopyAccountSummary = {
   stoppedAt?: Timestamp
   addCapitalAvailability?: AdvisoryActionAvailability
   stopCopyAvailability?: AdvisoryActionAvailability
+  withdrawTokensAvailability?: AdvisoryActionAvailability
   withdrawQuoteAvailability?: AdvisoryActionAvailability
   metrics: Record<string, Metric | undefined>
   agentSnapshot?: AgentSnapshot

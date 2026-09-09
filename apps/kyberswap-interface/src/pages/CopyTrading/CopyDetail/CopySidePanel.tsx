@@ -14,7 +14,7 @@ import {
   StrategyExecutionCard,
   WhitelistedTokensCard,
 } from 'pages/CopyTrading/components/AgentSidebarCards/AgentProfileCards'
-import { CopyCapitalCard, WithdrawQuoteCard } from 'pages/CopyTrading/components/AgentSidebarCards/CopyActionCards'
+import { CopyCapitalCard, WithdrawCard } from 'pages/CopyTrading/components/AgentSidebarCards/CopyActionCards'
 import {
   SidePanelCard,
   type SidePanelCardWrapperProps,
@@ -24,6 +24,7 @@ import { ResponsiveDetailContents, ResponsiveDetailItem } from 'pages/CopyTradin
 import { CapitalInCardValue, copyRunStatusTextClassName } from 'pages/CopyTrading/components/common/status'
 import { formatTokenAmount, formatUsd } from 'pages/CopyTrading/helpers'
 import { useCopyTradingModal } from 'pages/CopyTrading/modals/context'
+import { shortenAddress } from 'utils/address'
 import { cn } from 'utils/cn'
 import { formatDateTime } from 'utils/time'
 
@@ -50,7 +51,7 @@ const AssetRow = ({ amount, chainId, token, tokenAddress, valueUsd }: AssetRowPr
         }}
       />
       <span className="truncate text-base text-text">
-        {formatTokenAmount(amount)} {token?.symbol || 'Unknown token'}
+        {formatTokenAmount(amount)} {token?.symbol || shortenAddress(chainId, tokenAddress, 4, false)}
       </span>
     </HStack>
     <span className="shrink-0 text-base text-subText">{formatUsd(valueUsd)}</span>
@@ -139,7 +140,7 @@ type CopySidePanelProps = {
 }
 
 const CopySidePanel = ({ agent, run }: CopySidePanelProps) => {
-  const { openAddCapital, openStopCopy, openWithdrawQuote } = useCopyTradingModal()
+  const { openAddCapital, openStopCopy, openWithdraw } = useCopyTradingModal()
 
   const copyAccountQuery = { chainId: run.chainId, copyAccount: run.copyAccount }
   const skipCopyAccount = !run.copyAccount || !run.chainId
@@ -224,11 +225,12 @@ const CopySidePanel = ({ agent, run }: CopySidePanelProps) => {
       {capitalCard}
       {agentRiskCard}
       {remainingInWallet}
-      {run.withdrawQuoteAvailability && (
+      {(run.withdrawQuoteAvailability || run.withdrawTokensAvailability) && (
         <ResponsiveDetailItem responsiveOrder={copyDetailResponsiveOrder.withdraw}>
-          <WithdrawQuoteCard
+          <WithdrawCard
+            tokensAvailability={run.withdrawTokensAvailability}
             availability={run.withdrawQuoteAvailability}
-            onWithdraw={() => openWithdrawQuote(run, run.withdrawQuoteAvailability)}
+            onWithdraw={() => openWithdraw(run)}
           />
         </ResponsiveDetailItem>
       )}

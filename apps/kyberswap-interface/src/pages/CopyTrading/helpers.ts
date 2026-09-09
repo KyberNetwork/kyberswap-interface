@@ -220,6 +220,10 @@ const reasonMessages: Partial<Record<PreparedActionReason, string>> = {
   PREPARED_ACTION_REASON_AMOUNT_BELOW_MINIMUM: 'Enter an amount that meets the current minimum.',
   PREPARED_ACTION_REASON_INVALID_STOP_INTENT: 'The selected positions changed. Review the latest position set.',
   PREPARED_ACTION_REASON_NO_EXECUTABLE_ROUTE: 'No executable route is currently available.',
+  PREPARED_ACTION_REASON_TOKEN_INVENTORY_TOO_LARGE:
+    'The indexed token selection exceeds the 32-token withdrawal limit.',
+  PREPARED_ACTION_REASON_TOKEN_TRANSFER_NOT_ACKNOWLEDGED:
+    'A token transfer failed preflight. Refresh and prepare again.',
   PREPARED_ACTION_REASON_INNER_CALL_REVERTED: 'The prepared call cannot currently be executed.',
   PREPARED_ACTION_REASON_NO_SELLABLE_BASE: 'This position has no sellable balance.',
   PREPARED_ACTION_REASON_NO_PENDING_SELL_OBLIGATION: 'There is no pending sell obligation to recover.',
