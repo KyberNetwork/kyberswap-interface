@@ -353,3 +353,40 @@ describe('adaptCopyRunCashbackPolicyResponse', () => {
     expect(response.meta?.status).toBe('DATA_STATUS_STALE')
   })
 })
+
+describe('September withdrawal and History contract', () => {
+  it('keeps History metrics independent and preserves withdrawal-aware lifecycle', () => {
+    const run = adaptCopyRunResponse({
+      data: {
+        status: 'COPY_RUN_STATUS_CLOSED',
+        capitalInUsd: currentCapital,
+        openPositionCount: { value: '2', status: 'METRIC_STATUS_CURRENT' },
+        netRealizedPnlUsd: { value: '8', status: 'METRIC_STATUS_STALE' },
+        feeChargedUsd: { value: '0', status: 'METRIC_STATUS_CURRENT' },
+        rebatesUsd: { value: '9', status: 'METRIC_STATUS_UNAVAILABLE' },
+      },
+    }).data
+    expect(run.status).toBe('closed')
+    expect(run.openPositionCount).toBe('2')
+    expect(run.capitalInUsd).toBe('12.34')
+    expect(run.netRealizedPnlUsd).toBe('8')
+    expect(run.feeChargedUsd).toBe('0')
+    expect(run.rebatesUsd).toBeUndefined()
+    expect(run.metrics.rebatesUsd?.status).toBe('METRIC_STATUS_UNAVAILABLE')
+  })
+  it('maps skipped-execution token identity without inventing execution amounts', () => {
+    const activity = adaptActivityResponse({
+      data: [
+        {
+          execution: {
+            baseTokenAddress: '0x1111111111111111111111111111111111111111',
+            baseToken: { chainId: '8453', address: '0x1111111111111111111111111111111111111111', symbol: 'ABC' },
+          },
+        },
+      ],
+    }).data[0]
+    expect(activity.execution?.baseToken?.symbol).toBe('ABC')
+    expect(activity.execution?.baseToken?.chainId).toBe(8453)
+    expect(activity.position).toBeUndefined()
+  })
+})

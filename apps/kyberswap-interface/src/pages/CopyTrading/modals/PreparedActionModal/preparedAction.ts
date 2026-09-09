@@ -55,7 +55,7 @@ export type PreparedActionExpectation = {
   chainId: number
   copyAccount?: string
   positionSellContext?: PositionSellContext
-  preview: 'startCopy' | 'addCapital' | 'stopCopy' | 'withdrawQuote' | 'manualSell' | 'closePosition'
+  preview: 'startCopy' | 'addCapital' | 'stopCopy' | 'withdrawTokens' | 'withdrawQuote' | 'manualSell' | 'closePosition'
   startCopyPredictedAccount?: string
   startCopyCreateAmountRaw?: string
   startCopyRequestId?: string
@@ -199,7 +199,7 @@ export const validatePreparedAction = (
   }
 
   const previewKeys = (
-    ['startCopy', 'addCapital', 'stopCopy', 'withdrawQuote', 'manualSell', 'closePosition'] as const
+    ['startCopy', 'addCapital', 'stopCopy', 'withdrawTokens', 'withdrawQuote', 'manualSell', 'closePosition'] as const
   ).filter(key => action[key] !== undefined)
   if (previewKeys.length !== 1 || previewKeys[0] !== expected.preview) {
     return 'The preparation returned an unexpected action preview.'

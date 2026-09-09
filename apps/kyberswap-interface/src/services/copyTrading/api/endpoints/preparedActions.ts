@@ -11,6 +11,8 @@ import type {
   PrepareStopCopyResponse,
   PrepareWithdrawQuoteRequest,
   PrepareWithdrawQuoteResponse,
+  PrepareWithdrawTokensRequest,
+  PreparedActionResponse,
 } from 'services/copyTrading/types/preparedActions'
 
 import copyTradingBaseApi from '../baseApi'
@@ -37,6 +39,13 @@ const preparedActionApi = copyTradingBaseApi.injectEndpoints({
         url: '/users/' + pathPart(ownerAddress) + '/copy-runs/' + pathPart(copyRunId) + ':prepareStopCopy',
         method: 'POST',
         body,
+      }),
+    }),
+    prepareWithdrawTokens: builder.mutation<PreparedActionResponse, PrepareWithdrawTokensRequest>({
+      query: ({ ownerAddress, copyRunId, selection }) => ({
+        url: '/users/' + pathPart(ownerAddress) + '/copy-runs/' + pathPart(copyRunId) + ':prepareWithdrawTokens',
+        method: 'POST',
+        body: { selection },
       }),
     }),
     prepareWithdrawQuote: builder.mutation<PrepareWithdrawQuoteResponse, PrepareWithdrawQuoteRequest>({

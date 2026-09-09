@@ -78,6 +78,10 @@ export const copyRunSortMap: Record<CopyRunSortBy, string> = {
   agent_win_rate: 'OWNER_COPY_RUN_SORT_FIELD_AGENT_WIN_RATE',
   agent_volume: 'OWNER_COPY_RUN_SORT_FIELD_AGENT_LIFETIME_VOLUME',
   capital_in: 'OWNER_COPY_RUN_SORT_FIELD_CAPITAL_IN',
+  closed_trades: 'OWNER_COPY_RUN_SORT_FIELD_CLOSED_TRADES',
+  realized_pnl: 'OWNER_COPY_RUN_SORT_FIELD_REALIZED_PNL',
+  fee_paid: 'OWNER_COPY_RUN_SORT_FIELD_FEE_PAID',
+  rebates: 'OWNER_COPY_RUN_SORT_FIELD_REBATES',
   current_balance: 'OWNER_COPY_RUN_SORT_FIELD_CURRENT_BALANCE',
 }
 

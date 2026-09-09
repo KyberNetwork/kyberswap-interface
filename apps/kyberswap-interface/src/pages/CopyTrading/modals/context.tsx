@@ -1,5 +1,4 @@
 import { type PropsWithChildren, createContext, useContext, useEffect, useMemo, useRef, useState } from 'react'
-import type { AdvisoryActionAvailability } from 'services/copyTrading/types/actionAvailability'
 import type { CopyRunListItem } from 'services/copyTrading/types/copyRuns'
 import type { PositionSummary } from 'services/copyTrading/types/positions'
 
@@ -10,20 +9,20 @@ import type { ManagePositionFlow } from 'pages/CopyTrading/modals/ManagePosition
 import StartCopyModal from 'pages/CopyTrading/modals/StartCopyModal'
 import type { StartCopyTarget } from 'pages/CopyTrading/modals/StartCopyModal/startCopy'
 import StopCopyModal from 'pages/CopyTrading/modals/StopCopyModal'
-import WithdrawQuoteModal from 'pages/CopyTrading/modals/WithdrawQuoteModal'
+import WithdrawModal from 'pages/CopyTrading/modals/WithdrawModal'
 
 type ActiveModal =
   | { type: 'startCopy'; agent: StartCopyTarget }
+  | { type: 'withdraw'; copyRun: CopyRunListItem }
   | { type: 'addCapital'; copyRun: CopyRunListItem }
   | { type: 'stopCopy'; copyRun: CopyRunListItem }
-  | { type: 'withdrawQuote'; copyRun: CopyRunListItem; withdrawQuoteAvailability?: AdvisoryActionAvailability }
   | { type: 'managePosition'; position: PositionSummary; flow: ManagePositionFlow }
 
 type CopyTradingModalContextValue = {
   openStartCopy: (agent: StartCopyTarget) => void
+  openWithdraw: (copyRun: CopyRunListItem) => void
   openAddCapital: (copyRun: CopyRunListItem) => void
   openStopCopy: (copyRun: CopyRunListItem) => void
-  openWithdrawQuote: (copyRun: CopyRunListItem, availability?: AdvisoryActionAvailability) => void
   openManagePosition: (position: PositionSummary, flow: ManagePositionFlow) => void
 }
 
@@ -45,10 +44,9 @@ export const CopyTradingModalProvider = ({ children }: PropsWithChildren) => {
   const value = useMemo<CopyTradingModalContextValue>(
     () => ({
       openStartCopy: agent => setActive({ type: 'startCopy', agent }),
+      openWithdraw: copyRun => setActive({ type: 'withdraw', copyRun }),
       openAddCapital: copyRun => setActive({ type: 'addCapital', copyRun }),
       openStopCopy: copyRun => setActive({ type: 'stopCopy', copyRun }),
-      openWithdrawQuote: (copyRun, withdrawQuoteAvailability) =>
-        setActive({ type: 'withdrawQuote', copyRun, withdrawQuoteAvailability }),
       openManagePosition: (position, flow) => setActive({ type: 'managePosition', position, flow }),
     }),
     [],
@@ -60,16 +58,9 @@ export const CopyTradingModalProvider = ({ children }: PropsWithChildren) => {
     <CopyTradingModalContext.Provider value={value}>
       {children}
       {active?.type === 'startCopy' && <StartCopyModal isOpen onDismiss={close} agent={active.agent} />}
+      {active?.type === 'withdraw' && <WithdrawModal isOpen onDismiss={close} copyRun={active.copyRun} />}
       {active?.type === 'addCapital' && <AddCapitalModal isOpen onDismiss={close} copyRun={active.copyRun} />}
       {active?.type === 'stopCopy' && <StopCopyModal isOpen onDismiss={close} copyRun={active.copyRun} />}
-      {active?.type === 'withdrawQuote' && (
-        <WithdrawQuoteModal
-          isOpen
-          onDismiss={close}
-          copyRun={active.copyRun}
-          withdrawQuoteAvailability={active.withdrawQuoteAvailability}
-        />
-      )}
       {active?.type === 'managePosition' && (
         <ManagePositionModal isOpen onDismiss={close} position={active.position} flow={active.flow} />
       )}

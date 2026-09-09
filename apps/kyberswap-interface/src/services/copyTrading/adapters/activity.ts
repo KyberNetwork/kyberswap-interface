@@ -82,6 +82,10 @@ type ApiActivity = {
     valueUsd?: ApiMetric
   }
   execution?: {
+    baseTokenAddress?: string
+    quoteTokenAddress?: string
+    baseToken?: ApiToken
+    quoteToken?: ApiToken
     executionKind?: string
     eventSeq?: string
     eventType?: string
@@ -258,7 +262,15 @@ const toFeeActivity = (detail: ApiActivity['fee']): ActivityRow['fee'] =>
     : undefined
 
 const toExecutionActivity = (detail: ApiActivity['execution']): ActivityRow['execution'] =>
-  detail ? { ...detail } : undefined
+  detail
+    ? {
+        ...detail,
+        baseTokenAddress: detail.baseTokenAddress as Address | undefined,
+        quoteTokenAddress: detail.quoteTokenAddress as Address | undefined,
+        baseToken: detail.baseToken ? toToken(detail.baseToken) : undefined,
+        quoteToken: detail.quoteToken ? toToken(detail.quoteToken) : undefined,
+      }
+    : undefined
 
 const toActivity = (activity: ApiActivity): ActivityRow => ({
   activityId: activity.activityId || '',

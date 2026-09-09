@@ -81,22 +81,23 @@ export const CopyCapitalCard = ({
   )
 }
 
-export const WithdrawQuoteCard = ({
+export const WithdrawCard = ({
   availability,
+  tokensAvailability,
   onWithdraw,
 }: {
   availability?: AdvisoryActionAvailability
+  tokensAvailability?: AdvisoryActionAvailability
   onWithdraw: () => void
 }) => {
-  const disabled = !canAttemptPreparation(availability)
-
+  const disabled = !canAttemptPreparation(availability) && !canAttemptPreparation(tokensAvailability)
   return (
     <SidePanelCard title="Advanced">
-      <p className="text-sm text-subText">Withdraw available quote balance without selling positions.</p>
+      <p className="text-sm text-subText">Withdraw tokens directly to your wallet.</p>
       <ButtonLight
         type="button"
         disabled={disabled}
-        title={disabled ? getPreparedReasonMessage(availability?.reason) : undefined}
+        title={disabled ? getPreparedReasonMessage(availability?.reason || tokensAvailability?.reason) : undefined}
         onClick={onWithdraw}
       >
         Withdraw
