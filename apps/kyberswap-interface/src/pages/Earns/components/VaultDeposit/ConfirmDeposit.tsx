@@ -149,6 +149,18 @@ const ConfirmDeposit = ({
         </InfoRow>
       </DetailsBox>
 
+      {/* Nothing on this screen otherwise says how the money comes back out, and the queue is the
+          part people are surprised by. The wait is stated in words rather than read from the queue:
+          its terms live behind the vault's `contracts.withdrawQueue`, which the API does not return. */}
+      <div className="flex w-full flex-col gap-1">
+        <p className="m-0 text-xs italic leading-4 text-subText">
+          {t`Earnings auto-compound into your balance — there is nothing to claim.`}
+        </p>
+        <p className="m-0 text-xs italic leading-4 text-subText">
+          {t`Native withdrawals are not instant: they queue for ~3 days and can take longer depending on the strategy.`}
+        </p>
+      </div>
+
       {form.submitError ? <ErrorNote>{form.submitError}</ErrorNote> : null}
 
       <ButtonGroup>

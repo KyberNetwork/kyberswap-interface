@@ -96,6 +96,10 @@ msgstr "选择派生路径"
 msgid "Joined SafePal Campaign"
 msgstr ""
 
+#: src/pages/Earns/VaultDetail/index.tsx
+msgid "Risks & who manages this"
+msgstr ""
+
 #: src/pages/KyberDAO/KNCUtility/GasRefundBox.tsx
 msgid "Total Gas Refund = Available + Pending + Claimed Gas Refund"
 msgstr "燃气费返还总额 = 可用 + 待处理 + 已领取的燃气费返还"
@@ -582,8 +586,8 @@ msgid "Confirm Withdraw"
 msgstr ""
 
 #: src/components/Header/groups/EarnNavGroup.tsx
-msgid "All Pools"
-msgstr "所有资金池"
+#~ msgid "All Pools"
+#~ msgstr "所有资金池"
 
 #: src/pages/CrossChainSwap/components/Summary.tsx
 msgid "Estimated Processing Time"
@@ -1996,6 +2000,10 @@ msgstr "任何 <0>正滑点</0> 将归 KyberSwap 所有"
 msgid "Your Voting Power"
 msgstr "您的投票权"
 
+#: src/pages/Earns/VaultDetail/RiskDisclaimerModal.tsx
+msgid "Earnings auto-compound into your balance. There is no reward to claim."
+msgstr ""
+
 #: src/pages/Campaign/components/Information/info/nearIntents.tsx
 msgid "EVM ← Near L1"
 msgstr "EVM ← Near L1"
@@ -2270,7 +2278,6 @@ msgstr "部分主题需加入白名单才能订阅"
 msgid "Max"
 msgstr "最大"
 
-#: src/pages/Earns/VaultDetail/index.tsx
 #: src/pages/Earns/VaultDetail/index.tsx
 msgid "Go back"
 msgstr ""
@@ -3331,6 +3338,10 @@ msgstr ""
 #: src/pages/ElasticSnapshot/components/ChooseGrantModal.tsx
 msgid "You have chosen option {selectedOption} for KyberSwap Elastic Exploit Treasury Grant Program"
 msgstr "您已为 KyberSwap Elastic 漏洞国库赠款计划选择了选项 {selectedOption}"
+
+#: src/pages/Earns/components/VaultDeposit/ConfirmDeposit.tsx
+msgid "Native withdrawals are not instant: they queue for ~3 days and can take longer depending on the strategy."
+msgstr ""
 
 #: src/components/TokenSelectorModal/TokenList.tsx
 msgid "Native"
@@ -4603,6 +4614,10 @@ msgstr "该设置可能偏高，建议调整以降低被抢跑风险"
 msgid "Preferences"
 msgstr "偏好设置"
 
+#: src/pages/Earns/VaultDetail/RiskDisclaimerModal.tsx
+msgid "This vault is managed by {providerName}. KyberSwap provides the access interface only, and does not run the strategy or hold your funds."
+msgstr ""
+
 #: src/pages/NotificationCenter/CreateAlert/CreateAlertForm.tsx
 msgid "Create Alert Failed"
 msgstr "创建提醒失败"
@@ -5460,6 +5475,10 @@ msgstr "阶段 3"
 msgid "Exit when fee yield"
 msgstr ""
 
+#: src/pages/Earns/VaultDetail/RiskDisclaimerModal.tsx
+msgid "Your deposit is exposed to the vault's smart contracts and to whatever the strategy invests in. Returns are not guaranteed and the balance can fall."
+msgstr ""
+
 #: src/pages/Earns/components/VaultWithdraw/VaultWithdrawModal.tsx
 #: src/pages/Earns/VaultDetail/WithdrawTab.tsx
 msgid "Insufficient {shareSymbol} balance"
@@ -5915,6 +5934,10 @@ msgstr "保存中……"
 msgid "Cancel Orders Failed"
 msgstr "取消订单失败"
 
+#: src/pages/Earns/components/VaultWithdraw/WithdrawFields.tsx
+msgid "Instant exit uses market liquidity and settles in one transaction; the output may differ from a native redeem."
+msgstr ""
+
 #: src/components/TokenSelectorModal/ImportTokenView.tsx
 msgid "This token isn't frequently swapped. Please do your own research before trading."
 msgstr ""
@@ -5979,6 +6002,10 @@ msgstr "存在待处理请求，请在钱包中批准"
 #: src/pages/BuyCrypto/index.tsx
 #~ msgid "Step 1"
 #~ msgstr "步骤 1"
+
+#: src/pages/Earns/components/VaultDeposit/ConfirmDeposit.tsx
+msgid "Earnings auto-compound into your balance — there is nothing to claim."
+msgstr ""
 
 #: src/pages/Earns/components/AprDetailTooltip.tsx
 #: src/pages/Earns/components/PoolAprBadges.tsx
@@ -6098,7 +6125,6 @@ msgstr "已达到最大可用提醒数量"
 
 #: src/components/TokenSelectorModal/TokenSelectorContent.tsx
 #: src/pages/CrossChainSwap/components/TokenSelectorNonEvmModal.tsx
-#: src/pages/Earns/VaultDetail/index.tsx
 msgid "Loading..."
 msgstr ""
 
@@ -7148,6 +7174,10 @@ msgstr "这些池子无需质押即可赚取奖励"
 
 #: src/components/TransactionConfirmationModal/index.tsx
 msgid "Show more"
+msgstr ""
+
+#: src/pages/Earns/VaultDetail/RiskDisclaimerModal.tsx
+msgid "Native withdrawals go through a queue: they start at around 3 days and can take longer depending on the strategy. Exiting sooner means selling on the market at whatever price it offers."
 msgstr ""
 
 #: src/pages/Campaign/components/CampaignStats/SafePalCampaignStats.tsx
@@ -9054,8 +9084,8 @@ msgid "Tnx Hash"
 msgstr "交易哈希"
 
 #: src/pages/Earns/components/VaultWithdraw/WithdrawFields.tsx
-msgid "Your shares are sold on the market and settle in one transaction."
-msgstr ""
+#~ msgid "Your shares are sold on the market and settle in one transaction."
+#~ msgstr ""
 
 #: src/pages/Campaign/components/Information/info/safepal.tsx
 msgid "Data on the campaign site may take up to 10 minutes to update after a transaction is made."
@@ -9183,6 +9213,7 @@ msgstr ""
 msgid "Subscribe to receive emails on your Elastic liquidity positions across all chains. Whenever a position goes<0>out-of-range</0> or comes back <1>in-range</1>, you will receive an email."
 msgstr "订阅 Elastic 流动性仓位邮件通知，当仓位 <0>超出区间</0> 或 <1>回到区间</1> 时将收到邮件"
 
+#: src/components/Header/groups/EarnNavGroup.tsx
 #: src/pages/Earns/components/EarnSidebar/index.tsx
 #: src/pages/Earns/Landing/index.tsx
 #: src/pages/Earns/PoolDetail/components/PoolHeader.tsx
@@ -10477,6 +10508,10 @@ msgstr ""
 #: src/components/ProAmm/Tab.tsx
 #~ msgid "Add a new position"
 #~ msgstr "添加新仓位"
+
+#: src/pages/Earns/VaultDetail/RiskDisclaimerModal.tsx
+msgid "Before you deposit"
+msgstr ""
 
 #: src/components/LimitOrder/Modals/CancelButtons.tsx
 #~ msgid "This order is not supported gasless cancel. Because it was created by our old contract"

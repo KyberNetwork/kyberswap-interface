@@ -83,7 +83,7 @@ const WithdrawFields = ({ vault, form }: { vault: VaultApiDetailItem; form: With
         </p>
       ) : (
         <p className="m-0 text-xs italic leading-4 text-subText">
-          {t`Your shares are sold on the market and settle in one transaction.`}
+          {t`Instant exit uses market liquidity and settles in one transaction; the output may differ from a native redeem.`}
         </p>
       )}
 

@@ -75,7 +75,7 @@ const EarnNavGroup = ({ dropdownAlign }: Props) => {
           >
             <div className="flex items-center gap-3">
               <PoolsIcon width={16} height={16} />
-              {t`All Pools`}
+              {t`Explore Pools`}
             </div>
           </StyledNavLink>
 

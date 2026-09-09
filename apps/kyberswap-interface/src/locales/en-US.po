@@ -96,6 +96,10 @@ msgstr "Select Derivation Path"
 msgid "Joined SafePal Campaign"
 msgstr "Joined SafePal Campaign"
 
+#: src/pages/Earns/VaultDetail/index.tsx
+msgid "Risks & who manages this"
+msgstr "Risks & who manages this"
+
 #: src/pages/KyberDAO/KNCUtility/GasRefundBox.tsx
 msgid "Total Gas Refund = Available + Pending + Claimed Gas Refund"
 msgstr "Total Gas Refund = Available + Pending + Claimed Gas Refund"
@@ -582,8 +586,8 @@ msgid "Confirm Withdraw"
 msgstr "Confirm Withdraw"
 
 #: src/components/Header/groups/EarnNavGroup.tsx
-msgid "All Pools"
-msgstr "All Pools"
+#~ msgid "All Pools"
+#~ msgstr "All Pools"
 
 #: src/pages/CrossChainSwap/components/Summary.tsx
 msgid "Estimated Processing Time"
@@ -1996,6 +2000,10 @@ msgstr "Any <0>positive slippage</0> will accrue to KyberSwap."
 msgid "Your Voting Power"
 msgstr "Your Voting Power"
 
+#: src/pages/Earns/VaultDetail/RiskDisclaimerModal.tsx
+msgid "Earnings auto-compound into your balance. There is no reward to claim."
+msgstr "Earnings auto-compound into your balance. There is no reward to claim."
+
 #: src/pages/Campaign/components/Information/info/nearIntents.tsx
 msgid "EVM ← Near L1"
 msgstr "EVM ← Near L1"
@@ -2270,7 +2278,6 @@ msgstr "Some topics that you need to be whitelist to subscribe"
 msgid "Max"
 msgstr "Max"
 
-#: src/pages/Earns/VaultDetail/index.tsx
 #: src/pages/Earns/VaultDetail/index.tsx
 msgid "Go back"
 msgstr "Go back"
@@ -3331,6 +3338,10 @@ msgstr "You've joined. Start trading this week to appear on the leaderboard."
 #: src/pages/ElasticSnapshot/components/ChooseGrantModal.tsx
 msgid "You have chosen option {selectedOption} for KyberSwap Elastic Exploit Treasury Grant Program"
 msgstr "You have chosen option {selectedOption} for KyberSwap Elastic Exploit Treasury Grant Program"
+
+#: src/pages/Earns/components/VaultDeposit/ConfirmDeposit.tsx
+msgid "Native withdrawals are not instant: they queue for ~3 days and can take longer depending on the strategy."
+msgstr "Native withdrawals are not instant: they queue for ~3 days and can take longer depending on the strategy."
 
 #: src/components/TokenSelectorModal/TokenList.tsx
 msgid "Native"
@@ -4603,6 +4614,10 @@ msgstr "setting might be high. Consider adjusting it to reduce front-running ris
 msgid "Preferences"
 msgstr "Preferences"
 
+#: src/pages/Earns/VaultDetail/RiskDisclaimerModal.tsx
+msgid "This vault is managed by {providerName}. KyberSwap provides the access interface only, and does not run the strategy or hold your funds."
+msgstr "This vault is managed by {providerName}. KyberSwap provides the access interface only, and does not run the strategy or hold your funds."
+
 #: src/pages/NotificationCenter/CreateAlert/CreateAlertForm.tsx
 msgid "Create Alert Failed"
 msgstr "Create Alert Failed"
@@ -5460,6 +5475,10 @@ msgstr "Phase 3"
 msgid "Exit when fee yield"
 msgstr "Exit when fee yield"
 
+#: src/pages/Earns/VaultDetail/RiskDisclaimerModal.tsx
+msgid "Your deposit is exposed to the vault's smart contracts and to whatever the strategy invests in. Returns are not guaranteed and the balance can fall."
+msgstr "Your deposit is exposed to the vault's smart contracts and to whatever the strategy invests in. Returns are not guaranteed and the balance can fall."
+
 #: src/pages/Earns/components/VaultWithdraw/VaultWithdrawModal.tsx
 #: src/pages/Earns/VaultDetail/WithdrawTab.tsx
 msgid "Insufficient {shareSymbol} balance"
@@ -5915,6 +5934,10 @@ msgstr "Saving..."
 msgid "Cancel Orders Failed"
 msgstr "Cancel Orders Failed"
 
+#: src/pages/Earns/components/VaultWithdraw/WithdrawFields.tsx
+msgid "Instant exit uses market liquidity and settles in one transaction; the output may differ from a native redeem."
+msgstr "Instant exit uses market liquidity and settles in one transaction; the output may differ from a native redeem."
+
 #: src/components/TokenSelectorModal/ImportTokenView.tsx
 msgid "This token isn't frequently swapped. Please do your own research before trading."
 msgstr "This token isn't frequently swapped. Please do your own research before trading."
@@ -5979,6 +6002,10 @@ msgstr "Pending request(s), please approve it in your wallet."
 #: src/pages/BuyCrypto/index.tsx
 #~ msgid "Step 1"
 #~ msgstr "Step 1"
+
+#: src/pages/Earns/components/VaultDeposit/ConfirmDeposit.tsx
+msgid "Earnings auto-compound into your balance — there is nothing to claim."
+msgstr "Earnings auto-compound into your balance — there is nothing to claim."
 
 #: src/pages/Earns/components/AprDetailTooltip.tsx
 #: src/pages/Earns/components/PoolAprBadges.tsx
@@ -6098,7 +6125,6 @@ msgstr "Maximum number of Active Alerts reached."
 
 #: src/components/TokenSelectorModal/TokenSelectorContent.tsx
 #: src/pages/CrossChainSwap/components/TokenSelectorNonEvmModal.tsx
-#: src/pages/Earns/VaultDetail/index.tsx
 msgid "Loading..."
 msgstr "Loading..."
 
@@ -7149,6 +7175,10 @@ msgstr "No staking is required to earn rewards in these pools"
 #: src/components/TransactionConfirmationModal/index.tsx
 msgid "Show more"
 msgstr "Show more"
+
+#: src/pages/Earns/VaultDetail/RiskDisclaimerModal.tsx
+msgid "Native withdrawals go through a queue: they start at around 3 days and can take longer depending on the strategy. Exiting sooner means selling on the market at whatever price it offers."
+msgstr "Native withdrawals go through a queue: they start at around 3 days and can take longer depending on the strategy. Exiting sooner means selling on the market at whatever price it offers."
 
 #: src/pages/Campaign/components/CampaignStats/SafePalCampaignStats.tsx
 #: src/pages/Campaign/components/MyDashboard/SafePalDashboard.tsx
@@ -9054,8 +9084,8 @@ msgid "Tnx Hash"
 msgstr "Tnx Hash"
 
 #: src/pages/Earns/components/VaultWithdraw/WithdrawFields.tsx
-msgid "Your shares are sold on the market and settle in one transaction."
-msgstr "Your shares are sold on the market and settle in one transaction."
+#~ msgid "Your shares are sold on the market and settle in one transaction."
+#~ msgstr "Your shares are sold on the market and settle in one transaction."
 
 #: src/pages/Campaign/components/Information/info/safepal.tsx
 msgid "Data on the campaign site may take up to 10 minutes to update after a transaction is made."
@@ -9183,6 +9213,7 @@ msgstr "You have no Transaction History"
 msgid "Subscribe to receive emails on your Elastic liquidity positions across all chains. Whenever a position goes<0>out-of-range</0> or comes back <1>in-range</1>, you will receive an email."
 msgstr "Subscribe to receive emails on your Elastic liquidity positions across all chains. Whenever a position goes<0>out-of-range</0> or comes back <1>in-range</1>, you will receive an email."
 
+#: src/components/Header/groups/EarnNavGroup.tsx
 #: src/pages/Earns/components/EarnSidebar/index.tsx
 #: src/pages/Earns/Landing/index.tsx
 #: src/pages/Earns/PoolDetail/components/PoolHeader.tsx
@@ -10477,6 +10508,10 @@ msgstr "Each address can participate across multiple weeks, but can only claim a
 #: src/components/ProAmm/Tab.tsx
 #~ msgid "Add a new position"
 #~ msgstr "Add a new position"
+
+#: src/pages/Earns/VaultDetail/RiskDisclaimerModal.tsx
+msgid "Before you deposit"
+msgstr "Before you deposit"
 
 #: src/components/LimitOrder/Modals/CancelButtons.tsx
 #~ msgid "This order is not supported gasless cancel. Because it was created by our old contract"
