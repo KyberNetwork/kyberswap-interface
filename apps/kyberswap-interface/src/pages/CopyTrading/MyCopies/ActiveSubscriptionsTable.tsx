@@ -29,6 +29,7 @@ import {
   getSignedMetricClassName,
   getWinRateClassName,
   percent,
+  signedUsd,
 } from 'pages/CopyTrading/helpers'
 import { useCopyTradingModal } from 'pages/CopyTrading/modals/context'
 import { cn } from 'utils/cn'
@@ -43,7 +44,7 @@ const ActiveSubscriptionsGrid = ({ header, className, ...props }: ActiveSubscrip
   return (
     <Grid
       className={cn(
-        'min-w-[1200px] grid-cols-[minmax(0,2.2fr)_minmax(0,0.9fr)_minmax(0,1fr)_minmax(0,0.9fr)_minmax(0,1fr)_minmax(0,0.9fr)_minmax(88px,0.8fr)_minmax(140px,0.8fr)]',
+        'min-w-[1360px] grid-cols-[minmax(0,2.2fr)_minmax(0,0.9fr)_minmax(0,1fr)_minmax(0,0.9fr)_minmax(0,1fr)_minmax(140px,1.1fr)_minmax(0,0.9fr)_minmax(88px,0.8fr)_minmax(140px,0.8fr)]',
         className,
       )}
       {...props}
@@ -131,13 +132,14 @@ const ActiveSubscriptionsTable = ({
           >
             Capital In
           </HeaderCell>
+          <HeaderCell className="justify-end text-right">Unrealised PnL</HeaderCell>
           <HeaderCell className="justify-end text-right">Positions</HeaderCell>
           <HeaderCell className="justify-center text-center">Status</HeaderCell>
           <HeaderCell className="justify-end text-right" />
         </ActiveSubscriptionsGrid>
 
         <TableBody
-          className="min-w-[1200px]"
+          className="min-w-[1360px]"
           empty={!rows.length}
           emptyIconUrl={copyTradingStatIconMap.agents.iconUrl}
           emptyMessage={pagination.error ? 'Unable to load active copies' : 'No active copies found'}
@@ -158,6 +160,9 @@ const ActiveSubscriptionsTable = ({
               </TableCell>
               <TableCell className="text-right">{compactUsd(subscription.agentStats.volumeUsd)}</TableCell>
               <TableCell className="text-right">{formatUsd(subscription.capitalInUsd)}</TableCell>
+              <TableCell className={cn('text-right', getSignedMetricClassName(subscription.unrealizedPnlUsd))}>
+                {signedUsd(subscription.unrealizedPnlUsd)}
+              </TableCell>
               <TableCell className="text-right">{formatCount(subscription.openPositionCount)}</TableCell>
               <TableCell className="justify-center text-center">
                 <CopyRunStatusBadge status={subscription.status} />
@@ -184,7 +189,12 @@ const ActiveSubscriptionsTable = ({
               label={`View copy for ${subscription.agentSnapshot?.displayName || 'agent'}`}
               to={`${APP_PATHS.COPY_TRADING}/my-copies/${subscription.copyRunId}`}
             />
-            <CopyRunAgentCell run={subscription} className="gap-3" />
+            <div className="flex items-start justify-between gap-3">
+              <CopyRunAgentCell run={subscription} className="min-w-0 flex-1 gap-3" />
+              <div className="shrink-0">
+                <CopyRunStatusBadge status={subscription.status} />
+              </div>
+            </div>
 
             <TableCardGrid>
               <TableCardField
@@ -201,12 +211,16 @@ const ActiveSubscriptionsTable = ({
                 {percent(subscription.agentStats.winRatePct)}
               </TableCardField>
               <TableCardField label="Volume">{compactUsd(subscription.agentStats.volumeUsd)}</TableCardField>
-              <TableCardField align="right" label="Capital In">
-                {formatUsd(subscription.capitalInUsd)}
+              <TableCardField align="right" label="Positions">
+                {formatCount(subscription.openPositionCount)}
               </TableCardField>
-              <TableCardField label="Positions">{formatCount(subscription.openPositionCount)}</TableCardField>
-              <TableCardField align="right" label="Status">
-                <CopyRunStatusBadge status={subscription.status} />
+              <TableCardField label="Capital In">{formatUsd(subscription.capitalInUsd)}</TableCardField>
+              <TableCardField
+                align="right"
+                label="Unrealised PnL"
+                valueClassName={getSignedMetricClassName(subscription.unrealizedPnlUsd)}
+              >
+                {signedUsd(subscription.unrealizedPnlUsd)}
               </TableCardField>
             </TableCardGrid>
 
