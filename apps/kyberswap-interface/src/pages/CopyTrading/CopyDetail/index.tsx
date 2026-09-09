@@ -57,8 +57,8 @@ const getCopyRunStats = (run: CopyRunSummary): LeaderboardStat[] => {
       icon: copyTradingStatIconMap.volumePrimary,
     },
     {
-      label: 'Rebate',
-      value: formatUsd(run.feeBreakdown?.rebatesUsd),
+      label: 'Net Fees',
+      value: formatUsd(run.feeBreakdown?.netFeesUsd),
       icon: copyTradingStatIconMap.moneyPrimary,
     },
   ]
