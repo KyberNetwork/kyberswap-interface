@@ -1,12 +1,13 @@
 import { NATIVE_TOKEN_ADDRESS, Token as TokenSchema } from '@kyber/schema'
 import { Currency, Token } from '@kyberswap/ks-sdk-core'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { VaultApiDetailItem } from 'services/vault'
 
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { ApprovalState } from 'hooks/useApproveCallback'
 import { useVaultDeposit } from 'pages/Earns/VaultDetail/hooks/useVaultDeposit'
+import useDefaultDepositToken from 'pages/Earns/components/VaultDeposit/useDefaultDepositToken'
 import { tryParseAmount } from 'state/swap/hooks'
 import { useCurrencyBalance } from 'state/wallet/hooks'
 
@@ -39,13 +40,28 @@ export const useDepositForm = ({
   const [percent, setPercent] = useState<number | undefined>(undefined)
   const [slippage, setSlippage] = useState(DEFAULT_SLIPPAGE_BPS)
 
-  // The chain's native token is the default: every vault accepts it through the aggregator.
+  const { token: defaultToken, isReady: isDefaultTokenReady } = useDefaultDepositToken({
+    chainId,
+    vaultId: vault.vaultId,
+    underlyingAddress: vault.underlyingToken?.address,
+  })
+
+  // The opening token is chosen once, after the candidate balances have been read. `hasPickedRef`
+  // keeps a late balance from moving the selection out from under someone already filling the form.
+  const hasPickedRef = useRef(false)
   useEffect(() => {
-    setCurrency(NativeCurrencies[chainId as keyof typeof NativeCurrencies])
+    hasPickedRef.current = false
+    setCurrency(undefined)
     setCurrencyLogo(undefined)
     setTypedValue('')
     setPercent(undefined)
-  }, [chainId])
+  }, [chainId, vault.vaultId])
+
+  useEffect(() => {
+    if (hasPickedRef.current || !isDefaultTokenReady) return
+    hasPickedRef.current = true
+    setCurrency(defaultToken)
+  }, [isDefaultTokenReady, defaultToken])
 
   const balance = useCurrencyBalance(currency, chainId)
   const parsedAmount = useMemo(() => tryParseAmount(typedValue, currency), [typedValue, currency])
@@ -92,6 +108,7 @@ export const useDepositForm = ({
       const next = isNative
         ? NativeCurrencies[chainId as keyof typeof NativeCurrencies]
         : new Token(chainId, token.address, token.decimals, token.symbol)
+      hasPickedRef.current = true
       setCurrency(next)
       setCurrencyLogo(token.logo || undefined)
       setTypedValue('')
