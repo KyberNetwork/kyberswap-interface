@@ -40,6 +40,9 @@ export type InventoryEntry = {
   /** How far this inventory has caught up to the chain. */
   blockNumber: number
   fetchedAt: number
+  /** Whether the index listed the native currency, and what the node said if it was asked. */
+  nativeIndexed: boolean
+  nativeLive?: bigint
 }
 
 type Meta = {
@@ -235,6 +238,8 @@ export const commitResult = (key: string, result: WalletInventoryResult) => {
   if (previous && previous.status === status && rowsEqual(previous.rows, rows)) {
     previous.fetchedAt = now
     previous.blockNumber = Math.max(result.blockNumber, previous.blockNumber)
+    previous.nativeIndexed = result.nativeIndexed
+    previous.nativeLive = result.nativeLive
     meta.set(key, { ...meta.get(key), failures: 0, nextRetryAt: 0, forced: false })
     return
   }
@@ -244,6 +249,8 @@ export const commitResult = (key: string, result: WalletInventoryResult) => {
     status,
     blockNumber: Math.max(result.blockNumber, previous?.blockNumber ?? 0),
     fetchedAt: now,
+    nativeIndexed: result.nativeIndexed,
+    nativeLive: result.nativeLive,
   })
   meta.set(key, { ...meta.get(key), failures: 0, nextRetryAt: 0, forced: false })
   emit()
@@ -265,7 +272,7 @@ export const commitFailure = (key: string) => {
   // nothing at all is marked failed, which is what tells consumers to use the multicall path.
   const entry = entries.get(key)
   if (!entry) {
-    entries.set(key, { rows: EMPTY_ROWS, status: 'error', blockNumber: 0, fetchedAt: 0 })
+    entries.set(key, { rows: EMPTY_ROWS, status: 'error', blockNumber: 0, fetchedAt: 0, nativeIndexed: false })
   }
   emit()
 }

@@ -8,7 +8,6 @@ import { usePublicClient } from 'wagmi'
 
 import { NotificationType } from 'components/Announcement/type'
 import { CONNECTION } from 'components/Web3Provider'
-import { ETHER_ADDRESS } from 'constants/index'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import useTracking, { NEED_CHECK_SUBGRAPH_TRANSACTION_TYPES, TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { AppDispatch, AppState } from 'state'
@@ -121,7 +120,7 @@ const touchedTokens = (chainId: ChainId, extraInfo: TransactionExtraInfo | undef
   const info = extraInfo as { tokenAddress?: string; tokenAddressIn?: string; tokenAddressOut?: string } | undefined
   return [info?.tokenAddress, info?.tokenAddressIn, info?.tokenAddressOut].flatMap(address => {
     const checksummed = address ? isAddress(chainId, address) : false
-    return checksummed && checksummed !== ETHER_ADDRESS ? [checksummed] : []
+    return checksummed ? [checksummed] : []
   })
 }
 

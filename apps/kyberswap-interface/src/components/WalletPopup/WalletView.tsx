@@ -68,6 +68,7 @@ export default function WalletView({
     usdBalances,
     hiddenTokens,
     impersonators,
+    nativeBalance: inventoryNativeBalance,
   } = useWalletAssets()
 
   const [hasNetworkIssue, setHasNetworkIssue] = useState(false)
@@ -178,6 +179,7 @@ export default function WalletView({
               currencyBalances={currencyBalances}
               hiddenTokens={hiddenTokens}
               impersonators={impersonators}
+              inventoryNativeBalance={inventoryNativeBalance}
             />
           </div>
         )
