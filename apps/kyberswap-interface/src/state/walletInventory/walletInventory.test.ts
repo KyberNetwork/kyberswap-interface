@@ -30,8 +30,10 @@ import {
   getStoreVersion,
   inventoryKey,
   isCatchingUp,
+  prefetchInventory,
   readEntry,
   readMeta,
+  readPrefetches,
   readTouchedTokens,
   register,
   resetInventoryStore,
@@ -490,6 +492,42 @@ describe('post-transaction catch-up', () => {
   it('ignores transactions on chains off the served list', () => {
     expireInventory(ChainId.LINEA, ACCOUNT, 120)
     expect(readMeta(inventoryKey(ChainId.LINEA, ACCOUNT))).toBeUndefined()
+  })
+
+  it('walks a prefetched wallet once, then forgets it', () => {
+    prefetchInventory(ChainId.MAINNET, ACCOUNT)
+    expect(selectDue(Date.now(), true)).toHaveLength(1)
+    // Nothing is subscribed, so the walk that answers is the only one this ever asks for.
+    commitResult(KEY, { rows: [row(USDT_CHECKSUM, 5n, 100)], complete: true, blockNumber: 100 })
+    expect(readPrefetches().size).toBe(0)
+    expect(selectDue(Date.now(), true)).toHaveLength(0)
+  })
+
+  it('leaves a prefetched wallet alone once it is walked, subscribed to, or off the served list', () => {
+    // Already walked: the answer the prefetch existed to get is already there.
+    commitResult(KEY, { rows: [], complete: true, blockNumber: 100 })
+    prefetchInventory(ChainId.MAINNET, ACCOUNT)
+    expect(readPrefetches().size).toBe(0)
+
+    // A consumer is already polling this wallet.
+    resetInventoryStore()
+    register(ChainId.MAINNET, ACCOUNT)
+    prefetchInventory(ChainId.MAINNET, ACCOUNT)
+    expect(readPrefetches().size).toBe(0)
+    expect(selectDue(Date.now(), true)).toHaveLength(1)
+
+    // A chain the inventory does not serve.
+    resetInventoryStore()
+    prefetchInventory(ChainId.LINEA, ACCOUNT)
+    expect(readPrefetches().size).toBe(0)
+  })
+
+  it('gives up a prefetch that failed rather than retrying it forever', () => {
+    prefetchInventory(ChainId.MAINNET, ACCOUNT)
+    commitFailure(KEY)
+    expect(readPrefetches().size).toBe(0)
+    // The failure entry is what a subscriber would retry on its own backoff; nothing is subscribed.
+    expect(selectDue(Date.now(), true)).toHaveLength(0)
   })
 
   it('paces the catch-up poll instead of refiring on every sweep', () => {
