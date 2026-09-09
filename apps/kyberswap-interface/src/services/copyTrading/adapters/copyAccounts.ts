@@ -51,6 +51,7 @@ type ApiCopyAccount = {
   stoppedAt?: string
   addCapitalAvailability?: AdvisoryActionAvailability
   stopCopyAvailability?: AdvisoryActionAvailability
+  withdrawTokensAvailability?: AdvisoryActionAvailability
   withdrawQuoteAvailability?: AdvisoryActionAvailability
 }
 
@@ -111,6 +112,7 @@ const toCopyAccount = (account: ApiCopyAccount): CopyAccountSummary => ({
   stoppedAt: account.stoppedAt,
   addCapitalAvailability: account.addCapitalAvailability,
   stopCopyAvailability: account.stopCopyAvailability,
+  withdrawTokensAvailability: account.withdrawTokensAvailability,
   withdrawQuoteAvailability: account.withdrawQuoteAvailability,
   metrics: {
     activeCopyRuns: account.activeCopyRuns,

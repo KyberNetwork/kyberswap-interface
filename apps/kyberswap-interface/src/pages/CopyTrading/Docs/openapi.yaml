@@ -585,6 +585,10 @@ paths:
             - OWNER_COPY_RUN_SORT_FIELD_AGENT_LIFETIME_VOLUME
             - OWNER_COPY_RUN_SORT_FIELD_CAPITAL_IN
             - OWNER_COPY_RUN_SORT_FIELD_CURRENT_BALANCE
+            - OWNER_COPY_RUN_SORT_FIELD_CLOSED_TRADES
+            - OWNER_COPY_RUN_SORT_FIELD_REALIZED_PNL
+            - OWNER_COPY_RUN_SORT_FIELD_FEE_PAID
+            - OWNER_COPY_RUN_SORT_FIELD_REBATES
           default: OWNER_COPY_RUN_SORT_FIELD_UNSPECIFIED
         - name: sortOrder
           in: query
@@ -1439,6 +1443,38 @@ paths:
             $ref: '#/definitions/TransactionPreparationServicePrepareWithdrawQuoteBody'
       tags:
         - Transaction Preparation
+  /users/{ownerAddress}/copy-runs/{copyRunId}:prepareWithdrawTokens:
+    post:
+      summary: |-
+        PrepareWithdrawTokens prepares one token withdrawal transaction that
+        permanently stops the copy run. The operator selects and balances the
+        indexed token snapshot at one evidence block.
+      operationId: prepareWithdrawTokens
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1PrepareWithdrawTokensResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: ownerAddress
+          in: path
+          required: true
+          type: string
+        - name: copyRunId
+          in: path
+          required: true
+          type: string
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/TransactionPreparationServicePrepareWithdrawTokensBody'
+      tags:
+        - Transaction Preparation
   /users/{ownerAddress}/copy-runs/{copyRunId}/positions/{userPositionId}:prepareManualSell:
     post:
       summary: PrepareManualSell prepares the exact unresolved skipped-sell obligation.
@@ -1566,6 +1602,13 @@ definitions:
           amount; uint256.max withdraws the full quote balance at execution.
     required:
       - amountRaw
+  TransactionPreparationServicePrepareWithdrawTokensBody:
+    type: object
+    properties:
+      selection:
+        $ref: '#/definitions/v1WithdrawTokenSelection'
+    required:
+      - selection
   protobufAny:
     type: object
     properties:
@@ -1603,7 +1646,10 @@ definitions:
         $ref: '#/definitions/v1ActionDisplayEnrichmentStatus'
       unavailableReason:
         $ref: '#/definitions/v1ActionDisplayEnrichmentUnavailableReason'
-    description: ActionDisplayEnrichment reports the atomic render-only enrichment outcome.
+    description: |-
+      ActionDisplayEnrichment summarizes render-only enrichment. Render fields
+      keep independent statuses and remain independently usable. This summary
+      never changes calldata readiness or authoritative raw amounts.
   v1ActionDisplayEnrichmentStatus:
     type: string
     enum:
@@ -2399,6 +2445,8 @@ definitions:
         $ref: '#/definitions/v1AdvisoryActionAvailability'
       withdrawQuoteAvailability:
         $ref: '#/definitions/v1AdvisoryActionAvailability'
+      withdrawTokensAvailability:
+        $ref: '#/definitions/v1AdvisoryActionAvailability'
     description: CopyAccountSummary contains chain-scoped copy-account totals.
   v1CopyConfirmPolicy:
     type: object
@@ -2588,6 +2636,8 @@ definitions:
         $ref: '#/definitions/v1AdvisoryActionAvailability'
       withdrawQuoteAvailability:
         $ref: '#/definitions/v1AdvisoryActionAvailability'
+      withdrawTokensAvailability:
+        $ref: '#/definitions/v1AdvisoryActionAvailability'
       capitalInProjectionStatus:
         $ref: '#/definitions/v1CapitalInProjectionStatus'
       stopCopyProgress:
@@ -2601,9 +2651,20 @@ definitions:
         $ref: '#/definitions/v1DecimalMetric'
       totalPnlPct:
         $ref: '#/definitions/v1DecimalMetric'
+      netRealizedPnlUsd:
+        $ref: '#/definitions/v1DecimalMetric'
+        description: Closed-position-only net realized P&L for history display and sorting.
+      feeChargedUsd:
+        $ref: '#/definitions/v1DecimalMetric'
+        title: |-
+          Upfront flat fee charged across the copy run. The History UI labels this
+          value "Fee paid."
+      rebatesUsd:
+        $ref: '#/definitions/v1DecimalMetric'
+        description: Actual cashback or rebate received for closed positions.
     description: |-
       CopyRunListItem contains one copy-run row for owner copy-run lists. It omits
-      detail-only fee and Portfolio P&L fields.
+      the detail-only estimated fee breakdown and Portfolio P&L fields.
   v1CopyRunStatus:
     type: string
     enum:
@@ -2668,6 +2729,8 @@ definitions:
       stopCopyAvailability:
         $ref: '#/definitions/v1AdvisoryActionAvailability'
       withdrawQuoteAvailability:
+        $ref: '#/definitions/v1AdvisoryActionAvailability'
+      withdrawTokensAvailability:
         $ref: '#/definitions/v1AdvisoryActionAvailability'
       capitalInProjectionStatus:
         $ref: '#/definitions/v1CapitalInProjectionStatus'
@@ -2847,6 +2910,14 @@ definitions:
         type: string
       configDeadlineRaw:
         type: string
+      baseTokenAddress:
+        type: string
+      quoteTokenAddress:
+        type: string
+      baseToken:
+        $ref: '#/definitions/v1Token'
+      quoteToken:
+        $ref: '#/definitions/v1Token'
     description: ExecutionActivityDetail contains typed action and exit lifecycle context.
   v1FeeActivityDetail:
     type: object
@@ -3301,6 +3372,10 @@ definitions:
       - OWNER_COPY_RUN_SORT_FIELD_AGENT_LIFETIME_VOLUME
       - OWNER_COPY_RUN_SORT_FIELD_CAPITAL_IN
       - OWNER_COPY_RUN_SORT_FIELD_CURRENT_BALANCE
+      - OWNER_COPY_RUN_SORT_FIELD_CLOSED_TRADES
+      - OWNER_COPY_RUN_SORT_FIELD_REALIZED_PNL
+      - OWNER_COPY_RUN_SORT_FIELD_FEE_PAID
+      - OWNER_COPY_RUN_SORT_FIELD_REBATES
     default: OWNER_COPY_RUN_SORT_FIELD_UNSPECIFIED
     description: OwnerCopyRunSortField selects a public owner copy-run order.
   v1OwnerCopySummary:
@@ -3722,7 +3797,9 @@ definitions:
         description: |-
           Server-computed follower Position P&L: realized P&L to date plus marked
           unrealized P&L and the remaining-cashback estimate for active or closing
-          inventory.
+          inventory. After proven full withdrawal, residual positions use canonical
+          state and a historical mark at the first Stop, without estimated rebates.
+          Actual realized P&L and raw quantities remain independently unchanged.
     description: PositionSummary is a follower position row.
   v1PositionValuation:
     type: object
@@ -3786,6 +3863,11 @@ definitions:
     properties:
       data:
         $ref: '#/definitions/v1PreparedAction'
+  v1PrepareWithdrawTokensResponse:
+    type: object
+    properties:
+      data:
+        $ref: '#/definitions/v1PreparedAction'
   v1PreparedAction:
     type: object
     properties:
@@ -3827,6 +3909,8 @@ definitions:
         $ref: '#/definitions/v1StopCopyPreview'
       withdrawQuote:
         $ref: '#/definitions/v1WithdrawQuotePreview'
+      withdrawTokens:
+        $ref: '#/definitions/v1WithdrawTokensPreview'
       manualSell:
         $ref: '#/definitions/v1PositionSellPreview'
       closePosition:
@@ -3865,6 +3949,8 @@ definitions:
       - PREPARED_ACTION_REASON_POSITION_NOT_OPEN
       - PREPARED_ACTION_REASON_CLOSE_NOT_ELIGIBLE
       - PREPARED_ACTION_REASON_INSUFFICIENT_QUOTE_ALLOWANCE
+      - PREPARED_ACTION_REASON_TOKEN_INVENTORY_TOO_LARGE
+      - PREPARED_ACTION_REASON_TOKEN_TRANSFER_NOT_ACKNOWLEDGED
     default: PREPARED_ACTION_REASON_UNSPECIFIED
     description: PreparedActionReason is the shared stable action/preparation reason vocabulary.
   v1PreparedActionStatus:
@@ -3908,6 +3994,7 @@ definitions:
       - PREPARED_CALL_KIND_ADD_CAPITAL
       - PREPARED_CALL_KIND_STOP_COPY
       - PREPARED_CALL_KIND_WITHDRAW_QUOTE
+      - PREPARED_CALL_KIND_WITHDRAW_TOKENS
       - PREPARED_CALL_KIND_MANUAL_SELL
       - PREPARED_CALL_KIND_CLOSE_POSITION
     default: PREPARED_CALL_KIND_UNSPECIFIED
@@ -4269,7 +4356,54 @@ definitions:
         type: string
       recipientAddress:
         type: string
+    description: WithdrawQuotePreview contains exact or explicit-maximum quote withdrawal authority.
+  v1WithdrawTokenPreview:
+    type: object
+    properties:
+      token:
+        $ref: '#/definitions/v1Token'
+      balance:
+        $ref: '#/definitions/v1RawAmountMetric'
+      currentValuation:
+        $ref: '#/definitions/v1PositionValuation'
     description: |-
-      WithdrawQuotePreview describes the exact requested withdrawal to the owner
-      snapshot at H. sweep_amount_raw is the calldata amount and equals the request
-      for READY results; uint256.max means the full balance available at execution.
+      WithdrawTokenPreview describes one selected token and its exact balance at
+      the action evidence block. Current valuation is display-only and never
+      changes action readiness or calldata.
+  v1WithdrawTokenSelection:
+    type: string
+    enum:
+      - WITHDRAW_TOKEN_SELECTION_UNSPECIFIED
+      - WITHDRAW_TOKEN_SELECTION_ALL_INDEXED_TOKENS
+    default: WITHDRAW_TOKEN_SELECTION_UNSPECIFIED
+    description: WithdrawTokenSelection identifies the operator-owned withdrawal mode.
+  v1WithdrawTokensPreview:
+    type: object
+    properties:
+      selection:
+        $ref: '#/definitions/v1WithdrawTokenSelection'
+      tokens:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/v1WithdrawTokenPreview'
+      quoteToken:
+        $ref: '#/definitions/v1Token'
+      balanceSetRevision:
+        type: string
+      recipientAddress:
+        type: string
+      totalCurrentValueUsd:
+        $ref: '#/definitions/v1DecimalMetric'
+      cashbackForfeitedUsd:
+        $ref: '#/definitions/v1DecimalMetric'
+        description: |-
+          Estimated rebate at risk for selected nonquote tokens with positive
+          exact-block balances. Uses the shared copy-run pending-rebate estimator,
+          restricted to those tokens. A proven quote-only or zero-nonquote selection
+          is current 0; an unresolved indexed selection is unavailable. Withdrawal
+          does not itself erase the contract's rebate escrow.
+    description: |-
+      WithdrawTokensPreview contains the deterministic operator-owned token set.
+      ALL_INDEXED_TOKENS results include a revision for the indexed inventory
+      snapshot. Quote-only withdrawal uses PrepareWithdrawQuote.

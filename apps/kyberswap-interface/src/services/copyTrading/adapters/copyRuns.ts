@@ -55,12 +55,16 @@ type ApiCopyRunListItem = {
   durationSeconds?: string
   durationAsOf?: string
   currentBalanceUsd?: ApiMetric
+  netRealizedPnlUsd?: ApiMetric
+  feeChargedUsd?: ApiMetric
+  rebatesUsd?: ApiMetric
   totalPnlUsd?: ApiMetric
   totalPnlPct?: ApiMetric
   stopCopyProgress?: ApiStopCopyProgress
   agentSnapshot?: ApiAgentSnapshot
   addCapitalAvailability?: AdvisoryActionAvailability
   stopCopyAvailability?: AdvisoryActionAvailability
+  withdrawTokensAvailability?: AdvisoryActionAvailability
   withdrawQuoteAvailability?: AdvisoryActionAvailability
 }
 
@@ -161,12 +165,16 @@ const toCopyRunListItem = (run: ApiCopyRunListItem): CopyRunListItem => {
     leftoverPositionCount: metricValue(run.leftoverPositionCount),
     leftoverValueUsd: metricValue(run.leftoverValueUsd),
     currentBalanceUsd: metricValue(run.currentBalanceUsd),
+    netRealizedPnlUsd: metricValue(run.netRealizedPnlUsd),
+    feeChargedUsd: metricValue(run.feeChargedUsd),
+    rebatesUsd: metricValue(run.rebatesUsd),
     totalPnlUsd: metricValue(run.totalPnlUsd),
     totalPnlPct: metricValue(run.totalPnlPct),
     durationSeconds: run.durationSeconds,
     durationAsOf: run.durationAsOf,
     addCapitalAvailability: run.addCapitalAvailability,
     stopCopyAvailability: run.stopCopyAvailability,
+    withdrawTokensAvailability: run.withdrawTokensAvailability,
     withdrawQuoteAvailability: run.withdrawQuoteAvailability,
     stopCopyProgress: toStopCopyProgress(run.stopCopyProgress),
     metrics: {
@@ -180,6 +188,9 @@ const toCopyRunListItem = (run: ApiCopyRunListItem): CopyRunListItem => {
       leftoverPositionCount: run.leftoverPositionCount,
       leftoverValueUsd: run.leftoverValueUsd,
       currentBalanceUsd: run.currentBalanceUsd,
+      netRealizedPnlUsd: run.netRealizedPnlUsd,
+      feeChargedUsd: run.feeChargedUsd,
+      rebatesUsd: run.rebatesUsd,
       totalPnlUsd: run.totalPnlUsd,
       totalPnlPct: run.totalPnlPct,
     },

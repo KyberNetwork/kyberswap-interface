@@ -182,6 +182,10 @@ export type FeeActivityDetail = {
 }
 
 export type ExecutionActivityDetail = {
+  baseTokenAddress?: Address
+  quoteTokenAddress?: Address
+  baseToken?: Token
+  quoteToken?: Token
   executionKind?: string
   eventSeq?: string
   eventType?: string

@@ -1,9 +1,12 @@
+import { adaptCopyAccountWalletInventoryResponse } from 'services/copyTrading/adapters/copyAccounts'
+import type { WithdrawTokensPreview } from 'services/copyTrading/types/preparedActions'
 import type { ResponseMeta } from 'services/copyTrading/types/primitives'
 import { describe, expect, it, vi } from 'vitest'
 
 import {
   hasCapitalIncreased,
   hasCopyTradingChainCoveredBlock,
+  hasWithdrawalBalanceConverged,
   isSameTransactionHash,
   pollCopyTradingProjection,
 } from 'pages/CopyTrading/modals/PreparedActionModal/postReceipt'
@@ -77,4 +80,135 @@ describe('post-receipt Copy Trading projection helpers', () => {
     expect(isSameTransactionHash('0xABCD', '0xabcd')).toBe(true)
     expect(isSameTransactionHash(undefined, '0xabcd')).toBe(false)
   })
+})
+
+it('waits for the withdrawn balance scope using only wallet inventory', () => {
+  const inventory = adaptCopyAccountWalletInventoryResponse({
+    complete: true,
+    data: [{ tokenAddress: '0x2222222222222222222222222222222222222222', balanceAsOfBlock: '99', amountDecimal: '0' }],
+    pinnedStableBalance: {
+      status: 'PINNED_STABLE_BALANCE_STATUS_PRESENT',
+      balance: {
+        tokenAddress: '0x1111111111111111111111111111111111111111',
+        balanceAsOfBlock: '100',
+        amountDecimal: '0',
+      },
+    },
+  })
+  const quote = '0x1111111111111111111111111111111111111111'
+  const preparedTokens: NonNullable<WithdrawTokensPreview['tokens']> = [quote, inventory.data[0].tokenAddress].map(
+    address => ({
+      token: { address, decimals: 6 },
+      balance: { status: 'METRIC_STATUS_CURRENT', valueRaw: '1000000' },
+    }),
+  )
+  const stableSnapshot = [preparedTokens[0]]
+  expect(hasWithdrawalBalanceConverged(inventory, 100n, quote, stableSnapshot)).toBe(true)
+  expect(hasWithdrawalBalanceConverged(inventory, 100n, quote, preparedTokens)).toBe(false)
+  inventory.data[0].balanceAsOfBlock = '100'
+  inventory.data[0].amountDecimal = '1'
+  expect(hasWithdrawalBalanceConverged(inventory, 100n, quote, preparedTokens)).toBe(false)
+  inventory.data[0].amountDecimal = '0'
+  expect(hasWithdrawalBalanceConverged(inventory, 100n, quote, preparedTokens)).toBe(true)
+  expect(hasWithdrawalBalanceConverged({ ...inventory, data: [] }, 100n, quote, preparedTokens)).toBe(false)
+  expect(hasWithdrawalBalanceConverged(inventory, 100n, quote, [])).toBe(false)
+  expect(hasWithdrawalBalanceConverged(inventory, 100n, quote, [{}])).toBe(false)
+  inventory.data.push({
+    ...inventory.data[0],
+    tokenAddress: '0x3333333333333333333333333333333333333333',
+    balanceAsOfBlock: '99',
+  })
+  expect(hasWithdrawalBalanceConverged(inventory, 100n, quote, preparedTokens)).toBe(true)
+  expect(hasWithdrawalBalanceConverged(inventory, undefined, quote, stableSnapshot)).toBe(false)
+  expect(hasWithdrawalBalanceConverged({ ...inventory, complete: false }, 100n, quote, stableSnapshot)).toBe(false)
+  expect(hasWithdrawalBalanceConverged(inventory, 100n, '0xwrong', stableSnapshot)).toBe(false)
+})
+
+it('compares current amounts with the submitted snapshot and allows already-zero tokens', () => {
+  const quote = '0x1111111111111111111111111111111111111111'
+  const inventory = adaptCopyAccountWalletInventoryResponse({
+    complete: true,
+    pinnedStableBalance: {
+      status: 'PINNED_STABLE_BALANCE_STATUS_PRESENT',
+      balance: { tokenAddress: quote, balanceAsOfBlock: '100', amountDecimal: '1.000000' },
+    },
+  })
+  const snapshot: NonNullable<WithdrawTokensPreview['tokens']> = [
+    {
+      token: { address: quote, decimals: 6 },
+      balance: { status: 'METRIC_STATUS_CURRENT', valueRaw: '1000000' },
+    },
+  ]
+  expect(hasWithdrawalBalanceConverged(inventory, 100n, quote, snapshot)).toBe(false)
+  const currentBalance = inventory.pinnedStableBalance?.balance
+  const preparedBalance = snapshot[0].balance
+  if (!currentBalance || !preparedBalance) throw new Error('Missing balance fixture')
+  currentBalance.amountDecimal = '0.5'
+  expect(hasWithdrawalBalanceConverged(inventory, 100n, quote, snapshot)).toBe(true)
+  preparedBalance.valueRaw = '0'
+  currentBalance.amountDecimal = '0'
+  expect(hasWithdrawalBalanceConverged(inventory, 100n, quote, snapshot)).toBe(true)
+  currentBalance.balanceAsOfBlock = '99'
+  expect(hasWithdrawalBalanceConverged(inventory, 100n, quote, snapshot)).toBe(false)
+})
+
+it('uses matching inventory decimals when the submitted snapshot has no metadata', () => {
+  const quote = '0x1111111111111111111111111111111111111111'
+  const inventory = adaptCopyAccountWalletInventoryResponse({
+    complete: true,
+    pinnedStableBalance: {
+      status: 'PINNED_STABLE_BALANCE_STATUS_PRESENT',
+      balance: {
+        tokenAddress: quote,
+        balanceAsOfBlock: '100',
+        amountDecimal: '0.5',
+        token: { address: quote, decimals: 6 },
+      },
+    },
+  })
+  const snapshot: NonNullable<WithdrawTokensPreview['tokens']> = [
+    {
+      token: { address: quote },
+      balance: { status: 'METRIC_STATUS_CURRENT', valueRaw: '1000000' },
+    },
+  ]
+  expect(hasWithdrawalBalanceConverged(inventory, 100n, quote, snapshot)).toBe(true)
+  const balance = inventory.pinnedStableBalance?.balance
+  if (!balance?.token) throw new Error('Missing balance fixture')
+  balance.amountDecimal = '1'
+  expect(hasWithdrawalBalanceConverged(inventory, 100n, quote, snapshot)).toBe(false)
+  balance.amountDecimal = '0.5'
+  balance.token.address = '0x2222222222222222222222222222222222222222'
+  expect(hasWithdrawalBalanceConverged(inventory, 100n, quote, snapshot)).toBe(false)
+  balance.token = undefined
+  expect(hasWithdrawalBalanceConverged(inventory, 100n, quote, snapshot)).toBe(false)
+})
+
+it('accepts an executable stale quote snapshot while requiring updated inventory evidence', () => {
+  const quote = '0x1111111111111111111111111111111111111111'
+  const inventory = adaptCopyAccountWalletInventoryResponse({
+    complete: true,
+    pinnedStableBalance: {
+      status: 'PINNED_STABLE_BALANCE_STATUS_PRESENT',
+      balance: { tokenAddress: quote, balanceAsOfBlock: '100', amountDecimal: '0.5' },
+    },
+  })
+  const snapshot: NonNullable<WithdrawTokensPreview['tokens']> = [
+    {
+      token: { address: quote, decimals: 6 },
+      balance: { status: 'METRIC_STATUS_STALE', valueRaw: '1000000' },
+    },
+  ]
+  expect(hasWithdrawalBalanceConverged(inventory, 100n, quote, snapshot)).toBe(true)
+  const balance = inventory.pinnedStableBalance?.balance
+  const previous = snapshot[0].balance
+  if (!balance || !previous) throw new Error('Missing balance fixture')
+  balance.amountDecimal = '1'
+  expect(hasWithdrawalBalanceConverged(inventory, 100n, quote, snapshot)).toBe(false)
+  balance.amountDecimal = '0.5'
+  balance.balanceAsOfBlock = '99'
+  expect(hasWithdrawalBalanceConverged(inventory, 100n, quote, snapshot)).toBe(false)
+  balance.balanceAsOfBlock = '100'
+  previous.status = 'METRIC_STATUS_UNAVAILABLE'
+  expect(hasWithdrawalBalanceConverged(inventory, 100n, quote, snapshot)).toBe(false)
 })

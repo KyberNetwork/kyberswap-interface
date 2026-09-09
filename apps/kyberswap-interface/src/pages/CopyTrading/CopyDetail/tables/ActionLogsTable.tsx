@@ -81,6 +81,17 @@ const getActivityAsset = (activity: ActivityRow) => {
   if (activity.capital) return { amountRaw: activity.capital.amountRaw, token: activity.capital.token }
   if (activity.fee) return { amountRaw: activity.fee.amountRaw, token: activity.fee.token }
 
+  if (activity.execution) {
+    const token = activity.execution.baseToken
+    const address = activity.execution.baseTokenAddress || token?.address
+    return {
+      token:
+        token ||
+        (address
+          ? { chainId: activity.chainId, address, symbol: address.slice(0, 6) + '…' + address.slice(-4) }
+          : undefined),
+    }
+  }
   return {}
 }
 

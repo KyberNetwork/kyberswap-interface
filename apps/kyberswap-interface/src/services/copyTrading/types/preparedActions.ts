@@ -25,6 +25,7 @@ export type PreparedCallKind =
   | 'PREPARED_CALL_KIND_START_COPY_FUND'
   | 'PREPARED_CALL_KIND_ADD_CAPITAL'
   | 'PREPARED_CALL_KIND_STOP_COPY'
+  | 'PREPARED_CALL_KIND_WITHDRAW_TOKENS'
   | 'PREPARED_CALL_KIND_WITHDRAW_QUOTE'
   | 'PREPARED_CALL_KIND_MANUAL_SELL'
   | 'PREPARED_CALL_KIND_CLOSE_POSITION'
@@ -197,6 +198,20 @@ export type StopCopyPreview = {
   totalSwapQuote?: SwapQuotePreview
 }
 
+export type WithdrawTokensPreview = {
+  selection?: 'WITHDRAW_TOKEN_SELECTION_ALL_INDEXED_TOKENS'
+  tokens?: { token?: PreparedToken; balance?: RawAmountMetric; currentValuation?: PositionValuation }[]
+  quoteToken?: PreparedToken
+  balanceSetRevision?: string
+  recipientAddress?: Address
+  totalCurrentValueUsd?: Metric
+  cashbackForfeitedUsd?: Metric
+}
+
+export type PrepareWithdrawTokensRequest = PrepareCopyRunRequest & {
+  selection: 'WITHDRAW_TOKEN_SELECTION_ALL_INDEXED_TOKENS'
+}
+
 export type WithdrawQuotePreview = {
   quoteToken?: PreparedToken
   quoteBalance?: RawAmountMetric
@@ -240,6 +255,7 @@ export type PreparedAction = {
   startCopy?: StartCopyPreview
   addCapital?: AddCapitalPreview
   stopCopy?: StopCopyPreview
+  withdrawTokens?: WithdrawTokensPreview
   withdrawQuote?: WithdrawQuotePreview
   manualSell?: PositionSellPreview
   closePosition?: PositionSellPreview

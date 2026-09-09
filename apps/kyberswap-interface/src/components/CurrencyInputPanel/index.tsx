@@ -81,12 +81,14 @@ export const Container = ({
   selected,
   hideInput,
   error,
+  errorStyle,
   $outline,
   ...props
 }: React.HTMLAttributes<HTMLDivElement> & {
   selected: boolean
   hideInput: boolean
   error?: boolean
+  errorStyle?: 'warning-border'
   $outline?: boolean
 }) => (
   <div
@@ -95,7 +97,7 @@ export const Container = ({
       'flex flex-col gap-3 rounded-2xl border border-transparent',
       hideInput ? 'bg-transparent' : 'bg-buttonBlack',
       'p-4',
-      error ? 'border-red' : $outline ? 'border-border' : '',
+      error ? (errorStyle === 'warning-border' ? 'border-warning' : 'border-red') : $outline ? 'border-border' : '',
       className,
     )}
   />
@@ -365,6 +367,7 @@ interface CurrencyInputPanelProps {
   locked?: boolean
   maxCurrencySymbolLength?: number
   error?: boolean
+  errorStyle?: 'warning-border'
   maxLength?: number
   outline?: boolean
   filterWrap?: boolean
@@ -382,6 +385,7 @@ export default function CurrencyInputPanel({
   balanceActions,
   onBalanceClick,
   error,
+  errorStyle,
   onUserInput,
   onMax,
   onHalf,
@@ -444,7 +448,13 @@ export default function CurrencyInputPanel({
       )}
       <InputPanel id={id} hideInput={hideInput} data-testid={dataTestId}>
         {locked && PoolLockContent}
-        <Container hideInput={hideInput} selected={disableCurrencySelect} error={error} $outline={outline}>
+        <Container
+          hideInput={hideInput}
+          selected={disableCurrencySelect}
+          error={error}
+          errorStyle={errorStyle}
+          $outline={outline}
+        >
           {!hideBalance && (
             <BalanceRow
               account={account}
@@ -467,7 +477,7 @@ export default function CurrencyInputPanel({
                 account={account}
                 currency={currency}
                 disabledInput={disabledInput}
-                error={error}
+                error={error && errorStyle !== 'warning-border'}
                 estimatedUsd={estimatedUsd}
                 lockIcon={lockIcon}
                 maxLength={maxLength}

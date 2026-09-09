@@ -1,6 +1,6 @@
 # Copy Trading Implementation Status
 
-Last reviewed: 2026-09-03
+Last reviewed: 2026-09-08
 
 This file is the frontend snapshot for the current Copy Trading implementation.
 It records only current ownership, accepted product decisions, remaining gaps,
@@ -11,10 +11,10 @@ FE_API_Catalog.md and openapi.yaml.
 
 | Area              | Status                                                                                                         |
 | ----------------- | -------------------------------------------------------------------------------------------------------------- |
-| Backend contract  | Current input: checked-in OpenAPI byte-matches the live 33-path, 155-definition Swagger fetched on 2026-08-28. |
-| RTK Query service | Code-complete: 27 GET queries and 6 preparation mutations are declared and typed.                              |
+| Backend contract  | Current input: checked-in OpenAPI byte-matches the live 34-path, 160-definition Swagger fetched on 2026-09-08. |
+| RTK Query service | Code-complete: 27 GET queries and 7 preparation mutations are declared and typed.                              |
 | Read UI           | Code-complete for all currently defined product surfaces.                                                      |
-| Write UI          | Code-complete for Start Copy, Add Capital, Stop Copy, Withdraw Quote, Manual Sell, and Close Position.         |
+| Write UI          | Code-complete for Start Copy, Add Capital, Stop Copy, Withdraw Quote, Withdraw All Tokens, Manual Sell, and Close Position.         |
 | Responsive UI     | Code-complete for the defined layouts; Action Logs mobile filter remains a product decision.                   |
 | Live validation   | Positive controlled E2E remains deferred for the post-receipt convergence and position-recovery cases below.   |
 
@@ -189,6 +189,7 @@ them unless product explicitly approves a UI change:
 | Add Capital    | Shows current/new allocation inline and prepares, validates, simulates, and submits directly without a review step.                                            |
 | Stop Copy      | Loads the complete open-position cursor chain, supports zero to 32 selected position IDs, and submits the exact prepared call.                                 |
 | Withdraw Quote | Supports typed, Half, and Max. Max sends uint256.max internally while review displays the prepared token amount.                                               |
+| Withdraw All Tokens | Uses the separate indexed selection preparation, previews server balances, and permanently stops copying on submission, including zero balances. |
 | Manual Sell    | Active-Copy skipped-sell recovery using the pending FIFO and ALIGN_SKIP context.                                                                               |
 | Close Position | Full position recovery. Active recovery uses ALIGN_SKIP; CLOSING recovery uses STOP_COPY and returns to History.                                               |
 
@@ -211,12 +212,11 @@ Cross-flow decisions:
   the modal in its syncing phase after receipt success and poll one direct API
   read per attempt for up to 20 seconds. Add Capital requires the exact Copy
   Detail Capital In to increase; Stop Copy requires its lifecycle to leave
-  Active; Withdraw Quote requires Remaining in Wallet to differ from its
-  prepared snapshot; and position sells require a closed execution with the
+  Active; Withdraw Quote requires its stable balance read to cover the receipt block; and position sells require a closed execution with the
   submitted transaction hash. Projection-backed checks also require
   source-block receipt coverage. A timeout remains recoverable through Refresh
   status.
-- For the five non-Start actions, cache invalidation starts after receipt
+- For non-Start actions, cache invalidation starts after receipt
   success and runs again after the action-specific direct read converges so
   containing lists and summaries refetch from the new projection. Start Copy
   invalidates after receipt and retains its existing Agent-filtered polling.
@@ -267,11 +267,66 @@ Cross-flow decisions:
 - The modal trusts its passed Copy Run and the pinned quote balance from
   wallet-inventory. Preparation remains authoritative.
 
+### Withdraw All Tokens and September read updates
+
+- Withdrawal files live under `modals/WithdrawModal`: flow hooks own preparation,
+  input state, submission, and convergence; `components.tsx` and
+  `WithdrawalOptions.tsx` own presentation; the modal owns selection, navigation,
+  and CTA resolution. `useWithdrawalData.ts` groups inventory and preview reads;
+  its inventory hook supplies one shared inventory and
+  matching quote balance to the option UI and stable flow.
+- Preview failures block execution without blocking Connect Wallet or Switch Network.
+  Convergence falls back to matching inventory token decimals when the submitted
+  snapshot lacks decimals; missing or mismatched metadata remains unproven.
+
+- Copy Detail Advanced has one Withdraw button. Its modal defaults to
+  All Tokens and offers All Tokens / Withdraw Stable only radio options, using
+  each action's own advisory. All Tokens expands wallet rows; Stable only expands
+  the amount input with 100% / 50% presets and existing validation. One modal
+  owns both initialized flows and keeps both option bodies mounted. Selection
+  animates their collapse over 300 ms (reduced-motion aware); the Stable amount
+  survives switching, while prepared calls reset. Cached wallet inventory renders immediately; preparation and gas loading use
+  individual value skeletons without hiding the options. Review and receipt handling remain shared.
+- Each modal instance loads a fresh display-only prepareWithdrawTokens preview
+  once, with no polling or preview reuse across opens. Query identity includes
+  the modal instance; closing discards its cache. Switching options or returning
+  from review does not refetch. Submission still prepares a fresh call. The selected token rows, total USD, and rebate
+  risk all come from that preview with independent status checks. Gas is an RPC
+  estimate for the exact outer call, displayed in native currency; failure does
+  not hide the other metrics. Clicking Withdraw always prepares a new call.
+- All Tokens sends only ALL_INDEXED_TOKENS to prepareWithdrawTokens. Review
+  explains permanent Stop, pending rebate risk, and token-discovery limits.
+  Preparation owns token selection, balances, recipient, and calldata.
+- Exact current balances, quote-token membership, recipient, and bounded unique
+  token selection are validated. Display price/rebate availability is independent
+  from readiness; zero-balance selections remain executable.
+- The shared flow validates owner/chain/call kind/expiry, simulates, estimates
+  outer-call gas, submits the exact call, and waits for its receipt. Expired or
+  failed calls require fresh preparation; receipt/sync retries never resubmit.
+- Both withdrawals poll only wallet-inventory after receipt. They require a
+  complete inventory, the matching pinned stable token, and balance block coverage
+  at or after the receipt: stable balance for Stable only, each token in the submitted preparation
+  snapshot for All Tokens (missing rows remain unproven; extra tokens are ignored). Neither waits for USD metrics or lifecycle projections, nor
+  requires exact balance subtraction or reaching zero. Each positive prepared balance must change; already-zero prepared balances only need block coverage. Shared syncing/timeout/retry and
+  cache refresh remain unchanged; lifecycle/list membership comes from refreshed
+  server reads.
+- History retains its existing desktop columns and mobile fields. Desktop sorting
+  supports Closed Trades, Capital In, Current Balance, and Started & Stopped Time
+  (by stoppedAt). Missing closed counts never fall back to open counts. The API
+  adapter retains the new History metrics without adding UI fields.
+- Execution activity tokens now use backend token identity for skipped sells;
+  missing amounts remain missing. Capital In already renders CURRENT/STALE
+  independently from SYNCING, and chart dollar/percentage series remain separate.
+- Run lifecycle, Capital In, and historical P&L stay server-owned; withdrawal
+  never fabricates closed trades or subtracts from gross contributions locally.
+
 ## Remaining Work
 
 Frontend implementation is complete for the current scope. The remaining work
 is validation or product-definition work:
 
+- Controlled positive E2E for All Tokens withdrawal on active and stopped runs,
+  including zero balances, expiry, and post-receipt inventory convergence.
 - Controlled positive E2E for Add Capital, Stop Copy, and Withdraw Quote
   post-receipt convergence.
 - Controlled positive E2E for active Manual Sell after an Operator skip.
@@ -289,13 +344,16 @@ from the frontend.
 
 ## Verification Snapshot
 
-Latest checks for the current working tree:
+Latest checks for the current working tree (2026-09-08):
 
 - App TypeScript passed.
-- Targeted Copy Trading modal ESLint passed.
-- All 87 currently discovered Copy Trading unit tests across 13 files passed.
-- Focused formatting passed.
-- git diff --check and git diff --cached --check passed.
-- The checked-in OpenAPI byte-matched the live 33-path, 155-definition schema;
-  SHA-256: b763fcec14aef8f43e78386597b4a8d2842a1b2c69d89ae994f79b1969795933.
-- Browser QA, production build, and positive live transaction E2E were not run.
+- Copy Trading suite: 133 passed across 17 files. After adding the separate
+  All Tokens call-kind regression, the three affected files passed 42 tests
+  (134 total tests now). Coverage includes zero balances, receipt block coverage,
+  History metrics, activity identity, and rejecting mixed withdrawal previews.
+- Targeted ESLint and git diff --check passed.
+- Checked-in OpenAPI byte-matches the fetched 34-path, 160-definition schema;
+  SHA-256: 16448dd89ab4ea179f6f94059fdbd0c28dfdd1d4d092d84c9538b4ec66702241.
+- The five withdraw-token reference PNGs were visually inspected for the shared
+  selector layout. Browser QA, production build, and positive live transaction
+  E2E were not run.
