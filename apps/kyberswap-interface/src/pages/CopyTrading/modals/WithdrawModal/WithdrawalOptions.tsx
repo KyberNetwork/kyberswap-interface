@@ -21,7 +21,7 @@ import type { useWithdrawQuote } from './useWithdrawQuote'
 import type { WithdrawalInventory, useWithdrawalPreview } from './useWithdrawalData'
 
 const tokenRowClassName =
-  'grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-2 gap-y-1 px-3 py-2 text-sm font-medium sm:grid-cols-[minmax(60px,1fr)_140px_120px] sm:gap-2'
+  'grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-2 gap-y-1 py-2 text-sm font-medium sm:grid-cols-[minmax(60px,1fr)_140px_120px] sm:gap-2'
 const tokenAmountClassName =
   'col-start-1 row-start-2 min-w-0 truncate text-subText sm:col-auto sm:row-auto sm:text-right'
 const tokenValueClassName = 'col-start-2 row-start-1 min-w-0 truncate text-right sm:col-auto sm:row-auto'
@@ -98,7 +98,7 @@ export const WithdrawalOptions = ({
               <Stack key={option} className="gap-0 rounded-xl bg-white-04">
                 <label
                   className={cn(
-                    'flex items-center gap-2 p-3 text-sm transition-colors duration-150',
+                    'flex items-center gap-2 px-4 py-3 text-sm transition-colors duration-150',
                     mode === option ? 'rounded-t-xl' : 'rounded-xl',
                     disabled || !available ? 'cursor-not-allowed text-subText' : 'cursor-pointer hover:bg-white-04',
                   )}
@@ -122,14 +122,14 @@ export const WithdrawalOptions = ({
                   </span>
                 </label>
                 {!available && (
-                  <p className="px-3 pb-3 text-xs text-warning">{getPreparedReasonMessage(availability?.reason)}</p>
+                  <p className="px-4 pb-3 text-xs text-warning">{getPreparedReasonMessage(availability?.reason)}</p>
                 )}
                 <WithdrawalCollapse expanded={mode === option}>
-                  <div className={option === 'stable' ? 'border-t border-border p-3' : 'pb-3'}>
+                  <div className={cn('border-t border-border px-4', option === 'stable' ? 'py-2' : 'py-1')}>
                     {option === 'stable' ? (
                       <WithdrawQuoteInput {...quote.input} />
                     ) : (
-                      <Stack className="max-h-52 gap-0 overflow-y-auto border-t border-border pt-1">
+                      <Stack className="max-h-52 gap-0 overflow-y-auto">
                         {assets.map(asset => (
                           <div key={asset.address} className={tokenRowClassName}>
                             <span className="min-w-0 truncate" title={asset.address}>
@@ -140,7 +140,7 @@ export const WithdrawalOptions = ({
                           </div>
                         ))}
                         {!assets.length && !display.loading && (
-                          <span className="text-subText">Token preview unavailable</span>
+                          <span className="py-2 text-sm text-subText">Token preview unavailable</span>
                         )}
                       </Stack>
                     )}
