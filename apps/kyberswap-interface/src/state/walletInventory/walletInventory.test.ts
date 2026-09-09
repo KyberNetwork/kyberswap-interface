@@ -536,8 +536,18 @@ describe('resolveInventory', () => {
     expect(resolveInventory(entry([], 'settled'), false).active).toBe(false)
   })
 
-  it('stays inactive before the first fetch lands, so the caller reads its own source meanwhile', () => {
-    expect(resolveInventory(undefined, true).active).toBe(false)
+  it('reports pending before the first fetch lands, so the caller waits rather than sweeping', () => {
+    const resolved = resolveInventory(undefined, true)
+    expect(resolved.active).toBe(false)
+    expect(resolved.pending).toBe(true)
+  })
+
+  it('drops pending once a walk has answered, whatever the answer', () => {
+    // Every other way of not being active is a decision already made; only the first walk is a wait.
+    expect(resolveInventory({ ...entry([], 'error'), status: 'error' as const }, true).pending).toBe(false)
+    expect(resolveInventory(entry([row(USDT_CHECKSUM, 5n, 100)], 'partial'), true, '1000').pending).toBe(false)
+    // Settled but missing a native row while the chain read is still out: decided now, not waited on.
+    expect(resolveInventory(entry([row(USDT_CHECKSUM, 5n, 100)], 'settled'), true, undefined).pending).toBe(false)
   })
 
   it('stays inactive after a fetch fails', () => {
@@ -616,6 +626,7 @@ describe('buildInventoryBalanceMap', () => {
   const inventory = (rows: InventoryRow[]) => ({
     rows: Object.fromEntries(rows.map(r => [r.address, r])),
     active: true,
+    pending: false,
   })
 
   it('synthesizes an explicit zero for tokens an active inventory does not list', () => {
@@ -626,7 +637,7 @@ describe('buildInventoryBalanceMap', () => {
   })
 
   it('returns nothing at all when the inventory is inactive', () => {
-    const map = buildInventoryBalanceMap([token], { rows: {}, active: false })
+    const map = buildInventoryBalanceMap([token], { rows: {}, active: false, pending: false })
     expect(Object.keys(map)).toHaveLength(0)
   })
 
@@ -648,6 +659,7 @@ describe('computeInventoryDiscoveries', () => {
   const activeInventory = (rows: InventoryRow[]) => ({
     rows: Object.fromEntries(rows.map(r => [r.address, r])),
     active: true,
+    pending: false,
   })
 
   const heldRow = (address: string, symbol: string): InventoryRow => ({
@@ -766,6 +778,7 @@ describe('wallet assets', () => {
       ),
     ),
     active: true,
+    pending: false,
   }
 
   it('reports the token list as not ready while the map holds nothing but imports', () => {
@@ -775,7 +788,7 @@ describe('wallet assets', () => {
   })
 
   it('does no work and keeps one identity while the legacy hook owns the popup', () => {
-    const inactive = { rows: {}, active: false }
+    const inactive = { rows: {}, active: false, pending: false }
     const first = selectWalletHoldings(inactive, defaultTokens, imports, ChainId.MAINNET)
     const second = selectWalletHoldings(inactive, defaultTokens, imports, ChainId.MAINNET)
     expect(first).toBe(second)
@@ -887,6 +900,7 @@ describe('token metadata', () => {
   const activeInventory = (rows: InventoryRow[]) => ({
     rows: Object.fromEntries(rows.map(r => [r.address, r])),
     active: true,
+    pending: false,
   })
 
   beforeEach(() => {

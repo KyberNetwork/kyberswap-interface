@@ -21,11 +21,19 @@ export type WalletInventory = {
    * caller reads its own source instead.
    */
   active: boolean
+  /**
+   * No answer yet, but one is on its way: the first walk for this wallet is in flight. A caller waits
+   * rather than starting the whole-list sweep this layer exists to remove — a wallet is one request
+   * and the walk carries its own deadline, so the wait is short and bounded. Every other way of not
+   * being `active` is a decision already made, and the caller reads its own source at once.
+   */
+  pending: boolean
 }
 
-// Module constant, not built per call: a caller sees it on every render until a walk lands, and a
-// fresh object would ripple a new balance map (and a list re-sort) out of every one of them.
-export const INACTIVE_INVENTORY: WalletInventory = { rows: EMPTY_ROWS, active: false }
+// Module constants, not built per call: a caller sees one of these on every render until a walk
+// lands, and a fresh object would ripple a new balance map (and a list re-sort) out of every one.
+export const INACTIVE_INVENTORY: WalletInventory = { rows: EMPTY_ROWS, active: false, pending: false }
+const PENDING_INVENTORY: WalletInventory = { rows: EMPTY_ROWS, active: false, pending: true }
 
 /**
  * Turns a store entry into what consumers should read.
@@ -45,7 +53,8 @@ export const resolveInventory = (
   nativeRawBalance?: string,
 ): WalletInventory => {
   if (!subscribed) return INACTIVE_INVENTORY
-  if (!entry) return INACTIVE_INVENTORY
+  // The first walk is on its way; a failed one commits an entry, so this does not outlast it.
+  if (!entry) return PENDING_INVENTORY
   if (entry.status === 'error') return INACTIVE_INVENTORY
   // A partial walk (wallet larger than the page cap) is not authoritative about anything it did not
   // list, which is most of what the selector renders — multicall answers those in one block instead.
@@ -56,8 +65,9 @@ export const resolveInventory = (
   const nativeRow = held[ETHER_ADDRESS]
 
   // No native row means either a wallet that holds none or one the index has not covered — the two
-  // are the same answer here, and only the chain tells them apart. Until it does, or if it says the
-  // wallet is funded, this answer is missing at least one holding and is not relied on.
+  // are the same answer here, and only the chain tells them apart. That is decided now, not waited
+  // for: without the chain's word the answer is not relied on, and if the read arrives saying the
+  // wallet holds no native, the next render trusts it. Nothing on screen waits on that read.
   if (!nativeRow && (nativeRead === undefined || nativeRead > 0n)) return INACTIVE_INVENTORY
 
   // The chain owns the native balance: the index lags it, and it is the number users watch most
@@ -70,7 +80,7 @@ export const resolveInventory = (
       ? withoutNative(held)
       : { ...held, [ETHER_ADDRESS]: { ...nativeRow, rawBalance: nativeRead } }
 
-  return { rows, active: true }
+  return { rows, active: true, pending: false }
 }
 
 const withoutNative = (rows: Record<string, InventoryRow>): Record<string, InventoryRow> => {

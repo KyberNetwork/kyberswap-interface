@@ -37,9 +37,9 @@ export type WalletAssets = {
 export const useWalletAssets = (): WalletAssets => {
   const { chainId } = useActiveWeb3React()
   const inventory = useWalletInventory()
-  // The multicall hook answers until the inventory can. A wallet is walked page by page, and the
-  // popup shows balances from the first read rather than from the end of that walk.
-  const legacy = useTokensHasBalance(true, !inventory.active)
+  // The multicall hook answers only once the inventory has said it cannot; while the first walk is in
+  // flight the popup waits for it rather than sweeping the whole whitelist behind it.
+  const legacy = useTokensHasBalance(true, !inventory.active && !inventory.pending)
 
   const defaultTokens = useAllTokens()
   const tokenImports = useUserAddedTokens()
