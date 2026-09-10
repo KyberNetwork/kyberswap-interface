@@ -38,8 +38,22 @@ type NavGroup = {
   items: NavItem[]
 }
 
-const useEarnNavGroups = (): NavGroup[] =>
-  useMemo(
+/**
+ * The vault list a detail page was opened from, which its link carries in history state. A pasted
+ * or bookmarked URL carries none and reads as Explore Vaults.
+ */
+const useVaultDetailSection = (): string | undefined => {
+  const { pathname, state } = useLocation()
+  if (!pathname.startsWith('/earn/vault/')) return undefined
+  return (state as { from?: string } | null)?.from === APP_PATHS.EARN_MY_VAULTS
+    ? APP_PATHS.EARN_MY_VAULTS
+    : APP_PATHS.EARN_VAULTS
+}
+
+const useEarnNavGroups = (): NavGroup[] => {
+  const vaultDetailSection = useVaultDetailSection()
+
+  return useMemo(
     () => [
       {
         label: t`Liquidity Pools`,
@@ -61,14 +75,20 @@ const useEarnNavGroups = (): NavGroup[] =>
             label: t`Explore Vaults`,
             path: APP_PATHS.EARN_VAULTS,
             icon: ExploreVaultsIcon,
-            matchPath: p => p === APP_PATHS.EARN_VAULTS || p.startsWith('/earn/vault/'),
+            matchPath: p => p === APP_PATHS.EARN_VAULTS || vaultDetailSection === APP_PATHS.EARN_VAULTS,
           },
-          { label: t`My Vaults`, path: APP_PATHS.EARN_MY_VAULTS, icon: FeaturedVaultIcon },
+          {
+            label: t`My Vaults`,
+            path: APP_PATHS.EARN_MY_VAULTS,
+            icon: FeaturedVaultIcon,
+            matchPath: p => p === APP_PATHS.EARN_MY_VAULTS || vaultDetailSection === APP_PATHS.EARN_MY_VAULTS,
+          },
         ],
       },
     ],
-    [],
+    [vaultDetailSection],
   )
+}
 
 const isItemMatch = (item: NavItem, pathname: string) =>
   item.matchPath ? item.matchPath(pathname) : pathname === item.path

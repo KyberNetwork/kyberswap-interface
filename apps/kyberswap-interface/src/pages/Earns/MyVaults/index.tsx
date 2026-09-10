@@ -108,7 +108,12 @@ const MyVaultCard = ({
   return (
     <VaultCard $clickable $revealIndex={revealIndex}>
       <CardHeader>
-        <CardTitleLink to={buildVaultDetailPath(vault.chainId, vault.id)} className="flex items-center gap-1">
+        <CardTitleLink
+          to={buildVaultDetailPath(vault.chainId, vault.id)}
+          // Tells the Earn sidebar which vault section this detail page belongs to.
+          state={{ from: APP_PATHS.EARN_MY_VAULTS }}
+          className="flex items-center gap-1"
+        >
           <TokenIconWrapper>
             <TokenLogo src={vault.tokenIcon} alt={vault.token} size={24} />
             <TokenLogo

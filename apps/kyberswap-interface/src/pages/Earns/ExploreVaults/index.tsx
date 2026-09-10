@@ -12,6 +12,7 @@ import DropdownMenu from 'components/DropdownMenu'
 import MultiSelectDropdownMenu from 'components/DropdownMenu/MultiSelect'
 import Search from 'components/Search'
 import TokenLogo from 'components/TokenLogo'
+import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { ApyBarChart, TvlLineChart } from 'pages/Earns/ExploreVaults/MiniCharts'
 import {
@@ -114,6 +115,8 @@ const VaultIdentity = ({ vault }: { vault: VaultInfo }) => (
 const ExploreVaultCard = ({ vault, hasPosition, onDeposit, revealIndex }: VaultItemProps) => {
   const navigate = useNavigate()
   const detailPath = buildVaultDetailPath(vault.chainId, vault.id)
+  // Tells the Earn sidebar which vault section this detail page belongs to.
+  const detailState = { from: APP_PATHS.EARN_VAULTS }
 
   return (
     <VaultCard $clickable={!vault.disabled} $disabled={vault.disabled} $revealIndex={revealIndex}>
@@ -121,14 +124,14 @@ const ExploreVaultCard = ({ vault, hasPosition, onDeposit, revealIndex }: VaultI
         {vault.disabled ? (
           <VaultIdentity vault={vault} />
         ) : (
-          <CardTitleLink to={detailPath}>
+          <CardTitleLink to={detailPath} state={detailState}>
             <VaultIdentity vault={vault} />
           </CardTitleLink>
         )}
 
         <CardActions>
           {hasPosition && (
-            <ViewPositionButton type="button" onClick={() => navigate(detailPath)}>
+            <ViewPositionButton type="button" onClick={() => navigate(detailPath, { state: detailState })}>
               {t`View Position`}
             </ViewPositionButton>
           )}
@@ -182,6 +185,8 @@ const ExploreVaultCard = ({ vault, hasPosition, onDeposit, revealIndex }: VaultI
 const ExploreVaultListItem = ({ vault, hasPosition, onDeposit, revealIndex }: VaultItemProps) => {
   const navigate = useNavigate()
   const detailPath = buildVaultDetailPath(vault.chainId, vault.id)
+  // Tells the Earn sidebar which vault section this detail page belongs to.
+  const detailState = { from: APP_PATHS.EARN_VAULTS }
 
   const identity = (
     <>
@@ -209,7 +214,7 @@ const ExploreVaultListItem = ({ vault, hasPosition, onDeposit, revealIndex }: Va
         {vault.disabled ? (
           identity
         ) : (
-          <CardTitleLink to={detailPath} className="flex min-w-0 items-center gap-2">
+          <CardTitleLink to={detailPath} state={detailState} className="flex min-w-0 items-center gap-2">
             {identity}
           </CardTitleLink>
         )}
@@ -243,7 +248,7 @@ const ExploreVaultListItem = ({ vault, hasPosition, onDeposit, revealIndex }: Va
 
       <VaultListActions className="relative z-[1]">
         {hasPosition && (
-          <ViewPositionButton type="button" onClick={() => navigate(detailPath)}>
+          <ViewPositionButton type="button" onClick={() => navigate(detailPath, { state: detailState })}>
             {t`View Position`}
           </ViewPositionButton>
         )}
