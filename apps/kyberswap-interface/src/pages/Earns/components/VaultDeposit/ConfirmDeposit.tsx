@@ -2,11 +2,9 @@ import { t } from '@lingui/macro'
 import { VaultApiDetailItem } from 'services/vault'
 
 import { ReactComponent as SwapArrowIcon } from 'assets/svg/earn/ic_swap_arrow.svg'
-import Loader from 'components/Loader'
 import {
   ButtonGroup,
   DetailsBox,
-  ErrorNote,
   InfoLabel,
   InfoRow,
   InfoValue,
@@ -43,11 +41,14 @@ const ConfirmDeposit = ({
   form,
   onBack,
   onClose,
+  onSubmit,
 }: {
   vault: VaultApiDetailItem
   form: DepositFormState
   onBack: () => void
   onClose: () => void
+  /** Hands over to the step sequence, which keeps its own modal open until the deposit confirms. */
+  onSubmit: () => void
 }) => {
   const shareSymbol = vault.shareToken?.symbol ?? ''
   const shareDecimals = vault.shareToken?.decimals ?? 18
@@ -161,13 +162,10 @@ const ConfirmDeposit = ({
         </p>
       </div>
 
-      {form.submitError ? <ErrorNote>{form.submitError}</ErrorNote> : null}
-
       <ButtonGroup>
-        <OutlinedButton onClick={onBack} disabled={form.isSubmitting}>{t`Cancel`}</OutlinedButton>
-        <PrimaryButton onClick={form.deposit} disabled={form.isSubmitting || !form.isReady}>
-          {form.isSubmitting ? <Loader size="16px" /> : null}
-          {form.isSubmitting ? t`Depositing` : t`Deposit`}
+        <OutlinedButton onClick={onBack}>{t`Cancel`}</OutlinedButton>
+        <PrimaryButton onClick={onSubmit} disabled={!form.isReady}>
+          {t`Deposit`}
         </PrimaryButton>
       </ButtonGroup>
     </>

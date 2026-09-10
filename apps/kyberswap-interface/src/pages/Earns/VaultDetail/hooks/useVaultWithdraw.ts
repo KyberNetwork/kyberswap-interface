@@ -26,8 +26,6 @@ type UseVaultWithdrawArgs = {
   /** Basis points given up to incentivise a solver; the queue's minimum by default. */
   discount?: number
   secondsToDeadline?: number
-  /** Fired once the request is in the mempool, not once it is mined. */
-  onSubmitted?: () => void
 }
 
 export const useVaultWithdraw = ({
@@ -38,7 +36,6 @@ export const useVaultWithdraw = ({
   assetOut,
   discount,
   secondsToDeadline,
-  onSubmitted,
 }: UseVaultWithdrawArgs) => {
   const { account } = useActiveWeb3React()
   const { isSmartConnector } = useWeb3React()
@@ -56,9 +53,12 @@ export const useVaultWithdraw = ({
     [shareToken, shares],
   )
 
+  // The approve step re-reads the allowance on chain before prompting, so the cached state must not
+  // be the thing that decides whether a prompt is shown.
   const [approvalState, approve] = useApproveCallback({
     amount: approvalAmount,
     spender: queueAddress,
+    forceApprove: true,
   })
 
   const reset = useCallback(() => {
@@ -66,9 +66,10 @@ export const useVaultWithdraw = ({
     setTxHash(null)
   }, [])
 
-  const requestWithdraw = useCallback(async () => {
-    if (!account || !queueAddress || !assetOut || !shares || shares <= 0n) return
-    if (discount === undefined || secondsToDeadline === undefined) return
+  /** Returns the transaction hash so a step sequence can wait for its receipt. */
+  const requestWithdraw = useCallback(async (): Promise<string | undefined> => {
+    if (!account || !queueAddress || !assetOut || !shares || shares <= 0n) return undefined
+    if (discount === undefined || secondsToDeadline === undefined) return undefined
 
     setSubmitError(null)
     setIsSubmitting(true)
@@ -100,11 +101,12 @@ export const useVaultWithdraw = ({
           contract: queueAddress,
         },
       })
-      onSubmitted?.()
+      return hash
     } catch (error) {
       const message = friendlyError(error as Error)
       setSubmitError(message)
       notify({ title: t`Withdrawal request failed`, summary: message, type: NotificationType.ERROR }, 8000)
+      return undefined
     } finally {
       setIsSubmitting(false)
     }
@@ -121,7 +123,6 @@ export const useVaultWithdraw = ({
     shareToken?.address,
     shareToken?.symbol,
     approvalAmount,
-    onSubmitted,
     notify,
   ])
 
@@ -129,7 +130,6 @@ export const useVaultWithdraw = ({
     approvalState,
     approve,
     needsApproval: approvalState === ApprovalState.NOT_APPROVED,
-    isApproving: approvalState === ApprovalState.PENDING,
     requestWithdraw,
     isSubmitting,
     submitError,

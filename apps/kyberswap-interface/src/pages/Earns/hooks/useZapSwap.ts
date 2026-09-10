@@ -32,8 +32,6 @@ type UseZapSwapArgs = {
   /** Called with the built route's quoted output, in raw units, to describe the transaction. */
   buildExtraInfo?: (quoteAmountOutRaw: string) => TransactionExtraInfo
   errorTitle: string
-  /** Fired once the transaction is in the mempool, not once it is mined. */
-  onSubmitted?: () => void
   /** Hold the quote steady while the user is reviewing or signing it. */
   pausePolling?: boolean
 }
@@ -52,7 +50,6 @@ export const useZapSwap = ({
   transactionType,
   buildExtraInfo,
   errorTitle,
-  onSubmitted,
   pausePolling,
 }: UseZapSwapArgs) => {
   const { account } = useActiveWeb3React()
@@ -118,13 +115,17 @@ export const useZapSwap = ({
     [amountOutRaw, slippage],
   )
 
+  // The approve step re-reads the allowance on chain before prompting, so the cached state must not
+  // be the thing that decides whether a prompt is shown.
   const [approvalState, approve] = useApproveCallback({
     amount: approvalAmount,
     spender: route?.allowanceHubAddress,
+    forceApprove: true,
   })
 
-  const submit = useCallback(async () => {
-    if (!account || !route) return
+  /** Returns the transaction hash so a step sequence can wait for its receipt. */
+  const submit = useCallback(async (): Promise<string | undefined> => {
+    if (!account || !route) return undefined
 
     setSubmitError(null)
     setIsSubmitting(true)
@@ -157,11 +158,12 @@ export const useZapSwap = ({
         type: transactionType,
         extraInfo: buildExtraInfo?.(buildData.quoteAmountOut || '0'),
       })
-      onSubmitted?.()
+      return hash
     } catch (error) {
       const message = friendlyError(error as Error)
       setSubmitError(message)
       notify({ title: errorTitle, summary: message, type: NotificationType.ERROR }, 8000)
+      return undefined
     } finally {
       setIsSubmitting(false)
     }
@@ -174,7 +176,6 @@ export const useZapSwap = ({
     addTransactionWithType,
     transactionType,
     buildExtraInfo,
-    onSubmitted,
     notify,
     errorTitle,
   ])
@@ -195,7 +196,6 @@ export const useZapSwap = ({
     approvalState,
     approve,
     needsApproval: approvalState === ApprovalState.NOT_APPROVED,
-    isApproving: approvalState === ApprovalState.PENDING,
     submit,
     isSubmitting,
     submitError,

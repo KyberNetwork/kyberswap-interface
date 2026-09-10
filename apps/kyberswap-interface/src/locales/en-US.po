@@ -53,7 +53,7 @@ msgstr "Disconnect"
 msgid "Earn Position"
 msgstr "Earn Position"
 
-#: src/components/LimitOrder/ProcessingOrder/ProcessingOrderModal.tsx
+#: src/components/LimitOrder/ProcessingOrder/steps.ts
 msgid "Filling order"
 msgstr "Filling order"
 
@@ -146,7 +146,7 @@ msgstr "Refunded"
 msgid "Classic is not supported on Base. Please switch to other chains"
 msgstr "Classic is not supported on Base. Please switch to other chains"
 
-#: src/components/LimitOrder/ProcessingOrder/ProcessingOrderModal.tsx
+#: src/components/LimitOrder/ProcessingOrder/steps.ts
 msgid "Wrap {nativeSymbol}"
 msgstr "Wrap {nativeSymbol}"
 
@@ -397,7 +397,7 @@ msgstr "My Farming Positions"
 msgid "KNC token holders can benefit from our flagship product KyberSwap. Holders can stake their KNC & vote on initiatives to receive trading fees generated on KyberSwap! More trades on KyberSwap can generate more rewards for KNC holders!"
 msgstr "KNC token holders can benefit from our flagship product KyberSwap. Holders can stake their KNC & vote on initiatives to receive trading fees generated on KyberSwap! More trades on KyberSwap can generate more rewards for KNC holders!"
 
-#: src/components/LimitOrder/ProcessingOrder/ProcessingOrderModal.tsx
+#: src/components/LimitOrder/ProcessingOrder/steps.ts
 msgid "token"
 msgstr "token"
 
@@ -488,9 +488,9 @@ msgstr "Switch to {0}"
 #~ msgid "Your Share of Pool"
 #~ msgstr "Your Share of Pool"
 
-#: src/pages/Earns/VaultDetail/WithdrawTab.tsx
-#~ msgid "Request withdrawal"
-#~ msgstr "Request withdrawal"
+#: src/pages/Earns/components/vaultSteps.ts
+msgid "Request withdrawal"
+msgstr "Request withdrawal"
 
 #: src/utils/time.ts
 msgid "{min} {formatM} ago"
@@ -1181,6 +1181,10 @@ msgstr "Cross-Chain"
 msgid "All data used in this process (transaction hashes and Bitcoin block hash) are publicly verifiable on-chain."
 msgstr "All data used in this process (transaction hashes and Bitcoin block hash) are publicly verifiable on-chain."
 
+#: src/pages/Earns/components/vaultSteps.ts
+msgid "Deposited"
+msgstr "Deposited"
+
 #: src/pages/Earns/components/SmartExit/Confirmation/index.tsx
 msgid "Signing..."
 msgstr "Signing..."
@@ -1191,6 +1195,10 @@ msgstr "Signing..."
 #: src/pages/Earns/VaultDetail/index.tsx
 msgid "managed by"
 msgstr "managed by"
+
+#: src/components/ProcessingSteps/stepLabels.ts
+msgid "Approved {symbol}"
+msgstr "Approved {symbol}"
 
 #: src/pages/Campaign/components/Information/info/mayTrading.tsx
 msgid "For $1 in trading volume, you earn 1 point"
@@ -1391,7 +1399,8 @@ msgstr "Your orders below have successfully cancelled:<0/>{listOrderName}"
 msgid "Join to start tracking - only joined wallets have transactions recorded."
 msgstr "Join to start tracking - only joined wallets have transactions recorded."
 
-#: src/components/LimitOrder/ProcessingOrder/ProcessingOrderModal.tsx
+#: src/components/LimitOrder/CreateOrder/CreateOrderFlow.tsx
+#: src/components/LimitOrder/TakeOrder/TakeOrderConfirmModal.tsx
 msgid "My Orders"
 msgstr "My Orders"
 
@@ -1446,7 +1455,7 @@ msgstr "Market cap"
 msgid "Are you sure?"
 msgstr "Are you sure?"
 
-#: src/components/LimitOrder/ProcessingOrder/ProcessingOrderModal.tsx
+#: src/components/ProcessingSteps/ProcessingStepsModal.tsx
 msgid "Retry"
 msgstr "Retry"
 
@@ -1611,6 +1620,10 @@ msgstr "the price of"
 msgid "By 3rd party"
 msgstr "By 3rd party"
 
+#: src/pages/Earns/components/vaultSteps.ts
+msgid "Processing Deposit"
+msgstr "Processing Deposit"
+
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 msgid "Approved"
@@ -1651,6 +1664,10 @@ msgstr "You can check it under the \"Your Transactions\" tab on the campaign pag
 #: src/pages/Earns/components/ClaimAllModal/index.tsx
 msgid "Claim Incentives"
 msgstr "Claim Incentives"
+
+#: src/components/ProcessingSteps/stepLabels.ts
+msgid "Approving {symbol}"
+msgstr "Approving {symbol}"
 
 #: src/pages/Earns/PositionDetail/index.tsx
 #: src/pages/Earns/UserPositions/PositionRowItem.tsx
@@ -1845,7 +1862,7 @@ msgstr "🏆 Prize: {0} KNC"
 msgid "Insufficient {symbol} balance"
 msgstr "Insufficient {symbol} balance"
 
-#: src/components/LimitOrder/ProcessingOrder/ProcessingOrderModal.tsx
+#: src/components/LimitOrder/ProcessingOrder/steps.ts
 msgid "Order successfully listed"
 msgstr "Order successfully listed"
 
@@ -1911,8 +1928,8 @@ msgstr "You will receive at least this amount or your transaction will revert."
 
 #: src/pages/Earns/components/VaultDeposit/VaultDepositModal.tsx
 #: src/pages/Earns/VaultDetail/DepositTab.tsx
-msgid "Approve {currencySymbol}"
-msgstr "Approve {currencySymbol}"
+#~ msgid "Approve {currencySymbol}"
+#~ msgstr "Approve {currencySymbol}"
 
 #: src/components/Header/web3/WalletModal/index.tsx
 msgid "Open MetaMask"
@@ -3369,7 +3386,7 @@ msgstr "Signed out successfully"
 msgid "Your Transactions"
 msgstr "Your Transactions"
 
-#: src/components/LimitOrder/ProcessingOrder/ProcessingOrderModal.tsx
+#: src/components/ProcessingSteps/stepLabels.ts
 msgid "Approved token"
 msgstr "Approved token"
 
@@ -3539,7 +3556,7 @@ msgstr "Your slippage is set higher than usual, which may cause unexpected losse
 msgid "My Dashboard"
 msgstr "My Dashboard"
 
-#: src/components/LimitOrder/ProcessingOrder/ProcessingOrderModal.tsx
+#: src/components/LimitOrder/ProcessingOrder/steps.ts
 msgid "Fill order"
 msgstr "Fill order"
 
@@ -3992,7 +4009,7 @@ msgstr "All Time High"
 msgid "Participate in the Elastic farm to earn more rewards. Click <0>here</0> to go to the farm."
 msgstr "Participate in the Elastic farm to earn more rewards. Click <0>here</0> to go to the farm."
 
-#: src/components/LimitOrder/ProcessingOrder/ProcessingOrderModal.tsx
+#: src/components/LimitOrder/ProcessingOrder/steps.ts
 msgid "Wrapped {nativeSymbol}"
 msgstr "Wrapped {nativeSymbol}"
 
@@ -4079,6 +4096,10 @@ msgstr "Total Fees Earned"
 msgid "EG Sharing Reward:"
 msgstr "EG Sharing Reward:"
 
+#: src/pages/Earns/components/vaultSteps.ts
+msgid "Submitting request"
+msgstr "Submitting request"
+
 #: src/pages/CrossChainSwap/components/TransactionHistory.tsx
 #~ msgid "CREATED"
 #~ msgstr "CREATED"
@@ -4125,9 +4146,9 @@ msgstr "Token is not available"
 msgid "Where can I see my eligible transactions?"
 msgstr "Where can I see my eligible transactions?"
 
-#: src/components/LimitOrder/ProcessingOrder/ProcessingOrderModal.tsx
-msgid "Approving {inputSymbol}"
-msgstr "Approving {inputSymbol}"
+#: src/components/LimitOrder/ProcessingOrder/steps.tsx
+#~ msgid "Approving {inputSymbol}"
+#~ msgstr "Approving {inputSymbol}"
 
 #: src/pages/CrossChainSwap/hooks/useCrossChainSwap.tsx
 msgid "Your slippage is set lower than usual, which may cause transaction failure."
@@ -4319,10 +4340,15 @@ msgstr "Approve <0>{0}</0> requires to be more than <1>{1} {2}</1>, find out mor
 #~ msgid "Withdraw your liquidity positions (i.e. your NFT tokens) from the farming contract."
 #~ msgstr "Withdraw your liquidity positions (i.e. your NFT tokens) from the farming contract."
 
+#: src/pages/Earns/components/VaultDeposit/vaultSteps.tsx
+#~ msgid "Approving {tokenSymbol}"
+#~ msgstr "Approving {tokenSymbol}"
+
 #: src/components/LimitOrder/CancelOrder/CancelOrderModal.tsx
 msgid "Cancel Order"
 msgstr "Cancel Order"
 
+#: src/pages/Earns/components/vaultSteps.ts
 #: src/pages/Earns/components/VaultWithdraw/ConfirmWithdraw.tsx
 #: src/pages/Earns/components/VaultWithdraw/VaultWithdrawModal.tsx
 #: src/pages/Earns/components/VaultWithdraw/VaultWithdrawModal.tsx
@@ -4677,7 +4703,7 @@ msgstr "Approve Error"
 #~ msgid "Exchange rate is always 1 to 1."
 #~ msgstr "Exchange rate is always 1 to 1."
 
-#: src/pages/Earns/components/VaultWithdraw/ConfirmWithdraw.tsx
+#: src/pages/Earns/components/vaultSteps.ts
 #: src/pages/Earns/MyVaults/index.tsx
 msgid "Withdrawing"
 msgstr "Withdrawing"
@@ -5086,7 +5112,7 @@ msgstr "Use any 4 different products: +100 points"
 msgid "Refers to any trading pairs that are not classified as Stable Pairs."
 msgstr "Refers to any trading pairs that are not classified as Stable Pairs."
 
-#: src/components/LimitOrder/ProcessingOrder/ProcessingOrderModal.tsx
+#: src/components/ProcessingSteps/stepLabels.ts
 msgid "Approving token"
 msgstr "Approving token"
 
@@ -5194,7 +5220,7 @@ msgstr "EVM ↔ EVM (excl same chain)"
 msgid "Can't create pool because {0} is a fee-on-transfer token"
 msgstr "Can't create pool because {0} is a fee-on-transfer token"
 
-#: src/components/LimitOrder/ProcessingOrder/ProcessingOrderModal.tsx
+#: src/components/ProcessingSteps/stepLabels.ts
 msgid "Approve token"
 msgstr "Approve token"
 
@@ -5677,9 +5703,13 @@ msgstr "Select Token"
 msgid "Insufficient reward amount available for claim!"
 msgstr "Insufficient reward amount available for claim!"
 
-#: src/components/LimitOrder/ProcessingOrder/ProcessingOrderModal.tsx
+#: src/components/LimitOrder/ProcessingOrder/steps.ts
 msgid "Signing order"
 msgstr "Signing order"
+
+#: src/pages/Earns/components/vaultSteps.ts
+msgid "Withdrawn"
+msgstr "Withdrawn"
 
 #: src/components/Header/groups/KyberDaoGroup.tsx
 #: src/components/Menu/components/MainMenuSection.tsx
@@ -5727,7 +5757,7 @@ msgstr "General"
 msgid "Your wallet not support chain {name}"
 msgstr "Your wallet not support chain {name}"
 
-#: src/components/Button/index.tsx
+#: src/pages/Earns/components/VaultDeposit/vaultSteps.tsx
 #~ msgid "Approve {tokenSymbol}"
 #~ msgstr "Approve {tokenSymbol}"
 
@@ -5909,6 +5939,7 @@ msgstr "You have zero liquidity to remove"
 
 #: src/components/Header/groups/EarnNavGroup.tsx
 #: src/pages/Earns/components/EarnSidebar/index.tsx
+#: src/pages/Earns/components/VaultProcessingModal.tsx
 #: src/pages/Earns/MyVaults/index.tsx
 msgid "My Vaults"
 msgstr "My Vaults"
@@ -6147,6 +6178,10 @@ msgstr "Share"
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 msgid "Use Native Token"
 msgstr "Use Native Token"
+
+#: src/pages/Earns/components/vaultSteps.ts
+msgid "Processing Request"
+msgstr "Processing Request"
 
 #: src/pages/Earns/components/SmartExit/Confirmation/Condition.tsx
 #: src/pages/Earns/components/SmartExit/Metrics/index.tsx
@@ -6954,6 +6989,7 @@ msgid "Set Custom Slippage"
 msgstr "Set Custom Slippage"
 
 #: src/components/Announcement/Popups/TransactionPopup.tsx
+#: src/components/ProcessingSteps/ProcessingStepsModal.tsx
 #: src/components/TransactionConfirmationModal/index.tsx
 msgid "View transaction"
 msgstr "View transaction"
@@ -7023,9 +7059,9 @@ msgstr "Unlocked Amount (USDC)"
 #~ msgid "Your Position"
 #~ msgstr "Your Position"
 
-#: src/components/LimitOrder/ProcessingOrder/ProcessingOrderModal.tsx
-msgid "Approved {inputSymbol}"
-msgstr "Approved {inputSymbol}"
+#: src/components/LimitOrder/ProcessingOrder/steps.tsx
+#~ msgid "Approved {inputSymbol}"
+#~ msgstr "Approved {inputSymbol}"
 
 #: src/pages/NotificationCenter/Profile/AvatarEdit.tsx
 msgid "Edit"
@@ -7635,6 +7671,10 @@ msgstr "Save Error"
 msgid "Enter a recipient"
 msgstr "Enter a recipient"
 
+#: src/pages/Earns/components/vaultSteps.ts
+msgid "Processing Withdrawal"
+msgstr "Processing Withdrawal"
+
 #: src/components/Announcement/PrivateAnnoucement/InboxItemPoolPosition.tsx
 #: src/components/Announcement/PrivateAnnoucement/NotificationCenter/PoolPosition.tsx
 #: src/components/Badge/RangeBadge.tsx
@@ -7754,7 +7794,7 @@ msgstr "Select a network"
 msgid "Aggregator Trading"
 msgstr "Aggregator Trading"
 
-#: src/components/Button/index.tsx
+#: src/pages/Earns/components/VaultDeposit/vaultSteps.tsx
 #~ msgid "Approved {tokenSymbol}"
 #~ msgstr "Approved {tokenSymbol}"
 
@@ -7779,9 +7819,9 @@ msgstr "You have successfully turned on MEV Protection Mode. All transactions on
 msgid "Current Market Price is {currentPrice} {token0Symbol} per {token1Symbol}"
 msgstr "Current Market Price is {currentPrice} {token0Symbol} per {token1Symbol}"
 
-#: src/components/LimitOrder/ProcessingOrder/ProcessingOrderModal.tsx
-msgid "Approve {inputSymbol}"
-msgstr "Approve {inputSymbol}"
+#: src/components/LimitOrder/ProcessingOrder/steps.tsx
+#~ msgid "Approve {inputSymbol}"
+#~ msgstr "Approve {inputSymbol}"
 
 #: src/components/LimitOrder/ListOrder/index.tsx
 #~ msgid "Note: Your existing order will be automatically cancelled and a new order will be created."
@@ -8097,6 +8137,7 @@ msgstr "My position"
 #: src/pages/Earns/components/VaultDeposit/ConfirmDeposit.tsx
 #: src/pages/Earns/components/VaultDeposit/VaultDepositModal.tsx
 #: src/pages/Earns/components/VaultDeposit/VaultDepositModal.tsx
+#: src/pages/Earns/components/vaultSteps.ts
 #: src/pages/Earns/VaultDetail/index.tsx
 msgid "Deposit"
 msgstr "Deposit"
@@ -8244,7 +8285,7 @@ msgstr "Minimum Receiving"
 msgid "Unable to calculate <0>Price Impact</0>."
 msgstr "Unable to calculate <0>Price Impact</0>."
 
-#: src/components/LimitOrder/ProcessingOrder/ProcessingOrderModal.tsx
+#: src/components/LimitOrder/ProcessingOrder/steps.ts
 msgid "Order filled"
 msgstr "Order filled"
 
@@ -8503,6 +8544,10 @@ msgstr "Points are earned each time a Maker Order is filled on KyberSwap Limit-O
 msgid "Dec 05, 2025 for Week 2 results."
 msgstr "Dec 05, 2025 for Week 2 results."
 
+#: src/pages/Earns/components/vaultSteps.ts
+msgid "Request submitted"
+msgstr "Request submitted"
+
 #: src/hooks/useWrapCallback.ts
 msgid "Insufficient {nativeTokenSymbol} balance"
 msgstr "Insufficient {nativeTokenSymbol} balance"
@@ -8512,7 +8557,8 @@ msgstr "Insufficient {nativeTokenSymbol} balance"
 #~ msgid "Download Wallet"
 #~ msgstr "Download Wallet"
 
-#: src/components/LimitOrder/ProcessingOrder/ProcessingOrderModal.tsx
+#: src/components/LimitOrder/CreateOrder/CreateOrderFlow.tsx
+#: src/components/LimitOrder/TakeOrder/TakeOrderConfirmModal.tsx
 msgid "Processing Order"
 msgstr "Processing Order"
 
@@ -8629,7 +8675,7 @@ msgstr "Smart wallets (Porto, Safe, Coinbase Smart Wallet, Argent, Ambire, ...) 
 msgid "Zap will include DEX aggregator to find the best price."
 msgstr "Zap will include DEX aggregator to find the best price."
 
-#: src/pages/Earns/components/VaultDeposit/ConfirmDeposit.tsx
+#: src/pages/Earns/components/vaultSteps.ts
 msgid "Depositing"
 msgstr "Depositing"
 
@@ -8869,7 +8915,7 @@ msgstr "KNC Utility"
 msgid "Your rank"
 msgstr "Your rank"
 
-#: src/components/LimitOrder/ProcessingOrder/ProcessingOrderModal.tsx
+#: src/components/LimitOrder/ProcessingOrder/steps.ts
 msgid "Sign order"
 msgstr "Sign order"
 
@@ -9140,6 +9186,10 @@ msgstr "KyberSwap Reward"
 msgid "Value of each trade (calculated at the point of the trade) on KyberSwap has to be ≥ $200."
 msgstr "Value of each trade (calculated at the point of the trade) on KyberSwap has to be ≥ $200."
 
+#: src/components/ProcessingSteps/stepLabels.ts
+msgid "Approve {symbol}"
+msgstr "Approve {symbol}"
+
 #: src/pages/Campaign/components/CampaignStats/index.tsx
 msgid "My referrals"
 msgstr "My referrals"
@@ -9407,8 +9457,8 @@ msgstr "Value is updating"
 
 #: src/pages/Earns/components/VaultWithdraw/VaultWithdrawModal.tsx
 #: src/pages/Earns/VaultDetail/WithdrawTab.tsx
-msgid "Approve {shareSymbol}"
-msgstr "Approve {shareSymbol}"
+#~ msgid "Approve {shareSymbol}"
+#~ msgstr "Approve {shareSymbol}"
 
 #: src/hooks/usePermitNft.ts
 msgid "NFT Permit Error"
@@ -10527,7 +10577,7 @@ msgstr "Auto-compounding, single-asset strategies managed by partners (starting 
 #: src/components/ElasticHackedModal.tsx
 #: src/components/LimitOrder/CancelOrder/CancelOrderModal.tsx
 #: src/components/LimitOrder/CancelOrder/CancelOrderModal.tsx
-#: src/components/LimitOrder/ProcessingOrder/ProcessingOrderModal.tsx
+#: src/components/ProcessingSteps/ProcessingStepsModal.tsx
 #: src/components/TransactionConfirmationModal/index.tsx
 #: src/pages/Campaign/components/RaffleRewardModal.tsx
 #: src/pages/Earns/components/VaultDeposit/ConfirmDeposit.tsx
@@ -10587,7 +10637,7 @@ msgstr "KNC is a utility and governance token, and an integral part of Kyber Net
 msgid "Total Points: Combined points from all participants"
 msgstr "Total Points: Combined points from all participants"
 
-#: src/components/LimitOrder/ProcessingOrder/ProcessingOrderModal.tsx
+#: src/components/LimitOrder/ProcessingOrder/steps.ts
 msgid "Wrapping {nativeSymbol}"
 msgstr "Wrapping {nativeSymbol}"
 

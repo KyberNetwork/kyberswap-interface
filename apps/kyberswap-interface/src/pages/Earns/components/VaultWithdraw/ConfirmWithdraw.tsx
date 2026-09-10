@@ -1,12 +1,10 @@
 import { t } from '@lingui/macro'
 
 import { ReactComponent as SwapArrowIcon } from 'assets/svg/earn/ic_swap_arrow.svg'
-import Loader from 'components/Loader'
 import { CloseButton } from 'pages/Earns/components/VaultDeposit/ConfirmDeposit'
 import {
   ButtonGroup,
   DetailsBox,
-  ErrorNote,
   InfoLabel,
   InfoRow,
   InfoValue,
@@ -31,10 +29,13 @@ const ConfirmWithdraw = ({
   form,
   onBack,
   onClose,
+  onSubmit,
 }: {
   form: WithdrawFormState
   onBack: () => void
   onClose: () => void
+  /** Hands over to the step sequence, which keeps its own modal open until the tx confirms. */
+  onSubmit: () => void
 }) => {
   const sharesIn = form.shares
     ? formatDisplayNumber(formatUnits(form.shares, form.shareDecimals), { significantDigits: 6 })
@@ -168,13 +169,10 @@ const ConfirmWithdraw = ({
         </p>
       ) : null}
 
-      {form.submitError ? <ErrorNote>{form.submitError}</ErrorNote> : null}
-
       <ButtonGroup>
-        <OutlinedButton onClick={onBack} disabled={form.isSubmitting}>{t`Cancel`}</OutlinedButton>
-        <PrimaryButton onClick={form.submit} disabled={form.isSubmitting || !form.isReady}>
-          {form.isSubmitting ? <Loader size="16px" /> : null}
-          {form.isSubmitting ? t`Withdrawing` : t`Withdraw`}
+        <OutlinedButton onClick={onBack}>{t`Cancel`}</OutlinedButton>
+        <PrimaryButton onClick={onSubmit} disabled={!form.isReady}>
+          {t`Withdraw`}
         </PrimaryButton>
       </ButtonGroup>
     </>

@@ -4,6 +4,7 @@ import { VaultApiDetailItem, useVaultDetailQuery, useVaultPositionDetailQuery } 
 
 import Loader from 'components/Loader'
 import Modal from 'components/Modal'
+import { useProcessingState, useProcessingSteps } from 'components/ProcessingSteps/useProcessingSteps'
 import { useActiveWeb3React } from 'hooks'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import WithdrawRequestList from 'pages/Earns/VaultDetail/WithdrawRequestList'
@@ -18,9 +19,11 @@ import {
   OutlinedButton,
   PrimaryButton,
 } from 'pages/Earns/components/VaultDeposit/styles'
+import VaultProcessingModal from 'pages/Earns/components/VaultProcessingModal'
 import ConfirmWithdraw from 'pages/Earns/components/VaultWithdraw/ConfirmWithdraw'
 import WithdrawFields from 'pages/Earns/components/VaultWithdraw/WithdrawFields'
 import { useWithdrawForm } from 'pages/Earns/components/VaultWithdraw/useWithdrawForm'
+import { VaultStep } from 'pages/Earns/components/vaultSteps'
 import { getOpenWithdrawRequests } from 'pages/Earns/utils/vault'
 import { useWalletModalToggle } from 'state/application/hooks'
 
@@ -39,6 +42,7 @@ const WithdrawBody = ({
   const toggleWalletModal = useWalletModalToggle()
   const { changeNetwork } = useChangeNetwork()
   const [isConfirming, setConfirming] = useState(false)
+  const processingState = useProcessingState<VaultStep>()
 
   const { data: position, refetch: refetchPosition } = useVaultPositionDetailQuery(
     { chainId: vault.chain?.id, userAddress: (account || '').toLowerCase(), vaultId: vault.vaultId },
@@ -48,20 +52,19 @@ const WithdrawBody = ({
   const form = useWithdrawForm({
     vault,
     position,
-    pausePolling: isConfirming,
-    onSubmitted: () => {
-      onWithdrawn?.()
-      onClose()
-    },
+    // The quote must not move while the sequence is running.
+    pausePolling: isConfirming || processingState.state.show,
   })
 
-  if (isConfirming) {
-    return (
-      <ModalWrapper>
-        <ConfirmWithdraw form={form} onBack={() => setConfirming(false)} onClose={onClose} />
-      </ModalWrapper>
-    )
-  }
+  const processing = useProcessingSteps<VaultStep>({
+    ...processingState,
+    ...form.processing,
+    onStart: () => setConfirming(false),
+    onComplete: () => {
+      form.resetAmount()
+      onWithdrawn?.()
+    },
+  })
 
   const chainName = vault.chain?.name ?? ''
   const shareSymbol = form.shareSymbol
@@ -77,14 +80,11 @@ const WithdrawBody = ({
     ? t`Insufficient ${shareSymbol} balance`
     : form.belowMinimum
     ? t`Amount below the queue minimum`
-    : form.needsApproval || form.isApproving
-    ? t`Approve ${shareSymbol}`
     : t`Withdraw`
 
   const onAction = () => {
     if (!form.account) return toggleWalletModal()
     if (form.wrongChain && form.chainId) return changeNetwork(form.chainId)
-    if (form.needsApproval) return form.approve()
     return setConfirming(true)
   }
 
@@ -99,44 +99,62 @@ const WithdrawBody = ({
     : undefined
 
   return (
-    <ModalWrapper>
-      <ModalHeader>
-        <ModalTitleRow>
-          <ModalTitle>{t`Withdraw`}</ModalTitle>
-          <CloseButton onClose={onClose} />
-        </ModalTitleRow>
-      </ModalHeader>
+    <>
+      <ModalWrapper>
+        {isConfirming ? (
+          <ConfirmWithdraw
+            form={form}
+            onBack={() => setConfirming(false)}
+            onClose={onClose}
+            onSubmit={processing.start}
+          />
+        ) : (
+          <>
+            <ModalHeader>
+              <ModalTitleRow>
+                <ModalTitle>{t`Withdraw`}</ModalTitle>
+                <CloseButton onClose={onClose} />
+              </ModalTitleRow>
+            </ModalHeader>
 
-      <WithdrawFields vault={vault} form={form} />
+            <WithdrawFields vault={vault} form={form} />
 
-      {blockingError ? <ErrorNote>{blockingError}</ErrorNote> : null}
+            {blockingError ? <ErrorNote>{blockingError}</ErrorNote> : null}
 
-      {form.chainId ? (
-        <WithdrawRequestList
-          chainId={form.chainId}
-          requests={getOpenWithdrawRequests(position?.withdrawRequests)}
-          shareSymbol={form.shareSymbol}
-          shareDecimals={form.shareDecimals}
-          onCancelled={() => {
-            // The list this modal renders comes from the position query, so that is what has to
-            // reload; the caller's own refresh is separate.
-            refetchPosition()
-            onWithdrawn?.()
-          }}
-        />
-      ) : null}
+            {form.chainId ? (
+              <WithdrawRequestList
+                chainId={form.chainId}
+                requests={getOpenWithdrawRequests(position?.withdrawRequests)}
+                shareSymbol={form.shareSymbol}
+                shareDecimals={form.shareDecimals}
+                onCancelled={() => {
+                  // The list this modal renders comes from the position query, so that is what has
+                  // to reload; the caller's own refresh is separate.
+                  refetchPosition()
+                  onWithdrawn?.()
+                }}
+              />
+            ) : null}
 
-      <ButtonGroup>
-        <OutlinedButton onClick={onClose}>{t`Cancel`}</OutlinedButton>
-        <PrimaryButton
-          onClick={onAction}
-          disabled={Boolean(form.account) && !form.wrongChain && !form.isReady && !form.needsApproval}
-        >
-          {form.isApproving ? <Loader size="16px" /> : null}
-          {actionLabel}
-        </PrimaryButton>
-      </ButtonGroup>
-    </ModalWrapper>
+            <ButtonGroup>
+              <OutlinedButton onClick={onClose}>{t`Cancel`}</OutlinedButton>
+              <PrimaryButton onClick={onAction} disabled={Boolean(form.account) && !form.wrongChain && !form.isReady}>
+                {actionLabel}
+              </PrimaryButton>
+            </ButtonGroup>
+          </>
+        )}
+      </ModalWrapper>
+
+      <VaultProcessingModal
+        processing={processing}
+        chainId={form.chainId}
+        tokenSymbol={form.shareSymbol}
+        kind={form.isNative ? 'request' : 'withdraw'}
+        errorMessage={form.submitError}
+        onClose={onClose}
+      />
+    </>
   )
 }
 

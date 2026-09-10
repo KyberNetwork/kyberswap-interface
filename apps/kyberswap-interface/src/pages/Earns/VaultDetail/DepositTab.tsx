@@ -2,8 +2,8 @@ import { t } from '@lingui/macro'
 import { useEffect, useState } from 'react'
 import { VaultApiDetailItem } from 'services/vault'
 
-import Loader from 'components/Loader'
 import Modal from 'components/Modal'
+import { useProcessingState, useProcessingSteps } from 'components/ProcessingSteps/useProcessingSteps'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { VaultRouteSummary } from 'pages/Earns/VaultDetail/ZapRouteStrip'
 import { ActionBody } from 'pages/Earns/VaultDetail/styles'
@@ -11,6 +11,8 @@ import ConfirmDeposit from 'pages/Earns/components/VaultDeposit/ConfirmDeposit'
 import DepositFields from 'pages/Earns/components/VaultDeposit/DepositFields'
 import { ErrorNote, ModalWrapper, PrimaryButton } from 'pages/Earns/components/VaultDeposit/styles'
 import { useDepositForm } from 'pages/Earns/components/VaultDeposit/useDepositForm'
+import VaultProcessingModal from 'pages/Earns/components/VaultProcessingModal'
+import { VaultStep } from 'pages/Earns/components/vaultSteps'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { formatDisplayNumber } from 'utils/numbers'
 import { formatUnits } from 'utils/viem'
@@ -27,12 +29,20 @@ const DepositTab = ({
   const toggleWalletModal = useWalletModalToggle()
   const { changeNetwork } = useChangeNetwork()
   const [isConfirming, setConfirming] = useState(false)
+  const processingState = useProcessingState<VaultStep>()
 
   const form = useDepositForm({
     vault,
-    pausePolling: isConfirming,
-    onSubmitted: () => {
-      setConfirming(false)
+    // The quote must not move while the sequence is running.
+    pausePolling: isConfirming || processingState.state.show,
+  })
+
+  const processing = useProcessingSteps<VaultStep>({
+    ...processingState,
+    ...form.processing,
+    onStart: () => setConfirming(false),
+    onComplete: () => {
+      form.resetAmount()
       onDeposited()
     },
   })
@@ -83,14 +93,11 @@ const DepositTab = ({
     ? t`Insufficient ${currencySymbol} balance`
     : form.isRouteLoading && !form.route
     ? t`Finding best route`
-    : form.needsApproval || form.isApproving
-    ? t`Approve ${currencySymbol}`
     : t`Deposit ${currencySymbol}`
 
   const onAction = () => {
     if (!form.account) return toggleWalletModal()
     if (form.wrongChain && form.chainId) return changeNetwork(form.chainId)
-    if (form.needsApproval) return form.approve()
     return setConfirming(true)
   }
 
@@ -103,11 +110,18 @@ const DepositTab = ({
       <PrimaryButton
         className="mt-auto w-full flex-none py-2.5"
         onClick={onAction}
-        disabled={Boolean(form.account) && !form.wrongChain && !form.isReady && !form.needsApproval}
+        disabled={Boolean(form.account) && !form.wrongChain && !form.isReady}
       >
-        {form.isApproving ? <Loader size="16px" /> : null}
         {actionLabel}
       </PrimaryButton>
+
+      <VaultProcessingModal
+        processing={processing}
+        chainId={form.chainId}
+        tokenSymbol={form.currency?.symbol}
+        kind="deposit"
+        errorMessage={form.submitError}
+      />
 
       <Modal
         isOpen={isConfirming}
@@ -122,6 +136,7 @@ const DepositTab = ({
             form={form}
             onBack={() => setConfirming(false)}
             onClose={() => setConfirming(false)}
+            onSubmit={processing.start}
           />
         </ModalWrapper>
       </Modal>

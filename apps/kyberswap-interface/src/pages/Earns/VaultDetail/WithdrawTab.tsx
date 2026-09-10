@@ -2,16 +2,18 @@ import { t } from '@lingui/macro'
 import { useEffect, useState } from 'react'
 import { VaultApiDetailItem, VaultPositionItem } from 'services/vault'
 
-import Loader from 'components/Loader'
 import Modal from 'components/Modal'
+import { useProcessingState, useProcessingSteps } from 'components/ProcessingSteps/useProcessingSteps'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import WithdrawRequestList from 'pages/Earns/VaultDetail/WithdrawRequestList'
 import { VaultRouteSummary } from 'pages/Earns/VaultDetail/ZapRouteStrip'
 import { ActionBody } from 'pages/Earns/VaultDetail/styles'
 import { ErrorNote, ModalWrapper, PrimaryButton } from 'pages/Earns/components/VaultDeposit/styles'
+import VaultProcessingModal from 'pages/Earns/components/VaultProcessingModal'
 import ConfirmWithdraw from 'pages/Earns/components/VaultWithdraw/ConfirmWithdraw'
 import WithdrawFields from 'pages/Earns/components/VaultWithdraw/WithdrawFields'
 import { useWithdrawForm } from 'pages/Earns/components/VaultWithdraw/useWithdrawForm'
+import { VaultStep } from 'pages/Earns/components/vaultSteps'
 import { getOpenWithdrawRequests } from 'pages/Earns/utils/vault'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { formatDisplayNumber } from 'utils/numbers'
@@ -31,13 +33,21 @@ const WithdrawTab = ({
   const toggleWalletModal = useWalletModalToggle()
   const { changeNetwork } = useChangeNetwork()
   const [isConfirming, setConfirming] = useState(false)
+  const processingState = useProcessingState<VaultStep>()
 
   const form = useWithdrawForm({
     vault,
     position,
-    pausePolling: isConfirming,
-    onSubmitted: () => {
-      setConfirming(false)
+    // The quote must not move while the sequence is running.
+    pausePolling: isConfirming || processingState.state.show,
+  })
+
+  const processing = useProcessingSteps<VaultStep>({
+    ...processingState,
+    ...form.processing,
+    onStart: () => setConfirming(false),
+    onComplete: () => {
+      form.resetAmount()
       onRequested()
     },
   })
@@ -91,14 +101,11 @@ const WithdrawTab = ({
     ? t`Insufficient ${shareSymbol} balance`
     : form.belowMinimum
     ? t`Amount below the queue minimum`
-    : form.needsApproval || form.isApproving
-    ? t`Approve ${shareSymbol}`
     : t`Withdraw`
 
   const onAction = () => {
     if (!form.account) return toggleWalletModal()
     if (form.wrongChain && form.chainId) return changeNetwork(form.chainId)
-    if (form.needsApproval) return form.approve()
     return setConfirming(true)
   }
 
@@ -121,9 +128,8 @@ const WithdrawTab = ({
       <PrimaryButton
         className="mt-auto w-full flex-none py-2.5"
         onClick={onAction}
-        disabled={Boolean(form.account) && !form.wrongChain && !form.isReady && !form.needsApproval}
+        disabled={Boolean(form.account) && !form.wrongChain && !form.isReady}
       >
-        {form.isApproving ? <Loader size="16px" /> : null}
         {actionLabel}
       </PrimaryButton>
 
@@ -137,6 +143,14 @@ const WithdrawTab = ({
         />
       ) : null}
 
+      <VaultProcessingModal
+        processing={processing}
+        chainId={form.chainId}
+        tokenSymbol={form.shareSymbol}
+        kind={form.isNative ? 'request' : 'withdraw'}
+        errorMessage={form.submitError}
+      />
+
       <Modal
         isOpen={isConfirming}
         onDismiss={() => setConfirming(false)}
@@ -145,7 +159,12 @@ const WithdrawTab = ({
         bgColor="transparent"
       >
         <ModalWrapper>
-          <ConfirmWithdraw form={form} onBack={() => setConfirming(false)} onClose={() => setConfirming(false)} />
+          <ConfirmWithdraw
+            form={form}
+            onBack={() => setConfirming(false)}
+            onClose={() => setConfirming(false)}
+            onSubmit={processing.start}
+          />
         </ModalWrapper>
       </Modal>
     </ActionBody>

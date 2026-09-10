@@ -18,7 +18,6 @@ type UseVaultDepositArgs = {
   parsedAmount?: CurrencyAmount<Currency>
   /** Slippage in basis points. */
   slippage: number
-  onSubmitted?: () => void
   pausePolling?: boolean
 }
 
@@ -30,7 +29,6 @@ export const useVaultDeposit = ({
   currency,
   parsedAmount,
   slippage,
-  onSubmitted,
   pausePolling,
 }: UseVaultDepositArgs) => {
   const tokenInAddress = currency?.isNative ? NATIVE_TOKEN_ADDRESS : currency?.wrapped.address
@@ -57,7 +55,6 @@ export const useVaultDeposit = ({
     transactionType: TRANSACTION_TYPE.EARN_VAULT_DEPOSIT,
     errorTitle: t`Deposit failed`,
     buildExtraInfo,
-    onSubmitted,
     pausePolling,
   })
 

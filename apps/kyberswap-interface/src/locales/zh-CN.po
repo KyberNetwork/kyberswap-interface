@@ -53,7 +53,7 @@ msgstr "断开连接"
 msgid "Earn Position"
 msgstr "收益仓位"
 
-#: src/components/LimitOrder/ProcessingOrder/ProcessingOrderModal.tsx
+#: src/components/LimitOrder/ProcessingOrder/steps.ts
 msgid "Filling order"
 msgstr ""
 
@@ -146,7 +146,7 @@ msgstr "已退款"
 msgid "Classic is not supported on Base. Please switch to other chains"
 msgstr "Base 不支持 Classic，请切换到其他链"
 
-#: src/components/LimitOrder/ProcessingOrder/ProcessingOrderModal.tsx
+#: src/components/LimitOrder/ProcessingOrder/steps.ts
 msgid "Wrap {nativeSymbol}"
 msgstr ""
 
@@ -397,7 +397,7 @@ msgstr "我的挖矿仓位"
 msgid "KNC token holders can benefit from our flagship product KyberSwap. Holders can stake their KNC & vote on initiatives to receive trading fees generated on KyberSwap! More trades on KyberSwap can generate more rewards for KNC holders!"
 msgstr ""
 
-#: src/components/LimitOrder/ProcessingOrder/ProcessingOrderModal.tsx
+#: src/components/LimitOrder/ProcessingOrder/steps.ts
 msgid "token"
 msgstr ""
 
@@ -488,9 +488,9 @@ msgstr "切换至 {0}"
 #~ msgid "Your Share of Pool"
 #~ msgstr "您的资金池占比"
 
-#: src/pages/Earns/VaultDetail/WithdrawTab.tsx
-#~ msgid "Request withdrawal"
-#~ msgstr ""
+#: src/pages/Earns/components/vaultSteps.ts
+msgid "Request withdrawal"
+msgstr ""
 
 #: src/utils/time.ts
 msgid "{min} {formatM} ago"
@@ -1181,6 +1181,10 @@ msgstr "跨链"
 msgid "All data used in this process (transaction hashes and Bitcoin block hash) are publicly verifiable on-chain."
 msgstr "本流程使用的所有数据（交易哈希和比特币区块哈希）均可在链上公开验证。"
 
+#: src/pages/Earns/components/vaultSteps.ts
+msgid "Deposited"
+msgstr ""
+
 #: src/pages/Earns/components/SmartExit/Confirmation/index.tsx
 msgid "Signing..."
 msgstr ""
@@ -1191,6 +1195,10 @@ msgstr ""
 #: src/pages/Earns/VaultDetail/index.tsx
 msgid "managed by"
 msgstr ""
+
+#: src/components/ProcessingSteps/stepLabels.ts
+msgid "Approved {symbol}"
+msgstr "已授权 {symbol}"
 
 #: src/pages/Campaign/components/Information/info/mayTrading.tsx
 msgid "For $1 in trading volume, you earn 1 point"
@@ -1391,7 +1399,8 @@ msgstr "以下订单已成功取消：<0/>{listOrderName}"
 msgid "Join to start tracking - only joined wallets have transactions recorded."
 msgstr ""
 
-#: src/components/LimitOrder/ProcessingOrder/ProcessingOrderModal.tsx
+#: src/components/LimitOrder/CreateOrder/CreateOrderFlow.tsx
+#: src/components/LimitOrder/TakeOrder/TakeOrderConfirmModal.tsx
 msgid "My Orders"
 msgstr ""
 
@@ -1446,7 +1455,7 @@ msgstr "市值"
 msgid "Are you sure?"
 msgstr "确认？"
 
-#: src/components/LimitOrder/ProcessingOrder/ProcessingOrderModal.tsx
+#: src/components/ProcessingSteps/ProcessingStepsModal.tsx
 msgid "Retry"
 msgstr ""
 
@@ -1611,6 +1620,10 @@ msgstr "...的价格"
 msgid "By 3rd party"
 msgstr ""
 
+#: src/pages/Earns/components/vaultSteps.ts
+msgid "Processing Deposit"
+msgstr ""
+
 #: src/pages/RemoveLiquidity/TokenPair.tsx
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 msgid "Approved"
@@ -1651,6 +1664,10 @@ msgstr "您可以在活动页面的“Your Transactions”标签下查看。"
 #: src/pages/Earns/components/ClaimAllModal/index.tsx
 msgid "Claim Incentives"
 msgstr ""
+
+#: src/components/ProcessingSteps/stepLabels.ts
+msgid "Approving {symbol}"
+msgstr "授权中 {symbol}"
 
 #: src/pages/Earns/PositionDetail/index.tsx
 #: src/pages/Earns/UserPositions/PositionRowItem.tsx
@@ -1845,7 +1862,7 @@ msgstr "🏆 奖励：{0} KNC"
 msgid "Insufficient {symbol} balance"
 msgstr "{symbol} 余额不足"
 
-#: src/components/LimitOrder/ProcessingOrder/ProcessingOrderModal.tsx
+#: src/components/LimitOrder/ProcessingOrder/steps.ts
 msgid "Order successfully listed"
 msgstr ""
 
@@ -1911,8 +1928,8 @@ msgstr "您至少会收到该金额，否则交易将回退"
 
 #: src/pages/Earns/components/VaultDeposit/VaultDepositModal.tsx
 #: src/pages/Earns/VaultDetail/DepositTab.tsx
-msgid "Approve {currencySymbol}"
-msgstr ""
+#~ msgid "Approve {currencySymbol}"
+#~ msgstr ""
 
 #: src/components/Header/web3/WalletModal/index.tsx
 msgid "Open MetaMask"
@@ -3369,7 +3386,7 @@ msgstr "已成功退出登录"
 msgid "Your Transactions"
 msgstr "您的交易"
 
-#: src/components/LimitOrder/ProcessingOrder/ProcessingOrderModal.tsx
+#: src/components/ProcessingSteps/stepLabels.ts
 msgid "Approved token"
 msgstr ""
 
@@ -3539,7 +3556,7 @@ msgstr "您的滑点设置过高，可能导致非预期损失"
 msgid "My Dashboard"
 msgstr "我的仪表盘"
 
-#: src/components/LimitOrder/ProcessingOrder/ProcessingOrderModal.tsx
+#: src/components/LimitOrder/ProcessingOrder/steps.ts
 msgid "Fill order"
 msgstr ""
 
@@ -3992,7 +4009,7 @@ msgstr "历史最高价"
 msgid "Participate in the Elastic farm to earn more rewards. Click <0>here</0> to go to the farm."
 msgstr "参与 Elastic Farm 以赚取更多奖励，点击 <0>这里</0> 前往"
 
-#: src/components/LimitOrder/ProcessingOrder/ProcessingOrderModal.tsx
+#: src/components/LimitOrder/ProcessingOrder/steps.ts
 msgid "Wrapped {nativeSymbol}"
 msgstr ""
 
@@ -4079,6 +4096,10 @@ msgstr "累计赚取手续费"
 msgid "EG Sharing Reward:"
 msgstr "EG 分成奖励："
 
+#: src/pages/Earns/components/vaultSteps.ts
+msgid "Submitting request"
+msgstr ""
+
 #: src/pages/CrossChainSwap/components/TransactionHistory.tsx
 #~ msgid "CREATED"
 #~ msgstr "创建时间"
@@ -4125,9 +4146,9 @@ msgstr "代币不可用"
 msgid "Where can I see my eligible transactions?"
 msgstr "我在哪里可以查看我的合格交易？"
 
-#: src/components/LimitOrder/ProcessingOrder/ProcessingOrderModal.tsx
-msgid "Approving {inputSymbol}"
-msgstr ""
+#: src/components/LimitOrder/ProcessingOrder/steps.tsx
+#~ msgid "Approving {inputSymbol}"
+#~ msgstr ""
 
 #: src/pages/CrossChainSwap/hooks/useCrossChainSwap.tsx
 msgid "Your slippage is set lower than usual, which may cause transaction failure."
@@ -4319,10 +4340,15 @@ msgstr "授权 <0>{0}</0> 需大于 <1>{1} {2}</1>，了解更多 <2>这里</2>"
 #~ msgid "Withdraw your liquidity positions (i.e. your NFT tokens) from the farming contract."
 #~ msgstr "从 Farming 合约中提取您的流动性仓位（NFT）"
 
+#: src/pages/Earns/components/VaultDeposit/vaultSteps.tsx
+#~ msgid "Approving {tokenSymbol}"
+#~ msgstr ""
+
 #: src/components/LimitOrder/CancelOrder/CancelOrderModal.tsx
 msgid "Cancel Order"
 msgstr "取消订单"
 
+#: src/pages/Earns/components/vaultSteps.ts
 #: src/pages/Earns/components/VaultWithdraw/ConfirmWithdraw.tsx
 #: src/pages/Earns/components/VaultWithdraw/VaultWithdrawModal.tsx
 #: src/pages/Earns/components/VaultWithdraw/VaultWithdrawModal.tsx
@@ -4677,7 +4703,7 @@ msgstr "授权错误"
 #~ msgid "Exchange rate is always 1 to 1."
 #~ msgstr "兑换比例始终为 1:1"
 
-#: src/pages/Earns/components/VaultWithdraw/ConfirmWithdraw.tsx
+#: src/pages/Earns/components/vaultSteps.ts
 #: src/pages/Earns/MyVaults/index.tsx
 msgid "Withdrawing"
 msgstr ""
@@ -5086,7 +5112,7 @@ msgstr ""
 msgid "Refers to any trading pairs that are not classified as Stable Pairs."
 msgstr "指所有未归类为稳定交易对的任意交易对。"
 
-#: src/components/LimitOrder/ProcessingOrder/ProcessingOrderModal.tsx
+#: src/components/ProcessingSteps/stepLabels.ts
 msgid "Approving token"
 msgstr ""
 
@@ -5194,7 +5220,7 @@ msgstr "EVM ↔ EVM（不含同链）"
 msgid "Can't create pool because {0} is a fee-on-transfer token"
 msgstr "无法创建池子，因为 {0} 是转账收税代币"
 
-#: src/components/LimitOrder/ProcessingOrder/ProcessingOrderModal.tsx
+#: src/components/ProcessingSteps/stepLabels.ts
 msgid "Approve token"
 msgstr ""
 
@@ -5677,8 +5703,12 @@ msgstr "选择代币"
 msgid "Insufficient reward amount available for claim!"
 msgstr "可领取奖励金额不足"
 
-#: src/components/LimitOrder/ProcessingOrder/ProcessingOrderModal.tsx
+#: src/components/LimitOrder/ProcessingOrder/steps.ts
 msgid "Signing order"
+msgstr ""
+
+#: src/pages/Earns/components/vaultSteps.ts
+msgid "Withdrawn"
 msgstr ""
 
 #: src/components/Header/groups/KyberDaoGroup.tsx
@@ -5727,7 +5757,7 @@ msgstr "通用"
 msgid "Your wallet not support chain {name}"
 msgstr "您的钱包不支持 {name} 链"
 
-#: src/components/Button/index.tsx
+#: src/pages/Earns/components/VaultDeposit/vaultSteps.tsx
 #~ msgid "Approve {tokenSymbol}"
 #~ msgstr "授权 {tokenSymbol}"
 
@@ -5909,6 +5939,7 @@ msgstr "您没有可移除的流动性"
 
 #: src/components/Header/groups/EarnNavGroup.tsx
 #: src/pages/Earns/components/EarnSidebar/index.tsx
+#: src/pages/Earns/components/VaultProcessingModal.tsx
 #: src/pages/Earns/MyVaults/index.tsx
 msgid "My Vaults"
 msgstr ""
@@ -6147,6 +6178,10 @@ msgstr "分享"
 #: src/pages/RemoveLiquidity/ZapOut.tsx
 msgid "Use Native Token"
 msgstr "使用原生代币"
+
+#: src/pages/Earns/components/vaultSteps.ts
+msgid "Processing Request"
+msgstr ""
 
 #: src/pages/Earns/components/SmartExit/Confirmation/Condition.tsx
 #: src/pages/Earns/components/SmartExit/Metrics/index.tsx
@@ -6954,6 +6989,7 @@ msgid "Set Custom Slippage"
 msgstr "设置自定义滑点"
 
 #: src/components/Announcement/Popups/TransactionPopup.tsx
+#: src/components/ProcessingSteps/ProcessingStepsModal.tsx
 #: src/components/TransactionConfirmationModal/index.tsx
 msgid "View transaction"
 msgstr "查看交易"
@@ -7023,9 +7059,9 @@ msgstr "已解锁数量（USDC）"
 #~ msgid "Your Position"
 #~ msgstr "您的仓位"
 
-#: src/components/LimitOrder/ProcessingOrder/ProcessingOrderModal.tsx
-msgid "Approved {inputSymbol}"
-msgstr ""
+#: src/components/LimitOrder/ProcessingOrder/steps.tsx
+#~ msgid "Approved {inputSymbol}"
+#~ msgstr ""
 
 #: src/pages/NotificationCenter/Profile/AvatarEdit.tsx
 msgid "Edit"
@@ -7635,6 +7671,10 @@ msgstr "保存失败"
 msgid "Enter a recipient"
 msgstr "请输入接收地址"
 
+#: src/pages/Earns/components/vaultSteps.ts
+msgid "Processing Withdrawal"
+msgstr ""
+
 #: src/components/Announcement/PrivateAnnoucement/InboxItemPoolPosition.tsx
 #: src/components/Announcement/PrivateAnnoucement/NotificationCenter/PoolPosition.tsx
 #: src/components/Badge/RangeBadge.tsx
@@ -7754,7 +7794,7 @@ msgstr "选择网络"
 msgid "Aggregator Trading"
 msgstr "聚合交易"
 
-#: src/components/Button/index.tsx
+#: src/pages/Earns/components/VaultDeposit/vaultSteps.tsx
 #~ msgid "Approved {tokenSymbol}"
 #~ msgstr "已授权 {tokenSymbol}"
 
@@ -7779,9 +7819,9 @@ msgstr "您已成功开启 MEV 保护模式，{chainName} 上的所有交易将�
 msgid "Current Market Price is {currentPrice} {token0Symbol} per {token1Symbol}"
 msgstr "当前市场价为 {currentPrice} {token0Symbol}/{token1Symbol}"
 
-#: src/components/LimitOrder/ProcessingOrder/ProcessingOrderModal.tsx
-msgid "Approve {inputSymbol}"
-msgstr ""
+#: src/components/LimitOrder/ProcessingOrder/steps.tsx
+#~ msgid "Approve {inputSymbol}"
+#~ msgstr ""
 
 #: src/components/LimitOrder/ListOrder/index.tsx
 #~ msgid "Note: Your existing order will be automatically cancelled and a new order will be created."
@@ -8097,6 +8137,7 @@ msgstr "我的仓位"
 #: src/pages/Earns/components/VaultDeposit/ConfirmDeposit.tsx
 #: src/pages/Earns/components/VaultDeposit/VaultDepositModal.tsx
 #: src/pages/Earns/components/VaultDeposit/VaultDepositModal.tsx
+#: src/pages/Earns/components/vaultSteps.ts
 #: src/pages/Earns/VaultDetail/index.tsx
 msgid "Deposit"
 msgstr "存入"
@@ -8244,7 +8285,7 @@ msgstr "最小接收量"
 msgid "Unable to calculate <0>Price Impact</0>."
 msgstr "无法计算 <0>价格影响</0>"
 
-#: src/components/LimitOrder/ProcessingOrder/ProcessingOrderModal.tsx
+#: src/components/LimitOrder/ProcessingOrder/steps.ts
 msgid "Order filled"
 msgstr ""
 
@@ -8503,6 +8544,10 @@ msgstr "每当 KyberSwap 限价单的 Maker 订单成交时都会获得积分。
 msgid "Dec 05, 2025 for Week 2 results."
 msgstr "第 2 周结果将于 2025 年 12 月 05 日公布。"
 
+#: src/pages/Earns/components/vaultSteps.ts
+msgid "Request submitted"
+msgstr ""
+
 #: src/hooks/useWrapCallback.ts
 msgid "Insufficient {nativeTokenSymbol} balance"
 msgstr "{nativeTokenSymbol} 余额不足"
@@ -8512,7 +8557,8 @@ msgstr "{nativeTokenSymbol} 余额不足"
 #~ msgid "Download Wallet"
 #~ msgstr "下载钱包"
 
-#: src/components/LimitOrder/ProcessingOrder/ProcessingOrderModal.tsx
+#: src/components/LimitOrder/CreateOrder/CreateOrderFlow.tsx
+#: src/components/LimitOrder/TakeOrder/TakeOrderConfirmModal.tsx
 msgid "Processing Order"
 msgstr ""
 
@@ -8629,7 +8675,7 @@ msgstr ""
 msgid "Zap will include DEX aggregator to find the best price."
 msgstr "Zap 将集成 DEX 聚合器以获取最优价格"
 
-#: src/pages/Earns/components/VaultDeposit/ConfirmDeposit.tsx
+#: src/pages/Earns/components/vaultSteps.ts
 msgid "Depositing"
 msgstr ""
 
@@ -8869,7 +8915,7 @@ msgstr "KNC 工具"
 msgid "Your rank"
 msgstr "您的排名"
 
-#: src/components/LimitOrder/ProcessingOrder/ProcessingOrderModal.tsx
+#: src/components/LimitOrder/ProcessingOrder/steps.ts
 msgid "Sign order"
 msgstr ""
 
@@ -9140,6 +9186,10 @@ msgstr ""
 msgid "Value of each trade (calculated at the point of the trade) on KyberSwap has to be ≥ $200."
 msgstr "在 KyberSwap 上，每笔交易的价值（以交易发生时计算）需 ≥ $200"
 
+#: src/components/ProcessingSteps/stepLabels.ts
+msgid "Approve {symbol}"
+msgstr "授权 {symbol}"
+
 #: src/pages/Campaign/components/CampaignStats/index.tsx
 msgid "My referrals"
 msgstr "我的推荐"
@@ -9407,8 +9457,8 @@ msgstr "数值更新中"
 
 #: src/pages/Earns/components/VaultWithdraw/VaultWithdrawModal.tsx
 #: src/pages/Earns/VaultDetail/WithdrawTab.tsx
-msgid "Approve {shareSymbol}"
-msgstr ""
+#~ msgid "Approve {shareSymbol}"
+#~ msgstr ""
 
 #: src/hooks/usePermitNft.ts
 msgid "NFT Permit Error"
@@ -10527,7 +10577,7 @@ msgstr ""
 #: src/components/ElasticHackedModal.tsx
 #: src/components/LimitOrder/CancelOrder/CancelOrderModal.tsx
 #: src/components/LimitOrder/CancelOrder/CancelOrderModal.tsx
-#: src/components/LimitOrder/ProcessingOrder/ProcessingOrderModal.tsx
+#: src/components/ProcessingSteps/ProcessingStepsModal.tsx
 #: src/components/TransactionConfirmationModal/index.tsx
 #: src/pages/Campaign/components/RaffleRewardModal.tsx
 #: src/pages/Earns/components/VaultDeposit/ConfirmDeposit.tsx
@@ -10587,7 +10637,7 @@ msgstr "KNC 是 Kyber Network 及其旗舰产品 KyberSwap 的实用与治理代
 msgid "Total Points: Combined points from all participants"
 msgstr "总代积分：所有参与者的积分总和"
 
-#: src/components/LimitOrder/ProcessingOrder/ProcessingOrderModal.tsx
+#: src/components/LimitOrder/ProcessingOrder/steps.ts
 msgid "Wrapping {nativeSymbol}"
 msgstr ""
 

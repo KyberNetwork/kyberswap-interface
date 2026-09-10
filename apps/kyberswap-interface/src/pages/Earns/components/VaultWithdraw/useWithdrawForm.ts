@@ -1,13 +1,14 @@
 import { Token as TokenSchema } from '@kyber/schema'
-import { CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
+import { ChainId, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { VaultApiDetailItem, VaultPositionItem, useVaultSupportedAssetsQuery } from 'services/vault'
 
 import { useActiveWeb3React } from 'hooks'
-import { ApprovalState } from 'hooks/useApproveCallback'
+import { useCheckAllowance } from 'hooks/useCheckAllowance'
 import { useVaultWithdraw } from 'pages/Earns/VaultDetail/hooks/useVaultWithdraw'
 import { useWithdrawAssetConfig, useWithdrawPreview } from 'pages/Earns/VaultDetail/hooks/useWithdrawQueue'
+import { VAULT_ACTION_STEP, VAULT_APPROVE_STEP, VaultStep } from 'pages/Earns/components/vaultSteps'
 import { useZapSwap } from 'pages/Earns/hooks/useZapSwap'
 import { safeBigInt } from 'pages/Earns/utils/vault'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
@@ -26,12 +27,10 @@ export const PERCENT_OPTIONS = [25, 50, 75, 100] as const
 export const useWithdrawForm = ({
   vault,
   position,
-  onSubmitted,
   pausePolling,
 }: {
   vault: VaultApiDetailItem
   position?: VaultPositionItem
-  onSubmitted?: () => void
   /** Hold the quote steady while the user is reviewing or signing it. */
   pausePolling?: boolean
 }) => {
@@ -117,11 +116,6 @@ export const useWithdrawForm = ({
     assetOut: nativeAssetAddress,
     discount: queueConfig?.minDiscount,
     secondsToDeadline: queueConfig?.minimumSecondsToDeadline,
-    onSubmitted: () => {
-      setTypedValue('')
-      setPercent(undefined)
-      onSubmitted?.()
-    },
   })
 
   // ---- any-token path: the aggregator sells the shares outright ----
@@ -166,12 +160,14 @@ export const useWithdrawForm = ({
     errorTitle: t`Withdrawal failed`,
     buildExtraInfo: zapExtraInfo,
     pausePolling,
-    onSubmitted: () => {
-      setTypedValue('')
-      setPercent(undefined)
-      onSubmitted?.()
-    },
   })
+
+  // The sequence keeps running after the transaction is broadcast, and it reads the amount to
+  // build a retry, so the form is only emptied once the run is over.
+  const resetAmount = useCallback(() => {
+    setTypedValue('')
+    setPercent(undefined)
+  }, [])
 
   const onTypeAmount = useCallback((value: string) => {
     const next = value.replace(/,/g, '.')
@@ -212,13 +208,20 @@ export const useWithdrawForm = ({
       !belowMinimum &&
       !blocked &&
       !active.isSubmitting &&
-      // An unresolved or pending allowance is not a spendable one: the queue or router would revert.
-      active.approvalState === ApprovalState.APPROVED &&
       (isNative
         ? // The queue's terms are arguments to the request; without them there is nothing to submit.
           Boolean(queueConfig) && !isLoadingConfig
         : Boolean(zapWithdraw.route) && !zapWithdraw.isRouteStale),
   )
+
+  // The queue pulls the shares for a native redemption; the router pulls them for a market sale.
+  const checkApprovalManually = useCheckAllowance({
+    account,
+    amount: approvalAmount,
+    chainId: chainId as ChainId,
+    currency: shareToken,
+    spender: isNative ? queueAddress : zapWithdraw.route?.allowanceHubAddress,
+  })
 
   return {
     account,
@@ -237,6 +240,7 @@ export const useWithdrawForm = ({
     shareBalanceRaw,
     onTypeAmount,
     onSelectPercent,
+    resetAmount,
 
     // native
     withdrawableAssets,
@@ -257,13 +261,21 @@ export const useWithdrawForm = ({
     isRouteLoading: zapWithdraw.isRouteLoading,
     isRouteStale: zapWithdraw.isRouteStale,
 
-    // shared action surface
-    needsApproval: active.needsApproval,
-    isApproving: active.isApproving,
-    approve: active.approve,
-    submit: isNative ? nativeWithdraw.requestWithdraw : zapWithdraw.submit,
-    isSubmitting: active.isSubmitting,
     submitError: active.submitError,
+
+    /** Fed to `useProcessingSteps` so the confirmation can run approve → withdraw in the open. */
+    processing: {
+      chainId: chainId as number,
+      // Shares are an ERC20 the queue or the router pulls, so an allowance is always in play. The
+      // approve step re-reads it on chain and skips itself when one is already in place.
+      steps: [VAULT_APPROVE_STEP, VAULT_ACTION_STEP] as VaultStep[],
+      approveStep: VAULT_APPROVE_STEP,
+      actionStep: VAULT_ACTION_STEP,
+      approval: active.approvalState,
+      approveCallback: active.approve,
+      checkApprovalManually,
+      onFinalStep: isNative ? nativeWithdraw.requestWithdraw : zapWithdraw.submit,
+    },
 
     insufficientShares,
     belowMinimum,

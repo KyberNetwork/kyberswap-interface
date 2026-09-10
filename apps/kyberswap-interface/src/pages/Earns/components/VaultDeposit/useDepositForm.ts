@@ -1,13 +1,14 @@
 import { NATIVE_TOKEN_ADDRESS, Token as TokenSchema } from '@kyber/schema'
-import { Currency, Token } from '@kyberswap/ks-sdk-core'
+import { ChainId, Currency, Token } from '@kyberswap/ks-sdk-core'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { VaultApiDetailItem } from 'services/vault'
 
 import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
-import { ApprovalState } from 'hooks/useApproveCallback'
+import { useCheckAllowance } from 'hooks/useCheckAllowance'
 import { useVaultDeposit } from 'pages/Earns/VaultDetail/hooks/useVaultDeposit'
 import useDefaultDepositToken from 'pages/Earns/components/VaultDeposit/useDefaultDepositToken'
+import { VAULT_ACTION_STEP, VAULT_APPROVE_STEP, VaultStep } from 'pages/Earns/components/vaultSteps'
 import { tryParseAmount } from 'state/swap/hooks'
 import { useCurrencyBalance } from 'state/wallet/hooks'
 
@@ -22,11 +23,9 @@ export const PERCENT_OPTIONS = [25, 50, 75, 100] as const
  */
 export const useDepositForm = ({
   vault,
-  onSubmitted,
   pausePolling,
 }: {
   vault: VaultApiDetailItem
-  onSubmitted?: () => void
   /** Hold the quote steady while the user is reviewing or signing it. */
   pausePolling?: boolean
 }) => {
@@ -75,12 +74,14 @@ export const useDepositForm = ({
     parsedAmount,
     slippage,
     pausePolling,
-    onSubmitted: () => {
-      setTypedValue('')
-      setPercent(undefined)
-      onSubmitted?.()
-    },
   })
+
+  // The sequence keeps running after the transaction is broadcast, and it reads the amount to
+  // build a retry, so the form is only emptied once the run is over.
+  const resetAmount = useCallback(() => {
+    setTypedValue('')
+    setPercent(undefined)
+  }, [])
 
   const onTypeAmount = useCallback((value: string) => {
     const next = value.replace(/,/g, '.')
@@ -135,10 +136,16 @@ export const useDepositForm = ({
       !insufficientBalance &&
       deposit.route &&
       !deposit.isRouteStale &&
-      !deposit.isSubmitting &&
-      // An unresolved or pending allowance is not a spendable one: the router would revert.
-      deposit.approvalState === ApprovalState.APPROVED,
+      !deposit.isSubmitting,
   )
+
+  const checkApprovalManually = useCheckAllowance({
+    account,
+    amount: parsedAmount,
+    chainId: chainId as ChainId,
+    currency,
+    spender: deposit.route?.allowanceHubAddress,
+  })
 
   return {
     account,
@@ -160,7 +167,29 @@ export const useDepositForm = ({
     onTypeAmount,
     onSelectPercent,
     onSelectToken,
-    ...deposit,
+    resetAmount,
+
+    route: deposit.route,
+    routeError: deposit.routeError,
+    isRouteLoading: deposit.isRouteLoading,
+    sharesOutRaw: deposit.sharesOutRaw,
+    minSharesOutRaw: deposit.minSharesOutRaw,
+    submitError: deposit.submitError,
+
+    /** Fed to `useProcessingSteps` so the confirmation can run approve → deposit in the open. */
+    processing: {
+      chainId: chainId as number,
+      // The approve step re-reads the allowance and skips itself when one is already in place, so
+      // it is listed for every token that can have one — the cached state is not accurate enough
+      // to leave it out.
+      steps: (currency?.isNative ? [VAULT_ACTION_STEP] : [VAULT_APPROVE_STEP, VAULT_ACTION_STEP]) as VaultStep[],
+      approveStep: VAULT_APPROVE_STEP,
+      actionStep: VAULT_ACTION_STEP,
+      approval: deposit.approvalState,
+      approveCallback: deposit.approve,
+      checkApprovalManually,
+      onFinalStep: deposit.deposit,
+    },
   }
 }
 
