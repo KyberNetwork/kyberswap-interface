@@ -9,6 +9,7 @@ overrides:
   '@types/react-dom': ^19.0.0
   react: ^19.2.6
   react-dom: ^19.2.6
+  '@types/node': 20.17.6
 
 importers:
 
@@ -491,7 +492,7 @@ importers:
         specifier: ^2.38.0
         version: 2.51.0
       '@types/node':
-        specifier: ^20.8.8
+        specifier: 20.17.6
         version: 20.17.6
       '@types/numeral':
         specifier: ^2.0.0
@@ -608,8 +609,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/swap-widgets
       '@types/node':
-        specifier: 18.11.18
-        version: 18.11.18
+        specifier: 20.17.6
+        version: 20.17.6
       '@types/react':
         specifier: ^19.0.0
         version: 19.2.16
@@ -945,8 +946,8 @@ importers:
         specifier: workspace:*
         version: link:../config-typescript
       '@types/node':
-        specifier: ^22.10.2
-        version: 22.10.2
+        specifier: 20.17.6
+        version: 20.17.6
       tailwindcss:
         specifier: ^3.4.13
         version: 3.4.14
@@ -984,7 +985,7 @@ importers:
         specifier: ^8.56.5
         version: 8.56.12
       '@types/node':
-        specifier: ^20.11.24
+        specifier: 20.17.6
         version: 20.17.6
       '@types/react':
         specifier: ^19.0.0
@@ -1063,7 +1064,7 @@ importers:
         specifier: ^4.6.9
         version: 4.6.9
       '@types/node':
-        specifier: ^20.11.24
+        specifier: 20.17.6
         version: 20.17.6
       '@types/react':
         specifier: ^19.0.0
@@ -1354,8 +1355,8 @@ importers:
         specifier: ^8.56.5
         version: 8.56.12
       '@types/node':
-        specifier: ^20.11.24
-        version: 20.19.25
+        specifier: 20.17.6
+        version: 20.17.6
       '@types/react':
         specifier: ^19.0.0
         version: 19.2.16
@@ -1430,8 +1431,8 @@ importers:
         specifier: ^8.56.5
         version: 8.56.12
       '@types/node':
-        specifier: ^20.11.24
-        version: 20.19.25
+        specifier: 20.17.6
+        version: 20.17.6
       '@types/react':
         specifier: ^19.0.0
         version: 19.2.16
@@ -1494,8 +1495,8 @@ importers:
         specifier: ^4.2.0
         version: 4.3.0(prettier@3.5.3)
       '@types/node':
-        specifier: ^20.11.24
-        version: 20.19.25
+        specifier: 20.17.6
+        version: 20.17.6
       '@typescript-eslint/eslint-plugin':
         specifier: ^6.14.0
         version: 6.21.0(@typescript-eslint/parser@6.21.0)(eslint@8.57.0)(typescript@5.3.2)
@@ -1543,7 +1544,7 @@ importers:
         specifier: ^8.56.5
         version: 8.56.12
       '@types/node':
-        specifier: ^20.11.24
+        specifier: 20.17.6
         version: 20.17.6
       '@types/react':
         specifier: ^19.0.0
@@ -1610,8 +1611,8 @@ importers:
         specifier: workspace:*
         version: link:../config-typescript
       '@types/node':
-        specifier: 18.11.18
-        version: 18.11.18
+        specifier: 20.17.6
+        version: 20.17.6
       typescript:
         specifier: 5.3.2
         version: 5.3.2
@@ -1668,8 +1669,8 @@ importers:
         specifier: ^4.1.9
         version: 4.1.9
       '@types/node':
-        specifier: ^22.10.7
-        version: 22.10.7
+        specifier: 20.17.6
+        version: 20.17.6
       '@types/react':
         specifier: ^19.0.0
         version: 19.2.16
@@ -1768,8 +1769,8 @@ importers:
         specifier: ^4.2.0
         version: 4.3.0(prettier@3.5.3)
       '@types/node':
-        specifier: ^20.11.24
-        version: 20.19.25
+        specifier: 20.17.6
+        version: 20.17.6
       '@types/react':
         specifier: ^19.0.0
         version: 19.2.16
@@ -1937,7 +1938,7 @@ importers:
         specifier: ^8.56.5
         version: 8.56.12
       '@types/node':
-        specifier: ^20.11.24
+        specifier: 20.17.6
         version: 20.17.6
       '@types/numeral':
         specifier: ^2.0.5
@@ -2037,7 +2038,7 @@ importers:
         specifier: ^8.56.5
         version: 8.56.12
       '@types/node':
-        specifier: ^20.11.24
+        specifier: 20.17.6
         version: 20.17.6
       '@types/react':
         specifier: ^19.0.0
@@ -8194,7 +8195,7 @@ packages:
     engines: {node: ^8.13.0 || >=10.10.0}
     dependencies:
       '@grpc/proto-loader': 0.7.13
-      '@types/node': 22.10.7
+      '@types/node': 20.17.6
     dev: false
 
   /@grpc/proto-loader@0.6.13:
@@ -8338,7 +8339,7 @@ packages:
     dependencies:
       '@jest/fake-timers': 29.7.0
       '@jest/types': 29.6.3
-      '@types/node': 22.10.7
+      '@types/node': 20.17.6
       jest-mock: 29.7.0
     dev: false
 
@@ -8348,7 +8349,7 @@ packages:
     dependencies:
       '@jest/types': 29.6.3
       '@sinonjs/fake-timers': 10.3.0
-      '@types/node': 22.10.7
+      '@types/node': 20.17.6
       jest-message-util: 29.7.0
       jest-mock: 29.7.0
       jest-util: 29.7.0
@@ -8390,7 +8391,7 @@ packages:
       '@jest/schemas': 29.6.3
       '@types/istanbul-lib-coverage': 2.0.6
       '@types/istanbul-reports': 3.0.4
-      '@types/node': 22.10.7
+      '@types/node': 20.17.6
       '@types/yargs': 17.0.33
       chalk: 4.1.2
 
@@ -16681,7 +16682,7 @@ packages:
   /@types/connect@3.4.38:
     resolution: {integrity: sha512-K6uROf1LD88uDQqJCktA4yzL1YYAK6NgfsI0v/mTgyPKWsX1CnJ0XPSDhViejru1GcRkLWb8RlzFYJRqGUbaug==}
     dependencies:
-      '@types/node': 22.10.7
+      '@types/node': 20.17.6
     dev: false
 
   /@types/crypto-js@4.1.1:
@@ -16893,7 +16894,7 @@ packages:
   /@types/graceful-fs@4.1.9:
     resolution: {integrity: sha512-olP3sd1qOEe5dXTSaFvQG+02VdRXcdytWLAZsAq1PecU8uqQAhkrnbli7DagjtXKW/Bl7YJbUsa8MPcuc8LHEQ==}
     dependencies:
-      '@types/node': 22.10.7
+      '@types/node': 20.17.6
     dev: false
 
   /@types/hoist-non-react-statics@3.3.5:
@@ -16964,45 +16965,10 @@ packages:
     resolution: {integrity: sha512-nG96G3Wp6acyAgJqGasjODb+acrI7KltPiRxzHPXnP3NgI28bpQDRv53olbqGXbfcgF5aiiHmO3xpwEpS5Ld9g==}
     dev: false
 
-  /@types/node@10.12.18:
-    resolution: {integrity: sha512-fh+pAqt4xRzPfqA6eh3Z2y6fyZavRIumvjhaCL753+TVkGKGhpPeyrJG2JftD0T9q4GF00KjefsQ+PQNDdWQaQ==}
-    dev: false
-
-  /@types/node@12.20.55:
-    resolution: {integrity: sha512-J8xLz7q2OFulZ2cyGTLE1TbbZcjpno7FaN6zdJNrgAdrJ+DZzh/uFR6YrTb4C+nXakvud8Q4+rbhoIWlYQbUFQ==}
-    dev: false
-
-  /@types/node@18.11.18:
-    resolution: {integrity: sha512-DHQpWGjyQKSHj3ebjFI/wRKcqQcdR+MoFBygntYOZytCqNfkd2ZC4ARDJ2DQqhjH5p85Nnd3jhUJIXrszFX/JA==}
-
   /@types/node@20.17.6:
     resolution: {integrity: sha512-VEI7OdvK2wP7XHnsuXbAJnEpEkF6NjSN45QJlL4VGqZSXsnicpesdTWsg9RISeSdYd3yeRj/y3k5KGjUXYnFwQ==}
     dependencies:
       undici-types: 6.19.8
-    dev: true
-
-  /@types/node@20.19.25:
-    resolution: {integrity: sha512-ZsJzA5thDQMSQO788d7IocwwQbI8B5OPzmqNvpf3NY/+MHDAS759Wo0gd2WQeXYt5AAAQjzcrTVC6SKCuYgoCQ==}
-    dependencies:
-      undici-types: 6.21.0
-    dev: true
-
-  /@types/node@22.10.2:
-    resolution: {integrity: sha512-Xxr6BBRCAOQixvonOye19wnzyDiUtTeqldOOmj3CkeblonbccA12PFwlufvRdrpjXxqnmUaeiU5EOA+7s5diUQ==}
-    dependencies:
-      undici-types: 6.20.0
-    dev: true
-
-  /@types/node@22.10.7:
-    resolution: {integrity: sha512-V09KvXxFiutGp6B7XkpaDXlNadZxrzajcY50EuoLIpQ6WWYCSvf19lVIazzfIzQvhUN2HjX12spLojTnhuKlGg==}
-    dependencies:
-      undici-types: 6.20.0
-
-  /@types/node@22.7.5:
-    resolution: {integrity: sha512-jML7s2NAzMWc//QSJ1a3prpk78cOPchGvXJsC3C6R6PSMoooztvRVQEz89gmBTBY1SPMaqo5teB4uNHPdetShQ==}
-    dependencies:
-      undici-types: 6.19.8
-    dev: false
 
   /@types/normalize-package-data@2.4.4:
     resolution: {integrity: sha512-37i+OaWTh9qeK4LSHPsyRC7NahnGotNuZvjLSgcPzblpHB3rrCJxAOgI5gCdKm7coonsaX1Of0ILiTcnZjbfxA==}
@@ -17088,13 +17054,13 @@ packages:
   /@types/ws@7.4.7:
     resolution: {integrity: sha512-JQbbmxZTZehdc2iszGKs5oC3NFnjeay7mtAWrdt7qNtAVK0g19muApzAy4bm9byz79xa2ZnO/BOBC2R8RC5Lww==}
     dependencies:
-      '@types/node': 22.10.7
+      '@types/node': 20.17.6
     dev: false
 
   /@types/ws@8.18.0:
     resolution: {integrity: sha512-8svvI3hMyvN0kKCJMvTJP/x6Y/EoQbepff882wL+Sn5QsXb3etnamgrJq4isrBxSJj5L2AuXcI0+bgkoAXGUJw==}
     dependencies:
-      '@types/node': 22.10.7
+      '@types/node': 20.17.6
     dev: false
 
   /@types/yargs-parser@21.0.3:
@@ -20906,7 +20872,7 @@ packages:
     resolution: {integrity: sha512-HpV5OMLLGTjSVblmrtYRfFFKuQB+GArM0+XP8HGWfJ5vxYBqo+DesvJwOdC2WJ3bCkZShGf0QIfoIpeomVzVdA==}
     engines: {node: '>=6.0.0'}
     dependencies:
-      '@types/node': 10.12.18
+      '@types/node': 20.17.6
       bs58check: 2.1.2
       create-hash: 1.2.0
       create-hmac: 1.1.7
@@ -21344,7 +21310,7 @@ packages:
     engines: {node: '>=12.13.0'}
     hasBin: true
     dependencies:
-      '@types/node': 22.10.7
+      '@types/node': 20.17.6
       escape-string-regexp: 4.0.0
       is-wsl: 2.2.0
       lighthouse-logger: 1.4.2
@@ -21355,7 +21321,7 @@ packages:
   /chromium-edge-launcher@0.2.0:
     resolution: {integrity: sha512-JfJjUnq25y9yg4FABRRVPmBGWPZZi+AQXT4mxupb67766/0UlhG8PAZCz6xzEMXTbW3CsSoE8PcCWA49n35mKg==}
     dependencies:
-      '@types/node': 22.10.7
+      '@types/node': 20.17.6
       escape-string-regexp: 4.0.0
       is-wsl: 2.2.0
       lighthouse-logger: 1.4.2
@@ -24340,7 +24306,7 @@ packages:
       '@adraffy/ens-normalize': 1.10.1
       '@noble/curves': 1.2.0
       '@noble/hashes': 1.3.2
-      '@types/node': 22.7.5
+      '@types/node': 20.17.6
       aes-js: 4.0.0-beta.5
       tslib: 2.7.0
       ws: 8.17.1
@@ -25872,7 +25838,7 @@ packages:
     hasBin: true
     dependencies:
       '@types/connect': 3.4.38
-      '@types/node': 12.20.55
+      '@types/node': 20.17.6
       '@types/ws': 7.4.7
       commander: 2.20.3
       delay: 5.0.0
@@ -25895,7 +25861,7 @@ packages:
       '@jest/environment': 29.7.0
       '@jest/fake-timers': 29.7.0
       '@jest/types': 29.6.3
-      '@types/node': 22.10.7
+      '@types/node': 20.17.6
       jest-mock: 29.7.0
       jest-util: 29.7.0
     dev: false
@@ -25910,7 +25876,7 @@ packages:
     dependencies:
       '@jest/types': 29.6.3
       '@types/graceful-fs': 4.1.9
-      '@types/node': 22.10.7
+      '@types/node': 20.17.6
       anymatch: 3.1.3
       fb-watchman: 2.0.2
       graceful-fs: 4.2.11
@@ -25943,7 +25909,7 @@ packages:
     engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
     dependencies:
       '@jest/types': 29.6.3
-      '@types/node': 22.10.7
+      '@types/node': 20.17.6
       jest-util: 29.7.0
     dev: false
 
@@ -25957,7 +25923,7 @@ packages:
     engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
     dependencies:
       '@jest/types': 29.6.3
-      '@types/node': 22.10.7
+      '@types/node': 20.17.6
       chalk: 4.1.2
       ci-info: 3.9.0
       graceful-fs: 4.2.11
@@ -25979,7 +25945,7 @@ packages:
     resolution: {integrity: sha512-eIz2msL/EzL9UFTFFx7jBTkeZfku0yUAyZZZmJ93H2TYEiroIx2PQjEXcwYtYl8zXCxb+PAmA2hLIt/6ZEkPHw==}
     engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
     dependencies:
-      '@types/node': 22.10.7
+      '@types/node': 20.17.6
       jest-util: 29.7.0
       merge-stream: 2.0.0
       supports-color: 8.1.1
@@ -28472,7 +28438,7 @@ packages:
       '@protobufjs/pool': 1.1.0
       '@protobufjs/utf8': 1.1.0
       '@types/long': 4.0.2
-      '@types/node': 22.10.7
+      '@types/node': 20.17.6
       long: 4.0.0
     dev: false
 
@@ -28491,7 +28457,7 @@ packages:
       '@protobufjs/path': 1.1.2
       '@protobufjs/pool': 1.1.0
       '@protobufjs/utf8': 1.1.0
-      '@types/node': 22.10.7
+      '@types/node': 20.17.6
       long: 5.3.1
     dev: false
 
@@ -31665,13 +31631,6 @@ packages:
   /undici-types@6.19.8:
     resolution: {integrity: sha512-ve2KP6f/JnbPBFyobGHuerC9g1FYGn/F8n1LWTwNxCEzd6IfqTwUQcNXgEtmmQ6DlRrC1hrSrBnCZPokRrDHjw==}
 
-  /undici-types@6.20.0:
-    resolution: {integrity: sha512-Ny6QZ2Nju20vw1SRHe3d9jVu6gJ+4e3+MMpqu7pqE5HT6WsTSlce++GQmK5UXS8mzV8DSYHrQH+Xrf2jVcuKNg==}
-
-  /undici-types@6.21.0:
-    resolution: {integrity: sha512-iwDZqg0QAGrg9Rav5H4n0M64c3mkR59cJ6wQp+7C4nI0gsmExaedaYLNO44eT4AtBBwjbTiGPMlt2Md0T9H9JQ==}
-    dev: true
-
   /undici-types@7.25.0:
     resolution: {integrity: sha512-AXNgS1Byr27fTI+2bsPEkV9CxkT8H6xNyRI68b3TatlZo3RkzlqQBLL+w7SmGPVpokjHbcuNVQUWE7FRTg+LRA==}
     requiresBuild: true
@@ -32477,7 +32436,7 @@ packages:
     engines: {node: ^14.18.0 || >=16.0.0}
     hasBin: true
     peerDependencies:
-      '@types/node': '>= 14'
+      '@types/node': 20.17.6
       less: '*'
       sass: '*'
       stylus: '*'
@@ -32510,7 +32469,7 @@ packages:
     engines: {node: ^14.18.0 || >=16.0.0}
     hasBin: true
     peerDependencies:
-      '@types/node': '>= 14'
+      '@types/node': 20.17.6
       less: '*'
       lightningcss: ^1.21.0
       sass: '*'
@@ -32546,7 +32505,7 @@ packages:
     engines: {node: ^18.0.0 || >=20.0.0}
     hasBin: true
     peerDependencies:
-      '@types/node': ^18.0.0 || >=20.0.0
+      '@types/node': 20.17.6
       less: '*'
       lightningcss: ^1.21.0
       sass: '*'
@@ -32586,7 +32545,7 @@ packages:
     hasBin: true
     peerDependencies:
       '@edge-runtime/vm': '*'
-      '@types/node': ^18.0.0 || >=20.0.0
+      '@types/node': 20.17.6
       '@vitest/browser': 1.6.1
       '@vitest/ui': 1.6.1
       happy-dom: '*'
