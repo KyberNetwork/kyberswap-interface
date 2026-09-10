@@ -13,7 +13,7 @@ const Card = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
 export const PageWrapper = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
   <div
     className={cn(
-      'flex w-full flex-1 flex-col gap-4 [animation:fadeIn_0.25s_ease-out_both]',
+      'flex w-full flex-1 flex-col gap-5 [animation:fadeIn_0.25s_ease-out_both]',
       REDUCED_MOTION,
       className,
     )}

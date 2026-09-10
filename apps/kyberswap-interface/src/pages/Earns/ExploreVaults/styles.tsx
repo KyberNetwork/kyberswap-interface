@@ -5,7 +5,7 @@ import { cn } from 'utils/cn'
 import { hexAlpha } from 'utils/colorAlpha'
 
 export const VaultPageWrapper = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
-  <div className={cn('flex w-full flex-1 flex-col gap-4', className)} {...rest} />
+  <div className={cn('flex w-full flex-1 flex-col gap-5', className)} {...rest} />
 )
 
 export const VaultPageTitle = ({ className, ...rest }: HTMLAttributes<HTMLHeadingElement>) => (
@@ -66,12 +66,7 @@ export const ViewToggleButton = ({ $active, className, ...rest }: ViewToggleButt
 
 export const VaultCardsGrid = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
   <div
-    className={cn(
-      'grid grid-cols-3 gap-x-10 gap-y-8',
-      'max-lg:grid-cols-2 max-lg:gap-6',
-      'max-sm:grid-cols-1 max-sm:gap-4',
-      className,
-    )}
+    className={cn('grid grid-cols-3 gap-6', 'max-lg:grid-cols-2', 'max-sm:grid-cols-1 max-sm:gap-4', className)}
     {...rest}
   />
 )
@@ -134,12 +129,12 @@ export const CardTitleLink = ({ className, ...rest }: LinkProps) => (
 
 /** Sits above the title link's overlay so the buttons stay independently clickable. */
 export const CardActions = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
-  <div className={cn('relative z-[1] flex items-center gap-3', className)} {...rest} />
+  <div className={cn('relative z-[1] flex items-center gap-2', className)} {...rest} />
 )
 
 export const CardHeader = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
   <div
-    className={cn('flex flex-wrap items-center justify-between gap-2 border-b border-white-04 pb-3', className)}
+    className={cn('flex flex-wrap items-center justify-between gap-2 gap-y-3 border-b border-white-04 pb-3', className)}
     {...rest}
   />
 )
@@ -184,7 +179,7 @@ export const ChartWrapper = ({ $height, className, style, ...rest }: ChartWrappe
 )
 
 const buttonBase = cn(
-  'inline-flex cursor-pointer items-center justify-center whitespace-nowrap rounded-xl px-3 py-1.5',
+  'inline-flex cursor-pointer items-center justify-center whitespace-nowrap rounded-3xl px-3 py-1.5',
   'bg-transparent font-[inherit] text-sm font-medium leading-5 transition-[opacity,background] duration-150',
   'hover:opacity-80 disabled:cursor-not-allowed',
 )

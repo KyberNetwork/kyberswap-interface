@@ -13,7 +13,7 @@ import Skeleton from 'components/Skeleton'
 const VAULT_ROWS = 3
 
 const VaultPageWrapper = ({ children }: { children: React.ReactNode }) => (
-  <div className="flex w-full flex-1 flex-col gap-4">{children}</div>
+  <div className="flex w-full flex-1 flex-col gap-5">{children}</div>
 )
 
 /** Chain + protocol pills, sort control and view toggle on the left, search on the right. */

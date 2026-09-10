@@ -5,7 +5,7 @@ import { useMedia } from 'react-use'
 
 import { ReactComponent as IconAlert } from 'assets/svg/earn/ic_alert.svg'
 import { ReactComponent as ListSmartExitIcon } from 'assets/svg/earn/ic_list_smart_exit.svg'
-import { ReactComponent as IconUserEarnPosition } from 'assets/svg/earn/ic_user_earn_position.svg'
+import { ReactComponent as MyPositionsIcon } from 'assets/svg/earn/ic_my_positions.svg'
 import { ButtonLight } from 'components/Button'
 import CopyHelper from 'components/Copy'
 import { ListingPageNavigateButton } from 'components/Listing/Page'
@@ -242,7 +242,7 @@ const PositionDetailHeader = () => {
         </MouseoverTooltipDesktopOnly>
         <ListingPageNavigateButton
           mobileFullWidth
-          icon={<IconUserEarnPosition />}
+          icon={<MyPositionsIcon />}
           text={t`My Positions`}
           to={APP_PATHS.EARN_POSITIONS}
         />

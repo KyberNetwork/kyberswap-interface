@@ -2,11 +2,11 @@ import { t } from '@lingui/macro'
 import { ComponentType, Fragment, SVGProps, useMemo } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 
-import { ReactComponent as VaultIcon } from 'assets/svg/earn/ic_earn_pools.svg'
+import { ReactComponent as ExplorePoolsIcon } from 'assets/svg/earn/ic_explore_pools.svg'
+import { ReactComponent as ExploreVaultsIcon } from 'assets/svg/earn/ic_explore_vaults.svg'
 import { ReactComponent as FeaturedVaultIcon } from 'assets/svg/earn/ic_featured_vault.svg'
 import { ReactComponent as SmartExitIcon } from 'assets/svg/earn/ic_list_smart_exit.svg'
-import { ReactComponent as PositionsIcon } from 'assets/svg/earn/ic_user_earn_position.svg'
-import { ReactComponent as PoolIcon } from 'assets/svg/rocket.svg'
+import { ReactComponent as MyPositionsIcon } from 'assets/svg/earn/ic_my_positions.svg'
 import { APP_PATHS } from 'constants/index'
 import {
   BreadcrumbsContainer,
@@ -44,11 +44,11 @@ const useEarnNavGroups = (): NavGroup[] =>
       {
         label: t`Liquidity Pools`,
         items: [
-          { label: t`Explore Pools`, path: APP_PATHS.EARN_POOLS, icon: PoolIcon },
+          { label: t`Explore Pools`, path: APP_PATHS.EARN_POOLS, icon: ExplorePoolsIcon },
           {
             label: t`My Positions`,
             path: APP_PATHS.EARN_POSITIONS,
-            icon: PositionsIcon,
+            icon: MyPositionsIcon,
             matchPath: p => p === APP_PATHS.EARN_POSITIONS || p.startsWith('/earn/position/'),
           },
           { label: t`Smart Exit Orders`, path: APP_PATHS.EARN_SMART_EXIT, icon: SmartExitIcon },
@@ -60,7 +60,7 @@ const useEarnNavGroups = (): NavGroup[] =>
           {
             label: t`Explore Vaults`,
             path: APP_PATHS.EARN_VAULTS,
-            icon: VaultIcon,
+            icon: ExploreVaultsIcon,
             matchPath: p => p === APP_PATHS.EARN_VAULTS || p.startsWith('/earn/vault/'),
           },
           { label: t`My Vaults`, path: APP_PATHS.EARN_MY_VAULTS, icon: FeaturedVaultIcon },

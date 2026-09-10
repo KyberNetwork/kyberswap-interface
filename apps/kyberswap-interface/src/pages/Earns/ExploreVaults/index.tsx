@@ -107,7 +107,7 @@ const VaultIdentity = ({ vault }: { vault: VaultInfo }) => (
       />
     </TokenIconWrapper>
     <span className="ml-1 text-base text-white2">{vault.token}</span>
-    <span className="text-base text-gray">{vault.label}</span>
+    <span className="text-base text-gray">{t`Yield`}</span>
   </div>
 )
 
@@ -195,9 +195,7 @@ const ExploreVaultListItem = ({ vault, hasPosition, onDeposit, revealIndex }: Va
         />
       </TokenIconWrapper>
       <span className="ml-1 shrink-0 text-base text-white2">{vault.token}</span>
-      <span className="truncate text-base text-gray" title={vault.label}>
-        {vault.label}
-      </span>
+      <span className="truncate text-base text-gray">{t`Yield`}</span>
     </>
   )
 

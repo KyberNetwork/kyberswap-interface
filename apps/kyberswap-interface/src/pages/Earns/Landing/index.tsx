@@ -4,7 +4,7 @@ import { useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { useExplorerLandingQuery } from 'services/earn'
 
-import { ReactComponent as VaultIcon } from 'assets/svg/earn/ic_earn_pools.svg'
+import { ReactComponent as ExploreVaultsIcon } from 'assets/svg/earn/ic_explore_vaults.svg'
 import { ReactComponent as LiquidityPoolIcon } from 'assets/svg/earn/liquidity-pools.svg'
 import LowVolatilityIcon from 'assets/svg/earn/low-volatility.svg'
 import PlayIcon from 'assets/svg/earn/play-icon.svg'
@@ -176,7 +176,7 @@ const EarnLanding = () => {
                 <HeaderIconWrapper>
                   <HeaderIconLine accentColor={PARTNER_VAULTS_ACCENT} />
                   <HeaderIconCircle accentColor={PARTNER_VAULTS_ACCENT}>
-                    <VaultIcon width={40} height={40} />
+                    <ExploreVaultsIcon width={40} height={40} />
                   </HeaderIconCircle>
                 </HeaderIconWrapper>
                 <HeaderTextBlock>
