@@ -9370,7 +9370,7 @@ msgstr ""
 
 #: src/pages/Earns/PoolExplorer/index.tsx
 #: src/pages/Earns/UserPositions/index.tsx
-msgid "KyberSwap provides tools for tracking & adding liquidity to third-party Protocols. For any pool-related concerns, please contact the respective Liquidity Protocol directly."
+msgid "KyberSwap only provides tools to track and add liquidity to Third-party protocols. Users assume all risks and contact the respective protocol for any concerns."
 msgstr "KyberSwap 提供用于跟踪并向第三方协议添加流动性工具，池相关问题请直接联系对应流动性协议"
 
 #: src/components/Header/web3/SignWallet/ConfirmModal.tsx

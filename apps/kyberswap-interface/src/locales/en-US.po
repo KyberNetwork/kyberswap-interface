@@ -9370,8 +9370,8 @@ msgstr "The information is intended solely for your reference at the time you ar
 
 #: src/pages/Earns/PoolExplorer/index.tsx
 #: src/pages/Earns/UserPositions/index.tsx
-msgid "KyberSwap provides tools for tracking & adding liquidity to third-party Protocols. For any pool-related concerns, please contact the respective Liquidity Protocol directly."
-msgstr "KyberSwap provides tools for tracking & adding liquidity to third-party Protocols. For any pool-related concerns, please contact the respective Liquidity Protocol directly."
+msgid "KyberSwap only provides tools to track and add liquidity to Third-party protocols. Users assume all risks and contact the respective protocol for any concerns."
+msgstr "KyberSwap only provides tools to track and add liquidity to Third-party protocols. Users assume all risks and contact the respective protocol for any concerns."
 
 #: src/components/Header/web3/SignWallet/ConfirmModal.tsx
 #~ msgid "this profile"

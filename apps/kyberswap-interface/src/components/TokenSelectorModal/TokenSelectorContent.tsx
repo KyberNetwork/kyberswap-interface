@@ -195,10 +195,10 @@ const metricCopy = (metric: TokenMetricColumn) =>
         show: t`Show 24h volume`,
         sort: t`Sort by 24h volume`,
       }
-    : { label: <Trans>MCAP</Trans>, show: t`Show market cap`, sort: t`Sort by market cap` }
+    : { label: <Trans>FDV</Trans>, show: t`Show fully diluted valuation`, sort: t`Sort by fully diluted valuation` }
 
 // The Trending / New tabs' third column header: a switch choosing which metric the rows show — 24h
-// volume or market cap — plus the sort control for whichever metric is active. The showing metric's
+// volume or FDV — plus the sort control for whichever metric is active. The showing metric's
 // own button doubles as a sort target, so the sort stays reachable without aiming at the small arrows.
 const MetricColumnHeader = ({
   metric,
@@ -612,7 +612,7 @@ export const TokenSelectorContent = ({
 
   // Imported and Favorites take their price from the live prices endpoint (buy/sell mid — the same
   // source the All tab and the wallet-value sort use, so a token reads the same on every tab), while
-  // 24h change / volume / market cap stay from the tokens-list metrics.
+  // 24h change / volume / FDV stay from the tokens-list metrics.
   const localPriceAddresses = useMemo(
     () => (metricsSource.length ? metricsSource.map(currency => currency.wrapped.address) : EMPTY_ADDRESSES),
     [metricsSource],
@@ -675,14 +675,13 @@ export const TokenSelectorContent = ({
     [sort, listExtras],
   )
 
-  // The Favorites tab's natural order is descending market cap; tokens with no market cap sink to the bottom.
-  const sortByMarketCap = useCallback(
+  // The Favorites tab's natural order is descending FDV; tokens with no FDV sink to the bottom.
+  const sortByFdv = useCallback(
     (list: Currency[]): Currency[] => {
-      const capOf = (currency: Currency) =>
-        listExtras[tokenRowKey(currency.chainId, currency.wrapped.address)]?.marketCap
+      const fdvOf = (currency: Currency) => listExtras[tokenRowKey(currency.chainId, currency.wrapped.address)]?.fdv
       return [...list].sort((a, b) => {
-        const ca = capOf(a)
-        const cb = capOf(b)
+        const ca = fdvOf(a)
+        const cb = fdvOf(b)
         if (ca === undefined && cb === undefined) return 0
         if (ca === undefined) return 1
         if (cb === undefined) return -1
@@ -701,9 +700,9 @@ export const TokenSelectorContent = ({
         return newCurrenciesBase
       case TokenSelectorTab.Imported:
         return sortByMetric(importedCurrenciesBase)
-      // Favorites default to market cap desc; a clicked sort header (24h change) overrides that.
+      // Favorites default to FDV desc; a clicked sort header (24h change) overrides that.
       case TokenSelectorTab.Favorites:
-        return sort ? sortByMetric(favoriteCurrenciesBase) : sortByMarketCap(favoriteCurrenciesBase)
+        return sort ? sortByMetric(favoriteCurrenciesBase) : sortByFdv(favoriteCurrenciesBase)
       case TokenSelectorTab.All:
       default:
         return allTabTokens
@@ -717,7 +716,7 @@ export const TokenSelectorContent = ({
     allTabTokens,
     sort,
     sortByMetric,
-    sortByMarketCap,
+    sortByFdv,
   ])
 
   // Show skeleton rows while a tab's whole list is loading from the API.
