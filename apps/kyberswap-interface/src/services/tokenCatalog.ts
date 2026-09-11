@@ -54,8 +54,8 @@ export type TokenCatalogMetrics = {
   priceChange24h?: number | null
   kyberScore?: number
   liquidityUsd?: number
-  /** Market capitalization in USD. Absent for tokens the catalog has no circulating supply for. */
-  marketCap?: number
+  /** Fully diluted valuation in USD. Absent for tokens the catalog has no total supply for. */
+  fdv?: number
   stats24h?: { volume24h?: number }
 }
 
@@ -72,7 +72,7 @@ export type TokenCatalogListToken = {
   isStable?: boolean
   isStandardERC20?: boolean
   cmcRank?: number
-  marketCap?: number
+  fdv?: number
   createdAt?: number
   whitelistedAt?: number
   metrics?: TokenCatalogMetrics
