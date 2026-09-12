@@ -99,10 +99,10 @@ const LiquidityFlowsChart = ({ chainId, poolAddress }: LiquidityFlowsChartProps)
 
   const activeDotStroke = theme.buttonBlack
   const addLiquidityColor = `${theme.darkGreen}cc`
-  const cursorColor = `${theme.text}1f`
-  const gridColor = `${theme.text}0f`
+  const cursorColor = 'var(--ks-text-12)'
+  const gridColor = 'var(--ks-text-06)'
   const lpVolumeLineColor = theme.primary
-  const referenceLineColor = `${theme.text}1f`
+  const referenceLineColor = 'var(--ks-text-12)'
   const removeLiquidityColor = `${theme.red}80`
 
   const {
