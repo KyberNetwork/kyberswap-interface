@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest'
 
 import { adaptActionLogsResponse, adaptActivityResponse } from './adapters/activity'
-import { adaptPerformanceResponse } from './adapters/agents'
+import { adaptLeaderboardResponse, adaptPerformanceResponse } from './adapters/agents'
 import { adaptCopyAccountBalancesResponse, adaptCopyAccountWalletInventoryResponse } from './adapters/copyAccounts'
-import { adaptCopyRunCashbackPolicyResponse, adaptCopyRunResponse } from './adapters/copyRuns'
+import { adaptCopyRunCashbackPolicyResponse, adaptCopyRunResponse, adaptCopyRunsResponse } from './adapters/copyRuns'
 import {
   adaptAgentPositionsResponse,
   adaptClosedPositionExecutionsResponse,
@@ -14,6 +14,65 @@ const currentCapital = {
   value: '12.34',
   status: 'METRIC_STATUS_CURRENT' as const,
 }
+
+describe('ROI and copy-run list metrics', () => {
+  it.each([
+    ['METRIC_STATUS_CURRENT', '20', '20'],
+    ['METRIC_STATUS_CURRENT', '0', '0'],
+    ['METRIC_STATUS_STALE', '-12', '-12'],
+    ['METRIC_STATUS_UNAVAILABLE', '20', undefined],
+    ['METRIC_STATUS_NOT_APPLICABLE', '20', undefined],
+  ] as const)('preserves %s ROI independently from capital and Return', (status, value, expected) => {
+    const roiPct = { status, value, asOf: '2026-09-10T00:00:00Z' }
+    const run = {
+      roiPct,
+      copyRunWinRatePct: { status: 'METRIC_STATUS_CURRENT', value: '60' },
+      copyRunClassifiedClosedPositionCount: { status: 'METRIC_STATUS_CURRENT', value: '5' },
+      capitalInProjectionStatus: 'CAPITAL_IN_PROJECTION_STATUS_SYNCING',
+      capitalInUsd: { status: 'METRIC_STATUS_UNAVAILABLE' },
+      totalPnlUsd: { status: 'METRIC_STATUS_CURRENT', value: '30' },
+      totalPnlPct: { status: 'METRIC_STATUS_CURRENT', value: '40' },
+      agentSnapshot: { metrics: { lifetimeVolumeUsd: { status: 'METRIC_STATUS_CURRENT', value: '1000' } } },
+    } as const
+    for (const item of [adaptCopyRunsResponse({ data: [run] }).data[0], adaptCopyRunResponse({ data: run }).data]) {
+      expect(item).toMatchObject({
+        roiPct: expected,
+        copyRunWinRatePct: '60',
+        copyRunClassifiedClosedPositionCount: '5',
+        totalPnlUsd: '30',
+        totalPnlPct: '40',
+      })
+      expect(item.metrics.roiPct).toEqual(roiPct)
+      expect(item.metrics.copyRunWinRatePct).toEqual(run.copyRunWinRatePct)
+      expect(item.agentStats.volumeUsd).toBe('1000')
+      expect(item.agentStats.roiPct).toBeUndefined()
+      expect(item.agentStats.winRatePct).toBeUndefined()
+    }
+    const agent = adaptLeaderboardResponse({ data: [{ metrics: { roiPct } }] }).data[0]
+    expect(agent.stats.roiPct).toBe(expected)
+    expect(agent.stats.metrics.roiPct).toEqual(roiPct)
+  })
+
+  it('does not fill missing or unavailable run metrics from the agent snapshot', () => {
+    const run = adaptCopyRunsResponse({
+      data: [
+        {
+          copyRunWinRatePct: { value: '60', status: 'METRIC_STATUS_UNAVAILABLE' },
+          copyRunClassifiedClosedPositionCount: { status: 'METRIC_STATUS_NOT_APPLICABLE' },
+          agentSnapshot: {
+            metrics: {
+              roiPct: { value: '99', status: 'METRIC_STATUS_CURRENT' },
+              winRatePct: { value: '100', status: 'METRIC_STATUS_CURRENT' },
+            },
+          },
+        },
+      ],
+    }).data[0]
+    expect(run.roiPct).toBeUndefined()
+    expect(run.copyRunWinRatePct).toBeUndefined()
+    expect(run.copyRunClassifiedClosedPositionCount).toBeUndefined()
+  })
+})
 
 describe('adaptCopyRunResponse', () => {
   it.each([

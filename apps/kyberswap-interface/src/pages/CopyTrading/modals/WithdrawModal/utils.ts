@@ -91,7 +91,7 @@ export const validateWithdrawTokensPreview = (preview: WithdrawTokensPreview | u
     return 'The withdrawal selection does not match All Tokens.'
   if (preview.recipientAddress?.toLowerCase() !== owner.toLowerCase())
     return 'The withdrawal recipient does not match your wallet.'
-  if (!preview.tokens?.length || preview.tokens.length > 32) return 'The prepared token selection is invalid.'
+  if (!preview.tokens?.length || preview.tokens.length > 100) return 'The prepared token selection is invalid.'
   const addresses = preview.tokens.map(item => item.token?.address?.toLowerCase())
   if (
     addresses.some(address => !address || !/^0x[0-9a-f]{40}$/.test(address)) ||

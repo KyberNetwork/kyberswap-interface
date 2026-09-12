@@ -68,7 +68,9 @@ export type CopyRunListItem = {
   capitalOutUsd?: DecimalString
   portfolioValueUsd?: DecimalString
   unrealizedPnlUsd?: DecimalString
-  myAprSinceCopyPct?: DecimalString
+  roiPct?: DecimalString
+  copyRunWinRatePct?: DecimalString
+  copyRunClassifiedClosedPositionCount?: DecimalString
   openPositionCount?: DecimalString
   closedPositionCount?: DecimalString
   leftoverPositionCount?: DecimalString
@@ -105,8 +107,6 @@ export type CopyRunFeeBreakdown = {
 export type CopyRunSummary = CopyRunListItem & {
   portfolioPnlUsd?: DecimalString
   feeBreakdown?: CopyRunFeeBreakdown
-  copyRunWinRatePct?: DecimalString
-  copyRunClassifiedClosedPositionCount?: DecimalString
 }
 
 export type CopyRunCashbackPolicyScope =

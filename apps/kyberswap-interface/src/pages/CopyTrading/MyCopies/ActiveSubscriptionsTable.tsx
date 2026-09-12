@@ -100,20 +100,12 @@ const ActiveSubscriptionsTable = ({
             activeSortBy={sortBy}
             className="justify-end text-right"
             onSortChange={onSortChange}
-            sortField="agent_apr_30d"
+            sortField="roi_pct"
             sortOrder={sortOrder}
           >
-            Agent APR
+            ROI
           </HeaderCell>
-          <HeaderCell
-            activeSortBy={sortBy}
-            className="justify-end text-right"
-            onSortChange={onSortChange}
-            sortField="agent_win_rate"
-            sortOrder={sortOrder}
-          >
-            Agent Win Rate
-          </HeaderCell>
+          <HeaderCell className="justify-end text-right">Win Rate</HeaderCell>
           <HeaderCell
             activeSortBy={sortBy}
             className="justify-end text-right"
@@ -152,11 +144,11 @@ const ActiveSubscriptionsTable = ({
                 to={`${APP_PATHS.COPY_TRADING}/my-copies/${subscription.copyRunId}`}
               />
               <CopyRunAgentCell run={subscription} className="px-3 py-2" />
-              <TableCell className={cn('text-right', getSignedMetricClassName(subscription.agentStats.apr30dPct))}>
-                {percent(subscription.agentStats.apr30dPct)}
+              <TableCell className={cn('text-right', getSignedMetricClassName(subscription.roiPct))}>
+                {percent(subscription.roiPct)}
               </TableCell>
-              <TableCell className={cn('text-right', getWinRateClassName(subscription.agentStats.winRatePct))}>
-                {percent(subscription.agentStats.winRatePct)}
+              <TableCell className={cn('text-right', getWinRateClassName(subscription.copyRunWinRatePct))}>
+                {percent(subscription.copyRunWinRatePct)}
               </TableCell>
               <TableCell className="text-right">{compactUsd(subscription.agentStats.volumeUsd)}</TableCell>
               <TableCell className="text-right">{formatUsd(subscription.capitalInUsd)}</TableCell>
@@ -197,18 +189,15 @@ const ActiveSubscriptionsTable = ({
             </div>
 
             <TableCardGrid>
-              <TableCardField
-                label="Agent APR"
-                valueClassName={getSignedMetricClassName(subscription.agentStats.apr30dPct)}
-              >
-                {percent(subscription.agentStats.apr30dPct)}
+              <TableCardField label="ROI" valueClassName={getSignedMetricClassName(subscription.roiPct)}>
+                {percent(subscription.roiPct)}
               </TableCardField>
               <TableCardField
                 align="right"
-                label="Agent Win Rate"
-                valueClassName={getWinRateClassName(subscription.agentStats.winRatePct)}
+                label="Win Rate"
+                valueClassName={getWinRateClassName(subscription.copyRunWinRatePct)}
               >
-                {percent(subscription.agentStats.winRatePct)}
+                {percent(subscription.copyRunWinRatePct)}
               </TableCardField>
               <TableCardField label="Volume">{compactUsd(subscription.agentStats.volumeUsd)}</TableCardField>
               <TableCardField align="right" label="Positions">

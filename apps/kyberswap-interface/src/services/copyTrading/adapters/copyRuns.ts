@@ -47,7 +47,9 @@ type ApiCopyRunListItem = {
   capitalOutUsd?: ApiMetric
   portfolioValueUsd?: ApiMetric
   unrealizedPnlUsd?: ApiMetric
-  myAprSinceCopy?: ApiMetric
+  roiPct?: ApiMetric
+  copyRunWinRatePct?: ApiMetric
+  copyRunClassifiedClosedPositionCount?: ApiMetric
   openPositionCount?: ApiMetric
   closedPositionCount?: ApiMetric
   leftoverPositionCount?: ApiMetric
@@ -77,8 +79,6 @@ type ApiCopyRunFeeBreakdown = {
 type ApiCopyRunSummary = ApiCopyRunListItem & {
   portfolioPnlUsd?: ApiMetric
   feeBreakdown?: ApiCopyRunFeeBreakdown
-  copyRunWinRatePct?: ApiMetric
-  copyRunClassifiedClosedPositionCount?: ApiMetric
 }
 
 type ApiCopyRunCashbackPolicy = {
@@ -159,7 +159,9 @@ const toCopyRunListItem = (run: ApiCopyRunListItem): CopyRunListItem => {
     capitalOutUsd: metricValue(run.capitalOutUsd),
     portfolioValueUsd: metricValue(run.portfolioValueUsd),
     unrealizedPnlUsd: metricValue(run.unrealizedPnlUsd),
-    myAprSinceCopyPct: metricValue(run.myAprSinceCopy),
+    roiPct: metricValue(run.roiPct),
+    copyRunWinRatePct: metricValue(run.copyRunWinRatePct),
+    copyRunClassifiedClosedPositionCount: metricValue(run.copyRunClassifiedClosedPositionCount),
     openPositionCount: metricValue(run.openPositionCount),
     closedPositionCount: metricValue(run.closedPositionCount),
     leftoverPositionCount: metricValue(run.leftoverPositionCount),
@@ -182,7 +184,9 @@ const toCopyRunListItem = (run: ApiCopyRunListItem): CopyRunListItem => {
       capitalOutUsd: run.capitalOutUsd,
       portfolioValueUsd: run.portfolioValueUsd,
       unrealizedPnlUsd: run.unrealizedPnlUsd,
-      myAprSinceCopy: run.myAprSinceCopy,
+      roiPct: run.roiPct,
+      copyRunWinRatePct: run.copyRunWinRatePct,
+      copyRunClassifiedClosedPositionCount: run.copyRunClassifiedClosedPositionCount,
       openPositionCount: run.openPositionCount,
       closedPositionCount: run.closedPositionCount,
       leftoverPositionCount: run.leftoverPositionCount,
@@ -220,13 +224,9 @@ const toCopyRunSummary = (run: ApiCopyRunSummary): CopyRunSummary => {
     ...item,
     portfolioPnlUsd: metricValue(run.portfolioPnlUsd),
     feeBreakdown: toCopyRunFeeBreakdown(run.feeBreakdown),
-    copyRunWinRatePct: metricValue(run.copyRunWinRatePct),
-    copyRunClassifiedClosedPositionCount: metricValue(run.copyRunClassifiedClosedPositionCount),
     metrics: {
       ...item.metrics,
       portfolioPnlUsd: run.portfolioPnlUsd,
-      copyRunWinRatePct: run.copyRunWinRatePct,
-      copyRunClassifiedClosedPositionCount: run.copyRunClassifiedClosedPositionCount,
     },
   }
 }

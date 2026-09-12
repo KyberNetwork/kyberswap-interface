@@ -1,3 +1,6 @@
+import type { ReactNode } from 'react'
+
+import InfoHelper from 'components/InfoHelper'
 import TextSkeleton from 'components/Skeleton/TextSkeleton'
 import { Center, HStack, Stack } from 'components/Stack'
 import { type StatIcon } from 'pages/CopyTrading/constants'
@@ -11,6 +14,7 @@ export type LeaderboardStat = {
   icon: StatIcon
   mobileSpan?: 1 | 2
   valueClassName?: string
+  valueTooltip?: ReactNode
 }
 
 type LeaderboardCardProps = {
@@ -61,16 +65,28 @@ const LeaderboardCard = ({ className, item, loading, size }: LeaderboardCardProp
         {loading ? (
           <StatValueSkeleton size={size} />
         ) : (
-          <span
-            className={cn(
-              'truncate text-base font-medium',
-              size === 'lg' ? 'text-text md:text-2xl' : 'text-primary md:text-lg',
-              item.valueClassName,
+          <HStack className="min-w-0 items-center gap-1">
+            <span
+              className={cn(
+                'truncate text-base font-medium',
+                size === 'lg' ? 'text-text md:text-2xl' : 'text-primary md:text-lg',
+                item.valueClassName,
+              )}
+              title={item.value}
+            >
+              {item.value}
+            </span>
+            {item.valueTooltip && (
+              <InfoHelper
+                text={item.valueTooltip}
+                margin={false}
+                size={14}
+                placement="top"
+                width="240px"
+                style={{ flexShrink: 0 }}
+              />
             )}
-            title={item.value}
-          >
-            {item.value}
-          </span>
+          </HStack>
         )}
         <div className="min-w-0 text-sm text-subText">
           <span className="block whitespace-normal md:truncate" title={item.label}>

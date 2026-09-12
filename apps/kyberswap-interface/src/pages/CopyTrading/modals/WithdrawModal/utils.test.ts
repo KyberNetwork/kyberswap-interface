@@ -119,6 +119,17 @@ const preview: WithdrawTokensPreview = {
 }
 
 describe('All Tokens withdrawal', () => {
+  const batchTokens = (count: number) =>
+    Array.from({ length: count }, (_, index) => ({
+      token: index === 0 ? token : { address: `0x${index.toString(16).padStart(40, '0')}` },
+      balance: { status: 'METRIC_STATUS_CURRENT' as const, valueRaw: index === 0 ? '0' : '100' },
+    }))
+  it.each([1, 32, 33, 100])('accepts a valid %i-token batch with a zero quote balance', count => {
+    expect(validateWithdrawTokensPreview({ ...preview, tokens: batchTokens(count) }, owner)).toBeUndefined()
+  })
+  it('rejects 101 unique tokens', () => {
+    expect(validateWithdrawTokensPreview({ ...preview, tokens: batchTokens(101) }, owner)).toBeTruthy()
+  })
   it('allows all-zero balances and unavailable display enrichment', () => {
     expect(validateWithdrawTokensPreview(preview, owner)).toBeUndefined()
   })

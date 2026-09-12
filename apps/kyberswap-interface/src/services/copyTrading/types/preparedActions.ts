@@ -199,6 +199,7 @@ export type StopCopyPreview = {
 }
 
 export type WithdrawTokensPreview = {
+  hasMoreTokens?: boolean
   selection?: 'WITHDRAW_TOKEN_SELECTION_ALL_INDEXED_TOKENS'
   tokens?: { token?: PreparedToken; balance?: RawAmountMetric; currentValuation?: PositionValuation }[]
   quoteToken?: PreparedToken
