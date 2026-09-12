@@ -1,4 +1,4 @@
-import { ChainId, Currency, Token, WETH } from '@kyberswap/ks-sdk-core'
+import { ChainId, Currency, CurrencyAmount, Token, WETH } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import { useInfiniteQuery } from '@tanstack/react-query'
 import { motion, useAnimationControls, useReducedMotion } from 'framer-motion'
@@ -509,17 +509,25 @@ export const TokenSelectorContent = ({
     [showDiscoveries, balanceTokens, discoveryTokens],
   )
 
-  // The multicall answers until the inventory can. Its cost is one sweep per open, ended the moment a
-  // walk lands; what the inventory saves is the per-block repeat of that sweep, which is the expensive
-  // part. A wallet is walked page by page, and no screen waits on that to show a balance.
-  const multicallTokens = inventory.active ? EMPTY_TOKENS : balanceTokensWithDiscoveries
+  // The multicall answers only once the inventory has said it cannot. While the first walk is in
+  // flight the list waits for it: a wallet is one request, and sweeping the whole whitelist in the
+  // meantime would run the very thing this layer removes and throw it away a moment later.
+  const multicallTokens = inventory.active || inventory.pending ? EMPTY_TOKENS : balanceTokensWithDiscoveries
   const multicallBalances = useTokenBalances(multicallTokens, primaryChainId)
   const inventoryBalances = useInventoryTokenBalances(balanceTokensWithDiscoveries, inventory)
   const balances = inventory.active ? inventoryBalances : multicallBalances
   // Whichever source answers, a balance it never delivers stops reading as "loading": every new map
   // restarts the wait, so a source still working keeps its rows on a loader and a stalled one does not.
   const waitingForBalances = useBalanceWait(balances, !!account)
-  const nativeBalance = useNativeBalance(primaryChainId)
+  const liveNativeBalance = useNativeBalance(primaryChainId)
+  // The chain read is fresher and wins, but the walk already carries a native balance and the row
+  // shows that until the read lands, so nothing in the list waits on RPC.
+  const nativeBalance = useMemo(() => {
+    if (liveNativeBalance) return liveNativeBalance
+    const row = inventory.rows[ETHER_ADDRESS]
+    const native = NativeCurrencies[primaryChainId] as Currency | undefined
+    return row && native ? CurrencyAmount.fromRawAmount(native, row.rawBalance.toString()) : undefined
+  }, [liveNativeBalance, inventory.rows, primaryChainId])
 
   // Only the All (default order) and Imported tabs sort by wallet value; gate the comparator so the
   // rest never register its /prices fetch.

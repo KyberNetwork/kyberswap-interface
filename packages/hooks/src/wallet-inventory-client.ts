@@ -61,6 +61,9 @@ export const isChainUnsupported = (chainId: number): boolean => unsupportedChain
 export const isWalletInventoryChain = (chainId: number): boolean =>
   WALLET_INVENTORY_CHAINS.some(chain => chain === chainId) && !unsupportedChains.has(chainId);
 
+/** The service's address for the chain's native currency, on every chain. */
+export const NATIVE_SENTINEL = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee';
+
 const PAGE_SIZE = 1000;
 /** Safety stop for the cursor walk; a wallet past this is left to the caller's own balance source. */
 const MAX_PAGES = 10;
@@ -151,8 +154,10 @@ export const walkWalletInventory = async ({
   account: string;
   signal?: AbortSignal;
   liveAddrs?: readonly string[];
-}): Promise<{ rows: InventoryRawRow[]; complete: boolean; indexedBlock: number }> => {
+}): Promise<WalkResult> => {
   const byAddress = new Map<string, InventoryRawRow>();
+  let nativeIndexed = false;
+  let nativeLive: bigint | undefined;
   const merge = (row: InventoryRawRow) => {
     const key = row.tokenAddress.toLowerCase();
     const existing = byAddress.get(key);
@@ -181,11 +186,15 @@ export const walkWalletInventory = async ({
 
     batch.balances.forEach(row => {
       indexedBlock = Math.max(indexedBlock, row.blockNumber);
+      if (row.tokenAddress.toLowerCase() === NATIVE_SENTINEL) nativeIndexed = true;
       merge(row);
     });
     // Live reads share the block-monotonic merge: stamped at the head, they win over the indexed row
     // for the same token, including when they report it emptied.
-    batch.live.forEach(merge);
+    batch.live.forEach(row => {
+      if (row.tokenAddress.toLowerCase() === NATIVE_SENTINEL) nativeLive = parseRawAmount(row.rawAmount);
+      merge(row);
+    });
 
     // A short page is the only end-of-data signal the service gives; live rows are extra to it.
     if (batch.balances.length < PAGE_SIZE) {
@@ -196,5 +205,62 @@ export const walkWalletInventory = async ({
     cursor = { block: last.blockNumber, address: last.tokenAddress };
   }
 
-  return { rows: Array.from(byAddress.values()), complete, indexedBlock };
+  return { rows: Array.from(byAddress.values()), complete, indexedBlock, nativeIndexed, nativeLive };
+};
+
+export type WalkResult = {
+  rows: InventoryRawRow[];
+  complete: boolean;
+  /** How far the index has come, live reads excluded. */
+  indexedBlock: number;
+  /** Whether the index itself listed the native currency. */
+  nativeIndexed: boolean;
+  /** The node's native balance, when the sentinel was among `liveAddrs` and the service answered. */
+  nativeLive?: bigint;
+};
+
+/**
+ * The node's native balance for the wallet, read by the service, without walking the index: one
+ * request for the smallest page the service allows, carrying the sentinel as a live read. The
+ * service answers for wallets its index has never seen. Undefined when it did not answer.
+ */
+export const readLiveNative = async ({
+  baseUrl,
+  chainId,
+  account,
+  signal,
+}: {
+  baseUrl: string;
+  chainId: number;
+  account: string;
+  signal?: AbortSignal;
+}): Promise<bigint | undefined> => {
+  const params = new URLSearchParams({ limit: '1', liveAddrs: NATIVE_SENTINEL });
+  const batch = await fetchPage(
+    `${baseUrl}/v1/wallets/${chainId}/${account}/balances?${params.toString()}`,
+    chainId,
+    signal,
+  );
+  const row = batch.live.find(candidate => candidate.tokenAddress.toLowerCase() === NATIVE_SENTINEL);
+  return row ? parseRawAmount(row.rawAmount) : undefined;
+};
+
+export type InventoryVerdict = 'trusted' | 'distrusted' | 'unknown';
+
+/**
+ * Whether an answer can be relied on for the whole wallet. The service lists every non-zero holding,
+ * the native currency included, so an answer without a native row is complete only for a wallet that
+ * holds none — and only the node says which. `unknown` asks the caller for that read; a wallet the
+ * node says is funded while the index lists no native is missing at least one holding.
+ */
+export const judgeInventory = ({
+  nativeIndexed,
+  nativeLive,
+}: {
+  nativeIndexed: boolean;
+  nativeLive?: bigint;
+}): InventoryVerdict => {
+  if (nativeIndexed) return 'trusted';
+  if (nativeLive === undefined) return 'unknown';
+  return nativeLive > 0n ? 'distrusted' : 'trusted';
 };

@@ -1,16 +1,19 @@
 import { useEffect, useState } from 'react';
 
-import { getBalance } from '@kyber/rpc-client';
-import { API_URLS, NATIVE_TOKEN_ADDRESS } from '@kyber/schema';
+import { API_URLS } from '@kyber/schema';
 
 import {
   INDEXER_CATCHUP_WINDOW_MS,
   UnsupportedChainError,
   isChainUnsupported,
   isWalletInventoryChain,
+  judgeInventory,
   parseRawAmount,
+  readLiveNative,
   walkWalletInventory,
 } from './wallet-inventory-client';
+
+export type { InventoryVerdict } from './wallet-inventory-client';
 
 export {
   UnsupportedChainError,
@@ -21,6 +24,9 @@ export {
   parseRawAmount,
   walkWalletInventory,
   INDEXER_CATCHUP_WINDOW_MS,
+  judgeInventory,
+  readLiveNative,
+  NATIVE_SENTINEL,
 } from './wallet-inventory-client';
 export type { InventoryRawRow } from './wallet-inventory-client';
 
@@ -68,7 +74,6 @@ const RETRY_JITTER = 0.4;
 const STALE_MAX_MS = 120_000;
 /** Inventories kept for wallets no one is looking at, so a reopened selector paints at once. */
 const KEEP_IDLE_ENTRIES = 8;
-const NATIVE_KEY = NATIVE_TOKEN_ADDRESS.toLowerCase();
 
 const IDLE: WalletInventory = { balances: null, holdings: null, status: 'idle' };
 const LOADING: WalletInventory = { balances: null, holdings: null, status: 'loading' };
@@ -120,14 +125,6 @@ const pendingWatches = new Map<string, LiveWatch>();
 
 const watchStillOn = (watch: LiveWatch | undefined, indexedBlock: number, now: number): watch is LiveWatch =>
   !!watch && now <= watch.until && (watch.block === undefined || indexedBlock < watch.block);
-
-/** A node read the environment never settles must not hold the poller; the walk has the same guard. */
-const withTimeout = <T>(work: Promise<T>, ms: number): Promise<T> =>
-  new Promise<T>((resolve, reject) => {
-    const timer = setTimeout(() => reject(new Error('timed out')), ms);
-    work.then(resolve, reject).finally(() => clearTimeout(timer));
-  });
-const NATIVE_READ_TIMEOUT_MS = 8_000;
 
 const keyOf = (chainId: number, account: string) => `${chainId}:${account.toLowerCase()}`;
 
@@ -208,7 +205,7 @@ const run = async (entry: Entry) => {
     // the next walk's still-lagging indexed rows.
     const watch = watchStillOn(entry.live, entry.indexedBlock, Date.now()) ? entry.live : undefined;
     if (!watch) entry.live = undefined;
-    const { rows, complete, indexedBlock } = await walkWalletInventory({
+    const { rows, complete, indexedBlock, nativeIndexed, nativeLive } = await walkWalletInventory({
       baseUrl: API_URLS.KD_API,
       chainId: entry.chainId,
       account: entry.account,
@@ -257,32 +254,25 @@ const run = async (entry: Entry) => {
     // Sorted so two walks over an unchanged wallet compare equal whatever order the service listed them in.
     holdings.sort((a, b) => (a.address < b.address ? -1 : a.address > b.address ? 1 : 0));
 
-    // The service returns no rows both for an empty wallet and for one it has never indexed. A wallet
-    // that holds native currency but has no native row is the latter, and its "zeros" are not to be
-    // believed; it is retried on the backoff schedule in case the indexer catches up. The native
-    // currency is not read live through the service — its row is this trust check, which must stay
-    // independent of the node — so while a watch is on the same chain read stands in for it on screen.
-    if (!balances[NATIVE_KEY] || watch) {
-      const native = await withTimeout(getBalance(entry.chainId, entry.account), NATIVE_READ_TIMEOUT_MS).catch(
-        () => undefined,
-      );
+    // An answer without a native row is either a wallet holding none or one the index has not
+    // covered, and only the node tells them apart. The walk carries the node's word when a watch is
+    // on; otherwise it is one more request, to the service — a node read this client does not make.
+    let verdict = judgeInventory({ nativeIndexed, nativeLive });
+    if (verdict === 'unknown') {
+      const read = await readLiveNative({
+        baseUrl: API_URLS.KD_API,
+        chainId: entry.chainId,
+        account: entry.account,
+        signal: controller.signal,
+      }).catch(() => undefined);
       if (controller.signal.aborted) return;
-      // No native row means either a wallet that holds none or one the index has not covered, and
-      // only the chain tells them apart. Until it does, or if it says the wallet is funded, the
-      // answer is missing a holding and the caller reads its own source instead. A read that did not
-      // answer is not the service's fault, so it does not count against the backoff.
-      if (!balances[NATIVE_KEY] && (native === undefined || native > 0n)) {
-        if (native !== undefined) entry.failures += 1;
-        commit(entry, null, 'unavailable');
-        return;
-      }
-      if (watch && native !== undefined && native > 0n) {
-        balances[NATIVE_KEY] = native;
-        const index = holdings.findIndex(h => h.address === NATIVE_KEY);
-        const live = { address: NATIVE_KEY, rawBalance: native, blockNumber: indexedBlock };
-        if (index >= 0) holdings[index] = { ...holdings[index], rawBalance: native };
-        else holdings.push(live);
-      }
+      verdict = judgeInventory({ nativeIndexed, nativeLive: read });
+    }
+    if (verdict !== 'trusted') {
+      // A read that did not answer is not the service's fault, so it does not count against the backoff.
+      if (verdict === 'distrusted') entry.failures += 1;
+      commit(entry, null, 'unavailable');
+      return;
     }
 
     entry.failures = 0;

@@ -1,7 +1,7 @@
+import { judgeInventory } from '@kyber/hooks'
 import { Token, TokenAmount } from '@kyberswap/ks-sdk-core'
 import { InventoryRow } from 'services/walletInventory'
 
-import { ETHER_ADDRESS } from 'constants/index'
 import { InventoryEntry } from 'state/walletInventory/store'
 
 /**
@@ -21,62 +21,46 @@ export type WalletInventory = {
    * caller reads its own source instead.
    */
   active: boolean
+  /**
+   * No answer yet, but one is on its way: the first walk for this wallet is in flight. A caller waits
+   * rather than starting the whole-list sweep this layer exists to remove — a wallet is one request
+   * and the walk carries its own deadline, so the wait is short and bounded. Every other way of not
+   * being `active` is a decision already made, and the caller reads its own source at once.
+   */
+  pending: boolean
 }
 
-// Module constant, not built per call: a caller sees it on every render until a walk lands, and a
-// fresh object would ripple a new balance map (and a list re-sort) out of every one of them.
-export const INACTIVE_INVENTORY: WalletInventory = { rows: EMPTY_ROWS, active: false }
+// Module constants, not built per call: a caller sees one of these on every render until a walk
+// lands, and a fresh object would ripple a new balance map (and a list re-sort) out of every one.
+export const INACTIVE_INVENTORY: WalletInventory = { rows: EMPTY_ROWS, active: false, pending: false }
+const PENDING_INVENTORY: WalletInventory = { rows: EMPTY_ROWS, active: false, pending: true }
 
 /**
  * Turns a store entry into what consumers should read.
  *
- * `nativeRawBalance` is the live per-block native balance (undefined while its first read is still in
- * flight). The service lists every non-zero holding, the native currency included, so an answer
- * without a native row is complete only for a wallet that holds none — and the chain is what says so.
- * The same read then supplies the native balance itself, which the index lags and users watch most
- * closely.
- *
- * Anything this cannot vouch for reads as inactive rather than as a half-answer: the caller has its
- * own balance source and reads it, which is what keeps a screen from waiting on this one.
+ * The walk itself says whether the answer can be relied on — see `judgeInventory` — and the sweep
+ * has already asked the service for the node's word where the index was silent about native, so
+ * nothing here waits on a read of its own. Anything not relied on reads as inactive rather than as a
+ * half-answer: the caller has its own balance source and reads it.
  */
-export const resolveInventory = (
-  entry: InventoryEntry | undefined,
-  subscribed: boolean,
-  nativeRawBalance?: string,
-): WalletInventory => {
+export const resolveInventory = (entry: InventoryEntry | undefined, subscribed: boolean): WalletInventory => {
   if (!subscribed) return INACTIVE_INVENTORY
-  if (!entry) return INACTIVE_INVENTORY
+  // The first walk is on its way; a failed one commits an entry, so this does not outlast it.
+  if (!entry) return PENDING_INVENTORY
   if (entry.status === 'error') return INACTIVE_INVENTORY
   // A partial walk (wallet larger than the page cap) is not authoritative about anything it did not
   // list, which is most of what the selector renders — multicall answers those in one block instead.
   if (entry.status !== 'settled') return INACTIVE_INVENTORY
 
-  const held = withoutTombstones(entry.rows)
-  const nativeRead = nativeRawBalance !== undefined ? BigInt(nativeRawBalance) : undefined
-  const nativeRow = held[ETHER_ADDRESS]
+  // A wallet the node says is funded while the index lists no native is missing at least one
+  // holding; one the node says holds none is complete as listed. Decided by what the walk brought
+  // back, never waited on.
+  if (judgeInventory(entry) !== 'trusted') return INACTIVE_INVENTORY
 
-  // No native row means either a wallet that holds none or one the index has not covered — the two
-  // are the same answer here, and only the chain tells them apart. Until it does, or if it says the
-  // wallet is funded, this answer is missing at least one holding and is not relied on.
-  if (!nativeRow && (nativeRead === undefined || nativeRead > 0n)) return INACTIVE_INVENTORY
-
-  // The chain owns the native balance: the index lags it, and it is the number users watch most
-  // closely. Read as zero, the wallet holds none — a max-send just mined must not keep showing the
-  // index's pre-transaction amount, and a token held at zero is a token absent from the rows.
-  const rows =
-    nativeRead === undefined || !nativeRow
-      ? held
-      : nativeRead === 0n
-      ? withoutNative(held)
-      : { ...held, [ETHER_ADDRESS]: { ...nativeRow, rawBalance: nativeRead } }
-
-  return { rows, active: true }
-}
-
-const withoutNative = (rows: Record<string, InventoryRow>): Record<string, InventoryRow> => {
-  const next = { ...rows }
-  delete next[ETHER_ADDRESS]
-  return next
+  // Live reads are merged into the rows at the head block, so a native balance read live — after a
+  // transaction of the user's own — already outranks the index's amount, and one read as zero is a
+  // tombstone the reader never sees.
+  return { rows: withoutTombstones(entry.rows), active: true, pending: false }
 }
 
 /**
