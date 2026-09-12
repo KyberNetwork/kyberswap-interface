@@ -1,6 +1,6 @@
 # Copy Trading Implementation Status
 
-Last reviewed: 2026-09-08
+Last reviewed: 2026-09-12
 
 This file is the frontend snapshot for the current Copy Trading implementation.
 It records only current ownership, accepted product decisions, remaining gaps,
@@ -11,7 +11,7 @@ FE_API_Catalog.md and openapi.yaml.
 
 | Area              | Status                                                                                                         |
 | ----------------- | -------------------------------------------------------------------------------------------------------------- |
-| Backend contract  | Current input: checked-in OpenAPI byte-matches the live 34-path, 160-definition Swagger fetched on 2026-09-08. |
+| Backend contract  | Current input: checked-in OpenAPI byte-matches the live 34-path, 158-definition Swagger fetched on 2026-09-11. |
 | RTK Query service | Code-complete: 27 GET queries and 7 preparation mutations are declared and typed.                              |
 | Read UI           | Code-complete for all currently defined product surfaces.                                                      |
 | Write UI          | Code-complete for Start Copy, Add Capital, Stop Copy, Withdraw Quote, Withdraw All Tokens, Manual Sell, and Close Position.         |
@@ -26,8 +26,9 @@ FE_API_Catalog.md and openapi.yaml.
 - adapters and types are the compatibility boundary between API-native
   envelopes/enums and UI models.
 - Copy Run list endpoints map to CopyRunListItem. The Copy Run detail endpoint
-  maps to CopyRunSummary and owns detail-only Portfolio P&L, fee-breakdown, and
-  Copy-specific Win Rate fields.
+  maps to CopyRunSummary and owns detail-only Portfolio P&L and fee-breakdown.
+  ROI, Copy-specific Win Rate, and classified closed-position count are shared
+  by list and detail.
 - Agent position endpoints map to AgentPositionSummary. Follower Copy Run and
   owner position endpoints map to PositionSummary; follower accounting and
   recovery actions must not leak into leader-position models.
@@ -68,9 +69,11 @@ them unless product explicitly approves a UI change:
 - The frontend targets the currently deployed schema. Do not add compatibility
   fallback for the retired schema unless deployment ordering changes and
   product explicitly requests it.
-- Copy Detail keeps the existing labels. **Realised P&L** reads
-  portfolioPnlUsd, **Fee** reads feeBreakdown.feeChargedUsd, and **Rebate**
-  reads feeBreakdown.rebatesUsd. Do not add a **Net Fees** card.
+- Copy Detail shows four headline metrics: Total P&L, Realised P&L, ROI, and
+  Net Fees. Net Fees reads feeBreakdown.netFeesUsd; an info tooltip beside its
+  value shows two aligned rows for Fee charged and Rebates, with muted labels
+  and emphasized right-aligned values. The formula is not displayed.
+  Fee is no longer a separate headline metric. Realised P&L reads portfolioPnlUsd.
 - Capital In reads capitalInUsd directly. Only the Capital In value inside the
   Agent Profile and Copy Detail capital cards shows a **Syncing** badge when
   capitalInProjectionStatus is SYNCING. Tables, timelines, and modal summaries
@@ -131,13 +134,18 @@ them unless product explicitly approves a UI change:
 
 ### Metrics and lifecycle presentation
 
+- Leaderboard reads agent roiPct; My Copies and Copy Detail read run roiPct.
+  APR fields, window metadata, labels, and sorts have been removed. ROI is
+  rendered directly from BE, with the existing metric presentation and no new
+  stale marker/tooltip. Chart Return and History Total Return remain separate.
+
 - CURRENT and STALE values render identically; stale badges are not shown.
 - The sole status exception is the Capital-card **Syncing** badge driven by
   capitalInProjectionStatus, not by the Capital In metric status.
 - UNAVAILABLE values remain N/A or — and continue to block actions where the
   action contract requires availability.
 - Every available Win Rate uses the primary color. N/A remains neutral.
-- Signed P&L/APR metrics keep their positive/negative semantic colors.
+- Signed P&L/ROI metrics keep their positive/negative semantic colors.
 - Backend CLOSING is presented to the user as Stopped Copy in the capital card,
   with stopped styling and the available stopped date and time.
 - Remaining in Wallet uses the non-paginated wallet-inventory endpoint and its
@@ -169,8 +177,10 @@ them unless product explicitly approves a UI change:
 
 - Leaderboard, My Copies, and History use cursor pagination. Infinite lists keep
   independent cursor chains and reset rejected non-initial cursors to page one.
-- My Copies sorting is server-backed for Agent APR, Agent Win Rate, Agent Volume,
-  and Capital In. Header selection cycles descending, ascending, then default.
+- My Copies sorting is server-backed for Copy Run ROI, Agent Volume, and
+  Capital In. Win Rate reads the Copy Run metric and is not sortable because
+  the API only offers agent Win Rate sorting. Header selection cycles
+  descending, ascending, then default.
 - Desktop and mobile rows use native links, preserving modified-click,
   context-menu, and new-tab behavior. Independent action buttons remain outside
   the row-link hit target.
@@ -297,12 +307,19 @@ Cross-flow decisions:
 - All Tokens sends only ALL_INDEXED_TOKENS to prepareWithdrawTokens. Review
   explains permanent Stop, pending rebate risk, and token-discovery limits.
   Preparation owns token selection, balances, recipient, and calldata.
-- Exact current balances, quote-token membership, recipient, and bounded unique
-  token selection are validated. Display price/rebate availability is independent
+- Exact current balances, quote-token membership, recipient, and 1–100 unique
+  tokens per batch are validated. Stop Copy retains its 32-position limit. Display price/rebate availability is independent
   from readiness; zero-balance selections remain executable.
 - The shared flow validates owner/chain/call kind/expiry, simulates, estimates
   outer-call gas, submits the exact call, and waits for its receipt. Expired or
   failed calls require fresh preparation; receipt/sync retries never resubmit.
+- All Tokens finishes after one transaction and the existing inventory
+  convergence, regardless of hasMoreTokens. There is no next-batch CTA, batch
+  state, or batch-specific preview cache. To withdraw remaining eligible tokens,
+  close and reopen the modal for a fresh preview and preparation. Success means
+  this transaction completed; it does not assert the Smart Wallet is empty.
+- The passed Copy Run and existing advisory remain the modal inputs; no extra
+  detail subscription, pre-prepare detail read, or RPC balance check is added.
 - Both withdrawals poll only wallet-inventory after receipt. They require a
   complete inventory, the matching pinned stable token, and balance block coverage
   at or after the receipt: stable balance for Stable only, each token in the submitted preparation
@@ -326,7 +343,8 @@ Frontend implementation is complete for the current scope. The remaining work
 is validation or product-definition work:
 
 - Controlled positive E2E for All Tokens withdrawal on active and stopped runs,
-  including zero balances, expiry, and post-receipt inventory convergence.
+  including repeated independent withdrawals, zero balances, expiry, and post-receipt inventory
+  convergence. Missing inventory rows remain unproven under the existing policy.
 - Controlled positive E2E for Add Capital, Stop Copy, and Withdraw Quote
   post-receipt convergence.
 - Controlled positive E2E for active Manual Sell after an Operator skip.
@@ -344,16 +362,18 @@ from the frontend.
 
 ## Verification Snapshot
 
-Latest checks for the current working tree (2026-09-08):
+Latest checks for the current working tree (2026-09-12):
 
-- App TypeScript passed.
-- Copy Trading suite: 133 passed across 17 files. After adding the separate
-  All Tokens call-kind regression, the three affected files passed 42 tests
-  (134 total tests now). Coverage includes zero balances, receipt block coverage,
-  History metrics, activity identity, and rejecting mixed withdrawal previews.
-- Targeted ESLint and git diff --check passed.
-- Checked-in OpenAPI byte-matches the fetched 34-path, 160-definition schema;
-  SHA-256: 16448dd89ab4ea179f6f94059fdbd0c28dfdd1d4d092d84c9538b4ec66702241.
-- The five withdraw-token reference PNGs were visually inspected for the shared
-  selector layout. Browser QA, production build, and positive live transaction
-  E2E were not run.
+- App TypeScript, targeted ESLint, and git diff --check passed after restoring
+  the established withdrawal and metric-presentation decisions.
+- Copy Trading suite: 151 tests passed across 16 files after removing batch
+  continuation. Existing receipt/inventory convergence and 100-token validation
+  remain covered.
+- Checked-in OpenAPI byte-matches the 34-path, 158-definition schema fetched on
+  2026-09-11; SHA-256:
+  507d09eb4928b8aec9331601a1b0898139f1cfe2dcd52904ad91c59c10709f0c.
+- Public PRE leaderboard GET on 2026-09-11 accepted ROI sort (HTTP 200) and
+  rejected the retired APR sort (HTTP 400/code 3).
+- Browser QA was attempted on 2026-09-11 but no browser was available. The local
+  Vite server served the ROI module; this does not establish visual QA.
+- Production build, owner API smoke, and positive transaction E2E were not run.

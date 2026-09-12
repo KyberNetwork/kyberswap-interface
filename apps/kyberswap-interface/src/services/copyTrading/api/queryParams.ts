@@ -23,7 +23,7 @@ export const sortOrderMap: Record<SortOrder, string> = {
 }
 
 export const leaderboardSortMap: Record<LeaderboardSortBy, string> = {
-  apr_30d_pct: 'LEADERBOARD_SORT_FIELD_APR_30D',
+  roi_pct: 'LEADERBOARD_SORT_FIELD_ROI_PCT',
   win_rate_pct: 'LEADERBOARD_SORT_FIELD_WIN_RATE',
   volume_usd: 'LEADERBOARD_SORT_FIELD_LIFETIME_VOLUME',
   copiers: 'LEADERBOARD_SORT_FIELD_COPIERS',
@@ -74,7 +74,7 @@ export const activityGroupMap = {
 export const copyRunSortMap: Record<CopyRunSortBy, string> = {
   started_at: 'OWNER_COPY_RUN_SORT_FIELD_STARTED_AT',
   stopped_at: 'OWNER_COPY_RUN_SORT_FIELD_STOPPED_AT',
-  agent_apr_30d: 'OWNER_COPY_RUN_SORT_FIELD_AGENT_APR_30D',
+  roi_pct: 'OWNER_COPY_RUN_SORT_FIELD_ROI_PCT',
   agent_win_rate: 'OWNER_COPY_RUN_SORT_FIELD_AGENT_WIN_RATE',
   agent_volume: 'OWNER_COPY_RUN_SORT_FIELD_AGENT_LIFETIME_VOLUME',
   capital_in: 'OWNER_COPY_RUN_SORT_FIELD_CAPITAL_IN',

@@ -122,12 +122,12 @@ paths:
           type: string
           enum:
             - LEADERBOARD_SORT_FIELD_UNSPECIFIED
-            - LEADERBOARD_SORT_FIELD_APR_30D
             - LEADERBOARD_SORT_FIELD_WIN_RATE
             - LEADERBOARD_SORT_FIELD_LIFETIME_VOLUME
             - LEADERBOARD_SORT_FIELD_COPIERS
             - LEADERBOARD_SORT_FIELD_AUM
             - LEADERBOARD_SORT_FIELD_OPEN_POSITIONS
+            - LEADERBOARD_SORT_FIELD_ROI_PCT
           default: LEADERBOARD_SORT_FIELD_UNSPECIFIED
         - name: sortOrder
           in: query
@@ -580,7 +580,6 @@ paths:
             - OWNER_COPY_RUN_SORT_FIELD_UNSPECIFIED
             - OWNER_COPY_RUN_SORT_FIELD_STARTED_AT
             - OWNER_COPY_RUN_SORT_FIELD_STOPPED_AT
-            - OWNER_COPY_RUN_SORT_FIELD_AGENT_APR_30D
             - OWNER_COPY_RUN_SORT_FIELD_AGENT_WIN_RATE
             - OWNER_COPY_RUN_SORT_FIELD_AGENT_LIFETIME_VOLUME
             - OWNER_COPY_RUN_SORT_FIELD_CAPITAL_IN
@@ -589,6 +588,7 @@ paths:
             - OWNER_COPY_RUN_SORT_FIELD_REALIZED_PNL
             - OWNER_COPY_RUN_SORT_FIELD_FEE_PAID
             - OWNER_COPY_RUN_SORT_FIELD_REBATES
+            - OWNER_COPY_RUN_SORT_FIELD_ROI_PCT
           default: OWNER_COPY_RUN_SORT_FIELD_UNSPECIFIED
         - name: sortOrder
           in: query
@@ -1958,8 +1958,6 @@ definitions:
   v1AgentMetrics:
     type: object
     properties:
-      apr30d:
-        $ref: '#/definitions/v1AprMetric'
       winRatePct:
         $ref: '#/definitions/v1DecimalMetric'
       lifetimeVolumeUsd:
@@ -1982,6 +1980,9 @@ definitions:
         $ref: '#/definitions/v1CountMetric'
       closedPositionCount:
         $ref: '#/definitions/v1CountMetric'
+      roiPct:
+        $ref: '#/definitions/v1DecimalMetric'
+        description: Lifetime Total PnL divided by cumulative deposits, multiplied by 100.
     description: AgentMetrics contains canonical public agent metrics.
   v1AgentPositionSummary:
     type: object
@@ -2130,13 +2131,15 @@ definitions:
   v1AgentSnapshotMetrics:
     type: object
     properties:
-      apr30d:
-        $ref: '#/definitions/v1AprMetric'
       winRatePct:
         $ref: '#/definitions/v1DecimalMetric'
       lifetimeVolumeUsd:
         $ref: '#/definitions/v1DecimalMetric'
-    description: AgentSnapshotMetrics contains only metrics required on copy-run rows.
+      roiPct:
+        $ref: '#/definitions/v1DecimalMetric'
+    description: |-
+      AgentSnapshotMetrics contains agent metrics for nested snapshots. Copy-run
+      responses omit roi_pct and win_rate_pct and expose the run's own performance.
   v1AlertFeedContext:
     type: object
     properties:
@@ -2228,33 +2231,6 @@ definitions:
       quotePerBasePrice:
         $ref: '#/definitions/v1DecimalMetric'
     description: AlertUserOutcome contains the canonical follower/user outcome for one alert.
-  v1AprMetric:
-    type: object
-    properties:
-      value:
-        type: string
-      status:
-        $ref: '#/definitions/v1MetricStatus'
-      asOf:
-        type: string
-        format: date-time
-      window:
-        $ref: '#/definitions/v1Window'
-      nominalWindowDays:
-        type: integer
-        format: int32
-      actualWindowSeconds:
-        type: string
-        format: int64
-      windowPolicy:
-        $ref: '#/definitions/v1WindowPolicy'
-      windowStart:
-        type: string
-        format: date-time
-      windowEnd:
-        type: string
-        format: date-time
-    description: AprMetric preserves exact APR value and the interval used to derive it.
   v1CapitalActivityDetail:
     type: object
     properties:
@@ -2612,8 +2588,11 @@ definitions:
         $ref: '#/definitions/v1DecimalMetric'
       unrealizedPnlUsd:
         $ref: '#/definitions/v1DecimalMetric'
-      myAprSinceCopy:
-        $ref: '#/definitions/v1AprMetric'
+      roiPct:
+        $ref: '#/definitions/v1DecimalMetric'
+        description: |-
+          Lifetime Total PnL divided by cumulative deposits, multiplied by 100.
+          Withdrawals do not reduce the denominator.
       openPositionCount:
         $ref: '#/definitions/v1CountMetric'
       closedPositionCount:
@@ -2662,6 +2641,11 @@ definitions:
       rebatesUsd:
         $ref: '#/definitions/v1DecimalMetric'
         description: Actual cashback or rebate received for closed positions.
+      copyRunWinRatePct:
+        $ref: '#/definitions/v1DecimalMetric'
+        description: Copy-run-specific win rate over classified closed follower positions.
+      copyRunClassifiedClosedPositionCount:
+        $ref: '#/definitions/v1CountMetric'
     description: |-
       CopyRunListItem contains one copy-run row for owner copy-run lists. It omits
       the detail-only estimated fee breakdown and Portfolio P&L fields.
@@ -2706,8 +2690,11 @@ definitions:
         $ref: '#/definitions/v1DecimalMetric'
       unrealizedPnlUsd:
         $ref: '#/definitions/v1DecimalMetric'
-      myAprSinceCopy:
-        $ref: '#/definitions/v1AprMetric'
+      roiPct:
+        $ref: '#/definitions/v1DecimalMetric'
+        description: |-
+          Lifetime Total PnL divided by cumulative deposits, multiplied by 100.
+          Withdrawals do not reduce the denominator.
       openPositionCount:
         $ref: '#/definitions/v1CountMetric'
       closedPositionCount:
@@ -2765,7 +2752,7 @@ definitions:
         $ref: '#/definitions/v1DecimalMetric'
         description: |-
           Closed-position-only P&L for this copy run. Partial realized gains or
-          losses from positions that remain open stay in charts and APR inputs, not
+          losses from positions that remain open stay in charts and ROI inputs, not
           this headline metric.
       feeBreakdown:
         $ref: '#/definitions/v1CopyRunFeeBreakdown'
@@ -3073,12 +3060,12 @@ definitions:
     type: string
     enum:
       - LEADERBOARD_SORT_FIELD_UNSPECIFIED
-      - LEADERBOARD_SORT_FIELD_APR_30D
       - LEADERBOARD_SORT_FIELD_WIN_RATE
       - LEADERBOARD_SORT_FIELD_LIFETIME_VOLUME
       - LEADERBOARD_SORT_FIELD_COPIERS
       - LEADERBOARD_SORT_FIELD_AUM
       - LEADERBOARD_SORT_FIELD_OPEN_POSITIONS
+      - LEADERBOARD_SORT_FIELD_ROI_PCT
     default: LEADERBOARD_SORT_FIELD_UNSPECIFIED
     description: LeaderboardSortField selects a public leaderboard metric order.
   v1LeaderboardSummary:
@@ -3367,7 +3354,6 @@ definitions:
       - OWNER_COPY_RUN_SORT_FIELD_UNSPECIFIED
       - OWNER_COPY_RUN_SORT_FIELD_STARTED_AT
       - OWNER_COPY_RUN_SORT_FIELD_STOPPED_AT
-      - OWNER_COPY_RUN_SORT_FIELD_AGENT_APR_30D
       - OWNER_COPY_RUN_SORT_FIELD_AGENT_WIN_RATE
       - OWNER_COPY_RUN_SORT_FIELD_AGENT_LIFETIME_VOLUME
       - OWNER_COPY_RUN_SORT_FIELD_CAPITAL_IN
@@ -3376,6 +3362,7 @@ definitions:
       - OWNER_COPY_RUN_SORT_FIELD_REALIZED_PNL
       - OWNER_COPY_RUN_SORT_FIELD_FEE_PAID
       - OWNER_COPY_RUN_SORT_FIELD_REBATES
+      - OWNER_COPY_RUN_SORT_FIELD_ROI_PCT
     default: OWNER_COPY_RUN_SORT_FIELD_UNSPECIFIED
     description: OwnerCopyRunSortField selects a public owner copy-run order.
   v1OwnerCopySummary:
@@ -4336,15 +4323,6 @@ definitions:
       - WINDOW_ALL
     default: WINDOW_UNSPECIFIED
     description: Window selects a public metric or chart time window.
-  v1WindowPolicy:
-    type: string
-    enum:
-      - WINDOW_POLICY_UNSPECIFIED
-      - WINDOW_POLICY_TRAILING
-      - WINDOW_POLICY_SINCE_LIVE
-      - WINDOW_POLICY_SINCE_COPY_START
-    default: WINDOW_POLICY_UNSPECIFIED
-    description: WindowPolicy identifies how an APR interval boundary was selected.
   v1WithdrawQuotePreview:
     type: object
     properties:
@@ -4403,7 +4381,12 @@ definitions:
           restricted to those tokens. A proven quote-only or zero-nonquote selection
           is current 0; an unresolved indexed selection is unavailable. Withdrawal
           does not itself erase the contract's rebate escrow.
+      hasMoreTokens:
+        type: boolean
+        description: |-
+          More eligible nonquote tokens had positive balances at the action block.
+          After this transaction confirms, prepare again to withdraw the next batch.
     description: |-
-      WithdrawTokensPreview contains the deterministic operator-owned token set.
-      ALL_INDEXED_TOKENS results include a revision for the indexed inventory
-      snapshot. Quote-only withdrawal uses PrepareWithdrawQuote.
+      WithdrawTokensPreview contains one deterministic operator-owned token batch.
+      ALL_INDEXED_TOKENS results include a revision for the selected batch and
+      exact-block balances. Quote-only withdrawal uses PrepareWithdrawQuote.

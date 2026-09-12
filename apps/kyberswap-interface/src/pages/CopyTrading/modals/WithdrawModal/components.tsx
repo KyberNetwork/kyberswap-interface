@@ -1,5 +1,5 @@
 import { Token } from '@kyberswap/ks-sdk-core'
-import { metricValue } from 'services/copyTrading/adapters/shared'
+import { isValuationRenderable, metricValue } from 'services/copyTrading/adapters/shared'
 import type { WithdrawQuotePreview, WithdrawTokensPreview } from 'services/copyTrading/types/preparedActions'
 
 import { ErrorWarning } from 'components/ErrorWarning'
@@ -91,20 +91,38 @@ export const WithdrawQuoteInput = ({
 
 export const WithdrawTokensReview = ({ preview, chainId }: { preview?: WithdrawTokensPreview; chainId: number }) => (
   <Stack className="gap-4">
-    <ErrorWarning
-      type="warn"
-      title="Withdrawing All Tokens permanently stops copying, even when all selected balances are zero. Pending rebates may be forfeited. Native tokens and tokens not yet indexed are excluded. The amounts received may differ from the prepared balances."
-    />
     <ReviewSection title="Review Withdrawal">
-      <div className="max-h-60 overflow-y-auto">
-        {preview?.tokens?.map(({ token, balance }) => (
-          <ReviewRow
-            key={token?.address}
-            label={token?.symbol || token?.address || 'Unknown token'}
-            value={withMetricFallback(formatPreparedAmount(balance, token))}
-          />
-        ))}
-      </div>
+      <ul
+        className="m-0 max-h-52 list-none overflow-y-auto rounded-lg border border-border px-4 py-1"
+        aria-label="Tokens to withdraw"
+      >
+        {preview?.tokens?.map(({ token, balance, currentValuation }) => {
+          const valueUsd = formatUsd(isValuationRenderable(currentValuation) ? currentValuation?.valueUsd : undefined)
+          const tokenLabel =
+            token?.symbol && !/^0x[0-9a-f]{40}$/i.test(token.symbol)
+              ? token.symbol
+              : token?.address || token?.symbol
+              ? shortenAddress(1, token.address || token.symbol || '', 4, false)
+              : 'Unknown token'
+
+          return (
+            <li
+              key={token?.address}
+              className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-2 gap-y-1 py-2 text-sm font-medium sm:grid-cols-[minmax(60px,1fr)_140px_120px] sm:gap-2"
+            >
+              <span className="min-w-0 truncate" title={token?.address}>
+                {tokenLabel}
+              </span>
+              <span className="col-start-1 row-start-2 min-w-0 truncate text-subText sm:col-auto sm:row-auto sm:text-right">
+                {withMetricFallback(formatPreparedAmount(balance, token))}
+              </span>
+              <span className="col-start-2 row-start-1 min-w-0 truncate text-right sm:col-auto sm:row-auto">
+                {valueUsd}
+              </span>
+            </li>
+          )
+        })}
+      </ul>
       <ReviewRow label="Total Current Value" value={formatUsd(metricValue(preview?.totalCurrentValueUsd))} />
       <ReviewRow label="Estimated Rebates at Risk" value={formatUsd(metricValue(preview?.cashbackForfeitedUsd))} />
       <ReviewRow
@@ -112,5 +130,9 @@ export const WithdrawTokensReview = ({ preview, chainId }: { preview?: WithdrawT
         value={preview?.recipientAddress ? shortenAddress(chainId, preview.recipientAddress) : 'N/A'}
       />
     </ReviewSection>
+    <ErrorWarning
+      type="warn"
+      title="This withdrawal permanently stops copying, even with zero balances. Pending rebates may be forfeited."
+    />
   </Stack>
 )

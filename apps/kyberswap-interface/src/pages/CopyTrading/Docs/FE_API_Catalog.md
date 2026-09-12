@@ -1,11 +1,115 @@
-# Copy Trade API — Frontend Integration Catalog
+# Copy Trade API frontend integration catalog
 
-This document describes the public HTTPS/JSON contract used by frontend
-applications. It intentionally excludes service architecture, storage, and
-deployment details. Use each changelog entry's status instead of assuming the
-newest documented behavior is already merged or deployed.
+Use this catalog to integrate frontend applications with the public HTTPS/JSON
+API. The current contract is verified against `copy-trade-api` commit
+`90157a2ee121fdd93186dec0c8b202e879677148` ([PR #69](https://github.com/KyberNetwork/copy-trade-api/pull/69)).
+Deployment was confirmed by the service maintainer on September 10, 2026.
+Historical changelog entries describe earlier releases; use the endpoint
+reference below for current fields and behavior.
 
 ## Changelog
+
+### September 10, 2026: ROI and copy-run metrics
+
+[PR #69](https://github.com/KyberNetwork/copy-trade-api/pull/69) is merged and
+deployed, as confirmed by the service maintainer. This release replaces APR
+with lifetime ROI, adds copy-run win rate to list responses, preserves earned
+chart returns after full withdrawal, and repairs Capital In publication.
+The HTTP surface remains **34 operations: 27 GET reads and 7 preparation POSTs**.
+
+#### Migrate the frontend client
+
+1. Regenerate the client from the current
+   [OpenAPI contract](../proto/gen/openapi/aggregate/v1/aggregate.swagger.yaml).
+2. Replace the removed fields and sort values using the following table. Label
+   the new metric **ROI**. Do not reuse an APR value as ROI.
+3. Read `roiPct`, `copyRunWinRatePct`, and
+   `copyRunClassifiedClosedPositionCount` directly from each copy-run list item
+   or detail response. Copy-run `agentSnapshot.metrics` omits agent `roiPct`
+   and `winRatePct`; it still includes `lifetimeVolumeUsd`.
+4. Remove APR window labels and `AprMetric` handling. ROI is a `DecimalMetric`
+   with `value`, `status`, and optional `asOf`. `AprMetric` and `WindowPolicy`
+   are removed from the schema.
+5. Clear saved APR sorts and cached APR models. Start pagination from the first
+   page after changing the sort. If the server rejects a cursor during formula
+   publication, restart the same query without its cursor.
+
+| Previous contract | Current contract |
+| --- | --- |
+| Agent `metrics.apr30d` | Agent `metrics.roiPct` |
+| Copy-run `myAprSinceCopy` | Copy-run `roiPct` |
+| `LEADERBOARD_SORT_FIELD_APR_30D` | `LEADERBOARD_SORT_FIELD_ROI_PCT` |
+| `OWNER_COPY_RUN_SORT_FIELD_AGENT_APR_30D` | `OWNER_COPY_RUN_SORT_FIELD_ROI_PCT`, ordered by the copy run's ROI |
+| Detail-only copy-run win rate | `copyRunWinRatePct` and `copyRunClassifiedClosedPositionCount` on both list and detail responses |
+
+The removed APR fields and enum values have no compatibility aliases. The
+leaderboard defaults to ROI descending. Copy-run list defaults remain start
+time for Open and stop time for History, both descending. The existing
+`OWNER_COPY_RUN_SORT_FIELD_AGENT_WIN_RATE` still sorts by the agent's win rate;
+it does not sort by `copyRunWinRatePct`.
+
+See [ROI and chart return](#roi-and-chart-return) for the formula, metric
+status rules, and the distinction between ROI and the percentage chart.
+
+#### Render capital and withdrawal recovery
+
+Capital In remains cumulative opening allocation, deposits, and top-ups.
+Withdrawals do not subtract from it. The publication repair lets retained
+capital evidence resume processing; it adds no frontend endpoint or retry
+action. Continue rendering `capitalInUsd`, `capitalInProjectionStatus`, and
+`FIELD_GROUP_CAPITAL` according to their returned status and finality. A
+provisional Capital In value does not make ROI available.
+
+A full withdrawal preserves previously earned time-weighted chart returns.
+Later funding continues from that history when the source evidence is valid.
+Do not clear the chart, reset its return to zero, or derive ROI from the current
+wallet balance. Dollar P&L can remain available while ROI or chart percentages
+lack sufficient evidence; render each metric independently.
+
+### 2026-09-09 — Eligible-token withdrawal batches
+
+Source-contract update: operator PR [#147](https://github.com/KyberNetwork/copy-trade-operator/pull/147)
+merged at `c8653394d7a16c8c27efb0d96efed6631100d011` on September 9. Aggregate
+API PR [#68](https://github.com/KyberNetwork/copy-trade-api/pull/68) merged at
+`ae9bcf3bd85ce874c4de22c3c4a3181da2e2b81d` on September 9 at 15:48:21 UTC,
+including the merged operator pin. The service maintainer confirmed these
+changes are deployed on September 10, 2026. Regenerate the client from the
+current aggregate OpenAPI contract.
+
+#### Required UI changes
+
+1. **All Tokens** still calls `:prepareWithdrawTokens` with
+   `selection: "WITHDRAW_TOKEN_SELECTION_ALL_INDEXED_TOKENS"`. The operator
+   selects at most 100 tokens per transaction, including the configured quote
+   token and up to 99 positive nonquote balances in canonical address order.
+   Zero nonquote balances are omitted; the quote token remains selected even at
+   zero. `Stop Copy`'s separate limit remains 32 positions.
+2. Use `data.withdrawTokens.hasMoreTokens` to detect remaining positive eligible
+   tokens. After a successful receipt, refresh reads and prepare the same route
+   again for the next batch. Do not prepare batches concurrently or replay an
+   old call. The first batch permanently stops copying; full-withdrawal closure
+   requires all residual run assets to be cleared.
+3. Token eligibility is the configured quote token plus the union of the
+   leader's canonical registration history and indexed traded tokens. Removed
+   or disabled registered tokens remain eligible, and a direct deposit of an
+   eligible token is visible/withdrawable even if the follower never bought it.
+   Unrelated airdrops and tokens outside both sources are excluded. The client
+   does not construct or filter this list.
+4. Withdrawal preparation reads the eligible addresses from operator storage and
+   exact balances through the operator's action-block RPC preflight. It does
+   not use paginated KyberData wallet discovery. Wallet display inventory keeps
+   its existing token-filtered KyberData path and batches of up to 50; that
+   display path does not impose the withdrawal batch count.
+5. Each selected batch is preflighted atomically. A reverting or unacknowledged
+   eligible token makes the entire batch unavailable; do not submit a partial
+   batch or skip the failing token. Gas estimation remains the connected
+   wallet/provider's responsibility for the returned outer call.
+
+This supersedes the 2026-09-08 wording that described `tokens[]` as an
+indexed-inventory snapshot capped at 32 and exposed
+`PREPARED_ACTION_REASON_TOKEN_INVENTORY_TOO_LARGE` as a current withdrawal
+outcome. The route, request body, selection enum, no-store response, and exact
+receipt refresh loop remain unchanged.
 
 ### 2026-09-08 — Token withdrawal, History, and recovery updates
 
@@ -124,8 +228,10 @@ an operator request is required. This supersedes the older staged-import notes.
 
 ### 2026-08-28 — Post-redesign availability hardening
 
-Historical release entry. The 2026-09-08 entry supersedes its preparation-route
-count and extends the list model, lifecycle, and withdrawal accounting rules.
+Historical release entry. The September 10 ROI release supersedes its APR and
+detail-only win-rate guidance. The 2026-09-08 entry supersedes its
+preparation-route count and extends the lifecycle and withdrawal accounting
+rules.
 
 Status: merged on `origin/main` through commit
 `464df89d77680feede66cfc9e8d569bde26a35e5`. Deployment remains
@@ -552,6 +658,9 @@ and net quote received; don't reinterpret gross accounting values.
 
 #### Copy-run win rate
 
+Historical behavior: the September 10 release also adds these metrics to list
+responses. Use the current [copy-run reference](#owner-dashboard-and-copy-runs).
+
 - `GetOwnerCopyRun` adds `copyRunWinRatePct` and
   `copyRunClassifiedClosedPositionCount` for that copy run.
 - Win rate is winning closed positions divided by all classified closed
@@ -866,7 +975,7 @@ This evidence predates required Start funding intent and the removal of wallet
 sessions. It is retained only as historical deployment evidence; do
 not use it as the current payload or authentication contract.
 
-## API Endpoint
+## API endpoint
 
 Pre-release origin:
 
@@ -880,11 +989,12 @@ API base path:
 https://pre-copy-trade-api.kyberengineering.io/api/v1
 ```
 
-## Frontend Contract Notes
+## Frontend contract notes
 
-The current source contract defines the following UI-facing behavior. Apply
-each row according to the environment status in the changelog, and update
-all affected action dialogs and Smart Wallet activity rendering together.
+Use the current fields below for frontend integration. The September 10
+release replaces APR with ROI and exposes copy-run win rate on list and detail
+responses. Update metric labels, saved sorts, action dialogs, and Smart Wallet
+activity rendering to match the current contract.
 
 | Surface                                  | Contract                                                                                                                                         | Required FE behavior                                                                                                                                                                                                                                                                      |
 | ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -906,7 +1016,7 @@ All quote-preview values expire with their parent preparation at
 a quote cache. After expiry or a relevant state change, discard the response
 and prepare again.
 
-## Contract Authority and Naming
+## Contract authority and naming
 
 This catalog is an integration guide. The machine-readable contract remains:
 
@@ -931,7 +1041,7 @@ Use the symbolic enum names shown in this document, not their numeric protobuf
 values. Unknown enum values must be handled as unsupported data rather than
 silently mapped to another state.
 
-## Screen-to-API Map
+## Screen-to-API map
 
 This is the recommended UI integration map. “Initial” calls are needed to
 render the main screen. “Lazy” calls should be issued only when the relevant
@@ -965,7 +1075,7 @@ tab, chart, drawer, or drilldown is opened.
 | Copy-account history                  | `GET /copy-accounts/{chainId}/{copyAccount}/history`                                                | Filter by exact `type` or product `group`                                                                                    | None                                                                                                               |
 | Skipped-sell recovery drawer          | Position row plus `GET .../pending-sell-obligations`                                                | Refresh the FIFO immediately before preparation                                                                              | Prepare Manual Sell or Close Position directly, then submit from the owner wallet                                  |
 
-### Critical History Scope Rule
+### History scope rule
 
 Copy-run lifecycle and position lifecycle are independent:
 
@@ -1001,7 +1111,7 @@ return a total count; if the UI requires an exact all-pages total, that needs a
 separate API contract rather than counting the first page or reusing the
 History-view summary.
 
-### Action Screen Map
+### Action screen map
 
 All seven preparation routes are implemented in the source baseline. Preparation
 is read-only with respect to the chain: the frontend must submit the returned
@@ -1024,7 +1134,7 @@ preparation route when the user confirms, and branch on its typed
 successful API response describing current product state; it does not mean the
 route is missing.
 
-### Screen Fetch Guidance
+### Screen fetch guidance
 
 - Calls at the same screen level can be made in parallel. For example, Open
   Copies summary and rows do not depend on each other.
@@ -1043,8 +1153,8 @@ route is missing.
 Common screen requests:
 
 ```text
-# Base leaderboard, highest APR first
-GET /leaderboard?chainId=8453&sortBy=LEADERBOARD_SORT_FIELD_APR_30D&sortOrder=SORT_ORDER_DESC&limit=25
+# Base leaderboard, highest ROI first
+GET /leaderboard?chainId=8453&sortBy=LEADERBOARD_SORT_FIELD_ROI_PCT&sortOrder=SORT_ORDER_DESC&limit=25
 
 # Agent 30-day daily portfolio-equity chart
 GET /agents/{agentId}/performance?series=PERFORMANCE_SERIES_PORTFOLIO_EQUITY&window=WINDOW_30D&interval=PERFORMANCE_INTERVAL_DAY&limit=100
@@ -1070,7 +1180,7 @@ GET /users/{ownerAddress}/copy-runs/{copyRunId}/positions?view=POSITION_VIEW_CLO
 GET /users/{ownerAddress}/activity?group=ACTIVITY_GROUP_SKIPPED&limit=25
 ```
 
-## Quick Start
+## Quick start
 
 Public read requests do not require an API key.
 
@@ -1124,7 +1234,7 @@ no-store` and `Pragma: no-cache`. The frontend must not place prepared calldata
 or signed operator payloads in a persistent HTTP cache, service-worker cache,
 analytics event, or error-report payload.
 
-## Common Response Contract
+## Common response contract
 
 ### Envelopes
 
@@ -1169,7 +1279,7 @@ POST responses use `{ "data": ... }` without `meta` or cursor pagination.
 Prepared actions carry their own `preparedAt`, `reprepareAfter`, and
 `evidence`.
 
-### Response Metadata
+### Response metadata
 
 | Field              | Meaning                                                                                                                                             |
 | ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -1292,18 +1402,60 @@ Rules:
 - Do not display a fabricated zero for `UNAVAILABLE`.
 - `NOT_APPLICABLE` is a valid product state, not an error.
 
-`AprMetric` additionally contains:
+### ROI and chart return
 
-- `window`
-- `nominalWindowDays`
-- `actualWindowSeconds`
-- `windowPolicy`
-- `windowStart`
-- `windowEnd`
+`roiPct` is a lifetime return on cumulative deposits:
 
-The API can shorten an APR window when an agent or copy run has not existed for
-the full nominal period. Display the returned metric and interval rather than
-recomputing APR in the browser.
+```text
+ROI (%) = lifetime Total P&L / cumulative deposits × 100
+```
+
+Total P&L uses the lifetime dollar value published by the cumulative Total P&L
+chart, including marked open positions. It is not limited to realized P&L or
+closed trades. Cumulative deposits include opening allocation, deposits, and
+top-ups. Withdrawals do not reduce this denominator. For a copy run, this is
+the Capital In contribution total; it is not `capitalInUsd - capitalOutUsd` or
+the current wallet balance. Agent ROI uses the agent's own deposit history.
+
+For example, deposits of $100 and a $50 top-up give a $150 denominator. If
+Total P&L is $30, ROI is 20%, even after a $60 withdrawal. Render the
+server-published metric instead of recomputing it from separately refreshed
+summary fields:
+
+```json
+{
+  "roiPct": {
+    "value": "20",
+    "status": "METRIC_STATUS_CURRENT",
+    "asOf": "2026-09-10T00:00:00Z"
+  }
+}
+```
+
+The example is illustrative. `value: "20"` means 20%, not 0.20%. ROI has no
+annualization, rolling window, or minimum account age. The stats route still
+accepts only `WINDOW_30D`; that request constraint does not turn ROI into a
+30-day metric.
+
+Use these display rules:
+
+- Show a server-published zero when cumulative deposits are confirmed to be
+  zero. An empty wallet after withdrawal does not establish zero deposits.
+- A copy run proven to have no position facts can publish zero Total P&L and
+  ROI even while unrelated capital data is catching up. An empty response
+  page does not establish that proof.
+- Missing, invalid, or provisional deposit evidence does not authorize a
+  calculated ROI. Follow the metric status; do not substitute zero or a
+  cached APR value. The proven no-position case above is independent.
+- Show an available `STALE` ROI with a stale indication. Its `asOf` identifies
+  the supporting evidence, not the browser's refresh time.
+- Render dollar P&L independently when ROI is `UNAVAILABLE`.
+
+`totalPnlPct` and `PerformancePoint.valuePct` remain cash-flow-neutral,
+time-weighted returns. They can differ from ROI when capital changes over
+time. Label the percentage chart **Return**, and label `roiPct` **ROI**.
+Preserve the server's earned return history across full withdrawals and later
+funding; do not reset or annualize it.
 
 ### Valuations
 
@@ -1323,7 +1475,7 @@ recomputing APR in the browser.
 An unavailable valuation is not the same as a zero-valued asset. Never derive a
 USD value from missing fields.
 
-### Advisory Action Availability
+### Advisory action availability
 
 Agent, copy-run, copy-account, and position reads expose compact advisory action
 state:
@@ -1370,7 +1522,7 @@ the transaction still permanently stops the account. Add Capital is unavailable
 after permanent Stop/closure; do not offer a deposit merely because the wallet
 still holds tokens.
 
-### Numeric Values
+### Numeric values
 
 Treat these as strings:
 
@@ -1388,14 +1540,14 @@ Important distinctions:
 
 - `*Raw` fields are base-unit integers. Format them with the matching
   `token.decimals`.
-- `amountDecimal`, `*Usd`, `priceUsd`, APR, and percentage fields are decimal
+- `amountDecimal`, `*Usd`, `priceUsd`, ROI, and percentage fields are decimal
   strings intended for decimal arithmetic and display formatting.
 - `RatioMetric.valueRaw`, sell ratios, and fee rates are fixed-point integers
   scaled by `1e18`. For example, `500000000000000000` is 50%.
 - `slippageBps`, `limit`, and small counts defined as `uint32`/`int32` remain
   JSON numbers.
 
-### Addresses and Time
+### Addresses and time
 
 - Send EVM addresses as `0x` addresses.
 - Lowercase addresses are canonical in responses and are recommended in URLs.
@@ -1406,7 +1558,7 @@ Important distinctions:
 - Public routes accept mixed-case input and canonicalize addresses in the
   response. Lowercase input remains recommended for stable URLs and cache keys.
 
-## Cursor Pagination
+## Cursor pagination
 
 All list routes use opaque cursor pagination.
 
@@ -1445,11 +1597,11 @@ invalidate an existing cursor:
 `limit` controls page size and is not part of the logical result identity, but
 the safest client behavior is to keep it stable through one sequence.
 
-### Stable Ordering
+### Stable ordering
 
 | Collection                            | Default/effective order                                                                                                                            |
 | ------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Leaderboard                           | APR 30D descending, with stable identity tie-breakers                                                                                              |
+| Leaderboard                           | ROI descending, with stable identity tie-breakers                                                                                              |
 | Agent discovery                       | Display name ascending, nulls last                                                                                                                 |
 | Performance points                    | Timestamp ascending; per-trade series also uses trade ID                                                                                           |
 | Agent action-log page groups          | Matching rows use `occurredAt` descending then `actionLogId` descending; each bounded row page is grouped by session, and a session can span pages |
@@ -1462,7 +1614,7 @@ the safest client behavior is to keep it stable through one sequence.
 
 `closedAt` and live `valueUsd` sorts place unavailable/null values last.
 
-## Shared Query Enums
+## Shared query enums
 
 ### Strategy category
 
@@ -1676,7 +1828,7 @@ stable-token row. A present row can contain an exact zero balance and can use
 `balanceSource = "onchain_rpc"`. The other values are explicit
 operational/data states and must not be converted to a zero balance.
 
-## Shared Request Validation
+## Shared request validation
 
 - A supplied `chainId` must be positive.
 - IDs such as `agentId`, `copyRunId`, `positionId`, and `userPositionId` are
@@ -1691,9 +1843,9 @@ operational/data states and must not be converted to a zero balance.
 - Query enum names are case-sensitive.
 - `type` and `group` cannot both be supplied on activity/history routes.
 
-## Endpoint Catalog
+## Endpoint catalog
 
-### Chain Metadata
+### Chain metadata
 
 | Method | Path      | Parameters | `data`    |
 | ------ | --------- | ---------- | --------- |
@@ -1704,7 +1856,7 @@ A chain contains `chainId`, `slug`, `name`, `iconUrl`, and `isEnabled`.
 Use this route to populate the network selector and chain metadata. Do not
 hard-code chain display names or icons from `chainId`.
 
-### Leaderboard and Agent Discovery
+### Leaderboard and agent discovery
 
 | Method | Path                   | Parameters                                                         | `data`               |
 | ------ | ---------------------- | ------------------------------------------------------------------ | -------------------- |
@@ -1715,7 +1867,7 @@ hard-code chain display names or icons from `chainId`.
 Leaderboard sort fields:
 
 ```text
-LEADERBOARD_SORT_FIELD_APR_30D
+LEADERBOARD_SORT_FIELD_ROI_PCT
 LEADERBOARD_SORT_FIELD_WIN_RATE
 LEADERBOARD_SORT_FIELD_LIFETIME_VOLUME
 LEADERBOARD_SORT_FIELD_COPIERS
@@ -1723,8 +1875,8 @@ LEADERBOARD_SORT_FIELD_AUM
 LEADERBOARD_SORT_FIELD_OPEN_POSITIONS
 ```
 
-The default leaderboard order is APR 30D descending. Agent discovery uses a
-stable display-name order.
+The default leaderboard order is ROI descending. Agent discovery uses a
+stable display-name order. The removed APR sort value is unsupported.
 
 Filter behavior:
 
@@ -1733,7 +1885,7 @@ Filter behavior:
 | `chainId`          | Optional positive chain ID. Omit for all configured chains.                                                    |
 | `search`           | Optional, trimmed and case-insensitive, maximum 256 Unicode characters.                                        |
 | `strategyCategory` | Optional `FOCUSED`, `DIVERSIFIED`, or `ACTIVE` enum. Categories overlap; an agent can appear in more than one. |
-| `sortBy`           | Leaderboard only. Omit for APR 30D.                                                                            |
+| `sortBy`           | Leaderboard only. Omit for ROI.                                                                            |
 | `sortOrder`        | Leaderboard only. Omit for descending.                                                                         |
 | `limit`, `cursor`  | Standard cursor pagination.                                                                                    |
 
@@ -1750,7 +1902,7 @@ Key `AgentCard` fields:
 
 | Field                                                                                          | Meaning                                                                                                                                                                              |
 | ---------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `apr30d`                                                                                       | APR with its exact effective interval and status.                                                                                                                                    |
+| `roiPct`                                                                                       | Lifetime Total P&L divided by cumulative deposits, multiplied by 100. Uses `DecimalMetric`; see [ROI and chart return](#roi-and-chart-return).                                                                                                                                    |
 | `winRatePct`                                                                                   | Closed-position win rate.                                                                                                                                                            |
 | `lifetimeVolumeUsd`                                                                            | Lifetime notional volume.                                                                                                                                                            |
 | `copiers`                                                                                      | Unique active copier count.                                                                                                                                                          |
@@ -1775,7 +1927,7 @@ distinct owner wallets across configured agents and intentionally ignores
 leaderboard filters, including `chainId`, search, and strategy category. Every
 metric still has its own status and can be unavailable independently.
 
-### Agent Profile, Performance, and Positions
+### Agent profile, performance, and positions
 
 | Method | Path                                              | Parameters                                                                    | `data`                         |
 | ------ | ------------------------------------------------- | ----------------------------------------------------------------------------- | ------------------------------ |
@@ -1908,12 +2060,14 @@ provenance labels. `action` and `status` are source-owned strings rather than
 public enums. Do not parse `summary`, `trigger`, `status`, or reasoning strings
 to derive transaction state.
 
-A `PerformancePoint` contains `timestamp`, `series`, `interval`, a
-status-bearing `valueUsd`, and optional `tradeId`/`positionId`/`token` context.
+A `PerformancePoint` contains `timestamp`, `series`, `interval`,
+status-bearing `valueUsd` and `valuePct`, and optional
+`tradeId`/`positionId`/`token` context. For cumulative Total P&L, `valuePct` is
+the time-weighted chart return, not `roiPct`. Use each value's own status.
 For per-trade P&L, the trade and position identifiers are suitable for opening
 the related detail, while the point timestamp remains the chart order key.
 
-### Owner Dashboard and Copy Runs
+### Owner dashboard and copy runs
 
 | Method | Path                                                                                   | Parameters                                                                                                  | `data`                  |
 | ------ | -------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- | ----------------------- |
@@ -1933,7 +2087,7 @@ Owner copy-run sort fields:
 ```text
 OWNER_COPY_RUN_SORT_FIELD_STARTED_AT
 OWNER_COPY_RUN_SORT_FIELD_STOPPED_AT
-OWNER_COPY_RUN_SORT_FIELD_AGENT_APR_30D
+OWNER_COPY_RUN_SORT_FIELD_ROI_PCT
 OWNER_COPY_RUN_SORT_FIELD_AGENT_WIN_RATE
 OWNER_COPY_RUN_SORT_FIELD_AGENT_LIFETIME_VOLUME
 OWNER_COPY_RUN_SORT_FIELD_CAPITAL_IN
@@ -1943,6 +2097,13 @@ OWNER_COPY_RUN_SORT_FIELD_REALIZED_PNL
 OWNER_COPY_RUN_SORT_FIELD_FEE_PAID
 OWNER_COPY_RUN_SORT_FIELD_REBATES
 ```
+
+`OWNER_COPY_RUN_SORT_FIELD_ROI_PCT` orders by the copy run's `roiPct` and is
+available in both Open and History, in either direction. Unavailable values
+sort last. `OWNER_COPY_RUN_SORT_FIELD_AGENT_WIN_RATE` still orders by the
+agent's win rate, even though copy-run snapshots omit that metric. There is
+no copy-run win-rate sort field. Do not label the agent sort as a sort of
+`copyRunWinRatePct` or reorder a cursor page locally.
 
 `OWNER_COPY_VIEW_OPEN` and `OWNER_COPY_VIEW_HISTORY` are server-defined product
 universes, not direct aliases for one `CopyRunStatus`. Always pass the selected
@@ -1994,8 +2155,15 @@ Shared `CopyRunListItem` and `CopyRunSummary` fields:
 
 - `copyRunId`, `ownerAddress`, `agentId`, `chainId`, `copyAccount`
 - `startedAt`, `stoppedAt`, `status`, `durationSeconds`
-- `agentSnapshot`
-- capital, portfolio-value, PnL, position-count, and APR metrics
+- `agentSnapshot`. Within copy-run responses, `metrics` omits the agent's
+  `roiPct` and `winRatePct` and retains `lifetimeVolumeUsd`.
+- `roiPct`, the copy run's lifetime ROI. See
+  [ROI and chart return](#roi-and-chart-return).
+- `copyRunWinRatePct` and `copyRunClassifiedClosedPositionCount`, based on this
+  run's classified closed follower positions. Wins form the numerator;
+  wins, losses, and break-even positions form the denominator. Use the metric
+  status when the denominator is unavailable or no positions are classified.
+- capital, portfolio-value, P&L, position-count, and ROI metrics
 - `currentBalanceUsd`, for History account value and Open/Closing portfolio
   value when current. Stale, expired, or incomplete inputs make this metric
   `UNAVAILABLE`.
@@ -2003,9 +2171,15 @@ Shared `CopyRunListItem` and `CopyRunSummary` fields:
   metric status
 - `totalPnlUsd` is realized plus unrealized P&L; fees and rebates are already
   included in the net execution economics. Don't subtract Net Fees again.
+  After a proven in-kind withdrawal, Total P&L uses the historical valuation
+  at the first Stop, once that chart generation is published; it does not
+  follow later live prices for the withdrawn holdings.
   `totalPnlPct` uses the same cash-flow-neutral time-weighted-return semantics
   as the cumulative-total-PnL chart. Don't recompute either metric in the
   client.
+- `capitalInUsd`, cumulative opening allocation, deposits, and top-ups.
+  `capitalOutUsd` reports withdrawals and returned capital separately; do not
+  subtract it to derive the ROI denominator.
 - `capitalInProjectionStatus`. `READY` means `capitalInUsd` represents the
   completed generation. `SYNCING` can carry a server-published `CURRENT`
   provisional candidate or a prior same-identity `STALE` value. Render using
@@ -2026,13 +2200,12 @@ Shared `CopyRunListItem` and `CopyRunSummary` fields:
 `CopyRunSummary` is the detail shape. It additionally contains:
 
 - `portfolioPnlUsd`, the closed-position-only Portfolio P&L headline. Partial
-  realized P&L from positions that remain open stays in charts and APR inputs.
+  realized P&L from positions that remain open stays in charts and ROI inputs.
 - `feeBreakdown.feeChargedUsd`, `feeBreakdown.rebatesUsd`, and
   `feeBreakdown.netFeesUsd`. Use `FIELD_GROUP_FEES` for the breakdown's group
   quality and each metric's own status for rendering.
-- `copyRunWinRatePct` and `copyRunClassifiedClosedPositionCount`.
 
-`CopyRunListItem` deliberately omits these detail-only fields. Fetch
+`CopyRunListItem` omits `portfolioPnlUsd` and `feeBreakdown`. Fetch
 `GetOwnerCopyRun` when the selected-run screen needs them. The list instead
 adds `netRealizedPnlUsd` (closed-position-only), `feeChargedUsd` (upfront fees),
 and `rebatesUsd` (actual closed-position rebates). Render their own statuses;
@@ -2196,7 +2369,7 @@ grouping contract rather than client-side inference.
 
 There is no exact total-count contract—use `pagination.hasMore`.
 
-### Copy Accounts
+### Copy accounts
 
 | Method | Path                                                                                         | Parameters                                            | `data`                                                                                         |
 | ------ | -------------------------------------------------------------------------------------------- | ----------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
@@ -2337,7 +2510,7 @@ from the error text or a locally accumulated ratio. Use the exact
 `currentRatioRaw` values and current FIFO count returned immediately before
 preparation.
 
-## Transaction Preparation
+## Transaction preparation
 
 These routes prepare wallet calls. They do **not** submit transactions.
 
@@ -2390,7 +2563,7 @@ mismatch is a client safety error: do not submit the call.
 Advisory availability fields on read responses are suitable for buttons and
 empty states, but the corresponding preparation response is authoritative.
 
-### Prepared Action Fields
+### Prepared action fields
 
 | Field                       | Meaning                                                                                                          |
 | --------------------------- | ---------------------------------------------------------------------------------------------------------------- |
@@ -2879,25 +3052,30 @@ Preparation itself does not submit or stop anything. Require
 
 `selection` is required. Only `WITHDRAW_TOKEN_SELECTION_ALL_INDEXED_TOKENS` is
 accepted. Unspecified, unknown, and retired `WITHDRAW_TOKEN_SELECTION_STABLE_ONLY`
-are rejected. Do not send token addresses, amounts, or a recipient; selection
-is the bounded operator-indexed ERC-20 snapshot plus the configured quote token,
-not a promise to discover every token in the wallet. Native assets are excluded;
-wrapped native tokens are ordinary ERC-20s.
+are rejected. Do not send token addresses, amounts, or a recipient. The operator
+selects the configured quote token plus up to 99 positive nonquote balances from
+the leader's canonical registration-history and indexed-trade union, in
+canonical address order. Removed or disabled registered tokens and eligible
+direct deposits remain included; unrelated airdrops remain excluded. Native
+assets are excluded; wrapped native tokens are ordinary ERC-20s.
 
 `data.withdrawTokens` contains:
 
 | Field | FE use |
 | --- | --- |
 | `selection` | Echo of the supported indexed selection. |
-| `tokens[]` | Up to 32 selected tokens; each has `token`, exact action-block `balance`, and display-only `currentValuation`. Authoritative zeros may be included. |
+| `tokens[]` | One atomic batch of 1–100 selected tokens, including quote; each has `token`, exact action-block `balance`, and display-only `currentValuation`. Positive nonquote balances are selected, while zero nonquote balances are omitted. |
 | `quoteToken` | Identifies the quote token within the selection. |
-| `balanceSetRevision` | Opaque indexed-inventory revision; not a chain watermark or proof of complete wallet discovery. It can remain present on a non-executable result. |
+| `balanceSetRevision` | Opaque revision for the token identities selected in this batch; not a balance snapshot, chain watermark, or proof of complete wallet discovery. It can remain present on a non-executable result. |
 | `recipientAddress` | Current owner at the action block, present only when executable. Never replace it. |
 | `totalCurrentValueUsd` | Selected-token display value, with its own metric status. All-zero selected balances yield current zero. |
 | `cashbackForfeitedUsd` | Estimated rebate at risk for positively held selected nonquote tokens; not a guaranteed on-chain loss. Proven quote-only/zero-nonquote inventory yields current zero. |
+| `hasMoreTokens` | `true` when additional eligible nonquote balances were positive at the action block. After receipt confirmation, prepare again for the next batch. |
 
-The token list is nonempty, sorted by canonical token address, and unique.
-Unavailable balances must not be displayed as zero.
+The token list is nonempty, sorted by canonical token address, unique, and no
+larger than 100. Unavailable balances must not be displayed as zero. The
+operator preflights the entire batch; the API does not split a batch or return a
+partial success.
 
 Render available preview fields independently of `displayEnrichment.status`.
 Missing price/rebate enrichment does not invalidate a `READY` call. Explain
@@ -2906,7 +3084,6 @@ or prove the final rebate amount.
 
 | Typed reason | FE behavior |
 | --- | --- |
-| `PREPARED_ACTION_REASON_TOKEN_INVENTORY_TOO_LARGE` | Explain that the indexed selection exceeds the bounded 32-token preparation. Do not invent a partial selection. |
 | `PREPARED_ACTION_REASON_TOKEN_TRANSFER_NOT_ACKNOWLEDGED` | Preflight found an ERC-20 transfer returning false or malformed nonempty data. Do not submit. |
 | `PREPARED_ACTION_REASON_INNER_CALL_REVERTED` | Do not submit; refresh state before preparing again. |
 | `PREPARED_ACTION_REASON_SOURCE_COVERAGE_PENDING` / `..._SOURCE_STALE` | Follow the returned top-level status and retry boundary; do not fabricate balances. |
@@ -2915,7 +3092,9 @@ The quote token sweeps its execution-time full balance; positive nonquote
 amounts are pinned to the preparation block. Fee-on-transfer/rebasing tokens
 can deliver a different amount to the owner. Do not label the balance preview
 as a guaranteed amount received. Estimate gas for the exact returned outer
-call with the wallet/provider.
+call with the wallet/provider. If `hasMoreTokens` is true, wait for the receipt
+before preparing the next batch; the first batch's permanent Stop means later
+batches operate on the stopped account.
 
 `reprepareAfter` is at most 30 seconds after preparation. Reprepare after
 expiry, a relevant state change, or a failed submission. After a successful
@@ -2969,7 +3148,7 @@ for a full-position recovery close under current operator state; otherwise the
 response is typed `PENDING` or `UNAVAILABLE`. Do not treat Close Position as a
 generic sell endpoint.
 
-## Preparation Authorization and Submission
+## Preparation authorization and submission
 
 The current contract has no wallet challenge or session endpoints. A successful
 preparation does not prove that the caller controls `ownerAddress`, does not
@@ -3002,7 +3181,7 @@ lease:
 - If submission fails because state changed or the preparation expired, refresh
   the authoritative reads and prepare again.
 
-## Error Handling
+## Error handling
 
 Non-2xx responses use:
 
@@ -3050,7 +3229,7 @@ Retry guidance:
   the cursor and any accumulated pages, then reload page one. Don't retry the
   same cursor.
 
-## Frontend Integration Patterns
+## Frontend integration patterns
 
 ### Normalize list envelopes
 
@@ -3165,7 +3344,7 @@ authority.
 - Always call the live preparation endpoint for the next action. Never use an
   overlay to bypass `PENDING`, `TRY_PREPARE`, or an unavailable result.
 
-## Complete HTTP Operation Index
+## Complete HTTP operation index
 
 The current public HTTP surface contains **34 operations**:
 
@@ -3185,11 +3364,11 @@ preparation, projector, or execution methods. The operator contract has no
 public wallet-proof verification flow. Frontend clients must use only the
 aggregate routes in this document.
 
-## Current Availability and Verification Status
+## Current availability and verification status
 
 At local `main` commit
-`93021d4177e1aa418caf0befbd6afda3104c0732`, the generated OpenAPI contract
-contains 34 public HTTP operations:
+`90157a2ee121fdd93186dec0c8b202e879677148` (PR #69), the generated OpenAPI
+contract contains 34 public HTTP operations:
 
 - 27 GET read operations;
 - 7 transaction-preparation POST operations.
@@ -3197,16 +3376,14 @@ contains 34 public HTTP operations:
 All operations have concrete aggregate handlers. No transaction-preparation
 route should be feature-gated as “not implemented.” Preparation routes don't
 broadcast transactions; they return a typed product outcome and, only when
-executable, an exact wallet call. A target environment can still run an older
-image, so verify its deployed OpenAPI document before enabling a newly merged
-frontend integration.
+executable, an exact wallet call.
 
-PR #21 adds the current wallet-inventory read used by the **Remaining in
-Wallet** card. It is merged on `origin/main`; the older live pre-release smoke
-below does not prove that a particular environment has deployed it. Verify the
-deployed image before enabling the UI integration in that environment.
+The service maintainer confirmed the latest changes are merged and deployed
+on September 10, 2026. This catalog update verifies the checked-out protobuf,
+generated OpenAPI, query behavior, and response mapping. It does not add a new
+live API smoke test; the checks below retain their original dates.
 
-### Live pre-release public-read smoke
+### Historical pre-release public-read smoke
 
 At **2026-08-12 00:36 UTC**, the following non-mutating checks reached
 pre-release:

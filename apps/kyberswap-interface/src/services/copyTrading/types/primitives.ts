@@ -51,25 +51,11 @@ export type MetricStatus =
   | 'METRIC_STATUS_NOT_APPLICABLE'
   | 'METRIC_STATUS_UNSPECIFIED'
 
-export type ApiWindow = 'WINDOW_UNSPECIFIED' | 'WINDOW_7D' | 'WINDOW_30D' | 'WINDOW_90D' | 'WINDOW_ALL'
-
-export type WindowPolicy =
-  | 'WINDOW_POLICY_UNSPECIFIED'
-  | 'WINDOW_POLICY_TRAILING'
-  | 'WINDOW_POLICY_SINCE_LIVE'
-  | 'WINDOW_POLICY_SINCE_COPY_START'
-
 export type Metric = {
   value?: DecimalString
   valueRaw?: string
   status?: MetricStatus
   asOf?: Timestamp
-  window?: ApiWindow
-  nominalWindowDays?: number
-  actualWindowSeconds?: string
-  windowPolicy?: WindowPolicy
-  windowStart?: Timestamp
-  windowEnd?: Timestamp
 }
 
 export type ChainFreshness = {
@@ -138,7 +124,7 @@ export type CopyRunView = 'open' | 'history'
 export type CopyRunSortBy =
   | 'started_at'
   | 'stopped_at'
-  | 'agent_apr_30d'
+  | 'roi_pct'
   | 'agent_win_rate'
   | 'agent_volume'
   | 'capital_in'
@@ -186,5 +172,5 @@ export type ActivitySubtype =
   | 'skipped_sell'
   | 'flat_fee_captured'
   | 'rebate_received'
-export type LeaderboardSortBy = 'apr_30d_pct' | 'win_rate_pct' | 'volume_usd' | 'aum_usd' | 'copiers' | 'open_positions'
+export type LeaderboardSortBy = 'roi_pct' | 'win_rate_pct' | 'volume_usd' | 'aum_usd' | 'copiers' | 'open_positions'
 export type PositionSortBy = 'opened_at' | 'closed_at' | 'value_usd'

@@ -33,7 +33,7 @@ export type Token = {
 }
 
 export type AgentMetrics = {
-  apr30d?: Metric
+  roiPct?: Metric
   winRatePct?: Metric
   lifetimeVolumeUsd?: Metric
   copiers?: Metric
@@ -48,7 +48,7 @@ export type AgentMetrics = {
 }
 
 export type AgentStats = {
-  apr30dPct?: DecimalString
+  roiPct?: DecimalString
   winRatePct?: DecimalString
   volumeUsd?: DecimalString
   copiers?: DecimalString
@@ -104,7 +104,7 @@ export type AgentSnapshot = {
   strategyLabel?: string
   strategyCategories: StrategyCategory[]
   badges: string[]
-  metrics: Pick<AgentMetrics, 'apr30d' | 'winRatePct' | 'lifetimeVolumeUsd'>
+  metrics: Pick<AgentMetrics, 'roiPct' | 'winRatePct' | 'lifetimeVolumeUsd'>
 }
 
 export type LeaderboardSummary = {
