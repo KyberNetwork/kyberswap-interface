@@ -6,7 +6,7 @@ import {
   SwapProvider,
 } from 'pages/CrossChainSwap/adapters'
 import { isEvmChain } from 'pages/CrossChainSwap/adapters/types'
-import { streamQuotes } from 'pages/CrossChainSwap/quote/streamQuotes'
+import { getSourceFilters, streamQuotes } from 'pages/CrossChainSwap/quote/streamQuotes'
 import { PairCategory, createTimeoutPromise, sortQuotesByNetOutput } from 'pages/CrossChainSwap/quote/utils'
 import { CrossChainSwapAdapterRegistry, Quote } from 'pages/CrossChainSwap/registry'
 
@@ -100,7 +100,19 @@ export const getFallbackQuotes = async ({
         if (signal.aborted) throw new Error('Cancelled')
         if (!adapter.canSupport(category, currencyIn, currencyOut)) return
 
-        const quote = await Promise.race([adapter.getQuote(params), createTimeoutPromise(9_000)])
+        const { includedSourceNames, excludedSourceNames } = getSourceFilters(
+          registry,
+          excludedSources,
+          category,
+          currencyIn,
+          currencyOut,
+        )
+        const isExcludedAllAdapters = excludedSources.length === registry.getAllAdapters().length
+        const quoteParams = isExcludedAllAdapters
+          ? params
+          : { ...params, includedSources: includedSourceNames, excludedSources: excludedSourceNames }
+
+        const quote = await Promise.race([adapter.getQuote(quoteParams), createTimeoutPromise(9_000)])
         if (signal.aborted) throw new Error('Cancelled')
 
         fallbackQuotes.push({ adapter, quote, isReadOnly })
