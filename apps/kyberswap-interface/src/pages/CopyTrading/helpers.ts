@@ -221,7 +221,7 @@ const reasonMessages: Partial<Record<PreparedActionReason, string>> = {
   PREPARED_ACTION_REASON_INVALID_STOP_INTENT: 'The selected positions changed. Review the latest position set.',
   PREPARED_ACTION_REASON_NO_EXECUTABLE_ROUTE: 'No executable route is currently available.',
   PREPARED_ACTION_REASON_TOKEN_INVENTORY_TOO_LARGE:
-    'The indexed token selection exceeds the 32-token withdrawal limit.',
+    'The token selection is unavailable. Refresh and prepare the withdrawal again.',
   PREPARED_ACTION_REASON_TOKEN_TRANSFER_NOT_ACKNOWLEDGED:
     'A token transfer failed preflight. Refresh and prepare again.',
   PREPARED_ACTION_REASON_INNER_CALL_REVERTED: 'The prepared call cannot currently be executed.',

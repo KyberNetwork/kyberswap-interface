@@ -46,19 +46,26 @@ const getCopyRunStats = (run: CopyRunSummary): LeaderboardStat[] => {
       icon: copyTradingStatIconMap.cash,
     },
     {
-      label: 'APR Since Copy',
-      value: signedPercent(run.myAprSinceCopyPct),
-      valueClassName: getSignedMetricClassName(run.myAprSinceCopyPct),
+      label: 'ROI',
+      value: signedPercent(run.roiPct),
+      valueClassName: getSignedMetricClassName(run.roiPct),
       icon: copyTradingStatIconMap.winRate,
-    },
-    {
-      label: 'Fee',
-      value: formatUsd(run.feeBreakdown?.feeChargedUsd),
-      icon: copyTradingStatIconMap.volumePrimary,
     },
     {
       label: 'Net Fees',
       value: formatUsd(run.feeBreakdown?.netFeesUsd),
+      valueTooltip: (
+        <dl className="grid grid-cols-[1fr_auto] items-center gap-x-6 gap-y-3 text-sm">
+          <dt className="text-subText">Fee charged</dt>
+          <dd className="m-0 text-right font-medium tabular-nums text-text">
+            {formatUsd(run.feeBreakdown?.feeChargedUsd)}
+          </dd>
+          <dt className="text-subText">Rebates</dt>
+          <dd className="m-0 text-right font-medium tabular-nums text-text">
+            {formatUsd(run.feeBreakdown?.rebatesUsd)}
+          </dd>
+        </dl>
+      ),
       icon: copyTradingStatIconMap.moneyPrimary,
     },
   ]

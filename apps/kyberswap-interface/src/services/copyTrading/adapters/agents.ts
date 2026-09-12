@@ -45,7 +45,7 @@ type ApiChain = {
 }
 
 export type ApiAgentMetrics = {
-  apr30d?: ApiMetric
+  roiPct?: ApiMetric
   winRatePct?: ApiMetric
   lifetimeVolumeUsd?: ApiMetric
   copiers?: ApiMetric
@@ -151,7 +151,7 @@ export const toAgentSnapshot = (snapshot: ApiAgentSnapshot): AgentSnapshot => ({
 })
 
 export const toAgentStats = (metrics?: ApiAgentMetrics): AgentStats => ({
-  apr30dPct: metricValue(metrics?.apr30d),
+  roiPct: metricValue(metrics?.roiPct),
   winRatePct: metricValue(metrics?.winRatePct),
   volumeUsd: metricValue(metrics?.lifetimeVolumeUsd),
   copiers: metricValue(metrics?.copiers),

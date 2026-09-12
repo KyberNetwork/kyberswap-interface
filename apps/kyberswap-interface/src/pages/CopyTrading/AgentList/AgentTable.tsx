@@ -96,10 +96,10 @@ const AgentTable = ({ agents, loading, pagination, sortBy, sortOrder, onSortChan
             activeSortBy={sortBy}
             className="justify-end text-right"
             onSortChange={onSortChange}
-            sortField="apr_30d_pct"
+            sortField="roi_pct"
             sortOrder={sortOrder}
           >
-            Agent APR <span className="rounded-md bg-background px-2 py-1">30D</span>
+            ROI
           </HeaderCell>
           <HeaderCell
             activeSortBy={sortBy}
@@ -165,8 +165,8 @@ const AgentTable = ({ agents, loading, pagination, sortBy, sortOrder, onSortChan
               <LeaderboardGrid key={agent.agentId} className="relative cursor-pointer">
                 <TableRowLink label={`View ${agent.displayName}`} to={`${APP_PATHS.COPY_TRADING}/${agent.agentId}`} />
                 <AgentCell agent={agent} className="px-3 py-2" />
-                <TableCell className={cn('text-right', getSignedMetricClassName(agent.stats.apr30dPct))}>
-                  {percent(agent.stats.apr30dPct)}
+                <TableCell className={cn('text-right', getSignedMetricClassName(agent.stats.roiPct))}>
+                  {percent(agent.stats.roiPct)}
                 </TableCell>
                 <TableCell className={cn('text-right', getWinRateClassName(agent.stats.winRatePct))}>
                   {percent(agent.stats.winRatePct)}
@@ -253,8 +253,8 @@ const AgentTable = ({ agents, loading, pagination, sortBy, sortOrder, onSortChan
               </div>
 
               <TableCardGrid className="border-t border-tableHeader p-3">
-                <TableCardField label="Agent APR 30D" valueClassName={getSignedMetricClassName(agent.stats.apr30dPct)}>
-                  {percent(agent.stats.apr30dPct)}
+                <TableCardField label="ROI" valueClassName={getSignedMetricClassName(agent.stats.roiPct)}>
+                  {percent(agent.stats.roiPct)}
                 </TableCardField>
                 <TableCardField
                   align="right"
