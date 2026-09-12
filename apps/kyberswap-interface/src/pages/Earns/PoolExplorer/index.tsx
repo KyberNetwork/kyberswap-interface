@@ -4,7 +4,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
 import { usePoolsExplorerQuery } from 'services/earn'
 
-import { ReactComponent as IconUserEarnPosition } from 'assets/svg/earn/ic_user_earn_position.svg'
+import { ReactComponent as MyPositionsIcon } from 'assets/svg/earn/ic_my_positions.svg'
 import { NotificationType } from 'components/Announcement/type'
 import {
   ListingPageDisclaimer,
@@ -250,7 +250,7 @@ const PoolExplorer = () => {
       {upToLarge && (
         <ListingPageNavigateButton
           mobileFullWidth
-          icon={<IconUserEarnPosition />}
+          icon={<MyPositionsIcon />}
           text={t`My Positions`}
           to={APP_PATHS.EARN_POSITIONS}
           data-testid="earn-pool-my-positions"

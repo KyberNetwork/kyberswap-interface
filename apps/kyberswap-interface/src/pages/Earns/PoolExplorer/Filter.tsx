@@ -5,11 +5,11 @@ import { Plus, Star } from 'react-feather'
 import { useMedia } from 'react-use'
 import type { PoolQueryParams } from 'services/earn/types'
 
+import { ReactComponent as MyPositionsIcon } from 'assets/svg/earn/ic_my_positions.svg'
 import { ReactComponent as IconHighAprPool } from 'assets/svg/earn/ic_pool_high_apr.svg'
 import { ReactComponent as IconHighlightedPool } from 'assets/svg/earn/ic_pool_highlighted.svg'
 import { ReactComponent as IconLowVolatility } from 'assets/svg/earn/ic_pool_low_volatility.svg'
 import { ReactComponent as IconSolidEarningPool } from 'assets/svg/earn/ic_pool_solid_earning.svg'
-import { ReactComponent as IconUserEarnPosition } from 'assets/svg/earn/ic_user_earn_position.svg'
 import { ReactComponent as IconFarmingPool } from 'assets/svg/kyber/kem.svg'
 import { ButtonOutlined } from 'components/Button'
 import DropdownMenu, { MenuOption } from 'components/DropdownMenu'
@@ -317,7 +317,7 @@ const Filter = ({
         </ListingFilterTagContainer>
         {!upToLarge && (
           <ListingPageNavigateButton
-            icon={<IconUserEarnPosition />}
+            icon={<MyPositionsIcon />}
             text={t`My Positions`}
             to={APP_PATHS.EARN_POSITIONS}
             data-testid="earn-pool-my-positions"

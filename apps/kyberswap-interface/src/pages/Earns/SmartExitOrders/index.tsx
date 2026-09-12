@@ -11,7 +11,7 @@ import {
 } from 'services/smartExit'
 
 import { ReactComponent as IconListSmartExit } from 'assets/svg/earn/ic_list_smart_exit.svg'
-import { ReactComponent as IconUserEarnPosition } from 'assets/svg/earn/ic_user_earn_position.svg'
+import { ReactComponent as MyPositionsIcon } from 'assets/svg/earn/ic_my_positions.svg'
 import { NotificationType } from 'components/Announcement/type'
 import { ButtonOutlined, ButtonPrimary } from 'components/Button'
 import {
@@ -187,7 +187,7 @@ const SmartExit = () => {
         </ListingPageTitle>
         <ListingPageNavigateButton
           mobileFullWidth
-          icon={<IconUserEarnPosition />}
+          icon={<MyPositionsIcon />}
           text={t`My Positions`}
           to={APP_PATHS.EARN_POSITIONS}
         />

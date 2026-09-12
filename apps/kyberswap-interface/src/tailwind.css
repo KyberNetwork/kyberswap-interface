@@ -712,6 +712,20 @@
     border-radius: var(--ks-scrollbar-radius, 0);
   }
 
+  /* Earn section reveal, referenced through arbitrary `[animation:earn-fade-in-up_...]` values.
+     Tailwind only emits a keyframes block from its config when a matching `animate-*` utility is
+     used, so the definition lives here instead. */
+  @keyframes earn-fade-in-up {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
   /* PositionDetail enter animations (rendered with arbitrary `animate-[ks-pd-*]` values). */
   @keyframes ks-pd-fade-in {
     from {
@@ -888,6 +902,16 @@
     }
   }
 
+  /* 1px gradient ring drawn on ::before: the padding box is masked out so only the border shows.
+     The four declarations must stay in one rule and in this order — the `mask` shorthand resets
+     `mask-composite`, so a composite declared before it is thrown away. */
+  .ks-gradient-ring::before {
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+  }
+
   /* Earns Landing — BorderWrapper spin & RewardsNavigateButton border angle. */
   @keyframes ks-earn-spin {
     from {
@@ -904,6 +928,12 @@
     100% {
       --border-angle: 360deg;
     }
+  }
+
+  /* Switching the vault list between gallery and list swaps one layout for another. Naming the
+     container lets the browser cross-fade the two snapshots instead of cutting to the new one. */
+  .ks-vault-results {
+    view-transition-name: earn-vault-results;
   }
 
   /* EarnBanner — TrendingPoolBanner pulse on slide change. */
@@ -1295,6 +1325,7 @@
     --ks-white-rgb: 255 255 255;
     --ks-black-rgb: 0 0 0;
     --ks-white2-rgb: 250 250 250;
+    --ks-blue3-rgb: 88 181 238;
     --ks-text-rgb: 255 255 255;
     --ks-subText-rgb: 169 169 169;
     --ks-background-rgb: 28 28 28;
@@ -1312,4 +1343,18 @@
     --ks-gray-rgb: 115 115 115;
     --ks-blue-rgb: 8 161 231;
   }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(earn-vault-results),
+  ::view-transition-old(earn-vault-results),
+  ::view-transition-new(earn-vault-results) {
+    animation: none;
+  }
+}
+
+::view-transition-old(earn-vault-results),
+::view-transition-new(earn-vault-results) {
+  animation-duration: 180ms;
+  animation-timing-function: ease-out;
 }

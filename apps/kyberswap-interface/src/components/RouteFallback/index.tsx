@@ -4,6 +4,12 @@ import Loader from 'components/LocalLoader'
 import { AboutKncSkeleton, AboutKyberSwapSkeleton } from 'components/RouteFallback/AboutSkeletons'
 import { EarnLandingSkeleton, EarnPoolsSkeleton } from 'components/RouteFallback/EarnPoolSkeletons'
 import { EarnPositionsSkeleton } from 'components/RouteFallback/EarnPositionSkeletons'
+import EarnShellSkeleton from 'components/RouteFallback/EarnShellSkeleton'
+import {
+  EarnMyVaultsSkeleton,
+  EarnVaultDetailSkeleton,
+  EarnVaultsSkeleton,
+} from 'components/RouteFallback/EarnVaultSkeletons'
 import MarketSkeleton from 'components/RouteFallback/MarketSkeleton'
 import { SmartExitSkeleton } from 'components/RouteFallback/SmartExitSkeletons'
 import { SwapPageSkeleton } from 'components/RouteFallback/TradeSkeletons'
@@ -23,23 +29,70 @@ const pickSkeleton = (rawPathname: string) => {
     return <SwapPageSkeleton />
   }
 
+  // Everything below lives inside the lazy EarnLayout, so each stand-in wears the same shell —
+  // without it the page shifted sideways by the sidebar's width once the chunk arrived.
   if (pathname === APP_PATHS.EARN) {
-    return <EarnLandingSkeleton />
+    return (
+      <EarnShellSkeleton>
+        <EarnLandingSkeleton />
+      </EarnShellSkeleton>
+    )
   }
   if (isPathOrChild(pathname, APP_PATHS.EARN_POOLS)) {
-    return <EarnPoolsSkeleton />
+    return (
+      <EarnShellSkeleton>
+        <EarnPoolsSkeleton />
+      </EarnShellSkeleton>
+    )
   }
   if (isPathOrChild(pathname, APP_PATHS.EARN_POSITIONS)) {
-    return <EarnPositionsSkeleton />
+    return (
+      <EarnShellSkeleton>
+        <EarnPositionsSkeleton />
+      </EarnShellSkeleton>
+    )
   }
   if (isPathOrChild(pathname, APP_PATHS.EARN_SMART_EXIT)) {
-    return <SmartExitSkeleton />
+    return (
+      <EarnShellSkeleton>
+        <SmartExitSkeleton />
+      </EarnShellSkeleton>
+    )
+  }
+  if (isPathOrChild(pathname, APP_PATHS.EARN_MY_VAULTS)) {
+    return (
+      <EarnShellSkeleton>
+        <EarnMyVaultsSkeleton />
+      </EarnShellSkeleton>
+    )
+  }
+  if (isPathOrChild(pathname, APP_PATHS.EARN_VAULTS)) {
+    return (
+      <EarnShellSkeleton>
+        <EarnVaultsSkeleton />
+      </EarnShellSkeleton>
+    )
+  }
+  if (matchPath({ path: APP_PATHS.EARN_VAULT_DETAIL, end: true }, pathname)) {
+    return (
+      <EarnShellSkeleton>
+        <EarnVaultDetailSkeleton />
+      </EarnShellSkeleton>
+    )
   }
   if (matchPath({ path: APP_PATHS.POOL_DETAIL, end: true }, pathname)) {
-    return <DetailPageSkeleton />
+    return (
+      <EarnShellSkeleton>
+        <DetailPageSkeleton />
+      </EarnShellSkeleton>
+    )
   }
   if (matchPath({ path: APP_PATHS.EARN_POSITION_DETAIL, end: true }, pathname)) {
-    return <DetailPageSkeleton />
+    return (
+      <EarnShellSkeleton>
+        <DetailPageSkeleton />
+      </EarnShellSkeleton>
+    )
   }
 
   if (isPathOrChild(pathname, APP_PATHS.MARKET_OVERVIEW)) {
