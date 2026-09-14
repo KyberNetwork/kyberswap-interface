@@ -256,10 +256,6 @@ export function getTokenComparator(
   tokenPrices: TokenPriceMap,
   // Addresses (lowercased) to float above non-favorites once balance/value is a tie.
   favoriteAddresses?: Set<string>,
-  // Held tokens that are on no list (checksummed). These sort below every listed holding, whatever
-  // either side is worth, and above tokens the wallet does not hold: an airdropped impersonation is
-  // minted with an enormous supply and may even carry a quote, and neither may hand it the top.
-  unlistedAddresses?: Set<string>,
 ): (tokenA: Token, tokenB: Token) => number {
   const favoriteKey = (token: Token) => (isTokenNative(token) ? ETHER_ADDRESS : token.address).toLowerCase()
   return function sortTokens(tokenA: Token, tokenB: Token): number {
@@ -272,13 +268,6 @@ export function getTokenComparator(
     const usdBalanceB = usdValueOf(balanceB, priceB)
     const heldA = !!balanceA?.greaterThan('0')
     const heldB = !!balanceB?.greaterThan('0')
-
-    // A listed holding ranks above any unlisted one before value is even looked at.
-    if (unlistedAddresses?.size) {
-      const listedHeldA = heldA && !unlistedAddresses.has(tokenA.address)
-      const listedHeldB = heldB && !unlistedAddresses.has(tokenB.address)
-      if (listedHeldA !== listedHeldB) return listedHeldA ? -1 : 1
-    }
 
     if (usdBalanceA > 0 || usdBalanceB > 0) {
       if (usdBalanceA !== usdBalanceB) return usdBalanceB - usdBalanceA
@@ -316,8 +305,6 @@ export function useTokenComparator(
   enabled = true,
   // Lowercased favorite addresses to float above non-favorites once balance/value is a tie.
   favoriteAddresses?: Set<string>,
-  // Checksummed addresses of held tokens on no list; see `getTokenComparator`.
-  unlistedAddresses?: Set<string>,
 ): (tokenA: Token, tokenB: Token) => number {
   // Only held tokens can contribute a USD value to the sort — `usdValueOf` returns 0 for a zero
   // balance whatever the price — so pricing the whole whitelist would be pure waste. The native
@@ -331,7 +318,7 @@ export function useTokenComparator(
   const tokenPrices = useTokenPrices(tokenPriceAddresses, chainId)
 
   return useMemo(
-    () => getTokenComparator(balances, ethBalance, tokenPrices, favoriteAddresses, unlistedAddresses),
-    [balances, ethBalance, tokenPrices, favoriteAddresses, unlistedAddresses],
+    () => getTokenComparator(balances, ethBalance, tokenPrices, favoriteAddresses),
+    [balances, ethBalance, tokenPrices, favoriteAddresses],
   )
 }

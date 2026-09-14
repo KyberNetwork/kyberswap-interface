@@ -1,7 +1,7 @@
 import { ChainId, Currency, CurrencyAmount, Token, TokenAmount } from '@kyberswap/ks-sdk-core'
 import { Trans, t } from '@lingui/macro'
 import React, { CSSProperties, ReactNode, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { AlertTriangle, Info, Star, X } from 'react-feather'
+import { AlertTriangle, ChevronDown, Info, Star, X } from 'react-feather'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { ListChildComponentProps, VariableSizeList } from 'react-window'
 import InfiniteLoader from 'react-window-infinite-loader'
@@ -40,6 +40,15 @@ const ROWS_RENDERED_MARGIN = 40
 const ROWS_RENDERED_DEBOUNCE_MS = 150
 const RESTRICTED_CONTENT_HEIGHT = ROW_CONTENT_HEIGHT + 28 // 76px
 const RESTRICTED_ITEM_SIZE = RESTRICTED_CONTENT_HEIGHT + 8 // 84px
+// Toggle row heading a collapsible group; shorter than a token row.
+const SECTION_CONTENT_HEIGHT = 36
+const SECTION_ITEM_SIZE = SECTION_CONTENT_HEIGHT + 8 // 44px (content + row gap)
+// Opening a group cascades its first rows in, one shortly after the other. Only rows rendered within
+// the window of the click cascade, so scrolling back to them later doesn't replay the reveal, and the
+// cap covers a viewport's worth — deeper group rows arrive already in place.
+const SECTION_REVEAL_ROWS = 12
+const SECTION_REVEAL_STAGGER_MS = 35
+const SECTION_REVEAL_WINDOW_MS = 500
 
 // Stable default so an omitted `itemStyle` prop doesn't mint a new object each render (which would
 // churn the row data bag and re-render every row).
@@ -441,6 +450,58 @@ export const TokenRow = ({
   )
 }
 
+/**
+ * A group of rows at the tail of the list, folded behind a toggle. Its rows only reach `currencies`
+ * while `expanded`, so a collapsed group costs the list nothing beyond its one toggle row.
+ */
+export type TokenListSection = {
+  /** Index in `currencies` the group's first row sits at; the toggle renders directly above it. */
+  startIndex: number
+  /** How many rows the group holds — shown on the toggle, which is all there is to see while closed. */
+  count: number
+  title: ReactNode
+  expanded: boolean
+  onToggle: () => void
+  /** When the toggle was last clicked, so only the rows it just revealed play the cascade. */
+  toggledAt: number
+}
+
+/**
+ * Cascade delay for a row the toggle has just revealed; `undefined` leaves the row unanimated. Rows
+ * past the group's own last one are excluded: they were on screen before the click and were only
+ * pushed down, so animating them would read as the whole list re-rendering.
+ */
+const revealDelay = (index: number, section?: TokenListSection): number | undefined => {
+  if (!section?.expanded) return undefined
+  const offset = index - section.startIndex - 1
+  if (offset < 0 || offset >= Math.min(SECTION_REVEAL_ROWS, section.count)) return undefined
+  if (Date.now() - section.toggledAt > SECTION_REVEAL_WINDOW_MS) return undefined
+  return offset * SECTION_REVEAL_STAGGER_MS
+}
+
+// The toggle occupies one list index of its own, so every index past it addresses the currency before it.
+const currencyIndexOf = (index: number, section?: TokenListSection): number =>
+  section && index > section.startIndex ? index - 1 : index
+
+const SectionToggleRow = ({ style, section }: { style: CSSProperties; section: TokenListSection }) => (
+  <div className="px-2 pt-2" style={style}>
+    <button
+      type="button"
+      onClick={section.onToggle}
+      aria-expanded={section.expanded}
+      data-testid="token-list-section-toggle"
+      className="flex h-9 w-full items-center gap-1.5 rounded-xl bg-buttonBlack px-3 text-xs font-medium text-subText transition-colors hover:text-text"
+    >
+      <span className="truncate">{section.title}</span>
+      <span className="shrink-0 rounded-full bg-buttonGray px-1.5 leading-4 text-subText">{section.count}</span>
+      <ChevronDown
+        size={16}
+        className={cn('ml-auto shrink-0 transition-transform', section.expanded && 'rotate-180')}
+      />
+    </button>
+  </div>
+)
+
 // Data bag handed to every virtualized row through react-window's `itemData`. Delivering row data
 // as a prop (rather than closing over it in an inline render-prop) keeps the row's element type
 // stable, so background price/balance polls re-render rows cheaply instead of remounting them.
@@ -473,6 +534,7 @@ type VirtualRowData = {
   heldAddresses?: Set<string>
   /** Whether a balance still missing is worth showing as loading; see `useBalanceWait`. */
   waitingForBalances?: boolean
+  section?: TokenListSection
 }
 
 const SelectedTokenBalance = ({ currency, balance }: { currency: Currency; balance: CurrencyAmount<Currency> }) => {
@@ -483,7 +545,12 @@ const SelectedTokenBalance = ({ currency, balance }: { currency: Currency; balan
 }
 
 const VirtualRow = memo(function VirtualRow({ index, style, data }: ListChildComponentProps<VirtualRowData>) {
-  const currency = data.currencies[index]
+  const { section } = data
+  if (section && index === section.startIndex) return <SectionToggleRow style={style} section={section} />
+
+  const currencyIndex = currencyIndexOf(index, section)
+  const currency = data.currencies[currencyIndex]
+  const delay = revealDelay(index, section)
   // The trailing slot (present while more pages can load) has no currency yet — show the loader.
   if (!currency) {
     return (
@@ -513,7 +580,7 @@ const VirtualRow = memo(function VirtualRow({ index, style, data }: ListChildCom
   const favoriteTokenAddress = currency.isToken ? (currency as Token).address : undefined
   const isFavorite = favoriteTokenAddress ? data.favoriteAddressSet.has(favoriteTokenAddress.toLowerCase()) : false
 
-  const currencyBalance = data.currencyBalances[index]
+  const currencyBalance = data.currencyBalances[currencyIndex]
   const extra: TokenRowExtra | undefined = data.extras?.[tokenRowKey(currency.chainId, token.address)]
   // Non-All tabs already carry price in the catalog extras; only the All tab fetches Redux prices.
   const priceForUsd = data.showPriceColumn ? extra?.price ?? 0 : data.tokenPrices[token.address] || 0
@@ -529,7 +596,13 @@ const VirtualRow = memo(function VirtualRow({ index, style, data }: ListChildCom
   const rowStyle: CSSProperties = { height: warned ? RESTRICTED_CONTENT_HEIGHT : ROW_CONTENT_HEIGHT, ...data.itemStyle }
 
   return (
-    <div className="px-2 pt-2" style={style}>
+    <div
+      className={cn(
+        'px-2 pt-2',
+        delay !== undefined && 'animate-[fadeInUp_0.22s_ease-out_both] motion-reduce:animate-none',
+      )}
+      style={delay ? { ...style, animationDelay: `${delay}ms` } : style}
+    >
       <TokenRow
         isFavorite={isFavorite}
         showLoading={!!data.account && !!data.waitingForBalances}
@@ -610,6 +683,8 @@ type TokenListProps = {
   heldAddresses?: Set<string>
   /** Whether a balance still missing is worth showing as loading; see `useBalanceWait`. */
   waitingForBalances?: boolean
+  /** Tail rows folded behind a toggle; the caller appends them to `currencies` only while open. */
+  section?: TokenListSection
 }
 
 const TokenList = ({
@@ -639,6 +714,7 @@ const TokenList = ({
   impersonators,
   heldAddresses,
   waitingForBalances,
+  section,
 }: TokenListProps) => {
   const { account } = useActiveWeb3React()
   const { favoriteTokens } = useUserFavoriteTokens(customChainId)
@@ -684,13 +760,14 @@ const TokenList = ({
 
   const getItemSize = useCallback(
     (index: number) => {
-      const currency = currencies[index]
+      if (section && index === section.startIndex) return SECTION_ITEM_SIZE
+      const currency = currencies[currencyIndexOf(index, section)]
       if (!currency) return NORMAL_ITEM_SIZE
       return warnedKeys.has(restrictedTokenKey(currency.chainId, getTokenAddress(currency)))
         ? RESTRICTED_ITEM_SIZE
         : NORMAL_ITEM_SIZE
     },
-    [currencies, warnedKeys],
+    [currencies, warnedKeys, section],
   )
 
   const onWarnRestricted = useCallback((key: string) => {
@@ -708,7 +785,7 @@ const TokenList = ({
   const rowsSignature = useMemo(() => currencies.map(currency => currency.wrapped.address).join(','), [currencies])
   useEffect(() => {
     listRef.current?.resetAfterIndex(0)
-  }, [rowsSignature, warnedKeys])
+  }, [rowsSignature, warnedKeys, section?.startIndex])
 
   const itemData = useMemo<VirtualRowData>(
     () => ({
@@ -739,6 +816,7 @@ const TokenList = ({
       impersonators,
       heldAddresses,
       waitingForBalances,
+      section,
     }),
     [
       currencies,
@@ -768,12 +846,15 @@ const TokenList = ({
       impersonators,
       heldAddresses,
       waitingForBalances,
+      section,
     ],
   )
 
   const loadMoreItems = useCallback(() => loadMoreRows?.(), [loadMoreRows])
-  const itemCount = hasMore ? currencies.length + 1 : currencies.length // If there are more items to be loaded then add an extra row to hold a loading indicator.
-  const isItemLoaded = (index: number) => !hasMore || index < currencies.length
+  // Rows plus the section toggle, if any; a trailing slot holds the loading indicator when more pages remain.
+  const rowCount = currencies.length + (section ? 1 : 0)
+  const itemCount = hasMore ? rowCount + 1 : rowCount
+  const isItemLoaded = (index: number) => !hasMore || index < rowCount
 
   const rowsRenderedTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
   const handleItemsRendered = useCallback(
@@ -781,11 +862,12 @@ const TokenList = ({
       if (!onRowsRendered) return
       if (rowsRenderedTimer.current) clearTimeout(rowsRenderedTimer.current)
       rowsRenderedTimer.current = setTimeout(() => {
-        const start = Math.max(0, range.visibleStartIndex - ROWS_RENDERED_MARGIN)
-        onRowsRendered(currencies.slice(start, range.visibleStopIndex + ROWS_RENDERED_MARGIN + 1))
+        const start = Math.max(0, currencyIndexOf(range.visibleStartIndex, section) - ROWS_RENDERED_MARGIN)
+        const stop = currencyIndexOf(range.visibleStopIndex, section) + ROWS_RENDERED_MARGIN + 1
+        onRowsRendered(currencies.slice(start, stop))
       }, ROWS_RENDERED_DEBOUNCE_MS)
     },
-    [onRowsRendered, currencies],
+    [onRowsRendered, currencies, section],
   )
   useEffect(() => () => clearTimeout(rowsRenderedTimer.current), [])
 
