@@ -53,6 +53,7 @@ export const getSlippageStorageKey = (
 // request whose hook does not match its configured allowlist for that chain.
 const UNISWAP_V4_FAIRFLOW_HOOKS: Partial<Record<ChainId, string>> = {
   [ChainId.Ethereum]: '0x4440854B2d02C57A0Dc5c58b7A884562D875c0c4',
+  [ChainId.Bsc]: '0x4440854B2d02C57A0Dc5c58b7A884562D875c0c4',
   [ChainId.Arbitrum]: '0x4440854B2d02C57A0Dc5c58b7A884562D875c0c4',
   [ChainId.Base]: '0x4440854B2d02C57A0Dc5c58b7A884562D875c0c4',
   [ChainId.Robinhood]: '0x4445520306c9c70952bdfec28f3989f53d9f80c4',
