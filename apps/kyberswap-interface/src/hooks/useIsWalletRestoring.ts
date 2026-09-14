@@ -11,8 +11,9 @@ import { useAccount } from 'hooks/useAccount'
 const RESTORE_TIMEOUT = 5_000
 
 /**
- * True while a previously connected wallet may still be restored, so a page can hold its loading state
- * instead of flashing an empty "connect your wallet" view at a visitor whose wallet is about to return.
+ * True while a previously connected wallet may still be restored, so a caller can wait it out instead of
+ * acting on a wallet-less snapshot of a visitor whose wallet is about to return — a page flashing an empty
+ * "connect your wallet" view, or a chain decision taken before there is a wallet to ask.
  */
 export default function useIsWalletRestoring() {
   const { status } = useAccount()
