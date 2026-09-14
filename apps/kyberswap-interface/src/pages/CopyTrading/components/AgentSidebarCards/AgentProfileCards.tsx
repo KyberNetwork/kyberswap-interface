@@ -21,7 +21,10 @@ export const RiskCard = ({ maxDrawdownPct, winRatePct }: RiskCardProps) => {
         <span className="shrink-0 text-sm font-medium text-subText">Win Rate</span>
         <div className="relative h-7 min-w-0 flex-1">
           <div className="absolute inset-x-0 top-1/2 h-2 -translate-y-1/2 overflow-hidden rounded-full bg-subText-20">
-            <div className={cn('h-full rounded-full', winRateBackgroundClassName)} style={{ width: winRate + '%' }} />
+            <div
+              className="h-full rounded-full bg-gradient-to-r from-[#0099c6] to-[#009b83]"
+              style={{ width: winRate + '%' }}
+            />
           </div>
           <Badge
             variant={winRateUnavailable ? undefined : BadgeVariant.PRIMARY}
