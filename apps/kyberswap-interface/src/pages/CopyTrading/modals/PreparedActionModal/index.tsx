@@ -171,8 +171,8 @@ const getRecoveryViewModel = (
         : {
             retryLabel: 'Refresh status',
             showBackAction: false,
-            title: 'Transaction confirmed',
-            text: 'Your transaction was successful. Data is still updating, so refresh status to check again shortly.',
+            title: 'Checking transaction result',
+            text: state.error || 'The transaction result is not available yet. Check its status again shortly.',
           }
     default:
       return undefined

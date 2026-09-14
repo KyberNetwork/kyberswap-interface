@@ -1,4 +1,5 @@
 import type { PreparedActionReason } from './actionAvailability'
+import type { ActionStatusContext } from './actionStatus'
 import type { PositionValuation } from './positions'
 import type { Address, LooseString, Metric, MetricStatus, Timestamp } from './primitives'
 
@@ -241,6 +242,7 @@ export type PositionSellPreview = {
 }
 
 export type PreparedAction = {
+  statusContext?: ActionStatusContext
   status?: PreparedActionStatus
   chainId?: string
   expectedAccount?: Address

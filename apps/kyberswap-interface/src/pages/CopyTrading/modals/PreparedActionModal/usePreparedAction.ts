@@ -2,6 +2,7 @@ import { getPublicClient } from '@wagmi/core'
 import type { PreparedAction } from 'services/copyTrading/types/preparedActions'
 
 import { wagmiConfig } from 'components/Web3Provider'
+import { SubmittedActionFailedError } from 'pages/CopyTrading/modals/PreparedActionModal/postReceipt'
 import {
   DEFAULT_PREPARED_ACTION_STATE,
   type PreparedActionExpectation,
@@ -85,12 +86,12 @@ export const usePreparedAction = ({
       finish(action, hash, undefined, false)
     } catch (error) {
       setState({
-        phase: 'sync_error',
+        phase: error instanceof SubmittedActionFailedError ? 'error' : 'sync_error',
         action,
         error: getApiErrorMessage(error),
         hash,
         ...receiptState,
-        retryStage: 'sync',
+        retryStage: error instanceof SubmittedActionFailedError ? undefined : 'sync',
       })
     }
   }
@@ -151,17 +152,18 @@ export const usePreparedAction = ({
 
       setState({ phase: 'confirming', action, hash: submittedHash })
       const receipt = await publicClient.waitForTransactionReceipt({ hash: submittedHash })
+      hash = receipt.transactionHash
       if (receipt.status !== 'success') {
         setState({
           phase: 'error',
           action,
           error: 'The transaction reverted on-chain. Prepare a new call before trying again.',
-          hash: submittedHash,
+          hash,
         })
         return
       }
 
-      await finishReceipt(action, submittedHash, receipt.blockNumber)
+      await finishReceipt(action, receipt.transactionHash, receipt.blockNumber)
     } catch (error) {
       setState({
         phase: hash ? 'sync_error' : 'error',
@@ -191,12 +193,12 @@ export const usePreparedAction = ({
           phase: 'error',
           action,
           error: 'The transaction reverted on-chain. Prepare a new call before trying again.',
-          hash,
+          hash: receipt.transactionHash,
         })
         return
       }
 
-      await finishReceipt(action, hash, receipt.blockNumber)
+      await finishReceipt(action, receipt.transactionHash, receipt.blockNumber)
     } catch (error) {
       setState({
         phase: 'sync_error',

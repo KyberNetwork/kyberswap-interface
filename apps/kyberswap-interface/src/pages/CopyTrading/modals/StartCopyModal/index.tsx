@@ -28,7 +28,7 @@ const StartCopyModal = ({ isOpen, onDismiss, agent }: StartCopyModalProps) => {
     />
   )
 
-  const successActions = flow.createdCopyRun ? (
+  const successActions = flow.createdCopyRunId ? (
     <PreparedActionSuccessActions onClose={flow.dismiss} onPrimaryAction={flow.viewMyCopies} primaryLabel="My Copies" />
   ) : undefined
 

@@ -1,7 +1,6 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import copyRunApi from 'services/copyTrading/api/endpoints/copyRuns'
 import preparedActionApi from 'services/copyTrading/api/endpoints/preparedActions'
 import type { CopyRunListItem } from 'services/copyTrading/types/copyRuns'
 import type { PreparedCallKind } from 'services/copyTrading/types/preparedActions'
@@ -15,11 +14,7 @@ import { AddCapitalForm } from 'pages/CopyTrading/modals/AddCapitalModal/compone
 import { type CapitalPercentage } from 'pages/CopyTrading/modals/CapitalAmount/capital'
 import { useCapitalAmount } from 'pages/CopyTrading/modals/CapitalAmount/useCapitalAmount'
 import PreparedActionModal, { PreparedActionSuccessActions } from 'pages/CopyTrading/modals/PreparedActionModal'
-import {
-  hasCapitalIncreased,
-  hasCopyTradingChainCoveredBlock,
-  pollCopyTradingProjection,
-} from 'pages/CopyTrading/modals/PreparedActionModal/postReceipt'
+import { pollSubmittedActionStatus } from 'pages/CopyTrading/modals/PreparedActionModal/postReceipt'
 import { DEFAULT_PREPARED_ACTION_STATE } from 'pages/CopyTrading/modals/PreparedActionModal/preparedAction'
 import { usePreparedAction } from 'pages/CopyTrading/modals/PreparedActionModal/usePreparedAction'
 import {
@@ -44,8 +39,8 @@ const AddCapitalModal = ({ isOpen, onDismiss, copyRun }: AddCapitalModalProps) =
   const { changeNetwork } = useChangeNetwork()
   const toggleWalletModal = useWalletModalToggle()
   const refreshCopyTrading = useRefreshCopyTrading()
+  const [getStatus] = preparedActionApi.useGetSubmittedActionStatusMutation()
   const [prepareAddCapital] = preparedActionApi.usePrepareAddCapitalMutation()
-  const [getCopyRun] = copyRunApi.useLazyGetCopyRunQuery()
 
   const [flowState, setFlowState] = useState(DEFAULT_PREPARED_ACTION_STATE)
   const capital = useCapitalAmount({
@@ -104,17 +99,8 @@ const AddCapitalModal = ({ isOpen, onDismiss, copyRun }: AddCapitalModalProps) =
 
       return response.data
     },
-    afterReceipt: async (_action, _hash, receiptBlockNumber) => {
-      await pollCopyTradingProjection({
-        errorMessage:
-          'Your transaction is confirmed, but the updated capital is not available yet. Refresh status to try again.',
-        fetch: () => getCopyRun({ ownerAddress: copyRun.ownerAddress, copyRunId: copyRun.copyRunId }).unwrap(),
-        isConverged: response =>
-          hasCopyTradingChainCoveredBlock(response.meta, copyRun.chainId, receiptBlockNumber) &&
-          response.data.capitalInProjectionStatus === 'ready' &&
-          response.data.metrics.capitalInUsd?.status === 'METRIC_STATUS_CURRENT' &&
-          hasCapitalIncreased(response.data.capitalInUsd, copyRun.capitalInUsd),
-      })
+    afterReceipt: async (action, hash) => {
+      await pollSubmittedActionStatus({ action, hash, getStatus })
       refreshCopyTrading()
     },
     onComplete: refreshCopyTrading,

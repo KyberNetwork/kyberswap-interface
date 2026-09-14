@@ -1,6 +1,5 @@
 import { ChainId, Token } from '@kyberswap/ks-sdk-core'
 import { useEffect, useMemo, useRef, useState } from 'react'
-import copyAccountApi from 'services/copyTrading/api/endpoints/copyAccounts'
 import preparedActionApi from 'services/copyTrading/api/endpoints/preparedActions'
 import type { CopyRunListItem } from 'services/copyTrading/types/copyRuns'
 import type { PreparedCallKind } from 'services/copyTrading/types/preparedActions'
@@ -8,10 +7,7 @@ import type { PreparedCallKind } from 'services/copyTrading/types/preparedAction
 import { useActiveWeb3React } from 'hooks'
 import { useCurrencyV2 } from 'hooks/useTokens'
 import useRefreshCopyTrading from 'pages/CopyTrading/hooks/useRefreshCopyTrading'
-import {
-  hasWithdrawalBalanceConverged,
-  pollCopyTradingProjection,
-} from 'pages/CopyTrading/modals/PreparedActionModal/postReceipt'
+import { pollSubmittedActionStatus } from 'pages/CopyTrading/modals/PreparedActionModal/postReceipt'
 import {
   DEFAULT_PREPARED_ACTION_STATE,
   parsePreparedAmount,
@@ -41,8 +37,8 @@ const WITHDRAW_CALL_KINDS: PreparedCallKind[] = ['PREPARED_CALL_KIND_WITHDRAW_QU
 export const useWithdrawQuote = ({ isOpen, copyRun, wallet }: WithdrawQuoteParams) => {
   const { account } = useActiveWeb3React()
   const refreshCopyTrading = useRefreshCopyTrading()
+  const [getStatus] = preparedActionApi.useGetSubmittedActionStatusMutation()
   const [prepareWithdrawQuote] = preparedActionApi.usePrepareWithdrawQuoteMutation()
-  const [getWalletInventory] = copyAccountApi.useLazyGetCopyAccountWalletInventoryQuery()
 
   const [flowState, setFlowState] = useState(DEFAULT_PREPARED_ACTION_STATE)
   const [amount, setAmount] = useState('')
@@ -142,16 +138,8 @@ export const useWithdrawQuote = ({ isOpen, copyRun, wallet }: WithdrawQuoteParam
       }
       return response.data
     },
-    afterReceipt: async (action, _hash, receiptBlockNumber) => {
-      await pollCopyTradingProjection({
-        errorMessage:
-          'Your transaction is confirmed, but the updated quote balance is not available yet. Refresh status to try again.',
-        fetch: () => getWalletInventory({ chainId: copyRun.chainId, copyAccount: copyRun.copyAccount }).unwrap(),
-        isConverged: inventory =>
-          hasWithdrawalBalanceConverged(inventory, receiptBlockNumber, action.withdrawQuote?.quoteToken?.address, [
-            { token: action.withdrawQuote?.quoteToken, balance: action.withdrawQuote?.quoteBalance },
-          ]),
-      })
+    afterReceipt: async (action, hash) => {
+      await pollSubmittedActionStatus({ action, hash, getStatus })
       refreshCopyTrading()
     },
     onComplete: refreshCopyTrading,

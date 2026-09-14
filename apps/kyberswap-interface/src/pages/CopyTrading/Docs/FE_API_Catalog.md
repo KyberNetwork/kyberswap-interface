@@ -1,13 +1,60 @@
 # Copy Trade API frontend integration catalog
 
 Use this catalog to integrate frontend applications with the public HTTPS/JSON
-API. The current contract is verified against `copy-trade-api` commit
-`90157a2ee121fdd93186dec0c8b202e879677148` ([PR #69](https://github.com/KyberNetwork/copy-trade-api/pull/69)).
-Deployment was confirmed by the service maintainer on September 10, 2026.
-Historical changelog entries describe earlier releases; use the endpoint
-reference below for current fields and behavior.
+API. Use the endpoint reference for request fields, action availability,
+transaction preparation, and submitted transaction status.
+
+Last updated: September 14, 2026.
 
 ## Changelog
+
+### September 14, 2026: action recovery and reliable status polling
+
+- Use each action's advisory status and guidance. Offer preparation for
+  `TRY_PREPARE`; don't disable independent actions because another field is
+  stale or another action failed.
+- Distinguish [Manual Sell and Close preparation failures](#manual-sell-and-close-preparation-failures):
+  no route is an HTTP 200 product outcome; aggregator dependency failures are
+  sanitized HTTP errors with retry guidance.
+- Keep `statusContext` and the submitted EVM transaction hash. After a failed
+  status request, retry observation with the same values. Do not submit another
+  transaction to recover a status check.
+- Render the verified transaction result independently of optional Stop
+  progress. Missing progress is unavailable; stale progress retains its label.
+- A successful Manual Sell can leave new skipped-sell obligations. Refresh the
+  position after success instead of comparing its current skip count with the
+  count from preparation.
+
+Follow [Action guidance](#action-guidance), [Submitted action status](#submitted-action-status),
+and [Refresh after a transaction](#refresh-after-a-transaction) when updating
+the frontend client.
+
+For offline integration, use the [response field rules](#action-response-field-rules),
+[status and reason matrix](#status-and-reason-matrix), and
+[action response examples](#action-response-examples). The examples include
+the full JSON enum names and distinguish an omitted field from a known zero.
+
+### September 12, 2026: action guidance and submitted status
+
+The API has **35 operations: 27 GET reads, 7 preparation POSTs,
+and 1 observational status POST**. Regenerate the client from OpenAPI.
+
+- Executable preparations include `statusContext`; every blocked advisory or
+  preparation has bounded guidance. Status and error responses are no-store.
+- Add Capital and Stop offer a live attempt for trusted targets during optional
+  local lag. Position rows expose independent `manualSellAvailability` and
+  `closePositionAvailability` leaves.
+- Manual Sell can review current quantities with both optimistic pins omitted;
+  supply both returned pins to request executable calldata.
+- Empty Stop and Withdraw Tokens retain existing liquidation settings and
+  disclose their observed root/details when available. Empty Stop does not
+  promise that remaining assets will never be sold.
+- POST context plus EVM hash to `actions:status`. Success applies to that call,
+  stage, or batch; funding continuation, exit children, and further withdrawal
+  batches remain explicit. Every poll rechecks canonicality.
+
+See [Submitted action status](#submitted-action-status) for observation and
+continuation behavior.
 
 ### September 10, 2026: ROI and copy-run metrics
 
@@ -1002,7 +1049,7 @@ activity rendering to match the current contract.
 | Withdraw Quote lifecycle and amount      | `withdrawQuoteAvailability` can be available at any copy lifecycle stage; preparation requires `amountRaw`                                      | Show the action according to advisory availability, not copy-run lifecycle. Send an exact partial amount or the explicit `uint256.max` full-balance sentinel, then prepare again on confirmation because the operator rechecks live state.                                                |
 | All Tokens withdrawal | `withdrawTokensAvailability` and `:prepareWithdrawTokens` with `ALL_INDEXED_TOKENS` | Explain that submitting the transaction permanently stops copying. Do not route stable-only withdrawal here or build a token list in the client. |
 | Start Copy funding                       | `fundingMode` plus optional `createPermitData`                                                                                                   | Send `START_COPY_FUNDING_MODE_UNFUNDED` with no permit, or `START_COPY_FUNDING_MODE_FUNDED` with an optional protobuf-JSON base64 byte string. The API uses `targetCapitalRaw` as the funded create amount. Permit format/capability remains operator-authoritative.                      |
-| Contract-generation routing              | No public `generationId`, factory, controller, or contract-address request field                                                                 | Do not hard-code or select deployment addresses. Start uses the currently create-enabled operator generation; existing-account actions derive generation from persisted account identity. Render `PREPARED_ACTION_REASON_UNSUPPORTED_ACCOUNT_GENERATION` as non-actionable product state. |
+| Contract-generation routing | Preparation takes no client-selected generation, factory, controller, or deployment address. Submitted status echoes operator-authored identity in its context and result. | Preserve that status context verbatim. Do not hard-code or select deployment addresses. Start uses the create-enabled generation; existing-account actions derive generation from account identity. Render `PREPARED_ACTION_REASON_UNSUPPORTED_ACCOUNT_GENERATION` as non-actionable product state. |
 | Copy-run cashback policy                 | `GET .../cashback-policy`                                                                                                                        | Use this run/account-specific policy for detailed fee/cashback presentation. `COPY_RUN_CASHBACK_POLICY_STATUS_AVAILABLE`, `..._NOT_CONFIGURED`, `..._INVALIDATED`, and `..._UNAVAILABLE` are distinct states; missing optional rates or `cashbackFormulaVersion` are not zero.            |
 | Prepared Smart Wallet identity           | `PreparedAction.copyAccount`                                                                                                                     | For every non-Start action, require it to equal the selected Smart Wallet. It is absent only for Start Copy creation; Start confirming, funding, and completion must equal `startCopy.predictedCopyAccount`. Do not confuse it with `call.to` or `expectedAccount`.                       |
 | Manual Sell / Close Position quote       | `data.manualSell.swapQuote` or `data.closePosition.swapQuote`                                                                                    | Display `expectedQuote`, `minimumQuote`, and optional `effectiveSlippageBps`. Preserve metric status; unavailable is not zero.                                                                                                                                                            |
@@ -1020,11 +1067,15 @@ and prepare again.
 
 This catalog is an integration guide. The machine-readable contract remains:
 
-- [`aggregate_read.proto`](../proto/aggregate/v1/aggregate_read.proto) for
+- [`aggregate_read.proto`](https://github.com/KyberNetwork/copy-trade-api/blob/95b22563f24881044eb8668fd6fe608ebed19894/proto/aggregate/v1/aggregate_read.proto) for
   read routes, enums, request validation, and response models.
-- [`aggregate_action.proto`](../proto/aggregate/v1/aggregate_action.proto) for
+- [`aggregate_action.proto`](https://github.com/KyberNetwork/copy-trade-api/blob/95b22563f24881044eb8668fd6fe608ebed19894/proto/aggregate/v1/aggregate_action.proto) for
   transaction preparation.
-- [`aggregate.swagger.yaml`](../proto/gen/openapi/aggregate/v1/aggregate.swagger.yaml)
+- [`aggregate_action_common.proto`](https://github.com/KyberNetwork/copy-trade-api/blob/95b22563f24881044eb8668fd6fe608ebed19894/proto/aggregate/v1/aggregate_action_common.proto) for
+  shared action guidance.
+- [`aggregate_action_status.proto`](https://github.com/KyberNetwork/copy-trade-api/blob/95b22563f24881044eb8668fd6fe608ebed19894/proto/aggregate/v1/aggregate_action_status.proto) for
+  submitted transaction observation.
+- [`aggregate.swagger.yaml`](https://github.com/KyberNetwork/copy-trade-api/blob/95b22563f24881044eb8668fd6fe608ebed19894/proto/gen/openapi/aggregate/v1/aggregate.swagger.yaml)
   for the generated HTTP/OpenAPI surface.
 
 HTTP JSON and query strings use lower-camel-case names:
@@ -1113,20 +1164,19 @@ History-view summary.
 
 ### Action screen map
 
-All seven preparation routes are implemented in the source baseline. Preparation
-is read-only with respect to the chain: the frontend must submit the returned
-wallet call. Environment availability still depends on the deployed image and
-its operator dependencies.
+All seven routes prepare wallet calls. Use the matching advisory status to
+offer preparation, then use the preparation response to decide whether to open
+the wallet. The API does not submit the call.
 
-| UI action      | Read before enabling the control                                                                    | Preparation route                                                                                  |
+| UI action      | Read before preparation                                                                             | Preparation route                                                                                  |
 | -------------- | --------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
 | Start Copy     | Agent card/profile `startCopyAvailability`; refresh the direct agent profile when opening the modal | `POST /users/{ownerAddress}/agents/{agentId}:prepareStartCopy`                                     |
 | Add Capital    | Direct copy-run or copy-account detail and `addCapitalAvailability`                                 | `POST /users/{ownerAddress}/copy-runs/{copyRunId}:prepareAddCapital`                               |
 | Stop Copy      | Direct copy-run detail plus its current open/leftover position selection and `stopCopyAvailability` | `POST /users/{ownerAddress}/copy-runs/{copyRunId}:prepareStopCopy`                                 |
 | Withdraw Quote | Direct copy-run/copy-account detail and `withdrawQuoteAvailability`; don't wait for Stop Copy       | `POST /users/{ownerAddress}/copy-runs/{copyRunId}:prepareWithdrawQuote`                            |
 | Withdraw Tokens | Direct copy-run/copy-account detail and `withdrawTokensAvailability`; explain permanent Stop | `POST /users/{ownerAddress}/copy-runs/{copyRunId}:prepareWithdrawTokens` |
-| Manual Sell    | Current position plus the latest pending-sell-obligation FIFO                                       | `POST /users/{ownerAddress}/copy-runs/{copyRunId}/positions/{userPositionId}:prepareManualSell`    |
-| Close Position | Current position and its advertised `availableActionKinds`                                          | `POST /users/{ownerAddress}/copy-runs/{copyRunId}/positions/{userPositionId}:prepareClosePosition` |
+| Manual Sell    | `manualSellAvailability` on the current position; review current quantities through preparation or the pending-sell-obligation FIFO | `POST /users/{ownerAddress}/copy-runs/{copyRunId}/positions/{userPositionId}:prepareManualSell` |
+| Close Position | `closePositionAvailability` on the current position                                                 | `POST /users/{ownerAddress}/copy-runs/{copyRunId}/positions/{userPositionId}:prepareClosePosition` |
 
 Advisory availability controls presentation only. Always call the matching
 preparation route when the user confirms, and branch on its typed
@@ -1144,9 +1194,9 @@ route is missing.
   list row as authoritative transaction state.
 - Start a new cursor sequence when a filter, sort field, sort order, owner,
   agent, chain, view, or route changes.
-- After a submitted transaction confirms, poll the relevant detail/list reads
-  until their source metadata and lifecycle reflect the receipt. Then prepare
-  the next stage, if any. A submitted-operation overlay may show an explicitly
+- After wallet submission, use `actions:status` to check the exact transaction
+  and its result. On success, refresh the relevant detail and list reads, then
+  follow `nextStep` for any remaining stage. A submitted-operation overlay may show an explicitly
   pending user delta, but it must remain separate from authoritative API data
   and action availability.
 
@@ -1487,8 +1537,9 @@ ADVISORY_ACTION_STATUS_UNAVAILABLE
 ADVISORY_ACTION_STATUS_TRY_PREPARE
 ```
 
-The object contains `status`, a typed `reason`, and optional `asOf`. Use it to
-render or disable controls. It is not authorization and must not be used to
+The object contains `status`, a typed `reason`, optional `asOf`, and `guidance`
+for a blocked or live-check outcome. Use it to render the action and its next
+step. It is not authorization and must not be used to
 construct calldata. The matching POST preparation route always makes the final
 decision using current chain and source state.
 
@@ -1497,17 +1548,20 @@ Use the leaf advisory object even when broad response `meta.status` is
 action whose relevant evidence is ready. The live preparation response remains
 authoritative in every case.
 
-`PENDING` and `TRY_PREPARE` are intentionally different:
+Enum values in this table omit the `ADVISORY_ACTION_STATUS_` prefix.
 
-- `PENDING`: The aggregate can't prove that its local evidence covers the
-  latest relevant fact. Keep the action disabled and refresh.
-- `TRY_PREPARE`: Stale aggregate evidence covers every locally known relevant
-  fact. The UI may offer a live check, but must not label the action available.
-  Call the matching preparation route when the user confirms.
+| Status | Control behavior |
+| --- | --- |
+| `AVAILABLE` | Offer preparation. Request wallet submission only after an executable preparation returns. |
+| `TRY_PREPARE` | Offer a live preparation check. The target is trusted, but the read response cannot establish readiness. |
+| `PENDING` | Explain the missing evidence and offer the refresh or review step from `guidance`. |
+| `UNAVAILABLE` | Explain the reason and offer any retry, alternative action, or support step from `guidance`. |
 
-Wire value `2` remains `PENDING`; wire value `4` is `TRY_PREPARE`. Regenerate
-JSON/protobuf clients before enabling the new presentation. Never convert
-either status to `AVAILABLE` on a timer.
+Do not convert a status to `AVAILABLE` on a timer. A failed request or a
+temporary no-route result must not become a permanent client-side disable flag.
+Keep recovery controls available and check each alternative through its own
+preparation route. Position rows have separate `manualSellAvailability` and
+`closePositionAvailability` objects; don't infer either from the other.
 
 For Withdraw Quote, advisory availability depends on safely covered account
 identity and generation capability, not copy lifecycle or a cached balance.
@@ -1521,6 +1575,54 @@ positive. Live token withdrawal can be ready with all-zero balances because
 the transaction still permanently stops the account. Add Capital is unavailable
 after permanent Stop/closure; do not offer a deposit merely because the wallet
 still holds tokens.
+
+### Action guidance
+
+Advisory objects, prepared actions, and submitted-status data use the same
+`guidance` shape. Action HTTP errors carry it in `details[]`; see
+[Error handling](#error-handling).
+
+| Field | Frontend use |
+| --- | --- |
+| `message` | Display the explanation as text. Do not use message text for control flow. |
+| `retryAfterMs` | Optional minimum delay before retrying the same operation. It does not extend calldata validity. |
+| `nextSteps[]` | Up to three suggested controls, identified by `kind` and labeled by `label`. |
+| `nextSteps[].action` | Optional target action: `start_copy`, `add_capital`, `stop_copy`, `withdraw_quote`, `withdraw_tokens`, `manual_sell`, or `close_position`. |
+| `nextSteps[].copyRunId`, `userPositionId` | Optional target overrides. Otherwise, use the containing response's target. |
+| `nextSteps[].tokenAddress`, `amountRaw`, `spenderAddress` | Optional token approval or amount inputs. Keep raw amounts as strings. |
+
+Step enum values have the `ACTION_GUIDANCE_STEP_KIND_` prefix:
+
+| Kind | Frontend behavior |
+| --- | --- |
+| `TRY_PREPARE` | Request a fresh preparation for the selected action. |
+| `RETRY` | Retry preparation or status observation according to the endpoint that returned the guidance. |
+| `REVIEW_UPDATED_PREPARATION` | Show the updated inputs or preview for review before submission. |
+| `REFRESH_SELL_DETAILS` | Refresh the position and pending-sell obligations. |
+| `ADJUST_AMOUNT` | Let the user review an amount supported by the action. |
+| `APPROVE_QUOTE` | Review the supplied token, spender, and allowance before using the wallet's approval flow; then prepare again. |
+| `SWITCH_OWNER_WALLET` | Ask the user to connect the owning wallet. |
+| `VIEW_EXISTING_RESULT` | Open or refresh the relevant account, position, or submitted result. |
+| `CHECK_ALTERNATIVE_ACTION` | Offer a separate preparation check for `action`; do not modify or submit the original call. |
+| `CONTACT_SUPPORT` | Show a support control with the request reference. |
+
+Guidance never authorizes a transaction. Unknown step kinds must not trigger
+wallet actions. In particular, `RETRY` from `actions:status` means **check status**,
+not **prepare or submit again**.
+
+Resolve a step's target from the screen's saved operation first, then apply any
+explicit `copyRunId` or `userPositionId` override. Use `action` only to select
+one of the seven documented preparation routes; it is not a URL or calldata.
+For example, an empty-Stop alternative uses `action: "stop_copy"`, the indicated
+copy run, and a new request with `userPositionIds: []`. Explain the retained
+exit settings before the user confirms this different request.
+
+`nextSteps` and `retryAfterMs` serve different purposes. A pending status can
+have a retry delay with no steps. An invalid status request can have a `RETRY`
+step with no retry delay. Render the step as a control; use the HTTP status and
+the [status and reason matrix](#status-and-reason-matrix) to decide whether
+automatic polling is appropriate. Do not start a retry loop merely because a
+`RETRY` step is present.
 
 ### Numeric values
 
@@ -2541,8 +2643,8 @@ PREPARED_ACTION_STATUS_UNAVAILABLE
 | `READY`               | Yes                  | Show the preview and request wallet submission of the exact call.                                                                                |
 | `PARTIALLY_COMPLETED` | Yes, Start Copy only | The account exists and the next funding call is ready. Submit it, confirm, then prepare again.                                                   |
 | `COMPLETED`           | No                   | The requested state is already complete. Refresh reads and close the action flow.                                                                |
-| `PENDING`             | No                   | Current evidence is not yet sufficient or an earlier transaction is still converging. Honor `reprepareAfter` when present and retry preparation. |
-| `UNAVAILABLE`         | No                   | The action cannot currently execute. Render the typed `reason`; do not submit anything.                                                          |
+| `PENDING`             | No                   | Follow `guidance` to review missing information or retry preparation after `guidance.retryAfterMs`, when present. |
+| `UNAVAILABLE`         | No                   | The action cannot currently execute. Render `reason` and `guidance`, including any recovery controls; do not submit anything. |
 
 Prepared call kinds:
 
@@ -2572,13 +2674,15 @@ empty states, but the corresponding preparation response is authoritative.
 | `expectedAccount`           | Account expected to send the outer transaction. Compare it with the connected wallet/account.                    |
 | `copyAccount`               | Optional Smart Wallet identity. It is absent only before a Start Copy account exists; it is not the call target. |
 | `preparedAt`                | Time the preparation was produced.                                                                               |
-| `reprepareAfter`            | Only public expiry/retry boundary for the preparation. Discard the result after this time.                       |
+| `reprepareAfter`            | Last validity boundary for submitting this preparation. Obtain a fresh preparation before submitting after this time. An already submitted hash keeps its original status context. |
 | `liquidationConfigDeadline` | Optional action-specific deadline. Do not submit after it.                                                       |
 | `call`                      | Exact reviewed EVM inner call, only when executable.                                                             |
 | `reason`                    | Stable typed reason for non-ready/advisory state.                                                                |
 | `warnings[]`                | Allowlisted render-only qualifications. Warnings do not authorize changing calldata.                             |
 | `displayEnrichment`         | Required render-only enrichment outcome. It never changes action readiness, call validity, or calldata.          |
-| `evidence`                  | Exact safely covered fact boundary and fresh action block used by preparation.                                   |
+| `evidence`                  | Safely covered fact boundary when required and fresh action block H. Direct canonical target proof does not fabricate indexed coverage. |
+| `guidance`                  | Bounded explanation, optional retry delay, and actionable next steps. |
+| `statusContext`             | Present for each executable call. Preserve with the EVM hash for observational status; it carries no calldata, permit, or signature. |
 | one preview                 | Exactly one of `startCopy`, `addCapital`, `stopCopy`, `withdrawQuote`, `withdrawTokens`, `manualSell`, or `closePosition`. |
 
 `displayEnrichment.status` is `NOT_APPLICABLE`, `COMPLETE`, or `UNAVAILABLE`.
@@ -2586,11 +2690,44 @@ An unavailable result includes reason `SOURCE_UNAVAILABLE` or
 `BUDGET_EXHAUSTED`. Continue to branch transaction submission on the top-level
 prepared-action `status` and `call`: a `READY` action remains executable when
 render-only enrichment is unavailable. Degrade only the optional preview UI
-and never change the returned call.
+and never change the returned call. Its guidance explains the missing display
+estimates or token details.
 
 The enrichment summary is not atomic field availability: a current or stale
 preview field remains usable even when another field makes the summary
 `UNAVAILABLE`. Always inspect each display metric's own status.
+
+#### Action response field rules
+
+JSON uses lower camel case. Default non-optional enums, numeric zeroes, false
+booleans, and empty arrays can be omitted. Explicit optional values, such as
+`effectiveSlippageBps: 0` or `valueRaw: "0"`, retain their meaning when present.
+Use nullish checks (`value == null` or `value ?? fallback`), not truthiness, to
+test presence. Keep the saved `statusContext` unchanged; normalize only the
+fields used for rendering.
+
+| Response field | Presence and handling |
+| --- | --- |
+| Preparation `data.status` | Required. Unknown or missing status is an unsupported response; do not open the wallet. |
+| Preparation `data.call` and `data.statusContext` | Both are required for `READY` and Start-only `PARTIALLY_COMPLETED`. Neither is available for a non-executable result. Treat an executable response missing either field as invalid. |
+| Preparation `data.reason` | Usually omitted for an executable result. Interpret absence as `PREPARED_ACTION_REASON_UNSPECIFIED`, not as evidence of readiness. |
+| Preparation preview | Exactly one action-specific preview. In a blocked result, individual identities, amounts, and quote fields can be absent or unavailable. Do not copy them from an older preparation. |
+| `guidance.nextSteps` | Omitted or empty means no suggested controls. It does not mean success or prohibit polling when `retryAfterMs` and the status allow it. |
+| `guidance.retryAfterMs` | Omitted means no automatic retry interval is supplied. Do not treat omission as a zero-delay retry. |
+| Status `data.transaction.receipt` | Absent when no canonical receipt is established; `UNKNOWN` can have a receipt or omit it. An omitted receipt is not a failed transaction. |
+| Status `data.transaction.outcome` | `ACTION_TRANSACTION_RECEIPT_OUTCOME_SUCCESS` or `ACTION_TRANSACTION_RECEIPT_OUTCOME_REVERTED` describes the outer receipt. Absence means unspecified; outer success alone does not prove the requested action succeeded. |
+| Status `data.transaction.safeBlockNumber` | Decimal string when supplied. It can be `"0"` or absent when evidence is unavailable. It is not a frontend confirmation target. |
+| Status `data.transaction.verifiedActor` | Optional. Absence means the response does not provide an independently verified actor. Do not infer it from the request owner. |
+| Status `data.result` | Present only for `SUCCEEDED`. Replace the latest observation as a whole; never merge an old result into a newer response that omits it. |
+| Status `data.reason`, `data.nextStep` | Default `UNSPECIFIED` values are normally omitted. A normal successful sale can omit both fields. |
+| Status receipt/effect indexes | `transactionIndex` and `logIndex` are JSON numbers and can be omitted when zero. Default to zero only inside a present receipt or effect object. |
+| `data.result.stop` | A successful Stop identifies its exact accepted or reused parent. A Withdraw Tokens result can omit optional related Stop information. A missing required Stop result needs a fresh status check, not a claim that all exits finished. |
+| `data.result.stop.*PositionCount` | JSON numbers; zeroes can be omitted. Use `progressStatus` to qualify completed, skipped, and pending counts before defaulting them to zero. `selectedPositionCount` describes the matched parent. |
+| `data.result.openingAllocationRaw` | Supplied for a funded Start CREATE when its allocation is published. Absence is not an opening allocation of zero. |
+
+The public status response has no `directCallMatched` field. Use `status`,
+`reason`, and the typed effects instead of attempting to infer private proof
+details.
 
 Swap-producing previews use this nested shape:
 
@@ -2620,6 +2757,8 @@ Warnings currently supported:
 ```text
 PREPARED_ACTION_WARNING_INVALID_STOP_INTENT_RECOVERED
 PREPARED_ACTION_WARNING_OWNER_SNAPSHOT_REQUIRES_REFRESH
+PREPARED_ACTION_WARNING_RETAINED_LIQUIDATION_SETTINGS
+PREPARED_ACTION_WARNING_RETAINED_LIQUIDATION_DETAILS_UNAVAILABLE
 ```
 
 Allocation and preview-price degradation are represented by
@@ -2660,6 +2799,8 @@ PREPARED_ACTION_REASON_POSITION_NOT_OPEN
 PREPARED_ACTION_REASON_CLOSE_NOT_ELIGIBLE
 PREPARED_ACTION_REASON_TOKEN_INVENTORY_TOO_LARGE
 PREPARED_ACTION_REASON_TOKEN_TRANSFER_NOT_ACKNOWLEDGED
+PREPARED_ACTION_REASON_REVIEW_REQUIRED
+PREPARED_ACTION_REASON_ACTION_SETUP_UNAVAILABLE
 ```
 
 Treat reason names as localization keys. Do not display raw enum names to end
@@ -2949,8 +3090,8 @@ POST /users/{ownerAddress}/copy-runs/{copyRunId}:prepareStopCopy
 ```
 
 - At most 32 position IDs.
-- The array can be empty when the current stop operation has no selected
-  sellable positions; preparation remains authoritative.
+- An empty array explicitly requests permanent pause while retaining existing
+  liquidation settings. A selected Stop never silently becomes an empty Stop.
 - Each position ID is 1..256 characters.
 - `slippageBps` is an integer from 0 to 10,000.
 
@@ -2959,6 +3100,18 @@ the `userPositionId`, `tradeId`, base token, user base amount, cashback,
 current valuation, lifecycle, unrealized P&L, and `swapQuote`. The stop-level
 `totalSwapQuote` carries total expected/minimum quote metrics. If the selectable
 position set changes, discard the old preparation and prepare again.
+
+Both empty and selected Stop requests can remain executable while factory or
+controller trading is paused. Use the preparation response; don't add a
+client-side trading-pause gate. `retainedSettings` has optional `root`, `observedAt`, and verified
+`configs`, plus `detailsAvailable`. Missing disclosure adds a warning; remaining
+assets may still be sold under retained settings. Reasserting pause may reuse an
+older Stop parent, reported as `PAUSE_REASSERTED` by submitted status.
+
+When required evidence, setup, fee, signer, or routing checks block a selected
+Stop, guidance can offer `CHECK_ALTERNATIVE_ACTION` with `action: "stop_copy"` on the same
+run. This offers a separate empty-Stop preparation check; it does not assert
+readiness or remove positions from the selected request.
 
 ### Prepare Withdraw Quote
 
@@ -3120,9 +3273,41 @@ POST /users/{ownerAddress}/copy-runs/{copyRunId}/positions/{userPositionId}:prep
 }
 ```
 
-Obtain `expectedUnresolvedSkipCount` and `expectedSellRatioRaw` from the current
-pending-sell-obligation FIFO. If it changes, refresh the obligation list and
-prepare again.
+Omit both pins to review the current skipped-sell quantities without routing,
+signing, or calldata. This returns `PENDING/REVIEW_REQUIRED`. Supply both current
+`expectedUnresolvedSkipCount` and `expectedSellRatioRaw` for executable preparation.
+Supplying only one pin is invalid. Stale pins return no call and updated review
+information; refresh and explicitly review the new quantities.
+
+For a target whose required state is available, use these transitions:
+
+| Request or response | Next frontend step |
+| --- | --- |
+| Both `expected*` pins omitted | Expect `PENDING` with `PREPARED_ACTION_REASON_REVIEW_REQUIRED`; show the current quantities. This request does not obtain a swap route or call. |
+| Only one pin supplied | Handle HTTP 400 as an invalid request; supply both current pins or omit both. |
+| Both pins supplied but the obligation changed | Handle `UNAVAILABLE` with `PREPARED_ACTION_REASON_SELL_OBLIGATION_CHANGED`; show the returned updated quantities and require another review. |
+| `READY` with both call and context | Apply the preparation safety checks, then request wallet submission. |
+| Another typed outcome or HTTP error | Follow that response's reason and guidance. Do not force it into the review flow. |
+
+After review, build the second request from the returned preview:
+
+```js
+function reviewedManualSellRequest(prepared, slippageBps) {
+  const preview = prepared.manualSell;
+  if (preview?.sellRatioRaw == null || preview.unresolvedSkipCount == null) {
+    throw new Error("Current sell details are unavailable; refresh before preparing.");
+  }
+  return {
+    slippageBps,
+    expectedSellRatioRaw: preview.sellRatioRaw,
+    expectedUnresolvedSkipCount: preview.unresolvedSkipCount,
+  };
+}
+```
+
+Call this helper after the user reviews the quantities. It only constructs a
+preparation request and does not authorize submission. Required source or
+identity failures can still return another pending or unavailable outcome.
 
 `expectedSellRatioRaw` must be in `(0, 1e18]`; the unresolved count must be
 positive. `data.manualSell` contains the recovery context, exact
@@ -3130,6 +3315,12 @@ position/trade/token identity when covered, remaining base before, user sell
 amount, released upfront fee, ratio, unresolved count, cashback, and the
 preparation-scoped `swapQuote`. It intentionally excludes gross route input and
 router internals.
+
+The sell amount comes from the unresolved obligations; it is not a freely
+editable amount. Review the returned `sellRatioRaw` and `unresolvedSkipCount`
+before copying them into the corresponding `expected*` request fields.
+For routing or dependency failures, use the
+[shared preparation error contract](#manual-sell-and-close-preparation-failures).
 
 ### Prepare Close Position
 
@@ -3147,6 +3338,934 @@ Close Position uses the same `PositionSellPreview` shape. It is eligible only
 for a full-position recovery close under current operator state; otherwise the
 response is typed `PENDING` or `UNAVAILABLE`. Do not treat Close Position as a
 generic sell endpoint.
+
+#### Manual Sell and Close preparation failures
+
+Both endpoints use the following public HTTPS/JSON behavior. Enum reasons in
+the table have the `PREPARED_ACTION_REASON_` prefix.
+
+| Failure | HTTP response | Frontend behavior |
+| --- | --- | --- |
+| Aggregator returns no route, rejects a liquidity-provider quote (422), or has no positive quote output | 200 with `data.status = PREPARED_ACTION_STATUS_UNAVAILABLE`, `data.reason = NO_EXECUTABLE_ROUTE`, and no call | Show `data.guidance` and allow a fresh preparation. Do not mark the endpoint or the action permanently unavailable. |
+| Other aggregator failures, including 5xx, throttling, unclassified request rejection, network failure, or HTTP-client timeout | 503 with `code: 14`, `message: "service unavailable"`, and guidance in `details[]` | Keep the current selection and retry preparation after the delay. The response does not identify the failing provider. |
+| Overall request deadline expires | 504 with `code: 4`, `message: "request deadline exceeded"`, and guidance in `details[]` | Retry preparation. No transaction was submitted by the API. |
+| Built route fails consistency validation | 500 with `code: 13`, `message: "internal query error"`, and guidance in `details[]` | Show the error and support guidance. Do not use a previous call as a fallback. |
+| Prepared account call reverts during simulation | 200 with `data.status = PREPARED_ACTION_STATUS_UNAVAILABLE`, `data.reason = INNER_CALL_REVERTED`, and no call | Show `data.guidance`; let the user refresh or check an independent withdrawal option. |
+
+The no-route message is: "No executable sale route is available now. Refresh
+the quote or review the amount and slippage." For Manual Sell and Close, the
+amount is determined by the action; expose the supported slippage input rather
+than changing the returned sell amount.
+
+The generic dependency guidance is: "This action could not be checked right
+now. Retry shortly." Both outcomes currently provide `retryAfterMs: 2000`.
+Read the returned value instead of hard-coding it.
+
+The API does not expose the aggregator's raw HTTP status, vendor error code,
+or message. In particular, aggregator throttling can appear as HTTP 503;
+public HTTP 429 reports a server resource or action-capacity limit, including
+response-size limits. It does not identify aggregator throttling. An
+HTTP-client timeout can also appear as 503 instead of 504. Do not identify a
+specific provider failure from a generic response.
+
+## Submitted action status
+
+```http
+POST /users/{ownerAddress}/actions:status
+```
+
+Body: `statusContext` from the executable preparation, `transactionHash` from
+the wallet, and optional `previousReceipt` with decimal-string `blockNumber`
+and `blockHash`. The path owner must match `statusContext.expectedOwner`.
+Context is an unsigned selector, not authentication or proof that preparation
+occurred. The request body is limited to 64 KiB. A context can contain at most
+32 Stop positions or 100 withdrawal tokens. Do not send calldata, permit, signature, or raw transaction
+bytes. Safe proposal and user-operation hashes are not EVM transaction hashes.
+
+Keep the original context after `reprepareAfter`; that timestamp limits a new
+submission, not observation of a submitted transaction. If the wallet reports
+a replacement EVM transaction hash, check the replacement with the same
+context. A missing receipt or elapsed timeout does not prove replacement or
+cancellation.
+
+For example, `prepared` below is the executable preparation's `data` object.
+Preserve its context instead of rebuilding it from list values:
+
+```js
+async function readSubmittedStatus(apiBase, ownerAddress, prepared, transactionHash, previousReceipt, signal) {
+  const response = await fetch(`${apiBase}/users/${ownerAddress}/actions:status`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    cache: "no-store",
+    signal,
+    body: JSON.stringify({
+      statusContext: prepared.statusContext,
+      transactionHash,
+      previousReceipt,
+    }),
+  });
+  const payload = await response.json();
+  if (!response.ok) {
+    return {
+      ok: false,
+      httpStatus: response.status,
+      code: payload.code,
+      message: payload.message,
+      guidance: readActionGuidance(payload),
+    };
+  }
+  return { ok: true, data: payload.data };
+}
+```
+
+The shared `readActionGuidance` helper is in [Error handling](#error-handling).
+Network or JSON-decoding failures reject the promise. Keep the saved hash and
+context, show that the status check failed, and allow another observation.
+
+Store the most recent returned `transaction.receipt` separately and send it as
+`previousReceipt` on the next poll. If a later observation omits its receipt,
+keep that saved reference for comparison while clearing the receipt from the
+current status display. For example, a pending response can be:
+
+```json
+{
+  "data": {
+    "status": "SUBMITTED_ACTION_STATUS_PENDING",
+    "reason": "SUBMITTED_ACTION_REASON_TRANSACTION_PENDING",
+    "transaction": {
+      "transactionHash": "0x1111111111111111111111111111111111111111111111111111111111111111",
+      "safeBlockNumber": "0"
+    },
+    "guidance": {
+      "message": "The transaction has not been confirmed yet. Keep its hash to check again.",
+      "retryAfterMs": 2000
+    }
+  }
+}
+```
+
+The hash above is illustrative. Missing `result` is expected until this call's
+required publication is available. Malformed contexts return an input error;
+oversized HTTP bodies return 413. A transport error is separate from an
+`UNKNOWN` observation and must not be shown as transaction failure.
+
+### Status and reason matrix
+
+Response `data` contains `status`, `transaction`, and `guidance`, with `reason`,
+`result`, and `nextStep` according to the rules below. The table omits the
+`SUBMITTED_ACTION_STATUS_` and `SUBMITTED_ACTION_REASON_` prefixes. Receipt
+outcomes use the `ACTION_TRANSACTION_RECEIPT_OUTCOME_` prefix.
+
+| Status | Reason | Receipt and outer outcome | Result | Frontend behavior |
+| --- | --- | --- | --- | --- |
+| `PENDING` | `TRANSACTION_NOT_FOUND` | Absent | Absent | Show that the provider has not found the hash. Keep it and poll; absence does not prove cancellation. |
+| `PENDING` | `TRANSACTION_PENDING` | Absent | Absent | Show **Pending** and poll. |
+| `PENDING` | `REORGED` | Absent | Absent | Replace any previous success with **Checking new inclusion** and poll the same hash/context. |
+| `CONFIRMING` | `CONFIRMATIONS_PENDING` | Present; `SUCCESS` or `REVERTED` | Absent | Show **Confirming**, with the observed outer outcome separately. Continue polling even for a reverted receipt. |
+| `SYNCING` | `SOURCE_INDEXING`, `RESULT_PUBLICATION`, or `REPAIR_IN_PROGRESS` | Present; `SUCCESS` | Absent | Show **Updating result**. The effect is verified; continue polling for the required result. |
+| `SUCCEEDED` | Omitted, `UNSPECIFIED`, or `REINCLUDED` | Present; `SUCCESS` | Present | Show this call's success, refresh its resources, and handle `nextStep` separately. |
+| `FAILED` | `TRANSACTION_REVERTED` | Present; `REVERTED` | Absent | Show that the exact matched transaction reverted. Offer review of a fresh preparation; never resubmit automatically. |
+| `UNKNOWN` | `SOURCE_UNAVAILABLE` | May be present | Absent | Show **Status temporarily unavailable** and retry observation. |
+| `UNKNOWN` | `HISTORY_UNAVAILABLE`, `TARGET_MISMATCH`, `AMBIGUOUS_EFFECT`, or `EFFECT_NOT_VERIFIABLE` | May be present | Absent | Show the explanation and offer review or support. Do not label the transaction failed or keep polling without a retry hint. |
+
+Pending, confirming, and syncing responses currently supply a 2,000 ms retry
+hint. `UNKNOWN/SOURCE_UNAVAILABLE` supplies 5,000 ms. Read
+`guidance.retryAfterMs` instead of hard-coding those values. These responses
+can omit `guidance.nextSteps`; polling does not depend on a `RETRY` step.
+
+If a future status or reason is unsupported, preserve the operation and show
+an unsupported-status message. Do not map it to success or failure.
+
+### Receipt changes and remaining work
+
+Compare successive receipt `blockHash` values to detect changed inclusion.
+`REINCLUDED` is an optional explanation on a successful observation, not a
+durable flag. A replacement inclusion still awaiting confirmations returns
+`CONFIRMING/CONFIRMATIONS_PENDING`; one awaiting publication returns `SYNCING`.
+After you send the new receipt on the next poll, a successful result can omit
+`REINCLUDED` again. Never wait for that reason to update the displayed receipt.
+
+`result` includes `chainId`, `factory`, `generationId`, exact event references,
+and resource IDs. These identify the verified historical account. Stop includes its new
+intent or proved earlier parent at the pause event; child progress is separate.
+Funded CREATE exposes `openingAllocationRaw` independently of the receipt transfer
+amount. Nonquote withdrawals use receipt transfer effects and do not wait for
+nonexistent capital rows. A typed zero quote withdrawal needs no capital row.
+Partial Manual Sell can succeed; Close requires its full residual.
+
+Review-time skip counts and ratios can change before the transaction is mined.
+Judge completion from submitted status, not equality with a later position
+snapshot. A successful partial Manual Sell can leave new obligations. After
+success, refresh the position and obligations before offering another sale.
+
+`result.stop.progressStatus` qualifies the optional child-exit counts:
+
+- `DATA_STATUS_CURRENT`: Render the counts as current progress.
+- `DATA_STATUS_STALE`: Render the available counts with a stale label and
+  offer refresh.
+- `DATA_STATUS_UNAVAILABLE`: Show progress as unavailable. Do not substitute
+  zero completed, skipped, or pending counts or infer that all exits finished.
+
+For Withdraw Tokens, missing `result.stop` means no related Stop progress is
+provided. A successful Stop itself includes its exact parent; if that required
+object is missing, show an incomplete-result error and allow another status check.
+
+The exact Stop parent can remain present while its progress is unavailable.
+Missing or slow optional progress does not turn an independently verified
+`SUCCEEDED` result into failure. Stop success proves the pause or accepted
+settings; it does not mean every selected position has been sold. Likewise,
+Withdraw Tokens success does not prove that the account has no remaining tokens.
+
+Use `nextStep` only after `SUCCEEDED`. Values have the
+`SUBMITTED_ACTION_NEXT_STEP_` prefix:
+
+| Value | Continuation |
+| --- | --- |
+| `PREPARE_START_COPY` | Prepare Start Copy with the original request UUID and inputs to determine the remaining stage. Submit only a newly reviewed executable call. |
+| `CHECK_WITHDRAWAL_REMAINDER` | Prepare a fresh Withdraw Tokens batch to check the remaining eligible balances. Don't replay the successful batch. |
+| `UNSPECIFIED` | No preparation continuation is specified. Refresh the resources in `result`; related Stop progress can still be pending. |
+
+A wrapped outer success is insufficient without exact target effects. Unsupported
+wrapped reverts remain `UNKNOWN`, with outer receipt outcome shown separately.
+Every poll recomputes status, including after success. This route does not submit,
+prepare, register, or schedule anything, and has independent capacity from
+preparation. Success and errors use `Cache-Control: no-store`.
+Errors retain their HTTP/gRPC codes and include an allowlisted `ActionGuidance`
+detail, including malformed JSON and oversized input.
+
+Status error guidance always refers to checking the original hash and context.
+An HTTP error, including cancellation of the status request, does not establish
+failure or cancellation of the transaction.
+
+Use the **Action Status** operation in the generated
+[OpenAPI contract](https://github.com/KyberNetwork/copy-trade-api/blob/95b22563f24881044eb8668fd6fe608ebed19894/proto/gen/openapi/aggregate/v1/aggregate.swagger.yaml)
+for all context and result fields.
+
+### Refresh targets after success
+
+Use `result.readOwnerAddress` for owner-scoped historical links when supplied,
+and the resource IDs returned by the status response. This read owner can
+differ from the actor of the transaction. It does not replace the expected
+owner in the saved status context or a future preparation request.
+
+| Completed call | Refresh | Remaining work |
+| --- | --- | --- |
+| Start CREATE or FUND | Copy-run detail, owner copy-run list, and agent follower list when shown | Follow `PREPARE_START_COPY` using the original request UUID and inputs. The next preparation can already be complete. |
+| Add Capital | Copy-run detail, balances, and capital activity | No status-directed preparation continuation. |
+| Stop Copy | Copy-run detail and the exact `stopIntentId` progress | Exit children can remain pending, skipped, or unavailable after the Stop call succeeds. |
+| Withdraw Quote | Quote balance and capital activity | A successful partial withdrawal does not imply a zero remaining balance. |
+| Withdraw Tokens | Wallet inventory, balances, and copy-run detail | Follow `CHECK_WITHDRAWAL_REMAINDER` with a fresh preparation. A zero-balance Stop batch can still be valid; don't submit an endless sequence merely because preparation remains executable. |
+| Manual Sell | The position, pending-sell obligations, and quote balance | New obligations can remain after this exact partial sale succeeds. Any new sale needs review and preparation. |
+| Close Position | The position, closed executions, and quote balance | The confirmed close covers the expected full residual; use server position/lifecycle values for list membership. |
+
+## Action response examples
+
+Use these examples as offline fixtures for parsing, rendering, and state-transition
+tests. The JSON was serialized with the local API response mappers and checked
+against the public protobuf validation rules. Addresses, IDs, balances, hashes,
+and timestamps are synthetic examples, not values to hard-code in the client.
+
+The `READY` examples contain selector-only mock calldata. They deliberately
+do not contain usable transactions or signatures. Use a mocked wallet in fixture
+tests; obtain the complete call from preparation for a real submission. For
+expiry tests, set the fixture clock relative to `preparedAt` and
+`reprepareAfter` instead of changing the production expiry checks.
+
+Each block is a complete example object or HTTP body, as labeled. The blocks
+omit no fields that were present in their serialized fixture. Different
+responses can omit additional optional fields as described in
+[Action response field rules](#action-response-field-rules).
+
+<details>
+<summary>Advisory: offer a live preparation check</summary>
+
+This is the complete advisory object, for example `data.addCapitalAvailability` in a copy-run response. It is not a preparation or a top-level response envelope.
+
+<!-- fe-response-example: advisory_try_prepare -->
+```json
+{
+  "status": "ADVISORY_ACTION_STATUS_TRY_PREPARE",
+  "reason": "PREPARED_ACTION_REASON_SOURCE_STALE",
+  "asOf": "2026-09-14T09:36:22Z",
+  "guidance": {
+    "message": "Required account or position details are still being verified. Retry shortly; independent actions can be checked separately.",
+    "retryAfterMs": 2000,
+    "nextSteps": [
+      {
+        "kind": "ACTION_GUIDANCE_STEP_KIND_RETRY",
+        "label": "Retry preparation"
+      }
+    ]
+  }
+}
+```
+
+</details>
+
+<details>
+<summary>Add Capital: ready while display enrichment is unavailable</summary>
+
+HTTP 200 from `:prepareAddCapital` with `{"amountRaw": "9"}`. Render missing
+allocation estimates as unavailable. The authoritative amount, wallet balance,
+call, and status context remain present. Do not disable submission because
+`displayEnrichment.status` is unavailable; still apply the normal wallet and
+expiry checks.
+
+<!-- fe-response-example: add_ready_display_unavailable -->
+```json
+{
+  "data": {
+    "status": "PREPARED_ACTION_STATUS_READY",
+    "chainId": "8453",
+    "expectedAccount": "0x1111111111111111111111111111111111111111",
+    "preparedAt": "2026-09-14T09:36:22Z",
+    "reprepareAfter": "2026-09-14T09:36:52Z",
+    "call": {
+      "kind": "PREPARED_CALL_KIND_ADD_CAPITAL",
+      "to": "0x3333333333333333333333333333333333333333",
+      "data": "0xa9059cbb",
+      "valueRaw": "0"
+    },
+    "evidence": {
+      "actionBlock": {
+        "blockNumber": "200",
+        "blockHash": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "blockTime": "2026-09-14T09:36:22Z"
+      }
+    },
+    "copyAccount": "0x2222222222222222222222222222222222222222",
+    "guidance": {
+      "message": "The transaction is ready. Some display estimates or token details are unavailable; the verified call is unchanged."
+    },
+    "statusContext": {
+      "kind": "ACTION_TRANSACTION_KIND_ADD_CAPITAL",
+      "chainId": "8453",
+      "expectedOwner": "0x1111111111111111111111111111111111111111",
+      "copyAccount": "0x2222222222222222222222222222222222222222",
+      "factory": "0x4444444444444444444444444444444444444444",
+      "generationId": "example-v1",
+      "callTarget": "0x3333333333333333333333333333333333333333",
+      "callValueRaw": "0",
+      "calldataDigest": "0xabce0605a16ff5e998983a0af570b8ad942bb11e305eb20ae3ada0a3be24eb97",
+      "transfer": {
+        "token": "0x3333333333333333333333333333333333333333",
+        "amountRaw": "9"
+      },
+      "copyRunId": "run_1"
+    },
+    "displayEnrichment": {
+      "status": "ACTION_DISPLAY_ENRICHMENT_STATUS_UNAVAILABLE",
+      "unavailableReason": "ACTION_DISPLAY_ENRICHMENT_UNAVAILABLE_REASON_BUDGET_EXHAUSTED"
+    },
+    "addCapital": {
+      "quoteToken": {
+        "chainId": "8453",
+        "address": "0x3333333333333333333333333333333333333333",
+        "symbol": "USDC",
+        "name": "USDC",
+        "decimals": 6
+      },
+      "addedCapitalRaw": "9",
+      "minimumAddCapitalRaw": "1",
+      "walletQuoteBalance": {
+        "valueRaw": "9",
+        "status": "METRIC_STATUS_CURRENT"
+      },
+      "currentAllocatedCapital": {
+        "status": "METRIC_STATUS_UNAVAILABLE"
+      },
+      "newAllocatedCapital": {
+        "status": "METRIC_STATUS_UNAVAILABLE"
+      }
+    }
+  }
+}
+```
+
+</details>
+
+<details>
+<summary>Manual Sell: review quantities before requesting a call</summary>
+
+HTTP 200 from `:prepareManualSell` with only `{"slippageBps": 125}`. Show the returned sell amount and skip count. No `call` or `statusContext` is returned, and unavailable quote metrics have no `valueRaw`.
+
+<!-- fe-response-example: manual_review -->
+```json
+{
+  "data": {
+    "status": "PREPARED_ACTION_STATUS_PENDING",
+    "chainId": "8453",
+    "expectedAccount": "0x1111111111111111111111111111111111111111",
+    "preparedAt": "2026-09-14T09:36:22Z",
+    "reprepareAfter": "2026-09-14T09:36:52Z",
+    "reason": "PREPARED_ACTION_REASON_REVIEW_REQUIRED",
+    "evidence": {
+      "actionBlock": {
+        "blockNumber": "200",
+        "blockHash": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "blockTime": "2026-09-14T09:36:22Z"
+      }
+    },
+    "copyAccount": "0x2222222222222222222222222222222222222222",
+    "guidance": {
+      "message": "Review the current sell amount and skipped-sale count before preparing this sale.",
+      "nextSteps": [
+        {
+          "kind": "ACTION_GUIDANCE_STEP_KIND_REVIEW_UPDATED_PREPARATION",
+          "label": "Review updated sell details"
+        }
+      ]
+    },
+    "displayEnrichment": {
+      "status": "ACTION_DISPLAY_ENRICHMENT_STATUS_NOT_APPLICABLE"
+    },
+    "manualSell": {
+      "context": "POSITION_SELL_CONTEXT_ALIGN_SKIP",
+      "userPositionId": "position_1",
+      "tradeId": "trade_1",
+      "baseToken": {
+        "chainId": "8453",
+        "address": "0x4444444444444444444444444444444444444444",
+        "symbol": "WETH",
+        "name": "WETH",
+        "decimals": 18
+      },
+      "quoteToken": {
+        "chainId": "8453",
+        "address": "0x3333333333333333333333333333333333333333",
+        "symbol": "USDC",
+        "name": "USDC",
+        "decimals": 6
+      },
+      "remainingBaseBefore": {
+        "valueRaw": "100",
+        "status": "METRIC_STATUS_CURRENT"
+      },
+      "sellBase": {
+        "valueRaw": "50",
+        "status": "METRIC_STATUS_CURRENT"
+      },
+      "upfrontFeeReleasedBase": {
+        "valueRaw": "5",
+        "status": "METRIC_STATUS_CURRENT"
+      },
+      "sellRatioRaw": "500000000000000000",
+      "unresolvedSkipCount": 1,
+      "cashback": {
+        "status": "METRIC_STATUS_UNAVAILABLE"
+      },
+      "swapQuote": {
+        "expectedQuote": {
+          "status": "METRIC_STATUS_UNAVAILABLE"
+        },
+        "minimumQuote": {
+          "status": "METRIC_STATUS_UNAVAILABLE"
+        }
+      }
+    }
+  }
+}
+```
+
+</details>
+
+<details>
+<summary>Manual Sell: executable response shape</summary>
+
+HTTP 200 after the user reviews the quantities and sends `{"slippageBps": 125, "expectedUnresolvedSkipCount": 1, "expectedSellRatioRaw": "500000000000000000"}`. Store `data.statusContext` before opening the wallet. `reason`, `warnings`, and `guidance.nextSteps` are omitted here because their values are default or empty.
+
+<!-- fe-response-example: manual_ready -->
+```json
+{
+  "data": {
+    "status": "PREPARED_ACTION_STATUS_READY",
+    "chainId": "8453",
+    "expectedAccount": "0x1111111111111111111111111111111111111111",
+    "preparedAt": "2026-09-14T09:36:22Z",
+    "reprepareAfter": "2026-09-14T09:36:52Z",
+    "call": {
+      "kind": "PREPARED_CALL_KIND_MANUAL_SELL",
+      "to": "0x2222222222222222222222222222222222222222",
+      "data": "0x322734ad",
+      "valueRaw": "0"
+    },
+    "evidence": {
+      "actionBlock": {
+        "blockNumber": "200",
+        "blockHash": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "blockTime": "2026-09-14T09:36:22Z"
+      }
+    },
+    "copyAccount": "0x2222222222222222222222222222222222222222",
+    "guidance": {
+      "message": "The preparation is ready for review."
+    },
+    "statusContext": {
+      "kind": "ACTION_TRANSACTION_KIND_MANUAL_SELL",
+      "chainId": "8453",
+      "expectedOwner": "0x1111111111111111111111111111111111111111",
+      "copyAccount": "0x2222222222222222222222222222222222222222",
+      "factory": "0x4444444444444444444444444444444444444444",
+      "generationId": "example-v1",
+      "callTarget": "0x2222222222222222222222222222222222222222",
+      "callValueRaw": "0",
+      "calldataDigest": "0xb7deb36b2641a26aa35ec231fa3a5fe7d348e58f43a9194b20813def46ff9e50",
+      "sell": {
+        "followerPositionId": "0x1111111111111111111111111111111111111111111111111111111111111111",
+        "leaderPositionId": "0x2222222222222222222222222222222222222222222222222222222222222222",
+        "recovery": "ACTION_TRANSACTION_SELL_RECOVERY_ALIGN_SKIP",
+        "baseToken": "0x4444444444444444444444444444444444444444",
+        "quoteToken": "0x3333333333333333333333333333333333333333",
+        "sellBaseRaw": "50",
+        "remainingBaseBeforeRaw": "100",
+        "sellRatioRaw": "500000000000000000",
+        "unresolvedSkipCount": 1
+      },
+      "copyRunId": "run_1",
+      "userPositionId": "position_1"
+    },
+    "displayEnrichment": {
+      "status": "ACTION_DISPLAY_ENRICHMENT_STATUS_COMPLETE"
+    },
+    "manualSell": {
+      "context": "POSITION_SELL_CONTEXT_ALIGN_SKIP",
+      "userPositionId": "position_1",
+      "tradeId": "trade_1",
+      "baseToken": {
+        "chainId": "8453",
+        "address": "0x4444444444444444444444444444444444444444",
+        "symbol": "WETH",
+        "name": "WETH",
+        "decimals": 18
+      },
+      "quoteToken": {
+        "chainId": "8453",
+        "address": "0x3333333333333333333333333333333333333333",
+        "symbol": "USDC",
+        "name": "USDC",
+        "decimals": 6
+      },
+      "remainingBaseBefore": {
+        "valueRaw": "100",
+        "status": "METRIC_STATUS_CURRENT"
+      },
+      "sellBase": {
+        "valueRaw": "50",
+        "status": "METRIC_STATUS_CURRENT"
+      },
+      "upfrontFeeReleasedBase": {
+        "valueRaw": "5",
+        "status": "METRIC_STATUS_CURRENT"
+      },
+      "sellRatioRaw": "500000000000000000",
+      "unresolvedSkipCount": 1,
+      "cashback": {
+        "valueRaw": "1",
+        "status": "METRIC_STATUS_CURRENT"
+      },
+      "swapQuote": {
+        "expectedQuote": {
+          "valueRaw": "25",
+          "status": "METRIC_STATUS_CURRENT"
+        },
+        "minimumQuote": {
+          "valueRaw": "24",
+          "status": "METRIC_STATUS_CURRENT"
+        },
+        "effectiveSlippageBps": 125
+      }
+    }
+  }
+}
+```
+
+</details>
+
+<details>
+<summary>Manual Sell: no route is a normal response</summary>
+
+HTTP 200 for the same preparation request when no route can be prepared. No `call` or `statusContext` is returned. Keep the selection, display `data.guidance.message`, and offer a preparation retry after the returned delay. Close Position uses the same status and reason with a `closePosition` preview.
+
+<!-- fe-response-example: manual_no_route -->
+```json
+{
+  "data": {
+    "status": "PREPARED_ACTION_STATUS_UNAVAILABLE",
+    "chainId": "8453",
+    "expectedAccount": "0x1111111111111111111111111111111111111111",
+    "preparedAt": "2026-09-14T09:36:22Z",
+    "reprepareAfter": "2026-09-14T09:36:52Z",
+    "reason": "PREPARED_ACTION_REASON_NO_EXECUTABLE_ROUTE",
+    "evidence": {
+      "actionBlock": {
+        "blockNumber": "200",
+        "blockHash": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "blockTime": "2026-09-14T09:36:22Z"
+      }
+    },
+    "copyAccount": "0x2222222222222222222222222222222222222222",
+    "guidance": {
+      "message": "No executable sale route is available now. Refresh the quote or review the amount and slippage.",
+      "retryAfterMs": 2000,
+      "nextSteps": [
+        {
+          "kind": "ACTION_GUIDANCE_STEP_KIND_RETRY",
+          "label": "Retry preparation"
+        }
+      ]
+    },
+    "displayEnrichment": {
+      "status": "ACTION_DISPLAY_ENRICHMENT_STATUS_NOT_APPLICABLE"
+    },
+    "manualSell": {
+      "context": "POSITION_SELL_CONTEXT_ALIGN_SKIP",
+      "userPositionId": "position_1",
+      "tradeId": "trade_1",
+      "baseToken": {
+        "chainId": "8453",
+        "address": "0x4444444444444444444444444444444444444444",
+        "symbol": "WETH",
+        "name": "WETH",
+        "decimals": 18
+      },
+      "quoteToken": {
+        "chainId": "8453",
+        "address": "0x3333333333333333333333333333333333333333",
+        "symbol": "USDC",
+        "name": "USDC",
+        "decimals": 6
+      },
+      "remainingBaseBefore": {
+        "valueRaw": "100",
+        "status": "METRIC_STATUS_CURRENT"
+      },
+      "sellBase": {
+        "valueRaw": "50",
+        "status": "METRIC_STATUS_CURRENT"
+      },
+      "upfrontFeeReleasedBase": {
+        "valueRaw": "5",
+        "status": "METRIC_STATUS_CURRENT"
+      },
+      "sellRatioRaw": "500000000000000000",
+      "unresolvedSkipCount": 1,
+      "cashback": {
+        "status": "METRIC_STATUS_UNAVAILABLE"
+      },
+      "swapQuote": {
+        "expectedQuote": {
+          "status": "METRIC_STATUS_UNAVAILABLE"
+        },
+        "minimumQuote": {
+          "status": "METRIC_STATUS_UNAVAILABLE"
+        }
+      }
+    }
+  }
+}
+```
+
+</details>
+
+<details>
+<summary>Status: a reverted receipt still needs confirmation</summary>
+
+HTTP 200 from `actions:status`. The receipt says `REVERTED`, but the action status is still `CONFIRMING`. Show both facts and keep polling. Do not offer automatic resubmission.
+
+<!-- fe-response-example: status_confirming_revert -->
+```json
+{
+  "data": {
+    "status": "SUBMITTED_ACTION_STATUS_CONFIRMING",
+    "reason": "SUBMITTED_ACTION_REASON_CONFIRMATIONS_PENDING",
+    "transaction": {
+      "transactionHash": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "outcome": "ACTION_TRANSACTION_RECEIPT_OUTCOME_REVERTED",
+      "receipt": {
+        "blockNumber": "201",
+        "blockHash": "0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+      },
+      "safeBlockNumber": "200"
+    },
+    "guidance": {
+      "message": "The transaction was mined and is waiting for the required confirmations. Its observed receipt result is shown separately.",
+      "retryAfterMs": 2000
+    }
+  }
+}
+```
+
+</details>
+
+<details>
+<summary>Status: the effect is verified while its result is being repaired</summary>
+
+HTTP 200. Show that the result is updating. There is no `result` yet, and polling is driven by `guidance.retryAfterMs` even though no `nextSteps` array is present.
+
+<!-- fe-response-example: status_syncing_repair -->
+```json
+{
+  "data": {
+    "status": "SUBMITTED_ACTION_STATUS_SYNCING",
+    "reason": "SUBMITTED_ACTION_REASON_REPAIR_IN_PROGRESS",
+    "transaction": {
+      "transactionHash": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "outcome": "ACTION_TRANSACTION_RECEIPT_OUTCOME_SUCCESS",
+      "receipt": {
+        "blockNumber": "201",
+        "blockHash": "0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+      },
+      "safeBlockNumber": "202"
+    },
+    "guidance": {
+      "message": "The transaction's effect is verified. We are rechecking its result after a data correction.",
+      "retryAfterMs": 2000
+    }
+  }
+}
+```
+
+</details>
+
+<details>
+<summary>Status: partial Manual Sell succeeded</summary>
+
+HTTP 200. The exact sale completed with 50 raw base units remaining. Refresh the position and obligations. The omitted `reason` and `nextStep` mean `UNSPECIFIED`; they do not make the response incomplete.
+
+<!-- fe-response-example: status_success -->
+```json
+{
+  "data": {
+    "status": "SUBMITTED_ACTION_STATUS_SUCCEEDED",
+    "transaction": {
+      "transactionHash": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "outcome": "ACTION_TRANSACTION_RECEIPT_OUTCOME_SUCCESS",
+      "receipt": {
+        "blockNumber": "201",
+        "blockHash": "0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+      },
+      "safeBlockNumber": "202",
+      "verifiedActor": "0x1111111111111111111111111111111111111111"
+    },
+    "result": {
+      "kind": "ACTION_TRANSACTION_KIND_MANUAL_SELL",
+      "copyAccount": "0x2222222222222222222222222222222222222222",
+      "copyRunId": "run_1",
+      "userPositionId": "position_1",
+      "readOwnerAddress": "0x1111111111111111111111111111111111111111",
+      "effects": [
+        {
+          "cursor": {
+            "blockNumber": "201",
+            "blockHash": "0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            "transactionHash": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "logIndex": 1,
+            "blockTime": "2026-09-14T09:36:23Z"
+          },
+          "emitter": "0x2222222222222222222222222222222222222222",
+          "sell": {
+            "leaderPositionId": "0x2222222222222222222222222222222222222222222222222222222222222222",
+            "actor": "0x1111111111111111111111111111111111111111",
+            "baseSoldRaw": "50",
+            "baseUnsoldRaw": "50",
+            "quoteReceivedRaw": "24"
+          }
+        }
+      ],
+      "chainId": "8453",
+      "factory": "0x4444444444444444444444444444444444444444",
+      "generationId": "example-v1"
+    },
+    "guidance": {
+      "message": "This submitted call completed. Any remaining funding, exits, or withdrawal batches are shown separately."
+    }
+  }
+}
+```
+
+</details>
+
+<details>
+<summary>Status: the matched transaction failed</summary>
+
+HTTP 200. The confirmed direct transaction reverted. `result` is absent. Review a fresh preparation before deciding whether to make a new submission.
+
+<!-- fe-response-example: status_failed -->
+```json
+{
+  "data": {
+    "status": "SUBMITTED_ACTION_STATUS_FAILED",
+    "reason": "SUBMITTED_ACTION_REASON_TRANSACTION_REVERTED",
+    "transaction": {
+      "transactionHash": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "outcome": "ACTION_TRANSACTION_RECEIPT_OUTCOME_REVERTED",
+      "receipt": {
+        "blockNumber": "201",
+        "blockHash": "0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+      },
+      "safeBlockNumber": "202",
+      "verifiedActor": "0x1111111111111111111111111111111111111111"
+    },
+    "guidance": {
+      "message": "The matched transaction reverted. Refresh the action before deciding whether to submit a new transaction.",
+      "nextSteps": [
+        {
+          "kind": "ACTION_GUIDANCE_STEP_KIND_REVIEW_UPDATED_PREPARATION",
+          "label": "Review a fresh preparation"
+        }
+      ]
+    }
+  }
+}
+```
+
+</details>
+
+<details>
+<summary>Status: evidence is temporarily unavailable</summary>
+
+HTTP 200. This is an `UNKNOWN` observation, not an HTTP dependency error or a failed transaction. Keep the operation and retry observation after the returned delay.
+
+<!-- fe-response-example: status_source_unavailable -->
+```json
+{
+  "data": {
+    "status": "SUBMITTED_ACTION_STATUS_UNKNOWN",
+    "reason": "SUBMITTED_ACTION_REASON_SOURCE_UNAVAILABLE",
+    "transaction": {
+      "transactionHash": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "safeBlockNumber": "0"
+    },
+    "guidance": {
+      "message": "The chain evidence could not be read right now. This does not mean the transaction failed. Retry shortly.",
+      "retryAfterMs": 5000
+    }
+  }
+}
+```
+
+</details>
+
+<details>
+<summary>Status: a previously observed receipt was invalidated</summary>
+
+HTTP 200. Replace the previous observation with this response, including removal of its receipt and result. Keep the submitted hash and original context for the next poll.
+
+<!-- fe-response-example: status_reorged -->
+```json
+{
+  "data": {
+    "status": "SUBMITTED_ACTION_STATUS_PENDING",
+    "reason": "SUBMITTED_ACTION_REASON_REORGED",
+    "transaction": {
+      "transactionHash": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "safeBlockNumber": "200"
+    },
+    "guidance": {
+      "message": "The previous receipt is no longer canonical. We are checking for this transaction's new inclusion.",
+      "retryAfterMs": 2000
+    }
+  }
+}
+```
+
+</details>
+
+<details>
+<summary>Status: Stop succeeded but exit progress is unavailable</summary>
+
+HTTP 200 for an empty Stop that reasserted pause. `result.stop` identifies the earlier parent. Its selected count is known, but completed, skipped, and pending counts are unavailable. Their omission must not display as three zeroes.
+
+<!-- fe-response-example: status_stop_progress_unavailable -->
+```json
+{
+  "data": {
+    "status": "SUBMITTED_ACTION_STATUS_SUCCEEDED",
+    "transaction": {
+      "transactionHash": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "outcome": "ACTION_TRANSACTION_RECEIPT_OUTCOME_SUCCESS",
+      "receipt": {
+        "blockNumber": "201",
+        "blockHash": "0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+      },
+      "safeBlockNumber": "202",
+      "verifiedActor": "0x1111111111111111111111111111111111111111"
+    },
+    "result": {
+      "kind": "ACTION_TRANSACTION_KIND_STOP_COPY",
+      "copyAccount": "0x2222222222222222222222222222222222222222",
+      "copyRunId": "run_1",
+      "readOwnerAddress": "0x1111111111111111111111111111111111111111",
+      "effects": [
+        {
+          "cursor": {
+            "blockNumber": "201",
+            "blockHash": "0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            "transactionHash": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "logIndex": 1,
+            "blockTime": "2026-09-14T09:36:23Z"
+          },
+          "emitter": "0x2222222222222222222222222222222222222222",
+          "pause": {
+            "pauseState": 3
+          }
+        }
+      ],
+      "stop": {
+        "kind": "SUBMITTED_STOP_RESULT_KIND_PAUSE_REASSERTED",
+        "stopIntentId": "stop_intent_1",
+        "source": {
+          "blockNumber": "190",
+          "blockHash": "0xcccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+          "transactionHash": "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+          "logIndex": 1,
+          "blockTime": "2026-09-14T09:36:02Z"
+        },
+        "validation": "valid",
+        "selectedPositionCount": 2,
+        "progressStatus": "DATA_STATUS_UNAVAILABLE"
+      },
+      "keepsExistingExitSettings": true,
+      "chainId": "8453",
+      "factory": "0x4444444444444444444444444444444444444444",
+      "generationId": "example-v1"
+    },
+    "guidance": {
+      "message": "This submitted call completed. Any remaining funding, exits, or withdrawal batches are shown separately."
+    }
+  }
+}
+```
+
+</details>
+
+<details>
+<summary>Status: the request failed and can be retried</summary>
+
+HTTP 503. Read guidance from `details[]`, preserve the transaction hash and context, and retry `actions:status`. The step label is “Check transaction status”, not “Retry preparation”.
+
+<!-- fe-response-example: status_error_503 -->
+```json
+{
+  "code": 14,
+  "message": "service unavailable",
+  "details": [
+    {
+      "@type": "type.googleapis.com/kyber.copytrade.aggregate.v1.ActionGuidance",
+      "message": "The transaction's status could not be checked right now. Retry with the same transaction hash and status context. This does not mean the transaction failed.",
+      "retryAfterMs": 2000,
+      "nextSteps": [
+        {
+          "kind": "ACTION_GUIDANCE_STEP_KIND_RETRY",
+          "label": "Check transaction status"
+        }
+      ]
+    }
+  ]
+}
+```
+
+</details>
 
 ## Preparation authorization and submission
 
@@ -3183,31 +4302,78 @@ lease:
 
 ## Error handling
 
-Non-2xx responses use:
+Non-2xx responses use `code`, `message`, and `details`. For action routes,
+`details[]` includes an `ActionGuidance` object. For example, a preparation
+dependency failure returns HTTP 503 with this body:
 
 ```json
 {
-  "code": 3,
-  "message": "invalid argument: ...",
-  "details": []
+  "code": 14,
+  "message": "service unavailable",
+  "details": [
+    {
+      "@type": "type.googleapis.com/kyber.copytrade.aggregate.v1.ActionGuidance",
+      "message": "This action could not be checked right now. Retry shortly.",
+      "retryAfterMs": 2000,
+      "nextSteps": [
+        {
+          "kind": "ACTION_GUIDANCE_STEP_KIND_RETRY",
+          "label": "Retry preparation"
+        }
+      ]
+    }
+  ]
 }
 ```
 
-Use the HTTP status as the primary control-flow signal and `message` as
-display/debug context.
+Use the HTTP status and typed `status`, `reason`, and step `kind` fields for
+control flow. Prefer `guidance.message` for the UI; use the top-level error
+`message` as a fallback. Find guidance by type rather than its array position:
 
-Common statuses observed or expected:
+```js
+function readActionGuidance(payload) {
+  const type = "type.googleapis.com/kyber.copytrade.aggregate.v1.ActionGuidance";
+  return payload.details?.find((detail) => detail["@type"] === type);
+}
+```
+
+Successful preparations and status observations use `data.guidance` instead
+of `details[]`. Advisory objects have their own `guidance`. The presence of
+guidance doesn't indicate success or authorize wallet submission.
+
+Common HTTP statuses:
 
 | HTTP | Meaning                                                             |
 | ---- | ------------------------------------------------------------------- |
 | 400  | Invalid parameter, unsupported enum combination, or cursor mismatch |
 | 404  | Requested public resource not found                                 |
 | 409  | Pinned page target changed; restart from the first page             |
-| 429  | Server action-preparation capacity is exhausted                     |
+| 413  | Submitted-status body exceeds 64 KiB                                |
+| 429  | Server resource limit, including action capacity or message size    |
 | 499  | Client closed or canceled the request                              |
 | 500  | Internal request failure; the response is sanitized                 |
 | 503  | Temporarily unavailable; retry with bounded backoff                 |
 | 504  | Request deadline exceeded; retry with bounded backoff               |
+
+For `actions:status`, use this request-error handling. The JSON `code` is a
+gRPC code, not a copy of the HTTP status:
+
+| HTTP | JSON `code` | Retry behavior |
+| --- | --- | --- |
+| 400 | `3` (`InvalidArgument`) | Fix malformed fields or the owner/context mismatch before another check. Do not reconstruct the context from current list data. |
+| 413 | `3` (`InvalidArgument`) | Keep the original context; remove unrelated payload fields and check the 64 KiB request limit. Do not trim expected effects from the context. |
+| 429 | `8` (`ResourceExhausted`) | Retry observation after the supplied delay; repeated size-limit failures need review rather than a tight loop. |
+| 503 | `14` (`Unavailable`) | Retry observation with the same hash and context after the supplied delay. |
+| 504 | `4` (`DeadlineExceeded`) | Retry observation with the same hash and context after the supplied delay. |
+| 499, if a response arrives | `1` (`Canceled`) | Resume observation when needed. Canceling the request did not cancel the transaction. |
+| 500 | `13` (`Internal`) | Retain the operation and offer manual retry or support. |
+| 404, if returned | `5` (`NotFound`) | Review the reference before retrying. Missing historical target data normally returns HTTP 200 with `UNKNOWN/HISTORY_UNAVAILABLE`. |
+
+Status error guidance includes a **Check transaction status** retry control,
+including for input and internal errors. Only transient 429, 503, and 504
+errors supply the current 2,000 ms retry hint. Treat the control and automatic
+retry scheduling separately; a retry control on HTTP 400 does not make the
+unchanged request valid.
 
 Some upstream failed-precondition responses also map to HTTP 400. Use the typed
 prepared-action `status` and `reason` for normal product state; HTTP errors are
@@ -3215,14 +4381,20 @@ request/transport failures.
 
 Retry guidance:
 
-- Do not retry 400 or 404 automatically.
-- On 429, honor `Retry-After` when present and reprepare; do not reuse a
-  previous call.
-- For 503 and 504, use a short bounded backoff and keep the UI state
-  recoverable.
+- Do not retry 400, 404, or 413 automatically. Review the request and follow
+  its guidance.
+- For 429, 503, and 504, honor `Retry-After` when present and
+  `guidance.retryAfterMs`. If both are present, wait at least the longer delay.
+  Use bounded backoff for repeated failures and keep a manual retry control.
+- Retry the operation that failed. A preparation error can trigger a fresh
+  preparation. A status error can trigger only another observation of the
+  saved transaction hash and original context.
 - A timed-out preparation request did not submit a chain transaction. It is
   safe to request a fresh preparation, but never submit stale calldata merely
   because the first HTTP response was lost.
+- A failed or canceled status request says nothing about transaction success,
+  failure, or cancellation. Keep its hash and context; do not prepare or submit
+  another transaction in response to that error.
 - If a list cursor receives 400, it is malformed, expired, or mismatched.
   Discard it and restart at page one with the current filters.
 - If a list cursor receives 409, its pinned mutable target advanced. Discard
@@ -3298,24 +4470,66 @@ The browser should never ABI-encode a Copy Trade action from preview fields.
 
 ### Refresh after a transaction
 
-Use the transaction receipt as the start of a refresh loop, not as proof that
-the aggregate API has already projected the state:
+1. Preserve the executable preparation's `statusContext`, its owner, and the
+   wallet's EVM transaction hash so that observation can resume after refresh.
+   Keep these separately from calldata, permits, and signatures.
+2. POST the context and hash to `actions:status`. If the response contains a
+   receipt, save it and send it as `previousReceipt` on the next poll.
+3. For `PENDING`, `CONFIRMING`, or `SYNCING`, show the returned explanation and
+   poll after `guidance.retryAfterMs`. Allow only one in-flight poll per
+   operation; cancel the request when its view is closed and resume when needed.
+4. For `UNKNOWN`, display the reason without labeling the transaction failed.
+   Retry transient `SOURCE_UNAVAILABLE` according to guidance. For a target
+   mismatch, ambiguous effect, or unavailable history without a retry hint,
+   offer review or support instead of an endless automatic poll.
+5. For an HTTP or network error, keep the saved operation and follow
+   [Error handling](#error-handling). Never resubmit to recover a failed poll.
+6. On `SUCCEEDED`, refresh the resource IDs in `result` and their containing
+   lists. Follow `nextStep` for Start funding or a new withdrawal batch; keep
+   optional Stop progress separate from this call's success.
+7. On `FAILED`, show that the matched transaction reverted. Require a fresh
+   preparation and user review before any new submission.
 
-1. Wait for a successful wallet receipt.
-2. Poll the direct copy-run/copy-account/position read.
-3. Require lifecycle/accounting to reflect the transaction and source metadata
-   to advance.
-4. Refresh the containing list/summary in the background.
-5. For multi-stage Start Copy, request a new preparation only after the detail
-   state has converged.
+Stop continuous polling after a resolved result, but check again when reopening
+the operation or when the wallet reports a replacement hash. Every observation
+can revise a previous result after a reorg; don't cache success as irreversible.
 
-After Withdraw Tokens, also refresh the indexed wallet inventory and visible
-performance/History data. Do not wait for position records to become closed:
-full withdrawal closes the copy run independently. Discard invalidated list
-and position cursors and restart at page one; never reuse a successfully
-submitted preparation.
+Guard updates by the saved chain, transaction hash, and status context. If the
+user changes the selected operation while a request is in flight, ignore the
+old response. Schedule the next request after the current one finishes rather
+than using overlapping intervals. Browser cancellation can prevent any HTTP
+response; treat it as a stopped observation request.
 
-Keep the loop bounded and offer a manual refresh if projection remains behind.
+`CONFIRMING` reports the outer receipt result separately. `SYNCING` means the
+required result is catching up. `UNKNOWN` is not failure. Do not infer execution
+from a newer timestamp, successful outer wrapper, or elapsed timeout. A reorg can
+invalidate previous success; send the previous receipt reference to explain a
+changed inclusion. Never reuse a successfully submitted preparation.
+
+### Offline acceptance checks
+
+Use the [action response examples](#action-response-examples) in frontend
+component and request-state tests. No live transaction is needed for these cases:
+
+- `TRY_PREPARE` offers preparation while unrelated read data remains stale.
+- Manual Sell review has no call; the confirmation request copies both pins
+  exactly as returned, preserving the ratio as a string.
+- `NO_EXECUTABLE_ROUTE` renders a recoverable HTTP 200 outcome. HTTP 503 renders
+  a request error with guidance from `details[]`.
+- A `CONFIRMING` response with a reverted outer receipt keeps polling and does
+  not render a final failed action.
+- `SYNCING/REPAIR_IN_PROGRESS` shows pending result publication without an old
+  `result` object.
+- `SUCCEEDED` works with omitted `reason`, `nextStep`, and zero indexes.
+- Stop success with unavailable progress does not display zero remaining exits.
+- `UNKNOWN/SOURCE_UNAVAILABLE` retries observation; a target mismatch or
+  invalid request requires review instead of an automatic loop.
+- A reorg replaces the latest success and removes its displayed result while
+  retaining the original context, hash, and last observed receipt reference.
+- Start and Withdraw Tokens continuation creates a fresh preparation request;
+  it never resubmits the call from the successful operation.
+- Canceling, refreshing, or reopening the view retains the operation identity
+  and prevents an older in-flight response from updating a different operation.
 
 ### Submitted-operation overlay
 
@@ -3336,8 +4550,8 @@ authority.
 - Reconcile a delta only when an authoritative read exposes matching source
   evidence or the exact operation outcome. A newer response timestamp alone
   isn't proof that the event was included.
-- Remove or mark the overlay failed when the transaction fails, is replaced,
-  expires under the product policy, or is invalidated by a reorg.
+- Reconcile the overlay with exact submitted status. A reorg or lost receipt
+  withdraws a prior success; elapsed time alone never proves failure or cancellation.
 - A Stop Copy overlay can show “stopping” locally, but it must not move the run
   between Open and History tabs. Server lifecycle remains the membership
   authority.
@@ -3346,10 +4560,11 @@ authority.
 
 ## Complete HTTP operation index
 
-The current public HTTP surface contains **34 operations**:
+The HTTP surface contains **35 operations**:
 
 - 27 GET reads;
-- 7 transaction-preparation POSTs, including `:prepareWithdrawTokens`.
+- 7 transaction-preparation POSTs, including `:prepareWithdrawTokens`;
+- 1 submitted-status POST: `/users/{ownerAddress}/actions:status`.
 
 Targeted reads added after the original read surface include:
 
@@ -3364,24 +4579,11 @@ preparation, projector, or execution methods. The operator contract has no
 public wallet-proof verification flow. Frontend clients must use only the
 aggregate routes in this document.
 
-## Current availability and verification status
+## Integration reference
 
-At local `main` commit
-`90157a2ee121fdd93186dec0c8b202e879677148` (PR #69), the generated OpenAPI
-contract contains 34 public HTTP operations:
-
-- 27 GET read operations;
-- 7 transaction-preparation POST operations.
-
-All operations have concrete aggregate handlers. No transaction-preparation
-route should be feature-gated as “not implemented.” Preparation routes don't
-broadcast transactions; they return a typed product outcome and, only when
-executable, an exact wallet call.
-
-The service maintainer confirmed the latest changes are merged and deployed
-on September 10, 2026. This catalog update verifies the checked-out protobuf,
-generated OpenAPI, query behavior, and response mapping. It does not add a new
-live API smoke test; the checks below retain their original dates.
+Use the endpoint catalog and generated OpenAPI for the 35 HTTP operations.
+The dated examples below describe earlier contracts; follow the current endpoint
+sections when an older example differs.
 
 ### Historical pre-release public-read smoke
 

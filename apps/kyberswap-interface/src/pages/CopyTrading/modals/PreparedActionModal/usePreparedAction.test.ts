@@ -1,13 +1,30 @@
 import type { Dispatch, SetStateAction } from 'react'
+import type { SubmittedActionStatusRequest } from 'services/copyTrading/types/actionStatus'
 import type { PreparedAction } from 'services/copyTrading/types/preparedActions'
 import { describe, expect, it, vi } from 'vitest'
 
+import {
+  SubmittedActionFailedError,
+  pollSubmittedActionStatus,
+} from 'pages/CopyTrading/modals/PreparedActionModal/postReceipt'
 import {
   DEFAULT_PREPARED_ACTION_STATE,
   type PreparedActionExpectation,
   type PreparedActionFlowState,
 } from 'pages/CopyTrading/modals/PreparedActionModal/preparedAction'
 import { usePreparedAction } from 'pages/CopyTrading/modals/PreparedActionModal/usePreparedAction'
+
+const walletMocks = vi.hoisted(() => ({
+  call: vi.fn(),
+  waitForTransactionReceipt: vi.fn(),
+  sendTransaction: vi.fn(),
+}))
+vi.mock('components/Web3Provider', () => ({ wagmiConfig: {} }))
+vi.mock('@wagmi/core', async importOriginal => ({
+  ...(await importOriginal<typeof import('@wagmi/core')>()),
+  getPublicClient: () => walletMocks,
+}))
+vi.mock('utils/walletClient', () => ({ getGatedWalletClient: async () => walletMocks }))
 
 const account = '0x1111111111111111111111111111111111111111'
 const predictedCopyAccount = '0x2222222222222222222222222222222222222222'
@@ -314,4 +331,157 @@ describe('usePreparedAction', () => {
     await firstRequest
     expect(harness.getState()).toEqual({ phase: 'review', action: secondAction })
   })
+})
+
+describe('submitted status recovery', () => {
+  it('retries status with the original context/hash without preparation or submission', async () => {
+    const hash = `0x${'3'.repeat(64)}` as const
+    const action = { ...readyAction, statusContext: { expectedOwner: account } }
+    const harness = createStateHarness({ phase: 'sync_error', action, hash, retryStage: 'sync' })
+    const unwrap = vi
+      .fn()
+      .mockRejectedValueOnce({ status: 503 })
+      .mockResolvedValueOnce({
+        data: { status: 'SUBMITTED_ACTION_STATUS_SUCCEEDED', result: { copyRunId: 'run-1' } },
+      })
+    const getStatus = vi.fn(() => ({ unwrap }))
+    const prepare = vi.fn()
+    const useRetryFlow = () =>
+      usePreparedAction({
+        state: harness.getState(),
+        setState: harness.setState,
+        expected,
+        prepare,
+        afterReceipt: async (submitted, transactionHash) => {
+          await pollSubmittedActionStatus({ action: submitted, hash: transactionHash, getStatus })
+        },
+      })
+    await useRetryFlow().retry()
+    expect(harness.getState()).toMatchObject({ phase: 'sync_error', action, hash })
+    await useRetryFlow().retry()
+    expect(harness.getState()).toMatchObject({ phase: 'success', action, hash })
+    expect(prepare).not.toHaveBeenCalled()
+    expect(getStatus.mock.calls[0]).toEqual(getStatus.mock.calls[1])
+  })
+
+  it('maps a verified failed status to fresh preparation recovery', async () => {
+    const hash = `0x${'4'.repeat(64)}` as const
+    const harness = createStateHarness({ phase: 'sync_error', action: readyAction, hash, retryStage: 'sync' })
+    await usePreparedAction({
+      state: harness.getState(),
+      setState: harness.setState,
+      expected,
+      prepare: vi.fn(),
+      afterReceipt: vi.fn().mockRejectedValue(new SubmittedActionFailedError('Matched transaction reverted.')),
+    }).retry()
+    expect(harness.getState()).toMatchObject({ phase: 'error', hash, error: 'Matched transaction reverted.' })
+  })
+
+  it.each(['SUBMITTED_ACTION_NEXT_STEP_PREPARE_START_COPY', 'SUBMITTED_ACTION_NEXT_STEP_CHECK_WITHDRAWAL_REMAINDER'])(
+    'keeps the existing success flow when the status response includes %s',
+    async nextStep => {
+      const hash = `0x${'5'.repeat(64)}` as const
+      const action = { ...readyAction, statusContext: { expectedOwner: account } }
+      const harness = createStateHarness({ phase: 'sync_error', action, hash, retryStage: 'sync' })
+      const prepare = vi.fn()
+      const getStatus = vi.fn(() => ({
+        unwrap: vi.fn().mockResolvedValue({
+          data: { status: 'SUBMITTED_ACTION_STATUS_SUCCEEDED', result: { copyRunId: 'run-1' }, nextStep },
+        }),
+      }))
+      await usePreparedAction({
+        state: harness.getState(),
+        setState: harness.setState,
+        expected,
+        prepare,
+        afterReceipt: async (submitted, transactionHash) => {
+          await pollSubmittedActionStatus({ action: submitted, hash: transactionHash, getStatus })
+        },
+      }).retry()
+      expect(prepare).not.toHaveBeenCalled()
+      expect(harness.getState()).toEqual({ phase: 'success', action, hash })
+    },
+  )
+})
+
+describe('replacement transaction receipts', () => {
+  it.each(['confirm', 'retry'] as const)('polls and retains the replacement hash after %s', async entry => {
+    const originalHash = `0x${'6'.repeat(64)}` as const
+    const replacementHash = `0x${'7'.repeat(64)}` as const
+    const action = { ...readyAction, statusContext: { expectedOwner: account } }
+    const harness = createStateHarness(
+      entry === 'confirm'
+        ? { phase: 'review', action }
+        : { phase: 'sync_error', action, hash: originalHash, retryStage: 'receipt' },
+    )
+    walletMocks.call.mockReset().mockResolvedValue({})
+    walletMocks.sendTransaction.mockReset().mockResolvedValue(originalHash)
+    walletMocks.waitForTransactionReceipt.mockReset().mockResolvedValue({
+      status: 'success',
+      transactionHash: replacementHash,
+      blockNumber: 123n,
+    })
+    const unwrap = vi
+      .fn()
+      .mockRejectedValueOnce({ status: 503 })
+      .mockResolvedValueOnce({
+        data: { status: 'SUBMITTED_ACTION_STATUS_SUCCEEDED', result: { copyRunId: 'run-1' } },
+      })
+    const getStatus = vi.fn((_request: SubmittedActionStatusRequest) => ({ unwrap }))
+    const prepare = vi.fn()
+    const useFlow = () =>
+      usePreparedAction({
+        state: harness.getState(),
+        setState: harness.setState,
+        expected,
+        prepare,
+        afterReceipt: async (submitted, hash) => {
+          await pollSubmittedActionStatus({ action: submitted, hash, getStatus })
+        },
+      })
+    await useFlow()[entry]()
+    expect(walletMocks.waitForTransactionReceipt).toHaveBeenCalledWith({ hash: originalHash })
+    expect(harness.getState()).toMatchObject({ phase: 'sync_error', hash: replacementHash, retryStage: 'sync' })
+    await useFlow().retry()
+    expect(harness.getState()).toEqual({ phase: 'success', action, hash: replacementHash })
+    expect(getStatus).toHaveBeenCalledTimes(2)
+    for (const [request] of getStatus.mock.calls) {
+      expect(request.transactionHash).toBe(replacementHash)
+      expect(request.statusContext).toBe(action.statusContext)
+    }
+    expect(walletMocks.waitForTransactionReceipt).toHaveBeenCalledOnce()
+    expect(walletMocks.sendTransaction).toHaveBeenCalledTimes(entry === 'confirm' ? 1 : 0)
+    expect(prepare).not.toHaveBeenCalled()
+  })
+
+  it.each(['confirm', 'retry'] as const)(
+    'shows the replacement hash when its receipt reverted after %s',
+    async entry => {
+      const originalHash = `0x${'8'.repeat(64)}` as const
+      const replacementHash = `0x${'9'.repeat(64)}` as const
+      const harness = createStateHarness(
+        entry === 'confirm'
+          ? { phase: 'review', action: readyAction }
+          : { phase: 'sync_error', action: readyAction, hash: originalHash, retryStage: 'receipt' },
+      )
+      walletMocks.call.mockReset().mockResolvedValue({})
+      walletMocks.sendTransaction.mockReset().mockResolvedValue(originalHash)
+      walletMocks.waitForTransactionReceipt.mockReset().mockResolvedValue({
+        status: 'reverted',
+        transactionHash: replacementHash,
+        blockNumber: 123n,
+      })
+      const afterReceipt = vi.fn()
+      const flow = usePreparedAction({
+        state: harness.getState(),
+        setState: harness.setState,
+        expected,
+        prepare: vi.fn(),
+        afterReceipt,
+      })
+      await flow[entry]()
+      expect(harness.getState()).toMatchObject({ phase: 'error', hash: replacementHash })
+      expect(afterReceipt).not.toHaveBeenCalled()
+    },
+  )
 })
