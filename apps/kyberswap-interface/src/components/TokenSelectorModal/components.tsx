@@ -1,18 +1,23 @@
+import { formatBalance } from '@kyber/utils/balance'
 import { Currency, CurrencyAmount } from '@kyberswap/ks-sdk-core'
 import { ComponentProps, ComponentPropsWithoutRef, forwardRef } from 'react'
 import { Search } from 'react-feather'
 
 import Column, { AutoColumn } from 'components/Column'
+import { BALANCE_MAX_LENGTH } from 'components/TokenSelectorModal/constants'
 import { cn } from 'utils/cn'
 
 export const Balance = ({ balance }: { balance: CurrencyAmount<Currency> }) => {
+  const exact = balance.toExact()
+
   return (
-    <span
-      className="max-w-full truncate text-xs text-text sm:text-sm"
-      data-testid="token-balance"
-      title={balance.toExact()}
-    >
-      {balance.toSignificant(10)}
+    <span className="max-w-full truncate text-xs tabular-nums text-text sm:text-sm" title={exact}>
+      {/* The visible form carries subscripts and unit suffixes, which read as noise, so it is hidden
+          from assistive tech and the plain number is announced in its place. */}
+      <span data-testid="token-balance" aria-hidden="true">
+        {formatBalance(exact, { maxLength: BALANCE_MAX_LENGTH })}
+      </span>
+      <span className="sr-only">{exact}</span>
     </span>
   )
 }
