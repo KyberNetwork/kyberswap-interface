@@ -1,4 +1,8 @@
 import type {
+  SubmittedActionStatusRequest,
+  SubmittedActionStatusResponse,
+} from 'services/copyTrading/types/actionStatus'
+import type {
   PrepareAddCapitalRequest,
   PrepareAddCapitalResponse,
   PrepareClosePositionRequest,
@@ -20,6 +24,14 @@ import { pathPart } from '../queryParams'
 
 const preparedActionApi = copyTradingBaseApi.injectEndpoints({
   endpoints: builder => ({
+    getSubmittedActionStatus: builder.mutation<SubmittedActionStatusResponse, SubmittedActionStatusRequest>({
+      query: ({ ownerAddress, ...body }) => ({
+        url: '/users/' + pathPart(ownerAddress) + '/actions:status',
+        method: 'POST',
+        cache: 'no-store',
+        body,
+      }),
+    }),
     prepareStartCopy: builder.mutation<PrepareStartCopyResponse, PrepareStartCopyRequest>({
       query: ({ ownerAddress, agentId, ...body }) => ({
         url: '/users/' + pathPart(ownerAddress) + '/agents/' + pathPart(agentId) + ':prepareStartCopy',

@@ -1,9 +1,7 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import copyRunApi from 'services/copyTrading/api/endpoints/copyRuns'
 import preparedActionApi from 'services/copyTrading/api/endpoints/preparedActions'
-import type { CopyRunListItem } from 'services/copyTrading/types/copyRuns'
 import type { PreparedActionStatus } from 'services/copyTrading/types/preparedActions'
 
 import { APP_PATHS } from 'constants/index'
@@ -13,13 +11,14 @@ import { getPreparedReasonMessage } from 'pages/CopyTrading/helpers'
 import useRefreshCopyTrading from 'pages/CopyTrading/hooks/useRefreshCopyTrading'
 import { type CapitalPercentage } from 'pages/CopyTrading/modals/CapitalAmount/capital'
 import { useCapitalAmount } from 'pages/CopyTrading/modals/CapitalAmount/useCapitalAmount'
+import { pollSubmittedActionStatus } from 'pages/CopyTrading/modals/PreparedActionModal/postReceipt'
 import {
   DEFAULT_PREPARED_ACTION_STATE,
   getApiErrorMessage,
   validatePreparedAction,
 } from 'pages/CopyTrading/modals/PreparedActionModal/preparedAction'
 import { usePreparedAction } from 'pages/CopyTrading/modals/PreparedActionModal/usePreparedAction'
-import { type StartCopyTarget, pollStartCopyRun } from 'pages/CopyTrading/modals/StartCopyModal/startCopy'
+import { type StartCopyTarget } from 'pages/CopyTrading/modals/StartCopyModal/startCopy'
 import { useStartCopyAuthorization } from 'pages/CopyTrading/modals/StartCopyModal/useAuthorization'
 import {
   requiresStartCopyAuthorization,
@@ -44,13 +43,13 @@ export const useStartCopyFlow = ({ agent, onDismiss }: { agent: StartCopyTarget;
   const { changeNetwork } = useChangeNetwork()
   const toggleWalletModal = useWalletModalToggle()
   const refreshCopyTrading = useRefreshCopyTrading()
+  const [getStatus] = preparedActionApi.useGetSubmittedActionStatusMutation()
   const [prepareStartCopy] = preparedActionApi.usePrepareStartCopyMutation()
-  const [getCopyRuns] = copyRunApi.useLazyGetCopyRunsQuery()
   const { authorize: authorizeStartCopy, getAuthorizationKind } = useStartCopyAuthorization()
 
   const [flowState, setFlowState] = useState(DEFAULT_PREPARED_ACTION_STATE)
   const [agreed, setAgreed] = useState(false)
-  const [createdCopyRun, setCreatedCopyRun] = useState<CopyRunListItem>()
+  const [createdCopyRunId, setCreatedCopyRunId] = useState<string>()
   const [isAuthorizing, setIsAuthorizing] = useState(false)
 
   const capital = useCapitalAmount({
@@ -98,27 +97,11 @@ export const useStartCopyFlow = ({ agent, onDismiss }: { agent: StartCopyTarget;
     },
     reviewUnavailable: action =>
       requiresStartCopyAuthorization(action) && !attempt.attemptRef.current.authorizationApplied,
-    afterReceipt: async action => {
+    afterReceipt: async (action, hash) => {
+      const status = await pollSubmittedActionStatus({ action, hash, getStatus })
       setAgreed(false)
-      const ownerAddress = action.expectedAccount
-      if (!ownerAddress) throw new Error('The confirmed Start Copy action is missing its owner wallet.')
-
-      const copyRun = await pollStartCopyRun({
-        agentId: agent.agentId,
-        chainId: agent.chainId,
-        ownerAddress,
-        fetchCopyRuns: () =>
-          getCopyRuns({
-            ownerAddress,
-            view: 'open',
-            agentId: agent.agentId,
-            chainId: agent.chainId,
-            sortBy: 'started_at',
-            sortOrder: 'desc',
-            limit: 1,
-          }).unwrap(),
-      })
-      setCreatedCopyRun(copyRun)
+      setCreatedCopyRunId(status.result?.copyRunId)
+      refreshCopyTrading()
     },
     onComplete: refreshCopyTrading,
   })
@@ -157,7 +140,7 @@ export const useStartCopyFlow = ({ agent, onDismiss }: { agent: StartCopyTarget;
   const resetPreparedState = () => {
     flow.reset()
     setAgreed(false)
-    setCreatedCopyRun(undefined)
+    setCreatedCopyRunId(undefined)
     setIsAuthorizing(false)
     attempt.resetAttemptState()
   }
@@ -279,7 +262,7 @@ export const useStartCopyFlow = ({ agent, onDismiss }: { agent: StartCopyTarget;
     capital,
     confirmBalanceError,
     confirmStartCopy,
-    createdCopyRun,
+    createdCopyRunId,
     dismiss,
     editAmount: resetPreparedState,
     flowState,
