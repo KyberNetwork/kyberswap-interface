@@ -2,7 +2,6 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import copyAccountApi from 'services/copyTrading/api/endpoints/copyAccounts'
-import copyRunApi from 'services/copyTrading/api/endpoints/copyRuns'
 import preparedActionApi from 'services/copyTrading/api/endpoints/preparedActions'
 import type { PendingSellObligation } from 'services/copyTrading/types/copyRuns'
 import type { PositionSummary } from 'services/copyTrading/types/positions'
@@ -27,10 +26,7 @@ import {
 } from 'pages/CopyTrading/modals/ManagePositionModal/positionSellFlow'
 import PreparedActionModal, { PreparedActionSuccessActions } from 'pages/CopyTrading/modals/PreparedActionModal'
 import { DEFAULT_PREPARED_ACTION_SLIPPAGE } from 'pages/CopyTrading/modals/PreparedActionModal/SlippageControl'
-import {
-  isSameTransactionHash,
-  pollCopyTradingProjection,
-} from 'pages/CopyTrading/modals/PreparedActionModal/postReceipt'
+import { pollSubmittedActionStatus } from 'pages/CopyTrading/modals/PreparedActionModal/postReceipt'
 import {
   DEFAULT_PREPARED_ACTION_STATE,
   getApiErrorMessage,
@@ -55,10 +51,10 @@ const ManagePositionModal = ({ isOpen, onDismiss, position, flow: positionFlow }
   const { changeNetwork } = useChangeNetwork()
   const toggleWalletModal = useWalletModalToggle()
   const refreshCopyTrading = useRefreshCopyTrading()
+  const [getStatus] = preparedActionApi.useGetSubmittedActionStatusMutation()
   const [prepareManualSell] = preparedActionApi.usePrepareManualSellMutation()
   const [prepareClosePosition] = preparedActionApi.usePrepareClosePositionMutation()
   const [getObligations] = copyAccountApi.useLazyGetPendingSellObligationsQuery()
-  const [getClosedExecutions] = copyRunApi.useLazyGetCopyRunPositionClosedExecutionsQuery()
 
   const [flowState, setFlowState] = useState(DEFAULT_PREPARED_ACTION_STATE)
   const [obligations, setObligations] = useState<PendingSellObligation[]>()
@@ -178,21 +174,8 @@ const ManagePositionModal = ({ isOpen, onDismiss, position, flow: positionFlow }
       preview: preparationConfig.preview,
     },
     prepare: preparePositionSell,
-    afterReceipt: async (_action, hash) => {
-      if (!account || !copyRunId || !positionId) throw new Error(MISSING_IDENTITY_MESSAGE)
-
-      await pollCopyTradingProjection({
-        errorMessage:
-          'Your transaction is confirmed, but the latest position execution is not available yet. Refresh status to try again.',
-        fetch: () =>
-          getClosedExecutions({
-            ownerAddress: account.toLowerCase(),
-            copyRunId,
-            positionId,
-            limit: 20,
-          }).unwrap(),
-        isConverged: response => response.data.some(execution => isSameTransactionHash(execution.txHash, hash)),
-      })
+    afterReceipt: async (action, hash) => {
+      await pollSubmittedActionStatus({ action, hash, getStatus })
       refreshCopyTrading()
     },
     onComplete: refreshCopyTrading,

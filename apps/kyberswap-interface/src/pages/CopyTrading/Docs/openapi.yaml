@@ -14,6 +14,7 @@ tags:
     description: Copy-run, position, activity, and copy-account reads filtered by the initial follower-account creation wallet; this is not current ownership or authorization evidence.
   - name: Copy Accounts
     description: Chain-scoped copy account balances, positions, history, and summary reads.
+  - name: ActionStatusService
   - name: Transaction Preparation
     description: Prepare authoritative Copy Trade contract calls for wallet-owned execution.
 basePath: /api/v1
@@ -1327,6 +1328,31 @@ paths:
           default: ACTIVITY_GROUP_UNSPECIFIED
       tags:
         - Copy Accounts
+  /users/{ownerAddress}/actions:status:
+    post:
+      description: Observe an EVM transaction's verified effects and relevant aggregate result. Context is an unsigned selector, never execution authority.
+      operationId: getSubmittedActionStatus
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1GetSubmittedActionStatusResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/rpcStatus'
+      parameters:
+        - name: ownerAddress
+          in: path
+          required: true
+          type: string
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/ActionStatusServiceGetSubmittedActionStatusBody'
+      tags:
+        - Action Status
   /users/{ownerAddress}/agents/{agentId}:prepareStartCopy:
     post:
       operationId: prepareStartCopy
@@ -1542,6 +1568,18 @@ paths:
       tags:
         - Transaction Preparation
 definitions:
+  ActionStatusServiceGetSubmittedActionStatusBody:
+    type: object
+    properties:
+      statusContext:
+        $ref: '#/definitions/v1ActionStatusContext'
+      transactionHash:
+        type: string
+      previousReceipt:
+        $ref: '#/definitions/v1ActionTransactionReceiptReference'
+    description: |-
+      GetSubmittedActionStatusRequest can be repeated after process or browser resume.
+      Previous receipt explains reorg changes but never supplies canonical proof.
   TransactionPreparationServicePrepareAddCapitalBody:
     type: object
     properties:
@@ -1682,6 +1720,385 @@ definitions:
       ActionEvidence exposes the fact and mutable-state boundaries used to prepare
       the call. Operator-owned route clocks remain internal; reprepare_after is the
       only client expiry boundary.
+  v1ActionGuidance:
+    type: object
+    properties:
+      message:
+        type: string
+      retryAfterMs:
+        type: integer
+        format: int64
+      nextSteps:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/v1ActionGuidanceStep'
+    description: |-
+      ActionGuidance is the safe feedback shared by advisory, preparation, status
+      and action error responses. Retry delay is independent of calldata expiry.
+  v1ActionGuidanceStep:
+    type: object
+    properties:
+      kind:
+        $ref: '#/definitions/v1ActionGuidanceStepKind'
+      label:
+        type: string
+      action:
+        type: string
+      copyRunId:
+        type: string
+      userPositionId:
+        type: string
+      tokenAddress:
+        type: string
+      amountRaw:
+        type: string
+      spenderAddress:
+        type: string
+    description: |-
+      ActionGuidanceStep defaults to the containing response's target. An alternative
+      action is an eligibility check and must receive its own fresh preparation.
+  v1ActionGuidanceStepKind:
+    type: string
+    enum:
+      - ACTION_GUIDANCE_STEP_KIND_UNSPECIFIED
+      - ACTION_GUIDANCE_STEP_KIND_TRY_PREPARE
+      - ACTION_GUIDANCE_STEP_KIND_RETRY
+      - ACTION_GUIDANCE_STEP_KIND_REVIEW_UPDATED_PREPARATION
+      - ACTION_GUIDANCE_STEP_KIND_REFRESH_SELL_DETAILS
+      - ACTION_GUIDANCE_STEP_KIND_ADJUST_AMOUNT
+      - ACTION_GUIDANCE_STEP_KIND_APPROVE_QUOTE
+      - ACTION_GUIDANCE_STEP_KIND_SWITCH_OWNER_WALLET
+      - ACTION_GUIDANCE_STEP_KIND_VIEW_EXISTING_RESULT
+      - ACTION_GUIDANCE_STEP_KIND_CHECK_ALTERNATIVE_ACTION
+      - ACTION_GUIDANCE_STEP_KIND_CONTACT_SUPPORT
+    default: ACTION_GUIDANCE_STEP_KIND_UNSPECIFIED
+    description: |-
+      ActionGuidanceStepKind identifies an explicit next step, never an instruction
+      to submit a transaction or silently change a preparation's inputs.
+  v1ActionStatusContext:
+    type: object
+    properties:
+      kind:
+        $ref: '#/definitions/v1ActionTransactionKind'
+      chainId:
+        type: string
+        format: int64
+      expectedOwner:
+        type: string
+      copyAccount:
+        type: string
+      factory:
+        type: string
+      generationId:
+        type: string
+      callTarget:
+        type: string
+      callValueRaw:
+        type: string
+      calldataDigest:
+        type: string
+      start:
+        $ref: '#/definitions/v1ActionTransactionStart'
+      transfer:
+        $ref: '#/definitions/v1ActionTransactionTransfer'
+      stop:
+        $ref: '#/definitions/v1ActionTransactionStop'
+      withdrawQuote:
+        $ref: '#/definitions/v1ActionTransactionWithdrawQuote'
+      withdrawTokens:
+        $ref: '#/definitions/v1ActionTransactionWithdrawTokens'
+      sell:
+        $ref: '#/definitions/v1ActionTransactionSell'
+      agentId:
+        type: string
+        description: Public identities are checked against aggregate mappings before chain access.
+      copyRunId:
+        type: string
+      userPositionId:
+        type: string
+    description: ActionStatusContext is part of the bounded submitted-action observation contract.
+  v1ActionTransactionConfigEffect:
+    type: object
+    properties:
+      configs:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/v1ActionTransactionLiquidationConfig'
+      merkleRoot:
+        type: string
+    description: ActionTransactionConfigEffect is part of the bounded submitted-action observation contract.
+  v1ActionTransactionCreateEffect:
+    type: object
+    properties:
+      account:
+        type: string
+      owner:
+        type: string
+      leader:
+        type: string
+      requestSalt:
+        type: string
+      initialSigners:
+        type: array
+        items:
+          type: string
+      createAmountRaw:
+        type: string
+    description: ActionTransactionCreateEffect is part of the bounded submitted-action observation contract.
+  v1ActionTransactionEffect:
+    type: object
+    properties:
+      cursor:
+        $ref: '#/definitions/v1ActionTransactionEffectCursor'
+      emitter:
+        type: string
+      create:
+        $ref: '#/definitions/v1ActionTransactionCreateEffect'
+      transfer:
+        $ref: '#/definitions/v1ActionTransactionTransferEffect'
+      pause:
+        $ref: '#/definitions/v1ActionTransactionPauseEffect'
+      liquidationConfig:
+        $ref: '#/definitions/v1ActionTransactionConfigEffect'
+      withdrawQuote:
+        $ref: '#/definitions/v1ActionTransactionWithdrawEffect'
+      sell:
+        $ref: '#/definitions/v1ActionTransactionSellEffect'
+    description: ActionTransactionEffect is part of the bounded submitted-action observation contract.
+  v1ActionTransactionEffectCursor:
+    type: object
+    properties:
+      blockNumber:
+        type: string
+      blockHash:
+        type: string
+      transactionHash:
+        type: string
+      transactionIndex:
+        type: integer
+        format: int64
+      logIndex:
+        type: integer
+        format: int64
+      blockTime:
+        type: string
+        format: date-time
+    description: ActionTransactionEffectCursor is part of the bounded submitted-action observation contract.
+  v1ActionTransactionKind:
+    type: string
+    enum:
+      - ACTION_TRANSACTION_KIND_UNSPECIFIED
+      - ACTION_TRANSACTION_KIND_START_COPY_CREATE
+      - ACTION_TRANSACTION_KIND_START_COPY_FUND
+      - ACTION_TRANSACTION_KIND_ADD_CAPITAL
+      - ACTION_TRANSACTION_KIND_STOP_COPY
+      - ACTION_TRANSACTION_KIND_WITHDRAW_QUOTE
+      - ACTION_TRANSACTION_KIND_MANUAL_SELL
+      - ACTION_TRANSACTION_KIND_CLOSE_POSITION
+      - ACTION_TRANSACTION_KIND_WITHDRAW_TOKENS
+    default: ACTION_TRANSACTION_KIND_UNSPECIFIED
+    description: ActionTransactionKind is part of the bounded submitted-action observation contract.
+  v1ActionTransactionLiquidationConfig:
+    type: object
+    properties:
+      followerPositionId:
+        type: string
+      leaderPositionId:
+        type: string
+      minimumBaseTokenRateRaw:
+        type: string
+      deadlineRaw:
+        type: string
+    description: ActionTransactionLiquidationConfig is part of the bounded submitted-action observation contract.
+  v1ActionTransactionObservation:
+    type: object
+    properties:
+      transactionHash:
+        type: string
+      outcome:
+        $ref: '#/definitions/v1ActionTransactionReceiptOutcome'
+      receipt:
+        $ref: '#/definitions/v1ActionTransactionReceiptReference'
+      transactionIndex:
+        type: integer
+        format: int64
+      safeBlockNumber:
+        type: string
+      verifiedActor:
+        type: string
+        description: Only populated from a verified transaction sender or actor-bearing event.
+    description: ActionTransactionObservation is part of the bounded submitted-action observation contract.
+  v1ActionTransactionPauseEffect:
+    type: object
+    properties:
+      pauseState:
+        type: integer
+        format: int64
+    description: ActionTransactionPauseEffect is part of the bounded submitted-action observation contract.
+  v1ActionTransactionReceiptOutcome:
+    type: string
+    enum:
+      - ACTION_TRANSACTION_RECEIPT_OUTCOME_UNSPECIFIED
+      - ACTION_TRANSACTION_RECEIPT_OUTCOME_SUCCESS
+      - ACTION_TRANSACTION_RECEIPT_OUTCOME_REVERTED
+    default: ACTION_TRANSACTION_RECEIPT_OUTCOME_UNSPECIFIED
+    description: ActionTransactionReceiptOutcome is part of the bounded submitted-action observation contract.
+  v1ActionTransactionReceiptReference:
+    type: object
+    properties:
+      blockNumber:
+        type: string
+      blockHash:
+        type: string
+    description: ActionTransactionReceiptReference is part of the bounded submitted-action observation contract.
+  v1ActionTransactionSell:
+    type: object
+    properties:
+      followerPositionId:
+        type: string
+      leaderPositionId:
+        type: string
+      recovery:
+        $ref: '#/definitions/v1ActionTransactionSellRecovery'
+      baseToken:
+        type: string
+      quoteToken:
+        type: string
+      sellBaseRaw:
+        type: string
+      remainingBaseBeforeRaw:
+        type: string
+      sellRatioRaw:
+        type: string
+      unresolvedSkipCount:
+        type: integer
+        format: int64
+    description: ActionTransactionSell is part of the bounded submitted-action observation contract.
+  v1ActionTransactionSellEffect:
+    type: object
+    properties:
+      leaderPositionId:
+        type: string
+      actor:
+        type: string
+      baseSoldRaw:
+        type: string
+      baseUnsoldRaw:
+        type: string
+      quoteReceivedRaw:
+        type: string
+    description: ActionTransactionSellEffect is part of the bounded submitted-action observation contract.
+  v1ActionTransactionSellRecovery:
+    type: string
+    enum:
+      - ACTION_TRANSACTION_SELL_RECOVERY_UNSPECIFIED
+      - ACTION_TRANSACTION_SELL_RECOVERY_ALIGN_SKIP
+      - ACTION_TRANSACTION_SELL_RECOVERY_STOP_COPY
+    default: ACTION_TRANSACTION_SELL_RECOVERY_UNSPECIFIED
+    description: ActionTransactionSellRecovery is part of the bounded submitted-action observation contract.
+  v1ActionTransactionStart:
+    type: object
+    properties:
+      requestId:
+        type: string
+      leader:
+        type: string
+      requestSalt:
+        type: string
+      initialSigners:
+        type: array
+        items:
+          type: string
+      quoteToken:
+        type: string
+      targetCapitalRaw:
+        type: string
+      createAmountRaw:
+        type: string
+      fundingAmountRaw:
+        type: string
+        description: Exact transfer amount for FUND; zero for CREATE.
+    description: ActionTransactionStart is part of the bounded submitted-action observation contract.
+  v1ActionTransactionStop:
+    type: object
+    properties:
+      configs:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/v1ActionTransactionLiquidationConfig'
+    description: ActionTransactionStop is part of the bounded submitted-action observation contract.
+  v1ActionTransactionTokenAmount:
+    type: object
+    properties:
+      token:
+        type: string
+      amountRaw:
+        type: string
+    description: ActionTransactionTokenAmount is part of the bounded submitted-action observation contract.
+  v1ActionTransactionTransfer:
+    type: object
+    properties:
+      token:
+        type: string
+      amountRaw:
+        type: string
+    description: ActionTransactionTransfer is part of the bounded submitted-action observation contract.
+  v1ActionTransactionTransferEffect:
+    type: object
+    properties:
+      token:
+        type: string
+      from:
+        type: string
+      to:
+        type: string
+      amountRaw:
+        type: string
+    description: ActionTransactionTransferEffect is part of the bounded submitted-action observation contract.
+  v1ActionTransactionWithdrawEffect:
+    type: object
+    properties:
+      token:
+        type: string
+      recipient:
+        type: string
+      amountRaw:
+        type: string
+    description: ActionTransactionWithdrawEffect is part of the bounded submitted-action observation contract.
+  v1ActionTransactionWithdrawQuote:
+    type: object
+    properties:
+      token:
+        type: string
+      recipient:
+        type: string
+      amountRaw:
+        type: string
+      maximum:
+        type: boolean
+    description: ActionTransactionWithdrawQuote is part of the bounded submitted-action observation contract.
+  v1ActionTransactionWithdrawTokens:
+    type: object
+    properties:
+      recipient:
+        type: string
+      quoteToken:
+        type: string
+      tokens:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/v1ActionTransactionTokenAmount'
+      quoteSweepIncluded:
+        type: boolean
+      batchRevision:
+        type: string
+      hasMoreTokensHint:
+        type: boolean
+    description: ActionTransactionWithdrawTokens is part of the bounded submitted-action observation contract.
   v1ActivityCategory:
     type: string
     enum:
@@ -1833,6 +2250,8 @@ definitions:
       asOf:
         type: string
         format: date-time
+      guidance:
+        $ref: '#/definitions/v1ActionGuidance'
     description: AdvisoryActionAvailability is compact and safe to materialize on list rows.
   v1AdvisoryActionStatus:
     type: string
@@ -1848,8 +2267,8 @@ definitions:
       remains authoritative and may return a different typed result.
 
        - ADVISORY_ACTION_STATUS_PENDING: The aggregate lacks a current proof that covers the latest relevant fact.
-       - ADVISORY_ACTION_STATUS_TRY_PREPARE: Stale aggregate evidence covers every locally known relevant fact. The UI
-      may offer a live preparation attempt, but this is never action authority.
+       - ADVISORY_ACTION_STATUS_TRY_PREPARE: The target can be checked by live preparation even when aggregate advisory
+      evidence is behind. This status is never execution authority.
   v1AgentActionLog:
     type: object
     properties:
@@ -3056,6 +3475,11 @@ definitions:
       meta:
         $ref: '#/definitions/v1ResponseMeta'
     description: GetOwnerCopySummaryResponse is the owner summary envelope.
+  v1GetSubmittedActionStatusResponse:
+    type: object
+    properties:
+      data:
+        $ref: '#/definitions/v1SubmittedActionStatusData'
   v1LeaderboardSortField:
     type: string
     enum:
@@ -3787,6 +4211,11 @@ definitions:
           inventory. After proven full withdrawal, residual positions use canonical
           state and a historical mark at the first Stop, without estimated rebates.
           Actual realized P&L and raw quantities remain independently unchanged.
+      manualSellAvailability:
+        $ref: '#/definitions/v1AdvisoryActionAvailability'
+        description: Independent guidance remains present when an action is not recommended.
+      closePositionAvailability:
+        $ref: '#/definitions/v1AdvisoryActionAvailability'
     description: PositionSummary is a follower position row.
   v1PositionValuation:
     type: object
@@ -3886,6 +4315,10 @@ definitions:
         $ref: '#/definitions/v1ActionEvidence'
       copyAccount:
         type: string
+      guidance:
+        $ref: '#/definitions/v1ActionGuidance'
+      statusContext:
+        $ref: '#/definitions/v1ActionStatusContext'
       displayEnrichment:
         $ref: '#/definitions/v1ActionDisplayEnrichment'
       startCopy:
@@ -3938,6 +4371,8 @@ definitions:
       - PREPARED_ACTION_REASON_INSUFFICIENT_QUOTE_ALLOWANCE
       - PREPARED_ACTION_REASON_TOKEN_INVENTORY_TOO_LARGE
       - PREPARED_ACTION_REASON_TOKEN_TRANSFER_NOT_ACKNOWLEDGED
+      - PREPARED_ACTION_REASON_REVIEW_REQUIRED
+      - PREPARED_ACTION_REASON_ACTION_SETUP_UNAVAILABLE
     default: PREPARED_ACTION_REASON_UNSPECIFIED
     description: PreparedActionReason is the shared stable action/preparation reason vocabulary.
   v1PreparedActionStatus:
@@ -3958,6 +4393,8 @@ definitions:
       - PREPARED_ACTION_WARNING_ALLOCATION_STALE
       - PREPARED_ACTION_WARNING_INVALID_STOP_INTENT_RECOVERED
       - PREPARED_ACTION_WARNING_OWNER_SNAPSHOT_REQUIRES_REFRESH
+      - PREPARED_ACTION_WARNING_RETAINED_LIQUIDATION_SETTINGS
+      - PREPARED_ACTION_WARNING_RETAINED_LIQUIDATION_DETAILS_UNAVAILABLE
     default: PREPARED_ACTION_WARNING_UNSPECIFIED
     description: PreparedActionWarning carries allowlisted render-only qualifications.
   v1PreparedCall:
@@ -4046,6 +4483,34 @@ definitions:
           type: object
           $ref: '#/definitions/v1FieldGroupQuality'
     description: ResponseMeta carries freshness metadata for public responses.
+  v1RetainedLiquidationConfig:
+    type: object
+    properties:
+      leaderPositionId:
+        type: string
+      minimumBaseTokenRateRaw:
+        type: string
+      deadline:
+        type: string
+    description: RetainedLiquidationConfig discloses one existing rule verified against the observed root.
+  v1RetainedLiquidationSettings:
+    type: object
+    properties:
+      root:
+        type: string
+      detailsAvailable:
+        type: boolean
+      observedAt:
+        $ref: '#/definitions/v1ActionBlock'
+      configs:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/v1RetainedLiquidationConfig'
+    description: |-
+      RetainedLiquidationSettings qualifies existing settings kept by a permanent
+      pause. An absent root is unknown; zero means none observed at the action block,
+      never a guarantee that no later sale can execute.
   v1SortOrder:
     type: string
     enum:
@@ -4181,6 +4646,8 @@ definitions:
         $ref: '#/definitions/v1Token'
       totalSwapQuote:
         $ref: '#/definitions/v1SwapQuotePreview'
+      retainedSettings:
+        $ref: '#/definitions/v1RetainedLiquidationSettings'
     description: StopCopyPreview contains the atomic Stop Copy selection and totals.
   v1StopCopyProgress:
     type: object
@@ -4246,6 +4713,136 @@ definitions:
       description:
         type: string
     description: StrategyExecutionItem is one configured Strategy & Execution display item.
+  v1SubmittedActionNextStep:
+    type: string
+    enum:
+      - SUBMITTED_ACTION_NEXT_STEP_UNSPECIFIED
+      - SUBMITTED_ACTION_NEXT_STEP_PREPARE_START_COPY
+      - SUBMITTED_ACTION_NEXT_STEP_CHECK_WITHDRAWAL_REMAINDER
+    default: SUBMITTED_ACTION_NEXT_STEP_UNSPECIFIED
+    description: SubmittedActionNextStep is a remaining workflow stage, not submission authority.
+  v1SubmittedActionReason:
+    type: string
+    enum:
+      - SUBMITTED_ACTION_REASON_UNSPECIFIED
+      - SUBMITTED_ACTION_REASON_TRANSACTION_NOT_FOUND
+      - SUBMITTED_ACTION_REASON_TRANSACTION_PENDING
+      - SUBMITTED_ACTION_REASON_CONFIRMATIONS_PENDING
+      - SUBMITTED_ACTION_REASON_TRANSACTION_REVERTED
+      - SUBMITTED_ACTION_REASON_EFFECT_NOT_VERIFIABLE
+      - SUBMITTED_ACTION_REASON_TARGET_MISMATCH
+      - SUBMITTED_ACTION_REASON_AMBIGUOUS_EFFECT
+      - SUBMITTED_ACTION_REASON_HISTORY_UNAVAILABLE
+      - SUBMITTED_ACTION_REASON_SOURCE_UNAVAILABLE
+      - SUBMITTED_ACTION_REASON_REORGED
+      - SUBMITTED_ACTION_REASON_REINCLUDED
+      - SUBMITTED_ACTION_REASON_SOURCE_INDEXING
+      - SUBMITTED_ACTION_REASON_RESULT_PUBLICATION
+      - SUBMITTED_ACTION_REASON_REPAIR_IN_PROGRESS
+    default: SUBMITTED_ACTION_REASON_UNSPECIFIED
+    description: SubmittedActionReason is a stable public-safe observation reason.
+  v1SubmittedActionResult:
+    type: object
+    properties:
+      kind:
+        $ref: '#/definitions/v1ActionTransactionKind'
+      copyAccount:
+        type: string
+      agentId:
+        type: string
+      copyRunId:
+        type: string
+      userPositionId:
+        type: string
+      readOwnerAddress:
+        type: string
+      effects:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/v1ActionTransactionEffect'
+      stop:
+        $ref: '#/definitions/v1SubmittedStopResult'
+      keepsExistingExitSettings:
+        type: boolean
+      openingAllocationRaw:
+        type: string
+        description: Canonical CREATE-anchored opening allocation; independent of transfer amount.
+      chainId:
+        type: string
+        format: int64
+        description: Exact admitted account identity for these historical effects.
+      factory:
+        type: string
+      generationId:
+        type: string
+    description: |-
+      SubmittedActionResult contains matched historical effects. Optional related
+      business progress is qualified independently and never implies full withdrawal.
+  v1SubmittedActionStatus:
+    type: string
+    enum:
+      - SUBMITTED_ACTION_STATUS_UNSPECIFIED
+      - SUBMITTED_ACTION_STATUS_PENDING
+      - SUBMITTED_ACTION_STATUS_CONFIRMING
+      - SUBMITTED_ACTION_STATUS_SYNCING
+      - SUBMITTED_ACTION_STATUS_SUCCEEDED
+      - SUBMITTED_ACTION_STATUS_FAILED
+      - SUBMITTED_ACTION_STATUS_UNKNOWN
+    default: SUBMITTED_ACTION_STATUS_UNSPECIFIED
+    description: SubmittedActionStatus separates transaction progress and result publication.
+  v1SubmittedActionStatusData:
+    type: object
+    properties:
+      status:
+        $ref: '#/definitions/v1SubmittedActionStatus'
+      reason:
+        $ref: '#/definitions/v1SubmittedActionReason'
+      transaction:
+        $ref: '#/definitions/v1ActionTransactionObservation'
+      result:
+        $ref: '#/definitions/v1SubmittedActionResult'
+      nextStep:
+        $ref: '#/definitions/v1SubmittedActionNextStep'
+      guidance:
+        $ref: '#/definitions/v1ActionGuidance'
+    description: SubmittedActionStatusData uses the same progress contract for all seven actions.
+  v1SubmittedStopResult:
+    type: object
+    properties:
+      kind:
+        $ref: '#/definitions/v1SubmittedStopResultKind'
+      stopIntentId:
+        type: string
+      source:
+        $ref: '#/definitions/v1ActionTransactionEffectCursor'
+      validation:
+        type: string
+      selectedPositionCount:
+        type: integer
+        format: int64
+      completedPositionCount:
+        type: integer
+        format: int64
+      skippedPositionCount:
+        type: integer
+        format: int64
+      pendingPositionCount:
+        type: integer
+        format: int64
+      progressStatus:
+        $ref: '#/definitions/v1DataStatus'
+    description: |-
+      SubmittedStopResult references the exact new or existing Stop parent at the
+      submitted event, never whichever parent is newest when this read occurs.
+  v1SubmittedStopResultKind:
+    type: string
+    enum:
+      - SUBMITTED_STOP_RESULT_KIND_UNSPECIFIED
+      - SUBMITTED_STOP_RESULT_KIND_INTENT_ACCEPTED
+      - SUBMITTED_STOP_RESULT_KIND_PAUSE_REASSERTED
+    default: SUBMITTED_STOP_RESULT_KIND_UNSPECIFIED
+    description: SubmittedStopResultKind distinguishes a newly accepted intent from reassertion.
   v1SwapQuotePreview:
     type: object
     properties:
@@ -4386,6 +4983,8 @@ definitions:
         description: |-
           More eligible nonquote tokens had positive balances at the action block.
           After this transaction confirms, prepare again to withdraw the next batch.
+      retainedSettings:
+        $ref: '#/definitions/v1RetainedLiquidationSettings'
     description: |-
       WithdrawTokensPreview contains one deterministic operator-owned token batch.
       ALL_INDEXED_TOKENS results include a revision for the selected batch and

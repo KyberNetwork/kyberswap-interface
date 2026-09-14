@@ -1,6 +1,6 @@
 # Copy Trading Implementation Status
 
-Last reviewed: 2026-09-12
+Last reviewed: 2026-09-14
 
 This file is the frontend snapshot for the current Copy Trading implementation.
 It records only current ownership, accepted product decisions, remaining gaps,
@@ -11,8 +11,8 @@ FE_API_Catalog.md and openapi.yaml.
 
 | Area              | Status                                                                                                         |
 | ----------------- | -------------------------------------------------------------------------------------------------------------- |
-| Backend contract  | Current input: checked-in OpenAPI byte-matches the live 34-path, 158-definition Swagger fetched on 2026-09-11. |
-| RTK Query service | Code-complete: 27 GET queries and 7 preparation mutations are declared and typed.                              |
+| Backend contract  | Current input: checked-in OpenAPI byte-matches the live 35-path, 194-definition Swagger fetched on 2026-09-14. |
+| RTK Query service | Code-complete: 27 GET queries, 7 preparation mutations, and 1 submitted-status mutation are declared and typed.                              |
 | Read UI           | Code-complete for all currently defined product surfaces.                                                      |
 | Write UI          | Code-complete for Start Copy, Add Capital, Stop Copy, Withdraw Quote, Withdraw All Tokens, Manual Sell, and Close Position.         |
 | Responsive UI     | Code-complete for the defined layouts; Action Logs mobile filter remains a product decision.                   |
@@ -22,7 +22,7 @@ FE_API_Catalog.md and openapi.yaml.
 
 - services/copyTrading/api/baseApi.ts owns the shared RTK Query API.
 - Endpoint groups own Discovery, Agents, Copy Runs, Copy Accounts, and prepared
-  actions. Shared query-parameter mapping stays in api/queryParams.ts.
+  actions. The prepared-actions endpoint group also owns actions:status. Shared query-parameter mapping stays in api/queryParams.ts.
 - adapters and types are the compatibility boundary between API-native
   envelopes/enums and UI models.
 - Copy Run list endpoints map to CopyRunListItem. The Copy Run detail endpoint
@@ -33,7 +33,8 @@ FE_API_Catalog.md and openapi.yaml.
   owner position endpoints map to PositionSummary; follower accounting and
   recovery actions must not leak into leader-position models.
 - Prepared-action request and response contracts stay together in
-  types/preparedActions.ts.
+  types/preparedActions.ts. Submitted-status types live in types/actionStatus.ts;
+  statusContext is passed through verbatim as an operator-authored selector.
 - Owner views map to OWNER_COPY_VIEW_OPEN and OWNER_COPY_VIEW_HISTORY.
 - Position views map to POSITION_VIEW_OPEN and POSITION_VIEW_CLOSED.
 - Agent action logs use /action-logs. Copy Detail logs use the owner activity
@@ -48,8 +49,8 @@ FE_API_Catalog.md and openapi.yaml.
 The following API surfaces remain without standalone product UI until designs
 exist:
 
-- Closed-position execution details. The closed-executions endpoint is consumed
-  internally for Manual Sell and Close Position post-receipt convergence.
+- Closed-position execution details. The endpoint remains declared but is no
+  longer used for post-receipt convergence.
 - Structured Alerts Feed and Copy Run Log fields beyond the current rows.
 - Copy Run cashback policy.
 - Agent discovery, Agent position detail/events, owner-wide positions, and
@@ -105,17 +106,18 @@ them unless product explicitly approves a UI change:
   descending and limit=1.
 - The latest run produces My Copy only when its status is ACTIVE. Any other
   latest status keeps the advisory-gated Copy action.
-- Start Copy completion polling uses the same Agent filter, startedAt
-  descending order, limit=1, and accepts only ACTIVE.
+- Start Copy completion uses submitted-action status for the confirmed
+  transaction and reads copyRunId from its result. Agent CTA ownership reads
+  retain their existing filters and lifecycle rules.
 - Copiers and Active Copies remain backend-provided metrics; the frontend does
   not recompute them from owner Copy Run lists.
 
 ### Loading, cache, and failure behavior
 
-- Prepared-action sync recovery uses a waiting icon and explicit confirmation
-  copy instead of a generic transaction error. Post-receipt timeouts explain
-  that the transaction succeeded and offer Refresh status without resubmission;
-  unconfirmed receipts retain Transaction submitted and Check confirmation.
+- Prepared-action sync recovery uses a waiting icon and Checking transaction
+  result copy. Unresolved status and HTTP errors offer Refresh status with the
+  saved action/hash; they do not label the transaction failed or resubmit it.
+  Unconfirmed receipts retain Transaction submitted and Check confirmation.
 - Wallet- and argument-sensitive reads use currentData so a previous wallet,
   Agent, Copy, or query argument is never rendered as the current entity.
 - Agent Profile and Copy Detail show one page-level LocalLoader during wallet
@@ -195,7 +197,7 @@ them unless product explicitly approves a UI change:
 
 | Capability     | Final behavior                                                                                                                                                 |
 | -------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Start Copy     | Uses funded mode, API-selected Permit or Approve, a separate Create confirmation, exact-call submission, then polls the latest Agent-filtered active Copy Run. |
+| Start Copy     | Uses funded mode, API-selected Permit or Approve, a separate Create confirmation, exact-call submission, then polls actions:status for the confirmed transaction. |
 | Add Capital    | Shows current/new allocation inline and prepares, validates, simulates, and submits directly without a review step.                                            |
 | Stop Copy      | Loads the complete open-position cursor chain, supports zero to 32 selected position IDs, and submits the exact prepared call.                                 |
 | Withdraw Quote | Supports typed, Half, and Max. Max sends uint256.max internally while review displays the prepared token amount.                                               |
@@ -215,21 +217,40 @@ Cross-flow decisions:
 - Preparation is authoritative for owner, chain, Smart Wallet, preview, call
   kind, target, value, amount, and expiry.
 - Wallet submission uses call.to, call.data, and call.valueRaw unchanged.
-- A transaction is successful only after a successful receipt.
-- Receipt retry waits for the existing hash and never rebroadcasts.
-- A reverted receipt starts a new preparation on Retry.
-- Add Capital, Stop Copy, Withdraw Quote, Manual Sell, and Close Position keep
-  the modal in its syncing phase after receipt success and poll one direct API
-  read per attempt for up to 20 seconds. Add Capital requires the exact Copy
-  Detail Capital In to increase; Stop Copy requires its lifecycle to leave
-  Active; Withdraw Quote requires its stable balance read to cover the receipt block; and position sells require a closed execution with the
-  submitted transaction hash. Projection-backed checks also require
-  source-block receipt coverage. A timeout remains recoverable through Refresh
-  status.
-- For non-Start actions, cache invalidation starts after receipt
-  success and runs again after the action-specific direct read converges so
-  containing lists and summaries refetch from the new projection. Start Copy
-  invalidates after receipt and retains its existing Agent-filtered polling.
+- All seven actions retain prepare, review where applicable, wallet submission,
+  and RPC receipt waiting. Their afterReceipt callbacks use the shared
+  pollSubmittedActionStatus helper in PreparedActionModal/postReceipt.ts.
+- Each poll sends the original statusContext and the receipt's transactionHash
+  to POST /users/{ownerAddress}/actions:status. The context owner must match
+  the prepared sender. Context is not rebuilt from current list/detail data,
+  and preparation expiry does not prevent observation.
+- Success requires SUCCEEDED with a result; Stop also requires its exact
+  stopIntentId. Backend status owns convergence. FE no longer compares capital,
+  balances, lifecycle, source-block coverage, or closed-execution hashes to
+  determine whether the submitted action completed.
+- PENDING, CONFIRMING, SYNCING, and UNKNOWN/SOURCE_UNAVAILABLE poll sequentially
+  for at most 11 attempts, respecting guidance.retryAfterMs. The last returned
+  receipt is sent as previousReceipt within that polling attempt sequence.
+  The limit is an attempt count, not a fixed 20-second timeout.
+- HTTP errors, unsupported/unverifiable results, missing context, and exhausted
+  polling enter the existing sync recovery. Manual retry observes the saved
+  action/hash again; it never prepares or submits another transaction. HTTP
+  errors end the current poll sequence rather than retrying automatically.
+- A reverted RPC receipt or FAILED API status enters transaction-error recovery;
+  Retry requests a fresh preparation through the existing flow.
+- Both initial submission and receipt retry use receipt.transactionHash after
+  receipt resolution, including replacement transactions such as wallet Speed up.
+  State, explorer links, and subsequent status retries retain that resolved hash.
+- Cache invalidation runs after receipt success and again after API convergence,
+  refreshing both RTK Query and TanStack Copy Trading reads. Stop additionally
+  reads the returned Copy Run once to choose My Copies versus History; failure
+  of this navigation-only read does not invalidate verified action success.
+- This update does not consume nextStep, add Start funding continuation or
+  withdrawal batch controls, or change preparation/validation/CTA behavior.
+  Start retains funded CREATE only; submitted status success refers to the
+  submitted call rather than a new frontend check of ACTIVE lifecycle.
+  Persistence/resume across reloads and the broader guidance/advisory migration
+  are outside this scope.
 - Paired modal actions keep the outlined secondary action on the left and the
   primary action on the right.
 - Loading Dots are absolutely positioned so modal CTA labels do not shift.
@@ -286,8 +307,6 @@ Cross-flow decisions:
   its inventory hook supplies one shared inventory and
   matching quote balance to the option UI and stable flow.
 - Preview failures block execution without blocking Connect Wallet or Switch Network.
-  Convergence falls back to matching inventory token decimals when the submitted
-  snapshot lacks decimals; missing or mismatched metadata remains unproven.
 
 - Copy Detail Advanced has one Withdraw button. Its modal defaults to
   All Tokens and offers All Tokens / Withdraw Stable only radio options, using
@@ -313,20 +332,18 @@ Cross-flow decisions:
 - The shared flow validates owner/chain/call kind/expiry, simulates, estimates
   outer-call gas, submits the exact call, and waits for its receipt. Expired or
   failed calls require fresh preparation; receipt/sync retries never resubmit.
-- All Tokens finishes after one transaction and the existing inventory
-  convergence, regardless of hasMoreTokens. There is no next-batch CTA, batch
+- All Tokens finishes after one transaction and SUCCEEDED submitted status,
+  regardless of hasMoreTokens. There is no next-batch CTA, batch
   state, or batch-specific preview cache. To withdraw remaining eligible tokens,
   close and reopen the modal for a fresh preview and preparation. Success means
   this transaction completed; it does not assert the Smart Wallet is empty.
 - The passed Copy Run and existing advisory remain the modal inputs; no extra
   detail subscription, pre-prepare detail read, or RPC balance check is added.
-- Both withdrawals poll only wallet-inventory after receipt. They require a
-  complete inventory, the matching pinned stable token, and balance block coverage
-  at or after the receipt: stable balance for Stable only, each token in the submitted preparation
-  snapshot for All Tokens (missing rows remain unproven; extra tokens are ignored). Neither waits for USD metrics or lifecycle projections, nor
-  requires exact balance subtraction or reaching zero. Each positive prepared balance must change; already-zero prepared balances only need block coverage. Shared syncing/timeout/retry and
-  cache refresh remain unchanged; lifecycle/list membership comes from refreshed
-  server reads.
+- Both withdrawals use actions:status after receipt. Wallet inventory remains
+  the source for existing display/input reads, and is refreshed through cache
+  invalidation after success. FE does not compare old/new balances or token
+  decimals to establish transaction convergence. Lifecycle/list membership
+  continues to come from server reads.
 - History retains its existing desktop columns and mobile fields. Desktop sorting
   supports Closed Trades, Capital In, Current Balance, and Started & Stopped Time
   (by stoppedAt). Missing closed counts never fall back to open counts. The API
@@ -343,10 +360,11 @@ Frontend implementation is complete for the current scope. The remaining work
 is validation or product-definition work:
 
 - Controlled positive E2E for All Tokens withdrawal on active and stopped runs,
-  including repeated independent withdrawals, zero balances, expiry, and post-receipt inventory
-  convergence. Missing inventory rows remain unproven under the existing policy.
-- Controlled positive E2E for Add Capital, Stop Copy, and Withdraw Quote
-  post-receipt convergence.
+  including repeated independent withdrawals, zero balances, expiry, and
+  post-receipt submitted-status convergence.
+- Controlled positive E2E for Start Copy, Add Capital, Stop Copy, and Withdraw
+  Quote post-receipt status convergence, including replacement hashes and
+  recovery after status-request failures.
 - Controlled positive E2E for active Manual Sell after an Operator skip.
 - Controlled positive E2E for active 100% recovery.
 - Controlled positive E2E for Close Position on a CLOSING Copy.
@@ -362,18 +380,26 @@ from the frontend.
 
 ## Verification Snapshot
 
-Latest checks for the current working tree (2026-09-12):
+Latest verification evidence (2026-09-14):
 
-- App TypeScript, targeted ESLint, and git diff --check passed after restoring
-  the established withdrawal and metric-presentation decisions.
-- Copy Trading suite: 151 tests passed across 16 files after removing batch
-  continuation. Existing receipt/inventory convergence and 100-token validation
-  remain covered.
-- Checked-in OpenAPI byte-matches the 34-path, 158-definition schema fetched on
-  2026-09-11; SHA-256:
-  507d09eb4928b8aec9331601a1b0898139f1cfe2dcd52904ad91c59c10709f0c.
-- Public PRE leaderboard GET on 2026-09-11 accepted ROI sort (HTTP 200) and
-  rejected the retired APR sort (HTTP 400/code 3).
+- App TypeScript, targeted ESLint, and git diff --check passed after the
+  replacement-hash fix.
+- PreparedActionModal suite: 45 tests passed across 4 files after that fix.
+  Coverage includes replacement receipts in initial submission and receipt
+  retry, retaining the replacement hash through status errors/retries, reverted
+  replacement receipts, and no preparation or resubmission during status retry.
+- The full Copy Trading suite passed 123 tests across 13 files before the
+  replacement-hash fix; it was not rerun as a full suite after that fix.
+- Status polling tests cover context passthrough after preparation expiry,
+  previousReceipt across a reorg within polling, bounded retries, transient
+  UNKNOWN, missing results, and Stop success independent of optional progress.
+  Tests also confirm that nextStep does not trigger preparation continuation.
+- Checked-in OpenAPI byte-matched the live 35-path, 194-definition schema fetched
+  on 2026-09-14; all 502 local references resolved. SHA-256:
+  87937a432e257b310dbb4bbef59ace2d04a15ebf38ae5e2a65252a7a597bb987.
+- Earlier live read evidence (2026-09-11): PRE leaderboard GET accepted ROI sort
+  (HTTP 200) and rejected retired APR sort (HTTP 400/code 3).
 - Browser QA was attempted on 2026-09-11 but no browser was available. The local
   Vite server served the ROI module; this does not establish visual QA.
-- Production build, owner API smoke, and positive transaction E2E were not run.
+- No new browser QA, production build, owner API smoke, or positive transaction
+  E2E was run for this submitted-status update.
