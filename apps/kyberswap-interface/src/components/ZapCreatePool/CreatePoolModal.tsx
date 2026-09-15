@@ -17,7 +17,6 @@ import Modal from 'components/Modal'
 import Row from 'components/Row'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
-import useChainsConfig from 'hooks/useChainsConfig'
 import { useIsTokenAddressRestricted } from 'hooks/useRestrictedTokens'
 import useTracking, { TRACKING_EVENT_TYPE } from 'hooks/useTracking'
 import { Exchange } from 'pages/Earns/constants'
@@ -118,7 +117,6 @@ const CreatePoolModal = ({ isOpen, filterChainId, onDismiss, onSubmit }: Props) 
     [trackingHandler],
   )
 
-  const { supportedChains } = useChainsConfig()
   const { data: supportedProtocols } = useSupportedProtocolsQuery()
 
   const [selectedChainId, setSelectedChainId] = useState<ChainId>(availableChains[0])
@@ -128,16 +126,16 @@ const CreatePoolModal = ({ isOpen, filterChainId, onDismiss, onSubmit }: Props) 
   const [fee, setFee] = useState<number | null>(null)
   const [tokenSelectorTarget, setTokenSelectorTarget] = useState<'token0' | 'token1' | null>(null)
 
+  // Driven by the protocol allowlist alone: a chain appears here as soon as a protocol is configured
+  // for it, whatever state the chain is otherwise in.
   const chainOptions = useMemo(
     () =>
-      supportedChains
-        .filter(chain => availableChains.includes(chain.chainId))
-        .map(chain => ({
-          label: chain.name,
-          value: chain.chainId.toString(),
-          icon: chain.icon,
-        })),
-    [supportedChains],
+      availableChains.map(chainId => ({
+        label: NETWORKS_INFO[chainId].name,
+        value: chainId.toString(),
+        icon: NETWORKS_INFO[chainId].icon,
+      })),
+    [],
   )
 
   const protocolOptions = useMemo(() => {
