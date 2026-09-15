@@ -1,4 +1,5 @@
 import arbitrum from '@/constants/networks/arbitrum';
+import arc from '@/constants/networks/arc';
 import avalanche from '@/constants/networks/avalanche';
 import base from '@/constants/networks/base';
 import berachain from '@/constants/networks/berachain';
@@ -28,6 +29,13 @@ interface NetworkInfo {
   nativeLogo: string;
   coingeckoNetworkId: string | null;
   coingeckoNativeTokenId: string | null;
+  /**
+   * Set where the native asset is itself an ERC-20 token rather than a separate asset with a wrapper
+   * (Arc, where USDC is native). `wrappedToken` is then the only representation there is, so nothing
+   * should offer the native sentinel: pools, the zap router and the zap service all work in the
+   * token's own units.
+   */
+  nativeIsErc20?: boolean;
 }
 
 export const NETWORKS_INFO: Record<ChainId, NetworkInfo> = {
@@ -48,6 +56,7 @@ export const NETWORKS_INFO: Record<ChainId, NetworkInfo> = {
   [ChainId.Sonic]: sonic,
   [ChainId.Monad]: monad,
   [ChainId.Robinhood]: robinhood,
+  [ChainId.Arc]: arc,
 };
 
 export const CHAIN_ID_TO_CHAIN: { [chainId in ChainId]: string } = {
@@ -68,4 +77,5 @@ export const CHAIN_ID_TO_CHAIN: { [chainId in ChainId]: string } = {
   [ChainId.Sonic]: 'sonic',
   [ChainId.Monad]: 'monad',
   [ChainId.Robinhood]: 'robinhood',
+  [ChainId.Arc]: 'arc',
 };

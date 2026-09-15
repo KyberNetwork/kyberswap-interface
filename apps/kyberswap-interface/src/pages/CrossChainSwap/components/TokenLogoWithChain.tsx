@@ -4,6 +4,7 @@ import UnknownToken from 'assets/svg/kyber/unknown-token.svg'
 import { Chain, Currency } from 'pages/CrossChainSwap/adapters'
 import { isEvmChain } from 'pages/CrossChainSwap/adapters/types'
 import { getNetworkInfo } from 'pages/CrossChainSwap/utils'
+import { isNativeAsset } from 'utils/nativeErc20'
 import { getNativeTokenLogo } from 'utils/tokenLogo'
 
 export const TokenLogoWithChain = ({
@@ -21,7 +22,7 @@ export const TokenLogoWithChain = ({
     <div className="relative mr-1 flex">
       {isEvmChain(chainId) ? (
         <img
-          src={(currency?.isNative ? getNativeTokenLogo(chainId as ChainId) : currency?.logoURI) || UnknownToken}
+          src={(isNativeAsset(currency) ? getNativeTokenLogo(chainId as ChainId) : currency?.logoURI) || UnknownToken}
           width={size}
           height={size}
           className="rounded-full"

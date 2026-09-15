@@ -23,6 +23,7 @@ export default {
     [ChainId.SCROLL]: '0x03a520b32C04BF3bEEf7BEb72E919cf822Ed34f1',
     [ChainId.MONAD]: '0x7197e214c0b767cfb76fb734ab638e2c192f4e53',
     [ChainId.ROBINHOOD]: '0x73991a25c818bf1f1128deaab1492d45638de0d3',
+    [ChainId.ARC]: '0x39654a85a4c05127f5fd6ed22caec077a0fb1377',
   },
   nftManagerContractAbi: Univ3NftManagerABI,
   unwrapWNativeTokenFuncName: 'unwrapWETH9',

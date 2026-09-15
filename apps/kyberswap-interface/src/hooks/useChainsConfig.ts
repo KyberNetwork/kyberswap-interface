@@ -2,6 +2,7 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 import { useMemo } from 'react'
 import { useGetChainsConfigurationQuery } from 'services/ksSetting'
 
+import { IS_TESTING_DEPLOYMENT } from 'constants/deployment'
 import { MAINNET_NETWORKS, NETWORKS_INFO as NETWORKS_INFO_HARDCODE } from 'constants/networks'
 import { NetworkInfo } from 'constants/networks/type'
 import { useKyberswapGlobalConfig } from 'hooks/useKyberSwapConfig'
@@ -11,7 +12,19 @@ export enum ChainState {
   PROVISIONAL = 'provisional',
   ACTIVE = 'active',
   MAINTENANCE = 'maintained',
+  TESTING = 'testing',
 }
+
+// A chain under test is fully enabled on the team's deployments, so the product can be exercised on
+// it exactly as it will behave once it is switched on in production, and stays invisible on the live
+// site. A state this build does not recognise falls out of both lists, which is how `inactive` works.
+const ENABLED_STATES: ChainState[] = [
+  ChainState.ACTIVE,
+  ChainState.NEW,
+  ChainState.PROVISIONAL,
+  ...(IS_TESTING_DEPLOYMENT ? [ChainState.TESTING] : []),
+]
+const SUPPORTED_STATES: ChainState[] = [...ENABLED_STATES, ChainState.MAINTENANCE]
 
 export type ChainStateMap = {
   [chain in ChainId]: ChainState
@@ -48,12 +61,8 @@ export default function useChainsConfig() {
     })
 
     return {
-      activeChains: chains.filter(chain =>
-        [ChainState.ACTIVE, ChainState.NEW, ChainState.PROVISIONAL].includes(chain.state),
-      ),
-      supportedChains: chains.filter(chain =>
-        [ChainState.ACTIVE, ChainState.NEW, ChainState.PROVISIONAL, ChainState.MAINTENANCE].includes(chain.state),
-      ),
+      activeChains: chains.filter(chain => ENABLED_STATES.includes(chain.state)),
+      supportedChains: chains.filter(chain => SUPPORTED_STATES.includes(chain.state)),
       allChains: chains,
     }
   }, [data, globalConfig])

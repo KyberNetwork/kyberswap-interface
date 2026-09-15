@@ -11,6 +11,7 @@ const ETHERLINK = 42793;
 const MEGAETH = 4326;
 const UNICHAIN = 130;
 const ROBINHOOD = 4663;
+const ARC = 5042;
 
 /**
  * Public endpoints tried, in order, when the KyberSwap RPC fails. An endpoint earns its place by
@@ -184,6 +185,7 @@ export const PUBLIC_RPC_ENDPOINTS: Record<number, string[]> = {
     'https://mainnet.unichain.org',
   ],
   [ROBINHOOD]: ['https://rpc.mainnet.chain.robinhood.com'],
+  [ARC]: ['https://arc-rpc.kyberswap.com'],
 };
 
 export const KYBER_RPC_ENDPOINTS: Record<number, string> = {
