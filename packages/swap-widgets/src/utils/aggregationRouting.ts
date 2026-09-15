@@ -1,6 +1,6 @@
 import { isAddress } from '@kyber/utils/crypto'
-import { isSameTokenAddress } from '.'
-import { NATIVE_TOKEN_ADDRESS, NATIVE_TOKEN, TokenInfo } from '../constants'
+import { isNativeErc20Interface, isSameTokenAddress } from '.'
+import { NATIVE_TOKEN_ADDRESS, NATIVE_TOKEN, TokenInfo, WRAPPED_NATIVE_TOKEN } from '../constants'
 
 export type Route = {
   pool: string
@@ -294,7 +294,15 @@ export function getTradeComposition(
     }
     const exactTokenIn = isSameTokenAddress(chainId, tokenIn, inputToken?.address)
     if (exactTokenIn && Number(inputAmount) > 0) {
-      const percent = (parseFloat(amount) * 100) / parseFloat(inputAmount)
+      // Pools hold the ERC-20 form of a native asset that has one, so a hop is denominated in that
+      // contract's decimals while the trade is denominated in the native interface's. The two are the
+      // same asset, so compare them at one scale rather than across the gap between the interfaces.
+      const crossesInterfaces = isNativeErc20Interface(chainId, tokenIn) && inputToken?.address === NATIVE_TOKEN_ADDRESS
+      const tradeAmount = crossesInterfaces
+        ? parseFloat(inputAmount) /
+          10 ** (NATIVE_TOKEN[chainId].decimals - (WRAPPED_NATIVE_TOKEN[chainId]?.decimals ?? 0))
+        : parseFloat(inputAmount)
+      const percent = (parseFloat(amount) * 100) / tradeAmount
       return Math.round(percent)
     }
     return undefined

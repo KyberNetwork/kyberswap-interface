@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { parseUnits } from '@kyber/utils/crypto'
 import { AGGREGATOR_PATH, NATIVE_TOKEN_ADDRESS, SUPPORTED_NETWORKS, WRAPPED_NATIVE_TOKEN } from '../constants'
 import { useDebounce } from '@kyber/hooks/use-debounce'
+import { isNativeErc20Chain, toWidgetTokenAddress } from '../utils'
 import useTokenBalances from './useTokenBalances'
 import { useTokens } from './useTokens'
 import { useActiveWeb3 } from './useWeb3Provider'
@@ -146,16 +147,23 @@ const useSwap = ({
   client: string
 }) => {
   const { chainId, connectedAccount } = useActiveWeb3()
-  const [tokenIn, setTokenIn] = useState(defaultTokenIn || NATIVE_TOKEN_ADDRESS)
-  const [tokenOut, setTokenOut] = useState(defaultTokenOut || '')
+  const [tokenIn, setTokenIn] = useState(() => toWidgetTokenAddress(chainId, defaultTokenIn || NATIVE_TOKEN_ADDRESS))
+  const [tokenOut, setTokenOut] = useState(() => toWidgetTokenAddress(chainId, defaultTokenOut || ''))
   const tokens = useTokens()
 
   const isUnsupported = !SUPPORTED_NETWORKS.includes(chainId.toString())
 
+  // Where the native asset is itself an ERC-20 contract the two addresses name one asset, so the pair
+  // that reads as a wrap everywhere else is a no-op there and must go to the router like any other.
+  const wrappable = !isNativeErc20Chain(chainId)
   const isWrap =
-    tokenIn === NATIVE_TOKEN_ADDRESS && tokenOut.toLowerCase() === WRAPPED_NATIVE_TOKEN[chainId].address.toLowerCase()
+    wrappable &&
+    tokenIn === NATIVE_TOKEN_ADDRESS &&
+    tokenOut.toLowerCase() === WRAPPED_NATIVE_TOKEN[chainId]?.address?.toLowerCase()
   const isUnwrap =
-    tokenOut === NATIVE_TOKEN_ADDRESS && tokenIn.toLowerCase() === WRAPPED_NATIVE_TOKEN[chainId].address.toLowerCase()
+    wrappable &&
+    tokenOut === NATIVE_TOKEN_ADDRESS &&
+    tokenIn.toLowerCase() === WRAPPED_NATIVE_TOKEN[chainId]?.address?.toLowerCase()
 
   useEffect(() => {
     if (isUnsupported) {
@@ -164,8 +172,8 @@ const useSwap = ({
       setTrade(null)
     } else {
       setTrade(null)
-      setTokenIn(defaultTokenIn || NATIVE_TOKEN_ADDRESS)
-      setTokenOut(defaultTokenOut || '')
+      setTokenIn(toWidgetTokenAddress(chainId, defaultTokenIn || NATIVE_TOKEN_ADDRESS))
+      setTokenOut(toWidgetTokenAddress(chainId, defaultTokenOut || ''))
     }
   }, [isUnsupported, chainId, defaultTokenIn, defaultTokenOut])
 
@@ -337,14 +345,20 @@ const useSwap = ({
   // Wrap the raw setters so any token change immediately clears the stale
   // trade from state. Without this the UI keeps displaying the previous
   // rate/amountOut for one render cycle until getRate finishes refreshing.
-  const setTokenInAndReset = useCallback((addr: string) => {
-    setTokenIn(addr)
-    setTrade(null)
-  }, [])
-  const setTokenOutAndReset = useCallback((addr: string) => {
-    setTokenOut(addr)
-    setTrade(null)
-  }, [])
+  const setTokenInAndReset = useCallback(
+    (addr: string) => {
+      setTokenIn(toWidgetTokenAddress(chainId, addr))
+      setTrade(null)
+    },
+    [chainId],
+  )
+  const setTokenOutAndReset = useCallback(
+    (addr: string) => {
+      setTokenOut(toWidgetTokenAddress(chainId, addr))
+      setTrade(null)
+    },
+    [chainId],
+  )
 
   return {
     tokenIn,

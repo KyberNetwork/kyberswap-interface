@@ -43,6 +43,7 @@ import {
 } from './styled'
 
 import { NATIVE_TOKEN, NATIVE_TOKEN_ADDRESS, SUPPORTED_NETWORKS, TokenInfo, ZIndex } from '../../constants'
+import { isSameTokenAddress, toRoutableAmount } from '../../utils'
 import SelectCurrency from '../SelectCurrency'
 import { Web3Provider, useActiveWeb3 } from '../../hooks/useWeb3Provider'
 import useSwap from '../../hooks/useSwap'
@@ -378,7 +379,7 @@ const Widget = ({
           <SelectCurrency
             selectedToken={tokenIn}
             onChange={token => {
-              if (token.address === tokenOut) setTokenOut(tokenIn)
+              if (isSameTokenAddress(chainId, token.address, tokenOut)) setTokenOut(tokenIn)
               setTokenIn(token.address)
               setShowModal(null)
               onSourceTokenChange?.(token)
@@ -395,7 +396,7 @@ const Widget = ({
           <SelectCurrency
             selectedToken={tokenOut}
             onChange={token => {
-              if (token.address === tokenIn) setTokenIn(tokenOut)
+              if (isSameTokenAddress(chainId, token.address, tokenIn)) setTokenIn(tokenOut)
               setTokenOut(token.address)
               setShowModal(null)
               onDestinationTokenChange?.(token)
@@ -503,7 +504,9 @@ const Widget = ({
       <InputWrapper>
         <BalanceRow>
           <div>
-            <MaxHalfBtn onClick={() => setInputAmount(tokenInWithUnit)}>Max</MaxHalfBtn>
+            <MaxHalfBtn onClick={() => setInputAmount(toRoutableAmount(chainId, tokenIn, tokenInWithUnit))}>
+              Max
+            </MaxHalfBtn>
             {/* <MaxHalfBtn>Half</MaxHalfBtn> */}
           </div>
           <AccountBalance>

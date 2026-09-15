@@ -19,6 +19,8 @@ const CHAINS = [
   { id: 4326, label: 'MegaETH', token: 'ETH', rpcUrl: 'https://mainnet.megaeth.com/rpc' },
   { id: 4153, label: 'Rise', token: 'ETH', rpcUrl: 'https://rpc.risechain.com' },
   { id: 4663, label: 'Robinhood', token: 'ETH', rpcUrl: 'https://rpc.mainnet.chain.robinhood.com' },
+  // Arc's native asset is USDC, reached through the 18-decimal native interface.
+  { id: 5042, label: 'Arc', token: 'USDC', rpcUrl: 'https://arc-rpc.kyberswap.com' },
 ] as const
 
 const DEFAULT_TOKEN_OUT: Record<number, string> = {
@@ -34,6 +36,7 @@ const DEFAULT_TOKEN_OUT: Record<number, string> = {
   4326: '0xFAfDdbb3FC7688494971a79cc65DCa3EF82079E7',
   4153: '0xe436820ba0c69702c1d3e601d421c0ef38262739',
   4663: '0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168',
+  5042: '0xbef5f6d51cb62b58e6a8f77868681825c6fe21c1',
 }
 
 const DARK_THEME = {
