@@ -30,9 +30,6 @@ const arcInfo: NetworkInfo = {
     decimal: 18,
     erc20Interface: {
       payNativeOnSwap: true,
-      // 0.05 USDC. A swap costs about 0.007 at Arc's 20 Gwei `maxFeePerGas` floor, so this leaves
-      // room for the swap plus a few follow-up transactions.
-      gasReserve: '50000',
     },
   },
   defaultRpcUrl: 'https://rpc.arc-scan.org',

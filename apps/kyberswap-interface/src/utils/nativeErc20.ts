@@ -117,14 +117,3 @@ export const nativeBalanceAmount = (rawNativeBalance: string, chainId: ChainId):
   if (!hasNativeErc20Interface(chainId)) return CurrencyAmount.fromRawAmount(currency, rawNativeBalance)
   return CurrencyAmount.fromRawAmount(currency, JSBI.divide(JSBI.BigInt(rawNativeBalance), scaleFactor(chainId)))
 }
-
-/**
- * Amount of `currency` to keep back for gas, or undefined when it is not the chain's gas asset. On
- * these chains the asset being spent is also what pays the fee, and both interfaces draw on one
- * balance, so spending all of it would leave nothing to send the transaction with.
- */
-export const gasReserveFor = (currency: Currency): CurrencyAmount<Currency> | undefined => {
-  if (!isNativeErc20(currency)) return undefined
-  const reserve = erc20InterfaceOf(currency.chainId)?.gasReserve
-  return reserve ? CurrencyAmount.fromRawAmount(currency, reserve) : undefined
-}

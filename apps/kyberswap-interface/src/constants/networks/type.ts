@@ -20,11 +20,6 @@ export interface NativeToken {
      * `msg.value`, so the router needs no allowance.
      */
     readonly payNativeOnSwap: boolean
-    /**
-     * Raw amount, in the ERC-20 interface's own units, that Max and Half hold back so the account
-     * can still pay for the transaction they are funding.
-     */
-    readonly gasReserve: string
   }
 }
 

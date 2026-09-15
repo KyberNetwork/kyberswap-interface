@@ -4,11 +4,9 @@ import { describe, expect, it } from 'vitest'
 import { ETHER_ADDRESS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import { DEFAULT_INPUT_TOKENS, DEFAULT_OUTPUT_TOKENS, NativeCurrencies } from 'constants/tokens'
-import { halfAmountSpend, maxAmountSpend } from 'utils/maxAmountSpend'
 import {
   amountFromRoute,
   fromNativeUnits,
-  gasReserveFor,
   hasNativeErc20Interface,
   isNativeErc20,
   nativeBalanceAmount,
@@ -150,26 +148,6 @@ describe('transaction value', () => {
 
   it('still sends the full amount for a real native currency', () => {
     expect(swapTxValue(CurrencyAmount.fromRawAmount(NativeCurrencies[ChainId.BASE], '5'))).toBe(5n)
-  })
-})
-
-describe('gas reserve', () => {
-  it('reserves only for the asset that pays gas', () => {
-    expect(gasReserveFor(arcUsdc)?.quotient.toString()).toBe('50000')
-    expect(gasReserveFor(eurc)).toBeUndefined()
-    expect(gasReserveFor(baseWeth)).toBeUndefined()
-  })
-
-  // The reserve caps what Max and Half offer; it must never refuse a balance outright, or an account
-  // holding less than the reserve could not swap at all on the only chain where it applies.
-  it('caps Max and Half without locking out a balance below the reserve', () => {
-    const rich = CurrencyAmount.fromRawAmount(arcUsdc, '1000000')
-    expect(maxAmountSpend(rich)?.quotient.toString()).toBe('950000')
-    expect(halfAmountSpend(rich)?.quotient.toString()).toBe('500000')
-
-    const poor = CurrencyAmount.fromRawAmount(arcUsdc, '40000')
-    expect(maxAmountSpend(poor)?.quotient.toString()).toBe('40000')
-    expect(halfAmountSpend(poor)?.quotient.toString()).toBe('20000')
   })
 })
 
