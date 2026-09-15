@@ -168,6 +168,9 @@ export const PRICE_CHART_QUOTES: Partial<Record<ChainId, Token>> = {
 export const STABLE_TOKENS: Partial<Record<ChainId, Token>> = {
   ...DEFAULT_OUTPUT_TOKENS,
   ...PRICE_CHART_QUOTES,
+  // Arc's USD stable is the native currency's own ERC-20 interface, not a separate token, so it does
+  // not follow this chain's default output the way the other entries do.
+  [ChainId.ARC]: WETH[ChainId.ARC],
 }
 
 export const DEFAULT_SWAP_FEE_STABLE_PAIRS = 4
