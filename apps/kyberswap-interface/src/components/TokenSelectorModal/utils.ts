@@ -110,6 +110,16 @@ export const getNeedsImport = (
   !isImported(currency.wrapped.address)
 
 /**
+ * Appends locally matched tokens to the catalog results, skipping any address the catalog already
+ * returned — its entry carries the logo and metrics a local copy lacks.
+ */
+export const concatUnseenTokens = (results: Currency[], extras: Currency[]): Currency[] => {
+  if (!extras.length) return results
+  const seen = new Set(results.map(token => getTokenAddress(token).toLowerCase()))
+  return results.concat(extras.filter(token => !seen.has(getTokenAddress(token).toLowerCase())))
+}
+
+/**
  * Search results with the wallet's own holdings pulled to the front: held matches the catalog search
  * missed are added (de-duplicated by address, catalog rows win since they carry logo and name), then
  * the list is stably partitioned so every held token leads. Someone typing the symbol of a token they

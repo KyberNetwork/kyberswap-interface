@@ -59,6 +59,7 @@ import {
 } from 'components/TokenSelectorModal/types'
 import {
   TOKEN_SEARCH_PAGE_SIZE,
+  concatUnseenTokens,
   fetchTokens,
   getNeedsImport,
   mergeHeldSearchResults,
@@ -464,6 +465,16 @@ export const TokenSelectorContent = ({
         : EMPTY_CURRENCIES,
     [isAllTab, debouncedQuery, discoveryTokens, primaryChainId],
   )
+  // Imported tokens live only in local state, and the catalog answers a symbol query with its
+  // whitelisted entries alone. Matching them here keeps a token the empty-box list shows from
+  // vanishing the moment its own symbol is typed.
+  const searchImportMatches = useMemo<Currency[]>(
+    () =>
+      isAllTab && debouncedQuery && tokenImports.length
+        ? filterTokens(primaryChainId, tokenImports, debouncedQuery)
+        : EMPTY_CURRENCIES,
+    [isAllTab, debouncedQuery, tokenImports, primaryChainId],
+  )
   // Every address the wallet holds; only set while searching, to lead with held matches and badge them.
   const heldAddresses = useMemo(
     () => (isAllTab && debouncedQuery && inventory.active ? new Set(Object.keys(inventory.rows)) : undefined),
@@ -482,7 +493,7 @@ export const TokenSelectorContent = ({
       : isFavoritesTab
       ? pinnedTokens
       : debouncedQuery
-      ? [...tokenSearchResults, currentChainRpcToken, ...searchDiscoveryMatches]
+      ? [...tokenSearchResults, currentChainRpcToken, ...searchDiscoveryMatches, ...searchImportMatches]
       : Object.values(defaultTokens)
     // Native balance comes from `getEthBalance`, not an ERC20 read; off-chain rows (a cross-chain
     // search hit) have no balance to show here either.
@@ -500,6 +511,7 @@ export const TokenSelectorContent = ({
     tokenSearchResults,
     currentChainRpcToken,
     searchDiscoveryMatches,
+    searchImportMatches,
     defaultTokens,
     primaryChainId,
   ])
@@ -540,7 +552,7 @@ export const TokenSelectorContent = ({
     if (!isAllTab) return EMPTY_CURRENCIES
     if (debouncedQuery) {
       return mergeHeldSearchResults(
-        tokenSearchResults.concat(filterTruthy([currentChainRpcToken])),
+        concatUnseenTokens(tokenSearchResults.concat(filterTruthy([currentChainRpcToken])), searchImportMatches),
         searchDiscoveryMatches,
         heldAddresses,
         impersonators,
@@ -553,6 +565,7 @@ export const TokenSelectorContent = ({
     tokenSearchResults,
     currentChainRpcToken,
     searchDiscoveryMatches,
+    searchImportMatches,
     heldAddresses,
     defaultTokens,
     discoveryTokens,

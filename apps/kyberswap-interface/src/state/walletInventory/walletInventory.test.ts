@@ -3,7 +3,7 @@ import { ChainId, Token, TokenAmount } from '@kyberswap/ks-sdk-core'
 import { InventoryRow, adaptRow, parseRawAmount } from 'services/walletInventory'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { getTokenComparator, mergeHeldSearchResults } from 'components/TokenSelectorModal/utils'
+import { concatUnseenTokens, getTokenComparator, mergeHeldSearchResults } from 'components/TokenSelectorModal/utils'
 import { ETHER_ADDRESS } from 'constants/index'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { isTokenListReady, rankWalletHoldings, selectWalletHoldings } from 'state/walletInventory/assets'
@@ -1015,6 +1015,25 @@ describe('token metadata', () => {
     const flagged = computeInventoryDiscoveries(agree, whitelist, [], ChainId.MAINNET, metadata)
     expect(flagged.tokens[0].symbol).toBe('USDT')
     expect(flagged.impersonators.has(NOVEL)).toBe(true)
+  })
+})
+
+describe('concatUnseenTokens', () => {
+  const usdt = new Token(ChainId.MAINNET, USDT_CHECKSUM, 6, 'USDT')
+  const imported = new Token(ChainId.MAINNET, '0x3000000000000000000000000000000000000003', 18, 'IMP')
+
+  it('returns the results untouched when there is nothing to append', () => {
+    const results = [usdt]
+    expect(concatUnseenTokens(results, [])).toBe(results)
+  })
+
+  it('appends a token the catalog did not return', () => {
+    expect(concatUnseenTokens([usdt], [imported]).map(token => token.symbol)).toEqual(['USDT', 'IMP'])
+  })
+
+  it('skips a token the catalog already returned', () => {
+    const localCopy = new Token(ChainId.MAINNET, USDT_CHECKSUM, 6, 'USDT')
+    expect(concatUnseenTokens([usdt], [localCopy, imported]).map(token => token.symbol)).toEqual(['USDT', 'IMP'])
   })
 })
 
