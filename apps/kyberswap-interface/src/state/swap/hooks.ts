@@ -5,7 +5,7 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { useCheckPairQuery } from 'services/tokenCatalog'
 
 import { APP_PATHS, ETHER_ADDRESS, ZERO_ADDRESS } from 'constants/index'
-import { DEFAULT_INPUT_TOKENS, DEFAULT_OUTPUT_TOKENS, NativeCurrencies, STABLE_TOKENS } from 'constants/tokens'
+import { DEFAULT_OUTPUT_TOKENS, NativeCurrencies, STABLE_TOKENS } from 'constants/tokens'
 import { PAIR_CATEGORY } from 'constants/trade'
 import { useActiveWeb3React } from 'hooks'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
@@ -266,14 +266,11 @@ export const useCurrencyFromUrl = () => {
     const fromCurrency = matches?.[0]?.toLowerCase() || ''
     let toCurrency = matches?.[1]?.toLowerCase() || ''
     const nativeSymbol = NativeCurrencies[chainId].symbol?.toLowerCase() || 'eth'
-    // The native currency unless the chain names its own opening pair, which it does where the
-    // native asset is also the quote token and both sides would otherwise show the same thing.
-    const defaultInput = DEFAULT_INPUT_TOKENS[chainId]?.symbol?.toLowerCase() || nativeSymbol
     const defaultOutput = DEFAULT_OUTPUT_TOKENS[chainId]?.symbol?.toLowerCase() || ''
 
     if (!fromCurrency && !toCurrency)
       return {
-        fromCurrency: defaultInput,
+        fromCurrency: nativeSymbol,
         toCurrency: defaultOutput,
       }
 
@@ -282,7 +279,7 @@ export const useCurrencyFromUrl = () => {
     }
 
     return {
-      fromCurrency: fromCurrency || (toCurrency === defaultInput ? defaultOutput : defaultInput),
+      fromCurrency: fromCurrency || (toCurrency === nativeSymbol ? defaultOutput : nativeSymbol),
       toCurrency: toCurrency || defaultOutput,
     }
   }, [chainId, currencyParam, pathname, tokenParam])
@@ -291,7 +288,6 @@ export const useCurrencyFromUrl = () => {
 const useCurrencyById = (currencyId: string) => {
   const { chainId } = useActiveWeb3React()
   const allTokens = useAllTokens()
-  const defaultInputToken = DEFAULT_INPUT_TOKENS[chainId]
   const defaultOutputToken = DEFAULT_OUTPUT_TOKENS[chainId]
   const stableCounterToken = STABLE_TOKENS[chainId]
   const normalizedCurrencyId = currencyId.toLowerCase()
@@ -304,7 +300,7 @@ const useCurrencyById = (currencyId: string) => {
   }, [allTokens, normalizedCurrencyId])
 
   const currency = useCurrencyV2(token ? token.address : currencyId)
-  const mappedToken = [defaultInputToken, defaultOutputToken, stableCounterToken].find(item => {
+  const mappedToken = [defaultOutputToken, stableCounterToken].find(item => {
     return (
       item &&
       (item.symbol?.toLowerCase() === normalizedCurrencyId || item.address.toLowerCase() === normalizedCurrencyId)

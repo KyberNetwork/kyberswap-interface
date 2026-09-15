@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest'
 
 import { ETHER_ADDRESS } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
-import { DEFAULT_INPUT_TOKENS, DEFAULT_OUTPUT_TOKENS, NativeCurrencies } from 'constants/tokens'
+import { DEFAULT_OUTPUT_TOKENS, NativeCurrencies } from 'constants/tokens'
 import {
   amountFromRoute,
   fromNativeUnits,
@@ -152,18 +152,13 @@ describe('transaction value', () => {
 })
 
 describe('default swap pair', () => {
-  // Arc's native asset is the quote token, so defaulting the input to it would open the form with
-  // the same token on both sides — which the same-symbol guard then clears, leaving no output.
-  it('opens Arc on a pair of two different tokens', () => {
-    const input = DEFAULT_INPUT_TOKENS[ChainId.ARC]
+  // Every other chain quotes its native asset against a stablecoin. Arc's native asset is the
+  // stablecoin, so the pair opens the other way round — and the two sides have to differ, or the
+  // guard against a pair of identical tokens clears the output and the form opens half empty.
+  it('opens Arc on the native currency against a different token', () => {
     const output = DEFAULT_OUTPUT_TOKENS[ChainId.ARC]
-    expect(input?.symbol).toBe('WETH')
-    expect(output?.equals(arcUsdc)).toBe(true)
-    expect(input?.symbol?.toLowerCase()).not.toBe(output?.symbol?.toLowerCase())
-  })
-
-  it('leaves chains without an override opening on their native currency', () => {
-    expect(DEFAULT_INPUT_TOKENS[ChainId.BASE]).toBeUndefined()
+    expect(output?.symbol).toBe('WETH')
+    expect(NativeCurrencies[ChainId.ARC].equals(output as Token)).toBe(false)
   })
 })
 

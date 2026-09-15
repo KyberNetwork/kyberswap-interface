@@ -128,15 +128,8 @@ export const DEFAULT_OUTPUT_TOKENS: Partial<Record<ChainId, Token>> = {
     'Global Dollar',
   ),
   [ChainId.RISE]: new Token(ChainId.RISE, '0xe436820ba0C69702c1d3E601d421c0eF38262739', 6, 'USDC.e', 'USDC.e'),
-  [ChainId.ARC]: new Token(ChainId.ARC, '0x3600000000000000000000000000000000000000', 6, 'USDC', 'USDC'),
-}
-
-/**
- * Overrides the pair a chain's swap form opens on. The input side is otherwise the native currency,
- * which on a chain whose native asset is the quote token would leave both sides showing the same
- * thing — so those chains name the asset people arrive holding instead.
- */
-export const DEFAULT_INPUT_TOKENS: Partial<Record<ChainId, Token>> = {
+  // Arc's native asset is USDC, so the pair opens the other way round from every other chain:
+  // the stablecoin is what the user arrives holding and the volatile asset is the quote.
   [ChainId.ARC]: new Token(ChainId.ARC, '0xd02d2b38d9ccf08044f0a493350a2339fe8d708b', 18, 'WETH', 'Wrapped Ether'),
 }
 

@@ -5,7 +5,7 @@ import { useSearchParams } from 'react-router-dom'
 
 import { ReactComponent as DropdownSVG } from 'assets/svg/down.svg'
 import NetworkModal from 'components/Header/web3/NetworkModal'
-import { DEFAULT_INPUT_TOKENS, DEFAULT_OUTPUT_TOKENS, NativeCurrencies } from 'constants/tokens'
+import { DEFAULT_OUTPUT_TOKENS, NativeCurrencies } from 'constants/tokens'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import { type Chain, isNonEvmChain } from 'pages/CrossChainSwap/adapters/types'
 
@@ -30,10 +30,7 @@ export const NetworkSelector = ({ chainId, customOnSelectNetwork }: NetworkSelec
             setSearchParams(prev => {
               const nextSearchParams = new URLSearchParams(prev)
               nextSearchParams.set('chainId', chain.toString())
-              nextSearchParams.set(
-                'inputCurrency',
-                DEFAULT_INPUT_TOKENS[chain]?.address || NativeCurrencies[chain].symbol || 'eth',
-              )
+              nextSearchParams.set('inputCurrency', NativeCurrencies[chain].symbol || 'eth')
               nextSearchParams.set('outputCurrency', DEFAULT_OUTPUT_TOKENS[chain]?.address || '')
               return nextSearchParams
             })
