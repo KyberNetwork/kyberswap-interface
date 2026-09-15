@@ -479,7 +479,7 @@ export const SCAN_LINK: { [chainId: number]: string } = {
   143: 'https://mainnet-beta.monvision.io',
   4326: 'https://megaeth.blockscout.com',
   4153: 'https://explorer.risechain.com',
-  4663: 'https://robinhoodchain.blockscout.com',
+  4663: 'https://robin.etherscan.io',
 }
 
 export const DefaultRpcUrl: { [chainId: number]: string } = {
