@@ -32,7 +32,7 @@ const arcInfo: NetworkInfo = {
       payNativeOnSwap: true,
     },
   },
-  defaultRpcUrl: 'https://proxy.kyberswap.com/rpc/arc',
+  defaultRpcUrl: 'https://lb.drpc.live/arc/AgtWW5_pUEE3tn6WXOEX6rIkFRHcBaUR8bS2ehXRfUMv',
   multicall: '0xcA11bde05977b3631167028862bE2a173976CA11',
   classic: {
     defaultSubgraph: '',

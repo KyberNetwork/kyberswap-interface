@@ -130,7 +130,7 @@ export const DEFAULT_OUTPUT_TOKENS: Partial<Record<ChainId, Token>> = {
   [ChainId.RISE]: new Token(ChainId.RISE, '0xe436820ba0C69702c1d3E601d421c0eF38262739', 6, 'USDC.e', 'USDC.e'),
   // Arc's native asset is USDC, so the pair opens the other way round from every other chain:
   // the stablecoin is what the user arrives holding and the volatile asset is the quote.
-  [ChainId.ARC]: new Token(ChainId.ARC, '0xd02d2b38d9ccf08044f0a493350a2339fe8d708b', 18, 'WETH', 'Wrapped Ether'),
+  [ChainId.ARC]: new Token(ChainId.ARC, '0x128cC466B61f542da60c70e3aA11c10e19B84EDB', 18, 'WETH', 'Wrapped Ether'),
 }
 
 export const PRICE_CHART_QUOTES: Partial<Record<ChainId, Token>> = {
