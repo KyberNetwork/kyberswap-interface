@@ -1,6 +1,13 @@
-import { UnsupportedChainError, isChainUnsupported, walkWalletInventory } from '@kyber/hooks'
+import {
+  NATIVE_SENTINEL,
+  UnsupportedChainError,
+  isChainUnsupported,
+  judgeInventory,
+  readLiveNative,
+  walkWalletInventory,
+} from '@kyber/hooks'
 import { ChainId, Token, TokenAmount } from '@kyberswap/ks-sdk-core'
-import { InventoryRow, adaptRow, parseRawAmount } from 'services/walletInventory'
+import { InventoryRow, adaptRow, fetchWalletInventoryJudged, parseRawAmount } from 'services/walletInventory'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { getTokenComparator, mergeHeldSearchResults } from 'components/TokenSelectorModal/utils'
@@ -140,6 +147,101 @@ describe('walkWalletInventory deadline', () => {
     )
     await vi.advanceTimersByTimeAsync(9_000)
     expect(await outcome).toBe('rejected')
+  })
+})
+
+describe('judgeInventory', () => {
+  it('trusts an answer whose index lists the native currency, whatever the node said', () => {
+    expect(judgeInventory({ nativeIndexed: true })).toBe('trusted')
+    expect(judgeInventory({ nativeIndexed: true, nativeLive: 0n })).toBe('trusted')
+  })
+
+  it('cannot judge an answer without a native row until the node has spoken', () => {
+    expect(judgeInventory({ nativeIndexed: false })).toBe('unknown')
+  })
+
+  it('reads the node saying funded as the index missing a holding, and zero as the wallet holding none', () => {
+    expect(judgeInventory({ nativeIndexed: false, nativeLive: 1n })).toBe('distrusted')
+    expect(judgeInventory({ nativeIndexed: false, nativeLive: 0n })).toBe('trusted')
+  })
+})
+
+describe('the native currency through the service', () => {
+  const raw = (tokenAddress: string, rawAmount: string, blockNumber: number) => ({
+    tokenAddress,
+    rawAmount,
+    blockNumber,
+    decimals: 18,
+    symbol: 'TKN',
+  })
+  type Page = { balances: ReturnType<typeof raw>[]; liveBalances: ReturnType<typeof raw>[] }
+  /** Stubs the service with a page per URL and hands back the mock, so requests can be counted. */
+  const stub = (page: (url: string) => Page) => {
+    const fetchMock = vi.fn(async (url: string) => ({
+      ok: true,
+      status: 200,
+      json: async () => ({ code: 0, data: page(url) }),
+    }))
+    vi.stubGlobal('fetch', fetchMock)
+    return fetchMock
+  }
+  afterEach(() => {
+    vi.unstubAllGlobals()
+  })
+
+  it('walks report whether the index listed native, and what the node said when asked', async () => {
+    stub(url => ({
+      balances: [raw(USDT_CHECKSUM, '0x5', 100)],
+      liveBalances: url.includes('liveAddrs') ? [raw(NATIVE_SENTINEL, '0x7', 500)] : [],
+    }))
+    const silent = await walkWalletInventory({ baseUrl: 'http://kd', chainId: 1, account: ACCOUNT })
+    expect(silent.nativeIndexed).toBe(false)
+    expect(silent.nativeLive).toBeUndefined()
+
+    const asked = await walkWalletInventory({
+      baseUrl: 'http://kd',
+      chainId: 1,
+      account: ACCOUNT,
+      liveAddrs: [NATIVE_SENTINEL],
+    })
+    expect(asked.nativeIndexed).toBe(false)
+    expect(asked.nativeLive).toBe(7n)
+  })
+
+  it('reads the node in one request for the smallest page, even for a wallet the index never saw', async () => {
+    const fetchMock = stub(() => ({ balances: [], liveBalances: [raw(NATIVE_SENTINEL, '0x', 500)] }))
+    await expect(readLiveNative({ baseUrl: 'http://kd', chainId: 1, account: ACCOUNT })).resolves.toBe(0n)
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+    const url = String(fetchMock.mock.calls[0][0])
+    expect(url).toContain('limit=1')
+    expect(url).toContain(`liveAddrs=${NATIVE_SENTINEL}`)
+  })
+
+  it('answers undefined when the service did not read the node', async () => {
+    stub(() => ({ balances: [], liveBalances: [] }))
+    await expect(readLiveNative({ baseUrl: 'http://kd', chainId: 1, account: ACCOUNT })).resolves.toBeUndefined()
+  })
+
+  it("asks for the node's word only when the index was silent about native", async () => {
+    const silent = stub(url => ({
+      balances: url.includes('liveAddrs') ? [] : [raw(USDT_CHECKSUM, '0x5', 100)],
+      liveBalances: url.includes('liveAddrs') ? [raw(NATIVE_SENTINEL, '0x9', 500)] : [],
+    }))
+    const judged = await fetchWalletInventoryJudged({ chainId: ChainId.MAINNET, account: ACCOUNT })
+    expect(judged.nativeIndexed).toBe(false)
+    expect(judged.nativeLive).toBe(9n)
+    expect(judgeInventory(judged)).toBe('distrusted')
+    // The walk, then the one extra request.
+    expect(silent).toHaveBeenCalledTimes(2)
+
+    const listed = stub(() => ({
+      balances: [raw(NATIVE_SENTINEL, '0x3', 100), raw(USDT_CHECKSUM, '0x5', 100)],
+      liveBalances: [],
+    }))
+    const trusted = await fetchWalletInventoryJudged({ chainId: ChainId.MAINNET, account: ACCOUNT })
+    expect(trusted.nativeIndexed).toBe(true)
+    expect(judgeInventory(trusted)).toBe('trusted')
+    expect(listed).toHaveBeenCalledTimes(1)
   })
 })
 
@@ -305,30 +407,30 @@ describe('adaptRow', () => {
 
 describe('store commits', () => {
   it('marks a complete walk settled so absence can be read as zero', () => {
-    commitResult(KEY, { rows: [row(USDT_CHECKSUM, 5n, 100)], complete: true, blockNumber: 100 })
+    commitResult(KEY, { rows: [row(USDT_CHECKSUM, 5n, 100)], complete: true, nativeIndexed: true, blockNumber: 100 })
     expect(readEntry(KEY)?.status).toBe('settled')
   })
 
   it('records a capped walk as partial, which consumers read as "use multicall"', () => {
-    commitResult(KEY, { rows: [row(ETHER_ADDRESS, 7n, 110)], complete: false, blockNumber: 110 })
+    commitResult(KEY, { rows: [row(ETHER_ADDRESS, 7n, 110)], complete: false, nativeIndexed: true, blockNumber: 110 })
     expect(readEntry(KEY)?.status).toBe('partial')
-    expect(resolveInventory(readEntry(KEY), true, '7').active).toBe(false)
+    expect(resolveInventory(readEntry(KEY), true).active).toBe(false)
   })
 
   it('never moves a token backwards in block terms', () => {
-    commitResult(KEY, { rows: [row(USDT_CHECKSUM, 9n, 200)], complete: true, blockNumber: 200 })
-    commitResult(KEY, { rows: [row(USDT_CHECKSUM, 3n, 150)], complete: true, blockNumber: 150 })
+    commitResult(KEY, { rows: [row(USDT_CHECKSUM, 9n, 200)], complete: true, nativeIndexed: true, blockNumber: 200 })
+    commitResult(KEY, { rows: [row(USDT_CHECKSUM, 3n, 150)], complete: true, nativeIndexed: true, blockNumber: 150 })
     expect(readEntry(KEY)?.rows[USDT_CHECKSUM]?.rawBalance).toBe(9n)
   })
 
   it('keeps the entry reference and wakes no subscribers when a poll returns unchanged data', () => {
-    commitResult(KEY, { rows: [row(USDT_CHECKSUM, 5n, 100)], complete: true, blockNumber: 100 })
+    commitResult(KEY, { rows: [row(USDT_CHECKSUM, 5n, 100)], complete: true, nativeIndexed: true, blockNumber: 100 })
     const before = readEntry(KEY)
     const versionBefore = getStoreVersion()
 
     // The steady-state 30s poll: same balances, only the walk's high-water block advanced. A new
     // entry object here would cascade into a full re-sort of the token list on every tick.
-    commitResult(KEY, { rows: [row(USDT_CHECKSUM, 5n, 100)], complete: true, blockNumber: 130 })
+    commitResult(KEY, { rows: [row(USDT_CHECKSUM, 5n, 100)], complete: true, nativeIndexed: true, blockNumber: 130 })
 
     expect(readEntry(KEY)).toBe(before)
     expect(readEntry(KEY)?.rows).toBe(before?.rows)
@@ -338,11 +440,11 @@ describe('store commits', () => {
   })
 
   it('still emits and replaces the entry when a balance actually moves', () => {
-    commitResult(KEY, { rows: [row(USDT_CHECKSUM, 5n, 100)], complete: true, blockNumber: 100 })
+    commitResult(KEY, { rows: [row(USDT_CHECKSUM, 5n, 100)], complete: true, nativeIndexed: true, blockNumber: 100 })
     const before = readEntry(KEY)
     const versionBefore = getStoreVersion()
 
-    commitResult(KEY, { rows: [row(USDT_CHECKSUM, 9n, 130)], complete: true, blockNumber: 130 })
+    commitResult(KEY, { rows: [row(USDT_CHECKSUM, 9n, 130)], complete: true, nativeIndexed: true, blockNumber: 130 })
 
     expect(readEntry(KEY)).not.toBe(before)
     expect(getStoreVersion()).toBeGreaterThan(versionBefore)
@@ -351,15 +453,15 @@ describe('store commits', () => {
 
   it('ends a catch-up watch when the indexer passes the block without any balance change', () => {
     // An approve: the transaction confirms at block 120 but moves no token balance.
-    commitResult(KEY, { rows: [row(USDT_CHECKSUM, 5n, 100)], complete: true, blockNumber: 100 })
+    commitResult(KEY, { rows: [row(USDT_CHECKSUM, 5n, 100)], complete: true, nativeIndexed: true, blockNumber: 100 })
     expireInventory(ChainId.MAINNET, ACCOUNT, 120)
 
-    commitResult(KEY, { rows: [row(USDT_CHECKSUM, 5n, 100)], complete: true, blockNumber: 125 })
+    commitResult(KEY, { rows: [row(USDT_CHECKSUM, 5n, 100)], complete: true, nativeIndexed: true, blockNumber: 125 })
     expect(isCatchingUp(KEY, Date.now())).toBe(false)
   })
 
   it('serves stale data after a failure instead of blanking the screen', () => {
-    commitResult(KEY, { rows: [row(USDT_CHECKSUM, 5n, 100)], complete: true, blockNumber: 100 })
+    commitResult(KEY, { rows: [row(USDT_CHECKSUM, 5n, 100)], complete: true, nativeIndexed: true, blockNumber: 100 })
     commitFailure(KEY)
 
     const entry = readEntry(KEY)
@@ -382,6 +484,7 @@ describe('live reads across walks', () => {
     commitResult(KEY, {
       rows: [row(ETHER_ADDRESS, 10n, 90), row(USDT_CHECKSUM, 0n, 500)],
       complete: true,
+      nativeIndexed: true,
       blockNumber: 95,
     })
     expect(readEntry(KEY)?.rows[USDT_CHECKSUM].rawBalance).toBe(0n)
@@ -389,19 +492,25 @@ describe('live reads across walks', () => {
     commitResult(KEY, {
       rows: [row(ETHER_ADDRESS, 10n, 90), row(USDT_CHECKSUM, 5n, 95)],
       complete: true,
+      nativeIndexed: true,
       blockNumber: 95,
     })
     expect(readEntry(KEY)?.rows[USDT_CHECKSUM].rawBalance).toBe(0n)
-    expect(resolveInventory(readEntry(KEY), true, '10').rows[USDT_CHECKSUM]).toBeUndefined()
+    expect(resolveInventory(readEntry(KEY), true).rows[USDT_CHECKSUM]).toBeUndefined()
     // Once the index has passed the block the zero was read at, its silence about USDT is authoritative.
-    commitResult(KEY, { rows: [row(ETHER_ADDRESS, 10n, 600)], complete: true, blockNumber: 600 })
+    commitResult(KEY, { rows: [row(ETHER_ADDRESS, 10n, 600)], complete: true, nativeIndexed: true, blockNumber: 600 })
     expect(readEntry(KEY)?.rows[USDT_CHECKSUM]).toBeUndefined()
   })
 
   it('carries a token first seen live forward until the index lists it', () => {
     register(ChainId.MAINNET, ACCOUNT)
-    commitResult(KEY, { rows: [row(ETHER_ADDRESS, 10n, 90), row(DAI, 7n, 500)], complete: true, blockNumber: 95 })
-    commitResult(KEY, { rows: [row(ETHER_ADDRESS, 10n, 90)], complete: true, blockNumber: 96 })
+    commitResult(KEY, {
+      rows: [row(ETHER_ADDRESS, 10n, 90), row(DAI, 7n, 500)],
+      complete: true,
+      nativeIndexed: true,
+      blockNumber: 95,
+    })
+    commitResult(KEY, { rows: [row(ETHER_ADDRESS, 10n, 90)], complete: true, nativeIndexed: true, blockNumber: 96 })
     expect(readEntry(KEY)?.rows[DAI].rawBalance).toBe(7n)
   })
 
@@ -410,25 +519,26 @@ describe('live reads across walks', () => {
     commitResult(KEY, {
       rows: [{ ...row(USDT_CHECKSUM, 5n, 100), decimals: 6, symbol: 'USDT' }],
       complete: true,
+      nativeIndexed: true,
       blockNumber: 100,
     })
-    commitResult(KEY, { rows: [row(USDT_CHECKSUM, 9n, 500)], complete: true, blockNumber: 100 })
+    commitResult(KEY, { rows: [row(USDT_CHECKSUM, 9n, 500)], complete: true, nativeIndexed: true, blockNumber: 100 })
     expect(readEntry(KEY)?.rows[USDT_CHECKSUM]).toMatchObject({ rawBalance: 9n, decimals: 6, symbol: 'USDT' })
   })
 
   it('does not wake subscribers when only the block stamp of a live row moved', () => {
     register(ChainId.MAINNET, ACCOUNT)
-    commitResult(KEY, { rows: [row(USDT_CHECKSUM, 9n, 500)], complete: true, blockNumber: 100 })
+    commitResult(KEY, { rows: [row(USDT_CHECKSUM, 9n, 500)], complete: true, nativeIndexed: true, blockNumber: 100 })
     const before = getStoreVersion()
     const entry = readEntry(KEY)
-    commitResult(KEY, { rows: [row(USDT_CHECKSUM, 9n, 505)], complete: true, blockNumber: 100 })
+    commitResult(KEY, { rows: [row(USDT_CHECKSUM, 9n, 505)], complete: true, nativeIndexed: true, blockNumber: 100 })
     expect(getStoreVersion()).toBe(before)
     expect(readEntry(KEY)).toBe(entry)
   })
 
   it('reads live for the whole window when the receipt carries no block, as for a Safe', () => {
     register(ChainId.MAINNET, ACCOUNT)
-    commitResult(KEY, { rows: [row(ETHER_ADDRESS, 10n, 100)], complete: true, blockNumber: 100 })
+    commitResult(KEY, { rows: [row(ETHER_ADDRESS, 10n, 100)], complete: true, nativeIndexed: true, blockNumber: 100 })
     expireInventory(ChainId.MAINNET, ACCOUNT, undefined, [USDT_CHECKSUM])
     const now = Date.now()
     expect(isCatchingUp(KEY, now)).toBe(true)
@@ -438,10 +548,10 @@ describe('live reads across walks', () => {
 
   it('starts a fresh token list once the previous watch has retired', () => {
     register(ChainId.MAINNET, ACCOUNT)
-    commitResult(KEY, { rows: [row(ETHER_ADDRESS, 10n, 100)], complete: true, blockNumber: 100 })
+    commitResult(KEY, { rows: [row(ETHER_ADDRESS, 10n, 100)], complete: true, nativeIndexed: true, blockNumber: 100 })
     expireInventory(ChainId.MAINNET, ACCOUNT, 110, [USDT_CHECKSUM])
     // The index reaches the block: the watch retires and its tokens go with it.
-    commitResult(KEY, { rows: [row(ETHER_ADDRESS, 10n, 120)], complete: true, blockNumber: 120 })
+    commitResult(KEY, { rows: [row(ETHER_ADDRESS, 10n, 120)], complete: true, nativeIndexed: true, blockNumber: 120 })
     expireInventory(ChainId.MAINNET, ACCOUNT, 130, [DAI])
     expect(readTouchedTokens(KEY, Date.now())).toEqual([DAI])
   })
@@ -449,31 +559,31 @@ describe('live reads across walks', () => {
 
 describe('post-transaction catch-up', () => {
   it('keeps the watch alive across commits fetched inside the indexer lag', () => {
-    commitResult(KEY, { rows: [row(USDT_CHECKSUM, 5n, 100)], complete: true, blockNumber: 100 })
+    commitResult(KEY, { rows: [row(USDT_CHECKSUM, 5n, 100)], complete: true, nativeIndexed: true, blockNumber: 100 })
     expireInventory(ChainId.MAINNET, ACCOUNT, 120)
 
     // Indexer still behind the transaction: the result commits (it matches what is on screen, so it
     // repaints nothing), but the watch must survive it, or catch-up would stop at the first stale poll.
-    commitResult(KEY, { rows: [row(USDT_CHECKSUM, 5n, 110)], complete: true, blockNumber: 110 })
+    commitResult(KEY, { rows: [row(USDT_CHECKSUM, 5n, 110)], complete: true, nativeIndexed: true, blockNumber: 110 })
     expect(readEntry(KEY)?.blockNumber).toBe(110)
     expect(isCatchingUp(KEY, Date.now())).toBe(true)
 
-    commitResult(KEY, { rows: [row(USDT_CHECKSUM, 2n, 125)], complete: true, blockNumber: 125 })
+    commitResult(KEY, { rows: [row(USDT_CHECKSUM, 2n, 125)], complete: true, nativeIndexed: true, blockNumber: 125 })
     expect(readEntry(KEY)?.rows[USDT_CHECKSUM]?.rawBalance).toBe(2n)
     expect(isCatchingUp(KEY, Date.now())).toBe(false)
   })
 
   it('never lets a stale in-flight walk overwrite a fresher committed balance', () => {
     // Two walks resolve out of order around a swap: the post-swap result lands first.
-    commitResult(KEY, { rows: [row(USDT_CHECKSUM, 2n, 125)], complete: true, blockNumber: 125 })
-    commitResult(KEY, { rows: [row(USDT_CHECKSUM, 5n, 110)], complete: true, blockNumber: 110 })
+    commitResult(KEY, { rows: [row(USDT_CHECKSUM, 2n, 125)], complete: true, nativeIndexed: true, blockNumber: 125 })
+    commitResult(KEY, { rows: [row(USDT_CHECKSUM, 5n, 110)], complete: true, nativeIndexed: true, blockNumber: 110 })
     expect(readEntry(KEY)?.rows[USDT_CHECKSUM]?.rawBalance).toBe(2n)
   })
 
   it('names the tokens a watched transaction moved, until the inventory catches up', () => {
     const DAI = '0x6B175474E89094C44Da98b954EedeAC495271d0F'
     register(ChainId.MAINNET, ACCOUNT)
-    commitResult(KEY, { rows: [row(ETHER_ADDRESS, 10n, 100)], complete: true, blockNumber: 100 })
+    commitResult(KEY, { rows: [row(ETHER_ADDRESS, 10n, 100)], complete: true, nativeIndexed: true, blockNumber: 100 })
     expireInventory(ChainId.MAINNET, ACCOUNT, 120, [USDT_CHECKSUM])
     const first = readTouchedTokens(KEY, Date.now())
     expect(first).toEqual([USDT_CHECKSUM])
@@ -483,7 +593,7 @@ describe('post-transaction catch-up', () => {
     expireInventory(ChainId.MAINNET, ACCOUNT, 122, [DAI])
     expect(readTouchedTokens(KEY, Date.now())).toBe(readTouchedTokens(KEY, Date.now()))
     // Once a walk lands at or past the transaction's block, nothing is read live any more.
-    commitResult(KEY, { rows: [row(ETHER_ADDRESS, 10n, 125)], complete: true, blockNumber: 125 })
+    commitResult(KEY, { rows: [row(ETHER_ADDRESS, 10n, 125)], complete: true, nativeIndexed: true, blockNumber: 125 })
     expect(readTouchedTokens(KEY, Date.now())).toEqual([])
   })
 
@@ -496,14 +606,14 @@ describe('post-transaction catch-up', () => {
     vi.useFakeTimers()
     vi.setSystemTime(1_000_000)
     register(ChainId.MAINNET, ACCOUNT)
-    commitResult(KEY, { rows: [row(USDT_CHECKSUM, 5n, 100)], complete: true, blockNumber: 100 })
+    commitResult(KEY, { rows: [row(USDT_CHECKSUM, 5n, 100)], complete: true, nativeIndexed: true, blockNumber: 100 })
     expireInventory(ChainId.MAINNET, ACCOUNT, 120)
 
     // Forced: the first fetch fires immediately.
     expect(selectDue(1_000_000, true)).toHaveLength(1)
     // The stale result commits, advancing fetchedAt; the very next sweep must NOT refire —
     // this is the regression guard against the refuse-and-refetch tight loop.
-    commitResult(KEY, { rows: [row(USDT_CHECKSUM, 5n, 100)], complete: true, blockNumber: 105 })
+    commitResult(KEY, { rows: [row(USDT_CHECKSUM, 5n, 100)], complete: true, nativeIndexed: true, blockNumber: 105 })
     expect(selectDue(Date.now() + 50, true)).toHaveLength(0)
     // After the catch-up interval it fires again — and only while the tab is visible.
     const later = Date.now() + INVENTORY_CATCHUP_INTERVAL_MS + 1
@@ -515,7 +625,7 @@ describe('post-transaction catch-up', () => {
     vi.useFakeTimers()
     vi.setSystemTime(1_000_000)
     register(ChainId.MAINNET, ACCOUNT)
-    commitResult(KEY, { rows: [row(USDT_CHECKSUM, 5n, 100)], complete: true, blockNumber: 100 })
+    commitResult(KEY, { rows: [row(USDT_CHECKSUM, 5n, 100)], complete: true, nativeIndexed: true, blockNumber: 100 })
     expireInventory(ChainId.MAINNET, ACCOUNT, 120)
     commitFailure(KEY)
 
@@ -525,19 +635,35 @@ describe('post-transaction catch-up', () => {
 })
 
 describe('resolveInventory', () => {
-  const entry = (rows: InventoryRow[], status: InventoryEntry['status']): InventoryEntry => ({
+  const entry = (
+    rows: InventoryRow[],
+    status: InventoryEntry['status'],
+    native: { indexed?: boolean; live?: bigint } = {},
+  ): InventoryEntry => ({
     rows: Object.fromEntries(rows.map(r => [r.address, r])),
     status,
     blockNumber: 100,
     fetchedAt: 1,
+    nativeIndexed: native.indexed ?? rows.some(r => r.address === ETHER_ADDRESS),
+    nativeLive: native.live,
   })
 
   it('stays inactive without a subscription', () => {
     expect(resolveInventory(entry([], 'settled'), false).active).toBe(false)
   })
 
-  it('stays inactive before the first fetch lands, so the caller reads its own source meanwhile', () => {
-    expect(resolveInventory(undefined, true).active).toBe(false)
+  it('reports pending before the first fetch lands, so the caller waits rather than sweeping', () => {
+    const resolved = resolveInventory(undefined, true)
+    expect(resolved.active).toBe(false)
+    expect(resolved.pending).toBe(true)
+  })
+
+  it('drops pending once a walk has answered, whatever the answer', () => {
+    // Every other way of not being active is a decision already made; only the first walk is a wait.
+    expect(resolveInventory({ ...entry([], 'error'), status: 'error' as const }, true).pending).toBe(false)
+    expect(resolveInventory(entry([row(USDT_CHECKSUM, 5n, 100)], 'partial'), true).pending).toBe(false)
+    // Settled without a native row and without the node's word: decided now, not waited on.
+    expect(resolveInventory(entry([row(USDT_CHECKSUM, 5n, 100)], 'settled'), true).pending).toBe(false)
   })
 
   it('stays inactive after a fetch fails', () => {
@@ -546,45 +672,51 @@ describe('resolveInventory', () => {
   })
 
   it('hands a partial inventory back to multicall — a capped walk is not authoritative', () => {
-    expect(resolveInventory(entry([row(USDT_CHECKSUM, 5n, 100)], 'partial'), true, '1000').active).toBe(false)
+    expect(resolveInventory(entry([row(USDT_CHECKSUM, 5n, 100)], 'partial', { live: 0n }), true).active).toBe(false)
   })
 
-  it('does not answer for a wallet the chain says holds native the index has not listed', () => {
+  it('does not answer for a wallet the node says holds native the index has not listed', () => {
     // The service lists every non-zero holding, native included, so this answer is missing at least
     // one of them — and what it leaves out elsewhere cannot be told from what the wallet does not hold.
-    expect(resolveInventory(entry([row(USDT_CHECKSUM, 5n, 100)], 'settled'), true, '1000').active).toBe(false)
-    expect(resolveInventory(entry([], 'settled'), true, '1000').active).toBe(false)
+    expect(resolveInventory(entry([row(USDT_CHECKSUM, 5n, 100)], 'settled', { live: 1000n }), true).active).toBe(false)
+    expect(resolveInventory(entry([], 'settled', { live: 1000n }), true).active).toBe(false)
   })
 
-  it('does not answer until the chain has said what a missing native row means', () => {
-    // The read is still on its way: the same answer fits a wallet holding no native and one the
-    // index has not covered, and the caller keeps reading its own source until they can be told apart.
-    expect(resolveInventory(entry([row(USDT_CHECKSUM, 5n, 100)], 'settled'), true, undefined).active).toBe(false)
-    expect(resolveInventory(entry([], 'settled'), true, undefined).active).toBe(false)
+  it('does not answer while nothing has said what a missing native row means', () => {
+    // The sweep asks the service for the node's word before committing; an entry without it is one
+    // the service did not answer for, and the caller keeps reading its own source.
+    expect(resolveInventory(entry([row(USDT_CHECKSUM, 5n, 100)], 'settled'), true).active).toBe(false)
+    expect(resolveInventory(entry([], 'settled'), true).active).toBe(false)
   })
 
-  it('answers for a wallet holding no native currency, listed or empty', () => {
-    const withTokens = resolveInventory(entry([row(USDT_CHECKSUM, 5n, 100)], 'settled'), true, '0')
+  it('answers for a wallet the node says holds no native, listed or empty', () => {
+    const withTokens = resolveInventory(entry([row(USDT_CHECKSUM, 5n, 100)], 'settled', { live: 0n }), true)
     expect(withTokens.active).toBe(true)
     expect(withTokens.rows[USDT_CHECKSUM].rawBalance).toBe(5n)
-    expect(resolveInventory(entry([], 'settled'), true, '0').active).toBe(true)
+    expect(resolveInventory(entry([], 'settled', { live: 0n }), true).active).toBe(true)
   })
 
-  it('answers with the indexed native row while the chain read is still on its way', () => {
-    const resolved = resolveInventory(entry([row(ETHER_ADDRESS, 5n, 100)], 'settled'), true, undefined)
+  it('answers on the strength of an indexed native row alone', () => {
+    const resolved = resolveInventory(entry([row(ETHER_ADDRESS, 5n, 100)], 'settled'), true)
     expect(resolved.active).toBe(true)
     expect(resolved.rows[ETHER_ADDRESS].rawBalance).toBe(5n)
   })
 
-  it('overlays the live native balance over the indexed one', () => {
-    const resolved = resolveInventory(entry([row(ETHER_ADDRESS, 5n, 100)], 'settled'), true, '999')
+  it('serves a native balance read live at the head over the indexed one', () => {
+    // The walk merges live reads at the head block, so the row already carries the fresher amount.
+    const resolved = resolveInventory(
+      entry([row(ETHER_ADDRESS, 999n, 500)], 'settled', { indexed: true, live: 999n }),
+      true,
+    )
     expect(resolved.rows[ETHER_ADDRESS].rawBalance).toBe(999n)
   })
 
-  it('drops the native row on a live read of zero — a drained wallet must not show its stale amount', () => {
-    // Max-send just mined: the chain says 0 while the index still reports the old 5. A token held at
-    // zero is a token the wallet does not hold, so the row goes rather than reading back as zero.
-    const resolved = resolveInventory(entry([row(ETHER_ADDRESS, 5n, 100)], 'settled'), true, '0')
+  it('hides a native balance read live as zero — a drained wallet must not show its stale amount', () => {
+    // Max-send just mined: the live read at the head is a zero row, a tombstone the reader never sees.
+    const resolved = resolveInventory(
+      entry([row(ETHER_ADDRESS, 0n, 500)], 'settled', { indexed: true, live: 0n }),
+      true,
+    )
     expect(resolved.rows[ETHER_ADDRESS]).toBeUndefined()
     expect(resolved.active).toBe(true)
   })
@@ -596,14 +728,15 @@ describe('resolveInventory tombstones', () => {
     status: 'settled',
     blockNumber: 100,
     fetchedAt: 1,
+    nativeIndexed: true,
   })
 
   it('hides a zero row from readers, and hands back the same rows object when there is none', () => {
     const clean = entry([row(ETHER_ADDRESS, 10n, 90), row(USDT_CHECKSUM, 5n, 100)])
-    expect(resolveInventory(clean, true, undefined).rows).toBe(clean.rows)
+    expect(resolveInventory(clean, true).rows).toBe(clean.rows)
 
     const withTombstone = entry([row(ETHER_ADDRESS, 10n, 90), row(USDT_CHECKSUM, 0n, 500)])
-    const resolved = resolveInventory(withTombstone, true, '10')
+    const resolved = resolveInventory(withTombstone, true)
     expect(resolved.rows[USDT_CHECKSUM]).toBeUndefined()
     expect(resolved.active).toBe(true)
   })
@@ -616,6 +749,7 @@ describe('buildInventoryBalanceMap', () => {
   const inventory = (rows: InventoryRow[]) => ({
     rows: Object.fromEntries(rows.map(r => [r.address, r])),
     active: true,
+    pending: false,
   })
 
   it('synthesizes an explicit zero for tokens an active inventory does not list', () => {
@@ -626,7 +760,7 @@ describe('buildInventoryBalanceMap', () => {
   })
 
   it('returns nothing at all when the inventory is inactive', () => {
-    const map = buildInventoryBalanceMap([token], { rows: {}, active: false })
+    const map = buildInventoryBalanceMap([token], { rows: {}, active: false, pending: false })
     expect(Object.keys(map)).toHaveLength(0)
   })
 
@@ -648,6 +782,7 @@ describe('computeInventoryDiscoveries', () => {
   const activeInventory = (rows: InventoryRow[]) => ({
     rows: Object.fromEntries(rows.map(r => [r.address, r])),
     active: true,
+    pending: false,
   })
 
   const heldRow = (address: string, symbol: string): InventoryRow => ({
@@ -766,6 +901,7 @@ describe('wallet assets', () => {
       ),
     ),
     active: true,
+    pending: false,
   }
 
   it('reports the token list as not ready while the map holds nothing but imports', () => {
@@ -775,7 +911,7 @@ describe('wallet assets', () => {
   })
 
   it('does no work and keeps one identity while the legacy hook owns the popup', () => {
-    const inactive = { rows: {}, active: false }
+    const inactive = { rows: {}, active: false, pending: false }
     const first = selectWalletHoldings(inactive, defaultTokens, imports, ChainId.MAINNET)
     const second = selectWalletHoldings(inactive, defaultTokens, imports, ChainId.MAINNET)
     expect(first).toBe(second)
@@ -887,6 +1023,7 @@ describe('token metadata', () => {
   const activeInventory = (rows: InventoryRow[]) => ({
     rows: Object.fromEntries(rows.map(r => [r.address, r])),
     active: true,
+    pending: false,
   })
 
   beforeEach(() => {
@@ -1061,7 +1198,7 @@ describe('selectDue', () => {
     register(ChainId.MAINNET, ACCOUNT)
     vi.useFakeTimers()
     vi.setSystemTime(now)
-    commitResult(KEY, { rows: [], complete: true, blockNumber: 100 })
+    commitResult(KEY, { rows: [], complete: true, nativeIndexed: true, blockNumber: 100 })
 
     const later = now + INVENTORY_TTL_MS + 1
     expect(selectDue(later, false)).toHaveLength(0)
