@@ -28,7 +28,6 @@ import { shortenAddress } from 'utils/address'
 import { cn } from 'utils/cn'
 import { useCurrencyConvertedToNative } from 'utils/dmm'
 import { formatBigLiquidity } from 'utils/formatBalance'
-import { isNativeErc20 } from 'utils/nativeErc20'
 import { formatDisplayNumber } from 'utils/numbers'
 import { getTokenAddress, isTokenNative } from 'utils/tokenInfo'
 
@@ -252,18 +251,6 @@ export const TokenRow = ({
                 data-testid="token-age-badge"
               >
                 {ageBadge}
-              </span>
-            )}
-            {/* On chains whose native asset is itself a token, this row is also what pays for gas —
-                worth saying, since spending the whole balance would leave the account unable to
-                transact. */}
-            {isNativeErc20(currency) && (
-              <span
-                title={t`${symbol} pays for gas on this network`}
-                className="shrink-0 rounded bg-subText-20 px-1 text-[10px] font-medium leading-4 text-subText"
-                data-testid="token-gas-badge"
-              >
-                <Trans>Gas</Trans>
               </span>
             )}
             {held && (
