@@ -32,7 +32,7 @@ const arcInfo: NetworkInfo = {
       payNativeOnSwap: true,
     },
   },
-  defaultRpcUrl: 'https://lb.drpc.live/arc/AgtWW5_pUEE3tn6WXOEX6rIkFRHcBaUR8bS2ehXRfUMv',
+  defaultRpcUrl: 'https://rpc.arc-scan.org',
   multicall: '0xcA11bde05977b3631167028862bE2a173976CA11',
   classic: {
     defaultSubgraph: '',
