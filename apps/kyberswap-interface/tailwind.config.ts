@@ -140,7 +140,7 @@ const config: Config = {
         blue: 'rgb(var(--ks-blue-rgb) / <alpha-value>)',
         blue1: 'var(--ks-blue1)',
         blue2: 'var(--ks-blue2)',
-        blue3: 'var(--ks-blue3)',
+        blue3: 'rgb(var(--ks-blue3-rgb) / <alpha-value>)',
         darkBlue: 'var(--ks-darkBlue)',
 
         // shadow colors (used interpolated into box-shadow shorthands)
