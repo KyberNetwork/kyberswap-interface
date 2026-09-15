@@ -91,14 +91,18 @@ const useWidgetRawStore = create<WidgetState>((set, _get) => ({
         : undefined,
     });
 
+    // Where the native asset is itself an ERC-20 token, the wrapped entry describes that same asset,
+    // so its symbol and name already name the native form — dropping a leading "W" would mangle it.
+    const nativeIsErc20 = NETWORKS_INFO[chainId].nativeIsErc20;
+
     set({
       nativeToken: {
         ...wrappedNativeToken,
         address: NATIVE_TOKEN_ADDRESS.toLowerCase(),
         decimals: wrappedNativeToken.decimals,
-        symbol: wrappedNativeToken.symbol.slice(1) || '',
+        symbol: nativeIsErc20 ? wrappedNativeToken.symbol : wrappedNativeToken.symbol.slice(1) || '',
         logo: NETWORKS_INFO[chainId].nativeLogo,
-        name: 'Ethereum',
+        name: nativeIsErc20 ? wrappedNativeToken.name : 'Ethereum',
       },
       wrappedNativeToken,
     });

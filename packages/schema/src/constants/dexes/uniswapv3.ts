@@ -15,5 +15,6 @@ export default {
     [ChainId.Optimism]: '0xC36442b4a4522E871399CD717aBDD847Ab11FE88',
     [ChainId.Monad]: '0x7197e214c0b767cfb76fb734ab638e2c192f4e53',
     [ChainId.Robinhood]: '0x73991a25c818bf1f1128deaab1492d45638de0d3',
+    [ChainId.Arc]: '0x39654a85a4c05127f5fd6ed22caec077a0fb1377',
   },
 };
