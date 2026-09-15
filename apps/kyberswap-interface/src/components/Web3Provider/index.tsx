@@ -348,7 +348,7 @@ export const robinhood = defineChain({
     },
   },
   blockExplorers: {
-    default: { name: 'Blockscout', url: 'https://robinhoodchain.blockscout.com' },
+    default: { name: 'Etherscan', url: 'https://robin.etherscan.io' },
   },
   contracts: {
     multicall3: {
