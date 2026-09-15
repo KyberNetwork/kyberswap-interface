@@ -25,7 +25,7 @@ import { OtherChainTokens } from 'components/TokenSelectorModal/OtherChainTokens
 import { PinnedTokens } from 'components/TokenSelectorModal/PinnedTokens'
 import { SwitchChainModal } from 'components/TokenSelectorModal/SwitchChainModal'
 import { TabBar, getTabSubtitle } from 'components/TokenSelectorModal/TabBar'
-import TokenList from 'components/TokenSelectorModal/TokenList'
+import TokenList, { TokenListSection } from 'components/TokenSelectorModal/TokenList'
 import { TokenListSkeleton } from 'components/TokenSelectorModal/TokenListSkeleton'
 import {
   ContentWrapper,
@@ -442,9 +442,10 @@ export const TokenSelectorContent = ({
   // tokens, so the unused one registers no work; chains without inventory keep the multicall.
   const inventory = useWalletInventory(primaryChainId, isOpen)
 
-  // Held tokens on no list. They sit in the All tab alongside everything else as dimmed rows that
-  // import on click, and search matches them directly: someone typing a symbol they hold is looking
-  // for it.
+  // Held tokens on no list. On the All tab they are folded into a collapsible group under the listed
+  // tokens — a wallet full of airdropped spam would otherwise bury the tokens it does not hold — and
+  // each opens the import flow on click. Search matches them directly wherever they rank: someone
+  // typing a symbol they hold is looking for it.
   const { tokens: discoveryTokens, impersonators } = useInventoryDiscoveries(
     inventory,
     defaultTokens,
@@ -452,6 +453,13 @@ export const TokenSelectorContent = ({
     primaryChainId,
   )
   const showDiscoveries = isAllTab && !debouncedQuery && discoveryTokens.length > 0
+  const [unlistedExpanded, setUnlistedExpanded] = useState(false)
+  // Stamped on each toggle so the rows it reveals — and only those — cascade in.
+  const unlistedToggledAt = useRef(0)
+  const toggleUnlisted = useCallback(() => {
+    unlistedToggledAt.current = Date.now()
+    setUnlistedExpanded(expanded => !expanded)
+  }, [])
   const unlistedAddresses = useMemo(
     () => (discoveryTokens.length ? new Set(discoveryTokens.map(token => token.address)) : undefined),
     [discoveryTokens],
@@ -530,7 +538,6 @@ export const TokenSelectorContent = ({
     primaryChainId,
     needsComparator,
     isAllTab ? favoriteAddressSet : undefined,
-    isAllTab ? unlistedAddresses : undefined,
   )
 
   // All-tab dataset: API search results (with RPC fallback) when searching, else the sorted default
@@ -546,7 +553,7 @@ export const TokenSelectorContent = ({
         impersonators,
       ).filter(filterWrapFunc)
     }
-    return Object.values(defaultTokens).concat(discoveryTokens).sort(tokenComparator).filter(filterWrapFunc)
+    return Object.values(defaultTokens).sort(tokenComparator).filter(filterWrapFunc)
   }, [
     isAllTab,
     debouncedQuery,
@@ -555,11 +562,17 @@ export const TokenSelectorContent = ({
     searchDiscoveryMatches,
     heldAddresses,
     defaultTokens,
-    discoveryTokens,
     tokenComparator,
     filterWrapFunc,
     impersonators,
   ])
+
+  // Rows of the All tab's collapsible group, kept out of the sorted list above so their ranking is
+  // structural rather than something the comparator has to defend against.
+  const unlistedGroup = useMemo<Currency[]>(
+    () => (showDiscoveries ? (discoveryTokens as Currency[]).filter(filterWrapFunc) : EMPTY_CURRENCIES),
+    [showDiscoveries, discoveryTokens, filterWrapFunc],
+  )
 
   // Client-side search filter for the non-All tabs (their datasets are already in memory).
   const localFilter = useCallback(
@@ -703,9 +716,10 @@ export const TokenSelectorContent = ({
       // Favorites default to FDV desc; a clicked sort header (24h change) overrides that.
       case TokenSelectorTab.Favorites:
         return sort ? sortByMetric(favoriteCurrenciesBase) : sortByFdv(favoriteCurrenciesBase)
+      // The group heads the tab, so its rows lead the list while it is open.
       case TokenSelectorTab.All:
       default:
-        return allTabTokens
+        return unlistedExpanded && unlistedGroup.length ? unlistedGroup.concat(allTabTokens) : allTabTokens
     }
   }, [
     activeTab,
@@ -714,10 +728,28 @@ export const TokenSelectorContent = ({
     importedCurrenciesBase,
     favoriteCurrenciesBase,
     allTabTokens,
+    unlistedGroup,
+    unlistedExpanded,
     sort,
     sortByMetric,
     sortByFdv,
   ])
+
+  // Toggle row for the non-whitelisted holdings, heading the list.
+  const listSection = useMemo<TokenListSection | undefined>(
+    () =>
+      unlistedGroup.length
+        ? {
+            startIndex: 0,
+            count: unlistedGroup.length,
+            title: <Trans>Unwhitelisted tokens</Trans>,
+            expanded: unlistedExpanded,
+            onToggle: toggleUnlisted,
+            toggledAt: unlistedToggledAt.current,
+          }
+        : undefined,
+    [unlistedGroup.length, unlistedExpanded, toggleUnlisted],
+  )
 
   // Show skeleton rows while a tab's whole list is loading from the API.
   const isListLoading =
@@ -1040,6 +1072,12 @@ export const TokenSelectorContent = ({
     pendingSortAnim.current = false
   }, [activeTab, primaryChainId])
 
+  // The unlisted group opens for the list it was opened on: another chain's holdings are a different
+  // set, and a reopened modal starts from the listed tokens again.
+  useEffect(() => {
+    setUnlistedExpanded(false)
+  }, [primaryChainId, isOpen])
+
   // Reset scroll to the top of the list on a deliberate context switch (tab or chain change).
   // Sort-driven scroll resets happen in the crossfade effect below, timed to the re-sorted rows.
   useEffect(() => {
@@ -1088,6 +1126,9 @@ export const TokenSelectorContent = ({
       is_address: !!isAddress(primaryChainId, trackingDebouncedQuery),
     })
   }, [trackingDebouncedQuery, trackingSource, primaryChainId, trackingHandler])
+
+  // A collapsed group is a row of its own, so the list stands even when every listed token is filtered out.
+  const hasListRows = visibleCurrencies.length > 0 || !!listSection
 
   const subtitle = getTabSubtitle(activeTab)
   const emptyMessage =
@@ -1191,7 +1232,7 @@ export const TokenSelectorContent = ({
       >
         {subtitle && <div className="px-5 pb-1 pt-3 text-sm text-subText">{subtitle}</div>}
 
-        {(visibleCurrencies.length > 0 || isListLoading) && (
+        {(hasListRows || isListLoading) && (
           <HStack className="items-center px-5 pb-2 pt-3 text-xs font-medium uppercase text-gray">
             <span className="flex-1">
               <Trans>Token</Trans>
@@ -1234,7 +1275,7 @@ export const TokenSelectorContent = ({
         <motion.div initial={{ opacity: 1 }} animate={listAnimation} className="flex min-h-0 flex-1 flex-col">
           {isListLoading ? (
             <TokenListSkeleton />
-          ) : visibleCurrencies?.length > 0 ? (
+          ) : hasListRows ? (
             <TokenList
               listTokenRef={listTokenRef}
               onRowsRendered={handleRowsRendered}
@@ -1260,6 +1301,7 @@ export const TokenSelectorContent = ({
               importAsRow={(isTrendingTab || isAllTab) && !debouncedQuery}
               impersonators={impersonators}
               heldAddresses={heldAddresses}
+              section={listSection}
               onShowTokenInfo={onShowTokenInfo}
             />
           ) : (
