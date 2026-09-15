@@ -358,6 +358,33 @@ export const robinhood = defineChain({
   },
 })
 
+// Wallets read the native balance through `eth_getBalance`, which on Arc reports USDC with 18
+// decimals. The 6-decimal ERC-20 interface at 0x3600… is a token like any other and is not declared
+// here. See `utils/nativeErc20`.
+export const arc = defineChain({
+  id: ChainId.ARC,
+  name: 'Arc',
+  nativeCurrency: {
+    decimals: 18,
+    name: 'USDC',
+    symbol: 'USDC',
+  },
+  rpcUrls: {
+    default: {
+      http: ['https://rpc.arc-scan.org'],
+    },
+  },
+  blockExplorers: {
+    default: { name: 'Arcscan', url: 'https://arc-scan.org' },
+  },
+  contracts: {
+    multicall3: {
+      address: '0xcA11bde05977b3631167028862bE2a173976CA11',
+      blockCreated: 1,
+    },
+  },
+})
+
 const wagmiChains: readonly [Chain, ...Chain[]] = [
   withKyberRpc(mainnet),
   withKyberRpc(arbitrum),
@@ -383,6 +410,7 @@ const wagmiChains: readonly [Chain, ...Chain[]] = [
   withKyberRpc(megaeth),
   withKyberRpc(robinhood),
   withKyberRpc(rise),
+  withKyberRpc(arc),
 ] as const
 
 // One endpoint's share of the wait. `fallback()` walks its URLs in order and moves on only once the

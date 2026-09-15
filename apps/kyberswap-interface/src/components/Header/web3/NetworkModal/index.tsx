@@ -40,6 +40,7 @@ const l1Chains = [
   ChainId.HYPEREVM,
   ChainId.PLASMA,
   ChainId.MONAD,
+  ChainId.ARC,
 ]
 
 const l2Chains = [

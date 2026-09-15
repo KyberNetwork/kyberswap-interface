@@ -3,6 +3,7 @@ import { t } from '@lingui/macro'
 
 import {
   arbitrum,
+  arc,
   avax,
   base,
   bera,
@@ -60,6 +61,7 @@ const NETWORKS_INFO_CONFIG: NETWORKS_INFO_CONFIG_TYPE = {
   [ChainId.MEGAETH]: megaeth,
   [ChainId.ROBINHOOD]: robinhood,
   [ChainId.RISE]: rise,
+  [ChainId.ARC]: arc,
 } as const
 
 //this Proxy helps fallback undefined ChainId by Ethereum info
@@ -104,6 +106,7 @@ export const MAINNET_NETWORKS: ChainId[] = [
   ChainId.MEGAETH,
   ChainId.ROBINHOOD,
   ChainId.RISE,
+  ChainId.ARC,
 ]
 
 export function isSupportedChainId(chainId?: number): chainId is ChainId {

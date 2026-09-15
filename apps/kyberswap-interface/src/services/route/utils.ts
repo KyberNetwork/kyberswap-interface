@@ -6,6 +6,7 @@ import { getRouteTokenAddressParam } from 'components/SwapForm/hooks/useGetRoute
 import { BIPS_BASE, RESERVE_USD_DECIMALS } from 'constants/trade'
 import { ChargeFeeBy, DetailedRouteSummary } from 'types/route'
 import { toCurrencyAmount } from 'utils/currencyAmount'
+import { RouteSide, amountFromRoute } from 'utils/nativeErc20'
 import { formatDisplayNumber } from 'utils/numbers'
 import { parseUnits } from 'utils/viem'
 
@@ -24,9 +25,15 @@ const calculateFee = (
     parseUnits(routeSummary.extraFee.feeAmount, RESERVE_USD_DECIMALS).toString(),
     JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(RESERVE_USD_DECIMALS)),
   ).divide(BIPS_BASE)
+  const feeSide: RouteSide = routeSummary.extraFee.chargeFeeBy === ChargeFeeBy.CURRENCY_IN ? 'in' : 'out'
   const feeCurrencyAmount = routeSummary.extraFee.isInBps
     ? currencyAmountToTakeFee.multiply(feeAmountFraction)
-    : CurrencyAmount.fromRawAmount(currencyAmountToTakeFee.currency, routeSummary.extraFee.feeAmount)
+    : // A flat fee comes back in the units that side was quoted in, so it needs the same read-back
+      // as the amounts do.
+      CurrencyAmount.fromRawAmount(
+        currencyAmountToTakeFee.currency,
+        amountFromRoute(routeSummary.extraFee.feeAmount, currencyAmountToTakeFee.currency, feeSide),
+      )
 
   const feeAmountUsd = routeSummary.extraFee.feeAmountUsd
   return {
@@ -66,12 +73,14 @@ export const parseGetRouteResponse = (
   }
 
   const isValidPair =
-    rawRouteSummary.tokenIn.toLowerCase() === getRouteTokenAddressParam(currencyIn).toLowerCase() &&
-    rawRouteSummary.tokenOut.toLowerCase() === getRouteTokenAddressParam(currencyOut).toLowerCase()
+    rawRouteSummary.tokenIn.toLowerCase() === getRouteTokenAddressParam(currencyIn, 'in').toLowerCase() &&
+    rawRouteSummary.tokenOut.toLowerCase() === getRouteTokenAddressParam(currencyOut, 'out').toLowerCase()
 
   if (!isValidPair) return defaultValue
 
-  const parsedAmountIn = toCurrencyAmount(currencyIn, rawRouteSummary.amountIn)
+  // The aggregator echoes each amount in the interface it was asked about, so a side sent as the
+  // native interface comes back in native units and has to be read back into the currency's own.
+  const parsedAmountIn = toCurrencyAmount(currencyIn, amountFromRoute(rawRouteSummary.amountIn, currencyIn, 'in'))
   const parsedAmountOut = toCurrencyAmount(currencyOut, rawRouteSummary.amountOut)
   const executionPrice = new Price(
     parsedAmountIn.currency,

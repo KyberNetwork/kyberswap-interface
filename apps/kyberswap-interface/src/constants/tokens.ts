@@ -1,21 +1,28 @@
-import { ChainId, NativeCurrency, Token, WETH } from '@kyberswap/ks-sdk-core'
+import { ChainId, Currency, NativeCurrency, Token, WETH } from '@kyberswap/ks-sdk-core'
 
 import { ETHER_ADDRESS } from 'constants/index'
 import { NETWORKS_INFO, SUPPORTED_NETWORKS } from 'constants/networks'
 import { CHAINS_SUPPORT_FEE_CONFIGS } from 'constants/trade'
 
-const NativeCurrenciesLocal: { [chainId in ChainId]: NativeCurrency } = SUPPORTED_NETWORKS.reduce(
+// Where the native asset exposes a built-in ERC-20 interface backed by the same balance (Arc, where
+// USDC is native), that interface is the currency the app works in. Contracts only ever see it, and
+// keeping it here means `.wrapped` is an identity, so no amount can be rescaled by crossing between
+// the two interfaces. The 18-decimal native form survives only in `nativeToken.decimal`, for reading
+// the gas balance — see `utils/nativeErc20`.
+const NativeCurrenciesLocal: { [chainId in ChainId]: Currency } = SUPPORTED_NETWORKS.reduce(
   (acc, chainId) => ({
     ...acc,
-    [chainId]: new NativeCurrency(
-      chainId,
-      NETWORKS_INFO[chainId].nativeToken.decimal,
-      NETWORKS_INFO[chainId].nativeToken.symbol,
-      NETWORKS_INFO[chainId].nativeToken.name,
-    ),
+    [chainId]: NETWORKS_INFO[chainId].nativeToken.erc20Interface
+      ? WETH[chainId]
+      : new NativeCurrency(
+          chainId,
+          NETWORKS_INFO[chainId].nativeToken.decimal,
+          NETWORKS_INFO[chainId].nativeToken.symbol,
+          NETWORKS_INFO[chainId].nativeToken.name,
+        ),
   }),
   {},
-) as { [chainId in ChainId]: NativeCurrency }
+) as { [chainId in ChainId]: Currency }
 
 //this Proxy helps fallback undefined ChainId by Ethereum info
 export const NativeCurrencies = new Proxy(NativeCurrenciesLocal, {
@@ -54,6 +61,7 @@ export const STABLE_COIN_ADDRESSES_TO_TAKE_FEE: Record<ChainId, string[]> = {
   [ChainId.MEGAETH]: [],
   [ChainId.ROBINHOOD]: [],
   [ChainId.RISE]: [],
+  [ChainId.ARC]: [],
 }
 
 // This is basically the same as STABLE_COIN_ADDRESSES_TO_TAKE_FEE,

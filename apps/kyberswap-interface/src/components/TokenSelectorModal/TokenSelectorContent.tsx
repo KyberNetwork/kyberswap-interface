@@ -588,7 +588,7 @@ export const TokenSelectorContent = ({
     const nativeMatchesSearch =
       !!native && (!debouncedQuery || filterTokens(primaryChainId, [native] as Token[], debouncedQuery).length > 0)
     const nativeLead = nativeMatchesSearch && native ? [native] : []
-    const rest = favoriteCurrenciesBase.filter(token => !isTokenNative(token))
+    const rest = favoriteCurrenciesBase.filter(token => !isTokenNative(token) && !(native && token.equals(native)))
     const list = [...nativeLead, ...rest]
     return showDiscoveryTabs ? list.slice(0, isMobileWidth ? 4 : 5) : list
   }, [primaryChainId, favoriteCurrenciesBase, debouncedQuery, showDiscoveryTabs, isMobileWidth])
@@ -912,7 +912,7 @@ export const TokenSelectorContent = ({
       const s = searchQuery.toLowerCase().trim()
       const native = NativeCurrencies[primaryChainId]
       if (s === native.symbol?.toLowerCase() || s === native.name?.toLowerCase()) {
-        handleCurrencySelect(NativeCurrencies[primaryChainId])
+        handleCurrencySelect(native)
         return
       }
       const totalToken = visibleCurrencies.length
