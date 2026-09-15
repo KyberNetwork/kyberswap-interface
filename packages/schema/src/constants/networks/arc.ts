@@ -9,7 +9,7 @@ export default {
   nativeLogo: 'https://storage.googleapis.com/ks-setting-1d682dca/755d9eee-8d2d-44b8-ad38-1f2765f036ce.png',
   scanLink: 'https://arc-scan.org',
   multiCall: '0xcA11bde05977b3631167028862bE2a173976CA11',
-  defaultRpc: 'https://rpc.arc-scan.org',
+  defaultRpc: 'https://arc-rpc.kyberswap.com',
   coingeckoNetworkId: null,
   coingeckoNativeTokenId: null,
   nativeIsErc20: true,

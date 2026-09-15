@@ -371,7 +371,7 @@ export const arc = defineChain({
   },
   rpcUrls: {
     default: {
-      http: ['https://rpc.arc-scan.org'],
+      http: ['https://arc-rpc.kyberswap.com'],
     },
   },
   blockExplorers: {
