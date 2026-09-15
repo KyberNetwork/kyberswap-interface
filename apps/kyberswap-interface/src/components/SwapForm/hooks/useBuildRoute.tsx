@@ -95,8 +95,7 @@ const useBuildRoute = (args: Args) => {
       sender: account,
       recipient: to || account,
       source: clientId || 'kyberswap',
-      // TODO: revert to false before release — simulation is off only to make Arc testing easier.
-      skipSimulateTx: true,
+      skipSimulateTx: false,
       enableGasEstimation: true,
       permit,
       referral: refCode,
