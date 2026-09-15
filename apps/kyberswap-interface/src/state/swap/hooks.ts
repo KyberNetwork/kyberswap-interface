@@ -319,9 +319,22 @@ export const useInputCurrency = () => {
   return useCurrencyById(fromCurrency)
 }
 
+/**
+ * Whether two currency ids from the URL name the same thing. The ids are compared as written when
+ * the pair is read, which only catches an exact repeat — but one currency answers to several ids:
+ * its address, its symbol, and, where the native asset is an ERC-20 token, the native sentinel too.
+ * A pair like `0xEeee…-to-usdc` therefore passes that check and resolves to one token on both sides.
+ */
+const isSamePair = (input: Currency | null | undefined, output: Currency | null | undefined) =>
+  !!input && !!output && input.equals(output)
+
 export const useOutputCurrency = () => {
-  const { toCurrency } = useCurrencyFromUrl()
-  return useCurrencyById(toCurrency)
+  const { fromCurrency, toCurrency } = useCurrencyFromUrl()
+  const inputCurrency = useCurrencyById(fromCurrency)
+  const outputCurrency = useCurrencyById(toCurrency)
+  // Dropped rather than replaced with the chain's default output, which on such a chain is that
+  // same token and would land right back here.
+  return isSamePair(inputCurrency, outputCurrency) ? undefined : outputCurrency
 }
 
 export const usePairCategory = (customChainId?: ChainId): PAIR_CATEGORY => {

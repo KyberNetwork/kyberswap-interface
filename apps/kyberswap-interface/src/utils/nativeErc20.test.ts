@@ -166,3 +166,17 @@ describe('default swap pair', () => {
     expect(DEFAULT_INPUT_TOKENS[ChainId.BASE]).toBeUndefined()
   })
 })
+
+describe('one currency, several ids', () => {
+  // A currency answers to its address, its symbol, and — where the native asset is an ERC-20 token —
+  // the native sentinel as well. `useOutputCurrency` compares the resolved pair for exactly this
+  // reason: a URL like `0xEeee…-to-usdc` names one token twice while reading as two distinct ids.
+  it('resolves the native sentinel to the same currency as the token on Arc', () => {
+    expect(NativeCurrencies[ChainId.ARC].equals(arcUsdc)).toBe(true)
+  })
+
+  // The same comparison must leave a genuine wrap pair alone, or ETH -> WETH would stop working.
+  it('keeps native and wrapped distinct on a chain with a real wrapper', () => {
+    expect(NativeCurrencies[ChainId.BASE].equals(baseWeth)).toBe(false)
+  })
+})
