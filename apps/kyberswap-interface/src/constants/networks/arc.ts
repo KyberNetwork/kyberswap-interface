@@ -32,7 +32,7 @@ const arcInfo: NetworkInfo = {
       payNativeOnSwap: true,
     },
   },
-  defaultRpcUrl: 'https://rpc.arc-scan.org',
+  defaultRpcUrl: 'https://arc-rpc.kyberswap.com',
   multicall: '0xcA11bde05977b3631167028862bE2a173976CA11',
   classic: {
     defaultSubgraph: '',
