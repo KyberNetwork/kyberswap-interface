@@ -246,6 +246,11 @@ const DraggableNetworkButton = ({
                 <Trans>Provisional</Trans>
               </NewLabel>
             )}
+            {state === ChainState.TESTING && (
+              <NewLabel className="text-warning">
+                <Trans>Testing</Trans>
+              </NewLabel>
+            )}
             {isMaintenance && (
               <MaintainLabel>
                 <Trans>Maintenance</Trans>
