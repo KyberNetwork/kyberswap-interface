@@ -162,6 +162,7 @@ export const PRICE_CHART_QUOTES: Partial<Record<ChainId, Token>> = {
   [ChainId.HYPEREVM]: new Token(ChainId.HYPEREVM, '0xb88339CB7199b77E23DB6E890353E22632Ba630f', 6, 'USDC', 'USDC'),
   [ChainId.MONAD]: DEFAULT_OUTPUT_TOKENS[ChainId.MONAD],
   [ChainId.ROBINHOOD]: DEFAULT_OUTPUT_TOKENS[ChainId.ROBINHOOD],
+  [ChainId.ARC]: WETH[ChainId.ARC],
 }
 
 // Swap-intent routes use this when the subject is native or wrapped-native, avoiding native -> native pairs.
