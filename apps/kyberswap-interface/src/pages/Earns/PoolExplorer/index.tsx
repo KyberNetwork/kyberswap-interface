@@ -289,7 +289,7 @@ const PoolExplorer = () => {
         onSubmit={openZapCreatePoolWidget}
       />
 
-      <ListingPageDisclaimer>{t`KyberSwap provides tools for tracking & adding liquidity to third-party Protocols. For any pool-related concerns, please contact the respective Liquidity Protocol directly.`}</ListingPageDisclaimer>
+      <ListingPageDisclaimer>{t`KyberSwap only provides tools to track and add liquidity to Third-party protocols. Users assume all risks and contact the respective protocol for any concerns.`}</ListingPageDisclaimer>
     </ListingPageWrapper>
   )
 }

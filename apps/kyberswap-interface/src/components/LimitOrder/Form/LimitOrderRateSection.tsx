@@ -3,8 +3,8 @@ import { Trans, t } from '@lingui/macro'
 import { useEffect, useMemo, useState } from 'react'
 import { Repeat } from 'react-feather'
 
-import CurrencyLogo from 'components/CurrencyLogo'
 import InfoHelper from 'components/InfoHelper'
+import MarketPrice from 'components/LimitOrder/Form/MarketPrice'
 import { DeltaRateLimitOrder, RateInfo } from 'components/LimitOrder/types'
 import { formatPriceInputValue, removeTrailingZero } from 'components/LimitOrder/utils'
 import NumericalInput from 'components/NumericalInput'
@@ -50,12 +50,10 @@ export const useGetDeltaRateLimitOrder = ({
 }
 
 type DeltaRateProps = {
-  symbol?: string
   deltaRate: DeltaRateLimitOrder
-  showInvertedRate: boolean
 }
 
-const DeltaRate = ({ symbol, deltaRate, showInvertedRate }: DeltaRateProps) => {
+const DeltaRate = ({ deltaRate }: DeltaRateProps) => {
   const theme = useTheme()
   const { percent, profit } = deltaRate
   const color = profit ? theme.apr : theme.warning
@@ -64,7 +62,7 @@ const DeltaRate = ({ symbol, deltaRate, showInvertedRate }: DeltaRateProps) => {
 
   return (
     <div className="flex items-center whitespace-nowrap text-sm font-medium text-subText">
-      {showInvertedRate ? <Trans>Buy {symbol} at rate</Trans> : <Trans>Sell {symbol} at rate</Trans>}
+      <Trans>Rate</Trans>
       {percent ? (
         <InfoHelper
           color={color}
@@ -171,6 +169,7 @@ type RateSectionState = {
   displayRate?: string
   rateInfo?: RateInfo
   tradeInfo?: BaseTradeInfo
+  loadingTrade?: boolean
 }
 
 type RateSectionEvents = {
@@ -190,7 +189,7 @@ type Props = {
 
 const LimitOrderRateSection = ({ tokens = {}, rate = {}, events = {} }: Props) => {
   const { currencyIn, currencyOut } = tokens
-  const { displayRate = '', rateInfo = DEFAULT_RATE_INFO, tradeInfo } = rate
+  const { displayRate = '', rateInfo = DEFAULT_RATE_INFO, tradeInfo, loadingTrade } = rate
   const [showInvertedRate, setShowInvertedRate] = useState(false)
 
   const deltaRate = useGetDeltaRateLimitOrder({ marketPrice: tradeInfo, rateInfo })
@@ -239,17 +238,25 @@ const LimitOrderRateSection = ({ tokens = {}, rate = {}, events = {} }: Props) =
 
   return (
     <Stack className="gap-2 rounded-2xl bg-buttonBlack p-4">
-      <HStack className="items-center justify-between gap-3">
-        <DeltaRate symbol={baseCurrency?.symbol} deltaRate={deltaRate} showInvertedRate={showInvertedRate} />
-        {tradeInfo ? (
+      <HStack className="min-h-7 items-center justify-between gap-3">
+        <DeltaRate deltaRate={deltaRate} />
+        <HStack className="min-w-0 items-center justify-end gap-2">
           <button
             type="button"
-            className="shrink-0 text-sm font-medium text-primary transition hover:brightness-90"
+            className="shrink-0 rounded-lg bg-primary/10 px-2 py-1 text-sm font-medium text-primary transition enabled:hover:brightness-90 disabled:cursor-not-allowed disabled:opacity-50"
+            disabled={!tradeInfo || loadingTrade}
             onClick={events.onSetMarketRate}
           >
             <Trans>Market</Trans>
           </button>
-        ) : null}
+          <MarketPrice
+            price={tradeInfo}
+            loading={loadingTrade}
+            showInverted={showInvertedRate}
+            symbolIn={currencyIn?.symbol}
+            symbolOut={currencyOut?.symbol}
+          />
+        </HStack>
       </HStack>
 
       <HStack className="min-h-8 min-w-0 items-center gap-2">
@@ -264,11 +271,10 @@ const LimitOrderRateSection = ({ tokens = {}, rate = {}, events = {} }: Props) =
             onBlur={events.onRateInputBlur}
           />
         </div>
-        {quoteCurrency && (
+        {quoteCurrency && baseCurrency && (
           <HStack className="min-w-0 shrink-0 items-center gap-1.5">
-            <CurrencyLogo currency={quoteCurrency} size="20px" />
-            <span className="max-w-[92px] shrink-0 truncate text-lg font-medium text-subText">
-              {quoteCurrency.symbol}
+            <span className="max-w-[160px] shrink-0 truncate text-lg font-medium text-subText">
+              {quoteCurrency.symbol}/{baseCurrency.symbol}
             </span>
             <button
               type="button"

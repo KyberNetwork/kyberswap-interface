@@ -15,6 +15,7 @@ import Info from '../../assets/info.svg'
 import DropdownIcon from '../../assets/dropdown.svg'
 import InfoHelper from '../InfoHelper'
 import unknownTokenImg from '../../assets/unknown-token.svg?url'
+import { isNativeErc20Chain } from '../../utils'
 import { friendlyError } from '../../utils/errorMessage'
 import { calculateGasMargin, estimateGas, isTransactionSuccessful } from '@kyber/utils/crypto'
 
@@ -205,12 +206,15 @@ function Confirmation({
 
   let minAmountOut = '--'
 
+  const wrappable = !isNativeErc20Chain(chainId)
   const isWrap =
+    wrappable &&
     trade.routeSummary.tokenIn.toLowerCase() === NATIVE_TOKEN_ADDRESS.toLowerCase() &&
-    trade.routeSummary.tokenOut.toLowerCase() === WRAPPED_NATIVE_TOKEN[chainId].address.toLowerCase()
+    trade.routeSummary.tokenOut.toLowerCase() === WRAPPED_NATIVE_TOKEN[chainId]?.address?.toLowerCase()
   const isUnwrap =
+    wrappable &&
     trade.routeSummary.tokenOut.toLowerCase() === NATIVE_TOKEN_ADDRESS.toLowerCase() &&
-    trade.routeSummary.tokenIn.toLowerCase() === WRAPPED_NATIVE_TOKEN[chainId].address.toLowerCase()
+    trade.routeSummary.tokenIn.toLowerCase() === WRAPPED_NATIVE_TOKEN[chainId]?.address?.toLowerCase()
 
   if (amountOut && !isWrap && !isUnwrap) {
     minAmountOut = (Number(amountOut) * (1 - slippage / 10_000)).toPrecision(8).toString()

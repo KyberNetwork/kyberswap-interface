@@ -46,7 +46,15 @@ export const NEW_TOKEN_MAX_DISPLAY = 20
 
 /**
  * Widths of the list's right-hand column, shared by the header and the rows so the two stay aligned.
- * Below `sm` the metric column is the wider of the two, to fit the VOL / MCAP switch in its header.
+ * Below `sm` the metric column is the wider of the two, to fit the VOL / FDV switch in its header.
  */
 export const METRIC_COLUMN_CLASS = 'w-[76px] sm:w-[128px]'
 export const BALANCE_COLUMN_CLASS = 'w-[72px] sm:w-[104px]'
+
+/**
+ * Character budget a formatted balance has to fit in, sized for the narrower of the two column
+ * widths above: 10 tabular-nums characters measure ~69px at `text-xs`, and 11 overflow the 72px
+ * column. Keeping one budget for both breakpoints costs a few digits on wide screens and saves the
+ * rows a viewport subscription each.
+ */
+export const BALANCE_MAX_LENGTH = 10

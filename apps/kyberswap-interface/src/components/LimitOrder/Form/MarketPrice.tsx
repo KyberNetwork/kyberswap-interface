@@ -14,10 +14,19 @@ type MarketPriceProps = {
   symbolIn?: string
   symbolOut?: string
   className?: string
+  showInverted?: boolean
 }
 
-const MarketPrice = ({ price, loading, symbolIn, symbolOut, className }: MarketPriceProps) => {
-  const [showInverted, setShowInverted] = useState(false)
+const MarketPrice = ({
+  price,
+  loading,
+  symbolIn,
+  symbolOut,
+  className,
+  showInverted: controlledShowInverted,
+}: MarketPriceProps) => {
+  const [internalShowInverted, setInternalShowInverted] = useState(false)
+  const showInverted = controlledShowInverted ?? internalShowInverted
   const formattedPrice = price
     ? formatDisplayNumber(showInverted ? price.invertRate : price.marketRate, { significantDigits: 6 })
     : undefined
@@ -36,18 +45,24 @@ const MarketPrice = ({ price, loading, symbolIn, symbolOut, className }: MarketP
     )
   }
 
+  const priceLabel = (
+    <span className={cn('min-w-0 truncate text-sm font-medium text-text', className)}>
+      {showInverted
+        ? `1 ${symbolOut} = ${formattedPrice} ${symbolIn}`
+        : `1 ${symbolIn} = ${formattedPrice} ${symbolOut}`}
+    </span>
+  )
+
+  if (controlledShowInverted !== undefined) return priceLabel
+
   return (
     <HStack
       as="button"
       type="button"
       className="min-w-0 max-w-full items-center gap-2 hover:brightness-75"
-      onClick={() => setShowInverted(showInverted => !showInverted)}
+      onClick={() => setInternalShowInverted(value => !value)}
     >
-      <span className={cn('min-w-0 truncate text-sm font-medium text-text', className)}>
-        {showInverted
-          ? `1 ${symbolOut} = ${formattedPrice} ${symbolIn}`
-          : `1 ${symbolIn} = ${formattedPrice} ${symbolOut}`}
-      </span>
+      {priceLabel}
       <Repeat size={14} className="text-subText" />
     </HStack>
   )

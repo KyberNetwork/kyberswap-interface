@@ -19,6 +19,7 @@ export default {
     [ChainId.OPTIMISM]: '0x3c3ea4b57a46241e54610e5f022e5c45859a1017',
     [ChainId.MONAD]: '0x5b7ec4a94ff9bedb700fb82ab09d5846972f4016',
     [ChainId.ROBINHOOD]: '0x58daec3116aae6d93017baaea7749052e8a04fa7',
+    [ChainId.ARC]: '0x6049c9a0e26405c0985f9e3685c87d0ae917f82b',
   },
   nftManagerContractAbi: Univ4NftManagerABI,
   unwrapWNativeTokenFuncName: null,

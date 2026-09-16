@@ -10,6 +10,7 @@ export default {
   logo: pancakeLogo,
   nftManagerContract: {
     [ChainId.BSCMAINNET]: '0x55f4c8abA71A1e923edC303eb4fEfF14608cC226',
+    [ChainId.ROBINHOOD]: '0xeaEA9253A0b75B936a965DbD35B2a3F01831DE74',
   },
   nftManagerContractAbi: PancakeInfinityClNftManagerABI,
   unwrapWNativeTokenFuncName: null,

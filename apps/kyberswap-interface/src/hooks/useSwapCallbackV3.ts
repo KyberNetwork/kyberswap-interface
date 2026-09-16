@@ -12,6 +12,7 @@ import { TRANSACTION_TYPE, TransactionExtraInfo2Token } from 'state/transactions
 import { useUserSlippageTolerance } from 'state/user/hooks'
 import { ChargeFeeBy } from 'types/route'
 import { isAddress, shortenAddress } from 'utils/address'
+import { swapTxValue } from 'utils/nativeErc20'
 import { formatDisplayNumber } from 'utils/numbers'
 import { sendEVMTransaction } from 'utils/sendTransaction'
 import { ErrorName } from 'utils/transactionError'
@@ -136,7 +137,7 @@ const useSwapCallbackV3 = (isPermitSwap?: boolean) => {
       if (!account || !inputAmount || !routerAddress || !encodedSwapData) {
         throw new Error('Missing dependencies')
       }
-      const value = inputAmount.currency.isNative ? BigInt(inputAmount.quotient.toString()) : 0n
+      const value = swapTxValue(inputAmount)
 
       const response = await sendEVMTransaction({
         account,

@@ -21,6 +21,7 @@ import { TokenPriceMap, useTokenPrices } from "@kyber/hooks";
 import { ChainId, Exchange, NATIVE_TOKEN_ADDRESS, Token } from "@kyber/schema";
 import { Button, Input, TokenLogo, TokenSymbol } from "@kyber/ui";
 import { fetchTokenInfo } from "@kyber/utils";
+import { formatBalance } from "@kyber/utils/balance";
 import { isAddress } from "@kyber/utils/crypto";
 import { formatDisplayNumber, formatUnits } from "@kyber/utils/number";
 import { cn } from "@kyber/utils/tailwind-helpers";
@@ -170,9 +171,16 @@ const TokenRow = memo(function TokenRow({
   if (!token) return null;
 
   const tokenAddrLower = token.address?.toLowerCase();
-  const usdValue =
-    getTokenPrice(tokenPrices, tokenAddrLower, wrappedNativeAddress) *
-    parseFloat(token.balance);
+  const price =
+    tokenPrices[tokenAddrLower] ||
+    (tokenAddrLower === NATIVE_TOKEN_LOWER && wrappedNativeAddress
+      ? tokenPrices[wrappedNativeAddress]
+      : 0) ||
+    0;
+  const usdValue = price * parseFloat(token.balance);
+  // `token.balance` is the exact amount, which the sort and the USD value need; the row shows a
+  // form trimmed to fit its column, with the exact one on the title.
+  const displayBalance = formatBalance(token.balance);
 
   // A discovered token is not on the list yet: the row is dimmed and clicking it starts the import.
   const discovered = !!token.discovered;
@@ -196,7 +204,7 @@ const TokenRow = memo(function TokenRow({
                 maxWidth={120}
               />
               <p className="text-xs text-subText">
-                {tabSelected === TOKEN_TAB.ALL ? token.name : token.balance}
+                {tabSelected === TOKEN_TAB.ALL ? token.name : displayBalance}
               </p>
             </div>
           </div>
@@ -251,9 +259,9 @@ const TokenRow = memo(function TokenRow({
               "truncate text-subText",
               tabSelected === TOKEN_TAB.ALL && "text-xs",
             )}
-            title={tabSelected === TOKEN_TAB.ALL ? token.name : undefined}
+            title={tabSelected === TOKEN_TAB.ALL ? token.name : token.balance}
           >
-            {tabSelected === TOKEN_TAB.ALL ? token.name : token.balance}
+            {tabSelected === TOKEN_TAB.ALL ? token.name : displayBalance}
             {tabSelected === TOKEN_TAB.IMPORTED && usdValue > 0 && (
               <span className="ml-1 text-xs text-accent">
                 {formatUsdValue(usdValue)}
@@ -270,7 +278,9 @@ const TokenRow = memo(function TokenRow({
               discovered && "opacity-50",
             )}
           >
-            <span>{token.balance}</span>
+            <span className="tabular-nums" title={token.balance}>
+              {displayBalance}
+            </span>
             {usdValue > 0 && (
               <span className="text-xs text-accent">
                 {formatUsdValue(usdValue)}
@@ -432,7 +442,7 @@ export default function TokenSelector({
 
         return {
           ...token,
-          balance: formatUnits(balanceInWei, token?.decimals, 8),
+          balance: formatUnits(balanceInWei, token?.decimals),
           discovered: discoveredAddresses.has(tokenAddrLower),
           disabled:
             mode === TOKEN_SELECT_MODE.ADD ||

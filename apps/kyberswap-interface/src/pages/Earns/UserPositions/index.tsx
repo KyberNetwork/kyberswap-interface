@@ -22,6 +22,7 @@ import { HiddenH1, HiddenH2 } from 'components/Seo/components'
 import { HStack } from 'components/Stack'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
+import useIsWalletRestoring from 'hooks/useIsWalletRestoring'
 import Filter from 'pages/Earns/UserPositions/Filter'
 import PositionBanner from 'pages/Earns/UserPositions/PositionBanner'
 import TableContent, { FeeInfoFromRpc } from 'pages/Earns/UserPositions/TableContent'
@@ -35,7 +36,6 @@ import {
 import useFilter, { SortBy } from 'pages/Earns/UserPositions/useFilter'
 import useAccountChanged from 'pages/Earns/hooks/useAccountChanged'
 import useClosedPositions from 'pages/Earns/hooks/useClosedPositions'
-import useIsWalletRestoring from 'pages/Earns/hooks/useIsWalletRestoring'
 import useKemRewards from 'pages/Earns/hooks/useKemRewards'
 import useSupportedDexesAndChains, { AllChainsOption } from 'pages/Earns/hooks/useSupportedDexesAndChains'
 import useUnfinalizedPositions from 'pages/Earns/hooks/useUnfinalizedPositions'
@@ -407,7 +407,7 @@ const UserPositions = () => {
           )}
         </PositionTableWrapper>
 
-        <ListingPageDisclaimer>{t`KyberSwap provides tools for tracking & adding liquidity to third-party Protocols. For any pool-related concerns, please contact the respective Liquidity Protocol directly.`}</ListingPageDisclaimer>
+        <ListingPageDisclaimer>{t`KyberSwap only provides tools to track and add liquidity to Third-party protocols. Users assume all risks and contact the respective protocol for any concerns.`}</ListingPageDisclaimer>
       </ListingPageWrapper>
     </>
   )

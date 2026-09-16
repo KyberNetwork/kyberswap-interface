@@ -1,13 +1,25 @@
 import { ChainId } from '@kyber/schema';
 
+/** Chain id not in `@kyber/schema`, whose enum backs the widget schemas rather than this list. */
+const HYPEREVM = 999;
+
 /**
  * Chains the inventory is allowed to serve. A release gate as much as a list: the service may index
  * a chain ahead of time for testing, and nothing here reads it until this list says so. A chain the
  * service reports as unsupported is additionally disabled for the session (see
  * `isWalletInventoryChain`), so the list drifting ahead of the backend degrades to the caller's own
  * balance source rather than failing. Both the app and the widget packages read this one list.
+ *
+ * Plain chain ids, since a chain reaches this list whether or not the widget schema names it.
  */
-export const WALLET_INVENTORY_CHAINS: ChainId[] = [ChainId.Ethereum, ChainId.Base, ChainId.Bsc, ChainId.Arbitrum];
+export const WALLET_INVENTORY_CHAINS: number[] = [
+  ChainId.Ethereum,
+  ChainId.Base,
+  ChainId.Bsc,
+  ChainId.Arbitrum,
+  ChainId.Robinhood,
+  HYPEREVM,
+];
 
 /** The service answered that it does not index this chain. */
 export class UnsupportedChainError extends Error {

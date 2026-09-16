@@ -14,7 +14,6 @@ import {
   LimitOrderOutputTokenPanel,
   type LimitOrderTokenPanelProps,
 } from 'components/LimitOrder/Form/LimitOrderTokenSection'
-import MarketPrice from 'components/LimitOrder/Form/MarketPrice'
 import { useLimitOrderFormState } from 'components/LimitOrder/Form/useLimitOrderFormState'
 import { NetworkSelector } from 'components/NetworkSelector'
 import { HStack, Stack } from 'components/Stack'
@@ -182,6 +181,7 @@ const LimitOrderForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPr
               displayRate: form.displayRate,
               rateInfo: form.rateInfo,
               tradeInfo: form.tradeInfo,
+              loadingTrade: form.loadingTrade,
             }}
             events={{
               onRateChange: form.onChangeRate,
@@ -196,21 +196,7 @@ const LimitOrderForm = ({ currencyIn: currencyInProp, currencyOut: currencyOutPr
             }}
           />
 
-          <HStack className="items-center justify-between gap-3">
-            <HStack className="min-w-0 items-center gap-2 text-sm text-subText">
-              <span className="shrink-0 italic">
-                <Trans>Market Price</Trans>
-              </span>
-              <div className="min-w-0">
-                <MarketPrice
-                  price={form.tradeInfo}
-                  loading={form.loadingTrade}
-                  symbolIn={currencyIn?.symbol}
-                  symbolOut={currencyOut?.symbol}
-                  className="italic"
-                />
-              </div>
-            </HStack>
+          <HStack className="-my-1 justify-center">
             <ReverseTokenSelectionButton className="size-6 bg-buttonGray p-0.5" onClick={form.handleRotateClick} />
           </HStack>
 

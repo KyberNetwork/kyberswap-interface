@@ -105,7 +105,7 @@ type TokenRowProps = {
   onShowTokenInfo?: (token: Token) => void
   priceUsd?: number
   priceChange24h?: number
-  /** USD value shown in the metric column — 24h volume or market cap, per the list's active metric. */
+  /** USD value shown in the metric column — 24h volume or FDV, per the list's active metric. */
   metricValue?: number
   addedAt?: number
   showAddress?: boolean
@@ -116,7 +116,7 @@ type TokenRowProps = {
   showPriceColumn?: boolean
   /**
    * What the right column renders: the wallet 'balance' (default), the 'metric' value — 24h volume or
-   * market cap (Trending / New) — or an 'import' button for a not-yet-imported token (which also makes
+   * FDV (Trending / New) — or an 'import' button for a not-yet-imported token (which also makes
    * the whole row trigger import).
    */
   rightColumn?: 'balance' | 'metric' | 'import'
@@ -600,7 +600,7 @@ type TokenListProps = {
   showCopyAddress?: boolean
   /** Render the price / 24h-change column (every tab except All). */
   showPriceColumn?: boolean
-  /** Right column shows this metric — 24h volume or market cap — instead of the balance (Trending / New). */
+  /** Right column shows this metric — 24h volume or FDV — instead of the balance (Trending / New). */
   metricColumn?: TokenMetricColumn
   /** Render a not-yet-imported token as a normal row dimmed to 50% (click imports) instead of an Import button (Trending / All). */
   importAsRow?: boolean
@@ -644,7 +644,7 @@ const TokenList = ({
   const { favoriteTokens } = useUserFavoriteTokens(customChainId)
   const tokenImports = useUserAddedTokens(customChainId)
 
-  // Row-aligned view of the shared balance map. The metric tabs show volume / market cap rather than
+  // Row-aligned view of the shared balance map. The metric tabs show volume / FDV rather than
   // a balance, so they read nothing.
   const currencyBalances = useMemo(
     () =>

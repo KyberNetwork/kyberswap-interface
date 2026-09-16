@@ -18,4 +18,5 @@ export const CHAINS: Chain[] = [
   { id: 1, label: "Ethereum" },
   { id: 8453, label: "Base" },
   { id: 42161, label: "Arbitrum" },
+  { id: 5042, label: "Arc" },
 ];

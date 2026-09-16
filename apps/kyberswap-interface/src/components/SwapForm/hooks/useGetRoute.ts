@@ -8,7 +8,7 @@ import useGetFeeConfig from 'components/SwapForm/hooks/useGetFeeConfig'
 import useGetSwapFeeConfig, { SwapFeeConfig } from 'components/SwapForm/hooks/useGetSwapFeeConfig'
 import useSelectedDexes from 'components/SwapForm/hooks/useSelectedDexes'
 import { AGGREGATOR_API } from 'constants/env'
-import { ETHER_ADDRESS, INPUT_DEBOUNCE_TIME } from 'constants/index'
+import { INPUT_DEBOUNCE_TIME } from 'constants/index'
 import { NETWORKS_INFO } from 'constants/networks'
 import { useActiveWeb3React } from 'hooks'
 import { useKyberswapGlobalConfig } from 'hooks/useKyberSwapConfig'
@@ -16,6 +16,7 @@ import { useSessionInfo } from 'state/authen/hooks'
 import { useAppDispatch } from 'state/hooks'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { ChargeFeeBy } from 'types/route'
+import { RouteSide, routeAmountIn, routeTokenAddress, routeTokenDecimals } from 'utils/nativeErc20'
 import { SAFE_APP_CLIENT_ID, isInSafeApp } from 'utils/safeApp'
 
 const SWAP_FEE_RECEIVER_ADDRESS = '0x4f82e73EDb06d29Ff62C91EC8f5Ff06571bdeb29'
@@ -31,8 +32,7 @@ export type ArgsGetRoute = {
   clientId?: string
 }
 
-export const getRouteTokenAddressParam = (currency: Currency) =>
-  currency.isNative ? ETHER_ADDRESS : currency.wrapped.address
+export const getRouteTokenAddressParam = (currency: Currency, side: RouteSide) => routeTokenAddress(currency, side)
 
 const getFeeConfigParams = (
   swapFeeConfig: SwapFeeConfig | undefined,
@@ -196,14 +196,14 @@ const useGetRoute = (args: ArgsGetRoute) => {
   }, [currencyIn, currencyOut])
 
   const fetcher = useCallback(async () => {
-    const amountIn = parsedAmount?.quotient?.toString() || ''
+    const amountIn = parsedAmount ? routeAmountIn(parsedAmount) : ''
 
     if (isProcessingSwap || !currencyIn || !currencyOut || !amountIn || !parsedAmount?.currency?.equals(currencyIn)) {
       return undefined
     }
 
-    const tokenInAddress = getRouteTokenAddressParam(currencyIn)
-    const tokenOutAddress = getRouteTokenAddressParam(currencyOut)
+    const tokenInAddress = getRouteTokenAddressParam(currencyIn, 'in')
+    const tokenOutAddress = getRouteTokenAddressParam(currencyOut, 'out')
 
     const swapFeeConfig = await getSwapFeeConfig(chainId, tokenInAddress, tokenOutAddress)
     const feeConfigParams = isInSafeApp
@@ -220,8 +220,8 @@ const useGetRoute = (args: ArgsGetRoute) => {
     const params: GetRouteParams = {
       tokenIn: tokenInAddress,
       tokenOut: tokenOutAddress,
-      tokenInDecimals: currencyIn.decimals,
-      tokenOutDecimals: currencyOut.decimals,
+      tokenInDecimals: routeTokenDecimals(currencyIn, 'in'),
+      tokenOutDecimals: routeTokenDecimals(currencyOut, 'out'),
       amountIn,
       includedSources: dexes,
       gasInclude: 'true', // default
@@ -254,8 +254,7 @@ const useGetRoute = (args: ArgsGetRoute) => {
     dexes,
     getSwapFeeConfig,
     isEnableAuthenAggregator,
-    parsedAmount?.currency,
-    parsedAmount?.quotient,
+    parsedAmount,
     triggerDebounced,
     feeConfigFromUrl,
     isProcessingSwap,

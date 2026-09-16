@@ -1,7 +1,7 @@
 import { keccak256 } from 'js-sha3';
 
 import { directRpcFetch, ethCall, getBalance, rpcFetch } from '@kyber/rpc-client/fetch';
-import { ChainId, NATIVE_TOKEN_ADDRESS, NETWORKS_INFO } from '@kyber/schema';
+import { ChainId, NATIVE_TOKEN_ADDRESS, NATIVE_TOKEN_DECIMALS, NETWORKS_INFO } from '@kyber/schema';
 
 export * from './address';
 
@@ -271,7 +271,14 @@ export const getTokenBalances = async ({
       }),
       {} as Record<string, bigint>,
     );
-    balancesMap[NATIVE_TOKEN_ADDRESS.toLowerCase()] = nativeBalance;
+    // `eth_getBalance` always answers in the chain's native units. Where the native asset is itself
+    // an ERC-20 token the app holds it at that token's decimals, which are finer-grained by a fixed
+    // factor, so the reading has to be scaled down to match — truncating, exactly as `balanceOf`
+    // does, since the token interface cannot represent the remainder.
+    const { nativeIsErc20, wrappedToken } = NETWORKS_INFO[chainId];
+    balancesMap[NATIVE_TOKEN_ADDRESS.toLowerCase()] = nativeIsErc20
+      ? nativeBalance / 10n ** BigInt(NATIVE_TOKEN_DECIMALS - wrappedToken.decimals)
+      : nativeBalance;
 
     return balancesMap;
   } catch (error) {

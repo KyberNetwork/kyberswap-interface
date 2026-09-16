@@ -37,6 +37,9 @@ export abstract class BaseSwapAdapter implements SwapProvider {
   abstract getIcon(): string
   abstract getSupportedChains(): Chain[]
   abstract getSupportedTokens(sourceChain: Chain, destChain: Chain): Currency[]
+  /**
+   * @deprecated Use the aggregator stream API for cross-chain quotes. Retained for same-chain KyberSwap quotes.
+   */
   abstract getQuote(params: QuoteParams): Promise<NormalizedQuote>
   abstract executeSwap(
     params: Quote,
