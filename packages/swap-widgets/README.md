@@ -152,6 +152,8 @@ For full isolation you can also render the widget inside a Shadow DOM (e.g. via 
 | Monad | 143 |
 | MegaETH | 4326 |
 | Rise | 4153 |
+| Robinhood | 4663 |
+| Arc | 5042 |
 
 Other listed chains (Cronos, BTTC) are deprecated.
 

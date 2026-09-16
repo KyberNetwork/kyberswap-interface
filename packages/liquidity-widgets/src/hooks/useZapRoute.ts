@@ -17,12 +17,17 @@ export default function useZapRoute() {
     const pair = !pool ? [] : [pool.token0, pool.token1];
 
     const wrappedNativeToken = NETWORKS_INFO[chainId].wrappedToken;
-    const nativeToken = {
-      name: 'ETH',
-      address: NATIVE_TOKEN_ADDRESS,
-      symbol: 'ETH',
-      decimals: 18,
-    };
+    // Resolves a route leg that names the native sentinel. Where the native asset is itself an
+    // ERC-20 token it carries that token's symbol and decimals, so an 18-decimal "ETH" entry would
+    // mis-scale any amount matched against it.
+    const nativeToken = NETWORKS_INFO[chainId].nativeIsErc20
+      ? { ...wrappedNativeToken, address: NATIVE_TOKEN_ADDRESS }
+      : {
+          name: 'ETH',
+          address: NATIVE_TOKEN_ADDRESS,
+          symbol: 'ETH',
+          decimals: 18,
+        };
 
     return [...tokensIn, ...pair, wrappedNativeToken, nativeToken];
   }, [pool, chainId, tokensIn]);

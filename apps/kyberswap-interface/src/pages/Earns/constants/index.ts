@@ -2,6 +2,7 @@ import { ChainId } from '@kyberswap/ks-sdk-core'
 
 import { SmartExitDexType } from 'pages/Earns/components/SmartExit/constants'
 import arbitrum from 'pages/Earns/constants/chains/arbitrum'
+import arc from 'pages/Earns/constants/chains/arc'
 import avax from 'pages/Earns/constants/chains/avax'
 import base from 'pages/Earns/constants/chains/base'
 import bera from 'pages/Earns/constants/chains/bera'
@@ -178,6 +179,7 @@ export enum EarnChain {
   BERA = ChainId.BERA,
   MONAD = ChainId.MONAD,
   ROBINHOOD = ChainId.ROBINHOOD,
+  ARC = ChainId.ARC,
 }
 
 export const EARN_CHAINS: Record<EarnChain, EarnChainInfo> = {
@@ -191,6 +193,7 @@ export const EARN_CHAINS: Record<EarnChain, EarnChainInfo> = {
   [EarnChain.BERA]: bera,
   [EarnChain.MONAD]: monad,
   [EarnChain.ROBINHOOD]: robinhood,
+  [EarnChain.ARC]: arc,
 }
 
 export const LIMIT_TEXT_STYLES = {

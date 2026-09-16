@@ -1,5 +1,4 @@
 import { ChainId, Currency, CurrencyAmount, Token, TokenAmount } from '@kyberswap/ks-sdk-core'
-import JSBI from 'jsbi'
 import { useEffect, useMemo, useState } from 'react'
 
 import { ERC20_ABI } from 'constants/abis'
@@ -13,6 +12,7 @@ import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { useMultipleContractSingleData, useSingleCallResult } from 'state/multicall/hooks'
 import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { isAddress } from 'utils/address'
+import { nativeBalanceAmount } from 'utils/nativeErc20'
 import { isTokenNative } from 'utils/tokenInfo'
 
 const EMPTY_OBJECT: any = {}
@@ -42,7 +42,7 @@ function useETHBalance(): CurrencyAmount<Currency> | undefined {
   const value: string | undefined = result?.result?.[0]?.toString?.()
 
   return useMemo(() => {
-    if (value) return CurrencyAmount.fromRawAmount(NativeCurrencies[chainId], JSBI.BigInt(value))
+    if (value) return nativeBalanceAmount(value, chainId)
     return undefined
   }, [value, chainId])
 }
@@ -242,8 +242,12 @@ export const useTokensHasBalance = (includesImportToken = false, enabled = true)
         )
         return includesImportToken && !(currency as WrappedTokenInfo).isWhitelisted ? true : hasBalance
       })
-      if (!ethBalance.equalTo(CurrencyAmount.fromRawAmount(NativeCurrencies[chainId], '0'))) {
-        list.push(NativeCurrencies[chainId])
+      // Where the native asset is itself an ERC-20 token the filter above already kept it, and both
+      // entries read the same balance — listing it again would double it in the wallet's total.
+      const nativeCurrency = NativeCurrencies[chainId]
+      const nativeAlreadyListed = list.some(currency => currency.equals(nativeCurrency))
+      if (!nativeAlreadyListed && !ethBalance.equalTo(CurrencyAmount.fromRawAmount(nativeCurrency, '0'))) {
+        list.push(nativeCurrency)
       }
       setTokensHasBalance(list)
     }

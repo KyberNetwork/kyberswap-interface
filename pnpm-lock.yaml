@@ -137,8 +137,8 @@ importers:
         specifier: ^1.0.3
         version: 1.0.3
       '@kyberswap/ks-sdk-core':
-        specifier: 1.1.18
-        version: 1.1.18
+        specifier: 1.1.19
+        version: 1.1.19
       '@kyberswap/ks-sdk-elastic':
         specifier: ^1.1.2
         version: 1.1.3
@@ -8460,7 +8460,7 @@ packages:
       '@ethersproject/networks': 5.7.1
       '@ethersproject/providers': 5.8.0
       '@ethersproject/solidity': 5.8.0
-      '@kyberswap/ks-sdk-core': 1.1.18
+      '@kyberswap/ks-sdk-core': 1.1.19
       big.js: 5.2.2
       decimal.js-light: 2.5.1
       jsbi: 3.2.5
@@ -8472,8 +8472,8 @@ packages:
       - utf-8-validate
     dev: false
 
-  /@kyberswap/ks-sdk-core@1.1.18:
-    resolution: {integrity: sha512-Hys+YqA1FUy+p+v3HQ7pbeuvfKpvx6gpcR/XooWdqa+WVi8/0gkWP6/F31A65yTt4OSJBqmtW99MeKKtaNSWxA==}
+  /@kyberswap/ks-sdk-core@1.1.19:
+    resolution: {integrity: sha512-YuIP5iawiwC1sLeuHK3g9dh/YQJH57CW/0xmP3U8RXs9dyiyK+8PqphuElKb5Y+VwvlVdfUhW65nHgTr0gV71w==}
     engines: {node: '>=10'}
     dependencies:
       '@ethersproject/address': 5.8.0
@@ -8490,7 +8490,7 @@ packages:
     dependencies:
       '@ethersproject/abi': 5.8.0
       '@ethersproject/solidity': 5.8.0
-      '@kyberswap/ks-sdk-core': 1.1.18
+      '@kyberswap/ks-sdk-core': 1.1.19
       '@uniswap/v3-periphery': 1.4.4
       tiny-invariant: 1.3.3
       tiny-warning: 1.0.3
@@ -17147,7 +17147,7 @@ packages:
       '@typescript-eslint/type-utils': 6.21.0(eslint@8.57.0)(typescript@5.1.6)
       '@typescript-eslint/utils': 6.21.0(eslint@8.57.0)(typescript@5.1.6)
       '@typescript-eslint/visitor-keys': 6.21.0
-      debug: 4.4.0
+      debug: 4.4.3(supports-color@5.5.0)
       eslint: 8.57.0
       graphemer: 1.4.0
       ignore: 5.3.2

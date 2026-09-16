@@ -22,6 +22,7 @@ import {
   megaethTokens,
   riseTokens,
   robinhoodTokens,
+  arcTokens,
 } from './tokens'
 import hyperEvmTokens from './tokens/hyperevm'
 
@@ -171,6 +172,14 @@ export const NATIVE_TOKEN: {
   4326: eth(4326),
   4153: eth(4153),
   4663: eth(4663),
+  5042: {
+    name: 'USDC',
+    decimals: 18,
+    symbol: 'USDC',
+    address: NATIVE_TOKEN_ADDRESS,
+    chainId: 5042,
+    logoURI: 'https://storage.googleapis.com/ks-setting-1d682dca/755d9eee-8d2d-44b8-ad38-1f2765f036ce.png',
+  },
 }
 
 export const WRAPPED_NATIVE_TOKEN: {
@@ -368,6 +377,24 @@ export const WRAPPED_NATIVE_TOKEN: {
     chainId: 4663,
     logoURI: 'https://s2.coinmarketcap.com/static/img/coins/64x64/1027.png',
   },
+  5042: {
+    name: 'USDC',
+    decimals: 6,
+    symbol: 'USDC',
+    address: '0x3600000000000000000000000000000000000000',
+    chainId: 5042,
+    logoURI: 'https://storage.googleapis.com/ks-setting-1d682dca/755d9eee-8d2d-44b8-ad38-1f2765f036ce.png',
+  },
+}
+
+/**
+ * Chains whose native asset is an ERC-20 contract in its own right. `WRAPPED_NATIVE_TOKEN[chainId]`
+ * holds that contract: it is the asset's second interface rather than a wrapper around it, so one
+ * balance sits behind both at different decimals and there is nothing to deposit or withdraw. The
+ * widget works in the native interface, and folds the contract address onto it wherever it appears.
+ */
+export const NATIVE_IS_ERC20: { [chainId: number]: boolean | undefined } = {
+  5042: true,
 }
 
 export const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
@@ -399,6 +426,7 @@ export const DEFAULT_TOKENS: {
   4326: megaethTokens,
   4153: riseTokens,
   4663: robinhoodTokens,
+  5042: arcTokens,
 }
 
 export const MULTICALL_ADDRESS: { [chainId: number]: string } = {
@@ -426,6 +454,7 @@ export const MULTICALL_ADDRESS: { [chainId: number]: string } = {
   4326: '0xcA11bde05977b3631167028862bE2a173976CA11',
   4153: '0xcA11bde05977b3631167028862bE2a173976CA11',
   4663: '0xcA11bde05977b3631167028862bE2a173976CA11',
+  5042: '0xcA11bde05977b3631167028862bE2a173976CA11',
 }
 
 export const AGGREGATOR_PATH: { [chainId: number]: string } = {
@@ -453,6 +482,7 @@ export const AGGREGATOR_PATH: { [chainId: number]: string } = {
   4326: 'megaeth',
   4153: 'rise',
   4663: 'robinhood',
+  5042: 'arc',
 }
 
 export const SCAN_LINK: { [chainId: number]: string } = {
@@ -480,6 +510,7 @@ export const SCAN_LINK: { [chainId: number]: string } = {
   4326: 'https://megaeth.blockscout.com',
   4153: 'https://explorer.risechain.com',
   4663: 'https://robin.etherscan.io',
+  5042: 'https://arc-scan.org',
 }
 
 export const DefaultRpcUrl: { [chainId: number]: string } = {
@@ -507,6 +538,7 @@ export const DefaultRpcUrl: { [chainId: number]: string } = {
   4326: 'https://mainnet.megaeth.com/rpc',
   4153: 'https://rpc.risechain.com',
   4663: 'https://rpc.mainnet.chain.robinhood.com',
+  5042: 'https://rpc.mainnet.arc.io',
 }
 
 export const SUPPORTED_NETWORKS = Object.keys(SCAN_LINK)

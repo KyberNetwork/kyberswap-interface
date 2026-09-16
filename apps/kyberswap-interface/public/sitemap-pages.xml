@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Checked-in landing-page sitemap. Vite copies public/ into build/ unchanged; tests keep these 46 URLs
+  Checked-in landing-page sitemap. Vite copies public/ into build/ unchanged; tests keep these 48 URLs
   synchronized with the prerender inventory.
 -->
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
@@ -64,6 +64,9 @@
   <url>
     <loc>https://kyberswap.com/swap/robinhood</loc>
   </url>
+  <url>
+    <loc>https://kyberswap.com/swap/arc</loc>
+  </url>
 
   <!-- Limit Orders - per chain -->
   <url>
@@ -113,6 +116,9 @@
   </url>
   <url>
     <loc>https://kyberswap.com/limit/robinhood</loc>
+  </url>
+  <url>
+    <loc>https://kyberswap.com/limit/arc</loc>
   </url>
 
   <!-- Cross-chain and Earn -->

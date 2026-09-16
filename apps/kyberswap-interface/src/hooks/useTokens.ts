@@ -22,6 +22,7 @@ import { NEVER_RELOAD, useSingleCallResult } from 'state/multicall/hooks'
 import { useUserAddedTokens } from 'state/user/hooks'
 import { isAddress } from 'utils/address'
 import { chunk, filterTruthy } from 'utils/array'
+import { hasNativeErc20Interface } from 'utils/nativeErc20'
 import { escapeQuoteString, getFormattedAddress } from 'utils/tokenInfo'
 import { Address, hexToString, toBytes } from 'utils/viem'
 
@@ -341,6 +342,16 @@ export const fetchListTokenByAddresses = async (address: string[], chainId: Chai
 
 export const formatAndCacheToken = (rawTokenResponse: TokenInfo) => {
   try {
+    // Where the native asset has a built-in ERC-20 interface, the sentinel and that interface are
+    // the same asset. Admitting the sentinel as a token would list it twice, and the second copy
+    // would carry the native interface's decimals — a balance and every amount read 10^12 out.
+    if (
+      hasNativeErc20Interface(rawTokenResponse.chainId) &&
+      rawTokenResponse.address?.toLowerCase() === ETHER_ADDRESS.toLowerCase()
+    ) {
+      return
+    }
+
     const tokenResponse = { ...rawTokenResponse }
     tokenResponse.symbol = escapeQuoteString(tokenResponse.symbol)
     tokenResponse.name = escapeQuoteString(tokenResponse.name)
