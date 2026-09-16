@@ -1,5 +1,6 @@
 import { ChainId, Currency } from '@kyberswap/ks-sdk-core'
 import {
+  AdaptedWallet,
   MAINNET_RELAY_API,
   RelayChain,
   convertViemChainToRelayChain,
@@ -31,7 +32,7 @@ import {
   zksync,
 } from 'viem/chains'
 
-import { robinhood, wagmiConfig } from 'components/Web3Provider'
+import { arc, robinhood, wagmiConfig } from 'components/Web3Provider'
 import { ZERO_ADDRESS } from 'constants/index'
 import {
   BaseSwapAdapter,
@@ -63,6 +64,7 @@ export class RelayAdapter extends BaseSwapAdapter {
       baseApiUrl: MAINNET_RELAY_API,
       source: 'kyberswap',
       chains: [
+        arc,
         arbitrum,
         avalanche,
         base,
@@ -99,6 +101,7 @@ export class RelayAdapter extends BaseSwapAdapter {
   getSupportedChains(): Chain[] {
     return [
       NonEvmChain.Solana,
+      ChainId.ARC,
       ChainId.ARBITRUM,
       ChainId.AVAXMAINNET,
       ChainId.BASE,
@@ -183,7 +186,7 @@ export class RelayAdapter extends BaseSwapAdapter {
       rate: +formattedOutputAmount / +formattedInputAmount,
       gasFeeUsd: Number(resp.fees?.gas?.amountUsd || 0),
       timeEstimate: resp.details?.timeEstimate || 0,
-      // Relay dont need to approve, we send token to contract directly
+      // Relay executes any approval steps itself; skip the app's separate approval flow.
       contractAddress: ZERO_ADDRESS,
       rawQuote: resp,
       protocolFee: 0,
@@ -191,7 +194,7 @@ export class RelayAdapter extends BaseSwapAdapter {
     }
   }
 
-  async executeSwap(quote: Quote, walletClient: WalletClient): Promise<NormalizedTxResponse> {
+  async executeSwap(quote: Quote, walletClient: WalletClient | AdaptedWallet): Promise<NormalizedTxResponse> {
     return new Promise<NormalizedTxResponse>((resolve, reject) => {
       getClient()
         .actions.execute({
