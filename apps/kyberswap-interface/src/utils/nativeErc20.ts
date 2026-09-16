@@ -100,9 +100,19 @@ export const hasNativeErc20Interface = (chainId: ChainId): boolean => !!erc20Int
  * True when `currency` is its chain's native asset, however that asset is represented. Anything that
  * treats the native asset specially for presentation — its logo, its name — should ask this rather
  * than `isNative`, which is false where the asset is itself a token.
+ *
+ * It takes a plain token shape, not an SDK `Currency`. Cross-chain quotes and transaction history reach
+ * it as objects parsed from JSON, which carry no methods, so the ERC-20 interface is matched by address.
  */
-export const isNativeAsset = (currency: { isNative?: boolean; chainId?: number } | undefined): boolean =>
-  !!currency && (!!currency.isNative || isNativeErc20(currency as Currency))
+export const isNativeAsset = (
+  currency: { isNative?: boolean; chainId?: number; address?: string } | undefined,
+): boolean => {
+  if (!currency) return false
+  if (currency.isNative) return true
+  const { chainId, address } = currency
+  if (chainId === undefined || !address || !erc20InterfaceOf(chainId as ChainId)) return false
+  return address.toLowerCase() === WETH[chainId as ChainId]?.address.toLowerCase()
+}
 
 /**
  * A raw `eth_getBalance` reading as an amount of `NativeCurrencies[chainId]`. Those are the same
