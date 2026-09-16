@@ -538,7 +538,7 @@ export const DefaultRpcUrl: { [chainId: number]: string } = {
   4326: 'https://mainnet.megaeth.com/rpc',
   4153: 'https://rpc.risechain.com',
   4663: 'https://rpc.mainnet.chain.robinhood.com',
-  5042: 'https://arc-rpc.kyberswap.com',
+  5042: 'https://rpc.mainnet.arc.io',
 }
 
 export const SUPPORTED_NETWORKS = Object.keys(SCAN_LINK)

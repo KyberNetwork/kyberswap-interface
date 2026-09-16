@@ -20,7 +20,7 @@ const CHAINS = [
   { id: 4153, label: 'Rise', token: 'ETH', rpcUrl: 'https://rpc.risechain.com' },
   { id: 4663, label: 'Robinhood', token: 'ETH', rpcUrl: 'https://rpc.mainnet.chain.robinhood.com' },
   // Arc's native asset is USDC, reached through the 18-decimal native interface.
-  { id: 5042, label: 'Arc', token: 'USDC', rpcUrl: 'https://arc-rpc.kyberswap.com' },
+  { id: 5042, label: 'Arc', token: 'USDC', rpcUrl: 'https://rpc.mainnet.arc.io' },
 ] as const
 
 const DEFAULT_TOKEN_OUT: Record<number, string> = {
