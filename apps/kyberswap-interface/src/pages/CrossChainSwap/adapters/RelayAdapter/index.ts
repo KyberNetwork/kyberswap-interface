@@ -101,7 +101,6 @@ export class RelayAdapter extends BaseSwapAdapter {
   getSupportedChains(): Chain[] {
     return [
       NonEvmChain.Solana,
-      ChainId.ARC,
       ChainId.ARBITRUM,
       ChainId.AVAXMAINNET,
       ChainId.BASE,
@@ -123,6 +122,7 @@ export class RelayAdapter extends BaseSwapAdapter {
       ChainId.PLASMA,
       ChainId.MONAD,
       ChainId.ROBINHOOD,
+      ChainId.ARC,
     ]
   }
 
