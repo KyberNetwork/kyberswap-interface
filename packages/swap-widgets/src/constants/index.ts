@@ -510,7 +510,7 @@ export const SCAN_LINK: { [chainId: number]: string } = {
   4326: 'https://megaeth.blockscout.com',
   4153: 'https://explorer.risechain.com',
   4663: 'https://robin.etherscan.io',
-  5042: 'https://arc-scan.org',
+  5042: 'https://explorer.arc.io',
 }
 
 export const DefaultRpcUrl: { [chainId: number]: string } = {
