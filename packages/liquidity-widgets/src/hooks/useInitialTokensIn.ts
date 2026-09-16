@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 
 import { useDebounce } from '@kyber/hooks';
 import { ChainId, Pool, Token } from '@kyber/schema';
-import { fetchTokens } from '@kyber/utils';
+import { fetchTokens, toZapInputToken } from '@kyber/utils';
 import { getTokenBalances } from '@kyber/utils/crypto';
 import { formatUnits } from '@kyber/utils/number';
 
@@ -43,7 +43,7 @@ export default function useInitialTokensIn({
           tokens.forEach((_, index: number) => {
             parseListAmountsIn.push(listInitAmounts[index] || '');
           });
-          setTokensIn(tokens as Token[]);
+          setTokensIn(tokens.map(token => toZapInputToken(chainId, token)));
           setAmountsIn(parseListAmountsIn.join(','));
           return;
         }
@@ -51,7 +51,7 @@ export default function useInitialTokensIn({
 
       // without wallet connect
       if (!account) {
-        setTokensIn([nativeToken] as Token[]);
+        setTokensIn([toZapInputToken(chainId, nativeToken)]);
       }
 
       // with balance
@@ -73,22 +73,27 @@ export default function useInitialTokensIn({
           BigInt(pairBalance[nativeToken.address]).toString(),
           nativeToken.decimals,
         );
+        // Balances are read in each token's own units; what goes in is the token's input form, with the
+        // amount cut to that form's decimals so it always parses.
         if (parseFloat(token0Balance) > 0) {
-          tokensToSet.push(pool.token0);
+          const token0Input = toZapInputToken(chainId, pool.token0);
+          tokensToSet.push(token0Input);
           const amount =
             +token0Balance >= 1 ? 1 : token0Address === nativeToken.address ? +token0Balance * 0.95 : +token0Balance;
-          amountsToSet.push(formatAmountWithDecimals(amount, pool.token0.decimals));
+          amountsToSet.push(formatAmountWithDecimals(amount, token0Input.decimals));
         }
         if (parseFloat(token1Balance) > 0) {
-          tokensToSet.push(pool.token1);
+          const token1Input = toZapInputToken(chainId, pool.token1);
+          tokensToSet.push(token1Input);
           const amount =
             +token1Balance >= 1 ? 1 : token1Address === nativeToken.address ? +token1Balance * 0.95 : +token1Balance;
-          amountsToSet.push(formatAmountWithDecimals(amount, pool.token1.decimals));
+          amountsToSet.push(formatAmountWithDecimals(amount, token1Input.decimals));
         }
         if (!tokensToSet.length) {
-          tokensToSet.push(nativeToken);
+          const nativeInput = toZapInputToken(chainId, nativeToken);
+          tokensToSet.push(nativeInput);
           const amount = +nativeTokenBalance >= 1 ? 1 : +nativeTokenBalance > 0 ? +nativeTokenBalance * 0.95 : 1;
-          amountsToSet.push(formatAmountWithDecimals(amount, nativeToken.decimals));
+          amountsToSet.push(formatAmountWithDecimals(amount, nativeInput.decimals));
         }
 
         setTokensIn(tokensToSet as Token[]);

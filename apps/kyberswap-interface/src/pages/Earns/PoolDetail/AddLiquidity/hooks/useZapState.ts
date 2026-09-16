@@ -1,5 +1,5 @@
 import { NATIVE_TOKEN_ADDRESS, PoolType, Token, Pool as ZapPool } from '@kyber/schema'
-import { getPoolPrice } from '@kyber/utils'
+import { getPoolPrice, isPaidAsNative, toZapInputToken } from '@kyber/utils'
 import { ChainId as AppChainId, Token as SDKToken } from '@kyberswap/ks-sdk-core'
 import { skipToken } from '@reduxjs/toolkit/query'
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query/react'
@@ -25,6 +25,7 @@ import {
 import { getDefaultRevertPrice } from 'pages/Earns/utils'
 import { useTokenPrices, useTokenPricesWithLoading } from 'state/tokenPrices/hooks'
 import { useNativeBalance, useTokenBalances } from 'state/wallet/hooks'
+import { toNativeUnits } from 'utils/nativeErc20'
 
 const getTokenBalanceKey = (address: string) =>
   address.toLowerCase() === NATIVE_TOKEN_ADDRESS.toLowerCase()
@@ -32,7 +33,12 @@ const getTokenBalanceKey = (address: string) =>
     : address.toLowerCase()
 
 const createTrackedBalanceConfig = (tokens: Token[], chainId: number) => {
-  const trackedTokens = tokens.filter(token => getTokenBalanceKey(token.address) !== NATIVE_TOKEN_ADDRESS.toLowerCase())
+  // The native asset is read once through `useNativeBalance`, in whichever form an input names it.
+  const trackedTokens = tokens.filter(
+    token =>
+      getTokenBalanceKey(token.address) !== NATIVE_TOKEN_ADDRESS.toLowerCase() &&
+      !isPaidAsNative(chainId, token.address),
+  )
   const sdkTokens = trackedTokens.map(
     token => new SDKToken(chainId as AppChainId, token.address, token.decimals, token.symbol, token.name),
   )
@@ -85,7 +91,7 @@ export const useZapState = ({
   pauseAutoRefresh,
   source,
 }: UseZapStateProps) => {
-  const nativeToken = useMemo(() => getDefaultNativeToken(chainId), [chainId])
+  const nativeToken = useMemo(() => toZapInputToken(chainId, getDefaultNativeToken(chainId)), [chainId])
   const defaultRevertPrice = useMemo(() => getDefaultRevertPrice(pool, chainId), [chainId, pool])
   const [revertPrice, setRevertPrice] = useState(defaultRevertPrice)
 
@@ -132,6 +138,13 @@ export const useZapState = ({
       tokenInputState.tokensIn.reduce<Record<string, bigint>>((acc, token) => {
         const balanceKey = getTokenBalanceKey(token.address)
         if (balanceKey === NATIVE_TOKEN_ADDRESS.toLowerCase()) {
+          // The app holds a native ERC-20 asset at the token's decimals; the sentinel here is in the
+          // native interface's, so scale up. Coming from whole token units, it carries no dust.
+          acc[balanceKey] = nativeBalance ? BigInt(toNativeUnits(nativeBalance)) : 0n
+          return acc
+        }
+        if (isPaidAsNative(chainId, token.address)) {
+          // Already at this token's decimals: the app reads a native ERC-20 asset in its token form.
           acc[balanceKey] = BigInt(nativeBalance?.quotient?.toString() || '0')
           return acc
         }
@@ -140,7 +153,7 @@ export const useZapState = ({
         acc[balanceKey] = BigInt(selectedTokenBalances[balanceAddress]?.quotient?.toString() || '0')
         return acc
       }, {}),
-    [nativeBalance?.quotient, selectedBalanceConfig.addressMap, selectedTokenBalances, tokenInputState.tokensIn],
+    [chainId, nativeBalance, selectedBalanceConfig.addressMap, selectedTokenBalances, tokenInputState.tokensIn],
   )
 
   const tickPriceState = useTickPrice({
