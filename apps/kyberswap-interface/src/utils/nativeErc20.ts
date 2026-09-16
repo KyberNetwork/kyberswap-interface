@@ -13,7 +13,8 @@ import { NativeCurrencies } from 'constants/tokens'
  *
  * The app's currency for such an asset is always the ERC-20 token, so `.wrapped` stays an identity
  * and nothing downstream has to know about the native interface. The native form appears only as a
- * request parameter and a transaction value, built by the helpers below.
+ * request parameter and a transaction value — for swaps built by the helpers below, for zaps by
+ * `toZapPayment` in `@kyber/utils`.
  */
 const erc20InterfaceOf = (chainId: ChainId) => NETWORKS_INFO[chainId]?.nativeToken?.erc20Interface
 

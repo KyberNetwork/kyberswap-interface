@@ -11,7 +11,7 @@ import {
 
 import { useTokenBalances, useWalletInventory } from "@kyber/hooks";
 import { API_URLS, Token } from "@kyber/schema";
-import { fetchTokenInfo } from "@kyber/utils";
+import { fetchTokenInfo, toZapInputToken } from "@kyber/utils";
 
 import { useDiscoveredTokens } from "@/discoveredTokens";
 import { getCachedTokens, setCachedTokens } from "@/tokenCache";
@@ -246,7 +246,11 @@ export const TokenContextProvider = ({
         let mergedTokens = [...defaultTokens];
 
         if (extraTokenResults.length) {
-          const allExtraTokens = extraTokenResults.flat();
+          // A pool can hold the native sentinel; where the native asset is also an ERC-20 token it
+          // reads as that token, which the list already carries, so the asset is listed once.
+          const allExtraTokens = extraTokenResults
+            .flat()
+            .map((token) => toZapInputToken(chainId, token));
           const existingAddresses = new Set(
             mergedTokens.map((t) => t.address.toLowerCase()),
           );

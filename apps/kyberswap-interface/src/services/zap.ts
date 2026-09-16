@@ -7,6 +7,7 @@ import {
   ZapRouteDetail,
   univ3Types,
 } from '@kyber/schema'
+import { toZapPayments } from '@kyber/utils'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 
 import { parseUnits } from 'utils/viem'
@@ -62,7 +63,6 @@ const parseTokensAndAmounts = (tokensIn: Token[], amountsIn: string) => {
   return {
     tokensIn: validTokens,
     amountsIn: validAmounts,
-    tokenAddresses: validTokens.map(token => token.address).join(','),
   }
 }
 
@@ -91,20 +91,20 @@ export const prepareGetZapInRouteRequest = ({
   account?: string
   source?: string
 }) => {
-  const {
-    tokensIn: parsedTokens,
-    amountsIn: parsedAmounts,
-    tokenAddresses,
-  } = parseTokensAndAmounts(tokensIn, amountsIn)
+  const { tokensIn: parsedTokens, amountsIn: parsedAmounts } = parseTokensAndAmounts(tokensIn, amountsIn)
 
-  if (!parsedTokens.length || !tokenAddresses) {
+  if (!parsedTokens.length) {
     return { data: null, error: 'Missing valid zap input' }
   }
 
-  let amountsInWei: string[]
+  let payments: ReturnType<typeof toZapPayments>
 
   try {
-    amountsInWei = parsedTokens.map((token, index) => parseUnits(parsedAmounts[index], token.decimals).toString())
+    payments = toZapPayments(
+      chainId,
+      parsedTokens.map(token => token.address),
+      parsedTokens.map((token, index) => parseUnits(parsedAmounts[index], token.decimals).toString()),
+    )
   } catch (error) {
     return {
       data: null,
@@ -112,7 +112,7 @@ export const prepareGetZapInRouteRequest = ({
     }
   }
 
-  if (!amountsInWei.some(amount => amount !== '0')) {
+  if (!payments.amountsIn.split(',').some(amount => amount !== '0')) {
     return { data: null, error: 'Missing valid zap input' }
   }
 
@@ -127,8 +127,8 @@ export const prepareGetZapInRouteRequest = ({
   params.set('pool.token0', pool.token0.address)
   params.set('pool.token1', pool.token1.address)
   params.set('pool.fee', String(pool.fee * 10_000))
-  params.set('tokensIn', tokenAddresses)
-  params.set('amountsIn', amountsInWei.join(','))
+  params.set('tokensIn', payments.tokensIn)
+  params.set('amountsIn', payments.amountsIn)
   params.set('slippage', String(slippage))
 
   if (

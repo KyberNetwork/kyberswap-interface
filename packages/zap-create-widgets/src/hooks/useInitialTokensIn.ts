@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 
 import { useDebounce } from '@kyber/hooks';
 import { ChainId, Pool, Token } from '@kyber/schema';
-import { fetchTokens } from '@kyber/utils';
+import { fetchTokens, toZapInputToken } from '@kyber/utils';
 import { getTokenBalances } from '@kyber/utils/crypto';
 import { formatWei } from '@kyber/utils/number';
 
@@ -41,7 +41,7 @@ export default function useInitialTokensIn({
           tokens.forEach((_, index: number) => {
             parseListAmountsIn.push(listInitAmounts[index] || '');
           });
-          setTokensIn(tokens as Token[]);
+          setTokensIn(tokens.map(token => toZapInputToken(chainId, token)));
           setAmountsIn(parseListAmountsIn.join(','));
           return;
         }
@@ -49,7 +49,7 @@ export default function useInitialTokensIn({
 
       // without wallet connect
       if (!account) {
-        setTokensIn([nativeToken] as Token[]);
+        setTokensIn([toZapInputToken(chainId, nativeToken)]);
       }
 
       // with balance
@@ -66,9 +66,9 @@ export default function useInitialTokensIn({
 
         const token0Balance = formatWei(pairBalance[token0Address]?.toString() || '0', pool.token0.decimals);
         const token1Balance = formatWei(pairBalance[token1Address]?.toString() || '0', pool.token1.decimals);
-        if (parseFloat(token0Balance) > 0) tokensToSet.push(pool.token0);
-        if (parseFloat(token1Balance) > 0) tokensToSet.push(pool.token1);
-        if (!tokensToSet.length) tokensToSet.push(nativeToken);
+        if (parseFloat(token0Balance) > 0) tokensToSet.push(toZapInputToken(chainId, pool.token0));
+        if (parseFloat(token1Balance) > 0) tokensToSet.push(toZapInputToken(chainId, pool.token1));
+        if (!tokensToSet.length) tokensToSet.push(toZapInputToken(chainId, nativeToken));
 
         setTokensIn(tokensToSet as Token[]);
       }

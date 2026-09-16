@@ -228,6 +228,16 @@ export function formatUnits(value: string | number, decimals = 18): string {
  * Get token balances for multiple tokens.
  * Uses RPC client with automatic rotation for better reliability.
  */
+/**
+ * How many native-interface units make one unit of the native asset's ERC-20 form, where a chain has
+ * one; 1 elsewhere. A native amount finer than this is never moved by a pool, which holds the ERC-20
+ * form, so it is the step both a balance and a payment in native units must fall on.
+ */
+export const nativeErc20Scale = (chainId: ChainId): bigint => {
+  const { nativeIsErc20, wrappedToken } = NETWORKS_INFO[chainId];
+  return nativeIsErc20 ? 10n ** BigInt(NATIVE_TOKEN_DECIMALS - wrappedToken.decimals) : 1n;
+};
+
 export const getTokenBalances = async ({
   tokenAddresses,
   chainId,
@@ -271,14 +281,11 @@ export const getTokenBalances = async ({
       }),
       {} as Record<string, bigint>,
     );
-    // `eth_getBalance` always answers in the chain's native units. Where the native asset is itself
-    // an ERC-20 token the app holds it at that token's decimals, which are finer-grained by a fixed
-    // factor, so the reading has to be scaled down to match — truncating, exactly as `balanceOf`
-    // does, since the token interface cannot represent the remainder.
-    const { nativeIsErc20, wrappedToken } = NETWORKS_INFO[chainId];
-    balancesMap[NATIVE_TOKEN_ADDRESS.toLowerCase()] = nativeIsErc20
-      ? nativeBalance / 10n ** BigInt(NATIVE_TOKEN_DECIMALS - wrappedToken.decimals)
-      : nativeBalance;
+    // The native sentinel is denominated in the native interface's units everywhere it is used —
+    // `eth_getBalance`, the token catalog, and the zap service all read it at those decimals — so the
+    // balance stays in them, less any remainder no ERC-20 form of the asset could carry.
+    const unit = nativeErc20Scale(chainId);
+    balancesMap[NATIVE_TOKEN_ADDRESS.toLowerCase()] = nativeBalance - (nativeBalance % unit);
 
     return balancesMap;
   } catch (error) {

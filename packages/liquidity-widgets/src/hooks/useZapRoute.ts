@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 
-import { DEXES_INFO, NATIVE_TOKEN_ADDRESS, NETWORKS_INFO } from '@kyber/schema';
+import { DEXES_INFO, NATIVE_TOKEN_ADDRESS, NATIVE_TOKEN_DECIMALS, NETWORKS_INFO } from '@kyber/schema';
 import { parseZapRoute } from '@kyber/utils/liquidity/zap';
 
 import { useZapState } from '@/hooks/useZapState';
@@ -17,11 +17,11 @@ export default function useZapRoute() {
     const pair = !pool ? [] : [pool.token0, pool.token1];
 
     const wrappedNativeToken = NETWORKS_INFO[chainId].wrappedToken;
-    // Resolves a route leg that names the native sentinel. Where the native asset is itself an
-    // ERC-20 token it carries that token's symbol and decimals, so an 18-decimal "ETH" entry would
-    // mis-scale any amount matched against it.
+    // Resolves a route leg that names the native sentinel. The service denominates that leg in the
+    // native interface's decimals on every chain; where the native asset is also an ERC-20 token only
+    // its symbol and name come from the token, since "ETH" would misname it.
     const nativeToken = NETWORKS_INFO[chainId].nativeIsErc20
-      ? { ...wrappedNativeToken, address: NATIVE_TOKEN_ADDRESS }
+      ? { ...wrappedNativeToken, address: NATIVE_TOKEN_ADDRESS, decimals: NATIVE_TOKEN_DECIMALS }
       : {
           name: 'ETH',
           address: NATIVE_TOKEN_ADDRESS,

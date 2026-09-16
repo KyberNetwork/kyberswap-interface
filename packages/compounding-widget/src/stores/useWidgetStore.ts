@@ -4,6 +4,7 @@ import { ApprovalAdditionalInfo } from '@kyber/hooks';
 import {
   ChainId,
   NATIVE_TOKEN_ADDRESS,
+  NATIVE_TOKEN_DECIMALS,
   NETWORKS_INFO,
   PoolType,
   Theme,
@@ -90,7 +91,7 @@ export const useWidgetStore = create<WidgetState>((set, _get) => ({
       nativeToken: {
         ...wrappedNativeToken,
         address: NATIVE_TOKEN_ADDRESS.toLowerCase(),
-        decimals: wrappedNativeToken.decimals,
+        decimals: NATIVE_TOKEN_DECIMALS,
         symbol: nativeIsErc20 ? wrappedNativeToken.symbol : wrappedNativeToken.symbol.slice(1) || '',
         logo: NETWORKS_INFO[chainId].nativeLogo,
         name: nativeIsErc20 ? wrappedNativeToken.name : 'Ethereum',
