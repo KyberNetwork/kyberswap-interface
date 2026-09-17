@@ -133,6 +133,8 @@ export const useDepositForm = ({
     account &&
       !wrongChain &&
       hasAmount &&
+      // A balance that has not been read yet cannot be shown to cover the amount.
+      balance &&
       !insufficientBalance &&
       deposit.route &&
       !deposit.isRouteStale &&
