@@ -23,9 +23,8 @@ import {
 import { AgentCell } from 'pages/CopyTrading/components/common/agentIdentity'
 import { copyTradingStatIconMap } from 'pages/CopyTrading/constants'
 import { useCopyTradingContext } from 'pages/CopyTrading/context'
-import { getStartGenerationChoices } from 'pages/CopyTrading/generations'
+import { resolveStartCopyEligibility } from 'pages/CopyTrading/generations'
 import {
-  canAttemptPreparation,
   compactUsd,
   formatCount,
   getPreparedReasonMessage,
@@ -160,13 +159,10 @@ const AgentTable = ({ agents, loading, pagination, sortBy, sortOrder, onSortChan
           {agents.map(agent => {
             const latestRun = latestRunsByAgentId[agent.agentId]
             const copiedRun = latestRun?.status === 'active' ? latestRun : undefined
-            const startChoices = getStartGenerationChoices(
+            const { canStart: canStartCopy, reason: unavailableReason } = resolveStartCopyEligibility(
               chains.find(chain => chain.chainId === agent.chainId),
               agent,
             )
-            const availableChoices = startChoices.filter(choice => canAttemptPreparation(choice.availability))
-            const canStartCopy = availableChoices.length === 1
-            const unavailableReason = startChoices.length === 1 ? startChoices[0].availability?.reason : undefined
 
             return (
               <LeaderboardGrid key={agent.agentId} className="relative cursor-pointer">
@@ -223,13 +219,10 @@ const AgentTable = ({ agents, loading, pagination, sortBy, sortOrder, onSortChan
         {agents.map(agent => {
           const latestRun = latestRunsByAgentId[agent.agentId]
           const copiedRun = latestRun?.status === 'active' ? latestRun : undefined
-          const startChoices = getStartGenerationChoices(
+          const { canStart: canStartCopy, reason: unavailableReason } = resolveStartCopyEligibility(
             chains.find(chain => chain.chainId === agent.chainId),
             agent,
           )
-          const availableChoices = startChoices.filter(choice => canAttemptPreparation(choice.availability))
-          const canStartCopy = availableChoices.length === 1
-          const unavailableReason = startChoices.length === 1 ? startChoices[0].availability?.reason : undefined
 
           return (
             <Stack

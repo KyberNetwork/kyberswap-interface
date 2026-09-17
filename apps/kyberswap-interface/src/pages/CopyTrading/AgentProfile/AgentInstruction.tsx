@@ -17,18 +17,16 @@ import { SidePanelCard } from 'pages/CopyTrading/components/AgentSidebarCards/Si
 import { ResponsiveDetailContents, ResponsiveDetailItem } from 'pages/CopyTrading/components/common/layout'
 import { CapitalInCardValue } from 'pages/CopyTrading/components/common/status'
 import { useCopyTradingContext } from 'pages/CopyTrading/context'
-import { getStartGenerationChoices } from 'pages/CopyTrading/generations'
-import { canAttemptPreparation, getPreparedReasonMessage } from 'pages/CopyTrading/helpers'
+import { resolveStartCopyEligibility } from 'pages/CopyTrading/generations'
+import { getPreparedReasonMessage } from 'pages/CopyTrading/helpers'
 import { useCopyTradingModal } from 'pages/CopyTrading/modals/context'
 
 const StartCopyCard = ({ agent, onCopy }: { agent: AgentProfile; onCopy: () => void }) => {
   const { chains } = useCopyTradingContext()
-  const choices = getStartGenerationChoices(
+  const { canStart, reason } = resolveStartCopyEligibility(
     chains.find(chain => chain.chainId === agent.chainId),
     agent,
   )
-  const disabled = choices.filter(choice => canAttemptPreparation(choice.availability)).length !== 1
-  const unavailableReason = choices.length === 1 ? choices[0].availability?.reason : undefined
 
   return (
     <SidePanelCard title="Copy This Agent">
@@ -39,8 +37,8 @@ const StartCopyCard = ({ agent, onCopy }: { agent: AgentProfile; onCopy: () => v
         type="button"
         altDisabledStyle
         padding="10px 12px"
-        disabled={disabled}
-        title={disabled ? getPreparedReasonMessage(unavailableReason) : undefined}
+        disabled={!canStart}
+        title={!canStart ? getPreparedReasonMessage(reason) : undefined}
         onClick={onCopy}
       >
         <HStack className="items-center gap-1">

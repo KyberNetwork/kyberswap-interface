@@ -1,7 +1,11 @@
 import type { PositionSummary } from 'services/copyTrading/types/positions'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
-import { getPositionRecoveryFlow } from 'pages/CopyTrading/modals/ManagePositionModal/positionSellFlow'
+import {
+  getPositionRecoveryFlow,
+  retryPositionSell,
+} from 'pages/CopyTrading/modals/ManagePositionModal/positionSellFlow'
+import type { PreparedActionFlowState } from 'pages/CopyTrading/modals/PreparedActionModal/preparedAction'
 
 const position = {
   actionKind: 'POSITION_ACTION_KIND_MANUAL_SELL',
@@ -33,5 +37,61 @@ describe('getPositionRecoveryFlow', () => {
     expect(getPositionRecoveryFlow({ ...position, actionKind: 'POSITION_ACTION_KIND_CLOSE_POSITION' }, 'closing')).toBe(
       'stopCopyClosePosition',
     )
+  })
+})
+
+describe('position sell retry', () => {
+  const changedAction = {
+    generationId: 'original',
+    displayEnrichment: { status: 'ACTION_DISPLAY_ENRICHMENT_STATUS_NOT_APPLICABLE' as const },
+    status: 'PREPARED_ACTION_STATUS_UNAVAILABLE' as const,
+    reason: 'PREPARED_ACTION_REASON_SELL_OBLIGATION_CHANGED' as const,
+  }
+
+  it('discards stale preparation and loads new quantities without preparing or submitting', async () => {
+    let state: PreparedActionFlowState = { phase: 'unavailable', action: changedAction }
+    let quantities = ['1000000000000000000']
+    const reset = vi.fn(() => {
+      state = { phase: 'idle' }
+    })
+    const reloadObligations = vi.fn(async () => {
+      expect(state).toEqual({ phase: 'idle' })
+      quantities = ['500000000000000000', '250000000000000000']
+    })
+    const retry = vi.fn()
+
+    await retryPositionSell({ state, reset, reloadObligations, retry })
+
+    expect(quantities).toEqual(['500000000000000000', '250000000000000000'])
+    expect(state).toEqual({ phase: 'idle' })
+    expect(reloadObligations).toHaveBeenCalledOnce()
+    expect(retry).not.toHaveBeenCalled()
+  })
+
+  it.each(['pending', 'error', 'sync_error'] as const)('preserves normal %s recovery', async phase => {
+    const reset = vi.fn()
+    const reloadObligations = vi.fn()
+    const retry = vi.fn()
+    await retryPositionSell({ state: { phase, action: changedAction }, reset, reloadObligations, retry })
+    expect(retry).toHaveBeenCalledOnce()
+    expect(reset).not.toHaveBeenCalled()
+    expect(reloadObligations).not.toHaveBeenCalled()
+  })
+
+  it('keeps other unavailable reasons on the normal preparation path', async () => {
+    const reset = vi.fn()
+    const reloadObligations = vi.fn()
+    const retry = vi.fn()
+    await retryPositionSell({
+      state: {
+        phase: 'unavailable',
+        action: { ...changedAction, reason: 'PREPARED_ACTION_REASON_NO_EXECUTABLE_ROUTE' },
+      },
+      reset,
+      reloadObligations,
+      retry,
+    })
+    expect(retry).toHaveBeenCalledOnce()
+    expect(reloadObligations).not.toHaveBeenCalled()
   })
 })

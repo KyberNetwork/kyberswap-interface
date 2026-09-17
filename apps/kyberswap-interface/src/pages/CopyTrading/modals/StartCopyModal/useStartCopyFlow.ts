@@ -10,7 +10,7 @@ import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { useCopyTradingContext } from 'pages/CopyTrading/context'
-import { getSelectedStartGenerationId, getStartGenerationChoices } from 'pages/CopyTrading/generations'
+import { resolveStartCopyEligibility } from 'pages/CopyTrading/generations'
 import { getPreparedReasonMessage } from 'pages/CopyTrading/helpers'
 import useRefreshCopyTrading from 'pages/CopyTrading/hooks/useRefreshCopyTrading'
 import { type CapitalPercentage } from 'pages/CopyTrading/modals/CapitalAmount/capital'
@@ -29,11 +29,7 @@ import {
   requiresStartCopyAuthorization,
   useStartCopyAttempt,
 } from 'pages/CopyTrading/modals/StartCopyModal/useStartCopyAttempt'
-import {
-  getWriteAvailabilityMessage,
-  getWritePrimaryActionLabel,
-  isWritePrimaryActionDisabled,
-} from 'pages/CopyTrading/modals/writeAction'
+import { getWritePrimaryActionLabel, isWritePrimaryActionDisabled } from 'pages/CopyTrading/modals/writeAction'
 import { useWalletModalToggle } from 'state/application/hooks'
 
 const getNonReadyPhase = (status?: PreparedActionStatus) => {
@@ -85,11 +81,12 @@ export const useStartCopyFlow = ({ agent, onDismiss }: { agent: StartCopyTarget;
         getChains(undefined, false).unwrap(),
         getAgent({ agentId: agent.agentId }, false).unwrap(),
       ])
-      const choices = getStartGenerationChoices(
+      const eligibility = resolveStartCopyEligibility(
         chains.data.find(chain => chain.chainId === agent.chainId),
         profile.data,
       )
-      const generationId = getSelectedStartGenerationId(choices, attempt.attemptRef.current.generationId)
+      // Keep an existing attempt pinned even after its generation retires.
+      const generationId = attempt.attemptRef.current.generationId || eligibility.generationId
       if (!generationId) throw new Error('Start Copy is currently unavailable. Please try again later.')
 
       const scopedAttempt = attempt.getScopedStartAttempt(account, capital.amountRaw, generationId)
@@ -142,14 +139,11 @@ export const useStartCopyFlow = ({ agent, onDismiss }: { agent: StartCopyTarget;
 
   const accountConnected = !!account
   const isPreparing = flowState.isPreparing === true
-  const startChoices = getStartGenerationChoices(
+  const eligibility = resolveStartCopyEligibility(
     chains.find(chain => chain.chainId === agent.chainId),
     agent,
   )
-  const implicitGenerationId = getSelectedStartGenerationId(startChoices)
-  const availabilityMessage = getWriteAvailabilityMessage(
-    startChoices.find(choice => choice.generationId === implicitGenerationId)?.availability,
-  )
+  const availabilityMessage = eligibility.canStart ? undefined : getPreparedReasonMessage(eligibility.reason)
   const primaryActionLabel = getWritePrimaryActionLabel({
     accountConnected,
     onExpectedChain: capital.onExpectedChain,
