@@ -64,7 +64,6 @@ export class RelayAdapter extends BaseSwapAdapter {
       baseApiUrl: MAINNET_RELAY_API,
       source: 'kyberswap',
       chains: [
-        arc,
         arbitrum,
         avalanche,
         base,
@@ -86,6 +85,7 @@ export class RelayAdapter extends BaseSwapAdapter {
         plasma,
         monad,
         robinhood,
+        arc,
       ]
         .map(convertViemChainToRelayChain)
         .concat(solanaChain as any),

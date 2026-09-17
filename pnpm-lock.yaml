@@ -95,8 +95,8 @@ importers:
   apps/kyberswap-interface:
     dependencies:
       '@across-protocol/app-sdk':
-        specifier: ^0.4.4
-        version: 0.4.4(viem@2.48.11)
+        specifier: ^0.6.1
+        version: 0.6.1(viem@2.48.11)
       '@bitcoinerlab/secp256k1':
         specifier: ^1.2.0
         version: 1.2.0
@@ -2476,13 +2476,14 @@ packages:
       typescript: 5.9.3
     dev: false
 
-  /@across-protocol/app-sdk@0.4.4(viem@2.48.11):
-    resolution: {integrity: sha512-Yz+C1/jFJCQ3TRXRxCn+WXW1K0aLyrGi+S2p7Ot+MSO6X/rThRCbZpXdfPkSRLxdNBKXL5h3LAEgwwj1j2Pa7w==}
+  /@across-protocol/app-sdk@0.6.1(viem@2.48.11):
+    resolution: {integrity: sha512-5cJQJHdOS5/JUa2wVo1FIWWazRYBs6kr3mpbfXqBDHDrEd44jBcvyWdKO/bgUmmuhH+S//QWR6etIUrG+0zJkg==}
     engines: {node: '>=18.0.0'}
     peerDependencies:
       viem: ^2.31.2
     dependencies:
       viem: 2.48.11(typescript@5.9.3)(zod@3.23.8)
+      zod: 3.25.76
     dev: false
 
   /@adraffy/ens-normalize@1.10.0:
