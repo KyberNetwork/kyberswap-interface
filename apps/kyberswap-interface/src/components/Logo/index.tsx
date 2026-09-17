@@ -6,6 +6,7 @@ import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import { Chain, NonEvmChain, NonEvmChainInfo, isEvmChain } from 'pages/CrossChainSwap/adapters/types'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 import { cn } from 'utils/cn'
+import { isNativeAsset } from 'utils/nativeErc20'
 import { getNativeTokenLogo } from 'utils/tokenLogo'
 
 const BAD_SRCS: { [tokenAddress: string]: true } = {}
@@ -57,7 +58,7 @@ export function TokenLogoWithChain(data: any) {
 
   const chainId: ChainId = currency?.chainId || chainParam
   const nativeLogo = getNativeTokenLogo(chainId)
-  const tokenLogo = (currency?.isNative ? nativeLogo : currency?.logoURI) || tokenLogoParam
+  const tokenLogo = (isNativeAsset(currency) ? nativeLogo : currency?.logoURI) || tokenLogoParam
   const ratio = 0.7
   const networkSize = ratio * parseInt(size + '')
 

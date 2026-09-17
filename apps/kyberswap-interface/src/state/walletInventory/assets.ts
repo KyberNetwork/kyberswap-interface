@@ -67,7 +67,12 @@ export const selectWalletHoldings = (
 
   const vetted: Currency[] = [...vettedTokens]
   const nativeRow = inventory.rows[ETHER_ADDRESS]
-  if (nativeRow && nativeRow.rawBalance > 0n) vetted.push(NativeCurrencies[chainId])
+  const nativeCurrency = NativeCurrencies[chainId]
+  // Where the native asset is itself an ERC-20 token, the inventory may report it under either
+  // address; both describe one balance, so listing both would show it twice and double its
+  // contribution to net worth.
+  const alreadyListed = vettedTokens.some(token => token.equals(nativeCurrency))
+  if (nativeRow && nativeRow.rawBalance > 0n && !alreadyListed) vetted.push(nativeCurrency)
 
   return { vetted, hidden, impersonators, currencyBalances }
 }

@@ -6,9 +6,9 @@ import contractQuery from 'services/contractQuery'
 
 import { wagmiConfig } from 'components/Web3Provider'
 import { ERC20_ABI } from 'constants/abis'
-import { NativeCurrencies } from 'constants/tokens'
 import { useActiveWeb3React } from 'hooks'
 import { TokenAmountLoading } from 'state/wallet/hooks'
+import { nativeBalanceAmount } from 'utils/nativeErc20'
 import { Address } from 'utils/viem'
 
 export const useEthBalanceOfAnotherChain = (chainId: ChainId | undefined) => {
@@ -32,7 +32,7 @@ export const useEthBalanceOfAnotherChain = (chainId: ChainId | undefined) => {
         if (controller.signal.aborted) {
           return
         }
-        setBalance(CurrencyAmount.fromRawAmount(NativeCurrencies[chainId], JSBI.BigInt(balance.toString())))
+        setBalance(nativeBalanceAmount(balance.toString(), chainId))
       } catch (error) {
         if (controller.signal.aborted) {
           return

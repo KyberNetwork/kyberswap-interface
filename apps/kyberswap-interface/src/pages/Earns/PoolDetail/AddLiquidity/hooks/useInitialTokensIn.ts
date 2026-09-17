@@ -1,5 +1,6 @@
 import { useDebounce } from '@kyber/hooks'
 import { Pool, Token } from '@kyber/schema'
+import { toZapInputToken } from '@kyber/utils'
 import { getTokenBalances } from '@kyber/utils/crypto'
 import { useEffect, useState } from 'react'
 
@@ -72,8 +73,11 @@ export const useInitialTokensIn = ({
         return
       }
 
-      const token0Address = pool.token0.address.toLowerCase()
-      const token1Address = pool.token1.address.toLowerCase()
+      // Pool tokens are read, priced and entered in their input form, so one address keys all three.
+      const token0 = toZapInputToken(chainId, pool.token0)
+      const token1 = toZapInputToken(chainId, pool.token1)
+      const token0Address = token0.address.toLowerCase()
+      const token1Address = token1.address.toLowerCase()
       const pairBalance = await getTokenBalances({
         tokenAddresses: Array.from(new Set([token0Address, token1Address, nativeTokenAddress])),
         chainId,
@@ -93,12 +97,12 @@ export const useInitialTokensIn = ({
       const shouldUseToken1 = hasToken1Balance && (!hasToken0Balance || !isToken0PricedHigher)
 
       if (shouldUseToken0) {
-        tokensToSet.push(pool.token0)
+        tokensToSet.push(token0)
         amountsToSet.push(getInitialAmountFromPrice(tokenPrices[token0Address]))
       }
 
       if (shouldUseToken1) {
-        tokensToSet.push(pool.token1)
+        tokensToSet.push(token1)
         amountsToSet.push(getInitialAmountFromPrice(tokenPrices[token1Address]))
       }
 

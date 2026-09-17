@@ -18,8 +18,8 @@ const robinhoodInfo: NetworkInfo = {
 
   iconSelected: NOT_SUPPORT,
 
-  etherscanUrl: 'https://robinhoodchain.blockscout.com',
-  etherscanName: 'Blockscout',
+  etherscanUrl: 'https://robin.etherscan.io',
+  etherscanName: 'Etherscan',
   bridgeURL: '',
   nativeToken: {
     symbol: 'ETH',

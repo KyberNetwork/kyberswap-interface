@@ -32,7 +32,7 @@
     "ChromeAndroid >= 52"
   ],
   "dependencies": {
-    "@across-protocol/app-sdk": "^0.4.4",
+    "@across-protocol/app-sdk": "^0.6.1",
     "@bitcoinerlab/secp256k1": "^1.2.0",
     "@coinbase/wallet-sdk": "^4.3.7",
     "@defuse-protocol/one-click-sdk-typescript": "^0.1.2",
@@ -46,7 +46,7 @@
     "@kyber/utils": "workspace:*",
     "@kyberswap/compounding-widget": "workspace:*",
     "@kyberswap/ks-sdk-classic": "^1.0.3",
-    "@kyberswap/ks-sdk-core": "1.1.18",
+    "@kyberswap/ks-sdk-core": "1.1.19",
     "@kyberswap/ks-sdk-elastic": "^1.1.2",
     "@kyberswap/liquidity-chart": "workspace:*",
     "@kyberswap/liquidity-widgets": "workspace:*",

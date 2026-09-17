@@ -118,13 +118,13 @@ const readPublicFile = (filename: string) =>
 describe('SEO contract', () => {
   describe('static sitemap inventory', () => {
     it('keeps the approved inventory boundaries', () => {
-      expect(SITEMAP_SWAP_CHAIN_SLUGS).toHaveLength(18)
-      expect(SITEMAP_LIMIT_CHAIN_SLUGS).toHaveLength(16)
-      expect(SITEMAP_PAGE_ROUTES).toHaveLength(46)
+      expect(SITEMAP_SWAP_CHAIN_SLUGS).toHaveLength(19)
+      expect(SITEMAP_LIMIT_CHAIN_SLUGS).toHaveLength(17)
+      expect(SITEMAP_PAGE_ROUTES).toHaveLength(48)
       expect(new Set(SITEMAP_PAGE_ROUTES).size).toBe(SITEMAP_PAGE_ROUTES.length)
       expect(SITEMAP_PAGE_ROUTES[0]).toBe('/')
-      expect(SITEMAP_SWAP_CHAIN_SLUGS.at(-1)).toBe('robinhood')
-      expect(SITEMAP_LIMIT_CHAIN_SLUGS.at(-1)).toBe('robinhood')
+      expect(SITEMAP_SWAP_CHAIN_SLUGS.at(-1)).toBe('arc')
+      expect(SITEMAP_LIMIT_CHAIN_SLUGS.at(-1)).toBe('arc')
 
       for (const chain of ['zksync', 'scroll', 'fantom', 'blast', 'mantle']) {
         expect(SITEMAP_PAGE_ROUTES).not.toContain(`/swap/${chain}`)

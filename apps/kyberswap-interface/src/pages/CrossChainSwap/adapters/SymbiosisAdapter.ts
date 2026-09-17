@@ -146,7 +146,7 @@ export class SymbiosisAdapter extends BaseSwapAdapter {
     return 'Symbiosis'
   }
   getIcon(): string {
-    return 'https://app.symbiosis.finance/images/favicon-32x32.png'
+    return 'https://app.symbiosis.finance/images/favicon.svg'
   }
 
   canSupport(category: string, tokenIn?: AdapterCurrency, tokenOut?: AdapterCurrency): boolean {
@@ -179,6 +179,7 @@ export class SymbiosisAdapter extends BaseSwapAdapter {
       ChainId.SONIC,
       ChainId.BERA,
       ChainId.ROBINHOOD,
+      ChainId.ARC,
     ]
   }
 

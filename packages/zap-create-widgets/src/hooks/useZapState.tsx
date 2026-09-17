@@ -5,6 +5,7 @@ import { t } from '@lingui/macro';
 import { useTokenBalances, useTokenPrices } from '@kyber/hooks';
 import { API_URLS, CHAIN_ID_TO_CHAIN, Token, ZapRouteDetail } from '@kyber/schema';
 import { parseUnits } from '@kyber/utils/crypto';
+import { toZapPayments } from '@kyber/utils/liquidity/zap';
 import { getSqrtRatioAtTick, priceToClosestTick } from '@kyber/utils/uniswapv3';
 
 import { ERROR_MESSAGE, getConfigHooksAddress } from '@/constants';
@@ -194,28 +195,26 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
   const getZapRoute = useCallback(() => {
     if (zapRouteDisabled || !slippage || initializing || !pool || !poolPrice) return;
 
-    let formattedAmountsInWeis = '';
+    let payments = { tokensIn: '', amountsIn: '' };
 
-    const {
-      tokensIn: listValidTokensIn,
-      amountsIn: listValidAmountsIn,
-      tokenAddresses: validTokenInAddresses,
-    } = parseTokensAndAmounts(tokensIn, debounceAmountsIn);
+    const { tokensIn: listValidTokensIn, amountsIn: listValidAmountsIn } = parseTokensAndAmounts(
+      tokensIn,
+      debounceAmountsIn,
+    );
 
     try {
-      formattedAmountsInWeis = listValidTokensIn
-        .map((token: Token, index: number) => parseUnits(listValidAmountsIn[index] || '0', token.decimals).toString())
-        .join(',');
+      payments = toZapPayments(
+        chainId,
+        listValidTokensIn.map((token: Token) => token.address),
+        listValidTokensIn.map((token: Token, index: number) =>
+          parseUnits(listValidAmountsIn[index] || '0', token.decimals).toString(),
+        ),
+      );
     } catch (error) {
       console.log(error);
     }
 
-    if (
-      !validTokenInAddresses ||
-      !formattedAmountsInWeis ||
-      formattedAmountsInWeis === '0' ||
-      formattedAmountsInWeis === '00'
-    ) {
+    if (!payments.tokensIn || !payments.amountsIn.split(',').some(amount => BigInt(amount) > 0n)) {
       setZapInfo(null);
       return;
     }
@@ -239,8 +238,8 @@ export const ZapContextProvider = ({ children }: { children: ReactNode }) => {
       'pool.uniswap_v4_config.hooks': getConfigHooksAddress(chainId, poolType),
       'zap_in.position.tick_upper': debounceTickUpper ?? 0,
       'zap_in.position.tick_lower': debounceTickLower ?? 0,
-      'zap_in.tokens_in': validTokenInAddresses,
-      'zap_in.amounts_in': formattedAmountsInWeis,
+      'zap_in.tokens_in': payments.tokensIn,
+      'zap_in.amounts_in': payments.amountsIn,
       'zap_in.slippage': slippage,
     };
 

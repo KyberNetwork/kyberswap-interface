@@ -1,6 +1,9 @@
 import {
   AddLiquidityAction,
   AggregatorSwapAction,
+  ChainId,
+  NATIVE_TOKEN_ADDRESS,
+  NETWORKS_INFO,
   PartnerFeeAction,
   PoolSwapAction,
   Position,
@@ -12,9 +15,53 @@ import {
   ZapRouteDetail,
 } from '@kyber/schema';
 
-import { formatUnits } from '../crypto';
+import { formatUnits, nativeErc20Scale } from '../crypto';
 import { formatDisplayNumber, toRawString } from '../number';
 import { PI_LEVEL, ZAP_MESSAGES, getZapImpact } from './price-impact';
+
+// Where a chain's native asset is itself an ERC-20 token (Arc's USDC), that token is the asset's one
+// identity for anyone choosing a zap input — the form its pools hold and its prices are quoted in —
+// while the native sentinel is only how it is paid for, which needs no allowance.
+const nativeErc20Network = (chainId: number) => {
+  const network = NETWORKS_INFO[chainId as ChainId];
+  return network?.nativeIsErc20 ? network : undefined;
+};
+
+/** The token a zap input is listed and chosen as: the native sentinel reads as its ERC-20 form. */
+export const toZapInputToken = (chainId: number, token: Token): Token => {
+  const network = nativeErc20Network(chainId);
+  if (!network || token.address.toLowerCase() !== NATIVE_TOKEN_ADDRESS.toLowerCase()) return token;
+  return { ...network.wrappedToken, logo: token.logo || network.nativeLogo };
+};
+
+/** Whether a zap input is paid through the native interface, and so needs no allowance. */
+export const isPaidAsNative = (chainId: number, address: string): boolean => {
+  const network = nativeErc20Network(chainId);
+  return !!network && address.toLowerCase() === network.wrappedToken.address.toLowerCase();
+};
+
+/**
+ * The address and raw amount a zap request carries for an input. One paid as native goes out as the
+ * sentinel, scaled to the native interface's decimals, and the build answers with a matching
+ * transaction value. Every other input is sent unchanged.
+ */
+export const toZapPayment = (chainId: number, address: string, rawAmount: string) => {
+  if (!isPaidAsNative(chainId, address)) return { address, amount: rawAmount };
+  const amount = BigInt(rawAmount) * nativeErc20Scale(chainId as ChainId);
+  return { address: NATIVE_TOKEN_ADDRESS, amount: amount.toString() };
+};
+
+/**
+ * The `tokensIn` and `amountsIn` a zap request sends, from inputs whose amounts are already parsed to
+ * raw units. Built from one list so an address can never be sent beside another input's amount.
+ */
+export const toZapPayments = (chainId: number, addresses: string[], rawAmounts: string[]) => {
+  const payments = addresses.map((address, index) => toZapPayment(chainId, address, rawAmounts[index]));
+  return {
+    tokensIn: payments.map(payment => payment.address).join(','),
+    amountsIn: payments.map(payment => payment.amount).join(','),
+  };
+};
 
 export const parseZapInfo = ({
   zapInfo,

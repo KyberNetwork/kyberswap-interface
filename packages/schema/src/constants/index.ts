@@ -5,6 +5,9 @@ export * from './theme';
 
 export const NATIVE_TOKEN_ADDRESS = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE';
 
+/** Decimals every EVM chain reports for its native asset, whatever that asset is. */
+export const NATIVE_TOKEN_DECIMALS = 18;
+
 export const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 
 export const API_URLS = {

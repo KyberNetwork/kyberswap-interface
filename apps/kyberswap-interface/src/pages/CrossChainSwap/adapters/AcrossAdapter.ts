@@ -19,7 +19,7 @@ import {
   zksync,
 } from 'viem/chains'
 
-import { robinhood } from 'components/Web3Provider'
+import { arc, robinhood } from 'components/Web3Provider'
 import { ZERO_ADDRESS } from 'constants/index'
 import { NETWORKS_INFO } from 'hooks/useChainsConfig'
 import {
@@ -62,6 +62,7 @@ export class AcrossAdapter extends BaseSwapAdapter {
         plasma,
         monad,
         robinhood,
+        arc,
       ],
       rpcUrls: [
         ChainId.MAINNET,
@@ -77,6 +78,7 @@ export class AcrossAdapter extends BaseSwapAdapter {
         ChainId.UNICHAIN,
         ChainId.MONAD,
         ChainId.ROBINHOOD,
+        ChainId.ARC,
       ].reduce((acc, cur) => {
         return { ...acc, [cur]: NETWORKS_INFO[cur].defaultRpcUrl }
       }, {}),
@@ -127,6 +129,7 @@ export class AcrossAdapter extends BaseSwapAdapter {
       ChainId.PLASMA,
       ChainId.MONAD,
       ChainId.ROBINHOOD,
+      ChainId.ARC,
       // NonEvmChain.Solana,
     ]
   }
