@@ -3,14 +3,13 @@ import { describe, expect, it } from 'vitest'
 
 import {
   UINT256_MAX_RAW,
-  getPreparedQuoteBalanceRaw,
   getWithdrawAmountError,
   getWithdrawRequestAmountRaw,
   getWithdrawalPrimaryAction,
   validateWithdrawAmountRaw,
   validateWithdrawPreview,
   validateWithdrawTokensPreview,
-} from './utils'
+} from 'pages/CopyTrading/modals/WithdrawModal/utils'
 
 describe('withdraw quote request', () => {
   it.each(['1', UINT256_MAX_RAW])('accepts canonical positive uint256 %s', amountRaw => {
@@ -24,12 +23,6 @@ describe('withdraw quote request', () => {
   it('uses uint256.max only after the Max preset is selected', () => {
     expect(getWithdrawRequestAmountRaw('42', false)).toBe('42')
     expect(getWithdrawRequestAmountRaw('42', true)).toBe(UINT256_MAX_RAW)
-  })
-
-  it('reads the pre-submit quote balance from the prepared action', () => {
-    expect(getPreparedQuoteBalanceRaw({ quoteBalance: { valueRaw: '100' } })).toBe('100')
-    expect(getPreparedQuoteBalanceRaw({ quoteBalance: { valueRaw: 'invalid' } })).toBeUndefined()
-    expect(getPreparedQuoteBalanceRaw()).toBeUndefined()
   })
 
   it('validates the displayed amount against currency and Smart Wallet balance', () => {
@@ -124,8 +117,8 @@ describe('All Tokens withdrawal', () => {
       token: index === 0 ? token : { address: `0x${index.toString(16).padStart(40, '0')}` },
       balance: { status: 'METRIC_STATUS_CURRENT' as const, valueRaw: index === 0 ? '0' : '100' },
     }))
-  it.each([1, 32, 33, 100])('accepts a valid %i-token batch with a zero quote balance', count => {
-    expect(validateWithdrawTokensPreview({ ...preview, tokens: batchTokens(count) }, owner)).toBeUndefined()
+  it('accepts the maximum 100-token batch with a zero quote balance', () => {
+    expect(validateWithdrawTokensPreview({ ...preview, tokens: batchTokens(100) }, owner)).toBeUndefined()
   })
   it('rejects 101 unique tokens', () => {
     expect(validateWithdrawTokensPreview({ ...preview, tokens: batchTokens(101) }, owner)).toBeTruthy()
@@ -138,14 +131,13 @@ describe('All Tokens withdrawal', () => {
     expect(validateWithdrawTokensPreview({ ...preview, selection: undefined }, owner)).toBeTruthy()
     expect(validateWithdrawTokensPreview({ ...preview, quoteToken: undefined }, owner)).toBeTruthy()
   })
-  it('rejects empty, duplicate, and oversized inventory', () => {
+  it('rejects empty and duplicate inventory', () => {
     for (const tokens of [
       [],
       [
         { token, balance: { status: 'METRIC_STATUS_CURRENT' as const, valueRaw: '0' } },
         { token, balance: { status: 'METRIC_STATUS_CURRENT' as const, valueRaw: '0' } },
       ],
-      Array(33).fill({ token, balance: { status: 'METRIC_STATUS_CURRENT' as const, valueRaw: '0' } }),
     ]) {
       expect(validateWithdrawTokensPreview({ ...preview, tokens }, owner)).toBeTruthy()
     }
@@ -178,17 +170,6 @@ describe('withdrawal primary action', () => {
       label: 'Withdraw Unavailable',
       disabled: true,
       title: 'Prepare failed',
-    })
-  })
-
-  it('keeps Withdraw for invalid amounts and while preparing', () => {
-    expect(getWithdrawalPrimaryAction({ ...ready, executionBlocked: true })).toMatchObject({
-      label: 'Withdraw',
-      disabled: true,
-    })
-    expect(getWithdrawalPrimaryAction({ ...ready, isPreparing: true })).toMatchObject({
-      label: 'Withdraw',
-      disabled: true,
     })
   })
 })

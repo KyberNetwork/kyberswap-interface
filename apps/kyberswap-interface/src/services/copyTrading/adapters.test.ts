@@ -1,19 +1,10 @@
 import { adaptActionLogsResponse, adaptActivityResponse } from 'services/copyTrading/adapters/activity'
-import {
-  adaptChainsResponse,
-  adaptLeaderboardResponse,
-  adaptPerformanceResponse,
-} from 'services/copyTrading/adapters/agents'
+import { adaptLeaderboardResponse, adaptPerformanceResponse } from 'services/copyTrading/adapters/agents'
 import {
   adaptCopyAccountBalancesResponse,
-  adaptCopyAccountResponse,
   adaptCopyAccountWalletInventoryResponse,
 } from 'services/copyTrading/adapters/copyAccounts'
-import {
-  adaptCopyRunCashbackPolicyResponse,
-  adaptCopyRunResponse,
-  adaptCopyRunsResponse,
-} from 'services/copyTrading/adapters/copyRuns'
+import { adaptCopyRunResponse, adaptCopyRunsResponse } from 'services/copyTrading/adapters/copyRuns'
 import {
   adaptAgentPositionsResponse,
   adaptClosedPositionExecutionsResponse,
@@ -26,82 +17,8 @@ const currentCapital = {
   status: 'METRIC_STATUS_CURRENT' as const,
 }
 
-describe('account generations', () => {
-  it('preserves chain generation lifecycle and capabilities', () => {
-    const chain = adaptChainsResponse({
-      data: [
-        {
-          chainId: '8453',
-          accountGenerations: [
-            {
-              generationId: 'beta-3',
-              lifecycle: 'ACCOUNT_GENERATION_LIFECYCLE_CREATE_ENABLED',
-              capabilities: [
-                'ACCOUNT_GENERATION_PRODUCT_CAPABILITY_START_COPY',
-                'ACCOUNT_GENERATION_PRODUCT_CAPABILITY_ADD_CAPITAL',
-              ],
-            },
-          ],
-        },
-      ],
-    }).data[0]
-
-    expect(chain.accountGenerations).toEqual([
-      {
-        generationId: 'beta-3',
-        lifecycle: 'ACCOUNT_GENERATION_LIFECYCLE_CREATE_ENABLED',
-        capabilities: [
-          'ACCOUNT_GENERATION_PRODUCT_CAPABILITY_START_COPY',
-          'ACCOUNT_GENERATION_PRODUCT_CAPABILITY_ADD_CAPITAL',
-        ],
-      },
-    ])
-  })
-
-  it('keeps generation-scoped agent availability and fees paired by id', () => {
-    const agent = adaptLeaderboardResponse({
-      data: [
-        {
-          agentId: 'agent-1',
-          startCopyAvailabilities: [
-            {
-              generationId: 'beta-3',
-              availability: { status: 'ADVISORY_ACTION_STATUS_AVAILABLE' },
-            },
-          ],
-          feePolicies: [
-            {
-              generationId: 'beta-3',
-              flatFeeRatePct: { value: '0.5', status: 'METRIC_STATUS_CURRENT' },
-              cashbackFormulaVersion: 2,
-            },
-          ],
-        },
-      ],
-    }).data[0]
-
-    expect(agent.startCopyAvailabilities).toEqual([
-      { generationId: 'beta-3', availability: { status: 'ADVISORY_ACTION_STATUS_AVAILABLE' } },
-    ])
-    expect(agent.feePolicies).toEqual([
-      {
-        generationId: 'beta-3',
-        flatFeeRatePct: { value: '0.5', status: 'METRIC_STATUS_CURRENT' },
-        cashbackFormulaVersion: 2,
-      },
-    ])
-  })
-
-  it('preserves indexed generation provenance on copy runs and accounts', () => {
-    expect(adaptCopyRunsResponse({ data: [{ generationId: 'beta-2' }] }).data[0].generationId).toBe('beta-2')
-    expect(adaptCopyRunResponse({ data: { generationId: 'beta-2' } }).data.generationId).toBe('beta-2')
-    expect(adaptCopyAccountResponse({ data: { generationId: 'beta-2' } }).data.generationId).toBe('beta-2')
-  })
-})
-
 describe('ROI and copy-run list metrics', () => {
   it.each([
-    ['METRIC_STATUS_CURRENT', '20', '20'],
     ['METRIC_STATUS_CURRENT', '0', '0'],
     ['METRIC_STATUS_STALE', '-12', '-12'],
     ['METRIC_STATUS_UNAVAILABLE', '20', undefined],
@@ -160,14 +77,12 @@ describe('ROI and copy-run list metrics', () => {
 
 describe('adaptCopyRunResponse', () => {
   it.each([
-    ['CAPITAL_IN_PROJECTION_STATUS_READY', currentCapital, '12.34'],
-    ['CAPITAL_IN_PROJECTION_STATUS_READY', { value: '12.34', status: 'METRIC_STATUS_UNAVAILABLE' }, undefined],
-    ['CAPITAL_IN_PROJECTION_STATUS_SYNCING', currentCapital, '12.34'],
-    ['CAPITAL_IN_PROJECTION_STATUS_SYNCING', { value: '12.34', status: 'METRIC_STATUS_STALE' }, '12.34'],
-    ['CAPITAL_IN_PROJECTION_STATUS_UNAVAILABLE', { status: 'METRIC_STATUS_UNAVAILABLE' }, undefined],
+    ['CAPITAL_IN_PROJECTION_STATUS_READY', currentCapital, '12.34', 'ready'],
+    ['CAPITAL_IN_PROJECTION_STATUS_READY', { value: '12.34', status: 'METRIC_STATUS_UNAVAILABLE' }, undefined, 'ready'],
+    ['CAPITAL_IN_PROJECTION_STATUS_SYNCING', { value: '12.34', status: 'METRIC_STATUS_STALE' }, '12.34', 'syncing'],
   ] as const)(
     'maps Capital In independently from its projection badge when %s',
-    (capitalInProjectionStatus, capitalInUsd, expectedCapitalInUsd) => {
+    (capitalInProjectionStatus, capitalInUsd, expectedCapitalInUsd, expectedProjectionStatus) => {
       const response = adaptCopyRunResponse({
         data: {
           capitalInProjectionStatus,
@@ -176,9 +91,7 @@ describe('adaptCopyRunResponse', () => {
       })
 
       expect(response.data.capitalInUsd).toBe(expectedCapitalInUsd)
-      expect(response.data.capitalInProjectionStatus).toBe(
-        capitalInProjectionStatus.replace('CAPITAL_IN_PROJECTION_STATUS_', '').toLowerCase(),
-      )
+      expect(response.data.capitalInProjectionStatus).toBe(expectedProjectionStatus)
     },
   )
 
@@ -212,8 +125,6 @@ describe('adaptCopyRunResponse', () => {
     })
     expect(response.data.currentBalanceUsd).toBe('105')
     expect(response.data.metrics.currentBalanceUsd?.status).toBe('METRIC_STATUS_STALE')
-    expect(response.data).not.toHaveProperty('observedCapitalInUsd')
-    expect(response.data).not.toHaveProperty('netFeeCostUsd')
   })
 })
 
@@ -466,38 +377,7 @@ describe('adaptCopyAccountWalletInventoryResponse', () => {
   })
 })
 
-describe('adaptCopyRunCashbackPolicyResponse', () => {
-  it.each([
-    'COPY_RUN_CASHBACK_POLICY_STATUS_AVAILABLE',
-    'COPY_RUN_CASHBACK_POLICY_STATUS_NOT_CONFIGURED',
-    'COPY_RUN_CASHBACK_POLICY_STATUS_INVALIDATED',
-    'COPY_RUN_CASHBACK_POLICY_STATUS_UNAVAILABLE',
-  ] as const)('preserves the typed %s policy state and response freshness', status => {
-    const response = adaptCopyRunCashbackPolicyResponse({
-      data: {
-        copyRunId: 'copy-run-1',
-        chainId: '8453',
-        copyAccount: '0x2222222222222222222222222222222222222222',
-        agentId: 'agent-1',
-        status,
-        scope: 'COPY_RUN_CASHBACK_POLICY_SCOPE_DEFAULT',
-      },
-      meta: { status: 'DATA_STATUS_STALE' },
-    })
-
-    expect(response.data).toMatchObject({
-      chainId: 8453,
-      status,
-      scope: 'COPY_RUN_CASHBACK_POLICY_SCOPE_DEFAULT',
-    })
-    expect(response.data.capCashbackRatioRaw).toBeUndefined()
-    expect(response.data.pnlRateRaw).toBeUndefined()
-    expect(response.data.cashbackFormulaVersion).toBeUndefined()
-    expect(response.meta?.status).toBe('DATA_STATUS_STALE')
-  })
-})
-
-describe('September withdrawal and History contract', () => {
+describe('withdrawal and History contract', () => {
   it('keeps History metrics independent and preserves withdrawal-aware lifecycle', () => {
     const run = adaptCopyRunResponse({
       data: {

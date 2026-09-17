@@ -2,452 +2,210 @@
 
 Last reviewed: 2026-09-17
 
-This file is the frontend snapshot for the current Copy Trading implementation.
-It records only current ownership, accepted product decisions, remaining gaps,
-and the latest verification evidence. API details remain owned by
-FE_API_Catalog.md and openapi.yaml.
+Frontend ownership, accepted behavior and remaining work for the current
+implementation. API contracts belong in [FE_API_Catalog.md](FE_API_Catalog.md)
+and [openapi.yaml](openapi.yaml); this document does not establish live backend
+compatibility or transaction E2E.
 
-## Current Snapshot
+Leaderboard, Agent Profile, My Copies, History, Copy Detail and the seven write
+actions below are implemented. Browser and controlled transaction validation
+remain open.
 
-| Area              | Status                                                                                                         |
-| ----------------- | -------------------------------------------------------------------------------------------------------------- |
-| Backend contract  | Current input: checked-in OpenAPI byte-matches the live 35-path, 199-definition Swagger fetched on 2026-09-17. |
-| RTK Query service | Code-complete: 27 GET queries, 7 preparation mutations, and 1 submitted-status mutation are declared and typed.                              |
-| Read UI           | Code-complete for all currently defined product surfaces.                                                      |
-| Write UI          | Code-complete for Start Copy, Add Capital, Stop Copy, Withdraw Quote, Withdraw All Tokens, Manual Sell, and Close Position.         |
-| Responsive UI     | Code-complete for the defined layouts; Action Logs mobile filter remains a product decision.                   |
-| Live validation   | Positive controlled E2E remains deferred for the post-receipt convergence and position-recovery cases below.   |
+## Ownership
 
-## Contract and Ownership
+| Responsibility                         | Owner                                                                                                                                                                |
+| -------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| API transport and endpoint definitions | [baseApi.ts](../../../services/copyTrading/api/baseApi.ts) and [endpoints](../../../services/copyTrading/api/endpoints)                                              |
+| API-to-UI model boundary               | [adapters](../../../services/copyTrading/adapters) and [types](../../../services/copyTrading/types); keep leader positions separate from follower accounting/actions |
+| Page identity and required reads       | [AgentProfile](../AgentProfile/index.tsx), [CopyDetail](../CopyDetail/index.tsx); Copy Detail tab reads live in [CopyDetailTabs](../CopyDetail/CopyDetailTabs.tsx)   |
+| Cursor collections                     | [InfiniteScroll](../components/InfiniteScroll/index.tsx) owns TanStack pagination over RTK Query requests                                                            |
+| Cross-cache refresh                    | [useRefreshCopyTrading](../hooks/useRefreshCopyTrading.ts) invalidates RTK Query and TanStack Copy Trading reads                                                     |
+| Start eligibility                      | [generations.ts](../generations.ts), shared by list, profile and Start modal                                                                                         |
+| Write orchestration                    | [usePreparedAction](../modals/PreparedActionModal/usePreparedAction.ts) owns preparation handling, submission, receipt/status recovery and refresh                   |
+| Action-specific rules                  | Action hooks/modals own inputs, request construction, domain validation and result navigation; they delegate execution to the shared flow                            |
 
-- services/copyTrading/api/baseApi.ts owns the shared RTK Query API.
-- Endpoint groups own Discovery, Agents, Copy Runs, Copy Accounts, and prepared
-  actions. The prepared-actions endpoint group also owns actions:status. Shared query-parameter mapping stays in api/queryParams.ts.
-- adapters and types are the compatibility boundary between API-native
-  envelopes/enums and UI models.
-- Copy Run list endpoints map to CopyRunListItem. The Copy Run detail endpoint
-  maps to CopyRunSummary and owns detail-only Portfolio P&L and fee-breakdown.
-  ROI, Copy-specific Win Rate, and classified closed-position count are shared
-  by list and detail.
-- Agent position endpoints map to AgentPositionSummary. Follower Copy Run and
-  owner position endpoints map to PositionSummary; follower accounting and
-  recovery actions must not leak into leader-position models.
-- Prepared-action request and response contracts stay together in
-  types/preparedActions.ts. Submitted-status types live in types/actionStatus.ts;
-  statusContext is passed through verbatim as an operator-authored selector.
-- Owner views map to OWNER_COPY_VIEW_OPEN and OWNER_COPY_VIEW_HISTORY.
-- Position views map to POSITION_VIEW_OPEN and POSITION_VIEW_CLOSED.
-- Agent action logs use /action-logs. Copy Detail logs use the owner activity
-  endpoint scoped by copyRunId and ACTIVITY_SURFACE_COPY_RUN_LOG.
-- Copy Run lifecycle preserves ACTIVE, CLOSING, STOPPED, and CLOSED.
-- Position lifecycle and quantity state remain separate typed fields.
-- Renderable metric values include CURRENT and STALE. UNAVAILABLE remains
-  non-renderable and continues to participate in validation.
-- Cursor-paginated requests restart from page one when a non-initial cursor is
-  rejected with HTTP 400/code 10 or HTTP 409.
+Withdrawal inventory and display-only preview reads live in
+[useWithdrawalData](../modals/WithdrawModal/useWithdrawalData.ts). Withdrawal
+hooks do not own a separate submission or convergence implementation.
 
-The following API surfaces remain without standalone product UI until designs
-exist:
+## Product decisions to preserve
 
-- Closed-position execution details. The endpoint remains declared but is no
-  longer used for post-receipt convergence.
-- Structured Alerts Feed and Copy Run Log fields beyond the current rows.
-- Copy Run cashback policy.
-- Agent discovery, Agent position detail/events, owner-wide positions, and
-  Copy Account list/detail/balance/position/history screens.
+- An API addition does not authorize new UI or steps. Generation metadata and
+  `displayEnrichment` remain implicit; no generation selector, extra fee rows or
+  enrichment warnings are introduced.
+- Target the deployed contract. Do not restore retired-schema fallbacks without
+  a deployment requirement.
+- Agent Profile and Copy Detail display the static `agent.flatFeeRatePct`,
+  independently of Start availability. Start Review uses the prepared fee preview.
+- `AVAILABLE` and `TRY_PREPARE` use the normal action CTA and preparation flow.
+  Preparation decides whether the action can execute; there is no separate
+  availability-check step.
 
-## Multi-contract Generations
+### Generation identity
 
-- Generation integration is implicit by product decision. No generation labels,
-  badges, selectors, extra fee rows, stale markers, modal steps or changes to
-  existing fee presentation are introduced.
-- Chain and agent generation arrays are retained in adapters. The existing Copy
-  action uses matching generation availability. Exactly one eligible generation
-  is resolved automatically; multiple eligible generations remain unavailable
-  until the API/product defines a default. Never guess by ID or array ordering.
-- Agent Profile and Copy Detail keep the existing agent.flatFeeRatePct field
-  for fee display, independently of Start availability. Generation fee policies
-  remain modeled but do not override this display. Start Review continues to
-  use the authoritative preparation fee preview.
-- Leaderboard, profile and Start modal share one Start eligibility resolver;
-  it resolves availability and generation identity without reading fee policies.
-- Start refreshes chain and agent reads inside the existing preparation flow.
-  Resolution adds no separate loading state, selection prompt or review step.
-  The resolved generation is pinned to the attempt and sent on every request,
-  including authorization, retries and funding continuation.
-- All preparation results require generationId. Start matches its pinned
-  identity; existing-account actions match known run provenance. Missing run
-  provenance remains unknown internally, with no new UI label.
-- Executable preparation and submission refresh the catalog and validate
-  lifecycle/capabilities using the existing error flow. Read-only generations
-  cannot execute. Operator-authorized funding continuation can retain an
-  existing-account-only generation; status observation retains its context.
-- Copy Run/Smart Wallet generation metadata is retained internally. List
-  membership, historical display and identity components remain unchanged.
-- Agent position-event requests and query identity include generationId.
-  This endpoint still has no product UI; a future pagination consumer must
-  reset its cursor when generation changes.
+- Resolve exactly one eligible generation by matching chain capabilities and
+  agent availability. Multiple eligible generations remain unavailable; never
+  choose by array order or generation ID.
+- Start refreshes chain/agent data within preparation and pins the generation
+  to its attempt. All preparation results require `generationId`; existing-account
+  actions match known run provenance without inventing missing provenance.
+- Executable preparation and submission recheck generation lifecycle and
+  capabilities. Read-only generations cannot execute. The policy helper permits
+  authoritative funding continuation during retirement, but the current Start UI
+  only supports funded Create.
+- Start keeps request/permit identity across retries of the same attempt and
+  resets it when its scope changes. Post-authorization responses use the same
+  shared preparation handler. `UNAVAILABLE` is validated without requiring a
+  call and never pins the predicted Smart Wallet.
 
-## Current Read and Navigation Decisions
+## Read behavior
 
-### Product UI guardrails
+### Ownership and navigation
 
-These are accepted product decisions. A future API/OpenAPI sync must preserve
-them unless product explicitly approves a UI change:
+- Copied/My Copy state comes from the current owner's latest Open Copy Run for
+  that Agent. Only `ACTIVE` produces My Copy; other statuses retain the
+  advisory-gated Copy action. Agent Profile queries this with `limit=1`.
+- Copy Run rows use `agentSnapshot`; Copiers and Active Copies remain
+  backend-provided metrics, not counts derived from an owner's list.
+- Agent Profile is public. Copy Detail requires a wallet. Wallet restoration
+  suppresses the disconnected state.
+- Row navigation uses native links so modified-click and new-tab behavior work;
+  independent action buttons stay outside the row-link hit target.
 
-- The production UI is already decided. API-only fields, statuses, enrichment,
-  recovery, and retry behavior stay transparent when they do not require user
-  input. A contract addition is not by itself authorization to add labels,
-  cards, banners, buttons, or modal steps.
-- The frontend targets the currently deployed schema. Do not add compatibility
-  fallback for the retired schema unless deployment ordering changes and
-  product explicitly requests it.
-- Copy Detail shows four headline metrics: Total P&L, Realised P&L, ROI, and
-  Net Fees. Net Fees reads feeBreakdown.netFeesUsd; an info tooltip beside its
-  value shows two aligned rows for Fee charged and Rebates, with muted labels
-  and emphasized right-aligned values. The formula is not displayed.
-  Fee is no longer a separate headline metric. Realised P&L reads portfolioPnlUsd.
-- Capital In reads capitalInUsd directly. Only the Capital In value inside the
-  Agent Profile and Copy Detail capital cards shows a **Syncing** badge when
-  capitalInProjectionStatus is SYNCING. Tables, timelines, and modal summaries
-  render the value as normal flat text.
-- Capital In metric STALE is presentation-transparent; do not branch on it or
-  add a stale badge. Current Balance also renders as a normal value with no
-  stale-specific component or badge.
-- Position recovery presents exactly one action. Use actionKind when it is a
-  recommendation; otherwise use availableActionKinds[0] in API order. Do not
-  scan, reorder, or filter the response to prefer a hard-coded action.
-- Prepared Action keeps the existing modal and review UI. displayEnrichment is
-  modeled for contract completeness but does not add a warning banner, preview
-  state, cancellation copy, or extra user step. Preparation readiness and the
-  exact prepared call remain authoritative.
-- TRY_PREPARE uses the existing action CTA and calls the preparation endpoint
-  normally. A successful preparation continues the existing flow; an
-  unavailable preparation displays the existing preparation error. Do not add
-  a separate availability-check action or label.
-- HTTP 409 cursor recovery and preparation transport/retry details remain
-  transparent. They must not introduce new product UI unless recovery requires
-  a user decision.
+### Loading and errors
 
-### Agent ownership and Copy CTA
+- Wallet/entity-sensitive reads use `currentData`. Never render a previous
+  wallet, Agent or Copy as the current entity.
+- Required initial reads show the page loader. Transient background failures
+  retain current content; charts also retain their data while switching windows.
+- Agent Profile and Copy Detail never redirect automatically on read failure.
+  Network/server failures offer Try again for missing reads only. Copy Detail
+  loads its Copy Run before retrying the dependent Agent read.
+- Missing route IDs and primary-resource HTTP 403/404 show an error without an
+  inline button; the page-header Back to remains available. A failed owner
+  Copy Runs lookup does not make the public Agent unavailable.
+- [CopyTradingReadError](../components/common/status.tsx) takes an explicit
+  `resourceUnavailable` flag and an `onRetry` callback; callback presence does not
+  determine the error state.
+- Rejected non-initial cursors restart the collection from page one. Filter and
+  sort changes get independent cursor chains; recovery does not add a UI step.
 
-- One owner can have at most one active Copy Run per Agent.
-- Leaderboard copied state comes from the current owner's selected-chain Open
-  Copy Runs sorted by startedAt descending.
-- Agent Profile requests the Agent-filtered Open Copy Runs using startedAt
-  descending and limit=1.
-- The latest run produces My Copy only when its status is ACTIVE. Any other
-  latest status keeps the advisory-gated Copy action.
-- Start Copy completion uses submitted-action status for the confirmed
-  transaction and reads copyRunId from its result. Agent CTA ownership reads
-  retain their existing filters and lifecycle rules.
-- Copiers and Active Copies remain backend-provided metrics; the frontend does
-  not recompute them from owner Copy Run lists.
+### Metric and action sources
 
-### Loading, cache, and failure behavior
+| Display                                  | Source / rule                                                                                         |
+| ---------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| Leaderboard ROI                          | Agent `roiPct`                                                                                        |
+| My Copies / Copy Detail ROI and Win Rate | Copy Run metrics, not the Agent snapshot; Win Rate has no sort because the API sort is Agent-specific |
+| Copy Detail Total P&L / Realised P&L     | `totalPnlUsd` / `portfolioPnlUsd`                                                                     |
+| Copy Detail Net Fees                     | `feeBreakdown.netFeesUsd`; tooltip uses `feeChargedUsd` and `rebatesUsd`                              |
+| Open / Closed Position P&L               | `unrealizedPnlUsd` and `unrealizedPnlPct` / `realizedPnlUsd`                                          |
+| Capital In                               | `capitalInUsd`, independently of projection status                                                    |
+| Remaining in Wallet                      | Wallet-inventory authoritative total, never a sum of visible rows                                     |
 
-- Prepared-action sync recovery uses a waiting icon and Checking transaction
-  result copy. Unresolved status and HTTP errors offer Refresh status with the
-  saved action/hash; they do not label the transaction failed or resubmit it.
-  Unconfirmed receipts retain Transaction submitted and Check confirmation.
-- Wallet- and argument-sensitive reads use currentData so a previous wallet,
-  Agent, Copy, or query argument is never rendered as the current entity.
-- Agent Profile and Copy Detail show one page-level LocalLoader during wallet
-  restoration and required initial reads.
-- Background polling keeps current content when currentData already exists.
-- When an initial required request settles without data, Agent Profile redirects
-  to Leaderboard and Copy Detail redirects to My Copies or History.
-- Agent Profile remains public without a connected wallet. Copy Detail is
-  owner-only and shows the wallet-required state when genuinely disconnected.
-- My Copies and History suppress their disconnected state during wallet
-  restoration.
-- Navigation does not retain the previous entity and does not prefetch. An
-  uncached Agent/Copy route may therefore show the page loader.
-- Performance charts intentionally retain their existing chart data while a new
-  window loads.
+- `CURRENT` and `STALE` render alike; unavailable metrics stay N/A or —.
+  The capital-card Syncing badge depends only on `capitalInProjectionStatus`.
+  Tables and modal summaries do not add that badge.
+- ROI, chart Return and History Total Return remain distinct. Closed-position
+  counts never fall back to open counts. Lifecycle and historical metrics remain
+  server-owned; a withdrawal does not fabricate closed trades or adjust totals locally.
+- `CLOSING` is presented as Stopped Copy in the capital card, while recovery
+  still uses the backend lifecycle.
+- Position recovery uses `actionKind`, or `availableActionKinds[0]` when no
+  recommendation exists. Never reorder actions to prefer a frontend default.
+- Action Logs use server category/subtype filters in the query key. Token and
+  amount come from their matching activity detail; missing values remain missing.
 
-### Metrics and lifecycle presentation
+## Write behavior
 
-- Leaderboard reads agent roiPct; My Copies and Copy Detail read run roiPct.
-  APR fields, window metadata, labels, and sorts have been removed. ROI is
-  rendered directly from BE, with the existing metric presentation and no new
-  stale marker/tooltip. Chart Return and History Total Return remain separate.
+| Action              | Accepted behavior                                                                                                                                                          |
+| ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Start Copy          | Funded Create; Permit/Approve and Create are separate user actions. Start completion uses the returned `copyRunId`.                                                        |
+| Add Capital         | Validates, prepares and submits directly, without an intermediate review.                                                                                                  |
+| Stop Copy           | Loads the complete open-position cursor chain on opening; accepts 0–32 selected IDs. Unchecked tokens remain in the Smart Wallet.                                          |
+| Withdraw Quote      | Typed/Half use a positive raw amount; Max sends `uint256.max`. Review displays the prepared amount, never the sentinel.                                                    |
+| Withdraw All Tokens | Uses `ALL_INDEXED_TOKENS`, validates 1–100 unique tokens and current raw balances, and warns that execution permanently stops copying. Zero balances remain valid.         |
+| Manual Sell         | Uses pending FIFO obligations and `ALIGN_SKIP` for active skipped-sell recovery.                                                                                           |
+| Close Position      | Full recovery uses `ALIGN_SKIP` for active runs and `STOP_COPY` for CLOSING runs. CLOSING recovery uses the position already loaded by Copy Detail and returns to History. |
 
-- CURRENT and STALE values render identically; stale badges are not shown.
-- The sole status exception is the Capital-card **Syncing** badge driven by
-  capitalInProjectionStatus, not by the Capital In metric status.
-- UNAVAILABLE values remain N/A or — and continue to block actions where the
-  action contract requires availability.
-- Every available Win Rate uses the primary color. N/A remains neutral.
-- Signed P&L/ROI metrics keep their positive/negative semantic colors.
-- Backend CLOSING is presented to the user as Stopped Copy in the capital card,
-  with stopped styling and the available stopped date and time.
-- Remaining in Wallet uses the non-paginated wallet-inventory endpoint and its
-  authoritative total. It never derives the total by summing visible rows.
-- Copy Run rows use agentSnapshot; My Copies and History do not request a
-  redundant Agent collection.
+- Start and Add Capital share amount parsing, minimum/balance validation and
+  percentage presets. Start authorization labels remain Permit/Approve;
+  preparation displays Preparing, then Start Copying when authorization is done.
+- Stop does not reload positions immediately before preparing. Incomplete cursor
+  data blocks preparation. Position recovery shares the sell review but retains
+  its action-specific input validation and exact token amounts.
+- On `SELL_OBLIGATION_CHANGED`, Retry discards the old preparation, reloads FIFO
+  and returns to the form. The user reviews quantities before preparing again;
+  a failed reload leaves the action blocked.
 
-### Copy Detail tables
+### Withdrawal preview and execution
 
-- Open Positions displays Token, Entry Price, Current, Value, Unrealised P&L,
-  Est. Rebate, Open Since, and Action. Unrealised P&L reads only
-  unrealizedPnlUsd and unrealizedPnlPct, with USD above percentage.
-- Closed Positions displays Token, Closed Price, Amount, P&L, Fee, Rebate,
-  Received, and Tx Hash. Its P&L reads realizedPnlUsd.
-- Action Logs displays Token, Type, Amount, Closed Time, and Tx Hash. Token is
-  resolved from the position, capital, or fee detail and uses N/A when absent;
-  Amount uses the matching raw amount and token decimals without cross-field
-  fallback.
-- The Action Logs Type control is server-backed. Buy and Sell send subtype;
-  Capital Events, Failed Actions, and Fee/Rebates send category; All Type Logs
-  omits both parameters. The filter value participates in the infinite-query
-  key so changing it restarts the cursor chain.
-- Transaction hashes are shortened, use neutral styling, include an external
-  link icon, and open the matching chain explorer when supported.
-- The Open Positions Action header is centered. Other numeric headers and cells
-  remain right-aligned.
+- One modal defaults to All Tokens and offers Stable only. Switching preserves
+  the Stable amount but resets prepared calls. Each option uses its own advisory.
+- The display-only All Tokens preview is scoped to the modal instance, loaded
+  once without polling, and discarded on close. Switching options or returning
+  from review does not refetch it. Clicking Withdraw prepares a fresh call.
+- Prepared token selection, recipient and raw balances authorize execution.
+  Price/rebate enrichment and gas estimates are display data. A preview failure
+  blocks execution without blocking Connect Wallet or Switch Network.
+- Each All Tokens action completes one transaction. `hasMoreTokens` does not
+  trigger another batch; reopen the modal for another preview/preparation.
+  Success does not imply that the Smart Wallet is empty.
 
-### Lists and responsive behavior
+### Shared submission and recovery
 
-- Leaderboard, My Copies, and History use cursor pagination. Infinite lists keep
-  independent cursor chains and reset rejected non-initial cursors to page one.
-- My Copies sorting is server-backed for Copy Run ROI, Agent Volume, and
-  Capital In. Win Rate reads the Copy Run metric and is not sortable because
-  the API only offers agent Win Rate sorting. Header selection cycles
-  descending, ascending, then default.
-- Desktop and mobile rows use native links, preserving modified-click,
-  context-menu, and new-tab behavior. Independent action buttons remain outside
-  the row-link hit target.
-- Main tables use content-specific responsive cards and the shared ScrollArea.
-- Copy Detail switches Action Logs to cards below md, Open Positions below lg,
-  and Closed Positions below xl. Desktop headers stay inside the horizontal
-  scroll region so they remain aligned with their table rows.
-- Agent Profile and Copy Detail use the shared responsive detail grid, tab bar,
-  sticky desktop side column, and explicit mobile ordering.
+- Validate owner, chain, generation, Smart Wallet, preview, call kind, amounts
+  and expiry before submission. Simulate and submit the exact prepared
+  `call.to`, `call.data` and `call.valueRaw`.
+- Only executable preparations reach the wallet. Pending/unavailable results
+  enter recovery; expired or mismatched preparations cannot submit. A valid
+  `COMPLETED` preparation uses the shared success path.
+- After a successful receipt, [postReceipt](../modals/PreparedActionModal/postReceipt.ts)
+  polls `actions:status` with the original `statusContext` and resolved receipt
+  hash, including replacement transactions. Never rebuild context from current
+  page data; preparation expiry does not block status observation.
+- Backend `SUCCEEDED` plus a result establishes success; Stop also requires
+  `stopIntentId`. The frontend does not infer convergence from balances, capital,
+  lifecycle or closed executions. Polls are bounded, follow `retryAfterMs` and
+  carry the last receipt reference within the sequence.
+- Unconfirmed receipts and unresolved status retain the saved action/hash.
+  Receipt/status Retry observes the submitted transaction without preparing or
+  broadcasting again. HTTP errors end the poll sequence and offer manual retry.
+  A reverted receipt or verified `FAILED` status instead requires fresh preparation.
+- Refresh both read caches after receipt success and again after backend success.
+  Refresh failure does not invalidate verified transaction success. Stop's final
+  Copy Run read only chooses its navigation destination.
 
-## Current Write Decisions
+## Known limits and remaining work
 
-| Capability     | Final behavior                                                                                                                                                 |
-| -------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Start Copy     | Uses funded mode, API-selected Permit or Approve, a separate Create confirmation, exact-call submission, then polls actions:status for the confirmed transaction. |
-| Add Capital    | Shows current/new allocation inline and prepares, validates, simulates, and submits directly without a review step.                                            |
-| Stop Copy      | Loads the complete open-position cursor chain, supports zero to 32 selected position IDs, and submits the exact prepared call.                                 |
-| Withdraw Quote | Supports typed, Half, and Max. Max sends uint256.max internally while review displays the prepared token amount.                                               |
-| Withdraw All Tokens | Uses the separate indexed selection preparation, previews server balances, and permanently stops copying on submission, including zero balances. |
-| Manual Sell    | Active-Copy skipped-sell recovery using the pending FIFO and ALIGN_SKIP context.                                                                               |
-| Close Position | Full position recovery. Active recovery uses ALIGN_SKIP; CLOSING recovery uses STOP_COPY and returns to History.                                               |
+- **Read/cache ownership remains mixed:** TanStack cursor collections wrap RTK
+  Query requests. Keep invalidation of both caches until that ownership is
+  consolidated; the write-flow refactor did not resolve this maintenance finding.
+- No automatic `nextStep` continuation, withdrawal batching or transaction
+  persistence/resume across reloads.
+- Action Logs Type filtering is currently in the desktop header (`lg` and above),
+  absent from card layouts. Exposing it there needs a product decision.
+- API-only surfaces need product design before dedicated UI: cashback policy,
+  closed-position executions, Agent position detail/events, owner-wide positions
+  and Copy Account management screens.
+- Browser QA remains open for responsive layouts, loading transitions, navigation
+  and modal presentation. Controlled transaction E2E remains open for the seven
+  actions, especially post-receipt recovery, replacement hashes and repeated
+  All Tokens withdrawals. Position recovery requires Operator skip/failure fixtures.
 
-Cross-flow decisions:
+## Verification
 
-- AVAILABLE and TRY_PREPARE expose the normal product action.
-- TRY_PREPARE calls the normal preparation route; it does not expose a separate
-  Check availability UI.
-- PENDING, UNAVAILABLE, expired, mismatched, or unexpected prepared responses
-  fail closed and never reach wallet submission.
-- displayEnrichment is render-only contract metadata and intentionally does not
-  change the current Prepared Action UI.
-- Preparation is authoritative for owner, chain, Smart Wallet, preview, call
-  kind, target, value, amount, and expiry.
-- Wallet submission uses call.to, call.data, and call.valueRaw unchanged.
-- usePreparedAction owns preparation response handling, wallet submission, RPC
-  receipt waiting, actions:status polling, refresh milestones, and retry for all
-  seven actions. Action hooks own their request inputs and domain-specific checks.
-- Start's post-authorization request uses the same preparation handler as its
-  initial request. Shared validation runs before capturing the predicted account;
-  READY returns to Review without submission, PENDING/UNAVAILABLE use existing
-  recovery, and a valid COMPLETED response uses the common success path.
-- After authorization, Start validates UNAVAILABLE with the existing validator
-  without requiring a call. Unavailable responses never pin the predicted account.
-  The confirm label uses Preparing during any review preparation, including after authorization.
-- Action callbacks consume validated preparation data or verified submitted
-  results only. Start records the returned copyRunId; Stop resolves navigation.
-  No action hook owns its own status polling or cache refresh sequence.
-- The unused preparation-continuation loop and stored RPC receiptBlockNumber
-  were removed. Submitted recovery uses actions:status with the saved action/hash;
-  its backend receipt reference remains local to each status polling sequence.
-- Each poll sends the original statusContext and the receipt's transactionHash
-  to POST /users/{ownerAddress}/actions:status. The context owner must match
-  the prepared sender. Context is not rebuilt from current list/detail data,
-  and preparation expiry does not prevent observation.
-- Success requires SUCCEEDED with a result; Stop also requires its exact
-  stopIntentId. Backend status owns convergence. FE no longer compares capital,
-  balances, lifecycle, source-block coverage, or closed-execution hashes to
-  determine whether the submitted action completed.
-- PENDING, CONFIRMING, SYNCING, and UNKNOWN/SOURCE_UNAVAILABLE poll sequentially
-  for at most 11 attempts, respecting guidance.retryAfterMs. The last returned
-  receipt is sent as previousReceipt within that polling attempt sequence.
-  The limit is an attempt count, not a fixed 20-second timeout.
-- HTTP errors, unsupported/unverifiable results, missing context, and exhausted
-  polling enter the existing sync recovery. Manual retry observes the saved
-  action/hash again; it never prepares or submits another transaction. HTTP
-  errors end the current poll sequence rather than retrying automatically.
-- A reverted RPC receipt or FAILED API status enters transaction-error recovery;
-  Retry requests a fresh preparation through the existing flow.
-- Both initial submission and receipt retry use receipt.transactionHash after
-  receipt resolution, including replacement transactions such as wallet Speed up.
-  State, explorer links, and subsequent status retries retain that resolved hash.
-- Cache invalidation runs after receipt success and again after API convergence,
-  refreshing both RTK Query and TanStack Copy Trading reads. Stop additionally
-  reads the returned Copy Run once to choose My Copies versus History; failure
-  of this navigation-only read does not invalidate verified action success.
-- This update does not consume nextStep, add Start funding continuation or
-  withdrawal batch controls, or new product UI.
-  Start retains funded CREATE only; submitted status success refers to the
-  submitted call rather than a new frontend check of ACTIVE lifecycle.
-  Persistence/resume across reloads and the broader guidance/advisory migration
-  are outside this scope.
-- Paired modal actions keep the outlined secondary action on the left and the
-  primary action on the right.
-- Loading Dots are absolutely positioned so modal CTA labels do not shift.
+Latest completed static checks (2026-09-17): app TypeScript, Copy Trading ESLint,
+`git diff --check`, and **156 tests across 16 files** passed. This is not browser
+or live transaction evidence.
 
-### Capital flows
+Run from `apps/kyberswap-interface` after logic changes:
 
-- Start Copy and Add Capital share only the capital amount domain: supported
-  quote token, minimums, wallet balance, 25/50/75/100 action-only presets,
-  parsing, and validation.
-- Start Copy keeps authorization and Create as separate user actions.
-- Add Capital has no intermediate review.
-- Wallet balance loading is explicit. Preparation remains the final balance and
-  amount authority.
+```sh
+pnpm exec tsc --noEmit
+pnpm exec eslint src/pages/CopyTrading src/services/copyTrading --ext ts,tsx
+pnpm exec vitest run src/services/copyTrading src/pages/CopyTrading
+```
 
-### Stop Copy and position recovery
-
-- Stop Copy fetches its open positions once when Step 1 opens. It does not
-  refetch them immediately before preparation.
-- Empty position selection is valid. More than 32 selected positions is invalid.
-- Incomplete cursor data blocks preparation rather than presenting a partial
-  list.
-- Unchecked tokens remain in the Smart Wallet for manual management after Stop.
-- Manual Sell, active full recovery, and CLOSING recovery have distinct Step 1
-  source validation but share the same Step 2 sell review and submission flow.
-- Each position renders only the API-recommended action, or the first advertised
-  action when no recommendation is present.
-- Active partial recovery calls prepareManualSell.
-- On SELL_OBLIGATION_CHANGED, Retry discards the stale preparation, reloads the
-  pending FIFO and returns to the existing form for review. It does not prepare
-  or submit automatically; unavailable refresh data keeps the action blocked.
-- Active full recovery and CLOSING recovery call prepareClosePosition.
-- CLOSING recovery uses the position already loaded by Copy Detail.
-- Manual Sell and Close Position Step 2 show exact token amounts in both amount
-  panels.
-- Rate is one compact Rate: value row above the prepared-details card.
-- Prepared token metadata is merged with the position snapshot and reused for
-  amounts, rate, fee, symbol, decimals, and logo.
-
-### Withdraw Quote
-
-- Withdraw availability is owned by the Copy Run and can be exposed for active,
-  closing, stopped, or closed runs.
-- Typed and Half send a canonical positive raw amount.
-- Max displays the current balance but sends uint256.max as the execution-time
-  sentinel.
-- Review uses the prepared sweep and normal token amount; the sentinel is never
-  shown to the user.
-- The modal trusts its passed Copy Run and the pinned quote balance from
-  wallet-inventory. Preparation remains authoritative.
-
-### Withdraw All Tokens and September read updates
-
-- Withdrawal files live under `modals/WithdrawModal`: flow hooks own preparation,
-  input state, submission, and convergence; `components.tsx` and
-  `WithdrawalOptions.tsx` own presentation; the modal owns selection, navigation,
-  and CTA resolution. `useWithdrawalData.ts` groups inventory and preview reads;
-  its inventory hook supplies one shared inventory and
-  matching quote balance to the option UI and stable flow.
-- Preview failures block execution without blocking Connect Wallet or Switch Network.
-
-- Copy Detail Advanced has one Withdraw button. Its modal defaults to
-  All Tokens and offers All Tokens / Withdraw Stable only radio options, using
-  each action's own advisory. All Tokens expands wallet rows; Stable only expands
-  the amount input with 100% / 50% presets and existing validation. One modal
-  owns both initialized flows and keeps both option bodies mounted. Selection
-  animates their collapse over 300 ms (reduced-motion aware); the Stable amount
-  survives switching, while prepared calls reset. Cached wallet inventory renders immediately; preparation and gas loading use
-  individual value skeletons without hiding the options. Review and receipt handling remain shared.
-- Each modal instance loads a fresh display-only prepareWithdrawTokens preview
-  once, with no polling or preview reuse across opens. Query identity includes
-  the modal instance; closing discards its cache. Switching options or returning
-  from review does not refetch. Submission still prepares a fresh call. The selected token rows, total USD, and rebate
-  risk all come from that preview with independent status checks. Gas is an RPC
-  estimate for the exact outer call, displayed in native currency; failure does
-  not hide the other metrics. Clicking Withdraw always prepares a new call.
-- All Tokens sends only ALL_INDEXED_TOKENS to prepareWithdrawTokens. Review
-  explains permanent Stop, pending rebate risk, and token-discovery limits.
-  Preparation owns token selection, balances, recipient, and calldata.
-- Exact current balances, quote-token membership, recipient, and 1–100 unique
-  tokens per batch are validated. Stop Copy retains its 32-position limit. Display price/rebate availability is independent
-  from readiness; zero-balance selections remain executable.
-- The shared flow validates owner/chain/call kind/expiry, simulates, estimates
-  outer-call gas, submits the exact call, and waits for its receipt. Expired or
-  failed calls require fresh preparation; receipt/sync retries never resubmit.
-- All Tokens finishes after one transaction and SUCCEEDED submitted status,
-  regardless of hasMoreTokens. There is no next-batch CTA, batch
-  state, or batch-specific preview cache. To withdraw remaining eligible tokens,
-  close and reopen the modal for a fresh preview and preparation. Success means
-  this transaction completed; it does not assert the Smart Wallet is empty.
-- The passed Copy Run and existing advisory remain the modal inputs; no extra
-  detail subscription, pre-prepare detail read, or RPC balance check is added.
-- Both withdrawals use actions:status after receipt. Wallet inventory remains
-  the source for existing display/input reads, and is refreshed through cache
-  invalidation after success. FE does not compare old/new balances or token
-  decimals to establish transaction convergence. Lifecycle/list membership
-  continues to come from server reads.
-- History retains its existing desktop columns and mobile fields. Desktop sorting
-  supports Closed Trades, Capital In, Current Balance, and Started & Stopped Time
-  (by stoppedAt). Missing closed counts never fall back to open counts. The API
-  adapter retains the new History metrics without adding UI fields.
-- Execution activity tokens now use backend token identity for skipped sells;
-  missing amounts remain missing. Capital In already renders CURRENT/STALE
-  independently from SYNCING, and chart dollar/percentage series remain separate.
-- Run lifecycle, Capital In, and historical P&L stay server-owned; withdrawal
-  never fabricates closed trades or subtracts from gross contributions locally.
-
-## Remaining Work
-
-Frontend implementation is complete for the current scope. The remaining work
-is validation or product-definition work:
-
-- Controlled positive E2E for All Tokens withdrawal on active and stopped runs,
-  including repeated independent withdrawals, zero balances, expiry, and
-  post-receipt submitted-status convergence.
-- Controlled positive E2E for Start Copy, Add Capital, Stop Copy, and Withdraw
-  Quote post-receipt status convergence, including replacement hashes and
-  recovery after status-request failures.
-- Controlled positive E2E for active Manual Sell after an Operator skip.
-- Controlled positive E2E for active 100% recovery.
-- Controlled positive E2E for Close Position on a CLOSING Copy.
-- Browser QA for responsive layouts, loading transitions, modified-click/new-tab
-  behavior, and the final modal presentation.
-- Product decision for exposing the Action Logs Type filter below md; the
-  current control is owned by the desktop table header.
-- Product design before exposing the API-only surfaces listed above.
-
-The position-recovery E2E cases require controlled Agent positions and
-Operator-side skip/failure injection; they cannot be created deterministically
-from the frontend.
-
-## Verification Snapshot
-
-Latest verification evidence (2026-09-17):
-
-- App TypeScript, Copy Trading ESLint, and git diff --check passed.
-- The full Copy Trading service/page suite passed 197 tests across 18 files.
-  Generation coverage includes array joins, ambiguous implicit resolution, retirement,
-  read-only execution, missing/mismatched response identity, unknown account
-  provenance, and preserving or invalidating Start request/permit identity.
-- Recovery tests cover refreshing changed obligations before another review,
-  preserving receipt/status retry and other preparation failure paths.
-- Shared-flow tests cover post-authorization preparation statuses and identity
-  validation, refresh/result callback ordering, refresh failure isolation, and
-  receipt/status retries with replacement hashes without rebroadcasting.
-- Checked-in OpenAPI byte-matched the live 35-operation, 199-definition schema
-  fetched on 2026-09-17. SHA-256:
-  f31e43f20fb56af9a33b85954b8e8064cdb37c039631821b03d7d04360988d25.
-- Public GET /chains returned one CREATE_ENABLED generation per chain on
-  Ethereum, Robinhood and Base. This is read evidence, not transaction E2E.
-- Earlier live read evidence (2026-09-11): PRE leaderboard GET accepted ROI sort
-  (HTTP 200) and rejected retired APR sort (HTTP 400/code 3).
-- Browser QA was attempted on 2026-09-11 but no browser was available. The local
-  Vite server served the ROI module; this does not establish visual QA.
-- No new browser QA, production build, owner API smoke, or positive transaction
-  E2E was run for this generation update.
+Keep unit coverage focused on financial validation, API model semantics and
+recovery/ownership regressions. Avoid duplicating static mappings or testing
+presentation-only details that do not protect those behaviors.

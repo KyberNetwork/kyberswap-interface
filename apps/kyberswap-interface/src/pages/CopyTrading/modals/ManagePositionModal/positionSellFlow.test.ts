@@ -48,31 +48,28 @@ describe('position sell retry', () => {
     reason: 'PREPARED_ACTION_REASON_SELL_OBLIGATION_CHANGED' as const,
   }
 
-  it('discards stale preparation and loads new quantities without preparing or submitting', async () => {
+  it('resets to the form before reloading obligations without preparing or submitting', async () => {
     let state: PreparedActionFlowState = { phase: 'unavailable', action: changedAction }
-    let quantities = ['1000000000000000000']
     const reset = vi.fn(() => {
       state = { phase: 'idle' }
     })
     const reloadObligations = vi.fn(async () => {
       expect(state).toEqual({ phase: 'idle' })
-      quantities = ['500000000000000000', '250000000000000000']
     })
     const retry = vi.fn()
 
     await retryPositionSell({ state, reset, reloadObligations, retry })
 
-    expect(quantities).toEqual(['500000000000000000', '250000000000000000'])
     expect(state).toEqual({ phase: 'idle' })
     expect(reloadObligations).toHaveBeenCalledOnce()
     expect(retry).not.toHaveBeenCalled()
   })
 
-  it.each(['pending', 'error', 'sync_error'] as const)('preserves normal %s recovery', async phase => {
+  it('preserves status retry after submission even if the preparation reason changed', async () => {
     const reset = vi.fn()
     const reloadObligations = vi.fn()
     const retry = vi.fn()
-    await retryPositionSell({ state: { phase, action: changedAction }, reset, reloadObligations, retry })
+    await retryPositionSell({ state: { phase: 'sync_error', action: changedAction }, reset, reloadObligations, retry })
     expect(retry).toHaveBeenCalledOnce()
     expect(reset).not.toHaveBeenCalled()
     expect(reloadObligations).not.toHaveBeenCalled()

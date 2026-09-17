@@ -240,3 +240,6 @@ export const getPreparedReasonMessage = (reason?: PreparedActionReason) => {
   if (!reason || reason === 'PREPARED_ACTION_REASON_UNSPECIFIED') return 'This action is not available right now.'
   return reasonMessages[reason] || reason.replace('PREPARED_ACTION_REASON_', '').replaceAll('_', ' ').toLowerCase()
 }
+
+export const isMissingOrForbiddenError = (error: unknown) =>
+  error !== null && typeof error === 'object' && 'status' in error && (error.status === 404 || error.status === 403)
