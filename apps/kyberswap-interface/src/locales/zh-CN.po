@@ -556,6 +556,10 @@ msgstr "发送方："
 msgid "When"
 msgstr ""
 
+#: src/components/TokenSelectorModal/TokenSelectorContent.tsx
+msgid "FDV"
+msgstr ""
+
 #: src/pages/Earns/components/VaultDeposit/VaultDepositModal.tsx
 #: src/pages/Earns/VaultDetail/DepositTab.tsx
 msgid "Finding best route"
@@ -2861,8 +2865,8 @@ msgstr "本活动为营销推广，旨在奖励用户参与，不构成任何司
 #~ msgstr "历史"
 
 #: src/components/TokenSelectorModal/TokenSelectorContent.tsx
-msgid "Sort by market cap"
-msgstr ""
+#~ msgid "Sort by market cap"
+#~ msgstr ""
 
 #: src/pages/Earns/UserPositions/index.tsx
 msgid "<0>Unclaimed</0><1><2>fees</2><3/></1>"
@@ -4728,6 +4732,11 @@ msgstr ""
 msgid "Closed Positions"
 msgstr "已关闭仓位"
 
+#: src/pages/Earns/PoolExplorer/index.tsx
+#: src/pages/Earns/UserPositions/index.tsx
+msgid "KyberSwap only provides tools to track and add liquidity to Third-party protocols. Users assume all risks and contact the respective protocol for any concerns."
+msgstr "KyberSwap 提供用于跟踪并向第三方协议添加流动性工具，池相关问题请直接联系对应流动性协议"
+
 #: src/components/ReadMore/index.tsx
 #~ msgid "Read more"
 #~ msgstr "阅读更多"
@@ -5671,6 +5680,11 @@ msgstr "注意：KNC 质押仅支持以太坊链"
 
 #: src/pages/Campaign/components/SafePalClaimModal.tsx
 msgid "You're eligible to claim 🎁 SafePal X1 Hardware Wallet"
+msgstr ""
+
+#: src/pages/Earns/ExploreVaults/index.tsx
+#: src/pages/Earns/ExploreVaults/index.tsx
+msgid "Yield"
 msgstr ""
 
 #: src/components/Menu/components/PreferencesSection.tsx
@@ -7839,6 +7853,7 @@ msgstr "您的订单：支付 <0/> {makingAmount} {makerAssetSymbol} 并在 <2>1
 msgid "Week {weekIndex} {statusText}"
 msgstr "第 {weekIndex} 周 {statusText}"
 
+#: src/pages/CrossChainSwap/components/ConfirmationPopup.tsx
 #: src/utils/errorMessage.ts
 msgid "An error occurred. Refresh the page and try again."
 msgstr "发生错误，请刷新页面后重试"
@@ -8692,6 +8707,10 @@ msgstr ""
 msgid "Loading position..."
 msgstr ""
 
+#: src/components/TokenSelectorModal/TokenSelectorContent.tsx
+msgid "Show fully diluted valuation"
+msgstr ""
+
 #: src/constants/networks.ts
 msgid "Classic is not supported on Blast. Please switch to other chains"
 msgstr "Classic 不支持 Blast，请切换至其他链"
@@ -8899,8 +8918,8 @@ msgid "Please review the details of your swap"
 msgstr "请确认您的兑换详情"
 
 #: src/components/TokenSelectorModal/TokenSelectorContent.tsx
-msgid "MCAP"
-msgstr ""
+#~ msgid "MCAP"
+#~ msgstr ""
 
 #: src/components/Header/groups/KyberDaoGroup.tsx
 #: src/components/Menu/components/MainMenuSection.tsx
@@ -9025,6 +9044,10 @@ msgstr "提醒已创建"
 msgid "Wallet address"
 msgstr "钱包地址"
 
+#: src/components/TokenSelectorModal/TokenSelectorContent.tsx
+msgid "Sort by fully diluted valuation"
+msgstr ""
+
 #: src/pages/Campaign/timelines.tsx
 msgid "<0>Week 10</0> Sep 09 - Sep 15"
 msgstr "<0>第 10 周</0> 9 月 9 日 - 9 月 15 日"
@@ -9140,6 +9163,10 @@ msgstr ""
 #: src/components/WalletPopup/Transactions/ContractAddress.tsx
 msgid "contract"
 msgstr "合约"
+
+#: src/components/Header/web3/NetworkModal/components/DraggableNetworkButton.tsx
+msgid "Testing"
+msgstr ""
 
 #: src/pages/ElasticSnapshot/index.tsx
 msgid "None of the liquidity position(s) held by your wallet ({0}) were affected by the exploit."
@@ -9367,11 +9394,6 @@ msgstr ""
 #: src/pages/Earns/components/SmartExit/Confirmation/index.tsx
 msgid "The information is intended solely for your reference at the time you are viewing. It is your responsibility to verify all information before making decisions"
 msgstr ""
-
-#: src/pages/Earns/PoolExplorer/index.tsx
-#: src/pages/Earns/UserPositions/index.tsx
-msgid "KyberSwap only provides tools to track and add liquidity to Third-party protocols. Users assume all risks and contact the respective protocol for any concerns."
-msgstr "KyberSwap 提供用于跟踪并向第三方协议添加流动性工具，池相关问题请直接联系对应流动性协议"
 
 #: src/components/Header/web3/SignWallet/ConfirmModal.tsx
 #~ msgid "this profile"
@@ -10667,8 +10689,8 @@ msgid "Learn more about KyberSwap Settlement Prices"
 msgstr ""
 
 #: src/components/TokenSelectorModal/TokenSelectorContent.tsx
-msgid "Show market cap"
-msgstr ""
+#~ msgid "Show market cap"
+#~ msgstr ""
 
 #: src/pages/RemoveLiquidity/index.tsx
 msgid "pool"

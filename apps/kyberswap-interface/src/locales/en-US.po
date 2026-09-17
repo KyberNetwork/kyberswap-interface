@@ -556,6 +556,10 @@ msgstr "Sender:"
 msgid "When"
 msgstr "When"
 
+#: src/components/TokenSelectorModal/TokenSelectorContent.tsx
+msgid "FDV"
+msgstr "FDV"
+
 #: src/pages/Earns/components/VaultDeposit/VaultDepositModal.tsx
 #: src/pages/Earns/VaultDetail/DepositTab.tsx
 msgid "Finding best route"
@@ -2861,8 +2865,8 @@ msgstr "This Campaign is a marketing promotion designed to reward user participa
 #~ msgstr "HISTORY"
 
 #: src/components/TokenSelectorModal/TokenSelectorContent.tsx
-msgid "Sort by market cap"
-msgstr "Sort by market cap"
+#~ msgid "Sort by market cap"
+#~ msgstr "Sort by market cap"
 
 #: src/pages/Earns/UserPositions/index.tsx
 msgid "<0>Unclaimed</0><1><2>fees</2><3/></1>"
@@ -4728,6 +4732,11 @@ msgstr "KyberSwap Rewards"
 msgid "Closed Positions"
 msgstr "Closed Positions"
 
+#: src/pages/Earns/PoolExplorer/index.tsx
+#: src/pages/Earns/UserPositions/index.tsx
+msgid "KyberSwap only provides tools to track and add liquidity to Third-party protocols. Users assume all risks and contact the respective protocol for any concerns."
+msgstr "KyberSwap only provides tools to track and add liquidity to Third-party protocols. Users assume all risks and contact the respective protocol for any concerns."
+
 #: src/components/ReadMore/index.tsx
 #~ msgid "Read more"
 #~ msgstr "Read more"
@@ -5672,6 +5681,11 @@ msgstr "Note: Staking KNC is only available on Ethereum chain."
 #: src/pages/Campaign/components/SafePalClaimModal.tsx
 msgid "You're eligible to claim 🎁 SafePal X1 Hardware Wallet"
 msgstr "You're eligible to claim 🎁 SafePal X1 Hardware Wallet"
+
+#: src/pages/Earns/ExploreVaults/index.tsx
+#: src/pages/Earns/ExploreVaults/index.tsx
+msgid "Yield"
+msgstr "Yield"
 
 #: src/components/Menu/components/PreferencesSection.tsx
 msgid "Holiday Mode"
@@ -7839,6 +7853,7 @@ msgstr "Your order to pay <0/> {makingAmount} {makerAssetSymbol} and receive <1/
 msgid "Week {weekIndex} {statusText}"
 msgstr "Week {weekIndex} {statusText}"
 
+#: src/pages/CrossChainSwap/components/ConfirmationPopup.tsx
 #: src/utils/errorMessage.ts
 msgid "An error occurred. Refresh the page and try again."
 msgstr "An error occurred. Refresh the page and try again."
@@ -8692,6 +8707,10 @@ msgstr "Could not find a route for this token."
 msgid "Loading position..."
 msgstr "Loading position..."
 
+#: src/components/TokenSelectorModal/TokenSelectorContent.tsx
+msgid "Show fully diluted valuation"
+msgstr "Show fully diluted valuation"
+
 #: src/constants/networks.ts
 msgid "Classic is not supported on Blast. Please switch to other chains"
 msgstr "Classic is not supported on Blast. Please switch to other chains"
@@ -8899,8 +8918,8 @@ msgid "Please review the details of your swap"
 msgstr "Please review the details of your swap"
 
 #: src/components/TokenSelectorModal/TokenSelectorContent.tsx
-msgid "MCAP"
-msgstr "MCAP"
+#~ msgid "MCAP"
+#~ msgstr "MCAP"
 
 #: src/components/Header/groups/KyberDaoGroup.tsx
 #: src/components/Menu/components/MainMenuSection.tsx
@@ -9025,6 +9044,10 @@ msgstr "Alert Created"
 msgid "Wallet address"
 msgstr "Wallet address"
 
+#: src/components/TokenSelectorModal/TokenSelectorContent.tsx
+msgid "Sort by fully diluted valuation"
+msgstr "Sort by fully diluted valuation"
+
 #: src/pages/Campaign/timelines.tsx
 msgid "<0>Week 10</0> Sep 09 - Sep 15"
 msgstr "<0>Week 10</0> Sep 09 - Sep 15"
@@ -9140,6 +9163,10 @@ msgstr "Data on the campaign site may take up to 10 minutes to update after a tr
 #: src/components/WalletPopup/Transactions/ContractAddress.tsx
 msgid "contract"
 msgstr "contract"
+
+#: src/components/Header/web3/NetworkModal/components/DraggableNetworkButton.tsx
+msgid "Testing"
+msgstr "Testing"
 
 #: src/pages/ElasticSnapshot/index.tsx
 msgid "None of the liquidity position(s) held by your wallet ({0}) were affected by the exploit."
@@ -9367,11 +9394,6 @@ msgstr "Route"
 #: src/pages/Earns/components/SmartExit/Confirmation/index.tsx
 msgid "The information is intended solely for your reference at the time you are viewing. It is your responsibility to verify all information before making decisions"
 msgstr "The information is intended solely for your reference at the time you are viewing. It is your responsibility to verify all information before making decisions"
-
-#: src/pages/Earns/PoolExplorer/index.tsx
-#: src/pages/Earns/UserPositions/index.tsx
-msgid "KyberSwap only provides tools to track and add liquidity to Third-party protocols. Users assume all risks and contact the respective protocol for any concerns."
-msgstr "KyberSwap only provides tools to track and add liquidity to Third-party protocols. Users assume all risks and contact the respective protocol for any concerns."
 
 #: src/components/Header/web3/SignWallet/ConfirmModal.tsx
 #~ msgid "this profile"
@@ -10667,8 +10689,8 @@ msgid "Learn more about KyberSwap Settlement Prices"
 msgstr "Learn more about KyberSwap Settlement Prices"
 
 #: src/components/TokenSelectorModal/TokenSelectorContent.tsx
-msgid "Show market cap"
-msgstr "Show market cap"
+#~ msgid "Show market cap"
+#~ msgstr "Show market cap"
 
 #: src/pages/RemoveLiquidity/index.tsx
 msgid "pool"
