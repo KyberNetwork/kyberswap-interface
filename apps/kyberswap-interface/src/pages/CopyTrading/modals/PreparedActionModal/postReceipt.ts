@@ -45,7 +45,7 @@ export const pollSubmittedActionStatus = async ({
       if (!data.result || (action.stopCopy && !data.result.stop?.stopIntentId)) {
         throw new Error('The submitted result is incomplete. Check transaction status again.')
       }
-      return data
+      return { ...data, result: data.result }
     }
     if (data.status === 'SUBMITTED_ACTION_STATUS_FAILED') {
       throw new SubmittedActionFailedError(

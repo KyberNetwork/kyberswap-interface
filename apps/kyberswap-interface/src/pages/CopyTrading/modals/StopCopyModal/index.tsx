@@ -11,10 +11,8 @@ import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { sumUsdValues } from 'pages/CopyTrading/helpers'
-import useRefreshCopyTrading from 'pages/CopyTrading/hooks/useRefreshCopyTrading'
 import PreparedActionModal, { PreparedActionSuccessActions } from 'pages/CopyTrading/modals/PreparedActionModal'
 import { DEFAULT_PREPARED_ACTION_SLIPPAGE } from 'pages/CopyTrading/modals/PreparedActionModal/SlippageControl'
-import { pollSubmittedActionStatus } from 'pages/CopyTrading/modals/PreparedActionModal/postReceipt'
 import {
   DEFAULT_PREPARED_ACTION_STATE,
   getApiErrorMessage,
@@ -49,8 +47,6 @@ const StopCopyModal = ({ isOpen, onDismiss, copyRun }: StopCopyModalProps) => {
   const { account, chainId } = useActiveWeb3React()
   const { changeNetwork } = useChangeNetwork()
   const toggleWalletModal = useWalletModalToggle()
-  const refreshCopyTrading = useRefreshCopyTrading()
-  const [getStatus] = preparedActionApi.useGetSubmittedActionStatusMutation()
   const [prepareStopCopy] = preparedActionApi.usePrepareStopCopyMutation()
   const [getCopyRunPositions] = copyRunApi.useLazyGetCopyRunPositionsQuery()
   const [getCopyRun] = copyRunApi.useLazyGetCopyRunQuery()
@@ -134,22 +130,19 @@ const StopCopyModal = ({ isOpen, onDismiss, copyRun }: StopCopyModalProps) => {
 
       return response.data
     },
-    afterReceipt: async (action, hash) => {
-      const status = await pollSubmittedActionStatus({ action, hash, getStatus })
-      refreshCopyTrading()
+    onSubmittedSuccess: async (result, action) => {
       // This read only chooses the navigation destination; status already proved success.
-      const ownerAddress = status.result?.readOwnerAddress || action.expectedAccount
-      if (status.result?.copyRunId && ownerAddress) {
+      const ownerAddress = result.readOwnerAddress || action.expectedAccount
+      if (result.copyRunId && ownerAddress) {
         const response = await getCopyRun({
           ownerAddress,
-          copyRunId: status.result.copyRunId,
+          copyRunId: result.copyRunId,
         })
           .unwrap()
           .catch(() => undefined)
         if (response) setCompletedCopyRun(response.data)
       }
     },
-    onComplete: refreshCopyTrading,
   })
 
   const togglePosition = (position: SelectableStopCopyPosition, index: number) => {

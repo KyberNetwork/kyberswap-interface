@@ -1,18 +1,25 @@
 import type { Dispatch, SetStateAction } from 'react'
-import type { SubmittedActionStatusRequest } from 'services/copyTrading/types/actionStatus'
+import type { SubmittedActionStatusData } from 'services/copyTrading/types/actionStatus'
 import type { PreparedAction } from 'services/copyTrading/types/preparedActions'
-import { describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-import {
-  SubmittedActionFailedError,
-  pollSubmittedActionStatus,
-} from 'pages/CopyTrading/modals/PreparedActionModal/postReceipt'
 import {
   DEFAULT_PREPARED_ACTION_STATE,
   type PreparedActionExpectation,
   type PreparedActionFlowState,
 } from 'pages/CopyTrading/modals/PreparedActionModal/preparedAction'
 import { usePreparedAction } from 'pages/CopyTrading/modals/PreparedActionModal/usePreparedAction'
+
+const statusMocks = vi.hoisted(() => ({ getStatus: vi.fn(), refresh: vi.fn() }))
+vi.mock('services/copyTrading/api/endpoints/preparedActions', () => ({
+  default: { useGetSubmittedActionStatusMutation: () => [statusMocks.getStatus] },
+}))
+vi.mock('pages/CopyTrading/hooks/useRefreshCopyTrading', () => ({ default: () => statusMocks.refresh }))
+beforeEach(() => {
+  statusMocks.getStatus.mockReset()
+  statusMocks.refresh.mockReset()
+  walletMocks.sendTransaction.mockReset()
+})
 
 const walletMocks = vi.hoisted(() => ({
   call: vi.fn(),
@@ -69,6 +76,7 @@ const completedAction: PreparedAction = {
   generationId,
   displayEnrichment,
   status: 'PREPARED_ACTION_STATUS_COMPLETED',
+  statusContext: { expectedOwner: account },
   chainId: '8453',
   expectedAccount: account,
   copyAccount: predictedCopyAccount,
@@ -85,6 +93,7 @@ const readyAction: PreparedAction = {
   generationId,
   displayEnrichment,
   status: 'PREPARED_ACTION_STATUS_READY',
+  statusContext: { expectedOwner: account },
   chainId: '8453',
   expectedAccount: account,
   startCopy: {
@@ -143,49 +152,49 @@ describe('usePreparedAction', () => {
   it('fires the data refresh without waiting to show success', async () => {
     const harness = createStateHarness()
     let resolveRefresh: () => void = () => undefined
-    const onComplete = vi.fn(() => new Promise<void>(resolve => (resolveRefresh = resolve)))
+    statusMocks.refresh.mockImplementation(() => new Promise<void>(resolve => (resolveRefresh = resolve)))
     const flow = usePreparedAction({
       state: harness.getState(),
       setState: harness.setState,
       expected,
       prepare: vi.fn().mockResolvedValue(completedAction),
-      onComplete,
     })
 
     await flow.prepare()
 
-    expect(onComplete).toHaveBeenCalledOnce()
+    expect(statusMocks.refresh).toHaveBeenCalledOnce()
     expect(harness.getState()).toEqual({ phase: 'success', action: completedAction })
     resolveRefresh()
   })
 
   it('refreshes screen data when post-receipt synchronization is still pending', async () => {
     const hash = `0x${'1'.repeat(64)}` as const
-    const receiptBlockNumber = 123n
     const harness = createStateHarness({
       phase: 'sync_error',
       action: completedAction,
       hash,
-      receiptBlockNumber,
       retryStage: 'sync',
     })
     let rejectSynchronization: (error: Error) => void = () => undefined
-    const afterReceipt = vi.fn(() => new Promise<void>((_resolve, reject) => (rejectSynchronization = reject)))
-    const onComplete = vi.fn()
+    const unwrap = vi.fn(() => new Promise((_resolve, reject) => (rejectSynchronization = reject)))
+    statusMocks.getStatus.mockReturnValue({ unwrap })
     const flow = usePreparedAction({
       state: harness.getState(),
       setState: harness.setState,
       expected,
       prepare: vi.fn(),
-      afterReceipt,
-      onComplete,
     })
 
     const request = flow.retry()
 
-    expect(afterReceipt).toHaveBeenCalledWith(completedAction, hash, receiptBlockNumber)
-    expect(onComplete).toHaveBeenCalledOnce()
-    expect(harness.getState()).toEqual({ phase: 'syncing', action: completedAction, hash, receiptBlockNumber })
+    expect(statusMocks.getStatus).toHaveBeenCalledWith({
+      ownerAddress: account,
+      statusContext: completedAction.statusContext,
+      transactionHash: hash,
+      previousReceipt: undefined,
+    })
+    expect(statusMocks.refresh).toHaveBeenCalledOnce()
+    expect(harness.getState()).toEqual({ phase: 'syncing', action: completedAction, hash })
 
     rejectSynchronization(new Error('The new Copy is not available yet.'))
     await request
@@ -195,7 +204,6 @@ describe('usePreparedAction', () => {
       action: completedAction,
       error: 'The new Copy is not available yet.',
       hash,
-      receiptBlockNumber,
       retryStage: 'sync',
     })
   })
@@ -368,7 +376,7 @@ describe('submitted status recovery', () => {
       .mockResolvedValueOnce({
         data: { status: 'SUBMITTED_ACTION_STATUS_SUCCEEDED', result: { copyRunId: 'run-1' } },
       })
-    const getStatus = vi.fn(() => ({ unwrap }))
+    const getStatus = statusMocks.getStatus.mockReturnValue({ unwrap })
     const prepare = vi.fn()
     const useRetryFlow = () =>
       usePreparedAction({
@@ -376,9 +384,6 @@ describe('submitted status recovery', () => {
         setState: harness.setState,
         expected,
         prepare,
-        afterReceipt: async (submitted, transactionHash) => {
-          await pollSubmittedActionStatus({ action: submitted, hash: transactionHash, getStatus })
-        },
       })
     await useRetryFlow().retry()
     expect(harness.getState()).toMatchObject({ phase: 'sync_error', action, hash })
@@ -391,12 +396,16 @@ describe('submitted status recovery', () => {
   it('maps a verified failed status to fresh preparation recovery', async () => {
     const hash = `0x${'4'.repeat(64)}` as const
     const harness = createStateHarness({ phase: 'sync_error', action: readyAction, hash, retryStage: 'sync' })
+    statusMocks.getStatus.mockReturnValue({
+      unwrap: vi.fn().mockResolvedValue({
+        data: { status: 'SUBMITTED_ACTION_STATUS_FAILED', guidance: { message: 'Matched transaction reverted.' } },
+      }),
+    })
     await usePreparedAction({
       state: harness.getState(),
       setState: harness.setState,
       expected,
       prepare: vi.fn(),
-      afterReceipt: vi.fn().mockRejectedValue(new SubmittedActionFailedError('Matched transaction reverted.')),
     }).retry()
     expect(harness.getState()).toMatchObject({ phase: 'error', hash, error: 'Matched transaction reverted.' })
   })
@@ -408,19 +417,16 @@ describe('submitted status recovery', () => {
       const action = { ...readyAction, statusContext: { expectedOwner: account } }
       const harness = createStateHarness({ phase: 'sync_error', action, hash, retryStage: 'sync' })
       const prepare = vi.fn()
-      const getStatus = vi.fn(() => ({
+      statusMocks.getStatus.mockReturnValue({
         unwrap: vi.fn().mockResolvedValue({
           data: { status: 'SUBMITTED_ACTION_STATUS_SUCCEEDED', result: { copyRunId: 'run-1' }, nextStep },
         }),
-      }))
+      })
       await usePreparedAction({
         state: harness.getState(),
         setState: harness.setState,
         expected,
         prepare,
-        afterReceipt: async (submitted, transactionHash) => {
-          await pollSubmittedActionStatus({ action: submitted, hash: transactionHash, getStatus })
-        },
       }).retry()
       expect(prepare).not.toHaveBeenCalled()
       expect(harness.getState()).toEqual({ phase: 'success', action, hash })
@@ -451,7 +457,7 @@ describe('replacement transaction receipts', () => {
       .mockResolvedValueOnce({
         data: { status: 'SUBMITTED_ACTION_STATUS_SUCCEEDED', result: { copyRunId: 'run-1' } },
       })
-    const getStatus = vi.fn((_request: SubmittedActionStatusRequest) => ({ unwrap }))
+    const getStatus = statusMocks.getStatus.mockReturnValue({ unwrap })
     const prepare = vi.fn()
     const useFlow = () =>
       usePreparedAction({
@@ -459,9 +465,6 @@ describe('replacement transaction receipts', () => {
         setState: harness.setState,
         expected,
         prepare,
-        afterReceipt: async (submitted, hash) => {
-          await pollSubmittedActionStatus({ action: submitted, hash, getStatus })
-        },
       })
     await useFlow()[entry]()
     expect(walletMocks.waitForTransactionReceipt).toHaveBeenCalledWith({ hash: originalHash })
@@ -495,17 +498,137 @@ describe('replacement transaction receipts', () => {
         transactionHash: replacementHash,
         blockNumber: 123n,
       })
-      const afterReceipt = vi.fn()
       const flow = usePreparedAction({
         state: harness.getState(),
         setState: harness.setState,
         expected,
         prepare: vi.fn(),
-        afterReceipt,
       })
       await flow[entry]()
       expect(harness.getState()).toMatchObject({ phase: 'error', hash: replacementHash })
-      expect(afterReceipt).not.toHaveBeenCalled()
+      expect(statusMocks.getStatus).not.toHaveBeenCalled()
     },
   )
+})
+
+describe('authorized preparation', () => {
+  const pendingAction: PreparedAction = {
+    ...completedAction,
+    status: 'PREPARED_ACTION_STATUS_PENDING',
+    startCopy: { ...completedAction.startCopy, stage: 'START_COPY_STAGE_CREATE_CONFIRMING' },
+  }
+
+  it.each([
+    { action: readyAction, phase: 'review' },
+    { action: pendingAction, phase: 'pending' },
+    { action: allowanceDiagnostic, phase: 'unavailable' },
+    { action: completedAction, phase: 'success' },
+  ] as const)('handles $phase through the shared flow without submitting', async ({ action, phase }) => {
+    const harness = createStateHarness({ phase: 'review', action: allowanceDiagnostic })
+    const prepare = vi.fn()
+    const authorizedPreparation = vi.fn().mockResolvedValue(action)
+    const onPrepared = vi.fn()
+    const flow = usePreparedAction({
+      state: harness.getState(),
+      setState: harness.setState,
+      expected,
+      prepare,
+      // The Start attempt has already applied authorization.
+      reviewUnavailable: () => false,
+      onPrepared,
+    })
+
+    await flow.prepare(authorizedPreparation)
+
+    expect(harness.getState()).toMatchObject({ phase, action })
+    expect(onPrepared).toHaveBeenCalledWith(action)
+    expect(authorizedPreparation).toHaveBeenCalledOnce()
+    expect(prepare).not.toHaveBeenCalled()
+    expect(walletMocks.sendTransaction).not.toHaveBeenCalled()
+  })
+
+  it.each([
+    { ...readyAction, generationId: 'other-generation' },
+    { ...readyAction, startCopy: { ...readyAction.startCopy, startRequestId: 'other-request' } },
+    { ...readyAction, startCopy: { ...readyAction.startCopy, requestedTargetRaw: '1' } },
+    { ...readyAction, status: 'PREPARED_ACTION_STATUS_PARTIALLY_COMPLETED' as const },
+    expiredAction,
+  ])('validates an authorized response before capturing its identity', async action => {
+    const harness = createStateHarness({ phase: 'review', action: allowanceDiagnostic })
+    const onPrepared = vi.fn()
+    await usePreparedAction({
+      state: harness.getState(),
+      setState: harness.setState,
+      expected,
+      prepare: vi.fn(),
+      onPrepared,
+    }).prepare(vi.fn().mockResolvedValue(action))
+
+    expect(['error', 'expired']).toContain(harness.getState().phase)
+    expect(onPrepared).not.toHaveBeenCalled()
+    expect(walletMocks.sendTransaction).not.toHaveBeenCalled()
+  })
+
+  it('keeps action-specific identity errors inside preparation recovery', async () => {
+    const harness = createStateHarness()
+    await usePreparedAction({
+      state: harness.getState(),
+      setState: harness.setState,
+      expected,
+      prepare: vi.fn().mockResolvedValue(readyAction),
+      onPrepared: () => {
+        throw new Error('The predicted account changed.')
+      },
+    }).prepare()
+    expect(harness.getState()).toMatchObject({ phase: 'error', error: 'The predicted account changed.' })
+    expect(walletMocks.sendTransaction).not.toHaveBeenCalled()
+  })
+})
+
+describe('shared result ownership', () => {
+  it('refreshes at receipt and verified success, then lets the action consume the result', async () => {
+    const hash = `0x${'a'.repeat(64)}` as const
+    const harness = createStateHarness({ phase: 'sync_error', action: readyAction, hash, retryStage: 'sync' })
+    let resolveStatus: (response: { data: SubmittedActionStatusData }) => void = () => undefined
+    statusMocks.getStatus.mockReturnValue({
+      unwrap: () => new Promise(resolve => (resolveStatus = resolve)),
+    })
+    let resolveResult: () => void = () => undefined
+    const onSubmittedSuccess = vi.fn(() => new Promise<void>(resolve => (resolveResult = resolve)))
+    const request = usePreparedAction({
+      state: harness.getState(),
+      setState: harness.setState,
+      expected,
+      prepare: vi.fn(),
+      onSubmittedSuccess,
+    }).retry()
+
+    expect(statusMocks.refresh).toHaveBeenCalledOnce()
+    expect(onSubmittedSuccess).not.toHaveBeenCalled()
+    expect(harness.getState().phase).toBe('syncing')
+    const result = { copyRunId: 'run-1', readOwnerAddress: account }
+    resolveStatus({ data: { status: 'SUBMITTED_ACTION_STATUS_SUCCEEDED', result } })
+    await vi.waitFor(() => expect(onSubmittedSuccess).toHaveBeenCalledWith(result, readyAction))
+    expect(statusMocks.refresh).toHaveBeenCalledTimes(2)
+    expect(harness.getState().phase).toBe('syncing')
+    resolveResult()
+    await request
+    expect(harness.getState()).toEqual({ phase: 'success', action: readyAction, hash })
+  })
+
+  it('keeps refresh failures separate from the verified transaction result', async () => {
+    const hash = `0x${'b'.repeat(64)}` as const
+    const harness = createStateHarness({ phase: 'sync_error', action: readyAction, hash, retryStage: 'sync' })
+    statusMocks.refresh.mockRejectedValue(new Error('Refresh unavailable'))
+    statusMocks.getStatus.mockReturnValue({
+      unwrap: vi.fn().mockResolvedValue({ data: { status: 'SUBMITTED_ACTION_STATUS_SUCCEEDED', result: {} } }),
+    })
+    await usePreparedAction({
+      state: harness.getState(),
+      setState: harness.setState,
+      expected,
+      prepare: vi.fn(),
+    }).retry()
+    expect(harness.getState()).toEqual({ phase: 'success', action: readyAction, hash })
+  })
 })

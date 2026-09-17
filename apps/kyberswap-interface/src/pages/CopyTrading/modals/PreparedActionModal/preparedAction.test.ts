@@ -8,7 +8,6 @@ import {
   formatPreparedExactAmountValue,
   formatPreparedRate,
   validatePreparedAction,
-  validatePreparedActionContinuation,
 } from 'pages/CopyTrading/modals/PreparedActionModal/preparedAction'
 
 const account = '0x1111111111111111111111111111111111111111'
@@ -270,15 +269,6 @@ describe('validatePreparedAction', () => {
       }),
     ).toBe('The prepared position sell context does not match the selected recovery flow.')
   })
-
-  it.each(['PREPARED_ACTION_STATUS_READY', 'PREPARED_ACTION_STATUS_PARTIALLY_COMPLETED'] as const)(
-    'rejects an executable %s response after the funded Create receipt',
-    status => {
-      expect(validatePreparedActionContinuation({ generationId, status, displayEnrichment })).toBe(
-        'The confirmed Start Copy transaction returned another executable preparation. Do not submit another transaction.',
-      )
-    },
-  )
 })
 
 describe('prepared amount formatting', () => {

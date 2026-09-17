@@ -4,8 +4,6 @@ import type { CopyRunListItem } from 'services/copyTrading/types/copyRuns'
 import type { PreparedCallKind } from 'services/copyTrading/types/preparedActions'
 
 import { useActiveWeb3React } from 'hooks'
-import useRefreshCopyTrading from 'pages/CopyTrading/hooks/useRefreshCopyTrading'
-import { pollSubmittedActionStatus } from 'pages/CopyTrading/modals/PreparedActionModal/postReceipt'
 import { DEFAULT_PREPARED_ACTION_STATE } from 'pages/CopyTrading/modals/PreparedActionModal/preparedAction'
 import { usePreparedAction } from 'pages/CopyTrading/modals/PreparedActionModal/usePreparedAction'
 import { useWithdrawalPreview } from 'pages/CopyTrading/modals/WithdrawModal/useWithdrawalData'
@@ -15,8 +13,6 @@ import { getCopyRunOwnershipMessage, getWriteAvailabilityMessage } from 'pages/C
 const CALL_KINDS: PreparedCallKind[] = ['PREPARED_CALL_KIND_WITHDRAW_TOKENS']
 export const useWithdrawTokens = ({ isOpen, copyRun }: { isOpen: boolean; copyRun: CopyRunListItem }) => {
   const { account } = useActiveWeb3React()
-  const refresh = useRefreshCopyTrading()
-  const [getStatus] = preparedActionApi.useGetSubmittedActionStatusMutation()
   const [prepareWithdrawal] = preparedActionApi.usePrepareWithdrawTokensMutation()
   const [state, setState] = useState(DEFAULT_PREPARED_ACTION_STATE)
   const ownershipMessage = getCopyRunOwnershipMessage(copyRun.ownerAddress, account)
@@ -47,11 +43,6 @@ export const useWithdrawTokens = ({ isOpen, copyRun }: { isOpen: boolean; copyRu
       }
       return response.data
     },
-    afterReceipt: async (action, hash) => {
-      await pollSubmittedActionStatus({ action, hash, getStatus })
-      refresh()
-    },
-    onComplete: refresh,
   })
   return {
     state,

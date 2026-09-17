@@ -1,8 +1,14 @@
 import { getPublicClient } from '@wagmi/core'
+import preparedActionApi from 'services/copyTrading/api/endpoints/preparedActions'
+import type { SubmittedActionStatusData } from 'services/copyTrading/types/actionStatus'
 import type { PreparedAction } from 'services/copyTrading/types/preparedActions'
 
 import { wagmiConfig } from 'components/Web3Provider'
-import { SubmittedActionFailedError } from 'pages/CopyTrading/modals/PreparedActionModal/postReceipt'
+import useRefreshCopyTrading from 'pages/CopyTrading/hooks/useRefreshCopyTrading'
+import {
+  SubmittedActionFailedError,
+  pollSubmittedActionStatus,
+} from 'pages/CopyTrading/modals/PreparedActionModal/postReceipt'
 import {
   DEFAULT_PREPARED_ACTION_STATE,
   type PreparedActionExpectation,
@@ -29,8 +35,11 @@ type UsePreparedActionProps = {
   expected: PreparedActionExpectation
   prepare: () => Promise<PreparedAction>
   reviewUnavailable?: (action: PreparedAction) => boolean
-  afterReceipt?: (action: PreparedAction, hash: Hash, receiptBlockNumber?: bigint) => Promise<void> | void
-  onComplete?: () => Promise<void> | void
+  onPrepared?: (action: PreparedAction) => void
+  onSubmittedSuccess?: (
+    result: NonNullable<SubmittedActionStatusData['result']>,
+    action: PreparedAction,
+  ) => Promise<void> | void
 }
 
 export const usePreparedAction = ({
@@ -39,35 +48,32 @@ export const usePreparedAction = ({
   expected,
   prepare,
   reviewUnavailable,
-  afterReceipt,
-  onComplete,
+  onPrepared,
+  onSubmittedSuccess,
 }: UsePreparedActionProps) => {
   const validateGenerationPolicy = useGenerationPolicy(expected.preview)
-  const notifyComplete = () => {
+  const [getStatus] = preparedActionApi.useGetSubmittedActionStatusMutation()
+  const refreshCopyTrading = useRefreshCopyTrading()
+  const refresh = () => {
     try {
-      void Promise.resolve(onComplete?.()).catch(() => undefined)
+      void Promise.resolve(refreshCopyTrading()).catch(() => undefined)
     } catch {}
   }
 
-  const finish = (action?: PreparedAction, hash?: Hash, preparationVersion?: number, shouldNotifyComplete = true) => {
-    if (preparationVersion !== undefined && !isCurrentPreparationRequest(setState, preparationVersion)) {
-      return
-    }
-    if (shouldNotifyComplete) notifyComplete()
-    if (preparationVersion !== undefined && !isCurrentPreparationRequest(setState, preparationVersion)) {
-      return
-    }
-
-    setState({ phase: 'success', action, hash })
+  const finishPreparation = (action: PreparedAction, preparationVersion: number) => {
+    if (!isCurrentPreparationRequest(setState, preparationVersion)) return
+    refresh()
+    if (!isCurrentPreparationRequest(setState, preparationVersion)) return
+    setState({ phase: 'success', action })
   }
 
-  const requestPreparedAction = (options?: PreparationRequestOptions) =>
+  const requestPreparedAction = (options?: PreparationRequestOptions, prepareAction = prepare) =>
     requestPreparation(
       {
         expected,
-        finish,
+        finish: finishPreparation,
         prepare: async () => {
-          const action = await prepare()
+          const action = await prepareAction()
           if (
             action.status === 'PREPARED_ACTION_STATUS_READY' ||
             action.status === 'PREPARED_ACTION_STATUS_PARTIALLY_COMPLETED' ||
@@ -77,31 +83,28 @@ export const usePreparedAction = ({
           return action
         },
         reviewUnavailable,
+        onPrepared,
         setState,
       },
       options,
     )
 
-  const finishReceipt = async (action: PreparedAction, hash: Hash, receiptBlockNumber?: bigint) => {
-    const receiptState = receiptBlockNumber === undefined ? {} : { receiptBlockNumber }
-    setState({ phase: 'syncing', action, hash, ...receiptState })
-    notifyComplete()
-
-    if (!afterReceipt) {
-      finish(action, hash, undefined, false)
-      return
-    }
+  const syncSubmittedAction = async (action: PreparedAction, hash: Hash) => {
+    setState({ phase: 'syncing', action, hash })
+    // Refresh once on receipt and again when the backend has verified the result.
+    refresh()
 
     try {
-      await afterReceipt(action, hash, receiptBlockNumber)
-      finish(action, hash, undefined, false)
+      const status = await pollSubmittedActionStatus({ action, hash, getStatus })
+      refresh()
+      await onSubmittedSuccess?.(status.result, action)
+      setState({ phase: 'success', action, hash })
     } catch (error) {
       setState({
         phase: error instanceof SubmittedActionFailedError ? 'error' : 'sync_error',
         action,
         error: getApiErrorMessage(error),
         hash,
-        ...receiptState,
         retryStage: error instanceof SubmittedActionFailedError ? undefined : 'sync',
       })
     }
@@ -175,7 +178,7 @@ export const usePreparedAction = ({
         return
       }
 
-      await finishReceipt(action, receipt.transactionHash, receipt.blockNumber)
+      await syncSubmittedAction(action, receipt.transactionHash)
     } catch (error) {
       setState({
         phase: hash ? 'sync_error' : 'error',
@@ -210,7 +213,7 @@ export const usePreparedAction = ({
         return
       }
 
-      await finishReceipt(action, receipt.transactionHash, receipt.blockNumber)
+      await syncSubmittedAction(action, receipt.transactionHash)
     } catch (error) {
       setState({
         phase: 'sync_error',
@@ -229,16 +232,13 @@ export const usePreparedAction = ({
         return
       }
 
-      await finishReceipt(state.action, state.hash, state.receiptBlockNumber)
+      await syncSubmittedAction(state.action, state.hash)
       return
     }
 
-    const continuation = state.phase === 'pending' && !!state.hash
     await requestPreparedAction({
-      continuation,
       delay: state.phase === 'pending' && state.action ? getReprepareDelay(state.action) : 0,
-      hash: continuation ? state.hash : undefined,
-      onReady: continuation ? undefined : onReady,
+      onReady,
       phaseWhilePreparing: !onReady && (state.phase === 'expired' || state.phase === 'error') ? 'review' : undefined,
     })
   }
@@ -253,7 +253,7 @@ export const usePreparedAction = ({
 
   return {
     confirm,
-    prepare: requestPreparedAction,
+    prepare: (prepareAction = prepare) => requestPreparedAction(undefined, prepareAction),
     prepareAndConfirm,
     reset,
     retry,

@@ -5,38 +5,32 @@ import {
   type PreparedActionExpectation,
   type PreparedActionStateSetter,
   getApiErrorMessage,
-  getReprepareDelay,
   invalidatePreparationRequests,
   isCurrentPreparationRequest,
   isPreparationExpiredError,
   validatePreparedAction,
-  validatePreparedActionContinuation,
   validatePreparedGeneration,
   wait,
 } from 'pages/CopyTrading/modals/PreparedActionModal/preparedAction'
-import type { Hash } from 'utils/viem'
-
-const CONTINUATION_ATTEMPTS = 6
 
 export type PreparationRequestOptions = {
-  continuation?: boolean
   delay?: number
-  hash?: Hash
   onReady?: (action: PreparedAction) => Promise<void> | void
   phaseWhilePreparing?: 'review'
 }
 
 type RequestPreparationProps = {
   expected: PreparedActionExpectation
-  finish: (action?: PreparedAction, hash?: Hash, preparationVersion?: number) => void
+  finish: (action: PreparedAction, preparationVersion: number) => void
   prepare: () => Promise<PreparedAction>
   reviewUnavailable?: (action: PreparedAction) => boolean
+  onPrepared?: (action: PreparedAction) => void
   setState: PreparedActionStateSetter
 }
 
 export const requestPreparation = async (
-  { expected, finish, prepare, reviewUnavailable, setState }: RequestPreparationProps,
-  { continuation = false, delay = 0, hash, onReady, phaseWhilePreparing }: PreparationRequestOptions = {},
+  { expected, finish, prepare, reviewUnavailable, onPrepared, setState }: RequestPreparationProps,
+  { delay = 0, onReady, phaseWhilePreparing }: PreparationRequestOptions = {},
 ) => {
   const preparationVersion = invalidatePreparationRequests(setState)
   const isCurrent = () => isCurrentPreparationRequest(setState, preparationVersion)
@@ -47,100 +41,73 @@ export const requestPreparation = async (
       phase: isPreparationExpiredError(error) ? 'expired' : 'error',
       action,
       error,
-      hash,
     })
     return true
   }
 
-  setState(current => {
-    if (continuation) return { phase: 'syncing', action: current.action, hash, isPreparing: true }
-    if (phaseWhilePreparing === 'review') return { phase: 'review', isPreparing: true }
-    return { ...current, isPreparing: true }
-  })
+  setState(current =>
+    phaseWhilePreparing === 'review' ? { phase: 'review', isPreparing: true } : { ...current, isPreparing: true },
+  )
 
   if (delay > 0) {
     await wait(delay)
     if (!isCurrent()) return
   }
 
-  for (let attempt = 0; attempt < CONTINUATION_ATTEMPTS; attempt++) {
-    let action: PreparedAction
-    try {
-      action = await prepare()
-    } catch (error) {
-      if (!isCurrent()) return
-      setState(current => ({
-        phase: continuation ? 'sync_error' : 'error',
-        action: continuation ? current.action : undefined,
-        error: getApiErrorMessage(error),
-        hash,
-        retryStage: continuation ? 'sync' : undefined,
-      }))
-      return
-    }
+  let action: PreparedAction
+  try {
+    action = await prepare()
+  } catch (error) {
     if (!isCurrent()) return
-
-    if (failValidation(action, validatePreparedGeneration(action, expected))) return
-
-    if (action.status === 'PREPARED_ACTION_STATUS_PENDING') {
-      if (failValidation(action, validatePreparedAction(action, expected, { requireCall: false }))) return
-      if (continuation && attempt < CONTINUATION_ATTEMPTS - 1) {
-        await wait(getReprepareDelay(action))
-        if (!isCurrent()) return
-        continue
-      }
-
-      setState({ phase: 'pending', action, error: getPreparedReasonMessage(action.reason), hash })
-      return
-    }
-
-    if (action.status === 'PREPARED_ACTION_STATUS_UNAVAILABLE') {
-      if (!continuation && reviewUnavailable?.(action)) {
-        if (failValidation(action, validatePreparedAction(action, expected, { requireCall: false }))) return
-
-        setState({ phase: 'review', action, hash })
-        return
-      }
-
-      setState({ phase: 'unavailable', action, error: getPreparedReasonMessage(action.reason), hash })
-      return
-    }
-
-    if (action.status === 'PREPARED_ACTION_STATUS_COMPLETED') {
-      if (failValidation(action, validatePreparedAction(action, expected, { requireCall: false }))) return
-
-      finish(action, hash, preparationVersion)
-      return
-    }
-
-    if (
-      action.status !== 'PREPARED_ACTION_STATUS_READY' &&
-      action.status !== 'PREPARED_ACTION_STATUS_PARTIALLY_COMPLETED'
-    ) {
-      setState({ phase: 'error', action, error: 'The API returned an unsupported preparation status.', hash })
-      return
-    }
-
-    if (continuation) {
-      const continuationError = validatePreparedActionContinuation(action)
-      setState({
-        phase: 'sync_error',
-        action,
-        error: continuationError || 'The confirmed transaction returned an unsupported continuation state.',
-        hash,
-        retryStage: 'sync',
-      })
-      return
-    }
-
-    if (failValidation(action, validatePreparedAction(action, expected))) return
-
-    if (onReady) {
-      await onReady(action)
-      return
-    }
-
-    setState({ phase: 'review', action, hash })
+    setState({ phase: 'error', error: getApiErrorMessage(error) })
     return
   }
+  if (!isCurrent()) return
+
+  if (failValidation(action, validatePreparedGeneration(action, expected))) return
+
+  const executable =
+    action.status === 'PREPARED_ACTION_STATUS_READY' || action.status === 'PREPARED_ACTION_STATUS_PARTIALLY_COMPLETED'
+  const reviewDiagnostic = action.status === 'PREPARED_ACTION_STATUS_UNAVAILABLE' && reviewUnavailable?.(action)
+  if (
+    !executable &&
+    action.status !== 'PREPARED_ACTION_STATUS_PENDING' &&
+    action.status !== 'PREPARED_ACTION_STATUS_UNAVAILABLE' &&
+    action.status !== 'PREPARED_ACTION_STATUS_COMPLETED'
+  ) {
+    setState({ phase: 'error', action, error: 'The API returned an unsupported preparation status.' })
+    return
+  }
+
+  if (action.status !== 'PREPARED_ACTION_STATUS_UNAVAILABLE' || reviewDiagnostic) {
+    if (failValidation(action, validatePreparedAction(action, expected, { requireCall: executable }))) return
+  }
+  try {
+    onPrepared?.(action)
+  } catch (error) {
+    failValidation(action, getApiErrorMessage(error))
+    return
+  }
+
+  if (action.status === 'PREPARED_ACTION_STATUS_PENDING') {
+    setState({ phase: 'pending', action, error: getPreparedReasonMessage(action.reason) })
+    return
+  }
+
+  if (action.status === 'PREPARED_ACTION_STATUS_UNAVAILABLE' && !reviewDiagnostic) {
+    setState({ phase: 'unavailable', action, error: getPreparedReasonMessage(action.reason) })
+    return
+  }
+
+  if (action.status === 'PREPARED_ACTION_STATUS_COMPLETED') {
+    finish(action, preparationVersion)
+    return
+  }
+
+  if (executable && onReady) {
+    await onReady(action)
+    return
+  }
+
+  setState({ phase: 'review', action })
 }

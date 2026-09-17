@@ -4,7 +4,6 @@ import { useNavigate } from 'react-router-dom'
 import agentApi from 'services/copyTrading/api/endpoints/agents'
 import discoveryApi from 'services/copyTrading/api/endpoints/discovery'
 import preparedActionApi from 'services/copyTrading/api/endpoints/preparedActions'
-import type { PreparedActionStatus } from 'services/copyTrading/types/preparedActions'
 
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
@@ -12,15 +11,12 @@ import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { useCopyTradingContext } from 'pages/CopyTrading/context'
 import { resolveStartCopyEligibility } from 'pages/CopyTrading/generations'
 import { getPreparedReasonMessage } from 'pages/CopyTrading/helpers'
-import useRefreshCopyTrading from 'pages/CopyTrading/hooks/useRefreshCopyTrading'
 import { type CapitalPercentage } from 'pages/CopyTrading/modals/CapitalAmount/capital'
 import { useCapitalAmount } from 'pages/CopyTrading/modals/CapitalAmount/useCapitalAmount'
-import { pollSubmittedActionStatus } from 'pages/CopyTrading/modals/PreparedActionModal/postReceipt'
 import {
   DEFAULT_PREPARED_ACTION_STATE,
   getApiErrorMessage,
   validatePreparedAction,
-  validatePreparedGeneration,
 } from 'pages/CopyTrading/modals/PreparedActionModal/preparedAction'
 import { usePreparedAction } from 'pages/CopyTrading/modals/PreparedActionModal/usePreparedAction'
 import { type StartCopyTarget } from 'pages/CopyTrading/modals/StartCopyModal/startCopy'
@@ -32,20 +28,12 @@ import {
 import { getWritePrimaryActionLabel, isWritePrimaryActionDisabled } from 'pages/CopyTrading/modals/writeAction'
 import { useWalletModalToggle } from 'state/application/hooks'
 
-const getNonReadyPhase = (status?: PreparedActionStatus) => {
-  if (status === 'PREPARED_ACTION_STATUS_UNAVAILABLE') return 'unavailable'
-  if (status === 'PREPARED_ACTION_STATUS_PENDING') return 'pending'
-  return 'error'
-}
-
 export const useStartCopyFlow = ({ agent, onDismiss }: { agent: StartCopyTarget; onDismiss: () => void }) => {
   const navigate = useNavigate()
   const { chains } = useCopyTradingContext()
   const { account, chainId } = useActiveWeb3React()
   const { changeNetwork } = useChangeNetwork()
   const toggleWalletModal = useWalletModalToggle()
-  const refreshCopyTrading = useRefreshCopyTrading()
-  const [getStatus] = preparedActionApi.useGetSubmittedActionStatusMutation()
   const [prepareStartCopy] = preparedActionApi.usePrepareStartCopyMutation()
   const { authorize: authorizeStartCopy, getAuthorizationKind } = useStartCopyAuthorization()
 
@@ -91,36 +79,15 @@ export const useStartCopyFlow = ({ agent, onDismiss }: { agent: StartCopyTarget;
 
       const scopedAttempt = attempt.getScopedStartAttempt(account, capital.amountRaw, generationId)
       const response = await attempt.requestStartCopy(scopedAttempt, account, capital.amountRaw)
-      const action = response.data
-      const generationValidationError = validatePreparedGeneration(action, attempt.expected)
-      if (generationValidationError) throw new Error(generationValidationError)
-
-      if (
-        [
-          'PREPARED_ACTION_STATUS_READY',
-          'PREPARED_ACTION_STATUS_PARTIALLY_COMPLETED',
-          'PREPARED_ACTION_STATUS_COMPLETED',
-          'PREPARED_ACTION_STATUS_PENDING',
-        ].includes(action.status || '') &&
-        action.startCopy?.requestedTargetRaw !== capital.amountRaw
-      ) {
-        throw new Error('The prepared target does not match your requested capital amount.')
-      }
-      if (!requiresStartCopyAuthorization(action)) {
-        attempt.capturePredictedCopyAccount(action.startCopy?.predictedCopyAccount)
-      }
-
-      return action
+      return response.data
     },
+    onPrepared: attempt.acceptPreparation,
     reviewUnavailable: action =>
       requiresStartCopyAuthorization(action) && !attempt.attemptRef.current.authorizationApplied,
-    afterReceipt: async (action, hash) => {
-      const status = await pollSubmittedActionStatus({ action, hash, getStatus })
+    onSubmittedSuccess: result => {
       setAgreed(false)
-      setCreatedCopyRunId(status.result?.copyRunId)
-      refreshCopyTrading()
+      setCreatedCopyRunId(result.copyRunId)
     },
-    onComplete: refreshCopyTrading,
   })
 
   const startPreview = flowState.action?.startCopy
@@ -212,6 +179,7 @@ export const useStartCopyFlow = ({ agent, onDismiss }: { agent: StartCopyTarget;
       return
     }
 
+    const targetRaw = capital.amountRaw
     try {
       setIsAuthorizing(true)
       const validationError = validatePreparedAction(diagnosticAction, attempt.expected, { requireCall: false })
@@ -224,34 +192,10 @@ export const useStartCopyFlow = ({ agent, onDismiss }: { agent: StartCopyTarget;
         ownerAddress: account,
         targetRaw: capital.amountRaw,
       })
-      const response = await attempt.requestStartCopy(authorizedAttempt, account, capital.amountRaw)
-      const action = response.data
-
-      if (action.startCopy?.requestedTargetRaw !== capital.amountRaw) {
-        throw new Error('The prepared target does not match your requested capital amount.')
-      }
-      if (action.status !== 'PREPARED_ACTION_STATUS_READY') {
-        const nextValidationError = validatePreparedAction(action, attempt.expected, { requireCall: false })
-        if (nextValidationError) throw new Error(nextValidationError)
-
-        const phase = getNonReadyPhase(action.status)
-        setFlowState({
-          phase,
-          action,
-          error:
-            phase === 'error'
-              ? 'The authorized Start Copy preparation did not return a ready create call.'
-              : getPreparedReasonMessage(action.reason),
-        })
-        return
-      }
-
-      const nextValidationError = validatePreparedAction(action, attempt.expected)
-      if (nextValidationError) throw new Error(nextValidationError)
-      await flow.validateGenerationPolicy(action)
-
-      attempt.capturePredictedCopyAccount(action.startCopy?.predictedCopyAccount)
-      setFlowState({ phase: 'review', action })
+      await flow.prepare(async () => {
+        const response = await attempt.requestStartCopy(authorizedAttempt, account, targetRaw)
+        return response.data
+      })
     } catch (error) {
       setFlowState({ phase: 'error', action: diagnosticAction, error: getApiErrorMessage(error) })
     } finally {
