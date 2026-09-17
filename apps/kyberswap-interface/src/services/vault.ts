@@ -47,6 +47,7 @@ export interface VaultApiListItem {
   underlyingToken: VaultApiToken
   assetGroup: string
   metrics: VaultApiMetrics
+  stats: VaultApiStats
 }
 
 export interface VaultApiDetailItem {

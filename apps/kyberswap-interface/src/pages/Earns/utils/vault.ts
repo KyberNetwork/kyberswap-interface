@@ -30,7 +30,7 @@ export const toVaultInfo = (item: VaultApiListItem): VaultInfo => ({
   label: item.name || '',
   partner: item.provider?.name || '',
   partnerLogo: item.provider?.logo || '',
-  apy: latestValue(item.metrics?.apy),
+  apy: item.stats?.apy7d ?? 0,
   tvl: latestValue(item.metrics?.tvl),
   apyHistory: toChartDataPoints(item.metrics?.apy),
   tvlHistory: toChartDataPoints(item.metrics?.tvl),
