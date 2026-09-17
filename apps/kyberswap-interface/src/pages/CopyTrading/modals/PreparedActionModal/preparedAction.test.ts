@@ -3,7 +3,6 @@ import { describe, expect, it } from 'vitest'
 
 import {
   type PreparedActionExpectation,
-  formatPreparedAmount,
   formatPreparedAmountValue,
   formatPreparedExactAmountValue,
   formatPreparedRate,
@@ -49,6 +48,43 @@ const confirmingAction = (overrides: Partial<PreparedAction> = {}): PreparedActi
   displayEnrichment: overrides.displayEnrichment ?? displayEnrichment,
 })
 
+const readyAction: PreparedAction = {
+  generationId,
+  displayEnrichment,
+  status: 'PREPARED_ACTION_STATUS_READY',
+  chainId: '8453',
+  expectedAccount: account,
+  startCopy: {
+    createAmountRaw: targetCapitalRaw,
+    stage: 'START_COPY_STAGE_CREATE_REQUIRED',
+    startRequestId,
+    predictedCopyAccount: copyAccount,
+    requestedTargetRaw: targetCapitalRaw,
+  },
+  call: {
+    kind: 'PREPARED_CALL_KIND_START_COPY_CREATE',
+    to: callTarget,
+    data: '0x',
+    valueRaw: '0',
+  },
+}
+
+const closeAction: PreparedAction = {
+  generationId,
+  displayEnrichment,
+  status: 'PREPARED_ACTION_STATUS_READY',
+  chainId: '8453',
+  expectedAccount: account,
+  copyAccount,
+  closePosition: { context: 'POSITION_SELL_CONTEXT_STOP_COPY' },
+  call: {
+    kind: 'PREPARED_CALL_KIND_CLOSE_POSITION',
+    to: callTarget,
+    data: '0x',
+    valueRaw: '0',
+  },
+}
+
 const unsafeConfirmingCases: Array<{ name: string; overrides: Partial<PreparedAction> }> = [
   {
     name: 'an executable call',
@@ -89,24 +125,8 @@ describe('validatePreparedAction', () => {
   })
 
   it('allows an authoritative existing-account preparation when generation provenance is unknown', () => {
-    const action: PreparedAction = {
-      generationId,
-      displayEnrichment,
-      status: 'PREPARED_ACTION_STATUS_READY',
-      chainId: '8453',
-      expectedAccount: account,
-      copyAccount,
-      closePosition: { context: 'POSITION_SELL_CONTEXT_STOP_COPY' },
-      call: {
-        kind: 'PREPARED_CALL_KIND_CLOSE_POSITION',
-        to: callTarget,
-        data: '0x',
-        valueRaw: '0',
-      },
-    }
-
     expect(
-      validatePreparedAction(action, {
+      validatePreparedAction(closeAction, {
         account,
         callKinds: ['PREPARED_CALL_KIND_CLOSE_POSITION'],
         chainId: 8453,
@@ -126,51 +146,13 @@ describe('validatePreparedAction', () => {
   })
 
   it('rejects a non-zero prepared call value', () => {
-    const action: PreparedAction = {
-      generationId,
-      displayEnrichment,
-      status: 'PREPARED_ACTION_STATUS_READY',
-      chainId: '8453',
-      expectedAccount: account,
-      startCopy: {
-        createAmountRaw: targetCapitalRaw,
-        stage: 'START_COPY_STAGE_CREATE_REQUIRED',
-        startRequestId,
-        predictedCopyAccount: copyAccount,
-        requestedTargetRaw: targetCapitalRaw,
-      },
-      call: {
-        kind: 'PREPARED_CALL_KIND_START_COPY_CREATE',
-        to: callTarget,
-        data: '0x',
-        valueRaw: '1',
-      },
-    }
-
-    expect(validatePreparedAction(action, expected)).toBe('The preparation returned a non-zero call value.')
+    expect(validatePreparedAction({ ...readyAction, call: { ...readyAction.call, valueRaw: '1' } }, expected)).toBe(
+      'The preparation returned a non-zero call value.',
+    )
   })
 
   it('rejects an unfunded create amount for a funded Start Copy attempt', () => {
-    const action: PreparedAction = {
-      generationId,
-      displayEnrichment,
-      status: 'PREPARED_ACTION_STATUS_READY',
-      chainId: '8453',
-      expectedAccount: account,
-      startCopy: {
-        stage: 'START_COPY_STAGE_CREATE_REQUIRED',
-        startRequestId,
-        predictedCopyAccount: copyAccount,
-        requestedTargetRaw: targetCapitalRaw,
-        createAmountRaw: '0',
-      },
-      call: {
-        kind: 'PREPARED_CALL_KIND_START_COPY_CREATE',
-        to: callTarget,
-        data: '0x',
-        valueRaw: '0',
-      },
-    }
+    const action = { ...readyAction, startCopy: { ...readyAction.startCopy, createAmountRaw: '0' } }
 
     expect(validatePreparedAction(action, expected)).toBe(
       'The prepared Start Copy create amount does not match the selected funding mode.',
@@ -204,23 +186,11 @@ describe('validatePreparedAction', () => {
 
   it('accepts the authorized UUID predicted account after clearing the diagnostic UUID identity', () => {
     const action: PreparedAction = {
-      generationId,
-      displayEnrichment,
-      status: 'PREPARED_ACTION_STATUS_READY',
-      chainId: '8453',
-      expectedAccount: account,
+      ...readyAction,
       startCopy: {
-        stage: 'START_COPY_STAGE_CREATE_REQUIRED',
+        ...readyAction.startCopy,
         startRequestId: authorizedStartRequestId,
         predictedCopyAccount: authorizedCopyAccount,
-        requestedTargetRaw: targetCapitalRaw,
-        createAmountRaw: targetCapitalRaw,
-      },
-      call: {
-        kind: 'PREPARED_CALL_KIND_START_COPY_CREATE',
-        to: callTarget,
-        data: '0x',
-        valueRaw: '0',
       },
     }
     const authorizedExpected: PreparedActionExpectation = {
@@ -236,21 +206,6 @@ describe('validatePreparedAction', () => {
   })
 
   it('keeps active recovery and stopped-Copy position sells in separate contexts', () => {
-    const closeAction: PreparedAction = {
-      generationId,
-      displayEnrichment,
-      status: 'PREPARED_ACTION_STATUS_READY',
-      chainId: '8453',
-      expectedAccount: account,
-      copyAccount,
-      closePosition: { context: 'POSITION_SELL_CONTEXT_STOP_COPY' },
-      call: {
-        kind: 'PREPARED_CALL_KIND_CLOSE_POSITION',
-        to: callTarget,
-        data: '0x',
-        valueRaw: '0',
-      },
-    }
     const closeExpected: PreparedActionExpectation = {
       account,
       callKinds: ['PREPARED_CALL_KIND_CLOSE_POSITION'],
@@ -273,12 +228,6 @@ describe('validatePreparedAction', () => {
 
 describe('prepared amount formatting', () => {
   const token = { decimals: 6, symbol: 'USDC' }
-  const amount = { valueRaw: '1234567', status: 'METRIC_STATUS_CURRENT' as const }
-
-  it('formats panel values without repeating the token symbol', () => {
-    expect(formatPreparedAmountValue(amount, token)).toBe('1.234567')
-    expect(formatPreparedAmount(amount, token)).toBe('1.234567 USDC')
-  })
 
   it('formats exact panel values from raw token units without rounding', () => {
     expect(

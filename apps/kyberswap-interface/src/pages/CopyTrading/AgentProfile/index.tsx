@@ -1,5 +1,5 @@
 import { type PropsWithChildren } from 'react'
-import { Navigate, useParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import agentApi from 'services/copyTrading/api/endpoints/agents'
 import copyRunApi from 'services/copyTrading/api/endpoints/copyRuns'
 
@@ -22,8 +22,10 @@ import {
   ResponsiveDetailItem,
   StickySideColumn,
 } from 'pages/CopyTrading/components/common/layout'
+import { CopyTradingReadError } from 'pages/CopyTrading/components/common/status'
 import { type ProfileTab, profileTabLabel, profileTabShortLabel, profileTabs } from 'pages/CopyTrading/constants'
 import { useCopyTradingContext } from 'pages/CopyTrading/context'
+import { isMissingOrForbiddenError } from 'pages/CopyTrading/helpers'
 
 const profileTabOptions: readonly DetailTabOption<ProfileTab>[] = profileTabs.map(tab => ({
   label: profileTabLabel[tab],
@@ -56,6 +58,8 @@ const AgentProfile = () => {
     isFetching: isAgentFetching,
     isLoading: isAgentLoading,
     isUninitialized: isAgentUninitialized,
+    error: agentError,
+    refetch: refetchAgent,
   } = agentApi.useGetAgentQuery(
     { agentId: agentCode || '' },
     {
@@ -69,6 +73,7 @@ const AgentProfile = () => {
     isFetching: isCopyRunsFetching,
     isLoading: isCopyRunsLoading,
     isUninitialized: isCopyRunsUninitialized,
+    refetch: refetchCopyRuns,
   } = copyRunApi.useGetCopyRunsQuery(
     {
       ownerAddress: ownerAddress || '',
@@ -92,7 +97,9 @@ const AgentProfile = () => {
   const copyRunPending =
     !!ownerAddress && !openCopyRuns && (isCopyRunsFetching || isCopyRunsLoading || isCopyRunsUninitialized)
 
-  if (isRestoringWallet || agentPending || copyRunPending) {
+  const resourceUnavailable = !agentCode || isMissingOrForbiddenError(agentError)
+
+  if (!resourceUnavailable && (isRestoringWallet || agentPending || copyRunPending)) {
     return (
       <CopyTradingPage>
         <LocalLoader />
@@ -100,7 +107,19 @@ const AgentProfile = () => {
     )
   }
 
-  if (!profile || (!!ownerAddress && !openCopyRuns)) return <Navigate to={APP_PATHS.COPY_TRADING} replace />
+  if (resourceUnavailable || !profile || (!!ownerAddress && !openCopyRuns)) {
+    return (
+      <CopyTradingPage backTo={{ label: 'Leaderboard', to: APP_PATHS.COPY_TRADING }}>
+        <CopyTradingReadError
+          resourceUnavailable={resourceUnavailable}
+          onRetry={() => {
+            if (!profile) void refetchAgent()
+            if (ownerAddress && !openCopyRuns) void refetchCopyRuns()
+          }}
+        />
+      </CopyTradingPage>
+    )
+  }
 
   const currentProfileTab = activeProfileTab || 'open-position'
   const latestCopyRun = openCopyRuns?.data[0]

@@ -1,4 +1,4 @@
-import { Navigate, useParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import agentApi from 'services/copyTrading/api/endpoints/agents'
 import copyRunApi from 'services/copyTrading/api/endpoints/copyRuns'
 import type { AgentProfile } from 'services/copyTrading/types/agents'
@@ -20,10 +20,16 @@ import {
   ResponsiveDetailItem,
   StickySideColumn,
 } from 'pages/CopyTrading/components/common/layout'
-import { OwnerWalletRequired } from 'pages/CopyTrading/components/common/status'
+import { CopyTradingReadError, OwnerWalletRequired } from 'pages/CopyTrading/components/common/status'
 import { copyTradingStatIconMap } from 'pages/CopyTrading/constants'
 import { useCopyTradingContext } from 'pages/CopyTrading/context'
-import { formatUsd, getSignedMetricClassName, signedPercent, signedUsd } from 'pages/CopyTrading/helpers'
+import {
+  formatUsd,
+  getSignedMetricClassName,
+  isMissingOrForbiddenError,
+  signedPercent,
+  signedUsd,
+} from 'pages/CopyTrading/helpers'
 import { formatDateTime } from 'utils/time'
 
 type CopyDetailContentProps = {
@@ -155,6 +161,8 @@ const CopyDetailView = ({ backPath }: { backPath: 'my-copies' | 'history' }) => 
     isFetching,
     isLoading,
     isUninitialized,
+    error: copyRunError,
+    refetch: refetchCopyRun,
   } = copyRunApi.useGetCopyRunQuery(copyRunQuery, { pollingInterval: 10_000, skip: !copyId || !ownerAddress })
 
   const {
@@ -162,6 +170,8 @@ const CopyDetailView = ({ backPath }: { backPath: 'my-copies' | 'history' }) => 
     isFetching: isAgentFetching,
     isLoading: isAgentLoading,
     isUninitialized: isAgentUninitialized,
+    error: agentError,
+    refetch: refetchAgent,
   } = agentApi.useGetAgentQuery(
     { agentId: copyRun?.data.agentId || '' },
     { pollingInterval: 10_000, skip: !copyRun?.data.agentId },
@@ -189,7 +199,10 @@ const CopyDetailView = ({ backPath }: { backPath: 'my-copies' | 'history' }) => 
     )
   }
 
-  if (copyRunPending || agentPending) {
+  const resourceUnavailable =
+    !copyId || isMissingOrForbiddenError(copyRunError) || isMissingOrForbiddenError(agentError)
+
+  if (!resourceUnavailable && (copyRunPending || agentPending)) {
     return (
       <CopyTradingPage>
         <LocalLoader />
@@ -197,7 +210,19 @@ const CopyDetailView = ({ backPath }: { backPath: 'my-copies' | 'history' }) => 
     )
   }
 
-  if (!run || !profile) return <Navigate to={`${APP_PATHS.COPY_TRADING}/${backPath}`} replace />
+  if (resourceUnavailable || !run || !profile) {
+    return (
+      <CopyTradingPage backTo={{ label: backLabel, to: `${APP_PATHS.COPY_TRADING}/${backPath}` }}>
+        <CopyTradingReadError
+          resourceUnavailable={resourceUnavailable}
+          onRetry={() => {
+            if (!run) void refetchCopyRun()
+            else if (!profile) void refetchAgent()
+          }}
+        />
+      </CopyTradingPage>
+    )
+  }
 
   return (
     <CopyTradingPage backTo={{ label: backLabel, to: `${APP_PATHS.COPY_TRADING}/${backPath}` }}>

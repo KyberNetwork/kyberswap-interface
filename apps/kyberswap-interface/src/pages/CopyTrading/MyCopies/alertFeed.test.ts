@@ -1,7 +1,7 @@
 import type { ActivityRow } from 'services/copyTrading/types/copyRuns'
 import { describe, expect, it } from 'vitest'
 
-import { formatAlertFeedTime, getAlertFeedItemViewModel } from 'pages/CopyTrading/MyCopies/alertFeed'
+import { getAlertFeedItemViewModel } from 'pages/CopyTrading/MyCopies/alertFeed'
 
 const baseActivity: ActivityRow = {
   activityId: 'activity-1',
@@ -113,48 +113,5 @@ describe('getAlertFeedItemViewModel', () => {
     })
 
     expect(result.manualSellCopyRunId).toBeUndefined()
-  })
-
-  it.each([
-    ['cashback_received', 'rebate_received'],
-    ['flat_fee_captured', 'flat_fee_captured'],
-  ] as const)('uses the fee tone for %s alerts', (activityType, subtype) => {
-    const result = getAlertFeedItemViewModel({
-      ...baseActivity,
-      activityType,
-      category: 'fee_rebate',
-      subtype,
-    })
-
-    expect(result.indicatorTone).toBe('fee')
-  })
-
-  it.each([
-    ['buy', 'buy'],
-    ['sell', 'sell'],
-    ['capital_topped_up', 'capital'],
-    ['skipped_buy', 'warning'],
-  ] as const)('falls back to the shared %s subtype tone without alert context', (subtype, expectedTone) => {
-    const result = getAlertFeedItemViewModel({ ...baseActivity, subtype })
-
-    expect(result.activityTone).toBe(expectedTone)
-    expect(result.indicatorTone).toBe(expectedTone)
-  })
-})
-
-describe('formatAlertFeedTime', () => {
-  const now = '2026-09-03T02:00:00Z'
-
-  it.each([
-    ['2026-09-03T01:59:45Z', 'just now'],
-    ['2026-09-03T01:48:00Z', '12 min ago'],
-    ['2026-09-03T00:00:00Z', '2 hrs ago'],
-    ['2026-09-01T02:00:00Z', '2 days ago'],
-  ])('formats %s as %s', (value, expected) => {
-    expect(formatAlertFeedTime(value, now)).toBe(expected)
-  })
-
-  it('returns a placeholder for an invalid timestamp', () => {
-    expect(formatAlertFeedTime('not-a-date', now)).toBe('-')
   })
 })

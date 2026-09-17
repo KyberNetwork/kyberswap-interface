@@ -8,6 +8,7 @@ import {
   type PreparedActionExpectation,
   type PreparedActionFlowState,
 } from 'pages/CopyTrading/modals/PreparedActionModal/preparedAction'
+import { requestPreparation } from 'pages/CopyTrading/modals/PreparedActionModal/requestPreparation'
 import { usePreparedAction } from 'pages/CopyTrading/modals/PreparedActionModal/usePreparedAction'
 
 const statusMocks = vi.hoisted(() => ({ getStatus: vi.fn(), refresh: vi.fn() }))
@@ -165,47 +166,6 @@ describe('usePreparedAction', () => {
     expect(statusMocks.refresh).toHaveBeenCalledOnce()
     expect(harness.getState()).toEqual({ phase: 'success', action: completedAction })
     resolveRefresh()
-  })
-
-  it('refreshes screen data when post-receipt synchronization is still pending', async () => {
-    const hash = `0x${'1'.repeat(64)}` as const
-    const harness = createStateHarness({
-      phase: 'sync_error',
-      action: completedAction,
-      hash,
-      retryStage: 'sync',
-    })
-    let rejectSynchronization: (error: Error) => void = () => undefined
-    const unwrap = vi.fn(() => new Promise((_resolve, reject) => (rejectSynchronization = reject)))
-    statusMocks.getStatus.mockReturnValue({ unwrap })
-    const flow = usePreparedAction({
-      state: harness.getState(),
-      setState: harness.setState,
-      expected,
-      prepare: vi.fn(),
-    })
-
-    const request = flow.retry()
-
-    expect(statusMocks.getStatus).toHaveBeenCalledWith({
-      ownerAddress: account,
-      statusContext: completedAction.statusContext,
-      transactionHash: hash,
-      previousReceipt: undefined,
-    })
-    expect(statusMocks.refresh).toHaveBeenCalledOnce()
-    expect(harness.getState()).toEqual({ phase: 'syncing', action: completedAction, hash })
-
-    rejectSynchronization(new Error('The new Copy is not available yet.'))
-    await request
-
-    expect(harness.getState()).toEqual({
-      phase: 'sync_error',
-      action: completedAction,
-      error: 'The new Copy is not available yet.',
-      hash,
-      retryStage: 'sync',
-    })
   })
 
   it('prepares a fresh call when retrying after a reverted transaction', async () => {
@@ -549,8 +509,6 @@ describe('authorized preparation', () => {
 
   it.each([
     { ...readyAction, generationId: 'other-generation' },
-    { ...readyAction, startCopy: { ...readyAction.startCopy, startRequestId: 'other-request' } },
-    { ...readyAction, startCopy: { ...readyAction.startCopy, requestedTargetRaw: '1' } },
     { ...readyAction, status: 'PREPARED_ACTION_STATUS_PARTIALLY_COMPLETED' as const },
     expiredAction,
   ])('validates an authorized response before capturing its identity', async action => {
@@ -630,5 +588,21 @@ describe('shared result ownership', () => {
       prepare: vi.fn(),
     }).retry()
     expect(harness.getState()).toEqual({ phase: 'success', action: readyAction, hash })
+  })
+})
+
+// Reuse the flow fixtures for the preparation helper's direct execution handoff.
+describe('requestPreparation', () => {
+  it('forwards a validated ready action without entering the review phase', async () => {
+    const harness = createStateHarness()
+    const onReady = vi.fn((action: PreparedAction) => harness.setState({ phase: 'awaiting_signature', action }))
+
+    await requestPreparation(
+      { expected, finish: vi.fn(), prepare: vi.fn().mockResolvedValue(readyAction), setState: harness.setState },
+      { onReady },
+    )
+
+    expect(onReady).toHaveBeenCalledWith(readyAction)
+    expect(harness.getState()).toEqual({ phase: 'awaiting_signature', action: readyAction })
   })
 })

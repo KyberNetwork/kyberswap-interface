@@ -2,8 +2,10 @@ import { PropsWithChildren } from 'react'
 import type { CopyRunListItem } from 'services/copyTrading/types/copyRuns'
 import type { CopyRunStatus, PositionLifecycle, PositionQuantityState } from 'services/copyTrading/types/primitives'
 
+import { ButtonPrimary } from 'components/Button'
 import Dots from 'components/Dots'
 import { Center, HStack, Stack } from 'components/Stack'
+import { copyTradingStatIconMap } from 'pages/CopyTrading/constants'
 import { formatUsd } from 'pages/CopyTrading/helpers'
 import { cn } from 'utils/cn'
 
@@ -100,6 +102,32 @@ export const OwnerWalletRequired = () => (
     <Stack className="items-center gap-2">
       <p className="text-base font-medium text-text">Connect your wallet</p>
       <p className="text-sm text-subText">Connect a wallet to view your Copy Trading data.</p>
+    </Stack>
+  </Center>
+)
+
+export const CopyTradingReadError = ({
+  resourceUnavailable,
+  onRetry,
+}: {
+  resourceUnavailable: boolean
+  onRetry: () => void
+}) => (
+  <Center className="min-h-[240px] rounded-xl bg-buttonBlack-60 px-6 text-center">
+    <Stack className="items-center gap-3">
+      <Center className={cn('size-8 shrink-0 rounded-full md:size-12', copyTradingStatIconMap.agents.backgroundColor)}>
+        <img src={copyTradingStatIconMap.agents.iconUrl} alt="" className="size-4 md:size-6" />
+      </Center>
+      <p role="alert" className="text-sm font-medium italic text-subText">
+        {resourceUnavailable
+          ? 'This page could not be found or is not accessible.'
+          : 'Unable to load this page. Please try again.'}
+      </p>
+      {!resourceUnavailable && (
+        <ButtonPrimary type="button" width="fit-content" onClick={onRetry}>
+          Try again
+        </ButtonPrimary>
+      )}
     </Stack>
   </Center>
 )
