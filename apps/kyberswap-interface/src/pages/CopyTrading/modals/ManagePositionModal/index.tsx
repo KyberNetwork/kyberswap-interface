@@ -23,6 +23,7 @@ import {
   type ManagePositionFlow,
   POSITION_SELL_FLOW_CONFIG,
   POSITION_SELL_PREPARATION_CONFIG,
+  retryPositionSell,
 } from 'pages/CopyTrading/modals/ManagePositionModal/positionSellFlow'
 import PreparedActionModal, { PreparedActionSuccessActions } from 'pages/CopyTrading/modals/PreparedActionModal'
 import { DEFAULT_PREPARED_ACTION_SLIPPAGE } from 'pages/CopyTrading/modals/PreparedActionModal/SlippageControl'
@@ -269,7 +270,14 @@ const ManagePositionModal = ({
       confirmLabel={reviewPreparing ? 'Preparing' : 'Confirm'}
       onBack={flow.reset}
       onConfirm={() => void flow.confirm()}
-      onRetry={() => void flow.retry()}
+      onRetry={() =>
+        void retryPositionSell({
+          state: flowState,
+          reset: flow.reset,
+          reloadObligations: loadObligations,
+          retry: flow.retry,
+        })
+      }
       successTitle={flowConfig.successTitle}
       successActions={successActions}
       width={480}

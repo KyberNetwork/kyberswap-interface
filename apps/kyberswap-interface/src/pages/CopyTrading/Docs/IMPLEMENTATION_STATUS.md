@@ -69,6 +69,8 @@ exist:
   for fee display, independently of Start availability. Generation fee policies
   remain modeled but do not override this display. Start Review continues to
   use the authoritative preparation fee preview.
+- Leaderboard, profile and Start modal share one Start eligibility resolver;
+  it resolves availability and generation identity without reading fee policies.
 - Start refreshes chain and agent reads inside the existing preparation flow.
   Resolution adds no separate loading state, selection prompt or review step.
   The resolved generation is pinned to the attempt and sent on every request,
@@ -308,6 +310,9 @@ Cross-flow decisions:
 - Each position renders only the API-recommended action, or the first advertised
   action when no recommendation is present.
 - Active partial recovery calls prepareManualSell.
+- On SELL_OBLIGATION_CHANGED, Retry discards the stale preparation, reloads the
+  pending FIFO and returns to the existing form for review. It does not prepare
+  or submit automatically; unavailable refresh data keeps the action blocked.
 - Active full recovery and CLOSING recovery call prepareClosePosition.
 - CLOSING recovery uses the position already loaded by Copy Detail.
 - Manual Sell and Close Position Step 2 show exact token amounts in both amount
@@ -413,10 +418,12 @@ from the frontend.
 Latest verification evidence (2026-09-17):
 
 - App TypeScript, Copy Trading ESLint, and git diff --check passed.
-- The full Copy Trading service/page suite passed 174 tests across 18 files.
+- The full Copy Trading service/page suite passed 180 tests across 18 files.
   Generation coverage includes array joins, ambiguous implicit resolution, retirement,
   read-only execution, missing/mismatched response identity, unknown account
   provenance, and preserving or invalidating Start request/permit identity.
+- Recovery tests cover refreshing changed obligations before another review,
+  preserving receipt/status retry and other preparation failure paths.
 - Checked-in OpenAPI byte-matched the live 35-operation, 199-definition schema
   fetched on 2026-09-17. SHA-256:
   f31e43f20fb56af9a33b85954b8e8064cdb37c039631821b03d7d04360988d25.

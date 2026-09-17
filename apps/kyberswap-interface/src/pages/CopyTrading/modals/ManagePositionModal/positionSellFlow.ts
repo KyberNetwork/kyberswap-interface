@@ -3,6 +3,7 @@ import type { PositionSellContext } from 'services/copyTrading/types/preparedAct
 import type { CopyRunStatus } from 'services/copyTrading/types/primitives'
 
 import { APP_PATHS } from 'constants/index'
+import type { PreparedActionFlowState } from 'pages/CopyTrading/modals/PreparedActionModal/preparedAction'
 
 export type ManagePositionFlow = 'manualSell' | 'activeClosePosition' | 'stopCopyClosePosition'
 
@@ -85,4 +86,24 @@ export const getPositionRecoveryFlow = (
 ): ManagePositionFlow | undefined => {
   const action = getPositionRecoveryAction(position)
   return action ? POSITION_RECOVERY_FLOW_BY_ACTION[action]?.(copyRunStatus) : undefined
+}
+
+export const retryPositionSell = async ({
+  state,
+  reset,
+  reloadObligations,
+  retry,
+}: {
+  state: PreparedActionFlowState
+  reset: () => void
+  reloadObligations: () => Promise<void>
+  retry: () => Promise<void>
+}) => {
+  if (state.phase === 'unavailable' && state.action?.reason === 'PREPARED_ACTION_REASON_SELL_OBLIGATION_CHANGED') {
+    // Discard the old preparation and return to the form to review the refreshed FIFO.
+    reset()
+    await reloadObligations()
+    return
+  }
+  await retry()
 }
