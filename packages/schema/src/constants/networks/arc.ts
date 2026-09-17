@@ -7,7 +7,7 @@ export default {
   name: 'Arc',
   logo: arcLogo,
   nativeLogo: 'https://storage.googleapis.com/ks-setting-1d682dca/755d9eee-8d2d-44b8-ad38-1f2765f036ce.png',
-  scanLink: 'https://explorer.arc.io',
+  scanLink: 'https://arc.etherscan.io',
   multiCall: '0xcA11bde05977b3631167028862bE2a173976CA11',
   defaultRpc: 'https://rpc.mainnet.arc.io',
   coingeckoNetworkId: null,

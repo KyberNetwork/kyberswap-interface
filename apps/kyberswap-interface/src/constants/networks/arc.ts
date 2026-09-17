@@ -17,8 +17,8 @@ const arcInfo: NetworkInfo = {
 
   iconSelected: NOT_SUPPORT,
 
-  etherscanUrl: 'https://explorer.arc.io',
-  etherscanName: 'Arc Explorer',
+  etherscanUrl: 'https://arc.etherscan.io',
+  etherscanName: 'Arcscan',
   bridgeURL: '',
   // USDC is Arc's native asset. The native interface reports 18 decimals so wallets and
   // `eth_getBalance` behave like any EVM chain, while the ERC-20 interface below reports 6 to match
