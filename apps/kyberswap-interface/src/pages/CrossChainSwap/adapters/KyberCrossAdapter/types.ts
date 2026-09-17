@@ -1,61 +1,30 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { type Chain as ViemChain } from 'viem'
-import {
-  arbitrum,
-  base,
-  blast,
-  bsc,
-  linea,
-  mainnet,
-  monad,
-  optimism,
-  plasma,
-  polygon,
-  scroll,
-  unichain,
-  zksync,
-} from 'viem/chains'
+import { arbitrum, base, bsc, hyperEvm, mainnet } from 'viem/chains'
 
+import { robinhood } from 'components/Web3Provider'
 import type { ChainName, QuoteResponseData } from 'pages/CrossChainSwap/adapters/KyberCrossAdapter/api'
 
-export const kyberCrossSupportedChains = [
-  ChainId.MAINNET,
-  ChainId.ARBITRUM,
-  ChainId.OPTIMISM,
-  ChainId.LINEA,
-  ChainId.MATIC,
-  ChainId.ZKSYNC,
-  ChainId.BASE,
-  ChainId.SCROLL,
-  ChainId.BLAST,
-  ChainId.UNICHAIN,
-  ChainId.BSCMAINNET,
-  ChainId.PLASMA,
-  ChainId.MONAD,
-]
-
-export const chainIdToViemChain: Record<number, ViemChain> = {
-  [ChainId.MAINNET]: mainnet,
-  [ChainId.ARBITRUM]: arbitrum,
-  [ChainId.BSCMAINNET]: bsc,
-  [ChainId.OPTIMISM]: optimism,
-  [ChainId.LINEA]: linea,
-  [ChainId.MATIC]: polygon,
-  [ChainId.ZKSYNC]: zksync,
-  [ChainId.BASE]: base,
-  [ChainId.SCROLL]: scroll,
-  [ChainId.BLAST]: blast,
-  [ChainId.UNICHAIN]: unichain,
-  [ChainId.PLASMA]: plasma,
-  [ChainId.MONAD]: monad,
+// Keys are chain names sent to the KyberCross API; values are Viem chain configs used for execution.
+// Supported chain IDs and both lookup maps below are derived from this single configuration.
+const kyberCrossChains: Record<ChainName, ViemChain & { id: ChainId }> = {
+  ethereum: mainnet,
+  arbitrum,
+  base,
+  bsc,
+  robinhood,
+  hyperevm: hyperEvm,
 }
 
-export const chainIdToKyberCrossChainName: Partial<Record<ChainId, ChainName>> = {
-  [ChainId.MAINNET]: 'ethereum',
-  [ChainId.ARBITRUM]: 'arbitrum',
-  [ChainId.BASE]: 'base',
-  [ChainId.BSCMAINNET]: 'bsc',
-}
+export const kyberCrossSupportedChains = Object.values(kyberCrossChains).map(chain => chain.id)
+
+export const chainIdToViemChain: Record<number, ViemChain> = Object.fromEntries(
+  Object.values(kyberCrossChains).map(chain => [chain.id, chain]),
+)
+
+export const chainIdToKyberCrossChainName: Partial<Record<ChainId, ChainName>> = Object.fromEntries(
+  Object.entries(kyberCrossChains).map(([name, chain]) => [chain.id, name]),
+)
 
 export type KyberCrossRawQuote = {
   request_id?: string
