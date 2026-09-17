@@ -1,7 +1,7 @@
-import type { PreparedActionReason } from './actionAvailability'
-import type { ActionStatusContext } from './actionStatus'
-import type { PositionValuation } from './positions'
-import type { Address, LooseString, Metric, MetricStatus, Timestamp } from './primitives'
+import type { PreparedActionReason } from 'services/copyTrading/types/actionAvailability'
+import type { ActionStatusContext } from 'services/copyTrading/types/actionStatus'
+import type { PositionValuation } from 'services/copyTrading/types/positions'
+import type { Address, LooseString, Metric, MetricStatus, Timestamp } from 'services/copyTrading/types/primitives'
 
 export type RawAmountMetric = Pick<Metric, 'valueRaw' | 'status' | 'asOf'>
 
@@ -242,6 +242,7 @@ export type PositionSellPreview = {
 }
 
 export type PreparedAction = {
+  generationId: string
   statusContext?: ActionStatusContext
   status?: PreparedActionStatus
   chainId?: string
@@ -280,6 +281,7 @@ type PrepareStartCopyRequestBase = {
   chainId: string
   targetCapitalRaw: string
   startRequestId: string
+  generationId: string
   fundingMode: StartCopyFundingMode
 }
 

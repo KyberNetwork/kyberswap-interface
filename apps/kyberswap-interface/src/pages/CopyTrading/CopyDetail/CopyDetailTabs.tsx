@@ -71,6 +71,7 @@ const OpenPositionsPanel = ({ enabled = true, run }: CopyRunPanelProps) => {
       infiniteScroll={infiniteScroll}
       loading={isFetching && !positions.length}
       copyRunStatus={run.status}
+      generationId={run.generationId}
       rows={positions}
     />
   )

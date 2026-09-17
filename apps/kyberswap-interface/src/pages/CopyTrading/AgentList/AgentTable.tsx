@@ -23,6 +23,7 @@ import {
 import { AgentCell } from 'pages/CopyTrading/components/common/agentIdentity'
 import { copyTradingStatIconMap } from 'pages/CopyTrading/constants'
 import { useCopyTradingContext } from 'pages/CopyTrading/context'
+import { getStartGenerationChoices } from 'pages/CopyTrading/generations'
 import {
   canAttemptPreparation,
   compactUsd,
@@ -63,7 +64,7 @@ const LeaderboardGrid = ({ header, className, ...props }: LeaderboardGridProps) 
 }
 
 const AgentTable = ({ agents, loading, pagination, sortBy, sortOrder, onSortChange }: AgentTableProps) => {
-  const { ownerAddress, selectedChainId } = useCopyTradingContext()
+  const { chains, ownerAddress, selectedChainId } = useCopyTradingContext()
   const { openStartCopy } = useCopyTradingModal()
 
   const { currentData: openCopyRuns } = copyRunApi.useGetCopyRunsQuery(
@@ -159,7 +160,13 @@ const AgentTable = ({ agents, loading, pagination, sortBy, sortOrder, onSortChan
           {agents.map(agent => {
             const latestRun = latestRunsByAgentId[agent.agentId]
             const copiedRun = latestRun?.status === 'active' ? latestRun : undefined
-            const canStartCopy = canAttemptPreparation(agent.startCopyAvailability)
+            const startChoices = getStartGenerationChoices(
+              chains.find(chain => chain.chainId === agent.chainId),
+              agent,
+            )
+            const availableChoices = startChoices.filter(choice => canAttemptPreparation(choice.availability))
+            const canStartCopy = availableChoices.length === 1
+            const unavailableReason = startChoices.length === 1 ? startChoices[0].availability?.reason : undefined
 
             return (
               <LeaderboardGrid key={agent.agentId} className="relative cursor-pointer">
@@ -192,9 +199,7 @@ const AgentTable = ({ agents, loading, pagination, sortBy, sortOrder, onSortChan
                         altDisabledStyle
                         padding="6px 12px"
                         disabled={!canStartCopy}
-                        title={
-                          !canStartCopy ? getPreparedReasonMessage(agent.startCopyAvailability?.reason) : undefined
-                        }
+                        title={!canStartCopy ? getPreparedReasonMessage(unavailableReason) : undefined}
                         onClick={() => openStartCopy(agent)}
                       >
                         Copy
@@ -218,7 +223,13 @@ const AgentTable = ({ agents, loading, pagination, sortBy, sortOrder, onSortChan
         {agents.map(agent => {
           const latestRun = latestRunsByAgentId[agent.agentId]
           const copiedRun = latestRun?.status === 'active' ? latestRun : undefined
-          const canStartCopy = canAttemptPreparation(agent.startCopyAvailability)
+          const startChoices = getStartGenerationChoices(
+            chains.find(chain => chain.chainId === agent.chainId),
+            agent,
+          )
+          const availableChoices = startChoices.filter(choice => canAttemptPreparation(choice.availability))
+          const canStartCopy = availableChoices.length === 1
+          const unavailableReason = startChoices.length === 1 ? startChoices[0].availability?.reason : undefined
 
           return (
             <Stack
@@ -244,7 +255,7 @@ const AgentTable = ({ agents, loading, pagination, sortBy, sortOrder, onSortChan
                     padding="6px 12px"
                     className="w-fit shrink-0 whitespace-nowrap"
                     disabled={!canStartCopy}
-                    title={!canStartCopy ? getPreparedReasonMessage(agent.startCopyAvailability?.reason) : undefined}
+                    title={!canStartCopy ? getPreparedReasonMessage(unavailableReason) : undefined}
                     onClick={() => openStartCopy(agent)}
                   >
                     Copy

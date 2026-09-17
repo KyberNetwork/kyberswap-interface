@@ -1,5 +1,5 @@
-import type { AdvisoryActionAvailability } from './actionAvailability'
-import type { AgentSnapshot, AgentStats, Token } from './agents'
+import type { AdvisoryActionAvailability } from 'services/copyTrading/types/actionAvailability'
+import type { AgentSnapshot, AgentStats, Token } from 'services/copyTrading/types/agents'
 import type {
   CapitalActivityDetail,
   CopyLifecycleActivityDetail,
@@ -7,7 +7,7 @@ import type {
   FeeActivityDetail,
   PositionActivityDetail,
   PositionValuation,
-} from './positions'
+} from 'services/copyTrading/types/positions'
 import type {
   ActivityCategory,
   ActivitySubtype,
@@ -25,7 +25,7 @@ import type {
   Metric,
   Timestamp,
   TradeSide,
-} from './primitives'
+} from 'services/copyTrading/types/primitives'
 
 export type OwnerCopySummary = {
   ownerAddress: Address
@@ -60,6 +60,7 @@ export type CopyRunListItem = {
   agentId: string
   chainId: number
   copyAccount: Address
+  generationId?: string
   status: CopyRunStatus
   startedAt: Timestamp
   stoppedAt?: Timestamp
@@ -147,6 +148,7 @@ export type CopyRunCashbackPolicy = {
 export type CopyAccountSummary = {
   chainId: number
   copyAccount: Address
+  generationId?: string
   ownerAddress: Address
   status: CopyAccountStatus
   activeCopyRuns?: DecimalString

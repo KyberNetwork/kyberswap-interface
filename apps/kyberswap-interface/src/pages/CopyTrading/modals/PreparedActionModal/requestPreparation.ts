@@ -11,6 +11,7 @@ import {
   isPreparationExpiredError,
   validatePreparedAction,
   validatePreparedActionContinuation,
+  validatePreparedGeneration,
   wait,
 } from 'pages/CopyTrading/modals/PreparedActionModal/preparedAction'
 import type { Hash } from 'utils/viem'
@@ -78,6 +79,8 @@ export const requestPreparation = async (
       return
     }
     if (!isCurrent()) return
+
+    if (failValidation(action, validatePreparedGeneration(action, expected))) return
 
     if (action.status === 'PREPARED_ACTION_STATUS_PENDING') {
       if (failValidation(action, validatePreparedAction(action, expected, { requireCall: false }))) return

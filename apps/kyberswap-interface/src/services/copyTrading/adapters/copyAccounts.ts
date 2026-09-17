@@ -1,3 +1,17 @@
+import { type ApiAgentSnapshot, toAgentSnapshot } from 'services/copyTrading/adapters/agents'
+import {
+  type ApiCursorResponse,
+  type ApiMetric,
+  type ApiSingleResponse,
+  type ApiToken,
+  type ApiValuation,
+  chainIdNumber,
+  cursorResponse,
+  isValuationRenderable,
+  metricValue,
+  singleResponse,
+  toToken,
+} from 'services/copyTrading/adapters/shared'
 import type { AdvisoryActionAvailability } from 'services/copyTrading/types/actionAvailability'
 import type {
   CopyAccountSummary,
@@ -14,24 +28,10 @@ import type {
   PendingSellObligationsResponse,
 } from 'services/copyTrading/types/responses'
 
-import { type ApiAgentSnapshot, toAgentSnapshot } from './agents'
-import {
-  type ApiCursorResponse,
-  type ApiMetric,
-  type ApiSingleResponse,
-  type ApiToken,
-  type ApiValuation,
-  chainIdNumber,
-  cursorResponse,
-  isValuationRenderable,
-  metricValue,
-  singleResponse,
-  toToken,
-} from './shared'
-
 type ApiCopyAccount = {
   chainId?: string
   copyAccount?: string
+  generationId?: string
   ownerAddress?: string
   status?: string
   activeCopyRuns?: ApiMetric
@@ -94,6 +94,7 @@ const toCopyAccountStatus = (status?: string): CopyAccountStatus => {
 const toCopyAccount = (account: ApiCopyAccount): CopyAccountSummary => ({
   chainId: chainIdNumber(account.chainId),
   copyAccount: (account.copyAccount || '') as Address,
+  generationId: account.generationId,
   ownerAddress: (account.ownerAddress || '') as Address,
   status: toCopyAccountStatus(account.status),
   activeCopyRuns: metricValue(account.activeCopyRuns),

@@ -1,6 +1,6 @@
 # Copy Trading Implementation Status
 
-Last reviewed: 2026-09-14
+Last reviewed: 2026-09-17
 
 This file is the frontend snapshot for the current Copy Trading implementation.
 It records only current ownership, accepted product decisions, remaining gaps,
@@ -11,7 +11,7 @@ FE_API_Catalog.md and openapi.yaml.
 
 | Area              | Status                                                                                                         |
 | ----------------- | -------------------------------------------------------------------------------------------------------------- |
-| Backend contract  | Current input: checked-in OpenAPI byte-matches the live 35-path, 194-definition Swagger fetched on 2026-09-14. |
+| Backend contract  | Current input: checked-in OpenAPI byte-matches the live 35-path, 199-definition Swagger fetched on 2026-09-17. |
 | RTK Query service | Code-complete: 27 GET queries, 7 preparation mutations, and 1 submitted-status mutation are declared and typed.                              |
 | Read UI           | Code-complete for all currently defined product surfaces.                                                      |
 | Write UI          | Code-complete for Start Copy, Add Capital, Stop Copy, Withdraw Quote, Withdraw All Tokens, Manual Sell, and Close Position.         |
@@ -55,6 +55,36 @@ exist:
 - Copy Run cashback policy.
 - Agent discovery, Agent position detail/events, owner-wide positions, and
   Copy Account list/detail/balance/position/history screens.
+
+## Multi-contract Generations
+
+- Generation integration is implicit by product decision. No generation labels,
+  badges, selectors, extra fee rows, stale markers, modal steps or changes to
+  existing fee presentation are introduced.
+- Chain and agent generation arrays are retained in adapters. The existing Copy
+  action uses matching generation availability. Exactly one eligible generation
+  is resolved automatically; multiple eligible generations remain unavailable
+  until the API/product defines a default. Never guess by ID or array ordering.
+- Agent Profile and Copy Detail keep the existing agent.flatFeeRatePct field
+  for fee display, independently of Start availability. Generation fee policies
+  remain modeled but do not override this display. Start Review continues to
+  use the authoritative preparation fee preview.
+- Start refreshes chain and agent reads inside the existing preparation flow.
+  Resolution adds no separate loading state, selection prompt or review step.
+  The resolved generation is pinned to the attempt and sent on every request,
+  including authorization, retries and funding continuation.
+- All preparation results require generationId. Start matches its pinned
+  identity; existing-account actions match known run provenance. Missing run
+  provenance remains unknown internally, with no new UI label.
+- Executable preparation and submission refresh the catalog and validate
+  lifecycle/capabilities using the existing error flow. Read-only generations
+  cannot execute. Operator-authorized funding continuation can retain an
+  existing-account-only generation; status observation retains its context.
+- Copy Run/Smart Wallet generation metadata is retained internally. List
+  membership, historical display and identity components remain unchanged.
+- Agent position-event requests and query identity include generationId.
+  This endpoint still has no product UI; a future pagination consumer must
+  reset its cursor when generation changes.
 
 ## Current Read and Navigation Decisions
 
@@ -380,26 +410,21 @@ from the frontend.
 
 ## Verification Snapshot
 
-Latest verification evidence (2026-09-14):
+Latest verification evidence (2026-09-17):
 
-- App TypeScript, targeted ESLint, and git diff --check passed after the
-  replacement-hash fix.
-- PreparedActionModal suite: 45 tests passed across 4 files after that fix.
-  Coverage includes replacement receipts in initial submission and receipt
-  retry, retaining the replacement hash through status errors/retries, reverted
-  replacement receipts, and no preparation or resubmission during status retry.
-- The full Copy Trading suite passed 123 tests across 13 files before the
-  replacement-hash fix; it was not rerun as a full suite after that fix.
-- Status polling tests cover context passthrough after preparation expiry,
-  previousReceipt across a reorg within polling, bounded retries, transient
-  UNKNOWN, missing results, and Stop success independent of optional progress.
-  Tests also confirm that nextStep does not trigger preparation continuation.
-- Checked-in OpenAPI byte-matched the live 35-path, 194-definition schema fetched
-  on 2026-09-14; all 502 local references resolved. SHA-256:
-  87937a432e257b310dbb4bbef59ace2d04a15ebf38ae5e2a65252a7a597bb987.
+- App TypeScript, Copy Trading ESLint, and git diff --check passed.
+- The full Copy Trading service/page suite passed 174 tests across 18 files.
+  Generation coverage includes array joins, ambiguous implicit resolution, retirement,
+  read-only execution, missing/mismatched response identity, unknown account
+  provenance, and preserving or invalidating Start request/permit identity.
+- Checked-in OpenAPI byte-matched the live 35-operation, 199-definition schema
+  fetched on 2026-09-17. SHA-256:
+  f31e43f20fb56af9a33b85954b8e8064cdb37c039631821b03d7d04360988d25.
+- Public GET /chains returned one CREATE_ENABLED generation per chain on
+  Ethereum, Robinhood and Base. This is read evidence, not transaction E2E.
 - Earlier live read evidence (2026-09-11): PRE leaderboard GET accepted ROI sort
   (HTTP 200) and rejected retired APR sort (HTTP 400/code 3).
 - Browser QA was attempted on 2026-09-11 but no browser was available. The local
   Vite server served the ROI module; this does not establish visual QA.
 - No new browser QA, production build, owner API smoke, or positive transaction
-  E2E was run for this submitted-status update.
+  E2E was run for this generation update.

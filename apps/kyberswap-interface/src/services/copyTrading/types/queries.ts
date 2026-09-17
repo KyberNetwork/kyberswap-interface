@@ -18,7 +18,7 @@ import type {
   SortOrder,
   StrategyKey,
   Timestamp,
-} from './primitives'
+} from 'services/copyTrading/types/primitives'
 
 export type CursorQuery = {
   cursor?: string
@@ -68,7 +68,10 @@ export type AgentPositionQuery = AgentQuery & {
   positionId: string
 }
 
-export type AgentPositionEventsQuery = CursorQuery & AgentPositionQuery
+export type AgentPositionEventsQuery = CursorQuery &
+  AgentPositionQuery & {
+    generationId?: string
+  }
 
 export type CotLogsQuery = CursorQuery &
   AgentQuery & {

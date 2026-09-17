@@ -10,6 +10,7 @@ import {
 const hash = `0x${'1'.repeat(64)}` as const
 const owner = '0x1111111111111111111111111111111111111111'
 const action: PreparedAction = {
+  generationId: 'generation-v1',
   expectedAccount: owner,
   reprepareAfter: '2020-01-01T00:00:00Z',
   displayEnrichment: { status: 'ACTION_DISPLAY_ENRICHMENT_STATUS_UNAVAILABLE' },

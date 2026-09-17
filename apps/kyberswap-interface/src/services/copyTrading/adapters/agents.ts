@@ -1,10 +1,24 @@
+import {
+  type ApiCursorResponse,
+  type ApiMetric,
+  type ApiSingleResponse,
+  type ApiToken,
+  chainIdNumber,
+  cursorResponse,
+  metricValue,
+  singleResponse,
+  toToken,
+} from 'services/copyTrading/adapters/shared'
 import type { AdvisoryActionAvailability } from 'services/copyTrading/types/actionAvailability'
 import type {
+  AccountGeneration,
   AgentCard,
   AgentProfile,
   AgentSnapshot,
   AgentStats,
   Chain,
+  GenerationScopedAgentFeePolicy,
+  GenerationScopedStartCopyAvailability,
   PerformancePoint,
 } from 'services/copyTrading/types/agents'
 import type {
@@ -24,24 +38,17 @@ import type {
   LeaderboardSummaryResponse,
 } from 'services/copyTrading/types/responses'
 
-import {
-  type ApiCursorResponse,
-  type ApiMetric,
-  type ApiSingleResponse,
-  type ApiToken,
-  chainIdNumber,
-  cursorResponse,
-  metricValue,
-  singleResponse,
-  toToken,
-} from './shared'
-
 type ApiChain = {
   chainId?: string
   slug?: string
   name?: string
   iconUrl?: string
   isEnabled?: boolean
+  accountGenerations?: {
+    generationId?: string
+    lifecycle?: string
+    capabilities?: string[]
+  }[]
 }
 
 export type ApiAgentMetrics = {
@@ -74,6 +81,15 @@ type ApiAgentCard = {
   metrics?: ApiAgentMetrics
   flatFeeRatePct?: ApiMetric
   startCopyAvailability?: AdvisoryActionAvailability
+  startCopyAvailabilities?: {
+    generationId?: string
+    availability?: AdvisoryActionAvailability
+  }[]
+  feePolicies?: {
+    generationId?: string
+    flatFeeRatePct?: ApiMetric
+    cashbackFormulaVersion?: number
+  }[]
 }
 
 type ApiAgentProfile = ApiAgentCard & {
@@ -179,6 +195,19 @@ const toAgentCard = (agent: ApiAgentCard): AgentCard => ({
   flatFeeRatePct: metricValue(agent.flatFeeRatePct),
   flatFeeRatePctMetric: agent.flatFeeRatePct,
   startCopyAvailability: agent.startCopyAvailability,
+  startCopyAvailabilities: agent.startCopyAvailabilities?.map(
+    (item): GenerationScopedStartCopyAvailability => ({
+      generationId: item.generationId || '',
+      availability: item.availability,
+    }),
+  ),
+  feePolicies: agent.feePolicies?.map(
+    (item): GenerationScopedAgentFeePolicy => ({
+      generationId: item.generationId || '',
+      flatFeeRatePct: item.flatFeeRatePct,
+      cashbackFormulaVersion: item.cashbackFormulaVersion,
+    }),
+  ),
   asOf: agent.asOf,
 })
 
@@ -226,6 +255,14 @@ export const adaptChainsResponse = (response: ApiSingleResponse<ApiChain[]>): Ch
       name: chain.name || '',
       iconUrl: chain.iconUrl || '',
       isEnabled: chain.isEnabled === true,
+      accountGenerations: chain.accountGenerations?.map(
+        (generation): AccountGeneration => ({
+          generationId: generation.generationId || '',
+          lifecycle: (generation.lifecycle ||
+            'ACCOUNT_GENERATION_LIFECYCLE_UNSPECIFIED') as AccountGeneration['lifecycle'],
+          capabilities: (generation.capabilities || []) as AccountGeneration['capabilities'],
+        }),
+      ),
     }),
   ),
   meta: response.meta,

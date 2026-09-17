@@ -4,9 +4,48 @@ Use this catalog to integrate frontend applications with the public HTTPS/JSON
 API. Use the endpoint reference for request fields, action availability,
 transaction preparation, and submitted transaction status.
 
-Last updated: September 14, 2026.
+Last updated: September 16, 2026.
 
 ## Changelog
+
+### September 16, 2026: multi-contract generation integration
+
+Verified against API `main` at `780b800846ba63b0edca59a1253fec83eeba11c1`,
+including the [multi-contract baseline, PR #17](https://github.com/KyberNetwork/copy-trade-api/pull/17).
+The HTTP surface remains **35 operations: 27 GET reads, 7 preparation POSTs,
+and 1 observational status POST**. Regenerate the client from the current
+[OpenAPI contract](../proto/gen/openapi/aggregate/v1/aggregate.swagger.yaml).
+
+Required UI changes:
+
+1. Discover each chain's `accountGenerations` from `GET /chains`. Treat
+   `generationId` as an opaque, chain-scoped identity, not a contract version
+   number or a deployment address.
+2. Use agent `startCopyAvailabilities[]` and `feePolicies[]` for the selected
+   generation. Join entries by `generationId`. The existing singleton
+   `startCopyAvailability` and `flatFeeRatePct` cannot represent multiple
+   create-enabled generations.
+3. **Send `generationId` in every Start Copy preparation**, including retries
+   and funding continuation. Missing, malformed, or unknown IDs return HTTP
+   400. This supersedes the catalog's previous instruction that preparation
+   takes no client-selected generation.
+4. Display the returned optional `generationId` on copy runs and Smart Wallets.
+   Existing-account actions still route by their account/run identity; they do
+   not accept a generation override. Verify every preparation's returned
+   `data.generationId` before submission.
+5. Keep older generations' reads visible during retirement. Distinguish
+   `EXISTING_ACCOUNTS_ONLY` from `READ_ONLY`, and use each action's availability
+   and guidance instead of treating retirement as account closure.
+6. Pass `generationId` to agent position-event reads when the controller has
+   multiple compatible generations. Restart pagination when it changes.
+
+See [Multi-contract integration](#multi-contract-integration) for the complete
+field mapping, selection flow, lifecycle rules, and integration checks. V5 is
+the current pre-release cohort; this contract does not promise V4 compatibility
+or mean that every configured chain already has a leader. The recovery in
+[PR #78](https://github.com/KyberNetwork/copy-trade-api/pull/78) restores sync
+without adding a frontend recovery endpoint; continue using normal reads and
+their freshness metadata.
 
 ### September 14, 2026: action recovery and reliable status polling
 
@@ -1013,7 +1052,7 @@ same image.
 ### 2026-08-12 — Verified pre-release read smoke
 
 `GET /chains`, `GET /agents?limit=1`, and `GET /docs/` were reachable in
-pre-release. See [Current Availability and Verification Status](#current-availability-and-verification-status)
+pre-release. See [Historical pre-release public-read smoke](#historical-pre-release-public-read-smoke)
 for the exact observations and limitations.
 
 ### 2026-07-30 — Historical pre-release action smoke
@@ -1049,7 +1088,7 @@ activity rendering to match the current contract.
 | Withdraw Quote lifecycle and amount      | `withdrawQuoteAvailability` can be available at any copy lifecycle stage; preparation requires `amountRaw`                                      | Show the action according to advisory availability, not copy-run lifecycle. Send an exact partial amount or the explicit `uint256.max` full-balance sentinel, then prepare again on confirmation because the operator rechecks live state.                                                |
 | All Tokens withdrawal | `withdrawTokensAvailability` and `:prepareWithdrawTokens` with `ALL_INDEXED_TOKENS` | Explain that submitting the transaction permanently stops copying. Do not route stable-only withdrawal here or build a token list in the client. |
 | Start Copy funding                       | `fundingMode` plus optional `createPermitData`                                                                                                   | Send `START_COPY_FUNDING_MODE_UNFUNDED` with no permit, or `START_COPY_FUNDING_MODE_FUNDED` with an optional protobuf-JSON base64 byte string. The API uses `targetCapitalRaw` as the funded create amount. Permit format/capability remains operator-authoritative.                      |
-| Contract-generation routing | Preparation takes no client-selected generation, factory, controller, or deployment address. Submitted status echoes operator-authored identity in its context and result. | Preserve that status context verbatim. Do not hard-code or select deployment addresses. Start uses the create-enabled generation; existing-account actions derive generation from account identity. Render `PREPARED_ACTION_REASON_UNSUPPORTED_ACCOUNT_GENERATION` as non-actionable product state. |
+| Contract-generation routing | Start Copy requires a catalog `generationId`. Existing-account actions derive generation from account identity. Every preparation returns `generationId`. | Select by chain and generation, use matching availability and fees, and preserve the selection throughout Start. Do not supply factory/controller addresses or override an existing account's generation. Preserve submitted status context verbatim. See [Multi-contract integration](#multi-contract-integration). |
 | Copy-run cashback policy                 | `GET .../cashback-policy`                                                                                                                        | Use this run/account-specific policy for detailed fee/cashback presentation. `COPY_RUN_CASHBACK_POLICY_STATUS_AVAILABLE`, `..._NOT_CONFIGURED`, `..._INVALIDATED`, and `..._UNAVAILABLE` are distinct states; missing optional rates or `cashbackFormulaVersion` are not zero.            |
 | Prepared Smart Wallet identity           | `PreparedAction.copyAccount`                                                                                                                     | For every non-Start action, require it to equal the selected Smart Wallet. It is absent only for Start Copy creation; Start confirming, funding, and completion must equal `startCopy.predictedCopyAccount`. Do not confuse it with `call.to` or `expectedAccount`.                       |
 | Manual Sell / Close Position quote       | `data.manualSell.swapQuote` or `data.closePosition.swapQuote`                                                                                    | Display `expectedQuote`, `minimumQuote`, and optional `effectiveSlippageBps`. Preserve metric status; unavailable is not zero.                                                                                                                                                            |
@@ -1067,15 +1106,15 @@ and prepare again.
 
 This catalog is an integration guide. The machine-readable contract remains:
 
-- [`aggregate_read.proto`](https://github.com/KyberNetwork/copy-trade-api/blob/95b22563f24881044eb8668fd6fe608ebed19894/proto/aggregate/v1/aggregate_read.proto) for
+- [`aggregate_read.proto`](../proto/aggregate/v1/aggregate_read.proto) for
   read routes, enums, request validation, and response models.
-- [`aggregate_action.proto`](https://github.com/KyberNetwork/copy-trade-api/blob/95b22563f24881044eb8668fd6fe608ebed19894/proto/aggregate/v1/aggregate_action.proto) for
+- [`aggregate_action.proto`](../proto/aggregate/v1/aggregate_action.proto) for
   transaction preparation.
-- [`aggregate_action_common.proto`](https://github.com/KyberNetwork/copy-trade-api/blob/95b22563f24881044eb8668fd6fe608ebed19894/proto/aggregate/v1/aggregate_action_common.proto) for
+- [`aggregate_action_common.proto`](../proto/aggregate/v1/aggregate_action_common.proto) for
   shared action guidance.
-- [`aggregate_action_status.proto`](https://github.com/KyberNetwork/copy-trade-api/blob/95b22563f24881044eb8668fd6fe608ebed19894/proto/aggregate/v1/aggregate_action_status.proto) for
+- [`aggregate_action_status.proto`](../proto/aggregate/v1/aggregate_action_status.proto) for
   submitted transaction observation.
-- [`aggregate.swagger.yaml`](https://github.com/KyberNetwork/copy-trade-api/blob/95b22563f24881044eb8668fd6fe608ebed19894/proto/gen/openapi/aggregate/v1/aggregate.swagger.yaml)
+- [`aggregate.swagger.yaml`](../proto/gen/openapi/aggregate/v1/aggregate.swagger.yaml)
   for the generated HTTP/OpenAPI surface.
 
 HTTP JSON and query strings use lower-camel-case names:
@@ -1091,6 +1130,148 @@ startRequestId
 Use the symbolic enum names shown in this document, not their numeric protobuf
 values. Unknown enum values must be handled as unsupported data rather than
 silently mapped to another state.
+
+## Multi-contract integration
+
+A generation identifies a reviewed contract deployment combination. Different
+factories can share a controller or other modules. The API exposes generation
+identity and supported product actions; the operator owns addresses, ABI
+selection, and transaction construction.
+
+Use `(chainId, generationId)` to key generation-specific state. Do not parse an
+ID to derive a factory, contract release, or ABI. In particular, `v1` inside a
+generation ID does not mean the smart contract is beta-1. Optional
+`cashbackFormulaVersion` identifies fee arithmetic, not the deployment version.
+
+### Fields to integrate
+
+| Surface | JSON fields | UI behavior |
+| --- | --- | --- |
+| `GET /chains` | `data[].accountGenerations[]`: `generationId`, `lifecycle`, `capabilities[]` | Populate the supported generation choices for each chain. Refresh when opening a new action flow. |
+| Agent cards from `/agents` and `/leaderboard`, and `/agents/{agentId}` profile | `startCopyAvailabilities[]`: `generationId`, `availability` | Use the entry for the selected generation. Its `status`, `reason`, and `guidance` are advisory; preparation is authoritative. |
+| The same agent cards and profile | `feePolicies[]`: `generationId`, `flatFeeRatePct`, optional `cashbackFormulaVersion` | Display the selected generation's advertised fee with its metric status. Missing policy or formula identity is unknown, not zero. |
+| Copy-run list/detail and copy-account list/detail | Optional `generationId` | Display the account's canonical generation. An absent field means provenance is unknown; do not substitute the newest or currently create-enabled generation. |
+| Start Copy request | Required `generationId` | Send the selected ID on initial preparation, retries, and funding continuation. |
+| Every preparation response | `data.generationId` | Match the Start selection or the existing account's known generation before using the response. |
+| Agent position-event request | Optional `generationId` query parameter | Supply it when controller identity alone cannot select one compatible generation; preserve it across cursor pages. |
+
+Join the catalog, availability, and fee arrays by `generationId`, never array
+index. Their ordering is not a newest-version or recommended-version policy.
+An unavailable fee must not fall back to a fee from another generation.
+
+The singleton `startCopyAvailability` is unavailable when there is no unique
+create-enabled generation. Scalar `flatFeeRatePct` is unavailable unless there
+is exactly one create-enabled generation and it supports the fee-policy read.
+Per-generation entries can remain usable when these singleton fields are
+unavailable. Use the arrays for generation selection even when only one choice
+is currently deployed.
+
+Agent choices do not mean that a leader has one exclusive contract version.
+The API has no agent-level `contractVersion` or single `generationId` field.
+`AgentSnapshot` and `PositionSummary` also do not expose a generation ID. Show
+the selected generation in Start, and the returned generation on account/run
+records. A product label such as “V5” must come from a maintained label mapping;
+use the opaque ID as a fallback instead of guessing from its spelling.
+
+### Lifecycle and capabilities
+
+Lifecycle applies to the generation. Account admission, quarantine, copy-run
+status, and factory/controller pause are separate concepts. A supported older
+generation is not automatically a historical-only or quarantined account.
+Keep using server-defined list membership and action availability.
+
+| Full lifecycle value | New Start | Existing accounts and reads |
+| --- | --- | --- |
+| `ACCOUNT_GENERATION_LIFECYCLE_CREATE_ENABLED` | Offer generation selection when Start capability and the selected agent's advisory allow it. | Use the individual action advisories and live preparation. |
+| `ACCOUNT_GENERATION_LIFECYCLE_EXISTING_ACCOUNTS_ONLY` | Do not offer new account creation. | Supported existing-account actions remain possible. An already-created Start attempt can continue funding if the operator permits it. Keep its original generation and request ID. Reads remain available. |
+| `ACCOUNT_GENERATION_LIFECYCLE_READ_ONLY` | Do not offer creation. | No executable actions, including Stop and withdrawal. Keep supported historical reads and submitted transaction observation available. Do not mark the account closed or remove it from history just because its generation retired. |
+
+Supported capability enum values are:
+
+```text
+ACCOUNT_GENERATION_PRODUCT_CAPABILITY_START_COPY
+ACCOUNT_GENERATION_PRODUCT_CAPABILITY_ADD_CAPITAL
+ACCOUNT_GENERATION_PRODUCT_CAPABILITY_STOP_COPY
+ACCOUNT_GENERATION_PRODUCT_CAPABILITY_WITHDRAW_QUOTE
+ACCOUNT_GENERATION_PRODUCT_CAPABILITY_MANUAL_SELL
+ACCOUNT_GENERATION_PRODUCT_CAPABILITY_CLOSE_POSITION
+ACCOUNT_GENERATION_PRODUCT_CAPABILITY_WITHDRAW_TOKENS
+```
+
+Capabilities describe supported product operations, not a live authorization
+to execute them. Read-only generations expose no executable capabilities; an
+empty array can be omitted in protobuf JSON. Treat unknown lifecycle/capability
+values as unsupported for execution. Use the matching action advisory, then
+prepare again before signing. `AVAILABLE` and `TRY_PREPARE` permit an attempt;
+neither permits submission without an executable preparation.
+
+### Start selection and existing-account actions
+
+1. Resolve the chain, load its catalog, and refresh the agent profile. For a
+   new account, offer create-enabled generations with `START_COPY` capability
+   and use each entry's advisory to render availability. If multiple choices
+   are eligible, let the user select one; do not assume the last array entry
+   is the newest. With one eligible choice, select its actual ID explicitly.
+2. Display `feePolicies` for that same ID. Keep unknown or stale fee values
+   labeled; use the live preparation's reviewed preview for confirmation.
+3. Send `generationId` with the other
+   [Start Copy request fields](#prepare-start-copy). Persist the chain,
+   generation, agent, owner, and `startRequestId` as one flow identity. Keep
+   funding mode, target, and permit intent stable during continuation.
+4. Require `data.generationId` to match the selected ID. Use the returned
+   allowance spender, call target, and calldata; never derive them from the
+   ID. A generation change starts a new review flow and invalidates the old
+   preparation and permit assumptions.
+5. For an existing account, use its run/account endpoint and returned
+   `generationId`. Add Capital, Stop, Withdraw Quote, Withdraw Tokens, Manual
+   Sell, and Close Position take no generation override. Preserve unknown
+   provenance as unknown; let live preparation establish or reject the exact
+   target rather than assigning it to today's creation generation.
+6. Preserve `statusContext` and the submitted hash unchanged. A later lifecycle
+   change does not authorize changing the context to a different generation
+   or submitting the same operation again.
+
+`PREPARED_ACTION_REASON_UNSUPPORTED_ACCOUNT_GENERATION` is a typed unavailable
+product outcome. Follow its guidance; do not retry against another generation
+automatically. Missing, malformed, or unknown Start IDs are HTTP 400 request
+errors. Refresh the catalog and require a valid selection instead of retrying
+the same invalid request.
+
+For existing-account fees, use the run's
+[`cashback-policy` endpoint](#account-effective-cashback-policy). Agent
+`feePolicies` are advertisements for pre-Start display and do not replace an
+account's effective fee policy.
+
+### Position-event pagination and retirement
+
+`GET /agents/{agentId}/positions/{positionId}/events` accepts `generationId`.
+Omission works only when the position's controller resolves to one unambiguous
+catalog generation. With shared controllers, retain the relevant generation
+from the viewing context or require an explicit selection; the server validates
+that it matches the position. Do not guess by array order. The response does
+not echo this selection, so retain it with the query and cursor.
+
+Changing generation invalidates that pagination context. Restart from page one
+without a cursor. Other discovery, copy-run, and position-list endpoints do not
+add a `generationId` filter; render their server-selected rows and identities.
+
+Support these transitions without replacing account identities:
+
+- **Two versions running:** show both eligible Start choices and their own fees.
+  Existing accounts continue using their creation generation.
+- **Retiring a version:** remove it from new Start choices when it becomes
+  existing-accounts-only. Retain reads, supported account actions, and original
+  Start continuation. A capability or lifecycle change requires fresh reads and
+  preparation, not a client-side switch to another contract.
+- **Keeping an old version read-only:** retain its readable history and status
+  observations, and disable execution according to the returned policy. Read-only
+  does not provide an exception for exits or withdrawals; those require an
+  action-capable stage before retirement.
+
+The baseline does not expose a public `DISABLED` or `QUARANTINED` generation
+lifecycle. Backend retirement must retain the catalog and read support needed
+for old data. Frontends must not treat disappearance from new Start choices as
+permission to delete account history or reinterpret old records.
 
 ## Screen-to-API map
 
@@ -1170,7 +1351,7 @@ the wallet. The API does not submit the call.
 
 | UI action      | Read before preparation                                                                             | Preparation route                                                                                  |
 | -------------- | --------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
-| Start Copy     | Agent card/profile `startCopyAvailability`; refresh the direct agent profile when opening the modal | `POST /users/{ownerAddress}/agents/{agentId}:prepareStartCopy`                                     |
+| Start Copy     | Chain `accountGenerations` and agent `startCopyAvailabilities`/`feePolicies` for the selected `generationId`; refresh the profile when opening the modal | `POST /users/{ownerAddress}/agents/{agentId}:prepareStartCopy`                                     |
 | Add Capital    | Direct copy-run or copy-account detail and `addCapitalAvailability`                                 | `POST /users/{ownerAddress}/copy-runs/{copyRunId}:prepareAddCapital`                               |
 | Stop Copy      | Direct copy-run detail plus its current open/leftover position selection and `stopCopyAvailability` | `POST /users/{ownerAddress}/copy-runs/{copyRunId}:prepareStopCopy`                                 |
 | Withdraw Quote | Direct copy-run/copy-account detail and `withdrawQuoteAvailability`; don't wait for Stop Copy       | `POST /users/{ownerAddress}/copy-runs/{copyRunId}:prepareWithdrawQuote`                            |
@@ -1193,7 +1374,7 @@ route is missing.
 - Use the direct detail endpoint when a user opens a row. Do not treat a cached
   list row as authoritative transaction state.
 - Start a new cursor sequence when a filter, sort field, sort order, owner,
-  agent, chain, view, or route changes.
+  agent, chain, view, route, or position-event `generationId` changes.
 - After wallet submission, use `actions:status` to check the exact transaction
   and its result. On success, refresh the relevant detail and list reads, then
   follow `nextStep` for any remaining stage. A submitted-operation overlay may show an explicitly
@@ -1953,10 +2134,15 @@ operational/data states and must not be converted to a zero balance.
 | ------ | --------- | ---------- | --------- |
 | GET    | `/chains` | None       | `Chain[]` |
 
-A chain contains `chainId`, `slug`, `name`, `iconUrl`, and `isEnabled`.
+A chain contains `chainId`, `slug`, `name`, `iconUrl`, `isEnabled`, and
+`accountGenerations[]`. Each generation has `generationId`, `lifecycle`, and
+`capabilities[]`; see [Multi-contract integration](#multi-contract-integration).
 
 Use this route to populate the network selector and chain metadata. Do not
-hard-code chain display names or icons from `chainId`.
+hard-code chain display names or icons from `chainId`. An enabled chain can have
+no configured agents. Its empty discovery response can report
+`DATA_STATUS_UNAVAILABLE` while `meta.asOfChains[]` reports current source data;
+this alone does not mean that chain sync has failed.
 
 ### Leaderboard and agent discovery
 
@@ -1999,6 +2185,11 @@ Key `AgentCard` fields:
 - `metrics`
 - `flatFeeRatePct`
 - `startCopyAvailability`
+- `startCopyAvailabilities[]` and `feePolicies[]`, keyed by `generationId`
+
+Use the per-generation arrays for Start selection and fee display. The scalar
+fields are convenience values for an unambiguous creation generation; see
+[Fields to integrate](#fields-to-integrate).
 
 `AgentCard.metrics` contains:
 
@@ -2039,7 +2230,11 @@ metric still has its own status and can be unavailable independently.
 | GET    | `/agents/{agentId}/action-logs`                   | `leaderPositionId?`, `type?`, `groupBy?`, `from?`, `to?`, `cursor?`, `limit?` | `AgentActionLogSessionGroup[]` |
 | GET    | `/agents/{agentId}/positions`                     | `view?`, `token?`, `cursor?`, `limit?`, `sortBy?`, `sortOrder?`               | `AgentPositionSummary[]`       |
 | GET    | `/agents/{agentId}/positions/{positionId}`        | Path: `agentId`, `positionId`                                                 | `AgentPositionSummary`         |
-| GET    | `/agents/{agentId}/positions/{positionId}/events` | `cursor?`, `limit?`                                                           | `PositionEvent[]`              |
+| GET    | `/agents/{agentId}/positions/{positionId}/events` | `generationId?` (required for an ambiguous shared controller), `cursor?`, `limit?` | `PositionEvent[]`              |
+
+`AgentProfile` includes the same generation-scoped Start availability and fee
+arrays as `AgentCard`. Position-event selection and cursor rules are described
+under [Position-event pagination and retirement](#position-event-pagination-and-retirement).
 
 Action-log `from` and `to` are RFC3339 timestamps. When both are present,
 `from` must not be after `to`. `type` is an exact match against the existing
@@ -2170,6 +2365,11 @@ For per-trade P&L, the trade and position identifiers are suitable for opening
 the related detail, while the point timestamp remains the chart order key.
 
 ### Owner dashboard and copy runs
+
+`CopyRunListItem` and `CopyRunSummary` expose optional `generationId` for the
+account's canonical creation generation. Keep it with the run's identity and
+display it independently of lifecycle or current Start choices. Missing
+provenance is unknown; `agentSnapshot` does not supply a replacement generation.
 
 | Method | Path                                                                                   | Parameters                                                                                                  | `data`                  |
 | ------ | -------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- | ----------------------- |
@@ -2485,7 +2685,9 @@ There is no exact total-count contract—use `pagination.hasMore`.
 `CopyAccountSummary` contains chain/account/creation-owner identity, current
 copy run and agent snapshot, start/stop times, lifecycle status, capital and
 portfolio totals, available balance, P&L, position counts, leftover value,
-fee/cashback totals, and advisory Add/Stop/Withdraw availability.
+fee/cashback totals, advisory Add/Stop/Withdraw availability, and optional
+`generationId`. The generation belongs to this account; it does not change when
+another generation becomes available for new Start requests.
 
 A pending sell obligation contains:
 
@@ -2671,6 +2873,7 @@ empty states, but the corresponding preparation response is authoritative.
 | --------------------------- | ---------------------------------------------------------------------------------------------------------------- |
 | `status`                    | Typed outcome described above.                                                                                   |
 | `chainId`                   | Chain on which the wallet call belongs.                                                                          |
+| `generationId`              | Required generation identity. Must match the selected Start generation, or the existing account's known generation; never replace it with a creation default. |
 | `expectedAccount`           | Account expected to send the outer transaction. Compare it with the connected wallet/account.                    |
 | `copyAccount`               | Optional Smart Wallet identity. It is absent only before a Start Copy account exists; it is not the call target. |
 | `preparedAt`                | Time the preparation was produced.                                                                               |
@@ -2709,6 +2912,7 @@ fields used for rendering.
 | Response field | Presence and handling |
 | --- | --- |
 | Preparation `data.status` | Required. Unknown or missing status is an unsupported response; do not open the wallet. |
+| Preparation `data.generationId` | Required on all preparation results. Keep it with chain/account identity; reject a missing or mismatched value before submission. |
 | Preparation `data.call` and `data.statusContext` | Both are required for `READY` and Start-only `PARTIALLY_COMPLETED`. Neither is available for a non-executable result. Treat an executable response missing either field as invalid. |
 | Preparation `data.reason` | Usually omitted for an executable result. Interpret absence as `PREPARED_ACTION_REASON_UNSPECIFIED`, not as evidence of readiness. |
 | Preparation preview | Exactly one action-specific preview. In a blocked result, individual identities, amounts, and quote fields can be absent or unavailable. Do not copy them from an older preparation. |
@@ -2820,14 +3024,21 @@ POST /users/{ownerAddress}/agents/{agentId}:prepareStartCopy
 ```json
 {
   "chainId": "8453",
+  "generationId": "ks-follower-account-v1-factory-523219b471d28a69d1f81f5787afe81cc5262ef0",
   "targetCapitalRaw": "50000000",
   "startRequestId": "3d7d7b58-72b2-4b7c-bf19-4ee9db355490",
   "fundingMode": "START_COPY_FUNDING_MODE_UNFUNDED"
 }
 ```
 
-`startRequestId` must be a UUIDv4. Keep the same ID while progressing one Start
-Copy attempt. `fundingMode` is required; omission/`UNSPECIFIED` is HTTP 400.
+Use the selected `generationId` from this chain's catalog; the example ID is not
+a frontend default. It is required even when only one generation exists.
+Missing, malformed, or unknown IDs return HTTP 400. Its syntax is
+`^[a-z0-9][a-z0-9._-]{0,127}$`; syntax alone does not establish catalog support.
+
+`startRequestId` must be a UUIDv4. Keep the same ID and generation while
+progressing one Start Copy attempt. `fundingMode` is required;
+omission/`UNSPECIFIED` is HTTP 400.
 Keep the target, funding mode, and permit intent stable while reusing that ID,
 because the canonical creation evidence is bound to the create amount and
 permit hash. Start Copy can be multi-stage: prepare, submit the returned call,
@@ -2846,6 +3057,7 @@ Funded example with permit transport:
 ```json
 {
   "chainId": "8453",
+  "generationId": "ks-follower-account-v1-factory-523219b471d28a69d1f81f5787afe81cc5262ef0",
   "targetCapitalRaw": "50000000",
   "startRequestId": "3d7d7b58-72b2-4b7c-bf19-4ee9db355490",
   "fundingMode": "START_COPY_FUNDING_MODE_FUNDED",
@@ -2870,6 +3082,7 @@ allowance, preparation returns HTTP 200 with:
 {
   "data": {
     "status": "PREPARED_ACTION_STATUS_UNAVAILABLE",
+    "generationId": "ks-follower-account-v1-factory-523219b471d28a69d1f81f5787afe81cc5262ef0",
     "reason": "PREPARED_ACTION_REASON_INSUFFICIENT_QUOTE_ALLOWANCE",
     "startCopy": {
       "stage": "START_COPY_STAGE_CREATE_REQUIRED",
@@ -3561,8 +3774,8 @@ owner in the saved status context or a future preparation request.
 ## Action response examples
 
 Use these examples as offline fixtures for parsing, rendering, and state-transition
-tests. The JSON was serialized with the local API response mappers and checked
-against the public protobuf validation rules. Addresses, IDs, balances, hashes,
+tests. The examples use the public protobuf JSON field names.
+Addresses, IDs, balances, hashes,
 and timestamps are synthetic examples, not values to hard-code in the client.
 
 The `READY` examples contain selector-only mock calldata. They deliberately
@@ -3571,8 +3784,7 @@ tests; obtain the complete call from preparation for a real submission. For
 expiry tests, set the fixture clock relative to `preparedAt` and
 `reprepareAfter` instead of changing the production expiry checks.
 
-Each block is a complete example object or HTTP body, as labeled. The blocks
-omit no fields that were present in their serialized fixture. Different
+Each block is a complete example object or HTTP body, as labeled. Different
 responses can omit additional optional fields as described in
 [Action response field rules](#action-response-field-rules).
 
@@ -3616,6 +3828,7 @@ expiry checks.
 {
   "data": {
     "status": "PREPARED_ACTION_STATUS_READY",
+    "generationId": "example-v1",
     "chainId": "8453",
     "expectedAccount": "0x1111111111111111111111111111111111111111",
     "preparedAt": "2026-09-14T09:36:22Z",
@@ -3694,6 +3907,7 @@ HTTP 200 from `:prepareManualSell` with only `{"slippageBps": 125}`. Show the re
 {
   "data": {
     "status": "PREPARED_ACTION_STATUS_PENDING",
+    "generationId": "example-v1",
     "chainId": "8453",
     "expectedAccount": "0x1111111111111111111111111111111111111111",
     "preparedAt": "2026-09-14T09:36:22Z",
@@ -3779,6 +3993,7 @@ HTTP 200 after the user reviews the quantities and sends `{"slippageBps": 125, "
 {
   "data": {
     "status": "PREPARED_ACTION_STATUS_READY",
+    "generationId": "example-v1",
     "chainId": "8453",
     "expectedAccount": "0x1111111111111111111111111111111111111111",
     "preparedAt": "2026-09-14T09:36:22Z",
@@ -3891,6 +4106,7 @@ HTTP 200 for the same preparation request when no route can be prepared. No `cal
 {
   "data": {
     "status": "PREPARED_ACTION_STATUS_UNAVAILABLE",
+    "generationId": "example-v1",
     "chainId": "8453",
     "expectedAccount": "0x1111111111111111111111111111111111111111",
     "preparedAt": "2026-09-14T09:36:22Z",
@@ -4457,14 +4673,17 @@ Before opening the wallet:
 2. Require `data.call`.
 3. Require the route-appropriate `call.kind`.
 4. Require `chainId` to match the wallet network.
-5. Require `expectedAccount` to match the sending account.
-6. For non-Start actions, require `copyAccount` to match the selected Smart
+5. Require a nonempty `generationId`. For Start, require it to match the saved
+   selection. For existing accounts with known provenance, require it to match
+   the account/run generation. Never substitute a current-generation default.
+6. Require `expectedAccount` to match the sending account.
+7. For non-Start actions, require `copyAccount` to match the selected Smart
    Wallet. For Start create it is absent; confirming, funding, and complete
    stages must match `startCopy.predictedCopyAccount`.
-7. Require `valueRaw === "0"`.
-8. Reject a response past `reprepareAfter` or
+8. Require `valueRaw === "0"`.
+9. Reject a response past `reprepareAfter` or
    `liquidationConfigDeadline`.
-9. Submit `to`, `data`, and `valueRaw` unchanged.
+10. Submit `to`, `data`, and `valueRaw` unchanged.
 
 The browser should never ABI-encode a Copy Trade action from preview fields.
 
@@ -4511,6 +4730,19 @@ changed inclusion. Never reuse a successfully submitted preparation.
 Use the [action response examples](#action-response-examples) in frontend
 component and request-state tests. No live transaction is needed for these cases:
 
+- Two create-enabled generations have separate Start availability and fees.
+  Unavailable singleton fields do not disable an available selected entry.
+- Every Start request, including continuation, sends the same selected
+  `generationId`. A mismatched response never opens the wallet.
+- Retirement to existing-accounts-only removes new creation but preserves
+  original account identity and operator-authorized Start funding continuation.
+- Read-only history remains visible while all executable actions are disabled.
+  A previously submitted transaction can still be observed with its original
+  status context.
+- A run with absent `generationId` remains unknown; it is not assigned to the
+  current creation generation.
+- Position-event generation selection is retained between pages. Changing it
+  drops the old cursor and starts a new query.
 - `TRY_PREPARE` offers preparation while unrelated read data remains stale.
 - Manual Sell review has no call; the confirmation request copies both pins
   exactly as returned, preserving the ratio as a string.

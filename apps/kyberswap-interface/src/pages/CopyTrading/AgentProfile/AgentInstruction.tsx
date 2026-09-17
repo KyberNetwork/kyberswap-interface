@@ -1,6 +1,5 @@
 import { Zap } from 'react-feather'
 import { useNavigate } from 'react-router-dom'
-import type { AdvisoryActionAvailability } from 'services/copyTrading/types/actionAvailability'
 import type { AgentProfile } from 'services/copyTrading/types/agents'
 import type { CopyRunListItem } from 'services/copyTrading/types/copyRuns'
 
@@ -17,11 +16,19 @@ import { CopyCapitalCard } from 'pages/CopyTrading/components/AgentSidebarCards/
 import { SidePanelCard } from 'pages/CopyTrading/components/AgentSidebarCards/SidePanelCard'
 import { ResponsiveDetailContents, ResponsiveDetailItem } from 'pages/CopyTrading/components/common/layout'
 import { CapitalInCardValue } from 'pages/CopyTrading/components/common/status'
+import { useCopyTradingContext } from 'pages/CopyTrading/context'
+import { getStartGenerationChoices } from 'pages/CopyTrading/generations'
 import { canAttemptPreparation, getPreparedReasonMessage } from 'pages/CopyTrading/helpers'
 import { useCopyTradingModal } from 'pages/CopyTrading/modals/context'
 
-const StartCopyCard = ({ availability, onCopy }: { availability?: AdvisoryActionAvailability; onCopy: () => void }) => {
-  const disabled = !canAttemptPreparation(availability)
+const StartCopyCard = ({ agent, onCopy }: { agent: AgentProfile; onCopy: () => void }) => {
+  const { chains } = useCopyTradingContext()
+  const choices = getStartGenerationChoices(
+    chains.find(chain => chain.chainId === agent.chainId),
+    agent,
+  )
+  const disabled = choices.filter(choice => canAttemptPreparation(choice.availability)).length !== 1
+  const unavailableReason = choices.length === 1 ? choices[0].availability?.reason : undefined
 
   return (
     <SidePanelCard title="Copy This Agent">
@@ -33,7 +40,7 @@ const StartCopyCard = ({ availability, onCopy }: { availability?: AdvisoryAction
         altDisabledStyle
         padding="10px 12px"
         disabled={disabled}
-        title={disabled ? getPreparedReasonMessage(availability?.reason) : undefined}
+        title={disabled ? getPreparedReasonMessage(unavailableReason) : undefined}
         onClick={onCopy}
       >
         <HStack className="items-center gap-1">
@@ -62,7 +69,7 @@ const AgentInstruction = ({ activeCopyRun, agent }: AgentInstructionProps) => {
       onAddCapital={() => openAddCapital(activeCopyRun)}
     />
   ) : (
-    <StartCopyCard availability={agent.startCopyAvailability} onCopy={() => openStartCopy(agent)} />
+    <StartCopyCard agent={agent} onCopy={() => openStartCopy(agent)} />
   )
 
   return (

@@ -192,7 +192,7 @@ const PreparedActionModal = ({
   review,
   state,
   successActions,
-  successText = 'The transaction is confirmed on-chain. Copy Trading data will refresh in the background.',
+  successText = 'The transaction is confirmed. Copy Trading data will refresh in the background.',
   successTitle = 'Action completed',
   title,
   unavailableShowBackAction = false,

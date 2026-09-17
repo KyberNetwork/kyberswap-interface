@@ -10,6 +10,15 @@ import {
   adaptAgentPositionsResponse,
   adaptPositionEventsResponse,
 } from 'services/copyTrading/adapters/positions'
+import copyTradingBaseApi from 'services/copyTrading/api/baseApi'
+import {
+  agentPositionEventsParams,
+  cleanParams,
+  pathPart,
+  performanceParams,
+  performanceWindowMap,
+  positionParams,
+} from 'services/copyTrading/api/queryParams'
 import type {
   AgentPerformanceQuery,
   AgentPositionEventsQuery,
@@ -30,9 +39,6 @@ import type {
   AgentsResponse,
   CotLogsResponse,
 } from 'services/copyTrading/types/responses'
-
-import copyTradingBaseApi from '../baseApi'
-import { cleanParams, pathPart, performanceParams, performanceWindowMap, positionParams } from '../queryParams'
 
 const agentApi = copyTradingBaseApi.injectEndpoints({
   endpoints: builder => ({
@@ -85,9 +91,9 @@ const agentApi = copyTradingBaseApi.injectEndpoints({
       transformResponse: adaptAgentPositionResponse,
     }),
     getAgentPositionEvents: builder.query<AgentPositionEventsResponse, AgentPositionEventsQuery>({
-      query: ({ agentId, positionId, cursor, limit }) => ({
+      query: ({ agentId, positionId, generationId, cursor, limit }) => ({
         url: '/agents/' + pathPart(agentId) + '/positions/' + pathPart(positionId) + '/events',
-        params: cleanParams({ cursor, limit }),
+        params: agentPositionEventsParams({ generationId, cursor, limit }),
       }),
       transformResponse: adaptPositionEventsResponse,
     }),

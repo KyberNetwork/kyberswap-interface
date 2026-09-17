@@ -18,6 +18,10 @@ const walletMocks = vi.hoisted(() => ({
   call: vi.fn(),
   waitForTransactionReceipt: vi.fn(),
   sendTransaction: vi.fn(),
+  validateGenerationPolicy: vi.fn().mockResolvedValue(undefined),
+}))
+vi.mock('pages/CopyTrading/modals/PreparedActionModal/useGenerationPolicy', () => ({
+  useGenerationPolicy: () => walletMocks.validateGenerationPolicy,
 }))
 vi.mock('components/Web3Provider', () => ({ wagmiConfig: {} }))
 vi.mock('@wagmi/core', async importOriginal => ({
@@ -31,12 +35,14 @@ const predictedCopyAccount = '0x2222222222222222222222222222222222222222'
 const callTarget = '0x3333333333333333333333333333333333333333'
 const startRequestId = '123e4567-e89b-42d3-a456-426614174000'
 const targetCapitalRaw = '50000000'
+const generationId = 'generation-v1'
 const displayEnrichment = { status: 'ACTION_DISPLAY_ENRICHMENT_STATUS_NOT_APPLICABLE' as const }
 
 const expected: PreparedActionExpectation = {
   account,
   callKinds: ['PREPARED_CALL_KIND_START_COPY_CREATE'],
   chainId: 8453,
+  generationId,
   preview: 'startCopy',
   startCopyCreateAmountRaw: targetCapitalRaw,
   startCopyRequestId: startRequestId,
@@ -44,6 +50,7 @@ const expected: PreparedActionExpectation = {
 }
 
 const allowanceDiagnostic: PreparedAction = {
+  generationId,
   displayEnrichment,
   status: 'PREPARED_ACTION_STATUS_UNAVAILABLE',
   reason: 'PREPARED_ACTION_REASON_INSUFFICIENT_QUOTE_ALLOWANCE',
@@ -59,6 +66,7 @@ const allowanceDiagnostic: PreparedAction = {
 }
 
 const completedAction: PreparedAction = {
+  generationId,
   displayEnrichment,
   status: 'PREPARED_ACTION_STATUS_COMPLETED',
   chainId: '8453',
@@ -74,6 +82,7 @@ const completedAction: PreparedAction = {
 }
 
 const readyAction: PreparedAction = {
+  generationId,
   displayEnrichment,
   status: 'PREPARED_ACTION_STATUS_READY',
   chainId: '8453',
@@ -212,6 +221,21 @@ describe('usePreparedAction', () => {
     expect(prepare).toHaveBeenCalledOnce()
     expect(harness.getState()).toMatchObject({ phase: 'review', action: readyAction })
     expect(harness.getState().hash).toBeUndefined()
+  })
+
+  it('blocks wallet submission when the generation retires after review', async () => {
+    walletMocks.validateGenerationPolicy.mockRejectedValueOnce(new Error('This contract generation is read-only.'))
+    walletMocks.sendTransaction.mockClear()
+    const harness = createStateHarness({ phase: 'review', action: readyAction })
+    const flow = usePreparedAction({
+      state: harness.getState(),
+      setState: harness.setState,
+      expected,
+      prepare: vi.fn(),
+    })
+    await flow.confirm()
+    expect(harness.getState()).toMatchObject({ phase: 'error', error: 'This contract generation is read-only.' })
+    expect(walletMocks.sendTransaction).not.toHaveBeenCalled()
   })
 
   it('uses the expired recovery state for an expired preparation', async () => {

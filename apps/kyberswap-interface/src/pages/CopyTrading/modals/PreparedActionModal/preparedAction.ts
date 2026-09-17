@@ -54,6 +54,7 @@ export type PreparedActionExpectation = {
   callKinds: readonly PreparedCallKind[]
   chainId: number
   copyAccount?: string
+  generationId?: string
   positionSellContext?: PositionSellContext
   preview: 'startCopy' | 'addCapital' | 'stopCopy' | 'withdrawTokens' | 'withdrawQuote' | 'manualSell' | 'closePosition'
   startCopyPredictedAccount?: string
@@ -186,6 +187,17 @@ export const isPreparationExpiredError = (error?: string) =>
 
 const sameAddress = (a?: string, b?: string) => Boolean(a && b && a.toLowerCase() === b.toLowerCase())
 
+export const validatePreparedGeneration = (action: PreparedAction, expected: PreparedActionExpectation) => {
+  if (!action.generationId?.trim()) return 'The preparation is missing its contract generation.'
+  if (expected.preview === 'startCopy' && !expected.generationId?.trim()) {
+    return 'Start Copy is currently unavailable. Please try again later.'
+  }
+  if (expected.generationId && action.generationId !== expected.generationId) {
+    return 'The prepared contract generation does not match the selected account.'
+  }
+  return undefined
+}
+
 export const validatePreparedAction = (
   action: PreparedAction,
   expected: PreparedActionExpectation,
@@ -193,6 +205,8 @@ export const validatePreparedAction = (
 ) => {
   if (Number(action.chainId) !== expected.chainId) return 'The prepared chain does not match the selected chain.'
   if (!sameAddress(action.expectedAccount, expected.account)) return 'The prepared sender does not match your wallet.'
+  const generationError = validatePreparedGeneration(action, expected)
+  if (generationError) return generationError
 
   if (expected.copyAccount && !sameAddress(action.copyAccount, expected.copyAccount)) {
     return 'The prepared Smart Wallet does not match the selected Copy Run.'

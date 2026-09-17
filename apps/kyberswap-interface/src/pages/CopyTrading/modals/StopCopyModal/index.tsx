@@ -109,6 +109,7 @@ const StopCopyModal = ({ isOpen, onDismiss, copyRun }: StopCopyModalProps) => {
       callKinds: STOP_COPY_CALL_KINDS,
       chainId: copyRun.chainId,
       copyAccount: copyRun.copyAccount,
+      generationId: copyRun.generationId,
       preview: 'stopCopy',
     },
     prepare: async () => {
