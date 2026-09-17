@@ -375,7 +375,7 @@ export const arc = defineChain({
     },
   },
   blockExplorers: {
-    default: { name: 'Arc Explorer', url: 'https://explorer.arc.io' },
+    default: { name: 'Arcscan', url: 'https://arc.etherscan.io' },
   },
   contracts: {
     multicall3: {
