@@ -22,6 +22,7 @@ const startCopyAction = (
   permitScheme: StartCopyPermitScheme = 'START_COPY_PERMIT_SCHEME_ERC20_EIP2612',
 ): PreparedAction => ({
   displayEnrichment,
+  generationId: 'example-v1',
   status: 'PREPARED_ACTION_STATUS_UNAVAILABLE',
   reason: 'PREPARED_ACTION_REASON_INSUFFICIENT_QUOTE_ALLOWANCE',
   chainId: '8453',

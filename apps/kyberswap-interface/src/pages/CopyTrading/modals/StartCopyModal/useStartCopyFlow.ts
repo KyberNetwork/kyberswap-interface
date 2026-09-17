@@ -1,12 +1,16 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import agentApi from 'services/copyTrading/api/endpoints/agents'
+import discoveryApi from 'services/copyTrading/api/endpoints/discovery'
 import preparedActionApi from 'services/copyTrading/api/endpoints/preparedActions'
 import type { PreparedActionStatus } from 'services/copyTrading/types/preparedActions'
 
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
+import { useCopyTradingContext } from 'pages/CopyTrading/context'
+import { getSelectedStartGenerationId, getStartGenerationChoices } from 'pages/CopyTrading/generations'
 import { getPreparedReasonMessage } from 'pages/CopyTrading/helpers'
 import useRefreshCopyTrading from 'pages/CopyTrading/hooks/useRefreshCopyTrading'
 import { type CapitalPercentage } from 'pages/CopyTrading/modals/CapitalAmount/capital'
@@ -16,6 +20,7 @@ import {
   DEFAULT_PREPARED_ACTION_STATE,
   getApiErrorMessage,
   validatePreparedAction,
+  validatePreparedGeneration,
 } from 'pages/CopyTrading/modals/PreparedActionModal/preparedAction'
 import { usePreparedAction } from 'pages/CopyTrading/modals/PreparedActionModal/usePreparedAction'
 import { type StartCopyTarget } from 'pages/CopyTrading/modals/StartCopyModal/startCopy'
@@ -39,6 +44,7 @@ const getNonReadyPhase = (status?: PreparedActionStatus) => {
 
 export const useStartCopyFlow = ({ agent, onDismiss }: { agent: StartCopyTarget; onDismiss: () => void }) => {
   const navigate = useNavigate()
+  const { chains } = useCopyTradingContext()
   const { account, chainId } = useActiveWeb3React()
   const { changeNetwork } = useChangeNetwork()
   const toggleWalletModal = useWalletModalToggle()
@@ -51,6 +57,8 @@ export const useStartCopyFlow = ({ agent, onDismiss }: { agent: StartCopyTarget;
   const [agreed, setAgreed] = useState(false)
   const [createdCopyRunId, setCreatedCopyRunId] = useState<string>()
   const [isAuthorizing, setIsAuthorizing] = useState(false)
+  const [getChains] = discoveryApi.useLazyGetChainsQuery()
+  const [getAgent] = agentApi.useLazyGetAgentQuery()
 
   const capital = useCapitalAmount({
     account: account || undefined,
@@ -73,10 +81,22 @@ export const useStartCopyFlow = ({ agent, onDismiss }: { agent: StartCopyTarget;
       if (!account || !capital.quoteToken) throw new Error('Connect a supported wallet and network first.')
       if (!capital.amountRaw) throw new Error('Enter an amount greater than zero.')
       if (capital.amountError) throw new Error(capital.amountError)
+      const [chains, profile] = await Promise.all([
+        getChains(undefined, false).unwrap(),
+        getAgent({ agentId: agent.agentId }, false).unwrap(),
+      ])
+      const choices = getStartGenerationChoices(
+        chains.data.find(chain => chain.chainId === agent.chainId),
+        profile.data,
+      )
+      const generationId = getSelectedStartGenerationId(choices, attempt.attemptRef.current.generationId)
+      if (!generationId) throw new Error('Start Copy is currently unavailable. Please try again later.')
 
-      const scopedAttempt = attempt.getScopedStartAttempt(account, capital.amountRaw)
+      const scopedAttempt = attempt.getScopedStartAttempt(account, capital.amountRaw, generationId)
       const response = await attempt.requestStartCopy(scopedAttempt, account, capital.amountRaw)
       const action = response.data
+      const generationValidationError = validatePreparedGeneration(action, attempt.expected)
+      if (generationValidationError) throw new Error(generationValidationError)
 
       if (
         [
@@ -122,7 +142,14 @@ export const useStartCopyFlow = ({ agent, onDismiss }: { agent: StartCopyTarget;
 
   const accountConnected = !!account
   const isPreparing = flowState.isPreparing === true
-  const availabilityMessage = getWriteAvailabilityMessage(agent.startCopyAvailability)
+  const startChoices = getStartGenerationChoices(
+    chains.find(chain => chain.chainId === agent.chainId),
+    agent,
+  )
+  const implicitGenerationId = getSelectedStartGenerationId(startChoices)
+  const availabilityMessage = getWriteAvailabilityMessage(
+    startChoices.find(choice => choice.generationId === implicitGenerationId)?.availability,
+  )
   const primaryActionLabel = getWritePrimaryActionLabel({
     accountConnected,
     onExpectedChain: capital.onExpectedChain,
@@ -160,7 +187,7 @@ export const useStartCopyFlow = ({ agent, onDismiss }: { agent: StartCopyTarget;
       void changeNetwork(agent.chainId as ChainId)
       return
     }
-    if (!capital.amountIsValid) return
+    if (!capital.amountIsValid || availabilityMessage) return
 
     void flow.prepare()
   }
@@ -195,6 +222,7 @@ export const useStartCopyFlow = ({ agent, onDismiss }: { agent: StartCopyTarget;
       setIsAuthorizing(true)
       const validationError = validatePreparedAction(diagnosticAction, attempt.expected, { requireCall: false })
       if (validationError) throw new Error(validationError)
+      await flow.validateGenerationPolicy(diagnosticAction)
 
       const createPermitData = await authorizeStartCopy(diagnosticAction)
       const authorizedAttempt = attempt.createAuthorizedAttempt({
@@ -226,6 +254,7 @@ export const useStartCopyFlow = ({ agent, onDismiss }: { agent: StartCopyTarget;
 
       const nextValidationError = validatePreparedAction(action, attempt.expected)
       if (nextValidationError) throw new Error(nextValidationError)
+      await flow.validateGenerationPolicy(action)
 
       attempt.capturePredictedCopyAccount(action.startCopy?.predictedCopyAccount)
       setFlowState({ phase: 'review', action })

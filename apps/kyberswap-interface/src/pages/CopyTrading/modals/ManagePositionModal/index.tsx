@@ -36,6 +36,7 @@ import { getWritePrimaryActionLabel, isWritePrimaryActionDisabled } from 'pages/
 import { useWalletModalToggle } from 'state/application/hooks'
 
 type ManagePositionModalProps = {
+  generationId?: string
   isOpen: boolean
   onDismiss: () => void
   position: PositionSummary
@@ -45,7 +46,13 @@ type ManagePositionModalProps = {
 const MISSING_IDENTITY_MESSAGE = 'The selected position is missing write-flow identity fields.'
 const NO_PENDING_OBLIGATION_MESSAGE = 'There is no current pending sell obligation for this position.'
 
-const ManagePositionModal = ({ isOpen, onDismiss, position, flow: positionFlow }: ManagePositionModalProps) => {
+const ManagePositionModal = ({
+  generationId,
+  isOpen,
+  onDismiss,
+  position,
+  flow: positionFlow,
+}: ManagePositionModalProps) => {
   const navigate = useNavigate()
   const { account, chainId } = useActiveWeb3React()
   const { changeNetwork } = useChangeNetwork()
@@ -170,6 +177,7 @@ const ManagePositionModal = ({ isOpen, onDismiss, position, flow: positionFlow }
       callKinds: preparationConfig.callKinds,
       chainId: position.chainId,
       copyAccount,
+      generationId,
       positionSellContext: flowConfig.sellContext,
       preview: preparationConfig.preview,
     },

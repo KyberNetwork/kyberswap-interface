@@ -18,12 +18,14 @@ const callTarget = '0x3333333333333333333333333333333333333333'
 const startRequestId = '123e4567-e89b-42d3-a456-426614174000'
 const authorizedStartRequestId = '123e4567-e89b-42d3-a456-426614174001'
 const targetCapitalRaw = '1000000'
+const generationId = 'generation-v1'
 const displayEnrichment = { status: 'ACTION_DISPLAY_ENRICHMENT_STATUS_NOT_APPLICABLE' as const }
 
 const expected: PreparedActionExpectation = {
   account,
   callKinds: ['PREPARED_CALL_KIND_START_COPY_CREATE'],
   chainId: 8453,
+  generationId,
   preview: 'startCopy',
   startCopyCreateAmountRaw: targetCapitalRaw,
   startCopyPredictedAccount: copyAccount,
@@ -32,6 +34,7 @@ const expected: PreparedActionExpectation = {
 }
 
 const confirmingAction = (overrides: Partial<PreparedAction> = {}): PreparedAction => ({
+  generationId,
   status: 'PREPARED_ACTION_STATUS_PENDING',
   chainId: '8453',
   expectedAccount: account,
@@ -74,6 +77,47 @@ const unsafeConfirmingCases: Array<{ name: string; overrides: Partial<PreparedAc
 ]
 
 describe('validatePreparedAction', () => {
+  it('rejects a preparation without a generation identity', () => {
+    expect(validatePreparedAction(confirmingAction({ generationId: '' }), expected, { requireCall: false })).toBe(
+      'The preparation is missing its contract generation.',
+    )
+  })
+
+  it('rejects a preparation from a different known generation', () => {
+    expect(
+      validatePreparedAction(confirmingAction({ generationId: 'generation-v2' }), expected, { requireCall: false }),
+    ).toBe('The prepared contract generation does not match the selected account.')
+  })
+
+  it('allows an authoritative existing-account preparation when generation provenance is unknown', () => {
+    const action: PreparedAction = {
+      generationId,
+      displayEnrichment,
+      status: 'PREPARED_ACTION_STATUS_READY',
+      chainId: '8453',
+      expectedAccount: account,
+      copyAccount,
+      closePosition: { context: 'POSITION_SELL_CONTEXT_STOP_COPY' },
+      call: {
+        kind: 'PREPARED_CALL_KIND_CLOSE_POSITION',
+        to: callTarget,
+        data: '0x',
+        valueRaw: '0',
+      },
+    }
+
+    expect(
+      validatePreparedAction(action, {
+        account,
+        callKinds: ['PREPARED_CALL_KIND_CLOSE_POSITION'],
+        chainId: 8453,
+        copyAccount,
+        positionSellContext: 'POSITION_SELL_CONTEXT_STOP_COPY',
+        preview: 'closePosition',
+      }),
+    ).toBeUndefined()
+  })
+
   it('accepts a call-free Start Copy confirming response', () => {
     expect(validatePreparedAction(confirmingAction(), expected, { requireCall: false })).toBeUndefined()
   })
@@ -84,6 +128,7 @@ describe('validatePreparedAction', () => {
 
   it('rejects a non-zero prepared call value', () => {
     const action: PreparedAction = {
+      generationId,
       displayEnrichment,
       status: 'PREPARED_ACTION_STATUS_READY',
       chainId: '8453',
@@ -108,6 +153,7 @@ describe('validatePreparedAction', () => {
 
   it('rejects an unfunded create amount for a funded Start Copy attempt', () => {
     const action: PreparedAction = {
+      generationId,
       displayEnrichment,
       status: 'PREPARED_ACTION_STATUS_READY',
       chainId: '8453',
@@ -134,6 +180,7 @@ describe('validatePreparedAction', () => {
 
   it('rejects a separate Fund call for a funded Start Copy attempt', () => {
     const action: PreparedAction = {
+      generationId,
       displayEnrichment,
       status: 'PREPARED_ACTION_STATUS_PARTIALLY_COMPLETED',
       chainId: '8453',
@@ -158,6 +205,7 @@ describe('validatePreparedAction', () => {
 
   it('accepts the authorized UUID predicted account after clearing the diagnostic UUID identity', () => {
     const action: PreparedAction = {
+      generationId,
       displayEnrichment,
       status: 'PREPARED_ACTION_STATUS_READY',
       chainId: '8453',
@@ -190,6 +238,7 @@ describe('validatePreparedAction', () => {
 
   it('keeps active recovery and stopped-Copy position sells in separate contexts', () => {
     const closeAction: PreparedAction = {
+      generationId,
       displayEnrichment,
       status: 'PREPARED_ACTION_STATUS_READY',
       chainId: '8453',
@@ -207,6 +256,7 @@ describe('validatePreparedAction', () => {
       account,
       callKinds: ['PREPARED_CALL_KIND_CLOSE_POSITION'],
       chainId: 8453,
+      generationId,
       copyAccount,
       positionSellContext: 'POSITION_SELL_CONTEXT_STOP_COPY',
       preview: 'closePosition',
@@ -224,7 +274,7 @@ describe('validatePreparedAction', () => {
   it.each(['PREPARED_ACTION_STATUS_READY', 'PREPARED_ACTION_STATUS_PARTIALLY_COMPLETED'] as const)(
     'rejects an executable %s response after the funded Create receipt',
     status => {
-      expect(validatePreparedActionContinuation({ status, displayEnrichment })).toBe(
+      expect(validatePreparedActionContinuation({ generationId, status, displayEnrichment })).toBe(
         'The confirmed Start Copy transaction returned another executable preparation. Do not submit another transaction.',
       )
     },
@@ -293,6 +343,7 @@ it('keeps All Tokens distinct from quote withdrawal even when display enrichment
     preview: 'withdrawTokens',
   }
   const action: PreparedAction = {
+    generationId,
     status: 'PREPARED_ACTION_STATUS_READY',
     expectedAccount: account,
     chainId: '8453',

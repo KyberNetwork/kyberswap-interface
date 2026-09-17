@@ -72,6 +72,7 @@ const AddCapitalModal = ({ isOpen, onDismiss, copyRun }: AddCapitalModalProps) =
       callKinds: ADD_CAPITAL_CALL_KINDS,
       chainId: copyRun.chainId,
       copyAccount: copyRun.copyAccount,
+      generationId: copyRun.generationId,
       preview: 'addCapital',
     },
     prepare: async () => {

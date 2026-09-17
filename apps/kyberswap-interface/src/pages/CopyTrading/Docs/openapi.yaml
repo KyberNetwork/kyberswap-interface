@@ -490,6 +490,11 @@ paths:
           required: false
           type: integer
           format: int32
+        - name: generationId
+          description: Required when compatible generations share this position's controller.
+          in: query
+          required: false
+          type: string
       tags:
         - Agents
   /users/{ownerAddress}/copy-summary:
@@ -1620,6 +1625,8 @@ definitions:
         description: |-
           Optional opaque permit transport for FUNDED mode. Token-specific format
           and capability checks remain operator-owned.
+      generationId:
+        type: string
   TransactionPreparationServicePrepareStopCopyBody:
     type: object
     properties:
@@ -1666,6 +1673,48 @@ definitions:
         items:
           type: object
           $ref: '#/definitions/protobufAny'
+  v1AccountGeneration:
+    type: object
+    properties:
+      generationId:
+        type: string
+      lifecycle:
+        $ref: '#/definitions/v1AccountGenerationLifecycle'
+      capabilities:
+        type: array
+        items:
+          $ref: '#/definitions/v1AccountGenerationProductCapability'
+    description: |-
+      AccountGeneration is the public, capability-only view of one supported
+      smart-contract generation.
+  v1AccountGenerationLifecycle:
+    type: string
+    enum:
+      - ACCOUNT_GENERATION_LIFECYCLE_UNSPECIFIED
+      - ACCOUNT_GENERATION_LIFECYCLE_CREATE_ENABLED
+      - ACCOUNT_GENERATION_LIFECYCLE_EXISTING_ACCOUNTS_ONLY
+      - ACCOUNT_GENERATION_LIFECYCLE_READ_ONLY
+    default: ACCOUNT_GENERATION_LIFECYCLE_UNSPECIFIED
+    description: |-
+      AccountGenerationLifecycle describes whether one supported smart-contract
+      generation can create new accounts, only serve existing accounts, or is
+      retained for read-only discovery and audit surfaces.
+  v1AccountGenerationProductCapability:
+    type: string
+    enum:
+      - ACCOUNT_GENERATION_PRODUCT_CAPABILITY_UNSPECIFIED
+      - ACCOUNT_GENERATION_PRODUCT_CAPABILITY_START_COPY
+      - ACCOUNT_GENERATION_PRODUCT_CAPABILITY_ADD_CAPITAL
+      - ACCOUNT_GENERATION_PRODUCT_CAPABILITY_STOP_COPY
+      - ACCOUNT_GENERATION_PRODUCT_CAPABILITY_WITHDRAW_QUOTE
+      - ACCOUNT_GENERATION_PRODUCT_CAPABILITY_MANUAL_SELL
+      - ACCOUNT_GENERATION_PRODUCT_CAPABILITY_CLOSE_POSITION
+      - ACCOUNT_GENERATION_PRODUCT_CAPABILITY_WITHDRAW_TOKENS
+    default: ACCOUNT_GENERATION_PRODUCT_CAPABILITY_UNSPECIFIED
+    description: |-
+      AccountGenerationProductCapability identifies one public product action
+      supported by an account generation. Private call targets and selectors are
+      intentionally not part of the aggregate API contract.
   v1ActionBlock:
     type: object
     properties:
@@ -2373,6 +2422,16 @@ definitions:
         $ref: '#/definitions/v1DecimalMetric'
       startCopyAvailability:
         $ref: '#/definitions/v1AdvisoryActionAvailability'
+      startCopyAvailabilities:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/v1GenerationScopedStartCopyAvailability'
+      feePolicies:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/v1GenerationScopedAgentFeePolicy'
     description: AgentCard is a row in leaderboard and agent discovery.
   v1AgentMetrics:
     type: object
@@ -2515,6 +2574,16 @@ definitions:
           $ref: '#/definitions/v1StrategyExecutionItem'
       startCopyAvailability:
         $ref: '#/definitions/v1AdvisoryActionAvailability'
+      startCopyAvailabilities:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/v1GenerationScopedStartCopyAvailability'
+      feePolicies:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/v1GenerationScopedAgentFeePolicy'
     description: AgentProfile contains one agent profile.
   v1AgentSnapshot:
     type: object
@@ -2695,6 +2764,11 @@ definitions:
         type: string
       isEnabled:
         type: boolean
+      accountGenerations:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/v1AccountGeneration'
     description: Chain is a supported public chain.
   v1ChainFreshness:
     type: object
@@ -2842,6 +2916,9 @@ definitions:
         $ref: '#/definitions/v1AdvisoryActionAvailability'
       withdrawTokensAvailability:
         $ref: '#/definitions/v1AdvisoryActionAvailability'
+      generationId:
+        type: string
+        description: Absent until canonical creation provenance has been indexed.
     description: CopyAccountSummary contains chain-scoped copy-account totals.
   v1CopyConfirmPolicy:
     type: object
@@ -3065,6 +3142,9 @@ definitions:
         description: Copy-run-specific win rate over classified closed follower positions.
       copyRunClassifiedClosedPositionCount:
         $ref: '#/definitions/v1CountMetric'
+      generationId:
+        type: string
+        description: Absent until canonical creation provenance has been indexed.
     description: |-
       CopyRunListItem contains one copy-run row for owner copy-run lists. It omits
       the detail-only estimated fee breakdown and Portfolio P&L fields.
@@ -3176,6 +3256,9 @@ definitions:
       feeBreakdown:
         $ref: '#/definitions/v1CopyRunFeeBreakdown'
         description: Product-facing fee headline and tooltip fields.
+      generationId:
+        type: string
+        description: Absent until canonical creation provenance has been indexed.
     description: CopyRunSummary contains one copy-run row.
   v1CountMetric:
     type: object
@@ -3391,6 +3474,31 @@ definitions:
       FieldGroupQuality keeps freshness, completeness, finality, and provenance
       clocks independent. An unspecified dimension means the current producer did
       not prove it; clients must not infer a positive state from that value.
+  v1GenerationScopedAgentFeePolicy:
+    type: object
+    properties:
+      generationId:
+        type: string
+      flatFeeRatePct:
+        $ref: '#/definitions/v1DecimalMetric'
+      cashbackFormulaVersion:
+        type: integer
+        format: int64
+    description: |-
+      GenerationScopedAgentFeePolicy exposes the generation-scoped advertised fee
+      used for discovery and pre-Start display. Account-owned effective policy is
+      authoritative for existing-account position estimates.
+  v1GenerationScopedStartCopyAvailability:
+    type: object
+    properties:
+      generationId:
+        type: string
+      availability:
+        $ref: '#/definitions/v1AdvisoryActionAvailability'
+    description: |-
+      GenerationScopedStartCopyAvailability is render-only Start Copy
+      availability for one caller-selectable account generation. Live preparation
+      remains authoritative.
   v1GetAgentPositionResponse:
     type: object
     properties:
@@ -4335,6 +4443,8 @@ definitions:
         $ref: '#/definitions/v1PositionSellPreview'
       closePosition:
         $ref: '#/definitions/v1PositionSellPreview'
+      generationId:
+        type: string
     description: PreparedAction is the common current-action result.
   v1PreparedActionReason:
     type: string

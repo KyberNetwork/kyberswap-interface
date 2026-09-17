@@ -16,14 +16,14 @@ type ActiveModal =
   | { type: 'withdraw'; copyRun: CopyRunListItem }
   | { type: 'addCapital'; copyRun: CopyRunListItem }
   | { type: 'stopCopy'; copyRun: CopyRunListItem }
-  | { type: 'managePosition'; position: PositionSummary; flow: ManagePositionFlow }
+  | { type: 'managePosition'; position: PositionSummary; flow: ManagePositionFlow; generationId?: string }
 
 type CopyTradingModalContextValue = {
   openStartCopy: (agent: StartCopyTarget) => void
   openWithdraw: (copyRun: CopyRunListItem) => void
   openAddCapital: (copyRun: CopyRunListItem) => void
   openStopCopy: (copyRun: CopyRunListItem) => void
-  openManagePosition: (position: PositionSummary, flow: ManagePositionFlow) => void
+  openManagePosition: (position: PositionSummary, flow: ManagePositionFlow, generationId?: string) => void
 }
 
 const CopyTradingModalContext = createContext<CopyTradingModalContextValue | undefined>(undefined)
@@ -47,7 +47,8 @@ export const CopyTradingModalProvider = ({ children }: PropsWithChildren) => {
       openWithdraw: copyRun => setActive({ type: 'withdraw', copyRun }),
       openAddCapital: copyRun => setActive({ type: 'addCapital', copyRun }),
       openStopCopy: copyRun => setActive({ type: 'stopCopy', copyRun }),
-      openManagePosition: (position, flow) => setActive({ type: 'managePosition', position, flow }),
+      openManagePosition: (position, flow, generationId) =>
+        setActive({ type: 'managePosition', position, flow, generationId }),
     }),
     [],
   )
@@ -62,7 +63,13 @@ export const CopyTradingModalProvider = ({ children }: PropsWithChildren) => {
       {active?.type === 'addCapital' && <AddCapitalModal isOpen onDismiss={close} copyRun={active.copyRun} />}
       {active?.type === 'stopCopy' && <StopCopyModal isOpen onDismiss={close} copyRun={active.copyRun} />}
       {active?.type === 'managePosition' && (
-        <ManagePositionModal isOpen onDismiss={close} position={active.position} flow={active.flow} />
+        <ManagePositionModal
+          isOpen
+          onDismiss={close}
+          position={active.position}
+          flow={active.flow}
+          generationId={active.generationId}
+        />
       )}
     </CopyTradingModalContext.Provider>
   )

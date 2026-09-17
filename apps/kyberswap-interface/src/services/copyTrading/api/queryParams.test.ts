@@ -1,6 +1,10 @@
+import {
+  agentPositionEventsParams,
+  copyRunSortMap,
+  leaderboardSortMap,
+  performanceParams,
+} from 'services/copyTrading/api/queryParams'
 import { describe, expect, it } from 'vitest'
-
-import { copyRunSortMap, leaderboardSortMap, performanceParams } from './queryParams'
 
 it('uses ROI sorts and keeps the agent win-rate sort distinct', () => {
   expect(leaderboardSortMap.roi_pct).toBe('LEADERBOARD_SORT_FIELD_ROI_PCT')
@@ -18,5 +22,19 @@ describe('performanceParams', () => {
       window: 'WINDOW_ALL',
       interval: 'PERFORMANCE_INTERVAL_MONTH',
     })
+  })
+})
+
+describe('agentPositionEventsParams', () => {
+  it('passes an opaque generation id through with cursor pagination', () => {
+    expect(agentPositionEventsParams({ generationId: 'beta-3/candidate', cursor: 'next', limit: 25 })).toEqual({
+      generationId: 'beta-3/candidate',
+      cursor: 'next',
+      limit: 25,
+    })
+  })
+
+  it('omits a missing generation id for backward-compatible reads', () => {
+    expect(agentPositionEventsParams({ cursor: 'next' })).toEqual({ cursor: 'next' })
   })
 })

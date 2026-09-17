@@ -19,6 +19,7 @@ import {
   type PreparationRequestOptions,
   requestPreparation,
 } from 'pages/CopyTrading/modals/PreparedActionModal/requestPreparation'
+import { useGenerationPolicy } from 'pages/CopyTrading/modals/PreparedActionModal/useGenerationPolicy'
 import type { Hash, Hex, Address as ViemAddress } from 'utils/viem'
 import { getGatedWalletClient } from 'utils/walletClient'
 
@@ -41,6 +42,7 @@ export const usePreparedAction = ({
   afterReceipt,
   onComplete,
 }: UsePreparedActionProps) => {
+  const validateGenerationPolicy = useGenerationPolicy(expected.preview)
   const notifyComplete = () => {
     try {
       void Promise.resolve(onComplete?.()).catch(() => undefined)
@@ -64,7 +66,16 @@ export const usePreparedAction = ({
       {
         expected,
         finish,
-        prepare,
+        prepare: async () => {
+          const action = await prepare()
+          if (
+            action.status === 'PREPARED_ACTION_STATUS_READY' ||
+            action.status === 'PREPARED_ACTION_STATUS_PARTIALLY_COMPLETED' ||
+            reviewUnavailable?.(action)
+          )
+            await validateGenerationPolicy(action)
+          return action
+        },
         reviewUnavailable,
         setState,
       },
@@ -118,6 +129,7 @@ export const usePreparedAction = ({
     let hash: Hash | undefined
     try {
       setState({ phase: 'awaiting_signature', action })
+      await validateGenerationPolicy(action)
       const publicClient = getPublicClient(wagmiConfig, { chainId: expected.chainId })
       const walletClient = await getGatedWalletClient({ chainId: expected.chainId })
       if (!publicClient || !walletClient) throw new Error('Wallet client is unavailable for the selected chain.')
@@ -239,5 +251,13 @@ export const usePreparedAction = ({
     setState(DEFAULT_PREPARED_ACTION_STATE)
   }
 
-  return { confirm, prepare: requestPreparedAction, prepareAndConfirm, reset, retry, retryAndConfirm }
+  return {
+    confirm,
+    prepare: requestPreparedAction,
+    prepareAndConfirm,
+    reset,
+    retry,
+    retryAndConfirm,
+    validateGenerationPolicy,
+  }
 }

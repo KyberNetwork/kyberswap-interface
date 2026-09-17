@@ -17,6 +17,7 @@ type StartCopyAttempt = {
   agentId?: string
   authorizationApplied: boolean
   chainId?: number
+  generationId?: string
   createPermitData?: string
   ownerAddress?: string
   requestId: string
@@ -79,12 +80,13 @@ export const useStartCopyAttempt = ({
     resetStartAttempt()
   }
 
-  const getScopedStartAttempt = (ownerAddress: string, targetRaw: string) => {
+  const getScopedStartAttempt = (ownerAddress: string, targetRaw: string, generationId: string) => {
     const currentAttempt = attemptRef.current
     const scopeChanged =
       (currentAttempt.ownerAddress && currentAttempt.ownerAddress !== ownerAddress.toLowerCase()) ||
       (currentAttempt.agentId && currentAttempt.agentId !== agent.agentId) ||
       (currentAttempt.chainId && currentAttempt.chainId !== agent.chainId) ||
+      (currentAttempt.generationId && currentAttempt.generationId !== generationId) ||
       (currentAttempt.targetCapitalRaw && currentAttempt.targetCapitalRaw !== targetRaw)
 
     if (scopeChanged) {
@@ -96,10 +98,12 @@ export const useStartCopyAttempt = ({
       ...attemptRef.current,
       agentId: agent.agentId,
       chainId: agent.chainId,
+      generationId,
       ownerAddress: ownerAddress.toLowerCase(),
       targetCapitalRaw: targetRaw,
     }
     attemptRef.current = scopedAttempt
+    expectedRef.current.generationId = generationId
     return scopedAttempt
   }
 
@@ -118,16 +122,19 @@ export const useStartCopyAttempt = ({
     }
   }
 
-  const requestStartCopy = (attempt: StartCopyAttempt, ownerAddress: string, targetRaw: string) =>
-    prepareStartCopy({
+  const requestStartCopy = (attempt: StartCopyAttempt, ownerAddress: string, targetRaw: string) => {
+    if (!attempt.generationId) throw new Error('Start Copy is currently unavailable. Please try again later.')
+    return prepareStartCopy({
       ownerAddress: ownerAddress.toLowerCase(),
       agentId: agent.agentId,
       chainId: String(agent.chainId),
+      generationId: attempt.generationId,
       targetCapitalRaw: targetRaw,
       startRequestId: attempt.requestId,
       fundingMode: START_FUNDING_MODE,
       ...(attempt.createPermitData ? { createPermitData: attempt.createPermitData } : {}),
     }).unwrap()
+  }
 
   const createAuthorizedAttempt = ({
     createPermitData,
@@ -142,6 +149,7 @@ export const useStartCopyAttempt = ({
       agentId: agent.agentId,
       authorizationApplied: true,
       chainId: agent.chainId,
+      generationId: attemptRef.current.generationId,
       createPermitData,
       ownerAddress: ownerAddress.toLowerCase(),
       requestId: uuidv4(),

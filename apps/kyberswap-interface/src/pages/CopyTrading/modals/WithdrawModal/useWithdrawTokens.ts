@@ -8,10 +8,9 @@ import useRefreshCopyTrading from 'pages/CopyTrading/hooks/useRefreshCopyTrading
 import { pollSubmittedActionStatus } from 'pages/CopyTrading/modals/PreparedActionModal/postReceipt'
 import { DEFAULT_PREPARED_ACTION_STATE } from 'pages/CopyTrading/modals/PreparedActionModal/preparedAction'
 import { usePreparedAction } from 'pages/CopyTrading/modals/PreparedActionModal/usePreparedAction'
+import { useWithdrawalPreview } from 'pages/CopyTrading/modals/WithdrawModal/useWithdrawalData'
+import { validateWithdrawTokensPreview } from 'pages/CopyTrading/modals/WithdrawModal/utils'
 import { getCopyRunOwnershipMessage, getWriteAvailabilityMessage } from 'pages/CopyTrading/modals/writeAction'
-
-import { useWithdrawalPreview } from './useWithdrawalData'
-import { validateWithdrawTokensPreview } from './utils'
 
 const CALL_KINDS: PreparedCallKind[] = ['PREPARED_CALL_KIND_WITHDRAW_TOKENS']
 export const useWithdrawTokens = ({ isOpen, copyRun }: { isOpen: boolean; copyRun: CopyRunListItem }) => {
@@ -30,6 +29,7 @@ export const useWithdrawTokens = ({ isOpen, copyRun }: { isOpen: boolean; copyRu
       account: account || '',
       chainId: copyRun.chainId,
       copyAccount: copyRun.copyAccount,
+      generationId: copyRun.generationId,
       callKinds: CALL_KINDS,
       preview: 'withdrawTokens',
     },

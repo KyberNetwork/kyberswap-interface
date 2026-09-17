@@ -11,6 +11,7 @@ import { requestPreparation } from 'pages/CopyTrading/modals/PreparedActionModal
 
 const account = '0x1111111111111111111111111111111111111111'
 const copyAccount = '0x2222222222222222222222222222222222222222'
+const generationId = 'generation-v1'
 const displayEnrichment = { status: 'ACTION_DISPLAY_ENRICHMENT_STATUS_NOT_APPLICABLE' as const }
 
 const expected: PreparedActionExpectation = {
@@ -18,10 +19,12 @@ const expected: PreparedActionExpectation = {
   callKinds: ['PREPARED_CALL_KIND_ADD_CAPITAL'],
   chainId: 8453,
   copyAccount,
+  generationId,
   preview: 'addCapital',
 }
 
 const readyAction: PreparedAction = {
+  generationId,
   displayEnrichment,
   status: 'PREPARED_ACTION_STATUS_READY',
   chainId: '8453',

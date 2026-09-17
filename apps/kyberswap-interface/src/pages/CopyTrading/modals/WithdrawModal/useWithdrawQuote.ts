@@ -13,6 +13,7 @@ import {
   parsePreparedAmount,
 } from 'pages/CopyTrading/modals/PreparedActionModal/preparedAction'
 import { usePreparedAction } from 'pages/CopyTrading/modals/PreparedActionModal/usePreparedAction'
+import type { WithdrawalInventory } from 'pages/CopyTrading/modals/WithdrawModal/useWithdrawalData'
 import {
   UINT256_MAX_RAW,
   getWithdrawAmountError,
@@ -23,8 +24,6 @@ import {
 import { getCopyRunOwnershipMessage, getWriteAvailabilityMessage } from 'pages/CopyTrading/modals/writeAction'
 import { formatDisplayNumber } from 'utils/numbers'
 import { formatUnits, parseUnits } from 'utils/viem'
-
-import type { WithdrawalInventory } from './useWithdrawalData'
 
 type WithdrawQuoteParams = {
   isOpen: boolean
@@ -116,6 +115,7 @@ export const useWithdrawQuote = ({ isOpen, copyRun, wallet }: WithdrawQuoteParam
       callKinds: WITHDRAW_CALL_KINDS,
       chainId: copyRun.chainId,
       copyAccount: copyRun.copyAccount,
+      generationId: copyRun.generationId,
       preview: 'withdrawQuote',
     },
     prepare: async () => {

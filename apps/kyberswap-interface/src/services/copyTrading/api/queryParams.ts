@@ -15,6 +15,9 @@ type QueryParams = Record<string, QueryParam | undefined>
 export const cleanParams = (params: QueryParams = {}) =>
   Object.fromEntries(Object.entries(params).filter(([, value]) => value !== undefined && value !== ''))
 
+export const agentPositionEventsParams = (query: { generationId?: string; cursor?: string; limit?: number }) =>
+  cleanParams({ generationId: query.generationId, cursor: query.cursor, limit: query.limit })
+
 export const pathPart = (value: string | number) => encodeURIComponent(String(value))
 
 export const sortOrderMap: Record<SortOrder, string> = {

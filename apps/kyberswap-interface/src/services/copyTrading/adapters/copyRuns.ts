@@ -1,3 +1,18 @@
+import {
+  type ApiAgentMetrics,
+  type ApiAgentSnapshot,
+  toAgentSnapshot,
+  toAgentStats,
+} from 'services/copyTrading/adapters/agents'
+import {
+  type ApiCursorResponse,
+  type ApiMetric,
+  type ApiSingleResponse,
+  chainIdNumber,
+  cursorResponse,
+  metricValue,
+  singleResponse,
+} from 'services/copyTrading/adapters/shared'
 import type { AdvisoryActionAvailability } from 'services/copyTrading/types/actionAvailability'
 import type {
   CopyRunCashbackPolicy,
@@ -20,17 +35,6 @@ import type {
   OwnerCopySummaryResponse,
 } from 'services/copyTrading/types/responses'
 
-import { type ApiAgentMetrics, type ApiAgentSnapshot, toAgentSnapshot, toAgentStats } from './agents'
-import {
-  type ApiCursorResponse,
-  type ApiMetric,
-  type ApiSingleResponse,
-  chainIdNumber,
-  cursorResponse,
-  metricValue,
-  singleResponse,
-} from './shared'
-
 type ApiStopCopyProgress = Partial<StopCopyProgress>
 
 type ApiCopyRunListItem = {
@@ -39,6 +43,7 @@ type ApiCopyRunListItem = {
   agentId?: string
   chainId?: string
   copyAccount?: string
+  generationId?: string
   status?: string
   capitalInProjectionStatus?: string
   startedAt?: string
@@ -151,6 +156,7 @@ const toCopyRunListItem = (run: ApiCopyRunListItem): CopyRunListItem => {
     agentId: run.agentId || run.agentSnapshot?.agentId || '',
     chainId: chainIdNumber(run.chainId),
     copyAccount: (run.copyAccount || '') as Address,
+    generationId: run.generationId,
     status: toCopyRunStatus(run.status),
     startedAt: run.startedAt || '',
     stoppedAt: run.stoppedAt,

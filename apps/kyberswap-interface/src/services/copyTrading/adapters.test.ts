@@ -1,19 +1,103 @@
-import { describe, expect, it } from 'vitest'
-
-import { adaptActionLogsResponse, adaptActivityResponse } from './adapters/activity'
-import { adaptLeaderboardResponse, adaptPerformanceResponse } from './adapters/agents'
-import { adaptCopyAccountBalancesResponse, adaptCopyAccountWalletInventoryResponse } from './adapters/copyAccounts'
-import { adaptCopyRunCashbackPolicyResponse, adaptCopyRunResponse, adaptCopyRunsResponse } from './adapters/copyRuns'
+import { adaptActionLogsResponse, adaptActivityResponse } from 'services/copyTrading/adapters/activity'
+import {
+  adaptChainsResponse,
+  adaptLeaderboardResponse,
+  adaptPerformanceResponse,
+} from 'services/copyTrading/adapters/agents'
+import {
+  adaptCopyAccountBalancesResponse,
+  adaptCopyAccountResponse,
+  adaptCopyAccountWalletInventoryResponse,
+} from 'services/copyTrading/adapters/copyAccounts'
+import {
+  adaptCopyRunCashbackPolicyResponse,
+  adaptCopyRunResponse,
+  adaptCopyRunsResponse,
+} from 'services/copyTrading/adapters/copyRuns'
 import {
   adaptAgentPositionsResponse,
   adaptClosedPositionExecutionsResponse,
   adaptPositionsResponse,
-} from './adapters/positions'
+} from 'services/copyTrading/adapters/positions'
+import { describe, expect, it } from 'vitest'
 
 const currentCapital = {
   value: '12.34',
   status: 'METRIC_STATUS_CURRENT' as const,
 }
+
+describe('account generations', () => {
+  it('preserves chain generation lifecycle and capabilities', () => {
+    const chain = adaptChainsResponse({
+      data: [
+        {
+          chainId: '8453',
+          accountGenerations: [
+            {
+              generationId: 'beta-3',
+              lifecycle: 'ACCOUNT_GENERATION_LIFECYCLE_CREATE_ENABLED',
+              capabilities: [
+                'ACCOUNT_GENERATION_PRODUCT_CAPABILITY_START_COPY',
+                'ACCOUNT_GENERATION_PRODUCT_CAPABILITY_ADD_CAPITAL',
+              ],
+            },
+          ],
+        },
+      ],
+    }).data[0]
+
+    expect(chain.accountGenerations).toEqual([
+      {
+        generationId: 'beta-3',
+        lifecycle: 'ACCOUNT_GENERATION_LIFECYCLE_CREATE_ENABLED',
+        capabilities: [
+          'ACCOUNT_GENERATION_PRODUCT_CAPABILITY_START_COPY',
+          'ACCOUNT_GENERATION_PRODUCT_CAPABILITY_ADD_CAPITAL',
+        ],
+      },
+    ])
+  })
+
+  it('keeps generation-scoped agent availability and fees paired by id', () => {
+    const agent = adaptLeaderboardResponse({
+      data: [
+        {
+          agentId: 'agent-1',
+          startCopyAvailabilities: [
+            {
+              generationId: 'beta-3',
+              availability: { status: 'ADVISORY_ACTION_STATUS_AVAILABLE' },
+            },
+          ],
+          feePolicies: [
+            {
+              generationId: 'beta-3',
+              flatFeeRatePct: { value: '0.5', status: 'METRIC_STATUS_CURRENT' },
+              cashbackFormulaVersion: 2,
+            },
+          ],
+        },
+      ],
+    }).data[0]
+
+    expect(agent.startCopyAvailabilities).toEqual([
+      { generationId: 'beta-3', availability: { status: 'ADVISORY_ACTION_STATUS_AVAILABLE' } },
+    ])
+    expect(agent.feePolicies).toEqual([
+      {
+        generationId: 'beta-3',
+        flatFeeRatePct: { value: '0.5', status: 'METRIC_STATUS_CURRENT' },
+        cashbackFormulaVersion: 2,
+      },
+    ])
+  })
+
+  it('preserves indexed generation provenance on copy runs and accounts', () => {
+    expect(adaptCopyRunsResponse({ data: [{ generationId: 'beta-2' }] }).data[0].generationId).toBe('beta-2')
+    expect(adaptCopyRunResponse({ data: { generationId: 'beta-2' } }).data.generationId).toBe('beta-2')
+    expect(adaptCopyAccountResponse({ data: { generationId: 'beta-2' } }).data.generationId).toBe('beta-2')
+  })
+})
 
 describe('ROI and copy-run list metrics', () => {
   it.each([

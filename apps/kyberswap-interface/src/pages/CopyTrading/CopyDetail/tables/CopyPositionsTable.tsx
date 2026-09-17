@@ -38,12 +38,21 @@ type TableGridWrapperProps = HTMLAttributes<HTMLDivElement> & {
 
 type PositionTableProps = {
   copyRunStatus: CopyRunStatus
+  generationId?: string
   infiniteScroll: InfiniteScrollState
   loading?: boolean
   rows: PositionSummary[]
 }
 
-const PositionAction = ({ copyRunStatus, position }: { copyRunStatus: CopyRunStatus; position: PositionSummary }) => {
+const PositionAction = ({
+  copyRunStatus,
+  generationId,
+  position,
+}: {
+  copyRunStatus: CopyRunStatus
+  generationId?: string
+  position: PositionSummary
+}) => {
   const { openManagePosition } = useCopyTradingModal()
   const recoveryFlow = getPositionRecoveryFlow(position, copyRunStatus)
   if (!recoveryFlow) return null
@@ -58,7 +67,7 @@ const PositionAction = ({ copyRunStatus, position }: { copyRunStatus: CopyRunSta
       className="whitespace-nowrap"
       onClick={event => {
         event.stopPropagation()
-        openManagePosition(position, recoveryFlow)
+        openManagePosition(position, recoveryFlow, generationId)
       }}
     >
       {flowConfig.actionLabel}
@@ -81,7 +90,13 @@ const CopyPositionsGrid = ({ header, className, ...props }: TableGridWrapperProp
   )
 }
 
-export const CopyPositionsTable = ({ copyRunStatus, infiniteScroll, loading, rows }: PositionTableProps) => {
+export const CopyPositionsTable = ({
+  copyRunStatus,
+  generationId,
+  infiniteScroll,
+  loading,
+  rows,
+}: PositionTableProps) => {
   return (
     <Stack>
       <InfiniteScroll {...infiniteScroll}>
@@ -130,7 +145,7 @@ export const CopyPositionsTable = ({ copyRunStatus, infiniteScroll, loading, row
                   {formatDateTime(row.openedAt)}
                 </TableCell>
                 <TableCell className="flex justify-end">
-                  <PositionAction copyRunStatus={copyRunStatus} position={row} />
+                  <PositionAction copyRunStatus={copyRunStatus} generationId={generationId} position={row} />
                 </TableCell>
               </CopyPositionsGrid>
 
@@ -166,7 +181,7 @@ export const CopyPositionsTable = ({ copyRunStatus, infiniteScroll, loading, row
                     </TableCardField>
                   </TableCardGrid>
 
-                  <PositionAction copyRunStatus={copyRunStatus} position={row} />
+                  <PositionAction copyRunStatus={copyRunStatus} generationId={generationId} position={row} />
                 </Stack>
               </Stack>
             </div>

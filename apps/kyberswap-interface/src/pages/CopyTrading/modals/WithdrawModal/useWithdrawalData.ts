@@ -60,6 +60,7 @@ export const useWithdrawalPreview = (copyRun: CopyRunListItem, account: string |
       account: owner || '',
       chainId: copyRun.chainId,
       copyAccount: copyRun.copyAccount,
+      generationId: copyRun.generationId,
       callKinds: ['PREPARED_CALL_KIND_WITHDRAW_TOKENS'],
       preview: 'withdrawTokens',
     })
