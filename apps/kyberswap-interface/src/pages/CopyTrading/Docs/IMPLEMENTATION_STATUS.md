@@ -25,7 +25,10 @@ and the latest verification evidence. API details remain owned by
   mapping and response adapters in services/copyTrading, not in UI components.
 - [components/InfiniteScroll](/Users/neikop/Workings/Kyber/kyberswap-interface/apps/kyberswap-interface/src/pages/CopyTrading/components/InfiniteScroll/index.tsx) and [components/CursorPagination](/Users/neikop/Workings/Kyber/kyberswap-interface/apps/kyberswap-interface/src/pages/CopyTrading/components/CursorPagination/index.tsx) own TanStack
   pagination over RTK Query requests. [useRefreshCopyTrading](/Users/neikop/Workings/Kyber/kyberswap-interface/apps/kyberswap-interface/src/pages/CopyTrading/hooks/useRefreshCopyTrading.ts) invalidates both
-  caches; this ownership has not been consolidated.
+  caches. Retain this architecture: API declarations remain centralized, while
+  TanStack owns list pagination and its loading/refetch lifecycle. Consolidating
+  these caches is not planned; preserving current behavior would require custom
+  refresh/subscription handling without a business benefit.
 - Endpoint groups own Discovery, Agents, Copy Runs, Copy Accounts, and prepared
   actions. The prepared-actions endpoint group also owns actions:status. Shared query-parameter mapping stays in api/queryParams.ts.
 - adapters and types are the compatibility boundary between API-native
@@ -387,9 +390,6 @@ Cross-flow decisions:
 Product flows are implemented. Remaining maintenance, validation and product
 work:
 
-- Read/cache ownership still spans RTK Query and TanStack. Retain invalidation
-  of both until a migration is justified; using both is not itself a confirmed
-  functional defect. API declarations must remain centralized.
 - Controlled positive E2E for All Tokens withdrawal on active and stopped runs,
   including repeated independent withdrawals, zero balances, expiry, and
   post-receipt submitted-status convergence.
