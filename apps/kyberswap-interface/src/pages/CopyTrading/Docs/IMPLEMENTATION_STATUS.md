@@ -249,9 +249,22 @@ Cross-flow decisions:
 - Preparation is authoritative for owner, chain, Smart Wallet, preview, call
   kind, target, value, amount, and expiry.
 - Wallet submission uses call.to, call.data, and call.valueRaw unchanged.
-- All seven actions retain prepare, review where applicable, wallet submission,
-  and RPC receipt waiting. Their afterReceipt callbacks use the shared
-  pollSubmittedActionStatus helper in PreparedActionModal/postReceipt.ts.
+- usePreparedAction owns preparation response handling, wallet submission, RPC
+  receipt waiting, actions:status polling, refresh milestones, and retry for all
+  seven actions. Action hooks own their request inputs and domain-specific checks.
+- Start's post-authorization request uses the same preparation handler as its
+  initial request. Shared validation runs before capturing the predicted account;
+  READY returns to Review without submission, PENDING/UNAVAILABLE use existing
+  recovery, and a valid COMPLETED response uses the common success path.
+- After authorization, Start validates UNAVAILABLE with the existing validator
+  without requiring a call. Unavailable responses never pin the predicted account.
+  The confirm label uses Preparing during any review preparation, including after authorization.
+- Action callbacks consume validated preparation data or verified submitted
+  results only. Start records the returned copyRunId; Stop resolves navigation.
+  No action hook owns its own status polling or cache refresh sequence.
+- The unused preparation-continuation loop and stored RPC receiptBlockNumber
+  were removed. Submitted recovery uses actions:status with the saved action/hash;
+  its backend receipt reference remains local to each status polling sequence.
 - Each poll sends the original statusContext and the receipt's transactionHash
   to POST /users/{ownerAddress}/actions:status. The context owner must match
   the prepared sender. Context is not rebuilt from current list/detail data,
@@ -278,7 +291,7 @@ Cross-flow decisions:
   reads the returned Copy Run once to choose My Copies versus History; failure
   of this navigation-only read does not invalidate verified action success.
 - This update does not consume nextStep, add Start funding continuation or
-  withdrawal batch controls, or change preparation/validation/CTA behavior.
+  withdrawal batch controls, or new product UI.
   Start retains funded CREATE only; submitted status success refers to the
   submitted call rather than a new frontend check of ACTIVE lifecycle.
   Persistence/resume across reloads and the broader guidance/advisory migration
@@ -418,12 +431,15 @@ from the frontend.
 Latest verification evidence (2026-09-17):
 
 - App TypeScript, Copy Trading ESLint, and git diff --check passed.
-- The full Copy Trading service/page suite passed 180 tests across 18 files.
+- The full Copy Trading service/page suite passed 197 tests across 18 files.
   Generation coverage includes array joins, ambiguous implicit resolution, retirement,
   read-only execution, missing/mismatched response identity, unknown account
   provenance, and preserving or invalidating Start request/permit identity.
 - Recovery tests cover refreshing changed obligations before another review,
   preserving receipt/status retry and other preparation failure paths.
+- Shared-flow tests cover post-authorization preparation statuses and identity
+  validation, refresh/result callback ordering, refresh failure isolation, and
+  receipt/status retries with replacement hashes without rebroadcasting.
 - Checked-in OpenAPI byte-matched the live 35-operation, 199-definition schema
   fetched on 2026-09-17. SHA-256:
   f31e43f20fb56af9a33b85954b8e8064cdb37c039631821b03d7d04360988d25.

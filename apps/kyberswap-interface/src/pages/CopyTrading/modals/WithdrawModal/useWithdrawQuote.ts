@@ -6,8 +6,6 @@ import type { PreparedCallKind } from 'services/copyTrading/types/preparedAction
 
 import { useActiveWeb3React } from 'hooks'
 import { useCurrencyV2 } from 'hooks/useTokens'
-import useRefreshCopyTrading from 'pages/CopyTrading/hooks/useRefreshCopyTrading'
-import { pollSubmittedActionStatus } from 'pages/CopyTrading/modals/PreparedActionModal/postReceipt'
 import {
   DEFAULT_PREPARED_ACTION_STATE,
   parsePreparedAmount,
@@ -35,8 +33,6 @@ const WITHDRAW_CALL_KINDS: PreparedCallKind[] = ['PREPARED_CALL_KIND_WITHDRAW_QU
 
 export const useWithdrawQuote = ({ isOpen, copyRun, wallet }: WithdrawQuoteParams) => {
   const { account } = useActiveWeb3React()
-  const refreshCopyTrading = useRefreshCopyTrading()
-  const [getStatus] = preparedActionApi.useGetSubmittedActionStatusMutation()
   const [prepareWithdrawQuote] = preparedActionApi.usePrepareWithdrawQuoteMutation()
 
   const [flowState, setFlowState] = useState(DEFAULT_PREPARED_ACTION_STATE)
@@ -138,11 +134,6 @@ export const useWithdrawQuote = ({ isOpen, copyRun, wallet }: WithdrawQuoteParam
       }
       return response.data
     },
-    afterReceipt: async (action, hash) => {
-      await pollSubmittedActionStatus({ action, hash, getStatus })
-      refreshCopyTrading()
-    },
-    onComplete: refreshCopyTrading,
   })
 
   const setPresetAmount = (percentage: 50 | 100) => {

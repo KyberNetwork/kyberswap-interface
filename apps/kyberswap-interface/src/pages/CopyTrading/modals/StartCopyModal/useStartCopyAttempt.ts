@@ -7,7 +7,10 @@ import type {
 } from 'services/copyTrading/types/preparedActions'
 import { v4 as uuidv4 } from 'uuid'
 
-import type { PreparedActionExpectation } from 'pages/CopyTrading/modals/PreparedActionModal/preparedAction'
+import {
+  type PreparedActionExpectation,
+  validatePreparedAction,
+} from 'pages/CopyTrading/modals/PreparedActionModal/preparedAction'
 import type { StartCopyTarget } from 'pages/CopyTrading/modals/StartCopyModal/startCopy'
 
 const START_CALL_KINDS: PreparedCallKind[] = ['PREPARED_CALL_KIND_START_COPY_CREATE']
@@ -107,7 +110,16 @@ export const useStartCopyAttempt = ({
     return scopedAttempt
   }
 
-  const capturePredictedCopyAccount = (nextPredictedCopyAccount?: string) => {
+  const acceptPreparation = (action: PreparedAction) => {
+    if (action.status === 'PREPARED_ACTION_STATUS_UNAVAILABLE') {
+      if (attemptRef.current.authorizationApplied) {
+        const error = validatePreparedAction(action, expectedRef.current, { requireCall: false })
+        if (error) throw new Error(error)
+      }
+      return
+    }
+
+    const nextPredictedCopyAccount = action.startCopy?.predictedCopyAccount
     const expectedPredictedCopyAccount = expectedRef.current.startCopyPredictedAccount
     if (
       expectedPredictedCopyAccount &&
@@ -166,7 +178,7 @@ export const useStartCopyAttempt = ({
 
   return {
     attemptRef,
-    capturePredictedCopyAccount,
+    acceptPreparation,
     createAuthorizedAttempt,
     expected: expectedRef.current,
     getScopedStartAttempt,

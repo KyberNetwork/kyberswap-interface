@@ -9,12 +9,10 @@ import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { formatTokenAmount, sumUsdValues } from 'pages/CopyTrading/helpers'
-import useRefreshCopyTrading from 'pages/CopyTrading/hooks/useRefreshCopyTrading'
 import { AddCapitalForm } from 'pages/CopyTrading/modals/AddCapitalModal/components'
 import { type CapitalPercentage } from 'pages/CopyTrading/modals/CapitalAmount/capital'
 import { useCapitalAmount } from 'pages/CopyTrading/modals/CapitalAmount/useCapitalAmount'
 import PreparedActionModal, { PreparedActionSuccessActions } from 'pages/CopyTrading/modals/PreparedActionModal'
-import { pollSubmittedActionStatus } from 'pages/CopyTrading/modals/PreparedActionModal/postReceipt'
 import { DEFAULT_PREPARED_ACTION_STATE } from 'pages/CopyTrading/modals/PreparedActionModal/preparedAction'
 import { usePreparedAction } from 'pages/CopyTrading/modals/PreparedActionModal/usePreparedAction'
 import {
@@ -38,8 +36,6 @@ const AddCapitalModal = ({ isOpen, onDismiss, copyRun }: AddCapitalModalProps) =
   const { account, chainId } = useActiveWeb3React()
   const { changeNetwork } = useChangeNetwork()
   const toggleWalletModal = useWalletModalToggle()
-  const refreshCopyTrading = useRefreshCopyTrading()
-  const [getStatus] = preparedActionApi.useGetSubmittedActionStatusMutation()
   const [prepareAddCapital] = preparedActionApi.usePrepareAddCapitalMutation()
 
   const [flowState, setFlowState] = useState(DEFAULT_PREPARED_ACTION_STATE)
@@ -100,11 +96,6 @@ const AddCapitalModal = ({ isOpen, onDismiss, copyRun }: AddCapitalModalProps) =
 
       return response.data
     },
-    afterReceipt: async (action, hash) => {
-      await pollSubmittedActionStatus({ action, hash, getStatus })
-      refreshCopyTrading()
-    },
-    onComplete: refreshCopyTrading,
   })
 
   const dismiss = () => {

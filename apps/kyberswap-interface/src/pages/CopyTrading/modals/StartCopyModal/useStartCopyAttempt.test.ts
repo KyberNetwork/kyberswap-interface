@@ -1,5 +1,5 @@
 import type { AgentCard } from 'services/copyTrading/types/agents'
-import type { PrepareStartCopyRequest } from 'services/copyTrading/types/preparedActions'
+import type { PrepareStartCopyRequest, PreparedAction } from 'services/copyTrading/types/preparedActions'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { useStartCopyAttempt } from 'pages/CopyTrading/modals/StartCopyModal/useStartCopyAttempt'
@@ -56,5 +56,79 @@ describe('Start generation attempt identity', () => {
     expect(second.generationId).toBe('replacement')
     expect(second.createPermitData).toBeUndefined()
     expect(second.authorizationApplied).toBe(false)
+  })
+})
+
+describe('Start preparation identity', () => {
+  const predictedCopyAccount = '0x2222222222222222222222222222222222222222'
+  const authorizedPreparation = () => {
+    const flow = StartCopyAttemptHarness()
+    flow.getScopedStartAttempt(account, '100', 'original')
+    const attempt = flow.createAuthorizedAttempt({ ownerAddress: account, targetRaw: '100' })
+    const action: PreparedAction = {
+      generationId: 'original',
+      displayEnrichment: { status: 'ACTION_DISPLAY_ENRICHMENT_STATUS_NOT_APPLICABLE' },
+      status: 'PREPARED_ACTION_STATUS_UNAVAILABLE',
+      reason: 'PREPARED_ACTION_REASON_CONTROLLER_PAUSED',
+      chainId: '8453',
+      expectedAccount: account,
+      startCopy: {
+        stage: 'START_COPY_STAGE_CREATE_REQUIRED',
+        startRequestId: attempt.requestId,
+        requestedTargetRaw: '100',
+        createAmountRaw: '100',
+        predictedCopyAccount,
+      },
+    }
+    return { flow, action }
+  }
+
+  it('accepts a matching unavailable response without pinning its account', () => {
+    const { flow, action } = authorizedPreparation()
+    expect(() => flow.acceptPreparation(action)).not.toThrow()
+    expect(flow.expected.startCopyPredictedAccount).toBeUndefined()
+  })
+
+  it.each([
+    { chainId: '1' },
+    { expectedAccount: predictedCopyAccount },
+    { startCopy: { startRequestId: 'another-attempt' } },
+    { startCopy: { requestedTargetRaw: '200' } },
+  ])('rejects mismatched unavailable responses after authorization: %j', override => {
+    const { flow, action } = authorizedPreparation()
+    expect(() =>
+      flow.acceptPreparation({
+        ...action,
+        ...override,
+        startCopy: { ...action.startCopy, ...override.startCopy },
+      }),
+    ).toThrow(/does not match/)
+    expect(flow.expected.startCopyPredictedAccount).toBeUndefined()
+  })
+
+  it('does not pin an account from the initial allowance diagnostic', () => {
+    const { flow, action } = authorizedPreparation()
+    flow.resetStartAttempt()
+    flow.acceptPreparation({
+      ...action,
+      reason: 'PREPARED_ACTION_REASON_INSUFFICIENT_QUOTE_ALLOWANCE',
+      startCopy: { ...action.startCopy, startRequestId: flow.attemptRef.current.requestId },
+    })
+    expect(flow.expected.startCopyPredictedAccount).toBeUndefined()
+  })
+
+  it('pins the validated ready account and rejects a later account change', () => {
+    const { flow, action } = authorizedPreparation()
+    const ready: PreparedAction = {
+      ...action,
+      status: 'PREPARED_ACTION_STATUS_READY',
+      reason: undefined,
+      call: { kind: 'PREPARED_CALL_KIND_START_COPY_CREATE', to: predictedCopyAccount, data: '0x', valueRaw: '0' },
+    }
+    flow.acceptPreparation(ready)
+    expect(flow.expected.startCopyPredictedAccount).toBe(predictedCopyAccount)
+    expect(() =>
+      flow.acceptPreparation({ ...ready, startCopy: { ...ready.startCopy, predictedCopyAccount: account } }),
+    ).toThrow('Smart Wallet changed')
   })
 })

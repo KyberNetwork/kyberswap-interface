@@ -8,7 +8,6 @@ import type { PositionSummary } from 'services/copyTrading/types/positions'
 
 import { useActiveWeb3React } from 'hooks'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
-import useRefreshCopyTrading from 'pages/CopyTrading/hooks/useRefreshCopyTrading'
 import {
   ManagePositionForm,
   ManagePositionReview,
@@ -27,7 +26,6 @@ import {
 } from 'pages/CopyTrading/modals/ManagePositionModal/positionSellFlow'
 import PreparedActionModal, { PreparedActionSuccessActions } from 'pages/CopyTrading/modals/PreparedActionModal'
 import { DEFAULT_PREPARED_ACTION_SLIPPAGE } from 'pages/CopyTrading/modals/PreparedActionModal/SlippageControl'
-import { pollSubmittedActionStatus } from 'pages/CopyTrading/modals/PreparedActionModal/postReceipt'
 import {
   DEFAULT_PREPARED_ACTION_STATE,
   getApiErrorMessage,
@@ -58,8 +56,6 @@ const ManagePositionModal = ({
   const { account, chainId } = useActiveWeb3React()
   const { changeNetwork } = useChangeNetwork()
   const toggleWalletModal = useWalletModalToggle()
-  const refreshCopyTrading = useRefreshCopyTrading()
-  const [getStatus] = preparedActionApi.useGetSubmittedActionStatusMutation()
   const [prepareManualSell] = preparedActionApi.usePrepareManualSellMutation()
   const [prepareClosePosition] = preparedActionApi.usePrepareClosePositionMutation()
   const [getObligations] = copyAccountApi.useLazyGetPendingSellObligationsQuery()
@@ -183,11 +179,6 @@ const ManagePositionModal = ({
       preview: preparationConfig.preview,
     },
     prepare: preparePositionSell,
-    afterReceipt: async (action, hash) => {
-      await pollSubmittedActionStatus({ action, hash, getStatus })
-      refreshCopyTrading()
-    },
-    onComplete: refreshCopyTrading,
   })
 
   const dismiss = () => {

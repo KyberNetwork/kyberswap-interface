@@ -30,7 +30,6 @@ export type PreparedActionFlowState = {
   action?: PreparedAction
   error?: string
   hash?: Hash
-  receiptBlockNumber?: bigint
   retryStage?: 'receipt' | 'sync'
 }
 
@@ -349,10 +348,5 @@ export const getReprepareDelay = (action: PreparedAction) => {
   if (!Number.isFinite(requestedAt)) return 2_000
   return Math.max(500, requestedAt - Date.now())
 }
-
-export const validatePreparedActionContinuation = (action: PreparedAction) =>
-  action.status === 'PREPARED_ACTION_STATUS_READY' || action.status === 'PREPARED_ACTION_STATUS_PARTIALLY_COMPLETED'
-    ? 'The confirmed Start Copy transaction returned another executable preparation. Do not submit another transaction.'
-    : undefined
 
 export const wait = (milliseconds: number) => new Promise<void>(resolve => setTimeout(resolve, milliseconds))
