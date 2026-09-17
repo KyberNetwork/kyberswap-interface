@@ -7973,6 +7973,10 @@ msgstr "Referral Code Input (Optional)"
 msgid "The Campaign will take place over 6 weeks, from March 16 at 8:00 AM UTC."
 msgstr "The Campaign will take place over 6 weeks, from March 16 at 8:00 AM UTC."
 
+#: src/pages/Earns/VaultDetail/index.tsx
+msgid "Your balance: <0/> {symbol}"
+msgstr "Your balance: <0/> {symbol}"
+
 #: src/pages/MyPool/index.tsx
 #: src/pages/ProAmmPool/index.tsx
 msgid "Connect to a wallet to view your liquidity."
@@ -10536,8 +10540,8 @@ msgid "Claim your claimable farming rewards from a position."
 msgstr "Claim your claimable farming rewards from a position."
 
 #: src/pages/Earns/VaultDetail/index.tsx
-msgid "Your balance: {amount} {symbol}"
-msgstr "Your balance: {amount} {symbol}"
+#~ msgid "Your balance: {amount} {symbol}"
+#~ msgstr "Your balance: {amount} {symbol}"
 
 #: src/pages/PoolFinder/index.tsx
 msgid "Loading"

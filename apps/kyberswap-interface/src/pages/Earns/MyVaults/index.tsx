@@ -10,6 +10,7 @@ import Search from 'components/Search'
 import TokenLogo from 'components/TokenLogo'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
+import useDebounce from 'hooks/useDebounce'
 import useTheme from 'hooks/useTheme'
 import {
   ApyTvlRow,
@@ -45,9 +46,11 @@ import {
 } from 'pages/Earns/ExploreVaults/styles'
 import { UserVaultPosition } from 'pages/Earns/ExploreVaults/types'
 import { PositionAction as PositionActionBtn } from 'pages/Earns/PositionDetail/styles'
+import AnimatedNumber from 'pages/Earns/components/AnimatedNumber'
 import PositionSkeleton from 'pages/Earns/components/PositionSkeleton'
 import VaultDepositModal from 'pages/Earns/components/VaultDeposit/VaultDepositModal'
 import VaultWithdrawModal from 'pages/Earns/components/VaultWithdraw/VaultWithdrawModal'
+import { VAULT_POLLING_INTERVAL } from 'pages/Earns/constants/vault'
 import { VAULT_CHAIN_OPTIONS } from 'pages/Earns/constants/vaultFilters'
 import useCountdown from 'pages/Earns/hooks/useCountdown'
 import { useRefreshOnVaultTx } from 'pages/Earns/hooks/useRefreshOnVaultTx'
@@ -68,8 +71,9 @@ const formatTvl = (value: number) => formatDisplayNumber(value, { style: 'decima
 
 const formatUsd = (value: number) => formatDisplayNumber(value, { style: 'currency', significantDigits: 4 })
 
-const formatBalance = (value: number, token: string) =>
-  `${formatDisplayNumber(value, { style: 'decimal', significantDigits: 4 })} ${token}`
+const formatAmount = (value: number) => formatDisplayNumber(value, { style: 'decimal', significantDigits: 4 })
+
+const SEARCH_DEBOUNCE_MS = 300
 
 const getStatusConfig = (
   theme: Colors,
@@ -148,9 +152,12 @@ const MyVaultCard = ({
           <InfoValue>
             <InfoValuePrimary>
               <TokenLogo src={vault.tokenIcon} alt={vault.token} size={20} />
-              {formatBalance(vault.balance, vault.token)}
+              <AnimatedNumber value={formatAmount(vault.balance)} />
+              <span>{vault.token}</span>
             </InfoValuePrimary>
-            <InfoValueSecondary>{formatUsd(vault.balanceUsd)}</InfoValueSecondary>
+            <InfoValueSecondary>
+              <AnimatedNumber value={formatUsd(vault.balanceUsd)} />
+            </InfoValueSecondary>
           </InfoValue>
         </InfoRow>
 
@@ -159,9 +166,12 @@ const MyVaultCard = ({
           <InfoValue>
             <InfoValuePrimary>
               <TokenLogo src={vault.tokenIcon} alt={vault.token} size={20} />
-              {formatBalance(vault.earned, vault.token)}
+              <AnimatedNumber value={formatAmount(vault.earned)} />
+              <span>{vault.token}</span>
             </InfoValuePrimary>
-            <InfoValueSecondary>{formatUsd(vault.earnedUsd)}</InfoValueSecondary>
+            <InfoValueSecondary>
+              <AnimatedNumber value={formatUsd(vault.earnedUsd)} />
+            </InfoValueSecondary>
           </InfoValue>
         </InfoRow>
 
@@ -171,13 +181,13 @@ const MyVaultCard = ({
               <InfoLabel>{t`Withdrawing`}</InfoLabel>
               <InfoValue>
                 <InfoValuePrimary>
-                  {formatDisplayNumber(
-                    formatUnits(safeBigInt(activeRequest.amountOfAssets), activeRequest.assetOut.decimals),
-                    {
-                      significantDigits: 4,
-                    },
-                  )}{' '}
-                  {activeRequest.assetOut.symbol}
+                  <AnimatedNumber
+                    value={formatDisplayNumber(
+                      formatUnits(safeBigInt(activeRequest.amountOfAssets), activeRequest.assetOut.decimals),
+                      { significantDigits: 4 },
+                    )}
+                  />
+                  <span>{activeRequest.assetOut.symbol}</span>
                 </InfoValuePrimary>
                 {otherRequestCount > 0 ? (
                   <InfoValueSecondary>{t`+${otherRequestCount} more`}</InfoValueSecondary>
@@ -206,11 +216,15 @@ const MyVaultCard = ({
         <ApyTvlRow>
           <FooterMetric>
             <FooterMetricLabel>APY</FooterMetricLabel>
-            <span className="text-base font-normal text-primary">{vault.apy.toFixed(2)}%</span>
+            <span className="text-base font-normal text-primary">
+              <AnimatedNumber value={`${vault.apy.toFixed(2)}%`} />
+            </span>
           </FooterMetric>
           <FooterMetric>
             <FooterMetricLabel>TVL</FooterMetricLabel>
-            <span className="text-base text-white2">{formatTvl(vault.tvl)}</span>
+            <span className="text-base text-white2">
+              <AnimatedNumber value={formatTvl(vault.tvl)} />
+            </span>
           </FooterMetric>
         </ApyTvlRow>
 
@@ -271,6 +285,7 @@ const MyVaults = () => {
   const { account } = useActiveWeb3React()
   const toggleWalletModal = useWalletModalToggle()
   const [search, setSearch] = useState('')
+  const debouncedSearch = useDebounce(search, SEARCH_DEBOUNCE_MS)
   const [selectedChain, setSelectedChain] = useState('')
   const upToSmall = useMedia(`(max-width: ${MEDIA_WIDTHS.upToSmall}px)`)
   const [depositVault, setDepositVault] = useState<UserVaultPosition | null>(null)
@@ -280,10 +295,10 @@ const MyVaults = () => {
     {
       userAddress: (account || '').toLowerCase(),
       chainIds: selectedChain || undefined,
-      keyword: search.trim() || undefined,
+      keyword: debouncedSearch.trim() || undefined,
       pageSize: 100,
     },
-    { skip: !account },
+    { skip: !account, pollingInterval: VAULT_POLLING_INTERVAL },
   )
 
   const filteredVaults = useMemo<UserVaultPosition[]>(
@@ -291,7 +306,7 @@ const MyVaults = () => {
     [data?.positions],
   )
 
-  // Balances and requests only move once a vault transaction is mined.
+  // The user's own transactions refresh at once rather than waiting for the next poll.
   useRefreshOnVaultTx(refetch)
 
   const chainLabel = useMemo(() => {

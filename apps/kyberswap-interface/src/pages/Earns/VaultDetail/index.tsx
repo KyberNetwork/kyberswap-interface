@@ -1,4 +1,4 @@
-import { t } from '@lingui/macro'
+import { Trans, t } from '@lingui/macro'
 import { KeyboardEvent, useMemo, useState } from 'react'
 import { Navigate, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
@@ -47,10 +47,21 @@ import {
   VaultName,
   VaultNameMuted,
 } from 'pages/Earns/VaultDetail/styles'
+import AnimatedNumber from 'pages/Earns/components/AnimatedNumber'
+import { VAULT_POLLING_INTERVAL } from 'pages/Earns/constants/vault'
 import { useRefreshOnVaultTx } from 'pages/Earns/hooks/useRefreshOnVaultTx'
 import { VaultDetailTab, toVaultInfoFromDetail } from 'pages/Earns/utils/vault'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
+
+/** The user's stake, under the TVL heading. Only the amount rolls when a poll moves it. */
+const PositionBalance = ({ amount, symbol }: { amount: string; symbol: string }) => (
+  <span className="truncate text-xs leading-4 text-subText">
+    <Trans>
+      Your balance: <AnimatedNumber value={amount} /> {symbol}
+    </Trans>
+  </span>
+)
 
 type PeriodKey = '24H' | '7D' | '30D'
 
@@ -79,7 +90,10 @@ const VaultDetail = () => {
     data: detail,
     isLoading: isDetailLoading,
     isError: isDetailError,
-  } = useVaultDetailQuery({ chainId, vaultId: vaultId as string }, { skip: !hasValidParams })
+  } = useVaultDetailQuery(
+    { chainId, vaultId: vaultId as string },
+    { skip: !hasValidParams, pollingInterval: VAULT_POLLING_INTERVAL },
+  )
 
   const activeTab: VaultDetailTab = searchParams.get('tab') === 'withdraw' ? 'withdraw' : 'deposit'
   const setActiveTab = (tab: VaultDetailTab) => {
@@ -101,21 +115,20 @@ const VaultDetail = () => {
 
   const { data: position, refetch: refetchPosition } = useVaultPositionDetailQuery(
     { chainId, userAddress: (account || '').toLowerCase(), vaultId: vaultId as string },
-    { skip: !hasValidParams || !account },
+    { skip: !hasValidParams || !account, pollingInterval: VAULT_POLLING_INTERVAL },
   )
 
   const vault = useMemo(() => (detail ? toVaultInfoFromDetail(detail) : undefined), [detail])
 
   // The chart plots the vault's own size; the user's stake in it rides along as a sub-heading.
-  const positionBalanceLabel = useMemo(() => {
+  const positionBalance = useMemo(() => {
     const shares = Number(position?.shareBalance || 0)
     const symbol = detail?.shareToken?.symbol
     if (!shares || !symbol) return undefined
-    const amount = formatDisplayNumber(shares, { style: 'decimal', significantDigits: 6 })
-    return t`Your balance: ${amount} ${symbol}`
+    return { amount: formatDisplayNumber(shares, { style: 'decimal', significantDigits: 6 }), symbol }
   }, [position?.shareBalance, detail?.shareToken?.symbol])
 
-  // A deposit or withdrawal only lands in the position once it is mined.
+  // The user's own transactions refresh at once rather than waiting for the next poll.
   useRefreshOnVaultTx(refetchPosition)
 
   const chartHeight = upToXXSmall ? 170 : upToSmall ? 200 : 240
@@ -163,7 +176,9 @@ const VaultDetail = () => {
           <HeaderTitleMuted>{vault.label}</HeaderTitleMuted>
         </HeaderTitle>
         <HeaderApy>
-          <HeaderApyValue>{formatApy(vault.apy)}%</HeaderApyValue>
+          <HeaderApyValue>
+            <AnimatedNumber value={`${formatApy(vault.apy)}%`} />
+          </HeaderApyValue>
           <HeaderApyLabel>{t`APY`}</HeaderApyLabel>
         </HeaderApy>
       </HeaderRow>
@@ -210,9 +225,7 @@ const VaultDetail = () => {
                 <ChartHeader>
                   <div className="flex min-w-0 flex-col gap-0.5">
                     <ChartTitle>{t`TVL`}</ChartTitle>
-                    {positionBalanceLabel ? (
-                      <span className="truncate text-xs leading-4 text-subText">{positionBalanceLabel}</span>
-                    ) : null}
+                    {positionBalance ? <PositionBalance {...positionBalance} /> : null}
                   </div>
                   <PeriodTabs>
                     {PERIOD_OPTIONS.map(period => (
