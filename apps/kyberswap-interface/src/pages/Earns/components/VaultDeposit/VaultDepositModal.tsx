@@ -56,7 +56,6 @@ const DepositBody = ({
   })
 
   const chainName = vault.chain?.name ?? ''
-  const currencySymbol = form.currency?.symbol ?? ''
 
   const actionLabel = !form.account
     ? t`Connect Wallet`
@@ -65,7 +64,7 @@ const DepositBody = ({
     : !form.hasAmount
     ? t`Enter an amount`
     : form.insufficientBalance
-    ? t`Insufficient ${currencySymbol} balance`
+    ? t`Insufficient balance`
     : form.isRouteLoading && !form.route
     ? t`Finding best route`
     : t`Deposit`

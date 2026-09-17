@@ -53,7 +53,6 @@ const WithdrawTab = ({
   })
 
   const chainName = vault.chain?.name ?? ''
-  const shareSymbol = form.shareSymbol
   const nativeAssetSymbol = form.nativeAsset?.symbol ?? ''
   const openRequests = getOpenWithdrawRequests(position?.withdrawRequests)
 
@@ -98,7 +97,7 @@ const WithdrawTab = ({
     : !form.shares
     ? t`Enter an amount`
     : form.insufficientShares
-    ? t`Insufficient ${shareSymbol} balance`
+    ? t`Insufficient balance`
     : form.belowMinimum
     ? t`Amount below the queue minimum`
     : t`Withdraw`

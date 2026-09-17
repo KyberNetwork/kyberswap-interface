@@ -1430,8 +1430,8 @@ msgstr "选择池交易对"
 
 #: src/pages/Earns/components/VaultDeposit/VaultDepositModal.tsx
 #: src/pages/Earns/VaultDetail/DepositTab.tsx
-msgid "Insufficient {currencySymbol} balance"
-msgstr ""
+#~ msgid "Insufficient {currencySymbol} balance"
+#~ msgstr ""
 
 #: src/components/DateTimePicker/index.tsx
 msgid "Hour"
@@ -5516,8 +5516,8 @@ msgstr ""
 
 #: src/pages/Earns/components/VaultWithdraw/VaultWithdrawModal.tsx
 #: src/pages/Earns/VaultDetail/WithdrawTab.tsx
-msgid "Insufficient {shareSymbol} balance"
-msgstr ""
+#~ msgid "Insufficient {shareSymbol} balance"
+#~ msgstr ""
 
 #: src/components/Header/groups/CampaignNavGroup.tsx
 #: src/components/Header/groups/SwapNavGroup.tsx
@@ -10722,6 +10722,10 @@ msgstr ""
 msgid "are under review after failing to finalize in the 2 days vesting period."
 msgstr "在 2 天解锁期内未完成最终确认，当前处于审核中"
 
+#: src/pages/Earns/components/VaultDeposit/VaultDepositModal.tsx
+#: src/pages/Earns/components/VaultWithdraw/VaultWithdrawModal.tsx
+#: src/pages/Earns/VaultDetail/DepositTab.tsx
+#: src/pages/Earns/VaultDetail/WithdrawTab.tsx
 #: src/state/burn/hooks.ts
 #: src/state/burn/hooks.ts
 #: src/state/burn/hooks.ts
