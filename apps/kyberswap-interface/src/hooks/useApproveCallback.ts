@@ -2,15 +2,15 @@ import { Currency, CurrencyAmount, TokenAmount } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { readContract } from '@wagmi/core'
 import JSBI from 'jsbi'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { NotificationType } from 'components/Announcement/type'
 import { wagmiConfig } from 'components/Web3Provider'
 import { ERC20_ABI } from 'constants/abis'
 import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { useNotify } from 'state/application/hooks'
-import { useHasPendingApproval, useTransactionAdder } from 'state/transactions/hooks'
-import { TRANSACTION_TYPE } from 'state/transactions/type'
+import { useAllTransactions, useHasPendingApproval, useTransactionAdder } from 'state/transactions/hooks'
+import { TRANSACTION_TYPE, TransactionDetails, TransactionExtraInfo1Token } from 'state/transactions/type'
 import { friendlyError } from 'utils/errorMessage'
 import { sendEVMTransaction } from 'utils/sendTransaction'
 import { ErrorName } from 'utils/transactionError'
@@ -24,18 +24,18 @@ export enum ApprovalState {
   APPROVED = 'APPROVED',
 }
 
-type ApprovalError = {
-  message: string
-  tokenSymbol?: string
-  tokenAddress?: string
-  spender?: string
-}
-
 export enum ApprovalStatus {
   SUBMITTED = 'submitted',
   REJECTED = 'rejected',
   FAILED = 'failed',
   SKIPPED = 'skipped',
+}
+
+type ApprovalError = {
+  message: string
+  tokenSymbol?: string
+  tokenAddress?: string
+  spender?: string
 }
 
 type UseApproveCallbackArgs = {
@@ -45,7 +45,7 @@ type UseApproveCallbackArgs = {
   onApprovalError?: (error: ApprovalError) => void
 }
 
-// returns a variable indicating the state of the approval and a function which approves if necessary or early returns
+// Keeps the approval state in sync with allowance and exposes the wallet action to grant approval.
 export function useApproveCallback({
   amount,
   spender,
@@ -58,52 +58,133 @@ export function useApproveCallback({
 ] {
   const { account, chainId } = useActiveWeb3React()
   const { isSmartConnector } = useWeb3React()
+  const notify = useNotify()
+  const addTransactionWithType = useTransactionAdder()
+  const transactions = useAllTransactions()
+
+  // Identify the allowance being read independently of the requested amount.
   const token = amount?.currency.wrapped
+  const isNative = amount?.currency.isNative
+  const requiredAllowance = amount?.quotient.toString()
+  const allowanceScope =
+    token && account && spender && chainId
+      ? `${chainId}:${account}:${token.address}:${spender}`.toLowerCase()
+      : undefined
+
+  // Observe approval transactions for this token and spender.
   const pendingApproval = useHasPendingApproval(token?.address, spender)
 
-  const [currentAllowance, setAllowance] = useState<TokenAmount | undefined>(undefined)
-  const getAllowance = useCallback(async () => {
-    if (!token || !account || !spender || !chainId) return
-    const res = (await readContract(wagmiConfig, {
-      address: token.address as Address,
-      abi: ERC20_ABI,
-      functionName: 'allowance',
-      args: [account, spender],
-      chainId: chainId as number,
-    })) as bigint
-    setAllowance(TokenAmount.fromRawAmount(token, res.toString()))
-  }, [account, spender, token, chainId])
+  // Track the receipt itself: a fast approval can confirm before React observes the pending state.
+  // useAllTransactions scopes these transactions to the connected account and chain.
+  const latestApproval = useMemo(() => {
+    return Object.values(transactions ?? {})
+      .flat()
+      .filter((tx): tx is TransactionDetails => {
+        const info = tx?.extraInfo as TransactionExtraInfo1Token | undefined
+        return (
+          tx?.type === TRANSACTION_TYPE.APPROVE &&
+          info?.tokenAddress?.toLowerCase() === token?.address.toLowerCase() &&
+          info?.contract?.toLowerCase() === spender?.toLowerCase()
+        )
+      })
+      .sort((a, b) => b.addedTime - a.addedTime)[0]
+  }, [spender, token?.address, transactions])
+
+  const approvalReceiptHash = latestApproval?.receipt ? latestApproval.hash : undefined
+  const approvalSucceeded = latestApproval?.receipt?.status === 1
+
+  // Synchronize allowance after a successful receipt; keep cached values tied to their scope.
+  const [allowanceResult, setAllowance] = useState<{ scope: string; amount: TokenAmount }>()
+  const [syncingScope, setSyncingScope] = useState<string>()
+  const handledApproval = useRef({ scope: allowanceScope, receipt: approvalReceiptHash, amount: requiredAllowance })
 
   useEffect(() => {
-    getAllowance()
-  }, [getAllowance, pendingApproval])
+    // Cleanup cancels the previous polling when input changes. Mark that receipt as handled
+    // so the new amount gets a single read without restarting its retry window.
+    // Historical receipts on mount or a scope change also only trigger a single read.
+    if (handledApproval.current.scope !== allowanceScope || handledApproval.current.amount !== requiredAllowance) {
+      handledApproval.current = { scope: allowanceScope, receipt: approvalReceiptHash, amount: requiredAllowance }
+    }
+    const shouldSyncAfterApproval = approvalSucceeded && handledApproval.current.receipt !== approvalReceiptHash
+    setSyncingScope(shouldSyncAfterApproval ? allowanceScope : undefined)
 
-  // check the current approval status
+    if (!token || !account || !spender || !chainId || !allowanceScope || isNative || requiredAllowance === undefined)
+      return
+
+    let cancelled = false
+    let timer: ReturnType<typeof setTimeout> | undefined
+
+    // Receipt and allowance reads can reach RPC nodes at different heads. After a successful
+    // approval, keep the CTA pending and retry up to five times, three seconds apart.
+    // Idle forms and reverted approvals only read once.
+    let retriesRemaining = shouldSyncAfterApproval ? 5 : 0
+
+    const refreshAllowance = async () => {
+      let sufficient = false
+
+      try {
+        const allowance = (await readContract(wagmiConfig, {
+          address: token.address as Address,
+          abi: ERC20_ABI,
+          functionName: 'allowance',
+          args: [account, spender],
+          chainId: chainId as number,
+        })) as bigint
+        if (cancelled) return
+        setAllowance({ scope: allowanceScope, amount: TokenAmount.fromRawAmount(token, allowance.toString()) })
+        sufficient =
+          requiredAllowance === maxUint256.toString() ? allowance > 0n : allowance >= BigInt(requiredAllowance)
+      } catch (error) {
+        if (cancelled) return
+        console.warn('Failed to refresh token allowance', error)
+      }
+
+      if (!sufficient && retriesRemaining-- > 0) {
+        timer = setTimeout(refreshAllowance, 3_000)
+      } else {
+        setSyncingScope(undefined)
+        handledApproval.current = { scope: allowanceScope, receipt: approvalReceiptHash, amount: requiredAllowance }
+      }
+    }
+
+    void refreshAllowance()
+    return () => {
+      // Stop retries and ignore in-flight responses when the amount or scope changes, or on unmount.
+      cancelled = true
+      clearTimeout(timer)
+    }
+  }, [
+    account,
+    allowanceScope,
+    approvalReceiptHash,
+    approvalSucceeded,
+    chainId,
+    isNative,
+    pendingApproval,
+    requiredAllowance,
+    spender,
+    token,
+  ])
+
+  // Derive the CTA state only from allowance and synchronization for the current scope.
+  const currentAllowance = allowanceResult?.scope === allowanceScope ? allowanceResult?.amount : undefined
+  const isSyncingAllowance = !!allowanceScope && syncingScope === allowanceScope
   const approvalState: ApprovalState = useMemo(() => {
     if (!amount || !spender) return ApprovalState.UNKNOWN
     if (amount.currency.isNative) return ApprovalState.APPROVED
-    // we might not have enough data to know whether or not we need to approve
     if (!currentAllowance) return ApprovalState.UNKNOWN
 
-    // Handle farm approval.
-    if (amount.quotient.toString() === maxUint256.toString()) {
-      return currentAllowance.equalTo(JSBI.BigInt(0))
-        ? pendingApproval
-          ? ApprovalState.PENDING
-          : ApprovalState.NOT_APPROVED
-        : ApprovalState.APPROVED
-    }
+    // Farm approvals use maxUint256 as a sentinel and accept any non-zero allowance.
+    const hasEnoughAllowance =
+      amount.quotient.toString() === maxUint256.toString()
+        ? !currentAllowance.equalTo(JSBI.BigInt(0))
+        : !currentAllowance.lessThan(amount)
+    if (hasEnoughAllowance) return ApprovalState.APPROVED
 
-    return currentAllowance.lessThan(amount)
-      ? pendingApproval
-        ? ApprovalState.PENDING
-        : ApprovalState.NOT_APPROVED
-      : ApprovalState.APPROVED
-  }, [amount, currentAllowance, pendingApproval, spender])
-  const notify = useNotify()
+    return pendingApproval || isSyncingAllowance ? ApprovalState.PENDING : ApprovalState.NOT_APPROVED
+  }, [amount, currentAllowance, isSyncingAllowance, pendingApproval, spender])
 
-  const addTransactionWithType = useTransactionAdder()
-
+  // Submit approval through the wallet and register its hash for receipt tracking.
   const approve = useCallback(
     async (customAmount?: CurrencyAmount<Currency>): Promise<ApprovalStatus> => {
       try {
