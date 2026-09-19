@@ -14,6 +14,7 @@ export const DUST_SWAP_SUPPORTED_CHAINS: ChainId[] = [
   ChainId.SONIC,
   ChainId.BERA,
   ChainId.ROBINHOOD,
+  ChainId.ARC
 ]
 
 export const isDustSwapSupported = (chainId?: number): boolean =>
