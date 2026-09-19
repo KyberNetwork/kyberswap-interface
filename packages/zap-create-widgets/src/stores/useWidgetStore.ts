@@ -4,6 +4,7 @@ import { useShallow } from 'zustand/shallow';
 import {
   ChainId,
   NATIVE_TOKEN_ADDRESS,
+  NATIVE_TOKEN_DECIMALS,
   NETWORKS_INFO,
   POOL_CATEGORY,
   PoolType,
@@ -90,7 +91,7 @@ const useWidgetRawStore = create<WidgetState>((set, _get) => ({
       nativeToken: {
         ...wrappedNativeToken,
         address: NATIVE_TOKEN_ADDRESS.toLowerCase(),
-        decimals: wrappedNativeToken.decimals,
+        decimals: NATIVE_TOKEN_DECIMALS,
         symbol: nativeIsErc20 ? wrappedNativeToken.symbol : wrappedNativeToken.symbol.slice(1) || '',
         logo: NETWORKS_INFO[chainId].nativeLogo,
         name: nativeIsErc20 ? wrappedNativeToken.name : 'Ethereum',

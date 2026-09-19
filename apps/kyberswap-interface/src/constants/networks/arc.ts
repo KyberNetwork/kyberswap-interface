@@ -17,7 +17,7 @@ const arcInfo: NetworkInfo = {
 
   iconSelected: NOT_SUPPORT,
 
-  etherscanUrl: 'https://arc-scan.org',
+  etherscanUrl: 'https://arc.etherscan.io',
   etherscanName: 'Arcscan',
   bridgeURL: '',
   // USDC is Arc's native asset. The native interface reports 18 decimals so wallets and

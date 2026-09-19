@@ -8,6 +8,7 @@ import {
   amountFromRoute,
   fromNativeUnits,
   hasNativeErc20Interface,
+  isNativeAsset,
   isNativeErc20,
   nativeBalanceAmount,
   paysNativeOnSwap,
@@ -83,6 +84,23 @@ describe('identification', () => {
     expect(paysNativeOnSwap(arcUsdc)).toBe(true)
     expect(paysNativeOnSwap(eurc)).toBe(false)
     expect(paysNativeOnSwap(baseWeth)).toBe(false)
+  })
+
+  it('names the native asset in either form', () => {
+    expect(isNativeAsset(NativeCurrencies[ChainId.BASE])).toBe(true)
+    expect(isNativeAsset(arcUsdc)).toBe(true)
+    expect(isNativeAsset(eurc)).toBe(false)
+    expect(isNativeAsset(undefined)).toBe(false)
+  })
+
+  // Cross-chain quotes and stored transaction history reach the logo as tokens parsed from JSON, which carry
+  // none of the SDK's methods, so the check has to work from their fields alone.
+  it('names the native asset in a token parsed from JSON, which has no methods', () => {
+    const parsed = (token: Token) =>
+      JSON.parse(JSON.stringify({ chainId: token.chainId, address: token.address, symbol: token.symbol }))
+    expect(isNativeAsset(parsed(arcUsdc))).toBe(true)
+    expect(isNativeAsset(parsed(eurc))).toBe(false)
+    expect(isNativeAsset(parsed(baseWeth))).toBe(false)
   })
 })
 

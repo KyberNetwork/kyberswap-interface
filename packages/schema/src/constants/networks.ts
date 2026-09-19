@@ -31,9 +31,10 @@ interface NetworkInfo {
   coingeckoNativeTokenId: string | null;
   /**
    * Set where the native asset is itself an ERC-20 token rather than a separate asset with a wrapper
-   * (Arc, where USDC is native). `wrappedToken` is then the only representation there is, so nothing
-   * should offer the native sentinel: pools, the zap router and the zap service all work in the
-   * token's own units.
+   * (Arc, where USDC is native). `wrappedToken` is then that token, and it is the asset's one identity
+   * wherever a user picks or reads an amount. The native sentinel still exists underneath — some pools
+   * hold it, and a zap pays through it so no allowance is needed — and wherever it appears it is
+   * denominated in the native interface's decimals, not the token's.
    */
   nativeIsErc20?: boolean;
 }

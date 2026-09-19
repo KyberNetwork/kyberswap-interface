@@ -27,6 +27,7 @@ export const TRENDING_SUPPORTED_CHAINS: ChainId[] = [
   ChainId.MATIC,
   ChainId.MONAD,
   ChainId.ROBINHOOD,
+  ChainId.ARC,
 ]
 
 export const isTrendingSupportedChain = (chainId: ChainId): boolean => TRENDING_SUPPORTED_CHAINS.includes(chainId)
