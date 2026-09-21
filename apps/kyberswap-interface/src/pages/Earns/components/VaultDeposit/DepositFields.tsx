@@ -163,6 +163,8 @@ const DepositFields = ({ vault, form }: { vault: VaultApiDetailItem; form: Depos
               selectedTokenAddress: selectedTokenAddress,
               token0Address: vault.underlyingToken?.address ?? '',
               token1Address: '',
+              // The vault mints its share token; depositing it back has no route and no meaning.
+              excludedTokenAddresses: vault.shareToken?.address ? [vault.shareToken.address] : [],
               setTokensIn: () => undefined,
               setAmountsIn: () => undefined,
               onTokenSelect: token => {

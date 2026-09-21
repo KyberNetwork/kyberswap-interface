@@ -22,10 +22,12 @@ const useDefaultDepositToken = ({
   chainId,
   vaultId,
   underlyingAddress,
+  shareAddress,
 }: {
   chainId?: number
   vaultId?: string
   underlyingAddress?: string
+  shareAddress?: string
 }) => {
   const { account } = useActiveWeb3React()
   const { data: supportedAssets, isLoading: isLoadingAssets } = useVaultSupportedAssetsQuery(
@@ -35,18 +37,21 @@ const useDefaultDepositToken = ({
 
   // Vaults list native ETH among their deposit assets under the `0xEeee…` placeholder. There is no
   // contract there, so asking for its ERC-20 balance never resolves — it is dropped here and covered
-  // by the native fallback below.
+  // by the native fallback below. The share token is dropped too: everyone who has deposited holds
+  // it, so listing it as a deposit asset would open the form on a token the vault cannot take in.
   const depositTokens = useMemo(() => {
     if (!chainId) return []
+    const share = shareAddress?.toLowerCase()
     return (supportedAssets || [])
       .filter(
         asset =>
           asset.supportsDeposit &&
           asset.isActive &&
-          asset.assetAddress.toLowerCase() !== NATIVE_TOKEN_ADDRESS.toLowerCase(),
+          asset.assetAddress.toLowerCase() !== NATIVE_TOKEN_ADDRESS.toLowerCase() &&
+          asset.assetAddress.toLowerCase() !== share,
       )
       .map(asset => new Token(chainId, asset.assetAddress, asset.decimals, asset.symbol))
-  }, [supportedAssets, chainId])
+  }, [supportedAssets, chainId, shareAddress])
 
   const [balances, isLoadingBalances] = useTokenBalancesWithLoadingIndicator(depositTokens, chainId)
 

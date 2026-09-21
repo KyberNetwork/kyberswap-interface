@@ -50,6 +50,11 @@ export interface TokenOptions {
   token1Address?: string;
   /** External token balances (optional - if not provided, will fetch internally) */
   tokenBalances?: { [key: string]: bigint };
+  /**
+   * Addresses kept out of every list, the search and the address lookup, so the token cannot be
+   * picked at all (e.g. a vault's own share token, which it neither takes in nor pays out).
+   */
+  excludedTokenAddresses?: string[];
   /** Returns true if the token is geo-restricted and must not be selectable */
   isTokenRestricted?: (token: Token) => boolean;
   /** Called when a restricted token is clicked (e.g. to show a warning); selection is aborted */

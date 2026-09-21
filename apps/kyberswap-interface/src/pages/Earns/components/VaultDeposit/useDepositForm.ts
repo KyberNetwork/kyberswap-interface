@@ -43,6 +43,7 @@ export const useDepositForm = ({
     chainId,
     vaultId: vault.vaultId,
     underlyingAddress: vault.underlyingToken?.address,
+    shareAddress: vault.shareToken?.address,
   })
 
   // The opening token is chosen once, after the candidate balances have been read. `hasPickedRef`

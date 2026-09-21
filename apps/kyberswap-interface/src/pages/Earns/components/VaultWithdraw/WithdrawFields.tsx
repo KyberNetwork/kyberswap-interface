@@ -256,6 +256,8 @@ const WithdrawFields = ({ vault, form }: { vault: VaultApiDetailItem; form: With
               selectedTokenAddress: form.swapToken?.address,
               token0Address: vault.underlyingToken?.address ?? '',
               token1Address: '',
+              // The shares being burned are the input; taking them back out is not a withdrawal.
+              excludedTokenAddresses: vault.shareToken?.address ? [vault.shareToken.address] : [],
               setTokensIn: () => undefined,
               setAmountsIn: () => undefined,
               onTokenSelect: token => {
