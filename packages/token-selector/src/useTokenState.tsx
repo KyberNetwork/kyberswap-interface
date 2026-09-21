@@ -51,6 +51,7 @@ export const TokenContextProvider = ({
   account,
   additionalTokenAddresses,
   externalTokenBalances,
+  liveTokenBalances,
   enableWalletInventory = false,
 }: {
   children: ReactNode;
@@ -58,6 +59,8 @@ export const TokenContextProvider = ({
   account?: string;
   additionalTokenAddresses?: string;
   externalTokenBalances?: { [key: string]: bigint };
+  /** Chain reads that outrank the balance source for the tokens they name; see TokenOptions. */
+  liveTokenBalances?: { [address: string]: bigint };
   /** Opt in to the wallet-inventory balance source; see TokenSelectorModalProps. */
   enableWalletInventory?: boolean;
 }) => {
@@ -96,8 +99,24 @@ export const TokenContextProvider = ({
       useMulticall ? account : undefined,
     );
 
-  const tokenBalances =
-    externalTokenBalances || inventory.balances || internalBalances;
+  // Joined so a caller rebuilding the object every render does not re-key the whole list; the merge
+  // reads the key back, which is exactly the value it was memoized on.
+  const liveKey = Object.entries(liveTokenBalances ?? {})
+    .map(([address, value]) => `${address.toLowerCase()}:${value}`)
+    .sort()
+    .join(",");
+  const tokenBalances = useMemo(() => {
+    const source =
+      externalTokenBalances || inventory.balances || internalBalances;
+    if (!liveKey) return source;
+    // A chain read is at the head block, so it stands over an index that may still be catching up.
+    const merged = { ...source };
+    liveKey.split(",").forEach((entry) => {
+      const separator = entry.lastIndexOf(":");
+      merged[entry.slice(0, separator)] = BigInt(entry.slice(separator + 1));
+    });
+    return merged;
+  }, [externalTokenBalances, inventory.balances, internalBalances, liveKey]);
   const balancesLoading = useMulticall && tokenBalancesLoading;
 
   const discoveredTokens = useDiscoveredTokens({

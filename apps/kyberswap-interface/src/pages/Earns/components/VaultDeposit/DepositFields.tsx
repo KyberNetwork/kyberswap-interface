@@ -2,7 +2,7 @@ import { NATIVE_TOKEN_ADDRESS, ChainId as SchemaChainId } from '@kyber/schema'
 import TokenSelectorModal, { TOKEN_SELECT_MODE } from '@kyber/token-selector'
 import { t } from '@lingui/macro'
 import Portal from '@reach/portal'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { ChevronDown } from 'react-feather'
 import { VaultApiDetailItem } from 'services/vault'
 
@@ -49,6 +49,15 @@ const DepositFields = ({ vault, form }: { vault: VaultApiDetailItem; form: Depos
     : undefined
 
   const balanceText = form.balance ? formatDisplayNumber(form.balance.toExact(), { significantDigits: 6 }) : '--'
+  // The field above reads this token from the chain, the selector's list from an index that can sit
+  // a block or more behind it. Handing the read over keeps the two from disagreeing on screen.
+  const liveTokenBalances = useMemo(
+    () =>
+      selectedTokenAddress && form.balance
+        ? { [selectedTokenAddress.toLowerCase()]: BigInt(form.balance.quotient.toString()) }
+        : undefined,
+    [selectedTokenAddress, form.balance],
+  )
   const amountUsd = form.route ? Number(form.route.zapDetails.initialAmountUsd) : undefined
   const minSharesOut = form.minSharesOutRaw
     ? formatDisplayNumber(formatUnits(form.minSharesOutRaw, shareDecimals), { significantDigits: 6 })
@@ -165,6 +174,7 @@ const DepositFields = ({ vault, form }: { vault: VaultApiDetailItem; form: Depos
               token1Address: '',
               // The vault mints its share token; depositing it back has no route and no meaning.
               excludedTokenAddresses: vault.shareToken?.address ? [vault.shareToken.address] : [],
+              liveTokenBalances,
               setTokensIn: () => undefined,
               setAmountsIn: () => undefined,
               onTokenSelect: token => {

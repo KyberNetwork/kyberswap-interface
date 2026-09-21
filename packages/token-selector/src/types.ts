@@ -51,6 +51,12 @@ export interface TokenOptions {
   /** External token balances (optional - if not provided, will fetch internally) */
   tokenBalances?: { [key: string]: bigint };
   /**
+   * Balances the caller reads from the chain itself, by lowercased address, laid over whichever
+   * source the list uses. The wallet inventory is an index and can sit a block or more behind, so a
+   * caller that already reads a token live keeps its own field and that token's row in agreement.
+   */
+  liveTokenBalances?: { [address: string]: bigint };
+  /**
    * Addresses kept out of every list, the search and the address lookup, so the token cannot be
    * picked at all (e.g. a vault's own share token, which it neither takes in nor pays out).
    */
