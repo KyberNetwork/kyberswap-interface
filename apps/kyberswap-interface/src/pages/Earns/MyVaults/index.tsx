@@ -2,7 +2,7 @@ import { t } from '@lingui/macro'
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useMedia } from 'react-use'
-import { VaultWithdrawRequestStatus, useVaultPositionsQuery } from 'services/vault'
+import { VaultPendingWithdrawalStatus, useVaultPositionsQuery } from 'services/vault'
 
 import { ReactComponent as IconEarnNotFound } from 'assets/svg/earn/ic_earn_not_found.svg'
 import MultiSelectDropdownMenu from 'components/DropdownMenu/MultiSelect'
@@ -37,7 +37,6 @@ import {
   ProtocolTag,
   StatusBadge,
   TokenIconWrapper,
-  TxLink,
   VaultCard,
   VaultCardsGrid,
   VaultPageTitle,
@@ -54,35 +53,44 @@ import { VAULT_POLLING_INTERVAL } from 'pages/Earns/constants/vault'
 import { VAULT_CHAIN_OPTIONS } from 'pages/Earns/constants/vaultFilters'
 import useCountdown from 'pages/Earns/hooks/useCountdown'
 import { useRefreshOnVaultTx } from 'pages/Earns/hooks/useRefreshOnVaultTx'
-import {
-  buildVaultDetailPath,
-  getWithdrawRequestMaturityAt,
-  safeBigInt,
-  toUserVaultPosition,
-} from 'pages/Earns/utils/vault'
+import { buildVaultDetailPath, toUserVaultPosition } from 'pages/Earns/utils/vault'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { MEDIA_WIDTHS } from 'theme'
 import { Colors } from 'theme/color'
-import { shortenHash } from 'utils/address'
 import { formatDisplayNumber } from 'utils/numbers'
-import { formatUnits } from 'utils/viem'
 
-const formatTvl = (value: number) => formatDisplayNumber(value, { style: 'decimal', significantDigits: 3 })
+/** A figure the API could not supply shows as unknown; zero is reserved for a real zero. */
+const formatTvl = (value?: number) =>
+  value === undefined ? '--' : formatDisplayNumber(value, { style: 'decimal', significantDigits: 3 })
 
-const formatUsd = (value: number) => formatDisplayNumber(value, { style: 'currency', significantDigits: 4 })
+const formatUsd = (value?: number) =>
+  value === undefined ? '--' : formatDisplayNumber(value, { style: 'currency', significantDigits: 4 })
 
-const formatAmount = (value: number) => formatDisplayNumber(value, { style: 'decimal', significantDigits: 4 })
+/** Earnings carry a sign: a NAV loss, or a USD return the token price moved against, is real. */
+const formatSignedUsd = (value?: number) =>
+  value === undefined
+    ? '--'
+    : formatDisplayNumber(value, { style: 'currency', significantDigits: 4, allowDisplayNegative: true })
+
+const formatAmount = (value?: number) =>
+  value === undefined ? '--' : formatDisplayNumber(value, { style: 'decimal', significantDigits: 4 })
+
+const formatSignedAmount = (value?: number) =>
+  value === undefined
+    ? '--'
+    : formatDisplayNumber(value, { style: 'decimal', significantDigits: 4, allowDisplayNegative: true })
+
+const formatApy = (value?: number) => (value === undefined ? '--' : `${value.toFixed(2)}%`)
 
 const SEARCH_DEBOUNCE_MS = 300
 
-const getStatusConfig = (
-  theme: Colors,
-): Record<VaultWithdrawRequestStatus, { label: string; color: string } | null> => ({
-  [VaultWithdrawRequestStatus.PENDING]: { label: 'Requested', color: theme.blue3 },
-  [VaultWithdrawRequestStatus.MATURED]: { label: 'Pending', color: theme.warning },
-  [VaultWithdrawRequestStatus.EXPIRED]: { label: 'Expired', color: theme.red },
-  [VaultWithdrawRequestStatus.SOLVED]: { label: 'Completed', color: theme.subText },
-  [VaultWithdrawRequestStatus.CANCELLED]: null,
+/** Keyed by the wire names the position summary uses, which differ from the ones the request
+ *  endpoints return. A status with no entry is not worth a badge. */
+const getStatusConfig = (theme: Colors): Record<string, { label: string; color: string } | null> => ({
+  [VaultPendingWithdrawalStatus.REQUESTED]: { label: 'Requested', color: theme.blue3 },
+  [VaultPendingWithdrawalStatus.PENDING]: { label: 'Pending', color: theme.warning },
+  [VaultPendingWithdrawalStatus.EXPIRED]: { label: 'Expired', color: theme.red },
+  [VaultPendingWithdrawalStatus.COMPLETED]: { label: 'Completed', color: theme.subText },
 })
 
 const MyVaultCard = ({
@@ -98,16 +106,12 @@ const MyVaultCard = ({
   revealIndex?: number
 }) => {
   const theme = useTheme()
-  // The oldest request the queue can still fill is the one the user is waiting on. An expired one
-  // only surfaces when nothing live is left, so a stale row cannot hide a running countdown.
-  const activeRequest =
-    vault.withdrawRequests.find(request => request.status !== VaultWithdrawRequestStatus.EXPIRED) ??
-    vault.withdrawRequests[0]
-  const { remaining, label: countdown } = useCountdown(
-    activeRequest ? getWithdrawRequestMaturityAt(activeRequest) : undefined,
-  )
-  const statusConfig = activeRequest ? getStatusConfig(theme)[activeRequest.status] : null
-  const otherRequestCount = vault.withdrawRequests.length - 1
+  // The card carries the position's own summary of the queue; the full request list, with its
+  // amounts and cancel actions, lives on the vault page and in the withdraw modal.
+  const pending = vault.pendingWithdrawal
+  const { remaining, label: countdown } = useCountdown(pending?.etaAt)
+  const statusConfig = pending ? getStatusConfig(theme)[pending.status] ?? null : null
+  const requestCount = pending?.count ?? 0
 
   return (
     <VaultCard $clickable $revealIndex={revealIndex}>
@@ -166,32 +170,21 @@ const MyVaultCard = ({
           <InfoValue>
             <InfoValuePrimary>
               <TokenLogo src={vault.tokenIcon} alt={vault.token} size={20} />
-              <AnimatedNumber value={formatAmount(vault.earned)} />
+              <AnimatedNumber value={formatSignedAmount(vault.earned)} />
               <span>{vault.token}</span>
             </InfoValuePrimary>
             <InfoValueSecondary>
-              <AnimatedNumber value={formatUsd(vault.earnedUsd)} />
+              <AnimatedNumber value={formatSignedUsd(vault.earnedUsd)} />
             </InfoValueSecondary>
           </InfoValue>
         </InfoRow>
 
-        {activeRequest ? (
+        {pending ? (
           <>
             <InfoRow>
               <InfoLabel>{t`Withdrawing`}</InfoLabel>
               <InfoValue>
-                <InfoValuePrimary>
-                  <AnimatedNumber
-                    value={formatDisplayNumber(
-                      formatUnits(safeBigInt(activeRequest.amountOfAssets), activeRequest.assetOut.decimals),
-                      { significantDigits: 4 },
-                    )}
-                  />
-                  <span>{activeRequest.assetOut.symbol}</span>
-                </InfoValuePrimary>
-                {otherRequestCount > 0 ? (
-                  <InfoValueSecondary>{t`+${otherRequestCount} more`}</InfoValueSecondary>
-                ) : null}
+                <InfoValuePrimary>{requestCount > 1 ? t`${requestCount} requests` : t`1 request`}</InfoValuePrimary>
               </InfoValue>
             </InfoRow>
             <InfoRow>
@@ -200,14 +193,6 @@ const MyVaultCard = ({
                 <InfoValuePrimary>{remaining > 0 ? countdown : statusConfig?.label}</InfoValuePrimary>
               </InfoValue>
             </InfoRow>
-            {activeRequest.requestTxHash ? (
-              <InfoRow>
-                <InfoLabel>{t`Txn`}</InfoLabel>
-                <InfoValue>
-                  <TxLink>{shortenHash(activeRequest.requestTxHash)}</TxLink>
-                </InfoValue>
-              </InfoRow>
-            ) : null}
           </>
         ) : null}
       </MyVaultCardBody>
@@ -217,7 +202,7 @@ const MyVaultCard = ({
           <FooterMetric>
             <FooterMetricLabel>APY</FooterMetricLabel>
             <span className="text-base font-normal text-primary">
-              <AnimatedNumber value={`${vault.apy.toFixed(2)}%`} />
+              <AnimatedNumber value={formatApy(vault.apy)} />
             </span>
           </FooterMetric>
           <FooterMetric>

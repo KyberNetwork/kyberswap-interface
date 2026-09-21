@@ -2730,6 +2730,7 @@ msgid "A portion of your voting power can only be used from the next Epoch onwar
 msgstr "A portion of your voting power can only be used from the next Epoch onward"
 
 #: src/components/TokenInfo/SecurityInfo/Content.tsx
+#: src/pages/Earns/VaultDetail/WithdrawRequestList.tsx
 msgid "Unknown"
 msgstr "Unknown"
 
@@ -3073,6 +3074,10 @@ msgstr "Price Alert"
 #: src/pages/ProAmmPool/index.tsx
 msgid "My Positions"
 msgstr "My Positions"
+
+#: src/pages/Earns/VaultDetail/WithdrawRequestList.tsx
+msgid "Replaced"
+msgstr "Replaced"
 
 #: src/components/LimitOrder/utils.ts
 msgid "User denied message signature"
@@ -3976,8 +3981,8 @@ msgid "We could not read fee data from the server. Please try again."
 msgstr "We could not read fee data from the server. Please try again."
 
 #: src/pages/Earns/MyVaults/index.tsx
-msgid "Txn"
-msgstr "Txn"
+#~ msgid "Txn"
+#~ msgstr "Txn"
 
 #: src/components/EarningAreaChart/TooltipContent.tsx
 #~ msgid "My Total Earnings"
@@ -5149,6 +5154,10 @@ msgstr "Price Impact"
 msgid "DEXs"
 msgstr "DEXs"
 
+#: src/pages/Earns/VaultDetail/WithdrawRequestList.tsx
+msgid "Reclaimable"
+msgstr "Reclaimable"
+
 #: src/pages/Earns/PoolExplorer/MobileTableRow.tsx
 msgid "Remove from favorites"
 msgstr "Remove from favorites"
@@ -5285,6 +5294,10 @@ msgstr "How can I check my current rank?"
 #: src/pages/Campaign/components/JoinCampaignModal.tsx
 msgid "By joining this campaign, you agree to the campaign's <0>Terms & Conditions</0>."
 msgstr "By joining this campaign, you agree to the campaign's <0>Terms & Conditions</0>."
+
+#: src/pages/Earns/MyVaults/index.tsx
+msgid "1 request"
+msgstr "1 request"
 
 #: src/pages/About/AboutKNC.tsx
 msgid "KNC enables KyberDAO to shape token behaviour and upgrades, making KNC much more adaptable and providing better support for innovation and growth."
@@ -6677,8 +6690,8 @@ msgid "Order will trigger on"
 msgstr "Order will trigger on"
 
 #: src/pages/Earns/MyVaults/index.tsx
-msgid "+{otherRequestCount} more"
-msgstr "+{otherRequestCount} more"
+#~ msgid "+{otherRequestCount} more"
+#~ msgstr "+{otherRequestCount} more"
 
 #: src/components/LimitOrder/ListOrder/TableHeader.tsx
 #: src/components/LimitOrder/ListOrder/TableHeader.tsx
@@ -9355,6 +9368,10 @@ msgstr "Stablecoins to Stablecoins trading will give 0.25 Points per USD swapped
 #: src/pages/CrossChainSwap/components/SwapAction.tsx
 msgid "No route found"
 msgstr "No route found"
+
+#: src/pages/Earns/MyVaults/index.tsx
+msgid "{requestCount} requests"
+msgstr "{requestCount} requests"
 
 #: src/pages/Earns/components/SmartExit/Metrics/MetricSelect.tsx
 msgid "Select"

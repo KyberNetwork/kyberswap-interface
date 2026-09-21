@@ -203,7 +203,7 @@ const WithdrawFields = ({ vault, form }: { vault: VaultApiDetailItem; form: With
             <InfoLabel
               tooltip={t`How long the vault's withdrawal queue waits before a solver can fill your request.`}
             >{t`Ready in`}</InfoLabel>
-            <InfoValue>{form.queueConfig ? formatDuration(form.queueConfig.secondsToMaturity) : '--'}</InfoValue>
+            <InfoValue>{form.queueLimits ? formatDuration(form.queueLimits.secondsToMaturity) : '--'}</InfoValue>
           </InfoRow>
         ) : (
           <>

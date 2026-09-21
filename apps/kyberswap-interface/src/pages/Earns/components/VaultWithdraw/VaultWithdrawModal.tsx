@@ -24,7 +24,6 @@ import ConfirmWithdraw from 'pages/Earns/components/VaultWithdraw/ConfirmWithdra
 import WithdrawFields from 'pages/Earns/components/VaultWithdraw/WithdrawFields'
 import { useWithdrawForm } from 'pages/Earns/components/VaultWithdraw/useWithdrawForm'
 import { VaultStep } from 'pages/Earns/components/vaultSteps'
-import { getOpenWithdrawRequests } from 'pages/Earns/utils/vault'
 import { useWalletModalToggle } from 'state/application/hooks'
 
 export type VaultWithdrawTarget = { chainId: number; vaultId: string }
@@ -123,7 +122,8 @@ const WithdrawBody = ({
             {form.chainId ? (
               <WithdrawRequestList
                 chainId={form.chainId}
-                requests={getOpenWithdrawRequests(position?.withdrawRequests)}
+                requests={form.withdrawRequests}
+                assets={form.supportedAssets}
                 shareSymbol={form.shareSymbol}
                 shareDecimals={form.shareDecimals}
                 onCancelled={() => {

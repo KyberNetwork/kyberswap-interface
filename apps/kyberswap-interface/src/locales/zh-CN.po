@@ -2730,6 +2730,7 @@ msgid "A portion of your voting power can only be used from the next Epoch onwar
 msgstr "部分投票权需从下一个 Epoch 才可使用"
 
 #: src/components/TokenInfo/SecurityInfo/Content.tsx
+#: src/pages/Earns/VaultDetail/WithdrawRequestList.tsx
 msgid "Unknown"
 msgstr "未知"
 
@@ -3073,6 +3074,10 @@ msgstr "价格提醒"
 #: src/pages/ProAmmPool/index.tsx
 msgid "My Positions"
 msgstr "我的仓位"
+
+#: src/pages/Earns/VaultDetail/WithdrawRequestList.tsx
+msgid "Replaced"
+msgstr ""
 
 #: src/components/LimitOrder/utils.ts
 msgid "User denied message signature"
@@ -3976,8 +3981,8 @@ msgid "We could not read fee data from the server. Please try again."
 msgstr ""
 
 #: src/pages/Earns/MyVaults/index.tsx
-msgid "Txn"
-msgstr ""
+#~ msgid "Txn"
+#~ msgstr ""
 
 #: src/components/EarningAreaChart/TooltipContent.tsx
 #~ msgid "My Total Earnings"
@@ -5149,6 +5154,10 @@ msgstr "价格影响"
 msgid "DEXs"
 msgstr "去中心化交易所（DEX）"
 
+#: src/pages/Earns/VaultDetail/WithdrawRequestList.tsx
+msgid "Reclaimable"
+msgstr ""
+
 #: src/pages/Earns/PoolExplorer/MobileTableRow.tsx
 msgid "Remove from favorites"
 msgstr "从收藏中移除"
@@ -5284,6 +5293,10 @@ msgstr "我如何查看当前排名？"
 
 #: src/pages/Campaign/components/JoinCampaignModal.tsx
 msgid "By joining this campaign, you agree to the campaign's <0>Terms & Conditions</0>."
+msgstr ""
+
+#: src/pages/Earns/MyVaults/index.tsx
+msgid "1 request"
 msgstr ""
 
 #: src/pages/About/AboutKNC.tsx
@@ -6677,8 +6690,8 @@ msgid "Order will trigger on"
 msgstr ""
 
 #: src/pages/Earns/MyVaults/index.tsx
-msgid "+{otherRequestCount} more"
-msgstr ""
+#~ msgid "+{otherRequestCount} more"
+#~ msgstr ""
 
 #: src/components/LimitOrder/ListOrder/TableHeader.tsx
 #: src/components/LimitOrder/ListOrder/TableHeader.tsx
@@ -9355,6 +9368,10 @@ msgstr "稳定币之间的交易每兑换 1 美元可获得 0.25 积分。"
 #: src/pages/CrossChainSwap/components/SwapAction.tsx
 msgid "No route found"
 msgstr "未找到路径"
+
+#: src/pages/Earns/MyVaults/index.tsx
+msgid "{requestCount} requests"
+msgstr ""
 
 #: src/pages/Earns/components/SmartExit/Metrics/MetricSelect.tsx
 msgid "Select"

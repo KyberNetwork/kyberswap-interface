@@ -50,7 +50,7 @@ import {
 import AnimatedNumber from 'pages/Earns/components/AnimatedNumber'
 import { VAULT_POLLING_INTERVAL } from 'pages/Earns/constants/vault'
 import { useRefreshOnVaultTx } from 'pages/Earns/hooks/useRefreshOnVaultTx'
-import { VaultDetailTab, toVaultInfoFromDetail } from 'pages/Earns/utils/vault'
+import { VaultDetailTab, toChartSeries, toVaultInfoFromDetail } from 'pages/Earns/utils/vault'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
 
@@ -72,7 +72,8 @@ const PERIOD_TO_INTERVAL: Record<PeriodKey, VaultInterval> = {
   '30D': '30d',
 }
 
-const formatApy = (value: number) => formatDisplayNumber(value, { style: 'decimal', fractionDigits: 2 })
+const formatApy = (value?: number) =>
+  value === undefined ? '--' : `${formatDisplayNumber(value, { style: 'decimal', fractionDigits: 2 })}%`
 
 const VaultDetail = () => {
   const { chainId: chainIdParam, vaultId } = useParams<{ chainId?: string; vaultId?: string }>()
@@ -133,14 +134,8 @@ const VaultDetail = () => {
 
   const chartHeight = upToXXSmall ? 170 : upToSmall ? 200 : 240
 
-  const tvlSeries = useMemo(
-    () => (tvlMetrics?.tvl || []).map(p => ({ value: Number(p.value) || 0 })),
-    [tvlMetrics?.tvl],
-  )
-  const apySeries = useMemo(
-    () => (apyMetrics?.apy || []).map(p => ({ value: Number(p.value) || 0 })),
-    [apyMetrics?.apy],
-  )
+  const tvlSeries = useMemo(() => toChartSeries(tvlMetrics, point => point.tvl), [tvlMetrics])
+  const apySeries = useMemo(() => toChartSeries(apyMetrics, point => point.rate), [apyMetrics])
 
   const handleBack = () => navigate(-1)
   const handleBackKey = (e: KeyboardEvent) => {
@@ -177,7 +172,7 @@ const VaultDetail = () => {
         </HeaderTitle>
         <HeaderApy>
           <HeaderApyValue>
-            <AnimatedNumber value={`${formatApy(vault.apy)}%`} />
+            <AnimatedNumber value={formatApy(vault.apy)} />
           </HeaderApyValue>
           <HeaderApyLabel>{t`APY`}</HeaderApyLabel>
         </HeaderApy>

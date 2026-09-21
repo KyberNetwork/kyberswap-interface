@@ -64,7 +64,10 @@ import { MEDIA_WIDTHS } from 'theme'
 import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
 
-const formatTvl = (value: number) => formatDisplayNumber(value, { style: 'currency', significantDigits: 3 })
+const formatTvl = (value?: number) =>
+  value === undefined ? '--' : formatDisplayNumber(value, { style: 'currency', significantDigits: 3 })
+
+const formatApy = (value?: number) => (value === undefined ? '--' : `${value.toFixed(2)}%`)
 
 const SORT_BY_OPTIONS = [
   { label: 'APY', value: VaultSortBy.APY },
@@ -150,7 +153,7 @@ const ExploreVaultCard = ({ vault, hasPosition, onDeposit, revealIndex }: VaultI
         <div className="flex flex-col gap-1">
           <MetricRow>
             <MetricLabel>APY</MetricLabel>
-            <ApyValue>{vault.apy.toFixed(2)}%</ApyValue>
+            <ApyValue>{formatApy(vault.apy)}</ApyValue>
           </MetricRow>
           <ChartWrapper $height={28}>
             <ApyBarChart data={vault.apyHistory} height={28} />
@@ -229,7 +232,7 @@ const ExploreVaultListItem = ({ vault, hasPosition, onDeposit, revealIndex }: Va
       <VaultListMetric>
         <VaultListMetricText>
           <VaultListMetricLabel>APY</VaultListMetricLabel>
-          <VaultListMetricValue>{vault.apy.toFixed(2)}%</VaultListMetricValue>
+          <VaultListMetricValue>{formatApy(vault.apy)}</VaultListMetricValue>
         </VaultListMetricText>
         <VaultListChartWrapper>
           <ApyBarChart data={vault.apyHistory} height={28} />

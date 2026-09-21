@@ -9,7 +9,7 @@ import { useActiveWeb3React, useWeb3React } from 'hooks'
 import { ApprovalState, useApproveCallback } from 'hooks/useApproveCallback'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { submitTransaction } from 'pages/Earns/utils'
-import { safeBigInt } from 'pages/Earns/utils/vault'
+import { getWithdrawRequestCancellation, safeBigInt } from 'pages/Earns/utils/vault'
 import { useNotify } from 'state/application/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
@@ -171,22 +171,28 @@ export const useCancelWithdrawRequest = ({
         return
       }
 
+      // Withheld when the API could not verify the request against its on-chain id, in which case
+      // there is no struct to hash and nothing safe to send.
+      const cancellation = getWithdrawRequestCancellation(request)
+      const boringRequest = cancellation?.boringRequest
+      if (!cancellation || !boringRequest) return
+
       setCancellingRequestId(request.requestId)
 
       try {
         const data = encodeFunctionData({
           abi: BORING_ON_CHAIN_QUEUE_ABI as Abi,
-          functionName: 'cancelOnChainWithdraw',
+          functionName: cancellation.method,
           args: [
             {
-              nonce: BigInt(request.nonce),
-              user: request.user as Address,
-              assetOut: request.assetOut.address as Address,
-              amountOfShares: BigInt(request.amountOfShares),
-              amountOfAssets: BigInt(request.amountOfAssets),
-              creationTime: BigInt(request.creationTime),
-              secondsToMaturity: request.secondsToMaturity,
-              secondsToDeadline: request.secondsToDeadline,
+              nonce: BigInt(boringRequest.nonce),
+              user: boringRequest.user as Address,
+              assetOut: boringRequest.assetOut as Address,
+              amountOfShares: BigInt(boringRequest.amountOfShares),
+              amountOfAssets: BigInt(boringRequest.amountOfAssets),
+              creationTime: BigInt(boringRequest.creationTime),
+              secondsToMaturity: Number(boringRequest.secondsToMaturity),
+              secondsToDeadline: Number(boringRequest.secondsToDeadline),
             },
           ],
         })
@@ -194,7 +200,8 @@ export const useCancelWithdrawRequest = ({
         const { txHash: hash, error } = await submitTransaction({
           account,
           chainId: chainId as ChainId,
-          txData: { to: request.queueAddress, data, value: '0' },
+          // The request's own queue, which an older request need not share with today's route.
+          txData: { to: cancellation.contractAddress, data, value: '0' },
           isSmartConnector,
         })
 
@@ -206,8 +213,8 @@ export const useCancelWithdrawRequest = ({
           // Cancelling returns shares rather than spending them, so this is described in words —
           // the shared token-amount renderers would print it as an outflow.
           extraInfo: {
-            summary: `${formatUnits(safeBigInt(request.amountOfShares), shareDecimals)} ${shareSymbol}`,
-            contract: request.queueAddress,
+            summary: `${formatUnits(safeBigInt(request.escrowedSharesRaw), shareDecimals)} ${shareSymbol}`,
+            contract: cancellation.contractAddress,
           },
         })
         onSubmitted?.()

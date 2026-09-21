@@ -14,7 +14,6 @@ import ConfirmWithdraw from 'pages/Earns/components/VaultWithdraw/ConfirmWithdra
 import WithdrawFields from 'pages/Earns/components/VaultWithdraw/WithdrawFields'
 import { useWithdrawForm } from 'pages/Earns/components/VaultWithdraw/useWithdrawForm'
 import { VaultStep } from 'pages/Earns/components/vaultSteps'
-import { getOpenWithdrawRequests } from 'pages/Earns/utils/vault'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { formatDisplayNumber } from 'utils/numbers'
 import { formatUnits } from 'utils/viem'
@@ -54,7 +53,6 @@ const WithdrawTab = ({
 
   const chainName = vault.chain?.name ?? ''
   const nativeAssetSymbol = form.nativeAsset?.symbol ?? ''
-  const openRequests = getOpenWithdrawRequests(position?.withdrawRequests)
 
   // Only the any-token route swaps; a native redemption goes straight to the queue.
   const routeSummary: VaultRouteSummary | null =
@@ -135,7 +133,8 @@ const WithdrawTab = ({
       {form.chainId ? (
         <WithdrawRequestList
           chainId={form.chainId}
-          requests={openRequests}
+          requests={form.withdrawRequests}
+          assets={form.supportedAssets}
           shareSymbol={form.shareSymbol}
           shareDecimals={form.shareDecimals}
           onCancelled={onRequested}

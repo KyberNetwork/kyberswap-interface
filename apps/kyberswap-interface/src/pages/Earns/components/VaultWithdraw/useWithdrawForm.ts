@@ -2,15 +2,21 @@ import { Token as TokenSchema } from '@kyber/schema'
 import { ChainId, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
 import { t } from '@lingui/macro'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { VaultApiDetailItem, VaultPositionItem, useVaultSupportedAssetsQuery } from 'services/vault'
+import {
+  VaultApiDetailItem,
+  VaultPositionItem,
+  useVaultSupportedAssetsQuery,
+  useVaultWithdrawalRequestsQuery,
+} from 'services/vault'
 
 import { useActiveWeb3React } from 'hooks'
 import { useCheckAllowance } from 'hooks/useCheckAllowance'
 import { useVaultWithdraw } from 'pages/Earns/VaultDetail/hooks/useVaultWithdraw'
-import { useWithdrawAssetConfig, useWithdrawPreview } from 'pages/Earns/VaultDetail/hooks/useWithdrawQueue'
+import { useWithdrawPreview } from 'pages/Earns/VaultDetail/hooks/useWithdrawQueue'
 import { VAULT_ACTION_STEP, VAULT_APPROVE_STEP, VaultStep } from 'pages/Earns/components/vaultSteps'
+import { VAULT_POLLING_INTERVAL } from 'pages/Earns/constants/vault'
 import { useZapSwap } from 'pages/Earns/hooks/useZapSwap'
-import { safeBigInt } from 'pages/Earns/utils/vault'
+import { getBoringQueueRoute, getOpenWithdrawRequests, safeBigInt } from 'pages/Earns/utils/vault'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { formatUnits, parseUnits } from 'utils/viem'
 
@@ -37,12 +43,11 @@ export const useWithdrawForm = ({
   const { account, chainId: walletChainId } = useActiveWeb3React()
 
   const chainId = vault.chain?.id
-  const queueAddress = vault.contracts?.withdrawQueue
   const shareDecimals = vault.shareToken?.decimals ?? 18
   const shareSymbol = vault.shareToken?.symbol ?? ''
 
-  // Native redemption needs the vault's queue; without it the tab would open on a blocked mode.
-  const [mode, setMode] = useState<WithdrawMode>(queueAddress ? WithdrawMode.NATIVE : WithdrawMode.ANY_TOKEN)
+  // Undecided until the routes are known; `effectiveMode` picks the tab to open on.
+  const [mode, setMode] = useState<WithdrawMode | undefined>(undefined)
   const [typedValue, setTypedValue] = useState('')
   const [percent, setPercent] = useState<number | undefined>(undefined)
   const [slippage, setSlippage] = useState(DEFAULT_SLIPPAGE_BPS)
@@ -90,21 +95,23 @@ export const useWithdrawForm = ({
 
   const nativeAsset = withdrawableAssets.find(asset => asset.assetAddress === nativeAssetAddress)
 
-  const isNative = mode === WithdrawMode.NATIVE
+  // The queue that takes this asset, and the terms it enforces. Both come from the route rather
+  // than the vault: an asset the vault lists is not necessarily one its queue is open for.
+  const queueRoute = getBoringQueueRoute(nativeAsset)
+  const queueAddress = queueRoute?.queueAddress
+  const queueLimits = queueRoute?.limits ?? undefined
+  const hasNativeRoute = withdrawableAssets.some(asset => getBoringQueueRoute(asset))
 
-  const { config: queueConfig, isLoading: isLoadingConfig } = useWithdrawAssetConfig({
-    chainId,
-    queueAddress,
-    assetOut: nativeAssetAddress,
-    enabled: isNative,
-  })
+  // Native is the vault's own exit, so it stays selected while the routes are still loading.
+  const effectiveMode = mode ?? (isLoadingAssets || hasNativeRoute ? WithdrawMode.NATIVE : WithdrawMode.ANY_TOKEN)
+  const isNative = effectiveMode === WithdrawMode.NATIVE
 
   const { amountOut: nativeAmountOut, isLoading: isLoadingPreview } = useWithdrawPreview({
     chainId,
     queueAddress,
     assetOut: nativeAssetAddress,
     shares,
-    discount: queueConfig?.minDiscount,
+    discount: queueLimits?.minDiscount,
     enabled: isNative,
   })
 
@@ -114,9 +121,16 @@ export const useWithdrawForm = ({
     shareToken,
     shares,
     assetOut: nativeAssetAddress,
-    discount: queueConfig?.minDiscount,
-    secondsToDeadline: queueConfig?.minimumSecondsToDeadline,
+    discount: queueLimits?.minDiscount,
+    secondsToDeadline: queueLimits?.minimumSecondsToDeadline,
   })
+
+  // Requests are their own resource now, and they move on the solver's clock rather than the user's.
+  const { data: requestsData, refetch: refetchRequests } = useVaultWithdrawalRequestsQuery(
+    { chainId: chainId as number, userAddress: (account || '').toLowerCase(), vaultId: vault.vaultId },
+    { skip: !account || !chainId || !vault.vaultId, pollingInterval: VAULT_POLLING_INTERVAL },
+  )
+  const withdrawRequests = useMemo(() => getOpenWithdrawRequests(requestsData?.requests), [requestsData?.requests])
 
   // ---- any-token path: the aggregator sells the shares outright ----
   const [swapToken, setSwapToken] = useState<TokenSchema | undefined>(undefined)
@@ -192,11 +206,12 @@ export const useWithdrawForm = ({
 
   const active = isNative ? nativeWithdraw : zapWithdraw
 
+  const minimumShares = safeBigInt(queueLimits?.minimumShares)
   const insufficientShares = Boolean(shares && shares > shareBalanceRaw)
-  const belowMinimum = Boolean(isNative && shares && queueConfig?.minimumShares && shares < queueConfig.minimumShares)
-  const assetUnavailable = Boolean(isNative && nativeAssetAddress && queueConfig && !queueConfig.allowWithdraws)
+  const belowMinimum = Boolean(isNative && shares && minimumShares > 0n && shares < minimumShares)
+  const assetUnavailable = Boolean(isNative && !isLoadingAssets && nativeAsset && !queueRoute)
   const noWithdrawableAsset = isNative && !isLoadingAssets && withdrawableAssets.length === 0
-  const missingQueue = isNative && !queueAddress
+  const missingQueue = isNative && !isLoadingAssets && !hasNativeRoute
   const wrongChain = Boolean(account && chainId && walletChainId !== chainId)
 
   const blocked = missingQueue || noWithdrawableAsset || assetUnavailable
@@ -210,7 +225,7 @@ export const useWithdrawForm = ({
       !active.isSubmitting &&
       (isNative
         ? // The queue's terms are arguments to the request; without them there is nothing to submit.
-          Boolean(queueConfig) && !isLoadingConfig
+          Boolean(queueAddress && queueLimits) && !isLoadingAssets
         : Boolean(zapWithdraw.route) && !zapWithdraw.isRouteStale),
   )
 
@@ -226,7 +241,7 @@ export const useWithdrawForm = ({
   return {
     account,
     chainId,
-    mode,
+    mode: effectiveMode,
     isNative,
     onSelectMode,
     typedValue,
@@ -247,7 +262,10 @@ export const useWithdrawForm = ({
     nativeAsset,
     nativeAssetAddress,
     setNativeAssetAddress,
-    queueConfig,
+    queueLimits,
+    supportedAssets: supportedAssets || [],
+    withdrawRequests,
+    refetchRequests,
     nativeAmountOut,
     isLoadingPreview,
 

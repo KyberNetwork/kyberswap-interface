@@ -1,23 +1,49 @@
 import {
+  VAULT_FINANCIAL_NUMERIC_STATUSES,
   VaultApiDetailItem,
   VaultApiListItem,
-  VaultApiMetricPoint,
   VaultApiMetrics,
+  VaultCanonicalPoint,
+  VaultFinancialValue,
   VaultPositionItem,
+  VaultQueueFamily,
+  VaultSupportedAsset,
   VaultWithdrawRequest,
   VaultWithdrawRequestStatus,
+  VaultWithdrawalRoute,
 } from 'services/vault'
 
 import { APP_PATHS } from 'constants/index'
 import { ChartDataPoint, UserVaultPosition, VaultInfo } from 'pages/Earns/ExploreVaults/types'
 
-const toChartDataPoints = (points?: VaultApiMetricPoint[]): ChartDataPoint[] =>
-  (points || []).map(p => ({ value: Number(p.value) || 0 }))
+/**
+ * A figure counts only when its status says the API stands behind it. Every other status — waiting
+ * on a projector, missing an input, or one this build does not recognise — means there is no number,
+ * which is not the same as zero.
+ */
+export const financialNumber = (financial?: VaultFinancialValue | null): number | undefined => {
+  if (!financial || financial.value === null || financial.value === '') return undefined
+  if (!VAULT_FINANCIAL_NUMERIC_STATUSES.includes(financial.status)) return undefined
+  const parsed = Number(financial.value)
+  return Number.isFinite(parsed) ? parsed : undefined
+}
 
-const latestValue = (points?: VaultApiMetricPoint[]): number => {
-  if (!points?.length) return 0
-  const last = points[points.length - 1]
-  return Number(last.value) || 0
+/** Unavailable buckets keep their slot so the chart shows a gap rather than a dip to zero. */
+const toChartPoints = (
+  points: VaultCanonicalPoint[] | undefined,
+  pick: (point: VaultCanonicalPoint) => VaultFinancialValue,
+): ChartDataPoint[] => (points || []).map(point => ({ value: financialNumber(pick(point)) ?? null }))
+
+/** Chart series from a metrics response, keeping unavailable buckets as gaps. */
+export const toChartSeries = (
+  metrics: VaultApiMetrics | undefined,
+  pick: (point: VaultCanonicalPoint) => VaultFinancialValue,
+): ChartDataPoint[] => toChartPoints(metrics?.canonicalMetrics?.points, pick)
+
+const toEpochSeconds = (iso?: string | null): number | undefined => {
+  if (!iso) return undefined
+  const ms = Date.parse(iso)
+  return Number.isFinite(ms) ? Math.floor(ms / 1000) : undefined
 }
 
 export const toVaultInfo = (item: VaultApiListItem): VaultInfo => ({
@@ -30,10 +56,10 @@ export const toVaultInfo = (item: VaultApiListItem): VaultInfo => ({
   label: item.name || '',
   partner: item.provider?.name || '',
   partnerLogo: item.provider?.logo || '',
-  apy: item.stats?.apy7d ?? 0,
-  tvl: latestValue(item.metrics?.tvl),
-  apyHistory: toChartDataPoints(item.metrics?.apy),
-  tvlHistory: toChartDataPoints(item.metrics?.tvl),
+  apy: financialNumber(item.stats?.canonicalMetrics?.apy7d),
+  tvl: financialNumber(item.stats?.canonicalMetrics?.current?.tvl),
+  apyHistory: toChartPoints(item.metrics?.canonicalMetrics?.points, point => point.rate),
+  tvlHistory: toChartPoints(item.metrics?.canonicalMetrics?.points, point => point.tvl),
 })
 
 export const toVaultInfoFromDetail = (detail: VaultApiDetailItem, metrics?: VaultApiMetrics): VaultInfo => ({
@@ -46,19 +72,38 @@ export const toVaultInfoFromDetail = (detail: VaultApiDetailItem, metrics?: Vaul
   label: detail.name || '',
   partner: detail.provider?.name || '',
   partnerLogo: detail.provider?.logo || '',
-  apy: detail.stats?.apy7d ?? 0,
-  tvl: detail.stats?.tvlUsd ?? 0,
-  apyHistory: toChartDataPoints(metrics?.apy),
-  tvlHistory: toChartDataPoints(metrics?.tvl),
+  apy: financialNumber(detail.stats?.canonicalMetrics?.apy7d),
+  tvl: financialNumber(detail.stats?.canonicalMetrics?.current?.tvl),
+  apyHistory: toChartPoints(metrics?.canonicalMetrics?.points, point => point.rate),
+  tvlHistory: toChartPoints(metrics?.canonicalMetrics?.points, point => point.tvl),
 })
+
+/** Yield in underlying-token units. Already in token units — dividing by decimals would halve it twice. */
+const toVaultEarnings = (item: VaultPositionItem): number | undefined =>
+  financialNumber(
+    item.vaultEarnings
+      ? {
+          value: item.vaultEarnings.amount,
+          status: item.vaultEarnings.status,
+          reason: item.vaultEarnings.reason,
+          valuationQuality: item.vaultEarnings.valuationQuality,
+          asOf: item.vaultEarnings.asOf,
+        }
+      : null,
+  )
+
+const toHoldingPeriodReturnUsd = (item: VaultPositionItem): number | undefined =>
+  financialNumber({
+    value: item.holdingPeriodReturnUsd ?? null,
+    status: item.holdingPeriodReturnStatus ?? '',
+    reason: item.holdingPeriodReturnReason ?? null,
+    valuationQuality: '',
+    asOf: item.holdingPeriodReturnAsOf ?? null,
+  })
 
 export const toUserVaultPosition = (item: VaultPositionItem): UserVaultPosition => {
   const v = item.vault
-  const balance = Number(item.underlyingEquivalent) || 0
-  const balanceUsd = Number(item.usdValue) || 0
-  const earnedUsd = Number(item.earnedUsd) || 0
-  const pricePerToken = balance > 0 ? balanceUsd / balance : 0
-  const earned = pricePerToken > 0 ? earnedUsd / pricePerToken : 0
+  const summary = item.pendingWithdrawalSummary
   return {
     id: v.id,
     vaultId: v.id,
@@ -73,15 +118,18 @@ export const toUserVaultPosition = (item: VaultPositionItem): UserVaultPosition 
     label: v.name || '',
     partner: v.provider?.name || '',
     partnerLogo: v.provider?.logo || '',
-    apy: v.stats?.apy7d ?? 0,
-    tvl: v.stats?.tvlUsd ?? 0,
+    apy: financialNumber(v.stats?.canonicalMetrics?.apy7d),
+    tvl: financialNumber(v.stats?.canonicalMetrics?.current?.tvl),
     apyHistory: [],
     tvlHistory: [],
-    balance,
-    balanceUsd,
-    earned,
-    earnedUsd,
-    withdrawRequests: getOpenWithdrawRequests(item.withdrawRequests),
+    balance: Number(item.underlyingEquivalent) || 0,
+    balanceUsd: Number(item.usdValue) || 0,
+    earned: toVaultEarnings(item),
+    earnedUsd: toHoldingPeriodReturnUsd(item),
+    pendingWithdrawal:
+      summary && summary.count > 0
+        ? { count: summary.count, status: summary.latestStatus, etaAt: toEpochSeconds(summary.etaExpectedAt) }
+        : undefined,
   }
 }
 
@@ -96,21 +144,35 @@ export const safeBigInt = (value: string | number | null | undefined, fallback =
   }
 }
 
-/** Requests the queue is still holding shares for — the only ones the user can act on. */
+/** The one native route that can take a new request for this asset. A route without terms cannot be
+ *  used even when it reports itself available. */
+export const getBoringQueueRoute = (asset?: VaultSupportedAsset): VaultWithdrawalRoute | undefined =>
+  asset?.withdrawalRoutes?.find(
+    route => route.queueFamily === VaultQueueFamily.BORING_QUEUE && route.available && Boolean(route.limits),
+  )
+
+/** Requests the queue is still holding shares for — the only ones the user can act on. An expired
+ *  one is still actionable: its payout is gone, but the escrowed shares can be reclaimed. */
 export const isOpenWithdrawRequest = (request: VaultWithdrawRequest) =>
+  request.status === VaultWithdrawRequestStatus.REQUESTED ||
   request.status === VaultWithdrawRequestStatus.PENDING ||
-  request.status === VaultWithdrawRequestStatus.MATURED ||
   request.status === VaultWithdrawRequestStatus.EXPIRED
 
 /** Oldest first: the request the user has been waiting on longest is the one to show and act on. */
 export const getOpenWithdrawRequests = (requests?: VaultWithdrawRequest[]) =>
-  (requests || []).filter(isOpenWithdrawRequest).sort((a, b) => a.creationTime - b.creationTime)
+  (requests || [])
+    .filter(isOpenWithdrawRequest)
+    .sort((a, b) => (toEpochSeconds(a.requestedAt) ?? 0) - (toEpochSeconds(b.requestedAt) ?? 0))
 
-export const getWithdrawRequestMaturityAt = (request: VaultWithdrawRequest) =>
-  request.creationTime + request.secondsToMaturity
+/** When the queue will let a solver fill the request, in unix seconds. */
+export const getWithdrawRequestMaturityAt = (request: VaultWithdrawRequest) => toEpochSeconds(request.readyAt)
 
-export const getWithdrawRequestExpiryAt = (request: VaultWithdrawRequest) =>
-  request.creationTime + request.secondsToMaturity + request.secondsToDeadline
+export const getWithdrawRequestExpiryAt = (request: VaultWithdrawRequest) => toEpochSeconds(request.deadline)
+
+/** Cancellation needs the original struct the queue hashed; the API withholds it when it could not
+ *  verify the request against its on-chain id. */
+export const getWithdrawRequestCancellation = (request: VaultWithdrawRequest) =>
+  request.cancellation?.boringRequest ? request.cancellation : undefined
 
 export type VaultDetailTab = 'deposit' | 'withdraw'
 

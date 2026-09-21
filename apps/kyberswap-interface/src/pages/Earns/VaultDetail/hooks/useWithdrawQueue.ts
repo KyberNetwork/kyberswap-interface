@@ -6,85 +6,12 @@ import BORING_ON_CHAIN_QUEUE_ABI from 'constants/abis/earn/boringOnChainQueue.js
 import useDebounce from 'hooks/useDebounce'
 import { Abi, Address } from 'utils/viem'
 
-export interface WithdrawAssetConfig {
-  allowWithdraws: boolean
-  /** Seconds a solver must wait before it may fill the request. */
-  secondsToMaturity: number
-  /** Shortest deadline the queue accepts, and the one every request uses by default. */
-  minimumSecondsToDeadline: number
-  minDiscount: number
-  maxDiscount: number
-  minimumShares: bigint
-}
-
 type QueueTarget = {
   chainId: number
   queueAddress?: string
   assetOut?: string
-  /** The reads only matter on the native-redemption path; skip them everywhere else. */
+  /** The read only matters on the native-redemption path; skip it everywhere else. */
   enabled?: boolean
-}
-
-const readWithdrawAssetConfig = async ({
-  chainId,
-  queueAddress,
-  assetOut,
-}: QueueTarget): Promise<WithdrawAssetConfig | undefined> => {
-  if (!queueAddress || !assetOut) return undefined
-
-  const result = (await readContract(wagmiConfig, {
-    address: queueAddress as Address,
-    abi: BORING_ON_CHAIN_QUEUE_ABI as Abi,
-    functionName: 'withdrawAssets',
-    args: [assetOut as Address],
-    chainId,
-  })) as [boolean, number, number, number, number, bigint]
-
-  return {
-    allowWithdraws: result[0],
-    secondsToMaturity: Number(result[1]),
-    minimumSecondsToDeadline: Number(result[2]),
-    minDiscount: Number(result[3]),
-    maxDiscount: Number(result[4]),
-    minimumShares: result[5],
-  }
-}
-
-/**
- * Queue terms for one withdrawal asset. The queue — not the vault or the teller — decides which
- * assets can be withdrawn and on what schedule, so these reads gate the withdraw form.
- */
-export const useWithdrawAssetConfig = ({ chainId, queueAddress, assetOut, enabled = true }: QueueTarget) => {
-  const [config, setConfig] = useState<WithdrawAssetConfig | undefined>(undefined)
-  const [isLoading, setIsLoading] = useState(false)
-
-  useEffect(() => {
-    let cancelled = false
-    if (!enabled || !queueAddress || !assetOut) {
-      setConfig(undefined)
-      setIsLoading(false)
-      return
-    }
-
-    setIsLoading(true)
-    readWithdrawAssetConfig({ chainId, queueAddress, assetOut })
-      .then(next => {
-        if (!cancelled) setConfig(next)
-      })
-      .catch(error => {
-        if (!cancelled) setConfig(undefined)
-        console.error('useWithdrawAssetConfig: failed to read queue terms', error)
-      })
-      .finally(() => {
-        if (!cancelled) setIsLoading(false)
-      })
-
-    return () => {
-      cancelled = true
-    }
-  }, [chainId, queueAddress, assetOut, enabled])
-
-  return { config, isLoading }
 }
 
 /**

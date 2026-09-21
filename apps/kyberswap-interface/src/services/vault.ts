@@ -19,22 +19,48 @@ export interface VaultApiChain {
   logo: string
 }
 
-export interface VaultApiMetricPoint {
-  value: number
-  timestamp: string
+/**
+ * A figure the API vouches for, or an explained absence. `value` carries a decimal string only for
+ * the statuses that permit a number; for the rest there is no figure, which is not the same as zero.
+ */
+export interface VaultFinancialValue {
+  value: string | null
+  /** Wider than the documented set on purpose: an unrecognised status reads as unavailable. */
+  status: string
+  reason: string | null
+  valuationQuality: string
+  asOf: string | null
+}
+
+export const VAULT_FINANCIAL_NUMERIC_STATUSES = ['COMPUTABLE', 'LIMITED_COVERAGE']
+
+export interface VaultCanonicalPoint {
+  timestamp: string | null
+  tvl: VaultFinancialValue
+  rate: VaultFinancialValue
+}
+
+/** Headline figures and their chart series. `points` is empty on the current-only envelope in `stats`. */
+export interface VaultCanonicalMetrics {
+  rateKind: string
+  rateLookback: string
+  interval?: string
+  stepSeconds: number
+  methodology: string
+  current: VaultCanonicalPoint
+  apy1d: VaultFinancialValue
+  apy7d: VaultFinancialValue
+  apy30d: VaultFinancialValue
+  points: VaultCanonicalPoint[]
 }
 
 export interface VaultApiMetrics {
-  apy: VaultApiMetricPoint[]
-  tvl: VaultApiMetricPoint[]
+  canonicalMetrics: VaultCanonicalMetrics
 }
 
 export interface VaultApiStats {
-  apy1d: number
-  apy7d: number
-  apy30d: number
-  tvlUsd: number
   sharePrice: string
+  canonicalMetrics: VaultCanonicalMetrics
 }
 
 export interface VaultApiListItem {
@@ -60,7 +86,6 @@ export interface VaultApiDetailItem {
   underlyingToken: VaultApiToken
   assetGroup: string
   stats: VaultApiStats
-  contracts?: VaultContracts
 }
 
 export interface VaultApiPagination {
@@ -74,6 +99,34 @@ export interface VaultListResponseData {
   pagination: VaultApiPagination
 }
 
+export enum VaultQueueFamily {
+  BORING_QUEUE = 'BORING_QUEUE',
+  ATOMIC_QUEUE = 'ATOMIC_QUEUE',
+  UNKNOWN = 'UNKNOWN',
+}
+
+/** Terms the queue enforces, in the queue's own units. */
+export interface VaultQueueLimits {
+  secondsToMaturity: number
+  minimumSecondsToDeadline: number
+  /** Basis points. */
+  minDiscount: number
+  maxDiscount: number
+  /** Raw share-token units. */
+  minimumShares: string
+}
+
+/** One native redemption route for an asset: which queue takes it, and whether it is open. */
+export interface VaultWithdrawalRoute {
+  queueFamily: string
+  queueAddress: string
+  available: boolean
+  reason: string | null
+  observedBlockNumber: number
+  observedBlockHash: string | null
+  limits: VaultQueueLimits | null
+}
+
 export interface VaultSupportedAsset {
   assetAddress: string
   symbol: string
@@ -81,52 +134,129 @@ export interface VaultSupportedAsset {
   supportsDeposit: boolean
   supportsWithdraw: boolean
   isActive: boolean
+  withdrawalRoutes?: VaultWithdrawalRoute[]
+}
+
+/** Wire names on the position summary differ from the ones the request endpoints use. */
+export enum VaultPendingWithdrawalStatus {
+  REQUESTED = 'WithdrawStatusRequested',
+  PENDING = 'WithdrawStatusPending',
+  COMPLETED = 'WithdrawStatusCompleted',
+  SUPERSEDED = 'WithdrawStatusSuperseded',
+  CANCELLED = 'WithdrawStatusCancelled',
+  EXPIRED = 'WithdrawStatusExpired',
+  UNKNOWN = 'WithdrawStatusUnknown',
 }
 
 export interface VaultPendingWithdrawalSummary {
   count: number
   latestStatus: string
-  etaExpectedAt: string
+  etaExpectedAt: string | null
   requestId: string
-}
-
-export interface VaultContracts {
-  teller: string
-  accountant: string
-  withdrawQueue: string
 }
 
 export enum VaultWithdrawRequestStatus {
-  PENDING = 'pending',
-  MATURED = 'matured',
-  EXPIRED = 'expired',
-  SOLVED = 'solved',
-  CANCELLED = 'cancelled',
+  REQUESTED = 'REQUESTED',
+  PENDING = 'PENDING',
+  COMPLETED = 'COMPLETED',
+  SUPERSEDED = 'SUPERSEDED',
+  CANCELLED = 'CANCELLED',
+  EXPIRED = 'EXPIRED',
+  UNKNOWN = 'UNKNOWN',
 }
 
-/** The eight fields of the on-chain `OnChainWithdraw` struct, returned verbatim so they can be
- *  passed straight back to `cancelOnChainWithdraw`, which re-hashes the whole struct to find
- *  the request. */
-export interface VaultWithdrawRequestOnChain {
+/** The eight fields of the on-chain request struct, returned verbatim so they can be passed straight
+ *  back to `cancelOnChainWithdraw`, which re-hashes the whole struct to find the request. */
+export interface VaultBoringRequest {
   nonce: string
   user: string
-  assetOut: VaultApiToken
+  assetOut: string
   amountOfShares: string
   amountOfAssets: string
-  creationTime: number
-  secondsToMaturity: number
-  secondsToDeadline: number
+  creationTime: string
+  secondsToMaturity: string
+  secondsToDeadline: string
 }
 
-export interface VaultWithdrawRequest extends VaultWithdrawRequestOnChain {
+/** Present only once the API has verified the request against its on-chain id. */
+export interface VaultRequestCancellation {
+  contractAddress: string
+  method: string
+  boringRequest?: VaultBoringRequest
+}
+
+export interface VaultWithdrawRequest {
   requestId: string
   queueAddress: string
-  status: VaultWithdrawRequestStatus
-  requestTxHash?: string
-  solvedAt?: number | null
-  solvedTxHash?: string | null
-  cancelledAt?: number | null
-  cancelledTxHash?: string | null
+  queueFamily: string
+  status: string
+  shareTokenAddress: string
+  assetOutAddress: string
+  requestedSharesRaw: string
+  escrowedSharesRaw: string
+  refundableSharesRaw: string
+  originalExpectedAssetsRaw: string
+  /** Null once the deadline has passed: the fixed payout is no longer executable. */
+  pendingPayoutAssetsRaw: string | null
+  receivedAssetsRaw: string
+  filledSharesRaw: string
+  requestedAt: string | null
+  readyAt: string | null
+  deadline: string | null
+  completedAt: string | null
+  cancelledAt: string | null
+  expiredAt: string | null
+  requestTxHash: string | null
+  completionTxHash: string | null
+  cancellationTxHash: string | null
+  supersededByRequestId: string | null
+  metadataStatus: string
+  metadataReason: string | null
+  cancellation?: VaultRequestCancellation | null
+  boringRequest?: VaultBoringRequest | null
+}
+
+export interface VaultWithdrawalRequestsSource {
+  status: string
+  asOf: string | null
+  blockNumber?: number
+  eventSeq?: number
+  readAt?: string
+}
+
+export interface VaultWithdrawalRequestsResponse {
+  requests: VaultWithdrawRequest[]
+  nextCursor: string | null
+  source: VaultWithdrawalRequestsSource
+}
+
+/** Cumulative yield in underlying-token units. Its USD equivalent is available separately. */
+export interface VaultEarnings {
+  amount: string | null
+  assetAddress: string
+  status: string
+  reason: string | null
+  valuationQuality: string
+  methodology: string
+  coverageStart: string | null
+  coverageEnd: string | null
+  asOf: string | null
+  usdEquivalent: string | null
+  usdStatus: string
+  usdReason: string | null
+  usdValuationQuality: string
+  usdAsOf: string | null
+}
+
+/** `totalUsd` is wallet plus pending payout. Refundable shares are the alternative to that payout,
+ *  never an addition to it. */
+export interface VaultPositionOwnedValue {
+  asOf: string | null
+  escrowedSharesRaw: string | null
+  walletUsd: VaultFinancialValue
+  pendingPayoutUsd: VaultFinancialValue
+  refundableSharesUsd: VaultFinancialValue
+  totalUsd: VaultFinancialValue
 }
 
 export interface VaultPositionVault {
@@ -150,10 +280,17 @@ export interface VaultPositionItem {
   underlyingEquivalentRaw: string
   underlyingEquivalent: string
   usdValue: string
-  earnedUsd: string
   lastBalanceChangeAt: number
+  accountingOrigin?: string | null
+  vaultEarnings?: VaultEarnings | null
+  /** Cumulative USD return, marked to NAV; it carries USD price exposure, so it can be negative
+   *  while token earnings are positive. */
+  holdingPeriodReturnUsd?: string | null
+  holdingPeriodReturnStatus?: string
+  holdingPeriodReturnReason?: string | null
+  holdingPeriodReturnAsOf?: string | null
+  ownedValue?: VaultPositionOwnedValue | null
   pendingWithdrawalSummary?: VaultPendingWithdrawalSummary
-  withdrawRequests?: VaultWithdrawRequest[]
 }
 
 export interface VaultPositionListResponseData {
@@ -207,10 +344,15 @@ const vaultApi = earnServiceApi.injectEndpoints({
       }),
       transformResponse: (response: ApiEnvelope<VaultApiDetailItem>) => response.data,
     }),
-    vaultMetrics: builder.query<VaultApiMetrics, { chainId: number; vaultId: string; interval: VaultInterval }>({
-      query: ({ chainId, vaultId, interval }) => ({
+    vaultMetrics: builder.query<
+      VaultApiMetrics,
+      { chainId: number; vaultId: string; interval: VaultInterval; rateLookback?: VaultInterval }
+    >({
+      query: ({ chainId, vaultId, interval, rateLookback = '7d' }) => ({
         url: `/v1/vaults/${chainId}/${vaultId}/metrics`,
-        params: { interval },
+        // The window and the trailing-rate window are independent; sending only `interval` would
+        // leave the rate lookback to the server default.
+        params: { interval, rateLookback },
       }),
       transformResponse: (response: ApiEnvelope<{ metrics: VaultApiMetrics }>) => response.data.metrics,
     }),
@@ -233,6 +375,16 @@ const vaultApi = earnServiceApi.injectEndpoints({
       }),
       transformResponse: (response: ApiEnvelope<VaultPositionItem>) => response.data,
     }),
+    vaultWithdrawalRequests: builder.query<
+      VaultWithdrawalRequestsResponse,
+      { chainId: number; userAddress: string; vaultId: string; pageSize?: number }
+    >({
+      query: ({ chainId, userAddress, vaultId, pageSize = 20 }) => ({
+        url: `/v1/vault-positions/${chainId}/${userAddress}/${vaultId}/withdrawal-requests`,
+        params: { pageSize },
+      }),
+      transformResponse: (response: ApiEnvelope<VaultWithdrawalRequestsResponse>) => response.data,
+    }),
   }),
 })
 
@@ -243,6 +395,7 @@ export const {
   useVaultSupportedAssetsQuery,
   useVaultPositionsQuery,
   useVaultPositionDetailQuery,
+  useVaultWithdrawalRequestsQuery,
 } = vaultApi
 
 export default vaultApi

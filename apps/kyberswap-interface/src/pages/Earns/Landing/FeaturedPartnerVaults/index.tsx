@@ -69,7 +69,9 @@ const FeaturedPartnerVaults = ({ isLoading: parentLoading }: { isLoading?: boole
                     <div className="flex items-center gap-2">
                       <span className="text-base text-subText">{t`APY`}</span>
                       <span className="text-lg font-medium leading-6 text-primary">
-                        {formatDisplayNumber(vault.apy, { style: 'decimal', fractionDigits: 2 })}%
+                        {vault.apy === undefined
+                          ? '--'
+                          : `${formatDisplayNumber(vault.apy, { style: 'decimal', fractionDigits: 2 })}%`}
                       </span>
                     </div>
                   </div>
