@@ -192,3 +192,55 @@ export const SegmentedTab = ({ $active, className, ...rest }: SegmentedTabProps)
     {...rest}
   />
 )
+
+/** Stacks one `Field` per token the deposit spends. */
+export const TokenRowList = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('flex w-full flex-col gap-2', className)} {...rest} />
+)
+
+/** Drops a token from the list; only offered while more than one is listed. */
+export const RemoveTokenButton = ({ className, ...rest }: ButtonHTMLAttributes<HTMLButtonElement>) => (
+  <button
+    type="button"
+    className={cn(
+      'absolute -top-1 right-0 flex size-5 items-center justify-center rounded-full',
+      'text-sm leading-none text-subText transition-colors duration-200 hover:text-white',
+      'motion-reduce:transition-none',
+      className,
+    )}
+    {...rest}
+  />
+)
+
+export const AddTokenButton = ({ className, ...rest }: ButtonHTMLAttributes<HTMLButtonElement>) => (
+  <button
+    type="button"
+    className={cn(
+      'self-start text-sm text-primary transition-opacity duration-200 hover:opacity-80',
+      'disabled:cursor-default disabled:text-subText disabled:hover:opacity-100',
+      'motion-reduce:transition-none',
+      className,
+    )}
+    {...rest}
+  />
+)
+
+/** The share amount the route is quoting, in the same card shape as the amount fields. */
+export const ReceiveField = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('flex w-full flex-col gap-1 rounded-xl bg-white-04 px-4 py-3', className)} {...rest} />
+)
+
+export const ReceiveAmount = ({ className, ...rest }: HTMLAttributes<HTMLSpanElement>) => (
+  <span className={cn('text-2xl font-medium leading-8 text-white', className)} {...rest} />
+)
+
+/** Names the token an amount is denominated in, without offering a choice of token. */
+export const TokenTag = ({ className, ...rest }: HTMLAttributes<HTMLSpanElement>) => (
+  <span
+    className={cn(
+      'flex h-10 shrink-0 items-center gap-2 rounded-xl bg-white-04 px-4 py-2 text-lg leading-6 text-white/70',
+      className,
+    )}
+    {...rest}
+  />
+)

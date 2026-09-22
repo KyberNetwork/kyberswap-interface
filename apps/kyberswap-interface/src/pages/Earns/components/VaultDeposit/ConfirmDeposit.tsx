@@ -1,7 +1,8 @@
 import { t } from '@lingui/macro'
 import { VaultApiDetailItem } from 'services/vault'
 
-import { ReactComponent as SwapArrowIcon } from 'assets/svg/earn/ic_swap_arrow.svg'
+import CurrencyLogo from 'components/CurrencyLogo'
+import TokenLogo from 'components/TokenLogo'
 import {
   ButtonGroup,
   DetailsBox,
@@ -53,10 +54,14 @@ const ConfirmDeposit = ({
   const shareSymbol = vault.shareToken?.symbol ?? ''
   const shareDecimals = vault.shareToken?.decimals ?? 18
 
-  const amountIn = form.parsedAmount ? formatDisplayNumber(form.parsedAmount.toExact(), { significantDigits: 6 }) : '--'
-  const amountInUsd = form.route
-    ? formatDisplayNumber(form.route.zapDetails.initialAmountUsd, { style: 'currency', significantDigits: 4 })
-    : undefined
+  const shareLogo = vault.shareToken?.logo
+
+  /** Only the rows carrying an amount are being spent; an untouched row is not part of the deposit. */
+  const spent = form.rows.filter(row => row.parsedAmount?.greaterThan(0))
+  const totalUsd =
+    form.totalUsd === undefined
+      ? undefined
+      : formatDisplayNumber(form.totalUsd, { style: 'currency', significantDigits: 4 })
   const sharesOut = form.sharesOutRaw
     ? formatDisplayNumber(formatUnits(form.sharesOutRaw, shareDecimals), { significantDigits: 6 })
     : '--'
@@ -77,38 +82,43 @@ const ConfirmDeposit = ({
         <ModalSubtitle>{t`Please review the details of your deposit:`}</ModalSubtitle>
       </ModalHeader>
 
-      {form.isVaultAsset ? (
-        <div className="flex w-full flex-col gap-2">
+      <div className="flex w-full flex-col gap-2">
+        <div className="flex w-full items-center justify-between gap-2">
           <SummaryLabel>{t`You are depositing:`}</SummaryLabel>
-          <SummaryRow>
-            <SummaryAmount>
-              {amountIn} {form.currency?.symbol}
-            </SummaryAmount>
-            {amountInUsd ? <SummaryUsd>~ {amountInUsd}</SummaryUsd> : null}
-          </SummaryRow>
+          {totalUsd ? <SummaryAmount>{totalUsd}</SummaryAmount> : null}
         </div>
-      ) : (
-        <div className="flex w-full flex-col gap-2">
-          <SummaryLabel>{t`You are swapping:`}</SummaryLabel>
-          <SummaryRow className="justify-center gap-4">
-            <span className="flex items-center gap-2">
+        <SummaryRow className="flex-col items-stretch gap-2 py-3">
+          {spent.map(row => (
+            <span key={row.key} className="flex items-center gap-2">
+              {row.logo ? (
+                <TokenLogo src={row.logo} alt={row.currency.symbol} size={20} />
+              ) : (
+                <CurrencyLogo currency={row.currency} size="20px" />
+              )}
               <SummaryAmount>
-                {amountIn} {form.currency?.symbol}
+                {formatDisplayNumber(row.parsedAmount?.toExact() ?? '0', { significantDigits: 6 })}{' '}
+                {row.currency.symbol}
               </SummaryAmount>
-              {amountInUsd ? <SummaryUsd>~ {amountInUsd}</SummaryUsd> : null}
+              {row.amountUsd !== undefined ? (
+                <SummaryUsd>
+                  ~ {formatDisplayNumber(row.amountUsd, { style: 'currency', significantDigits: 4 })}
+                </SummaryUsd>
+              ) : null}
             </span>
-            <span className="flex size-5 shrink-0 -rotate-90 items-center justify-center rounded-full border border-white-08 text-subText">
-              <SwapArrowIcon width={12} height={12} />
-            </span>
-            <span className="flex items-center gap-2">
-              <SummaryAmount>
-                {sharesOut} {shareSymbol}
-              </SummaryAmount>
-              {sharesOutUsd ? <SummaryUsd>~ {sharesOutUsd}</SummaryUsd> : null}
-            </span>
-          </SummaryRow>
-        </div>
-      )}
+          ))}
+        </SummaryRow>
+      </div>
+
+      <div className="flex w-full items-center justify-between gap-2">
+        <SummaryLabel>{t`Est. Receive`}</SummaryLabel>
+        <span className="flex items-center gap-2">
+          {shareLogo ? <TokenLogo src={shareLogo} alt={shareSymbol} size={20} /> : null}
+          <SummaryAmount>
+            {sharesOut} {shareSymbol}
+          </SummaryAmount>
+          {sharesOutUsd ? <SummaryUsd>~ {sharesOutUsd}</SummaryUsd> : null}
+        </span>
+      </div>
 
       <DetailsBox>
         {!form.isVaultAsset ? (

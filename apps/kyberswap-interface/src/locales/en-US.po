@@ -350,7 +350,6 @@ msgstr "Limit Order Campaign"
 msgid "Bridge via"
 msgstr "Bridge via"
 
-#: src/pages/Earns/components/VaultDeposit/DepositFields.tsx
 #: src/pages/Earns/components/VaultWithdraw/WithdrawFields.tsx
 msgid "Select token"
 msgstr "Select token"
@@ -600,6 +599,10 @@ msgstr "Estimated Processing Time"
 #: src/pages/ElasticSnapshot/components/Vesting.tsx
 msgid "Wallet Address:"
 msgstr "Wallet Address:"
+
+#: src/pages/Earns/VaultDetail/DepositTab.tsx
+msgid "Deposit {singleSymbol}"
+msgstr "Deposit {singleSymbol}"
 
 #: src/pages/Earns/components/VaultWithdraw/ConfirmWithdraw.tsx
 msgid "Then swap:"
@@ -2874,8 +2877,8 @@ msgid "<0>Unclaimed</0><1><2>fees</2><3/></1>"
 msgstr "<0>Unclaimed</0><1><2>fees</2><3/></1>"
 
 #: src/pages/Earns/components/VaultDeposit/ConfirmDeposit.tsx
-msgid "You are swapping:"
-msgstr "You are swapping:"
+#~ msgid "You are swapping:"
+#~ msgstr "You are swapping:"
 
 #: src/components/TokenInfo/utils.ts
 msgid "Self-destruct"
@@ -3256,6 +3259,11 @@ msgstr "Stake Information"
 #: src/components/LimitOrder/CancelOrder/CancelOrderModal.tsx
 msgid "You are canceling {0} active orders"
 msgstr "You are canceling {0} active orders"
+
+#: src/pages/Earns/components/VaultDeposit/ConfirmDeposit.tsx
+#: src/pages/Earns/components/VaultDeposit/DepositFields.tsx
+msgid "Est. Receive"
+msgstr "Est. Receive"
 
 #: src/components/SwapForm/SwapModal/SwapDetails/index.tsx
 #: src/components/WalletPopup/SendToken/index.tsx
@@ -3726,6 +3734,10 @@ msgstr "Max Price of your range is {maxPrice} {token0Symbol} per {token1Symbol}"
 msgid "{filledPercentLabel} Filled"
 msgstr "{filledPercentLabel} Filled"
 
+#: src/pages/Earns/components/VaultDeposit/DepositFields.tsx
+msgid "+ Add Token(s)"
+msgstr "+ Add Token(s)"
+
 #: src/pages/NotificationCenter/PriceAlerts/Header.tsx
 msgid "Active Alerts:"
 msgstr "Active Alerts:"
@@ -4105,6 +4117,10 @@ msgstr "Total Fees Earned"
 msgid "EG Sharing Reward:"
 msgstr "EG Sharing Reward:"
 
+#: src/pages/Earns/components/VaultDeposit/DepositFields.tsx
+msgid "Remove {symbol}"
+msgstr "Remove {symbol}"
+
 #: src/pages/Earns/components/vaultSteps.ts
 msgid "Submitting request"
 msgstr "Submitting request"
@@ -4401,8 +4417,8 @@ msgid "Notification Center"
 msgstr "Notification Center"
 
 #: src/pages/Earns/VaultDetail/DepositTab.tsx
-msgid "Deposit {currencySymbol}"
-msgstr "Deposit {currencySymbol}"
+#~ msgid "Deposit {currencySymbol}"
+#~ msgstr "Deposit {currencySymbol}"
 
 #: src/pages/NotificationCenter/GeneralAnnouncement/index.tsx
 #: src/pages/NotificationCenter/PrivateAnnouncement.tsx
@@ -5486,6 +5502,10 @@ msgstr "Claim only"
 #: src/pages/Campaign/components/Leaderboard/SafePalLeaderboard.tsx
 msgid "WALLET"
 msgstr "WALLET"
+
+#: src/pages/Earns/components/VaultDeposit/DepositFields.tsx
+msgid "Exchange Rate"
+msgstr "Exchange Rate"
 
 #: src/components/LimitOrder/Form/LimitOrderTokenSection.tsx
 msgid "You Buy"
@@ -8170,6 +8190,7 @@ msgstr "My position"
 #: src/pages/Earns/components/VaultDeposit/VaultDepositModal.tsx
 #: src/pages/Earns/components/VaultDeposit/VaultDepositModal.tsx
 #: src/pages/Earns/components/vaultSteps.ts
+#: src/pages/Earns/VaultDetail/DepositTab.tsx
 #: src/pages/Earns/VaultDetail/index.tsx
 msgid "Deposit"
 msgstr "Deposit"
@@ -8717,8 +8738,8 @@ msgstr "You still have <0>{numberOfPosition}</0> liquidity positions that you ha
 
 #: src/pages/Earns/hooks/useZapSwap.ts
 #: src/pages/Earns/hooks/useZapSwap.ts
-msgid "Could not find a route for this token."
-msgstr "Could not find a route for this token."
+#~ msgid "Could not find a route for this token."
+#~ msgstr "Could not find a route for this token."
 
 #: src/pages/Earns/components/SmartExit/Actions.tsx
 msgid "Loading position..."
@@ -9365,7 +9386,14 @@ msgstr "No alerts yet"
 msgid "Stablecoins to Stablecoins trading will give 0.25 Points per USD swapped."
 msgstr "Stablecoins to Stablecoins trading will give 0.25 Points per USD swapped."
 
+#: src/pages/Earns/hooks/useZapSwap.ts
+#: src/pages/Earns/hooks/useZapSwap.ts
+msgid "Could not find a route for these tokens."
+msgstr "Could not find a route for these tokens."
+
 #: src/pages/CrossChainSwap/components/SwapAction.tsx
+#: src/pages/Earns/components/VaultDeposit/VaultDepositModal.tsx
+#: src/pages/Earns/VaultDetail/DepositTab.tsx
 msgid "No route found"
 msgstr "No route found"
 

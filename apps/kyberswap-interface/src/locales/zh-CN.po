@@ -350,7 +350,6 @@ msgstr "限价单活动"
 msgid "Bridge via"
 msgstr ""
 
-#: src/pages/Earns/components/VaultDeposit/DepositFields.tsx
 #: src/pages/Earns/components/VaultWithdraw/WithdrawFields.tsx
 msgid "Select token"
 msgstr ""
@@ -600,6 +599,10 @@ msgstr "预估处理时间"
 #: src/pages/ElasticSnapshot/components/Vesting.tsx
 msgid "Wallet Address:"
 msgstr "钱包地址："
+
+#: src/pages/Earns/VaultDetail/DepositTab.tsx
+msgid "Deposit {singleSymbol}"
+msgstr ""
 
 #: src/pages/Earns/components/VaultWithdraw/ConfirmWithdraw.tsx
 msgid "Then swap:"
@@ -2874,8 +2877,8 @@ msgid "<0>Unclaimed</0><1><2>fees</2><3/></1>"
 msgstr "<0>未领取</0><1><2>手续费</2><3/></1>"
 
 #: src/pages/Earns/components/VaultDeposit/ConfirmDeposit.tsx
-msgid "You are swapping:"
-msgstr ""
+#~ msgid "You are swapping:"
+#~ msgstr ""
 
 #: src/components/TokenInfo/utils.ts
 msgid "Self-destruct"
@@ -3255,6 +3258,11 @@ msgstr "质押信息"
 
 #: src/components/LimitOrder/CancelOrder/CancelOrderModal.tsx
 msgid "You are canceling {0} active orders"
+msgstr ""
+
+#: src/pages/Earns/components/VaultDeposit/ConfirmDeposit.tsx
+#: src/pages/Earns/components/VaultDeposit/DepositFields.tsx
+msgid "Est. Receive"
 msgstr ""
 
 #: src/components/SwapForm/SwapModal/SwapDetails/index.tsx
@@ -3726,6 +3734,10 @@ msgstr "您价格区间的最高价为 {maxPrice} {token0Symbol}/{token1Symbol}"
 msgid "{filledPercentLabel} Filled"
 msgstr "{filledPercentLabel} 已成交"
 
+#: src/pages/Earns/components/VaultDeposit/DepositFields.tsx
+msgid "+ Add Token(s)"
+msgstr ""
+
 #: src/pages/NotificationCenter/PriceAlerts/Header.tsx
 msgid "Active Alerts:"
 msgstr "活跃提醒："
@@ -4105,6 +4117,10 @@ msgstr "累计赚取手续费"
 msgid "EG Sharing Reward:"
 msgstr "EG 分成奖励："
 
+#: src/pages/Earns/components/VaultDeposit/DepositFields.tsx
+msgid "Remove {symbol}"
+msgstr ""
+
 #: src/pages/Earns/components/vaultSteps.ts
 msgid "Submitting request"
 msgstr ""
@@ -4401,8 +4417,8 @@ msgid "Notification Center"
 msgstr "通知中心"
 
 #: src/pages/Earns/VaultDetail/DepositTab.tsx
-msgid "Deposit {currencySymbol}"
-msgstr ""
+#~ msgid "Deposit {currencySymbol}"
+#~ msgstr ""
 
 #: src/pages/NotificationCenter/GeneralAnnouncement/index.tsx
 #: src/pages/NotificationCenter/PrivateAnnouncement.tsx
@@ -5486,6 +5502,10 @@ msgstr "仅领取"
 #: src/pages/Campaign/components/Leaderboard/SafePalLeaderboard.tsx
 msgid "WALLET"
 msgstr "钱包"
+
+#: src/pages/Earns/components/VaultDeposit/DepositFields.tsx
+msgid "Exchange Rate"
+msgstr ""
 
 #: src/components/LimitOrder/Form/LimitOrderTokenSection.tsx
 msgid "You Buy"
@@ -8170,6 +8190,7 @@ msgstr "我的仓位"
 #: src/pages/Earns/components/VaultDeposit/VaultDepositModal.tsx
 #: src/pages/Earns/components/VaultDeposit/VaultDepositModal.tsx
 #: src/pages/Earns/components/vaultSteps.ts
+#: src/pages/Earns/VaultDetail/DepositTab.tsx
 #: src/pages/Earns/VaultDetail/index.tsx
 msgid "Deposit"
 msgstr "存入"
@@ -8717,8 +8738,8 @@ msgstr "您仍有 <0>{numberOfPosition}</0> 个 Elastic 农场中的流动性仓
 
 #: src/pages/Earns/hooks/useZapSwap.ts
 #: src/pages/Earns/hooks/useZapSwap.ts
-msgid "Could not find a route for this token."
-msgstr ""
+#~ msgid "Could not find a route for this token."
+#~ msgstr ""
 
 #: src/pages/Earns/components/SmartExit/Actions.tsx
 msgid "Loading position..."
@@ -9365,7 +9386,14 @@ msgstr "暂无提醒"
 msgid "Stablecoins to Stablecoins trading will give 0.25 Points per USD swapped."
 msgstr "稳定币之间的交易每兑换 1 美元可获得 0.25 积分。"
 
+#: src/pages/Earns/hooks/useZapSwap.ts
+#: src/pages/Earns/hooks/useZapSwap.ts
+msgid "Could not find a route for these tokens."
+msgstr ""
+
 #: src/pages/CrossChainSwap/components/SwapAction.tsx
+#: src/pages/Earns/components/VaultDeposit/VaultDepositModal.tsx
+#: src/pages/Earns/VaultDetail/DepositTab.tsx
 msgid "No route found"
 msgstr "未找到路径"
 

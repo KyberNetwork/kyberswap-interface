@@ -47,18 +47,32 @@ const DepositTab = ({
     },
   })
 
+  /** Only the rows carrying an amount are being spent. */
+  const spent = form.rows.filter(row => row.parsedAmount?.greaterThan(0))
+  const isMultiToken = spent.length > 1
+
   // A same-asset deposit has nothing to show; anything else swaps on the way in.
   const routeSummary: VaultRouteSummary | null =
-    !form.isVaultAsset && form.route && form.currency && form.sharesOutRaw
+    !form.isVaultAsset && form.route && spent.length > 0 && form.sharesOutRaw
       ? {
           from: {
-            amount: formatDisplayNumber(form.parsedAmount?.toExact() ?? '0', { significantDigits: 6 }),
-            symbol: form.currency.symbol ?? '',
+            // One token fills "amount symbol"; several are spelled out in the amount instead, since
+            // the strip has a single slot for a symbol and a single logo.
+            amount: isMultiToken
+              ? spent
+                  .map(row =>
+                    `${formatDisplayNumber(row.parsedAmount?.toExact() ?? '0', { significantDigits: 6 })} ${
+                      row.currency.symbol ?? ''
+                    }`.trim(),
+                  )
+                  .join(' + ')
+              : formatDisplayNumber(spent[0]?.parsedAmount?.toExact() ?? '0', { significantDigits: 6 }),
+            symbol: isMultiToken ? '' : spent[0]?.currency.symbol ?? '',
             usd: formatDisplayNumber(form.route.zapDetails.initialAmountUsd, {
               style: 'currency',
               significantDigits: 4,
             }),
-            logo: form.currencyLogo,
+            logo: isMultiToken ? undefined : spent[0]?.logo,
           },
           to: {
             amount: formatDisplayNumber(formatUnits(form.sharesOutRaw, vault.shareToken?.decimals ?? 18), {
@@ -81,7 +95,7 @@ const DepositTab = ({
   }, [JSON.stringify(routeSummary)])
 
   const chainName = vault.chain?.name ?? ''
-  const currencySymbol = form.currency?.symbol ?? ''
+  const singleSymbol = isMultiToken ? '' : spent[0]?.currency.symbol ?? ''
 
   const actionLabel = !form.account
     ? t`Connect Wallet`
@@ -93,7 +107,11 @@ const DepositTab = ({
     ? t`Insufficient balance`
     : form.isRouteLoading && !form.route
     ? t`Finding best route`
-    : t`Deposit ${currencySymbol}`
+    : form.routeError
+    ? t`No route found`
+    : singleSymbol
+    ? t`Deposit ${singleSymbol}`
+    : t`Deposit`
 
   const onAction = () => {
     if (!form.account) return toggleWalletModal()
@@ -118,7 +136,7 @@ const DepositTab = ({
       <VaultProcessingModal
         processing={processing}
         chainId={form.chainId}
-        tokenSymbol={form.currency?.symbol}
+        approveSymbols={form.processing.approveSymbols}
         kind="deposit"
         errorMessage={form.submitError}
       />

@@ -67,6 +67,8 @@ const DepositBody = ({
     ? t`Insufficient balance`
     : form.isRouteLoading && !form.route
     ? t`Finding best route`
+    : form.routeError
+    ? t`No route found`
     : t`Deposit`
 
   const onAction = () => {
@@ -112,7 +114,7 @@ const DepositBody = ({
       <VaultProcessingModal
         processing={processing}
         chainId={form.chainId}
-        tokenSymbol={form.currency?.symbol}
+        approveSymbols={form.processing.approveSymbols}
         kind="deposit"
         errorMessage={form.submitError}
         onClose={onClose}

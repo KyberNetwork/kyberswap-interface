@@ -29,17 +29,31 @@ export type ProcessingController<Step extends string> = {
   retryStep: (step: Step) => void
 }
 
+/** One token's allowance, tied to the step that grants it. */
+export type ProcessingApproval<Step extends string> = {
+  step: Step
+  approval: ApprovalState
+  approveCallback: () => Promise<ApprovalStatus>
+  checkApprovalManually: () => Promise<boolean>
+}
+
 type UseProcessingStepsProps<Step extends string> = {
   state: ProcessingState<Step>
   setState: Dispatch<SetStateAction<ProcessingState<Step>>>
   chainId: number
+  /** Ids must be distinct: the sequence finds a step by value, so a repeat would run twice. */
   steps: Step[]
 
-  approval: ApprovalState
-  approveCallback: () => Promise<ApprovalStatus>
-  checkApprovalManually: () => Promise<boolean>
+  approval?: ApprovalState
+  approveCallback?: () => Promise<ApprovalStatus>
+  checkApprovalManually?: () => Promise<boolean>
   /** Which step id runs the allowance. */
-  approveStep: Step
+  approveStep?: Step
+  /**
+   * One entry per token, for a flow that spends several and so needs an allowance for each. Stands
+   * in for the single-allowance props above.
+   */
+  approvals?: ProcessingApproval<Step>[]
   /** Which step id runs `onFinalStep` — the one the flow exists for. */
   actionStep: Step
 
@@ -107,6 +121,7 @@ export const useProcessingSteps = <Step extends string>({
   approveCallback,
   checkApprovalManually,
   approveStep,
+  approvals,
   actionStep,
   wrapStep,
   onWrap,
@@ -122,6 +137,15 @@ export const useProcessingSteps = <Step extends string>({
   const isRunningRef = useRef(false)
 
   const isCurrentRun = (runId: number) => runIdRef.current === runId
+
+  const approvalByStep = new Map<Step, ProcessingApproval<Step>>(
+    (
+      approvals ??
+      (approveStep !== undefined && approval !== undefined && approveCallback && checkApprovalManually
+        ? [{ step: approveStep, approval, approveCallback, checkApprovalManually }]
+        : [])
+    ).map(entry => [entry.step, entry]),
+  )
 
   const markStepSuccess = (step: Step) => {
     setState(current => {
@@ -166,14 +190,14 @@ export const useProcessingSteps = <Step extends string>({
     }
   }
 
-  const waitForApproval = async (runId: number) => {
+  const waitForApproval = async (runId: number, isApproved: () => Promise<boolean>) => {
     const deadline = Date.now() + APPROVAL_WAIT_MS
     let delay = APPROVAL_POLL_MIN_MS
 
     while (Date.now() < deadline) {
       await wait(delay)
       if (!isCurrentRun(runId)) return false
-      if (await checkApprovalManually()) return true
+      if (await isApproved()) return true
       delay = Math.min(delay * 2, APPROVAL_POLL_MAX_MS)
     }
     return false
@@ -203,16 +227,16 @@ export const useProcessingSteps = <Step extends string>({
     }
   }
 
-  const runApproveStep = async (step: Step, runId: number) => {
+  const runApproveStep = async (step: Step, runId: number, allowance: ProcessingApproval<Step>) => {
     try {
-      if (await checkApprovalManually()) {
+      if (await allowance.checkApprovalManually()) {
         markStepSuccess(step)
         return true
       }
 
       // A pending approval is already on its way; asking the wallet again would only duplicate it.
-      if (approval !== ApprovalState.PENDING) {
-        const status = await approveCallback()
+      if (allowance.approval !== ApprovalState.PENDING) {
+        const status = await allowance.approveCallback()
         // SKIPPED means nothing was sent, and the live allowance has just said one is needed.
         if (status !== ApprovalStatus.SUBMITTED) {
           markStepError(step)
@@ -220,7 +244,7 @@ export const useProcessingSteps = <Step extends string>({
         }
       }
 
-      if (await waitForApproval(runId)) {
+      if (await waitForApproval(runId, allowance.checkApprovalManually)) {
         markStepSuccess(step)
         return true
       }
@@ -263,10 +287,16 @@ export const useProcessingSteps = <Step extends string>({
 
   const runStep = (step: Step, runId: number) => {
     if (wrapStep && step === wrapStep) return runWrapStep(step)
-    if (step === approveStep) return runApproveStep(step, runId)
+    const allowance = approvalByStep.get(step)
+    if (allowance) return runApproveStep(step, runId, allowance)
     if (step === actionStep) return runFinalStep(step)
 
-    markStepError(step, false)
+    // The sequence was started with a step nothing knows how to run. `state.steps` is frozen at
+    // `start()` while the allowances are rebuilt every render, so this is what a step id that has
+    // since changed looks like — a retry of an approval whose token is no longer listed, say.
+    // Nothing was sent, so the step stays retryable; the error is only worth naming to a developer.
+    if (import.meta.env.DEV) console.error(`useProcessingSteps: no handler for step "${step}"`)
+    markStepError(step)
     return Promise.resolve(false)
   }
 

@@ -165,9 +165,11 @@ export const useWithdrawForm = ({
 
   const zapWithdraw = useZapSwap({
     chainId,
-    tokenInAddress: mode === WithdrawMode.ANY_TOKEN ? vault.shareToken?.address : undefined,
+    tokensIn:
+      mode === WithdrawMode.ANY_TOKEN && vault.shareToken?.address && shares
+        ? [{ address: vault.shareToken.address, amountRaw: shares.toString() }]
+        : undefined,
     tokenOutAddress: swapToken?.address,
-    amountInRaw: shares?.toString(),
     approvalAmount,
     slippage,
     transactionType: TRANSACTION_TYPE.EARN_VAULT_WITHDRAW,

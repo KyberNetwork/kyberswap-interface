@@ -17,14 +17,21 @@ import { friendlyError } from 'utils/errorMessage'
 
 const ROUTE_DEADLINE_SECONDS = 20 * 60
 
+/** One token the route spends. Native is the `0xEeee…` placeholder; the amount is in raw units. */
+export type ZapSwapInput = {
+  address: string
+  amountRaw: string
+}
+
 type UseZapSwapArgs = {
   chainId: number
-  /** Aggregator token addresses; native is the `0xEeee…` placeholder. */
-  tokenInAddress?: string
+  /** Everything the route spends. The aggregator takes several tokens into one output. */
+  tokensIn?: ZapSwapInput[]
   tokenOutAddress?: string
-  /** Amount to spend, in raw units. */
-  amountInRaw?: string
-  /** Same amount as a currency, for the allowance check. */
+  /**
+   * The amount as a currency, for the allowance check. Only for a flow that spends one token; a
+   * flow spending several owns its own allowances, one per token.
+   */
   approvalAmount?: CurrencyAmount<Currency>
   /** Slippage in basis points. */
   slippage: number
@@ -42,9 +49,8 @@ type UseZapSwapArgs = {
  */
 export const useZapSwap = ({
   chainId,
-  tokenInAddress,
+  tokensIn,
   tokenOutAddress,
-  amountInRaw,
   approvalAmount,
   slippage,
   transactionType,
@@ -62,17 +68,27 @@ export const useZapSwap = ({
   const [submitError, setSubmitError] = useState<string | null>(null)
   const [txHash, setTxHash] = useState<string | null>(null)
 
-  const debouncedAmount = useDebounce(amountInRaw, 400)
+  /**
+   * Addresses and amounts travel as one string so the debounce cannot hand the endpoint a list of
+   * addresses paired with the previous list of amounts — it rejects a pair of unequal length. A row
+   * the user has not filled in yet is left out rather than quoted at zero.
+   */
+  const tokensKey = (tokensIn || [])
+    .filter(token => token.address && token.amountRaw && token.amountRaw !== '0')
+    .map(token => `${token.address}:${token.amountRaw}`)
+    .join(',')
+  const debouncedTokensKey = useDebounce(tokensKey, 400)
 
   const routeParams = useMemo(() => {
-    if (!tokenInAddress || !tokenOutAddress || !debouncedAmount || debouncedAmount === '0') return undefined
+    if (!tokenOutAddress || !debouncedTokensKey) return undefined
+    const entries = debouncedTokensKey.split(',').map(entry => entry.split(':'))
     return new URLSearchParams({
-      tokens_in: tokenInAddress,
-      amounts_in: debouncedAmount,
+      tokens_in: entries.map(([address]) => address).join(','),
+      amounts_in: entries.map(([, amount]) => amount).join(','),
       token_out: tokenOutAddress,
       slippage: String(slippage),
     }).toString()
-  }, [tokenInAddress, tokenOutAddress, debouncedAmount, slippage])
+  }, [debouncedTokensKey, tokenOutAddress, slippage])
 
   const {
     data: routeResponse,
@@ -85,17 +101,17 @@ export const useZapSwap = ({
   )
 
   const route = routeResponse?.data
-  /** The amount is debounced before it reaches the query, so between a keystroke and the next quote
+  /** The inputs are debounced before they reach the query, so between a keystroke and the next quote
    *  the cached route belongs to a different amount. Acting on it would send one amount while the
-   *  summary shows another. A background poll re-fetching the same amount leaves the cached route
+   *  summary shows another. A background poll re-fetching the same inputs leaves the cached route
    *  valid, so it does not count as stale. */
-  const isRouteStale = amountInRaw !== debouncedAmount
+  const isRouteStale = tokensKey !== debouncedTokensKey
 
   // The endpoint answers `message: "OK"` on success, so only a missing route counts as an error.
   const routeError = routeQueryError
-    ? t`Could not find a route for this token.`
+    ? t`Could not find a route for these tokens.`
     : routeResponse && !route
-    ? routeResponse.message || t`Could not find a route for this token.`
+    ? routeResponse.message || t`Could not find a route for these tokens.`
     : undefined
 
   /** What the route delivers, summed over its swaps into the output token. */
