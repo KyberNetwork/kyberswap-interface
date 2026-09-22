@@ -8,6 +8,7 @@ import type { PositionSummary } from 'services/copyTrading/types/positions'
 
 import { useActiveWeb3React } from 'hooks'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
+import { useCopyTradingRoutes } from 'pages/CopyTrading/hooks/useCopyTradingRoutes'
 import {
   ManagePositionForm,
   ManagePositionReview,
@@ -50,6 +51,7 @@ const ManagePositionModal = ({
   flow: positionFlow,
 }: ManagePositionModalProps) => {
   const navigate = useNavigate()
+  const copyTradingPath = useCopyTradingRoutes()
   const { account, chainId } = useActiveWeb3React()
   const { changeNetwork } = useChangeNetwork()
   const toggleWalletModal = useWalletModalToggle()
@@ -197,7 +199,7 @@ const ManagePositionModal = ({
 
   const viewDestination = () => {
     dismiss()
-    navigate(flowConfig.destination)
+    navigate(copyTradingPath(flowConfig.destination, position.chainId))
   }
 
   const accountConnected = !!account

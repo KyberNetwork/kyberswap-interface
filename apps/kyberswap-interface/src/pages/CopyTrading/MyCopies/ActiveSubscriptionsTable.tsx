@@ -5,7 +5,6 @@ import type { CopyRunSortBy, SortOrder } from 'services/copyTrading/types/primit
 import { ButtonLight } from 'components/Button'
 import ScrollArea from 'components/ScrollArea'
 import { Stack } from 'components/Stack'
-import { APP_PATHS } from 'constants/index'
 import CursorPagination, { type CursorPaginationState } from 'pages/CopyTrading/components/CursorPagination'
 import {
   HeaderCell,
@@ -31,6 +30,7 @@ import {
   percent,
   signedUsd,
 } from 'pages/CopyTrading/helpers'
+import { useCopyTradingRoutes } from 'pages/CopyTrading/hooks/useCopyTradingRoutes'
 import { useCopyTradingModal } from 'pages/CopyTrading/modals/context'
 import { cn } from 'utils/cn'
 
@@ -69,6 +69,7 @@ const ActiveSubscriptionsTable = ({
   sortOrder,
   onSortChange,
 }: ActiveSubscriptionsTableProps) => {
+  const copyTradingPath = useCopyTradingRoutes()
   const { openStopCopy } = useCopyTradingModal()
 
   const renderStopCopyButton = (subscription: CopyRunListItem) => {
@@ -141,7 +142,7 @@ const ActiveSubscriptionsTable = ({
             <ActiveSubscriptionsGrid key={subscription.copyRunId} className="relative cursor-pointer">
               <TableRowLink
                 label={`View copy for ${subscription.agentSnapshot?.displayName || 'agent'}`}
-                to={`${APP_PATHS.COPY_TRADING}/my-copies/${subscription.copyRunId}`}
+                to={copyTradingPath('my-copies/' + subscription.copyRunId, subscription.chainId)}
               />
               <CopyRunAgentCell run={subscription} className="px-3 py-2" />
               <TableCell className={cn('text-right', getSignedMetricClassName(subscription.roiPct))}>
@@ -179,7 +180,7 @@ const ActiveSubscriptionsTable = ({
           >
             <TableRowLink
               label={`View copy for ${subscription.agentSnapshot?.displayName || 'agent'}`}
-              to={`${APP_PATHS.COPY_TRADING}/my-copies/${subscription.copyRunId}`}
+              to={copyTradingPath('my-copies/' + subscription.copyRunId, subscription.chainId)}
             />
             <div className="flex items-start justify-between gap-3">
               <CopyRunAgentCell run={subscription} className="min-w-0 flex-1 gap-3" />

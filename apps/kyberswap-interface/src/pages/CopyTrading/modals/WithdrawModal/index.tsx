@@ -4,9 +4,9 @@ import { useNavigate } from 'react-router-dom'
 import type { CopyRunListItem } from 'services/copyTrading/types/copyRuns'
 
 import { Stack } from 'components/Stack'
-import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
+import { useCopyTradingRoutes } from 'pages/CopyTrading/hooks/useCopyTradingRoutes'
 import PreparedActionModal, {
   PreparedActionFormActions,
   PreparedActionSuccessActions,
@@ -33,6 +33,7 @@ const WithdrawModal = ({
   const { changeNetwork } = useChangeNetwork()
   const toggleWalletModal = useWalletModalToggle()
   const navigate = useNavigate()
+  const copyTradingPath = useCopyTradingRoutes()
   const [mode, setMode] = useState<WithdrawalMode>('all')
   const wallet = useWithdrawalInventory(copyRun, isOpen)
   // Keep both flow states mounted when switching options.
@@ -73,7 +74,7 @@ const WithdrawModal = ({
   }
   const viewCopies = () => {
     dismiss()
-    navigate(APP_PATHS.COPY_TRADING + (terminal ? '/history' : '/my-copies'))
+    navigate(copyTradingPath(terminal ? 'history' : 'my-copies', copyRun.chainId))
   }
 
   return (

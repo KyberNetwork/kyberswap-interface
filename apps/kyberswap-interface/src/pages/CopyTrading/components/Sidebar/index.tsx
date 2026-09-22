@@ -1,7 +1,7 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import { useEffect, useRef, useState } from 'react'
 import { ChevronDown, ChevronUp } from 'react-feather'
-import { useLocation } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import agentApi from 'services/copyTrading/api/endpoints/agents'
 import copyRunApi from 'services/copyTrading/api/endpoints/copyRuns'
 import discoveryApi from 'services/copyTrading/api/endpoints/discovery'
@@ -12,7 +12,6 @@ import { ReactComponent as HistoryIcon } from 'assets/images/copy-trading/ic_his
 import { ReactComponent as OpenCopiesIcon } from 'assets/images/copy-trading/ic_opens.svg'
 import { ButtonEmpty } from 'components/Button'
 import { Center, HStack, Stack } from 'components/Stack'
-import { APP_PATHS } from 'constants/index'
 import MobileNavigation, { type BreadcrumbItem } from 'pages/CopyTrading/components/Sidebar/MobileNavigation'
 import {
   SidebarMenuItem,
@@ -22,13 +21,12 @@ import {
 } from 'pages/CopyTrading/components/Sidebar/primitives'
 import { useCopyTradingContext } from 'pages/CopyTrading/context'
 import { getAgentInitials } from 'pages/CopyTrading/helpers'
+import { useCopyTradingRoutes } from 'pages/CopyTrading/hooks/useCopyTradingRoutes'
 import { cn } from 'utils/cn'
 
 const SIDEBAR_ITEM_LIMIT = 10
 const DEFAULT_VISIBLE_AGENTS = 5
 const ACTIVE_COPY_DOT_COLORS = ['bg-primary', 'bg-yellow1', 'bg-blue3', 'bg-lightGreen', 'bg-warning'] as const
-const MY_COPIES_PATH = APP_PATHS.COPY_TRADING + '/my-copies'
-const HISTORY_PATH = APP_PATHS.COPY_TRADING + '/history'
 
 type AgentsSectionProps = {
   activeAgentCode: string
@@ -75,37 +73,37 @@ const getCopyStatusDotColor = (run: CopyRunListItem) => {
 }
 
 const getBreadcrumbs = (
+  basePath: string,
   route: SidebarRouteState,
   detailAgentName: string,
   profileAgentName: string,
 ): BreadcrumbItem[] => {
-  const breadcrumbs: BreadcrumbItem[] = [{ label: 'Copy Trading', to: APP_PATHS.COPY_TRADING }]
+  const breadcrumbs: BreadcrumbItem[] = [{ label: 'Copy Trading', to: basePath }]
 
   if (route.isCopiesPage) {
-    breadcrumbs.push(route.activeCopyId ? { label: 'My Copies', to: MY_COPIES_PATH } : { label: 'My Copies' })
+    breadcrumbs.push(route.activeCopyId ? { label: 'My Copies', to: basePath + '/my-copies' } : { label: 'My Copies' })
     if (route.activeCopyId) breadcrumbs.push({ label: detailAgentName })
     return breadcrumbs
   }
 
   if (route.isHistorySectionActive) {
-    breadcrumbs.push(route.activeCopyId ? { label: 'History', to: HISTORY_PATH } : { label: 'History' })
+    breadcrumbs.push(route.activeCopyId ? { label: 'History', to: basePath + '/history' } : { label: 'History' })
     if (route.activeCopyId) breadcrumbs.push({ label: detailAgentName })
     return breadcrumbs
   }
 
-  breadcrumbs.push(
-    route.isAgentProfilePage ? { label: 'Leaderboard', to: APP_PATHS.COPY_TRADING } : { label: 'Leaderboard' },
-  )
+  breadcrumbs.push(route.isAgentProfilePage ? { label: 'Leaderboard', to: basePath } : { label: 'Leaderboard' })
   if (route.isAgentProfilePage) breadcrumbs.push({ label: profileAgentName })
 
   return breadcrumbs
 }
 
 const AgentItem = ({ activeAgentCode, agent }: { activeAgentCode: string; agent: AgentCard }) => {
+  const copyTradingPath = useCopyTradingRoutes()
   const active = activeAgentCode === agent.agentId
 
   return (
-    <SidebarMenuItem to={APP_PATHS.COPY_TRADING + '/' + agent.agentId} active={active} activeStyle="text" layout="row">
+    <SidebarMenuItem to={copyTradingPath(agent.agentId, agent.chainId)} active={active} activeStyle="text" layout="row">
       <Center className="size-5 rounded-full bg-subText-20 text-xs text-subText">
         {getAgentInitials(agent.displayName)}
       </Center>
@@ -115,11 +113,13 @@ const AgentItem = ({ activeAgentCode, agent }: { activeAgentCode: string; agent:
 }
 
 const AgentsSection = ({ activeAgentCode, agents, expanded, isActive, onToggle }: AgentsSectionProps) => {
+  const copyTradingPath = useCopyTradingRoutes()
+  const basePath = copyTradingPath()
   const visibleAgents = agents.slice(0, DEFAULT_VISIBLE_AGENTS)
   const hiddenAgents = agents.slice(DEFAULT_VISIBLE_AGENTS)
 
   return (
-    <SidebarSection title="Agents" to={APP_PATHS.COPY_TRADING} active={isActive} count={agents.length}>
+    <SidebarSection title="Agents" to={basePath} active={isActive} count={agents.length}>
       <Stack className="gap-1">
         {visibleAgents.map(agent => (
           <AgentItem key={agent.agentId} activeAgentCode={activeAgentCode} agent={agent} />
@@ -157,9 +157,11 @@ const AgentsSection = ({ activeAgentCode, agents, expanded, isActive, onToggle }
 }
 
 const MyCopiesSection = ({ agentById, route, runs }: MyCopiesSectionProps) => {
+  const copyTradingPath = useCopyTradingRoutes()
+  const basePath = copyTradingPath()
   return (
     <SidebarSection title="My Copies" active={route.isMyCopiesSectionActive}>
-      <SidebarMenuItem to={MY_COPIES_PATH} active={route.isCopiesPage} layout="between">
+      <SidebarMenuItem to={basePath + '/my-copies'} active={route.isCopiesPage} layout="between">
         <HStack className={cn('items-center gap-2 text-sm', route.isCopiesPage ? 'text-primary' : 'text-subText')}>
           <OpenCopiesIcon className="size-4 shrink-0" aria-hidden />
           <span>Open Copies</span>
@@ -175,7 +177,7 @@ const MyCopiesSection = ({ agentById, route, runs }: MyCopiesSectionProps) => {
           return (
             <SidebarMenuItem
               key={run.copyRunId}
-              to={MY_COPIES_PATH + '/' + run.copyRunId}
+              to={copyTradingPath('my-copies/' + run.copyRunId, run.chainId)}
               active={active}
               activeStyle="text"
               layout="row"
@@ -193,7 +195,7 @@ const MyCopiesSection = ({ agentById, route, runs }: MyCopiesSectionProps) => {
         })}
       </Stack>
 
-      <SidebarMenuItem to={HISTORY_PATH} active={route.isHistorySectionActive} colorByActive layout="row">
+      <SidebarMenuItem to={basePath + '/history'} active={route.isHistorySectionActive} colorByActive layout="row">
         <HistoryIcon className="size-4 shrink-0" aria-hidden />
         <span>History</span>
       </SidebarMenuItem>
@@ -253,14 +255,17 @@ const SidebarContent = ({
 )
 
 const Sidebar = () => {
+  const copyTradingPath = useCopyTradingRoutes()
+  const basePath = copyTradingPath()
   const location = useLocation()
-  const { chains, ownerAddress, selectedChainId, setSelectedChainId } = useCopyTradingContext()
+  const navigate = useNavigate()
+  const { chains, ownerAddress, selectedChainId } = useCopyTradingContext()
   const [expandedAgents, setExpandedAgents] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
   const previousPathname = useRef(location.pathname)
-  const route = getSidebarRouteState(location.pathname)
+  const route = getSidebarRouteState(location.pathname, basePath)
 
-  const { data: leaderboard } = discoveryApi.useGetLeaderboardQuery(
+  const { currentData: leaderboard } = discoveryApi.useGetLeaderboardQuery(
     { chainId: selectedChainId, limit: SIDEBAR_ITEM_LIMIT },
     { pollingInterval: 10_000, skip: selectedChainId === undefined },
   )
@@ -299,12 +304,12 @@ const Sidebar = () => {
     agentById.get(breadcrumbCopyRun?.data.agentId || '')?.displayName ||
     '' // Copy Details
   const profileAgentName = breadcrumbAgent?.data.displayName || agentById.get(route.activeAgentCode)?.displayName || '' // Agent Profile
-  const breadcrumbs = getBreadcrumbs(route, detailAgentName, profileAgentName)
+  const breadcrumbs = getBreadcrumbs(basePath, route, detailAgentName, profileAgentName)
 
   const selectChain = (chainId: number) => {
-    setSelectedChainId(chainId)
     setExpandedAgents(false)
     setMobileOpen(false)
+    navigate(copyTradingPath('', chainId))
   }
 
   const sidebarContentProps: SidebarContentProps = {

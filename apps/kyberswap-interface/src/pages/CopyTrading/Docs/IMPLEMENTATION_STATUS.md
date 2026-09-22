@@ -62,6 +62,26 @@ exist:
 - Agent discovery, Agent position detail/events, owner-wide positions, and
   Copy Account list/detail/balance/position/history screens.
 
+## Chain URLs
+
+- Canonical routes are `/copy-trading/{chainSlug}/...`; the slug comes from
+  the shared chain catalog. URL resolution owns `selectedChainId`; context only
+  exposes the resolved value, with no separate selection state or sync effect.
+- The route boundary waits for initial chain discovery before mounting pages.
+  Cached catalog data remains usable during refetches and transient failures.
+  Existing URLs remain selected if a chain becomes disabled; action eligibility
+  still follows the current chain/agent generation policy.
+- Network selection navigates to that chain's leaderboard. Chain changes reset
+  the mounted page/modal state, while the RTK Query catalog cache remains shared.
+- Shared route builders keep navigation, breadcrumbs, tabs and post-action
+  destinations chain-scoped. Owner-wide My Copies/History retain their existing
+  scope; each entity link carries its own chain. Agent/Copy details replace a
+  mismatched URL with the entity's chain before rendering actions, retaining
+  query parameters and the hash.
+- Root and legacy chainless links redirect to an enabled default chain; legacy
+  agent/copy details then resolve their actual chain. Numeric chain URLs redirect
+  to the canonical slug. Unknown chains in scoped detail URLs show a read error.
+
 ## Multi-contract Generations
 
 - Generation integration is implicit by product decision. No generation labels,
@@ -447,14 +467,16 @@ from the frontend.
 ## Verification Snapshot
 
 Latest completed static checks (2026-09-22): app TypeScript, Copy Trading ESLint,
-`git diff --check`, and **204 tests across 19 files** passed. Regression coverage
+`git diff --check`, and **226 tests across 21 files** passed. Regression coverage
 includes status-context validation, explicit reset during preparation, and Start
 attempt snapshots and identity across renders. Funding regressions cover chain
 token discovery, optional display metadata, exact decimal precision, token changes,
 and validation before wallet submission. Withdrawal inventory regressions verify
 that chain token metadata remains available when the pinned balance is missing.
 Chain-query regression coverage checks cache reuse and retained token data during
-pending, failed, and successful refetches.
+pending, failed, and successful refetches. Route regressions cover direct nested
+URLs, chain-aware links, navigation/Back/Forward, initial catalog loading, retained
+cache data, legacy URLs and detail-chain canonicalization.
 This is not browser or live transaction evidence.
 
 Run from `apps/kyberswap-interface` after logic changes:

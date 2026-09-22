@@ -8,7 +8,6 @@ import type { LeaderboardSortBy, SortOrder } from 'services/copyTrading/types/pr
 import { ButtonLight, ButtonPrimary } from 'components/Button'
 import ScrollArea from 'components/ScrollArea'
 import { Stack } from 'components/Stack'
-import { APP_PATHS } from 'constants/index'
 import CursorPagination, { type CursorPaginationState } from 'pages/CopyTrading/components/CursorPagination'
 import {
   HeaderCell,
@@ -32,6 +31,7 @@ import {
   getWinRateClassName,
   percent,
 } from 'pages/CopyTrading/helpers'
+import { useCopyTradingRoutes } from 'pages/CopyTrading/hooks/useCopyTradingRoutes'
 import { useCopyTradingModal } from 'pages/CopyTrading/modals/context'
 import { cn } from 'utils/cn'
 
@@ -63,6 +63,7 @@ const LeaderboardGrid = ({ header, className, ...props }: LeaderboardGridProps) 
 }
 
 const AgentTable = ({ agents, loading, pagination, sortBy, sortOrder, onSortChange }: AgentTableProps) => {
+  const copyTradingPath = useCopyTradingRoutes()
   const { chains, ownerAddress, selectedChainId } = useCopyTradingContext()
   const { openStartCopy } = useCopyTradingModal()
 
@@ -168,7 +169,7 @@ const AgentTable = ({ agents, loading, pagination, sortBy, sortOrder, onSortChan
 
             return (
               <LeaderboardGrid key={agent.agentId} className="relative cursor-pointer">
-                <TableRowLink label={`View ${agent.displayName}`} to={`${APP_PATHS.COPY_TRADING}/${agent.agentId}`} />
+                <TableRowLink label={`View ${agent.displayName}`} to={copyTradingPath(agent.agentId, agent.chainId)} />
                 <AgentCell agent={agent} className="px-3 py-2" />
                 <TableCell className={cn('text-right', getSignedMetricClassName(agent.stats.roiPct))}>
                   {percent(agent.stats.roiPct)}
@@ -184,7 +185,7 @@ const AgentTable = ({ agents, loading, pagination, sortBy, sortOrder, onSortChan
                   {copiedRun ? (
                     <ButtonLight
                       as={Link}
-                      to={`${APP_PATHS.COPY_TRADING}/my-copies/${copiedRun.copyRunId}`}
+                      to={copyTradingPath('my-copies/' + copiedRun.copyRunId, copiedRun.chainId)}
                       padding="6px 12px"
                       className="w-fit whitespace-nowrap"
                     >
@@ -231,13 +232,13 @@ const AgentTable = ({ agents, loading, pagination, sortBy, sortOrder, onSortChan
               key={agent.agentId}
               className="relative cursor-pointer gap-0 overflow-hidden rounded-xl bg-buttonBlack outline-none transition-colors hover:bg-primary-10"
             >
-              <TableRowLink label={`View ${agent.displayName}`} to={`${APP_PATHS.COPY_TRADING}/${agent.agentId}`} />
+              <TableRowLink label={`View ${agent.displayName}`} to={copyTradingPath(agent.agentId, agent.chainId)} />
               <div className="flex items-center gap-3 p-3">
                 <AgentCell agent={agent} className="flex-1 gap-3" />
                 {copiedRun ? (
                   <ButtonLight
                     as={Link}
-                    to={`${APP_PATHS.COPY_TRADING}/my-copies/${copiedRun.copyRunId}`}
+                    to={copyTradingPath('my-copies/' + copiedRun.copyRunId, copiedRun.chainId)}
                     padding="6px 12px"
                     className="w-fit shrink-0 whitespace-nowrap"
                   >

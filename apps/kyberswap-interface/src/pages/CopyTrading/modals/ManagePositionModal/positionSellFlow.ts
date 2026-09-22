@@ -2,7 +2,6 @@ import type { PositionActionKind, PositionSummary } from 'services/copyTrading/t
 import type { PositionSellContext } from 'services/copyTrading/types/preparedActions'
 import type { CopyRunStatus } from 'services/copyTrading/types/primitives'
 
-import { APP_PATHS } from 'constants/index'
 import type { PreparedActionFlowState } from 'pages/CopyTrading/modals/PreparedActionModal/preparedAction'
 
 export type ManagePositionFlow = 'manualSell' | 'activeClosePosition' | 'stopCopyClosePosition'
@@ -33,7 +32,7 @@ type PositionSellFlowConfig = {
 }
 
 const ACTIVE_RECOVERY_CONFIG = {
-  destination: APP_PATHS.COPY_TRADING + '/my-copies',
+  destination: 'my-copies',
   destinationLabel: 'My Copies',
   sellContext: 'POSITION_SELL_CONTEXT_ALIGN_SKIP',
 } as const
@@ -58,7 +57,7 @@ export const POSITION_SELL_FLOW_CONFIG: Record<ManagePositionFlow, PositionSellF
   },
   stopCopyClosePosition: {
     ...CLOSE_POSITION_CONFIG,
-    destination: APP_PATHS.COPY_TRADING + '/history',
+    destination: 'history',
     destinationLabel: 'View History',
     sellContext: 'POSITION_SELL_CONTEXT_STOP_COPY',
   },

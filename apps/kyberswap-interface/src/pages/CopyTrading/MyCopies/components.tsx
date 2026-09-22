@@ -4,7 +4,6 @@ import type { ActivityRow, OwnerCopySummary } from 'services/copyTrading/types/c
 
 import Dots from 'components/Dots'
 import { HStack, Stack } from 'components/Stack'
-import { APP_PATHS } from 'constants/index'
 import { formatAlertFeedTime, getAlertFeedItemViewModel } from 'pages/CopyTrading/MyCopies/alertFeed'
 import InfiniteScroll, { type InfiniteScrollState } from 'pages/CopyTrading/components/InfiniteScroll'
 import Leaderboard, { type LeaderboardStat } from 'pages/CopyTrading/components/Leaderboard'
@@ -19,6 +18,7 @@ import {
   getSignedMetricClassName,
   signedUsd,
 } from 'pages/CopyTrading/helpers'
+import { useCopyTradingRoutes } from 'pages/CopyTrading/hooks/useCopyTradingRoutes'
 import { cn } from 'utils/cn'
 
 type OpenCopiesSummaryProps = {
@@ -88,6 +88,7 @@ const AlertStatusIcon = ({ tone }: { tone: ActivityTone }) => {
 }
 
 export const AlertsFeed = ({ infiniteScroll, loading, rows }: AlertsFeedProps) => {
+  const copyTradingPath = useCopyTradingRoutes()
   return (
     <ContentPanel title="Alerts Feed">
       <InfiniteScroll {...infiniteScroll} className="max-h-[400px]" scrollbar="vertical">
@@ -155,7 +156,7 @@ export const AlertsFeed = ({ infiniteScroll, loading, rows }: AlertsFeedProps) =
                           {' '}
                           <Link
                             className="text-red no-underline hover:text-red hover:underline"
-                            to={`${APP_PATHS.COPY_TRADING}/my-copies/${alert.manualSellCopyRunId}`}
+                            to={copyTradingPath('my-copies/' + alert.manualSellCopyRunId, item.chainId)}
                           >
                             [Manual sell]
                           </Link>
