@@ -5723,6 +5723,8 @@ msgstr ""
 
 #: src/pages/Earns/ExploreVaults/index.tsx
 #: src/pages/Earns/ExploreVaults/index.tsx
+#: src/pages/Earns/VaultDetail/index.tsx
+#: src/pages/Earns/VaultDetail/index.tsx
 msgid "Yield"
 msgstr ""
 

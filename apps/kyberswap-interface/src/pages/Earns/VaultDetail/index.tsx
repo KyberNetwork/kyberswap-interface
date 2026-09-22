@@ -188,7 +188,7 @@ const VaultDetail = () => {
         </TokenStack>
         <HeaderTitle>
           {vault.token}
-          <HeaderTitleMuted>{vault.label}</HeaderTitleMuted>
+          <HeaderTitleMuted>{t`Yield`}</HeaderTitleMuted>
         </HeaderTitle>
         <HeaderApy>
           <HeaderApyValue>
@@ -216,7 +216,7 @@ const VaultDetail = () => {
                 </TokenIconWrapperSm>
                 <VaultName>
                   {vault.token}
-                  <VaultNameMuted>{vault.label}</VaultNameMuted>
+                  <VaultNameMuted>{t`Yield`}</VaultNameMuted>
                 </VaultName>
               </VaultMetaLeft>
               <ProtocolTag>
