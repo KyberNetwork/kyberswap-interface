@@ -1,15 +1,9 @@
 import { type PropsWithChildren, createContext, useContext, useMemo } from 'react'
-import type { Chain, ChainQuoteToken } from 'services/copyTrading/types/agents'
+import type { Chain } from 'services/copyTrading/types/agents'
 import type { Address } from 'services/copyTrading/types/primitives'
 
-export type CopyTradingChain = Chain & { quoteToken: ChainQuoteToken }
-
-// Discovery adapters validate token identity and decimals; the feature boundary requires them.
-export const hasChainQuoteTokens = (chains: Chain[]): chains is CopyTradingChain[] =>
-  chains.every(chain => chain.quoteToken !== undefined)
-
 type CopyTradingContextValue = {
-  chains: CopyTradingChain[]
+  chains: Chain[]
   ownerAddress?: Address
   selectedChainId: number
 }
@@ -17,7 +11,7 @@ type CopyTradingContextValue = {
 const CopyTradingContext = createContext<CopyTradingContextValue | undefined>(undefined)
 
 type CopyTradingProviderProps = PropsWithChildren<{
-  chains: CopyTradingChain[]
+  chains: Chain[]
   ownerAddress?: Address
   selectedChainId: number
 }>

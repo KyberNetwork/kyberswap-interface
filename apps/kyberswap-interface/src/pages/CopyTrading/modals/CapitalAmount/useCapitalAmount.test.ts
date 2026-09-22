@@ -1,13 +1,13 @@
+import type { Chain } from 'services/copyTrading/types/agents'
 import type { PreparedAction } from 'services/copyTrading/types/preparedActions'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-import type { CopyTradingChain } from 'pages/CopyTrading/context'
 import { useCapitalAmount } from 'pages/CopyTrading/modals/CapitalAmount/useCapitalAmount'
 
 const harness = vi.hoisted(() => ({
   slots: [] as { current: unknown }[],
   index: 0,
-  chains: [] as CopyTradingChain[],
+  chains: [] as Chain[],
 }))
 vi.mock('react', () => ({
   useMemo: (getValue: () => unknown) => getValue(),
@@ -34,7 +34,7 @@ vi.mock('hooks/useTokenBalance', () => ({
 }))
 
 const token = { chainId: 8453, address: '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913', decimals: 6 } as const
-const chain: CopyTradingChain = {
+const chain: Chain = {
   chainId: 8453,
   name: 'Base',
   slug: 'base',
@@ -67,6 +67,32 @@ beforeEach(() => {
 })
 
 describe('funding amount discovery and validation', () => {
+  it.each([
+    [1, '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48', 6, 'USDC'],
+    [56, '0x55d398326f99059ff775485246999027b3197955', 18, 'USDT'],
+    [8453, '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913', 6, 'USDC'],
+    [4663, '0x5fc5360d0400a0fd4f2af552add042d716f1d168', 6, 'USDG'],
+  ] as const)(
+    'uses the configured funding token when chain %s omits quoteToken',
+    (chainId, address, decimals, symbol) => {
+      harness.chains = [{ ...chain, chainId, quoteToken: undefined }]
+      CapitalAmountHarness(chainId).setAmount('1.25')
+      const form = CapitalAmountHarness(chainId)
+      expect(form.quoteToken.address?.toLowerCase()).toBe(address)
+      expect(form.quoteToken).toMatchObject({ chainId: String(chainId), decimals, symbol })
+      expect(form.amountIsValid).toBe(true)
+      expect(form.amountRaw).toBe(decimals === 18 ? '1250000000000000000' : '1250000')
+    },
+  )
+
+  it('prefers API token metadata and uses the fallback if a later catalog omits it', () => {
+    const apiToken = { ...token, address: '0x1111111111111111111111111111111111111111', symbol: 'API', decimals: 18 }
+    harness.chains = [{ ...chain, quoteToken: apiToken }]
+    expect(CapitalAmountHarness().quoteToken).toMatchObject({ ...apiToken, chainId: '8453' })
+    harness.chains = [{ ...chain, quoteToken: undefined }]
+    expect(CapitalAmountHarness().quoteToken.address?.toLowerCase()).toBe(token.address)
+  })
+
   it('allows tokens without display metadata and uses exact raw amounts with the temporary minimum', () => {
     CapitalAmountHarness().setAmount('1.25')
     expect(CapitalAmountHarness()).toMatchObject({ amountRaw: '1250000', amountIsValid: true })

@@ -67,10 +67,9 @@ exist:
 - Canonical routes are `/copy-trading/{chainSlug}/...`; the slug comes from
   the shared chain catalog. URL resolution owns `selectedChainId`; context only
   exposes the resolved value, with no separate selection state or sync effect.
-- The route boundary waits for initial chain discovery and requires validated
-  quote tokens for the catalog before mounting pages. Missing tokens use the
-  outer read-error surface. Context exposes a catalog with required quote tokens;
-  internal forms do not own missing-token loading or Retry controls.
+- The route boundary waits for initial chain discovery. Missing quote tokens
+  do not block pages; the shared token hook supplies configured per-chain
+  fallbacks. Internal forms do not own missing-token loading or Retry controls.
   Cached catalog data remains usable during refetches and transient failures.
   Existing URLs remain selected if a chain becomes disabled; action eligibility
   still follows the current chain/agent generation policy.
@@ -337,7 +336,11 @@ Cross-flow decisions:
   parsing, and validation.
 - Start Copy, Add Capital, and Withdraw use chain `quoteToken` from the shared
   Copy Trading context. `hooks/useChainQuoteToken` owns the shared token lookup
-  and SDK currency construction. Funding token addresses and decimals come from the API.
+  and SDK currency construction. API metadata takes precedence; missing tokens
+  fall back to Ethereum/Base USDC, BNB Chain USDT, and Robinhood USDG. Fallback
+  metadata is copied directly from the pre API `/api/v1/chains` response generated
+  at `2026-09-22T09:04:01.097817204Z` (request ID
+  `fd844d7d-e8fd-4775-8390-6b7063b88ed2`), independently of Swap token defaults.
 - Chain discovery is cached across navigation and modal opens, without background
   polling or mount refetches. Explicit retries and generation checks still refetch;
   RTK Query retains the last response during pending or failed requests. The
@@ -470,7 +473,7 @@ from the frontend.
 ## Verification Snapshot
 
 Latest completed static checks (2026-09-22): app TypeScript, Copy Trading ESLint,
-`git diff --check`, and **231 tests across 21 files** passed. Regression coverage
+`git diff --check`, and **236 tests across 21 files** passed. Regression coverage
 includes status-context validation, explicit reset during preparation, and Start
 attempt snapshots and identity across renders. Funding regressions cover chain
 token discovery, optional display metadata, exact decimal precision, amount changes,
@@ -480,8 +483,9 @@ that chain token metadata remains available when the pinned balance is missing.
 Chain-query regression coverage checks cache reuse and retained token data during
 pending, failed, and successful refetches. Route regressions cover direct nested
 URLs, chain-aware links, navigation/Back/Forward, initial catalog loading, retained
-cache data, legacy URLs, detail-chain canonicalization, and missing-token handling
-at the outer boundary before mounting any feature pages.
+cache data, legacy URLs, detail-chain canonicalization, and page availability when
+the catalog omits quote tokens. Funding regressions verify fallback identity and
+precision on all four configured chains, with API metadata taking precedence.
 This is not browser or live transaction evidence.
 
 Run from `apps/kyberswap-interface` after logic changes:

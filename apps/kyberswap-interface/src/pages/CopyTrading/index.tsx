@@ -13,7 +13,7 @@ import MyCopiesView from 'pages/CopyTrading/MyCopies'
 import Sidebar from 'pages/CopyTrading/components/Sidebar'
 import { CopyTradingPage } from 'pages/CopyTrading/components/common/layout'
 import { CopyTradingReadError } from 'pages/CopyTrading/components/common/status'
-import { CopyTradingProvider, hasChainQuoteTokens } from 'pages/CopyTrading/context'
+import { CopyTradingProvider } from 'pages/CopyTrading/context'
 import { CopyTradingModalProvider } from 'pages/CopyTrading/modals/context'
 import { getCopyTradingPath, resolveCopyTradingRoute } from 'pages/CopyTrading/routing'
 
@@ -59,13 +59,6 @@ const CopyTrading = () => {
     return (
       <CopyTradingPage>
         <CopyTradingReadError resourceUnavailable={!!chains} onRetry={refetchChains} />
-      </CopyTradingPage>
-    )
-
-  if (!hasChainQuoteTokens(chainOptions))
-    return (
-      <CopyTradingPage>
-        <CopyTradingReadError resourceUnavailable={false} onRetry={refetchChains} />
       </CopyTradingPage>
     )
 
