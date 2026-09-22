@@ -2769,6 +2769,14 @@ definitions:
         items:
           type: object
           $ref: '#/definitions/v1AccountGeneration'
+      quoteToken:
+        $ref: '#/definitions/v1Token'
+        description: |-
+          Single operator-configured funding token for Start Copy and Add Capital.
+          When present, chain_id, address, and decimals are authoritative. Symbol,
+          name, and logo_url are optional display metadata. Absence means discovery
+          is unavailable; never infer a token or decimals from the chain or symbol.
+          Preparation still determines whether the requested action is executable.
     description: Chain is a supported public chain.
   v1ChainFreshness:
     type: object

@@ -16,6 +16,7 @@ vi.mock('react', async importOriginal => ({
   ...(await importOriginal<typeof import('react')>()),
   useState: reactHooks.useState,
   useRef: reactHooks.useRef,
+  useCallback: (callback: unknown) => callback,
 }))
 
 const statusMocks = vi.hoisted(() => ({ getStatus: vi.fn(), refresh: vi.fn() }))
@@ -129,9 +130,16 @@ const createStateHarness = (initialState: PreparedActionFlowState = DEFAULT_PREP
   const setState: Dispatch<SetStateAction<PreparedActionFlowState>> = update => {
     state = typeof update === 'function' ? update(state) : update
   }
-  const version = { current: 0 }
-  reactHooks.useState.mockImplementation(() => [state, setState])
-  reactHooks.useRef.mockReturnValue(version)
+  const refs: { current: unknown }[] = []
+  let refIndex = 0
+  reactHooks.useState.mockImplementation(() => {
+    refIndex = 0
+    return [state, setState]
+  })
+  reactHooks.useRef.mockImplementation(value => {
+    const index = refIndex++
+    return refs[index] || (refs[index] = { current: value })
+  })
   return { getState: () => state, setState }
 }
 
@@ -689,5 +697,32 @@ describe('requestPreparation', () => {
 
     expect(onReady).toHaveBeenCalledWith(readyAction)
     expect(harness.getState()).toEqual({ phase: 'awaiting_signature', action: readyAction })
+  })
+})
+
+describe('funding validation before wallet submission', () => {
+  it('blocks confirmation when funding discovery changed after review', async () => {
+    const harness = createStateHarness({ phase: 'review', action: readyAction })
+    const validateBeforeSubmit = vi.fn(() => {
+      throw new Error('Funding token changed')
+    })
+    await usePreparedAction({ getExpected: () => expected, prepare: vi.fn(), validateBeforeSubmit }).confirm()
+    expect(harness.getState()).toMatchObject({ phase: 'error', error: 'Funding token changed' })
+    expect(walletMocks.sendTransaction).not.toHaveBeenCalled()
+  })
+
+  it('checks funding again after simulation before sending a transaction', async () => {
+    const harness = createStateHarness({ phase: 'review', action: readyAction })
+    const validateBeforeSubmit = vi
+      .fn()
+      .mockImplementationOnce(() => undefined)
+      .mockImplementationOnce(() => {
+        throw new Error('Funding token changed during simulation')
+      })
+    walletMocks.call.mockResolvedValueOnce(undefined)
+    await usePreparedAction({ getExpected: () => expected, prepare: vi.fn(), validateBeforeSubmit }).confirm()
+    expect(validateBeforeSubmit).toHaveBeenCalledTimes(2)
+    expect(harness.getState()).toMatchObject({ phase: 'error', error: 'Funding token changed during simulation' })
+    expect(walletMocks.sendTransaction).not.toHaveBeenCalled()
   })
 })

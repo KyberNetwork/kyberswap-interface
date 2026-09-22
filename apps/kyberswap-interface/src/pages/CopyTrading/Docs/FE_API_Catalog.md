@@ -4,9 +4,28 @@ Use this catalog to integrate frontend applications with the public HTTPS/JSON
 API. Use the endpoint reference for request fields, action availability,
 transaction preparation, and submitted transaction status.
 
-Last updated: September 16, 2026.
+Last updated: September 21, 2026.
 
 ## Changelog
+
+### September 21, 2026: funding-token discovery
+
+`GET /chains` returns an optional `quoteToken` on each chain. Use it to initialize
+Start Copy and Add Capital before entering an amount, replacing hard-coded
+funding-token addresses and decimals. The API still has 35 operations; this
+change adds a response field to an existing endpoint.
+
+- Match the selected agent's chain for Start Copy or the copy run's chain for
+  Add Capital. Use `quoteToken.decimals` to calculate raw amounts exactly.
+- A present token always supplies its chain, address, and decimals. Missing
+  symbol, name, or logo must not block amount entry or preparation.
+- If the token itself is absent, show a token-information retry control without
+  guessing a token. Preparation still determines action availability.
+- Recheck the prepared token against the form before signing.
+
+See [Funding token for Start Copy and Add Capital](#funding-token-for-start-copy-and-add-capital)
+for examples, field rules, and UI behavior. Regenerate the client from the
+[OpenAPI contract containing this field](https://github.com/KyberNetwork/copy-trade-api/blob/3f6b234462c2c77818bb5b1049062565814a94aa/proto/gen/openapi/aggregate/v1/aggregate.swagger.yaml).
 
 ### September 16, 2026: multi-contract generation integration
 
@@ -2134,15 +2153,113 @@ operational/data states and must not be converted to a zero balance.
 | ------ | --------- | ---------- | --------- |
 | GET    | `/chains` | None       | `Chain[]` |
 
-A chain contains `chainId`, `slug`, `name`, `iconUrl`, `isEnabled`, and
-`accountGenerations[]`. Each generation has `generationId`, `lifecycle`, and
-`capabilities[]`; see [Multi-contract integration](#multi-contract-integration).
+A chain contains `chainId`, `slug`, `name`, `iconUrl`, `isEnabled`,
+`accountGenerations[]`, and optional `quoteToken`. Each generation has
+`generationId`, `lifecycle`, and `capabilities[]`; see
+[Multi-contract integration](#multi-contract-integration).
 
 Use this route to populate the network selector and chain metadata. Do not
 hard-code chain display names or icons from `chainId`. An enabled chain can have
 no configured agents. Its empty discovery response can report
 `DATA_STATUS_UNAVAILABLE` while `meta.asOfChains[]` reports current source data;
 this alone does not mean that chain sync has failed.
+
+#### Funding token for Start Copy and Add Capital
+
+Read `data[].quoteToken` from `/chains` before asking the user for an amount.
+Match the agent's `chainId` for Start Copy or the copy run's `chainId` for Add
+Capital. This is one required funding token per chain, not a selectable token
+list. Neither preparation request accepts a different funding token.
+
+| Field | Meaning and presence |
+| --- | --- |
+| `quoteToken.chainId` | Present with the token; decimal string matching the enclosing chain's `chainId`. |
+| `quoteToken.address` | Present with the token; canonical lowercase ERC-20 address from the operator. |
+| `quoteToken.decimals` | Present with the token; JSON integer from 1 through 255 for converting the input to raw units. Never default a missing value to zero or six. |
+| `quoteToken.symbol`, `.name`, `.logoUrl` | Optional display metadata; may be omitted or empty. |
+
+The following synthetic `GET /api/v1/chains` response is a complete example.
+Its token address and generation ID are illustrative, not frontend defaults.
+
+```json
+{
+  "data": [
+    {
+      "chainId": "8453",
+      "slug": "base",
+      "name": "Base",
+      "isEnabled": true,
+      "accountGenerations": [
+        {
+          "generationId": "example-generation",
+          "lifecycle": "ACCOUNT_GENERATION_LIFECYCLE_CREATE_ENABLED",
+          "capabilities": [
+            "ACCOUNT_GENERATION_PRODUCT_CAPABILITY_START_COPY",
+            "ACCOUNT_GENERATION_PRODUCT_CAPABILITY_ADD_CAPITAL"
+          ]
+        }
+      ],
+      "quoteToken": {
+        "chainId": "8453",
+        "address": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+        "decimals": 6,
+        "symbol": "USDC",
+        "name": "USD Coin"
+      }
+    }
+  ],
+  "meta": {
+    "requestId": "req_quote_discovery_example",
+    "generatedAt": "2026-09-21T10:05:00Z",
+    "dataAsOf": "2026-09-21T10:05:00Z",
+    "status": "DATA_STATUS_CURRENT",
+    "asOfChains": [
+      {
+        "chainId": "8453",
+        "dataAsOf": "2026-09-21T10:05:00Z",
+        "syncedAt": "2026-09-21T10:05:00Z",
+        "status": "DATA_STATUS_CURRENT"
+      }
+    ]
+  }
+}
+```
+
+Identify the token by `(chainId, address)`. If only display metadata is missing,
+show the address and use the returned decimals. Missing metadata does not make
+the funding token unavailable. If `quoteToken` itself is absent, show a retryable
+token-information message; do not assume a token or decimals. A valid preparation
+response remains another source of token information. `whitelistedSymbols`
+describes tradable base tokens and must not populate the funding-token selector.
+
+Use exact decimal arithmetic to produce `targetCapitalRaw` or `amountRaw`:
+`1.25` with six decimals becomes `"1250000"`. Do not use JavaScript floating-point
+multiplication. Discovery does not guarantee action availability, minimums,
+balance, or allowance. Prepare normally and follow its status and guidance.
+Before signing, compare its quote-token identity with the form; on a mismatch,
+refresh `/chains` and ask the user to review the amount. If preparation lacks
+display metadata, reuse discovery decimals only for the same chain and address.
+
+Use these response rules for the funding form:
+
+| Response condition | UI behavior |
+| --- | --- |
+| Token identity, decimals, and metadata are present | Show the token and initialize the amount input. |
+| `symbol`, `name`, or `logoUrl` is omitted or empty | Show the address or a generic icon. Keep the amount input and preparation available. |
+| `quoteToken` is omitted | Show “Funding token information is unavailable” with a retry control. Keep other reads and independently available actions usable. Do not submit a dummy preparation to discover decimals. |
+| `/chains` returns an HTTP error | Apply the catalog's normal read-error handling and retry discovery. This is not a preparation result. |
+| The prepared token has another chain or address, or provides different decimals | Do not open the wallet with that result. Refresh discovery and have the user review the amount before preparing again. |
+
+`meta.status: DATA_STATUS_CURRENT` describes the chain response; it does not
+prove that `quoteToken` or its optional display fields are present. Check those
+fields directly. Missing quote-token discovery has no dedicated `reason` or
+`guidance` object in this response.
+
+When the selected chain or funding-token identity changes, discard the old
+raw amount and prepared call. Recalculate from the user's decimal input only
+after the new token and decimals are known. For Start Copy continuation, keep
+the original request ID, generation, and raw target; a token mismatch requires
+review rather than silently rewriting that attempt.
 
 ### Leaderboard and agent discovery
 
@@ -3031,6 +3148,9 @@ POST /users/{ownerAddress}/agents/{agentId}:prepareStartCopy
 }
 ```
 
+Initialize the funding token and `targetCapitalRaw` with
+[chain funding-token discovery](#funding-token-for-start-copy-and-add-capital).
+
 Use the selected `generationId` from this chain's catalog; the example ID is not
 a frontend default. It is required even when only one generation exists.
 Missing, malformed, or unknown IDs return HTTP 400. Its syntax is
@@ -3283,6 +3403,9 @@ POST /users/{ownerAddress}/copy-runs/{copyRunId}:prepareAddCapital
   "amountRaw": "10000000"
 }
 ```
+
+Initialize the funding token and convert the input using
+[chain funding-token discovery](#funding-token-for-start-copy-and-add-capital).
 
 `amountRaw` is a positive base-unit integer with at most 78 digits.
 `data.addCapital` contains the quote token, requested amount, minimum amount,
@@ -4730,6 +4853,19 @@ changed inclusion. Never reuse a successfully submitted preparation.
 Use the [action response examples](#action-response-examples) in frontend
 component and request-state tests. No live transaction is needed for these cases:
 
+- `/chains` initializes Start Copy and Add Capital without hard-coded token
+  values or a preliminary preparation request.
+- A token with only `chainId`, `address`, and `decimals` keeps funding usable.
+  Missing display metadata does not disable preparation.
+- Omitted `quoteToken` remains unknown even when `meta.status` is
+  `DATA_STATUS_CURRENT`;
+  the UI shows a discovery retry control rather than inventing token values.
+- With six decimals, input `1.25` produces raw `"1250000"`. Reject fractional
+  digits beyond the token's precision rather than rounding the user's amount.
+- Switching chains invalidates the old raw amount and prepared call, including
+  when both chains use the same token address.
+- A preparation/discovery token or decimals mismatch never opens the wallet;
+  missing preparation metadata can use matching discovery values.
 - Two create-enabled generations have separate Start availability and fees.
   Unavailable singleton fields do not disable an available selected entry.
 - Every Start request, including continuation, sends the same selected

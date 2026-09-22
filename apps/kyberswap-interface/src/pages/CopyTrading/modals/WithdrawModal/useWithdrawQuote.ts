@@ -1,11 +1,9 @@
-import { ChainId, Token } from '@kyberswap/ks-sdk-core'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import preparedActionApi from 'services/copyTrading/api/endpoints/preparedActions'
 import type { CopyRunListItem } from 'services/copyTrading/types/copyRuns'
 import type { PreparedCallKind } from 'services/copyTrading/types/preparedActions'
 
 import { useActiveWeb3React } from 'hooks'
-import { useCurrencyV2 } from 'hooks/useTokens'
 import { parsePreparedAmount } from 'pages/CopyTrading/modals/PreparedActionModal/preparedAction'
 import { usePreparedAction } from 'pages/CopyTrading/modals/PreparedActionModal/usePreparedAction'
 import type { WithdrawalInventory } from 'pages/CopyTrading/modals/WithdrawModal/useWithdrawalData'
@@ -38,14 +36,7 @@ export const useWithdrawQuote = ({ isOpen, copyRun, wallet }: WithdrawQuoteParam
 
   const ownershipMessage = getCopyRunOwnershipMessage(copyRun.ownerAddress, account)
   const availabilityMessage = getWriteAvailabilityMessage(copyRun.withdrawQuoteAvailability, ownershipMessage)
-  const { quoteToken, stable: quoteBalance } = wallet
-  const tokenServiceCurrency = useCurrencyV2(quoteToken?.address, copyRun.chainId as ChainId)
-  const quoteCurrency = useMemo(() => {
-    if (tokenServiceCurrency?.isToken) return tokenServiceCurrency
-    if (!quoteToken) return undefined
-    return new Token(copyRun.chainId, quoteToken.address, quoteToken.decimals, quoteToken.symbol, quoteToken.symbol)
-  }, [copyRun.chainId, quoteToken, tokenServiceCurrency])
-
+  const { quoteToken, quoteCurrency, stable: quoteBalance } = wallet
   const walletBalanceRaw = useMemo(() => {
     if (!quoteBalance?.amountDecimal || !quoteToken) return undefined
     try {
@@ -120,7 +111,9 @@ export const useWithdrawQuote = ({ isOpen, copyRun, wallet }: WithdrawQuoteParam
       if (response.data.status === 'PREPARED_ACTION_STATUS_READY') {
         const validationError = validateWithdrawPreview({
           amountRaw: requestAmountRaw,
-          expectedQuoteToken: quoteToken ? { address: quoteToken.address, decimals: quoteToken.decimals } : undefined,
+          expectedQuoteToken: quoteCurrency
+            ? { address: quoteCurrency.address, decimals: quoteCurrency.decimals }
+            : undefined,
           ownerAddress: account,
           preview: response.data.withdrawQuote,
         })

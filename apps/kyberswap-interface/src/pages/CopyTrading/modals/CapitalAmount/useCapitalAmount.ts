@@ -1,62 +1,38 @@
-import { ChainId, Token } from '@kyberswap/ks-sdk-core'
-import { useMemo, useState } from 'react'
+import { ChainId } from '@kyberswap/ks-sdk-core'
+import { useMemo, useRef, useState } from 'react'
+import type { PreparedAction } from 'services/copyTrading/types/preparedActions'
 
 import useTokenBalance from 'hooks/useTokenBalance'
+import { useCopyTradingContext } from 'pages/CopyTrading/context'
+import { useChainQuoteToken } from 'pages/CopyTrading/hooks/useChainQuoteToken'
 import {
   CAPITAL_PERCENTAGES,
-  type CapitalAction,
-  type CapitalInputQuoteToken,
   type CapitalPercentage,
   type CapitalPreset,
-  getCapitalInputQuoteToken,
+  FUNDING_TOKEN_CHANGED,
+  MINIMUM_CAPITAL_AMOUNT,
+  getFundingTokenKey,
+  resolveFundingToken,
 } from 'pages/CopyTrading/modals/CapitalAmount/capital'
-import { formatPreparedAmount, parsePreparedAmount } from 'pages/CopyTrading/modals/PreparedActionModal/preparedAction'
+import { parsePreparedAmount } from 'pages/CopyTrading/modals/PreparedActionModal/preparedAction'
 import { formatDisplayNumber } from 'utils/numbers'
-import { formatUnits } from 'utils/viem'
+import { formatUnits, parseUnits } from 'utils/viem'
 
 type UseCapitalAmountProps = {
   account?: string
-  action: CapitalAction
   connectedChainId?: number
   targetChainId: number
 }
 
-type CapitalAmountErrorParams = {
-  amount: string
-  amountBelowMinimum: boolean
-  amountRaw?: string
-  insufficientBalance: boolean
-  minimumAmountRaw?: string
-  quoteToken?: CapitalInputQuoteToken
-}
-
-const getCapitalAmountError = ({
-  amount,
-  amountBelowMinimum,
-  amountRaw,
-  insufficientBalance,
-  minimumAmountRaw,
-  quoteToken,
-}: CapitalAmountErrorParams) => {
-  if (!amount || !quoteToken || !minimumAmountRaw) return undefined
-  if (!amountRaw || amountBelowMinimum) {
-    return `Minimum amount is ${formatPreparedAmount(minimumAmountRaw, quoteToken)}`
-  }
-  if (insufficientBalance) return `Insufficient ${quoteToken.symbol} balance`
-  return undefined
-}
-
-export const useCapitalAmount = ({ account, action, connectedChainId, targetChainId }: UseCapitalAmountProps) => {
-  const [amount, setAmount] = useState('')
-
-  const quoteToken = getCapitalInputQuoteToken(targetChainId)
-  const quoteCurrency = useMemo(
-    () =>
-      quoteToken
-        ? new Token(targetChainId, quoteToken.address, quoteToken.decimals, quoteToken.symbol, quoteToken.symbol)
-        : undefined,
-    [quoteToken, targetChainId],
-  )
+export const useCapitalAmount = ({ account, connectedChainId, targetChainId }: UseCapitalAmountProps) => {
+  const { refreshChains, chainsLoading } = useCopyTradingContext()
+  const { quoteToken, quoteCurrency } = useChainQuoteToken(targetChainId)
+  const tokenKey = getFundingTokenKey(targetChainId, quoteToken)
+  const [input, setInput] = useState({ tokenKey, amount: '' })
+  // Clear both decimal input and its raw value when token identity or precision changes.
+  if (input.tokenKey !== tokenKey) setInput({ tokenKey, amount: '' })
+  const amount = input.tokenKey === tokenKey ? input.amount : ''
+  const setAmount = (amount: string) => setInput({ tokenKey, amount })
 
   const walletBalance = useTokenBalance(quoteToken?.address || '', targetChainId as ChainId)
   const walletBalanceLoading = !!account && !!quoteToken && walletBalance.isLoading
@@ -81,18 +57,44 @@ export const useCapitalAmount = ({ account, action, connectedChainId, targetChai
     }
   }, [amount, quoteToken])
 
-  const minimumAmountRaw = quoteToken?.minimumAmountRaw[action]
-  const amountBelowMinimum = !!amountRaw && !!minimumAmountRaw && BigInt(amountRaw) < BigInt(minimumAmountRaw)
+  const amountBelowMinimum =
+    !!amountRaw && !!quoteToken && BigInt(amountRaw) < parseUnits(MINIMUM_CAPITAL_AMOUNT, quoteToken.decimals)
   const insufficientBalance = !!amountRaw && !!walletBalanceRaw && BigInt(amountRaw) > BigInt(walletBalanceRaw)
-  const amountError = getCapitalAmountError({
-    amount,
-    amountBelowMinimum,
-    amountRaw,
-    insufficientBalance,
-    minimumAmountRaw,
-    quoteToken,
-  })
+  const amountError =
+    amount && !amountRaw
+      ? 'Enter a positive amount within the token precision.'
+      : amountBelowMinimum
+      ? `Minimum amount is ${MINIMUM_CAPITAL_AMOUNT} ${quoteToken?.symbol || quoteToken?.address}`
+      : insufficientBalance
+      ? `Insufficient ${quoteToken?.symbol || quoteToken?.address} balance`
+      : undefined
   const amountIsValid = !!amountRaw && !amountBelowMinimum && !insufficientBalance && !walletBalanceLoading
+
+  const currentFunding = useRef({ quoteToken, amountRaw })
+  currentFunding.current = { quoteToken, amountRaw }
+  const validatePreparation = (action: PreparedAction): PreparedAction => {
+    if (
+      action.status !== 'PREPARED_ACTION_STATUS_READY' &&
+      action.status !== 'PREPARED_ACTION_STATUS_PARTIALLY_COMPLETED' &&
+      action.reason !== 'PREPARED_ACTION_REASON_INSUFFICIENT_QUOTE_ALLOWANCE'
+    )
+      return action
+    const preview = action.startCopy ? 'startCopy' : 'addCapital'
+    const data = action[preview]
+    const current = currentFunding.current
+    try {
+      if (!current.amountRaw || Number(action.chainId) !== Number(current.quoteToken?.chainId)) {
+        throw new Error(FUNDING_TOKEN_CHANGED)
+      }
+      const preparedAmount = action.startCopy?.requestedTargetRaw ?? action.addCapital?.addedCapitalRaw
+      if (preparedAmount !== current.amountRaw) throw new Error('Review the amount and prepare again.')
+      const token = resolveFundingToken(data?.quoteToken, current.quoteToken)
+      return { ...action, [preview]: { ...data, quoteToken: token } }
+    } catch (error) {
+      void refreshChains()
+      throw error
+    }
+  }
 
   const onExpectedChain = connectedChainId === targetChainId
   const presetsEnabled = !!account && !!walletBalanceRaw && BigInt(walletBalanceRaw) > 0n
@@ -106,6 +108,9 @@ export const useCapitalAmount = ({ account, action, connectedChainId, targetChai
   return {
     amount,
     amountError,
+    chainsLoading,
+    refreshChains,
+    validatePreparation,
     amountIsValid,
     amountRaw,
     getPreset,
@@ -114,6 +119,7 @@ export const useCapitalAmount = ({ account, action, connectedChainId, targetChai
     presetsEnabled,
     quoteCurrency,
     quoteToken,
+    tokenKey,
     setAmount,
     walletBalanceLoading,
     walletBalanceText,

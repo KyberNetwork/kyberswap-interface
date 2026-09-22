@@ -22,6 +22,8 @@ type CapitalAmountInputProps = {
   presetActions?: readonly { disabled?: boolean; label: string; onClick: () => void }[]
   presetsEnabled: boolean
   quoteCurrency?: Token
+  onRetryToken?: () => unknown
+  tokenLoading?: boolean
   selectedChainId: number
   walletBalanceLoading?: boolean
   walletBalanceText: string
@@ -40,10 +42,27 @@ const CapitalAmountInput = ({
   presetActions,
   presetsEnabled,
   quoteCurrency,
+  onRetryToken,
+  tokenLoading,
   selectedChainId,
   walletBalanceLoading,
   walletBalanceText,
 }: CapitalAmountInputProps) => {
+  if (!quoteCurrency && onRetryToken) {
+    return (
+      <Stack className="gap-2">
+        <span className="text-sm font-medium text-text">{label}</span>
+        <p role="status" className="text-sm text-subText">
+          {tokenLoading ? 'Loading funding token information...' : 'Funding token information is unavailable.'}
+        </p>
+        {!tokenLoading && (
+          <ButtonEmpty type="button" disabled={isPreparing} onClick={() => onRetryToken()} className="w-fit">
+            Retry
+          </ButtonEmpty>
+        )}
+      </Stack>
+    )
+  }
   if (mode === 'compact') {
     const actions =
       presetActions ||

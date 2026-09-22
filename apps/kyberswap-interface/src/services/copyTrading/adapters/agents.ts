@@ -44,6 +44,7 @@ type ApiChain = {
   name?: string
   iconUrl?: string
   isEnabled?: boolean
+  quoteToken?: ApiToken
   accountGenerations?: {
     generationId?: string
     lifecycle?: string
@@ -255,6 +256,16 @@ export const adaptChainsResponse = (response: ApiSingleResponse<ApiChain[]>): Ch
       name: chain.name || '',
       iconUrl: chain.iconUrl || '',
       isEnabled: chain.isEnabled === true,
+      quoteToken:
+        chain.quoteToken?.chainId &&
+        chain.quoteToken.chainId === chain.chainId &&
+        /^0x[0-9a-fA-F]{40}$/.test(chain.quoteToken?.address || '') &&
+        Number.isInteger(chain.quoteToken?.decimals) &&
+        chain.quoteToken?.decimals !== undefined &&
+        chain.quoteToken.decimals >= 1 &&
+        chain.quoteToken.decimals <= 255
+          ? { ...toToken(chain.quoteToken), decimals: chain.quoteToken.decimals }
+          : undefined,
       accountGenerations: chain.accountGenerations?.map(
         (generation): AccountGeneration => ({
           generationId: generation.generationId || '',

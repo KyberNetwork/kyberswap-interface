@@ -310,8 +310,25 @@ Cross-flow decisions:
 ### Capital flows
 
 - Start Copy and Add Capital share only the capital amount domain: supported
-  quote token, minimums, wallet balance, 25/50/75/100 action-only presets,
+  quote token, wallet balance, 25/50/75/100 action-only presets,
   parsing, and validation.
+- Start Copy, Add Capital, and Withdraw use chain `quoteToken` from the shared
+  Copy Trading context. `hooks/useChainQuoteToken` owns the shared token lookup
+  and SDK currency construction. Funding token addresses and decimals come from the API.
+- Chain discovery is cached across navigation and modal opens, without background
+  polling or mount refetches. Explicit retries and generation checks still refetch;
+  RTK Query retains the last response during pending or failed requests. Initial
+  token loading is distinct from unavailable discovery.
+  Start Copy and Add Capital temporarily require at least 1 funding token, with
+  a TODO to change this frontend minimum to 0. Preparation remains authoritative
+  for backend minimums and action availability.
+- Funding inputs can retry missing token discovery. Missing display metadata
+  uses the token address and does not disable funding. Inputs reject excess
+  decimal precision and clear when the chain, token, or decimals change.
+- Funding preparations and wallet submission validate the prepared token and
+  amount against the current form. Matching discovery metadata fills omitted
+  preparation display fields/decimals; mismatches refresh discovery and require
+  amount review. Start attempt identity is retained during this check.
 - Start Copy keeps authorization and Create as separate user actions.
 - Add Capital has no intermediate review.
 - Wallet balance loading is explicit. Preparation remains the final balance and
@@ -352,7 +369,9 @@ Cross-flow decisions:
 - Review uses the prepared sweep and normal token amount; the sentinel is never
   shown to the user.
 - The modal trusts its passed Copy Run and the pinned quote balance from
-  wallet-inventory. Preparation remains authoritative.
+  wallet-inventory for balance only. Token identity, decimals, and display
+  metadata come from the shared chain quote-token helper, independently of pinned
+  balance availability. Preparation remains authoritative.
 
 ### Withdraw All Tokens
 
@@ -365,7 +384,7 @@ Cross-flow decisions:
 - Copy Detail Advanced has one Withdraw button. Its modal defaults to
   All Tokens and offers All Tokens / Withdraw Stable only. Both options remain
   mounted; switching preserves the Stable amount but resets prepared calls.
-  Stable uses the shared inventory's matching pinned quote balance.
+  Stable uses the shared inventory's PRESENT pinned balance matching the chain quote token.
 - Each modal instance loads a display-only prepareWithdrawTokens preview once,
   without polling or cache reuse across opens. Switching options or returning
   from review does not refetch it. Clicking Withdraw prepares a fresh call.
@@ -428,9 +447,14 @@ from the frontend.
 ## Verification Snapshot
 
 Latest completed static checks (2026-09-22): app TypeScript, Copy Trading ESLint,
-`git diff --check`, and **169 tests across 16 files** passed. Regression coverage
+`git diff --check`, and **204 tests across 19 files** passed. Regression coverage
 includes status-context validation, explicit reset during preparation, and Start
-attempt snapshots and identity across renders.
+attempt snapshots and identity across renders. Funding regressions cover chain
+token discovery, optional display metadata, exact decimal precision, token changes,
+and validation before wallet submission. Withdrawal inventory regressions verify
+that chain token metadata remains available when the pinned balance is missing.
+Chain-query regression coverage checks cache reuse and retained token data during
+pending, failed, and successful refetches.
 This is not browser or live transaction evidence.
 
 Run from `apps/kyberswap-interface` after logic changes:

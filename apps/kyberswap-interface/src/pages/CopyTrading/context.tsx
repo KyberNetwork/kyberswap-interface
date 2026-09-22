@@ -4,6 +4,8 @@ import type { Address } from 'services/copyTrading/types/primitives'
 
 type CopyTradingContextValue = {
   chains: Chain[]
+  refreshChains: () => unknown
+  chainsLoading: boolean
   ownerAddress?: Address
   selectedChainId?: number
   setSelectedChainId: (chainId?: number) => void
@@ -13,10 +15,18 @@ const CopyTradingContext = createContext<CopyTradingContextValue | undefined>(un
 
 type CopyTradingProviderProps = PropsWithChildren<{
   chains: Chain[]
+  refreshChains: () => unknown
+  chainsLoading: boolean
   ownerAddress?: Address
 }>
 
-export const CopyTradingProvider = ({ chains, children, ownerAddress }: CopyTradingProviderProps) => {
+export const CopyTradingProvider = ({
+  chains,
+  children,
+  ownerAddress,
+  refreshChains,
+  chainsLoading,
+}: CopyTradingProviderProps) => {
   const [selectedChainId, setSelectedChainId] = useState<number>()
 
   useEffect(() => {
@@ -29,8 +39,8 @@ export const CopyTradingProvider = ({ chains, children, ownerAddress }: CopyTrad
   }, [chains])
 
   const value = useMemo(
-    () => ({ chains, ownerAddress, selectedChainId, setSelectedChainId }),
-    [chains, ownerAddress, selectedChainId],
+    () => ({ chains, ownerAddress, selectedChainId, setSelectedChainId, refreshChains, chainsLoading }),
+    [chains, ownerAddress, selectedChainId, refreshChains, chainsLoading],
   )
 
   return <CopyTradingContext.Provider value={value}>{children}</CopyTradingContext.Provider>
