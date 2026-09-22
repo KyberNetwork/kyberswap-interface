@@ -1,7 +1,18 @@
 import { t } from '@lingui/macro'
 import dayjs from 'dayjs'
 import { memo, useId } from 'react'
-import { Area, AreaChart, Bar, BarChart, ReferenceLine, ResponsiveContainer, Tooltip, YAxis } from 'recharts'
+import {
+  Area,
+  AreaChart,
+  Bar,
+  BarChart,
+  CartesianGrid,
+  ReferenceLine,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts'
 
 import useTheme from 'hooks/useTheme'
 import { ChartDataPoint } from 'pages/Earns/ExploreVaults/types'
@@ -96,13 +107,61 @@ const EarningTooltipContent = ({
 interface MiniChartProps {
   data: ChartDataPoint[]
   height?: number
+  /**
+   * Draw dated and scaled axes around the plot. Off by default: the same charts run as sparklines a
+   * couple of dozen pixels tall on the vault cards, where axes would leave no room for the line.
+   */
+  showAxes?: boolean
 }
 
-export const ApyBarChart = memo(({ data, height = 28 }: MiniChartProps) => {
+const AXIS_TICK = { fontSize: 11 }
+const GRID_STROKE = 'rgba(255,255,255,0.06)'
+/** Enough room for a tick to breathe, so recharts thins the dates out rather than stacking them. */
+const DATE_TICK_GAP = 48
+
+/**
+ * Axis props shared by the three charts, so their plots line up at the same insets. Recharts reads
+ * its own element types off the direct children of the chart, so the axes themselves cannot be
+ * wrapped in a component — only their props travel.
+ */
+const gridProps = { vertical: false, stroke: GRID_STROKE }
+
+const dateAxisProps = (colour: string) => ({
+  dataKey: 'timestamp',
+  tickFormatter: (value: string) => (value ? dayjs(value).format('MMM D') : ''),
+  tick: { ...AXIS_TICK, fill: colour },
+  tickLine: false,
+  axisLine: false,
+  minTickGap: DATE_TICK_GAP,
+  dy: 8,
+})
+
+const valueAxisProps = (colour: string, tickFormatter: (value: number) => string) =>
+  ({
+    orientation: 'right',
+    tickFormatter,
+    tick: { ...AXIS_TICK, fill: colour },
+    tickLine: false,
+    axisLine: false,
+    // Room for a signed figure carrying a few decimals, which is what a small position earns.
+    width: 62,
+  } as const)
+
+export const ApyBarChart = memo(({ data, height = 28, showAxes }: MiniChartProps) => {
   const theme = useTheme()
   return (
     <ResponsiveContainer width="100%" height={height}>
       <BarChart data={data} barCategoryGap="8%">
+        {showAxes ? <CartesianGrid {...gridProps} /> : null}
+        {showAxes ? <XAxis {...dateAxisProps(theme.subText)} /> : null}
+        {showAxes ? (
+          <YAxis
+            {...valueAxisProps(
+              theme.subText,
+              value => `${formatDisplayNumber(value, { style: 'decimal', fractionDigits: 0 })}%`,
+            )}
+          />
+        ) : null}
         <Tooltip content={<ApyTooltipContent />} cursor={{ fill: 'rgba(255,255,255,0.05)' }} />
         <Bar dataKey="value" fill={theme.blue3} radius={[1, 1, 0, 0]} />
       </BarChart>
@@ -111,12 +170,21 @@ export const ApyBarChart = memo(({ data, height = 28 }: MiniChartProps) => {
 })
 ApyBarChart.displayName = 'ApyBarChart'
 
-export const TvlLineChart = memo(({ data, height = 49 }: MiniChartProps) => {
+export const TvlLineChart = memo(({ data, height = 49, showAxes }: MiniChartProps) => {
   const theme = useTheme()
   const gradientId = useId().replace(/:/g, '')
   return (
     <ResponsiveContainer width="100%" height={height}>
       <AreaChart data={data}>
+        {showAxes ? <CartesianGrid {...gridProps} /> : null}
+        {showAxes ? <XAxis {...dateAxisProps(theme.subText)} /> : null}
+        {showAxes ? (
+          <YAxis
+            {...valueAxisProps(theme.subText, value =>
+              formatDisplayNumber(value, { style: 'decimal', significantDigits: 3 }),
+            )}
+          />
+        ) : null}
         <defs>
           <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stopColor={theme.primary} stopOpacity={0.3} />
@@ -143,12 +211,22 @@ TvlLineChart.displayName = 'TvlLineChart'
  * A position's earnings over time. The figure can sit either side of zero, so the baseline is drawn
  * in; buckets from before the position existed carry no value and the line breaks over them.
  */
-export const EarningLineChart = memo(({ data, height = 49 }: MiniChartProps) => {
+export const EarningLineChart = memo(({ data, height = 49, showAxes }: MiniChartProps) => {
   const theme = useTheme()
   const gradientId = useId().replace(/:/g, '')
   return (
     <ResponsiveContainer width="100%" height={height}>
       <AreaChart data={data}>
+        {showAxes ? <CartesianGrid {...gridProps} /> : null}
+        {showAxes ? <XAxis {...dateAxisProps(theme.subText)} /> : null}
+        {showAxes ? (
+          <YAxis
+            {...valueAxisProps(theme.subText, value =>
+              // Earnings sit either side of zero, and the formatter blanks a negative by default.
+              formatDisplayNumber(value, { style: 'currency', significantDigits: 3, allowDisplayNegative: true }),
+            )}
+          />
+        ) : null}
         <defs>
           <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stopColor={theme.blue3} stopOpacity={0.3} />

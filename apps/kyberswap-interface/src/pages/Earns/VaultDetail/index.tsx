@@ -252,7 +252,7 @@ const VaultDetail = () => {
                     </PeriodTabs>
                   </ChartHeader>
                   <ChartBox key={`earning-${earningPeriod}`}>
-                    <EarningLineChart data={earningSeries} height={chartHeight} />
+                    <EarningLineChart data={earningSeries} height={chartHeight} showAxes />
                   </ChartBox>
                 </ChartSection>
               ) : null}
@@ -277,7 +277,7 @@ const VaultDetail = () => {
                   </PeriodTabs>
                 </ChartHeader>
                 <ChartBox key={`tvl-${tvlPeriod}`}>
-                  <TvlLineChart data={tvlSeries} height={chartHeight} />
+                  <TvlLineChart data={tvlSeries} height={chartHeight} showAxes />
                 </ChartBox>
               </ChartSection>
 
@@ -298,7 +298,7 @@ const VaultDetail = () => {
                   </PeriodTabs>
                 </ChartHeader>
                 <ChartBox key={`apy-${apyPeriod}`}>
-                  <ApyBarChart data={apySeries} height={chartHeight} />
+                  <ApyBarChart data={apySeries} height={chartHeight} showAxes />
                 </ChartBox>
               </ChartSection>
             </ChartsBody>
