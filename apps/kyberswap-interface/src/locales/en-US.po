@@ -5722,6 +5722,8 @@ msgstr "You're eligible to claim 🎁 SafePal X1 Hardware Wallet"
 
 #: src/pages/Earns/ExploreVaults/index.tsx
 #: src/pages/Earns/ExploreVaults/index.tsx
+#: src/pages/Earns/Landing/FeaturedPartnerVaults/index.tsx
+#: src/pages/Earns/MyVaults/index.tsx
 #: src/pages/Earns/VaultDetail/index.tsx
 #: src/pages/Earns/VaultDetail/index.tsx
 msgid "Yield"

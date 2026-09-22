@@ -63,7 +63,7 @@ const FeaturedPartnerVaults = ({ isLoading: parentLoading }: { isLoading?: boole
                     >
                       <TokenLogo src={vault.tokenIcon} alt={vault.token} size={24} />
                       <span className="text-base text-text">{vault.token}</span>
-                      <span className="text-base text-subText">{vault.label}</span>
+                      <span className="text-base text-subText">{t`Yield`}</span>
                     </CardTitleLink>
 
                     <div className="flex items-center gap-2">

@@ -132,7 +132,7 @@ const MyVaultCard = ({
             />
           </TokenIconWrapper>
           <span className="ml-1 text-base text-white2">{vault.token}</span>
-          <span className="text-base text-gray">{vault.label}</span>
+          <span className="text-base text-gray">{t`Yield`}</span>
         </CardTitleLink>
 
         <CardActions>
