@@ -33,7 +33,15 @@ const mocks = vi.hoisted(() => ({
   restoring: vi.fn(),
   params: vi.fn(),
 }))
-vi.mock('react-router-dom', () => ({ useParams: mocks.params }))
+vi.mock('react', async importOriginal => ({
+  ...(await importOriginal<typeof import('react')>()),
+  useCallback: (callback: unknown) => callback,
+}))
+vi.mock('react-router-dom', () => ({
+  useParams: mocks.params,
+  useLocation: () => ({ search: '?profileTab=history', hash: '#detail' }),
+  Navigate: 'navigate',
+}))
 vi.mock('services/copyTrading/api/endpoints/agents', () => ({ default: { useGetAgentQuery: mocks.agent } }))
 vi.mock('services/copyTrading/api/endpoints/copyRuns', () => ({
   default: { useGetCopyRunQuery: mocks.copyRun, useGetCopyRunsQuery: mocks.copyRuns },
@@ -72,14 +80,21 @@ const query = (currentData?: unknown, error?: unknown) => ({
   isUninitialized: false,
   refetch: vi.fn(),
 })
-const profile = { data: { agentId: 'agent-1' } }
-const run = { data: { copyRunId: 'run-1', agentId: 'agent-1' } }
+const profile = { data: { agentId: 'agent-1', chainId: 8453 } }
+const run = { data: { copyRunId: 'run-1', agentId: 'agent-1', chainId: 8453 } }
+const chainContext = {
+  selectedChainId: 8453,
+  chains: [
+    { chainId: 8453, slug: 'base' },
+    { chainId: 1, slug: 'ethereum' },
+  ],
+}
 
 describe('detail page read recovery', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     mocks.params.mockReturnValue({ agentCode: 'agent-1', copyId: 'run-1' })
-    mocks.context.mockReturnValue({ ownerAddress: 'owner-1' })
+    mocks.context.mockReturnValue({ ...chainContext, ownerAddress: 'owner-1' })
     mocks.restoring.mockReturnValue(false)
     mocks.agent.mockReturnValue(query(profile))
     mocks.copyRun.mockReturnValue(query(run))
@@ -107,6 +122,24 @@ describe('detail page read recovery', () => {
     expect(copyRun.refetch).toHaveBeenCalledOnce()
     // No extra Agent request before the Copy Run is loaded.
     expect(agent.refetch).toHaveBeenCalledOnce()
+  })
+
+  it('canonicalizes an agent or copy URL to the entity chain before rendering actions', () => {
+    mocks.context.mockReturnValue({ ...chainContext, selectedChainId: 1, ownerAddress: 'owner-1' })
+    expect(AgentProfile()).toMatchObject({
+      type: 'navigate',
+      props: {
+        replace: true,
+        to: { pathname: '/copy-trading/base/agent-1', search: '?profileTab=history', hash: '#detail' },
+      },
+    })
+    expect(CopyDetail({ backPath: 'history' })).toMatchObject({
+      type: 'navigate',
+      props: {
+        replace: true,
+        to: { pathname: '/copy-trading/base/history/run-1', search: '?profileTab=history', hash: '#detail' },
+      },
+    })
   })
 
   it('keeps owner lookup failures retryable without treating the public Agent as unavailable', () => {
@@ -137,7 +170,7 @@ describe('detail page read recovery', () => {
     expect(AgentProfile()).toMatchObject({
       type: 'page',
       props: {
-        backTo: { label: 'Leaderboard', to: APP_PATHS.COPY_TRADING },
+        backTo: { label: 'Leaderboard', to: APP_PATHS.COPY_TRADING + '/base' },
         children: { type: 'read-error', props: { resourceUnavailable: true } },
       },
     })
@@ -151,7 +184,7 @@ describe('detail page read recovery', () => {
     expect(CopyDetail({ backPath: 'history' })).toMatchObject({
       type: 'page',
       props: {
-        backTo: { label: 'History', to: APP_PATHS.COPY_TRADING + '/history' },
+        backTo: { label: 'History', to: APP_PATHS.COPY_TRADING + '/base/history' },
         children: { type: 'read-error', props: { resourceUnavailable: true } },
       },
     })
@@ -196,7 +229,7 @@ describe('detail page read recovery', () => {
   })
 
   it('preserves public Agent access and wallet-required Copy Detail', () => {
-    mocks.context.mockReturnValue({ ownerAddress: undefined })
+    mocks.context.mockReturnValue({ ...chainContext, ownerAddress: undefined })
     mocks.copyRuns.mockReturnValue({ ...query(), isUninitialized: true })
     expect(AgentProfile().props.children[0].props.agent).toBe(profile.data)
     expect(CopyDetail({ backPath: 'my-copies' }).props.children.type).toBe('wallet-required')

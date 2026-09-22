@@ -5,10 +5,10 @@ import preparedActionApi from 'services/copyTrading/api/endpoints/preparedAction
 import type { CopyRunListItem } from 'services/copyTrading/types/copyRuns'
 import type { PreparedCallKind } from 'services/copyTrading/types/preparedActions'
 
-import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { formatTokenAmount, sumUsdValues } from 'pages/CopyTrading/helpers'
+import { useCopyTradingRoutes } from 'pages/CopyTrading/hooks/useCopyTradingRoutes'
 import { AddCapitalForm } from 'pages/CopyTrading/modals/AddCapitalModal/components'
 import { type CapitalPercentage } from 'pages/CopyTrading/modals/CapitalAmount/capital'
 import { useCapitalAmount } from 'pages/CopyTrading/modals/CapitalAmount/useCapitalAmount'
@@ -32,6 +32,7 @@ const ADD_CAPITAL_CALL_KINDS: PreparedCallKind[] = ['PREPARED_CALL_KIND_ADD_CAPI
 
 const AddCapitalModal = ({ isOpen, onDismiss, copyRun }: AddCapitalModalProps) => {
   const navigate = useNavigate()
+  const copyTradingPath = useCopyTradingRoutes()
   const { account, chainId } = useActiveWeb3React()
   const { changeNetwork } = useChangeNetwork()
   const toggleWalletModal = useWalletModalToggle()
@@ -133,7 +134,7 @@ const AddCapitalModal = ({ isOpen, onDismiss, copyRun }: AddCapitalModalProps) =
 
   const viewMyCopies = () => {
     dismiss()
-    navigate(APP_PATHS.COPY_TRADING + '/my-copies')
+    navigate(copyTradingPath('my-copies', copyRun.chainId))
   }
 
   const accountConnected = !!account

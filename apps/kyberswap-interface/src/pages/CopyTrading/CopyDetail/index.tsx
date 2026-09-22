@@ -1,4 +1,4 @@
-import { useParams } from 'react-router-dom'
+import { Navigate, useLocation, useParams } from 'react-router-dom'
 import agentApi from 'services/copyTrading/api/endpoints/agents'
 import copyRunApi from 'services/copyTrading/api/endpoints/copyRuns'
 import type { AgentProfile } from 'services/copyTrading/types/agents'
@@ -6,7 +6,6 @@ import type { CopyRunSummary } from 'services/copyTrading/types/copyRuns'
 
 import LocalLoader from 'components/LocalLoader'
 import { Center, HStack, Stack } from 'components/Stack'
-import { APP_PATHS } from 'constants/index'
 import useIsWalletRestoring from 'hooks/useIsWalletRestoring'
 import { CopyDetailTabs } from 'pages/CopyTrading/CopyDetail/CopyDetailTabs'
 import CopyRunPerformance from 'pages/CopyTrading/CopyDetail/CopyRunPerformance'
@@ -30,6 +29,7 @@ import {
   signedPercent,
   signedUsd,
 } from 'pages/CopyTrading/helpers'
+import { useCopyTradingRoutes } from 'pages/CopyTrading/hooks/useCopyTradingRoutes'
 import { formatDateTime } from 'utils/time'
 
 type CopyDetailContentProps = {
@@ -151,8 +151,10 @@ const CopyDetailContent = ({ agent, run }: CopyDetailContentProps) => {
 }
 
 const CopyDetailView = ({ backPath }: { backPath: 'my-copies' | 'history' }) => {
+  const copyTradingPath = useCopyTradingRoutes()
   const { copyId } = useParams()
-  const { ownerAddress } = useCopyTradingContext()
+  const { ownerAddress, selectedChainId } = useCopyTradingContext()
+  const location = useLocation()
   const isRestoringWallet = useIsWalletRestoring()
 
   const copyRunQuery = { ownerAddress: ownerAddress || '', copyRunId: copyId || '' }
@@ -183,6 +185,19 @@ const CopyDetailView = ({ backPath }: { backPath: 'my-copies' | 'history' }) => 
   const copyRunPending = !run && (isFetching || isLoading || isUninitialized)
   const agentPending = !!run && !profile && (isAgentFetching || isAgentLoading || isAgentUninitialized)
 
+  if (run && run.chainId !== selectedChainId) {
+    return (
+      <Navigate
+        to={{
+          pathname: copyTradingPath(backPath + '/' + copyId, run.chainId),
+          search: location.search,
+          hash: location.hash,
+        }}
+        replace
+      />
+    )
+  }
+
   if (isRestoringWallet) {
     return (
       <CopyTradingPage>
@@ -193,7 +208,7 @@ const CopyDetailView = ({ backPath }: { backPath: 'my-copies' | 'history' }) => 
 
   if (!ownerAddress) {
     return (
-      <CopyTradingPage backTo={{ label: backLabel, to: `${APP_PATHS.COPY_TRADING}/${backPath}` }}>
+      <CopyTradingPage backTo={{ label: backLabel, to: copyTradingPath(backPath) }}>
         <OwnerWalletRequired />
       </CopyTradingPage>
     )
@@ -212,7 +227,7 @@ const CopyDetailView = ({ backPath }: { backPath: 'my-copies' | 'history' }) => 
 
   if (resourceUnavailable || !run || !profile) {
     return (
-      <CopyTradingPage backTo={{ label: backLabel, to: `${APP_PATHS.COPY_TRADING}/${backPath}` }}>
+      <CopyTradingPage backTo={{ label: backLabel, to: copyTradingPath(backPath) }}>
         <CopyTradingReadError
           resourceUnavailable={resourceUnavailable}
           onRetry={() => {
@@ -225,7 +240,7 @@ const CopyDetailView = ({ backPath }: { backPath: 'my-copies' | 'history' }) => 
   }
 
   return (
-    <CopyTradingPage backTo={{ label: backLabel, to: `${APP_PATHS.COPY_TRADING}/${backPath}` }}>
+    <CopyTradingPage backTo={{ label: backLabel, to: copyTradingPath(backPath) }}>
       <AgentIdentity agent={profile} copyStatus={run.status === 'active' ? undefined : run.status} />
       <CopyDetailContent key={run.copyRunId} agent={profile} run={run} />
     </CopyTradingPage>

@@ -1,4 +1,4 @@
-import { type PropsWithChildren, createContext, useContext, useEffect, useMemo, useState } from 'react'
+import { type PropsWithChildren, createContext, useContext, useMemo } from 'react'
 import type { Chain } from 'services/copyTrading/types/agents'
 import type { Address } from 'services/copyTrading/types/primitives'
 
@@ -7,8 +7,7 @@ type CopyTradingContextValue = {
   refreshChains: () => unknown
   chainsLoading: boolean
   ownerAddress?: Address
-  selectedChainId?: number
-  setSelectedChainId: (chainId?: number) => void
+  selectedChainId: number
 }
 
 const CopyTradingContext = createContext<CopyTradingContextValue | undefined>(undefined)
@@ -18,6 +17,7 @@ type CopyTradingProviderProps = PropsWithChildren<{
   refreshChains: () => unknown
   chainsLoading: boolean
   ownerAddress?: Address
+  selectedChainId: number
 }>
 
 export const CopyTradingProvider = ({
@@ -26,20 +26,10 @@ export const CopyTradingProvider = ({
   ownerAddress,
   refreshChains,
   chainsLoading,
+  selectedChainId,
 }: CopyTradingProviderProps) => {
-  const [selectedChainId, setSelectedChainId] = useState<number>()
-
-  useEffect(() => {
-    setSelectedChainId(currentChainId => {
-      const enabledChains = chains.filter(chain => chain.isEnabled)
-      const isCurrentChainEnabled = enabledChains.some(chain => chain.chainId === currentChainId)
-
-      return isCurrentChainEnabled ? currentChainId : enabledChains[0]?.chainId
-    })
-  }, [chains])
-
   const value = useMemo(
-    () => ({ chains, ownerAddress, selectedChainId, setSelectedChainId, refreshChains, chainsLoading }),
+    () => ({ chains, ownerAddress, selectedChainId, refreshChains, chainsLoading }),
     [chains, ownerAddress, selectedChainId, refreshChains, chainsLoading],
   )
 

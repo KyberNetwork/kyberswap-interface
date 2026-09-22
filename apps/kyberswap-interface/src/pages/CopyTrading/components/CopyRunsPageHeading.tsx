@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
 
 import { Stack } from 'components/Stack'
-import { APP_PATHS } from 'constants/index'
+import { useCopyTradingRoutes } from 'pages/CopyTrading/hooks/useCopyTradingRoutes'
 import { cn } from 'utils/cn'
 
 type CopyRunsView = 'open' | 'history'
@@ -19,18 +19,19 @@ const copyRunsTabs: Array<{
   {
     description: 'Monitor and manage all your active copy positions.',
     label: 'Open Copies',
-    to: `${APP_PATHS.COPY_TRADING}/my-copies`,
+    to: 'my-copies',
     value: 'open',
   },
   {
     description: 'Review all closed copy runs and settled performance.',
     label: 'History',
-    to: `${APP_PATHS.COPY_TRADING}/history`,
+    to: 'history',
     value: 'history',
   },
 ]
 
 const CopyRunsPageHeading = ({ activeView }: CopyRunsPageHeadingProps) => {
+  const copyTradingPath = useCopyTradingRoutes()
   const activeTab = copyRunsTabs.find(tab => tab.value === activeView) || copyRunsTabs[0]
 
   return (
@@ -50,7 +51,7 @@ const CopyRunsPageHeading = ({ activeView }: CopyRunsPageHeadingProps) => {
                   active ? 'text-primary' : 'text-subText hover:text-text',
                 )}
                 role="tab"
-                to={tab.to}
+                to={copyTradingPath(tab.to)}
               >
                 {tab.label}
               </Link>

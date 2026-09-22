@@ -5,7 +5,6 @@ import type { CopyRunListItem } from 'services/copyTrading/types/copyRuns'
 
 import { ButtonPrimary } from 'components/Button'
 import { HStack } from 'components/Stack'
-import { APP_PATHS } from 'constants/index'
 import { agentProfileResponsiveOrder } from 'pages/CopyTrading/AgentProfile/responsiveOrder'
 import {
   RiskCard,
@@ -19,6 +18,7 @@ import { CapitalInCardValue } from 'pages/CopyTrading/components/common/status'
 import { useCopyTradingContext } from 'pages/CopyTrading/context'
 import { resolveStartCopyEligibility } from 'pages/CopyTrading/generations'
 import { getPreparedReasonMessage } from 'pages/CopyTrading/helpers'
+import { useCopyTradingRoutes } from 'pages/CopyTrading/hooks/useCopyTradingRoutes'
 import { useCopyTradingModal } from 'pages/CopyTrading/modals/context'
 
 const StartCopyCard = ({ agent, onCopy }: { agent: AgentProfile; onCopy: () => void }) => {
@@ -57,13 +57,14 @@ type AgentInstructionProps = {
 
 const AgentInstruction = ({ activeCopyRun, agent }: AgentInstructionProps) => {
   const navigate = useNavigate()
+  const copyTradingPath = useCopyTradingRoutes()
   const { openStartCopy, openAddCapital } = useCopyTradingModal()
 
   const copyActionCard = activeCopyRun ? (
     <CopyCapitalCard
       addCapitalAvailability={activeCopyRun.addCapitalAvailability}
       capital={<CapitalInCardValue run={activeCopyRun} />}
-      onView={() => navigate(`${APP_PATHS.COPY_TRADING}/my-copies/${activeCopyRun.copyRunId}`)}
+      onView={() => navigate(copyTradingPath('my-copies/' + activeCopyRun.copyRunId, activeCopyRun.chainId))}
       onAddCapital={() => openAddCapital(activeCopyRun)}
     />
   ) : (

@@ -5,7 +5,6 @@ import type { CopyRunSortBy, SortOrder } from 'services/copyTrading/types/primit
 
 import ScrollArea from 'components/ScrollArea'
 import { Stack } from 'components/Stack'
-import { APP_PATHS } from 'constants/index'
 import CursorPagination, { type CursorPaginationState } from 'pages/CopyTrading/components/CursorPagination'
 import {
   HeaderCell,
@@ -20,6 +19,7 @@ import {
 import { CopyRunAgentCell } from 'pages/CopyTrading/components/common/agentIdentity'
 import { copyTradingStatIconMap } from 'pages/CopyTrading/constants'
 import { formatCount, formatUsd, getSignedMetricClassName, signedPercent, signedUsd } from 'pages/CopyTrading/helpers'
+import { useCopyTradingRoutes } from 'pages/CopyTrading/hooks/useCopyTradingRoutes'
 import { useCopyTradingModal } from 'pages/CopyTrading/modals/context'
 import { cn } from 'utils/cn'
 import { formatDateTime } from 'utils/time'
@@ -83,6 +83,7 @@ const ClosedSubscriptionsTable = ({
   sortBy,
   sortOrder,
 }: ClosedSubscriptionsTableProps) => {
+  const copyTradingPath = useCopyTradingRoutes()
   return (
     <Stack className="gap-2 lg:gap-0 lg:overflow-hidden lg:rounded-xl lg:bg-buttonBlack-60">
       <ScrollArea className="relative hidden max-h-[480px] lg:block">
@@ -139,7 +140,7 @@ const ClosedSubscriptionsTable = ({
             <ClosedSubscriptionsGrid key={subscription.copyRunId} className="relative cursor-pointer">
               <TableRowLink
                 label={`View copy history for ${subscription.agentSnapshot?.displayName || 'agent'}`}
-                to={`${APP_PATHS.COPY_TRADING}/history/${subscription.copyRunId}`}
+                to={copyTradingPath('history/' + subscription.copyRunId, subscription.chainId)}
               />
               <CopyRunAgentCell run={subscription} className="px-3 py-2" />
               <TableCell className="text-right">{formatCount(subscription.closedPositionCount)}</TableCell>
@@ -178,7 +179,7 @@ const ClosedSubscriptionsTable = ({
           >
             <TableRowLink
               label={`View copy history for ${subscription.agentSnapshot?.displayName || 'agent'}`}
-              to={`${APP_PATHS.COPY_TRADING}/history/${subscription.copyRunId}`}
+              to={copyTradingPath('history/' + subscription.copyRunId, subscription.chainId)}
             />
             <CopyRunAgentCell run={subscription} className="gap-3" />
 

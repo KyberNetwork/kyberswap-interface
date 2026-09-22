@@ -7,10 +7,10 @@ import type { CopyRunListItem } from 'services/copyTrading/types/copyRuns'
 import type { PositionSummary } from 'services/copyTrading/types/positions'
 import type { PreparedCallKind } from 'services/copyTrading/types/preparedActions'
 
-import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { sumUsdValues } from 'pages/CopyTrading/helpers'
+import { useCopyTradingRoutes } from 'pages/CopyTrading/hooks/useCopyTradingRoutes'
 import PreparedActionModal, { PreparedActionSuccessActions } from 'pages/CopyTrading/modals/PreparedActionModal'
 import { DEFAULT_PREPARED_ACTION_SLIPPAGE } from 'pages/CopyTrading/modals/PreparedActionModal/SlippageControl'
 import { getApiErrorMessage } from 'pages/CopyTrading/modals/PreparedActionModal/preparedAction'
@@ -41,6 +41,7 @@ const STOP_COPY_CALL_KINDS: PreparedCallKind[] = ['PREPARED_CALL_KIND_STOP_COPY'
 
 const StopCopyModal = ({ isOpen, onDismiss, copyRun }: StopCopyModalProps) => {
   const navigate = useNavigate()
+  const copyTradingPath = useCopyTradingRoutes()
   const { account, chainId } = useActiveWeb3React()
   const { changeNetwork } = useChangeNetwork()
   const toggleWalletModal = useWalletModalToggle()
@@ -171,7 +172,7 @@ const StopCopyModal = ({ isOpen, onDismiss, copyRun }: StopCopyModalProps) => {
   const viewCopies = () => {
     dismiss()
     const terminal = completedCopyRun?.status === 'stopped' || completedCopyRun?.status === 'closed'
-    navigate(APP_PATHS.COPY_TRADING + (terminal ? '/history' : '/my-copies'))
+    navigate(copyTradingPath(terminal ? 'history' : 'my-copies', copyRun.chainId))
   }
 
   const accountConnected = !!account

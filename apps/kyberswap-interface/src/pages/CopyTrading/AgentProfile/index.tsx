@@ -1,11 +1,10 @@
 import { type PropsWithChildren } from 'react'
-import { useParams } from 'react-router-dom'
+import { Navigate, useLocation, useParams } from 'react-router-dom'
 import agentApi from 'services/copyTrading/api/endpoints/agents'
 import copyRunApi from 'services/copyTrading/api/endpoints/copyRuns'
 
 import LocalLoader from 'components/LocalLoader'
 import { Stack } from 'components/Stack'
-import { APP_PATHS } from 'constants/index'
 import useIsWalletRestoring from 'hooks/useIsWalletRestoring'
 import useTab from 'hooks/useTab'
 import AgentInstruction from 'pages/CopyTrading/AgentProfile/AgentInstruction'
@@ -26,6 +25,7 @@ import { CopyTradingReadError } from 'pages/CopyTrading/components/common/status
 import { type ProfileTab, profileTabLabel, profileTabShortLabel, profileTabs } from 'pages/CopyTrading/constants'
 import { useCopyTradingContext } from 'pages/CopyTrading/context'
 import { isMissingOrForbiddenError } from 'pages/CopyTrading/helpers'
+import { useCopyTradingRoutes } from 'pages/CopyTrading/hooks/useCopyTradingRoutes'
 
 const profileTabOptions: readonly DetailTabOption<ProfileTab>[] = profileTabs.map(tab => ({
   label: profileTabLabel[tab],
@@ -49,8 +49,10 @@ const Tabs = ({ activeTab, onTabChange, children }: AgentProfileTabsProps) => {
 }
 
 const AgentProfile = () => {
+  const copyTradingPath = useCopyTradingRoutes()
   const { agentCode } = useParams()
-  const { ownerAddress } = useCopyTradingContext()
+  const { ownerAddress, selectedChainId } = useCopyTradingContext()
+  const location = useLocation()
   const isRestoringWallet = useIsWalletRestoring()
 
   const {
@@ -99,6 +101,19 @@ const AgentProfile = () => {
 
   const resourceUnavailable = !agentCode || isMissingOrForbiddenError(agentError)
 
+  if (profile && profile.chainId !== selectedChainId) {
+    return (
+      <Navigate
+        to={{
+          pathname: copyTradingPath(agentCode || '', profile.chainId),
+          search: location.search,
+          hash: location.hash,
+        }}
+        replace
+      />
+    )
+  }
+
   if (!resourceUnavailable && (isRestoringWallet || agentPending || copyRunPending)) {
     return (
       <CopyTradingPage>
@@ -109,7 +124,7 @@ const AgentProfile = () => {
 
   if (resourceUnavailable || !profile || (!!ownerAddress && !openCopyRuns)) {
     return (
-      <CopyTradingPage backTo={{ label: 'Leaderboard', to: APP_PATHS.COPY_TRADING }}>
+      <CopyTradingPage backTo={{ label: 'Leaderboard', to: copyTradingPath() }}>
         <CopyTradingReadError
           resourceUnavailable={resourceUnavailable}
           onRetry={() => {
@@ -126,7 +141,7 @@ const AgentProfile = () => {
   const activeCopyRun = latestCopyRun?.status === 'active' ? latestCopyRun : undefined
 
   return (
-    <CopyTradingPage backTo={{ label: 'Leaderboard', to: APP_PATHS.COPY_TRADING }}>
+    <CopyTradingPage backTo={{ label: 'Leaderboard', to: copyTradingPath() }}>
       <AgentIdentity agent={profile} />
 
       <div className="grid gap-4">

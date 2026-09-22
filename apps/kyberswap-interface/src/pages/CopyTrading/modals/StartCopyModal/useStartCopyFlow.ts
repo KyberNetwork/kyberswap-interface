@@ -5,12 +5,12 @@ import agentApi from 'services/copyTrading/api/endpoints/agents'
 import discoveryApi from 'services/copyTrading/api/endpoints/discovery'
 import preparedActionApi from 'services/copyTrading/api/endpoints/preparedActions'
 
-import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
 import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { useCopyTradingContext } from 'pages/CopyTrading/context'
 import { resolveStartCopyEligibility } from 'pages/CopyTrading/generations'
 import { getPreparedReasonMessage } from 'pages/CopyTrading/helpers'
+import { useCopyTradingRoutes } from 'pages/CopyTrading/hooks/useCopyTradingRoutes'
 import { type CapitalPercentage } from 'pages/CopyTrading/modals/CapitalAmount/capital'
 import { useCapitalAmount } from 'pages/CopyTrading/modals/CapitalAmount/useCapitalAmount'
 import { validatePreparedAction } from 'pages/CopyTrading/modals/PreparedActionModal/preparedAction'
@@ -26,6 +26,7 @@ import { useWalletModalToggle } from 'state/application/hooks'
 
 export const useStartCopyFlow = ({ agent, onDismiss }: { agent: StartCopyTarget; onDismiss: () => void }) => {
   const navigate = useNavigate()
+  const copyTradingPath = useCopyTradingRoutes()
   const { chains } = useCopyTradingContext()
   const { account, chainId } = useActiveWeb3React()
   const { changeNetwork } = useChangeNetwork()
@@ -220,7 +221,7 @@ export const useStartCopyFlow = ({ agent, onDismiss }: { agent: StartCopyTarget;
 
   const viewMyCopies = () => {
     dismiss()
-    navigate(APP_PATHS.COPY_TRADING + '/my-copies')
+    navigate(copyTradingPath('my-copies', agent.chainId))
   }
 
   return {
