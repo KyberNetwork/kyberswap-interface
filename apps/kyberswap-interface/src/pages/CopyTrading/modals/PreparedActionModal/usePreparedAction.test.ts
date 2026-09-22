@@ -11,6 +11,13 @@ import {
 import { requestPreparation } from 'pages/CopyTrading/modals/PreparedActionModal/requestPreparation'
 import { usePreparedAction } from 'pages/CopyTrading/modals/PreparedActionModal/usePreparedAction'
 
+const reactHooks = vi.hoisted(() => ({ useState: vi.fn(), useRef: vi.fn() }))
+vi.mock('react', async importOriginal => ({
+  ...(await importOriginal<typeof import('react')>()),
+  useState: reactHooks.useState,
+  useRef: reactHooks.useRef,
+}))
+
 const statusMocks = vi.hoisted(() => ({ getStatus: vi.fn(), refresh: vi.fn() }))
 vi.mock('services/copyTrading/api/endpoints/preparedActions', () => ({
   default: { useGetSubmittedActionStatusMutation: () => [statusMocks.getStatus] },
@@ -122,10 +129,70 @@ const createStateHarness = (initialState: PreparedActionFlowState = DEFAULT_PREP
   const setState: Dispatch<SetStateAction<PreparedActionFlowState>> = update => {
     state = typeof update === 'function' ? update(state) : update
   }
+  const version = { current: 0 }
+  reactHooks.useState.mockImplementation(() => [state, setState])
+  reactHooks.useRef.mockReturnValue(version)
   return { getState: () => state, setState }
 }
 
 describe('usePreparedAction', () => {
+  it('keeps an explicit reset when an older direct preparation resolves', async () => {
+    const harness = createStateHarness()
+    let resolvePreparation: (action: PreparedAction) => void = () => undefined
+    const flow = usePreparedAction({
+      getExpected: () => expected,
+      prepare: () => new Promise(resolve => (resolvePreparation = resolve)),
+    })
+
+    const request = flow.prepareAndConfirm()
+    flow.reset()
+    resolvePreparation(readyAction)
+    await request
+
+    expect(harness.getState()).toEqual({ phase: 'idle' })
+    expect(walletMocks.sendTransaction).not.toHaveBeenCalled()
+  })
+
+  it('handles an authorization error through the flow without exposing its state setter', () => {
+    const harness = createStateHarness({ phase: 'review', action: allowanceDiagnostic })
+    const flow = usePreparedAction({ getExpected: () => expected, prepare: vi.fn() })
+
+    flow.fail(new Error('Authorization rejected.'))
+
+    expect(harness.getState()).toEqual({
+      phase: 'error',
+      action: allowanceDiagnostic,
+      error: 'Authorization rejected.',
+    })
+  })
+
+  describe.each(['prepare', 'prepareAndConfirm', 'confirm'] as const)('%s status context validation', entry => {
+    it.each([
+      {
+        statusContext: undefined,
+        error: 'The preparation is missing its status context. Please prepare again.',
+      },
+      { statusContext: {}, error: 'The prepared status context owner does not match your wallet.' },
+      {
+        statusContext: { expectedOwner: predictedCopyAccount },
+        error: 'The prepared status context owner does not match your wallet.',
+      },
+    ])('blocks an invalid status context: $statusContext', async ({ statusContext, error }) => {
+      const action = { ...readyAction, statusContext }
+      const harness = createStateHarness({ phase: 'review', action })
+      const flow = usePreparedAction({
+        getExpected: () => expected,
+        prepare: vi.fn().mockResolvedValue(action),
+      })
+
+      await flow[entry]()
+
+      expect(harness.getState()).toEqual({ phase: 'error', action, error })
+      expect(walletMocks.sendTransaction).not.toHaveBeenCalled()
+      expect(statusMocks.getStatus).not.toHaveBeenCalled()
+    })
+  })
+
   it('keeps the current modal phase while the initial preparation is pending', async () => {
     const harness = createStateHarness()
     let resolvePreparation: (action: PreparedAction) => void = () => undefined
@@ -133,9 +200,7 @@ describe('usePreparedAction', () => {
       .fn<[], Promise<PreparedAction>>()
       .mockImplementation(() => new Promise(resolve => (resolvePreparation = resolve)))
     const flow = usePreparedAction({
-      state: harness.getState(),
-      setState: harness.setState,
-      expected,
+      getExpected: () => expected,
       prepare,
       reviewUnavailable: action => action.reason === 'PREPARED_ACTION_REASON_INSUFFICIENT_QUOTE_ALLOWANCE',
     })
@@ -155,9 +220,7 @@ describe('usePreparedAction', () => {
     let resolveRefresh: () => void = () => undefined
     statusMocks.refresh.mockImplementation(() => new Promise<void>(resolve => (resolveRefresh = resolve)))
     const flow = usePreparedAction({
-      state: harness.getState(),
-      setState: harness.setState,
-      expected,
+      getExpected: () => expected,
       prepare: vi.fn().mockResolvedValue(completedAction),
     })
 
@@ -178,9 +241,7 @@ describe('usePreparedAction', () => {
     })
     const prepare = vi.fn().mockResolvedValue(readyAction)
     const flow = usePreparedAction({
-      state: harness.getState(),
-      setState: harness.setState,
-      expected,
+      getExpected: () => expected,
       prepare,
     })
 
@@ -196,9 +257,7 @@ describe('usePreparedAction', () => {
     walletMocks.sendTransaction.mockClear()
     const harness = createStateHarness({ phase: 'review', action: readyAction })
     const flow = usePreparedAction({
-      state: harness.getState(),
-      setState: harness.setState,
-      expected,
+      getExpected: () => expected,
       prepare: vi.fn(),
     })
     await flow.confirm()
@@ -209,9 +268,7 @@ describe('usePreparedAction', () => {
   it('uses the expired recovery state for an expired preparation', async () => {
     const harness = createStateHarness()
     const flow = usePreparedAction({
-      state: harness.getState(),
-      setState: harness.setState,
-      expected,
+      getExpected: () => expected,
       prepare: vi.fn().mockResolvedValue(expiredAction),
     })
 
@@ -227,9 +284,7 @@ describe('usePreparedAction', () => {
   it('uses the expired recovery state when the review expires before confirmation', async () => {
     const harness = createStateHarness({ phase: 'review', action: expiredAction })
     const flow = usePreparedAction({
-      state: harness.getState(),
-      setState: harness.setState,
-      expected,
+      getExpected: () => expected,
       prepare: vi.fn(),
     })
 
@@ -256,9 +311,7 @@ describe('usePreparedAction', () => {
       .fn<[], Promise<PreparedAction>>()
       .mockImplementation(() => new Promise(resolve => (resolvePreparation = resolve)))
     const flow = usePreparedAction({
-      state: harness.getState(),
-      setState: harness.setState,
-      expected,
+      getExpected: () => expected,
       prepare,
     })
 
@@ -279,9 +332,7 @@ describe('usePreparedAction', () => {
       reason: 'PREPARED_ACTION_REASON_CONTROLLER_PAUSED',
     }
     const flow = usePreparedAction({
-      state: harness.getState(),
-      setState: harness.setState,
-      expected,
+      getExpected: () => expected,
       prepare: vi.fn().mockResolvedValue(action),
       reviewUnavailable: candidate => candidate.reason === 'PREPARED_ACTION_REASON_INSUFFICIENT_QUOTE_ALLOWANCE',
     })
@@ -306,9 +357,7 @@ describe('usePreparedAction', () => {
       .mockImplementationOnce(() => new Promise(resolve => (resolveFirst = resolve)))
       .mockImplementationOnce(() => new Promise(resolve => (resolveSecond = resolve)))
     const flow = usePreparedAction({
-      state: harness.getState(),
-      setState: harness.setState,
-      expected,
+      getExpected: () => expected,
       prepare,
       reviewUnavailable: action => action.reason === 'PREPARED_ACTION_REASON_INSUFFICIENT_QUOTE_ALLOWANCE',
     })
@@ -340,9 +389,7 @@ describe('submitted status recovery', () => {
     const prepare = vi.fn()
     const useRetryFlow = () =>
       usePreparedAction({
-        state: harness.getState(),
-        setState: harness.setState,
-        expected,
+        getExpected: () => expected,
         prepare,
       })
     await useRetryFlow().retry()
@@ -362,9 +409,7 @@ describe('submitted status recovery', () => {
       }),
     })
     await usePreparedAction({
-      state: harness.getState(),
-      setState: harness.setState,
-      expected,
+      getExpected: () => expected,
       prepare: vi.fn(),
     }).retry()
     expect(harness.getState()).toMatchObject({ phase: 'error', hash, error: 'Matched transaction reverted.' })
@@ -383,9 +428,7 @@ describe('submitted status recovery', () => {
         }),
       })
       await usePreparedAction({
-        state: harness.getState(),
-        setState: harness.setState,
-        expected,
+        getExpected: () => expected,
         prepare,
       }).retry()
       expect(prepare).not.toHaveBeenCalled()
@@ -421,9 +464,7 @@ describe('replacement transaction receipts', () => {
     const prepare = vi.fn()
     const useFlow = () =>
       usePreparedAction({
-        state: harness.getState(),
-        setState: harness.setState,
-        expected,
+        getExpected: () => expected,
         prepare,
       })
     await useFlow()[entry]()
@@ -459,9 +500,7 @@ describe('replacement transaction receipts', () => {
         blockNumber: 123n,
       })
       const flow = usePreparedAction({
-        state: harness.getState(),
-        setState: harness.setState,
-        expected,
+        getExpected: () => expected,
         prepare: vi.fn(),
       })
       await flow[entry]()
@@ -489,9 +528,7 @@ describe('authorized preparation', () => {
     const authorizedPreparation = vi.fn().mockResolvedValue(action)
     const onPrepared = vi.fn()
     const flow = usePreparedAction({
-      state: harness.getState(),
-      setState: harness.setState,
-      expected,
+      getExpected: () => expected,
       prepare,
       // The Start attempt has already applied authorization.
       reviewUnavailable: () => false,
@@ -515,9 +552,7 @@ describe('authorized preparation', () => {
     const harness = createStateHarness({ phase: 'review', action: allowanceDiagnostic })
     const onPrepared = vi.fn()
     await usePreparedAction({
-      state: harness.getState(),
-      setState: harness.setState,
-      expected,
+      getExpected: () => expected,
       prepare: vi.fn(),
       onPrepared,
     }).prepare(vi.fn().mockResolvedValue(action))
@@ -530,9 +565,7 @@ describe('authorized preparation', () => {
   it('keeps action-specific identity errors inside preparation recovery', async () => {
     const harness = createStateHarness()
     await usePreparedAction({
-      state: harness.getState(),
-      setState: harness.setState,
-      expected,
+      getExpected: () => expected,
       prepare: vi.fn().mockResolvedValue(readyAction),
       onPrepared: () => {
         throw new Error('The predicted account changed.')
@@ -554,9 +587,7 @@ describe('shared result ownership', () => {
     let resolveResult: () => void = () => undefined
     const onSubmittedSuccess = vi.fn(() => new Promise<void>(resolve => (resolveResult = resolve)))
     const request = usePreparedAction({
-      state: harness.getState(),
-      setState: harness.setState,
-      expected,
+      getExpected: () => expected,
       prepare: vi.fn(),
       onSubmittedSuccess,
     }).retry()
@@ -582,9 +613,7 @@ describe('shared result ownership', () => {
       unwrap: vi.fn().mockResolvedValue({ data: { status: 'SUBMITTED_ACTION_STATUS_SUCCEEDED', result: {} } }),
     })
     await usePreparedAction({
-      state: harness.getState(),
-      setState: harness.setState,
-      expected,
+      getExpected: () => expected,
       prepare: vi.fn(),
     }).retry()
     expect(harness.getState()).toEqual({ phase: 'success', action: readyAction, hash })
@@ -598,7 +627,13 @@ describe('requestPreparation', () => {
     const onReady = vi.fn((action: PreparedAction) => harness.setState({ phase: 'awaiting_signature', action }))
 
     await requestPreparation(
-      { expected, finish: vi.fn(), prepare: vi.fn().mockResolvedValue(readyAction), setState: harness.setState },
+      {
+        getExpected: () => expected,
+        isCurrent: () => true,
+        finish: vi.fn(),
+        prepare: vi.fn().mockResolvedValue(readyAction),
+        setState: harness.setState,
+      },
       { onReady },
     )
 

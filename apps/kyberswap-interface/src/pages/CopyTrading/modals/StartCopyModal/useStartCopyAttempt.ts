@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useRef } from 'react'
 import type {
   PrepareStartCopyRequest,
   PrepareStartCopyResponse,
@@ -24,6 +24,7 @@ type StartCopyAttempt = {
   createPermitData?: string
   ownerAddress?: string
   requestId: string
+  predictedCopyAccount?: string
   targetCapitalRaw?: string
 }
 
@@ -56,31 +57,29 @@ export const useStartCopyAttempt = ({
   prepareStartCopy: PrepareStartCopy
   targetCapitalRaw?: string
 }) => {
-  const [predictedCopyAccount, setPredictedCopyAccount] = useState<string>()
   const attemptRef = useRef<StartCopyAttempt>(createStartCopyAttempt())
-  const expectedRef = useRef<PreparedActionExpectation>({
+
+  const getExpected = (): PreparedActionExpectation => ({
     account: account || '',
     callKinds: START_CALL_KINDS,
     chainId: agent.chainId,
+    generationId: attemptRef.current.generationId,
     preview: 'startCopy',
+    startCopyCreateAmountRaw: targetCapitalRaw,
+    startCopyPredictedAccount: attemptRef.current.predictedCopyAccount,
+    startCopyRequestId: attemptRef.current.requestId,
+    startCopyTargetRaw: targetCapitalRaw,
   })
 
-  expectedRef.current.account = account || ''
-  expectedRef.current.chainId = agent.chainId
-  expectedRef.current.startCopyCreateAmountRaw = targetCapitalRaw
-  expectedRef.current.startCopyPredictedAccount = predictedCopyAccount
-  expectedRef.current.startCopyRequestId = attemptRef.current.requestId
-  expectedRef.current.startCopyTargetRaw = targetCapitalRaw
-
   const resetStartAttempt = () => {
-    const nextAttempt = createStartCopyAttempt()
-    attemptRef.current = nextAttempt
-    expectedRef.current.startCopyRequestId = nextAttempt.requestId
+    attemptRef.current = {
+      ...createStartCopyAttempt(),
+      predictedCopyAccount: attemptRef.current.predictedCopyAccount,
+    }
   }
 
   const resetAttemptState = () => {
-    setPredictedCopyAccount(undefined)
-    resetStartAttempt()
+    attemptRef.current = createStartCopyAttempt()
   }
 
   const getScopedStartAttempt = (ownerAddress: string, targetRaw: string, generationId: string) => {
@@ -94,7 +93,6 @@ export const useStartCopyAttempt = ({
 
     if (scopeChanged) {
       resetAttemptState()
-      expectedRef.current.startCopyPredictedAccount = undefined
     }
 
     const scopedAttempt = {
@@ -106,21 +104,20 @@ export const useStartCopyAttempt = ({
       targetCapitalRaw: targetRaw,
     }
     attemptRef.current = scopedAttempt
-    expectedRef.current.generationId = generationId
     return scopedAttempt
   }
 
   const acceptPreparation = (action: PreparedAction) => {
     if (action.status === 'PREPARED_ACTION_STATUS_UNAVAILABLE') {
       if (attemptRef.current.authorizationApplied) {
-        const error = validatePreparedAction(action, expectedRef.current, { requireCall: false })
+        const error = validatePreparedAction(action, getExpected(), { requireCall: false })
         if (error) throw new Error(error)
       }
       return
     }
 
     const nextPredictedCopyAccount = action.startCopy?.predictedCopyAccount
-    const expectedPredictedCopyAccount = expectedRef.current.startCopyPredictedAccount
+    const expectedPredictedCopyAccount = attemptRef.current.predictedCopyAccount
     if (
       expectedPredictedCopyAccount &&
       nextPredictedCopyAccount?.toLowerCase() !== expectedPredictedCopyAccount.toLowerCase()
@@ -129,19 +126,26 @@ export const useStartCopyAttempt = ({
     }
 
     if (!expectedPredictedCopyAccount && nextPredictedCopyAccount) {
-      expectedRef.current.startCopyPredictedAccount = nextPredictedCopyAccount
-      setPredictedCopyAccount(nextPredictedCopyAccount)
+      attemptRef.current.predictedCopyAccount = nextPredictedCopyAccount
     }
   }
 
-  const requestStartCopy = (attempt: StartCopyAttempt, ownerAddress: string, targetRaw: string) => {
-    if (!attempt.generationId) throw new Error('Start Copy is currently unavailable. Please try again later.')
+  const requestStartCopy = (attempt: StartCopyAttempt) => {
+    if (
+      !attempt.generationId ||
+      !attempt.ownerAddress ||
+      !attempt.targetCapitalRaw ||
+      !attempt.agentId ||
+      !attempt.chainId
+    ) {
+      throw new Error('Start Copy is currently unavailable. Please try again later.')
+    }
     return prepareStartCopy({
-      ownerAddress: ownerAddress.toLowerCase(),
-      agentId: agent.agentId,
-      chainId: String(agent.chainId),
+      ownerAddress: attempt.ownerAddress,
+      agentId: attempt.agentId,
+      chainId: String(attempt.chainId),
       generationId: attempt.generationId,
-      targetCapitalRaw: targetRaw,
+      targetCapitalRaw: attempt.targetCapitalRaw,
       startRequestId: attempt.requestId,
       fundingMode: START_FUNDING_MODE,
       ...(attempt.createPermitData ? { createPermitData: attempt.createPermitData } : {}),
@@ -168,21 +172,18 @@ export const useStartCopyAttempt = ({
       targetCapitalRaw: targetRaw,
     }
 
-    setPredictedCopyAccount(undefined)
-    expectedRef.current.startCopyPredictedAccount = undefined
     attemptRef.current = authorizedAttempt
-    expectedRef.current.startCopyRequestId = authorizedAttempt.requestId
 
     return authorizedAttempt
   }
 
   return {
-    attemptRef,
+    getGenerationId: () => attemptRef.current.generationId,
+    hasAuthorization: () => attemptRef.current.authorizationApplied,
     acceptPreparation,
     createAuthorizedAttempt,
-    expected: expectedRef.current,
+    getExpected,
     getScopedStartAttempt,
-    predictedCopyAccount,
     requestStartCopy,
     resetAttemptState,
     resetStartAttempt,

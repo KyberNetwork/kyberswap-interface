@@ -66,6 +66,8 @@ const AgentTable = ({ agents, loading, pagination, sortBy, sortOrder, onSortChan
   const { chains, ownerAddress, selectedChainId } = useCopyTradingContext()
   const { openStartCopy } = useCopyTradingModal()
 
+  // TODO: Use the API update for complete copied-state lookup. The first 100 open runs can miss older active copies.
+  // Keep the current lookup until that update is available; do not add client-side cursor traversal here.
   const { currentData: openCopyRuns } = copyRunApi.useGetCopyRunsQuery(
     {
       ownerAddress: ownerAddress || '',

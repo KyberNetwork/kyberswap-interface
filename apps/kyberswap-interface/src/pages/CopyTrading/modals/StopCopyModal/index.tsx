@@ -13,10 +13,7 @@ import { useChangeNetwork } from 'hooks/web3/useChangeNetwork'
 import { sumUsdValues } from 'pages/CopyTrading/helpers'
 import PreparedActionModal, { PreparedActionSuccessActions } from 'pages/CopyTrading/modals/PreparedActionModal'
 import { DEFAULT_PREPARED_ACTION_SLIPPAGE } from 'pages/CopyTrading/modals/PreparedActionModal/SlippageControl'
-import {
-  DEFAULT_PREPARED_ACTION_STATE,
-  getApiErrorMessage,
-} from 'pages/CopyTrading/modals/PreparedActionModal/preparedAction'
+import { getApiErrorMessage } from 'pages/CopyTrading/modals/PreparedActionModal/preparedAction'
 import { usePreparedAction } from 'pages/CopyTrading/modals/PreparedActionModal/usePreparedAction'
 import { StopCopyForm, StopCopyReview } from 'pages/CopyTrading/modals/StopCopyModal/components'
 import {
@@ -51,10 +48,7 @@ const StopCopyModal = ({ isOpen, onDismiss, copyRun }: StopCopyModalProps) => {
   const [getCopyRunPositions] = copyRunApi.useLazyGetCopyRunPositionsQuery()
   const [getCopyRun] = copyRunApi.useLazyGetCopyRunQuery()
 
-  const [flowState, setFlowState] = useState(DEFAULT_PREPARED_ACTION_STATE)
-  const [positions, setPositions] = useState<PositionSummary[] | undefined>(
-    Number(copyRun.openPositionCount) === 0 ? [] : undefined,
-  )
+  const [positions, setPositions] = useState<PositionSummary[]>()
   const [positionsError, setPositionsError] = useState<string>()
   const [selected, setSelected] = useState<Record<string, boolean>>({})
   const [slippage, setSlippage] = useState(DEFAULT_PREPARED_ACTION_SLIPPAGE)
@@ -67,6 +61,7 @@ const StopCopyModal = ({ isOpen, onDismiss, copyRun }: StopCopyModalProps) => {
   const loadPositions = useCallback(async () => {
     const requestId = ++positionsRequestId.current
 
+    setPositions(undefined)
     setPositionsError(undefined)
     setSelected({})
 
@@ -98,16 +93,14 @@ const StopCopyModal = ({ isOpen, onDismiss, copyRun }: StopCopyModalProps) => {
   const selectedPositionValueUsd = sumUsdValues(...selectedPositions.map(position => position.valueUsd))
 
   const flow = usePreparedAction({
-    state: flowState,
-    setState: setFlowState,
-    expected: {
+    getExpected: () => ({
       account: account || '',
       callKinds: STOP_COPY_CALL_KINDS,
       chainId: copyRun.chainId,
       copyAccount: copyRun.copyAccount,
       generationId: copyRun.generationId,
       preview: 'stopCopy',
-    },
+    }),
     prepare: async () => {
       if (!account) throw new Error('Connect your wallet first.')
       if (positions === undefined) throw new Error('Wait for all open positions to finish loading.')
@@ -144,6 +137,7 @@ const StopCopyModal = ({ isOpen, onDismiss, copyRun }: StopCopyModalProps) => {
       }
     },
   })
+  const { state: flowState } = flow
 
   const togglePosition = (position: SelectableStopCopyPosition, index: number) => {
     const positionId = position.userPositionId

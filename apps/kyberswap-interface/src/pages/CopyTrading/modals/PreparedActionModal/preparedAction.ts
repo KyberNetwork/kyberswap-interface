@@ -37,17 +37,6 @@ export const DEFAULT_PREPARED_ACTION_STATE: PreparedActionFlowState = { phase: '
 
 export type PreparedActionStateSetter = Dispatch<SetStateAction<PreparedActionFlowState>>
 
-const preparationRequestVersions = new WeakMap<PreparedActionStateSetter, number>()
-
-export const invalidatePreparationRequests = (setState: PreparedActionStateSetter) => {
-  const nextVersion = (preparationRequestVersions.get(setState) || 0) + 1
-  preparationRequestVersions.set(setState, nextVersion)
-  return nextVersion
-}
-
-export const isCurrentPreparationRequest = (setState: PreparedActionStateSetter, version: number) =>
-  preparationRequestVersions.get(setState) === version
-
 export type PreparedActionExpectation = {
   account: string
   callKinds: readonly PreparedCallKind[]
@@ -339,6 +328,11 @@ export const validatePreparedAction = (
   if (!call.to || !isAddress(call.to)) return 'The preparation returned an invalid call target.'
   if (!call.data || !/^0x[0-9a-fA-F]*$/.test(call.data)) return 'The preparation returned invalid calldata.'
   if (call.valueRaw !== '0') return 'The preparation returned a non-zero call value.'
+
+  if (!action.statusContext) return 'The preparation is missing its status context. Please prepare again.'
+  if (!sameAddress(action.statusContext.expectedOwner, action.expectedAccount)) {
+    return 'The prepared status context owner does not match your wallet.'
+  }
 
   return undefined
 }

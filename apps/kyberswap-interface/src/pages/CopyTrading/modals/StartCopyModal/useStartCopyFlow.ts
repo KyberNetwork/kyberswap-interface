@@ -13,11 +13,7 @@ import { resolveStartCopyEligibility } from 'pages/CopyTrading/generations'
 import { getPreparedReasonMessage } from 'pages/CopyTrading/helpers'
 import { type CapitalPercentage } from 'pages/CopyTrading/modals/CapitalAmount/capital'
 import { useCapitalAmount } from 'pages/CopyTrading/modals/CapitalAmount/useCapitalAmount'
-import {
-  DEFAULT_PREPARED_ACTION_STATE,
-  getApiErrorMessage,
-  validatePreparedAction,
-} from 'pages/CopyTrading/modals/PreparedActionModal/preparedAction'
+import { validatePreparedAction } from 'pages/CopyTrading/modals/PreparedActionModal/preparedAction'
 import { usePreparedAction } from 'pages/CopyTrading/modals/PreparedActionModal/usePreparedAction'
 import { type StartCopyTarget } from 'pages/CopyTrading/modals/StartCopyModal/startCopy'
 import { useStartCopyAuthorization } from 'pages/CopyTrading/modals/StartCopyModal/useAuthorization'
@@ -37,7 +33,6 @@ export const useStartCopyFlow = ({ agent, onDismiss }: { agent: StartCopyTarget;
   const [prepareStartCopy] = preparedActionApi.usePrepareStartCopyMutation()
   const { authorize: authorizeStartCopy, getAuthorizationKind } = useStartCopyAuthorization()
 
-  const [flowState, setFlowState] = useState(DEFAULT_PREPARED_ACTION_STATE)
   const [agreed, setAgreed] = useState(false)
   const [createdCopyRunId, setCreatedCopyRunId] = useState<string>()
   const [isAuthorizing, setIsAuthorizing] = useState(false)
@@ -58,9 +53,7 @@ export const useStartCopyFlow = ({ agent, onDismiss }: { agent: StartCopyTarget;
   })
 
   const flow = usePreparedAction({
-    state: flowState,
-    setState: setFlowState,
-    expected: attempt.expected,
+    getExpected: attempt.getExpected,
     prepare: async () => {
       if (!account || !capital.quoteToken) throw new Error('Connect a supported wallet and network first.')
       if (!capital.amountRaw) throw new Error('Enter an amount greater than zero.')
@@ -74,21 +67,21 @@ export const useStartCopyFlow = ({ agent, onDismiss }: { agent: StartCopyTarget;
         profile.data,
       )
       // Keep an existing attempt pinned even after its generation retires.
-      const generationId = attempt.attemptRef.current.generationId || eligibility.generationId
+      const generationId = attempt.getGenerationId() || eligibility.generationId
       if (!generationId) throw new Error('Start Copy is currently unavailable. Please try again later.')
 
       const scopedAttempt = attempt.getScopedStartAttempt(account, capital.amountRaw, generationId)
-      const response = await attempt.requestStartCopy(scopedAttempt, account, capital.amountRaw)
+      const response = await attempt.requestStartCopy(scopedAttempt)
       return response.data
     },
     onPrepared: attempt.acceptPreparation,
-    reviewUnavailable: action =>
-      requiresStartCopyAuthorization(action) && !attempt.attemptRef.current.authorizationApplied,
+    reviewUnavailable: action => requiresStartCopyAuthorization(action) && !attempt.hasAuthorization(),
     onSubmittedSuccess: result => {
       setAgreed(false)
       setCreatedCopyRunId(result.copyRunId)
     },
   })
+  const { state: flowState } = flow
 
   const startPreview = flowState.action?.startCopy
   const authorizationKind = requiresStartCopyAuthorization(flowState.action)
@@ -171,18 +164,13 @@ export const useStartCopyFlow = ({ agent, onDismiss }: { agent: StartCopyTarget;
     }
 
     if (!account || !capital.quoteToken || !capital.amountRaw) {
-      setFlowState({
-        phase: 'error',
-        action: diagnosticAction,
-        error: 'Connect a supported wallet and network first.',
-      })
+      flow.fail(new Error('Connect a supported wallet and network first.'), diagnosticAction)
       return
     }
 
-    const targetRaw = capital.amountRaw
     try {
       setIsAuthorizing(true)
-      const validationError = validatePreparedAction(diagnosticAction, attempt.expected, { requireCall: false })
+      const validationError = validatePreparedAction(diagnosticAction, attempt.getExpected(), { requireCall: false })
       if (validationError) throw new Error(validationError)
       await flow.validateGenerationPolicy(diagnosticAction)
 
@@ -193,11 +181,11 @@ export const useStartCopyFlow = ({ agent, onDismiss }: { agent: StartCopyTarget;
         targetRaw: capital.amountRaw,
       })
       await flow.prepare(async () => {
-        const response = await attempt.requestStartCopy(authorizedAttempt, account, targetRaw)
+        const response = await attempt.requestStartCopy(authorizedAttempt)
         return response.data
       })
     } catch (error) {
-      setFlowState({ phase: 'error', action: diagnosticAction, error: getApiErrorMessage(error) })
+      flow.fail(error, diagnosticAction)
     } finally {
       setIsAuthorizing(false)
     }
