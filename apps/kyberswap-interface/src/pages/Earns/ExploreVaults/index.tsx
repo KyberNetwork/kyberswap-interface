@@ -232,7 +232,7 @@ const ExploreVaultListItem = ({ vault, hasPosition, onDeposit, revealIndex }: Va
       <VaultListMetric>
         <VaultListMetricText>
           <VaultListMetricLabel>APY</VaultListMetricLabel>
-          <VaultListMetricValue>{formatApy(vault.apy)}</VaultListMetricValue>
+          <VaultListMetricValue className="text-primary">{formatApy(vault.apy)}</VaultListMetricValue>
         </VaultListMetricText>
         <VaultListChartWrapper>
           <ApyBarChart data={vault.apyHistory} height={28} />
