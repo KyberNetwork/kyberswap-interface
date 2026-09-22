@@ -115,14 +115,23 @@ const toVaultEarnings = (item: VaultPositionItem): number | undefined =>
       : null,
   )
 
-const toHoldingPeriodReturnUsd = (item: VaultPositionItem): number | undefined =>
-  financialNumber({
-    value: item.holdingPeriodReturnUsd ?? null,
-    status: item.holdingPeriodReturnStatus ?? '',
-    reason: item.holdingPeriodReturnReason ?? null,
-    valuationQuality: '',
-    asOf: item.holdingPeriodReturnAsOf ?? null,
-  })
+/**
+ * The same yield in USD. It is the earnings figure priced, not the holding-period return: that one
+ * marks the whole position to NAV and so carries the token's own price move, which would leave a
+ * positive yield sitting next to a negative dollar amount.
+ */
+const toVaultEarningsUsd = (item: VaultPositionItem): number | undefined =>
+  financialNumber(
+    item.vaultEarnings
+      ? {
+          value: item.vaultEarnings.usdEquivalent,
+          status: item.vaultEarnings.usdStatus,
+          reason: item.vaultEarnings.usdReason,
+          valuationQuality: item.vaultEarnings.usdValuationQuality,
+          asOf: item.vaultEarnings.usdAsOf,
+        }
+      : null,
+  )
 
 export const toUserVaultPosition = (item: VaultPositionItem): UserVaultPosition => {
   const v = item.vault
@@ -148,7 +157,7 @@ export const toUserVaultPosition = (item: VaultPositionItem): UserVaultPosition 
     balance: Number(item.underlyingEquivalent) || 0,
     balanceUsd: Number(item.usdValue) || 0,
     earned: toVaultEarnings(item),
-    earnedUsd: toHoldingPeriodReturnUsd(item),
+    earnedUsd: toVaultEarningsUsd(item),
     pendingWithdrawal:
       summary && summary.count > 0
         ? { count: summary.count, status: summary.latestStatus, etaAt: toEpochSeconds(summary.etaExpectedAt) }

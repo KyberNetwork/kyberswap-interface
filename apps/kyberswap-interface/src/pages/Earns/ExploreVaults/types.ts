@@ -51,7 +51,7 @@ export interface UserVaultPosition extends VaultInfo {
   balanceUsd: number
   /** Cumulative yield in underlying-token units. */
   earned?: number
-  /** Cumulative USD return, marked to NAV; negative when price moved against the position. */
+  /** The same yield priced in USD, so the two read as one figure. */
   earnedUsd?: number
   pendingWithdrawal?: UserVaultPendingWithdrawal
 }
