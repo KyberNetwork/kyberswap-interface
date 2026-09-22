@@ -2,13 +2,19 @@ import { Trans, t } from '@lingui/macro'
 import { KeyboardEvent, useMemo, useState } from 'react'
 import { Navigate, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { useMedia } from 'react-use'
-import { VaultInterval, useVaultDetailQuery, useVaultMetricsQuery, useVaultPositionDetailQuery } from 'services/vault'
+import {
+  VaultInterval,
+  useVaultDetailQuery,
+  useVaultMetricsQuery,
+  useVaultPositionDetailQuery,
+  useVaultPositionGrowthHistoryQuery,
+} from 'services/vault'
 
 import { ReactComponent as BagIcon } from 'assets/svg/earn/ic_bag.svg'
 import TokenLogo from 'components/TokenLogo'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
-import { ApyBarChart, TvlLineChart } from 'pages/Earns/ExploreVaults/MiniCharts'
+import { ApyBarChart, EarningLineChart, TvlLineChart } from 'pages/Earns/ExploreVaults/MiniCharts'
 import DepositTab from 'pages/Earns/VaultDetail/DepositTab'
 import VaultDetailPageSkeleton from 'pages/Earns/VaultDetail/PageSkeleton'
 import RiskDisclaimerModal from 'pages/Earns/VaultDetail/RiskDisclaimerModal'
@@ -50,7 +56,7 @@ import {
 import AnimatedNumber from 'pages/Earns/components/AnimatedNumber'
 import { VAULT_POLLING_INTERVAL } from 'pages/Earns/constants/vault'
 import { useRefreshOnVaultTx } from 'pages/Earns/hooks/useRefreshOnVaultTx'
-import { VaultDetailTab, toChartSeries, toVaultInfoFromDetail } from 'pages/Earns/utils/vault'
+import { VaultDetailTab, toChartSeries, toGrowthSeries, toVaultInfoFromDetail } from 'pages/Earns/utils/vault'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
 
@@ -104,6 +110,7 @@ const VaultDetail = () => {
   const [isRiskOpen, setRiskOpen] = useState(false)
   const [tvlPeriod, setTvlPeriod] = useState<PeriodKey>('7D')
   const [apyPeriod, setApyPeriod] = useState<PeriodKey>('7D')
+  const [earningPeriod, setEarningPeriod] = useState<PeriodKey>('7D')
 
   const { data: tvlMetrics } = useVaultMetricsQuery(
     { chainId, vaultId: vaultId as string, interval: PERIOD_TO_INTERVAL[tvlPeriod] },
@@ -117,6 +124,18 @@ const VaultDetail = () => {
   const { data: position, refetch: refetchPosition } = useVaultPositionDetailQuery(
     { chainId, userAddress: (account || '').toLowerCase(), vaultId: vaultId as string },
     { skip: !hasValidParams || !account, pollingInterval: VAULT_POLLING_INTERVAL },
+  )
+
+  // Only a wallet that holds something has a history to plot.
+  const hasPosition = Number(position?.shareBalance || 0) > 0
+  const { data: growthHistory } = useVaultPositionGrowthHistoryQuery(
+    {
+      chainId,
+      userAddress: (account || '').toLowerCase(),
+      vaultId: vaultId as string,
+      interval: PERIOD_TO_INTERVAL[earningPeriod],
+    },
+    { skip: !hasValidParams || !account || !hasPosition },
   )
 
   const vault = useMemo(() => (detail ? toVaultInfoFromDetail(detail) : undefined), [detail])
@@ -136,6 +155,7 @@ const VaultDetail = () => {
 
   const tvlSeries = useMemo(() => toChartSeries(tvlMetrics, point => point.tvl), [tvlMetrics])
   const apySeries = useMemo(() => toChartSeries(apyMetrics, point => point.rate), [apyMetrics])
+  const earningSeries = useMemo(() => toGrowthSeries(growthHistory), [growthHistory])
 
   const handleBack = () => navigate(-1)
   const handleBackKey = (e: KeyboardEvent) => {
@@ -216,6 +236,29 @@ const VaultDetail = () => {
             </VaultMetaRow>
 
             <ChartsBody>
+              {hasPosition ? (
+                <ChartSection>
+                  <ChartHeader>
+                    <ChartTitle>{t`Earning in USD`}</ChartTitle>
+                    <PeriodTabs>
+                      {PERIOD_OPTIONS.map(period => (
+                        <PeriodTab
+                          key={period}
+                          type="button"
+                          $active={earningPeriod === period}
+                          onClick={() => setEarningPeriod(period)}
+                        >
+                          {period}
+                        </PeriodTab>
+                      ))}
+                    </PeriodTabs>
+                  </ChartHeader>
+                  <ChartBox key={`earning-${earningPeriod}`}>
+                    <EarningLineChart data={earningSeries} height={chartHeight} />
+                  </ChartBox>
+                </ChartSection>
+              ) : null}
+
               <ChartSection>
                 <ChartHeader>
                   <div className="flex min-w-0 flex-col gap-0.5">

@@ -230,6 +230,32 @@ export interface VaultWithdrawalRequestsResponse {
   source: VaultWithdrawalRequestsSource
 }
 
+/** One bucket of a position's growth series; carries the same envelope as every other figure. */
+export interface VaultGrowthPoint extends VaultFinancialValue {
+  timestamp: string | null
+}
+
+/**
+ * A position's own history. Buckets before the wallet held anything come back unavailable rather
+ * than as zero, and the figure is marked to NAV, so it can be negative.
+ */
+export interface VaultGrowthHistory {
+  /** Which figure the series plots, e.g. `holdingPeriodReturnUsd`. */
+  metric: string
+  currency: string
+  methodology: string
+  interval: string
+  stepSeconds: number
+  windowStart: string | null
+  windowEnd: string | null
+  /** When the position's accounting starts; everything before it is outside coverage. */
+  accountingOrigin: string | null
+  coverageStart: string | null
+  coverageEnd: string | null
+  current: VaultGrowthPoint
+  points: VaultGrowthPoint[]
+}
+
 /** Cumulative yield in underlying-token units. Its USD equivalent is available separately. */
 export interface VaultEarnings {
   amount: string | null
@@ -375,6 +401,16 @@ const vaultApi = earnServiceApi.injectEndpoints({
       }),
       transformResponse: (response: ApiEnvelope<VaultPositionItem>) => response.data,
     }),
+    vaultPositionGrowthHistory: builder.query<
+      VaultGrowthHistory,
+      { chainId: number; userAddress: string; vaultId: string; interval: VaultInterval }
+    >({
+      query: ({ chainId, userAddress, vaultId, interval }) => ({
+        url: `/v1/vault-positions/${chainId}/${userAddress}/${vaultId}/growth-history`,
+        params: { interval },
+      }),
+      transformResponse: (response: ApiEnvelope<VaultGrowthHistory>) => response.data,
+    }),
     vaultWithdrawalRequests: builder.query<
       VaultWithdrawalRequestsResponse,
       { chainId: number; userAddress: string; vaultId: string; pageSize?: number }
@@ -390,6 +426,7 @@ const vaultApi = earnServiceApi.injectEndpoints({
 
 export const {
   useVaultListQuery,
+  useVaultPositionGrowthHistoryQuery,
   useVaultDetailQuery,
   useVaultMetricsQuery,
   useVaultSupportedAssetsQuery,

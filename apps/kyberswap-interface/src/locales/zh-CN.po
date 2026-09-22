@@ -9972,6 +9972,10 @@ msgstr "您的奖励"
 msgid "Chain under maintenance. We will be back as soon as possible."
 msgstr "链维护中，我们将尽快恢复"
 
+#: src/pages/Earns/VaultDetail/index.tsx
+msgid "Earning in USD"
+msgstr ""
+
 #: src/components/ErrorBoundary/FallbackView.tsx
 msgid "Oops! Something went wrong"
 msgstr "糟糕，出错了"

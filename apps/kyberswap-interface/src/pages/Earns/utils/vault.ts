@@ -5,6 +5,7 @@ import {
   VaultApiMetrics,
   VaultCanonicalPoint,
   VaultFinancialValue,
+  VaultGrowthHistory,
   VaultPositionItem,
   VaultQueueFamily,
   VaultSupportedAsset,
@@ -39,6 +40,24 @@ export const toChartSeries = (
   metrics: VaultApiMetrics | undefined,
   pick: (point: VaultCanonicalPoint) => VaultFinancialValue,
 ): ChartDataPoint[] => toChartPoints(metrics?.canonicalMetrics?.points, pick)
+
+/**
+ * A position's growth series as chart points. A bucket the API could not value stays a gap rather
+ * than becoming a zero — the series is marked to NAV and can be negative, so a zero is a real value
+ * here, not an absence.
+ *
+ * The window always spans the whole interval, however young the position is, so the buckets before
+ * it existed are dropped: a month-long window on a week-old position would otherwise be mostly empty
+ * space. Only the run at the front goes; a gap later on is a gap in the data and stays visible.
+ */
+export const toGrowthSeries = (history?: VaultGrowthHistory): ChartDataPoint[] => {
+  const points = (history?.points || []).map(point => ({
+    value: financialNumber(point) ?? null,
+    timestamp: point.timestamp ?? undefined,
+  }))
+  const firstValued = points.findIndex(point => point.value !== null)
+  return firstValued > 0 ? points.slice(firstValued) : points
+}
 
 const toEpochSeconds = (iso?: string | null): number | undefined => {
   if (!iso) return undefined

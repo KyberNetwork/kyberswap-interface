@@ -9972,6 +9972,10 @@ msgstr "Your Reward"
 msgid "Chain under maintenance. We will be back as soon as possible."
 msgstr "Chain under maintenance. We will be back as soon as possible."
 
+#: src/pages/Earns/VaultDetail/index.tsx
+msgid "Earning in USD"
+msgstr "Earning in USD"
+
 #: src/components/ErrorBoundary/FallbackView.tsx
 msgid "Oops! Something went wrong"
 msgstr "Oops! Something went wrong"

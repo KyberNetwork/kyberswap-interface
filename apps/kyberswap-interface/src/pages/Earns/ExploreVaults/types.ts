@@ -1,6 +1,8 @@
 export interface ChartDataPoint {
   /** Null for a bucket the API could not value: the chart leaves a gap rather than drawing zero. */
   value: number | null
+  /** RFC3339, when the series carries one — a tooltip that names its bucket needs it. */
+  timestamp?: string
 }
 
 export enum VaultSortBy {
