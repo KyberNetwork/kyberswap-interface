@@ -26,10 +26,7 @@ import {
 } from 'pages/CopyTrading/modals/ManagePositionModal/positionSellFlow'
 import PreparedActionModal, { PreparedActionSuccessActions } from 'pages/CopyTrading/modals/PreparedActionModal'
 import { DEFAULT_PREPARED_ACTION_SLIPPAGE } from 'pages/CopyTrading/modals/PreparedActionModal/SlippageControl'
-import {
-  DEFAULT_PREPARED_ACTION_STATE,
-  getApiErrorMessage,
-} from 'pages/CopyTrading/modals/PreparedActionModal/preparedAction'
+import { getApiErrorMessage } from 'pages/CopyTrading/modals/PreparedActionModal/preparedAction'
 import { usePreparedAction } from 'pages/CopyTrading/modals/PreparedActionModal/usePreparedAction'
 import { getWritePrimaryActionLabel, isWritePrimaryActionDisabled } from 'pages/CopyTrading/modals/writeAction'
 import { useWalletModalToggle } from 'state/application/hooks'
@@ -60,7 +57,6 @@ const ManagePositionModal = ({
   const [prepareClosePosition] = preparedActionApi.usePrepareClosePositionMutation()
   const [getObligations] = copyAccountApi.useLazyGetPendingSellObligationsQuery()
 
-  const [flowState, setFlowState] = useState(DEFAULT_PREPARED_ACTION_STATE)
   const [obligations, setObligations] = useState<PendingSellObligation[]>()
   const [obligationsError, setObligationsError] = useState<string>()
   const [slippage, setSlippage] = useState(DEFAULT_PREPARED_ACTION_SLIPPAGE)
@@ -167,9 +163,7 @@ const ManagePositionModal = ({
   }
 
   const flow = usePreparedAction({
-    state: flowState,
-    setState: setFlowState,
-    expected: {
+    getExpected: () => ({
       account: account || '',
       callKinds: preparationConfig.callKinds,
       chainId: position.chainId,
@@ -177,9 +171,10 @@ const ManagePositionModal = ({
       generationId,
       positionSellContext: flowConfig.sellContext,
       preview: preparationConfig.preview,
-    },
+    }),
     prepare: preparePositionSell,
   })
+  const { state: flowState } = flow
 
   const dismiss = () => {
     flow.reset()

@@ -5,8 +5,6 @@ import {
   type PreparedActionExpectation,
   type PreparedActionStateSetter,
   getApiErrorMessage,
-  invalidatePreparationRequests,
-  isCurrentPreparationRequest,
   isPreparationExpiredError,
   validatePreparedAction,
   validatePreparedGeneration,
@@ -20,8 +18,9 @@ export type PreparationRequestOptions = {
 }
 
 type RequestPreparationProps = {
-  expected: PreparedActionExpectation
-  finish: (action: PreparedAction, preparationVersion: number) => void
+  getExpected: () => PreparedActionExpectation
+  isCurrent: () => boolean
+  finish: (action: PreparedAction) => void
   prepare: () => Promise<PreparedAction>
   reviewUnavailable?: (action: PreparedAction) => boolean
   onPrepared?: (action: PreparedAction) => void
@@ -29,11 +28,9 @@ type RequestPreparationProps = {
 }
 
 export const requestPreparation = async (
-  { expected, finish, prepare, reviewUnavailable, onPrepared, setState }: RequestPreparationProps,
+  { getExpected, isCurrent, finish, prepare, reviewUnavailable, onPrepared, setState }: RequestPreparationProps,
   { delay = 0, onReady, phaseWhilePreparing }: PreparationRequestOptions = {},
 ) => {
-  const preparationVersion = invalidatePreparationRequests(setState)
-  const isCurrent = () => isCurrentPreparationRequest(setState, preparationVersion)
   const failValidation = (action: PreparedAction, error?: string) => {
     if (!error) return false
 
@@ -64,6 +61,7 @@ export const requestPreparation = async (
   }
   if (!isCurrent()) return
 
+  const expected = getExpected()
   if (failValidation(action, validatePreparedGeneration(action, expected))) return
 
   const executable =
@@ -100,7 +98,7 @@ export const requestPreparation = async (
   }
 
   if (action.status === 'PREPARED_ACTION_STATUS_COMPLETED') {
-    finish(action, preparationVersion)
+    finish(action)
     return
   }
 

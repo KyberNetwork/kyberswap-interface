@@ -6,10 +6,7 @@ import type { PreparedCallKind } from 'services/copyTrading/types/preparedAction
 
 import { useActiveWeb3React } from 'hooks'
 import { useCurrencyV2 } from 'hooks/useTokens'
-import {
-  DEFAULT_PREPARED_ACTION_STATE,
-  parsePreparedAmount,
-} from 'pages/CopyTrading/modals/PreparedActionModal/preparedAction'
+import { parsePreparedAmount } from 'pages/CopyTrading/modals/PreparedActionModal/preparedAction'
 import { usePreparedAction } from 'pages/CopyTrading/modals/PreparedActionModal/usePreparedAction'
 import type { WithdrawalInventory } from 'pages/CopyTrading/modals/WithdrawModal/useWithdrawalData'
 import {
@@ -35,7 +32,6 @@ export const useWithdrawQuote = ({ isOpen, copyRun, wallet }: WithdrawQuoteParam
   const { account } = useActiveWeb3React()
   const [prepareWithdrawQuote] = preparedActionApi.usePrepareWithdrawQuoteMutation()
 
-  const [flowState, setFlowState] = useState(DEFAULT_PREPARED_ACTION_STATE)
   const [amount, setAmount] = useState('')
   const [withdrawAll, setWithdrawAll] = useState(false)
   const amountInitialized = useRef(false)
@@ -104,16 +100,14 @@ export const useWithdrawQuote = ({ isOpen, copyRun, wallet }: WithdrawQuoteParam
       : undefined
 
   const flow = usePreparedAction({
-    state: flowState,
-    setState: setFlowState,
-    expected: {
+    getExpected: () => ({
       account: account || '',
       callKinds: WITHDRAW_CALL_KINDS,
       chainId: copyRun.chainId,
       copyAccount: copyRun.copyAccount,
       generationId: copyRun.generationId,
       preview: 'withdrawQuote',
-    },
+    }),
     prepare: async () => {
       if (!account) throw new Error('Connect your wallet first.')
       if (ownershipMessage) throw new Error(ownershipMessage)
@@ -135,6 +129,7 @@ export const useWithdrawQuote = ({ isOpen, copyRun, wallet }: WithdrawQuoteParam
       return response.data
     },
   })
+  const { state: flowState } = flow
 
   const setPresetAmount = (percentage: 50 | 100) => {
     if (flowState.isPreparing || !presetsEnabled || !walletBalanceRaw || !quoteToken) return

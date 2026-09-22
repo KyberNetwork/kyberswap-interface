@@ -10,7 +10,6 @@ vi.mock('react', () => ({
     const index = hooks.index++
     return hooks.refs[index] || (hooks.refs[index] = { current: value })
   },
-  useState: () => [undefined, vi.fn()],
 }))
 const agent = { agentId: 'agent', chainId: 8453 } as AgentCard
 const account = '0x1111111111111111111111111111111111111111'
@@ -25,6 +24,17 @@ beforeEach(() => {
 })
 
 describe('Start generation attempt identity', () => {
+  it('returns independent validation snapshots when authorization changes the attempt', () => {
+    const flow = StartCopyAttemptHarness()
+    flow.getScopedStartAttempt(account, '100', 'original')
+    const before = flow.getExpected()
+    const authorized = flow.createAuthorizedAttempt({ ownerAddress: account, targetRaw: '100' })
+
+    expect(flow.getExpected().startCopyRequestId).toBe(authorized.requestId)
+    expect(before.startCopyRequestId).not.toBe(authorized.requestId)
+    expect(flow.getExpected().generationId).toBe(before.generationId)
+  })
+
   it('keeps request ID, generation and permit through retries and funding requests', async () => {
     const flow = StartCopyAttemptHarness()
     flow.getScopedStartAttempt(account, '100', 'original')
@@ -33,9 +43,9 @@ describe('Start generation attempt identity', () => {
       targetRaw: '100',
       createPermitData: 'permit',
     })
-    await flow.requestStartCopy(attempt, account, '100')
+    await flow.requestStartCopy(attempt)
     const retry = StartCopyAttemptHarness()
-    await retry.requestStartCopy(retry.getScopedStartAttempt(account, '100', 'original'), account, '100')
+    await retry.requestStartCopy(retry.getScopedStartAttempt(account, '100', 'original'))
     expect(prepare.mock.calls[0]).toEqual(prepare.mock.calls[1])
     expect(prepare.mock.calls[0][0]).toMatchObject({
       generationId: 'original',
@@ -86,7 +96,7 @@ describe('Start preparation identity', () => {
   it('accepts a matching unavailable response without pinning its account', () => {
     const { flow, action } = authorizedPreparation()
     expect(() => flow.acceptPreparation(action)).not.toThrow()
-    expect(flow.expected.startCopyPredictedAccount).toBeUndefined()
+    expect(flow.getExpected().startCopyPredictedAccount).toBeUndefined()
   })
 
   it.each([
@@ -103,7 +113,7 @@ describe('Start preparation identity', () => {
         startCopy: { ...action.startCopy, ...override.startCopy },
       }),
     ).toThrow(/does not match/)
-    expect(flow.expected.startCopyPredictedAccount).toBeUndefined()
+    expect(flow.getExpected().startCopyPredictedAccount).toBeUndefined()
   })
 
   it('does not pin an account from the initial allowance diagnostic', () => {
@@ -112,9 +122,9 @@ describe('Start preparation identity', () => {
     flow.acceptPreparation({
       ...action,
       reason: 'PREPARED_ACTION_REASON_INSUFFICIENT_QUOTE_ALLOWANCE',
-      startCopy: { ...action.startCopy, startRequestId: flow.attemptRef.current.requestId },
+      startCopy: { ...action.startCopy, startRequestId: flow.getExpected().startCopyRequestId },
     })
-    expect(flow.expected.startCopyPredictedAccount).toBeUndefined()
+    expect(flow.getExpected().startCopyPredictedAccount).toBeUndefined()
   })
 
   it('pins the validated ready account and rejects a later account change', () => {
@@ -126,9 +136,16 @@ describe('Start preparation identity', () => {
       call: { kind: 'PREPARED_CALL_KIND_START_COPY_CREATE', to: predictedCopyAccount, data: '0x', valueRaw: '0' },
     }
     flow.acceptPreparation(ready)
-    expect(flow.expected.startCopyPredictedAccount).toBe(predictedCopyAccount)
+    expect(flow.getExpected().startCopyPredictedAccount).toBe(predictedCopyAccount)
+    expect(StartCopyAttemptHarness().getExpected().startCopyPredictedAccount).toBe(predictedCopyAccount)
     expect(() =>
       flow.acceptPreparation({ ...ready, startCopy: { ...ready.startCopy, predictedCopyAccount: account } }),
     ).toThrow('Smart Wallet changed')
+
+    flow.resetAttemptState()
+    const reset = StartCopyAttemptHarness()
+    expect(reset.getExpected().startCopyPredictedAccount).toBeUndefined()
+    expect(reset.getExpected().generationId).toBeUndefined()
+    expect(reset.hasAuthorization()).toBe(false)
   })
 })

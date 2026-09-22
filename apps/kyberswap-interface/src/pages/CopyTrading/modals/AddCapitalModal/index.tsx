@@ -1,5 +1,4 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import preparedActionApi from 'services/copyTrading/api/endpoints/preparedActions'
 import type { CopyRunListItem } from 'services/copyTrading/types/copyRuns'
@@ -13,7 +12,6 @@ import { AddCapitalForm } from 'pages/CopyTrading/modals/AddCapitalModal/compone
 import { type CapitalPercentage } from 'pages/CopyTrading/modals/CapitalAmount/capital'
 import { useCapitalAmount } from 'pages/CopyTrading/modals/CapitalAmount/useCapitalAmount'
 import PreparedActionModal, { PreparedActionSuccessActions } from 'pages/CopyTrading/modals/PreparedActionModal'
-import { DEFAULT_PREPARED_ACTION_STATE } from 'pages/CopyTrading/modals/PreparedActionModal/preparedAction'
 import { usePreparedAction } from 'pages/CopyTrading/modals/PreparedActionModal/usePreparedAction'
 import {
   getCopyRunOwnershipMessage,
@@ -38,7 +36,6 @@ const AddCapitalModal = ({ isOpen, onDismiss, copyRun }: AddCapitalModalProps) =
   const toggleWalletModal = useWalletModalToggle()
   const [prepareAddCapital] = preparedActionApi.usePrepareAddCapitalMutation()
 
-  const [flowState, setFlowState] = useState(DEFAULT_PREPARED_ACTION_STATE)
   const capital = useCapitalAmount({
     account: account || undefined,
     action: 'addCapital',
@@ -61,16 +58,14 @@ const AddCapitalModal = ({ isOpen, onDismiss, copyRun }: AddCapitalModalProps) =
   }
 
   const flow = usePreparedAction({
-    state: flowState,
-    setState: setFlowState,
-    expected: {
+    getExpected: () => ({
       account: account || '',
       callKinds: ADD_CAPITAL_CALL_KINDS,
       chainId: copyRun.chainId,
       copyAccount: copyRun.copyAccount,
       generationId: copyRun.generationId,
       preview: 'addCapital',
-    },
+    }),
     prepare: async () => {
       if (!account || !capital.quoteToken) throw new Error('Connect a supported wallet and network first.')
       if (ownershipMessage) throw new Error(ownershipMessage)
@@ -97,6 +92,7 @@ const AddCapitalModal = ({ isOpen, onDismiss, copyRun }: AddCapitalModalProps) =
       return response.data
     },
   })
+  const { state: flowState } = flow
 
   const dismiss = () => {
     flow.reset()

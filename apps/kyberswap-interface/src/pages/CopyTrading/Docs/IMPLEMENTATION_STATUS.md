@@ -1,6 +1,6 @@
 # Copy Trading Implementation Status
 
-Last reviewed: 2026-09-17
+Last reviewed: 2026-09-22
 
 This file is the frontend snapshot for the current Copy Trading implementation.
 It records only current ownership, accepted product decisions, remaining gaps,
@@ -137,7 +137,9 @@ them unless product explicitly approves a UI change:
 
 - One owner can have at most one active Copy Run per Agent.
 - Leaderboard copied state comes from the current owner's selected-chain Open
-  Copy Runs sorted by startedAt descending.
+  Copy Runs sorted by startedAt descending. The lookup currently reads only
+  the first 100 runs; active copies beyond that page may show Copy instead of
+  My Copy. Complete lookup is deferred pending an API update.
 - Agent Profile requests the Agent-filtered Open Copy Runs using startedAt
   descending and limit=1.
 - The latest run produces My Copy only when its status is ACTIVE. Any other
@@ -253,10 +255,16 @@ Cross-flow decisions:
   change the current Prepared Action UI.
 - Preparation is authoritative for owner, chain, Smart Wallet, preview, call
   kind, target, value, amount, and expiry.
+- Executable preparations must include statusContext with an expectedOwner
+  matching the prepared sender before review or wallet submission.
 - Wallet submission uses call.to, call.data, and call.valueRaw unchanged.
 - [usePreparedAction](/Users/neikop/Workings/Kyber/kyberswap-interface/apps/kyberswap-interface/src/pages/CopyTrading/modals/PreparedActionModal/usePreparedAction.ts) owns preparation response handling, wallet submission, RPC
   receipt waiting, actions:status polling, refresh milestones, and retry for all
   seven actions. Action hooks own their request inputs and domain-specific checks.
+- The shared hook owns flow state and its preparation request version. Consumers
+  use prepare, confirm, retry, reset and fail rather than passing state setters.
+- Start Copy keeps request ID, generation, authorization and predicted account
+  in one attempt; getExpected derives an independent validation snapshot.
 - Start's post-authorization request uses the same preparation handler as its
   initial request. Shared validation runs before capturing the predicted account;
   READY returns to Review without submission, PENDING/UNAVAILABLE use existing
@@ -311,6 +319,8 @@ Cross-flow decisions:
 
 - Stop Copy fetches its open positions once when Step 1 opens. It does not
   refetch them immediately before preparation.
+- Loading blocks preparation until the full positions request completes,
+  including when the Copy Run snapshot reports zero open positions.
 - Empty position selection is valid. More than 32 selected positions is invalid.
 - Incomplete cursor data blocks preparation rather than presenting a partial
   list.
@@ -390,6 +400,10 @@ Cross-flow decisions:
 Product flows are implemented. Remaining maintenance, validation and product
 work:
 
+- TODO (2026-09-22): Update the Leaderboard copied-state lookup when the API
+  supports complete ownership lookup beyond the first 100 Open Copy Runs.
+  Keep the current implementation while waiting; client-side cursor traversal
+  is not planned for this follow-up.
 - Controlled positive E2E for All Tokens withdrawal on active and stopped runs,
   including repeated independent withdrawals, zero balances, expiry, and
   post-receipt submitted-status convergence.
@@ -411,9 +425,11 @@ from the frontend.
 
 ## Verification Snapshot
 
-Latest completed static checks (2026-09-17): app TypeScript, Copy Trading ESLint,
-`git diff --check`, and **156 tests across 16 files** passed. This is not browser
-or live transaction evidence.
+Latest completed static checks (2026-09-22): app TypeScript, Copy Trading ESLint,
+`git diff --check`, and **169 tests across 16 files** passed. Regression coverage
+includes status-context validation, explicit reset during preparation, and Start
+attempt snapshots and identity across renders.
+This is not browser or live transaction evidence.
 
 Run from `apps/kyberswap-interface` after logic changes:
 

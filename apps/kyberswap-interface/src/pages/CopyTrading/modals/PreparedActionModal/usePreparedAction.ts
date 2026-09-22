@@ -1,4 +1,5 @@
 import { getPublicClient } from '@wagmi/core'
+import { useRef, useState } from 'react'
 import preparedActionApi from 'services/copyTrading/api/endpoints/preparedActions'
 import type { SubmittedActionStatusData } from 'services/copyTrading/types/actionStatus'
 import type { PreparedAction } from 'services/copyTrading/types/preparedActions'
@@ -12,12 +13,8 @@ import {
 import {
   DEFAULT_PREPARED_ACTION_STATE,
   type PreparedActionExpectation,
-  type PreparedActionFlowState,
-  type PreparedActionStateSetter,
   getApiErrorMessage,
   getReprepareDelay,
-  invalidatePreparationRequests,
-  isCurrentPreparationRequest,
   isPreparationExpiredError,
   validatePreparedAction,
 } from 'pages/CopyTrading/modals/PreparedActionModal/preparedAction'
@@ -30,9 +27,7 @@ import type { Hash, Hex, Address as ViemAddress } from 'utils/viem'
 import { getGatedWalletClient } from 'utils/walletClient'
 
 type UsePreparedActionProps = {
-  state: PreparedActionFlowState
-  setState: PreparedActionStateSetter
-  expected: PreparedActionExpectation
+  getExpected: () => PreparedActionExpectation
   prepare: () => Promise<PreparedAction>
   reviewUnavailable?: (action: PreparedAction) => boolean
   onPrepared?: (action: PreparedAction) => void
@@ -43,15 +38,15 @@ type UsePreparedActionProps = {
 }
 
 export const usePreparedAction = ({
-  state,
-  setState,
-  expected,
+  getExpected,
   prepare,
   reviewUnavailable,
   onPrepared,
   onSubmittedSuccess,
 }: UsePreparedActionProps) => {
-  const validateGenerationPolicy = useGenerationPolicy(expected.preview)
+  const [state, setState] = useState(DEFAULT_PREPARED_ACTION_STATE)
+  const preparationVersion = useRef(0)
+  const validateGenerationPolicy = useGenerationPolicy(getExpected().preview)
   const [getStatus] = preparedActionApi.useGetSubmittedActionStatusMutation()
   const refreshCopyTrading = useRefreshCopyTrading()
   const refresh = () => {
@@ -60,18 +55,17 @@ export const usePreparedAction = ({
     } catch {}
   }
 
-  const finishPreparation = (action: PreparedAction, preparationVersion: number) => {
-    if (!isCurrentPreparationRequest(setState, preparationVersion)) return
-    refresh()
-    if (!isCurrentPreparationRequest(setState, preparationVersion)) return
-    setState({ phase: 'success', action })
-  }
-
-  const requestPreparedAction = (options?: PreparationRequestOptions, prepareAction = prepare) =>
-    requestPreparation(
+  const requestPreparedAction = (options?: PreparationRequestOptions, prepareAction = prepare) => {
+    const version = ++preparationVersion.current
+    const isCurrent = () => version === preparationVersion.current
+    return requestPreparation(
       {
-        expected,
-        finish: finishPreparation,
+        getExpected,
+        isCurrent,
+        finish: action => {
+          refresh()
+          if (isCurrent()) setState({ phase: 'success', action })
+        },
         prepare: async () => {
           const action = await prepareAction()
           if (
@@ -88,6 +82,7 @@ export const usePreparedAction = ({
       },
       options,
     )
+  }
 
   const syncSubmittedAction = async (action: PreparedAction, hash: Hash) => {
     setState({ phase: 'syncing', action, hash })
@@ -111,7 +106,7 @@ export const usePreparedAction = ({
   }
 
   const confirmPreparedAction = async (preparedAction?: PreparedAction) => {
-    invalidatePreparationRequests(setState)
+    preparationVersion.current += 1
     const action = preparedAction || state.action
     const call = action?.call
     if (!action || !call?.to || !call.data) {
@@ -119,6 +114,7 @@ export const usePreparedAction = ({
       return
     }
 
+    const expected = getExpected()
     const validationError = validatePreparedAction(action, expected)
     if (validationError) {
       setState({
@@ -196,6 +192,7 @@ export const usePreparedAction = ({
   const prepareAndConfirm = () => requestPreparedAction({ onReady: confirmPreparedAction })
 
   const retryReceipt = async (action: PreparedAction, hash: Hash) => {
+    const expected = getExpected()
     setState({ phase: 'confirming', action, hash })
 
     try {
@@ -247,11 +244,17 @@ export const usePreparedAction = ({
   const retryAndConfirm = () => retryPreparedAction(confirmPreparedAction)
 
   const reset = () => {
-    invalidatePreparationRequests(setState)
+    preparationVersion.current += 1
     setState(DEFAULT_PREPARED_ACTION_STATE)
   }
 
+  const fail = (error: unknown, action = state.action) => {
+    setState({ phase: 'error', action, error: getApiErrorMessage(error) })
+  }
+
   return {
+    state,
+    fail,
     confirm,
     prepare: (prepareAction = prepare) => requestPreparedAction(undefined, prepareAction),
     prepareAndConfirm,

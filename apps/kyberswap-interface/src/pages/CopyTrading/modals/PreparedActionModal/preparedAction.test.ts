@@ -51,6 +51,7 @@ const confirmingAction = (overrides: Partial<PreparedAction> = {}): PreparedActi
 const readyAction: PreparedAction = {
   generationId,
   displayEnrichment,
+  statusContext: { expectedOwner: account },
   status: 'PREPARED_ACTION_STATUS_READY',
   chainId: '8453',
   expectedAccount: account,
@@ -72,6 +73,7 @@ const readyAction: PreparedAction = {
 const closeAction: PreparedAction = {
   generationId,
   displayEnrichment,
+  statusContext: { expectedOwner: account },
   status: 'PREPARED_ACTION_STATUS_READY',
   chainId: '8453',
   expectedAccount: account,
@@ -112,6 +114,16 @@ const unsafeConfirmingCases: Array<{ name: string; overrides: Partial<PreparedAc
 ]
 
 describe('validatePreparedAction', () => {
+  it('accepts status context owner addresses regardless of casing', () => {
+    const owner = '0xabcdefabcdefabcdefabcdefabcdefabcdefabcd'
+    expect(
+      validatePreparedAction(
+        { ...readyAction, expectedAccount: owner, statusContext: { expectedOwner: owner.toUpperCase() } },
+        { ...expected, account: owner },
+      ),
+    ).toBeUndefined()
+  })
+
   it('rejects a preparation without a generation identity', () => {
     expect(validatePreparedAction(confirmingAction({ generationId: '' }), expected, { requireCall: false })).toBe(
       'The preparation is missing its contract generation.',
@@ -284,6 +296,7 @@ it('keeps All Tokens distinct from quote withdrawal even when display enrichment
   const action: PreparedAction = {
     generationId,
     status: 'PREPARED_ACTION_STATUS_READY',
+    statusContext: { expectedOwner: account },
     expectedAccount: account,
     chainId: '8453',
     copyAccount,
