@@ -1,6 +1,7 @@
 import type { PropsWithChildren } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { RouterProvider, createMemoryRouter, useParams } from 'react-router-dom'
+import type { Chain } from 'services/copyTrading/types/agents'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { useCopyTradingContext } from './context'
@@ -8,9 +9,7 @@ import { useCopyTradingRoutes } from './hooks/useCopyTradingRoutes'
 import CopyTrading from './index'
 
 const discovery = vi.hoisted(() => ({
-  data: undefined as
-    | undefined
-    | { data: Array<{ chainId: number; slug: string; name: string; iconUrl: string; isEnabled: boolean }> },
+  data: undefined as undefined | { data: Chain[] },
   isFetching: false,
   refetch: vi.fn(),
 }))
@@ -55,8 +54,22 @@ beforeEach(() => {
   vi.stubGlobal('window', { location: { origin: 'https://example.test' } })
   discovery.data = {
     data: [
-      { chainId: 1, slug: 'ethereum', name: 'Ethereum', iconUrl: '', isEnabled: true },
-      { chainId: 8453, slug: 'base', name: 'Base', iconUrl: '', isEnabled: true },
+      {
+        chainId: 1,
+        slug: 'ethereum',
+        name: 'Ethereum',
+        iconUrl: '',
+        isEnabled: true,
+        quoteToken: { chainId: 1, address: '0x1111111111111111111111111111111111111111', decimals: 6 },
+      },
+      {
+        chainId: 8453,
+        slug: 'base',
+        name: 'Base',
+        iconUrl: '',
+        isEnabled: true,
+        quoteToken: { chainId: 8453, address: '0x2222222222222222222222222222222222222222', decimals: 6 },
+      },
     ],
   }
   discovery.isFetching = false
@@ -95,6 +108,20 @@ describe('Copy Trading route boundary', () => {
     expect(render(router)).toContain('Loading chains')
     discovery.isFetching = false
     expect(render(router)).toContain('Read error')
+    router.dispose()
+  })
+
+  it.each([1, 8453])('handles missing quote token for chain %s at the outer boundary', chainId => {
+    const complete = discovery.data
+    if (!complete) throw new Error('Missing catalog fixture')
+    discovery.data = {
+      data: complete.data.map(chain => (chain.chainId === chainId ? { ...chain, quoteToken: undefined } : chain)),
+    }
+    const router = routerAt('/copy-trading/base/my-copies')
+    expect(render(router)).toContain('Read error')
+    expect(render(router)).not.toContain('8453:list')
+    discovery.data = complete
+    expect(render(router)).toContain('8453:list')
     router.dispose()
   })
 

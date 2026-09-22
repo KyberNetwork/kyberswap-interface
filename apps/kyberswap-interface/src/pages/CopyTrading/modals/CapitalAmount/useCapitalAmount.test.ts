@@ -1,14 +1,13 @@
-import type { Chain } from 'services/copyTrading/types/agents'
 import type { PreparedAction } from 'services/copyTrading/types/preparedActions'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import type { CopyTradingChain } from 'pages/CopyTrading/context'
 import { useCapitalAmount } from 'pages/CopyTrading/modals/CapitalAmount/useCapitalAmount'
 
 const harness = vi.hoisted(() => ({
   slots: [] as { current: unknown }[],
   index: 0,
-  chains: [] as Chain[],
-  refreshChains: vi.fn(),
+  chains: [] as CopyTradingChain[],
 }))
 vi.mock('react', () => ({
   useMemo: (getValue: () => unknown) => getValue(),
@@ -28,14 +27,21 @@ vi.mock('react', () => ({
   },
 }))
 vi.mock('pages/CopyTrading/context', () => ({
-  useCopyTradingContext: () => ({ chains: harness.chains, refreshChains: harness.refreshChains, chainsLoading: false }),
+  useCopyTradingContext: () => ({ chains: harness.chains }),
 }))
 vi.mock('hooks/useTokenBalance', () => ({
   default: () => ({ value: 100000000000000000000n, isLoading: false }),
 }))
 
 const token = { chainId: 8453, address: '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913', decimals: 6 } as const
-const chain: Chain = { chainId: 8453, name: 'Base', slug: 'base', iconUrl: '', isEnabled: true, quoteToken: token }
+const chain: CopyTradingChain = {
+  chainId: 8453,
+  name: 'Base',
+  slug: 'base',
+  iconUrl: '',
+  isEnabled: true,
+  quoteToken: token,
+}
 const CapitalAmountHarness = (targetChainId = 8453) => {
   harness.index = 0
   return useCapitalAmount({
@@ -58,7 +64,6 @@ const preparation = (preview: 'startCopy' | 'addCapital'): PreparedAction => ({
 beforeEach(() => {
   harness.slots = []
   harness.chains = [chain]
-  harness.refreshChains.mockClear()
 })
 
 describe('funding amount discovery and validation', () => {
@@ -88,33 +93,48 @@ describe('funding amount discovery and validation', () => {
     expect(CapitalAmountHarness().amountIsValid).toBe(true)
   })
 
-  it('leaves missing funding information unknown', () => {
-    harness.chains = [{ ...chain, quoteToken: undefined }]
+  it('rejects a stale preparation after the entered amount changes', () => {
     CapitalAmountHarness().setAmount('1.25')
-    expect(CapitalAmountHarness()).toMatchObject({ quoteToken: undefined, amountRaw: undefined, amountIsValid: false })
+    const form = CapitalAmountHarness()
+    form.setAmount('2')
+    CapitalAmountHarness()
+    expect(() => form.validatePreparation(preparation('startCopy'))).toThrow('Review the amount and prepare again.')
   })
 
-  it.each(['chain', 'address', 'decimals'] as const)(
-    'clears the amount and rejects old preparations after changing %s',
-    change => {
+  it.each([
+    'PREPARED_ACTION_STATUS_READY',
+    'PREPARED_ACTION_STATUS_PARTIALLY_COMPLETED',
+    'PREPARED_ACTION_STATUS_PENDING',
+    'PREPARED_ACTION_STATUS_COMPLETED',
+  ] as const)('rejects mismatched or missing Add Capital amounts for %s', status => {
+    CapitalAmountHarness().setAmount('1.25')
+    const form = CapitalAmountHarness()
+    const action = { ...preparation('addCapital'), status }
+    for (const addedCapitalRaw of ['2000000', undefined]) {
+      expect(() =>
+        form.validatePreparation({ ...action, addCapital: { ...action.addCapital, addedCapitalRaw } }),
+      ).toThrow('Review the amount and prepare again.')
+    }
+    expect(() => form.validatePreparation({ ...action, addCapital: undefined })).toThrow(
+      'Review the amount and prepare again.',
+    )
+  })
+
+  it.each(['PREPARED_ACTION_STATUS_PENDING', 'PREPARED_ACTION_STATUS_COMPLETED'] as const)(
+    'preserves %s funding results without requiring token metadata',
+    status => {
       CapitalAmountHarness().setAmount('1.25')
-      const oldForm = CapitalAmountHarness()
-      const nextChainId = change === 'chain' ? 56 : 8453
-      harness.chains = [
-        {
-          ...chain,
-          chainId: nextChainId,
-          quoteToken: {
-            ...token,
-            chainId: nextChainId,
-            address: change === 'address' ? '0x1111111111111111111111111111111111111111' : token.address,
-            decimals: change === 'decimals' ? 18 : 6,
-          },
-        },
-      ]
-      expect(CapitalAmountHarness(nextChainId)).toMatchObject({ amount: '', amountRaw: undefined })
-      expect(() => oldForm.validatePreparation(preparation('startCopy'))).toThrow('Funding token information changed')
-      expect(harness.refreshChains).toHaveBeenCalledOnce()
+      const form = CapitalAmountHarness()
+      for (const preview of ['startCopy', 'addCapital'] as const) {
+        const action = preparation(preview)
+        const result = { ...action, status, [preview]: { ...action[preview], quoteToken: undefined } }
+        expect(form.validatePreparation(result)).toBe(result)
+        form.setAmount('2')
+        CapitalAmountHarness()
+        expect(() => form.validatePreparation(result)).toThrow('Review the amount and prepare again.')
+        form.setAmount('1.25')
+        CapitalAmountHarness()
+      }
     },
   )
 

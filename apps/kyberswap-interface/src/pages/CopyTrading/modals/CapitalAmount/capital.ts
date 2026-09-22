@@ -9,22 +9,10 @@ export const CAPITAL_PERCENTAGES = [25, 50, 75, 100] as const
 
 export type CapitalPercentage = (typeof CAPITAL_PERCENTAGES)[number]
 
-export type CapitalPreset = {
-  amount: string
-  percentage: CapitalPercentage
-}
-
-export const getFundingTokenKey = (chainId: number, token?: QuoteToken) =>
-  `${chainId}:${token?.address.toLowerCase() || ''}:${token?.decimals ?? ''}`
-
 export const FUNDING_TOKEN_CHANGED = 'Funding token information changed. Review the amount and prepare again.'
 
-export const resolveFundingToken = (
-  prepared: PreparedToken | undefined,
-  discovered: QuoteToken | undefined,
-): QuoteToken => {
+export const resolveFundingToken = (prepared: PreparedToken | undefined, discovered: QuoteToken): QuoteToken => {
   if (
-    !discovered ||
     prepared?.chainId !== discovered.chainId ||
     prepared?.address?.toLowerCase() !== discovered.address.toLowerCase() ||
     (prepared.decimals !== undefined && prepared.decimals !== discovered.decimals)

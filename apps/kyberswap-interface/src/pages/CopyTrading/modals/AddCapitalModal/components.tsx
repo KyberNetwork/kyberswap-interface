@@ -26,9 +26,7 @@ type AddCapitalFormProps = {
   presetsEnabled: boolean
   primaryActionDisabled: boolean
   primaryActionLabel: string
-  quoteCurrency?: Token
-  onRetryToken: () => unknown
-  tokenLoading: boolean
+  quoteCurrency: Token
   selectedChainId: number
   walletBalanceLoading?: boolean
   walletBalanceText: string
@@ -49,8 +47,6 @@ export const AddCapitalForm = ({
   primaryActionDisabled,
   primaryActionLabel,
   quoteCurrency,
-  onRetryToken,
-  tokenLoading,
   selectedChainId,
   walletBalanceLoading,
   walletBalanceText,
@@ -69,8 +65,6 @@ export const AddCapitalForm = ({
         onPercentageChange={onPercentageChange}
         presetsEnabled={presetsEnabled}
         quoteCurrency={quoteCurrency}
-        onRetryToken={onRetryToken}
-        tokenLoading={tokenLoading}
         selectedChainId={selectedChainId}
         walletBalanceLoading={walletBalanceLoading}
         walletBalanceText={walletBalanceText}

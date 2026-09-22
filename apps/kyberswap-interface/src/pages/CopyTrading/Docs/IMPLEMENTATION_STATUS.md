@@ -67,7 +67,10 @@ exist:
 - Canonical routes are `/copy-trading/{chainSlug}/...`; the slug comes from
   the shared chain catalog. URL resolution owns `selectedChainId`; context only
   exposes the resolved value, with no separate selection state or sync effect.
-- The route boundary waits for initial chain discovery before mounting pages.
+- The route boundary waits for initial chain discovery and requires validated
+  quote tokens for the catalog before mounting pages. Missing tokens use the
+  outer read-error surface. Context exposes a catalog with required quote tokens;
+  internal forms do not own missing-token loading or Retry controls.
   Cached catalog data remains usable during refetches and transient failures.
   Existing URLs remain selected if a chain becomes disabled; action eligibility
   still follows the current chain/agent generation policy.
@@ -337,18 +340,18 @@ Cross-flow decisions:
   and SDK currency construction. Funding token addresses and decimals come from the API.
 - Chain discovery is cached across navigation and modal opens, without background
   polling or mount refetches. Explicit retries and generation checks still refetch;
-  RTK Query retains the last response during pending or failed requests. Initial
-  token loading is distinct from unavailable discovery.
+  RTK Query retains the last response during pending or failed requests. The
+  feature boundary owns initial loading and invalid-catalog recovery.
   Start Copy and Add Capital temporarily require at least 1 funding token, with
   a TODO to change this frontend minimum to 0. Preparation remains authoritative
   for backend minimums and action availability.
-- Funding inputs can retry missing token discovery. Missing display metadata
+- Funding inputs receive a required quote token. Missing display metadata
   uses the token address and does not disable funding. Inputs reject excess
-  decimal precision and clear when the chain, token, or decimals change.
+  decimal precision. Quote-token identity is fixed per chain; route remounts own
+  chain-change resets, without token-change keys or effects inside funding forms.
 - Funding preparations and wallet submission validate the prepared token and
   amount against the current form. Matching discovery metadata fills omitted
-  preparation display fields/decimals; mismatches refresh discovery and require
-  amount review. Start attempt identity is retained during this check.
+  preparation display fields/decimals; mismatches require amount review. Start attempt identity is retained during this check.
 - Start Copy keeps authorization and Create as separate user actions.
 - Add Capital has no intermediate review.
 - Wallet balance loading is explicit. Preparation remains the final balance and
@@ -467,16 +470,18 @@ from the frontend.
 ## Verification Snapshot
 
 Latest completed static checks (2026-09-22): app TypeScript, Copy Trading ESLint,
-`git diff --check`, and **226 tests across 21 files** passed. Regression coverage
+`git diff --check`, and **231 tests across 21 files** passed. Regression coverage
 includes status-context validation, explicit reset during preparation, and Start
 attempt snapshots and identity across renders. Funding regressions cover chain
-token discovery, optional display metadata, exact decimal precision, token changes,
-and validation before wallet submission. Withdrawal inventory regressions verify
+token discovery, optional display metadata, exact decimal precision, amount changes,
+validation before wallet submission, and shared amount validation including
+pending/completed funding results. Withdrawal inventory regressions verify
 that chain token metadata remains available when the pinned balance is missing.
 Chain-query regression coverage checks cache reuse and retained token data during
 pending, failed, and successful refetches. Route regressions cover direct nested
 URLs, chain-aware links, navigation/Back/Forward, initial catalog loading, retained
-cache data, legacy URLs and detail-chain canonicalization.
+cache data, legacy URLs, detail-chain canonicalization, and missing-token handling
+at the outer boundary before mounting any feature pages.
 This is not browser or live transaction evidence.
 
 Run from `apps/kyberswap-interface` after logic changes:

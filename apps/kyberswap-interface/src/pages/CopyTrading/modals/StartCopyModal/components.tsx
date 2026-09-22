@@ -153,9 +153,7 @@ type StartCopyFormProps = {
   presetsEnabled: boolean
   primaryActionDisabled: boolean
   primaryActionLabel: string
-  quoteCurrency?: Token
-  onRetryToken: () => unknown
-  tokenLoading: boolean
+  quoteCurrency: Token
   walletBalanceLoading?: boolean
   walletBalanceText: string
 }
@@ -174,8 +172,6 @@ export const StartCopyForm = ({
   primaryActionDisabled,
   primaryActionLabel,
   quoteCurrency,
-  onRetryToken,
-  tokenLoading,
   walletBalanceLoading,
   walletBalanceText,
 }: StartCopyFormProps) => {
@@ -191,8 +187,6 @@ export const StartCopyForm = ({
         onPercentageChange={onPercentageChange}
         presetsEnabled={presetsEnabled}
         quoteCurrency={quoteCurrency}
-        onRetryToken={onRetryToken}
-        tokenLoading={tokenLoading}
         selectedChainId={agent.chainId}
         walletBalanceLoading={walletBalanceLoading}
         walletBalanceText={walletBalanceText}

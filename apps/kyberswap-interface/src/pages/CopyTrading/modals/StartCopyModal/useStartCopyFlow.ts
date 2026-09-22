@@ -1,5 +1,5 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { useEffect, useRef, useState } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import agentApi from 'services/copyTrading/api/endpoints/agents'
 import discoveryApi from 'services/copyTrading/api/endpoints/discovery'
@@ -56,7 +56,7 @@ export const useStartCopyFlow = ({ agent, onDismiss }: { agent: StartCopyTarget;
     getExpected: attempt.getExpected,
     validateBeforeSubmit: capital.validatePreparation,
     prepare: async () => {
-      if (!account || !capital.quoteToken) throw new Error('Connect a supported wallet and network first.')
+      if (!account) throw new Error('Connect a supported wallet and network first.')
       if (!capital.amountRaw) throw new Error('Enter an amount greater than zero.')
       if (capital.amountError) throw new Error(capital.amountError)
       const [chains, profile] = await Promise.all([
@@ -82,17 +82,7 @@ export const useStartCopyFlow = ({ agent, onDismiss }: { agent: StartCopyTarget;
       setCreatedCopyRunId(result.copyRunId)
     },
   })
-  const { state: flowState, reset: resetFlow } = flow
-  const previousTokenKey = useRef(capital.tokenKey)
-  useEffect(() => {
-    if (previousTokenKey.current === capital.tokenKey) return
-    previousTokenKey.current = capital.tokenKey
-    // Preserve observation once a transaction may have been submitted.
-    if (!flowState.hash && flowState.phase !== 'awaiting_signature' && flowState.phase !== 'confirming') {
-      resetFlow()
-      setAgreed(false)
-    }
-  }, [capital.tokenKey, flowState.hash, flowState.phase, resetFlow])
+  const { state: flowState } = flow
 
   const startPreview = flowState.action?.startCopy
   const authorizationKind = requiresStartCopyAuthorization(flowState.action)
@@ -105,7 +95,7 @@ export const useStartCopyFlow = ({ agent, onDismiss }: { agent: StartCopyTarget;
     requiredWalletBalanceRaw &&
     preparedWalletBalanceRaw &&
     BigInt(requiredWalletBalanceRaw) > BigInt(preparedWalletBalanceRaw)
-      ? 'Insufficient ' + (capital.quoteToken?.symbol || 'quote token') + ' balance.'
+      ? 'Insufficient ' + (capital.quoteToken.symbol || 'quote token') + ' balance.'
       : undefined
 
   const accountConnected = !!account
@@ -119,7 +109,7 @@ export const useStartCopyFlow = ({ agent, onDismiss }: { agent: StartCopyTarget;
     accountConnected,
     onExpectedChain: capital.onExpectedChain,
     readyLabel: 'Review Start Copy',
-    unavailable: !!availabilityMessage || !capital.quoteToken,
+    unavailable: !!availabilityMessage,
     unavailableLabel: 'Start Copy Unavailable',
   })
   const primaryActionDisabled = isWritePrimaryActionDisabled({
@@ -158,10 +148,10 @@ export const useStartCopyFlow = ({ agent, onDismiss }: { agent: StartCopyTarget;
   }
 
   const setPercentageAmount = (percentage: CapitalPercentage) => {
-    const preset = capital.getPreset(percentage)
-    if (flowState.isPreparing || !capital.presetsEnabled || !preset) return
+    const amount = capital.getPresetAmount(percentage)
+    if (flowState.isPreparing || !capital.presetsEnabled || amount === undefined) return
 
-    capital.setAmount(preset.amount)
+    capital.setAmount(amount)
     setAgreed(false)
   }
 
@@ -174,7 +164,7 @@ export const useStartCopyFlow = ({ agent, onDismiss }: { agent: StartCopyTarget;
       return
     }
 
-    if (!account || !capital.quoteToken || !capital.amountRaw) {
+    if (!account || !capital.amountRaw) {
       flow.fail(new Error('Connect a supported wallet and network first.'), diagnosticAction)
       return
     }

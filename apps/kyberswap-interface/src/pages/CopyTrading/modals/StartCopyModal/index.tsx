@@ -68,8 +68,6 @@ const StartCopyModal = ({ isOpen, onDismiss, agent }: StartCopyModalProps) => {
         primaryActionDisabled={flow.primaryActionDisabled}
         primaryActionLabel={flow.primaryActionLabel}
         quoteCurrency={flow.capital.quoteCurrency}
-        onRetryToken={flow.capital.refreshChains}
-        tokenLoading={flow.capital.chainsLoading}
         walletBalanceLoading={flow.capital.walletBalanceLoading}
         walletBalanceText={flow.capital.walletBalanceText}
       />

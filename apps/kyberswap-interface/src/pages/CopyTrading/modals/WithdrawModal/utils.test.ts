@@ -26,10 +26,10 @@ describe('withdraw quote request', () => {
   })
 
   it('validates the displayed amount against currency and Smart Wallet balance', () => {
-    const input = { amount: '2', amountRaw: '2', hasQuoteCurrency: true, walletBalanceRaw: '1', withdrawAll: false }
+    const input = { amount: '2', amountRaw: '2', walletBalanceRaw: '1', withdrawAll: false }
 
     expect(getWithdrawAmountError({ ...input, amount: '' })).toBeUndefined()
-    expect(getWithdrawAmountError({ ...input, hasQuoteCurrency: false })).toBe('Enter a valid quote-token amount.')
+    expect(getWithdrawAmountError({ ...input, amountRaw: undefined })).toBe('Enter a valid quote-token amount.')
     expect(getWithdrawAmountError(input)).toBe('The Smart Wallet does not have enough quote-token balance.')
     expect(getWithdrawAmountError({ ...input, withdrawAll: true })).toBeUndefined()
   })
