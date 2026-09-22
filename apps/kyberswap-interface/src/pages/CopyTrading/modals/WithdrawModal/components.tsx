@@ -63,7 +63,7 @@ export const WithdrawQuoteInput = ({
   onHalf: () => void
   onMax: () => void
   presetsEnabled: boolean
-  quoteCurrency?: Token
+  quoteCurrency: Token
   selectedChainId: number
   walletBalanceLoading: boolean
   walletBalanceText: string

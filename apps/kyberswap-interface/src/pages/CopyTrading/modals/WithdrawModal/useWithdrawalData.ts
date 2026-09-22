@@ -20,7 +20,7 @@ export const useWithdrawalInventory = (copyRun: CopyRunListItem, isOpen: boolean
   const pinned = inventory?.pinnedStableBalance
   const stable =
     pinned?.status === 'PINNED_STABLE_BALANCE_STATUS_PRESENT' &&
-    pinned.balance?.tokenAddress.toLowerCase() === quoteToken?.address.toLowerCase()
+    pinned.balance?.tokenAddress.toLowerCase() === quoteToken.address.toLowerCase()
       ? pinned.balance
       : undefined
   return { inventory, stable, quoteToken, quoteCurrency, loading: isFetching && !inventory }

@@ -38,7 +38,7 @@ export const useWithdrawQuote = ({ isOpen, copyRun, wallet }: WithdrawQuoteParam
   const availabilityMessage = getWriteAvailabilityMessage(copyRun.withdrawQuoteAvailability, ownershipMessage)
   const { quoteToken, quoteCurrency, stable: quoteBalance } = wallet
   const walletBalanceRaw = useMemo(() => {
-    if (!quoteBalance?.amountDecimal || !quoteToken) return undefined
+    if (!quoteBalance?.amountDecimal) return undefined
     try {
       return parseUnits(quoteBalance.amountDecimal, quoteToken.decimals).toString()
     } catch {
@@ -46,14 +46,13 @@ export const useWithdrawQuote = ({ isOpen, copyRun, wallet }: WithdrawQuoteParam
     }
   }, [quoteBalance?.amountDecimal, quoteToken])
   useEffect(() => {
-    if (!isOpen || amountInitialized.current || walletBalanceRaw === undefined || !quoteToken) return
+    if (!isOpen || amountInitialized.current || walletBalanceRaw === undefined) return
     amountInitialized.current = true
     setAmount(formatUnits(BigInt(walletBalanceRaw), quoteToken.decimals))
     setWithdrawAll(true)
   }, [isOpen, walletBalanceRaw, quoteToken])
 
   const amountRaw = useMemo(() => {
-    if (!quoteToken) return undefined
     try {
       return parsePreparedAmount(amount, quoteToken.decimals)
     } catch {
@@ -63,7 +62,6 @@ export const useWithdrawQuote = ({ isOpen, copyRun, wallet }: WithdrawQuoteParam
   const amountError = getWithdrawAmountError({
     amount,
     amountRaw,
-    hasQuoteCurrency: !!quoteCurrency,
     walletBalanceRaw,
     withdrawAll,
   })
@@ -73,11 +71,10 @@ export const useWithdrawQuote = ({ isOpen, copyRun, wallet }: WithdrawQuoteParam
     !amountError &&
     (!withdrawAll || (!!walletBalanceRaw && BigInt(walletBalanceRaw) > 0n))
   const requestAmountRaw = getWithdrawRequestAmountRaw(amountRaw, withdrawAll)
-  const presetsEnabled = !!walletBalanceRaw && BigInt(walletBalanceRaw) > 0n && !!quoteToken
-  const walletBalanceText =
-    walletBalanceRaw && quoteToken
-      ? formatDisplayNumber(formatUnits(BigInt(walletBalanceRaw), quoteToken.decimals), { significantDigits: 8 })
-      : '0'
+  const presetsEnabled = !!walletBalanceRaw && BigInt(walletBalanceRaw) > 0n
+  const walletBalanceText = walletBalanceRaw
+    ? formatDisplayNumber(formatUnits(BigInt(walletBalanceRaw), quoteToken.decimals), { significantDigits: 8 })
+    : '0'
 
   const amountNumber = Number(amount)
   const balanceNumber = Number(quoteBalance?.amountDecimal)
@@ -111,9 +108,7 @@ export const useWithdrawQuote = ({ isOpen, copyRun, wallet }: WithdrawQuoteParam
       if (response.data.status === 'PREPARED_ACTION_STATUS_READY') {
         const validationError = validateWithdrawPreview({
           amountRaw: requestAmountRaw,
-          expectedQuoteToken: quoteCurrency
-            ? { address: quoteCurrency.address, decimals: quoteCurrency.decimals }
-            : undefined,
+          expectedQuoteToken: { address: quoteCurrency.address, decimals: quoteCurrency.decimals },
           ownerAddress: account,
           preview: response.data.withdrawQuote,
         })
@@ -125,7 +120,7 @@ export const useWithdrawQuote = ({ isOpen, copyRun, wallet }: WithdrawQuoteParam
   const { state: flowState } = flow
 
   const setPresetAmount = (percentage: 50 | 100) => {
-    if (flowState.isPreparing || !presetsEnabled || !walletBalanceRaw || !quoteToken) return
+    if (flowState.isPreparing || !presetsEnabled || !walletBalanceRaw) return
     amountInitialized.current = true
     const presetAmountRaw = getWithdrawPresetAmountRaw(walletBalanceRaw, percentage)
     setAmount(formatUnits(BigInt(presetAmountRaw), quoteToken.decimals))

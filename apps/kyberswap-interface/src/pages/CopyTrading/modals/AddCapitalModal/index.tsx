@@ -1,5 +1,4 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import preparedActionApi from 'services/copyTrading/api/endpoints/preparedActions'
 import type { CopyRunListItem } from 'services/copyTrading/types/copyRuns'
@@ -53,7 +52,7 @@ const AddCapitalModal = ({ isOpen, onDismiss, copyRun }: AddCapitalModalProps) =
       : undefined
   const formatCapitalAmount = (value?: string) => {
     const formattedAmount = formatTokenAmount(value)
-    return value !== undefined && capital.quoteToken?.symbol
+    return value !== undefined && capital.quoteToken.symbol
       ? `${formattedAmount} ${capital.quoteToken.symbol}`
       : formattedAmount
   }
@@ -69,7 +68,7 @@ const AddCapitalModal = ({ isOpen, onDismiss, copyRun }: AddCapitalModalProps) =
       preview: 'addCapital',
     }),
     prepare: async () => {
-      if (!account || !capital.quoteToken) throw new Error('Connect a supported wallet and network first.')
+      if (!account) throw new Error('Connect a supported wallet and network first.')
       if (ownershipMessage) throw new Error(ownershipMessage)
       if (!capital.amountRaw) throw new Error('Enter an amount greater than zero.')
       if (capital.amountError) throw new Error(capital.amountError)
@@ -79,31 +78,10 @@ const AddCapitalModal = ({ isOpen, onDismiss, copyRun }: AddCapitalModalProps) =
         copyRunId: copyRun.copyRunId,
         amountRaw: capital.amountRaw,
       }).unwrap()
-      if (
-        [
-          'PREPARED_ACTION_STATUS_READY',
-          'PREPARED_ACTION_STATUS_PARTIALLY_COMPLETED',
-          'PREPARED_ACTION_STATUS_COMPLETED',
-          'PREPARED_ACTION_STATUS_PENDING',
-        ].includes(response.data.status || '') &&
-        response.data.addCapital?.addedCapitalRaw !== capital.amountRaw
-      ) {
-        throw new Error('The prepared amount does not match the requested capital amount.')
-      }
-
       return capital.validatePreparation(response.data)
     },
   })
-  const { state: flowState, reset: resetFlow } = flow
-  const previousTokenKey = useRef(capital.tokenKey)
-  useEffect(() => {
-    if (previousTokenKey.current === capital.tokenKey) return
-    previousTokenKey.current = capital.tokenKey
-    // Preserve observation once a transaction may have been submitted.
-    if (!flowState.hash && flowState.phase !== 'awaiting_signature' && flowState.phase !== 'confirming') {
-      resetFlow()
-    }
-  }, [capital.tokenKey, flowState.hash, flowState.phase, resetFlow])
+  const { state: flowState } = flow
 
   const dismiss = () => {
     flow.reset()
@@ -126,10 +104,10 @@ const AddCapitalModal = ({ isOpen, onDismiss, copyRun }: AddCapitalModalProps) =
   }
 
   const setPercentageAmount = (percentage: CapitalPercentage) => {
-    const preset = capital.getPreset(percentage)
-    if (flowState.isPreparing || !capital.presetsEnabled || !preset) return
+    const amount = capital.getPresetAmount(percentage)
+    if (flowState.isPreparing || !capital.presetsEnabled || amount === undefined) return
 
-    capital.setAmount(preset.amount)
+    capital.setAmount(amount)
   }
 
   const viewMyCopies = () => {
@@ -140,7 +118,7 @@ const AddCapitalModal = ({ isOpen, onDismiss, copyRun }: AddCapitalModalProps) =
   const accountConnected = !!account
   const isPreparing = flowState.isPreparing === true
   const availabilityMessage = getWriteAvailabilityMessage(copyRun.addCapitalAvailability, ownershipMessage)
-  const unavailable = !!availabilityMessage || !capital.quoteToken
+  const unavailable = !!availabilityMessage
   const primaryActionLabel = getWritePrimaryActionLabel({
     accountConnected,
     onExpectedChain: capital.onExpectedChain,
@@ -190,8 +168,6 @@ const AddCapitalModal = ({ isOpen, onDismiss, copyRun }: AddCapitalModalProps) =
         primaryActionDisabled={primaryActionDisabled}
         primaryActionLabel={primaryActionLabel}
         quoteCurrency={capital.quoteCurrency}
-        onRetryToken={capital.refreshChains}
-        tokenLoading={capital.chainsLoading}
         selectedChainId={copyRun.chainId}
         walletBalanceLoading={capital.walletBalanceLoading}
         walletBalanceText={capital.walletBalanceText}
