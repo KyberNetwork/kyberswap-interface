@@ -592,6 +592,10 @@ msgstr ""
 #~ msgid "All Pools"
 #~ msgstr "所有资金池"
 
+#: src/pages/Earns/hooks/useCountdown.ts
+msgid "{hours} hours"
+msgstr ""
+
 #: src/pages/CrossChainSwap/components/Summary.tsx
 msgid "Estimated Processing Time"
 msgstr "预估处理时间"
@@ -1116,9 +1120,9 @@ msgstr "已回退 {increasedFilledPercent}"
 msgid "How to Farm Tutorial"
 msgstr "如何挖矿教程"
 
-#: src/components/swapv2/AdvancedSwapDetails.tsx
-#~ msgid "1 minute"
-#~ msgstr "1 分钟"
+#: src/pages/Earns/hooks/useCountdown.ts
+msgid "1 minute"
+msgstr "1 分钟"
 
 #: src/pages/Earns/VaultDetail/WithdrawTab.tsx
 #~ msgid "Withdrawals are queued. Your shares are held until a solver fills the request, then the assets arrive in your wallet — no claim needed."
@@ -3754,6 +3758,11 @@ msgstr "活跃提醒："
 msgid "POINTS EARNED"
 msgstr "获得积分"
 
+#: src/pages/Earns/components/VaultWithdraw/ConfirmWithdraw.tsx
+#: src/pages/Earns/components/VaultWithdraw/WithdrawFields.tsx
+msgid "How long the withdrawal usually takes. A solver fills the request out of the queue, so the vault does not pay out on a fixed schedule."
+msgstr ""
+
 #: src/components/SwapForm/TradeSummary.tsx
 msgid "A {feePercent} fee ({feeAmountText}) will incur on this swap. The Est. Output amount you see above is inclusive of this fee. Read more about the fees {hereLink}"
 msgstr "本次兑换将收取 {feePercent} 手续费（{feeAmountText}），预估输出已包含该费用 {hereLink}"
@@ -4642,12 +4651,10 @@ msgstr "有新内容可用"
 msgid "<0>Notice</0>: Some of your {symbol} is already reserved by an open Limit Order - review it <1>here</1>."
 msgstr ""
 
-#: src/pages/Earns/components/VaultWithdraw/ConfirmWithdraw.tsx
-#: src/pages/Earns/components/VaultWithdraw/WithdrawFields.tsx
 #: src/pages/Earns/MyVaults/index.tsx
 #: src/pages/Earns/VaultDetail/WithdrawRequestList.tsx
-msgid "Ready in"
-msgstr ""
+#~ msgid "Ready in"
+#~ msgstr ""
 
 #: src/utils/errorMessage.ts
 msgid "Your current balance falls short of covering the required gas fee."
@@ -5332,6 +5339,10 @@ msgstr "您已将 {zapAmountIn} {zapSymbolIn} Zap 成 {tokenAmountIn} {tokenSymb
 #: src/components/LimitOrder/OrderBook/OrderRow.tsx
 #: src/components/LimitOrder/OrderBook/OrderRow.tsx
 msgid "Fill"
+msgstr ""
+
+#: src/pages/Earns/hooks/useCountdown.ts
+msgid "{days} days"
 msgstr ""
 
 #: src/components/PositionCard/index.tsx
@@ -6807,8 +6818,8 @@ msgid "Cancel an order"
 msgstr "取消订单"
 
 #: src/pages/Earns/VaultDetail/WithdrawRequestList.tsx
-msgid "Ready"
-msgstr ""
+#~ msgid "Ready"
+#~ msgstr ""
 
 #: src/pages/NotificationCenter/PriceAlerts/DeleteSingleAlertButton.tsx
 msgid "Delete"
@@ -7488,6 +7499,10 @@ msgstr "完整活动结果将于以下时间前在 KyberSwap 公布："
 #: src/pages/KyberDAO/StakeKNC/StakeKNCComponent.tsx
 msgid "You already delegated to this address"
 msgstr "您已将投票权委托给该地址"
+
+#: src/pages/Earns/hooks/useCountdown.ts
+msgid "1 day"
+msgstr ""
 
 #: src/pages/NotificationCenter/CreateAlert/ConfirmModal.tsx
 #: src/pages/NotificationCenter/PriceAlerts/CommonSingleAlert.tsx
@@ -8415,8 +8430,9 @@ msgstr "取消订单失败"
 
 #: src/pages/Earns/components/VaultWithdraw/ConfirmWithdraw.tsx
 #: src/pages/Earns/components/VaultWithdraw/WithdrawFields.tsx
-#~ msgid "Processing Time"
-#~ msgstr ""
+#: src/pages/Earns/VaultDetail/WithdrawRequestList.tsx
+msgid "Processing Time"
+msgstr ""
 
 #: src/components/TransactionSettings/index.tsx
 #: src/pages/Swap/layout/HeaderRightMenu.tsx
@@ -9226,6 +9242,10 @@ msgstr "您的钱包（{0}）持有的流动性仓位均未受到此次攻击影
 msgid "Switch Chain"
 msgstr ""
 
+#: src/pages/Earns/hooks/useCountdown.ts
+msgid "{minutes} minutes"
+msgstr ""
+
 #: src/components/LimitOrder/Modals/CancelButtons.tsx
 #~ msgid "Try Again"
 #~ msgstr "重试"
@@ -9916,7 +9936,6 @@ msgstr ""
 
 #: src/components/LimitOrder/MyOrders/TableHeader.tsx
 #: src/pages/CrossChainSwap/components/TransactionHistory.tsx
-#: src/pages/Earns/MyVaults/index.tsx
 #: src/pages/Earns/SmartExitOrders/index.tsx
 msgid "Status"
 msgstr ""
@@ -10184,6 +10203,10 @@ msgstr ""
 msgid "Gas Refund Program"
 msgstr "Gas 返还计划"
 
+#: src/pages/Earns/hooks/useCountdown.ts
+msgid "1 hour"
+msgstr ""
+
 #: src/pages/Campaign/components/Information/info/mayTrading.tsx
 #: src/pages/Campaign/components/Information/info/stipAggregator.tsx
 #: src/pages/Campaign/components/Information/info/stipLimitOrder.tsx
@@ -10283,8 +10306,8 @@ msgstr "价格影响过高"
 
 #: src/pages/Earns/components/VaultWithdraw/ConfirmWithdraw.tsx
 #: src/pages/Earns/components/VaultWithdraw/WithdrawFields.tsx
-msgid "How long the vault's withdrawal queue waits before a solver can fill your request."
-msgstr ""
+#~ msgid "How long the vault's withdrawal queue waits before a solver can fill your request."
+#~ msgstr ""
 
 #: src/pages/Earns/PositionDetail/AnalyticTab.tsx
 #: src/pages/Earns/PositionDetail/AnalyticTab.tsx

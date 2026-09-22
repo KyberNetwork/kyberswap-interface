@@ -159,9 +159,7 @@ export const toUserVaultPosition = (item: VaultPositionItem): UserVaultPosition 
     earned: toVaultEarnings(item),
     earnedUsd: toVaultEarningsUsd(item),
     pendingWithdrawal:
-      summary && summary.count > 0
-        ? { count: summary.count, status: summary.latestStatus, etaAt: toEpochSeconds(summary.etaExpectedAt) }
-        : undefined,
+      summary && summary.count > 0 ? { count: summary.count, status: summary.latestStatus } : undefined,
   }
 }
 
@@ -195,9 +193,6 @@ export const getOpenWithdrawRequests = (requests?: VaultWithdrawRequest[]) =>
   (requests || [])
     .filter(isOpenWithdrawRequest)
     .sort((a, b) => (toEpochSeconds(a.requestedAt) ?? 0) - (toEpochSeconds(b.requestedAt) ?? 0))
-
-/** When the queue will let a solver fill the request, in unix seconds. */
-export const getWithdrawRequestMaturityAt = (request: VaultWithdrawRequest) => toEpochSeconds(request.readyAt)
 
 export const getWithdrawRequestExpiryAt = (request: VaultWithdrawRequest) => toEpochSeconds(request.deadline)
 

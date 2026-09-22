@@ -19,7 +19,7 @@ import {
   SummaryUsd,
 } from 'pages/Earns/components/VaultDeposit/styles'
 import { WithdrawFormState } from 'pages/Earns/components/VaultWithdraw/useWithdrawForm'
-import { formatDuration } from 'pages/Earns/hooks/useCountdown'
+import { formatTerm } from 'pages/Earns/hooks/useCountdown'
 import { formatDisplayNumber } from 'utils/numbers'
 import { formatSlippage } from 'utils/slippage'
 import { formatUnits } from 'utils/viem'
@@ -119,9 +119,9 @@ const ConfirmWithdraw = ({
             </InfoRow>
             <InfoRow>
               <InfoLabel
-                tooltip={t`How long the vault's withdrawal queue waits before a solver can fill your request.`}
-              >{t`Ready in`}</InfoLabel>
-              <InfoValue>{form.queueLimits ? formatDuration(form.queueLimits.secondsToMaturity) : '--'}</InfoValue>
+                tooltip={t`How long the withdrawal usually takes. A solver fills the request out of the queue, so the vault does not pay out on a fixed schedule.`}
+              >{t`Processing Time`}</InfoLabel>
+              <InfoValue>{form.queueLimits ? formatTerm(form.queueLimits.minimumSecondsToDeadline) : '--'}</InfoValue>
             </InfoRow>
           </>
         ) : (

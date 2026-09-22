@@ -592,6 +592,10 @@ msgstr "Confirm Withdraw"
 #~ msgid "All Pools"
 #~ msgstr "All Pools"
 
+#: src/pages/Earns/hooks/useCountdown.ts
+msgid "{hours} hours"
+msgstr "{hours} hours"
+
 #: src/pages/CrossChainSwap/components/Summary.tsx
 msgid "Estimated Processing Time"
 msgstr "Estimated Processing Time"
@@ -1116,9 +1120,9 @@ msgstr "Reverted {increasedFilledPercent}"
 msgid "How to Farm Tutorial"
 msgstr "How to Farm Tutorial"
 
-#: src/components/swapv2/AdvancedSwapDetails.tsx
-#~ msgid "1 minute"
-#~ msgstr "1 minute"
+#: src/pages/Earns/hooks/useCountdown.ts
+msgid "1 minute"
+msgstr "1 minute"
 
 #: src/pages/Earns/VaultDetail/WithdrawTab.tsx
 #~ msgid "Withdrawals are queued. Your shares are held until a solver fills the request, then the assets arrive in your wallet — no claim needed."
@@ -3754,6 +3758,11 @@ msgstr "Active Alerts:"
 msgid "POINTS EARNED"
 msgstr "POINTS EARNED"
 
+#: src/pages/Earns/components/VaultWithdraw/ConfirmWithdraw.tsx
+#: src/pages/Earns/components/VaultWithdraw/WithdrawFields.tsx
+msgid "How long the withdrawal usually takes. A solver fills the request out of the queue, so the vault does not pay out on a fixed schedule."
+msgstr "How long the withdrawal usually takes. A solver fills the request out of the queue, so the vault does not pay out on a fixed schedule."
+
 #: src/components/SwapForm/TradeSummary.tsx
 msgid "A {feePercent} fee ({feeAmountText}) will incur on this swap. The Est. Output amount you see above is inclusive of this fee. Read more about the fees {hereLink}"
 msgstr "A {feePercent} fee ({feeAmountText}) will incur on this swap. The Est. Output amount you see above is inclusive of this fee. Read more about the fees {hereLink}"
@@ -4642,12 +4651,10 @@ msgstr "New contents are available."
 msgid "<0>Notice</0>: Some of your {symbol} is already reserved by an open Limit Order - review it <1>here</1>."
 msgstr "<0>Notice</0>: Some of your {symbol} is already reserved by an open Limit Order - review it <1>here</1>."
 
-#: src/pages/Earns/components/VaultWithdraw/ConfirmWithdraw.tsx
-#: src/pages/Earns/components/VaultWithdraw/WithdrawFields.tsx
 #: src/pages/Earns/MyVaults/index.tsx
 #: src/pages/Earns/VaultDetail/WithdrawRequestList.tsx
-msgid "Ready in"
-msgstr "Ready in"
+#~ msgid "Ready in"
+#~ msgstr "Ready in"
 
 #: src/utils/errorMessage.ts
 msgid "Your current balance falls short of covering the required gas fee."
@@ -5333,6 +5340,10 @@ msgstr "You have zapped {zapAmountIn} {zapSymbolIn} into {tokenAmountIn} {tokenS
 #: src/components/LimitOrder/OrderBook/OrderRow.tsx
 msgid "Fill"
 msgstr "Fill"
+
+#: src/pages/Earns/hooks/useCountdown.ts
+msgid "{days} days"
+msgstr "{days} days"
 
 #: src/components/PositionCard/index.tsx
 #: src/components/PositionCard/index.tsx
@@ -6807,8 +6818,8 @@ msgid "Cancel an order"
 msgstr "Cancel an order"
 
 #: src/pages/Earns/VaultDetail/WithdrawRequestList.tsx
-msgid "Ready"
-msgstr "Ready"
+#~ msgid "Ready"
+#~ msgstr "Ready"
 
 #: src/pages/NotificationCenter/PriceAlerts/DeleteSingleAlertButton.tsx
 msgid "Delete"
@@ -7488,6 +7499,10 @@ msgstr "The full campaign results will be published on KyberSwap by:"
 #: src/pages/KyberDAO/StakeKNC/StakeKNCComponent.tsx
 msgid "You already delegated to this address"
 msgstr "You already delegated to this address"
+
+#: src/pages/Earns/hooks/useCountdown.ts
+msgid "1 day"
+msgstr "1 day"
 
 #: src/pages/NotificationCenter/CreateAlert/ConfirmModal.tsx
 #: src/pages/NotificationCenter/PriceAlerts/CommonSingleAlert.tsx
@@ -8415,8 +8430,9 @@ msgstr "Order Cancel Failed"
 
 #: src/pages/Earns/components/VaultWithdraw/ConfirmWithdraw.tsx
 #: src/pages/Earns/components/VaultWithdraw/WithdrawFields.tsx
-#~ msgid "Processing Time"
-#~ msgstr "Processing Time"
+#: src/pages/Earns/VaultDetail/WithdrawRequestList.tsx
+msgid "Processing Time"
+msgstr "Processing Time"
 
 #: src/components/TransactionSettings/index.tsx
 #: src/pages/Swap/layout/HeaderRightMenu.tsx
@@ -9226,6 +9242,10 @@ msgstr "None of the liquidity position(s) held by your wallet ({0}) were affecte
 msgid "Switch Chain"
 msgstr "Switch Chain"
 
+#: src/pages/Earns/hooks/useCountdown.ts
+msgid "{minutes} minutes"
+msgstr "{minutes} minutes"
+
 #: src/components/LimitOrder/Modals/CancelButtons.tsx
 #~ msgid "Try Again"
 #~ msgstr "Try Again"
@@ -9916,7 +9936,6 @@ msgstr "Fill order anyway"
 
 #: src/components/LimitOrder/MyOrders/TableHeader.tsx
 #: src/pages/CrossChainSwap/components/TransactionHistory.tsx
-#: src/pages/Earns/MyVaults/index.tsx
 #: src/pages/Earns/SmartExitOrders/index.tsx
 msgid "Status"
 msgstr "Status"
@@ -10184,6 +10203,10 @@ msgstr "This position has an active Smart Exit order."
 msgid "Gas Refund Program"
 msgstr "Gas Refund Program"
 
+#: src/pages/Earns/hooks/useCountdown.ts
+msgid "1 hour"
+msgstr "1 hour"
+
 #: src/pages/Campaign/components/Information/info/mayTrading.tsx
 #: src/pages/Campaign/components/Information/info/stipAggregator.tsx
 #: src/pages/Campaign/components/Information/info/stipLimitOrder.tsx
@@ -10283,8 +10306,8 @@ msgstr "Price impact is too high"
 
 #: src/pages/Earns/components/VaultWithdraw/ConfirmWithdraw.tsx
 #: src/pages/Earns/components/VaultWithdraw/WithdrawFields.tsx
-msgid "How long the vault's withdrawal queue waits before a solver can fill your request."
-msgstr "How long the vault's withdrawal queue waits before a solver can fill your request."
+#~ msgid "How long the vault's withdrawal queue waits before a solver can fill your request."
+#~ msgstr "How long the vault's withdrawal queue waits before a solver can fill your request."
 
 #: src/pages/Earns/PositionDetail/AnalyticTab.tsx
 #: src/pages/Earns/PositionDetail/AnalyticTab.tsx

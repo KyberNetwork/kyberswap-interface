@@ -1,6 +1,26 @@
+import { t } from '@lingui/macro'
 import { useEffect, useState } from 'react'
 
 const nowInSeconds = () => Math.floor(Date.now() / 1000)
+
+/**
+ * A fixed term in words. A queue's terms do not tick down, so they read better as "3 days" than as
+ * a clock sitting at `3d : 0h : 0m : 0s`.
+ */
+export const formatTerm = (seconds: number) => {
+  if (seconds <= 0) return '--'
+
+  if (seconds >= 86400) {
+    const days = Math.round(seconds / 86400)
+    return days === 1 ? t`1 day` : t`${days} days`
+  }
+  if (seconds >= 3600) {
+    const hours = Math.round(seconds / 3600)
+    return hours === 1 ? t`1 hour` : t`${hours} hours`
+  }
+  const minutes = Math.max(1, Math.round(seconds / 60))
+  return minutes === 1 ? t`1 minute` : t`${minutes} minutes`
+}
 
 export const formatDuration = (seconds: number) => {
   if (seconds <= 0) return '--'

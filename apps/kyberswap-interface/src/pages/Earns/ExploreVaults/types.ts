@@ -38,8 +38,6 @@ export interface UserVaultPendingWithdrawal {
   count: number
   /** Wire status from the position summary, e.g. `WithdrawStatusPending`. */
   status: string
-  /** Unix seconds the queue expects the newest request to become fillable. */
-  etaAt?: number
 }
 
 export interface UserVaultPosition extends VaultInfo {

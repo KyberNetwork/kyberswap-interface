@@ -27,7 +27,7 @@ import {
   TokenButton,
 } from 'pages/Earns/components/VaultDeposit/styles'
 import { PERCENT_OPTIONS, WithdrawFormState, WithdrawMode } from 'pages/Earns/components/VaultWithdraw/useWithdrawForm'
-import { formatDuration } from 'pages/Earns/hooks/useCountdown'
+import { formatTerm } from 'pages/Earns/hooks/useCountdown'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { isInventoryChain } from 'state/walletInventory/store'
 import { formatDisplayNumber } from 'utils/numbers'
@@ -201,9 +201,9 @@ const WithdrawFields = ({ vault, form }: { vault: VaultApiDetailItem; form: With
         {form.isNative ? (
           <InfoRow>
             <InfoLabel
-              tooltip={t`How long the vault's withdrawal queue waits before a solver can fill your request.`}
-            >{t`Ready in`}</InfoLabel>
-            <InfoValue>{form.queueLimits ? formatDuration(form.queueLimits.secondsToMaturity) : '--'}</InfoValue>
+              tooltip={t`How long the withdrawal usually takes. A solver fills the request out of the queue, so the vault does not pay out on a fixed schedule.`}
+            >{t`Processing Time`}</InfoLabel>
+            <InfoValue>{form.queueLimits ? formatTerm(form.queueLimits.minimumSecondsToDeadline) : '--'}</InfoValue>
           </InfoRow>
         ) : (
           <>

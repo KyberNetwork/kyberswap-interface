@@ -13,12 +13,7 @@ import {
   RequestStatusBadge,
 } from 'pages/Earns/VaultDetail/styles'
 import useCountdown from 'pages/Earns/hooks/useCountdown'
-import {
-  getWithdrawRequestCancellation,
-  getWithdrawRequestExpiryAt,
-  getWithdrawRequestMaturityAt,
-  safeBigInt,
-} from 'pages/Earns/utils/vault'
+import { getWithdrawRequestCancellation, getWithdrawRequestExpiryAt, safeBigInt } from 'pages/Earns/utils/vault'
 import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
 import { formatUnits } from 'utils/viem'
@@ -60,9 +55,11 @@ const RequestItem = ({
   isCancelling: boolean
   onCancel: (request: VaultWithdrawRequest) => void
 }) => {
-  const { remaining, label: countdown } = useCountdown(getWithdrawRequestMaturityAt(request))
   const isExpired = request.status === VaultWithdrawRequestStatus.EXPIRED
   const expiryAt = getWithdrawRequestExpiryAt(request)
+  // Counted to the deadline rather than to maturity: maturity only opens the request to a solver,
+  // an hour in, and a countdown that lands there says "ready" while the wait has barely started.
+  const { remaining, label: countdown } = useCountdown(expiryAt)
   // An expired request has no payout left to quote; what it still holds is the escrowed shares.
   const payoutRaw = isExpired ? null : request.pendingPayoutAssetsRaw
   const canCancel = Boolean(getWithdrawRequestCancellation(request))
@@ -97,7 +94,7 @@ const RequestItem = ({
       </DetailRow>
 
       <DetailRow>
-        <DetailLabel>{isExpired ? t`Expired on` : remaining > 0 ? t`Ready in` : t`Ready`}</DetailLabel>
+        <DetailLabel>{isExpired ? t`Expired on` : t`Processing Time`}</DetailLabel>
         <DetailValue className={cn(isExpired && 'text-red')}>
           {isExpired
             ? expiryAt

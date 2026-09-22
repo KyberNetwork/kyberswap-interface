@@ -51,7 +51,6 @@ import VaultDepositModal from 'pages/Earns/components/VaultDeposit/VaultDepositM
 import VaultWithdrawModal from 'pages/Earns/components/VaultWithdraw/VaultWithdrawModal'
 import { VAULT_POLLING_INTERVAL } from 'pages/Earns/constants/vault'
 import { VAULT_CHAIN_OPTIONS } from 'pages/Earns/constants/vaultFilters'
-import useCountdown from 'pages/Earns/hooks/useCountdown'
 import { useRefreshOnVaultTx } from 'pages/Earns/hooks/useRefreshOnVaultTx'
 import { buildVaultDetailPath, toUserVaultPosition } from 'pages/Earns/utils/vault'
 import { useWalletModalToggle } from 'state/application/hooks'
@@ -109,7 +108,6 @@ const MyVaultCard = ({
   // The card carries the position's own summary of the queue; the full request list, with its
   // amounts and cancel actions, lives on the vault page and in the withdraw modal.
   const pending = vault.pendingWithdrawal
-  const { remaining, label: countdown } = useCountdown(pending?.etaAt)
   const statusConfig = pending ? getStatusConfig(theme)[pending.status] ?? null : null
   const requestCount = pending?.count ?? 0
 
@@ -179,21 +177,15 @@ const MyVaultCard = ({
           </InfoValue>
         </InfoRow>
 
+        {/* The card says how much is in flight; the badge below carries the status, and the vault
+            page lists each request with the time it has left. */}
         {pending ? (
-          <>
-            <InfoRow>
-              <InfoLabel>{t`Withdrawing`}</InfoLabel>
-              <InfoValue>
-                <InfoValuePrimary>{requestCount > 1 ? t`${requestCount} requests` : t`1 request`}</InfoValuePrimary>
-              </InfoValue>
-            </InfoRow>
-            <InfoRow>
-              <InfoLabel>{remaining > 0 ? t`Ready in` : t`Status`}</InfoLabel>
-              <InfoValue>
-                <InfoValuePrimary>{remaining > 0 ? countdown : statusConfig?.label}</InfoValuePrimary>
-              </InfoValue>
-            </InfoRow>
-          </>
+          <InfoRow>
+            <InfoLabel>{t`Withdrawing`}</InfoLabel>
+            <InfoValue>
+              <InfoValuePrimary>{requestCount > 1 ? t`${requestCount} requests` : t`1 request`}</InfoValuePrimary>
+            </InfoValue>
+          </InfoRow>
         ) : null}
       </MyVaultCardBody>
 
