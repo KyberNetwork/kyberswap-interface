@@ -383,7 +383,11 @@ describe('submitted status recovery', () => {
       .fn()
       .mockRejectedValueOnce({ status: 503 })
       .mockResolvedValueOnce({
-        data: { status: 'SUBMITTED_ACTION_STATUS_SUCCEEDED', result: { copyRunId: 'run-1' } },
+        data: {
+          status: 'SUBMITTED_ACTION_STATUS_SUCCEEDED',
+          transaction: { outcome: 'ACTION_TRANSACTION_RECEIPT_OUTCOME_SUCCESS' },
+          result: { copyRunId: 'run-1' },
+        },
       })
     const getStatus = statusMocks.getStatus.mockReturnValue({ unwrap })
     const prepare = vi.fn()
@@ -405,7 +409,11 @@ describe('submitted status recovery', () => {
     const harness = createStateHarness({ phase: 'sync_error', action: readyAction, hash, retryStage: 'sync' })
     statusMocks.getStatus.mockReturnValue({
       unwrap: vi.fn().mockResolvedValue({
-        data: { status: 'SUBMITTED_ACTION_STATUS_FAILED', guidance: { message: 'Matched transaction reverted.' } },
+        data: {
+          status: 'SUBMITTED_ACTION_STATUS_FAILED',
+          transaction: { outcome: 'ACTION_TRANSACTION_RECEIPT_OUTCOME_REVERTED' },
+          guidance: { message: 'Matched transaction reverted.' },
+        },
       }),
     })
     await usePreparedAction({
@@ -424,7 +432,12 @@ describe('submitted status recovery', () => {
       const prepare = vi.fn()
       statusMocks.getStatus.mockReturnValue({
         unwrap: vi.fn().mockResolvedValue({
-          data: { status: 'SUBMITTED_ACTION_STATUS_SUCCEEDED', result: { copyRunId: 'run-1' }, nextStep },
+          data: {
+            status: 'SUBMITTED_ACTION_STATUS_SUCCEEDED',
+            transaction: { outcome: 'ACTION_TRANSACTION_RECEIPT_OUTCOME_SUCCESS' },
+            result: { copyRunId: 'run-1' },
+            nextStep,
+          },
         }),
       })
       await usePreparedAction({
@@ -458,7 +471,11 @@ describe('replacement transaction receipts', () => {
       .fn()
       .mockRejectedValueOnce({ status: 503 })
       .mockResolvedValueOnce({
-        data: { status: 'SUBMITTED_ACTION_STATUS_SUCCEEDED', result: { copyRunId: 'run-1' } },
+        data: {
+          status: 'SUBMITTED_ACTION_STATUS_SUCCEEDED',
+          transaction: { outcome: 'ACTION_TRANSACTION_RECEIPT_OUTCOME_SUCCESS' },
+          result: { copyRunId: 'run-1' },
+        },
       })
     const getStatus = statusMocks.getStatus.mockReturnValue({ unwrap })
     const prepare = vi.fn()
@@ -577,6 +594,27 @@ describe('authorized preparation', () => {
 })
 
 describe('shared result ownership', () => {
+  it('completes a successful transaction while the API is syncing without a result', async () => {
+    const hash = `0x${'c'.repeat(64)}` as const
+    const harness = createStateHarness({ phase: 'sync_error', action: readyAction, hash, retryStage: 'sync' })
+    statusMocks.getStatus.mockReturnValue({
+      unwrap: vi.fn().mockResolvedValue({
+        data: {
+          status: 'SUBMITTED_ACTION_STATUS_SYNCING',
+          transaction: { outcome: 'ACTION_TRANSACTION_RECEIPT_OUTCOME_SUCCESS' },
+        },
+      }),
+    })
+    const onSubmittedSuccess = vi.fn()
+    const prepare = vi.fn()
+    await usePreparedAction({ getExpected: () => expected, prepare, onSubmittedSuccess }).retry()
+    expect(harness.getState()).toEqual({ phase: 'success', action: readyAction, hash })
+    expect(statusMocks.refresh).toHaveBeenCalledTimes(2)
+    expect(onSubmittedSuccess).not.toHaveBeenCalled()
+    expect(prepare).not.toHaveBeenCalled()
+    expect(walletMocks.sendTransaction).not.toHaveBeenCalled()
+  })
+
   it('refreshes at receipt and verified success, then lets the action consume the result', async () => {
     const hash = `0x${'a'.repeat(64)}` as const
     const harness = createStateHarness({ phase: 'sync_error', action: readyAction, hash, retryStage: 'sync' })
@@ -596,7 +634,13 @@ describe('shared result ownership', () => {
     expect(onSubmittedSuccess).not.toHaveBeenCalled()
     expect(harness.getState().phase).toBe('syncing')
     const result = { copyRunId: 'run-1', readOwnerAddress: account }
-    resolveStatus({ data: { status: 'SUBMITTED_ACTION_STATUS_SUCCEEDED', result } })
+    resolveStatus({
+      data: {
+        status: 'SUBMITTED_ACTION_STATUS_SUCCEEDED',
+        transaction: { outcome: 'ACTION_TRANSACTION_RECEIPT_OUTCOME_SUCCESS' },
+        result,
+      },
+    })
     await vi.waitFor(() => expect(onSubmittedSuccess).toHaveBeenCalledWith(result, readyAction))
     expect(statusMocks.refresh).toHaveBeenCalledTimes(2)
     expect(harness.getState().phase).toBe('syncing')
@@ -610,7 +654,13 @@ describe('shared result ownership', () => {
     const harness = createStateHarness({ phase: 'sync_error', action: readyAction, hash, retryStage: 'sync' })
     statusMocks.refresh.mockRejectedValue(new Error('Refresh unavailable'))
     statusMocks.getStatus.mockReturnValue({
-      unwrap: vi.fn().mockResolvedValue({ data: { status: 'SUBMITTED_ACTION_STATUS_SUCCEEDED', result: {} } }),
+      unwrap: vi.fn().mockResolvedValue({
+        data: {
+          status: 'SUBMITTED_ACTION_STATUS_SUCCEEDED',
+          transaction: { outcome: 'ACTION_TRANSACTION_RECEIPT_OUTCOME_SUCCESS' },
+          result: {},
+        },
+      }),
     })
     await usePreparedAction({
       getExpected: () => expected,
