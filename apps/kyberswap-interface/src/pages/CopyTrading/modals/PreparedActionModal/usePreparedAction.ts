@@ -86,13 +86,13 @@ export const usePreparedAction = ({
 
   const syncSubmittedAction = async (action: PreparedAction, hash: Hash) => {
     setState({ phase: 'syncing', action, hash })
-    // Refresh once on receipt and again when the backend has verified the result.
+    // Refresh once on receipt and again when the API reports a successful transaction outcome.
     refresh()
 
     try {
       const status = await pollSubmittedActionStatus({ action, hash, getStatus })
       refresh()
-      await onSubmittedSuccess?.(status.result, action)
+      if (status.result) await onSubmittedSuccess?.(status.result, action)
       setState({ phase: 'success', action, hash })
     } catch (error) {
       setState({

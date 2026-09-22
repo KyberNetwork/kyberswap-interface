@@ -272,34 +272,36 @@ Cross-flow decisions:
 - After authorization, Start validates UNAVAILABLE with the existing validator
   without requiring a call. Unavailable responses never pin the predicted account.
   The confirm label uses Preparing during any review preparation, including after authorization.
-- Action callbacks consume validated preparation data or verified submitted
-  results only. Start records the returned copyRunId; Stop resolves navigation.
+- Action callbacks consume submitted results when present. Start records the
+  returned copyRunId; Stop resolves navigation. Missing results do not block
+  transaction success and do not invoke the result callback.
   No action hook owns its own status polling or cache refresh sequence.
 - Each poll sends the original statusContext and the receipt's transactionHash
   to POST /users/{ownerAddress}/actions:status. The context owner must match
   the prepared sender. Context is not rebuilt from current list/detail data,
   and preparation expiry does not prevent observation.
-- Success requires SUCCEEDED with a result; Stop also requires its exact
-  stopIntentId. Backend status owns convergence. FE no longer compares capital,
-  balances, lifecycle, source-block coverage, or closed-execution hashes to
-  determine whether the submitted action completed.
-- PENDING, CONFIRMING, SYNCING, and UNKNOWN/SOURCE_UNAVAILABLE poll sequentially
-  for at most 11 attempts, respecting guidance.retryAfterMs. The last returned
+- Product decision (2026-09-22): transaction.outcome SUCCESS completes the UI
+  immediately, including while status is SYNCING or result is absent. Stop
+  does not wait for stopIntentId. This intentionally uses the outer transaction
+  outcome rather than the catalog's action verification/publication status.
+  FE does not compare capital, balances, lifecycle, or source-block coverage.
+- Without a resolved outcome, poll sequentially for at most 11 attempts when
+  guidance.retryAfterMs is valid, without checking action status. The last returned
   receipt is sent as previousReceipt within that polling attempt sequence.
   The limit is an attempt count, not a fixed 20-second timeout.
 - HTTP errors, unsupported/unverifiable results, missing context, and exhausted
   polling enter the existing sync recovery. Manual retry observes the saved
   action/hash again; it never prepares or submits another transaction. HTTP
   errors end the current poll sequence rather than retrying automatically.
-- A reverted RPC receipt or FAILED API status enters transaction-error recovery;
+- A reverted RPC receipt or API transaction.outcome REVERTED enters transaction-error recovery;
   Retry requests a fresh preparation through the existing flow.
 - Both initial submission and receipt retry use receipt.transactionHash after
   receipt resolution, including replacement transactions such as wallet Speed up.
   State, explorer links, and subsequent status retries retain that resolved hash.
-- Cache invalidation runs after receipt success and again after API convergence,
+- Cache invalidation runs after receipt success and again after API outcome success,
   refreshing both RTK Query and TanStack Copy Trading reads. Stop additionally
   reads the returned Copy Run once to choose My Copies versus History; failure
-  of this navigation-only read does not invalidate verified action success.
+  of this navigation-only read does not invalidate transaction success.
 - No automatic nextStep continuation, Start funding continuation, withdrawal
   batch controls or persistence/resume across reloads. Start retains funded
   CREATE only; submitted status success refers to the submitted call rather

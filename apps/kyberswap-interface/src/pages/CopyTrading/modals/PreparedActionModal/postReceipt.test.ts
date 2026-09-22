@@ -18,6 +18,7 @@ const action: PreparedAction = {
 }
 const succeeded: SubmittedActionStatusData = {
   status: 'SUBMITTED_ACTION_STATUS_SUCCEEDED',
+  transaction: { outcome: 'ACTION_TRANSACTION_RECEIPT_OUTCOME_SUCCESS' },
   result: { copyRunId: 'run-1' },
 }
 const receipt = { blockNumber: '100', blockHash: '0xabc' }
@@ -70,14 +71,32 @@ describe('submitted action convergence after receipt', () => {
   it.each([
     { ...succeeded, result: undefined },
     { ...succeeded, result: { stop: {} } },
-  ])('rejects an incomplete successful Stop result', async data => {
+  ])('accepts a successful Stop outcome without a published result or intent', async data => {
     await expect(
       pollSubmittedActionStatus({
         action: { ...action, stopCopy: {} },
         hash,
         getStatus: statusReader(data),
       }),
-    ).rejects.toThrow('incomplete')
+    ).resolves.toEqual(data)
+  })
+
+  it.each(['SUBMITTED_ACTION_STATUS_SYNCING', 'SUBMITTED_ACTION_STATUS_CONFIRMING', undefined] as const)(
+    'finishes immediately on a successful outcome with status %s and no result',
+    async status => {
+      const data = { status, transaction: succeeded.transaction }
+      const getStatus = statusReader(data)
+      const waitForNextAttempt = vi.fn()
+      await expect(pollSubmittedActionStatus({ action, hash, getStatus, waitForNextAttempt })).resolves.toEqual(data)
+      expect(getStatus).toHaveBeenCalledOnce()
+      expect(waitForNextAttempt).not.toHaveBeenCalled()
+    },
+  )
+
+  it('does not infer a successful outcome from the action status', async () => {
+    await expect(
+      pollSubmittedActionStatus({ action, hash, getStatus: statusReader({ ...succeeded, transaction: undefined }) }),
+    ).rejects.toThrow('could not be verified')
   })
 
   it('retries transient UNKNOWN but stops at a target mismatch', async () => {
@@ -107,7 +126,10 @@ describe('submitted action convergence after receipt', () => {
       pollSubmittedActionStatus({
         action,
         hash,
-        getStatus: statusReader({ status: 'SUBMITTED_ACTION_STATUS_FAILED' }),
+        getStatus: statusReader({
+          status: 'SUBMITTED_ACTION_STATUS_CONFIRMING',
+          transaction: { outcome: 'ACTION_TRANSACTION_RECEIPT_OUTCOME_REVERTED' },
+        }),
       }),
     ).rejects.toBeInstanceOf(SubmittedActionFailedError)
   })

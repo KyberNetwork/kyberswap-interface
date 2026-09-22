@@ -16,7 +16,14 @@ export type SubmittedActionStatusData = {
     | 'SUBMITTED_ACTION_STATUS_FAILED'
     | 'SUBMITTED_ACTION_STATUS_UNKNOWN'
   reason?: string
-  transaction?: { transactionHash?: string; receipt?: ActionReceiptReference }
+  transaction?: {
+    transactionHash?: string
+    outcome?:
+      | 'ACTION_TRANSACTION_RECEIPT_OUTCOME_UNSPECIFIED'
+      | 'ACTION_TRANSACTION_RECEIPT_OUTCOME_SUCCESS'
+      | 'ACTION_TRANSACTION_RECEIPT_OUTCOME_REVERTED'
+    receipt?: ActionReceiptReference
+  }
   result?: {
     copyRunId?: string
     readOwnerAddress?: string

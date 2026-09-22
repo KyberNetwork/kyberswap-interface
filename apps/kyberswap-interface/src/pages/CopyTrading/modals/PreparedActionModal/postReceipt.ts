@@ -41,26 +41,16 @@ export const pollSubmittedActionStatus = async ({
     if (data.transaction?.receipt) previousReceipt = data.transaction.receipt
     message = data.guidance?.message || message
 
-    if (data.status === 'SUBMITTED_ACTION_STATUS_SUCCEEDED') {
-      if (!data.result || (action.stopCopy && !data.result.stop?.stopIntentId)) {
-        throw new Error('The submitted result is incomplete. Check transaction status again.')
-      }
-      return { ...data, result: data.result }
-    }
-    if (data.status === 'SUBMITTED_ACTION_STATUS_FAILED') {
+    // UI completion follows the transaction outcome, without waiting for result publication.
+    if (data.transaction?.outcome === 'ACTION_TRANSACTION_RECEIPT_OUTCOME_SUCCESS') return data
+    if (data.transaction?.outcome === 'ACTION_TRANSACTION_RECEIPT_OUTCOME_REVERTED') {
       throw new SubmittedActionFailedError(
         data.guidance?.message || 'The transaction reverted. Prepare a new call before trying again.',
       )
     }
 
-    const retryable =
-      data.status === 'SUBMITTED_ACTION_STATUS_PENDING' ||
-      data.status === 'SUBMITTED_ACTION_STATUS_CONFIRMING' ||
-      data.status === 'SUBMITTED_ACTION_STATUS_SYNCING' ||
-      (data.status === 'SUBMITTED_ACTION_STATUS_UNKNOWN' &&
-        data.reason === 'SUBMITTED_ACTION_REASON_SOURCE_UNAVAILABLE')
     const delay = data.guidance?.retryAfterMs
-    if (!retryable || delay === undefined || !Number.isFinite(delay) || delay < 0) {
+    if (delay === undefined || !Number.isFinite(delay) || delay < 0) {
       throw new Error(data.guidance?.message || 'The transaction result could not be verified. Check its status again.')
     }
     if (attempt < maxAttempts - 1) await waitForNextAttempt(delay)
