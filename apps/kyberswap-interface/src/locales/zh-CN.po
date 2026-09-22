@@ -97,8 +97,8 @@ msgid "Joined SafePal Campaign"
 msgstr ""
 
 #: src/pages/Earns/VaultDetail/index.tsx
-msgid "Risks & who manages this"
-msgstr ""
+#~ msgid "Risks & who manages this"
+#~ msgstr ""
 
 #: src/pages/KyberDAO/KNCUtility/GasRefundBox.tsx
 msgid "Total Gas Refund = Available + Pending + Claimed Gas Refund"
@@ -2029,8 +2029,8 @@ msgid "Your Voting Power"
 msgstr "您的投票权"
 
 #: src/pages/Earns/VaultDetail/RiskDisclaimerModal.tsx
-msgid "Earnings auto-compound into your balance. There is no reward to claim."
-msgstr ""
+#~ msgid "Earnings auto-compound into your balance. There is no reward to claim."
+#~ msgstr ""
 
 #: src/pages/Campaign/components/Information/info/nearIntents.tsx
 msgid "EVM ← Near L1"
@@ -4671,8 +4671,8 @@ msgid "Preferences"
 msgstr "偏好设置"
 
 #: src/pages/Earns/VaultDetail/RiskDisclaimerModal.tsx
-msgid "This vault is managed by {providerName}. KyberSwap provides the access interface only, and does not run the strategy or hold your funds."
-msgstr ""
+#~ msgid "This vault is managed by {providerName}. KyberSwap provides the access interface only, and does not run the strategy or hold your funds."
+#~ msgstr ""
 
 #: src/pages/NotificationCenter/CreateAlert/CreateAlertForm.tsx
 msgid "Create Alert Failed"
@@ -5549,8 +5549,8 @@ msgid "Exit when fee yield"
 msgstr ""
 
 #: src/pages/Earns/VaultDetail/RiskDisclaimerModal.tsx
-msgid "Your deposit is exposed to the vault's smart contracts and to whatever the strategy invests in. Returns are not guaranteed and the balance can fall."
-msgstr ""
+#~ msgid "Your deposit is exposed to the vault's smart contracts and to whatever the strategy invests in. Returns are not guaranteed and the balance can fall."
+#~ msgstr ""
 
 #: src/pages/Earns/components/VaultWithdraw/VaultWithdrawModal.tsx
 #: src/pages/Earns/VaultDetail/WithdrawTab.tsx
@@ -7267,8 +7267,8 @@ msgid "Show more"
 msgstr ""
 
 #: src/pages/Earns/VaultDetail/RiskDisclaimerModal.tsx
-msgid "Native withdrawals go through a queue: they start at around 3 days and can take longer depending on the strategy. Exiting sooner means selling on the market at whatever price it offers."
-msgstr ""
+#~ msgid "Native withdrawals go through a queue: they start at around 3 days and can take longer depending on the strategy. Exiting sooner means selling on the market at whatever price it offers."
+#~ msgstr ""
 
 #: src/pages/Campaign/components/CampaignStats/SafePalCampaignStats.tsx
 #: src/pages/Campaign/components/MyDashboard/SafePalDashboard.tsx
@@ -10643,8 +10643,8 @@ msgstr ""
 #~ msgstr "添加新仓位"
 
 #: src/pages/Earns/VaultDetail/RiskDisclaimerModal.tsx
-msgid "Before you deposit"
-msgstr ""
+#~ msgid "Before you deposit"
+#~ msgstr ""
 
 #: src/components/LimitOrder/Modals/CancelButtons.tsx
 #~ msgid "This order is not supported gasless cancel. Because it was created by our old contract"

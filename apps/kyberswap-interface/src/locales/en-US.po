@@ -97,8 +97,8 @@ msgid "Joined SafePal Campaign"
 msgstr "Joined SafePal Campaign"
 
 #: src/pages/Earns/VaultDetail/index.tsx
-msgid "Risks & who manages this"
-msgstr "Risks & who manages this"
+#~ msgid "Risks & who manages this"
+#~ msgstr "Risks & who manages this"
 
 #: src/pages/KyberDAO/KNCUtility/GasRefundBox.tsx
 msgid "Total Gas Refund = Available + Pending + Claimed Gas Refund"
@@ -2029,8 +2029,8 @@ msgid "Your Voting Power"
 msgstr "Your Voting Power"
 
 #: src/pages/Earns/VaultDetail/RiskDisclaimerModal.tsx
-msgid "Earnings auto-compound into your balance. There is no reward to claim."
-msgstr "Earnings auto-compound into your balance. There is no reward to claim."
+#~ msgid "Earnings auto-compound into your balance. There is no reward to claim."
+#~ msgstr "Earnings auto-compound into your balance. There is no reward to claim."
 
 #: src/pages/Campaign/components/Information/info/nearIntents.tsx
 msgid "EVM ← Near L1"
@@ -4671,8 +4671,8 @@ msgid "Preferences"
 msgstr "Preferences"
 
 #: src/pages/Earns/VaultDetail/RiskDisclaimerModal.tsx
-msgid "This vault is managed by {providerName}. KyberSwap provides the access interface only, and does not run the strategy or hold your funds."
-msgstr "This vault is managed by {providerName}. KyberSwap provides the access interface only, and does not run the strategy or hold your funds."
+#~ msgid "This vault is managed by {providerName}. KyberSwap provides the access interface only, and does not run the strategy or hold your funds."
+#~ msgstr "This vault is managed by {providerName}. KyberSwap provides the access interface only, and does not run the strategy or hold your funds."
 
 #: src/pages/NotificationCenter/CreateAlert/CreateAlertForm.tsx
 msgid "Create Alert Failed"
@@ -5549,8 +5549,8 @@ msgid "Exit when fee yield"
 msgstr "Exit when fee yield"
 
 #: src/pages/Earns/VaultDetail/RiskDisclaimerModal.tsx
-msgid "Your deposit is exposed to the vault's smart contracts and to whatever the strategy invests in. Returns are not guaranteed and the balance can fall."
-msgstr "Your deposit is exposed to the vault's smart contracts and to whatever the strategy invests in. Returns are not guaranteed and the balance can fall."
+#~ msgid "Your deposit is exposed to the vault's smart contracts and to whatever the strategy invests in. Returns are not guaranteed and the balance can fall."
+#~ msgstr "Your deposit is exposed to the vault's smart contracts and to whatever the strategy invests in. Returns are not guaranteed and the balance can fall."
 
 #: src/pages/Earns/components/VaultWithdraw/VaultWithdrawModal.tsx
 #: src/pages/Earns/VaultDetail/WithdrawTab.tsx
@@ -7267,8 +7267,8 @@ msgid "Show more"
 msgstr "Show more"
 
 #: src/pages/Earns/VaultDetail/RiskDisclaimerModal.tsx
-msgid "Native withdrawals go through a queue: they start at around 3 days and can take longer depending on the strategy. Exiting sooner means selling on the market at whatever price it offers."
-msgstr "Native withdrawals go through a queue: they start at around 3 days and can take longer depending on the strategy. Exiting sooner means selling on the market at whatever price it offers."
+#~ msgid "Native withdrawals go through a queue: they start at around 3 days and can take longer depending on the strategy. Exiting sooner means selling on the market at whatever price it offers."
+#~ msgstr "Native withdrawals go through a queue: they start at around 3 days and can take longer depending on the strategy. Exiting sooner means selling on the market at whatever price it offers."
 
 #: src/pages/Campaign/components/CampaignStats/SafePalCampaignStats.tsx
 #: src/pages/Campaign/components/MyDashboard/SafePalDashboard.tsx
@@ -10643,8 +10643,8 @@ msgstr "Each address can participate across multiple weeks, but can only claim a
 #~ msgstr "Add a new position"
 
 #: src/pages/Earns/VaultDetail/RiskDisclaimerModal.tsx
-msgid "Before you deposit"
-msgstr "Before you deposit"
+#~ msgid "Before you deposit"
+#~ msgstr "Before you deposit"
 
 #: src/components/LimitOrder/Modals/CancelButtons.tsx
 #~ msgid "This order is not supported gasless cancel. Because it was created by our old contract"

@@ -17,7 +17,6 @@ import { useActiveWeb3React } from 'hooks'
 import { ApyBarChart, EarningLineChart, TvlLineChart } from 'pages/Earns/ExploreVaults/MiniCharts'
 import DepositTab from 'pages/Earns/VaultDetail/DepositTab'
 import VaultDetailPageSkeleton from 'pages/Earns/VaultDetail/PageSkeleton'
-import RiskDisclaimerModal from 'pages/Earns/VaultDetail/RiskDisclaimerModal'
 import WithdrawTab from 'pages/Earns/VaultDetail/WithdrawTab'
 import ZapRouteStrip, { VaultRouteSummary } from 'pages/Earns/VaultDetail/ZapRouteStrip'
 import {
@@ -107,7 +106,6 @@ const VaultDetail = () => {
     searchParams.set('tab', tab)
     setSearchParams(searchParams, { replace: true })
   }
-  const [isRiskOpen, setRiskOpen] = useState(false)
   const [tvlPeriod, setTvlPeriod] = useState<PeriodKey>('7D')
   const [apyPeriod, setApyPeriod] = useState<PeriodKey>('7D')
   const [earningPeriod, setEarningPeriod] = useState<PeriodKey>('7D')
@@ -308,13 +306,6 @@ const VaultDetail = () => {
             <HowItWorks>
               <HowItWorksLabel>{t`How it works:`}</HowItWorksLabel>
               <span>{t`Strategy vault optimizing yield across DeFi; earnings auto-compound.`}</span>
-              <button
-                type="button"
-                onClick={() => setRiskOpen(true)}
-                className="cursor-pointer border-none bg-transparent p-0 text-base leading-6 text-primary underline max-sm:text-sm max-sm:leading-5"
-              >
-                {t`Risks & who manages this`}
-              </button>
             </HowItWorks>
           </ChartsCard>
         </ChartsColumn>
@@ -349,8 +340,6 @@ const VaultDetail = () => {
           )}
         </ActionCard>
       </ContentGrid>
-
-      <RiskDisclaimerModal isOpen={isRiskOpen} providerName={vault.partner} onDismiss={() => setRiskOpen(false)} />
     </PageWrapper>
   )
 }
