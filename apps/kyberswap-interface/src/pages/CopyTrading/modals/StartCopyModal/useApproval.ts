@@ -155,13 +155,16 @@ export const useStartCopyApproval = () => {
       authorization,
       currentAllowance,
       ownerAddress,
+      validateBeforeSign,
     }: {
       action: PreparedAction
       authorization: StartCopyAllowanceAuthorization
       currentAllowance: bigint
       ownerAddress: Address
+      validateBeforeSign: () => void
     }) => {
       const submitApproval = async (allowance: bigint) => {
+        validateBeforeSign()
         const result = await sendEVMTransaction({
           account: ownerAddress,
           contractAddress: authorization.quoteTokenAddress,

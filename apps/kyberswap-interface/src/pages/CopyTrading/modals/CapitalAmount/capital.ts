@@ -1,5 +1,10 @@
 import type { PreparedToken } from 'services/copyTrading/types/preparedActions'
 
+import type { QuoteToken } from 'pages/CopyTrading/hooks/useChainQuoteToken'
+
+// TODO: Change the temporary minimum capital amount to 0.
+export const MINIMUM_CAPITAL_AMOUNT = '1'
+
 export const CAPITAL_PERCENTAGES = [25, 50, 75, 100] as const
 
 export type CapitalPercentage = (typeof CAPITAL_PERCENTAGES)[number]
@@ -9,24 +14,27 @@ export type CapitalPreset = {
   percentage: CapitalPercentage
 }
 
-export type CapitalAction = 'startCopy' | 'addCapital'
+export const getFundingTokenKey = (chainId: number, token?: QuoteToken) =>
+  `${chainId}:${token?.address.toLowerCase() || ''}:${token?.decimals ?? ''}`
 
-export type CapitalInputQuoteToken = Required<Pick<PreparedToken, 'address' | 'decimals' | 'symbol'>> & {
-  minimumAmountRaw: Record<CapitalAction, string>
+export const FUNDING_TOKEN_CHANGED = 'Funding token information changed. Review the amount and prepare again.'
+
+export const resolveFundingToken = (
+  prepared: PreparedToken | undefined,
+  discovered: QuoteToken | undefined,
+): QuoteToken => {
+  if (
+    !discovered ||
+    prepared?.chainId !== discovered.chainId ||
+    prepared?.address?.toLowerCase() !== discovered.address.toLowerCase() ||
+    (prepared.decimals !== undefined && prepared.decimals !== discovered.decimals)
+  )
+    throw new Error(FUNDING_TOKEN_CHANGED)
+
+  return {
+    ...discovered,
+    symbol: prepared.symbol || discovered.symbol,
+    name: prepared.name || discovered.name,
+    logoUrl: prepared.logoUrl || discovered.logoUrl,
+  }
 }
-
-// TODO: Return this quote-token and capital-limit configuration from `/chains`, then store it in the Copy Trading
-// context so Start Copy, Add Capital, Withdraw, and future module consumers share one API-owned source of truth.
-const inputQuoteTokens: Record<number, CapitalInputQuoteToken> = {
-  8453: {
-    address: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
-    decimals: 6,
-    minimumAmountRaw: {
-      addCapital: '1000000',
-      startCopy: '1000000',
-    },
-    symbol: 'USDC',
-  },
-}
-
-export const getCapitalInputQuoteToken = (chainId: number) => inputQuoteTokens[chainId]

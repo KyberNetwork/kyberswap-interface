@@ -54,6 +54,7 @@ export type Chain = {
   name: string
   iconUrl: string
   isEnabled: boolean
+  quoteToken?: ChainQuoteToken
   accountGenerations?: AccountGeneration[]
 }
 
@@ -65,6 +66,8 @@ export type Token = {
   decimals?: number
   iconUrl?: string
 }
+
+export type ChainQuoteToken = Token & { decimals: number }
 
 export type AgentMetrics = {
   roiPct?: Metric

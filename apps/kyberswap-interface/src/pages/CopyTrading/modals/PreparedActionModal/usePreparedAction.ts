@@ -1,5 +1,5 @@
 import { getPublicClient } from '@wagmi/core'
-import { useRef, useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 import preparedActionApi from 'services/copyTrading/api/endpoints/preparedActions'
 import type { SubmittedActionStatusData } from 'services/copyTrading/types/actionStatus'
 import type { PreparedAction } from 'services/copyTrading/types/preparedActions'
@@ -29,6 +29,7 @@ import { getGatedWalletClient } from 'utils/walletClient'
 type UsePreparedActionProps = {
   getExpected: () => PreparedActionExpectation
   prepare: () => Promise<PreparedAction>
+  validateBeforeSubmit?: (action: PreparedAction) => void
   reviewUnavailable?: (action: PreparedAction) => boolean
   onPrepared?: (action: PreparedAction) => void
   onSubmittedSuccess?: (
@@ -40,12 +41,15 @@ type UsePreparedActionProps = {
 export const usePreparedAction = ({
   getExpected,
   prepare,
+  validateBeforeSubmit,
   reviewUnavailable,
   onPrepared,
   onSubmittedSuccess,
 }: UsePreparedActionProps) => {
   const [state, setState] = useState(DEFAULT_PREPARED_ACTION_STATE)
   const preparationVersion = useRef(0)
+  const beforeSubmitRef = useRef(validateBeforeSubmit)
+  beforeSubmitRef.current = validateBeforeSubmit
   const validateGenerationPolicy = useGenerationPolicy(getExpected().preview)
   const [getStatus] = preparedActionApi.useGetSubmittedActionStatusMutation()
   const refreshCopyTrading = useRefreshCopyTrading()
@@ -129,6 +133,7 @@ export const usePreparedAction = ({
     try {
       setState({ phase: 'awaiting_signature', action })
       await validateGenerationPolicy(action)
+      beforeSubmitRef.current?.(action)
       const publicClient = getPublicClient(wagmiConfig, { chainId: expected.chainId })
       const walletClient = await getGatedWalletClient({ chainId: expected.chainId })
       if (!publicClient || !walletClient) throw new Error('Wallet client is unavailable for the selected chain.')
@@ -151,6 +156,7 @@ export const usePreparedAction = ({
             })
           : undefined
 
+      beforeSubmitRef.current?.(action)
       const submittedHash = await walletClient.sendTransaction({
         account: expected.account as ViemAddress,
         chain: undefined,
@@ -243,10 +249,10 @@ export const usePreparedAction = ({
   const retry = () => retryPreparedAction()
   const retryAndConfirm = () => retryPreparedAction(confirmPreparedAction)
 
-  const reset = () => {
+  const reset = useCallback(() => {
     preparationVersion.current += 1
     setState(DEFAULT_PREPARED_ACTION_STATE)
-  }
+  }, [])
 
   const fail = (error: unknown, action = state.action) => {
     setState({ phase: 'error', action, error: getApiErrorMessage(error) })

@@ -31,7 +31,7 @@ export const useStartCopyAuthorization = () => {
   )
 
   const authorize = useCallback(
-    async (action: PreparedAction) => {
+    async (action: PreparedAction, validateBeforeSign: () => void) => {
       if (!account || action.expectedAccount?.toLowerCase() !== account.toLowerCase()) {
         throw new Error('The Start Copy authorization sender does not match your wallet.')
       }
@@ -68,6 +68,7 @@ export const useStartCopyAuthorization = () => {
           deadline,
           nonce,
         })
+        validateBeforeSign()
         const rawSignature = await signTypedDataRaw({
           account: ownerAddress,
           chainId: authorization.chainId,
@@ -87,6 +88,7 @@ export const useStartCopyAuthorization = () => {
         authorization,
         currentAllowance,
         ownerAddress,
+        validateBeforeSign,
       })
 
       return undefined

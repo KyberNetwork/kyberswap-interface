@@ -1,5 +1,5 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import agentApi from 'services/copyTrading/api/endpoints/agents'
 import discoveryApi from 'services/copyTrading/api/endpoints/discovery'
@@ -41,7 +41,6 @@ export const useStartCopyFlow = ({ agent, onDismiss }: { agent: StartCopyTarget;
 
   const capital = useCapitalAmount({
     account: account || undefined,
-    action: 'startCopy',
     connectedChainId: chainId,
     targetChainId: agent.chainId,
   })
@@ -54,6 +53,7 @@ export const useStartCopyFlow = ({ agent, onDismiss }: { agent: StartCopyTarget;
 
   const flow = usePreparedAction({
     getExpected: attempt.getExpected,
+    validateBeforeSubmit: capital.validatePreparation,
     prepare: async () => {
       if (!account || !capital.quoteToken) throw new Error('Connect a supported wallet and network first.')
       if (!capital.amountRaw) throw new Error('Enter an amount greater than zero.')
@@ -72,7 +72,7 @@ export const useStartCopyFlow = ({ agent, onDismiss }: { agent: StartCopyTarget;
 
       const scopedAttempt = attempt.getScopedStartAttempt(account, capital.amountRaw, generationId)
       const response = await attempt.requestStartCopy(scopedAttempt)
-      return response.data
+      return capital.validatePreparation(response.data)
     },
     onPrepared: attempt.acceptPreparation,
     reviewUnavailable: action => requiresStartCopyAuthorization(action) && !attempt.hasAuthorization(),
@@ -81,7 +81,17 @@ export const useStartCopyFlow = ({ agent, onDismiss }: { agent: StartCopyTarget;
       setCreatedCopyRunId(result.copyRunId)
     },
   })
-  const { state: flowState } = flow
+  const { state: flowState, reset: resetFlow } = flow
+  const previousTokenKey = useRef(capital.tokenKey)
+  useEffect(() => {
+    if (previousTokenKey.current === capital.tokenKey) return
+    previousTokenKey.current = capital.tokenKey
+    // Preserve observation once a transaction may have been submitted.
+    if (!flowState.hash && flowState.phase !== 'awaiting_signature' && flowState.phase !== 'confirming') {
+      resetFlow()
+      setAgreed(false)
+    }
+  }, [capital.tokenKey, flowState.hash, flowState.phase, resetFlow])
 
   const startPreview = flowState.action?.startCopy
   const authorizationKind = requiresStartCopyAuthorization(flowState.action)
@@ -173,8 +183,12 @@ export const useStartCopyFlow = ({ agent, onDismiss }: { agent: StartCopyTarget;
       const validationError = validatePreparedAction(diagnosticAction, attempt.getExpected(), { requireCall: false })
       if (validationError) throw new Error(validationError)
       await flow.validateGenerationPolicy(diagnosticAction)
+      capital.validatePreparation(diagnosticAction)
 
-      const createPermitData = await authorizeStartCopy(diagnosticAction)
+      const createPermitData = await authorizeStartCopy(diagnosticAction, () =>
+        capital.validatePreparation(diagnosticAction),
+      )
+      capital.validatePreparation(diagnosticAction)
       const authorizedAttempt = attempt.createAuthorizedAttempt({
         createPermitData,
         ownerAddress: account,
@@ -182,7 +196,7 @@ export const useStartCopyFlow = ({ agent, onDismiss }: { agent: StartCopyTarget;
       })
       await flow.prepare(async () => {
         const response = await attempt.requestStartCopy(authorizedAttempt)
-        return response.data
+        return capital.validatePreparation(response.data)
       })
     } catch (error) {
       flow.fail(error, diagnosticAction)

@@ -1,4 +1,5 @@
 import { ChainId } from '@kyberswap/ks-sdk-core'
+import { useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import preparedActionApi from 'services/copyTrading/api/endpoints/preparedActions'
 import type { CopyRunListItem } from 'services/copyTrading/types/copyRuns'
@@ -38,7 +39,6 @@ const AddCapitalModal = ({ isOpen, onDismiss, copyRun }: AddCapitalModalProps) =
 
   const capital = useCapitalAmount({
     account: account || undefined,
-    action: 'addCapital',
     connectedChainId: chainId,
     targetChainId: copyRun.chainId,
   })
@@ -58,6 +58,7 @@ const AddCapitalModal = ({ isOpen, onDismiss, copyRun }: AddCapitalModalProps) =
   }
 
   const flow = usePreparedAction({
+    validateBeforeSubmit: capital.validatePreparation,
     getExpected: () => ({
       account: account || '',
       callKinds: ADD_CAPITAL_CALL_KINDS,
@@ -89,10 +90,19 @@ const AddCapitalModal = ({ isOpen, onDismiss, copyRun }: AddCapitalModalProps) =
         throw new Error('The prepared amount does not match the requested capital amount.')
       }
 
-      return response.data
+      return capital.validatePreparation(response.data)
     },
   })
-  const { state: flowState } = flow
+  const { state: flowState, reset: resetFlow } = flow
+  const previousTokenKey = useRef(capital.tokenKey)
+  useEffect(() => {
+    if (previousTokenKey.current === capital.tokenKey) return
+    previousTokenKey.current = capital.tokenKey
+    // Preserve observation once a transaction may have been submitted.
+    if (!flowState.hash && flowState.phase !== 'awaiting_signature' && flowState.phase !== 'confirming') {
+      resetFlow()
+    }
+  }, [capital.tokenKey, flowState.hash, flowState.phase, resetFlow])
 
   const dismiss = () => {
     flow.reset()
@@ -179,6 +189,8 @@ const AddCapitalModal = ({ isOpen, onDismiss, copyRun }: AddCapitalModalProps) =
         primaryActionDisabled={primaryActionDisabled}
         primaryActionLabel={primaryActionLabel}
         quoteCurrency={capital.quoteCurrency}
+        onRetryToken={capital.refreshChains}
+        tokenLoading={capital.chainsLoading}
         selectedChainId={copyRun.chainId}
         walletBalanceLoading={capital.walletBalanceLoading}
         walletBalanceText={capital.walletBalanceText}

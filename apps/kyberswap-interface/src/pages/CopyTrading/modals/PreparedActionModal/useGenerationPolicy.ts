@@ -5,7 +5,7 @@ import { getGenerationExecutionError } from 'pages/CopyTrading/modals/PreparedAc
 import type { PreparedActionExpectation } from 'pages/CopyTrading/modals/PreparedActionModal/preparedAction'
 
 export const useGenerationPolicy = (preview: PreparedActionExpectation['preview']) => {
-  const { refetch } = discoveryApi.useGetChainsQuery(undefined, { refetchOnMountOrArgChange: true })
+  const { refetch } = discoveryApi.useGetChainsQuery(undefined, { refetchOnMountOrArgChange: false })
 
   return async (action: PreparedAction) => {
     const catalog = await refetch().unwrap()

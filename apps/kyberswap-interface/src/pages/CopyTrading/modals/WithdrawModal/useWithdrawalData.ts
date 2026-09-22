@@ -7,7 +7,7 @@ import type { CopyRunListItem } from 'services/copyTrading/types/copyRuns'
 
 import { wagmiConfig } from 'components/Web3Provider'
 import { getPreparedReasonMessage } from 'pages/CopyTrading/helpers'
-import { getCapitalInputQuoteToken } from 'pages/CopyTrading/modals/CapitalAmount/capital'
+import { useChainQuoteToken } from 'pages/CopyTrading/hooks/useChainQuoteToken'
 import { getApiErrorMessage, validatePreparedAction } from 'pages/CopyTrading/modals/PreparedActionModal/preparedAction'
 import { type Address, formatUnits } from 'utils/viem'
 
@@ -16,14 +16,14 @@ export const useWithdrawalInventory = (copyRun: CopyRunListItem, isOpen: boolean
     { chainId: copyRun.chainId, copyAccount: copyRun.copyAccount },
     { skip: !isOpen, refetchOnMountOrArgChange: false },
   )
-  const quoteToken = getCapitalInputQuoteToken(copyRun.chainId)
+  const { quoteToken, quoteCurrency } = useChainQuoteToken(copyRun.chainId)
   const pinned = inventory?.pinnedStableBalance
   const stable =
     pinned?.status === 'PINNED_STABLE_BALANCE_STATUS_PRESENT' &&
     pinned.balance?.tokenAddress.toLowerCase() === quoteToken?.address.toLowerCase()
       ? pinned.balance
       : undefined
-  return { inventory, stable, quoteToken, loading: isFetching && !inventory }
+  return { inventory, stable, quoteToken, quoteCurrency, loading: isFetching && !inventory }
 }
 
 export type WithdrawalInventory = ReturnType<typeof useWithdrawalInventory>

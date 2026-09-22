@@ -1,5 +1,9 @@
 import { adaptActionLogsResponse, adaptActivityResponse } from 'services/copyTrading/adapters/activity'
-import { adaptLeaderboardResponse, adaptPerformanceResponse } from 'services/copyTrading/adapters/agents'
+import {
+  adaptChainsResponse,
+  adaptLeaderboardResponse,
+  adaptPerformanceResponse,
+} from 'services/copyTrading/adapters/agents'
 import {
   adaptCopyAccountBalancesResponse,
   adaptCopyAccountWalletInventoryResponse,
@@ -411,5 +415,27 @@ describe('withdrawal and History contract', () => {
     expect(activity.execution?.baseToken?.symbol).toBe('ABC')
     expect(activity.execution?.baseToken?.chainId).toBe(8453)
     expect(activity.position).toBeUndefined()
+  })
+})
+
+describe('chain funding token discovery', () => {
+  const quoteToken = { chainId: '56', address: '0x55d398326f99059ff775485246999027b3197955', decimals: 18 }
+  it('preserves authoritative identity and decimals without display metadata', () => {
+    expect(adaptChainsResponse({ data: [{ chainId: '56', quoteToken }] }).data[0].quoteToken).toMatchObject({
+      ...quoteToken,
+      chainId: 56,
+    })
+  })
+  it.each([
+    undefined,
+    { ...quoteToken, decimals: undefined },
+    { ...quoteToken, decimals: 0 },
+    { ...quoteToken, decimals: 256 },
+    { ...quoteToken, decimals: 1.5 },
+    { ...quoteToken, address: '' },
+    { ...quoteToken, chainId: '8453' },
+    { ...quoteToken, chainId: undefined },
+  ])('does not invent funding information for invalid or omitted token %j', token => {
+    expect(adaptChainsResponse({ data: [{ chainId: '56', quoteToken: token }] }).data[0].quoteToken).toBeUndefined()
   })
 })

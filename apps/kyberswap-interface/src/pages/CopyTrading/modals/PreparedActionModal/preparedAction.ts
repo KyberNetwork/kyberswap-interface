@@ -73,8 +73,11 @@ export const getApiErrorMessage = (error: unknown) => {
 
 export const parsePreparedAmount = (amount: string, decimals: number) => {
   const normalized = amount.trim()
-  if (!normalized || Number(normalized) <= 0) throw new Error('Enter an amount greater than zero.')
-  return parseUnits(normalized, decimals).toString()
+  if (!/^(?:\d+(?:\.\d*)?|\.\d+)$/.test(normalized)) throw new Error('Enter an amount greater than zero.')
+  if ((normalized.split('.')[1]?.length || 0) > decimals) throw new Error('The amount exceeds the token precision.')
+  const raw = parseUnits(normalized, decimals)
+  if (raw <= 0n) throw new Error('Enter an amount greater than zero.')
+  return raw.toString()
 }
 
 const isUnavailableMetric = (metric?: RawAmountMetric) =>

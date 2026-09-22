@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect } from 'react'
 import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 import discoveryApi from 'services/copyTrading/api/endpoints/discovery'
 import type { Address } from 'services/copyTrading/types/primitives'
@@ -18,13 +18,15 @@ const CopyTrading = () => {
   const location = useLocation()
   const navigate = useNavigate()
   const { account } = useActiveWeb3React()
-  const previousPathname = useRef(location.pathname)
 
-  const { data: chains, refetch: refetchChains } = discoveryApi.useGetChainsQuery(undefined, {
-    pollingInterval: 10_000,
+  const {
+    data: chains,
+    refetch: refetchChains,
+    isFetching: chainsLoading,
+  } = discoveryApi.useGetChainsQuery(undefined, {
+    refetchOnMountOrArgChange: false,
   })
 
-  const { pathname } = location
   const ownerAddress = account?.toLowerCase() as Address | undefined
   const chainOptions = chains?.data || []
 
@@ -35,15 +37,13 @@ const CopyTrading = () => {
     navigate(location, { replace: true, state: null })
   }, [location, navigate])
 
-  useEffect(() => {
-    if (previousPathname.current === pathname) return
-    previousPathname.current = pathname
-
-    void refetchChains()
-  }, [pathname, refetchChains])
-
   return (
-    <CopyTradingProvider chains={chainOptions} ownerAddress={ownerAddress}>
+    <CopyTradingProvider
+      chains={chainOptions}
+      ownerAddress={ownerAddress}
+      refreshChains={refetchChains}
+      chainsLoading={chainsLoading}
+    >
       <CopyTradingModalProvider>
         <div className="flex min-h-screen w-full bg-black text-text max-lg:block">
           <Sidebar />
