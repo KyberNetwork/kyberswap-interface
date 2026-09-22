@@ -1219,6 +1219,10 @@ msgstr "Bridge Assets"
 msgid "Manage your pools."
 msgstr "Manage your pools."
 
+#: src/pages/Earns/ExploreVaults/MiniCharts.tsx
+msgid "Earning"
+msgstr "Earning"
+
 #: src/components/SwapForm/SlippageSettingGroup.tsx
 #: src/components/SwapForm/SwapModal/SwapDetails/index.tsx
 msgid "MEV Protection"
@@ -1498,6 +1502,7 @@ msgid "Liquidity"
 msgstr "Liquidity"
 
 #: src/components/EarnBanner/TrendingPoolBanner.tsx
+#: src/pages/Earns/ExploreVaults/MiniCharts.tsx
 #: src/pages/Earns/PoolExplorer/MobileTableRow.tsx
 #: src/pages/Earns/PoolExplorer/TableHeader.tsx
 #: src/pages/Earns/UserPositions/MigrationModal.tsx
@@ -2843,6 +2848,7 @@ msgstr "Fill:"
 msgid "Top 100 pools that have the high total earned fee in the last 7 days"
 msgstr "Top 100 pools that have the high total earned fee in the last 7 days"
 
+#: src/pages/Earns/ExploreVaults/MiniCharts.tsx
 #: src/pages/Earns/PoolExplorer/MobileTableRow.tsx
 #: src/pages/Earns/PoolExplorer/TableHeader.tsx
 #: src/pages/Earns/UserPositions/MigrationModal.tsx
@@ -9426,6 +9432,7 @@ msgstr "{nativeAssetSymbol} cannot be withdrawn from this vault."
 msgid "Detail"
 msgstr "Detail"
 
+#: src/pages/Earns/ExploreVaults/MiniCharts.tsx
 #: src/pages/Earns/Landing/FeaturedPartnerVaults/index.tsx
 #: src/pages/Earns/VaultDetail/index.tsx
 #: src/pages/Earns/VaultDetail/index.tsx

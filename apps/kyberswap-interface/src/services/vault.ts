@@ -233,6 +233,11 @@ export interface VaultWithdrawalRequestsResponse {
 /** One bucket of a position's growth series; carries the same envelope as every other figure. */
 export interface VaultGrowthPoint extends VaultFinancialValue {
   timestamp: string | null
+  /**
+   * The vault's annualised rate over this bucket. Not served yet — the tooltip shows it as soon as
+   * it is, and the shape is unconfirmed, so it is read through `growthPointApr`.
+   */
+  apr?: VaultFinancialValue | string | number | null
 }
 
 /**

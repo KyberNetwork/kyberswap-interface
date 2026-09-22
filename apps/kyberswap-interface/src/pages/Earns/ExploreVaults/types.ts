@@ -3,6 +3,8 @@ export interface ChartDataPoint {
   value: number | null
   /** RFC3339, when the series carries one — a tooltip that names its bucket needs it. */
   timestamp?: string
+  /** The vault's annualised rate over the same bucket, for a tooltip that shows both. */
+  rate?: number
 }
 
 export enum VaultSortBy {

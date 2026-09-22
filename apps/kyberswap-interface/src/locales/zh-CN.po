@@ -1219,6 +1219,10 @@ msgstr "跨链桥资产"
 msgid "Manage your pools."
 msgstr "管理您的资金池"
 
+#: src/pages/Earns/ExploreVaults/MiniCharts.tsx
+msgid "Earning"
+msgstr ""
+
 #: src/components/SwapForm/SlippageSettingGroup.tsx
 #: src/components/SwapForm/SwapModal/SwapDetails/index.tsx
 msgid "MEV Protection"
@@ -1498,6 +1502,7 @@ msgid "Liquidity"
 msgstr "流动性"
 
 #: src/components/EarnBanner/TrendingPoolBanner.tsx
+#: src/pages/Earns/ExploreVaults/MiniCharts.tsx
 #: src/pages/Earns/PoolExplorer/MobileTableRow.tsx
 #: src/pages/Earns/PoolExplorer/TableHeader.tsx
 #: src/pages/Earns/UserPositions/MigrationModal.tsx
@@ -2843,6 +2848,7 @@ msgstr "成交："
 msgid "Top 100 pools that have the high total earned fee in the last 7 days"
 msgstr "过去 7 天手续费最高的前 100 个资金池"
 
+#: src/pages/Earns/ExploreVaults/MiniCharts.tsx
 #: src/pages/Earns/PoolExplorer/MobileTableRow.tsx
 #: src/pages/Earns/PoolExplorer/TableHeader.tsx
 #: src/pages/Earns/UserPositions/MigrationModal.tsx
@@ -9426,6 +9432,7 @@ msgstr ""
 msgid "Detail"
 msgstr "详情"
 
+#: src/pages/Earns/ExploreVaults/MiniCharts.tsx
 #: src/pages/Earns/Landing/FeaturedPartnerVaults/index.tsx
 #: src/pages/Earns/VaultDetail/index.tsx
 #: src/pages/Earns/VaultDetail/index.tsx

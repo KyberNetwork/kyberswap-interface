@@ -1,3 +1,4 @@
+import { t } from '@lingui/macro'
 import dayjs from 'dayjs'
 import { memo, useId } from 'react'
 import { Area, AreaChart, Bar, BarChart, ReferenceLine, ResponsiveContainer, Tooltip, YAxis } from 'recharts'
@@ -18,26 +19,51 @@ const TooltipValue = ({ $color, children }: { $color: string; children: React.Re
   </span>
 )
 
-const ApyTooltipContent = ({ active, payload }: { active?: boolean; payload?: { value: number }[] }) => {
+/** Names the bucket a tooltip is describing; omitted by a series that carries no timestamps. */
+const TooltipTimestamp = ({ timestamp }: { timestamp?: string }) =>
+  timestamp ? <div className="mb-1 text-subText">{dayjs(timestamp).format('MMM D, YYYY HH:mm')}</div> : null
+
+const TooltipRow = ({ label, $color, children }: { label: string; $color: string; children: React.ReactNode }) => (
+  <div className="flex items-center justify-between gap-4">
+    <span className="text-subText">{label}</span>
+    <TooltipValue $color={$color}>{children}</TooltipValue>
+  </div>
+)
+
+const ApyTooltipContent = ({
+  active,
+  payload,
+}: {
+  active?: boolean
+  payload?: { value: number; payload: ChartDataPoint }[]
+}) => {
   const theme = useTheme()
   if (!active || !payload?.length) return null
   return (
     <TooltipWrapper>
-      <TooltipValue $color={theme.blue3}>
+      <TooltipTimestamp timestamp={payload[0].payload.timestamp} />
+      <TooltipRow label={t`APY`} $color={theme.blue3}>
         {formatDisplayNumber(payload[0].value, { style: 'decimal', fractionDigits: 2 })}%
-      </TooltipValue>
+      </TooltipRow>
     </TooltipWrapper>
   )
 }
 
-const TvlTooltipContent = ({ active, payload }: { active?: boolean; payload?: { value: number }[] }) => {
+const TvlTooltipContent = ({
+  active,
+  payload,
+}: {
+  active?: boolean
+  payload?: { value: number; payload: ChartDataPoint }[]
+}) => {
   const theme = useTheme()
   if (!active || !payload?.length) return null
   return (
     <TooltipWrapper>
-      <TooltipValue $color={theme.primary}>
+      <TooltipTimestamp timestamp={payload[0].payload.timestamp} />
+      <TooltipRow label={t`TVL`} $color={theme.primary}>
         {formatDisplayNumber(payload[0].value, { style: 'currency', significantDigits: 4 })}
-      </TooltipValue>
+      </TooltipRow>
     </TooltipWrapper>
   )
 }
@@ -52,17 +78,24 @@ const EarningTooltipContent = ({
 }) => {
   const theme = useTheme()
   if (!active || !payload?.length) return null
-  const { timestamp } = payload[0].payload
+  const { timestamp, rate } = payload[0].payload
   return (
     <TooltipWrapper>
-      {timestamp ? <div className="mb-0.5 text-subText">{dayjs(timestamp).format('MMM D, YYYY HH:mm')}</div> : null}
-      <TooltipValue $color={theme.blue3}>
-        {formatDisplayNumber(payload[0].value, {
-          style: 'currency',
-          significantDigits: 4,
-          allowDisplayNegative: true,
-        })}
-      </TooltipValue>
+      <TooltipTimestamp timestamp={timestamp} />
+      <div className="flex flex-col gap-0.5">
+        {rate !== undefined ? (
+          <TooltipRow label={t`APR`} $color={theme.blue3}>
+            {formatDisplayNumber(rate, { style: 'decimal', fractionDigits: 2 })}%
+          </TooltipRow>
+        ) : null}
+        <TooltipRow label={t`Earning`} $color={theme.text}>
+          {formatDisplayNumber(payload[0].value, {
+            style: 'currency',
+            significantDigits: 4,
+            allowDisplayNegative: true,
+          })}
+        </TooltipRow>
+      </div>
     </TooltipWrapper>
   )
 }
