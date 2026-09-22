@@ -6,7 +6,6 @@ import {
   VaultCanonicalPoint,
   VaultFinancialValue,
   VaultGrowthHistory,
-  VaultGrowthPoint,
   VaultPositionItem,
   VaultQueueFamily,
   VaultSupportedAsset,
@@ -55,24 +54,10 @@ export const toChartSeries = (
  * it existed are dropped: a month-long window on a week-old position would otherwise be mostly empty
  * space. Only the run at the front goes; a gap later on is a gap in the data and stays visible.
  */
-/**
- * The rate a growth bucket reports, once the endpoint carries one. Whether it arrives as a plain
- * number or wrapped in the usual envelope is not settled, so both are accepted; anything else counts
- * as absent and the tooltip simply leaves the rate out.
- */
-const growthPointApr = (point: VaultGrowthPoint): number | undefined => {
-  const { apr } = point
-  if (apr === undefined || apr === null) return undefined
-  if (typeof apr === 'object') return financialNumber(apr)
-  const parsed = Number(apr)
-  return Number.isFinite(parsed) ? parsed : undefined
-}
-
 export const toGrowthSeries = (history?: VaultGrowthHistory): ChartDataPoint[] => {
   const points = (history?.points || []).map(point => ({
     value: financialNumber(point) ?? null,
     timestamp: point.timestamp ?? undefined,
-    rate: growthPointApr(point),
   }))
   const firstValued = points.findIndex(point => point.value !== null)
   return firstValued > 0 ? points.slice(firstValued) : points

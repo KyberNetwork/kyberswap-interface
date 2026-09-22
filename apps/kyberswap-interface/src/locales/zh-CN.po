@@ -1502,7 +1502,6 @@ msgid "Liquidity"
 msgstr "流动性"
 
 #: src/components/EarnBanner/TrendingPoolBanner.tsx
-#: src/pages/Earns/ExploreVaults/MiniCharts.tsx
 #: src/pages/Earns/PoolExplorer/MobileTableRow.tsx
 #: src/pages/Earns/PoolExplorer/TableHeader.tsx
 #: src/pages/Earns/UserPositions/MigrationModal.tsx

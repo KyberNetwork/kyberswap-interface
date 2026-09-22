@@ -78,24 +78,17 @@ const EarningTooltipContent = ({
 }) => {
   const theme = useTheme()
   if (!active || !payload?.length) return null
-  const { timestamp, rate } = payload[0].payload
+  const { timestamp } = payload[0].payload
   return (
     <TooltipWrapper>
       <TooltipTimestamp timestamp={timestamp} />
-      <div className="flex flex-col gap-0.5">
-        {rate !== undefined ? (
-          <TooltipRow label={t`APR`} $color={theme.blue3}>
-            {formatDisplayNumber(rate, { style: 'decimal', fractionDigits: 2 })}%
-          </TooltipRow>
-        ) : null}
-        <TooltipRow label={t`Earning`} $color={theme.text}>
-          {formatDisplayNumber(payload[0].value, {
-            style: 'currency',
-            significantDigits: 4,
-            allowDisplayNegative: true,
-          })}
-        </TooltipRow>
-      </div>
+      <TooltipRow label={t`Earning`} $color={theme.blue3}>
+        {formatDisplayNumber(payload[0].value, {
+          style: 'currency',
+          significantDigits: 4,
+          allowDisplayNegative: true,
+        })}
+      </TooltipRow>
     </TooltipWrapper>
   )
 }
