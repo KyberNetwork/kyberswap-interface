@@ -111,15 +111,15 @@ describe('Copy Trading route boundary', () => {
     router.dispose()
   })
 
-  it.each([1, 8453])('handles missing quote token for chain %s at the outer boundary', chainId => {
+  it.each([1, 8453])('keeps the page available when chain %s omits its quote token', chainId => {
     const complete = discovery.data
     if (!complete) throw new Error('Missing catalog fixture')
     discovery.data = {
       data: complete.data.map(chain => (chain.chainId === chainId ? { ...chain, quoteToken: undefined } : chain)),
     }
     const router = routerAt('/copy-trading/base/my-copies')
-    expect(render(router)).toContain('Read error')
-    expect(render(router)).not.toContain('8453:list')
+    expect(render(router)).not.toContain('Read error')
+    expect(render(router)).toContain('8453:list')
     discovery.data = complete
     expect(render(router)).toContain('8453:list')
     router.dispose()
