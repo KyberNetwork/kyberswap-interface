@@ -21,6 +21,8 @@ import {
   SummaryUsd,
 } from 'pages/Earns/components/VaultDeposit/styles'
 import { DepositFormState } from 'pages/Earns/components/VaultDeposit/useDepositForm'
+import VaultPriceImpactNote from 'pages/Earns/components/VaultPriceImpactNote'
+import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
 import { formatSlippage } from 'utils/slippage'
 import { formatUnits } from 'utils/viem'
@@ -71,6 +73,8 @@ const ConfirmDeposit = ({
   const minSharesOut = form.minSharesOutRaw
     ? formatDisplayNumber(formatUnits(form.minSharesOutRaw, shareDecimals), { significantDigits: 6 })
     : '--'
+
+  const isImpactBad = form.priceImpactResult.isVeryHigh || form.priceImpactResult.isInvalid
 
   return (
     <>
@@ -172,10 +176,12 @@ const ConfirmDeposit = ({
         </p>
       </div>
 
+      <VaultPriceImpactNote result={form.priceImpactResult} />
+
       <ButtonGroup>
         <OutlinedButton onClick={onBack}>{t`Cancel`}</OutlinedButton>
-        <PrimaryButton onClick={onSubmit} disabled={!form.isReady}>
-          {t`Deposit`}
+        <PrimaryButton className={cn(isImpactBad && 'bg-red text-white')} onClick={onSubmit} disabled={!form.isReady}>
+          {isImpactBad ? t`Deposit Anyway` : t`Deposit`}
         </PrimaryButton>
       </ButtonGroup>
     </>

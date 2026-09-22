@@ -19,12 +19,14 @@ import {
   OutlinedButton,
   PrimaryButton,
 } from 'pages/Earns/components/VaultDeposit/styles'
+import VaultPriceImpactNote from 'pages/Earns/components/VaultPriceImpactNote'
 import VaultProcessingModal from 'pages/Earns/components/VaultProcessingModal'
 import ConfirmWithdraw from 'pages/Earns/components/VaultWithdraw/ConfirmWithdraw'
 import WithdrawFields from 'pages/Earns/components/VaultWithdraw/WithdrawFields'
 import { useWithdrawForm } from 'pages/Earns/components/VaultWithdraw/useWithdrawForm'
 import { VaultStep } from 'pages/Earns/components/vaultSteps'
 import { useWalletModalToggle } from 'state/application/hooks'
+import { cn } from 'utils/cn'
 
 export type VaultWithdrawTarget = { chainId: number; vaultId: string }
 
@@ -66,6 +68,9 @@ const WithdrawBody = ({
   })
 
   const chainName = vault.chain?.name ?? ''
+  // A bad route still goes through: it is named and the button turned, not disabled — the vault
+  // has no degen mode to switch the guard off with.
+  const isImpactBad = form.priceImpactResult.isVeryHigh || form.priceImpactResult.isInvalid
   const nativeAssetSymbol = form.nativeAsset?.symbol ?? ''
 
   const actionLabel = !form.account
@@ -78,6 +83,8 @@ const WithdrawBody = ({
     ? t`Insufficient balance`
     : form.belowMinimum
     ? t`Amount below the queue minimum`
+    : isImpactBad
+    ? t`Withdraw Anyway`
     : t`Withdraw`
 
   const onAction = () => {
@@ -119,6 +126,8 @@ const WithdrawBody = ({
 
             {blockingError ? <ErrorNote>{blockingError}</ErrorNote> : null}
 
+            {!blockingError ? <VaultPriceImpactNote result={form.priceImpactResult} /> : null}
+
             {form.chainId ? (
               <WithdrawRequestList
                 chainId={form.chainId}
@@ -137,7 +146,11 @@ const WithdrawBody = ({
 
             <ButtonGroup>
               <OutlinedButton onClick={onClose}>{t`Cancel`}</OutlinedButton>
-              <PrimaryButton onClick={onAction} disabled={Boolean(form.account) && !form.wrongChain && !form.isReady}>
+              <PrimaryButton
+                className={cn(isImpactBad && form.isReady && 'bg-red text-white')}
+                onClick={onAction}
+                disabled={Boolean(form.account) && !form.wrongChain && !form.isReady}
+              >
                 {actionLabel}
               </PrimaryButton>
             </ButtonGroup>

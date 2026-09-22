@@ -19,9 +19,11 @@ import {
   PrimaryButton,
 } from 'pages/Earns/components/VaultDeposit/styles'
 import { useDepositForm } from 'pages/Earns/components/VaultDeposit/useDepositForm'
+import VaultPriceImpactNote from 'pages/Earns/components/VaultPriceImpactNote'
 import VaultProcessingModal from 'pages/Earns/components/VaultProcessingModal'
 import { VaultStep } from 'pages/Earns/components/vaultSteps'
 import { useWalletModalToggle } from 'state/application/hooks'
+import { cn } from 'utils/cn'
 
 export type VaultDepositTarget = { chainId: number; vaultId: string }
 
@@ -56,6 +58,9 @@ const DepositBody = ({
   })
 
   const chainName = vault.chain?.name ?? ''
+  // A bad route still goes through: it is named and the button turned, not disabled — the vault
+  // has no degen mode to switch the guard off with.
+  const isImpactBad = form.priceImpactResult.isVeryHigh || form.priceImpactResult.isInvalid
 
   const actionLabel = !form.account
     ? t`Connect Wallet`
@@ -69,6 +74,8 @@ const DepositBody = ({
     ? t`Finding best route`
     : form.routeError
     ? t`No route found`
+    : isImpactBad
+    ? t`Deposit Anyway`
     : t`Deposit`
 
   const onAction = () => {
@@ -101,9 +108,15 @@ const DepositBody = ({
 
             {form.routeError && form.hasAmount ? <ErrorNote>{form.routeError}</ErrorNote> : null}
 
+            {!form.routeError && form.hasAmount ? <VaultPriceImpactNote result={form.priceImpactResult} /> : null}
+
             <ButtonGroup>
               <OutlinedButton onClick={onClose}>{t`Cancel`}</OutlinedButton>
-              <PrimaryButton onClick={onAction} disabled={Boolean(form.account) && !form.wrongChain && !form.isReady}>
+              <PrimaryButton
+                className={cn(isImpactBad && form.isReady && 'bg-red text-white')}
+                onClick={onAction}
+                disabled={Boolean(form.account) && !form.wrongChain && !form.isReady}
+              >
                 {actionLabel}
               </PrimaryButton>
             </ButtonGroup>

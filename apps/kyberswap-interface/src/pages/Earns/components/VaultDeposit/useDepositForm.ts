@@ -13,6 +13,7 @@ import { useDepositApprovals } from 'pages/Earns/components/VaultDeposit/useDepo
 import { VAULT_ACTION_STEP, VaultStep, vaultApproveStep } from 'pages/Earns/components/vaultSteps'
 import { tryParseAmount } from 'state/swap/hooks'
 import { useCurrencyBalances } from 'state/wallet/hooks'
+import { checkPriceImpact } from 'utils/prices'
 import { formatUnits } from 'utils/viem'
 
 /** Basis points. Covers the vault's rate drift between quoting and mining. */
@@ -310,6 +311,14 @@ export const useDepositForm = ({
       !deposit.isSubmitting,
   )
 
+  /**
+   * How far the route moves the price, judged on the same thresholds the swap form uses. The vault
+   * has no degen mode to switch off the guard, so a bad route is flagged and relabelled rather than
+   * blocked outright — the way the zap flows do it.
+   */
+  const priceImpact = deposit.route?.zapDetails.priceImpact
+  const priceImpactResult = checkPriceImpact(priceImpact)
+
   const totalUsd = deposit.route ? Number(deposit.route.zapDetails.initialAmountUsd) : undefined
 
   return {
@@ -338,6 +347,8 @@ export const useDepositForm = ({
 
     route: deposit.route,
     routeError: deposit.routeError,
+    priceImpact,
+    priceImpactResult,
     isRouteLoading: deposit.isRouteLoading,
     sharesOutRaw: deposit.sharesOutRaw,
     minSharesOutRaw: deposit.minSharesOutRaw,

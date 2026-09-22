@@ -2211,6 +2211,10 @@ msgstr "经典农场"
 msgid "Delegate Address"
 msgstr "委托地址"
 
+#: src/pages/Earns/components/VaultPriceImpactNote.tsx
+msgid "Unable to calculate the price impact of this route."
+msgstr ""
+
 #: src/pages/Campaign/components/JoinReferral.tsx
 msgid "Invite your friends"
 msgstr "邀请好友"
@@ -3558,6 +3562,12 @@ msgstr ""
 #: src/components/WalletPopup/type.ts
 msgid "Send"
 msgstr "发送"
+
+#: src/pages/Earns/components/VaultDeposit/ConfirmDeposit.tsx
+#: src/pages/Earns/components/VaultDeposit/VaultDepositModal.tsx
+#: src/pages/Earns/VaultDetail/DepositTab.tsx
+msgid "Deposit Anyway"
+msgstr ""
 
 #: src/pages/Earns/components/VaultDeposit/DepositFields.tsx
 msgid "Deposit token"
@@ -7312,6 +7322,12 @@ msgstr "出现问题，请重试"
 msgid "My Pools"
 msgstr "我的池子"
 
+#: src/pages/Earns/components/VaultWithdraw/ConfirmWithdraw.tsx
+#: src/pages/Earns/components/VaultWithdraw/VaultWithdrawModal.tsx
+#: src/pages/Earns/VaultDetail/WithdrawTab.tsx
+msgid "Withdraw Anyway"
+msgstr ""
+
 #: src/constants/index.ts
 #~ msgid "Stands for amplification factor. Each pool can have its own AMP. Pools with a higher AMP provide higher capital efficiency within a particular price range."
 #~ msgstr "AMP 表示放大系数。每个池子有不同 AMP，AMP 越高，在特定价格区间内资本效率越高"
@@ -8393,6 +8409,10 @@ msgstr ""
 #: src/components/LimitOrder/MyOrders/components.tsx
 msgid "Cancel All"
 msgstr "全部取消"
+
+#: src/pages/Earns/components/VaultPriceImpactNote.tsx
+msgid "Price impact is very high — you will lose a significant part of this amount. Try a smaller size."
+msgstr ""
 
 #: src/pages/Campaign/components/Information/info/stipAggregator.tsx
 #: src/pages/Campaign/components/Information/info/stipLimitOrder.tsx
@@ -10600,6 +10620,10 @@ msgstr ""
 #: src/pages/KyberDAO/StakeKNC/MigrateModal.tsx
 msgid "Migrate"
 msgstr "迁移"
+
+#: src/pages/Earns/components/VaultPriceImpactNote.tsx
+msgid "Price impact is higher than usual for this route."
+msgstr ""
 
 #: src/pages/Campaign/components/Information/info/stipLimitOrder.tsx
 msgid "The Total Claimable Rewards is the real amount of ARB that a user will get after filtering sybils, cheaters and potential calculation issues. All ARB allocations from recognized sybils and cheaters will be re-allocated proportionally to other eligible Limit-Order users."

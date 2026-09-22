@@ -9,12 +9,14 @@ import WithdrawRequestList from 'pages/Earns/VaultDetail/WithdrawRequestList'
 import { VaultRouteSummary } from 'pages/Earns/VaultDetail/ZapRouteStrip'
 import { ActionBody } from 'pages/Earns/VaultDetail/styles'
 import { ErrorNote, ModalWrapper, PrimaryButton } from 'pages/Earns/components/VaultDeposit/styles'
+import VaultPriceImpactNote from 'pages/Earns/components/VaultPriceImpactNote'
 import VaultProcessingModal from 'pages/Earns/components/VaultProcessingModal'
 import ConfirmWithdraw from 'pages/Earns/components/VaultWithdraw/ConfirmWithdraw'
 import WithdrawFields from 'pages/Earns/components/VaultWithdraw/WithdrawFields'
 import { useWithdrawForm } from 'pages/Earns/components/VaultWithdraw/useWithdrawForm'
 import { VaultStep } from 'pages/Earns/components/vaultSteps'
 import { useWalletModalToggle } from 'state/application/hooks'
+import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
 import { formatUnits } from 'utils/viem'
 
@@ -52,6 +54,9 @@ const WithdrawTab = ({
   })
 
   const chainName = vault.chain?.name ?? ''
+  // A bad route still goes through: it is named and the button turned, not disabled — the vault
+  // has no degen mode to switch the guard off with.
+  const isImpactBad = form.priceImpactResult.isVeryHigh || form.priceImpactResult.isInvalid
   const nativeAssetSymbol = form.nativeAsset?.symbol ?? ''
 
   // Only the any-token route swaps; a native redemption goes straight to the queue.
@@ -98,6 +103,8 @@ const WithdrawTab = ({
     ? t`Insufficient balance`
     : form.belowMinimum
     ? t`Amount below the queue minimum`
+    : isImpactBad
+    ? t`Withdraw Anyway`
     : t`Withdraw`
 
   const onAction = () => {
@@ -122,8 +129,10 @@ const WithdrawTab = ({
 
       {blockingError ? <ErrorNote>{blockingError}</ErrorNote> : null}
 
+      {!blockingError ? <VaultPriceImpactNote result={form.priceImpactResult} /> : null}
+
       <PrimaryButton
-        className="mt-auto w-full flex-none py-2.5"
+        className={cn('mt-auto w-full flex-none py-2.5', isImpactBad && form.isReady && 'bg-red text-white')}
         onClick={onAction}
         disabled={Boolean(form.account) && !form.wrongChain && !form.isReady}
       >

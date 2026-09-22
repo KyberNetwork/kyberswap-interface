@@ -18,8 +18,10 @@ import {
   SummaryRow,
   SummaryUsd,
 } from 'pages/Earns/components/VaultDeposit/styles'
+import VaultPriceImpactNote from 'pages/Earns/components/VaultPriceImpactNote'
 import { WithdrawFormState } from 'pages/Earns/components/VaultWithdraw/useWithdrawForm'
 import { formatTerm } from 'pages/Earns/hooks/useCountdown'
+import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
 import { formatSlippage } from 'utils/slippage'
 import { formatUnits } from 'utils/viem'
@@ -68,6 +70,8 @@ const ConfirmWithdraw = ({
   const zapOutUsd = form.zapRoute
     ? formatDisplayNumber(form.zapRoute.zapDetails.finalAmountUsd, { style: 'currency', significantDigits: 4 })
     : undefined
+
+  const isImpactBad = form.priceImpactResult.isVeryHigh || form.priceImpactResult.isInvalid
 
   return (
     <>
@@ -169,10 +173,12 @@ const ConfirmWithdraw = ({
         </p>
       ) : null}
 
+      <VaultPriceImpactNote result={form.priceImpactResult} />
+
       <ButtonGroup>
         <OutlinedButton onClick={onBack}>{t`Cancel`}</OutlinedButton>
-        <PrimaryButton onClick={onSubmit} disabled={!form.isReady}>
-          {t`Withdraw`}
+        <PrimaryButton className={cn(isImpactBad && 'bg-red text-white')} onClick={onSubmit} disabled={!form.isReady}>
+          {isImpactBad ? t`Withdraw Anyway` : t`Withdraw`}
         </PrimaryButton>
       </ButtonGroup>
     </>

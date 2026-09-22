@@ -2211,6 +2211,10 @@ msgstr "Classic Farms"
 msgid "Delegate Address"
 msgstr "Delegate Address"
 
+#: src/pages/Earns/components/VaultPriceImpactNote.tsx
+msgid "Unable to calculate the price impact of this route."
+msgstr "Unable to calculate the price impact of this route."
+
 #: src/pages/Campaign/components/JoinReferral.tsx
 msgid "Invite your friends"
 msgstr "Invite your friends"
@@ -3558,6 +3562,12 @@ msgstr "Estimated network fee for this transaction. What you actually pay depend
 #: src/components/WalletPopup/type.ts
 msgid "Send"
 msgstr "Send"
+
+#: src/pages/Earns/components/VaultDeposit/ConfirmDeposit.tsx
+#: src/pages/Earns/components/VaultDeposit/VaultDepositModal.tsx
+#: src/pages/Earns/VaultDetail/DepositTab.tsx
+msgid "Deposit Anyway"
+msgstr "Deposit Anyway"
 
 #: src/pages/Earns/components/VaultDeposit/DepositFields.tsx
 msgid "Deposit token"
@@ -7312,6 +7322,12 @@ msgstr "Something went wrong. Please try again."
 msgid "My Pools"
 msgstr "My Pools"
 
+#: src/pages/Earns/components/VaultWithdraw/ConfirmWithdraw.tsx
+#: src/pages/Earns/components/VaultWithdraw/VaultWithdrawModal.tsx
+#: src/pages/Earns/VaultDetail/WithdrawTab.tsx
+msgid "Withdraw Anyway"
+msgstr "Withdraw Anyway"
+
 #: src/constants/index.ts
 #~ msgid "Stands for amplification factor. Each pool can have its own AMP. Pools with a higher AMP provide higher capital efficiency within a particular price range."
 #~ msgstr "Stands for amplification factor. Each pool can have its own AMP. Pools with a higher AMP provide higher capital efficiency within a particular price range."
@@ -8393,6 +8409,10 @@ msgstr "SELLING"
 #: src/components/LimitOrder/MyOrders/components.tsx
 msgid "Cancel All"
 msgstr "Cancel All"
+
+#: src/pages/Earns/components/VaultPriceImpactNote.tsx
+msgid "Price impact is very high — you will lose a significant part of this amount. Try a smaller size."
+msgstr "Price impact is very high — you will lose a significant part of this amount. Try a smaller size."
 
 #: src/pages/Campaign/components/Information/info/stipAggregator.tsx
 #: src/pages/Campaign/components/Information/info/stipLimitOrder.tsx
@@ -10600,6 +10620,10 @@ msgstr "Cancelling"
 #: src/pages/KyberDAO/StakeKNC/MigrateModal.tsx
 msgid "Migrate"
 msgstr "Migrate"
+
+#: src/pages/Earns/components/VaultPriceImpactNote.tsx
+msgid "Price impact is higher than usual for this route."
+msgstr "Price impact is higher than usual for this route."
 
 #: src/pages/Campaign/components/Information/info/stipLimitOrder.tsx
 msgid "The Total Claimable Rewards is the real amount of ARB that a user will get after filtering sybils, cheaters and potential calculation issues. All ARB allocations from recognized sybils and cheaters will be re-allocated proportionally to other eligible Limit-Order users."

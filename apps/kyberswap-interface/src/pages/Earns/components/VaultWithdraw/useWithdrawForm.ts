@@ -18,6 +18,7 @@ import { VAULT_POLLING_INTERVAL } from 'pages/Earns/constants/vault'
 import { useZapSwap } from 'pages/Earns/hooks/useZapSwap'
 import { getBoringQueueRoute, getOpenWithdrawRequests, safeBigInt } from 'pages/Earns/utils/vault'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
+import { checkPriceImpact } from 'utils/prices'
 import { formatUnits, parseUnits } from 'utils/viem'
 
 export enum WithdrawMode {
@@ -206,6 +207,13 @@ export const useWithdrawForm = ({
     setPercent(undefined)
   }, [])
 
+  /**
+   * Only the aggregator route moves a price: a native redemption is quoted by the queue and filled
+   * at that quote. Judged on the swap form's thresholds.
+   */
+  const zapPriceImpact = isNative ? undefined : zapWithdraw.route?.zapDetails.priceImpact
+  const zapPriceImpactResult = checkPriceImpact(zapPriceImpact)
+
   const active = isNative ? nativeWithdraw : zapWithdraw
 
   const minimumShares = safeBigInt(queueLimits?.minimumShares)
@@ -274,6 +282,8 @@ export const useWithdrawForm = ({
     // any token
     swapToken,
     setSwapToken,
+    priceImpact: zapPriceImpact,
+    priceImpactResult: zapPriceImpactResult,
     zapRoute: zapWithdraw.route,
     zapAmountOutRaw: zapWithdraw.amountOutRaw,
     zapMinAmountOutRaw: zapWithdraw.minAmountOutRaw,

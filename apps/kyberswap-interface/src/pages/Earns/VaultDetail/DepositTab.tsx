@@ -11,9 +11,11 @@ import ConfirmDeposit from 'pages/Earns/components/VaultDeposit/ConfirmDeposit'
 import DepositFields from 'pages/Earns/components/VaultDeposit/DepositFields'
 import { ErrorNote, ModalWrapper, PrimaryButton } from 'pages/Earns/components/VaultDeposit/styles'
 import { useDepositForm } from 'pages/Earns/components/VaultDeposit/useDepositForm'
+import VaultPriceImpactNote from 'pages/Earns/components/VaultPriceImpactNote'
 import VaultProcessingModal from 'pages/Earns/components/VaultProcessingModal'
 import { VaultStep } from 'pages/Earns/components/vaultSteps'
 import { useWalletModalToggle } from 'state/application/hooks'
+import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
 import { formatUnits } from 'utils/viem'
 
@@ -95,6 +97,9 @@ const DepositTab = ({
   }, [JSON.stringify(routeSummary)])
 
   const chainName = vault.chain?.name ?? ''
+  // A bad route still goes through: it is named and the button turned, not disabled — the vault
+  // has no degen mode to switch the guard off with.
+  const isImpactBad = form.priceImpactResult.isVeryHigh || form.priceImpactResult.isInvalid
   const singleSymbol = isMultiToken ? '' : spent[0]?.currency.symbol ?? ''
 
   const actionLabel = !form.account
@@ -109,6 +114,8 @@ const DepositTab = ({
     ? t`Finding best route`
     : form.routeError
     ? t`No route found`
+    : isImpactBad
+    ? t`Deposit Anyway`
     : singleSymbol
     ? t`Deposit ${singleSymbol}`
     : t`Deposit`
@@ -125,8 +132,10 @@ const DepositTab = ({
 
       {form.routeError && form.hasAmount ? <ErrorNote>{form.routeError}</ErrorNote> : null}
 
+      {!form.routeError && form.hasAmount ? <VaultPriceImpactNote result={form.priceImpactResult} /> : null}
+
       <PrimaryButton
-        className="mt-auto w-full flex-none py-2.5"
+        className={cn('mt-auto w-full flex-none py-2.5', isImpactBad && form.isReady && 'bg-red text-white')}
         onClick={onAction}
         disabled={Boolean(form.account) && !form.wrongChain && !form.isReady}
       >
