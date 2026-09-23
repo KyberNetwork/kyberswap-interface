@@ -20,13 +20,13 @@ import SlippageSelect from 'pages/Earns/components/VaultDeposit/SlippageSelect'
 import {
   AmountInput,
   BalanceButton,
+  DetailsBox,
   Field,
   FieldNote,
   FieldRow,
   FieldSeam,
   FieldStack,
   InfoLabel,
-  InfoList,
   InfoRow,
   InfoValue,
   Pill,
@@ -213,7 +213,7 @@ const WithdrawFields = ({ vault, form }: { vault: VaultApiDetailItem; form: With
         </Field>
       </FieldStack>
 
-      <InfoList>
+      <DetailsBox>
         {/* One label for both paths, as the design has it. Only the aggregator route has a slippage
             floor, so on the queue path the tooltip says the figure is exact. */}
         <InfoRow>
@@ -254,7 +254,7 @@ const WithdrawFields = ({ vault, form }: { vault: VaultApiDetailItem; form: With
             isResolving={form.isSlippageResolving}
           />
         )}
-      </InfoList>
+      </DetailsBox>
 
       {form.isNative ? (
         <FieldNote className="text-gray">

@@ -40,7 +40,7 @@ const VaultProcessingModal = ({
       title={getVaultProcessingTitle(kind)}
       getStepLabel={getVaultStepLabel({ tokenSymbol, approveSymbols, kind })}
       errorMessage={errorMessage}
-      successAction={{ label: t`My Vaults`, onClick: () => navigate(APP_PATHS.EARN_MY_VAULTS) }}
+      successAction={{ label: t`View positions`, onClick: () => navigate(APP_PATHS.EARN_MY_VAULTS) }}
       onClose={onClose}
     />
   )

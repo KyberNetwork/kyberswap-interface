@@ -74,6 +74,14 @@ const ConfirmDeposit = ({
   const minSharesOut = form.minSharesOutRaw
     ? formatDisplayNumber(formatUnits(form.minSharesOutRaw, shareDecimals), { significantDigits: 6 })
     : '--'
+  // The route prices the shares it delivers, not the floor; the floor's worth follows the ratio.
+  const minReceiveUsd =
+    form.route && form.minSharesOutRaw && form.sharesOutRaw
+      ? formatDisplayNumber(
+          (Number(form.route.zapDetails.finalAmountUsd) * Number(form.minSharesOutRaw)) / Number(form.sharesOutRaw),
+          { style: 'currency', significantDigits: 4 },
+        )
+      : undefined
 
   const isImpactBad = form.priceImpactResult.isVeryHigh || form.priceImpactResult.isInvalid
 
@@ -89,34 +97,31 @@ const ConfirmDeposit = ({
 
       <VaultIdentityRow vault={vault} />
 
-      <div className="flex w-full flex-col gap-2">
+      <SummaryRow className="flex-col items-stretch gap-2 py-3">
         <div className="flex w-full items-center justify-between gap-2">
           <SummaryLabel>{t`You are depositing:`}</SummaryLabel>
           {totalUsd ? <SummaryAmount>{totalUsd}</SummaryAmount> : null}
         </div>
-        <SummaryRow className="flex-col items-stretch gap-2 py-3">
-          {spent.map(row => (
-            <span key={row.key} className="flex items-center gap-2">
-              {row.logo ? (
-                <TokenLogo src={row.logo} alt={row.currency.symbol} size={20} />
-              ) : (
-                <CurrencyLogo currency={row.currency} size="20px" />
-              )}
-              <SummaryAmount>
-                {formatDisplayNumber(row.parsedAmount?.toExact() ?? '0', { significantDigits: 6 })}{' '}
-                {row.currency.symbol}
-              </SummaryAmount>
-              {row.amountUsd !== undefined ? (
-                <SummaryUsd>
-                  ~ {formatDisplayNumber(row.amountUsd, { style: 'currency', significantDigits: 4 })}
-                </SummaryUsd>
-              ) : null}
-            </span>
-          ))}
-        </SummaryRow>
-      </div>
+        {spent.map(row => (
+          <span key={row.key} className="flex items-center gap-2">
+            {row.logo ? (
+              <TokenLogo src={row.logo} alt={row.currency.symbol} size={20} />
+            ) : (
+              <CurrencyLogo currency={row.currency} size="20px" />
+            )}
+            <SummaryAmount>
+              {formatDisplayNumber(row.parsedAmount?.toExact() ?? '0', { significantDigits: 6 })} {row.currency.symbol}
+            </SummaryAmount>
+            {row.amountUsd !== undefined ? (
+              <SummaryUsd>
+                ~ {formatDisplayNumber(row.amountUsd, { style: 'currency', significantDigits: 4 })}
+              </SummaryUsd>
+            ) : null}
+          </span>
+        ))}
+      </SummaryRow>
 
-      <SummaryRow className="justify-between">
+      <SummaryRow className="justify-between bg-white-04">
         <SummaryLabel>{t`Est. Receive`}</SummaryLabel>
         <span className="flex items-center gap-2">
           {shareLogo ? <TokenLogo src={shareLogo} alt={shareSymbol} size={20} /> : null}
@@ -135,6 +140,7 @@ const ConfirmDeposit = ({
           <InfoValue>
             {shareLogo ? <TokenLogo src={shareLogo} alt={shareSymbol} size={16} /> : null}
             {minSharesOut} {shareSymbol}
+            {minReceiveUsd ? <span className="text-subText">~{minReceiveUsd}</span> : null}
           </InfoValue>
         </InfoRow>
         <InfoRow>
@@ -150,18 +156,6 @@ const ConfirmDeposit = ({
           </InfoValue>
         </InfoRow>
       </DetailsBox>
-
-      {/* Nothing on this screen otherwise says how the money comes back out, and the queue is the
-          part people are surprised by. The wait is stated in words rather than read from the queue:
-          its terms live behind the vault's `contracts.withdrawQueue`, which the API does not return. */}
-      <div className="flex w-full flex-col gap-1">
-        <p className="m-0 text-xs italic leading-4 text-subText">
-          {t`Earnings auto-compound into your balance — there is nothing to claim.`}
-        </p>
-        <p className="m-0 text-xs italic leading-4 text-subText">
-          {t`Native withdrawals are not instant: they queue for ~3 days and can take longer depending on the strategy.`}
-        </p>
-      </div>
 
       <VaultPriceImpactNote result={form.priceImpactResult} />
 

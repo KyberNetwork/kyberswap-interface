@@ -4,11 +4,11 @@ import ValueSkeleton from 'pages/Earns/components/ValueSkeleton'
 import { CloseButton } from 'pages/Earns/components/VaultDeposit/ConfirmDeposit'
 import {
   ButtonGroup,
+  DetailsBox,
   Field,
   FieldRow,
   FieldSeam,
   FieldStack,
-  InfoList,
   InfoRow,
   ModalHeader,
   ModalTitle,
@@ -115,10 +115,10 @@ export const VaultFieldsSkeleton = ({ kind }: { kind: VaultFormKind }) => (
       </FieldStack>
     )}
 
-    <InfoList>
+    <DetailsBox>
       <InfoRowSkeleton labelWidth="w-32" rowHeight={kind === 'deposit' ? 'h-5' : 'h-[22px]'} />
       <InfoRowSkeleton labelWidth="w-24" rowHeight={kind === 'deposit' ? 'h-8' : 'h-[22px]'} />
-    </InfoList>
+    </DetailsBox>
 
     {/* The queue path, which a withdrawal opens on, closes with a note about the payout. */}
     {kind === 'withdraw' ? <NoteSkeleton /> : null}

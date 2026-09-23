@@ -15,11 +15,11 @@ import {
   AddTokenButton,
   AmountInput,
   BalanceButton,
+  DetailsBox,
   Field,
   FieldCaption,
   FieldRow,
   InfoLabel,
-  InfoList,
   InfoRow,
   InfoValue,
   Pill,
@@ -166,7 +166,7 @@ const DepositFields = ({ vault, form }: { vault: VaultApiDetailItem; form: Depos
         )}
       </FieldCaption>
 
-      <InfoList>
+      <DetailsBox>
         {/* Slippage applies to the shares the route mints, whether or not a swap happened on the
             way in, so the floor it implies is worth stating for every deposit. */}
         <InfoRow>
@@ -194,7 +194,7 @@ const DepositFields = ({ vault, form }: { vault: VaultApiDetailItem; form: Depos
           notice={form.slippageNotice}
           isResolving={form.isSlippageResolving}
         />
-      </InfoList>
+      </DetailsBox>
 
       {isSelectorOpen ? (
         <Portal>

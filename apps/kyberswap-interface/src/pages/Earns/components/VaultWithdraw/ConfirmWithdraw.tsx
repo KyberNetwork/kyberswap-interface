@@ -71,6 +71,16 @@ const ConfirmWithdraw = ({
         })} ${form.swapToken.symbol}`
       : '--'
 
+  // The route prices what it delivers, not the floor; the floor's worth follows the same ratio.
+  const zapMinOutUsd =
+    form.zapRoute && form.zapMinAmountOutRaw !== undefined && form.zapAmountOutRaw
+      ? formatDisplayNumber(
+          (Number(form.zapRoute.zapDetails.finalAmountUsd) * Number(form.zapMinAmountOutRaw)) /
+            Number(form.zapAmountOutRaw),
+          { style: 'currency', significantDigits: 4 },
+        )
+      : undefined
+
   const sharesUsd = form.zapRoute
     ? formatDisplayNumber(form.zapRoute.zapDetails.initialAmountUsd, { style: 'currency', significantDigits: 4 })
     : undefined
@@ -142,7 +152,10 @@ const ConfirmWithdraw = ({
                 : t`The least you will receive if the price moves against you by the full slippage tolerance.`
             }
           >{t`Est. Min Received`}</InfoLabel>
-          <InfoValue>{form.isNative ? nativeOut : zapMinOut}</InfoValue>
+          <InfoValue>
+            {form.isNative ? nativeOut : zapMinOut}
+            {!form.isNative && zapMinOutUsd ? <span className="text-subText">~{zapMinOutUsd}</span> : null}
+          </InfoValue>
         </InfoRow>
 
         {form.isNative ? (

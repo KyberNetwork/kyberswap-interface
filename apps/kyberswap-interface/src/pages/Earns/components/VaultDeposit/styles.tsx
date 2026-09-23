@@ -5,7 +5,7 @@ import { TextHelper } from 'components/Text'
 import { cn } from 'utils/cn'
 
 export const Field = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
-  <div className={cn('flex w-full flex-col gap-4 rounded-xl bg-white-04 px-4 py-3', className)} {...rest} />
+  <div className={cn('flex w-full flex-col gap-4 rounded-xl bg-black-20 px-4 py-3', className)} {...rest} />
 )
 
 export const FieldRow = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
@@ -163,7 +163,7 @@ export const SummaryLabel = ({ className, ...rest }: HTMLAttributes<HTMLSpanElem
 )
 
 export const SummaryRow = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
-  <div className={cn('flex w-full items-center gap-2 rounded-xl bg-white-04 px-4 py-2', className)} {...rest} />
+  <div className={cn('flex w-full items-center gap-2 rounded-xl bg-black-20 px-4 py-2', className)} {...rest} />
 )
 
 export const SummaryAmount = ({ className, ...rest }: HTMLAttributes<HTMLSpanElement>) => (
@@ -175,7 +175,7 @@ export const SummaryUsd = ({ className, ...rest }: HTMLAttributes<HTMLSpanElemen
 )
 
 export const DetailsBox = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
-  <div className={cn('flex w-full flex-col gap-2 rounded-xl border border-white-04 p-3', className)} {...rest} />
+  <div className={cn('flex w-full flex-col gap-2 rounded-xl border border-white-08 p-3', className)} {...rest} />
 )
 
 export const ErrorNote = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
