@@ -178,13 +178,14 @@ export const DetailsBox = ({ className, ...rest }: HTMLAttributes<HTMLDivElement
   <div className={cn('flex w-full flex-col gap-2 rounded-xl border border-white-08 p-3', className)} {...rest} />
 )
 
+/** Carries the tone in the background alone, the way the zap flows' own notes do. */
 export const ErrorNote = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
-  <div className={cn('w-full rounded-xl bg-red-20 px-3 py-2 text-xs leading-5 text-red', className)} {...rest} />
+  <div className={cn('w-full rounded-xl bg-red-20 px-3 py-2 text-sm text-white', className)} {...rest} />
 )
 
 /** The same note in the tone the zap flows give a setting that is unusual but still workable. */
 export const WarningNote = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
-  <div className={cn('w-full rounded-xl bg-warning-20 px-3 py-2 text-xs leading-5 text-white', className)} {...rest} />
+  <div className={cn('w-full rounded-xl bg-warning-20 px-3 py-2 text-sm text-white', className)} {...rest} />
 )
 
 export const SegmentedTabs = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
