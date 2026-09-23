@@ -10,7 +10,7 @@ import {
   MINIMUM_CAPITAL_AMOUNT,
   resolveFundingToken,
 } from 'pages/CopyTrading/modals/CapitalAmount/capital'
-import { parsePreparedAmount } from 'pages/CopyTrading/modals/PreparedActionModal/preparedAction'
+import { isPreparationFailure, parsePreparedAmount } from 'pages/CopyTrading/modals/PreparedActionModal/preparedAction'
 import { formatDisplayNumber } from 'utils/numbers'
 import { formatUnits, parseUnits } from 'utils/viem'
 
@@ -51,6 +51,7 @@ export const useCapitalAmount = ({ account, connectedChainId, targetChainId }: U
   const currentFunding = useRef({ quoteToken, amountRaw })
   currentFunding.current = { quoteToken, amountRaw }
   const validatePreparation = (action: PreparedAction): PreparedAction => {
+    if (isPreparationFailure(action)) return action
     const isPendingOrCompleted =
       action.status === 'PREPARED_ACTION_STATUS_PENDING' || action.status === 'PREPARED_ACTION_STATUS_COMPLETED'
     if (

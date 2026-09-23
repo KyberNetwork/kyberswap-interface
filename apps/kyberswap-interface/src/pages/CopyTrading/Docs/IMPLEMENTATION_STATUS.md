@@ -1,6 +1,6 @@
 # Copy Trading Implementation Status
 
-Last reviewed: 2026-09-22
+Last reviewed: 2026-09-23
 
 This file is the frontend snapshot for the current Copy Trading implementation.
 It records only current ownership, accepted product decisions, remaining gaps,
@@ -302,14 +302,16 @@ Cross-flow decisions:
   to POST /users/{ownerAddress}/actions:status. The context owner must match
   the prepared sender. Context is not rebuilt from current list/detail data,
   and preparation expiry does not prevent observation.
-- Product decision (2026-09-22): transaction.outcome SUCCESS completes the UI
-  immediately, including while status is SYNCING or result is absent. Stop
-  does not wait for stopIntentId. This intentionally uses the outer transaction
-  outcome rather than the catalog's action verification/publication status.
-  FE does not compare capital, balances, lifecycle, or source-block coverage.
-- Without a resolved outcome, poll sequentially for at most 11 attempts when
-  guidance.retryAfterMs is valid, without checking action status. The last returned
-  receipt is sent as previousReceipt within that polling attempt sequence.
+- Product decision (2026-09-23): display.status READY completes the shared flow
+  for every action, including while action status is SYNCING or result is absent.
+  Each flow receives the full display object, also retained in success state.
+  Start uses copyRunId for its My Copies action; Stop uses copyRunId and
+  readOwnerAddress for its navigation read. Capital metrics, position ID and
+  finality remain available in state; the UI does not directly render them.
+- Until display is READY, poll sequentially for at most 11 attempts when
+  guidance.retryAfterMs is valid, without checking action status. Missing or
+  unknown display status does not fall back to transaction outcome success.
+  The last returned receipt is sent as previousReceipt within that polling attempt sequence.
   The limit is an attempt count, not a fixed 20-second timeout.
 - HTTP errors, unsupported/unverifiable results, missing context, and exhausted
   polling enter the existing sync recovery. Manual retry observes the saved
@@ -320,7 +322,7 @@ Cross-flow decisions:
 - Both initial submission and receipt retry use receipt.transactionHash after
   receipt resolution, including replacement transactions such as wallet Speed up.
   State, explorer links, and subsequent status retries retain that resolved hash.
-- Cache invalidation runs after receipt success and again after API outcome success,
+- Cache invalidation runs after receipt success and again after display readiness,
   refreshing both RTK Query and TanStack Copy Trading reads. Stop additionally
   reads the returned Copy Run once to choose My Copies versus History; failure
   of this navigation-only read does not invalidate transaction success.
@@ -353,8 +355,12 @@ Cross-flow decisions:
   decimal precision. Quote-token identity is fixed per chain; route remounts own
   chain-change resets, without token-change keys or effects inside funding forms.
 - Funding preparations and wallet submission validate the prepared token and
-  amount against the current form. Matching discovery metadata fills omitted
-  preparation display fields/decimals; mismatches require amount review. Start attempt identity is retained during this check.
+  amount against the current form. Non-callable PENDING/UNAVAILABLE failures
+  with failureDetails or ACTION_SETUP_UNAVAILABLE preserve the API diagnostic
+  without requiring amount fields or updating Start attempt identity. The shared
+  flow shows the safe failure message and honors guidance.retryAfterMs for manual
+  retry. Matching discovery metadata fills omitted preparation display fields/decimals;
+  mismatches require amount review. Start attempt identity is retained during this check.
 - Start Copy keeps authorization and Create as separate user actions.
 - Add Capital has no intermediate review.
 - Wallet balance loading is explicit. Preparation remains the final balance and
@@ -423,7 +429,7 @@ Cross-flow decisions:
 - Exact current balances, quote-token membership, recipient, and 1–100 unique
   tokens per batch are validated. Stop Copy retains its 32-position limit. Display price/rebate availability is independent
   from readiness; zero-balance selections remain executable.
-- All Tokens finishes after one transaction and SUCCEEDED submitted status,
+- All Tokens finishes after one transaction and display READY,
   regardless of hasMoreTokens. There is no next-batch CTA, batch
   state, or batch-specific preview cache. To withdraw remaining eligible tokens,
   close and reopen the modal for a fresh preview and preparation. Success means
@@ -472,7 +478,14 @@ from the frontend.
 
 ## Verification Snapshot
 
-Latest completed static checks (2026-09-22): app TypeScript, Copy Trading ESLint,
+September 23, 2026: **264 tests across 21 files**, app TypeScript, ESLint on
+changed files, and `git diff --check` passed. Added regression coverage exercises funding
+validation through the shared preparation handler with missing diagnostic amounts,
+preserves failure messages/retry delays, and retains executable amount checks.
+Display-readiness coverage verifies READY during SYNCING, waiting on display
+PENDING after transaction success, and passing action-specific display data.
+
+Previous static checks (2026-09-22): app TypeScript, Copy Trading ESLint,
 `git diff --check`, and **236 tests across 21 files** passed. Regression coverage
 includes status-context validation, explicit reset during preparation, and Start
 attempt snapshots and identity across renders. Funding regressions cover chain
