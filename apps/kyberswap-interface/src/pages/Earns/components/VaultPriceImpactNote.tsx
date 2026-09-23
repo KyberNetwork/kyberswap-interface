@@ -1,10 +1,13 @@
 import { t } from '@lingui/macro'
 
-import { ErrorNote } from 'pages/Earns/components/VaultDeposit/styles'
+import { ErrorNote, WarningNote } from 'pages/Earns/components/VaultDeposit/styles'
 import { cn } from 'utils/cn'
 import { checkPriceImpact } from 'utils/prices'
 
 type PriceImpactResult = ReturnType<typeof checkPriceImpact>
+
+/** The treatment the zap flows give the same reading: full-size text, undimmed, on the tone alone. */
+const ZAP_NOTE = 'text-sm text-white'
 
 /**
  * What the route costs in price, on the same thresholds the swap form uses. The action it belongs to
@@ -13,12 +16,16 @@ type PriceImpactResult = ReturnType<typeof checkPriceImpact>
  */
 const VaultPriceImpactNote = ({ result, className }: { result: PriceImpactResult; className?: string }) => {
   if (result.isInvalid) {
-    return <ErrorNote className={className}>{t`Unable to calculate the price impact of this route.`}</ErrorNote>
+    return (
+      <ErrorNote
+        className={cn(ZAP_NOTE, className)}
+      >{t`Unable to calculate the price impact of this route.`}</ErrorNote>
+    )
   }
 
   if (result.isVeryHigh) {
     return (
-      <ErrorNote className={className}>
+      <ErrorNote className={cn(ZAP_NOTE, className)}>
         {t`Price impact is very high — you will lose a significant part of this amount. Try a smaller size.`}
       </ErrorNote>
     )
@@ -26,9 +33,9 @@ const VaultPriceImpactNote = ({ result, className }: { result: PriceImpactResult
 
   if (result.isHigh) {
     return (
-      <ErrorNote className={cn('bg-warning-20 text-warning', className)}>
+      <WarningNote className={cn(ZAP_NOTE, className)}>
         {t`Price impact is higher than usual for this route.`}
-      </ErrorNote>
+      </WarningNote>
     )
   }
 
