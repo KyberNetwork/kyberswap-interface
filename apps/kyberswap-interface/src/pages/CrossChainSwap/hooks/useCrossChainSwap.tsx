@@ -15,6 +15,7 @@ import useDebounce from 'hooks/useDebounce'
 import { useGatedWalletClient } from 'hooks/useGatedWalletClient'
 import { useCurrencyV2 } from 'hooks/useTokens'
 import { BitcoinToken, Chain, Currency, NonEvmChain } from 'pages/CrossChainSwap/adapters'
+import { kyberCrossSupportedChains } from 'pages/CrossChainSwap/adapters/KyberCrossAdapter/types'
 import { adaptRelaySolanaWallet } from 'pages/CrossChainSwap/adapters/RelayAdapter/relaySolanaWallet'
 import { isEvmChain, isNonEvmChain } from 'pages/CrossChainSwap/adapters/types'
 import { CrossChainSwapFactory } from 'pages/CrossChainSwap/factory'
@@ -22,6 +23,7 @@ import { type NearToken, useNearTokens } from 'pages/CrossChainSwap/hooks/useNea
 import { useSolanaTokens } from 'pages/CrossChainSwap/hooks/useSolanaTokens'
 import { getQuotes } from 'pages/CrossChainSwap/quote/adapterQuotes'
 import { getPairInfo } from 'pages/CrossChainSwap/quote/getPairInfo'
+import { getPriceImpactInfo } from 'pages/CrossChainSwap/quote/priceImpact'
 import { PairCategory, isEvmCurrency } from 'pages/CrossChainSwap/quote/utils'
 import { CrossChainSwapAdapterRegistry, Quote, getQuoteId } from 'pages/CrossChainSwap/registry'
 import {
@@ -30,7 +32,12 @@ import {
   CROSS_CHAIN_FEE_RECEIVER_SOLANA,
   SOLANA_NATIVE,
 } from 'pages/CrossChainSwap/utils'
-import { type CrossChainQuoteMode, updateQuoteMode, useCrossChainQuoteMode } from 'state/crossChainSwap'
+import {
+  type CrossChainQuoteMode,
+  updateQuoteMode,
+  useCrossChainQuoteMode,
+  useGasDropFeatureEnabled,
+} from 'state/crossChainSwap'
 import { useAppDispatch, useAppSelector } from 'state/hooks'
 import { useUserSlippageTolerance } from 'state/user/hooks'
 
@@ -50,6 +57,10 @@ const RegistryContext = createContext<
   | {
       quoteMode: CrossChainQuoteMode
       setQuoteMode: (mode: CrossChainQuoteMode) => void
+      gasDropEnabled: boolean
+      gasDropSupported: boolean
+      gasDropError: string
+      setGasDropEnabled: (enabled: boolean) => void
       showPreview: boolean
       setShowPreview: (show: boolean) => void
       disable: boolean
@@ -72,6 +83,7 @@ const RegistryContext = createContext<
       setRecipient: (value: string) => void
       sender: string
       receiver: string
+      getQuotePriceImpactInfo: (quote?: Quote | null) => ReturnType<typeof getPriceImpactInfo> | null
       warning: {
         slippageInfo: {
           default: number
@@ -92,6 +104,7 @@ const RegistryContext = createContext<
 
 export const CrossChainSwapRegistryProvider = ({ children }: { children: React.ReactNode }) => {
   const quoteMode = useCrossChainQuoteMode()
+  const gasDropFeatureEnabled = useGasDropFeatureEnabled()
   const dispatch = useAppDispatch()
   const excluded = useAppSelector(state => state.crossChainSwap.excludedSources)
   const excludedSources = useMemo(() => {
@@ -282,11 +295,15 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
   }, [currencyIn, currencyOut, fromChainId, toChainId])
 
   const [category, setCategory] = useState<PairCategory>('commonPair')
+  const getQuotePriceImpactInfo = useCallback(
+    (quote?: Quote | null) =>
+      quote ? getPriceImpactInfo(quote.quote.priceImpact, category, isFromEvm && isToEvm) : null,
+    [category, isFromEvm, isToEvm],
+  )
   const warning = useMemo(() => {
     const highSlippageMsg = t`Your slippage is set higher than usual, which may cause unexpected losses`
     const lowSlippageMsg = t`Your slippage is set lower than usual, which may cause transaction failure.`
-    const veryHighPiMsg = t`The price impact is high — double check the output before proceeding.`
-    const highPiMsg = t`The price impact might be high — double check the output before proceeding.`
+    const priceImpaceInfo = getQuotePriceImpactInfo(selectedQuote)
     if (isFromEvm && isToEvm) {
       const slippageHighThreshold = category === 'stablePair' ? 100 : 200
       const slippageLowThreshold = category === 'stablePair' ? 5 : 30
@@ -299,22 +316,6 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
           slippage >= slippageHighThreshold ? highSlippageMsg : slippage < slippageLowThreshold ? lowSlippageMsg : '',
       }
 
-      const highPriceImpactThreshold = category === 'stablePair' ? 1 : 2
-      const veryHighPriceImpactThreshold = category === 'stablePair' ? 3 : 5
-      const unableToCalcPi = !selectedQuote?.quote?.priceImpact
-      const priceImpaceInfo = !selectedQuote
-        ? null
-        : {
-            isHigh: selectedQuote.quote.priceImpact > highPriceImpactThreshold,
-            isVeryHigh: unableToCalcPi || selectedQuote.quote.priceImpact >= veryHighPriceImpactThreshold,
-            message: unableToCalcPi
-              ? 'Unable to calculate price impact'
-              : selectedQuote.quote.priceImpact >= veryHighPriceImpactThreshold
-              ? veryHighPiMsg
-              : selectedQuote.quote.priceImpact > highPriceImpactThreshold
-              ? highPiMsg
-              : '',
-          }
       return { slippageInfo, priceImpaceInfo }
     }
 
@@ -326,20 +327,9 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
         isLow: slippage < 30,
         message: slippage >= 300 ? highSlippageMsg : slippage < 30 ? lowSlippageMsg : '',
       },
-      priceImpaceInfo: !selectedQuote
-        ? null
-        : {
-            isHigh: selectedQuote.quote.priceImpact > 3,
-            isVeryHigh: selectedQuote.quote.priceImpact >= 10,
-            message:
-              selectedQuote.quote.priceImpact >= 10
-                ? veryHighPiMsg
-                : selectedQuote.quote.priceImpact > 3
-                ? highPiMsg
-                : '',
-          },
+      priceImpaceInfo,
     }
-  }, [selectedQuote, category, isFromEvm, isToEvm, slippage])
+  }, [selectedQuote, category, isFromEvm, isToEvm, slippage, getQuotePriceImpactInfo])
 
   const [showPreview, setShowPreview] = useState(false)
   const disable = !fromChainId || !toChainId || !currencyIn || !currencyOut || !inputAmount || inputAmount === '0'
@@ -384,6 +374,40 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
 
   const sender = resolveAddress(fromChainId, 'sender')
   const receiver = resolveAddress(toChainId, 'receiver')
+  const gasDropSupported =
+    quoteMode === 'direct' &&
+    gasDropFeatureEnabled &&
+    !!currencyOut &&
+    isFromEvm &&
+    isToEvm &&
+    fromChainId !== toChainId &&
+    kyberCrossSupportedChains.includes(fromChainId as ChainId) &&
+    kyberCrossSupportedChains.includes(toChainId as ChainId) &&
+    !currencyOutEvm?.isNative &&
+    !excludedSources.includes('KyberCross')
+  const gasDropKey = `${toChainId}:${tokenOut}:${receiver.toLowerCase()}`
+  const [gasDropSelection, setGasDropSelection] = useState({ key: '', enabled: false })
+  const gasDropRouteKey = `${gasDropKey}:${fromChainId}:${tokenIn}`
+  const [gasDropFailure, setGasDropFailure] = useState({ key: '', amount: '', message: '' })
+  const gasDropEnabled = gasDropSupported && gasDropSelection.key === gasDropKey && gasDropSelection.enabled
+  const gasDropError =
+    gasDropFailure.key === gasDropRouteKey && gasDropFailure.amount === amount ? gasDropFailure.message : ''
+  // Reset the stored selection as well so switching back cannot restore a previous ON state.
+  useEffect(() => {
+    setGasDropSelection({ key: gasDropKey, enabled: false })
+  }, [gasDropKey, gasDropSupported])
+  const setGasDropEnabled = useCallback(
+    (enabled: boolean) => {
+      abortControllerRef.current.abort()
+      requestIdRef.current += 1
+      setQuotes([])
+      setLoading(true)
+      setAllLoading(true)
+      setGasDropSelection({ key: gasDropKey, enabled })
+      setGasDropFailure({ key: '', amount: '', message: '' })
+    },
+    [gasDropKey],
+  )
 
   const getQuote = useCallback(async () => {
     if (showPreview) return
@@ -434,6 +458,7 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
       await getQuotes({
         quoteMode,
         params: {
+          gasDrop: gasDropEnabled,
           feeBps: pairInfo.feeBps,
           tokenInUsd: pairInfo.tokenInUsd,
           tokenOutUsd: pairInfo.tokenOutUsd,
@@ -456,11 +481,30 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
         registry,
         signal,
         isReadOnly: requestIsReadOnly,
-        onQuotes: setQuotes,
+        onQuotes: nextQuotes => {
+          if (signal.aborted) return
+          const availableQuotes = gasDropEnabled ? nextQuotes.filter(q => q.quote.gasDrop) : nextQuotes
+          if (gasDropEnabled && !availableQuotes.length) {
+            setGasDropSelection({ key: gasDropKey, enabled: false })
+            setQuotes([])
+            setGasDropFailure({
+              key: gasDropRouteKey,
+              amount,
+              message: t`Gas Drop is no longer available for this route`,
+            })
+            return
+          }
+          setQuotes(availableQuotes)
+        },
         onQuoteReady: () => setLoading(false),
       })
     } catch (error) {
       if (!signal.aborted && (error as Error).message !== 'Cancelled') {
+        if (gasDropEnabled) {
+          const message = t`Unable to get a Gas Drop quote. Please try again or adjust your amount or route.`
+          setGasDropSelection({ key: gasDropKey, enabled: false })
+          setGasDropFailure({ key: gasDropRouteKey, amount, message })
+        }
         console.error('Error getting quotes:', error)
         setQuotes([])
       }
@@ -471,6 +515,10 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
       }
     }
   }, [
+    gasDropEnabled,
+    gasDropKey,
+    gasDropRouteKey,
+    amount,
     sender,
     receiver,
     recipient,
@@ -500,6 +548,10 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
       value={{
         quoteMode,
         setQuoteMode,
+        gasDropEnabled,
+        gasDropSupported,
+        gasDropError,
+        setGasDropEnabled,
         showPreview,
         setShowPreview,
         disable,
@@ -521,6 +573,7 @@ export const CrossChainSwapRegistryProvider = ({ children }: { children: React.R
         recipient,
         setRecipient,
         warning,
+        getQuotePriceImpactInfo,
         sender,
         receiver,
       }}

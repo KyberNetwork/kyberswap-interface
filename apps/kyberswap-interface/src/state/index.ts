@@ -60,6 +60,7 @@ const PERSISTED_KEYS: string[] = [
   'crossChainSwap.transactions',
   'crossChainSwap.excludedSources',
   'crossChainSwap.quoteMode',
+  'crossChainSwap.gasDropFeatureEnabled',
 ]
 
 // Client-only: read persisted state from localStorage and migrate from old version to
