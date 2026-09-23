@@ -4,7 +4,7 @@ import { ChevronDown } from 'react-feather'
 
 import { TextHelper } from 'components/Text'
 import { cn } from 'utils/cn'
-import { formatSlippage, getSlippageNotice } from 'utils/slippage'
+import { SlippageNotice, formatSlippage } from 'utils/slippage'
 
 const PRESETS_BPS = [5, 10, 50, 100] as const
 const MAX_BPS = 2000
@@ -23,19 +23,18 @@ const isPreset = (bps: number): bps is (typeof PRESETS_BPS)[number] =>
 const SlippageSelect = ({
   value,
   onChange,
-  suggestedSlippage,
+  notice,
 }: {
   value: number
   onChange: (bps: number) => void
-  /** What the route asked for, in basis points; the setting is judged against it. */
-  suggestedSlippage?: number
+  /** How the form reads this setting, if it has anything to say about it. */
+  notice?: SlippageNotice | null
 }) => {
   const [isExpanded, setExpanded] = useState(false)
   /** Raw text while the field is being edited, so a half-typed "1." survives the next keystroke. */
   const [custom, setCustom] = useState('')
 
   const isCustom = custom !== '' || !isPreset(value)
-  const notice = getSlippageNotice(value, suggestedSlippage)
 
   const handleCustomChange = (raw: string) => {
     const next = raw.replace(/,/g, '.')

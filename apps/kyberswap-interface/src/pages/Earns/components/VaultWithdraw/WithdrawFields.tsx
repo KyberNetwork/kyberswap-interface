@@ -246,7 +246,7 @@ const WithdrawFields = ({ vault, form }: { vault: VaultApiDetailItem; form: With
             <InfoValue>{form.queueLimits ? formatTerm(form.queueLimits.minimumSecondsToDeadline) : '--'}</InfoValue>
           </InfoRow>
         ) : (
-          <SlippageSelect value={form.slippage} onChange={form.setSlippage} />
+          <SlippageSelect value={form.slippage} onChange={form.setSlippage} notice={form.slippageNotice} />
         )}
       </InfoList>
 

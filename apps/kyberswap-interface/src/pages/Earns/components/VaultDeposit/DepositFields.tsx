@@ -179,7 +179,7 @@ const DepositFields = ({ vault, form }: { vault: VaultApiDetailItem; form: Depos
           </InfoValue>
         </InfoRow>
 
-        <SlippageSelect value={form.slippage} onChange={form.setSlippage} />
+        <SlippageSelect value={form.slippage} onChange={form.setSlippage} notice={form.slippageNotice} />
       </InfoList>
 
       {isSelectorOpen ? (

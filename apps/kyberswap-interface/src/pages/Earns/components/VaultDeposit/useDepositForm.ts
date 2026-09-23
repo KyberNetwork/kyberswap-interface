@@ -12,6 +12,7 @@ import useDefaultDepositToken from 'pages/Earns/components/VaultDeposit/useDefau
 import { useDepositApprovals } from 'pages/Earns/components/VaultDeposit/useDepositApprovals'
 import { VAULT_ACTION_STEP, VaultStep, vaultApproveStep } from 'pages/Earns/components/vaultSteps'
 import { useVaultSlippage } from 'pages/Earns/hooks/useVaultSlippage'
+import { getVaultSlippageNotice, useVaultSlippageAdvice } from 'pages/Earns/hooks/useVaultSlippageAdvice'
 import { tryParseAmount } from 'state/swap/hooks'
 import { useCurrencyBalances } from 'state/wallet/hooks'
 import { checkPriceImpact } from 'utils/prices'
@@ -95,7 +96,20 @@ export const useDepositForm = ({
   const chainId = vault.chain?.id
 
   const [rows, setRows] = useState<DepositRow[]>([])
-  const { slippage, setSlippage } = useVaultSlippage({ chainId, vaultId: vault.vaultId, scope: 'deposit' })
+  // The tokens the form holds, not the amounts typed against them: adding a token changes which
+  // model judges the slippage, typing into one should not.
+  const slippageTokensIn = useMemo(() => rows.map(row => row.currency.wrapped.address), [rows])
+  const slippageAdvice = useVaultSlippageAdvice({
+    chainId,
+    tokensIn: slippageTokensIn,
+    tokenOut: vault.shareToken?.address,
+  })
+  const { slippage, setSlippage } = useVaultSlippage({
+    chainId,
+    vaultId: vault.vaultId,
+    scope: 'deposit',
+    defaultBps: slippageAdvice.defaultBps,
+  })
 
   const underlyingAddress = vault.underlyingToken?.address
   const shareDecimals = vault.shareToken?.decimals ?? 18
@@ -351,7 +365,7 @@ export const useDepositForm = ({
     routeError: deposit.routeError,
     priceImpact,
     priceImpactResult,
-    suggestedSlippage: deposit.route?.zapDetails.suggestedSlippage,
+    slippageNotice: getVaultSlippageNotice(slippageAdvice, slippage, deposit.route?.zapDetails.suggestedSlippage),
     isRouteLoading: deposit.isRouteLoading,
     sharesOutRaw: deposit.sharesOutRaw,
     minSharesOutRaw: deposit.minSharesOutRaw,

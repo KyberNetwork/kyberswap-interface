@@ -16,6 +16,7 @@ import { useWithdrawPreview } from 'pages/Earns/VaultDetail/hooks/useWithdrawQue
 import { VAULT_ACTION_STEP, VAULT_APPROVE_STEP, VaultStep } from 'pages/Earns/components/vaultSteps'
 import { VAULT_POLLING_INTERVAL } from 'pages/Earns/constants/vault'
 import { useVaultSlippage } from 'pages/Earns/hooks/useVaultSlippage'
+import { getVaultSlippageNotice, useVaultSlippageAdvice } from 'pages/Earns/hooks/useVaultSlippageAdvice'
 import { useZapSwap } from 'pages/Earns/hooks/useZapSwap'
 import { getBoringQueueRoute, getOpenWithdrawRequests, safeBigInt } from 'pages/Earns/utils/vault'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
@@ -51,7 +52,21 @@ export const useWithdrawForm = ({
   const [mode, setMode] = useState<WithdrawMode | undefined>(undefined)
   const [typedValue, setTypedValue] = useState('')
   const [percent, setPercent] = useState<number | undefined>(undefined)
-  const { slippage, setSlippage } = useVaultSlippage({ chainId, vaultId: vault.vaultId, scope: 'withdraw' })
+  /** The token the aggregator sells the shares into, on the any-token path. */
+  const [swapToken, setSwapToken] = useState<TokenSchema | undefined>(undefined)
+
+  // A withdrawal always spends one token — the shares — so it is always read on the swap model.
+  const slippageAdvice = useVaultSlippageAdvice({
+    chainId,
+    tokensIn: vault.shareToken?.address ? [vault.shareToken.address] : [],
+    tokenOut: swapToken?.address,
+  })
+  const { slippage, setSlippage } = useVaultSlippage({
+    chainId,
+    vaultId: vault.vaultId,
+    scope: 'withdraw',
+    defaultBps: slippageAdvice.defaultBps,
+  })
 
   const shareToken = useMemo(
     () =>
@@ -134,7 +149,6 @@ export const useWithdrawForm = ({
   const withdrawRequests = useMemo(() => getOpenWithdrawRequests(requestsData?.requests), [requestsData?.requests])
 
   // ---- any-token path: the aggregator sells the shares outright ----
-  const [swapToken, setSwapToken] = useState<TokenSchema | undefined>(undefined)
 
   // Default to the vault's own asset; the API's token shape has no `name`, which the selector's does.
   useEffect(() => {
@@ -286,7 +300,7 @@ export const useWithdrawForm = ({
     setSwapToken,
     priceImpact: zapPriceImpact,
     priceImpactResult: zapPriceImpactResult,
-    suggestedSlippage: zapWithdraw.route?.zapDetails.suggestedSlippage,
+    slippageNotice: getVaultSlippageNotice(slippageAdvice, slippage, zapWithdraw.route?.zapDetails.suggestedSlippage),
     zapRoute: zapWithdraw.route,
     zapAmountOutRaw: zapWithdraw.amountOutRaw,
     zapMinAmountOutRaw: zapWithdraw.minAmountOutRaw,
