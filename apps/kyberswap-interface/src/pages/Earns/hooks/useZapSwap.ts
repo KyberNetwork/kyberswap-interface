@@ -100,7 +100,13 @@ export const useZapSwap = ({
     { skip: !routeParams, pollingInterval: pausePolling ? 0 : 15_000 },
   )
 
-  const route = routeResponse?.data
+  /**
+   * A skipped query keeps handing back whatever it last fetched, so the response counts only while
+   * there is a request behind it. Without this, clearing the amount leaves the previous quote — its
+   * output, its rate, its price impact — sitting on screen against an empty field.
+   */
+  const response = routeParams ? routeResponse : undefined
+  const route = response?.data
   /** The inputs are debounced before they reach the query, so between a keystroke and the next quote
    *  the cached route belongs to a different amount. Acting on it would send one amount while the
    *  summary shows another. A background poll re-fetching the same inputs leaves the cached route
@@ -108,10 +114,12 @@ export const useZapSwap = ({
   const isRouteStale = tokensKey !== debouncedTokensKey
 
   // The endpoint answers `message: "OK"` on success, so only a missing route counts as an error.
-  const routeError = routeQueryError
+  const routeError = !routeParams
+    ? undefined
+    : routeQueryError
     ? t`Could not find a route for these tokens.`
-    : routeResponse && !route
-    ? routeResponse.message || t`Could not find a route for these tokens.`
+    : response && !route
+    ? response.message || t`Could not find a route for these tokens.`
     : undefined
 
   /** What the route delivers, summed over its swaps into the output token. */
