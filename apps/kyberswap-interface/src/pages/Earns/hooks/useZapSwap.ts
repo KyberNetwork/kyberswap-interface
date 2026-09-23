@@ -91,7 +91,10 @@ export const useZapSwap = ({
   }, [debouncedTokensKey, tokenOutAddress, slippage])
 
   const {
-    data: routeResponse,
+    // `currentData`, not `data`: the latter keeps the last result from *any* arguments, so changing
+    // the amount would leave the previous quote — and a submittable route behind it — on screen
+    // until the new one lands.
+    currentData: routeResponse,
     isFetching: isRouteLoading,
     error: routeQueryError,
     refetch: refetchRoute,
