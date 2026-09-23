@@ -166,8 +166,10 @@ export const useWithdrawForm = ({
 
   const zapWithdraw = useZapSwap({
     chainId,
+    // `effectiveMode`, not `mode`: a vault with no queue route opens on the any-token tab without
+    // anyone having tapped it, and that tab is useless without a route behind it.
     tokensIn:
-      mode === WithdrawMode.ANY_TOKEN && vault.shareToken?.address && shares
+      !isNative && vault.shareToken?.address && shares
         ? [{ address: vault.shareToken.address, amountRaw: shares.toString() }]
         : undefined,
     tokenOutAddress: swapToken?.address,
