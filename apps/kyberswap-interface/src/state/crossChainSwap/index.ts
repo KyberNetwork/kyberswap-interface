@@ -9,6 +9,7 @@ const MAX_CROSS_CHAIN_TRANSACTIONS = 120
 export type CrossChainQuoteMode = 'direct' | 'stream'
 
 export interface CrossChainSwapState {
+  gasDropFeatureEnabled: boolean
   quoteMode: CrossChainQuoteMode
   transactions: NormalizedTxResponse[]
   excludedSources: string[]
@@ -17,11 +18,15 @@ export interface CrossChainSwapState {
 const slice = createSlice({
   name: 'crossChainSwap',
   initialState: {
+    gasDropFeatureEnabled: false,
     quoteMode: 'direct',
     transactions: [] as NormalizedTxResponse[],
     excludedSources: [] as string[],
   } as CrossChainSwapState,
   reducers: {
+    updateGasDropFeatureEnabled: (state, { payload }: { payload: boolean }) => {
+      state.gasDropFeatureEnabled = payload
+    },
     updateQuoteMode: (state, { payload }: { payload: CrossChainQuoteMode }) => {
       if (state.quoteMode === payload) return
       state.quoteMode = payload
@@ -35,8 +40,9 @@ const slice = createSlice({
       const transaction = state.transactions.find(tx => tx.id === payload.id)
       if (!transaction) return
 
-      const { txHash, status, amountOut } = payload.result
+      const { txHash, status, amountOut, gasDropStatus } = payload.result
 
+      if (gasDropStatus) transaction.gasDropStatus = gasDropStatus
       transaction.status = status
       if (txHash) transaction.targetTxHash = txHash
 
@@ -51,7 +57,16 @@ const slice = createSlice({
   },
 })
 
-export const { updateTransactions, updateTransactionStatus, updateExcludedSources, updateQuoteMode } = slice.actions
+export const {
+  updateTransactions,
+  updateTransactionStatus,
+  updateExcludedSources,
+  updateQuoteMode,
+  updateGasDropFeatureEnabled,
+} = slice.actions
+
+export const useGasDropFeatureEnabled = () =>
+  useAppSelector(state => state.crossChainSwap.gasDropFeatureEnabled ?? false)
 
 export const useCrossChainQuoteMode = () => useAppSelector(state => state.crossChainSwap.quoteMode || 'direct')
 export default slice.reducer
