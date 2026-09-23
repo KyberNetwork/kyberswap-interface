@@ -4,6 +4,7 @@ import { VaultApiDetailItem } from 'services/vault'
 import { ReactComponent as SwapArrowIcon } from 'assets/svg/earn/ic_swap_arrow.svg'
 import TokenLogo from 'components/TokenLogo'
 import { CloseButton } from 'pages/Earns/components/VaultDeposit/ConfirmDeposit'
+import { maxSlippageTooltip } from 'pages/Earns/components/VaultDeposit/SlippageSelect'
 import {
   ButtonGroup,
   DetailsBox,
@@ -75,19 +76,15 @@ const ConfirmWithdraw = ({
         })} ${form.swapToken.symbol}`
       : '--'
 
-  // The route prices what it delivers, not the floor; the floor's worth follows the same ratio.
-  const zapMinOutUsd =
-    form.zapRoute && form.zapMinAmountOutRaw !== undefined && form.zapAmountOutRaw
-      ? formatDisplayNumber(
-          (Number(form.zapRoute.zapDetails.finalAmountUsd) * Number(form.zapMinAmountOutRaw)) /
-            Number(form.zapAmountOutRaw),
-          { style: 'currency', significantDigits: 4 },
-        )
-      : undefined
+  const minReceivedUsd =
+    form.minReceivedUsd === undefined
+      ? undefined
+      : formatDisplayNumber(form.minReceivedUsd, { style: 'currency', significantDigits: 4 })
 
-  const sharesUsd = form.zapRoute
-    ? formatDisplayNumber(form.zapRoute.zapDetails.initialAmountUsd, { style: 'currency', significantDigits: 4 })
-    : undefined
+  const sharesUsd =
+    form.sharesUsd === undefined
+      ? undefined
+      : formatDisplayNumber(form.sharesUsd, { style: 'currency', significantDigits: 4 })
   const zapOutUsd = form.zapRoute
     ? formatDisplayNumber(form.zapRoute.zapDetails.finalAmountUsd, { style: 'currency', significantDigits: 4 })
     : undefined
@@ -159,7 +156,7 @@ const ConfirmWithdraw = ({
           <InfoValue>
             {outToken?.logo ? <TokenLogo src={outToken.logo} alt={outToken.symbol} size={16} /> : null}
             {form.isNative ? nativeOut : zapMinOut}
-            {!form.isNative && zapMinOutUsd ? <span className="text-subText">~{zapMinOutUsd}</span> : null}
+            {minReceivedUsd ? <span className="text-subText">~{minReceivedUsd}</span> : null}
           </InfoValue>
         </InfoRow>
 
@@ -174,7 +171,7 @@ const ConfirmWithdraw = ({
           <>
             <VaultPriceImpactRow priceImpact={form.zapRoute?.zapDetails.priceImpact} />
             <InfoRow>
-              <InfoLabel>{t`Max Slippage`}</InfoLabel>
+              <InfoLabel tooltip={maxSlippageTooltip()}>{t`Max Slippage`}</InfoLabel>
               <InfoValue>{formatSlippage(form.slippage)}</InfoValue>
             </InfoRow>
             <InfoRow>

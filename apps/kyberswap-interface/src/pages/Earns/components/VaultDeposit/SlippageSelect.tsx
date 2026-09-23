@@ -22,6 +22,10 @@ const isPreset = (bps: number): bps is (typeof PRESETS_BPS)[number] =>
  * Slippage the route is quoted with, in basis points. Expands in place — the same collapse the zap
  * flows use — so the options push the rest of the summary down instead of covering it.
  */
+/** One wording for the tolerance, wherever it is shown — the control here and both review steps. */
+export const maxSlippageTooltip = () =>
+  t`Applied to the swap this deposit or withdrawal routes through. A higher tolerance helps the transaction succeed, but you may get a worse price.`
+
 const SlippageSelect = ({
   value,
   onChange,
@@ -87,12 +91,7 @@ const SlippageSelect = ({
         onClick={() => setExpanded(prev => !prev)}
         className="flex w-full cursor-pointer items-center justify-between gap-4 border-none bg-transparent p-0 text-inherit"
       >
-        <TextHelper
-          tooltip={t`Applied to the swap this deposit or withdrawal routes through. A higher tolerance helps the transaction succeed, but you may get a worse price.`}
-          placement="top"
-          className="text-subText"
-          fontSize={14}
-        >
+        <TextHelper tooltip={maxSlippageTooltip()} placement="top" className="text-subText" fontSize={14}>
           {t`Max Slippage`}
         </TextHelper>
         <span className={cn('flex items-center gap-1 text-sm leading-5', notice ? 'text-warning' : 'text-white')}>

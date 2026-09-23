@@ -23,6 +23,7 @@ import {
 } from 'pages/Earns/hooks/useVaultSlippageAdvice'
 import { useZapSwap } from 'pages/Earns/hooks/useZapSwap'
 import { getBoringQueueRoute, getOpenWithdrawRequests, safeBigInt } from 'pages/Earns/utils/vault'
+import { useTokenPrices } from 'state/tokenPrices/hooks'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
 import { checkPriceImpact } from 'utils/prices'
 import { formatUnits, parseUnits } from 'utils/viem'
@@ -247,6 +248,49 @@ export const useWithdrawForm = ({
    * Only the aggregator route moves a price: a native redemption is quoted by the queue and filled
    * at that quote. Judged on the swap form's thresholds.
    */
+  /**
+   * What the shares and the payout are worth. The queue path is quoted by the vault rather than by a
+   * route, so nothing on it carries a dollar figure; the price feed supplies one for both sides.
+   */
+  const priceAddresses = useMemo(
+    () =>
+      [vault.shareToken?.address, nativeAsset?.assetAddress, swapToken?.address]
+        .filter((address): address is string => !!address)
+        .map(address => address.toLowerCase()),
+    [vault.shareToken?.address, nativeAsset?.assetAddress, swapToken?.address],
+  )
+  const prices = useTokenPrices(priceAddresses, chainId as ChainId)
+
+  const sharesUsd = useMemo(() => {
+    // A quoted route has priced the very shares it is about to spend; prefer its figure to a feed.
+    if (!isNative && zapWithdraw.route) return Number(zapWithdraw.route.zapDetails.initialAmountUsd) || undefined
+    const price = vault.shareToken?.address ? prices[vault.shareToken.address.toLowerCase()] : undefined
+    const amount = Number(typedValue)
+    return price && Number.isFinite(amount) && amount > 0 ? amount * price : undefined
+  }, [isNative, zapWithdraw.route, prices, vault.shareToken?.address, typedValue])
+
+  const minReceivedUsd = useMemo(() => {
+    if (isNative) {
+      const price = nativeAsset ? prices[nativeAsset.assetAddress.toLowerCase()] : undefined
+      return price !== undefined && nativeAmountOut !== undefined
+        ? Number(formatUnits(nativeAmountOut, nativeAsset?.decimals ?? 18)) * price
+        : undefined
+    }
+    // The route prices what it delivers, not the floor; the floor's worth follows the same ratio.
+    return zapWithdraw.route && zapWithdraw.minAmountOutRaw !== undefined && zapWithdraw.amountOutRaw
+      ? (Number(zapWithdraw.route.zapDetails.finalAmountUsd) * Number(zapWithdraw.minAmountOutRaw)) /
+          Number(zapWithdraw.amountOutRaw)
+      : undefined
+  }, [
+    isNative,
+    nativeAsset,
+    prices,
+    nativeAmountOut,
+    zapWithdraw.route,
+    zapWithdraw.minAmountOutRaw,
+    zapWithdraw.amountOutRaw,
+  ])
+
   const zapPriceImpact = isNative ? undefined : zapWithdraw.route?.zapDetails.priceImpact
   const zapPriceImpactResult = checkPriceImpact(zapPriceImpact)
 
@@ -323,6 +367,8 @@ export const useWithdrawForm = ({
     isSlippageResolving: slippageAdvice.isResolving,
     slippageNotice: getVaultSlippageNotice(slippageAdvice, slippage, zapWithdraw.route?.zapDetails.suggestedSlippage),
     suggestedSlippage: getVaultSuggestedSlippage(slippageAdvice, zapWithdraw.route?.zapDetails.suggestedSlippage),
+    sharesUsd,
+    minReceivedUsd,
     zapRoute: zapWithdraw.route,
     zapAmountOutRaw: zapWithdraw.amountOutRaw,
     zapMinAmountOutRaw: zapWithdraw.minAmountOutRaw,

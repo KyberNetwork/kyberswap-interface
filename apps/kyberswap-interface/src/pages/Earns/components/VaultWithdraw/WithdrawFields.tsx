@@ -58,9 +58,15 @@ const WithdrawFields = ({ vault, form }: { vault: VaultApiDetailItem; form: With
     significantDigits: 6,
   })
 
-  const sharesUsd = form.zapRoute
-    ? formatDisplayNumber(form.zapRoute.zapDetails.initialAmountUsd, { style: 'currency', significantDigits: 4 })
-    : undefined
+  const sharesUsd =
+    form.sharesUsd === undefined
+      ? undefined
+      : formatDisplayNumber(form.sharesUsd, { style: 'currency', significantDigits: 4 })
+
+  const minReceivedUsd =
+    form.minReceivedUsd === undefined
+      ? undefined
+      : formatDisplayNumber(form.minReceivedUsd, { style: 'currency', significantDigits: 4 })
 
   const amountOut = form.isNative
     ? form.nativeAmountOut !== undefined && form.nativeAsset
@@ -131,7 +137,8 @@ const WithdrawFields = ({ vault, form }: { vault: VaultApiDetailItem; form: With
 
         <FieldSeam />
 
-        <Field className="gap-3">
+        {/* The route panel is drawn with a border alone; only the amount above it takes a fill. */}
+        <Field className="gap-3 border border-solid border-white-08 bg-transparent">
           <SegmentedTabs>
             <SegmentedTab
               $active={form.mode === WithdrawMode.ANY_TOKEN}
@@ -147,7 +154,7 @@ const WithdrawFields = ({ vault, form }: { vault: VaultApiDetailItem; form: With
           <FieldNote>
             {form.isNative
               ? t`Expected time: Starts ~3 days; may extend (3–10 days) depending on strategies.`
-              : t`Instant exit uses market liquidity and settles in one transaction; the output may differ from a native redeem.`}
+              : t`Instant exit uses market liquidity; output may differ from native redeem.`}
           </FieldNote>
 
           <FieldRow>
@@ -240,6 +247,7 @@ const WithdrawFields = ({ vault, form }: { vault: VaultApiDetailItem; form: With
               <>
                 {outToken?.logo ? <TokenLogo src={outToken.logo} alt={outToken.symbol} size={16} /> : null}
                 {minReceived}
+                {minReceivedUsd ? <span className="text-subText">~{minReceivedUsd}</span> : null}
               </>
             ) : (
               '--'

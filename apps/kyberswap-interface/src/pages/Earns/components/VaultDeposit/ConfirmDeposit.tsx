@@ -3,6 +3,7 @@ import { VaultApiDetailItem } from 'services/vault'
 
 import CurrencyLogo from 'components/CurrencyLogo'
 import TokenLogo from 'components/TokenLogo'
+import { maxSlippageTooltip } from 'pages/Earns/components/VaultDeposit/SlippageSelect'
 import {
   ButtonGroup,
   DetailsBox,
@@ -146,7 +147,7 @@ const ConfirmDeposit = ({
         </InfoRow>
         <VaultPriceImpactRow priceImpact={form.route?.zapDetails.priceImpact} />
         <InfoRow>
-          <InfoLabel>{t`Max Slippage`}</InfoLabel>
+          <InfoLabel tooltip={maxSlippageTooltip()}>{t`Max Slippage`}</InfoLabel>
           <InfoValue>{formatSlippage(form.slippage)}</InfoValue>
         </InfoRow>
         <InfoRow>
