@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest'
 
 import type { TrackingExecution } from 'pages/CrossChainSwap/adapters/KyberCrossAdapter/api'
 import {
+  getGasDropQuote,
   getKyberCrossBridgeProviders,
   mapRouteStateToSwapStatus,
   normalizeProvider,
@@ -127,5 +128,113 @@ describe('mapRouteStateToSwapStatus', () => {
       txHash: '',
       status: 'Processing',
     })
+  })
+})
+
+describe('Gas Drop settlement', () => {
+  const bridge = {
+    source: { tx_hash: SOURCE_TX_HASH, token: ADDRESS, amount: '100' },
+    dest: { tx_hash: BRIDGE_DEST_TX_HASH, token: ADDRESS, amount: '99' },
+  }
+  const gasDrop = { token_in: ADDRESS, token_out: ADDRESS, output_amount: '1234' }
+
+  it('keeps native gas separate from the actual main withdrawal on bridge-only routes', () => {
+    expect(
+      mapRouteStateToSwapStatus(
+        createTrackingExecution({
+          route_state: 'SUCCESS',
+          dest_tx_hash: FINAL_DEST_TX_HASH,
+          data: { bridge, gas_drop: gasDrop, withdraw: { token: ADDRESS, withdraw_amount: '97', to_address: ADDRESS } },
+        }),
+        true,
+      ),
+    ).toEqual({
+      txHash: FINAL_DEST_TX_HASH,
+      status: 'Success',
+      amountOut: '97',
+      gasDropStatus: { status: 'Delivered', amount: '1234' },
+    })
+  })
+
+  it('does not overwrite the net output with the bridge amount or use the bridge fill as the gas transaction', () => {
+    expect(
+      mapRouteStateToSwapStatus(
+        createTrackingExecution({
+          route_state: 'SUCCESS',
+          data: { bridge, gas_drop: gasDrop },
+        }),
+        true,
+      ),
+    ).toEqual({
+      txHash: '',
+      status: 'Success',
+      amountOut: undefined,
+      gasDropStatus: { status: 'Delivered', amount: '1234' },
+    })
+  })
+
+  it('can deliver gas even when the main action is refunded', () => {
+    expect(
+      mapRouteStateToSwapStatus(
+        createTrackingExecution({
+          route_state: 'REFUNDED',
+          data: { bridge, gas_drop: gasDrop },
+        }),
+        true,
+      ),
+    ).toMatchObject({ status: 'Refunded', gasDropStatus: { status: 'Delivered', amount: '1234' } })
+  })
+
+  it.each(['SUCCESS', 'REFUNDED'] as const)(
+    'resolves an omitted gas leg after destination settlement: %s',
+    route_state => {
+      expect(mapRouteStateToSwapStatus(createTrackingExecution({ route_state, data: { bridge } }), true)).toMatchObject(
+        { gasDropStatus: { status: 'Failed' } },
+      )
+    },
+  )
+
+  it('keeps the gas line pending until settlement, including GAS_DROP_PENDING', () => {
+    expect(
+      mapRouteStateToSwapStatus(createTrackingExecution({ route_state: 'GAS_DROP_PENDING', data: { bridge } }), true),
+    ).toMatchObject({ status: 'Processing', gasDropStatus: { status: 'Pending' } })
+  })
+
+  it('does not claim a gas fallback on a source-chain refund', () => {
+    expect(
+      mapRouteStateToSwapStatus(
+        createTrackingExecution({
+          route_state: 'REFUNDED',
+          data: { refund: { chain: 'ethereum', token: ADDRESS, amount: '100' } },
+        }),
+        true,
+      ),
+    ).toMatchObject({ gasDropStatus: { status: 'NotExecuted' } })
+  })
+})
+
+describe('Gas Drop quote normalization', () => {
+  it('uses the backend amounts without assuming $2 or 10% slippage', () => {
+    expect(
+      getGasDropQuote({
+        gas_drop_swap: {
+          token_in: ADDRESS,
+          token_out: ADDRESS,
+          input_amount: '1002716',
+          expected_output_amount: '361515123138071',
+          min_output_amount: '289212098510456',
+          metadata: { route_id: 'route', route_summary: { amountOutUsd: '1.00201514', amountInUsd: '0.99972771' } },
+        },
+      }),
+    ).toEqual({
+      amount: '361515123138071',
+      minAmount: '289212098510456',
+      amountUsd: 1.00201514,
+      inputAmountUsd: 0.99972771,
+      inputToken: ADDRESS,
+    })
+  })
+  it('treats an absent gas_drop_swap as not included', () => {
+    expect(getGasDropQuote({})).toBeUndefined()
   })
 })

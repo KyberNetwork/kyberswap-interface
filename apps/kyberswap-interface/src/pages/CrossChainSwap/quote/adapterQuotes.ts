@@ -127,6 +127,7 @@ export const getFallbackQuotes = async ({
   const adapters = clientAdapters.filter(
     adapter =>
       adapter.getName() !== 'KyberSwap' &&
+      (!params.gasDrop || adapter.getName() === 'KyberCross') &&
       adapter.getSupportedChains().includes(params.fromChain) &&
       adapter.getSupportedChains().includes(params.toChain),
   ) as SwapProvider[]
