@@ -132,6 +132,39 @@ afterEach(() => {
 })
 
 describe('getQuotes', () => {
+  it('requests Gas Drop from KyberCross in direct mode and excludes other adapters', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(createResponse(createReader()))
+    const params = { ...baseParams, gasDrop: true }
+    const { adapter, getQuote, run } = setup(params, 'KyberCross', 'direct')
+    const otherQuote = vi.fn().mockResolvedValue(normalizedQuote)
+    const other = createAdapter(otherQuote, 'Symbiosis')
+    vi.spyOn(CrossChainSwapFactory, 'getClientQuoteAdapters').mockReturnValue([adapter, other])
+    getQuote.mockResolvedValue({ ...normalizedQuote, quoteParams: params })
+    await run()
+    expect(fetch).not.toHaveBeenCalled()
+    expect(otherQuote).not.toHaveBeenCalled()
+    expect(getQuote).toHaveBeenCalledWith(expect.objectContaining({ gasDrop: true }), expect.any(AbortSignal))
+  })
+
+  it('keeps stream mode even when Gas Drop is requested', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      createResponse(createReader({ done: false, value: encoder.encode(quoteEvent()) })),
+    )
+    const { getQuote, onQuotes, run } = setup({ ...baseParams, gasDrop: true })
+    const localAdapters = vi.spyOn(CrossChainSwapFactory, 'getClientQuoteAdapters')
+
+    await run()
+
+    expect(fetch).toHaveBeenCalledOnce()
+    expect(localAdapters).not.toHaveBeenCalled()
+    expect(getQuote).not.toHaveBeenCalled()
+    expect(onQuotes).toHaveBeenCalledOnce()
+    const url = new URL(vi.mocked(fetch).mock.calls[0][0] as string)
+    expect(url.searchParams.get('stream')).toBe('true')
+    expect(url.searchParams.has('gas_drop')).toBe(false)
+    expect(onQuotes.mock.calls[0][0][0].quote.gasDrop).toBeUndefined()
+  })
+
   it('uses local adapters when streaming is disabled', async () => {
     vi.spyOn(globalThis, 'fetch').mockResolvedValue(createResponse(createReader()))
     const { adapter, getQuote, onQuotes, run } = setup(baseParams, 'KyberCross', 'direct')
@@ -551,6 +584,34 @@ describe('KyberCross route options', () => {
     expect(build).toHaveBeenCalledWith(routes[1])
     expect(result).toMatchObject({ routeId: 'second', outputAmount: '99000000', bridgeProvider: 'relay' })
     expect(routes).toHaveLength(2)
+  })
+
+  it('keeps each Gas Drop route net output and native allocation separate', async () => {
+    const routes = [createRoute('first', '98000000', 20), createRoute('second', '99000000', 40)]
+    routes.forEach((route, i) => {
+      route.gas_drop_swap = {
+        token_in: address,
+        token_out: address,
+        input_amount: '1000000',
+        expected_output_amount: String(1000 + i),
+        min_output_amount: String(800 + i),
+        metadata: { route_id: route.id, route_summary: { amountOutUsd: '1', amountInUsd: '1' } },
+      }
+    })
+    const apiQuote = vi.spyOn(kyberCrossApi, 'getQuote').mockResolvedValue({
+      success: true,
+      request_id: 'gas-drop',
+      data: { route_plans: routes, ks_allowance_hub_address: address },
+    })
+    const adapter = new KyberCrossAdapter()
+    const quote = await adapter.getQuote({ ...params, gasDrop: true })
+    const options = adapter.getRouteQuotes(quote, false)
+    expect(apiQuote).toHaveBeenCalledWith(expect.objectContaining({ gas_drop: true, all_route_plans: true }), undefined)
+    expect(options.map(q => [q.quote.outputAmount, q.quote.priceImpact, q.quote.gasDrop?.amount])).toEqual([
+      [98000000n, 1, '1000'],
+      [99000000n, 0, '1001'],
+    ])
+    expect(options[1].quote.rawQuote.data.route_plans).toEqual([routes[1]])
   })
 
   it('executes a streamed KyberCross transaction without rebuilding the route summary', async () => {
