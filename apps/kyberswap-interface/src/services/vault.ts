@@ -143,6 +143,7 @@ export interface VaultSupportedAsset {
   assetAddress: string
   symbol: string
   decimals: number
+  logo?: string
   supportsDeposit: boolean
   supportsWithdraw: boolean
   isActive: boolean

@@ -159,6 +159,9 @@ const WithdrawFields = ({ vault, form }: { vault: VaultApiDetailItem; form: With
                     if (e.key === 'Escape') setAssetMenuOpen(false)
                   }}
                 >
+                  {form.nativeAsset?.logo ? (
+                    <TokenLogo src={form.nativeAsset.logo} alt={form.nativeAsset.symbol} size={18} />
+                  ) : null}
                   {form.nativeAsset?.symbol || '--'}
                   {form.withdrawableAssets.length > 1 ? <ChevronDown size={16} /> : null}
                 </TokenButton>
@@ -181,8 +184,9 @@ const WithdrawFields = ({ vault, form }: { vault: VaultApiDetailItem; form: With
                           form.setNativeAssetAddress(asset.assetAddress)
                           setAssetMenuOpen(false)
                         }}
-                        className="rounded-lg px-3 py-2 text-left text-sm text-text hover:bg-white-04"
+                        className="flex items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-text hover:bg-white-04"
                       >
+                        {asset.logo ? <TokenLogo src={asset.logo} alt={asset.symbol} size={18} /> : null}
                         {asset.symbol}
                       </button>
                     ))}
