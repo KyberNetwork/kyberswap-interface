@@ -13,6 +13,16 @@ export interface VaultApiProvider {
   logo: string
 }
 
+/**
+ * How the vault's unit is named on screen. Display metadata only: it carries no address and no
+ * decimals, so balances, transactions and accounting keep using `underlyingToken`.
+ */
+export interface VaultApiBaseToken {
+  symbol: string
+  name: string
+  logo?: string
+}
+
 export interface VaultApiChain {
   id: number
   name: string
@@ -71,6 +81,7 @@ export interface VaultApiListItem {
   chain: VaultApiChain
   shareToken: VaultApiToken
   underlyingToken: VaultApiToken
+  baseToken?: VaultApiBaseToken
   assetGroup: string
   metrics: VaultApiMetrics
   stats: VaultApiStats
@@ -84,6 +95,7 @@ export interface VaultApiDetailItem {
   vaultAddress: string
   shareToken: VaultApiToken
   underlyingToken: VaultApiToken
+  baseToken?: VaultApiBaseToken
   assetGroup: string
   stats: VaultApiStats
 }
@@ -256,6 +268,34 @@ export interface VaultGrowthHistory {
   points: VaultGrowthPoint[]
 }
 
+/**
+ * One bucket of a position's balance series. `balance` is the whole underlying-token holding and
+ * already contains the yield `vaultEarnings` reports, so the two are never added together.
+ */
+export interface VaultBalancePoint {
+  timestamp: string | null
+  balance: VaultFinancialValue
+  vaultEarnings: VaultEarnings
+}
+
+/** A position's wallet-held balance over time, in the vault's underlying token. */
+export interface VaultBalanceHistory {
+  metric: string
+  currency: string
+  methodology: string
+  interval: string
+  stepSeconds: number
+  /** `wallet`: shares escrowed in a withdrawal queue are outside this line. */
+  balanceScope: string
+  /** The token the series is denominated in — the underlying, not the share token. */
+  assetAddress: string
+  windowStart: string | null
+  windowEnd: string | null
+  accountingOrigin: string | null
+  current: VaultBalancePoint
+  points: VaultBalancePoint[]
+}
+
 /** Cumulative yield in underlying-token units. Its USD equivalent is available separately. */
 export interface VaultEarnings {
   amount: string | null
@@ -290,6 +330,7 @@ export interface VaultPositionVault {
   address: string
   shareToken: VaultApiToken
   underlyingToken: VaultApiToken
+  baseToken?: VaultApiBaseToken
   provider: VaultApiProvider
   assetGroup: string
   stats: VaultApiStats
@@ -411,6 +452,16 @@ const vaultApi = earnServiceApi.injectEndpoints({
       }),
       transformResponse: (response: ApiEnvelope<VaultGrowthHistory>) => response.data,
     }),
+    vaultPositionBalanceHistory: builder.query<
+      VaultBalanceHistory,
+      { chainId: number; userAddress: string; vaultId: string; interval: VaultInterval }
+    >({
+      query: ({ chainId, userAddress, vaultId, interval }) => ({
+        url: `/v1/vault-positions/${chainId}/${userAddress}/${vaultId}/balance-history`,
+        params: { interval },
+      }),
+      transformResponse: (response: ApiEnvelope<VaultBalanceHistory>) => response.data,
+    }),
     vaultWithdrawalRequests: builder.query<
       VaultWithdrawalRequestsResponse,
       { chainId: number; userAddress: string; vaultId: string; pageSize?: number }
@@ -427,6 +478,7 @@ const vaultApi = earnServiceApi.injectEndpoints({
 export const {
   useVaultListQuery,
   useVaultPositionGrowthHistoryQuery,
+  useVaultPositionBalanceHistoryQuery,
   useVaultDetailQuery,
   useVaultMetricsQuery,
   useVaultSupportedAssetsQuery,

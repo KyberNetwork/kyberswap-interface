@@ -3,6 +3,7 @@ import {
   VaultApiDetailItem,
   VaultApiListItem,
   VaultApiMetrics,
+  VaultBalanceHistory,
   VaultCanonicalPoint,
   VaultFinancialValue,
   VaultGrowthHistory,
@@ -54,6 +55,24 @@ export const toChartSeries = (
  * it existed are dropped: a month-long window on a week-old position would otherwise be mostly empty
  * space. Only the run at the front goes; a gap later on is a gap in the data and stays visible.
  */
+/**
+ * What the vault's unit is called on screen. The API overrides the underlying's own symbol for the
+ * vaults whose accounting token is a wrapper — Liquid ETH accounts in WETH but reads as ETH — and
+ * falls back to the underlying for anything it does not name.
+ */
+export const toDisplaySymbol = (baseToken?: { symbol?: string }, underlying?: { symbol?: string }): string =>
+  baseToken?.symbol || underlying?.symbol || ''
+
+/** The wallet-held balance over time. Each point already includes the yield inside it. */
+export const toBalanceSeries = (history?: VaultBalanceHistory): ChartDataPoint[] => {
+  const points = (history?.points || []).map(point => ({
+    value: financialNumber(point.balance) ?? null,
+    timestamp: point.timestamp ?? undefined,
+  }))
+  const firstValued = points.findIndex(point => point.value !== null)
+  return firstValued > 0 ? points.slice(firstValued) : points
+}
+
 export const toGrowthSeries = (history?: VaultGrowthHistory): ChartDataPoint[] => {
   const points = (history?.points || []).map(point => ({
     value: financialNumber(point) ?? null,
@@ -71,7 +90,7 @@ const toEpochSeconds = (iso?: string | null): number | undefined => {
 
 export const toVaultInfo = (item: VaultApiListItem): VaultInfo => ({
   id: item.vaultId,
-  token: item.underlyingToken?.symbol || '',
+  token: toDisplaySymbol(item.baseToken, item.underlyingToken),
   tokenIcon: item.underlyingToken?.logo || '',
   chainId: item.chain?.id || 0,
   chainIcon: item.chain?.logo || '',
@@ -87,7 +106,7 @@ export const toVaultInfo = (item: VaultApiListItem): VaultInfo => ({
 
 export const toVaultInfoFromDetail = (detail: VaultApiDetailItem, metrics?: VaultApiMetrics): VaultInfo => ({
   id: detail.vaultId,
-  token: detail.underlyingToken?.symbol || '',
+  token: toDisplaySymbol(detail.baseToken, detail.underlyingToken),
   tokenIcon: detail.underlyingToken?.logo || '',
   chainId: detail.chain?.id || 0,
   chainIcon: detail.chain?.logo || '',
@@ -142,7 +161,7 @@ export const toUserVaultPosition = (item: VaultPositionItem): UserVaultPosition 
     shareBalanceRaw: item.shareBalanceRaw || '0',
     shareDecimals: v.shareToken?.decimals ?? 18,
     shareSymbol: v.shareToken?.symbol || '',
-    token: v.underlyingToken?.symbol || '',
+    token: toDisplaySymbol(v.baseToken, v.underlyingToken),
     tokenIcon: v.underlyingToken?.logo || '',
     chainId: item.chain?.id || 0,
     chainIcon: item.chain?.logo || '',

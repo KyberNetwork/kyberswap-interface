@@ -104,6 +104,27 @@ const EarningTooltipContent = ({
   )
 }
 
+const BalanceTooltipContent = ({
+  active,
+  payload,
+  symbol,
+}: {
+  active?: boolean
+  payload?: { value: number; payload: ChartDataPoint }[]
+  symbol?: string
+}) => {
+  const theme = useTheme()
+  if (!active || !payload?.length) return null
+  return (
+    <TooltipWrapper>
+      <TooltipTimestamp timestamp={payload[0].payload.timestamp} />
+      <TooltipRow label={t`Balance`} $color={theme.primary}>
+        {formatDisplayNumber(payload[0].value, { significantDigits: 6 })} {symbol}
+      </TooltipRow>
+    </TooltipWrapper>
+  )
+}
+
 interface MiniChartProps {
   data: ChartDataPoint[]
   height?: number
@@ -211,6 +232,46 @@ TvlLineChart.displayName = 'TvlLineChart'
  * A position's earnings over time. The figure can sit either side of zero, so the baseline is drawn
  * in; buckets from before the position existed carry no value and the line breaks over them.
  */
+/** A position's own holding, in the vault's own unit rather than in dollars. */
+export const BalanceLineChart = memo(
+  ({ data, height = 49, showAxes, symbol }: MiniChartProps & { symbol?: string }) => {
+    const theme = useTheme()
+    const gradientId = useId().replace(/:/g, '')
+    return (
+      <ResponsiveContainer width="100%" height={height}>
+        <AreaChart data={data}>
+          {showAxes ? <CartesianGrid {...gridProps} /> : null}
+          {showAxes ? <XAxis {...dateAxisProps(theme.subText)} /> : null}
+          {showAxes ? (
+            <YAxis {...valueAxisProps(theme.subText, value => formatDisplayNumber(value, { significantDigits: 4 }))} />
+          ) : null}
+          <defs>
+            <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor={theme.primary} stopOpacity={0.3} />
+              <stop offset="100%" stopColor={theme.primary} stopOpacity={0} />
+            </linearGradient>
+          </defs>
+          <Tooltip
+            content={<BalanceTooltipContent symbol={symbol} />}
+            cursor={{ stroke: 'rgba(255,255,255,0.2)', strokeWidth: 1 }}
+          />
+          <Area
+            type="monotone"
+            dataKey="value"
+            stroke={theme.primary}
+            strokeWidth={1.5}
+            fill={`url(#${gradientId})`}
+            dot={false}
+            activeDot={{ r: 3, fill: theme.primary, stroke: 'none' }}
+            connectNulls={false}
+          />
+        </AreaChart>
+      </ResponsiveContainer>
+    )
+  },
+)
+BalanceLineChart.displayName = 'BalanceLineChart'
+
 export const EarningLineChart = memo(({ data, height = 49, showAxes }: MiniChartProps) => {
   const theme = useTheme()
   const gradientId = useId().replace(/:/g, '')

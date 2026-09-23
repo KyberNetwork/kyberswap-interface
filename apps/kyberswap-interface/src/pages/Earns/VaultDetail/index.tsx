@@ -6,6 +6,7 @@ import {
   VaultInterval,
   useVaultDetailQuery,
   useVaultMetricsQuery,
+  useVaultPositionBalanceHistoryQuery,
   useVaultPositionDetailQuery,
   useVaultPositionGrowthHistoryQuery,
 } from 'services/vault'
@@ -14,7 +15,7 @@ import { ReactComponent as BagIcon } from 'assets/svg/earn/ic_bag.svg'
 import TokenLogo from 'components/TokenLogo'
 import { APP_PATHS } from 'constants/index'
 import { useActiveWeb3React } from 'hooks'
-import { ApyBarChart, EarningLineChart, TvlLineChart } from 'pages/Earns/ExploreVaults/MiniCharts'
+import { ApyBarChart, BalanceLineChart, EarningLineChart, TvlLineChart } from 'pages/Earns/ExploreVaults/MiniCharts'
 import DepositTab from 'pages/Earns/VaultDetail/DepositTab'
 import VaultDetailPageSkeleton from 'pages/Earns/VaultDetail/PageSkeleton'
 import WithdrawTab from 'pages/Earns/VaultDetail/WithdrawTab'
@@ -55,17 +56,27 @@ import {
 import AnimatedNumber from 'pages/Earns/components/AnimatedNumber'
 import { VAULT_POLLING_INTERVAL } from 'pages/Earns/constants/vault'
 import { useRefreshOnVaultTx } from 'pages/Earns/hooks/useRefreshOnVaultTx'
-import { VaultDetailTab, toChartSeries, toGrowthSeries, toVaultInfoFromDetail } from 'pages/Earns/utils/vault'
+import {
+  VaultDetailTab,
+  toBalanceSeries,
+  toChartSeries,
+  toGrowthSeries,
+  toVaultInfoFromDetail,
+} from 'pages/Earns/utils/vault'
 import { MEDIA_WIDTHS } from 'theme'
 import { formatDisplayNumber } from 'utils/numbers'
 
-/** The user's stake, under the TVL heading. Only the amount rolls when a poll moves it. */
-const PositionBalance = ({ amount, symbol }: { amount: string; symbol: string }) => (
-  <span className="truncate text-xs leading-4 text-subText">
-    <Trans>
-      Your balance: <AnimatedNumber value={amount} /> {symbol}
-    </Trans>
-  </span>
+/** The balance chart's heading, which carries the share count it plots. Only the amount rolls when a poll moves it. */
+const PositionBalanceTitle = ({ balance }: { balance?: { amount: string; symbol: string } }) => (
+  <ChartTitle className="min-w-0 truncate">
+    {balance ? (
+      <Trans>
+        Position Balance: <AnimatedNumber value={balance.amount} /> {balance.symbol}
+      </Trans>
+    ) : (
+      t`Position Balance`
+    )}
+  </ChartTitle>
 )
 
 type PeriodKey = '24H' | '7D' | '30D'
@@ -109,6 +120,7 @@ const VaultDetail = () => {
   const [tvlPeriod, setTvlPeriod] = useState<PeriodKey>('7D')
   const [apyPeriod, setApyPeriod] = useState<PeriodKey>('7D')
   const [earningPeriod, setEarningPeriod] = useState<PeriodKey>('7D')
+  const [balancePeriod, setBalancePeriod] = useState<PeriodKey>('7D')
 
   const { data: tvlMetrics } = useVaultMetricsQuery(
     { chainId, vaultId: vaultId as string, interval: PERIOD_TO_INTERVAL[tvlPeriod] },
@@ -126,6 +138,8 @@ const VaultDetail = () => {
 
   // Only a wallet that holds something has a history to plot.
   const hasPosition = Number(position?.shareBalance || 0) > 0
+  // Waiting on the position to answer before asking for its history costs a whole round trip, and
+  // the charts are the last thing on the page to fill. Both go out with it instead.
   const { data: growthHistory } = useVaultPositionGrowthHistoryQuery(
     {
       chainId,
@@ -133,12 +147,21 @@ const VaultDetail = () => {
       vaultId: vaultId as string,
       interval: PERIOD_TO_INTERVAL[earningPeriod],
     },
-    { skip: !hasValidParams || !account || !hasPosition },
+    { skip: !hasValidParams || !account },
+  )
+  const { data: balanceHistory } = useVaultPositionBalanceHistoryQuery(
+    {
+      chainId,
+      userAddress: (account || '').toLowerCase(),
+      vaultId: vaultId as string,
+      interval: PERIOD_TO_INTERVAL[balancePeriod],
+    },
+    { skip: !hasValidParams || !account },
   )
 
   const vault = useMemo(() => (detail ? toVaultInfoFromDetail(detail) : undefined), [detail])
 
-  // The chart plots the vault's own size; the user's stake in it rides along as a sub-heading.
+  // The balance chart is denominated in the vault's base token; the shares behind it sit in its heading.
   const positionBalance = useMemo(() => {
     const shares = Number(position?.shareBalance || 0)
     const symbol = detail?.shareToken?.symbol
@@ -154,6 +177,7 @@ const VaultDetail = () => {
   const tvlSeries = useMemo(() => toChartSeries(tvlMetrics, point => point.tvl), [tvlMetrics])
   const apySeries = useMemo(() => toChartSeries(apyMetrics, point => point.rate), [apyMetrics])
   const earningSeries = useMemo(() => toGrowthSeries(growthHistory), [growthHistory])
+  const balanceSeries = useMemo(() => toBalanceSeries(balanceHistory), [balanceHistory])
 
   const handleBack = () => navigate(-1)
   const handleBackKey = (e: KeyboardEvent) => {
@@ -257,29 +281,51 @@ const VaultDetail = () => {
                 </ChartSection>
               ) : null}
 
-              <ChartSection>
-                <ChartHeader>
-                  <div className="flex min-w-0 flex-col gap-0.5">
+              {/* Someone with a stake is here for their own holding, so it takes the slot the
+                  vault's total size occupies for everyone else. */}
+              {hasPosition ? (
+                <ChartSection>
+                  <ChartHeader>
+                    <PositionBalanceTitle balance={positionBalance} />
+                    <PeriodTabs>
+                      {PERIOD_OPTIONS.map(period => (
+                        <PeriodTab
+                          key={period}
+                          type="button"
+                          $active={balancePeriod === period}
+                          onClick={() => setBalancePeriod(period)}
+                        >
+                          {period}
+                        </PeriodTab>
+                      ))}
+                    </PeriodTabs>
+                  </ChartHeader>
+                  <ChartBox key={`balance-${balancePeriod}`}>
+                    <BalanceLineChart data={balanceSeries} height={chartHeight} symbol={vault?.token} showAxes />
+                  </ChartBox>
+                </ChartSection>
+              ) : (
+                <ChartSection>
+                  <ChartHeader>
                     <ChartTitle>{t`TVL`}</ChartTitle>
-                    {positionBalance ? <PositionBalance {...positionBalance} /> : null}
-                  </div>
-                  <PeriodTabs>
-                    {PERIOD_OPTIONS.map(period => (
-                      <PeriodTab
-                        key={period}
-                        type="button"
-                        $active={tvlPeriod === period}
-                        onClick={() => setTvlPeriod(period)}
-                      >
-                        {period}
-                      </PeriodTab>
-                    ))}
-                  </PeriodTabs>
-                </ChartHeader>
-                <ChartBox key={`tvl-${tvlPeriod}`}>
-                  <TvlLineChart data={tvlSeries} height={chartHeight} showAxes />
-                </ChartBox>
-              </ChartSection>
+                    <PeriodTabs>
+                      {PERIOD_OPTIONS.map(period => (
+                        <PeriodTab
+                          key={period}
+                          type="button"
+                          $active={tvlPeriod === period}
+                          onClick={() => setTvlPeriod(period)}
+                        >
+                          {period}
+                        </PeriodTab>
+                      ))}
+                    </PeriodTabs>
+                  </ChartHeader>
+                  <ChartBox key={`tvl-${tvlPeriod}`}>
+                    <TvlLineChart data={tvlSeries} height={chartHeight} showAxes />
+                  </ChartBox>
+                </ChartSection>
+              )}
 
               <ChartSection>
                 <ChartHeader>
