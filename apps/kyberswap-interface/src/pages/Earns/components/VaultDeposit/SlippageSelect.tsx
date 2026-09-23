@@ -4,9 +4,9 @@ import { ChevronDown } from 'react-feather'
 
 import { TextHelper } from 'components/Text'
 import { cn } from 'utils/cn'
-import { formatSlippage } from 'utils/slippage'
+import { formatSlippage, getSlippageNotice } from 'utils/slippage'
 
-const PRESETS_BPS = [10, 50, 100] as const
+const PRESETS_BPS = [5, 10, 50, 100] as const
 const MAX_BPS = 2000
 /** Digits with at most two decimals — the precision a basis-point slippage can carry. */
 const SLIPPAGE_INPUT_REGEX = /^\d*\.?\d{0,2}$/
@@ -20,12 +20,22 @@ const isPreset = (bps: number): bps is (typeof PRESETS_BPS)[number] =>
  * Slippage the route is quoted with, in basis points. Expands in place — the same collapse the zap
  * flows use — so the options push the rest of the summary down instead of covering it.
  */
-const SlippageSelect = ({ value, onChange }: { value: number; onChange: (bps: number) => void }) => {
+const SlippageSelect = ({
+  value,
+  onChange,
+  suggestedSlippage,
+}: {
+  value: number
+  onChange: (bps: number) => void
+  /** What the route asked for, in basis points; the setting is judged against it. */
+  suggestedSlippage?: number
+}) => {
   const [isExpanded, setExpanded] = useState(false)
   /** Raw text while the field is being edited, so a half-typed "1." survives the next keystroke. */
   const [custom, setCustom] = useState('')
 
   const isCustom = custom !== '' || !isPreset(value)
+  const notice = getSlippageNotice(value, suggestedSlippage)
 
   const handleCustomChange = (raw: string) => {
     const next = raw.replace(/,/g, '.')
@@ -123,6 +133,8 @@ const SlippageSelect = ({ value, onChange }: { value: number; onChange: (bps: nu
               <span className="text-sm">%</span>
             </div>
           </div>
+
+          {notice ? <p className="m-0 pt-2 text-xs leading-4 text-warning">{notice.message}</p> : null}
         </div>
       </div>
     </div>

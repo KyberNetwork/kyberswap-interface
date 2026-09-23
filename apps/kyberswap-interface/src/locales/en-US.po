@@ -8507,6 +8507,10 @@ msgstr "An error occurred while attempting to authorize this token. Please appro
 msgid "For example:"
 msgstr "For example:"
 
+#: src/utils/slippage.ts
+msgid "Your slippage is set lower than usual, increasing the risk of transaction failure."
+msgstr "Your slippage is set lower than usual, increasing the risk of transaction failure."
+
 #: src/components/NavigationTabs/index.tsx
 msgid "Use this tool to find pairs that don't automatically appear in the interface"
 msgstr "Use this tool to find pairs that don't automatically appear in the interface"
@@ -10226,6 +10230,10 @@ msgstr "Gas Refund Program"
 #: src/pages/Earns/hooks/useCountdown.ts
 msgid "1 hour"
 msgstr "1 hour"
+
+#: src/utils/slippage.ts
+msgid "Your slippage is set higher than usual, which may cause unexpected losses."
+msgstr "Your slippage is set higher than usual, which may cause unexpected losses."
 
 #: src/pages/Campaign/components/Information/info/mayTrading.tsx
 #: src/pages/Campaign/components/Information/info/stipAggregator.tsx

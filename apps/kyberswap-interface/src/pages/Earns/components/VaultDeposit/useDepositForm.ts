@@ -11,13 +11,11 @@ import { VaultDepositInput, useVaultDeposit } from 'pages/Earns/VaultDetail/hook
 import useDefaultDepositToken from 'pages/Earns/components/VaultDeposit/useDefaultDepositToken'
 import { useDepositApprovals } from 'pages/Earns/components/VaultDeposit/useDepositApprovals'
 import { VAULT_ACTION_STEP, VaultStep, vaultApproveStep } from 'pages/Earns/components/vaultSteps'
+import { useVaultSlippage } from 'pages/Earns/hooks/useVaultSlippage'
 import { tryParseAmount } from 'state/swap/hooks'
 import { useCurrencyBalances } from 'state/wallet/hooks'
 import { checkPriceImpact } from 'utils/prices'
 import { formatUnits } from 'utils/viem'
-
-/** Basis points. Covers the vault's rate drift between quoting and mining. */
-export const DEFAULT_SLIPPAGE_BPS = 50
 
 export const PERCENT_OPTIONS = [25, 50, 75, 100] as const
 
@@ -97,7 +95,7 @@ export const useDepositForm = ({
   const chainId = vault.chain?.id
 
   const [rows, setRows] = useState<DepositRow[]>([])
-  const [slippage, setSlippage] = useState(DEFAULT_SLIPPAGE_BPS)
+  const { slippage, setSlippage } = useVaultSlippage({ chainId, vaultId: vault.vaultId, scope: 'deposit' })
 
   const underlyingAddress = vault.underlyingToken?.address
   const shareDecimals = vault.shareToken?.decimals ?? 18
@@ -353,6 +351,7 @@ export const useDepositForm = ({
     routeError: deposit.routeError,
     priceImpact,
     priceImpactResult,
+    suggestedSlippage: deposit.route?.zapDetails.suggestedSlippage,
     isRouteLoading: deposit.isRouteLoading,
     sharesOutRaw: deposit.sharesOutRaw,
     minSharesOutRaw: deposit.minSharesOutRaw,

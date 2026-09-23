@@ -15,6 +15,7 @@ import { useVaultWithdraw } from 'pages/Earns/VaultDetail/hooks/useVaultWithdraw
 import { useWithdrawPreview } from 'pages/Earns/VaultDetail/hooks/useWithdrawQueue'
 import { VAULT_ACTION_STEP, VAULT_APPROVE_STEP, VaultStep } from 'pages/Earns/components/vaultSteps'
 import { VAULT_POLLING_INTERVAL } from 'pages/Earns/constants/vault'
+import { useVaultSlippage } from 'pages/Earns/hooks/useVaultSlippage'
 import { useZapSwap } from 'pages/Earns/hooks/useZapSwap'
 import { getBoringQueueRoute, getOpenWithdrawRequests, safeBigInt } from 'pages/Earns/utils/vault'
 import { TRANSACTION_TYPE } from 'state/transactions/type'
@@ -28,7 +29,6 @@ export enum WithdrawMode {
   NATIVE = 'native',
 }
 
-export const DEFAULT_SLIPPAGE_BPS = 50
 export const PERCENT_OPTIONS = [25, 50, 75, 100] as const
 
 export const useWithdrawForm = ({
@@ -51,7 +51,7 @@ export const useWithdrawForm = ({
   const [mode, setMode] = useState<WithdrawMode | undefined>(undefined)
   const [typedValue, setTypedValue] = useState('')
   const [percent, setPercent] = useState<number | undefined>(undefined)
-  const [slippage, setSlippage] = useState(DEFAULT_SLIPPAGE_BPS)
+  const { slippage, setSlippage } = useVaultSlippage({ chainId, vaultId: vault.vaultId, scope: 'withdraw' })
 
   const shareToken = useMemo(
     () =>
@@ -286,6 +286,7 @@ export const useWithdrawForm = ({
     setSwapToken,
     priceImpact: zapPriceImpact,
     priceImpactResult: zapPriceImpactResult,
+    suggestedSlippage: zapWithdraw.route?.zapDetails.suggestedSlippage,
     zapRoute: zapWithdraw.route,
     zapAmountOutRaw: zapWithdraw.amountOutRaw,
     zapMinAmountOutRaw: zapWithdraw.minAmountOutRaw,

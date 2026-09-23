@@ -8507,6 +8507,10 @@ msgstr "授权代币时发生错误，请改用普通授权"
 msgid "For example:"
 msgstr "例如："
 
+#: src/utils/slippage.ts
+msgid "Your slippage is set lower than usual, increasing the risk of transaction failure."
+msgstr ""
+
 #: src/components/NavigationTabs/index.tsx
 msgid "Use this tool to find pairs that don't automatically appear in the interface"
 msgstr "使用此工具查找未自动显示的交易对"
@@ -10225,6 +10229,10 @@ msgstr "Gas 返还计划"
 
 #: src/pages/Earns/hooks/useCountdown.ts
 msgid "1 hour"
+msgstr ""
+
+#: src/utils/slippage.ts
+msgid "Your slippage is set higher than usual, which may cause unexpected losses."
 msgstr ""
 
 #: src/pages/Campaign/components/Information/info/mayTrading.tsx
