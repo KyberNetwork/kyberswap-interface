@@ -328,6 +328,7 @@ export const useDepositForm = ({
       hasAllBalances &&
       !insufficientBalance &&
       deposit.route &&
+      !deposit.routeError &&
       !deposit.isRouteStale &&
       !deposit.isSubmitting,
   )

@@ -272,7 +272,7 @@ export const useWithdrawForm = ({
       (isNative
         ? // The queue's terms are arguments to the request; without them there is nothing to submit.
           Boolean(queueAddress && queueLimits) && !isLoadingAssets
-        : Boolean(zapWithdraw.route) && !zapWithdraw.isRouteStale),
+        : Boolean(zapWithdraw.route) && !zapWithdraw.routeError && !zapWithdraw.isRouteStale),
   )
 
   // The queue pulls the shares for a native redemption; the router pulls them for a market sale.

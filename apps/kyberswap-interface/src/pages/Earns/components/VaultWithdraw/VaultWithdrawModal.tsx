@@ -84,6 +84,10 @@ const WithdrawBody = ({
     ? t`Insufficient balance`
     : form.belowMinimum
     ? t`Amount below the queue minimum`
+    : form.isRouteLoading && !form.zapRoute && !form.isNative
+    ? t`Finding best route`
+    : form.zapRouteError && !form.isNative
+    ? t`No route found`
     : isImpactBad
     ? t`Withdraw Anyway`
     : t`Withdraw`

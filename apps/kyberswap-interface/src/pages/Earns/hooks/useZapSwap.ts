@@ -17,6 +17,13 @@ import { friendlyError } from 'utils/errorMessage'
 
 const ROUTE_DEADLINE_SECONDS = 20 * 60
 
+/** The reason a failed query carries, if it carried one a person can read. */
+const errorMessageFrom = (error: unknown): string | undefined => {
+  const data = (error as { data?: unknown } | undefined)?.data
+  const message = (data as { message?: unknown } | undefined)?.message
+  return typeof message === 'string' && message ? message : undefined
+}
+
 /** One token the route spends. Native is the `0xEeee…` placeholder; the amount is in raw units. */
 export type ZapSwapInput = {
   address: string
@@ -117,10 +124,12 @@ export const useZapSwap = ({
   const isRouteStale = tokensKey !== debouncedTokensKey
 
   // The endpoint answers `message: "OK"` on success, so only a missing route counts as an error.
+  // It states its own reason either in the body of a failed response or in the payload of one that
+  // came back without a route, and that reason says more than a generic refusal.
   const routeError = !routeParams
     ? undefined
     : routeQueryError
-    ? t`Could not find a route for these tokens.`
+    ? errorMessageFrom(routeQueryError) || t`Could not find a route for these tokens.`
     : response && !route
     ? response.message || t`Could not find a route for these tokens.`
     : undefined
