@@ -167,6 +167,7 @@ const WithdrawTab = ({
       >
         <ModalWrapper>
           <ConfirmWithdraw
+            vault={vault}
             form={form}
             onBack={() => setConfirming(false)}
             onClose={() => setConfirming(false)}

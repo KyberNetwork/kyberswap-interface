@@ -1,4 +1,4 @@
-import { NATIVE_TOKEN_ADDRESS, ChainId as SchemaChainId, Token as TokenSchema } from '@kyber/schema'
+import { ChainId as SchemaChainId } from '@kyber/schema'
 import TokenSelectorModal, { TOKEN_SELECT_MODE } from '@kyber/token-selector'
 import { t } from '@lingui/macro'
 import Portal from '@reach/portal'
@@ -14,8 +14,9 @@ import SlippageSelect from 'pages/Earns/components/VaultDeposit/SlippageSelect'
 import {
   AddTokenButton,
   AmountInput,
-  BalanceRow,
+  BalanceButton,
   Field,
+  FieldCaption,
   FieldRow,
   InfoLabel,
   InfoList,
@@ -33,11 +34,9 @@ import {
 import { DepositFormState, PERCENT_OPTIONS } from 'pages/Earns/components/VaultDeposit/useDepositForm'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { isInventoryChain } from 'state/walletInventory/store'
+import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
 import { formatUnits } from 'utils/viem'
-
-/** Which token the selector is being opened for: one row's token, or the list as a whole. */
-type SelectorTarget = { mode: 'replace'; index: number } | { mode: 'add' }
 
 const formatUsd = (value?: number) =>
   value === undefined ? undefined : formatDisplayNumber(value, { style: 'currency', significantDigits: 4 })
@@ -48,7 +47,7 @@ const formatUsd = (value?: number) =>
  * so the swap figures appear.
  */
 const DepositFields = ({ vault, form }: { vault: VaultApiDetailItem; form: DepositFormState }) => {
-  const [selectorTarget, setSelectorTarget] = useState<SelectorTarget | null>(null)
+  const [isSelectorOpen, setSelectorOpen] = useState(false)
   const toggleWalletModal = useWalletModalToggle()
 
   const shareSymbol = vault.shareToken?.symbol ?? ''
@@ -69,11 +68,6 @@ const DepositFields = ({ vault, form }: { vault: VaultApiDetailItem; form: Depos
         )
       : undefined
 
-  const onTokenSelected = (token: TokenSchema) => {
-    if (selectorTarget?.mode === 'replace') form.onSelectToken(selectorTarget.index, token)
-    setSelectorTarget(null)
-  }
-
   return (
     <>
       <TokenRowList>
@@ -83,11 +77,9 @@ const DepositFields = ({ vault, form }: { vault: VaultApiDetailItem; form: Depos
           const symbol = row.currency.symbol ?? ''
 
           return (
-            <Field key={row.key} className="relative">
+            <Field key={row.key} className={cn('relative', form.rows.length > 1 && 'rounded-tr')}>
               {form.rows.length > 1 ? (
-                <RemoveTokenButton aria-label={t`Remove ${symbol}`} onClick={() => form.onRemoveRow(index)}>
-                  ✕
-                </RemoveTokenButton>
+                <RemoveTokenButton aria-label={t`Remove ${symbol}`} onClick={() => form.onRemoveRow(index)} />
               ) : null}
 
               <FieldRow className="items-start">
@@ -103,17 +95,21 @@ const DepositFields = ({ vault, form }: { vault: VaultApiDetailItem; form: Depos
                     </Pill>
                   ))}
                 </PillRange>
-                <BalanceRow>
+                <BalanceButton
+                  aria-label={t`Deposit the whole ${symbol} balance`}
+                  disabled={!row.balance?.greaterThan(0)}
+                  onClick={() => form.onSelectPercent(index, 100)}
+                >
                   <WalletIcon width={16} height={16} />
                   {balanceText}
-                </BalanceRow>
+                </BalanceButton>
               </FieldRow>
 
               <FieldRow>
                 <AmountInput value={row.typedValue} onChange={e => form.onTypeAmount(index, e.target.value)} />
                 <div className="flex shrink-0 items-center justify-end gap-2">
                   {amountUsd ? <span className="text-base leading-6 text-subText">~{amountUsd}</span> : null}
-                  <TokenButton onClick={() => setSelectorTarget({ mode: 'replace', index })}>
+                  <TokenButton onClick={() => setSelectorOpen(true)}>
                     {row.logo ? (
                       <TokenLogo src={row.logo} alt={row.currency.symbol} size={20} />
                     ) : (
@@ -129,7 +125,7 @@ const DepositFields = ({ vault, form }: { vault: VaultApiDetailItem; form: Depos
         })}
       </TokenRowList>
 
-      <AddTokenButton disabled={!form.canAddToken} onClick={() => setSelectorTarget({ mode: 'add' })}>
+      <AddTokenButton disabled={!form.canAddToken} onClick={() => setSelectorOpen(true)}>
         {t`+ Add Token(s)`}
       </AddTokenButton>
 
@@ -151,82 +147,55 @@ const DepositFields = ({ vault, form }: { vault: VaultApiDetailItem; form: Depos
         </FieldRow>
       </ReceiveField>
 
+      {form.exchangeRate !== undefined ? (
+        <FieldCaption>
+          <span>{t`Exchange Rate`}</span>
+          <span className="text-text">
+            1 {vault.underlyingToken?.symbol} = {formatDisplayNumber(form.exchangeRate, { significantDigits: 6 })}{' '}
+            {shareSymbol}
+          </span>
+        </FieldCaption>
+      ) : null}
+
       <InfoList>
-        {form.exchangeRate !== undefined ? (
-          <InfoRow>
-            <InfoLabel>{t`Exchange Rate`}</InfoLabel>
-            <InfoValue>
-              1 {vault.underlyingToken?.symbol} = {formatDisplayNumber(form.exchangeRate, { significantDigits: 6 })}{' '}
-              {shareSymbol}
-            </InfoValue>
-          </InfoRow>
-        ) : null}
-
-        {!form.isVaultAsset ? (
-          <>
-            <InfoRow>
-              <InfoLabel
-                tooltip={t`The least you will receive if the price moves against you by the full slippage tolerance.`}
-              >{t`Est. Min Received`}</InfoLabel>
-              <InfoValue>
-                {form.isRouteLoading && !minSharesOut ? (
-                  <Loader size="14px" />
-                ) : minSharesOut ? (
-                  <>
-                    {minSharesOut} {shareSymbol}
-                    {minReceiveUsd ? <span className="text-subText">~{minReceiveUsd}</span> : null}
-                  </>
-                ) : (
-                  '--'
-                )}
-              </InfoValue>
-            </InfoRow>
-            <InfoRow>
-              <InfoLabel
-                tooltip={t`How far this trade moves the price of the pools it routes through. A large impact means thin liquidity.`}
-              >{t`Price Impact`}</InfoLabel>
-              <InfoValue>
-                {form.route
-                  ? formatDisplayNumber(form.route.zapDetails.priceImpact / 100, {
-                      style: 'percent',
-                      fractionDigits: 2,
-                    })
-                  : '--'}
-              </InfoValue>
-            </InfoRow>
-          </>
-        ) : null}
-
-        <SlippageSelect value={form.slippage} onChange={form.setSlippage} />
-
+        {/* Slippage applies to the shares the route mints, whether or not a swap happened on the
+            way in, so the floor it implies is worth stating for every deposit. */}
         <InfoRow>
           <InfoLabel
-            tooltip={t`Estimated network fee for this transaction. What you actually pay depends on network conditions.`}
-          >{t`Est. Gas Fee`}</InfoLabel>
+            tooltip={t`The least you will receive if the price moves against you by the full slippage tolerance.`}
+          >{t`Est. Min Received`}</InfoLabel>
           <InfoValue>
-            {form.route ? formatDisplayNumber(form.route.gasUsd, { style: 'currency', significantDigits: 4 }) : '--'}
+            {form.isRouteLoading && !minSharesOut ? (
+              <Loader size="14px" />
+            ) : minSharesOut ? (
+              <>
+                {shareLogo ? <TokenLogo src={shareLogo} alt={shareSymbol} size={16} /> : null}
+                {minSharesOut} {shareSymbol}
+                {minReceiveUsd ? <span className="text-subText">~{minReceiveUsd}</span> : null}
+              </>
+            ) : (
+              '--'
+            )}
           </InfoValue>
         </InfoRow>
+
+        <SlippageSelect value={form.slippage} onChange={form.setSlippage} />
       </InfoList>
 
-      {selectorTarget ? (
+      {isSelectorOpen ? (
         <Portal>
           <TokenSelectorModal
             chainId={form.chainId as unknown as SchemaChainId}
             enableWalletInventory={isInventoryChain(form.chainId)}
             title={t`Deposit token`}
-            onClose={() => setSelectorTarget(null)}
+            onClose={() => setSelectorOpen(false)}
             wallet={{ account: form.account ?? undefined, onConnectWallet: toggleWalletModal }}
             tokenOptions={{
               tokensIn: form.selectorTokens,
               amountsIn: form.selectorAmounts,
-              mode: selectorTarget.mode === 'add' ? TOKEN_SELECT_MODE.ADD : TOKEN_SELECT_MODE.SELECT,
-              selectedTokenAddress:
-                selectorTarget.mode === 'replace'
-                  ? form.rows[selectorTarget.index]?.currency.isNative
-                    ? NATIVE_TOKEN_ADDRESS
-                    : form.rows[selectorTarget.index]?.currency.wrapped.address
-                  : undefined,
+              // Always the multi-select list, whichever control opened it, so the tokens already in
+              // the form stay ticked — the same door the pool-detail zap-in opens.
+              mode: TOKEN_SELECT_MODE.ADD,
               token0Address: vault.underlyingToken?.address ?? '',
               token1Address: '',
               // The vault mints its share token; depositing it back has no route and no meaning.
@@ -238,7 +207,6 @@ const DepositFields = ({ vault, form }: { vault: VaultApiDetailItem; form: Depos
               ),
               setTokensIn: form.onTokensChange,
               setAmountsIn: () => undefined,
-              onTokenSelect: onTokenSelected,
             }}
             positionOptions={{ poolAddress: '' }}
           />

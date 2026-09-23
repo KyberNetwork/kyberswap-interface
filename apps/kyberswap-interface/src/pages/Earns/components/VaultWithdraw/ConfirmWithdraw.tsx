@@ -1,10 +1,13 @@
 import { t } from '@lingui/macro'
+import { VaultApiDetailItem } from 'services/vault'
 
 import { ReactComponent as SwapArrowIcon } from 'assets/svg/earn/ic_swap_arrow.svg'
+import TokenLogo from 'components/TokenLogo'
 import { CloseButton } from 'pages/Earns/components/VaultDeposit/ConfirmDeposit'
 import {
   ButtonGroup,
   DetailsBox,
+  FieldNote,
   InfoLabel,
   InfoRow,
   InfoValue,
@@ -18,6 +21,7 @@ import {
   SummaryRow,
   SummaryUsd,
 } from 'pages/Earns/components/VaultDeposit/styles'
+import VaultIdentityRow from 'pages/Earns/components/VaultIdentityRow'
 import VaultPriceImpactNote from 'pages/Earns/components/VaultPriceImpactNote'
 import { WithdrawFormState } from 'pages/Earns/components/VaultWithdraw/useWithdrawForm'
 import { formatTerm } from 'pages/Earns/hooks/useCountdown'
@@ -28,17 +32,20 @@ import { formatUnits } from 'utils/viem'
 
 /** Review step: what leaves the vault, what comes back, and on what terms. */
 const ConfirmWithdraw = ({
+  vault,
   form,
   onBack,
   onClose,
   onSubmit,
 }: {
+  vault: VaultApiDetailItem
   form: WithdrawFormState
   onBack: () => void
   onClose: () => void
   /** Hands over to the step sequence, which keeps its own modal open until the tx confirms. */
   onSubmit: () => void
 }) => {
+  const shareLogo = vault.shareToken?.logo
   const sharesIn = form.shares
     ? formatDisplayNumber(formatUnits(form.shares, form.shareDecimals), { significantDigits: 6 })
     : '--'
@@ -82,9 +89,12 @@ const ConfirmWithdraw = ({
         </ModalTitleRow>
       </ModalHeader>
 
+      <VaultIdentityRow vault={vault} />
+
       <div className="flex w-full flex-col gap-2">
         <SummaryLabel>{t`You are withdrawing:`}</SummaryLabel>
         <SummaryRow>
+          {shareLogo ? <TokenLogo src={shareLogo} alt={form.shareSymbol} size={20} /> : null}
           <SummaryAmount>
             {sharesIn} {form.shareSymbol}
           </SummaryAmount>
@@ -95,17 +105,26 @@ const ConfirmWithdraw = ({
       {!form.isNative ? (
         <div className="flex w-full flex-col gap-2">
           <SummaryLabel>{t`Then swap:`}</SummaryLabel>
-          <SummaryRow className="justify-center gap-4">
-            <span className="flex items-center gap-2">
-              <SummaryAmount>
-                {sharesIn} {form.shareSymbol}
-              </SummaryAmount>
+          <SummaryRow className="items-center justify-between gap-3 py-3">
+            <span className="flex min-w-0 flex-col gap-0.5">
+              <span className="flex items-center gap-2">
+                {shareLogo ? <TokenLogo src={shareLogo} alt={form.shareSymbol} size={20} /> : null}
+                <SummaryAmount>
+                  {sharesIn} {form.shareSymbol}
+                </SummaryAmount>
+              </span>
+              {sharesUsd ? <SummaryUsd>~ {sharesUsd}</SummaryUsd> : null}
             </span>
             <span className="flex size-5 shrink-0 -rotate-90 items-center justify-center rounded-full border border-white-08 text-subText">
               <SwapArrowIcon width={12} height={12} />
             </span>
-            <span className="flex items-center gap-2">
-              <SummaryAmount>{zapOut}</SummaryAmount>
+            <span className="flex min-w-0 flex-col items-end gap-0.5">
+              <span className="flex items-center gap-2">
+                {form.swapToken?.logo ? (
+                  <TokenLogo src={form.swapToken.logo} alt={form.swapToken.symbol} size={20} />
+                ) : null}
+                <SummaryAmount>{zapOut}</SummaryAmount>
+              </span>
               {zapOutUsd ? <SummaryUsd>~ {zapOutUsd}</SummaryUsd> : null}
             </span>
           </SummaryRow>
@@ -113,41 +132,31 @@ const ConfirmWithdraw = ({
       ) : null}
 
       <DetailsBox>
+        {/* One label for both paths, as the design has it. Only the aggregator route has a slippage
+            floor, so on the queue path the tooltip says the figure is exact. */}
+        <InfoRow>
+          <InfoLabel
+            tooltip={
+              form.isNative
+                ? t`The queue prices this redemption when you submit it and locks the amount into the request, so it is what you receive rather than a floor.`
+                : t`The least you will receive if the price moves against you by the full slippage tolerance.`
+            }
+          >{t`Est. Min Received`}</InfoLabel>
+          <InfoValue>{form.isNative ? nativeOut : zapMinOut}</InfoValue>
+        </InfoRow>
+
         {form.isNative ? (
-          <>
-            <InfoRow>
-              <InfoLabel
-                tooltip={t`Quoted by the vault's withdrawal queue and locked into the request when you submit it.`}
-              >{t`You receive`}</InfoLabel>
-              <InfoValue>{nativeOut}</InfoValue>
-            </InfoRow>
-            <InfoRow>
-              <InfoLabel
-                tooltip={t`How long the withdrawal usually takes. A solver fills the request out of the queue, so the vault does not pay out on a fixed schedule.`}
-              >{t`Processing Time`}</InfoLabel>
-              <InfoValue>{form.queueLimits ? formatTerm(form.queueLimits.minimumSecondsToDeadline) : '--'}</InfoValue>
-            </InfoRow>
-          </>
+          <InfoRow>
+            <InfoLabel
+              tooltip={t`How long the withdrawal usually takes. A solver fills the request out of the queue, so the vault does not pay out on a fixed schedule.`}
+            >{t`Processing Time`}</InfoLabel>
+            <InfoValue>{form.queueLimits ? formatTerm(form.queueLimits.minimumSecondsToDeadline) : '--'}</InfoValue>
+          </InfoRow>
         ) : (
           <>
             <InfoRow>
-              <InfoLabel
-                tooltip={t`The least you will receive if the price moves against you by the full slippage tolerance.`}
-              >{t`Minimum Receiving`}</InfoLabel>
-              <InfoValue>{zapMinOut}</InfoValue>
-            </InfoRow>
-            <InfoRow>
-              <InfoLabel
-                tooltip={t`How far this trade moves the price of the pools it routes through. A large impact means thin liquidity.`}
-              >{t`Price Impact`}</InfoLabel>
-              <InfoValue>
-                {form.zapRoute
-                  ? formatDisplayNumber(form.zapRoute.zapDetails.priceImpact / 100, {
-                      style: 'percent',
-                      fractionDigits: 2,
-                    })
-                  : '--'}
-              </InfoValue>
+              <InfoLabel>{t`Max Slippage`}</InfoLabel>
+              <InfoValue>{formatSlippage(form.slippage)}</InfoValue>
             </InfoRow>
             <InfoRow>
               <InfoLabel
@@ -159,18 +168,14 @@ const ConfirmWithdraw = ({
                   : '--'}
               </InfoValue>
             </InfoRow>
-            <InfoRow>
-              <InfoLabel>{t`Max Slippage`}</InfoLabel>
-              <InfoValue>{formatSlippage(form.slippage)}</InfoValue>
-            </InfoRow>
           </>
         )}
       </DetailsBox>
 
       {form.isNative ? (
-        <p className="m-0 w-full text-xs italic leading-4 text-gray">
+        <FieldNote className="text-gray">
           {t`When completed, tokens are automatically sent to your wallet, no need to claim.`}
-        </p>
+        </FieldNote>
       ) : null}
 
       <VaultPriceImpactNote result={form.priceImpactResult} />

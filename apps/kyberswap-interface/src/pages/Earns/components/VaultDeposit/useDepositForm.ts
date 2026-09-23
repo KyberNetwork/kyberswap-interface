@@ -1,7 +1,7 @@
 import { useTokenPrices } from '@kyber/hooks'
 import { NATIVE_TOKEN_ADDRESS, Token as TokenSchema } from '@kyber/schema'
 import { MAX_TOKENS } from '@kyber/token-selector'
-import { ChainId, Currency, Token } from '@kyberswap/ks-sdk-core'
+import { ChainId, Currency, CurrencyAmount, Token } from '@kyberswap/ks-sdk-core'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { VaultApiDetailItem } from 'services/vault'
 
@@ -42,22 +42,41 @@ const toSchemaToken = (row: DepositRow): TokenSchema => ({
   logo: row.logo,
 })
 
-/**
- * A token belongs to one row only. Two rows of the same token would share an approval step id, and
- * the step sequence finds a step by value — so picking a token another row already holds moves it
- * to `keepIndex` rather than listing it twice.
- */
-export const dropDuplicateToken = (rows: DepositRow[], keepIndex: number): DepositRow[] => {
-  const kept = rows[keepIndex]
-  if (!kept) return rows
-  const keptAddress = rowAddress(kept.currency).toLowerCase()
-  return rows.filter((row, index) => index === keepIndex || rowAddress(row.currency).toLowerCase() !== keptAddress)
-}
+/** Native deposits keep a slice back for gas — the aggregator call is not cheap. */
+const spendableBalance = (currency: Currency, balance: CurrencyAmount<Currency>) =>
+  currency.isNative ? balance.multiply(99).divide(100) : balance
 
 const toCurrency = (token: TokenSchema, chainId: number): Currency =>
   isNativeAddress(token.address)
     ? NativeCurrencies[chainId as keyof typeof NativeCurrencies]
     : new Token(chainId, token.address, token.decimals, token.symbol)
+
+/**
+ * The rows for a token list, keeping whatever each token already has typed against it. A token
+ * belongs to one row only: two rows of the same token would share an approval step id, and the step
+ * sequence finds a step by value, so the second row would corrupt the run.
+ */
+export const toRows = (tokens: TokenSchema[], current: DepositRow[], chainId: number): DepositRow[] => {
+  const byAddress = new Map(current.map(row => [rowAddress(row.currency).toLowerCase(), row]))
+  const taken = new Set<string>()
+  const rows: DepositRow[] = []
+
+  tokens.forEach(token => {
+    const address = token.address.toLowerCase()
+    if (taken.has(address) || rows.length >= MAX_TOKENS) return
+    taken.add(address)
+    rows.push(
+      byAddress.get(address) ?? {
+        currency: toCurrency(token, chainId),
+        logo: token.logo || undefined,
+        typedValue: '',
+        percent: undefined,
+      },
+    )
+  })
+
+  return rows
+}
 
 /**
  * Everything the deposit form needs, so the panel on the vault page and the modal opened from a
@@ -106,6 +125,30 @@ export const useDepositForm = ({
 
   const currencies = useMemo(() => rows.map(row => row.currency), [rows])
   const balances = useCurrencyBalances(currencies, chainId)
+
+  /**
+   * The form opens with an amount already in it, the way the zap flows do: one whole token when the
+   * wallet holds at least that much, otherwise all of it — less the slice a native deposit keeps
+   * back for gas. A wallet holding none of the opening token is left blank rather than handed an
+   * amount it cannot cover. Seeded once, so it never lands on top of what someone is typing.
+   */
+  const hasSeededAmountRef = useRef(false)
+  useEffect(() => {
+    hasSeededAmountRef.current = false
+  }, [chainId, vault.vaultId])
+
+  useEffect(() => {
+    if (hasSeededAmountRef.current || rows.length !== 1 || rows[0].typedValue) return
+    const balance = balances[0]
+    if (!balance) return
+    hasSeededAmountRef.current = true
+    if (!balance.greaterThan(0)) return
+
+    const one = tryParseAmount('1', rows[0].currency)
+    const spendable = spendableBalance(rows[0].currency, balance)
+    const typedValue = one && !spendable.lessThan(one) ? '1' : spendable.toExact()
+    setRows(current => (current.length === 1 && !current[0].typedValue ? [{ ...current[0], typedValue }] : current))
+  }, [rows, balances])
   const parsedAmounts = useMemo(
     () => rows.map(row => tryParseAmount(row.typedValue, row.currency)),
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -225,8 +268,7 @@ export const useDepositForm = ({
       const balance = balances[index]
       if (!balance) return
       const row = rows[index]
-      // Native deposits keep a slice back for gas — the aggregator call is not cheap.
-      const usable = row?.currency.isNative && value === 100 ? balance.multiply(99).divide(100) : balance
+      const usable = row && value === 100 ? spendableBalance(row.currency, balance) : balance
       const typedValue = usable.multiply(value).divide(100).toExact()
       setRows(current => current.map((item, i) => (i === index ? { ...item, typedValue, percent: value } : item)))
     },
@@ -237,49 +279,12 @@ export const useDepositForm = ({
     setRows(current => (current.length > 1 ? current.filter((_, i) => i !== index) : current))
   }, [])
 
-  /** Replaces one row's token. */
-  const onSelectToken = useCallback(
-    (index: number, token: TokenSchema) => {
-      if (!chainId) return
-      hasPickedRef.current = true
-      setRows(current =>
-        dropDuplicateToken(
-          current.map((row, i) =>
-            i === index
-              ? {
-                  currency: toCurrency(token, chainId),
-                  logo: token.logo || undefined,
-                  typedValue: '',
-                  percent: undefined,
-                }
-              : row,
-          ),
-          index,
-        ),
-      )
-    },
-    [chainId],
-  )
-
   /** The selector's own list, after the user has added or removed tokens in it. */
   const onTokensChange = useCallback(
     (tokens: TokenSchema[]) => {
       if (!chainId) return
       hasPickedRef.current = true
-      setRows(current => {
-        const byAddress = new Map(current.map(row => [rowAddress(row.currency).toLowerCase(), row]))
-        return tokens.slice(0, MAX_TOKENS).map(token => {
-          const existing = byAddress.get(token.address.toLowerCase())
-          return (
-            existing ?? {
-              currency: toCurrency(token, chainId),
-              logo: token.logo || undefined,
-              typedValue: '',
-              percent: undefined,
-            }
-          )
-        })
-      })
+      setRows(current => toRows(tokens, current, chainId))
     },
     [chainId],
   )
@@ -340,7 +345,6 @@ export const useDepositForm = ({
     isReady,
     onTypeAmount,
     onSelectPercent,
-    onSelectToken,
     onTokensChange,
     onRemoveRow,
     resetAmount,

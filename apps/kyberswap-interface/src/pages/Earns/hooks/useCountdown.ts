@@ -4,13 +4,14 @@ import { useEffect, useState } from 'react'
 const nowInSeconds = () => Math.floor(Date.now() / 1000)
 
 /**
- * A fixed term in words. A queue's terms do not tick down, so they read better as "3 days" than as
- * a clock sitting at `3d : 0h : 0m : 0s`.
+ * A fixed term in words. A queue's terms do not tick down, so they read better as "72 hours" than
+ * as a clock sitting at `3d : 0h : 0m : 0s`. Hours carry a term up to a week, which is the range
+ * every queue in play states itself in; past that they stop being countable at a glance.
  */
 export const formatTerm = (seconds: number) => {
   if (seconds <= 0) return '--'
 
-  if (seconds >= 86400) {
+  if (seconds >= 604800) {
     const days = Math.round(seconds / 86400)
     return days === 1 ? t`1 day` : t`${days} days`
   }

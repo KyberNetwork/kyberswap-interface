@@ -13,18 +13,23 @@ import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import SlippageSelect from 'pages/Earns/components/VaultDeposit/SlippageSelect'
 import {
   AmountInput,
-  BalanceRow,
+  BalanceButton,
   Field,
+  FieldNote,
   FieldRow,
+  FieldSeam,
+  FieldStack,
   InfoLabel,
   InfoList,
   InfoRow,
   InfoValue,
   Pill,
   PillRange,
+  ReceiveAmount,
   SegmentedTab,
   SegmentedTabs,
   TokenButton,
+  TokenTag,
 } from 'pages/Earns/components/VaultDeposit/styles'
 import { PERCENT_OPTIONS, WithdrawFormState, WithdrawMode } from 'pages/Earns/components/VaultWithdraw/useWithdrawForm'
 import { formatTerm } from 'pages/Earns/hooks/useCountdown'
@@ -35,7 +40,8 @@ import { formatUnits } from 'utils/viem'
 
 /**
  * Amount field and terms for both withdrawal routes: selling the shares through the aggregator, or
- * queueing a redemption with the vault itself.
+ * queueing a redemption with the vault itself. The shares go in at the top and the route that takes
+ * them out — along with the token it pays in — sits below the seam.
  */
 const WithdrawFields = ({ vault, form }: { vault: VaultApiDetailItem; form: WithdrawFormState }) => {
   const [isSelectorOpen, setSelectorOpen] = useState(false)
@@ -45,9 +51,22 @@ const WithdrawFields = ({ vault, form }: { vault: VaultApiDetailItem; form: With
 
   useOnClickOutside(assetMenuRef, () => setAssetMenuOpen(false))
 
+  const shareLogo = vault.shareToken?.logo
   const balanceText = formatDisplayNumber(formatUnits(form.shareBalanceRaw, form.shareDecimals), {
     significantDigits: 6,
   })
+
+  const sharesUsd = form.zapRoute
+    ? formatDisplayNumber(form.zapRoute.zapDetails.initialAmountUsd, { style: 'currency', significantDigits: 4 })
+    : undefined
+
+  const amountOut = form.isNative
+    ? form.nativeAmountOut !== undefined && form.nativeAsset
+      ? formatDisplayNumber(formatUnits(form.nativeAmountOut, form.nativeAsset.decimals), { significantDigits: 6 })
+      : undefined
+    : form.zapAmountOutRaw !== undefined && form.swapToken
+    ? formatDisplayNumber(formatUnits(form.zapAmountOutRaw, form.swapToken.decimals), { significantDigits: 6 })
+    : undefined
 
   const nativeOut =
     form.nativeAmountOut !== undefined && form.nativeAsset
@@ -63,56 +82,73 @@ const WithdrawFields = ({ vault, form }: { vault: VaultApiDetailItem; form: With
         })} ${form.swapToken.symbol}`
       : undefined
 
+  const isOutLoading = form.isNative ? form.isLoadingPreview : form.isRouteLoading
+
   return (
     <>
-      <SegmentedTabs>
-        <SegmentedTab
-          $active={form.mode === WithdrawMode.ANY_TOKEN}
-          onClick={() => form.onSelectMode(WithdrawMode.ANY_TOKEN)}
-        >
-          {t`Withdraw to any token`}
-        </SegmentedTab>
-        <SegmentedTab $active={form.isNative} onClick={() => form.onSelectMode(WithdrawMode.NATIVE)}>
-          {t`Native withdraw`}
-        </SegmentedTab>
-      </SegmentedTabs>
+      <FieldStack>
+        <Field>
+          <FieldRow className="items-start">
+            <PillRange>
+              {PERCENT_OPTIONS.map(option => (
+                <Pill
+                  key={option}
+                  $active={form.percent === option}
+                  disabled={form.shareBalanceRaw <= 0n}
+                  onClick={() => form.onSelectPercent(option)}
+                >
+                  {option}%
+                </Pill>
+              ))}
+            </PillRange>
+            <BalanceButton
+              aria-label={t`Withdraw the whole balance`}
+              disabled={form.shareBalanceRaw <= 0n}
+              onClick={() => form.onSelectPercent(100)}
+            >
+              <SharesIcon width={16} height={16} />
+              {balanceText}
+            </BalanceButton>
+          </FieldRow>
 
-      {form.isNative ? (
-        <p className="m-0 text-xs italic leading-4 text-subText">
-          {t`Expected time: Starts ~3 days; may extend (3–10 days) depending on strategies.`}
-        </p>
-      ) : (
-        <p className="m-0 text-xs italic leading-4 text-subText">
-          {t`Instant exit uses market liquidity and settles in one transaction; the output may differ from a native redeem.`}
-        </p>
-      )}
+          <FieldRow>
+            <AmountInput value={form.typedValue} onChange={e => form.onTypeAmount(e.target.value)} />
+            <div className="flex shrink-0 items-center justify-end gap-2">
+              {sharesUsd ? <span className="text-base leading-6 text-subText">~{sharesUsd}</span> : null}
+              <TokenTag>
+                {shareLogo ? <TokenLogo src={shareLogo} alt={form.shareSymbol} size={20} /> : null}
+                {form.shareSymbol}
+              </TokenTag>
+            </div>
+          </FieldRow>
+        </Field>
 
-      <Field>
-        <FieldRow className="items-start">
-          <PillRange>
-            {PERCENT_OPTIONS.map(option => (
-              <Pill
-                key={option}
-                $active={form.percent === option}
-                disabled={form.shareBalanceRaw <= 0n}
-                onClick={() => form.onSelectPercent(option)}
-              >
-                {option}%
-              </Pill>
-            ))}
-          </PillRange>
-          <BalanceRow>
-            <SharesIcon width={16} height={16} />
-            {balanceText} {form.shareSymbol}
-          </BalanceRow>
-        </FieldRow>
+        <FieldSeam />
 
-        <FieldRow>
-          <AmountInput value={form.typedValue} onChange={e => form.onTypeAmount(e.target.value)} />
-          <div className="flex shrink-0 items-center justify-end gap-2">
+        <Field className="gap-3">
+          <SegmentedTabs>
+            <SegmentedTab
+              $active={form.mode === WithdrawMode.ANY_TOKEN}
+              onClick={() => form.onSelectMode(WithdrawMode.ANY_TOKEN)}
+            >
+              {t`Withdraw to any token`}
+            </SegmentedTab>
+            <SegmentedTab $active={form.isNative} onClick={() => form.onSelectMode(WithdrawMode.NATIVE)}>
+              {t`Native withdraw`}
+            </SegmentedTab>
+          </SegmentedTabs>
+
+          <FieldNote>
+            {form.isNative
+              ? t`Expected time: Starts ~3 days; may extend (3–10 days) depending on strategies.`
+              : t`Instant exit uses market liquidity and settles in one transaction; the output may differ from a native redeem.`}
+          </FieldNote>
+
+          <FieldRow>
             {form.isNative ? (
               <div className="relative" ref={assetMenuRef}>
                 <TokenButton
+                  className="h-8 px-3 text-sm"
                   aria-haspopup="listbox"
                   aria-expanded={isAssetMenuOpen}
                   disabled={form.withdrawableAssets.length < 2}
@@ -122,7 +158,7 @@ const WithdrawFields = ({ vault, form }: { vault: VaultApiDetailItem; form: With
                   }}
                 >
                   {form.nativeAsset?.symbol || '--'}
-                  {form.withdrawableAssets.length > 1 ? <ChevronDown size={20} /> : null}
+                  {form.withdrawableAssets.length > 1 ? <ChevronDown size={16} /> : null}
                 </TokenButton>
                 {isAssetMenuOpen ? (
                   <div
@@ -131,7 +167,7 @@ const WithdrawFields = ({ vault, form }: { vault: VaultApiDetailItem; form: With
                     onKeyDown={e => {
                       if (e.key === 'Escape') setAssetMenuOpen(false)
                     }}
-                    className="absolute right-0 top-11 z-10 flex min-w-[120px] flex-col rounded-xl border border-white-08 bg-tableHeader p-1 shadow-[0px_4px_16px_rgba(0,0,0,0.4)]"
+                    className="absolute left-0 top-10 z-10 flex min-w-[120px] flex-col rounded-xl border border-white-08 bg-tableHeader p-1 shadow-[0px_4px_16px_rgba(0,0,0,0.4)]"
                   >
                     {form.withdrawableAssets.map(asset => (
                       <button
@@ -152,37 +188,41 @@ const WithdrawFields = ({ vault, form }: { vault: VaultApiDetailItem; form: With
                 ) : null}
               </div>
             ) : (
-              <TokenButton onClick={() => setSelectorOpen(true)}>
+              <TokenButton className="h-8 px-3 text-sm" onClick={() => setSelectorOpen(true)}>
                 {form.swapToken ? (
                   <>
                     {form.swapToken.logo ? (
-                      <TokenLogo src={form.swapToken.logo} alt={form.swapToken.symbol} size={20} />
+                      <TokenLogo src={form.swapToken.logo} alt={form.swapToken.symbol} size={18} />
                     ) : null}
                     {form.swapToken.symbol}
                   </>
                 ) : (
                   t`Select token`
                 )}
-                <ChevronDown size={20} />
+                <ChevronDown size={16} />
               </TokenButton>
             )}
-          </div>
-        </FieldRow>
-      </Field>
+
+            {isOutLoading && !amountOut ? (
+              <Loader size="20px" />
+            ) : (
+              <ReceiveAmount className="truncate text-right">{amountOut ?? '--'}</ReceiveAmount>
+            )}
+          </FieldRow>
+        </Field>
+      </FieldStack>
 
       <InfoList>
+        {/* One label for both paths, as the design has it. Only the aggregator route has a slippage
+            floor, so on the queue path the tooltip says the figure is exact. */}
         <InfoRow>
           <InfoLabel
             tooltip={
               form.isNative
-                ? t`Quoted by the vault's withdrawal queue and locked into the request when you submit it.`
+                ? t`The queue prices this redemption when you submit it and locks the amount into the request, so it is what you receive rather than a floor.`
                 : t`The least you will receive if the price moves against you by the full slippage tolerance.`
             }
-          >
-            {/* The queue prices the redemption exactly and freezes it into the request, so there is
-                no slippage floor to describe on that path — only the aggregator route has one. */}
-            {form.isNative ? t`You receive` : t`Est. Min Received`}
-          </InfoLabel>
+          >{t`Est. Min Received`}</InfoLabel>
           <InfoValue>
             {form.isNative ? (
               form.isLoadingPreview && !nativeOut ? (
@@ -206,39 +246,14 @@ const WithdrawFields = ({ vault, form }: { vault: VaultApiDetailItem; form: With
             <InfoValue>{form.queueLimits ? formatTerm(form.queueLimits.minimumSecondsToDeadline) : '--'}</InfoValue>
           </InfoRow>
         ) : (
-          <>
-            <InfoRow>
-              <InfoLabel
-                tooltip={t`How far this trade moves the price of the pools it routes through. A large impact means thin liquidity.`}
-              >{t`Price Impact`}</InfoLabel>
-              <InfoValue>
-                {form.zapRoute
-                  ? formatDisplayNumber(form.zapRoute.zapDetails.priceImpact / 100, {
-                      style: 'percent',
-                      fractionDigits: 2,
-                    })
-                  : '--'}
-              </InfoValue>
-            </InfoRow>
-            <SlippageSelect value={form.slippage} onChange={form.setSlippage} />
-            <InfoRow>
-              <InfoLabel
-                tooltip={t`Estimated network fee for this transaction. What you actually pay depends on network conditions.`}
-              >{t`Est. Gas Fee`}</InfoLabel>
-              <InfoValue>
-                {form.zapRoute
-                  ? formatDisplayNumber(form.zapRoute.gasUsd, { style: 'currency', significantDigits: 4 })
-                  : '--'}
-              </InfoValue>
-            </InfoRow>
-          </>
+          <SlippageSelect value={form.slippage} onChange={form.setSlippage} />
         )}
       </InfoList>
 
       {form.isNative ? (
-        <p className="m-0 text-xs italic leading-4 text-gray">
+        <FieldNote className="text-gray">
           {t`When completed, tokens are automatically sent to your wallet, no need to claim.`}
-        </p>
+        </FieldNote>
       ) : null}
 
       {isSelectorOpen ? (

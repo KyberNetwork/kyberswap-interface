@@ -19,6 +19,7 @@ import {
   PrimaryButton,
 } from 'pages/Earns/components/VaultDeposit/styles'
 import { useDepositForm } from 'pages/Earns/components/VaultDeposit/useDepositForm'
+import VaultIdentityRow from 'pages/Earns/components/VaultIdentityRow'
 import VaultPriceImpactNote from 'pages/Earns/components/VaultPriceImpactNote'
 import VaultProcessingModal from 'pages/Earns/components/VaultProcessingModal'
 import { VaultStep } from 'pages/Earns/components/vaultSteps'
@@ -103,6 +104,8 @@ const DepositBody = ({
                 <CloseButton onClose={onClose} />
               </ModalTitleRow>
             </ModalHeader>
+
+            <VaultIdentityRow vault={vault} />
 
             <DepositFields vault={vault} form={form} />
 

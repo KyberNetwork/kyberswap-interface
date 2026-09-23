@@ -1,4 +1,5 @@
 import { ButtonHTMLAttributes, HTMLAttributes, InputHTMLAttributes, ReactNode } from 'react'
+import { ChevronDown, X } from 'react-feather'
 
 import { TextHelper } from 'components/Text'
 import { cn } from 'utils/cn'
@@ -31,8 +32,19 @@ export const Pill = ({ $active, className, ...rest }: PillProps) => (
   />
 )
 
-export const BalanceRow = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
-  <div className={cn('flex items-center justify-end gap-1 text-sm leading-5 text-subText', className)} {...rest} />
+/** The wallet balance, which doubles as the control that spends all of it. */
+export const BalanceButton = ({ className, ...rest }: ButtonHTMLAttributes<HTMLButtonElement>) => (
+  <button
+    type="button"
+    className={cn(
+      'flex items-center justify-end gap-1 p-0 text-sm leading-5 text-subText',
+      'transition-colors duration-200 hover:text-text',
+      'disabled:cursor-default disabled:hover:text-subText',
+      'motion-reduce:transition-none',
+      className,
+    )}
+    {...rest}
+  />
 )
 
 export const AmountInput = ({ className, ...rest }: InputHTMLAttributes<HTMLInputElement>) => (
@@ -198,18 +210,21 @@ export const TokenRowList = ({ className, ...rest }: HTMLAttributes<HTMLDivEleme
   <div className={cn('flex w-full flex-col gap-2', className)} {...rest} />
 )
 
-/** Drops a token from the list; only offered while more than one is listed. */
+/** Drops a token from the list; only offered while more than one is listed. The field squares off
+ *  its top-right corner to make room, the way the zap-in fields do. */
 export const RemoveTokenButton = ({ className, ...rest }: ButtonHTMLAttributes<HTMLButtonElement>) => (
   <button
     type="button"
     className={cn(
-      'absolute -top-1 right-0 flex size-5 items-center justify-center rounded-full',
-      'text-sm leading-none text-subText transition-colors duration-200 hover:text-white',
+      'absolute right-0 top-0 flex size-4 items-center justify-center p-0 leading-none',
+      'text-subText transition-colors duration-200 hover:text-text',
       'motion-reduce:transition-none',
       className,
     )}
     {...rest}
-  />
+  >
+    <X size={14} />
+  </button>
 )
 
 export const AddTokenButton = ({ className, ...rest }: ButtonHTMLAttributes<HTMLButtonElement>) => (
@@ -232,6 +247,30 @@ export const ReceiveField = ({ className, ...rest }: HTMLAttributes<HTMLDivEleme
 
 export const ReceiveAmount = ({ className, ...rest }: HTMLAttributes<HTMLSpanElement>) => (
   <span className={cn('text-2xl font-medium leading-8 text-white', className)} {...rest} />
+)
+
+/** Stacks the fields either side of a `FieldSeam`, which needs the gap between them to itself. */
+export const FieldStack = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('flex w-full flex-col items-stretch', className)} {...rest} />
+)
+
+/** Marks the seam between what goes in and what comes back out. Decorative — nothing to press. */
+export const FieldSeam = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
+  <div aria-hidden className={cn('relative z-10 -my-2 flex justify-center', className)} {...rest}>
+    <span className="flex size-6 items-center justify-center rounded-full border border-white-08 bg-tableHeader text-subText">
+      <ChevronDown size={14} />
+    </span>
+  </div>
+)
+
+/** A term that qualifies the field above it rather than standing on its own line of detail. */
+export const FieldCaption = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
+  <div className={cn('flex w-full items-center gap-2 px-1 text-xs leading-4 text-subText', className)} {...rest} />
+)
+
+/** The note explaining what the selected withdrawal route does. */
+export const FieldNote = ({ className, ...rest }: HTMLAttributes<HTMLParagraphElement>) => (
+  <p className={cn('m-0 text-xs italic leading-4 text-subText', className)} {...rest} />
 )
 
 /** Names the token an amount is denominated in, without offering a choice of token. */

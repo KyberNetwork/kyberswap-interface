@@ -19,6 +19,7 @@ import {
   OutlinedButton,
   PrimaryButton,
 } from 'pages/Earns/components/VaultDeposit/styles'
+import VaultIdentityRow from 'pages/Earns/components/VaultIdentityRow'
 import VaultPriceImpactNote from 'pages/Earns/components/VaultPriceImpactNote'
 import VaultProcessingModal from 'pages/Earns/components/VaultProcessingModal'
 import ConfirmWithdraw from 'pages/Earns/components/VaultWithdraw/ConfirmWithdraw'
@@ -108,6 +109,7 @@ const WithdrawBody = ({
       <ModalWrapper>
         {isConfirming ? (
           <ConfirmWithdraw
+            vault={vault}
             form={form}
             onBack={() => setConfirming(false)}
             onClose={onClose}
@@ -121,6 +123,8 @@ const WithdrawBody = ({
                 <CloseButton onClose={onClose} />
               </ModalTitleRow>
             </ModalHeader>
+
+            <VaultIdentityRow vault={vault} />
 
             <WithdrawFields vault={vault} form={form} />
 

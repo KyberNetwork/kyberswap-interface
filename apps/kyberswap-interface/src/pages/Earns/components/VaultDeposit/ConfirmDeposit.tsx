@@ -21,6 +21,7 @@ import {
   SummaryUsd,
 } from 'pages/Earns/components/VaultDeposit/styles'
 import { DepositFormState } from 'pages/Earns/components/VaultDeposit/useDepositForm'
+import VaultIdentityRow from 'pages/Earns/components/VaultIdentityRow'
 import VaultPriceImpactNote from 'pages/Earns/components/VaultPriceImpactNote'
 import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
@@ -86,6 +87,8 @@ const ConfirmDeposit = ({
         <ModalSubtitle>{t`Please review the details of your deposit:`}</ModalSubtitle>
       </ModalHeader>
 
+      <VaultIdentityRow vault={vault} />
+
       <div className="flex w-full flex-col gap-2">
         <div className="flex w-full items-center justify-between gap-2">
           <SummaryLabel>{t`You are depositing:`}</SummaryLabel>
@@ -113,7 +116,7 @@ const ConfirmDeposit = ({
         </SummaryRow>
       </div>
 
-      <div className="flex w-full items-center justify-between gap-2">
+      <SummaryRow className="justify-between">
         <SummaryLabel>{t`Est. Receive`}</SummaryLabel>
         <span className="flex items-center gap-2">
           {shareLogo ? <TokenLogo src={shareLogo} alt={shareSymbol} size={20} /> : null}
@@ -122,34 +125,22 @@ const ConfirmDeposit = ({
           </SummaryAmount>
           {sharesOutUsd ? <SummaryUsd>~ {sharesOutUsd}</SummaryUsd> : null}
         </span>
-      </div>
+      </SummaryRow>
 
       <DetailsBox>
-        {!form.isVaultAsset ? (
-          <>
-            <InfoRow>
-              <InfoLabel
-                tooltip={t`The least you will receive if the price moves against you by the full slippage tolerance.`}
-              >{t`Minimum Receiving`}</InfoLabel>
-              <InfoValue>
-                {minSharesOut} {shareSymbol}
-              </InfoValue>
-            </InfoRow>
-            <InfoRow>
-              <InfoLabel
-                tooltip={t`How far this trade moves the price of the pools it routes through. A large impact means thin liquidity.`}
-              >{t`Price Impact`}</InfoLabel>
-              <InfoValue>
-                {form.route
-                  ? formatDisplayNumber(form.route.zapDetails.priceImpact / 100, {
-                      style: 'percent',
-                      fractionDigits: 2,
-                    })
-                  : '--'}
-              </InfoValue>
-            </InfoRow>
-          </>
-        ) : null}
+        <InfoRow>
+          <InfoLabel
+            tooltip={t`The least you will receive if the price moves against you by the full slippage tolerance.`}
+          >{t`Est. Min Received`}</InfoLabel>
+          <InfoValue>
+            {shareLogo ? <TokenLogo src={shareLogo} alt={shareSymbol} size={16} /> : null}
+            {minSharesOut} {shareSymbol}
+          </InfoValue>
+        </InfoRow>
+        <InfoRow>
+          <InfoLabel>{t`Max Slippage`}</InfoLabel>
+          <InfoValue>{formatSlippage(form.slippage)}</InfoValue>
+        </InfoRow>
         <InfoRow>
           <InfoLabel
             tooltip={t`Estimated network fee for this transaction. What you actually pay depends on network conditions.`}
@@ -157,10 +148,6 @@ const ConfirmDeposit = ({
           <InfoValue>
             {form.route ? formatDisplayNumber(form.route.gasUsd, { style: 'currency', significantDigits: 4 }) : '--'}
           </InfoValue>
-        </InfoRow>
-        <InfoRow>
-          <InfoLabel>{t`Max Slippage`}</InfoLabel>
-          <InfoValue>{formatSlippage(form.slippage)}</InfoValue>
         </InfoRow>
       </DetailsBox>
 
