@@ -37,6 +37,7 @@ import {
   TokenButton,
   TokenTag,
 } from 'pages/Earns/components/VaultDeposit/styles'
+import VaultPriceImpactRow from 'pages/Earns/components/VaultPriceImpactRow'
 import { PERCENT_OPTIONS, WithdrawFormState, WithdrawMode } from 'pages/Earns/components/VaultWithdraw/useWithdrawForm'
 import { formatTerm } from 'pages/Earns/hooks/useCountdown'
 import { useWalletModalToggle } from 'state/application/hooks'
@@ -247,13 +248,16 @@ const WithdrawFields = ({ vault, form }: { vault: VaultApiDetailItem; form: With
             <InfoValue>{form.queueLimits ? formatTerm(form.queueLimits.minimumSecondsToDeadline) : '--'}</InfoValue>
           </InfoRow>
         ) : (
-          <SlippageSelect
-            value={form.slippage}
-            onChange={form.setSlippage}
-            notice={form.slippageNotice}
-            suggested={form.suggestedSlippage}
-            isResolving={form.isSlippageResolving}
-          />
+          <>
+            <VaultPriceImpactRow priceImpact={form.zapRoute?.zapDetails.priceImpact} isLoading={form.isRouteLoading} />
+            <SlippageSelect
+              value={form.slippage}
+              onChange={form.setSlippage}
+              notice={form.slippageNotice}
+              suggested={form.suggestedSlippage}
+              isResolving={form.isSlippageResolving}
+            />
+          </>
         )}
       </DetailsBox>
 

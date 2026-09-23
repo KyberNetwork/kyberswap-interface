@@ -33,6 +33,7 @@ import {
 } from 'pages/Earns/components/VaultDeposit/styles'
 import { DepositFormState, PERCENT_OPTIONS } from 'pages/Earns/components/VaultDeposit/useDepositForm'
 import { AmountFieldSkeleton } from 'pages/Earns/components/VaultFormSkeleton'
+import VaultPriceImpactRow from 'pages/Earns/components/VaultPriceImpactRow'
 import { useWalletModalToggle } from 'state/application/hooks'
 import { isInventoryChain } from 'state/walletInventory/store'
 import { cn } from 'utils/cn'
@@ -187,6 +188,8 @@ const DepositFields = ({ vault, form }: { vault: VaultApiDetailItem; form: Depos
             )}
           </InfoValue>
         </InfoRow>
+
+        <VaultPriceImpactRow priceImpact={form.route?.zapDetails.priceImpact} isLoading={form.isRouteLoading} />
 
         <SlippageSelect
           value={form.slippage}

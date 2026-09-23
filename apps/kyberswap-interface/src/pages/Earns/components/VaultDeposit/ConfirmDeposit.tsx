@@ -23,6 +23,7 @@ import {
 import { DepositFormState } from 'pages/Earns/components/VaultDeposit/useDepositForm'
 import VaultIdentityRow from 'pages/Earns/components/VaultIdentityRow'
 import VaultPriceImpactNote from 'pages/Earns/components/VaultPriceImpactNote'
+import VaultPriceImpactRow from 'pages/Earns/components/VaultPriceImpactRow'
 import { cn } from 'utils/cn'
 import { formatDisplayNumber } from 'utils/numbers'
 import { formatSlippage } from 'utils/slippage'
@@ -143,6 +144,7 @@ const ConfirmDeposit = ({
             {minReceiveUsd ? <span className="text-subText">~{minReceiveUsd}</span> : null}
           </InfoValue>
         </InfoRow>
+        <VaultPriceImpactRow priceImpact={form.route?.zapDetails.priceImpact} />
         <InfoRow>
           <InfoLabel>{t`Max Slippage`}</InfoLabel>
           <InfoValue>{formatSlippage(form.slippage)}</InfoValue>

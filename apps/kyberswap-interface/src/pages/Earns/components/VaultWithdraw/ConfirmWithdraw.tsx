@@ -23,6 +23,7 @@ import {
 } from 'pages/Earns/components/VaultDeposit/styles'
 import VaultIdentityRow from 'pages/Earns/components/VaultIdentityRow'
 import VaultPriceImpactNote from 'pages/Earns/components/VaultPriceImpactNote'
+import VaultPriceImpactRow from 'pages/Earns/components/VaultPriceImpactRow'
 import { WithdrawFormState } from 'pages/Earns/components/VaultWithdraw/useWithdrawForm'
 import { formatTerm } from 'pages/Earns/hooks/useCountdown'
 import { cn } from 'utils/cn'
@@ -167,6 +168,7 @@ const ConfirmWithdraw = ({
           </InfoRow>
         ) : (
           <>
+            <VaultPriceImpactRow priceImpact={form.zapRoute?.zapDetails.priceImpact} />
             <InfoRow>
               <InfoLabel>{t`Max Slippage`}</InfoLabel>
               <InfoValue>{formatSlippage(form.slippage)}</InfoValue>
