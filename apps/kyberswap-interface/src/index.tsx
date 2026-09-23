@@ -27,6 +27,7 @@ import TransactionUpdater from 'state/transactions/updater'
 import UserUpdater from 'state/user/updater'
 import WalletInventoryUpdater from 'state/walletInventory/updater'
 import ThemeProvider from 'theme'
+import 'utils/ksProxy'
 import { preloadChainIcons, preloadStaticRouteChunks } from 'utils/prefetch'
 
 dayjs.extend(utc)
