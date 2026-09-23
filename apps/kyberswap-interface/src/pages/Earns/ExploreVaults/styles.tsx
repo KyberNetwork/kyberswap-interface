@@ -64,6 +64,7 @@ export const ViewToggleButton = ({ $active, className, ...rest }: ViewToggleButt
   />
 )
 
+/** Holds the rows a `$subgrid` card takes its own tracks from. */
 export const VaultCardsGrid = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
   <div
     className={cn('grid grid-cols-3 gap-6', 'max-lg:grid-cols-2', 'max-sm:grid-cols-1 max-sm:gap-4', className)}
@@ -75,6 +76,13 @@ type VaultCardProps = HTMLAttributes<HTMLDivElement> & {
   $clickable?: boolean
   $disabled?: boolean
   $revealIndex?: number
+  /**
+   * Takes the card's header and body from two of the grid's own rows, so a header that wraps its
+   * buttons onto a second line sets that row's height for every card beside it and the figures,
+   * charts and footers below stay in line. Only for a card with exactly those two children: a
+   * subgridded axis adds no tracks of its own, so a third child would land on top of the second.
+   */
+  $subgrid?: boolean
 }
 /**
  * Per-item entrance, matching the pool and position tables: a 4px lift over 0.3s, each item 50ms
@@ -89,13 +97,23 @@ const revealProps = (index: number | undefined) =>
         style: { animationDelay: `${Math.min(index * 50, 300)}ms` },
       }
 
-export const VaultCard = ({ $clickable, $disabled, $revealIndex, className, style, ...rest }: VaultCardProps) => {
+export const VaultCard = ({
+  $clickable,
+  $disabled,
+  $revealIndex,
+  $subgrid,
+  className,
+  style,
+  ...rest
+}: VaultCardProps) => {
   const reveal = revealProps($revealIndex)
   return (
     <div
       className={cn(
+        'relative rounded-xl bg-background p-4',
+        // `gap-y-0` keeps the grid's own gutter out from between the two rows.
+        $subgrid ? 'row-span-2 grid grid-rows-subgrid gap-y-0' : 'flex flex-col',
         // `duration-200` would also set animation-duration and swallow the entrance's own timing.
-        'relative flex flex-col rounded-xl bg-background p-4',
         'transition-[background,transform,box-shadow] [transition-duration:200ms]',
         'hover:bg-background/85',
         $disabled ? 'cursor-not-allowed' : $clickable ? 'cursor-pointer' : 'cursor-default',
@@ -154,7 +172,7 @@ export const ProtocolTag = ({ className, ...rest }: HTMLAttributes<HTMLDivElemen
 )
 
 export const CardBody = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
-  <div className={cn('flex flex-col gap-6 px-1 pb-1 pt-4', className)} {...rest} />
+  <div className={cn('flex flex-1 flex-col gap-6 px-1 pb-1 pt-4', className)} {...rest} />
 )
 
 export const MetricRow = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
@@ -286,11 +304,14 @@ export const VaultList = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>
   <div className={cn('flex flex-col gap-3', className)} {...rest} />
 )
 
-// Flexible tracks (minmax) so the grid fits at a 1201px viewport with the EarnLayout
-// sidebar expanded (~909px of content area) up to the 1600px max content width. Tracks
-// sit at their min on tight screens and expand to max on wide ones; space-between
-// distributes the remainder so columns align across rows at every size.
-const VAULT_LIST_ROW_COLUMNS = 'minmax(320px, 1fr) minmax(175px, 200px) minmax(175px, 200px) minmax(210px, 230px)'
+// The metric and action tracks never fall below what their own content needs — their figures and
+// buttons do not wrap — and the identity track takes whatever is left. The caps keep the columns
+// aligned across rows; below 1340px the content area (the EarnLayout sidebar expanded) has no room
+// for the sparklines, so they drop out and the tighter caps hand that width back to the vault name.
+const VAULT_LIST_ROW_COLUMNS = cn(
+  'grid-cols-[minmax(0,1fr)_minmax(min-content,120px)_minmax(min-content,120px)_minmax(min-content,230px)]',
+  'min-[1340px]:grid-cols-[minmax(0,1fr)_minmax(min-content,200px)_minmax(min-content,200px)_minmax(min-content,230px)]',
+)
 
 type VaultListRowProps = HTMLAttributes<HTMLDivElement> & { $disabled?: boolean; $revealIndex?: number }
 export const VaultListRow = ({ $disabled, $revealIndex, className, style, ...rest }: VaultListRowProps) => {
@@ -299,13 +320,14 @@ export const VaultListRow = ({ $disabled, $revealIndex, className, style, ...res
     <div
       className={cn(
         'relative grid items-center justify-between gap-6 rounded-xl bg-background p-4',
+        VAULT_LIST_ROW_COLUMNS,
         'transition-[background,transform,box-shadow] [transition-duration:200ms]',
         'hover:-translate-y-px hover:bg-background/85 hover:shadow-[0_4px_16px_rgba(0,0,0,0.2)]',
         $disabled ? 'opacity-60' : 'opacity-100',
         reveal.className,
         className,
       )}
-      style={{ gridTemplateColumns: VAULT_LIST_ROW_COLUMNS, ...reveal.style, ...style }}
+      style={{ ...reveal.style, ...style }}
       {...rest}
     />
   )
@@ -331,8 +353,9 @@ export const VaultListMetricValue = ({ className, ...rest }: HTMLAttributes<HTML
   <span className={cn('text-base text-white2', className)} {...rest} />
 )
 
+/** Hidden on the widths where the row has no space to spare; the figure beside it still reads. */
 export const VaultListChartWrapper = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (
-  <div className={cn('h-7 w-[82px] shrink-0', className)} {...rest} />
+  <div className={cn('h-7 w-[82px] shrink-0 max-[1339px]:hidden', className)} {...rest} />
 )
 
 export const VaultListActions = ({ className, ...rest }: HTMLAttributes<HTMLDivElement>) => (

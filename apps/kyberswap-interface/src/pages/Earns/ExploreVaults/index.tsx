@@ -10,6 +10,7 @@ import { ReactComponent as GridViewIcon } from 'assets/svg/grid_view.svg'
 import { ReactComponent as ListViewIcon } from 'assets/svg/list_view.svg'
 import DropdownMenu from 'components/DropdownMenu'
 import MultiSelectDropdownMenu from 'components/DropdownMenu/MultiSelect'
+import SelectedOptionsLabel from 'components/DropdownMenu/SelectedOptionsLabel'
 import Search from 'components/Search'
 import TokenLogo from 'components/TokenLogo'
 import { APP_PATHS } from 'constants/index'
@@ -122,7 +123,7 @@ const ExploreVaultCard = ({ vault, hasPosition, onDeposit, revealIndex }: VaultI
   const detailState = { from: APP_PATHS.EARN_VAULTS }
 
   return (
-    <VaultCard $clickable={!vault.disabled} $disabled={vault.disabled} $revealIndex={revealIndex}>
+    <VaultCard $subgrid $clickable={!vault.disabled} $disabled={vault.disabled} $revealIndex={revealIndex}>
       <CardHeader>
         {vault.disabled ? (
           <VaultIdentity vault={vault} />
@@ -221,11 +222,20 @@ const ExploreVaultListItem = ({ vault, hasPosition, onDeposit, revealIndex }: Va
             {identity}
           </CardTitleLink>
         )}
-        <ProtocolTag className="relative z-[1] ml-1 shrink-0">
+        {/* The tag gives way first when the row is short of space: it says the same thing on every
+            row, so it is the one part worth losing before the vault's own name. */}
+        <ProtocolTag className="relative z-[1] ml-1 min-w-0 [flex-shrink:20]">
           {vault.partnerLogo ? (
-            <img src={vault.partnerLogo} alt={vault.partner} width={16} height={16} style={{ borderRadius: '50%' }} />
+            <img
+              src={vault.partnerLogo}
+              alt={vault.partner}
+              width={16}
+              height={16}
+              className="shrink-0"
+              style={{ borderRadius: '50%' }}
+            />
           ) : null}
-          <span>{`managed by ${vault.partner}`}</span>
+          <span className="truncate">{`managed by ${vault.partner}`}</span>
         </ProtocolTag>
       </VaultListRowMain>
 
@@ -367,16 +377,6 @@ const ExploreVaults = () => {
     return set
   }, [positionsData?.positions])
 
-  const chainLabel = useMemo(() => {
-    const selected = VAULT_CHAIN_OPTIONS.find(c => c.value === selectedChain)
-    return selected?.label || VAULT_CHAIN_OPTIONS[0].label
-  }, [selectedChain])
-
-  const protocolLabel = useMemo(() => {
-    const selected = VAULT_PROTOCOL_OPTIONS.find(p => p.value === selectedProtocol)
-    return selected?.label || VAULT_PROTOCOL_OPTIONS[0].label
-  }, [selectedProtocol])
-
   const selectViewMode = useCallback((next: VaultViewMode) => {
     try {
       window.localStorage.setItem(VAULT_VIEW_MODE_KEY, next)
@@ -407,7 +407,14 @@ const ExploreVaults = () => {
           <MultiSelectDropdownMenu
             alignItems="flex-start"
             highlightOnSelect
-            label={chainLabel}
+            label={
+              <SelectedOptionsLabel
+                options={VAULT_CHAIN_OPTIONS}
+                value={selectedChain}
+                allLabel={VAULT_CHAIN_OPTIONS[0].label}
+                manyLabel={count => t`Selected: ${count} chains`}
+              />
+            }
             options={VAULT_CHAIN_OPTIONS}
             value={selectedChain}
             onChange={value => setSelectedChain(value.toString())}
@@ -416,7 +423,14 @@ const ExploreVaults = () => {
           <MultiSelectDropdownMenu
             alignItems="flex-start"
             highlightOnSelect
-            label={protocolLabel}
+            label={
+              <SelectedOptionsLabel
+                options={VAULT_PROTOCOL_OPTIONS}
+                value={selectedProtocol}
+                allLabel={VAULT_PROTOCOL_OPTIONS[0].label}
+                manyLabel={count => t`Selected: ${count} protocols`}
+              />
+            }
             options={VAULT_PROTOCOL_OPTIONS}
             value={selectedProtocol}
             onChange={value => setSelectedProtocol(value.toString())}
