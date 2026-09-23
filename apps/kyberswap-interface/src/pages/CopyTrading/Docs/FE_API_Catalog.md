@@ -277,8 +277,8 @@ This is source-contract verification, not a new deployment smoke test.
    existing pause state. **All Tokens** calls `:prepareWithdrawTokens` with
    `selection: "WITHDRAW_TOKEN_SELECTION_ALL_INDEXED_TOKENS"`; the submitted
    transaction permanently stops copying. Explain that effect before signing,
-   including when the selected balances are all zero. Neither action is an
-   alias for the other.
+   and do not submit when the preparation is unavailable because every selected
+   balance is zero. Neither action is an alias for the other.
 3. Read `withdrawTokensAvailability` on copy-run list/detail and copy-account
    summaries for the new button. Keep `withdrawQuoteAvailability` for stable
    withdrawal. Use the matching live preparation response for execution.
@@ -1828,10 +1828,11 @@ preparation route verifies both values at one exact action block.
 
 `withdrawTokensAvailability` is a separate capability advisory. It does not
 prove that all wallet tokens were discovered or that any selected balance is
-positive. Live token withdrawal can be ready with all-zero balances because
-the transaction still permanently stops the account. Add Capital is unavailable
-after permanent Stop/closure; do not offer a deposit merely because the wallet
-still holds tokens.
+positive. Live token withdrawal returns
+`PREPARED_ACTION_REASON_NO_WITHDRAWABLE_BALANCE` when the quote and every
+eligible nonquote balance are zero; it does not return a stop-only transaction.
+Add Capital is unavailable after permanent Stop/closure; do not offer a deposit
+merely because the wallet still holds tokens.
 
 ### Action guidance
 
@@ -3191,6 +3192,7 @@ PREPARED_ACTION_REASON_POSITION_NOT_OPEN
 PREPARED_ACTION_REASON_CLOSE_NOT_ELIGIBLE
 PREPARED_ACTION_REASON_TOKEN_INVENTORY_TOO_LARGE
 PREPARED_ACTION_REASON_TOKEN_TRANSFER_NOT_ACKNOWLEDGED
+PREPARED_ACTION_REASON_NO_WITHDRAWABLE_BALANCE
 PREPARED_ACTION_REASON_REVIEW_REQUIRED
 PREPARED_ACTION_REASON_ACTION_SETUP_UNAVAILABLE
 ```
@@ -3508,6 +3510,12 @@ current valuation, lifecycle, unrealized P&L, and `swapQuote`. The stop-level
 `totalSwapQuote` carries total expected/minimum quote metrics. If the selectable
 position set changes, discard the old preparation and prepare again.
 
+For an empty selection, `totalCurrentValueUsd`, `totalSwapQuote.expectedQuote`,
+`totalSwapQuote.minimumQuote`, and `totalCashback` are current `"0"` metrics,
+including when optional metadata or retained-settings disclosure is unavailable.
+These totals describe the empty selection; retained settings can still cause
+future sales and remain disclosed separately.
+
 Both empty and selected Stop requests can remain executable while factory or
 controller trading is paused. Use the preparation response; don't add a
 client-side trading-pause gate. `retainedSettings` has optional `root`, `observedAt`, and verified
@@ -3606,7 +3614,10 @@ POST /users/{ownerAddress}/copy-runs/{copyRunId}:prepareWithdrawTokens
 ```
 
 This is the **All Tokens** flow. Submission permanently stops copying in the
-same transaction, even with open positions or all-zero selected balances.
+same transaction, even with open positions. An all-zero selected balance set
+returns `PREPARED_ACTION_STATUS_UNAVAILABLE` with reason
+`PREPARED_ACTION_REASON_NO_WITHDRAWABLE_BALANCE`; it does not produce a
+stop-only transaction.
 Preparation itself does not submit or stop anything. Require
 `PREPARED_CALL_KIND_WITHDRAW_TOKENS`; do not accept a quote-withdrawal call kind.
 
@@ -3645,6 +3656,7 @@ or prove the final rebate amount.
 | Typed reason | FE behavior |
 | --- | --- |
 | `PREPARED_ACTION_REASON_TOKEN_TRANSFER_NOT_ACKNOWLEDGED` | Preflight found an ERC-20 transfer returning false or malformed nonempty data. Do not submit. |
+| `PREPARED_ACTION_REASON_NO_WITHDRAWABLE_BALANCE` | The exact-block quote and all eligible nonquote balances are zero. Refresh the account and prepare again after a new deposit. |
 | `PREPARED_ACTION_REASON_INNER_CALL_REVERTED` | Do not submit; refresh state before preparing again. |
 | `PREPARED_ACTION_REASON_SOURCE_COVERAGE_PENDING` / `..._SOURCE_STALE` | Follow the returned top-level status and retry boundary; do not fabricate balances. |
 
@@ -4183,7 +4195,7 @@ owner in the saved status context or a future preparation request.
 | Add Capital | Copy-run detail, balances, and capital activity | No status-directed preparation continuation. |
 | Stop Copy | Copy-run detail and the exact `stopIntentId` progress | Exit children can remain pending, skipped, or unavailable after the Stop call succeeds. |
 | Withdraw Quote | Quote balance and capital activity | A successful partial withdrawal does not imply a zero remaining balance. |
-| Withdraw Tokens | Wallet inventory, balances, and copy-run detail | Follow `CHECK_WITHDRAWAL_REMAINDER` with a fresh preparation. A zero-balance Stop batch can still be valid; don't submit an endless sequence merely because preparation remains executable. |
+| Withdraw Tokens | Wallet inventory, balances, and copy-run detail | Follow `CHECK_WITHDRAWAL_REMAINDER` with a fresh preparation. If all eligible balances are zero, preparation returns `UNAVAILABLE` with `NO_WITHDRAWABLE_BALANCE` and no executable call. |
 | Manual Sell | The position, pending-sell obligations, and quote balance | New obligations can remain after this exact partial sale succeeds. Any new sale needs review and preparation. |
 | Close Position | The position, closed executions, and quote balance | The confirmed close covers the expected full residual; use server position/lifecycle values for list membership. |
 

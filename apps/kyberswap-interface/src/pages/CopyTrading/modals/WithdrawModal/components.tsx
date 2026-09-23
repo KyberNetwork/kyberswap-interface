@@ -130,9 +130,6 @@ export const WithdrawTokensReview = ({ preview, chainId }: { preview?: WithdrawT
         value={preview?.recipientAddress ? shortenAddress(chainId, preview.recipientAddress) : 'N/A'}
       />
     </ReviewSection>
-    <ErrorWarning
-      type="warn"
-      title="This withdrawal permanently stops copying, even with zero balances. Pending rebates may be forfeited."
-    />
+    <ErrorWarning type="warn" title="This withdrawal permanently stops copying. Pending rebates may be forfeited." />
   </Stack>
 )

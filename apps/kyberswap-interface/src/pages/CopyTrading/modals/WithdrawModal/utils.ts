@@ -128,7 +128,7 @@ export const getWithdrawalPrimaryAction = ({
     onExpectedChain,
     readyLabel: 'Withdraw',
     unavailable: !!availabilityMessage || !!previewError,
-    unavailableLabel: 'Withdraw Unavailable',
+    unavailableLabel: 'Withdraw',
   }),
   disabled: isWritePrimaryActionDisabled({
     accountConnected,
