@@ -65,6 +65,9 @@ const ConfirmWithdraw = ({
         })} ${form.swapToken.symbol}`
       : '--'
 
+  /** The token the chosen path pays out in: the queue's asset, or the one the route sells into. */
+  const outToken = form.isNative ? form.nativeAsset : form.swapToken
+
   const zapMinOut =
     form.zapMinAmountOutRaw !== undefined && form.swapToken
       ? `${formatDisplayNumber(formatUnits(form.zapMinAmountOutRaw, form.swapToken.decimals), {
@@ -154,6 +157,7 @@ const ConfirmWithdraw = ({
             }
           >{t`Est. Min Received`}</InfoLabel>
           <InfoValue>
+            {outToken?.logo ? <TokenLogo src={outToken.logo} alt={outToken.symbol} size={16} /> : null}
             {form.isNative ? nativeOut : zapMinOut}
             {!form.isNative && zapMinOutUsd ? <span className="text-subText">~{zapMinOutUsd}</span> : null}
           </InfoValue>

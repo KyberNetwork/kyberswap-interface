@@ -86,6 +86,10 @@ const WithdrawFields = ({ vault, form }: { vault: VaultApiDetailItem; form: With
 
   const isOutLoading = form.isNative ? form.isLoadingPreview : form.isRouteLoading
 
+  /** The token the chosen path pays out in: the queue's asset, or the one the route sells into. */
+  const outToken = form.isNative ? form.nativeAsset : form.swapToken
+  const minReceived = form.isNative ? nativeOut : zapMinOut
+
   return (
     <>
       <FieldStack>
@@ -230,16 +234,15 @@ const WithdrawFields = ({ vault, form }: { vault: VaultApiDetailItem; form: With
             }
           >{t`Est. Min Received`}</InfoLabel>
           <InfoValue>
-            {form.isNative ? (
-              form.isLoadingPreview && !nativeOut ? (
-                <ValueSkeleton />
-              ) : (
-                nativeOut || '--'
-              )
-            ) : form.isRouteLoading && !zapMinOut ? (
+            {isOutLoading && !minReceived ? (
               <ValueSkeleton />
+            ) : minReceived ? (
+              <>
+                {outToken?.logo ? <TokenLogo src={outToken.logo} alt={outToken.symbol} size={16} /> : null}
+                {minReceived}
+              </>
             ) : (
-              zapMinOut || '--'
+              '--'
             )}
           </InfoValue>
         </InfoRow>
