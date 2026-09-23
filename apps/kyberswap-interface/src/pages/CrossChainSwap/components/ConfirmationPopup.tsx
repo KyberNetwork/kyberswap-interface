@@ -22,10 +22,12 @@ import useTracking, { CROSS_CHAIN_MIXPANEL_TYPE, TRACKING_EVENT_TYPE, useCrossCh
 import { Chain, Currency, NonEvmChain, NonEvmChainInfo } from 'pages/CrossChainSwap/adapters'
 import { adaptRelaySolanaWallet } from 'pages/CrossChainSwap/adapters/RelayAdapter/relaySolanaWallet'
 import { isEvmChain } from 'pages/CrossChainSwap/adapters/types'
+import { GasDropQuoteLine, GasDropTransactionLine } from 'pages/CrossChainSwap/components/GasDrop'
 import { PiWarning } from 'pages/CrossChainSwap/components/PiWarning'
 import { QuoteProviderName } from 'pages/CrossChainSwap/components/QuoteProviderName'
 import { Summary } from 'pages/CrossChainSwap/components/Summary'
 import { useCrossChainSwap } from 'pages/CrossChainSwap/hooks/useCrossChainSwap'
+import { useGasDropReview } from 'pages/CrossChainSwap/hooks/useGasDropReview'
 import { useRestoreMyNearWalletPendingTransaction } from 'pages/CrossChainSwap/hooks/useRestoreMyNearWalletPendingTransaction'
 import type { Quote } from 'pages/CrossChainSwap/registry'
 import { getChainName, isQuoteExecutable } from 'pages/CrossChainSwap/utils'
@@ -82,17 +84,29 @@ type ConfirmationPopupProps = {
   onDismiss?: () => void
 }
 
-export const ConfirmationPopup = ({ quote: selectedQuote, isOpen, onDismiss }: ConfirmationPopupProps) => {
+export const ConfirmationPopup = ({ quote: initialQuote, isOpen, onDismiss }: ConfirmationPopupProps) => {
   const { crossChainMixpanelHandler } = useCrossChainMixpanel()
   const { trackingHandler } = useTracking()
   const { data: walletClient } = useGatedWalletClient()
-  const { currencyIn, currencyOut, amountInWei, fromChainId, toChainId, warning, recipient, sender, receiver } =
-    useCrossChainSwap()
+  const {
+    currencyIn,
+    currencyOut,
+    amountInWei,
+    fromChainId,
+    toChainId,
+    getQuotePriceImpactInfo,
+    recipient,
+    sender,
+    receiver,
+  } = useCrossChainSwap()
 
   const [searchParams] = useSearchParams()
   const [submittingTx, setSubmittingTx] = useState(false)
   const [txHash, setTxHash] = useState('')
   const [txError, setTxError] = useState('')
+  const review = useGasDropReview(initialQuote, isOpen && !submittingTx && !txHash)
+  const selectedQuote = review.quote
+  const priceImpactInfo = getQuotePriceImpactInfo(selectedQuote)
   const [transactions, setTransactions] = useCrossChainTransactions()
 
   useRestoreMyNearWalletPendingTransaction()
@@ -143,6 +157,22 @@ export const ConfirmationPopup = ({ quote: selectedQuote, isOpen, onDismiss }: C
   const amount = inputAmount?.toExact() || formatUnits(BigInt(amountInWei), currencyIn.decimals)
 
   const handleSwap = async () => {
+    if (review.refreshing || review.pending || review.error) return
+    if (review.expired()) {
+      await review.refresh()
+      return
+    }
+    const params = selectedQuote.quote.quoteParams
+    if (
+      params.amount !== amountInWei ||
+      params.fromChain !== fromChainId ||
+      params.toChain !== toChainId ||
+      params.fromToken !== currencyIn ||
+      params.toToken !== currencyOut
+    ) {
+      setTxError(t`The route is outdated. Please refresh and try again.`)
+      return
+    }
     if (isEvmChain(fromChainId) && !walletClient) {
       setTxError(t`The route is outdated. Please refresh and try again.`)
       return
@@ -319,6 +349,8 @@ export const ConfirmationPopup = ({ quote: selectedQuote, isOpen, onDismiss }: C
     setSubmittingTx(false)
   }
 
+  const submittedTransaction = transactions.find(tx => tx.sourceTxHash === txHash)
+
   const dismiss = () => {
     setSubmittingTx(false)
     onDismiss?.()
@@ -332,6 +364,14 @@ export const ConfirmationPopup = ({ quote: selectedQuote, isOpen, onDismiss }: C
       isOpen={submittingTx || isOpen}
       onDismiss={dismiss}
       hash={txHash}
+      submittedDetails={
+        submittedTransaction?.gasDrop ? (
+          <div className="flex flex-col gap-2">
+            <span className="text-sm">{submittedTransaction.status || t`Processing`}</span>
+            <GasDropTransactionLine tx={submittedTransaction} />
+          </div>
+        ) : undefined
+      }
       scanLink={
         fromChainId === NonEvmChain.Solana
           ? `https://solscan.io/tx/${txHash}`
@@ -375,6 +415,11 @@ export const ConfirmationPopup = ({ quote: selectedQuote, isOpen, onDismiss }: C
               amount={selectedQuote?.quote.formattedOutputAmount || ''}
               usdValue={selectedQuote?.quote.outputUsd || 0}
             />
+            {selectedQuote.quote.gasDrop && (
+              <div className="mt-3">
+                <GasDropQuoteLine gasDrop={selectedQuote.quote.gasDrop} chain={toChainId} loading={review.refreshing} />
+              </div>
+            )}
             <div className="mt-4 flex justify-between rounded-2xl border border-border p-3">
               <span className="text-xs font-medium text-subText">{t`Recipient`}</span>
               <div className="flex items-center text-sm text-subText">
@@ -399,8 +444,8 @@ export const ConfirmationPopup = ({ quote: selectedQuote, isOpen, onDismiss }: C
             <div className="mt-4" />
             <Summary quote={selectedQuote} tokenOut={currencyOut} full />
 
-            {warning?.priceImpaceInfo?.message && <div className="mt-4" />}
-            <PiWarning />
+            {priceImpactInfo?.message && <div className="mt-4" />}
+            <PiWarning quote={selectedQuote} />
 
             <span className="my-4 flex items-center text-xs italic text-gray">
               <span className="mr-1">
@@ -409,7 +454,27 @@ export const ConfirmationPopup = ({ quote: selectedQuote, isOpen, onDismiss }: C
               <QuoteProviderName quote={selectedQuote} />
             </span>
 
-            <ButtonPrimary onClick={handleSwap}>{t`Confirm Swap`}</ButtonPrimary>
+            {review.pending && (
+              <div
+                className="mb-3 flex items-center justify-between gap-3 rounded-xl bg-warning-20 p-3 text-xs text-warning"
+                role="alert"
+              >
+                <span>
+                  {initialQuote?.quote.gasDrop && !selectedQuote.quote.gasDrop
+                    ? t`Gas Drop is no longer available for this route`
+                    : t`Quote updated. Please accept the new amounts.`}
+                </span>
+                <button type="button" className="font-medium underline" onClick={review.accept}>{t`Accept`}</button>
+              </div>
+            )}
+            {review.error && (
+              <div className="mb-3 text-xs text-warning" role="alert">
+                {review.error} <button type="button" className="underline" onClick={review.refresh}>{t`Retry`}</button>
+              </div>
+            )}
+            <ButtonPrimary disabled={review.refreshing || !!review.pending || !!review.error} onClick={handleSwap}>
+              {review.refreshing ? t`Refreshing route` : t`Confirm Swap`}
+            </ButtonPrimary>
           </div>
         )
       }}

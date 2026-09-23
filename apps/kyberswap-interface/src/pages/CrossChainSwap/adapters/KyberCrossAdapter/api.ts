@@ -18,6 +18,7 @@ export type RouteState =
   | 'BRIDGE_EXPIRED'
   | 'BRIDGE_FAILED'
   | 'DST_RECEIVED'
+  | 'GAS_DROP_PENDING'
   | 'SWAP_PENDING'
   | 'SWAP_EXPIRED'
   | 'SWAP_UNEXECUTABLE'
@@ -39,6 +40,7 @@ export type QuoteRequest = {
   amount: UIntString
   to_address?: Address
   refund_address?: Address
+  gas_drop?: boolean
   slippage_bps?: number
   partner_fee_recipient?: Address
   partner_fee_bps?: number
@@ -57,6 +59,7 @@ type RoutePlanRequestSnapshot = {
   to_token_decimals: number
   to_address: Address
   amount: UIntString
+  gas_drop?: boolean
   slippage_bps: number
   refund_address?: Address
   partner_fee_recipient?: Address
@@ -184,6 +187,8 @@ export type RoutePlan = {
   bridge: BridgePlan
   fees?: FeePlan[]
   source_swap?: SwapPlan
+  gas_drop_swap?: SwapPlan
+  dest_intent?: SwapIntent
   dest_swap?: SwapPlan
   pre_bridge?: ActionPlan[]
   post_bridge?: ActionPlan[]
@@ -224,6 +229,9 @@ type RouteExecutionData = {
   source_swap?: SwapData
   bridge?: BridgeData
   dest_swap?: SwapData
+  gas_drop?: SwapData
+  withdraw?: WithdrawData
+  refund?: { chain: ChainName; token: Address; amount: UIntString }
   dest_withdraw?: WithdrawData
 }
 

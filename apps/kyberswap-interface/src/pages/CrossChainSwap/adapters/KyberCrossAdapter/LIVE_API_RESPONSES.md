@@ -252,3 +252,33 @@ When the backend contract changes:
 3. Immediately submit a fresh returned route plan to `/builds`; route plans expire quickly.
 4. Query `/executions?source_tx_hash={txHash}` with a known transaction that still exists in the same environment.
 5. Update `api.ts`, adapter call sites, focused status tests, and this document from the observed JSON.
+
+## Gas Drop — checked 2026-09-23
+
+Live `POST /api/v1/quotes` probes used 100 USDC on Arbitrum to USDC on Base,
+then USDT on BSC, with a public placeholder address (no wallet transaction sent).
+
+- Opt in with `gas_drop: true`; omitted/false preserves the ordinary quote.
+- Inclusion is the presence of `route_plan.gas_drop_swap`, not an `included` field.
+- `expected_output_amount` and `min_output_amount` at the route root already exclude
+  the gas allocation. Do not subtract it again in the frontend.
+- `gas_drop_swap` provides raw `expected_output_amount`, `min_output_amount`,
+  `input_amount`, and `token_in`. Its `metadata.route_summary` includes USD amounts.
+- Both Base and BSC returned about **$1** of native gas and a minimum equal to
+  **80%** of expected native output. These differ from the product document's
+  $2/10% assumptions. The UI uses the quote, with no client-side amount override.
+- Base example: main output `98958409` USDC units; native expected
+  `361515123138071`, minimum `289212098510456`; gas input `1002716` USDC units.
+  A separate OFF probe returned `99986139` USDC units.
+- A 0.5 USDC ON probe returned `route_not_found`. Native destination output with
+  Gas Drop returned `invalid_argument` (`gas drop is not supported when to_token is native`).
+- A fresh ON quote was posted unchanged to `/api/v1/builds`: success, with
+  `data.tx.{to,data,value}`. Its root `dest_intent` must be retained even when
+  `flow_type` is `bridge_only`.
+
+Tracking schema checked against `KyberNetwork/kybercross/docs/api/openapi.yaml`
+and the public execution handler on the same date (no live Gas Drop settlement
+was broadcast or verified): `data.gas_drop` exists only after successful gas
+execution; `data.withdraw` is the main withdrawal; `data.refund` includes its
+chain. `GAS_DROP_PENDING` is an in-progress route state. A terminal destination
+settlement without `gas_drop` must not be displayed as native gas delivered.

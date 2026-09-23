@@ -25,8 +25,9 @@ const slice = createSlice({
       const transaction = state.transactions.find(tx => tx.id === payload.id)
       if (!transaction) return
 
-      const { txHash, status, amountOut } = payload.result
+      const { txHash, status, amountOut, gasDropStatus } = payload.result
 
+      if (gasDropStatus) transaction.gasDropStatus = gasDropStatus
       transaction.status = status
       if (txHash) transaction.targetTxHash = txHash
 

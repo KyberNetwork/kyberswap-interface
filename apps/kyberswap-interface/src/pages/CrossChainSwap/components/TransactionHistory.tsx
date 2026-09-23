@@ -22,6 +22,7 @@ import {
   NonEvmChainInfo,
   type NormalizedTxResponse,
 } from 'pages/CrossChainSwap/adapters/types'
+import { GasDropTransactionLine } from 'pages/CrossChainSwap/components/GasDrop'
 import { TokenLogoWithChain } from 'pages/CrossChainSwap/components/TokenLogoWithChain'
 import { CrossChainSwapFactory } from 'pages/CrossChainSwap/factory'
 import { registry } from 'pages/CrossChainSwap/hooks/useCrossChainSwap'
@@ -215,6 +216,7 @@ const TransactionAmount = ({ size = 'xs', tx }: { size?: TransactionAmountSize; 
   <div className="flex min-w-0 flex-col gap-2">
     <TokenAmountLine amount={tx.inputAmount} chain={tx.sourceChain} prefix="-" size={size} token={tx.sourceToken} />
     <TokenAmountLine amount={tx.outputAmount} chain={tx.targetChain} prefix="+" size={size} token={tx.targetToken} />
+    {tx.gasDrop && <GasDropTransactionLine tx={tx} />}
   </div>
 )
 
@@ -311,12 +313,12 @@ const TransactionRecord = ({ checkedTransactionIds, isLast, isMobile, tx }: Tran
         dispatch(
           updateTransactionStatus({
             id: tx.id,
-            result: mapRouteStateToSwapStatus(response.data.route_execution),
+            result: mapRouteStateToSwapStatus(response.data.route_execution, !!tx.gasDrop),
           }),
         )
       })
       .catch(() => undefined)
-  }, [checkedTransactionIds, dispatch, tx.adapter, tx.id, tx.sourceTxHash, tx.status])
+  }, [checkedTransactionIds, dispatch, tx.adapter, tx.id, tx.sourceTxHash, tx.status, tx.gasDrop])
 
   return isMobile ? <TransactionCard tx={tx} /> : <TransactionRow tx={tx} isLast={isLast} />
 }

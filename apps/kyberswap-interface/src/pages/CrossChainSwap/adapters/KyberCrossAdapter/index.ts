@@ -27,6 +27,7 @@ import {
 } from 'pages/CrossChainSwap/adapters/KyberCrossAdapter/types'
 import {
   NormalizedProvider,
+  getGasDropQuote,
   getKyberCrossBridgeProviders,
   mapRouteStateToSwapStatus,
   normalizeProvider,
@@ -77,6 +78,7 @@ export class KyberCrossAdapter extends BaseSwapAdapter {
       to_address: params.recipient as Address,
       refund_address: params.sender as Address,
       amount: params.amount,
+      ...(params.gasDrop ? { gas_drop: true } : {}),
       slippage_bps: params.slippage,
       partner_fee_bps: params.feeBps,
       include_bridges: getKyberCrossBridgeProviders(params.includedSources),
@@ -94,6 +96,7 @@ export class KyberCrossAdapter extends BaseSwapAdapter {
       throw new Error('No KyberCross route plans found')
     }
 
+    const gasDrop = getGasDropQuote(routePlan)
     const outputAmount = BigInt(routePlan.expected_output_amount)
     const formattedOutputAmount = formatUnits(outputAmount, params.toToken.decimals)
     const formattedInputAmount = formatUnits(BigInt(params.amount), params.fromToken.decimals)
@@ -108,13 +111,16 @@ export class KyberCrossAdapter extends BaseSwapAdapter {
 
     return {
       quoteParams: params,
+      gasDrop,
+      minimumOutputAmount: routePlan.min_output_amount,
       outputAmount,
       formattedOutputAmount,
       inputUsd,
       outputUsd,
       rate: +formattedOutputAmount / +formattedInputAmount,
       timeEstimate: routePlan.bridge.expected_fill_time_sec || 0,
-      priceImpact: !inputUsd || !outputUsd ? NaN : ((inputUsd - outputUsd) * 100) / inputUsd,
+      priceImpact:
+        !inputUsd || !outputUsd ? NaN : ((inputUsd - outputUsd - (gasDrop?.amountUsd || 0)) * 100) / inputUsd,
       gasFeeUsd: 0,
       contractAddress: isNativeToken ? ZERO_ADDRESS : quoteResponse.data.ks_allowance_hub_address,
       rawQuote,
@@ -186,6 +192,8 @@ export class KyberCrossAdapter extends BaseSwapAdapter {
       recipient: quoteParams.recipient,
       bridgeProvider: routeProvider,
       routeId: routePlan.id,
+      gasDrop: normalizedQuote.gasDrop,
+      ...(normalizedQuote.gasDrop ? { gasDropStatus: { status: 'Pending' as const } } : {}),
     }
   }
 
@@ -193,7 +201,7 @@ export class KyberCrossAdapter extends BaseSwapAdapter {
     try {
       const trackingExecution = await kyberCrossApi.scanTxStatus(params.sourceTxHash as Hash)
 
-      return mapRouteStateToSwapStatus(trackingExecution.data.route_execution)
+      return mapRouteStateToSwapStatus(trackingExecution.data.route_execution, !!params.gasDrop)
     } catch {
       return {
         txHash: '',
