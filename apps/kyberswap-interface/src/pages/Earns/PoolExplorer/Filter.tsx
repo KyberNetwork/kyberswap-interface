@@ -14,7 +14,7 @@ import { ReactComponent as IconFarmingPool } from 'assets/svg/kyber/kem.svg'
 import { ButtonOutlined } from 'components/Button'
 import DropdownMenu, { MenuOption } from 'components/DropdownMenu'
 import { default as MultiSelectDropdownMenu } from 'components/DropdownMenu/MultiSelect'
-import { ItemIcon } from 'components/DropdownMenu/styles'
+import SelectedOptionsLabel from 'components/DropdownMenu/SelectedOptionsLabel'
 import { ListingPageNavigateButton } from 'components/Listing/Page'
 import { ListingFilterTag, ListingFilterTagContainer } from 'components/Listing/components'
 import Search from 'components/Search'
@@ -99,24 +99,6 @@ const Filter = ({
     }
     prevIsFetchingRef.current = Boolean(isFetching)
   }, [isFetching, totalItems, trackingHandler])
-
-  const selectedChainsLabel = useMemo(() => {
-    const arrValue = filters.chainIds?.split(',').filter(Boolean)
-    const selectedChains = supportedChains.filter(option => arrValue?.includes(option.value))
-    if (selectedChains.length >= 1) {
-      return (
-        <HStack className="items-center gap-1.5">
-          <HStack className="gap-0">
-            {selectedChains.map((chain, index) => (
-              <ItemIcon key={chain.value} src={chain.icon} alt={chain.label} style={{ marginLeft: index ? -8 : 0 }} />
-            ))}
-          </HStack>
-          {selectedChains.length > 1 ? `Selected: ${selectedChains.length} chains` : selectedChains[0].label}
-        </HStack>
-      )
-    }
-    return AllChainsOption.label
-  }, [supportedChains, filters.chainIds])
 
   const selectedProtocolsLabel = useMemo(() => {
     const arrValue = filters.protocol?.split(',').filter(Boolean)
@@ -329,7 +311,14 @@ const Filter = ({
           <MultiSelectDropdownMenu
             highlightOnSelect
             showOnlyButton
-            label={selectedChainsLabel}
+            label={
+              <SelectedOptionsLabel
+                options={supportedChains}
+                value={filters.chainIds || ''}
+                allLabel={AllChainsOption.label}
+                manyLabel={count => t`Selected: ${count} chains`}
+              />
+            }
             options={supportedChains.length ? supportedChains : [AllChainsOption]}
             value={filters.chainIds || ''}
             onChange={value => onChainChange(value)}

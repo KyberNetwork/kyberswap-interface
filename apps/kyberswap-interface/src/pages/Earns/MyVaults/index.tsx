@@ -6,6 +6,7 @@ import { VaultPendingWithdrawalStatus, useVaultPositionsQuery } from 'services/v
 
 import { ReactComponent as IconEarnNotFound } from 'assets/svg/earn/ic_earn_not_found.svg'
 import MultiSelectDropdownMenu from 'components/DropdownMenu/MultiSelect'
+import SelectedOptionsLabel from 'components/DropdownMenu/SelectedOptionsLabel'
 import Search from 'components/Search'
 import TokenLogo from 'components/TokenLogo'
 import { APP_PATHS } from 'constants/index'
@@ -286,11 +287,6 @@ const MyVaults = () => {
   // The user's own transactions refresh at once rather than waiting for the next poll.
   useRefreshOnVaultTx(refetch)
 
-  const chainLabel = useMemo(() => {
-    const selected = VAULT_CHAIN_OPTIONS.find(c => c.value === selectedChain)
-    return selected?.label || VAULT_CHAIN_OPTIONS[0].label
-  }, [selectedChain])
-
   const showEmptyState = !account || (!isLoading && filteredVaults.length === 0)
 
   return (
@@ -301,7 +297,14 @@ const MyVaults = () => {
         <MultiSelectDropdownMenu
           alignItems="flex-start"
           highlightOnSelect
-          label={chainLabel}
+          label={
+            <SelectedOptionsLabel
+              options={VAULT_CHAIN_OPTIONS}
+              value={selectedChain}
+              allLabel={VAULT_CHAIN_OPTIONS[0].label}
+              manyLabel={count => t`Selected: ${count} chains`}
+            />
+          }
           options={VAULT_CHAIN_OPTIONS}
           value={selectedChain}
           onChange={value => setSelectedChain(value.toString())}

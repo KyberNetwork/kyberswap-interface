@@ -7,7 +7,7 @@ import { useUserPositionsQuery } from 'services/earn'
 import { ReactComponent as FarmingIcon } from 'assets/svg/kyber/kem.svg'
 import { ReactComponent as RocketIcon } from 'assets/svg/rocket.svg'
 import { default as MultiSelectDropdownMenu } from 'components/DropdownMenu/MultiSelect'
-import { ItemIcon } from 'components/DropdownMenu/styles'
+import SelectedOptionsLabel from 'components/DropdownMenu/SelectedOptionsLabel'
 import InfoHelper from 'components/InfoHelper'
 import {
   ListingPageDisclaimer,
@@ -113,24 +113,6 @@ const UserPositions = () => {
   useAccountChanged(() => {
     refetch()
   })
-
-  const selectedChainsLabel = useMemo(() => {
-    const arrValue = filters.chainIds?.split(',').filter(Boolean)
-    const selectedChains = supportedChains.filter(option => arrValue?.includes(option.value))
-    if (selectedChains.length >= 1) {
-      return (
-        <div className="flex items-center gap-1.5">
-          <div className="flex">
-            {selectedChains.map((chain, index) => (
-              <ItemIcon key={chain.value} src={chain.icon} alt={chain.label} style={{ marginLeft: index ? -8 : 0 }} />
-            ))}
-          </div>
-          {selectedChains.length > 1 ? `Selected: ${selectedChains.length} chains` : selectedChains[0].label}
-        </div>
-      )
-    }
-    return AllChainsOption.label
-  }, [supportedChains, filters.chainIds])
 
   const parsedPositions: Array<ParsedPosition> = useMemo(() => {
     return (userPositionsData?.positions || []).map(position => {
@@ -286,7 +268,14 @@ const UserPositions = () => {
           <MultiSelectDropdownMenu
             highlightOnSelect
             showOnlyButton
-            label={selectedChainsLabel || t`Select chains`}
+            label={
+              <SelectedOptionsLabel
+                options={supportedChains}
+                value={filters.chainIds || ''}
+                allLabel={AllChainsOption.label}
+                manyLabel={count => t`Selected: ${count} chains`}
+              />
+            }
             options={supportedChains.length ? supportedChains : [AllChainsOption]}
             value={filters.chainIds || ''}
             onChange={value => value !== filters.chainIds && updateFilters('chainIds', value)}
