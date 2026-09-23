@@ -11,11 +11,19 @@ const PATH_PARAM = '__ks_path'
 // Subdomain only: the caller never controls the domain, so this cannot be used to reach arbitrary hosts.
 const SUBDOMAIN_RE = /^[a-z0-9-]+$/
 
-// Client-identifying and hop-by-hop headers. accept-encoding is dropped so fetch negotiates an
-// encoding it can decode itself (it would otherwise pass e.g. zstd through undecoded).
+// Client-identifying and hop-by-hop headers. Node's fetch throws on hop-by-hop headers (e.g. the
+// `transfer-encoding: chunked` Vercel forwards on POSTs) and sets framing itself. accept-encoding is
+// dropped so fetch negotiates an encoding it can decode itself (it would otherwise pass e.g. zstd through undecoded).
 const DROP_REQUEST_HEADERS = new Set([
   'host',
   'connection',
+  'keep-alive',
+  'proxy-connection',
+  'transfer-encoding',
+  'te',
+  'trailer',
+  'upgrade',
+  'expect',
   'content-length',
   'accept-encoding',
   'origin',
@@ -98,6 +106,9 @@ export default async function handler(req, res) {
     })
     res.end(Buffer.from(await upstream.arrayBuffer()))
   } catch (error) {
-    sendText(res, 502, `ks-proxy error: ${error instanceof Error ? error.message : String(error)}`)
+    const message =
+      error instanceof Error ? `${error.message}${error.cause ? ` (cause: ${error.cause})` : ''}` : String(error)
+    console.error(`[ks-proxy] ${req.method} ${req.url} failed: ${message}`)
+    sendText(res, 502, `ks-proxy error: ${message}`)
   }
 }

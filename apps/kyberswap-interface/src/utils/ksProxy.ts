@@ -1,5 +1,5 @@
 // On *.vercel.app deployments, routes every fetch/XHR to `https://<sub>.kyberswap.com/...` through
-// the same-origin Vercel proxy (`/__ks/<sub>/...`, served by api/ks-proxy.ts at the repo root).
+// the same-origin Vercel proxy (`/__ks/<sub>/...`, served by api/ks-proxy.mjs at the repo root).
 // This covers hosts hardcoded in the app and in the widget packages, not just env-configured ones.
 // Must be imported before any module that issues requests.
 
@@ -14,7 +14,28 @@ if (typeof window !== 'undefined' && window.location.hostname.endsWith('.vercel.
     if (typeof input === 'string') return originalFetch(rewrite(input), init)
     if (input instanceof URL) return originalFetch(rewrite(input.href), init)
     const rewritten = rewrite(input.url)
-    return originalFetch(rewritten === input.url ? input : new Request(rewritten, input), init)
+    return rewritten === input.url ? originalFetch(input, init) : fetchRequestAt(rewritten, input, init)
+  }
+
+  // Re-issues a Request (e.g. RTK Query's fetchBaseQuery passes one) at a new URL. The body is buffered:
+  // `new Request(url, request)` would forward it as a stream, which the browser uploads chunked and
+  // DevTools cannot display.
+  const fetchRequestAt = async (url: string, request: Request, init?: RequestInit) => {
+    const hasBody = request.method !== 'GET' && request.method !== 'HEAD'
+    return originalFetch(url, {
+      method: request.method,
+      headers: request.headers,
+      body: hasBody ? await request.arrayBuffer() : undefined,
+      credentials: request.credentials,
+      cache: request.cache,
+      redirect: request.redirect,
+      referrer: request.referrer,
+      referrerPolicy: request.referrerPolicy,
+      integrity: request.integrity,
+      keepalive: request.keepalive,
+      signal: request.signal,
+      ...init,
+    })
   }
 
   const originalOpen = XMLHttpRequest.prototype.open
